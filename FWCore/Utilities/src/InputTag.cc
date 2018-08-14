@@ -5,6 +5,7 @@
 namespace edm {
 
   const std::string InputTag::kSkipCurrentProcess("@skipCurrentProcess");
+  const std::string InputTag::kCurrentProcess("@currentProcess");
   static std::string const separator(":");
 
   InputTag::InputTag()

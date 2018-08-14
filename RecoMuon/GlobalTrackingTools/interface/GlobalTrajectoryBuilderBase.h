@@ -58,13 +58,13 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
     GlobalTrajectoryBuilderBase(const edm::ParameterSet&, const MuonServiceProxy*, edm::ConsumesCollector&);
           
     /// destructor
-    virtual ~GlobalTrajectoryBuilderBase();
+    ~GlobalTrajectoryBuilderBase() override;
 
     /// dummy implementation, unused in this class
-    MuonTrajectoryBuilder::TrajectoryContainer trajectories(const TrajectorySeed&) { return MuonTrajectoryBuilder::TrajectoryContainer(); }
+    MuonTrajectoryBuilder::TrajectoryContainer trajectories(const TrajectorySeed&) override { return MuonTrajectoryBuilder::TrajectoryContainer(); }
 
     /// pass the Event to the algo at each event
-    virtual void setEvent(const edm::Event&);
+    void setEvent(const edm::Event&) override;
 
   protected:
 

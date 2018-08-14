@@ -22,7 +22,7 @@
 #include <map>
 #include <string>
 #include <vector>
-
+#include <array>
 // user include files
 #include "FWCore/Framework/interface/ProductResolverIndexAndSkipBit.h"
 #include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
@@ -50,7 +50,7 @@ namespace edm {
   {
     
   public:
-    EDConsumerBase() : frozen_(false) {}
+    EDConsumerBase() : frozen_(false), containsCurrentProcessAlias_(false) {}
     virtual ~EDConsumerBase() noexcept(false);
     
     // disallow copying
@@ -63,11 +63,12 @@ namespace edm {
 
     // ---------- const member functions ---------------------
     ProductResolverIndexAndSkipBit indexFrom(EDGetToken, BranchType, TypeID const&) const;
+    ProductResolverIndexAndSkipBit uncheckedIndexFrom(EDGetToken) const;
 
     void itemsToGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
     void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
 
-    std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFromEvent() const { return itemsToGetFromEvent_; }
+    std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(BranchType iType) const { return itemsToGetFromBranch_[iType]; }
 
     ///\return true if the product corresponding to the index was registered via consumes or mayConsume call
     bool registeredToConsume(ProductResolverIndex, bool, BranchType) const;
@@ -88,6 +89,9 @@ namespace edm {
                                          ProductRegistry const& preg,
                                          std::map<std::string, ModuleDescription const*> const& labelsToDesc,
                                          std::string const& processName) const;
+
+    /// Convert "@currentProcess" in InputTag process names to the actual current process name.
+    void convertCurrentProcessAlias(std::string const& processName);
 
     std::vector<ConsumesInfo> consumesInfo() const;
 
@@ -184,9 +188,10 @@ namespace edm {
     // for each of the 3 labels needed to id the data
     std::vector<char> m_tokenLabels;
 
-    std::vector<ProductResolverIndexAndSkipBit> itemsToGetFromEvent_;
+    std::array<std::vector<ProductResolverIndexAndSkipBit>, edm::NumBranchTypes> itemsToGetFromBranch_;
 
     bool frozen_;
+    bool containsCurrentProcessAlias_;
   };
 }
 

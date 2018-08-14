@@ -9,7 +9,7 @@
  *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
 
-#include <math.h>
+#include <cmath>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -39,7 +39,7 @@ public:
     MuonAlignmentSummary(const edm::ParameterSet&);
 
     /// Destructor
-    virtual ~MuonAlignmentSummary();
+    ~MuonAlignmentSummary() override;
 
     //Book histograms
     void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob

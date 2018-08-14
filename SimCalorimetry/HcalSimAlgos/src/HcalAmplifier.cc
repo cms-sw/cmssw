@@ -19,7 +19,7 @@
 #include "CLHEP/Random/RandFlat.h"
 
 #include <cmath>
-#include <math.h>
+#include <cmath>
 
 HcalAmplifier::HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNoise, bool PreMix1, bool PreMix2) :
   theDbService(nullptr),
@@ -47,13 +47,13 @@ void HcalAmplifier::amplify(CaloSamples & frame, CLHEP::HepRandomEngine* engine)
   }
   pe2fC(frame);
   // don't bother for blank signals
-  if(theTimeSlewSim && frame[4] > 1.e-6)
+  if(theTimeSlewSim && frame.size()>4 && frame[4] > 1.e-6)
   {
-    theTimeSlewSim->delay(frame, engine);
+    theTimeSlewSim->delay(frame, engine, theTimeSlew);
   }
 
   // if we are combining pre-mixed digis, we need noise and peds
-  if(theNoiseSignalGenerator==0 || preMixAdd_ || !theNoiseSignalGenerator->contains(frame.id()) )
+  if(theNoiseSignalGenerator==nullptr || preMixAdd_ || !theNoiseSignalGenerator->contains(frame.id()) )
   {
     addPedestals(frame, engine);
   }
@@ -69,7 +69,7 @@ void HcalAmplifier::pe2fC(CaloSamples & frame) const
 
 void HcalAmplifier::addPedestals(CaloSamples & frame, CLHEP::HepRandomEngine* engine) const
 {
-  assert(theDbService != 0);
+  assert(theDbService != nullptr);
   HcalGenericDetId hcalGenDetId(frame.id());
   HcalGenericDetId::HcalGenericSubdetector hcalSubDet = hcalGenDetId.genericSubdet();
 

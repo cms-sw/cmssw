@@ -21,7 +21,7 @@ void HistoryBase::traceRecoGenHistory(reco::GenParticle const * genParticle)
         recoGenParticleTrail_.push_back(genParticle);
         recoGenParticleTrailHelper_.insert(genParticle);
         // Get the genParticle's mother and trace its history
-        if (genParticle->mother() != 0){
+        if (genParticle->mother() != nullptr){
         	traceRecoGenHistory( (const reco::GenParticle *)genParticle->mother() );
         }
     }

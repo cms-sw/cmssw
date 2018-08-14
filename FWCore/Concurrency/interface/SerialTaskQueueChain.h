@@ -58,7 +58,7 @@ namespace edm {
      * \param[in] iAction Must be a functor that takes no arguments and return no values.
      */
     template<typename T>
-    void push(const T& iAction);
+    void push(T&& iAction);
     
     /// synchronously pushes functor iAction into queue
     /**
@@ -69,7 +69,7 @@ namespace edm {
      * \param[in] iAction Must be a functor that takes no arguments and return no values.
      */
     template<typename T>
-    void pushAndWait(const T& iAction);
+    void pushAndWait(T&& iAction);
     
     unsigned long outstandingTasks() const { return m_outstandingTasks; }
     std::size_t numberOfQueues() const {return m_queues.size(); }
@@ -80,28 +80,28 @@ namespace edm {
     std::atomic<unsigned long> m_outstandingTasks{0};
     
     template<typename T>
-    void passDownChain(unsigned int iIndex, const T& iAction);
+    void passDownChain(unsigned int iIndex, T&& iAction);
     
     template<typename T>
-    void actionToRun(const T& iAction);
+    void actionToRun(T&& iAction);
 
   };
   
   template<typename T>
-  void SerialTaskQueueChain::push(const T& iAction) {
+  void SerialTaskQueueChain::push(T&& iAction) {
     ++m_outstandingTasks;
     if(m_queues.size() == 1) {
-      m_queues[0]->push( [this,iAction]() {this->actionToRun(iAction);} );
+      m_queues[0]->push( [this,iAction]() mutable {this->actionToRun(iAction);} );
     } else {
-      assert(m_queues.size()>0);
-      m_queues[0]->push([this, iAction]() {
+      assert(!m_queues.empty());
+      m_queues[0]->push([this, iAction]() mutable {
         this->passDownChain(1, iAction);
       });
     }
   }
   
   template<typename T>
-  void SerialTaskQueueChain::pushAndWait(const T& iAction) {
+  void SerialTaskQueueChain::pushAndWait(T&& iAction) {
     auto destry = [](tbb::task* iTask) { tbb::task::destroy(*iTask); };
     
     std::unique_ptr<tbb::task, decltype(destry)> waitTask( new (tbb::task::allocate_root()) tbb::empty_task, destry );
@@ -129,23 +129,23 @@ namespace edm {
   }
   
   template<typename T>
-  void SerialTaskQueueChain::passDownChain(unsigned int iQueueIndex, const T& iAction) {
+  void SerialTaskQueueChain::passDownChain(unsigned int iQueueIndex, T&& iAction) {
     //Have to be sure the queue associated to this running task
     // does not attempt to start another task
     m_queues[iQueueIndex-1]->pause();
     //is this the last queue?
     if(iQueueIndex +1 == m_queues.size()) {
-      m_queues[iQueueIndex]->push([this,iAction]{ this->actionToRun(iAction); });
+      m_queues[iQueueIndex]->push([this,iAction]() mutable { this->actionToRun(iAction); });
     } else {
       auto nextQueue = iQueueIndex+1;
-      m_queues[iQueueIndex]->push([this, nextQueue, iAction]() {
+      m_queues[iQueueIndex]->push([this, nextQueue, iAction]() mutable {
         this->passDownChain(nextQueue, iAction);
       });
     }
   }
   
   template<typename T>
-  void SerialTaskQueueChain::actionToRun(const T& iAction) {
+  void SerialTaskQueueChain::actionToRun(T&& iAction) {
     //even if an exception happens we will resume the queues.
     using Queues= std::vector<std::shared_ptr<SerialTaskQueue>>;
     auto sentryAction = [](SerialTaskQueueChain* iChain) {

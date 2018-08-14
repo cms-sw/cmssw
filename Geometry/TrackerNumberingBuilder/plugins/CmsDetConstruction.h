@@ -8,11 +8,11 @@
  */
 class CmsDetConstruction : public CmsTrackerLevelBuilder {
  public:
-  void  buildComponent(DDFilteredView& , GeometricDet*, std::string);
+  void  buildComponent(DDFilteredView& , GeometricDet*, std::string) override;
  private:
   void buildDets(DDFilteredView& , GeometricDet* , std::string);
-  void buildSmallDetsforGlued(DDFilteredView& , GeometricDet* , std::string);
-  void buildSmallDetsforStack(DDFilteredView& , GeometricDet* , std::string);
+  void buildSmallDetsforGlued(DDFilteredView& , GeometricDet* , const std::string&);
+  void buildSmallDetsforStack(DDFilteredView& , GeometricDet* , const std::string&);
 };
 
 #endif // Geometry_TrackerNumberingBuilder_CmsDetConstruction_H

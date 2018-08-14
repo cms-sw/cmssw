@@ -594,7 +594,8 @@ fsqdirname = "HLT/FSQ/"
 processName = "HLT"
 #processName = "TEST"
 
-fsqHLTOfflineSource = cms.EDAnalyzer("FSQDiJetAve",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+fsqHLTOfflineSource = DQMEDAnalyzer('FSQDiJetAve',
     triggerConfiguration =  cms.PSet(
       hltResults = cms.InputTag('TriggerResults','',processName),
       l1tResults = cms.InputTag(''),
@@ -609,6 +610,3 @@ fsqHLTOfflineSource = cms.EDAnalyzer("FSQDiJetAve",
     #useGenWeight = cms.bool(True),
     todo = cms.VPSet(getFSQAll())
 )
-
-from JetMETCorrections.Configuration.CorrectedJetProducers_cff import *
-fsqHLTOfflineSourceSequence = cms.Sequence(ak4PFL1FastL2L3CorrectorChain + fsqHLTOfflineSource)

@@ -51,6 +51,10 @@ FpixMinusLayer2 = FpixMinus.clone(
     name = 'FpixMinusLayer2',
     layer = [2],
 )
+FpixMinusLayer3 = FpixMinus.clone(
+    name = 'FpixMinusLayer3',
+    layer = [3],
+)
 FpixPlusLayer1 = FpixPlus.clone(
     name = 'FpixPlusLayer1',
     layer = [1],
@@ -59,12 +63,18 @@ FpixPlusLayer2 = FpixPlus.clone(
     name = 'FpixPlusLayer2',
     layer = [2],
 )
+FpixPlusLayer3 = FpixPlus.clone(
+    name = 'FpixPlusLayer3',
+    layer = [3],
+)
 
 FPIXSideAndLayerSeparation = cms.VPSet(
     FpixMinusLayer1,
     FpixMinusLayer2,
+    FpixMinusLayer3,
     FpixPlusLayer1,
     FpixPlusLayer2,
+    FpixPlusLayer3,
 )
 
 
@@ -89,6 +99,14 @@ FpixMinusLayer2In = FpixMinusLayer2.clone(
     name = 'FpixMinusLayer2In',
     wDirection = [1],
 )
+FpixMinusLayer3Out = FpixMinusLayer3.clone(
+    name = 'FpixMinusLayer3Out',
+    wDirection = [-1],
+)
+FpixMinusLayer3In = FpixMinusLayer3.clone(
+    name = 'FpixMinusLayer3In',
+    wDirection = [1],
+)
 FpixPlusLayer1Out = FpixPlusLayer1.clone(
     name = 'FpixPlusLayer1Out',
     wDirection = [1],
@@ -105,16 +123,28 @@ FpixPlusLayer2In = FpixPlusLayer2.clone(
     name = 'FpixPlusLayer2In',
     wDirection = [-1],
 )
+FpixPlusLayer3Out = FpixPlusLayer3.clone(
+    name = 'FpixPlusLayer3Out',
+    wDirection = [1],
+)
+FpixPlusLayer3In = FpixPlusLayer3.clone(
+    name = 'FpixPlusLayer3In',
+    wDirection = [-1],
+)
 
 FPIXSideAndLayerAndOrientationSeparation = cms.VPSet(
     FpixMinusLayer1Out,
     FpixMinusLayer1In,
     FpixMinusLayer2Out,
     FpixMinusLayer2In,
+    FpixMinusLayer3Out,
+    FpixMinusLayer3In,
     FpixPlusLayer1Out,
     FpixPlusLayer1In,
     FpixPlusLayer2Out,
     FpixPlusLayer2In,
+    FpixPlusLayer3Out,
+    FpixPlusLayer3In,
 )
 
 

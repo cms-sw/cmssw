@@ -64,7 +64,7 @@ class LHEReader::FileSource : public LHEReader::Source {
 		fileStream.reset(new StorageWrap(std::move(storage)));
 	}
 
-	~FileSource() {}
+	~FileSource() override {}
 
 	XMLDocument *createReader(XMLDocument::Handler &handler) override
 	{ return new XMLDocument(fileStream, handler); }
@@ -86,7 +86,7 @@ class LHEReader::StringSource : public LHEReader::Source {
         fileStream.reset(tmpis);
 	}
 
-	~StringSource() {}
+	~StringSource() override {}
 
 	XMLDocument *createReader(XMLDocument::Handler &handler) override
 	{ return new XMLDocument(fileStream, handler); }
@@ -101,8 +101,8 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
 	XMLHandler() :
 		impl(nullptr),
 		gotObject(kNone), mode(kNone),
-		xmlHeader(0), xmlEvent(0), headerOk(false), npLO(-99), npNLO(-99) {}
-	~XMLHandler()
+		xmlHeader(nullptr), xmlEvent(nullptr), headerOk(false), npLO(-99), npNLO(-99) {}
+	~XMLHandler() override
 	{ if (xmlHeader) xmlHeader->release(); 
 	  if (xmlEvent) xmlEvent->release();   }
 
@@ -114,7 +114,12 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
 		kEvent
 	};
 
-        void reset() { headerOk = false; weightsinevent.clear();}
+        void reset() { 
+          headerOk = false; 
+          weightsinevent.clear();
+          gotObject = kNone;
+          mode = kNone;
+        }
 
         const wgt_info& weightInfo() const {return weightsinevent;}
 
@@ -128,8 +133,8 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
 	                const XMLCh *const localname,
 	                const XMLCh *const qname) override;
 
-        virtual void characters (const XMLCh *const chars, const XMLSize_t length) override;
-        virtual void comment (const XMLCh *const chars, const XMLSize_t length) override; 	
+        void characters (const XMLCh *const chars, const XMLSize_t length) override;
+        void comment (const XMLCh *const chars, const XMLSize_t length) override; 	
 
     private:
 	friend class LHEReader;
@@ -163,7 +168,7 @@ static void attributesToDom(DOMElement *dom, const Attributes &attributes)
 static void fillHeader(LHERunInfo::Header &header, const char *data,
                        int len = -1)
 {
-	const char *end = len >= 0 ? (data + len) : 0;
+	const char *end = len >= 0 ? (data + len) : nullptr;
 	while(*data && (!end || data < end)) {
 		std::size_t len = std::strcspn(data, "\r\n");
 		if (end && data + len > end)
@@ -244,7 +249,7 @@ void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
     if (!impl)
       impl.reset(DOMImplementationRegistry::getDOMImplementation(XMLUniStr("Core")));
 
-    xmlHeader = impl->createDocument(0, qname, 0);
+    xmlHeader = impl->createDocument(nullptr, qname, nullptr);
     xmlNodes.resize(1);
     xmlNodes[0] = xmlHeader->getDocumentElement();
     mode = kHeader;
@@ -257,7 +262,7 @@ void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
 	impl.reset(DOMImplementationRegistry::getDOMImplementation(XMLUniStr("Core")));
 
       if(xmlEvent)  xmlEvent->release();
-      xmlEvent = impl->createDocument(0, qname, 0);
+      xmlEvent = impl->createDocument(nullptr, qname, nullptr);
       weightsinevent.resize(0);
       scales.clear();
     
@@ -340,11 +345,11 @@ void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
       }
       
       xmlHeader->release();
-      xmlHeader = 0;
+      xmlHeader = nullptr;
     }
     else if (name == "event" && 
 	mode == kEvent && 
-	(skipEvent || (xmlEventNodes.size() >= 1))) { // handling of weights in LHE file
+	(skipEvent || (!xmlEventNodes.empty()))) { // handling of weights in LHE file
 
       if (skipEvent)
       {
@@ -484,9 +489,14 @@ LHEReader::~LHEReader()
 
   boost::shared_ptr<LHEEvent> LHEReader::next(bool* newFileOpened)
   {
-    while(curDoc.get() || curIndex < fileURLs.size() || (fileURLs.size() == 0 && strName != "" ) ) {
+    while(curDoc.get() || curIndex < fileURLs.size() || (fileURLs.empty() && strName != "" ) ) {
       if (!curDoc.get()) {
-        if ( fileURLs.size() > 0 ) {
+        if(!platform) {
+          //If we read multiple files, the XercesPlatform must live longer than any one
+          // XMLDocument.
+          platform = XMLDocument::platformHandle();
+        }
+        if ( !fileURLs.empty() ) {
           logFileAction("  Initiating request to open LHE file ", fileURLs[curIndex]);
           curSource.reset(new FileSource(fileURLs[curIndex]));
           logFileAction("  Successfully opened LHE file ", fileURLs[curIndex]);
@@ -568,7 +578,7 @@ LHEReader::~LHEReader()
 	lheevent->setNpLO(handler->npLO);
         lheevent->setNpNLO(handler->npNLO);
         //fill scales
-        if (handler->scales.size()>0) {
+        if (!handler->scales.empty()) {
           lheevent->setScales(handler->scales);
         }
         return lheevent;

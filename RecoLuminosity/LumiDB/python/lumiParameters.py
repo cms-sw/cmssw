@@ -1,3 +1,4 @@
+from __future__ import print_function
 class ParametersObject (object):
     '''
     collection of constants used in lumi related calculation
@@ -47,7 +48,7 @@ class ParametersObject (object):
 #=======================================================
 if __name__ == "__main__":
     p=ParametersObject()
-    print p.lslengthsec()
-    print p.NBX
-    print p.numorbit
+    print(p.lslengthsec())
+    print(p.NBX)
+    print(p.numorbit)
     

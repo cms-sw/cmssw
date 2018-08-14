@@ -33,7 +33,7 @@ class BeamSpotProblemMonitor : public edm::EDAnalyzer {
   public:
 
     BeamSpotProblemMonitor( const edm::ParameterSet& );
-    ~BeamSpotProblemMonitor();
+    ~BeamSpotProblemMonitor() override;
 
   protected:
 

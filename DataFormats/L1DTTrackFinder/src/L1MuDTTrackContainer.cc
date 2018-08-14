@@ -81,7 +81,7 @@ int L1MuDTTrackContainer::bxSize(int step1, int step2) const {
 
 L1MuDTTrackCand const* L1MuDTTrackContainer::dtTrackCand1(int wheel, int sect, int step) const {
 
-  L1MuDTTrackCand const* rT=0;
+  L1MuDTTrackCand const* rT=nullptr;
 
   for ( Trackiterator i  = dtTracks.begin();
                       i != dtTracks.end();
@@ -96,7 +96,7 @@ L1MuDTTrackCand const* L1MuDTTrackContainer::dtTrackCand1(int wheel, int sect, i
 
 L1MuDTTrackCand const* L1MuDTTrackContainer::dtTrackCand2(int wheel, int sect, int step) const {
 
-  L1MuDTTrackCand const* rT=0;
+  L1MuDTTrackCand const* rT=nullptr;
 
   for ( Trackiterator i  = dtTracks.begin();
                       i != dtTracks.end();

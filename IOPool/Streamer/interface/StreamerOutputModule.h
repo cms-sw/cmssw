@@ -19,16 +19,16 @@ namespace edm {
         
   public:
     explicit StreamerOutputModule(ParameterSet const& ps);  
-    virtual ~StreamerOutputModule();
+    ~StreamerOutputModule() override;
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
-    virtual void start() override;
-    virtual void stop() override;
-    virtual void doOutputHeader(InitMsgBuilder const& init_message) override;
-    virtual void doOutputEvent(EventMsgBuilder const& msg) override;
-    virtual void beginLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
-    virtual void endLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
+    void start() override;
+    void stop() override;
+    void doOutputHeader(InitMsgBuilder const& init_message) override;
+    void doOutputEvent(EventMsgBuilder const& msg) override;
+    void beginLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
+    void endLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
 
   private:
     edm::propagate_const<std::unique_ptr<Consumer>> c_;

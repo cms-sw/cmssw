@@ -21,17 +21,17 @@
 class CSCChipSpeedCorrectionDBConditions: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
  public:
   CSCChipSpeedCorrectionDBConditions(const edm::ParameterSet&);
-  ~CSCChipSpeedCorrectionDBConditions();
+  ~CSCChipSpeedCorrectionDBConditions() override;
   
   inline static CSCDBChipSpeedCorrection * prefillDBChipSpeedCorrection(bool isForMC, std::string dataCorrFileName, float dataOffse);
 
-  typedef const  CSCDBChipSpeedCorrection * ReturnType;
+  typedef std::unique_ptr<CSCDBChipSpeedCorrection> ReturnType;
   
   ReturnType produceDBChipSpeedCorrection(const CSCDBChipSpeedCorrectionRcd&);
   
  private:
   // ----------member data ---------------------------
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
   CSCDBChipSpeedCorrection *cndbChipCorr ;
 
   //Flag for determining if this is for setting MC or data corrections

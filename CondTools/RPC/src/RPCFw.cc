@@ -21,10 +21,10 @@
 #include <iostream>
 #include <stdexcept>
 #include <vector>
-#include <math.h>
+#include <cmath>
 #include <iostream>
 #include <sstream>
-#include <time.h>
+#include <ctime>
 #include "CondFormats/RPCObjects/interface/RPCObFebmap.h"
 
 RPCFw::RPCFw( const std::string& connectionString,

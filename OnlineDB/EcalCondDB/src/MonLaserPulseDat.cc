@@ -9,10 +9,10 @@ using namespace oracle::occi;
 
 MonLaserPulseDat::MonLaserPulseDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_pulseHeightMean = 0;
   m_pulseHeightRMS = 0;
@@ -40,7 +40,7 @@ void MonLaserPulseDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4, :5, :6)");
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonLaserPulseDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonLaserPulseDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -69,7 +69,7 @@ void MonLaserPulseDat::writeDB(const EcalLogicID* ecid, const MonLaserPulseDat* 
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonLaserPulseDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonLaserPulseDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -101,12 +101,12 @@ void MonLaserPulseDat::fetchData(std::map< EcalLogicID, MonLaserPulseDat >* fill
     std::pair< EcalLogicID, MonLaserPulseDat > p;
     MonLaserPulseDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
 
       dat.setPulseHeightMean( rset->getFloat(7) );
       dat.setPulseHeightRMS( rset->getFloat(8) );
@@ -117,7 +117,7 @@ void MonLaserPulseDat::fetchData(std::map< EcalLogicID, MonLaserPulseDat >* fill
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonLaserPulseDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonLaserPulseDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -212,6 +212,6 @@ void MonLaserPulseDat::writeArrayDB(const std::map< EcalLogicID, MonLaserPulseDa
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonLaserPulseDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonLaserPulseDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

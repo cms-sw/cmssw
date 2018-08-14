@@ -40,7 +40,7 @@ namespace edm {
 class EgammaHLTR9Producer : public edm::global::EDProducer<> {
 public:
   explicit EgammaHLTR9Producer(const edm::ParameterSet&);
-  ~EgammaHLTR9Producer();
+  ~EgammaHLTR9Producer() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;

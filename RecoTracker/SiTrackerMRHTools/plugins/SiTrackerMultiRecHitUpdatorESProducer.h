@@ -11,10 +11,9 @@
 class  SiTrackerMultiRecHitUpdatorESProducer: public edm::ESProducer{
  public:
   SiTrackerMultiRecHitUpdatorESProducer(const edm::ParameterSet & p);
-  virtual ~SiTrackerMultiRecHitUpdatorESProducer(); 
-  std::shared_ptr<SiTrackerMultiRecHitUpdator> produce(const MultiRecHitRecord &);
+  ~SiTrackerMultiRecHitUpdatorESProducer() override; 
+  std::unique_ptr<SiTrackerMultiRecHitUpdator> produce(const MultiRecHitRecord &);
  private:
-  std::shared_ptr<SiTrackerMultiRecHitUpdator> _updator;
   edm::ParameterSet pset_;
 };
 

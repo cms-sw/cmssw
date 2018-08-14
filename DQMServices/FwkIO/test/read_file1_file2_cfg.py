@@ -17,7 +17,7 @@ for r in xrange(1,2):
     #end run
     seq.append(cms.EventID(r,0,0))
 
-process.check = cms.EDAnalyzer("MulticoreRunLumiEventChecker",
+process.check = cms.EDAnalyzer("RunLumiEventChecker",
                                eventSequence = seq)
 
 readRunElements = list()

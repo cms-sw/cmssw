@@ -53,7 +53,7 @@ public:
   explicit TestMuonReader( const edm::ParameterSet& );
   ~TestMuonReader();
 
-  void recursiveGetMuChambers(std::vector<Alignable*> &composite, std::vector<Alignable*> &chambers, int kind);
+  void recursiveGetMuChambers(const align::Alignables& composite, align::Alignables& chambers, int kind);
   align::EulerAngles toPhiXYZ(const align::RotationType &);
   
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
@@ -81,18 +81,18 @@ TestMuonReader::~TestMuonReader()
 { 
 }
 
-void TestMuonReader::recursiveGetMuChambers(std::vector<Alignable*> &composites, std::vector<Alignable*> &chambers, int kind)
+void TestMuonReader::recursiveGetMuChambers(const align::Alignables& composites, align::Alignables& chambers, int kind)
 {
-  for (std::vector<Alignable*>::const_iterator cit = composites.begin(); cit != composites.end(); cit++)
+  for (const auto& cit: composites)
   {
-    if ((*cit)->alignableObjectId() == kind)
+    if (cit->alignableObjectId() == kind)
     {
-      chambers.push_back(*cit);
+      chambers.push_back(cit);
       continue;
     }
     else 
     {
-      std::vector<Alignable*> components = (*cit)->components();
+      const auto& components = cit->components();
       recursiveGetMuChambers(components, chambers, kind);
     }
   }
@@ -129,10 +129,10 @@ TestMuonReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   AlignableMuon ideal_alignableMuon(&(*dtGeometry), &(*cscGeometry));
 
-  std::vector<Alignable*> ideal_barrels = ideal_alignableMuon.DTBarrel();
-  std::vector<Alignable*> ideal_endcaps = ideal_alignableMuon.CSCEndcaps();
+  const auto& ideal_barrels = ideal_alignableMuon.DTBarrel();
+  const auto& ideal_endcaps = ideal_alignableMuon.CSCEndcaps();
 
-  std::vector<Alignable*> ideal_mb_chambers, ideal_me_chambers;
+  align::Alignables ideal_mb_chambers, ideal_me_chambers;
   recursiveGetMuChambers(ideal_barrels, ideal_mb_chambers, align::AlignableDTChamber);
   recursiveGetMuChambers(ideal_endcaps, ideal_me_chambers, align::AlignableCSCChamber);
   //std::cout<<" #ideals dts="<<ideal_mb_chambers.size()<<" cscs="<<ideal_me_chambers.size()<<std::endl;
@@ -186,7 +186,7 @@ TestMuonReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
   //edm::ESHandle<AlignmentErrorsExtended> cscAlignmentErrorsExtended;
   //iSetup.get<CSCAlignmentErrorExtendedRcd>().get( cscAlignmentErrorsExtended );
 
-  //std::vector<Alignable*>::const_iterator csc_ideal = ideal_endcaps.begin();
+  //align::Alignables::const_iterator csc_ideal = ideal_endcaps.begin();
   std::cout<<std::setprecision(3)<<std::fixed;
   //std::cout<<" lens : "<<ideal_me_chambers.size()<<" "<<cscAlignments->m_align.size()<<std::endl;
 
@@ -204,10 +204,10 @@ TestMuonReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     me += nme;
     
     // find this chamber in ideal geometry
-    const Alignable* ideal=0;
-    for (std::vector<Alignable*>::const_iterator cideal = ideal_me_chambers.begin(); cideal != ideal_me_chambers.end(); cideal++)
-      if ((*cideal)->geomDetId().rawId() == (*it).rawId()) { ideal = *cideal; break; }
-    if (ideal==0) {
+    const Alignable* ideal{nullptr};
+    for (const auto& cideal: ideal_me_chambers)
+      if (cideal->geomDetId().rawId() == (*it).rawId()) { ideal = cideal; break; }
+    if (ideal==nullptr) {
       std::cout<<" no ideal chamber for "<<id<<std::endl;
       continue;
     }

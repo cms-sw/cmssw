@@ -7,9 +7,9 @@ class OptoScanSummaryFactory : public SummaryPlotFactory<CommissioningAnalysis*>
   
  protected:
   
-  void extract( Iterator );
+  void extract( Iterator ) override;
   
-  void format();
+  void format() override;
   
 };
 

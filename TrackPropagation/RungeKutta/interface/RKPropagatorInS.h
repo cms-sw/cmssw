@@ -28,24 +28,24 @@ public:
 			    double tolerance = 5.e-5) : 
     Propagator(dir), theVolume( &vol), theTolerance( tolerance) {}
 
-  ~RKPropagatorInS() {}
+  ~RKPropagatorInS() override {}
 
   using Propagator::propagate;
   using Propagator::propagateWithPath;
 
 private:
-  virtual std::pair< TrajectoryStateOnSurface, double> 
-  propagateWithPath (const FreeTrajectoryState&, const Plane&) const;
+  std::pair< TrajectoryStateOnSurface, double> 
+  propagateWithPath (const FreeTrajectoryState&, const Plane&) const override;
 
-  virtual std::pair< TrajectoryStateOnSurface, double> 
-  propagateWithPath (const FreeTrajectoryState&, const Cylinder&) const;
+  std::pair< TrajectoryStateOnSurface, double> 
+  propagateWithPath (const FreeTrajectoryState&, const Cylinder&) const override;
 
   
 
 public:
-  virtual Propagator * clone() const;
+  Propagator * clone() const override;
 
-  virtual const MagneticField* magneticField() const {return theVolume;}
+  const MagneticField* magneticField() const override {return theVolume;}
 
 private:
 
@@ -54,8 +54,8 @@ private:
   const MagVolume* theVolume;
   double           theTolerance;
 
-  GlobalTrajectoryParameters gtpFromLocal( const Basic3DVector<double>& lpos,
-					   const Basic3DVector<double>& lmom,
+  GlobalTrajectoryParameters gtpFromLocal( const Basic3DVector<float>& lpos,
+					   const Basic3DVector<float>& lmom,
 					   TrackCharge ch, const Surface& surf) const dso_internal;
 
   GlobalTrajectoryParameters gtpFromVolumeLocal( const CartesianStateAdaptor& state, 
@@ -68,8 +68,8 @@ private:
 
   Basic3DVector<double> rkPosition( const GlobalPoint& pos) const dso_internal;
   Basic3DVector<double> rkMomentum( const GlobalVector& mom) const dso_internal;
-  GlobalPoint           globalPosition( const Basic3DVector<double>& pos) const dso_internal;
-  GlobalVector          globalMomentum( const Basic3DVector<double>& mom) const dso_internal;
+  GlobalPoint           globalPosition( const Basic3DVector<float>& pos) const dso_internal;
+  GlobalVector          globalMomentum( const Basic3DVector<float>& mom) const dso_internal;
 
   GlobalParametersWithPath propagateParametersOnPlane( const FreeTrajectoryState& ts, 
 						       const Plane& plane) const dso_internal;

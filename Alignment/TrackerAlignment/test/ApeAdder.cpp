@@ -45,7 +45,7 @@ public:
 
 private:
     // methods
-    void addApe( std::vector<Alignable*> alignables );
+  void addApe(const align::Alignables& alignables);
     
 private:
     // members
@@ -109,14 +109,13 @@ void ApeAdder::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
 
 }
 
-void ApeAdder::addApe( std::vector<Alignable*> alignables )
+void ApeAdder::addApe(const align::Alignables& alignables)
 {
   
   AlignmentPositionError ape( theApe[0], theApe[1], theApe[2] );
-  for ( std::vector<Alignable*>::iterator iDet = alignables.begin();
-		iDet != alignables.end(); ++iDet )
-    (*iDet)->setAlignmentPositionError( ape, true ); // true: propagate to components
-    
+  for (const auto& iDet: alignables) {
+    iDet->setAlignmentPositionError(ape, true); // true: propagate to components
+  }
 }
 
 //define this as a plug-in

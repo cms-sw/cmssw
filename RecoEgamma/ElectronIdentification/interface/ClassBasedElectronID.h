@@ -9,10 +9,10 @@ public:
 
   ClassBasedElectronID(){};
 
-  virtual ~ClassBasedElectronID(){};
+  ~ClassBasedElectronID() override{};
 
-  void setup(const edm::ParameterSet& conf);
-  double result(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&);
+  void setup(const edm::ParameterSet& conf) override;
+  double result(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&) override;
 
  private:
 

@@ -5,3 +5,6 @@ from DQMOffline.Trigger.HLTMuonOfflineAnalyzer_cff import *
 muonFullOfflineDQM = cms.Sequence(
     hltMuonOfflineAnalyzers
 )
+
+muoHLTDQMSourceExtra = cms.Sequence(
+)

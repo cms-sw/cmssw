@@ -50,15 +50,13 @@ class DQMExample_Step1: public DQMEDAnalyzer{
 public:
 
   DQMExample_Step1(const edm::ParameterSet& ps);
-  virtual ~DQMExample_Step1();
+  ~DQMExample_Step1() override;
   
 protected:
 
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override ;
-  void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
 private:

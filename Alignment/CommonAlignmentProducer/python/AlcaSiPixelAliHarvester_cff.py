@@ -10,7 +10,7 @@ SiPixelAliMilleFileExtractor = cms.EDAnalyzer("MillePedeFileExtractor",
     outputBinaryFile = cms.string('pedeBinary%04d.dat'))
 
 from Alignment.MillePedeAlignmentAlgorithm.MillePedeAlignmentAlgorithm_cfi import *
-from Alignment.CommonAlignmentProducer.TrackerAlignmentProducerForPCL_cff import AlignmentProducer
+from Alignment.CommonAlignmentProducer.AlignmentProducerAsAnalyzer_cff import AlignmentProducer
 SiPixelAliPedeAlignmentProducer = copy.deepcopy(AlignmentProducer)
 
 from Alignment.MillePedeAlignmentAlgorithm.MillePedeDQMModule_cff import *
@@ -24,7 +24,6 @@ SiPixelAliPedeAlignmentProducer.ParameterBuilder.Selector = cms.PSet(
     )
 
 SiPixelAliPedeAlignmentProducer.doMisalignmentScenario = False #True
-
 
 SiPixelAliPedeAlignmentProducer.checkDbAlignmentValidity = False
 SiPixelAliPedeAlignmentProducer.applyDbAlignment = True
@@ -52,8 +51,12 @@ SiPixelAliPedeAlignmentProducer.algoConfig.pedeSteerer.options = cms.vstring(
 SiPixelAliPedeAlignmentProducer.algoConfig.minNumHits = 10
 SiPixelAliPedeAlignmentProducer.saveToDB = True
 
-
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dqmEnvSiPixelAli = DQMEDAnalyzer('DQMEventInfo',
+                                  subSystemFolder = cms.untracked.string('AlCaReco'),  
+                                  )
 
 ALCAHARVESTSiPixelAli = cms.Sequence(SiPixelAliMilleFileExtractor*
                                      SiPixelAliPedeAlignmentProducer*
-                                     SiPixelAliDQMModule)
+                                     SiPixelAliDQMModule*
+                                     dqmEnvSiPixelAli)

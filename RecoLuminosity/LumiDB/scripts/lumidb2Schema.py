@@ -1,25 +1,26 @@
 #!/usr/bin/env python
+from __future__ import print_function
 VERSION='2.00'
 import os,sys
 import coral
 from RecoLuminosity.LumiDB import argparse,dbUtil,nameDealer,lumidbDDL,dataDML,revisionDML
 
 def createLumi(dbsession):
-    print 'creating lumidb2 schema...'
+    print('creating lumidb2 schema...')
     dbsession.transaction().start(False)
     schema=dbsession.nominalSchema()
     lumidbDDL.createTables(schema)
     dbsession.transaction().commit()
     
 def dropLumi(dbsession):
-    print 'droping lumi db2 schema...'
+    print('droping lumi db2 schema...')
     dbsession.transaction().start(False)
     schema=dbsession.nominalSchema()
     lumidbDDL.dropTables(schema,nameDealer.schemaV2Tables())
     dbsession.transaction().commit()
     
 def describeLumi(dbsession):
-    print 'lumi db schema dump...'
+    print('lumi db schema dump...')
     dbsession.transaction().start(True)
     schema=dbsession.nominalSchema()
     db=dbUtil.dbUtil(schema)
@@ -33,11 +34,11 @@ def dropIndex(dbsession):
     pass
 
 def createBranch(dbsession,branchname,parentname,comment):
-    print 'creating branch ',branchname
+    print('creating branch ',branchname)
     dbsession.transaction().start(False)
     (branchid,parentid,parentname)=revisionDML.createBranch(dbsession.nominalSchema(),branchname,parentname,comment)
     dbsession.transaction().commit()
-    print 'branchid ',branchid,' parentname ',parentname,' parentid ',parentid
+    print('branchid ',branchid,' parentname ',parentname,' parentid ',parentid)
 
 def main():
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="Lumi DB schema operations.")
@@ -72,7 +73,7 @@ def main():
     if args.action == 'dropindex':
        dropIndex(session)
     if args.verbose :
-        print 'verbose mode'
+        print('verbose mode')
 if __name__=='__main__':
     main()
     

@@ -141,7 +141,7 @@ bool SETFilter::buildTrajectoryMeasurements(SeedCandidate * finalMuon, Trajector
 
   //---- Check if (only last?) TSOS is valid and build a trajectory (for the backward filter) 
 
-  if(finalMuon->trajectoryMeasurementsInTheSet.size() &&
+  if(!finalMuon->trajectoryMeasurementsInTheSet.empty() &&
      finalMuon->trajectoryMeasurementsInTheSet.back().forwardPredictedState().isValid()){
     // loop over all measurements in the set
     for(unsigned int iMeas =0; iMeas<finalMuon->trajectoryMeasurementsInTheSet.size();++iMeas){
@@ -613,16 +613,20 @@ find3MoreStartingPoints(CLHEP::Hep3Vector &key_foot,
     std::pair <double,double> result_phi =
       findParabolaMinimum(phi_init, chi2_init);
     // should we use that?
+    /* not used, keep it in case some interest comes back
     double newPhi = result_phi.first;
     if(fabs(newPhi - phi)<0.02){// too close?
       newPhi = phi + 0.02;
     }
+    */
     CLHEP::Hep3Vector foot2(invP, theta, result_phi.first);
     CLHEP::Hep3Vector foot3(invP, result_theta.first , phi);
+    /* not used, keep it in case some interest comes back
     double newInvP = result_pInv.first;
     if(fabs(newInvP - invP)<0.001){//too close
       newInvP = invP + 0.001;
     }
+    */
     CLHEP::Hep3Vector foot4(result_pInv.first, theta, phi);
     morePoints.push_back(foot2);
     morePoints.push_back(foot3);

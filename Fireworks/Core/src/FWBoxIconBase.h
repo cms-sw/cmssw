@@ -40,9 +40,9 @@ public:
    // ---------- member functions ---------------------------
    
 private:
-   FWBoxIconBase(const FWBoxIconBase&); // stop default
+   FWBoxIconBase(const FWBoxIconBase&) = delete; // stop default
    
-   const FWBoxIconBase& operator=(const FWBoxIconBase&); // stop default
+   const FWBoxIconBase& operator=(const FWBoxIconBase&) = delete; // stop default
 
    virtual void drawInsideBox(Drawable_t iID, GContext_t iContext, int iX, int iY, unsigned int iSize) const= 0;
    

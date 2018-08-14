@@ -32,7 +32,7 @@ class SummaryPlotXmlParser : public DQMParserBase {
   SummaryPlotXmlParser();
 
   /** Default destructor. */
-  virtual ~SummaryPlotXmlParser() {;}
+  ~SummaryPlotXmlParser() override {;}
   
   // ---------- Public interface ----------
   

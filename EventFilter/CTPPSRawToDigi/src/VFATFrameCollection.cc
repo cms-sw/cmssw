@@ -14,7 +14,7 @@
 const VFATFrame* VFATFrameCollection::GetFrameByIndexID(TotemFramePosition index, unsigned int ID)
 {
   const VFATFrame* returnframe = GetFrameByIndex(index);
-  if (returnframe == NULL)
-    return NULL;
-  return (returnframe->getChipID() == (ID & 0xFFF)) ? returnframe : NULL;
+  if (returnframe == nullptr)
+    return nullptr;
+  return (returnframe->getChipID() == (ID & 0xFFF)) ? returnframe : nullptr;
 }

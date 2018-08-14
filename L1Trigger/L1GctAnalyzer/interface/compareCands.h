@@ -54,7 +54,7 @@ bool compareCands<T>::doCompare(TH1I *errorFlag_hist_, TH1I *mismatchD_Rank, TH2
   //These TrigBx parameters are set in the configuration to make things more flexible if things change later
 
   //define some temporary local variables
-  bool errorFlag=0;
+  bool errorFlag=false;
   unsigned int i=0, j=0;
   std::vector<bool> matched(GCT_OBJECT_QUANTA);
   //this makes a vector of GCT_OBJECT_QUANTA=4 bools, all set to false
@@ -80,7 +80,7 @@ bool compareCands<T>::doCompare(TH1I *errorFlag_hist_, TH1I *mismatchD_Rank, TH2
 	    && matched.at((j % GCT_OBJECT_QUANTA)) == 0 ) {
 	//this means that the ith data candidate matches the jth emulator candidate
 	errorFlag_hist_->Fill(0); //fill the errorflag histo in the matched bin
-	matched.at((j % GCT_OBJECT_QUANTA)) = 1; //set emulator candidate to matched so it doesn't get re-used
+	matched.at((j % GCT_OBJECT_QUANTA)) = true; //set emulator candidate to matched so it doesn't get re-used
 	break; //matched the current data candidate, now move to the next
       }
 
@@ -88,7 +88,7 @@ bool compareCands<T>::doCompare(TH1I *errorFlag_hist_, TH1I *mismatchD_Rank, TH2
 	errorFlag_hist_->Fill(1); //fill the errorflag histo in the unmatched data candidate bin
 	mismatchD_Rank->Fill(data_->at(i).rank()); //fill the rank histogram of mismatched data candidates
 	mismatchD_EtEtaPhi->Fill(data_->at(i).regionId().ieta(),data_->at(i).regionId().iphi(),data_->at(i).rank()); //fill the EtEtaPhi dist for mismatched candidates
-	errorFlag=1; //set the errorFlag to true
+	errorFlag=true; //set the errorFlag to true
       }
 
     }
@@ -110,7 +110,7 @@ bool compareCands<T>::doCompare(TH1I *errorFlag_hist_, TH1I *mismatchD_Rank, TH2
 	errorFlag_hist_->Fill(2); //increment emulator mismatched bin
 	mismatchE_Rank->Fill(emu_->at(j).rank()); //fill the rank histogram for unmatched emulator
 	mismatchE_EtEtaPhi->Fill(emu_->at(j).regionId().ieta(),emu_->at(j).regionId().iphi(),emu_->at(j).rank()); //fill EtEtaPhi for unmatched emu cands
-	errorFlag=1; //set the errorFlag (if it's not already)
+	errorFlag=true; //set the errorFlag (if it's not already)
       }
     }
   }

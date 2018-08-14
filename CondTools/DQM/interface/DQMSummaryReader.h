@@ -10,8 +10,8 @@ class DQMSummaryReader : virtual public TestBase /*ReadBase*/ {
   DQMSummaryReader(const std::string& connectionString,
 		   const std::string& user,
 		   const std::string& pass);
-   virtual ~DQMSummaryReader();
-   void run();
+   ~DQMSummaryReader() override;
+   void run() override;
   DQMSummary readData(const std::string & table, /*const std::string & column,*/ const long long r_number); 
  private:
   std::string m_tableToRead;

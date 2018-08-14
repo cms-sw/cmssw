@@ -20,7 +20,7 @@
 
 #include "Fireworks/Core/interface/FWGeometryTableManagerBase.h"
 #include <string>
-#include <boost/tr1/unordered_map.hpp>
+#include <unordered_map>
 
 class FWGeometryTableViewBase;
 class FWGeometryTableView;
@@ -46,17 +46,17 @@ public:
       bool m_childMatches;
       Match() : m_matches(false), m_childMatches(false) {}
 
-      bool accepted() { return m_matches || m_childMatches; }
+      bool accepted() const { return m_matches || m_childMatches; }
    };
 
 
-   typedef boost::unordered_map<TGeoVolume*, Match>  Volumes_t;
+   typedef std::unordered_map<TGeoVolume*, Match>  Volumes_t;
    typedef Volumes_t::iterator               Volumes_i; 
 
    FWGeometryTableManager(FWGeometryTableView*);
-   virtual ~FWGeometryTableManager();
+   ~FWGeometryTableManager() override;
 
-   virtual void recalculateVisibility();
+   void recalculateVisibility() override;
    void recalculateVisibilityNodeRec(int);
    void recalculateVisibilityVolumeRec(int);
    // geo 
@@ -69,29 +69,29 @@ public:
    void updateFilter(int);
    void printMaterials();
 
-   virtual void setDaughtersSelfVisibility(int i, bool v);
-   virtual void setVisibility(NodeInfo& nodeInfo, bool );
-   virtual void setVisibilityChld(NodeInfo& nodeInfo, bool);
+   void setDaughtersSelfVisibility(int i, bool v) override;
+   void setVisibility(NodeInfo& nodeInfo, bool ) override;
+   void setVisibilityChld(NodeInfo& nodeInfo, bool) override;
 
-   virtual bool getVisibilityChld(const NodeInfo& nodeInfo) const;
-   virtual bool getVisibility (const NodeInfo& nodeInfo) const;
+   bool getVisibilityChld(const NodeInfo& nodeInfo) const override;
+   bool getVisibility (const NodeInfo& nodeInfo) const override;
 
    void assertNodeFilterCache(NodeInfo& data);
  
-   virtual int numberOfColumns() const { return kNumColumn; }
-   virtual FWTableCellRendererBase* cellRenderer(int iSortedRowNumber, int iCol) const;
+   int numberOfColumns() const override { return kNumColumn; }
+   FWTableCellRendererBase* cellRenderer(int iSortedRowNumber, int iCol) const override;
    
    void checkRegionOfInterest(double* center, double radius, long algo);
    void resetRegionOfInterest();
    
 protected:
-   virtual bool nodeIsParent(const NodeInfo&) const;
+   bool nodeIsParent(const NodeInfo&) const override;
    //   virtual FWGeometryTableManagerBase::ESelectionState nodeSelectionState(int) const;
-   virtual const char* cellName(const NodeInfo& data) const;
+   const char* cellName(const NodeInfo& data) const override;
 
 private:
-   FWGeometryTableManager(const FWGeometryTableManager&); // stop default
-   const FWGeometryTableManager& operator=(const FWGeometryTableManager&); // stop default
+   FWGeometryTableManager(const FWGeometryTableManager&) = delete; // stop default
+   const FWGeometryTableManager& operator=(const FWGeometryTableManager&) = delete; // stop default
 
 
    FWGeometryTableView *m_browser;

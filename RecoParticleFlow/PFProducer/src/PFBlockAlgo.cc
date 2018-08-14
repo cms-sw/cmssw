@@ -349,8 +349,8 @@ void PFBlockAlgo::buildElements(const edm::Event& evt) {
   }
 
   // list is now partitioned, so mark the boundaries so we can efficiently skip chunks  
-  unsigned current_type = ( elements_.size() ? elements_[0]->type() : 0 );
-  unsigned last_type = ( elements_.size() ? elements_.back()->type() : 0 );
+  unsigned current_type = ( !elements_.empty() ? elements_[0]->type() : 0 );
+  unsigned last_type = ( !elements_.empty() ? elements_.back()->type() : 0 );
   ranges_[current_type].first  = 0;
   ranges_[last_type].second = elements_.size()-1;
   for( size_t i = 0; i < elements_.size(); ++i ) {

@@ -12,10 +12,9 @@
 class  BtagPerformanceESProducer : public edm::ESProducer{
  public:
   BtagPerformanceESProducer(const edm::ParameterSet & p);
-  virtual ~BtagPerformanceESProducer(); 
-  std::shared_ptr<BtagPerformance> produce(const  BTagPerformanceRecord &);
+  ~BtagPerformanceESProducer() override; 
+  std::unique_ptr<BtagPerformance> produce(const  BTagPerformanceRecord &);
  private:
-  std::shared_ptr<BtagPerformance> _perf;
   edm::ParameterSet pset_;
   std::string mypl;
   std::string mywp;

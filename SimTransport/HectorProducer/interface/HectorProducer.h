@@ -1,7 +1,7 @@
 #ifndef SimTransport_HectorProducer_H
 #define SimTransport_HectorProducer_H
  
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -28,10 +28,10 @@ class HectorProducer : public edm::one::EDProducer<edm::one::SharedResources, ed
 {
  public:
   explicit HectorProducer(edm::ParameterSet const & p);  
-  virtual ~HectorProducer();  
-  virtual void beginRun(const edm::Run & r,const edm::EventSetup& c) override;
-  virtual void endRun(const edm::Run & r,const edm::EventSetup& c) override;
-  virtual void produce(edm::Event & e, const edm::EventSetup& c) override;
+  ~HectorProducer() override;  
+  void beginRun(const edm::Run & r,const edm::EventSetup& c) override;
+  void endRun(const edm::Run & r,const edm::EventSetup& c) override;
+  void produce(edm::Event & e, const edm::EventSetup& c) override;
 
  private:
 

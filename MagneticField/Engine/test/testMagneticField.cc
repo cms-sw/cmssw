@@ -70,7 +70,7 @@ class testMagneticField : public edm::EDAnalyzer {
     //    half length of test cylinder
     OuterRadius = pset.getUntrackedParameter<double>("OuterRadius",900);
     //    half length of test cylinder
-    HalfLength = pset.getUntrackedParameter<double>("HalfLength",1600);
+    HalfLength = pset.getUntrackedParameter<double>("HalfLength",2400);
     
   }
 
@@ -369,7 +369,7 @@ void testMagneticField::compareSectorTables(string file1) {
     string::size_type ss = file2.rfind("/s"); // last  occurence of "-"
     string ssec = "/s";
     if (sector2<10) ssec+="0";
-    ssec+=boost::lexical_cast<string>(sector2);
+    ssec+=std::to_string(sector2);
     file2.replace(ss,4,ssec);
  
     vector<GlobalPoint>  p1, p2;
@@ -384,7 +384,7 @@ void testMagneticField::compareSectorTables(string file1) {
     string binTable = "/data/n/namapane/MagneticField/120812/grid_120812_3_8t_v7_large"; 
     binTable+=ssec;
     binTable+="_";
-    string sVolNo = boost::lexical_cast<string>(volNo);
+    string sVolNo = std::to_string(volNo);
     binTable+=sVolNo[0];
     binTable+="/grid.";
     binTable+=sVolNo;

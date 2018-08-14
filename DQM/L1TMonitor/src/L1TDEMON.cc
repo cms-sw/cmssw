@@ -24,7 +24,7 @@ L1TDEMON::L1TDEMON(const edm::ParameterSet& iConfig) {
     if (iConfig.getUntrackedParameter<bool> ("disableROOToutput", true))
         histFile_ = "";
 
-    if (histFile_.size() != 0) {
+    if (!histFile_.empty()) {
         edm::LogInfo("OutputRootFile")
                 << "L1TEmulator Monitoring histograms will be saved to "
                 << histFile_.c_str() << std::endl;
@@ -285,8 +285,6 @@ void L1TDEMON::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::
 void L1TDEMON::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c){
 }
 
-void L1TDEMON::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c){
-}
 
 
 

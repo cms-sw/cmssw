@@ -3,17 +3,16 @@
 RandomNumberGeneratorService dump
 
     Contents of seedsAndNameMap (label moduleID engineType seeds)
-        t1  2  HepJamesRandom  81
-        t2  3  RanecuEngine  1  2
-        t3  4  TRandom3  83
-        t4  5  HepJamesRandom  84
-        t5  4294967295  TRandom3  191
+        t1  4  HepJamesRandom  81
+        t2  5  RanecuEngine  1  2
+        t3  6  TRandom3  83
+        t4  7  HepJamesRandom  84
+        t6  8  MixMaxRng  85
     nStreams_ = 1
     saveFileName_ = StashState1.data
     saveFileNameRecorded_ = 0
     restoreFileName_ = 
     enableChecking_ = 1
-    childIndex_ = 0
     eventSeedOffset_ = 0
     verbose_ = 1
     restoreStateTag_ = InputTag:  label = , instance = , process = @skipCurrentProcess
@@ -25,6 +24,7 @@ RandomNumberGeneratorService dump
         t2 1 2 RanecuEngine  engine does not know seeds
         t3 83 TRandom3  engine does not know seeds
         t4 84 HepJamesRandom  84
+        t6 85 MixMaxRng  85
 
     lumiEngines_
         lumiIndex 0
@@ -32,17 +32,64 @@ RandomNumberGeneratorService dump
         t2 2 2 RanecuEngine  engine does not know seeds
         t3 84 TRandom3  engine does not know seeds
         t4 85 HepJamesRandom  85
-*** TestRandomNumberServiceGlobal beginLuminosityBlock 83
-TRandom3
-*** TestRandomNumberServiceGlobal analyze 83
-TRandom3
-*** TestRandomNumberServiceGlobal analyze 83
-TRandom3
-*** TestRandomNumberServiceGlobal analyze 83
-TRandom3
-*** TestRandomNumberServiceGlobal beginLuminosityBlock 83
-TRandom3
-*** TestRandomNumberServiceGlobal analyze 83
-TRandom3
-*** TestRandomNumberServiceGlobal analyze 83
-TRandom3
+        t6 86 MixMaxRng  86
+*** TestRandomNumberServiceGlobal beginLuminosityBlock 81  HepJamesRandom
+*** TestRandomNumberServiceGlobal beginLuminosityBlock 1  RanecuEngine
+*** TestRandomNumberServiceGlobal beginLuminosityBlock 83  TRandom3
+*** TestRandomNumberServiceGlobal beginLuminosityBlock 84  HepJamesRandom
+*** TestRandomNumberServiceGlobal beginLuminosityBlock 85  MixMaxRng
+*** TestRandomNumberServiceGlobal analyze 81  HepJamesRandom streamID= 0 multiStreamReplay: 0
+     HepJamesRandom 0.422889 0.0392907 0.291227 1.61244
+*** TestRandomNumberServiceGlobal analyze 1  RanecuEngine streamID= 0 multiStreamReplay: 0
+     RanecuEngine 0.999981 0.203459 0.668007 7.73632
+*** TestRandomNumberServiceGlobal analyze 83  TRandom3 streamID= 0 multiStreamReplay: 0
+     TRandom3 0.257042 0.565658 0.683788 1.8103
+*** TestRandomNumberServiceGlobal analyze 84  HepJamesRandom streamID= 0 multiStreamReplay: 0
+     HepJamesRandom 0.133504 0.85941 0.256103 11.7224
+*** TestRandomNumberServiceGlobal analyze 85  MixMaxRng streamID= 0 multiStreamReplay: 0
+     MixMaxRng 0.0298122 0.993504 0.26053 4.79664
+*** TestRandomNumberServiceGlobal analyze 81  HepJamesRandom streamID= 0 multiStreamReplay: 0
+     HepJamesRandom 0.0841909 0.01745 0.285556 0.631759
+*** TestRandomNumberServiceGlobal analyze 1  RanecuEngine streamID= 0 multiStreamReplay: 0
+     RanecuEngine 0.732909 0.332698 0.415352 1.74366
+*** TestRandomNumberServiceGlobal analyze 83  TRandom3 streamID= 0 multiStreamReplay: 0
+     TRandom3 0.663642 0.906853 0.77713 12.956
+*** TestRandomNumberServiceGlobal analyze 84  HepJamesRandom streamID= 0 multiStreamReplay: 0
+     HepJamesRandom 0.0839297 0.889512 0.0493518 2.83357
+*** TestRandomNumberServiceGlobal analyze 85  MixMaxRng streamID= 0 multiStreamReplay: 0
+     MixMaxRng 0.317751 0.300103 0.873082 0.816035
+*** TestRandomNumberServiceGlobal analyze 81  HepJamesRandom streamID= 0 multiStreamReplay: 0
+     HepJamesRandom 0.225607 0.569195 0.116241 13.8232
+*** TestRandomNumberServiceGlobal analyze 1  RanecuEngine streamID= 0 multiStreamReplay: 0
+     RanecuEngine 0.541681 0.544943 0.4229 14.5781
+*** TestRandomNumberServiceGlobal analyze 83  TRandom3 streamID= 0 multiStreamReplay: 0
+     TRandom3 0.827367 0.0782056 0.356684 9.52653
+*** TestRandomNumberServiceGlobal analyze 84  HepJamesRandom streamID= 0 multiStreamReplay: 0
+     HepJamesRandom 0.68063 0.298945 0.848839 19.9464
+*** TestRandomNumberServiceGlobal analyze 85  MixMaxRng streamID= 0 multiStreamReplay: 0
+     MixMaxRng 0.192687 0.539452 0.751037 7.65776
+*** TestRandomNumberServiceGlobal beginLuminosityBlock 81  HepJamesRandom
+*** TestRandomNumberServiceGlobal beginLuminosityBlock 1  RanecuEngine
+*** TestRandomNumberServiceGlobal beginLuminosityBlock 83  TRandom3
+*** TestRandomNumberServiceGlobal beginLuminosityBlock 84  HepJamesRandom
+*** TestRandomNumberServiceGlobal beginLuminosityBlock 85  MixMaxRng
+*** TestRandomNumberServiceGlobal analyze 81  HepJamesRandom streamID= 0 multiStreamReplay: 0
+     HepJamesRandom 0.609341 0.532968 0.251729 45.3539
+*** TestRandomNumberServiceGlobal analyze 1  RanecuEngine streamID= 0 multiStreamReplay: 0
+     RanecuEngine 0.975133 0.170844 0.312642 6.13623
+*** TestRandomNumberServiceGlobal analyze 83  TRandom3 streamID= 0 multiStreamReplay: 0
+     TRandom3 0.386736 0.214575 0.743409 5.0411
+*** TestRandomNumberServiceGlobal analyze 84  HepJamesRandom streamID= 0 multiStreamReplay: 0
+     HepJamesRandom 0.0809463 0.147144 0.346757 18.3554
+*** TestRandomNumberServiceGlobal analyze 85  MixMaxRng streamID= 0 multiStreamReplay: 0
+     MixMaxRng 0.749048 0.0460058 0.216306 7.5557
+*** TestRandomNumberServiceGlobal analyze 81  HepJamesRandom streamID= 0 multiStreamReplay: 0
+     HepJamesRandom 0.444845 0.317331 0.0381796 14.6314
+*** TestRandomNumberServiceGlobal analyze 1  RanecuEngine streamID= 0 multiStreamReplay: 0
+     RanecuEngine 0.176497 0.710599 0.884126 2.34164
+*** TestRandomNumberServiceGlobal analyze 83  TRandom3 streamID= 0 multiStreamReplay: 0
+     TRandom3 0.282541 0.00410514 0.294077 38.9648
+*** TestRandomNumberServiceGlobal analyze 84  HepJamesRandom streamID= 0 multiStreamReplay: 0
+     HepJamesRandom 0.793322 0.157134 0.376794 5.68684
+*** TestRandomNumberServiceGlobal analyze 85  MixMaxRng streamID= 0 multiStreamReplay: 0
+     MixMaxRng 0.780203 0.707089 0.09847 5.5464

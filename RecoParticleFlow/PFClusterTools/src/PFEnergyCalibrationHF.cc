@@ -1,6 +1,6 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibrationHF.h"
 #include <TMath.h>
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include <TF1.h>
 

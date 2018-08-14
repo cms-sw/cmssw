@@ -31,30 +31,30 @@ class DTGeometry : public TrackingGeometry {
     DTGeometry();
 
     /// Destructor
-    virtual ~DTGeometry();
+    ~DTGeometry() override;
 
     //---- Base class' interface 
 
     // Return a vector of all det types
-    virtual const DetTypeContainer&  detTypes() const override;
+    const DetTypeContainer&  detTypes() const override;
 
     // Returm a vector of all GeomDetUnit
-    virtual const DetUnitContainer&  detUnits() const override;
+    const DetContainer&  detUnits() const override;
 
     // Returm a vector of all GeomDet (including all GeomDetUnits)
-    virtual const DetContainer& dets() const override;
+    const DetContainer& dets() const override;
 
     // Returm a vector of all GeomDetUnit DetIds
-    virtual const DetIdContainer&    detUnitIds() const override;
+    const DetIdContainer&    detUnitIds() const override;
 
     // Returm a vector of all GeomDet DetIds (including those of GeomDetUnits)
-    virtual const DetIdContainer& detIds() const override;
+    const DetIdContainer& detIds() const override;
 
     // Return the pointer to the GeomDetUnit corresponding to a given DetId
-    virtual const GeomDetUnit* idToDetUnit(DetId) const override;
+    const GeomDet* idToDetUnit(DetId) const override;
 
     // Return the pointer to the GeomDet corresponding to a given DetId
-    virtual const GeomDet* idToDet(DetId) const override;
+    const GeomDet* idToDet(DetId) const override;
 
 
     //---- Extension of the interface
@@ -70,13 +70,13 @@ class DTGeometry : public TrackingGeometry {
 
 
     /// Return a DTChamber given its id
-    const DTChamber* chamber(DTChamberId id) const;
+    const DTChamber* chamber(const DTChamberId& id) const;
 
     /// Return a DTSuperLayer given its id
-    const DTSuperLayer* superLayer(DTSuperLayerId id) const;
+    const DTSuperLayer* superLayer(const DTSuperLayerId& id) const;
 
     /// Return a layer given its id
-    const DTLayer* layer(DTLayerId id) const;
+    const DTLayer* layer(const DTLayerId& id) const;
 
 
   private:
@@ -112,7 +112,7 @@ class DTGeometry : public TrackingGeometry {
 
     // These are used rarely; they could be computed at runtime 
     // to save memory.
-    DetUnitContainer  theDetUnits;       // all layers
+    DetContainer      theDetUnits;       // all layers
     DetContainer      theDets;           // all chambers, SL, layers
 
     // Replace local static with mutable members

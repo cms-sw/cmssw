@@ -17,10 +17,10 @@ class MultiTrackValidatorGenPs : public MultiTrackValidator {
   MultiTrackValidatorGenPs(const edm::ParameterSet& pset);
   
   /// Destructor
-  virtual ~MultiTrackValidatorGenPs();
+  ~MultiTrackValidatorGenPs() override;
 
   /// Method called once per event
-  void analyze(const edm::Event&, const edm::EventSetup& );
+  void dqmAnalyze(const edm::Event&, const edm::EventSetup&, const Histograms& ) const override;
 
 private:
 

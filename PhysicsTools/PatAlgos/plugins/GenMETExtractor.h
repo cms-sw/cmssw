@@ -30,10 +30,10 @@ namespace pat {
     public:
 
     explicit GenMETExtractor(const edm::ParameterSet& iConfig);
-    ~GenMETExtractor();
+    ~GenMETExtractor() override;
 
-    virtual void produce(edm::StreamID streamID, edm::Event & iEvent,
-			 const edm::EventSetup & iSetup) const;
+    void produce(edm::StreamID streamID, edm::Event & iEvent,
+			 const edm::EventSetup & iSetup) const override;
 
   private:
 

@@ -12,10 +12,10 @@ class Pythia8PartonSelector : public BasePartonSelector
 {
   public:
     Pythia8PartonSelector();
-    virtual ~Pythia8PartonSelector();
+    ~Pythia8PartonSelector() override;
 
     void run(const edm::Handle<reco::GenParticleCollection> & particles,
-             std::unique_ptr<reco::GenParticleRefVector> & partons);
+             std::unique_ptr<reco::GenParticleRefVector> & partons) override;
 };
 
 #endif

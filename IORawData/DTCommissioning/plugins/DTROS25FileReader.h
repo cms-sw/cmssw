@@ -26,14 +26,14 @@ class DTROS25FileReader : public edm::EDProducer {
   DTROS25FileReader(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~DTROS25FileReader();
+  ~DTROS25FileReader() override;
 
   /// Generate and fill FED raw data for a full event
   virtual int fillRawData(edm::Event& e,
 //			  edm::Timestamp& tstamp, 
 			  FEDRawDataCollection*& data);
 
-  virtual void produce(edm::Event&, edm::EventSetup const&);
+  void produce(edm::Event&, edm::EventSetup const&) override;
 
   /// check for a 32 bits word to be a ROS25 header
   bool isHeader(uint32_t word);

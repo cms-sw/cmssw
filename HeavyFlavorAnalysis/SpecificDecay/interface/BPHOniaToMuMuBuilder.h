@@ -67,10 +67,10 @@ class BPHOniaToMuMuBuilder {
   /// extract list of candidates of specific type
   /// candidates are rebuilt applying corresponding mass constraint
   std::vector<BPHPlusMinusConstCandPtr> getList( oniaType type,
-                                        BPHRecoSelect    * dSel = 0,
-                                        BPHMomentumSelect* mSel = 0,
-                                        BPHVertexSelect  * vSel = 0,
-                                        BPHFitSelect     * kSel = 0 );
+                                        BPHRecoSelect    * dSel = nullptr,
+                                        BPHMomentumSelect* mSel = nullptr,
+                                        BPHVertexSelect  * vSel = nullptr,
+                                        BPHFitSelect     * kSel = nullptr );
 
   /// retrieve original candidate from a copy with the same daughters
   /// obtained through "getList"
@@ -97,8 +97,8 @@ class BPHOniaToMuMuBuilder {
  private:
 
   // private copy and assigment constructors
-  BPHOniaToMuMuBuilder           ( const BPHOniaToMuMuBuilder& x );
-  BPHOniaToMuMuBuilder& operator=( const BPHOniaToMuMuBuilder& x );
+  BPHOniaToMuMuBuilder           ( const BPHOniaToMuMuBuilder& x ) = delete;
+  BPHOniaToMuMuBuilder& operator=( const BPHOniaToMuMuBuilder& x ) = delete;
 
   std::string muPosName;
   std::string muNegName;

@@ -15,7 +15,7 @@ class TrackerGeometricDetESModule : public edm::ESProducer
 {
 public:
   TrackerGeometricDetESModule( const edm::ParameterSet & p );
-  virtual ~TrackerGeometricDetESModule( void ); 
+  ~TrackerGeometricDetESModule( void ) override; 
   std::unique_ptr<GeometricDet> produce( const IdealGeometryRecord & );
 
   static void fillDescriptions( edm::ConfigurationDescriptions & descriptions );

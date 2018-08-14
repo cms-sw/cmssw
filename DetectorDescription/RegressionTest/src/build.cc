@@ -1,13 +1,10 @@
-
 #include <cmath>
 #include <iostream>
 #include <string>
 #include <vector>
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
-#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
@@ -16,8 +13,7 @@
 #include "DetectorDescription/Core/interface/DDRoot.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
-#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/Core/interface/DDUnits.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -28,6 +24,7 @@
 #include "Math/GenVector/RotationZ.h"
 
 using namespace std;
+using namespace dd::operators;
 
 /*
 File setup.xml:
@@ -40,8 +37,7 @@ File elements.xml:
   Material(elem) Nitrogen
   Material(elem) Oxygen  
 */
-void regressionTest_setup() {
-   ClhepEvaluator & eval = ExprEvalSingleton::instance();
+void regressionTest_setup(ClhepEvaluator& eval) {
    
    string ns = "setup"; // current namespace faking the filename 'setup.xml'
    
@@ -86,9 +82,9 @@ void regressionTest_setup() {
 
    // Some rotations in the x-y plane (Unit, 30,60,90 degs)
    DDRotationMatrix * r0  = new DDRotationMatrix();
-   DDRotationMatrix * r30 = new DDRotationMatrix(ROOT::Math::RotationZ(30.*deg));   
-   DDRotationMatrix * r60 = new DDRotationMatrix(ROOT::Math::RotationZ(60.*deg));   
-   DDRotationMatrix * r90 = new DDRotationMatrix(ROOT::Math::RotationZ(90.*deg));   
+   DDRotationMatrix * r30 = new DDRotationMatrix(ROOT::Math::RotationZ(30._deg));   
+   DDRotationMatrix * r60 = new DDRotationMatrix(ROOT::Math::RotationZ(60._deg));   
+   DDRotationMatrix * r90 = new DDRotationMatrix(ROOT::Math::RotationZ(90._deg));   
    
    DDrot(DDName("Unit",ns),r0);
    DDrot(DDName("R30",ns),r30);
@@ -114,7 +110,7 @@ void regressionTest_setup() {
   File: first.xml
   
 */ 
-void regressionTest_first( ) {
+void regressionTest_first(ClhepEvaluator& eval ) {
   ///load the new cpv
   DDCompactView cpv;
   cout << "main::initialize DDL parser" << endl;
@@ -122,7 +118,6 @@ void regressionTest_first( ) {
   
   cout << "main::about to set configuration" << endl;
   
-  ClhepEvaluator & eval = ExprEvalSingleton::instance();
   string ns("first");
   DDSolid support = DDSolidFactory::box(DDName("support",ns),
 					eval.eval(ns,"[setup:corner]/4."),
@@ -176,7 +171,7 @@ void regressionTest_first( ) {
   cpv.position(supportLP, part, std::string("3"), t4, r60);
   cpv.position(supportLP, part, std::string("4"), t5, r90);
    
-  DDRotationMatrix * rm = new DDRotationMatrix(ROOT::Math::AxisAngle(DD3Vector(1.,1.,1.),20.*deg));
+  DDRotationMatrix * rm = new DDRotationMatrix(ROOT::Math::AxisAngle(DD3Vector(1.,1.,1.),20._deg));
   DDRotation rw= DDrot(DDName("group", ns), rm);
   DDLogicalPart ws(DDName("world","setup"));
   cpv.position(part, ws, std::string("1"), t0, rw);
@@ -213,8 +208,8 @@ void output(string filename)
        << "  " << exv.logicalPart().material() << endl
        << "  " << exv.logicalPart().solid() << endl
        << "  " << exv.translation() << endl;
-    os << "  " << ra.Axis() << ra.Angle()/deg << endl;
-    tvec.push_back(exv.translation());   
+    os << "  " << ra.Axis() << CONVERT_TO( ra.Angle(), deg ) << endl;
+    tvec.emplace_back(exv.translation());   
     loop = exv.next();
   }
   
@@ -263,17 +258,17 @@ void printRot(const DDRotationMatrix & rot) {
 	    << y << "\n"
 	    << z << std::endl;
   cout << "phiX=" << x.phi() << " or in degrees = " 
-       << x.phi()/deg << endl;
+       << CONVERT_TO( x.phi(), deg ) << endl;
   cout << "thetaX=" << x.theta() << " or in degrees = " 
-       << x.theta()/deg << endl;
+       << CONVERT_TO( x.theta(), deg ) << endl;
   cout << "phiY=" << y.phi() << " or in degrees = " 
-       << y.phi()/deg << endl;
+       << CONVERT_TO( y.phi(), deg ) << endl;
   cout << "thetaY=" << y.theta() << " or in degrees = " 
-       << y.theta()/deg << endl;
+       << CONVERT_TO( y.theta(), deg ) << endl;
   cout << "phiZ=" << z.phi() << " or in degrees = " 
-       << z.phi()/deg << endl;
+       << CONVERT_TO( z.phi(), deg ) << endl;
   cout << "thetaZ=" << z.theta() << " or in degrees = " 
-       << z.theta()/deg << endl;
+       << CONVERT_TO( z.theta(), deg ) << endl;
   
   cout << "some factor/equations..." << endl;
   cout << " sin(thetaX()) * cos(phiX()) = " 
@@ -284,7 +279,7 @@ void printRot(const DDRotationMatrix & rot) {
 void testrot()
 {
   {
-    ROOT::Math::AxisAngle aa(DD3Vector(1.,1.,1.), 20.*deg);
+    ROOT::Math::AxisAngle aa(DD3Vector(1.,1.,1.), 20._deg);
     DDRotationMatrix rm(aa); 
     cout << "DD3Vector was " << DD3Vector(1.,1.,1.) << " and the rotation was 20*deg around that axis." << endl;
     printRot(rm);

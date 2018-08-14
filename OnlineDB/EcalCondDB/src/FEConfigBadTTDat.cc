@@ -9,10 +9,10 @@ using namespace oracle::occi;
 
 FEConfigBadTTDat::FEConfigBadTTDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_tcc = 0;
   m_fed = 0;
@@ -39,7 +39,7 @@ void FEConfigBadTTDat::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, tcc_id, fed_id, tt_id, status ) "
 			"VALUES (:1, :2, :3, :4, :5 )");
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigBadTTDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigBadTTDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -59,7 +59,7 @@ void FEConfigBadTTDat::writeDB(const FEConfigBadTTDat* item, FEConfigBadTTInfo* 
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigBadTTDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigBadTTDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -95,7 +95,7 @@ void FEConfigBadTTDat::fetchData(std::vector< FEConfigBadTTDat >* p, FEConfigBad
 
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigBadTTDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigBadTTDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -169,6 +169,6 @@ void FEConfigBadTTDat::writeArrayDB(const std::vector< FEConfigBadTTDat >& data,
     delete [] st_len;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigBadTTDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigBadTTDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

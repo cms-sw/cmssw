@@ -15,6 +15,7 @@
 
 // Geometry
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 // strip geometry
 #include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
@@ -306,7 +307,7 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
       module.DetId  = (*itTracker)->geographicalId().rawId();
       const std::vector<sipixelobjects::CablingPathToDetUnit> path2det = PixelCabling_->pathToDetUnit(module.DetId);
       module.Fed = path2det[0].fed;
-      assert(module.Fed<40);
+
       pixelModuleVector_.push_back(module);
     }
     std::sort(pixelModuleVector_.begin(),pixelModuleVector_.end());
@@ -334,7 +335,7 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
   // take the calo tower collection
   edm::Handle<HBHERecHitCollection> hbheRecHitHandle;
   if(!(HBHERecHitTag_ == edm::InputTag("")))  iEvent.getByToken(hbheRecHitToken_,hbheRecHitHandle);
-  const HBHERecHitCollection* hcalRecHitCollection = NULL;
+  const HBHERecHitCollection* hcalRecHitCollection = nullptr;
   if(!hbheRecHitHandle.failedToGet()) hcalRecHitCollection = hbheRecHitHandle.product();   
 
   double radTodeg = 180. / Geom::pi();
@@ -471,8 +472,8 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
 	      HBHERecHitCollection::const_iterator itHcalRecHit = hcalRecHitCollection->begin();
 	      for( ; itHcalRecHit != hcalRecHitCollection->end() ; ++itHcalRecHit) {
 		HcalDetId recHitId(itHcalRecHit->id());
-		const CaloCellGeometry* cellGeometry = GeometryCalo_->getSubdetectorGeometry(recHitId)->getGeometry(recHitId);
-		float dR = reco::deltaR(scRef->eta(),scRef->phi(),cellGeometry->getPosition().eta(),cellGeometry->getPosition().phi());
+		const HcalGeometry* cellGeometry = static_cast<const HcalGeometry*>(GeometryCalo_->getSubdetectorGeometry(recHitId));
+		float dR = reco::deltaR(scRef->eta(),scRef->phi(),cellGeometry->getPosition(recHitId).eta(),cellGeometry->getPosition(recHitId).phi());
 		if(dR <= dRHcalRegion_) {
 		  const HcalElectronicsId electronicId = HcalReadoutMap_->lookup(recHitId);
 		  int hitFED = electronicId.dccid() + FEDNumbering::MINHCALFEDID;

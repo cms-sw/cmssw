@@ -7,32 +7,18 @@
 
 class GeometricDet;
 
-#include "Geometry/TrackerGeometryBuilder/interface/trackerHierarchy.h"
-
-#include "DataFormats/Common/interface/Trie.h"
-
-// FIXME here just to allow prototyping...
-namespace trackerTrie {
-  typedef GeomDet const* PDet;
-  typedef edm::Trie<PDet> DetTrie;
-  typedef edm::TrieNode<PDet> Node;
-  typedef Node const * node_pointer; // sigh....
-  typedef edm::TrieNodeIter<PDet> node_iterator;
-}
-
-
 /**
  * A specific Tracker Builder which builds a Tracker from a list of DetUnits. 
  * Pattern recognition is used to discover layers, rings etc.
  */
 class TrackerGeometry final : public TrackingGeometry {
 
-  explicit TrackerGeometry(GeometricDet const* gd=0);  
+  explicit TrackerGeometry(GeometricDet const* gd=nullptr);  
 
   friend class TrackerGeomBuilderFromGeometricDet;
 
   void addType(GeomDetType const * p);
-  void addDetUnit(GeomDetUnit const * p);
+  void addDetUnit(GeomDet const * p);
   void addDetUnitId(DetId p);
   void addDet(GeomDet const * p);
   void addDetId(DetId p);
@@ -68,15 +54,15 @@ public:
       Ph2SS
    };
 
-  virtual ~TrackerGeometry() ;
+  ~TrackerGeometry() override ;
 
-  const DetTypeContainer&  detTypes()         const {return theDetTypes;}
-  const DetUnitContainer&  detUnits()         const {return theDetUnits;}
-  const DetContainer&      dets()             const {return theDets;}
-  const DetIdContainer&    detUnitIds()       const {return theDetUnitIds;}
-  const DetIdContainer&    detIds()           const { return theDetIds;}
-  const TrackerGeomDet*    idToDetUnit(DetId) const;
-  const TrackerGeomDet*    idToDet(DetId)     const;
+  const DetTypeContainer&  detTypes()         const override {return theDetTypes;}
+  const DetContainer&      detUnits()         const override {return theDetUnits;}
+  const DetContainer&      dets()             const override {return theDets;}
+  const DetIdContainer&    detUnitIds()       const override {return theDetUnitIds;}
+  const DetIdContainer&    detIds()           const override { return theDetIds;}
+  const TrackerGeomDet*    idToDetUnit(DetId) const override;
+  const TrackerGeomDet*    idToDet(DetId)     const override;
 
   const GeomDetEnumerators::SubDetector geomDetSubDetector(int subdet) const;
   unsigned int numberOfLayers(int subdet) const;
@@ -112,7 +98,7 @@ private:
   friend class GeometryAligner;
 
   DetTypeContainer  theDetTypes;  // owns the DetTypes
-  DetUnitContainer  theDetUnits;  // they're all also into 'theDets', so we assume 'theDets' owns them
+  DetContainer      theDetUnits;  // they're all also into 'theDets', so we assume 'theDets' owns them
   unsigned int      theOffsetDU[6]; // offsets in the above
   unsigned int      theEndsetDU[6]; // end offsets in the above
   DetContainer      theDets;      // owns *ONLY* the GeomDet * corresponding to GluedDets.

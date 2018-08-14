@@ -42,10 +42,10 @@ This producer makes use of PFAlgo, the particle flow algorithm.
 class PFProducer : public edm::stream::EDProducer<> {
  public:
   explicit PFProducer(const edm::ParameterSet&);
-  ~PFProducer();
+  ~PFProducer() override;
   
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void beginRun(const edm::Run &, const edm::EventSetup &) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run &, const edm::EventSetup &) override;
 
  private:
   edm::EDGetTokenT<reco::PFBlockCollection>  inputTagBlocks_;

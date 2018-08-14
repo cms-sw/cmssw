@@ -63,18 +63,18 @@ namespace edm {
    typedef typename T::base_type base_type;
 
       // ---------- const member functions ---------------------
-   virtual std::shared_ptr<base_type> addTo(EventSetupsController& esController,
+   std::shared_ptr<base_type> addTo(EventSetupsController& esController,
                                               EventSetupProvider& iProvider,
                                               ParameterSet const& iConfiguration,
-                                              bool replaceExisting) const;
+                                              bool replaceExisting) const override;
    
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
    private:
-      ComponentMaker(const ComponentMaker&); // stop default
+      ComponentMaker(const ComponentMaker&) = delete; // stop default
 
-      const ComponentMaker& operator=(const ComponentMaker&); // stop default
+      const ComponentMaker& operator=(const ComponentMaker&) = delete; // stop default
 
       void setDescription(DataProxyProvider* iProv, const ComponentDescription& iDesc) const {
         iProv->setDescription(iDesc);

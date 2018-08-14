@@ -44,11 +44,11 @@ class ShiftedPFCandidateProducerForPFNoPUMEt : public edm::EDProducer
  public:
 
   explicit ShiftedPFCandidateProducerForPFNoPUMEt(const edm::ParameterSet&);
-  ~ShiftedPFCandidateProducerForPFNoPUMEt();
+  ~ShiftedPFCandidateProducerForPFNoPUMEt() override;
 
  private:
 
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   std::string moduleLabel_;
 

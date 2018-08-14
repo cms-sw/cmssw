@@ -11,9 +11,9 @@ using namespace oracle::occi;
 
 CaliGeneralDat::CaliGeneralDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
   
   m_numEvents = 0;
   m_comments = "none";
@@ -39,7 +39,7 @@ void CaliGeneralDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4)");
   } catch (SQLException &e) {
-    throw(std::runtime_error("CaliGeneralDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("CaliGeneralDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -66,7 +66,7 @@ void CaliGeneralDat::writeDB(const EcalLogicID* ecid, const CaliGeneralDat* item
     
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("CaliGeneralDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("CaliGeneralDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -98,20 +98,20 @@ void CaliGeneralDat::fetchData(std::map< EcalLogicID, CaliGeneralDat >* fillMap,
     std::pair< EcalLogicID, CaliGeneralDat > p;
     CaliGeneralDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
       
       dat.setNumEvents( rset->getInt(7) );
-      dat.setComments( rset->getString(8) );
+      dat.setComments( getOraString(rset,8) );
       
       p.second = dat;
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("CaliGeneralDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("CaliGeneralDat::fetchData():  ")+getOraMessage(&e)));
   }
 }

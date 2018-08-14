@@ -3,9 +3,7 @@
 
 #include <utility>
 
-#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
-#include "TrackingTools/TrajectoryState/interface/ProxyBase.h"
-#include "TrackingTools/TrajectoryState/interface/CopyUsingClone.h"
+#include "TrackingTools/TrajectoryState/interface/ProxyBase11.h"
 
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -19,22 +17,20 @@ namespace reco {
 
 class GhostTrackPrediction;
 
-class BasicGhostTrackState : public ReferenceCountedInEvent {
+class BasicGhostTrackState {
     public:
-	typedef BasicGhostTrackState			BGTS;
-	typedef ProxyBase<BGTS, CopyUsingClone<BGTS> >	Proxy;
+	using BGTS=BasicGhostTrackState;
+	using Proxy=ProxyBase11<BGTS>;
+        using pointer=Proxy::pointer;
 
-    private:
-	friend class ProxyBase<BGTS, CopyUsingClone<BGTS> >;
-	friend class ReferenceCountingPointer<BGTS>;
-	friend class CopyUsingClone<BGTS>;
-
-    public:
 	typedef math::Error<3>::type CovarianceMatrix;
 	typedef std::pair<GlobalPoint, GlobalError> Vertex;
 
-	BasicGhostTrackState() : lambda_(0.), weight_(1.) {}
 	virtual ~BasicGhostTrackState() {}
+
+        template<typename T, typename... Args>
+        static std::shared_ptr<BGTS> build(Args && ...args){ return std::make_shared<T>(std::forward<Args>(args)...);}
+
 
 	virtual GlobalPoint globalPosition() const = 0;
 	virtual GlobalError cartesianError() const = 0;
@@ -61,11 +57,11 @@ class BasicGhostTrackState : public ReferenceCountedInEvent {
 	double weight() const { return weight_; }
 	void setWeight(double weight) { weight_ = weight; }
 
-    protected:
-	virtual BasicGhostTrackState *clone() const = 0;
+	virtual pointer clone() const = 0;
 
-	double	lambda_;
-	double	weight_;
+protected:
+	double	lambda_=0;
+	double	weight_=1.;
 };
 
 }

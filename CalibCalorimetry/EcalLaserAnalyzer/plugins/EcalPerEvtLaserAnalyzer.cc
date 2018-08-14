@@ -171,7 +171,7 @@ void EcalPerEvtLaserAnalyzer:: analyze( const edm::Event & e, const  edm::EventS
 
   // retrieving DCC header
   edm::Handle<EcalRawDataCollection> pDCCHeader;
-  const  EcalRawDataCollection* DCCHeader=0;
+  const  EcalRawDataCollection* DCCHeader=nullptr;
   try {
     e.getByLabel(eventHeaderProducer_,eventHeaderCollection_, pDCCHeader);
     DCCHeader=pDCCHeader.product();
@@ -181,9 +181,9 @@ void EcalPerEvtLaserAnalyzer:: analyze( const edm::Event & e, const  edm::EventS
  
   // retrieving crystal data from Event
   edm::Handle<EBDigiCollection>  pEBDigi;
-  const  EBDigiCollection* EBDigi=0;
+  const  EBDigiCollection* EBDigi=nullptr;
   edm::Handle<EEDigiCollection>  pEEDigi;
-  const  EEDigiCollection* EEDigi=0;
+  const  EEDigiCollection* EEDigi=nullptr;
 
   if (_ecalPart == "EB") {
     try {
@@ -204,7 +204,7 @@ void EcalPerEvtLaserAnalyzer:: analyze( const edm::Event & e, const  edm::EventS
   
   // retrieving crystal PN diodes from Event
   edm::Handle<EcalPnDiodeDigiCollection>  pPNDigi;
-  const  EcalPnDiodeDigiCollection* PNDigi=0;
+  const  EcalPnDiodeDigiCollection* PNDigi=nullptr;
   try {
     e.getByLabel(digiProducer_,digiPNCollection_, pPNDigi);
     PNDigi=pPNDigi.product(); 
@@ -214,7 +214,7 @@ void EcalPerEvtLaserAnalyzer:: analyze( const edm::Event & e, const  edm::EventS
 
   // retrieving electronics mapping
   edm::ESHandle< EcalElectronicsMapping > ecalmapping;
-  const EcalElectronicsMapping* TheMapping=0; 
+  const EcalElectronicsMapping* TheMapping=nullptr; 
   try{
     c.get< EcalMappingRcd >().get(ecalmapping);
     TheMapping = ecalmapping.product();
@@ -641,15 +641,15 @@ void EcalPerEvtLaserAnalyzer::endJob() {
     stringstream name3;
     name3<<"ABCol"<<i;  
     alphaTree[i]=(TTree*)alphaFile->Get(name3.str().c_str());
-    alphaTree[i]->SetBranchStatus( "*",         0 );
-    alphaTree[i]->SetBranchStatus( "alpha",     1 );
-    alphaTree[i]->SetBranchStatus( "beta",      1 );
-    alphaTree[i]->SetBranchStatus( "iphi",      1 );
-    alphaTree[i]->SetBranchStatus( "ieta",      1 );
-    alphaTree[i]->SetBranchStatus( "dccID",     1 );
-    alphaTree[i]->SetBranchStatus( "towerID",   1 );
-    alphaTree[i]->SetBranchStatus( "channelID", 1 );
-    alphaTree[i]->SetBranchStatus( "flag",      1 );
+    alphaTree[i]->SetBranchStatus( "*",         false );
+    alphaTree[i]->SetBranchStatus( "alpha",     true );
+    alphaTree[i]->SetBranchStatus( "beta",      true );
+    alphaTree[i]->SetBranchStatus( "iphi",      true );
+    alphaTree[i]->SetBranchStatus( "ieta",      true );
+    alphaTree[i]->SetBranchStatus( "dccID",     true );
+    alphaTree[i]->SetBranchStatus( "towerID",   true );
+    alphaTree[i]->SetBranchStatus( "channelID", true );
+    alphaTree[i]->SetBranchStatus( "flag",      true );
        
     alphaTree[i]->SetBranchAddress( "alpha",     &alphaRun     );
     alphaTree[i]->SetBranchAddress( "beta",      &betaRun      );

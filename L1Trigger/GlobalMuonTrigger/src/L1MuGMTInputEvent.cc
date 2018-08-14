@@ -89,7 +89,7 @@ const L1MuRegionalCand* L1MuGMTInputEvent::getInputMuon(std::string chipid, unsi
   if (m_inputmuons.count(chipid) == 0 )
     throw std::runtime_error("L1GMTInputEvent::getInputMuon: invalid chipid:" + chipid);
   
-  if (index >= m_inputmuons.find(chipid)->second.size()) return 0;
+  if (index >= m_inputmuons.find(chipid)->second.size()) return nullptr;
   return &(m_inputmuons.find(chipid)->second.at(index));
 }
 

@@ -43,18 +43,95 @@
   <class name="std::vector<edm::DetSet<TotemRPLocalTrack::FittedRecHit> >"/>
   <class name="std::vector<TotemRPLocalTrack::FittedRecHit>"/>
 
-<!-- diamonds objects -->
+<!-- timing objects -->
 
-  <class name="CTPPSDiamondRecHit" ClassVersion="3">
+  <class name="CTPPSTimingRecHit" ClassVersion="3">
+    <version ClassVersion="3" checksum="33948116"/>
+  </class>
+  <class name="edm::Ptr<CTPPSTimingRecHit>"/>
+  <class name="edm::Wrapper<CTPPSTimingRecHit>"/>
+  <class name="std::vector<CTPPSTimingRecHit>"/>
+  <class name="std::vector<edm::DetSet<CTPPSTimingRecHit> >"/>
+  <class name="edm::DetSet<CTPPSTimingRecHit>"/>
+  <class name="edm::DetSetVector<CTPPSTimingRecHit>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<CTPPSTimingRecHit> >"/>
+  <class name="edm::Wrapper<std::vector<CTPPSTimingRecHit> >"/>
+
+
+  <class name="TotemTimingRecHit" ClassVersion="3">
+    <version ClassVersion="3" checksum="156399384"/>
+  </class>
+  <class name="edm::Ptr<TotemTimingRecHit>"/>
+  <class name="edm::Wrapper<TotemTimingRecHit>"/>
+  <class name="std::vector<TotemTimingRecHit>"/>
+  <class name="std::vector<edm::DetSet<TotemTimingRecHit> >"/>
+  <class name="edm::DetSet<TotemTimingRecHit>"/>
+  <class name="edm::DetSetVector<TotemTimingRecHit>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<TotemTimingRecHit> >"/>
+  <class name="edm::Wrapper<std::vector<TotemTimingRecHit> >"/>
+
+  <class name="CTPPSDiamondRecHit" ClassVersion="6">
     <version ClassVersion="3" checksum="2377257106"/>
+    <version ClassVersion="4" checksum="2150979176"/>
+    <version ClassVersion="5" checksum="2528095961"/>
+    <version ClassVersion="6" checksum="1515076457"/>
   </class>
   <class name="edm::Ptr<CTPPSDiamondRecHit>"/>
   <class name="edm::Wrapper<CTPPSDiamondRecHit>"/>
   <class name="std::vector<CTPPSDiamondRecHit>"/>
-  <class name="std::vector< edm::DetSet<CTPPSDiamondRecHit> >"/>
+  <class name="std::vector<edm::DetSet<CTPPSDiamondRecHit> >"/>
   <class name="edm::DetSet<CTPPSDiamondRecHit>"/>
   <class name="edm::DetSetVector<CTPPSDiamondRecHit>"/>
-  <class name="edm::Wrapper< edm::DetSetVector<CTPPSDiamondRecHit> >"/>
+  <class name="edm::Wrapper<edm::DetSetVector<CTPPSDiamondRecHit> >"/>
+  <class name="edm::Wrapper<std::vector<CTPPSDiamondRecHit> >"/>
+
+
+  <class name="CTPPSDiamondLocalTrack" ClassVersion="4">
+    <version ClassVersion="3" checksum="2739193553"/>
+    <version ClassVersion="4" checksum="3974505177"/>
+  </class>
+  <class name="edm::Ptr<CTPPSDiamondLocalTrack>"/>
+  <class name="edm::Wrapper<CTPPSDiamondLocalTrack>"/>
+  <class name="std::vector<CTPPSDiamondLocalTrack>"/>
+  <class name="edm::DetSet<CTPPSDiamondLocalTrack>"/>
+  <class name="std::vector<edm::DetSet<CTPPSDiamondLocalTrack> >"/>
+  <class name="edm::Wrapper<std::vector<CTPPSDiamondLocalTrack> >"/>
+  <class name="edm::DetSetVector<CTPPSDiamondLocalTrack>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<CTPPSDiamondLocalTrack> >"/>
+
+<!-- pixel objects -->
+
+  <class name="CTPPSPixelCluster" ClassVersion="3">
+    <version ClassVersion="3" checksum="2858478211"/>
+  </class>
+  <class name="edm::DetSet<CTPPSPixelCluster>"/>
+  <class name="std::vector<CTPPSPixelCluster>"/>
+  <class name="std::vector<edm::DetSet<CTPPSPixelCluster> >"/>
+  <class name="edm::DetSetVector<CTPPSPixelCluster>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<CTPPSPixelCluster> >"/>
+
+  <class name="CTPPSPixelRecHit" ClassVersion="3">
+    <version ClassVersion="3" checksum="2784452215"/>
+  </class>
+  <class name="edm::DetSet<CTPPSPixelRecHit>"/>
+  <class name="std::vector<CTPPSPixelRecHit>"/>
+  <class name="std::vector<edm::DetSet<CTPPSPixelRecHit> >"/>
+  <class name="edm::DetSetVector<CTPPSPixelRecHit>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<CTPPSPixelRecHit> >"/>
+
+  <class name="CTPPSPixelLocalTrack" ClassVersion="3">
+    <version ClassVersion="3" checksum="4150373475"/>
+  </class>
+  <class name="edm::DetSet<CTPPSPixelLocalTrack>"/>
+  <class name="std::vector<CTPPSPixelLocalTrack>"/>
+  <class name="std::vector<edm::DetSet<CTPPSPixelLocalTrack> >"/>
+  <class name="edm::DetSetVector<CTPPSPixelLocalTrack>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<CTPPSPixelLocalTrack> >"/>
+  <class name="edm::DetSetVector<CTPPSPixelFittedRecHit>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<CTPPSPixelFittedRecHit>>"/>
+  <class name="std::vector<edm::DetSet<CTPPSPixelFittedRecHit> >"/>
+  <class name="std::vector<CTPPSPixelFittedRecHit>"/>
+  <class name="CTPPSPixelFittedRecHit"/>
 
 <!-- common objects -->
 

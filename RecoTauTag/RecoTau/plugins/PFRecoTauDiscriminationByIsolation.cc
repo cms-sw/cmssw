@@ -194,7 +194,7 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
       pset.getParameter<int>("verbosity") : 0;
   }
 
-  ~PFRecoTauDiscriminationByIsolation()
+  ~PFRecoTauDiscriminationByIsolation() override
   {
   }
 

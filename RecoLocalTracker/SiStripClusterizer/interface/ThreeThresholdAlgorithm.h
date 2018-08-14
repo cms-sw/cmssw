@@ -26,7 +26,7 @@ class ThreeThresholdAlgorithm final : public StripClusterizerAlgorithm {
       unpacker++;
     }
   }
-
+  using StripClusterizerAlgorithm::addFed;
   // detset interface
   void addFed(State & state, sistrip::FEDZSChannelUnpacker & unpacker, uint16_t ipair, output_t::TSFastFiller & out) const override {
     while (unpacker.hasData()) {

@@ -88,8 +88,8 @@ namespace popcon {
     
     
     PopConSourceHandler():
-      m_tagInfo(0),
-      m_logDBEntry(0)
+      m_tagInfo(nullptr),
+      m_logDBEntry(nullptr)
     {}
     
     virtual ~PopConSourceHandler(){
@@ -163,7 +163,10 @@ namespace popcon {
     }
     
   protected:
-    
+
+    cond::persistency::Session& dbSession() const {
+      return m_session;
+    }
     
     int add(value_type * payload, Summary * summary, Time_t time) {
       Triplet t = {payload,summary,time};

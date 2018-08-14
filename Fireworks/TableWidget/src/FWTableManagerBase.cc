@@ -130,7 +130,7 @@ bool FWTableManagerBase::hasRowHeaders() const
 }
 FWTableCellRendererBase* FWTableManagerBase::rowHeader(int iRow) const
 {
-   return 0;
+   return nullptr;
 }
 
 void 

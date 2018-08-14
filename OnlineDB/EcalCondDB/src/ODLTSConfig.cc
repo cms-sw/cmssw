@@ -10,10 +10,10 @@ using namespace oracle::occi;
 
 ODLTSConfig::ODLTSConfig()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   m_config_tag="";
   m_ID=0;
   clear();
@@ -66,7 +66,7 @@ int ODLTSConfig::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODLTSConfig::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODLTSConfig::fetchNextId():  ")+getOraMessage(&e)));
   }
 
 }
@@ -88,7 +88,7 @@ void ODLTSConfig::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODLTSConfig::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODLTSConfig::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -112,7 +112,7 @@ void ODLTSConfig::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODLTSConfig::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODLTSConfig::writeDB():  ")+getOraMessage(&e)));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -129,7 +129,7 @@ void ODLTSConfig::fetchData(ODLTSConfig * result)
 {
   this->checkConnection();
   result->clear();
-  if(result->getId()==0 && (result->getConfigTag()=="") ){
+  if(result->getId()==0 && (result->getConfigTag().empty()) ){
     throw(std::runtime_error("ODLTSConfig::fetchData(): no Id defined for this ODLTSConfig "));
   }
 
@@ -145,16 +145,16 @@ void ODLTSConfig::fetchData(ODLTSConfig * result)
     rset->next();
     // 1 is the id and 2 is the config tag
     result->setId(rset->getInt(1));
-    result->setConfigTag(rset->getString(2));
+    result->setConfigTag(getOraString(rset,2));
 
-    result->setTriggerType(        rset->getString(3) );
+    result->setTriggerType(        getOraString(rset,3) );
     result->setNumberOfEvents(     rset->getInt(4) );
     result->setRate(               rset->getInt(5) );
     result->setTrigLocL1Delay(     rset->getInt(6) );
   
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODLTSConfig::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODLTSConfig::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -183,7 +183,7 @@ int ODLTSConfig::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODLTSConfig::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODLTSConfig::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;

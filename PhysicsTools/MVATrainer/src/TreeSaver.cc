@@ -51,15 +51,15 @@ class TreeSaver : public TrainProcessor {
 
 	TreeSaver(const char *name, const AtomicId *id,
 	         MVATrainer *trainer);
-	virtual ~TreeSaver();
+	~TreeSaver() override;
 
-	virtual void configure(DOMElement *elem) override;
-	virtual void passFlags(const std::vector<Variable::Flags> &flags) override;
+	void configure(DOMElement *elem) override;
+	void passFlags(const std::vector<Variable::Flags> &flags) override;
 
-	virtual void trainBegin() override;
-	virtual void trainData(const std::vector<double> *values,
+	void trainBegin() override;
+	void trainData(const std::vector<double> *values,
 	                       bool target, double weight) override;
-	virtual void trainEnd() override;
+	void trainEnd() override;
 
     private:
 	void init();
@@ -91,12 +91,12 @@ class TreeSaver : public TrainProcessor {
 	bool				flagsPassed, begun;
 };
 
-static TreeSaver::Registry registry("TreeSaver");
+TreeSaver::Registry registry("TreeSaver");
 
 TreeSaver::TreeSaver(const char *name, const AtomicId *id,
                    MVATrainer *trainer) :
 	TrainProcessor(name, id, trainer),
-	iteration(ITER_EXPORT), tree(0), flagsPassed(false), begun(false)
+	iteration(ITER_EXPORT), tree(nullptr), flagsPassed(false), begun(false)
 {
 }
 
@@ -133,7 +133,7 @@ void TreeSaver::configure(DOMElement *elem)
 		Var var;
 		var.name = name;
 		var.flags = Variable::FLAG_NONE;
-		var.ptr = 0;
+		var.ptr = nullptr;
 		vars.push_back(var);
 	}
 }

@@ -18,7 +18,7 @@ using namespace std;
 MagBRod::MagBRod(vector<MagBSlab*>& slabs, Geom::Phi<float> phiMin) :
   theSlabs(slabs),
   thePhiMin(phiMin),
-  theBinFinder(0)
+  theBinFinder(nullptr)
 {
   // TOFIX
 //   if (verbose.debugOut) cout << "Building MagBRod with " << theSlabs.size()
@@ -47,11 +47,11 @@ MagBRod::~MagBRod() {
 }
 
 const MagVolume * MagBRod::findVolume(const GlobalPoint & gp, double tolerance) const {
-  const MagVolume * result = 0;
+  const MagVolume * result = nullptr;
   float Z = gp.z();
 
   int bin = 0;
-  if (theBinFinder!=0) { // true if there is > 1 bin
+  if (theBinFinder!=nullptr) { // true if there is > 1 bin
     bin = theBinFinder->binIndex(Z);
   }
   
@@ -61,7 +61,7 @@ const MagVolume * MagBRod::findVolume(const GlobalPoint & gp, double tolerance) 
   result = theSlabs[bin]->findVolume(gp, tolerance);
   // TOFIX
   if (verbose::debugOut) cout << "***In guessed bslab"
-			      << (result==0? " failed " : " OK ") <<endl;  
+			      << (result==nullptr? " failed " : " OK ") <<endl;  
 
   return result;
 }

@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import os
 import shutil
 import sys
@@ -11,7 +12,7 @@ import userparams
 # Input parameters
 #
 
-print "Reading input parameters" 
+print("Reading input parameters") 
 
 #
 #specify macros used to plot here
@@ -73,7 +74,7 @@ def GetFastSimSuffix(params):
 
 def replace(map, filein, fileout):
     replace_items = map.items()
-    while 1:
+    while True:
         line = filein.readline()
         if not line: break
         for old, new in replace_items:
@@ -97,8 +98,8 @@ def downloadfile(url):
 	return True
     else:
         print('   + ERROR! ' + str(output[0]))
-	print "Skipping " + url
-	print "Please check the name of the file in the repository: "+GetGuiRepository(userparams.NewParams)
+	print("Skipping " + url)
+	print("Please check the name of the file in the repository: "+GetGuiRepository(userparams.NewParams))
         sys.exit('Exiting...');
 	# return False
 
@@ -144,7 +145,7 @@ def getSampleFiles(params, sample):
     sampleOnWeb=userparams.WebRepository+'/'+ localsample
 
     if (os.path.isfile(localsample)==True):
-        print '   + ' + params['Type'] + 'sample file found at: ' +localsample + '. Using that one'
+        print('   + ' + params['Type'] + 'sample file found at: ' +localsample + '. Using that one')
     elif (userparams.NewParams['GetFilesFrom']=='GUI'):
         theGuiSample = sample
         
@@ -154,11 +155,11 @@ def getSampleFiles(params, sample):
                     #theGuiPostFixLS1 = "_UPGpostls1_14"                                                                                                                               
                     theGuiPostFixLS1 = "_13"
                     theGuiSample = theGuiSample+theGuiPostFixLS1
-                print "Sample is "+theGuiSample
+                print("Sample is "+theGuiSample)
             else:
                 # Temporary fix due to the different names used for JPsiMM and TTbar samples in the DQM GUI
                 if(sample=="RelValZpMM_2250_13TeV_Tauola"):
-                    print "Subfix not added"     
+                    print("Subfix not added")     
                     theGuiPostFixLS1 = ""
                 elif ((sample=="RelValTTbar")|(sample=="RelValJpsiMM")|(sample=="RelValZMM")):
                     #theGuiPostFixLS1 = "_UPGpostls1_14"
@@ -170,7 +171,7 @@ def getSampleFiles(params, sample):
 
         guiFileName='DQM_V0001_R000000001__'+theGuiSample+'__'+params['Release']+'-'+GetLabel(params)+'__'+params['Format']+'.root'
         guiFullURL=GetGuiRepository(params)+guiFileName
-        print ">> Downloading file from the GUI: " + guiFullURL
+        print(">> Downloading file from the GUI: " + guiFullURL)
         #os.system('wget --ca-directory $X509_CERT_DIR/ --certificate=$X509_USER_PROXY --private-key=$X509_USER_PROXY '+GetGuiRepository(params)+guiFileName)
         #os.system('/usr/bin/curl -O -L --capath $X509_CERT_DIR --key $X509_USER_PROXY --cert $X509_USER_PROXY '+ guiFullURL)
         if (downloadfile(guiFullURL)==True):
@@ -178,14 +179,14 @@ def getSampleFiles(params, sample):
         	shutil.move(guiFileName,localsample)
 
     elif (params['GetFilesFrom']=='CASTOR'):
-        print '   + Getting new file from castor'
+        print('   + Getting new file from castor')
         params['Condition']=params['Condition']+GetFastSimSuffix(params)
         os.system('rfcp '+params['CastorRepository']+'/'+params['Release']+'_'+params['Condition']+'_'+sample+'_val.'+sample+'.root '+localsample)
     elif ((params['GetFilesFrom']=='WEB') & (os.path.isfile(sampleOnWeb))) :
-        print "NOTE: New file found at: "+newSample+' -> Copy that one'
+        print("NOTE: New file found at: "+newSample+' -> Copy that one')
         os.system('cp '+sampleOnWeb+' '+path)
     else:
-        print '*** WARNING: no signal file was found'
+        print('*** WARNING: no signal file was found')
 
 
 def getReplaceMap(newparams, refparams, sample, datatype, cfgkey, cfgfile):
@@ -224,10 +225,10 @@ for i in userparams.NewParams:
 # + Things needed by GUI
 if ((userparams.NewParams['GetFilesFrom']=='GUI')|(userparams.RefParams['GetFilesFrom']=='GUI')):
     if os.getenv('X509_USER_PROXY','') == '':
-        print "ERROR: It seems you did not configure your environment to be able"
-        print "       to download files from the GUI. Your should follow these steps:"
-        print " > source /afs/cern.ch/project/gd/LCG-share/sl5/etc/profile.d/grid_env.csh"
-        print " > voms-proxy-init"
+        print("ERROR: It seems you did not configure your environment to be able")
+        print("       to download files from the GUI. Your should follow these steps:")
+        print(" > source /afs/cern.ch/project/gd/LCG-share/sl5/etc/profile.d/grid_env.csh")
+        print(" > voms-proxy-init")
         quit()
 
 if (userparams.NewParams['FastSim']|userparams.RefParams['FastSim']):
@@ -297,7 +298,7 @@ for sample in userparams.samples :
             replace_map_RECO = getReplaceMap(userparams.NewParams, userparams.RefParams, sample, 'RECO', 'RecoMuonValHistoPublisher', recomuoncfgFileName)
             replace_map_RECO['IS_FSIM']=''
     else:
-        print "No reference file found at: ", refpath
+        print("No reference file found at: ", refpath)
         replace_map = getReplaceMap(userparams.NewParams, userparams.NewParams, sample, 'RECO', 'TrackValHistoPublisher', cfgFileName)
         if (userparams.ValidateHLT):
             replace_map_HLT = getReplaceMap(userparams.NewParams, userparams.NewParams, sample, 'HLT', 'TrackValHistoPublisher', hltcfgFileName)

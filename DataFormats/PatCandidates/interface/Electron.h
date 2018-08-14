@@ -64,24 +64,24 @@ namespace pat {
       /// constructor from a Ptr to a reco::GsfElectron
       Electron(const edm::Ptr<reco::GsfElectron> & anElectronRef);
       /// destructor
-      virtual ~Electron();
+      ~Electron() override;
 
       /// required reimplementation of the Candidate's clone method
-      virtual Electron * clone() const { return new Electron(*this); }
+      Electron * clone() const override { return new Electron(*this); }
 
       // ---- methods for content embedding ----
       /// override the virtual reco::GsfElectron::core method, so that the embedded core can be used by GsfElectron client methods
-      virtual reco::GsfElectronCoreRef core() const;
+      reco::GsfElectronCoreRef core() const override;
       /// override the reco::GsfElectron::gsfTrack method, to access the internal storage of the supercluster
-      reco::GsfTrackRef gsfTrack() const;
+      reco::GsfTrackRef gsfTrack() const override;
       /// override the reco::GsfElectron::superCluster method, to access the internal storage of the supercluster
-      reco::SuperClusterRef superCluster() const;
+      reco::SuperClusterRef superCluster() const override;
       /// override the reco::GsfElectron::pflowSuperCluster method, to access the internal storage of the pflowSuperCluster
-      reco::SuperClusterRef parentSuperCluster() const;
+      reco::SuperClusterRef parentSuperCluster() const override;
       /// returns nothing. Use either gsfTrack or closestCtfTrack
-      reco::TrackRef track() const;
+      reco::TrackRef track() const override;
       /// override the reco::GsfElectron::closestCtfTrackRef method, to access the internal storage of the track
-      reco::TrackRef closestCtfTrackRef() const;
+      reco::TrackRef closestCtfTrackRef() const override;
       /// direct access to the seed cluster
       reco::CaloClusterPtr seed() const; 
 
@@ -154,11 +154,6 @@ namespace pat {
       float hcalIso()  const { return dr04HcalTowerSumEt(); }
       /// Overload of pat::Lepton::caloIso(); returns the sum of ecalIso() and hcalIso
       float caloIso()  const { return ecalIso()+hcalIso(); }
-      /// get and set PFCluster Isolation                                                                                                                                      
-      float ecalPFClusterIso() const { return ecalPFClusIso_; };
-      float hcalPFClusterIso() const { return hcalPFClusIso_; };
-      void setEcalPFClusterIso(float ecalPFClus) { ecalPFClusIso_ = ecalPFClus; };
-      void setHcalPFClusterIso(float hcalPFClus) { hcalPFClusIso_ = hcalPFClus; };
       /// returns PUPPI isolations			
       float puppiChargedHadronIso() const {return puppiChargedHadronIso_; }
       float puppiNeutralHadronIso() const {return puppiNeutralHadronIso_; }
@@ -196,14 +191,14 @@ namespace pat {
       /// embed the PFCandidate pointed to by pfCandidateRef_
       void embedPFCandidate();
       /// get the number of non-null PFCandidates
-      size_t numberOfSourceCandidatePtrs() const {
+      size_t numberOfSourceCandidatePtrs() const override {
         return (pfCandidateRef_.isNonnull() ? 1 : 0) + associatedPackedFCandidateIndices_.size();
       }
       /// get the source candidate pointer with index i
-      reco::CandidatePtr sourceCandidatePtr( size_type i ) const;
+      reco::CandidatePtr sourceCandidatePtr( size_type i ) const override;
 
       // ---- embed various impact parameters with errors ----
-      typedef enum IPTYPE { PV2D = 0, PV3D = 1, BS2D = 2, BS3D = 3, IpTypeSize = 4 } IpType;
+      typedef enum IPTYPE { PV2D = 0, PV3D = 1, BS2D = 2, BS3D = 3, PVDZ = 4, IpTypeSize = 5 } IpType;
       /// Impact parameter wrt primary vertex or beamspot
       double dB(IPTYPE type) const;
       /// Uncertainty on the corresponding impact parameter
@@ -363,10 +358,6 @@ namespace pat {
       double ecalTrackRegressionScale_;
       double ecalTrackRegressionSmear_;
       
-      /// PFCluster Isolation (a la HLT)
-      float ecalPFClusIso_;
-      float hcalPFClusIso_;
-
       /// PUPPI isolations
       float puppiChargedHadronIso_;
       float puppiNeutralHadronIso_;

@@ -28,6 +28,9 @@ void GEMSimTrackMatch::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
   iSetup.get<MuonGeometryRecord>().get(hGeom);
   const GEMGeometry& geom = *hGeom;
   setGeometry(geom);
+    
+  ibooker.setCurrentFolder("MuonGEMHitsV/GEMHitsTask");
+  LogDebug("GEMSimTrackMatch")<<"ibooker set current folder\n";
 
   const float PI=TMath::Pi();
 

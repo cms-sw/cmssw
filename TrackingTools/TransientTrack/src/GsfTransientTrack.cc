@@ -14,7 +14,7 @@ using namespace std;
 
 GsfTransientTrack::GsfTransientTrack() : 
   GsfTrack(), tkr_(), hasTime(false), timeExt_(0.), dtErrorExt_(0.),
-  theField(0), initialTSOSAvailable(false),
+  theField(nullptr), initialTSOSAvailable(false),
   initialTSCPAvailable(false), blStateAvailable(false), theTIPExtrapolator()
 {}
 

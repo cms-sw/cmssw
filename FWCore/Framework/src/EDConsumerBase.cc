@@ -122,8 +122,11 @@ EDConsumerBase::recordConsumes(BranchType iBranch, TypeToGet const& iType, edm::
     m_tokenLabels.push_back('\0');
   }
   {
+    const std::string& m = iTag.process();
+    if (m == InputTag::kCurrentProcess) {
+      containsCurrentProcessAlias_ = true;
+    }
     if (!skipCurrentProcess) {
-      const std::string& m =iTag.process();
       m_tokenLabels.insert(m_tokenLabels.end(),m.begin(),m.end());
       m_tokenLabels.push_back('\0');
     } else {
@@ -139,6 +142,7 @@ EDConsumerBase::updateLookup(BranchType iBranchType,
                              bool iPrefetchMayGet)
 {
   frozen_ = true;
+  assert(!containsCurrentProcessAlias_);
   {
     auto itKind = m_tokenInfo.begin<kKind>();
     auto itLabels = m_tokenInfo.begin<kLabels>();
@@ -187,11 +191,9 @@ EDConsumerBase::updateLookup(BranchType iBranchType,
   }
   m_tokenInfo.shrink_to_fit();
 
-  if(iBranchType == InEvent) {
-    itemsToGet(iBranchType, itemsToGetFromEvent_);
-    if(iPrefetchMayGet) {
-      itemsMayGet(iBranchType, itemsToGetFromEvent_);
-    }
+  itemsToGet(iBranchType, itemsToGetFromBranch_[iBranchType]);
+  if(iPrefetchMayGet) {
+    itemsMayGet(iBranchType, itemsToGetFromBranch_[iBranchType]);
   }
 }
 
@@ -201,12 +203,12 @@ EDConsumerBase::updateLookup(BranchType iBranchType,
 ProductResolverIndexAndSkipBit
 EDConsumerBase::indexFrom(EDGetToken iToken, BranchType iBranch, TypeID const& iType) const
 {
-  if(unlikely(iToken.index()>=m_tokenInfo.size())) {
+  if(UNLIKELY(iToken.index()>=m_tokenInfo.size())) {
     throwBadToken(iType,iToken);
   }
   const auto& info = m_tokenInfo.get<kLookupInfo>(iToken.index());
-  if (likely(iBranch == info.m_branchType)) {
-    if (likely(iType == info.m_type)) {
+  if (LIKELY(iBranch == info.m_branchType)) {
+    if (LIKELY(iType == info.m_type)) {
       return info.m_index;
     } else {
       throwTypeMismatch(iType, iToken);
@@ -216,6 +218,12 @@ EDConsumerBase::indexFrom(EDGetToken iToken, BranchType iBranch, TypeID const& i
   }
   return ProductResolverIndexAndSkipBit(edm::ProductResolverIndexInvalid, false);
 }
+
+ProductResolverIndexAndSkipBit
+EDConsumerBase::uncheckedIndexFrom(EDGetToken iToken) const {
+  return m_tokenInfo.get<kLookupInfo>(iToken.index()).m_index;
+}
+
 
 void
 EDConsumerBase::itemsToGet(BranchType iBranch, std::vector<ProductResolverIndexAndSkipBit>& oIndices) const
@@ -312,14 +320,6 @@ EDConsumerBase::registeredToConsume(ProductResolverIndex iIndex, bool skipCurren
       return true;
     }
   }
-  //TEMPORARY: Remember so we do not have to do this again
-  //non thread-safe
-  EDConsumerBase* nonConstThis = const_cast<EDConsumerBase*>(this);
-  nonConstThis->m_tokenInfo.emplace_back(TokenLookupInfo{TypeID{}, iIndex, skipCurrentProcess, iBranch},
-                                         true,
-                                         LabelPlacement{0,0,0},
-                                         PRODUCT_TYPE);
-
   return false;
 }
 
@@ -336,13 +336,6 @@ EDConsumerBase::registeredToConsumeMany(TypeID const& iType, BranchType iBranch)
       return true;
     }
   }
-  //TEMPORARY: Remember so we do not have to do this again
-  //non thread-safe
-  EDConsumerBase* nonConstThis = const_cast<EDConsumerBase*>(this);
-  nonConstThis->m_tokenInfo.emplace_back(TokenLookupInfo{iType,ProductResolverIndexInvalid, false, iBranch},
-                           true,
-                           LabelPlacement{0,0,0},
-                           PRODUCT_TYPE);
   return false;
   
 }
@@ -479,6 +472,57 @@ EDConsumerBase::modulesWhoseProductsAreConsumed(std::vector<ModuleDescription co
         }
       }
     }
+  }
+}
+
+void
+EDConsumerBase::convertCurrentProcessAlias(std::string const& processName) {
+
+  frozen_ = true;
+
+  if (containsCurrentProcessAlias_) {
+    containsCurrentProcessAlias_ = false;
+
+    std::vector<char> newTokenLabels;
+
+    // first calculate the size of the new vector and reserve memory for it
+    std::vector<char>::size_type newSize = 0;
+    std::string newProcessName;
+    for(auto iter = m_tokenInfo.begin<kLabels>(), itEnd = m_tokenInfo.end<kLabels>();
+        iter != itEnd; ++iter) {
+      newProcessName = &m_tokenLabels[iter->m_startOfModuleLabel + iter->m_deltaToProcessName];
+      if (newProcessName == InputTag::kCurrentProcess) {
+        newProcessName = processName;
+      }
+      newSize += (iter->m_deltaToProcessName + newProcessName.size() + 1);
+    }
+    newTokenLabels.reserve(newSize);
+
+    unsigned int newStartOfModuleLabel = 0;
+    for(auto iter = m_tokenInfo.begin<kLabels>(), itEnd = m_tokenInfo.end<kLabels>();
+        iter != itEnd; ++iter) {
+
+      unsigned int startOfModuleLabel = iter->m_startOfModuleLabel;
+      unsigned short deltaToProcessName = iter->m_deltaToProcessName;
+
+      iter->m_startOfModuleLabel = newStartOfModuleLabel;
+
+      newProcessName = &m_tokenLabels[startOfModuleLabel + deltaToProcessName];
+      if (newProcessName == InputTag::kCurrentProcess) {
+        newProcessName = processName;
+      }
+
+      newStartOfModuleLabel += (deltaToProcessName + newProcessName.size() + 1);
+
+      // Copy in both the module label and instance, they are the same
+      newTokenLabels.insert(newTokenLabels.end(),
+                            m_tokenLabels.begin() + startOfModuleLabel,
+                            m_tokenLabels.begin() + (startOfModuleLabel + deltaToProcessName));
+
+      newTokenLabels.insert(newTokenLabels.end(), newProcessName.begin(), newProcessName.end());
+      newTokenLabels.push_back('\0');
+    }
+    m_tokenLabels = std::move(newTokenLabels);
   }
 }
 

@@ -5,6 +5,7 @@ _pp_
 Scenario supporting proton collisions
 
 """
+from __future__ import print_function
 
 import os
 import sys
@@ -18,6 +19,7 @@ class Reco(Scenario):
     def __init__(self):
         Scenario.__init__(self)
         self.recoSeq=''
+        self.addEI=False
         self.cbSc=self.__class__.__name__
         self.promptModifiers = cms.ModifierChain()
         self.expressModifiers = cms.ModifierChain()
@@ -51,7 +53,7 @@ class Reco(Scenario):
         PhysicsSkimStep = ''
         if ("PhysicsSkims" in args) :
             PhysicsSkimStep = stepSKIMPRODUCER(args['PhysicsSkims'])
-        dqmStep= dqmSeq(args,'')
+        dqmStep = dqmSeq(args,'')
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = self.cbSc
@@ -75,11 +77,10 @@ class Reco(Scenario):
             options.customisation_file=args['customs']
 
         eiStep=''
-        if self.cbSc == 'pp':
+        if self.addEI:
             eiStep=',EI'
 
         options.step = 'RAW2DIGI,L1Reco,RECO'+self.recoSeq+eiStep+step+PhysicsSkimStep+miniAODStep+',DQM'+dqmStep+',ENDJOB'
-
 
         dictIO(options,args)
         options.conditions = gtNameAndConnect(globalTag, args)
@@ -118,10 +119,11 @@ class Reco(Scenario):
         options.scenario = self.cbSc
 
         eiStep=''
-        if self.cbSc == 'pp':
+        if self.addEI:
             eiStep=',EI'
 
-        options.step = 'RAW2DIGI,L1Reco,RECO'+eiStep+step+',DQM'+dqmStep+',ENDJOB'
+        options.step = 'RAW2DIGI,L1Reco,RECO'+self.recoSeq+eiStep+step+',DQM'+dqmStep+',ENDJOB'
+
         dictIO(options,args)
         options.conditions = gtNameAndConnect(globalTag, args)
 
@@ -160,7 +162,7 @@ class Reco(Scenario):
             options.step +='FILTER:'+args['preFilter']+','
 
         eiStep=''
-        if self.cbSc == 'pp':
+        if self.addEI:
             eiStep=',EI'
 
         options.step += 'RAW2DIGI,L1Reco,RECO'+eiStep+',ENDJOB'
@@ -178,7 +180,7 @@ class Reco(Scenario):
             # this is the default as this is what is needed on the OnlineCluster
             options.filetype = 'DQMDAQ'
 
-        print "Using %s source"%options.filetype            
+        print("Using %s source"%options.filetype)            
 
         process = cms.Process('RECO', cms.ModifierChain(self.eras, self.visModifiers) )
 
@@ -212,7 +214,7 @@ class Reco(Scenario):
 
         step = ""
         pclWflws = [x for x in skims if "PromptCalibProd" in x]
-        skims = filter(lambda x: x not in pclWflws, skims)
+        skims = [x for x in skims if x not in pclWflws]
 
         if len(pclWflws):
             step += 'ALCA:'+('+'.join(pclWflws))

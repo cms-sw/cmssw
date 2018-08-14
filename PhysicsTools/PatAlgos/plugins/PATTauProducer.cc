@@ -32,6 +32,7 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
   isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation") : edm::ParameterSet(), consumesCollector(), false) ,
   useUserData_(iConfig.exists("userData"))
 {
+  firstOccurence_=true;
   // initialize the configurables
   baseTauToken_ = consumes<edm::View<reco::BaseTau> >(iConfig.getParameter<edm::InputTag>( "tauSource" ));
   tauTransverseImpactParameterSrc_ = iConfig.getParameter<edm::InputTag>( "tauTransverseImpactParameterSource" );
@@ -72,33 +73,22 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
   // tau ID configurables
   addTauID_ = iConfig.getParameter<bool>( "addTauID" );
   if ( addTauID_ ) {
-    // it might be a single tau ID
-    if (iConfig.existsAs<edm::InputTag>("tauIDSource")) {
-      tauIDSrcs_.push_back(NameTag("", iConfig.getParameter<edm::InputTag>("tauIDSource")));
-    }
-    // or there might be many of them
-    if (iConfig.existsAs<edm::ParameterSet>("tauIDSources")) {
-      // please don't configure me twice
-      if (!tauIDSrcs_.empty()){
-	throw cms::Exception("Configuration") << "PATTauProducer: you can't specify both 'tauIDSource' and 'tauIDSources'\n";
-      }
-      // read the different tau ID names
-      edm::ParameterSet idps = iConfig.getParameter<edm::ParameterSet>("tauIDSources");
-      std::vector<std::string> names = idps.getParameterNamesForType<edm::InputTag>();
-      for (std::vector<std::string>::const_iterator it = names.begin(), ed = names.end(); it != ed; ++it) {
-	tauIDSrcs_.push_back(NameTag(*it, idps.getParameter<edm::InputTag>(*it)));
-      }
+    // read the different tau ID names
+    edm::ParameterSet idps = iConfig.getParameter<edm::ParameterSet>("tauIDSources");
+    std::vector<std::string> names = idps.getParameterNamesForType<edm::InputTag>();
+    for (std::vector<std::string>::const_iterator it = names.begin(), ed = names.end(); it != ed; ++it) {
+      tauIDSrcs_.push_back(NameTag(*it, idps.getParameter<edm::InputTag>(*it)));
     }
     // but in any case at least once
     if (tauIDSrcs_.empty()) throw cms::Exception("Configuration") <<
       "PATTauProducer: id addTauID is true, you must specify either:\n" <<
-      "\tInputTag tauIDSource = <someTag>\n" << "or\n" <<
       "\tPSet tauIDSources = { \n" <<
       "\t\tInputTag <someName> = <someTag>   // as many as you want \n " <<
       "\t}\n";
   }
   caloTauIDTokens_ = edm::vector_transform(tauIDSrcs_, [this](NameTag const & tag){return mayConsume<reco::CaloTauDiscriminator>(tag.second);});
   pfTauIDTokens_   = edm::vector_transform(tauIDSrcs_, [this](NameTag const & tag){return mayConsume<reco::PFTauDiscriminator>(tag.second);});
+  skipMissingTauID_ = iConfig.getParameter<bool>( "skipMissingTauID" );
   // IsoDeposit configurables
   if (iConfig.exists("isoDeposits")) {
     edm::ParameterSet depconf = iConfig.getParameter<edm::ParameterSet>("isoDeposits");
@@ -317,9 +307,11 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     // prepare ID extraction
     if ( addTauID_ ) {
+      std::string missingDiscriminators;
       std::vector<pat::Tau::IdPair> ids(tauIDSrcs_.size());
+      auto const& tausDeref = *tausRef;
       for ( size_t i = 0; i < tauIDSrcs_.size(); ++i ) {
-	if ( typeid(*tausRef) == typeid(reco::PFTau) ) {
+	if ( typeid(tausDeref) == typeid(reco::PFTau) ) {
 	  //std::cout << "filling PFTauDiscriminator '" << tauIDSrcs_[i].first << "' into pat::Tau object..." << std::endl;
 	  edm::Handle<reco::PFTauCollection> pfTauCollection;
 	  iEvent.getByToken(pfTauToken_, pfTauCollection);
@@ -327,9 +319,16 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	  edm::Handle<reco::PFTauDiscriminator> pfTauIdDiscr;
 	  iEvent.getByToken(pfTauIDTokens_[i], pfTauIdDiscr);
 
+	  if(skipMissingTauID_ && !pfTauIdDiscr.isValid()){
+	    if(!missingDiscriminators.empty()){
+	      missingDiscriminators+=", ";
+	    }
+	    missingDiscriminators+=tauIDSrcs_[i].first;
+	    continue;
+	  }
 	  ids[i].first = tauIDSrcs_[i].first;
 	  ids[i].second = getTauIdDiscriminator(pfTauCollection, idx, pfTauIdDiscr);
-	} else if ( typeid(*tausRef) == typeid(reco::CaloTau) ) {
+	} else if ( typeid(tausDeref) == typeid(reco::CaloTau) ) {
 	  //std::cout << "filling CaloTauDiscriminator '" << tauIDSrcs_[i].first << "' into pat::Tau object..." << std::endl;
 	  edm::Handle<reco::CaloTauCollection> caloTauCollection;
 	  iEvent.getByToken(caloTauToken_, caloTauCollection);
@@ -337,14 +336,27 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	  edm::Handle<reco::CaloTauDiscriminator> caloTauIdDiscr;
 	  iEvent.getByToken(caloTauIDTokens_[i], caloTauIdDiscr);
 
+	  if(skipMissingTauID_ && !caloTauIdDiscr.isValid()){
+	    if(!missingDiscriminators.empty()){
+	      missingDiscriminators+=", ";
+	    }
+	    missingDiscriminators+=tauIDSrcs_[i].first;
+	    continue;
+	  }
 	  ids[i].first = tauIDSrcs_[i].first;
 	  ids[i].second = getTauIdDiscriminator(caloTauCollection, idx, caloTauIdDiscr);
 	} else {
 	  throw cms::Exception("Type Mismatch") <<
-	    "PATTauProducer: unsupported datatype '" << typeid(*tausRef).name() << "' for tauSource\n";
+	    "PATTauProducer: unsupported datatype '" << typeid(tausDeref).name() << "' for tauSource\n";
 	}
       }
-
+      if(!missingDiscriminators.empty() && firstOccurence_){
+	edm::LogWarning("DataSource") << "The following tau discriminators have not been found in the event:\n" 
+				      << missingDiscriminators <<"\n"
+				      << "They will not be embedded into the pat::Tau object.\n"
+				      << "Note: this message will be printed only at first occurence.";
+	firstOccurence_=false;
+      }
       aTau.setTauIDs(ids);
     }
 
@@ -379,7 +391,7 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	sumPhiTimesEnergy += icand->positionAtECALEntrance().phi()*icand->energy();		
 	sumEtaTimesEnergy += icand->positionAtECALEntrance().eta()*icand->energy();
         sumEnergy += icand->energy();	 
-	const reco::Track* track = 0;
+	const reco::Track* track = nullptr;
      	if ( icand->trackRef().isNonnull() ) track = icand->trackRef().get();
      	else if ( icand->muonRef().isNonnull() && icand->muonRef()->innerTrack().isNonnull()  ) track = icand->muonRef()->innerTrack().get();
      	else if ( icand->muonRef().isNonnull() && icand->muonRef()->globalTrack().isNonnull() ) track = icand->muonRef()->globalTrack().get();
@@ -435,7 +447,7 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       aTauPFEssential.ecalEnergyLeadChargedHadrCand_ = ecalEnergyLeadChargedHadrCand;
       aTauPFEssential.hcalEnergyLeadChargedHadrCand_ = hcalEnergyLeadChargedHadrCand; 	
       // extraction of tau lifetime information
-      if( tauTransverseImpactParameterSrc_.label() != "" ) {
+      if( !tauTransverseImpactParameterSrc_.label().empty() ) {
         edm::Handle<PFTauTIPAssociationByRef> tauLifetimeInfos;
         iEvent.getByToken(tauTransverseImpactParameterToken_, tauLifetimeInfos);
         const reco::PFTauTransverseImpactParameter& tauLifetimeInfo = *(*tauLifetimeInfos)[pfTauRef];
@@ -534,7 +546,9 @@ void PATTauProducer::fillDescriptions(edm::ConfigurationDescriptions & descripti
   tauIDSourcesPSet.setAllowAnything();
   iDesc.addNode( edm::ParameterDescription<edm::InputTag>("tauIDSource", edm::InputTag(), true) xor
                  edm::ParameterDescription<edm::ParameterSetDescription>("tauIDSources", tauIDSourcesPSet, true)
-               )->setComment("input with electron ID variables");
+               )->setComment("input with tau ID variables");
+  // (Dis)allow to skip missing tauId sources
+  iDesc.add<bool>("skipMissingTauID", false)->setComment("allow to skip a tau ID variable when not present in the event");
 
   // IsoDeposit configurables
   edm::ParameterSetDescription isoDepositsPSet;

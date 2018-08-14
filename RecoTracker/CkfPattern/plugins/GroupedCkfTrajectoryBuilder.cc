@@ -1,6 +1,8 @@
+#include <algorithm>
+#include <array>
+
 #include "GroupedCkfTrajectoryBuilder.h"
 #include "TrajectorySegmentBuilder.h"
-
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
@@ -27,16 +29,15 @@
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 #include "TrackingTools/TrajectoryState/interface/BasicSingleTrajectoryState.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
-
 
 // only included for RecHit comparison operator:
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
 
 #include "TrackingTools/TrajectoryCleaning/interface/FastTrajectoryCleaner.h"
-
 
 // for looper reconstruction
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelCylinderCrossing.h"
@@ -44,9 +45,6 @@
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
-
-#include <algorithm>
-#include <array>
 
 // #define STAT_TSB
 
@@ -85,7 +83,7 @@ namespace {
     void rebuilt(long long) {}
     void invalid() {}
   };
-  [[cms::thread_safe]] StatCount statCount;
+  CMS_THREAD_SAFE StatCount statCount;
 #endif
 
 
@@ -179,7 +177,8 @@ GroupedCkfTrajectoryBuilder::trajectories (const TrajectorySeed& seed) const
 {
   TrajectoryContainer ret; 
   ret.reserve(10);
-  buildTrajectories(seed, ret, 0);
+  unsigned int tmp;
+  buildTrajectories(seed, ret, tmp, nullptr);
   return ret; 
 }
 
@@ -189,15 +188,17 @@ GroupedCkfTrajectoryBuilder::trajectories (const TrajectorySeed& seed,
 {
   TrajectoryContainer ret; 
   ret.reserve(10);
+  unsigned int tmp;
   RegionalTrajectoryFilter regionalCondition(region);
-  buildTrajectories(seed, ret, &regionalCondition);
+  buildTrajectories(seed, ret, tmp, &regionalCondition);
   return ret; 
 }
 
 void 
 GroupedCkfTrajectoryBuilder::trajectories (const TrajectorySeed& seed, GroupedCkfTrajectoryBuilder::TrajectoryContainer &ret) const 
 {
-  buildTrajectories(seed,ret,0);
+  unsigned int tmp;
+  buildTrajectories(seed,ret,tmp,nullptr);
 }
 
 void
@@ -206,7 +207,8 @@ GroupedCkfTrajectoryBuilder::trajectories (const TrajectorySeed& seed,
 					    const TrackingRegion& region) const
 {
   RegionalTrajectoryFilter regionalCondition(region);
-  buildTrajectories(seed,ret,&regionalCondition);
+  unsigned int tmp;
+  buildTrajectories(seed,ret,tmp,&regionalCondition);
 }
 
 void  
@@ -255,9 +257,10 @@ GroupedCkfTrajectoryBuilder::rebuildTrajectories(TempTrajectory const & starting
 TempTrajectory
 GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
                                                 GroupedCkfTrajectoryBuilder::TrajectoryContainer &result,
+                                                unsigned int& nCandPerSeed,
 						const TrajectoryFilter* regionalCondition) const
 {
-  if (theMeasurementTracker == 0) {
+  if (theMeasurementTracker == nullptr) {
       throw cms::Exception("LogicError") << "Asking to create trajectories to an un-initialized GroupedCkfTrajectoryBuilder.\nYou have to call clone(const MeasurementTrackerEvent *data) and then call trajectories on it instead.\n";
   }
  
@@ -272,7 +275,7 @@ GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
 
   work_.clear();
   const bool inOut = true;
-  groupedLimitedCandidates(seed, startingTraj, regionalCondition, forwardPropagator(seed), inOut, work_);
+  nCandPerSeed = groupedLimitedCandidates(seed, startingTraj, regionalCondition, forwardPropagator(seed), inOut, work_);
   if ( work_.empty() )  return startingTraj;
 
   // cleaning now done here...
@@ -325,7 +328,7 @@ std::cout << "ckf " << kt++ << ": "; for (auto c:chit) std::cout << c <<'/'; std
 }
 
 
-void 
+unsigned int
 GroupedCkfTrajectoryBuilder::groupedLimitedCandidates (const TrajectorySeed& seed,
                                                        TempTrajectory const& startingTraj, 
 						       const TrajectoryFilter* regionalCondition,
@@ -334,6 +337,8 @@ GroupedCkfTrajectoryBuilder::groupedLimitedCandidates (const TrajectorySeed& see
 						       TempTrajectoryContainer& result) const
 {
   unsigned int nIter=1;
+  unsigned int nCands=0; // ignore startingTraj
+  unsigned int prevNewCandSize=0;
   TempTrajectoryContainer candidates;
   TempTrajectoryContainer newCand;
   candidates.push_back( startingTraj);
@@ -349,6 +354,11 @@ GroupedCkfTrajectoryBuilder::groupedLimitedCandidates (const TrajectorySeed& see
       }
 
       LogDebug("CkfPattern")<<"newCand(1): after advanced one layer:\n"<<PrintoutHelper::dumpCandidates(newCand);
+      // account only new candidates, i.e.
+      // - 1 candidate -> 1 candidate, don't increase count
+      // - 1 candidate -> 2 candidates, increase count by 1
+      nCands += newCand.size() - prevNewCandSize;
+      prevNewCandSize = newCand.size();
 
       if ((int)newCand.size() > theMaxCand) {
 	//ShowCand()(newCand);
@@ -383,6 +393,8 @@ GroupedCkfTrajectoryBuilder::groupedLimitedCandidates (const TrajectorySeed& see
 			   <<"\n "<<candidates.size()<<" running candidates are: \n"
 			   <<PrintoutHelper::dumpCandidates(candidates);
   }
+
+  return nCands;
 }
 
 #ifdef EDM_ML_DEBUG
@@ -454,7 +466,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (const TrajectorySeed& seed,
 					      TempTrajectoryContainer& newCand, 
 					      TempTrajectoryContainer& result) const
 {
-  std::pair<TSOS,std::vector<const DetLayer*> > && stateAndLayers = findStateAndLayers(traj);
+  std::pair<TSOS,std::vector<const DetLayer*> > && stateAndLayers = findStateAndLayers(seed,traj);
 
 
   if(maxPt2ForLooperReconstruction>0){
@@ -488,7 +500,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (const TrajectorySeed& seed,
     TSOS stateToUse = stateAndLayers.first;
     
     double dPhiCacheForLoopersReconstruction(0);
-    if unlikely((*il)==traj.lastLayer()){
+    if UNLIKELY(!traj.empty() && (*il)==traj.lastLayer()){
 	
 	if(maxPt2ForLooperReconstruction>0){
 	  // ------ For loopers reconstruction
@@ -651,7 +663,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (const TrajectorySeed& seed,
 
   if ( !foundSegments ){
     LogDebug("CkfPattern")<< "GCTB: adding input trajectory to result";
-    if (stateAndLayers.second.size() > 0)
+    if (!stateAndLayers.second.empty())
       traj.setStopReason(StopReason::NO_SEGMENTS_FOR_VALID_LAYERS);
     addToResult(traj, result, inOut);
   }
@@ -849,7 +861,7 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed&seed,
     //
 
     auto && reFitted = backwardFit(*it,nSeed,fitter,seedHits);
-    if unlikely( !reFitted.isValid() ) {
+    if UNLIKELY( !reFitted.isValid() ) {
 	rebuiltTrajectories.push_back(std::move(*it));
 	LogDebug("CkfPattern")<< "RebuildSeedingRegion skipped as backward fit failed";
 	//			    << "after reFitted.size() " << reFitted.size();
@@ -1024,7 +1036,7 @@ GroupedCkfTrajectoryBuilder::backwardFit (TempTrajectory& candidate, unsigned in
   unsigned int nHitMin = std::max(candidate.foundHits()-nSeed,theMinNrOfHitsForRebuild);
   //  unsigned int nHitMin = oldMeasurements.size()-nSeed;
   // we want to rebuild only if the number of VALID measurements excluding the seed measurements is higher than the cut
-  if unlikely(nHitMin<theMinNrOfHitsForRebuild) return TempTrajectory();
+  if UNLIKELY(nHitMin<theMinNrOfHitsForRebuild) return TempTrajectory();
 
   LogDebug("CkfPattern")/* << "nHitMin " << nHitMin*/ <<"Sizes: " << candidate.measurements().size() << " / ";
   //
@@ -1048,7 +1060,7 @@ GroupedCkfTrajectoryBuilder::backwardFit (TempTrajectory& candidate, unsigned in
       //
       // count valid / 2D hits
       //
-      if likely( hit->isValid() ) {
+      if LIKELY( hit->isValid() ) {
 	  nHit++;
 	  //if ( hit.isMatched() ||
 	  //     hit.det().detUnits().front()->type().module()==pixel )
@@ -1067,7 +1079,7 @@ GroupedCkfTrajectoryBuilder::backwardFit (TempTrajectory& candidate, unsigned in
   //
   // Fit only if required number of valid hits can be used
   //
-  if unlikely( nHit<nHitMin ) return TempTrajectory();
+  if UNLIKELY( nHit<nHitMin ) return TempTrajectory();
 
   //
   // Do the backward fit (important: start from scaled, not random cov. matrix!)
@@ -1078,7 +1090,7 @@ GroupedCkfTrajectoryBuilder::backwardFit (TempTrajectory& candidate, unsigned in
   //TrajectoryContainer bwdFitted(fitter.fit(fwdTraj.seed(),fwdTraj.recHits(),firstTsos));
   Trajectory && bwdFitted = fitter.fitOne(TrajectorySeed(PTrajectoryStateOnDet(), TrajectorySeed::recHitContainer(), oppositeDirection(candidate.direction())),
 					  fwdTraj.recHits(),firstTsos);
-  if unlikely(!bwdFitted.isValid()) return TempTrajectory();
+  if UNLIKELY(!bwdFitted.isValid()) return TempTrajectory();
 
 
   LogDebug("CkfPattern")<<"Obtained bwdFitted trajectory with measurement size " << bwdFitted.measurements().size();

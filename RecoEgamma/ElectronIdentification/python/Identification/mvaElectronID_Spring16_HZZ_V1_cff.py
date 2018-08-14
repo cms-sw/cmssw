@@ -1,5 +1,5 @@
 from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
-
+from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_tools import *
 import FWCore.ParameterSet.Config as cms
 
 #
@@ -16,12 +16,10 @@ import FWCore.ParameterSet.Config as cms
 #     https://indico.cern.ch/event/482674/contributions/2206032/attachments/1292177/1931287/20160621_EGM_cms_week_v5.pdf
 #
 
-# This MVA implementation class name
-mvaSpring16ClassName = "ElectronMVAEstimatorRun2Spring16HZZ"
 # The tag is an extra string attached to the names of the products
 # such as ValueMaps that needs to distinguish cases when the same MVA estimator
 # class is used with different tuning/weights
-mvaTag = "V1"
+mvaTag = "Spring16HZZV1"
 
 # There are 6 categories in this MVA. They have to be configured in this strict order
 # (cuts and weight files order):
@@ -33,39 +31,24 @@ mvaTag = "V1"
 #   5   EE             pt 10-inf GeV
 
 mvaSpring16WeightFiles_V1 = cms.vstring(
-    "RecoEgamma/ElectronIdentification/data/Spring16_HZZ_V1/electronID_mva_Spring16_HZZ_V1_EB1_5.weights.xml",
-    "RecoEgamma/ElectronIdentification/data/Spring16_HZZ_V1/electronID_mva_Spring16_HZZ_V1_EB2_5.weights.xml",
-    "RecoEgamma/ElectronIdentification/data/Spring16_HZZ_V1/electronID_mva_Spring16_HZZ_V1_EE_5.weights.xml",
-    "RecoEgamma/ElectronIdentification/data/Spring16_HZZ_V1/electronID_mva_Spring16_HZZ_V1_EB1_10.weights.xml",
-    "RecoEgamma/ElectronIdentification/data/Spring16_HZZ_V1/electronID_mva_Spring16_HZZ_V1_EB2_10.weights.xml",
-    "RecoEgamma/ElectronIdentification/data/Spring16_HZZ_V1/electronID_mva_Spring16_HZZ_V1_EE_10.weights.xml"
+    "RecoEgamma/ElectronIdentification/data/Spring16_HZZ_V1/electronID_mva_Spring16_HZZ_V1_EB1_5.weights.xml.gz",
+    "RecoEgamma/ElectronIdentification/data/Spring16_HZZ_V1/electronID_mva_Spring16_HZZ_V1_EB2_5.weights.xml.gz",
+    "RecoEgamma/ElectronIdentification/data/Spring16_HZZ_V1/electronID_mva_Spring16_HZZ_V1_EE_5.weights.xml.gz",
+    "RecoEgamma/ElectronIdentification/data/Spring16_HZZ_V1/electronID_mva_Spring16_HZZ_V1_EB1_10.weights.xml.gz",
+    "RecoEgamma/ElectronIdentification/data/Spring16_HZZ_V1/electronID_mva_Spring16_HZZ_V1_EB2_10.weights.xml.gz",
+    "RecoEgamma/ElectronIdentification/data/Spring16_HZZ_V1/electronID_mva_Spring16_HZZ_V1_EE_10.weights.xml.gz"
     )
-
-# Load some common definitions for MVA machinery
-from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_tools \
-    import (EleMVA_6Categories_WP,
-            configureVIDMVAEleID_V1)
-
-# The locatoins of value maps with the actual MVA values and categories
-# for all particles.
-# The names for the maps are "<module name>:<MVA class name>Values" 
-# and "<module name>:<MVA class name>Categories"
-mvaProducerModuleLabel = "electronMVAValueMapProducer"
-mvaValueMapName        = mvaProducerModuleLabel + ":" + mvaSpring16ClassName + mvaTag + "Values"
-mvaCategoriesMapName   = mvaProducerModuleLabel + ":" + mvaSpring16ClassName + mvaTag + "Categories"
 
 ### WP tuned for HZZ analysis with very high efficiency (about 98%)
 idNameLoose = "mvaEleID-Spring16-HZZ-V1-wpLoose"
-MVA_WPLoose = EleMVA_6Categories_WP(
-    idName = idNameLoose,
-    mvaValueMapName = mvaValueMapName,           # map with MVA values for all particles
-    mvaCategoriesMapName = mvaCategoriesMapName, # map with category index for all particles
-    cutCategory0 =  -0.211, # EB1 low pt
-    cutCategory1 =  -0.396, # EB2 low pt
-    cutCategory2 =  -0.215, # EE low pt
-    cutCategory3 =  -0.870, # EB1
-    cutCategory4 =  -0.838, # EB2
-    cutCategory5 =  -0.763  # EE
+MVA_WPLoose = EleMVA_WP(
+    idNameLoose, mvaTag,
+    cutCategory0 =  "-0.211", # EB1 low pt
+    cutCategory1 =  "-0.396", # EB2 low pt
+    cutCategory2 =  "-0.215", # EE low pt
+    cutCategory3 =  "-0.870", # EB1
+    cutCategory4 =  "-0.838", # EB2
+    cutCategory5 =  "-0.763"  # EE
     )
 
 
@@ -74,18 +57,18 @@ MVA_WPLoose = EleMVA_6Categories_WP(
 #
 
 # Create the PSet that will be fed to the MVA value map producer
-mvaEleID_Spring16_HZZ_V1_producer_config = cms.PSet( 
-    mvaName            = cms.string(mvaSpring16ClassName),
+mvaEleID_Spring16_HZZ_V1_producer_config = cms.PSet(
+    mvaName            = cms.string(mvaClassName),
     mvaTag             = cms.string(mvaTag),
-    # This MVA uses conversion info, so configure several data items on that
-    beamSpot           = cms.InputTag('offlineBeamSpot'),
-    conversionsAOD     = cms.InputTag('allConversions'),
-    conversionsMiniAOD = cms.InputTag('reducedEgamma:reducedConversions'),
-    #
-    weightFileNames    = mvaSpring16WeightFiles_V1
+    # Category parameters
+    nCategories         = cms.int32(6),
+    categoryCuts        = EleMVA_6CategoriesCuts,
+    # Weight files and variable definitions
+    weightFileNames     = mvaSpring16WeightFiles_V1,
+    variableDefinition  = cms.string(mvaVariablesFile)
     )
 # Create the VPset's for VID cuts
-mvaEleID_Spring16_HZZ_V1_wpLoose = configureVIDMVAEleID_V1( MVA_WPLoose )
+mvaEleID_Spring16_HZZ_V1_wpLoose = configureVIDMVAEleID( MVA_WPLoose )
 
 
 # The MD5 sum numbers below reflect the exact set of cut variables

@@ -47,7 +47,7 @@
 class CaloSamplesAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 	public:
 		explicit CaloSamplesAnalyzer(const edm::ParameterSet&);
-		~CaloSamplesAnalyzer();
+		~CaloSamplesAnalyzer() override;
 	
 		static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 		
@@ -99,7 +99,8 @@ class CaloSamplesAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResource
 // constructors and destructor
 //
 CaloSamplesAnalyzer::CaloSamplesAnalyzer(const edm::ParameterSet& iConfig) :
-	tree(NULL), theGeometry(NULL), theRecNumber(NULL), theResponse(new CaloHitResponse(NULL,(CaloShapes*)NULL)), theParameterMap(new HcalSimParameterMap(iConfig)),
+	tree(nullptr), theGeometry(nullptr), theRecNumber(nullptr), theResponse(new CaloHitResponse(nullptr,(CaloShapes*)nullptr)), theParameterMap(new HcalSimParameterMap(iConfig)),
+	TestNumbering(iConfig.getParameter<bool>("TestNumbering")),
 	tok_sim(consumes<std::vector<PCaloHit>>(edm::InputTag(iConfig.getParameter<std::string>("hitsProducer"), "HcalHits"))),
 	tok_calo(consumes<std::vector<CaloSamples>>(iConfig.getParameter<edm::InputTag>("CaloSamplesTag")))
 {
@@ -168,7 +169,7 @@ CaloSamplesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	theParameterMap->setDbService(conditions.product());
 	
 	// Event information
-	edm::EventAuxiliary aux = iEvent.eventAuxiliary();
+	const edm::EventAuxiliary& aux = iEvent.eventAuxiliary();
 	unsigned run = aux.run();
 	unsigned lumiblock = aux.luminosityBlock();
 	unsigned long long event = aux.event();
@@ -208,11 +209,11 @@ CaloSamplesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 			ntup.tof = theResponse->timeOfFlight(hid);
 		}
 		//get pulse info every time
-		if(ntup.signalTot.size()==0) ntup.signalTot.resize(iCS.size(),0.0);
+		if(ntup.signalTot.empty()) ntup.signalTot.resize(iCS.size(),0.0);
 		for(int i = 0; i < iCS.size(); ++i){
 			ntup.signalTot[i] += iCS[i];
 		}
-		if(ntup.signalTotPrecise.size()==0) ntup.signalTotPrecise.resize(iCS.preciseSize(),0.0);
+		if(ntup.signalTotPrecise.empty()) ntup.signalTotPrecise.resize(iCS.preciseSize(),0.0);
 		for(int i = 0; i < iCS.preciseSize(); ++i){
 			ntup.signalTotPrecise[i] += iCS.preciseAt(i);
 		}

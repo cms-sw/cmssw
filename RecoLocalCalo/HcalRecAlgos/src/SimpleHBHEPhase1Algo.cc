@@ -9,7 +9,9 @@
 
 #include "DataFormats/HcalRecHit/interface/HBHERecHitAuxSetter.h"
 #include "DataFormats/METReco/interface/HcalPhase1FlagLabels.h"
-
+#include "CondFormats/DataRecord/interface/HcalTimeSlewRecord.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 // Maximum fractional error for calculating Method 0
 // pulse containment correction
@@ -22,7 +24,8 @@ SimpleHBHEPhase1Algo::SimpleHBHEPhase1Algo(
     const float timeShift,
     const bool correctForPhaseContainment,
     std::unique_ptr<PulseShapeFitOOTPileupCorrection> m2,
-    std::unique_ptr<HcalDeterministicFit> detFit)
+    std::unique_ptr<HcalDeterministicFit> detFit,
+    std::unique_ptr<MahiFit> mahi)
     : pulseCorr_(PulseContainmentFractionalError),
       firstSampleShift_(firstSampleShift),
       samplesToAdd_(samplesToAdd),
@@ -31,13 +34,19 @@ SimpleHBHEPhase1Algo::SimpleHBHEPhase1Algo(
       runnum_(0),
       corrFPC_(correctForPhaseContainment),
       psFitOOTpuCorr_(std::move(m2)),
-      hltOOTpuCorr_(std::move(detFit))
+      hltOOTpuCorr_(std::move(detFit)),
+      mahiOOTpuCorr_(std::move(mahi))
 {
+  hcalTimeSlew_delay_ = nullptr;
 }
 
 void SimpleHBHEPhase1Algo::beginRun(const edm::Run& r,
                                     const edm::EventSetup& es)
 {
+    edm::ESHandle<HcalTimeSlew> delay;
+    es.get<HcalTimeSlewRecord>().get("HBHE", delay);
+    hcalTimeSlew_delay_ = &*delay;
+  
     runnum_ = r.run();
     pulseCorr_.beginRun(es);
 }
@@ -45,7 +54,6 @@ void SimpleHBHEPhase1Algo::beginRun(const edm::Run& r,
 void SimpleHBHEPhase1Algo::endRun()
 {
     runnum_ = 0;
-    pulseCorr_.endRun();
 }
 
 HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
@@ -79,7 +87,7 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
     if (method2)
     {
         psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(info.recoShape()),
-                                               !info.hasTimeInfo());
+                                               !info.hasTimeInfo(),info.nSamples(),hcalTimeSlew_delay_);
         // "phase1Apply" call below sets m2E, m2t, useTriple, and chi2.
         // These parameters are pased by non-const reference.
         method2->phase1Apply(info, m2E, m2t, useTriple, chi2);
@@ -92,17 +100,38 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
     if (method3)
     {
         // "phase1Apply" sets m3E and m3t (pased by non-const reference)
-        method3->phase1Apply(info, m3E, m3t);
+        method3->phase1Apply(info, m3E, m3t, hcalTimeSlew_delay_);
         m3E *= hbminusCorrectionFactor(channelId, m3E, isData);
+    }
+
+    // Run Mahi
+    float m4E = 0.f, m4chi2 = -1.f;
+    float m4T = 0.f;
+    bool m4UseTriple=false;
+
+    const MahiFit* mahi = mahiOOTpuCorr_.get();
+
+    if (mahi) {
+      mahiOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(info.recoShape()),hcalTimeSlew_delay_);
+      mahi->phase1Apply(info,m4E,m4T,m4UseTriple,m4chi2);
+      m4E *= hbminusCorrectionFactor(channelId, m4E, isData);
     }
 
     // Finally, construct the rechit
     float rhE = m0E;
     float rht = m0t;
-    if (method2)
+    float rhX = -1.f;
+    if (mahi) 
+    {
+      rhE = m4E;
+      rht = m4T;
+      rhX = m4chi2;
+    }
+    else if (method2)
     {
         rhE = m2E;
         rht = m2t;
+	rhX = chi2;
     }
     else if (method3)
     {
@@ -115,13 +144,13 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
     rh = HBHERecHit(channelId, rhE, rht, tdcTime);
     rh.setRawEnergy(m0E);
     rh.setAuxEnergy(m3E);
-    rh.setChiSquared(chi2);
+    rh.setChiSquared(rhX);
 
     // Set rechit aux words
     HBHERecHitAuxSetter::setAux(info, &rh);
 
-    // Set some rechit flags (here, for Method 2)
-    if (useTriple)
+    // Set some rechit flags (here, for Method 2/Mahi)
+    if (useTriple || m4UseTriple)
        rh.setFlagField(1, HcalPhase1FlagLabels::HBHEPulseFitBit);
 
     return rh;
@@ -203,8 +232,7 @@ float SimpleHBHEPhase1Algo::m0Time(const HBHEChannelInfo& info,
             time = (maxI - soi)*25.f + timeshift_ns_hbheho(wpksamp);
 
             // Legacy QIE8 timing correction
-            time -= HcalTimeSlew::delay(std::max(1.0, fc_ampl),
-                                        HcalTimeSlew::Medium);
+            time -= hcalTimeSlew_delay_->delay(std::max(1.0, fc_ampl), HcalTimeSlew::Medium);
             // Time calibration
             time -= calibs.timecorr();
         }

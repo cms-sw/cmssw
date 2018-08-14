@@ -21,10 +21,10 @@ class  MuonDetLayerGeometryESProducer: public edm::ESProducer{
   MuonDetLayerGeometryESProducer(const edm::ParameterSet & p);
 
   /// Destructor
-  virtual ~MuonDetLayerGeometryESProducer(); 
+  ~MuonDetLayerGeometryESProducer() override; 
 
   /// Produce MuonDeLayerGeometry.
-  std::shared_ptr<MuonDetLayerGeometry> produce(const MuonRecoGeometryRecord & record);
+  std::unique_ptr<MuonDetLayerGeometry> produce(const MuonRecoGeometryRecord & record);
 
  private:
 };

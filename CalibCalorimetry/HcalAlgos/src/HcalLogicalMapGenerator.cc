@@ -216,7 +216,9 @@ void HcalLogicalMapGenerator::buildHBEFTMap(const HcalTopology* topo,
 			   2,2,3,3,4,4,4,4,4};            // 21<=eta<=29
   memcpy( slb_table, slb_table_loc, sizeof(int)*29 );
   /********************/
-
+  
+  char tempbuff[30]{0};
+  
   //Stream variable
   stringstream mystream;
 
@@ -278,7 +280,7 @@ void HcalLogicalMapGenerator::buildHBEFTMap(const HcalTopology* topo,
                 if (iwedge > 18) iwedge -= 18;
 	      }
 	      
-              sprintf (tempbuff, "%s%c%2.2i%c", det.c_str(), sidesign, iwedge,'\0');
+              snprintf (tempbuff, sizeof tempbuff,  "%s%c%2.2i", det.c_str(), sidesign, iwedge);
 	      mystream<<tempbuff;
 	      rbx = mystream.str();
 	      mystream.str("");
@@ -305,7 +307,7 @@ void HcalLogicalMapGenerator::buildHBEFTMap(const HcalTopology* topo,
 	      if (etaslb > 27) etaslb = 27;
 	      
 	      
-	      sprintf(tempbuff,"SLB_H_%3.3d%c%2.2d%c",phideg,S_side,etaslb,'\0');
+	      snprintf(tempbuff, sizeof tempbuff, "SLB_H_%3.3d%c%2.2d", phideg, S_side, etaslb);
 	      mystream<<tempbuff;
 	      slnam = mystream.str();
 	      mystream.str("");
@@ -327,7 +329,7 @@ void HcalLogicalMapGenerator::buildHBEFTMap(const HcalTopology* topo,
 	      }
 	      irctcon = 11 * irctcon + 1;
 
-              sprintf(tempbuff,"%s-%1d-HD%2.2d",rct_rackHBHE[irctcra],irctcar,irctcon);
+              snprintf(tempbuff, sizeof tempbuff, "%s-%1d-HD%2.2d", rct_rackHBHE[irctcra], irctcar, irctcon);
               mystream<<tempbuff;
               rctnam = mystream.str();
               mystream.str("");
@@ -380,7 +382,7 @@ void HcalLogicalMapGenerator::buildHBEFTMap(const HcalTopology* topo,
 						  rbx, slbin, slbin2, slnam, rctnam
 						  );
 	      HBHEHFEntries.push_back(hbeflmapentry);
-	      LinearIndex2Entry.at(hbeflmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(1,0,HBHEHFEntries.size()-1);
+	      LinearIndex2Entry.at(hbeflmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(true,0,HBHEHFEntries.size()-1);
 
 	      const HcalGenericDetId hgdi(hbeflmapentry.getDetId());
 	      unsigned int denseId;
@@ -534,7 +536,7 @@ void HcalLogicalMapGenerator::buildHBEFTMap(const HcalTopology* topo,
               else	      iwedge = (iphi + 1) / 4 + 1;
               
               //RBX
-              sprintf (tempbuff, "%s%c%2.2i%c", det.c_str(), sidesign, hfphi,'\0');
+              snprintf (tempbuff, sizeof tempbuff, "%s%c%2.2i", det.c_str(), sidesign, hfphi);
               mystream<<tempbuff;
               rbx = mystream.str();
               mystream.str("");
@@ -562,12 +564,12 @@ void HcalLogicalMapGenerator::buildHBEFTMap(const HcalTopology* topo,
               
               etaslb = 29;
               
-              sprintf(tempbuff,"SLB_H_%3.3d%c%2.2d",phideg,S_side,etaslb);
+              snprintf(tempbuff, sizeof tempbuff, "SLB_H_%3.3d%c%2.2d", phideg, S_side, etaslb);
               mystream<<tempbuff;
               slnam = mystream.str();
               mystream.str("");
               
-              sprintf(tempbuff,"%s-JSC-HF_IN",rct_rackHF[irctcra]);
+              snprintf(tempbuff, sizeof tempbuff, "%s-JSC-HF_IN", rct_rackHF[irctcra]);
               mystream<<tempbuff;
               rctnam = mystream.str();
               mystream.str("");
@@ -597,7 +599,7 @@ void HcalLogicalMapGenerator::buildHBEFTMap(const HcalTopology* topo,
 						  rbx, slbin, slbin2, slnam, rctnam
 						  );
 	      HBHEHFEntries.push_back(hbeflmapentry);
-	      LinearIndex2Entry.at(hbeflmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(1,0,HBHEHFEntries.size()-1);
+	      LinearIndex2Entry.at(hbeflmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(true,0,HBHEHFEntries.size()-1);
 
 	      const HcalGenericDetId hgdi(hbeflmapentry.getDetId());
 	      unsigned int denseId;
@@ -957,6 +959,8 @@ void HcalLogicalMapGenerator::buildHOXMap(const HcalTopology* topo,
 
   /******************************/  
 
+  char tempbuff[30]{0};
+
   //Stream variable
   stringstream mystream;
 
@@ -1257,8 +1261,8 @@ void HcalLogicalMapGenerator::buildHOXMap(const HcalTopology* topo,
         //For rings 1 and 2, we only want even sectors for the rbx
         if (ring != 0 && sector % 2 != 0) sector++;
         
-        if (ring == 0)  sprintf (tempbuff, "%s%i%2.2d", det.c_str(), ring, sector);
-        else            sprintf (tempbuff, "%s%i%c%2.2d", det.c_str(), ring, sidesign, sector);
+        if (ring == 0)  snprintf (tempbuff, sizeof tempbuff, "%s%i%2.2d", det.c_str(), ring, sector);
+        else            snprintf (tempbuff, sizeof tempbuff, "%s%i%c%2.2d", det.c_str(), ring, sidesign, sector);
         mystream<<tempbuff;
         rbx = mystream.str();
         mystream.str("");
@@ -1328,7 +1332,7 @@ void HcalLogicalMapGenerator::buildHOXMap(const HcalTopology* topo,
 					 rbx, letter
 					 );
 	HOHXEntries.push_back(hoxlmapentry);
-	LinearIndex2Entry.at(hoxlmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(1,1,HOHXEntries.size()-1);
+	LinearIndex2Entry.at(hoxlmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(true,1,HOHXEntries.size()-1);
 
 	const HcalGenericDetId hgdi(hoxlmapentry.getDetId());
 	unsigned int denseId;
@@ -1372,7 +1376,7 @@ void HcalLogicalMapGenerator::buildHOXMap(const HcalTopology* topo,
 					     rbx, letter
 					     );
 	    HOHXEntries.push_back(hoxlmapentry);
-	    LinearIndex2Entry.at(hoxlmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(1,1,HOHXEntries.size()-1);
+	    LinearIndex2Entry.at(hoxlmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(true,1,HOHXEntries.size()-1);
 
 	    const HcalGenericDetId hgdi(hoxlmapentry.getDetId());
 	    unsigned int denseId;
@@ -1418,7 +1422,7 @@ void HcalLogicalMapGenerator::buildHOXMap(const HcalTopology* topo,
 					     rbx, letter
 					     );
 	    HOHXEntries.push_back(hoxlmapentry);
-	    LinearIndex2Entry.at(hoxlmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(1,1,HOHXEntries.size()-1);
+	    LinearIndex2Entry.at(hoxlmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(true,1,HOHXEntries.size()-1);
 
 	    const HcalGenericDetId hgdi(hoxlmapentry.getDetId());
 	    unsigned int denseId;
@@ -1496,6 +1500,8 @@ void HcalLogicalMapGenerator::buildCALIBMap(const HcalTopology* topo,
 
   /*********************************/
 
+  char tempbuff[30]{0};
+
   //Stream variable
 
   stringstream mystream;
@@ -1561,7 +1567,7 @@ void HcalLogicalMapGenerator::buildCALIBMap(const HcalTopology* topo,
         }
         iphi = ((iwedge*idphi) + 71 - idphi)%72;
         subdet = "CALIB_"+det;
-        sprintf (tempbuff, "%s%c%2.2i%c", det.c_str(), sidesign, iwedge,'\0');
+        snprintf (tempbuff, sizeof tempbuff, "%s%c%2.2i", det.c_str(), sidesign, iwedge);
         mystream<<tempbuff;
         rbx = mystream.str();
         mystream.str("");
@@ -1588,7 +1594,7 @@ void HcalLogicalMapGenerator::buildCALIBMap(const HcalTopology* topo,
 					      subdet
 					      );
 	  CALIBEntries.push_back(caliblmapentry);
-	  LinearIndex2Entry.at(caliblmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(1,2,CALIBEntries.size()-1);
+	  LinearIndex2Entry.at(caliblmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(true,2,CALIBEntries.size()-1);
 
 	  const HcalGenericDetId hgdi(caliblmapentry.getDetId());	  
 	  const unsigned int hashedId=topo->detId2denseIdCALIB(hgdi);
@@ -1633,7 +1639,7 @@ void HcalLogicalMapGenerator::buildCALIBMap(const HcalTopology* topo,
           ieta=-1;
         }
         subdet = "CALIB_"+det;
-        sprintf (tempbuff, "%s%c%2.2i%c", det.c_str(), sidesign, iwedge,'\0');
+        snprintf (tempbuff, sizeof tempbuff, "%s%c%2.2i", det.c_str(), sidesign, iwedge);
         mystream<<tempbuff;
         rbx = mystream.str();
         mystream.str("");
@@ -1644,7 +1650,7 @@ void HcalLogicalMapGenerator::buildCALIBMap(const HcalTopology* topo,
 					    subdet
 					    );
 	CALIBEntries.push_back(caliblmapentry);
-	LinearIndex2Entry.at(caliblmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(1,2,CALIBEntries.size()-1);
+	LinearIndex2Entry.at(caliblmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(true,2,CALIBEntries.size()-1);
 
 	const HcalGenericDetId hgdi(caliblmapentry.getDetId());	  
 	const unsigned int hashedId=topo->detId2denseIdCALIB(hgdi);
@@ -1653,10 +1659,9 @@ void HcalLogicalMapGenerator::buildCALIBMap(const HcalTopology* topo,
       }
     }
   }
-  ic++;
 
   /*HO calibration channels*/
-  for(ic=ic; ic<NCALIBCR; ic++){
+  for(ic=ic+1 ; ic<NCALIBCR; ic++){
     icrate=calibcrate[ic];
     irm_fi = 1;// everything other than he is on A
     ifed=fedcalibnum[ic][idcc-1];
@@ -1694,8 +1699,8 @@ void HcalLogicalMapGenerator::buildCALIBMap(const HcalTopology* topo,
         else if (ieta==2) S_side='2';
 
         subdet ="CALIB_"+det;
-        if (ieta==0) sprintf (tempbuff, "%s%c%2.2i%c", det.c_str(), sidesign, iwedge,'\0');
-        else  sprintf (tempbuff, "%s%c%c%2.2i%c", det.c_str(), S_side, sidesign, iwedge,'\0');
+        if (ieta==0) snprintf (tempbuff, sizeof tempbuff, "%s%c%2.2i", det.c_str(), sidesign, iwedge);
+        else  snprintf (tempbuff, sizeof tempbuff, "%s%c%c%2.2i", det.c_str(), S_side, sidesign, iwedge);
         mystream<<tempbuff;
         rbx = mystream.str();
         mystream.str("");
@@ -1722,7 +1727,7 @@ void HcalLogicalMapGenerator::buildCALIBMap(const HcalTopology* topo,
 						subdet
 						);
 	    CALIBEntries.push_back(caliblmapentry);
-	    LinearIndex2Entry.at(caliblmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(1,2,CALIBEntries.size()-1);
+	    LinearIndex2Entry.at(caliblmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(true,2,CALIBEntries.size()-1);
 
 	    const HcalGenericDetId hgdi(caliblmapentry.getDetId());	  
 	    const unsigned int hashedId=topo->detId2denseIdCALIB(hgdi);
@@ -1814,7 +1819,7 @@ void HcalLogicalMapGenerator::buildZDCMap(const HcalTopology* topo, std::vector 
 				      iadc, irm_fi
 				      );
       ZDCEntries.push_back(zdclmapentry);
-      LinearIndex2Entry.at(zdclmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(1,3,ZDCEntries.size()-1);
+      LinearIndex2Entry.at(zdclmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(true,3,ZDCEntries.size()-1);
     }
   }
 }

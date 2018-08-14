@@ -4,13 +4,14 @@
 /*** system includes ***/
 #include <array>
 #include <string>
+#include <iostream>
 
 /*** core framework functionality ***/
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 /*** Alignment ***/
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerBase.h"
-
+#include "CondFormats/PCLConfig/interface/AlignPCLThresholds.h" 
 
 class MillePedeFileReader {
 
@@ -18,7 +19,9 @@ class MillePedeFileReader {
   public: //====================================================================
 
     explicit MillePedeFileReader(const edm::ParameterSet&,
-                                 const std::shared_ptr<const PedeLabelerBase>&);
+                                 const std::shared_ptr<const PedeLabelerBase>&,
+				 const std::shared_ptr<const AlignPCLThresholds>&);
+
     virtual ~MillePedeFileReader() = default;
 
     void read();
@@ -39,6 +42,8 @@ class MillePedeFileReader {
     const std::array<double, 6>& getTZobs()    const { return tZobs_;    }
     const std::array<double, 6>& getTZobsErr() const { return tZobsErr_; }
 
+    const AlignPCLThresholds::threshold_map getThresholdMap() const {return theThresholds_.get()->getThreshold_Map (); }   
+
   private:
   //========================= PRIVATE ENUMS ====================================
   //============================================================================
@@ -57,6 +62,7 @@ class MillePedeFileReader {
     void readMillePedeLogFile();
     void readMillePedeResultFile();
     PclHLS getHLS(const Alignable*);
+    std::string getStringFromHLS(PclHLS HLS);
 
   //========================== PRIVATE DATA ====================================
   //============================================================================
@@ -64,19 +70,13 @@ class MillePedeFileReader {
     // pede labeler plugin
     const std::shared_ptr<const PedeLabelerBase> pedeLabeler_;
 
+    // thresholds from DB
+    const std::shared_ptr<const AlignPCLThresholds> theThresholds_;
+
     // file-names
     const std::string millePedeLogFile_;
     const std::string millePedeResFile_;
-
-    // signifiance of movement must be above
-    const double sigCut_;
-    // cutoff in micro-meter & micro-rad
-    const double Xcut_, tXcut_;
-    const double Ycut_, tYcut_;
-    const double Zcut_, tZcut_;
-    // maximum movement in micro-meter/rad
-    const double maxMoveCut_, maxErrorCut_;
-
+ 
     // conversion factors: cm to um & rad to urad
     static constexpr std::array<double, 6> multiplier_ = {{ 10000.,      // X
                                                             10000.,      // Y
@@ -85,10 +85,8 @@ class MillePedeFileReader {
                                                             1000000.,    // tY
                                                             1000000. }}; // tZ
 
-    const std::array<double, 6> cutoffs_ = {{ Xcut_,  Ycut_,  Zcut_,
-                                              tXcut_, tYcut_, tZcut_}};
-
     bool updateDB_{false};
+    bool vetoUpdateDB_{false};
     int Nrec_{0};
 
     std::array<double, 6> Xobs_     = {{0.,0.,0.,0.,0.,0.}};
@@ -105,7 +103,13 @@ class MillePedeFileReader {
     std::array<double, 6> ZobsErr_  = {{0.,0.,0.,0.,0.,0.}};
     std::array<double, 6> tZobs_    = {{0.,0.,0.,0.,0.,0.}};
     std::array<double, 6> tZobsErr_ = {{0.,0.,0.,0.,0.,0.}};
-
+  
 };
+
+const std::array<std::string,8> coord_str = {{"X", "Y", "Z", "theta_X", "theta_Y", "theta_Z", "extra_DOF", "none"}};
+inline std::ostream & operator<<(std::ostream & os, const AlignPCLThresholds::coordType& c) {
+  if (c >= AlignPCLThresholds::endOfTypes || c < 0) return os << "unrecongnized coordinate";
+  return os << coord_str[c];
+}
 
 #endif /* ALIGNMENT_MILLEPEDEALIGNMENTALGORITHM_INTERFACE_MILLEPEDEFILEREADER_H_ */

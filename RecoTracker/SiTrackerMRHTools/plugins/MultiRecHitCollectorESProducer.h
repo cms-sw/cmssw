@@ -19,14 +19,13 @@
 class  MultiRecHitCollectorESProducer: public edm::ESProducer{
  public:
   MultiRecHitCollectorESProducer(const edm::ParameterSet& iConfig);
-  virtual ~MultiRecHitCollectorESProducer(); 
-  std::shared_ptr<MultiRecHitCollector> produce(const MultiRecHitRecord &);
+  ~MultiRecHitCollectorESProducer() override; 
+  std::unique_ptr<MultiRecHitCollector> produce(const MultiRecHitRecord &);
 
   // Set parameter set
   void setConf(const edm::ParameterSet& conf){ conf_ = conf; }
  
  private:
-  std::shared_ptr<MultiRecHitCollector> collector_;
   edm::ParameterSet conf_;
 
 };

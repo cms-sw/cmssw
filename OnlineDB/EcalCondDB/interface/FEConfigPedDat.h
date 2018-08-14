@@ -12,10 +12,10 @@ class FEConfigPedDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   FEConfigPedDat();
-  ~FEConfigPedDat();
+  ~FEConfigPedDat() override;
 
   // User data methods
-  inline std::string getTable() { return "FE_CONFIG_PED_DAT"; }
+  inline std::string getTable() override { return "FE_CONFIG_PED_DAT"; }
 
   inline void setId(int x) { m_ID = x; }
   inline int getId() const { return m_ID; }
@@ -31,7 +31,7 @@ class FEConfigPedDat : public IDataItem {
 
 
  private:
-  void prepareWrite() noexcept(false);
+  void prepareWrite() noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const FEConfigPedDat* item, FEConfigPedInfo* iconf ) noexcept(false);
 

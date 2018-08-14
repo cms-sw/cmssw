@@ -22,12 +22,12 @@ CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap * parametersMap,
                                  const CaloVShape * shape)
 : theAnalogSignalMap(),
   theParameterMap(parametersMap), 
-  theShapes(0),  
+  theShapes(nullptr),  
   theShape(shape),  
-  theHitCorrection(0),
-  thePECorrection(0),
-  theHitFilter(0),
-  theGeometry(0),
+  theHitCorrection(nullptr),
+  thePECorrection(nullptr),
+  theHitFilter(nullptr),
+  theGeometry(nullptr),
   theMinBunch(-10), 
   theMaxBunch(10),
   thePhaseShift_(1.),
@@ -39,11 +39,11 @@ CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap * parametersMap,
 : theAnalogSignalMap(),
   theParameterMap(parametersMap),
   theShapes(shapes),
-  theShape(0),
-  theHitCorrection(0),
-  thePECorrection(0),
-  theHitFilter(0),
-  theGeometry(0),
+  theShape(nullptr),
+  theHitCorrection(nullptr),
+  thePECorrection(nullptr),
+  theHitFilter(nullptr),
+  theGeometry(nullptr),
   theMinBunch(-10),
   theMaxBunch(10),
   thePhaseShift_(1.),
@@ -73,7 +73,7 @@ void CaloHitResponse::add( const PCaloHit& hit, CLHEP::HepRandomEngine* engine )
   if ( edm::isNotFinite(hit.time()) ) { return; }
 
   // maybe it's not from this subdetector
-  if(theHitFilter == 0 || theHitFilter->accepts(hit)) {
+  if(theHitFilter == nullptr || theHitFilter->accepts(hit)) {
     LogDebug("CaloHitResponse") << hit;
     CaloSamples signal( makeAnalogSignal( hit, engine ) ) ;
     bool keep ( keepBlank() ) ;  // here we  check for blank signal if not keeping them
@@ -98,18 +98,11 @@ void CaloHitResponse::add(const CaloSamples & signal)
 {
   DetId id(signal.id());
   CaloSamples * oldSignal = findSignal(id);
-  if (oldSignal == 0) {
+  if (oldSignal == nullptr) {
     theAnalogSignalMap[id] = signal;
 
   } else  {
-    // need a "+=" to CaloSamples
-    int sampleSize =  oldSignal->size();
-    assert(sampleSize <= signal.size());
-    assert(signal.presamples() == oldSignal->presamples());
-
-    for(int i = 0; i < sampleSize; ++i) {
-      (*oldSignal)[i] += signal[i];
-    }
+    (*oldSignal) += signal;
   }
 }
 
@@ -123,14 +116,14 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & hit, CLHEP::HepRa
   double time = hit.time();
   double tof = timeOfFlight(detId);
   if(ignoreTime) time = tof;
-  if(theHitCorrection != 0) {
+  if(theHitCorrection != nullptr) {
     time += theHitCorrection->delay(hit, engine);
   }
   double jitter = time - tof;
 
   const CaloVShape * shape = theShape;
   if(!shape) {
-    shape = theShapes->shape(detId);
+    shape = theShapes->shape(detId,storePrecise);
   }
   // assume bins count from zero, go for center of bin
   const double tzero = ( shape->timeToRise()
@@ -179,10 +172,10 @@ double CaloHitResponse::analogSignalAmplitude(const DetId & detId, float energy,
 
 
 CaloSamples * CaloHitResponse::findSignal(const DetId & detId) {
-  CaloSamples * result = 0;
+  CaloSamples * result = nullptr;
   AnalogSignalMap::iterator signalItr = theAnalogSignalMap.find(detId);
   if(signalItr == theAnalogSignalMap.end()) {
-    result = 0;
+    result = nullptr;
   } else {
     result = &(signalItr->second);
   }
@@ -204,12 +197,12 @@ double CaloHitResponse::timeOfFlight(const DetId & detId) const {
   // not going to assume there's one of these per subdetector.
   // Take the whole CaloGeometry and find the right subdet
   double result = 0.;
-  if(theGeometry == 0) {
+  if(theGeometry == nullptr) {
     edm::LogWarning("CaloHitResponse") << "No Calo Geometry set, so no time of flight correction";
   } 
   else {
-    const CaloCellGeometry* cellGeometry = theGeometry->getSubdetectorGeometry(detId)->getGeometry(detId);
-    if(cellGeometry == 0) {
+    auto cellGeometry = theGeometry->getSubdetectorGeometry(detId)->getGeometry(detId);
+    if(cellGeometry == nullptr) {
        edm::LogWarning("CaloHitResponse") << "No Calo cell found for ID"
          << detId.rawId() << " so no time-of-flight subtraction will be done";
     }

@@ -6,6 +6,7 @@
 #endif
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "PhysicsTools/SelectorUtils/interface/Selector.h"
@@ -195,7 +196,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
   }
 
   // Allow for multiple definitions of the cuts.
-  bool operator()( const pat::Muon & muon, edm::EventBase const & event, pat::strbitset & ret )
+  bool operator()( const pat::Muon & muon, edm::EventBase const & event, pat::strbitset & ret ) override
   {
 
     if (version_ == FALL10 ) return fall10Cuts(muon, event, ret);
@@ -212,7 +213,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
   }
 
   // For compatibility with older versions.
-  bool operator()( const pat::Muon & muon, pat::strbitset & ret )
+  bool operator()( const pat::Muon & muon, pat::strbitset & ret ) override
   {
 
     if (version_ == SPRING10 || version_ == FALL10 ) throw cms::Exception("LogicError")
@@ -389,7 +390,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
     event.getByLabel( pvSrc_, pvtxHandle_ );
 
     double zvtx = -999;
-    if ( pvtxHandle_->size() > 0 ) {
+    if ( !pvtxHandle_->empty() ) {
       zvtx = pvtxHandle_->at(0).z();
     } else {
       throw cms::Exception("InvalidInput") << " There needs to be at least one primary vertex in the event." << std::endl;
@@ -485,7 +486,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
     event.getByLabel( pvSrc_, pvtxHandle_ );
 
     double zvtx = -999;
-    if ( pvtxHandle_->size() > 0 ) {
+    if ( !pvtxHandle_->empty() ) {
       zvtx = pvtxHandle_->at(0).z();
     } else {
       throw cms::Exception("InvalidInput") << " There needs to be at least one primary vertex in the event." << std::endl;

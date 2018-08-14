@@ -6,7 +6,7 @@
 // 
 // Original Author: Janos Karancsi
 
-#include "../interface/SiPixelCoordinates.h"
+#include "DQM/SiPixelPhase1Common/interface/SiPixelCoordinates.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
@@ -35,6 +35,7 @@ void SiPixelCoordinates::init(edm::EventSetup const& iSetup) {
   edm::ESHandle<SiPixelFedCablingMap> cablingMapHandle;
   iSetup.get<SiPixelFedCablingMapRcd>().get(cablingMapHandle);
   cablingMap_ = cablingMapHandle.product();
+  fedid_ = cablingMap_->det2fedMap();
 
   // Get TrackerTopology
   edm::ESHandle<TrackerTopology> trackerTopologyHandle;
@@ -415,7 +416,7 @@ int SiPixelCoordinates::roc(const DetId& detid, const std::pair<int, int>& pixel
   int roc = -9999;
   // Use the Fed Cabling Map if specified by the bool
   // or if using channel number too, or if it's the Phase 2 detector
-  if (phase_==2||channel_.size()) {
+  if (phase_==2||!channel_.empty()) {
     unsigned int fedId = fedid(detid);
     SiPixelFrameConverter converter(cablingMap_, fedId);
     sipixelobjects::DetectorIndex detector = { detid.rawId(), pixel.first, pixel.second };

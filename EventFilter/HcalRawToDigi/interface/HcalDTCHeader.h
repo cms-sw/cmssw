@@ -3,7 +3,7 @@
 #define HcalDTCHeader_H
 
 #include <iostream>
-#include <stdint.h>
+#include <cstdint>
 #include "DataFormats/HcalDigi/interface/HcalCalibrationEventTypes.h"
 class HcalHTRData;
 

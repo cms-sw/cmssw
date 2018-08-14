@@ -48,12 +48,10 @@ public:
 private:
 
   // Analyzer Methods
-  virtual void beginJob();
-  virtual void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  virtual void analyze(const edm::Event &, const edm::EventSetup &) override;
-  virtual void endRun(const edm::Run &, const edm::EventSetup &) override;
-  virtual void endJob();
+  void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void endRun(const edm::Run &, const edm::EventSetup &) override;
 
   // Extra Methods
   std::vector<std::string> moduleLabels(std::string);
@@ -197,7 +195,7 @@ HLTMuonValidator::dqmBeginRun(const edm::Run & iRun,
     vector<string> labels = moduleLabels(path);
     vector<string> steps = stepLabels(labels);
 
-    if (labels.size() > 0 && steps.size() > 0) {
+    if (!labels.empty() && !steps.empty()) {
       HLTMuonPlotter analyzer(pset_, shortpath, labels, steps, myTokens_);
       analyzers_.push_back(analyzer);
     }
@@ -236,13 +234,6 @@ HLTMuonValidator::analyze(const Event& iEvent,
 
 
 
-void 
-HLTMuonValidator::beginJob()
-{
-
-}
-
-
 
 void 
 HLTMuonValidator::endRun(const edm::Run & iRun, 
@@ -257,12 +248,6 @@ HLTMuonValidator::endRun(const edm::Run & iRun,
 }
 
 
-
-void 
-HLTMuonValidator::endJob()
-{
-
-}
 
 
 

@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import os, time, sys, shutil, glob, smtplib, re
 from datetime import datetime
 from email.MIMEText import MIMEText
@@ -59,14 +60,14 @@ while True:
         donefile = "%s/%s/%s/%s" % (DONEDIR, runnr[0:3], runnr[3:6], f)
         f = "%s/%s" % (dir, f)
 	if os.path.exists(donefile) and os.stat(donefile).st_size == os.stat(f).st_size:
-	  print "WARNING: %s was already processed but re-appeared" % f
+	  print("WARNING: %s was already processed but re-appeared" % f)
 	  os.remove(f)
 	  continue
         NEW.setdefault(runnr, []).append(f)
         NFOUND += 1
   
   if NFOUND:
-    print '%s: found %d new files in %d runs.' % (datetime.now(), NFOUND, len(NEW))
+    print('%s: found %d new files in %d runs.' % (datetime.now(), NFOUND, len(NEW)))
 
     newFiles = []
     allOldFiles = []
@@ -95,12 +96,12 @@ while True:
       logfile = "%s.log" % destfile[:-5]
       tmpdestfile = "%s.tmp" % destfile
     
-      print 'Merging run %s to %s (adding %s to %s)' % (run, destfile, files, oldfiles)
+      print('Merging run %s to %s (adding %s to %s)' % (run, destfile, files, oldfiles))
       LOGFILE = open(logfile, 'a')
       LOGFILE.write(os.popen('DQMMergeFile %s %s' % (tmpdestfile, " ".join(files))).read())
       LOGFILE.close()
       if not os.path.exists(tmpdestfile):
-        print 'Failed merging files for run %s. Will try again later.' % run
+        print('Failed merging files for run %s. Will try again later.' % run)
         sendmail(YourMail,run)
 	continue
     
@@ -124,15 +125,15 @@ while True:
   
     existing = [long(x) for x in os.popen("sqlite3 %s 'select distinct runnr from t_data'" % TMPDB).read().split()]
     for runnr, file in newFiles:
-      print 'Registering %s for run %d' % (file, runnr)
+      print('Registering %s for run %d' % (file, runnr))
       older = sorted([x for x in existing if x < runnr])
       newer = sorted([x for x in existing if x > runnr])
       if len(newer) > MAX_TOTAL_RUNS:
-	print "Too many newer runs (%d), not registering %s for run %d" % (len(newer), file, runnr)
+	print("Too many newer runs (%d), not registering %s for run %d" % (len(newer), file, runnr))
 	continue
 
       if len(older) > MAX_TOTAL_RUNS:
-	print "Too many older runs (%d), pruning data for oldest run %d" % (len(older), older[0])
+	print("Too many older runs (%d), pruning data for oldest run %d" % (len(older), older[0]))
 	os.system(r"set -x; sqlite3 %s 'delete from t_data where runnr = %d'" % (TMPDB, older[0]))
 	os.system(r"set -x; sqlite3 %s 'delete from t_files where name like '\''%%R%09d.root'\'" % (TMPDB, older[0]))
 	os.system(r"set -x; sqlite3 %s 'vacuum'" % TMPDB)

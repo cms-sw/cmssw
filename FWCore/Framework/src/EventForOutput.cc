@@ -12,9 +12,9 @@
 namespace edm {
 
   EventForOutput::EventForOutput(EventPrincipal const& ep, ModuleDescription const& md, ModuleCallingContext const* moduleCallingContext) :
-      OccurrenceForOutput(ep, md, moduleCallingContext),
+      OccurrenceForOutput(ep, md, moduleCallingContext, true /*always at end*/),
       aux_(ep.aux()),
-      luminosityBlock_(ep.luminosityBlockPrincipalPtrValid() ? new LuminosityBlockForOutput(ep.luminosityBlockPrincipal(), md, moduleCallingContext) : nullptr),
+      luminosityBlock_(ep.luminosityBlockPrincipalPtrValid() ? new LuminosityBlockForOutput(ep.luminosityBlockPrincipal(), md, moduleCallingContext,false /*not at end*/) : nullptr),
       streamID_(ep.streamID())
   {
   }

@@ -55,7 +55,7 @@ namespace {
 }
 
 PixelDataFormatter::PixelDataFormatter( const SiPixelFedCabling* map, bool phase)
-  : theDigiCounter(0), theWordCounter(0), theCablingTree(map), badPixelInfo(0), modulesToUnpack(0), phase1(phase)
+  : theDigiCounter(0), theWordCounter(0), theCablingTree(map), badPixelInfo(nullptr), modulesToUnpack(nullptr), phase1(phase)
 {
   int s32 = sizeof(Word32);
   int s64 = sizeof(Word64);
@@ -175,7 +175,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
     LogTrace("")<<"DATA: " <<  print(*word);
 
     auto ww = *word;
-    if unlikely(ww==0) { theWordCounter--; continue;}
+    if UNLIKELY(ww==0) { theWordCounter--; continue;}
     int nlink = (ww >> LINK_shift) & LINK_mask; 
     int nroc  = (ww >> ROC_shift) & ROC_mask;
 
@@ -183,10 +183,10 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
 
     if ( (nlink!=link) | (nroc!=roc) ) {  // new roc
       link = nlink; roc=nroc;
-      skipROC = likely(roc<maxROCIndex) ? false : !errorcheck.checkROC(errorsInEvent, fedId, &converter, ww, errors);
+      skipROC = LIKELY(roc<maxROCIndex) ? false : !errorcheck.checkROC(errorsInEvent, fedId, &converter, theCablingTree, ww, errors);
       if (skipROC) continue;
       rocp = converter.toRoc(link,roc);
-      if unlikely(!rocp) {
+      if UNLIKELY(!rocp) {
 	errorsInEvent = true;
 	errorcheck.conversionError(fedId, &converter, 2, ww, errors);
 	skipROC=true;
@@ -213,7 +213,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
     }
 
     // skip is roc to be skipped ot invalid
-    if unlikely(skipROC || !rocp) continue;
+    if UNLIKELY(skipROC || !rocp) continue;
     
     int adc  = (ww >> ADC_shift) & ADC_mask;
     std::unique_ptr<LocalPixel> local;
@@ -227,7 +227,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
 
       LocalPixel::RocRowCol localCR = { row, col }; // build pixel
       //if(DANEK)cout<<localCR.rocCol<<" "<<localCR.rocRow<<endl;
-      if unlikely(!localCR.valid()) {
+      if UNLIKELY(!localCR.valid()) {
 	  LogDebug("PixelDataFormatter::interpretRawData") 
 	    << "status #3";
 	  errorsInEvent = true;
@@ -246,7 +246,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
       LocalPixel::DcolPxid localDP = { dcol, pxid };
       //if(DANEK) cout<<localDP.dcol<<" "<<localDP.pxid<<endl;
 
-      if unlikely(!localDP.valid()) {
+      if UNLIKELY(!localDP.valid()) {
 	  LogDebug("PixelDataFormatter::interpretRawData") 
 	    << "status #3";
 	  errorsInEvent = true;
@@ -339,7 +339,7 @@ void PixelDataFormatter::formatRawData(unsigned int lvl1_ID, RawData & fedRawDat
     // write data
     unsigned int nWord32InFed = words.find(fedId)->second.size();
     for (unsigned int i=0; i < nWord32InFed; i+=2) {
-      *word = (Word64(words.find(fedId)->second[i]) << 32 ) | words.find(fedId)->second[i+1];
+      *word = (Word64(words.find(fedId)->second[i+1]) << 32 ) | words.find(fedId)->second[i];
       LogDebug("PixelDataFormatter")  << print(*word);
       word++;
     }

@@ -22,7 +22,9 @@ class CommissioningHistosUsingDb : public virtual CommissioningHistograms {
   CommissioningHistosUsingDb( SiStripConfigDb* const,
                               sistrip::RunType = sistrip::UNDEFINED_RUN_TYPE );
 
-  virtual ~CommissioningHistosUsingDb();
+  ~CommissioningHistosUsingDb() override;
+
+  void configure( const edm::ParameterSet&, const edm::EventSetup& ) override;
 
   void uploadToConfigDb();
   

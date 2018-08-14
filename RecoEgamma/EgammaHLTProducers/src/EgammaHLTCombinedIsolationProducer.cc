@@ -49,7 +49,7 @@ void EgammaHLTCombinedIsolationProducer::fillDescriptions(edm::ConfigurationDesc
   
 // ------------ method called to produce the data  ------------
 void
-EgammaHLTCombinedIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+EgammaHLTCombinedIsolationProducer::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   
   edm::Handle<reco::RecoEcalCandidateCollection> recoecalcandHandle;
   iEvent.getByToken(recoEcalCandidateProducer_, recoecalcandHandle);

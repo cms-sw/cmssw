@@ -1,5 +1,5 @@
-#ifndef DECAY3BODY_H
-#define DECAY3BODY_H
+#ifndef SimG4Core_CustomPhysics_DECAY3BODY_H
+#define SimG4Core_CustomPhysics_DECAY3BODY_H
 
 #include "G4LorentzVector.hh"
 

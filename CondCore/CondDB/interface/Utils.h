@@ -10,7 +10,8 @@
 #include <tuple>
 #include <fstream>
 #include <unistd.h>
-#include <limits.h>
+#include <pwd.h>
+#include <climits>
 //
 #include <boost/regex.hpp>
 
@@ -21,7 +22,7 @@ namespace cond {
     inline std::string demangledName( const std::type_info& typeInfo ){
       int status = 0;
       std::string ret("");
-      char* realname = abi::__cxa_demangle( typeInfo.name(), 0, 0, &status);
+      char* realname = abi::__cxa_demangle( typeInfo.name(), nullptr, nullptr, &status);
       if( status == 0 && realname ){
 	ret  = realname;
 	free(realname);
@@ -50,10 +51,9 @@ namespace cond {
     }
 
     inline std::string getUserName(){
-      char username[LOGIN_NAME_MAX];
-      int retcode = getlogin_r(username,LOGIN_NAME_MAX);
-      if( retcode ) return "";
-      return std::string(username);
+      struct passwd* user_creds = getpwuid(getuid());
+      if (user_creds==NULL) return std::string("USER_NOT_AVAILABLE");
+      return std::string(user_creds->pw_name);
     }
 
     inline std::string getHostName(){
@@ -73,7 +73,7 @@ namespace cond {
 	  commName.replace(ind,1,1,' ');
 	  ind = commName.find('\0');
 	}
-      } catch ( std::ifstream::failure ){
+      } catch ( std::ifstream::failure const& ){
 	commName = "unknown";
       }
       return commName;

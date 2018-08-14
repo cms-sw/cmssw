@@ -37,6 +37,7 @@ namespace edm {
     std::shared_ptr<BranchDescription const> const& constBranchDescriptionPtr() const {return branchDescription_;}
 
     BranchID const& branchID() const {return branchDescription().branchID();}
+    BranchID const& originalBranchID() const {return branchDescription().originalBranchID();}
     std::string const& branchName() const {return branchDescription().branchName();}
     std::string const& className() const {return branchDescription().className();}
     std::string const& moduleLabel() const {return branchDescription().moduleLabel();}
@@ -45,6 +46,7 @@ namespace edm {
     std::string const& productInstanceName() const {return branchDescription().productInstanceName();}
     std::string const& friendlyClassName() const {return branchDescription().friendlyClassName();}
     ProcessHistory const& processHistory() const {return *processHistory_;}
+    ProcessHistory const* processHistoryPtr() const {return processHistory_;}
     bool getProcessConfiguration(ProcessConfiguration& pc) const;
     ReleaseVersion releaseVersion() const;
     std::set<std::string> const& branchAliases() const {return branchDescription().branchAliases();}

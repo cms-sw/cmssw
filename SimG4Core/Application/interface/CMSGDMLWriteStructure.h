@@ -13,10 +13,10 @@ public:
 
   CMSGDMLWriteStructure();
   
-  virtual ~CMSGDMLWriteStructure();
+  ~CMSGDMLWriteStructure() override;
 
-  virtual void AddExtension(xercesc::DOMElement* volumeElement,
-			    const G4LogicalVolume* const glv);
+  void AddExtension(xercesc::DOMElement* volumeElement,
+			    const G4LogicalVolume* const glv) override;
 
 
  private:

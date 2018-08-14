@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
+from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
 
 def CompactSkim(process,inFileNames,outFileName,Global_Tag='auto:run2_mc',MC=True,Filter=True):
+
+   patAlgosToolsTask = getPatAlgosToolsTask(process)
 
    process.load('Configuration.StandardSequences.Services_cff')
    process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
@@ -9,11 +12,11 @@ def CompactSkim(process,inFileNames,outFileName,Global_Tag='auto:run2_mc',MC=Tru
    process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
    process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
    process.load('Configuration.StandardSequences.EndOfProcess_cff')
+   patAlgosToolsTask.add(process.MEtoEDMConverter)
    process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 
    process.MessageLogger.cerr.FwkReport.reportEvery = 100
    process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) )
-   process.options.allowUnscheduled = cms.untracked.bool(True)
    process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring(inFileNames))
    process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
@@ -22,8 +25,11 @@ def CompactSkim(process,inFileNames,outFileName,Global_Tag='auto:run2_mc',MC=Tru
 
    # make patCandidates, select and clean them
    process.load('PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff')
+   patAlgosToolsTask.add(process.patCandidatesTask)
    process.load('PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff')
+   patAlgosToolsTask.add(process.selectedPatCandidatesTask)
    process.load('PhysicsTools.PatAlgos.cleaningLayer1.cleanPatCandidates_cff')
+   patAlgosToolsTask.add(process.cleanPatCandidatesTask)
    process.patMuons.embedTrack  = True
 
    process.selectedPatMuons.cut = cms.string('muonID(\"TMOneStationTight\")'
@@ -50,6 +56,7 @@ def CompactSkim(process,inFileNames,outFileName,Global_Tag='auto:run2_mc',MC=Tru
 
    # dimuon = Onia2MUMU
    process.load('HeavyFlavorAnalysis.Onia2MuMu.onia2MuMuPAT_cfi')
+   patAlgosToolsTask.add(process.onia2MuMuPAT)
    process.onia2MuMuPAT.muons=cms.InputTag('cleanPatMuons')
    process.onia2MuMuPAT.primaryVertexTag=cms.InputTag('offlinePrimaryVertices')
    process.onia2MuMuPAT.beamSpotTag=cms.InputTag('offlineBeamSpot')
@@ -57,18 +64,20 @@ def CompactSkim(process,inFileNames,outFileName,Global_Tag='auto:run2_mc',MC=Tru
    process.onia2MuMuPATCounter = cms.EDFilter('CandViewCountFilter',
       src = cms.InputTag('onia2MuMuPAT'),
       minNumber = cms.uint32(1),
-      filter = cms.bool(True)
    )
 
    # reduce MC genParticles a la miniAOD
    process.load('PhysicsTools.PatAlgos.slimming.genParticles_cff')
+   patAlgosToolsTask.add(process.genParticlesTask)
    process.packedGenParticles.inputVertices = cms.InputTag('offlinePrimaryVertices')
 
    # make photon candidate conversions for P-wave studies
    process.load('HeavyFlavorAnalysis.Onia2MuMu.OniaPhotonConversionProducer_cfi')
+   patAlgosToolsTask.add(process.PhotonCandidates)
 
    # add v0 with tracks embed
    process.load('HeavyFlavorAnalysis.Onia2MuMu.OniaAddV0TracksProducer_cfi')
+   patAlgosToolsTask.add(process.oniaV0Tracks)
 
    # Pick branches you want to keep
    SlimmedEventContent = [
@@ -105,4 +114,4 @@ def CompactSkim(process,inFileNames,outFileName,Global_Tag='auto:run2_mc',MC=Tru
       SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('FilterOutput')) if Filter else cms.untracked.PSet()
    )
    
-   process.outpath = cms.EndPath(process.out)
+   process.outpath = cms.EndPath(process.out, patAlgosToolsTask)

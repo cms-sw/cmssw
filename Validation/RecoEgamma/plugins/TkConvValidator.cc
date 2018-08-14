@@ -23,9 +23,8 @@
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 //
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
@@ -43,7 +42,6 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 
 //
@@ -170,7 +168,7 @@ void  TkConvValidator::bookHistograms( DQMStore::IBooker & iBooker, edm::Run con
 
   nInvalidPCA_=0;
 
-  dbe_ = 0;
+  dbe_ = nullptr;
   dbe_ = edm::Service<DQMStore>().operator->();
 
 
@@ -1032,7 +1030,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
         if ( highPurity_ && !aConv.quality(reco::Conversion::highPurity) ) continue;
 
 	//problematic?
-	std::vector<edm::RefToBase<reco::Track> > tracks = aConv.tracks();
+	const std::vector<edm::RefToBase<reco::Track> >& tracks = aConv.tracks();
 
 
 	const reco::Vertex& vtx = aConv.conversionVertex();
@@ -1087,7 +1085,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	      trackV2 = (std::vector<std::pair<RefToBase<reco::Track>, double> >) q2[theConvTP_[0]];
 	      tp_2 = 0;
 	  }
-	  if (!(trackV1.size()&&trackV2.size()))
+	  if (!(!trackV1.empty()&&!trackV2.empty()))
 	      continue;
 	  if (tp_1 == tp_2) continue;
 
@@ -1098,7 +1096,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	  myAss.insert( std::make_pair (tr1.get(),theConvTP_[tp_1] ) );
 	  myAss.insert( std::make_pair (tr2.get(),theConvTP_[tp_2]) );
 
-	//} catch (Exception event) {
+	//} catch (Exception const& event) {
 	  //cout << "continue: " << event.what()  << endl;
 	//  continue;
 	//}
@@ -1253,9 +1251,9 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     RefToBase<reco::Track> tklead = aConv.tracks().at(ilead);
     RefToBase<reco::Track> tktrail = aConv.tracks().at(itrail);
 
-    int deltaExpectedHitsInner = tklead->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS)
-       - tktrail->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
-    int leadExpectedHitsInner = tklead->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+    int deltaExpectedHitsInner = tklead->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS)
+       - tktrail->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+    int leadExpectedHitsInner = tklead->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
     uint leadNHitsBeforeVtx = aConv.nHitsBeforeVtx().size()>1 ? aConv.nHitsBeforeVtx().at(ilead) : 0;
     uint trailNHitsBeforeVtx = aConv.nHitsBeforeVtx().size()>1 ? aConv.nHitsBeforeVtx().at(itrail) : 0;
 
@@ -1436,47 +1434,48 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       if ( theConvTP_.size() < 2 )   continue;
 
       //associated = false;
-      reco::RecoToSimCollection p1 =  theTrackAssociator->associateRecoToSim(tc1,theConvTP_);
-      reco::RecoToSimCollection p2 =  theTrackAssociator->associateRecoToSim(tc2,theConvTP_);
-      try{
-	std::vector<std::pair<TrackingParticleRef, double> > tp1 = p1[tk1];
-	std::vector<std::pair<TrackingParticleRef, double> > tp2 = p2[tk2];
-	if (!(tp1.size()&&tp2.size())){
-	    tp1 = p1[tk2];
-	    tp2 = p2[tk1];
-	}
-	if (tp1.size()&&tp2.size()) {
-	  TrackingParticleRef tpr1 = tp1.front().first;
-	  TrackingParticleRef tpr2 = tp2.front().first;
-	  if (abs(tpr1->pdgId())==11&&abs(tpr2->pdgId())==11&& tpr1->pdgId()*tpr2->pdgId()<0) {
-	    if ( (tpr1->parentVertex()->sourceTracks_end()-tpr1->parentVertex()->sourceTracks_begin()==1) &&
-		 (tpr2->parentVertex()->sourceTracks_end()-tpr2->parentVertex()->sourceTracks_begin()==1)) {
-	      if (tpr1->parentVertex().key()==tpr2->parentVertex().key() && ((*tpr1->parentVertex()->sourceTracks_begin())->pdgId()==22)) {
-		mcConvR_ = sqrt(tpr1->parentVertex()->position().Perp2());
-		mcConvZ_ = tpr1->parentVertex()->position().z();
-		mcConvX_ = tpr1->parentVertex()->position().x();
-		mcConvY_ = tpr1->parentVertex()->position().y();
-		mcConvEta_ = tpr1->parentVertex()->position().eta();
-		mcConvPhi_ = tpr1->parentVertex()->position().phi();
-		mcConvPt_ = sqrt((*tpr1->parentVertex()->sourceTracks_begin())->momentum().Perp2());
-		//std::cout << " Reco to Sim mcconvpt " << mcConvPt_ << std::endl;
-		//cout << "associated track1 to " << tpr1->pdgId() << " with p=" << tpr1->p4() << " with pT=" << tpr1->pt() << endl;
-		//cout << "associated track2 to " << tpr2->pdgId() << " with p=" << tpr2->p4() << " with pT=" << tpr2->pt() << endl;
-		associated = true;
-                break;
-	      }
-	    }
-	  }
-	}
-      } catch (Exception event) {
-	//cout << "do not continue: " << event.what()  << endl;
-	//continue;
+      reco::RecoToSimCollection const& p1 =  theTrackAssociator->associateRecoToSim(tc1,theConvTP_);
+      reco::RecoToSimCollection const& p2 =  theTrackAssociator->associateRecoToSim(tc2,theConvTP_);
+
+      auto itP1 = p1.find(tk1);
+      auto itP2 = p2.find(tk2);
+      bool good = (itP1 != p1.end()) and (not itP1->val.empty()) and (itP2 != p2.end()) and (not itP2->val.empty());
+      if(not good) {
+        itP1 = p1.find(tk2);
+        itP2 = p2.find(tk1);
+        good = (itP1 != p1.end()) and (not itP1->val.empty()) and (itP2 != p2.end()) and (not itP2->val.empty());
+      }
+
+      if(good) {
+	std::vector<std::pair<TrackingParticleRef, double> >const& tp1 = itP1->val;
+	std::vector<std::pair<TrackingParticleRef, double> >const& tp2 = itP2->val;
+        TrackingParticleRef tpr1 = tp1.front().first;
+        TrackingParticleRef tpr2 = tp2.front().first;
+        if (abs(tpr1->pdgId())==11&&abs(tpr2->pdgId())==11&& tpr1->pdgId()*tpr2->pdgId()<0) {
+          if ( (tpr1->parentVertex()->sourceTracks_end()-tpr1->parentVertex()->sourceTracks_begin()==1) &&
+               (tpr2->parentVertex()->sourceTracks_end()-tpr2->parentVertex()->sourceTracks_begin()==1)) {
+            if (tpr1->parentVertex().key()==tpr2->parentVertex().key() && ((*tpr1->parentVertex()->sourceTracks_begin())->pdgId()==22)) {
+              mcConvR_ = sqrt(tpr1->parentVertex()->position().Perp2());
+              mcConvZ_ = tpr1->parentVertex()->position().z();
+              mcConvX_ = tpr1->parentVertex()->position().x();
+              mcConvY_ = tpr1->parentVertex()->position().y();
+              mcConvEta_ = tpr1->parentVertex()->position().eta();
+              mcConvPhi_ = tpr1->parentVertex()->position().phi();
+              mcConvPt_ = sqrt((*tpr1->parentVertex()->sourceTracks_begin())->momentum().Perp2());
+              //std::cout << " Reco to Sim mcconvpt " << mcConvPt_ << std::endl;
+              //cout << "associated track1 to " << tpr1->pdgId() << " with p=" << tpr1->p4() << " with pT=" << tpr1->pt() << endl;
+              //cout << "associated track2 to " << tpr2->pdgId() << " with p=" << tpr2->p4() << " with pT=" << tpr2->pt() << endl;
+              associated = true;
+              break;
+            }
+          }
+        }
       }
 
     }// end loop on sim photons
 
 
-    if (0) {
+    if (false) {
         theConvTP_.clear();
         theConvTP_ = tpForFakeRate;
         reco::RecoToSimCollection p1incl =  theTrackAssociator->associateRecoToSim(tc1,theConvTP_);
@@ -1529,15 +1528,15 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 
 
-          if ( (p1incl.size() && p2incl.size()) && (p1.size() || p2.size()) ) { // associated = true;
+          if ( (!p1incl.empty() && !p2incl.empty()) && (!p1.empty() || !p2.empty()) ) { // associated = true;
             try{
               std::vector<std::pair<TrackingParticleRef, double> > tp1 = p1incl[tk1];
               std::vector<std::pair<TrackingParticleRef, double> > tp2 = p2incl[tk2];
-              if (!(tp1.size()&&tp2.size())){
+              if (!(!tp1.empty()&&!tp2.empty())){
                   tp1 = p1[tk2];
                   tp2 = p2[tk1];
               }
-              if (tp1.size()&&tp2.size()) {
+              if (!tp1.empty()&&!tp2.empty()) {
                 TrackingParticleRef tpr1 = tp1.front().first;
                 TrackingParticleRef tpr2 = tp2.front().first;
                 if (abs(tpr1->pdgId())==11&&abs(tpr2->pdgId())==11 && tpr1->pdgId()*tpr2->pdgId()<0) {
@@ -1563,7 +1562,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
                   }
                 }
               }
-            } catch (Exception event) {
+            } catch (Exception const& event) {
               //cout << "do not continue: " << event.what()  << endl;
               //continue;
             }

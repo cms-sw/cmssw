@@ -23,7 +23,7 @@ L1TRPCTPG::L1TRPCTPG(const ParameterSet& ps)
   if(verbose_) cout << "L1TRPCTPG: constructor...." << endl;
 
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
-  if ( outputFile_.size() != 0 ) {
+  if ( !outputFile_.empty() ) {
     cout << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << endl;
   }
 
@@ -41,9 +41,6 @@ void L1TRPCTPG::dqmBeginRun(edm::Run const& r, edm::EventSetup const& c){
   //
 }
 
-void L1TRPCTPG::beginLuminosityBlock(edm::LuminosityBlock const& l, edm::EventSetup const& c){
-  //
-}
 
 
 void L1TRPCTPG::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) 

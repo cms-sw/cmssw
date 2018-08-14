@@ -11,6 +11,7 @@ PSet script.   See notes in EventProcessor.cpp for details about it.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
+#include "FWCore/ParameterSet/interface/validateTopLevelParameterSets.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/PluginManager/interface/standard.h"
@@ -22,6 +23,7 @@ PSet script.   See notes in EventProcessor.cpp for details about it.
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Presence.h"
+#include "FWCore/Utilities/interface/TimingServiceBase.h"
 
 #include "TError.h"
 
@@ -115,23 +117,23 @@ namespace {
       iNThreads = tbb::task_scheduler_init::default_num_threads();
     }
     oPtr = std::make_unique<tbb::task_scheduler_init>(static_cast<int>(iNThreads),iStackSize);
-    edm::LogInfo("ThreadSetup") <<"setting # threads "<<iNThreads;
 
     return iNThreads;
   }
 }
 
 int main(int argc, char* argv[]) {
+
+  edm::TimingServiceBase::jobStarted();
   
   int returnCode = 0;
   std::string context;
   bool alwaysAddContext = true;
-  //Default to only use 1 thread. We define this early since plugin system or message logger
-  // may be using TBB.
+  //Default to only use 1 thread. We define this early (before parsing the command line options
+  // and python configuration) since the plugin system or message logger may be using TBB.
   //NOTE: with new version of TBB (44_20160316oss) we can only construct 1 tbb::task_scheduler_init per job
   // else we get a crash. So for now we can't have any services use tasks in their constructors.
-  bool setNThreadsOnCommandLine = false;
-  std::unique_ptr<tbb::task_scheduler_init> tsiPtr = std::make_unique<tbb::task_scheduler_init>(1);
+  std::unique_ptr<tbb::task_scheduler_init> tsiPtr = std::make_unique<tbb::task_scheduler_init>(edm::s_defaultNumberOfThreads, kDefaultSizeOfStackForThreadsInKB * 1024);
   std::shared_ptr<edm::Presence> theMessageServicePresence;
   std::unique_ptr<std::ofstream> jobReportStreamPtr;
   std::shared_ptr<edm::serviceregistry::ServiceWrapper<edm::JobReport> > jobRep;
@@ -240,21 +242,6 @@ int main(int argc, char* argv[]) {
         return 0;
       }
       
-      unsigned int nThreadsOnCommandLine{0};
-      if(vm.count(kNumberOfThreadsOpt)) {
-        setNThreadsOnCommandLine=true;
-        unsigned int nThreads = vm[kNumberOfThreadsOpt].as<unsigned int>();
-        unsigned int stackSize=kDefaultSizeOfStackForThreadsInKB;
-        if(vm.count(kSizeOfStackForThreadOpt)) {
-          stackSize=vm[kSizeOfStackForThreadOpt].as<unsigned int>();
-        }
-        nThreadsOnCommandLine=setNThreads(nThreads,stackSize,tsiPtr);
-      }
-      if(not tsiPtr) {
-        //If we haven't initialized TBB yet, do it here
-        tsiPtr = std::make_unique<tbb::task_scheduler_init>(1);
-      }
-
       if (!vm.count(kParameterSetOpt)) {
         edm::LogAbsolute("ConfigFileNotFound") << "cmsRun: No configuration file given.\n"
           << "For usage and an options list, please do 'cmsRun --help'.";
@@ -298,38 +285,54 @@ int main(int argc, char* argv[]) {
         throw e;
       }
       
-      //See if we were told how many threads to use. If so then inform TBB only if
-      // we haven't already been told how many threads to use in the command line
+      // Determine the number of threads to use, and the per-thread stack size:
+      //   - from the command line
+      //   - from the "options" ParameterSet, if it exists
+      //   - from default values (currently, 1 thread and 10 MB)
+      //
+      // Since TBB has already been initialised with the default values, re-initialise
+      // it only if different values are discovered.
+      //
+      // Finally, reflect the values being used in the "options" top level ParameterSet.
       context = "Setting up number of threads";
       {
-        if(not setNThreadsOnCommandLine) {
-          std::shared_ptr<edm::ParameterSet> pset = processDesc->getProcessPSet();
-          if(pset->existsAs<edm::ParameterSet>("options",false)) {
-            auto const& ops = pset->getUntrackedParameterSet("options");
-            if(ops.existsAs<unsigned int>("numberOfThreads",false)) {
-              unsigned int nThreads = ops.getUntrackedParameter<unsigned int>("numberOfThreads");
-              unsigned int stackSize=kDefaultSizeOfStackForThreadsInKB;
-              if(ops.existsAs<unsigned int>("sizeOfStackForThreadsInKB",false)) {
-                stackSize = ops.getUntrackedParameter<unsigned int>("sizeOfStackForThreadsInKB");
-              }
-              const auto nThreadsUsed = setNThreads(nThreads,stackSize,tsiPtr);
-              if(nThreadsUsed != nThreads) {
-                auto newOp = pset->getUntrackedParameterSet("options");
-                newOp.addUntrackedParameter<unsigned int>("numberOfThreads",nThreadsUsed);
-                pset->insertParameterSet(true,"options",edm::ParameterSetEntry(newOp,false));
-              }
-            }
+        // default values
+        unsigned int nThreads  = edm::s_defaultNumberOfThreads;
+        unsigned int stackSize = kDefaultSizeOfStackForThreadsInKB;
+
+        // check the "options" ParameterSet
+        std::shared_ptr<edm::ParameterSet> pset = processDesc->getProcessPSet();
+        if (pset->existsAs<edm::ParameterSet>("options", false)) {
+          auto const& ops = pset->getUntrackedParameterSet("options");
+          if (ops.existsAs<unsigned int>("numberOfThreads", false)) {
+            nThreads = ops.getUntrackedParameter<unsigned int>("numberOfThreads");
           }
-        } else {
-          //inject it into the top level ParameterSet
-          edm::ParameterSet newOp;
-          std::shared_ptr<edm::ParameterSet> pset = processDesc->getProcessPSet();
-          if(pset->existsAs<edm::ParameterSet>("options",false)) {
-            newOp = pset->getUntrackedParameterSet("options");
+          if (ops.existsAs<unsigned int>("sizeOfStackForThreadsInKB", false)) {
+            stackSize = ops.getUntrackedParameter<unsigned int>("sizeOfStackForThreadsInKB");
           }
-          newOp.addUntrackedParameter<unsigned int>("numberOfThreads",nThreadsOnCommandLine);
-          pset->insertParameterSet(true,"options",edm::ParameterSetEntry(newOp,false));
         }
+
+        // check the command line options
+        if (vm.count(kNumberOfThreadsOpt)) {
+          nThreads = vm[kNumberOfThreadsOpt].as<unsigned int>();
+        }
+        if (vm.count(kSizeOfStackForThreadOpt)) {
+          stackSize = vm[kSizeOfStackForThreadOpt].as<unsigned int>();
+        }
+
+        // if needed, re-initialise TBB
+        if (nThreads != edm::s_defaultNumberOfThreads or stackSize != kDefaultSizeOfStackForThreadsInKB) {
+          nThreads = setNThreads(nThreads, stackSize, tsiPtr);
+        }
+
+        // update the numberOfThreads and sizeOfStackForThreadsInKB in the "options" ParameterSet
+        edm::ParameterSet newOp;
+        if (pset->existsAs<edm::ParameterSet>("options", false)) {
+          newOp = pset->getUntrackedParameterSet("options");
+        }
+        newOp.addUntrackedParameter<unsigned int>("numberOfThreads", nThreads);
+        newOp.addUntrackedParameter<unsigned int>("sizeOfStackForThreadsInKB", stackSize);
+        pset->insertParameterSet(true, "options", edm::ParameterSetEntry(newOp, false));
       }
 
       context = "Initializing default service configurations";
@@ -353,12 +356,6 @@ int main(int argc, char* argv[]) {
       alwaysAddContext = false;
       context = "Calling beginJob";
       proc->beginJob();
-
-      alwaysAddContext = true;
-      context = "Calling EventProcessor::forkProcess";
-      if (!proc->forkProcess(jobReportFile)) {
-        return 0;
-      }
 
       alwaysAddContext = false;
       context = "Calling EventProcessor::runToCompletion (which does almost everything after beginJob and before endJob)";
@@ -387,7 +384,7 @@ int main(int argc, char* argv[]) {
       }
     }
     if (!ex.alreadyPrinted()) {
-      if (jobRep.get() != 0) {
+      if (jobRep.get() != nullptr) {
         edm::printCmsException(ex, &(jobRep->get()), returnCode);
       }
       else {

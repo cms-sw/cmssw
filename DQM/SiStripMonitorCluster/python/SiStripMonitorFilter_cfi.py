@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SiStripMonitorFilter = cms.EDAnalyzer("SiStripMonitorFilter",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SiStripMonitorFilter = DQMEDAnalyzer('SiStripMonitorFilter',
     FilterProducer = cms.string('ClusterMTCCFilter')
 )

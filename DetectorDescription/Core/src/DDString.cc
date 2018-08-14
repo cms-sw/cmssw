@@ -2,33 +2,24 @@
 
 #include <utility>
 
-#include "DetectorDescription/Base/interface/Store.h"
-//#include "DetectorDescription/Base/interface/DDException.h"
+DDString::DDString() : DDBase< DDName, std::string*>() { }
 
-// Evaluator 
-//#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
-
-
-
-DDString::DDString() : DDBase<DDName,std::string*>() { }
-
-
-DDString::DDString(const DDName & name) : DDBase<DDName,std::string*>() 
+DDString::DDString( const DDName & name )
+  : DDBase< DDName, std::string* >() 
 {
-  prep_ = StoreT::instance().create(name);
+  create( name );
 }
 
-DDString::DDString(const DDName & name,std::string* vals)
+DDString::DDString( const DDName & name, std::string* vals )
 {
-  prep_ = StoreT::instance().create(name,vals);
+  create( name, vals );
 }  
 
-
-std::ostream & operator<<(std::ostream & os, const DDString & cons)
+std::ostream & operator<<( std::ostream & os, const DDString & cons )
 {
   os << "DDString name=" << cons.name(); 
   
-  if(cons.isDefined().second) {
+  if( cons.isDefined().second ) {
     os << " val=" << cons.value();
   }
   else {
@@ -36,5 +27,3 @@ std::ostream & operator<<(std::ostream & os, const DDString & cons)
   }  
   return os;
 }
-
-

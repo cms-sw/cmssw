@@ -29,11 +29,11 @@ namespace egHLT {
     EgHLTDQMCut& operator=(const EgHLTDQMCut& rhs){return *this;}
       protected:
       //only derived classes can call the copy constructor (needed for clone...)
-      EgHLTDQMCut(const EgHLTDQMCut& rhs){}
+      EgHLTDQMCut(const EgHLTDQMCut& rhs)= default;
     
     public:
-    EgHLTDQMCut(){}
-    virtual ~EgHLTDQMCut(){}
+    EgHLTDQMCut()= default;
+    virtual ~EgHLTDQMCut()= default;
     virtual bool pass(const T& obj,const OffEvt& evt)const=0;
     virtual EgHLTDQMCut<T>* clone()const=0; //caller owns the pointer
   };
@@ -48,10 +48,10 @@ namespace egHLT {
     
     public:
     EgHLTDQMVarCut(int cutsToPass,int (T::*cutCodeFunc)()const):cutsToPass_(cutsToPass),cutCodeFunc_(cutCodeFunc){}
-    ~EgHLTDQMVarCut(){}
+    ~EgHLTDQMVarCut() override= default;
     
-    bool pass(const T& obj,const OffEvt& evt)const;
-    EgHLTDQMCut<T>* clone()const{return new EgHLTDQMVarCut(*this);} //default copy constructor is fine
+    bool pass(const T& obj,const OffEvt& evt)const override;
+    EgHLTDQMCut<T>* clone()const override{return new EgHLTDQMVarCut(*this);} //default copy constructor is fine
     
   };
   
@@ -78,10 +78,10 @@ namespace egHLT {
     
     public:
     EgHLTDQMUserVarCut(int (T::*cutCodeFunc)(const Key&)const,const Key& key,int cutsNotToMask=~0x0):cutCodeFunc_(cutCodeFunc),key_(key),cutsNotToMask_(cutsNotToMask){}
-    ~EgHLTDQMUserVarCut(){}
+    ~EgHLTDQMUserVarCut() override= default;
     
-    bool pass(const T& obj,const OffEvt& evt)const;
-    EgHLTDQMCut<T>* clone()const{return new EgHLTDQMUserVarCut(*this);} //default copy constructor is fine
+    bool pass(const T& obj,const OffEvt& evt)const override;
+    EgHLTDQMCut<T>* clone()const override{return new EgHLTDQMUserVarCut(*this);} //default copy constructor is fine
     
   };
   
@@ -101,8 +101,8 @@ namespace egHLT {
     EgGreaterCut(varType cutValue,varType (T::*varFunc)()const):
       cutValue_(cutValue),varFunc_(varFunc){}
     
-    bool pass(const T& obj,const OffEvt& evt)const{return (obj.*varFunc_)()>cutValue_;}
-    EgHLTDQMCut<T>* clone()const{return new EgGreaterCut(*this);} //default copy constructor is fine
+    bool pass(const T& obj,const OffEvt& evt)const override{return (obj.*varFunc_)()>cutValue_;}
+    EgHLTDQMCut<T>* clone()const override{return new EgGreaterCut(*this);} //default copy constructor is fine
   };
   
   //this struct allows multiple cuts to be strung together
@@ -116,9 +116,9 @@ namespace egHLT {
     std::vector<const EgHLTDQMCut<T>*> cuts_;//all the points to the cuts we own 
     
     public:
-    EgMultiCut(){}  
+    EgMultiCut()= default;  
     EgMultiCut(const EgMultiCut<T>& rhs);
-    ~EgMultiCut(){for(size_t i=0;i<cuts_.size();i++) delete cuts_[i];}
+    ~EgMultiCut() override{for(size_t i=0;i<cuts_.size();i++) delete cuts_[i];}
     
     //we own any cut given to use this way
     EgMultiCut<T>& operator<<(const EgHLTDQMCut<T>* inputCut);
@@ -126,8 +126,8 @@ namespace egHLT {
     
     //basically an AND of all the cuts using short circuit evaluation, starting with the first cut
     //if no cuts present, will default to true
-    bool pass(const T& obj,const OffEvt& evt)const;
-    EgHLTDQMCut<T>* clone()const{return new EgMultiCut(*this);}
+    bool pass(const T& obj,const OffEvt& evt)const override;
+    EgHLTDQMCut<T>* clone()const override{return new EgMultiCut(*this);}
   };
   
   template<class T> EgMultiCut<T>::EgMultiCut(const EgMultiCut<T>& rhs)
@@ -142,7 +142,7 @@ namespace egHLT {
     {
       if(typeid(*inputCut)==typeid(EgMultiCut)){
 	edm::LogError("EgMultiCut") <<" Error can not currently load an EgMultiCut inside a EgMultiCut, the practical upshot is that the selection you think is being loaded isnt ";
-      }else if(inputCut==NULL){
+      }else if(inputCut==nullptr){
 	edm::LogError("EgMultiCut") << "Error, cut being loaded is null, ignoring";
       }else cuts_.push_back(inputCut);
       return *this;
@@ -177,10 +177,10 @@ namespace egHLT {
     public:
     EgObjTrigCut( TrigCodes::TrigBitSet bitsToPass,CutLogic passLogic=OR,TrigCodes::TrigBitSet bitsToFail=TrigCodes::TrigBitSet(),CutLogic failLogic=AND):
       bitsToPass_(bitsToPass),passLogic_(passLogic),bitsToFail_(bitsToFail),failLogic_(failLogic){}
-    ~EgObjTrigCut(){}
+    ~EgObjTrigCut() override= default;
     
-    bool pass(const T& obj,const OffEvt& evt)const;
-    EgHLTDQMCut<T>* clone()const{return new EgObjTrigCut(*this);}
+    bool pass(const T& obj,const OffEvt& evt)const override;
+    EgHLTDQMCut<T>* clone()const override{return new EgObjTrigCut(*this);}
   };
   
   template<class T> bool EgObjTrigCut<T>::pass(const T& obj,const OffEvt& evt)const
@@ -209,7 +209,7 @@ namespace egHLT {
     
     public:
     EgEvtTrigCut( TrigCodes::TrigBitSet bitsToPass,CutLogic passLogic=OR):bitsToPass_(bitsToPass),passLogic_(passLogic){}
-    ~EgEvtTrigCut(){}
+    ~EgEvtTrigCut()= default;
     
     bool pass(const T& obj,const OffEvt& evt)const; 
     EgHLTDQMCut<T>* clone()const{return new EgEvtTrigCut(*this);}
@@ -242,10 +242,10 @@ namespace egHLT {
     
     public:
     ChargeCut(int charge):charge_(charge){}
-    ~ChargeCut(){}
+    ~ChargeCut() override = default;
     
-    bool pass(const T& obj,const OffEvt& evt)const{return obj.charge()==charge_;}
-    EgHLTDQMCut<T>* clone()const{return new ChargeCut(*this);}
+    bool pass(const T& obj,const OffEvt& evt)const override{return obj.charge()==charge_;}
+    EgHLTDQMCut<T>* clone()const override{return new ChargeCut(*this);}
   };
   
   //this askes if an object statifies the probe criteria and that another electron in the event statisfies the tag
@@ -260,24 +260,24 @@ namespace egHLT {
     float maxMass_;
     public:
     EgTagProbeCut(int probeCutCode,int (T::*probeCutCodeFunc)()const,int tagCutCode,int (OffEle::*tagCutCodeFunc)()const,float minMass=81.,float maxMass=101.):probeCutCode_(probeCutCode),probeCutCodeFunc_(probeCutCodeFunc),tagCutCode_(tagCutCode),tagCutCodeFunc_(tagCutCodeFunc),minMass_(minMass),maxMass_(maxMass){}
-    ~EgTagProbeCut(){}
+    ~EgTagProbeCut() override = default;
     
-    bool pass(const T& obj,const OffEvt& evt)const;
-    EgHLTDQMCut<T>* clone()const{return new EgTagProbeCut(*this);}
+    bool pass(const T& obj,const OffEvt& evt)const override;
+    EgHLTDQMCut<T>* clone()const override{return new EgTagProbeCut(*this);}
   };
   
   template<class T> bool EgTagProbeCut<T>::pass(const T& obj,const OffEvt& evt)const
     {
       int nrTags=0;
-      const OffEle* tagEle=NULL;
+      const OffEle* tagEle=nullptr;
       const std::vector<OffEle>& eles = evt.eles();
       //we are looking for an *additional* tag
-      for(size_t eleNr=0;eleNr<eles.size();eleNr++){
-	if( ((eles[eleNr].*tagCutCodeFunc_)() & tagCutCode_)==0x0){
+      for(const auto & ele : eles){
+	if( ((ele.*tagCutCodeFunc_)() & tagCutCode_)==0x0){
 	  //now a check that the tag is not the same as the probe
-	  if(reco::deltaR2(obj.eta(),obj.phi(),eles[eleNr].eta(),eles[eleNr].phi())>0.1*0.1){//not in a cone of 0.1 of probe object
+	  if(reco::deltaR2(obj.eta(),obj.phi(),ele.eta(),ele.phi())>0.1*0.1){//not in a cone of 0.1 of probe object
 	    nrTags++;
-	    tagEle = &eles[eleNr];
+	    tagEle = &ele;
 	  }
 	}
       }
@@ -300,8 +300,8 @@ namespace egHLT {
     public:
     EgJetTagProbeCut(int probeCutCode,int (T::*probeCutCodeFunc)()const,float minDPhi=-M_PI,float maxDPhi=M_PI):
       probeCutCode_(probeCutCode),probeCutCodeFunc_(probeCutCodeFunc),minDPhi_(minDPhi),maxDPhi_(maxDPhi){}
-    bool pass(const T& obj,const OffEvt& evt)const;
-    EgHLTDQMCut<T>* clone()const{return new EgJetTagProbeCut(*this);}
+    bool pass(const T& obj,const OffEvt& evt)const override;
+    EgHLTDQMCut<T>* clone()const override{return new EgJetTagProbeCut(*this);}
     
   };
   
@@ -310,16 +310,16 @@ namespace egHLT {
     {
       int nrProbes=0;
       const std::vector<OffEle>& eles = evt.eles();
-      for(size_t eleNr=0;eleNr<eles.size();eleNr++){
-	if( ((eles[eleNr].*probeCutCodeFunc_)() & probeCutCode_)==0x0){
+      for(const auto & ele : eles){
+	if( ((ele.*probeCutCodeFunc_)() & probeCutCode_)==0x0){
 	  nrProbes++;
 	}
       }
       bool b2bJet=false;
       const std::vector<reco::CaloJet>& jets =evt.jets();
-      for(size_t jetNr=0;jetNr<jets.size();jetNr++){
-	if(reco::deltaR2(obj.eta(),obj.phi(),jets[jetNr].eta(),jets[jetNr].phi())>0.1*0.1){//not in a cone of 0.1 of probe object
-	  float dPhi = reco::deltaPhi(obj.phi(),jets[jetNr].phi());
+      for(const auto & jet : jets){
+	if(reco::deltaR2(obj.eta(),obj.phi(),jet.eta(),jet.phi())>0.1*0.1){//not in a cone of 0.1 of probe object
+	  float dPhi = reco::deltaPhi(obj.phi(),jet.phi());
 	  if(dPhi>minDPhi_ && dPhi<maxDPhi_) b2bJet=true;
 	}
       }
@@ -350,10 +350,10 @@ namespace egHLT {
     
       bool b2bJet=false;
       const std::vector<reco::CaloJet>& jets =evt.jets();
-      for(size_t jetNr=0;jetNr<jets.size();jetNr++){
-	if(reco::deltaR2(obj.eta(),obj.phi(),jets[jetNr].eta(),jets[jetNr].phi())>0.1*0.1){//not in a cone of 0.1 of probe object
-	  float dPhi = reco::deltaPhi(obj.phi(),jets[jetNr].phi());
-	  if(dPhi>minDPhi_ && dPhi<maxDPhi_ && fabs(1-jets[jetNr].pt()/obj.pt()) < ptRelDiff_) b2bJet=true;
+      for(const auto & jet : jets){
+	if(reco::deltaR2(obj.eta(),obj.phi(),jet.eta(),jet.phi())>0.1*0.1){//not in a cone of 0.1 of probe object
+	  float dPhi = reco::deltaPhi(obj.phi(),jet.phi());
+	  if(dPhi>minDPhi_ && dPhi<maxDPhi_ && fabs(1-jet.pt()/obj.pt()) < ptRelDiff_) b2bJet=true;
 	}
       }
       return b2bJet;
@@ -369,8 +369,8 @@ namespace egHLT {
     
     public:
     EgDiEleCut(int cutCode,int (OffEle::*cutCodeFunc)()const):cutCode_(cutCode),cutCodeFunc_(cutCodeFunc){}
-    bool pass(const OffEle& obj,const OffEvt& evt)const;
-    EgHLTDQMCut<OffEle>* clone()const{return new EgDiEleCut(*this);}
+    bool pass(const OffEle& obj,const OffEvt& evt)const override;
+    EgHLTDQMCut<OffEle>* clone()const override{return new EgDiEleCut(*this);}
   };
   
   //requires the the passed in electron and another in the event passes the specified cuts
@@ -381,19 +381,19 @@ namespace egHLT {
     int cutsNotToMask_;
     public:
     EgDiEleUserCut(int (OffEle::*cutCodeFunc)(const Key&)const,const Key& key,int cutsNotToMask=~0x0):cutCodeFunc_(cutCodeFunc),key_(key),cutsNotToMask_(cutsNotToMask){}
-    ~EgDiEleUserCut(){}
+    ~EgDiEleUserCut() override= default;
     
-    bool pass(const OffEle& obj,const OffEvt& evt)const;
-    EgHLTDQMCut<OffEle>* clone()const{return new EgDiEleUserCut(*this);} //default copy constructor is fine
+    bool pass(const OffEle& obj,const OffEvt& evt)const override;
+    EgHLTDQMCut<OffEle>* clone()const override{return new EgDiEleUserCut(*this);} //default copy constructor is fine
     
   };
   
   template<class Key> bool EgDiEleUserCut<Key>::pass(const OffEle& obj,const OffEvt& evt)const
     { 
       const std::vector<OffEle>& eles = evt.eles();
-      for(size_t eleNr=0;eleNr<eles.size();eleNr++){
-	if(&eles[eleNr]!=&obj){ //different electrons
-	  int diEleCutCode = (obj.*cutCodeFunc_)(key_) | (eles[eleNr].*cutCodeFunc_)(key_);  
+      for(const auto & ele : eles){
+	if(&ele!=&obj){ //different electrons
+	  int diEleCutCode = (obj.*cutCodeFunc_)(key_) | (ele.*cutCodeFunc_)(key_);  
 	  if( (diEleCutCode & cutsNotToMask_)==0x0) return true;
 	}
       }
@@ -409,8 +409,8 @@ namespace egHLT {
     
     public:
     EgDiPhoCut(int cutCode,int (OffPho::*cutCodeFunc)()const):cutCode_(cutCode),cutCodeFunc_(cutCodeFunc){}
-    bool pass(const OffPho& obj,const OffEvt& evt)const;
-    EgHLTDQMCut<OffPho>* clone()const{return new EgDiPhoCut(*this);}
+    bool pass(const OffPho& obj,const OffEvt& evt)const override;
+    EgHLTDQMCut<OffPho>* clone()const override{return new EgDiPhoCut(*this);}
   };
   
   
@@ -422,20 +422,20 @@ namespace egHLT {
     int cutsNotToMask_;
     public:
     EgDiPhoUserCut(int (OffPho::*cutCodeFunc)(const Key&)const,const Key& key,int cutsNotToMask=~0x0):cutCodeFunc_(cutCodeFunc),key_(key),cutsNotToMask_(cutsNotToMask){}
-    ~EgDiPhoUserCut(){}
+    ~EgDiPhoUserCut() override= default;
     
-    bool pass(const OffPho& obj,const OffEvt& evt)const;
-    EgHLTDQMCut<OffPho>* clone()const{return new EgDiPhoUserCut(*this);} //default copy constructor is fine
+    bool pass(const OffPho& obj,const OffEvt& evt)const override;
+    EgHLTDQMCut<OffPho>* clone()const override{return new EgDiPhoUserCut(*this);} //default copy constructor is fine
     
   };
   
   template<class Key> bool EgDiPhoUserCut<Key>::pass(const OffPho& obj,const OffEvt& evt)const
     { 
       const std::vector<OffPho>& phos = evt.phos();
-      for(size_t phoNr=0;phoNr<phos.size();phoNr++){
-	if(&phos[phoNr]!=&obj){ //different phoctrons
+      for(const auto & pho : phos){
+	if(&pho!=&obj){ //different phoctrons
 	
-	  int diPhoCutCode = (obj.*cutCodeFunc_)(key_) | (phos[phoNr].*cutCodeFunc_)(key_);
+	  int diPhoCutCode = (obj.*cutCodeFunc_)(key_) | (pho.*cutCodeFunc_)(key_);
 	  if( (diPhoCutCode & cutsNotToMask_)==0x0) return true;
 	}
       }
@@ -455,10 +455,10 @@ namespace egHLT {
     float maxMass_;
     public:
     EgTrigTagProbeCut(TrigCodes::TrigBitSet bitsToPass,int cutCode,int (OffEle::*cutCodeFunc)()const,float minMass=81.,float maxMass=101.):bitsToPass_(bitsToPass),cutCode_(cutCode),cutCodeFunc_(cutCodeFunc),minMass_(minMass),maxMass_(maxMass){}
-    ~EgTrigTagProbeCut(){}
+    ~EgTrigTagProbeCut() override= default;
     
-    bool pass(const OffEle& ele,const OffEvt& evt)const;
-    EgHLTDQMCut<OffEle>* clone()const{return new EgTrigTagProbeCut(*this);} 
+    bool pass(const OffEle& ele,const OffEvt& evt)const override;
+    EgHLTDQMCut<OffEle>* clone()const override{return new EgTrigTagProbeCut(*this);} 
     
   };
   
@@ -475,10 +475,10 @@ namespace egHLT {
     float maxMass_;
     public:
     EgTrigTagProbeCut_New(TrigCodes::TrigBitSet bit1ToPass,TrigCodes::TrigBitSet bit2ToPass,int cutCode,int (OffEle::*cutCodeFunc)()const,float minMass=81.,float maxMass=101.):bit1ToPass_(bit1ToPass),bit2ToPass_(bit2ToPass),cutCode_(cutCode),cutCodeFunc_(cutCodeFunc),minMass_(minMass),maxMass_(maxMass){}
-    ~EgTrigTagProbeCut_New(){}
+    ~EgTrigTagProbeCut_New() override= default;
     
-    bool pass(const OffEle& ele,const OffEvt& evt)const;
-    EgHLTDQMCut<OffEle>* clone()const{return new EgTrigTagProbeCut_New(*this);} 
+    bool pass(const OffEle& ele,const OffEvt& evt)const override;
+    EgHLTDQMCut<OffEle>* clone()const override{return new EgTrigTagProbeCut_New(*this);} 
     
   };
   //same for photons
@@ -492,10 +492,10 @@ namespace egHLT {
     float maxMass_;
     public:
     EgTrigTagProbeCut_NewPho(TrigCodes::TrigBitSet bit1ToPass,TrigCodes::TrigBitSet bit2ToPass,int cutCode,int (OffPho::*cutCodeFunc)()const,float minMass=81.,float maxMass=101.):bit1ToPass_(bit1ToPass),bit2ToPass_(bit2ToPass),cutCode_(cutCode),cutCodeFunc_(cutCodeFunc),minMass_(minMass),maxMass_(maxMass){}
-    ~EgTrigTagProbeCut_NewPho(){}
+    ~EgTrigTagProbeCut_NewPho() override= default;
     
-    bool pass(const OffPho& pho,const OffEvt& evt)const;
-    EgHLTDQMCut<OffPho>* clone()const{return new EgTrigTagProbeCut_NewPho(*this);} 
+    bool pass(const OffPho& pho,const OffEvt& evt)const override;
+    EgHLTDQMCut<OffPho>* clone()const override{return new EgTrigTagProbeCut_NewPho(*this);} 
     
   };
 

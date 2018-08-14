@@ -21,9 +21,9 @@
 class JetTracksAssociatorAtCaloFace : public edm::stream::EDProducer<> {
    public:
       JetTracksAssociatorAtCaloFace(const edm::ParameterSet&);
-      virtual ~JetTracksAssociatorAtCaloFace() {}
+      ~JetTracksAssociatorAtCaloFace() override {}
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
    private:
       

@@ -50,18 +50,16 @@ class TTClusterAssociator : public edm::stream::EDProducer<>
     explicit TTClusterAssociator( const edm::ParameterSet& iConfig );
 
     /// Destructor
-    ~TTClusterAssociator();
+    ~TTClusterAssociator() override;
 
   private:
     /// Data members
     edm::Handle< edm::DetSetVector< PixelDigiSimLink > >   thePixelDigiSimLinkHandle;
-    edm::Handle< edm::SimTrackContainer >                  theSimTrackHandle;
     edm::Handle< std::vector< TrackingParticle > >         TrackingParticleHandle;
 
     std::vector< edm::InputTag > TTClustersInputTags;
 
     edm::EDGetTokenT< edm::DetSetVector< PixelDigiSimLink > >              digisimLinkToken;
-    edm::EDGetTokenT< edm::SimTrackContainer >                             simTrackToken;
     edm::EDGetTokenT< std::vector< TrackingParticle > >                    tpToken;
     //std::vector< edm::EDGetTokenT< edm::DetSetVector< TTCluster< T > > > > TTClustersTokens;
     std::vector<edm::EDGetTokenT< edmNew::DetSetVector< TTCluster< T > > > > TTClustersTokens;
@@ -75,9 +73,9 @@ class TTClusterAssociator : public edm::stream::EDProducer<>
 
 
     /// Mandatory methods
-    virtual void beginRun( const edm::Run& run, const edm::EventSetup& iSetup );
-    virtual void endRun( const edm::Run& run, const edm::EventSetup& iSetup );
-    virtual void produce( edm::Event& iEvent, const edm::EventSetup& iSetup );
+    void beginRun( const edm::Run& run, const edm::EventSetup& iSetup ) override;
+    void endRun( const edm::Run& run, const edm::EventSetup& iSetup ) override;
+    void produce( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
 
 }; /// Close class
 
@@ -92,7 +90,6 @@ class TTClusterAssociator : public edm::stream::EDProducer<>
 template< typename T >
 TTClusterAssociator< T >::TTClusterAssociator( const edm::ParameterSet& iConfig )
 {
-  simTrackToken = consumes< edm::SimTrackContainer >(iConfig.getParameter< edm::InputTag >( "simTrackHits" ));
   digisimLinkToken = consumes< edm::DetSetVector< PixelDigiSimLink > >(iConfig.getParameter< edm::InputTag >( "digiSimLinks" ));
   tpToken = consumes< std::vector< TrackingParticle >  >(iConfig.getParameter< edm::InputTag >( "trackingParts" ));
 

@@ -11,9 +11,9 @@ namespace gs {
             return false;
         // If global URI does not exist, local URI must coincide exactly.
         // If global URI exists, local URI may or may not be defined.
-        if (URI_.size())
+        if (!URI_.empty())
         {
-            if (cachedItemURI_.size() && r.cachedItemURI_.size())
+            if (!cachedItemURI_.empty() && !r.cachedItemURI_.empty())
                 if (cachedItemURI_ != r.cachedItemURI_)
                     return false;
         }

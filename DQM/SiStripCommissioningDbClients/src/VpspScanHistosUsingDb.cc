@@ -24,6 +24,12 @@ VpspScanHistosUsingDb::VpspScanHistosUsingDb( const edm::ParameterSet & pset,
   LogTrace(mlDqmClient_) 
     << "[VpspScanHistosUsingDb::" << __func__ << "]"
     << " Constructing object...";
+
+  allowSelectiveUpload_ = this->pset().existsAs<bool>("doSelectiveUpload")?this->pset().getParameter<bool>("doSelectiveUpload"):false;
+  LogTrace(mlDqmClient_)
+    << "[PedestalsHistosUsingDb::" << __func__ << "]"
+    << " Selective upload of modules set to : " << allowSelectiveUpload_;
+
 }
 
 // -----------------------------------------------------------------------------
@@ -101,9 +107,9 @@ void VpspScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange dev
 			   ichan+1 );
       
     // Iterate through all channels and extract LLD settings 
-    Analyses::const_iterator iter = data().find( fec_key.key() );
-    if ( iter != data().end() ) {
-
+    Analyses::const_iterator iter = data(allowSelectiveUpload_).find( fec_key.key() );
+    if ( iter != data(allowSelectiveUpload_).end() ) {
+      
       VpspScanAnalysis* anal = dynamic_cast<VpspScanAnalysis*>( iter->second );
       if ( !anal ) { 
 	edm::LogError(mlDqmClient_)

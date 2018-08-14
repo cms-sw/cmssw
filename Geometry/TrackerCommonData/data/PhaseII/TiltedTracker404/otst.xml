@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+  <ConstantsSection label="otst.xml" eval="true">
+    <Constant name="OTSTInnerRadius" value="1190.0*mm"/>
+    <Constant name="OTSTOuterRadius" value="1192.0*mm"/>
+    <Constant name="OTSTHalfLength" value="2900.0*mm"/>
+  </ConstantsSection>
+  
+  <SolidSection label="otst.xml">
+    <Tubs name="supportR1190Z1450" rMin="[otst:OTSTInnerRadius]" rMax="[otst:OTSTOuterRadius]" dz="[otst:OTSTHalfLength]" startPhi="0*deg" deltaPhi="360*deg"/> 
+  </SolidSection>
+
+  <PosPartSection label="otst.xml">          
+    <PosPart copyNumber="1">
+      <rParent name="tracker:Tracker"/>
+      <rChild name="otst:supportR1190Z1450"/>
+      <Translation x="0*mm" y="0*mm" z="0*mm"/>
+    </PosPart>
+  </PosPartSection>        
+
+  <MaterialSection label="otst.xml">   
+    <CompositeMaterial name="supportcompositeR1190Z1450" density="1.69*g/cm3" method="mixture by weight">
+      <MaterialFraction fraction="1">
+	<rMaterial name="tracker:tkLayout_CF"/>
+      </MaterialFraction>
+    </CompositeMaterial>
+  </MaterialSection>
+  
+  <LogicalPartSection label="otst.xml">
+    <LogicalPart name="supportR1190Z1450" category="unspecified">
+      <rSolid name="otst:supportR1190Z1450"/>
+      <rMaterial name="otst:supportcompositeR1190Z1450"/>
+    </LogicalPart>
+  </LogicalPartSection>
+                    
+</DDDefinition>

@@ -16,6 +16,8 @@
 //       
 //      
 
+#include <cmath>
+
 #include "DQMOffline/Trigger/interface/EgHLTMonElemManager.h"
 
 namespace egHLT {
@@ -29,15 +31,15 @@ namespace egHLT {
       barrel_(iBooker, name+"_eb","Barrel "+title,nrBins,min,max,varFunc),
       endcap_(iBooker, name+"_ee","Endcap "+title,nrBins,min,max,varFunc){}
     
-    ~MonElemMgrEBEE(){}
+    ~MonElemMgrEBEE() override= default;
     
-    void fill(const T& obj,float weight);
+    void fill(const T& obj,float weight) override;
     
   };
   
   template<class T,typename varType> void MonElemMgrEBEE<T,varType>::fill(const T& obj,float weight)
   {
-    if(fabs(obj.detEta())<1.5) barrel_.fill(obj,weight);
+    if(std::fabs(obj.detEta())<1.5) barrel_.fill(obj,weight);
     else endcap_.fill(obj,weight);
   }
   
@@ -57,7 +59,7 @@ namespace egHLT {
       barrel_(iBooker, name+"_eb","Barrel "+title,nrBinsX,xMin,xMax,nrBinsY,yMin,yMax,varFuncX,varFuncY),
       endcap_(iBooker, name+"_ee","Endcap "+title,nrBinsX,xMin,xMax,nrBinsY,yMin,yMax,varFuncX,varFuncY){}
     
-    ~MonElemMgr2DEBEE(){}
+    ~MonElemMgr2DEBEE()= default;
     
     void fill(const T& obj,float weight);
     

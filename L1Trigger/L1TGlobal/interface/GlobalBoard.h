@@ -259,6 +259,7 @@ private:
 
     bool m_firstEv;
     bool m_firstEvLumiSegment;
+    uint m_currentLumi;
 
 private:
 

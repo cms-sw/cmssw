@@ -24,20 +24,25 @@ class CastorChannelQualityRcd;
 class CastorElectronicsMapRcd;
 class CastorRecoParamsRcd;
 class CastorSaturationCorrsRcd;
+class CastorGains;
+class CastorGainWidths;
+class CastorChannelQuality;
+class CastorRecoParams;
+class CastorSaturationCorrs;
 
 class CastorTextCalibrations : public edm::ESProducer,
 		       public edm::EventSetupRecordIntervalFinder
 {
 public:
   CastorTextCalibrations (const edm::ParameterSet& );
-  ~CastorTextCalibrations ();
+  ~CastorTextCalibrations () override;
 
   void produce () {};
   
 protected:
-  virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
 			      const edm::IOVSyncValue& , 
-			      edm::ValidityInterval&) ;
+			      edm::ValidityInterval&) override ;
 
   std::unique_ptr<CastorPedestals> producePedestals (const CastorPedestalsRcd& rcd);
   std::unique_ptr<CastorPedestalWidths> producePedestalWidths (const CastorPedestalWidthsRcd& rcd);

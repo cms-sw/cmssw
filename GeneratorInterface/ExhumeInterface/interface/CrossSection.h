@@ -20,7 +20,6 @@
 #include "CLHEP/Vector/ThreeVector.h"
 
 #include "GeneratorInterface/ExhumeInterface/interface/I.h"
-#include "GeneratorInterface/ExhumeInterface/interface/PI.h"
 //#include "GeneratorInterface/ExhumeInterface/interface/PythiaRecord.h"
 #include "GeneratorInterface/ExhumeInterface/interface/Particle.h"
 

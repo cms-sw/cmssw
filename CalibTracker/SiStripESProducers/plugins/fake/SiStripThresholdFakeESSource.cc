@@ -25,18 +25,17 @@
 class SiStripThresholdFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   SiStripThresholdFakeESSource(const edm::ParameterSet&);
-  ~SiStripThresholdFakeESSource();
+  ~SiStripThresholdFakeESSource() override;
 
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity );
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity ) override;
 
-  typedef std::shared_ptr<SiStripThreshold> ReturnType;
+  typedef std::unique_ptr<SiStripThreshold> ReturnType;
   ReturnType produce(const SiStripThresholdRcd&);
 
 private:
   float m_lTh;
   float m_hTh;
   float m_cTh;
-  edm::FileInPath m_file;
 };
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -50,7 +49,6 @@ SiStripThresholdFakeESSource::SiStripThresholdFakeESSource(const edm::ParameterS
   m_lTh = iConfig.getParameter<double>("LowTh");
   m_hTh = iConfig.getParameter<double>("HighTh");
   m_cTh = iConfig.getParameter<double>("ClusTh");
-  m_file = iConfig.getParameter<edm::FileInPath>("file");
 }
 
 SiStripThresholdFakeESSource::~SiStripThresholdFakeESSource() {}
@@ -66,11 +64,10 @@ SiStripThresholdFakeESSource::produce(const SiStripThresholdRcd& iRecord)
 {
   using namespace edm::es;
 
-  std::shared_ptr<SiStripThreshold> threshold{new SiStripThreshold};
+  auto threshold = std::make_unique<SiStripThreshold>();
 
-  SiStripDetInfoFileReader reader{m_file.fullPath()};
-
-  for ( const auto& elm : reader.getAllData() ) {
+  const edm::Service<SiStripDetInfoFileReader> reader;
+  for ( const auto& elm : reader->getAllData() ) {
     //Generate Thresholds for det detid
     SiStripThreshold::Container theSiStripVector;
     uint16_t strip=0;

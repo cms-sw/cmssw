@@ -7,7 +7,7 @@
 #include <numeric>
 #include <vector>
 #include <algorithm>
-#include <stdlib.h>
+#include <cstdlib>
 
 namespace heppy {
 
@@ -16,7 +16,7 @@ namespace heppy {
                                const std::vector<double>& py,
                                const double metx, const double mety) {
     
-    if(et.size()==0) return -1.;
+    if(et.empty()) return -1.;
     
     // Momentum sums in transverse plane
     const double ht = accumulate( et.begin(), et.end(), 0. );
@@ -56,7 +56,7 @@ namespace heppy {
         apcjetmetvector.back() += et[i] * cos(dphi_jet/2.0) * sin(dphimet/2.0);
       }
     }
-    if (apcjetvector.size() > 0 && apcjetmetvector.size() > 0) {
+    if (!apcjetvector.empty() && !apcjetmetvector.empty()) {
       apcjetmetmin = *min_element(apcjetmetvector.begin(), apcjetmetvector.end());
     }
     

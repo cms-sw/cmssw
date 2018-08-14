@@ -42,8 +42,8 @@ DTTMax::InfoLayer::InfoLayer(const DTRecHit1D& rh_, const DTSuperLayer & isl, Gl
 
 DTTMax::DTTMax(const vector<DTRecHit1D>& hits, const DTSuperLayer & isl, GlobalVector dir, 
 	       GlobalPoint pos, DTTTrigBaseSync* sync):
-  theInfoLayers(4,(InfoLayer*)0), //FIXME
-  theTMaxes(4,(TMax*)0) 
+  theInfoLayers(4,(InfoLayer*)nullptr), //FIXME
+  theTMaxes(4,(TMax*)nullptr) 
 {
   // debug parameter for verbose output
   debug = "true";
@@ -55,7 +55,7 @@ DTTMax::DTTMax(const vector<DTRecHit1D>& hits, const DTSuperLayer & isl, GlobalV
     
     InfoLayer* layInfo = new InfoLayer((*hit), isl, dir, pos, sync);
     int ilay = layInfo->idWire.layer();
-    if (getInfoLayer(ilay)==0) {
+    if (getInfoLayer(ilay)==nullptr) {
       getInfoLayer(ilay) = layInfo;
     } else {
       // FIXME: in case there is > 1 hit/layer, the first is taken and the others are IGNORED.
@@ -70,7 +70,7 @@ DTTMax::DTTMax(const vector<DTRecHit1D>& hits, const DTSuperLayer & isl, GlobalV
   int nGoodHits=0;
   for(vector<InfoLayer*>::const_iterator ilay =  theInfoLayers.begin();
       ilay != theInfoLayers.end(); ++ilay) {
-    if ((*ilay) == 0 ) {
+    if ((*ilay) == nullptr ) {
       theSegType+= "X";
       continue;
     }

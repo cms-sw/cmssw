@@ -28,6 +28,8 @@ def customizeHLTforMC(process):
   if 'hltHbhePhase1Reco' in process.__dict__:
     if process.hltHbhePhase1Reco._TypedParameterizable__type == 'HBHEPhase1Reconstructor':
       # 2017 "plan 1"
-      process.hltHbhePhase1Reco.algorithm.respCorrM3 = cms.double( 1.0 )
+      # assume retuning the pulse shapes will give the same response
+      # in data and MC for Method 2 and Method 3
+      pass
 
   return process

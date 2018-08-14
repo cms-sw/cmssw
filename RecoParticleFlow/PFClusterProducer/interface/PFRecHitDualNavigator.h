@@ -10,8 +10,7 @@
 template <PFLayer::Layer D1, typename barrel,PFLayer::Layer D2, typename endcap>
 class PFRecHitDualNavigator : public PFRecHitNavigatorBase {
  public:
-  PFRecHitDualNavigator() {
-  }
+  PFRecHitDualNavigator() = default;
 
 
 
@@ -20,13 +19,13 @@ class PFRecHitDualNavigator : public PFRecHitNavigatorBase {
     endcapNav_ = new endcap(iConfig.getParameter<edm::ParameterSet>("endcap"));
   }
 
-  void beginEvent(const edm::EventSetup& iSetup) {
+  void beginEvent(const edm::EventSetup& iSetup) override {
     barrelNav_->beginEvent(iSetup); 
     endcapNav_->beginEvent(iSetup);
 
   }
 
-  void associateNeighbours(reco::PFRecHit& hit,std::unique_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd) {
+  void associateNeighbours(reco::PFRecHit& hit,std::unique_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd) override {
       if (hit.layer() ==  D1)
 	barrelNav_->associateNeighbours(hit,hits,refProd);
       else if (hit.layer() ==  D2)

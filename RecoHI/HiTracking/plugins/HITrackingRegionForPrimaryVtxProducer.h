@@ -2,6 +2,7 @@
 #define RecoHI_HiTracking_HITrackingRegionForPrimaryVtxProducer _H
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
@@ -55,7 +56,7 @@ class HITrackingRegionForPrimaryVtxProducer : public TrackingRegionProducer {
     vertexCollToken     = iC.consumes<reco::VertexCollection>(vertexCollName);
   }   
   
-  virtual ~HITrackingRegionForPrimaryVtxProducer(){}
+  ~HITrackingRegionForPrimaryVtxProducer() override{}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -101,7 +102,7 @@ class HITrackingRegionForPrimaryVtxProducer : public TrackingRegionProducer {
       
     }
   
-  virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& ev, const edm::EventSetup& es) const {
+  std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& ev, const edm::EventSetup& es) const override {
     
     int estMult = estimateMultiplicity(ev, es);
     

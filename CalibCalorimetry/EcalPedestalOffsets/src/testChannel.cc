@@ -10,6 +10,7 @@
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 
 #include "TFile.h"
+#include "TString.h"
 
 #include "CalibCalorimetry/EcalPedestalOffsets/interface/testChannel.h"
 
@@ -25,9 +26,9 @@ testChannel::testChannel (const edm::ParameterSet& paramSet) :
   m_bestPed (paramSet.getParameter<int> ("bestPed")) ,
   m_xtal (paramSet.getParameter<int> ("xtal")) ,
   m_pedVSDAC ("pedVSDAC","pedVSDAC",100,150,250,m_DACmax-m_DACmin,m_DACmin,m_DACmax) ,
-  m_singlePedVSDAC_1 ("singlePedVSDAC_1","pedVSDAC (g1) for xtal "+m_xtal,100,150,250,m_DACmax-m_DACmin,m_DACmin,m_DACmax) ,
-  m_singlePedVSDAC_2 ("singlePedVSDAC_2","pedVSDAC (g2) for xtal "+m_xtal,100,150,250,m_DACmax-m_DACmin,m_DACmin,m_DACmax) ,
-  m_singlePedVSDAC_3 ("singlePedVSDAC_3","pedVSDAC (g3) for xtal "+m_xtal,100,150,250,m_DACmax-m_DACmin,m_DACmin,m_DACmax)
+  m_singlePedVSDAC_1 ("singlePedVSDAC_1","pedVSDAC (g1) for xtal "+TString(m_xtal),100,150,250,m_DACmax-m_DACmin,m_DACmin,m_DACmax) ,
+  m_singlePedVSDAC_2 ("singlePedVSDAC_2","pedVSDAC (g2) for xtal "+TString(m_xtal),100,150,250,m_DACmax-m_DACmin,m_DACmin,m_DACmax) ,
+  m_singlePedVSDAC_3 ("singlePedVSDAC_3","pedVSDAC (g3) for xtal "+TString(m_xtal),100,150,250,m_DACmax-m_DACmin,m_DACmin,m_DACmax)
 {
   edm::LogInfo ("testChannel") << " reading "
                                << " m_DACmin: " << m_DACmin

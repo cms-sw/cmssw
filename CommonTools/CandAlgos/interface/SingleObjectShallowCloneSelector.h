@@ -24,7 +24,7 @@ public:
     ObjectShallowCloneSelector<SingleElementCollectionSelector<InputCollection, Selector, reco::CandidateCollection, 
 							       StoreContainer, RefAdder>, 
 			       NonNullNumberSelector, PostProcessor>( cfg ) { }
-  virtual ~SingleObjectShallowCloneSelector() { }
+  ~SingleObjectShallowCloneSelector() override { }
 };
 
 #endif

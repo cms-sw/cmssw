@@ -36,7 +36,6 @@
 
 //******** Single include for the TkMap *************
 #include "CommonTools/TrackerMap/interface/TrackerMap.h" 
-#include "DQM/SiStripCommon/interface/TkHistoMap.h" 
 //***************************************************
 
 #include <algorithm>
@@ -51,7 +50,6 @@ class TrackerGeometryCompare: public edm::EDAnalyzer {
 public:
 	typedef AlignTransform SurveyValue;
 	typedef Alignments SurveyValues;
-	typedef std::vector<Alignable*> Alignables;
 		
   /// Do nothing. Required by framework.
   TrackerGeometryCompare(
@@ -59,14 +57,14 @@ public:
 		);
 	
   /// Read from DB and print survey info.
-	virtual void beginJob();
+	void beginJob() override;
 
-	virtual void endJob();
+	void endJob() override;
 
-	virtual void analyze(
+	void analyze(
 		const edm::Event&,
 		const edm::EventSetup&
-		);
+		) override;
 	
 private:
 

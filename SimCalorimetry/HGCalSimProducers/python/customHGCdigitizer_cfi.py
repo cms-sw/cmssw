@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 """
@@ -7,7 +8,7 @@ def customHGCdigitizer(process, version='simple0', debug=False):
     
     #configure digitizer model
     if version.find('femodel')>=0:
-        print 'Adapting for FE model'
+        print('Adapting for FE model')
         process.mix.digitizers.hgceeDigitizer.digiCfg.feCfg.fwVersion = cms.uint32(1)
         process.mix.digitizers.hgceeDigitizer.digiCfg.feCfg.shaperN = cms.double(8.02)
         process.mix.digitizers.hgceeDigitizer.digiCfg.feCfg.shaperTau = cms.double(3.26)
@@ -30,7 +31,7 @@ def customHGCdigitizer(process, version='simple0', debug=False):
 
     elif version.find('simple')>=0 :
         tau=float(version.replace('simple',''))
-        print 'Adapting simple pulse shape with tau=%f'%tau
+        print('Adapting simple pulse shape with tau=%f'%tau)
         process.mix.digitizers.hgceeDigitizer.digiCfg.feCfg.fwVersion = cms.uint32(0)
         process.mix.digitizers.hgceeDigitizer.digiCfg.feCfg.shaperTau = cms.double(tau)
         process.mix.digitizers.hgchefrontDigitizer.digiCfg.feCfg.fwVersion = cms.uint32(0)

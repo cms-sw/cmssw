@@ -52,7 +52,7 @@ void PythonProcessDesc::read(std::string const& config) {
       readString(config);
     }
   }
-  catch(error_already_set) {
+  catch(error_already_set const&) {
      edm::pythonToCppException("Configuration");
      Py_Finalize();
   }

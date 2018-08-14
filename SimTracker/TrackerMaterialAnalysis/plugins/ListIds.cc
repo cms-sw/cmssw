@@ -72,7 +72,7 @@ class ListIds : public edm::one::EDAnalyzer<>
 {
 public:
   ListIds(const edm::ParameterSet &);
-  virtual ~ListIds();
+  ~ListIds() override;
 
 private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
@@ -102,10 +102,8 @@ ListIds::analyze(const edm::Event& evt, const edm::EventSetup& setup){
 
   std::string attribute = "TkDDDStructure";
   CmsTrackerStringToEnum theCmsTrackerStringToEnum;
-  DDSpecificsFilter filter;
-  filter.setCriteria(DDValue(attribute, "any", 0), DDCompOp::not_equals);
-  DDFilteredView fv(*hDdd);
-  fv.addFilter(filter);
+  DDSpecificsHasNamedValueFilter filter{attribute};
+  DDFilteredView fv(*hDdd,filter);
   if (theCmsTrackerStringToEnum.type(dddGetString(attribute, fv)) != GeometricDet::Tracker) {
     fv.firstChild();
     if (theCmsTrackerStringToEnum.type(dddGetString(attribute, fv)) != GeometricDet::Tracker)
@@ -161,7 +159,7 @@ ListIds::analyze(const edm::Event& evt, const edm::EventSetup& setup){
               << det.geographicalId().rawId() << "\t"
               << position;
     const std::vector<const GeomDet*> & parts = det.components();
-    if (parts.size()) {
+    if (!parts.empty()) {
       std::cout << "\t[" << parts[0]->geographicalId().rawId();
       for (unsigned int j = 1; j < parts.size(); ++j)
         std::cout << '\t' << parts[j]->geographicalId().rawId();

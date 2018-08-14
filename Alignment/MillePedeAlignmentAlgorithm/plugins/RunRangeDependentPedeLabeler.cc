@@ -9,6 +9,7 @@
  */
 
 #include <algorithm>
+#include <atomic>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Parse.h"
@@ -29,14 +30,13 @@ RunRangeDependentPedeLabeler::RunRangeDependentPedeLabeler(const PedeLabelerBase
   : PedeLabelerBase(alignables, config),
     theMaxNumberOfParameterInstances(0)
 {
-  std::vector<Alignable*> alis;
+  align::Alignables alis;
   alis.push_back(alignables.aliTracker_);
   alis.push_back(alignables.aliMuon_);
 
   if (alignables.aliExtras_) {
-    align::Alignables allExtras = alignables.aliExtras_->components();
-    for ( std::vector<Alignable*>::iterator it = allExtras.begin(); it != allExtras.end(); ++it ) {
-      alis.push_back(*it);
+    for (const auto& ali: alignables.aliExtras_->components()) {
+      alis.push_back(ali);
     }
   }
 
@@ -159,11 +159,9 @@ unsigned int RunRangeDependentPedeLabeler::parameterLabel(Alignable *alignable, 
 	
 	int offset = 0;
  	const RunRangeVector & runRanges = (*positionParam).second;
-	for (RunRangeVector::const_iterator iRunRange = runRanges.begin();
-	     iRunRange != runRanges.end();
-	     ++iRunRange) {
-	  if (eventInfo.eventId().run() >= iRunRange->first &&
-	      eventInfo.eventId().run() <= iRunRange->second) {
+	for (const auto& iRunRange: runRanges) {
+	  if (eventInfo.eventId().run() >= iRunRange.first &&
+	      eventInfo.eventId().run() <= iRunRange.second) {
 	    return position->second + offset * theParamInstanceOffset + parNum;
 	  }
  	  offset++;
@@ -209,10 +207,8 @@ unsigned int RunRangeDependentPedeLabeler::numberOfParameterInstances(Alignable 
 
     size_t nRunRanges = 1;
     if (param==-1) {
-      for (RunRangeParamMap::const_iterator iParam = (*positionAli).second.begin();
-	   iParam != (*positionAli).second.end();
-	   ++iParam) {
-	nRunRanges = std::max(nRunRanges, iParam->second.size());
+      for (const auto iParam: (*positionAli).second) {
+	nRunRanges = std::max(nRunRanges, iParam.second.size());
       }
       return nRunRanges;
     } else {
@@ -249,9 +245,8 @@ unsigned int RunRangeDependentPedeLabeler::alignableLabelFromLabel(unsigned int 
 Alignable* RunRangeDependentPedeLabeler::alignableFromLabel(unsigned int label) const
 {
   const unsigned int aliLabel = this->alignableLabelFromLabel(label);
-  if (aliLabel < theMinLabel) return 0; // error already given
+  if (aliLabel < theMinLabel) return nullptr; // error already given
   
-  if (theIdToAlignableMap.empty()) const_cast<RunRangeDependentPedeLabeler*>(this)->buildReverseMap();
   IdToAlignableMap::const_iterator position = theIdToAlignableMap.find(aliLabel);
   if (position != theIdToAlignableMap.end()) {
     return position->second;
@@ -262,7 +257,7 @@ Alignable* RunRangeDependentPedeLabeler::alignableFromLabel(unsigned int label) 
       edm::LogError("LogicError") << "@SUB=RunRangeDependentPedeLabeler::alignableFromLabel"
 				  << "Alignable label " << aliLabel << " not in map.";
     }
-    return 0;
+    return nullptr;
   }
 }
 
@@ -272,7 +267,6 @@ unsigned int RunRangeDependentPedeLabeler::lasBeamIdFromLabel(unsigned int label
   const unsigned int aliLabel = this->alignableLabelFromLabel(label);
   if (aliLabel < theMinLabel) return 0; // error already given
   
-  if (theLabelToLasBeamMap.empty()) const_cast<RunRangeDependentPedeLabeler*>(this)->buildReverseMap();
   UintUintMap::const_iterator position = theLabelToLasBeamMap.find(aliLabel);
   if (position != theLabelToLasBeamMap.end()) {
     return position->second;
@@ -346,7 +340,7 @@ unsigned int RunRangeDependentPedeLabeler::buildRunRangeDependencyMap(AlignableT
 								      AlignableExtras *aliExtras,
 								      const edm::ParameterSet &config)
 {
-  static bool oldRunRangeSelectionWarning = false;
+  static std::atomic<bool> oldRunRangeSelectionWarning{ false };
 
   theAlignableToRunRangeRangeMap.clear();
 
@@ -357,12 +351,10 @@ unsigned int RunRangeDependentPedeLabeler::buildRunRangeDependencyMap(AlignableT
   const std::vector<edm::ParameterSet> RunRangeSelectionVPSet =
     config.getUntrackedParameter<std::vector<edm::ParameterSet> >("RunRangeSelection");
   
-  for (std::vector<edm::ParameterSet>::const_iterator iter = RunRangeSelectionVPSet.begin();
-       iter != RunRangeSelectionVPSet.end();
-       ++iter) {
+  for (const auto& runRangeSel: RunRangeSelectionVPSet) {
     
-    const std::vector<std::string> tempRunRanges = (*iter).getParameter<std::vector<std::string> >("RunRanges");
-    if (tempRunRanges.size()==0) {
+    const auto tempRunRanges = runRangeSel.getParameter<std::vector<std::string> >("RunRanges");
+    if (tempRunRanges.empty()) {
       throw cms::Exception("BadConfig") << "@SUB=RunRangeDependentPedeLabeler::buildRunRangeDependencyMap\n"
 					<< "RunRanges empty\n";
     }
@@ -370,28 +362,26 @@ unsigned int RunRangeDependentPedeLabeler::buildRunRangeDependencyMap(AlignableT
     RunRangeVector RunRanges;
     cond::Time_t first;
     long int temp;
-    for (std::vector<std::string>::const_iterator iRunRange = tempRunRanges.begin();
-	 iRunRange != tempRunRanges.end();
-	 ++iRunRange) {
-      if ((*iRunRange).find(':')==std::string::npos) {
+    for (const auto& iRunRange: tempRunRanges) {
+      if (iRunRange.find(':') == std::string::npos) {
 	
 	first = cond::timeTypeSpecs[cond::runnumber].beginValue;
-	temp = strtol((*iRunRange).c_str(), 0, 0);
+	temp = strtol(iRunRange.c_str(), nullptr, 0);
 	if (temp!=-1) first = temp;
 	
       } else {
 	
-	if (!oldRunRangeSelectionWarning) {
+        bool expected = false;
+	if (oldRunRangeSelectionWarning.compare_exchange_strong(expected,true)) {
 	  edm::LogWarning("BadConfig") << "@SUB=RunRangeDependentPedeLabeler::buildRunRangeDependencyMap"
 				       << "Config file contains old format for 'RunRangeSelection'. Only the start run\n"
 				       << "number is used internally. The number of the last run is ignored and can be\n"
 				       << "safely removed from the config file.\n";
-	  oldRunRangeSelectionWarning = true;
 	}
 
-	std::vector<std::string> tokens = edm::tokenize(*iRunRange, ":");
+	std::vector<std::string> tokens = edm::tokenize(iRunRange, ":");
 	first = cond::timeTypeSpecs[cond::runnumber].beginValue;
-	temp = strtol(tokens[0].c_str(), 0, 0);
+	temp = strtol(tokens[0].c_str(), nullptr, 0);
 	if (temp!=-1) first = temp;
 	
       }
@@ -407,41 +397,37 @@ unsigned int RunRangeDependentPedeLabeler::buildRunRangeDependencyMap(AlignableT
       }
     }
     
-    const std::vector<std::string> selStrings = (*iter).getParameter<std::vector<std::string> >("selector");
-    for (std::vector<std::string>::const_iterator iSel = selStrings.begin();
-	 iSel != selStrings.end();
-	 ++iSel) {
-      std::vector<std::string> decompSel(this->decompose(*iSel, ','));
+    const auto selStrings = runRangeSel.getParameter<std::vector<std::string> >("selector");
+    for (const auto& iSel: selStrings) {
+      std::vector<std::string> decompSel(this->decompose(iSel, ','));
       
       if (decompSel.size()!=2) {
 	throw cms::Exception("BadConfig") << "@SUB=RunRangeDependentPedeLabeler::buildRunRangeDependencyMap\n"
-					  << *iSel <<" should have at least 2 ','-separated parts\n";
+					  << iSel <<" should have at least 2 ','-separated parts\n";
       }
 
       std::vector<unsigned int> selParam = this->convertParamSel(decompSel[1]);
       selector.clear();
       selector.addSelection(decompSel[0], paramSelDummy);
 
-      const std::vector<Alignable*> &alis = selector.selectedAlignables();
+      const auto& alis = selector.selectedAlignables();
        
-      for (std::vector<Alignable*>::const_iterator iAli = alis.begin();
-	   iAli != alis.end();
-	   ++iAli) {
+      for (const auto& iAli: alis) {
         
-        if((*iAli)->alignmentParameters() == NULL) {
+        if(iAli->alignmentParameters() == nullptr) {
           throw cms::Exception("BadConfig")
             << "@SUB=RunRangeDependentPedeLabeler::buildRunRangeDependencyMap\n"
             << "Run dependence configured for alignable of type "
-            << objectIdProvider().idToString((*iAli)->alignableObjectId())
-            << " at (" << (*iAli)->globalPosition().x() << ","<< (*iAli)->globalPosition().y() << "," << (*iAli)->globalPosition().z()<< "), "
+            << objectIdProvider().idToString(iAli->alignableObjectId())
+            << " at (" << iAli->globalPosition().x() << ","
+            << iAli->globalPosition().y() << ","
+            << iAli->globalPosition().z()<< "), "
             << "but that has no parameters. Please check that all run "
             << "dependent parameters are also selected for alignment.\n"; 
         }
 
-	for (std::vector<unsigned int>::const_iterator iParam = selParam.begin();
-	     iParam != selParam.end();
-	     ++iParam) {
-	  AlignableToRunRangeRangeMap::const_iterator positionAli = theAlignableToRunRangeRangeMap.find(*iAli);
+	for (const auto& iParam: selParam) {
+	  AlignableToRunRangeRangeMap::const_iterator positionAli = theAlignableToRunRangeRangeMap.find(iAli);
 	  if (positionAli!=theAlignableToRunRangeRangeMap.end()) {
 	    
 	    AlignmentParameters *AliParams = (*positionAli).first->alignmentParameters();
@@ -450,14 +436,14 @@ unsigned int RunRangeDependentPedeLabeler::buildRunRangeDependencyMap(AlignableT
 						<< "mismatch in number of parameters\n";
 	    }
 	    
-	    RunRangeParamMap::const_iterator positionParam = (*positionAli).second.find(*iParam);
+	    RunRangeParamMap::const_iterator positionParam = (*positionAli).second.find(iParam);
 	    if (positionParam!=(*positionAli).second.end()) {
 	      throw cms::Exception("BadConfig") << "@SUB=RunRangeDependentPedeLabeler::buildRunRangeDependencyMap\n"
 						<< "RunRange range for parameter specified twice\n";
 	    }
 	  }
 	  
-	  theAlignableToRunRangeRangeMap[*iAli][*iParam] = RunRanges;
+	  theAlignableToRunRangeRangeMap[iAli][iParam] = RunRanges;
 	}
       }
     }
@@ -467,23 +453,22 @@ unsigned int RunRangeDependentPedeLabeler::buildRunRangeDependencyMap(AlignableT
 }
 
 //_________________________________________________________________________
-unsigned int RunRangeDependentPedeLabeler::buildMap(const std::vector<Alignable*> &alis)
+unsigned int RunRangeDependentPedeLabeler::buildMap(const align::Alignables& alis)
 {
   theAlignableToIdMap.clear(); // just in case of re-use...
 
-  std::vector<Alignable*> allComps;
+  align::Alignables allComps;
   
-  for (std::vector<Alignable*>::const_iterator iAli = alis.begin(); iAli != alis.end(); ++iAli) {
-    if (*iAli) {
-      allComps.push_back(*iAli);
-      (*iAli)->recursiveComponents(allComps);
+  for (const auto& iAli: alis) {
+    if (iAli) {
+      allComps.push_back(iAli);
+      iAli->recursiveComponents(allComps);
     }
   }
 
   unsigned int id = theMinLabel;
-  for (std::vector<Alignable*>::const_iterator iter = allComps.begin();
-       iter != allComps.end(); ++iter) {
-    theAlignableToIdMap.insert(AlignableToIdPair(*iter, id));
+  for (const auto& iter: allComps) {
+    theAlignableToIdMap.insert(AlignableToIdPair(iter, id));
     id += theMaxNumParam;
   }
   
@@ -520,10 +505,9 @@ unsigned int RunRangeDependentPedeLabeler::buildReverseMap()
   // alignables
   theIdToAlignableMap.clear();  // just in case of re-use...
 
-  for (AlignableToIdMap::iterator it = theAlignableToIdMap.begin();
-       it != theAlignableToIdMap.end(); ++it) {
-    const unsigned int key = (*it).second;
-    Alignable *ali = (*it).first;
+  for (const auto& it: theAlignableToIdMap) {
+    const unsigned int key = it.second;
+    Alignable *ali = it.first;
     const unsigned int nInstances = this->numberOfParameterInstances(ali, -1);
     theMaxNumberOfParameterInstances = std::max(nInstances, theMaxNumberOfParameterInstances);
     for (unsigned int iInstance=0;iInstance<nInstances;++iInstance) {
@@ -534,9 +518,8 @@ unsigned int RunRangeDependentPedeLabeler::buildReverseMap()
   // las beams
   theLabelToLasBeamMap.clear(); // just in case of re-use...
 
-  for (UintUintMap::const_iterator it = theLasBeamToLabelMap.begin();
-       it != theLasBeamToLabelMap.end(); ++it) {
-    theLabelToLasBeamMap[it->second] = it->first; //revert key/value
+  for (const auto& it: theLasBeamToLabelMap) {
+    theLabelToLasBeamMap[it.second] = it.first; //revert key/value
   }
 
   // return combined size

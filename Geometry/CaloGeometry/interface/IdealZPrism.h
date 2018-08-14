@@ -44,7 +44,7 @@ class IdealZPrism final : public CaloCellGeometry
 		   const CCGFloat*    parm       ,
 			  IdealZPrism::DEPTH depth) ;
       
-      virtual ~IdealZPrism() ;
+      ~IdealZPrism() override ;
       
       CCGFloat dEta() const ;
       CCGFloat dPhi() const ;
@@ -56,7 +56,7 @@ class IdealZPrism final : public CaloCellGeometry
 				const CCGFloat* pv  ,
 				Pt3D&           ref   ) ;
       
-      virtual void vocalCorners( Pt3DVec&        vec ,
+      void vocalCorners( Pt3DVec&        vec ,
 				 const CCGFloat* pv  ,
 				 Pt3D&           ref   ) const override;
 
@@ -64,11 +64,15 @@ class IdealZPrism final : public CaloCellGeometry
   
   
       // corrected geom for PF
-      IdealZPrism const *  forPF() const  { return  m_geoForPF.get();}
+      std::shared_ptr<const IdealZPrism>  forPF() const  { 
+	static const auto do_not_delete = [](const void*){};
+	auto cell = std::shared_ptr<const IdealZPrism>(m_geoForPF.get(),do_not_delete);
+	return cell;
+      }
   
    private:
 
-      virtual void initCorners(CornersVec& ) override;
+      void initCorners(CornersVec& ) override;
       
       static GlobalPoint etaPhiR( float eta ,
 				  float phi ,

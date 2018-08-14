@@ -9,7 +9,7 @@
 #include <boost/bind.hpp>
 #include <ostream>
 #include <limits>
-#include <assert.h>
+#include <cassert>
 
 #include "Rtypes.h"
 #include "TROOT.h"
@@ -37,7 +37,7 @@ namespace {
     size_t n = branches->GetEntries();
     for( size_t i = 0; i < n; ++ i ) {
       TBranch * b = dynamic_cast<TBranch*>( branches->At( i ) );
-      assert( b != 0 );
+      assert( b != nullptr );
       result += getBasketSize(b);
     }
     return result;
@@ -45,7 +45,7 @@ namespace {
   
   size_type getBasketSize( TBranch * b) {
     size_type result(static_cast<Long64_t>(0),2);
-    if ( b != 0 ) {
+    if ( b != nullptr ) {
       if ( b->GetZipBytes() > 0 ) {
 	result[kUncompressed]  = b->GetTotBytes();  result[kCompressed] = b->GetZipBytes();
       } else {
@@ -82,15 +82,15 @@ namespace perftools {
     m_branches.clear();
 
     TFile * file = TFile::Open( fileName.c_str() );
-    if( file==0  || ( !(*file).IsOpen() ) )
+    if( file==nullptr  || ( !(*file).IsOpen() ) )
       throw Error( "unable to open data file " + fileName, 7002);
     
     TObject * o = file->Get(treeName.c_str() );
-    if ( o == 0 )
+    if ( o == nullptr )
       throw Error("no object \"" + treeName + "\" found in file: " + fileName, 7003);
     
     TTree * events = dynamic_cast<TTree*> (o);
-    if ( events == 0 )
+    if ( events == nullptr )
       throw Error("object \"" + treeName + "\" is not a TTree in file: " + fileName, 7004);
     
     m_nEvents = events->GetEntries();
@@ -99,14 +99,14 @@ namespace perftools {
 
 
     TObjArray * branches = events->GetListOfBranches();
-    if ( branches == 0 )
+    if ( branches == nullptr )
       throw Error("tree \"" + treeName+ "\" in file " + fileName + " contains no branches", 7006);
     
     const size_t n =  branches->GetEntries();
     m_branches.reserve(n);
     for( size_t i = 0; i < n; ++i ) {
       TBranch * b = dynamic_cast<TBranch*>( branches->At( i ) );
-      if (b==0) continue;
+      if (b==nullptr) continue;
       std::string const name( b->GetName() );
       if ( name == "EventAux" ) continue;
       size_type s = getTotalSize(b);

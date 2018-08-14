@@ -1,4 +1,4 @@
-#include "../interface/RawDataClient.h"
+#include "DQM/EcalMonitorClient/interface/RawDataClient.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 #include "DQM/EcalCommon/interface/FEFlags.h"

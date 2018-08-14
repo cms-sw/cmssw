@@ -21,7 +21,8 @@ electronMcFakeHistosCfg = cms.PSet(
   EfficiencyFlag = cms.bool(True), StatOverflowFlag = cms.bool(False)
 )
 
-electronMcFakeValidator = cms.EDAnalyzer("ElectronMcFakeValidator",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+electronMcFakeValidator = DQMEDAnalyzer('ElectronMcFakeValidator',
 
   Verbosity = cms.untracked.int32(0),
   FinalStep = cms.string("AtJobEnd"),
@@ -57,7 +58,18 @@ electronMcFakeValidator = cms.EDAnalyzer("ElectronMcFakeValidator",
   histosCfg = cms.PSet(electronMcFakeHistosCfg)
 )
 
-
-
-
-
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify(
+    electronMcFakeValidator,
+    electronCollection = 'ecalDrivenGsfElectronsFromMultiCl',
+    electronCoreCollection = 'ecalDrivenGsfElectronCoresFromMultiCl',
+    electronTrackCollection = 'electronGsfTracksFromMultiCl',
+    electronSeedCollection = 'electronMergedSeedsFromMultiCl',
+    MaxAbsEta = cms.double(3.0),
+    histosCfg = dict( 
+        Nbineta = 60 ,
+        Nbineta2D = 60 ,
+        Etamin = -3.0 ,
+        Etamax = 3.0 ,
+    ),
+)

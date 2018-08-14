@@ -9,13 +9,28 @@ import Validation.RecoVertex.plotting.vertexPlots as vertexPlots
 ########### User Defined Variables (BEGIN) ##############
 
 ### Reference release
-RefRelease='CMSSW_8_1_0_pre8'
+RefRelease='CMSSW_10_0_0_pre2_2018'
 
 ### Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_8_1_0_pre9'
+NewRelease='CMSSW_10_0_0_pre3_2018'
 
 ### This is the list of IDEAL-conditions relvals 
-startupsamples= [
+startupsamples_run1 = [
+    Sample('RelValMinBias'),
+    Sample('RelValTTbar', version="v2"),
+    Sample('RelValQCD_Pt_600_800'),
+    Sample('RelValQCD_Pt_3000_3500'),
+    Sample('RelValQCD_FlatPt_15_3000', append="HS"),
+    Sample('RelValZMM'),
+    Sample('RelValWjet_Pt_3000_3500'),
+    Sample('RelValH130GGgluonfusion'),
+    Sample('RelValSingleElectronPt35'),
+    Sample('RelValSingleElectronPt10'),
+    Sample('RelValSingleMuPt10'),
+    Sample('RelValSingleMuPt100')
+]
+
+common = [
     Sample('RelValMinBias', midfix="13"),
     Sample('RelValTTbar', midfix="13"),
     Sample('RelValQCD_Pt_600_800', midfix="13"),
@@ -24,11 +39,20 @@ startupsamples= [
     Sample('RelValZMM', midfix="13"),
     Sample('RelValWjet_Pt_3000_3500', midfix="13"),
     Sample('RelValH125GGgluonfusion', midfix="13"),
+]
+
+startupsamples = common + [
     Sample('RelValSingleElectronPt35', midfix="UP15"),
     Sample('RelValSingleElectronPt10', midfix="UP15"),
     Sample('RelValSingleMuPt10', midfix="UP15"),
     Sample('RelValSingleMuPt100', midfix="UP15")
 ]
+hasPhase0FullSim = False
+if not hasPhase0FullSim:
+    startupsamples = [] # no phase0 in 91X
+#startupsamples = []
+#startupsamples = startupsamples_run1
+
 
 def putype(t):
     if "_pmx" in NewRelease:
@@ -43,16 +67,44 @@ pileupstartupsamples = [
     Sample('RelValZMM', putype=putype("25ns"), punum=35, midfix="13"),
 #    Sample('RelValZMM', putype=putype("50ns"), punum=35, midfix="13")
 ]
+#pileupstartupsamples = []
+def _isPhase1(release):
+    return "phase1" in release or "2017" in release or "2018" in release
+if not _isPhase1(NewRelease) and not hasPhase0FullSim:
+    pileupstartupsamples = []
 
-phase1samples = [
-    Sample('RelValMinBias', midfix="13"),
-    Sample("RelValTTbar", midfix="13"),
-    Sample('RelValZMM', midfix="13"),
-    Sample('RelValQCD_Pt_600_800', midfix="13"),
-    Sample('RelValTenMuE_0_200'),
-    Sample("RelValTTbar", midfix="13", putype=putype("25ns"), punum=35),
-    Sample("RelValZMM", midfix="13", putype=putype("25ns"), punum=35),
+phase1samples = common + [
+    Sample('RelValSingleElectronPt35'),
+    Sample('RelValSingleElectronPt10'),
+    Sample("RelValSingleMuPt1"),
+    Sample("RelValSingleMuPt10"),
+    Sample("RelValSingleMuPt100"),
 ]
+phase1samples_design = [
+    # Design
+    Sample('RelValMinBias', midfix="13", scenario="Design"),
+    Sample("RelValTTbar", midfix="13", scenario="Design"),
+]
+if "phase1" in NewRelease or "2017" in NewRelease:
+    phase1samples.extend(pileupstartupsamples)
+    phase1samples_design.extend([
+            Sample("RelValSingleMuPt1", scenario="Design"),
+            Sample("RelValSingleMuPt10", scenario="Design"),
+            Sample("RelValSingleMuPt100", scenario="Design"),
+            Sample("RelValTTbar", midfix="13", scenario="Design", putype=putype("25ns"), punum=35),
+    ])
+phase1samples.extend([
+    Sample('RelValTTbar', putype=putype("25ns"), punum=50, midfix="13"),
+])
+if "2018" in NewRelease:
+    phase1samples.extend([
+            Sample('RelValZMM', putype=putype("25ns"), punum=50, midfix="13"),
+    ])
+    phase1samples_design.extend([
+            Sample("RelValTTbar", midfix="13", scenario="Design", putype=putype("25ns"), punum=50),
+    ])
+if _isPhase1(NewRelease):
+    phase1samples.extend(phase1samples_design)
 
 phase2samples = [
     Sample("RelValMinBias", midfix="TuneZ2star_14TeV", scenario="2023GReco"),
@@ -95,6 +147,7 @@ doPhase2PU = False
 if "_pmx" in NewRelease:
     startupsamples = []
     fastsimstartupsamples = []
+    phase1samples = pileupstartupsamples
     doFastVsFull = False
     if not NewRelease in validation._globalTags:
         validation._globalTags[NewRelease] = validation._globalTags[NewRelease.replace("_pmx", "")]
@@ -115,7 +168,7 @@ if "_extended" in NewRelease:
     doFastVsFull = False
     if not NewRelease in validation._globalTags:
         validation._globalTags[NewRelease] = validation._globalTags[NewRelease.replace("_extended", "")]
-if "_phase1" in NewRelease:
+if _isPhase1(NewRelease):
     startupsamples = phase1samples
     pileupstartupsamples = []
     fastsimstartupsamples = []
@@ -141,25 +194,34 @@ VertexCollections=["offlinePrimaryVertices", "selectedOfflinePrimaryVertices"]
 def limitProcessing(algo, quality):
     return algo in Algos and quality in Qualities
 
-def limitRelVal(algo, quality): # for phase2 ATM
-    return quality in ["", "highPurity"]
+def limitRelVal(algo, quality):
+    qual = quality.replace("ByOriginalAlgo", "") # include ByOriginalAlgo
+    return qual in ["", "highPurity"]
 
 def ignore(a, q):
     return False
 
-# Temporary until we have limited the set of histograms for phase2
-kwargs_tracking = {}
-if "_phase2" in NewRelease:
-    kwargs_tracking["limitSubFoldersOnlyTo"] = {
+kwargs_tracking = {
+    "limitSubFoldersOnlyTo": {
+        # filter out the pT>0.9 GeV track selection
         "": limitRelVal,
+        "tpPtLess09": limitRelVal,
+        "allTPEffic": limitRelVal,
+        "fromPV": limitRelVal,
+        "fromPVAllTP": limitRelVal,
+    }
+}
+# Temporary until we have limited the set of histograms for phase2
+if "_phase2" in NewRelease or "SLHC" in NewRelease:
+    kwargs_tracking["limitSubFoldersOnlyTo"].update({
         "allTPEffic": ignore, "fromPV": ignore, "fromPVAllTP": ignore, # ignore for now to save disk space
         "seeding": ignore, "building": ignore # temporary until we have limited the set of histograms for phase2
-    }
+    })
 
 
 
 ### Reference and new repository
-RefRepository = '/afs/cern.ch/cms/Physics/tracking/validation/MC'
+RefRepository = '/eos/project/c/cmsweb/www/tracking/validation/MC'
 NewRepository = 'new' # copy output into a local folder
 
 # Tracking validation plots
@@ -172,16 +234,22 @@ val = Validation(
 htmlReport = val.createHtmlReport()
 val.download()
 val.doPlots(plotter=trackingPlots.plotter,
-#            limitSubFoldersOnlyTo={"": limitProcessing, "allTPEffic": limitProcessing, "fromPV": limitProcessing, "fromPVAllTP": limitProcessing},
             htmlReport=htmlReport, doFastVsFull=doFastVsFull, doPhase2PU=doPhase2PU,
             **kwargs_tracking
 )
+#val.doPlots(plotter=trackingPlots.plotterExt,
+#            htmlReport=htmlReport, doFastVsFull=doFastVsFull, doPhase2PU=doPhase2PU,
+#            **kwargs_tracking
+#)
 
-val.download()
 val.doPlots(plotter=vertexPlots.plotter,
             limitSubFoldersOnlyTo={"": VertexCollections},
             htmlReport=htmlReport, doFastVsFull=doFastVsFull, doPhase2PU=doPhase2PU,
 )
+#val.doPlots(plotter=vertexPlots.plotterExt,
+#            limitSubFoldersOnlyTo={"": VertexCollections},
+#            htmlReport=htmlReport, doFastVsFull=doFastVsFull, doPhase2PU=doPhase2PU,
+#)
 htmlReport.write()
 
 

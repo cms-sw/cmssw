@@ -33,7 +33,7 @@ template< class TRcd, class TData >
 class L1ConfigOnlineProdBaseExt : public edm::ESProducer {
    public:
       L1ConfigOnlineProdBaseExt(const edm::ParameterSet&);
-      ~L1ConfigOnlineProdBaseExt();
+      ~L1ConfigOnlineProdBaseExt() override;
 
       std::shared_ptr< TData > produce(const TRcd& iRecord);
 

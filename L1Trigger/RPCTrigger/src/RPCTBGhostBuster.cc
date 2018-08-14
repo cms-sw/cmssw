@@ -50,7 +50,7 @@ L1RpcTBMuonsVec RPCTBGhostBuster::run(L1RpcTBMuonsVec2 &pacMuonsVec2) const {
 */
 
 L1RpcTBMuonsVec RPCTBGhostBuster::gBPhi(L1RpcTBMuonsVec &pacMuonsVec) const {
-  if(pacMuonsVec.size() == 0)
+  if(pacMuonsVec.empty())
     return L1RpcTBMuonsVec(); //empty vector;
 //--------- killing ghosts ---------------------------------------
   pacMuonsVec.push_back(RPCTBMuon()); //adding  empty muon to the end,

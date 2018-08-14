@@ -12,7 +12,7 @@ public:
   explicit MuonSeedOrcaPatternRecognition(const edm::ParameterSet & pset,edm::ConsumesCollector& iC); 
 
   void produce(const edm::Event& event, const edm::EventSetup& eSetup,
-               std::vector<MuonRecHitContainer> & result);
+               std::vector<MuonRecHitContainer> & result) override;
 
 private:
 
@@ -22,13 +22,13 @@ private:
   void endcapPatterns(
     const MuonRecHitContainer & me11, const MuonRecHitContainer & me12,
     const MuonRecHitContainer & me2,  const MuonRecHitContainer & me3,
-    const MuonRecHitContainer & me4,  const  MuonRecHitContainer & mb1,
-    const MuonRecHitContainer & mb2,  const  MuonRecHitContainer & mb3,
+    const MuonRecHitContainer & me4,  const MuonRecHitContainer & me0,
+    const MuonRecHitContainer & mb1,  const MuonRecHitContainer & mb2,  const  MuonRecHitContainer & mb3,
     bool * MB1, bool * MB2, bool * MB3,
     std::vector<MuonRecHitContainer> & result);
 
   void complete(MuonRecHitContainer& seedSegments,
-                const MuonRecHitContainer &recHits, bool* used=0) const;
+                const MuonRecHitContainer &recHits, bool* used=nullptr) const;
 
   MuonRecHitPointer
   bestMatch(const ConstMuonRecHitPointer & first,  MuonRecHitContainer & good_rhit) const;

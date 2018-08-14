@@ -42,11 +42,11 @@
 class HLTBTagPerformanceAnalyzer : public DQMEDAnalyzer { 
 		public:
 			explicit HLTBTagPerformanceAnalyzer(const edm::ParameterSet&);
-			~HLTBTagPerformanceAnalyzer();
+			~HLTBTagPerformanceAnalyzer() override;
 			void dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
 
 		private:
-			virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+			void analyze(const edm::Event&, const edm::EventSetup&) override;
 			void bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun,edm::EventSetup const &  iSetup ) override;
 
 		struct JetRefCompare :
@@ -58,8 +58,11 @@ class HLTBTagPerformanceAnalyzer : public DQMEDAnalyzer {
 
 		typedef std::map<edm::RefToBase<reco::Jet>, float, JetRefCompare> JetTagMap;
 
+		enum HCALSpecials {HEP17, HEP18, HEM17};
+
 		// variables from python configuration
 		edm::EDGetTokenT<edm::TriggerResults> hlTriggerResults_;
+		std::string mainFolder_;
 		std::vector<std::string> hltPathNames_;
 		HLTConfigProvider hltConfigProvider_;
 		bool triggerConfChanged_;
@@ -84,7 +87,11 @@ class HLTBTagPerformanceAnalyzer : public DQMEDAnalyzer {
 
 		// Histogram handler
 		std::vector< std::map<std::string, MonitorElement *> > H1_;
+		std::vector< std::map<std::string, std::map<HCALSpecials, MonitorElement *> > > H1mod_;
 		std::vector< std::map<std::string, MonitorElement *> > H2_;
+		std::vector< std::map<std::string, std::map<HCALSpecials, MonitorElement *> > > H2mod_;
+		std::vector< std::map<std::string, MonitorElement *> > H2Eta_;
+		std::vector< std::map<std::string, MonitorElement *> > H2Phi_;
 
 		// Other variables
 		edm::EDConsumerBase::Labels label;
@@ -92,6 +99,7 @@ class HLTBTagPerformanceAnalyzer : public DQMEDAnalyzer {
 		std::vector<std::string> JetTagCollection_Label;
 		std::string hlTriggerResults_Label;
 		std::string hltConfigProvider_Label;
+		std::map<HLTBTagPerformanceAnalyzer::HCALSpecials,std::string> HCALSpecialsNames;
 
 };
 

@@ -45,7 +45,7 @@ PixelCPEGenericESProducer::PixelCPEGenericESProducer(const edm::ParameterSet & p
 
 PixelCPEGenericESProducer::~PixelCPEGenericESProducer() {}
 
-std::shared_ptr<PixelClusterParameterEstimator>
+std::unique_ptr<PixelClusterParameterEstimator>
 PixelCPEGenericESProducer::produce(const TkPixelCPERecord & iRecord){ 
 
   ESHandle<MagneticField> magfield;
@@ -66,14 +66,14 @@ PixelCPEGenericESProducer::produce(const TkPixelCPERecord & iRecord){
 
   // add the new la width object
   ESHandle<SiPixelLorentzAngle> lorentzAngleWidth;
-  const SiPixelLorentzAngle * lorentzAngleWidthProduct = 0;
+  const SiPixelLorentzAngle * lorentzAngleWidthProduct = nullptr;
   if(useLAWidthFromDB_) { // use the width LA
     iRecord.getRecord<SiPixelLorentzAngleRcd>().get("forWidth",lorentzAngleWidth );
     lorentzAngleWidthProduct = lorentzAngleWidth.product();
-  } else { lorentzAngleWidthProduct = NULL;} // do not use it
+  } else { lorentzAngleWidthProduct = nullptr;} // do not use it
   //std::cout<<" la width "<<lorentzAngleWidthProduct<<std::endl; //dk
 
-  const SiPixelGenErrorDBObject * genErrorDBObjectProduct = 0;
+  const SiPixelGenErrorDBObject * genErrorDBObjectProduct = nullptr;
 
   // Errors take only from new GenError
   ESHandle<SiPixelGenErrorDBObject> genErrorDBObject;
@@ -83,12 +83,10 @@ PixelCPEGenericESProducer::produce(const TkPixelCPERecord & iRecord){
     //} else {
     //std::cout<<" pass an empty GenError pointer"<<std::endl;
   }
-  cpe_  = std::make_shared<PixelCPEGeneric>(
+  return std::make_unique<PixelCPEGeneric>(
                          pset_,magfield.product(),*pDD.product(),
 			 *hTT.product(),lorentzAngle.product(),
 			 genErrorDBObjectProduct,lorentzAngleWidthProduct);
-
-  return cpe_;
 }
 
 

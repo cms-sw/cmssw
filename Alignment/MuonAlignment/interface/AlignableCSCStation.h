@@ -10,7 +10,7 @@
  */
 
 
-#include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 #include "Alignment/CommonAlignment/interface/AlignableSurface.h"
 
@@ -33,17 +33,6 @@ class AlignableCSCStation : public AlignableComposite
  public:
 
   AlignableCSCStation( const std::vector<AlignableCSCRing*>& cscRings );
-
-  ~AlignableCSCStation();
-  
-  virtual std::vector<Alignable*> components() const 
-  {
-
-        std::vector<Alignable*> result;
-        result.insert( result.end(), theCSCRings.begin(), theCSCRings.end() );
-        return result;
-
-  }
   
   // gets the global position as the average over all positions of the layers
   PositionType computePosition() ;
@@ -60,7 +49,7 @@ class AlignableCSCStation : public AlignableComposite
   friend std::ostream& operator << ( std::ostream&, const AlignableCSCStation& ); 
 
   /// Recursive printout of the muon CSC Station structure
-  void dump( void ) const;
+  void dump( void ) const override;
 
 
 

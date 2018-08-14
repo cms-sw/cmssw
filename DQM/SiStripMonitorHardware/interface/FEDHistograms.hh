@@ -2,7 +2,7 @@
 //
 // Package:    DQM/SiStripMonitorHardware
 // Class:      FEDHistograms
-// 
+//
 /**\class FEDHistograms DQM/SiStripMonitorHardware/interface/FEDHistograms.hh
 
  Description: DQM source application to produce data integrety histograms for SiStrip data
@@ -31,38 +31,40 @@
 class FEDHistograms: public HistogramBase {
 
 public:
-  
+
   FEDHistograms();
 
-  ~FEDHistograms();
-  
+  ~FEDHistograms() override;
+
   //initialise histograms
   void initialise(const edm::ParameterSet& iConfig,
 		  std::ostringstream* pDebugStream
-		  );
+		  ) override;
 
-  void fillCountersHistograms(const FEDErrors::FEDCounters & aFedLevelCounters, 
+  void fillCountersHistograms(const FEDErrors::FEDCounters & aFedLevelCounters,
 			      const FEDErrors::ChannelCounters & aChLevelCounters,
 			      const unsigned int aMaxSize,
 			      const double aTime);
 
   void fillFEDHistograms(FEDErrors & aFedError,
 			 const unsigned int aEvtSize,
-			 bool lFullDebug
+			 bool lFullDebug,
+       const double aLumiSection,
+       unsigned int & NumBadChannels_perFEDID
 			 );
 
   void fillFEHistograms(const unsigned int aFedId,
 			const FEDErrors::FELevelErrors & aFeLevelErrors,
-			const FEDErrors::EventProperties & aEventProp 
+			const FEDErrors::EventProperties & aEventProp
 			);
 
-  void fillChannelsHistograms(const unsigned int aFedId, 
-			      const FEDErrors::ChannelLevelErrors & aChErr, 
+  void fillChannelsHistograms(const unsigned int aFedId,
+			      const FEDErrors::ChannelLevelErrors & aChErr,
 			      bool fullDebug
 			      );
 
-  void fillAPVsHistograms(const unsigned int aFedId, 
-			  const FEDErrors::APVLevelErrors & aAPVErr, 
+  void fillAPVsHistograms(const unsigned int aFedId,
+			  const FEDErrors::APVLevelErrors & aAPVErr,
 			  bool fullDebug
 			  );
 
@@ -77,7 +79,7 @@ public:
   bool cmHistosEnabled();
 
    //book the top level histograms
-  void bookTopLevelHistograms(DQMStore::IBooker & , std::string topFolderName = "SiStrip");
+  void bookTopLevelHistograms(DQMStore::IBooker &, const TkDetMap*, std::string topFolderName = "SiStrip");
 
   //book individual FED histograms or book all FED level histograms at once
   void bookFEDHistograms(DQMStore::IBooker & , unsigned int fedId,
@@ -86,16 +88,16 @@ public:
 
   void bookAllFEDHistograms(DQMStore::IBooker & , bool);
 
-  bool tkHistoMapEnabled(unsigned int aIndex=0);
+  bool tkHistoMapEnabled(unsigned int aIndex=0) override;
 
-  TkHistoMap * tkHistoMapPointer(unsigned int aIndex=0);
+  TkHistoMap * tkHistoMapPointer(unsigned int aIndex=0) override;
 
   MonitorElement *cmHistPointer(bool aApv1);
 
   MonitorElement *getFedvsAPVpointer();
 
 protected:
-  
+
 private:
 
   //counting histograms (histogram of number of problems per event)
@@ -103,18 +105,19 @@ private:
   HistogramConfig fedEventSize_;
   HistogramConfig fedMaxEventSizevsTime_;
 
-  HistogramConfig nFEDErrors_, 
-    nFEDDAQProblems_, 
-    nFEDsWithFEProblems_, 
-    nFEDCorruptBuffers_, 
+  HistogramConfig nFEDErrors_,
+    nFEDDAQProblems_,
+    nFEDsWithFEProblems_,
+    nFEDCorruptBuffers_,
     nBadChannelStatusBits_,
     nBadActiveChannelStatusBits_,
     nUnconnectedChannels_,
-    nFEDsWithFEOverflows_, 
-    nFEDsWithFEBadMajorityAddresses_, 
+    nFEDsWithFEOverflows_,
+    nFEDsWithFEBadMajorityAddresses_,
     nFEDsWithMissingFEs_;
 
   HistogramConfig nFEDErrorsvsTime_;
+  HistogramConfig fedErrorsVsIdVsLumi_;
   HistogramConfig nFEDCorruptBuffersvsTime_;
   HistogramConfig nFEDsWithFEProblemsvsTime_;
 
@@ -137,22 +140,22 @@ private:
   HistogramConfig nOutOfSyncvsTime_;
 
   //top level histograms
-  HistogramConfig anyFEDErrors_, 
-    anyDAQProblems_, 
-    corruptBuffers_, 
-    invalidBuffers_, 
-    badIDs_, 
-    badChannelStatusBits_, 
+  HistogramConfig anyFEDErrors_,
+    anyDAQProblems_,
+    corruptBuffers_,
+    invalidBuffers_,
+    badIDs_,
+    badChannelStatusBits_,
     badActiveChannelStatusBits_,
-    badDAQCRCs_, 
-    badFEDCRCs_, 
-    badDAQPacket_, 
-    dataMissing_, 
-    dataPresent_, 
-    feOverflows_, 
+    badDAQCRCs_,
+    badFEDCRCs_,
+    badDAQPacket_,
+    dataMissing_,
+    dataPresent_,
+    feOverflows_,
     badMajorityAddresses_,
     badMajorityInPartition_,
-    feMissing_, 
+    feMissing_,
     anyFEProblems_,
     fedIdVsApvId_;
 
@@ -174,36 +177,36 @@ private:
   HistogramConfig medianAPV0_;
   HistogramConfig medianAPV1_;
 
-  HistogramConfig feOverflowDetailed_, 
-    badMajorityAddressDetailed_, 
+  HistogramConfig feOverflowDetailed_,
+    badMajorityAddressDetailed_,
     feMissingDetailed_;
 
-  HistogramConfig badStatusBitsDetailed_, 
-    apvErrorDetailed_, 
-    apvAddressErrorDetailed_, 
-    unlockedDetailed_, 
+  HistogramConfig badStatusBitsDetailed_,
+    apvErrorDetailed_,
+    apvAddressErrorDetailed_,
+    unlockedDetailed_,
     outOfSyncDetailed_;
-  
+
   //FED level histograms
-  std::map<unsigned int,MonitorElement*> feOverflowDetailedMap_, 
-    badMajorityAddressDetailedMap_, 
+  std::map<unsigned int,MonitorElement*> feOverflowDetailedMap_,
+    badMajorityAddressDetailedMap_,
     feMissingDetailedMap_;
 
-  std::map<unsigned int,MonitorElement*> badStatusBitsDetailedMap_, 
-    apvErrorDetailedMap_, 
-    apvAddressErrorDetailedMap_, 
-    unlockedDetailedMap_, 
+  std::map<unsigned int,MonitorElement*> badStatusBitsDetailedMap_,
+    apvErrorDetailedMap_,
+    apvAddressErrorDetailedMap_,
+    unlockedDetailedMap_,
     outOfSyncDetailedMap_;
 
 
   HistogramConfig fedErrorsVsId_;
 
   //has individual FED histogram been booked? (index is FedId)
-  std::vector<bool> histosBooked_, 
+  std::vector<bool> histosBooked_,
     debugHistosBooked_;
 
   HistogramConfig tkMapConfig_;
-  TkHistoMap *tkmapFED_;
+  std::unique_ptr<TkHistoMap> tkmapFED_;
 
   HistogramConfig lumiErrorFraction_;
 

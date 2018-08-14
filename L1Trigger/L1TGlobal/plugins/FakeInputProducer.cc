@@ -46,16 +46,16 @@ namespace l1t {
   class FakeInputProducer : public EDProducer {
   public:
     explicit FakeInputProducer(const ParameterSet&);
-    ~FakeInputProducer();
+    ~FakeInputProducer() override;
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
-    virtual void produce(Event&, EventSetup const&);
-    virtual void beginJob();
-    virtual void endJob();
-    virtual void beginRun(Run const&iR, EventSetup const&iE);
-    virtual void endRun(Run const& iR, EventSetup const& iE);
+    void produce(Event&, EventSetup const&) override;
+    void beginJob() override;
+    void endJob() override;
+    void beginRun(Run const&iR, EventSetup const&iE) override;
+    void endRun(Run const& iR, EventSetup const& iE) override;
 
     // ----------member data ---------------------------
     unsigned long long m_paramsCacheId; // Cache-ID from current parameters, to check if needs to be updated.

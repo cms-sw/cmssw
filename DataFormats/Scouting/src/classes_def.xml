@@ -24,6 +24,9 @@
   <class name="ScoutingPhoton" ClassVersion="2">
       <version ClassVersion="2" checksum="2797410539"/>
   </class>
+  <class name="ScoutingTrack" ClassVersion="2">
+      <version ClassVersion="2" checksum="1342928770"/>
+</class>
   <class name="std::vector<ScoutingCaloJet>"/>
   <class name="std::vector<ScoutingPFJet>"/>
   <class name="std::vector<ScoutingParticle>"/>
@@ -31,6 +34,7 @@
   <class name="std::vector<ScoutingElectron>"/>
   <class name="std::vector<ScoutingMuon>"/>
   <class name="std::vector<ScoutingPhoton>"/>
+  <class name="std::vector<ScoutingTrack>"/>
   <class name="edm::Wrapper<std::vector<ScoutingCaloJet> >"/>
   <class name="edm::Wrapper<std::vector<ScoutingPFJet> >"/>
   <class name="edm::Wrapper<std::vector<ScoutingParticle> >"/>
@@ -38,4 +42,5 @@
   <class name="edm::Wrapper<std::vector<ScoutingElectron> >"/>
   <class name="edm::Wrapper<std::vector<ScoutingMuon> >"/>
   <class name="edm::Wrapper<std::vector<ScoutingPhoton> >"/>
+  <class name="edm::Wrapper<std::vector<ScoutingTrack> >"/> 
 </lcgdict>

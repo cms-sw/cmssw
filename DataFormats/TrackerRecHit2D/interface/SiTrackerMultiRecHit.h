@@ -18,30 +18,30 @@ public:
     theHits(),
     theWeights(),
     annealing_(0){}
-  virtual ~SiTrackerMultiRecHit(){}	
+  ~SiTrackerMultiRecHit() override{}	
   
   
   SiTrackerMultiRecHit(const LocalPoint&, const LocalError&, GeomDet const & idet,
 		       const std::vector< std::pair<const TrackingRecHit*, float> >&, double);
   
-  virtual SiTrackerMultiRecHit* clone() const {return new SiTrackerMultiRecHit(*this);}
+  SiTrackerMultiRecHit* clone() const override {return new SiTrackerMultiRecHit(*this);}
 #ifdef NO_DICT
   virtual RecHitPointer cloneSH() const { return std::make_shared<SiTrackerMultiRecHit>(*this);}
 #endif
   
 //  virtual int dimension() const {return 2;}
-  virtual int dimension() const; 
-  virtual void getKfComponents( KfComponentsHolder & holder ) const;
+  int dimension() const override; 
+  void getKfComponents( KfComponentsHolder & holder ) const override;
 
   // at the momement nobody care of MultiHit!!!
   // used by trackMerger (to be improved)
-  virtual OmniClusterRef const & firstClusterRef() const { return static_cast<BaseTrackerRecHit const *>(&theHits.front())->firstClusterRef();}
+  OmniClusterRef const & firstClusterRef() const override { return static_cast<BaseTrackerRecHit const *>(&theHits.front())->firstClusterRef();}
 
   /// Access to component RecHits (if any)
-  virtual std::vector<const TrackingRecHit*> recHits() const;
+  std::vector<const TrackingRecHit*> recHits() const override;
    
   /// Non-const access to component RecHits (if any)
-  virtual std::vector<TrackingRecHit*> recHits() ;
+  std::vector<TrackingRecHit*> recHits() override ;
   
   //vector of weights
   std::vector<float> const & weights() const {return theWeights;}
@@ -56,7 +56,7 @@ public:
   virtual double getAnnealingFactor() const { return annealing_; }
 	
   bool sharesInput(const TrackingRecHit* other,
-		   SharedInputType what) const;
+		   SharedInputType what) const override;
 
 private:
   

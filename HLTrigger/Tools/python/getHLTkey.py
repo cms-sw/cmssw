@@ -1,4 +1,5 @@
 #!/usr/bin/env python 
+from __future__ import print_function
 from sys import stderr, exit
 import commands
 
@@ -39,17 +40,17 @@ if options.perKey:
 		topr=""
 		for r in theruns:
 			topr=topr+"\t"+r
-		print key,topr
+		print(key,topr)
 	exit(1)
 			
 if options.HLTkey:
 	HLTkey = options.HLTkey
-	print "List of runs taken with HLT key = ",HLTkey 
+	print("List of runs taken with HLT key = ",HLTkey) 
 for run in runs:
     key = runKeys[run]
 
     if not options.HLTkey:
-       print run,key	
+       print(run,key)	
     else:
 	if key == options.HLTkey:
-	   print run
+	   print(run)

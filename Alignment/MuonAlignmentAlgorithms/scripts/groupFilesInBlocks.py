@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import re,os,sys,shutil,math
 import optparse
 
@@ -76,7 +77,7 @@ def makeJobBlock(mylist, evtn):
   for i in range(len(mylist)):
     if not i in choosen:
       newlist.append(mylist[i])
-  print "done makeJobBlock n =",n," len =",len(block)
+  print("done makeJobBlock n =",n," len =",len(block))
   return block, newlist, n
 
 
@@ -86,7 +87,7 @@ fileLineRE = re.compile (r'^.*\'(.*)\'.+# (\d*).*$')
 #fileLineRE = re.compile (r'^.*\'(.*)\'.+# (\d*),(\d*).*$')
 
 if not os.access(INFILE, os.F_OK): 
-  print "Cannot find input file ", INFILE
+  print("Cannot find input file ", INFILE)
   sys.exit()
 
 fin = open(INFILE, "r")
@@ -115,7 +116,7 @@ for line in lines:
   #else: print line,
 
 if len(eventsFiles)==0:
-  print "no file description strings found"
+  print("no file description strings found")
   sys.exit()
 
 #print "len=", len(eventsFiles), ntotal
@@ -130,10 +131,10 @@ eventsFiles.sort(reverse=True)
 #print eventsFiles
 
 evtPerJob = int(math.ceil(float(ntotal)/NBLOCKS))
-print "Total = ",ntotal, "  per block =", evtPerJob,"(would give total of ", evtPerJob*NBLOCKS, ")", "  list length =",len(eventsFiles)
+print("Total = ",ntotal, "  per block =", evtPerJob,"(would give total of ", evtPerJob*NBLOCKS, ")", "  list length =",len(eventsFiles))
 if eventsFiles[0][0] > evtPerJob:
-  print "the biggest #evt is larger then #evt/block:",eventsFiles[0][0],">",evtPerJob
-  print "consider lowering NBLOCKS"
+  print("the biggest #evt is larger then #evt/block:",eventsFiles[0][0],">",evtPerJob)
+  print("consider lowering NBLOCKS")
 
 
 jobsBlocks=[]
@@ -141,20 +142,20 @@ temp = eventsFiles
 
 tt = 0
 for j in range(NBLOCKS):
-  print j
+  print(j)
   if len(temp)==0:
-    print "done!"
+    print("done!")
     break
   block, temp, nn = makeJobBlock(temp,evtPerJob)
   tt+=nn
   if len(block)>0:
     jobsBlocks.append((block,nn))
-    print block
+    print(block)
   else:
-    print "empty block!"
+    print("empty block!")
   
-print tt
-print commandline
+print(tt)
+print(commandline)
 
 
 fout = open(OUTFILE, mode="w")

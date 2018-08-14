@@ -1,3 +1,4 @@
+from __future__ import print_function
 import ROOT as R
 import sys
 
@@ -106,11 +107,11 @@ for i in xrange(0, nRuns):
 #expected = 2*(nRuns*(nHistsFoo + nHistsBar) + nRuns*nLumiPerRun*(nHistsFoo + nHistsBar))
 expected = 2*(nRuns*(nHistsFoo + nHistsBar)) + nLumiPerRun1*(nHistsFoo + nHistsBar) + nLumiPerRun2*(nHistsFoo + nHistsBar)
 if expected != th1fs.GetEntries():
-    print "wrong number of entries in TH1Fs",th1fs.GetEntries(),"expected",expected
+    print("wrong number of entries in TH1Fs",th1fs.GetEntries(),"expected",expected)
     sys.exit(1)
 
 if (nRuns+nRuns*nLumiPerRun2)+(nRuns+nRuns*nLumiPerRun1) != indices.GetEntries():
-    print "wrong number of entries in Indices", indices.GetEntries()
+    print("wrong number of entries in Indices", indices.GetEntries())
     sys.exit(1)
 
 indexTreeIndex = 0
@@ -120,18 +121,18 @@ for run in xrange(0, nRuns):
         indices.GetEntry(indexTreeIndex)
         v = (indices.Run, indices.Lumi, indices.Type, indices.FirstIndex, indices.LastIndex)
         if v != expectedIndices[indexTreeIndex]:
-            print 'ERROR: unexpected value for indices at run, lumi :', indices.Run, indices.Lumi
-            print ' expected:', expectedIndices[indexTreeIndex]
-            print ' found:', v
+            print('ERROR: unexpected value for indices at run, lumi :', indices.Run, indices.Lumi)
+            print(' expected:', expectedIndices[indexTreeIndex])
+            print(' found:', v)
             sys.exit(1)
         for ihist in xrange(indices.FirstIndex,indices.LastIndex+1):
             index = ihist
             th1fs.GetEntry(ihist)
             v = (th1fs.FullName,th1fs.Flags,th1fs.Value.GetEntries())
             if v != values[index]:
-                print 'ERROR: unexpected value for index, runIndex,lumiIndex :',index,run,lumi
-                print ' expected:',values[index]
-                print ' found:',v
+                print('ERROR: unexpected value for index, runIndex,lumiIndex :',index,run,lumi)
+                print(' expected:',values[index])
+                print(' found:',v)
                 sys.exit(1)
         indexTreeIndex +=1
     indices.GetEntry(indexTreeIndex)
@@ -140,9 +141,9 @@ for run in xrange(0, nRuns):
         th1fs.GetEntry(ihist)
         v = (th1fs.FullName,th1fs.Flags,th1fs.Value.GetEntries())
         if v != values[index]:
-            print 'ERROR: unexpected value for index, runIndex :',index,run
-            print ' expected:',values[index]
-            print ' found:',v
+            print('ERROR: unexpected value for index, runIndex :',index,run)
+            print(' expected:',values[index])
+            print(' found:',v)
             sys.exit(1)
     indexTreeIndex +=1
 
@@ -152,18 +153,18 @@ for run in xrange(0, nRuns):
         indices.GetEntry(indexTreeIndex)
         v = (indices.Run, indices.Lumi, indices.Type, indices.FirstIndex, indices.LastIndex)
         if v != expectedIndices[indexTreeIndex]:
-            print 'ERROR: unexpected value for indices at run, lumi :', indices.Run, indices.Lumi
-            print ' expected:', expectedIndices[indexTreeIndex]
-            print ' found:', v
+            print('ERROR: unexpected value for indices at run, lumi :', indices.Run, indices.Lumi)
+            print(' expected:', expectedIndices[indexTreeIndex])
+            print(' found:', v)
             sys.exit(1)
         for ihist in xrange(indices.FirstIndex,indices.LastIndex+1):
             index = ihist
             th1fs.GetEntry(ihist)
             v = (th1fs.FullName,th1fs.Flags,th1fs.Value.GetEntries())
             if v != values[index]:
-                print 'ERROR: unexpected value for index, runIndex,lumiIndex :',index,run,lumi
-                print ' expected:',values[index]
-                print ' found:',v
+                print('ERROR: unexpected value for index, runIndex,lumiIndex :',index,run,lumi)
+                print(' expected:',values[index])
+                print(' found:',v)
                 sys.exit(1)
         indexTreeIndex +=1
     indices.GetEntry(indexTreeIndex)
@@ -172,11 +173,11 @@ for run in xrange(0, nRuns):
         th1fs.GetEntry(ihist)
         v = (th1fs.FullName,th1fs.Flags,th1fs.Value.GetEntries())
         if v != values[index]:
-            print 'ERROR: unexpected value for index, runIndex :',index,run
-            print ' expected:',values[index]
-            print ' found:',v
+            print('ERROR: unexpected value for index, runIndex :',index,run)
+            print(' expected:',values[index])
+            print(' found:',v)
             sys.exit(1)
     indexTreeIndex +=1
 
-print "SUCCEEDED"
+print("SUCCEEDED")
 

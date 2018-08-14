@@ -25,9 +25,9 @@
 class HcalLongRecoParamsHandler : public popcon::PopConSourceHandler<HcalLongRecoParams>
 {
  public:
-  void getNewObjects();
-  std::string id() const { return m_name;}
-  ~HcalLongRecoParamsHandler();
+  void getNewObjects() override;
+  std::string id() const override { return m_name;}
+  ~HcalLongRecoParamsHandler() override;
   HcalLongRecoParamsHandler(edm::ParameterSet const &);
 
   void initObject(HcalLongRecoParams*);

@@ -13,11 +13,11 @@ class PixelTrackProducer :  public edm::stream::EDProducer<> {
 public:
   explicit PixelTrackProducer(const edm::ParameterSet& conf);
 
-  ~PixelTrackProducer();
+  ~PixelTrackProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  virtual void produce(edm::Event& ev, const edm::EventSetup& es) override;
+  void produce(edm::Event& ev, const edm::EventSetup& es) override;
 
 private:
   void store(edm::Event& ev, const pixeltrackfitting::TracksWithTTRHs& selectedTracks, const TrackerTopology& ttopo);

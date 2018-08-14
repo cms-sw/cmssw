@@ -21,6 +21,7 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointer.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 /// vvv DEBUG
 // #include <iostream>
@@ -94,7 +95,30 @@ public:
    */
   BasicTrajectoryState( const FreeTrajectoryState& fts,
 			const SurfaceType& aSurface,
-			const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
+			const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface):
+    theFreeState(fts),
+    theLocalError(InvalidError()),
+    theLocalParameters(),
+    theLocalParametersValid(false),
+    theValid(true),
+    theSurfaceSide(side),
+    theSurfaceP( &aSurface),
+    theWeight(1.)
+    {}
+
+
+
+  /** Constructor from FTS: just a wrapper
+   */
+  explicit BasicTrajectoryState( const FreeTrajectoryState& fts):
+    theFreeState(fts),
+    theLocalError(InvalidError()),
+    theLocalParameters(),
+    theLocalParametersValid(false),
+    theValid(true),
+    theWeight(1.)
+    {}
+
 
 
 
@@ -127,7 +151,17 @@ public:
   BasicTrajectoryState( const GlobalTrajectoryParameters& par,
 			const CartesianTrajectoryError& err,
 			const SurfaceType& aSurface,
-			const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
+			const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface):
+    theFreeState(par, err),
+    theLocalError(InvalidError()),
+    theLocalParameters(),
+    theLocalParametersValid(false),
+    theValid(true),
+    theSurfaceSide(side),
+    theSurfaceP( &aSurface),
+    theWeight(1.)
+    {}
+
 
   /** Constructor from global parameters, errors and surface. For surfaces 
    *  with material the side of the surface should be specified explicitely. 
@@ -192,14 +226,14 @@ public:
   }
 
   const CartesianTrajectoryError cartesianError() const {
-    if unlikely(!hasError()) {
+    if UNLIKELY(!hasError()) {
 	missingError(" accesing cartesian error.");
 	return CartesianTrajectoryError();
       }
     return freeTrajectoryState(true)->cartesianError();
   }
   const CurvilinearTrajectoryError& curvilinearError() const {
-    if unlikely(!hasError()) {
+    if UNLIKELY(!hasError()) {
 	missingError(" accesing curvilinearerror.");
 	static const CurvilinearTrajectoryError crap;
 	return crap;
@@ -210,7 +244,7 @@ public:
 
 
   FreeTrajectoryState const* freeTrajectoryState(bool withErrors=true) const {
-    if unlikely(!isValid()) notValid();
+    if UNLIKELY(!isValid()) notValid();
     if(withErrors && hasError()) { // this is the right thing
       checkCurvilinError();
     }
@@ -222,8 +256,8 @@ public:
 
 // access local parameters/errors
   const LocalTrajectoryParameters& localParameters() const {
-    if unlikely(!isValid()) notValid();
-    if unlikely(!theLocalParametersValid)
+    if UNLIKELY(!isValid()) notValid();
+    if UNLIKELY(!theLocalParametersValid)
       createLocalParameters();
     return theLocalParameters;
   }
@@ -238,11 +272,11 @@ public:
   }
 
   const LocalTrajectoryError& localError() const {
-    if unlikely(!hasError()) {
+    if UNLIKELY(!hasError()) {
 	missingError(" accessing local error.");
 	return theLocalError;
       }
-    if unlikely(theLocalError.invalid()) createLocalError();
+    if UNLIKELY(theLocalError.invalid()) createLocalError();
     return theLocalError;
   }
 

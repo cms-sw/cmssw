@@ -51,14 +51,12 @@ class SUSY_HLT_SingleLepton: public DQMEDAnalyzer{
 
 public:
   SUSY_HLT_SingleLepton(const edm::ParameterSet& ps);
-  virtual ~SUSY_HLT_SingleLepton();
+  ~SUSY_HLT_SingleLepton() override;
 
 protected:
   void dqmBeginRun(const edm::Run &run, const edm::EventSetup &e) override;
   void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &, const edm::EventSetup &) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock &lumi, const edm::EventSetup &eSetup)  override;
   void analyze(const edm::Event &e, const edm::EventSetup &eSetup) override;
-  void endLuminosityBlock(const edm::LuminosityBlock &lumi, const edm::EventSetup &eSetup) override;
   void endRun(const edm::Run &run, const edm::EventSetup &eSetup) override;
 
 private:

@@ -36,7 +36,6 @@
 
 /// EgammaCoreTools
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
@@ -102,9 +101,9 @@ class PhotonAnalyzer : public DQMEDAnalyzer
 {
  public:
   explicit PhotonAnalyzer( const edm::ParameterSet& );
-  virtual ~PhotonAnalyzer();
+  ~PhotonAnalyzer() override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;      
-  virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
  
  private:
   void bookHistogramsForHistogramCounts(DQMStore::IBooker &);
@@ -137,6 +136,7 @@ class PhotonAnalyzer : public DQMEDAnalyzer
   void fill3DHistoVector(std::vector<std::vector<std::vector<MonitorElement*> > >& histoVector,double x, double y, int cut, int type, int part);
 
   bool photonSelection(const reco::Photon* p);
+  bool photonSelectionSlimmed(const reco::Photon* p);
   float phiNormalization(float& a);
 
   //////////
@@ -291,6 +291,7 @@ class PhotonAnalyzer : public DQMEDAnalyzer
   MonitorElement* h_invMassAllPhotons_;
   MonitorElement* h_invMassPhotonsEBarrel_;
   MonitorElement* h_invMassPhotonsEEndcap_;
+  MonitorElement* h_invMassPhotonsEEndcapEBarrel_;
 
   ////////2D vectors of histograms
 

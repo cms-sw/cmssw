@@ -48,6 +48,6 @@ edm::ParameterSet ConfigurableKalmanFitter::defaults() const
 #include "RecoVertex/ConfigurableVertexReco/interface/ConfFitterBuilder.h"
 
 namespace {
-  ConfFitterBuilder < ConfigurableKalmanFitter > t ( "kalman", "Standard Kalman Filter" );
-  ConfFitterBuilder < ConfigurableKalmanFitter > s ( "default", "Standard Kalman Filter" );
+  const ConfFitterBuilder < ConfigurableKalmanFitter > t ( "kalman", "Standard Kalman Filter" );
+  const ConfFitterBuilder < ConfigurableKalmanFitter > s ( "default", "Standard Kalman Filter" );
 }

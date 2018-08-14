@@ -16,7 +16,7 @@ namespace edm {
   DelayedReader::~DelayedReader() {}
 
   std::unique_ptr<WrapperBase>
-  DelayedReader::getProduct(BranchKey const& k,
+  DelayedReader::getProduct(BranchID const& k,
                             EDProductGetter const* ep,
                             ModuleCallingContext const* mcc) {
 

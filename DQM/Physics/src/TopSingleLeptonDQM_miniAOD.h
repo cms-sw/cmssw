@@ -108,6 +108,8 @@ class MonitorEnsemble {
   /// to be of form signalPath:MonitorPath
   std::vector<std::string> triggerPaths_;
 
+  edm::InputTag rhoTag;
+
   /// electronId label
   edm::EDGetTokenT<edm::ValueMap<float> > electronId_;
  

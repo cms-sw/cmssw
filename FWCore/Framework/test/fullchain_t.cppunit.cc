@@ -16,11 +16,16 @@
 #include "FWCore/Framework/test/DummyData.h"
 #include "FWCore/Framework/test/DummyFinder.h"
 #include "FWCore/Framework/test/DummyProxyProvider.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "cppunit/extensions/HelperMacros.h"
 
 using namespace edm;
 using namespace edm::eventsetup;
 using namespace edm::eventsetup::test;
+
+namespace {
+edm::ActivityRegistry activityRegistry;
+}
 
 class testfullChain: public CppUnit::TestFixture
 {
@@ -41,7 +46,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testfullChain);
 
 void testfullChain::getfromDataproxyproviderTest()
 {
-   eventsetup::EventSetupProvider provider;
+   eventsetup::EventSetupProvider provider(&activityRegistry);
 
    std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<DummyProxyProvider>();
    provider.add(pProxyProv);

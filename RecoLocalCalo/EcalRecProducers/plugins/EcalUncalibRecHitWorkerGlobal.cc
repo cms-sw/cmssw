@@ -18,7 +18,7 @@
 #include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
 
 EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&ps,edm::ConsumesCollector& c) :
-  EcalUncalibRecHitWorkerBaseClass(ps,c)
+  EcalUncalibRecHitWorkerRunOneDigiBase(ps,c), useDBShape(false), testbeamEEShape(EEShape(useDBShape)), testbeamEBShape(EBShape(useDBShape))
 {
         // ratio method parameters
         EBtimeFitParameters_ = ps.getParameter<std::vector<double> >("EBtimeFitParameters"); 
@@ -62,7 +62,7 @@ EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::Paramete
 
 
 EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&ps) :
-  EcalUncalibRecHitWorkerBaseClass(ps)
+  EcalUncalibRecHitWorkerRunOneDigiBase(ps), useDBShape(false), testbeamEEShape(EEShape(useDBShape)), testbeamEBShape(EBShape(useDBShape))
 {
         // ratio method parameters
         EBtimeFitParameters_ = ps.getParameter<std::vector<double> >("EBtimeFitParameters"); 
@@ -121,8 +121,15 @@ EcalUncalibRecHitWorkerGlobal::set(const edm::EventSetup& es)
         es.get<EcalTimeCalibConstantsRcd>().get(itime);
         es.get<EcalTimeOffsetConstantRcd>().get(offtime);
 
-		// for the time correction methods
-		es.get<EcalTimeBiasCorrectionsRcd>().get(timeCorrBias_);
+	// for the time correction methods
+	es.get<EcalTimeBiasCorrectionsRcd>().get(timeCorrBias_);
+  
+        // for the DB Ecal Pulse Sim Shape
+        if(useDBShape) 
+	{
+	    testbeamEEShape.setEventSetup(es);
+	    testbeamEBShape.setEventSetup(es);
+	}
 }
 
 
@@ -161,7 +168,7 @@ double EcalUncalibRecHitWorkerGlobal::timeCorrection(
   double theCorrection = 0;
 
   // sanity check for arrays
-  if (amplitudeBins.size() == 0) {
+  if (amplitudeBins.empty()) {
     edm::LogError("EcalRecHitError")
         << "timeCorrAmplitudeBins is empty, forcing no time bias corrections.";
 
@@ -220,9 +227,9 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
         EcalUncalibratedRecHit uncalibRecHit;
         
         
-        const EcalPedestals::Item * aped = 0;
-        const EcalMGPAGainRatio * aGain = 0;
-        const EcalXtalGroupId * gid = 0;
+        const EcalPedestals::Item * aped = nullptr;
+        const EcalMGPAGainRatio * aGain = nullptr;
+        const EcalXtalGroupId * gid = nullptr;
 	float offsetTime = 0;
 
         if (detid.subdetId()==EcalEndcap) {

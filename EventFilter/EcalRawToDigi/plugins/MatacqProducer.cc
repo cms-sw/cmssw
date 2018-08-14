@@ -15,7 +15,7 @@
 #include <iostream>
 #include <memory>
 
-#include <stdio.h>
+#include <cstdio>
 
 #include <fstream>
 #include <iomanip>
@@ -24,8 +24,9 @@
 
 #include <sys/types.h>
 #include <unistd.h>
-#include <signal.h>
+#include <csignal>
 #include <sys/stat.h>
+#include <glob.h>
 
 using namespace std;
 using namespace boost;
@@ -49,7 +50,7 @@ const MatacqProducer::stats_t MatacqProducer::stats_init = {0,0,0};
 
 static std::string now(){
   struct timeval t;
-  gettimeofday(&t, 0);
+  gettimeofday(&t, nullptr);
  
   char buf[256];
   strftime(buf, sizeof(buf), "%F %R %S s", localtime(&t.tv_sec));
@@ -74,8 +75,8 @@ MatacqProducer::MatacqProducer(const edm::ParameterSet& params):
   inputRawCollection_(params.getParameter<edm::InputTag>("inputRawCollection")),
   mergeRaw_(params.getParameter<bool>("mergeRaw")),
   ignoreTriggerType_(params.getParameter<bool>("ignoreTriggerType")),
-  matacq_(0, 0),
-  inFile_(0),
+  matacq_(nullptr, 0),
+  inFile_(nullptr),
   data_(bufferSize),
   openedFileRunNumber_(0),
   lastOrb_(0),
@@ -93,9 +94,9 @@ MatacqProducer::MatacqProducer(const edm::ParameterSet& params):
 {
   if(verbosity_>=4) cout << "[Matacq " << now() << "] in MatacqProducer ctor"  << endl;
   
-  gettimeofday(&timer_, 0);
+  gettimeofday(&timer_, nullptr);
 
-  if(timeLogFile_.size()>0){
+  if(!timeLogFile_.empty()){
     timeLog_.open(timeLogFile_.c_str());
     if(timeLog_.fail()){
       cout << "[LaserSorter " << now() << "] "
@@ -133,7 +134,7 @@ MatacqProducer::MatacqProducer(const edm::ParameterSet& params):
   }
   
   startTime_.tv_sec = startTime_.tv_usec = 0;
-  if(orbitOffsetFile_.size()>0){
+  if(!orbitOffsetFile_.empty()){
     doOrbitOffset_ = true;
     loadOrbitOffset();
   } else{
@@ -148,7 +149,7 @@ MatacqProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup){
   if(verbosity_>=4) cout << "[Matacq " << now() << "] in MatacqProducer::produce"  << endl;
   if(logTiming_){
     timeval t;
-    gettimeofday(&t, 0);
+    gettimeofday(&t, nullptr);
 
     timeLog_ << t.tv_sec << "."
              << setfill('0') << setw(3) << (t.tv_usec+500)/1000 << setfill(' ')<< "\t"
@@ -157,7 +158,7 @@ MatacqProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup){
     timer_ = t;
   } 
  
-  if(startTime_.tv_sec==0) gettimeofday(&startTime_, 0);
+  if(startTime_.tv_sec==0) gettimeofday(&startTime_, nullptr);
   ++stats_.nEvents;  
   if(disabled_) return;
   const uint32_t runNumber = getRunNumber(event);
@@ -168,7 +169,7 @@ MatacqProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup){
 
   if(logTiming_){
     timeval t;
-      gettimeofday(&t, 0);
+      gettimeofday(&t, nullptr);
       timeLog_ << (t.tv_usec - timer_.tv_usec)*1. 
         + (t.tv_sec - timer_.tv_sec)*1.e6 << "\n";
       timer_ = t;
@@ -209,7 +210,7 @@ MatacqProducer::addMatacqData(edm::Event& event){
 	const uint32_t orbitId   = getOrbitId(event);
       
 	LogInfo("Matacq") << "Run " << runNumber << "\t Orbit " << orbitId << "\n";
-      
+	
 	bool fileChange;
 	if(doOrbitOffset_){
 	  map<uint32_t,uint32_t>::iterator it = orbitOffset_.find(runNumber);
@@ -541,58 +542,114 @@ MatacqProducer::getMatacqEvent(uint32_t runNumber,
 bool
 MatacqProducer::getMatacqFile(uint32_t runNumber, uint32_t orbitId,
 			      bool* fileChange){
-  if(openedFileRunNumber_!=0
-     && openedFileRunNumber_==runNumber){
-    if(fileChange!=0) *fileChange = false;
-    return misOpened();
+  if(openedFileRunNumber_ != 0
+     && openedFileRunNumber_ == runNumber){
+    uint32_t firstOrb, lastOrb;
+    bool goodRange = getOrbitRange(firstOrb, lastOrb);
+    //    if(orbitId < firstOrb || orbitId > lastOrb) continue;
+    if(goodRange && firstOrb <= orbitId && orbitId <= lastOrb){
+      if(fileChange!=nullptr) *fileChange = false;
+      return misOpened();
+    }
   }
 
-  if(fileNames_.size()==0) return 0;
+  if(fileNames_.empty()) return false;
 
-  const string runNumberFormat = "%08d";
+  const string runNumberFormat = "%08d{,_*}";
   string sRunNumber = str(boost::format(runNumberFormat) % runNumber);
   //cout << "Run number string: " << sRunNumber << "\n";
   bool found = false;
   string fname;
-  for(unsigned i=0; i < fileNames_.size() && !found; ++i){
-    fname = fileNames_[i];
-    boost::algorithm::replace_all(fname, "%run_subdir%",
-				  runSubDir(runNumber));
-    boost::algorithm::replace_all(fname, "%run_number%", sRunNumber);
-
-    if(verbosity_>0) cout << "[Matacq " << now() << "] "
-			  << "Looking for a file with path "
-			  << fname << "\n";
-    
-    if(mcheck(fname)){
-      LogInfo("Matacq") << "Uses matacq data file: '" << fname << "'\n";
-      found = true;
+  uint32_t maxOrb = 0;
+  //we make two iterations to handle the case where the event is procesed
+  //before the matacq data are available. In such case we would have
+  //orbitId > maxOrb (maxOrb: orbit of last written matacq event)
+  for(int itry = 0; itry < 2 && (orbitId > maxOrb); ++itry){
+    if(itry > 0){
+      int n_sec = 1;
+      std::cout << "[Matacq " << now() << "] Event orbit id (" << orbitId << ") goes "
+	"beyound the range of available one. Waiting for " << n_sec << " seconds in case "
+	"it was not written yet to disk.";
+      sleep(n_sec);
     }
-  }
-  if(!found){
+    
+    for(unsigned i=0; i < fileNames_.size() && !found; ++i){
+      fname = fileNames_[i];
+      boost::algorithm::replace_all(fname, "%run_subdir%",
+				    runSubDir(runNumber));
+      boost::algorithm::replace_all(fname, "%run_number%", sRunNumber);
+
+      glob_t g;
+      int rc  = glob(fname.c_str(), GLOB_BRACE, nullptr, &g);
+      if(rc){
+	if(verbosity_ > 1){
+	  switch(rc){
+	  case GLOB_NOSPACE:
+	    std::cout << "[Matacq " << now() << "] Running out of memory while calling glob function to look for matacq file paths\n";
+	    break;
+	  case GLOB_ABORTED:
+	    std::cout << "[Matacq " << now() << "] Read error while calling glob function to look for matacq file paths\n";
+	    break;
+	  case GLOB_NOMATCH:
+	    //ok. No message to report.
+	    break;
+	  }
+	  continue;
+	}
+      } //rc
+      for(unsigned iglob = 0; iglob < g.gl_pathc; ++iglob){
+	char* thePath = g.gl_pathv[iglob];
+	//FIXME: add sanity check on the path
+	static std::atomic<int> nOpenErrors {0};
+	const int maxOpenErrors = 50;
+	if(!mopen(thePath) && nOpenErrors < maxOpenErrors){
+	  std::cout << "[Matacq " << now() << "] Failed to open file " << thePath;
+	  ++nOpenErrors;
+	  if(nOpenErrors == maxOpenErrors){
+	    std::cout << nOpenErrors << "This is the " << maxOpenErrors
+		      << "th occurence of this error. Report of this error is now disabled.\n";
+	  } else{
+	    std::cout << "\n";
+	  }
+	}
+	uint32_t firstOrb;
+	uint32_t lastOrb;
+	bool goodRange = getOrbitRange(firstOrb, lastOrb);
+	if(goodRange && lastOrb > maxOrb) maxOrb = lastOrb;
+	if(goodRange && firstOrb <= orbitId && orbitId <= lastOrb){
+	  found = true;
+	  //continue;
+	  fname = thePath;
+	  if(verbosity_ > 1) std::cout << "[Matacq " << now() << "] Switching to file " << fname << "\n";
+	  break;
+	}
+      } //next iglob
+      globfree(&g);
+    }//next filenames
+  } //next itry
+  
+  if(found){
+    LogInfo("Matacq") << "Uses matacq data file: '" << fname << "'\n";
+  } else{
     if(verbosity_>=0) cout << "[Matacq " << now() << "] no matacq file found "
 			"for run " << runNumber << "\n";
     eventSkipCounter_ = onErrorDisablingEvtCnt_;
     openedFileRunNumber_ = 0;
-    if(fileChange!=0) *fileChange = false;
-    return 0;
-  }
-  
-  if(!mopen(fname)){
-    LogWarning("Matacq") << "Failed to open file " << fname << "\n";
-    eventSkipCounter_ = onErrorDisablingEvtCnt_;
-    openedFileRunNumber_ = 0;
-    if(fileChange!=0) *fileChange = false;
+    if(fileChange!=nullptr) *fileChange = false;
     return false;
-  } else{
+  }
+
+   if(found){
     openedFileRunNumber_ = runNumber;
     lastOrb_ = 0;
     posEstim_.init(this);
-    if(fileChange!=0) *fileChange = true;
+    if(fileChange!=nullptr) *fileChange = true;
     return true;
+  } else{
+    return false;
   }
 }
- 
+
 
 uint32_t MatacqProducer::getRunNumber(edm::Event& ev) const{
   return ev.run();
@@ -638,7 +695,7 @@ uint32_t MatacqProducer::getOrbitId(edm::Event& ev) const{
     //    throw cms::Exception("NotFound")
     //  << "Failed to retrieve orbit ID of event "<< ev.id();
     LogWarning("NotFound") << "Failed to retrieve orbit ID of event "
-				<< ev.id();
+			   << ev.id();
   }
   return orbit;
 }
@@ -766,7 +823,7 @@ int64_t MatacqProducer::PosEstimator::pos(int orb) const{
 MatacqProducer::~MatacqProducer(){
   mclose();
   timeval t;
-  gettimeofday(&t, 0);
+  gettimeofday(&t, nullptr);
   if(logTiming_ && startTime_.tv_sec!=0){
     //not using logger, to allow timing with different logging options
     cout << "[Matacq " << now() << "] Time elapsed between first event and "
@@ -936,7 +993,7 @@ bool MatacqProducer::meof(){
 
 #else //USE_STORAGE_MANAGER not defined
 bool MatacqProducer::mseek(off_t offset, int whence, const char* mess){
-  if(0==inFile_) return false;
+  if(nullptr==inFile_) return false;
   const int rc = fseeko(inFile_, offset, whence);
   if(rc!=0 && verbosity_){
     cout << "[Matacq " << now() << "] ";
@@ -949,14 +1006,14 @@ bool MatacqProducer::mseek(off_t offset, int whence, const char* mess){
 }
 
 bool MatacqProducer::mtell(filepos_t& pos){
-  if(0==inFile_) return false;
+  if(nullptr==inFile_) return false;
   pos = ftello(inFile_);
   return pos != -1;
     
 }
 
 bool MatacqProducer::mread(char* buf, size_t n, const char* mess, bool peek){
-  if(0==inFile_) return false;
+  if(nullptr==inFile_) return false;
   off_t pos = ftello(inFile_);
   bool rc = (pos!=-1) && (1==fread(buf, n, 1, inFile_));
   if(!rc){
@@ -984,7 +1041,7 @@ bool MatacqProducer::mread(char* buf, size_t n, const char* mess, bool peek){
 }
 
 bool MatacqProducer::msize(filepos_t& s){
-  if(0==inFile_) return false;
+  if(nullptr==inFile_) return false;
   struct stat buf;
   if(0!=fstat(fileno(inFile_), &buf)){
     s = 0;
@@ -996,7 +1053,7 @@ bool MatacqProducer::msize(filepos_t& s){
 }
 
 bool MatacqProducer::mrewind(){
-  if(0==inFile_) return false;
+  if(nullptr==inFile_) return false;
   clearerr(inFile_);
   return fseeko(inFile_, 0, SEEK_SET)!=0; 
 }
@@ -1015,9 +1072,9 @@ bool MatacqProducer::mcheck(const std::string& name){
 }
 
 bool MatacqProducer::mopen(const std::string& name){
-  if(inFile_!=0) mclose();
+  if(inFile_!=nullptr) mclose();
   inFile_ = fopen(name.c_str(), "r");
-  if(inFile_!=0){
+  if(inFile_!=nullptr){
     inFileName_ = name;
     return true;
   } else{
@@ -1027,16 +1084,16 @@ bool MatacqProducer::mopen(const std::string& name){
 }
 
 void MatacqProducer::mclose(){
-  if(inFile_!=0) fclose(inFile_);
-  inFile_ = 0;
+  if(inFile_!=nullptr) fclose(inFile_);
+  inFile_ = nullptr;
 }
 
 bool MatacqProducer::misOpened(){
-  return inFile_!=0;
+  return inFile_!=nullptr;
 }
 
 bool MatacqProducer::meof(){
-  if(0==inFile_) return true;
+  if(nullptr==inFile_) return true;
   return feof(inFile_)==0;
 }
 
@@ -1065,4 +1122,31 @@ void MatacqProducer::newRun(int prevRun, int newRun){
     stats_.nNonLaserEventsWithMatacq = 0;
 
     
+}
+
+bool MatacqProducer::getOrbitRange(uint32_t& firstOrb, uint32_t& lastOrb){
+  filepos_t pos = -1;
+  filepos_t fsize = -1;
+  mtell(pos);
+  msize(fsize);
+  const unsigned headerSize = 8*8;
+  unsigned char header[headerSize];
+  //FIXME: Don't we need here to rewind?
+  mseek(0);
+  if(!mread((char*)header, headerSize, nullptr, false)) return false;
+  firstOrb = MatacqRawEvent::getOrbitId(header, headerSize);
+  int len = (int)MatacqRawEvent::getDccLen(header, headerSize);
+  //number of complete events. If last event is partially written,
+  //it won't be included in the count.
+  unsigned nEvts = fsize / (len*64);
+  //Position of last complete event:
+  filepos_t lastEvtPos = (nEvts - 1) * len * 64;
+  mseek(lastEvtPos);
+  mread((char*)header, headerSize, nullptr, false);
+  lastOrb = MatacqRawEvent::getOrbitId(header, headerSize);
+  
+  //restore file position:
+  mseek(pos);
+
+  return true;
 }

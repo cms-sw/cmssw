@@ -203,7 +203,7 @@ namespace cond {
 	}
 	m_data->change = false;
       }
-      if( m_data->iovBuffer.size() ) {
+      if( !m_data->iovBuffer.empty() ) {
 	std::sort(m_data->iovBuffer.begin(),m_data->iovBuffer.end(),iovSorter);
 	cond::Time_t l = std::get<0>(m_data->iovBuffer.front());
         //We do not allow for IOV updates (i.e. insertion in the past or overriding) on tags whose syncrosization is not "ANY" or "VALIDATION".
@@ -214,7 +214,8 @@ namespace cond {
 	  // retrieve the last since
 	  cond::Time_t last = 0;
 	  cond::Hash h;
-	  m_session->iovSchema().iovTable().getLastIov( m_data->tag, last, h );
+	  boost::posix_time::ptime no_time;
+	  m_session->iovSchema().iovTable().getLastIov( m_data->tag, no_time, last, h );
 	  // check if the min iov is greater then the last since
 	  if( l <= last ){
 	    std::stringstream msg;

@@ -54,8 +54,10 @@ public:
   double phiBinWidth() const {return thePhiBinWidth;}
   double phiOffset() const {return thePhiOffset;}
   int    unitPhi() const {return theUnitPhi;}
-  void   setPhi(std::vector<std::pair<int,double>>& phis,
-		std::vector<int>& iphiMiss, double foff,double dphi, int unit);
+  void   setPhi(const std::vector<std::pair<int,double>>& phis,
+		const std::vector<int>& iphiMiss, double foff, double dphi,
+		int unit);
+  void   setPhi(const std::vector<std::pair<int,double>>& phis) {thePhis = phis;}
                                                                                
   /// which cell will actually do the readout for this cell
   /// 1 means move hits in this cell up, and -1 means down

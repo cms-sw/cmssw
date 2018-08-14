@@ -23,6 +23,10 @@ class SiStripDetCabling
   SiStripDetCabling(const TrackerTopology* const topology);
   virtual ~SiStripDetCabling();
   SiStripDetCabling(const SiStripFedCabling &,const TrackerTopology* const topology);
+
+  SiStripDetCabling(const SiStripDetCabling&) = delete;
+  const SiStripDetCabling& operator=(const SiStripDetCabling&) = delete;
+
   void addDevices(const FedChannelConnection &, std::map< uint32_t, std::vector<const FedChannelConnection *> >&);
   void addDevices(const FedChannelConnection &); // special case of above addDevices
   // getters
@@ -50,9 +54,9 @@ class SiStripDetCabling
   void print( std::stringstream& ) const;
 
   /** The printSummary method outputs the number of connected/detected/undetected modules for each layer of each subdetector.*/
-  void printSummary(std::stringstream& ss) const;
+  void printSummary(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
   /** The printDebug method returns all the connected/detected/undetected modules.*/
-  void printDebug(std::stringstream& ss) const;
+  void printDebug(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
 
   // Methods to get the number of connected, detected and undetected modules for each layer of each subdetector.
   uint32_t connectedNumber(const std::string & subDet, const uint16_t layer) const { return detNumber(subDet, layer, 0); }
@@ -64,8 +68,6 @@ class SiStripDetCabling
   std::map< uint32_t, std::vector<int> > const & connected() const { return connected_;}
 
  private:
-  SiStripDetCabling(const SiStripDetCabling&); // stop default
-  const SiStripDetCabling& operator=(const SiStripDetCabling&); // stop default
   void addFromSpecificConnection( std::map<uint32_t, std::vector<int> > & , const std::map< uint32_t, std::vector<int> >  &, std::map< int16_t, uint32_t >* connectionsToFill = nullptr ) const;
   bool IsInMap(const uint32_t& det_id, const std::map<uint32_t, std::vector<int> > &) const;
   int16_t layerSearch( const uint32_t detId ) const;

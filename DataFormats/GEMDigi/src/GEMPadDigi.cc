@@ -1,5 +1,5 @@
 /** \file
- * 
+ *
  *  $Date: 2013/01/18 04:21:50 $
  *  $Revision: 1.1 $
  *
@@ -17,7 +17,7 @@ GEMPadDigi::GEMPadDigi (int pad, int bx) :
 
 GEMPadDigi::GEMPadDigi ():
   pad_(0),
-  bx_(0) 
+  bx_(0)
 {}
 
 
@@ -40,14 +40,20 @@ bool GEMPadDigi::operator<(const GEMPadDigi& digi) const
 {
   if(digi.bx() == bx_)
     return digi.pad() < pad_;
-  else 
+  else
     return digi.bx() < bx_;
+}
+
+
+bool GEMPadDigi::isValid() const
+{
+  return pad_ != 0;
 }
 
 
 std::ostream & operator<<(std::ostream & o, const GEMPadDigi& digi)
 {
-  return o << " " << digi.pad() << " " << digi.bx();
+  return o << " GEMPadDigi Pad = " << digi.pad() << " bx = " << digi.bx();
 }
 
 

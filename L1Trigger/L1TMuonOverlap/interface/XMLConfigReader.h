@@ -41,7 +41,7 @@ class XMLConfigReader{
 
   std::vector<std::shared_ptr<GoldenPattern>> readPatterns(const L1TMuonOverlapParams &aConfig);
 
-  void readLUT(l1t::LUT *lut, const L1TMuonOverlapParams & aConfig, const std::string & type);
+  void readLUTs(std::vector<l1t::LUT *> luts, const L1TMuonOverlapParams & aConfig, const std::vector<std::string> & types);
 
   void readConfig(L1TMuonOverlapParams *aConfig) const;
 

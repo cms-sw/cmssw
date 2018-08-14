@@ -35,6 +35,11 @@ GaussVtxSigmaZ4cmSmearingParameters = cms.PSet(
 )
 
 # Flat Smearing
+# Important note: flat independent distributions in Z and T are not correct for physics production
+# In reality, if two flat beams interact the real distribution will not be flat with independent Z and T
+# but Z and T will be correlated, as example in GaussEvtVtxGenerator.
+# Can restore correlation via MinT += (MinZ - MaxZ)/2 and MaxT += (MaxZ - MinZ)/2
+# in [ns] units (recall c_light = 29.98cm/ns)
 FlatVtxSmearingParameters = cms.PSet(
     MaxZ = cms.double(5.3),
     MaxX = cms.double(0.0015),
@@ -42,7 +47,8 @@ FlatVtxSmearingParameters = cms.PSet(
     MinX = cms.double(-0.0015),
     MinY = cms.double(-0.0015),
     MinZ = cms.double(-5.3),
-    TimeOffset = cms.double(0.0)
+    MaxT = cms.double(0.177),
+    MinT = cms.double(-0.177)
 )
 #############################################
 # Beta functions smearing (pp 7+7 TeV)
@@ -53,11 +59,11 @@ FlatVtxSmearingParameters = cms.PSet(
 # phi = half-crossing beam angle
 #
 # Emittance is the no normalized emittance in cm = normalized emittance/gamma (beta=1)
-# 
+#
 # length variables are in cm
 #
 
-# 900 GeV collisions, transverse beam size = 293 microns 
+# 900 GeV collisions, transverse beam size = 293 microns
 Early900GeVCollisionVtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
     BetaStar = cms.double(1100.0),
@@ -206,7 +212,7 @@ Realistic2p76TeV2013CollisionVtxSmearingParameters = cms.PSet(
     Z0 = cms.double(0.4145)
 )
 # HI realistic pPb collisions, updated for 2013
-# 
+#
 RealisticHIpPb2013CollisionVtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
     BetaStar = cms.double(80.0),
@@ -530,9 +536,9 @@ Realistic100ns13TeVCollisionBetaStar90mLowBunchesVtxSmearingParameters = cms.PSe
 # Z0         = 0.420085 +/- 4.1102E-04 [cm]
 # sigmaZ0    = 3.645533 +/- 2.9064E-04 [cm]
 #
-# From LHC calculator, emittance is 4.906e-8 cm 
+# From LHC calculator, emittance is 4.906e-8 cm
 # https://lpc.web.cern.ch/lpc/lumi2.html
-# 
+#
 # BPIX absolute position:
 # X = -0.0267572 cm
 # Y = -0.0759102 cm
@@ -547,6 +553,73 @@ Realistic25ns13TeV2016CollisionVtxSmearingParameters = cms.PSet(
     X0 = cms.double(0.09163),
     Y0 = cms.double(0.16955),
     Z0 = cms.double(0.9315 )
+)
+
+# From 2017A 3.8T data
+# BS parameters extracted from run 295463 (from offline DQM, i.e. PCL):
+# X0         =  0.08497  [cm]
+# Y0         = -0.03976  [cm]
+# Z0         =  1.6      [cm] ==> 0.5 adjusted after cogging tuning by LHC, see  https://hypernews.cern.ch/HyperNews/CMS/get/beamspot/159/1.html
+# sigmaZ0    =  3.5      [cm]
+#
+# From LHC calculator, emittance is 3.319e-8 cm
+# https://lpc.web.cern.ch/lpc/lumi2.html
+#
+# BPIX absolute position (https://hypernews.cern.ch/HyperNews/CMS/get/tif-alignment/657/1/1.html):
+# X = 0.109725 cm
+# Y = -0.108993 cm
+# Z = -0.32054  cm
+Realistic25ns13TeVEarly2017CollisionVtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(40.0),
+    Emittance = cms.double(3.319e-8),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(3.5),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(-0.024755),
+    Y0 = cms.double(0.069233 ),
+    Z0 = cms.double(0.82054  )
+)
+
+# Beam spot extracted from data for 2017 pp run @ 5 TeV
+Realistic5TeVppCollision2017VtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(311),
+    Emittance = cms.double(3.8e-8),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(5.82),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(-0.0228),
+    Y0 = cms.double(0.0795),
+    Z0 = cms.double(0.619)
+)
+
+# From 2018B 3.8T data
+# BS parameters extracted from run 316199, fill 6675 (from StreamExpressAlignment, HP BS):
+# X0         =  0.09676  [cm]
+# Y0         = -0.06245  [cm]
+# Z0         = -0.292    [cm]
+# sigmaZ0    =  3.5      [cm] => mean sigmaZ0 in this run is 3.2676
+# BeamWidthX 0.0008050
+# BeamWidthY 0.0006238
+#
+# From LHC calculator, emittance is 1.634e-8 cm
+# https://lpc.web.cern.ch/lpc/lumi2.html
+#
+# BPIX absolute position (from https://cms-conddb.cern.ch/cmsDbBrowser/payload_inspector/Prod):
+# X = 0.0859918 cm
+# Y = -0.104172 cm
+# Z = -0.327748 cm
+Realistic25ns13TeVEarly2018CollisionVtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(30.0),
+    Emittance = cms.double(1.634e-8),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(3.5),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.0107682),
+    Y0 = cms.double(0.041722 ),
+    Z0 = cms.double(0.035748 )
 )
 
 # Test HF offset
@@ -584,8 +657,8 @@ Shifted15mmCollision2015VtxSmearingParameters = cms.PSet(
     Z0 = cms.double(0.0)
 )
 
-# Estimate for 2015 PbPb collisions, based on feedback from accelerator                                                                                  
-# Beamspot centroid shifted to match pp expectation for 2015                                                                                             
+# Estimate for 2015 PbPb collisions, based on feedback from accelerator
+# Beamspot centroid shifted to match pp expectation for 2015
 NominalHICollision2015VtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
     BetaStar = cms.double(60.0),
@@ -599,7 +672,23 @@ NominalHICollision2015VtxSmearingParameters = cms.PSet(
 )
 
 # updated numbers based on beamspot fits to 2015 PbPb data
-RealisticHICollision2015VtxSmearingParameters = cms.PSet(
+# Later found to be incorrect, see following entry
+# RealisticHICollision2015VtxSmearingParameters = cms.PSet(
+#    Phi = cms.double(0.0),
+#    BetaStar = cms.double(60.0),
+#    Emittance = cms.double(1.70e-07),
+#    Alpha = cms.double(0.0),
+#    SigmaZ = cms.double(5.2278),
+#    TimeOffset = cms.double(0.0),
+#    X0 = cms.double(0.1025),
+#    Y0 = cms.double(0.1654),
+#    Z0 = cms.double(3.2528)
+#)
+# updated numbers for 2015 PbPb data with Z centroid from fixed beamspot fits
+# See discussion here https://hypernews.cern.ch/HyperNews/CMS/get/hi-general/3968.html
+# See plot of difference here: https://www.dropbox.com/s/tsnkgvvpkdqjtyq/vzDataMCOverlay_c_20170420.pdf?dl=0
+#
+RealisticHICollisionFixZ2015VtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
     BetaStar = cms.double(60.0),
     Emittance = cms.double(1.70e-07),
@@ -608,7 +697,20 @@ RealisticHICollision2015VtxSmearingParameters = cms.PSet(
     TimeOffset = cms.double(0.0),
     X0 = cms.double(0.1025),
     Y0 = cms.double(0.1654),
-    Z0 = cms.double(3.2528)
+    Z0 = cms.double(0.771)
+)
+# Numbers based on beamspot fits to 2017 XeXe data
+# Documentation here: https://twiki.cern.ch/twiki/pub/CMS/XeXeRereco/IanLRU_AlCaTkAlBS_20171130_approvedByLucaSara.pdf
+RealisticXeXeCollision2017VtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(30.0),
+    Emittance = cms.double(4.33e-08),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(4.64),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(-0.026),
+    Y0 = cms.double(0.081),
+    Z0 = cms.double(0.645)
 )
 
 # Estimate for 2015 pp collisions at 5.02 TeV, based on feedback from accelerator:  beta* ~ 400cm, normalized emittance = 2.5 um, SigmaZ similar to RunIIWinter15GS
@@ -634,7 +736,7 @@ Realistic5TeVPACollision2016VtxSmearingParameters = cms.PSet(
     TimeOffset = cms.double(0.0),
     X0 = cms.double(0.0889),
     Y0 = cms.double(0.1820),
-    Z0 = cms.double(1.6066)    
+    Z0 = cms.double(1.6066)
 )
 
 # From fit to 8 TeV pPb data
@@ -647,7 +749,7 @@ Realistic8TeVPACollision2016VtxSmearingParameters = cms.PSet(
     TimeOffset = cms.double(0.0),
     X0 = cms.double(0.0836),
     Y0 = cms.double(0.1837),
-    Z0 = cms.double(1.3577)    
+    Z0 = cms.double(1.3577)
 )
 
 # Parameters for HL-LHC operation at 13TeV
@@ -666,11 +768,11 @@ HLLHCVtxSmearingParameters = cms.PSet(
     VerticalEmittance = cms.double(2.05e-06),
     BunchLengthInm = cms.double(0.090),
     CrabbingAngleCrossingInurad = cms.double(380.0),
-    CrabbingAngleSeparationInurad = cms.double(0.0)    
+    CrabbingAngleSeparationInurad = cms.double(0.0)
 )
 
 # Parameters for HL-LHC Crab-kissing operation 13 TeV
-HLLHCCrabKissingVtxSmearingParameters = cms.PSet(    
+HLLHCCrabKissingVtxSmearingParameters = cms.PSet(
     MeanXIncm = cms.double(0.),
     MeanYIncm = cms.double(0.),
     MeanZIncm = cms.double(0.),

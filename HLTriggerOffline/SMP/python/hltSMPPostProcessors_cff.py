@@ -3,21 +3,21 @@ import FWCore.ParameterSet.Config as cms
 from HLTriggerOffline.SMP.hltSMPPostProcessor_cfi import *
 
 # Build the standard strings to the DQM
-def efficiency_string(objtype,plot_type,triggerpath):
+def make_efficiency_string(objtype,plot_type,triggerpath):
     # --- IMPORTANT: Add here a elif if you are introduce a new collection
     #                (see EVTColContainer::getTypeString) 
     if objtype == "Mu" :
-	objtypeLatex="#mu"
+      objtypeLatex="#mu"
     elif objtype == "Photon": 
-	objtypeLatex="#gamma"
+      objtypeLatex="#gamma"
     elif objtype == "Ele": 
-	objtypeLatex="e"
+      objtypeLatex="e"
     elif objtype == "MET" :
-	objtypeLatex="MET"
+      objtypeLatex="MET"
     elif objtype == "PFTau": 
-	objtypeLatex="#tau"
+      objtypeLatex="#tau"
     else:
-	objtypeLatex=objtype
+      objtypeLatex=objtype
 
     numer_description = "# gen %s passed the %s" % (objtypeLatex,triggerpath)
     denom_description = "# gen %s " % (objtypeLatex)
@@ -43,70 +43,53 @@ def efficiency_string(objtype,plot_type,triggerpath):
     all_titles = "%s for trigger %s; %s; %s" % (title, triggerpath,
                                         xAxis, yAxis)
     return "Eff_%s_%s '%s' %s_%s %s" % (input_type,triggerpath,
-		    all_titles,input_type,triggerpath,input_type)
+                all_titles,input_type,triggerpath,input_type)
 
-# Adding the reco objects
-def add_reco_strings(strings):
-    reco_strings = []
-    for entry in strings:
-        reco_strings.append(entry
-                            .replace("Generated", "Reconstructed")
-                            .replace("Gen", "Reco")
-                            .replace("gen", "rec"))
-    strings.extend(reco_strings)
+from HLTriggerOffline.SMP.hltSMPValidator_cfi import hltSMPValidator as _config
+def make_smp_postprocessor(analysis_name, plot_types=["TurnOn1", "TurnOn2", "EffEta", "EffPhi"], object_types=["Mu","Ele","Photon","MET","PFMET","PFTau","Jet"], extra_str_templates=[]):
+    postprocessor = hltSMPPostProcessor.clone()
+    postprocessor.subDirs = ["HLT/SMP/" + analysis_name]
+    efficiency_strings = [] # List of plots to look for. This is quite a bit larger than the number of plots that will be made.
+
+    efficiency_summary_string = "EffSummaryPaths_" + analysis_name + "_gen ' Efficiency of paths used in " + analysis_name + " ; trigger path ' SummaryPaths_" + analysis_name + "_gen_passingHLT SummaryPaths_" + analysis_name + "_gen"
+    efficiency_strings.append(efficiency_summary_string)
+    efficiency_strings.append(efficiency_summary_string.replace("Generated", "Reconstructed").replace("Gen", "Reco").replace("gen", "rec"))
+
+    for plot_type in plot_types:
+        for object_type in object_types:
+            for trigger in [x.replace("_v", "") for x in _config.__getattribute__(analysis_name).hltPathsToCheck]:
+                this_efficiency_string = make_efficiency_string(object_type, plot_type, trigger)
+                efficiency_strings.append(this_efficiency_string)
+                efficiency_strings.append(this_efficiency_string.replace("Generated", "Reconstructed").replace("Gen", "Reco").replace("gen", "rec"))
+
+                for str_template in extra_str_templates:
+                    this_extra_string = str_template.replace("@ANALYSIS@", analysis_name).replace("@TRIGGER@", trigger)
+                    efficiency_strings.append(this_extra_string)
+                    efficiency_strings.append(this_extra_string.replace("Generated", "Reconstructed").replace("Gen", "Reco").replace("gen", "rec"))
+
+    postprocessor.efficiencyProfile = efficiency_strings
+    return postprocessor
 
 
 plot_types = ["TurnOn1", "TurnOn2", "EffEta", "EffPhi"]
 #--- IMPORTANT: Update this collection whenever you introduce a new object
 #               in the code (from EVTColContainer::getTypeString)
-obj_types  = ["Mu","Ele","Photon","MET","PFTau"]
-#--- IMPORTANT: Trigger are extracted from the hltSMPValidator_cfi.py module
-triggers = [ ] 
-efficiency_strings = []
-
-# Extract the triggers used in the hltSMPValidator 
-from HLTriggerOffline.SMP.hltSMPValidator_cfi import hltSMPValidator as _config
-triggers = set([])
-for an in _config.analysis:
-	s = _config.__getattribute__(an)
-	vstr = s.__getattribute__("hltPathsToCheck")
-	map(lambda x: triggers.add(x.replace("_v","")),vstr)
-triggers = list(triggers)
-#------------------------------------------------------------
-
-# Generating the list with all the efficiencies
-for type in plot_types:
-    for obj in obj_types:
-	for trig in triggers:
-	    efficiency_strings.append(efficiency_string(obj,type,trig))
+object_types  = ["Mu","Ele","Photon","MET","PFTau"]
+truevtx_string_template = "Eff_trueVtxDist_@ANALYSIS@_gen_@TRIGGER@ ' Efficiency of @TRIGGER@ vs nb of interactions ; nb events passing each path ' trueVtxDist_@ANALYSIS@_gen_@TRIGGER@ trueVtxDist_@ANALYSIS@_gen"
 
 
-#add the summary plots
-for an in _config.analysis:
-    efficiency_strings.append("EffSummaryPaths_"+an+"_gen ' Efficiency of paths used in "+an+" ; trigger path ' SummaryPaths_"+an+"_gen_passingHLT SummaryPaths_"+an+"_gen")
-    for trig in triggers:
-        efficiency_strings.append("Eff_trueVtxDist_"+an+"_gen_"+trig+" ' Efficiency of "+trig+" vs nb of interactions ; nb events passing each path ' trueVtxDist_"+an+"_gen_"+trig+" trueVtxDist_"+an+"_gen")
-
-add_reco_strings(efficiency_strings)
-
-
-
-# hltSMPPostSingleEle = hltSMPPostProcessor.clone()
-# hltSMPPostSingleEle.subDirs = ['HLT/SMP/SingleEle']
-# hltSMPPostSingleEle.efficiencyProfile = efficiency_strings
+hltSMPPostSingleEle = make_smp_postprocessor("SingleEle", plot_types=plot_types, object_types=object_types, extra_str_templates=[truevtx_string_template])
+#hltSMPPostSingleMu = make_smp_postprocessor("SingleMu", plot_types=plot_types, object_types=object_types, extra_str_templates=[truevtx_string_template])
+hltSMPPostSinglePhoton = make_smp_postprocessor("SinglePhoton", plot_types=plot_types, object_types=object_types, extra_str_templates=[truevtx_string_template])
 
 # hltSMPPostSingleMu = hltSMPPostProcessor.clone()
 # hltSMPPostSingleMu.subDirs = ['HLT/SMP/SingleMu']
 # hltSMPPostSingleMu.efficiencyProfile = efficiency_strings
 
-hltSMPPostSinglePhoton = hltSMPPostProcessor.clone()
-hltSMPPostSinglePhoton.subDirs = ['HLT/SMP/SinglePhoton']
-hltSMPPostSinglePhoton.efficiencyProfile = efficiency_strings
-
 hltSMPPostProcessors = cms.Sequence(
-#		hltSMPPostSingleEle+
-#		hltSMPPostSingleMu+
-		hltSMPPostSinglePhoton
+    hltSMPPostSingleEle+
+#    hltSMPPostSingleMu+
+    hltSMPPostSinglePhoton
 )
 
 

@@ -53,7 +53,7 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
-#include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
+#include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
@@ -94,7 +94,7 @@
 
 #include<iostream>
 #include<cmath>
-#include<assert.h>
+#include<cassert>
 #include<fstream>
 #include<iomanip>
 
@@ -109,7 +109,7 @@ using namespace reco;
 class GlobalTrackerMuonAlignment : public edm::EDAnalyzer {
  public:
   explicit GlobalTrackerMuonAlignment(const edm::ParameterSet&);
-  ~GlobalTrackerMuonAlignment();
+  ~GlobalTrackerMuonAlignment() override;
 
   void analyzeTrackTrack(const edm::Event&, const edm::EventSetup&);
   void analyzeTrackTrajectory(const edm::Event&, const edm::EventSetup&);
@@ -145,9 +145,9 @@ class GlobalTrackerMuonAlignment : public edm::EDAnalyzer {
 
  private:
 
-  virtual void beginJob() override ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
   
   // ----------member data ---------------------------
 
@@ -2993,21 +2993,21 @@ GlobalTrackerMuonAlignment::trackFitter(reco::TrackRef alongTr, reco::TransientT
 			     alongTTr.outermostMeasurementState());
     this->debugTrajectorySOS(" initialTSOS for theFitter ", initialTSOS);
     std::cout<<" . . . . . trajVec.size() "<<trajVec.size()<<std::endl;
-    if(trajVec.size()) this->debugTrajectory(" theFitter trajectory ", trajVec[0]);
+    if(!trajVec.empty()) this->debugTrajectory(" theFitter trajectory ", trajVec[0]);
   }
 
   if(!smooth){
-    if(trajVec.size()) trackFittedTSOS = trajVec[0].lastMeasurement().updatedState();}
+    if(!trajVec.empty()) trackFittedTSOS = trajVec[0].lastMeasurement().updatedState();}
   else{
     std::vector<Trajectory> trajSVec;
-    if (trajVec.size()){
+    if (!trajVec.empty()){
       if(direction == alongMomentum) trajSVec = theSmoother->trajectories(*(trajVec.begin()));
       else                           trajSVec = theSmootherOp->trajectories(*(trajVec.begin()));
     }
     if(info) std::cout<<" . . . . trajSVec.size() "<<trajSVec.size()<<std::endl;
-    if(trajSVec.size()) this->debugTrajectorySOSv("smoothed geom InnermostState",
+    if(!trajSVec.empty()) this->debugTrajectorySOSv("smoothed geom InnermostState",
 						  trajSVec[0].geometricalInnermostState());
-    if(trajSVec.size()) trackFittedTSOS = trajSVec[0].geometricalInnermostState();
+    if(!trajSVec.empty()) trackFittedTSOS = trajSVec[0].geometricalInnermostState();
   }
 
   if(info) this->debugTrajectorySOSv(" trackFittedTSOS ", trackFittedTSOS);
@@ -3090,21 +3090,21 @@ GlobalTrackerMuonAlignment::muonFitter(reco::TrackRef alongTr, reco::TransientTr
 			     alongTTr.outermostMeasurementState());
     this->debugTrajectorySOS(" initialTSOS for theFitter ", initialTSOS);
     std::cout<<" . . . . . trajVec.size() "<<trajVec.size()<<std::endl;
-    if(trajVec.size()) this->debugTrajectory(" theFitter trajectory ", trajVec[0]);
+    if(!trajVec.empty()) this->debugTrajectory(" theFitter trajectory ", trajVec[0]);
   }
 
   if(!smooth){
-    if(trajVec.size()) trackFittedTSOS = trajVec[0].lastMeasurement().updatedState();}
+    if(!trajVec.empty()) trackFittedTSOS = trajVec[0].lastMeasurement().updatedState();}
   else{
     std::vector<Trajectory> trajSVec;
-    if (trajVec.size()){
+    if (!trajVec.empty()){
       if(direction == alongMomentum) trajSVec = theSmoother->trajectories(*(trajVec.begin()));
       else                           trajSVec = theSmootherOp->trajectories(*(trajVec.begin()));
     }
     if(info) std::cout<<" . . . . trajSVec.size() "<<trajSVec.size()<<std::endl;
-    if(trajSVec.size()) this->debugTrajectorySOSv("smoothed geom InnermostState",
+    if(!trajSVec.empty()) this->debugTrajectorySOSv("smoothed geom InnermostState",
 						  trajSVec[0].geometricalInnermostState());
-    if(trajSVec.size()) trackFittedTSOS = trajSVec[0].geometricalInnermostState();
+    if(!trajSVec.empty()) trackFittedTSOS = trajSVec[0].geometricalInnermostState();
   }
 
 } // end of muonFitter

@@ -2,6 +2,7 @@
 </export>
 <library   name="PhysicsToolsPatAlgos_plugins" file="*.cc">
   <use   name="PhysicsTools/PatAlgos"/>
+  <use   name="PhysicsTools/TensorFlow"/>
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/MessageLogger"/>
@@ -11,9 +12,11 @@
   <use   name="DataFormats/PatCandidates"/>
   <use   name="DataFormats/BTauReco"/>
   <use   name="DataFormats/JetReco"/>
+  <use   name="DataFormats/MuonReco"/>
   <use   name="DataFormats/TrackReco"/>
   <use   name="DataFormats/Candidate"/>
   <use   name="DataFormats/HeavyIonEvent"/>
+  <use   name="DataFormats/HepMCCandidate"/>
   <use   name="PhysicsTools/PatUtils"/>
   <use   name="CondFormats/JetMETObjects"/>
   <use   name="CommonTools/CandAlgos"/>
@@ -22,6 +25,7 @@
   <use   name="TrackingTools/TransientTrack"/>
   <use   name="SimDataFormats/Track"/>
   <use   name="SimDataFormats/Vertex"/>
+  <use   name="SimDataFormats/JetMatching"/>
   <use   name="SimGeneral/HepPDTRecord"/>
   <use   name="RecoMET/METAlgorithms"/>
   <use   name="RecoEgamma/EgammaTools"/>

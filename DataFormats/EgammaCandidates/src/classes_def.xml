@@ -52,9 +52,10 @@
    <version ClassVersion="10" checksum="3308689624"/>
    <version ClassVersion="11" checksum="3649971983"/>
   </class>
-  <class name="reco::Photon::PflowIsolationVariables"  ClassVersion="12">
+  <class name="reco::Photon::PflowIsolationVariables"  ClassVersion="13">
    <version ClassVersion="11" checksum="3200292660"/>
    <version ClassVersion="12" checksum="114160170"/>
+   <version ClassVersion="13" checksum="3959509359"/>
   </class>
   <class name="reco::Photon::PflowIDVariables"  ClassVersion="3">
    <version ClassVersion="3" checksum="2819734289"/>
@@ -179,7 +180,8 @@
   <class name="reco::GsfElectron::ChargeInfo" ClassVersion="10">
    <version ClassVersion="10" checksum="1415326811"/>
   </class>
-  <class name="reco::GsfElectron::PflowIsolationVariables" ClassVersion="11">
+  <class name="reco::GsfElectron::PflowIsolationVariables" ClassVersion="12">
+   <version ClassVersion="12" checksum="2416379203"/>
    <version ClassVersion="11" checksum="2389048798"/>
    <version ClassVersion="10" checksum="4270399196"/>
   <ioread sourceClass="reco::GsfElectron::PflowIsolationVariables" version="[1-10]" source="float chargedHadronIso" targetClass="reco::GsfElectron::PflowIsolationVariables" target="sumChargedHadronPt">

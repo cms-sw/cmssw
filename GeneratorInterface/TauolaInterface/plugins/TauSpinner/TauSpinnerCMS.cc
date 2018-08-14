@@ -183,8 +183,8 @@ int TauSpinnerCMS::readParticlesfromReco(edm::Event& e,SimpleParticle &X,SimpleP
       const reco::GenParticle *hx=&(*itr);
       if(!isFirst(hx)) continue;
       GetLastSelf(hx);
-      const reco::GenParticle *recotau1=NULL;
-      const reco::GenParticle *recotau2=NULL;
+      const reco::GenParticle *recotau1=nullptr;
+      const reco::GenParticle *recotau2=nullptr;
       unsigned int ntau(0),ntauornu(0);
       for(unsigned int i=0; i<itr->numberOfDaughters(); i++){
 	const reco::Candidate *dau=itr->daughter(i);

@@ -167,10 +167,9 @@ PFDisplacedVertexFinder::findSeedsFromCandidate(const PFDisplacedVertexCandidate
 	break;
       }
       const GlobalPoint vertexPoint = (*idvc_current).seedPoint();
-      double Delta_Long = getLongDiff(vertexPoint, dcaPoint);
-      double Delta_Transv = getTransvDiff(vertexPoint, dcaPoint);
-      if (Delta_Long > longSize_) continue;
-      if (Delta_Transv > transvSize_) continue;
+      std::pair<float,float> diffs = getTransvLongDiff(vertexPoint,dcaPoint);
+      if (diffs.second > longSize_) continue;
+      if (diffs.first > transvSize_) continue;
       bNeedNewCandidate = false;
       break;
     }
@@ -179,7 +178,6 @@ PFDisplacedVertexFinder::findSeedsFromCandidate(const PFDisplacedVertexCandidate
       tempDisplacedVertexSeeds.push_back( PFDisplacedVertexSeed() );      
       idvc_current = tempDisplacedVertexSeeds.end();
       idvc_current--;
-      bNeedNewCandidate = false;
     }
 
 
@@ -236,18 +234,16 @@ PFDisplacedVertexFinder::fitVertexFromSeed(const PFDisplacedVertexSeed& displace
 
   // ---- Prepare transient track list ----
 
-  set < TrackBaseRef, PFDisplacedVertexSeed::Compare > const& tracksToFit = displacedVertexSeed.elements();
-  GlobalPoint seedPoint = displacedVertexSeed.seedPoint();
+  auto const& tracksToFit = displacedVertexSeed.elements();
+  const GlobalPoint& seedPoint = displacedVertexSeed.seedPoint();
 
   vector<TransientTrack> transTracks;
   vector<TransientTrack> transTracksRaw;
   vector<TrackBaseRef> transTracksRef;
-  vector<TrackBaseRef> transTracksRefRaw;
 
   transTracks.reserve(tracksToFit.size());
   transTracksRaw.reserve(tracksToFit.size());
   transTracksRef.reserve(tracksToFit.size());
-  transTracksRefRaw.reserve(tracksToFit.size());
 
 
 
@@ -280,7 +276,6 @@ PFDisplacedVertexFinder::fitVertexFromSeed(const PFDisplacedVertexSeed& displace
   for(auto const& ie : tracksToFit){
     TransientTrack tmpTk( *(ie.get()), magField_, globTkGeomHandle_);
     transTracksRaw.emplace_back( tmpTk );
-    transTracksRefRaw.push_back( ie );
     bool nonIt = PFTrackAlgoTools::nonIterative((ie)->algo());
     bool step45 = PFTrackAlgoTools::step45((ie)->algo());
     bool highQ = PFTrackAlgoTools::highQuality((ie)->algo());   
@@ -418,7 +413,7 @@ PFDisplacedVertexFinder::fitVertexFromSeed(const PFDisplacedVertexSeed& displace
 
     if (theVertexAdaptiveRaw.trackWeight(transTracksRaw[i]) > minAdaptWeight_){
 
-      PFTrackHitFullInfo pattern = hitPattern_.analyze(tkerGeomHandle_, transTracksRefRaw[i], theVertexAdaptiveRaw);
+      PFTrackHitFullInfo pattern = hitPattern_.analyze(tkerTopo_, tkerGeom_, tracksToFit[i], theVertexAdaptiveRaw);
 
       PFDisplacedVertex::VertexTrackType vertexTrackType = getVertexTrackType(pattern);
 
@@ -428,14 +423,14 @@ PFDisplacedVertexFinder::fitVertexFromSeed(const PFDisplacedVertexSeed& displace
 
 	if (bGoodTrack){
 	  transTracks.push_back(transTracksRaw[i]);
-	  transTracksRef.push_back(transTracksRefRaw[i]);
+	  transTracksRef.push_back(tracksToFit[i]);
 	} else {
 	  if (debug_)
 	    cout << "Track rejected nChi2 = " << transTracksRaw[i].track().normalizedChi2()
 		 << " pt = " <<  transTracksRaw[i].track().pt()
 		 << " dxy (wrt (0,0,0)) = " << transTracksRaw[i].track().dxy()
 		 << " nHits = " << transTracksRaw[i].track().numberOfValidHits()
-		 << " nOuterHits = " << transTracksRaw[i].track().hitPattern().numberOfHits(HitPattern::MISSING_OUTER_HITS) << endl;
+		 << " nOuterHits = " << transTracksRaw[i].track().hitPattern().numberOfLostHits(HitPattern::MISSING_OUTER_HITS) << endl;
 	} 
       } else {
 	
@@ -530,12 +525,12 @@ PFDisplacedVertexFinder::fitVertexFromSeed(const PFDisplacedVertexSeed& displace
   // -----------------------------------------------//
   
 
-  displacedVertex = (PFDisplacedVertex) theRecoVtx;
+  displacedVertex = theRecoVtx;
   displacedVertex.removeTracks();
   
   for(unsigned i = 0; i < transTracks.size();i++) {
     
-    PFTrackHitFullInfo pattern = hitPattern_.analyze(tkerGeomHandle_, transTracksRef[i], theRecoVertex);
+    PFTrackHitFullInfo pattern = hitPattern_.analyze(tkerTopo_, tkerGeom_, transTracksRef[i], theRecoVertex);
 
     PFDisplacedVertex::VertexTrackType vertexTrackType = getVertexTrackType(pattern);
 
@@ -692,13 +687,12 @@ PFDisplacedVertexFinder::rejectAndLabelVertex(PFDisplacedVertex& dv){
 bool 
 PFDisplacedVertexFinder::isCloseTo(const PFDisplacedVertexSeed& dv1, const PFDisplacedVertexSeed& dv2) const {
 
-  const GlobalPoint vP1 = dv1.seedPoint();
-  const GlobalPoint vP2 = dv2.seedPoint();
+  const GlobalPoint& vP1 = dv1.seedPoint();
+  const GlobalPoint& vP2 = dv2.seedPoint();
 
-  double Delta_Long = getLongDiff(vP1, vP2);
-  if (Delta_Long > longSize_) return false;
-  double Delta_Transv = getTransvDiff(vP1, vP2);
-  if (Delta_Transv > transvSize_) return false;
+  std::pair<float,float> diffs = getTransvLongDiff(vP1,vP2);
+  if (diffs.second > longSize_) return false;
+  if (diffs.first > transvSize_) return false;
   //  if (Delta_Long < longSize_ && Delta_Transv < transvSize_) isCloseTo = true;
 
   return true;
@@ -706,33 +700,15 @@ PFDisplacedVertexFinder::isCloseTo(const PFDisplacedVertexSeed& dv1, const PFDis
 }
 
 
-double  
-PFDisplacedVertexFinder::getLongDiff(const GlobalPoint& Ref, const GlobalPoint& ToProject) const {
+std::pair<float,float>
+PFDisplacedVertexFinder::getTransvLongDiff(const GlobalPoint& Ref, const GlobalPoint& ToProject) const {
 
-  Basic3DVector<double>vRef(Ref);
-  Basic3DVector<double>vToProject(ToProject);
-  return fabs((vRef.dot(vToProject)-vRef.mag2())/vRef.mag());
+  const auto & vRef = Ref.basicVector();
+  const auto & vToProject = ToProject.basicVector();
+  float vRefMag2 = vRef.mag2();
+  float oneOverMag = 1.0f/sqrt(vRefMag2);
 
-}
-
-double  
-PFDisplacedVertexFinder::getLongProj(const GlobalPoint& Ref, const GlobalVector& ToProject) const {
-
-  Basic3DVector<double>vRef(Ref);
-  Basic3DVector<double>vToProject(ToProject);
-  return (vRef.dot(vToProject))/vRef.mag();
-
-
-}
-
-
-double  
-PFDisplacedVertexFinder::getTransvDiff(const GlobalPoint& Ref, const GlobalPoint& ToProject) const {
-
-  Basic3DVector<double>vRef(Ref);
-  Basic3DVector<double>vToProject(ToProject);
-  return fabs(vRef.cross(vToProject).mag()/vRef.mag());
-
+  return std::make_pair(fabs(vRef.cross(vToProject).mag()*oneOverMag),fabs((vRef.dot(vToProject)-vRefMag2)*oneOverMag));
 }
 
 

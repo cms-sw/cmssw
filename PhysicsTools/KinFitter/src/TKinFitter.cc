@@ -211,7 +211,7 @@ void TKinFitter::addMeasParticle( TAbsFitParticle* particle ) {
 
   resetStatus();
 
-  if ( particle != 0 ) {
+  if ( particle != nullptr ) {
     _measParticles.push_back( particle );
   } else {
     edm::LogError ("NullPointer") << "Measured particle points to NULL. It will not be added to the KinFitter.";
@@ -228,15 +228,15 @@ void TKinFitter::addMeasParticles( TAbsFitParticle* p1, TAbsFitParticle* p2, TAb
 
   resetStatus();
 
-  if ( p1 != 0 ) _measParticles.push_back( p1 );
-  if ( p2 != 0 ) _measParticles.push_back( p2 );
-  if ( p3 != 0 ) _measParticles.push_back( p3 );
-  if ( p4 != 0 ) _measParticles.push_back( p4 );
-  if ( p5 != 0 ) _measParticles.push_back( p5 );
-  if ( p6 != 0 ) _measParticles.push_back( p6 );
-  if ( p7 != 0 ) _measParticles.push_back( p7 );
-  if ( p8 != 0 ) _measParticles.push_back( p8 );
-  if ( p9 != 0 ) _measParticles.push_back( p9 );
+  if ( p1 != nullptr ) _measParticles.push_back( p1 );
+  if ( p2 != nullptr ) _measParticles.push_back( p2 );
+  if ( p3 != nullptr ) _measParticles.push_back( p3 );
+  if ( p4 != nullptr ) _measParticles.push_back( p4 );
+  if ( p5 != nullptr ) _measParticles.push_back( p5 );
+  if ( p6 != nullptr ) _measParticles.push_back( p6 );
+  if ( p7 != nullptr ) _measParticles.push_back( p7 );
+  if ( p8 != nullptr ) _measParticles.push_back( p8 );
+  if ( p9 != nullptr ) _measParticles.push_back( p9 );
 
   countMeasParams();
 
@@ -247,7 +247,7 @@ void TKinFitter::addUnmeasParticle( TAbsFitParticle* particle ) {
 
   resetStatus();
 
-  if ( particle != 0 ) {
+  if ( particle != nullptr ) {
     _unmeasParticles.push_back( particle );
   } else {
     edm::LogError ("NullPointer") << "Unmeasured particle points to NULL. It will not be added to the KinFitter.";
@@ -264,15 +264,15 @@ void TKinFitter::addUnmeasParticles( TAbsFitParticle* p1, TAbsFitParticle* p2, T
 
   resetStatus();
 
-  if ( p1 != 0 ) _unmeasParticles.push_back( p1 );
-  if ( p2 != 0 ) _unmeasParticles.push_back( p2 );
-  if ( p3 != 0 ) _unmeasParticles.push_back( p3 );
-  if ( p4 != 0 ) _unmeasParticles.push_back( p4 );
-  if ( p5 != 0 ) _unmeasParticles.push_back( p5 );
-  if ( p6 != 0 ) _unmeasParticles.push_back( p6 );
-  if ( p7 != 0 ) _unmeasParticles.push_back( p7 );
-  if ( p8 != 0 ) _unmeasParticles.push_back( p8 );
-  if ( p9 != 0 ) _unmeasParticles.push_back( p9 );
+  if ( p1 != nullptr ) _unmeasParticles.push_back( p1 );
+  if ( p2 != nullptr ) _unmeasParticles.push_back( p2 );
+  if ( p3 != nullptr ) _unmeasParticles.push_back( p3 );
+  if ( p4 != nullptr ) _unmeasParticles.push_back( p4 );
+  if ( p5 != nullptr ) _unmeasParticles.push_back( p5 );
+  if ( p6 != nullptr ) _unmeasParticles.push_back( p6 );
+  if ( p7 != nullptr ) _unmeasParticles.push_back( p7 );
+  if ( p8 != nullptr ) _unmeasParticles.push_back( p8 );
+  if ( p9 != nullptr ) _unmeasParticles.push_back( p9 );
 
   countUnmeasParams();
 
@@ -283,7 +283,7 @@ void TKinFitter::addConstraint( TAbsFitConstraint* constraint ) {
 
   resetStatus();
 
-  if ( constraint != 0 ) {
+  if ( constraint != nullptr ) {
     _constraints.push_back( constraint );
   }
 
@@ -599,7 +599,7 @@ Bool_t TKinFitter::calcB() {
     TAbsFitConstraint* constraint = _constraints[iC];
     TMatrixD* deriv = constraint->getDerivativeAlpha();
 
-    if (deriv != 0) {
+    if (deriv != nullptr) {
 
       if (_verbosity >= 3) {
 	TString matrixName = "B deriv alpha: Constraint -> ";
@@ -1282,15 +1282,15 @@ void TKinFitter::printMatrix(const TMatrixD &matrix, const TString& name) {
 
   for (Int_t iSheet = 0; iSheet < nCols; iSheet += colsPerSheet) {
     log << "\n"
-	<< "     |";
-    for (Int_t iCol = iSheet; iCol < iSheet+colsPerSheet && iCol < nCols; iCol++)
-      log << std::setw(8) << iCol << "    |";
-    log << "\n"
-	<< topbar << " \n";
+	 << "     |";
+    for (Int_t iCol = iSheet; iCol < nCols; iCol++) {
+      if (iCol < iSheet+colsPerSheet) log << std::setw(8) << iCol << "    |";}
+    log << "\n" 
+	 << topbar << " \n";
     for(Int_t iRow = 0; iRow < nRows; iRow++) {
       log << std::setw(4) << iRow << " |";
-      for (Int_t iCol = iSheet; iCol < iSheet+colsPerSheet && iCol < nCols; iCol++)
-	log << std::setw(12) << matrix(iRow, iCol) << " ";
+      for (Int_t iCol = iSheet; iCol < nCols; iCol++) {
+          if (iCol < iSheet+colsPerSheet ) log << std::setw(12) << matrix(iRow, iCol) << " "; }
       log << "\n";
     }
   }

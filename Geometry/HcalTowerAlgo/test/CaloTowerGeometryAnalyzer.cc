@@ -45,7 +45,7 @@ class CaloTowerGeometryAnalyzer : public edm::one::EDAnalyzer<>
 {
 public:
   explicit CaloTowerGeometryAnalyzer( const edm::ParameterSet& );
-  ~CaloTowerGeometryAnalyzer( void );
+  ~CaloTowerGeometryAnalyzer( void ) override;
     
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -74,8 +74,9 @@ CaloTowerGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::Eve
   std::fstream fAll( std::string( m_fname + ".all" ).c_str(), std::ios_base::out );
   std::fstream f( std::string( m_fname + ".diff" ).c_str(), std::ios_base::out );
 
-  edm::ESHandle<CaloGeometry> caloGeom;
-  iSetup.get<CaloGeometryRecord>().get( caloGeom );
+  edm::ESHandle<CaloGeometry> caloGeomHandle;
+  iSetup.get<CaloGeometryRecord>().get(caloGeomHandle);
+  const CaloGeometry* caloGeom = caloGeomHandle.product();
 
   const std::vector<DetId>& dha( caloGeom->getSubdetectorGeometry( DetId::Hcal, 1 )->getValidDetIds());
 
@@ -97,12 +98,12 @@ CaloTowerGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::Eve
     << std::setw( 13 ) << "Phi"
     << std::setw( 18 ) << "Corners in Eta\n";
 
-  for( std::vector<DetId>::const_iterator i( ids.begin()), iEnd( ids.end()) ; i != iEnd; ++i )
+  for(auto id : ids)
   {    
-    const CaloGenericDetId cgid( *i );
+    const CaloGenericDetId cgid( id );
     if( cgid.isCaloTower()) 
     {
-      const CaloTowerDetId cid( *i );
+      const CaloTowerDetId cid( id );
       const int ie( cid.ieta());
       const int ip( cid.iphi());
       const int iz( cid.zside());
@@ -112,7 +113,7 @@ CaloTowerGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::Eve
 	   << std::setw( 4 ) << iz
 	   << std::setw( 6 ) << "-";
       
-      const CaloCellGeometry *cell = caloGeom->getGeometry( *i );
+      auto cell = caloGeom->getGeometry( id );
       assert( cell );
       const GlobalPoint& pos = cell->getPosition();
       double eta = pos.eta();
@@ -129,9 +130,9 @@ CaloTowerGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::Eve
       }
       fAll << "\n";
       
-      for( std::vector<DetId>::const_iterator ii( dha.begin()), iiEnd( dha.end()); ii != iiEnd; ++ii )
+      for(auto ii : dha)
       {
-	const HcalDetId hid( *ii );
+	const HcalDetId hid( ii );
 	const int iie( hid.ieta());
 	const int iip( hid.iphi());
 	const int iiz( hid.zside());
@@ -149,7 +150,7 @@ CaloTowerGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::Eve
 	    fAll << std::setw( 4 ) << iter->second.c_str() << ":" << iid;
 	  }
 	  
-	  const CaloCellGeometry *hcell = caloGeom->getGeometry( *ii );
+	  auto hcell = caloGeom->getGeometry( ii );
 	  assert( hcell );
 	  const GlobalPoint& hpos = hcell->getPosition();
 	  double heta = hpos.eta();

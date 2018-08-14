@@ -18,40 +18,20 @@
 #include "G4SDManager.hh"
 #include "G4ios.hh"
 
-FiberSD::FiberSD(std::string name, const DDCompactView & cpv, 
+FiberSD::FiberSD(const std::string& iname, const DDCompactView & cpv, 
 		 const SensitiveDetectorCatalog & clg, edm::ParameterSet const & p,
 		 const SimTrackManager* manager) :
-  SensitiveCaloDetector(name, cpv, clg, p), theName(name),
-  m_trackManager(manager), theHCID(-1), theHC(0) {
+  SensitiveCaloDetector(iname, cpv, clg, p),
+  m_trackManager(manager), theHCID(-1), theHC(nullptr) {
 
-  collectionName.insert(name);
-  LogDebug("FiberSim") << "***************************************************"
-		       << "\n"
-		       << "*                                                 *"
-		       << "\n"
-		       << "* Constructing a FiberSD  with name " << GetName()
-		       << "\n"
-		       << "*                                                 *"
-		       << "\n"
-		       << "***************************************************";
-  theShower = new HFShower(name, cpv, p, 1);
+  theShower = new HFShower(iname, cpv, p, 1);
 
-  //
-  // Now attach the right detectors (LogicalVolumes) to me
-  //
-  const std::vector<std::string>& lvNames = clg.logicalNames(name);
-  this->Register();
-  for (std::vector<std::string>::const_iterator it=lvNames.begin();
-       it !=lvNames.end(); it++){
-    this->AssignSD(*it);
-    LogDebug("FiberSim") << "FiberSD : Assigns SD to LV " << (*it);
-  }
 }
 
 FiberSD::~FiberSD() {
  
-  if (theShower) delete theShower;
-  if (theHC)     delete theHC;
+  delete theShower;
+  delete theHC;
 }
 
 void FiberSD::Initialize(G4HCofThisEvent * HCE) {
@@ -71,7 +51,7 @@ G4bool FiberSD::ProcessHits(G4Step * aStep, G4TouchableHistory*) {
   std::vector<HFShower::Hit> hits = theShower->getHits(aStep,true,zoffset);
 
   
-  if (hits.size() > 0) {
+  if (!hits.empty()) {
     std::vector<HFShowerPhoton> thePE;
     for (unsigned int i=0; i<hits.size(); i++) {
       //std::cout<<"hit position z "<<hits[i].position.z()<<std::endl;
@@ -135,7 +115,7 @@ void FiberSD::update(const BeginOfJob * job) {
   es->get<HcalSimNumberingRecord>().get(hdc);
   if (hdc.isValid()) {
     HcalDDDSimConstants *hcalConstants = (HcalDDDSimConstants*)(&(*hdc));
-    theShower->initRun(0, hcalConstants);
+    theShower->initRun(hcalConstants);
   } else {
     edm::LogError("HcalSim") << "HCalSD : Cannot find HcalDDDSimConstant";
     throw cms::Exception("Unknown", "HCalSD") << "Cannot find HcalDDDSimConstant" << "\n";
@@ -151,7 +131,7 @@ void FiberSD::update(const ::EndOfEvent *) {}
 
 void FiberSD::clearHits() {}
 
-uint32_t FiberSD::setDetUnitId(G4Step* aStep) {
+uint32_t FiberSD::setDetUnitId(const G4Step* aStep) {
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   int fibre = (touch->GetReplicaNumber(1))%10;
   int cell  = (touch->GetReplicaNumber(2));
@@ -159,4 +139,4 @@ uint32_t FiberSD::setDetUnitId(G4Step* aStep) {
   return ((tower*1000+cell)*10+fibre);
 }
 
-void FiberSD::fillHits(edm::PCaloHitContainer&, std::string) {}
+void FiberSD::fillHits(edm::PCaloHitContainer&, const std::string&) {}

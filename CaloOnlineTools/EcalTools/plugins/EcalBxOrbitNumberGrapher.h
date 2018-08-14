@@ -50,13 +50,13 @@
 class EcalBxOrbitNumberGrapher : public edm::EDAnalyzer {
    public:
       explicit EcalBxOrbitNumberGrapher(const edm::ParameterSet&);
-      ~EcalBxOrbitNumberGrapher();
+      ~EcalBxOrbitNumberGrapher() override;
 
 
    private:
-      virtual void beginJob();
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       void initHists(int);
 
     // ----------member data ---------------------------

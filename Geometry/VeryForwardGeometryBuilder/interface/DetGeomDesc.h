@@ -9,25 +9,22 @@
 #ifndef Geometry_VeryForwardGeometryBuilder_DetGeomDesc
 #define Geometry_VeryForwardGeometryBuilder_DetGeomDesc
 
+#include <utility>
+
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
-#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
-#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 class DDFilteredView;
 class RPAlignmentCorrectionData;
 
-
 /**
- * \brief Geometrical description of a detector.
- *
- * See schema of \ref TotemRPGeometry "TOTEM RP geometry classes"
+ * \brief Geometrical description of a sensor.
  *
  * Class resembling GeometricDet class. Slight changes were made to suit needs of the TOTEM RP description.
  * Each instance is a tree node, with geometrical information from DDD (shift, rotation, material, ...), ID and list of children nodes.
- * It is intended to have two such a trees. One for ideal geometry (within IdealGeometryRecord) and second for real geometry (VeryForwardRealGeometryRecord).
- * The transition from ideal to real geometry (i.e. loading alignments) is done by TotemRPRealGeometryModule.
  * 
  * The <b>translation</b> and <b>rotation</b> parameters are defined by <b>local-to-global</b>
  * coordinate transform. That is, if r_l is a point in local coordinate system and x_g in global,
@@ -72,7 +69,7 @@ class DetGeomDesc
 
 		/// components (children) management
 		void setComponents(Container cont)
-			{ _container = cont; }
+			{ _container = std::move(cont); }
 		void addComponents(Container cont);
 		void addComponent(DetGeomDesc*);
 		void clearComponents()
@@ -80,7 +77,7 @@ class DetGeomDesc
 		void deleteComponents(); 									/// deletes just the first daughters
 		void deepDeleteComponents();  								///traverses the treee and deletes all nodes.
 		bool isLeaf() const 
-			{ return (_container.size() == 0); }
+			{ return (_container.empty()); }
 		
 		/// geometry information
 		DDRotationMatrix	rotation() const {return _rot;}

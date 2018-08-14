@@ -21,13 +21,18 @@
 // system include files
 
 // user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/AbilityToImplementor.h"
 #include "FWCore/Framework/interface/stream/CacheContexts.h"
 #include "FWCore/Framework/interface/stream/Contexts.h"
 #include "FWCore/Framework/interface/stream/AbilityChecker.h"
 #include "FWCore/Framework/interface/stream/EDFilterBase.h"
+#include "FWCore/Framework/interface/stream/ProducingModuleHelper.h"
 // forward declarations
 namespace edm {
+
+  class WaitingTaskWithArenaHolder;
+
   namespace stream {
     template< typename... T>
     class EDFilter : public AbilityToImplementor<T>::Type...,
@@ -58,12 +63,26 @@ namespace edm {
       // ---------- static member functions --------------------
       
       // ---------- member functions ---------------------------
-      
+
+      bool hasAbilityToProduceInRuns() const final {
+        return HasAbilityToProduceInRuns<T...>::value;
+      }
+
+      bool hasAbilityToProduceInLumis() const final {
+        return HasAbilityToProduceInLumis<T...>::value;
+      }
+
     private:
       EDFilter(const EDFilter&) = delete; // stop default
       
       const EDFilter& operator=(const EDFilter&) = delete; // stop default
-      
+
+      void doAcquire_(Event const& ev,
+                      EventSetup const& es,
+                      WaitingTaskWithArenaHolder& holder) override final {
+        doAcquireIfNeeded(this, ev, es, holder);
+      }
+
       // ---------- member data --------------------------------
       
     };

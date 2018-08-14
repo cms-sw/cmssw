@@ -14,14 +14,14 @@ class PulseFitWithShape: public TObject
   PulseFitWithShape() ;
 
   // Destructor: Does nothing
-  virtual ~PulseFitWithShape() ;
+  ~PulseFitWithShape() override ;
 
   // Initialize 
   virtual void init(int,int,int,int,int,const std::vector <double>&,double) ;
 
   // Compute amplitude of a channel
 
-  virtual double doFit(double *,double *cova=0) ;
+  virtual double doFit(double *,double *cova=nullptr) ;
   
   double fAmp_fitted_max ; // amplitude maximum fitted
   double fTim_fitted_max ; // time of amplitude maximum fitted 
@@ -44,7 +44,7 @@ class PulseFitWithShape: public TObject
   int     fNum_samp_after_max  ; // number of samples after  maximum sample
  
   
-  ClassDef(PulseFitWithShape,0)     //!< The processed part of the class is persistant
+  ClassDefOverride(PulseFitWithShape,0)     //!< The processed part of the class is persistant
 
 } ;
 

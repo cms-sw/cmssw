@@ -10,7 +10,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
@@ -32,8 +32,8 @@ class Phase2TrackerRecHits : public edm::global::EDProducer<> {
         public:
 
             explicit Phase2TrackerRecHits(const edm::ParameterSet& conf);
-            virtual ~Phase2TrackerRecHits() {};
-            void produce(edm::StreamID sid, edm::Event& event, const edm::EventSetup& eventSetup) const override     final;
+            ~Phase2TrackerRecHits() override {};
+            void produce(edm::StreamID sid, edm::Event& event, const edm::EventSetup& eventSetup) const     final;
 
         private:
 

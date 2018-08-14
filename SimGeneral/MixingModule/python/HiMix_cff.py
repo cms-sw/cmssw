@@ -35,5 +35,6 @@ mix = cms.EDProducer("MixingModule",
     mixObjects = cms.PSet(theMixObjects)
 )
 
+mix.mixObjects.mixHepMC.makeCrossingFrame = True
 
 

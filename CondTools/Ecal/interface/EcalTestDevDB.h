@@ -40,10 +40,10 @@ namespace edm {
 class  EcalTestDevDB : public edm::EDAnalyzer {
  public:
   explicit  EcalTestDevDB(const edm::ParameterSet& iConfig );
-  ~EcalTestDevDB();
+  ~EcalTestDevDB() override;
 
 
-  virtual void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup);
+  void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup) override;
 
   EcalPedestals* generateEcalPedestals();
   EcalADCToGeVConstant* generateEcalADCToGeVConstant();

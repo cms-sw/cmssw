@@ -49,9 +49,9 @@ protected:
    virtual void doNextTaskImp() = 0;
    virtual bool moreTasksAvailable() = 0;
 private:
-   CmsShowTaskExecutorBase(const CmsShowTaskExecutorBase&); // stop default
+   CmsShowTaskExecutorBase(const CmsShowTaskExecutorBase&) = delete; // stop default
 
-   const CmsShowTaskExecutorBase& operator=(const CmsShowTaskExecutorBase&); // stop default
+   const CmsShowTaskExecutorBase& operator=(const CmsShowTaskExecutorBase&) = delete; // stop default
 
    // ---------- member data --------------------------------
    //TTimer* m_timer;

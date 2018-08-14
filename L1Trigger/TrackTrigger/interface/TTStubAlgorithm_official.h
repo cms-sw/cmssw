@@ -68,14 +68,18 @@ class TTStubAlgorithm_official : public TTStubAlgorithm< T >
     }
 
     /// Destructor
-    ~TTStubAlgorithm_official(){}
+    ~TTStubAlgorithm_official() override{}
 
     /// Matching operations
     void PatternHitCorrelation( bool &aConfirmation,
                                 int &aDisplacement,
                                 int &anOffset,
-                                const TTStub< T > &aTTStub ) const;
+				float &anROffset,
+				float &anHardBend,
+                                const TTStub< T > &aTTStub ) const override;
 
+    float degradeBend(bool psModule, int window, int bend) const;
+    
 }; /// Close class
 
 /*! \brief   Implementation of methods
@@ -90,7 +94,13 @@ template< >
 void TTStubAlgorithm_official< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( bool &aConfirmation,
                                                                        int &aDisplacement,
                                                                        int &anOffset,
+								       float &anROffset,
+								       float &anHardBend,
                                                                        const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const;
+
+template< >
+float TTStubAlgorithm_official< Ref_Phase2TrackerDigi_ >::degradeBend(bool psModule, int window, int bend) const;
+
 
 /*! \class   ES_TTStubAlgorithm_official
  *  \brief   Class to declare the algorithm to the framework
@@ -105,7 +115,6 @@ class ES_TTStubAlgorithm_official : public edm::ESProducer
 {
   private:
     /// Data members
-    std::shared_ptr< TTStubAlgorithm< T > > _theAlgo;
 
     /// Windows
     std::vector< double >                setBarrelCut;
@@ -146,10 +155,10 @@ class ES_TTStubAlgorithm_official : public edm::ESProducer
     }
 
     /// Destructor
-    virtual ~ES_TTStubAlgorithm_official(){}
+    ~ES_TTStubAlgorithm_official() override{}
 
     /// Implement the producer
-    std::shared_ptr< TTStubAlgorithm< T > > produce( const TTStubAlgorithmRecord & record )
+    std::unique_ptr< TTStubAlgorithm< T > > produce( const TTStubAlgorithmRecord & record )
     { 
       edm::ESHandle< TrackerGeometry > tGeomHandle;
       record.getRecord< TrackerDigiGeometryRecord >().get( tGeomHandle );
@@ -162,8 +171,7 @@ class ES_TTStubAlgorithm_official : public edm::ESProducer
 									    setBarrelCut, setRingCut, setTiltedCut, setBarrelNTilt,
 									    mPerformZMatchingPS, mPerformZMatching2S);
 
-      _theAlgo = std::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
-      return _theAlgo;
+      return std::unique_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
     } 
 
 };

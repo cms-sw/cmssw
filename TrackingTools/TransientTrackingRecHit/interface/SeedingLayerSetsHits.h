@@ -13,15 +13,8 @@ class DetLayer;
 
 /**
  * Class to store TransientTrackingRecHits, names, and DetLayer
- * pointers of each ctfseeding::SeedingLayer as they come from
- * SeedingLayerSetsBuilder.
- *
- * In contrast to ctfseeding::SeedingLayerSets, this class requires
- * that all contained SeedingLayerSets have the same number of layers
- * in each set.
- *
- * This class was created in part for SeedingLayer getByToken
- * migration, and in part as a performance improvement.
+ * pointers of each seeding layer. It is required that all contained
+ * SeedingLayerSets have the same number of layers in each set.
  */
 class SeedingLayerSetsHits {
 public:
@@ -44,7 +37,7 @@ public:
    */
   class SeedingLayer {
   public:
-    SeedingLayer(): seedingLayerSets_(0), index_(0) {}
+    SeedingLayer(): seedingLayerSets_(nullptr), index_(0) {}
     SeedingLayer(const SeedingLayerSetsHits *sls, LayerIndex index):
       seedingLayerSets_(sls), index_(index) {}
 
@@ -56,7 +49,7 @@ public:
      */
     LayerIndex index() const { return index_; }
     const std::string& name() const { return (*seedingLayerSets_->layerNames_)[index_]; }
-    const DetLayer *detLayer() const { return seedingLayerSets_->layerDets_[index_]; }
+    const DetLayer *detLayer() const { return (*seedingLayerSets_->layerDets_)[index_]; }
     Hits hits() const { return seedingLayerSets_->hits(index_); }
 
   private:
@@ -79,7 +72,7 @@ public:
       typedef SeedingLayer value_type;
       typedef internal_iterator_type::difference_type difference_type;
 
-      const_iterator(): seedingLayerSets_(0) {}
+      const_iterator(): seedingLayerSets_(nullptr) {}
       const_iterator(const SeedingLayerSetsHits *sls, internal_iterator_type iter): seedingLayerSets_(sls), iter_(iter) {}
 
       value_type operator*() const { return SeedingLayer(seedingLayerSets_, *iter_); }
@@ -99,7 +92,7 @@ public:
       internal_iterator_type iter_;
     };
 
-    SeedingLayerSet(): seedingLayerSets_(0) {}
+    SeedingLayerSet(): seedingLayerSets_(nullptr) {}
     SeedingLayerSet(const SeedingLayerSetsHits *sls, std::vector<LayerSetIndex>::const_iterator begin, std::vector<LayerSetIndex>::const_iterator end):
       seedingLayerSets_(sls), begin_(begin), end_(end) {}
 
@@ -148,7 +141,7 @@ public:
     typedef SeedingLayerSet value_type;
     typedef internal_iterator_type::difference_type difference_type;
 
-    const_iterator(): seedingLayerSets_(0) {}
+    const_iterator(): seedingLayerSets_(nullptr) {}
     const_iterator(const SeedingLayerSetsHits *sls, internal_iterator_type iter): seedingLayerSets_(sls), iter_(iter) {}
 
     value_type operator*() const { return SeedingLayerSet(seedingLayerSets_, iter_, iter_+seedingLayerSets_->nlayers_); }
@@ -169,7 +162,7 @@ public:
   };
 
 
-  SeedingLayerSetsHits();
+  SeedingLayerSetsHits() = default;
 
   /**
    * Constructor.
@@ -177,21 +170,22 @@ public:
    * \param nlayers         Number of layers in each SeedingLayerSet
    * \param layerSetIndices Pointer to a vector holding the indices of layer sets (pointer to vector is stored)
    * \param layerNames      Pointer to a vector holding the layer names (pointer to vector is stored)
-   * \param layerDets       Vector of pointers to layer DetLayer objects (vector is copied, i.e. DetLayer pointers are stored)
+   * \param layerDets       Pointer to a vector of pointers to layer DetLayer objects (pointer to vector is stored)
    */
   SeedingLayerSetsHits(unsigned short nlayers,
                        const std::vector<LayerSetIndex> *layerSetIndices,
                        const std::vector<std::string> *layerNames,
-                       const std::vector<const DetLayer *>& layerDets);
+                       const std::vector<const DetLayer *> *layerDets);
 
-  ~SeedingLayerSetsHits();
-   SeedingLayerSetsHits(SeedingLayerSetsHits const&)=delete;
-   SeedingLayerSetsHits& operator=(SeedingLayerSetsHits const&)=delete;
-   SeedingLayerSetsHits(SeedingLayerSetsHits &&)=default;           
-   SeedingLayerSetsHits& operator=(SeedingLayerSetsHits &&)=default;
+  ~SeedingLayerSetsHits() = default;
+  SeedingLayerSetsHits(SeedingLayerSetsHits const&)=delete;
+  SeedingLayerSetsHits& operator=(SeedingLayerSetsHits const&)=delete;
+  SeedingLayerSetsHits(SeedingLayerSetsHits &&)=default;
+  SeedingLayerSetsHits& operator=(SeedingLayerSetsHits &&)=default;
 
 
-  void swapHits(std::vector<HitIndex>& layerHitIndices,  OwnedHits& hits);
+  void shrink_to_fit();
+  void addHits(LayerIndex layerIndex, OwnedHits&& hits);
 
 
   /// Get number of layers in each SeedingLayerSets
@@ -218,7 +212,7 @@ public:
     std::swap(layerSetIndices_, other.layerSetIndices_);
     layerHitIndices_.swap(other.layerHitIndices_);
     std::swap(layerNames_, other.layerNames_);
-    layerDets_.swap(other.layerDets_);
+    std::swap(layerDets_, other.layerDets_);
     rechits_.swap(other.rechits_);
   }
 
@@ -228,19 +222,19 @@ private:
   Hits hits(LayerIndex layerIndex) const;
 
   /// Number of layers in a SeedingLayerSet
-  unsigned short nlayers_;
+  unsigned short nlayers_ = 0;
 
   /**
    * Stores SeedingLayerSets as nlayers_ consecutive layer indices.
    * Layer indices point to layerHitRanges_, layerNames_, and
    * layerDets_. Hence layerSetIndices.size() == nlayers_*"number of layer sets"
    */
-  const std::vector<LayerSetIndex> *layerSetIndices_;
+  const std::vector<LayerSetIndex> *layerSetIndices_ = nullptr;
 
   // following are indexed by LayerIndex
   std::vector<HitIndex> layerHitIndices_; // Indices to first hits in rechits_
-  const std::vector<std::string> *layerNames_; // Names of the layers
-  std::vector<const DetLayer *> layerDets_; // Pointers to corresponding DetLayer objects
+  const std::vector<std::string> *layerNames_ = nullptr; // Names of the layers
+  const std::vector<const DetLayer *> *layerDets_ = nullptr; // Pointers to corresponding DetLayer objects
 
   /**
    * List of RecHits of all SeedingLayers. Hits of each layer are

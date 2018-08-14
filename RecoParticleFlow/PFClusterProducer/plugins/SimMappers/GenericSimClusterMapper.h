@@ -14,11 +14,11 @@ class GenericSimClusterMapper : public InitialClusteringStepBase {
     InitialClusteringStepBase(conf,sumes) { 
       _simClusterToken = sumes.consumes<SimClusterCollection>(conf.getParameter<edm::InputTag>("simClusterSrc"));
     }
-  virtual ~GenericSimClusterMapper() {}
+  ~GenericSimClusterMapper() override = default;
   GenericSimClusterMapper(const B2DGT&) = delete;
   B2DGT& operator=(const B2DGT&) = delete;
 
-  virtual void updateEvent(const edm::Event&) override final;
+  void updateEvent(const edm::Event&) final;
 
   void buildClusters(const edm::Handle<reco::PFRecHitCollection>&,
 		     const std::vector<bool>&,

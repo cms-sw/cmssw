@@ -34,82 +34,312 @@ namespace hcaldqm
 			fRatio2 = 19,
 			fdEtRatio = 20,
 			fSumdEt = 21,
-			fTiming_20TS = 22,
-
+			fTiming_100TS = 22,
 			fQIE10ADC_256 = 23,
 			fQIE10TDC_64 = 24,
 			fQIE10TDC_16 = 25,
 			fDiffAbs = 26,
-
 			fRatio_0to2 = 27,
-			fN_to3000 = 28,
+			fN_to8000 = 28,
 			fEnergyTotal = 29,
 			fN_m0to10000 = 30,
 			fEtCorr_256 = 31,
 			fADCCorr_128 = 32,
-
 			fBX = 33,
 			fEnergy_1TeV = 34,
 			fState = 35,
-
-			fQIE10fC_300000 = 36,
+			fQIE10fC_400000 = 36,
 			fDataSize = 37,
 			fQIE10fC_2000 = 38,
-			fQIE8fC_1000_50 = 39,
-			nValueQuantityType = 40
+			fQIE10fC_10000 = 39,
+			fQIE8fC_1000_50 = 40,
+			fTime_ns_250 = 41,
+			fADC_256 = 42,
+			ffC_generic_10000 = 43,
+			ffC_generic_400000 = 44,
+			fQIE10ADC_16 = 45,
+			fDualAnodeAsymmetry = 46,
+			fTimingRatio = 47,
+			fQIE10fC_100000Coarse = 48,
+			fBadTDC = 49,
+			fRBX = 50,
+			fTimingDiff_ns = 51,
+			ffC_1000000 = 52,
+			fTime_ns_250_coarse = 53,
+			fCapidMinusBXmod4 = 54,
 		};
-		std::string const name_value[nValueQuantityType] = {
-			"N", "Events", "Energy", "Timing", "ADC (QIE8)", "ADC (QIE8)", "ADC QIE8()",
-			"fC (QIE8)", "fC (QIE8)", "fC (QIE8)", "Timing", "Timing", "LS", "Et", "Et",
-			"FG", "Ratio", "DigiSize", "Q", "Ratio",
-			"dEtRatio", "SumdEt", "Timing", "ADC (QIE10)", "TDC", "TDC",
-			"Q", "Ratio", "N", "Energy", "N", "Et", "ADC", "BX",
-			"Energy", "State", "fC (QIE10)", "FED Data Size (kB)", "fC (QIE10)",
-			"fC (QIE8)"
+		const std::map<ValueQuantityType, std::string> name_value = {
+			{fN,"N"},
+			{fEvents,"Events"},
+			{fEnergy,"Energy"},
+			{fTiming_ns,"Timing"},
+			{fADC_5,"ADC (QIE8)"},
+			{fADC_15,"ADC (QIE8)"},
+			{fADC_128,"ADC (QIE8)"},
+			{fADC_256,"ADC"},
+			{fQIE10ADC_256,"ADC (QIE10/11)"},
+			{fQIE10ADC_16,"ADC (QIE10/11)"},
+			{ffC_1000,"fC (QIE8)"},
+			{ffC_3000,"fC (QIE8)"},
+			{ffC_10000,"fC (QIE8)"},
+			{fQIE8fC_1000_50,"fC"},
+			{fQIE10fC_2000,"fC"},
+			{fQIE10fC_10000,"fC"},
+			{fQIE10fC_400000,"fC"},
+			{ffC_generic_10000,"fC (QIE8/10/11)"},
+			{ffC_generic_400000,"fC (QIE8/10/11)"},			
+			{fTiming_TS,"Timing"},
+			{fTiming_TS200,"Timing"},
+			{fLS,"LS"},
+			{fEt_256,"Et"},
+			{fEt_128,"Et"},
+			{fFG,"FG"},
+			{fRatio,"Ratio"},
+			{fDigiSize,"DigiSize"},
+			{fAroundZero,"Q"},
+			{fRatio2,"Ratio"},
+			{fdEtRatio,"dEtRatio"},
+			{fSumdEt,"SumdEt"},
+			{fTiming_100TS,"Timing"},
+			{fQIE10TDC_64,"TDC"},
+			{fQIE10TDC_16,"TDC"},
+			{fDiffAbs,"Q"},
+			{fRatio_0to2,"Ratio"},
+			{fN_to8000,"N"},
+			{fEnergyTotal,"Energy"},
+			{fN_m0to10000,"N"},
+			{fEtCorr_256,"Et"},
+			{fADCCorr_128,"ADC"},
+			{fBX,"BX"},
+			{fEnergy_1TeV,"Energy"},
+			{fState,"State"},
+			{fDataSize,"FED Data Size (kB)"},
+			{fTime_ns_250,"Time (ns)"},
+			{fDualAnodeAsymmetry, "(q_{1}-q_{2})/(q_{1}+q_{2})"},
+			{fTimingRatio, "q_{SOI+1}/q_{SOI}"},
+			{fQIE10fC_100000Coarse,"fC"},
+			{fBadTDC, "TDC"},
+			{fRBX, "RBX"},
+			{fTimingDiff_ns, "#Delta timing [ns]"},
+			{ffC_1000000, "fC"},
+			{fTime_ns_250_coarse, "Time (ns)"},
+			{fCapidMinusBXmod4, "(CapId - BX) % 4"},
 		};
-		double const min_value[nValueQuantityType] = {
-			-0.05, 0, 0, -50, -0.5, -0.5, -0.5, 0, 0, 0, -0.5, 0, 0.5, 0,
-			0, 0, 0, -0.5, -1, 0.5, 0, 0, -0.5, -0.5, -0.5, -0.5,
-			0, 0, 0, 0, -0.05, -2, -2, -0.5, 0, flag::fNA, 0, 0, 0, 0
+		const std::map<ValueQuantityType, double> min_value = {
+			{fN,-0.05},
+			{fEvents,0},
+			{fEnergy,0},
+			{fTiming_ns,-50},
+			{fADC_128,-0.5},
+			{fADC_5,-0.5},
+			{fADC_15,-0.5},
+			{ffC_10000,0},
+			{ffC_1000,0},
+			{ffC_3000,0},
+			{fTiming_TS,-0.5},
+			{fTiming_TS200,-0.5},
+			{fLS,0.5},
+			{fEt_256,0},
+			{fEt_128,0},
+			{fFG,0},
+			{fRatio,0},
+			{fDigiSize,-0.5},
+			{fAroundZero,-1},
+			{fRatio2,0.5},
+			{fdEtRatio,0},
+			{fSumdEt,0},
+			{fTiming_100TS,-0.5},
+			{fQIE10ADC_256,-0.5},
+			{fQIE10ADC_16,-0.5},
+			{fQIE10TDC_64,-0.5},
+			{fQIE10TDC_16,-0.5},
+			{fDiffAbs,0},
+			{fRatio_0to2,0},
+			{fN_to8000,0},
+			{fEnergyTotal,0},
+			{fN_m0to10000,-0.05},
+			{fEtCorr_256,-1},
+			{fADCCorr_128,-2},
+			{fBX,-0.5},
+			{fEnergy_1TeV,0},
+			{fState,flag::fNA},
+			{fQIE10fC_400000,0},
+			{fDataSize,0},
+			{fQIE10fC_2000,0},
+			{fQIE10fC_10000,0},
+			{fQIE8fC_1000_50,0},
+			{fTime_ns_250,-0.5},
+			{fADC_256,-0.5},
+			{ffC_generic_10000,0.},
+			{ffC_generic_400000,0.},	
+			{fDualAnodeAsymmetry,-1.},	
+			{fTimingRatio,0.},	
+			{fQIE10fC_100000Coarse,0},
+			{fBadTDC,49.5},
+			{fRBX, 0.5},
+			{fTimingDiff_ns, -125.},
+			{ffC_1000000,0.},
+			{fTime_ns_250_coarse, -0.5},
+			{fCapidMinusBXmod4, -0.5},			
 		};
-		double const max_value[nValueQuantityType] = {
-			1000, 1000, 200, 50, 127.5, 5, 15, 10000, 1000, 3000,
-			9.5, 9.5, 4000.5, 255.5, 255.5, 2, 1, 20.5, 1, 1.5, 
-			1, 1000, 9.5, 255.5, 63.5, 15.5, 1, 2, 3000, 100000, 10000,
-			256, 128, 3600.5, 1000, flag::nState, 300000, 100, 2000, 1000
+		const std::map<ValueQuantityType, double> max_value = {
+			{fN,1000},
+			{fEvents,1000},
+			{fEnergy,200},
+			{fTiming_ns,50},
+			{fADC_128,127.5},
+			{fADC_5,5},
+			{fADC_15,15},
+			{ffC_10000,10000},
+			{ffC_1000,1000},
+			{ffC_3000,3000},
+			{fTiming_TS,9.5},
+			{fTiming_TS200,9.5},
+			{fLS,4000.5},
+			{fEt_256,255.5},
+			{fEt_128,255.5},
+			{fFG,2},
+			{fRatio,1},
+			{fDigiSize,20.5},
+			{fAroundZero,1},
+			{fRatio2,1.5},
+			{fdEtRatio,1},
+			{fSumdEt,1000},
+			{fTiming_100TS,99.5},
+			{fQIE10ADC_256,255.5},
+			{fQIE10ADC_16,15.5},
+			{fQIE10TDC_64,63.5},
+			{fQIE10TDC_16,15.5},
+			{fDiffAbs,1},
+			{fRatio_0to2,2},
+			{fN_to8000,8000},
+			{fEnergyTotal,100000},
+			{fN_m0to10000,10000},
+			{fEtCorr_256,257},
+			{fADCCorr_128,128},
+			{fBX,3600.5},
+			{fEnergy_1TeV,1000},
+			{fState,flag::nState},
+			{fQIE10fC_400000,400000},
+			{fDataSize,100},
+			{fQIE10fC_2000,2000},
+			{fQIE10fC_10000,10000},
+			{fQIE8fC_1000_50,1000},
+			{fTime_ns_250,249.5},
+			{fADC_256,255.5},
+			{ffC_generic_10000,10000},
+			{ffC_generic_400000,400000},	
+			{fDualAnodeAsymmetry,1.},
+			{fTimingRatio,2.5},	
+			{fQIE10fC_100000Coarse,100000},
+			{fBadTDC,61.5},
+			{fRBX, 18.5},
+			{fTimingDiff_ns, 125.},
+			{ffC_1000000,1.e6},
+			{fTime_ns_250_coarse, 249.5},
+			{fCapidMinusBXmod4, 3.5},
 		};
-		int const nbins_value[nValueQuantityType] = {
-			200, 200, 100, 200, 128, 100, 300, 1000, 200, 600, 
-			10, 200, 4000, 256, 128, 2, 100, 20, 100, 100, 100, 100, 10,
-			256, 64, 16, 200, 100, 3000, 500, 100, 258, 130, 3601, 200,
-			flag::nState, 10000, 100, 100, 50
+		const std::map<ValueQuantityType, int> nbins_value = {
+			{fN,200},
+			{fEvents,200},
+			{fEnergy,100},
+			{fTiming_ns,200},
+			{fADC_128,128},
+			{fADC_5,100},
+			{fADC_15,300},
+			{ffC_10000,1000},
+			{ffC_1000,200},
+			{ffC_3000,600},
+			{fTiming_TS,10},
+			{fTiming_TS200,200},
+			{fLS,4000},
+			{fEt_256,256},
+			{fEt_128,128},
+			{fFG,2},
+			{fRatio,100},
+			{fDigiSize,21},
+			{fAroundZero,100},
+			{fRatio2,100},
+			{fdEtRatio,100},
+			{fSumdEt,100},
+			{fTiming_100TS,100},
+			{fQIE10ADC_256,256},
+			{fQIE10TDC_64,64},
+			{fQIE10TDC_16,16},
+			{fDiffAbs,200},
+			{fRatio_0to2,100},
+			{fN_to8000,8000},
+			{fEnergyTotal,500},
+			{fN_m0to10000,100},
+			{fEtCorr_256,258},
+			{fADCCorr_128,130},
+			{fBX,3601},
+			{fEnergy_1TeV,200},
+			{fState,flag::nState},
+			{fQIE10fC_400000,1000},
+			{fDataSize,100},
+			{fQIE10fC_2000,100},
+			{fQIE10fC_10000,500},
+			{fQIE8fC_1000_50,50},
+			{fTime_ns_250,250},
+			{fADC_256,256},
+			{ffC_generic_10000,10000},
+			{ffC_generic_400000,10000},	
+			{fDualAnodeAsymmetry,40},
+			{fTimingRatio,50},
+			{fQIE10fC_100000Coarse,1000},
+			{fBadTDC,12},
+			{fRBX, 18},
+			{fTimingDiff_ns, 40},
+			{ffC_1000000,1000},
+			{fTime_ns_250_coarse, 100},
+			{fCapidMinusBXmod4, 4}
 		};
-
 		class ValueQuantity : public Quantity
 		{
 			public:
-				ValueQuantity() : _type(){}
+				ValueQuantity() : _type() {}
 				ValueQuantity(ValueQuantityType type, bool isLog=false) :
-					Quantity(name_value[type], isLog), _type(type)
+					Quantity(name_value.at(type), isLog), _type(type)
 				{}
-				virtual ~ValueQuantity() {}
+				~ValueQuantity() override {}
 
-				virtual ValueQuantity* makeCopy()
+				ValueQuantity* makeCopy() override
 				{return new ValueQuantity(_type, _isLog);}
 
 				//	get Value to be overriden
-				virtual int getValue(int x)
-				{return x;}
-				virtual double getValue(double x)
-				{return x;}
+				int getValue(int x) override
+				{
+					int ret_x = x;
+					if (_showOverflow) {
+						if (x < min()) {
+							ret_x = min();
+						} else if (x > max()) {
+							ret_x = max();
+						}
+					}
+					return ret_x;
+				}
+				double getValue(double x) override
+				{
+					double ret_x = x;
+					if (_showOverflow) {
+						if (x < min()) {
+							ret_x = min();
+						} else if (x > max()) {
+							ret_x = max();
+						}
+					}
+					return ret_x;
+				}
 
 				//	standard properties
-				virtual QuantityType type() {return fValueQuantity;}
-				virtual int nbins() {return nbins_value[_type];}
-				virtual double min() {return min_value[_type];}
-				virtual double max() {return max_value[_type];}
+				QuantityType type() override {return fValueQuantity;}
+				int nbins() override {return nbins_value.at(_type);}
+				double min() override {return min_value.at(_type);}
+				double max() override {return max_value.at(_type);}
 
-				virtual void setBits(TH1* o)
+				void setBits(TH1* o) override
 				{Quantity::setBits(o);setLS(o);}
 				virtual void setLS(TH1* o)
 				{
@@ -117,7 +347,7 @@ namespace hcaldqm
 					{
 						//	for LS axis - set the bit
 						//	set extendable axes.
-						o->SetBit(BIT(BIT_OFFSET+BIT_AXIS_LS));
+						o->SetBit(BIT(constants::BIT_OFFSET+constants::BIT_AXIS_LS));
 		//				o->SetCanExtend(TH1::kXaxis);
 					}
 				}
@@ -129,21 +359,21 @@ namespace hcaldqm
 		class FlagQuantity : public ValueQuantity
 		{
 			public:
-				FlagQuantity(){}
+				FlagQuantity() {}
 				FlagQuantity(std::vector<flag::Flag> const& flags) :
 					_flags(flags) {}
-				virtual ~FlagQuantity() {}
+				~FlagQuantity() override {}
 				
-				virtual FlagQuantity* makeCopy()
+				FlagQuantity* makeCopy() override
 				{return new FlagQuantity(_flags);}
 
-				virtual std::string name() {return "Flag";}
-				virtual int nbins() {return _flags.size();}
-				virtual double min() {return 0;}
-				virtual double max() {return _flags.size();}
-				virtual int getValue(int f) {return f;}
-				virtual uint32_t getBin(int f) {return f+1;}
-				virtual std::vector<std::string> getLabels()
+				std::string name() override {return "Flag";}
+				int nbins() override {return _flags.size();}
+				double min() override {return 0;}
+				double max() override {return _flags.size();}
+				int getValue(int f) override {return f;}
+				uint32_t getBin(int f) override {return f+1;}
+				std::vector<std::string> getLabels() override
 				{
 					std::vector<std::string> vnames;
 					for (std::vector<flag::Flag>::const_iterator
@@ -160,27 +390,58 @@ namespace hcaldqm
 		class LumiSection : public ValueQuantity
 		{
 			public:
-				LumiSection() : ValueQuantity(fLS), _n(4000)
-				{}
-				LumiSection(int n) : ValueQuantity(fLS), 
-					_n(n) 
-				{}
-				virtual ~LumiSection() {}
+				LumiSection() : ValueQuantity(fLS), _n(4000) {}
+				LumiSection(int n) : ValueQuantity(fLS), _n(n) {}
+				~LumiSection() override {}
 				
-				virtual LumiSection* makeCopy()
+				LumiSection* makeCopy() override
 				{return new LumiSection(_n);}
 
-				virtual std::string name() {return "LS";}
-				virtual int nbins() {return _n;}
-				virtual double min() {return 1;}
-				virtual double max() {return _n+1;}
-				virtual int getValue(int l) {return l;}
-				virtual uint32_t getBin(int l) 
+				std::string name() override {return "LS";}
+				int nbins() override {return _n;}
+				double min() override {return 1;}
+				double max() override {return _n+1;}
+				int getValue(int l) override {
+					return l;
+				}
+				uint32_t getBin(int l) override 
 				{return getValue(l);}
-				virtual void setMax(double x) {_n=x;}
+				void setMax(double x) override {_n=x;}
 
 			protected:
 				int _n;
+		};
+
+		/**
+		 * Coarse LumiSection axis. Specify binning (default=10 LS)
+		 */
+		class LumiSectionCoarse : public ValueQuantity
+		{
+			public:
+				LumiSectionCoarse() : ValueQuantity(fLS), _n(4000), _binning(10)
+				{}
+				LumiSectionCoarse(int n, int binning) : ValueQuantity(fLS), 
+					_n(n), _binning(binning)
+				{}
+				~LumiSectionCoarse() override {}
+				
+				LumiSectionCoarse* makeCopy() override
+				{return new LumiSectionCoarse(_n, _binning);}
+
+				std::string name() override {return "LS";}
+				int nbins() override {return (_n + _binning - 1) / _binning;}
+				double min() override {return 1;}
+				double max() override {return _n+1;}
+				int getValue(int l) override {return l;}
+				uint32_t getBin(int l) override 
+				{
+					return (l + _binning - 1) / _binning;
+				}
+				void setMax(double x) override {_n=x;}
+
+			protected:
+				int _n;
+				int _binning;
 		};
 
 		class RunNumber : public ValueQuantity
@@ -188,15 +449,15 @@ namespace hcaldqm
 			public:
 				RunNumber() {}
 				RunNumber(std::vector<int> runs) :
-					_runs(runs) 
+					_runs(runs)
 				{}
-				virtual ~RunNumber() {}
+				~RunNumber() override {}
 
-				virtual std::string name() {return "Run";}
-				virtual int nbins() {return _runs.size();}
-				virtual double min() {return 0;}
-				virtual double max() {return _runs.size();}
-				virtual std::vector<std::string> getLabels()
+				std::string name() override {return "Run";}
+				int nbins() override {return _runs.size();}
+				double min() override {return 0;}
+				double max() override {return _runs.size();}
+				std::vector<std::string> getLabels() override
 				{
 					char name[10];
 					std::vector<std::string> labels;
@@ -207,7 +468,7 @@ namespace hcaldqm
 					}
 					return labels;
 				}
-				virtual int getValue(int run)
+				int getValue(int run) override
 				{
 					int ir = -1;
 					for (uint32_t i=0; i<_runs.size(); i++)
@@ -224,7 +485,7 @@ namespace hcaldqm
 					return ir;
 				}
 
-				virtual uint32_t getBin(int run)
+				uint32_t getBin(int run) override
 				{
 					return (this->getValue(run)+1);
 				}
@@ -240,12 +501,12 @@ namespace hcaldqm
 				EventNumber(int nevents) :
 					ValueQuantity(fN), _nevents(nevents)
 				{}
-				virtual ~EventNumber() {}
+				~EventNumber() override {}
 
-				virtual std::string name() {return "Event";}
-				virtual int nbins() {return _nevents;}
-				virtual double min() {return 0.5;}
-				virtual double max() {return _nevents+0.5;}
+				std::string name() override {return "Event";}
+				int nbins() override {return _nevents;}
+				double min() override {return 0.5;}
+				double max() override {return _nevents+0.5;}
 
 			protected:
 				int _nevents;
@@ -258,7 +519,7 @@ namespace hcaldqm
 				EventType(std::vector<uint32_t> const& vtypes):
 					ValueQuantity(fN)
 				{this->setup(vtypes);}
-				virtual ~EventType() {}
+				~EventType() override {}
 
 				virtual void setup(std::vector<uint32_t> const& vtypes)
 				{
@@ -266,37 +527,36 @@ namespace hcaldqm
 					for (uint32_t i=0; i<vtypes.size(); i++)
 						_types.insert(std::make_pair((uint32_t)vtypes[i], i));
 				}
-				virtual int getValue(int v)
+				int getValue(int v) override
 				{
 					return _types[(uint32_t)v];
 				}
-				virtual uint32_t getBin(int v)
+				uint32_t getBin(int v) override
 				{
 					return getValue(v)+1;
 				}
 
-				virtual int nbins() {return _types.size();}
-				virtual double min() {return 0;}
-				virtual double max() {return _types.size();}
-				virtual std::string name() {return "Event Type";}
+				int nbins() override {return _types.size();}
+				double min() override {return 0;}
+				double max() override {return _types.size();}
+				std::string name() override {return "Event Type";}
 
 			protected:
 				typedef boost::unordered_map<uint32_t, int> TypeMap;
 				TypeMap _types;
 
 			public:
-				virtual std::vector<std::string> getLabels()
+				std::vector<std::string> getLabels() override
 				{
 					std::vector<std::string> labels(_types.size());
 					std::cout << "SIZE = " << _types.size() << std::endl;
 					BOOST_FOREACH(TypeMap::value_type &v, _types)
 					{
-						labels[v.second] = utilities::ogtype2string((OrbitGapType) 
-							v.first);
+						labels[v.second] = utilities::ogtype2string((constants::OrbitGapType)v.first);
 					}
 					return labels;
 				}
-				virtual EventType* makeCopy()
+				EventType* makeCopy() override
 				{
 					std::vector<uint32_t> vtypes;
 					BOOST_FOREACH(TypeMap::value_type &p, _types)

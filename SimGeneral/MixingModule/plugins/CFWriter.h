@@ -34,11 +34,11 @@ class CFWriter : public edm::stream::EDProducer<>
  
   explicit CFWriter(const edm::ParameterSet& conf);
   
-  virtual ~CFWriter();
+  ~CFWriter() override;
   
   //void beginJob() {}
   void beginRun(const edm::Run& run, const edm::EventSetup& es) override;
-  virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
   virtual void put(edm::Event &e) {;}
 
  private:

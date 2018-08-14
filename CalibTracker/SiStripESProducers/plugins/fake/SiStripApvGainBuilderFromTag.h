@@ -34,9 +34,9 @@ class SiStripApvGainBuilderFromTag : public edm::EDAnalyzer
 
   explicit SiStripApvGainBuilderFromTag( const edm::ParameterSet& iConfig);
 
-  ~SiStripApvGainBuilderFromTag(){};
+  ~SiStripApvGainBuilderFromTag() override{};
 
-  virtual void analyze(const edm::Event& , const edm::EventSetup& );
+  void analyze(const edm::Event& , const edm::EventSetup& ) override;
 
  private:
   /// Fills the parameters read from cfg and matching the name in the given map
@@ -50,7 +50,6 @@ class SiStripApvGainBuilderFromTag : public edm::EDAnalyzer
    */
   void fillSubDetParameter(std::map<int, std::vector<double> > & mapToFill, const std::vector<double> & v, const int subDet, const unsigned short layers) const;
 
-  edm::FileInPath fp_;
   bool printdebug_;
   edm::ParameterSet pset_;
 };

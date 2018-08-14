@@ -29,25 +29,25 @@ EcalPreshowerRecHitsValidation::EcalPreshowerRecHitsValidation(const ParameterSe
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // ----------------------  
-  meESRecHitsEnergy_           = 0;                // total energy
-  meESRecHitsEnergy_zp1st_     = 0;    
-  meESRecHitsEnergy_zp2nd_     = 0;    
-  meESRecHitsEnergy_zm1st_     = 0;    
-  meESRecHitsEnergy_zm2nd_     = 0;    
-  meESRecHitsMultip_           = 0;                // total multiplicity
-  meESRecHitsMultip_zp1st_     = 0;    
-  meESRecHitsMultip_zp2nd_     = 0;    
-  meESRecHitsMultip_zm1st_     = 0;    
-  meESRecHitsMultip_zm2nd_     = 0;    
-  meESEERecHitsEnergy_zp_      = 0;                // versus EE energy 
-  meESEERecHitsEnergy_zm_      = 0;      
+  meESRecHitsEnergy_           = nullptr;                // total energy
+  meESRecHitsEnergy_zp1st_     = nullptr;    
+  meESRecHitsEnergy_zp2nd_     = nullptr;    
+  meESRecHitsEnergy_zm1st_     = nullptr;    
+  meESRecHitsEnergy_zm2nd_     = nullptr;    
+  meESRecHitsMultip_           = nullptr;                // total multiplicity
+  meESRecHitsMultip_zp1st_     = nullptr;    
+  meESRecHitsMultip_zp2nd_     = nullptr;    
+  meESRecHitsMultip_zm1st_     = nullptr;    
+  meESRecHitsMultip_zm2nd_     = nullptr;    
+  meESEERecHitsEnergy_zp_      = nullptr;                // versus EE energy 
+  meESEERecHitsEnergy_zm_      = nullptr;      
 
   for (int kk=0; kk<32; kk++)
     { 
-      meESRecHitsStripOccupancy_zp1st_[kk] = 0;   
-      meESRecHitsStripOccupancy_zm1st_[kk] = 0;   
-      meESRecHitsStripOccupancy_zp2nd_[kk] = 0;   
-      meESRecHitsStripOccupancy_zm2nd_[kk] = 0;   
+      meESRecHitsStripOccupancy_zp1st_[kk] = nullptr;   
+      meESRecHitsStripOccupancy_zm1st_[kk] = nullptr;   
+      meESRecHitsStripOccupancy_zp2nd_[kk] = nullptr;   
+      meESRecHitsStripOccupancy_zm2nd_[kk] = nullptr;   
     }
 }
 
@@ -115,7 +115,7 @@ void EcalPreshowerRecHitsValidation::bookHistograms(DQMStore::IBooker &ibooker, 
 
 void EcalPreshowerRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
-  const ESRecHitCollection *ESRecHit = 0;
+  const ESRecHitCollection *ESRecHit = nullptr;
   Handle<ESRecHitCollection> EcalRecHitES;
   e.getByToken( ESrechitCollection_token_, EcalRecHitES);
   if (EcalRecHitES.isValid()) {
@@ -125,7 +125,7 @@ void EcalPreshowerRecHitsValidation::analyze(const Event& e, const EventSetup& c
   }
 
   bool skipEE = false;
-  const EERecHitCollection *EERecHit = 0;
+  const EERecHitCollection *EERecHit = nullptr;
   Handle<EERecHitCollection> EcalRecHitEE;
   e.getByToken( EErechitCollection_token_, EcalRecHitEE);
   if (EcalRecHitEE.isValid()){   
@@ -134,7 +134,7 @@ void EcalPreshowerRecHitsValidation::analyze(const Event& e, const EventSetup& c
     skipEE = true;
   }
 
-  const EEUncalibratedRecHitCollection *EEUncalibRecHit = 0;
+  const EEUncalibratedRecHitCollection *EEUncalibRecHit = nullptr;
   Handle< EEUncalibratedRecHitCollection > EcalUncalibRecHitEE;
   e.getByToken( EEuncalibrechitCollection_token_, EcalUncalibRecHitEE);
   if (EcalUncalibRecHitEE.isValid()) {

@@ -14,8 +14,8 @@ template<>
 CaloGeometryDBEP<HcalGeometry, CaloGeometryDBWriter>::PtrType
 CaloGeometryDBEP<HcalGeometry, CaloGeometryDBWriter>::produceAligned( const typename HcalGeometry::AlignedRecord& iRecord ) 
 {
-    const Alignments* alignPtr( 0 );
-    const Alignments* globalPtr( 0 );
+    const Alignments* alignPtr( nullptr );
+    const Alignments* globalPtr( nullptr );
     if( m_applyAlignment ) // get ptr if necessary
     {
       edm::ESHandle< Alignments > alignments;
@@ -42,7 +42,7 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBWriter>::produceAligned( const type
       edm::ESHandle<CaloSubdetectorGeometry> pG;
       iRecord.get( HcalGeometry::producerTag() + std::string("_master"), pG ); 
 
-      const CaloSubdetectorGeometry* pGptr( pG.product());
+      const CaloSubdetectorGeometry* pGptr(pG.product());
       
       pGptr->getSummary( tvec, ivec, dvec, dins );
 	
@@ -100,24 +100,24 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBWriter>::produceAligned( const type
 	
       const DetId id( hcalTopology->denseId2detId( dins[i]));
 	
-      const unsigned int iGlob( 0 == globalPtr ? 0 :
+      const unsigned int iGlob( nullptr == globalPtr ? 0 :
 				HcalGeometry::alignmentTransformIndexGlobal( id ));
 
-      assert( 0 == globalPtr || iGlob < globalPtr->m_align.size());
+      assert( nullptr == globalPtr || iGlob < globalPtr->m_align.size());
 
-      const AlignTransform* gt( 0 == globalPtr ? 0 : &globalPtr->m_align[ iGlob ]);
+      const AlignTransform* gt( nullptr == globalPtr ? nullptr : &globalPtr->m_align[ iGlob ]);
 
-      assert( 0 == gt || iGlob == HcalGeometry::alignmentTransformIndexGlobal( DetId( gt->rawId())));
+      assert( nullptr == gt || iGlob == HcalGeometry::alignmentTransformIndexGlobal( DetId( gt->rawId())));
 
-      const unsigned int iLoc( 0 == alignPtr ? 0 :
+      const unsigned int iLoc( nullptr == alignPtr ? 0 :
 			       HcalGeometry::alignmentTransformIndexLocal( id ));
 
-      assert( 0 == alignPtr || iLoc < alignPtr->m_align.size());
+      assert( nullptr == alignPtr || iLoc < alignPtr->m_align.size());
 
-      const AlignTransform* at( 0 == alignPtr ? 0 :
+      const AlignTransform* at( nullptr == alignPtr ? nullptr :
 				&alignPtr->m_align[ iLoc ]);
 
-      assert( 0 == at || ( HcalGeometry::alignmentTransformIndexLocal( DetId( at->rawId())) == iLoc ));
+      assert( nullptr == at || ( HcalGeometry::alignmentTransformIndexLocal( DetId( at->rawId())) == iLoc ));
 
       Pt3D  lRef;
       Pt3DVec lc( 8, Pt3D( 0, 0, 0 ));
@@ -145,8 +145,8 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBWriter>::produceAligned( const type
 		 CLHEP::Hep3Vector( dx, dy, dz ));
 
       // now prepend alignment(s) for final transform
-      const Tr3D atr( 0 == at ? tr :
-		      ( 0 == gt ? at->transform() * tr :
+      const Tr3D atr( nullptr == at ? tr :
+		      ( nullptr == gt ? at->transform() * tr :
 			at->transform() * gt->transform() * tr ));
       //--------------------------------- done making transform  ---------------
 
@@ -170,8 +170,8 @@ template<>
 CaloGeometryDBEP<CaloTowerGeometry, CaloGeometryDBWriter>::PtrType
 CaloGeometryDBEP<CaloTowerGeometry, CaloGeometryDBWriter>::produceAligned( const typename CaloTowerGeometry::AlignedRecord& iRecord ) {
 
-  const Alignments* alignPtr  ( 0 ) ;
-  const Alignments* globalPtr ( 0 ) ;
+  const Alignments* alignPtr  ( nullptr ) ;
+  const Alignments* globalPtr ( nullptr ) ;
   if( m_applyAlignment ) { // get ptr if necessary
     edm::ESHandle< Alignments >                                      alignments ;
     iRecord.getRecord< typename CaloTowerGeometry::AlignmentRecord >().get( alignments ) ;
@@ -196,7 +196,7 @@ CaloGeometryDBEP<CaloTowerGeometry, CaloGeometryDBWriter>::produceAligned( const
     edm::ESHandle<CaloSubdetectorGeometry> pG ;
     iRecord.get( CaloTowerGeometry::producerTag() + std::string("_master"), pG ) ; 
 
-    const CaloSubdetectorGeometry* pGptr ( pG.product() ) ;
+    const CaloSubdetectorGeometry* pGptr(pG.product());
 
     pGptr->getSummary( tvec, ivec, dvec, dins ) ;
     
@@ -253,24 +253,24 @@ CaloGeometryDBEP<CaloTowerGeometry, CaloGeometryDBWriter>::produceAligned( const
 
     const DetId id ( caloTopology->detIdFromDenseIndex(dins[i]) ) ;
     
-    const unsigned int iGlob ( 0 == globalPtr ? 0 :
+    const unsigned int iGlob ( nullptr == globalPtr ? 0 :
 			       ctg->alignmentTransformIndexGlobal( id ) ) ;
 
-    assert( 0 == globalPtr || iGlob < globalPtr->m_align.size() ) ;
+    assert( nullptr == globalPtr || iGlob < globalPtr->m_align.size() ) ;
 
-    const AlignTransform* gt ( 0 == globalPtr ? 0 : &globalPtr->m_align[ iGlob ] ) ;
+    const AlignTransform* gt ( nullptr == globalPtr ? nullptr : &globalPtr->m_align[ iGlob ] ) ;
 
-    assert( 0 == gt || iGlob == ctg->alignmentTransformIndexGlobal( DetId( gt->rawId() ) ) ) ;
+    assert( nullptr == gt || iGlob == ctg->alignmentTransformIndexGlobal( DetId( gt->rawId() ) ) ) ;
 
-    const unsigned int iLoc ( 0 == alignPtr ? 0 :
+    const unsigned int iLoc ( nullptr == alignPtr ? 0 :
 			      ctg->alignmentTransformIndexLocal( id ) ) ;
 
-    assert( 0 == alignPtr || iLoc < alignPtr->m_align.size() ) ;
+    assert( nullptr == alignPtr || iLoc < alignPtr->m_align.size() ) ;
 
-    const AlignTransform* at ( 0 == alignPtr ? 0 :
+    const AlignTransform* at ( nullptr == alignPtr ? nullptr :
 			       &alignPtr->m_align[ iLoc ] ) ;
 
-    assert( 0 == at || ( ctg->alignmentTransformIndexLocal( DetId( at->rawId() ) ) == iLoc ) ) ;
+    assert( nullptr == at || ( ctg->alignmentTransformIndexLocal( DetId( at->rawId() ) ) == iLoc ) ) ;
 
     const CaloGenericDetId gId ( id ) ;
 
@@ -298,8 +298,8 @@ CaloGeometryDBEP<CaloTowerGeometry, CaloGeometryDBWriter>::produceAligned( const
 	       CLHEP::Hep3Vector(dx,dy,dz)     );
 
     // now prepend alignment(s) for final transform
-    const Tr3D atr ( 0 == at ? tr :
-		     ( 0 == gt ? at->transform()*tr :
+    const Tr3D atr ( nullptr == at ? tr :
+		     ( nullptr == gt ? at->transform()*tr :
 		       at->transform()*gt->transform()*tr ) ) ;
     //--------------------------------- done making transform  ---------------
 
@@ -335,8 +335,9 @@ CaloGeometryDBEP<HGCalGeometry, CaloGeometryDBWriter>::produceAligned( const typ
   
   if( CaloGeometryDBWriter::writeFlag() )
   {
-    edm::ESHandle<HGCalGeometry> geom;
-    iRecord.getRecord<IdealGeometryRecord>().get( name, geom );
+    edm::ESHandle<HGCalGeometry> geomH;
+    iRecord.getRecord<IdealGeometryRecord>().get( name, geomH );
+    const HGCalGeometry* geom = geomH.product();
     
     geom->getSummary( tvec, ivec, dvec, dins ) ;
 	
@@ -400,42 +401,56 @@ CaloGeometryDBEP<HGCalGeometry, CaloGeometryDBWriter>::produceAligned( const typ
       ++dsrc ;
     }
     
-    std::vector<GlobalPoint> corners( 8 );
+    std::vector<GlobalPoint> corners( FlatHexagon::ncorner_ );
     
-    FlatTrd::createCorners( dims, tr, corners );
+    FlatHexagon::createCorners( dims, tr, corners );
     
     const CCGFloat* myParm( CaloCellGeometry::getParmPtr( dims, 
 							  ptr->parMgr(), 
 							  ptr->parVecVec()));
-    GlobalPoint front ( 0.25*( corners[0].x() + 
-			       corners[1].x() + 
-			       corners[2].x() + 
-			       corners[3].x()),
-			0.25*( corners[0].y() + 
-			       corners[1].y() + 
-			       corners[2].y() + 
-			       corners[3].y()),
-			0.25*( corners[0].z() + 
-			       corners[1].z() + 
-			       corners[2].z() + 
-			       corners[3].z()));
+    GlobalPoint front ( FlatHexagon::oneBySix_*( corners[0].x() + 
+						 corners[1].x() + 
+						 corners[2].x() + 
+						 corners[3].x() + 
+						 corners[4].x() + 
+						 corners[5].x()),
+			FlatHexagon::oneBySix_*( corners[0].y() + 
+						 corners[1].y() + 
+						 corners[2].y() + 
+						 corners[3].y() + 
+						 corners[4].y() + 
+						 corners[5].y()),
+			FlatHexagon::oneBySix_*( corners[0].z() + 
+						 corners[1].z() + 
+						 corners[2].z() + 
+						 corners[3].z() + 
+						 corners[4].z() + 
+						 corners[5].z()));
     
-    GlobalPoint back  ( 0.25*( corners[4].x() + 
-			       corners[5].x() + 
-			       corners[6].x() + 
-			       corners[7].x()),
-			0.25*( corners[4].y() + 
-			       corners[5].y() + 
-			       corners[6].y() + 
-			       corners[7].y()),
-			0.25*( corners[4].z() + 
-			       corners[5].z() + 
-			       corners[6].z() + 
-			       corners[7].z()));
+    GlobalPoint back  ( FlatHexagon::oneBySix_*( corners[6].x() + 
+						 corners[7].x() + 
+						 corners[8].x() + 
+						 corners[9].x() + 
+						 corners[10].x()+ 
+						 corners[11].x()),
+			FlatHexagon::oneBySix_*( corners[6].y() + 
+						 corners[7].y() + 
+						 corners[8].y() + 
+						 corners[9].y() + 
+						 corners[10].y()+ 
+						 corners[11].y()),
+			FlatHexagon::oneBySix_*( corners[6].z() + 
+						 corners[7].z() + 
+						 corners[8].z() + 
+						 corners[9].z() + 
+						 corners[10].z() + 
+						 corners[11].z()));
     
     if (front.mag2() > back.mag2()) { // front should always point to the center, so swap front and back
       std::swap (front, back);
-      std::swap_ranges (corners.begin(), corners.begin()+4, corners.begin()+4); 
+      std::swap_ranges (corners.begin(), 
+			corners.begin()+FlatHexagon::ncornerBy2_, 
+			corners.begin()+FlatHexagon::ncornerBy2_); 
     }
     
     ptr->newCell( front, back, corners[0], myParm, id );

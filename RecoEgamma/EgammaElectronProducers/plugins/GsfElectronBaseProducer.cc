@@ -2,6 +2,7 @@
 #include "GsfElectronBaseProducer.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EleTkIsolFromCands.h"
 
 #include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -123,13 +124,8 @@ void GsfElectronBaseProducer::fillDescription( edm::ParameterSetDescription & de
   //desc.add<int>("severityLevelCut",4) ;
 
   // Isolation algos configuration
-  desc.add<double>("intRadiusBarrelTk",0.015) ;
-  desc.add<double>("intRadiusEndcapTk",0.015) ;
-  desc.add<double>("stripBarrelTk",0.015) ;
-  desc.add<double>("stripEndcapTk",0.015) ;
-  desc.add<double>("ptMinTk",0.7) ;
-  desc.add<double>("maxVtxDistTk",0.2) ;
-  desc.add<double>("maxDrbTk",999999999.) ;
+  desc.add("trkIsol03Cfg",EleTkIsolFromCands::pSetDescript());
+  desc.add("trkIsol04Cfg",EleTkIsolFromCands::pSetDescript());
   desc.add<double>("intRadiusHcal",0.15) ;
   desc.add<double>("etMinHcal",0.0) ;
   desc.add<double>("intRadiusEcalBarrel",3.0) ;
@@ -314,13 +310,6 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, 
 
   // isolation
   GsfElectronAlgo::IsolationConfiguration isoCfg ;
-  isoCfg.intRadiusBarrelTk = cfg.getParameter<double>("intRadiusBarrelTk") ;
-  isoCfg.intRadiusEndcapTk = cfg.getParameter<double>("intRadiusEndcapTk") ;
-  isoCfg.stripBarrelTk = cfg.getParameter<double>("stripBarrelTk") ;
-  isoCfg.stripEndcapTk = cfg.getParameter<double>("stripEndcapTk") ;
-  isoCfg.ptMinTk = cfg.getParameter<double>("ptMinTk") ;
-  isoCfg.maxVtxDistTk = cfg.getParameter<double>("maxVtxDistTk") ;
-  isoCfg.maxDrbTk = cfg.getParameter<double>("maxDrbTk") ;
   isoCfg.intRadiusHcal = cfg.getParameter<double>("intRadiusHcal") ;
   isoCfg.etMinHcal = cfg.getParameter<double>("etMinHcal") ;
   isoCfg.intRadiusEcalBarrel = cfg.getParameter<double>("intRadiusEcalBarrel") ;
@@ -342,7 +331,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, 
   regressionCfg.ecalWeightsFromDB = cfg.getParameter<bool>("ecalWeightsFromDB");
   regressionCfg.combinationWeightsFromDB = cfg.getParameter<bool>("combinationWeightsFromDB");
   // functions for corrector
-  EcalClusterFunctionBaseClass * superClusterErrorFunction = 0 ;
+  EcalClusterFunctionBaseClass * superClusterErrorFunction = nullptr ;
   std::string superClusterErrorFunctionName
    = cfg.getParameter<std::string>("superClusterErrorFunction") ;
   if (superClusterErrorFunctionName!="")
@@ -355,7 +344,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, 
    superClusterErrorFunction
     = EcalClusterFunctionFactory::get()->create("EcalClusterEnergyUncertaintyObjectSpecific",cfg) ;
   }
-  EcalClusterFunctionBaseClass * crackCorrectionFunction = 0 ;
+  EcalClusterFunctionBaseClass * crackCorrectionFunction = nullptr ;
   std::string crackCorrectionFunctionName
    = cfg.getParameter<std::string>("crackCorrectionFunction") ;
   if (crackCorrectionFunctionName!="")
@@ -377,7 +366,10 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, 
      crackCorrectionFunction,
      mva_NIso_Cfg_,
      mva_Iso_Cfg_,
-     regressionCfg
+     regressionCfg,
+     cfg.getParameter<edm::ParameterSet>("trkIsol03Cfg"),
+     cfg.getParameter<edm::ParameterSet>("trkIsol04Cfg")
+     
    ) ;
 
 

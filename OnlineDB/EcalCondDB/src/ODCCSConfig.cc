@@ -1,6 +1,6 @@
 #include <stdexcept>
 #include <string>
-#include <string.h>
+#include <cstring>
 #include <cstdlib>
 
 #include "OnlineDB/Oracle/interface/Oracle.h"
@@ -18,10 +18,10 @@ using namespace oracle::occi;
 
 ODCCSConfig::ODCCSConfig()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   m_config_tag="";
   m_ID=0;
   clear();   
@@ -71,7 +71,7 @@ int ODCCSConfig::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODCCSConfig::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODCCSConfig::fetchNextId():  ")+getOraMessage(&e)));
   }
 
 }
@@ -96,7 +96,7 @@ void ODCCSConfig::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODCCSConfig::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODCCSConfig::prepareWrite():  ")+getOraMessage(&e)));
   }
 
 }
@@ -181,7 +181,7 @@ void ODCCSConfig::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODCCSConfig::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODCCSConfig::writeDB():  ")+getOraMessage(&e)));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -197,7 +197,7 @@ void ODCCSConfig::fetchData(ODCCSConfig * result)
 {
   this->checkConnection();
   result->clear();
-  if(result->getId()==0 && (result->getConfigTag()=="") ){
+  if(result->getId()==0 && (result->getConfigTag().empty()) ){
     throw(std::runtime_error("ODCCSConfig::fetchData(): no Id defined for this ODCCSConfig "));
   }
 
@@ -215,19 +215,19 @@ void ODCCSConfig::fetchData(ODCCSConfig * result)
     // 1 is the id and 2 is the config tag
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(rset->getString(2));
+    result->setConfigTag(getOraString(rset,2));
 
     result->setDaccal(       rset->getInt(3) );
     result->setDelay(        rset->getInt(4) );
-    result->setGain(         rset->getString(5) );
-    result->setMemGain(      rset->getString(6) );
+    result->setGain(         getOraString(rset,5) );
+    result->setMemGain(      getOraString(rset,6) );
     result->setOffsetHigh(   rset->getInt(7) );
     result->setOffsetLow(    rset->getInt(8) );
     result->setOffsetMid(    rset->getInt(9) );
-    result->setTrgMode(      rset->getString(10) );
-    result->setTrgFilter(    rset->getString(11) );
+    result->setTrgMode(      getOraString(rset,10) );
+    result->setTrgFilter(    getOraString(rset,11) );
     result->setClock(        rset->getInt(12) );
-    result->setBGOSource(      rset->getString(13) );
+    result->setBGOSource(      getOraString(rset,13) );
     result->setTTSMask(        rset->getInt(14) );
     result->setDAQBCIDPreset(        rset->getInt(15) );
     result->setTrgBCIDPreset(        rset->getInt(16) );
@@ -235,7 +235,7 @@ void ODCCSConfig::fetchData(ODCCSConfig * result)
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODCCSConfig::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODCCSConfig::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -265,7 +265,7 @@ int ODCCSConfig::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODCCSConfig::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODCCSConfig::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;

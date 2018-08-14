@@ -78,7 +78,7 @@ class Specification(cms.PSet):
     return t 
 
   def groupBy(self, cols, mode = "SUM"):
-    cnames = filter(len, val(cols).split("/")) # omit empty items
+    cnames = list(filter(len, val(cols).split("/"))) # omit empty items
     newstate = self._state
 
     # The behaviour of groupBy depends a lot on when it happens:
@@ -145,7 +145,8 @@ class Specification(cms.PSet):
       type = t, 
       stage = self._state, 
       columns = cms.vstring(cname),
-      arg = cms.string(mode)
+      arg = cms.string(mode),
+      nbins = cms.int32(-1), xmin = cms.int32(0), xmax = cms.int32(0)
     ))
 
     # In the very beginning emit standard column assignments, they will be 
@@ -154,19 +155,22 @@ class Specification(cms.PSet):
       self._x = cms.PSet(
         type = USE_X, stage = STAGE1,
         columns = cms.vstring(),
-        arg = cms.string("")
+        arg = cms.string(""),
+        nbins = cms.int32(-1), xmin = cms.int32(0), xmax = cms.int32(0)
       )
       self.spec.append(self._x)
       self._y = cms.PSet(
         type = USE_Y, stage = STAGE1,
         columns = cms.vstring(),
-        arg = cms.string("")
+        arg = cms.string(""),
+        nbins = cms.int32(-1), xmin = cms.int32(0), xmax = cms.int32(0)
       )
       self.spec.append(self._y)
       self._z = cms.PSet(
         type = USE_Z, stage = STAGE1,
         columns = cms.vstring(),
-        arg = cms.string("")
+        arg = cms.string(""),
+        nbins = cms.int32(-1), xmin = cms.int32(0), xmax = cms.int32(0)
       )
       self.spec.append(self._z)
 
@@ -191,7 +195,8 @@ class Specification(cms.PSet):
       if sort == "MEAN":
         self.spec.append(cms.PSet(
           type = PROFILE, stage = STAGE1,
-          columns = cms.vstring(), arg = cms.string("")
+          columns = cms.vstring(), arg = cms.string(""),
+          nbins = cms.int32(-1), xmin = cms.int32(0), xmax = cms.int32(0)
         ))
       return self
 
@@ -202,31 +207,48 @@ class Specification(cms.PSet):
       type = REDUCE, 
       stage = self._state, 
       columns = cms.vstring(),
-      arg = cms.string(sort)
+      arg = cms.string(sort),
+      nbins = cms.int32(-1), xmin = cms.int32(0), xmax = cms.int32(0)
     ))
     return self
 
-  def save(self):
+  def save(self, nbins=-1, xmin=0, xmax=0):
     if self._state == FIRST:
       raise Exception("First statement must be groupBy.")
 
     if self._state == STAGE1:
       # end of STAGE1, fix the parameter assignments
       n = 1
-      if self._x.type == USE_X: self._x.arg = cms.string(str(n)); n = n+1
-      if self._y.type == USE_Y: self._y.arg = cms.string(str(n)); n = n+1
-      if self._z.type == USE_Z: self._z.arg = cms.string(str(n)); n = n+1
+      if self._x.type == USE_X: 
+        self._x.arg = cms.string(str(n))
+        n = n+1
+        self._x.nbins = cms.int32(nbins)
+        self._x.xmin = cms.int32(xmin)
+        self._x.xmax = cms.int32(xmax)
+      if self._y.type == USE_Y: 
+        self._y.arg = cms.string(str(n)) 
+        n = n+1
+        self._y.nbins = cms.int32(nbins)
+        self._y.xmin = cms.int32(xmin)
+        self._y.xmax = cms.int32(xmax)  
+      if self._z.type == USE_Z: 
+        self._z.arg = cms.string(str(n)) 
+        n = n+1
+        self._z.nbins = cms.int32(nbins)
+        self._z.xmin = cms.int32(xmin)
+        self._z.xmax = cms.int32(xmax)
       # we don't know how many parameters the user wants to pass here, but the 
       # HistogramManager knows. So we just add 3.
 
     # SAVE is implicit in step1 and ignored in harvesting, so not really needed.
-    #self.spec.append(cms.PSet(
-    #  type = SAVE, 
-    #  stage = self._state, 
-    #  columns = cms.vstring(),
-    #  arg = cms.string("")
-    #))
+    # self.spec.append(cms.PSet(
+    # type = SAVE, 
+    # stage = self._state, 
+    # columns = cms.vstring(),
+    # arg = cms.string(""),
+    # ))
     self._state = STAGE2
+
     return self
 
   def saveAll(self):

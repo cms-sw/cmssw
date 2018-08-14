@@ -19,12 +19,12 @@ namespace reco {
         typedef AnyJet Base;
 
         inline FFTAnyJet() : AnyJet(), fftJetSpecific_() {}
-        inline virtual ~FFTAnyJet() {}
+        inline ~FFTAnyJet() override {}
 
         inline FFTAnyJet(const AnyJet& jet, const FFTJet<float>& fftjet)
             : AnyJet(jet), fftJetSpecific_(fftjet) {}
 
-        inline virtual FFTAnyJet* clone () const 
+        inline FFTAnyJet* clone () const override 
             {return new FFTAnyJet(*this);}
             
         inline const FFTJet<float>& getFFTSpecific() const

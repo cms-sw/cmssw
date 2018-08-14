@@ -1,4 +1,4 @@
-Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at {Timestamp} 
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 on stream 0 at {Timestamp} 
 LogPrint: 0
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 1
 LogSystem: 0
@@ -34,7 +34,7 @@ LogPrint: 9
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 1
 LogSystem: 9
 %MSG
-Begin processing the 2nd record. Run 1, Event 2, LumiSection 1 at {Timestamp} 
+Begin processing the 2nd record. Run 1, Event 2, LumiSection 1 on stream 0 at {Timestamp} 
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 2
 LogSystem: 0
 %MSG
@@ -90,3 +90,5 @@ Severity    # Occurrences   Total Occurrences
 Info                    2                   2
 Warning                20                  20
 System                 20                  20
+
+dropped waiting message count 0

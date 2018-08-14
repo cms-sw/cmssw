@@ -1,6 +1,8 @@
 #ifndef Utilities_DebugMacros_h
 #define Utilities_DebugMacros_h
 
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
+
 namespace edm {
   struct debugvalue {
 
@@ -12,7 +14,7 @@ namespace edm {
     int value_;
   };
 
-[[cms::thread_safe]] extern debugvalue debugit;
+CMS_THREAD_SAFE extern debugvalue debugit;
 }
 
 #define FDEBUG(lev) if(lev <= debugit()) std::cerr

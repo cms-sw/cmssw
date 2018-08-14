@@ -25,7 +25,7 @@ public:
   typedef std::map<DetId, double> ChargeSumsByChannel;
 
   CastorHitCorrection(const CaloVSimParameterMap * parameterMap);
-  virtual ~CastorHitCorrection() {}
+  ~CastorHitCorrection() override {}
 
   void fillChargeSums(MixCollection<PCaloHit> & hits);
 
@@ -37,7 +37,7 @@ public:
   double charge(const PCaloHit & hit) const;
 
   /// how much delay this hit will get
-  virtual double delay(const PCaloHit & hit, CLHEP::HepRandomEngine*) const;
+  double delay(const PCaloHit & hit, CLHEP::HepRandomEngine*) const override;
 
   /// which time bin the peak of the signal will fall in
   int timeBin(const PCaloHit & hit) const;

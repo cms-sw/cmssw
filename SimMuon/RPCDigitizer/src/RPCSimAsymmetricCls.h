@@ -15,8 +15,8 @@
 #include<fstream>
 #include<string>
 #include<vector>
-#include<stdlib.h>
-#include <FWCore/Framework/interface/EventSetup.h>
+#include<cstdlib>
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -31,7 +31,7 @@ class RPCSimAsymmetricCls : public RPCSim
 {
  public:
   RPCSimAsymmetricCls(const edm::ParameterSet& config);
-  ~RPCSimAsymmetricCls();
+  ~RPCSimAsymmetricCls() override;
 
   void simulate(const RPCRoll* roll,
 		const edm::PSimHitContainer& rpcHits,
@@ -56,6 +56,7 @@ class RPCSimAsymmetricCls : public RPCSim
   double sspeed;
   double lbGate;
   bool rpcdigiprint;
+  bool   eledig;
   
   int N_hits;
   int nbxing;

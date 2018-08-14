@@ -11,7 +11,7 @@
 // Created:     Sat Apr 24 15:18 CEST 2007
 //
 
-#include <string.h>
+#include <cstring>
 #include <cstddef>
 #include <cstring>
 
@@ -123,7 +123,7 @@ class BitSet {
 		unsigned int	pos;
 	};
 
-	BitSet() : store(0), bits_(0) {}
+	BitSet() : store(nullptr), bits_(0) {}
 
 	BitSet(const BitSet &orig) : bits_(orig.bits_)
 	{
@@ -132,7 +132,7 @@ class BitSet {
 			store = new Word_t[words];
 			std::memcpy(store, orig.store, words * sizeof(Word_t));
 		} else
-			store = 0;
+			store = nullptr;
 	}
 
 	/// construct BitSet with a fixed size of \a bits bits
@@ -143,7 +143,7 @@ class BitSet {
 			store = new Word_t[words];
 			std::memset(store, 0, sizeof(Word_t) * words);
 		} else
-			store = 0;
+			store = nullptr;
 	}
 
 	inline ~BitSet() { delete[] store; }
@@ -157,7 +157,7 @@ class BitSet {
 			store = new Word_t[words];
 			std::memcpy(store, orig.store, words * sizeof(Word_t));
 		} else
-			store = 0;
+			store = nullptr;
 		return *this;
 	}
 

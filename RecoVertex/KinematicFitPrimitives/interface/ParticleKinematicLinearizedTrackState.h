@@ -24,33 +24,33 @@ public:
   * Returns a new linearized state with respect to a new linearization point.
   * A new object of the same type is returned, without change to the existing one.
   */ 
- virtual ReferenceCountingPointer<LinearizedTrackState<6> > stateWithNewLinearizationPoint
-  	(const GlobalPoint & newLP) const; 
+ ReferenceCountingPointer<LinearizedTrackState<6> > stateWithNewLinearizationPoint
+  	(const GlobalPoint & newLP) const override; 
 	
  /**
   * The point at which the track state has been linearized
   */	
- const GlobalPoint & linearizationPoint() const { return theLinPoint; }
+ const GlobalPoint & linearizationPoint() const override { return theLinPoint; }
  
 
 /** Method returning the constant term of the Taylor expansion
  *  of measurement equation
  */
- const AlgebraicVector6 & constantTerm() const;
+ const AlgebraicVector6 & constantTerm() const override;
 
 /** Method returning the Position Jacobian from the Taylor expansion 
  *  (Matrix A)
  */
- virtual const AlgebraicMatrix63 & positionJacobian() const;
+ const AlgebraicMatrix63 & positionJacobian() const override;
 
 /** Method returning the Momentum Jacobian from the Taylor expansion 
  *  (Matrix B)
  */   
- virtual const AlgebraicMatrix64 & momentumJacobian() const;
+ const AlgebraicMatrix64 & momentumJacobian() const override;
 
 /** Method returning the parameters of the Taylor expansion
  */
- const AlgebraicVector6 & parametersFromExpansion() const;
+ const AlgebraicVector6 & parametersFromExpansion() const override;
 
 /** Method returning the track state at the point of closest approach 
  *  to the linearization point, in the transverse plane (a.k.a. 
@@ -60,60 +60,60 @@ public:
 /**
  * extended perigee predicted parameters
  */
- AlgebraicVector6 predictedStateParameters() const;
+ AlgebraicVector6 predictedStateParameters() const override;
     
 /**
  * returns predicted 4-momentum in extended perigee parametrization
  */  
- AlgebraicVectorM predictedStateMomentumParameters() const; 
+ AlgebraicVectorM predictedStateMomentumParameters() const override; 
 
 /**
  * 4x4 error matrix ofe xtended perigee mometum components
  */ 
- AlgebraicSymMatrix44 predictedStateMomentumError() const; 
+ AlgebraicSymMatrix44 predictedStateMomentumError() const override; 
 
 /**
  * Full predicted weight matrix
  */  
- AlgebraicSymMatrix66 predictedStateWeight(int & error) const;
+ AlgebraicSymMatrix66 predictedStateWeight(int & error) const override;
   
 /**
  * Full predicted error matrix
  */  
- AlgebraicSymMatrix66 predictedStateError() const; 
+ AlgebraicSymMatrix66 predictedStateError() const override; 
 
 // /** 
 //  * Method returning the impact point measurement     
 //  */      
 //  ImpactPointMeasurement impactPointMeasurement() const;
   
- TrackCharge charge() const;
+ TrackCharge charge() const override;
  
  RefCountedKinematicParticle particle() const;
    
- bool operator ==(LinearizedTrackState<6>& other)const;
+ bool operator ==(LinearizedTrackState<6>& other)const override;
  
- bool hasError() const;
+ bool hasError() const override;
  
  RefCountedRefittedTrackState createRefittedTrackState(
                      const GlobalPoint & vertexPosition, 
 		     const AlgebraicVectorM & vectorParameters,
-		     const AlgebraicSymMatrix77 & covarianceMatrix) const;
+		     const AlgebraicSymMatrix77 & covarianceMatrix) const override;
 		     
   /** Method returning the parameters of the Taylor expansion evaluated with the
    *  refitted state.
    */
-  virtual AlgebraicVectorN refittedParamFromEquation(
-	const RefCountedRefittedTrackState & theRefittedState) const;
+  AlgebraicVectorN refittedParamFromEquation(
+	const RefCountedRefittedTrackState & theRefittedState) const override;
 
-  virtual inline void checkParameters(AlgebraicVectorN & parameters) const;
+  inline void checkParameters(AlgebraicVectorN & parameters) const override;
 		     
- double weightInMixture() const;
+ double weightInMixture() const override;
 
  std::vector<ReferenceCountingPointer<LinearizedTrackState<6> > > components()
-  									const;
+  									const override;
  
- virtual reco::TransientTrack track() const;
+ reco::TransientTrack track() const override;
 
  
 private:

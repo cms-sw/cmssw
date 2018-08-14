@@ -1,5 +1,7 @@
 // system include files
 #include <memory>
+#include <utility>
+#include <utility>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -21,6 +23,7 @@
 namespace {
 class ReaderBase {
  public:
+  virtual ~ReaderBase()  = default;
   virtual void read() = 0;
   virtual void reset() = 0;
 };
@@ -31,9 +34,9 @@ class TH1FReader : public ReaderBase {
              DQMStore& iStore,
              std::string folder,
              bool iSetLumiFlag)
-      : folder_(folder),
+      : folder_(std::move(std::move(folder))),
         m_store(&iStore),
-        m_element(0),
+        m_element(nullptr),
         m_means(iPSet.getUntrackedParameter<std::vector<double> >("means")),
         m_entries(iPSet.getUntrackedParameter<std::vector<double> >("entries")),
         m_indexToCheck(0) {
@@ -45,20 +48,20 @@ class TH1FReader : public ReaderBase {
     m_name = iPSet.getUntrackedParameter<std::string>("name")+extension;
   }
    
-  virtual ~TH1FReader() {};
+  ~TH1FReader() override = default;;
  
-  void reset() {
-    if (0 == m_element) {
+  void reset() override {
+    if (nullptr == m_element) {
       m_element = m_store->get(folder_ + m_name);
-      if (0 != m_element)
+      if (nullptr != m_element)
         m_element->Reset();
     }
   }
     
-  void read() {
-    if (0 == m_element) {
+  void read() override {
+    if (nullptr == m_element) {
       m_element = m_store->get(folder_ + m_name);
-      if (0 == m_element) {
+      if (nullptr == m_element) {
         throw cms::Exception("MissingElement") << "The element: "
                                                << m_name << " was not found";
       }
@@ -98,9 +101,9 @@ class TH1FReader : public ReaderBase {
 class TH2FReader : public ReaderBase {
  public:
   TH2FReader(const edm::ParameterSet& iPSet,DQMStore& iStore, std::string folder, bool iSetLumiFlag):
-      folder_(folder),
+      folder_(std::move(std::move(folder))),
       m_store(&iStore),
-      m_element(0),
+      m_element(nullptr),
       m_means(iPSet.getUntrackedParameter<std::vector<double> >("means")),
       m_entries(iPSet.getUntrackedParameter<std::vector<double> >("entries")),
       m_indexToCheck(0)
@@ -113,20 +116,20 @@ class TH2FReader : public ReaderBase {
     m_name = iPSet.getUntrackedParameter<std::string>("name")+extension;
   }
    
-  virtual ~TH2FReader() {};
+  ~TH2FReader() override = default;;
  
-  void reset() {
-    if (0 == m_element) {
+  void reset() override {
+    if (nullptr == m_element) {
       m_element = m_store->get(folder_ + m_name);
-      if (0 != m_element)
+      if (nullptr != m_element)
         m_element->Reset();
     }
   }
 
-  void read() {
-    if (0 == m_element) {
+  void read() override {
+    if (nullptr == m_element) {
       m_element = m_store->get(folder_ + m_name);
-      if (0 == m_element) {
+      if (nullptr == m_element) {
         throw cms::Exception("MissingElement") << "The element: " << m_name
                                                << " was not found";
       }
@@ -168,26 +171,26 @@ class TH2FReader : public ReaderBase {
 class DummyTestReadDQMStore :  public edm::EDAnalyzer {
  public:
   explicit DummyTestReadDQMStore(const edm::ParameterSet&);
-  ~DummyTestReadDQMStore();
+  ~DummyTestReadDQMStore() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
       
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   // ----------member data ---------------------------
   std::vector<boost::shared_ptr<ReaderBase> > m_runReaders;
   std::vector<boost::shared_ptr<ReaderBase> > m_lumiReaders;
   std::string folder_;
   unsigned int runToCheck_;
-  typedef std::vector<edm::ParameterSet> PSets;
+  using PSets = std::vector<edm::ParameterSet>;
   PSets runElements;
   PSets lumiElements;
   edm::Service<DQMStore> dstore;
@@ -269,7 +272,7 @@ DummyTestReadDQMStore::beginRun(edm::Run const& iRun, edm::EventSetup const&)
   if(iRun.run() != runToCheck_) return;
 
   m_runReaders.reserve(runElements.size());
-  for( PSets::const_iterator it = runElements.begin(), itEnd = runElements.end(); it != itEnd; ++it) {
+  for( auto it = runElements.begin(), itEnd = runElements.end(); it != itEnd; ++it) {
     switch(it->getUntrackedParameter<unsigned int>("type",1)) {
     case 1:
       m_runReaders.push_back(boost::shared_ptr<ReaderBase>(new TH1FReader(*it,*dstore,folder_,false)));
@@ -280,7 +283,7 @@ DummyTestReadDQMStore::beginRun(edm::Run const& iRun, edm::EventSetup const&)
     }
   }
   m_lumiReaders.reserve(lumiElements.size());
-  for( PSets::const_iterator it = lumiElements.begin(), itEnd = lumiElements.end(); it != itEnd; ++it){
+  for( auto it = lumiElements.begin(), itEnd = lumiElements.end(); it != itEnd; ++it){
     switch(it->getUntrackedParameter<unsigned int>("type",1)) {
       case 1:
         m_lumiReaders.push_back(boost::shared_ptr<ReaderBase>(new TH1FReader(*it,*dstore,folder_,true)));
@@ -298,11 +301,9 @@ DummyTestReadDQMStore::endRun(edm::Run const& iRun, edm::EventSetup const&)
 {
   if(iRun.run() != runToCheck_) return;
 
-  for(std::vector<boost::shared_ptr<ReaderBase> >::iterator it = m_runReaders.begin(), itEnd = m_runReaders.end();
-      it != itEnd;
-      ++it) 
+  for(auto & m_runReader : m_runReaders) 
     {
-      (*it)->read();
+      m_runReader->read();
     }
   m_runReaders.erase(m_runReaders.begin(), m_runReaders.end());
   m_lumiReaders.erase(m_lumiReaders.begin(), m_lumiReaders.end());
@@ -326,10 +327,8 @@ DummyTestReadDQMStore::beginLuminosityBlock(edm::LuminosityBlock const&, edm::Ev
 void 
 DummyTestReadDQMStore::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
-  for(std::vector<boost::shared_ptr<ReaderBase> >::iterator it = m_lumiReaders.begin(), itEnd = m_lumiReaders.end();
-      it != itEnd;
-      ++it) {
-    (*it)->read();
+  for(auto & m_lumiReader : m_lumiReaders) {
+    m_lumiReader->read();
   }
 }
 

@@ -8,16 +8,16 @@
 
 #include <iostream>
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 HcalTestNumberingScheme::HcalTestNumberingScheme(bool forTB) : 
   HcalNumberingScheme(), forTBH2(forTB) {
   edm::LogInfo("HcalSim") << "Creating HcalTestNumberingScheme with TB Flag "
-			  << forTBH2;
+			  << forTBH2 << std::endl;
 }
 
 HcalTestNumberingScheme::~HcalTestNumberingScheme() {
-  edm::LogInfo("HcalSim") << "Deleting HcalTestNumberingScheme";
+  edm::LogInfo("HcalSim") << "Deleting HcalTestNumberingScheme" << std::endl;
 }
 
 uint32_t HcalTestNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID& 
@@ -41,7 +41,7 @@ uint32_t HcalTestNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID&
     index = HcalTestNumbering::packHcalIndex(id.subdet, id.zside, id.depth, 
 					     id.etaR, id.phis, id.lay);
   }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   edm::LogInfo("HcalSim") << "HcalTestNumberingScheme det = " << id.subdet 
 			  << " depth/lay = " << id.depth << "/" << id.lay 
 			  << " zside = " << id.zside << " eta/R = " << id.etaR 

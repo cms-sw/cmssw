@@ -23,7 +23,7 @@ template<class C> class EcalUncalibRecHitRecAbsAlgo
   //EcalUncalibRecHitRecAbsAlgo() { };
 
   /// Destructor
-  //virtual ~EcalUncalibRecHitRecAbsAlgo() { };
+  virtual ~EcalUncalibRecHitRecAbsAlgo() = default;
 
   /// make rechits from dataframes
 

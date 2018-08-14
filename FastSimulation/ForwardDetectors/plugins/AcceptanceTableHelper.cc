@@ -11,7 +11,7 @@
 #include "FastSimulation/ForwardDetectors/plugins/AcceptanceTableHelper.h"
 
 #include <iostream>
-#include <math.h>
+#include <cmath>
 
 /** Read from root file <f> acceptance tables named <basename> and <basename>_hight */
 
@@ -20,11 +20,11 @@ void AcceptanceTableHelper::Init(TFile& f, const std::string basename)
   // ... read table for low t
   TH3F *h = (TH3F*)f.Get(basename.c_str());
 
-  if (h != NULL)
+  if (h != nullptr)
   {
     h_log10t_log10Xi_Phi = (TH3F*)h->Clone();
     std::cout << "Read ";
-    h_log10t_log10Xi_Phi->SetDirectory(0); // secure it from deleting if the file is eventually closed
+    h_log10t_log10Xi_Phi->SetDirectory(nullptr); // secure it from deleting if the file is eventually closed
     h_log10t_log10Xi_Phi->Print();
   } else {
     std::cout << "Warning: could not get acceptance table " << basename << std::endl;
@@ -34,10 +34,10 @@ void AcceptanceTableHelper::Init(TFile& f, const std::string basename)
   std::string name2 = basename+"_hight";
   h = (TH3F*)f.Get(name2.c_str());
 
-  if (h != NULL)
+  if (h != nullptr)
   {
     h_t_log10Xi_Phi = (TH3F*)h->Clone();
-    h_t_log10Xi_Phi->SetDirectory(0); // secure it from deleting if the file is eventually closed
+    h_t_log10Xi_Phi->SetDirectory(nullptr); // secure it from deleting if the file is eventually closed
     std::cout << "Read ";
     h_t_log10Xi_Phi->Print();
   } else {
@@ -54,7 +54,7 @@ float AcceptanceTableHelper::GetAcceptance(float t, float xi, float phi) {
 
   float acc = 0;
 
-  if ((h_log10t_log10Xi_Phi != NULL)				  // if table exists
+  if ((h_log10t_log10Xi_Phi != nullptr)				  // if table exists
        && (log10t < h_log10t_log10Xi_Phi->GetXaxis()->GetXmax())) // and t within table range
   {
   
@@ -63,7 +63,7 @@ float AcceptanceTableHelper::GetAcceptance(float t, float xi, float phi) {
     
     acc = h_log10t_log10Xi_Phi->GetBinContent(h_log10t_log10Xi_Phi->FindBin(log10t, log10Xi, phi));
 
-  } else if (h_t_log10Xi_Phi != NULL) { // if table exists for high t
+  } else if (h_t_log10Xi_Phi != nullptr) { // if table exists for high t
 
      acc = h_t_log10Xi_Phi->GetBinContent(h_t_log10Xi_Phi->FindBin(-t, log10Xi, phi));
   }

@@ -22,11 +22,11 @@ void RecHitTools::getEventSetup(const edm::EventSetup& es) {
   ddd_  = &(geom_->topology().dddConstants()); 
 }
 
-const GlobalPoint& RecHitTools::getPosition(const DetId& id) const {
+GlobalPoint RecHitTools::getPosition(const DetId& id) const {
   return geom_->getGeometry(id)->getPosition();
 }
 
-const FlatTrd::CornersVec& RecHitTools::getCorners(const DetId& id) const {
+FlatTrd::CornersVec RecHitTools::getCorners(const DetId& id) const {
   return geom_->getGeometry(id)->getCorners();
 }
 

@@ -1,8 +1,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
 
 #include "L1Trigger/L1TMuon/interface/RegionalMuonRawDigiTranslator.h"
-#include "GMTCollections.h"
 #include "RegionalMuonGMTUnpacker.h"
 
 namespace l1t {
@@ -12,17 +12,25 @@ namespace l1t {
       {
          unsigned int blockId = block.header().getID();
          LogDebug("L1T") << "Block ID  = " << blockId << " size = " << block.header().getSize();
+         // Process only if there is a payload.
+         // If all BX block were zero suppressed the block header size is 0.
+         if (block.header().getSize() < 1) {
+            return true;
+         }
 
          auto payload = block.payload();
 
-         unsigned int nWords = 6; // every link transmits 6 words (3 muons) per bx
          int nBX, firstBX, lastBX;
-         nBX = int(ceil(block.header().getSize() / nWords));
+         // Check if per BX zero suppression was enabled
+         bool bxZsEnabled = ((block.header().getFlags() >> bxzs_enable_shift_) & 0x1) == 1;
+         // Calculate the total number of BXs
+         if (bxZsEnabled) {
+            BxBlockHeader bxHeader(payload.at(0));
+            nBX = bxHeader.getTotalBx();
+         } else {
+            nBX = int(ceil(block.header().getSize() / nWords_));
+         }
          getBXRange(nBX, firstBX, lastBX);
-         // only use central BX for now
-         //firstBX = 0;
-         //lastBX = 0;
-         //LogDebug("L1T") << "BX override. Set first BX = lastBX = 0.";
 
          // decide which collection to use according to the link ID
          unsigned int linkId = blockId / 2;
@@ -59,35 +67,43 @@ namespace l1t {
 
          LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
 
-         // Initialise index
-         int unsigned i = 0;
-
-         // Loop over multiple BX and then number of muons filling muon collection
-         for (int bx = firstBX; bx <= lastBX; ++bx) {
-            for (unsigned nWord = 0; nWord < nWords && i < block.header().getSize(); nWord += 2) {
-               uint32_t raw_data_00_31 = payload[i++];
-               uint32_t raw_data_32_63 = payload[i++];        
-               LogDebug("L1T") << "raw_data_00_31 = 0x" << hex << setw(8) << setfill('0') << raw_data_00_31 << " raw_data_32_63 = 0x" << setw(8) << setfill('0') << raw_data_32_63;
-               // skip empty muons (hwPt == 0)
-               //// the msb are reserved for global information
-               //if ((raw_data_00_31 & 0x7FFFFFFF) == 0 && (raw_data_32_63 & 0x7FFFFFFF) == 0) {
-               if (((raw_data_00_31 >> l1t::RegionalMuonRawDigiTranslator::ptShift_) & l1t::RegionalMuonRawDigiTranslator::ptMask_) == 0) {
-                  LogDebug("L1T") << "Muon hwPt zero. Skip.";
-                  continue;
-               }
-               // Detect and ignore comma events
-               if (raw_data_00_31 == 0x505050bc || raw_data_32_63 == 0x505050bc) {
-                  edm::LogWarning("L1T") << "Comma detected in raw data stream. Orbit number: " << block.amc().getOrbitNumber() << ", BX ID: " << block.amc().getBX() << ", BX: " << bx << ", linkId: " << linkId << ", Raw data: 0x" << hex << setw(8) << setfill('0') << raw_data_32_63 << setw(8) << setfill('0') << raw_data_00_31 << dec << ". Skip.";
-                  continue;
-               }
+         // Get the BX blocks and unpack them
+         auto bxBlocks = block.getBxBlocks(nWords_, bxZsEnabled);
+         for (const auto& bxBlock : bxBlocks) {
+            // Throw an exception if finding a corrupt BX header with out of range BX numbers
+            const auto bx = bxBlock.header().getBx();
+            if (bx < firstBX || bx > lastBX) {
+               throw cms::Exception("CorruptData") << "Corrupt RAW data from AMC " << block.amc().getAMCNumber() << ". BX number " << bx << " in BX header is outside of the BX range [" << firstBX << "," << lastBX << "] defined in the block header.";
+            }
+            // Check if there are enough words left in the BX block payload
+            auto bxPayload = bxBlock.payload();
+            if (nWords_ <= bxPayload.size()) {
+               for (unsigned nWord = 0; nWord < nWords_; nWord += 2) {
+                  uint32_t raw_data_00_31 = bxPayload[nWord];
+                  uint32_t raw_data_32_63 = bxPayload[nWord+1];
+                  LogDebug("L1T") << "raw_data_00_31 = 0x" << hex << setw(8) << setfill('0') << raw_data_00_31 << " raw_data_32_63 = 0x" << setw(8) << setfill('0') << raw_data_32_63;
+                  // skip empty muons (hwPt == 0)
+                  if (((raw_data_00_31 >> l1t::RegionalMuonRawDigiTranslator::ptShift_) & l1t::RegionalMuonRawDigiTranslator::ptMask_) == 0) {
+                     LogDebug("L1T") << "Muon hwPt zero. Skip.";
+                     continue;
+                  }
+                  // Detect and ignore comma events
+                  if (raw_data_00_31 == 0x505050bc || raw_data_32_63 == 0x505050bc) {
+                     edm::LogWarning("L1T") << "Comma detected in raw data stream. Orbit number: " << block.amc().getOrbitNumber() << ", BX ID: " << block.amc().getBX() << ", BX: " << bx << ", linkId: " << linkId << ", Raw data: 0x" << hex << setw(8) << setfill('0') << raw_data_32_63 << setw(8) << setfill('0') << raw_data_00_31 << dec << ". Skip.";
+                     continue;
+                  }
  
-               RegionalMuonCand mu;
+                  RegionalMuonCand mu;
  
-               RegionalMuonRawDigiTranslator::fillRegionalMuonCand(mu, raw_data_00_31, raw_data_32_63, processor, trackFinder);
+                  RegionalMuonRawDigiTranslator::fillRegionalMuonCand(mu, raw_data_00_31, raw_data_32_63, processor, trackFinder);
 
-               LogDebug("L1T") << "Mu" << nWord/2 << ": eta " << mu.hwEta() << " phi " << mu.hwPhi() << " pT " << mu.hwPt() << " qual " << mu.hwQual() << " sign " << mu.hwSign() << " sign valid " << mu.hwSignValid();
+                  LogDebug("L1T") << "Mu" << nWord/2 << ": eta " << mu.hwEta() << " phi " << mu.hwPhi() << " pT " << mu.hwPt() << " qual " << mu.hwQual() << " sign " << mu.hwSign() << " sign valid " << mu.hwSignValid();
 
-               res->push_back(bx, mu);
+                  res->push_back(bx, mu);
+               }
+            } else {
+               unsigned int nWords = nWords_; // This seems unnecessary but it prevents an 'undefined reference' linker error that occurs when using nWords_ directly with LogWarning.
+               edm::LogWarning("L1T") << "Only " << bxPayload.size() << " 32 bit words in this BX but " << nWords << " are required. Not unpacking the data for BX " << bx << ".";
             }
          }
          return true;

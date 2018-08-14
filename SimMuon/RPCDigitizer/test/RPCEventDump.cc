@@ -4,7 +4,7 @@
 
 
 
-#include <DataFormats/RPCDigi/interface/RPCDigiCollection.h>
+#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"

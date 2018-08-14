@@ -21,7 +21,7 @@
 #include "L1Trigger/RPCTechnicalTrigger/interface/RPCData.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/ProcessInputSignal.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <ios>
@@ -44,9 +44,9 @@ public:
   RBCProcessRPCDigis( const edm::ESHandle<RPCGeometry> &, 
                       const edm::Handle<RPCDigiCollection> & );
   
-  virtual ~RBCProcessRPCDigis( ); ///< Destructor
+  ~RBCProcessRPCDigis( ) override; ///< Destructor
   
-  int  next();
+  int  next() override;
   
   void reset();
   
@@ -58,7 +58,7 @@ public:
   
   void print_output();
   
-  RPCInputSignal * retrievedata() {
+  RPCInputSignal * retrievedata() override {
     return  m_lbin;
   };
   

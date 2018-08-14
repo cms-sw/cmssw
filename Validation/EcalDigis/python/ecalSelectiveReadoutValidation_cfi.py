@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalSelectiveReadoutValidation = cms.EDAnalyzer("EcalSelectiveReadoutValidation",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+ecalSelectiveReadoutValidation = DQMEDAnalyzer('EcalSelectiveReadoutValidation',
     #Input collection names:
     EbDigiCollection = cms.InputTag("simEcalDigis","ebDigis"),
     EeDigiCollection = cms.InputTag("simEcalDigis","eeDigis"),
@@ -84,6 +85,7 @@ ecalSelectiveReadoutValidation = cms.EDAnalyzer("EcalSelectiveReadoutValidation"
 
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen():
-    ecalSelectiveReadoutValidation.EbSimHitCollection = cms.InputTag("famosSimHits","EcalHitsEB")
-    ecalSelectiveReadoutValidation.EeSimHitCollection = cms.InputTag("famosSimHits","EcalHitsEE")
+fastSim.toModify(ecalSelectiveReadoutValidation,
+    EbSimHitCollection = "fastSimProducer:EcalHitsEB",
+    EeSimHitCollection = "fastSimProducer:EcalHitsEE"
+)

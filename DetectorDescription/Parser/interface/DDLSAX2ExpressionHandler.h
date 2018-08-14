@@ -1,5 +1,5 @@
-#ifndef DETECTORDESCRIPTION_PARSER_DDLSAX2EXPRESSIONHANDLER_H
-#define DETECTORDESCRIPTION_PARSER_DDLSAX2EXPRESSIONHANDLER_H
+#ifndef DETECTOR_DESCRIPTION_PARSER_DDL_SAX2_EXPRESSION_HANDLER_H
+#define DETECTOR_DESCRIPTION_PARSER_DDL_SAX2_EXPRESSION_HANDLER_H
 
 #include <xercesc/sax2/Attributes.hpp>
 #include <string>
@@ -8,6 +8,7 @@
 #include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
 
 class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLSAX2ExpressionHandler is the first pass SAX2 Handler for XML files found in the configuration file.
 /** @class DDLSAX2ExpressionHandler
@@ -25,14 +26,14 @@ class DDLSAX2ExpressionHandler : public DDLSAX2FileHandler
 {
  public:
 
-  DDLSAX2ExpressionHandler(DDCompactView& cpv);
-  ~DDLSAX2ExpressionHandler();
+  DDLSAX2ExpressionHandler(DDCompactView& cpv, DDLElementRegistry&);
+  ~DDLSAX2ExpressionHandler() override;
 
-  void startElement(const XMLCh* const uri, const XMLCh* const localname,
-		    const XMLCh* const qname, const Attributes& attrs) override;
+  void startElement( const XMLCh* uri, const XMLCh* localname,
+		     const XMLCh* qname, const Attributes& attrs) override;
   
-  void endElement(const XMLCh* const uri, const XMLCh* const localname,
-		  const XMLCh* const qname) override;
+  void endElement( const XMLCh* uri, const XMLCh* localname,
+		   const XMLCh* qname) override;
 };
 
 #endif

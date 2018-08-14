@@ -29,7 +29,7 @@ public:
     inline void setSigma(const double s) {sigma_ = s;}
 
 private:
-    FFTJetCorrectorResult();
+    FFTJetCorrectorResult() = delete;
 
     LorentzVector vec_;
     double scale_;

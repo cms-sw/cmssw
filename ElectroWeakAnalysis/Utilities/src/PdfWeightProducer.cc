@@ -21,12 +21,12 @@
 class PdfWeightProducer : public edm::EDProducer {
    public:
       explicit PdfWeightProducer(const edm::ParameterSet&);
-      ~PdfWeightProducer();
+      ~PdfWeightProducer() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       std::string fixPOWHEG_;
       bool useFirstAsDefault_;
@@ -75,7 +75,7 @@ PdfWeightProducer::PdfWeightProducer(const edm::ParameterSet& pset) :
             } else {
                   pdfShortNames_.push_back(pdfSetNames_[k].substr(0,dot));
             }
-            produces<std::vector<double> >(pdfShortNames_[k].data());
+            produces<std::vector<double> >(pdfShortNames_[k]);
       }
 }
 

@@ -22,7 +22,7 @@ pfRecoTauDiscriminationAgainstMuon2 = cms.EDProducer("PFRecoTauDiscriminationAga
     # optional collection of muons to check for overlap with taus
     srcMuons = cms.InputTag('muons'),
     dRmuonMatch = cms.double(0.3),
-    # JetArea is not defined for subjects and restiction to jetArea is turned to dRMatch=0.1, so better use the latter explicitely
+    # JetArea is not defined for subjets and restiction to jetArea is turned to dRMatch=0.1, so better use the latter explicitely
     dRmuonMatchLimitedToJetArea = cms.bool(False),
     minPtMatchedMuon = cms.double(5.),
 

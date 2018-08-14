@@ -16,12 +16,12 @@
 class HSCParticleSelector : public edm::EDFilter {
    public:
       explicit HSCParticleSelector(const edm::ParameterSet&);
-      ~HSCParticleSelector();
+      ~HSCParticleSelector() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       edm::EDGetTokenT<susybsm::HSCParticleCollection> sourceToken_;
 
@@ -85,7 +85,7 @@ bool HSCParticleSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSet
          }
       }
 
-      bool filterResult = !Filter_ || (Filter_ && output->size()>=1);
+      bool filterResult = !Filter_ || (Filter_ && !output->empty());
 
       iEvent.put(std::move(result));
 

@@ -12,7 +12,7 @@ from RecoTracker.TkSeedingLayers.TTRHBuilderWithoutAngle4PixelPairs_cfi import *
 from RecoTracker.TkSeedingLayers.PixelLayerPairs_cfi import *
 from RecoTracker.TkSeedingLayers.MixedLayerPairs_cfi import *
 
-from RecoTracker.TkTrackingRegions.GlobalTrackingRegionWithVertices_cfi import *
+from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import *
 import RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHitsEDProducer_cfi
 globalSeedsFromPairsWithVertices = RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHitsEDProducer_cfi.seedGeneratorFromRegionHitsEDProducer.clone(
     OrderedHitsFactoryPSet = cms.PSet(
@@ -21,12 +21,7 @@ globalSeedsFromPairsWithVertices = RecoTracker.TkSeedGenerator.SeedGeneratorFrom
       maxElement = cms.uint32(1000000)
     ),
     RegionFactoryPSet = cms.PSet(
-      RegionPSetWithVerticesBlock,
+      RegionPSet = globalTrackingRegionWithVertices.RegionPSet.clone(),
       ComponentName = cms.string('GlobalTrackingRegionWithVerticesProducer')
     )
 )    
-from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
-trackingPhase1PU70.toModify(globalSeedsFromPairsWithVertices,
-    OrderedHitsFactoryPSet = dict(maxElement = 0),
-)
-

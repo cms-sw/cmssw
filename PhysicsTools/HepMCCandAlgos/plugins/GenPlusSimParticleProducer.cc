@@ -9,7 +9,7 @@ to the list including all ancestors and correct mother/daughter references
 
 Sample useage in cfg.py file:
 process.genParticlePlusGEANT = cms.EDProducer("GenPlusSimParticleProducer",
-        src           = cms.InputTag("g4SimHits"), # use "famosSimHits" for FAMOS
+        src           = cms.InputTag("g4SimHits"), # use "fastSimProducer" for FastSim
         setStatus     = cms.int32(8),             # set status = 8 for GEANT GPs
         particleTypes = cms.vstring("pi+"),       # also picks pi- (optional)
         filter        = cms.vstring("pt > 0.0"),  # just for testing
@@ -39,11 +39,11 @@ namespace pat {
 class GenPlusSimParticleProducer : public edm::EDProducer {
 public:
   explicit GenPlusSimParticleProducer(const edm::ParameterSet&);
-  ~GenPlusSimParticleProducer() {}
+  ~GenPlusSimParticleProducer() override {}
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override {}
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override {}
 
   bool firstEvent_;
   edm::EDGetTokenT<edm::SimTrackContainer> simtracksToken_;
@@ -133,13 +133,13 @@ void GenPlusSimParticleProducer::addGenParticle( const SimTrack &stMom,
   // Make the genParticle for stDau and add it to the new collection and update the parent-child relationship
   // Make up a GenParticleCandidate from the GEANT track info.
   int charge = static_cast<int>(stDau.charge());
-  Particle::LorentzVector p4 = stDau.momentum();
+  const Particle::LorentzVector& p4 = stDau.momentum();
   Particle::Point vtx; // = (0,0,0) by default
   if (!stDau.noVertex()) vtx = simvertices[stDau.vertIndex()].position();
   GenParticle genp(charge, p4, vtx, stDau.type(), setStatus_, true);
 
   // Maybe apply filter on the particle
-  if (filter_.get() != 0) {
+  if (filter_.get() != nullptr) {
     if (!(*filter_)(genp)) return;
   }
 

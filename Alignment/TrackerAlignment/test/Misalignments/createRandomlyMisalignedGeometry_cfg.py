@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 import copy, sys, os
@@ -10,7 +11,7 @@ process = cms.Process("Misaligner")
 options = VarParsing.VarParsing()
 
 options.register('myScenario',
-                 "MisalignmentScenario_NonMisalignedBPIX", # default value
+                 "MisalignmentScenario_PhaseI_PseudoAsymptotic", # default value
                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                  VarParsing.VarParsing.varType.string, # string, int, or float
                  "scenario to apply")
@@ -54,7 +55,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 # process.GlobalTag = GlobalTag(process.GlobalTag, "auto:run2_design", "")
 process.GlobalTag = GlobalTag(process.GlobalTag, "auto:phase1_2017_design", "")
-print "Using global tag:", process.GlobalTag.globaltag.value()
+print("Using global tag:", process.GlobalTag.globaltag.value())
 
 ###################################################################
 # This uses the object from the tag and applies the misalignment scenario on top of that object
@@ -66,15 +67,15 @@ process.AlignmentProducer.checkDbAlignmentValidity=False #otherwise error thrown
 import Alignment.TrackerAlignment.Scenarios_cff as scenarios
 
 if hasattr(scenarios, options.myScenario):
-    print "Using scenario:", options.myScenario
-    print "    with sigma:", options.mySigma
-    print
+    print("Using scenario:", options.myScenario)
+    print("    with sigma:", options.mySigma)
+    print()
     process.AlignmentProducer.MisalignmentScenario = getattr(scenarios, options.myScenario)
 else:
-    print "----- Begin Fatal Exception -----------------------------------------------"
-    print "Unrecognized",options.myScenario,"misalignment scenario !!!!"
-    print "Aborting cmsRun now, please check your input"
-    print "----- End Fatal Exception -------------------------------------------------"
+    print("----- Begin Fatal Exception -----------------------------------------------")
+    print("Unrecognized",options.myScenario,"misalignment scenario !!!!")
+    print("Aborting cmsRun now, please check your input")
+    print("----- End Fatal Exception -------------------------------------------------")
     sys.exit(1)
 
 sigma = options.mySigma

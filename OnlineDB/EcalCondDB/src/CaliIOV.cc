@@ -11,7 +11,7 @@ using namespace oracle::occi;
 
 CaliIOV::CaliIOV()
 {
-  m_conn = NULL;
+  m_conn = nullptr;
   m_ID = 0;
   m_since = Tm();
   m_till = Tm();
@@ -117,7 +117,7 @@ int CaliIOV::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("CaliIOV::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("CaliIOV::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;
@@ -156,7 +156,7 @@ void CaliIOV::setByID(int id)
      
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(std::runtime_error("CaliTag::setByID:  "+e.getMessage()));
+     throw(std::runtime_error(std::string("CaliTag::setByID:  ")+getOraMessage(&e)));
    }
 }
 
@@ -199,7 +199,7 @@ int CaliIOV::writeDB()
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("CaliIOV::writeDB:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("CaliIOV::writeDB:  ")+getOraMessage(&e)));
   }
 
   // Now get the ID
@@ -254,6 +254,6 @@ void CaliIOV::setByTm(CaliTag* tag, const Tm& eventTm)
      
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("CaliIOV::setByTm:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("CaliIOV::setByTm:  ")+getOraMessage(&e)));
   }
 }

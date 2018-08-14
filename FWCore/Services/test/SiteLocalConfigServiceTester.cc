@@ -24,7 +24,7 @@ namespace edmtest {
    public:
       SiteLocalConfigServiceTester(const edm::ParameterSet& iPSet);
       
-      void analyze(const edm::Event&, const edm::EventSetup&);
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
       
    private:
       std::string m_cacheHint;
@@ -96,7 +96,7 @@ void throwWrongValue(const char* iName, const T& iExpected, const T& iRetrieved)
 namespace {
    template <typename T>
    void testValue(const char* iName, const T& iExpected, const T* iRetrieved) {
-      if(0==iRetrieved) {
+      if(nullptr==iRetrieved) {
          throwNotSet(iName);
       } else if (*iRetrieved != iExpected) {
          throwWrongValue(iName, iExpected, *iRetrieved);
@@ -105,13 +105,13 @@ namespace {
 
    template <typename T>
    void checkNotSet(const char* iName, const T* iRetrieved) {
-      if(0!=iRetrieved) {
+      if(nullptr!=iRetrieved) {
          throw cms::Exception("TestFailure")<<"The value "<<iName<<" should not have been set but was set to "<<*iRetrieved;
       }
    }
 
    void checkNotSet(const char* iName, const std::vector<std::string>* iRetrieved) {
-      if(0!=iRetrieved) {
+      if(nullptr!=iRetrieved) {
          throw cms::Exception("TestFailure")<<"The value "<<iName<<" should not have been set but was set";
       }
    }
@@ -129,7 +129,7 @@ void SiteLocalConfigServiceTester::analyze(const edm::Event&, const edm::EventSe
       testValue("sourceReadHint",m_readHint,pConfig->sourceReadHint());
       testValue("sourceTTreeCacheSize",m_ttreeCacheSize,pConfig->sourceTTreeCacheSize());
       const std::vector<std::string>* protocols = pConfig->sourceNativeProtocols();
-      if(0==protocols) {
+      if(nullptr==protocols) {
          throwNotSet("sourceNativeProtocols");
       }
       if (protocols->size() != m_nativeProtocols.size()) {

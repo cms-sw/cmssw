@@ -3,7 +3,7 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCAnodeData2006.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCAnodeData2007.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <string.h> // for bzero
+#include <cstring> // for bzero
 
 
 

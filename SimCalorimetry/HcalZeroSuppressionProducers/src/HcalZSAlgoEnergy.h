@@ -16,14 +16,15 @@
 class HcalZSAlgoEnergy : public HcalZeroSuppressionAlgo {
 public:
   HcalZSAlgoEnergy(bool markAndPass, int level, int start, int samples, bool twosided);
+  ~HcalZSAlgoEnergy() override = default;
   void prepare(const HcalDbService* db);
   void done();
 protected:
-  virtual bool shouldKeep(const HBHEDataFrame& digi) const;
-  virtual bool shouldKeep(const HODataFrame& digi) const;
-  virtual bool shouldKeep(const HFDataFrame& digi) const;
-  virtual bool shouldKeep(const QIE10DataFrame& digi) const;
-  virtual bool shouldKeep(const QIE11DataFrame& digi) const;
+  bool shouldKeep(const HBHEDataFrame& digi) const override;
+  bool shouldKeep(const HODataFrame& digi) const override;
+  bool shouldKeep(const HFDataFrame& digi) const override;
+  bool shouldKeep(const QIE10DataFrame& digi) const override;
+  bool shouldKeep(const QIE11DataFrame& digi) const override;
 private:
   int threshold_, firstsample_, samplecount_;
   bool twosided_;

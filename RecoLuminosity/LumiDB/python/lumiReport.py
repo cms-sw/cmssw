@@ -1,3 +1,4 @@
+from __future__ import print_function
 ###########################################################
 # Luminosity/LumiTag/LumiCorrection report API            #
 #                                                         #
@@ -7,6 +8,7 @@
 import os,sys,time
 from RecoLuminosity.LumiDB import tablePrinter, csvReporter,CommonUtil
 from RecoLuminosity.LumiDB.wordWrappers import wrap_always, wrap_onspace, wrap_onspace_strict
+import six
 
 def dumptocsv(fieldnames,result,filename):
     '''
@@ -63,15 +65,15 @@ def toScreenNormSummary(allnorms):
     '''
     result=[]
     labels=[('Name','Type','IsTypeDefault','Comment','CreationTime')]
-    print ' ==  = '
-    sorted_allnorms=sorted(allnorms.iteritems(),key=lambda x:x[0],reverse=True)
+    print(' ==  = ')
+    sorted_allnorms=sorted(six.iteritems(allnorms),key=lambda x:x[0],reverse=True)
     for (normname,normvalues) in sorted_allnorms:
         lumitype=normvalues[1]
         istypedefault=str(normvalues[2])
         commentStr=normvalues[3]
         creationtime=normvalues[4]
         result.append([normname,lumitype,istypedefault,commentStr,creationtime])
-    print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,prefix = '| ', postfix = ' |', justify = 'left',delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) ) 
+    print(tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,prefix = '| ', postfix = ' |', justify = 'left',delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) )) 
 
 def toScreenNormDetail(normname,norminfo,normvalues):
     '''
@@ -83,15 +85,15 @@ def toScreenNormDetail(normname,norminfo,normvalues):
     '''
     lumitype=norminfo[1]
     istypedefault=norminfo[2]
-    print '=========================================================='
-    print '* Norm: '+normname
-    print '* Type: '+lumitype
-    print '* isDefault: '+str(istypedefault)
-    print '=========================================================='
+    print('==========================================================')
+    print('* Norm: '+normname)
+    print('* Type: '+lumitype)
+    print('* isDefault: '+str(istypedefault))
+    print('==========================================================')
     labels=[('Since','Func','Parameters','amodetag','egev','comment')]
 
     result=[]
-    print ' ==  = '
+    print(' ==  = ')
     for since in sorted(normvalues):
         normdata=normvalues[since]
         correctorStr=normdata[0]
@@ -115,12 +117,12 @@ def toScreenNormDetail(normname,norminfo,normvalues):
         egev=str(normdata[3])
         comment=normdata[4]
         result.append([str(since),correctorStr,paramDictStr,amodetag,egev,comment])
-    print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,prefix = '| ', postfix = ' |', justify = 'left',delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,40) ) 
+    print(tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,prefix = '| ', postfix = ' |', justify = 'left',delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,40) )) 
 
 def toScreenTags(tagdata):
     result=[]
     labels=[('Name','Min Run','Max Run','Creation Time')]
-    print ' ==  = '
+    print(' ==  = ')
     for tagid in sorted(tagdata):
         taginfo=tagdata[tagid]
         name=taginfo[0]
@@ -130,7 +132,7 @@ def toScreenTags(tagdata):
             maxRun=str(taginfo[2])
         creationtime=taginfo[3]
         result.append([name,minRun,maxRun,creationtime])
-    print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,prefix = '| ', postfix = ' |', justify = 'left',delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) ) 
+    print(tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,prefix = '| ', postfix = ' |', justify = 'left',delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) )) 
 
 def toScreenSingleTag(taginfo):
     '''
@@ -138,12 +140,12 @@ def toScreenSingleTag(taginfo):
     '''
     result=[]
     labels=[('Run','Data Id','Insertion Time','Patch Comment')]
-    print ' ==  = '
+    print(' ==  = ')
     for run in sorted(taginfo):
         (lumidataid,trgdataid,hltdataid,(ctimestr,comment))=taginfo[run]
         payloadid='-'.join([str(lumidataid),str(trgdataid),str(hltdataid)])
         result.append([str(run),payloadid,ctimestr,comment])
-    print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,prefix = '| ', postfix = ' |', justify = 'left',delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,25) )
+    print(tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,prefix = '| ', postfix = ' |', justify = 'left',delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,25) ))
     
 def toScreenTotDelivered(lumidata,resultlines,scalefactor,irunlsdict=None,noWarning=True,toFile=None):
     '''
@@ -241,17 +243,17 @@ def toScreenTotDelivered(lumidata,resultlines,scalefactor,irunlsdict=None,noWarn
     #print 'sortedresult ',sortedresult
     if not toFile:
         labels = [('Run:Fill', 'N_LS','N_CMSLS','Delivered','UTCTime','E(GeV)')]
-        print ' ==  = '
-        print tablePrinter.indent (labels+sortedresult, hasHeader = True, separateRows = False,
+        print(' ==  = ')
+        print(tablePrinter.indent (labels+sortedresult, hasHeader = True, separateRows = False,
                                    prefix = '| ', postfix = ' |', justify = 'right',
-                                   delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,40) )
-        print ' ==  =  Total : '
+                                   delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,40) ))
+        print(' ==  =  Total : ')
         (totalDeliveredVal,totalDeliveredUni)=CommonUtil.guessUnit(totdelivered+totOldDelivered)
         totrowlabels = [('Delivered LS','Total CMS LS','Delivered('+totalDeliveredUni+')')]
         totaltable.append([str(totls+totOldDeliveredLS),str(totcmsls+totOldCMSLS),'%.3f'%(totalDeliveredVal*scalefactor)])
-        print tablePrinter.indent (totrowlabels+totaltable, hasHeader = True, separateRows = False, prefix = '| ',
+        print(tablePrinter.indent (totrowlabels+totaltable, hasHeader = True, separateRows = False, prefix = '| ',
                                    postfix = ' |', justify = 'right', delim = ' | ',
-                                   wrapfunc = lambda x: wrap_onspace (x, 20))
+                                   wrapfunc = lambda x: wrap_onspace (x, 20)))
     else:
         fieldnames = ['Run:Fill', 'N_LS','N_CMSLS','Delivered(/ub)','UTCTime','E(GeV)']
         filename=toFile
@@ -372,18 +374,18 @@ def toScreenOverview(lumidata,resultlines,scalefactor,irunlsdict=None,noWarning=
                         sys.stdout.write('[WARNING] lumi or trg for selected run/ls '+str(run)+' '+str(ss)+' not in lumiDB\n')
     if not toFile:
         labels = [('Run:Fill', 'Delivered LS', 'Delivered','Selected LS','Recorded')]    
-        print ' ==  = '
-        print tablePrinter.indent (labels+sortedresult, hasHeader = True, separateRows = False,
+        print(' ==  = ')
+        print(tablePrinter.indent (labels+sortedresult, hasHeader = True, separateRows = False,
                                    prefix = '| ', postfix = ' |', justify = 'right',
-                                   delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) )
-        print ' ==  =  Total : '
+                                   delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) ))
+        print(' ==  =  Total : ')
         (totalDeliveredVal,totalDeliveredUni)=CommonUtil.guessUnit(totalDelivered+totOldDelivered)
         (totalRecordedVal,totalRecordedUni)=CommonUtil.guessUnit(totalRecorded+totOldRecorded)
         totrowlabels = [('Delivered LS','Delivered('+totalDeliveredUni+')','Selected LS','Recorded('+totalRecordedUni+')')]
         totaltable.append([str(totalDeliveredLS+totOldDeliveredLS),'%.3f'%(totalDeliveredVal*scalefactor),str(totalSelectedLS+totOldSelectedLS),'%.3f'%(totalRecordedVal*scalefactor)])
-        print tablePrinter.indent (totrowlabels+totaltable, hasHeader = True, separateRows = False, prefix = '| ',
+        print(tablePrinter.indent (totrowlabels+totaltable, hasHeader = True, separateRows = False, prefix = '| ',
                                    postfix = ' |', justify = 'right', delim = ' | ',
-                                   wrapfunc = lambda x: wrap_onspace (x, 20))
+                                   wrapfunc = lambda x: wrap_onspace (x, 20)))
     else:
         fieldnames = ['Run:Fill', 'DeliveredLS', 'Delivered(/ub)','SelectedLS','Recorded(/ub)']
         filename=toFile
@@ -522,14 +524,14 @@ def toScreenLumiByLS(lumidata,resultlines,scalefactor,irunlsdict=None,noWarning=
         (totrecordedlumi,recordedlumiunit)=CommonUtil.guessUnit((totalRecorded+totOldRecorded)*scalefactor)
         lastrowlabels = [ ('Delivered LS','Selected LS', 'Delivered('+deliveredlumiunit+')', 'Recorded('+recordedlumiunit+')')]
         totalrow.append ([str(totalDeliveredLS+totOldDeliveredLS),str(totalSelectedLS+totOldSelectedLS),'%.3f'%(totdeliveredlumi),'%.3f'%(totrecordedlumi)])
-        print ' ==  = '
-        print tablePrinter.indent (labels+perlsresult, hasHeader = True, separateRows = False, prefix = '| ',
+        print(' ==  = ')
+        print(tablePrinter.indent (labels+perlsresult, hasHeader = True, separateRows = False, prefix = '| ',
                                    postfix = ' |', justify = 'right', delim = ' | ',
-                                   wrapfunc = lambda x: wrap_onspace_strict (x, 22))
-        print ' ==  =  Total : '
-        print tablePrinter.indent (lastrowlabels+totalrow, hasHeader = True, separateRows = False, prefix = '| ',
+                                   wrapfunc = lambda x: wrap_onspace_strict (x, 22)))
+        print(' ==  =  Total : ')
+        print(tablePrinter.indent (lastrowlabels+totalrow, hasHeader = True, separateRows = False, prefix = '| ',
                                    postfix = ' |', justify = 'right', delim = ' | ',
-                                   wrapfunc = lambda x: wrap_onspace (x, 20))    
+                                   wrapfunc = lambda x: wrap_onspace (x, 20)))    
     else:
         fieldnames=['Run:Fill','LS','UTCTime','Beam Status','E(GeV)','Delivered(/ub)','Recorded(/ub)','avgPU']
         filename=toFile
@@ -662,10 +664,10 @@ def toScreenLSEffective(lumidata,resultlines,scalefactor,irunlsdict=None,noWarni
             if efflumi!='n/a':
                 efflumi='%.3f'%float(float(efflumi*scalefactor)/float(unitdenomitor))
             perlsresult.append([entry[0],entry[1],entry[2],entry[3],entry[4],entry[5],reclumi,efflumi])
-        print ' ==  = '
-        print tablePrinter.indent (labels+perlsresult, hasHeader = True, separateRows = False,
+        print(' ==  = ')
+        print(tablePrinter.indent (labels+perlsresult, hasHeader = True, separateRows = False,
                                    prefix = '| ', postfix = ' |', justify = 'right',
-                                   delim = ' | ', wrapfunc = lambda x: wrap_onspace_strict(x,25) )
+                                   delim = ' | ', wrapfunc = lambda x: wrap_onspace_strict(x,25) ))
         for mpath in sorted(totRecordedDict):
             totSelectedLS=totSelectedLSDict[mpath]
             if mpath in totOldSelectedLSDict:
@@ -680,10 +682,10 @@ def toScreenLSEffective(lumidata,resultlines,scalefactor,irunlsdict=None,noWarni
             totEffective=float(totEffective*scalefactor)/float(unitdenomitor)
             totalrow.append([str(totSelectedLS),mpath,'%.3f'%(totRecorded),'%.3f'%(totEffective)])
         lastrowlabels = [ ('Selected LS','HLTPath','Recorded('+lsunitstring+')','Effective('+lsunitstring+')')]
-        print ' ==  =  Total : '
-        print tablePrinter.indent (lastrowlabels+totalrow, hasHeader = True, separateRows = False, prefix = '| ',
+        print(' ==  =  Total : ')
+        print(tablePrinter.indent (lastrowlabels+totalrow, hasHeader = True, separateRows = False, prefix = '| ',
                                    postfix = ' |', justify = 'right', delim = ' | ',
-                                   wrapfunc = lambda x: wrap_onspace (x, 20))
+                                   wrapfunc = lambda x: wrap_onspace (x, 20)))
     else:
         fieldnames = ['Run:Fill','LS','HLTpath','L1bit','HLTpresc','L1presc','Recorded(/ub)','Effective(/ub)']
         filename=toFile
@@ -847,11 +849,11 @@ def toScreenTotEffective(lumidata,resultlines,scalefactor,irunlsdict=None,noWarn
 
     if not toFile:
         labels = [('Run:Fill','SelectedLS','Recorded','HLTpath(Presc)','L1bit(Presc)','Effective')]
-        print ' ==  = '
-        print tablePrinter.indent (labels+sortedresult, hasHeader = True, separateRows = False,
+        print(' ==  = ')
+        print(tablePrinter.indent (labels+sortedresult, hasHeader = True, separateRows = False,
                                    prefix = '| ', postfix = ' |', justify = 'right',
-                                   delim = ' | ', wrapfunc = lambda x: wrap_onspace_strict(x,22) )
-        print ' ==  =  Total : '
+                                   delim = ' | ', wrapfunc = lambda x: wrap_onspace_strict(x,22) ))
+        print(' ==  =  Total : ')
         lastrowlabels=[('HLTPath','SelectedLS','Recorded','Effective')]
         totresult=[]
         for hname in sorted(totdict):
@@ -865,8 +867,8 @@ def toScreenTotEffective(lumidata,resultlines,scalefactor,irunlsdict=None,noWarn
                 alltotrecorded+=recordedPerpathPerrun[hname][runnumber]
             (alltotrecordedVal,alltotrecordedunit)=CommonUtil.guessUnit(alltotrecorded*scalefactor)                                                   
             totresult.append([hname,str(totnls),'%.3f'%(alltotrecordedVal)+'('+alltotrecordedunit+')','%.3f'%(toteffval)+'('+toteffunit+')'])
-        print tablePrinter.indent (lastrowlabels+totresult, hasHeader = True, separateRows = False,prefix = '| ', postfix = ' |', justify = 'right',
-                                   delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) )
+        print(tablePrinter.indent (lastrowlabels+totresult, hasHeader = True, separateRows = False,prefix = '| ', postfix = ' |', justify = 'right',
+                                   delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) ))
     else:
         fieldnames=['Run:Fill','SelectedLS','Recorded','HLTpath(Presc)','L1bit(Presc)','Effective(/ub)']
         filename=toFile
@@ -887,7 +889,7 @@ def toCSVLumiByLSXing(lumidata,scalefactor,filename,irunlsdict=None,noWarning=Tr
         if rundata is None:
             result.append([str(run)+':0','n/a','n/a','n/a','n/a','n/a'])
             if irunlsdict and irunlsdict[run]:
-                print '[WARNING] selected but no lumi data for run '+str(run)
+                print('[WARNING] selected but no lumi data for run '+str(run))
             continue
         fillnum=0
         if rundata and rundata[0][10]:
@@ -960,7 +962,7 @@ def toScreenLSTrg(trgdata,iresults=[],irunlsdict=None,noWarning=True,toFile=None
             ll=[str(run),'n/a','n/a','n/a']
             result.append(ll)
             if irunlsdict and not noWarning:
-                print '[WARNING] selected but no trg data for run '+str(run)
+                print('[WARNING] selected but no trg data for run '+str(run))
             continue
         if irunlsdict and not noWarning:
             existdata=[x[0] for x in rundata if x[0] ]
@@ -996,9 +998,9 @@ def toScreenLSTrg(trgdata,iresults=[],irunlsdict=None,noWarning=True,toFile=None
                         sys.stdout.write('[WARNING] selected run/ls '+str(run)+' '+str(ss)+' not in lumiDB\n')
                         
     if not toFile:
-        print ' ==  = '
+        print(' ==  = ')
         labels = [('Run', 'LS', 'dfrac','(bitname,count,presc)')]
-        print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,prefix = '| ', postfix = ' |', justify = 'left',delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,70) )
+        print(tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,prefix = '| ', postfix = ' |', justify = 'left',delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,70) ))
     else:
         filename=toFile
         fieldnames=['Run','LS','dfrac','(bitname,count,presc)']
@@ -1047,11 +1049,11 @@ def toScreenLSHlt(hltdata,iresults=[],toFile=None):
             result.append([str(run),str(cmslsnum),', '.join(allpathresult)])
             
     if not toFile:
-        print ' ==  = '
+        print(' ==  = ')
         labels = [('Run', 'LS', '(hltpath,presc,l1pass,hltaccept)')]
-        print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
+        print(tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
                                    prefix = '| ', postfix = ' |', justify = 'left',
-                                   delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,70) )
+                                   delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,70) ))
     else:
         fieldnames=['Run','LS','(hltpath,presc,l1pass,hltaccept)']
         filename=toFile
@@ -1088,10 +1090,10 @@ def toScreenConfHlt(hltconfdata,iresults=[],toFile=None):
             result.append([str(run),thispath,thisseed,thisbit])
     if not toFile:
         labels=[('Run','hltpath','l1seedexpr','l1bit')]
-        print ' ==  = '
-        print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
+        print(' ==  = ')
+        print(tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
                                    prefix = '| ', postfix = ' |', justify = 'left',
-                                   delim = ' | ', wrapfunc = lambda x: wrap_onspace(x,25) )
+                                   delim = ' | ', wrapfunc = lambda x: wrap_onspace(x,25) ))
     else:
         filename=toFile
         fieldnames=['Run','hltpath','l1seedexpr','l1bit']
@@ -1137,10 +1139,10 @@ def toScreenLSBeam(beamdata,iresults=[],dumpIntensity=False,toFile=None):
         labels=[('Run','LS','beamstatus','egev','ncollidingbx')]
         if dumpIntensity:
             labels=[('Run','LS','beamstatus','egev','ncollidingbx','(bxidx,b1,b2)')]
-        print ' ==  = '
-        print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
+        print(' ==  = ')
+        print(tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
                                    prefix = '| ', postfix = ' |', justify = 'left',
-                                   delim = ' | ', wrapfunc = lambda x: wrap_onspace(x,25) )
+                                   delim = ' | ', wrapfunc = lambda x: wrap_onspace(x,25) ))
     else:
         fieldnames=['Run','LS','beamstatus','egev','ncollidingbx']
         if dumpIntensity:

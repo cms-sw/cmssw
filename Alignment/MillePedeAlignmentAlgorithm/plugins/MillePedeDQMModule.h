@@ -47,35 +47,32 @@ class MillePedeDQMModule : public DQMEDHarvester {
   public: //====================================================================
 
     MillePedeDQMModule(const edm::ParameterSet&);
-    virtual ~MillePedeDQMModule();
+    ~MillePedeDQMModule() override;
 
-
-
-
-
-    virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &)  override;
+    void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &)  override;
 
   //========================= PRIVATE METHODS ==================================
   private: //===================================================================
 
-    virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+    void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
     void bookHistograms(DQMStore::IBooker&);
 
     void fillExpertHistos();
 
     void fillExpertHisto(MonitorElement* histo,
-                         const double cut,
-                         const double sigCut,
-                         const double maxMoveCut,
-                         const double maxErrorCut,
-                         std::array<double, 6> obs,
-                         std::array<double, 6> obsErr);
+			 const std::array<double,6>& cut, 
+			 const std::array<double,6>& sigCut, 
+			 const std::array<double,6>& maxMoveCut, 
+			 const std::array<double,6>& maxErrorCut,
+                         const std::array<double,6>& obs,
+                         const std::array<double,6>& obsErr);
 
     bool setupChanged(const edm::EventSetup&);
+    int getIndexFromString(const std::string& alignableId);
 
-  //========================== PRIVATE DATA ====================================
-  //============================================================================
+    //========================== PRIVATE DATA ====================================
+    //============================================================================
 
     const edm::ParameterSet mpReaderConfig_;
     std::unique_ptr<AlignableTracker> tracker_;
@@ -84,16 +81,6 @@ class MillePedeDQMModule : public DQMEDHarvester {
     edm::ESWatcher<TrackerTopologyRcd> watchTrackerTopologyRcd_;
     edm::ESWatcher<IdealGeometryRecord> watchIdealGeometryRcd_;
     edm::ESWatcher<PTrackerParametersRcd> watchPTrackerParametersRcd_;
-
-    // Signifiance of movement must be above
-    double sigCut_;
-    // Cutoff in micro-meter & micro-rad
-    double Xcut_, tXcut_;
-    double Ycut_, tYcut_;
-    double Zcut_, tZcut_;
-    // maximum movement in micro-meter/rad
-    double maxMoveCut_;
-    double maxErrorCut_;
 
     // Histograms
     MonitorElement* h_xPos;

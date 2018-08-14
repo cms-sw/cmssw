@@ -24,12 +24,12 @@ const int kNumTTHistos = MAX_TT/kPerHisto; // this hasta be w/o remainders
 
 /// Constructors
 L1ScalersClient::L1ScalersClient(const edm::ParameterSet& ps):
-  dbe_(0),
+  dbe_(nullptr),
   nLumi_(0),
-  l1AlgoCurrentRate_(0),
-  l1TechTrigCurrentRate_(0),
-  selected_(0),
-  bxSelected_(0),
+  l1AlgoCurrentRate_(nullptr),
+  l1TechTrigCurrentRate_(nullptr),
+  selected_(nullptr),
+  bxSelected_(nullptr),
   algoSelected_(ps.getUntrackedParameter<std::vector<int> >("algoMonitorBits", std::vector<int>())),
   techSelected_(ps.getUntrackedParameter<std::vector<int> >("techMonitorBits", std::vector<int>())),
   folderName_(ps.getUntrackedParameter<std::string>("dqmFolder", "L1T/L1Scalers_EvF")),
@@ -40,7 +40,7 @@ L1ScalersClient::L1ScalersClient(const edm::ParameterSet& ps):
   LogDebug("Status") << "constructor" ;
   // get back-end interface
   dbe_ = edm::Service<DQMStore>().operator->();
-  assert(dbe_ != 0); // blammo!
+  assert(dbe_ != nullptr); // blammo!
   dbe_->setCurrentFolder(folderName_);
 
   l1AlgoCurrentRate_ = dbe_->book1D("algo_cur_rate", 
@@ -90,7 +90,7 @@ L1ScalersClient::L1ScalersClient(const edm::ParameterSet& ps):
 
   for (int i = 0; i < MAX_ALGOS; ++i ) {
     l1AlgoScalerCounters_[i] = 0UL;
-    l1AlgoRateHistories_[i] = 0; // not really needed but ...
+    l1AlgoRateHistories_[i] = nullptr; // not really needed but ...
     char name[256]; snprintf(name, 256, "rate_algobit%03d", i);
     LogDebug("Parameter") << "name " << i << " is " << name ;
     l1AlgoRateHistories_[i] = dbe_->book1D(name, name, MAX_LUMI_SEG, 
@@ -104,7 +104,7 @@ L1ScalersClient::L1ScalersClient(const edm::ParameterSet& ps):
 
   for (int i = 0; i < MAX_TT; ++i ) {
     l1TechTrigScalerCounters_[i] = 0UL;
-    l1TechTrigRateHistories_[i] = 0; // not really needed but ...
+    l1TechTrigRateHistories_[i] = nullptr; // not really needed but ...
     char name[256]; snprintf(name, 256, "rate_ttbit%03d", i);
     LogDebug("Parameter") << "name " << i << " is " << name ;
     l1TechTrigRateHistories_[i] = dbe_->book1D(name, name, MAX_LUMI_SEG, 
@@ -190,7 +190,7 @@ void L1ScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   MonitorElement *algoScalers = dbe_->get(folderName_+std::string("/l1AlgoBits"));
   MonitorElement *ttScalers = dbe_->get(folderName_+std::string("/l1TechBits"));
   
-  if ( algoScalers == 0 || ttScalers ==0) {
+  if ( algoScalers == nullptr || ttScalers ==nullptr) {
     LogInfo("Status") << "cannot get l1 scalers histogram, bailing out.";
     return;
   }
@@ -235,12 +235,12 @@ void L1ScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
   MonitorElement *nLumi = dbe_->get(folderName_+std::string("nLumiBlock"));
   
-  int testval = (nLumi!=0?nLumi->getIntValue():-1);
+  int testval = (nLumi!=nullptr?nLumi->getIntValue():-1);
   LogDebug("Parameter") << "Lumi Block from DQM: "
 			<< testval
 			<< ", local is " << nLumi_;
 
-  int nL = (nLumi!=0?nLumi->getIntValue():nLumi_);
+  int nL = (nLumi!=nullptr?nLumi->getIntValue():nLumi_);
   if ( nL > MAX_LUMI_SEG ) {
     LogDebug("Status") << "Too many Lumi segments, "
 		       << nL << " is greater than MAX_LUMI_SEG,"
@@ -322,7 +322,7 @@ void L1ScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   //  compute total rate
   MonitorElement *l1AlgoCounter = dbe_->get(folderName_+std::string("/l1AlgoCounter"));
   MonitorElement *l1TtCounter = dbe_->get(folderName_+std::string("/l1TtCounter"));
-  if ( l1AlgoCounter != 0 && l1TtCounter != 0 ) {
+  if ( l1AlgoCounter != nullptr && l1TtCounter != nullptr ) {
     float totAlgoCount = l1AlgoCounter->getIntValue();
     float totTtCount = l1TtCounter->getIntValue();
     float totAlgRate = (totAlgoCount - totAlgoPrevCount)/delta_t;

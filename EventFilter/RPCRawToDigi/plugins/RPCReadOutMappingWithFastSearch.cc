@@ -20,7 +20,7 @@ bool RPCReadOutMappingWithFastSearch::lessMap::operator()(
 }
 
 RPCReadOutMappingWithFastSearch::RPCReadOutMappingWithFastSearch()
-   : theMapping(0)
+   : theMapping(nullptr)
 {}
 
 void RPCReadOutMappingWithFastSearch::init(const RPCReadOutMapping * arm)
@@ -77,6 +77,6 @@ RPCReadOutMapping::StripInDetUnit RPCReadOutMappingWithFastSearch::detUnitFrame(
 const LinkBoardSpec* RPCReadOutMappingWithFastSearch::location(const LinkBoardElectronicIndex & ele) const
 {
   LBMap::const_iterator inMap = theLBMap.find(ele);
-  return (inMap!= theLBMap.end()) ? inMap->second : 0;
+  return (inMap!= theLBMap.end()) ? inMap->second : nullptr;
 // return theMapping->location(ele);
 }

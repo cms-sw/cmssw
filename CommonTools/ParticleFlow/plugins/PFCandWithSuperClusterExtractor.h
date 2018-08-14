@@ -26,19 +26,19 @@ public:
   PFCandWithSuperClusterExtractor(){};
   PFCandWithSuperClusterExtractor(const edm::ParameterSet& par, edm::ConsumesCollector && iC);
 
-  virtual ~PFCandWithSuperClusterExtractor(){}
+  ~PFCandWithSuperClusterExtractor() override{}
 
-  virtual void fillVetos (const edm::Event & ev,
-      const edm::EventSetup & evSetup, const reco::TrackCollection & cand) { }
+  void fillVetos (const edm::Event & ev,
+      const edm::EventSetup & evSetup, const reco::TrackCollection & cand) override { }
 
 
-  virtual reco::IsoDeposit deposit (const edm::Event & ev,
-				    const edm::EventSetup & evSetup, const reco::Track & muon) const {
+  reco::IsoDeposit deposit (const edm::Event & ev,
+				    const edm::EventSetup & evSetup, const reco::Track & muon) const override {
     return depositFromObject(ev, evSetup, muon);
   }
 
-  virtual reco::IsoDeposit deposit (const edm::Event & ev,
-				    const edm::EventSetup & evSetup, const reco::Candidate & cand) const {
+  reco::IsoDeposit deposit (const edm::Event & ev,
+				    const edm::EventSetup & evSetup, const reco::Candidate & cand) const override {
 
     const reco::Photon * myPhoton= dynamic_cast<const reco::Photon*>(&cand);
     if(myPhoton)

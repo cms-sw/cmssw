@@ -12,12 +12,12 @@
 #include <memory>
 
 class  ParametersDefinerForTPESProducer: public edm::ESProducer{
-  typedef std::shared_ptr<ParametersDefinerForTP> ReturnType;
+  typedef std::unique_ptr<ParametersDefinerForTP> ReturnType;
 
  public:
   ParametersDefinerForTPESProducer(const edm::ParameterSet & p);
-  virtual ~ParametersDefinerForTPESProducer(); 
-  std::shared_ptr<ParametersDefinerForTP> produce(const TrackAssociatorRecord &);
+  ~ParametersDefinerForTPESProducer() override; 
+  std::unique_ptr<ParametersDefinerForTP> produce(const TrackAssociatorRecord &);
 
   edm::ParameterSet pset_;
 

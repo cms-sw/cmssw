@@ -1,26 +1,56 @@
-#include "Validation/HGCalValidation/plugins/HGCalSimHitsClient.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include <iostream>
+#include <fstream>
+#include <unistd.h>
+#include <vector>
+
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+
 #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
+#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-HGCalSimHitsClient::HGCalSimHitsClient(const edm::ParameterSet& iConfig) {
-  nameDetector_  = iConfig.getParameter<std::string>("DetectorName");
-  nTimes_        = iConfig.getParameter<int>("TimeSlices");
-  verbosity_     = iConfig.getUntrackedParameter<int>("Verbosity",0);
-}
+class HGCalSimHitsClient : public DQMEDHarvester {
+ 
+private:
 
-HGCalSimHitsClient::~HGCalSimHitsClient() { }
+  //member data
+  std::string  nameDetector_;
+  int          nTimes_, verbosity_;
+  unsigned int layers_;
+
+public:
+  explicit HGCalSimHitsClient(const edm::ParameterSet& );
+  ~HGCalSimHitsClient() override {}
+  
+  void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
+  void dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig) override;
+  virtual void runClient_(DQMStore::IBooker &ib, DQMStore::IGetter &ig);   
+  int simHitsEndjob(const std::vector<MonitorElement*> &hcalMEs);
+};
+
+HGCalSimHitsClient::HGCalSimHitsClient(const edm::ParameterSet& iConfig) :
+  nameDetector_(iConfig.getParameter<std::string>("DetectorName")),
+  nTimes_(iConfig.getParameter<int>("TimeSlices")),
+  verbosity_(iConfig.getUntrackedParameter<int>("Verbosity",0)) { }
 
 void HGCalSimHitsClient::beginRun(const edm::Run& run, const edm::EventSetup& iSetup) { 
 
@@ -36,8 +66,8 @@ void HGCalSimHitsClient::beginRun(const edm::Run& run, const edm::EventSetup& iS
     layers_ = hgcons.layers(false);
   }
   if (verbosity_>0) 
-    edm::LogInfo("HGCalValidation") << "Initialize HGCalSimHitsClient for " 
-				    << nameDetector_ << " : " << layers_ <<"\n";
+    edm::LogVerbatim("HGCalValidation") << "Initialize HGCalSimHitsClient for "
+					<< nameDetector_ << " : " << layers_;
 }
 
 void HGCalSimHitsClient::dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig) {
@@ -47,25 +77,27 @@ void HGCalSimHitsClient::dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 void HGCalSimHitsClient::runClient_(DQMStore::IBooker &ib, DQMStore::IGetter &ig) {
 
   ig.setCurrentFolder("/"); 
-  if (verbosity_>0) edm::LogInfo("HGCalValidation") << " runClient\n";
+  if (verbosity_>0) edm::LogVerbatim("HGCalValidation") << " runClient";
   std::vector<MonitorElement*> hgcalMEs;
   std::vector<std::string> fullDirPath = ig.getSubdirs();
 
   for (unsigned int i=0; i<fullDirPath.size(); i++) {
     if (verbosity_>0) 
-      edm::LogInfo("HGCalValidation") << "fullPath: " << fullDirPath.at(i) << "\n";
+      edm::LogVerbatim("HGCalValidation") << "fullPath: " << fullDirPath.at(i);
     ig.setCurrentFolder(fullDirPath.at(i));
     std::vector<std::string> fullSubDirPath = ig.getSubdirs();
 
     for (unsigned int j=0; j<fullSubDirPath.size(); j++) {
       if (verbosity_>0) 
-	edm::LogInfo("HGCalValidation") << "fullSubPath: " << fullSubDirPath.at(j) << "\n";
-      std::string nameDirectory = "HGCalSimHitsV/"+nameDetector_;
+	edm::LogVerbatim("HGCalValidation") << "fullSubPath: " 
+					    << fullSubDirPath.at(j);
+      std::string nameDirectory = "HGCAL/HGCalSimHitsV/"+nameDetector_;
 
       if (strcmp(fullSubDirPath.at(j).c_str(), nameDirectory.c_str()) == 0) {
         hgcalMEs = ig.getContents(fullSubDirPath.at(j));
 	if (verbosity_>0) 
-	  edm::LogInfo("HGCalValidation") << "hgcalMES size : " << hgcalMEs.size() << "\n";
+	  edm::LogVerbatim("HGCalValidation") << "hgcalMES size : " 
+					      << hgcalMEs.size();
         if (!simHitsEndjob(hgcalMEs)) 
 	  edm::LogWarning("HGCalValidation") << "\nError in SimhitsEndjob!";
       }
@@ -192,5 +224,7 @@ int HGCalSimHitsClient::simHitsEndjob(const std::vector<MonitorElement*>& hgcalM
 
   return 1;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(HGCalSimHitsClient);

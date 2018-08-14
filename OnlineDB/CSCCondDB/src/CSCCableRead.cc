@@ -43,11 +43,11 @@ std::string *alct_rev, float *cfeb_tmb_skew_delay, float *cfeb_timing_corr)
 //
 //    stmt->execute(); //execute procedure
 //
-//    *chamber_label = stmt->getString(2);
+//    *chamber_label = getOraString(stmt,2);
 //    *cfeb_length = stmt->getInt(3);
-//    *cfeb_rev = stmt->getString(4);
+//    *cfeb_rev = getOraString(stmt,4);
 //    *alct_length = stmt->getInt(5);
-//    *alct_rev = stmt->getString(6);
+//    *alct_rev = getOraString(stmt,6);
 //    *cfeb_tmb_skew_delay = stmt->getInt(7);
 //    *cfeb_timing_corr = stmt->getInt(8);
 
@@ -63,11 +63,11 @@ std::string *alct_rev, float *cfeb_tmb_skew_delay, float *cfeb_timing_corr)
 
     stmt->execute(); //execute procedure
 
-    *chamber_label = stmt->getString(2);
+    *chamber_label = getOraString(stmt,2);
     *cfeb_length = stmt->getFloat(3);
-    *cfeb_rev = stmt->getString(4);
+    *cfeb_rev = getOraString(stmt,4);
     *alct_length = stmt->getFloat(5);
-    *alct_rev = stmt->getString(6);
+    *alct_rev = getOraString(stmt,6);
     *cfeb_tmb_skew_delay = stmt->getFloat(7);
     *cfeb_timing_corr = stmt->getFloat(8);
 

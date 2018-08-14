@@ -108,7 +108,7 @@ bool FWItemValueGetter::addEntry(std::string iExpression, int iPrec, std::string
    reco::parser::ExpressionPtr tmpPtr;
    reco::parser::Grammar grammar(tmpPtr, m_type);
 
-   if(m_type != edm::TypeWithDict() && iExpression.size()) 
+   if(m_type != edm::TypeWithDict() && !iExpression.empty()) 
    {
       using namespace fireworks::expression;
 

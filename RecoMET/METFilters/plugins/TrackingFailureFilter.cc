@@ -1,24 +1,25 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 
 
-class TrackingFailureFilter : public edm::EDFilter {
+class TrackingFailureFilter : public edm::global::EDFilter<> {
 
   public:
 
     explicit TrackingFailureFilter(const edm::ParameterSet & iConfig);
-    ~TrackingFailureFilter() {}
+    ~TrackingFailureFilter() override {}
 
   private:
 
-    virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+    bool filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
 
     edm::EDGetTokenT<edm::View<reco::Jet> > jetSrcToken_;
     edm::EDGetTokenT<std::vector<reco::Track> > trackSrcToken_;
@@ -45,7 +46,7 @@ TrackingFailureFilter::TrackingFailureFilter(const edm::ParameterSet & iConfig)
 }
 
 
-bool TrackingFailureFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) {
+bool TrackingFailureFilter::filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const {
 
   edm::Handle<edm::View<reco::Jet> > jets;
   iEvent.getByToken(jetSrcToken_, jets);
@@ -59,7 +60,7 @@ bool TrackingFailureFilter::filter(edm::Event & iEvent, const edm::EventSetup & 
     ht += j->pt();
   }
   double sumpt = 0;
-  if (vtxs->size() > 0) {
+  if (!vtxs->empty()) {
 //    const reco::Vertex * vtx = &((*vtxs)[0]);
     for (std::vector<reco::Track>::const_iterator tr = tracks->begin(); tr != tracks->end(); ++tr) {
       bool associateToPV = false;
@@ -78,11 +79,11 @@ bool TrackingFailureFilter::filter(edm::Event & iEvent, const edm::EventSetup & 
   const bool pass = (sumpt/ht) > minSumPtOverHT_;
 
   if( !pass && debug_ )
-    std::cout << "TRACKING FAILURE: "
+    edm::LogInfo("TrackingFailureFilter")
+              << "TRACKING FAILURE: "
               << iEvent.id().run() << " : " << iEvent.id().luminosityBlock() << " : " << iEvent.id().event()
               << " HT=" << ht
-              << " SumPt=" << sumpt
-              << std::endl;
+              << " SumPt=" << sumpt;
 
   iEvent.put(std::make_unique<bool>(pass));
 

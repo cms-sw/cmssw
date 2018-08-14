@@ -66,7 +66,7 @@ namespace eos {
 			: boost::archive::archive_exception(other_exception) 
 			, msg("requested integer size exceeds type size: ")
 		{
-			msg += boost::lexical_cast<std::string, int>(invalid_size);
+			msg += std::to_string(invalid_size);
 		}
 
 		//! negative number in unsigned type

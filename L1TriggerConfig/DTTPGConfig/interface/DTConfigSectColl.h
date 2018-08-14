@@ -52,7 +52,7 @@ class DTConfigSectColl : public DTConfig {
   DTConfigSectColl();
 
   //! Destructor
-  ~DTConfigSectColl();
+  ~DTConfigSectColl() override;
 
   //! Return the debug flag
   inline bool debug() const { return m_debug; }

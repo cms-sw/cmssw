@@ -9,23 +9,40 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVHitCorrection.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVShape.h"
 #include "FWCore/Utilities/interface/isFinite.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMShape.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShapes.h"
 
 #include "CLHEP/Random/RandPoissonQ.h"
 
-#include <math.h>
+#include <cmath>
 #include <list>
 
 HcalSiPMHitResponse::HcalSiPMHitResponse(const CaloVSimParameterMap * parameterMap,
-					 const CaloShapes * shapes, bool PreMix1) :
-  CaloHitResponse(parameterMap, shapes), theSiPM(), PreMixDigis(PreMix1),
-  nbins(BUNCHSPACE*HcalPulseShapes::invDeltaTSiPM_), dt(HcalPulseShapes::deltaTSiPM_), invdt(HcalPulseShapes::invDeltaTSiPM_) {}
+					 const CaloShapes * shapes, bool PreMix1, bool HighFidelity) :
+  CaloHitResponse(parameterMap, shapes), theSiPM(), PreMixDigis(PreMix1), HighFidelityPreMix(HighFidelity),
+  nbins((PreMixDigis and HighFidelityPreMix) ? 1 : BUNCHSPACE*HcalPulseShapes::invDeltaTSiPM_), 
+  dt(HcalPulseShapes::deltaTSiPM_), invdt(HcalPulseShapes::invDeltaTSiPM_)
+{
+  //fill shape map
+  shapeMap.emplace(HcalShapes::ZECOTEK,HcalShapes::ZECOTEK);
+  shapeMap.emplace(HcalShapes::HAMAMATSU,HcalShapes::HAMAMATSU);
+  shapeMap.emplace(HcalShapes::HE2017,HcalShapes::HE2017);
+  shapeMap.emplace(HcalShapes::HE2018,HcalShapes::HE2018);
+}
 
 HcalSiPMHitResponse::~HcalSiPMHitResponse() {}
 
 void HcalSiPMHitResponse::initializeHits() {
   precisionTimedPhotons.clear();
+}
+
+int HcalSiPMHitResponse::getReadoutFrameSize(const DetId& id) const {
+  const CaloSimParameters & parameters = theParameterMap->simParameters(id);
+  int readoutFrameSize = parameters.readoutFrameSize();
+  if(PreMixDigis and HighFidelityPreMix){
+    //preserve fidelity of time info
+    readoutFrameSize *= BUNCHSPACE*HcalPulseShapes::invDeltaTSiPM_;
+  }
+  return readoutFrameSize;
 }
 
 void HcalSiPMHitResponse::finalizeHits(CLHEP::HepRandomEngine* engine) {
@@ -51,23 +68,39 @@ void HcalSiPMHitResponse::finalizeHits(CLHEP::HepRandomEngine* engine) {
 
     LogDebug("HcalSiPMHitResponse") << HcalDetId(signal.id()) << ' ' << signal;
 
-    if (keep) add(signal);
+    //if we don't want to keep precise info at the end
+    if (!HighFidelityPreMix){
+      signal.setPreciseSize(0);
+    }
+
+    if (keep) CaloHitResponse::add(signal);
   }
 }
 
+//used for premixing - premixed CaloSamples have fine time binning
 void HcalSiPMHitResponse::add(const CaloSamples& signal) {
+  if(!HighFidelityPreMix){
+    CaloHitResponse::add(signal);
+    return;
+  }
   DetId id(signal.id());
-  CaloSamples * oldSignal = findSignal(id);
-  if (oldSignal == 0) {
-    theAnalogSignalMap[id] = signal;
-  } else {
-    (*oldSignal) += signal;
+  int photonTimeHistSize = nbins * getReadoutFrameSize(id);
+  assert(photonTimeHistSize == signal.size());
+  if (precisionTimedPhotons.find(id)==precisionTimedPhotons.end()) {
+    precisionTimedPhotons.insert(
+      std::pair<DetId, photonTimeHist >(id, photonTimeHist(photonTimeHistSize, 0)
+      )
+    );
+  }
+  for(int i = 0; i < signal.size(); ++i){
+    unsigned int photons(signal[i] + 0.5);
+    precisionTimedPhotons[id][i] += photons;
   }
 }
 
 void HcalSiPMHitResponse::add(const PCaloHit& hit, CLHEP::HepRandomEngine* engine) {
     if (!edm::isNotFinite(hit.time()) &&
-	((theHitFilter == 0) || (theHitFilter->accepts(hit)))) {
+	((theHitFilter == nullptr) || (theHitFilter->accepts(hit)))) {
       HcalDetId id(hit.id());
       const HcalSimParameters& pars = dynamic_cast<const HcalSimParameters&>(theParameterMap->simParameters(id));
       //divide out mean of crosstalk distribution 1/(1-lambda) = multiply by (1-lambda)
@@ -81,7 +114,7 @@ void HcalSiPMHitResponse::add(const PCaloHit& hit, CLHEP::HepRandomEngine* engin
         if (precisionTimedPhotons.find(id)==precisionTimedPhotons.end()) {
           precisionTimedPhotons.insert(
             std::pair<DetId, photonTimeHist >(id, 
-              photonTimeHist(nbins * pars.readoutFrameSize(), 0)
+              photonTimeHist(nbins * getReadoutFrameSize(id), 0)
             )
           );
         }
@@ -106,8 +139,9 @@ void HcalSiPMHitResponse::add(const PCaloHit& hit, CLHEP::HepRandomEngine* engin
       LogDebug("HcalSiPMHitResponse") << " corrected tzero: " << tzero_bin << '\n';
       double t_pe(0.);
       int t_bin(0);
+      unsigned signalShape = pars.signalShape(id);
       for (unsigned int pe(0); pe<photons; ++pe) {
-        t_pe = HcalPulseShapes::generatePhotonTime(engine);
+        t_pe = HcalPulseShapes::generatePhotonTime(engine,signalShape);
         t_bin = int(t_pe*invdt + tzero_bin + 0.5);
         LogDebug("HcalSiPMHitResponse") << "t_pe: " << t_pe << " t_pe + tzero: " << (t_pe+tzero_bin*dt)
                   << " t_bin: " << t_bin << '\n';
@@ -134,7 +168,7 @@ void HcalSiPMHitResponse::addPEnoise(CLHEP::HepRandomEngine* engine)
 
     if (dc_pe_avg <= 0.) continue;
 
-    int nPreciseBins = nbins * pars.readoutFrameSize();
+    int nPreciseBins = nbins * getReadoutFrameSize(id);
 
     unsigned int sumnoisePE(0);
     double  elapsedTime(0.);
@@ -165,8 +199,9 @@ void HcalSiPMHitResponse::addPEnoise(CLHEP::HepRandomEngine* engine)
 
 CaloSamples HcalSiPMHitResponse::makeBlankSignal(const DetId& detId) const {
   const CaloSimParameters & parameters = theParameterMap->simParameters(detId);
-  int preciseSize(parameters.readoutFrameSize() * nbins);
-  CaloSamples result(detId, parameters.readoutFrameSize(), preciseSize);
+  int readoutFrameSize = getReadoutFrameSize(detId);
+  int preciseSize(readoutFrameSize * nbins);
+  CaloSamples result(detId, readoutFrameSize, preciseSize);
   result.setPresamples(parameters.binOfMaximum()-1);
   result.setPrecise(result.presamples() * nbins, dt);
   return result;
@@ -190,7 +225,7 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
   unsigned int sumPE(0);
   double sumHits(0.);
 
-  HcalSiPMShape sipmPulseShape(pars.signalShape(id));
+  auto& sipmPulseShape(shapeMap[pars.signalShape(id)]);
 
   std::list< std::pair<double, double> > pulses;
   std::list< std::pair<double, double> >::iterator pulse;
@@ -203,6 +238,14 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
     preciseBin = tbin;
     sampleBin = preciseBin/nbins;
     if (pe > 0) {
+      //skip saturation/recovery and pulse smearing for premix stage 1
+      if(PreMixDigis and HighFidelityPreMix){
+        signal[sampleBin] += pe;
+        signal.preciseAtMod(preciseBin) += pe;
+        elapsedTime += dt;
+        continue;
+      }
+
       hitPixels = theSiPM.hitCells(engine, pe, 0., elapsedTime);
       sumHits += hitPixels;
       LogDebug("HcalSiPMHitResponse") << " elapsedTime: " << elapsedTime

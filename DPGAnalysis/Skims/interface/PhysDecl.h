@@ -35,10 +35,10 @@
 class PhysDecl : public edm::EDFilter {
 public:
   explicit PhysDecl( const edm::ParameterSet & );
-  ~PhysDecl();
+  ~PhysDecl() override;
   
 private:
-  virtual bool filter ( edm::Event &, const edm::EventSetup&) override;
+  bool filter ( edm::Event &, const edm::EventSetup&) override;
   
   bool applyfilter;
   bool debugOn;

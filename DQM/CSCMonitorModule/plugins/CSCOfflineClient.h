@@ -73,7 +73,7 @@ class CSCOfflineClient: public DQMEDHarvester, public cscdqm::MonitorObjectProvi
   public:
 
     CSCOfflineClient(const edm::ParameterSet& ps);
-    virtual ~CSCOfflineClient();
+    ~CSCOfflineClient() override;
 
   private:
 

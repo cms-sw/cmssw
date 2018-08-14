@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 
-SiStripSpyMonitor = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SiStripSpyMonitor = DQMEDAnalyzer(
     "SiStripSpyMonitorModule",
     #Raw data collection
     SpyScopeRawDigisTag = cms.untracked.InputTag('SiStripSpyUnpacker','ScopeRawDigis'),

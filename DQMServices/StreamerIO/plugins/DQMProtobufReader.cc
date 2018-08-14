@@ -11,15 +11,15 @@ using namespace dqmservices;
 
 DQMProtobufReader::DQMProtobufReader(edm::ParameterSet const& pset,
                                      edm::InputSourceDescription const& desc)
-    : InputSource(pset, desc), fiterator_(pset) {
+    : PuttableSourceBase(pset, desc), fiterator_(pset) {
 
   flagSkipFirstLumis_ = pset.getUntrackedParameter<bool>("skipFirstLumis");
   flagEndOfRunKills_ = pset.getUntrackedParameter<bool>("endOfRunKills");
   flagDeleteDatFiles_ = pset.getUntrackedParameter<bool>("deleteDatFiles");
   flagLoadFiles_ = pset.getUntrackedParameter<bool>("loadFiles");
 
-  produces<std::string, edm::InLumi>("sourceDataPath");
-  produces<std::string, edm::InLumi>("sourceJsonPath");
+  produces<std::string, edm::Transition::BeginLuminosityBlock>("sourceDataPath");
+  produces<std::string, edm::Transition::BeginLuminosityBlock>("sourceJsonPath");
 }
 
 DQMProtobufReader::~DQMProtobufReader() {}

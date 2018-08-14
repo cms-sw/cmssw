@@ -22,9 +22,11 @@ process.source = cms.Source("EmptySource",
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
-process.TkDetMap = cms.Service("TkDetMap")
-process.load("DQMServices.Core.DQMStore_cfg")
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+process.load("DQM.SiStripCommon.TkHistoMap_cff")
+# load TrackerTopology (needed for TkDetMap and TkHistoMap)
+process.load("Geometry.CMSCommonData.cmsExtendedGeometry2017XML_cfi")
+process.load("Geometry.TrackerGeometryBuilder.trackerParameters_cfi")
+process.trackerTopology = cms.ESProducer("TrackerTopologyEP")
 
 #This is where we configure the input and output files for the LV/HV TkMaps we want to create
 #LV/HVStatusFile is a file that contains a list of all the 15148 Tracker DetIDs and for each of them a number 0=OFF 1=ON

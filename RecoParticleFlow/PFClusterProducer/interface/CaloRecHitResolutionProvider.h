@@ -3,6 +3,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include <cmath>
 
 class CaloRecHitResolutionProvider{
  public:

@@ -8,13 +8,13 @@ class SimMuFilter : public edm::stream::EDFilter<>
  public:
 
    explicit SimMuFilter(const edm::ParameterSet&);
-   ~SimMuFilter();
+   ~SimMuFilter() override;
 
  private:
 
    virtual void beginJob();
    virtual void endJob();
-   virtual bool filter(edm::Event&, const edm::EventSetup&);
+   bool filter(edm::Event&, const edm::EventSetup&) override;
    
  private:
    
@@ -27,6 +27,8 @@ class SimMuFilter : public edm::stream::EDFilter<>
    edm::Handle<edm::PSimHitContainer> simHitsMuonRPCHandle;
    edm::Handle<edm::PSimHitContainer> simHitsMuonCSCHandle;
    edm::Handle<edm::PSimHitContainer> simHitsMuonDTHandle;
+   
+   int nMuSel_;
 };
 
 SimMuFilter::SimMuFilter(const edm::ParameterSet& iConfig)
@@ -35,6 +37,7 @@ SimMuFilter::SimMuFilter(const edm::ParameterSet& iConfig)
    simHitsMuonRPCToken_ = consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("simHitsMuonRPCInput"));
    simHitsMuonCSCToken_ = consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("simHitsMuonCSCInput"));
    simHitsMuonDTToken_ = consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("simHitsMuonDTInput"));
+   nMuSel_             = iConfig.getParameter<int>("nMuSel");
 }
 
 SimMuFilter::~SimMuFilter()
@@ -54,7 +57,7 @@ bool SimMuFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    int nTracks = simTracks.size();
 
-   bool pass = 0;
+   int nPass = 0;
    
    for(int it=0;it<nTracks;it++)
      {
@@ -91,10 +94,10 @@ bool SimMuFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	     nSimHitDT++;
 	  }
 	
-	if( nSimHitRPC+nSimHitCSC+nSimHitDT > 0 ) pass = 1;
-     }
-
-   return pass;
+	if( nSimHitRPC+nSimHitCSC+nSimHitDT > 0 ) nPass++;
+     }   
+   
+   return (nPass >= nMuSel_);
 }
 
 void SimMuFilter::beginJob()

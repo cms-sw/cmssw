@@ -1,3 +1,4 @@
+from __future__ import print_function
 import csv,sys
 def avgval(inarray):
    return sum(inarray)/float(len(inarray))
@@ -25,8 +26,8 @@ def main(*args):
          perlsdata=[]
       perlsdata.append(calibratedintlumi)
       rowcounter+=1
-   print len(result)
-   print sum(result)
+   print(len(result))
+   print(sum(result))
    writelstofile(outfilename,result)
 if __name__=='__main__':
     sys.exit(main(*sys.argv))

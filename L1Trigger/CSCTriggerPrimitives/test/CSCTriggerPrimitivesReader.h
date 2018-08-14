@@ -11,28 +11,28 @@
  *
  */
 
-#include <FWCore/Utilities/interface/EDGetToken.h>
-#include <FWCore/Framework/interface/Frameworkfwd.h>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <FWCore/Utilities/interface/InputTag.h>
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
-#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
+#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
 
-#include <DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h>
+#include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCCathodeLCTProcessor.h> // TMB07
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCCathodeLCTProcessor.h" // TMB07
 
-#include <SimDataFormats/TrackingHit/interface/PSimHitContainer.h>
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-#include <TH1.h>
-#include <TH2.h>
+#include "TH1.h"
+#include "TH2.h"
 
 class CSCGeometry;
 class CSCBadChambers;
@@ -74,11 +74,6 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   // workflow of the Reader.
   bool dataLctsIn_;
   bool emulLctsIn_;
-
-  // Flag to indicate MTCC data (used only when dataLctsIn_ = true).
-  bool isMTCCData_;
-
-  bool isTMB07;
 
   // Flag to plot or not plot ME1/A as a separate chamber.
   bool plotME1A;
@@ -129,7 +124,6 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   static const int NCHAMBERS[CSC_TYPES];
   static const int MAX_WG[CSC_TYPES];
   static const int MAX_HS[CSC_TYPES];
-  static const int ptype[CSCConstants::NUM_CLCT_PATTERNS_PRE_TMB07];
   static const int ptype_TMB07[CSCConstants::NUM_CLCT_PATTERNS];
 
   // LCT counters

@@ -22,6 +22,12 @@ ZdcHitReconstructor::ZdcHitReconstructor(edm::ParameterSet const& conf):
 	conf.getParameter<int>("recoMethod"),
 	conf.getParameter<int>("lowGainOffset"),
 	conf.getParameter<double>("lowGainFrac")),
+  saturationFlagSetter_(nullptr),
+  HFTimingTrustFlagSetter_(nullptr),
+  hbheHSCPFlagSetter_(nullptr),
+  hbheTimingShapedFlagSetter_(nullptr),
+  hfrechitbit_(nullptr),
+  hfdigibit_(nullptr),
   det_(DetId::Hcal),
   correctTiming_(conf.getParameter<bool>("correctTiming")),
   setNoiseFlags_(conf.getParameter<bool>("setNoiseFlags")),
@@ -30,8 +36,8 @@ ZdcHitReconstructor::ZdcHitReconstructor(edm::ParameterSet const& conf):
   setTimingTrustFlags_(conf.getParameter<bool>("setTimingTrustFlags")),
   dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed")),
   AuxTSvec_(conf.getParameter<std::vector<int> >("AuxTSvec")),
-  myobject(0),
-  theTopology(0)
+  myobject(nullptr),
+  theTopology(nullptr)
   
 { 
   tok_input_hcal = consumes<ZDCDigiCollection>(conf.getParameter<edm::InputTag>("digiLabelhcal"));
@@ -59,8 +65,11 @@ ZdcHitReconstructor::ZdcHitReconstructor(edm::ParameterSet const& conf):
   
 }
 
-ZdcHitReconstructor::~ZdcHitReconstructor() {;
+ZdcHitReconstructor::~ZdcHitReconstructor()
+{
+    delete saturationFlagSetter_;
 }
+
 void ZdcHitReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & es){
 
    edm::ESHandle<HcalLongRecoParams> p;
@@ -75,8 +84,8 @@ void ZdcHitReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & es)
 }
 
 void ZdcHitReconstructor::endRun(edm::Run const&r, edm::EventSetup const & es){
-  delete myobject; myobject=0;
-  delete theTopology; theTopology=0;
+  delete myobject; myobject=nullptr;
+  delete theTopology; theTopology=nullptr;
 }
 void ZdcHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {
@@ -100,10 +109,13 @@ void ZdcHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSet
      edm::Handle<ZDCDigiCollection> digi;
      e.getByToken(tok_input_hcal,digi);
      
-     if(digi->size() == 0) {
-       e.getByToken(tok_input_castor,digi);
-       if(digi->size() == 0) 
+     if(digi->empty()) {
+       edm::Handle<ZDCDigiCollection> digi_castor;
+       e.getByToken(tok_input_castor,digi_castor);
+       if(!digi_castor.isValid() || digi_castor->empty()) 
        	 edm::LogInfo("ZdcHitReconstructor") << "No ZDC info found in either castorDigis or hcalDigis." << std::endl;
+       if(digi_castor.isValid())
+         e.getByToken(tok_input_castor,digi);
      }
         
      // create empty output
@@ -145,7 +157,7 @@ void ZdcHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSet
 	    auxflag+=(i->sample(AuxTSvec_[xx]).adc())<<(7*xx); // store the time slices in the first 28 bits of aux, a set of 4 7-bit a dc values
 	  }
 	// bits 28 and 29 are reserved for capid of the first time slice saved in aux
-	if (AuxTSvec_.size()>0)
+	if (!AuxTSvec_.empty())
 	  auxflag+=((i->sample(AuxTSvec_[0]).capid())<<28);
 	(rec->back()).setAux(auxflag);
      }

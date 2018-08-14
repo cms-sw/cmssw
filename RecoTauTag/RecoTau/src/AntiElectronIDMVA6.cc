@@ -11,19 +11,23 @@
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+#include <TMath.h>
 #include <TFile.h>
 #include <array>
 
 AntiElectronIDMVA6::AntiElectronIDMVA6(const edm::ParameterSet& cfg)
   : isInitialized_(false),
-    mva_NoEleMatch_woGwoGSF_BL_(0),
-    mva_NoEleMatch_wGwoGSF_BL_(0),
-    mva_woGwGSF_BL_(0),
-    mva_wGwGSF_BL_(0),
-    mva_NoEleMatch_woGwoGSF_EC_(0),
-    mva_NoEleMatch_wGwoGSF_EC_(0),
-    mva_woGwGSF_EC_(0),
-    mva_wGwGSF_EC_(0)   
+    mva_NoEleMatch_woGwoGSF_BL_(nullptr),
+    mva_NoEleMatch_wGwoGSF_BL_(nullptr),
+    mva_woGwGSF_BL_(nullptr),
+    mva_wGwGSF_BL_(nullptr),
+    mva_NoEleMatch_woGwoGSF_EC_(nullptr),
+    mva_NoEleMatch_wGwoGSF_EC_(nullptr),
+    mva_woGwGSF_EC_(nullptr),
+    mva_wGwGSF_EC_(nullptr)   
 {
   loadMVAfromDB_ = cfg.exists("loadMVAfromDB") ? cfg.getParameter<bool>("loadMVAfromDB"): false;
   if ( !loadMVAfromDB_ ) {
@@ -50,7 +54,8 @@ AntiElectronIDMVA6::AntiElectronIDMVA6(const edm::ParameterSet& cfg)
   Var_NoEleMatch_wGwoGSF_Endcap_ = new Float_t[17];
   Var_woGwGSF_Endcap_ = new Float_t[23];
   Var_wGwGSF_Endcap_ = new Float_t[31];
-    
+
+  bField_ = 0;
   verbosity_ = 0;
 }
 
@@ -131,6 +136,10 @@ void AntiElectronIDMVA6::beginEvent(const edm::Event& evt, const edm::EventSetup
     }
     isInitialized_ = true;
   }
+
+  edm::ESHandle<MagneticField> pSetup;
+  es.get<IdealMagneticFieldRecord>().get(pSetup);
+  bField_ = pSetup->inTesla(GlobalPoint(0,0,0)).z();
 }
 
 double AntiElectronIDMVA6::MVAValue(Float_t TauPt,
@@ -507,7 +516,7 @@ double AntiElectronIDMVA6::MVAValue(Float_t TauPt,
 }
 
 double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
-				    const reco::GsfElectron& theGsfEle)
+				    const reco::GsfElectron& theGsfEle, bool usePhiAtEcalEntranceExtrapolation)
 
 {
   // === tau variables ===
@@ -528,7 +537,7 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
   float TauLeadChargedPFCandPt = -99.;
   for ( std::vector<reco::PFCandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
 	pfCandidate != signalPFCands.end(); ++pfCandidate ) {
-    const reco::Track* track = 0;
+    const reco::Track* track = nullptr;
     if ( (*pfCandidate)->trackRef().isNonnull() ) track = (*pfCandidate)->trackRef().get();
     else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->innerTrack().isNonnull()  ) track = (*pfCandidate)->muonRef()->innerTrack().get();
     else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->globalTrack().isNonnull() ) track = (*pfCandidate)->muonRef()->globalTrack().get();
@@ -610,10 +619,22 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
   Float_t TauPhi = thePFTau.phi();
   float sumPhiTimesEnergy = 0.;
   float sumEnergyPhi = 0.;
-  for ( std::vector<reco::PFCandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
-	pfCandidate != signalPFCands.end(); ++pfCandidate ) {
-    sumPhiTimesEnergy += (*pfCandidate)->positionAtECALEntrance().phi()*(*pfCandidate)->energy();
-    sumEnergyPhi += (*pfCandidate)->energy();
+  if ( !usePhiAtEcalEntranceExtrapolation ){
+    for (auto const& pfc : signalPFCands){
+      sumPhiTimesEnergy += pfc->positionAtECALEntrance().phi()*pfc->energy();
+      sumEnergyPhi += pfc->energy();
+    }
+  }
+  else{
+    TauPhi= -99.;
+    for (unsigned int o = 0; o < signalPFCands.size(); ++o ) {
+      reco::Candidate const*  signalCand = signalPFCands[o].get();
+      float phi = thePFTau.phi();
+      math::XYZPoint aPos; 
+      if ( atECalEntrance(signalCand, aPos) ) phi = aPos.Phi();
+      sumPhiTimesEnergy += phi*signalCand->energy();     
+      sumEnergy += signalCand->energy();
+    }
   }
   if ( sumEnergyPhi > 0. ) {
     TauPhi = sumPhiTimesEnergy/sumEnergyPhi;
@@ -711,7 +732,7 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
                   ElecMvaInDeltaEta);
 }
 
-double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau)
+double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau, bool usePhiAtEcalEntranceExtrapolation)
 {
   // === tau variables ===
   float TauEtaAtEcalEntrance = -99.;
@@ -731,7 +752,7 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau)
   float TauLeadChargedPFCandPt = -99.;
   for ( std::vector<reco::PFCandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
 	pfCandidate != signalPFCands.end(); ++pfCandidate ) {
-    const reco::Track* track = 0;
+    const reco::Track* track = nullptr;
     if ( (*pfCandidate)->trackRef().isNonnull() ) track = (*pfCandidate)->trackRef().get();
     else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->innerTrack().isNonnull()  ) track = (*pfCandidate)->muonRef()->innerTrack().get();
     else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->globalTrack().isNonnull() ) track = (*pfCandidate)->muonRef()->globalTrack().get();
@@ -813,10 +834,23 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau)
   Float_t TauPhi = thePFTau.phi();
   float sumPhiTimesEnergy = 0.;
   float sumEnergyPhi = 0.;
-  for ( std::vector<reco::PFCandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
-	pfCandidate != signalPFCands.end(); ++pfCandidate ) {
-    sumPhiTimesEnergy += (*pfCandidate)->positionAtECALEntrance().phi()*(*pfCandidate)->energy();
-    sumEnergyPhi += (*pfCandidate)->energy();
+  if ( !usePhiAtEcalEntranceExtrapolation ){
+    for ( std::vector<reco::PFCandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
+	  pfCandidate != signalPFCands.end(); ++pfCandidate ) {
+      sumPhiTimesEnergy += (*pfCandidate)->positionAtECALEntrance().phi()*(*pfCandidate)->energy();
+      sumEnergyPhi += (*pfCandidate)->energy();
+    }
+  }
+  else{
+    TauPhi= -99.;
+    for (unsigned int o = 0; o < signalPFCands.size(); o++ ) {
+      reco::Candidate const*  signalCand = signalPFCands[o].get();
+      float phi = thePFTau.phi();
+      math::XYZPoint aPos;
+      if ( atECalEntrance(signalCand, aPos) == true ) phi = aPos.Phi();
+      sumPhiTimesEnergy += phi*signalCand->energy();     
+      sumEnergy += signalCand->energy();
+    }
   }
   if ( sumEnergyPhi > 0. ) {
     TauPhi = sumPhiTimesEnergy/sumEnergyPhi;
@@ -868,7 +902,7 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau)
                   0.);
 }
 
-double AntiElectronIDMVA6::MVAValue(const pat::Tau& theTau, const pat::Electron& theEle)
+double AntiElectronIDMVA6::MVAValue(const pat::Tau& theTau, const pat::Electron& theEle, bool usePhiAtEcalEntranceExtrapolation)
 {
   // === tau variables ===
   float TauEtaAtEcalEntrance = theTau.etaAtEcalEntrance();
@@ -905,13 +939,13 @@ double AntiElectronIDMVA6::MVAValue(const pat::Tau& theTau, const pat::Electron&
       if ( theTau.leadChargedHadrCand().isNonnull() ) {
         GammasdEtaInSigCone.push_back((*gamma)->eta() - theTau.leadChargedHadrCand()->eta());
         GammasdPhiInSigCone.push_back((*gamma)->phi() - theTau.leadChargedHadrCand()->phi());
-	//A.-C. please chaekc whether this change is safe against future trainings
+	//A.-C. please check whether this change is safe against future trainings
         //GammasdPhiInSigCone.push_back(deltaPhi((*gamma)->phi(), theTau.leadChargedHadrCand()->phi()));
       }
       else {
         GammasdEtaInSigCone.push_back((*gamma)->eta() - theTau.eta());
         GammasdPhiInSigCone.push_back((*gamma)->phi() - theTau.phi());
-	//A.-C. please chaekc whether this change is safe against future trainings	
+	//A.-C. please check whether this change is safe against future trainings	
         //GammasdPhiInSigCone.push_back(deltaPhi((*gamma)->phi(), theTau.phi()));
       }
       GammasPtInSigCone.push_back((*gamma)->pt());
@@ -922,7 +956,7 @@ double AntiElectronIDMVA6::MVAValue(const pat::Tau& theTau, const pat::Electron&
       if ( theTau.leadChargedHadrCand().isNonnull() ) {
         GammasdEtaOutSigCone.push_back((*gamma)->eta() - theTau.leadChargedHadrCand()->eta());
         GammasdPhiOutSigCone.push_back((*gamma)->phi() - theTau.leadChargedHadrCand()->phi());
-	//A.-C. please chaekc whether this change is safe against future trainings		
+	//A.-C. please check whether this change is safe against future trainings		
         //GammasdPhiOutSigCone.push_back(deltaPhi((*gamma)->phi(), theTau.leadChargedHadrCand()->phi()));
       } 
       else {
@@ -949,18 +983,32 @@ double AntiElectronIDMVA6::MVAValue(const pat::Tau& theTau, const pat::Electron&
   Int_t TauSignalPFGammaCandsIn = GammasPtInSigCone.size();
   Int_t TauSignalPFGammaCandsOut = GammasPtOutSigCone.size();
   Float_t TauVisMassIn = (pfGammaSum + pfChargedSum).mass();
-
-  Float_t TauPhi = theTau.phi();
- 
-  if ( theTau.phiAtEcalEntrance() != -99. ) {
-    TauPhi = theTau.phiAtEcalEntrance();
+  Float_t TauPhi = -99.;
+  if ( usePhiAtEcalEntranceExtrapolation ) {
+    float sumPhiTimesEnergy = 0.;
+    float sumEnergy = 0.;
+    const reco::CandidatePtrVector signalCands = theTau.signalCands();
+    for (unsigned int o = 0; o < signalCands.size(); o++ ) {
+      reco::Candidate const* signalCand = signalCands[o].get();
+      float phi = theTau.phi();
+      math::XYZPoint aPos;
+      if ( atECalEntrance(signalCand, aPos) == true ) phi = aPos.Phi();
+      sumPhiTimesEnergy += phi*signalCand->energy();	  
+      sumEnergy += signalCand->energy();
+    }
+    if ( sumEnergy > 0. ) {
+      TauPhi = sumPhiTimesEnergy/sumEnergy;
+    }
   }
+  else {
+    TauPhi = theTau.phiAtEcalEntrance();
+  } 
+
   Float_t TaudCrackPhi = dCrackPhi(TauPhi, TauEtaAtEcalEntrance);
   Float_t TaudCrackEta = dCrackEta(TauEtaAtEcalEntrance); 
   
   Float_t TauHasGsf = 0;
   pat::PackedCandidate const* packedLeadTauCand = dynamic_cast<pat::PackedCandidate const*>(theTau.leadChargedHadrCand().get());
-  //const reco::Track & pseudoTrack = packedLeadTauCand->pseudoTrack();
   if( abs(packedLeadTauCand->pdgId()) == 11 ) TauHasGsf = 1;
   
   // === electron variables ===
@@ -1050,7 +1098,7 @@ double AntiElectronIDMVA6::MVAValue(const pat::Tau& theTau, const pat::Electron&
                   ElecMvaInDeltaEta);
 }
 
-double AntiElectronIDMVA6::MVAValue(const pat::Tau& theTau)
+double AntiElectronIDMVA6::MVAValue(const pat::Tau& theTau, bool usePhiAtEcalEntranceExtrapolation)
 {
   // === tau variables ===
   float TauEtaAtEcalEntrance = theTau.etaAtEcalEntrance();
@@ -1123,12 +1171,27 @@ double AntiElectronIDMVA6::MVAValue(const pat::Tau& theTau)
   Int_t TauSignalPFGammaCandsIn = GammasPtInSigCone.size();
   Int_t TauSignalPFGammaCandsOut = GammasPtOutSigCone.size();
   Float_t TauVisMassIn = (pfGammaSum + pfChargedSum).mass();
-
-  Float_t TauPhi = theTau.phi();
- 
-  if ( theTau.phiAtEcalEntrance() != -99. ) {
-    TauPhi = theTau.phiAtEcalEntrance();
+  Float_t TauPhi = -99.;
+  if ( usePhiAtEcalEntranceExtrapolation ) {
+    float sumPhiTimesEnergy = 0.;
+    float sumEnergy = 0.;
+    const reco::CandidatePtrVector signalCands = theTau.signalCands();
+    for (unsigned int o = 0; o < signalCands.size(); o++ ) {
+      reco::Candidate const* signalCand = signalCands[o].get();
+      float phi = theTau.phi();
+      math::XYZPoint aPos;
+      if ( atECalEntrance(signalCand, aPos) == true ) phi = aPos.Phi();
+      sumPhiTimesEnergy += phi*signalCand->energy();	  
+      sumEnergy += signalCand->energy();
+    }
+    if ( sumEnergy > 0. ) {
+      TauPhi = sumPhiTimesEnergy/sumEnergy;
+    }
   }
+  else {
+    TauPhi = theTau.phiAtEcalEntrance();
+  } 
+
   Float_t TaudCrackPhi = dCrackPhi(TauPhi, TauEtaAtEcalEntrance);
   Float_t TaudCrackEta = dCrackEta(TauEtaAtEcalEntrance); 
   
@@ -1198,7 +1261,7 @@ namespace {
   return cPhi;
  }
      
-  static const std::array<double,18> cPhi = fill_cPhi();
+  const std::array<double,18> cPhi = fill_cPhi();
 
 }
 
@@ -1268,4 +1331,29 @@ double AntiElectronIDMVA6::dCrackEta(double eta)
   }
 
   return std::abs(retVal);
+}
+
+bool AntiElectronIDMVA6::atECalEntrance(const reco::Candidate* part, math::XYZPoint &pos)
+{
+  bool result = false;
+  BaseParticlePropagator theParticle =
+    BaseParticlePropagator(RawParticle(math::XYZTLorentzVector(part->px(),
+							       part->py(),
+							       part->pz(),
+							       part->energy()),
+				       math::XYZTLorentzVector(part->vertex().x(),
+							       part->vertex().y(),
+							       part->vertex().z(),
+							       0.)), 
+			   0.,0.,bField_);
+  theParticle.setCharge(part->charge());
+  theParticle.propagateToEcalEntrance(false);
+  if(theParticle.getSuccess()!=0){
+    pos = math::XYZPoint(theParticle.vertex());
+    result = true;
+  }
+  else {
+    result = false;
+  }
+  return result;
 }

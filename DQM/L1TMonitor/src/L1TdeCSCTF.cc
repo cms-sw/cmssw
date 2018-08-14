@@ -44,13 +44,10 @@ L1TdeCSCTF::L1TdeCSCTF(ParameterSet const& pset) {
 	
   m_dirName         = pset.getUntrackedParameter("DQMFolder", string("L1TEMU/CSCTFexpert"));
 
-  ts=0;
-  ptLUT_ = 0;
-	
   ptLUTset = pset.getParameter<ParameterSet>("PTLUT");
 	
   outFile = pset.getUntrackedParameter<string>("outFile", "");
-  if( outFile.size() != 0 )
+  if( !outFile.empty() )
   {
       LogWarning("L1TdeCSCTF")
 	    << "L1T Monitoring histograms will be saved to " 
@@ -89,13 +86,11 @@ L1TdeCSCTF::L1TdeCSCTF(ParameterSet const& pset) {
    		} // sectorItr loop
   	} // endcapItr loop
 	*/
-  my_dtrc = new CSCTFDTReceiver();
+  my_dtrc =std::make_unique<CSCTFDTReceiver>();
 }
 void L1TdeCSCTF::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c){
 }
 
-void L1TdeCSCTF::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c){
-}
 
 void L1TdeCSCTF::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) 
 {
@@ -639,5 +634,4 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
       }
     }
   }
-  if(ptLUT_) delete ptLUT_;
 }		

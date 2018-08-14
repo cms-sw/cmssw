@@ -65,7 +65,7 @@ class DTChamberEfficiency : public DQMEDAnalyzer
   DTChamberEfficiency(const edm::ParameterSet& pset) ;
 
   //Destructor
-  ~DTChamberEfficiency() ;
+  ~DTChamberEfficiency() override ;
 
   //Operations
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
@@ -92,11 +92,8 @@ void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const
   edm::EDGetTokenT<reco::TrackCollection> theTracksToken_;
 
   edm::InputTag labelRPCRecHits;
-  edm::InputTag labelGEMRecHits;
-  edm::InputTag labelME0RecHits;
   edm::InputTag thedt4DSegments;
   edm::InputTag thecscSegments;
-  edm::InputTag labelGEMHits;
 
   double theMaxChi2;
   double theNSigma;

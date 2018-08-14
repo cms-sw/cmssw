@@ -9,8 +9,6 @@
 
 #include "G4THitsCollection.hh"
 #include "SimG4CMS/Forward/interface/BscG4Hit.h"
-#include "G4Step.hh"
-#include <boost/cstdint.hpp>
 
 typedef G4THitsCollection<BscG4Hit> BscG4HitCollection;
 

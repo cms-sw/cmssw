@@ -28,17 +28,18 @@
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 
+#include <memory>
 
 namespace l1t {
 
   // first iteration
   class Stage2MainProcessorFirmwareImp1 : public Stage2MainProcessor {
   public:
-    Stage2MainProcessorFirmwareImp1(unsigned fwv, CaloParamsHelper* params);
+    Stage2MainProcessorFirmwareImp1(unsigned fwv, CaloParamsHelper const* params);
 
-    virtual ~Stage2MainProcessorFirmwareImp1();
+    ~Stage2MainProcessorFirmwareImp1() override = default;
 
-    virtual void processEvent(const std::vector<l1t::CaloTower> & inTowers,
+    void processEvent(const std::vector<l1t::CaloTower> & inTowers,
 			      std::vector<l1t::CaloTower> & outTowers,
 			      std::vector<l1t::CaloCluster> & clusters,
 			      std::vector<l1t::EGamma> & mpEGammas,
@@ -48,7 +49,7 @@ namespace l1t {
 			      std::vector<l1t::EGamma> & egammas,
 			      std::vector<l1t::Tau> & taus,
 			      std::vector<l1t::Jet> & jets,
-			      std::vector<l1t::EtSum> & etSums);
+			      std::vector<l1t::EtSum> & etSums) override;
 
     void print(std::ostream&) const;
 
@@ -56,21 +57,19 @@ namespace l1t {
 
   private:
 
-    CaloParamsHelper* m_params;
+    std::unique_ptr<Stage2TowerDecompressAlgorithm> m_towerAlgo;
+    std::unique_ptr<Stage2Layer2ClusterAlgorithm> m_egClusterAlgo;
+    std::unique_ptr<Stage2Layer2EGammaAlgorithm> m_egAlgo;
+    std::unique_ptr<Stage2Layer2ClusterAlgorithm> m_tauClusterAlgo;
+    std::unique_ptr<Stage2Layer2TauAlgorithm> m_tauAlgo;
+    std::unique_ptr<Stage2Layer2JetAlgorithm> m_jetAlgo;
+    std::unique_ptr<Stage2Layer2EtSumAlgorithm> m_sumAlgo;
+    std::unique_ptr<Stage2Layer2JetSumAlgorithm> m_jetSumAlgo;
 
-    Stage2TowerDecompressAlgorithm* m_towerAlgo;
-    Stage2Layer2ClusterAlgorithm* m_egClusterAlgo;
-    Stage2Layer2EGammaAlgorithm* m_egAlgo;
-    Stage2Layer2ClusterAlgorithm* m_tauClusterAlgo;
-    Stage2Layer2TauAlgorithm* m_tauAlgo;
-    Stage2Layer2JetAlgorithm* m_jetAlgo;
-    Stage2Layer2EtSumAlgorithm* m_sumAlgo;
-    Stage2Layer2JetSumAlgorithm* m_jetSumAlgo;
-
-    Stage2Layer2DemuxEGAlgo* m_demuxEGAlgo;
-    Stage2Layer2DemuxTauAlgo* m_demuxTauAlgo;
-    Stage2Layer2DemuxJetAlgo* m_demuxJetAlgo;
-    Stage2Layer2DemuxSumsAlgo* m_demuxSumsAlgo;
+    std::unique_ptr<Stage2Layer2DemuxEGAlgo> m_demuxEGAlgo;
+    std::unique_ptr<Stage2Layer2DemuxTauAlgo> m_demuxTauAlgo;
+    std::unique_ptr<Stage2Layer2DemuxJetAlgo> m_demuxJetAlgo;
+    std::unique_ptr<Stage2Layer2DemuxSumsAlgo> m_demuxSumsAlgo;
 
   };
 

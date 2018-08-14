@@ -1,15 +1,103 @@
-#include "SimG4CMS/Calo/test/HitParentTest.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimG4CMS/Calo/interface/CaloHitID.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include <TH1F.h>
 
 #include <boost/format.hpp>
 #include <algorithm>
+#include <memory>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <map>
+#include <string>
+
+class HitParentTest: public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
+
+public:
+
+  HitParentTest(const edm::ParameterSet& ps);
+  ~HitParentTest() override {}
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+protected:
+
+  void beginJob() override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override {}
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
+  void endJob() override;
+
+private:
+
+  /** performs some checks on hits */
+  void analyzeHits(const std::vector<PCaloHit> &, int type);
+  void analyzeAPDHits(const std::vector<PCaloHit> &, int depth);
+
+  bool simTrackPresent(int id);
+  math::XYZTLorentzVectorD getOldestParentVertex(edm::SimTrackContainer::const_iterator track);
+  edm::SimTrackContainer::const_iterator parentSimTrack(edm::SimTrackContainer::const_iterator thisTrkItr);
+  bool validSimTrack(unsigned int simTkId, edm::SimTrackContainer::const_iterator thisTrkItr);
+
+private:
+
+  std::string    sourceLabel, g4Label, hitLabEB, hitLabEE, hitLabES, hitLabHC;
+  edm::EDGetTokenT<edm::PCaloHitContainer> tok_eb_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> tok_ee_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> tok_es_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> tok_hc_;
+  edm::EDGetTokenT<edm::SimTrackContainer> tok_tk_;
+  edm::EDGetTokenT<edm::SimVertexContainer> tok_vtx_;
+
+  /** error and other counters */
+  unsigned int                         total_num_apd_hits_seen[2];
+  unsigned int                         num_apd_hits_no_parent[2];
+
+  /** number of apd hits for which the parent sim track id was not found in
+      the simtrack collection. */
+  unsigned int                         num_apd_hits_no_simtrack[2];
+
+  /** number of APD hits for which no generator particle was found */
+  unsigned int                         num_apd_hits_no_gen_particle[2];
+
+  edm::Handle<edm::SimTrackContainer>  SimTk;
+  edm::Handle<edm::SimVertexContainer> SimVtx;
+
+  /** 'histogram' of types of particles going through the APD. Maps from numeric particle code
+      to the number of occurences. */
+  std::map<int, unsigned>              particle_type_count;
+
+  std::string                          detector[7];
+  bool                                 histos;
+  unsigned int                         totalHits[7], noParent[7];
+  unsigned int                         noSimTrack[7], noGenParticle[7];
+  TH1F                                 *hitType[7], *hitRho[7], *hitZ[7];
+};
 
 HitParentTest::HitParentTest(const edm::ParameterSet& ps) {
+
+  usesResource(TFileService::kSharedResource);
 
   sourceLabel = ps.getUntrackedParameter<std::string>("SourceLabel","VtxSmeared");
   g4Label = ps.getUntrackedParameter<std::string>("ModuleLabel","g4SimHits");
@@ -42,6 +130,21 @@ HitParentTest::HitParentTest(const edm::ParameterSet& ps) {
     noSimTrack[i]    = 0;
     noGenParticle[i] = 0;
   }
+}
+
+void HitParentTest::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<std::string>("SourceLabel","generatorSmeared");
+  desc.addUntracked<std::string>("ModuleLabel","g4SimHits");
+  desc.addUntracked<std::string>("EBCollection","EcalHitsEB");
+  desc.addUntracked<std::string>("EECollection","EcalHitsEE");
+  desc.addUntracked<std::string>("ESCollection","EcalHitsES");
+  desc.addUntracked<std::string>("HCCollection","HcalHits");
+  descriptions.add("HitParentTest",desc);
+}
+
+void HitParentTest::beginJob() {
 
   edm::Service<TFileService> tfile;
   if ( !tfile.isAvailable() ) {

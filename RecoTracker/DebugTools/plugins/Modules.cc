@@ -1,4 +1,4 @@
-#include "RecoTracker/DebugTools/interface/CkfDebugTrackCandidateMaker.h"
+#include "CkfDebugTrackCandidateMaker.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"

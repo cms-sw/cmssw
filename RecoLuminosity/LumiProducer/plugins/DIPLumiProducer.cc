@@ -95,7 +95,7 @@ DIPLumiProducer::produceSummary(const DIPLuminosityRcd&)
   }else{
     m_summaryresult=m_summarycache[currentls];
   }
-  if(m_summaryresult.get()==0){
+  if(m_summaryresult.get()==nullptr){
     return std::make_shared<DIPLumiSummary>();
   }
   return m_summaryresult;
@@ -127,7 +127,7 @@ DIPLumiProducer::produceDetail(const DIPLuminosityRcd&)
   }else{
     m_detailresult=m_detailcache[currentls];
   }
-  if(m_detailresult.get()==0){
+  if(m_detailresult.get()==nullptr){
     return std::make_shared<DIPLumiDetail>();
   }
   return m_detailresult;
@@ -159,7 +159,7 @@ DIPLumiProducer::fillsummarycache(unsigned int runnumber,unsigned int currentlsn
   if( !mydbservice.isAvailable() ){
     throw cms::Exception("Non existing service lumi::service::DBService");
   }
-  coral::ISessionProxy* session=mydbservice->connectReadOnly(m_connectStr);
+  auto session=mydbservice->connectReadOnly(m_connectStr);
   coral::ITypeConverter& tconverter=session->typeConverter();
   tconverter.setCppTypeForSqlType(std::string("float"),std::string("FLOAT(63)"));
   tconverter.setCppTypeForSqlType(std::string("unsigned int"),std::string("NUMBER(10)"));
@@ -175,7 +175,6 @@ DIPLumiProducer::fillsummarycache(unsigned int runnumber,unsigned int currentlsn
     }else if(maxavailableLS==0){
       //this run not existing (yet)
       session->transaction().commit();
-      mydbservice->disconnect(session);
       return;
     }
     if(m_cachesize!=0){
@@ -234,10 +233,8 @@ DIPLumiProducer::fillsummarycache(unsigned int runnumber,unsigned int currentlsn
     session->transaction().commit();
   }catch(const coral::Exception& er){
     session->transaction().rollback();
-    mydbservice->disconnect(session);
     throw cms::Exception("DatabaseError ")<<er.what();
   }
-  mydbservice->disconnect(session);
 }
 unsigned int
 DIPLumiProducer::maxavailableLSforRun(coral::ISchema& schema,const std::string&tablename,unsigned int runnumber){
@@ -278,7 +275,7 @@ DIPLumiProducer::filldetailcache(unsigned int runnumber,unsigned int currentlsnu
   if( !mydbservice.isAvailable() ){
     throw cms::Exception("Non existing service lumi::service::DBService");
   }
-  coral::ISessionProxy* session=mydbservice->connectReadOnly(m_connectStr);
+  auto session=mydbservice->connectReadOnly(m_connectStr);
   coral::ITypeConverter& tconverter=session->typeConverter();
   tconverter.setCppTypeForSqlType(std::string("float"),std::string("FLOAT(63)"));
   tconverter.setCppTypeForSqlType(std::string("unsigned int"),std::string("NUMBER(10)"));
@@ -293,7 +290,6 @@ DIPLumiProducer::filldetailcache(unsigned int runnumber,unsigned int currentlsnu
     }else if(maxavailableLS==0){
       //this run not existing (yet)
       session->transaction().commit();
-      mydbservice->disconnect(session);
       return;
     }
     if(m_cachesize!=0){
@@ -339,10 +335,8 @@ DIPLumiProducer::filldetailcache(unsigned int runnumber,unsigned int currentlsnu
     session->transaction().commit();
   }catch(const coral::Exception& er){
     session->transaction().rollback();
-    mydbservice->disconnect(session);
     throw cms::Exception("DatabaseError ")<<er.what();
   }
-  mydbservice->disconnect(session);
 }
 DIPLumiProducer::~DIPLumiProducer(){}
 //define this as a plug-in

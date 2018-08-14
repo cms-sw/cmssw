@@ -30,9 +30,9 @@ class BdecayFilter : public edm::EDFilter
 public:
 
   explicit BdecayFilter(const edm::ParameterSet&);
-  ~BdecayFilter();
+  ~BdecayFilter() override;
   
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
 private:
 

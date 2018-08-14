@@ -89,28 +89,28 @@ HLTJetCollForElePlusJets<T>::produce(edm::Event& iEvent, const edm::EventSetup& 
   std::vector<TVector3> ElePs;
 
   if(!clusCands.empty()){ //try trigger cluster
-    for(size_t candNr=0;candNr<clusCands.size();candNr++){
+    for(auto & clusCand : clusCands){
       TVector3 positionVector(
-			      clusCands[candNr]->superCluster()->position().x(),
-			      clusCands[candNr]->superCluster()->position().y(),
-			      clusCands[candNr]->superCluster()->position().z());
+			      clusCand->superCluster()->position().x(),
+			      clusCand->superCluster()->position().y(),
+			      clusCand->superCluster()->position().z());
       ElePs.push_back(positionVector);
     }
   }else if(!eleCands.empty()){ // try trigger electrons
-    for(size_t candNr=0;candNr<eleCands.size();candNr++){
+    for(auto & eleCand : eleCands){
       TVector3 positionVector(
-			      eleCands[candNr]->superCluster()->position().x(),
-			      eleCands[candNr]->superCluster()->position().y(),
-			      eleCands[candNr]->superCluster()->position().z());
+			      eleCand->superCluster()->position().x(),
+			      eleCand->superCluster()->position().y(),
+			      eleCand->superCluster()->position().z());
       ElePs.push_back(positionVector);
     }
   }
   else if(!photonCands.empty()){ // try trigger photons
-    for(size_t candNr=0;candNr<photonCands.size();candNr++){
+    for(auto & photonCand : photonCands){
       TVector3 positionVector(
-                  photonCands[candNr]->superCluster()->position().x(),
-                  photonCands[candNr]->superCluster()->position().y(),
-                  photonCands[candNr]->superCluster()->position().z());
+                  photonCand->superCluster()->position().x(),
+                  photonCand->superCluster()->position().y(),
+                  photonCand->superCluster()->position().z());
       ElePs.push_back(positionVector);
     }
   }
@@ -126,7 +126,7 @@ HLTJetCollForElePlusJets<T>::produce(edm::Event& iEvent, const edm::EventSetup& 
   
   bool foundSolution(false);
 
-  for (unsigned int i = 0; i < ElePs.size(); i++) {
+  for (auto & EleP : ElePs) {
     
     bool VBFJetPair = false;
     std::vector<int> store_jet;
@@ -135,7 +135,7 @@ HLTJetCollForElePlusJets<T>::produce(edm::Event& iEvent, const edm::EventSetup& 
     for (unsigned int j = 0; j < theJetCollection.size(); j++) {
       TVector3 JetP(theJetCollection[j].px(), theJetCollection[j].py(),
                     theJetCollection[j].pz());
-      double DR = ElePs[i].DeltaR(JetP);
+      double DR = EleP.DeltaR(JetP);
       
       if (JetP.Pt() > minJetPt_ && std::abs(JetP.Eta()) < maxAbsJetEta_ && DR > minDeltaR_) {
 	store_jet.push_back(j);
@@ -144,7 +144,7 @@ HLTJetCollForElePlusJets<T>::produce(edm::Event& iEvent, const edm::EventSetup& 
 	  for ( unsigned int k = j+1; k < theJetCollection.size(); k++ ) {
 	    TVector3 SoftJetP(theJetCollection[k].px(), theJetCollection[k].py(),
 			      theJetCollection[k].pz());
-	    double softDR = ElePs[i].DeltaR(SoftJetP);
+	    double softDR = EleP.DeltaR(SoftJetP);
 	    
 	    if (SoftJetP.Pt() > minSoftJetPt_ && std::abs(SoftJetP.Eta()) < maxAbsJetEta_ && softDR > minDeltaR_)
 	      if ( std::abs(SoftJetP.Eta() - JetP.Eta()) > minDeltaEta_ ) {
@@ -162,13 +162,13 @@ HLTJetCollForElePlusJets<T>::produce(edm::Event& iEvent, const edm::EventSetup& 
     store_jet.erase( unique( store_jet.begin(), store_jet.end() ), store_jet.end() );
     
     // Now save the cleaned jets
-    for ( unsigned int ijet = 0; ijet < store_jet.size(); ijet++ )
+    for (int & ijet : store_jet)
       {
 	//store all selections
-	refVector.push_back(TRef(theJetCollectionHandle, store_jet.at(ijet)));
+	refVector.push_back(TRef(theJetCollectionHandle, ijet));
 	//store first selection which matches the criteria
 	if(!foundSolution)
-	  theFilteredJetCollection->push_back(theJetCollection[store_jet.at(ijet)]);
+	  theFilteredJetCollection->push_back(theJetCollection[ijet]);
       }
     //store all selections
     allSelections->push_back(refVector);

@@ -35,9 +35,9 @@ namespace {
     }
     
     
-    ~KFFittingSmootherESProducer() {}
+    ~KFFittingSmootherESProducer() override {}
     
-    std::shared_ptr<TrajectoryFitter> 
+    std::unique_ptr<TrajectoryFitter> 
     produce(const TrajectoryFitterRecord & iRecord){ 
       
       
@@ -47,7 +47,7 @@ namespace {
       iRecord.get(pset_.getParameter<std::string>("Fitter"), fit);
       iRecord.get(pset_.getParameter<std::string>("Smoother"), smooth);
       
-     return std::shared_ptr<TrajectoryFitter>(new KFFittingSmoother(*fit.product(), *smooth.product(),pset_));
+     return std::make_unique<KFFittingSmoother>(*fit.product(), *smooth.product(),pset_);
     }
 
   private:

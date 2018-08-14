@@ -1,8 +1,10 @@
+from __future__ import print_function
 from  Configuration.PyReleaseValidation.relval_steps import Matrix, InputInfo, Steps
 import os
 import json
 import collections
 
+import six
 
 workflows = Matrix()
 steps = Steps()
@@ -28,7 +30,7 @@ def fix_run(run):
         if item.isdigit():
             int_runs.append(int(item))
         else:
-            print "WARNING: run is in bad format: {0}".format(run)
+            print("WARNING: run is in bad format: {0}".format(run))
     return int_runs
 
 def convert_keys_to_string(dictionary):
@@ -36,10 +38,10 @@ def convert_keys_to_string(dictionary):
         Utility to help deal with unicode keys in dictionaries created from json requests.
         In order to pass dict to function as **kwarg we should transform key/value to str.
     """
-    if isinstance(dictionary, basestring):
+    if isinstance(dictionary, str):
         return str(dictionary)
     elif isinstance(dictionary, collections.Mapping):
-        return dict(map(convert_keys_to_string, dictionary.iteritems()))
+        return dict(map(convert_keys_to_string, six.iteritems(dictionary)))
     elif isinstance(dictionary, collections.Iterable):
         return type(dictionary)(map(convert_keys_to_string, dictionary))
     else:

@@ -4,7 +4,8 @@
 #define CSCDCCTrailer_h
 
 #include <iostream>
-#include <string.h> // bzero
+#include <cstdint>
+#include <cstring> // bzero
 #include "DataFormats/CSCDigi/interface/CSCDCCStatusDigi.h"
 
 
@@ -24,6 +25,11 @@ struct CSCDCCTrailer {
   {
     memcpy(this, digi.trailer(), sizeInWords()*2);
   }
+
+  void setFromBuffer(uint16_t const* buf) {
+    memcpy(this, buf, sizeInWords()*2);
+  }
+
   /// for reference www.physics.ohio-state.edu/%7Ecms/dcc/outdatafmt.html
   /// dcc_trail1 should be EF
   unsigned fifo_status      : 8;

@@ -33,12 +33,12 @@ public:
 	       const edm::InputSourceDescription &desc);
 
   /// Destructor
-  virtual ~AlpgenSource();
+  ~AlpgenSource() override;
 
 private:
-  virtual bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&) override;
-  virtual void produce(edm::Event &event) override;
-  virtual void beginRun(edm::Run &run) override;
+  bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&) override;
+  void produce(edm::Event &event) override;
+  void beginRun(edm::Run &run) override;
 
   /// Function to get parameter by name from AlpgenHeader.
   template<typename T>
@@ -140,7 +140,7 @@ AlpgenSource::AlpgenSource(const edm::ParameterSet &params,
       << "unweighted parameter file." << std::endl;
 
   // Declare the products.
-  produces<LHERunInfoProduct, edm::InRun>();
+   produces<LHERunInfoProduct, edm::Transition::BeginRun>();
   produces<LHEEventProduct>();
 }
 
@@ -246,7 +246,7 @@ void AlpgenSource::beginRun(edm::Run &run)
   // If requested by the user, we also add any specific header provided.
   // Nota bene: the header is put in the LHERunInfoProduct AS IT WAS GIVEN.
   // That means NO CROSS-CHECKS WHATSOEVER. Use with care.
-  LHERunInfoProduct::Header extraHeader(extraHeaderName_.c_str());
+  LHERunInfoProduct::Header extraHeader(extraHeaderName_);
   if(writeExtraHeader) {
     std::ifstream extraascii(extraHeaderFileName_.c_str());
     while(extraascii.getline(buffer,512)) {

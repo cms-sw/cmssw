@@ -57,12 +57,12 @@
 class aod2patFilterZee : public edm::EDFilter {
    public:
       explicit aod2patFilterZee(const edm::ParameterSet&);
-      ~aod2patFilterZee();
+      ~aod2patFilterZee() override;
 
    private:
-      virtual void beginJob() override;
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
   //bool isInFiducial(double eta);
 
       // ----------member data ---------------------------

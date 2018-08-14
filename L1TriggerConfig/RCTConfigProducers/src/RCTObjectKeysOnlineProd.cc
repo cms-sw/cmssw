@@ -32,9 +32,9 @@
 class RCTObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
    public:
       RCTObjectKeysOnlineProd(const edm::ParameterSet&);
-      ~RCTObjectKeysOnlineProd();
+      ~RCTObjectKeysOnlineProd() override;
 
-      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
+      void fillObjectKeys( FillType pL1TriggerKey ) override ;
    private:
       // ----------member data ---------------------------
 };
@@ -70,7 +70,7 @@ RCTObjectKeysOnlineProd::~RCTObjectKeysOnlineProd()
 
 // ------------ method called to produce the data  ------------
 void
-RCTObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
+RCTObjectKeysOnlineProd::fillObjectKeys( FillType pL1TriggerKey )
 {
   std::string rctKey = pL1TriggerKey->subsystemKey( L1TriggerKey::kRCT ) ;
 

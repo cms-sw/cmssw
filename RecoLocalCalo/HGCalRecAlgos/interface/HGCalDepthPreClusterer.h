@@ -10,17 +10,18 @@
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/ClusterTools.h"
 
-class HGCalDepthPreClusterer 
+class HGCalDepthPreClusterer
 {
 public:
-  
- HGCalDepthPreClusterer() : radius(0.), minClusters(0.), clusterTools(nullptr)
+
+ HGCalDepthPreClusterer() : radii({0.,0.,0.,}), minClusters(0), realSpaceCone(false), clusterTools(nullptr)
     {
   }
-  
- HGCalDepthPreClusterer(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes, double radius_in, uint32_t min_clusters) : 
-  radius(radius_in),
+
+ HGCalDepthPreClusterer(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes, std::vector<float> radii_in, uint32_t min_clusters, bool real_space_cone) :
+  radii(radii_in),
   minClusters(min_clusters),
+  realSpaceCone(real_space_cone),
   clusterTools(std::make_unique<hgcal::ClusterTools>(conf,sumes)) {
   }
 
@@ -30,13 +31,18 @@ public:
   typedef std::vector<reco::BasicCluster> ClusterCollection;
   //  typedef std::vector<reco::BasicCluster> MultiCluster;
 
-  std::vector<reco::HGCalMultiCluster> makePreClusters(const reco::HGCalMultiCluster::ClusterCollection &) const;    
+  std::vector<reco::HGCalMultiCluster> makePreClusters(const reco::HGCalMultiCluster::ClusterCollection &) const;
 
-private:  
-  float radius;
+private:
+  std::vector<float> radii;
   uint32_t minClusters;
-  
+  bool realSpaceCone; /*!< flag to use cartesian space clustering. */
+
   std::unique_ptr<hgcal::ClusterTools> clusterTools;
+
+  static const unsigned int lastLayerEE = 28;
+  static const unsigned int lastLayerFH = 40;
+  static const unsigned int lastLayerBH = 52;
 
 };
 

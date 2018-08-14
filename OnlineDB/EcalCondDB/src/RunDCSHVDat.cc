@@ -1,6 +1,6 @@
 #include <stdexcept>
 #include <string>
-#include <math.h>
+#include <cmath>
 #include <list>
 #include <string>
 #include <map>
@@ -15,10 +15,10 @@ using namespace oracle::occi;
 
 RunDCSHVDat::RunDCSHVDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_hv = 0;
   m_hvnom = 0;
@@ -63,7 +63,7 @@ ResultSet *RunDCSHVDat::getBarrelRset(const Tm& timeStart) {
 
   DateHandler dh(m_env, m_conn);
 
-  ResultSet* rset = NULL;
+  ResultSet* rset = nullptr;
   string query="SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, " 
     " d.actual_vmon, h.nominal_value ,  d.change_date " 
     " FROM "+ getEBAccount()+".FWCAENCHANNEL d " 
@@ -77,11 +77,11 @@ ResultSet *RunDCSHVDat::getBarrelRset(const Tm& timeStart) {
 
     rset = m_readStmt->executeQuery();
   }
-  catch (SQLException e) {
+  catch (SQLException &e) {
 #if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
-    throw(std::runtime_error("RunDCSHVDat::getBarrelRset():  " + e.getMessage() + " " + query));
+    throw(std::runtime_error(std::string("RunDCSHVDat::getBarrelRset():  ") + getOraMessage(&e) + " " + query));
 #else
-    throw(std::runtime_error("RunDCSHVDat::getBarrelRset():  error code " + std::to_string(e.getErrorCode()) + " " + query));
+    throw(std::runtime_error(std::string("RunDCSHVDat::getBarrelRset():  error code ") + std::to_string(e.getErrorCode()) + " " + query));
 #endif
   }
   return rset;
@@ -91,7 +91,7 @@ ResultSet *RunDCSHVDat::getEndcapAnodeRset(const Tm& timeStart) {
 
   DateHandler dh(m_env, m_conn);
 
-  ResultSet* rset = NULL;
+  ResultSet* rset = nullptr;
   string query="SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, " 
     " d.actual_vmon, '800' nominal_value ,  d.change_date " 
     " FROM "+ getEEAccount()+".FWCAENCHANNEL d " 
@@ -105,11 +105,11 @@ ResultSet *RunDCSHVDat::getEndcapAnodeRset(const Tm& timeStart) {
 
     rset = m_readStmt->executeQuery();
   }
-  catch (SQLException e) {
+  catch (SQLException &e) {
 #if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
-    throw(std::runtime_error("RunDCSHVDat::getBarrelRset():  " + e.getMessage() + " " + query));
+    throw(std::runtime_error(std::string("RunDCSHVDat::getBarrelRset():  ") + getOraMessage(&e) + " " + query));
 #else
-    throw(std::runtime_error("RunDCSHVDat::getBarrelRset():  error code " + std::to_string(e.getErrorCode()) + " " + query));
+    throw(std::runtime_error(std::string("RunDCSHVDat::getBarrelRset():  error code ") + std::to_string(e.getErrorCode()) + " " + query));
 #endif
   }
   return rset;
@@ -119,7 +119,7 @@ ResultSet *RunDCSHVDat::getEndcapDynodeRset(const Tm& timeStart) {
 
   DateHandler dh(m_env, m_conn);
 
-  ResultSet* rset = NULL;
+  ResultSet* rset = nullptr;
   string query="SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, " 
     " d.actual_vmon, '600' nominal_value ,  d.change_date " 
     " FROM "+ getEEAccount()+".FWCAENCHANNEL d " 
@@ -133,11 +133,11 @@ ResultSet *RunDCSHVDat::getEndcapDynodeRset(const Tm& timeStart) {
 
     rset = m_readStmt->executeQuery();
   }
-  catch (SQLException e) {
+  catch (SQLException &e) {
 #if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
-    throw(std::runtime_error("RunDCSHVDat::getBarrelRset():  " + e.getMessage() + " " + query));
+    throw(std::runtime_error(std::string("RunDCSHVDat::getBarrelRset():  ") + getOraMessage(&e) + " " + query));
 #else
-    throw(std::runtime_error("RunDCSHVDat::getBarrelRset():  error code " + std::to_string(e.getErrorCode()) + " " + query));
+    throw(std::runtime_error(std::string("RunDCSHVDat::getBarrelRset():  error code ") + std::to_string(e.getErrorCode()) + " " + query));
 #endif
   }
   return rset;
@@ -156,15 +156,15 @@ ResultSet *RunDCSHVDat::getBarrelRset() {
     m_readStmt->setSQL(query);
     rset = m_readStmt->executeQuery();
   }
-  catch (SQLException e) {
-    throw(std::runtime_error("RunDCSHVDat::getBarrelRset():  " + e.getMessage() + " " + query));
+  catch (SQLException &e) {
+    throw(std::runtime_error(std::string("RunDCSHVDat::getBarrelRset():  ") + getOraMessage(&e) + " " + query));
   }
   return rset;
 }
 */
 
 ResultSet *RunDCSHVDat::getBarrelRset() {
-  ResultSet* rset = NULL;
+  ResultSet* rset = nullptr;
   string query = "SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
     " d.VALUE_NUMBER, h.nominal_value , d.CHANGE_DATE "
     "FROM "+ getEBAccount()+".FWCAENCHANNEL_LV d "
@@ -174,18 +174,18 @@ ResultSet *RunDCSHVDat::getBarrelRset() {
     m_readStmt->setSQL(query);
     rset = m_readStmt->executeQuery();
   }
-  catch (SQLException e) {
+  catch (SQLException &e) {
 #if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
-    throw(std::runtime_error("RunDCSHVDat::getBarrelRset():  " + e.getMessage() + " " + query));
+    throw(std::runtime_error(std::string("RunDCSHVDat::getBarrelRset():  ") + getOraMessage(&e) + " " + query));
 #else
-    throw(std::runtime_error("RunDCSHVDat::getBarrelRset():  error code " + std::to_string(e.getErrorCode()) + " " + query));
+    throw(std::runtime_error(std::string("RunDCSHVDat::getBarrelRset():  error code ") + std::to_string(e.getErrorCode()) + " " + query));
 #endif
   }
   return rset;
 }
 
 ResultSet *RunDCSHVDat::getEndcapAnodeRset() {
-  ResultSet* rset = NULL;
+  ResultSet* rset = nullptr;
   string query = "SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
     " d.value_number, '800' NOMINAL_VALUE , d.CHANGE_DATE "
     "FROM "+ getEEAccount()+".FWCAENCHANNEL_LV d "
@@ -195,18 +195,18 @@ ResultSet *RunDCSHVDat::getEndcapAnodeRset() {
     m_readStmt->setSQL(query);
     rset = m_readStmt->executeQuery();
   }
-  catch (SQLException e) {
+  catch (SQLException &e) {
 #if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
-    throw(std::runtime_error("RunDCSHVDat::getEndcapAnodeRset():  " + e.getMessage() + " " + query));
+    throw(std::runtime_error(std::string("RunDCSHVDat::getEndcapAnodeRset():  ") + getOraMessage(&e) + " " + query));
 #else
-    throw(std::runtime_error("RunDCSHVDat::getEndcapAnodeRset():  error code " + std::to_string(e.getErrorCode()) + " " + query));
+    throw(std::runtime_error(std::string("RunDCSHVDat::getEndcapAnodeRset():  error code ") + std::to_string(e.getErrorCode()) + " " + query));
 #endif
   }
   return rset;
 }
 
 ResultSet *RunDCSHVDat::getEndcapDynodeRset() {
-  ResultSet* rset = NULL;
+  ResultSet* rset = nullptr;
   string query = "SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
     " d.value_number, '600' NOMINAL_VALUE , d.CHANGE_DATE "
     "FROM "+ getEEAccount()+".FWCAENCHANNEL_LV d "
@@ -216,11 +216,11 @@ ResultSet *RunDCSHVDat::getEndcapDynodeRset() {
     m_readStmt->setSQL(query);
     rset = m_readStmt->executeQuery();
   } 
-  catch (SQLException e) {
+  catch (SQLException &e) {
 #if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
-    throw(std::runtime_error("RunDCSHVDat::getEndcapDynodeRset():  " + e.getMessage() + " " + query));
+    throw(std::runtime_error(std::string("RunDCSHVDat::getEndcapDynodeRset():  ") + getOraMessage(&e) + " " + query));
 #else
-    throw(std::runtime_error("RunDCSHVDat::getEndcapDynodeRset():  error code " + std::to_string(e.getErrorCode()) + " " + query));
+    throw(std::runtime_error(std::string("RunDCSHVDat::getEndcapDynodeRset():  error code ") + std::to_string(e.getErrorCode()) + " " + query));
 #endif
   }
   return rset;
@@ -237,12 +237,12 @@ void RunDCSHVDat::fillTheMap(ResultSet *rset,
 
   try {
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
       
       dat.setHV(        rset->getFloat(7) );
       dat.setHVNominal( rset->getFloat(8) );
@@ -260,9 +260,9 @@ void RunDCSHVDat::fillTheMap(ResultSet *rset,
   }
   catch (SQLException &e) {
 #if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
-    throw(std::runtime_error("RunDCSHVDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunDCSHVDat::fetchData():  ")+getOraMessage(&e)));
 #else
-    throw(std::runtime_error("RunDCSHVDat::fetchData():  error code " + std::to_string(e.getErrorCode())));
+    throw(std::runtime_error(std::string("RunDCSHVDat::fetchData():  error code ") + std::to_string(e.getErrorCode())));
 #endif
   }
 }
@@ -284,12 +284,12 @@ void RunDCSHVDat::fillTheMapByTime(ResultSet *rset,
   try {
     int count=-1;
     while(rset->next()) {
-      EcalLogicID ec = EcalLogicID( rset->getString(1),     // name
+      EcalLogicID ec = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
       
 
       dat.setHV(        rset->getFloat(7) );
@@ -354,9 +354,9 @@ void RunDCSHVDat::fillTheMapByTime(ResultSet *rset,
   }
   catch (SQLException &e) {
 #if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
-    throw(std::runtime_error("RunDCSHVDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunDCSHVDat::fetchData():  ")+getOraMessage(&e)));
 #else
-    throw(std::runtime_error("RunDCSHVDat::fetchData():  error code " + std::to_string(e.getErrorCode())));
+    throw(std::runtime_error(std::string("RunDCSHVDat::fetchData():  error code ") + std::to_string(e.getErrorCode())));
 #endif
   }
 }
@@ -434,9 +434,9 @@ void RunDCSHVDat::fetchLastData(map< EcalLogicID, RunDCSHVDat >* fillMap )
   } 
   catch (SQLException &e) {
 #if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
-    throw(std::runtime_error("RunDCSHVDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunDCSHVDat::fetchData():  ")+getOraMessage(&e)));
 #else
-    throw(std::runtime_error("RunDCSHVDat::fetchData():  error code " + std::to_string(e.getErrorCode())));
+    throw(std::runtime_error(std::string("RunDCSHVDat::fetchData():  error code ") + std::to_string(e.getErrorCode())));
 #endif
   }
 }
@@ -474,9 +474,9 @@ void RunDCSHVDat::fetchHistoricalData(std::list< std::pair<Tm, std::map< EcalLog
   } 
   catch (SQLException &e) {
 #if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
-    throw(std::runtime_error("RunDCSHVDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunDCSHVDat::fetchData():  ")+getOraMessage(&e)));
 #else
-    throw(std::runtime_error("RunDCSHVDat::fetchData():  error code " + std::to_string(e.getErrorCode())));
+    throw(std::runtime_error(std::string("RunDCSHVDat::fetchData():  error code ") + std::to_string(e.getErrorCode())));
 #endif
   }
 }

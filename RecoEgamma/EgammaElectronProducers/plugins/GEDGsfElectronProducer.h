@@ -13,8 +13,8 @@ class GEDGsfElectronProducer : public GsfElectronBaseProducer
     //static void fillDescriptions( edm::ConfigurationDescriptions & ) ;
 
    explicit GEDGsfElectronProducer( const edm::ParameterSet &, const gsfAlgoHelpers::HeavyObjectCache* ) ;
-    virtual ~GEDGsfElectronProducer() ;
-    virtual void produce( edm::Event &, const edm::EventSetup & ) ;
+    ~GEDGsfElectronProducer() override ;
+    void produce( edm::Event &, const edm::EventSetup & ) override ;
 
  private:
     edm::EDGetTokenT<reco::PFCandidateCollection> egmPFCandidateCollection_;

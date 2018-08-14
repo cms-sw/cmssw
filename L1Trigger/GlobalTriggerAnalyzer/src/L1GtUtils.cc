@@ -910,8 +910,8 @@ const int L1GtUtils::l1Results(const edm::Event& iEvent,
 
     size_t pfSetsSize = 0;
     int pfIndex = -1;
-    const std::vector<int>* prescaleFactorsSubset = 0;
-    const std::vector<unsigned int>* triggerMasksSet = 0;
+    const std::vector<int>* prescaleFactorsSubset = nullptr;
+    const std::vector<unsigned int>* triggerMasksSet = nullptr;
 
     switch (trigCategory) {
         case AlgorithmTrigger: {
@@ -1359,7 +1359,7 @@ const int L1GtUtils::triggerMask(const std::string& nameAlgoTechTrig,
 
     // pointer to the set of trigger masks
 
-    const std::vector<unsigned int>* triggerMasksSet = 0;
+    const std::vector<unsigned int>* triggerMasksSet = nullptr;
 
     switch (trigCategory) {
         case AlgorithmTrigger: {
@@ -1890,7 +1890,7 @@ const L1GtTriggerMenu* L1GtUtils::ptrL1TriggerMenuEventSetup(int& errorCode) {
 
     if (!availableL1Configuration(iError, l1ConfCode)) {
         errorCode = iError;
-        return 0;
+        return nullptr;
     }
 
     if (m_retrieveL1EventSetup) {
@@ -1900,7 +1900,7 @@ const L1GtTriggerMenu* L1GtUtils::ptrL1TriggerMenuEventSetup(int& errorCode) {
         iError = l1ConfCode;
 
         errorCode = iError;
-        return 0;
+        return nullptr;
 
     }
 
@@ -1918,7 +1918,7 @@ const L1GtTriggerMenuLite* L1GtUtils::ptrL1GtTriggerMenuLite(int& errorCode) {
 
     if (!availableL1Configuration(iError, l1ConfCode)) {
         errorCode = iError;
-        return 0;
+        return nullptr;
     }
 
     if (m_retrieveL1GtTriggerMenuLite) {
@@ -1931,13 +1931,13 @@ const L1GtTriggerMenuLite* L1GtUtils::ptrL1GtTriggerMenuLite(int& errorCode) {
             iError = l1ConfCode;
 
             errorCode = iError;
-            return 0;
+            return nullptr;
         }
     } else {
         iError = l1ConfCode;
 
         errorCode = iError;
-        return 0;
+        return nullptr;
     }
 
     errorCode = iError;

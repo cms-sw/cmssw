@@ -12,10 +12,12 @@
 *   A longer explanation will be placed here later
 */
 
+#include "CalibFormats/SiPixelObjects/interface/PixelConfigKey.h"
+
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <time.h>
+#include <ctime>
 #include <sys/time.h>
 #include <cstdlib>
 
@@ -34,6 +36,8 @@ namespace pos{
      std::cout << "[PixelTimeFormatter::PixelTimeFormatter()]\t\t    Time counter started for " << origin_ << std::endl ;
      startTime_ = getImSecTime() ;
     }
+
+    virtual ~PixelTimeFormatter() = default;
     
     void stopTimer(void) 
     {
@@ -47,21 +51,23 @@ namespace pos{
     virtual void writeXMLHeader(pos::PixelConfigKey key,
                                 int version, std::string path,
                                 std::ofstream *out,
-                                std::ofstream *out1 = NULL,
-                                std::ofstream *out2 = NULL
+                                std::ofstream *out1 = nullptr,
+                                std::ofstream *out2 = nullptr
                                 ) const {;}
 
     //---------------------------------------------------------------------------------
     static std::string getTime(void) 
     {
-      char theDate[20] ;
+      constexpr size_t kBufferLength = 72;
+      char theDate[kBufferLength] ;
       struct tm *thisTime;
       time_t aclock;
       std::string date ;
       time( &aclock );		  
       thisTime = localtime( &aclock ); 
        
-      sprintf(theDate,
+      snprintf(theDate,
+               kBufferLength,
 	      "%d-%02d-%02d %02d:%02d:%02d", thisTime->tm_year+1900,
 	      thisTime->tm_mon+1,
 	      thisTime->tm_mday,
@@ -86,11 +92,13 @@ namespace pos{
     //---------------------------------------------------------------------------------
     static std::string getmSecTime(void) 
     {
-      char theDate[20] ;
+      constexpr size_t kBufferSize = 20;
+      char theDate[kBufferSize] ;
       struct timeval msecTime;
-      gettimeofday(&msecTime, (struct timezone *)0) ;
+      gettimeofday(&msecTime, (struct timezone *)nullptr) ;
       
-      sprintf(theDate,
+      snprintf(theDate,
+               kBufferSize,
 	      "%d-%d", 
 	      (unsigned int)msecTime.tv_sec,
 	      (unsigned int)msecTime.tv_usec ); 
@@ -101,7 +109,7 @@ namespace pos{
     struct timeval getImSecTime(void) 
     {
       struct timeval msecTime;
-      gettimeofday(&msecTime, (struct timezone *)0) ;
+      gettimeofday(&msecTime, (struct timezone *)nullptr) ;
       
       return msecTime ;
     }

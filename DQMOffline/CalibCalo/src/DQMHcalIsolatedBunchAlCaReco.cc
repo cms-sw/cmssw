@@ -85,7 +85,7 @@ void DQMHcalIsolatedBunchAlCaReco::analyze(const edm::Event& iEvent,
     for (unsigned int iHLT=0; iHLT<triggerResults->size(); iHLT++) {
       int hlt    = triggerResults->accept(iHLT);
       if (hlt > 0) {
-	if (triggerNames_[iHLT].find(trigName_.c_str())!=std::string::npos) {
+	if (triggerNames_[iHLT].find(trigName_)!=std::string::npos) {
 	  accept = true;
 	  break;
 	}

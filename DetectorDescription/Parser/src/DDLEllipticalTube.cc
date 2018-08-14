@@ -1,13 +1,12 @@
 #include "DetectorDescription/Parser/src/DDLEllipticalTube.h"
-
-#include <map>
-#include <utility>
-
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Core/interface/ClhepEvaluator.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDLSolid.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
+
+#include <map>
+#include <utility>
 
 class DDCompactView;
 

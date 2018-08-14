@@ -12,7 +12,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -31,21 +31,19 @@ using namespace l1t;
 // class declaration
 //
 
-class L1TMuonQualityAdjuster : public edm::EDProducer {
+class L1TMuonQualityAdjuster : public edm::stream::EDProducer<> {
 public:
   explicit L1TMuonQualityAdjuster(const edm::ParameterSet&);
-  ~L1TMuonQualityAdjuster();
+  ~L1TMuonQualityAdjuster() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginJob() override ;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override ;
-  virtual void endJob() override ;
-  virtual void beginRun(const edm::Run&, edm::EventSetup const&) override ;
-  virtual void endRun(const edm::Run&, edm::EventSetup const&) override ;
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
-  virtual void endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
+  void produce(edm::Event&, const edm::EventSetup&) override ;
+  void beginRun(const edm::Run&, edm::EventSetup const&) override ;
+  void endRun(const edm::Run&, edm::EventSetup const&) override ;
+  void beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
+  void endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
   // ----------member data ---------------------------
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> m_barrelTfInputToken;
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> m_overlapTfInputToken;
@@ -168,17 +166,6 @@ L1TMuonQualityAdjuster::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.put(std::move(filteredBMTFMuons), "BMTF");
   iEvent.put(std::move(filteredOMTFMuons), "OMTF");
   iEvent.put(std::move(filteredEMTFMuons), "EMTF");
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void
-L1TMuonQualityAdjuster::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void
-L1TMuonQualityAdjuster::endJob() {
 }
 
 // ------------ method called when starting to processes a run  ------------

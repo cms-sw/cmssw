@@ -24,9 +24,9 @@ class HLTHcalTowerNoiseCleanerWithrechit : public edm::stream::EDProducer<> {
   
  public:
   explicit HLTHcalTowerNoiseCleanerWithrechit(const edm::ParameterSet&);
-  ~HLTHcalTowerNoiseCleanerWithrechit();
+  ~HLTHcalTowerNoiseCleanerWithrechit() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
   edm::EDGetTokenT<reco::HcalNoiseRBXCollection> m_theHcalNoiseToken;
@@ -61,7 +61,7 @@ class HLTHcalTowerNoiseCleanerWithrechit : public edm::stream::EDProducer<> {
 
   // helper function to compare noise data energies
   struct noisedatacomp {
-    inline bool operator() ( const CommonHcalNoiseRBXData& t1, const CommonHcalNoiseRBXData& t2) {
+    inline bool operator() ( const CommonHcalNoiseRBXData& t1, const CommonHcalNoiseRBXData& t2) const{
       return t1.energy()>t2.energy();
     }
   };

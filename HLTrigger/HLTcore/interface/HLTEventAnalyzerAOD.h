@@ -28,12 +28,12 @@ class HLTEventAnalyzerAOD : public edm::stream::EDAnalyzer< > {
   
  public:
   explicit HLTEventAnalyzerAOD(const edm::ParameterSet&);
-  virtual ~HLTEventAnalyzerAOD();
+  ~HLTEventAnalyzerAOD() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
-  virtual void endRun(edm::Run const &, edm::EventSetup const&) override;
-  virtual void beginRun(edm::Run const &, edm::EventSetup const&) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endRun(edm::Run const &, edm::EventSetup const&) override;
+  void beginRun(edm::Run const &, edm::EventSetup const&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void analyzeTrigger(const edm::Event&, const edm::EventSetup&, const std::string& triggerName);
 
  private:

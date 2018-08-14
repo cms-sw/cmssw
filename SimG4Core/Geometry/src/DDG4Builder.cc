@@ -25,7 +25,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-DDG4DispContainer * DDG4Builder::theVectorOfDDG4Dispatchables_ = 0;
+DDG4DispContainer * DDG4Builder::theVectorOfDDG4Dispatchables_ = nullptr;
 
 DDG4DispContainer * DDG4Builder::theVectorOfDDG4Dispatchables() { 
   return theVectorOfDDG4Dispatchables_; 
@@ -67,7 +67,7 @@ G4VSolid * DDG4Builder::convertSolid(const DDSolid & solid) {
 
 G4Material * DDG4Builder::convertMaterial(const DDMaterial & material) {
   LogDebug("SimG4CoreGeometry") << "DDDetConstr::ConvertMaterial: material=" << material << "\n";
-  G4Material * result = 0;
+  G4Material * result = nullptr;
   if (material) {
     // only if it's a valid DDD-material
     if ((result = mats_[material])) {
@@ -109,13 +109,13 @@ DDGeometryReturnType DDG4Builder::BuildGeometry() {
   G4ReflectionFactory * refFact = G4ReflectionFactory::Instance();
   refFact->SetScalePrecision(100.*refFact->GetScalePrecision());
 
-  typedef DDCompactView::graph_type graph_type;
-  const graph_type & gra = compactView->graph();
-  typedef graph_type::const_adj_iterator adjl_iterator;
+  using Graph = DDCompactView::Graph;
+  const auto & gra = compactView->graph();
+  using adjl_iterator = Graph::const_adj_iterator;
   adjl_iterator git = gra.begin();
   adjl_iterator gend = gra.end();    
 
-  graph_type::index_type i=0;
+  Graph::index_type i=0;
   for (; git != gend; ++git) {
     const DDLogicalPart & ddLP = gra.nodeData(git);
     if ( !(ddLP.isDefined().second) ) {
@@ -124,16 +124,17 @@ DDGeometryReturnType DDG4Builder::BuildGeometry() {
     }
     G4LogicalVolume * g4LV = convertLV(ddLP);
     ++i;	
-    if (git->size()) {
+    if (!git->empty()) {
       // ask for children of ddLP  
-      graph_type::edge_list::const_iterator cit  = git->begin();
-      graph_type::edge_list::const_iterator cend = git->end();
+      Graph::edge_list::const_iterator cit  = git->begin();
+      Graph::edge_list::const_iterator cend = git->end();
       for (; cit != cend; ++cit) {
 	// fetch specific data
 	const DDLogicalPart & ddcurLP = gra.nodeData(cit->first);
 	if ( !ddcurLP.isDefined().second ) {
 	  std::string err = " DDG4Builder::BuildGeometry() in processing \"children\" has ";
-	  err += "encountered an undefined DDLogicalPart named " + ddLP.toString();
+	  err += "encountered an undefined DDLogicalPart named " + ddcurLP.toString()
+	    + " is a child of " + ddLP.toString();
 	  edm::LogError("SimG4CoreGeometry") << err;
 	  throw cms::Exception("SimG4CoreGeometry", err) ;
 	}
@@ -143,11 +144,12 @@ DDGeometryReturnType DDG4Builder::BuildGeometry() {
 	DD3Vector x, y, z;
 	rm.GetComponents(x, y, z);
 	if ((x.Cross(y)).Dot(z)<0)
-	  LogDebug("SimG4CoreGeometry") << ">>Reflection encountered: " << gra.edgeData(cit->second)->rot_  << "\n";
-	LogDebug("SimG4CoreGeometry") << ">>Placement d=" << gra.nodeData(cit->first).ddname() 
-				      << " m=" << ddLP.ddname() << " cp=" << gra.edgeData(cit->second)->copyno_
-				      << " r=" << gra.edgeData(cit->second)->rot_.ddname() << "\n" ;          
-	G4ThreeVector tempTran(gra.edgeData(cit->second)->trans_.X(), gra.edgeData(cit->second)->trans_.Y(), gra.edgeData(cit->second)->trans_.Z());
+	  edm::LogInfo("SimG4CoreGeometry") << ">>Reflection encountered: " 
+					    << gra.edgeData(cit->second)->ddrot()  
+					    << ">>Placement d=" << gra.nodeData(cit->first).ddname() 
+					    << " m=" << ddLP.ddname() << " cp=" << gra.edgeData(cit->second)->copyno()
+					    << " r=" << gra.edgeData(cit->second)->ddrot().ddname();     
+	G4ThreeVector tempTran(gra.edgeData(cit->second)->trans().X(), gra.edgeData(cit->second)->trans().Y(), gra.edgeData(cit->second)->trans().Z());
 	G4Translate3D transl = tempTran;
 	CLHEP::HepRep3x3 temp( x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z() ); //matrix representation
 	CLHEP::HepRotation hr ( temp );
@@ -160,7 +162,7 @@ DDGeometryReturnType DDG4Builder::BuildGeometry() {
 		       convertLV(gra.nodeData(cit->first)), 		// daugther
 		       g4LV, 				 		// mother
 		       false,                 		 		// 'ONLY'
-		       gra.edgeData(cit->second)->copyno_+offset+tag, 	// copy number
+		       gra.edgeData(cit->second)->copyno()+offset+tag, 	// copy number
 		       check_);
       } // iterate over children
     } // if (children)
@@ -175,9 +177,9 @@ DDGeometryReturnType DDG4Builder::BuildGeometry() {
       map_.insert(reflLogicalVolume,ddlv);
       DDG4Dispatchable * disp = new DDG4Dispatchable(&(ddg4_it->first),reflLogicalVolume);
       theVectorOfDDG4Dispatchables_->push_back(disp);
-      LogDebug("SimG4CoreGeometry") << "DDG4Builder: newEvent: dd=" 
-				    << ddlv.ddname() << " g4=" 
-				    << reflLogicalVolume->GetName() << "\n";
+      edm::LogInfo("SimG4CoreGeometry")<< "DDG4Builder: newEvent: dd=" 
+				       << ddlv.ddname() << " g4=" 
+				       << reflLogicalVolume->GetName();
     }  
   }
       
@@ -231,7 +233,7 @@ double DDG4Builder::getDouble(const std::string & s,
     }
     double v;
     std::string unit;
-    std::istringstream is(temp[0].c_str());
+    std::istringstream is(temp[0]);
     is >> v >> unit;
     v  = v*G4UnitDefinition::GetValueOf(unit.substr(1,unit.size()));
     return v;

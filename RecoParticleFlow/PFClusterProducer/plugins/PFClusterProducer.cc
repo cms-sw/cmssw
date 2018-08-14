@@ -41,7 +41,7 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf) :
   ICSB* initb = InitialClusteringStepFactory::get()->create(initName,initConf,sumes);
   _initialClustering.reset(initb);
   //setup pf cluster builder if requested
-  _pfClusterBuilder.reset(NULL);
+  _pfClusterBuilder.reset(nullptr);
   const edm::ParameterSet& pfcConf = conf.getParameterSet("pfClusterBuilder");
   if( !pfcConf.empty() ) {
     const std::string& pfcName = pfcConf.getParameter<std::string>("algoName");
@@ -49,7 +49,7 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf) :
     _pfClusterBuilder.reset(pfcb);
   }
   //setup (possible) recalcuation of positions
-  _positionReCalc.reset(NULL);
+  _positionReCalc.reset(nullptr);
   const edm::ParameterSet& pConf = conf.getParameterSet("positionReCalc");
   if( !pConf.empty() ) {
     const std::string& pName = pConf.getParameter<std::string>("algoName");

@@ -185,7 +185,7 @@ bool StripSubClusterShapeFilterBase::testLastHit
 bool StripSubClusterShapeFilterBase::testLastHit
    (const TrackingRecHit *hit, const GlobalPoint &gpos, const GlobalVector &gdir, bool mustProject) const
 {
-   const TrackerSingleRecHit *stripHit = 0;
+   const TrackerSingleRecHit *stripHit = nullptr;
    if (typeid(*hit) == typeid(SiStripMatchedRecHit2D)) {
       const SiStripMatchedRecHit2D & mhit = static_cast<const SiStripMatchedRecHit2D &>(*hit);
       SiStripRecHit2D mono = mhit.monoHit();
@@ -195,7 +195,7 @@ bool StripSubClusterShapeFilterBase::testLastHit
       const ProjectedSiStripRecHit2D & mhit = static_cast<const ProjectedSiStripRecHit2D &>(*hit);
       const SiStripRecHit2D &orig = mhit.originalHit();
       return testLastHit(&orig,   gpos, gdir, true);
-   } else if ((stripHit = dynamic_cast<const TrackerSingleRecHit *>(hit)) != 0) {
+   } else if ((stripHit = dynamic_cast<const TrackerSingleRecHit *>(hit)) != nullptr) {
       DetId detId = hit->geographicalId();
 
       if (layerMask_[detId.subdetId()][0] == 0) {
@@ -265,7 +265,7 @@ bool StripSubClusterShapeFilterBase::testLastHit
       } 
 
       const StripGeomDetUnit* stripDetUnit = dynamic_cast<const StripGeomDetUnit *>(det);
-      if (det == 0) { edm::LogError("Strip not a StripGeomDetUnit?") << " on " << detId.rawId() << "\n"; return true; }
+      if (det == nullptr) { edm::LogError("Strip not a StripGeomDetUnit?") << " on " << detId.rawId() << "\n"; return true; }
 
       float MeVperADCStrip = 9.5665E-4; // conversion constant from ADC counts to MeV for the SiStrip detector
       float mip = 3.9 / ( MeVperADCStrip/stripDetUnit->surface().bounds().thickness() ); // 3.9 MeV/cm = ionization in silicon 
@@ -311,7 +311,7 @@ bool StripSubClusterShapeTrajectoryFilter::testLastHit(const TrajectoryMeasureme
 {
    const TrackingRecHit* hit = last.recHit()->hit();
    if (!last.updatedState().isValid()) return true;
-   if (hit == 0 || !hit->isValid()) return true;
+   if (hit == nullptr || !hit->isValid()) return true;
    if (hit->geographicalId().subdetId() < SiStripDetId::TIB) return true; // we look only at strips for now
    return testLastHit(hit, last.updatedState(), false);
 
@@ -359,7 +359,7 @@ bool StripSubClusterShapeSeedFilter::compatible
 {
    if (filterAtHelixStage_) return true;
    const TrackingRecHit* hit = thit->hit();
-   if (hit == 0 || !hit->isValid()) return true;
+   if (hit == nullptr || !hit->isValid()) return true;
    if (hit->geographicalId().subdetId() < SiStripDetId::TIB) return true; // we look only at strips for now
    return testLastHit(hit, tsos, false);
 }
@@ -369,7 +369,9 @@ bool StripSubClusterShapeSeedFilter::compatible
 { 
    if (!filterAtHelixStage_) return true;
 
-   if (!helix.isValid()) edm::LogWarning("InvalidHelix") << "PixelClusterShapeSeedComparitor helix is not valid, result is bad";
+   if (!helix.isValid() //check still if it's a straight line, which are OK
+       && !helix.circle().isLine())//complain if it's not even a straight line
+     edm::LogWarning("InvalidHelix") << "StripSubClusterShapeSeedFilter helix is not valid, result is bad";
 
     float xc = helix.circle().x0(), yc = helix.circle().y0();
 

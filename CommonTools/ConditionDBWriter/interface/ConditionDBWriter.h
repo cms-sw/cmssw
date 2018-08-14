@@ -177,7 +177,7 @@ public:
       edm::LogError("ConditionDBWriter::endJob(): ERROR - only SinceAppendMode support!!!!");
   }
   
-  virtual ~ConditionDBWriter()
+  ~ConditionDBWriter() override
   {
     edm::LogInfo("ConditionDBWriter::~ConditionDBWriter()") << std::endl;
   }
@@ -204,9 +204,9 @@ private:
   //Will be called at the end of the job
   virtual void algoEndJob(){};
 
-  void beginJob() {}
+  void beginJob() override {}
 
-  void beginRun(const edm::Run & run, const edm::EventSetup &  es)
+  void beginRun(const edm::Run & run, const edm::EventSetup &  es) override
   {
     if( firstRun_ ) {
       edm::LogInfo("ConditionDBWriter::beginJob") << std::endl;
@@ -223,14 +223,14 @@ private:
     algoBeginRun(run,es);
   }
   
-  void beginLuminosityBlock(const edm::LuminosityBlock & lumiBlock, const edm::EventSetup & iSetup)
+  void beginLuminosityBlock(const edm::LuminosityBlock & lumiBlock, const edm::EventSetup & iSetup) override
   {
     edm::LogInfo("ConditionDBWriter::beginLuminosityBlock") << std::endl;
     if(LumiBlockMode_ && SinceAppendMode_) setSinceTime_=true;
     algoBeginLuminosityBlock(lumiBlock, iSetup);
   }
 
-  void analyze(const edm::Event& event, const edm::EventSetup& iSetup)
+  void analyze(const edm::Event& event, const edm::EventSetup& iSetup) override
   {
     if(setSinceTime_ ){
       setTime(); //set new since time for possible next upload to DB  
@@ -239,7 +239,7 @@ private:
     algoAnalyze(event, iSetup);
   }
   
-  void endLuminosityBlock(const edm::LuminosityBlock & lumiBlock, const edm::EventSetup & es)
+  void endLuminosityBlock(const edm::LuminosityBlock & lumiBlock, const edm::EventSetup & es) override
   {
     edm::LogInfo("ConditionDBWriter::endLuminosityBlock") << std::endl;
     algoEndLuminosityBlock(lumiBlock, es);
@@ -259,7 +259,7 @@ private:
   
   virtual void algoEndLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &){};
 
-  void endRun(const edm::Run & run, const edm::EventSetup & es)
+  void endRun(const edm::Run & run, const edm::EventSetup & es) override
   {
     edm::LogInfo("ConditionDBWriter::endRun") << std::endl;
     
@@ -279,7 +279,7 @@ private:
     }
   }
   
-  void endJob()
+  void endJob() override
   {
     edm::LogInfo("ConditionDBWriter::endJob") << std::endl;
     
@@ -349,7 +349,7 @@ protected:
 
   void storeOnDbNow()
   {
-    T * objPointer = 0;
+    T * objPointer = nullptr;
     
     if(AlgoDrivenMode_){
       

@@ -40,7 +40,7 @@ public:
    */
   CSCStripTopology( int ns, float aw, float dh, float r, float aoff, float ymid );
 
-  virtual ~CSCStripTopology();
+  ~CSCStripTopology() override;
 
   /**
    * Return slope and intercept of straight line representing (centre-line of) a strip in 2-dim local coordinates.

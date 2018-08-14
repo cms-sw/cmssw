@@ -31,6 +31,7 @@ see the setup_harvesting_info() and option_handler_list_types()
 methods.
 
 """
+from __future__ import print_function
 
 ###########################################################################
 
@@ -97,6 +98,7 @@ import copy
 from inspect import getargspec
 from random import choice
 
+import six
 
 # These we need to communicate with DBS global DBSAPI
 from DBSAPI.dbsApi import DbsApi
@@ -1166,34 +1168,34 @@ class CMSHarvester(object):
         sep_line = "-" * 50
         sep_line_short = "-" * 20
 
-        print sep_line
-        print "The following harvesting types are available:"
-        print sep_line
+        print(sep_line)
+        print("The following harvesting types are available:")
+        print(sep_line)
 
-        print "`RelVal' maps to:"
-        print "  pre-3_3_0           : HARVESTING:validationHarvesting"
-        print "  3_4_0_pre2 and later: HARVESTING:validationHarvesting+dqmHarvesting"
-        print "  Exceptions:"
-        print "    3_3_0_pre1-4        : HARVESTING:validationHarvesting"
-        print "    3_3_0_pre6          : HARVESTING:validationHarvesting"
-        print "    3_4_0_pre1          : HARVESTING:validationHarvesting"
+        print("`RelVal' maps to:")
+        print("  pre-3_3_0           : HARVESTING:validationHarvesting")
+        print("  3_4_0_pre2 and later: HARVESTING:validationHarvesting+dqmHarvesting")
+        print("  Exceptions:")
+        print("    3_3_0_pre1-4        : HARVESTING:validationHarvesting")
+        print("    3_3_0_pre6          : HARVESTING:validationHarvesting")
+        print("    3_4_0_pre1          : HARVESTING:validationHarvesting")
 
-        print sep_line_short
+        print(sep_line_short)
 
-        print "`RelValFS' maps to:"
-        print "  always              : HARVESTING:validationHarvestingFS"
+        print("`RelValFS' maps to:")
+        print("  always              : HARVESTING:validationHarvestingFS")
 
-        print sep_line_short
+        print(sep_line_short)
 
-        print "`MC' maps to:"
-        print "    always          : HARVESTING:validationprodHarvesting"
+        print("`MC' maps to:")
+        print("    always          : HARVESTING:validationprodHarvesting")
 
-        print sep_line_short
+        print(sep_line_short)
 
-        print "`DQMOffline' maps to:"
-        print "  always              : HARVESTING:dqmHarvesting"
+        print("`DQMOffline' maps to:")
+        print("  always              : HARVESTING:dqmHarvesting")
 
-        print sep_line
+        print(sep_line)
 
         # We're done, let's quit. (This is the same thing optparse
         # does after printing the help.)
@@ -1442,13 +1444,12 @@ class CMSHarvester(object):
 
         # Now call the checker for all (unique) subdirs.
         castor_dirs = []
-        for (dataset_name, runs) in self.datasets_to_use.iteritems():
+        for (dataset_name, runs) in six.iteritems(self.datasets_to_use):
 
 	    for run in runs:
                 castor_dirs.append(self.datasets_information[dataset_name] \
                                    ["castor_path"][run])
-        castor_dirs_unique = list(set(castor_dirs))
-        castor_dirs_unique.sort()
+        castor_dirs_unique = sorted(set(castor_dirs))
         # This can take some time. E.g. CRAFT08 has > 300 runs, each
         # of which will get a new directory. So we show some (rough)
         # info in between.
@@ -1565,8 +1566,7 @@ class CMSHarvester(object):
         # permissions are set correctly and b) the final destination
         # exists.
         path = ""
-        check_sizes = castor_paths_dont_touch.keys()
-        check_sizes.sort()
+        check_sizes = sorted(castor_paths_dont_touch.keys())
         len_castor_path_pieces = len(castor_path_pieces)
         for piece_index in xrange (len_castor_path_pieces):
             skip_this_path_piece = False
@@ -2309,7 +2309,7 @@ class CMSHarvester(object):
         ###
 
         # Dump some info about the Frontier connections used.
-        for (key, value) in self.frontier_connection_name.iteritems():
+        for (key, value) in six.iteritems(self.frontier_connection_name):
             frontier_type_str = "unknown"
             if key == "globaltag":
                 frontier_type_str = "the GlobalTag"
@@ -2616,8 +2616,7 @@ class CMSHarvester(object):
 
         runs = handler.results.values()[0]
         # Turn strings into integers.
-        runs = [int(i) for i in runs]
-        runs.sort()
+        runs = sorted([int(i) for i in runs])
 
         # End of dbs_resolve_runs.
         return runs
@@ -2924,7 +2923,7 @@ class CMSHarvester(object):
 
 ##        # Now translate this into a slightly more usable mapping.
 ##        sites = {}
-##        for (run_number, site_info) in sample_info.iteritems():
+##        for (run_number, site_info) in six.iteritems(sample_info):
 ##            # Quick-n-dirty trick to see if all file counts are the
 ##            # same.
 ##            unique_file_counts = set([i[1] for i in site_info])
@@ -3043,7 +3042,7 @@ class CMSHarvester(object):
 
 ##        # Now translate this into a slightly more usable mapping.
 ##        sites = {}
-##        for (run_number, site_info) in sample_info.iteritems():
+##        for (run_number, site_info) in six.iteritems(sample_info):
 ##            # Quick-n-dirty trick to see if all file counts are the
 ##            # same.
 ##            unique_file_counts = set([i[1] for i in site_info])
@@ -3383,7 +3382,7 @@ class CMSHarvester(object):
                              input_name)
             try:
                 listfile = open("/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/harvesting/bin/%s" %input_name, "r")
-		print "open listfile"
+		print("open listfile")
                 for dataset in listfile:
                     # Skip empty lines.
                     dataset_stripped = dataset.strip()
@@ -3409,10 +3408,9 @@ class CMSHarvester(object):
         # NOTE: There should not be any duplicates in any list coming
         # from DBS, but maybe the user provided a list file with less
         # care.
-        dataset_names = list(set(dataset_names))
-
         # Store for later use.
-        dataset_names.sort()
+        dataset_names = sorted(set(dataset_names))
+
 
         # End of build_dataset_list.
         return dataset_names
@@ -3664,7 +3662,7 @@ class CMSHarvester(object):
 
             if self.todofile != "YourToDofile.txt":
 		runs_todo = []
-                print "Reading runs from file /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/harvesting/%s" %self.todofile
+                print("Reading runs from file /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/harvesting/%s" %self.todofile)
                 cmd="grep %s /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/harvesting/%s | cut -f5 -d' '" %(dataset_name,self.todofile)
                 (status, output)=commands.getstatusoutput(cmd)
 		for run in runs:
@@ -4023,7 +4021,7 @@ class CMSHarvester(object):
         # If we emptied out a complete dataset, remove the whole
         # thing.
         dataset_names_after_checks_tmp = copy.deepcopy(dataset_names_after_checks)
-        for (dataset_name, runs) in dataset_names_after_checks.iteritems():
+        for (dataset_name, runs) in six.iteritems(dataset_names_after_checks):
             if len(runs) < 1:
                 self.logger.warning("  Removing dataset without any runs " \
                                     "(left) `%s'" % \
@@ -4332,7 +4330,7 @@ class CMSHarvester(object):
 	UserName = output
 
 	if self.caf_access == True:
-	    print "Extracting %s as user name" %UserName 
+	    print("Extracting %s as user name" %UserName) 
 
         number_max_sites = self.nr_max_sites + 1
 
@@ -4343,8 +4341,7 @@ class CMSHarvester(object):
         multicrab_config_lines.append("cfg = crab.cfg")
         multicrab_config_lines.append("")
 
-        dataset_names = self.datasets_to_use.keys()
-        dataset_names.sort()
+        dataset_names = sorted(self.datasets_to_use.keys())
 
         for dataset_name in dataset_names:
             runs = self.datasets_to_use[dataset_name]
@@ -4870,7 +4867,7 @@ class CMSHarvester(object):
             # exists.
             customisations.append("print \"Not using reference histograms\"")
             customisations.append("if hasattr(process, \"dqmRefHistoRootFileGetter\"):")
-            customisations.append("    for (sequence_name, sequence) in process.sequences.iteritems():")
+            customisations.append("    for (sequence_name, sequence) in six.iteritems(process.sequences):")
             customisations.append("        if sequence.remove(process.dqmRefHistoRootFileGetter):")
             customisations.append("            print \"Removed process.dqmRefHistoRootFileGetter from sequence `%s'\" % \\")
             customisations.append("                  sequence_name")
@@ -5272,7 +5269,7 @@ class CMSHarvester(object):
         self.logger.info("  Successfully loaded %d mapping(s)" % \
                          len(self.ref_hist_mappings))
         max_len = max([len(i) for i in self.ref_hist_mappings.keys()])
-        for (map_from, map_to) in self.ref_hist_mappings.iteritems():
+        for (map_from, map_to) in six.iteritems(self.ref_hist_mappings):
             self.logger.info("    %-*s -> %s" % \
                               (max_len, map_from, map_to))
 
@@ -5342,8 +5339,7 @@ class CMSHarvester(object):
         # to be easier to follow, sacrificing a bit of efficiency.
         self.datasets_information = {}
         self.logger.info("Collecting information for all datasets to process")
-        dataset_names = self.datasets_to_use.keys()
-        dataset_names.sort()
+        dataset_names = sorted(self.datasets_to_use.keys())
         for dataset_name in dataset_names:
 
             # Tell the user which dataset: nice with many datasets.

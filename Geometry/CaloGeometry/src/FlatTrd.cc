@@ -1,9 +1,10 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloGeometry/interface/FlatTrd.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include <algorithm>
 #include <iostream>
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 typedef FlatTrd::CCGFloat CCGFloat ;
 typedef FlatTrd::Pt3D     Pt3D     ;
@@ -37,16 +38,17 @@ FlatTrd& FlatTrd::operator=( const FlatTrd& tr ) {
     m_global = tr.m_global;
     m_tr     = tr.m_tr;
   }
-#ifdef DebugLog
-  std::cout << "FlatTrd(Copy): Local " << m_local << " Global " << m_global
-	    << " eta " << etaPos() << " phi " << phiPos() << " Translation "
-	    << m_tr.getTranslation() << " and rotation " << m_tr.getRotation();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("CaloGeometry") << "FlatTrd(Copy): Local " << m_local 
+				   << " Global " << m_global << " eta " 
+				   << etaPos() << " phi " << phiPos() 
+				   << " Translation " << m_tr.getTranslation()
+				   << " and rotation " << m_tr.getRotation();
 #endif
   return *this ; 
 }
 
-FlatTrd::FlatTrd( 
-CornersMgr*  cMgr ,
+FlatTrd::FlatTrd( CornersMgr*  cMgr ,
 		  const GlobalPoint& fCtr ,
 		  const GlobalPoint& bCtr ,
 		  const GlobalPoint& cor1 ,
@@ -55,13 +57,15 @@ CornersMgr*  cMgr ,
   m_axis           ( ( bCtr - fCtr ).unit() ) ,
   m_corOne         ( cor1.x(), cor1.y(), cor1.z() ),
   m_local          (0., 0., 0.) {
-  getTransform(m_tr,0);
+  getTransform(m_tr,nullptr);
   Pt3D glb = m_tr*m_local;
   m_global = GlobalPoint(glb.x(),glb.y(),glb.z());
-#ifdef DebugLog
-  std::cout << "FlatTrd: Local " << m_local << " Global " << glb << " eta "
-	    << etaPos() << " phi " << phiPos() << " Translation "
-	    << m_tr.getTranslation() << " and rotation " << m_tr.getRotation();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("CaloGeometry") << "FlatTrd: Local " << m_local 
+				   << " Global " << glb << " eta "
+				   << etaPos() << " phi " << phiPos() 
+				   << " Translation " << m_tr.getTranslation() 
+				   << " and rotation " << m_tr.getRotation();
 #endif
 } 
 
@@ -70,14 +74,16 @@ FlatTrd::FlatTrd( const CornersVec& corn ,
   CaloCellGeometry ( corn, par  ) , 
   m_corOne         ( corn[0].x(), corn[0].y(), corn[0].z() ),
   m_local          (0., 0., 0.) {
-  getTransform(m_tr,0);
+  getTransform(m_tr,nullptr);
   m_axis   = makeAxis();
   Pt3D glb = m_tr*m_local;
   m_global = GlobalPoint(glb.x(),glb.y(),glb.z());
-#ifdef DebugLog
-  std::cout << "FlatTrd: Local " << m_local << " Global " << glb << " eta "
-	    << etaPos() << " phi " << phiPos() << " Translation "
-	    << m_tr.getTranslation() << " and rotation " << m_tr.getRotation();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("CaloGeometry") << "FlatTrd: Local " << m_local
+				   << " Global " << glb << " eta "
+				   << etaPos() << " phi " << phiPos()
+				   << " Translation " << m_tr.getTranslation()
+				   << " and rotation " << m_tr.getRotation();
 #endif
 } 
 
@@ -86,10 +92,12 @@ FlatTrd::FlatTrd( const FlatTrd& tr, const Pt3D & local ) :
   *this = tr;
   Pt3D glb = m_tr*m_local;
   m_global = GlobalPoint(glb.x(),glb.y(),glb.z());
-#ifdef DebugLog
-  std::cout << "FlatTrd: Local " << m_local << " Global " << glb << " eta "
-	    << etaPos() << " phi " << phiPos() << " Translation "
-	    << m_tr.getTranslation() << " and rotation " << m_tr.getRotation();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("CaloGeometry") << "FlatTrd: Local " << m_local 
+				   << " Global " << glb << " eta "
+				   << etaPos() << " phi " << phiPos()
+				   << " Translation " << m_tr.getTranslation()
+				   << " and rotation " << m_tr.getRotation();
 #endif
 }
 
@@ -97,20 +105,28 @@ FlatTrd::~FlatTrd() {}
 
 GlobalPoint FlatTrd::getPosition(const Pt3D& local ) const {
   Pt3D glb = m_tr*local;
-#ifdef DebugLog
-  std::cout << "FlatTrd::Local " << local.x() << ":" << local.y() << ":" 
-	    << local.z() << " Global " << glb.x() << ":" << glb.y() << ":" 
-	    << glb.z() << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("CaloGeometry") << "FlatTrd::Local " << local.x() << ":" 
+				   << local.y() << ":" << local.z() 
+				   << " Global " << glb.x() << ":" << glb.y()
+				   << ":" << glb.z() << " TR " << m_tr.xx()
+				   << ":" << m_tr.xy() << ":" << m_tr.xz()
+				   << ":" << m_tr.yx() << ":" << m_tr.yy() 
+				   << ":" << m_tr.yz() << ":" << m_tr.zx() 
+				   << ":" << m_tr.zy() << ":" << m_tr.zz() 
+				   << ":" << m_tr.dx() << ":" << m_tr.dy()
+				   << ":" << m_tr.dz();
 #endif
   return GlobalPoint(glb.x(),glb.y(),glb.z());
 }
 
 Pt3D FlatTrd::getLocal(const GlobalPoint& global) const {
   Pt3D local = m_tr.inverse()*Pt3D(global.x(),global.y(),global.z());
-#ifdef DebugLog
-  std::cout << "FlatTrd::Global " << global.x() << ":" << global.y() << ":" 
-	    << global.z() << " Local " << local.x() << ":" << local.y() << ":" 
-	    << local.z() << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("CaloGeometry") << "FlatTrd::Global " << global.x() << ":" 
+				   << global.y() << ":" << global.z()
+				   << " Local " << local.x() << ":" 
+				   << local.y() << ":" << local.z();
 #endif
   return local;
 }
@@ -138,20 +154,20 @@ void  FlatTrd::createCorners( const std::vector<CCGFloat>&  pv ,
 			      std::vector<GlobalPoint>&     co   ) {
 
   assert( 11 <= pv.size() ) ;
-  assert( 8 == co.size() ) ;
+  assert( ncorner_ == co.size() ) ;
 
-  Pt3DVec        ko ( 8, Pt3D(0,0,0) ) ;
+  Pt3DVec        ko ( ncorner_, Pt3D(0,0,0) ) ;
 
   Pt3D    tmp ;
-  Pt3DVec to ( 8, Pt3D(0,0,0) ) ;
+  Pt3DVec to ( ncorner_, Pt3D(0,0,0) ) ;
   localCorners( to, &pv.front(), tmp ) ;
 
-  for( unsigned int i ( 0 ) ; i != 8 ; ++i ) {
+  for( unsigned int i ( 0 ) ; i != ncorner_ ; ++i ) {
     ko[i] = tr * to[i] ; // apply transformation
     const Pt3D & p ( ko[i] ) ;
     co[ i ] = GlobalPoint( p.x(), p.y(), p.z() ) ;
-#ifdef DebugLog
-    std::cout << "Corner[" << i << "] = " << co[i] << std::endl;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("CaloGeometry") << "Corner[" << i << "] = " << co[i];
 #endif
   }
 }
@@ -159,8 +175,8 @@ void  FlatTrd::createCorners( const std::vector<CCGFloat>&  pv ,
 void FlatTrd::localCorners( Pt3DVec&        lc  ,
 			    const CCGFloat* pv  ,
 			    Pt3D&           ref   ) {
-   assert( 0 != pv ) ;
-   assert( 8 == lc.size() ) ;
+   assert( nullptr != pv ) ;
+   assert( ncorner_ == lc.size() ) ;
 
    const CCGFloat dz ( pv[0] ) ;
    const CCGFloat h  ( pv[3] ) ;
@@ -180,10 +196,11 @@ void FlatTrd::localCorners( Pt3DVec&        lc  ,
    lc[7] = Pt3D ( - h*ta1 + bl, - h ,  dz ); // (+,-,+)
 
    ref   = 0.25*( lc[0] + lc[1] + lc[2] + lc[3] ) ;
-#ifdef DebugLog
-   std::cout << "Ref " << ref << " Local Corners " << lc[0] << "|" << lc[1] 
-	     << "|" << lc[2] << "|" << lc[3] << "|" << lc[4] << "|" << lc[5]
-	     << "|" << lc[6] << "|" << lc[7] << std::endl;
+#ifdef EDM_ML_DEBUG
+   edm::LogVerbatim("CaloGeometry") << "Ref " << ref << " Local Corners " 
+				    << lc[0] << "|" << lc[1] << "|" << lc[2] 
+				    << "|" << lc[3] << "|" << lc[4] << "|" 
+				    << lc[5] << "|" << lc[6] << "|" << lc[7];
 #endif
 }
 
@@ -193,8 +210,8 @@ void FlatTrd::getTransform( Tr3D& tr, Pt3DVec* lptr ) const {
   const DPt3D        dgFront ( p.x(), p.y(), p.z() ) ;
 
   Pt3D  lFront ;
-  assert( 0 != param() ) ;
-  std::vector<Pt3D > lc( 8, Pt3D(0,0,0) ) ;
+  assert( nullptr != param() ) ;
+  std::vector<Pt3D > lc( ncorner_, Pt3D(0,0,0) ) ;
   localCorners( lc, param(), lFront ) ;
 
   // figure out if reflction volume or not
@@ -229,7 +246,7 @@ void FlatTrd::getTransform( Tr3D& tr, Pt3DVec* lptr ) const {
   tr = Tr3D( dlFront , dlBack , dlOne ,
 	     dgFront , dgBack , dgOne    ) ;
 
-  if( 0 != lptr ) (*lptr) = lc ;
+  if( nullptr != lptr ) (*lptr) = lc ;
 }
 
 void FlatTrd::initCorners(CaloCellGeometry::CornersVec& co) {
@@ -240,7 +257,7 @@ void FlatTrd::initCorners(CaloCellGeometry::CornersVec& co) {
     Tr3D tr ;
     getTransform( tr, &lc ) ;
 
-    for (unsigned int i ( 0 ) ; i != 8 ; ++i ) {
+    for (unsigned int i ( 0 ) ; i != ncorner_ ; ++i ) {
       const Pt3D corn ( tr*lc[i] ) ;
       corners[i] = GlobalPoint( corn.x(), corn.y(), corn.z() ) ;
     }
@@ -251,8 +268,8 @@ GlobalVector FlatTrd::makeAxis() {
   return GlobalVector( backCtr() - getPosition() ).unit() ;
 }
 
-const GlobalPoint FlatTrd::backCtr() const {
-  float dz = (getCorners()[4].z() > getCorners()[0].z()) ? 
+GlobalPoint FlatTrd::backCtr() const {
+  float dz = (getCorners()[ncornerBy2_].z() > getCorners()[0].z()) ? 
     param()[0] : -param()[0];
   Pt3D local_b(m_local.x(),m_local.y(),m_local.z()+dz);
   Pt3D global_b = m_tr*local_b;

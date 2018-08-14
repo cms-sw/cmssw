@@ -30,10 +30,10 @@ class TrajectoryCleanerBySharedHits : public TrajectoryCleaner {
     missingHitPenalty_(iConfig.getParameter<double>("MissingHitPenalty")),
     allowSharedFirstHit(iConfig.getParameter<bool>("allowSharedFirstHit")){}
 
-  virtual ~TrajectoryCleanerBySharedHits(){};
+  ~TrajectoryCleanerBySharedHits() override{};
 
   using TrajectoryCleaner::clean;
-  virtual void clean( TrajectoryPointerContainer&) const;
+  void clean( TrajectoryPointerContainer&) const override;
 
  private:
   float theFraction;

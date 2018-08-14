@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="tobrod4c.xml" eval="true">
+		<Constant name="zero" value="0.0*fm"/>
+	</ConstantsSection>
+	<SolidSection label="tobrod4c.xml">
+		<Tubs name="TOBSideCoolTube4" rMin="[zero]" rMax="[tobrodpar:CoolTubeLightR]" dz="[tobrodpar:SideCoolL]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBSideCoolFluid4" rMin="[zero]" rMax="[tobrodpar:CoolFluidLightR]" dz="[tobrodpar:SideCoolL]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBEndCoolTube4" rMin="[zero]" rMax="[tobrodpar:CoolTubeLightR]" dz="[tobrodpar:EndCoolL]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TOBEndCoolFluid4" rMin="[zero]" rMax="[tobrodpar:CoolFluidLightR]" dz="[tobrodpar:EndCoolL]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Box name="TOBOptFibre4" dx="[tobrodpar:OptFibreW]" dy="[tobrodpar:OptFibreH]" dz="[tobrodpar:OptFibreL]"/>
+		<Box name="TOBPlate41" dx="[tobrodpar:SideClampDx]" dy="[tobrodpar:SideClampDy]" dz="[tobrodpar:SideClampLDz]"/>
+		<Box name="TOBPlate42" dx="[tobrodpar:SideClampDx]" dy="[tobrodpar:SideClampDy]" dz="[tobrodpar:SideClampLDz]"/>
+	</SolidSection>
+	<LogicalPartSection label="tobrod4c.xml">
+		<LogicalPart name="TOBSideCoolTube4" category="unspecified">
+			<rSolid name="TOBSideCoolTube4"/>
+			<rMaterial name="trackermaterial:T_CuNi"/>
+		</LogicalPart>
+		<LogicalPart name="TOBSideCoolFluid4" category="unspecified">
+			<rSolid name="TOBSideCoolFluid4"/>
+			<rMaterial name="trackermaterial:T_C6F14_F2_-30C"/>
+		</LogicalPart>
+		<LogicalPart name="TOBEndCoolTube4" category="unspecified">
+			<rSolid name="TOBEndCoolTube4"/>
+			<rMaterial name="trackermaterial:T_CuNi"/>
+		</LogicalPart>
+		<LogicalPart name="TOBEndCoolFluid4" category="unspecified">
+			<rSolid name="TOBEndCoolFluid4"/>
+			<rMaterial name="trackermaterial:T_C6F14_F2_-30C"/>
+		</LogicalPart>
+		<LogicalPart name="TOBOptFibre4" category="unspecified">
+			<rSolid name="TOBOptFibre4"/>
+			<rMaterial name="tobmaterial:TOB_optfib_L56"/>
+		</LogicalPart>
+		<LogicalPart name="TOBPlate41" category="unspecified">
+			<rSolid name="TOBPlate41"/>
+			<rMaterial name="tobmaterial:TOB_plate_B"/>
+		</LogicalPart>
+		<LogicalPart name="TOBPlate42" category="unspecified">
+			<rSolid name="TOBPlate42"/>
+			<rMaterial name="tobmaterial:TOB_plate_C"/>
+		</LogicalPart>
+		<LogicalPart name="TOBICC41" category="unspecified">
+			<rSolid name="tobrodpar:TOBICC1"/>
+			<rMaterial name="tobmaterial:TOB_L56_ICC1"/>
+		</LogicalPart>
+		<LogicalPart name="TOBICC42" category="unspecified">
+			<rSolid name="tobrodpar:TOBICC2"/>
+			<rMaterial name="tobmaterial:TOB_L56_ICC2"/>
+		</LogicalPart>
+		<LogicalPart name="TOBRodConn4" category="unspecified">
+			<rSolid name="tobrodpar:TOBRodConn"/>
+			<rMaterial name="tobmaterial:TOB_CONN56"/>
+		</LogicalPart>
+		<LogicalPart name="TOBCCUM4" category="unspecified">
+			<rSolid name="tobrodpar:TOBCCUM"/>
+			<rMaterial name="tobmaterial:TOB_CCUM"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="tobrod4c.xml">
+		<PosPart copyNumber="1">
+			<rParent name="tobrod4c:TOBSideCoolTube4"/>
+			<rChild name="tobrod4c:TOBSideCoolFluid4"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tobrod4c:TOBEndCoolTube4"/>
+			<rChild name="tobrod4c:TOBEndCoolFluid4"/>
+		</PosPart>
+	</PosPartSection>
+</DDDefinition>

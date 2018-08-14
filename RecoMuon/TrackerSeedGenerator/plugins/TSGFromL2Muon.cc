@@ -7,7 +7,7 @@
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedCleaner.h"
 
 TSGFromL2Muon::TSGFromL2Muon(const edm::ParameterSet& cfg)
-  : theConfig(cfg), theService(0), theRegionBuilder(0), theTkSeedGenerator(0), theSeedCleaner(0){
+  : theConfig(cfg), theService(nullptr), theRegionBuilder(nullptr), theTkSeedGenerator(nullptr), theSeedCleaner(nullptr){
   produces<L3MuonTrajectorySeedCollection>();
 
   edm::ConsumesCollector iC  = consumesCollector();
@@ -100,7 +100,7 @@ void TSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es){
     std::vector<TrajectorySeed> tkSeeds;
 
     //Make TrackCand
-    std::pair<const Trajectory*,reco::TrackRef> staCand((Trajectory*)(0), muRef);
+    std::pair<const Trajectory*,reco::TrackRef> staCand((Trajectory*)nullptr, muRef);
 
     //Run seed generator to fill seed container
     theTkSeedGenerator->trackerSeeds(staCand, *region, tTopo,tkSeeds);

@@ -1,0 +1,3 @@
+<bin file="testSerializationPCLConfig.cpp">
+  <use   name="CondFormats/PCLConfig"/>
+</bin>

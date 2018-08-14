@@ -39,17 +39,15 @@
 #include "TTree.h"
 #include "TFile.h"
 
-class L1TdeCSCTF : public thread_unsafe::DQMEDAnalyzer {
+class L1TdeCSCTF : public DQMEDAnalyzer {
 private:
   edm::EDGetTokenT<L1CSCTrackCollection> dataTrackProducer;
   edm::EDGetTokenT<L1CSCTrackCollection> emulTrackProducer;
   edm::EDGetTokenT<CSCTriggerContainer<csctf::TrackStub> > dataStubProducer;
   edm::EDGetTokenT<L1MuDTChambPhContainer> emulStubProducer;
 
-  const L1MuTriggerScales *ts;
-  CSCTFPtLUT* ptLUT_;
   edm::ParameterSet ptLUTset;
-  CSCTFDTReceiver* my_dtrc;
+  std::unique_ptr<CSCTFDTReceiver> my_dtrc;
 	
   // Define Monitor Element Histograms
   ////////////////////////////////////
@@ -69,13 +67,12 @@ private:
 
 protected:
   void analyze(edm::Event const& e, edm::EventSetup const& iSetup) override;
-  virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
-  virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
+  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
 
 public:
   explicit L1TdeCSCTF(edm::ParameterSet const& pset);
-  virtual ~L1TdeCSCTF() {}
+  ~L1TdeCSCTF() override {}
 };
 
 #endif

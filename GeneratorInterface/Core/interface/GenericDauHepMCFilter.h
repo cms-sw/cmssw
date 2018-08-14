@@ -35,9 +35,9 @@ Implementation:
 class GenericDauHepMCFilter : public BaseHepMCFilter {
   public:
      GenericDauHepMCFilter(const edm::ParameterSet&);
-    ~GenericDauHepMCFilter();
+    ~GenericDauHepMCFilter() override;
 
-    virtual bool filter(const HepMC::GenEvent* evt);
+    bool filter(const HepMC::GenEvent* evt) override;
     
   private:
     // ----------memeber function----------------------

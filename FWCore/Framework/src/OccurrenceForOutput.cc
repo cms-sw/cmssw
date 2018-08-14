@@ -12,8 +12,8 @@
 
 namespace edm {
 
-  OccurrenceForOutput::OccurrenceForOutput(Principal const& p, ModuleDescription const& md, ModuleCallingContext const* moduleCallingContext) :
-      provRecorder_(p, md),
+  OccurrenceForOutput::OccurrenceForOutput(Principal const& p, ModuleDescription const& md, ModuleCallingContext const* moduleCallingContext, bool isAtEnd) :
+      provRecorder_(p, md, isAtEnd),
       moduleCallingContext_(moduleCallingContext)
   {
   }

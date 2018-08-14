@@ -3,11 +3,11 @@
 
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "HepMC/PythiaWrapper6_4.h"
 #include <iostream>
 
 using namespace edm;
 using namespace std;
+using namespace Pythia8;
 
 
 PythiaDauFilter::PythiaDauFilter(const edm::ParameterSet& iConfig) :
@@ -24,6 +24,9 @@ maxetacut(iConfig.getUntrackedParameter("MaxEta", 10.))
    vector<int> defdauID;
    defdauID.push_back(0);
    dauIDs = iConfig.getUntrackedParameter< vector<int> >("DaughterIDs",defdauID);
+ // create pythia8 instance to access particle data
+   edm::LogInfo("PythiaDauFilter::PythiaDauFilter") << "Creating pythia8 instance for particle properties" << endl;
+   if(!fLookupGen.get()) fLookupGen.reset(new Pythia());
 }
 
 
@@ -41,7 +44,7 @@ PythiaDauFilter::~PythiaDauFilter()
 //
 
 // ------------ method called to produce the data  ------------
-bool PythiaDauFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool PythiaDauFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
    using namespace edm;
    bool accepted = false;
@@ -99,9 +102,7 @@ bool PythiaDauFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   ++ndau;
 	   for( unsigned int i=0; i<dauIDs.size(); ++i) {
 	     int IDanti = -dauIDs[i];
-	     int pythiaCode = PYCOMP(dauIDs[i]);
-	     int has_antipart = pydat2.kchg[3-1][pythiaCode-1];
-	     if( has_antipart == 0 ) IDanti = dauIDs[i];
+             if ( !(fLookupGen->particleData.isParticle( IDanti )) ) IDanti = dauIDs[i];
 	     if( (*des)->pdg_id() != IDanti ) continue ;
 	     if(   (*des)->momentum().perp() >  minptcut  &&
 		   (*des)->momentum().perp() <  maxptcut  &&

@@ -527,11 +527,11 @@ namespace Json {
 
       virtual ~ValueAllocator();
 
-      virtual char *makeMemberName( const char *memberName ) = 0;
-      virtual void releaseMemberName( char *memberName ) = 0;
+      virtual char *makeMemberName( const char *memberName ) const = 0;
+      virtual void releaseMemberName( char *memberName ) const = 0;
       virtual char *duplicateStringValue( const char *value, 
-                                          unsigned int length = unknown ) = 0;
-      virtual void releaseStringValue( char *value ) = 0;
+                                          unsigned int length = unknown ) const = 0;
+      virtual void releaseStringValue( char *value ) const = 0;
    };
 
 #ifdef JSON_VALUE_USE_INTERNAL_MAP

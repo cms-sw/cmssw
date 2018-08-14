@@ -3,6 +3,7 @@
 
 // Framework Headers
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // Fast Sim headers
 #include "FastSimulation/MaterialEffects/interface/NuclearInteractionFTFSimulator.h"
@@ -66,8 +67,8 @@
 #include "G4SystemOfUnits.hh"
 
 static std::once_flag initializeOnce;
-[[cms::thread_guard("initializeOnce")]] const G4ParticleDefinition* NuclearInteractionFTFSimulator::theG4Hadron[] = {0};
-[[cms::thread_guard("initializeOnce")]] int NuclearInteractionFTFSimulator::theId[] = {0};
+CMS_THREAD_GUARD(initializeOnce) const G4ParticleDefinition* NuclearInteractionFTFSimulator::theG4Hadron[] = {nullptr};
+CMS_THREAD_GUARD(initializeOnce) int NuclearInteractionFTFSimulator::theId[] = {0};
 
 const double fact = 1.0/CLHEP::GeV;
 
@@ -231,7 +232,7 @@ NuclearInteractionFTFSimulator::NuclearInteractionFTFSimulator(
   intLengthElastic = intLengthInelastic = 0.0;
   currIdx = 0;
   index = 0;
-  currTrack = 0;
+  currTrack = nullptr;
   currParticle = theG4Hadron[0];
 
   // fill projectile particle definitions
@@ -258,7 +259,7 @@ void NuclearInteractionFTFSimulator::compute(ParticlePropagator& Particle,
 
   int thePid = Particle.pid(); 
   if(thePid != theId[currIdx]) {
-    currParticle = 0;
+    currParticle = nullptr;
     currIdx = 0;
     for(; currIdx<numHadrons; ++currIdx) {
       if(theId[currIdx] == thePid) {

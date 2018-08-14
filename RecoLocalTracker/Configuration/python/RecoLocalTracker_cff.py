@@ -18,7 +18,6 @@ striptrackerlocalreco = cms.Sequence(siStripZeroSuppression*siStripClusters*siSt
 trackerlocalreco = cms.Sequence(pixeltrackerlocalreco*striptrackerlocalreco*clusterSummaryProducer)
 
 from RecoLocalTracker.SiPhase2Clusterizer.phase2TrackerClusterizer_cfi import *
-from RecoLocalTracker.Phase2ITPixelClusterizer.Phase2ITPixelClusterizer_cfi import *
 from RecoLocalTracker.Phase2TrackerRecHits.Phase2StripCPEGeometricESProducer_cfi import *
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 
+from __future__ import print_function
 class MatrixToProcess:
 
     def __init__(self,what='standard',strict=True):
@@ -45,7 +46,7 @@ class MatrixToProcess:
                 cb.prepare()
                 self.configBuilders[key]=copy.copy(cb)
                 return True
-        print "could not satisfy the request for step",step,"of workflow",wfNumber
+        print("could not satisfy the request for step",step,"of workflow",wfNumber)
         return False
                              
     def getConfig(self,wfNumber,step):
@@ -68,12 +69,12 @@ class MatrixToProcess:
     def listAll(self):
         for wf in self.mrd.workFlows:
             step=1
-            print '---------------------' 
-            print 'process workflow',wf.numId
-            print
+            print('---------------------') 
+            print('process workflow',wf.numId)
+            print()
             while self.load(float(wf.numId),step):
                 p=self.getProcess(float(wf.numId),step)
-                print ', '.join(s.label() for s in p.schedule)
+                print(', '.join(s.label() for s in p.schedule))
                 #print p.outputModules()
                 step+=1
 

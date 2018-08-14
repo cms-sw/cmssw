@@ -73,15 +73,15 @@ public:
   L1TCompare(const edm::ParameterSet& ps);
 
 // Destructor
- virtual ~L1TCompare();
+ ~L1TCompare() override;
 
 protected:
 // Analyze
  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 // BeginRun
-  virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
-  virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
+  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
 
 private:
   // ----------member data ---------------------------

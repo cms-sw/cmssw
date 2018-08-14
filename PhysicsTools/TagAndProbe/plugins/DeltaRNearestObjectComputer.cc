@@ -44,9 +44,9 @@ template<typename T>
 class DeltaRNearestObjectComputer : public edm::EDProducer {
     public:
         explicit DeltaRNearestObjectComputer(const edm::ParameterSet & iConfig);
-        virtual ~DeltaRNearestObjectComputer() ;
+        ~DeltaRNearestObjectComputer() override ;
 
-        virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+        void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
     private:
         edm::EDGetTokenT<edm::View<reco::Candidate> > probesToken_;

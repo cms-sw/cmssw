@@ -28,23 +28,23 @@ class MuonNavigableLayer : public NavigableLayer {
   public:
 
     /// NavigableLayer interface
-    virtual std::vector<const DetLayer*> nextLayers(NavigationDirection dir) const=0;
+    std::vector<const DetLayer*> nextLayers(NavigationDirection dir) const override =0;
 
     /// NavigableLayer interface
-    virtual std::vector<const DetLayer*> nextLayers(const FreeTrajectoryState& fts, 
-                                               PropagationDirection dir) const=0;
+    std::vector<const DetLayer*> nextLayers(const FreeTrajectoryState& fts, 
+                                               PropagationDirection dir) const override =0;
 
-    virtual std::vector<const DetLayer*> compatibleLayers(NavigationDirection dir) const=0;
+    std::vector<const DetLayer*> compatibleLayers(NavigationDirection dir) const override =0;
 
     /// NavigableLayer interface
-    virtual std::vector<const DetLayer*> compatibleLayers(const FreeTrajectoryState& fts,
-                                               PropagationDirection dir) const=0;
+    std::vector<const DetLayer*> compatibleLayers(const FreeTrajectoryState& fts,
+                                               PropagationDirection dir) const override =0;
 
     /// return DetLayer
-    virtual const DetLayer* detLayer() const=0;
+    const DetLayer* detLayer() const override =0;
 
     /// set DetLayer
-    virtual void setDetLayer(const DetLayer*)=0;
+    void setDetLayer(const DetLayer*) override =0;
 
     MuonEtaRange trackingRange(const FreeTrajectoryState& fts) const;
 

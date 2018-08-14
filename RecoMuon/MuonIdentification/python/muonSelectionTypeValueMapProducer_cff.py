@@ -59,23 +59,24 @@ muidTMOneStationAngTight.selectionType = cms.string("TMOneStationAngTight")
 muidRPCMuLoose = muonSelectionTypeValueMapProducer.clone()
 muidRPCMuLoose.selectionType = cms.string("RPCMuLoose")
 #
-muonSelectionTypeSequence = cms.Sequence(
+muonSelectionTypeTask = cms.Task(
     muidTrackerMuonArbitrated
-    +muidAllArbitrated
-    +muidGlobalMuonPromptTight
-    +muidTMLastStationLoose
-    +muidTMLastStationTight
-    +muidTM2DCompatibilityLoose
-    +muidTM2DCompatibilityTight
-    +muidTMOneStationLoose
-    +muidTMOneStationTight
-    +muidTMLastStationOptimizedLowPtLoose
-    +muidTMLastStationOptimizedLowPtTight
-    +muidGMTkChiCompatibility
-    +muidGMStaChiCompatibility
-    +muidGMTkKinkTight
-    +muidTMLastStationAngLoose
-    +muidTMLastStationAngTight
-    +muidTMOneStationAngLoose
-    +muidTMOneStationAngTight
-    +muidRPCMuLoose)
+    ,muidAllArbitrated
+    ,muidGlobalMuonPromptTight
+    ,muidTMLastStationLoose
+    ,muidTMLastStationTight
+    ,muidTM2DCompatibilityLoose
+    ,muidTM2DCompatibilityTight
+    ,muidTMOneStationLoose
+    ,muidTMOneStationTight
+    ,muidTMLastStationOptimizedLowPtLoose
+    ,muidTMLastStationOptimizedLowPtTight
+    ,muidGMTkChiCompatibility
+    ,muidGMStaChiCompatibility
+    ,muidGMTkKinkTight
+    ,muidTMLastStationAngLoose
+    ,muidTMLastStationAngTight
+    ,muidTMOneStationAngLoose
+    ,muidTMOneStationAngTight
+    ,muidRPCMuLoose)
+muonSelectionTypeSequence = cms.Sequence(muonSelectionTypeTask)

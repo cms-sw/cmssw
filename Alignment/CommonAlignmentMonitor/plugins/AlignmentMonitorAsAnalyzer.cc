@@ -34,7 +34,7 @@
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorPluginFactory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
-#include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
@@ -45,7 +45,7 @@
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 #include "Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDDD.h"
 #include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
-#include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
+#include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "Geometry/Records/interface/PTrackerParametersRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
@@ -66,15 +66,15 @@
 class AlignmentMonitorAsAnalyzer : public edm::EDAnalyzer {
    public:
       explicit AlignmentMonitorAsAnalyzer(const edm::ParameterSet&);
-      ~AlignmentMonitorAsAnalyzer();
+      ~AlignmentMonitorAsAnalyzer() override;
 
       typedef std::pair<const Trajectory*, const reco::Track*> ConstTrajTrackPair; 
       typedef std::vector<ConstTrajTrackPair> ConstTrajTrackPairCollection;
 
    private:
-      virtual void beginJob() override;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
+      void beginJob() override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override;
 
       // ----------member data ---------------------------
       edm::InputTag m_tjTag;
@@ -85,7 +85,6 @@ class AlignmentMonitorAsAnalyzer : public edm::EDAnalyzer {
       AlignmentParameterStore *m_alignmentParameterStore;
 
       std::vector<AlignmentMonitorBase*> m_monitors;
-      const edm::EventSetup *m_lastSetup;
 
       bool m_firstEvent;
 };
@@ -104,9 +103,9 @@ class AlignmentMonitorAsAnalyzer : public edm::EDAnalyzer {
 AlignmentMonitorAsAnalyzer::AlignmentMonitorAsAnalyzer(const edm::ParameterSet& iConfig)
    : m_tjTag(iConfig.getParameter<edm::InputTag>("tjTkAssociationMapTag"))
    , m_aliParamStoreCfg(iConfig.getParameter<edm::ParameterSet>("ParameterStore"))
-   , m_alignableTracker(NULL)
-   , m_alignableMuon(NULL)
-   , m_alignmentParameterStore(NULL)
+   , m_alignableTracker(nullptr)
+   , m_alignableMuon(nullptr)
+   , m_alignmentParameterStore(nullptr)
 {
    std::vector<std::string> monitors = iConfig.getUntrackedParameter<std::vector<std::string> >( "monitors" );
 
@@ -188,7 +187,7 @@ AlignmentMonitorAsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
 					    align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)) );
       
       // within an analyzer, modules can't expect to see any selected alignables!
-      std::vector<Alignable*> empty_alignables;
+      align::Alignables empty_alignables;
       
       m_alignableTracker = new AlignableTracker( &(*theTracker), tTopo );
       m_alignableMuon = new AlignableMuon( &(*theMuonDT), &(*theMuonCSC) );
@@ -219,8 +218,6 @@ AlignmentMonitorAsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
       (*monitor)->duringLoop(iEvent, iSetup, trajTracks);
    }
 
-   // Keep this for endOfLoop (why does endOfLoop want iSetup???)
-   m_lastSetup = &iSetup;
 }
 
 
@@ -236,7 +233,7 @@ void
 AlignmentMonitorAsAnalyzer::endJob() 
 {
    for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = m_monitors.begin();  monitor != m_monitors.end();  ++monitor) {
-      (*monitor)->endOfLoop(*m_lastSetup);
+      (*monitor)->endOfLoop();
    }
    for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = m_monitors.begin();  monitor != m_monitors.end();  ++monitor) {
       (*monitor)->endOfJob();

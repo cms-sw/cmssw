@@ -47,7 +47,7 @@ class TkRadialStripTopology final : public RadialStripTopology {
   /** 
    * Destructor
    */
-  ~TkRadialStripTopology(){}
+  ~TkRadialStripTopology() override{}
 
   // =========================================================
   // StripTopology interface - implement pure methods
@@ -57,7 +57,7 @@ class TkRadialStripTopology final : public RadialStripTopology {
    * LocalPoint on x axis for given 'strip'
    * 'strip' is a float in units of the strip (angular) width
    */
-  LocalPoint localPosition(float strip) const;
+  LocalPoint localPosition(float strip) const override;
 
   /** 
    * LocalPoint for a given MeasurementPoint <BR>
@@ -72,7 +72,7 @@ class TkRadialStripTopology final : public RadialStripTopology {
    * the fractional position along the strip (range -0.5 to +0.5).<BR>
    * BEWARE! The components are not Cartesian.<BR>
    */
-  LocalPoint localPosition(const MeasurementPoint&) const;
+  LocalPoint localPosition(const MeasurementPoint&) const override;
 
   /** 
    * LocalError for a pure strip measurement, where 'strip'
@@ -80,14 +80,14 @@ class TkRadialStripTopology final : public RadialStripTopology {
    * stripErr2 is the sigma-squared. Both quantities are expressed in
    * units of theAngularWidth of a strip.
    */
-  LocalError localError(float strip, float stripErr2) const;
+  LocalError localError(float strip, float stripErr2) const override;
 
   /** 
    * LocalError for a given MeasurementPoint with known MeasurementError.
    * This may be used in Kalman filtering and hence must allow possible
    * correlations between the components.
    */
-  LocalError localError(const MeasurementPoint&, const MeasurementError&) const;
+  LocalError localError(const MeasurementPoint&, const MeasurementError&) const override;
 
   /** 
    * Strip in which a given LocalPoint lies. This is a float which
@@ -96,17 +96,17 @@ class TkRadialStripTopology final : public RadialStripTopology {
    * detector or BELOW, and float(nstrips) if it falls at the extreme high
    * edge or ABOVE.
    */
-  float strip(const LocalPoint&) const;
+  float strip(const LocalPoint&) const override;
 
   // the number of strip span by the segment between the two points..
-  float coveredStrips(const LocalPoint& lp1, const LocalPoint& lp2)  const ; 
+  float coveredStrips(const LocalPoint& lp1, const LocalPoint& lp2)  const override ; 
 
 
   /** 
    * Pitch (strip width) at a given LocalPoint. <BR>
    * BEWARE: are you sure you really want to call this for a RadialStripTopology?
    */
-  float localPitch(const LocalPoint&) const;
+  float localPitch(const LocalPoint&) const override;
 
   /** 
    * Angle between strip and symmetry axis (=local y axis)
@@ -119,23 +119,23 @@ class TkRadialStripTopology final : public RadialStripTopology {
    * whereas values 1, 2, ... nstrips correspond to the upper phi edges of
    * the strips.
    */
-  float stripAngle(float strip) const { return   yAxisOrientation() * (phiOfOneEdge() +  strip * angularWidth()) ;}
+  float stripAngle(float strip) const override { return   yAxisOrientation() * (phiOfOneEdge() +  strip * angularWidth()) ;}
 
 
   /** 
    * Total number of strips 
    */
-  int nstrips() const { return theNumberOfStrips; }
+  int nstrips() const override { return theNumberOfStrips; }
 
   /** 
    * Height of detector (= length of long symmetry axis of the plane of strips).
    */
-  float stripLength() const { return theDetHeight; }
+  float stripLength() const override { return theDetHeight; }
 
   /** 
    * Length of a strip passing through a given LocalPpoint
    */
-  float localStripLength(const LocalPoint& ) const;
+  float localStripLength(const LocalPoint& ) const override;
 
 
   // =========================================================
@@ -143,9 +143,9 @@ class TkRadialStripTopology final : public RadialStripTopology {
   // StripTopology interface)
   // =========================================================
 
-  MeasurementPoint measurementPosition( const LocalPoint& ) const;
+  MeasurementPoint measurementPosition( const LocalPoint& ) const override;
 
-  MeasurementError measurementError( const LocalPoint&, const LocalError& ) const;
+  MeasurementError measurementError( const LocalPoint&, const LocalError& ) const override;
 
   /** 
    * Channel number corresponding to a given LocalPoint.<BR>
@@ -154,7 +154,7 @@ class TkRadialStripTopology final : public RadialStripTopology {
    * LocalPoints outside the detector strip plane will be considered
    * as contributing to the edge channels 0 or nstrips-1.
    */
-  int channel( const LocalPoint& ) const;
+  int channel( const LocalPoint& ) const override;
 
 
   // =========================================================
@@ -164,36 +164,36 @@ class TkRadialStripTopology final : public RadialStripTopology {
   /** 
    * Angular width of a each strip
    */
-  float angularWidth() const { return theAngularWidth;}
+  float angularWidth() const override { return theAngularWidth;}
 
   /** 
    * Phi pitch of each strip (= angular width!)
    */
-  float phiPitch(void) const { return angularWidth(); }
+  float phiPitch(void) const override { return angularWidth(); }
 
   /** 
    * Length of long symmetry axis of plane of strips
    */
-  float detHeight() const { return theDetHeight;}
+  float detHeight() const override { return theDetHeight;}
 
   /** 
    * y extent of strip plane
    */
-  float yExtentOfStripPlane() const { return theDetHeight; } // same as detHeight()
+  float yExtentOfStripPlane() const override { return theDetHeight; } // same as detHeight()
 
   /** 
    * Distance from the intersection of the projections of
    * the extreme edges of the two extreme strips to the symmetry
    * centre of the plane of strips. 
    */
-  float centreToIntersection() const { return theCentreToIntersection; }
+  float centreToIntersection() const override { return theCentreToIntersection; }
 
   /** 
    * (y) distance from intersection of the projections of the strips
    * to the local coordinate origin. Same as centreToIntersection()
    * if symmetry centre of strip plane coincides with local origin.
    */
-  float originToIntersection() const { return (theCentreToIntersection - yCentre); }
+  float originToIntersection() const override { return (theCentreToIntersection - yCentre); }
 
   /**
    * Convenience function to access azimuthal angle of extreme edge of first strip 
@@ -207,33 +207,33 @@ class TkRadialStripTopology final : public RadialStripTopology {
    * where (full angle) = nstrips() * angularWidth(). <BR>
    *
    */
-  float phiOfOneEdge() const { return thePhiOfOneEdge; }
+  float phiOfOneEdge() const override { return thePhiOfOneEdge; }
 
   /**
    * Local x where centre of strip intersects input local y <BR>
    * 'strip' should be in range 1 to nstrips() <BR>
    */
-  float xOfStrip(int strip, float y) const;
+  float xOfStrip(int strip, float y) const override;
  
    /**
    * Nearest strip to given LocalPoint
    */
-  int nearestStrip(const LocalPoint&) const;
+  int nearestStrip(const LocalPoint&) const override;
 
   /** 
    * y axis orientation, 1 means detector width increases with local y
    */
-  float yAxisOrientation() const { return theYAxisOrientation; }
+  float yAxisOrientation() const override { return theYAxisOrientation; }
 
   /**
    * Offset in local y between midpoint of detector (strip plane) extent and local origin
    */
-  float yCentreOfStripPlane() const { return yCentre; }
+  float yCentreOfStripPlane() const override { return yCentre; }
 
   /**
    * Distance in local y from a hit to the point of intersection of projected strips
    */
-  float yDistanceToIntersection( float y ) const;
+  float yDistanceToIntersection( float y ) const override;
 
  private:
 

@@ -19,7 +19,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -49,12 +49,12 @@ typedef math::Error<5>::type CovarianceMatrix;
 class SeedToTrackProducer : public edm::one::EDProducer<> {
    public:
       explicit SeedToTrackProducer(const edm::ParameterSet&);
-      ~SeedToTrackProducer();
+      ~SeedToTrackProducer() override;
 
    private:
-      virtual void beginJob() override;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
+      void beginJob() override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override;
       virtual TrajectoryStateOnSurface seedTransientState(const TrajectorySeed&);
       // ----------member data ---------------------------
     

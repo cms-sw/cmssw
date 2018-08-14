@@ -49,7 +49,7 @@ void ConfigurableAdaptiveFitter::configure(
   // GenericLinearizationPointFinder linpt ( kvf );
   KalmanVertexUpdator<5> updator;
   bool s=m.getParameter< bool >("smoothing");
-  VertexSmoother<5> * smoother=0;
+  VertexSmoother<5> * smoother=nullptr;
   if ( s )
   {
     smoother = new KalmanVertexSmoother ();
@@ -91,5 +91,5 @@ edm::ParameterSet ConfigurableAdaptiveFitter::defaults() const
 #include "RecoVertex/ConfigurableVertexReco/interface/ConfFitterBuilder.h"
 
 namespace {
-  ConfFitterBuilder < ConfigurableAdaptiveFitter > t ( "avf", "AdaptiveVertexFitter" );
+  const ConfFitterBuilder < ConfigurableAdaptiveFitter > t ( "avf", "AdaptiveVertexFitter" );
 }

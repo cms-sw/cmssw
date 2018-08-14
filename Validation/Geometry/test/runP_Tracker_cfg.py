@@ -1,49 +1,36 @@
 # In order to produce everything that you need in one go, use the command:
 #
-# for t in {'BeamPipe','Tracker','PixBar','PixFwdMinus','PixFwdPlus','TIB','TOB','TIDB','TIDF','TEC','TkStrct','InnerServices'}; do cmsRun runP_Tracker_cfg.py geom=run2 label=$t >& /dev/null &; done
+# for t in {'BeamPipe','Tracker','PixBar','PixFwdMinus','PixFwdPlus','TIB','TOB','TIDB','TIDF','TEC','TkStrct','InnerServices'}; do cmsRun runP_Tracker_cfg.py geom=XYZ label=$t >& /dev/null &; done
 
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
-import sys
+import sys, re
 
 process = cms.Process("PROD")
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
-# The default geometry is PhaseI. If the run2 geoemtry is needed, the
-# appropriate flag has to be passed at command line, e.g.:
-# cmsRun runP_GenericComponent.py geom="XYZ"
+"""
 
-# The default component to be monitored is the Tracker. If other components
-# need to be studied, they must be supplied, one at a time, at the command
-# line, e.g.:
-# cmsRun runP_GenericComponent.py comp="XYZ"
+ The default geometry is Extended2017Plan1. If a different geometry
+ is needed, the appropriate flag has to be passed at command line,
+ e.g.: cmsRun runP_Tracker_cfg.py geom="XYZ"
 
-_LABELS2COMPS = {'BeamPipe': 'BEAM',
-                 'Tracker': 'Tracker',
-                 'Pixel':   ['PixelBarrel', 'PixelForwardZplus', 'PixelForwardZminus'],
-                 'PixBar':  'PixelBarrel',
-                 'PixFwd':  ['PixelForwardZplus', 'PixelForwardZminus', 'PixelForward'],
-                 'PixFwdMinus': 'PixelForwardZminus',
-                 'PixFwdPlus':  'PixelForwardZplus',
-                 'TIB':         'TIB',
-                 'TOB':         'TOB',
-                 'TIDB':        'TIDB',
-                 'TIDF':        'TIDF',
-                 'TEC':         'TEC',
-                 'InnerServices': ['TIBTIDServicesF', 'TIBTIDServicesB'],
-                 'TkStrct': ['TrackerOuterCylinder', 'TrackerBulkhead'],
-                 'Phase1PixelBarrel': 'Phase1PixelBarrel',
-                 'Phase2OTBarrel': 'Phase2OTBarrel',
-                 'Phase2PixelEndcap': 'Phase2PixelEndcap',
-                 'Phase2OTForward': 'Phase2OTForward'}
+ The default component to be monitored is the Tracker. If other
+ components need to be studied, they must be supplied, one at a time,
+ at the command line, e.g.: cmsRun runP_Tracker_cfg.py
+ label="XYZ"
+
+"""
+
+from Validation.Geometry.plot_utils import _LABELS2COMPS
 
 _ALLOWED_LABELS = _LABELS2COMPS.keys()
 
 options = VarParsing('analysis')
-options.register('geom',        #name
-                 'phaseI',      #default value
+options.register('geom',             #name
+                 'Extended2017Plan1',      #default value
                  VarParsing.multiplicity.singleton,   # kind of options
                  VarParsing.varType.string,           # type of option
                  "Select the geometry to be studied"  # help message
@@ -68,6 +55,7 @@ if options.label not in _ALLOWED_LABELS:
     raise RuntimeError("Unknown label")
 
 _components = _LABELS2COMPS[options.label]
+
 #
 #Geometry
 #
@@ -78,22 +66,17 @@ def _adaptToRun2(det):
     det = det.replace('plus', 'Plus')
   return det
 
-if options.geom == '2017' or options.geom == 'phaseI':
-  process.load("Configuration.Geometry.GeometryExtended2017_cff")
-elif options.geom == 'run2':
-  process.load("Configuration.Geometry.GeometryExtended2016_cff")
+# Load geometry either from the Database of from files
+process.load("Configuration.Geometry.Geometry%s_cff" % options.geom)
+
+# Customise names for Run2
+if re.match('.*2016.*', options.geom):
   if isinstance(_components, list):
       for i in range(len(_components)):
           _components[i] = _adaptToRun2(_components[i])
   else:
       _components = _adaptToRun2(_components)
-
-elif options.geom == 'phaseIID4':
-  process.load("Configuration.Geometry.GeometryExtended2023D4_cff")
-else:
-  print("Unknown geometry %s" % options.geom)
-  sys.exit(1)
-
+    
 #
 #Magnetic Field
 #

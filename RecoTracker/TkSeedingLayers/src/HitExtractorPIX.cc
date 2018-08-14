@@ -14,7 +14,7 @@ using namespace ctfseeding;
 using namespace std;
 
 HitExtractorPIX::HitExtractorPIX(
-    SeedingLayer::Side & side, int idLayer, const std::string & hitProducer, edm::ConsumesCollector& iC)
+    TrackerDetSide side, int idLayer, const std::string & hitProducer, edm::ConsumesCollector& iC)
   : theHitProducer(iC.consumes<SiPixelRecHitCollection>(hitProducer)), theSide(side), theIdLayer(idLayer)
 { }
 
@@ -32,10 +32,10 @@ HitExtractor::Hits HitExtractorPIX::hits(const TkTransientTrackingRecHitBuilder 
 
   edm::Handle<SiPixelRecHitCollection> pixelHits;
   ev.getByToken( theHitProducer, pixelHits);
-  if (theSide==SeedingLayer::Barrel) {
+  if (theSide==TrackerDetSide::Barrel) {
     range2SeedingHits( *pixelHits, result, ttopo.pxbDetIdLayerComparator(theIdLayer));
   } else {
-    range2SeedingHits( *pixelHits, result, ttopo.pxfDetIdDiskComparator(theSide,theIdLayer));
+    range2SeedingHits( *pixelHits, result, ttopo.pxfDetIdDiskComparator(static_cast<unsigned int>(theSide),theIdLayer));
   }
 
 

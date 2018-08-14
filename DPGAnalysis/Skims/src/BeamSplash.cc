@@ -71,9 +71,9 @@ bool BeamSplash::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle< EERecHitCollection > pEERecHits;
   Handle< HBHERecHitCollection > pHBHERecHits;
  
-  const EBRecHitCollection*  EBRecHits = 0;
-  const EERecHitCollection*  EERecHits = 0; 
-  const HBHERecHitCollection*  HBHERecHits = 0; 
+  const EBRecHitCollection*  EBRecHits = nullptr;
+  const EERecHitCollection*  EERecHits = nullptr; 
+  const HBHERecHitCollection*  HBHERecHits = nullptr; 
   
   if ( EBRecHitCollection_.label() != "" && EBRecHitCollection_.instance() != "" ) 
     {

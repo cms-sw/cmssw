@@ -10,7 +10,7 @@
 
 using namespace rpcrawtodigi;
 
-DataRecord::DataRecordType  DataRecord::type() const 
+rpcrawtodigi::DataRecord::DataRecordType  rpcrawtodigi::DataRecord::type() const
 {
   DataRecordType wordType = UndefinedType;
   if (RecordBX::matchType(*this)) wordType = StartOfBXData;
@@ -25,7 +25,7 @@ DataRecord::DataRecordType  DataRecord::type() const
   return wordType;
 }
 
-std::string DataRecord::print(const DataRecord & record) 
+std::string rpcrawtodigi::DataRecord::print(const rpcrawtodigi::DataRecord & record) 
 {
   std::ostringstream str;
   
@@ -41,7 +41,7 @@ std::string DataRecord::print(const DataRecord & record)
   return str.str();
 }
 
-std::string DataRecord::name(const DataRecordType& code)
+std::string rpcrawtodigi::DataRecord::name(const rpcrawtodigi::DataRecord::DataRecordType& code)
 {
   std::string result;
   switch (code) {

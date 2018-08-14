@@ -8,10 +8,10 @@ using namespace oracle::occi;
 
 ODLaserCycle::ODLaserCycle()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   //
   m_ID = 0;
   m_laser_config_id = 0;
@@ -33,7 +33,7 @@ void ODLaserCycle::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO ECAL_Laser_Cycle (cycle_id, laser_configuration_id ) "
 		 "VALUES (:1, :2 )");
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODLaserCycle::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODLaserCycle::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -52,7 +52,7 @@ void ODLaserCycle::writeDB()  noexcept(false)
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODLaserCycle::writeDB:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODLaserCycle::writeDB:  ")+getOraMessage(&e)));
   }
 
   // Now get the ID
@@ -93,7 +93,7 @@ int ODLaserCycle::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODLaserCycle::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODLaserCycle::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;
@@ -122,7 +122,7 @@ void ODLaserCycle::setByID(int id)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODLaserCycle::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODLaserCycle::fetchID:  ")+getOraMessage(&e)));
   }
 }
 
@@ -151,7 +151,7 @@ void ODLaserCycle::fetchData(ODLaserCycle * result)
     result->setLaserConfigurationID(       rset->getInt(1) );
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODLaserCycle::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODLaserCycle::fetchData():  ")+getOraMessage(&e)));
   }
 }
 

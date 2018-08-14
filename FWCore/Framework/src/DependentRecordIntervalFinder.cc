@@ -80,7 +80,7 @@ DependentRecordIntervalFinder::setIntervalFor(const EventSetupRecordKey& iKey,
    
    //I am assuming that an invalidTime is always less then the first valid time
    assert(IOVSyncValue::invalidIOVSyncValue() < IOVSyncValue::beginOfTime());
-   if(providers_.size() == 0 && alternate_.get() == 0 ) {
+   if(providers_.empty() && alternate_.get() == nullptr ) {
       oInterval = ValidityInterval::invalidInterval();
       return;
    }
@@ -88,7 +88,7 @@ DependentRecordIntervalFinder::setIntervalFor(const EventSetupRecordKey& iKey,
    bool allRecordsValid = true;
    ValidityInterval newInterval(IOVSyncValue::beginOfTime(), IOVSyncValue::endOfTime());
    
-   if (alternate_.get() != 0) {
+   if (alternate_.get() != nullptr) {
      ValidityInterval test = alternate_->findIntervalFor(iKey, iTime);
      if ( test != ValidityInterval::invalidInterval() ) {
        haveAValidDependentRecord =true;

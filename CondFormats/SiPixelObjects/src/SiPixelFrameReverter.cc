@@ -24,10 +24,10 @@ using namespace std;
 using namespace sipixelobjects;
 
 SiPixelFrameReverter::SiPixelFrameReverter(const edm::EventSetup& iSetup, const SiPixelFedCabling* map) 
-  : map_(map)
+  : map_(map), DetToFedMap(map->det2PathMap()) 
 { 
   // Build map
-  buildStructure(iSetup);
+  // buildStructure(iSetup);
 }
 
 
@@ -41,7 +41,7 @@ void SiPixelFrameReverter::buildStructure(const edm::EventSetup& iSetup)
 
   for(auto it = pDD->dets().begin(); it != pDD->dets().end(); it++){
     
-    if(dynamic_cast<PixelGeomDetUnit const *>((*it))!=0){
+    if(dynamic_cast<PixelGeomDetUnit const *>((*it))!=nullptr){
 
       DetId detId = (*it)->geographicalId();
       uint32_t id = detId();

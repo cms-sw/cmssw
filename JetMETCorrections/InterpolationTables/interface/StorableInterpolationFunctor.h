@@ -65,20 +65,20 @@ namespace npstat {
         inline StorableInterpolationFunctor(
             const std::vector<Axis>& axes,
             const std::vector<std::pair<bool,bool> >& interpolationType,
-            const char* functionLabel=0)
+            const char* functionLabel=nullptr)
             : StorableMultivariateFunctor(),
               table_(axes, interpolationType, functionLabel) {}
 
         inline StorableInterpolationFunctor(
             const Axis& xAxis, bool leftX, bool rightX,
-            const char* functionLabel=0)
+            const char* functionLabel=nullptr)
             : StorableMultivariateFunctor(),
               table_(xAxis, leftX, rightX, functionLabel) {}
 
         inline StorableInterpolationFunctor(
             const Axis& xAxis, bool leftX, bool rightX,
             const Axis& yAxis, bool leftY, bool rightY,
-            const char* functionLabel=0)
+            const char* functionLabel=nullptr)
             : StorableMultivariateFunctor(),
               table_(xAxis, leftX, rightX,
                      yAxis, leftY, rightY, functionLabel) {}
@@ -87,7 +87,7 @@ namespace npstat {
             const Axis& xAxis, bool leftX, bool rightX,
             const Axis& yAxis, bool leftY, bool rightY,
             const Axis& zAxis, bool leftZ, bool rightZ,
-            const char* functionLabel=0)
+            const char* functionLabel=nullptr)
             : StorableMultivariateFunctor(),
               table_(xAxis, leftX, rightX,
                      yAxis, leftY, rightY,
@@ -98,7 +98,7 @@ namespace npstat {
             const Axis& yAxis, bool leftY, bool rightY,
             const Axis& zAxis, bool leftZ, bool rightZ,
             const Axis& tAxis, bool leftT, bool rightT,
-            const char* functionLabel=0)
+            const char* functionLabel=nullptr)
             : StorableMultivariateFunctor(),
               table_(xAxis, leftX, rightX,
                      yAxis, leftY, rightY,
@@ -111,7 +111,7 @@ namespace npstat {
             const Axis& zAxis, bool leftZ, bool rightZ,
             const Axis& tAxis, bool leftT, bool rightT,
             const Axis& vAxis, bool leftV, bool rightV,
-            const char* functionLabel=0)
+            const char* functionLabel=nullptr)
             : StorableMultivariateFunctor(),
               table_(xAxis, leftX, rightX,
                      yAxis, leftY, rightY,
@@ -120,11 +120,11 @@ namespace npstat {
                      vAxis, leftV, rightV, functionLabel) {}
         //@}
 
-        virtual ~StorableInterpolationFunctor() {}
+        ~StorableInterpolationFunctor() override {}
 
-        virtual unsigned minDim() const {return table_.dim();};
+        unsigned minDim() const override {return table_.dim();};
 
-        virtual double operator()(const double* point, unsigned dim) const
+        double operator()(const double* point, unsigned dim) const override
             {return conv_(table_(point, dim));}
 
         //@{
@@ -144,8 +144,8 @@ namespace npstat {
 
         //@{
         // Method related to "geners" I/O
-        virtual gs::ClassId classId() const {return gs::ClassId(*this);}
-        virtual bool write(std::ostream& of) const;
+        gs::ClassId classId() const override {return gs::ClassId(*this);}
+        bool write(std::ostream& of) const override;
         //@}
 
         // I/O methods needed for reading
@@ -155,7 +155,7 @@ namespace npstat {
             const gs::ClassId& id, std::istream& in);
 
     protected:
-        virtual bool isEqual(const StorableMultivariateFunctor& other) const
+        bool isEqual(const StorableMultivariateFunctor& other) const override
         {
             // Note the use of static_cast rather than dynamic_cast below.
             // static_cast works faster and it is guaranteed to succeed here.
@@ -166,7 +166,7 @@ namespace npstat {
         }
 
     private:
-        StorableInterpolationFunctor();
+        StorableInterpolationFunctor() = delete;
 
         Table table_;
         Converter conv_;

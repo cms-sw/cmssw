@@ -45,7 +45,7 @@ void CmsDetConstruction::buildComponent(DDFilteredView& fv,
 
 void CmsDetConstruction::buildSmallDetsforGlued(DDFilteredView& fv, 
 						GeometricDet *mother, 
-						std::string attribute){
+						const std::string& attribute){
 
   GeometricDet * det  = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(attribute,&fv)));
   static const std::string stereo = "TrackerStereoDetectors";
@@ -63,7 +63,7 @@ void CmsDetConstruction::buildSmallDetsforGlued(DDFilteredView& fv,
 
 void CmsDetConstruction::buildSmallDetsforStack(DDFilteredView& fv,
         	                                GeometricDet *mother,
-                	                        std::string attribute){
+                	                        const std::string& attribute){
 
   GeometricDet * det  = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(attribute,&fv)));
   static const std::string isLower = "TrackerLowerDetectors";

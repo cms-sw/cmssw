@@ -1,16 +1,21 @@
 #include "DQM/SiStripMonitorSummary/interface/SiStripLorentzAngleDQM.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 #include "TCanvas.h"
 
 // -----
 SiStripLorentzAngleDQM::SiStripLorentzAngleDQM(const edm::EventSetup & eSetup,
+                                               edm::RunNumber_t iRun,
 					       edm::ParameterSet const& hPSet,
-					       edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, hPSet, fPSet){
+					       edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, iRun, hPSet, fPSet){
 
   // Build the Histo_TkMap:
-  if(HistoMaps_On_ ) Tk_HM_ = new TkHistoMap("SiStrip/Histo_Map","LA_TkMap",0.);
-
+  if ( HistoMaps_On_ ) {
+    edm::ESHandle<TkDetMap> tkDetMapHandle;
+    eSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
+    Tk_HM_ = std::make_unique<TkHistoMap>(tkDetMapHandle.product(), "SiStrip/Histo_Map","LA_TkMap",0.);
+  }
 }
 // -----
 
@@ -52,7 +57,7 @@ void SiStripLorentzAngleDQM::fillSummaryMEs(const std::vector<uint32_t> & select
 
   bool fillNext = true; 
   for(unsigned int i=0;i<selectedDetIds.size();i++){					    
-    int subDetId_ = ((selectedDetIds[i]>>25)&0x7);
+    int subDetId_ = DetId(selectedDetIds[i]).subdetId();
     if( subDetId_<3 ||subDetId_>6 ){ 
       edm::LogError("SiStripLorentzAngle")
 	<< "[SiStripLorentzAngle::fillSummaryMEs] WRONG INPUT : no such subdetector type : "
@@ -135,7 +140,7 @@ void SiStripLorentzAngleDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selME
 
   std::string hSummary_name; 
 
-  int subDetId_ = ((selDetId_>>25)&0x7);
+  int subDetId_ = DetId(selDetId_).subdetId();
   
   if( subDetId_<3 || subDetId_>6 ){ 
     edm::LogError("SiStripLorentzAngleDQM")
@@ -145,9 +150,6 @@ void SiStripLorentzAngleDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selME
     return;
   }
 
-  uint32_t selSubDetId_ =  ((selDetId_>>25)&0x7);
-  SiStripSubStructure substructure_;
-  
   std::vector<uint32_t> sameLayerDetIds_;
   sameLayerDetIds_.clear();
 
@@ -164,25 +166,27 @@ void SiStripLorentzAngleDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selME
   
     // -----   					   
     sameLayerDetIds_.clear();
-   
-    if(selSubDetId_==3){  //  TIB
-      if(tTopo->tibIsInternalString(selDetId_)){
-	substructure_.getTIBDetectors(activeDetIds, sameLayerDetIds_, tTopo->tibLayer(selDetId_),0,1,tTopo->tibString(selDetId_));
-      }
-      if(tTopo->tibIsExternalString(selDetId_)){
-	substructure_.getTIBDetectors(activeDetIds, sameLayerDetIds_, tTopo->tibLayer(selDetId_),0,2,tTopo->tibString(selDetId_));
-      } 
+
+    switch ( DetId(selDetId_).subdetId() ) {
+      case StripSubdetector::TIB:
+        if(tTopo->tibIsInternalString(selDetId_)){
+          SiStripSubStructure::getTIBDetectors(activeDetIds, sameLayerDetIds_, tTopo, tTopo->tibLayer(selDetId_),0,1,tTopo->tibString(selDetId_));
+        }
+        if(tTopo->tibIsExternalString(selDetId_)){
+          SiStripSubStructure::getTIBDetectors(activeDetIds, sameLayerDetIds_, tTopo, tTopo->tibLayer(selDetId_),0,2,tTopo->tibString(selDetId_));
+        }
+        break;
+      case StripSubdetector::TID:
+        SiStripSubStructure::getTIDDetectors(activeDetIds, sameLayerDetIds_, tTopo, 0,0,0,0);
+        break;
+      case StripSubdetector::TOB:
+        SiStripSubStructure::getTOBDetectors(activeDetIds, sameLayerDetIds_, tTopo, tTopo->tobLayer(selDetId_),0,tTopo->tobRod(selDetId_));
+        break;
+      case StripSubdetector::TEC:
+        SiStripSubStructure::getTECDetectors(activeDetIds, sameLayerDetIds_, tTopo, 0,0,0,0,0,0);
+        break;
     }
-    else if(selSubDetId_==4){  // TID
-      substructure_.getTIDDetectors(activeDetIds, sameLayerDetIds_, 0,0,0,0);
-    }
-    else if(selSubDetId_==5){  // TOB
-      substructure_.getTOBDetectors(activeDetIds, sameLayerDetIds_, tTopo->tobLayer(selDetId_),0,tTopo->tobRod(selDetId_));
-    }
-    else if(selSubDetId_==6){  // TEC
-      substructure_.getTECDetectors(activeDetIds, sameLayerDetIds_, 0,0,0,0,0,0);
-    }
- 
+
     // -----
 
     for(unsigned int i=0;i< sameLayerDetIds_.size(); i++){

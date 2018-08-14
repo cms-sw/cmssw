@@ -39,9 +39,9 @@ class HGCalTriggerFECodecBase {
   
   // give the FECodec the input digis and it sets itself
   // with the approprate data
-  virtual void setDataPayload(const HGCEEDigiCollection&,
-                              const HGCHEDigiCollection&,
-                              const HGCHEDigiCollection& ) = 0;
+  virtual void setDataPayload(const HGCalDigiCollection&,
+                              const HGCalDigiCollection&,
+                              const HGCalDigiCollection& ) = 0;
   virtual void setDataPayload(const l1t::HGCFETriggerDigi&) = 0;
   virtual void unSetDataPayload() = 0;
   // get the set data out for your own enjoyment
@@ -75,7 +75,7 @@ namespace HGCalTriggerFE {
     
     // mark these as final since at this level we know 
     // the implementation of the codec
-    virtual void encode(l1t::HGCFETriggerDigi& digi) override final {
+    void encode(l1t::HGCFETriggerDigi& digi) final {
       if( !dataIsSet_ ) {
         edm::LogWarning("HGCalTriggerFECodec|NoDataPayload")
           << "No data payload was set for HGCTriggerFECodec: "
@@ -83,7 +83,7 @@ namespace HGCalTriggerFE {
       }
       digi.encode(static_cast<const Impl&>(*this),data_);      
     }
-    virtual void decode(const l1t::HGCFETriggerDigi& digi) override final {
+    void decode(const l1t::HGCFETriggerDigi& digi) final {
       if( dataIsSet_ ) {
         edm::LogWarning("HGCalTriggerFECodec|OverwritePayload")
           << "Data payload was already set for HGCTriggerFECodec: "
@@ -93,9 +93,9 @@ namespace HGCalTriggerFE {
       dataIsSet_ = true;
     }  
     
-    virtual void setDataPayload(const HGCEEDigiCollection& ee, 
-                                const HGCHEDigiCollection& fh,
-                                const HGCHEDigiCollection& bh ) override final {
+    void setDataPayload(const HGCalDigiCollection& ee, 
+                                const HGCalDigiCollection& fh,
+                                const HGCalDigiCollection& bh ) final {
       if( dataIsSet_ ) {
         edm::LogWarning("HGCalTriggerFECodec|OverwritePayload")
           << "Data payload was already set for HGCTriggerFECodec: "
@@ -109,7 +109,7 @@ namespace HGCalTriggerFE {
       dataIsSet_ = true;
     }
 
-    virtual void setDataPayload(const l1t::HGCFETriggerDigi& digi) override final {
+    void setDataPayload(const l1t::HGCFETriggerDigi& digi) final {
       if( dataIsSet_ ) {
         edm::LogWarning("HGCalTriggerFECodec|OverwritePayload")
           << "Data payload was already set for HGCTriggerFECodec: "
@@ -123,16 +123,16 @@ namespace HGCalTriggerFE {
       dataIsSet_ = true;
     }
 
-    virtual void unSetDataPayload() override final {
+    void unSetDataPayload() final {
       data_.reset();
       dataIsSet_ = false;
     }
-    std::vector<bool> getDataPayload() const override final { 
+    std::vector<bool> getDataPayload() const final { 
       return this->encode(data_); 
     }
         
-    virtual void print(const l1t::HGCFETriggerDigi& digi,
-                       std::ostream& out = std::cout) const override final {
+    void print(const l1t::HGCFETriggerDigi& digi,
+                       std::ostream& out = std::cout) const final {
       digi.print(static_cast<const Impl&>(*this),out);
     }
 

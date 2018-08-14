@@ -55,7 +55,7 @@ void Jet::setPUEt(short int et) {
   puEt_ = et;
 }
 
-void Jet::setPUDonutEt(uint i, short int et) {
+void Jet::setPUDonutEt(unsigned int i, short int et) {
   if (i<4) puDonutEt_[i] = et;
 }
 
@@ -83,3 +83,18 @@ short int Jet::puDonutEt(int i) const {
   if (i>=0 && i<4) return puDonutEt_[i];
   else return 0;
 }
+
+bool Jet::operator==(const l1t::Jet& rhs) const
+{
+  return l1t::L1Candidate::operator==(static_cast<const l1t::L1Candidate &>(rhs))
+      && towerIEta_ == rhs.towerIEta()
+      && towerIPhi_ == rhs.towerIPhi()
+      && rawEt_ == rhs.rawEt()
+      && seedEt_ == rhs.seedEt()
+      && puEt_ == rhs.puEt()
+      && puDonutEt_[0] == rhs.puDonutEt(0)
+      && puDonutEt_[1] == rhs.puDonutEt(1)
+      && puDonutEt_[2] == rhs.puDonutEt(2)
+      && puDonutEt_[3] == rhs.puDonutEt(3);
+}
+

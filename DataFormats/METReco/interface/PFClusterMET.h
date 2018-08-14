@@ -18,7 +18,7 @@ namespace reco
 		  const LorentzVector& fP4, const Point& fVertex )
       : MET( sumet_, fP4, fVertex )  {}
 
-    virtual ~PFClusterMET() {}
+    ~PFClusterMET() override {}
     
 
   };

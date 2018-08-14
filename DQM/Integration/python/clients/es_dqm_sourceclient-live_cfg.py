@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ESDQM")
@@ -32,7 +33,8 @@ process.ecalPreshowerRecHit.ESRecoAlgo = cms.int32(0)
 
 process.preScaler.prescaleFactor = 1
 
-#process.dqmInfoES = cms.EDAnalyzer("DQMEventInfo",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+#process.dqmInfoES = DQMEDAnalyzer('DQMEventInfo',
 #                                   subSystemFolder = cms.untracked.string('EcalPreshower')
 #                                   )
 
@@ -73,7 +75,7 @@ process.ecalPreshowerRawDataTask.FEDRawDataCollection = cms.InputTag("rawDataCol
 # Heavy Ion Specific Fed Raw Data Collection Label
 #--------------------------------------------------
 
-print "Running with run type = ", process.runType.getRunType()
+print("Running with run type = ", process.runType.getRunType())
 
 if (process.runType.getRunType() == process.runType.hi_run):
     process.esRawToDigi.sourceTag = cms.InputTag("rawDataRepacker")

@@ -20,7 +20,7 @@
 #include <memory>
 #include <stdexcept>
 #include <vector>
-#include <math.h>
+#include <cmath>
 
 
 
@@ -58,7 +58,7 @@ RunInfoRead::readData( const std::string & runinfo_schema
                      , const int r_number ) {
   RunInfo temp_sum;
   //for B currents...
-  bool Bnotchanged = 0;
+  bool Bnotchanged = false;
   //from TimeConversions.h
   const boost::posix_time::ptime time0 = boost::posix_time::from_time_t(0);
   //if cursor is null setting null values  
@@ -117,10 +117,9 @@ RunInfoRead::readData( const std::string & runinfo_schema
       edm::LogInfo( "RunInfoReader" ) << osstart.str() << std::endl;
     }
     else {
-      edm::LogInfo( "RunInfoReader" ) << "[RunInfoRead::" << __func__ << "]: run " << r_number
-                                      << " start time not found." << std::endl;
-      temp_sum.m_start_time_str = "null";
-      temp_sum.m_start_time_ll = -1;
+      std::stringstream errMsg;
+      errMsg << "[RunInfoRead::" << __func__ << "]: run " << r_number << " start time not found.";
+      throw std::runtime_error(errMsg.str());
     }
     
     //new query to obtain the stop_time
@@ -250,11 +249,47 @@ RunInfoRead::readData( const std::string & runinfo_schema
     coral::TimeStamp lastCurrentDate;
     std::string last_date;
     std::vector<double> time_curr;
-    if ( !magnetCurrentCursor.next() ) {
+
+    bool changeFound = false;
+    // first process the changes found within the run boundaries
+    while( magnetCurrentCursor.next() ) {
+      std::ostringstream oscurrentdebug;
+      magnetCurrentCursor.currentRow().toOutputStream( oscurrentdebug );
+      LogDebug( "RunInfoReader" ) << oscurrentdebug.str() << std::endl;
+      const coral::AttributeList& row = magnetCurrentCursor.currentRow();
+      lastCurrentDate = row[sDCSMagnetChangeDateColumn].data<coral::TimeStamp>();
+      temp_sum.m_current.push_back( row[sDCSMagnetCurrentColumn].data<float>() );
+      changeFound = true;
+      if(temp_sum.m_stop_time_str == "null") break;
+      LogDebug( "RunInfoReader" ) << "  last current time extracted == " 
+                                  << "-->year " << lastCurrentDate.year()
+                                  << "-- month " << lastCurrentDate.month()
+                                  << "-- day " << lastCurrentDate.day()
+                                  << "-- hour " << lastCurrentDate.hour() 
+                                  << "-- minute " << lastCurrentDate.minute() 
+                                  << "-- second " << lastCurrentDate.second()
+                                  << "-- nanosecond " << lastCurrentDate.nanosecond()
+                                  << std::endl;
+      boost::posix_time::ptime lastCurrentDate_ptime = lastCurrentDate.time();
+      boost::posix_time::time_duration lastCurrentDateTimeFromEpoch = lastCurrentDate_ptime - time0;
+      last_date = boost::posix_time::to_iso_extended_string(lastCurrentDate_ptime);
+      long long last_date_ll = lastCurrentDateTimeFromEpoch.total_microseconds();
+      time_curr.push_back(last_date_ll);
+      std::ostringstream ostrans;
+      ostrans << "[RunInfoRead::" << __func__ << "]: Transition of the magnet current " << std::endl
+              << "New value: " << row[sDCSMagnetCurrentColumn].data<float>() << std::endl
+              << "Posix time for the transition timestamp: " << lastCurrentDate_ptime << std::endl
+              << "ISO string for the transition timestamp: " << last_date << std::endl
+              << "Microseconds since Epoch (UTC) for the transition timestamp: " << last_date_ll;
+      edm::LogInfo( "RunInfoReader" ) << ostrans.str() << std::endl;
+    }
+
+    // if not change is found within run boundaries, search for the most recent change 
+    if ( !changeFound ){ 
       // we should deal with stable currents... so the query is returning no value and we should take the last modified current value...
       edm::LogInfo( "RunInfoReader" ) << "[RunInfoRead::" << __func__ << "]: The magnet current did not change during run " << r_number
                                       << ". Looking for the most recent change before " << temp_sum.m_stop_time_str << std::endl;
-      Bnotchanged = 1;
+      Bnotchanged = true;
       std::unique_ptr<coral::IQuery> lastValueQuery( schema2.tableHandle(sDCSMagnetTable).newQuery() );
       lastValueQuery->addToOutputList( squoted(sDCSMagnetCurrentColumn), sDCSMagnetCurrentColumn );
       lastValueQuery->defineOutputType( sDCSMagnetCurrentColumn, "float" );
@@ -281,37 +316,6 @@ RunInfoRead::readData( const std::string & runinfo_schema
       temp_sum.m_stop_current = last_current;
       temp_sum.m_start_current = last_current; 
     }
-    while( magnetCurrentCursor.next() ) {
-      std::ostringstream oscurrentdebug;
-      magnetCurrentCursor.currentRow().toOutputStream( oscurrentdebug );
-      LogDebug( "RunInfoReader" ) << oscurrentdebug.str() << std::endl;
-      const coral::AttributeList& row = magnetCurrentCursor.currentRow();
-      lastCurrentDate = row[sDCSMagnetChangeDateColumn].data<coral::TimeStamp>();
-      temp_sum.m_current.push_back( row[sDCSMagnetCurrentColumn].data<float>() );
-      if(temp_sum.m_stop_time_str == "null") break;
-      LogDebug( "RunInfoReader" ) << "  last current time extracted == " 
-                                  << "-->year " << lastCurrentDate.year()
-                                  << "-- month " << lastCurrentDate.month()
-                                  << "-- day " << lastCurrentDate.day()
-                                  << "-- hour " << lastCurrentDate.hour() 
-                                  << "-- minute " << lastCurrentDate.minute() 
-                                  << "-- second " << lastCurrentDate.second()
-                                  << "-- nanosecond " << lastCurrentDate.nanosecond()
-                                  << std::endl;
-      boost::posix_time::ptime lastCurrentDate_ptime = lastCurrentDate.time();
-      boost::posix_time::time_duration lastCurrentDateTimeFromEpoch = lastCurrentDate_ptime - time0;
-      last_date = boost::posix_time::to_iso_extended_string(lastCurrentDate_ptime);
-      long long last_date_ll = lastCurrentDateTimeFromEpoch.total_microseconds();
-      time_curr.push_back(last_date_ll);
-      std::ostringstream ostrans;
-      ostrans << "[RunInfoRead::" << __func__ << "]: Transition of the magnet current " << std::endl
-              << "New value: " << row[sDCSMagnetCurrentColumn].data<float>() << std::endl
-              << "Posix time for the transition timestamp: " << lastCurrentDate_ptime << std::endl
-              << "ISO string for the transition timestamp: " << last_date << std::endl
-              << "Microseconds since Epoch (UTC) for the transition timestamp: " << last_date_ll;
-      edm::LogInfo( "RunInfoReader" ) << ostrans.str() << std::endl;
-    }
-    
     size_t csize = temp_sum.m_current.size();
     size_t tsize = time_curr.size(); 
     edm::LogInfo( "RunInfoReader" ) << "[RunInfoRead::" << __func__ << "]: size of time: " << tsize

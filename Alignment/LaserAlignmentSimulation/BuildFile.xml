@@ -3,6 +3,7 @@
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="FWCore/Utilities"/>
 <use   name="SimG4Core/Notification"/>
+<use   name="SimG4Core/PhysicsLists"/>
 <use   name="clhep"/>
 <export>
   <lib   name="1"/>

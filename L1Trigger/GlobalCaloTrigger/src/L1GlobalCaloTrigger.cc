@@ -30,9 +30,9 @@ L1GlobalCaloTrigger::L1GlobalCaloTrigger(const L1GctJetLeafCard::jetFinderType j
   theNonIsoElectronSorters(N_EM_LEAF_CARDS*2),
   theWheelJetFpgas(N_WHEEL_CARDS),
   theWheelEnergyFpgas(N_WHEEL_CARDS),
-  m_jetFinderParams(0),
+  m_jetFinderParams(nullptr),
   m_jetEtCalLuts(),
-  m_inputChannelMask(0),
+  m_inputChannelMask(nullptr),
   m_bxRangeAuto(true),
   m_bxStart(0), m_numOfBx(1),
   m_allInputEmCands(), m_allInputRegions()  
@@ -48,28 +48,28 @@ L1GlobalCaloTrigger::~L1GlobalCaloTrigger()
   // Delete the components of the GCT that we made in build()
   // (But not the LUTs, since these don't belong to us)
 
-  if (theNonIsoEmFinalStage != 0) delete theNonIsoEmFinalStage;
+  if (theNonIsoEmFinalStage != nullptr) delete theNonIsoEmFinalStage;
   
-  if (theIsoEmFinalStage != 0) delete theIsoEmFinalStage;
+  if (theIsoEmFinalStage != nullptr) delete theIsoEmFinalStage;
   
-  if (theEnergyFinalStage != 0) delete theEnergyFinalStage;	
+  if (theEnergyFinalStage != nullptr) delete theEnergyFinalStage;	
   
-  if (theJetFinalStage != 0) delete theJetFinalStage;			
+  if (theJetFinalStage != nullptr) delete theJetFinalStage;			
   
   for (unsigned i=0; i<theWheelEnergyFpgas.size(); ++i) { 
-    if (theWheelEnergyFpgas.at(i) != 0) delete theWheelEnergyFpgas.at(i); }
+    if (theWheelEnergyFpgas.at(i) != nullptr) delete theWheelEnergyFpgas.at(i); }
   theWheelEnergyFpgas.clear();
   
   for (unsigned i=0; i<theWheelJetFpgas.size(); ++i) { 
-    if (theWheelJetFpgas.at(i) != 0) delete theWheelJetFpgas.at(i); }
+    if (theWheelJetFpgas.at(i) != nullptr) delete theWheelJetFpgas.at(i); }
   theWheelJetFpgas.clear();		
 
   for (unsigned i=0; i<theEmLeafCards.size(); ++i) { 
-    if (theEmLeafCards.at(i) != 0) delete theEmLeafCards.at(i); }
+    if (theEmLeafCards.at(i) != nullptr) delete theEmLeafCards.at(i); }
   theEmLeafCards.clear();
 
   for (unsigned i=0; i<theJetLeafCards.size(); ++i) { 
-    if (theJetLeafCards.at(i) != 0) delete theJetLeafCards.at(i); }
+    if (theJetLeafCards.at(i) != nullptr) delete theJetLeafCards.at(i); }
   theJetLeafCards.clear();
   
 }
@@ -166,10 +166,10 @@ void L1GlobalCaloTrigger::bxSetup() {
   // Assume input data have been sorted by bunch crossing number
   if (m_bxRangeAuto) {
     // Find parameters defining the range of bunch crossings to be processed
-    int16_t firstBxEmCand = (m_allInputEmCands.size()==0 ? 0 : m_allInputEmCands.front().bx() );
-    int16_t firstBxRegion = (m_allInputRegions.size()==0 ? 0 : m_allInputRegions.front().bx() );
-    int16_t  lastBxEmCand = (m_allInputEmCands.size()==0 ? 0 : m_allInputEmCands.back().bx() );
-    int16_t  lastBxRegion = (m_allInputRegions.size()==0 ? 0 : m_allInputRegions.back().bx() );
+    int16_t firstBxEmCand = (m_allInputEmCands.empty() ? 0 : m_allInputEmCands.front().bx() );
+    int16_t firstBxRegion = (m_allInputRegions.empty() ? 0 : m_allInputRegions.front().bx() );
+    int16_t  lastBxEmCand = (m_allInputEmCands.empty() ? 0 : m_allInputEmCands.back().bx() );
+    int16_t  lastBxRegion = (m_allInputRegions.empty() ? 0 : m_allInputRegions.back().bx() );
     m_bxStart = std::min(firstBxEmCand, firstBxRegion);
     m_numOfBx = std::max( lastBxEmCand,  lastBxRegion) - m_bxStart + 1;
   } else {
@@ -344,14 +344,14 @@ void L1GlobalCaloTrigger::setupTauAlgo(const bool useImprovedAlgo, const bool ig
 
 /// setup scale for missing Ht
 void L1GlobalCaloTrigger::setHtMissScale(const L1CaloEtScale* const scale) {
-  if (theEnergyFinalStage != 0) {
+  if (theEnergyFinalStage != nullptr) {
     theEnergyFinalStage->setHtMissScale(scale);
   }
 }
 
 /// setup Hf sum LUTs
 void L1GlobalCaloTrigger::setupHfSumLuts(const L1CaloEtScale* const scale) {
-  if (getHfSumProcessor() != 0) {
+  if (getHfSumProcessor() != nullptr) {
     getHfSumProcessor()->setupLuts(scale);
   }
 }
@@ -370,7 +370,7 @@ void L1GlobalCaloTrigger::setChannelMask(const L1GctChannelMask* const mask) {
 /// check we have done all the setup
 bool L1GlobalCaloTrigger::setupOk() const { 
   bool result = true;
-  result &= (m_inputChannelMask != 0);
+  result &= (m_inputChannelMask != nullptr);
   // EM Leaf Card
   for (int i=0; i<N_EM_LEAF_CARDS; i++) {
     result &= theEmLeafCards.at(i)->setupOk();
@@ -412,8 +412,8 @@ bool L1GlobalCaloTrigger::setupOk() const {
 /// provide access to hf sum processor
 L1GctGlobalHfSumAlgos* L1GlobalCaloTrigger::getHfSumProcessor() const
 {
-  L1GctGlobalHfSumAlgos* result = 0;
-  if (theEnergyFinalStage !=0) {
+  L1GctGlobalHfSumAlgos* result = nullptr;
+  if (theEnergyFinalStage !=nullptr) {
     result = theEnergyFinalStage->getHfSumProcessor();
   }
   return result;
@@ -725,7 +725,7 @@ L1GctInternHtMissCollection L1GlobalCaloTrigger::getInternalHtMiss() const
 
 L1GctHFBitCountsCollection L1GlobalCaloTrigger::getHFBitCountsCollection() const {
   L1GctHFBitCountsCollection result(m_numOfBx);
-  if (getHfSumProcessor() != 0) {
+  if (getHfSumProcessor() != nullptr) {
     int bx = m_bxStart;
     for (int i=0; i<m_numOfBx; i++) {
       L1GctHFBitCounts temp =
@@ -743,7 +743,7 @@ L1GctHFBitCountsCollection L1GlobalCaloTrigger::getHFBitCountsCollection() const
 
 L1GctHFRingEtSumsCollection L1GlobalCaloTrigger::getHFRingEtSumsCollection() const {
   L1GctHFRingEtSumsCollection result(m_numOfBx);
-  if (getHfSumProcessor() != 0) {
+  if (getHfSumProcessor() != nullptr) {
     int bx = m_bxStart;
     for (int i=0; i<m_numOfBx; i++) {
       L1GctHFRingEtSums temp =

@@ -88,7 +88,7 @@ LikelihoodPdfProduct::getRatio(const char* specname,
     std::map<std::string,float> const& splitFractions = species->getSplitFractions();
     std::map<std::string,float>::const_iterator iter = splitFractions.find(gsfClass);
     //! if the pdf is not splitted, assign the split fraction = 1
-    float splitFr= (splitFractions.size()==0) ? 1. : iter->second;
+    float splitFr= (splitFractions.empty()) ? 1. : iter->second;
     if(strcmp(species->getName(),specname)==0) {
       sigProb=splitFr*getSpeciesProb(specname,measurements,gsfClass);
     }

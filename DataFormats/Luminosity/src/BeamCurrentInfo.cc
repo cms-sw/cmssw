@@ -1,5 +1,5 @@
 #include "DataFormats/Luminosity/interface/BeamCurrentInfo.h"
-#include "DataFormats/PatCandidates/interface/libminifloat.h"
+#include "DataFormats/Math/interface/libminifloat.h"
 
 #include <iomanip>
 #include <ostream>

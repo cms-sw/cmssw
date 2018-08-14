@@ -73,9 +73,9 @@ void RestoreGlobalPrintLevel(int value) {
 HybridMinimizer::HybridMinimizer(EMinimizerType type ) : 
    Minimizer(),
    fDim(0),
-   fMinimizer(0),
-   fMinuitFCN(0),
-   fMinimum(0)   
+   fMinimizer(nullptr),
+   fMinuitFCN(nullptr),
+   fMinimum(nullptr)   
 {
    // Default constructor implementation depending on minimizer type 
    SetMinimizerType(type); 
@@ -84,9 +84,9 @@ HybridMinimizer::HybridMinimizer(EMinimizerType type ) :
 HybridMinimizer::HybridMinimizer(const char *  type ) : 
    Minimizer(),
    fDim(0),
-   fMinimizer(0),
-   fMinuitFCN(0),
-   fMinimum(0)   
+   fMinimizer(nullptr),
+   fMinuitFCN(nullptr),
+   fMinimum(nullptr)   
 {   
    // constructor from a string
 
@@ -162,7 +162,7 @@ void HybridMinimizer::Clear() {
    fState = MnUserParameterState();
    // clear also the function minimum
    if (fMinimum) delete fMinimum; 
-   fMinimum = 0;
+   fMinimum = nullptr;
 }
 
 
@@ -180,17 +180,16 @@ bool HybridMinimizer::SetVariable(unsigned int ivar, const std::string & name, d
    if (step <= 0) { 
       std::string txtmsg = "Parameter " + name + "  has zero or invalid step size - consider it as constant ";
       MN_INFO_MSG2("HybridMinimizer::SetVariable",txtmsg);
-      fState.Add(name.c_str(), val);
+      fState.Add(name, val);
    }
    else 
-      fState.Add(name.c_str(), val, step); 
+      fState.Add(name, val, step); 
 
-   unsigned int minuit2Index = fState.Index(name.c_str() ); 
+   unsigned int minuit2Index = fState.Index(name ); 
    if ( minuit2Index != ivar) {
       std::string txtmsg("Wrong index used for the variable " + name);
       MN_INFO_MSG2("HybridMinimizer::SetVariable",txtmsg);  
       MN_INFO_VAL2("HybridMinimizer::SetVariable",minuit2Index);  
-      ivar = minuit2Index;
       return false;
    }
    fState.RemoveLimits(ivar);
@@ -227,7 +226,7 @@ bool HybridMinimizer::SetFixedVariable(unsigned int ivar , const std::string & n
    // use 10% 
    double step = ( val != 0) ? 0.1 * std::abs(val) : 0.1;
    if (!SetVariable(ivar, name, val, step ) ) { 
-      ivar = fState.Index(name.c_str() );      
+      ivar = fState.Index(name );      
    }
    fState.Fix(ivar);
    return true;
@@ -308,11 +307,11 @@ bool HybridMinimizer::Minimize() {
       return false; 
   }
 
-   assert(GetMinimizer() != 0 );
+   assert(GetMinimizer() != nullptr );
 
    // delete result of previous minimization
    if (fMinimum) delete fMinimum; 
-   fMinimum = 0;
+   fMinimum = nullptr;
 
 
    int maxfcn = MaxFunctionCalls(); 
@@ -320,17 +319,19 @@ bool HybridMinimizer::Minimize() {
    int strategyLevel = Strategy(); 
    fMinuitFCN->SetErrorDef(ErrorDef() );
 
+   /*
    if (PrintLevel() >=1) { 
       // print the real number of maxfcn used (defined in ModularFuncitonMinimizer)
       int maxfcn_used = maxfcn; 
       if (maxfcn_used == 0) { 
-         int nvar = fState.VariableParameters();
-         maxfcn_used = 200 + 100*nvar + 5*nvar*nvar;
+	int nvar = fState.VariableParameters();
+	maxfcn_used = 200 + 100*nvar + 5*nvar*nvar;
       }      
 //      std::cout << "HybridMinimizer: Minimize with max-calls " << maxfcn_used 
 //                << " convergence for edm < " << tol << " strategy " 
 //                << strategyLevel << std::endl; 
    }
+   */
 
    // internal minuit messages
    MnPrint::SetLevel(PrintLevel() );
@@ -381,7 +382,7 @@ bool HybridMinimizer::Minimize() {
    }
       
    const ROOT::Minuit2::FCNGradientBase * gradFCN = dynamic_cast<const ROOT::Minuit2::FCNGradientBase *>( fMinuitFCN ); 
-   if ( gradFCN != 0) {
+   if ( gradFCN != nullptr) {
       // use gradient
       //SetPrintLevel(3);
       ROOT::Minuit2::FunctionMinimum min =  GetMinimizer()->Minimize(*gradFCN, fState, strategy, maxfcn, tol);
@@ -511,7 +512,7 @@ void HybridMinimizer::PrintResults() {
 const double * HybridMinimizer::X() const { 
    // return values at minimum 
    const std::vector<MinuitParameter> & paramsObj = fState.MinuitParameters();
-   if (paramsObj.size() == 0) return 0;
+   if (paramsObj.empty()) return nullptr;
    assert(fDim == paramsObj.size());
    // be careful for multiple calls of this function. I will redo an allocation here
    // only when size of vectors has changed (e.g. after a new minimization)
@@ -527,7 +528,7 @@ const double * HybridMinimizer::X() const {
 const double * HybridMinimizer::Errors() const { 
    // return error at minimum (set to zero for fixed and constant params)
    const std::vector<MinuitParameter> & paramsObj = fState.MinuitParameters();
-   if (paramsObj.size() == 0) return 0;
+   if (paramsObj.empty()) return nullptr;
    assert(fDim == paramsObj.size());
    // be careful for multiple calls of this function. I will redo an allocation here
    // only when size of vectors has changed (e.g. after a new minimization)
@@ -664,7 +665,7 @@ bool HybridMinimizer::GetMinosError(unsigned int i, double & errLow, double & er
 //    ROOT::Minuit2::FunctionMinimum min =  
 //       GetMinimizer()->Minimize(*GetFCN(),fState, ROOT::Minuit2::MnStrategy(strategy), MaxFunctionCalls(), Tolerance());
 //    fState = min.UserState();
-   if (fMinimum == 0) { 
+   if (fMinimum == nullptr) { 
       MN_ERROR_MSG("HybridMinimizer::GetMinosErrors:  failed - no function minimum existing");
       return false;
    }
@@ -701,17 +702,18 @@ bool HybridMinimizer::GetMinosError(unsigned int i, double & errLow, double & er
    // cut off too small tolerance (they are not needed)
    tol = std::max(tol, 0.01);
    
+   /*
    if (PrintLevel() >=1) { 
       // print the real number of maxfcn used (defined in MnMinos)
       int maxfcn_used = maxfcn; 
       if (maxfcn_used == 0) { 
-         int nvar = fState.VariableParameters();
-         maxfcn_used = 2*(nvar+1)*(200 + 100*nvar + 5*nvar*nvar);
+	int nvar = fState.VariableParameters();
+	maxfcn_used = 2*(nvar+1)*(200 + 100*nvar + 5*nvar*nvar);
       }
 //      std::cout << "HybridMinimizer::GetMinosError for parameter " << i << "  " << par_name
 //                << " using max-calls " << maxfcn_used << ", tolerance " << tol << std::endl; 
    }
-
+   */
 
    if (runLower) low = minos.Loval(i,maxfcn,tol);
    if (runUpper) up  = minos.Upval(i,maxfcn,tol);
@@ -845,7 +847,7 @@ bool HybridMinimizer::Scan(unsigned int ipar, unsigned int & nstep, double * x, 
 bool HybridMinimizer::Contour(unsigned int ipar, unsigned int jpar, unsigned int & npoints, double * x, double * y) {
    // contour plot for parameter i and j
    // need a valid FunctionMinimum otherwise exits
-   if (fMinimum == 0) { 
+   if (fMinimum == nullptr) { 
       MN_ERROR_MSG2("HybridMinimizer::Contour"," no function minimum existing. Must minimize function before");
       return false;
    }

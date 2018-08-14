@@ -9,6 +9,8 @@
 
 #include "CommonTools/Utils/interface/FormulaEvaluator.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include <algorithm>
 #include <cmath>
 #include "TMath.h"
@@ -368,6 +370,22 @@ testFormulaEvaluator::checkFormulaEvaluator() {
     std::vector<double> emptyV;
 
     CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == 100./3.*(4-2)+2*(3+1) );
+  }
+
+  {
+    reco::FormulaEvaluator f("2*(3*4*5)/6");
+    
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == 2*(3*4*5)/6 );
+  }
+
+  {
+    reco::FormulaEvaluator f("2*(2.5*3*3.5)*(4*4.5*5)/6");
+    
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == 2*(2.5*3*3.5)*(4*4.5*5)/6 );
   }
 
   {
@@ -893,6 +911,128 @@ testFormulaEvaluator::checkFormulaEvaluator() {
 
       CPPUNIT_ASSERT(compare( f.evaluate(x,v),form_val.second));
     }
+  }
+
+  //tests for JER
+  {
+    reco::FormulaEvaluator f("[0]+[1]*exp(-x/[2])");
+
+    std::vector<double> v = {0.006467,0.02519,77.08};
+    std::vector<double> x = {100.};
+
+    auto func = [&v](double x) { return v[0]+v[1]*std::exp(-x/v[2]); };
+
+    CPPUNIT_ASSERT( compare( f.evaluate(x,v), func(x[0]) ) );
+  }
+
+  {
+    reco::FormulaEvaluator f("max(0.0001,1-y/x*([1]*(z-[0])*(1+[2]*log(x/30.))))");
+
+    std::vector<double> v = { 1.4, 0.453645, -0.015665 };
+    std::vector<double> x = { 157.2, 0.5, 23.2 };
+
+    auto func = [&v](double x, double y, double z ) { return std::max(0.0001,1-y/x*(v[1]*(z-v[0])*(1+v[2]*std::log(x/30.)))); };
+
+    CPPUNIT_ASSERT( compare( f.evaluate(x,v), func(x[0],x[1],x[2]) ) );
+  }
+  {
+    reco::FormulaEvaluator f("max(0.0001,1-y*[1]*(z-[0])*(1+[2]*log(x/30.))/x)");
+
+    std::vector<double> v = { 1.4, 0.453645, -0.015665 };
+    std::vector<double> x = { 157.2, 0.5, 23.2 };
+
+    auto func = [&v](double x, double y, double z ) { return std::max(0.0001,1-y/x*(v[1]*(z-v[0])*(1+v[2]*std::log(x/30.)))); };
+
+    CPPUNIT_ASSERT( compare( f.evaluate(x,v), func(x[0],x[1],x[2]) ) );
+  }
+  {
+    reco::FormulaEvaluator f("max(0.0001,1-y*([1]*(z-[0])*(1+[2]*log(x/30.)))/x)");
+
+    std::vector<double> v = { 1.4, 0.453645, -0.015665 };
+    std::vector<double> x = { 157.2, 0.5, 23.2 };
+
+    auto func = [&v](double x, double y, double z ) { return std::max(0.0001,1-y*(v[1]*(z-v[0])*(1+v[2]*std::log(x/30.)))/x); };
+
+    CPPUNIT_ASSERT( compare( f.evaluate(x,v), func(x[0],x[1],x[2]) ) );
+  }
+
+  {
+    reco::FormulaEvaluator f("sqrt([0]*abs([0])/(x*x)+[1]*[1]*pow(x,[3])+[2]*[2])");
+
+    std::vector<double> v = {1.326,0.4209,0.02223,-0.6704};
+    std::vector<double> x = {100.};
+
+    auto func = [&v](double x) { return std::sqrt(v[0]*std::abs(v[0])/(x*x)+v[1]*v[1]*std::pow(x,v[3])+v[2]*v[2]); };
+
+    CPPUNIT_ASSERT( compare( f.evaluate(x,v), func(x[0]) ) );
+  }
+
+  {
+    reco::FormulaEvaluator f("sqrt([0]*[0]/(x*x)+[1]*[1]/x+[2]*[2])");
+
+    std::vector<double> v = {2.3,0.20,0.009};
+    std::vector<double> x = {100.};
+
+    auto func = [&v](double x) { return std::sqrt(v[0]*v[0]/(x*x)+v[1]*v[1]/x+v[2]*v[2]); };
+
+    CPPUNIT_ASSERT( compare( f.evaluate(x,v), func(x[0]) ) );
+  }
+
+  {
+    auto t = [] () {
+      reco::FormulaEvaluator f("doesNotExist(2)");
+    };
+    
+    CPPUNIT_ASSERT_THROW( t(), cms::Exception );
+  }
+
+  {
+    auto t = [] () {
+      reco::FormulaEvaluator f("doesNotExist(2) + abs(-1)");
+    };
+    
+    CPPUNIT_ASSERT_THROW( t(), cms::Exception );
+  }
+
+  {
+    auto t = [] () {
+      reco::FormulaEvaluator f("abs(-1) + doesNotExist(2)");
+    };
+    
+    CPPUNIT_ASSERT_THROW( t(), cms::Exception );
+  }
+
+  {
+    auto t = [] () {
+      reco::FormulaEvaluator f("abs(-1) + ( 5 * doesNotExist(2))");
+    };
+    
+    CPPUNIT_ASSERT_THROW( t(), cms::Exception );
+  }
+
+  {
+    auto t = [] () {
+      reco::FormulaEvaluator f("( 5 * doesNotExist(2)) + abs(-1)");
+    };
+    
+    CPPUNIT_ASSERT_THROW( t(), cms::Exception );
+  }
+
+  {
+    auto t = [] () {
+      reco::FormulaEvaluator f("TMath::Exp(2)");
+    };
+    
+    CPPUNIT_ASSERT_THROW( t(), cms::Exception );
+  }
+
+  {
+    //this was previously causing a seg fault
+    auto t = [] () {
+      reco::FormulaEvaluator f("1 + 2 * 3 + 5 * doesNotExist(2) ");
+    };
+    
+    CPPUNIT_ASSERT_THROW( t(), cms::Exception );
   }
 
 }

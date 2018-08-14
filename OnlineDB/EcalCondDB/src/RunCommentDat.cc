@@ -15,9 +15,9 @@ using namespace oracle::occi;
 
 RunCommentDat::RunCommentDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
   m_source = "";
   m_comment = "";
   m_time = Tm();
@@ -43,7 +43,7 @@ void RunCommentDat::prepareWrite()
 			"VALUES (:iov_id,  "
 			":source, :user_comment)");
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunCommentDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunCommentDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -65,7 +65,7 @@ void RunCommentDat::writeDB(const EcalLogicID* ecid, const RunCommentDat* item, 
     
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunCommentDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunCommentDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -103,8 +103,8 @@ void RunCommentDat::fetchData(map< EcalLogicID, RunCommentDat >* fillMap, RunIOV
 			     EcalLogicID::NULLID, EcalLogicID::NULLID,        // comment number
 			    "Comment_order");    
 
-      dat.setSource( rset->getString(2) );
-      dat.setComment( rset->getString(3) );
+      dat.setSource( getOraString(rset,2) );
+      dat.setComment( getOraString(rset,3) );
 
       Date startDate = rset->getDate(4);
       m_time = dh.dateToTm( startDate );
@@ -114,6 +114,6 @@ void RunCommentDat::fetchData(map< EcalLogicID, RunCommentDat >* fillMap, RunIOV
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunCommentDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunCommentDat::fetchData():  ")+getOraMessage(&e)));
   }
 }

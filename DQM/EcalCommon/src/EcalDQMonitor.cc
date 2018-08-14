@@ -32,7 +32,7 @@ namespace ecaldqm
         if(verbosity_ > 0) edm::LogInfo("EcalDQM") << moduleName_ << ": Setting up " << name << std::endl;
         try{
           DQWorker* worker(WorkerFactoryStore::singleton()->getWorker(name, verbosity_, commonParams, workerParams.getUntrackedParameterSet(name)));
-          if(worker->onlineMode()) worker->setTime(time(0));
+          if(worker->onlineMode()) worker->setTime(time(nullptr));
           workers_.push_back(worker);
         }
         catch(std::exception&){
@@ -68,39 +68,33 @@ namespace ecaldqm
   void
   EcalDQMonitor::ecaldqmGetSetupObjects(edm::EventSetup const& _es)
   {
-    if(!checkElectronicsMap(false)){
-      // set up electronicsMap in EcalDQMCommonUtils
-      edm::ESHandle<EcalElectronicsMapping> elecMapHandle;
-      _es.get<EcalMappingRcd>().get(elecMapHandle);
-      setElectronicsMap(elecMapHandle.product());
-    }
+    //NB: a more minimal solution may rely on ESWatchers
+    //    but then here the cost is rather minimal
+    // set up electronicsMap in EcalDQMCommonUtils
+    edm::ESHandle<EcalElectronicsMapping> elecMapHandle;
+    _es.get<EcalMappingRcd>().get(elecMapHandle);
+    setElectronicsMap(elecMapHandle.product());
 
-    if(!checkTrigTowerMap(false)){
-      // set up trigTowerMap in EcalDQMCommonUtils
-      edm::ESHandle<EcalTrigTowerConstituentsMap> ttMapHandle;
-      _es.get<IdealGeometryRecord>().get(ttMapHandle);
-      setTrigTowerMap(ttMapHandle.product());
-    }
+    // set up trigTowerMap in EcalDQMCommonUtils
+    edm::ESHandle<EcalTrigTowerConstituentsMap> ttMapHandle;
+    _es.get<IdealGeometryRecord>().get(ttMapHandle);
+    setTrigTowerMap(ttMapHandle.product());
 
-    if(!checkGeometry(false)){
-      edm::ESHandle<CaloGeometry> geomHandle;
-      _es.get<CaloGeometryRecord>().get(geomHandle);
-      setGeometry(geomHandle.product());
-    }
+    edm::ESHandle<CaloGeometry> geomHandle;
+    _es.get<CaloGeometryRecord>().get(geomHandle);
+    setGeometry(geomHandle.product());
 
-    if(!checkTopology(false)){
-      // set up trigTowerMap in EcalDQMCommonUtils
-      edm::ESHandle<CaloTopology> topoHandle;
-      _es.get<CaloTopologyRecord>().get(topoHandle);
-      setTopology(topoHandle.product());
-    }
+    // set up trigTowerMap in EcalDQMCommonUtils
+    edm::ESHandle<CaloTopology> topoHandle;
+    _es.get<CaloTopologyRecord>().get(topoHandle);
+    setTopology(topoHandle.product());
   }
 
   void
   EcalDQMonitor::ecaldqmBeginRun(edm::Run const& _run, edm::EventSetup const& _es)
   {
     executeOnWorkers_([&_run, &_es](DQWorker* worker){
-        if(worker->onlineMode()) worker->setTime(time(0));
+        if(worker->onlineMode()) worker->setTime(time(nullptr));
         worker->setRunNumber(_run.run());
         worker->beginRun(_run, _es);
       }, "beginRun");
@@ -112,7 +106,7 @@ namespace ecaldqm
   EcalDQMonitor::ecaldqmEndRun(edm::Run const& _run, edm::EventSetup const& _es)
   {
     executeOnWorkers_([&_run, &_es](DQWorker* worker){
-        if(worker->onlineMode()) worker->setTime(time(0));
+        if(worker->onlineMode()) worker->setTime(time(nullptr));
         worker->setRunNumber(_run.run());
         worker->endRun(_run, _es);
       }, "endRun");
@@ -124,7 +118,7 @@ namespace ecaldqm
   EcalDQMonitor::ecaldqmBeginLuminosityBlock(edm::LuminosityBlock const& _lumi, edm::EventSetup const& _es)
   {
     executeOnWorkers_([&_lumi, &_es](DQWorker* worker){
-        if(worker->onlineMode()) worker->setTime(time(0));
+        if(worker->onlineMode()) worker->setTime(time(nullptr));
         worker->setLumiNumber(_lumi.luminosityBlock());
         worker->beginLuminosityBlock(_lumi, _es);
       }, "beginLumi");
@@ -136,7 +130,7 @@ namespace ecaldqm
   EcalDQMonitor::ecaldqmEndLuminosityBlock(edm::LuminosityBlock const& _lumi, edm::EventSetup const& _es)
   {
     executeOnWorkers_([&_lumi, &_es](DQWorker* worker){
-        if(worker->onlineMode()) worker->setTime(time(0));
+        if(worker->onlineMode()) worker->setTime(time(nullptr));
         worker->setLumiNumber(_lumi.luminosityBlock());
         worker->endLuminosityBlock(_lumi, _es);
       }, "endLumi");

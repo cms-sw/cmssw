@@ -48,7 +48,7 @@ CmsTrackerOTDiscBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
 
 
   for ( uint32_t rn=0; rn<totalrings; rn++) {
-    rings.push_back(det->component(rn));
+    rings.emplace_back(det->component(rn));
     uint32_t blade = rn+1;
     uint32_t panel = 1;
     uint32_t temp = (blade<<2) | panel;

@@ -12,6 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
+#include "Utilities/XrdAdaptor/src/XrdStatistics.h"
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -337,6 +338,21 @@ CondorStatusService::updateImpl(time_t sinceLastUpdate)
         updateChirp("EventRate", m_rate);
     }
 
+    // If Xrootd was used, pull the statistics from there.
+    edm::Service<XrdAdaptor::XrdStatisticsService> xrdsvc;
+    if (xrdsvc.isAvailable()) {
+        for (auto const &iter : xrdsvc->condorUpdate()) {
+            std::string site = iter.first;
+            site.erase(std::remove_if(site.begin(), site.end(),
+                       [](char x){return !isalnum(x) && (x != '_');}),
+                       site.end());
+            auto & iostats = iter.second;
+            updateChirp("IOSite_" + site + "_ReadBytes", iostats.bytesRead);
+            updateChirp("IOSite_" + site + "_ReadTimeMS",
+                        std::chrono::duration_cast<std::chrono::milliseconds>(iostats.transferTime).count());
+        }
+    }
+
     // Update storage account information
     auto const& stats = StorageAccount::summary();
     uint64_t readOps = 0;
@@ -429,8 +445,8 @@ CondorStatusService::updateChirpImpl(const std::string &key_suffix, const std::s
     argv.push_back(set_job_attr.c_str());
     argv.push_back(key.c_str());
     argv.push_back(value.c_str());
-    argv.push_back(NULL);
-    int status = posix_spawnp(&pid, "condor_chirp", &file_actions, NULL, const_cast<char* const*>(&argv[0]), environ);
+    argv.push_back(nullptr);
+    int status = posix_spawnp(&pid, "condor_chirp", &file_actions, nullptr, const_cast<char* const*>(&argv[0]), environ);
     close(devnull_fd);
     posix_spawn_file_actions_destroy(&file_actions);
     if (status)

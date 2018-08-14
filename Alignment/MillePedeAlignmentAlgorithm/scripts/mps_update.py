@@ -1,134 +1,160 @@
 #!/usr/bin/env python
-import subprocess
-import re
+from __future__ import print_function
 import os
+import re
+import subprocess
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
 
+import six
+
+def fill_time_info(mps_index, status, cpu_time):
+    """Fill timing info in the database for `mps_index`.
+
+    Arguments:
+    - `mps_index`: index in the MPS database
+    - `status`: job status
+    - `cpu_time`: extracted CPU timing information
+    """
+
+    cpu_time = int(round(cpu_time))  # care only about seconds for now
+    if status in ("RUN", "DONE"):
+        if cpu_time > 0:
+            diff = cpu_time - lib.JOBRUNTIME[mps_index]
+            lib.JOBRUNTIME[mps_index] = cpu_time
+            lib.JOBHOST[mps_index] = "+"+str(diff)
+            lib.JOBINCR[mps_index] = diff
+        else:
+            lib.JOBRUNTIME[mps_index] = 0
+            lib.JOBINCR[mps_index] = 0
+
+
+
+################################################################################
+# mapping of HTCondor status codes to MPS status
+htcondor_jobstatus = {"1": "PEND", # Idle
+                      "2": "RUN",  # Running
+                      "3": "EXIT", # Removed
+                      "4": "DONE", # Completed
+                      "5": "PEND", # Held
+                      "6": "RUN",  # Transferring output
+                      "7": "PEND"} # Suspended
+
+
+################################################################################
+# collect submitted jobs (use 'in' to handle composites, e.g. DISABLEDFETCH)
 lib = mpslib.jobdatabase()
 lib.read_db()
 
-#IDEAS
-#change Flag-list to binary True/False -> rename CARE?
-#rework string-printing with references
-
-#create a FLAG-list of which entries are to worry about
-submittedjobs = 0
-FLAG = []					#FLAG[i] = 1  -> don't care
-							#FLAG[i] = -1 -> care
-#asking 'in' to provide for composits, e.g. DISABLEDFETCH
+submitted_jobs = {}
 for i in xrange(len(lib.JOBID)):
-	if 'SETUP' in lib.JOBSTATUS[i] or \
-	   'DONE'  in lib.JOBSTATUS[i] or \
-	   'FETCH' in lib.JOBSTATUS[i] or \
-	   'OK'    in lib.JOBSTATUS[i] or \
-	   'ABEND' in lib.JOBSTATUS[i] or \
-	   'FAIL'  in lib.JOBSTATUS[i]:
-		FLAG.append(1)	
-	else:
-		FLAG.append(-1)
-		submittedjobs += 1
-print "submitted jobs: ", submittedjobs
+    submitted = True
+    for status in ("SETUP", "OK", "DONE", "FETCH", "ABEND", "WARN", "FAIL"):
+        if status in lib.JOBSTATUS[i]:
+            submitted = False
+            break
+    if submitted:
+        submitted_jobs[lib.JOBID[i]] = i
+print("submitted jobs:", len(submitted_jobs))
 
 
+################################################################################
+# deal with submitted jobs by looking into output of shell (bjobs/condor_q)
+if len(submitted_jobs) > 0:
+    job_status = {}
+    if "htcondor" in lib.get_class("pede"):
+        condor_q = subprocess.check_output(["condor_q", "-af:j",
+                                            "JobStatus", "RemoteSysCpu"],
+                                           stderr = subprocess.STDOUT)
+        for line in condor_q.splitlines():
+            job_id, status, cpu_time = line.split()
+            job_status[job_id] = {"status": htcondor_jobstatus[status],
+                                  "cpu": float(cpu_time)}
 
-#deal with submitted jobs by looking into output of shell('bjobs -l')
-if submittedjobs > 0:
-	#execute shell command 'bjobs -l' and store output. Include error Messages.	
-#	with open ("bjobs_test.txt", "r") as testfile:
-#		bjobs = testfile.read().replace('\n', '')
-	bjobs = subprocess.check_output('bjobs -l', stderr=subprocess.STDOUT, shell=True)
-	bjobs = bjobs.replace('\n','')	
+    bjobs = subprocess.check_output(["bjobs", "-l", "-a"],
+                                    stderr = subprocess.STDOUT)
+    bjobs = bjobs.replace("\n","")
 
-	if bjobs != 'No unfinished job found':	
-		bjobs = bjobs.replace(' ','')
-		results = bjobs.split('-----------------------')
-		#print('\n\n'.join(results))
-		#print results
-		for line in results:
-			line.strip()		#might be unnecessary
-			print line
-			#extract jobID		
-			match = re.search('Job<(\d+?)>,', line)
-			if match:
-				jobid = int(match.group(1))		# FIXME match.group(0)???????????????????
-			#extract job status			
-			match = re.search('Status<([A-Z]+?)>', line)
-			if match:
-				status = match.group(1)
-			#extract CPU time
-			match = re.search('TheCPUtimeusedis(\d+?)seconds', line)
-			cputime = 0
-			if match:
-				cputime = int(match.group(1))
-			print  'out ', jobid, ' ', status, ' ', cputime		#this might fail
-						
-			#check for disabled Jobs
-			theIndex = -1
-			disabled = ''
-			for k in xrange(len(lib.JOBID)):
-				if jobid == lib.JOBID[k]:
-					theIndex = k
-			if 'DISABLED' in lib.JOBSTATUS[theIndex]:
-				disabled = 'DISABLED'
+    job_regex = re.compile(r"Job<(\d+?)>,")
+    status_regex = re.compile(r"Status<([A-Z]+?)>")
+    cputime_regex = re.compile(r"TheCPUtimeusedis(\d+(\.\d+)?)seconds")
+    if bjobs != "No job found":
+        results = bjobs.replace(" ","").split("-----------------------")
+        for line in results:
+            if len(line.strip()) == 0: continue
+            # extract jobID
+            job_id = job_regex.search(line).group(1)
+            # extract job status
+            status = status_regex.search(line).group(1)
+            # extract CPU time (only present for finished job)
+            match = cputime_regex.search(line)
+            cpu_time = float(match.group(1)) if match else 0
+            print("out ", job_id, " ", status, " ", cpu_time)
+            job_status[job_id] = {"status": status,
+                                  "cpu": cpu_time}
 
-			#continue with next batch job if not found or not interesting
-			if theIndex == -1:
-				print 'mps_update.py - the job ', jobid,' was not found in the JOBID array'
-				continue
-			if FLAG[theIndex] == 1:
-				continue
+    for job_id, job_info in six.iteritems(job_status):
+        mps_index = submitted_jobs.get(job_id, -1)
+        # check for disabled Jobs
+        disabled = "DISABLED" if "DISABLED" in lib.JOBSTATUS[mps_index] else ""
 
-			#if deemed interesting (FLAG = -1) update Joblists for mps.db
-			lib.JOBSTATUS[theIndex] = disabled+status
-			if status == 'RUN' or status == 'DONE':
-				if cputime > 0:
-					diff = cputime - lib.JOBRUNTIME[theIndex]
-					lib.JOBRUNTIME[theIndex] = cputime
-					lib.JOBHOST[theIndex] = '+'+str(diff)
-					lib.JOBINCR[theIndex] = diff
-				else:
-					lib.JOBRUNTIME[theIndex] = 0
-					lib.JOBINCR[theIndex] = 0
-			FLAG[theIndex] = 1;
-			print 'set flag of job', theIndex, 'with id', lib.JOBID[theIndex], 'to 1'
+        # continue with next batch job if not found or not interesting
+        if mps_index == -1:
+            print("mps_update.py - the job", job_id, end=' ')
+            print("was not found in the JOBID array")
+            continue
+        else:                   # pop entry from submitted jobs
+            submitted_jobs.pop(job_id)
 
 
-
-#loop over remaining jobs to see whether they are done
-for i in xrange(len(lib.JOBID)):
-
-	#check if current job is disabled. Print stuff. Continue if flagged unimportant.
-	disabled = ''
-	if 'DISABLED' in lib.JOBSTATUS[i]:
-		disabled = 'DISABLED'
-	print ' DB job ', lib.JOBID[i], 'flag ', FLAG[i]
-	if FLAG[i] == 1:
-		continue
-
-	#check if job may be done by looking if a folder exists in the project directory.
-	#if True  -> jobstatus is set to DONE
-	theBatchDirectory = 'LSFJOB_'+str(lib.JOBID[i])
-	if os.path.isdir(theBatchDirectory):
-		print 'Directory ', theBatchDirectory, 'exists'
-		lib.JOBSTATUS[i] = disabled + 'DONE'
-	else:
-		if 'RUN' in lib.JOBSTATUS[i]:
-			print 'WARNING: Job ',i,' in state RUN, neither found by bjobs nor find LSFJOB directory!'
-
-#from Perl-script (dunno): FIXME: check if job not anymore in batch system
-#from Perl-script (dunno): might set to FAIL -but probably theBatchDirectory is just somewhere else...
+        # if found update Joblists for mps.db
+        lib.JOBSTATUS[mps_index] = disabled+job_info["status"]
+        fill_time_info(mps_index, job_info["status"], job_info["cpu"])
 
 
+################################################################################
+# loop over remaining jobs to see whether they are done
+for job_id, mps_index in submitted_jobs.items(): # IMPORTANT to copy here (no iterator!)
+    # check if current job is disabled. Print stuff.
+    disabled = "DISABLED" if "DISABLED" in lib.JOBSTATUS[mps_index] else ""
+    print(" DB job ", job_id, mps_index)
 
-#check for orphaned jobs
-for i in xrange(len(lib.JOBID)):
-	if FLAG[i] != 1:
-		if 'SETUP' in lib.JOBSTATUS[i] or \
-		   'DONE'  in lib.JOBSTATUS[i] or \
-		   'FETCH' in lib.JOBSTATUS[i] or \
-		   'TIMEL' in lib.JOBSTATUS[i] or \
-		   'SUBTD' in lib.JOBSTATUS[i]:
-			print 'Funny entry index ',i,' job ',lib.JOBID[i],' status ',lib.JOBSTATUS[i]
+    # check if job may be done by looking if a folder exists in the project directory.
+    # if True  -> jobstatus is set to DONE
+    theBatchDirectory = "LSFJOB_"+job_id
+    if os.path.isdir(theBatchDirectory):
+        print("Directory ", theBatchDirectory, "exists")
+        lib.JOBSTATUS[mps_index] = disabled + "DONE"
+        submitted_jobs.pop(job_id)
+        continue
+
+    # check if it is a HTCondor job already moved to "history"
+    elif "htcondor" in lib.get_class("pede"):
+        userlog = os.path.join("jobData", lib.JOBDIR[mps_index], "HTCJOB")
+        condor_h = subprocess.check_output(["condor_history", job_id, "-limit", "1",
+                                            "-userlog", userlog,
+                                            "-af:j", "JobStatus", "RemoteSysCpu"],
+                                           stderr = subprocess.STDOUT)
+        if len(condor_h.strip()) > 0:
+            job_id, status, cpu_time = condor_h.split()
+            status = htcondor_jobstatus[status]
+            lib.JOBSTATUS[mps_index] = disabled + status
+            fill_time_info(mps_index, status, float(cpu_time))
+            submitted_jobs.pop(job_id)
+            continue
+
+    if "RUN" in lib.JOBSTATUS[mps_index]:
+        print("WARNING: Job ", mps_index, end=' ')
+        print("in state RUN, neither found by htcondor, nor bjobs, nor find", end=' ')
+        print("LSFJOB directory!")
+
+
+################################################################################
+# check for orphaned jobs
+for job_id, mps_index in six.iteritems(submitted_jobs):
+    for status in ("SETUP", "DONE", "FETCH", "TIMEL", "SUBTD"):
+        if status in lib.JOBSTATUS[mps_index]:
+            print("Funny entry index", mps_index, " job", lib.JOBID[mps_index], end=' ')
+            print(" status", lib.JOBSTATUS[mps_index])
 
 
 lib.write_db()

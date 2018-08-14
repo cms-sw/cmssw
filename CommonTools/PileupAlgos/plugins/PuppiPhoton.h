@@ -13,13 +13,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Math/interface/PtEtaPhiMass.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 // ------------------------------------------------------------------------------------------
 class PuppiPhoton : public edm::stream::EDProducer<> {
 
 public:
 	explicit PuppiPhoton(const edm::ParameterSet&);
-	~PuppiPhoton();
+	~PuppiPhoton() override;
 
 	static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 	typedef math::XYZTLorentzVector                        LorentzVector;
@@ -29,7 +31,7 @@ public:
 	typedef edm::View<reco::PFCandidate>                   PFView;
 
 private:
-	virtual void produce(edm::Event&, const edm::EventSetup&);
+	void produce(edm::Event&, const edm::EventSetup&) override;
 	bool matchPFCandidate(const reco::Candidate *iPF,const reco::Candidate *iPho);
 	edm::EDGetTokenT< CandidateView >        tokenPFCandidates_;
 	edm::EDGetTokenT< CandidateView >        tokenPuppiCandidates_;
@@ -40,6 +42,7 @@ private:
 	double pt_;
 	double eta_;
 	bool   usePFRef_;
+	bool   usePFphotons_;
 	bool   runOnMiniAOD_;
 	bool   usePhotonId_;
 	std::vector<double>  dRMatch_;

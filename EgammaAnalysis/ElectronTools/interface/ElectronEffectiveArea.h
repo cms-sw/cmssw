@@ -8,6 +8,8 @@
 // Authors: S.Xie, E. DiMarco
 //--------------------------------------------------------------------------------------------------
 
+#include <Rtypes.h>
+#include <cmath>
 
 /// --> NOTE if you want to use this class as standalone without the CMSSW part 
 ///  you need to uncomment the below line and compile normally with scramv1 b 

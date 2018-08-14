@@ -391,7 +391,7 @@ DTBtiChip::nCellHit() const {
   int n=0;
   int i=0;
   for(i=0;i<9;i++) {
-    if( _digis[i].size() >0 ) n++;
+    if( !_digis[i].empty() ) n++;
   }
   if(config()->debug()>2) {
     cout << n << " cells with hits found:" << endl;
@@ -476,12 +476,12 @@ DTBtiChip::trigger(int step, unsigned n) const {
   if(step<DTConfig::NSTEPF||step>DTConfig::NSTEPL){
     cout << "DTBtiChip::trigger: step out of range: " << step ;
     cout << " empty pointer returned" << endl;
-    return 0;
+    return nullptr;
   } 
   if(n<1 || n>_trigs[step-DTConfig::NSTEPF].size()) {
     cout << "DTBtiChip::trigger: requested trigger does not exist: " << n;
     cout << " empty pointer returned!" << endl;
-    return 0;
+    return nullptr;
   }
   vector<DTBtiTrig*>::const_iterator p = _trigs[step-DTConfig::NSTEPF].begin();
   return (*(p+n-1));
@@ -560,7 +560,7 @@ DTBtiChip::init() {
   for(int cell=0;cell<9;cell++) {
     int WEN = config()->WENflag(cell+1);
     if( WEN==1 ){
-      _thisStepUsedHit[cell]=0;
+      _thisStepUsedHit[cell]=nullptr;
       vector<const DTDigi*>::const_iterator p;
       for(p=_digis[cell].begin();p<_digis[cell].end();p++){
         DTBtiHit* hit = new DTBtiHit(*p,config());
@@ -602,7 +602,7 @@ DTBtiChip::init_clock() {
   for(int cell=0;cell<9;cell++) {
     int WEN = config()->WENflag(cell+1);
     if( WEN==1 ){
-      _thisStepUsedHit[cell]=0;
+      _thisStepUsedHit[cell]=nullptr;
     for(unsigned int i=0; i<_digis_clock[cell].size(); i++){
       const int clockTime = (_digis_clock[cell])[i];
       DTBtiHit* hit = new DTBtiHit(clockTime,config());
@@ -697,7 +697,7 @@ DTBtiChip::tick() {
     }
 
     // loop on hits
-    _thisStepUsedHit[cell]=0;
+    _thisStepUsedHit[cell]=nullptr;
     for(p=_hits[cell].begin();p<_hits[cell].end();p++){
       if       ( (*p)->isDrifting() ) { // hit is drifting
         break;                          //   --> don't consider others
@@ -722,7 +722,7 @@ DTBtiChip::tick() {
 
     // debugging...
     if(config()->debug()>2){
-      if(_thisStepUsedHit[cell]!=0){
+      if(_thisStepUsedHit[cell]!=nullptr){
 	cout << "int. step=" << currentIntStep() << " cell=" << cell+1;
 	cout << " jtrig=" << _thisStepUsedHit[cell]->jtrig();
         if( _thisStepUsedHit[cell]->curTime() != 4000 )  

@@ -56,8 +56,8 @@ namespace magneticfield {
 
   private:
     // forbid copy ctor and assignment op.
-    VolumeBasedMagneticFieldESProducerFromDB(const VolumeBasedMagneticFieldESProducerFromDB&);
-    const VolumeBasedMagneticFieldESProducerFromDB& operator=(const VolumeBasedMagneticFieldESProducerFromDB&);
+    VolumeBasedMagneticFieldESProducerFromDB(const VolumeBasedMagneticFieldESProducerFromDB&) = delete;
+    const VolumeBasedMagneticFieldESProducerFromDB& operator=(const VolumeBasedMagneticFieldESProducerFromDB&) = delete;
     std::string closerNominalLabel(float current);
 
     edm::ParameterSet pset;
@@ -120,19 +120,19 @@ std::unique_ptr<MagneticField> VolumeBasedMagneticFieldESProducerFromDB::produce
 				 debug);
 
     // Set scaling factors
-    if (conf->keys.size() != 0) {
+    if (!conf->keys.empty()) {
       builder.setScaling(conf->keys, conf->values);
     }
   
     // Set specification for the grid tables to be used.
-    if (conf->gridFiles.size()!=0) {
+    if (!conf->gridFiles.empty()) {
       builder.setGridFiles(conf->gridFiles);
     }
 
     // Build the geomeytry (DDDCompactView) from the DB blob
     // (code taken from GeometryReaders/XMLIdealGeometryESSource/src/XMLIdealMagneticFieldGeometryESProducer.cc) 
     edm::ESTransientHandle<FileBlob> gdd;
-    iRecord.getRecord<MFGeometryFileRcd>().get( boost::lexical_cast<string>(conf->geometryVersion), gdd );
+    iRecord.getRecord<MFGeometryFileRcd>().get( std::to_string(conf->geometryVersion), gdd );
     
     DDName ddName("cmsMagneticField:MAGF");
     DDLogicalPart rootNode(ddName);

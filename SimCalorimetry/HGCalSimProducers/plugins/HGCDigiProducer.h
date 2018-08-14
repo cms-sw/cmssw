@@ -3,8 +3,8 @@
 
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizer.h"
+#include "FWCore/Framework/interface/ProducerBase.h"
 
-#include <memory>
 #include <vector>
 
 namespace edm {
@@ -22,21 +22,20 @@ namespace CLHEP {
 
 class HGCDigiProducer : public DigiAccumulatorMixMod {
 public:
-  HGCDigiProducer(edm::ParameterSet const& pset, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
+  HGCDigiProducer(edm::ParameterSet const& pset, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC);
   HGCDigiProducer(edm::ParameterSet const& pset, edm::ConsumesCollector& iC);
 
-  virtual void initializeEvent(edm::Event const&, edm::EventSetup const&) override;
-  virtual void finalizeEvent(edm::Event&, edm::EventSetup const&) override;
-  virtual void accumulate(edm::Event const&, edm::EventSetup const&) override;
-  virtual void accumulate(PileUpEventPrincipal const&, edm::EventSetup const&, edm::StreamID const&) override;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  ~HGCDigiProducer();
+  void initializeEvent(edm::Event const&, edm::EventSetup const&) override;
+  void finalizeEvent(edm::Event&, edm::EventSetup const&) override;
+  void accumulate(edm::Event const&, edm::EventSetup const&) override;
+  void accumulate(PileUpEventPrincipal const&, edm::EventSetup const&, edm::StreamID const&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  ~HGCDigiProducer() override = default;
 private:
-  CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
   //the digitizer
-  std::unique_ptr<HGCDigitizer> theDigitizer_;
-  std::vector<CLHEP::HepRandomEngine*> randomEngines_;
+  HGCDigitizer theDigitizer_;
+  CLHEP::HepRandomEngine* randomEngine_ = nullptr;
 };
 
 #endif

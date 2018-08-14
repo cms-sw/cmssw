@@ -1,4 +1,6 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 process = cms.Process("HARVESTING")
 
@@ -24,12 +26,12 @@ if process.dqmRunConfig.type.value() == "production":
     rid = process.source.runInputDir.value()
     process.source.runInputDir = rid + ":" + "/cmsnfsscratch/globalscratch/cmsbril/PLT/DQM/"
     
-    print "Modified input source:", process.source
+    print("Modified input source:", process.source)
 
 # remove EventInfo
 process.dqmEnv.eventInfoFolder = 'EventInfo/Random'
 
-process.BrilClient = cms.EDAnalyzer("BrilClient")
+process.BrilClient = DQMEDHarvester("BrilClient")
 
 process.bril_path = cms.Path(process.BrilClient)
 process.p = cms.EndPath(process.dqmEnv + process.dqmSaver)

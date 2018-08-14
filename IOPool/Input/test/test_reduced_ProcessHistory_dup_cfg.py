@@ -25,125 +25,57 @@ process.output = cms.OutputModule("PoolOutputModule",
 
 process.testmerge = cms.EDAnalyzer("TestMergeResults",
                             
-    #   These values below are just arbitrary and meaningless
-    #   We are checking to see that the value we get out matches what
-    #   was put in.
-
-    #   expected values listed below come in sets of three
+    #   Check to see that the value we read matches what we know
+    #   was written. Expected values listed below come in sets of three
     #      value expected in Thing
     #      value expected in ThingWithMerge
     #      value expected in ThingWithIsEqual
-    #   This set of 3 is repeated below at each point it might change
-    #   The Prod suffix refers to objects from the process named PROD
-    #   The New suffix refers to objects created in the most recent process
+    #   Each set of 3 is tested at endRun for the expected
+    #   run values or at endLuminosityBlock for the expected
+    #   lumi values. And then the next set of three values
+    #   is tested at the next endRun or endLuminosityBlock.
     #   When the sequence of parameter values is exhausted it stops checking
-    #   0's are just placeholders, if the value is a "0" the check is not made
-    #   and it indicates the product does not exist at that point.
-    #   *'s indicate lines where the checks are actually run by the test module.
+    #   0's are just placeholders, if the value is a "0" the check is not made.
 
     expectedBeginRunNew = cms.untracked.vint32(
-        0,           0,      0,   # start
-        0,           0,      0,   # begin file 1
-        10001,   10002,  10003,   # * begin run 100
-        10001,   20004,  10003,   # * events
         10001,   20004,  10003,   # end run 100
-        10001,   10002,  10003,   # * begin run 1
-        10001,   20004,  10003,   # * events
         10001,   20004,  10003,   # end run 1
-        10001,   10002,  10003,   # * begin run 1
-        10001,   20004,  10003,   # * events
         10001,   20004,  10003,   # end run 1
-        10001,   10002,  10003,   # * begin run 2
-        10001,   20004,  10003,   # * events
         10001,   20004,  10003,   # end run 2
-        10001,   10002,  10003,   # * begin run 11
-        10001,   20004,  10003,   # * events
         10001,   20004,  10003,   # end run 11
-        10001,   10002,  10003,   # * begin run 12
-        10001,   20004,  10003,   # * events
         10001,   20004,  10003,   # end run 12
-        10001,   10002,  10003,   # * begin run 13
-        10001,   20004,  10003,   # * events
         10001,   20004,  10003,   # end run 13
-        10001,   10002,  10003,   # * begin run 1000
-        10001,   20004,  10003,   # * events
         10001,   20004,  10003,   # end run 1000
-        10001,   10002,  10003,   # * begin run 1001
-        10001,   20004,  10003,   # * events
         10001,   20004,  10003,   # end run 1001
-        10001,   10002,  10003,   # * begin run 1002
-        10001,   20004,  10003,   # * events
         10001,   20004,  10003,   # end run 1002
-        10001,   10002,  10003,   # * begin run 2000
-        10001,   20004,  10003,   # * events
         10001,   20004,  10003,   # end run 2000
-        10001,   10002,  10003,   # * begin run 2001
-        10001,   20004,  10003,   # * events
         10001,   20004,  10003,   # end run 2001
-        10001,   10002,  10003,   # * begin run 2002
-        10001,   20004,  10003,   # * events
         10001,   20004,  10003    # end run 2002
     ),
 
     expectedEndRunNew = cms.untracked.vint32(
-        0,           0,      0,   # start
-        0,           0,      0,   # begin file 1
-        100001,   100002,  100003,   # begin run 100
-        100001,   200004,  100003,   # * events
-        100001,   200004,  100003,   # * end run 100
-        100001,   100002,  100003,   # begin run 1
-        100001,   200004,  100003,   # * events
-        100001,   200004,  100003,   # * end run 1
-        100001,   100002,  100003,   # begin run 1
-        100001,   200004,  100003,   # * events
-        100001,   200004,  100003,   # * end run 1
-        100001,   100002,  100003,   # begin run 2
-        100001,   200004,  100003,   # * events
-        100001,   200004,  100003,   # * end run 2
-        100001,   100002,  100003,   # begin run 11
-        100001,   200004,  100003,   # * events
-        100001,   200004,  100003,   # * end run 11
-        100001,   100002,  100003,   # begin run 12
-        100001,   200004,  100003,   # * events
-        100001,   200004,  100003,   # * end run 12
-        100001,   100002,  100003,   # begin run 13
-        100001,   200004,  100003,   # * events
-        100001,   200004,  100003,   # * end run 13
-        100001,   100002,  100003,   # begin run 1000
-        100001,   200004,  100003,   # * events
-        100001,   200004,  100003,   # * end run 1000
-        100001,   100002,  100003,   # begin run 1001
-        100001,   200004,  100003,   # * events
-        100001,   200004,  100003,   # * end run 1001
-        100001,   100002,  100003,   # begin run 1002
-        100001,   200004,  100003,   # * events
-        100001,   200004,  100003,   # * end run 1002
-        100001,   100002,  100003,   # begin run 2000
-        100001,   200004,  100003,   # * events
-        100001,   200004,  100003,   # * end run 2000
-        100001,   100002,  100003,   # begin run 2001
-        100001,   200004,  100003,   # * events
-        100001,   200004,  100003,   # *end run 2001
-        100001,   100002,  100003,   # begin run 2002
-        100001,   200004,  100003,   # * events
-        100001,   200004,  100003    # * end run 2002
+        100001,   200004,  100003,   # end run 100
+        100001,   200004,  100003,   # end run 1
+        100001,   200004,  100003,   # end run 1
+        100001,   200004,  100003,   # end run 2
+        100001,   200004,  100003,   # end run 11
+        100001,   200004,  100003,   # end run 12
+        100001,   200004,  100003,   # end run 13
+        100001,   200004,  100003,   # end run 1000
+        100001,   200004,  100003,   # end run 1001
+        100001,   200004,  100003,   # end run 1002
+        100001,   200004,  100003,   # end run 2000
+        100001,   200004,  100003,   # end run 2001
+        100001,   200004,  100003    # end run 2002
     ),
 
     expectedBeginLumiNew = cms.untracked.vint32(
-        0,           0,      0,   # start
-        0,           0,      0,   # begin file 1
-        101,       102,    103,   # * begin run 100 lumi 100
-        101,       204,    103,   # * events
         101,       204,    103    # end run 100 lumi 100
 # There are more, but all with the same pattern as the first        
     ),
 
     expectedEndLumiNew = cms.untracked.vint32(
-        0,           0,      0,   # start
-        0,           0,      0,   # begin file 1
-        1001,     1002,   1003,   # begin run 100 lumi 100
-        1001,     2004,   1003,   # * events
-        1001,     2004,   1003,   # * end run 100 lumi 100
+        1001,     2004,   1003,   # end run 100 lumi 100
     ),
 
     verbose = cms.untracked.bool(True)

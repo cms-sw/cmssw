@@ -18,7 +18,7 @@
 #include <map>
 #include <vector>
 #include <string>
-#include <stdint.h>
+#include <cstdint>
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include <atomic>
 #endif
@@ -49,7 +49,7 @@ public:
 
   /// Get the value correspoding to the given WireId, 
   //// using x[] as parameters of the parametrization when relevant
-  float get(const DTWireId& wireid, double* x=0) const;
+  float get(const DTWireId& wireid, double* x=nullptr) const;
 
   /// Set the expression representing the formula used for parametrization
   void setFormulaExpr(const std::string& expr) {

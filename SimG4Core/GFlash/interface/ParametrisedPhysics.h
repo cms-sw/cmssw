@@ -15,11 +15,11 @@ class ParametrisedPhysics : public G4VPhysicsConstructor
 {
  public:
   ParametrisedPhysics(std::string name, const edm::ParameterSet & p);
-  virtual ~ParametrisedPhysics();
+  ~ParametrisedPhysics() override;
 	
  protected:
-  virtual void ConstructParticle();
-  virtual void ConstructProcess();
+  void ConstructParticle() override;
+  void ConstructProcess() override;
 
  private:
   edm::ParameterSet theParSet;

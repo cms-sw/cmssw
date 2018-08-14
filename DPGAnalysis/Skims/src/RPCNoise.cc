@@ -88,12 +88,12 @@ using namespace edm;
 class RPCNoise : public edm::EDFilter {
    public:
       explicit RPCNoise(const edm::ParameterSet&);
-      ~RPCNoise();
+      ~RPCNoise() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
   // counters
   int nEventsAnalyzed;

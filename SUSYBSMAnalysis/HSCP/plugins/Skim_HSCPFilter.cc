@@ -51,12 +51,12 @@
 class HSCPFilter : public edm::EDFilter {
    public:
       explicit HSCPFilter(const edm::ParameterSet&);
-      ~HSCPFilter();
+      ~HSCPFilter() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       bool filterFlag;
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
       edm::EDGetTokenT<ExampleData> pInToken;
@@ -141,7 +141,7 @@ HSCPFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    if(!filterFlag) return true;
 
-   if(recoVertex.size()<1) return false;
+   if(recoVertex.empty()) return false;
 
    using reco::MuonCollection;
 

@@ -95,7 +95,7 @@ bool ZgammaMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //  std::cout << "\n" << std::endl;
   
   if (
-      Photon.size() > 0 && Lepton.size() > 1 &&  
+      !Photon.empty() && Lepton.size() > 1 &&  
       Photon[0].Pt()  > minPhotonPt  && 
       Lepton[0].Pt()  > minLeptonPt  && 
       Lepton[1].Pt()  > minLeptonPt  &&  

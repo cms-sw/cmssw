@@ -12,6 +12,7 @@ from Validation.RecoMET.METPostProcessor_cff import *
 
 
 dqmHarvesting = cms.Path(DQMOffline_SecondStep*DQMOffline_Certification)
+dqmHarvestingExtraHLT = cms.Path(DQMOffline_SecondStep_ExtraHLT*DQMOffline_Certification)
 dqmHarvestingFakeHLT = cms.Path(DQMOffline_SecondStep_FakeHLT*DQMOffline_Certification)
 #dqmHarvesting = cms.Sequence(DQMOffline_SecondStep*DQMOffline_Certification)
 #dqmHarvestingFakeHLT = cms.Sequence(DQMOffline_SecondStep_FakeHLT*DQMOffline_Certification)
@@ -29,7 +30,6 @@ validationHarvesting = cms.Path(postValidation*hltpostvalidation*postValidation_
 
 _validationHarvesting_fastsim = validationHarvesting.copy()
 for _entry in [hltpostvalidation]:
-    print 'dropping hltpostvalidation'
     _validationHarvesting_fastsim.remove(_entry)
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(validationHarvesting,_validationHarvesting_fastsim)
@@ -41,7 +41,6 @@ validationpreprodHarvesting = cms.Path(postValidation_preprod*hltpostvalidation_
 
 _validationpreprodHarvesting_fastsim = validationpreprodHarvesting.copy()
 for _entry in [hltpostvalidation_preprod]:
-    print 'dropping hltpostvalidation_preprod'
     _validationpreprodHarvesting_fastsim.remove(_entry)
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(validationpreprodHarvesting,_validationpreprodHarvesting_fastsim)

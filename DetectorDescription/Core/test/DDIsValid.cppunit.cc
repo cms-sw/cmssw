@@ -10,7 +10,7 @@
 #include <utility>
 #include <vector>
 
-#include "DetectorDescription/Base/interface/Singleton.h"
+#include "DetectorDescription/Core/interface/Singleton.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
@@ -47,7 +47,7 @@ namespace {
     }  
     else {
       DDName ddnm(nm,ns);
-      result.push_back(DDLogicalPart(ddnm));
+      result.emplace_back(DDLogicalPart(ddnm));
       return std::make_pair(true,"");
     }
     //edm::LogInfo("DDLogicalPart") << " . emptyNs=" << emptyNs << std::endl;
@@ -66,15 +66,15 @@ namespace {
       ed(LPNAMES::instance().end());
     for (; it != ed; ++it) {
       bool doit = false;
-      doit = !regexec(&aRegex, it->first.c_str(), 0,0,0);
+      doit = !regexec(&aRegex, it->first.c_str(), 0,nullptr,0);
       //if (doit)  edm::LogInfo("DDLogicalPart") << "rgx: " << aName << ' ' << it->first << ' ' << doit << std::endl;
       if ( doit  ) {
 	std::vector<DDName>::size_type sz = it->second.size(); // no of 'compatible' namespaces
 	if ( emptyNs && (sz==1) ) { // accept all logical parts in all the namespaces
-	  result.push_back(it->second[0]);
+	  result.emplace_back(it->second[0]);
 	  //std::vector<DDName>::const_iterator nsIt(it->second.begin()), nsEd(it->second.end());
 	  //for(; nsIt != nsEd; ++nsIt) {
-	  //   result.push_back(DDLogicalPart(*nsIt));
+	  //   result.emplace_back(DDLogicalPart(*nsIt));
 	  //   edm::LogInfo("DDLogicalPart") << "DDD-WARNING: multiple namespaces match (in SpecPars PartSelector): " << *nsIt << std::endl;
 	  //}
 	}
@@ -82,10 +82,10 @@ namespace {
 	  std::vector<DDName>::const_iterator nsit(it->second.begin()), nsed(it->second.end());
 	  for (; nsit !=nsed; ++nsit) {
 	    //edm::LogInfo("DDLogicalPart") << "comparing " << aNs << " with " << *nsit << std::endl;
-	    bool another_doit = !regexec(&aNsRegex, nsit->ns().c_str(), 0,0,0);
+	    bool another_doit = !regexec(&aNsRegex, nsit->ns().c_str(), 0,nullptr,0);
 	    if ( another_doit ) {
-	      //temp.push_back(std::make_pair(it->first,*nsit));
-	      result.push_back(DDLogicalPart(*nsit));
+	      //temp.emplace_back(std::make_pair(it->first,*nsit));
+	      result.emplace_back(DDLogicalPart(*nsit));
 	    }
 	  }
 	}
@@ -111,7 +111,7 @@ namespace {
     
     // check whether the found logical-parts are also defined (i.e. have material, solid ...)
     // std::cout << "IsValid-Result " << nm << " :";
-    if (result.size()) {
+    if (!result.empty()) {
       std::vector<DDLogicalPart>::const_iterator lpit(result.begin()), lped(result.end());
       for (; lpit != lped; ++lpit) {
 	// std::cout << " " << std::string(lpit->name());
@@ -133,7 +133,6 @@ namespace {
   }
 }
 
-
 namespace {
   // the static dumper 
   // to be used in the real application
@@ -154,24 +153,19 @@ namespace {
   //  BHA bah;
 }
 
-
 class testDDIsValid : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testDDIsValid);
   CPPUNIT_TEST(checkAgaistOld);
   CPPUNIT_TEST_SUITE_END();
 public:
-  void setUp(){}
-  void tearDown() {}
+  void setUp() override{}
+  void tearDown() override {}
   void buildIt();
   void testloading();
   void checkAgaistOld();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testDDIsValid);
-
-
-
-
 
 void testDDIsValid::testloading() {
   std::cerr << "test Loading" << std::endl;
@@ -220,7 +214,7 @@ void testDDIsValid::buildIt() {
       std::string::size_type e=line.find(" ",p);
       std::string::size_type s = e-p;
       if (e==std::string::npos) s=e;
-      v.push_back(DDName(nm,line.substr(p,s))); 
+      v.emplace_back(DDName(nm,line.substr(p,s))); 
       p=e;
     }
   }

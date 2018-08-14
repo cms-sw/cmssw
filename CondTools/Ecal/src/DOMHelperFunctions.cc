@@ -147,7 +147,7 @@ DOMElement*  xuti::writeCell(xercesc::DOMNode* node,
 // return 0 if not found
 DOMNode * xuti::getChildNode(DOMNode * node,  const std::string& nodename ){
 
-   if (!node) return 0;
+   if (!node) return nullptr;
 
   for (DOMNode* childNode = node->getFirstChild(); 
        childNode; childNode = childNode->getNextSibling()) {
@@ -160,7 +160,7 @@ DOMNode * xuti::getChildNode(DOMNode * node,  const std::string& nodename ){
     }// if element 
   }// for child 
   
-  return 0;
+  return nullptr;
 
 }
 

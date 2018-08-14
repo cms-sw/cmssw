@@ -13,3 +13,11 @@ from RecoBTag.Combined.pfPositiveCombinedMVAV2BJetTags_cfi import *
 # Charge tagger
 from RecoBTag.Combined.pfChargeBJetTags_cfi import *
 
+combinedMVATask = cms.Task(
+    combinedMVAV2BJetTags,
+    negativeCombinedMVAV2BJetTags,
+    positiveCombinedMVAV2BJetTags,
+    pfCombinedMVAV2BJetTags,
+    pfNegativeCombinedMVAV2BJetTags,
+    pfPositiveCombinedMVAV2BJetTags
+)

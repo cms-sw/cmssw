@@ -4,6 +4,7 @@ from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.analyzers.core.autovars import *
 from PhysicsTools.Heppy.analyzers.objects.autophobj  import *
 
+import six
 
 class AutoFillTreeProducer( TreeAnalyzerNumpy ):
 
@@ -38,8 +39,8 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
         super(AutoFillTreeProducer, self).declareHandles()
 #        self.handles['TriggerResults'] = AutoHandle( ('TriggerResults','','HLT'), 'edm::TriggerResults' )
         self.mchandles['GenInfo'] = AutoHandle( ('generator','',''), 'GenEventInfoProduct' )
-        for k,v in self.collections.iteritems():
-            if type(v) == tuple and isinstance(v[0], AutoHandle):
+        for k,v in six.iteritems(self.collections):
+            if isinstance(v, tuple) and isinstance(v[0], AutoHandle):
                 self.handles[k] = v[0]
 
     def declareCoreVariables(self, tr, isMC):
@@ -51,7 +52,7 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
 
  #       self.triggerBitCheckers = []
  #       if hasattr(self.cfg_ana, 'triggerBits'):
- #           for T, TL in self.cfg_ana.triggerBits.iteritems():
+ #           for T, TL in six.iteritems(self.cfg_ana.triggerBits):
  #               trigVec = ROOT.vector(ROOT.string)()
  #               for TP in TL:
  #                   trigVec.push_back(TP)
@@ -96,10 +97,10 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
 
         for v in self.globalVariables:
             v.makeBranch(tree, isMC)
-        for o in self.globalObjects.itervalues(): 
+        for o in six.itervalues(self.globalObjects): 
             o.makeBranches(tree, isMC)
-        for c in self.collections.itervalues():
-            if type(c) == tuple: c = c[-1]
+        for c in six.itervalues(self.collections):
+            if isinstance(c, tuple): c = c[-1]
             if self.scalar:
                 c.makeBranchesScalar(tree, isMC)
             else:
@@ -159,12 +160,12 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
             if not isMC and v.mcOnly: continue
             v.fillBranch(self.tree, event, isMC)
 
-        for on, o in self.globalObjects.iteritems(): 
+        for on, o in six.iteritems(self.globalObjects): 
             if not isMC and o.mcOnly: continue
             o.fillBranches(self.tree, getattr(event, on), isMC)
 
-        for cn, c in self.collections.iteritems():
-            if type(c) == tuple and isinstance(c[0], AutoHandle):
+        for cn, c in six.iteritems(self.collections):
+            if isinstance(c, tuple) and isinstance(c[0], AutoHandle):
                 if not isMC and c[-1].mcOnly: continue
                 objects = self.handles[cn].product()
                 setattr(event, cn, [objects[i] for i in xrange(objects.size())])

@@ -1,9 +1,11 @@
+from __future__ import print_function
 import sys
 import os
 import re
 from pprint import pprint
 from FWCore.Utilities.Enumerate import Enumerate
 from FWCore.Utilities.FileUtils import sectionNofTotal
+import six
 
 class VarParsing (object):
     """Infrastructure to parse variable definitions passed to cmsRun
@@ -132,8 +134,8 @@ class VarParsing (object):
                                 tagArg = 'maxEvents')
                 continue
             # if we're still here, then we've got a rogue arument
-            print "Error: VarParsing.__init__ doesn't understand '%s'" \
-                  % arg
+            print("Error: VarParsing.__init__ doesn't understand '%s'" \
+                  % arg)
             raise RuntimeError("Failed to create VarParsing object")
 
 
@@ -148,12 +150,12 @@ class VarParsing (object):
                 necessaryKeys.remove (key)
                 continue
             # if we're here, then we have a key that's not understood
-            print "Unknown option '%s'" % key
+            print("Unknown option '%s'" % key)
             raise RuntimeError("Unknown option")
         if necessaryKeys:
             # if this is not empty, then we didn't have a key that was
             # necessary.
-            print "Missing keys: %s" % necessaryKeys
+            print("Missing keys: %s" % necessaryKeys)
             raise runtimeError("Missing keys")
         tag = kwargs.get('tag')
         del kwargs['tag']
@@ -192,21 +194,21 @@ class VarParsing (object):
                         self.clearList (name)
                         continue
                     # If we're here, then I don't recognize this command
-                    print "Unknown command '%s' in '%s_%s" % \
-                          (command, name, command)
+                    print("Unknown command '%s' in '%s_%s" % \
+                          (command, name, command))
                     raise RuntimeError("Illegal parsing command")
                 else:
                     # just a name and value
                     if name not in self._register:
-                        print "Error:  '%s' not registered." \
-                              % name
+                        print("Error:  '%s' not registered." \
+                              % name)
                         raise RuntimeError("Unknown variable")
                     if VarParsing.multiplicity.singleton == \
                            self._register[name]:
                         # singleton
                         if self._beenSet.get (name) and singleAssign:
-                            print "Variable '%s' assigned multiple times. Use" \
-                                  , "'multipleAssign' command to avoid"
+                            print("Variable '%s' assigned multiple times. Use" \
+                                  , "'multipleAssign' command to avoid")
                             raise RuntimeError("Multiple assignment")
                         self._beenSet[name] = True
                         self.setDefault (name, value)
@@ -220,15 +222,15 @@ class VarParsing (object):
                     name, command = arg.split ('_', 1)
                     command = command.lower()
                     if name not in self._register:
-                        print "Error:  '%s' not registered." \
-                              % name
+                        print("Error:  '%s' not registered." \
+                              % name)
                         raise RuntimeError("Unknown variable")
                     if command == 'clear':
                         self.clearList (name)
                         continue
                     # if we're still here, complain that we don't
                     # understand this command:
-                    print "Do not understand '%s' in '%s'" % (command, arg)
+                    print("Do not understand '%s' in '%s'" % (command, arg))
                     raise RuntimeError("Unknown command")
                 else:
                     # simple command
@@ -241,7 +243,7 @@ class VarParsing (object):
                         printStatus = False
                     else:
                         # We don't understand this command
-                        print "Do not understand command '%s'" % (arg)
+                        print("Do not understand command '%s'" % (arg))
                         raise RuntimeError("Unknown command")
             # else if declaration
         ###########################
@@ -288,24 +290,24 @@ class VarParsing (object):
             self.inputFiles = newFileList
         # make sure found the py file
         if not foundPy:
-            print "VarParsing.parseArguments() Failure: No configuration " + \
-                  "file found ending in .py."
+            print("VarParsing.parseArguments() Failure: No configuration " + \
+                  "file found ending in .py.")
             raise RuntimeError("Invalid configuration ending")
         if help:
             self.help()
         if printStatus:
-            print self
+            print(self)
         self._currentlyParsing = False
 
 
     def clearList (self, name):
         """Empties all entries from list"""
         if name not in self._register:
-            print "Error:  '%s' not registered." \
-                  % name
+            print("Error:  '%s' not registered." \
+                  % name)
             raise RuntimeError("Unknown variable")
         if self._register[name] != VarParsing.multiplicity.list:
-            print "Error: '%s' is not a list" % name
+            print("Error: '%s' is not a list" % name)
             raise RuntimeError("Faulty 'clear' command")
         # if we're still here, do what we came to do
         self._lists[name] = []
@@ -315,11 +317,11 @@ class VarParsing (object):
         """Tells lists to not clear default list values when set from
         command line."""
         if name not in self._register:
-            print "Error:  '%s' not registered." \
-                  % name
+            print("Error:  '%s' not registered." \
+                  % name)
             raise RuntimeError("Unknown variable")
         if self._register[name] != VarParsing.multiplicity.list:
-            print "Error: '%s' is not a list" % name
+            print("Error: '%s' is not a list" % name)
             raise RuntimeError("Faulty 'setNoDefaultClear' command")
         self._noDefaultClear[name] = bool (value)
 
@@ -327,11 +329,11 @@ class VarParsing (object):
     def setNoCommaSplit (self, name, value=True):
         """Tells lists to not split up values by commas."""
         if name not in self._register:
-            print "Error:  '%s' not registered." \
-                  % name
+            print("Error:  '%s' not registered." \
+                  % name)
             raise RuntimeError("Unknown variable")
         if self._register[name] != VarParsing.multiplicity.list:
-            print "Error: '%s' is not a list" % name
+            print("Error: '%s' is not a list" % name)
             raise RuntimeError("Faulty 'setNoCommaSplit' command")
         self._noCommaSplit[name] = bool (value)
 
@@ -339,15 +341,15 @@ class VarParsing (object):
     def loadFromFile (self, name, filename):
         """Loads a list from file"""
         if name not in self._register:
-            print "Error:  '%s' not registered." \
-                  % name
+            print("Error:  '%s' not registered." \
+                  % name)
             raise RuntimeError("Unknown variable")
         if self._register[name] != VarParsing.multiplicity.list:
-            print "Error: '%s' is not a list" % name
+            print("Error: '%s' is not a list" % name)
             raise RuntimeError("'load' only works for lists")
         filename = os.path.expanduser (filename)
         if not os.path.exists (filename):
-            print "Error: '%s' file does not exist."
+            print("Error: '%s' file does not exist.")
             raise RuntimeError("Bad filename")
         source = open (filename, 'r')        
         for line in source.readlines():
@@ -360,13 +362,13 @@ class VarParsing (object):
 
     def help (self):
         """Prints out help information and exits"""
-        print self
-        print """Options:
+        print(self)
+        print("""Options:
         help           : This screen
         multipleAssign : Allows singletons to have multiple assigments
         print          : Prints out current values
         XXX_clear      : Clears list named 'XXX'
-        """    
+        """)    
         sys.exit (0)
 
 
@@ -379,26 +381,26 @@ class VarParsing (object):
         """Register a variable"""
         # is type ok?
         if not VarParsing.multiplicity.isValidValue (mult):
-            print "Error: VarParsing.register() must use ",\
-                  "VarParsing.multiplicity."
+            print("Error: VarParsing.register() must use ",\
+                  "VarParsing.multiplicity.")
             raise RuntimeError("Improper 'mult' value")
         if not VarParsing.varType.isValidValue (mytype):
-            print "Error: VarParsing.register() must use ",\
-                  "VarParsing.varType."
+            print("Error: VarParsing.register() must use ",\
+                  "VarParsing.varType.")
             raise RuntimeError("Improper 'type' value %s" % mytype)
         if VarParsing.multiplicity.list == mult and \
            VarParsing.varType.tagString == mytype:
-            print "Error: 'tagString' can only be used with 'singleton'"
+            print("Error: 'tagString' can only be used with 'singleton'")
             raise RuntimeError("Improper registration")
         # is the name ok
         if name.count ("_"):
-            print "Error: Name can not contain '_': %s" % name
+            print("Error: Name can not contain '_': %s" % name)
             raise RuntimeError("Improper 'name'")
         # has this been registered before?
         if name in self._register:
             # Uh oh
-            print "Error: You can not register a name twice, '%s'" \
-                  % name
+            print("Error: You can not register a name twice, '%s'" \
+                  % name)
             raise RuntimeError("Attempt to re-register variable")
         self._register[name] = mult
         self._beenSet[name]  = False
@@ -437,8 +439,8 @@ class VarParsing (object):
     def setType (self, name, mytype):
         """Change the type of 'name' to 'mytype'"""
         if not VarParsing.varType.isValidValue (mytype):
-            print "Error: VarParsing.setType() must use ",\
-                  "VarParsing.varType."
+            print("Error: VarParsing.setType() must use ",\
+                  "VarParsing.varType.")
             raise RuntimeError("Improper 'type' value")
         oldVal = self.__getattr__ (name, noTags = True)
         self._types[name] = mytype
@@ -450,14 +452,14 @@ class VarParsing (object):
         name"""
         # has this been registered?
         if name not in self._register:
-            print "Error: VarParsing.setDefault '%s' not already registered." \
-                  % name
+            print("Error: VarParsing.setDefault '%s' not already registered." \
+                  % name)
             raise RuntimeError("setDefault without registration")
         if VarParsing.multiplicity.singleton == self._register[name]:
             # make sure we only have one value
             if len (args) != 1:
-                print "Error: VarParsing.setDefault needs exactly 1 ",\
-                      "value for '%s'" % name
+                print("Error: VarParsing.setDefault needs exactly 1 ",\
+                      "value for '%s'" % name)
                 raise RuntimeError("setDefault args problem")
             self._singletons[name] = self._convert (name, args[0])
         else:
@@ -522,11 +524,11 @@ class VarParsing (object):
 
     def _withTags (self, name):
         if name not in self._register:
-            print "Error:  '%s' not registered." \
-                  % name
+            print("Error:  '%s' not registered." \
+                  % name)
             raise RuntimeError("Unknown variable")
         if self._register[name] == VarParsing.multiplicity.list:
-            print "Error: '%s' is a list" % name
+            print("Error: '%s' is a list" % name)
             raise RuntimeError("withTags() only works on singletons")
         retval = self._singletons[name]
         if retval.endswith ('.root'):
@@ -557,15 +559,15 @@ class VarParsing (object):
         formInfo = "  %%%ds  - %%s" % (maxLen - 2)
         formItem = "  %%%ds    %%s" % (maxLen - 1)
         retval = ""
-        if len (self._singletons.keys()):
+        if len (self._singletons):
             retval = retval + "Singletons:\n"
-        for varName, value in sorted (self._singletons.iteritems()):
+        for varName, value in sorted (six.iteritems(self._singletons)):
             retval = retval + form % (varName, value) + "\n";
             if self._info.get(varName):
                 retval = retval + formInfo % ('', self._info[varName]) + "\n"
-        if len (self._singletons.keys()):
+        if len (self._singletons):
             retval = retval +  "Lists:\n"
-        for varName, value in sorted (self._lists.iteritems()):
+        for varName, value in sorted (six.iteritems(self._lists)):
             stringValue = "%s" % value
             if len (stringValue) < 76 - maxLen:
                 retval = retval + form % (varName, value) + "\n"
@@ -603,8 +605,8 @@ class VarParsing (object):
         else:
             # user variable
             if name not in self._register:
-                print "Error:  '%s' not already registered." \
-                      % name
+                print("Error:  '%s' not already registered." \
+                      % name)
                 raise RuntimeError("Unknown variable")
             if VarParsing.multiplicity.singleton == self._register[name]:
                 if VarParsing.varType.tagString == self._types[name] \

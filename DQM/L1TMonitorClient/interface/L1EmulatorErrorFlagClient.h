@@ -25,11 +25,11 @@ public:
     L1EmulatorErrorFlagClient(const edm::ParameterSet&);
 
     /// Destructor
-    virtual ~L1EmulatorErrorFlagClient();
+    ~L1EmulatorErrorFlagClient() override;
 
 protected:
-    virtual void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&) override;  //performed in the endLumi
-    virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
+    void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&) override;  //performed in the endLumi
+    void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
     
 
 private:

@@ -3,7 +3,7 @@
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandFlat.h"
 
-#include <math.h>
+#include <cmath>
 
 #include <gsl/gsl_sf_erf.h>
 #include <gsl/gsl_sf_result.h>

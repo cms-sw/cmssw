@@ -13,7 +13,7 @@
 //
 
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -34,17 +34,17 @@ class TH1I;
 class TProfile;
 class TTree;
 
-class GsfElectronFakeAnalyzer : public edm::EDAnalyzer
+class GsfElectronFakeAnalyzer : public edm::one::EDAnalyzer<>
 {
  public:
 
   explicit GsfElectronFakeAnalyzer(const edm::ParameterSet& conf);
 
-  virtual ~GsfElectronFakeAnalyzer();
+  ~GsfElectronFakeAnalyzer() override;
 
-  virtual void beginJob();
-  virtual void endJob();
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void beginJob() override;
+  void endJob() override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
  private:
 

@@ -132,7 +132,7 @@ L1MuGlobalMuonTrigger::L1MuGlobalMuonTrigger(const edm::ParameterSet& ps) {
 L1MuGlobalMuonTrigger::~L1MuGlobalMuonTrigger() {
 
   if(m_db) delete m_db;
-  m_db = 0;
+  m_db = nullptr;
 
   delete m_Sorter;
   delete m_Merger[1];        // endcap Merger
@@ -148,7 +148,7 @@ L1MuGlobalMuonTrigger::~L1MuGlobalMuonTrigger() {
   delete m_PSB;
 
   if(m_config) delete m_config;
-  m_config = 0;
+  m_config = nullptr;
 
   // copied from produce() by Jim B, 7 Aug 2007
   std::vector<L1MuGMTReadoutRecord*>::iterator irr = m_ReadoutRingbuffer.begin();
@@ -408,5 +408,5 @@ std::unique_ptr<L1MuGMTReadoutCollection> L1MuGlobalMuonTrigger::getReadoutColle
 
 // static data members
 
-L1MuGMTConfig* L1MuGlobalMuonTrigger::m_config = 0;
-L1MuGMTDebugBlock* L1MuGlobalMuonTrigger::m_db = 0;
+L1MuGMTConfig* L1MuGlobalMuonTrigger::m_config = nullptr;
+L1MuGMTDebugBlock* L1MuGlobalMuonTrigger::m_db = nullptr;

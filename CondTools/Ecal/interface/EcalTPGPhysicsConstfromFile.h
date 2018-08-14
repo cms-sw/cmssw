@@ -6,7 +6,7 @@
 #include <string>
 #include <map>
 #include <iostream>
-#include <time.h>
+#include <ctime>
 
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
@@ -47,10 +47,10 @@ namespace popcon {
 
   public:
     EcalTPGPhysicsConstfromFile(edm::ParameterSet const & );
-    ~EcalTPGPhysicsConstfromFile();	
-    void getNewObjects();
+    ~EcalTPGPhysicsConstfromFile() override;	
+    void getNewObjects() override;
 		
-    std::string id() const { return m_name;}
+    std::string id() const override { return m_name;}
 
   private:
     std::string m_name;

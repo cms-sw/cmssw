@@ -24,64 +24,64 @@ public:
   AlignableBeamSpot();
   
   /// Destructor
-  virtual ~AlignableBeamSpot();
+  ~AlignableBeamSpot() override;
 
   /// Add a component and set its mother to this alignable.
   /// (Note: The component will be adopted, e.g. later deleted.)
   /// Also find average position of this composite from its modules' positions.
-  virtual void addComponent( Alignable* component ) {}
+  void addComponent( Alignable* component ) override {}
 
   /// Return vector of direct components
-  virtual Alignables components() const { return std::vector<Alignable*>(); }
+  const Alignables& components() const override { return emptyComponents_; }
 
   /// Provide all components, subcomponents etc. (cf. description in base class)
-  virtual void recursiveComponents(Alignables &result) const { }
+  void recursiveComponents(Alignables &result) const override { }
 
   /// Move with respect to the global reference frame
-  virtual void move( const GlobalVector& displacement );
+  void move( const GlobalVector& displacement ) override;
 
   /// Rotation interpreted in global reference frame
-  virtual void rotateInGlobalFrame( const RotationType& rotation );
+  void rotateInGlobalFrame( const RotationType& rotation ) override;
 
   /// Set the AlignmentPositionError and, if (propagateDown), to all components
-  virtual void setAlignmentPositionError(const AlignmentPositionError &ape, bool propagateDown);
+  void setAlignmentPositionError(const AlignmentPositionError &ape, bool propagateDown) override;
 
   /// Add (or set if it does not exist yet) the AlignmentPositionError,
   /// if (propagateDown), add also to all components
-  virtual void addAlignmentPositionError(const AlignmentPositionError &ape, bool propagateDown);
+  void addAlignmentPositionError(const AlignmentPositionError &ape, bool propagateDown) override;
 
   /// Add (or set if it does not exist yet) the AlignmentPositionError
   /// resulting from a rotation in the global reference frame,
   /// if (propagateDown), add also to all components
-  virtual void addAlignmentPositionErrorFromRotation(const RotationType &rot, bool propagateDown);
+  void addAlignmentPositionErrorFromRotation(const RotationType &rot, bool propagateDown) override;
 
   /// Add the AlignmentPositionError resulting from local rotation (if this Alignable is a Det) and,
   /// if (propagateDown), add to all the components of the composite
-  virtual void addAlignmentPositionErrorFromLocalRotation( const RotationType& rotation,
-							   bool propagateDown );
+  void addAlignmentPositionErrorFromLocalRotation( const RotationType& rotation,
+							   bool propagateDown ) override;
 
   /// Return the alignable type identifier
-  virtual StructureType alignableObjectId() const { return align::BeamSpot; }
+  StructureType alignableObjectId() const override { return align::BeamSpot; }
 
   /// Recursive printout of alignable structure
-  virtual void dump() const;
+  void dump() const override;
 
   /// Return vector of alignment data
-  virtual Alignments* alignments() const;
+  Alignments* alignments() const override;
 
   /// Return vector of alignment errors
-  virtual AlignmentErrorsExtended* alignmentErrors() const;
+  AlignmentErrorsExtended* alignmentErrors() const override;
 
   /// alignment position error - for checking only, otherwise use alignmentErrors() above!  
   const AlignmentPositionError* alignmentPositionError() const { return theAlignmentPositionError;}
 
   /// Return surface deformations
-  virtual int surfaceDeformationIdPairs(std::vector<std::pair<int,SurfaceDeformation*> > &) const { return 0; }
+  int surfaceDeformationIdPairs(std::vector<std::pair<int,SurfaceDeformation*> > &) const override { return 0; }
 
   /// do no use, for compatibility only
-  virtual void setSurfaceDeformation(const SurfaceDeformation*, bool);
+  void setSurfaceDeformation(const SurfaceDeformation*, bool) override;
   /// do no use, for compatibility only
-  virtual void addSurfaceDeformation(const SurfaceDeformation*, bool);
+  void addSurfaceDeformation(const SurfaceDeformation*, bool) override;
 
   /// initialize the alignable with the passed beam spot parameters 
   void initialize(double x, double y, double z,
@@ -96,6 +96,7 @@ public:
 
 private:
 
+  static const Alignables emptyComponents_;
   AlignmentPositionError* theAlignmentPositionError;
 
   bool theInitializedFlag;

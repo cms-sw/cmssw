@@ -36,7 +36,7 @@ const VFATFrame* SimpleVFATFrameCollection::GetFrameByID(unsigned int ID) const
       if (it->second.checkFootprint() && it->second.checkCRC())
         return &(it->second);
 
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ const VFATFrame* SimpleVFATFrameCollection::GetFrameByIndex(TotemFramePosition i
   if (it != data.end())
     return &(it->second);
   else
-    return NULL;
+    return nullptr;
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -55,7 +55,7 @@ const VFATFrame* SimpleVFATFrameCollection::GetFrameByIndex(TotemFramePosition i
 VFATFrameCollection::value_type SimpleVFATFrameCollection::BeginIterator() const
 {
   MapType::const_iterator it = data.begin();
-  return (it == data.end()) ? value_type(TotemFramePosition(), NULL) : value_type(it->first, &it->second);
+  return (it == data.end()) ? value_type(TotemFramePosition(), nullptr) : value_type(it->first, &it->second);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -68,12 +68,12 @@ VFATFrameCollection::value_type SimpleVFATFrameCollection::NextIterator(const va
   MapType::const_iterator it = data.find(value.first);
   it++;
 
-  return (it == data.end()) ? value_type(TotemFramePosition(), NULL) : value_type(it->first, &it->second);
+  return (it == data.end()) ? value_type(TotemFramePosition(), nullptr) : value_type(it->first, &it->second);
 }
 
 //----------------------------------------------------------------------------------------------------
 
 bool SimpleVFATFrameCollection::IsEndIterator(const value_type &value) const
 {
-  return (value.second == NULL);
+  return (value.second == nullptr);
 }

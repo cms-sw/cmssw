@@ -39,20 +39,20 @@ class HLTExoticaValidator : public DQMEDAnalyzer {
 public:
     /// Constructor and destructor
     HLTExoticaValidator(const edm::ParameterSet &);
-    ~HLTExoticaValidator();
+    ~HLTExoticaValidator() override;
 
 protected:
     /// Method called by the framework to book histograms.
     void bookHistograms(DQMStore::IBooker &iBooker, const edm::Run &iRun, const edm::EventSetup &iSetup) override;
 
 private:
-    virtual void beginJob();
+    void beginJob() override;
     /// Method called by the framework just before dqmBeginRun()
-    virtual void dqmBeginRun(const edm::Run &iRun, const edm::EventSetup & iSetup) override;
+    void dqmBeginRun(const edm::Run &iRun, const edm::EventSetup & iSetup) override;
     /// Method called for each event.
-    virtual void analyze(const edm::Event & iEvent, const edm::EventSetup & iSetup) override;
-    virtual void endRun(const edm::Run & iRun, const edm::EventSetup & iSetup) override;
-    virtual void endJob();
+    void analyze(const edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+    void endRun(const edm::Run & iRun, const edm::EventSetup & iSetup) override;
+    void endJob() override;
 
     /// Copy (to be modified) of the input ParameterSet from configuration file.
     edm::ParameterSet _pset;

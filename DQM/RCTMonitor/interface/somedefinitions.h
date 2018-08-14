@@ -1,3 +1,7 @@
+#include "DQM/RCTMonitor/interface/RCTMonitor.h"
+
+#include <cmath>
+
 // Define statics for bins etc.
 const unsigned int RCTMonitor::ETABINS = 22;    const float RCTMonitor::ETAMIN = -0.5;       const float RCTMonitor::ETAMAX = 21.5;
 const unsigned int RCTMonitor::METPHIBINS = 72; const float RCTMonitor::METPHIMIN = -0.5;    const float RCTMonitor::METPHIMAX = 71.5;

@@ -17,10 +17,11 @@ elEDIsoDepositNeutral.src="ecalDrivenGsfElectrons"
 elEDIsoDepositPU=elPFIsoDepositPU.clone()
 elEDIsoDepositPU.src="ecalDrivenGsfElectrons"
 
-electronEDIsolationDepositsSequence = cms.Sequence(
-    elEDIsoDepositCharged+
-    elEDIsoDepositChargedAll+
-    elEDIsoDepositGamma+
-    elEDIsoDepositNeutral+
+electronEDIsolationDepositsTask = cms.Task(
+    elEDIsoDepositCharged,
+    elEDIsoDepositChargedAll,
+    elEDIsoDepositGamma,
+    elEDIsoDepositNeutral,
     elEDIsoDepositPU
     )
+electronEDIsolationDepositsSequence = cms.Sequence(electronEDIsolationDepositsTask)

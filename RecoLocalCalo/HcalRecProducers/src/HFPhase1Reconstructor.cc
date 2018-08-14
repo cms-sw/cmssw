@@ -54,13 +54,13 @@ class HFPhase1Reconstructor : public edm::stream::EDProducer<>
 {
 public:
     explicit HFPhase1Reconstructor(const edm::ParameterSet&);
-    ~HFPhase1Reconstructor();
+    ~HFPhase1Reconstructor() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-    virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void beginRun(const edm::Run&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     // Configuration parameters
     std::string algoConfigClass_;
@@ -297,8 +297,8 @@ HFPhase1Reconstructor::fillDescriptions(edm::ConfigurationDescriptions& descript
     desc.add<bool>("setNoiseFlags");
     desc.add<bool>("useChannelQualityFromDB");
     desc.add<bool>("checkChannelQualityForDepth3and4");
+    desc.add<edm::ParameterSetDescription>("algorithm", fillDescriptionForParseHFPhase1AlgoDescription());
 
-    add_param_set(algorithm);
     add_param_set(S9S1stat);
     add_param_set(S8S1stat);
     add_param_set(PETstat);

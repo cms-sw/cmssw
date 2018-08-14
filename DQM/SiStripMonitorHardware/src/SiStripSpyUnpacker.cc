@@ -187,8 +187,9 @@ namespace sistrip {
 	  }
 	  continue;
 	}
-	//determine key from cabling
-	const uint32_t key = SiStripFedKey::fedIndex(lFedId,chan);
+
+	//determine key from cabling	
+	const uint32_t key = ( ( lFedId & sistrip::invalid_ ) << 16 ) | ( chan & sistrip::invalid_ );
 
 	// Start a new channel in the filler
 	dsvFiller.newChannel(key);

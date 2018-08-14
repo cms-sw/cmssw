@@ -6,6 +6,7 @@
 # Author:      Zhen Xie                                           #
 ###################################################################
 
+from __future__ import print_function
 import os,sys
 from RecoLuminosity.LumiDB import revisionDML,argparse,sessionManager,lumiReport
 
@@ -63,7 +64,7 @@ if __name__ == '__main__':
     session=None
     if options.action=='create':
         if not options.name:
-            print '--name option is required'
+            print('--name option is required')
             sys.exit(0)
         session=svc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])               
         session.transaction().start(False)

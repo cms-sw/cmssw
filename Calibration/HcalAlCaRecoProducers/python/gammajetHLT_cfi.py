@@ -9,7 +9,8 @@ import HLTrigger.HLTfilters.hltHighLevel_cfi
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideAlCaRecoTriggerBits
 
 gammajetHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
-    HLTPaths = ['HLT_L1SingleEG*','HLT_Photon*'],
-#   eventSetupPathsKey='HcalCalGammaJet',
+    # FIXME: Put this into the trigger bits payload and remove the commented lines completely
+    # HLTPaths = ['HLT_L1SingleEG*','HLT_Photon*'],
+    eventSetupPathsKey='HcalCalGammaJet',
     throw = False
 )

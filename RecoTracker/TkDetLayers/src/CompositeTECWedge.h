@@ -16,22 +16,22 @@ class CompositeTECWedge final : public TECWedge{
   CompositeTECWedge(std::vector<const GeomDet*>& innerDets,
 		    std::vector<const GeomDet*>& outerDets)  __attribute__ ((cold));
 
-  ~CompositeTECWedge()  __attribute__ ((cold));
+  ~CompositeTECWedge()  override __attribute__ ((cold));
   
   // GeometricSearchDet interface
-  virtual const std::vector<const GeomDet*>& basicComponents() const {return theDets;}
+  const std::vector<const GeomDet*>& basicComponents() const override {return theDets;}
 
-  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold));
+  const std::vector<const GeometricSearchDet*>& components() const override __attribute__ ((cold));
   
-  virtual std::pair<bool, TrajectoryStateOnSurface>
+  std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-	      const MeasurementEstimator&) const __attribute__ ((cold));
+	      const MeasurementEstimator&) const override __attribute__ ((cold));
 
-  virtual void
+  void
   groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
 			 const Propagator& prop,
 			 const MeasurementEstimator& est,
-			 std::vector<DetGroup> & result) const __attribute__ ((hot));
+			 std::vector<DetGroup> & result) const override __attribute__ ((hot));
 
  private:
   // private methods for the implementation of groupedCompatibleDets()

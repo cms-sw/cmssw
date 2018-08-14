@@ -343,8 +343,10 @@ void TrackerGeometryAnalyzer
   if (trackerGeometry->isThere(GeomDetEnumerators::PixelBarrel)) {
     ss << "(PXB) PixelBarrel geometry from Run I" << "\n";
   } else if (trackerGeometry->isThere(GeomDetEnumerators::P1PXB)) {
-    ss << "(PXB) P1PXB geometry from Phase-I and Phase-II"
+    ss << "(PXB) P1PXB geometry from Phase-I "
        << "\n";
+  } else if (trackerGeometry->isThere(GeomDetEnumerators::P2PXB)) {
+    ss << "(PXB) P2PXB geometry from Phase-II" << "\n";
   } else {
     ss << "(PXB) Geometry is unknown" << "\n";
   }

@@ -56,8 +56,7 @@ class TauDQMHistPlotter : public edm::EDAnalyzer
   {
     explicit cfgEntryAxisY(const std::string&, const edm::ParameterSet&);
     void print() const;
-    static void setNorm(double yAxisNorm) { yAxisNorm_ = yAxisNorm; }
-    void applyTo(TH1*) const;
+    void applyTo(TH1*, double norm) const;
     std::string name_;
     double minY_linear_;
     double minY_log_;
@@ -67,7 +66,6 @@ class TauDQMHistPlotter : public edm::EDAnalyzer
     std::string yAxisTitle_;
     double yAxisTitleOffset_;
     double yAxisTitleSize_;
-    static double yAxisNorm_;
   };
 
   struct cfgEntryLegend
@@ -156,10 +154,10 @@ class TauDQMHistPlotter : public edm::EDAnalyzer
 
  public:
   explicit TauDQMHistPlotter(const edm::ParameterSet&);
-  virtual ~TauDQMHistPlotter();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob(){}  
-  virtual void endRun(const edm::Run& r, const edm::EventSetup& c);
+  ~TauDQMHistPlotter() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override{}  
+  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
 
 private:
   std::map<std::string, cfgEntryProcess> processes_;

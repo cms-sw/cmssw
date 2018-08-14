@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
+import six
 
 process = cms.Process("testHGCalRecoLocal",eras.Phase2C2)
 
@@ -9,10 +10,10 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-#process.load('Configuration.Geometry.GeometryExtended2023D3Reco_cff')
-#process.load('Configuration.Geometry.GeometryExtended2023D3_cff')
-process.load('Geometry.HcalCommonData.testPhase2GeometryFineReco_cff')
-process.load('Geometry.HcalCommonData.testPhase2GeometryFine_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D17_cff')
+#process.load('Geometry.HcalCommonData.testPhase2GeometryFineReco_cff')
+#process.load('Geometry.HcalCommonData.testPhase2GeometryFine_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')
@@ -27,8 +28,8 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 ### setup HGCal local reco
 # get uncalibrechits with weights method
 process.load("RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi")
-process.HGCalUncalibRecHit.HGCEEdigiCollection  = 'mix:HGCDigisEE'
-process.HGCalUncalibRecHit.HGCHEFdigiCollection = 'mix:HGCDigisHEfront'
+process.HGCalUncalibRecHit.HGCEEdigiCollection  = 'hgcalDigis:EE'
+process.HGCalUncalibRecHit.HGCHEFdigiCollection = 'hgcalDigis:HEfront'
 
 # get rechits e.g. from the weights
 process.load("RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi")
@@ -93,7 +94,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 # Additional output definition
-process.load('Validation.HGCalValidation.test.hgcBHValidation_cfi')
+process.load('Validation.HGCalValidation.hgcalBHValidation_cfi')
 
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string('hgcBHValid.root'),
@@ -139,7 +140,7 @@ process.digitisation_step = cms.Path(process.pdigi_valid)
 process.L1simulation_step = cms.Path(process.SimL1Emulator)
 process.digi2raw_step = cms.Path(process.DigiToRaw)
 process.recotest_step = cms.Path(process.HGCalRecoLocal)
-process.analysis_step = cms.Path(process.hgcalBHValidation)
+process.analysis_step = cms.Path(process.hgcalBHAnalysis)
 process.out_step = cms.EndPath(process.output)
 
 # Schedule definition
@@ -150,16 +151,7 @@ process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary
 for path in process.paths:
         getattr(process,path)._seq = process.generator * getattr(process,path)._seq
 
-# customisation of the process.
-
-# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
-from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023tilted
-
-#call to customisation function cust_2023tilted imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
-process = cust_2023tilted(process)
-
-# End of customisation functions
-for label, prod in process.producers_().iteritems():
+for label, prod in six.iteritems(process.producers_()):
         if prod.type_() == "OscarMTProducer":
             # ugly hack
             prod.__dict__['_TypedParameterizable__type'] = "OscarProducer"

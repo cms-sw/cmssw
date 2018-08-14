@@ -22,6 +22,7 @@
 #include <memory>
 
 // user include files
+#include "FWCore/Framework/interface/stream/EDProducerBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
@@ -29,6 +30,8 @@
 
 // forward declarations
 namespace edm {
+
+  class WaitingTaskWithArenaHolder;
   
   namespace stream {
     namespace impl {
@@ -83,6 +86,7 @@ namespace edm {
         RunSummaryCacheHolder() = default;
         RunSummaryCacheHolder( RunSummaryCacheHolder<C> const&) = delete;
         RunSummaryCacheHolder<C>& operator=(RunSummaryCacheHolder<C> const&) = delete;
+        virtual ~RunSummaryCacheHolder() noexcept(false) {}
       private:
         virtual void endRunSummary(edm::Run const&, edm::EventSetup const&, C*) const = 0;
       };
@@ -93,6 +97,7 @@ namespace edm {
         LuminosityBlockSummaryCacheHolder() = default;
         LuminosityBlockSummaryCacheHolder( LuminosityBlockSummaryCacheHolder<C> const&) = delete;
         LuminosityBlockSummaryCacheHolder<C>& operator=(LuminosityBlockSummaryCacheHolder<C> const&) = delete;
+        virtual ~LuminosityBlockSummaryCacheHolder() noexcept(false) {}
       private:
         
         virtual void endLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, C*) const = 0;
@@ -141,6 +146,32 @@ namespace edm {
       private:
         ///requires the following be defined in the inheriting class
         ///static void globalEndLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&, LuminosityBlockContext const*)
+      };
+
+      class ExternalWork {
+      public:
+        ExternalWork() = default;
+        ExternalWork(ExternalWork const&) = delete;
+        ExternalWork& operator=(ExternalWork const&) = delete;
+        virtual ~ExternalWork() noexcept(false) {};
+
+        virtual void acquire(Event const&,
+                             edm::EventSetup const&,
+                             WaitingTaskWithArenaHolder) = 0;
+      };
+
+      class Accumulator : public EDProducerBase {
+      public:
+         Accumulator() = default;
+         Accumulator(Accumulator const&) = delete;
+         Accumulator& operator=(Accumulator const&) = delete;
+         virtual ~Accumulator() noexcept(false) {};
+
+         virtual void accumulate(Event const& ev, EventSetup const& es) = 0;
+
+         void produce(Event& ev, EventSetup const& es) final {
+           accumulate(ev, es);
+         }
       };
     }
   }

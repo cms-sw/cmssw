@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 produceTancMVAInputDiscriminators = cms.EDProducer(
@@ -73,7 +74,7 @@ produceTancMVAInputDiscriminators = cms.EDProducer(
 def loadMVAInputsIntoPatTauDiscriminants(thePatTauProducer):
     return
     " Add all of the MVA inputs discriminators to the tauID inputs of a patTau Producer "
-    print "Embedding MVA inputs into PAT Tau producer "
+    print("Embedding MVA inputs into PAT Tau producer ")
     patTauIDConfig = thePatTauProducer.tauIDSources
     for tancInputInfo in produceTancMVAInputDiscriminators.discriminants:
         name = tancInputInfo.name.value()
@@ -94,7 +95,7 @@ if __name__ == "__main__":
     test = Dummy()
     test.tauIDSources = cms.PSet()
     loadMVAInputsIntoPatTauDiscriminants(test)
-    print test.tauIDSources
+    print(test.tauIDSources)
 
 
 

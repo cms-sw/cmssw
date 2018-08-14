@@ -47,7 +47,7 @@ public:
    *   bad      = there were many bad strips within the ellipse (in Tracker)
    *            = hit is compatible with the trajectory, but chi2 is too large (in Muon System)
    */
-  enum Type { valid = 0, missing = 1, inactive = 2, bad = 3, missing_inner = 4, missing_outer = 5};
+  enum Type { valid = 0, missing = 1, inactive = 2, bad = 3, missing_inner = 4, missing_outer = 5, inactive_inner = 6, inactive_outer = 7};
   static const int typeMask = 0xf;  // mask for the above
   static const int rttiShift = 24; // shift amount to get the rtti
  
@@ -167,12 +167,12 @@ public:
 private:
   friend class  TkCloner;
   // double dispatch
-  virtual TrackingRecHit * clone(TkCloner const&, TrajectoryStateOnSurface const&) const {
+  virtual TrackingRecHit * clone_(TkCloner const&, TrajectoryStateOnSurface const&) const {
     assert("clone"==nullptr);
     return clone(); // default
   }
 #ifndef __GCCXML__
-  virtual  RecHitPointer cloneSH(TkCloner const&, TrajectoryStateOnSurface const&) const {
+  virtual  RecHitPointer cloneSH_(TkCloner const&, TrajectoryStateOnSurface const&) const {
     assert("cloneSH"==nullptr);
     return cloneSH(); // default
   }

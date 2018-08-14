@@ -13,10 +13,9 @@
 class  TransientTrackBuilderESProducer: public edm::ESProducer{
  public:
   TransientTrackBuilderESProducer(const edm::ParameterSet & p);
-  virtual ~TransientTrackBuilderESProducer(); 
-  std::shared_ptr<TransientTrackBuilder> produce(const TransientTrackRecord &);
+  ~TransientTrackBuilderESProducer() override; 
+  std::unique_ptr<TransientTrackBuilder> produce(const TransientTrackRecord &);
  private:
-  std::shared_ptr<TransientTrackBuilder> _builder;
   edm::ParameterSet pset_;
 };
 

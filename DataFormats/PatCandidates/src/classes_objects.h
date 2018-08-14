@@ -18,6 +18,8 @@
 #include "DataFormats/PatCandidates/interface/Hemisphere.h"
 #include "DataFormats/PatCandidates/interface/Conversion.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/PatCandidates/interface/IsolatedTrack.h"
+#include "DataFormats/PatCandidates/interface/PFIsolation.h"
 #include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
 #include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
 
@@ -166,12 +168,28 @@ namespace DataFormats_PatCandidates {
   edm::Ptr<pat::Conversion> ptr_Conversion;
   edm::Ptr<pat::Muon> ptr_Muon;
   edm::Ptr<pat::Tau> ptr_Tau;
+  edm::Ptr<pat::PackedCandidate> ptr_PackedCandidate;
+  edm::Ptr<pat::PackedGenParticle> ptr_PackedGenParticle;
+  edm::Wrapper< edm::Ptr<pat::PackedCandidate> > w_ptr_pc;
+  std::vector< edm::Ptr<pat::PackedCandidate> > v_ptr_pc;
+  edm::Wrapper< std::vector< edm::Ptr<pat::PackedCandidate> > > wv_ptr_pc;
 
+    
   edm::FwdPtr<pat::PackedCandidate> fwdptr_pc;
   edm::Wrapper< edm::FwdPtr<pat::PackedCandidate> > w_fwdptr_pc;
   std::vector< edm::FwdPtr<pat::PackedCandidate> > v_fwdptr_pc;
   edm::Wrapper< std::vector< edm::FwdPtr<pat::PackedCandidate> > > wv_fwdptr_pc;
 
+  edm::FwdPtr<pat::PackedGenParticle> fwdptr_pgp;
+  edm::Wrapper< edm::FwdPtr<pat::PackedGenParticle> > w_fwdptr_pgp;
+  std::vector< edm::FwdPtr<pat::PackedGenParticle> > v_fwdptr_pgp;
+  edm::Wrapper< std::vector< edm::FwdPtr<pat::PackedGenParticle> > > wv_fwdptr_pgp;
+
+  edm::Wrapper< edm::Ptr<pat::PackedGenParticle> > w_ptr_pgp;
+  std::vector< edm::Ptr<pat::PackedGenParticle> > v_ptr_pgp;
+  edm::Wrapper< std::vector< edm::Ptr<pat::PackedGenParticle> > > wv_ptr_pgp;
+
+    
   edm::Wrapper<edm::Association<pat::PackedCandidateCollection > > w_asso_pc;
   edm::Wrapper<edm::Association<reco::PFCandidateCollection > >    w_asso_pfc;
   edm::Wrapper<edm::Association<std::vector<pat::PackedGenParticle> > > asso_pgp;
@@ -190,7 +208,8 @@ namespace DataFormats_PatCandidates {
   edm::Wrapper<pat::PATTauDiscriminator>           pattdiscr_w;
    
   std::pair<pat::TauRef, float>                              pattdiscr_p;
-  std::vector<std::pair<pat::TauRef, float> >                pattdiscr_v;    
+  std::vector<std::pair<pat::TauRef, float> >                pattdiscr_v; 
+  edm::RefProd<std::vector<pat::Tau> >                       patt_rp;   
   };
 
 }

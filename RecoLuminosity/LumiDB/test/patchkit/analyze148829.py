@@ -1,3 +1,4 @@
+from __future__ import print_function
 import csv,os,sys,coral,array
 from RecoLuminosity.LumiDB import CommonUtil,idDealer,dbUtil,dataDML,revisionDML
 ilsfilename='/build/zx/patch/Run170899-ls.txt'
@@ -71,7 +72,7 @@ def insertLumischemaV2(dbsession,runnum,datasource,perlsrawdata,perbunchrawdata)
         beam2intensityblob=CommonUtil.packArraytoBlob(beam2intensityArray)
         perlsdata=[cmslsnum,float(instlumi)/float(6370),0.0,1,'STABLE BEAMS',beamenergy,numorbit,mystartorbit,cmsbxindexblob,beam1intensityblob,beam2intensityblob,bxdataocc1blob,bxerrorocc1blob,bxqualityocc1blob,bxdataocc2blob,bxerrorocc2blob,bxqualityocc2blob,bxdataetblob,bxerroretblob,bxqualityetblob]
         lumilsdata[cmslsnum]=perlsdata
-    print lumilsdata
+    print(lumilsdata)
     dbsession.transaction().start(False)
     (revision_id,entry_id,data_id)=dataDML.addLumiRunDataToBranch(dbsession.nominalSchema(),runnum,lumirundata,branchinfo)
     dataDML.bulkInsertLumiLSSummary(dbsession,runnum,data_id,lumilsdata)
@@ -113,8 +114,8 @@ def insertLumiSummarydata(dbsession,perlsrawdata):
         perlsiData.append([('LUMISUMMARY_ID',lumisummary_id),('RUNNUM',runnum),('CMSLSNUM',cmslsnum),('LUMILSNUM',cmslsnum),('LUMIVERSION',lumiversion),('DTNORM',dtnorm),('LHCNORM',lhcnorm),('INSTLUMI',instlumi),('INSTLUMIERROR',0.0),('CMSALIVE',cmsalive),('STARTORBIT',mystartorbit),('NUMORBIT',numorbit),('LUMISECTIONQUALITY',1),('BEAMENERGY',beamenergy),('BEAMSTATUS',beamstatus)])
     db.bulkInsert('LUMISUMMARY',dataDef,perlsiData)
     dbsession.transaction().commit()
-    print 'lumisummary to insert : ',perlsiData
-    print 'summaryidlsmap ',summaryidlsmap
+    print('lumisummary to insert : ',perlsiData)
+    print('summaryidlsmap ',summaryidlsmap)
     return summaryidlsmap
     
 def insertLumiDetaildata(dbsession,perlsrawdata,perbunchrawdata,summaryidlsmap):               
@@ -129,7 +130,7 @@ def insertLumiDetaildata(dbsession,perlsrawdata,perbunchrawdata,summaryidlsmap):
     dbsession.transaction().start(False)
     iddealer=idDealer.idDealer(dbsession.nominalSchema())
     db=dbUtil.dbUtil(dbsession.nominalSchema())
-    print 'to insert lumidetail '
+    print('to insert lumidetail ')
     for algoname in ['OCC1','OCC2','ET']:
         for cmslsnum,instlumi in perlsrawdata.items():
             lumisummary_id=summaryidlsmap[cmslsnum]
@@ -186,15 +187,15 @@ def parseLSFile(ifilename):
     
 def main(*args):
     perlsrawdata=parseLSFile(ilsfilename)
-    print perlsrawdata
+    print(perlsrawdata)
     perbunchrawdata=parsebunchFile(ibunchfilename)
-    print sum(perbunchrawdata.values())
+    print(sum(perbunchrawdata.values()))
     msg=coral.MessageStream('')
     msg.setMsgVerbosity(coral.message_Level_Error)
     os.environ['CORAL_AUTH_PATH']='/afs/cern.ch/user/x/xiezhen'
     svc = coral.ConnectionService()
     dbsession=svc.connect(conn,accessMode=coral.access_Update)
-    print len(args)
+    print(len(args))
     if len(args)>1 and args[1]=='--v2':
         insertLumischemaV2(dbsession,runnum,ilsfilename,perlsrawdata,perbunchrawdata)
     else:

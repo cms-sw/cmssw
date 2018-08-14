@@ -71,6 +71,11 @@ reconstructionCosmics         = cms.Sequence(localReconstructionCosmics*
                                              metrecoCosmics*
                                              egammaCosmics*
                                              logErrorHarvester)
+#logErrorHarvester should only wait for items produced in the reconstructionCosmics sequence
+_modulesInReconstruction = list()
+reconstructionCosmics.visit(cms.ModuleNamesFromGlobalsVisitor(globals(),_modulesInReconstruction))
+logErrorHarvester.includeModules = cms.untracked.vstring(set(_modulesInReconstruction))
+
 reconstructionCosmics_HcalNZS = cms.Sequence(localReconstructionCosmics_HcalNZS*
                                              beamhaloTracksSeq*
                                              jetsCosmics*

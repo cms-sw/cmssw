@@ -1,7 +1,5 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/OutInConversionTrackFinder.h"
 //
-#include "RecoTracker/CkfPattern/interface/SeedCleanerByHitPosition.h"
-#include "RecoTracker/CkfPattern/interface/CachingSeedCleanerByHitPosition.h"
 #include "RecoTracker/CkfPattern/interface/CachingSeedCleanerBySharedInput.h"
 #include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
 //
@@ -29,16 +27,12 @@ OutInConversionTrackFinder::OutInConversionTrackFinder(const edm::ParameterSet& 
 
   // get the seed cleaner
   std::string cleaner = conf.getParameter<std::string>("OutInRedundantSeedCleaner");
-  if (cleaner == "SeedCleanerByHitPosition") {
-    theSeedCleaner_ = new SeedCleanerByHitPosition();
-  } else if (cleaner == "CachingSeedCleanerByHitPosition") {
-    theSeedCleaner_ = new CachingSeedCleanerByHitPosition();
-  } else if (cleaner == "CachingSeedCleanerBySharedInput") {
+  if (cleaner == "CachingSeedCleanerBySharedInput") {
     theSeedCleaner_ = new CachingSeedCleanerBySharedInput();
   } else if (cleaner == "none") {
-    theSeedCleaner_ = 0;
+    theSeedCleaner_ = nullptr;
   } else {
-    throw cms::Exception("OutInRedundantSeedCleaner not found", cleaner);
+    throw cms::Exception("OutInRedundantSeedCleaner not found, please use CachingSeedCleanerBySharedInput or none", cleaner);
   }
   
 
@@ -188,7 +182,7 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
     //  LogDebug("OutInConversionTrackFinder") << " Initial state parameters " << initState.first << "\n";    
     
     // temporary protection againt invalid initial states
-    if (! initState.first.isValid() || initState.second == 0) {
+    if (! initState.first.isValid() || initState.second == nullptr) {
       LogDebug("OutInConversionTrackFinder")  << "invalid innerState, will not make TrackCandidate" << "\n";;
       continue;
     }
@@ -197,7 +191,7 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
 
 
   LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder  tmpO size " << tmpO.size() << " after filling " << "\n"; 
-  if ( tmpO.size() ) {
+  if ( !tmpO.empty() ) {
     std::vector<Trajectory>::iterator it=tmpO.begin();
     
     // only send out the two best tracks 

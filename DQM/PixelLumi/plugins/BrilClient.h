@@ -18,7 +18,7 @@
 class BrilClient : public DQMEDHarvester {
  public:
   BrilClient(const edm::ParameterSet &ps);
-  virtual ~BrilClient();
+  ~BrilClient() override;
 
  protected:
   void beginJob() override{};

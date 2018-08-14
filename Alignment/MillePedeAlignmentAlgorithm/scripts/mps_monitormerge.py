@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import os
 import subprocess
 import argparse
@@ -20,7 +21,7 @@ eosDir = args.eosDir
 lib = mpslib.jobdatabase()
 lib.read_db()
 for i in xrange(lib.nJobs):
-	print lib.JOBSP3[i]
+	print(lib.JOBSP3[i])
 
 # count how much jobs there are of each dataset
 occurences = []
@@ -33,13 +34,12 @@ for i in xrange(len(items)):
 	occurences.append(lib.JOBSP3.count(items[i]))
 
 # copy files from eos and combine root-files of each dataset with "hadd"
-eos = '/afs/cern.ch/project/eos/installation/cms/bin/eos.select'
 counter = 0
 for i in xrange(len(items)):
 	command  = 'hadd '
 	command += 'monitormerge_'+items[i]+'.root '	
 	for j in xrange(occurences[i]):
-		os.system(eos+' cp /eos/cms'+eosDir+'/millePedeMonitor%03d.root .' % (counter+j+1))
+		os.system('cp '+eosDir+'/millePedeMonitor%03d.root .' % (counter+j+1))
 		command += 'millePedeMonitor%03d.root ' % (counter+j+1)	
 	os.system(command)
 	for j in xrange(occurences[i]):

@@ -34,7 +34,7 @@ typedef std::vector<RecoTauPiZero> PiZeroList;
 class RecoTauBuilderConePlugin : public RecoTauBuilderPlugin {
   public:
   explicit RecoTauBuilderConePlugin(const edm::ParameterSet& pset,edm::ConsumesCollector &&iC);
-    ~RecoTauBuilderConePlugin() {}
+    ~RecoTauBuilderConePlugin() override {}
     // Build a tau from a jet
     return_type operator()(const reco::PFJetRef& jet,
 	const std::vector<reco::PFRecoTauChargedHadron>& chargedHadrons,
@@ -55,11 +55,21 @@ class RecoTauBuilderConePlugin : public RecoTauBuilderPlugin {
     JetFunc signalConeChargedHadrons_;
     JetFunc isoConeChargedHadrons_;
     JetFunc signalConePiZeros_;
+    StringObjectFunction<reco::PFTau> signalConeSizeToStore_;
     JetFunc isoConePiZeros_;
     JetFunc signalConeNeutralHadrons_;
     JetFunc isoConeNeutralHadrons_;
 
     int maxSignalConeChargedHadrons_;
+    double minAbsPhotonSumPt_insideSignalCone_;
+    double minRelPhotonSumPt_insideSignalCone_;
+
+    void setTauQuantities(reco::PFTau& aTau,
+			  double minAbsPhotonSumPt_insideSignalCone = 2.5,
+			  double minRelPhotonSumPt_insideSignalCone = 0.,
+			  double minAbsPhotonSumPt_outsideSignalCone = 1.e+9,
+			  double minRelPhotonSumPt_outsideSignalCone = 1.e+9) const;
+
 };
 
 // ctor - initialize all of our variables
@@ -76,6 +86,8 @@ RecoTauBuilderConePlugin::RecoTauBuilderConePlugin(
         pset.getParameter<std::string>("isoConeChargedHadrons")),
     signalConePiZeros_(
         pset.getParameter<std::string>("signalConePiZeros")),
+    signalConeSizeToStore_(//MB: stored inside PFTau and used to compte photon-pt-out-of-signal-cone and DM hypothsis
+	pset.getParameter<std::string>("signalConePiZeros")),
     isoConePiZeros_(
         pset.getParameter<std::string>("isoConePiZeros")),
     signalConeNeutralHadrons_(
@@ -83,7 +95,12 @@ RecoTauBuilderConePlugin::RecoTauBuilderConePlugin(
     isoConeNeutralHadrons_(
         pset.getParameter<std::string>("isoConeNeutralHadrons")), 
     maxSignalConeChargedHadrons_(
-        pset.getParameter<int>("maxSignalConeChargedHadrons")) 				 
+        pset.getParameter<int>("maxSignalConeChargedHadrons")),
+    minAbsPhotonSumPt_insideSignalCone_(
+        pset.getParameter<double>("minAbsPhotonSumPt_insideSignalCone")),
+    minRelPhotonSumPt_insideSignalCone_(
+	pset.getParameter<double>("minRelPhotonSumPt_insideSignalCone"))
+
 {}
 
 namespace xclean 
@@ -107,6 +124,66 @@ namespace xclean
   }
 }
 
+void RecoTauBuilderConePlugin::setTauQuantities(reco::PFTau& aTau,
+						double minAbsPhotonSumPt_insideSignalCone,
+						double minRelPhotonSumPt_insideSignalCone,
+						double minAbsPhotonSumPt_outsideSignalCone,
+						double minRelPhotonSumPt_outsideSignalCone) const {
+  //MB: Set tau quantities which are computed by RecoTauConstructor::get() 
+  //    method with PFRecoTauChargedHadrons not used here
+  
+  // Set charge
+  int charge = 0;
+  int leadCharge = aTau.leadPFChargedHadrCand().isNonnull() ? aTau.leadPFChargedHadrCand()->charge() : 0;
+  const std::vector<reco::PFCandidatePtr>& pfChs = aTau.signalPFChargedHadrCands();
+  for(const reco::PFCandidatePtr& pfCh : pfChs){
+    charge += pfCh->charge();
+  }
+  charge = charge==0 ? leadCharge : charge;
+  aTau.setCharge(charge);
+  
+  // Set PDG id
+  aTau.setPdgId(aTau.charge() < 0 ? 15 : -15); 
+  
+  // Set Decay Mode
+  PFTau::hadronicDecayMode dm = PFTau::kNull; 
+  unsigned int nPiZeros = 0;
+  const std::vector<RecoTauPiZero>& piZeros = aTau.signalPiZeroCandidates();
+  for(const RecoTauPiZero& piZero : piZeros) {
+    double photonSumPt_insideSignalCone = 0.;
+    double photonSumPt_outsideSignalCone = 0.;
+    int numPhotons = piZero.numberOfDaughters();
+    for(int idxPhoton = 0; idxPhoton < numPhotons; ++idxPhoton) {
+      const reco::Candidate* photon = piZero.daughter(idxPhoton);
+      double dR = deltaR(photon->p4(), aTau.p4());
+      if(dR < aTau.signalConeSize() ){
+	photonSumPt_insideSignalCone += photon->pt();
+      } else {
+	photonSumPt_outsideSignalCone += photon->pt();
+      }
+    }
+    if( photonSumPt_insideSignalCone  > minAbsPhotonSumPt_insideSignalCone  || photonSumPt_insideSignalCone  > (minRelPhotonSumPt_insideSignalCone*aTau.pt())  ||
+	photonSumPt_outsideSignalCone > minAbsPhotonSumPt_outsideSignalCone || photonSumPt_outsideSignalCone > (minRelPhotonSumPt_outsideSignalCone*aTau.pt()) ) ++nPiZeros;
+  }
+  // Find the maximum number of PiZeros our parameterization can hold
+  const unsigned int maxPiZeros = PFTau::kOneProngNPiZero;
+  // Determine our track index
+  unsigned int nCharged = pfChs.size();
+  if(nCharged>0){
+    unsigned int trackIndex = (nCharged - 1)*(maxPiZeros + 1);
+    // Check if we handle the given number of tracks
+    if(trackIndex >= PFTau::kRareDecayMode) 
+      dm = PFTau::kRareDecayMode;    
+    else
+      dm = static_cast<PFTau::hadronicDecayMode>(trackIndex + std::min(nPiZeros,maxPiZeros) );
+  }
+  else{
+    dm = PFTau::kNull;
+  }
+  aTau.setDecayMode(dm);
+  return;
+}
+
 RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
     const reco::PFJetRef& jet,
     const std::vector<reco::PFRecoTauChargedHadron>& chargedHadrons, 
@@ -122,7 +199,10 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
 
   // Our tau builder - the true indicates to automatically copy gamma candidates
   // from the pizeros.
-  RecoTauConstructor tau(jet, getPFCands(), true);
+  RecoTauConstructor tau(jet, getPFCands(), true, 
+			 &signalConeSizeToStore_, 
+			 minAbsPhotonSumPt_insideSignalCone_, 
+			 minRelPhotonSumPt_insideSignalCone_);
   // Setup our quality cuts to use the current vertex (supplied by base class)
   qcuts_.setPV(primaryVertex(jet));
 
@@ -378,9 +458,15 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
   std::auto_ptr<reco::PFTau> tauPtr = tau.get(false);
 
   // Set event vertex position for tau
-  reco::VertexRef primaryVertexRef = primaryVertex(jet);
+  reco::VertexRef primaryVertexRef = primaryVertex(*tauPtr);
   if ( primaryVertexRef.isNonnull() )
     tauPtr->setVertex(primaryVertexRef->position());
+
+  // Set missing tau quantities
+  setTauQuantities(*tauPtr,
+  		   minAbsPhotonSumPt_insideSignalCone_,
+  		   minRelPhotonSumPt_insideSignalCone_
+		   );
 
   output.push_back(tauPtr);
   return output.release();

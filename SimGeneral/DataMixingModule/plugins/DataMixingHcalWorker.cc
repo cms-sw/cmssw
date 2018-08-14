@@ -82,7 +82,7 @@ namespace edm
 
    Handle< HBHERecHitCollection > pHBHERecHits;
 
-   const HBHERecHitCollection*  HBHERecHits = 0;
+   const HBHERecHitCollection*  HBHERecHits = nullptr;
 
    if( e.getByToken( HBHERecHitToken_, pHBHERecHits) ) {
      HBHERecHits = pHBHERecHits.product(); // get a ptr to the product
@@ -111,7 +111,7 @@ namespace edm
 
    Handle< HORecHitCollection > pHORecHits;
 
-   const HORecHitCollection*  HORecHits = 0;
+   const HORecHitCollection*  HORecHits = nullptr;
 
    if( e.getByToken( HORecHitToken_, pHORecHits) ){
      HORecHits = pHORecHits.product(); // get a ptr to the product
@@ -142,7 +142,7 @@ namespace edm
 
    Handle< HFRecHitCollection > pHFRecHits;
 
-   const HFRecHitCollection*  HFRecHits = 0;
+   const HFRecHitCollection*  HFRecHits = nullptr;
 
    if( e.getByToken( HFRecHitToken_, pHFRecHits) ) {
      HFRecHits = pHFRecHits.product(); // get a ptr to the product
@@ -173,7 +173,7 @@ namespace edm
 
    Handle< ZDCRecHitCollection > pZDCRecHits;
 
-   const ZDCRecHitCollection*  ZDCRecHits = 0;
+   const ZDCRecHitCollection*  ZDCRecHits = nullptr;
 
    if( e.getByToken( ZDCRecHitToken_, pZDCRecHits) ) {
      ZDCRecHits = pZDCRecHits.product(); // get a ptr to the product

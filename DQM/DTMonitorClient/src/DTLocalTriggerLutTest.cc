@@ -45,7 +45,7 @@ DTLocalTriggerLutTest::DTLocalTriggerLutTest(const edm::ParameterSet& ps){
   thresholdPhibRMS  = ps.getUntrackedParameter<double>("thresholdPhibRMS",.8);
   doCorrStudy       = ps.getUntrackedParameter<bool>("doCorrelationStudy",false);
 
-  bookingdone = 0;
+  bookingdone = false;
 
 }
 
@@ -105,7 +105,7 @@ void DTLocalTriggerLutTest::Bookings(DQMStore::IBooker & ibooker, DQMStore::IGet
     }	
   }
 
-  bookingdone = 1; 
+  bookingdone = true; 
 
 }
 
@@ -311,8 +311,8 @@ void DTLocalTriggerLutTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQM
 	  }
 	  if (phiNoData == 4)  phiErr  = 5;
 	  if (phibNoData == 3) phibErr = 5;  // MB3 has no phib information
-	  cmsME.find(fullName("PhiLutSummary"))->second->setBinContent(sect,wh+3,phiErr);
-	  cmsME.find(fullName("PhibLutSummary"))->second->setBinContent(sect,wh+3,phibErr);
+	  cmsME.find(fullName("PhiLutSummary"))->second->setBinContent(sect,wh+wheelArrayShift,phiErr);
+	  cmsME.find(fullName("PhibLutSummary"))->second->setBinContent(sect,wh+wheelArrayShift,phibErr);
 	}
       }
     }

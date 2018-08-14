@@ -40,7 +40,7 @@
     <Vector name="Layers" type="numeric" nEntries="6"> 
        19, 12, 12, 12, 20, 24</Vector>
     <Vector name="LayerThick" type="numeric" nEntries="6"> 
-      67.91*mm, 52.2*mm, 50.4*mm, 38.4*mm, 52.0*mm, 58.8*mm
+      67.91*mm, 52.2*mm, 50.4*mm, 38.5*mm, 52.0*mm, 58.8*mm
     </Vector>
     <Vector name="LayerType" type="numeric" nEntries="99"> 
       2, 14, 2, 14, 2, 14, 2, 14, 2, 30, 8, 7, 26, 10, 10, 10, 9, 15, 27, 
@@ -65,6 +65,7 @@
     <Numeric name="zMinBlock"   value="[hgcal:zminEE]"/>
     <Numeric name="rMaxFine"    value="[rMaxFine]"/>
     <Numeric name="waferW"      value="[hgcal:WaferW]"/>
+    <Numeric name="waferGap"    value="0.0*fm"/>
     <Numeric name="Sectors"     value="12"/>
     <Vector name="SlopeBottom" type="numeric" nEntries="2">
       0.0, 0.0</Vector>

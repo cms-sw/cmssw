@@ -3,7 +3,7 @@
 #include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruthFinder.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include <map>
 #include <vector>
@@ -19,19 +19,19 @@ class SimVertex;
 class SimTrack;
 
 
-class PhotonsWithConversionsAnalyzer : public edm::EDAnalyzer
+class PhotonsWithConversionsAnalyzer : public edm::one::EDAnalyzer<>
 {
 
    public:
    
       //
       explicit PhotonsWithConversionsAnalyzer( const edm::ParameterSet& ) ;
-      virtual ~PhotonsWithConversionsAnalyzer();
+      ~PhotonsWithConversionsAnalyzer() override;
                                    
       
-      virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
-      virtual void beginJob() ;
-      virtual void endJob() ;
+      void analyze( const edm::Event&, const edm::EventSetup& ) override ;
+      void beginJob() override ;
+      void endJob() override ;
 
    private:
 

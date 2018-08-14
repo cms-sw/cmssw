@@ -21,17 +21,12 @@
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/ContainerMask.h"
 
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackerRecHit2D/interface/ClusterRemovalInfo.h"
-
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
 //
@@ -41,7 +36,6 @@
 class SeedClusterRemover : public edm::stream::EDProducer<> {
     public:
         SeedClusterRemover(const edm::ParameterSet& iConfig) ;
-        ~SeedClusterRemover() ;
         void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override ;
     private:
         struct ParamBlock {
@@ -61,16 +55,15 @@ class SeedClusterRemover : public edm::stream::EDProducer<> {
 
         bool doStrip_, doPixel_;
         bool mergeOld_;
+
 	typedef edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > PixelMaskContainer;
 	typedef edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > StripMaskContainer;
 	edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClusters_;
 	edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > stripClusters_;
-	edm::EDGetTokenT<reco::ClusterRemovalInfo> oldRemovalInfo_;
 	edm::EDGetTokenT<PixelMaskContainer> oldPxlMaskToken_;
 	edm::EDGetTokenT<StripMaskContainer> oldStrMaskToken_;
 	edm::EDGetTokenT<TrajectorySeedCollection> trajectories_;
 
-//         std::vector< edm::EDGetTokenT<edm::ValueMap<int> > > overrideTrkQuals_;
 
         ParamBlock pblocks_[NumberOfParamBlocks];
         void readPSet(const edm::ParameterSet& iConfig, const std::string &name, 
@@ -83,17 +76,6 @@ class SeedClusterRemover : public edm::stream::EDProducer<> {
         inline void process(const OmniClusterRef & cluRef, uint32_t subdet);
 
 
-        template<typename T> 
-        std::unique_ptr<edmNew::DetSetVector<T> >
-        cleanup(const edmNew::DetSetVector<T> &oldClusters, const std::vector<uint8_t> &isGood, 
-                    reco::ClusterRemovalInfo::Indices &refs, const reco::ClusterRemovalInfo::Indices *oldRefs) ;
-
-        // Carries in full removal info about a given det from oldRefs
-        void mergeOld(reco::ClusterRemovalInfo::Indices &refs, const reco::ClusterRemovalInfo::Indices &oldRefs) ;
-
-  bool clusterWasteSolution_;
-  bool filterTracks_;
-  reco::TrackBase::TrackQuality trackQuality_;
   std::vector<bool> collectedStrips_;
   std::vector<bool> collectedPixels_;
 };
@@ -101,7 +83,6 @@ class SeedClusterRemover : public edm::stream::EDProducer<> {
 
 using namespace std;
 using namespace edm;
-using namespace reco;
 
 void
 SeedClusterRemover::readPSet(const edm::ParameterSet& iConfig, const std::string &name, 
@@ -125,16 +106,8 @@ SeedClusterRemover::readPSet(const edm::ParameterSet& iConfig, const std::string
 SeedClusterRemover::SeedClusterRemover(const ParameterSet& iConfig):
     doStrip_(iConfig.existsAs<bool>("doStrip") ? iConfig.getParameter<bool>("doStrip") : true),
     doPixel_(iConfig.existsAs<bool>("doPixel") ? iConfig.getParameter<bool>("doPixel") : true),
-    mergeOld_(iConfig.exists("oldClusterRemovalInfo")),
-    clusterWasteSolution_(true)
+    mergeOld_(iConfig.exists("oldClusterRemovalInfo"))
 {
-//   if (iConfig.exists("overrideTrkQuals"))
-//     overrideTrkQuals_.push_back(iConfig.getParameter<edm::InputTag>("overrideTrkQuals"));
-  if (iConfig.exists("clusterLessSolution"))
-    clusterWasteSolution_=!iConfig.getParameter<bool>("clusterLessSolution");
-  if (doPixel_ && clusterWasteSolution_) produces< edmNew::DetSetVector<SiPixelCluster> >();
-  if (doStrip_ && clusterWasteSolution_) produces< edmNew::DetSetVector<SiStripCluster> >();
-  if (clusterWasteSolution_) produces< ClusterRemovalInfo >();
 
     fill(pblocks_, pblocks_+NumberOfParamBlocks, ParamBlock());
     readPSet(iConfig, "Common",-1);
@@ -161,80 +134,17 @@ SeedClusterRemover::SeedClusterRemover(const ParameterSet& iConfig):
         }
     }
 
-    if (!clusterWasteSolution_){
-      produces<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > >();
-      produces<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > >();
-    }
-    trackQuality_=reco::TrackBase::undefQuality;
-    filterTracks_=false;
-    if (iConfig.exists("TrackQuality")){
-      filterTracks_=true;
-      trackQuality_=reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"));
-    }
 
     trajectories_ = consumes<TrajectorySeedCollection>(iConfig.getParameter<InputTag>("trajectories"));
     if (doPixel_) pixelClusters_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(iConfig.getParameter<InputTag>("pixelClusters"));
     if (doStrip_) stripClusters_ = consumes<edmNew::DetSetVector<SiStripCluster> >(iConfig.getParameter<InputTag>("stripClusters"));
     if (mergeOld_) {
-      oldRemovalInfo_ = consumes<ClusterRemovalInfo>(iConfig.getParameter<InputTag>("oldClusterRemovalInfo"));
       oldPxlMaskToken_ = consumes<PixelMaskContainer>(iConfig.getParameter<InputTag>("oldClusterRemovalInfo"));
       oldStrMaskToken_ = consumes<StripMaskContainer>(iConfig.getParameter<InputTag>("oldClusterRemovalInfo"));
     }
-}
 
-
-SeedClusterRemover::~SeedClusterRemover()
-{
-}
-
-void SeedClusterRemover::mergeOld(ClusterRemovalInfo::Indices &refs,
-                                            const ClusterRemovalInfo::Indices &oldRefs) 
-{
-        for (size_t i = 0, n = refs.size(); i < n; ++i) {
-            refs[i] = oldRefs[refs[i]];
-       }
-}
-
- 
-template<typename T> 
-std::unique_ptr<edmNew::DetSetVector<T> >
-SeedClusterRemover::cleanup(const edmNew::DetSetVector<T> &oldClusters, const std::vector<uint8_t> &isGood, 
-			     reco::ClusterRemovalInfo::Indices &refs, const reco::ClusterRemovalInfo::Indices *oldRefs){
-    typedef typename edmNew::DetSetVector<T>             DSV;
-    typedef typename edmNew::DetSetVector<T>::FastFiller DSF;
-    typedef typename edmNew::DetSet<T>                   DS;
-    auto output = std::make_unique<DSV>();
-    output->reserve(oldClusters.size(), oldClusters.dataSize());
-
-    unsigned int countOld=0;
-    unsigned int countNew=0;
-
-    // cluster removal loop
-    const T * firstOffset = & oldClusters.data().front();
-    for (typename DSV::const_iterator itdet = oldClusters.begin(), enddet = oldClusters.end(); itdet != enddet; ++itdet) {
-        DS oldDS = *itdet;
-
-        if (oldDS.empty()) continue; // skip empty detsets
-
-        uint32_t id = oldDS.detId();
-        DSF outds(*output, id);
-
-        for (typename DS::const_iterator it = oldDS.begin(), ed = oldDS.end(); it != ed; ++it) {
-            uint32_t index = ((&*it) - firstOffset);
-	    countOld++;
-            if (isGood[index]) { 
-                outds.push_back(*it);
-		countNew++;
-                refs.push_back(index); 
-                //std::cout << "SeedClusterRemover::cleanup " << typeid(T).name() << " reference " << index << " to " << (refs.size() - 1) << std::endl;
-            }
-
-	}
-        if (outds.empty()) outds.abort(); // not write in an empty DSV
-    }
-
-    if (oldRefs != 0) mergeOld(refs, *oldRefs);
-    return output;
+    produces<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > >();
+    produces<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > >();
 }
 
 
@@ -248,10 +158,8 @@ void SeedClusterRemover::process(OmniClusterRef const & ocluster, uint32_t subde
   if (pblocks_[subdet-1].usesSize_ && (cluster->amplitudes().size() > pblocks_[subdet-1].maxSize_)) return;
 
   strips[cluster.key()] = false;  
-  //if (!clusterWasteSolution_) collectedStrip[hit->geographicalId()].insert(cluster);
   assert(collectedStrips_.size() > cluster.key());
-  //assert(hit->geographicalId() == cluster->geographicalId()); //This condition fails
-  if (!clusterWasteSolution_) collectedStrips_[cluster.key()]=true;
+  collectedStrips_[cluster.key()]=true;
 }
 
 
@@ -284,10 +192,8 @@ void SeedClusterRemover::process(const TrackingRecHit *hit, float chi2, const Tr
         // mark as used
         pixels[cluster.key()] = false;
 	
-	//if(!clusterWasteSolution_) collectedPixel[detid.rawId()].insert(cluster);
-   assert(collectedPixels_.size() > cluster.key());
-   //assert(detid.rawId() == cluster->geographicalId()); //This condition fails
-	if(!clusterWasteSolution_) collectedPixels_[cluster.key()]=true;
+        assert(collectedPixels_.size() > cluster.key());
+	collectedPixels_[cluster.key()]=true;
 	
     } else { // aka Strip
         if (!doStrip_) return;
@@ -312,21 +218,10 @@ void SeedClusterRemover::process(const TrackingRecHit *hit, float chi2, const Tr
     }
 }
 
-/*   Schematic picture of n-th step Iterative removal
- *   (that os removing clusters after n-th step tracking)
- *   clusters:    [ C1 ] -> [ C2 ] -> ... -> [ Cn ] -> [ Cn + 1 ]
- *                   ^                          ^           ^--- OUTPUT "new" ID
- *                   |-- before any removal     |----- Source clusters                                                                             
- *                   |-- OUTPUT "old" ID        |----- Hits in Traj. point here                       
- *                   |                          \----- Old ClusterRemovalInfo "new" ID                 
- *                   \-- Old ClusterRemovalInfo "old" ID                                                  
- */
-
 
 void
 SeedClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
 {
-    ProductID pixelOldProdID, stripOldProdID;
 
     edm::ESHandle<TrackerGeometry> tgh;
     iSetup.get<TrackerDigiGeometryRecord>().get("",tgh);  //is it correct to use "" ?
@@ -336,47 +231,15 @@ SeedClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
         iEvent.getByToken(pixelClusters_, pixelClusters);
         pixelSourceProdID = pixelClusters.id();
     }
-//DBG// std::cout << "SeedClusterRemover: Read pixel " << pixelClusters_.encode() << " = ID " << pixelSourceProdID << std::endl;
+    //DBG// std::cout << "SeedClusterRemover: Read pixel " << pixelClusters_.encode() << " = ID " << pixelSourceProdID << std::endl;
 
     Handle<edmNew::DetSetVector<SiStripCluster> > stripClusters;
     if (doStrip_) {
         iEvent.getByToken(stripClusters_, stripClusters);
         stripSourceProdID = stripClusters.id();
     }
-//DBG// std::cout << "SeedClusterRemover: Read strip " << stripClusters_.encode() << " = ID " << stripSourceProdID << std::endl;
+    //DBG// std::cout << "SeedClusterRemover: Read strip " << stripClusters_.encode() << " = ID " << stripSourceProdID << std::endl;
 
-    std::unique_ptr<ClusterRemovalInfo> cri;
-    if (clusterWasteSolution_){
-      if (doStrip_ && doPixel_) cri = std::make_unique<ClusterRemovalInfo>(pixelClusters, stripClusters);
-      else if (doStrip_) cri = std::make_unique<ClusterRemovalInfo>(stripClusters);
-      else if (doPixel_) cri = std::make_unique<ClusterRemovalInfo>(pixelClusters);
-    }
-
-    Handle<ClusterRemovalInfo> oldRemovalInfo;
-    if (mergeOld_ && clusterWasteSolution_) {
-        iEvent.getByToken(oldRemovalInfo_, oldRemovalInfo); 
-        // Check ProductIDs
-        if ( (oldRemovalInfo->stripNewRefProd().id() == stripClusters.id()) &&
-             (oldRemovalInfo->pixelNewRefProd().id() == pixelClusters.id()) ) {
-
-            cri->getOldClustersFrom(*oldRemovalInfo);
-
-            pixelOldProdID = oldRemovalInfo->pixelRefProd().id();
-            stripOldProdID = oldRemovalInfo->stripRefProd().id();
-
-        } else {
-	    edm::EDConsumerBase::Labels labels;
-	    labelsForToken(oldRemovalInfo_,labels);
-            throw cms::Exception("Inconsistent Data") << "SeedClusterRemover: " <<
-                "Input collection product IDs are [pixel: " << pixelClusters.id() << ", strip: " << stripClusters.id() << "] \n" <<
-                "\t but the *old* ClusterRemovalInfo " << labels.productInstance << " refers as 'new product ids' to " <<
-                    "[pixel: " << oldRemovalInfo->pixelNewRefProd().id() << ", strip: " << oldRemovalInfo->stripNewRefProd().id() << "]\n" << 
-                "NOTA BENE: when running SeedClusterRemover with an old ClusterRemovalInfo the hits in the trajectory MUST be already re-keyed.\n";
-        }
-    } else { // then Old == Source
-        pixelOldProdID = pixelSourceProdID;
-        stripOldProdID = stripSourceProdID;
-    }
 
     if (doStrip_) {
       strips.resize(stripClusters->dataSize()); fill(strips.begin(), strips.end(), true);
@@ -403,11 +266,9 @@ SeedClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
     edm::Handle<TrajectorySeedCollection> seeds;
     iEvent.getByToken(trajectories_,seeds);
 
-    TrajectorySeedCollection::const_iterator seed=seeds->begin();
-
-    for (;seed!=seeds->end();++seed){
-      TrajectorySeed::range hits=seed->recHits();
-      TrajectorySeed::const_iterator hit=hits.first;
+    for (auto const & seed : (*seeds) ){
+      auto hits=seed.recHits();
+      auto hit=hits.first;
       for (;hit!=hits.second;++hit){
 	if (!hit->isValid()) continue;
 	process( &(*hit), 0. , tgh.product());
@@ -415,40 +276,15 @@ SeedClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
     }
       
     
-    if (doPixel_ && clusterWasteSolution_) {
-        OrphanHandle<edmNew::DetSetVector<SiPixelCluster> > newPixels =
-          iEvent.put(cleanup(*pixelClusters, pixels, cri->pixelIndices(), mergeOld_ ? &oldRemovalInfo->pixelIndices() : 0));
-//DBG// std::cout << "SeedClusterRemover: Wrote pixel " << newPixels.id() << " from " << pixelSourceProdID << std::endl;
-        cri->setNewPixelClusters(newPixels);
-    }
-    if (doStrip_ && clusterWasteSolution_) {
-        OrphanHandle<edmNew::DetSetVector<SiStripCluster> > newStrips =
-          iEvent.put(cleanup(*stripClusters, strips, cri->stripIndices(), mergeOld_ ? &oldRemovalInfo->stripIndices() : 0));
-//DBG// std::cout << "SeedClusterRemover: Wrote strip " << newStrips.id() << " from " << stripSourceProdID << std::endl;
-        cri->setNewStripClusters(newStrips);
-    }
-
-    
-    if (clusterWasteSolution_) {
-      //      double fraction_pxl= cri->pixelIndices().size() / (double) pixels.size();
-      //      double fraction_strp= cri->stripIndices().size() / (double) strips.size();
-      //      edm::LogWarning("SeedClusterRemover")<<" fraction: " << fraction_pxl <<" "<<fraction_strp;
-      iEvent.put(std::move(cri));
-    }
-
     pixels.clear(); strips.clear(); 
 
-    if (!clusterWasteSolution_){
-      //auto_ptr<edmNew::DetSetVector<SiPixelClusterRefNew> > removedPixelClsuterRefs(new edmNew::DetSetVector<SiPixelClusterRefNew>());
-      //auto_ptr<edmNew::DetSetVector<SiStripRecHit1D::ClusterRef> > removedStripClsuterRefs(new edmNew::DetSetVector<SiStripRecHit1D::ClusterRef>());
       
-      LogDebug("SeedClusterRemover")<<"total strip to skip: "<<std::count(collectedStrips_.begin(),collectedStrips_.end(),true);
-      iEvent.put(std::make_unique<StripMaskContainer>(edm::RefProd<edmNew::DetSetVector<SiStripCluster> >(stripClusters),collectedStrips_));
+    LogDebug("SeedClusterRemover")<<"total strip to skip: "<<std::count(collectedStrips_.begin(),collectedStrips_.end(),true);
+    iEvent.put(std::make_unique<StripMaskContainer>(edm::RefProd<edmNew::DetSetVector<SiStripCluster> >(stripClusters),collectedStrips_));
 
-      LogDebug("SeedClusterRemover")<<"total pxl to skip: "<<std::count(collectedPixels_.begin(),collectedPixels_.end(),true);
-      iEvent.put(std::make_unique<PixelMaskContainer>(edm::RefProd<edmNew::DetSetVector<SiPixelCluster> >(pixelClusters),collectedPixels_));
+    LogDebug("SeedClusterRemover")<<"total pxl to skip: "<<std::count(collectedPixels_.begin(),collectedPixels_.end(),true);
+    iEvent.put(std::make_unique<PixelMaskContainer>(edm::RefProd<edmNew::DetSetVector<SiPixelCluster> >(pixelClusters),collectedPixels_));
       
-    }
     collectedStrips_.clear();
     collectedPixels_.clear();    
 

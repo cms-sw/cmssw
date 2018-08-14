@@ -26,6 +26,7 @@ namespace edm
   class Event;
   class EventSetup;
   class HLTGlobalStatus;
+  class TriggerResults;
 
   class TriggerResultInserter : public edm::global::EDProducer<>
   {
@@ -41,12 +42,13 @@ namespace edm
 
     void setTrigResultForStream(unsigned int iStreamIndex,
                                 const TrigResPtr& trptr);
-    void produce(StreamID id, edm::Event& e, edm::EventSetup const& c) const override final;
+    void produce(StreamID id, edm::Event& e, edm::EventSetup const& c) const final;
 
   private:
     std::vector<edm::propagate_const<TrigResPtr>> resultsPerStream_;
 
     ParameterSetID pset_id_;
+    EDPutTokenT<TriggerResults> token_;
   };
 }
 #endif

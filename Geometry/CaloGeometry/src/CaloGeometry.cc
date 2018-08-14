@@ -7,7 +7,7 @@
 const std::vector<DetId> CaloGeometry::k_emptyVec ( 0 ) ;
 
 CaloGeometry::CaloGeometry() :
-   m_geos ( kLength, 0 )
+   m_geos ( kLength, nullptr )
 {
 }
 
@@ -20,23 +20,27 @@ CaloGeometry::makeIndex( DetId::Detector det    ,
 
    ok = ( kMinDet <= idet   &&
 	  kMaxDet >= idet   &&
-	  0       <  subdet &&
+	  0       <= subdet &&
 	  kMaxSub >= subdet    ) ;
+   if (!ok)
+     edm::LogWarning("CaloGeometry") << "Det:Subdet " << idet << ":" << subdet 
+				     << " min|max Det " << kMinDet << ":" 
+				     << kMaxDet << " min|max subdet 0:" <<kMaxSub;
    
-   return ( ( det - kMinDet )*kMaxSub + subdet - 1 ) ;
+   return ( ( det - kMinDet ) * kNSubDets + subdet ) ;
 }
 
 void 
 CaloGeometry::setSubdetGeometry( DetId::Detector                det    , 
 				 int                            subdet , 
-				 const CaloSubdetectorGeometry* geom     ) 
-{
+				 const CaloSubdetectorGeometry* geom     )  {
    bool ok ;
    const unsigned int index = makeIndex( det, subdet, ok ) ;
    if( ok ) m_geos[index] = geom ;
 
-//   std::cout<<"Detector="<<(int)det<<", subset="<<subdet<<", index="<<index
-//	    <<", size="<<m_geos.size()<<std::endl;
+   edm::LogVerbatim("CaloGeometry") << "Detector=" << (int)det << ", subset="
+				    << subdet << ", index=" << index
+				    << ", size=" << m_geos.size();
 
    assert( ok ) ;
 }
@@ -66,27 +70,33 @@ CaloGeometry::getSubdetectorGeometry( DetId::Detector det    ,
 
 static const GlobalPoint notFound(0,0,0);
 
-const GlobalPoint& 
-CaloGeometry::getPosition( const DetId& id ) const 
-{
-   const CaloSubdetectorGeometry* geom=getSubdetectorGeometry( id ) ;
-   const CaloCellGeometry* cell ( ( nullptr == geom ? nullptr : geom->getGeometry( id ) ) ) ;
-   return ( nullptr == cell ?  notFound : cell->getPosition() ) ;
+GlobalPoint
+CaloGeometry::getPosition( const DetId& id ) const {
+  const CaloSubdetectorGeometry* geom = getSubdetectorGeometry( id ) ;
+  if (geom) {
+    GlobalPoint pos = geom->getGeometry(id)->getPosition();
+    return pos;
+  } else {
+    return notFound;
+  }
 }
 
-const CaloCellGeometry* 
-CaloGeometry::getGeometry( const DetId& id ) const 
-{
-   const CaloSubdetectorGeometry* geom ( getSubdetectorGeometry( id ) ) ;
-   const CaloCellGeometry* cell ( nullptr == geom ? nullptr : geom->getGeometry( id ) ) ;
-   return cell ;
+std::shared_ptr<const CaloCellGeometry>
+CaloGeometry::getGeometry( const DetId& id ) const {
+  const CaloSubdetectorGeometry* geom = getSubdetectorGeometry(id);
+  if (geom) {
+    auto cell = geom->getGeometry(id);
+    return cell;
+  } else {
+    return std::shared_ptr<const CaloCellGeometry>();
+  }
 }
 
 bool 
-CaloGeometry::present( const DetId& id ) const 
+CaloGeometry::present( const DetId& id ) const
 {
-   const CaloSubdetectorGeometry* geom ( getSubdetectorGeometry( id ) ) ;
-   return ( nullptr == geom ? false : geom->present( id ) ) ;
+  const CaloSubdetectorGeometry* geom = getSubdetectorGeometry(id) ;
+  return ( nullptr == geom ? false : geom->present( id ) ) ;
 }
 
 std::vector<DetId> CaloGeometry::getValidDetIds() const
@@ -100,10 +110,11 @@ std::vector<DetId> CaloGeometry::getValidDetIds() const
       if( nullptr != m_geos[i] )
       {
 	 const std::vector< DetId >& aVec = m_geos[i]->getValidDetIds();	 
-	 if( 0 == aVec.size() ) {
-	   edm::LogWarning("EmptyDetIdList") << "Valid det id list at index " << i << " is empty!" << std::endl;
+	 if( aVec.empty() ) {
+	   edm::LogWarning("CaloGeometry") << "Valid det id list at index " 
+					   << i << " is empty!";
 	 }
-	 const bool isHcal ( aVec.size() && DetId::Hcal == aVec.front().det() ) ;
+	 const bool isHcal ( !aVec.empty() && DetId::Hcal == aVec.front().det() ) ;
 	 if( !doneHcal ||
 	     !isHcal      )
 	 {

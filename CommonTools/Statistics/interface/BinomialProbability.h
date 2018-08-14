@@ -1,6 +1,8 @@
 #ifndef BinomialProbability_H
 #define BinomialProbability_H
 
+#include <cmath>
+
 /** A simple class for accumulating binomial "events",
  *  i.e. events that have a yes/no outcome,
  *  and for computing the binomial error on the

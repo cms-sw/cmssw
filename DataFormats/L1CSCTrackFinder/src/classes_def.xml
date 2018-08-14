@@ -13,7 +13,8 @@
     <version ClassVersion="10" checksum="3445513287"/>
    </class>
 
-   <class name="csctf::TrackStub" ClassVersion="11">
+   <class name="csctf::TrackStub" ClassVersion="12">
+    <version ClassVersion="12" checksum="1100843423"/>
     <version ClassVersion="11" checksum="2137081572"/>
     <version ClassVersion="10" checksum="2767475416"/>
      <field name="thePhiBinning" transient="true"/>

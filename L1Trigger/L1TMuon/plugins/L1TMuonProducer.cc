@@ -21,13 +21,12 @@
 // system include files
 #include <memory>
 #include <fstream>
-#include <sstream>
 
 // user include files
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -47,7 +46,9 @@
 
 #include "CondFormats/L1TObjects/interface/L1TMuonGlobalParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonGlobalParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TMuonGlobalParamsO2ORcd.h"
 #include "L1Trigger/L1TMuon/interface/L1TMuonGlobalParamsHelper.h"
+#include "L1Trigger/L1TMuon/interface/L1TMuonGlobalParams_PUBLIC.h"
 
 #include "TMath.h"
 //
@@ -55,22 +56,20 @@
 //
 using namespace l1t;
 
-  class L1TMuonProducer : public edm::EDProducer {
+  class L1TMuonProducer : public edm::stream::EDProducer<> {
      public:
         explicit L1TMuonProducer(const edm::ParameterSet&);
-        ~L1TMuonProducer();
+        ~L1TMuonProducer() override;
 
         static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
      private:
-        virtual void beginJob() ;
-        virtual void produce(edm::Event&, const edm::EventSetup&);
-        virtual void endJob() ;
+        void produce(edm::Event&, const edm::EventSetup&) override;
 
-        virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-        virtual void endRun(edm::Run const&, edm::EventSetup const&);
-        virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-        virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+        void beginRun(edm::Run const&, edm::EventSetup const&) override;
+        void endRun(edm::Run const&, edm::EventSetup const&) override;
+        void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+        void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
         static bool compareMuons(const std::shared_ptr<MicroGMTConfiguration::InterMuon>& mu1,
                                 const std::shared_ptr<MicroGMTConfiguration::InterMuon>& mu2);
@@ -100,6 +99,7 @@ using namespace l1t;
         bool m_autoBxRange;
         int m_bxMin;
         int m_bxMax;
+        bool m_autoCancelMode;
         std::bitset<72> m_inputsToDisable;
         std::bitset<28> m_caloInputsToDisable;
         std::bitset<12> m_bmtfInputsToDisable;
@@ -119,6 +119,7 @@ using namespace l1t;
         MicroGMTIsolationUnit m_isolationUnit;
         MicroGMTCancelOutUnit m_cancelOutUnit;
         std::ofstream m_debugOut;
+        l1t::cancelmode m_emtfCancelMode;
 
         edm::EDGetTokenT<MicroGMTConfiguration::InputCollection> m_barrelTfInputToken;
         edm::EDGetTokenT<MicroGMTConfiguration::InputCollection> m_overlapTfInputToken;
@@ -139,7 +140,7 @@ using namespace l1t;
 //
 // constructors and destructor
 //
-L1TMuonProducer::L1TMuonProducer(const edm::ParameterSet& iConfig) : m_debugOut("test/debug/iso_debug.dat")
+L1TMuonProducer::L1TMuonProducer(const edm::ParameterSet& iConfig) : m_debugOut("test/debug/iso_debug.dat"), m_emtfCancelMode(cancelmode::coordinate)
 {
   // edm::InputTag barrelTfInputTag = iConfig.getParameter<edm::InputTag>("barrelTFInput");
   // edm::InputTag overlapTfInputTag = iConfig.getParameter<edm::InputTag>("overlapTFInput");
@@ -153,6 +154,11 @@ L1TMuonProducer::L1TMuonProducer(const edm::ParameterSet& iConfig) : m_debugOut(
   m_autoBxRange = iConfig.getParameter<bool>("autoBxRange");
   m_bxMin = iConfig.getParameter<int>("bxMin");
   m_bxMax = iConfig.getParameter<int>("bxMax");
+
+  m_autoCancelMode = iConfig.getParameter<bool>("autoCancelMode");
+  if (!m_autoCancelMode && iConfig.getParameter<std::string>("emtfCancelMode").find("tracks") == 0) {
+    m_emtfCancelMode = cancelmode::tracks;
+  }
 
   m_barrelTfInputToken = consumes<MicroGMTConfiguration::InputCollection>(m_barrelTfInputTag);
   m_overlapTfInputToken = consumes<MicroGMTConfiguration::InputCollection>(m_overlapTfInputTag);
@@ -275,9 +281,8 @@ L1TMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     m_cancelOutUnit.setCancelOutBits(bmtfWedges, tftype::bmtf, cancelmode::tracks);
     m_cancelOutUnit.setCancelOutBits(omtfPosWedges, tftype::omtf_pos, cancelmode::coordinate);
     m_cancelOutUnit.setCancelOutBits(omtfNegWedges, tftype::omtf_neg, cancelmode::coordinate);
-    // cancel-out for endcap will be done in the sorter
-    m_cancelOutUnit.setCancelOutBits(emtfPosWedges, tftype::emtf_pos, cancelmode::coordinate);
-    m_cancelOutUnit.setCancelOutBits(emtfNegWedges, tftype::emtf_neg, cancelmode::coordinate);
+    m_cancelOutUnit.setCancelOutBits(emtfPosWedges, tftype::emtf_pos, m_emtfCancelMode);
+    m_cancelOutUnit.setCancelOutBits(emtfNegWedges, tftype::emtf_neg, m_emtfCancelMode);
 
     // cancel out between track finder acceptance overlaps:
     m_cancelOutUnit.setCancelOutBitsOverlapBarrel(omtfPosWedges, bmtfWedges, cancelmode::coordinate);
@@ -330,6 +335,11 @@ L1TMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         } else {
           outMu.setCharge(0);
         }
+        // set the coordinates at the vertex
+        outMu.setHwEtaAtVtx(MicroGMTConfiguration::calcMuonHwEtaExtra(outMu));
+        outMu.setHwPhiAtVtx(MicroGMTConfiguration::calcMuonHwPhiExtra(outMu));
+        outMu.setEtaAtVtx(MicroGMTConfiguration::calcMuonEtaExtra(outMu));
+        outMu.setPhiAtVtx(MicroGMTConfiguration::calcMuonPhiExtra(outMu));
         m_debugOut << mu->hwCaloPhi() << " " << mu->hwCaloEta() << std::endl;
         outMuons->push_back(bx, outMu);
       }
@@ -385,13 +395,7 @@ L1TMuonProducer::sortMuons(MicroGMTConfiguration::InterMuonList& muons, unsigned
 
   // remove all muons that were cancelled or that do not have sufficient rank
   // (reduces the container size to nSurvivors)
-  mu1 = muons.begin();
-  while (mu1 != muons.end()) {
-    if ((*mu1)->hwWins() < minWins || (*mu1)->hwCancelBit() == 1) {
-      muons.erase(mu1);
-    }
-    ++mu1;
-  }
+  muons.remove_if([&minWins](auto muon) { return ((muon->hwWins() < minWins) || (muon->hwCancelBit() == 1)); });
   muons.sort(L1TMuonProducer::compareMuons);
 }
 
@@ -415,9 +419,9 @@ L1TMuonProducer::addMuonsToCollections(MicroGMTConfiguration::InterMuonList& col
   for (auto& mu : coll) {
     interout.push_back(mu);
     math::PtEtaPhiMLorentzVector vec{(mu->hwPt()-1)*0.5, mu->hwEta()*0.010875, mu->hwGlobalPhi()*0.010908, 0.0};
-    // FIXME: once we debugged the change global -> local: Change hwLocalPhi -> hwGlobalPhi to test offsets
     int outMuQual = MicroGMTConfiguration::setOutputMuonQuality(mu->hwQual(), mu->trackFinderType(), mu->hwHF());
-    Muon outMu{vec, mu->hwPt(), mu->hwEta(), mu->hwGlobalPhi(), outMuQual, mu->hwSign(), mu->hwSignValid(), -1, mu->tfMuonIndex(), 0, true, -1, mu->hwDPhi(), mu->hwDEta(), mu->hwRank()};
+    // set tfMuonIndex and iso to 0 like in the FW
+    Muon outMu{vec, mu->hwPt(), mu->hwEta(), mu->hwGlobalPhi(), outMuQual, mu->hwSign(), mu->hwSignValid(), 0, 0, 0, true, 0, mu->hwDPhi(), mu->hwDEta(), mu->hwRank()};
     if (mu->hwSignValid()) {
       outMu.setCharge(1 - 2 * mu->hwSign());
     } else {
@@ -501,17 +505,6 @@ L1TMuonProducer::convertMuons(const edm::Handle<MicroGMTConfiguration::InputColl
   }
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void
-L1TMuonProducer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void
-L1TMuonProducer::endJob() {
-}
-
 // ------------ method called when starting to processes a run  ------------
 void
 L1TMuonProducer::beginRun(edm::Run const& run, edm::EventSetup const& iSetup)
@@ -520,10 +513,13 @@ L1TMuonProducer::beginRun(edm::Run const& run, edm::EventSetup const& iSetup)
   edm::ESHandle<L1TMuonGlobalParams> microGMTParamsHandle;
   microGMTParamsRcd.get(microGMTParamsHandle);
 
-  microGMTParamsHelper = std::unique_ptr<L1TMuonGlobalParamsHelper>(new L1TMuonGlobalParamsHelper(*microGMTParamsHandle.product()));
-  if (!microGMTParamsHelper) {
-    edm::LogError("L1TMuonProducer") << "Could not retrieve parameters from Event Setup" << std::endl;
-  }
+  std::unique_ptr<L1TMuonGlobalParams_PUBLIC> microGMTParams( new L1TMuonGlobalParams_PUBLIC( cast_to_L1TMuonGlobalParams_PUBLIC(*microGMTParamsHandle.product()) ) );
+  if( microGMTParams->pnodes_.empty() ){ 
+      edm::ESHandle<L1TMuonGlobalParams> o2oProtoHandle;
+      iSetup.get<L1TMuonGlobalParamsO2ORcd>().get(o2oProtoHandle);
+      microGMTParamsHelper = std::unique_ptr<L1TMuonGlobalParamsHelper>(new L1TMuonGlobalParamsHelper(*o2oProtoHandle.product()));
+  } else
+      microGMTParamsHelper.reset( new L1TMuonGlobalParamsHelper(cast_to_L1TMuonGlobalParams(*microGMTParams.get())) );
 
   //microGMTParamsHelper->print(std::cout);
   m_inputsToDisable  = microGMTParamsHelper->inputsToDisable();
@@ -541,6 +537,10 @@ L1TMuonProducer::beginRun(edm::Run const& run, edm::EventSetup const& iSetup)
   m_rankPtQualityLUT = l1t::MicroGMTRankPtQualLUTFactory::create(microGMTParamsHelper->sortRankLUT(), microGMTParamsHelper->fwVersion());
   m_isolationUnit.initialise(microGMTParamsHelper.get());
   m_cancelOutUnit.initialise(microGMTParamsHelper.get());
+
+  if (m_autoCancelMode && microGMTParamsHelper->fwVersion() > 0x5000000) {
+    m_emtfCancelMode = cancelmode::tracks;
+  }
 }
 
 // ------------ method called when ending the processing of a run  ------------

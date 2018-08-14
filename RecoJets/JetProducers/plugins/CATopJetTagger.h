@@ -65,11 +65,11 @@
 class CATopJetTagger : public edm::global::EDProducer<> {
  public:
   explicit CATopJetTagger(const edm::ParameterSet&);
-  ~CATopJetTagger();
+  ~CATopJetTagger() override;
   
   
  private:
-  virtual void produce( edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce( edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   
   // ----------member data ---------------------------
   

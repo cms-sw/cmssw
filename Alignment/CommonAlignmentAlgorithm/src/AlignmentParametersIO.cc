@@ -12,7 +12,7 @@ int AlignmentParametersIO::writeOneOrigRigidBody(Alignable *ali)
 {
 
   AlignmentParameters *par = ali->alignmentParameters();
-  AlignmentParameters *parBack = (par ? par->clone(par->parameters(), par->covariance()) : 0);
+  AlignmentParameters *parBack = (par ? par->clone(par->parameters(), par->covariance()) : nullptr);
 
   ali->setAlignmentParameters(new RigidBodyAlignmentParameters(ali, true));
   int iret = this->writeOne(ali);
@@ -75,7 +75,7 @@ AlignmentParametersIO::read(const align::Alignables& alivec, int& ierr)
   for(align::Alignables::const_iterator it=alivec.begin();
     it!=alivec.end(); ++it) {
     AlignmentParameters* ad=readOne(*it, ierr2);
-    if (ad!=0 && ierr2==0) { retvec.push_back(ad); icount++; }
+    if (ad!=nullptr && ierr2==0) { retvec.push_back(ad); icount++; }
   }
   edm::LogInfo("Alignment") << "@SUB-AlignmentParametersIO::write"
                             << "Read " << icount << " out of " << alivec.size() << " parameters";

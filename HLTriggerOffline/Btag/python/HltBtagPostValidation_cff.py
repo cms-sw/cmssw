@@ -1,20 +1,26 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 #define HltBTagPostValidation for the b-tag DQM validation (efficiency and mistagrate plot)
-HltBTagPostValidation = cms.EDAnalyzer("HLTBTagHarvestingAnalyzer",
+HltBTagPostValidation = DQMEDHarvester("HLTBTagHarvestingAnalyzer",
+        mainFolder   = cms.string("HLT/BTV/Validation"),
 	HLTPathNames = cms.vstring(
-	'HLT_PFMET120_',
-	'HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_',
-	'HLT_QuadPFJet_VBF',
-	'HLT_Ele32_eta2p1_',
-	'HLT_IsoMu21_eta2p1_'
+	'HLT_PFMET120_PFMHT120_IDTight_v',
+	'HLT_PFHT330PT30_QuadPFJet_75_60_45_40_v',
+	'HLT_PFHT380_SixPFJet32_DoublePFBTagCSV_',
+	'HLT_PFHT380_SixPFJet32_DoublePFBTagDeepCSV_',
+	'HLT_IsoMu24_eta2p1_v',
+	'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5',
+	'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_CaloDiJet30_CaloBtagDeepCSV_1p5'
 	),
 	histoName	= cms.vstring(
-	'hltCombinedSecondaryVertexBJetTagsCalo',
-	'hltCombinedSecondaryVertexBJetTagsCalo',
-	'hltCombinedSecondaryVertexBJetTagsCalo',
-	'hltCombinedSecondaryVertexBJetTagsPF',
-	'hltCombinedSecondaryVertexBJetTagsPF',
+	'hltDeepCombinedSecondaryVertexBJetTagsCalo',
+	'hltDeepCombinedSecondaryVertexBJetTagsCalo',
+	'hltDeepCombinedSecondaryVertexBJetTagsCalo',
+	'hltDeepCombinedSecondaryVertexBJetTagsPF',
+	'hltDeepCombinedSecondaryVertexBJetTagsPF',
+	'hltDeepCombinedSecondaryVertexBJetTagsPF',
+	'hltDeepCombinedSecondaryVertexBJetTagsCalo',
 	),
 	minTag	= cms.double(0.6),
 	# MC stuff

@@ -33,7 +33,7 @@ GlobalAlgBlk::GlobalAlgBlk(int orbitNr, int bxNr, int bxInEvent):
 {
 
     //Clear out the header data
-    m_finalOR=0;
+    m_finalOR=false;
     m_preScColumn=0;
 
     // Reserve/Clear out the decision words
@@ -47,7 +47,6 @@ GlobalAlgBlk::GlobalAlgBlk(int orbitNr, int bxNr, int bxInEvent):
     m_algoDecisionFinal.assign(maxPhysicsTriggers,false);
 
 }
-
 
 // empty constructor, all members set to zero;
 GlobalAlgBlk::GlobalAlgBlk( )
@@ -57,9 +56,9 @@ GlobalAlgBlk::GlobalAlgBlk( )
     m_orbitNr=0;
     m_bxNr=0;
     m_bxInEvent=0;
-    m_finalOR=0;
-    m_finalORPreVeto = 0;
-    m_finalORVeto = 0;    
+    m_finalOR=false;
+    m_finalORPreVeto = false;
+    m_finalORVeto = false;    
     m_preScColumn=0;
 
     // Reserve/Clear out the decision words
@@ -74,15 +73,11 @@ GlobalAlgBlk::GlobalAlgBlk( )
 
 }
 
-
-
 // destructor
 GlobalAlgBlk::~GlobalAlgBlk()
 {
-
     // empty now
 }
-
 
 /// Set decision bits
 void GlobalAlgBlk::setAlgoDecisionInitial(unsigned int bit, bool val)   
@@ -97,6 +92,7 @@ void GlobalAlgBlk::setAlgoDecisionInitial(unsigned int bit, bool val)
    }
    
 }
+
 void GlobalAlgBlk::setAlgoDecisionInterm(unsigned int bit, bool val) 
 { 
 
@@ -109,6 +105,7 @@ void GlobalAlgBlk::setAlgoDecisionInterm(unsigned int bit, bool val)
    }
 
 }
+
 void GlobalAlgBlk::setAlgoDecisionFinal(unsigned int bit, bool val)     
 { 
 
@@ -127,17 +124,18 @@ bool GlobalAlgBlk::getAlgoDecisionInitial(unsigned int bit) const
    if(bit>=m_algoDecisionInitial.size()) return false;
    return m_algoDecisionInitial.at(bit); 
 }
+
 bool GlobalAlgBlk::getAlgoDecisionInterm(unsigned int bit) const
 { 
    if(bit>=m_algoDecisionPreScaled.size()) return false;
    return m_algoDecisionPreScaled.at(bit); 
 }
+
 bool GlobalAlgBlk::getAlgoDecisionFinal(unsigned int bit)  const   
 {
    if(bit>=m_algoDecisionFinal.size()) return false;
    return m_algoDecisionFinal.at(bit); 
 }
-
 
 // reset the content of a GlobalAlgBlk
 void GlobalAlgBlk::reset()
@@ -147,9 +145,9 @@ void GlobalAlgBlk::reset()
     m_orbitNr=0;
     m_bxNr=0;
     m_bxInEvent=0;
-    m_finalOR=0;
-    m_finalORPreVeto = 0;
-    m_finalORVeto = 0;
+    m_finalOR=false;
+    m_finalORPreVeto = false;
+    m_finalORVeto = false;
     m_preScColumn=0;
 
     // Clear out the decision words
@@ -158,7 +156,44 @@ void GlobalAlgBlk::reset()
     m_algoDecisionPreScaled.assign(maxPhysicsTriggers,false);
     m_algoDecisionFinal.assign(maxPhysicsTriggers,false);
 
+}
 
+// compare the content of this GlobalAlgBlk with another one
+bool GlobalAlgBlk::operator==(const GlobalAlgBlk& rhs) const
+{
+    // Not all variables can be compared since the prescale counters are
+    // generally not the same when producing the collections and so the
+    // prescaled algo decisions do not match.
+    bool eq = m_orbitNr == rhs.getL1MenuUUID()
+        && m_bxNr == rhs.getL1FirmwareUUID()
+        && m_bxInEvent == rhs.getbxInEventNr()
+        //&& m_finalOR == rhs.getFinalOR()
+        //&& m_finalORPreVeto == rhs.getFinalORPreVeto()
+        //&& m_finalORVeto == rhs.getFinalORVeto()
+        //&& m_preScColumn == rhs.getPreScColumn()
+        && m_algoDecisionInitial == rhs.getAlgoDecisionInitial()
+        //&& m_algoDecisionPreScaled == rhs.getAlgoDecisionInterm()
+        //&& m_algoDecisionFinal == rhs.getAlgoDecisionFinal()
+        ;
+
+    //if (not eq) {
+    //    std::cout << "m_orbitNr: " << m_orbitNr << " : " << rhs.getL1MenuUUID() << std::endl
+    //              << "m_bxNr: " << m_bxNr << " : " << rhs.getL1FirmwareUUID() << std::endl
+    //              << "m_bxInEvent: " << m_bxInEvent << " : " << rhs.getbxInEventNr() << std::endl
+    //              << "m_finalOR: " << m_finalOR << " : " << rhs.getFinalOR() << std::endl
+    //              << "m_finalORPreVeto: " << m_finalORPreVeto << " : " << rhs.getFinalORPreVeto() << std::endl
+    //              << "m_finalORVeto: " << m_finalORVeto << " : " << rhs.getFinalORVeto() << std::endl
+    //              << "m_preScColumn: " << m_preScColumn << " : " << rhs.getPreScColumn() << std::endl
+    //              << std::endl;
+    //    std::cout << "algoDecisions" << std::endl;
+    //    for (size_t i = 0; i < m_algoDecisionInitial.size(); ++i) {
+    //        std::cout << "bit " << i << ":   " << m_algoDecisionInitial.at(i) << " : " << rhs.getAlgoDecisionInitial(i)
+    //                  << "     " << m_algoDecisionPreScaled.at(i) << " : " << rhs.getAlgoDecisionInterm(i)
+    //                  << "     " << m_algoDecisionFinal.at(i) << " : " << rhs.getAlgoDecisionFinal(i) << std::endl;
+    //    }
+    //}
+
+    return eq;
 }
 
 // pretty print the content of a GlobalAlgBlk
@@ -187,8 +222,8 @@ void GlobalAlgBlk::print(std::ostream& myCout) const
       if(m_algoDecisionInitial.at(i)) digit |= (1 << (i%4));
       if((i%4) == 0){
          myCout << std::hex << std::setw(1) << digit;
-	 digit = 0; 
-	 if(i%32 == 0 && i<lengthWd-1) myCout << " ";
+         digit = 0; 
+         if(i%32 == 0 && i<lengthWd-1) myCout << " ";
       }  
     } //end loop over algorithm bits
     myCout << std::endl;
@@ -201,8 +236,8 @@ void GlobalAlgBlk::print(std::ostream& myCout) const
       if(m_algoDecisionPreScaled.at(i)) digit |= (1 << (i%4));
       if((i%4) == 0){
          myCout << std::hex << std::setw(1) << digit;
-	 digit = 0; 
-	 if(i%32 == 0 && i<lengthWd-1) myCout << " ";
+         digit = 0; 
+         if(i%32 == 0 && i<lengthWd-1) myCout << " ";
       }  
     } //end loop over algorithm bits
     myCout << std::endl;
@@ -216,12 +251,11 @@ void GlobalAlgBlk::print(std::ostream& myCout) const
       if(m_algoDecisionFinal.at(i)) digit |= (1 << (i%4));
       if((i%4) == 0){
          myCout << std::hex << std::setw(1) << digit;
-	 digit = 0; 
-	 if(i%32 == 0 && i<lengthWd-1) myCout << " ";
+         digit = 0; 
+         if(i%32 == 0 && i<lengthWd-1) myCout << " ";
       }  
     } //end loop over algorithm bits
     myCout << std::endl;
 
 }
-
 

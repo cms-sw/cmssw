@@ -261,7 +261,7 @@ void L1ExtraDQM::analyzeL1ExtraIsoTauJet(const edm::Event& iEvent, const edm::Ev
             << std::endl;
     
     m_validL1ExtraIsoTauJet = false;
-    m_l1ExtraIsoTauJet = 0;
+    m_l1ExtraIsoTauJet = nullptr;
   }
   
   for (int iBxInEvent = 0; iBxInEvent < m_nrBxInEventGct; ++iBxInEvent) {
@@ -389,9 +389,6 @@ void L1ExtraDQM::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& evSetu
 
 }
 
-void L1ExtraDQM::beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup& evSetup){
-
-}
 
 void L1ExtraDQM::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const& evSetup) {
 
@@ -930,8 +927,8 @@ void L1ExtraDQM::L1ExtraMonElement<CollectionType>::bookhistograms(
 
         for (int iCount = 0; iCount < l1extra::L1HFRings::kNumRings; ++iCount) {
 
-            histName = l1ExtraObject + "_Count_" + boost::lexical_cast<std::string>(iCount);
-            histTitle = l1ExtraObject + ": count " + boost::lexical_cast<std::string>(iCount);
+            histName = l1ExtraObject + "_Count_" + std::to_string(iCount);
+            histTitle = l1ExtraObject + ": count " + std::to_string(iCount);
             xAxisTitle = l1ExtraObject;
             yAxisTitle = "Entries";
 
@@ -1018,8 +1015,8 @@ void L1ExtraDQM::L1ExtraMonElement<CollectionType>::bookhistograms(
 
         for (int iCount = 0; iCount < l1extra::L1HFRings::kNumRings; ++iCount) {
 
-            histName = l1ExtraObject + "_Count_" + boost::lexical_cast<std::string>(iCount);
-            histTitle = l1ExtraObject + ": count " + boost::lexical_cast<std::string>(iCount);
+            histName = l1ExtraObject + "_Count_" + std::to_string(iCount);
+            histTitle = l1ExtraObject + ": count " + std::to_string(iCount);
             xAxisTitle = l1ExtraObject;
             yAxisTitle = "Entries";
 

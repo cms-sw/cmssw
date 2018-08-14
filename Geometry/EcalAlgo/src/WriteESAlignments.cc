@@ -75,8 +75,7 @@ WEA::convert( const edm::EventSetup& eS ,
    edm::ESHandle<CaloGeometry>       pG   ;
    eS.get<CaloGeometryRecord>().get( pG ) ;
 
-   const CaloSubdetectorGeometry* geom ( 
-      pG->getSubdetectorGeometry( DetId::Ecal, EcalPreshower ) ) ;
+   const CaloSubdetectorGeometry* geom(pG->getSubdetectorGeometry( DetId::Ecal, EcalPreshower) ) ;
 
    edm::ESHandle<Alignments>  pA ;
    eS.get<ESAlignmentRcd>().get( pA ) ;
@@ -91,7 +90,7 @@ WEA::convert( const edm::EventSetup& eS ,
 
       const ESDetId id ( EcalPreshowerGeometry::detIdFromLocalAlignmentIndex( i ) ) ;
 
-      const double zPlanePrev ( geom->getGeometry( id )->getPosition().z() ) ;
+      double zPlanePrev ( geom->getGeometry( id )->getPosition().z() ) ;
       const double zAlignPrev ( vaPrev[i].translation().z() ) ;
       const Trl    q_I ( 0, 0, zPlanePrev - zAlignPrev ) ;
       const Trl&   s_p ( vaPrev[i].translation() ) ;
@@ -127,6 +126,6 @@ WEA::convert( const edm::EventSetup& eS ,
       std::cout<<" For i ="<<i<<", s_n = "<< s_n<<std::endl;
       std::cout<<"++++++++++++++++++++++++++\n\n"<<std::endl;
 
-      va.push_back( AlignTransform( s_n, G_n, id ) ) ;
+      va.emplace_back( AlignTransform( s_n, G_n, id ) ) ;
    }
 }

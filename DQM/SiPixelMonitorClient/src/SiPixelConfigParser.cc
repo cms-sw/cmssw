@@ -100,7 +100,7 @@ bool SiPixelConfigParser::getMENamesForTrackerMap(string& tkmap_name,
     string me_name = qtxml::_toString(meElement->getAttribute (qtxml::_toDOMS ("name"))); 
     me_names.push_back(me_name);    
   }
-  if (me_names.size() == 0) 
+  if (me_names.empty()) 
   {
     cout << ACYellow << ACBold 
     	 << "[SiPixelConfigParser::getMENamesForTrackerMap()]"
@@ -165,7 +165,7 @@ bool SiPixelConfigParser::getMENamesForTree(string& structure_name,
     string me_name = qtxml::_toString(meElement->getAttribute (qtxml::_toDOMS ("name"))); 
     me_names.push_back(me_name);    
   }
-  if (me_names.size() == 0) return false;
+  if (me_names.empty()) return false;
   else return true;
   //cout<<"...leaving SiPixelConfigParser::getMENamesForTree!"<<endl;
   
@@ -201,7 +201,7 @@ bool SiPixelConfigParser::getMENamesForBarrelSummary(string& structure_name,
     me_names.push_back(me_name);    
   }
 //  cout<<"...leaving SiPixelConfigParser::getMENamesForBarrelSummary!"<<endl;
-  if (me_names.size() == 0) return false;
+  if (me_names.empty()) return false;
   else return true;
   
 }
@@ -234,7 +234,7 @@ bool SiPixelConfigParser::getMENamesForEndcapSummary(string& structure_name,
     string me_name = qtxml::_toString(meElement->getAttribute (qtxml::_toDOMS ("name"))); 
     me_names.push_back(me_name);    
   }
-  if (me_names.size() == 0) return false;
+  if (me_names.empty()) return false;
   else return true;
 //  cout<<"...leaving SiPixelConfigParser::getMENamesForEndcapSummary!"<<endl;
   
@@ -270,7 +270,7 @@ bool SiPixelConfigParser::getMENamesForFEDErrorSummary(string& structure_name,
     string me_name = qtxml::_toString(meElement->getAttribute (qtxml::_toDOMS ("name"))); 
     me_names.push_back(me_name);    
   }
-  if (me_names.size() == 0) return false;
+  if (me_names.empty()) return false;
   else return true;
   //cout<<"...leaving SiPixelConfigParser::getMENamesForFEDErrorSummary!"<<endl;
   
@@ -347,7 +347,7 @@ bool SiPixelConfigParser::getMENamesForGrandBarrelSummary(string& structure_name
     string me_name = qtxml::_toString(meElement->getAttribute (qtxml::_toDOMS ("name"))); 
     me_names.push_back(me_name);    
   }
-  if (me_names.size() == 0) return false;
+  if (me_names.empty()) return false;
   else return true;
   //cout<<"...leaving SiPixelConfigParser::getMENamesForGrandBarrelSummary!"<<endl;
   
@@ -383,7 +383,7 @@ bool SiPixelConfigParser::getMENamesForGrandEndcapSummary(string& structure_name
     string me_name = qtxml::_toString(meElement->getAttribute (qtxml::_toDOMS ("name"))); 
     me_names.push_back(me_name);    
   }
-  if (me_names.size() == 0) return false;
+  if (me_names.empty()) return false;
   else return true;
   //cout<<"...leaving SiPixelConfigParser::getMENamesForGrandEndcapSummary!"<<endl;
   

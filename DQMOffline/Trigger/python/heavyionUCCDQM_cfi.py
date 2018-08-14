@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-heavyionUCCDQM_HIUCC100 = cms.EDAnalyzer('HeavyIonUCCDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+heavyionUCCDQM_HIUCC100 = DQMEDAnalyzer('HeavyIonUCCDQM',
         triggerResults = cms.InputTag('TriggerResults','','HLT'),
         caloMet = cms.InputTag('hltMetForHf'),
         pixelCluster = cms.InputTag('hltHISiPixelClusters'),
@@ -13,7 +14,7 @@ heavyionUCCDQM_HIUCC100 = cms.EDAnalyzer('HeavyIonUCCDQM',
         maxEt = cms.double(8000)
 )
 
-heavyionUCCDQM_HIUCC020 = cms.EDAnalyzer('HeavyIonUCCDQM',
+heavyionUCCDQM_HIUCC020 = DQMEDAnalyzer('HeavyIonUCCDQM',
         triggerResults = cms.InputTag('TriggerResults','','HLT'),
         caloMet = cms.InputTag('hltMetForHf'),
         pixelCluster = cms.InputTag('hltHISiPixelClusters'),

@@ -40,32 +40,32 @@ const LocalError& err);
   
 
   /// Destructor
-  virtual ~ME0RecHit();
+  ~ME0RecHit() override;
 
 
   /// Return the 3-dimensional local position
-  virtual LocalPoint localPosition() const {
+  LocalPoint localPosition() const override {
     return theLocalPosition;
   }
 
 
   /// Return the 3-dimensional error on the local position
-  virtual LocalError localPositionError() const {
+  LocalError localPositionError() const override {
     return theLocalError;
   }
 
 
-  virtual ME0RecHit* clone() const;
+  ME0RecHit* clone() const override;
 
   
   /// Access to component RecHits.
   /// No components rechits: it returns a null vector
-  virtual std::vector<const TrackingRecHit*> recHits() const;
+  std::vector<const TrackingRecHit*> recHits() const override;
 
 
   /// Non-const access to component RecHits.
   /// No components rechits: it returns a null vector
-  virtual std::vector<TrackingRecHit*> recHits();
+  std::vector<TrackingRecHit*> recHits() override;
 
 
   /// Set local position

@@ -19,6 +19,7 @@
 <use   name="CommonTools/TrackerMap"/>
 <use   name="DQM/SiStripCommon"/>
 <use   name="DQMServices/Core"/>
+<use   name="DQMServices/Diagnostic"/>
 <library   file="*.cc" name="DQMOfflineCalibTrackerplugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

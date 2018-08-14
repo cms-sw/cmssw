@@ -103,13 +103,13 @@ void DDTIBLayerAlgo::initialize(const DDNumericArguments & nArgs,
 		      << " Material " << dohmPrimMaterial << " Length " << dohmPrimL;
   LogDebug("TIBGeom") << "DDTIBLayerAlgo debug: DOHM Aux     "
 		      << " Material " << dohmAuxMaterial << " Length " << dohmAuxL;
-  for (unsigned int i=0; i<dohmListFW.size(); i++) {
-    if (dohmListFW[i]>0.) LogDebug("TIBGeom") << "DOHM Primary at FW Position " << dohmListFW[i];
-    if (dohmListFW[i]<0.) LogDebug("TIBGeom") << "DOHM Aux     at FW Position " << -dohmListFW[i];
+  for (double i : dohmListFW) {
+    if (i>0.) LogDebug("TIBGeom") << "DOHM Primary at FW Position " << i;
+    if (i<0.) LogDebug("TIBGeom") << "DOHM Aux     at FW Position " << -i;
   }
-  for (unsigned int i=0; i<dohmListBW.size(); i++) {
-    if (dohmListBW[i]>0.) LogDebug("TIBGeom") << "DOHM Primary at BW Position " << dohmListBW[i];
-    if (dohmListBW[i]<0.) LogDebug("TIBGeom") << "DOHM Aux     at BW Position " << -dohmListBW[i];
+  for (double i : dohmListBW) {
+    if (i>0.) LogDebug("TIBGeom") << "DOHM Primary at BW Position " << i;
+    if (i<0.) LogDebug("TIBGeom") << "DOHM Aux     at BW Position " << -i;
   }
 
   //Pillar Material

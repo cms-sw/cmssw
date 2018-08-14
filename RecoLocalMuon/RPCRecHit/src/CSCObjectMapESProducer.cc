@@ -16,11 +16,11 @@ public:
     setWhatProduced(this);
   }
 
-  ~CSCObjectMapESProducer() {
+  ~CSCObjectMapESProducer() override {
   }
 
-  std::shared_ptr<CSCObjectMap> produce(MuonGeometryRecord const& record) {
-    return std::make_shared<CSCObjectMap>(record);
+  std::unique_ptr<CSCObjectMap> produce(MuonGeometryRecord const& record) {
+    return std::make_unique<CSCObjectMap>(record);
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

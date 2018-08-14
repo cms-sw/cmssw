@@ -44,12 +44,12 @@
 class CastorCellProducer : public edm::EDProducer {
    public:
       explicit CastorCellProducer(const edm::ParameterSet&);
-      ~CastorCellProducer();
+      ~CastorCellProducer() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       
       // member data
       typedef math::XYZPointD Point;

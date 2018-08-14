@@ -8,8 +8,6 @@
 
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 
-#include "G4String.hh"
-
 #include <string>
 
 class DDCompactView;
@@ -20,18 +18,21 @@ class HGCalTB16SD01 : public CaloSD {
 
 public:    
 
-  HGCalTB16SD01(G4String , const DDCompactView &, 
+  HGCalTB16SD01(const std::string& , const DDCompactView &, 
 		const SensitiveDetectorCatalog &, edm::ParameterSet const &, 
 		const SimTrackManager*);
-  virtual ~HGCalTB16SD01();
-  virtual double   getEnergyDeposit(G4Step* );
-  virtual uint32_t setDetUnitId(G4Step* step);
+  ~HGCalTB16SD01() override = default;
+  uint32_t setDetUnitId(const G4Step* step) override;
   static uint32_t  packIndex(int det, int lay, int x, int y);
   static void      unpackIndex(const uint32_t & idx, int& det, int& lay,
 			       int& x, int& y);
 
+protected:
+
+  double           getEnergyDeposit(const G4Step*) override;
+
 private:    
-  void             initialize(G4StepPoint* point);
+  void             initialize(const G4StepPoint* point);
 
   std::string      matName_;
   bool             useBirk_;

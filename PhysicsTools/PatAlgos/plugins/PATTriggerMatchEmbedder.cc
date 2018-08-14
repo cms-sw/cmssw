@@ -49,11 +49,11 @@ namespace pat {
     public:
 
       explicit PATTriggerMatchEmbedder( const edm::ParameterSet & iConfig );
-      ~PATTriggerMatchEmbedder() {};
+      ~PATTriggerMatchEmbedder() override {};
 
     private:
 
-    virtual void produce( edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const override;
+    void produce( edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const override;
 
   };
 

@@ -52,7 +52,7 @@ template<typename T>
 class RecoTauDiscriminatorRefSelectorImpl : public edm::EDFilter {
   public:
     explicit RecoTauDiscriminatorRefSelectorImpl(const edm::ParameterSet &pset);
-    ~RecoTauDiscriminatorRefSelectorImpl() {}
+    ~RecoTauDiscriminatorRefSelectorImpl() override {}
     bool filter(edm::Event &evt, const edm::EventSetup &es) override;
   private:
     typedef typename T::OutputType OutputType;

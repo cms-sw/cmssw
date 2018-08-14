@@ -28,6 +28,8 @@ Original Author: W. David Dagenhart
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 
+#include "FWCore/Utilities/interface/ReusableObjectHolder.h"
+
 #include <memory>
 #include <vector>
 #include <cassert>
@@ -47,6 +49,7 @@ namespace edm {
 
     PrincipalCache();
     ~PrincipalCache();
+    PrincipalCache(PrincipalCache&&) = default;
 
     RunPrincipal& runPrincipal(ProcessHistoryID const& phid, RunNumber_t run) const;
     std::shared_ptr<RunPrincipal> const& runPrincipalPtr(ProcessHistoryID const& phid, RunNumber_t run) const;
@@ -54,30 +57,26 @@ namespace edm {
     std::shared_ptr<RunPrincipal> const& runPrincipalPtr() const;
     bool hasRunPrincipal() const {return bool(runPrincipal_);}
 
-    LuminosityBlockPrincipal& lumiPrincipal(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) const;
-    std::shared_ptr<LuminosityBlockPrincipal> const& lumiPrincipalPtr(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) const;
-    LuminosityBlockPrincipal& lumiPrincipal() const;
-    std::shared_ptr<LuminosityBlockPrincipal> const& lumiPrincipalPtr() const;
-    bool hasLumiPrincipal() const {return bool(lumiPrincipal_);}
+    std::shared_ptr<LuminosityBlockPrincipal> getAvailableLumiPrincipalPtr();
 
     EventPrincipal& eventPrincipal(unsigned int iStreamIndex) const { return *(eventPrincipals_[iStreamIndex]); }
 
     void merge(std::shared_ptr<RunAuxiliary> aux, std::shared_ptr<ProductRegistry const> reg);
-    void merge(std::shared_ptr<LuminosityBlockAuxiliary> aux, std::shared_ptr<ProductRegistry const> reg);
 
     void setNumberOfConcurrentPrincipals(PreallocationConfiguration const&);
     void insert(std::shared_ptr<RunPrincipal> rp);
-    void insert(std::shared_ptr<LuminosityBlockPrincipal> lbp);
+    void insert(std::unique_ptr<LuminosityBlockPrincipal> lbp);
     void insert(std::shared_ptr<EventPrincipal> ep);
 
     void deleteRun(ProcessHistoryID const& phid, RunNumber_t run);
-    void deleteLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
 
     void adjustEventsToNewProductRegistry(std::shared_ptr<ProductRegistry const> reg);
 
     void adjustIndexesAfterProductRegistryAddition();
 
     void setProcessHistoryRegistry(ProcessHistoryRegistry const& phr) {processHistoryRegistry_ = &phr;}
+
+    void preReadFile();
 
   private:
 
@@ -87,7 +86,7 @@ namespace edm {
     // These are explicitly cleared when finished with the run,
     // lumi, or event
     std::shared_ptr<RunPrincipal> runPrincipal_;
-    std::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal_;
+    edm::ReusableObjectHolder<LuminosityBlockPrincipal> lumiHolder_;
     std::vector<std::shared_ptr<EventPrincipal>> eventPrincipals_;
 
     // This is just an accessor to the registry owned by the input source. 

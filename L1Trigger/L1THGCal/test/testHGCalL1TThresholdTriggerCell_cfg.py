@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('DIGI',eras.Phase2C2)
+process = cms.Process('DIGI',eras.Phase2)
 
 # import of standard configurations 
 process.load('Configuration.StandardSequences.Services_cff')
@@ -10,11 +10,11 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D4_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D17_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
-process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')
+process.load('IOMC.EventVertexGenerators.VtxSmearedHLLHC14TeV_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
@@ -111,26 +111,36 @@ process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 ## define trigger emulator without trigger cell selection
 process.hgcalTriggerPrimitiveDigiProducer.FECodec.CodecName = cms.string('HGCalTriggerCellThresholdCodec')
-process.hgcalTriggerPrimitiveDigiProducer.FECodec.NData = cms.uint32(999) # put number larger than max number of trigger cells in module
+process.hgcalTriggerPrimitiveDigiProducer.FECodec.TCThreshold_fC = cms.double(0.) 
 cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgoThreshold'),
-                                 FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec )
+                               FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec,
+                               HGCalEESensitive_tag = cms.string('HGCalEESensitive'),
+                               HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive'),
+                               calib_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_parameters
+                               )
+
 process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms = cms.VPSet( cluster_algo_all )
 process.hgcl1tpg_step1 = cms.Path(process.hgcalTriggerPrimitives)
 
 ## define trigger emulator with trigger cell selection
 process.hgcalTriggerPrimitiveDigiFEReproducer.FECodec.CodecName = cms.string('HGCalTriggerCellThresholdCodec')
 process.hgcalTriggerPrimitiveDigiFEReproducer.FECodec.triggerCellTruncationBits = cms.uint32(0)
+process.hgcalTriggerPrimitiveDigiProducer.FECodec.TCThreshold_fC = cms.double(10.) 
 cluster_algo_select =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgoThreshold'),
-                                 FECodec = process.hgcalTriggerPrimitiveDigiFEReproducer.FECodec )
+                                 FECodec = process.hgcalTriggerPrimitiveDigiFEReproducer.FECodec,
+                                 HGCalEESensitive_tag = cms.string('HGCalEESensitive'),
+                                 HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive'),
+                                 calib_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_parameters
+                                 )
 process.hgcalTriggerPrimitiveDigiFEReproducer.BEConfiguration.algorithms = cms.VPSet( cluster_algo_select )
 process.hgcl1tpg_step2 = cms.Path(process.hgcalTriggerPrimitives_reproduce)
 
 # define threshold tester
 process.hgcaltriggerthresholdtester = cms.EDAnalyzer(
     "HGCalTriggerThresholdTriggerCellTester",
-    eeDigis = cms.InputTag('mix:HGCDigisEE'),
-    fhDigis = cms.InputTag('mix:HGCDigisHEfront'),
-    #bhDigis = cms.InputTag('mix:HGCDigisHEback'),
+    eeDigis = cms.InputTag('simHGCalUnsuppressedDigis:EE'),
+    fhDigis = cms.InputTag('simHGCalUnsuppressedDigis:HEfront'),
+    #bhDigis = cms.InputTag('simHGCalUnsuppressedDigis:HEback'),
     isSimhitComp = cms.bool(True),
     eeSimHits = cms.InputTag('g4SimHits:HGCHitsEE'),
     fhSimHits = cms.InputTag('g4SimHits:HGCHitsHEfront'),

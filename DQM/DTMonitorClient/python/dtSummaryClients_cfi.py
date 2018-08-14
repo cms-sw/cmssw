@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-dtSummaryClients = cms.EDAnalyzer("DTSummaryClients")
+dtSummaryClients = DQMEDHarvester("DTSummaryClients")
 
 

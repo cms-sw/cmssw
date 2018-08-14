@@ -10,4 +10,15 @@
  <class name="edm::Wrapper< edm::DetSet<GEMDigiSimLink> >" splitLevel="0" />
  <class name="edm::Wrapper< std::vector<edm::DetSet<GEMDigiSimLink> > >" splitLevel="0" />
  <class name="edm::Wrapper< edm::DetSetVector<GEMDigiSimLink> >" splitLevel="0" />
+
+<class name="ME0DigiSimLink" ClassVersion="10">
+   <version ClassVersion="10" checksum="665696725"/>
+ </class>
+ <class name="edm::DetSet<ME0DigiSimLink>"/>
+ <class name="std::vector<ME0DigiSimLink>"/>
+ <class name="edm::DetSetVector<ME0DigiSimLink>"/>
+ <class name="std::vector<edm::DetSet<ME0DigiSimLink> >"/>
+ <class name="edm::Wrapper< edm::DetSet<ME0DigiSimLink> >" splitLevel="0" />
+ <class name="edm::Wrapper< std::vector<edm::DetSet<ME0DigiSimLink> > >" splitLevel="0" />
+ <class name="edm::Wrapper< edm::DetSetVector<ME0DigiSimLink> >" splitLevel="0" />
 </lcgdict>

@@ -14,7 +14,7 @@
 
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 
-#include "boost/thread/thread.hpp"
+#include <thread>
 
 #include <atomic>
 
@@ -272,7 +272,7 @@ testServiceRegistry::threadTest()
    UniqueRegistry::isUnique_ = false;
    void* value = &(edm::ServiceRegistry::instance());
    UniqueRegistry unique(value);
-   boost::thread testUniqueness(unique);
+   std::thread testUniqueness(unique);
    testUniqueness.join();
    CPPUNIT_ASSERT(UniqueRegistry::isUnique_);
 
@@ -295,7 +295,7 @@ testServiceRegistry::threadTest()
    bool exceptionWasThrown = false;
    
    PassServices passRun(token, succeededToPassServices, exceptionWasThrown);
-   boost::thread testPassing(passRun);
+   std::thread testPassing(passRun);
    testPassing.join();
    CPPUNIT_ASSERT(!exceptionWasThrown);
    CPPUNIT_ASSERT(succeededToPassServices);

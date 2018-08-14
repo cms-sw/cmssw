@@ -12,8 +12,8 @@
 SurveyDBUploader::SurveyDBUploader(const edm::ParameterSet& cfg):
   theValueRcd( cfg.getParameter<std::string>("valueRcd") ),
   theErrorExtendedRcd( cfg.getParameter<std::string>("errorRcd") ),
-  theValues(0),
-  theErrors(0)
+  theValues(nullptr),
+  theErrors(nullptr)
 {
 }
 
@@ -43,7 +43,7 @@ void SurveyDBUploader::endJob()
 
 void SurveyDBUploader::getSurveyInfo(const Alignable* ali)
 {
-  const std::vector<Alignable*>& comp = ali->components();
+  const auto& comp = ali->components();
 
   unsigned int nComp = comp.size();
 

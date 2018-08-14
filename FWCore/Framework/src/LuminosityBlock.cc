@@ -10,10 +10,10 @@ namespace edm {
   std::string const LuminosityBlock::emptyString_;
 
   LuminosityBlock::LuminosityBlock(LuminosityBlockPrincipal const& lbp, ModuleDescription const& md,
-                                   ModuleCallingContext const* moduleCallingContext) :
-        provRecorder_(lbp, md),
+                                   ModuleCallingContext const* moduleCallingContext, bool isAtEnd) :
+        provRecorder_(lbp, md,isAtEnd),
         aux_(lbp.aux()),
-        run_(new Run(lbp.runPrincipal(), md, moduleCallingContext)),
+        run_(new Run(lbp.runPrincipal(), md, moduleCallingContext,false)),
         moduleCallingContext_(moduleCallingContext) {
   }
 
@@ -43,6 +43,14 @@ namespace edm {
     const_cast<Run*>(run_.get())->setSharedResourcesAcquirer(iResourceAcquirer);
   }
 
+  void
+  LuminosityBlock::setProducer(ProducerBase const* iProducer) {
+    provRecorder_.setProducer(iProducer);
+    //set appropriate size
+    putProducts_.resize(
+            provRecorder_.putTokenIndexToProductResolverIndex().size());
+  }
+
 
   LuminosityBlockPrincipal const&
   LuminosityBlock::luminosityBlockPrincipal() const {
@@ -62,21 +70,23 @@ namespace edm {
   void
   LuminosityBlock::commit_(std::vector<edm::ProductResolverIndex> const& iShouldPut) {
     LuminosityBlockPrincipal const& lbp = luminosityBlockPrincipal();
-    ProductPtrVec::iterator pit(putProducts().begin());
-    ProductPtrVec::iterator pie(putProducts().end());
-
-    while(pit != pie) {
-        lbp.put(*pit->second, std::move(get_underlying_safe(pit->first)));
-        ++pit;
+    size_t nPut = 0;
+    for(size_t i = 0; i < putProducts().size();++i) {
+      auto& p = get_underlying_safe(putProducts()[i]);
+      if(p) {
+        lbp.put(provRecorder_.putTokenIndexToProductResolverIndex()[i],  std::move(p));
+        ++nPut;
+      }
     }
     
     auto sz = iShouldPut.size();
-    if(sz !=0 and sz != putProducts().size()) {
+    if(sz !=0 and sz != nPut) {
       //some were missed
       auto& p = provRecorder_.principal();
       for(auto index: iShouldPut){
         auto resolver = p.getProductResolverByIndex(index);
-        if(not resolver->productResolved()) {
+        if(not resolver->productResolved() and
+           isEndTransition(provRecorder_.transition()) == resolver->branchDescription().availableOnlyAtEndTransition()) {
           resolver->putProduct(std::unique_ptr<WrapperBase>());
         }
       }

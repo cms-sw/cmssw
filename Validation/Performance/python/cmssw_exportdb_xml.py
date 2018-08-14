@@ -1,3 +1,4 @@
+from __future__ import print_function
 from xml.dom import minidom
 import types, os
 
@@ -226,7 +227,7 @@ def exportRunInfo(xml_doc, run_info, release = None, print_out = False):
 	#create nodes for TestResults:
 	for (testName, result) in run_info["TestResults"].items():
 		#either we have one node or multiple ones (if list)
-		if type(result) == list:
+		if isinstance(result, list):
 			for result_item in result:
 				result_item.update({"testname": testName})
 
@@ -277,7 +278,7 @@ def exportRunInfo(xml_doc, run_info, release = None, print_out = False):
 		#print csiMark
 		createNode(node_name="cmsSciMark", xml_doc=xml_doc, parent=cmsSciMarkNode, values=csiMark)
 	if print_out:
-		print xml_doc.toprettyxml(indent="\t")
+		print(xml_doc.toprettyxml(indent="\t"))
 
 def exportECRules(xml_doc, rules):
 	node_xml = _getXMLNode(xml_doc)
@@ -300,7 +301,7 @@ def write_xml(xml_doc, remotedir,xmlFileName):
 	#print xml locally
 	out.write(xml)
 	out.close()
-	print "Now copying %s to stage directory %s..."%(xmlFileName,remotedir)
+	print("Now copying %s to stage directory %s..."%(xmlFileName,remotedir))
 	
 	#FIXME: Here we could decide to archive it on CASTOR on a dedicated directory
 	if ":" in remotedir: #CAVEAT: since we report the timestamp as part of the xml filename we need to be careful..
@@ -313,11 +314,11 @@ def write_xml(xml_doc, remotedir,xmlFileName):
 		#tarpipe_cmd='cd %s;tar cf - %s|(cd %s;tar xf -)'%(tmp_dir,os.path.basename(xmlFileName),remotedir)
 		copy_cmd='cp -pR %s/%s %s'%(tmp_dir,os.path.basename(xmlFileName),remotedir) 
 	try:
-		print copy_cmd
+		print(copy_cmd)
 		os.system(copy_cmd)
-		print "Successfully copied XML report %s to stage directory %s"%(xmlFileName,remotedir)
+		print("Successfully copied XML report %s to stage directory %s"%(xmlFileName,remotedir))
 	except Exception as e :
-		print "Issues with copying XML report %s to stage directory %s!\n%s"%(xmlFileName,remotedir,str(e))
+		print("Issues with copying XML report %s to stage directory %s!\n%s"%(xmlFileName,remotedir,str(e)))
 	#os.system("cd -") #just in case...
 		
 	

@@ -39,13 +39,13 @@
 class DJpsiFilter : public edm::EDFilter {
    public:
       explicit DJpsiFilter(const edm::ParameterSet&);
-      ~DJpsiFilter();
+      ~DJpsiFilter() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
     

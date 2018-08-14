@@ -4,7 +4,7 @@
 
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
-
+#include "DataFormats/L1Trigger/interface/L1TObjComparison.h"
 
 namespace l1t {
 
@@ -14,10 +14,14 @@ namespace l1t {
   typedef edm::RefVector< EGammaBxCollection > EGammaRefVector ;
   typedef std::vector< EGammaRef > EGammaVectorRef ;
 
+  typedef ObjectRefBxCollection<EGamma> EGammaRefBxCollection;
+  typedef ObjectRefPair<EGamma> EGammaRefPair;
+  typedef ObjectRefPairBxCollection<EGamma> EGammaRefPairBxCollection;
+
   class EGamma : public L1Candidate {
 
   public:
-    EGamma(){}
+    EGamma(){ clear_extended(); }
 
     // ctor from base allowed, but note that extended variables will be set to zero:
     EGamma(const L1Candidate& rhs):L1Candidate(rhs){ clear_extended(); } 
@@ -36,7 +40,7 @@ namespace l1t {
 	    int qual=0,
 	    int iso=0);
 
-    ~EGamma();
+    ~EGamma() override;
 
     void setTowerIEta(short int ieta);  // ieta of seed tower
     void setTowerIPhi(short int iphi);  // iphi of seed tower
@@ -55,6 +59,9 @@ namespace l1t {
     short int nTT() const;
     short int shape() const;
     short int towerHoE() const;
+
+    virtual bool operator==(const l1t::EGamma& rhs) const;
+    virtual inline bool operator!=(const l1t::EGamma& rhs) const { return !(operator==(rhs)); };
 
   private:
 

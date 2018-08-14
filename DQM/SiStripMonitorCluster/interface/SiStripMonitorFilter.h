@@ -6,37 +6,37 @@
 // Class  :     SiStripMonitorFilter
 // Original Author: dkcira
 
-
 // system include files
 #include <memory>
 
 // user include files
-#include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 class DQMStore;
 
 class SiStripMonitorFilter : public DQMEDAnalyzer {
-   public:
-      explicit SiStripMonitorFilter(const edm::ParameterSet&);
-      ~SiStripMonitorFilter(){};
+ public:
+  explicit SiStripMonitorFilter(const edm::ParameterSet &);
+  ~SiStripMonitorFilter() override{};
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
+                      edm::EventSetup const &) override;
 
-   private:
-       edm::EDGetTokenT<int> filerDecisionToken_;       
-       DQMStore* dqmStore_;
-       edm::ParameterSet conf_;
-       MonitorElement * FilterDecision;
-       // all events
-       std::string FilterDirectory;
+ private:
+  edm::EDGetTokenT<int> filerDecisionToken_;
+  DQMStore *dqmStore_;
+  edm::ParameterSet conf_;
+  MonitorElement *FilterDecision;
+  // all events
+  std::string FilterDirectory;
 };
 
 #endif

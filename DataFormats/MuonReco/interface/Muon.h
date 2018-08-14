@@ -30,7 +30,7 @@ namespace reco {
     /// constructor from values
     Muon(  Charge, const LorentzVector &, const Point & = Point( 0, 0, 0 ) );
     /// create a clone
-    Muon * clone() const;
+    Muon * clone() const override;
 
     
     
@@ -46,20 +46,20 @@ namespace reco {
     /// reference to Track reconstructed in the tracker only
     using reco::RecoCandidate::track;
     virtual TrackRef innerTrack() const { return innerTrack_; }
-    virtual TrackRef track() const { return innerTrack(); }
+    TrackRef track() const override { return innerTrack(); }
     /// reference to Track reconstructed in the muon detector only
     virtual TrackRef outerTrack() const { return outerTrack_; }
-    virtual TrackRef standAloneMuon() const { return outerTrack(); }
+    TrackRef standAloneMuon() const override { return outerTrack(); }
     /// reference to Track reconstructed in both tracked and muon detector
     virtual TrackRef globalTrack() const { return globalTrack_; }
-    virtual TrackRef combinedMuon() const { return globalTrack(); }
+    TrackRef combinedMuon() const override { return globalTrack(); }
 
     virtual TrackRef tpfmsTrack() const { return muonTrackFromMap(TPFMS);}
     virtual TrackRef pickyTrack() const { return muonTrackFromMap(Picky);}
     virtual TrackRef dytTrack()   const { return muonTrackFromMap(DYT);}
     
-    virtual const Track * bestTrack() const         {return muonTrack(bestTrackType_).get();}
-    virtual TrackBaseRef  bestTrackRef() const      {return reco::TrackBaseRef(muonTrack(bestTrackType_));}
+    const Track * bestTrack() const override         {return muonTrack(bestTrackType_).get();}
+    TrackBaseRef  bestTrackRef() const override      {return reco::TrackBaseRef(muonTrack(bestTrackType_));}
     virtual TrackRef      muonBestTrack() const     {return muonTrack(bestTrackType_);}
     virtual MuonTrackType muonBestTrackType() const {return bestTrackType_;}
     virtual TrackRef      tunePMuonBestTrack() const     {return muonTrack(bestTunePTrackType_);}
@@ -179,9 +179,57 @@ namespace reco {
 
 
     /// define arbitration schemes
+    // WARNING: There can be not more than 7 arbritration types. If 
+    //          have more it will break the matching logic for types
+    //          defined in MuonSegmentMatch
+
     enum ArbitrationType { NoArbitration, SegmentArbitration, SegmentAndTrackArbitration, SegmentAndTrackArbitrationCleaned,
 			   RPCHitAndTrackArbitration, GEMSegmentAndTrackArbitration, ME0SegmentAndTrackArbitration };
     
+    ///
+    /// ====================== STANDARD SELECTORS ===========================
+    ///
+    enum Selector {
+      CutBasedIdLoose        = 1UL<< 0,  
+      CutBasedIdMedium       = 1UL<< 1,  
+      CutBasedIdMediumPrompt = 1UL<< 2,  // medium with IP cuts
+      CutBasedIdTight        = 1UL<< 3,  
+      CutBasedIdGlobalHighPt = 1UL<< 4,  // high pt muon for Z',W' (better momentum resolution)
+      CutBasedIdTrkHighPt    = 1UL<< 5,  // high pt muon for boosted Z (better efficiency)
+      PFIsoVeryLoose         = 1UL<< 6,  // reliso<0.40
+      PFIsoLoose             = 1UL<< 7,  // reliso<0.25
+      PFIsoMedium            = 1UL<< 8,  // reliso<0.20
+      PFIsoTight             = 1UL<< 9,  // reliso<0.15
+      PFIsoVeryTight         = 1UL<<10,  // reliso<0.10
+      TkIsoLoose             = 1UL<<11,  // reliso<0.10
+      TkIsoTight             = 1UL<<12,  // reliso<0.05
+      SoftCutBasedId         = 1UL<<13,  
+      SoftMvaId              = 1UL<<14,  
+      MvaLoose               = 1UL<<15,  
+      MvaMedium              = 1UL<<16,  
+      MvaTight               = 1UL<<17,
+      MiniIsoLoose           = 1UL<<18,  // reliso<0.40
+      MiniIsoMedium          = 1UL<<19,  // reliso<0.20
+      MiniIsoTight           = 1UL<<20,  // reliso<0.10
+      MiniIsoVeryTight       = 1UL<<21,  // reliso<0.05
+      TriggerIdLoose         = 1UL<<22,  // robust selector for HLT
+      InTimeMuon             = 1UL<<23,   
+      PFIsoVeryVeryTight     = 1UL<<24,  // reliso<0.05
+      MultiIsoLoose          = 1UL<<25,  // miniIso with ptRatio and ptRel 
+      MultiIsoMedium         = 1UL<<26   // miniIso with ptRatio and ptRel 
+    };
+    
+    bool passed( unsigned int selection ) const { return (selectors_ & selection)==selection; }
+    bool passed( Selector selection ) const { return passed(static_cast<unsigned int>(selection)); }
+    unsigned int selectors() const { return selectors_; }
+    void setSelectors( unsigned int selectors ){ selectors_ = selectors; }
+    void setSelector(Selector selector, bool passed){ 
+      if (passed)
+	selectors_ |= selector;
+      else
+	selectors_ &= ~selector;
+    }
+
     ///
     /// ====================== USEFUL METHODs ===========================
     ///
@@ -190,14 +238,17 @@ namespace reco {
     /// number of chambers CSC or DT matches only (MuonChamberMatches include RPC rolls)
     int numberOfChambersCSCorDT() const;
     /// get number of chambers with matched segments
-    int numberOfMatches( ArbitrationType type = SegmentAndTrackArbitration ) const;
+    int numberOfMatches( unsigned int type = SegmentAndTrackArbitration ) const;
     /// get number of stations with matched segments
     /// just adds the bits returned by stationMask
     int numberOfMatchedStations( ArbitrationType type = SegmentAndTrackArbitration ) const;
+    /// expected number of stations with matching segments based on the absolute 
+    /// distance from the edge of a chamber
+    unsigned int expectedNnumberOfMatchedStations( float minDistanceFromEdge = 10.0 ) const;
     /// get bit map of stations with matched segments
     /// bits 0-1-2-3 = DT stations 1-2-3-4
     /// bits 4-5-6-7 = CSC stations 1-2-3-4
-    unsigned int stationMask( ArbitrationType type = SegmentAndTrackArbitration ) const;
+    unsigned int stationMask( unsigned int type = SegmentAndTrackArbitration ) const;
     /// get bit map of stations with tracks within
     /// given distance (in cm) of chamber edges 
     /// bit assignments are same as above
@@ -221,11 +272,11 @@ namespace reco {
     void setType( unsigned int type ) { type_ = type; }
     unsigned int type() const { return type_; }
     // override of method in base class reco::Candidate
-    bool isMuon() const { return true; }
-    bool isGlobalMuon()     const { return type_ & GlobalMuon; }
-    bool isTrackerMuon()    const { return type_ & TrackerMuon; }
-    bool isStandAloneMuon() const { return type_ & StandAloneMuon; }
-    bool isCaloMuon() const { return type_ & CaloMuon; }
+    bool isMuon() const override { return true; }
+    bool isGlobalMuon()     const override { return type_ & GlobalMuon; }
+    bool isTrackerMuon()    const override { return type_ & TrackerMuon; }
+    bool isStandAloneMuon() const override { return type_ & StandAloneMuon; }
+    bool isCaloMuon() const override { return type_ & CaloMuon; }
     bool isPFMuon() const {return type_ & PFMuon;} //fix me ! Has to go to type
     bool isRPCMuon() const {return type_ & RPCMuon;}
     bool isGEMMuon() const {return type_ & GEMMuon;}
@@ -233,7 +284,7 @@ namespace reco {
     
   private:
     /// check overlap with another candidate
-    virtual bool overlap( const Candidate & ) const;
+    bool overlap( const Candidate & ) const override;
     /// reference to Track reconstructed in the tracker only
     TrackRef innerTrack_;
     /// reference to Track reconstructed in the muon detector only
@@ -287,11 +338,12 @@ namespace reco {
     const std::vector<const MuonChamberMatch*> chambers( int station, int muonSubdetId ) const;
     /// get pointers to best segment and corresponding chamber in vector of chambers
     std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> pair( const std::vector<const MuonChamberMatch*> &,
-									ArbitrationType type = SegmentAndTrackArbitration ) const;
-     
+								     unsigned int type = SegmentAndTrackArbitration ) const;
+    /// selector bitmap
+    unsigned int selectors_;
    public:
      /// get number of segments
-     int numberOfSegments( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;
+     int numberOfSegments( int station, int muonSubdetId, unsigned int type = SegmentAndTrackArbitration ) const;
      /// get deltas between (best) segment and track
      /// If no chamber or no segment returns 999999
      float dX       ( int station, int muonSubdetId, ArbitrationType type = SegmentAndTrackArbitration ) const;

@@ -51,7 +51,7 @@ There can also be multiple lumi entries associated with
 the same lumi number, run number, and ProcessHistoryID.
 Both sorting orders will make these subgroups contiguous,
 but beyond that is up to the client (normally PoolSource,
-which passes them up to the EventProcessor and EPStates)
+which passes them up to the EventProcessor)
 to deal with merging the multiple run (or lumi) entries
 together.
 
@@ -85,13 +85,37 @@ This vector holds one element per entry in the run
 TTree and one element per entry in the lumi TTree.
 When sorted, everything associated with a given run and
 ProcessHistoryID will be contiguous in the vector.
-These groups of entries will be put in the order they
+These groups of elements will be sorted in the order they
 first appear in the input file. Within each of
-these groups the run entries come first in entry order,
-followed by the entries associated with the lumis.
+these groups the run entries come first in order,
+followed by the elements associated with the lumis.
 The lumis are also contiguous and sorted by first
 appearance in the input file. Within a lumi they
-are sorted by entry order.
+are sorted by entry order. And each luminosity
+element corresponds to one contiguous sequence
+of Events in the Events TTree. Before we implemented
+concurrent processing of luminosity blocks that
+was the full story. After that it became more complicated
+because the sequence of events written to an output
+file that were associated with a particular luminosity
+block TTree entry might no longer be contiguous. Events
+from another concurrent luminosity block could get
+mixed in because with multiple events processing simultaneously,
+there is no longer any guarantee they will finish in the
+same order that they were read. This is handled by writing
+additional elements to the runOrLumiEntries_ vector, one for
+each contiguous block of events associated with a particular
+luminosity block. Only one of these vector elements will
+be associated with each entry in the luminosity block TTree
+and all the others will contain a TTree entry number that
+is invalid (note the one element with a valid entry might
+or might not be associated with a contiguous block of
+events). In the sort of elements related to a particular
+luminosity block, the entries with invalid entry numbers
+will come before the valid ones. (It has not happened
+yet as I am writing this, but a similar thing will
+likely occur for runs if/when we ever implement concurrent
+runs)
 
 There are a number of transient data members also.
 The 3 most important of these are vectors.  To
@@ -107,7 +131,14 @@ in numerical order and also fast lookup based on run
 number and lumi number. Each element also has indexes
 into the eventNumbers_ and eventEntries_ vectors which
 hold the information giving the event numbers and
-event entry numbers.
+event entry numbers. Note this vector is initially
+formed in the identical order as runOrLumiEntries_
+and then sorted with a stable sort. The fact that it
+is a stable sort means that within the subrange associated
+with a particular luminosity block the elements with
+an invalid TTree entry number come first and the later
+come the elements with a valid TTree entry number
+which are in order of TTree entry number.
 
 eventNumbers_ is a std::vector containing EventNumber_t's.
 eventEntries_ is a std::vector containing EventEntry's.
@@ -115,12 +146,12 @@ If filled, both vectors contain the same number of
 entries with identical event numbers sorted in the
 same order.  The only difference is that one includes
 the entry numbers and thus takes more memory.
-Each element of runOrLumiIndexes_ has the indexes necessary
-to find the range inside eventNumbers_ or eventEntries_
-corresponding to its lumi.  Within that range the elements
-are sorted by event number, which is used for the
-numerical order iteration and to find an event by the
-event number.
+Each element of runOrLumiIndexes_ associated with a luminosity
+block has the indexes necessary to find the range inside
+eventNumbers_ or eventEntries_ corresponding to its lumi.
+Within that range the elements are sorted by event number,
+which is used for the numerical order iteration and to
+find an event by the event number.
 
 The details of the data structure are a little different
 when reading files written before release 3_8_0
@@ -142,10 +173,10 @@ optimal structure for a very sparse skim, but the overheads
 should be tolerable given the number of runs and luminosity
 blocks that should occur in CMS data.
 
-Normally the only the persistent part of the data structure is
-filled in the output module using two functions designed specifically
-for that purpose. The functions are addEntry and
-sortVector_Run_Or_Lumi_Entries.
+Normally only the persistent parts of the data structure are
+filled in the output module. The output module fills them using
+two functions designed specifically for that purpose. The
+functions are addEntry and sortVector_Run_Or_Lumi_Entries.
 
 There are some complexities associated with filling the data structure,
 mostly revolving around optimizations to minimize the per event memory
@@ -166,6 +197,7 @@ The interface is too complex for general use.
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/RunID.h"
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/value_ptr.h"
 
@@ -195,12 +227,12 @@ namespace edm {
       class SortedRunOrLumiItr;
       class IndexRunLumiEventKey;
 
-      typedef long long EntryNumber_t;
-      static int const invalidIndex = -1;
-      static RunNumber_t const invalidRun = 0U;
-      static LuminosityBlockNumber_t const invalidLumi = 0U;
-      static EventNumber_t const invalidEvent = 0U;
-      static EntryNumber_t const invalidEntry = -1LL;
+      using EntryNumber_t = long long ;
+      static constexpr int invalidIndex = -1;
+      static constexpr RunNumber_t invalidRun = 0U;
+      static constexpr LuminosityBlockNumber_t invalidLumi = 0U;
+      static constexpr EventNumber_t invalidEvent = 0U;
+      static constexpr EntryNumber_t invalidEntry = -1LL;
 
       enum EntryType {kRun, kLumi, kEvent, kEnd};
 
@@ -355,10 +387,18 @@ namespace edm {
         // ProcessHistory, Run, and Lumi in the same input file are
         // processed contiguously.  This parameter establishes the
         // default order of processing of these contiguous subsets
-        // of data which have the same ProcessHistory and Run.
+        // of data.
         EntryNumber_t orderPHIDRunLumi_; // -1 if a run
 
         // TTree entry number of Run or Lumi
+        // Always will be valid except when the IndexIntoFile was
+        // created while processing more than 1 luminosity block
+        // at a time (multiple concurrent lumis). In that case
+        // there can be multiple contiguous event ranges associated
+        // with the same lumi TTree entry. Exactly one of those will
+        // have a valid entry_ number and the rest will be set
+        // to the invalid value (-1). For a particular lumi, the
+        // invalid ones sort before the valid ones.
         EntryNumber_t entry_;
 
         int processHistoryIDIndex_;
@@ -523,13 +563,14 @@ namespace edm {
         EntryNumber_t firstEventEntryThisRun();
         EntryNumber_t firstEventEntryThisLumi();
         virtual bool skipLumiInRun() = 0;
+        virtual bool lumiEntryValid(int index) const = 0;
 
         void advanceToNextRun();
         void advanceToNextLumiOrRun();
         bool skipToNextEventInLumi();
         void initializeRun();
 
-        void initializeLumi() {initializeLumi_();}
+        void initializeLumi() ;
 
         bool operator==(IndexIntoFileItrImpl const& right) const;
 
@@ -545,6 +586,8 @@ namespace edm {
         long long nEvents() const { return nEvents_; }
 
         void copyPosition(IndexIntoFileItrImpl const& position);
+
+        void getLumisInRun(std::vector<LuminosityBlockNumber_t> & lumis) const;
 
       protected:
 
@@ -565,6 +608,7 @@ namespace edm {
         virtual EntryType getRunOrLumiEntryType(int index) const = 0;
         virtual bool isSameLumi(int index1, int index2) const = 0;
         virtual bool isSameRun(int index1, int index2) const = 0;
+        virtual LuminosityBlockNumber_t lumi(int index) const = 0;
 
         IndexIntoFile const* indexIntoFile_;
         int size_;
@@ -590,25 +634,27 @@ namespace edm {
                                long long indexToEvent,
                                long long nEvents);
 
-        virtual IndexIntoFileItrImpl* clone() const;
+        IndexIntoFileItrImpl* clone() const override;
 
-        virtual int processHistoryIDIndex() const;
-        virtual RunNumber_t run() const;
-        virtual LuminosityBlockNumber_t lumi() const;
-        virtual EntryNumber_t entry() const;
-        virtual LuminosityBlockNumber_t peekAheadAtLumi() const;
-        virtual EntryNumber_t peekAheadAtEventEntry() const;
-        virtual bool skipLumiInRun();
+        int processHistoryIDIndex() const override;
+        RunNumber_t run() const override;
+        LuminosityBlockNumber_t lumi() const override;
+        EntryNumber_t entry() const override;
+        LuminosityBlockNumber_t peekAheadAtLumi() const override;
+        EntryNumber_t peekAheadAtEventEntry() const override;
+        bool skipLumiInRun() override;
+        bool lumiEntryValid(int index) const override;
 
       private:
 
-        virtual void initializeLumi_();
-        virtual bool nextEventRange();
-        virtual bool previousEventRange();
-        virtual bool setToLastEventInRange(int index);
-        virtual EntryType getRunOrLumiEntryType(int index) const;
-        virtual bool isSameLumi(int index1, int index2) const;
-        virtual bool isSameRun(int index1, int index2) const;
+        void initializeLumi_() override;
+        bool nextEventRange() override;
+        bool previousEventRange() override;
+        bool setToLastEventInRange(int index) override;
+        EntryType getRunOrLumiEntryType(int index) const override;
+        bool isSameLumi(int index1, int index2) const override;
+        bool isSameRun(int index1, int index2) const override;
+        LuminosityBlockNumber_t lumi(int index) const override;
       };
 
       //*****************************************************************************
@@ -624,24 +670,26 @@ namespace edm {
                                long long indexToEvent,
                                long long nEvents);
 
-        virtual IndexIntoFileItrImpl* clone() const;
-        virtual int processHistoryIDIndex() const;
-        virtual RunNumber_t run() const;
-        virtual LuminosityBlockNumber_t lumi() const;
-        virtual EntryNumber_t entry() const;
-        virtual LuminosityBlockNumber_t peekAheadAtLumi() const;
-        virtual EntryNumber_t peekAheadAtEventEntry() const;
-        virtual bool skipLumiInRun();
+        IndexIntoFileItrImpl* clone() const override;
+        int processHistoryIDIndex() const override;
+        RunNumber_t run() const override;
+        LuminosityBlockNumber_t lumi() const override;
+        EntryNumber_t entry() const override;
+        LuminosityBlockNumber_t peekAheadAtLumi() const override;
+        EntryNumber_t peekAheadAtEventEntry() const override;
+        bool skipLumiInRun() override;
+        bool lumiEntryValid(int index) const override;
 
       private:
 
-        virtual void initializeLumi_();
-        virtual bool nextEventRange();
-        virtual bool previousEventRange();
-        virtual bool setToLastEventInRange(int index);
-        virtual EntryType getRunOrLumiEntryType(int index) const;
-        virtual bool isSameLumi(int index1, int index2) const;
-        virtual bool isSameRun(int index1, int index2) const;
+        void initializeLumi_() override;
+        bool nextEventRange() override;
+        bool previousEventRange() override;
+        bool setToLastEventInRange(int index) override;
+        EntryType getRunOrLumiEntryType(int index) const override;
+        bool isSameLumi(int index1, int index2) const override;
+        bool isSameRun(int index1, int index2) const override;
+        LuminosityBlockNumber_t lumi(int index) const override;
       };
 
       //*****************************************************************************
@@ -764,6 +812,8 @@ namespace edm {
 
         /// Copy the position without modifying the pointer to the IndexIntoFile or size
         void copyPosition(IndexIntoFileItr const& position);
+
+        void getLumisInRun(std::vector<LuminosityBlockNumber_t> & lumis) const {impl_->getLumisInRun(lumis);}
 
       private:
         //for testing
@@ -908,6 +958,8 @@ namespace edm {
       /// works in cases where those corrections are not needed.
       void sortVector_Run_Or_Lumi_Entries();
 
+      //used internally by addEntry
+      void addLumi(int index, RunNumber_t run, LuminosityBlockNumber_t lumi, EntryNumber_t entry);
       //*****************************************************************************
       //*****************************************************************************
 
@@ -1013,8 +1065,8 @@ namespace edm {
         Transients();
         void reset();
         int previousAddedIndex_;
-        std::map<IndexRunKey, EntryNumber_t> runToFirstEntry_;
-        std::map<IndexRunLumiKey, EntryNumber_t> lumiToFirstEntry_;
+        std::map<IndexRunKey, EntryNumber_t> runToOrder_;
+        std::map<IndexRunLumiKey, EntryNumber_t> lumiToOrder_;
         EntryNumber_t beginEvents_;
         EntryNumber_t endEvents_;
         int currentIndex_;
@@ -1049,8 +1101,8 @@ namespace edm {
       void sortEvents() const;
       void sortEventEntries() const;
       int& previousAddedIndex() const {return transient_.previousAddedIndex_;}
-      std::map<IndexRunKey, EntryNumber_t>& runToFirstEntry() const {return transient_.runToFirstEntry_;}
-      std::map<IndexRunLumiKey, EntryNumber_t>& lumiToFirstEntry() const {return transient_.lumiToFirstEntry_;}
+      std::map<IndexRunKey, EntryNumber_t>& runToOrder() const {return transient_.runToOrder_;}
+      std::map<IndexRunLumiKey, EntryNumber_t>& lumiToOrder() const {return transient_.lumiToOrder_;}
       EntryNumber_t& beginEvents() const {return transient_.beginEvents_;}
       EntryNumber_t& endEvents() const {return transient_.endEvents_;}
       int& currentIndex() const {return transient_.currentIndex_;}
@@ -1071,6 +1123,7 @@ namespace edm {
   template <>
   struct value_ptr_traits<IndexIntoFile::IndexIntoFileItrImpl> {
     static IndexIntoFile::IndexIntoFileItrImpl* clone(IndexIntoFile::IndexIntoFileItrImpl const* p) {return p->clone();}
+    static void destroy(IndexIntoFile::IndexIntoFileItrImpl* p) { delete p; }
   };
 
 
@@ -1082,6 +1135,17 @@ namespace edm {
   class Compare_Index {
   public:
     bool operator()(IndexIntoFile::RunOrLumiIndexes const& lh, IndexIntoFile::RunOrLumiIndexes const& rh);
+  };
+
+  // This class exists only to allow forward declarations of IndexIntoFile::IndexIntoFileItr
+  class IndexIntoFileItrHolder {
+  public:
+    IndexIntoFileItrHolder(IndexIntoFile::IndexIntoFileItr const& iIter) : iter_(iIter) { }
+    void getLumisInRun(std::vector<LuminosityBlockNumber_t> & lumis) const {
+      iter_.getLumisInRun(lumis);
+    }
+  private:
+    IndexIntoFile::IndexIntoFileItr const& iter_;
   };
 }
 

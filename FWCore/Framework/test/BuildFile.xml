@@ -67,7 +67,12 @@
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>
 </library>
-<library   file="stubs/TestGlobalProducers.cc,stubs/TestGlobalAnalyzers.cc,stubs/TestGlobalFilters.cc" name="TestGlobalModules">
+<library   file="stubs/TestGlobalProducers.cc,stubs/TestGlobalAnalyzers.cc,stubs/TestGlobalFilters.cc,stubs/TestGetPathStatus.cc" name="TestGlobalModules">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+</library>
+<library   file="stubs/TestLimitedProducers.cc,stubs/TestLimitedAnalyzers.cc,stubs/TestLimitedFilters.cc" name="TestLimitedModules">
   <flags   EDM_PLUGIN="1"/>
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>
@@ -148,7 +153,7 @@
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>
 </library>
-<bin   name="TestFWCoreFramework" file="testRunner.cpp,maker2_t.cppunit.cc,maker_t.cppunit.cc,productregistry.cppunit.cc,edproducer_productregistry_callback.cc,event_getrefbeforeput_t.cppunit.cc,generichandle_t.cppunit.cc,edconsumerbase_t.cppunit.cc,global_module_t.cppunit.cc,one_outputmodule_t.cppunit.cc,global_outputmodule_t.cppunit.cc,stream_module_t.cppunit.cc,throwIfImproperDependencies_t.cppunit.cc">
+<bin   name="TestFWCoreFramework" file="testRunner.cpp,maker2_t.cppunit.cc,maker_t.cppunit.cc,productregistry.cppunit.cc,edproducer_productregistry_callback.cc,event_getrefbeforeput_t.cppunit.cc,generichandle_t.cppunit.cc,edconsumerbase_t.cppunit.cc,global_module_t.cppunit.cc,one_outputmodule_t.cppunit.cc,global_outputmodule_t.cppunit.cc,stream_module_t.cppunit.cc,limited_module_t.cppunit.cc,limited_outputmodule_t.cppunit.cc,throwIfImproperDependencies_t.cppunit.cc">
   <use   name="DataFormats/Common"/>
   <use   name="DataFormats/Provenance"/>
   <use   name="DataFormats/TestObjects"/>
@@ -309,4 +314,12 @@
 <bin   name="TestFWCoreFrameworkPrintDependencies" file="TestDriver.cpp">
   <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_PrintDependencies.sh"/>
   <use name="FWCore/Utilities"/>
+</bin>
+<bin   name="TestFWCoreFrameworkTransitions" file="TestDriver.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test transition_test.sh"/>
+  <use   name="FWCore/Utilities"/>
+</bin>
+<bin file="test_catch2_main.cc,test_catch2notTP_*.cc" name="TestFWCoreFrameworkCatch2notTP">
+  <use name="catch2"/>
+  <use   name="FWCore/Framework"/>
 </bin>

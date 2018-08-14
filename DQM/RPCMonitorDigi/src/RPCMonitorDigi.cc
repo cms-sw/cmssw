@@ -1,28 +1,24 @@
-#include <set>
-#include <sstream>
 #include "DQM/RPCMonitorDigi/interface/RPCMonitorDigi.h"
 #include "DQM/RPCMonitorDigi/interface/utils.h"
-///Geometry
+
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-//Tracking Tools
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-//FW Core
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-//Reco Muon
-#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 
-const std::string RPCMonitorDigi::regionNames_[3] =  {"Endcap-", "Barrel", "Endcap+"};
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <set>
+#include <sstream>
+
+const std::array<std::string, 3> RPCMonitorDigi::regionNames_ = {{"Endcap-", "Barrel", "Endcap+"}};
 
 RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset )
  : counter(0),
    numberOfDisks_(0),
    numberOfInnerRings_(0){
-
-  saveRootFile  = pset.getUntrackedParameter<bool>("SaveRootFile", false); 
-  RootFileName  = pset.getUntrackedParameter<std::string>("RootFileName", "RPCMonitorDigiDQM.root"); 
 
   useMuonDigis_=  pset.getUntrackedParameter<bool>("UseMuon", true);
   useRollInfo_=  pset.getUntrackedParameter<bool>("UseRollInfo", false);
@@ -43,21 +39,19 @@ RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset )
 
 }
 
-RPCMonitorDigi::~RPCMonitorDigi(){}
-
-
 void RPCMonitorDigi::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const &r, edm::EventSetup const & iSetup){
 
   edm::LogInfo ("rpcmonitordigi") <<"[RPCMonitorDigi]: Begin Run " ;
   
   std::set<int> disk_set, ring_set;
-  edm::ESHandle<RPCGeometry> rpcGeo;
-  iSetup.get<MuonGeometryRecord>().get(rpcGeo);
+  edm::ESHandle<RPCGeometry> rpcGeoHandle;
+  iSetup.get<MuonGeometryRecord>().get(rpcGeoHandle);
+  const RPCGeometry* rpcGeo = rpcGeoHandle.product();
 
   //loop on geometry to book all MEs
   edm::LogInfo ("rpcmonitordigi") <<"[RPCMonitorDigi]: Booking histograms per roll. " ;
   for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
-    if(dynamic_cast< const RPCChamber* >( *it ) != 0 ){
+    if(dynamic_cast< const RPCChamber* >( *it ) != nullptr ){
       const RPCChamber* ch = dynamic_cast< const RPCChamber* >( *it ); 
       std::vector< const RPCRoll*> roles = (ch->rolls());
       if(useRollInfo_){
@@ -73,15 +67,15 @@ void RPCMonitorDigi::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const 
 	  //booking all histograms
 	  RPCGeomServ rpcsrv(rpcId);
 	  std::string nameID = rpcsrv.name();
-	  if(useMuonDigis_) bookRollME(ibooker,rpcId ,iSetup, muonFolder_, meMuonCollection[nameID]);
-	  bookRollME(ibooker, rpcId, iSetup, noiseFolder_, meNoiseCollection[nameID]);
+	  if(useMuonDigis_) bookRollME(ibooker,rpcId , rpcGeo, muonFolder_, meMuonCollection[nameID]);
+	  bookRollME(ibooker, rpcId, rpcGeo, noiseFolder_, meNoiseCollection[nameID]);
 	}
       }else{
 	RPCDetId rpcId = roles[0]->id(); //any roll would do - here I just take the first one
 	RPCGeomServ rpcsrv(rpcId);
 	std::string nameID = rpcsrv.chambername();
-	if(useMuonDigis_) bookRollME(ibooker, rpcId,iSetup, muonFolder_, meMuonCollection[nameID]);
-	bookRollME(ibooker, rpcId, iSetup, noiseFolder_, meNoiseCollection[nameID]);
+	if(useMuonDigis_) bookRollME(ibooker, rpcId, rpcGeo, muonFolder_, meMuonCollection[nameID]);
+	bookRollME(ibooker, rpcId, rpcGeo, noiseFolder_, meNoiseCollection[nameID]);
 	if(rpcId.region()!=0){
 	  disk_set.insert(rpcId.station());
 	  ring_set.insert(rpcId.ring());
@@ -155,7 +149,7 @@ void RPCMonitorDigi::analyze(const edm::Event& event,const edm::EventSetup& setu
 	  TrackingRecHit * tkRecHit = (*it)->clone();
 	  RPCRecHit* rpcRecHit = dynamic_cast<RPCRecHit*>(tkRecHit);
 	  int detId = (int)rpcRecHit->rpcId();
-	  if(rechitMuon.find(detId) == rechitMuon.end() || rechitMuon[detId].size() == 0){
+	  if(rechitMuon.find(detId) == rechitMuon.end() || rechitMuon[detId].empty() ){
 	    std::vector<RPCRecHit>  myVect(1,*rpcRecHit );	  
 	    rechitMuon[detId]= myVect;
 	  }else {
@@ -173,7 +167,7 @@ void RPCMonitorDigi::analyze(const edm::Event& event,const edm::EventSetup& setu
     if( NumberOfRecHitMuon_ && numMuons>0) { NumberOfRecHitMuon_->Fill( numRPCRecHit);}
 
     //Fill counter of RPC events with rechits associated in with a muon
-    if( muonRPCEvents_ != 0 && numRPCRecHit>0 )  {muonRPCEvents_->Fill(1);}
+    if( muonRPCEvents_ != nullptr && numRPCRecHit>0 )  {muonRPCEvents_->Fill(1);}
 
     //Perform client operation 
     this->performSourceOperation(rechitMuon, muonFolder_);
@@ -197,7 +191,7 @@ void RPCMonitorDigi::analyze(const edm::Event& event,const edm::EventSetup& setu
     for (rpcRecHitIter = rpcHits->begin(); rpcRecHitIter != rpcHits->end() ; rpcRecHitIter++) {
       RPCRecHit rpcRecHit = (*rpcRecHitIter);
       int detId = (int)rpcRecHit.rpcId();
-      if(rechitNoise.find(detId) == rechitNoise.end() || rechitNoise[detId].size() == 0){
+      if(rechitNoise.find(detId) == rechitNoise.end() || rechitNoise[detId].empty() ){
 	std::vector<RPCRecHit>  myVect(1,rpcRecHit );
 	rechitNoise[detId]= myVect;
       }else {
@@ -210,7 +204,7 @@ void RPCMonitorDigi::analyze(const edm::Event& event,const edm::EventSetup& setu
 
  
   //Fill counter for all RPC events 
-  if( noiseRPCEvents_ != 0 &&  !rechitNoise.empty())  {noiseRPCEvents_->Fill(1);}
+  if( noiseRPCEvents_ != nullptr &&  !rechitNoise.empty())  {noiseRPCEvents_->Fill(1);}
   //Perform client operation 
   this->performSourceOperation(rechitNoise, noiseFolder_);
 
@@ -221,7 +215,7 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
 
   edm::LogInfo ("rpcmonitordigi") <<"[RPCMonitorDigi]: Performing DQM source operations for "; 
   
-  if(recHitMap.size()==0) {return;} //if  
+  if(recHitMap.empty()) return;
 
   std::map<std::string, std::map<std::string, MonitorElement*> >  meRollCollection ;
   std::map<std::string, MonitorElement*>   meWheelDisk ;
@@ -250,7 +244,6 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
   for ( std::map<RPCDetId , std::vector<RPCRecHit> >::const_iterator detIdIter = recHitMap.begin(); detIdIter !=  recHitMap.end() ;  detIdIter++){
     
     RPCDetId detId = (*detIdIter).first;
-    // int id=detId();
     
     //get roll number
     rpcdqm::utils rpcUtils;
@@ -475,8 +468,4 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
   }
 
 }
-
-
-
-
 

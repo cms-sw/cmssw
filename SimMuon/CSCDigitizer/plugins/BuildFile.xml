@@ -13,11 +13,14 @@
   <use   name="Geometry/Records"/>
   <use   name="MagneticField/Engine"/>
   <use   name="MagneticField/Records"/>
+  <use   name="CondFormats/RecoMuonObjects"/>
+  <use   name="CondFormats/DataRecord"/>
   <use   name="SimDataFormats/CrossingFrame"/>
   <use   name="SimDataFormats/TrackingHit"/>
   <use   name="SimDataFormats/TrackerDigiSimLink"/>
   <use   name="SimGeneral/HepPDTRecord"/>
   <use   name="SimGeneral/NoiseGenerators"/>
+  <use   name="SimGeneral/PreMixingModule"/>
   <use   name="SimMuon/Neutron"/>
   <use   name="Utilities/General"/>
   <use   name="boost"/>

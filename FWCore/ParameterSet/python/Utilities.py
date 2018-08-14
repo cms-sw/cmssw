@@ -1,70 +1,3 @@
-def removeModulesNotOnAPathExcluding( process, keepList=() ):
-    """Given a 'process', find all modules (EDProducers,EDFilters,EDAnalyzers,OutputModules)
-    and remove them if they do not appear on a Path or EndPath.  One can optionally pass in
-    a list of modules which even if they are not on a Path or EndPath you wish to have stay 
-    in the configuration [useful for unscheduled execution].
-    """
-    allMods=set((x for x in process.producers_().iterkeys()))
-    allMods.update((x for x in process.filters_().iterkeys()))
-    allMods.update((x for x in process.analyzers_().iterkeys()))
-    allMods.update((x for x in process.outputModules_().iterkeys()))
-    
-    modulesOnPaths = set()
-    for p in process.paths_():
-        modulesOnPaths.update( (x for x in getattr(process,p).moduleNames()))        
-    for p in process.endpaths_():
-        modulesOnPaths.update( (x for x in getattr(process,p).moduleNames()))
-
-    notOnPaths = allMods.difference(modulesOnPaths)
-    
-    keepModuleNames = set( (x.label_() for x in keepList) )
-    
-    getRidOf = notOnPaths.difference(keepModuleNames)
-    
-    for n in getRidOf:
-        delattr(process,n)
-
-class InputTagLabelSet :
-  # This holds module labels in a set
-  def __init__(self):
-    self.labels = set()
-  # Get the module labels from InputTags and VInputTags
-  def __call__(self, parameter) :
-    from FWCore.ParameterSet.Types import VInputTag, InputTag
-    if isinstance(parameter, InputTag) :
-      self.labels.add(parameter.getModuleLabel())
-    elif isinstance(parameter, VInputTag) :
-      for (i,inputTagInVInputTag) in enumerate(parameter) :
-        if isinstance(inputTagInVInputTag, InputTag) :
-          self.labels.add(inputTagInVInputTag.getModuleLabel())
-        else :
-          # a VInputTag can also hold strings
-          self.labels.add(inputTagInVInputTag)
-
-def traverseInputTags(pset, visitor, stringInputLabels):
-  from FWCore.ParameterSet.Mixins import _Parameterizable
-  from FWCore.ParameterSet.Types import VPSet, VInputTag, InputTag, string
-
-  # Loop over parameters in a PSet
-  for name in pset.parameters_().keys() :
-    value = getattr(pset,name)
-    # Recursive calls into a PSet in a PSet
-    if isinstance(value, _Parameterizable) :
-      traverseInputTags(value, visitor, stringInputLabels)
-    # Recursive calls into PSets in a VPSet
-    elif isinstance(value, VPSet) :
-      for (n, psetInVPSet) in enumerate(value):
-        traverseInputTags(psetInVPSet, visitor, stringInputLabels)
-    # Get the labels from a VInputTag
-    elif isinstance(value, VInputTag) :
-      visitor(value)
-    # Get the label from an InputTag
-    elif isinstance(value, InputTag) :
-      visitor(value)
-    # Known module labels in string objects
-    elif stringInputLabels and isinstance(value, string) and name in stringInputLabels and value.value() :
-      visitor.labels.add(value.value())
-    #ignore the rest
 
 def ignoreAllFiltersOnPath(path):
   """Given a 'Path', find all EDFilters and wrap them in 'cms.ignore'
@@ -75,27 +8,48 @@ def ignoreAllFiltersOnPath(path):
   class IgnoreFilters(object):
     def __init__(self):
       self.__lastCallUnary = False
+      self.onTask = False
     def __call__(self, obj):
-      if isinstance(obj,_UnarySequenceOperator):
+      if self.onTask:
+        return obj
+      elif isinstance(obj,_UnarySequenceOperator):
         self.__lastCallUnary = True
       elif obj.isLeaf() and isinstance(obj, cms.EDFilter) and not self.__lastCallUnary:
         return cms.ignore(obj)
       else:
         self.__lastCallUnary = False
       return obj
+  class IgnoreFiltersVisitor(_MutatingSequenceVisitor):
+    def __init__(self):
+      self.operator = IgnoreFilters()
+      self._levelInTasks = 0
+      super(type(self),self).__init__(self.operator)
+    def enter(self,visitee):
+      if isinstance(visitee, cms.Task):
+        self._levelInTasks += 1
+      self.operator.onTask = (self._levelInTasks > 0)
+      super(IgnoreFiltersVisitor,self).enter(visitee)
+    def leave(self,visitee):
+      if self._levelInTasks > 0:
+        if isinstance(visitee, cms.Task):
+          self._levelInTasks -= 1
+      super(IgnoreFiltersVisitor,self).leave(visitee)
 
-  mutator = _MutatingSequenceVisitor(IgnoreFilters())
+  mutator = IgnoreFiltersVisitor()
   path.visit(mutator)
-  path._seq = mutator.result()
+  if mutator._didApply():
+    path._seq = mutator.result(path)[0]
+    path._tasks.clear()
+    path.associate(*mutator.result(path)[1])
   return path
 
 def convertToUnscheduled(proc):
   import FWCore.ParameterSet.Config as cms
   """Given a 'Process', convert the python configuration from scheduled execution to unscheduled. This is done by
-    1. Removing all modules not on Paths or EndPaths
-    2. Pulling EDProducers not dependent on EDFilters off of all Paths
-    3. Dropping any Paths which are now empty
-    4. Fixing up the Schedule if needed
+    1. Pulling EDProducers off Path and EndPath Sequences and putting them on an associated Task.
+    2. Pulling EDFilters whose filter results are ignored off Path and EndPath Sequences and putting
+    them on an associated Task.
+    3. Fixing up the Schedule if needed
   """
   # Warning: It is not always possible to convert a configuration
   # where EDProducers are all run on Paths to an unscheduled
@@ -116,22 +70,17 @@ def convertToUnscheduled(proc):
   # the EDProducer will always run and the product could
   # always be there.
 
-  # Remove all modules not on Paths or EndPaths
-  proc.prune()
-
-  # Turn on unschedule mode
-  if not hasattr(proc,'options'):
-    proc.options = cms.untracked.PSet()
-  proc.options.allowUnscheduled = cms.untracked.bool(True)
+  proc.resolve()
 
   proc=cleanUnscheduled(proc)
   return proc
 
 def cleanUnscheduled(proc):
   import FWCore.ParameterSet.Config as cms
-  l = dict(proc.paths)
-  l.update( dict(proc.endpaths) )
-  droppedPaths =[]
+
+  pathsAndEndPaths = dict(proc.paths)
+  pathsAndEndPaths.update( dict(proc.endpaths) )
+
   #have to get them now since switching them after the
   # paths have been changed gives null labels
   if proc.schedule:
@@ -155,34 +104,52 @@ def cleanUnscheduled(proc):
     return p
 
   # Loop over paths
-  # On each path we drop EDProducers except we
-  # keep the EDProducers that depend on EDFilters
-  for pName,p in l.iteritems():
+  # On each path we move EDProducers and EDFilters that
+  # are ignored to Tasks
+  producerList = list()
+  import six
+  for pName, originalPath in six.iteritems(pathsAndEndPaths):
+    producerList[:] = []
     qualified_names = []
-    v = cms.DecoratedNodeNameVisitor(qualified_names)
-    p.visit(v)
+    v = cms.DecoratedNodeNamePlusVisitor(qualified_names)
+    originalPath.visit(v)
     remaining =[]
 
     for n in qualified_names:
       unqual_name = getUnqualifiedName(n)
+      mod = getattr(proc,unqual_name)
+
       #remove EDProducer's and EDFilter's which are set to ignore
-      if not (isinstance(getattr(proc,unqual_name), cms.EDProducer) or
-        (n[0] =='-' and isinstance(getattr(proc,unqual_name), cms.EDFilter)) ):
+      if not (isinstance(mod, cms.EDProducer) or
+              (n[0] =='-' and isinstance(mod, cms.EDFilter)) ):
         remaining.append(n)
+      else:
+        producerList.append(mod)
+
+    taskList = []
+    if v.leavesOnTasks():
+      taskList.append(cms.Task(*(v.leavesOnTasks())))
+    if (producerList):
+      taskList.append(cms.Task(*producerList))
 
     if remaining:
       p = getQualifiedModule(remaining[0],proc)
       for m in remaining[1:]:
         p+=getQualifiedModule(m,proc)
       setattr(proc,pName,type(getattr(proc,pName))(p))
-    # drop empty paths
     else:
       setattr(proc,pName,type(getattr(proc,pName))())
+
+    newPath = getattr(proc,pName)
+    if (taskList):
+      newPath.associate(*taskList)
 
   # If there is a schedule then it needs to point at
   # the new Path objects
   if proc.schedule:
+      listOfTasks = list(proc.schedule._tasks)
       proc.schedule = cms.Schedule([getattr(proc,p) for p in pathNamesInScheduled])
+      proc.schedule.associate(*listOfTasks)
   return proc
 
 
@@ -197,6 +164,50 @@ def modulesInSequences(* sequences):
 def moduleLabelsInSequences(* sequences):
   return [module.label() for module in modulesInSequences(* sequences)]
 
+def createTaskWithAllProducersAndFilters(process):
+  from FWCore.ParameterSet.Config import Task
+  import six
+
+  l = [ p for p in six.itervalues(process.producers)]
+  l.extend( (f for f in six.itervalues(process.filters)) )
+  return Task(*l)
+
+def convertToSingleModuleEndPaths(process):
+    """Remove the EndPaths in the Process with more than one module
+    and replace with new EndPaths each with only one module.
+    """
+    import FWCore.ParameterSet.Config as cms
+    import six
+    toRemove =[]
+    added = []
+    for n,ep in six.iteritems(process.endpaths_()):
+        tsks = []
+        ep.visit(cms.TaskVisitor(tsks))
+
+        names = ep.moduleNames()
+        if 1 == len(names):
+            continue
+        toRemove.append(n)
+        for m in names:
+            epName = m+"_endpath"
+            setattr(process,epName,cms.EndPath(getattr(process,m),*tsks))
+            added.append(epName)
+
+    s = process.schedule_()
+    if s:
+        pathNames = [p.label_() for p in s]
+        for rName in toRemove:
+            pathNames.remove(rName)
+        for n in added:
+            pathNames.append(n)
+        newS = cms.Schedule(*[getattr(process,n) for n in pathNames])
+        if s._tasks:
+          newS.associate(*s._tasks)
+        process.setSchedule_(newS)
+
+    for r in toRemove:
+        delattr(process,r)
+
 
 if __name__ == "__main__":
     import unittest
@@ -210,149 +221,172 @@ if __name__ == "__main__":
             process.f1 = cms.EDFilter("F1")
             process.f2 = cms.EDFilter("F2")
             process.f3 = cms.EDFilter("F3")
-            process.s = cms.Sequence(process.f3)
+            process.f4 = cms.EDFilter("F4")
+            process.f5 = cms.EDFilter("F5")
+            process.f6 = cms.EDFilter("F6")
+            process.t1 = cms.Task(process.f5)
+            process.t2 = cms.Task(process.f6)
+            process.s = cms.Sequence(process.f4, process.t1)
             
-            process.p =  cms.Path(process.f1+cms.ignore(process.f2)+process.s)
+            process.p =  cms.Path(process.f1+cms.ignore(process.f2)+process.f3+process.s, process.t2)
             ignoreAllFiltersOnPath(process.p)
-            self.assertEqual(process.p.dumpPython(None),'cms.Path(cms.ignore(process.f1)+cms.ignore(process.f2)+cms.ignore(process.f3))\n')
-            
-        def testConfig(self):
-            import FWCore.ParameterSet.Config as cms
-            process = cms.Process("Test")
+            self.assertEqual(process.p.dumpPython(None),'cms.Path(cms.ignore(process.f1)+cms.ignore(process.f2)+cms.ignore(process.f3)+cms.ignore(process.f4), process.t1, process.t2)\n')
 
-            process.a = cms.EDProducer("A")
-            process.b = cms.EDProducer("B")
-            process.c = cms.EDProducer("C")
-
-            process.p = cms.Path(process.b*process.c)
-
-            process.d = cms.EDAnalyzer("D")
-
-            process.o = cms.OutputModule("MyOutput")
-            process.out = cms.EndPath(process.o)
-            removeModulesNotOnAPathExcluding(process,(process.b,))
-
-            self.assert_(not hasattr(process,'a'))
-            self.assert_(hasattr(process,'b'))
-            self.assert_(hasattr(process,'c'))
-            self.assert_(not hasattr(process,'d'))
-            self.assert_(hasattr(process,'o'))
         def testNoSchedule(self):
             import FWCore.ParameterSet.Config as cms
             process = cms.Process("TEST")
+
             process.a = cms.EDProducer("AProd")
             process.b = cms.EDProducer("BProd")
             process.c = cms.EDProducer("CProd")
-            process.d = cms.EDProducer("DProd",
-                                       par1 = cms.InputTag("f1"))
-            process.e = cms.EDProducer("EProd",
-                                       par1 = cms.VInputTag(cms.InputTag("x"), cms.InputTag("f1", "y")))
-            process.f = cms.EDProducer("FProd",
-                                       par1 = cms.VInputTag("x","y","f1"))
-            process.g = cms.EDProducer("GProd",
-                                       par1 = cms.InputTag("f"))
-            process.h = cms.EDProducer("HProd",
-                par1 = cms.bool(True),
-                par2 = cms.PSet(
-                    par21 = cms.VPSet(
-                        cms.PSet(foo = cms.bool(True)),
-                        cms.PSet(
-                            foo4 = cms.PSet(
-                                bar = cms.bool(True),
-                                foo1 = cms.InputTag("f1"),
-                                foo2 = cms.VInputTag(cms.InputTag("x"), cms.InputTag("f11", "y")),
-                                foo3 = cms.VInputTag("q","r","s"))
-                        )
-                    )
-                )
-            )
-            process.k = cms.EDProducer("KProd",
-                par1 = cms.bool(True),
-                par2 = cms.PSet(
-                    par21 = cms.VPSet(
-                        cms.PSet(foo = cms.bool(True)),
-                        cms.PSet(
-                            foo4 = cms.PSet(
-                                bar = cms.bool(True),
-                                xSrc = cms.string("f")
-                           )
-                        )
-                    )
-                )
-            )
+            process.d = cms.EDProducer("DProd")
+            process.m = cms.EDProducer("MProd")
+            process.n = cms.EDProducer("NProd")
+            process.r = cms.EDProducer("RProd")
+            process.s = cms.EDProducer("SProd")
+
+            process.t1 = cms.Task(process.m)
+            t2 = cms.Task(process.n)
+
             process.f1 = cms.EDFilter("Filter")
             process.f2 = cms.EDFilter("Filter2")
             process.f3 = cms.EDFilter("Filter3")
             process.f4 = cms.EDFilter("FIlter4")
-            process.p1 = cms.Path(process.a+process.b+process.f1+process.d+process.e+process.f+process.g+process.h+process.k)
+
+            process.out1 = cms.OutputModule("Output1")
+            process.out2 = cms.OutputModule("Output2")
+
+            process.analyzer1 = cms.EDAnalyzer("analyzerType1")
+            process.analyzer2 = cms.EDAnalyzer("analyzerType2")
+
+            process.p1 = cms.Path(process.a+process.b+process.f1+process.analyzer1+cms.ignore(process.d)+cms.ignore(process.f2))
             process.p4 = cms.Path(process.a+process.f2+process.b+~process.f1+cms.ignore(process.f4))
             process.p2 = cms.Path(process.a+process.b)
-            process.p3 = cms.Path(process.f1)
+            process.p3 = cms.Path(process.f1, process.t1, t2)
+
+            process.t3 = cms.Task(process.r)
+            process.t4 = cms.Task(process.s)
+            process.s1 = cms.Sequence(~process.a, process.t3)
+            process.p5 = cms.Path(process.b + process.s1, process.t4)
+            process.end1 = cms.EndPath(process.out1+process.out2+process.analyzer1+process.analyzer2+process.a+process.b+cms.ignore(process.f1))
+            process.end2 = cms.EndPath()
             convertToUnscheduled(process)
-            self.assertEqual(process.options.allowUnscheduled, cms.untracked.bool(True))
             self.assert_(hasattr(process,'p2'))
             self.assert_(hasattr(process,'a'))
             self.assert_(hasattr(process,'b'))
-            self.assert_(not hasattr(process,'c'))
+            self.assert_(hasattr(process,'c'))
             self.assert_(hasattr(process,'d'))
-            self.assert_(hasattr(process,'e'))
-            self.assert_(hasattr(process,'f'))
-            self.assert_(hasattr(process,'g'))
             self.assert_(hasattr(process,'f1'))
             self.assert_(hasattr(process,'f2'))
-            self.assert_(not hasattr(process,'f3'))
+            self.assert_(hasattr(process,'f3'))
             self.assert_(hasattr(process,'f4'))
-            self.assertEqual(process.p1.dumpPython(None),'cms.Path(process.f1)\n')
-            self.assertEqual(process.p2.dumpPython(None),'cms.Path()\n')
-            self.assertEqual(process.p3.dumpPython(None),'cms.Path(process.f1)\n')
-            self.assertEqual(process.p4.dumpPython(None),'cms.Path(process.f2+~process.f1)\n')
+            self.assert_(hasattr(process,'out1'))
+            self.assert_(hasattr(process,'out2'))
+            self.assert_(hasattr(process,'analyzer1'))
+            self.assert_(hasattr(process,'analyzer2'))
+
+            self.assertEqual(process.p1.dumpPython(None),'cms.Path(process.f1+process.analyzer1, cms.Task(process.a, process.b, process.d, process.f2))\n')
+            self.assertEqual(process.p2.dumpPython(None),'cms.Path(cms.Task(process.a, process.b))\n')
+            self.assertEqual(process.p3.dumpPython(None),'cms.Path(process.f1, cms.Task(process.m, process.n))\n')
+            self.assertEqual(process.p4.dumpPython(None),'cms.Path(process.f2+~process.f1, cms.Task(process.a, process.b, process.f4))\n')
+            self.assertEqual(process.p5.dumpPython(None),'cms.Path(cms.Task(process.a, process.b), cms.Task(process.r, process.s))\n')
+            self.assertEqual(process.end1.dumpPython(None),'cms.EndPath(process.out1+process.out2+process.analyzer1+process.analyzer2, cms.Task(process.a, process.b, process.f1))\n')
+            self.assertEqual(process.end2.dumpPython(None),'cms.EndPath()\n')
+
         def testWithSchedule(self):
             import FWCore.ParameterSet.Config as cms
             process = cms.Process("TEST")
+
             process.a = cms.EDProducer("AProd")
             process.b = cms.EDProducer("BProd")
             process.c = cms.EDProducer("CProd")
-            process.d = cms.EDProducer("DProd",
-                                       par1 = cms.InputTag("f1"))
-            process.e = cms.EDProducer("EProd",
-                                       par1 = cms.VInputTag(cms.InputTag("x"), cms.InputTag("f1", "y")))
-            process.f = cms.EDProducer("FProd",
-                                       par1 = cms.VInputTag("x","y","f1"))
-            process.g = cms.EDProducer("GProd",
-                                       par1 = cms.InputTag("f"))
-            process.h = cms.EDProducer("HProd", 
-                                       par1 = cms.InputTag("a"))
+            process.d = cms.EDProducer("DProd")
+            process.m = cms.EDProducer("MProd")
+            process.n = cms.EDProducer("NProd")
+
+            process.t1 = cms.Task(process.m)
+            t2 = cms.Task(process.n)
+
             process.f1 = cms.EDFilter("Filter")
             process.f2 = cms.EDFilter("Filter2")
             process.f3 = cms.EDFilter("Filter3")
             process.f4 = cms.EDFilter("Filter4")
-            process.p1 = cms.Path(process.a+process.b+process.f1+process.d+process.e+process.f+process.g)
-            process.p4 = cms.Path(process.a+process.f2+process.b+process.f1)
+
+            process.out1 = cms.OutputModule("Output1")
+            process.out2 = cms.OutputModule("Output2")
+
+            process.analyzer1 = cms.EDAnalyzer("analyzerType1")
+            process.analyzer2 = cms.EDAnalyzer("analyzerType2")
+
+            process.p1 = cms.Path(process.a+process.b+cms.ignore(process.f1)+process.d+process.f2)
+            process.p4 = cms.Path(process.a+process.f2+process.b+~process.f1)
             process.p2 = cms.Path(process.a+process.b)
             process.p3 = cms.Path(process.f1)
-            process.p5 = cms.Path(process.a+process.h+process.f4) #not used on schedule
-            process.schedule = cms.Schedule(process.p1,process.p4,process.p2,process.p3)
+            process.p5 = cms.Path(process.a+process.f4) #not used on schedule
+            process.end1 = cms.EndPath(process.out1+process.out2+process.analyzer1+process.analyzer2+process.a+process.b+cms.ignore(process.f1))
+            process.end2 = cms.EndPath()
+
+            process.schedule = cms.Schedule(process.p1,process.p4,process.p2,process.p3,process.end1,process.end2,tasks=[process.t1,t2])
             convertToUnscheduled(process)
-            self.assertEqual(process.options.allowUnscheduled,cms.untracked.bool(True))
             self.assert_(hasattr(process,'p2'))
             self.assert_(hasattr(process,'a'))
             self.assert_(hasattr(process,'b'))
-            self.assert_(not hasattr(process,'c'))
+            self.assert_(hasattr(process,'c'))
             self.assert_(hasattr(process,'d'))
-            self.assert_(hasattr(process,'e'))
-            self.assert_(hasattr(process,'f'))
-            self.assert_(hasattr(process,'g'))
             self.assert_(hasattr(process,'f1'))
             self.assert_(hasattr(process,'f2'))
-            self.assert_(not hasattr(process,'f3'))
-            self.assert_(not hasattr(process,"f4"))
-            self.assert_(not hasattr(process,"h"))
-            self.assert_(not hasattr(process,"p5"))
-            self.assertEqual(process.p1.dumpPython(None),'cms.Path(process.f1)\n')
-            self.assertEqual(process.p2.dumpPython(None),'cms.Path()\n')
+            self.assert_(hasattr(process,'f3'))
+            self.assert_(hasattr(process,"f4"))
+            self.assert_(hasattr(process,"p5"))
+
+            self.assertEqual(process.p1.dumpPython(None),'cms.Path(process.f2, cms.Task(process.a, process.b, process.d, process.f1))\n')
+            self.assertEqual(process.p2.dumpPython(None),'cms.Path(cms.Task(process.a, process.b))\n')
             self.assertEqual(process.p3.dumpPython(None),'cms.Path(process.f1)\n')
-            self.assertEqual(process.p4.dumpPython(None),'cms.Path(process.f2+process.f1)\n')
-# there is no longer a schedule.
-#            self.assertEqual([p for p in process.schedule],[process.p1,process.p4,process.p2,process.p3])
+            self.assertEqual(process.p4.dumpPython(None),'cms.Path(process.f2+~process.f1, cms.Task(process.a, process.b))\n')
+            self.assertEqual(process.p5.dumpPython(None),'cms.Path(process.f4, cms.Task(process.a))\n')
+            self.assertEqual(process.end1.dumpPython(None),'cms.EndPath(process.out1+process.out2+process.analyzer1+process.analyzer2, cms.Task(process.a, process.b, process.f1))\n')
+            self.assertEqual(process.end2.dumpPython(None),'cms.EndPath()\n')
+
+            self.assertEqual([p for p in process.schedule],[process.p1,process.p4,process.p2,process.p3,process.end1,process.end2])
+            listOfTasks = list(process.schedule._tasks)
+            self.assertEqual(listOfTasks, [process.t1,t2])
+
+        def testCreateTaskWithAllProducersAndFilters(self):
+
+            import FWCore.ParameterSet.Config as cms
+            process = cms.Process("TEST")
+
+            process.a = cms.EDProducer("AProd")
+            process.b = cms.EDProducer("BProd")
+            process.c = cms.EDProducer("CProd")
+
+            process.f1 = cms.EDFilter("Filter")
+            process.f2 = cms.EDFilter("Filter2")
+            process.f3 = cms.EDFilter("Filter3")
+
+            process.out1 = cms.OutputModule("Output1")
+            process.out2 = cms.OutputModule("Output2")
+
+            process.analyzer1 = cms.EDAnalyzer("analyzerType1")
+            process.analyzer2 = cms.EDAnalyzer("analyzerType2")
+
+            process.task = createTaskWithAllProducersAndFilters(process)
+            process.path = cms.Path(process.a, process.task)
+
+            self.assertEqual(process.task.dumpPython(None),'cms.Task(process.a, process.b, process.c, process.f1, process.f2, process.f3)\n')
+            self.assertEqual(process.path.dumpPython(None),'cms.Path(process.a, process.task)\n')
+
+        def testConvertToSingleModuleEndPaths(self):
+            import FWCore.ParameterSet.Config as cms
+            process = cms.Process("TEST")
+            process.a = cms.EDAnalyzer("A")
+            process.b = cms.EDAnalyzer("B")
+            process.c = cms.EDProducer("C")
+            process.ep = cms.EndPath(process.a+process.b,cms.Task(process.c))
+            self.assertEqual(process.ep.dumpPython(None),'cms.EndPath(process.a+process.b, cms.Task(process.c))\n')
+            convertToSingleModuleEndPaths(process)
+            self.assertEqual(False,hasattr(process,"ep"))
+            self.assertEqual(process.a_endpath.dumpPython(None),'cms.EndPath(process.a, cms.Task(process.c))\n')
+            self.assertEqual(process.b_endpath.dumpPython(None),'cms.EndPath(process.b, cms.Task(process.c))\n')
 
     unittest.main()

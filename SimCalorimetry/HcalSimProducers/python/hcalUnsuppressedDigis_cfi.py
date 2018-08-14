@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from SimCalorimetry.HcalSimProducers.hcalSimParameters_cfi import *
+from DataFormats.HcalCalibObjects.HFRecalibrationParameters_cff import *
 
 # make a block so other modules, such as the data mixing module, can
 # also run simulation
@@ -22,6 +23,7 @@ hcalSimBlock = cms.PSet(
     DelivLuminosity = cms.double(0),
     TestNumbering = cms.bool(False),
     doNeutralDensityFilter = cms.bool(True),
+    HBDarkening = cms.bool(False),
     HEDarkening = cms.bool(False),
     HFDarkening = cms.bool(False),
     minFCToDelay=cms.double(5.), # old TC model! set to 5 for the new one
@@ -38,18 +40,27 @@ hcalSimBlock = cms.PSet(
     # multiple quadruplets can be specified
     # if instead only 1 value is given, 
     # it will be interpreted as an entire subdetector
-    injectTestHitsCells = cms.vint32()
+    injectTestHitsCells = cms.vint32(),
+    HFRecalParameterBlock = HFRecalParameterBlock,
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toModify( hcalSimBlock, hitsProducer=cms.string('famosSimHits') )
+fastSim.toModify( hcalSimBlock, hitsProducer=cms.string('fastSimProducer') )
 
+from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
+premix_stage1.toModify(hcalSimBlock,
+    doNoise = False,
+    doEmpty = False,
+    doIonFeedback = False,
+    doThermalNoise = False,
+    doTimeSlew = False,
+    HcalPreMixStage1 = True,
+)
+
+# test numbering not used in fastsim
 from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
-run2_HCAL_2017.toModify( hcalSimBlock, TestNumbering = cms.bool(True) )
+(run2_HCAL_2017 & ~fastSim).toModify( hcalSimBlock, TestNumbering = cms.bool(True) )
 
 # remove HE processing for phase 2, completely put in HGCal land
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify(hcalSimBlock, killHE = cms.bool(True) )
-
-from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-phase2_common.toModify(hcalSimBlock, doNeutralDensityFilter = cms.bool(False))

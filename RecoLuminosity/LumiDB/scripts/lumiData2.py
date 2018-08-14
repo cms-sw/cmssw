@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 VERSION='2.00'
 import os,sys
 import coral
@@ -60,11 +61,10 @@ def main():
     session.transaction().commit()
     if options.action == 'listrun':
 	    if not runlist:
-	        print '[]'
+	        print('[]')
 		sys.exit(0)
-	    singlelist=listRemoveDuplicate(runlist)
-	    singlelist.sort()
-	    print singlelist
+	    singlelist=sorted(listRemoveDuplicate(runlist))
+	    print(singlelist)
     del session
     del svc
 if __name__=='__main__':

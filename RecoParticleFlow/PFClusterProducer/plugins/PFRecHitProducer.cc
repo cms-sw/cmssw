@@ -20,9 +20,9 @@ namespace {
   edm::ConsumesCollector iC = consumesCollector();
 
   std::vector<edm::ParameterSet> creators = iConfig.getParameter<std::vector<edm::ParameterSet> >("producers");
-  for (unsigned int i=0;i<creators.size();++i) {
-      std::string name = creators.at(i).getParameter<std::string>("name");
-      creators_.emplace_back(PFRecHitFactory::get()->create(name,creators.at(i),iC));
+  for (auto & creator : creators) {
+      std::string name = creator.getParameter<std::string>("name");
+      creators_.emplace_back(PFRecHitFactory::get()->create(name,creator,iC));
   }
 
 
@@ -33,14 +33,22 @@ namespace {
 }
 
 
- PFRecHitProducer::~ PFRecHitProducer()
-{
- }
+ PFRecHitProducer::~ PFRecHitProducer() = default;
 
 
 //
 // member functions
 //
+
+void
+ PFRecHitProducer::beginLuminosityBlock(edm::LuminosityBlock const& iLumi, const edm::EventSetup& iSetup) {
+  for( const auto& creator : creators_ ) {
+    creator->init(iSetup);
+  }
+}
+
+void
+ PFRecHitProducer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, const edm::EventSetup&) { }
 
 // ------------ method called to produce the data  ------------
 void
@@ -54,9 +62,11 @@ void
 
    out->reserve(localRA1.upper());
    cleaned->reserve(localRA2.upper());
+
    for( const auto& creator : creators_ ) {
      creator->importRecHits(out,cleaned,iEvent,iSetup);
    }
+
    if (out->capacity()>2*out->size()) out->shrink_to_fit();
    if (cleaned->capacity()>2*cleaned->size()) cleaned->shrink_to_fit();
    localRA1.update(out->size());

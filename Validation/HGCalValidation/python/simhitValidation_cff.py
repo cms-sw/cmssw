@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Validation.HGCalValidation.simhitValidation_cfi import *
+from Validation.HGCalValidation.hgcalSimHitValidationEE_cfi import *
 
 hgcalSimHitValidationHEF = hgcalSimHitValidationEE.clone(
     DetectorName  = cms.string("HGCalHESiliconSensitive"),
@@ -9,3 +9,11 @@ hgcalSimHitValidationHEF = hgcalSimHitValidationEE.clone(
 hgcalSimHitValidationHEB = hgcalSimHitValidationEE.clone(
     DetectorName  = cms.string("HCal"),
     CaloHitSource = cms.string("HcalHits"))
+
+
+from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
+
+phase2_hgcalV9.toModify(hgcalSimHitValidationHEB,
+    DetectorName  = cms.string("HGCalHEScintillatorSensitive"),
+    CaloHitSource = cms.string("HGCHitsHEback"),
+)

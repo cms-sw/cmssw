@@ -246,8 +246,7 @@ void DTNoiseCalibration::analyze(const edm::Event& event, const edm::EventSetup&
 	     (theHistoEvtPerWireMap.find(dtLId) != theHistoEvtPerWireMap.end() &&
 	      skippedPlot[dtLId] != counter)){ 
 	    skippedPlot[dtLId] = counter;
-	    stringstream toAppend; toAppend << counter;
-	    Histo2Name = "DigiPerWirePerEvent_" + getLayerName(dtLId) + "_" + toAppend.str();
+	    Histo2Name = "DigiPerWirePerEvent_" + getLayerName(dtLId) + "_" + std::to_string(counter);
 	    theFile->cd();
 	    hEvtPerWireH = new TH2F(Histo2Name.c_str(), Histo2Name.c_str(), 1000,0.5,1000.5,nWires, firstWire, lastWire+1);
 	    if(hEvtPerWireH){
@@ -402,7 +401,7 @@ void DTNoiseCalibration::endJob(){
            double rateOffset = (useAbsoluteRate_) ? 0. : averageRate;
 	   if( (channelRate - rateOffset) > maximumNoiseRate_ ){
 	      DTWireId wireID((*lHisto).first, i_wire);
-	      statusMap->setCellNoise(wireID,1);
+	      statusMap->setCellNoise(wireID,true);
               LogVerbatim("Calibration") << ">>> Channel noisy: " << wireID;
 	   }
         }
@@ -418,29 +417,22 @@ DTNoiseCalibration::~DTNoiseCalibration(){
 }
 
 string DTNoiseCalibration::getChannelName(const DTWireId& wId) const{
-  stringstream channelName;
-  channelName << "Wh" << wId.wheel() << "_St" << wId.station() << "_Sec" << wId.sector()
-	      << "_SL" << wId.superlayer() << "_L" << wId.layer() << "_W"<< wId.wire();
-
-  return channelName.str();
+  string channelName = "Wh" + std::to_string(wId.wheel()) + "_St" + std::to_string(wId.station())
+                     + "_Sec" + std::to_string(wId.sector()) + "_SL" + std::to_string(wId.superlayer())
+                     + "_L" + std::to_string(wId.layer()) + "_W" + std::to_string(wId.wire());
+  return channelName;
 }
 
 string DTNoiseCalibration::getLayerName(const DTLayerId& lId) const{
 
   const  DTSuperLayerId dtSLId = lId.superlayerId();
   const  DTChamberId dtChId = dtSLId.chamberId(); 
-  stringstream Layer; Layer << lId.layer();
-  stringstream superLayer; superLayer << dtSLId.superlayer();
-  stringstream wheel; wheel << dtChId.wheel();	
-  stringstream station; station << dtChId.station();	
-  stringstream sector; sector << dtChId.sector();
-  
   string layerName = 
-    "W" + wheel.str()
-    + "_St" + station.str() 
-    + "_Sec" + sector.str() 
-    + "_SL" + superLayer.str()
-    + "_L" + Layer.str();
+    "W" + std::to_string(dtChId.wheel())
+    + "_St" + std::to_string(dtChId.station())
+    + "_Sec" + std::to_string(dtChId.sector())
+    + "_SL" + std::to_string(dtSLId.superlayer())
+    + "_L" + std::to_string(lId.layer());
   
   return layerName;
 }
@@ -448,30 +440,22 @@ string DTNoiseCalibration::getLayerName(const DTLayerId& lId) const{
 string DTNoiseCalibration::getSuperLayerName(const DTSuperLayerId& dtSLId) const{
 
   const  DTChamberId dtChId = dtSLId.chamberId(); 
-  stringstream superLayer; superLayer << dtSLId.superlayer();
-  stringstream wheel; wheel << dtChId.wheel();	
-  stringstream station; station << dtChId.station();	
-  stringstream sector; sector << dtChId.sector();
-  
+
   string superLayerName = 
-    "W" + wheel.str()
-    + "_St" + station.str() 
-    + "_Sec" + sector.str() 
-    + "_SL" + superLayer.str();
-  
+    "W" + std::to_string(dtChId.wheel())
+    + "_St" + std::to_string(dtChId.station())
+    + "_Sec" + std::to_string(dtChId.sector())
+    + "_SL" + std::to_string(dtSLId.superlayer());
+
   return superLayerName;
 }
 
 string DTNoiseCalibration::getChamberName(const DTChamberId& dtChId) const{
 
-  stringstream wheel; wheel << dtChId.wheel();
-  stringstream station; station << dtChId.station();
-  stringstream sector; sector << dtChId.sector();
-
   string chamberName =
-    "W" + wheel.str()
-    + "_St" + station.str()
-    + "_Sec" + sector.str();
+    "W" + std::to_string(dtChId.wheel())
+    + "_St" + std::to_string(dtChId.station())
+    + "_Sec" + std::to_string(dtChId.sector());
 
   return chamberName;
 }

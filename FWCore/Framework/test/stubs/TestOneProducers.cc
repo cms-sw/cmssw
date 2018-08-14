@@ -154,6 +154,7 @@ namespace one {
     explicit TestBeginRunProducer(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {
       produces<int>();
+      produces<unsigned int, edm::Transition::BeginRun>("a");
     }
     const unsigned int trans_; 
     unsigned int m_count = 0;
@@ -193,6 +194,7 @@ namespace one {
     explicit TestBeginLumiBlockProducer(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {	
       produces<int>();
+      produces<unsigned int, edm::Transition::BeginLuminosityBlock>("a");
     }
     const unsigned int trans_; 
     unsigned int m_count = 0;
@@ -232,6 +234,7 @@ namespace one {
     explicit TestEndRunProducer(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {
       produces<int>();
+      produces<unsigned int, edm::Transition::EndRun>("a");
     }
     const unsigned int trans_;
     bool erp = false; 
@@ -272,6 +275,7 @@ namespace one {
     explicit TestEndLumiBlockProducer(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {	
       produces<int>();
+      produces<unsigned int, edm::Transition::EndLuminosityBlock>("a");
     }
     const unsigned int trans_; 
     bool elbp = false;
@@ -307,6 +311,29 @@ namespace one {
     }
   };
 
+  class TestAccumulator : public edm::one::EDProducer<edm::Accumulator> {
+  public:
+
+    explicit TestAccumulator(edm::ParameterSet const& p) :
+      m_expectedCount(p.getParameter<unsigned int>("expectedCount")) {
+    }
+
+    void accumulate(edm::Event const&, edm::EventSetup const&) override {
+      ++m_count;
+    }
+
+    ~TestAccumulator() {
+      if (m_count.load() != m_expectedCount) {
+        throw cms::Exception("TestCount")
+          << "TestAccumulator counter was "
+          << m_count << " but it was supposed to be " << m_expectedCount;
+      }
+    }
+
+    mutable std::atomic<unsigned int> m_count{0};
+    const unsigned int m_expectedCount;
+  };
+
 }
 }
 
@@ -317,3 +344,4 @@ DEFINE_FWK_MODULE(edmtest::one::TestBeginRunProducer);
 DEFINE_FWK_MODULE(edmtest::one::TestBeginLumiBlockProducer);
 DEFINE_FWK_MODULE(edmtest::one::TestEndRunProducer);
 DEFINE_FWK_MODULE(edmtest::one::TestEndLumiBlockProducer);
+DEFINE_FWK_MODULE(edmtest::one::TestAccumulator);

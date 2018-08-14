@@ -10,9 +10,11 @@
 #include "DQM/SiStripCommissioningClients/interface/VpspScanHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/PedestalsHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/PedsOnlyHistograms.h"
+#include "DQM/SiStripCommissioningClients/interface/PedsFullNoiseHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/NoiseHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/SamplingHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/CalibrationHistograms.h"
+#include "DQM/SiStripCommissioningClients/interface/DaqScopeModeHistograms.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -25,7 +27,7 @@
 #include <sstream>
 #include <sys/types.h>
 #include <dirent.h>
-#include <errno.h>
+#include <cerrno>
 #include "TProfile.h"
 
 using namespace sistrip;
@@ -34,7 +36,7 @@ using namespace sistrip;
 // 
 SiStripCommissioningOfflineClient::SiStripCommissioningOfflineClient( const edm::ParameterSet& pset ) 
   : bei_( edm::Service<DQMStore>().operator->() ),
-    histos_(0),
+    histos_(nullptr),
     //inputFiles_( pset.getUntrackedParameter< std::vector<std::string> >( "InputRootFiles", std::vector<std::string>() ) ),
     outputFileName_( pset.getUntrackedParameter<std::string>( "OutputRootFile", "" ) ),
     collateHistos_( !pset.getUntrackedParameter<bool>( "UseClientFile", false ) ),
@@ -45,6 +47,7 @@ SiStripCommissioningOfflineClient::SiStripCommissioningOfflineClient( const edm:
     uploadToDb_( false ), 
     runType_(sistrip::UNKNOWN_RUN_TYPE),
     runNumber_(0),
+    partitionName_(pset.existsAs<std::string>("PartitionName") ? pset.getParameter<std::string>("PartitionName") : ""),
     map_(),
     plots_(),
     parameters_(pset)
@@ -54,6 +57,7 @@ SiStripCommissioningOfflineClient::SiStripCommissioningOfflineClient( const edm:
     << " Constructing object...";
   setInputFiles( inputFiles_,
 		 pset.getUntrackedParameter<std::string>( "FilePath" ),
+		 pset.existsAs<std::string>("PartitionName") ? pset.getParameter<std::string>("PartitionName") : "",
 		 pset.getUntrackedParameter<uint32_t>("RunNumber"), 
 		 collateHistos_ );
 }
@@ -194,7 +198,7 @@ void SiStripCommissioningOfflineClient::beginRun( const edm::Run& run, const edm
     << " directories containing MonitorElements";
   
   // Some more debug
-  if (0) {
+  if (false) {
     std::stringstream ss;
     ss << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
        << " Directories found: " << std::endl;
@@ -332,7 +336,12 @@ void SiStripCommissioningOfflineClient::beginRun( const edm::Run& run, const edm
   // Save client root file
   if ( histos_ ) {
     bool save = parameters_.getUntrackedParameter<bool>( "SaveClientFile", true );
-    if ( save ) { histos_->save( outputFileName_, runNumber_ ); }
+    if ( save ) { 
+      if(runType_ != sistrip::DAQ_SCOPE_MODE)
+	histos_->save( outputFileName_, runNumber_ ); 
+      else
+	histos_->save( outputFileName_, runNumber_, partitionName_); 
+    }
     else {
       edm::LogVerbatim(mlDqmClient_)
 	<< "[SiStripCommissioningOfflineClient::" << __func__ << "]"
@@ -401,6 +410,7 @@ void SiStripCommissioningOfflineClient::createHistos( const edm::ParameterSet& p
   else if ( runType_ == sistrip::OPTO_SCAN )            { histos_ = new OptoScanHistograms( pset, bei_ ); }
   else if ( runType_ == sistrip::VPSP_SCAN )            { histos_ = new VpspScanHistograms( pset, bei_ ); }
   else if ( runType_ == sistrip::PEDESTALS )            { histos_ = new PedestalsHistograms( pset, bei_ ); }
+  else if ( runType_ == sistrip::PEDS_FULL_NOISE )      { histos_ = new PedsFullNoiseHistograms( pset, bei_ ); }
   else if ( runType_ == sistrip::PEDS_ONLY )            { histos_ = new PedsOnlyHistograms( pset, bei_ ); }
   else if ( runType_ == sistrip::NOISE )                { histos_ = new NoiseHistograms( pset, bei_ ); }
   else if ( runType_ == sistrip::APV_LATENCY      ||
@@ -409,14 +419,15 @@ void SiStripCommissioningOfflineClient::createHistos( const edm::ParameterSet& p
 	    runType_ == sistrip::CALIBRATION_DECO ||
 	    runType_ == sistrip::CALIBRATION_SCAN ||
 	    runType_ == sistrip::CALIBRATION_SCAN_DECO) { histos_ = new CalibrationHistograms( pset, bei_,runType_ ); }
+  else if ( runType_ == sistrip::DAQ_SCOPE_MODE)        { histos_ = new DaqScopeModeHistograms( pset, bei_);}
   else if ( runType_ == sistrip::UNDEFINED_RUN_TYPE   ) { 
-    histos_ = 0; 
+    histos_ = nullptr; 
     edm::LogError(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Undefined run type!";
     return;
   } else if ( runType_ == sistrip::UNKNOWN_RUN_TYPE )   { 
-    histos_ = 0;
+    histos_ = nullptr;
     edm::LogError(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Unknown run type!";
@@ -429,6 +440,7 @@ void SiStripCommissioningOfflineClient::createHistos( const edm::ParameterSet& p
 // 
 void SiStripCommissioningOfflineClient::setInputFiles( std::vector<std::string>& files,
 						       const std::string path,
+						       const std::string partitionName,
 						       uint32_t run_number, 
 						       bool collate_histos ) {
 
@@ -446,7 +458,7 @@ void SiStripCommissioningOfflineClient::setInputFiles( std::vector<std::string>&
   // Open directory
   DIR* dp;
   struct dirent* dirp;
-  if ( (dp = opendir(path.c_str())) == NULL ) {
+  if ( (dp = opendir(path.c_str())) == nullptr ) {
     edm::LogError(mlDqmClient_) 
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Error locating directory \"" << path
@@ -455,13 +467,18 @@ void SiStripCommissioningOfflineClient::setInputFiles( std::vector<std::string>&
   }
 
   // Find compatible files
-  while ( (dirp = readdir(dp)) != NULL ) {
+  while ( (dirp = readdir(dp)) != nullptr ) {
     std::string fileName(dirp->d_name);
     bool goodName = ( fileName.find(nameStr) != std::string::npos );
     bool goodRun  = ( fileName.find(runStr) != std::string::npos );
     bool rootFile = ( fileName.find(".root") != std::string::npos );
+    bool goodPartition = true;
+    if(not partitionName.empty()){
+      goodPartition = ( fileName.find(partitionName) != std::string::npos );
+    }
+
     //bool rootFile = ( fileName.rfind(".root",5) == fileName.size()-5 );
-    if ( goodName && goodRun && rootFile ) {
+    if ( goodName && goodRun && rootFile && goodPartition ){
       std::string entry = path;
       entry += "/";
       entry += fileName;

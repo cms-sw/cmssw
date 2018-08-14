@@ -25,7 +25,6 @@ mixData = cms.EDProducer("DataMixingModule",
     # Merge Pileup Info?
     MergePileupInfo = cms.bool(True),                         
     # Use digis?
-    TrackerMergeType = cms.string("Digis"),
     EcalMergeType = cms.string('Digis'),  # set to "Digis" to merge digis
     HcalMergeType = cms.string('Digis'),
     HcalDigiMerge = cms.string('NotProd'), #use sim hits for signal                         
@@ -36,6 +35,7 @@ mixData = cms.EDProducer("DataMixingModule",
     PileupInfoInputTag = cms.InputTag("addPileupInfo"),
     BunchSpacingInputTag = cms.InputTag("addPileupInfo","bunchSpacing"),
     CFPlaybackInputTag = cms.InputTag("mix"),
+    GenPUProtonsInputTags = cms.VInputTag("genPUProtons"),
     #
     SistripLabelSig = cms.InputTag("simSiStripDigis","ZeroSuppressed"),
                    #

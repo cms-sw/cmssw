@@ -17,7 +17,7 @@ class PFRecoTauDiscriminationByCharge : public PFTauDiscriminationProducerBase  
          chargeReq_        = iConfig.getParameter<uint32_t>("AbsChargeReq");
          oneOrThreeProng_  = iConfig.getParameter<bool>("ApplyOneOrThreeProngCut");
       }
-      ~PFRecoTauDiscriminationByCharge(){} 
+      ~PFRecoTauDiscriminationByCharge() override{} 
       double discriminate(const PFTauRef& pfTau) const override;
    private:
       uint32_t chargeReq_;

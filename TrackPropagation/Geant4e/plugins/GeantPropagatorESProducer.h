@@ -17,12 +17,11 @@
 class GeantPropagatorESProducer: public edm::ESProducer{
  public:
   GeantPropagatorESProducer(const edm::ParameterSet & p);
-  virtual ~GeantPropagatorESProducer() override; 
+  ~GeantPropagatorESProducer() override; 
 
-  std::shared_ptr<Propagator> produce(const TrackingComponentsRecord &);
+  std::unique_ptr<Propagator> produce(const TrackingComponentsRecord &);
 
  private:
-  std::shared_ptr<Propagator> _propagator;
   edm::ParameterSet pset_;
 };
 

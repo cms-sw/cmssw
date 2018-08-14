@@ -53,10 +53,10 @@ using namespace std ;
 class L1ExtraTestAnalyzer : public edm::EDAnalyzer {
    public:
       explicit L1ExtraTestAnalyzer(const edm::ParameterSet&);
-      ~L1ExtraTestAnalyzer();
+      ~L1ExtraTestAnalyzer() override;
 
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
    private:
       // ----------member data ---------------------------
 

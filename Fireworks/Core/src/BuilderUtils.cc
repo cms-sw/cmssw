@@ -13,8 +13,8 @@
 #include "TEveTrans.h"
 #include "TEveGeoNode.h"
 
-#include <math.h>
-#include <time.h>
+#include <cmath>
+#include <ctime>
 
 namespace fireworks
 {

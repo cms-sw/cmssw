@@ -1,19 +1,29 @@
 #ifndef L1Trigger_CSCTriggerPrimitives_CSCMuonPortCard_h
 #define L1Trigger_CSCTriggerPrimitives_CSCMuonPortCard_h
 
-/**
- * \class CSCMuonPortCard
- *
- * Simulates the functionality of the Muon Port Card (MPC).  Each MPC
- * is responsible for 9 Trigger Mother Boards (TMBs).  It takes the up to
- * 18 LCTs (2/TMB) in each (sub)sector every bunch crossing, sorts them,
- * selects up to three best, and puts them into an output collection.
- *
- * A port/reworking of the muon port card from ORCA.
- *
- * \author L. Gray (UF)
- *
- **/
+//-----------------------------------------------------------------------------
+//
+//   Class: CSCMuonPortCard
+//
+//   Description:
+//    Simulates the functionality of the Muon Port Card (MPC).  Each MPC
+//    is responsible for 9 Trigger Mother Boards (TMBs).  It takes the up to
+//    18 LCTs (2/TMB) in each (sub)sector every bunch crossing, sorts them,
+//    selects up to three best, and puts them into an output collection.
+//
+//   Author List: Benn Tannenbaum 30 August 1999.
+//                Based on code by Nick Wisniewski.
+//
+//
+//   Modifications: Numerous later improvements by Jason Mumford and
+//                  Slava Valuev (see cvs in ORCA).
+//   Porting/reworking from ORCA by L. Gray (UF), June 2006.
+//
+//   Update for Run-II data taking by Sven Dildick (TAMU), May 2016.
+//   CSC MPC sends all 18 stubs from 9 TMBs. Stubs are no longer sorted by quality
+//   Invalid or low-quality stubs are not removed either.
+//
+//-----------------------------------------------------------------------------
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
@@ -41,11 +51,15 @@ class CSCMuonPortCard
 				     const unsigned sector, const unsigned subsector,
 				     const int bx);
 
+  // clear the stub vector
   void clear() { stubs_.clear(); }
 
  private:
+
+  // vector with stubs
   CSCTriggerContainer<csctf::TrackStub> stubs_;
-  unsigned int max_stubs_;
+
+  // CSC expert options
   bool sort_stubs_;
   bool drop_invalid_stubs_;
   bool drop_low_quality_stubs_;

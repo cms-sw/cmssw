@@ -12,7 +12,7 @@ using namespace oracle::occi;
 
 RunList::RunList()
 {
-  m_conn = NULL;
+  m_conn = nullptr;
 }
 
 RunList::~RunList()
@@ -131,17 +131,16 @@ void RunList::fetchRuns(int min_run, int max_run, bool withTriggers,
       "db_timestamp FROM run_iov i ";
     if ((withTriggers) || (withGlobalTriggers)) {
       sql += "join cms_ecal_cond.run_dat d on d.iov_id = i.iov_id " 
-	"left join CMS_RUNINFO.RUNSESSION_PARAMETER G on " 
-	"(i.run_num = G.RUNNUMBER and G.NAME = 'CMS.TRG:NumTriggers') "; 
+	"left join CMS_WBM.RUNSUMMARY R on R.RUNNUMBER = i.RUN_NUM ";
     }
     sql +=  "WHERE tag_id = :tag_id ";
     if (min_run > 0) {
       sql += "and i.run_num> :min_run and i.run_num< :max_run ";
     }
     if (withGlobalTriggers) {
-      sql += "and G.STRING_VALUE != '0' "; 
+      sql += "and R.TRIGGERS > 0 ";
     } else if (withTriggers) {
-      sql += "and (G.STRING_VALUE != '0' or num_events > 0) ";
+      sql += "and ((R.TRIGGERS > 0) or (num_events > 0)) ";
     }
     sql += " order by run_num ";
     stmt->setSQL(sql);
@@ -184,7 +183,7 @@ void RunList::fetchRuns(int min_run, int max_run, bool withTriggers,
     m_vec_runiov.resize(i);
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunList::fetchRuns:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunList::fetchRuns:  ")+getOraMessage(&e)));
   }
 }
 
@@ -254,7 +253,7 @@ void RunList::fetchLastNRuns( int max_run, int n_runs  )
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunList::fetchLastNRuns:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunList::fetchLastNRuns:  ")+getOraMessage(&e)));
   }
 
 
@@ -324,9 +323,9 @@ void RunList::fetchRunsByLocation (int min_run, int max_run, const LocationDef& 
        
        RunTag atag;
        atag.setLocationDef(locDef);
-       atag.setGeneralTag(rset->getString(7));
+       atag.setGeneralTag(getOraString(rset,7));
        RunTypeDef rundef;
-       rundef.setRunType(rset->getString(8));
+       rundef.setRunType(getOraString(rset,8));
        atag.setRunTypeDef(rundef);
 
        RunIOV r ;
@@ -345,7 +344,7 @@ void RunList::fetchRunsByLocation (int min_run, int max_run, const LocationDef& 
     m_conn->terminateStatement(stmt);
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunList::fetchRunsByLocation:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunList::fetchRunsByLocation:  ")+getOraMessage(&e)));
   }
 
 
@@ -415,9 +414,9 @@ void RunList::fetchGlobalRunsByLocation (int min_run, int max_run, const Locatio
        
        RunTag atag;
        atag.setLocationDef(locDef);
-       atag.setGeneralTag(rset->getString(7));
+       atag.setGeneralTag(getOraString(rset,7));
        RunTypeDef rundef;
-       rundef.setRunType(rset->getString(8));
+       rundef.setRunType(getOraString(rset,8));
        atag.setRunTypeDef(rundef);
 
        RunIOV r ;
@@ -436,7 +435,7 @@ void RunList::fetchGlobalRunsByLocation (int min_run, int max_run, const Locatio
     m_conn->terminateStatement(stmt);
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunList::fetchRunsByLocation:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunList::fetchRunsByLocation:  ")+getOraMessage(&e)));
   }
 
 

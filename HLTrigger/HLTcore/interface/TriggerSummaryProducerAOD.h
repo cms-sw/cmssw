@@ -85,10 +85,10 @@ class TriggerSummaryProducerAOD : public edm::stream::EDProducer<edm::GlobalCach
   
  public:
   explicit TriggerSummaryProducerAOD(const edm::ParameterSet&, const GlobalInputTags *);
-  ~TriggerSummaryProducerAOD();
+  ~TriggerSummaryProducerAOD() override;
   static  void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endStream() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endStream() override;
   static  void globalEndJob(const GlobalInputTags *);
 
   // additional
@@ -119,6 +119,8 @@ class TriggerSummaryProducerAOD : public edm::stream::EDProducer<edm::GlobalCach
   void fillFilterObjectMember(const int&, const int&, const edm::Ref<reco::METCollection>&);
 
  private:
+  /// throw on error
+  bool throw_;
   /// process name
   std::string pn_;
   /// module labels which should be avoided

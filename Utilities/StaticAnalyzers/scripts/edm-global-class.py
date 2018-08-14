@@ -1,8 +1,9 @@
 #! /usr/bin/env python
+from __future__ import print_function
 import re
 datacl = re.compile("^class ")
 bfunc = re.compile("^function ")
-mbcl = re.compile("(base|data) class")
+mbcl = re.compile("(base|data|flagged) class")
 farg = re.compile("(.*)\(\w+\)")
 nsep = re.compile("\:\:")
 topfunc = re.compile("::(produce|analyze|filter|beginLuminosityBlock|beginRun|beginStream)\(")
@@ -42,6 +43,14 @@ for line in f:
 		badfuncs.add(funcname)
 f.close()
 
+f = open('const-checker.txt')
+for line in f:
+	if mbcl.search(line):
+		fields = line.split("'")
+		classname = fields[1]
+		badclasses.add(classname)
+f.close()
+
 
 f = open('classes.txt.dumperall')
 for line in f :
@@ -56,7 +65,7 @@ for line in f :
 			I.add_edge(fields[3],fields[1],kind=' derived class')
 			if globalclass.match(fields[3]): 
 				globalclasses.add(fields[1])
-				print "class '"+fields[1]+"' base class '"+fields[3]+"'"
+				print("class '"+fields[1]+"' base class '"+fields[3]+"'")
 f.close()
 
 import fileinput 
@@ -91,23 +100,23 @@ for n,nbrdict in G.adjacency_iter():
 	for nbr,eattr in nbrdict.items():
 		if n in badfuncs or nbr in badfuncs :
 			if 'kind' in eattr and eattr['kind'] == ' overrides function '  :
-				print "'"+n+"'"+eattr['kind']+"'"+nbr+"'"
+				print("'"+n+"'"+eattr['kind']+"'"+nbr+"'")
 				virtfuncs.add(nbr)
-print
+print()
 
-print "-----------------------------------------------"
-print "flagged functions found by checker"
-print "-----------------------------------------------"
+print("-----------------------------------------------")
+print("flagged functions found by checker")
+print("-----------------------------------------------")
 for dfunc in sorted(badfuncs) : 
-	print dfunc
-print
+	print(dfunc)
+print()
 
-print "-----------------------------------------------"
-print "flagged classes found by checker "
-print "-----------------------------------------------"
+print("-----------------------------------------------")
+print("flagged classes found by checker ")
+print("-----------------------------------------------")
 for dclass in sorted(badclasses) :
-	print dclass
-print
+	print(dclass)
+print()
 
 nodes = sorted(badclasses)
 for node in nodes:
@@ -139,10 +148,10 @@ for node in nodes:
 								stack.append(  ( q, iter( H[q] ) ) )
 		except StopIteration:
 			stack.pop()
-	print "flagged class "+node+" contains or inherits from classes ",
-	for v in visited : print v+",",
-	print "\n\n"
+	print("flagged class "+node+" contains or inherits from classes ", end=' ')
+	for v in visited : print(v+",", end=' ')
+	print("\n\n")
 	for v in sorted(visited) :
 		if v in globalclasses:
-			print "EDM global class '"+v+"' is flagged because it is connected to flagged class '"+node+"'"
+			print("EDM global class '"+v+"' is flagged because it is connected to flagged class '"+node+"'")
 	

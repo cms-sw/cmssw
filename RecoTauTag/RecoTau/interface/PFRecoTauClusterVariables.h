@@ -8,6 +8,11 @@
  *                                                                                                                                                                                   
  */
 
+
+#include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/PatCandidates/interface/Tau.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+
 class TauIdMVAAuxiliaries {
   public:
     /// default constructor

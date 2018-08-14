@@ -29,12 +29,12 @@ namespace edm {
     }
 
     std::shared_ptr<EventSetupProvider>
-    EventSetupsController::makeProvider(ParameterSet& iPSet) {
+    EventSetupsController::makeProvider(ParameterSet& iPSet, ActivityRegistry* activityRegistry) {
 
       // Makes an EventSetupProvider
       // Also parses the prefer information from ParameterSets and puts
       // it in a map that is stored in the EventSetupProvider
-      std::shared_ptr<EventSetupProvider> returnValue(makeEventSetupProvider(iPSet, providers_.size()) );
+      std::shared_ptr<EventSetupProvider> returnValue(makeEventSetupProvider(iPSet, providers_.size(), activityRegistry) );
 
       // Construct the ESProducers and ESSources
       // shared_ptrs to them are temporarily stored in this
@@ -76,6 +76,16 @@ namespace edm {
       });
     }
 
+    bool
+    EventSetupsController::isWithinValidityInterval(IOVSyncValue const& syncValue) const {
+      for(auto const& provider: providers_) {
+        if( not provider->isWithinValidityInterval(syncValue)) {
+          return false;
+        }
+      }
+      return true;
+    }
+    
     std::shared_ptr<DataProxyProvider>
     EventSetupsController::getESProducerAndRegisterProcess(ParameterSet const& pset, unsigned subProcessIndex) {
       // Try to find a DataProxyProvider with a matching ParameterSet
@@ -303,7 +313,7 @@ namespace edm {
         << "EventSetupsController::getESProducerPSet\n"
         << "Subprocess index not found. This should never happen\n"
         << "Please report this to a Framework Developer\n";
-      return 0;
+      return nullptr;
     }
 
     void

@@ -20,6 +20,7 @@
 namespace {
 class FillerBase {
  public:
+  virtual ~FillerBase()  = default;
   virtual void fill() = 0;
   virtual void reset() = 0;
 };
@@ -49,18 +50,18 @@ class TH1FFiller : public FillerBase {
     }
     m_hist = m_element->getTH1F();
 
-    if (valuesToFill_.size() >0)
+    if (!valuesToFill_.empty())
       assert (valuesToFill_.size() == m_steps);
   }
 
-  virtual ~TH1FFiller() {;}
+  ~TH1FFiller() override = default;
 
-  void reset() {
+  void reset() override {
     m_element->Reset();
   }
 
-  void fill() {
-    if (valuesToFill_.size() > 0) {
+  void fill() override {
+    if (!valuesToFill_.empty()) {
       for (size_t i = 0; i < valuesToFill_.size(); ++i)
         for (size_t j = 0; j < valuesToFill_[i]; ++j)
           m_hist->Fill(i);
@@ -106,18 +107,18 @@ class TH2FFiller : public FillerBase {
     }
     m_hist = m_element->getTH2F();
 
-    if (valuesToFill_.size() >0)
+    if (!valuesToFill_.empty())
       assert (valuesToFill_.size() == m_steps);
   }
 
-  virtual ~TH2FFiller() {;}
+  ~TH2FFiller() override = default;
 
-  void reset() {
+  void reset() override {
     m_element->Reset();
   }
 
-  void fill() {
-    if (valuesToFill_.size() > 0) {
+  void fill() override {
+    if (!valuesToFill_.empty()) {
       for (size_t i = 0; i < valuesToFill_.size(); ++i)
         for (size_t j = 0; j < valuesToFill_[i]; ++j)
           m_hist->Fill(i, i);
@@ -138,23 +139,23 @@ class TH2FFiller : public FillerBase {
 
 class DummyBookFillDQMStore :  public edm::EDAnalyzer {
  public:
-  typedef std::vector<edm::ParameterSet> PSets;
+  using PSets = std::vector<edm::ParameterSet>;
   explicit DummyBookFillDQMStore(const edm::ParameterSet&);
-  ~DummyBookFillDQMStore();
+  ~DummyBookFillDQMStore() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&,
-                                    edm::EventSetup const&);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&,
-                                  edm::EventSetup const&);
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const&,
+                                    edm::EventSetup const&) override;
+  void endLuminosityBlock(edm::LuminosityBlock const&,
+                                  edm::EventSetup const&) override;
 
   void bookHistograms();
   void fillerDispose();
@@ -196,7 +197,7 @@ DummyBookFillDQMStore::DummyBookFillDQMStore(const edm::ParameterSet& iConfig)
     bookHistograms();
 }
 
-void DummyBookFillDQMStore::fillerDispose(void) {
+void DummyBookFillDQMStore::fillerDispose() {
   std::cout << "fillerDispose" << std::endl;
   m_runFillers.erase(m_runFillers.begin(), m_runFillers.end());
   m_lumiFillers.erase(m_lumiFillers.begin(), m_lumiFillers.end());
@@ -214,8 +215,8 @@ void DummyBookFillDQMStore::bookHistograms() {
 
   if (m_fillRuns) {
     m_runFillers.reserve(elements_.size());
-    PSets::const_iterator it = elements_.begin();
-    PSets::const_iterator ite = elements_.end();
+    auto it = elements_.begin();
+    auto ite = elements_.end();
     for (; it != ite; ++it) {
       switch (it->getUntrackedParameter<unsigned int>("type", 1)) {
         case 1:
@@ -232,7 +233,7 @@ void DummyBookFillDQMStore::bookHistograms() {
 
   if (m_fillLumis) {
     m_lumiFillers.reserve(elements_.size());
-    for (PSets::const_iterator it = elements_.begin(), itEnd = elements_.end();
+    for (auto it = elements_.begin(), itEnd = elements_.end();
          it != itEnd; ++it) {
       switch (it->getUntrackedParameter<unsigned int>("type", 1)) {
         case 1:
@@ -263,8 +264,8 @@ void
 DummyBookFillDQMStore::analyze(edm::Event const& iEvent,
                                edm::EventSetup const& iSetup) {
 
-  std::vector<boost::shared_ptr<FillerBase> >::iterator it = m_runFillers.begin();
-  std::vector<boost::shared_ptr<FillerBase> >::iterator ite = m_runFillers.end();
+  auto it = m_runFillers.begin();
+  auto ite = m_runFillers.end();
   for (; it != ite; ++it)
     (*it)->fill();
   std::cout << "filling histos" << std::endl;
@@ -313,8 +314,8 @@ void DummyBookFillDQMStore::endRun(edm::Run const&, edm::EventSetup const&) {
 void
 DummyBookFillDQMStore::beginLuminosityBlock(edm::LuminosityBlock const&,
                                             edm::EventSetup const&) {
-  std::vector<boost::shared_ptr<FillerBase> >::iterator it = m_lumiFillers.begin();
-  std::vector<boost::shared_ptr<FillerBase> >::iterator ite = m_lumiFillers.end();
+  auto it = m_lumiFillers.begin();
+  auto ite = m_lumiFillers.end();
   for (; it != ite; ++it)
     (*it)->reset();
 }
@@ -323,8 +324,8 @@ DummyBookFillDQMStore::beginLuminosityBlock(edm::LuminosityBlock const&,
 void
 DummyBookFillDQMStore::endLuminosityBlock(edm::LuminosityBlock const&,
                                           edm::EventSetup const&) {
-  std::vector<boost::shared_ptr<FillerBase> >::iterator it = m_lumiFillers.begin();
-  std::vector<boost::shared_ptr<FillerBase> >::iterator ite = m_lumiFillers.end();
+  auto it = m_lumiFillers.begin();
+  auto ite = m_lumiFillers.end();
   for (; it != ite; ++it)
     (*it)->fill();
 }

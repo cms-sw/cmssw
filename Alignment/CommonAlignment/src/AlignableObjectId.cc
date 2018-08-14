@@ -14,7 +14,7 @@ struct AlignableObjectId::entry {
 
 namespace {
 
-  static constexpr AlignableObjectId::entry entries_RunI[] {
+  constexpr AlignableObjectId::entry entries_RunI[] {
     {align::invalid         , "invalid"},
     {align::AlignableDetUnit, "DetUnit"},
     {align::AlignableDet    , "Det"},
@@ -77,10 +77,10 @@ namespace {
     {align:: AlignableMuon        ,  "Muon"},
 
     {align::BeamSpot, "BeamSpot"},
-    {align::notfound, 0}
+    {align::notfound, nullptr}
   };
 
-  static constexpr AlignableObjectId::entry entries_PhaseI[] {
+  constexpr AlignableObjectId::entry entries_PhaseI[] {
     {align::invalid         , "invalid"},
     {align::AlignableDetUnit, "DetUnit"},
     {align::AlignableDet    , "Det"},
@@ -143,19 +143,19 @@ namespace {
     {align::AlignableMuon        ,  "Muon"},
 
     {align::BeamSpot, "BeamSpot"},
-    {align::notfound, 0}
+    {align::notfound, nullptr}
   };
 
-  static constexpr AlignableObjectId::entry entries_PhaseII[] {
+  constexpr AlignableObjectId::entry entries_PhaseII[] {
     {align::invalid         , "invalid"},
     {align::AlignableDetUnit, "DetUnit"},
     {align::AlignableDet    , "Det"},
 
-    {align::TPBModule      , "P1PXBModule"},
-    {align::TPBLadder      , "P1PXBLadder"},
-    {align::TPBLayer       , "P1PXBLayer"},
-    {align::TPBHalfBarrel  , "P1PXBHalfBarrel"},
-    {align::TPBBarrel      , "P1PXBBarrel"},
+    {align::TPBModule      , "P2PXBModule"},
+    {align::TPBLadder      , "P2PXBLadder"},
+    {align::TPBLayer       , "P2PXBLayer"},
+    {align::TPBHalfBarrel  , "P2PXBHalfBarrel"},
+    {align::TPBBarrel      , "P2PXBBarrel"},
 
     {align::TPEModule      , "P2PXECModule"},
     {align::TPEPanel       , "P2PXECPanel"},
@@ -211,7 +211,7 @@ namespace {
     {align::AlignableMuon        ,  "Muon"},
 
     {align::BeamSpot, "BeamSpot"},
-    {align::notfound, 0}
+    {align::notfound, nullptr}
   };
 
 
@@ -221,7 +221,7 @@ namespace {
 
   constexpr char const *objectIdToString(align::StructureType type,
                                          AlignableObjectId::entry const *entries) {
-    return !entries->name ?  0 :
+    return !entries->name ?  nullptr :
             entries->type == type ? entries->name :
                                     objectIdToString(type, entries+1);
   }
@@ -283,7 +283,7 @@ const char *AlignableObjectId::idToString(align::StructureType type) const
 {
   const char *result = objectIdToString(type, entries_);
 
-  if (result == 0)
+  if (result == nullptr)
   {
     throw cms::Exception("AlignableObjectIdError")
       << "Unknown alignableObjectId " << type;
@@ -308,6 +308,8 @@ align::StructureType AlignableObjectId::stringToId(const char *name) const
 //______________________________________________________________________________
 AlignableObjectId::Geometry AlignableObjectId
 ::trackerGeometry(const TrackerGeometry* geometry) {
+  if (!geometry) return Geometry::General;
+
   if (geometry->isThere(GeomDetEnumerators::P2PXEC)) {
     // use structure-type <-> name translation for PhaseII geometry
     return Geometry::PhaseII;

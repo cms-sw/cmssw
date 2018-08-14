@@ -39,6 +39,8 @@ namespace l1t {
 
       static int setOutputMuonQuality(int muQual, tftype type, int haloBit);
 
+      static int calcMuonHwEtaExtra(const l1t::Muon& mu);
+      static int calcMuonHwPhiExtra(const l1t::Muon& mu);
       static double calcMuonEtaExtra(const l1t::Muon& mu);
       static double calcMuonPhiExtra(const l1t::Muon& mu);
   };

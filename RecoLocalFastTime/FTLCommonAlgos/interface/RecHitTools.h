@@ -21,8 +21,8 @@ namespace ftl {
     void getEvent(const edm::Event&);
     void getEventSetup(const edm::EventSetup&);
     
-    const GlobalPoint& getPosition(const DetId& id) const;
-    const FlatTrd::CornersVec& getCorners(const DetId& id) const;
+    GlobalPoint getPosition(const DetId& id) const;
+    FlatTrd::CornersVec getCorners(const DetId& id) const;
 
     HitType getHitType(const DetId& id) const;
 

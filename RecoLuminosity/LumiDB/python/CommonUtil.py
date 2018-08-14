@@ -1,11 +1,12 @@
 '''This module collects some frequently used helper functions
 '''
+from __future__ import print_function
 import time,ast,re,json,coral,array
 def flatten(obj):
     '''Given nested lists or tuples, returns a single flattened list'''
     result = []
     for piece in obj:
-        if hasattr (piece, '__iter__') and not isinstance (piece, basestring):
+        if hasattr (piece, '__iter__') and not isinstance (piece, str):
             result.extend( flatten (piece) )
         else:
             result.append (piece)
@@ -207,7 +208,7 @@ def tolegalJSON(inputstring):
    try:
        mydict=ast.literal_eval(strresult)
    except SyntaxError:
-       print 'error in converting string to dict'
+       print('error in converting string to dict')
        raise
    result={}
    for k,v in mydict.items():
@@ -279,30 +280,30 @@ def parselumicorrector(correctorStr):
 
 if __name__=='__main__':
     nested=[[[1,2],[6,6,8]],[[3,4,5],[4,5]]]
-    print 'flattened ',flatten(nested)
+    print('flattened ',flatten(nested))
     a=[1,2,3,4,5]
     for i,j in pairwise(a):
         if j :
-            print i,j
+            print(i,j)
     lst = ['I1','I2','I1','I3','I4','I4','I7','I7','I7','I7','I7']
-    print count_dups(lst)
+    print(count_dups(lst))
     seqbag=[[1,2,3],[1,3,3],[1,4,6],[4,5,6,7],[8,9]]
-    print 'before ',seqbag
-    print 'after ',transposed(seqbag,None)
-    print [i for i in inclusiveRange(1,3,1)]
+    print('before ',seqbag)
+    print('after ',transposed(seqbag,None))
+    print([i for i in inclusiveRange(1,3,1)])
     
     result=tolegalJSON('{1:[],2:[[1,3],[4,5]]}')
-    print result
+    print(result)
     pp=json.loads(result)
-    print pp["2"]
+    print(pp["2"])
     result=tolegalJSON("{'1':[],'2':[[1,3],[4,5]]}")
-    print result
+    print(result)
     pp=json.loads(result)
-    print pp["2"]
+    print(pp["2"])
     result=tolegalJSON('{"1":[],"2":[[1,3],[4,5]]}')
-    print result
+    print(result)
     pp=json.loads(result)
-    print pp["2"]
+    print(pp["2"])
     
     a=array.array('f')
     a.append(1.3)
@@ -310,10 +311,10 @@ if __name__=='__main__':
     a.append(2.3)
     a.append(6.3)
     myblob=packArraytoBlob(a)
-    print myblob.size()
-    print unpackBlobtoArray(myblob,'f')
+    print(myblob.size())
+    print(unpackBlobtoArray(myblob,'f'))
     b=array.array('f')
     myblob=packArraytoBlob(b)
-    print myblob.size()
+    print(myblob.size())
     a=['aa_f', 'bb', 'dfc']
-    print packListstrtoCLOB(a)
+    print(packListstrtoCLOB(a))

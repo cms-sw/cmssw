@@ -1,12 +1,11 @@
 #include "DetectorDescription/Parser/src/DDLLogicalPart.h"
-
-#include <utility>
-
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
+
+#include <utility>
 
 class DDCompactView;
 
@@ -46,8 +45,8 @@ void
 DDLLogicalPart::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
   // rMaterial and rSolid  
-  DDXMLElement* myrMaterial = myRegistry_->getElement("rMaterial"); // get Material reference child
-  DDXMLElement* myrSolid = myRegistry_->getElement("rSolid"); // get Solid reference child
+  auto myrMaterial = myRegistry_->getElement("rMaterial"); // get Material reference child
+  auto myrSolid = myRegistry_->getElement("rSolid"); // get Solid reference child
 
   DDXMLAttribute atts = getAttributeSet();
 

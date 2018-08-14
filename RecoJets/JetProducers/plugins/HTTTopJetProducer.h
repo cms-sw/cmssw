@@ -49,6 +49,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
@@ -80,16 +82,17 @@ namespace cms
 
     HTTTopJetProducer(const edm::ParameterSet& ps);
 
-    virtual ~HTTTopJetProducer() {}
+    ~HTTTopJetProducer() override {}
 
-    virtual void produce( edm::Event& iEvent, const edm::EventSetup& iSetup );
+    void produce( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
 
-    virtual void runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup );
+    void runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
 
-    virtual void addHTTTopJetTagInfoCollection( edm::Event& iEvent, 
+    void addHTTTopJetTagInfoCollection( edm::Event& iEvent, 
 						const edm::EventSetup& iSetup,
-						edm::OrphanHandle<reco::BasicJetCollection> & oh);
+						edm::OrphanHandle<reco::BasicJetCollection> & oh) override;
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
     std::auto_ptr<fastjet::HEPTopTaggerV2>        fjHEPTopTagger_;

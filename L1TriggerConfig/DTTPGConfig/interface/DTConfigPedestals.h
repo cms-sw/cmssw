@@ -42,14 +42,14 @@ class DTConfigPedestals : DTConfig {
   DTConfigPedestals();
 
   //! Destructor 
-  ~DTConfigPedestals();
+  ~DTConfigPedestals() override;
 
   //! Get wire by wire delay
   float getOffset(const DTWireId& wire) const;
 
   //! Set parameters from ES
   void setES(DTTPGParameters const *tpgParams,
-	     DTT0 const *t0Params = 0);
+	     DTT0 const *t0Params = nullptr);
 
   //! Set t0i subtraction
   void setUseT0 (bool useT0) { my_useT0 = useT0; }

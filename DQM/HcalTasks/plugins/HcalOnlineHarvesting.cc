@@ -4,7 +4,7 @@ using namespace hcaldqm;
 using namespace hcaldqm::constants;
 
 HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps) :
-	DQHarvester(ps), _nBad(0), _nTotal(0), _reportSummaryMap(NULL)
+	DQHarvester(ps), _nBad(0), _nTotal(0), _reportSummaryMap(nullptr)
 {
 
 	//	NOTE: I will leave Run Summary Generators in place 
@@ -49,15 +49,15 @@ HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps) :
 	edm::EventSetup const&)
 {
 	//	DETERMINE WHICH MODULES ARE PRESENT IN DATA
-	if (ig.get(_subsystem+"/"+_vnames[fRaw]+"/EventsTotal")!=NULL)
+	if (ig.get(_subsystem+"/"+_vnames[fRaw]+"/EventsTotal")!=nullptr)
 		_vmarks[fRaw]=true;
-	if (ig.get(_subsystem+"/"+_vnames[fDigi]+"/EventsTotal")!=NULL)
+	if (ig.get(_subsystem+"/"+_vnames[fDigi]+"/EventsTotal")!=nullptr)
 		_vmarks[fDigi]=true;
-	if (ig.get(_subsystem+"/"+_vnames[fTP]+"/EventsTotal")!=NULL)
+	if (ig.get(_subsystem+"/"+_vnames[fTP]+"/EventsTotal")!=nullptr)
 		_vmarks[fTP]=true;
-	if (ig.get(_subsystem+"/"+_vnames[fReco]+"/EventsTotal")!=NULL)
+	if (ig.get(_subsystem+"/"+_vnames[fReco]+"/EventsTotal")!=nullptr)
 		_vmarks[fReco]=true;
-	if (ig.get(_subsystem+"/"+_vnames[fPedestal]+"/EventsTotal")!=NULL)
+	if (ig.get(_subsystem+"/"+_vnames[fPedestal]+"/EventsTotal")!=nullptr)
 		_vmarks[fPedestal]=true;
 
 	//	CREATE SUMMARY REPORT MAP FED vs LS and LOAD MODULE'S SUMMARIES
@@ -109,21 +109,23 @@ HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps) :
 
 	int ifed=0;
 	hcaldqm::flag::Flag fTotal("Status", hcaldqm::flag::fNCDAQ);
-	for (std::vector<uint32_t>::const_iterator it=_vhashFEDs.begin();
-		it!=_vhashFEDs.end(); ++it)
-	{
-		HcalElectronicsId eid(*it);
-		hcaldqm::flag::Flag fSum("Status", hcaldqm::flag::fNCDAQ);
-		for (uint32_t im=0; im<_vmarks.size(); im++)
-			if (_vmarks[im])
-			{
-				int x = _vcSummaryvsLS[im].getBinContent(eid, _currentLS);
-				hcaldqm::flag::Flag flag("Status", (hcaldqm::flag::State)x);
-				fSum+=flag;
-			}
-		_reportSummaryMap->setBinContent(_currentLS, ifed+1, int(fSum._state));
-		ifed++;
-		fTotal+=fSum;
+	if (_ptype != fOffline) { // hidefed2crate
+		for (std::vector<uint32_t>::const_iterator it=_vhashFEDs.begin();
+			it!=_vhashFEDs.end(); ++it)
+		{
+			HcalElectronicsId eid(*it);
+			hcaldqm::flag::Flag fSum("Status", hcaldqm::flag::fNCDAQ);
+			for (uint32_t im=0; im<_vmarks.size(); im++)
+				if (_vmarks[im])
+				{
+					int x = _vcSummaryvsLS[im].getBinContent(eid, _currentLS);
+					hcaldqm::flag::Flag flag("Status", (hcaldqm::flag::State)x);
+					fSum+=flag;
+				}
+			_reportSummaryMap->setBinContent(_currentLS, ifed+1, int(fSum._state));
+			ifed++;
+			fTotal+=fSum;
+		}
 	}
 
 	// update the Run Summary
@@ -136,6 +138,36 @@ HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps) :
 		_runSummary->setBinContent(1,1, int(hcaldqm::flag::fNCDAQ));
 	else
 		_runSummary->setBinContent(1,1, int(hcaldqm::flag::fGOOD));
+
+	// HF TDC TP efficiency
+	if (_vmarks[fTP]) {
+		MonitorElement* meOccupancy_HF_depth = ig.get("Hcal/TPTask/OccupancyDataHF_depth/OccupancyDataHF_depth");
+		MonitorElement* meOccupancyNoTDC_HF_depth = ig.get("Hcal/TPTask/OccupancyEmulHFNoTDC_depth/OccupancyEmulHFNoTDC_depth");
+		MonitorElement* meOccupancy_HF_ieta = ig.get("Hcal/TPTask/OccupancyDataHF_ieta/OccupancyDataHF_ieta");
+		MonitorElement* meOccupancyNoTDC_HF_ieta = ig.get("Hcal/TPTask/OccupancyEmulHFNoTDC_ieta/OccupancyEmulHFNoTDC_ieta");
+
+		if (meOccupancy_HF_depth && meOccupancyNoTDC_HF_depth && meOccupancy_HF_ieta && meOccupancyNoTDC_HF_ieta) {
+			TH2F* hOccupancy_HF_depth = meOccupancy_HF_depth->getTH2F();
+			TH2F* hOccupancyNoTDC_HF_depth = meOccupancyNoTDC_HF_depth->getTH2F();
+			TH1F* hOccupancy_HF_ieta = meOccupancy_HF_ieta->getTH1F();
+			TH1F* hOccupancyNoTDC_HF_ieta = meOccupancyNoTDC_HF_ieta->getTH1F();
+
+			TH2F *hEfficiency_HF_depth = (TH2F*)hOccupancy_HF_depth->Clone();
+			hEfficiency_HF_depth->Divide(hOccupancyNoTDC_HF_depth);
+			TH1F *hEfficiency_HF_ieta = (TH1F*)hOccupancy_HF_ieta->Clone();
+			hEfficiency_HF_ieta->Divide(hOccupancyNoTDC_HF_ieta);
+
+			ib.setCurrentFolder("Hcal/TPTask");
+
+			MonitorElement* meEfficiency_HF_depth = ib.book2D("TDCCutEfficiency_depth", hEfficiency_HF_depth);
+			meEfficiency_HF_depth->setEfficiencyFlag();
+			MonitorElement* meEfficiency_HF_ieta = ib.book1D("TDCCutEfficiency_ieta", hEfficiency_HF_ieta);
+			meEfficiency_HF_ieta->setEfficiencyFlag();	
+
+			delete hEfficiency_HF_depth;
+			delete hEfficiency_HF_ieta;
+		}	
+	}
 }
 
 /*

@@ -9,7 +9,7 @@ class ME0HitsValidation : public ME0BaseValidation
 {
 public:
   explicit ME0HitsValidation( const edm::ParameterSet& );
-  ~ME0HitsValidation();
+  ~ME0HitsValidation() override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event& e, const edm::EventSetup&) override;
  private:

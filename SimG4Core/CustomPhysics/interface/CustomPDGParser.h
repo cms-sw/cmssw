@@ -1,8 +1,7 @@
-#ifndef CustomPDGParser_h
-#define CustomPDGParser_h 
+#ifndef SimG4Core_CustomPhysics_CustomPDGParser_h
+#define SimG4Core_CustomPhysics_CustomPDGParser_h 
 
 #include <vector>
-
 
 class CustomPDGParser
 {

@@ -9,12 +9,13 @@
 
 class TrackerGeometry;
 class MagneticField;
+class TransientTrackingRecHitBuilder;
 
 class PixelFitterByConformalMappingAndLine : public PixelFitterBase {
 public:
   explicit PixelFitterByConformalMappingAndLine(const edm::EventSetup *es, const TransientTrackingRecHitBuilder *ttrhBuilder, const TrackerGeometry *tracker, const MagneticField *field, double fixImpactParameter, bool useFixImpactParameter);
-  virtual ~PixelFitterByConformalMappingAndLine() { }
-  virtual std::unique_ptr<reco::Track> run(const std::vector<const TrackingRecHit *>& hits,
+  ~PixelFitterByConformalMappingAndLine() override { }
+  std::unique_ptr<reco::Track> run(const std::vector<const TrackingRecHit *>& hits,
                                            const TrackingRegion& region) const override;
 private:
   const edm::EventSetup *theES;

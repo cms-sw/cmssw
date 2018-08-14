@@ -26,15 +26,8 @@ inline bool operator> ( l1t::Jet& a, l1t::Jet& b )
 
 #include "L1Trigger/L1TCalorimeter/interface/BitonicSort.h"
 
-l1t::Stage2Layer2DemuxJetAlgoFirmwareImp1::Stage2Layer2DemuxJetAlgoFirmwareImp1(CaloParamsHelper* params) :
-  params_(params)
+l1t::Stage2Layer2DemuxJetAlgoFirmwareImp1::Stage2Layer2DemuxJetAlgoFirmwareImp1(CaloParamsHelper const* ) 
 {
-
-
-}
-
-
-l1t::Stage2Layer2DemuxJetAlgoFirmwareImp1::~Stage2Layer2DemuxJetAlgoFirmwareImp1() {
 
 
 }

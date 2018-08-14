@@ -3,6 +3,8 @@
 
 #include "Alignment/Geners/interface/IOIsClassType.hh"
 
+#include <ostream>
+
 namespace gs {
     template <typename T>
     class IOIsWritableHelper

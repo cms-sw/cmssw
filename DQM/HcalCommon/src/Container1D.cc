@@ -5,9 +5,10 @@ namespace hcaldqm
 {
 	using namespace mapper;
 	using namespace constants;
+	using namespace quantity;
 
 	Container1D::Container1D():
-		_qx(NULL), _qy(NULL)
+		_qx(nullptr), _qy(nullptr)
 	{}
 
 	Container1D::Container1D(std::string const& folder,
@@ -21,12 +22,12 @@ namespace hcaldqm
 
 	Container1D::~Container1D()
 	{
-		if (_qx!=NULL)
+		if (_qx!=nullptr)
 			delete _qx;
-		if (_qy!=NULL)
+		if (_qy!=nullptr)
 			delete _qy;
-		_qx = NULL;
-		_qy = NULL;
+		_qx = nullptr;
+		_qy = nullptr;
 	}
 
 	/* virtual */ /*void Container1D::release()
@@ -603,10 +604,10 @@ namespace hcaldqm
 		//	if loaded and not stripped, then 
 		//	prepend/subsystem/Run summary/taskname/...
 		_logger.debug(_hashmap.getHashTypeName());
-		std::string path = (prepend==""?prepend:prepend+"/")+
+		std::string path = (prepend.empty()?prepend:prepend+"/")+
 			subsystem+"/"+(mode==DQMStore::KeepRunDirs?"Run summary/":"")
 			+_folder+"/"+_qname+
-			(aux==""?aux:"_"+aux)+"/"+_hashmap.getHashTypeName();
+			(aux.empty()?aux:"_"+aux)+"/"+_hashmap.getHashTypeName();
 		_logger.debug("FULLPATH::"+path);
 
 		if (_hashmap.isDHash())
@@ -686,10 +687,10 @@ namespace hcaldqm
 		//	if loaded and not stripped, then 
 		//	prepend/subsystem/Run summary/taskname/...
 		_logger.debug(_hashmap.getHashTypeName());
-		std::string path = (prepend==""?prepend:prepend+"/")+
+		std::string path = (prepend.empty()?prepend:prepend+"/")+
 			subsystem+"/"+(mode==DQMStore::KeepRunDirs?"Run summary/":"")
 			+_folder+"/"+_qname+
-			(aux==""?aux:"_"+aux)+"/"+_hashmap.getHashTypeName();
+			(aux.empty()?aux:"_"+aux)+"/"+_hashmap.getHashTypeName();
 		_logger.debug("FULLPATH::"+path);
 
 		if (_hashmap.isDHash())
@@ -783,7 +784,7 @@ namespace hcaldqm
 		_logger.debug(_hashmap.getHashTypeName());
 		std::string path = 
 			subsystem+"/"+_folder+"/"+_qname+
-			(aux==""?aux:"_"+aux)+"/"+_hashmap.getHashTypeName();
+			(aux.empty()?aux:"_"+aux)+"/"+_hashmap.getHashTypeName();
 		_logger.debug("FULLPATH::"+path);
 
 		if (_hashmap.isDHash())
@@ -869,7 +870,7 @@ namespace hcaldqm
 		_logger.debug(_hashmap.getHashTypeName());
 		std::string path = 
 			subsystem+"/"+_folder+"/"+_qname+
-			(aux==""?aux:"_"+aux)+"/"+_hashmap.getHashTypeName();
+			(aux.empty()?aux:"_"+aux)+"/"+_hashmap.getHashTypeName();
 		_logger.debug("FULLPATH::"+path);
 
 		if (_hashmap.isDHash())
@@ -961,7 +962,7 @@ namespace hcaldqm
 		//	full path to where all the plots are living
 		//	subsystem/taskname/QxvsQy_auxilary/HashType
 		ib.setCurrentFolder(subsystem+"/"+_folder+"/"+_qname+
-			(aux==""?aux:"_"+aux)+"/"+_hashmap.getHashTypeName());
+			(aux.empty()?aux:"_"+aux)+"/"+_hashmap.getHashTypeName());
 		_logger.debug(_hashmap.getHashTypeName());
 		if (_hashmap.isDHash())
 		{
@@ -1051,7 +1052,7 @@ namespace hcaldqm
 		//	full path to where all the plots are living
 		//	subsystem/taskname/QxvsQy_auxilary/HashType
 		ib.setCurrentFolder(subsystem+"/"+_folder+"/"+_qname+
-			(aux==""?aux:"_"+aux)+"/"+_hashmap.getHashTypeName());
+			(aux.empty()?aux:"_"+aux)+"/"+_hashmap.getHashTypeName());
 		_logger.debug(_hashmap.getHashTypeName());
 
 		if (_hashmap.isDHash())
@@ -1146,7 +1147,7 @@ namespace hcaldqm
 		//	full path to where all the plots are living
 		//	subsystem/taskname/QxvsQy_auxilary/HashType
 		store->setCurrentFolder(subsystem+"/"+_folder+"/"+_qname+
-			(aux==""?aux:"_"+aux)+"/"+_hashmap.getHashTypeName());
+			(aux.empty()?aux:"_"+aux)+"/"+_hashmap.getHashTypeName());
 		_logger.debug(_hashmap.getHashTypeName());
 		if (_hashmap.isDHash())
 		{
@@ -1234,7 +1235,7 @@ namespace hcaldqm
 		//	full path to where all the plots are living
 		//	subsystem/taskname/QxvsQy_auxilary/HashType
 		store->setCurrentFolder(subsystem+"/"+_folder+"/"+_qname+
-			(aux==""?aux:"_"+aux)+"/"+_hashmap.getHashTypeName());
+			(aux.empty()?aux:"_"+aux)+"/"+_hashmap.getHashTypeName());
 		_logger.debug(_hashmap.getHashTypeName());
 		if (_hashmap.isDHash())
 		{
@@ -1334,8 +1335,9 @@ namespace hcaldqm
 
 		//	set labels
 		std::vector<std::string> xlabels = _qx->getLabels();
-		for (unsigned int i=0; i<xlabels.size(); i++)
+		for (unsigned int i=0; i<xlabels.size(); i++) {
 			me->setBinLabel(i+1, xlabels[i], 1);
+		}
 	}
 
 	/* virtual */ void Container1D::extendAxisRange(int l)
@@ -1363,6 +1365,15 @@ namespace hcaldqm
 			pair.second->setLumiFlag();
 		}
 	}
+	
+	void Container1D::showOverflowX(bool showOverflow) {
+		_qx->showOverflow(showOverflow);
+	}
+
+	void Container1D::showOverflowY(bool showOverflow) {
+		_qy->showOverflow(showOverflow);
+	}
+
 }
 
 

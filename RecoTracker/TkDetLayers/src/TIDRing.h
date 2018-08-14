@@ -15,23 +15,23 @@ class TIDRing final : public GeometricSearchDet {
  public:
   TIDRing(std::vector<const GeomDet*>& innerDets,
 	  std::vector<const GeomDet*>& outerDets);
-  ~TIDRing();
+  ~TIDRing() override;
   
   // GeometricSearchDet interface
-  virtual const BoundSurface& surface() const {return *theDisk;}
+  const BoundSurface& surface() const override {return *theDisk;}
   
-  virtual const std::vector<const GeomDet*>& basicComponents() const {return theDets;}
+  const std::vector<const GeomDet*>& basicComponents() const override {return theDets;}
   
-  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold));
+  const std::vector<const GeometricSearchDet*>& components() const override __attribute__ ((cold));
 
-  virtual std::pair<bool, TrajectoryStateOnSurface>
+  std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface&, const Propagator&, 
-		       const MeasurementEstimator&) const;
+		       const MeasurementEstimator&) const override;
 
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
 			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const __attribute__ ((hot));
+			       std::vector<DetGroup> & result) const override __attribute__ ((hot));
   
  
   //Extension of interface

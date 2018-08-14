@@ -47,15 +47,15 @@ class HLTPrescaleRecorder : public edm::one::EDProducer<edm::EndRunProducer,
 
  public:
   explicit HLTPrescaleRecorder(const edm::ParameterSet&);
-  virtual ~HLTPrescaleRecorder();
+  ~HLTPrescaleRecorder() override;
   static  void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual void beginRun(edm::Run const& iRun, const edm::EventSetup& iSetup)override final;
-  virtual void endRun(edm::Run const& iRun, const edm::EventSetup& iSetup)override final;
-  virtual void endRunProduce(edm::Run & iRun, const edm::EventSetup& iSetup)override final;
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const& iLumi, const edm::EventSetup& iSetup)override final;
-  virtual void endLuminosityBlock(edm::LuminosityBlock const& iLumi, const edm::EventSetup& iSetup)override final;
-  virtual void endLuminosityBlockProduce(edm::LuminosityBlock & iLumi, const edm::EventSetup& iSetup)override final;
-  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup)override final;
+  void beginRun(edm::Run const& iRun, const edm::EventSetup& iSetup)final;
+  void endRun(edm::Run const& iRun, const edm::EventSetup& iSetup)final;
+  void endRunProduce(edm::Run & iRun, const edm::EventSetup& iSetup)final;
+  void beginLuminosityBlock(edm::LuminosityBlock const& iLumi, const edm::EventSetup& iSetup)final;
+  void endLuminosityBlock(edm::LuminosityBlock const& iLumi, const edm::EventSetup& iSetup)final;
+  void endLuminosityBlockProduce(edm::LuminosityBlock & iLumi, const edm::EventSetup& iSetup)final;
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup)final;
 
  private:
 

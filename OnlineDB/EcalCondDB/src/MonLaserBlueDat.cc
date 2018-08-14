@@ -9,16 +9,16 @@ using namespace oracle::occi;
 
 MonLaserBlueDat::MonLaserBlueDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_apdMean = 0;
   m_apdRMS = 0;
   m_apdOverPNMean = 0;
   m_apdOverPNRMS = 0;
-  m_taskStatus = 0;
+  m_taskStatus = false;
   
 }
 
@@ -42,7 +42,7 @@ void MonLaserBlueDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":apd_mean, :apd_rms, :apd_over_pn_mean, :apd_over_pn_rms, :task_status)");
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonLaserBlueDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonLaserBlueDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -72,7 +72,7 @@ void MonLaserBlueDat::writeDB(const EcalLogicID* ecid, const MonLaserBlueDat* it
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonLaserBlueDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonLaserBlueDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -105,12 +105,12 @@ void MonLaserBlueDat::fetchData(std::map< EcalLogicID, MonLaserBlueDat >* fillMa
     std::pair< EcalLogicID, MonLaserBlueDat > p;
     MonLaserBlueDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
 
       dat.setAPDMean( rset->getFloat(7) );
       dat.setAPDRMS( rset->getFloat(8) );
@@ -123,7 +123,7 @@ void MonLaserBlueDat::fetchData(std::map< EcalLogicID, MonLaserBlueDat >* fillMa
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonLaserBlueDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonLaserBlueDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -226,6 +226,6 @@ void MonLaserBlueDat::writeArrayDB(const std::map< EcalLogicID, MonLaserBlueDat 
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonLaserBlueDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonLaserBlueDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

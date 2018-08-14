@@ -14,9 +14,9 @@ class IteratedMedianCMNSubtractor : public SiStripCommonModeNoiseSubtractor {
   
  public:
   
-  void init(const edm::EventSetup& es);
-  void subtract(const uint32_t&,const uint16_t&, std::vector<int16_t>&);
-  void subtract(const uint32_t&,const uint16_t&, std::vector<float>&);
+  void init(const edm::EventSetup& es) override;
+  void subtract(const uint32_t&,const uint16_t&, std::vector<int16_t>&) override;
+  void subtract(const uint32_t&,const uint16_t&, std::vector<float>&) override;
   
  private:
 

@@ -3,7 +3,15 @@ import FWCore.ParameterSet.Config as cms
 from RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi import *
 hcalOOTPileupESProducer = cms.ESProducer('OOTPileupDBCompatibilityESProducer')
 
-from RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_hbhe_cfi import *
+from RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi import hbheprereco as _phase1_hbheprereco
+hbheprereco = _phase1_hbheprereco.clone(
+    processQIE11 = cms.bool(False),
+    tsFromDB = cms.bool(True),
+    pulseShapeParametersQIE8 = dict(
+        TrianglePeakTS = cms.uint32(4),
+    )
+)
+
 from RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_ho_cfi import *
 from RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_hf_cfi import *
 from RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_zdc_cfi import *
@@ -11,11 +19,9 @@ hcalLocalRecoSequence = cms.Sequence(hbheprereco+hfreco+horeco+zdcreco)
 
 from RecoLocalCalo.HcalRecProducers.hfprereco_cfi import hfprereco
 from RecoLocalCalo.HcalRecProducers.HFPhase1Reconstructor_cfi import hfreco as _phase1_hfreco
-from RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi import hbheprereco as _phase1_hbheprereco
 from RecoLocalCalo.HcalRecProducers.hbheplan1_cfi import hbheplan1
 
-# copies for cosmics
-_default_hbheprereco = hbheprereco.clone()
+# copy for cosmics
 _default_hfreco = hfreco.clone()
 
 _phase1_hcalLocalRecoSequence = hcalLocalRecoSequence.copy()
@@ -32,12 +38,19 @@ _plan1_hcalLocalRecoSequence += hbheplan1
 from Configuration.Eras.Modifier_run2_HEPlan1_2017_cff import run2_HEPlan1_2017
 run2_HEPlan1_2017.toReplaceWith(hcalLocalRecoSequence, _plan1_hcalLocalRecoSequence)
 
+hbhecollapse = hbheplan1.clone()
+_collapse_hcalLocalRecoSequence = _phase1_hcalLocalRecoSequence.copy()
+_collapse_hcalLocalRecoSequence += hbhecollapse
+from Configuration.ProcessModifiers.run2_HECollapse_2018_cff import run2_HECollapse_2018
+run2_HECollapse_2018.toReplaceWith(hcalLocalRecoSequence, _collapse_hcalLocalRecoSequence)
+
 _phase2_hcalLocalRecoSequence = hcalLocalRecoSequence.copy()
 _phase2_hcalLocalRecoSequence.remove(hbheprereco)
 
 from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
-phase2_hcal.toModify( horeco, digiLabel = cms.InputTag('simHcalDigis') )
-phase2_hcal.toModify( hfprereco, digiLabel = cms.InputTag('simHcalDigis','HFQIE10DigiCollection') )
-phase2_hcal.toModify( zdcreco, digiLabel = cms.InputTag('simHcalUnsuppressedDigis'), digiLabelhcal = cms.InputTag('simHcalUnsuppressedDigis') )
 phase2_hcal.toReplaceWith( hcalLocalRecoSequence, _phase2_hcalLocalRecoSequence )
 
+
+_fastSim_hcalLocalRecoSequence = hcalLocalRecoSequence.copyAndExclude([zdcreco])
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toReplaceWith( hcalLocalRecoSequence, _fastSim_hcalLocalRecoSequence )

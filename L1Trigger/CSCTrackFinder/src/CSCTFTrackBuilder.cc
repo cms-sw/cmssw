@@ -13,7 +13,7 @@
 #include "CondFormats/DataRecord/interface/L1MuCSCTFConfigurationRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include <sstream>
-#include <stdlib.h>
+#include <cstdlib>
 
 CSCTFTrackBuilder::CSCTFTrackBuilder(const edm::ParameterSet& pset, bool TMB07,
 				     const L1MuTriggerScales* scales,
@@ -52,7 +52,7 @@ CSCTFTrackBuilder::~CSCTFTrackBuilder()
 	  s <= CSCTriggerNumbering::maxTriggerSectorId(); ++s)
 	{
 	  delete my_SPs[e-1][s-1];
-	  my_SPs[e-1][s-1] = NULL;
+	  my_SPs[e-1][s-1] = nullptr;
 	}
     }
 }

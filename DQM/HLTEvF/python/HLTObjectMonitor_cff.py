@@ -5,21 +5,27 @@ import FWCore.ParameterSet.Config as cms
 #from DQM.HLTEvF.OccupancyPlotter_cfi import *
 
 from DQM.HLTEvF.HLTObjectMonitor_cfi import *
+from DQM.HLTEvF.HLTObjectsMonitor_cfi import *
+from DQM.HLTEvF.HLTLumiMonitoring_cff import *
+from DQM.HLTEvF.HLTSiPixelMonitoring_cff import *
 # strip monitoring@HLT needs track re-fitting (estimation of the crossing angle through the sensor)
 # => some ESProducer modules have to be run
-# one of those (hltESPStripCPEfromTrackAngle) depends on the strip APV gain
-# and therefore it has different setting in 25ns and 50ns HLT menu
-# current setting is coherent w/ 50ns menu
-# DQM.HLTEvF.HLTSiStripMonitoring_cff has to be updated as soon as the 25ns menu will be in production
 from DQM.HLTEvF.HLTSiStripMonitoring_cff import *
 from DQM.HLTEvF.HLTTrackingMonitoring_cff import *
+from DQM.HLTEvF.HLTPrimaryVertexMonitoring_cff import *
+from DQM.HLTEvF.HLTHCALMonitoring_cff import *
 
 
 hlt4vector = cms.Path(
-    hltObjectMonitor
-#    * sistripOnlineMonitorHLTsequence # strip cluster monitoring
+    lumiOnlineMonitorHLTsequence # lumi
+    * hltObjectMonitor
+    * hcalOnlineMonitoringSequence # HCAL monitoring
+    * pixelOnlineMonitorHLTsequence # pixel cluster monitoring
+    * sistripOnlineMonitorHLTsequence # strip cluster monitoring
     * trackingMonitoringHLTsequence # tracking monitoring
     * egmTrackingMonitorHLTsequence # EGM tracking monitoring
+    * vertexingMonitorHLTsequence # vertexing
+    * hltObjectsMonitor
 )
 
 

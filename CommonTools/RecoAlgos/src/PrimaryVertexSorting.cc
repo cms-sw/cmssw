@@ -26,7 +26,7 @@ float PrimaryVertexSorting::score(const reco::Vertex & pv,const  std::vector<con
   for (size_t i = 0 ; i < cands.size(); i++) {
     const reco::Candidate * c= cands[i];
     float scale=1.;
-    if(c->bestTrack() != 0)
+    if(c->bestTrack() != nullptr)
       {
 	if(c->pt()!=0) {
        		 scale=(c->pt()-c->bestTrack()->ptError())/c->pt();

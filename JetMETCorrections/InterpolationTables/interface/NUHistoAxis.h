@@ -32,7 +32,7 @@ namespace npstat {
         // coordinates will be sorted internally in the increasing order.
         // The number of bins will be less by 1 than the number of edges.
         */
-        NUHistoAxis(const std::vector<double>& binEdges, const char* label = 0);
+        NUHistoAxis(const std::vector<double>& binEdges, const char* label = nullptr);
 
         //@{
         /** Examine axis properties */
@@ -108,7 +108,7 @@ namespace npstat {
 
     private:
         NUHistoAxis(unsigned nBins, double min, double max,
-                    const char* label = 0);
+                    const char* label = nullptr);
 
         double min_;
         double max_;

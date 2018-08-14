@@ -6,6 +6,7 @@
 
 class CaloVHitFilter {
 public:
+  virtual ~CaloVHitFilter() = default;
   virtual bool accepts(const PCaloHit & hit) const = 0;
 };
 

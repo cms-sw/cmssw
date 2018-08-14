@@ -36,7 +36,7 @@ struct MatchStruct
         phi(0),
         bTag(0),
         lorentzVector(0,0,0,0),
-        thepointer(0)
+        thepointer(nullptr)
     {
     }
     MatchStruct(const reco::Candidate * cand, const unsigned int & obj) :

@@ -8,8 +8,8 @@ using namespace oracle::occi;
 
 RunTag::RunTag()
 {
-  m_env = NULL;
-  m_conn = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
   m_ID = 0;
   m_genTag = "default";
   m_locDef = LocationDef();
@@ -116,7 +116,7 @@ int RunTag::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunTag::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunTag::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;
@@ -137,7 +137,7 @@ void RunTag::setByID(int id)
 
     ResultSet* rset = stmt->executeQuery();
     if (rset->next()) {
-      m_genTag = rset->getString(1);
+      m_genTag = getOraString(rset,1);
       int locID = rset->getInt(2);
       int runTypeID = rset->getInt(3);
 
@@ -154,7 +154,7 @@ void RunTag::setByID(int id)
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(std::runtime_error("RunTag::setByID:  "+e.getMessage()));
+   throw(std::runtime_error(std::string("RunTag::setByID:  ")+getOraMessage(&e)));
   }
 }
 
@@ -188,7 +188,7 @@ int RunTag::writeDB()
     
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(std::runtime_error("RunTag::writeDB:  "+e.getMessage()));
+   throw(std::runtime_error(std::string("RunTag::writeDB:  ")+getOraMessage(&e)));
   }
 
   // now get the tag_id
@@ -218,7 +218,7 @@ void RunTag::fetchAllTags( std::vector<RunTag>* fillVec)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunTag::fetchAllTags:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunTag::fetchAllTags:  ")+getOraMessage(&e)));
   }
 }
 

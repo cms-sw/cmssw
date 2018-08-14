@@ -15,8 +15,8 @@ class MuonSelectorVertex : public edm::EDProducer {
   public:
 
     explicit MuonSelectorVertex( const edm::ParameterSet & iConfig );
-    ~ MuonSelectorVertex() {};
-    virtual void produce( edm::Event & iEvent, const edm::EventSetup & iSetup ) override;
+    ~ MuonSelectorVertex() override {};
+    void produce( edm::Event & iEvent, const edm::EventSetup & iSetup ) override;
 
   private:
 
@@ -54,7 +54,7 @@ void MuonSelectorVertex::produce( edm::Event & iEvent, const edm::EventSetup & i
 
   std::vector< pat::Muon > * selectedMuons( new std::vector< pat::Muon > );
 
-  if ( vertices->size() > 0 ) {
+  if ( !vertices->empty() ) {
 
     for ( unsigned iMuon = 0; iMuon < muons->size(); ++iMuon ) {
       if ( std::fabs( muons->at( iMuon ).vertex().z() - vertices->at( 0 ).z() ) < maxDZ_ ) {

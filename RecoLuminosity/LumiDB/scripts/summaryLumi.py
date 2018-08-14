@@ -7,6 +7,7 @@
 # Author:      Zhen Xie                                                 #
 #########################################################################
 #
+from __future__ import print_function
 import os,os.path,sys,math,array,datetime,time,re
 
 from RecoLuminosity.LumiDB import argparse,lumiTime,lumiCalcAPI,sessionManager,lumiParameters
@@ -159,7 +160,7 @@ if __name__ == '__main__':
         lastcompletedFill=lastcompleteFill(os.path.join(options.inputdir,'runtofill_dqm.txt'))
         for pf in processedfills:
             if pf>lastcompletedFill:
-                print '\tremove unfinished fill from processed list ',pf
+                print('\tremove unfinished fill from processed list ',pf)
                 processedfills.remove(pf)
         for fill in allfillsFromDB:
             if fill not in processedfills :
@@ -167,10 +168,10 @@ if __name__ == '__main__':
                     if int(fill)>MINFILL:
                         fillstoprocess.append(fill)
                 else:
-                    print 'ongoing fill...',fill
-    print 'fills to process : ',fillstoprocess
+                    print('ongoing fill...',fill)
+    print('fills to process : ',fillstoprocess)
     if len(fillstoprocess)==0:
-        print 'no fill to process, exit '
+        print('no fill to process, exit ')
         exit(0)
     lumip=lumiParameters.ParametersObject()
     lslength=lumip.lslengthsec()
@@ -191,10 +192,10 @@ if __name__ == '__main__':
             clineElements.append('--beamfluctuation '+str(options.beamfluctuation))
         
         finalcmmd=' '.join(clineElements)
-        print 'cmmd executed:',finalcmmd
+        print('cmmd executed:',finalcmmd)
         (exestat,resultStr)=commands.getstatusoutput(finalcmmd)
         if exestat!=0:
-            print 'lumiCalc2.py execution error ',resultStr
+            print('lumiCalc2.py execution error ',resultStr)
             exit(exestat)
         f=open('tmp.out','r')
         lcount=0
@@ -232,11 +233,11 @@ if __name__ == '__main__':
         #print 'summaryfilename ',summaryfilename
         ofile=open(summaryfilename,'w')
         if len(stablefillmap)==0:
-            print >>ofile,'%s'%('#no stable beams')
+            print('%s'%('#no stable beams'), file=ofile)
         else:
             for r in sorted(stablefillmap):
                 rundata=stablefillmap[r]
-                print >>ofile,'%d\t%d\t%.6e\t%.6e'%(min(rundata[0]),max(rundata[0]), max(rundata[1])/lslength,sum(rundata[1]))
+                print('%d\t%d\t%.6e\t%.6e'%(min(rundata[0]),max(rundata[0]), max(rundata[1])/lslength,sum(rundata[1])), file=ofile)
         ofile.close()
         os.remove('tmp.out')
         f.close()

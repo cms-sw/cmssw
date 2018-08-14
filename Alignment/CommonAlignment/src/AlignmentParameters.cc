@@ -8,8 +8,8 @@
 
 //__________________________________________________________________________________________________
 AlignmentParameters::AlignmentParameters() :
-  theAlignable( 0),
-  theUserVariables( 0),
+  theAlignable( nullptr),
+  theUserVariables( nullptr),
   bValid(true)
 {}
 
@@ -19,7 +19,7 @@ AlignmentParameters::AlignmentParameters(Alignable* object, const AlgebraicVecto
 					 const AlgebraicSymMatrix& cov) :
   theAlignable(object),
   theData( DataContainer( new AlignmentParametersData(par,cov) ) ),
-  theUserVariables(0),
+  theUserVariables(nullptr),
   bValid(true)
 {
   // is the data consistent?
@@ -33,7 +33,7 @@ AlignmentParameters::AlignmentParameters(Alignable* object, const AlgebraicVecto
                                          const std::vector<bool>& sel) :
   theAlignable(object),
   theData( DataContainer( new AlignmentParametersData(par,cov,sel) ) ),
-  theUserVariables(0),
+  theUserVariables(nullptr),
   bValid(true)
 {
   // is the data consistent?
@@ -46,7 +46,7 @@ AlignmentParameters::AlignmentParameters(Alignable* object,
 					 const AlignmentParametersData::DataContainer& data ) :
   theAlignable(object),
   theData(data),
-  theUserVariables(0),
+  theUserVariables(nullptr),
   bValid(true)
 {
   // is the data consistent?
@@ -157,14 +157,13 @@ unsigned int AlignmentParameters::hierarchyLevel() const
     return 0;
   }
 
-  std::vector<Alignable*> comps;
+  align::Alignables comps;
   theAlignable->firstCompsWithParams(comps);
   if (comps.empty()) return 0;
 
   unsigned int maxLevelOfComp = 0;
-  for (std::vector<Alignable*>::const_iterator iAli = comps.begin(), iAliEnd = comps.end();
-       iAli != iAliEnd; ++iAli) {// firstCompsWithParams guaranties that alignmentParameters() != 0:
-    const unsigned int compResult = (*iAli)->alignmentParameters()->hierarchyLevel();
+  for (const auto& iAli: comps) {// firstCompsWithParams guaranties that alignmentParameters() != 0:
+    const unsigned int compResult = iAli->alignmentParameters()->hierarchyLevel();
     // levels might be different for components, get largest:
     if (maxLevelOfComp < compResult) maxLevelOfComp = compResult;
   }
@@ -205,7 +204,8 @@ AlignmentParameters::collapseSymMatrix(const AlgebraicSymMatrix& m,
 
   // Check size matching
   if ( nRows != size ) 
-    throw cms::Exception("LogicError") << "Size mismatch in parameters";
+    throw cms::Exception("LogicError") << "Size mismatch in parameters"
+    << " (input symmatrix = " << nRows << ", selection: " << size << ")";
 
   // If OK, continue
   std::vector<int> rowvec;
@@ -233,7 +233,8 @@ AlgebraicVector AlignmentParameters::collapseVector(const AlgebraicVector& m,
 
   // Check size matching
   if ( nRows != size ) 
-    throw cms::Exception("LogicError") << "Size mismatch in parameters";
+    throw cms::Exception("LogicError") << "Size mismatch in parameters"
+    << " (input vector = " << nRows << ", selection: " << size << ")";
 
   // If OK, continue
   std::vector<int> rowvec;
@@ -264,7 +265,8 @@ AlgebraicSymMatrix AlignmentParameters::expandSymMatrix(const AlgebraicSymMatrix
 
   // Check size matching
   if( nRows != static_cast<int>(rowvec.size()) ) 
-    throw cms::Exception("LogicError") << "Size mismatch in parameters";
+    throw cms::Exception("LogicError") << "Size mismatch in parameters"
+    << " (input symmatrix = " << nRows << ", selection: " << size << ")";
 
   // If OK, continue
   AlgebraicSymMatrix result(size,0);
@@ -290,7 +292,8 @@ AlgebraicVector AlignmentParameters::expandVector(const AlgebraicVector& m,
 
   // Check size matching
   if( nRows != static_cast<int>(rowvec.size()) ) 
-    throw cms::Exception("LogicError") << "Size mismatch in parameters";
+    throw cms::Exception("LogicError") << "Size mismatch in parameters"
+    << " (input vector = " << nRows << ", selection: " << size << ")";
 
   // If OK, continue
   AlgebraicVector result(size,0);

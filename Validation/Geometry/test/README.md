@@ -63,70 +63,28 @@ reconstruction step.
 ### Procedure
 
 The steps to be followed in order to derive the
-reco-material map are explained below.
-
-#### Sample Generation
-
-```
-cmsRun SingleMuPt10_pythia8_cfi_GEN_SIM.py
-```
-
-This will generate 1K Single muons (and the corresponding
-anti-particle) with Pt=10 and *without* any vertex smearing.
-The vertex smearing has been turned off in order to have a
-reliable measure of the eta of the track.
-
-#### Sample Digitization
+reco-material map are included in few shell scripts, that
+automatically take care of issuing the correct cmsDriver command for
+the different scenarios. The files to be used are:
 
 ```
-cmsRun SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT.py
+runMaterialDumpAnalyser.sh
+runMaterialDumpAnalyser_PhaseI.sh
+runMaterialDumpAnalyser_PhaseII.sh
 ```
 
-#### Sample Reconstruction
+Each script accept two command line options, that could be useful for
+quick testing:
 
 ```
-cmsRun SingleMuPt10_step3_RAW2DIGI_L1Reco_RECO_VALIDATION_DQM.py [geomDB=False]
+-n XXX
 ```
 
-This step will run the regular tracking reconstruction,DQM
-and Validation steps, plus the ad-hoc analyzer to derive the
-reconstruction material map. The *optional* geomDB=False
-flag can be supplied to instruct the reconstruction job to
-read the geometry+material description from (possibly local)
-XML files in release rather than from the DB. This is
-particularly useful to test the changes that the user may
-have made to the material description.
-
-#### Sample Harvesting
+to generate only XXX events in place of the default 5K.
 
 ```
-cmsRun SingleMuPt10_step4_HARVESTING.py [geomDB=False]
+-g GEOMETRY
 ```
 
-The *optional* geom flag must follow the same prescription
-that has been used in the previous step (i.e. be present if
-it were in the previous step, absent otherwise)
-
-The final output of the procedure is a plain ROOT file named
-DQM_V0001_R000000001__SingleMuPt10_from{DB,LocalFiles}__Run2016__DQMIO.root
-according to the flags used while creating it. It contains
-the profile of the material description as seen by the
-tracks during the patter recognition.
-
-#### Plots Production
-
-In order to have plots comparing the 2 material description
-(data vs MC), the user has to run the  following ROOT macro:
-
-```
-root -b -q
-'MaterialBudget_Simul_vs_Reco.C("DQM_V0001_R000000001__SingleMuPt10_fromLocalFiles__Run2016__DQMIO.root",
-"FromLocalFiles")'
-```
-
-using the input files according to her needs, and properly
-tuning the accompanying label ('FromLocalFiles' in this
-case). A bunch of png files will be produced. The one that
-compares the 2 material descriptions is names
-MaterialBdg_Reco_vs_Simul_%label.png. Take a look at it and
-see how things are.
+to select a geometry different from the default one included in the
+shell script itself.

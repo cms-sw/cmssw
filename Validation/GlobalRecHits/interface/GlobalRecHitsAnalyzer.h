@@ -124,15 +124,15 @@
 // general info 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h" 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h" 
+#include "Geometry/CommonDetUnit/interface/GeomDet.h" 
 
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <memory>
 #include <vector>
 #include <map>
-#include <math.h>
+#include <cmath>
 
 #include "TString.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -147,8 +147,8 @@ class GlobalRecHitsAnalyzer : public DQMEDAnalyzer
   typedef std::map<uint32_t,float,std::less<uint32_t> > MapType;
 
   explicit GlobalRecHitsAnalyzer(const edm::ParameterSet&);
-  virtual ~GlobalRecHitsAnalyzer();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  ~GlobalRecHitsAnalyzer() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
  protected:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;

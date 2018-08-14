@@ -1,5 +1,11 @@
 #ifndef TTHelper_s
 #define TTHelper_s
+
+#include "DataFormats/Candidate/interface/Candidate.h"
+
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+
 namespace tthelpers{
 inline reco::TransientTrack buildTT(edm::Handle<reco::TrackCollection> & tracks, edm::ESHandle<TransientTrackBuilder> &trackbuilder, unsigned int k) 
 {
@@ -8,7 +14,7 @@ inline reco::TransientTrack buildTT(edm::Handle<reco::TrackCollection> & tracks,
 }
 inline reco::TransientTrack buildTT(edm::Handle<edm::View<reco::Candidate> > & tracks, edm::ESHandle<TransientTrackBuilder> &trackbuilder, unsigned int k)
 {
-	if((*tracks)[k].bestTrack() == 0) return reco::TransientTrack();
+	if((*tracks)[k].bestTrack() == nullptr) return reco::TransientTrack();
         return trackbuilder->build(tracks->ptrAt(k));
 }
 }

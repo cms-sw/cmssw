@@ -10,7 +10,7 @@
  */
 
 
-#include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 #include "Alignment/CommonAlignment/interface/AlignableSurface.h"
 
@@ -32,17 +32,6 @@ class AlignableDTWheel : public AlignableComposite
  public:
 
   AlignableDTWheel( const std::vector<AlignableDTStation*>& dtStations );
-
-  ~AlignableDTWheel();
-  
-  virtual std::vector<Alignable*> components() const 
-  {
-
-        std::vector<Alignable*> result;
-        result.insert( result.end(), theDTStations.begin(), theDTStations.end() );
-        return result;
-
-  }
   
   // gets the global position as the average over all positions of the layers
   PositionType computePosition() ;
@@ -57,7 +46,7 @@ class AlignableDTWheel : public AlignableComposite
   friend std::ostream& operator << ( std::ostream&, const AlignableDTWheel& );
 
   /// Recursive printout of the muon DT wheel structure
-  void dump( void ) const;
+  void dump( void ) const override;
 
 
 private:

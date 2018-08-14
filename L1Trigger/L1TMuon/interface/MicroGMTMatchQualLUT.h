@@ -18,7 +18,7 @@ namespace l1t {
       public:
         MicroGMTMatchQualLUT() : MicroGMTLUT() {};
         explicit MicroGMTMatchQualLUT(l1t::LUT* lut) : MicroGMTLUT(lut) {};
-        virtual ~MicroGMTMatchQualLUT() {};
+        ~MicroGMTMatchQualLUT() override {};
 
         virtual int lookup(int etaFine, int dEta, int dPhi) const = 0;
 
@@ -46,10 +46,10 @@ namespace l1t {
         MicroGMTMatchQualSimpleLUT() {};
         explicit MicroGMTMatchQualSimpleLUT(const std::string&, const double maxDR, const double fEta, const double fPhi, cancel_t cancelType);
         explicit MicroGMTMatchQualSimpleLUT(l1t::LUT* lut, cancel_t cancelType);
-        virtual ~MicroGMTMatchQualSimpleLUT() {};
+        ~MicroGMTMatchQualSimpleLUT() override {};
 
-        int lookup(int etaFine, int dEta, int dPhi) const;
-        virtual int lookupPacked(int in) const;
+        int lookup(int etaFine, int dEta, int dPhi) const override;
+        int lookupPacked(int in) const override;
         int hashInput(int dEta, int dPhi) const;
         void unHashInput(int input, int& dEta, int& dPhi) const;
     };
@@ -60,10 +60,10 @@ namespace l1t {
         MicroGMTMatchQualFineLUT() {};
         explicit MicroGMTMatchQualFineLUT(const std::string&, const double maxDR, const double fEta, const double fEtaCoarse, const double fPhi, cancel_t cancelType);
         explicit MicroGMTMatchQualFineLUT(l1t::LUT* lut, cancel_t cancelType);
-        virtual ~MicroGMTMatchQualFineLUT() {};
+        ~MicroGMTMatchQualFineLUT() override {};
 
-        int lookup(int etaFine, int dEta, int dPhi) const;
-        virtual int lookupPacked(int in) const;
+        int lookup(int etaFine, int dEta, int dPhi) const override;
+        int lookupPacked(int in) const override;
         int hashInput(int etaFine, int dEta, int dPhi) const;
         void unHashInput(int input, int& etaFine, int& dEta, int& dPhi) const;
       private:

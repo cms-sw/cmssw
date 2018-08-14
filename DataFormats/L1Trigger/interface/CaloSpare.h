@@ -38,7 +38,7 @@ namespace l1t {
 	   int qual=0);
 
 
-    ~CaloSpare();
+    ~CaloSpare() override;
 
     void setType(CaloSpareType type);
 

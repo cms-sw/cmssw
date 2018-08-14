@@ -18,17 +18,17 @@ namespace reco {
             src_(iC.consumes<edm::View<reco::Candidate> >(candidates)), deltaR2_(deltaR*deltaR) { }
 
           // Virtual destructor (should always be there)
-          virtual ~OtherCandidatesDeltaRVeto() {}
+          ~OtherCandidatesDeltaRVeto() override {}
 
           //! Return "true" if a deposit at specific (eta,phi) with that value must be vetoed in the sum
           //! This is true if the deposit is within the configured deltaR from any item of the source collection
-          virtual bool veto(double eta, double phi, float value) const ;
+          bool veto(double eta, double phi, float value) const override ;
 
           //! Nothing to do for this
-          virtual void centerOn(double eta, double phi) { }
+          void centerOn(double eta, double phi) override { }
 
           //! Picks up the directions of the given candidates
-          virtual void setEvent(const edm::Event &iEvent, const edm::EventSetup &iSetup) ;
+          void setEvent(const edm::Event &iEvent, const edm::EventSetup &iSetup) override ;
 
       private:
           edm::EDGetTokenT<edm::View<reco::Candidate> > src_;
@@ -43,17 +43,17 @@ namespace reco {
             src_(iC.consumes<edm::View<reco::Candidate> >(candidates)), veto_(veto) { }
 
           // Virtual destructor (should always be there)
-          virtual ~OtherCandVeto() {}
+          ~OtherCandVeto() override {}
 
           //! Return "true" if a deposit at specific (eta,phi) with that value must be vetoed in the sum
           //! This is true if the deposit is within the stored AbsVeto of any item of the source collection
-          virtual bool veto(double eta, double phi, float value) const ;
+          bool veto(double eta, double phi, float value) const override ;
 
           //! Nothing to do for this
-          virtual void centerOn(double eta, double phi) { }
+          void centerOn(double eta, double phi) override { }
 
           //! Picks up the directions of the given candidates
-          virtual void setEvent(const edm::Event &iEvent, const edm::EventSetup &iSetup) ;
+          void setEvent(const edm::Event &iEvent, const edm::EventSetup &iSetup) override ;
 
       private:
           edm::EDGetTokenT<edm::View<reco::Candidate> > src_;
@@ -65,7 +65,7 @@ namespace reco {
       public:
           //! Create a veto specifying the input collection of the jets, the candidates, and the deltaR
           OtherJetConstituentsDeltaRVeto(Direction dir, const edm::InputTag& jets, double dRjet, const edm::InputTag& pfCandAssocMap, double dRconstituent, edm::ConsumesCollector& iC)
-	    : evt_(0),
+	    : evt_(nullptr),
 	      vetoDir_(dir),
 	      srcJets_(iC.consumes<reco::PFJetCollection>(jets)),
 	      dR2jet_(dRjet*dRjet),
@@ -81,17 +81,17 @@ namespace reco {
 	  }
 
           // Virtual destructor (should always be there)
-          virtual ~OtherJetConstituentsDeltaRVeto() {}
+          ~OtherJetConstituentsDeltaRVeto() override {}
 
           //! Return "true" if a deposit at specific (eta,phi) with that value must be vetoed in the sum
           //! This is true if the deposit is within the stored AbsVeto of any item of the source collection
-          virtual bool veto(double eta, double phi, float value) const;
+          bool veto(double eta, double phi, float value) const override;
 
           //! Set axis for matching jets
-          virtual void centerOn(double eta, double phi);
+          void centerOn(double eta, double phi) override;
 
           //! Picks up the directions of the given candidates
-          virtual void setEvent(const edm::Event& evt, const edm::EventSetup& es);
+          void setEvent(const edm::Event& evt, const edm::EventSetup& es) override;
 
       private:
           typedef edm::AssociationMap<edm::OneToMany<std::vector<reco::PFJet>, std::vector<reco::PFCandidate>, unsigned int> > JetToPFCandidateAssociation;

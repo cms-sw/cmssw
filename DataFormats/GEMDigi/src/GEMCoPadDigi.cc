@@ -29,6 +29,12 @@ bool GEMCoPadDigi::operator != (const GEMCoPadDigi& digi) const
 }
 
 
+bool GEMCoPadDigi::isValid() const
+{
+  return first_.isValid() and second_.isValid();
+}
+
+
 int GEMCoPadDigi::pad(int l) const
 {
   if (l==1) return first_.pad();
@@ -54,5 +60,5 @@ void GEMCoPadDigi::print() const
 
 std::ostream & operator<<(std::ostream & o, const GEMCoPadDigi& digi)
 {
-  return o << "Roll: " << digi.roll() << " 1:" << digi.first() << ", 2:" << digi.second();
+  return o << "Roll: " << digi.roll() << " layer1:" << digi.first() << ", layer2:" << digi.second();
 }

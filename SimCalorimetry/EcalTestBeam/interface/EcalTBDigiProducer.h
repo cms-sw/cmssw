@@ -9,9 +9,7 @@
 
 namespace edm {
   class ConsumesCollector;
-  namespace stream {
-    class EDProducerBase;
-  }
+  class ProducerBase;
   class Event;
   class EventSetup;
   class ParameterSet;
@@ -23,17 +21,17 @@ class EcalTBDigiProducer : public EcalDigiProducer
 {
    public:
 
-      EcalTBDigiProducer( const edm::ParameterSet& params, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC) ;
-      virtual ~EcalTBDigiProducer() ;
+      EcalTBDigiProducer( const edm::ParameterSet& params, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC) ;
+      ~EcalTBDigiProducer() override ;
 
 
-      virtual void initializeEvent(edm::Event const&, edm::EventSetup const&);
-      virtual void finalizeEvent(edm::Event&, edm::EventSetup const&);
+      void initializeEvent(edm::Event const&, edm::EventSetup const&) override;
+      void finalizeEvent(edm::Event&, edm::EventSetup const&) override;
 
    private:
 
-      virtual void cacheEBDigis( const EBDigiCollection* ebDigiPtr ) const ;
-      virtual void cacheEEDigis( const EEDigiCollection* eeDigiPtr ) const ; 
+      void cacheEBDigis( const EBDigiCollection* ebDigiPtr ) const override ;
+      void cacheEEDigis( const EEDigiCollection* eeDigiPtr ) const override ; 
 
       void setPhaseShift( const DetId& detId ) ;
 

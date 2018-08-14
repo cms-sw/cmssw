@@ -30,27 +30,29 @@ class DigiTask : public hcaldqm::DQTask
 {
 	public:
 		DigiTask(edm::ParameterSet const&);
-		virtual ~DigiTask() {}
+		~DigiTask() override {}
 
-		virtual void bookHistograms(DQMStore::IBooker&,
-			edm::Run const&, edm::EventSetup const&);
-		virtual void beginLuminosityBlock(edm::LuminosityBlock const&,
-			edm::EventSetup const&);
-		virtual void endLuminosityBlock(edm::LuminosityBlock const&,
-			edm::EventSetup const&);
+		void bookHistograms(DQMStore::IBooker&,
+			edm::Run const&, edm::EventSetup const&) override;
+		void beginLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&) override;
+		void endLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&) override;
 
 	protected:
-		virtual void _process(edm::Event const&, edm::EventSetup const&);
-		virtual void _resetMonitors(hcaldqm::UpdateFreq);
+		void _process(edm::Event const&, edm::EventSetup const&) override;
+		void _resetMonitors(hcaldqm::UpdateFreq) override;
 
 		edm::InputTag		_tagHBHE;
+		edm::InputTag		_tagHE;
 		edm::InputTag		_tagHO;
 		edm::InputTag		_tagHF;
 		edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
+		edm::EDGetTokenT<QIE11DigiCollection> _tokHE;
 		edm::EDGetTokenT<HODigiCollection>	 _tokHO;
-		edm::EDGetTokenT<HFDigiCollection>	_tokHF;
+		edm::EDGetTokenT<QIE10DigiCollection>	_tokHF;
 
-		double _cutSumQ_HBHE, _cutSumQ_HO, _cutSumQ_HF;
+		double _cutSumQ_HBHE, _cutSumQ_HE, _cutSumQ_HO, _cutSumQ_HF;
 		double _thresh_unihf;
 
 		//	flag vector
@@ -61,14 +63,17 @@ class DigiTask : public hcaldqm::DQTask
 			fUni = 1,
 			fNChsHF = 2,
 			fUnknownIds = 3,
-			nDigiFlag = 4
+			fLED=4,
+			fCapId=5,
+			nDigiFlag=6
 		};
 
 		//	hashes/FED vectors
 		std::vector<uint32_t> _vhashFEDs;
 
+		std::map<HcalSubdetector, int> _refDigiSize;
+
 		//	emap
-		HcalElectronicsMap const* _emap;
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmap; // online only
 		hcaldqm::electronicsmap::ElectronicsMap _dhashmap;
 
@@ -76,7 +81,9 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::filter::HashFilter _filter_VME;
 		hcaldqm::filter::HashFilter _filter_uTCA;
 		hcaldqm::filter::HashFilter _filter_FEDHF;
-		hcaldqm::filter::HashFilter _filter_HF;
+		hcaldqm::filter::HashFilter _filter_QIE1011;
+		hcaldqm::filter::HashFilter _filter_QIE8;
+		hcaldqm::filter::HashFilter _filter_HEP17;
 
 		/* hcaldqm::Containers */
 		//	ADC, fC - Charge - just filling - no summary!
@@ -87,8 +94,18 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::ContainerProf1D _cSumQvsLS_SubdetPM;
 		hcaldqm::ContainerProf1D _cSumQvsBX_SubdetPM;	// online only!
 
+		// ADC, fC for HF (QIE10 has different ADC/fC)
+		hcaldqm::Container1D _cADC_SubdetPM_QIE1011;
+		hcaldqm::Container1D _cfC_SubdetPM_QIE1011;
+		hcaldqm::Container1D _cSumQ_SubdetPM_QIE1011;
+		hcaldqm::ContainerProf1D _cSumQvsLS_SubdetPM_QIE1011;
+		hcaldqm::ContainerProf1D _cSumQvsBX_SubdetPM_QIE1011;	// online only!
+
+		
 		//	Shape - just filling - not summary!
 		hcaldqm::Container1D _cShapeCut_FED;
+		hcaldqm::Container2D _cADCvsTS_SubdetPM;
+		hcaldqm::Container2D _cADCvsTS_SubdetPM_QIE1011;
 
 		//	Timing
 		//	just filling - no summary!
@@ -98,6 +115,7 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::ContainerProf2D _cTimingCut_ElectronicsVME;
 		hcaldqm::ContainerProf2D _cTimingCut_ElectronicsuTCA;
 		hcaldqm::ContainerProf1D _cTimingCutvsLS_FED;
+		hcaldqm::ContainerProf1D _cTimingCutvsLS_SubdetPM;
 		hcaldqm::ContainerProf2D _cTimingCut_depth;
 		hcaldqm::ContainerProf1D _cTimingCutvsiphi_SubdetPM;	// online only!
 		hcaldqm::ContainerProf1D _cTimingCutvsieta_Subdet;	// online only!
@@ -111,6 +129,8 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::Container2D _cOccupancy_FEDuTCA;
 		hcaldqm::Container2D _cOccupancy_ElectronicsVME;
 		hcaldqm::Container2D _cOccupancy_ElectronicsuTCA;
+		hcaldqm::Container2D _cOccupancy_Crate;
+		hcaldqm::Container2D _cOccupancy_CrateSlot;
 		hcaldqm::Container2D _cOccupancy_depth;
 		hcaldqm::Container1D _cOccupancyvsiphi_SubdetPM; // online only
 		hcaldqm::Container1D _cOccupancyvsieta_Subdet;	// online only
@@ -125,7 +145,7 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::Container2D _cOccupancyCut_depth;
 		hcaldqm::Container1D _cOccupancyCutvsiphi_SubdetPM; // online only
 		hcaldqm::Container1D _cOccupancyCutvsieta_Subdet;	// online only
-		hcaldqm::Container2D _cOccupancyCutvsSlotvsLS_HFPM; // online only
+		//hcaldqm::Container2D _cOccupancyCutvsSlotvsLS_HFPM; // online only
 		hcaldqm::Container2D _cOccupancyCutvsiphivsLS_SubdetPM; // online only
 
 		//	Occupancy w/o and w/ a Cut vs BX and vs LS
@@ -134,20 +154,54 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::ContainerProf1D _cOccupancyCutvsBX_Subdet;	// online only
 
 		//	#Time Samples for a digi. Used for Summary generation
+		hcaldqm::Container1D _cDigiSize_Crate;
 		hcaldqm::Container1D _cDigiSize_FED;
 		hcaldqm::ContainerProf1D _cDigiSizevsLS_FED;	// online only
 		hcaldqm::ContainerXXX<uint32_t> _xDigiSize; // online only
 		hcaldqm::ContainerXXX<uint32_t> _xUniHF,_xUni; // online only
 		hcaldqm::ContainerXXX<uint32_t> _xNChs; // online only
 		hcaldqm::ContainerXXX<uint32_t> _xNChsNominal; // online only
+		hcaldqm::ContainerXXX<uint32_t> _xBadCapid; // online only
+
+		// QIE10 TDC histograms
+		hcaldqm::Container2D _cLETDCTimevsADC_SubdetPM;
+		hcaldqm::Container2D _cLETDCvsADC_SubdetPM;
+		hcaldqm::Container2D _cLETDCvsTS_SubdetPM;
+		hcaldqm::Container1D _cLETDCTime_SubdetPM;
+		hcaldqm::ContainerProf2D _cLETDCTime_depth;
+
+		// Bad TDC histograms
+		hcaldqm::Container1D _cBadTDCValues_SubdetPM;
+		hcaldqm::Container1D _cBadTDCvsBX_SubdetPM;
+		hcaldqm::Container1D _cBadTDCvsLS_SubdetPM;
+		hcaldqm::Container2D _cBadTDCCount_depth;
+
+		hcaldqm::Container1D _cBadTDCValues;
+		hcaldqm::Container1D _cBadTDCvsBX;
+		hcaldqm::Container1D _cBadTDCvsLS;
+
+		// (Capid - BX) % 4		
+		hcaldqm::Container1D _cCapidMinusBXmod4_SubdetPM;
+		hcaldqm::ContainerSingle2D _cCapidMinusBXmod4_CrateSlotuTCA[4]; // CrateSlot 2D histograms for each (capid-BX)%4
+		hcaldqm::ContainerSingle2D _cCapidMinusBXmod4_CrateSlotVME[4]; // CrateSlot 2D histograms for each (capid-BX)%4
+
+		// For monitoring LED misfires: ADC vs BX
+		MonitorElement* _meLEDMon;
 
 		//	#events counters
 		MonitorElement *meNumEvents1LS; // to transfer the #events to harvesting
 		MonitorElement *meUnknownIds1LS;
 		bool _unknownIdsPresent;
+		MonitorElement *_meLEDEventCount; // Count events with LED pin diode signal > threshold
+		double _thresh_led;
+		bool _ledSignalPresent;
 
 		hcaldqm::Container2D _cSummaryvsLS_FED; // online only
 		hcaldqm::ContainerSingle2D _cSummaryvsLS; // online only
+
+		bool _qie10InConditions; // Flag to protect against QIE10 digis not in conditions in 2016.
+
+		std::map<HcalSubdetector, short> _capidmbx; // Expected (capid - BX) % 4 for each subdet
 };
 
 #endif

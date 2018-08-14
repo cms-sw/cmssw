@@ -22,34 +22,36 @@ class PedestalTask : public hcaldqm::DQTask
 {
 	public:
 		PedestalTask(edm::ParameterSet const&);
-		virtual ~PedestalTask()
+		~PedestalTask() override
 		{}
 
-		virtual void bookHistograms(DQMStore::IBooker&,
-			edm::Run const&, edm::EventSetup const&);
-		virtual void beginLuminosityBlock(edm::LuminosityBlock const&,
-			edm::EventSetup const&);
-		virtual void endLuminosityBlock(edm::LuminosityBlock const&,
-			edm::EventSetup const&);
-		virtual void endRun(edm::Run const&, edm::EventSetup const&);
+		void bookHistograms(DQMStore::IBooker&,
+			edm::Run const&, edm::EventSetup const&) override;
+		void beginLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&) override;
+		void endLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&) override;
+		void endRun(edm::Run const&, edm::EventSetup const&) override;
 
 	protected:
 		//	funcs
-		virtual void _process(edm::Event const&, edm::EventSetup const&);
-		virtual void _resetMonitors(hcaldqm::UpdateFreq);
-		virtual bool _isApplicable(edm::Event const&);
+		void _process(edm::Event const&, edm::EventSetup const&) override;
+		void _resetMonitors(hcaldqm::UpdateFreq) override;
+		bool _isApplicable(edm::Event const&) override;
 		virtual void _dump();
 
 		//	tags and tokens
 		edm::InputTag	_tagHBHE;
+		edm::InputTag	_tagHE;
 		edm::InputTag	_tagHO;
 		edm::InputTag	_tagHF;
 		edm::InputTag	_tagTrigger;
 		edm::InputTag   _taguMN;
 		edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
 		edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
+		edm::EDGetTokenT<QIE11DigiCollection> _tokHEP17;
 		edm::EDGetTokenT<HODigiCollection> _tokHO;
-		edm::EDGetTokenT<HFDigiCollection> _tokHF;
+		edm::EDGetTokenT<QIE10DigiCollection> _tokHF;
 		edm::EDGetTokenT<HcalTBTriggerData> _tokTrigger;
 
 		std::vector<hcaldqm::flag::Flag> _vflags;
@@ -62,11 +64,10 @@ class PedestalTask : public hcaldqm::DQTask
 		};
 
 		//	emap
-		HcalElectronicsMap const*	_emap;
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmap;
 		hcaldqm::filter::HashFilter _filter_uTCA;
 		hcaldqm::filter::HashFilter _filter_VME;
-		hcaldqm::filter::HashFilter _filter_C36;
+		hcaldqm::filter::HashFilter _filter_C38;
 
 		//	thresholds
 		double _thresh_mean, _thresh_rms, _thresh_badm, _thresh_badr;

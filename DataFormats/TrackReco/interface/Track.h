@@ -34,7 +34,7 @@ public:
     Track() { }
 
     /// virtual destructor
-    virtual ~Track();
+    ~Track() override;
 
     /// constructor from fit parameters and error matrix
     Track(double chi2, double ndof, const Point & referencePoint,

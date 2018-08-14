@@ -21,7 +21,7 @@ public:
 
   ME0PreRecoGaussianModel(const edm::ParameterSet&);
 
-  ~ME0PreRecoGaussianModel();
+  ~ME0PreRecoGaussianModel() override;
 
   void simulateSignal(const ME0EtaPartition*, const edm::PSimHitContainer&, CLHEP::HepRandomEngine*) override;
   void simulateNoise(const ME0EtaPartition*, CLHEP::HepRandomEngine*) override;
@@ -50,6 +50,7 @@ private:
 
   double instLumi_;
   double rateFact_;
+  double referenceInstLumi_;
 
   // params for the simple pol6 model of neutral bkg for ME0:
   std::vector<double> neuBkg, eleBkg;

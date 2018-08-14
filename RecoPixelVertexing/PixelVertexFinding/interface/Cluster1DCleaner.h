@@ -3,6 +3,8 @@
 
 #include "CommonTools/Clustering1D/interface/Cluster1D.h"
 
+#include <cmath>
+
 /*
  * given a vector<Cluster1D<T> >, erase Cluster1D further away than 
  * ZOffeSet from the average position, then 
@@ -60,7 +62,7 @@ Cluster1DCleaner<T>::cleanCluster1Ds(const std::vector<Cluster1D<T> >& clust)
 {
     theCleanedCluster1Ds.clear();
     theDiscardedCluster1Ds.clear();
-    if (clust.size() == 0)
+    if (clust.empty())
         return;
     float oldPos = average(clust);
     for( typename std::vector < Cluster1D<T> >::const_iterator ic=clust.begin();

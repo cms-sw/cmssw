@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -24,13 +24,13 @@ class photonIsolationHIProducer : public edm::stream::EDProducer<> {
  public:
 
   explicit photonIsolationHIProducer (const edm::ParameterSet& ps);
-  ~photonIsolationHIProducer();
+  ~photonIsolationHIProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
 
-  virtual void produce(edm::Event& evt, const edm::EventSetup& es) override;
+  void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
   edm::EDGetTokenT<reco::PhotonCollection> photonProducer_;
   edm::EDGetTokenT<EcalRecHitCollection> barrelEcalHits_;

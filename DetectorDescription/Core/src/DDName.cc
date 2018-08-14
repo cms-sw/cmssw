@@ -1,10 +1,10 @@
 #include "DetectorDescription/Core/interface/DDName.h"
 
 #include <ext/alloc_traits.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <sstream>
 
-#include "DetectorDescription/Base/interface/Singleton.h"
+#include "DetectorDescription/Core/interface/Singleton.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -12,8 +12,6 @@
 std::ostream & operator<<(std::ostream & os, const DDName & n)
 { 
   os << n.ns() << ':' << n.name();
-  static const char * ev = getenv("DDNAMEID");
-  if (ev) os << '[' << n.id() << ']';
   return os;
 }  
 
@@ -28,7 +26,7 @@ DDName::DDName( const std::string & name )
  : id_(0)
 { 
   std::pair<std::string,std::string> result = DDSplit(name);
-  if (result.second == "") {
+  if (result.second.empty()) {
     id_ = registerName(std::make_pair(result.first,DDCurrentNamespace::ns()))->second;
   }  
   else {
@@ -41,7 +39,7 @@ DDName::DDName( const char* name )
  : id_(0)
 { 
   std::pair<std::string,std::string> result = DDSplit(name);
-  if (result.second == "") {
+  if (result.second.empty()) {
     id_ = registerName(std::make_pair(result.first,DDCurrentNamespace::ns()))->second;
   }  
   else {
@@ -130,13 +128,13 @@ DDName::Registry::iterator DDName::registerName(const std::pair<std::string,std:
     Registry::size_type sz = reg_.size();
     if (!sz) {
       reg_[std::make_pair(std::string(""),std::string(""))] = 0;
-      idToName.push_back(reg_.begin());
+      idToName.emplace_back(reg_.begin());
       ++sz;
     }
     Registry::value_type val(nm, sz);
     std::pair<Registry::iterator,bool> result = reg_.insert(val);
     if (result.second) {
-      idToName.push_back(result.first);
+      idToName.emplace_back(result.first);
     }
     return result.first;
 }

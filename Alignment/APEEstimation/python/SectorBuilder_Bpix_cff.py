@@ -35,11 +35,16 @@ BpixLayer3 = Bpix.clone(
     name = 'BpixLayer3',
     layer = [3],
 )
+BpixLayer4 = Bpix.clone(
+    name = 'BpixLayer4',
+    layer = [4],
+)
 
 BPIXLayerSeparation = cms.VPSet(
     BpixLayer1,
     BpixLayer2,
     BpixLayer3,
+    BpixLayer4,
 )
 
 
@@ -72,6 +77,14 @@ BpixLayer3In = BpixLayer3.clone(
     name = 'BpixLayer3In',
     wDirection = [-1],
 )
+BpixLayer4Out = BpixLayer4.clone(
+    name = 'BpixLayer4Out',
+    wDirection = [1],
+)
+BpixLayer4In = BpixLayer4.clone(
+    name = 'BpixLayer4In',
+    wDirection = [-1],
+)
 
 BPIXLayerAndOrientationSeparation = cms.VPSet(
     BpixLayer1Out,
@@ -80,6 +93,8 @@ BPIXLayerAndOrientationSeparation = cms.VPSet(
     BpixLayer2In,
     BpixLayer3Out,
     BpixLayer3In,
+    BpixLayer4Out,
+    BpixLayer4In,
 )
 
 

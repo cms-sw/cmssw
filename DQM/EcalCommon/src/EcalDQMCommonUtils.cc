@@ -461,10 +461,10 @@ namespace ecaldqm
   */
 
   std::mutex mapMutex;
-  EcalElectronicsMapping const* electronicsMap(0);
-  EcalTrigTowerConstituentsMap const* trigtowerMap(0);
-  CaloGeometry const* geometry(0);
-  CaloTopology const* topology(0);
+  EcalElectronicsMapping const* electronicsMap(nullptr);
+  EcalTrigTowerConstituentsMap const* trigtowerMap(nullptr);
+  CaloGeometry const* geometry(nullptr);
+  CaloTopology const* topology(nullptr);
 
   bool
   checkElectronicsMap(bool _throw/* = true*/)
@@ -486,7 +486,6 @@ namespace ecaldqm
   setElectronicsMap(EcalElectronicsMapping const* _map)
   {
     std::lock_guard<std::mutex> lock(mapMutex);
-    if(electronicsMap) return;
     electronicsMap = _map;
   }
 
@@ -510,7 +509,6 @@ namespace ecaldqm
   setTrigTowerMap(EcalTrigTowerConstituentsMap const* _map)
   {
     std::lock_guard<std::mutex> lock(mapMutex);
-    if(trigtowerMap) return;
     trigtowerMap = _map;
   }
 
@@ -534,7 +532,6 @@ namespace ecaldqm
   setGeometry(CaloGeometry const* _geom)
   {
     std::lock_guard<std::mutex> lock(mapMutex);
-    if(geometry) return;
     geometry = _geom;
   }
 
@@ -558,7 +555,6 @@ namespace ecaldqm
   setTopology(CaloTopology const* _geom)
   {
     std::lock_guard<std::mutex> lock(mapMutex);
-    if(topology) return;
     topology = _geom;
   }
 }

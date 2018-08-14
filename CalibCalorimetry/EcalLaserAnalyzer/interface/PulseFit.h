@@ -18,7 +18,7 @@ class PulseFit: public TObject
   PulseFit() ;
 
   // Destructor: Does nothing?
-  virtual ~PulseFit() ;
+  ~PulseFit() override ;
 
   // Get reconstructed values
   double getAmplitude() const ;

@@ -1,7 +1,7 @@
 /****************************************************************************
 *
 * This is a part of TOTEM offline software.
-* Authors: 
+* Authors:
 *   Jan Kašpar (jan.kaspar@gmail.com)
 *
 ****************************************************************************/
@@ -31,6 +31,8 @@
 #include "EventFilter/CTPPSRawToDigi/interface/RawDataUnpacker.h"
 #include "EventFilter/CTPPSRawToDigi/interface/RawToDigiConverter.h"
 
+#include "DataFormats/CTPPSDigi/interface/TotemTimingDigi.h"
+
 #include <string>
 
 //----------------------------------------------------------------------------------------------------
@@ -39,20 +41,21 @@ class TotemVFATRawToDigi : public edm::stream::EDProducer<>
 {
   public:
     explicit TotemVFATRawToDigi(const edm::ParameterSet&);
-    ~TotemVFATRawToDigi();
+    ~TotemVFATRawToDigi() override;
 
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
+    void endStream() override;
 
   private:
     std::string subSystemName;
 
-    enum { ssUndefined, ssTrackingStrip, ssTimingDiamond } subSystem;
+    enum { ssUndefined, ssTrackingStrip, ssTimingDiamond, ssTotemTiming } subSystem;
 
     std::vector<unsigned int> fedIds;
 
     edm::EDGetTokenT<FEDRawDataCollection> fedDataToken;
 
-    RawDataUnpacker rawDataUnpacker;
+    ctpps::RawDataUnpacker rawDataUnpacker;
     RawToDigiConverter rawToDigiConverter;
 
     template <typename DigiType>
@@ -78,8 +81,10 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf):
   // validate chosen subSystem
   if (subSystemName == "TrackingStrip")
     subSystem = ssTrackingStrip;
-  if (subSystemName == "TimingDiamond")
+  else if (subSystemName == "TimingDiamond")
     subSystem = ssTimingDiamond;
+  else if (subSystemName == "TotemTiming")
+    subSystem = ssTotemTiming;
 
   if (subSystem == ssUndefined)
     throw cms::Exception("TotemVFATRawToDigi::TotemVFATRawToDigi") << "Unknown sub-system string " << subSystemName << "." << endl;
@@ -91,22 +96,29 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf):
   if (subSystem == ssTrackingStrip)
     produces< DetSetVector<TotemRPDigi> >(subSystemName);
 
-  if (subSystem == ssTimingDiamond)
+  else if (subSystem == ssTimingDiamond)
     produces< DetSetVector<CTPPSDiamondDigi> >(subSystemName);
 
+  else if (subSystem == ssTotemTiming)
+    produces< DetSetVector<TotemTimingDigi> >(subSystemName);
+
   // set default IDs
-  if (fedIds.empty())
-  {
-    if (subSystem == ssTrackingStrip)
-    {
-      for (int id = FEDNumbering::MINTotemRPFEDID; id <= FEDNumbering::MAXTotemRPFEDID; ++id)
+  if (fedIds.empty()) {
+    if (subSystem == ssTrackingStrip) {
+      for (int id = FEDNumbering::MINTotemRPHorizontalFEDID; id <= FEDNumbering::MAXTotemRPHorizontalFEDID; ++id)
+        fedIds.push_back(id);
+
+      for (int id = FEDNumbering::MINTotemRPVerticalFEDID; id <= FEDNumbering::MAXTotemRPVerticalFEDID; ++id)
         fedIds.push_back(id);
     }
 
-    if (subSystem == ssTimingDiamond)
-    {
-      
+    else if (subSystem == ssTimingDiamond) {
       for (int id = FEDNumbering::MINCTPPSDiamondFEDID; id <= FEDNumbering::MAXCTPPSDiamondFEDID; ++id)
+        fedIds.push_back(id);
+    }
+
+    else if (subSystem == ssTotemTiming) {
+      for (int id = FEDNumbering::MINTotemRPTimingVerticalFEDID; id <= FEDNumbering::MAXTotemRPTimingVerticalFEDID; ++id)
         fedIds.push_back(id);
     }
   }
@@ -128,8 +140,11 @@ void TotemVFATRawToDigi::produce(edm::Event& event, const edm::EventSetup &es)
   if (subSystem == ssTrackingStrip)
     run< DetSetVector<TotemRPDigi> >(event, es);
 
-  if (subSystem == ssTimingDiamond)
+  else if (subSystem == ssTimingDiamond)
     run< DetSetVector<CTPPSDiamondDigi> >(event, es);
+
+  else if (subSystem == ssTotemTiming)
+    run< DetSetVector<TotemTimingDigi> >(event, es);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -160,11 +175,11 @@ void TotemVFATRawToDigi::run(edm::Event& event, const edm::EventSetup &es)
   {
     const FEDRawData &data = rawData->FEDData(fedId);
     if (data.size() > 0)
-      rawDataUnpacker.Run(fedId, data, fedInfo, vfatCollection);
+      rawDataUnpacker.run(fedId, data, fedInfo, vfatCollection);
   }
 
   // raw-to-digi conversion
-  rawToDigiConverter.Run(vfatCollection, *mapping, *analysisMask, digi, conversionStatus);
+  rawToDigiConverter.run(vfatCollection, *mapping, *analysisMask, digi, conversionStatus);
 
   // commit products to event
   event.put(make_unique<vector<TotemFEDInfo>>(fedInfo), subSystemName);
@@ -173,5 +188,10 @@ void TotemVFATRawToDigi::run(edm::Event& event, const edm::EventSetup &es)
 }
 
 //----------------------------------------------------------------------------------------------------
+
+void TotemVFATRawToDigi::endStream()
+{
+  rawToDigiConverter.printSummaries();
+}
 
 DEFINE_FWK_MODULE(TotemVFATRawToDigi);

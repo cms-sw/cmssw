@@ -19,8 +19,6 @@ JacobianLocalToCurvilinear(const Surface& surface,
   LocalVector tnl = localParameters.direction();
   GlobalVector tn = surface.toGlobal(tnl);
  
-  // GlobalVector dj = surface.toGlobal(LocalVector(1., 0., 0.));
-  // GlobalVector dk = surface.toGlobal(LocalVector(0., 1., 0.));
   Surface::RotationType const & rot = surface.rotation();
 
   compute(rot, tnl, tn, hq);
@@ -32,8 +30,6 @@ JacobianLocalToCurvilinear(const Surface& surface,
 			   const GlobalTrajectoryParameters& globalParameters,
 			   const MagneticField& magField) : theJacobian(ROOT::Math::SMatrixNoInit()) {
 
-  // GlobalPoint  x =  globalParameters.position();
-  // GlobalVector h  = magField.inInverseGeV(x);
   GlobalVector h  = globalParameters.magneticFieldInInverseGeV();
   GlobalVector hq = h*localParameters.signedInverseMomentum();  // changed sign
 
@@ -41,8 +37,6 @@ JacobianLocalToCurvilinear(const Surface& surface,
   LocalVector tnl = localParameters.direction();
   GlobalVector tn = surface.toGlobal(tnl);  // globalParameters.momentum().unit();
  
-  // GlobalVector dj = surface.toGlobal(LocalVector(1., 0., 0.));
-  // GlobalVector dk = surface.toGlobal(LocalVector(0., 1., 0.));
   Surface::RotationType const & rot = surface.rotation();
 
   compute(rot, tnl, tn, hq);
@@ -55,15 +49,8 @@ void JacobianLocalToCurvilinear::compute(Surface::RotationType const & rot, Loca
   GlobalVector dj(rot.x());
   GlobalVector dk(rot.y());
  
-  // GlobalVector p = surface.toGlobal(localParameters.momentum());
-  // GlobalVector pt(p.x(), p.y(), 0.);
-  // pt = pt.unit();
-  // GlobalVector tn = p.unit();
-
-  //  GlobalVector di = tsos.surface().toGlobal(LocalVector(0., 0., 1.));
-
   // rotate coordinates because of wrong coordinate system in orca
-  LocalVector tvw(tnl.z(), tnl.x(), tnl.y());
+  double tvwX=tnl.z(), tvwY=tnl.x(), tvwZ=tnl.y();
   double cosl = tn.perp(); if (cosl < 1.e-30) cosl = 1.e-30;
   double cosl1 = 1./cosl;
 
@@ -84,10 +71,10 @@ void JacobianLocalToCurvilinear::compute(Surface::RotationType const & rot, Loca
   theJacobian(1,0) = 0.;
   theJacobian(2,0) = 0.;
 
-  theJacobian(1,1) = tvw.x()*vj;
-  theJacobian(1,2) = tvw.x()*vk;
-  theJacobian(2,1) = tvw.x()*uj*cosl1;
-  theJacobian(2,2) = tvw.x()*uk*cosl1;
+  theJacobian(1,1) = tvwX*vj;
+  theJacobian(1,2) = tvwX*vk;
+  theJacobian(2,1) = tvwX*uj*cosl1;
+  theJacobian(2,2) = tvwX*uk*cosl1;
 
   for (auto i=0;i<3; ++i) { theJacobian(3,i)=0.; theJacobian(4,i)=0.; }
 
@@ -96,10 +83,10 @@ void JacobianLocalToCurvilinear::compute(Surface::RotationType const & rot, Loca
   theJacobian(4,3) = vj;
   theJacobian(4,4) = vk;
  
-  theJacobian(1,3) = tvw.y()*sinz;
-  theJacobian(1,4) = tvw.z()*sinz;
-  theJacobian(2,3) = tvw.y()*(cosz*cosl1);
-  theJacobian(2,4) = tvw.z()*(cosz*cosl1);
+  theJacobian(1,3) = tvwY*sinz;
+  theJacobian(1,4) = tvwZ*sinz;
+  theJacobian(2,3) = tvwY*(cosz*cosl1);
+  theJacobian(2,4) = tvwZ*(cosz*cosl1);
   // end of TRSDSC
 
   //dbg::dbg_trace(1,"Loc2Cu", localParameters.vector(),x,dj,dk,theJacobian);

@@ -14,7 +14,7 @@
 #include <iostream>
 #include <iomanip>
 
-TreatSecondary::TreatSecondary(const edm::ParameterSet &p): typeEnumerator(0) {
+TreatSecondary::TreatSecondary(const edm::ParameterSet &p): typeEnumerator(nullptr) {
 
   verbosity     = p.getUntrackedParameter<int>("Verbosity",0);
   killAfter     = p.getUntrackedParameter<int>("KillAfter", -1);

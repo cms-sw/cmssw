@@ -45,12 +45,12 @@ Implementation:
 class HcalCalibTypeFilter : public edm::EDFilter {
 public:
   explicit HcalCalibTypeFilter(const edm::ParameterSet&);
-  virtual ~HcalCalibTypeFilter();
+  ~HcalCalibTypeFilter() override;
   
 private:
-  virtual void beginJob() override ;
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
   
   // ----------member data ---------------------------
  

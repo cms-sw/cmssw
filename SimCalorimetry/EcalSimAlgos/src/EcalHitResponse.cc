@@ -23,16 +23,16 @@ EcalHitResponse::EcalHitResponse( const CaloVSimParameterMap* parameterMap ,
 				  const CaloVShape*           shape         ) :
    m_parameterMap    ( parameterMap ) ,
    m_shape           ( shape        ) ,
-   m_hitCorrection   ( 0            ) ,
-   m_PECorrection    ( 0            ) ,
-   m_hitFilter       ( 0            ) ,
-   m_geometry        ( 0            ) ,
-   m_lasercals       ( 0            ) ,
+   m_hitCorrection   ( nullptr            ) ,
+   m_PECorrection    ( nullptr            ) ,
+   m_hitFilter       ( nullptr            ) ,
+   m_geometry        ( nullptr            ) ,
+   m_lasercals       ( nullptr            ) ,
    m_minBunch        ( -32          ) ,
    m_maxBunch        (  10          ) ,
    m_phaseShift      ( 1            ) ,
    m_iTime           ( 0            ) ,
-   m_useLCcorrection ( 0            )  
+   m_useLCcorrection ( false            )  
 {
 }
 
@@ -43,21 +43,21 @@ EcalHitResponse::~EcalHitResponse()
 const CaloSimParameters*
 EcalHitResponse::params( const DetId& detId ) const
 {
-   assert( 0 != m_parameterMap ) ;
+   assert( nullptr != m_parameterMap ) ;
    return &m_parameterMap->simParameters( detId ) ;
 }
 
 const CaloVShape*
 EcalHitResponse::shape() const
 {
-   assert( 0 != m_shape ) ;
+   assert( nullptr != m_shape ) ;
    return m_shape ;
 }
 
 const CaloSubdetectorGeometry*
 EcalHitResponse::geometry() const
 {
-   assert( 0 != m_geometry ) ;
+   assert( nullptr != m_geometry ) ;
    return m_geometry ;
 }
 
@@ -72,7 +72,7 @@ EcalHitResponse::setBunchRange( int minBunch ,
 void 
 EcalHitResponse::setGeometry( const CaloSubdetectorGeometry* geometry )
 {
-   m_geometry = geometry ;
+  m_geometry = geometry ;
 }
 
 void 
@@ -136,7 +136,7 @@ EcalHitResponse::blankOutUsedSamples()  // blank out previously used elements
 void 
 EcalHitResponse::add( const PCaloHit& hit, CLHEP::HepRandomEngine* engine )
 {
-  if (!edm::isNotFinite( hit.time() ) && ( 0 == m_hitFilter || m_hitFilter->accepts( hit ) ) ) {
+  if (!edm::isNotFinite( hit.time() ) && ( nullptr == m_hitFilter || m_hitFilter->accepts( hit ) ) ) {
     putAnalogSignal( hit, engine ) ;
   }
 }
@@ -192,7 +192,7 @@ EcalHitResponse::run( MixCollection<PCaloHit>& hits, CLHEP::HepRandomEngine* eng
       const int bunch ( hitItr.bunch() ) ;
       if( withinBunchRange(bunch)  &&
 	  !edm::isNotFinite( hit.time() ) &&
-	  ( 0 == m_hitFilter ||
+	  ( nullptr == m_hitFilter ||
 	    m_hitFilter->accepts( hit ) ) ) putAnalogSignal( hit, engine ) ;
    }
    
@@ -274,7 +274,7 @@ EcalHitResponse::analogSignalAmplitude( const DetId& detId, double energy, CLHEP
    if( parameters.doPhotostatistics() ) {
      npe = CLHEP::RandPoissonQ::shoot(engine, npe);
    }
-   if( 0 != m_PECorrection ) npe = m_PECorrection->correctPE( detId, npe, engine ) ;
+   if( nullptr != m_PECorrection ) npe = m_PECorrection->correctPE( detId, npe, engine ) ;
 
    return npe ;
 }
@@ -282,9 +282,9 @@ EcalHitResponse::analogSignalAmplitude( const DetId& detId, double energy, CLHEP
 double 
 EcalHitResponse::timeOfFlight( const DetId& detId ) const 
 {
-   const CaloCellGeometry* cellGeometry ( geometry()->getGeometry( detId ) ) ;
-   assert( 0 != cellGeometry ) ;
-   return cellGeometry->getPosition().mag()*cm/c_light ; // Units of c_light: mm/ns
+  auto cellGeometry ( geometry()->getGeometry( detId ) ) ;
+  assert( nullptr != cellGeometry ) ;
+  return cellGeometry->getPosition().mag()*cm/c_light ; // Units of c_light: mm/ns
 }
 
 void 

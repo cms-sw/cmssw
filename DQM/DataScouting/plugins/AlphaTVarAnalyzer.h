@@ -6,9 +6,9 @@
 class AlphaTVarAnalyzer : public ScoutingAnalyzerBase {
   public:
     explicit AlphaTVarAnalyzer( const edm::ParameterSet &  ) ;
-    virtual ~AlphaTVarAnalyzer() ;
+    ~AlphaTVarAnalyzer() override ;
     void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-    virtual void analyze( const edm::Event & , const edm::EventSetup &  ) override;
+    void analyze( const edm::Event & , const edm::EventSetup &  ) override;
   private: 
     edm::InputTag m_jetCollectionTag;
     edm::InputTag m_alphaTVarCollectionTag;

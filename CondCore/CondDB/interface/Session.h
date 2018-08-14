@@ -16,11 +16,15 @@
 #include "CondCore/CondDB/interface/IOVEditor.h"
 #include "CondCore/CondDB/interface/GTProxy.h"
 #include "CondCore/CondDB/interface/GTEditor.h"
+#include "CondCore/CondDB/interface/RunInfoProxy.h"
+#include "CondCore/CondDB/interface/RunInfoEditor.h"
 #include "CondCore/CondDB/interface/Binary.h"
 #include "CondCore/CondDB/interface/Serialization.h"
 #include "CondCore/CondDB/interface/Types.h"
 #include "CondCore/CondDB/interface/Utils.h"
 // 
+//#include <vector>
+//#include <tuple>
 // temporarely
 
 // TO BE REMOVED AFTER THE TRANSITION
@@ -97,6 +101,11 @@ namespace cond {
       // 
       bool existsIov( const std::string& tag );
       
+      // retrieves an IOV range. Peforms a query at every call.
+      bool getIovRange( const std::string& tag, 
+			cond::Time_t begin, cond::Time_t end, 
+			std::vector<std::tuple<cond::Time_t,cond::Hash> >& range );
+
       // create a non-existing iov sequence with the specified tag.
       // the type is required for consistency with the referenced payloads.    
       // fixme: add creation time - required for the migration
@@ -124,7 +133,7 @@ namespace cond {
       // update an existing iov sequence with the specified tag.
       // timeType and payloadType can't be modified.
       IOVEditor editIov( const std::string& tag );
-      
+
       // functions to store a payload in the database. return the identifier of the item in the db. 
       template <typename T> cond::Hash storePayload( const T& payload, 
 						     const boost::posix_time::ptime& creationTime = boost::posix_time::microsec_clock::universal_time() );
@@ -153,6 +162,12 @@ namespace cond {
       GTProxy readGlobalTag( const std::string& name, 
 			     const std::string& preFix, 
 			     const std::string& postFix  );
+
+      // runinfo read only access
+      RunInfoProxy getRunInfo( cond::Time_t start, cond::Time_t end );
+
+      // runinfo write access
+      RunInfoEditor editRunInfo();
     public:
       
       std::string connectionString();
@@ -180,6 +195,19 @@ namespace cond {
       } catch ( const cond::persistency::Exception& e ){
 	std::string em(e.what());
 	throwException( "Payload of type "+payloadObjectType+" could not be stored. "+em,"Session::storePayload"); 	
+      }
+      return ret;
+    }
+
+    template <> inline cond::Hash Session::storePayload<std::string>( const std::string& payload, const boost::posix_time::ptime& creationTime ){
+
+      std::string payloadObjectType("std::string");
+      cond::Hash ret;
+      try{
+        ret = storePayloadData( payloadObjectType, serialize( payload ), creationTime );
+      } catch ( const cond::persistency::Exception& e ){
+	std::string em(e.what());
+        throwException( "Payload of type "+payloadObjectType+" could not be stored. "+em,"Session::storePayload");
       }
       return ret;
     }

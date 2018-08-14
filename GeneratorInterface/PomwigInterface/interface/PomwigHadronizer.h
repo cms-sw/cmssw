@@ -22,7 +22,7 @@ namespace gen
   {
     public:
         PomwigHadronizer(const edm::ParameterSet &params);
-        ~PomwigHadronizer();
+        ~PomwigHadronizer() override;
 
         bool readSettings( int );
 	bool initializeForInternalPartons();
@@ -42,8 +42,8 @@ namespace gen
 
     private:
 
-        virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
-        virtual std::vector<std::string> const& doSharedResources() const override { return theSharedResources; }
+        void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
+        std::vector<std::string> const& doSharedResources() const override { return theSharedResources; }
 
         void clear();
         bool initializeDPDF();

@@ -7,7 +7,7 @@ using namespace reco;
 
 EgammaTrackSelector::result_type EgammaTrackSelector::operator()(const EgammaTrackSelector::input_type & tracks) const
 {
-  static std::string metname = "EgammaIsolationAlgos|EgammaTrackSelector";
+  static const std::string metname = "EgammaIsolationAlgos|EgammaTrackSelector";
   result_type result;
   for (input_type::const_iterator it = tracks.begin(); it != tracks.end(); it++) {
 

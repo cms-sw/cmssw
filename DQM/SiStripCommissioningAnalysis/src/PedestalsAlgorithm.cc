@@ -15,8 +15,8 @@ using namespace sistrip;
 // 
 PedestalsAlgorithm::PedestalsAlgorithm( const edm::ParameterSet & pset, PedestalsAnalysis* const anal ) 
   : CommissioningAlgorithm(anal),
-    hPeds_(0,""),
-    hNoise_(0,""),
+    hPeds_(nullptr,""),
+    hNoise_(nullptr,""),
     deadStripMax_(pset.getParameter<double>("DeadStripMax")),
     noisyStripMin_(pset.getParameter<double>("NoisyStripMin"))
 {
@@ -152,8 +152,7 @@ void PedestalsAlgorithm::analyse() {
     // Iterate through strips of APV
     for ( uint16_t istr = 0; istr < 128; istr++ ) {
 
-      static uint16_t strip;
-      strip = iapv*128 + istr;
+      uint16_t strip = iapv*128 + istr;
 
       // Pedestals and raw noise
       if ( peds_histo ) {

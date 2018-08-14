@@ -5,8 +5,8 @@
 #include "EventFilter/CastorRawToDigi/interface/CastorMergerData.h"
 #include "EventFilter/CastorRawToDigi/interface/CastorCTDCHeader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <string.h>
-#include <stdint.h>
+#include <cstring>
+#include <cstdint>
 
 const int CastorCTDCHeader::SPIGOT_COUNT = 2; // COR spigots - does not include merger pay load
 
@@ -20,13 +20,13 @@ unsigned int CastorCTDCHeader::getTotalLengthBytes() const {
 }  
 
 int CastorCTDCHeader::getSpigotData(int nspigot, CastorCORData& decodeTool, int validSize) const {
-  const unsigned short* base=((unsigned short*)this)+sizeof(CastorCTDCHeader)/sizeof(unsigned short);
+  const uint16_t* base=((const uint16_t*)this)+sizeof(CastorCTDCHeader)/sizeof(uint16_t);
   int offset=0,i,len=0;
   for (i=0; i<=nspigot; i++) {
     offset+=len;
     len=(spigotInfo[i]&0x3FF)*2;
   }
-  if ((offset+len+sizeof(CastorCTDCHeader)/sizeof(unsigned short))<(validSize/sizeof(unsigned short))) {
+  if ((offset+len+sizeof(CastorCTDCHeader)/sizeof(uint16_t))<(validSize/sizeof(uint16_t))) {
     decodeTool.adoptData(base+offset,len);
     return 0;
   } else { return -1; }

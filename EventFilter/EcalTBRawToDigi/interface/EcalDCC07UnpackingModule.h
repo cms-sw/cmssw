@@ -29,16 +29,16 @@ class MatacqTBDataFormatter;
     EcalDCCTB07UnpackingModule(const edm::ParameterSet& pset);
 
     /// Destructor
-    virtual ~EcalDCCTB07UnpackingModule();
+    ~EcalDCCTB07UnpackingModule() override;
     
     /// Produce digis out of raw data
-    void produce(edm::Event & e, const edm::EventSetup& c);
+    void produce(edm::Event & e, const edm::EventSetup& c) override;
 
     // BeginJob
-    void beginJob();
+    void beginJob() override;
 
     // EndJob
-    void endJob(void);
+    void endJob(void) override;
 
   private:
 

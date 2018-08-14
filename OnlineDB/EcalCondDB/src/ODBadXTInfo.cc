@@ -1,6 +1,6 @@
 #include <stdexcept>
 #include <string>
-#include <string.h>
+#include <cstring>
 #include "OnlineDB/Oracle/interface/Oracle.h"
 #include <cstdlib>
 #include "OnlineDB/EcalCondDB/interface/ODBadXTInfo.h"
@@ -10,10 +10,10 @@ using namespace oracle::occi;
 
 ODBadXTInfo::ODBadXTInfo()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   m_config_tag="";
    m_ID=0;
    m_version=0;
@@ -50,7 +50,7 @@ int ODBadXTInfo::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODBadXTInfo::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODBadXTInfo::fetchNextId():  ")+getOraMessage(&e)));
   }
 
 }
@@ -74,7 +74,7 @@ void ODBadXTInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODBadXTInfo::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODBadXTInfo::prepareWrite():  ")+getOraMessage(&e)));
   }
 
 }
@@ -110,7 +110,7 @@ void ODBadXTInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODBadXTInfo::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODBadXTInfo::writeDB():  ")+getOraMessage(&e)));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -132,7 +132,7 @@ void ODBadXTInfo::fetchData(ODBadXTInfo * result)
 {
   this->checkConnection();
   result->clear();
-  if(result->getId()==0 && (result->getConfigTag()=="") ){
+  if(result->getId()==0 && (result->getConfigTag().empty()) ){
     throw(std::runtime_error("ODBadXTInfo::fetchData(): no Id defined for this ODBadXTInfo "));
   }
 
@@ -143,7 +143,7 @@ void ODBadXTInfo::fetchData(ODBadXTInfo * result)
       m_readStmt->setSQL("SELECT * FROM " + getTable() +   
 			 " where  rec_id = :1 ");
       m_readStmt->setInt(1, result->getId());
-    } else if (result->getConfigTag()!="") {
+    } else if (!result->getConfigTag().empty()) {
       m_readStmt->setSQL("SELECT * FROM " + getTable() +   
 			 " where  tag=:1 AND version=:2 " );
       m_readStmt->setString(1, result->getConfigTag());
@@ -161,11 +161,11 @@ void ODBadXTInfo::fetchData(ODBadXTInfo * result)
     // 1 is the id and 2 is the config tag and 3 is the version
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(rset->getString(2));
+    result->setConfigTag(getOraString(rset,2));
     result->setVersion(rset->getInt(3));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODBadXTInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODBadXTInfo::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -195,7 +195,7 @@ int ODBadXTInfo::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODBadXTInfo::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODBadXTInfo::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;

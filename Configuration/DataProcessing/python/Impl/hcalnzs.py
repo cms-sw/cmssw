@@ -16,6 +16,7 @@ class hcalnzs(pp):
         pp.__init__(self)
         self.recoSeq=':reconstruction_HcalNZS'
         self.cbSc='pp'
+        self.addEI=True
     """
     _hcalnzs_
 

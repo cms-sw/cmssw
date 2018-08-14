@@ -24,6 +24,8 @@ class G4StepPoint;
 class G4VTouchable;
 class G4VPhysicalVolume;
 class G4LogicalVolume;
+class G4TouchableHistory;
+namespace edm {class ParameterSet;}
 
 class TrackingMaterialProducer : public SimProducer,
                                  public Observer<const BeginOfJob*>,
@@ -35,16 +37,16 @@ class TrackingMaterialProducer : public SimProducer,
 {
 public:
   TrackingMaterialProducer(const edm::ParameterSet&);
-  virtual ~TrackingMaterialProducer();
+  ~TrackingMaterialProducer() override;
   
 private:
-  void update(const BeginOfJob*);
-  void update(const BeginOfEvent*);
-  void update(const BeginOfTrack*);
-  void update(const G4Step*);
-  void update(const EndOfTrack*);
-  void update(const EndOfJob*);
-  void produce(edm::Event&, const edm::EventSetup&);
+  void update(const BeginOfJob*) override;
+  void update(const BeginOfEvent*) override;
+  void update(const BeginOfTrack*) override;
+  void update(const G4Step*) override;
+  void update(const EndOfTrack*) override;
+  void update(const EndOfJob*) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
  
   bool isSelected( const G4VTouchable* touch );
   bool isSelectedFast( const G4TouchableHistory* touch );

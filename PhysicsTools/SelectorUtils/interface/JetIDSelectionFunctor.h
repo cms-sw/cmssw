@@ -240,7 +240,7 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
   //
   // Accessor from PAT jets
   //
-  bool operator()( const pat::Jet & jet, pat::strbitset & ret )
+  bool operator()( const pat::Jet & jet, pat::strbitset & ret ) override
   {
     if ( ! jet.isCaloJet() && !jet.isJPTJet() ) {
       edm::LogWarning( "NYI" )<<"Criteria for pat::Jet-s other than CaloJets and JPTJets are not yet implemented";

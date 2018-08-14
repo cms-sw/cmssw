@@ -15,7 +15,7 @@ class TrackerTopologyEP : public edm::ESProducer
 {
 public:
   TrackerTopologyEP( const edm::ParameterSet & );
-  ~TrackerTopologyEP( void );
+  ~TrackerTopologyEP( void ) override;
 
   typedef std::shared_ptr<TrackerTopology> ReturnType;
 

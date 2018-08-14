@@ -8,10 +8,10 @@ using namespace oracle::occi;
 
 ODDCUCycle::ODDCUCycle()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   //
   m_ID = 0;
   m_dcu_config_id = 0;
@@ -33,7 +33,7 @@ void ODDCUCycle::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO ECAL_DCU_Cycle (cycle_id, dcu_configuration_id ) "
 		 "VALUES (:1, :2 )");
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODDCUCycle::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODDCUCycle::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -52,7 +52,7 @@ void ODDCUCycle::writeDB()  noexcept(false)
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODDCUCycle::writeDB:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODDCUCycle::writeDB:  ")+getOraMessage(&e)));
   }
 
   // Now get the ID
@@ -93,7 +93,7 @@ int ODDCUCycle::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODDCUCycle::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODDCUCycle::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;
@@ -122,7 +122,7 @@ void ODDCUCycle::setByID(int id)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODDCUCycle::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODDCUCycle::fetchID:  ")+getOraMessage(&e)));
   }
 }
 
@@ -151,7 +151,7 @@ void ODDCUCycle::fetchData(ODDCUCycle * result)
     result->setDCUConfigurationID(       rset->getInt(1) );
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODDCUCycle::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODDCUCycle::fetchData():  ")+getOraMessage(&e)));
   }
 }
 

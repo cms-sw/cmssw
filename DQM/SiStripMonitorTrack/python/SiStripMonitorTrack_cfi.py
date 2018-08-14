@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 # MonitorTrackGlobal
-SiStripMonitorTrack = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SiStripMonitorTrack = DQMEDAnalyzer(
     "SiStripMonitorTrack",
 
     TopFolderName = cms.string('SiStrip'),
@@ -10,10 +11,7 @@ SiStripMonitorTrack = cms.EDAnalyzer(
     TrajectoryInEvent = cms.bool(True),
     AlgoName      = cms.string('GenTk'),
 
-    RawDigis_On     = cms.bool(False),
-    RawDigiProducer = cms.string('simSiStripDigis'),
-    RawDigiLabel    = cms.string('VirginRaw'),
-
+    ADCDigi_src = cms.InputTag('siStripDigis','ZeroSuppressed'),
     Cluster_src = cms.InputTag('siStripClusters'),
 
     genericTriggerEventPSet = cms.PSet(),
@@ -26,7 +24,6 @@ SiStripMonitorTrack = cms.EDAnalyzer(
     HistoFlag_On  = cms.bool(False),
     TkHistoMap_On = cms.bool(True),
     clchCMoriginTkHmap_On = cms.bool(False),
-
     ClusterConditions = cms.PSet( On       = cms.bool(False),
                                   minStoN  = cms.double(0.0),
                                   maxStoN  = cms.double(2000.0),
@@ -34,14 +31,14 @@ SiStripMonitorTrack = cms.EDAnalyzer(
                                   maxWidth = cms.double(200.0)
                                   ),
 
-    TH1nClustersOn = cms.PSet( Nbinx = cms.int32(150),
+    TH1nClustersOn = cms.PSet( Nbinx = cms.int32(50),
                              xmin  = cms.double(-0.5),
                              xmax  = cms.double(2999.5)
                              ),
 
-    TH1nClustersOff = cms.PSet( Nbinx = cms.int32(150),
+    TH1nClustersOff = cms.PSet( Nbinx = cms.int32(100),
                              xmin  = cms.double(-0.5),
-                             xmax  = cms.double(19999.5)
+                             xmax  = cms.double(100000.)
                              ),
 
     TH1ClusterGain = cms.PSet(

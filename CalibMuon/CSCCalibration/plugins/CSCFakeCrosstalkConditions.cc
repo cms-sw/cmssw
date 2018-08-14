@@ -2,10 +2,10 @@
 
 #include "CalibMuon/CSCCalibration/interface/CSCFakeCrosstalkConditions.h"
 
-void CSCFakeCrosstalkConditions::prefillCrosstalk(){
+CSCcrosstalk * CSCFakeCrosstalkConditions::prefillCrosstalk(){
   
   const CSCDetId& detId = CSCDetId();
-  cncrosstalk = new CSCcrosstalk();
+  CSCcrosstalk * cncrosstalk = new CSCcrosstalk();
   
   int max_istrip,id_layer,max_ring,max_cham;
   seed = 10000;	
@@ -81,6 +81,7 @@ void CSCFakeCrosstalkConditions::prefillCrosstalk(){
       }
     }
   }
+  return cncrosstalk;
 }
 
 
@@ -88,7 +89,6 @@ CSCFakeCrosstalkConditions::CSCFakeCrosstalkConditions(const edm::ParameterSet& 
 {
   //the following line is needed to tell the framework what
   // data is being produced
-  prefillCrosstalk();
   setWhatProduced(this,&CSCFakeCrosstalkConditions::produceCrosstalk);
   findingRecord<CSCcrosstalkRcd>();
   //now do what ever other initialization is needed
@@ -100,7 +100,6 @@ CSCFakeCrosstalkConditions::~CSCFakeCrosstalkConditions()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-  delete cncrosstalk;
 }
 
 
@@ -112,7 +111,7 @@ CSCFakeCrosstalkConditions::~CSCFakeCrosstalkConditions()
 CSCFakeCrosstalkConditions::ReturnType
 CSCFakeCrosstalkConditions::produceCrosstalk(const CSCcrosstalkRcd& iRecord)
 {
-  return cncrosstalk;  
+  return CSCFakeCrosstalkConditions::ReturnType( prefillCrosstalk() );
 }
 
  void CSCFakeCrosstalkConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,

@@ -14,8 +14,8 @@
 
 #include <iomanip>
 #include <vector>
-#include <DataFormats/MuonDetId/interface/CSCDetId.h>
-#include <SimDataFormats/TrackingHit/interface/PSimHitContainer.h>
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 template <class TYPE>
 class CSCLayerInfo

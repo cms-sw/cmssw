@@ -38,11 +38,11 @@ public:
   JetExtractor(){};
   JetExtractor(const edm::ParameterSet& par, edm::ConsumesCollector && iC);
 
-  virtual ~JetExtractor();
+  ~JetExtractor() override;
 
-  virtual void fillVetos (const edm::Event & ev, const edm::EventSetup & evSetup, const reco::TrackCollection & tracks);
-  virtual reco::IsoDeposit
-    deposit(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const;
+  void fillVetos (const edm::Event & ev, const edm::EventSetup & evSetup, const reco::TrackCollection & tracks) override;
+  reco::IsoDeposit
+    deposit(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const override;
 
 private:
   edm::EDGetTokenT<reco::CaloJetCollection> theJetCollectionToken;

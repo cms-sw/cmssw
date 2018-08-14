@@ -23,7 +23,7 @@ public:
   enum Relative { SET, CURRENT, END };
 
   Storage (void);
-  virtual ~Storage (void);
+  ~Storage (void) override;
 
   using IOInput::read;
   using IOInput::readv;

@@ -48,13 +48,13 @@
  // logging stopped 1997
  // J. Allison, 17-Jun-99:  Replaced a min function to get correct behaviour on DEC.
  
-#include "SimG4Core/CustomPhysics/interface/FullModelReactionDynamics.hh"
+#include "SimG4Core/CustomPhysics/interface/FullModelReactionDynamics.h"
 #include "G4AntiProton.hh"
 #include "G4AntiNeutron.hh"
 #include "Randomize.hh"
 #include <iostream>
 #include "G4HadReentrentException.hh"
-#include <signal.h>
+#include <csignal>
 #include "G4ParticleTable.hh"
 
 using namespace CLHEP;

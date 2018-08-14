@@ -15,8 +15,8 @@
 
 #define THIS_CLASS DTDriftTimeParametrization
 
-#include <math.h>
-#include <stdio.h>
+#include <cmath>
+#include <cstdio>
 
 #ifndef MB_DT_STANDALONE
 #include "SimMuon/DTDigitizer/src/DTDriftTimeParametrization.h"

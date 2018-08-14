@@ -20,19 +20,18 @@
 class CSCFakeDBPedestals: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
    public:
       CSCFakeDBPedestals(const edm::ParameterSet&);
-      ~CSCFakeDBPedestals();
+      ~CSCFakeDBPedestals() override;
       
        inline static CSCDBPedestals * prefillDBPedestals();
 
-      typedef  std::shared_ptr<CSCDBPedestals> Pointer;
+      typedef  std::unique_ptr<CSCDBPedestals> Pointer;
 
       Pointer produceDBPedestals(const CSCDBPedestalsRcd&);
 
    private:
       // ----------member data ---------------------------
-    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
+    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
 
-      Pointer cndbPedestals ;   
 };
 
 #include<fstream>

@@ -70,11 +70,12 @@ public:
                            TrajectoryFilter *inOutFilter=nullptr);
   BaseCkfTrajectoryBuilder(const BaseCkfTrajectoryBuilder &) = delete;
   BaseCkfTrajectoryBuilder& operator=(const BaseCkfTrajectoryBuilder&) = delete;
-  virtual ~BaseCkfTrajectoryBuilder();
+  ~BaseCkfTrajectoryBuilder() override;
 
   // new interface returning the start Trajectory...
   virtual TempTrajectory buildTrajectories (const TrajectorySeed& seed,
 					    TrajectoryContainer &ret,
+					    unsigned int& nCandPerSeed,
 					    const TrajectoryFilter*) const  { assert(0==1); return TempTrajectory();}
   
   
@@ -84,8 +85,8 @@ public:
 
   void setNavigationSchool(NavigationSchool const * nv) { theNavigationSchool=nv;}
 
-  virtual void setEvent(const edm::Event& event) const ;
-  virtual void unset() const;
+  void setEvent(const edm::Event& event) const override ;
+  void unset() const override;
 
   void setEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup, const MeasurementTrackerEvent *data);
 
@@ -136,7 +137,6 @@ public:
   void moveToResult( TempTrajectory&& traj, TempTrajectoryContainer& result, bool inOut = false) const;    
 
   StateAndLayers findStateAndLayers(const TrajectorySeed& seed, const TempTrajectory& traj) const;
-  StateAndLayers findStateAndLayers(const TempTrajectory& traj) const;
 
  private:
   void seedMeasurements(const TrajectorySeed& seed, TempTrajectory & result) const;

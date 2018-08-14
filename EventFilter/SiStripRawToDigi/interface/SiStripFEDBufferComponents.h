@@ -79,10 +79,9 @@ namespace sistrip {
   static const uint8_t PACKET_CODE_PROC_RAW8_BOTBOT = 0xCA;
   static const uint8_t PACKET_CODE_PROC_RAW8_TOPBOT = 0xB2;
   static const uint8_t PACKET_CODE_ZERO_SUPPRESSED = 0xEA;
-  static const uint8_t PACKET_CODE_ZERO_SUPPRESSED_LITE10 = 0x8A;
-  static const uint8_t PACKET_CODE_ZERO_SUPPRESSED_LITE8 = 0xEA;
-  static const uint8_t PACKET_CODE_ZERO_SUPPRESSED_LITE8_BOTBOT = 0xCA;
-  static const uint8_t PACKET_CODE_ZERO_SUPPRESSED_LITE8_TOPBOT = 0xAA;
+  static const uint8_t PACKET_CODE_ZERO_SUPPRESSED10 = 0x8A;
+  static const uint8_t PACKET_CODE_ZERO_SUPPRESSED8_BOTBOT = 0xCA;
+  static const uint8_t PACKET_CODE_ZERO_SUPPRESSED8_TOPBOT = 0xAA;
 
   //enum values are values which appear in buffer. DO NOT CHANGE!
   //see http://cmsdoc.cern.ch/cms/TRIDAS/horizontal/RUWG/DAQ_IF_guide/DAQ_IF_guide.html
@@ -151,6 +150,7 @@ namespace sistrip {
   FEDBufferFormat fedBufferFormatFromString(const std::string& bufferFormatString);
   FEDHeaderType fedHeaderTypeFromString(const std::string& headerTypeString);
   FEDReadoutMode fedReadoutModeFromString(const std::string& readoutModeString);
+  uint8_t packetCodeFromString(const std::string& packetCodeString, FEDReadoutMode mode);
   FEDDAQEventType fedDAQEventTypeFromString(const std::string& daqEventTypeString);
 
   //
@@ -440,26 +440,26 @@ namespace sistrip {
     {
     public:
       explicit FEDAPVErrorHeader(const uint8_t* headerBuffer);
-      virtual ~FEDAPVErrorHeader();
-      virtual size_t lengthInBytes() const;
-      virtual bool checkChannelStatusBits(const uint8_t internalFEDChannelNum) const;
-      virtual bool checkStatusBits(const uint8_t internalFEDChannelNum, const uint8_t apvNum) const;
-      virtual void print(std::ostream& os) const;
-      virtual FEDAPVErrorHeader* clone() const;
+      ~FEDAPVErrorHeader() override;
+      size_t lengthInBytes() const override;
+      bool checkChannelStatusBits(const uint8_t internalFEDChannelNum) const override;
+      bool checkStatusBits(const uint8_t internalFEDChannelNum, const uint8_t apvNum) const override;
+      void print(std::ostream& os) const override;
+      FEDAPVErrorHeader* clone() const override;
       //used by digi2Raw
-      virtual const uint8_t* data() const;
+      const uint8_t* data() const override;
       FEDAPVErrorHeader& setAPVStatusBit(const uint8_t internalFEDChannelNum, const uint8_t apvNum, const bool apvGood);
       FEDAPVErrorHeader& setAPVStatusBit(const uint8_t internalFEUnitNum, const uint8_t internalFEUnitChannelNum, const uint8_t apvNum, const bool apvGood);
       FEDAPVErrorHeader(const std::vector<bool>& apvsGood = std::vector<bool>(APVS_PER_FED,true));
       //Information which is not present in APVError mode is allowed to be set here so that the methods can be called on the base class without caring
       //if the values need to be set.
-      virtual void setChannelStatus(const uint8_t internalFEDChannelNum, const FEDChannelStatus status);
-      virtual void setFEUnitMajorityAddress(const uint8_t internalFEUnitNum, const uint8_t address);
-      virtual void setBEStatusRegister(const FEDBackendStatusRegister beStatusRegister);
-      virtual void setDAQRegister(const uint32_t daqRegister);
-      virtual void setDAQRegister2(const uint32_t daqRegister2);
-      virtual void set32BitReservedRegister(const uint8_t internalFEUnitNum, const uint32_t reservedRegister);
-      virtual void setFEUnitLength(const uint8_t internalFEUnitNum, const uint16_t length);
+      void setChannelStatus(const uint8_t internalFEDChannelNum, const FEDChannelStatus status) override;
+      void setFEUnitMajorityAddress(const uint8_t internalFEUnitNum, const uint8_t address) override;
+      void setBEStatusRegister(const FEDBackendStatusRegister beStatusRegister) override;
+      void setDAQRegister(const uint32_t daqRegister) override;
+      void setDAQRegister2(const uint32_t daqRegister2) override;
+      void set32BitReservedRegister(const uint8_t internalFEUnitNum, const uint32_t reservedRegister) override;
+      void setFEUnitLength(const uint8_t internalFEUnitNum, const uint16_t length) override;
     private:
       static const size_t APV_ERROR_HEADER_SIZE_IN_64BIT_WORDS = 3;
       static const size_t APV_ERROR_HEADER_SIZE_IN_BYTES = APV_ERROR_HEADER_SIZE_IN_64BIT_WORDS*8;
@@ -470,12 +470,12 @@ namespace sistrip {
     {
     public:
       explicit FEDFullDebugHeader(const uint8_t* headerBuffer);
-      virtual ~FEDFullDebugHeader();
-      virtual size_t lengthInBytes() const;
-      virtual bool checkChannelStatusBits(const uint8_t internalFEDChannelNum) const;
-      virtual bool checkStatusBits(const uint8_t internalFEDChannelNum, const uint8_t apvNum) const;
-      virtual void print(std::ostream& os) const;
-      virtual FEDFullDebugHeader* clone() const;
+      ~FEDFullDebugHeader() override;
+      size_t lengthInBytes() const override;
+      bool checkChannelStatusBits(const uint8_t internalFEDChannelNum) const override;
+      bool checkStatusBits(const uint8_t internalFEDChannelNum, const uint8_t apvNum) const override;
+      void print(std::ostream& os) const override;
+      FEDFullDebugHeader* clone() const override;
       
       uint8_t feUnitMajorityAddress(const uint8_t internalFEUnitNum) const;
       FEDBackendStatusRegister beStatusRegister() const;
@@ -503,14 +503,14 @@ namespace sistrip {
       bool apvAddressError(const uint8_t internalFEUnitNum, const uint8_t internalFEUnitChannelNum, const uint8_t apvNum) const;
       
       //used by digi2Raw
-      virtual const uint8_t* data() const;
-      virtual void setChannelStatus(const uint8_t internalFEDChannelNum, const FEDChannelStatus status);
-      virtual void setFEUnitMajorityAddress(const uint8_t internalFEUnitNum, const uint8_t address);
-      virtual void setBEStatusRegister(const FEDBackendStatusRegister beStatusRegister);
-      virtual void setDAQRegister(const uint32_t daqRegister);
-      virtual void setDAQRegister2(const uint32_t daqRegister2);
-      virtual void set32BitReservedRegister(const uint8_t internalFEUnitNum, const uint32_t reservedRegister);
-      virtual void setFEUnitLength(const uint8_t internalFEUnitNum, const uint16_t length);
+      const uint8_t* data() const override;
+      void setChannelStatus(const uint8_t internalFEDChannelNum, const FEDChannelStatus status) override;
+      void setFEUnitMajorityAddress(const uint8_t internalFEUnitNum, const uint8_t address) override;
+      void setBEStatusRegister(const FEDBackendStatusRegister beStatusRegister) override;
+      void setDAQRegister(const uint32_t daqRegister) override;
+      void setDAQRegister2(const uint32_t daqRegister2) override;
+      void set32BitReservedRegister(const uint8_t internalFEUnitNum, const uint32_t reservedRegister) override;
+      void setFEUnitLength(const uint8_t internalFEUnitNum, const uint16_t length) override;
       static uint32_t get32BitWordFrom(const uint8_t* startOfWord);
       const uint8_t* feWord(const uint8_t internalFEUnitNum) const;
       uint8_t* feWord(const uint8_t internalFEUnitNum);
@@ -1492,16 +1492,13 @@ namespace sistrip {
         case READOUT_MODE_PROC_RAW:
           return PACKET_CODE_PROC_RAW;
         case READOUT_MODE_ZERO_SUPPRESSED:
-          return PACKET_CODE_ZERO_SUPPRESSED;
+          return channel(internalFEDChannelNum).packetCode();
         case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
         case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
-          return PACKET_CODE_ZERO_SUPPRESSED_LITE10;
         case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
         case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
-          return PACKET_CODE_ZERO_SUPPRESSED_LITE8_BOTBOT;
         case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
         case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
-          return PACKET_CODE_ZERO_SUPPRESSED_LITE8_TOPBOT;
         case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
         case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
         case READOUT_MODE_PREMIX_RAW:

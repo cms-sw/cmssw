@@ -70,19 +70,19 @@ struct EVTColContainer
     EVTColContainer():
         nOfCollections(7),
         nInitialized(0),
-        genParticles(0),
-        genJets(0),
-        muons(0),
-        electrons(0),
-        photons(0),
-        caloMETs(0),
-        pfMETs(0),
-        pfTaus(0),
-        pfJets(0),
-        jetTags(0),
+        genParticles(nullptr),
+        genJets(nullptr),
+        muons(nullptr),
+        electrons(nullptr),
+        photons(nullptr),
+        caloMETs(nullptr),
+        pfMETs(nullptr),
+        pfTaus(nullptr),
+        pfJets(nullptr),
+        jetTags(nullptr),
         //tracks(0),
-        rawTriggerEvent(0),
-        triggerResults(0)
+        rawTriggerEvent(nullptr),
+        triggerResults(nullptr)
     {
     }
     //! 
@@ -93,18 +93,18 @@ struct EVTColContainer
 
     bool isCommonInit()
     {
-        return (rawTriggerEvent != 0);
+        return (rawTriggerEvent != nullptr);
     }
     //! 
     void reset()
     {
         nInitialized = 0;
-        genParticles = 0;
-        genJets = 0;
-        muons = 0; electrons = 0; photons = 0; pfTaus=0; caloMETs=0; pfMETs= 0; pfJets=0; //tracks=0; 
-        jetTags = 0;
-        rawTriggerEvent = 0;
-        triggerResults = 0;
+        genParticles = nullptr;
+        genJets = nullptr;
+        muons = nullptr; electrons = nullptr; photons = nullptr; pfTaus=nullptr; caloMETs=nullptr; pfMETs= nullptr; pfJets=nullptr; //tracks=0; 
+        jetTags = nullptr;
+        rawTriggerEvent = nullptr;
+        triggerResults = nullptr;
     }
     //! Setter: multiple overloaded function
     void set(const reco::MuonCollection * v)
@@ -154,31 +154,31 @@ struct EVTColContainer
     const unsigned int getSize(const unsigned int & objtype) const
     {
         unsigned int size = 0;
-        if( objtype == EVTColContainer::MUON && muons != 0 )
+        if( objtype == EVTColContainer::MUON && muons != nullptr )
         {
             size = muons->size();
         }
-        else if( objtype == EVTColContainer::ELEC && electrons != 0 )
+        else if( objtype == EVTColContainer::ELEC && electrons != nullptr )
         {
             size = electrons->size();
         }
-        else if( objtype == EVTColContainer::PHOTON && photons != 0 )
+        else if( objtype == EVTColContainer::PHOTON && photons != nullptr )
         {
             size = photons->size();
         }
-        else if( objtype == EVTColContainer::CALOMET && caloMETs != 0 )
+        else if( objtype == EVTColContainer::CALOMET && caloMETs != nullptr )
         {
             size = caloMETs->size();
         }
-        else if( objtype == EVTColContainer::PFMET && pfMETs != 0 )
+        else if( objtype == EVTColContainer::PFMET && pfMETs != nullptr )
         {
             size = pfMETs->size();
         }
-        else if( objtype == EVTColContainer::PFTAU && pfTaus != 0 )
+        else if( objtype == EVTColContainer::PFTAU && pfTaus != nullptr )
         {
             size = pfTaus->size();
         }
-        else if( objtype == EVTColContainer::PFJET && pfJets != 0 )
+        else if( objtype == EVTColContainer::PFJET && pfJets != nullptr )
         {
             size = pfJets->size();
         }

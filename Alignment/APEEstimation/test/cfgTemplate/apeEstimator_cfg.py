@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 
 import FWCore.ParameterSet.Config as cms
@@ -12,27 +13,21 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 import sys
 options = VarParsing.VarParsing ('standard')
 options.register('sample', 'data1', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Input sample")
+options.register('globalTag', "None", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Custom global tag")
+options.register('measurementName', "workingArea", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Folder in which to store results")
 options.register('fileNumber', 1, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "Input file number")
 options.register('iterNumber', 0, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "Iteration number")
 options.register('lastIter', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "Last iteration")
 options.register('alignRcd','', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "AlignmentRcd")
 
-
-
 # get and parse the command line arguments
-if( hasattr(sys, "argv") ):
-    for args in sys.argv :
-        arg = args.split(',')
-        for val in arg:
-            val = val.split('=')
-            if(len(val)==2):
-                setattr(options,val[0], val[1])
+options.parseArguments()   
 
-print "Input sample: ", options.sample
-print "Input file number", options.fileNumber
-print "Iteration number: ", options.iterNumber
-print "Last iteration: ", options.lastIter
-print "AlignmentRcd: ", options.alignRcd
+print("Input sample: ", options.sample)
+print("Input file number", options.fileNumber)
+print("Iteration number: ", options.iterNumber)
+print("Last iteration: ", options.lastIter)
+print("AlignmentRcd: ", options.alignRcd)
 
 
 
@@ -46,24 +41,9 @@ process.load("Configuration.Geometry.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-
-# new CPE
-
-from RecoLocalTracker.SiStripRecHitConverter.StripCPEgeometric_cfi import *
-TTRHBuilderGeometricAndTemplate = cms.ESProducer("TkTransientTrackingRecHitBuilderESProducer",
-StripCPE = cms.string('StripCPEfromTrackAngle'), # cms.string('StripCPEgeometric'),
-#StripCPE = cms.string('StripCPEgeometric'),
-ComponentName = cms.string('WithGeometricAndTemplate'),
-PixelCPE = cms.string('PixelCPEGeneric'),
-#PixelCPE = cms.string('PixelCPETemplateReco'),
-Matcher = cms.string('StandardMatcher'),
-ComputeCoarseLocalPositionFromDisk = cms.bool(False)
-)
-
-
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag import GlobalTag
+from CondCore.CondDB.CondDB_cfi import *
 
 ##
 ## Message Logger
@@ -127,8 +107,11 @@ elif options.sample == 'zmumu20':
     isMc = True
 elif options.sample == 'zmumu50':
     isMc = True
+elif "MC" in options.sample:
+    isMc = True
+    print(options.sample)
 else:
-    print 'ERROR --- incorrect data sammple: ', options.sample
+    print('ERROR --- incorrect data sammple: ', options.sample)
     exit(8888)
 
 
@@ -148,7 +131,7 @@ readFiles.extend( [
 ##
 ## Number of Events (should be after input file)
 ##
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) ) # maxEvents is included in options by default
 
 
 
@@ -159,29 +142,19 @@ process.source.duplicateCheckMode = cms.untracked.string("checkEachRealDataFile"
 #process.source.duplicateCheckMode = cms.untracked.string("checkAllFilesOpened")   # default value
 
 
-
 ##
 ## Whole Refitter Sequence
 ##
 process.load("Alignment.APEEstimation.TrackRefitter_38T_cff")
 
-if isParticleGun:
+if options.globalTag != "None":
+    process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
+elif isParticleGun:
     process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
 elif isMc:
-    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
-    
-    ##### To be used when running on Phys14MC with a CMSSW version > 72X
-    # process.GlobalTag.toGet = cms.VPSet(
-		# cms.PSet(
-			# record = cms.string("BeamSpotObjectsRcd"),
-			# tag = cms.string("Realistic8TeVCollisions_START50_V13_v1_mc"),
-			# connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
-		# )
-	# )
-
-
+    #~ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2018_design', '')
+    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2018_realistic', '')
 elif isData:
-    #~ process.GlobalTag.globaltag = 'GR_P_V56'
     process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
 
@@ -189,56 +162,63 @@ elif isData:
 
 ## Alignment and APE
 ##
-import CalibTracker.Configuration.Common.PoolDBESSource_cfi
 ## Choose Alignment (w/o touching APE)
 if options.alignRcd=='design':
-  process.myTrackerAlignment = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
-    connect = 'frontier://FrontierProd/CMS_CONDITIONS',
-    toGet = cms.VPSet(
-      cms.PSet(
-        record = cms.string('TrackerAlignmentRcd'),
-        tag = cms.string('TrackerAlignment_Ideal62X_mc')
-      )
-    )
-  )
-  process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
+    CondDBAlignment = CondDB.clone(connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'))
+    process.myTrackerAlignment = cms.ESSource("PoolDBESSource",
+        CondDBAlignment,
+        timetype = cms.string("runnumber"),
+        toGet = cms.VPSet(
+            cms.PSet(
+                record = cms.string('TrackerAlignmentRcd'),
+                tag = cms.string('TrackerAlignment_Upgrade2017_design_v3')
+                )
+            )
+        )
+    process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
 
   
 elif options.alignRcd == 'misalTest':
-  process.myTrackerAlignment = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
-    connect = 'sqlite_file:/afs/cern.ch/user/c/cschomak/CMSSW_7_4_1/src/Alignment/APEEstimation/test/geometry_MisalignmentScenario_20mu_fromDESRUN2_74_V4.db',
-    toGet = cms.VPSet(
-      cms.PSet(
-        record = cms.string('TrackerAlignmentRcd'),
-        tag = cms.string('Alignments'),
-      )
+    CondDBAlignment = CondDB.clone(connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'))
+    process.myTrackerAlignment = cms.ESSource("PoolDBESSource",
+        CondDBAlignment,
+        timetype = cms.string("runnumber"),
+        toGet = cms.VPSet(
+            cms.PSet(
+                record = cms.string('TrackerAlignmentRcd'),
+                tag = cms.string('TrackerAlignment_Phase1Realignment_CRUZET_2M'),
+            )
+        )
     )
-  )
-  process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
+    process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
   
-elif options.alignRcd == 'mp1799':
-  process.myTrackerAlignment = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
-    connect = 'sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/MP/MPproduction/mp1799/jobData/jobm/alignments_MP.db',
-    toGet = cms.VPSet(
-      cms.PSet(
-        record = cms.string('TrackerAlignmentRcd'),
-        tag = cms.string('Alignments'),
-      )
+elif options.alignRcd == 'mp2705':
+    CondDBAlignment = CondDB.clone(connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/MP/MPproduction/mp2705/jobData/jobm/alignments_MP.db'))
+    process.myTrackerAlignment = cms.ESSource("PoolDBESSource",
+        CondDBAlignment,
+        timetype = cms.string("runnumber"),
+        toGet = cms.VPSet(
+            cms.PSet(
+                record = cms.string('TrackerAlignmentRcd'),
+                tag = cms.string('Alignments'),
+            )
+        )
     )
-  )
-  process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
+    process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
    
 elif options.alignRcd == 'hp1370':
-  process.myTrackerAlignment = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
-    connect = 'sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/xiaomeng/CMSSW_7_4_6_patch5/src/Alignment/HIPAlignmentAlgorithm/hp1370/alignments.db',
-    toGet = cms.VPSet(
-      cms.PSet(
-        record = cms.string('TrackerAlignmentRcd'),
-        tag = cms.string('Alignments'),
-      )
+    CondDBAlignment = CondDB.clone(connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/xiaomeng/CMSSW_7_4_6_patch5/src/Alignment/HIPAlignmentAlgorithm/hp1370/alignments.db'))
+    process.myTrackerAlignment = cms.ESSource("PoolDBESSource",
+        CondDBAlignment,
+        timetype = cms.string("runnumber"),
+        toGet = cms.VPSet(
+            cms.PSet(
+                record = cms.string('TrackerAlignmentRcd'),
+                tag = cms.string('Alignments'),
+            )
+        )
     )
-  )
-  process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
+    process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
   
 
 
@@ -249,22 +229,24 @@ elif options.alignRcd == 'useStartGlobalTagForAllConditions':
 elif options.alignRcd == '':
   pass
 else:
-  print 'ERROR --- incorrect alignment: ', options.alignRcd
+  print('ERROR --- incorrect alignment: ', options.alignRcd)
   exit(8888)
 
 ## APE
 if options.iterNumber!=0:
-    process.myTrackerAlignmentErr = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
-      connect = 'sqlite_file:'+os.environ['CMSSW_BASE']+'/src/Alignment/APEEstimation/hists/apeObjects/apeIter'+str(options.iterNumber-1)+'.db',
-      toGet = [
-        cms.PSet(
-          record = cms.string('TrackerAlignmentErrorExtendedRcd'),
-          tag = cms.string('TrackerAlignmentExtendedErr_2009_v2_express_IOVs')
-        ),
-      ],
+    CondDBAlignmentError = CondDB.clone(connect = cms.string('sqlite_file:'+os.environ['CMSSW_BASE']+'/src/Alignment/APEEstimation/hists/'+options.measurementName+'/apeObjects/apeIter'+str(options.iterNumber-1)+'.db'))
+    process.myTrackerAlignmentErr = cms.ESSource("PoolDBESSource",
+        CondDBAlignmentError,
+        timetype = cms.string("runnumber"),
+        toGet = cms.VPSet(
+            cms.PSet(
+                record = cms.string('TrackerAlignmentErrorExtendedRcd'),
+                tag = cms.string('APEs')
+            )
+        )
     )
     process.es_prefer_trackerAlignmentErr = cms.ESPrefer("PoolDBESSource","myTrackerAlignmentErr")
-
+    
 
 
 ##
@@ -314,7 +296,7 @@ elif options.lastIter == True:
 ## Output File Configuration
 ##
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string(os.environ['CMSSW_BASE'] + '/src/Alignment/APEEstimation/hists/workingArea/'+options.sample+str(options.fileNumber)+'.root'),
+    fileName = cms.string(os.environ['CMSSW_BASE'] + '/src/Alignment/APEEstimation/hists/'+options.measurementName+'/'+options.sample+str(options.fileNumber)+'.root'),
     closeFileFast = cms.untracked.bool(True)
 )
 
@@ -324,7 +306,7 @@ process.TFileService = cms.Service("TFileService",
 ## Path
 ##
 process.p = cms.Path(
-    process.TriggerSelectionSequence*
+    #process.TriggerSelectionSequence* # You want to use this if you want to select for triggers
     process.RefitterHighPuritySequence*
     process.ApeEstimatorSequence
 )

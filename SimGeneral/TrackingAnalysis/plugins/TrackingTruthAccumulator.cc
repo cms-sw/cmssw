@@ -37,7 +37,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/ProducerBase.h"
 #include "SimGeneral/TrackingAnalysis/interface/EncodedTruthId.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
@@ -81,8 +81,8 @@ namespace
 		// Some things have multiple decay vertices. Not sure how that works but it seems to be mostly electrons and some photons.
 		std::vector<struct DecayChainVertex*> daughterVertices;
 		DecayChainTrack* pMergedBremSource;
-		DecayChainTrack() : simTrackIndex(-1), pParentVertex(NULL), pMergedBremSource(NULL) {}
-		DecayChainTrack( int newSimTrackIndex ) : simTrackIndex(newSimTrackIndex), pParentVertex(NULL), pMergedBremSource() {}
+		DecayChainTrack() : simTrackIndex(-1), pParentVertex(nullptr), pMergedBremSource(nullptr) {}
+		DecayChainTrack( int newSimTrackIndex ) : simTrackIndex(newSimTrackIndex), pParentVertex(nullptr), pMergedBremSource() {}
 	};
 
 	/** @brief Class to represent a vertex in the decay chain, and it's relationship with parents and daughters.
@@ -95,8 +95,8 @@ namespace
 		DecayChainTrack* pParentTrack;
 		std::vector<DecayChainTrack*> daughterTracks;
 		DecayChainVertex* pMergedBremSource;
-		DecayChainVertex() : simVertexIndex(-1), pParentTrack(NULL), pMergedBremSource(NULL) {}
-		DecayChainVertex( int newIndex ) : simVertexIndex(newIndex), pParentTrack(NULL), pMergedBremSource(NULL) {}
+		DecayChainVertex() : simVertexIndex(-1), pParentTrack(nullptr), pMergedBremSource(nullptr) {}
+		DecayChainVertex( int newIndex ) : simVertexIndex(newIndex), pParentTrack(nullptr), pMergedBremSource(nullptr) {}
 	};
 
 	/** @brief Intermediary class. Mainly here to handle memory safely.
@@ -221,7 +221,7 @@ namespace
 //---------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------
 
-TrackingTruthAccumulator::TrackingTruthAccumulator( const edm::ParameterSet & config, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
+TrackingTruthAccumulator::TrackingTruthAccumulator( const edm::ParameterSet & config, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC) :
 		messageCategory_("TrackingTruthAccumulator"),
 		volumeRadius_( config.getParameter<double>("volumeRadius") ),
 		volumeZ_( config.getParameter<double>("volumeZ") ),
@@ -255,6 +255,7 @@ TrackingTruthAccumulator::TrackingTruthAccumulator( const edm::ParameterSet & co
 	{
 		edm::ParameterSet param=config.getParameter<edm::ParameterSet>("select");
 		selector_=TrackingParticleSelector( param.getParameter<double>( "ptMinTP" ),
+				param.getParameter<double>( "ptMaxTP" ),
 				param.getParameter<double>( "minRapidityTP" ),
 				param.getParameter<double>( "maxRapidityTP" ),
 				param.getParameter<double>( "tipTP" ),
@@ -463,7 +464,7 @@ template<class T> void TrackingTruthAccumulator::accumulateEvent( const T& event
 	decayChain.integrityCheck();
 #endif
 
-	TrackingParticleSelector* pSelector=NULL;
+	TrackingParticleSelector* pSelector=nullptr;
 	if( selectorFlag_ ) pSelector=&selector_;
 
 	// Run over all of the SimTracks, but because I'm interested in the decay hierarchy
@@ -726,7 +727,7 @@ namespace // Unnamed namespace for things only used in this file
 		{
 			const HepMC::GenEvent* genEvent = hepMCproduct_->GetEvent();
 			
-			if (genEvent != NULL)
+			if (genEvent != nullptr)
 			{
 				Vector tvPosition(returnValue.position().x(), returnValue.position().y(), returnValue.position().z());
                 
@@ -794,7 +795,7 @@ namespace // Unnamed namespace for things only used in this file
 			{
 				// Get the DecayChainVertex corresponding to this SimVertex, or initialise it if it hasn't been done already.
 				::DecayChainVertex*& pParentVertex=vertexIdToDecayVertex[parentVertexIndex];
-				if( pParentVertex==NULL )
+				if( pParentVertex==nullptr )
 				{
 					// Note that I'm using a reference, so changing pParentVertex will change the entry in the map too.
 					pParentVertex=&decayVertices_[decayVertexIndex];
@@ -944,7 +945,7 @@ namespace // Unnamed namespace for things only used in this file
 			auto& vertex=decayVertices_[index];
 
 			// Make sure parent is an electron
-			if( vertex.pParentTrack==NULL ) continue;
+			if( vertex.pParentTrack==nullptr ) continue;
 			int parentTrackPDG=trackCollection[vertex.pParentTrack->simTrackIndex].type();
 			if( std::abs( parentTrackPDG )!=11 ) continue;
 
@@ -1014,14 +1015,14 @@ namespace // Unnamed namespace for things only used in this file
 	TrackingParticle* ::OutputCollectionWrapper::getTrackingParticle( const ::DecayChainTrack* pDecayTrack )
 	{
 		const int index=trackingParticleIndices_[pDecayTrack->simTrackIndex];
-		if( index==-1 ) return NULL;
+		if( index==-1 ) return nullptr;
 		else return &(*output_.pTrackingParticles)[index];
 	}
 
 	TrackingVertex* ::OutputCollectionWrapper::getTrackingVertex( const ::DecayChainVertex* pDecayVertex )
 	{
 		const int index=trackingVertexIndices_[pDecayVertex->simVertexIndex];
-		if( index==-1 ) return NULL;
+		if( index==-1 ) return nullptr;
 		else return &(*output_.pTrackingVertices)[index];
 	}
 
@@ -1062,17 +1063,17 @@ namespace // Unnamed namespace for things only used in this file
 	{
 		// First make sure the DecayChainVertex supplied has been turned into a TrackingVertex
 		TrackingVertex* pTrackingVertex=getTrackingVertex( pChainVertex );
-		if( pTrackingVertex==NULL ) throw std::runtime_error( "associateToExistingObjects was passed a non existent TrackingVertex" );
+		if( pTrackingVertex==nullptr ) throw std::runtime_error( "associateToExistingObjects was passed a non existent TrackingVertex" );
 
 		//
 		// Associate to the parent track (if there is one)
 		//
 		::DecayChainTrack* pParentChainTrack=pChainVertex->pParentTrack;
-		if( pParentChainTrack!=NULL ) // Make sure there is a parent track first
+		if( pParentChainTrack!=nullptr ) // Make sure there is a parent track first
 		{
 			// There is a parent track, but it might not have been turned into a TrackingParticle yet
 			TrackingParticle* pParentTrackingParticle=getTrackingParticle(pParentChainTrack);
-			if( pParentTrackingParticle!=NULL )
+			if( pParentTrackingParticle!=nullptr )
 			{
 				pParentTrackingParticle->addDecayVertex( getRef(pChainVertex) );
 				pTrackingVertex->addParentTrack( getRef(pParentChainTrack) );
@@ -1095,7 +1096,7 @@ namespace // Unnamed namespace for things only used in this file
 		// First make sure this DecayChainTrack has been turned into a TrackingParticle
 		//
 		TrackingParticle* pTrackingParticle=getTrackingParticle( pChainTrack );
-		if( pTrackingParticle==NULL ) throw std::runtime_error( "associateToExistingObjects was passed a non existent TrackingParticle" );
+		if( pTrackingParticle==nullptr ) throw std::runtime_error( "associateToExistingObjects was passed a non existent TrackingParticle" );
 
 		// Get the parent vertex. This should always already have been turned into a TrackingVertex, and
 		// there should always be a parent DecayChainVertex.
@@ -1115,7 +1116,7 @@ namespace // Unnamed namespace for things only used in this file
 		for( auto pDaughterChainVertex : pChainTrack->daughterVertices )
 		{
 			TrackingVertex* pDaughterTrackingVertex=getTrackingVertex( pDaughterChainVertex );
-			if( pDaughterTrackingVertex!=NULL )
+			if( pDaughterTrackingVertex!=nullptr )
 			{
 				pTrackingParticle->addDecayVertex( getRef(pDaughterChainVertex) );
 				pDaughterTrackingVertex->addParentTrack( getRef(pChainTrack) );
@@ -1129,7 +1130,7 @@ namespace // Unnamed namespace for things only used in this file
 		// See if this TrackingParticle has already been created (could be if the DecayChainTracks are
 		// looped over in a funny order). If it has then there's no need to do anything.
 		TrackingParticle* pTrackingParticle=pOutput->getTrackingParticle( pDecayTrack );
-		if( pTrackingParticle==NULL )
+		if( pTrackingParticle==nullptr )
 		{
 			// Need to make sure the production vertex has been created first
 			if( pOutput->getTrackingVertex( pDecayTrack->pParentVertex ) == nullptr )
@@ -1151,20 +1152,20 @@ namespace // Unnamed namespace for things only used in this file
 
 	void addTrack( ::DecayChainTrack* pDecayChainTrack, const TrackingParticleSelector* pSelector, ::OutputCollectionWrapper* pUnmergedOutput, ::OutputCollectionWrapper* pMergedOutput, const ::TrackingParticleFactory& objectFactory, bool addAncestors, const TrackerTopology *tTopo )
 	{
-		if( pDecayChainTrack==NULL ) return; // This is required for when the addAncestors_ recursive call reaches the top of the chain
+		if( pDecayChainTrack==nullptr ) return; // This is required for when the addAncestors_ recursive call reaches the top of the chain
 
 		// Check to see if this particle has already been processed while traversing up the parents
 		// of another split in the decay chain. The check in the line above only stops when the top
 		// of the chain is reached, whereas this will stop when a previously traversed split is reached.
 		{ // block to limit the scope of temporary variables
 			bool alreadyProcessed=true;
-			if( pUnmergedOutput!=NULL )
+			if( pUnmergedOutput!=nullptr )
 			{
-				if( pUnmergedOutput->getTrackingParticle( pDecayChainTrack )==NULL ) alreadyProcessed=false;
+				if( pUnmergedOutput->getTrackingParticle( pDecayChainTrack )==nullptr ) alreadyProcessed=false;
 			}
-			if( pMergedOutput!=NULL )
+			if( pMergedOutput!=nullptr )
 			{
-				if( pMergedOutput->getTrackingParticle( pDecayChainTrack )==NULL ) alreadyProcessed=false;
+				if( pMergedOutput->getTrackingParticle( pDecayChainTrack )==nullptr ) alreadyProcessed=false;
 			}
 			if( alreadyProcessed ) return;
 		}
@@ -1194,18 +1195,18 @@ namespace // Unnamed namespace for things only used in this file
 		// order. I don't know how important that is but other code might assume chronological order.
 		// If adding ancestors, no selection is applied. Note that I've already checked that all
 		// DecayChainTracks have a pParentVertex.
-		if( addAncestors ) addTrack( pDecayChainTrack->pParentVertex->pParentTrack, NULL, pUnmergedOutput, pMergedOutput, objectFactory, addAncestors, tTopo );
+		if( addAncestors ) addTrack( pDecayChainTrack->pParentVertex->pParentTrack, nullptr, pUnmergedOutput, pMergedOutput, objectFactory, addAncestors, tTopo );
 
 		// If creation of the unmerged collection has been turned off in the config this pointer
 		// will be null.
-		if( pUnmergedOutput!=NULL ) addTrackAndParentVertex( pDecayChainTrack, newTrackingParticle, pUnmergedOutput );
+		if( pUnmergedOutput!=nullptr ) addTrackAndParentVertex( pDecayChainTrack, newTrackingParticle, pUnmergedOutput );
 
 		// If creation of the merged collection has been turned off in the config this pointer
 		// will be null.
-		if( pMergedOutput!=NULL )
+		if( pMergedOutput!=nullptr )
 		{
 			::DecayChainTrack* pBremParentChainTrack=pDecayChainTrack;
-			while( pBremParentChainTrack->pMergedBremSource!=NULL ) pBremParentChainTrack=pBremParentChainTrack->pMergedBremSource;
+			while( pBremParentChainTrack->pMergedBremSource!=nullptr ) pBremParentChainTrack=pBremParentChainTrack->pMergedBremSource;
 
 			if( pBremParentChainTrack!=pDecayChainTrack )
 			{

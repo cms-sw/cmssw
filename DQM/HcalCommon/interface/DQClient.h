@@ -27,7 +27,7 @@ namespace hcaldqm
 		public:
 			DQClient(std::string const&,
 				std::string const&, edm::ParameterSet const&);
-			virtual ~DQClient() {}
+			~DQClient() override {}
 
 			virtual void beginRun(edm::Run const&, edm::EventSetup const&);
 			virtual void endLuminosityBlock(DQMStore::IBooker&,
@@ -52,6 +52,10 @@ namespace hcaldqm
 
 			//	emap
 			HcalElectronicsMap const* _emap;
+
+			// Crate and crate eid lists
+			std::vector<int> _vCrates;
+			std::vector<uint32_t> _vhashCrates;
 
 			//	FED and FED Eids lists
 			std::vector<int> _vFEDs;

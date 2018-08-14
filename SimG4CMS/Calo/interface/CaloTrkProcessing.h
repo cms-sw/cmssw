@@ -18,6 +18,7 @@ class SimTrackManager;
 class BeginOfEvent;
 class G4LogicalVolume;
 class G4Step;
+class SimTrackManager;
 
 class CaloTrkProcessing : public SensitiveCaloDetector, 
 			  public Observer<const BeginOfEvent *>,
@@ -25,23 +26,23 @@ class CaloTrkProcessing : public SensitiveCaloDetector,
 
 public:
 
-  CaloTrkProcessing(G4String aSDname, const DDCompactView & cpv,
+  CaloTrkProcessing(const std::string& aSDname, const DDCompactView & cpv,
 		    const SensitiveDetectorCatalog & clg,
 		    edm::ParameterSet const & p, const SimTrackManager*);
-  virtual ~CaloTrkProcessing();
-  virtual void             Initialize(G4HCofThisEvent * ) {}
-  virtual void             clearHits() {}
-  virtual bool             ProcessHits(G4Step * , G4TouchableHistory * ) {
+  ~CaloTrkProcessing() override;
+  void             Initialize(G4HCofThisEvent * ) override {}
+  void             clearHits() override {}
+  bool             ProcessHits(G4Step * , G4TouchableHistory * ) override {
     return true;
   }
-  virtual uint32_t         setDetUnitId(G4Step * step) {return 0;}
-  virtual void             EndOfEvent(G4HCofThisEvent * ) {}
-  void                     fillHits(edm::PCaloHitContainer&, std::string ) {}
+  uint32_t         setDetUnitId(const G4Step * step) override {return 0;}
+  void             EndOfEvent(G4HCofThisEvent * ) override {}
+  void             fillHits(edm::PCaloHitContainer&, const std::string& ) override {}
 
 private:
 
-  void                     update(const BeginOfEvent * evt);
-  void                     update(const G4Step *);
+  void                     update(const BeginOfEvent * evt) override;
+  void                     update(const G4Step *) override;
   std::vector<std::string> getNames(G4String, const DDsvalues_type&);
   std::vector<double>      getNumbers(G4String, const DDsvalues_type&);
   int                      isItCalo(const G4VTouchable*);

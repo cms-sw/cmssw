@@ -4,7 +4,7 @@
 // Include files
 #include "CondFormats/RPCObjects/interface/RBCBoardSpecs.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <ios>
@@ -20,7 +20,7 @@ public:
   /// Standard constructor
   RBCBoardSpecsIO( );
 
-  virtual ~RBCBoardSpecsIO( ); ///< Destructor
+  ~RBCBoardSpecsIO( ) override; ///< Destructor
   
   friend std::istream& operator>>(std::istream &, RBCBoardConfig &);
   

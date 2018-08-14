@@ -27,8 +27,6 @@ process.load("CondCore.CondDB.CondDB_cfi")
 process.CondDB.connect = 'oracle://cms_orcon_adg/CMS_CONDITIONS' ##lxplus DBv2
 #process.CondDB.DBParameters.authenticationPath = '/nfshome0/popcondev/conddb' ###P5 stuff
 process.CondDB.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb' ##lxplus
-# process.GlobalTag.connect =cms.string('frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG')
-
 
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
                                           process.CondDB,

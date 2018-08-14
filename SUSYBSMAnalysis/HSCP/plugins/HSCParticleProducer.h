@@ -54,12 +54,12 @@
 class HSCParticleProducer : public edm::EDFilter {
   public:
     explicit HSCParticleProducer(const edm::ParameterSet&);
-    ~HSCParticleProducer();
+    ~HSCParticleProducer() override;
 
   private:
-    virtual void beginJob() ;
-    virtual bool filter(edm::Event&, const edm::EventSetup&);
-    virtual void endJob() ;
+    void beginJob() override ;
+    bool filter(edm::Event&, const edm::EventSetup&) override;
+    void endJob() override ;
 
     std::vector<susybsm::HSCParticle> getHSCPSeedCollection(edm::Handle<reco::TrackCollection>& trackCollectionHandle,  edm::Handle<reco::MuonCollection>& muonCollectionHandle, edm::Handle<reco::MuonCollection>& MTmuonCollectionHandle);
 

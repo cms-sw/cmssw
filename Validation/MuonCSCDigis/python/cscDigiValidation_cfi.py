@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-cscDigiValidation = cms.EDAnalyzer("CSCDigiValidation",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+cscDigiValidation = DQMEDAnalyzer('CSCDigiValidation',
     simHitsTag = cms.InputTag("mix", "g4SimHitsMuonCSCHits"),
     wireDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
     outputFile = cms.string(''),
@@ -12,7 +13,12 @@ cscDigiValidation = cms.EDAnalyzer("CSCDigiValidation",
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen():
-    cscDigiValidation.simHitsTag = cms.InputTag("mix", "MuonSimHitsMuonCSCHits")
+fastSim.toModify(cscDigiValidation, simHitsTag = "mix:MuonSimHitsMuonCSCHits")
 
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(cscDigiValidation,
+    wireDigiTag = "mixData:MuonCSCWireDigisDM",
+    stripDigiTag = "mixData:MuonCSCStripDigisDM",
+    comparatorDigiTag = "mixData:MuonCSCComparatorDigisDM",
+)
 

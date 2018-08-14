@@ -23,13 +23,13 @@ class ZDCTask : public DQMEDAnalyzer
 {
 	public:
 		ZDCTask(edm::ParameterSet const&);
-		virtual ~ZDCTask(){}
+		~ZDCTask() override{}
 
-		virtual void bookHistograms(DQMStore::IBooker&,
-			edm::Run const&, edm::EventSetup const&);
+		void bookHistograms(DQMStore::IBooker&,
+			edm::Run const&, edm::EventSetup const&) override;
 
 	protected:
-		virtual void analyze(edm::Event const&, edm::EventSetup const&);
+		void analyze(edm::Event const&, edm::EventSetup const&) override;
 
 		//	tags
 		edm::InputTag	_tagQIE10;

@@ -1,7 +1,7 @@
 #include "SimG4CMS/Muon/interface/MuonSlaveSD.h"
 #include "Geometry/MuonNumbering/interface/MuonSubDetector.h"
 
-#include "SimG4Core/Application/interface/SimTrackManager.h"
+#include "SimG4Core/Notification/interface/SimTrackManager.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
@@ -12,7 +12,6 @@ MuonSlaveSD::MuonSlaveSD(MuonSubDetector* d,
   TrackingSlaveSD(d->name() ), m_trackManager(manager)
 {
   detector=d;
-
 }
 
 MuonSlaveSD::~MuonSlaveSD() { 
@@ -40,7 +39,6 @@ bool MuonSlaveSD::format()
   } 
   return true;
 }
-
 
 bool FormatBarrelHits::operator() (const PSimHit & a, const PSimHit & b)
 {
@@ -81,7 +79,6 @@ int FormatGemHits::sortId(const PSimHit & a)  const
 {
   return a.detUnitId();
 }
-
 
 bool FormatMe0Hits::operator() (const PSimHit & a, const PSimHit & b)
 {

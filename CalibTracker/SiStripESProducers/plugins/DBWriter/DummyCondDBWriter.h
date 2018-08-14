@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -22,10 +23,10 @@ class DummyCondDBWriter : public edm::EDAnalyzer {
 public:
 
   explicit DummyCondDBWriter(const edm::ParameterSet& iConfig);
-  ~DummyCondDBWriter();
-  void analyze(const edm::Event& e, const edm::EventSetup&es){};
+  ~DummyCondDBWriter() override;
+  void analyze(const edm::Event& e, const edm::EventSetup&es) override{};
 
-  void endRun(const edm::Run & run, const edm::EventSetup & es);
+  void endRun(const edm::Run & run, const edm::EventSetup & es) override;
 
  private:
   edm::ParameterSet iConfig_;

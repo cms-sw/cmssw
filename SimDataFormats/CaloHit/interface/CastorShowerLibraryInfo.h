@@ -12,9 +12,9 @@
 class SLBin: public TObject {
       public:
              SLBin() {};
-             ~SLBin() {};
+             ~SLBin() override {};
 // Setters
-             void Clear()                       {NEvts=NBins=NEvtPerBin=0;Bins.clear();};
+             void Clear(Option_t * option = "") override {NEvts=NBins=NEvtPerBin=0;Bins.clear();};
              void setNEvts(unsigned int n)      {NEvts = n;};
              void setNBins(unsigned int n)      {NBins = n;};
              void setNEvtPerBin(unsigned int n) {NEvtPerBin=n;};
@@ -31,7 +31,7 @@ class SLBin: public TObject {
              unsigned int        NBins;
              unsigned int        NEvtPerBin;
              std::vector<double> Bins;
-    ClassDef(SLBin,2);
+    ClassDefOverride(SLBin,2);
 };
 
 class CastorShowerLibraryInfo : public TObject {
@@ -39,16 +39,16 @@ class CastorShowerLibraryInfo : public TObject {
   public:
   
     CastorShowerLibraryInfo();
-    ~CastorShowerLibraryInfo();
-    
-    void Clear();
+    ~CastorShowerLibraryInfo() override;
+
+    void Clear(Option_t * option = "") override;
     
     // Data members
     SLBin Energy;
     SLBin Eta;
     SLBin Phi;
 
-    ClassDef(CastorShowerLibraryInfo,2);
+    ClassDefOverride(CastorShowerLibraryInfo,2);
     
   };
 

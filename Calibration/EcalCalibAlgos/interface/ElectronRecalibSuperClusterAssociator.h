@@ -29,9 +29,9 @@ class ElectronRecalibSuperClusterAssociator : public edm::EDProducer
 
   explicit ElectronRecalibSuperClusterAssociator(const edm::ParameterSet& conf);
 
-  virtual ~ElectronRecalibSuperClusterAssociator();
+  ~ElectronRecalibSuperClusterAssociator() override;
 
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 
  private:
   edm::InputTag electronSrc_;

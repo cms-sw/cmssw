@@ -28,9 +28,9 @@ public:
 
   FastSimDataFilter(const edm::ParameterSet& pset);
 
-  virtual ~FastSimDataFilter();
+  ~FastSimDataFilter() override;
 
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
   virtual void beginJob();
   virtual void endJob();
    

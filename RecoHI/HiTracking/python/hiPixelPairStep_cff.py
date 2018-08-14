@@ -40,12 +40,16 @@ hiPixelPairSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerPairs_cfi.PixelLay
         HitProducer = cms.string('siPixelRecHits'),
         skipClusters = cms.InputTag('hiPixelPairClusters')
         )
-            )
+)
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(hiPixelPairSeedLayers,
+	layerList = cms.vstring('BPix1+BPix4','BPix1+FPix1_pos','BPix1+FPix1_neg')  #only use first and fourth barrel layers or first barrel and first forward layer around area where BPIX2+3 are inactive
+)
 
 # SEEDS
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff
 hiPixelPairSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff.globalSeedsFromPairsWithVertices.clone()
-hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.VertexCollection=cms.InputTag("hiSelectedVertex")
+hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.VertexCollection=cms.InputTag("hiSelectedPixelVertex")
 hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.ptMin = 1.0
 hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.originRadius = 0.005
 hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.nSigmaZ = 4.0
@@ -67,6 +71,47 @@ hiPixelPairSeeds.SeedComparitorPSet = cms.PSet(
     ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
     ClusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache")
     )
+
+#rectangular tracking region around area missing BPIX2/3 in Phase 1
+from RecoTracker.TkTrackingRegions.pointSeededTrackingRegion_cfi import pointSeededTrackingRegion as _pointSeededTrackingRegion
+hiPixelPairStepTrackingRegionPhase1 = _pointSeededTrackingRegion.clone(
+    RegionPSet = dict(
+        ptMin = 0.9,
+        originRadius = 0.005,
+        mode = "VerticesSigma",
+        nSigmaZVertex = 4.0,
+        vertexCollection = "hiSelectedPixelVertex",
+        beamSpot = "offlineBeamSpot",
+        whereToUseMeasurementTracker = "Never",
+        deltaEta = 1.8,
+        deltaPhi = 0.5,
+        points = dict(
+            eta = [0.0],
+            phi = [3.0],
+        )
+    )
+)
+
+from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
+hiPixelPairStepHitDoubletsPhase1 = _hitPairEDProducer.clone(
+    seedingLayers = "hiPixelPairSeedLayers",
+    trackingRegions = "hiPixelPairStepTrackingRegionPhase1",
+    clusterCheck = "",
+    produceSeedingHitSets = cms.bool(True), 
+)
+
+from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer
+hiPixelPairStepSeedsPhase1 = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
+    seedingHitSets = "hiPixelPairStepHitDoubletsPhase1",
+    SeedComparitorPSet = dict(
+        ComponentName = 'PixelClusterShapeSeedComparitor',
+        FilterAtHelixStage = cms.bool(True),
+        FilterPixelHits = cms.bool(True),
+        FilterStripHits = cms.bool(False),
+        ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
+        ClusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCache'),
+    )
+)
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
@@ -105,6 +150,9 @@ hiPixelPairTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTr
     onlyPixelHitsForSeedCleaner = cms.bool(True),
 
     )
+trackingPhase1.toModify(hiPixelPairTrackCandidates,
+    src = cms.InputTag('hiPixelPairStepSeedsPhase1')
+)
 
 
 # TRACK FITTING
@@ -143,14 +191,37 @@ hiPixelPairStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrac
     ),
     ) #end of vpset
     ) #end of clone
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(hiPixelPairStepSelector, useAnyMVA = cms.bool(False))
+trackingPhase1.toModify(hiPixelPairStepSelector, trackSelectors= cms.VPSet(
+    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
+    name = 'hiPixelPairStepLoose',
+    useMVA = cms.bool(False)
+    ), #end of pset
+    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
+    name = 'hiPixelPairStepTight',
+    preFilterName = 'hiPixelPairStepLoose',
+    useMVA = cms.bool(False),
+    minMVA = cms.double(-0.58)
+    ),
+    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
+    name = 'hiPixelPairStep',
+    preFilterName = 'hiPixelPairStepTight',
+    useMVA = cms.bool(False),
+    minMVA = cms.double(0.77)
+    ),
+    ) #end of vpset
+)
 
 
 
 # Final sequence
-
 hiPixelPairStep = cms.Sequence(hiPixelPairClusters*
                                hiPixelPairSeedLayers*
                                hiPixelPairSeeds*
                                hiPixelPairTrackCandidates*
                                hiPixelPairGlobalPrimTracks*
                                hiPixelPairStepSelector)
+hiPixelPairStep_Phase1 = hiPixelPairStep.copy()
+hiPixelPairStep_Phase1.replace(hiPixelPairSeeds,hiPixelPairStepTrackingRegionPhase1*hiPixelPairStepHitDoubletsPhase1*hiPixelPairStepSeedsPhase1)
+trackingPhase1.toReplaceWith(hiPixelPairStep, hiPixelPairStep_Phase1)

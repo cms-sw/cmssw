@@ -5,6 +5,8 @@
 
 #include <boost/cstdint.hpp> 
 
+#include <vector>
+
 namespace l1t {
   namespace emtf {
     class SP {
@@ -82,7 +84,7 @@ namespace l1t {
       int ME3_delay()      const { return me3_delay;      }
       int ME4_delay()      const { return me4_delay;      }
       unsigned long Pt_LUT_addr() const { return pt_LUT_addr; }
-      int Format_Errors()  const { return format_errors;  }
+      int Format_errors()  const { return format_errors;  }
       uint64_t Dataword()  const { return dataword;       } 
       
     private:

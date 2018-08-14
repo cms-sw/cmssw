@@ -56,17 +56,17 @@ unsigned int SiPixelFedFillerWordEventNumber ::CalibStatFillWord(unsigned int to
   //     according to the value of the totword.
   if ((status == 0x1)||(status == 0x9)){
     CalibFiller1 = Filler1;
-    if((status == 0x9)){CalibFiller2 = Filler14;}
+    if( status == 0x9 ){CalibFiller2 = Filler14;}
   }
   if ((status == 0x2)||(status == 0xa)){
     CalibFiller1 = Filler2;
-    if((status == 0xa)){CalibFiller2 = Filler24;}
+    if( status == 0xa ){CalibFiller2 = Filler24;}
   }
   if ((status == 0x4)||(status == 0xc)){
     CalibFiller1 = Filler3;
-    if((status == 0xc)){CalibFiller2 = Filler4;}
+    if( status == 0xc ){CalibFiller2 = Filler4;}
   }
-  if ((status == 0x8)){CalibFiller2 = Filler4;}  
+  if ( status == 0x8 ){CalibFiller2 = Filler4;}
   if((status == 0x7)||(status == 0xf)){
     if((Filler1 == Filler2)&&(Filler1 == Filler3)&&(Filler2 == Filler3)){
       CalibFiller1 = Filler1;
@@ -81,7 +81,7 @@ unsigned int SiPixelFedFillerWordEventNumber ::CalibStatFillWord(unsigned int to
     }
   }
   if((status == 0x3)||(status == 0xb)){
-    if((Filler1 == Filler2)){
+    if( Filler1 == Filler2 ){
       CalibFiller1 = Filler1;
       BoolStat = true;
       if(status == 0xb){CalibFiller2 = Filler14;}
@@ -93,7 +93,7 @@ unsigned int SiPixelFedFillerWordEventNumber ::CalibStatFillWord(unsigned int to
     }
   }
   if((status == 0x5)||(status == 0xd)){
-    if((Filler1 == Filler3)){
+    if( Filler1 == Filler3 ){
       CalibFiller1 = Filler1;
       BoolStat = true;
       if(status == 0xd){CalibFiller2 = Filler4;}
@@ -105,7 +105,7 @@ unsigned int SiPixelFedFillerWordEventNumber ::CalibStatFillWord(unsigned int to
     }
   }
   if((status == 0x6)||(status == 0xe)){
-    if((Filler2 == Filler3)){
+    if( Filler2 == Filler3 ){
       CalibFiller1 = Filler2;
       BoolStat = true;
       if(status == 0xe){CalibFiller2 = Filler4;}
@@ -135,7 +135,7 @@ unsigned int SiPixelFedFillerWordEventNumber ::CalibStatFillWord(unsigned int to
     if((status == 0x9)||(status == 0xa)||(status == 0xc)){
       vecFillerWordsEventNumber2.push_back((((CalibFiller2%65536)&(0xff00))>>8));
       edm::LogInfo("AnazrFedFillerWords")<<"Filler2 Event ID:"<<(((CalibFiller2%65536)&(0xff00))>>8)<<std::endl;
-    }else if((status == 0x8)){
+    }else if( status == 0x8 ){
       edm::LogError("AnazrFedFillerWords")<<"Status: "<<status 
                                           <<" No Filler1 found, is not possible get any Event ID Number"
                                           <<std::endl;
@@ -379,7 +379,7 @@ SiPixelFedFillerWordEventNumber ::produce(edm::Event& iEvent, const edm::EventSe
       int value = PwordSlink64((uint64_t*)fedRawData.data(),(int)fedRawData.size(), totword);
       if(value!=0){
 	//====== Verify that the vector is not empty
-	if(vecSaveFillerWords.size()!=0){
+	if(!vecSaveFillerWords.empty()){
 	  for(vecSaveFillerWords_It = vecSaveFillerWords.begin(); vecSaveFillerWords_It != vecSaveFillerWords.end(); vecSaveFillerWords_It++){
 	    SaveFillerWords->push_back(*vecSaveFillerWords_It);
 	  }

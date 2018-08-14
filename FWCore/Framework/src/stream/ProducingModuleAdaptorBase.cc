@@ -57,8 +57,10 @@ namespace edm {
       m_streamModules.resize(iPrealloc.numberOfStreams(),
                              static_cast<T*>(nullptr));
       setupStreamModules();
+      preallocLumis(iPrealloc.numberOfLuminosityBlocks());
     }
 
+    
     template< typename T>
     void
     ProducingModuleAdaptorBase<T>::registerProductsAndCallbacks(ProducingModuleAdaptorBase const*, ProductRegistry* reg) {
@@ -99,9 +101,9 @@ namespace edm {
 
     template<typename T>
     std::vector<edm::ProductResolverIndexAndSkipBit> const&
-    ProducingModuleAdaptorBase<T>::itemsToGetFromEvent() const {
+    ProducingModuleAdaptorBase<T>::itemsToGetFrom(BranchType iType) const {
       assert(not m_streamModules.empty());
-      return m_streamModules[0]->itemsToGetFromEvent();
+      return m_streamModules[0]->itemsToGetFrom(iType);
     }
 
     template< typename T>
@@ -112,6 +114,14 @@ namespace edm {
                                                                    std::string const& processName) const {
       assert(not m_streamModules.empty());
       return m_streamModules[0]->modulesWhoseProductsAreConsumed(modules, preg, labelsToDesc, processName);
+    }
+
+    template< typename T>
+    void
+    ProducingModuleAdaptorBase<T>::convertCurrentProcessAlias(std::string const& processName) {
+      for(auto mod: m_streamModules) {
+        mod->convertCurrentProcessAlias(processName);
+      }
     }
 
     template< typename T>
@@ -134,9 +144,11 @@ namespace edm {
     template< typename T>
     void
     ProducingModuleAdaptorBase<T>::resolvePutIndicies(BranchType iBranchType,
-                            std::unordered_multimap<std::string, edm::ProductResolverIndex> const& iIndicies,
+                            ModuleToResolverIndicies const& iIndicies,
                             std::string const& moduleLabel) {
-      m_streamModules[0]->resolvePutIndicies(iBranchType,iIndicies,moduleLabel);
+      for(auto mod: m_streamModules) {
+        mod->resolvePutIndicies(iBranchType,iIndicies,moduleLabel);
+      }
     }
 
 
@@ -173,7 +185,7 @@ namespace edm {
       auto mod = m_streamModules[id];
       setupRun(mod, rp.index());
       
-      Run r(rp, moduleDescription_, mcc);
+      Run r(rp, moduleDescription_, mcc, false);
       r.setConsumer(mod);
       mod->beginRun(r, c);
       
@@ -186,7 +198,7 @@ namespace edm {
                                                   ModuleCallingContext const* mcc)
     {
       auto mod = m_streamModules[id];
-      Run r(rp, moduleDescription_, mcc);
+      Run r(rp, moduleDescription_, mcc, true);
       r.setConsumer(mod);
       mod->endRun(r, c);
       streamEndRunSummary(mod,r,c);
@@ -201,7 +213,7 @@ namespace edm {
       auto mod = m_streamModules[id];
       setupLuminosityBlock(mod,lbp.index());
       
-      LuminosityBlock lb(lbp, moduleDescription_, mcc);
+      LuminosityBlock lb(lbp, moduleDescription_, mcc, false);
       lb.setConsumer(mod);
       mod->beginLuminosityBlock(lb, c);
     }
@@ -214,7 +226,7 @@ namespace edm {
                                                               ModuleCallingContext const* mcc)
     {
       auto mod = m_streamModules[id];
-      LuminosityBlock lb(lbp, moduleDescription_, mcc);
+      LuminosityBlock lb(lbp, moduleDescription_, mcc, true);
       lb.setConsumer(mod);
       mod->endLuminosityBlock(lb, c);
       streamEndLuminosityBlockSummary(mod,lb, c);
@@ -226,20 +238,6 @@ namespace edm {
     template< typename T>
     void
     ProducingModuleAdaptorBase<T>::doRespondToCloseInputFile(FileBlock const&){}
-    template< typename T>
-    void
-    ProducingModuleAdaptorBase<T>::doPreForkReleaseResources(){
-      for(auto m: m_streamModules) {
-        m->preForkReleaseResources();
-      }
-    }
-    template< typename T>
-    void
-    ProducingModuleAdaptorBase<T>::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren){
-      for(auto m: m_streamModules) {
-        m->postForkReacquireResources(iChildIndex,iNumberOfChildren);
-      }
-    }
 
     template< typename T>
     void

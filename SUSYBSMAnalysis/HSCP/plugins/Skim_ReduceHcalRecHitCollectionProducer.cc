@@ -65,8 +65,8 @@
 class ReduceHcalRecHitCollectionProducer : public edm::EDProducer {
    public:
       explicit ReduceHcalRecHitCollectionProducer(const edm::ParameterSet&);
-      ~ReduceHcalRecHitCollectionProducer();
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      ~ReduceHcalRecHitCollectionProducer() override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
    private:
       edm::EDGetTokenT<HBHERecHitCollection> recHitsToken_;
       std::string reducedHitsCollection_;
@@ -156,7 +156,7 @@ ReduceHcalRecHitCollectionProducer::produce(edm::Event& iEvent, const edm::Event
 
            TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, *itTrack, parameters_, TrackDetectorAssociator::InsideOut);
 
-          if(info.crossedHcalIds.size()>0){
+          if(!info.crossedHcalIds.empty()){
              //loop through hits in the cone
              for(std::vector<const HBHERecHit*>::const_iterator hit = info.hcalRecHits.begin();
                  hit != info.hcalRecHits.end(); ++hit)

@@ -19,10 +19,10 @@ class  JetCorrectorDBWriter : public edm::EDAnalyzer
 {
  public:
   JetCorrectorDBWriter(const edm::ParameterSet&);
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override {}
-  virtual void endJob() override {}
-  ~JetCorrectorDBWriter() {}
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override {}
+  void endJob() override {}
+  ~JetCorrectorDBWriter() override {}
 
  private:
   std::string era;
@@ -64,7 +64,7 @@ void JetCorrectorDBWriter::beginJob()
       // create the parameter object from file 
       std::vector<std::string> sections;
       JetCorrectorParametersCollection::getSections(fip.fullPath(), sections );
-      if ( sections.size() == 0 ) {
+      if ( sections.empty() ) {
 	payload->push_back( i, JetCorrectorParameters(fip.fullPath(),"") );
       }
       else {
@@ -76,7 +76,7 @@ void JetCorrectorDBWriter::beginJob()
       }
       std::cout << "Added record " << i << std::endl;
     }
-    catch(edm::Exception ex) {
+    catch(edm::Exception const&) {
       std::cout << "Did not find JEC file " << inputTxtFile << std::endl;
     }
     

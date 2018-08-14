@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-postProcessorMuonIsolation = cms.EDAnalyzer(
+postProcessorMuonIsolation = DQMEDHarvester(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("Muons/MuonIsolationV*"),
     efficiency = cms.vstring(""),

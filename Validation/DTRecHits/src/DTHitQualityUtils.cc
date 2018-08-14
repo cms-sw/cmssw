@@ -17,17 +17,7 @@
 using namespace std;
 using namespace edm;
 
-bool DTHitQualityUtils::debug;
-
-// Constructor
-DTHitQualityUtils::DTHitQualityUtils(){
-  //DTHitQualityUtils::setDebug(debug);
-}
-
-// Destructor
-DTHitQualityUtils::~DTHitQualityUtils(){
-}
-
+std::atomic<bool> DTHitQualityUtils::debug{false};
 
 // Return a map between simhits of a layer,superlayer or chamber and the wireId of their cell
 map<DTWireId, PSimHitContainer >
@@ -54,7 +44,7 @@ DTHitQualityUtils::mapMuSimHitsPerWire(const map<DTWireId, PSimHitContainer>& si
       wireAndSimHit++) {
 
     const PSimHit* muHit = findMuSimHit((*wireAndSimHit).second);
-    if(muHit != 0) {
+    if(muHit != nullptr) {
       ret[(*wireAndSimHit).first]=(muHit);
     }
   }
@@ -74,8 +64,8 @@ const PSimHit* DTHitQualityUtils::findMuSimHit(const PSimHitContainer& hits) {
     if (abs((*hit).particleType())==13) muHits.push_back(&(*hit));
   }
 
-  if (muHits.size()==0)
-    return 0; //FIXME: Throw of exception???
+  if (muHits.empty())
+    return nullptr; //FIXME: Throw of exception???
   else if (muHits.size()>1)
     if(debug)
       cout << "[DTHitQualityUtils]***WARNING: # muSimHits in a wire = " << muHits.size() << endl;
@@ -92,8 +82,8 @@ DTHitQualityUtils::findMuSimSegment(const map<DTWireId, const PSimHit*>& mapWire
   int inSL = 4;
   int outLayer = 0;
   int inLayer = 5;
-  const PSimHit *inSimHit = 0;
-  const PSimHit *outSimHit = 0;
+  const PSimHit *inSimHit = nullptr;
+  const PSimHit *outSimHit = nullptr;
 
   for(map<DTWireId, const PSimHit*>::const_iterator wireAndMuSimHit = mapWireAndMuSimHit.begin();
       wireAndMuSimHit != mapWireAndMuSimHit.end();
@@ -129,7 +119,7 @@ DTHitQualityUtils::findMuSimSegment(const map<DTWireId, const PSimHit*>& mapWire
     }
   }
 
-  if(inSimHit != 0) {
+  if(inSimHit != nullptr) {
     if(debug)
       cout << "Innermost SimHit on SL: " << inSL << " layer: " << inLayer << endl;
   } else {
@@ -137,7 +127,7 @@ DTHitQualityUtils::findMuSimSegment(const map<DTWireId, const PSimHit*>& mapWire
     abort();
   }
 
-  if(outSimHit != 0) {
+  if(outSimHit != nullptr) {
     if(debug)
       cout << "Outermost SimHit on SL: " << outSL << " layer: " << outLayer << endl;
   } else {

@@ -39,7 +39,7 @@ HLTJetCollectionsVBFFilter<T>::HLTJetCollectionsVBFFilter(const edm::ParameterSe
 }
 
 template <typename T>
-HLTJetCollectionsVBFFilter<T>::~HLTJetCollectionsVBFFilter(){}
+HLTJetCollectionsVBFFilter<T>::~HLTJetCollectionsVBFFilter()= default;
 
 template <typename T>
 void

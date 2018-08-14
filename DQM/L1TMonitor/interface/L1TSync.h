@@ -86,16 +86,16 @@ class L1TSync : public DQMEDAnalyzer {
   public:
 
     L1TSync(const edm::ParameterSet& ps);   // Constructor
-    virtual ~L1TSync();                     // Destructor
+    ~L1TSync() override;                     // Destructor
 
   protected:
 
     void analyze (const edm::Event& e, const edm::EventSetup& c) override;  // Analyze
 
-    virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
-    virtual void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
-    virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
-    virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+    void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
+    void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
+    void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
+    void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
 
 
   // Private Methods

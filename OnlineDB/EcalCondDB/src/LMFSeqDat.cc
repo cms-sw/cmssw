@@ -1,6 +1,6 @@
 #include <stdexcept>
 #include <sstream>
-#include <limits.h>
+#include <climits>
 #include "OnlineDB/EcalCondDB/interface/LMFSeqDat.h"
 #include "OnlineDB/EcalCondDB/interface/DateHandler.h"
 
@@ -243,7 +243,7 @@ std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(const std::vector<std::string>
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
     throw(std::runtime_error(m_className + "::" + method + ": " + 
-			     e.getMessage()));
+			     getOraMessage(&e)));
   }
   return l;
 }
@@ -255,7 +255,7 @@ LMFSeqDat LMFSeqDat::fetchLast() {
 		  "WHERE SEQ_ID = "
 		  "(SELECT MAX(SEQ_ID) FROM CMS_ECAL_LASER_COND.LMF_SEQ_DAT)",
 		  "fetchLast");
-  if (m.size() > 0) {
+  if (!m.empty()) {
     ret = m.begin()->second;
   }
   return ret;

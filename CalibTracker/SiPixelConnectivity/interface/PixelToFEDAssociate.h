@@ -29,7 +29,7 @@ public:
 
   /// LNK id for module
   virtual const CablingRocId * operator()(const DetectorRocId & roc) const {
-    return 0;
+    return nullptr;
   }
 };
 #endif 

@@ -50,10 +50,10 @@
 class HcalHitSelection : public edm::stream::EDProducer<> {
    public:
       explicit HcalHitSelection(const edm::ParameterSet&);
-      ~HcalHitSelection();
+      ~HcalHitSelection() override;
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
   
   edm::InputTag hbheTag,hoTag,hfTag;
   edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
@@ -82,7 +82,7 @@ template <class CollectionType> void HcalHitSelection::skim( const edm::Handle<C
   for (;hit!=end;++hit){
     //    edm::LogError("HcalHitSelection")<<"the hit pointer is"<<&(*hit);
     HcalDetId id = hit->detid();
-    if (theHcalTopology_->withSpecialRBXHBHE() && id.subdet() == HcalEndcap) {
+    if (theHcalTopology_->getMergePositionFlag() && id.subdet() == HcalEndcap) {
       id = theHcalTopology_->idFront(id);
     }
     const uint32_t & recHitFlag = hit->flags();

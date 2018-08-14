@@ -49,9 +49,9 @@ namespace edm {
     /// default contructor
     FilterWrapper(const edm::ParameterSet& cfg){ filter_ = boost::shared_ptr<T>( new T(cfg, consumesCollector()) ); }
     /// default destructor
-    virtual ~FilterWrapper(){}
+    ~FilterWrapper() override{}
     /// everything which has to be done during the event loop. NOTE: We can't use the eventSetup in FWLite so ignore it
-    virtual bool filter(edm::StreamID, edm::Event& event, const edm::EventSetup& eventSetup) const override {
+    bool filter(edm::StreamID, edm::Event& event, const edm::EventSetup& eventSetup) const override {
       edm::EventBase & eventBase = dynamic_cast<edm::EventBase &>(event);
       edm::EventBase const & eventBaseConst = const_cast<edm::EventBase const &>(eventBase);
       return (*filter_)(eventBaseConst);

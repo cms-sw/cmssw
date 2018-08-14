@@ -1,5 +1,5 @@
 #include "BoostedTopProducer.h"
-#include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
+#include "CommonTools/CandUtils/interface/AddFourMomenta.h"
 
 #include <string>
 #include <sstream>
@@ -183,7 +183,7 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // Veto events with < 2 jets or no missing et
    // ----------------------
    if ( jets.size() < 2 ||
-	mets.size() == 0 ) {
+	mets.empty() ) {
      preselection = false;
    }
 
@@ -368,17 +368,6 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.put(std::move(pTtbar));
 
 
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void
-BoostedTopProducer::beginJob(const edm::EventSetup&)
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void
-BoostedTopProducer::endJob() {
 }
 
 double

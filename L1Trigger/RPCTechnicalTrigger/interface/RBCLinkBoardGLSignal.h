@@ -20,9 +20,9 @@ public:
   
   RBCLinkBoardGLSignal( std::map< int, RBCInput* >  * ); 
   
-  virtual ~RBCLinkBoardGLSignal( ); ///< Destructor
+  ~RBCLinkBoardGLSignal( ) override; ///< Destructor
   
-  void clear() { };
+  void clear() override { };
   
   std::map< int, RBCInput* >  * m_linkboardin;
   

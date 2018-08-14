@@ -133,9 +133,9 @@ void GlobalDigisAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run co
 			     "TIDW1", "TIDW2", "TIDW3", "TOBL1", 
 			     "TOBL2", "TOBL3", "TOBL4"};
   for(int i = 0; i<19; ++i) {
-    mehSiStripn[i]=0;
-    mehSiStripADC[i]=0;
-    mehSiStripStrip[i]=0;
+    mehSiStripn[i]=nullptr;
+    mehSiStripADC[i]=nullptr;
+    mehSiStripStrip[i]=nullptr;
   }
   std::string hcharname, hchartitle;
   iBooker.setCurrentFolder("GlobalDigisV/SiStrips");
@@ -170,11 +170,11 @@ void GlobalDigisAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run co
   double ProfileUpper[4] = {1.,1.,1.,1.};  
   
   for(int i =0; i<4; ++i) {
-    mehHcaln[i]=0;
-    mehHcalAEE[i]=0;
-    mehHcalSHE[i]=0;
-    mehHcalAEESHE[i]=0;
-    mehHcalSHEvAEE[i]=0;
+    mehHcaln[i]=nullptr;
+    mehHcalAEE[i]=nullptr;
+    mehHcalSHE[i]=nullptr;
+    mehHcalAEESHE[i]=nullptr;
+    mehHcalSHEvAEE[i]=nullptr;
   }
   iBooker.setCurrentFolder("GlobalDigisV/HCals");
   
@@ -221,12 +221,12 @@ void GlobalDigisAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run co
   std::string ECalString[2] = {"EB","EE"}; 
   
   for(int i =0; i<2; ++i) {
-    mehEcaln[i]=0;
-    mehEcalAEE[i]=0;
-    mehEcalSHE[i]=0;
-    mehEcalMaxPos[i]=0;
-    mehEcalMultvAEE[i]=0;
-    mehEcalSHEvAEESHE[i]=0;
+    mehEcaln[i]=nullptr;
+    mehEcalAEE[i]=nullptr;
+    mehEcalSHE[i]=nullptr;
+    mehEcalMaxPos[i]=nullptr;
+    mehEcalMultvAEE[i]=nullptr;
+    mehEcalSHEvAEESHE[i]=nullptr;
   }
   iBooker.setCurrentFolder("GlobalDigisV/ECals");
   
@@ -269,7 +269,7 @@ void GlobalDigisAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run co
     mehEcalMultvAEE[amend]->setAxisTitle("Analog Equivalent Energy",1);
     mehEcalMultvAEE[amend]->setAxisTitle("Number of Digis",2);      
   }
-  mehEScaln = 0;
+  mehEScaln = nullptr;
 
   hcharname = "hEcaln_ES";
   hchartitle= "ESCAL  digis";
@@ -279,7 +279,7 @@ void GlobalDigisAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run co
 
   std::string ADCNumber[3] = {"0", "1", "2"};
   for(int i =0; i<3; ++i) {
-    mehEScalADC[i] = 0;
+    mehEScalADC[i] = nullptr;
     hcharname = "hEcalADC"+ADCNumber[i]+"_ES";
     hchartitle= "ESCAL  ADC"+ADCNumber[i];
     mehEScalADC[i] = iBooker.book1D(hcharname,hchartitle, 1500, 0., 1500.);
@@ -291,10 +291,10 @@ void GlobalDigisAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run co
   std::string SiPixelString[7] = {"BRL1", "BRL2", "BRL3", "FWD1n", "FWD1p", 
 			    "FWD2n", "FWD2p"};
   for(int j =0; j<7; ++j) {
-    mehSiPixeln[j]=0;
-    mehSiPixelADC[j]=0;
-    mehSiPixelRow[j]=0;
-    mehSiPixelCol[j]=0;
+    mehSiPixeln[j]=nullptr;
+    mehSiPixelADC[j]=nullptr;
+    mehSiPixelRow[j]=nullptr;
+    mehSiPixelCol[j]=nullptr;
   }
   
   iBooker.setCurrentFolder("GlobalDigisV/SiPixels");
@@ -332,10 +332,10 @@ void GlobalDigisAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run co
   std::string MuonString[4] = {"MB1", "MB2", "MB3", "MB4"};
   
   for(int i =0; i < 4; ++i) {
-    mehDtMuonn[i] = 0;
-    mehDtMuonLayer[i] = 0;
-    mehDtMuonTime[i] = 0;
-    mehDtMuonTimevLayer[i] = 0;
+    mehDtMuonn[i] = nullptr;
+    mehDtMuonLayer[i] = nullptr;
+    mehDtMuonTime[i] = nullptr;
+    mehDtMuonTimevLayer[i] = nullptr;
   }
   
   for(int j = 0; j < 4; ++j) {
@@ -366,28 +366,28 @@ void GlobalDigisAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run co
   }
 
   //CSC 
-  mehCSCStripn = 0;
+  mehCSCStripn = nullptr;
   hcharname = "hCSCStripn";
   hchartitle = "CSC Strip digis";
   mehCSCStripn = iBooker.book1D(hcharname,hchartitle,250, 0., 500.);
   mehCSCStripn->setAxisTitle("Number of Digis",1);
   mehCSCStripn->setAxisTitle("Count",2);
   
-  mehCSCStripADC = 0;
+  mehCSCStripADC = nullptr;
   hcharname = "hCSCStripADC";
   hchartitle = "CSC Strip ADC";
   mehCSCStripADC = iBooker.book1D(hcharname,hchartitle, 110, 0., 1100.);
   mehCSCStripADC->setAxisTitle("ADC",1);
   mehCSCStripADC->setAxisTitle("Count",2);
   
-  mehCSCWiren = 0;
+  mehCSCWiren = nullptr;
   hcharname = "hCSCWiren";
   hchartitle = "CSC Wire digis";
   mehCSCWiren = iBooker.book1D(hcharname,hchartitle,250, 0., 500.);
   mehCSCWiren->setAxisTitle("Number of Digis",1);
   mehCSCWiren->setAxisTitle("Count",2);
   
-  mehCSCWireTime = 0;
+  mehCSCWireTime = nullptr;
   hcharname = "hCSCWireTime";
   hchartitle = "CSC Wire Time";
   mehCSCWireTime = iBooker.book1D(hcharname,hchartitle,10, 0., 10.);
@@ -395,7 +395,7 @@ void GlobalDigisAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run co
   mehCSCWireTime->setAxisTitle("Count",2);
   
   // RPC 
-  mehRPCMuonn = 0;
+  mehRPCMuonn = nullptr;
   hcharname = "hRPCMuonn";
   hchartitle = "RPC digis";
   mehCSCStripn = iBooker.book1D(hcharname,hchartitle,250, 0., 500.);
@@ -404,7 +404,7 @@ void GlobalDigisAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run co
 
   std::string MuonRPCString[5] = {"Wmin2", "Wmin1", "W0", "Wpu1", "Wpu2"};
   for(int i =0; i < 5; ++i) {
-    mehRPCRes[i] = 0;
+    mehRPCRes[i] = nullptr;
   }
 
   for(int j = 0; j < 5; ++j) {    
@@ -536,7 +536,7 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
     validDigiEB = false;
   }  
   if (validDigiEB) {
-    if ( EcalDigiEB->size() == 0) isBarrel = false;
+    if ( EcalDigiEB->empty()) isBarrel = false;
     
     if (isBarrel) {
       
@@ -658,7 +658,7 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
     validDigiEE = false;
   }  
   if (validDigiEE) {
-    if (EcalDigiEE->size() == 0) isEndCap = false;
+    if (EcalDigiEE->empty()) isEndCap = false;
     
     if (isEndCap) {
       
@@ -786,7 +786,7 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
   validDigiES = false;
  
   if (validDigiES) {
-    if (EcalDigiES->size() == 0) isPreshower = false;
+    if (EcalDigiES->empty()) isPreshower = false;
     
     if (isPreshower) {
       

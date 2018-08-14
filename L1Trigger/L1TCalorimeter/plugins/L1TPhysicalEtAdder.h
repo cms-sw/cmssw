@@ -15,7 +15,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -35,22 +35,15 @@
 //
 
 
-  class L1TPhysicalEtAdder : public edm::EDProducer {
+  class L1TPhysicalEtAdder : public edm::global::EDProducer<> {
   public:
     explicit L1TPhysicalEtAdder(const edm::ParameterSet& ps);
-    ~L1TPhysicalEtAdder();
+    ~L1TPhysicalEtAdder() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
-      virtual void beginJob() override;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
-
-      //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-      //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+      void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
       // ----------member data ---------------------------
 

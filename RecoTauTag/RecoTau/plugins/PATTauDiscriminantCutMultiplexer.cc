@@ -38,7 +38,7 @@ class PATTauDiscriminantCutMultiplexer : public PATTauDiscriminationProducerBase
   public:
     explicit PATTauDiscriminantCutMultiplexer(const edm::ParameterSet& pset);
 
-    ~PATTauDiscriminantCutMultiplexer();
+    ~PATTauDiscriminantCutMultiplexer() override;
     double discriminate(const pat::TauRef&) const override;
     void beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 	
@@ -171,7 +171,7 @@ PATTauDiscriminantCutMultiplexer::PATTauDiscriminantCutMultiplexer(const edm::Pa
     } else if ( mappingEntry->existsAs<std::string>("cut") ) {
       cut->cutName_ = mappingEntry->getParameter<std::string>("cut");
       std::string cutVariable_string = mappingEntry->getParameter<std::string>("variable");
-      cut->cutVariable_.reset( new StringObjectFunction<pat::Tau>(cutVariable_string.data()) );
+      cut->cutVariable_.reset( new StringObjectFunction<pat::Tau>(cutVariable_string) );
       cut->mode_ = DiscriminantCutEntry::kVariableCut;
     } else {
       throw cms::Exception("PATTauDiscriminantCutMultiplexer") 
@@ -200,7 +200,7 @@ void PATTauDiscriminantCutMultiplexer::beginEvent(const edm::Event& evt, const e
 	mvaOutput_normalization_ = loadObjectFromFile<TFormula>(*inputFile, mvaOutputNormalizationName_);
       } else {
 	auto temp = loadTFormulaFromDB(es, mvaOutputNormalizationName_, Form("%s_mvaOutput_normalization", moduleLabel_.data()), verbosity_);
-	mvaOutput_normalization_.reset(temp.release());
+	mvaOutput_normalization_ = std::move(temp);
       }
     }
     for ( DiscriminantCutMap::iterator cut = cuts_.begin();

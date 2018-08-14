@@ -25,6 +25,7 @@ namespace edm {
   */
 class HcalTPGCoder {
 public:
+  virtual ~HcalTPGCoder() = default;
   virtual void adc2Linear(const HBHEDataFrame& df, IntegerCaloSamples& ics) const = 0;
   virtual void adc2Linear(const HFDataFrame& df, IntegerCaloSamples& ics) const = 0;
   virtual void adc2Linear(const QIE10DataFrame& df, IntegerCaloSamples& ics) const = 0;

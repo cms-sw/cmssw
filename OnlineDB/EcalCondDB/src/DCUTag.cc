@@ -8,8 +8,8 @@ using namespace oracle::occi;
 
 DCUTag::DCUTag()
 {
-  m_env = NULL;
-  m_conn = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
   m_ID = 0;
   m_genTag = "default";
   m_locDef = LocationDef();
@@ -91,7 +91,7 @@ int DCUTag::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("DCUTag::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("DCUTag::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;
@@ -112,7 +112,7 @@ void DCUTag::setByID(int id)
 
     ResultSet* rset = stmt->executeQuery();
     if (rset->next()) {
-      m_genTag = rset->getString(1);
+      m_genTag = getOraString(rset,1);
       int locID = rset->getInt(2);
 
       m_locDef.setConnection(m_env, m_conn);
@@ -125,7 +125,7 @@ void DCUTag::setByID(int id)
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(std::runtime_error("DCUTag::setByID:  "+e.getMessage()));
+   throw(std::runtime_error(std::string("DCUTag::setByID:  ")+getOraMessage(&e)));
   }
 }
 
@@ -158,7 +158,7 @@ int DCUTag::writeDB()
     
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(std::runtime_error("DCUTag::writeDB:  "+e.getMessage()));
+   throw(std::runtime_error(std::string("DCUTag::writeDB:  ")+getOraMessage(&e)));
   }
 
   // now get the tag_id
@@ -188,7 +188,7 @@ void DCUTag::fetchAllTags( std::vector<DCUTag>* fillVec)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("DCUTag::fetchAllTags:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("DCUTag::fetchAllTags:  ")+getOraMessage(&e)));
   }
 }
 

@@ -57,7 +57,7 @@ namespace edm {
   bool
   EDAnalyzer::doBeginRun(RunPrincipal const& rp, EventSetup const& c,
                          ModuleCallingContext const* mcc) {
-    Run r(rp, moduleDescription_, mcc);
+    Run r(rp, moduleDescription_, mcc,false);
     r.setConsumer(this);
     this->beginRun(r, c);
     return true;
@@ -66,7 +66,7 @@ namespace edm {
   bool
   EDAnalyzer::doEndRun(RunPrincipal const& rp, EventSetup const& c,
                        ModuleCallingContext const* mcc) {
-    Run r(rp, moduleDescription_, mcc);
+    Run r(rp, moduleDescription_, mcc,true);
     r.setConsumer(this);
     this->endRun(r, c);
     return true;
@@ -75,7 +75,7 @@ namespace edm {
   bool
   EDAnalyzer::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                      ModuleCallingContext const* mcc) {
-    LuminosityBlock lb(lbp, moduleDescription_, mcc);
+    LuminosityBlock lb(lbp, moduleDescription_, mcc,false);
     lb.setConsumer(this);
     this->beginLuminosityBlock(lb, c);
     return true;
@@ -84,7 +84,7 @@ namespace edm {
   bool
   EDAnalyzer::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                    ModuleCallingContext const* mcc) {
-    LuminosityBlock lb(lbp, moduleDescription_, mcc);
+    LuminosityBlock lb(lbp, moduleDescription_, mcc,true);
     lb.setConsumer(this);
     this->endLuminosityBlock(lb, c);
     return true;
@@ -100,16 +100,6 @@ namespace edm {
     respondToCloseInputFile(fb);
   }
 
-  void 
-  EDAnalyzer::doPreForkReleaseResources() {
-    preForkReleaseResources();
-  }
-  
-  void 
-  EDAnalyzer::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-    postForkReacquireResources(iChildIndex, iNumberOfChildren);
-  }
-   
   void
   EDAnalyzer::callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func) {
     callWhenNewProductsRegistered_ = func;

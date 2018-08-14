@@ -32,7 +32,7 @@ namespace edm {
   class PoolSource : public InputSource {
   public:
     explicit PoolSource(ParameterSet const& pset, InputSourceDescription const& desc);
-    virtual ~PoolSource();
+    ~PoolSource() override;
     using InputSource::processHistoryRegistryForUpdate;
     using InputSource::productRegistryUpdate;
 
@@ -47,25 +47,25 @@ namespace edm {
     RunHelperBase* runHelper() {return runHelper_.get();}
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
+  protected:
+    ItemType getNextItemType() override;
+    void readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal) override;
+    std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
+    void readEvent_(EventPrincipal& eventPrincipal) override;
 
   private:
-    virtual void readEvent_(EventPrincipal& eventPrincipal) override;
-    virtual std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
-    virtual void readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal) override;
-    virtual std::shared_ptr<RunAuxiliary> readRunAuxiliary_() override;
-    virtual void readRun_(RunPrincipal& runPrincipal) override;
-    virtual std::unique_ptr<FileBlock> readFile_() override;
-    virtual void closeFile_() override;
-    virtual void endJob() override;
-    virtual ItemType getNextItemType() override;
-    virtual bool readIt(EventID const& id, EventPrincipal& eventPrincipal, StreamContext& streamContext) override;
-    virtual void skip(int offset) override;
-    virtual bool goToEvent_(EventID const& eventID) override;
-    virtual void rewind_() override;
-    virtual void preForkReleaseResources() override;
-    virtual bool randomAccess_() const override;
-    virtual ProcessingController::ForwardState forwardState_() const override;
-    virtual ProcessingController::ReverseState reverseState_() const override;
+    std::shared_ptr<RunAuxiliary> readRunAuxiliary_() override;
+    void readRun_(RunPrincipal& runPrincipal) override;
+    std::unique_ptr<FileBlock> readFile_() override;
+    void closeFile_() override;
+    void endJob() override;
+    bool readIt(EventID const& id, EventPrincipal& eventPrincipal, StreamContext& streamContext) override;
+    void skip(int offset) override;
+    bool goToEvent_(EventID const& eventID) override;
+    void rewind_() override;
+    bool randomAccess_() const override;
+    ProcessingController::ForwardState forwardState_() const override;
+    ProcessingController::ReverseState reverseState_() const override;
 
     std::pair<SharedResourcesAcquirer*,std::recursive_mutex*> resourceSharedWithDelayedReader_() override;
     
@@ -84,6 +84,7 @@ namespace edm {
     ProductSelectorRules productSelectorRules_;
     bool dropDescendants_;
     bool labelRawDataLikeMC_;
+    bool delayReadingEventProducts_;
     
     edm::propagate_const<std::unique_ptr<RunHelperBase>> runHelper_;
     std::unique_ptr<SharedResourcesAcquirer> resourceSharedWithDelayedReaderPtr_; // We do not use propagate_const because the acquirer is itself mutable.

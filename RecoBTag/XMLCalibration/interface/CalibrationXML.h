@@ -39,8 +39,8 @@ public:
         {
           delete errHandler;
           delete parser; cms::concurrency::xercesTerminate();
-          errHandler=0;
-          parser=0;
+          errHandler=nullptr;
+          parser=nullptr;
         } 	
 	/**
 	* Return the root DOM Element of the opened XML calibration file

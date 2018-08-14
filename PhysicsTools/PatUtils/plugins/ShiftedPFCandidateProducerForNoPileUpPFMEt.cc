@@ -15,7 +15,7 @@ ShiftedPFCandidateProducerForNoPileUpPFMEt::ShiftedPFCandidateProducerForNoPileU
     jetCorrInputFileName_ = cfg.getParameter<edm::FileInPath>("jetCorrInputFileName");
     if ( jetCorrInputFileName_.location() == edm::FileInPath::Unknown) throw cms::Exception("ShiftedJetProducerT")
       << " Failed to find JEC parameter file = " << jetCorrInputFileName_ << " !!\n";
-    jetCorrParameters_ = new JetCorrectorParameters(jetCorrInputFileName_.fullPath().data(), jetCorrUncertaintyTag_);
+    jetCorrParameters_ = new JetCorrectorParameters(jetCorrInputFileName_.fullPath(), jetCorrUncertaintyTag_);
     jecUncertainty_ = new JetCorrectionUncertainty(*jetCorrParameters_);
   } else {
     jetCorrPayloadName_ = cfg.getParameter<std::string>("jetCorrPayloadName");
@@ -61,7 +61,7 @@ void ShiftedPFCandidateProducerForNoPileUpPFMEt::produce(edm::Event& evt, const 
   for ( reco::PFCandidateCollection::const_iterator originalPFCandidate = originalPFCandidates->begin();
 	originalPFCandidate != originalPFCandidates->end(); ++originalPFCandidate ) {
 
-    const reco::PFJet* jet_matched = 0;
+    const reco::PFJet* jet_matched = nullptr;
     for ( std::vector<const reco::PFJet*>::iterator jet = selectedJets.begin();
 	  jet != selectedJets.end(); ++jet ) {
       std::vector<reco::PFCandidatePtr> jetConstituents = (*jet)->getPFConstituents();

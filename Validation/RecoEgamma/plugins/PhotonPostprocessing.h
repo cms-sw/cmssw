@@ -56,14 +56,13 @@ class PhotonPostprocessing : public edm::EDAnalyzer
    
   //
   explicit PhotonPostprocessing( const edm::ParameterSet& pset ) ;
-  virtual ~PhotonPostprocessing();
+  ~PhotonPostprocessing() override;
                                    
       
-  virtual void analyze(const edm::Event&, const edm::EventSetup&  ) ;
-  virtual void beginJob() ;
-  virtual void endJob() ;
-  virtual void endLuminosityBlock( const edm::LuminosityBlock& , const edm::EventSetup& ) ;
-  virtual void endRun(const edm::Run& , const edm::EventSetup& ) ;
+  void analyze(const edm::Event&, const edm::EventSetup&  ) override ;
+  void beginJob() override ;
+  void endJob() override ;
+  void endRun(const edm::Run& , const edm::EventSetup& ) override ;
  
 
  private:

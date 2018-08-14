@@ -32,9 +32,9 @@ class PhotonCoreProducer : public edm::stream::EDProducer<> {
  public:
 
   PhotonCoreProducer (const edm::ParameterSet& ps);
-  ~PhotonCoreProducer();
+  ~PhotonCoreProducer() override;
 
-  virtual void produce(edm::Event& evt, const edm::EventSetup& es);
+  void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
  private:
 

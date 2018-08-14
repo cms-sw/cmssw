@@ -22,7 +22,7 @@ namespace npstat {
     inline T* makeBuffer(unsigned sizeNeeded, T* stackBuffer,
                          unsigned sizeofStackBuffer)
     {
-        if (sizeNeeded > sizeofStackBuffer || stackBuffer == 0)
+        if (sizeNeeded > sizeofStackBuffer || stackBuffer == nullptr)
             return new T[sizeNeeded];
         else
             return stackBuffer;

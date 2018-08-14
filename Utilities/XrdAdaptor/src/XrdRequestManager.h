@@ -41,7 +41,7 @@ public:
       : Exception(code), m_code(xrootd_status.code)
     {}
 
-    virtual ~XrootdException() throw() {};
+    ~XrootdException() noexcept override {};
 
     uint16_t getCode() { return m_code; }
 
@@ -55,7 +55,7 @@ class RequestManager : boost::noncopyable {
 public:
     static const unsigned int XRD_DEFAULT_TIMEOUT = 3*60;
 
-    ~RequestManager() = default;
+    virtual ~RequestManager() = default;
 
     /**
      * Interface for handling a client request.
@@ -250,12 +250,12 @@ private:
             return instance;
         }
 
-        ~OpenHandler();
+        ~OpenHandler() override;
 
         /**
          * Handle the file-open response
          */
-        virtual void HandleResponseWithHosts(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response, XrdCl::HostList *hostList) override;
+        void HandleResponseWithHosts(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response, XrdCl::HostList *hostList) override;
 
         /**
          * Future-based version of the handler

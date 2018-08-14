@@ -1,3 +1,4 @@
+import six
 import FWCore.ParameterSet.Config as cms
 def customise(process):
 
@@ -29,7 +30,7 @@ def customise(process):
     # modify the content
 
     #process.output.outputCommands.append("keep *_simHcalUnsuppressedDigis_*_*")
-    process.outputModules_().iteritems().next()[1].outputCommands.append("keep *_simHcalUnsuppressedDigis_*_*")
+    six.iteritems(process.outputModules_()).next()[1].outputCommands.append("keep *_simHcalUnsuppressedDigis_*_*")
             
 # user schedule: use only calorimeters digitization and local reconstruction
 
@@ -45,7 +46,8 @@ def customise(process):
     delattr(process,"hbhereco")
     process.hbhereco = process.hbheprereco.clone()
     process.hcalLocalRecoSequence.replace(process.hbheprereco,process.hbhereco)
-    process.hbhereco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
+    process.hbhereco.digiLabelQIE8 = cms.InputTag("simHcalUnsuppressedDigis")
+    process.hbhereco.digiLabelQIE11 = cms.InputTag("simHcalUnsuppressedDigis","HBHEQIE11DigiCollection")
     process.horeco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
     process.hfreco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
     process.ecalRecHit.recoverEBIsolatedChannels = cms.bool(False)
@@ -82,6 +84,6 @@ def customise(process):
 
     process.schedule.append(process.endjob_step)
     #process.schedule.append(process.out_step)
-    process.schedule.append(getattr(process,process.outputModules_().iteritems().next()[0]+"_step"))
+    process.schedule.append(getattr(process,six.iteritems(process.outputModules_()).next()[0]+"_step"))
 
     return(process)

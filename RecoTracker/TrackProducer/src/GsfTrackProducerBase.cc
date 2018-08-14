@@ -306,7 +306,7 @@ GsfTrackProducerBase::fillMode (reco::GsfTrack& track, const TrajectoryStateOnSu
   //
   // extract state at PCA and create momentum vector and covariance matrix
   //
-  FreeTrajectoryState fts = tscbl.trackStateAtPCA();
+  const FreeTrajectoryState& fts = tscbl.trackStateAtPCA();
   GlobalVector tscblMom = fts.momentum();
   reco::GsfTrack::Vector mom(tscblMom.x(),tscblMom.y(),tscblMom.z());
   reco::GsfTrack::CovarianceMatrixMode cov;

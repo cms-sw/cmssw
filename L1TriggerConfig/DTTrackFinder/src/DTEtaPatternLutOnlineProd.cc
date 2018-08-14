@@ -37,9 +37,9 @@ class DTEtaPatternLutOnlineProd :
 {
    public:
       DTEtaPatternLutOnlineProd(const edm::ParameterSet&);
-      ~DTEtaPatternLutOnlineProd();
+      ~DTEtaPatternLutOnlineProd() override;
 
-  virtual std::shared_ptr< L1MuDTEtaPatternLut > newObject(
+  std::shared_ptr< L1MuDTEtaPatternLut > newObject(
     const std::string& objectKey ) override ;
 
    private:

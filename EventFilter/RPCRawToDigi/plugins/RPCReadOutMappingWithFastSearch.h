@@ -8,15 +8,15 @@
 class RPCReadOutMappingWithFastSearch : public RPCReadOutMapping {
 public:
   RPCReadOutMappingWithFastSearch();
-  virtual ~RPCReadOutMappingWithFastSearch(){} 
+  ~RPCReadOutMappingWithFastSearch() override{} 
 
   /// takes ownership of map
   void init(const RPCReadOutMapping * arm);
 
-  virtual const LinkBoardSpec* location (const LinkBoardElectronicIndex & ele) const;
+  const LinkBoardSpec* location (const LinkBoardElectronicIndex & ele) const override;
 
-  virtual RPCReadOutMapping::StripInDetUnit detUnitFrame(
-      const LinkBoardSpec& location, const LinkBoardPackedStrip & lbstrip) const;
+  RPCReadOutMapping::StripInDetUnit detUnitFrame(
+      const LinkBoardSpec& location, const LinkBoardPackedStrip & lbstrip) const override;
 
 private:
   std::string theVersion;

@@ -37,6 +37,9 @@ from RecoMET.METFilters.eeBadScFilter_cfi import *
 ## The ECAL laser correction filter
 from RecoMET.METFilters.ecalLaserCorrFilter_cfi import *
 
+## The ECAL bad calibration filter ____________________________________________||
+from RecoMET.METFilters.ecalBadCalibFilter_cfi import *
+
 ## The Good vertices collection needed by the tracking failure filter ________||
 goodVertices = cms.EDFilter(
   "VertexSelector",
@@ -73,6 +76,19 @@ from RecoMET.METFilters.chargedHadronTrackResolutionFilter_cfi import *
 ## The muon bad track filter ________________________________________________||
 from RecoMET.METFilters.muonBadTrackFilter_cfi import *
 
+## The charged hadron track track filter (2016) ____________________________________||
+from RecoMET.METFilters.BadChargedCandidateSummer16Filter_cfi import *
+
+## The muon bad track filter (2016) ________________________________________________||
+from RecoMET.METFilters.BadPFMuonSummer16Filter_cfi import *
+
+## The charged hadron track track filter (2016) ____________________________________||
+from RecoMET.METFilters.BadChargedCandidateFilter_cfi import *
+
+## The muon bad track filter (2016) ________________________________________________||
+from RecoMET.METFilters.BadPFMuonFilter_cfi import *
+
+
 metFilters = cms.Sequence(
    HBHENoiseFilterResultProducer *
    HBHENoiseFilter *
@@ -89,11 +105,16 @@ metFilters = cms.Sequence(
    #globalTightHalo2016Filter*
    #globalSuperTightHalo2016Filter*
    EcalDeadCellTriggerPrimitiveFilter* 
+   ecalBadCalibFilter*
 #   *goodVertices * trackingFailureFilter *
    eeBadScFilter*
 #   ecalLaserCorrFilter *
 #   trkPOGFilters
    chargedHadronTrackResolutionFilter *
+   BadChargedCandidateFilter*
+   BadPFMuonFilter *
+   BadChargedCandidateSummer16Filter*
+   BadPFMuonSummer16Filter *
    muonBadTrackFilter
 )
 

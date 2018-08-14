@@ -20,21 +20,23 @@ class CaloTPGTranscoderULUT : public CaloTPGTranscoder {
 public:
   CaloTPGTranscoderULUT(const std::string& compressionFile="",
                         const std::string& decompressionFile="");
-  virtual ~CaloTPGTranscoderULUT();
-  virtual HcalTriggerPrimitiveSample hcalCompress(const HcalTrigTowerDetId& id, unsigned int sample, int fineGrain) const override;
-  virtual EcalTriggerPrimitiveSample ecalCompress(const EcalTrigTowerDetId& id, unsigned int sample, bool fineGrain) const override;
+  ~CaloTPGTranscoderULUT() override;
+  HcalTriggerPrimitiveSample hcalCompress(const HcalTrigTowerDetId& id, unsigned int sample, int fineGrain) const override;
+  EcalTriggerPrimitiveSample ecalCompress(const EcalTrigTowerDetId& id, unsigned int sample, bool fineGrain) const override;
 
-  virtual void rctEGammaUncompress(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc,
+  void rctEGammaUncompress(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc,
 				   const EcalTrigTowerDetId& eid, const EcalTriggerPrimitiveSample& ec, 
 				   unsigned int& et, bool& egVecto, bool& activity) const override;
-  virtual void rctJetUncompress(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc,
+  void rctJetUncompress(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc,
 				   const EcalTrigTowerDetId& eid, const EcalTriggerPrimitiveSample& ec, 
 				   unsigned int& et) const override;
-  virtual double hcaletValue(const int& ieta, const int& iphi, const int& version, const int& compressedValue) const override;
-  virtual double hcaletValue(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc) const override;
+  double hcaletValue(const int& ieta, const int& iphi, const int& version, const int& compressedValue) const override;
+  double hcaletValue(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc) const override;
   virtual bool HTvalid(const int ieta, const int iphi, const int version) const;
   virtual const std::vector<unsigned int> getCompressionLUT(const HcalTrigTowerDetId& id) const;
-  virtual void setup(HcalLutMetadata const&, HcalTrigTowerGeometry const&, int, int);
+  virtual void setup(HcalLutMetadata const&, HcalTrigTowerGeometry const&,
+                     int nctScaleShift, int rctScaleShift,
+                     double lsbQIE8, double lsbQIE11, bool allLinear);
   virtual int getOutputLUTId(const HcalTrigTowerDetId& id) const;
   virtual int getOutputLUTId(const int ieta, const int iphi, const int version) const;
 
@@ -48,35 +50,39 @@ public:
 
   // Map different QIE to the right linearization
   static const unsigned int QIE8_OUTPUT_LUT_SIZE = REDUCE10BIT;
-  static const unsigned int QIE10_OUTPUT_LUT_SIZE = REDUCE10BIT;
+  static const unsigned int QIE10_OUTPUT_LUT_SIZE = REDUCE11BIT;
   static const unsigned int QIE11_OUTPUT_LUT_SIZE = REDUCE11BIT;
   static const unsigned int OUTPUT_LUT_SIZE = std::max({QIE8_OUTPUT_LUT_SIZE, QIE10_OUTPUT_LUT_SIZE, QIE11_OUTPUT_LUT_SIZE});
   static const unsigned int TPGMAX = 256;
 
   // Typedef
-  typedef unsigned int LUT;
-  typedef std::array<double, TPGMAX> RCTdecompression;
+  typedef uint8_t LUT;
+  typedef std::array<float, TPGMAX> RCTdecompression;
 
   const HcalTopology* theTopology;
   static const bool newHFphi = true;
 
   // Member functions
   unsigned int getOutputLUTSize(const HcalTrigTowerDetId& id) const;
+  bool isOnlyQIE11(const HcalTrigTowerDetId& id) const;
   void loadHCALCompress(HcalLutMetadata const&, HcalTrigTowerGeometry const&) ; //Analytical compression tables
 
   // Member Variables
+  bool allLinear_ = false;
   double nominal_gain_;
   double lsb_factor_;
   double rct_factor_;
   double nct_factor_;
-  std::string compressionFile_;
-  std::string decompressionFile_;
+  double lin8_factor_;
+  double lin11_factor_;
+  const std::string compressionFile_;
+  const std::string decompressionFile_;
   std::vector<int> ietal;
   std::vector<int> ietah;
   std::vector<int> ZS;
   std::vector<int> LUTfactor;
 
-  std::vector<std::array<LUT, OUTPUT_LUT_SIZE>> outputLUT_;
+  std::vector<std::vector<LUT>> outputLUT_;
   std::vector<RCTdecompression> hcaluncomp_;
 
   std::set<HcalDetId> plan1_towers_;

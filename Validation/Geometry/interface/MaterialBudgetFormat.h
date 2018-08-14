@@ -2,6 +2,7 @@
 #define MaterialBudgetFormat_h 1
 
 #include <string>
+#include <memory>
 
 class MaterialBudgetData;
 
@@ -9,7 +10,7 @@ class MaterialBudgetData;
 class MaterialBudgetFormat {
 public:
 
-  MaterialBudgetFormat( MaterialBudgetData* data );   
+  MaterialBudgetFormat( std::shared_ptr<MaterialBudgetData> data );   
   virtual ~MaterialBudgetFormat(){ }
 
   virtual void fillStartTrack() = 0;
@@ -17,7 +18,7 @@ public:
   virtual void fillEndTrack() = 0;
   
  protected:
-  MaterialBudgetData* theData;
+  std::shared_ptr<MaterialBudgetData> theData;
   std::string theFileName;
 };
 

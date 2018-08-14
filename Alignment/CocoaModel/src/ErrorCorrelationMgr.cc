@@ -9,7 +9,7 @@
 #include <cstdlib>
 
 //----------------------------------------------------------------------------
-ErrorCorrelationMgr* ErrorCorrelationMgr::theInstance = 0;
+ErrorCorrelationMgr* ErrorCorrelationMgr::theInstance = nullptr;
 
 //----------------------------------------------------------------------------
 ErrorCorrelationMgr* ErrorCorrelationMgr::getInstance()

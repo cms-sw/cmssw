@@ -1,23 +1,24 @@
-#ifndef DDSolid_h
-#define DDSolid_h
+#ifndef DETECTOR_DESCRIPTION_CORE_DD_SOLID_H
+#define DETECTOR_DESCRIPTION_CORE_DD_SOLID_H
 
-#include <stddef.h>
+#include <cstddef>
 #include <iosfwd>
 #include <vector>
 
-#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 
 class DDSolid;
-class DDStreamer;
+
 namespace DDI {
-class BooleanSolid;
-class Reflection;
-class Solid;
-}  // namespace DDI
+  class BooleanSolid;
+  class MultiUnion;
+  class Reflection;
+  class Solid;
+}
 struct DDSolidFactory;
 
 std::ostream & operator<<( std::ostream &, const DDSolid & );
@@ -36,11 +37,10 @@ std::ostream & operator<<( std::ostream &, const DDSolid & );
 */
 class DDSolid : public DDBase<DDName, DDI::Solid*>
 {
-  friend std::ostream & operator<<( std::ostream &, const DDSolid & );
+  friend std::ostream & operator <<( std::ostream &, const DDSolid & );
   friend struct DDSolidFactory;
   friend class DDDToPersFactory;
   friend class DDPersToDDDFactory;
-  friend class DDStreamer;
     
 public: 
   //! Uninitialilzed solid reference-object; for further details on reference-objects see documentation of DDLogicalPart
@@ -79,7 +79,10 @@ private:
 class DDTrap : public DDSolid
 {
 public:
+  
   DDTrap( const DDSolid & s );
+  DDTrap( void ) = delete;
+
   //! half of the z-Axis
   double halfZ( void ) const;
   //! Polar angle of the line joining the centres of the faces at -/+pDz
@@ -101,16 +104,16 @@ public:
   //! Half-length along x of the side at y=+pDy2 of the face at +pDz
   double x4( void ) const;
   //! Angle with respect to the y axis from the centre of the side at y=-pDy2 to the centre at y=+pDy2 of the face at +pDz
-  double alpha2( void ) const;
-  
-private:
-  DDTrap( void );
+  double alpha2( void ) const;  
 };
 
 class DDPseudoTrap : public DDSolid
 {
 public:
+  
   DDPseudoTrap( const DDSolid & s );
+  DDPseudoTrap( void ) = delete;
+
   //! half of the z-Axis
   double halfZ( void ) const;
   //! half length along x on -z
@@ -125,16 +128,16 @@ public:
   double radius( void ) const;
   //! true, if cut-out or rounding is on the -z side
   bool atMinusZ( void ) const;
-
-private:
-  DDPseudoTrap( void );
 };
   
 /// A truncated tube section    
 class DDTruncTubs : public DDSolid
 {
 public:
+
   DDTruncTubs( const DDSolid & s );
+  DDTruncTubs( void ) = delete;
+
   //! half of the z-Axis
   double zHalf( void ) const;
   //! inner radius
@@ -151,9 +154,6 @@ public:
   double cutAtDelta( void ) const;
   //! true, if truncation is on the inner side of the tube-section
   bool cutInside( void ) const;
-
-private:
-  DDTruncTubs( void );
 };
 
 //! Interface to a Box
@@ -164,81 +164,92 @@ private:
 class DDBox : public DDSolid
 {
 public:
+  
   DDBox( const DDSolid & s );
+  DDBox( void ) = delete;
+
   double halfX( void ) const; 
   double halfY( void ) const; 
   double halfZ( void ) const; 
-
-private:
-  DDBox( void );
 };
 
 /// This is simply a handle on the solid.
 class DDShapelessSolid : public DDSolid
 {
 public:
+
   DDShapelessSolid( const DDSolid & s );
-
-private:
-  DDShapelessSolid( void );
+  DDShapelessSolid( void ) = delete;
 };
-
-class DDReflectionSolid : public DDSolid
-{
-public:
-  DDReflectionSolid( const DDSolid & s );
-  DDSolid unreflected( void ) const;
-
-private:
-  DDReflectionSolid( void ); 
-  DDI::Reflection * reflected_; 
-}; 
 
 class DDBooleanSolid : public DDSolid
 {
 public:
+
   DDBooleanSolid( const DDSolid & s );
+  DDBooleanSolid( void ) = delete;
+
   DDSolid solidA( void ) const;
   DDSolid solidB( void ) const;
   DDTranslation translation( void ) const;
   DDRotation rotation( void ) const;
 
 private:
-  DDBooleanSolid( void );
+
   DDI::BooleanSolid * boolean_;  
+};
+
+class DDMultiUnionSolid : public DDSolid
+{
+public:
+
+  DDMultiUnionSolid( const DDSolid & s );
+  DDMultiUnionSolid( void ) = delete;
+
+  const std::vector<DDSolid>& solids( void ) const;
+  const std::vector<DDTranslation>& translations( void ) const;
+  const std::vector<DDRotation>& rotations( void ) const;
+
+private:
+
+  DDI::MultiUnion * union_;  
 };
 
 /// Abstract class for DDPolycone and DDPolyhedra.  Basically a common member function.
 class DDPolySolid : public DDSolid
 {
 public:
+
   DDPolySolid( const DDSolid & s );
+  DDPolySolid( void ) = delete;
 
 protected:
   /// note defaults please.
   virtual std::vector<double> getVec( const size_t& which, const size_t& offset = 0, const size_t& nVecs = 1 ) const;
-  DDPolySolid( void );
 };
   
 class DDPolycone : public DDPolySolid
 {
 public:
+  
   DDPolycone( const DDSolid & s );
+  DDPolycone( void ) = delete;
+
   double startPhi( void ) const;
   double deltaPhi( void ) const;
   std::vector<double> zVec( void ) const;
   std::vector<double> rVec( void ) const;
   std::vector<double> rMinVec( void ) const;
   std::vector<double> rMaxVec( void ) const;
-
-private:
-  DDPolycone( void );
 };
 
 class DDPolyhedra : public DDPolySolid
 {
 public:
+
   DDPolyhedra( const DDSolid & s );
+  DDPolyhedra( void ) = delete;
+
   int sides( void ) const;
   double startPhi( void ) const;
   double deltaPhi( void ) const;
@@ -246,29 +257,49 @@ public:
   std::vector<double> rVec( void ) const;
   std::vector<double> rMinVec( void ) const;
   std::vector<double> rMaxVec( void ) const;
+};
+
+class DDExtrudedPolygon : public DDPolySolid
+{
+public:
+
+  DDExtrudedPolygon( const DDSolid & s );
+  DDExtrudedPolygon( void ) = delete;
+
+  std::vector<double> xVec( void ) const;
+  std::vector<double> yVec( void ) const;
+  std::vector<double> zVec( void ) const;
+  std::vector<double> zxVec( void ) const;
+  std::vector<double> zyVec( void ) const;
+  std::vector<double> zscaleVec( void ) const;
 
 private:
-  DDPolyhedra( void );
+
+  auto xyPointsSize( void ) const -> std::size_t;
+  auto zSectionsSize( void ) const -> std::size_t;
 };
 
 class DDTubs : public DDSolid
 {
 public:
+
   DDTubs( const DDSolid & s );
+  DDTubs( void ) = delete;
+
   double zhalf( void ) const;
   double rIn( void ) const;
   double rOut( void ) const;
   double startPhi( void ) const;
   double deltaPhi( void ) const;
-
-private:
-  DDTubs( void );
 };
 
 class DDCutTubs : public DDSolid
 {
 public:
+
   DDCutTubs( const DDSolid & s );
+  DDCutTubs( void ) = delete;
+
   double zhalf( void ) const;
   double rIn( void ) const;
   double rOut( void ) const;
@@ -276,15 +307,15 @@ public:
   double deltaPhi( void ) const;
   std::array<double, 3> lowNorm( void ) const;
   std::array<double, 3> highNorm( void ) const;
-
-private:
-  DDCutTubs( void );
 };
 
 class DDCons : public DDSolid
 {
 public:
+
   DDCons( const DDSolid & s );
+  DDCons( void ) = delete;
+
   double zhalf( void ) const;
   double rInMinusZ( void ) const;
   double rOutMinusZ( void ) const;
@@ -292,116 +323,118 @@ public:
   double rOutPlusZ( void ) const;
   double phiFrom( void ) const;
   double deltaPhi( void ) const;
-
-private:
-  DDCons( void );
 };
 
 class DDTorus : public DDSolid
 {
 public:
+
   DDTorus( const DDSolid & s );
+  DDTorus( void ) = delete;
+
   double rMin( void ) const;
   double rMax( void ) const;
   double rTorus( void ) const;
   double startPhi( void ) const;
   double deltaPhi( void ) const;
-
-private:
-  DDTorus( void );
 };
 
 class DDUnion : public DDBooleanSolid
 {
 public:
+
   DDUnion( const DDSolid & s );
-  
-private:
-  DDUnion( void );
+  DDUnion( void ) = delete;
+};
+
+class DDMultiUnion : public DDMultiUnionSolid
+{
+public:
+
+  DDMultiUnion( const DDSolid & s );
+  DDMultiUnion( void ) = delete;
 };
 
 class DDIntersection : public DDBooleanSolid
 {
 public:
-  DDIntersection( const DDSolid & s );
 
-private:
-  DDIntersection( void );
+  DDIntersection( const DDSolid & s );
+  DDIntersection( void ) = delete;
 };
 
 class DDSubtraction : public DDBooleanSolid
 {
 public:
-  DDSubtraction( const DDSolid & s );
 
-private:
-  DDSubtraction( void );
+  DDSubtraction( const DDSolid & s );
+  DDSubtraction( void ) = delete;
 };
 
 class DDSphere : public DDSolid
 {
 public:
+
   DDSphere( const DDSolid & s );
+  DDSphere( void ) = delete;
+
   double innerRadius( void ) const;
   double outerRadius( void ) const;
   double startPhi( void ) const;
   double deltaPhi( void ) const;
   double startTheta( void ) const;
   double deltaTheta( void ) const;
-
-private:
-  DDSphere( void );
 };
 
 class DDOrb : public DDSolid
 {
 public:
-  DDOrb( const DDSolid & s );
-  double radius( void ) const;
 
-private:
-  DDOrb( void );
+  DDOrb( const DDSolid & s );
+  DDOrb( void ) = delete;
+
+  double radius( void ) const;
 };
 
 class DDEllipticalTube : public DDSolid
 {
 public:
+
   DDEllipticalTube( const DDSolid & s );
+  DDEllipticalTube( void ) = delete;
+
   double xSemiAxis( void ) const;
   double ySemiAxis( void ) const;
   double zHeight( void ) const;
-  
-private:
-  DDEllipticalTube( void );
 };
 
 class DDEllipsoid : public DDSolid
 {
 public:
+
   DDEllipsoid( const DDSolid & s );
+  DDEllipsoid( void ) = delete;
+
   double xSemiAxis( void ) const;
   double ySemiAxis( void ) const;
   double zSemiAxis( void ) const;
   double zBottomCut( void ) const;
   double zTopCut( void ) const;
-
-private:
-  DDEllipsoid( void );
 };
 
 class DDParallelepiped : public DDSolid
 {
 public:
+
   DDParallelepiped( const DDSolid & s );
+  DDParallelepiped( void ) = delete;
+
   double xHalf( void ) const;
   double yHalf( void ) const;
   double zHalf( void ) const;
   double alpha( void ) const;
   double theta( void ) const;
   double phi( void ) const;
-
-private:
-  DDParallelepiped( void );
 };
 
 // Solid generation functions
@@ -463,6 +496,11 @@ struct DDSolidFactory
 			     const DDSolid & b,
 			     const DDTranslation & t,
 			     const DDRotation & r );
+
+  static DDSolid multiUnionSolid( const DDName & name,
+				  const std::vector<DDSolid> & a,
+				  const std::vector<DDTranslation> & t,
+				  const std::vector<DDRotation> & r );
 
   static DDSolid intersection( const DDName & name,
 			       const DDSolid & a,
@@ -560,6 +598,13 @@ struct DDSolidFactory
 				 double xHalf, double yHalf, double zHalf,
 				 double alpha, double theta, double phi );
 
+  static DDSolid extrudedpolygon( const DDName & name,
+				  const std::vector<double> & x,
+				  const std::vector<double> & y,
+				  const std::vector<double> & z,
+				  const std::vector<double> & zx,
+				  const std::vector<double> & zy,
+				  const std::vector<double> & zscale );
 
   static DDSolid shapeless( const DDName & name );
 

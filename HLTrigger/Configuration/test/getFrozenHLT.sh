@@ -1,10 +1,11 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-TABLES="Fake Fake1 Fake2"
-HLT_Fake="/dev/CMSSW_9_0_0/Fake"
-HLT_Fake1="/dev/CMSSW_9_0_0/Fake1"
-HLT_Fake2="/dev/CMSSW_9_0_0/Fake2"
+TABLES="Fake Fake1 Fake2 2018v32"
+HLT_Fake="/dev/CMSSW_10_1_0/Fake"
+HLT_Fake1="/dev/CMSSW_10_1_0/Fake1"
+HLT_Fake2="/dev/CMSSW_10_1_0/Fake2"
+HLT_2018v32="/frozen/2018/2e34/v3.2/HLT"
 
 # print extra messages ?
 VERBOSE=false
@@ -24,7 +25,7 @@ function getConfigForCVS() {
   local NAME="$2"
   log "  dumping HLT cffs for $NAME from $CONFIG"
   # do not use any conditions or L1 override
-  hltGetConfiguration --cff --offline --data  $CONFIG --type $NAME  > HLT_${NAME}_cff.py
+  hltGetConfiguration --cff --data $CONFIG --type $NAME  > HLT_${NAME}_cff.py
 }
 
 function getConfigForOnline() {
@@ -34,9 +35,9 @@ function getConfigForOnline() {
   # override the conditions with a menu-dependent "virtual" global tag, which takes care of overriding the L1 menu
 
   if [ "$NAME" == "Fake" ]; then
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process "HLT${NAME}" --globaltag "auto:run1_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_${NAME}.py
+    hltGetConfiguration --full --data $CONFIG --type $NAME --unprescale --process "HLT${NAME}" --globaltag "auto:run1_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_${NAME}.py
   else
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process "HLT${NAME}" --globaltag "auto:run2_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_${NAME}.py
+    hltGetConfiguration --full --data $CONFIG --type $NAME --unprescale --process "HLT${NAME}" --globaltag "auto:run2_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_${NAME}.py
   fi
 }
 

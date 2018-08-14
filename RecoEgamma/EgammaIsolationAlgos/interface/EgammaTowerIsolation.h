@@ -184,12 +184,6 @@ EgammaTowerIsolationNew<NC>::compute(bool et, Sum &sum, reco::SuperCluster const
   etiStat::Count::count.span += (iu-il);
 #endif
 
-  bool ok[iu-il];
-  for (std::size_t i=il;i!=iu; ++i)
-    ok[i-il] = (std::find(first,last,id[i])==last);
-  
-
-
   // should be restricted in eta....
   for (std::size_t i=il;i!=iu; ++i) {
     float dr2 = reco::deltaR2(candEta,candPhi,eta[i], phi[i]);
@@ -200,7 +194,7 @@ EgammaTowerIsolationNew<NC>::compute(bool et, Sum &sum, reco::SuperCluster const
 	  sum.he[j] +=he[i]*tt;
 	  sum.h2[j] +=h2[i]*tt;
 	}
-	if(ok[i-il]) {
+	if(std::find(first,last,id[i]) == last) {
 	  sum.heBC[j] +=he[i]*tt;
 	  sum.h2BC[j] +=h2[i]*tt;
 	}
@@ -221,18 +215,18 @@ public:
 			signed int depth,
 			const CaloTowerCollection* towers );
   
-  double getTowerEtSum (const reco::Candidate* cand, const std::vector<CaloTowerDetId> * detIdToExclude=0 ) const{
+  double getTowerEtSum (const reco::Candidate* cand, const std::vector<CaloTowerDetId> * detIdToExclude=nullptr ) const{
     reco::SuperCluster const & sc =  *cand->get<reco::SuperClusterRef>().get();
     return getSum(true,sc,detIdToExclude);
   }
-  double  getTowerESum (const reco::Candidate* cand, const std::vector<CaloTowerDetId> * detIdToExclude=0) const{
+  double  getTowerESum (const reco::Candidate* cand, const std::vector<CaloTowerDetId> * detIdToExclude=nullptr) const{
     reco::SuperCluster const & sc =  *cand->get<reco::SuperClusterRef>().get();
     return getSum(false,sc,detIdToExclude);
   }
-  double getTowerEtSum (reco::SuperCluster const * sc, const std::vector<CaloTowerDetId> * detIdToExclude=0 ) const{
+  double getTowerEtSum (reco::SuperCluster const * sc, const std::vector<CaloTowerDetId> * detIdToExclude=nullptr ) const{
     return getSum(true,*sc,detIdToExclude);
   }
-  double  getTowerESum (reco::SuperCluster const * sc, const std::vector<CaloTowerDetId> * detIdToExclude=0) const{
+  double  getTowerESum (reco::SuperCluster const * sc, const std::vector<CaloTowerDetId> * detIdToExclude=nullptr) const{
     return getSum(false,*sc,detIdToExclude);
   }
   private:

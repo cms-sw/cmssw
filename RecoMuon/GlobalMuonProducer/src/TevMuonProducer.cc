@@ -140,7 +140,7 @@ void TevMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
       if (theRefits[ww] == "dyt") dytTmp[glbCounter] = *theRefitter->getDYTInfo();
       glbCounter++;
 
-      if (refitted.size()>0) {
+      if (!refitted.empty()) {
         Trajectory *refit = new Trajectory(refitted.front());
 	LogDebug(metname)<<"TeVTrackLoader for Refit: " <<theRefits[ww];
 	trajectories.push_back(refit);

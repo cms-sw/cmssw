@@ -16,7 +16,7 @@
 class GhostTrackComputer {
     public:
 	GhostTrackComputer(const edm::ParameterSet &params);
-
+        virtual ~GhostTrackComputer() = default;
 	virtual reco::TaggingVariableList
 	operator () (const reco::TrackIPTagInfo &ipInfo,
 	             const reco::SecondaryVertexTagInfo &svInfo) const;

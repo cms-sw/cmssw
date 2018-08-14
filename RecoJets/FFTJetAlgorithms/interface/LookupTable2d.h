@@ -26,7 +26,7 @@ namespace fftjetcms {
         double closest(double x, double y) const;
 
     private:
-        LookupTable2d();
+        LookupTable2d() = delete;
 
         std::vector<double> data_;
         unsigned nx_;

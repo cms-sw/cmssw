@@ -208,9 +208,9 @@ void HcalTestAnalysis::update(const BeginOfRun * run) {
  
   std::string sdname = names[0];
   G4SDManager* sd = G4SDManager::GetSDMpointerIfExist();
-  if (sd != 0) {
+  if (sd != nullptr) {
     G4VSensitiveDetector* aSD = sd->FindSensitiveDetector(sdname);
-    if (aSD==0) {
+    if (aSD==nullptr) {
       edm::LogWarning("HcalSim") << "HcalTestAnalysis::beginOfRun: No SD with "
 				 << "name " << sdname << " in this Setup";
     } else {
@@ -251,7 +251,7 @@ void HcalTestAnalysis::update(const BeginOfEvent * evt) {
 //=================================================================== each STEP
 void HcalTestAnalysis::update(const G4Step * aStep) {
 
-  if (aStep != NULL) {
+  if (aStep != nullptr) {
     G4VPhysicalVolume* curPV  = aStep->GetPreStepPoint()->GetPhysicalVolume();
     G4String name = curPV->GetName();
     name.assign(name,0,3);
@@ -357,7 +357,7 @@ void HcalTestAnalysis::fill(const EndOfEvent * evt) {
   CaloG4HitCollection* theHCHC = (CaloG4HitCollection*) allHC->GetHC(HCHCid);
   LogDebug("HcalSim") << "HcalTestAnalysis :: Hit Collection for " << names[0] 
 		      << " of ID " << HCHCid << " is obtained at " << theHCHC;
-  if (HCHCid >= 0 && theHCHC > 0) {
+  if (HCHCid >= 0 && theHCHC != nullptr) {
     for (j = 0; j < theHCHC->entries(); j++) {
 
       CaloG4Hit* aHit = (*theHCHC)[j]; 
@@ -404,7 +404,7 @@ void HcalTestAnalysis::fill(const EndOfEvent * evt) {
   CaloG4HitCollection* theEBHC = (CaloG4HitCollection*) allHC->GetHC(EBHCid);
   LogDebug("HcalSim") << "HcalTestAnalysis :: Hit Collection for " << names[1]
 		      << " of ID " << EBHCid << " is obtained at " << theEBHC;
-  if (EBHCid >= 0 && theEBHC > 0) {
+  if (EBHCid >= 0 && theEBHC != nullptr) {
     for (j = 0; j < theEBHC->entries(); j++) {
 
       CaloG4Hit* aHit = (*theEBHC)[j]; 
@@ -442,7 +442,7 @@ void HcalTestAnalysis::fill(const EndOfEvent * evt) {
   CaloG4HitCollection* theEEHC = (CaloG4HitCollection*) allHC->GetHC(EEHCid);
   LogDebug("HcalSim") << "HcalTestAnalysis :: Hit Collection for " << names[2]
 		      << " of ID " << EEHCid << " is obtained at " << theEEHC;
-  if (EEHCid >= 0 && theEEHC > 0) {
+  if (EEHCid >= 0 && theEEHC != nullptr) {
     for (j = 0; j < theEEHC->entries(); j++) {
 
       CaloG4Hit* aHit = (*theEEHC)[j]; 

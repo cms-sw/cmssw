@@ -16,20 +16,20 @@ public :
 
   TKinFitter();
   TKinFitter(const TString &name, const TString &title);  
-  ~TKinFitter();
+  ~TKinFitter() override;
   void reset();         
   void resetStatus();   
 
   Int_t fit();
 
   void addMeasParticle( TAbsFitParticle* particle );
-  void addMeasParticles( TAbsFitParticle* p1, TAbsFitParticle* p2 = 0, TAbsFitParticle* p3 = 0, 
-			 TAbsFitParticle* p4 = 0, TAbsFitParticle* p5 = 0, TAbsFitParticle* p6 = 0,
-			 TAbsFitParticle* p7 = 0, TAbsFitParticle* p8 = 0, TAbsFitParticle* p9 = 0);
+  void addMeasParticles( TAbsFitParticle* p1, TAbsFitParticle* p2 = nullptr, TAbsFitParticle* p3 = nullptr, 
+			 TAbsFitParticle* p4 = nullptr, TAbsFitParticle* p5 = nullptr, TAbsFitParticle* p6 = nullptr,
+			 TAbsFitParticle* p7 = nullptr, TAbsFitParticle* p8 = nullptr, TAbsFitParticle* p9 = nullptr);
   void addUnmeasParticle( TAbsFitParticle* particle );
-  void addUnmeasParticles( TAbsFitParticle* p1, TAbsFitParticle* p2 = 0, TAbsFitParticle* p3 = 0, 
-			   TAbsFitParticle* p4 = 0, TAbsFitParticle* p5 = 0, TAbsFitParticle* p6 = 0,
-			   TAbsFitParticle* p7 = 0, TAbsFitParticle* p8 = 0, TAbsFitParticle* p9 = 0);
+  void addUnmeasParticles( TAbsFitParticle* p1, TAbsFitParticle* p2 = nullptr, TAbsFitParticle* p3 = nullptr, 
+			   TAbsFitParticle* p4 = nullptr, TAbsFitParticle* p5 = nullptr, TAbsFitParticle* p6 = nullptr,
+			   TAbsFitParticle* p7 = nullptr, TAbsFitParticle* p8 = nullptr, TAbsFitParticle* p9 = nullptr);
   void addConstraint( TAbsFitConstraint* constraint );
 
   Int_t getNDF() { return  (_constraints.size() - _nParA); }
@@ -148,6 +148,7 @@ private :
   Int_t _status;        // Status of the last fit;_
   Int_t _nbIter;        // number of iteration performed in the fit
 
+  ClassDefOverride(TKinFitter, 0)
 };
 
 #endif

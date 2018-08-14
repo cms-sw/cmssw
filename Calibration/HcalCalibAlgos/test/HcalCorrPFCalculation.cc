@@ -40,13 +40,13 @@ using namespace std;
 using namespace reco;
 
 class HcalCorrPFCalculation : public edm::EDAnalyzer {
- public:
+public:
   HcalCorrPFCalculation(edm::ParameterSet const& conf);
   ~HcalCorrPFCalculation();
   virtual void analyze(edm::Event const& ev, edm::EventSetup const& c) override;
   virtual void beginJob() override ;
   virtual void endJob() override ;
- private:
+private:
   
   double RecalibFactor(HcalDetId id);
 
@@ -82,7 +82,7 @@ class HcalCorrPFCalculation : public edm::EDAnalyzer {
   TrackAssociatorParameters parameters_;
 
   const CaloGeometry* geo;
-  const HcalGeometry* geoHcal;
+  const HcalGeometry* gHcal;
 
   Float_t xTrkHcal,yTrkHcal,zTrkHcal;
   Float_t xTrkEcal, yTrkEcal, zTrkEcal;
@@ -222,13 +222,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
     c.get<CaloGeometryRecord>().get(pG);
     geo = pG.product();
 
-    /*
-    edm::ESHandle<HcalGeometry> hcalG;
-    c.get<HcalGeometryRecord>().get(hcalG);
-    geoHcal = hcalG.product();
-    */
-
-    const CaloSubdetectorGeometry* gHcal = geo->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
+    gHcal = static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
     
     parameters_.useEcal = true;
     parameters_.useHcal = true;
@@ -476,7 +470,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	//for (HcalRecHitCollection::const_iterator hhit=Hithcal.begin(); hhit!=Hithcal.end(); hhit++) 
 	{ 
 	  recal = RecalibFactor(hhit->detid());
-	  GlobalPoint pos = geo->getPosition(hhit->detid());
+	  GlobalPoint pos = gHcal->getPosition(hhit->detid());
 	  
 	  int iphihit  = (hhit->id()).iphi();
 	  int ietahit  = (hhit->id()).ieta();
@@ -520,7 +514,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  
 	  recal = RecalibFactor(hhit->detid());
 	  
-	  GlobalPoint pos = geo->getPosition(hhit->detid());
+	  GlobalPoint pos = gHcal->getPosition(hhit->detid());
 	  
 	  int iphihit  = (hhit->id()).iphi();
 	  int ietahit  = (hhit->id()).ieta();
@@ -565,7 +559,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  recal = RecalibFactor(hhit->detid());
 	  //cout<<"recal: "<<recal<<endl;
 	  
-	  GlobalPoint pos = geo->getPosition(hhit->detid());
+	  GlobalPoint pos = gHcal->getPosition(hhit->detid());
 	  
 	  int iphihit  = (hhit->id()).iphi();
 	  int ietahit  = (hhit->id()).ieta();
@@ -626,7 +620,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  
 	  recal = RecalibFactor(hhit->detid());
 	  
-	  GlobalPoint pos = geo->getPosition(hhit->detid());
+	  GlobalPoint pos = gHcal->getPosition(hhit->detid());
 	  //float phihit = pos.phi();
 	  //float etahit = pos.eta();
 	  

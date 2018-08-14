@@ -13,22 +13,22 @@ HcalLedAnalysis::HcalLedAnalysis(const edm::ParameterSet& ps)
 {
   // init
 
-  m_coder = 0;
-  m_ped   = 0;
-  m_shape = 0;
+  m_coder = nullptr;
+  m_ped   = nullptr;
+  m_shape = nullptr;
   evt=0;
   sample=0;
-  m_file=0;
+  m_file=nullptr;
   // output files
   for(int k=0;k<4;k++) state.push_back(true); // 4 cap-ids (do we care?)
   m_outputFileText = ps.getUntrackedParameter<string>("outputFileText", "");
   m_outputFileX = ps.getUntrackedParameter<string>("outputFileXML","");
-  if ( m_outputFileText.size() != 0 ) {
+  if ( !m_outputFileText.empty() ) {
     cout << "Hcal LED results will be saved to " << m_outputFileText.c_str() << endl;
     m_outFile.open(m_outputFileText.c_str());
   } 
   m_outputFileROOT = ps.getUntrackedParameter<string>("outputFileHist", "");
-  if ( m_outputFileROOT.size() != 0 ) {
+  if ( !m_outputFileROOT.empty() ) {
     cout << "Hcal LED histograms will be saved to " << m_outputFileROOT.c_str() << endl;
   }
 
@@ -64,6 +64,7 @@ HcalLedAnalysis::HcalLedAnalysis(const edm::ParameterSet& ps)
   hfHists.LEDMEAN= new TH1F("HF All LED Means","HF All LED Means",100,0,9);
   hfHists.CHI2= new TH1F("HF Chi2 by ndf for Landau fit","HF Chi2/ndf Landau",200,0.,50.);
 
+  char output[100]{0};
 
   //XML file header
   m_outputFileXML.open(m_outputFileX.c_str());
@@ -86,7 +87,7 @@ HcalLedAnalysis::HcalLedAnalysis(const edm::ParameterSet& ps)
 
   m_outputFileXML << "      <RUN_TYPE>hcal-led-timing-test</RUN_TYPE>" << endl;
 
-  sprintf(output, "      <RUN_NUMBER>%06i</RUN_NUMBER>", runNum);
+  snprintf(output, sizeof output, "      <RUN_NUMBER>%06i</RUN_NUMBER>", runNum);
   m_outputFileXML << output << endl;
 
   m_outputFileXML << "      <RUN_BEGIN_TIMESTAMP>2007-07-09 00:00:00.0</RUN_BEGIN_TIMESTAMP>" << endl;
@@ -113,7 +114,7 @@ HcalLedAnalysis::HcalLedAnalysis(const edm::ParameterSet& ps)
 
   m_outputFileXML << "      <TAG id='2' mode='auto'>" << endl;
 
-  sprintf(output, "        <TAG_NAME>laser_led_%06i<TAG_NAME>", runNum);
+  snprintf(output, sizeof output, "        <TAG_NAME>laser_led_%06i<TAG_NAME>", runNum);
   m_outputFileXML << output << endl;
 
   m_outputFileXML << "        <DETECTOR_NAME>HCAL</DETECTOR_NAME>" << endl;
@@ -207,6 +208,7 @@ void HcalLedAnalysis::doPeds(const HcalPedestal* fInputPedestals){
 void HcalLedAnalysis::GetLedConst(map<HcalDetId, map<int,LEDBUNCH> > &toolT){
   double time2=0; double time1=0; double time3=0; double time4=0;
   double dtime2=0; double dtime1=0; double dtime3=0; double dtime4=0;
+  char output[256]{0};
 
   if (m_outputFileText!=""){
     if(m_fitflag==0 || m_fitflag==2) m_outFile<<"Det Eta,Phi,D   Mean    Error"<<std::endl;
@@ -282,29 +284,29 @@ void HcalLedAnalysis::GetLedConst(map<HcalDetId, map<int,LEDBUNCH> > &toolT){
         m_outputFileXML << "    <VERSION>version:1</VERSION>" << endl;
         m_outputFileXML << "    <CHANNEL>" << endl;
         m_outputFileXML << "      <EXTENSION_TABLE_NAME>HCAL_CHANNELS</EXTENSION_TABLE_NAME>" << endl;
-        sprintf(output, "      <ETA>%2i</ETA>", detid.ietaAbs() );
+        snprintf(output, sizeof output, "      <ETA>%2i</ETA>", detid.ietaAbs() );
         m_outputFileXML << output << endl;
-        sprintf(output, "      <PHI>%2i</PHI>", detid.iphi() );
+        snprintf(output, sizeof output, "      <PHI>%2i</PHI>", detid.iphi() );
         m_outputFileXML << output << endl;
-        sprintf(output, "      <DEPTH>%2i</DEPTH>", detid.depth() );
+        snprintf(output, sizeof output, "      <DEPTH>%2i</DEPTH>", detid.depth() );
         m_outputFileXML << output << endl;
-        sprintf(output, "      <Z>%2i</Z>", detid.zside() );
+        snprintf(output, sizeof output, "      <Z>%2i</Z>", detid.zside() );
         m_outputFileXML << output << endl;
 
         if(detid.subdet() == 1)  m_outputFileXML << "      <DETECTOR_NAME>HB</DETECTOR_NAME>" << endl;
         if(detid.subdet() == 2)  m_outputFileXML << "      <DETECTOR_NAME>HE</DETECTOR_NAME>" << endl;
         if(detid.subdet() == 3)  m_outputFileXML << "      <DETECTOR_NAME>HO</DETECTOR_NAME>" << endl;
         if(detid.subdet() == 4)  m_outputFileXML << "      <DETECTOR_NAME>HF</DETECTOR_NAME>" << endl;
-        sprintf(output, "      <HCAL_CHANNEL_ID>%10i</HCAL_CHANNEL_ID>", detid.rawId() );
+        snprintf(output, sizeof output, "      <HCAL_CHANNEL_ID>%10i</HCAL_CHANNEL_ID>", detid.rawId() );
         m_outputFileXML << output << endl;
         m_outputFileXML << "    </CHANNEL>" << endl;
         m_outputFileXML << "    <DATA>" << endl;
-        sprintf(output, "      <MEAN_TIME>%7f</MEAN_TIME>", time1);
+        snprintf(output, sizeof output, "      <MEAN_TIME>%7f</MEAN_TIME>", time1);
         m_outputFileXML << output << endl;
         m_outputFileXML << "      <OFFSET_TIME> 0</OFFSET_TIME>" << endl;
-        sprintf(output, "      <ERROR_STAT>%7f</ERROR_STAT>", dtime1);
+        snprintf(output, sizeof output, "      <ERROR_STAT>%7f</ERROR_STAT>", dtime1);
         m_outputFileXML << output << endl;
-        sprintf(output, "      <ANALYSIS_FLAG>%2i</ANALYSIS_FLAG>", m_fitflag+1);
+        snprintf(output, sizeof output, "      <ANALYSIS_FLAG>%2i</ANALYSIS_FLAG>", m_fitflag+1);
         m_outputFileXML << output << endl;
         m_outputFileXML << "      <STATUS_WORD>  0</STATUS_WORD>" << endl;
         m_outputFileXML << "    </DATA>" << endl;
@@ -317,28 +319,28 @@ void HcalLedAnalysis::GetLedConst(map<HcalDetId, map<int,LEDBUNCH> > &toolT){
         m_outputFileXML << "    <VERSION>version:1</VERSION>" << endl;
         m_outputFileXML << "    <CHANNEL>" << endl;
         m_outputFileXML << "      <EXTENSION_TABLE_NAME>HCAL_CHANNELS</EXTENSION_TABLE_NAME>" << endl;
-        sprintf(output, "      <ETA>%2i</ETA>", detid.ietaAbs() );
+        snprintf(output, sizeof output, "      <ETA>%2i</ETA>", detid.ietaAbs() );
         m_outputFileXML << output << endl;
-        sprintf(output, "      <PHI>%2i</PHI>", detid.iphi() );
+        snprintf(output, sizeof output, "      <PHI>%2i</PHI>", detid.iphi() );
         m_outputFileXML << output << endl;
-        sprintf(output, "      <DEPTH>%2i</DEPTH>", detid.depth() );
+        snprintf(output, sizeof output, "      <DEPTH>%2i</DEPTH>", detid.depth() );
         m_outputFileXML << output << endl;
-        sprintf(output, "      <Z>%2i</Z>", detid.zside() );
+        snprintf(output, sizeof output, "      <Z>%2i</Z>", detid.zside() );
         m_outputFileXML << output << endl;
         if(detid.subdet() == 1)  m_outputFileXML << "      <DETECTOR_NAME>HB</DETECTOR_NAME>"<< endl;
         if(detid.subdet() == 2)  m_outputFileXML << "      <DETECTOR_NAME>HE</DETECTOR_NAME>"<< endl;
         if(detid.subdet() == 3)  m_outputFileXML << "      <DETECTOR_NAME>HO</DETECTOR_NAME>"<< endl;
         if(detid.subdet() == 4)  m_outputFileXML << "      <DETECTOR_NAME>HF</DETECTOR_NAME>"<< endl;
-        sprintf(output, "      <HCAL_CHANNEL_ID>%10i</HCAL_CHANNEL_ID>", detid.rawId() );
+        snprintf(output, sizeof output, "      <HCAL_CHANNEL_ID>%10i</HCAL_CHANNEL_ID>", detid.rawId() );
         m_outputFileXML << output << endl;
         m_outputFileXML << "    </CHANNEL>" << endl;
         m_outputFileXML << "    <DATA>" << endl;
-        sprintf(output, "      <MEAN_TIME>%7f</MEAN_TIME>", time2);
+        snprintf(output, sizeof output, "      <MEAN_TIME>%7f</MEAN_TIME>", time2);
         m_outputFileXML << output << endl;
         m_outputFileXML << "      <OFFSET_TIME> 0</OFFSET_TIME>" << endl;
-        sprintf(output, "      <ERROR_STAT>%7f</ERROR_STAT>", dtime2);
+        snprintf(output, sizeof output, "      <ERROR_STAT>%7f</ERROR_STAT>", dtime2);
         m_outputFileXML << output << endl;
-        sprintf(output, "      <ANALYSIS_FLAG>%2i</ANALYSIS_FLAG>", m_fitflag+1);
+        snprintf(output, sizeof output, "      <ANALYSIS_FLAG>%2i</ANALYSIS_FLAG>", m_fitflag+1);
         m_outputFileXML << output << endl;
         m_outputFileXML << "      <STATUS_WORD>  0</STATUS_WORD>" << endl;
         m_outputFileXML << "    </DATA>" << endl;
@@ -351,28 +353,28 @@ void HcalLedAnalysis::GetLedConst(map<HcalDetId, map<int,LEDBUNCH> > &toolT){
         m_outputFileXML << "    <VERSION>version:1</VERSION>" << endl;
         m_outputFileXML << "    <CHANNEL>" << endl;
         m_outputFileXML << "      <EXTENSION_TABLE_NAME>HCAL_CHANNELS</EXTENSION_TABLE_NAME>" << endl;
-        sprintf(output, "      <ETA>%2i</ETA>", detid.ietaAbs() );
+        snprintf(output, sizeof output, "      <ETA>%2i</ETA>", detid.ietaAbs() );
         m_outputFileXML << output << endl;
-        sprintf(output, "      <PHI>%2i</PHI>", detid.iphi() );
+        snprintf(output, sizeof output, "      <PHI>%2i</PHI>", detid.iphi() );
         m_outputFileXML << output << endl;
-        sprintf(output, "      <DEPTH>%2i</DEPTH>", detid.depth() );
+        snprintf(output, sizeof output, "      <DEPTH>%2i</DEPTH>", detid.depth() );
         m_outputFileXML << output << endl;
-        sprintf(output, "      <Z>%2i</Z>", detid.zside() );
+        snprintf(output, sizeof output, "      <Z>%2i</Z>", detid.zside() );
         m_outputFileXML << output << endl;
 	if(detid.subdet() == 1) m_outputFileXML << "      <DETECTOR_NAME>HB</DETECTOR_NAME>" << endl;
         if(detid.subdet() == 2) m_outputFileXML << "      <DETECTOR_NAME>HE</DETECTOR_NAME>" << endl;
         if(detid.subdet() == 3) m_outputFileXML << "      <DETECTOR_NAME>HO</DETECTOR_NAME>" << endl;
         if(detid.subdet() == 4) m_outputFileXML << "      <DETECTOR_NAME>HF</DETECTOR_NAME>" << endl;
-	sprintf(output, "      <HCAL_CHANNEL_ID>%10i</HCAL_CHANNEL_ID>", detid.rawId() );
+	snprintf(output, sizeof output, "      <HCAL_CHANNEL_ID>%10i</HCAL_CHANNEL_ID>", detid.rawId() );
         m_outputFileXML << output << endl;
         m_outputFileXML << "    </CHANNEL>" << endl;
         m_outputFileXML << "    <DATA>" << endl;
-        sprintf(output, "      <MEAN_TIME>%7f</MEAN_TIME>", time3);
+        snprintf(output, sizeof output, "      <MEAN_TIME>%7f</MEAN_TIME>", time3);
         m_outputFileXML << output << endl;
         m_outputFileXML << "      <OFFSET_TIME> 0</OFFSET_TIME>" << endl;
-        sprintf(output, "      <ERROR_STAT>%7f</ERROR_STAT>", dtime3);
+        snprintf(output, sizeof output, "      <ERROR_STAT>%7f</ERROR_STAT>", dtime3);
         m_outputFileXML << output << endl;
-	sprintf(output, "      <ANALYSIS_FLAG>%2i</ANALYSIS_FLAG>", m_fitflag+1);
+	snprintf(output, sizeof output, "      <ANALYSIS_FLAG>%2i</ANALYSIS_FLAG>", m_fitflag+1);
 	m_outputFileXML << output << endl;
   	m_outputFileXML << "      <STATUS_WORD>  0</STATUS_WORD>" << endl;
         m_outputFileXML << "    </DATA>" << endl;
@@ -384,11 +386,11 @@ void HcalLedAnalysis::GetLedConst(map<HcalDetId, map<int,LEDBUNCH> > &toolT){
         m_outputFileXML <<"    <VERSION>version:1</VERSION>" << endl;
         m_outputFileXML << "    <CHANNEL>" << endl;
         m_outputFileXML << "      <EXTENSION_TABLE_NAME>HCAL_CHANNELS</EXTENSION_TABLE_NAME>" << endl;
-        sprintf(output, "      <ETA>%2i</ETA>", detid.ietaAbs() );
+        snprintf(output, sizeof output, "      <ETA>%2i</ETA>", detid.ietaAbs() );
         m_outputFileXML << output << endl;
-        sprintf(output, "      <PHI>%2i</PHI>", detid.iphi() );
+        snprintf(output, sizeof output, "      <PHI>%2i</PHI>", detid.iphi() );
         m_outputFileXML << output << endl;
-        sprintf(output, "      <DEPTH>%2i</DEPTH>", detid.depth() );
+        snprintf(output, sizeof output,"      <DEPTH>%2i</DEPTH>", detid.depth() );
         m_outputFileXML << output << endl;
         sprintf(output, "      <Z>%2i</Z>", detid.zside() );
         m_outputFileXML << output << endl;
@@ -396,16 +398,16 @@ void HcalLedAnalysis::GetLedConst(map<HcalDetId, map<int,LEDBUNCH> > &toolT){
         if(detid.subdet() == 2) m_outputFileXML <<"      <DETECTOR_NAME>HE</DETECTOR_NAME>" << endl;
         if(detid.subdet() == 3) m_outputFileXML <<"      <DETECTOR_NAME>HO</DETECTOR_NAME>" << endl;
         if(detid.subdet() == 4) m_outputFileXML <<"      <DETECTOR_NAME>HF</DETECTOR_NAME>" << endl;
-        sprintf(output, "      <HCAL_CHANNEL_ID>%10i</HCAL_CHANNEL_ID>", detid.rawId() );
+        snprintf(output, sizeof output, "      <HCAL_CHANNEL_ID>%10i</HCAL_CHANNEL_ID>", detid.rawId() );
         m_outputFileXML << output << endl;
         m_outputFileXML << "    </CHANNEL>" << endl;
         m_outputFileXML << "    <DATA>" << endl;
-        sprintf(output, "      <MEAN_TIME>%7f</MEAN_TIME>", time4);
+        snprintf(output, sizeof output, "      <MEAN_TIME>%7f</MEAN_TIME>", time4);
         m_outputFileXML << output << endl;
         m_outputFileXML << "      <OFFSET_TIME> 0</OFFSET_TIME>" << endl;
-        sprintf(output, "      <ERROR_STAT>%7f</ERROR_STAT>", dtime4);
+        snprintf(output, sizeof output, "      <ERROR_STAT>%7f</ERROR_STAT>", dtime4);
         m_outputFileXML << output << endl;
-        sprintf(output, "      <ANALYSIS_FLAG>%2i</ANALYSIS_FLAG>", m_fitflag+1);
+        snprintf(output, sizeof output, "      <ANALYSIS_FLAG>%2i</ANALYSIS_FLAG>", m_fitflag+1);
         m_outputFileXML << output << endl;
         m_outputFileXML << "      <STATUS_WORD>  0</STATUS_WORD>" << endl;
         m_outputFileXML << "    </DATA>" << endl;
@@ -424,7 +426,7 @@ void HcalLedAnalysis::LedSampleAnalysis(){
   // it is called every m_nevtsample events (a sample) and the end of run
   char LedSampleNum[20];
 
-  sprintf(LedSampleNum,"LedSample_%d",sample);
+  snprintf(LedSampleNum, sizeof LedSampleNum, "LedSample_%d", sample);
   m_file->cd();
   m_file->mkdir(LedSampleNum);
   m_file->cd(LedSampleNum);
@@ -442,7 +444,7 @@ void HcalLedAnalysis::LedTrendings(map<HcalDetId, map<int,LEDBUNCH> > &toolT)
   for(_meol=toolT.begin(); _meol!=toolT.end(); _meol++){
     char name[1024];
     HcalDetId detid = _meol->first;
-    sprintf(name,"LED timing trend, eta=%d phi=%d depth=%d",detid.ieta(),detid.iphi(),detid.depth());
+    snprintf(name, sizeof name, "LED timing trend, eta=%d phi=%d depth=%d", detid.ieta(), detid.iphi(), detid.depth());
     int bins = _meol->second[10+m_fitflag].second.first[0].size();
     float lo =0.5;
     float hi = (float)bins+0.5;
@@ -460,7 +462,7 @@ void HcalLedAnalysis::LedTrendings(map<HcalDetId, map<int,LEDBUNCH> > &toolT)
         sample_it!=_meol->second[10+m_fitflag].second.first[1].end();++sample_it){
       _meol->second[10+m_fitflag].second.second[0]->SetBinError(++j,*sample_it);
     }
-    sprintf(name,"Sample (%d events)",m_nevtsample);
+    snprintf(name, sizeof name, "Sample (%d events)", m_nevtsample);
     _meol->second[10+m_fitflag].second.second[0]->GetXaxis()->SetTitle(name);
     _meol->second[10+m_fitflag].second.second[0]->GetYaxis()->SetTitle("Peak position");
     _meol->second[10+m_fitflag].second.second[0]->Write();
@@ -536,7 +538,7 @@ void HcalLedAnalysis::processLedEvent(const HBHEDigiCollection& hbhe,
 
   if (m_usecalib){
     try{
-      if(!calib.size()) throw (int)calib.size();
+      if(calib.empty()) throw (int)calib.size();
       // this is effectively a loop over electronic channels
       for (HcalCalibDigiCollection::const_iterator j=calib.begin(); j!=calib.end(); ++j){
         const HcalCalibDataFrame digi = (const HcalCalibDataFrame)(*j);   
@@ -553,7 +555,7 @@ void HcalLedAnalysis::processLedEvent(const HBHEDigiCollection& hbhe,
 
   // HB + HE
   try{
-    if(!hbhe.size()) throw (int)hbhe.size();
+    if(hbhe.empty()) throw (int)hbhe.size();
 // this is effectively a loop over electronic channels
     for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); ++j){
       const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
@@ -572,7 +574,7 @@ void HcalLedAnalysis::processLedEvent(const HBHEDigiCollection& hbhe,
 
   // HO
   try{
-    if(!ho.size()) throw (int)ho.size();
+    if(ho.empty()) throw (int)ho.size();
     for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); ++j){
       const HODataFrame digi = (const HODataFrame)(*j);
       _meol = hoHists.LEDTRENDS.find(digi.id());
@@ -588,7 +590,7 @@ void HcalLedAnalysis::processLedEvent(const HBHEDigiCollection& hbhe,
 
   // HF
   try{
-    if(!hf.size()) throw (int)hf.size();
+    if(hf.empty()) throw (int)hf.size();
     for (HFDigiCollection::const_iterator j=hf.begin(); j!=hf.end(); ++j){
       const HFDataFrame digi = (const HFDataFrame)(*j);
       _meol = hfHists.LEDTRENDS.find(digi.id());
@@ -619,22 +621,22 @@ void HcalLedAnalysis::SetupLEDHists(int id, const HcalDetId detid, map<HcalDetId
     map<int,LEDBUNCH> insert;
     char name[1024];
     for(int i=0; i<10; i++){
-      sprintf(name,"%s Pulse height, eta=%d phi=%d depth=%d TS=%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth(),i);
+      snprintf(name, sizeof name, "%s Pulse height, eta=%d phi=%d depth=%d TS=%d", type.c_str(), detid.ieta(), detid.iphi(), detid.depth(), i);
       insert[i].first =  new TH1F(name,name,200,0.,2000.);
     }
-    sprintf(name,"%s LED Mean pulse, eta=%d phi=%d depth=%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth());
+    snprintf(name, sizeof name, "%s LED Mean pulse, eta=%d phi=%d depth=%d", type.c_str(), detid.ieta(), detid.iphi(), detid.depth());
     insert[10].first =  new TH1F(name,name,10,-0.5,9.5);
-    sprintf(name,"%s LED Pulse, eta=%d phi=%d depth=%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth());
+    snprintf(name, sizeof name, "%s LED Pulse, eta=%d phi=%d depth=%d", type.c_str(), detid.ieta(), detid.iphi(), detid.depth());
     insert[11].first =  new TH1F(name,name,10,-0.5,9.5);
-    sprintf(name,"%s Mean TS, eta=%d phi=%d depth=%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth());
+    snprintf(name, sizeof name, "%s Mean TS, eta=%d phi=%d depth=%d", type.c_str(), detid.ieta(), detid.iphi(), detid.depth());
     insert[12].first =  new TH1F(name,name,200,0.,10.);
-    sprintf(name,"%s Peak TS, eta=%d phi=%d depth=%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth());
+    snprintf(name, sizeof name, "%s Peak TS, eta=%d phi=%d depth=%d", type.c_str(), detid.ieta(), detid.iphi(), detid.depth());
     insert[13].first =  new TH1F(name,name,200,0.,10.);
-    sprintf(name,"%s Peak TS error, eta=%d phi=%d depth=%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth());
+    snprintf(name, sizeof name, "%s Peak TS error, eta=%d phi=%d depth=%d", type.c_str(), detid.ieta(), detid.iphi(), detid.depth());
     insert[14].first =  new TH1F(name,name,200,0.,0.05);
-    sprintf(name,"%s Fit chi2, eta=%d phi=%d depth=%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth());
+    snprintf(name, sizeof name, "%s Fit chi2, eta=%d phi=%d depth=%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth());
     insert[15].first =  new TH1F(name,name,100,0.,50.);
-    sprintf(name,"%s Integrated Signal, eta=%d phi=%d depth=%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth());
+    snprintf(name, sizeof name, "%s Integrated Signal, eta=%d phi=%d depth=%d", type.c_str(), detid.ieta(), detid.iphi(), detid.depth());
     insert[16].first =  new TH1F(name,name,500,0.,5000.);
 
     toolT[detid] = insert;
@@ -902,15 +904,15 @@ void HcalLedAnalysis::ProcessCalibEvent(int fiberChan, HcalCalibDetId calibId, c
 	(calibId.hcalSubdet()==HcalEndcap)?("HE"):
 	(calibId.hcalSubdet()==HcalOuter)?("HO"):
 	(calibId.hcalSubdet()==HcalForward)?("HF"):"";
-      sprintf(name,"%s %+d iphi=%d %s",sector.c_str(),calibId.ieta(),calibId.iphi(),calibId.cboxChannelString().c_str());
+      snprintf(name, sizeof name, "%s %+d iphi=%d %s", sector.c_str(), calibId.ieta(), calibId.iphi(), calibId.cboxChannelString().c_str());
       prefix=name;
     }
     
-    sprintf(name,"%s Pin Diode Mean",prefix.c_str());
+    snprintf(name, sizeof name, "%s Pin Diode Mean", prefix.c_str());
     calibHists[calibId].avePulse = new TProfile(name,name,10,-0.5,9.5,0,1000);
-    sprintf(name,"%s Pin Diode Current Pulse",prefix.c_str());
+    snprintf(name, sizeof name, "%s Pin Diode Current Pulse", prefix.c_str());
     calibHists[calibId].thisPulse = new TH1F(name,name,10,-0.5,9.5);
-    sprintf(name,"%s Pin Diode Integrated Pulse",prefix.c_str());
+    snprintf(name, sizeof name, "%s Pin Diode Integrated Pulse", prefix.c_str());
     calibHists[calibId].integPulse = new TH1F(name,name,200,0,500);    
   }
   else {

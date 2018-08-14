@@ -13,8 +13,12 @@
 #include "Geometry/MuonCommonData/plugins/DDGEMAngular.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
+//#define EDM_ML_DEBUG
+
 DDGEMAngular::DDGEMAngular() {
+#ifdef EDM_ML_DEBUG
   edm::LogInfo("MuonGeom") << "DDGEMAngular test: Creating an instance";
+#endif
 }
 
 DDGEMAngular::~DDGEMAngular() {}
@@ -33,21 +37,24 @@ void DDGEMAngular::initialize(const DDNumericArguments & nArgs,
   n           = int (nArgs["n"]);
   startCopyNo = int (nArgs["startCopyNo"]);
   incrCopyNo  = int (nArgs["incrCopyNo"]);
+#ifdef EDM_ML_DEBUG
   edm::LogInfo("MuonGeom") << "DDGEMAngular debug: Parameters for positioning-- "
-		       << n << " copies in steps of " << stepAngle/CLHEP::deg 
-		       << " from " << startAngle/CLHEP::deg 
-		       << " (inversion flag " << invert << ") \trPos " << rPos
-		       << " Zoffest " << zoffset << "\tStart and inremental "
-		       << "copy nos " << startCopyNo << ", " << incrCopyNo
-		       << std::endl;
+			   << n << " copies in steps of " << stepAngle/CLHEP::deg 
+			   << " from " << startAngle/CLHEP::deg 
+			   << " (inversion flag " << invert << ") \trPos " << rPos
+			   << " Zoffest " << zoffset << "\tStart and inremental "
+			   << "copy nos " << startCopyNo << ", " << incrCopyNo;
+#endif
 
   rotns       = sArgs["RotNameSpace"];
   idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
+#ifdef EDM_ML_DEBUG
   DDName parentName = parent().name(); 
   edm::LogInfo("MuonGeom") << "DDGEMAngular debug: Parent " << parentName 
-		       << "\tChild " << childName << "\tNameSpace "
-		       << idNameSpace << "\tRotation Namespace " << rotns << std::endl;
+			   << "\tChild " << childName << "\tNameSpace "
+			   << idNameSpace << "\tRotation Namespace " << rotns;
+#endif
 }
 
 void DDGEMAngular::execute(DDCompactView& cpv) {
@@ -77,10 +84,12 @@ void DDGEMAngular::execute(DDCompactView& cpv) {
       double phix   = invert==0 ? (90.0+phideg) : (-90.0+phideg);
       double thetay = invert==0 ? 0.0 : 180.0;
       double phiz   = phideg;
+#ifdef EDM_ML_DEBUG
       edm::LogInfo("MuonGeom") << "DDGEMAngular test: Creating a new rotation "
-			     << DDName(rotstr, idNameSpace) << "\t " 
-			     << thetax << ", " << phix << ", " << thetay
-			     << ", 0, " << thetax << ", " << phiz << std::endl;
+			       << DDName(rotstr, idNameSpace) << "\t " 
+			       << thetax << ", " << phix << ", " << thetay
+			       << ", 0, " << thetax << ", " << phiz;
+#endif
       rotation = DDrot(DDName(rotstr, rotns), thetax*CLHEP::deg, 
 		       phix*CLHEP::deg, thetay*CLHEP::deg, 0*CLHEP::deg,
 		       thetax*CLHEP::deg, phiz*CLHEP::deg);
@@ -90,10 +99,13 @@ void DDGEMAngular::execute(DDCompactView& cpv) {
   
     DDName parentName = parent().name(); 
     cpv.position(DDName(childName,idNameSpace), parentName, copyNo, tran, rotation);
+#ifdef EDM_ML_DEBUG
     edm::LogInfo("MuonGeom") << "DDGEMAngular test: " 
-			 << DDName(childName, idNameSpace) << " number " 
-			 << copyNo << " positioned in " << parentName << " at "
-			 << tran << " with " << rotstr << " " << rotation << "\n";
+			     << DDName(childName, idNameSpace) << " number " 
+			     << copyNo << " positioned in " << parentName 
+			     << " at " << tran << " with " << rotstr << " "
+			     << rotation;
+#endif
     phi    += stepAngle;
     copyNo += incrCopyNo;
   }

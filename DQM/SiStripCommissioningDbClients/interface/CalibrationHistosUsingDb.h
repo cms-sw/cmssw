@@ -20,15 +20,15 @@ class CalibrationHistosUsingDb : public CommissioningHistosUsingDb, public Calib
                             SiStripConfigDb* const,
                             const sistrip::RunType& task = sistrip::CALIBRATION );
 
-  virtual ~CalibrationHistosUsingDb();
+  ~CalibrationHistosUsingDb() override;
 
-  virtual void uploadConfigurations();
+  void uploadConfigurations() override;
   
  private:
   
   void update( SiStripConfigDb::DeviceDescriptionsRange& );
   
-  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis );
+  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis ) override;
 
   TH1F *ishaHistogram_, *vfsHistogram_; 
 

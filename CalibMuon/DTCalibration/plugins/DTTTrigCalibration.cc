@@ -46,6 +46,7 @@ DTTTrigCalibration::DTTTrigCalibration(const edm::ParameterSet& pset) {
 
   // Get the label to retrieve digis from the event
   digiLabel = pset.getUntrackedParameter<string>("digiLabel");
+  consumes< DTDigiCollection >(edm::InputTag(digiLabel));
 
   // Switch on/off the DB writing
   findTMeanAndSigma = pset.getUntrackedParameter<bool>("fitAndWrite", false);
@@ -62,7 +63,7 @@ DTTTrigCalibration::DTTTrigCalibration(const edm::ParameterSet& pset) {
   theFitter = new DTTimeBoxFitter();
   if(debug)
     theFitter->setVerbosity(1);
-  
+
   double sigmaFit = pset.getUntrackedParameter<double>("sigmaTTrigFit",10.);
   theFitter->setFitSigma(sigmaFit);
 
@@ -72,7 +73,7 @@ DTTTrigCalibration::DTTTrigCalibration(const edm::ParameterSet& pset) {
     theSync = DTTTrigSyncFactory::get()->create(pset.getUntrackedParameter<string>("tTrigMode"),
 						pset.getUntrackedParameter<ParameterSet>("tTrigModeConfig"));
   } else {
-    theSync = 0;
+    theSync = nullptr;
   }
 
   checkNoisyChannels = pset.getUntrackedParameter<bool>("checkNoisyChannels","false");
@@ -161,7 +162,7 @@ void DTTTrigCalibration::analyze(const edm::Event & event, const edm::EventSetup
 
     // Get the histo from the map
     TH1F *hTBox = theHistoMap[slId];
-    if(hTBox == 0) {
+    if(hTBox == nullptr) {
       // Book the histogram
       theFile->cd();
       hTBox = new TH1F(getTBoxName(slId).c_str(), "Time box (ns)", int(0.25*32.0*maxTDCCounts/25.0), 0, maxTDCCounts);
@@ -170,7 +171,7 @@ void DTTTrigCalibration::analyze(const edm::Event & event, const edm::EventSetup
       theHistoMap[slId] = hTBox;
     }
     TH1F *hO = theOccupancyMap[layerId];
-    if(hO == 0) {
+    if(hO == nullptr) {
       // Book the histogram
       theFile->cd();
       hO = new TH1F(getOccupancyName(layerId).c_str(), "Occupancy", 100, 0, 100);
@@ -203,7 +204,7 @@ void DTTTrigCalibration::analyze(const edm::Event & event, const edm::EventSetup
       theFile->cd();
       double offset = 0;
       if(doSubtractT0) {
-	const DTLayer* layer = 0;//fake
+	const DTLayer* layer = nullptr;//fake
 	const GlobalPoint glPt;//fake
 	offset = theSync->offset(layer, wireId, glPt);
       }

@@ -8,9 +8,9 @@
 #include "DQMServices/Core/interface/QReport.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 #include <TProfile.h>
 #include <TProfile2D.h>
 #include <memory>
@@ -198,13 +198,7 @@ void DQMOfflineHLTEventInfoClient::beginRun(const Run& r, const EventSetup& cont
 }
 
 //--------------------------------------------------------
-void DQMOfflineHLTEventInfoClient::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
-   // optionally reset histograms here
-}
 
-void DQMOfflineHLTEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                          const edm::EventSetup& c){
-}
 
 //--------------------------------------------------------
 void DQMOfflineHLTEventInfoClient::analyze(const Event& e, const EventSetup& context){

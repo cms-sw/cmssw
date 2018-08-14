@@ -1,3 +1,4 @@
+from __future__ import print_function
 import ROOT
 from fitResidual import fitResidual
 from drawHistoAllChambers import drawHisto
@@ -39,14 +40,14 @@ def plotResLayer(fileName,sl,layer,
         nSectors = 12
         if st == 4: nSectors = 14
         if st == 4 and slType == 2: continue 
-        if verbose: print "Station",st
+        if verbose: print("Station",st)
         for wh in wheels:
-            if verbose: print "Wheel",wh 
+            if verbose: print("Wheel",wh) 
             for sec in range(1,nSectors+1):
-                if verbose: print "Sector",sec
+                if verbose: print("Sector",sec)
                 # Get histogram
                 histoName = "%s/Wheel%d/Station%d/Sector%d/%s/hResDist_STEP3_W%d_St%d_Sec%d_%s_%s" % (dir,wh,st,sec,slStr,wh,st,sec,slStr,layerStr) 
-                print "Accessing",histoName
+                print("Accessing",histoName)
                 histo = file.Get(histoName)
                 (histo,fitFunc) = fitResidual(histo,nSigmas,verbose)
                 fitMean = fitFunc.GetParameter(1)
@@ -58,7 +59,7 @@ def plotResLayer(fileName,sl,layer,
                 corrFactor = layerCorrectionFactors[slStr][layerIdx]
 
                 binHistoNew = (st - 1)*60 + (wh + 2)*nSectors + sec
-                if verbose: print "Bin in summary histo",binHistoNew
+                if verbose: print("Bin in summary histo",binHistoNew)
                 histoMean.SetBinContent(binHistoNew,fitMean)
                 histoMean.SetBinError(binHistoNew,fitMeanErr)
                 histoSigma.SetBinContent(binHistoNew,fitSigma*corrFactor)
@@ -140,7 +141,7 @@ def plot(fileName,sl,
     averages = {}
     averagesErr = {}
     averagesSumw = {}
-    print "Averages:"
+    print("Averages:")
     for st in stations:
         nSectors = 12
         if st == 4: nSectors = 14
@@ -166,7 +167,7 @@ def plot(fileName,sl,
             averagesErr[(st,wh)] = math.sqrt( 1./averagesSumw[(st,wh)] )
             histoAverage.SetBinContent(binHistoAve,averages[(st,wh)])
             histoAverage.SetBinError(binHistoAve,averagesErr[(st,wh)])
-            print "Station %d, Wheel %d: %.4f +/- %.6f" % (st,wh,averages[(st,wh)],averagesErr[(st,wh)])
+            print("Station %d, Wheel %d: %.4f +/- %.6f" % (st,wh,averages[(st,wh)],averagesErr[(st,wh)]))
      
     canvasAverage = ROOT.TCanvas("c_" + histoAverage.GetName())
     canvasAverage.SetGridx()
@@ -281,7 +282,7 @@ def plotFromFile(fileNames,labels=[]):
     histos = []
     idx_var = 0
     for var in variables:
-        print "Accessing",var 
+        print("Accessing",var) 
         #histoData = fileData.Get(var)
         #histoData.SetName(histoData.GetName() + "_data")
         #histoMC = fileMC.Get(var)
@@ -301,7 +302,7 @@ def plotFromFile(fileNames,labels=[]):
         for file in rootFiles:
             histos_tmp.append( file.Get(var) )
             histos_tmp[-1].SetName( "%s_%d" % (histos_tmp[-1].GetName(),idx) )
-            print "Created",histos_tmp[-1].GetName()
+            print("Created",histos_tmp[-1].GetName())
 	    histos_tmp[-1].SetLineColor(colors[ idx % len(colors) ]) 
 	    histos_tmp[-1].SetMarkerColor(colors[ idx % len(colors) ]) 
 	    histos_tmp[-1].SetMarkerStyle(markers[ idx % len(markers) ]) 

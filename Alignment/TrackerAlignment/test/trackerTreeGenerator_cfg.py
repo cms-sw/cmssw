@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 import os
@@ -47,8 +48,6 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 ##
 ## Geometry
 ##
-#process.load("Configuration.StandardSequences.Geometry_cff")
-#process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
 
@@ -59,8 +58,9 @@ process.load("Configuration.Geometry.GeometryRecoDB_cff")
 # so it is clear that when choosing special regions in e.g. globalPhi, Modules of the same Rod are contained in the same region
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
-print "Using global tag "+process.GlobalTag.globaltag._value
+#~ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
+print("Using global tag "+process.GlobalTag.globaltag._value)
 
 
 ##

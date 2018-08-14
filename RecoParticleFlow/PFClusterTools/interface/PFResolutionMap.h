@@ -42,7 +42,7 @@ class PFResolutionMap : public TH2D {
   bool WriteMapFile(const char* mapfile);
 
   ///  extrapolation requires overloading of this function
-  int  FindBin(double eta, double e);
+  int  FindBin(double eta, double e, double z = 0 ) override;
 
   double getRes(double eta, double phi, double e,int MapEta = -1); 
 

@@ -50,7 +50,7 @@ EcalNextToDeadChannelESProducer::EcalNextToDeadChannelESProducer(const edm::Para
 
   statusThreshold_= iConfig.getParameter<int>("channelStatusThresholdForDead");
 
-  returnRcd_=ReturnType(new EcalNextToDeadChannel);
+  returnRcd_=std::make_shared<EcalCondObjectContainer<unsigned char>>();
 }
 
 

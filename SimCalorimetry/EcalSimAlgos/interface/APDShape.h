@@ -6,22 +6,11 @@
 class APDShape : public EcalShapeBase
 {
    public:
-  
-      APDShape( double tStart,
-		double tau     ) ;
-
-      virtual ~APDShape() ;
-
-      virtual double threshold() const ;
+   APDShape(bool useDB):EcalShapeBase(useDB){if(!useDB)buildMe();} // if useDB = true, then buildMe is executed when setEventSetup and DB conditions are available
+//   APDShape():EcalShapeBase(false){;}
 
    protected:
-  
-      virtual void fillShape( EcalShapeBase::DVec& aVec ) const ;
-
-   private:
-
-      double m_tStart ;
-      double m_tau    ;
+      void fillShape(float &time_interval, double &m_thresh, EcalShapeBase::DVec& aVec, const edm::EventSetup* es) const override ;
 };
   
 

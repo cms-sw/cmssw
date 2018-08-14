@@ -21,16 +21,15 @@ namespace l1t {
   // Imp1 is for v1 and v2
   class Stage2Layer2EtSumAlgorithmFirmwareImp1 : public Stage2Layer2EtSumAlgorithm {
   public:
-    Stage2Layer2EtSumAlgorithmFirmwareImp1(CaloParamsHelper* params);
-    virtual ~Stage2Layer2EtSumAlgorithmFirmwareImp1();
-    virtual void processEvent(const std::vector<l1t::CaloTower> & towers,
-			      std::vector<l1t::EtSum> & sums);
+    Stage2Layer2EtSumAlgorithmFirmwareImp1(CaloParamsHelper const* params);
+    ~Stage2Layer2EtSumAlgorithmFirmwareImp1() override =default;
+    void processEvent(const std::vector<l1t::CaloTower> & towers,
+			      std::vector<l1t::EtSum> & sums) override;
   private:
-    CaloParamsHelper* params_;
-    int32_t metTowThresholdHw_;
-    int32_t metTowThresholdHwHF_;
-    int32_t ettTowThresholdHw_;
-    int32_t ettTowThresholdHwHF_;
+    CaloParamsHelper const* params_;
+    int32_t towEtMetThresh_;
+    int32_t towEtSumEtThresh_;
+    int32_t towEtEcalSumThresh_;
     int32_t metEtaMax_;
     int32_t metEtaMaxHF_;
     int32_t ettEtaMax_;

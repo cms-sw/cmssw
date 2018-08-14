@@ -65,15 +65,21 @@ hConversionsToken_ = consumes<reco::ConversionCollection>(iConfig.getParameter<e
     efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"), consumesCollector());
   }
   // PFCluster Isolation maps
-  addPFClusterIso_   = iConfig.getParameter<bool>("addPFClusterIso");
   addPuppiIsolation_   = iConfig.getParameter<bool>("addPuppiIsolation");
   if (addPuppiIsolation_){
     PUPPIIsolation_charged_hadrons_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationChargedHadrons"));
     PUPPIIsolation_neutral_hadrons_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationNeutralHadrons"));
     PUPPIIsolation_photons_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationPhotons"));
   }
-  ecalPFClusterIsoT_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("ecalPFClusterIsoMap"));
-  hcalPFClusterIsoT_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("hcalPFClusterIsoMap"));
+  addPFClusterIso_   = iConfig.getParameter<bool>("addPFClusterIso");
+  if (addPFClusterIso_)
+  {
+    ecalPFClusterIsoT_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("ecalPFClusterIsoMap"));
+    auto hcPFC = iConfig.getParameter<edm::InputTag>("hcalPFClusterIsoMap");
+    if (not hcPFC.label().empty())
+      hcalPFClusterIsoT_ = consumes<edm::ValueMap<float> >(hcPFC);
+  }
+
   // photon ID configurables
   addPhotonID_ = iConfig.getParameter<bool>( "addPhotonID" );
   if (addPhotonID_) {
@@ -114,12 +120,13 @@ hConversionsToken_ = consumes<reco::ConversionCollection>(iConfig.getParameter<e
   }
   // produces vector of photons
   produces<std::vector<Photon> >();
-
+  
   // read isoDeposit labels, for direct embedding
   readIsolationLabels(iConfig, "isoDeposits", isoDepositLabels_, isoDepositTokens_);
   // read isolation value labels, for direct embedding
   readIsolationLabels(iConfig, "isolationValues", isolationValueLabels_, isolationValueTokens_);
 
+  saveRegressionData_ = iConfig.getParameter<bool>("saveRegressionData");
 }
 
 PATPhotonProducer::~PATPhotonProducer() {
@@ -334,13 +341,13 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     // set seed energy
     aPhoton.setSeedEnergy( photonRef->superCluster()->seed()->energy() );
 
+    // set input variables for regression energy correction
+    if (saveRegressionData_) {
     EcalRegressionData ecalRegData;
     ecalRegData.fill(*(photonRef->superCluster()),
 		     recHitsEBHandle.product(),recHitsEEHandle.product(),
 		     ecalGeometry_,ecalTopology_,-1);
     
-
-    // set input variables for regression energy correction
     aPhoton.setEMax( ecalRegData.eMax() );
     aPhoton.setE2nd( ecalRegData.e2nd() );
     aPhoton.setE3x3( ecalRegData.e3x3() );
@@ -370,20 +377,56 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     aPhoton.setCryEta( ecalRegData.seedCrysEtaOrX() );
     aPhoton.setIEta( ecalRegData.seedCrysIEtaOrIX() );
     aPhoton.setIPhi( ecalRegData.seedCrysIPhiOrIY() );
+    } else {
+    aPhoton.setEMax(0);
+    aPhoton.setE2nd(0);
+    aPhoton.setE3x3(0);
+    aPhoton.setETop(0);
+    aPhoton.setEBottom(0);
+    aPhoton.setELeft(0);
+    aPhoton.setERight(0);
+    aPhoton.setSee(0);
+    aPhoton.setSep(0);
+    aPhoton.setSpp(0);
+   
+    aPhoton.setMaxDR(0);
+    aPhoton.setMaxDRDPhi(0);
+    aPhoton.setMaxDRDEta(0);
+    aPhoton.setMaxDRRawEnergy(0);
+    aPhoton.setSubClusRawE1(0);
+    aPhoton.setSubClusRawE2(0);
+    aPhoton.setSubClusRawE3(0);
+    aPhoton.setSubClusDPhi1(0);
+    aPhoton.setSubClusDPhi2(0);
+    aPhoton.setSubClusDPhi3(0);
+    aPhoton.setSubClusDEta1(0);
+    aPhoton.setSubClusDEta2(0);
+    aPhoton.setSubClusDEta3(0);
+
+    aPhoton.setCryPhi(0);
+    aPhoton.setCryEta(0);
+    aPhoton.setIEta(0);
+    aPhoton.setIPhi(0);
+    }
+
     if (addPuppiIsolation_)aPhoton.setIsolationPUPPI((*PUPPIIsolation_charged_hadrons)[phoPtr], (*PUPPIIsolation_neutral_hadrons)[phoPtr], (*PUPPIIsolation_photons)[phoPtr]);
     else aPhoton.setIsolationPUPPI(-999., -999.,-999.);
 
     // Get PFCluster Isolation
     if (addPFClusterIso_) {
+      reco::Photon::PflowIsolationVariables newPFIsol = aPhoton.getPflowIsolationVariables();
       edm::Handle<edm::ValueMap<float> > ecalPFClusterIsoMapH;
       iEvent.getByToken(ecalPFClusterIsoT_, ecalPFClusterIsoMapH);
+      newPFIsol.sumEcalClusterEt = (*ecalPFClusterIsoMapH)[photonRef];
       edm::Handle<edm::ValueMap<float> > hcalPFClusterIsoMapH;
-      iEvent.getByToken(hcalPFClusterIsoT_, hcalPFClusterIsoMapH);
-      aPhoton.setEcalPFClusterIso((*ecalPFClusterIsoMapH)[photonRef]);
-      aPhoton.setHcalPFClusterIso((*hcalPFClusterIsoMapH)[photonRef]);
-    } else {
-      aPhoton.setEcalPFClusterIso(-999.);
-      aPhoton.setHcalPFClusterIso(-999.);
+      if (not hcalPFClusterIsoT_.isUninitialized()){
+	iEvent.getByToken(hcalPFClusterIsoT_, hcalPFClusterIsoMapH);
+	newPFIsol.sumHcalClusterEt = (*hcalPFClusterIsoMapH)[photonRef];
+      }
+      else{
+	newPFIsol.sumHcalClusterEt = -999.;
+      }
+      aPhoton.setPflowIsolationVariables(newPFIsol);
     }
 
     // add the Photon to the vector of Photons
@@ -495,6 +538,8 @@ void PATPhotonProducer::fillDescriptions(edm::ConfigurationDescriptions & descri
 
   iDesc.addNode( edm::ParameterDescription<edm::InputTag>("beamLineSrc", edm::InputTag(), true)
                  )->setComment("input with high level selection");
+
+  iDesc.add<bool>("saveRegressionData", true)->setComment("save regression input variables");
 
   descriptions.add("PATPhotonProducer", iDesc);
 

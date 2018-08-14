@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 process = cms.Process("dqm")
 
@@ -8,7 +9,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.load("HLTriggerOffline.Egamma.EgammaValidation_cff")
-process.post=cms.EDAnalyzer("EmDQMPostProcessor",
+process.post=DQMEDHarvester("EmDQMPostProcessor",
                             subDir = cms.untracked.string("HLT/HLTEgammaValidation"),
                             dataSet = cms.untracked.string("unknown"),
     )

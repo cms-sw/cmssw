@@ -48,6 +48,7 @@ namespace edm {
                       ParameterSetID const& parameterSetID,
                       TypeWithDict const& theTypeWithDict,
                       bool produced = true,
+                      bool availableOnlyAtEndTransition = false,
                       std::set<std::string> const& aliases = std::set<std::string>());
 
     BranchDescription(BranchDescription const& aliasForBranch,
@@ -86,6 +87,7 @@ namespace edm {
     void setDropped(bool isDropped) {transient_.dropped_ = isDropped;}
     bool onDemand() const {return transient_.onDemand_;}
     void setOnDemand(bool isOnDemand) {transient_.onDemand_ = isOnDemand;}
+    bool availableOnlyAtEndTransition() const {return transient_.availableOnlyAtEndTransition_; }
     bool transient() const {return transient_.transient_;}
     void setTransient(bool isTransient) {transient_.transient_ = isTransient;}
     TypeWithDict const& wrappedType() const {return transient_.wrappedType_;}
@@ -112,6 +114,9 @@ namespace edm {
     std::string const& wrappedName() const {return transient_.wrappedName_;}
     void setWrappedName(std::string const& name) {transient_.wrappedName_ = name;}
 
+    bool isMergeable() const { return transient_.isMergeable_; }
+    void setIsMergeable(bool v) { transient_.isMergeable_ = v; }
+
     void updateFriendlyClassName();
 
     void initializeTransients() {transient_.reset();}
@@ -135,6 +140,20 @@ namespace edm {
       // The wrapped class name, which is currently derivable fron the other attributes.
       std::string wrappedName_;
 
+      // A TypeWithDict object for the wrapped object
+      TypeWithDict wrappedType_;
+
+      // A TypeWithDict object for the unwrapped object
+      TypeWithDict unwrappedType_;
+
+      // The split level of the branch, as marked
+      // in the data dictionary.
+      int splitLevel_;
+
+      // The basket size of the branch, as marked
+      // in the data dictionary.
+      int basketSize_;
+      
       // Was this branch produced in this process rather than in a previous process
       bool produced_;
 
@@ -151,19 +170,12 @@ namespace edm {
       // in the data dictionary
       bool transient_;
 
-      // A TypeWithDict object for the wrapped object
-      TypeWithDict wrappedType_;
+      // if Run or Lumi based, can only get at end transition
+      bool availableOnlyAtEndTransition_;
 
-      // A TypeWithDict object for the unwrapped object
-      TypeWithDict unwrappedType_;
-
-      // The split level of the branch, as marked
-      // in the data dictionary.
-      int splitLevel_;
-
-      // The basket size of the branch, as marked
-      // in the data dictionary.
-      int basketSize_;
+      // True if the product definition has a mergeProduct function
+      // and the branchType is Run or Lumi
+      bool isMergeable_;
     };
 
   private:

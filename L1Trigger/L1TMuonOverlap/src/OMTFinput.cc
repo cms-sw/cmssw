@@ -54,6 +54,8 @@ bool OMTFinput::addLayerHit(unsigned int iLayer,
   if(iPhi>=(int)myOmtfConfig->nPhiBins()) return true;
 //  unsigned int origInput = iInput;
 
+  if (measurementsPhi[iLayer][iInput]==iPhi && measurementsEta[iLayer][iInput]==iEta) return true;
+
   if(measurementsPhi[iLayer][iInput]!=(int)myOmtfConfig->nPhiBins()) ++iInput;
   if(measurementsPhi[iLayer][iInput]!=(int)myOmtfConfig->nPhiBins()) overwrite = true;
 
@@ -84,7 +86,7 @@ void OMTFinput::mergeData(const OMTFinput *aInput){
   for(unsigned int iLayer=0;iLayer<myOmtfConfig->nLayers();++iLayer){
     const OMTFinput::vector1D & aPhiVec = aInput->getLayerData(iLayer,false);
     const OMTFinput::vector1D & aEtaVec = aInput->getLayerData(iLayer,true);
-    if(!aPhiVec.size()) continue;
+    if(aPhiVec.empty()) continue;
 
     OMTFinput::vector1D layerData = getLayerData(iLayer, false);
     for(unsigned int iInput=0;iInput<14;++iInput){      

@@ -36,7 +36,7 @@
 #include <iomanip>
 
 SimG4HcalValidation::SimG4HcalValidation(const edm::ParameterSet &p): 
-  jetf(0), numberingFromDDD(0), org(0) {
+  jetf(nullptr), numberingFromDDD(nullptr), org(nullptr) {
 
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("SimG4HcalValidation");
   infolevel     = m_Anal.getParameter<int>("InfoLevel");
@@ -87,12 +87,12 @@ SimG4HcalValidation::~SimG4HcalValidation() {
   if (jetf)   {
     edm::LogInfo("ValidHcal") << "Delete Jetfinder";
     delete jetf;
-    jetf  = 0;
+    jetf  = nullptr;
   }
   if (numberingFromDDD) {
     edm::LogInfo("ValidHcal") << "Delete HcalNumberingFromDDD";
     delete numberingFromDDD;
-    numberingFromDDD = 0;
+    numberingFromDDD = nullptr;
   }
 }
 
@@ -173,9 +173,9 @@ void SimG4HcalValidation::update(const BeginOfRun * run) {
  
   std::string  sdname = names[0];
   G4SDManager* sd     = G4SDManager::GetSDMpointerIfExist();
-  if (sd != 0) {
+  if (sd != nullptr) {
     G4VSensitiveDetector* aSD = sd->FindSensitiveDetector(sdname);
-    if (aSD==0) {
+    if (aSD==nullptr) {
       edm::LogWarning("ValidHcal") << "SimG4HcalValidation::beginOfRun: No SD"
 				   << " with name " << sdname << " in this "
 				   << "Setup";
@@ -216,7 +216,7 @@ void SimG4HcalValidation::update(const BeginOfEvent * evt) {
 //=================================================================== each STEP
 void SimG4HcalValidation::update(const G4Step * aStep) {
 
-  if (aStep != NULL) {
+  if (aStep != nullptr) {
     G4VPhysicalVolume* curPV  = aStep->GetPreStepPoint()->GetPhysicalVolume();
     G4String name = curPV->GetName();
     name.assign(name,0,3);
@@ -298,7 +298,7 @@ void SimG4HcalValidation::fill(const EndOfEvent * evt) {
   LogDebug("ValidHcal") << "SimG4HcalValidation :: Hit Collection for " 
 			<< names[0] << " of ID " << HCHCid <<" is obtained at "
 			<< theHCHC;
-  if (HCHCid >= 0 && theHCHC > 0) {
+  if (HCHCid >= 0 && theHCHC != nullptr) {
     for (j = 0; j < theHCHC->entries(); j++) {
 
       CaloG4Hit* aHit = (*theHCHC)[j]; 
@@ -374,7 +374,7 @@ void SimG4HcalValidation::fill(const EndOfEvent * evt) {
       LogDebug("ValidHcal") << "SimG4HcalValidation:: Hit Collection for "
 			    << names[idty] << " of ID " << ECHCid 
 			    << " is obtained at " << theECHC;
-      if (ECHCid >= 0 && theECHC > 0) {
+      if (ECHCid >= 0 && theECHC != nullptr) {
 	for (j = 0; j < theECHC->entries(); j++) {
 
 	  CaloG4Hit* aHit = (*theECHC)[j]; 
@@ -546,7 +546,7 @@ void SimG4HcalValidation::jetAnalysis(PHcalValidInfoJets& product) {
 
   std::vector<double> enevec, etavec, phivec; 
 
-  if ((*result).size() > 0) {
+  if (!(*result).empty()) {
 
     sort((*result).begin(),(*result).end()); 
 

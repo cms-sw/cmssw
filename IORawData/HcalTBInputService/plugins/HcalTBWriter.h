@@ -25,8 +25,8 @@ class CDFEventInfo;
 class HcalTBWriter : public edm::EDAnalyzer {
 public:
   HcalTBWriter(const edm::ParameterSet & pset);
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& es);
-  virtual void endJob();
+  void analyze(const edm::Event& e, const edm::EventSetup& es) override;
+  void endJob() override;
 private:
   std::string namePattern_;
   // chunk naming...

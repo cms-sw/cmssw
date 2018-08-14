@@ -119,7 +119,7 @@ TH1F* MuonME0DigisHarvestor::ComputeBKG(TH1F* hist1, TH1F* hist2, std::string na
     }
 
     int nEvts = hist2->GetEntries();
-    float scale = 6*2*nEvts*9*25e-9;
+    float scale = 6*2*nEvts*3*25e-9; //New redigitizer saves hits only in the BX range: [-1,+1], so the number of background hits has to be divided by 3
     hist1->Scale(1.0/scale);
     return hist1;
     
@@ -156,7 +156,7 @@ void MuonME0DigisHarvestor::ProcessBookingBKG( DQMStore::IBooker& ibooker, DQMSt
 void 
 MuonME0DigisHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& ig)
 {
-  ig.setCurrentFolder(dbe_path_.c_str());
+  ig.setCurrentFolder(dbe_path_);
  
   const char* l_suffix[6] = {"_l1","_l2","_l3","_l4","_l5","_l6"};
   const char* r_suffix[2] = {"-1","1"};

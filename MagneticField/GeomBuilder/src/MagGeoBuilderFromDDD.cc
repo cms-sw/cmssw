@@ -61,7 +61,7 @@ using namespace magneticfield;
 MagGeoBuilderFromDDD::MagGeoBuilderFromDDD(string tableSet_,int geometryVersion_, bool debug_) :
   tableSet (tableSet_),
   geometryVersion(geometryVersion_),
-  theGridFiles(0)
+  theGridFiles(nullptr)
 {  
   debug = debug_;
   if (debug) cout << "Constructing a MagGeoBuilderFromDDD" <<endl;
@@ -196,7 +196,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
 
     volumeHandle* v = new volumeHandle(fv, expand);
 
-    if (theGridFiles!=0) {
+    if (theGridFiles!=nullptr) {
       int key = (v->volumeno)*100+v->copyno;
       TableFileMap::const_iterator itable = theGridFiles->find(key);
       if (itable == theGridFiles->end()) {
@@ -463,7 +463,7 @@ void MagGeoBuilderFromDDD::buildMagVolumes(const handles & volumes, map<string, 
   // Build all MagVolumes setting the MagProviderInterpol
   for (handles::const_iterator vol=volumes.begin(); vol!=volumes.end();
        ++vol){
-    const MagProviderInterpol* mp = 0;
+    const MagProviderInterpol* mp = nullptr;
     if (interpolators.find((*vol)->magFile)!=interpolators.end()) {
       mp = interpolators[(*vol)->magFile];
     } else {
@@ -490,7 +490,6 @@ void MagGeoBuilderFromDDD::buildMagVolumes(const handles & volumes, map<string, 
     const GloballyPositioned<float> * gpos = (*vol)->placement();
     (*vol)->magVolume = new MagVolume6Faces(gpos->position(),
 					    gpos->rotation(),
-					    (*vol)->shape(),
 					    (*vol)->sides(),
 					    mp, sf);
 
@@ -579,12 +578,11 @@ void MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle * vol, map<strin
     // Check that all grid points of the interpolator are inside the volume.
       const MagVolume6Faces tempVolume(vol->placement()->position(),
 				 vol->placement()->rotation(),
-				 vol->shape(),
 				 vol->sides(), 
 				 interpolators[vol->magFile]);
 
       const MFGrid* grid = dynamic_cast<const MFGrid*>(interpolators[vol->magFile]);
-      if (grid!=0) {
+      if (grid!=nullptr) {
 	
 	Dimensions sizes = grid->dimensions();
 	cout << "Grid has 3 dimensions " 
@@ -682,7 +680,8 @@ float MagGeoBuilderFromDDD::maxR() const{
 
 float MagGeoBuilderFromDDD::maxZ() const{
   //FIXME: should get it from the actual geometry
-  if (geometryVersion>=120812) return 2000.;
+  if (geometryVersion>=160812) return 2400.;
+  else if (geometryVersion>=120812) return 2000.;
   else return 1600.;
 }
 

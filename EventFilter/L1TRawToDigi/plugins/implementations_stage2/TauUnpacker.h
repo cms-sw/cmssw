@@ -7,7 +7,15 @@ namespace l1t {
    namespace stage2 {
       class TauUnpacker : public Unpacker {
          public:
-            virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
+            TauUnpacker();
+            ~TauUnpacker() override {};
+
+            bool unpack(const Block& block, UnpackerCollections *coll) override;
+
+            inline void setTauCopy(const unsigned int copy) { TauCopy_ = copy; };
+
+         private:
+            unsigned int TauCopy_;
       };
    }
 }

@@ -46,8 +46,8 @@ class GeometryInterface {
     // in this order the struct should fit 2 64bit words and is cheap to copy.
     const edm::Event* sourceEvent;
     DetId sourceModule;
-    int16_t col;
-    int16_t row;
+    int16_t col = 0;
+    int16_t row = 0;
   };
 
   // This has to be fast, _should_ not malloc.

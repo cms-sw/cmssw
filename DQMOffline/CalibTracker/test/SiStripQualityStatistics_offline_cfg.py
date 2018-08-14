@@ -43,16 +43,19 @@ process.SiStripQualityESProducer = cms.ESProducer("SiStripQualityESProducer",
 )
 
 #### Add these lines to produce a tracker map
-#process.load("DQMServices.Core.DQMStore_cfg")
-#process.TkDetMap = cms.Service("TkDetMap")
-#process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+#process.load("DQM.SiStripCommon.TkHistoMap_cff")
+### load TrackerTopology (needed for TkDetMap and TkHistoMap)
+#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2017XML_cfi")
+#process.load("Geometry.TrackerGeometryBuilder.trackerParameters_cfi")
+#process.trackerTopology = cms.ESProducer("TrackerTopologyEP")
 ####
 
-process.stat = cms.EDAnalyzer("SiStripQualityStatistics",
-    #TkMapFileName = cms.untracked.string('TkMaps/TkMapBadComponents_offline.png'),
-    TkMapFileName = cms.untracked.string(''),
-    dataLabel = cms.untracked.string('test')
-)
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.stat = DQMEDAnalyzer("SiStripQualityStatistics",
+                             #TkMapFileName = cms.untracked.string('TkMaps/TkMapBadComponents_offline.png'),
+                             TkMapFileName = cms.untracked.string(''),
+                             dataLabel = cms.untracked.string('test')
+                             )
 
 process.out = cms.OutputModule("AsciiOutputModule")
 

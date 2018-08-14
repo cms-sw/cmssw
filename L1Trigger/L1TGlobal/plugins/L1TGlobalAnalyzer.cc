@@ -54,15 +54,15 @@ namespace l1t {
 class L1TGlobalAnalyzer : public edm::EDAnalyzer {
 public:
   explicit L1TGlobalAnalyzer(const edm::ParameterSet&);
-  ~L1TGlobalAnalyzer();
+  ~L1TGlobalAnalyzer() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
   
 private:
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
   
   //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
@@ -293,11 +293,11 @@ L1TGlobalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       for ( auto itr = gmuons->begin(ibx); itr != gmuons->end(ibx); ++itr ) {
         hbx_.at(gMU)->Fill( ibx );
 	het_.at(gMU)->Fill( itr->hwPt() );
-	heta_.at(gMU)->Fill( itr->hwEta() );
-	hphi_.at(gMU)->Fill( itr->hwPhi() );
-        hetaphi_.at(gMU)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
+	heta_.at(gMU)->Fill( itr->hwEtaAtVtx() );
+	hphi_.at(gMU)->Fill( itr->hwPhiAtVtx() );
+        hetaphi_.at(gMU)->Fill( itr->hwEtaAtVtx(), itr->hwPhiAtVtx(), itr->hwPt() );
 
-	text << "Muon : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
+	text << "Muon : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEtaAtVtx() << " iphi=" << itr->hwPhiAtVtx() << std::endl;
 
       }
       
@@ -407,11 +407,11 @@ L1TGlobalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       for ( auto itr = muons->begin(ibx); itr != muons->end(ibx); ++itr ) {
         hbx_.at(MU)->Fill( ibx );
 	het_.at(MU)->Fill( itr->hwPt() );
-	heta_.at(MU)->Fill( itr->hwEta() );
-	hphi_.at(MU)->Fill( itr->hwPhi() );
-        hetaphi_.at(MU)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
+	heta_.at(MU)->Fill( itr->hwEtaAtVtx() );
+	hphi_.at(MU)->Fill( itr->hwPhiAtVtx() );
+        hetaphi_.at(MU)->Fill( itr->hwEtaAtVtx(), itr->hwPhiAtVtx(), itr->hwPt() );
 
-	text << "Muon : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
+	text << "Muon : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEtaAtVtx() << " iphi=" << itr->hwPhiAtVtx() << std::endl;
 
       }
       
@@ -590,14 +590,14 @@ L1TGlobalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         if(gmtmus->size(ibx)>igtMU) gmtMUEt = gmtmus->at(ibx,igtMU).hwPt();
         hGmtVsGTMUEt_->Fill(gtMUEt,gmtMUEt);        
 
-	double gtMUEta = mus->at(ibx,igtMU).hwEta();
+	double gtMUEta = mus->at(ibx,igtMU).hwEtaAtVtx();
         double gmtMUEta = 0.0;
-        if(gmtmus->size(ibx)>igtMU) gmtMUEta = gmtmus->at(ibx,igtMU).hwEta();
+        if(gmtmus->size(ibx)>igtMU) gmtMUEta = gmtmus->at(ibx,igtMU).hwEtaAtVtx();
         hGmtVsGTMUEta_->Fill(gtMUEta,gmtMUEta);        
 
-	double gtMUPhi = mus->at(ibx,igtMU).hwPhi();
+	double gtMUPhi = mus->at(ibx,igtMU).hwPhiAtVtx();
         double gmtMUPhi = 0.0;
-        if(gmtmus->size(ibx)>igtMU) gmtMUPhi = gmtmus->at(ibx,igtMU).hwPhi();
+        if(gmtmus->size(ibx)>igtMU) gmtMUPhi = gmtmus->at(ibx,igtMU).hwPhiAtVtx();
         hGmtVsGTMUPhi_->Fill(gtMUPhi,gmtMUPhi);        
 
 
@@ -612,11 +612,11 @@ L1TGlobalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         hGmtVsGTMUEt_->Fill(gtMUEt,gmtMUEt);        
 
 	double gtMUEta = 0.0;
-        double gmtMUEta = gmtmus->at(ibx,igmtMU).hwEta();
+        double gmtMUEta = gmtmus->at(ibx,igmtMU).hwEtaAtVtx();
         hGmtVsGTMUEta_->Fill(gtMUEta,gmtMUEta);        
 
 	double gtMUPhi = 0.0;
-        double gmtMUPhi  = gmtmus->at(ibx,igmtMU).hwPhi();
+        double gmtMUPhi  = gmtmus->at(ibx,igmtMU).hwPhiAtVtx();
         hGmtVsGTMUPhi_->Fill(gtMUPhi,gmtMUPhi);        
          
       }      

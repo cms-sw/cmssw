@@ -30,7 +30,5 @@ photonPostProcessor = cms.Sequence(photonPostprocessing*pfPhotonPostprocessing*c
 #photonPostProcessor = cms.Sequence(photonPostprocessing*conversionPostprocessing)
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen():
-    photonPostprocessing.fastsim = cms.bool(True)
-    oldpfPhotonPostprocessing.fastsim = cms.bool(True)
-    
+fastSim.toModify(photonPostprocessing, fastSim = True)
+fastSim.toModify(oldpfPhotonPostprocessing, fastSim = True)

@@ -11,10 +11,10 @@ using namespace oracle::occi;
 
 RunPNErrorsDat::RunPNErrorsDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_errorBits = 0;
 }
@@ -40,7 +40,7 @@ void RunPNErrorsDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			"to_number(:error_bits))");
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunPNErrorsDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunPNErrorsDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -61,10 +61,10 @@ void RunPNErrorsDat::writeDB(const EcalLogicID* ecid, const RunPNErrorsDat* item
   try {
     m_writeStmt->setInt(1, iovID);
     m_writeStmt->setInt(2, logicID);
-    m_writeStmt->setString(3, ( boost::lexical_cast<std::string>(item->getErrorBits()) ).c_str());
+    m_writeStmt->setString(3, std::to_string(item->getErrorBits()));
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunPNErrorsDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunPNErrorsDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -97,14 +97,14 @@ void RunPNErrorsDat::fetchData(map< EcalLogicID, RunPNErrorsDat >* fillMap, RunI
     std::pair< EcalLogicID, RunPNErrorsDat > p;
     RunPNErrorsDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
 
-      dat.setErrorBits( boost::lexical_cast<uint64_t>(rset->getString(7)) );
+      dat.setErrorBits( boost::lexical_cast<uint64_t>(getOraString(rset,7)) );
 
       p.second = dat;
       fillMap->insert(p);
@@ -112,6 +112,6 @@ void RunPNErrorsDat::fetchData(map< EcalLogicID, RunPNErrorsDat >* fillMap, RunI
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunPNErrorsDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunPNErrorsDat::fetchData():  ")+getOraMessage(&e)));
   }
 }

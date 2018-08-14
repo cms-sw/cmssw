@@ -66,7 +66,7 @@ namespace DDVectorGetter
       {
 	DDName vname( vit->name());
 	if( vname.name().compare( 0, str.size(), str ) == 0 )
-	  vstring.push_back( vname.name());
+	  vstring.emplace_back( vname.name());
       }
     }
   }

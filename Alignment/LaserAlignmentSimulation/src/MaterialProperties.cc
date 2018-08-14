@@ -43,10 +43,10 @@
 
 MaterialProperties::~MaterialProperties()
 {
-	if ( theMPT != 0 )                  { delete theMPT; }
-	if ( theTECWafer != 0 )             { delete theTECWafer; }
-	if ( theTOBWafer != 0 )             { delete theTOBWafer; }
-	if ( theTIBWafer != 0 )             { delete theTIBWafer; }
+	if ( theMPT != nullptr )                  { delete theMPT; }
+	if ( theTECWafer != nullptr )             { delete theTECWafer; }
+	if ( theTOBWafer != nullptr )             { delete theTOBWafer; }
+	if ( theTIBWafer != nullptr )             { delete theTIBWafer; }
 }
 
 

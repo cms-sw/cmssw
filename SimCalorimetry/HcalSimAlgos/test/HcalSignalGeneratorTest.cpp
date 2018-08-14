@@ -10,13 +10,13 @@
 class HcalSignalGeneratorTest : public edm::EDAnalyzer {
 public:
   explicit HcalSignalGeneratorTest(const edm::ParameterSet&);
-  ~HcalSignalGeneratorTest() {}
+  ~HcalSignalGeneratorTest() override {}
 
 
 private:
-  virtual void beginJob() {}
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() {}
+  void beginJob() override {}
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override {}
 
   void dump(CaloVNoiseSignalGenerator * signalGenerator) const;
 

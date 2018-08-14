@@ -19,9 +19,9 @@
 class QGLikelihoodESProducer : public edm::ESProducer{
    public:
       QGLikelihoodESProducer(const edm::ParameterSet&);
-      ~QGLikelihoodESProducer(){};
+      ~QGLikelihoodESProducer() override{};
 
-      std::shared_ptr<QGLikelihoodObject> produce(const QGLikelihoodRcd&);
+      std::unique_ptr<QGLikelihoodObject> produce(const QGLikelihoodRcd&);
       void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue &, edm::ValidityInterval &);
 
    private:

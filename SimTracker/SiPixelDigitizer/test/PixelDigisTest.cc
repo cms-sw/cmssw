@@ -36,7 +36,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 // my includes
-//#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+//#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h" 
 
@@ -112,10 +112,10 @@ class PixelDigisTest : public edm::EDAnalyzer {
 public:
 
   explicit PixelDigisTest(const edm::ParameterSet&);
-  ~PixelDigisTest();
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob(); 
+  ~PixelDigisTest() override;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override; 
 
 private:
   // ----------member data ---------------------------

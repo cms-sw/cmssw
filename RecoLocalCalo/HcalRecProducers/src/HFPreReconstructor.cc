@@ -49,7 +49,7 @@ class HFPreReconstructor : public edm::stream::EDProducer<>
 {
 public:
     explicit HFPreReconstructor(const edm::ParameterSet&);
-    ~HFPreReconstructor();
+    ~HFPreReconstructor() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -57,11 +57,13 @@ private:
     typedef std::pair<HcalDetId,int> PmtAnodeId;
     typedef std::pair<PmtAnodeId,const HFQIE10Info*> QIE10InfoWithId;
 
-    virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void beginRun(const edm::Run&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     // Module configuration parameters
     edm::InputTag inputLabel_;
+    int forceSOI_;
+    int soiShift_;
     bool dropZSmarkedPassed_;
     bool tsFromDB_;
 
@@ -84,6 +86,8 @@ private:
 //
 HFPreReconstructor::HFPreReconstructor(const edm::ParameterSet& conf)
     : inputLabel_(conf.getParameter<edm::InputTag>("digiLabel")),
+      forceSOI_(conf.getParameter<int>("forceSOI")),
+      soiShift_(conf.getParameter<int>("soiShift")),
       dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed")),
       tsFromDB_(conf.getParameter<bool>("tsFromDB")),
       reco_(conf.getParameter<bool>("sumAllTimeSlices"))
@@ -176,28 +180,41 @@ HFPreReconstructor::fillInfos(const edm::Event& e, const edm::EventSetup& eventS
              it != digi->end(); ++it)
         {
             const QIE10DataFrame& frame(*it);
+            const HcalDetId cell(frame.id());
+
+            // Protection against calibration channels which are not
+            // in the database but can still come in the QIE10DataFrame
+            // in the laser calibs, etc.
+            if (cell.subdet() != HcalSubdetector::HcalForward)
+                continue;
 
             // Check zero suppression
             if (dropZSmarkedPassed_)
                 if (frame.zsMarkAndPass())
                     continue;
 
-            const HcalDetId cell(it->id());
             const HcalCalibrations& calibrations(conditions->getHcalCalibrations(cell));
             const HcalQIECoder* channelCoder = conditions->getHcalCoder(cell);
             const HcalQIEShape* shape = conditions->getHcalShape(channelCoder);
             const HcalCoderDb coder(*channelCoder, *shape);
 
-            // Get the "sample of interest" from the data frame itself
-            int tsToUse = frame.presamples();
-            if (tsFromDB_)
+            int tsToUse = forceSOI_;
+            if (tsToUse < 0)
             {
-                const HcalRecoParam* param_ts = paramTS_->getValues(cell.rawId());
-                tsToUse = param_ts->firstSample();
+                if (tsFromDB_)
+                {
+                    const HcalRecoParam* param_ts = paramTS_->getValues(cell.rawId());
+                    tsToUse = param_ts->firstSample();
+                }
+                else
+                    // Get the "sample of interest" from the data frame itself
+                    tsToUse = frame.presamples();
             }
 
             // Reconstruct the charge, energy, etc
-            qie10Infos_.push_back(reco_.reconstruct(frame, tsToUse, coder, calibrations));
+            const HFQIE10Info& info = reco_.reconstruct(frame, tsToUse+soiShift_, coder, calibrations);
+            if (info.id().rawId())
+                qie10Infos_.push_back(info);
         }
     }
 }
@@ -254,7 +271,7 @@ HFPreReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
                 // everything works as expected, this assertion can be removed.
                 assert(nFound <= 2);
 
-                const HFQIE10Info* first = 0;
+                const HFQIE10Info* first = nullptr;
                 const HFQIE10Info* second = sortedQIE10Infos_[i-1].second;
 
                 if (nFound >= 2)
@@ -264,7 +281,7 @@ HFPreReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
                     // Only one QIE10 readout found for this PMT.
                     // Arrange for depth 1 and 2 to be "first".
                     first = second;
-                    second = 0;
+                    second = nullptr;
                 }
 
                 out->push_back(HFPreRecHit(sortedQIE10Infos_[i-nFound].first.first,
@@ -289,6 +306,8 @@ HFPreReconstructor::fillDescriptions(edm::ConfigurationDescriptions& description
     edm::ParameterSetDescription desc;
 
     desc.add<edm::InputTag>("digiLabel");
+    desc.add<int>("forceSOI", -1);
+    desc.add<int>("soiShift", 0);
     desc.add<bool>("dropZSmarkedPassed");
     desc.add<bool>("tsFromDB");
     desc.add<bool>("sumAllTimeSlices");

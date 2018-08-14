@@ -25,7 +25,7 @@ PixelHitMatcher::PixelHitMatcher
    meas1stBLayer(phi1min,phi1max,0.,0.), meas2ndBLayer(phi2minB,phi2maxB,z2minB,z2maxB),
    meas1stFLayer(phi1min,phi1max,0.,0.), meas2ndFLayer(phi2minF,phi2maxF,r2minF,r2maxF),
    startLayers(),
-   prop1stLayer(0), prop2ndLayer(0),theGeometricSearchTracker(0),theTrackerEvent(0),theTracker(0),vertex_(0.),
+   prop1stLayer(nullptr), prop2ndLayer(nullptr),theGeometricSearchTracker(nullptr),theTrackerEvent(nullptr),theTracker(nullptr),vertex_(0.),
    searchInTIDTEC_(searchInTIDTEC), useRecoVertex_(false)
  {
   meas1stFLayer.setRRangeI(rMinI,rMaxI) ;

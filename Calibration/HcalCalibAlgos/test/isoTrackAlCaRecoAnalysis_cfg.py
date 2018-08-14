@@ -67,7 +67,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     )
 )
 
-process.load('Calibration.HcalCalibAlgos.isoAnalyzer_cfi')
+process.load('Calibration.HcalCalibAlgos.HcalIsoTrkAnalyzer_cfi')
 process.HcalIsoTrkAnalyzer.ProcessName  = 'HLTNew1'
 process.HcalIsoTrkAnalyzer.ProducerName = 'ALCAISOTRACK'
 process.HcalIsoTrkAnalyzer.ModuleName   = 'IsoProd'

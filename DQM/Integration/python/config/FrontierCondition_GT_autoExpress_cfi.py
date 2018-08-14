@@ -1,15 +1,18 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import * 
-GlobalTag.connect = cms.string("frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_CONDITIONS")
+from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
+
 # Default Express GT: it is the GT that will be used in case we are not able
 # to retrieve the one used at Tier0.
-# It should be kept in synch with Express processing at Tier0.
-GlobalTag.globaltag = cms.string( "80X_dataRun2_Express_v15" )
+# It should be kept in synch with Express processing at Tier0: what the url
+# https://cmsweb.cern.ch/t0wmadatasvc/prod/express_config
+# would tell you.
+GlobalTag.globaltag = "101X_dataRun2_Express_v8"
 
 # ===== auto -> Automatically get the GT string from current Tier0 configuration via a Tier0Das call.
 #       This needs a valid proxy to access the cern.ch network from the .cms one.
-# 
-auto=True
+#
+auto=False
 
 # The implementation of the class is reused from the condition upload service.
 #TODO: make this class a common utility under Conditions or Config.DP
@@ -128,8 +131,7 @@ class Tier0Handler( object ):
         Raises if connection error, bad response, timeout after retries occur, or if no Global Tags are available.
         """
         data = self._queryTier0DataSvc( os.path.join( self._uri, config ) )
-        gtnames = unique( [ str( di[ 'global_tag' ] ) for di in data['result'] if di[ 'global_tag' ] is not None ] )
-        gtnames.sort()
+        gtnames = sorted(unique( [ str( di[ 'global_tag' ] ) for di in data['result'] if di[ 'global_tag' ] is not None ] ))
         try:
             recentGT = gtnames[-1]
             return recentGT
@@ -144,13 +146,15 @@ if auto:
     if 'http_proxy' in os.environ:
         proxyurl = os.environ[ 'http_proxy' ]
     t0 = Tier0Handler( tier0Url, 5, 5, 5, proxyurl, False )
-    
+
     try:
         # Get the express GT from Tie0 DataService API
         GlobalTag.globaltag = cms.string( t0.getGlobalTag( 'express_config' ) )
-        print "The query to the Tier0 DataService returns the express GT: \"%s\"" % ( GlobalTag.globaltag.value(), )
+        print("The query to the Tier0 DataService returns the express GT: \"%s\"" % ( GlobalTag.globaltag.value(), ))
     except Tier0Error as error:
         # the web query did not succeed, fall back to the default
-        print "Error in querying the Tier0 DataService"
-        print error
-        print "Falling back to the default value of the express GT: \"%s\"" % ( GlobalTag.globaltag.value(), )
+        print("Error in querying the Tier0 DataService")
+        print(error)
+        print("Falling back to the default value of the express GT: \"%s\"" % ( GlobalTag.globaltag.value(), ))
+else:
+    print("Using hardcoded GT: \"%s\"" % GlobalTag.globaltag.value())

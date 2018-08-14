@@ -3,9 +3,9 @@
 
 #include <string>
 #include <cstring>
+#include <TH1.h>
+#include <TFile.h>
 
-class TFile;
-class TH1;
 
 class HistoData {
 public:
@@ -90,7 +90,7 @@ public:
 
   // Misc Functions
   void drawResult(TH1 *Summary, bool Vertical = true, bool SetLabels = false);
-  void clear() { memset(this,0,sizeof(*this)); }
+  void clear(){ newHisto->Clear(); refHisto->Clear(); };
   inline void dump();
 
 private:

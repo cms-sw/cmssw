@@ -24,7 +24,7 @@ public:
   GlobalTrackingGeometryESProducer(const edm::ParameterSet & p);
 
   /// Destructor
-  virtual ~GlobalTrackingGeometryESProducer();
+  ~GlobalTrackingGeometryESProducer() override;
 
   /// Produce GlobalTrackingGeometry
   std::shared_ptr<GlobalTrackingGeometry> produce(const GlobalTrackingGeometryRecord& record);

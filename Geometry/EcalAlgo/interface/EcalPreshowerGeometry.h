@@ -12,82 +12,81 @@
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 #include <vector>
 
-class EcalPreshowerGeometry final : public CaloSubdetectorGeometry
-{
-   public:
+class EcalPreshowerGeometry final : public CaloSubdetectorGeometry {
 
-      typedef std::vector<PreshowerStrip> CellVec ;
+public:
 
-      typedef CaloCellGeometry::CCGFloat CCGFloat ;
-      typedef CaloCellGeometry::Pt3D     Pt3D     ;
-      typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
-
-      typedef IdealGeometryRecord         IdealRecord   ;
-      typedef EcalPreshowerGeometryRecord AlignedRecord ;
-      typedef ESAlignmentRcd              AlignmentRecord ;
-      typedef PEcalPreshowerRcd           PGeometryRecord ;
-
-      typedef EcalPreshowerNumberingScheme NumberingScheme ;
-      typedef CaloSubdetectorGeometry::ParVec ParVec ;
-      typedef CaloSubdetectorGeometry::ParVecVec ParVecVec ;
-      typedef ESDetId DetIdType ;
-
-      enum { k_NumberOfCellsForCorners = ESDetId::kSizeForDenseIndexing } ;
-
-      enum { k_NumberOfShapes = 4 } ;
-
-      enum { k_NumberOfParametersPerShape = 4 } ;
-
-      static std::string dbString() { return "PEcalPreshowerRcd" ; }
-
-      virtual unsigned int numberOfShapes() const override { return k_NumberOfShapes ; }
-      virtual unsigned int numberOfParametersPerShape() const override { return k_NumberOfParametersPerShape ; }
-
-      EcalPreshowerGeometry() ;
+  typedef std::vector<PreshowerStrip> CellVec ;
   
-      /// The EcalPreshowerGeometry will delete all its cell geometries at destruction time
-      virtual ~EcalPreshowerGeometry();
+  typedef CaloCellGeometry::CCGFloat CCGFloat ;
+  typedef CaloCellGeometry::Pt3D     Pt3D     ;
+  typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
+      
+  typedef IdealGeometryRecord         IdealRecord   ;
+  typedef EcalPreshowerGeometryRecord AlignedRecord ;
+  typedef ESAlignmentRcd              AlignmentRecord ;
+  typedef PEcalPreshowerRcd           PGeometryRecord ;
 
-      void setzPlanes( CCGFloat z1minus, 
-		       CCGFloat z2minus,
-		       CCGFloat z1plus, 
-		       CCGFloat z2plus ) ;
+  typedef EcalPreshowerNumberingScheme NumberingScheme ;
+  typedef CaloSubdetectorGeometry::ParVec ParVec ;
+  typedef CaloSubdetectorGeometry::ParVecVec ParVecVec ;
+  typedef ESDetId DetIdType ;
 
-      // Get closest cell
-      virtual DetId getClosestCell( const GlobalPoint& r ) const override;
+  enum { k_NumberOfCellsForCorners = ESDetId::kSizeForDenseIndexing } ;
+
+  enum { k_NumberOfShapes = 4 } ;
+
+  enum { k_NumberOfParametersPerShape = 4 } ;
+
+  static std::string dbString() { return "PEcalPreshowerRcd" ; }
+
+  unsigned int numberOfShapes() const override { return k_NumberOfShapes ; }
+  unsigned int numberOfParametersPerShape() const override { return k_NumberOfParametersPerShape ; }
+
+  EcalPreshowerGeometry() ;
+  
+  /// The EcalPreshowerGeometry will delete all its cell geometries at destruction time
+  ~EcalPreshowerGeometry() override;
+
+  void setzPlanes( CCGFloat z1minus, 
+		   CCGFloat z2minus,
+		   CCGFloat z1plus, 
+		   CCGFloat z2plus ) ;
+  
+  // Get closest cell
+  DetId getClosestCell( const GlobalPoint& r ) const override;
+
+  // Get closest cell in arbitrary plane (1 or 2)
+  virtual DetId getClosestCellInPlane( const GlobalPoint& r     ,
+				       int                plane   ) const;
 
 
-      // Get closest cell in arbitrary plane (1 or 2)
-      virtual DetId getClosestCellInPlane( const GlobalPoint& r     ,
-					   int                plane   ) const ;
+  void initializeParms() override;
+  unsigned int numberOfTransformParms() const override { return 3 ; }
 
+  static std::string hitString() { return "EcalHitsES" ; }
+  
+  static std::string producerTag() { return "EcalPreshower" ; }
 
-      virtual void initializeParms() override;
-      virtual unsigned int numberOfTransformParms() const override { return 3 ; }
+  static unsigned int numberOfAlignments() { return 8 ; }
 
-      static std::string hitString() { return "EcalHitsES" ; }
+  static unsigned int alignmentTransformIndexLocal( const DetId& id ) ;
+  
+  static unsigned int alignmentTransformIndexGlobal( const DetId& id ) ;
 
-      static std::string producerTag() { return "EcalPreshower" ; }
+  static DetId detIdFromLocalAlignmentIndex( unsigned int iLoc ) ;
+  
+  static void localCorners( Pt3DVec&        lc  ,
+			    const CCGFloat* pv  ,
+			    unsigned int    i   ,
+			    Pt3D&           ref   ) ;
 
-      static unsigned int numberOfAlignments() { return 8 ; }
-
-      static unsigned int alignmentTransformIndexLocal( const DetId& id ) ;
-
-      static unsigned int alignmentTransformIndexGlobal( const DetId& id ) ;
-
-      static DetId detIdFromLocalAlignmentIndex( unsigned int iLoc ) ;
-
-      static void localCorners( Pt3DVec&        lc  ,
-				const CCGFloat* pv  ,
-				unsigned int    i   ,
-				Pt3D&           ref   ) ;
-
-      virtual void newCell( const GlobalPoint& f1 ,
-			    const GlobalPoint& f2 ,
-			    const GlobalPoint& f3 ,
-			    const CCGFloat*    parm ,
-			    const DetId&       detId   ) override;
-
+  void newCell( const GlobalPoint& f1 ,
+		const GlobalPoint& f2 ,
+		const GlobalPoint& f3 ,
+		const CCGFloat*    parm ,
+		const DetId&       detId   ) override;
+  
 
   /// is this detid present in the geometry?
   bool present( const DetId& id ) const override {
@@ -97,26 +96,23 @@ class EcalPreshowerGeometry final : public CaloSubdetectorGeometry
     return index < m_cellVec.size();
   }
 
-  /// Get the cell geometry of a given detector id.  Should return nulptr if not found.
-  // const CaloCellGeometry* getGeometry( const DetId& id ) const override;
+protected:
 
+  // Modify the RawPtr class
+  const CaloCellGeometry* getGeometryRawPtr (uint32_t index) const override;
 
-   protected:
+private:
 
-      const CaloCellGeometry* cellGeomPtr( uint32_t index ) const override;
+  const CCGFloat m_xWidWaf      ;
+  const CCGFloat m_xInterLadGap ;
+  const CCGFloat m_xIntraLadGap ;
+      
+  const CCGFloat m_yWidAct      ;
+  const CCGFloat m_yCtrOff      ;
 
-   private:
-
-      const CCGFloat m_xWidWaf      ;
-      const CCGFloat m_xInterLadGap ;
-      const CCGFloat m_xIntraLadGap ;
-
-      const CCGFloat m_yWidAct      ;
-      const CCGFloat m_yCtrOff      ;
-
-      CCGFloat m_zplane[4];
-
-      CellVec m_cellVec ;
+  CCGFloat m_zplane[4];
+      
+  CellVec m_cellVec ;
 };
 
 

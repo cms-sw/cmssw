@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("tester")
@@ -6,14 +7,36 @@ process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
 process.MessageLogger.cout.threshold = cms.untracked.string('DEBUG')
 process.MessageLogger.debugModules = cms.untracked.vstring('*')
 
-process.source = cms.Source("EmptySource", firstRun = cms.untracked.uint32(285074)) #284074 268315
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
+import FWCore.ParameterSet.VarParsing as VarParsing
+options = VarParsing.VarParsing()
+options.register('db',
+                 'prod',
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Source DB: prod/prep/sqlite"
+)
+options.register('run',
+                 1,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Run (IOV)"
+)
+options.parseArguments()
 
-from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
+if   options.db == "prod" :
+        sourceDB = "frontier://FrontierProd/CMS_CONDITIONS"
+elif options.db == "prep" :
+        sourceDB = "frontier://FrontierPrep/CMS_CONDITIONS"
+elif "sqlite" in options.db :
+        sourceDB = options.db
+else :
+        print("Unknown input DB: ", options.db, " should be static/prod/prep/sqlite:...")
+        exit(0)
+
+from CondCore.CondDB.CondDB_cfi import CondDB
+CondDB.connect = cms.string(sourceDB)
 process.l1conddb = cms.ESSource("PoolDBESSource",
-       CondDBSetup,
-       connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
-#       connect = cms.string('sqlite:l1config.db'),
+       CondDB,
        toGet   = cms.VPSet(
             cms.PSet(
                  record = cms.string('L1TriggerKeyExtRcd'),
@@ -21,6 +44,9 @@ process.l1conddb = cms.ESSource("PoolDBESSource",
             )
        )
 )
+
+process.source = cms.Source("EmptySource", firstRun = cms.untracked.uint32(options.run))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
 process.l1cr = cms.EDAnalyzer("L1TriggerKeyExtReader", label = cms.string("") )
 

@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -9,9 +9,10 @@
 
 //SimHits
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
-
-//propagation
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 //other stuff
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -20,12 +21,57 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h" 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include <math.h>
-#include "TH1F.h"
 
-#include "HFPMTHitAnalyzer.h"
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <map>
+#include <string>
+#include <cmath>
+
+#include "TH1F.h"
+#include "TProfile.h"
+
+class HFPMTHitAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
+
+public:
+  explicit HFPMTHitAnalyzer(const edm::ParameterSet&);
+  ~HFPMTHitAnalyzer() override {}
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+
+  void beginJob() override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override {}
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
+  void analyzeHits  (std::vector<PCaloHit> &,const std::vector<SimTrack> &);
+
+  //user parameters
+  std::string g4Label, hcalHits;
+  edm::EDGetTokenT<edm::HepMCProduct> tok_evt_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> tok_calo_;
+  edm::EDGetTokenT<edm::SimTrackContainer> tok_track_;
+
+  int event_no;
+
+  //root file name and its objects
+  TH1F *h_HFDepHit, *hHF_MC_e, *h_HFEta[3], *h_HFPhi[3];
+
+  TH1F *hHF_e_1[3],  *hHF_em_1[3],  *hHF_had_1[3];
+  TH1F *hHF_e_2[3],  *hHF_em_2[3],  *hHF_had_2[3];
+  TH1F *hHF_e_12[3], *hHF_em_12[3], *hHF_had_12[3];
+
+  TH1F *hHF1_time[3],  *hHF1_time_Ewt[3];
+  TH1F *hHF2_time[3],  *hHF2_time_Ewt[3];
+  TH1F *hHF12_time[3], *hHF12_time_Ewt[3];
+      
+};
 
 HFPMTHitAnalyzer::HFPMTHitAnalyzer(const edm::ParameterSet& iConfig) {
+
+  usesResource(TFileService::kSharedResource);
 
   tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter<std::string>("SourceLabel","VtxSmeared")));
   g4Label     = iConfig.getUntrackedParameter<std::string>("ModuleLabel","g4SimHits");
@@ -35,13 +81,19 @@ HFPMTHitAnalyzer::HFPMTHitAnalyzer(const edm::ParameterSet& iConfig) {
   tok_track_ = consumes<edm::SimTrackContainer>(edm::InputTag(g4Label));
 }
 
+void  HFPMTHitAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
-HFPMTHitAnalyzer::~HFPMTHitAnalyzer() {}
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<std::string>("SourceLabel","generatorSmeared");
+  desc.addUntracked<std::string>("ModuleLabel","g4SimHits");
+  desc.addUntracked<std::string>("HitCollection","HcalHits");
+  descriptions.add("HFPMTHitAnalyzer",desc);
+}
 
 void HFPMTHitAnalyzer::beginJob() {
 
   event_no = 0;
-  char name[20], title[120], sub[10];
+  char name[20], title[120], sub[11];
 
   edm::Service<TFileService> fs;
   if ( !fs.isAvailable() )

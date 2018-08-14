@@ -114,26 +114,28 @@ namespace {
  
     if (crossingframe) {
       std:: unique_ptr<MixCollection<SimTrack> > SimTk( new MixCollection<SimTrack>(simtracksXF_.product()) );
-      edm::LogVerbatim("MuonToTrackingParticleAssociatorEDProducer")<<"\n"<<"CrossingFrame<SimTrack> collection with InputTag = "<<simtracksXFTag
-                                              <<" has size = "<<SimTk->size();
+      edm::LogVerbatim("MuonToTrackingParticleAssociatorEDProducer")
+	<<"\n"<<"CrossingFrame<SimTrack> collection with InputTag = "<<simtracksXFTag<<" has size = "<<SimTk->size();
       int k = 0;
       for (MixCollection<SimTrack>::MixItr ITER=SimTk->begin(); ITER!=SimTk->end(); ITER++, k++) {
         edm::LogVerbatim("MuonToTrackingParticleAssociatorEDProducer")
           <<"SimTrack "<<k
           <<" - Id:"<<ITER->trackId()<<"/Evt:("<<ITER->eventId().event()<<","<<ITER->eventId().bunchCrossing()<<")"
-          <<" pdgId = "<<ITER->type()<<", q = "<<ITER->charge()<<", p = "<<ITER->momentum().P()
+          <<", q = "<<ITER->charge()<<", p = "<<ITER->momentum().P()
           <<", pT = "<<ITER->momentum().Pt()<<", eta = "<<ITER->momentum().Eta()<<", phi = "<<ITER->momentum().Phi()
-          <<"\n * "<<*ITER <<endl;
+	  <<"\n\t pdgId = "<<ITER->type()<<", Vertex index = "<<ITER->vertIndex()
+	  <<", Gen Particle index = "<< (ITER->genpartIndex()>0 ? ITER->genpartIndex()-1 : ITER->genpartIndex()) <<endl;
       }
 
       std::unique_ptr<MixCollection<SimVertex> > SimVtx( new MixCollection<SimVertex>(simvertsXF_.product()) );
-      edm::LogVerbatim("MuonToTrackingParticleAssociatorEDProducer")<<"\n"<<"CrossingFrame<SimVertex> collection with InputTag = "<<simtracksXFTag
-                                              <<" has size = "<<SimVtx->size();
+      edm::LogVerbatim("MuonToTrackingParticleAssociatorEDProducer")
+	<<"\n"<<"CrossingFrame<SimVertex> collection with InputTag = "<<simtracksXFTag<<" has size = "<<SimVtx->size();
       int kv = 0;
       for (MixCollection<SimVertex>::MixItr VITER=SimVtx->begin(); VITER!=SimVtx->end(); VITER++, kv++){
         edm::LogVerbatim("MuonToTrackingParticleAssociatorEDProducer")
           <<"SimVertex "<<kv
-          << " : "<< *VITER <<endl;
+	  <<" - Id:"<<VITER->vertexId()<<", position = "<<VITER->position()<<", parent SimTrack Id = "<<VITER->parentIndex()
+	  <<", processType = "<<VITER->processType();
       }
     }
     else {
@@ -145,9 +147,10 @@ namespace {
         edm::LogVerbatim("MuonToTrackingParticleAssociatorEDProducer")
           <<"SimTrack "<<k
           <<" - Id:"<<ITER->trackId()<<"/Evt:("<<ITER->eventId().event()<<","<<ITER->eventId().bunchCrossing()<<")"
-          <<" pdgId = "<<ITER->type()<<", q = "<<ITER->charge()<<", p = "<<ITER->momentum().P()
+          <<", q = "<<ITER->charge()<<", p = "<<ITER->momentum().P()
           <<", pT = "<<ITER->momentum().Pt()<<", eta = "<<ITER->momentum().Eta()<<", phi = "<<ITER->momentum().Phi()
-          <<"\n * "<<*ITER <<endl;
+	  <<"\n\t pdgId = "<<ITER->type()<<", Vertex index = "<<ITER->vertIndex()
+	  <<", Gen Particle index = "<< (ITER->genpartIndex()>0 ? ITER->genpartIndex()-1 : ITER->genpartIndex()) <<endl;
       }
       const edm::SimVertexContainer simVC = *(simverts_.product());
       edm::LogVerbatim("MuonToTrackingParticleAssociatorEDProducer")<<"\n"<<"SimVertex collection with InputTag = "<<"g4SimHits"
@@ -156,7 +159,8 @@ namespace {
       for (edm::SimVertexContainer::const_iterator VITER=simVC.begin(); VITER!=simVC.end(); VITER++, kv++){
         edm::LogVerbatim("MuonToTrackingParticleAssociatorEDProducer")
           <<"SimVertex "<<kv
-          << " : "<< *VITER <<endl;
+	  <<" - Id:"<<VITER->vertexId()<<", position = "<<VITER->position()<<", parent SimTrack Id = "<<VITER->parentIndex()
+	  <<", processType = "<<VITER->processType();
       }
     }
 
@@ -168,12 +172,12 @@ namespace {
 class MuonToTrackingParticleAssociatorEDProducer : public edm::stream::EDProducer<> {
 public:
   explicit MuonToTrackingParticleAssociatorEDProducer(const edm::ParameterSet&);
-  ~MuonToTrackingParticleAssociatorEDProducer();
+  ~MuonToTrackingParticleAssociatorEDProducer() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
   // ----------member data ---------------------------
   edm::ParameterSet const config_;

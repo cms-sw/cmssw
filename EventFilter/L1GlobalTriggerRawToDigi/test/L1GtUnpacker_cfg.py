@@ -1,3 +1,4 @@
+from __future__ import print_function
 #
 # cfg file to unpack RAW L1 GT DAQ data
 # the options set in "user choices" file
@@ -12,10 +13,10 @@ import sys
 
 process = cms.Process("TestL1GtUnpacker")
 
-print '\n'
+print('\n')
 from L1Trigger.GlobalTriggerAnalyzer.UserOptions_cff import *
 if errorUserOptions == True :
-    print '\nError returned by UserOptions_cff\n'
+    print('\nError returned by UserOptions_cff\n')
     sys.exit()
 
 # source according to data type

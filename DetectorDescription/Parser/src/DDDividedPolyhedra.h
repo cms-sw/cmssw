@@ -1,21 +1,13 @@
-#ifndef DDDividedPolyhedra_H
-#define DDDividedPolyhedra_H
-//
-// ********************************************************************
-// 25.04.04 - M. Case ddd-ize G4ParameterisationPolyhedra*
-//---------------------------------------------------------------------
+#ifndef DETECTOR_DESCRIPTION_PARSER_DD_DIVIDED_POLYHEDRA_H
+#define DETECTOR_DESCRIPTION_PARSER_DD_DIVIDED_POLYHEDRA_H
 
 #include "DDDividedGeometryObject.h"
-#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDDivision.h"
 
 class DDCompactView;
 class DDLogicalPart;
 class DDRotation;
-
-//---------------------------------------------------------------------
-// Class DDDividedPolyhedraRho
-//---------------------------------------------------------------------
 
 class DDDividedPolyhedraRho final : public DDDividedGeometryObject
 { 
@@ -23,16 +15,12 @@ class DDDividedPolyhedraRho final : public DDDividedGeometryObject
   
   DDDividedPolyhedraRho( const DDDivision& div, DDCompactView* cpv );
   
-  virtual void checkParametersValidity() override;
-  virtual double getMaxParameter() const override;
-  virtual DDTranslation makeDDTranslation( const int copyNo ) const override;
-  virtual DDRotation makeDDRotation(const int copyNo ) const override;
-  virtual DDLogicalPart makeDDLogicalPart( const int copyNo ) const override;
+  void checkParametersValidity() override;
+  double getMaxParameter() const override;
+  DDTranslation makeDDTranslation( int copyNo ) const override;
+  DDRotation makeDDRotation( int copyNo ) const override;
+  DDLogicalPart makeDDLogicalPart( int copyNo ) const override;
 };
-
-//---------------------------------------------------------------------
-// Class DDDividedPolyhedraPhi
-//---------------------------------------------------------------------
 
 class DDDividedPolyhedraPhi final : public DDDividedGeometryObject
 { 
@@ -40,16 +28,12 @@ class DDDividedPolyhedraPhi final : public DDDividedGeometryObject
   
   DDDividedPolyhedraPhi( const DDDivision& div, DDCompactView* cpv );
 
-  virtual void checkParametersValidity() override;
-  virtual double getMaxParameter() const override;
-  virtual DDTranslation makeDDTranslation( const int copyNo ) const override;
-  virtual DDRotation makeDDRotation(const int copyNo ) const override;
-  virtual DDLogicalPart makeDDLogicalPart( const int copyNo ) const override;
+  void checkParametersValidity() override;
+  double getMaxParameter() const override;
+  DDTranslation makeDDTranslation( int copyNo ) const override;
+  DDRotation makeDDRotation( int copyNo ) const override;
+  DDLogicalPart makeDDLogicalPart( int copyNo ) const override;
 };
-
-//---------------------------------------------------------------------
-// Class DDDividedPolyhedraZ
-//---------------------------------------------------------------------
 
 class DDDividedPolyhedraZ final : public DDDividedGeometryObject
 { 
@@ -57,11 +41,11 @@ class DDDividedPolyhedraZ final : public DDDividedGeometryObject
 
   DDDividedPolyhedraZ( const DDDivision& div, DDCompactView* cpv );
 
-  virtual void checkParametersValidity() override;
-  virtual double getMaxParameter() const override;
-  virtual DDTranslation makeDDTranslation( const int copyNo ) const override;
-  virtual DDRotation makeDDRotation(const int copyNo ) const override;
-  virtual DDLogicalPart makeDDLogicalPart( const int copyNo ) const override;
+  void checkParametersValidity() override;
+  double getMaxParameter() const override;
+  DDTranslation makeDDTranslation( int copyNo ) const override;
+  DDRotation makeDDRotation( int copyNo ) const override;
+  DDLogicalPart makeDDLogicalPart( int copyNo ) const override;
 };
 
 #endif

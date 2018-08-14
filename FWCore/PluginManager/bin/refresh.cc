@@ -37,6 +37,8 @@ using namespace edmplugin;
 // memory usage low as well.
 #ifdef __APPLE__
 #define PER_PROCESS_DSO 20
+#elif defined(__aarch64__)
+#define PER_PROCESS_DSO 20
 #else
 #define PER_PROCESS_DSO 2000
 #endif
@@ -157,7 +159,7 @@ int main (int argc, char **argv) try {
 
         path  filename (*file);
         path shortName(file->path().filename());
-        std::string stringName = shortName.string();
+        const std::string& stringName = shortName.string();
 
         static std::string const kPluginPrefix(standard::pluginPrefix());
         if (stringName.size() < kPluginPrefix.size()) {

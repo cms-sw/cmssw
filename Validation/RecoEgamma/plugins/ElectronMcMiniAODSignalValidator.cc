@@ -14,25 +14,26 @@ typedef edm::Ptr<pat::Electron> PatElectronPtr;
 
 ElectronMcSignalValidatorMiniAOD::ElectronMcSignalValidatorMiniAOD(const edm::ParameterSet& iConfig) : ElectronDqmAnalyzerBase(iConfig)
 {
-    mcTruthCollection_ = consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("mcTruthCollection")); // prunedGenParticles
-    electronToken_ = consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons")); // slimmedElectrons
-
-    //recomp
-    ValueMaps_ChargedHadrons_ = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>( "ValueMaps_ChargedHadrons_src" ) ) ;
-    ValueMaps_NeutralHadrons_ = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>( "ValueMaps_NeutralHadrons_src" ) );
-    ValueMaps_Photons_ = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>( "ValueMaps_Photons_src" ) );
-
-  maxPt_ = iConfig.getParameter<double>("MaxPt");
-  maxAbsEta_ = iConfig.getParameter<double>("MaxAbsEta");
-  deltaR_ = iConfig.getParameter<double>("DeltaR");
-  deltaR2_ = deltaR_ * deltaR_;
-  matchingIDs_ = iConfig.getParameter<std::vector<int> >("MatchingID");
-  matchingMotherIDs_ = iConfig.getParameter<std::vector<int> >("MatchingMotherID");
-  outputInternalPath_ = iConfig.getParameter<std::string>("OutputFolderName") ;
-
-  // histos bining and limits
+   mcTruthCollection_ = consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("mcTruthCollection")); // prunedGenParticles
+   electronToken_     = consumes<pat::ElectronCollection>      (iConfig.getParameter<edm::InputTag>("electrons"));         // slimmedElectrons
 
    edm::ParameterSet histosSet = iConfig.getParameter<edm::ParameterSet>("histosCfg") ;
+   edm::ParameterSet isolationSet = iConfig.getParameter<edm::ParameterSet>("isolationCfg") ;
+
+   //recomp
+   pfSumChargedHadronPtTmp_  = consumes<edm::ValueMap<float> > (isolationSet.getParameter<edm::InputTag>( "pfSumChargedHadronPtTmp" ) ) ; // iConfig 
+   pfSumNeutralHadronEtTmp_  = consumes<edm::ValueMap<float> > (isolationSet.getParameter<edm::InputTag>( "pfSumNeutralHadronEtTmp" ) ) ; // iConfig 
+   pfSumPhotonEtTmp_ = consumes<edm::ValueMap<float> > (isolationSet.getParameter<edm::InputTag>( "pfSumPhotonEtTmp" ) ) ; // iConfig 
+    
+   maxPt_ = iConfig.getParameter<double>("MaxPt");
+   maxAbsEta_ = iConfig.getParameter<double>("MaxAbsEta");
+   deltaR_ = iConfig.getParameter<double>("DeltaR");
+   deltaR2_ = deltaR_ * deltaR_;
+   matchingIDs_ = iConfig.getParameter<std::vector<int> >("MatchingID");
+   matchingMotherIDs_ = iConfig.getParameter<std::vector<int> >("MatchingMotherID");
+   outputInternalPath_ = iConfig.getParameter<std::string>("OutputFolderName") ;
+
+   // histos bining and limits
 
    xyz_nbin=histosSet.getParameter<int>("Nbinxyz");
 
@@ -80,52 +81,52 @@ ElectronMcSignalValidatorMiniAOD::ElectronMcSignalValidatorMiniAOD(const edm::Pa
 
    // so to please coverity...
 
-   h1_recEleNum = 0 ;
+   h1_recEleNum = nullptr ;
 
-   h1_ele_vertexPt = 0 ;
-   h1_ele_vertexEta = 0 ;
-   h1_ele_vertexPt_nocut = 0 ;
+   h1_ele_vertexPt = nullptr ;
+   h1_ele_vertexEta = nullptr ;
+   h1_ele_vertexPt_nocut = nullptr ;
 
-   h1_scl_SigIEtaIEta_mAOD = 0 ;
-   h1_scl_SigIEtaIEta_mAOD_barrel = 0 ;
-   h1_scl_SigIEtaIEta_mAOD_endcaps = 0 ;
+   h1_scl_SigIEtaIEta_mAOD = nullptr ;
+   h1_scl_SigIEtaIEta_mAOD_barrel = nullptr ;
+   h1_scl_SigIEtaIEta_mAOD_endcaps = nullptr ;
 
-   h2_ele_foundHitsVsEta = 0 ;
-   h2_ele_foundHitsVsEta_mAOD = 0 ;
+   h2_ele_foundHitsVsEta = nullptr ;
+   h2_ele_foundHitsVsEta_mAOD = nullptr ;
 
-   h2_ele_PoPtrueVsEta = 0 ;
-   h2_ele_sigmaIetaIetaVsPt = 0 ;
+   h2_ele_PoPtrueVsEta = nullptr ;
+   h2_ele_sigmaIetaIetaVsPt = nullptr ;
 
-   h1_ele_HoE_mAOD = 0 ;
-   h1_ele_HoE_mAOD_barrel = 0 ;
-   h1_ele_HoE_mAOD_endcaps = 0 ;
-   h1_ele_mee_all = 0 ;
-   h1_ele_mee_os = 0 ;
+   h1_ele_HoE_mAOD = nullptr ;
+   h1_ele_HoE_mAOD_barrel = nullptr ;
+   h1_ele_HoE_mAOD_endcaps = nullptr ;
+   h1_ele_mee_all = nullptr ;
+   h1_ele_mee_os = nullptr ;
 
-   h1_ele_fbrem_mAOD = 0 ;
-   h1_ele_fbrem_mAOD_barrel = 0 ;
-   h1_ele_fbrem_mAOD_endcaps = 0 ;
+   h1_ele_fbrem_mAOD = nullptr ;
+   h1_ele_fbrem_mAOD_barrel = nullptr ;
+   h1_ele_fbrem_mAOD_endcaps = nullptr ;
    
-   h1_ele_dEtaSc_propVtx_mAOD = 0 ;
-   h1_ele_dEtaSc_propVtx_mAOD_barrel = 0 ;
-   h1_ele_dEtaSc_propVtx_mAOD_endcaps = 0 ;
-   h1_ele_dPhiCl_propOut_mAOD = 0 ;
-   h1_ele_dPhiCl_propOut_mAOD_barrel = 0 ;
-   h1_ele_dPhiCl_propOut_mAOD_endcaps = 0 ;
+   h1_ele_dEtaSc_propVtx_mAOD = nullptr ;
+   h1_ele_dEtaSc_propVtx_mAOD_barrel = nullptr ;
+   h1_ele_dEtaSc_propVtx_mAOD_endcaps = nullptr ;
+   h1_ele_dPhiCl_propOut_mAOD = nullptr ;
+   h1_ele_dPhiCl_propOut_mAOD_barrel = nullptr ;
+   h1_ele_dPhiCl_propOut_mAOD_endcaps = nullptr ;
 
-   h1_ele_chargedHadronRelativeIso_mAOD = 0 ;
-   h1_ele_chargedHadronRelativeIso_mAOD_barrel = 0 ;
-   h1_ele_chargedHadronRelativeIso_mAOD_endcaps = 0 ;
-   h1_ele_neutralHadronRelativeIso_mAOD = 0 ;
-   h1_ele_neutralHadronRelativeIso_mAOD_barrel = 0 ;
-   h1_ele_neutralHadronRelativeIso_mAOD_endcaps = 0 ;
-   h1_ele_photonRelativeIso_mAOD = 0 ;
-   h1_ele_photonRelativeIso_mAOD_barrel = 0 ;
-   h1_ele_photonRelativeIso_mAOD_endcaps = 0 ;
+   h1_ele_chargedHadronRelativeIso_mAOD = nullptr ;
+   h1_ele_chargedHadronRelativeIso_mAOD_barrel = nullptr ;
+   h1_ele_chargedHadronRelativeIso_mAOD_endcaps = nullptr ;
+   h1_ele_neutralHadronRelativeIso_mAOD = nullptr ;
+   h1_ele_neutralHadronRelativeIso_mAOD_barrel = nullptr ;
+   h1_ele_neutralHadronRelativeIso_mAOD_endcaps = nullptr ;
+   h1_ele_photonRelativeIso_mAOD = nullptr ;
+   h1_ele_photonRelativeIso_mAOD_barrel = nullptr ;
+   h1_ele_photonRelativeIso_mAOD_endcaps = nullptr ;
 
-   h1_ele_chargedHadronRelativeIso_mAOD_recomp = 0 ;
-   h1_ele_neutralHadronRelativeIso_mAOD_recomp = 0 ;
-   h1_ele_photonRelativeIso_mAOD_recomp = 0 ;    
+   h1_ele_chargedHadronRelativeIso_mAOD_recomp = nullptr ;
+   h1_ele_neutralHadronRelativeIso_mAOD_recomp = nullptr ;
+   h1_ele_photonRelativeIso_mAOD_recomp = nullptr ;    
 
 }
 
@@ -215,18 +216,16 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
     iEvent.getByToken(mcTruthCollection_, genParticles) ;  
 
     //recomp
-    edm::Handle <edm::ValueMap <float> > ValueMaps_ChargedHadrons;
-    edm::Handle <edm::ValueMap <float> > ValueMaps_NeutralHadrons;
-    edm::Handle <edm::ValueMap <float> > ValueMaps_Photons;
+    edm::Handle <edm::ValueMap <float> > pfSumChargedHadronPtTmp;
+    edm::Handle <edm::ValueMap <float> > pfSumNeutralHadronEtTmp;
+    edm::Handle <edm::ValueMap <float> > pfSumPhotonEtTmp;/**/
   
-  //recomp
-    iEvent.getByToken( ValueMaps_ChargedHadrons_ , ValueMaps_ChargedHadrons);
-    iEvent.getByToken( ValueMaps_NeutralHadrons_ , ValueMaps_NeutralHadrons);
-    iEvent.getByToken( ValueMaps_Photons_ , ValueMaps_Photons);
+    //recomp
+    iEvent.getByToken( pfSumChargedHadronPtTmp_ , pfSumChargedHadronPtTmp);
+    iEvent.getByToken( pfSumNeutralHadronEtTmp_ , pfSumNeutralHadronEtTmp);
+    iEvent.getByToken( pfSumPhotonEtTmp_ , pfSumPhotonEtTmp);/**/
 
-    edm::LogInfo("ElectronMcSignalValidatorMiniAOD::analyze")
-      <<"Treating event "<<iEvent.id()
-      <<" with "<<electrons.product()->size()<<" electrons" ;
+    edm::LogInfo("ElectronMcSignalValidatorMiniAOD::analyze") << "Treating event " << iEvent.id() << " with " << electrons.product()->size() << " electrons" ;
     h1_recEleNum->Fill((*electrons).size()) ;
 
     //===============================================
@@ -235,11 +234,9 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
 
     pat::Electron gsfElectron ;
 
-//    for(std::vector<pat::Electron>::const_iterator el1=electrons->begin(); el1!=electrons->end(); el1++) {
     pat::ElectronCollection::const_iterator el1 ;
     pat::ElectronCollection::const_iterator el2 ;
     for(el1=electrons->begin(); el1!=electrons->end(); el1++) {
-//        for (std::vector<pat::Electron>::const_iterator el2=el1+1 ; el2!=electrons->end() ; el2++ )
         for (el2=el1+1 ; el2!=electrons->end() ; el2++ )
         {
             math::XYZTLorentzVector p12 = el1->p4()+el2->p4();
@@ -265,11 +262,18 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
     //===============================================
 
     for(size_t i=0; i<genParticles->size(); i++) {  
-        // number of mc particles
+/*                // DEBUG LINES - KEEP IT !
+        std::cout << "\nevt ID = " << iEvent.id() ; 
+        std::cout << ",  mcIter position : " << i << std::endl; 
+        std::cout << "pdgID : " << (*genParticles)[i].pdgId() << ", Pt : " << (*genParticles)[i].pt() ; 
+        std::cout << ", eta : " << (*genParticles)[i].eta() << ", phi : " << (*genParticles)[i].phi() << std::endl; 
+                // DEBUG LINES - KEEP IT !  */ 
+
+                // number of mc particles
         mcNum++ ;
 
         // counts photons
-        if ( (*genParticles)[i].pdgId() == 22 )
+        if ( (*genParticles)[i].pdgId() == 22 )       
             { gamNum++ ; }
 
         // select requested mother matching gen particle
@@ -277,12 +281,37 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
         const Candidate * mother = (*genParticles)[i].mother(0) ;
         matchingMotherID = false ;
         for ( unsigned int ii=0 ; ii<matchingMotherIDs_.size() ; ii++ ) {
-            if ( (mother == 0) || ((mother != 0) &&  mother->pdgId() == matchingMotherIDs_[ii]) )
-                { matchingMotherID = true ; 
-//			std::cout << "matchingMotherID :" << matchingMotherIDs_[ii] << std::endl ;
+
+/*                // DEBUG LINES - KEEP IT !
+                std::cout << "Matching : matchingMotherID[" << ii << "] : "<< matchingMotherIDs_[ii]  << ", evt ID = " << iEvent.id() << ", mother : "  << mother ; 
+                if (mother != 0) { 
+			        std::cout << "mother : " << mother << ", mother pdgID : " << mother->pdgId() << std::endl ; 
+                    std::cout << "mother pdgID : " << mother->pdgId() << ", Pt : " << mother->pt() << ", eta : " << mother->eta() << ", phi : " << mother->phi() << std::endl; 
+                }
+                else { 
+                    std::cout << std::endl; 
+                } 
+                // DEBUG LINES - KEEP IT !  */ 
+
+            if ( mother == nullptr ) {
+                matchingMotherID = true ; 
             }
-        }
-        if (!matchingMotherID) continue ;
+            else if ( mother->pdgId() == matchingMotherIDs_[ii] ) { 
+                if ( mother->numberOfDaughters() <= 2 ) {
+                    matchingMotherID = true ;
+                    //std::cout << "evt ID = " << iEvent.id() ;                                                                               // debug lines
+                    //std::cout << " - nb of Daughters : " << mother->numberOfDaughters() << " - pdgId() : " << mother->pdgId() << std::endl; // debug lines
+                }
+            } // end of mother if test
+
+/*                // DEBUG LINES - KEEP IT !
+            if (mother != 0) { 
+                std::cout << "mother : " << mother << ", mother pdgID : " << mother->pdgId() << std::endl ; 
+                std::cout << "mother pdgID : " << mother->pdgId() << ", Pt : " << mother->pt() << ", eta : " << mother->eta() << ", phi : " << mother->phi() << std::endl; 
+            } 
+                // DEBUG LINES - KEEP IT !  */ 
+        } // end of for loop
+    if (!matchingMotherID) {continue ;}
 
         // electron preselection
         if ((*genParticles)[i].pt()> maxPt_ || std::abs((*genParticles)[i].eta())> maxAbsEta_)
@@ -302,7 +331,7 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
             if ( deltaR2 < deltaR2_ )
             {
                 if ( ( ((*genParticles)[i].pdgId() == 11) && (el.charge() < 0.) ) ||
-                ( ((*genParticles)[i].pdgId() == -11) && (el.charge() > 0.) ) )
+                     ( ((*genParticles)[i].pdgId() == -11) && (el.charge() > 0.) ) )
                 {
                     double tmpGsfRatio = el.p()/(*genParticles)[i].p() ;
                     if ( std::abs(tmpGsfRatio-1) < std::abs(gsfOkRatio-1) )
@@ -311,13 +340,20 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
                         bestGsfElectron=el;
                         PatElectronPtr elePtr(electrons, &el-&(*electrons)[0]) ;
                         pt_ = elePtr->pt();
-                        sumChargedHadronPt_recomp =  (*ValueMaps_ChargedHadrons)[elePtr];
-                        sumNeutralHadronPt_recomp =  (*ValueMaps_NeutralHadrons)[elePtr];
-                        sumPhotonPt_recomp        =  (*ValueMaps_Photons)[elePtr];
+                        sumChargedHadronPt_recomp    =  (*pfSumChargedHadronPtTmp)[elePtr];
                         relisoChargedHadronPt_recomp = sumChargedHadronPt_recomp/pt_;
+
+                        sumNeutralHadronPt_recomp    = (*pfSumNeutralHadronEtTmp)[elePtr];
                         relisoNeutralHadronPt_recomp = sumNeutralHadronPt_recomp/pt_;
-                        relisoPhotonPt_recomp = sumPhotonPt_recomp/pt_; /**/
+
+                        sumPhotonPt_recomp    =  (*pfSumPhotonEtTmp)[elePtr];
+                        relisoPhotonPt_recomp = sumPhotonPt_recomp/pt_;
+
                         okGsfFound = true;
+                        
+                // DEBUG LINES - KEEP IT !
+                //        std::cout << "evt ID : " << iEvent.id() << " - Pt : " << bestGsfElectron.pt() << " - eta : " << bestGsfElectron.eta() << " - phi : " << bestGsfElectron.phi() << std::endl;
+                // DEBUG LINES - KEEP IT !  /**/ 
                     }
                 }
             }
@@ -402,12 +438,11 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
         // -- recomputed pflow over pT
             h1_ele_chargedHadronRelativeIso_mAOD_recomp->Fill( relisoChargedHadronPt_recomp );
             h1_ele_neutralHadronRelativeIso_mAOD_recomp->Fill( relisoNeutralHadronPt_recomp );
-            h1_ele_photonRelativeIso_mAOD_recomp->Fill( relisoPhotonPt_recomp );
-            
+            h1_ele_photonRelativeIso_mAOD_recomp->Fill( relisoPhotonPt_recomp );/**/
+                        
         }
 
     } // fin boucle size_t i
 
-//    std::cout << ("fin analyze\n");
 }
 

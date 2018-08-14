@@ -40,10 +40,10 @@
 class GoodVertexFilter : public edm::global::EDFilter<> {
    public:
       explicit GoodVertexFilter(const edm::ParameterSet&);
-      ~GoodVertexFilter();
+      ~GoodVertexFilter() override;
 
    private:
-      virtual bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+      bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
       const edm::EDGetTokenT<reco::VertexCollection> vertexSrc;        
       const unsigned int minNDOF;
       const double maxAbsZ;

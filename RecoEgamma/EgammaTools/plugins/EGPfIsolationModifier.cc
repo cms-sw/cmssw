@@ -12,9 +12,9 @@
 
 namespace {
   const edm::EDGetTokenT<edm::ValueMap<float> > empty_token;
-  const static edm::InputTag empty_tag("");
+  const edm::InputTag empty_tag("");
 
-  const static std::array<std::string,7>  electron_vars = { { "sumChargedHadronPt",
+  const std::array<std::string,7>  electron_vars = { { "sumChargedHadronPt",
                                                               "sumNeutralHadronEt",
                                                               "sumPhotonEt",
                                                               "sumChargedParticlePt",
@@ -22,7 +22,7 @@ namespace {
                                                               "sumPhotonEtHighThreshold",
                                                               "sumPUPt" } };
   
-  const static std::array<std::string,9> photon_vars = { { "chargedHadronIso",
+  const std::array<std::string,9> photon_vars = { { "chargedHadronIso",
                                                            "chargedHadronIsoWrongVtx",
                                                            "neutralHadronIso",
                                                            "photonIso",
@@ -54,12 +54,12 @@ public:
 
   EGPfIsolationModifierFromValueMaps(const edm::ParameterSet& conf);
   
-  void setEvent(const edm::Event&) override final;
-  void setEventContent(const edm::EventSetup&) override final;
-  void setConsumes(edm::ConsumesCollector&) override final;
+  void setEvent(const edm::Event&) final;
+  void setEventContent(const edm::EventSetup&) final;
+  void setConsumes(edm::ConsumesCollector&) final;
   
-  void modifyObject(pat::Electron&) const override final;
-  void modifyObject(pat::Photon&) const override final;
+  void modifyObject(pat::Electron&) const final;
+  void modifyObject(pat::Photon&) const final;
 
 private:
   electron_config e_conf;

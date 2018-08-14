@@ -11,16 +11,16 @@ class CutsIsolatorWithCorrection : public muonisolation::MuIsoBaseIsolator {
   CutsIsolatorWithCorrection(const edm::ParameterSet & par, 
 			     edm::ConsumesCollector && iC);
 
-  virtual ResultType resultType() const {return ISOL_BOOL_TYPE;}
+  ResultType resultType() const override {return ISOL_BOOL_TYPE;}
 
-  virtual Result result(const DepositContainer& deposits, const edm::Event* = 0) const {
+  Result result(const DepositContainer& deposits, const edm::Event* = nullptr) const override {
     Result answer(ISOL_BOOL_TYPE);
     answer.valBool = false;
     // fail miserably...
     return answer;
   }
 
-  virtual Result result(const DepositContainer& deposits, const reco::Track& tk, const edm::Event* = 0) const;
+  Result result(const DepositContainer& deposits, const reco::Track& tk, const edm::Event* = nullptr) const override;
   
  private:
   double depSum(const DepositContainer& deposits, double dr, double corr) const;

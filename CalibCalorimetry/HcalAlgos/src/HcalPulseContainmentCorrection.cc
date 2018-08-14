@@ -16,9 +16,10 @@
 //
 HcalPulseContainmentCorrection::HcalPulseContainmentCorrection(int num_samples,
                                                                float fixedphase_ns,
-                                                               float max_fracerror)
+                                                               float max_fracerror,
+							       const HcalTimeSlew* hcalTimeSlew_delay)
 {
-  HcalPulseContainmentAlgo corFalgo(num_samples, (double)fixedphase_ns);
+  HcalPulseContainmentAlgo corFalgo(num_samples, (double)fixedphase_ns, hcalTimeSlew_delay);
 
   // Generate lookup map for the correction function, never exceeding
   // a maximum fractional error for lookups.
@@ -34,12 +35,13 @@ HcalPulseContainmentCorrection::HcalPulseContainmentCorrection(int num_samples,
 
 // do the same, but with a shape passed in 
 HcalPulseContainmentCorrection::HcalPulseContainmentCorrection(
-  const HcalPulseShape * shape, 
-  int num_samples,
-  float fixedphase_ns,
-  float max_fracerror)
+							       const HcalPulseShape * shape, 
+							       int num_samples,
+							       float fixedphase_ns,
+							       float max_fracerror,
+							       const HcalTimeSlew* hcalTimeSlew_delay)
 {
-  HcalPulseContainmentAlgo corFalgo(shape, num_samples, (double)fixedphase_ns);
+  HcalPulseContainmentAlgo corFalgo(shape, num_samples, (double)fixedphase_ns, hcalTimeSlew_delay);
   genlkupmap<HcalPulseContainmentAlgo> (1.0, 200000.0f,  // generation domain
                                      max_fracerror,     // maximum fractional error
                                      1.0,   // min_xstep = minimum true fC increment

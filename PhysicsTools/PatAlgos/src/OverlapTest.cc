@@ -52,7 +52,7 @@ bool
 OverlapBySuperClusterSeed::fillOverlapsForItem(const reco::Candidate &item, reco::CandidatePtrVector &overlapsToFill) const
 {
     const reco::RecoCandidate * input = dynamic_cast<const reco::RecoCandidate *>(&item);
-    if (input == 0) throw cms::Exception("Type Error") << "Input to OverlapBySuperClusterSeed is not a RecoCandidate. "
+    if (input == nullptr) throw cms::Exception("Type Error") << "Input to OverlapBySuperClusterSeed is not a RecoCandidate. "
                                                        << "It's a " << typeid(item).name() << "\n";
     reco::SuperClusterRef mySC = input->superCluster();
     if (mySC.isNull() || !mySC.isAvailable()) {

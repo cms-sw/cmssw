@@ -48,17 +48,17 @@ class MuonSeedTrack : public edm::EDProducer {
   explicit MuonSeedTrack(const edm::ParameterSet&);
 
   /// destructor
-  ~MuonSeedTrack();
+  ~MuonSeedTrack() override;
   
  private:
   /// pre-job booking
-  virtual void beginJob() ;
+  void beginJob() override ;
 
   /// construct proto-tracks
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   /// post-job 
-  virtual void endJob() ;
+  void endJob() override ;
   
   /// get the TrajectorySeed's TrajectoryStateOnSurface
   TrajectoryStateOnSurface getSeedTSOS(const TrajectorySeed& seed) const;

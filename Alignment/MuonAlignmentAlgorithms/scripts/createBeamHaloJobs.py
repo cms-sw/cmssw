@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import os, sys, re, optparse, math
 
 copyargs = sys.argv[:]
@@ -196,11 +197,11 @@ njobs = options.subjobs
 if (options.inputInBlocks):
   njobs = len(fileNamesBlocks)
   if njobs==0:
-    print "while --inputInBlocks is specified, the INPUTFILES has no blocks!"
+    print("while --inputInBlocks is specified, the INPUTFILES has no blocks!")
     sys.exit()
 
 stepsize = int(math.ceil(1.*len(fileNames)/options.subjobs))
-pwd = str(os.getcwdu())
+pwd = str(os.getcwd())
 
 bsubfile = ["#!/bin/sh", ""]
 bsubnames = []

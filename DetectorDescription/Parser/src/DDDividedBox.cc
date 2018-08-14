@@ -1,9 +1,4 @@
 #include "DetectorDescription/Parser/src/DDDividedBox.h"
-
-#include <ostream>
-#include <string>
-#include <utility>
-
 #include "DetectorDescription/Core/interface/DDAxes.h"
 #include "DetectorDescription/Core/interface/DDDivision.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
@@ -13,6 +8,10 @@
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Parser/src/DDDividedGeometryObject.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <ostream>
+#include <string>
+#include <utility>
 
 class DDCompactView;
 

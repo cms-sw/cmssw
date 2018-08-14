@@ -6,7 +6,8 @@ process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 
-process.options = cms.untracked.PSet( numberOfThreads = cms.untracked.uint32(8))
+process.options = cms.untracked.PSet( numberOfThreads = cms.untracked.uint32(8),
+                                      numberOfStreams = cms.untracked.uint32(1))
 
 process.tester = cms.EDAnalyzer("TestTBBTasksAnalyzer",
                                 numTasksToRun = cms.untracked.uint32(10),

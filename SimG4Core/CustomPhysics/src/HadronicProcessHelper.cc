@@ -6,7 +6,7 @@
 #include <string>
 
 #include "SimG4Core/CustomPhysics/interface/CustomPDGParser.h"
-#include "SimG4Core/CustomPhysics/interface/HadronicProcessHelper.hh"
+#include "SimG4Core/CustomPhysics/interface/HadronicProcessHelper.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
@@ -178,7 +178,7 @@ HadronicProcessHelper::ReactionProduct HadronicProcessHelper::finalState(const G
   }
   //  G4cout<<"The size of the ReactionProductList is: "<<theReactionProductList.size()<<G4endl;
 
-  if (goodReactionProductList.size()==0) G4Exception("HadronicProcessHelper", "NoProcessPossible", FatalException,
+  if (goodReactionProductList.empty()) G4Exception("HadronicProcessHelper", "NoProcessPossible", FatalException,
 						    "GetFinalState: No process could be selected from the given list.");
   // Fill a probability map. Remember total probability
   // 2->2 is 0.15*1/n_22 2->3 uses phase space

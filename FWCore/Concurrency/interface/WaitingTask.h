@@ -31,13 +31,15 @@
 namespace edm {
   class WaitingTaskList;
   class WaitingTaskHolder;
-  
+  class WaitingTaskWithArenaHolder;
+
   class WaitingTask : public tbb::task {
       
    public:
     friend class WaitingTaskList;
     friend class WaitingTaskHolder;
-    
+    friend class WaitingTaskWithArenaHolder;
+
     ///Constructor
     WaitingTask() : m_ptr{nullptr} {}
     ~WaitingTask() override {
@@ -75,7 +77,7 @@ namespace edm {
   template<typename F>
   class FunctorWaitingTask : public WaitingTask {
   public:
-    explicit FunctorWaitingTask( F f): func_(f) {}
+    explicit FunctorWaitingTask( F f): func_(std::move(f)) {}
     
     task* execute() override {
       func_(exceptionPtr());
@@ -88,7 +90,7 @@ namespace edm {
   
   template< typename ALLOC, typename F>
   FunctorWaitingTask<F>* make_waiting_task( ALLOC&& iAlloc, F f) {
-    return new (iAlloc) FunctorWaitingTask<F>(f);
+    return new (iAlloc) FunctorWaitingTask<F>(std::move(f));
   }
   
 }

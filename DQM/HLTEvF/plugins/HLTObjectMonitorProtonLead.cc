@@ -90,14 +90,14 @@ class HLTObjectMonitorProtonLead : public DQMEDAnalyzer {
 
    public:
       explicit HLTObjectMonitorProtonLead(const edm::ParameterSet&);
-      ~HLTObjectMonitorProtonLead();
+      ~HLTObjectMonitorProtonLead() override;
 
   //      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
    private:
       void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
+      void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
       void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
       void endRun(edm::Run const&, edm::EventSetup const&) override;
       vector<hltPlot*> plotList;
@@ -674,7 +674,7 @@ void HLTObjectMonitorProtonLead::bookHistograms(DQMStore::IBooker & ibooker, edm
 double HLTObjectMonitorProtonLead::get_wall_time()
 {
   struct timeval time;
-  if (gettimeofday(&time,NULL)) return 0;
+  if (gettimeofday(&time,nullptr)) return 0;
   return (double)time.tv_sec + (double)time.tv_usec * .000001;
 }
 

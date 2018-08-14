@@ -28,7 +28,7 @@ class dso_internal GroupedCkfTrajectoryBuilder final : public BaseCkfTrajectoryB
   GroupedCkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC);
 
   /// destructor
-  virtual ~GroupedCkfTrajectoryBuilder(){}
+  ~GroupedCkfTrajectoryBuilder() override{}
 
   /// set Event for the internal MeasurementTracker data member
   //  virtual void setEvent(const edm::Event& event) const;
@@ -49,6 +49,7 @@ class dso_internal GroupedCkfTrajectoryBuilder final : public BaseCkfTrajectoryB
   // also new interface returning the start Trajectory...
   TempTrajectory buildTrajectories (const TrajectorySeed&seed,
 				    TrajectoryContainer &ret,
+				    unsigned int& nCandPerSeed,
 				    const TrajectoryFilter*) const override;
 
 
@@ -120,12 +121,12 @@ private :
 			TempTrajectoryContainer& newCand, 
 			TempTrajectoryContainer& result) const  dso_internal;
 
-  void groupedLimitedCandidates( const TrajectorySeed& seed,
-                                 TempTrajectory const& startingTraj, 
-				 const TrajectoryFilter* regionalCondition,
-				 const Propagator* propagator, 
-                                 bool inOut,
-				 TempTrajectoryContainer& result) const  dso_internal;
+  unsigned int groupedLimitedCandidates( const TrajectorySeed& seed,
+                                         TempTrajectory const& startingTraj, 
+                                         const TrajectoryFilter* regionalCondition,
+                                         const Propagator* propagator, 
+                                         bool inOut,
+                                         TempTrajectoryContainer& result) const  dso_internal;
 
   /// try to find additional hits in seeding region
   void rebuildSeedingRegion (const TrajectorySeed&seed,

@@ -57,7 +57,7 @@ class Alignable:
     def pos(self):
         return self.x, self.y, self.z
     def covariance(self):
-        return (self.xx, self.xy, self.xz), (self.xy, self.yy, self.yz), (self.xz, self.yz, self.zz)
+        return (self.xx, self.xy, self.xz, self.xa, self.xb, self.xc), (self.xy, self.yy, self.yz, self.ya, self.yb, self.yc), (self.xz, self.yz, self.zz, self.za, self.zb, self.zc), (self.xa, self.ya, self.za, self.aa, self.ab, self.ac), (self.xb, self.yb, self.zb, self.ab, self.bb, self.bc), (self.xc, self.yc, self.zc, self.ac, self.ac, self.cc)
 
 class DTAlignable:
     def index(self):
@@ -135,7 +135,7 @@ class MuonGeometry(xml.sax.handler.ContentHandler):
                     self._operation.setposition[name] = float(attrib[name])
 
         elif tag == "setape":
-            for name in "xx", "xy", "xz", "yy", "yz", "zz":
+            for name in "xx", "xy", "xz", "xa", "xb", "xc", "yy", "yz", "ya", "yb", "yc", "zz", "za", "zb", "zc", "aa", "ab", "ac", "bb", "bc", "cc":
                 self._operation.setposition[name] = float(attrib[name])
 
         elif tag[0:2] == "DT":
@@ -191,8 +191,8 @@ class MuonGeometry(xml.sax.handler.ContentHandler):
                   (ali.relativeto, f(ali.x), f(ali.y), f(ali.z), f(ali.phix), f(ali.phiy), f(ali.phiz)))
 
         if "xx" in ali.__dict__:
-          writeline("  <setape xx=\"%s\" xy=\"%s\" xz=\"%s\" yy=\"%s\" yz=\"%s\" zz=\"%s\" />\n" % \
-                    (f(ali.xx), f(ali.xy), f(ali.xz), f(ali.yy), f(ali.yz), f(ali.zz)))
+          writeline("  <setape xx=\"%s\" xy=\"%s\" xz=\"%s\" xa=\"%s\" xb=\"%s\" xc=\"%s\" yy=\"%s\" yz=\"%s\" ya=\"%s\" yb=\"%s\" yc=\"%s\" zz=\"%s\" za=\"%s\" zb=\"%s\" zc=\"%s\" aa=\"%s\" ab=\"%s\" ac=\"%s\" bb=\"%s\" bc=\"%s\" cc=\"%s\" />\n" % \
+                    (f(ali.xx), f(ali.xy), f(ali.xz), f(ali.xa), f(ali.xb), f(ali.xc), f(ali.yy), f(ali.yz), f(ali.ya), f(ali.yb), f(ali.yc), f(ali.zz), f(ali.za), f(ali.zb), f(ali.zc), f(ali.aa), f(ali.ab), f(ali.ac), f(ali.bb), f(ali.bc), f(ali.cc)))
 
       for key in dtkeys:
         writeline("<operation>\n")

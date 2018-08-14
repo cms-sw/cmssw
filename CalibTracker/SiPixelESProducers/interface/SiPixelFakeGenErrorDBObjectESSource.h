@@ -13,7 +13,7 @@ class SiPixelFakeGenErrorDBObjectESSource : public edm::ESProducer, public edm::
 
  public:
   SiPixelFakeGenErrorDBObjectESSource(const edm::ParameterSet &);
-  ~SiPixelFakeGenErrorDBObjectESSource();
+  ~SiPixelFakeGenErrorDBObjectESSource() override;
   
   typedef std::vector<std::string> vstring;
   
@@ -21,9 +21,9 @@ class SiPixelFakeGenErrorDBObjectESSource : public edm::ESProducer, public edm::
   
  protected:
   
-  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
 			       const edm::IOVSyncValue&,
-			       edm::ValidityInterval& );
+			       edm::ValidityInterval& ) override;
   
  private:
   

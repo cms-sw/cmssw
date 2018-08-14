@@ -31,6 +31,7 @@
    Fermilab 2010
    
 """
+from __future__ import print_function
 
 
 import os, string, re, sys, math
@@ -42,12 +43,12 @@ from CommonMethods import *
 try:
     import ROOT
 except:
-    print "\nCannot load PYROOT, make sure you have setup ROOT in the path"
-    print "and pyroot library is also defined in the variable PYTHONPATH, try:\n"
+    print("\nCannot load PYROOT, make sure you have setup ROOT in the path")
+    print("and pyroot library is also defined in the variable PYTHONPATH, try:\n")
     if (os.getenv("PYTHONPATH")):
-        print " setenv PYTHONPATH ${PYTHONPATH}:$ROOTSYS/lib\n"
+        print(" setenv PYTHONPATH ${PYTHONPATH}:$ROOTSYS/lib\n")
     else:
-        print " setenv PYTHONPATH $ROOTSYS/lib\n"
+        print(" setenv PYTHONPATH $ROOTSYS/lib\n")
         sys.exit()
 
 from ROOT import *
@@ -145,7 +146,7 @@ if __name__ == '__main__':
     if not args and not option: exit()
     
     if not option.data: 
-	print " need to provide beam spot data file"
+	print(" need to provide beam spot data file")
 	exit()
     
     if option.batch:
@@ -173,7 +174,7 @@ if __name__ == '__main__':
 
     if getDBdata:
 
-        print " read DB to get list of IOVs for the given tag"
+        print(" read DB to get list of IOVs for the given tag")
         acommand = 'cmscond_list_iov -c frontier://PromptProd/CMS_COND_31X_BEAMSPOT -P /afs/cern.ch/cms/DB/conddb -t '+ tag
         tmpstatus = commands.getstatusoutput( acommand )
         tmplistiov = tmpstatus[1].split('\n')
@@ -197,7 +198,7 @@ if __name__ == '__main__':
                 iovlist.append( aIOV )
             iline += 1
     
-        print " total number of IOVs = " + str(len(iovlist))
+        print(" total number of IOVs = " + str(len(iovlist)))
 
 
         #  GET DATA
@@ -209,7 +210,7 @@ if __name__ == '__main__':
             if option.auth:
                 otherArgs = otherArgs + " -a "+ option.auth
         
-        print " get beam spot data from DB for IOVs. This can take a few minutes ..."
+        print(" get beam spot data from DB for IOVs. This can take a few minutes ...")
 
         tmpfile = open(datafilename,'w')
 
@@ -228,13 +229,13 @@ if __name__ == '__main__':
                 tmprunlast  = pack( int(lastRun.split(":")[0]) , int(lasstRun.split(":")[1]) )
 	    #print "since = " + str(iIOV.since) + " till = "+ str(iIOV.till)
             if iIOV.since >= int(tmprunfirst) and int(tmprunlast) < 0 and iIOV.since <= int(tmprunfirst):
-                print " IOV: " + str(iIOV.since)
+                print(" IOV: " + str(iIOV.since))
                 passiov = True
             if iIOV.since >= int(tmprunfirst) and int(tmprunlast) > 0 and iIOV.till <= int(tmprunlast):
-                print " IOV: " + str(iIOV.since) + " to " + str(iIOV.till)
+                print(" IOV: " + str(iIOV.since) + " to " + str(iIOV.till))
                 passiov = True
             if iIOV.since >= int(tmprunlast) and iIOV.till >= 4294967295:
-                print " IOV: " + str(iIOV.since) + " to " + str(iIOV.till)
+                print(" IOV: " + str(iIOV.since) + " to " + str(iIOV.till))
                 passiov = True                
             if passiov:
                 acommand = 'getBeamSpotDB.py -t '+ tag + " -r " + str(iIOV.since) +otherArgs
@@ -245,7 +246,7 @@ if __name__ == '__main__':
                 status = commands.getstatusoutput( acommand )
                 tmpfile.write(status[1])
     
-        print " beam spot data collected and stored in file " + datafilename
+        print(" beam spot data collected and stored in file " + datafilename)
     
         tmpfile.close()
 
@@ -266,12 +267,12 @@ if __name__ == '__main__':
                     input = open(option.data +"/"+f)
                     output.writelines(input.readlines())
             output.close()
-            print " data files have been collected in "+datafilename
+            print(" data files have been collected in "+datafilename)
             
         elif os.path.exists(option.data):
             datafilename = option.data
         else:
-            print " input beam spot data DOES NOT exist, file " + option.data
+            print(" input beam spot data DOES NOT exist, file " + option.data)
             exit()
 
     listbeam = []
@@ -279,8 +280,8 @@ if __name__ == '__main__':
     if option.xcrossing:
         listmap = readBeamSpotFile(datafilename,listbeam,IOVbase,firstRun,lastRun)
         # bx
-        print "List of bunch crossings in the file:"
-        print listmap.keys()
+        print("List of bunch crossings in the file:")
+        print(listmap.keys())
         listbeam = listmap[option.Xrossing]
     else:
         readBeamSpotFile(datafilename,listbeam,IOVbase,firstRun,lastRun)

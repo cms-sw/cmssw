@@ -1,3 +1,4 @@
+from __future__ import print_function
 # to test the communication with DBS and produce the csctf configuration
 import FWCore.ParameterSet.Config as cms
 
@@ -24,6 +25,11 @@ options.register('outputDBConnect',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Connection string for output DB")
+options.register('DBConnect',
+                 'oracle://cms_omds_adg/CMS_TRG_R', # default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "OMDS connect string")
 options.register('DBAuth',
                  '.', # default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -33,7 +39,7 @@ options.parseArguments()
 
 # sanity checks
 if ( len(options.topKey) and len(options.systemKey) ) or ( len(options.topKey)==0 and len(options.systemKey)==0 ) :
-    print "Specify either the topKey (top-level tsc:rs key) or systemKey (system specific tsc:rs key), but not both"
+    print("Specify either the topKey (top-level tsc:rs key) or systemKey (system specific tsc:rs key), but not both")
     exit(1)
 
 # standard CMSSW stuff
@@ -57,6 +63,8 @@ if len(options.topKey) :
     process.L1TriggerKeyOnlineExt.subsystemLabels = cms.vstring('uGT')
     # include the subsystem-specific subkeys ESProducer (generates uGT labeled L1TriggerKey)
     process.load("L1TriggerConfig.L1TConfigProducers.L1TUtmTriggerMenuObjectKeysOnline_cfi")
+    process.L1TUtmTriggerMenuObjectKeysOnline.onlineAuthentication = cms.string( options.DBAuth    )
+    process.L1TUtmTriggerMenuObjectKeysOnline.onlineDB             = cms.string( options.DBConnect )
 else :
     # generate the parent L1TriggerKey 
     process.load("CondTools.L1TriggerExt.L1TriggerKeyDummyExt_cff")
@@ -73,9 +81,10 @@ else :
 # Online produced for the payload 
 process.load("L1TriggerConfig.L1TConfigProducers.L1TUtmTriggerMenuOnline_cfi")
 process.L1TUtmTriggerMenuOnlineProd.onlineAuthentication = cms.string( options.DBAuth )
+process.L1TUtmTriggerMenuOnlineProd.onlineDB             = cms.string( options.DBConnect )
 
-process.l1cr = cms.EDAnalyzer( "L1TriggerKeyExtReader", label = cms.string("uGT") )
-# label = cms.string("SubsystemKeysOnly") )
+#process.l1cr = cms.EDAnalyzer( "L1TriggerKeyExtReader", label = cms.string("uGT") )
+## label = cms.string("SubsystemKeysOnly") )
 
 process.getter = cms.EDAnalyzer("EventSetupRecordDataGetter",
    toGet = cms.VPSet(cms.PSet(
@@ -85,7 +94,9 @@ process.getter = cms.EDAnalyzer("EventSetupRecordDataGetter",
    verbose = cms.untracked.bool(True)
 )
 
-process.l1mw = cms.EDAnalyzer("L1MenuWriter", isO2Opayload = cms.untracked.bool(True) )
+process.l1mw   = cms.EDAnalyzer("L1MenuWriter", isO2Opayload = cms.untracked.bool(True) )
+process.l1tkw  = cms.EDAnalyzer("L1KeyWriter")
+process.l1tklw = cms.EDAnalyzer("L1KeyListWriter")
 
 from CondCore.CondDB.CondDB_cfi import CondDB
 CondDB.connect = cms.string(options.outputDBConnect)
@@ -100,13 +111,19 @@ outputDB = cms.Service("PoolDBOutputService",
         cms.PSet(
             record = cms.string("L1TriggerKeyListExtRcd"),
             tag = cms.string("L1TriggerKeyListExt_Stage2v0_hlt")
-        )
+        ),
+#        cms.PSet(
+#            record = cms.string("L1TriggerKeyExtRcd"),
+#            tag = cms.string("L1TriggerKeyExt_Stage2v0_hlt")
+#        )
     )
 )
 
 outputDB.DBParameters.authenticationPath = options.DBAuth
 process.add_(outputDB)
 
+process.load('CondTools.L1TriggerExt.L1CondDBPayloadWriterExt_cfi')
+
 #process.p = cms.Path(process.l1cr)
-process.p = cms.Path(process.getter + process.l1mw)
+process.p = cms.Path(process.getter + process.l1mw) #+ process.l1tkw + process.l1tklw  + process.L1CondDBPayloadWriterExt)
 

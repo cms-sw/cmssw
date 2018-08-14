@@ -2,6 +2,7 @@
 """
 A module to manipulate files on EOS or on the local file system. Intended to have the same interface as castortools.py.
 """
+from __future__ import print_function
 import sys
 import os
 import re
@@ -414,8 +415,8 @@ def cat(path):
                 else:
                     lines.append(line)
         if err:
-            print >> sys.stderr, out
-            print >> sys.stderr, err
+            print(out, file=sys.stderr)
+            print(err, file=sys.stderr)
         allLines = '\n'.join(lines)
         if allLines and not allLines.endswith('\n'):
             allLines += '\n'
@@ -503,8 +504,8 @@ def _xrdcpSingleFile( pfn_src, pfn_dest):
         runner = cmsIO.cmsFileManip()
         out, err, ret = runner.runCommand(command)
         if err:
-            print >> sys.stderr, out
-            print >> sys.stderr, err
+            print(out, file=sys.stderr)
+            print(err, file=sys.stderr)
         return ret
 
 def move(src, dest):
@@ -547,6 +548,6 @@ def cmsStage( absDestDir, files, force):
             command.append('-f')
         command.append(eosToLFN(fname))
         command.append(eosToLFN(absDestDir))
-        print ' '.join(command)
+        print(' '.join(command))
         runner = cmsIO.cmsFileManip()
         runner.runCommand(command)

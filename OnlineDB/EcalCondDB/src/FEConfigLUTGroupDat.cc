@@ -10,10 +10,10 @@ using namespace oracle::occi;
 
 FEConfigLUTGroupDat::FEConfigLUTGroupDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_group_id=0;
   for(int i=0; i<1024; i++){
@@ -42,7 +42,7 @@ void FEConfigLUTGroupDat::prepareWrite()
 		      "VALUES (:lut_conf_id, :group_id, "
 		      ":lut_id, :lut_value )" );
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigLUTGroupDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigLUTGroupDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -116,7 +116,7 @@ void FEConfigLUTGroupDat::writeDB(const EcalLogicID* ecid, const FEConfigLUTGrou
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigLUTGroupDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigLUTGroupDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -142,7 +142,7 @@ void FEConfigLUTGroupDat::fetchData(map< EcalLogicID, FEConfigLUTGroupDat >* fil
     m_readStmt->setInt(1, iconfID);
     ResultSet* rset = m_readStmt->executeQuery();
 
-    FEConfigLUTGroupDat* dat(0);
+    FEConfigLUTGroupDat* dat(nullptr);
     std::pair< EcalLogicID, FEConfigLUTGroupDat > p;
 
 
@@ -173,7 +173,7 @@ void FEConfigLUTGroupDat::fetchData(map< EcalLogicID, FEConfigLUTGroupDat >* fil
       }
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigLUTGroupDat::fetchData:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigLUTGroupDat::fetchData:  ")+getOraMessage(&e)));
   }
 }
 
@@ -265,6 +265,6 @@ void FEConfigLUTGroupDat::writeArrayDB(const std::map< EcalLogicID, FEConfigLUTG
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigLUTGroupDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigLUTGroupDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

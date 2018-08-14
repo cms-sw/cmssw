@@ -19,18 +19,18 @@ protected:
    Color_t         fColor;
 
 public:
-   FWColorFrame(const TGWindow *p=0, Color_t ci=0);
-   virtual ~FWColorFrame() {}
+   FWColorFrame(const TGWindow *p=nullptr, Color_t ci=0);
+   ~FWColorFrame() override {}
 
-   virtual Bool_t HandleButton(Event_t *event);
-   virtual void   DrawBorder() {}
+   Bool_t HandleButton(Event_t *event) override;
+   void   DrawBorder() override {}
 
    void    SetColor(Color_t);
    Color_t GetColor() const { return fColor; }
 
    void ColorSelected(Color_t); // *SIGNAL*
 
-   ClassDef(FWColorFrame, 0);
+   ClassDefOverride(FWColorFrame, 0);
 
 };
 
@@ -46,11 +46,11 @@ protected:
    Int_t     fSelectedIndex;
    std::vector<FWColorFrame *>  fCc;
 
-   virtual void DoRedraw();
+   void DoRedraw() override;
 
 public:
-   FWColorRow(const TGWindow *p=0);
-   virtual ~FWColorRow();
+   FWColorRow(const TGWindow *p=nullptr);
+   ~FWColorRow() override;
 
    virtual void AddColor(Color_t color);
 
@@ -65,7 +65,7 @@ public:
 
    void ColorChanged(Color_t); // *SIGNAL*
 
-   ClassDef(FWColorRow, 0);
+   ClassDefOverride(FWColorRow, 0);
 
 };
 
@@ -87,13 +87,13 @@ protected:
    static Bool_t fgFreePalette;
 
 public:
-   FWColorPopup(const TGWindow *p=0, Color_t color=0);
-   virtual ~FWColorPopup();
+   FWColorPopup(const TGWindow *p=nullptr, Color_t color=0);
+   ~FWColorPopup() override;
 
-   virtual Bool_t HandleButton(Event_t *event);
+   Bool_t HandleButton(Event_t *event) override;
 
    void InitContent(const char *name, const std::vector<Color_t>& colors, bool backgroundIsBlack=true);
-   void SetName(const char* iName);
+   void SetName(const char* iName) override;
    void SetColors(const std::vector<Color_t>& colors, bool backgroundIsBlack=true);
    void ResetColors(const std::vector<Color_t>& colors, bool backgroundIsBlack=true);
    void SetSelection(Color_t);
@@ -107,7 +107,7 @@ public:
    static Bool_t HasFreePalette();
    static void   EnableFreePalette();
 
-   ClassDef(FWColorPopup, 0);
+   ClassDefOverride(FWColorPopup, 0);
 };
 
 
@@ -125,9 +125,9 @@ private:
 public:
    FWColorSelect(const TGWindow *p, const char *label, Color_t colorIndex,
                  const FWColorManager*, Int_t id);
-   ~FWColorSelect();
+   ~FWColorSelect() override;
 
-   virtual Bool_t HandleButton(Event_t *event);
+   Bool_t HandleButton(Event_t *event) override;
 
    void SetColorByIndex(Color_t iColor);
    void SetColorByIndex(Color_t iColor, Bool_t iSendSignal);
@@ -135,7 +135,7 @@ public:
    const std::string& label() const { return fLabel; } 
    void ColorChosen(Color_t); // *SIGNAL*
 
-   ClassDef(FWColorSelect, 0);
+   ClassDefOverride(FWColorSelect, 0);
 
 };
 #endif

@@ -96,13 +96,13 @@
 	      continue;
 
 	    TList *m_list = file_it.GetListOfKeys();
-	    if(m_list == 0) {
+	    if(m_list == nullptr) {
 	      return;
 	    }
 	    TKey *index = (TKey *)m_list->First();
-	    if(index == 0) {
+	    if(index == nullptr) {
 	    }
-	    if( index != 0 )
+	    if( index != nullptr )
 	    {
 	      do
 	      {
@@ -117,7 +117,7 @@
 		}
 		*(map[objectName]) += *mat;
 		index = (TKey*)m_list->After(index);
-	      } while(index != 0);
+	      } while(index != nullptr);
 	    }
 	    file_it.Close();    
 	  }
@@ -176,9 +176,7 @@
 	  edm::LogWarning("Alignment") << "[MuonMillepedeAlgorithm] Terminating";
 
 	  // iterate over alignment parameters
-	  for(std::vector<Alignable*>::const_iterator
-	    it=theAlignables.begin(); it!=theAlignables.end(); it++) {
-	    Alignable* ali=(*it);
+	  for(const auto& ali: theAlignables) {
 	    // Alignment parameters
 	    // AlignmentParameters* par = ali->alignmentParameters();
 	    edm::LogInfo("Alignment") << "now apply params";
@@ -248,15 +246,17 @@
 	    const reco::Track* track = (*it).second;
 
 	    float pt    = track->pt();
+	    float chi2n = track->normalizedChi2();
+#ifdef EDM_ML_DEBUG
 	    float eta   = track->eta();
 	    float phi   = track->phi();
-	    float chi2n = track->normalizedChi2();
 	    //int   ndof = track->ndof();
 	    int   nhit  = track->numberOfValidHits();
 
 	    LogDebug("Alignment")
 	      << "New track pt,eta,phi,chi2n,hits: "
 	      << pt << "," << eta << "," << phi << "," << chi2n << "," << nhit;
+#endif
 
 	    //Accept or not accept the track
 	    if( pt > ptCut && chi2n < chi2nCut ) 
@@ -278,7 +278,7 @@
 		if (hit->isValid()  && theAlignableDetAccessor->detAndSubdetInMap( hit->geographicalId() ))
 		{
 		  //***Forward
-		  TrajectoryStateOnSurface tsos = meas.forwardPredictedState();
+		  const TrajectoryStateOnSurface& tsos = meas.forwardPredictedState();
 		  if (tsos.isValid())
 		  {
 		    hitvec.push_back(hit);
@@ -312,7 +312,7 @@
 		Alignable* ali=aap.alignableFromAlignableDet(alidet);
 	     
 		//To be sure that the ali is not null and that it's a DT segment 
-		if ( ali!=0 && (*ihit)->geographicalId().subdetId() == 1)
+		if ( ali!=nullptr && (*ihit)->geographicalId().subdetId() == 1)
 		{
 		  DTChamberId m_Chamber(det->geographicalId());
 		  //Station 4 does not contain Theta SL 

@@ -1,3 +1,4 @@
+from __future__ import print_function
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.physicsobjects.Electron import Electron
@@ -36,10 +37,10 @@ class LeptonAnalyzer( Analyzer ):
                                                     options['isSync'] if 'isSync' in options else False,
                                                     options['smearMode'] if 'smearMode' in options else "ebe")
             elif algo == "Rochester":
-                print "WARNING: the Rochester correction in heppy is still from Run 1"
+                print("WARNING: the Rochester correction in heppy is still from Run 1")
                 self.muonScaleCorrector = RochesterCorrections()
             elif algo == "MuScleFit":
-                print "WARNING: the MuScleFit correction in heppy is still from Run 1 (and probably no longer functional)"
+                print("WARNING: the MuScleFit correction in heppy is still from Run 1 (and probably no longer functional)")
                 if options not in [ "prompt", "prompt-sync", "rereco", "rereco-sync" ]:
                     raise RuntimeError('MuScleFit correction name must be one of [ "prompt", "prompt-sync", "rereco", "rereco-sync" ] ')
                     rereco = ("prompt" not in self.cfg_ana.doMuScleFitCorrections)

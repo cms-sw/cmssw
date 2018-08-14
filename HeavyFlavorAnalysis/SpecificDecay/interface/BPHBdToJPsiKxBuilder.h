@@ -83,8 +83,8 @@ class BPHBdToJPsiKxBuilder {
  private:
 
   // private copy and assigment constructors
-  BPHBdToJPsiKxBuilder           ( const BPHBdToJPsiKxBuilder& x );
-  BPHBdToJPsiKxBuilder& operator=( const BPHBdToJPsiKxBuilder& x );
+  BPHBdToJPsiKxBuilder           ( const BPHBdToJPsiKxBuilder& x ) = delete;
+  BPHBdToJPsiKxBuilder& operator=( const BPHBdToJPsiKxBuilder& x ) = delete;
 
   std::string jPsiName;
   std::string  kx0Name;

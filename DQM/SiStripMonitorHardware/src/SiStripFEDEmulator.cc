@@ -145,7 +145,7 @@ namespace sistrip{
       ++digi_it;
       
       if (lCount%sistrip::STRIPS_PER_APV == 0 && fillApvsForCM) {
-	if (apvVec.size()) apvs.push_back(apvVec);
+	if (!apvVec.empty()) apvs.push_back(apvVec);
 	apvVec.clear();
 	apvVec.reserve(sistrip::STRIPS_PER_APV);
       }

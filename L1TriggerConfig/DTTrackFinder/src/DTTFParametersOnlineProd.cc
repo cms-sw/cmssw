@@ -34,9 +34,9 @@ class DTTFParametersOnlineProd :
   public L1ConfigOnlineProdBase< L1MuDTTFParametersRcd, L1MuDTTFParameters > {
    public:
       DTTFParametersOnlineProd(const edm::ParameterSet&);
-      ~DTTFParametersOnlineProd();
+      ~DTTFParametersOnlineProd() override;
 
-      virtual std::shared_ptr< L1MuDTTFParameters > newObject(
+      std::shared_ptr< L1MuDTTFParameters > newObject(
         const std::string& objectKey ) override ;
 
    private:

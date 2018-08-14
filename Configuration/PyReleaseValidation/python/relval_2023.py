@@ -8,43 +8,19 @@ workflows = Matrix()
 # if no explicit name/label given for the workflow (first arg),
 # the name of step1 will be used
 
-
+from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgrade_workflows
 
 #just define all of them
 
-#2023 WFs to run in IB (TenMuE_0_200, TTbar, ZEE, MinBias)
-numWFIB = [20021.0,20034.0,20046.0,20053.0] #2023D7 scenario
-numWFIB.extend([20421.0,20434.0,20446.0,20453.0]) #2023D10
-numWFIB.extend([21221.0,21234.0,21246.0,21253.0]) #2023D4
-numWFIB.extend([23221.0,23234.0,23246.0,23253.0]) #2023D8
-numWFIB.extend([23621.0,23634.0,23646.0,23653.0]) #2023D9
-numWFIB.extend([24034.0])#2023D11 TTbar only 
-for i,key in enumerate(upgradeKeys[2023]):
-    numWF=numWFAll[2023][i]
-    for frag in upgradeFragments:
-        k=frag[:-4]+'_'+key
-        stepList=[]
-        for step in upgradeProperties[2023][key]['ScenToRun']:
-            if 'Sim' in step:
-                if 'HLBeamSpotFull' in step and '14TeV' in frag:
-                    step = 'GenSimHLBeamSpotFull14'
-                stepList.append(k+'_'+step)
-            else:
-                stepList.append(step+'_'+key)
-        if numWF in numWFIB:
-	    workflows[numWF] = [ upgradeDatasetFromFragment[frag], stepList]
-        numWF+=1
-
-# Tracking-specific special workflows
-def _trackingOnly(stepList):
-    res = []
-    for step in stepList:
-        s = step
-        if 'RecoFullGlobal' in step or 'HARVESTFullGlobal' in step:
-            s = s.replace('FullGlobal', 'Full_trackingOnly')
-        if 'ALCA' in s:
-            continue
-        #print step, s
-        res.append(s)
-    return res
-workflows[21234.1] = [ workflows[21234.0][0], _trackingOnly(workflows[21234.0][1]) ] # 2023D4
+#2023 WFs to run in IB (TTbar, TTbar+Timing)
+numWFIB = [20034.0,20034.1,20034.11] #2023D17 w/ special tracking and timing workflows
+numWFIB.extend([20261.97]) # 2023D17 premixing stage1 (NuGun+PU)
+numWFIB.extend([20234.99]) # 2023D17 premixing combined stage1+stage2 (ttbar+PU)
+numWFIB.extend([20434.0]) #2023D19 (already has timing)
+numWFIB.extend([21234.0,21234.11]) #2023D21
+numWFIB.extend([21634.0]) #2023D22
+numWFIB.extend([22034.0]) #2023D23
+numWFIB.extend([22434.0]) #2023D24
+numWFIB.extend([24034.0]) #2023D28
+for numWF in numWFIB:
+    workflows[numWF] = _upgrade_workflows[numWF]

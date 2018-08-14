@@ -33,7 +33,7 @@ class AlignableExtras
   /// Return beam spot alignable as a vector with one element
   Alignables& beamSpot() { return this->subStructures("BeamSpot");}
 
-  Alignables components() const { return components_; }
+  const Alignables& components() const { return components_; }
 
   /// Return alignments, sorted by DetId
   Alignments* alignments() const;

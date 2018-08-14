@@ -37,9 +37,9 @@ public:
     explicit L1GtBoardMapsTester(const edm::ParameterSet&);
 
     // destructor
-    virtual ~L1GtBoardMapsTester();
+    ~L1GtBoardMapsTester() override;
 
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 };
 

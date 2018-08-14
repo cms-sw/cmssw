@@ -43,21 +43,21 @@ public:
                                  RigidBodyAlignmentParameters(alignable, parameters, covMatrix, selection){};
 
   /// Destructor 
-  ~RigidBodyAlignmentParameters4D() {};
+  ~RigidBodyAlignmentParameters4D() override {};
   
-  int type() const;
+  int type() const override;
 
   /// Get all derivatives 
   AlgebraicMatrix derivatives( const TrajectoryStateOnSurface& tsos,
-				       const AlignableDetOrUnitPtr & ) const;
+				       const AlignableDetOrUnitPtr & ) const override;
 
   /// Clone all parameters (for update of parameters)
   RigidBodyAlignmentParameters4D* clone( const AlgebraicVector& parameters,
-                                               const AlgebraicSymMatrix& covMatrix ) const;
+                                               const AlgebraicSymMatrix& covMatrix ) const override;
 
   /// Clone selected parameters (for update of parameters)
   RigidBodyAlignmentParameters4D*
-    cloneFromSelected(const AlgebraicVector& parameters, const AlgebraicSymMatrix& covMatrix) const;
+    cloneFromSelected(const AlgebraicVector& parameters, const AlgebraicSymMatrix& covMatrix) const override;
 
 
 };

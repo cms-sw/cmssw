@@ -21,7 +21,7 @@ class EcalLaserDbRecord;
 class EcalLaserCorrectionService : public edm::ESProducer {
 public:
   EcalLaserCorrectionService( const edm::ParameterSet& );
-  ~EcalLaserCorrectionService();
+  ~EcalLaserCorrectionService() override;
   
   std::shared_ptr<EcalLaserDbService> produce( const EcalLaserDbRecord& );
   

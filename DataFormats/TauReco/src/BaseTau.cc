@@ -32,5 +32,5 @@ void BaseTau::setisolationTracks(const TrackRefVector& myTracks)  { isolationTra
 
 bool BaseTau::overlap(const Candidate& theCand)const{
   const RecoCandidate* theRecoCand=dynamic_cast<const RecoCandidate *>(&theCand);
-  return (theRecoCand!=0 && (checkOverlap(track(),theRecoCand->track())));
+  return (theRecoCand!=nullptr && (checkOverlap(track(),theRecoCand->track())));
 }

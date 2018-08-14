@@ -35,7 +35,7 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -94,8 +94,8 @@ class SiPixelDigiModule {
   MonitorElement* meNDigisLay_;
   MonitorElement* meADCLay_;
   MonitorElement* mePixDigisLay_;
-  MonitorElement* mePixRocsLay_ = NULL;
-  MonitorElement* meZeroOccRocsLay_ = NULL;
+  MonitorElement* mePixRocsLay_ = nullptr;
+  MonitorElement* meZeroOccRocsLay_ = nullptr;
   MonitorElement* mePixDigisLay_px_;
   MonitorElement* mePixDigisLay_py_;
 
@@ -112,8 +112,8 @@ class SiPixelDigiModule {
   MonitorElement* meNDigisDisk_;
   MonitorElement* meADCDisk_;
   MonitorElement* mePixDigisDisk_;
-  MonitorElement* mePixRocsDisk_ = NULL;
-  MonitorElement* meZeroOccRocsDisk_ = NULL;
+  MonitorElement* mePixRocsDisk_ = nullptr;
+  MonitorElement* meZeroOccRocsDisk_ = nullptr;
 
   MonitorElement* meNDigisRing_;
   MonitorElement* meADCRing_;

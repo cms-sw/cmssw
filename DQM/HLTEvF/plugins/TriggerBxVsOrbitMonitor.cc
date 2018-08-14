@@ -1,70 +1,50 @@
 // C++ headers
-#include <string>
 #include <cstring>
-
-// boost headers
-#include <boost/regex.hpp>
-#include <boost/format.hpp>
-#include <boost/lexical_cast.hpp>
-
-// Root headers
-#include <TH1F.h>
+#include <string>
 
 // CMSSW headers
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Provenance/interface/ProcessHistory.h"
+#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
+#include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
-#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
-#include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
-// helper functions
-template <typename T>
-static
-const T & get(const edm::Event & event, const edm::EDGetTokenT<T> & token) {
-  edm::Handle<T> handle;
-  event.getByToken(token, handle);
-  if (not handle.isValid())
-    throw * handle.whyFailed();
-  return * handle.product();
+namespace {
+  struct RunBasedHistograms {
+    ConcurrentMonitorElement              orbit_bx_all;
+    std::vector<ConcurrentMonitorElement> orbit_bx;
+    std::vector<ConcurrentMonitorElement> orbit_bx_all_byLS;
+  };
 }
 
-template <typename R, typename T>
-static
-const T & get(const edm::EventSetup & setup) {
-  edm::ESHandle<T> handle;
-  setup.get<R>().get(handle);
-  return * handle.product();
-}
-
-
-class TriggerBxVsOrbitMonitor : public DQMEDAnalyzer {
+class TriggerBxVsOrbitMonitor : public DQMGlobalEDAnalyzer<RunBasedHistograms> {
 public:
-  explicit TriggerBxVsOrbitMonitor(edm::ParameterSet const &);
-  ~TriggerBxVsOrbitMonitor() = default;
+  explicit TriggerBxVsOrbitMonitor(edm::ParameterSet const&);
+  ~TriggerBxVsOrbitMonitor() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  virtual void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  virtual void analyze(edm::Event const &, edm::EventSetup const &) override;
+  void dqmBeginRun(edm::Run const&, edm::EventSetup const&, RunBasedHistograms &) const override;
+  void bookHistograms(DQMStore::ConcurrentBooker &, edm::Run const&, edm::EventSetup const&, RunBasedHistograms &) const override;
+  void dqmAnalyze(edm::Event const&, edm::EventSetup const&, RunBasedHistograms const&) const override;
 
   // number of bunch crossings
   static const unsigned int s_bx_range = 3564;
@@ -99,14 +79,6 @@ private:
   const int                                         m_maxLS;
   const int                                         m_minBX;
   const int                                         m_maxBX;
-
-  // L1T and HLT configuration
-  L1TUtmTriggerMenu const * m_l1tMenu;
-  HLTConfigProvider         m_hltConfig;
-
-  std::vector<TH2F *>       m_orbit_bx_all_byLS;
-  TH2F *                    m_orbit_bx_all;
-  std::vector<TH2F *>       m_orbit_bx;
 };
 
 // definition
@@ -126,7 +98,7 @@ void TriggerBxVsOrbitMonitor::fillDescriptions(edm::ConfigurationDescriptions & 
   descriptions.add("triggerBxVsOrbitMonitor", desc);
 }
 
-TriggerBxVsOrbitMonitor::TriggerBxVsOrbitMonitor(edm::ParameterSet const & config) :
+TriggerBxVsOrbitMonitor::TriggerBxVsOrbitMonitor(edm::ParameterSet const& config) :
   // module configuration
   m_l1t_results( consumes<GlobalAlgBlkBxCollection>( config.getUntrackedParameter<edm::InputTag>( "l1tResults" ) ) ),
   m_hlt_results( consumes<edm::TriggerResults>(      config.getUntrackedParameter<edm::InputTag>( "hltResults" ) ) ),
@@ -134,83 +106,81 @@ TriggerBxVsOrbitMonitor::TriggerBxVsOrbitMonitor(edm::ParameterSet const & confi
   m_minLS(                                           config.getUntrackedParameter<int>(           "minLS" ) ),
   m_maxLS(                                           config.getUntrackedParameter<int>(           "maxLS" ) ),
   m_minBX(                                           config.getUntrackedParameter<int>(           "minBX" ) ),
-  m_maxBX(                                           config.getUntrackedParameter<int>(           "maxBX" ) ),
-  // L1T and HLT configuration
-  m_l1tMenu(nullptr),
-  m_hltConfig(),
-  m_orbit_bx_all_byLS(),
-  m_orbit_bx_all(nullptr),
-  m_orbit_bx()
+  m_maxBX(                                           config.getUntrackedParameter<int>(           "maxBX" ) )
 {
 }
 
-void TriggerBxVsOrbitMonitor::dqmBeginRun(edm::Run const & run, edm::EventSetup const & setup)
+void TriggerBxVsOrbitMonitor::dqmBeginRun(edm::Run const& run, edm::EventSetup const& setup, RunBasedHistograms & histograms) const
 {
-  size_t nLS = m_maxLS-m_minLS+1;
+  size_t nLS = m_maxLS - m_minLS + 1;
 
-  m_orbit_bx_all_byLS.clear();
-  m_orbit_bx_all_byLS.resize(nLS,nullptr);
+  histograms.orbit_bx_all_byLS.clear();
+  histograms.orbit_bx_all_byLS.resize(nLS);
 
-  m_orbit_bx.clear();
-  m_orbit_bx.resize(sizeof(s_tcds_trigger_types) / sizeof(const char *), nullptr);
-  
-
+  histograms.orbit_bx.clear();
+  histograms.orbit_bx.resize(std::size(s_tcds_trigger_types));
 }
 
-void TriggerBxVsOrbitMonitor::bookHistograms(DQMStore::IBooker & booker, edm::Run const & run, edm::EventSetup const & setup)
+void TriggerBxVsOrbitMonitor::bookHistograms(DQMStore::ConcurrentBooker & booker, edm::Run const& run, edm::EventSetup const& setup, RunBasedHistograms & histograms) const
 {
-  // TCDS trigger type plots
-  {
-    size_t size = sizeof(s_tcds_trigger_types) / sizeof(const char *);
-    size_t nLS = m_maxLS-m_minLS+1;
+// TCDS trigger type plots
+  size_t size = std::size(s_tcds_trigger_types);
+  size_t nLS = m_maxLS - m_minLS + 1;
+  size_t nBX = m_maxBX - m_minBX + 1;
 
-    unsigned int nBX = m_maxBX-m_minBX+1;
-    // book 2D histogram to monitor all TCDS trigger types in a single plot
-    booker.setCurrentFolder( m_dqm_path + "/orbitVsBX" );
-    m_orbit_bx_all = booker.book2D("OrbitVsBX", "Event orbits vs. bunch crossing", nBX, float(m_minBX)-0.5, float(m_maxBX)+0.5, s_orbit_range+1, -0.5, float(s_orbit_range)+0.5)->getTH2F();
-    m_orbit_bx_all->GetXaxis()->SetTitle("BX");
-    m_orbit_bx_all->GetYaxis()->SetTitle("orbit");
-    m_orbit_bx_all->SetCanExtend(TH1::kAllAxes);
-    
-    for (unsigned int i = 0; i < nLS; ++i) {
-      std::string iname = boost::lexical_cast<std::string>(i);
-      m_orbit_bx_all_byLS.at(i) = booker.book2D("OrbitVsBX_LS"+iname, "OrbitVsBX_LS"+iname, nBX, float(m_minBX)-0.5, float(m_maxBX)+0.5, s_orbit_range+1, -0.5, float(s_orbit_range)+0.5)->getTH2F();
-      m_orbit_bx_all_byLS.at(i)->GetXaxis()->SetTitle("BX");
-      m_orbit_bx_all_byLS.at(i)->GetYaxis()->SetTitle("orbit");
-    }
-    
-    booker.setCurrentFolder( m_dqm_path + "/orbitVsBX/TCDS" );
-    for (unsigned int i = 0; i < size; ++i) {
-      if (s_tcds_trigger_types[i]) {
-	m_orbit_bx.at(i) = booker.book2D("OrbitVsBX_"+std::string(s_tcds_trigger_types[i]), "Event orbits vs. bunch crossing "+std::string(s_tcds_trigger_types[i]), nBX, float(m_minBX)-0.5, float(m_maxBX)+0.5,s_orbit_range+1, -0.5, float(s_orbit_range)+0.5)->getTH2F();
-	m_orbit_bx.at(i)->GetXaxis()->SetTitle("BX");
-	m_orbit_bx.at(i)->GetYaxis()->SetTitle("orbit");
-      }
+  // book 2D histogram to monitor all TCDS trigger types in a single plot
+  booker.setCurrentFolder( m_dqm_path + "/orbitVsBX" );
+  histograms.orbit_bx_all = booker.book2D(
+      "OrbitVsBX",
+      "Event orbits vs. bunch crossing",
+      nBX, m_minBX - 0.5, m_maxBX + 0.5,
+      s_orbit_range + 1, -0.5, s_orbit_range + 0.5);
+  histograms.orbit_bx_all.setXTitle("BX");
+  histograms.orbit_bx_all.setYTitle("orbit");
+
+  for (unsigned int i = 0; i < nLS; ++i) {
+    std::string iname = std::to_string(i);
+    histograms.orbit_bx_all_byLS[i] = booker.book2D(
+        "OrbitVsBX_LS" + iname,
+        "Event orbits vs. bunch crossing, for lumisection " + iname,
+        nBX, m_minBX - 0.5, m_maxBX + 0.5,
+        s_orbit_range + 1, -0.5, s_orbit_range + 0.5);
+    histograms.orbit_bx_all_byLS[i].setXTitle("BX");
+    histograms.orbit_bx_all_byLS[i].setYTitle("orbit");
+  }
+
+  booker.setCurrentFolder( m_dqm_path + "/orbitVsBX/TCDS" );
+  for (unsigned int i = 0; i < size; ++i) {
+    if (s_tcds_trigger_types[i]) {
+      histograms.orbit_bx[i] = booker.book2D(
+          "OrbitVsBX_" + std::string(s_tcds_trigger_types[i]),
+          "Event orbits vs. bunch crossing " + std::string(s_tcds_trigger_types[i]),
+          nBX, m_minBX - 0.5, m_maxBX + 0.5,
+          s_orbit_range + 1, -0.5, s_orbit_range + 0.5);
+      histograms.orbit_bx[i].setXTitle("BX");
+      histograms.orbit_bx[i].setYTitle("orbit");
     }
   }
 }
 
 
-void TriggerBxVsOrbitMonitor::analyze(edm::Event const & event, edm::EventSetup const & setup)
+void TriggerBxVsOrbitMonitor::dqmAnalyze(edm::Event const& event, edm::EventSetup const& setup, RunBasedHistograms const& histograms) const
 {
-  unsigned int bx    = event.bunchCrossing();
-  unsigned int orbit = event.orbitNumber();
+  unsigned int type  = event.experimentType();
   unsigned int ls    = event.id().luminosityBlock();
-  int orbit_in_ls = orbit-(s_orbit_range*(ls-1));
-  m_orbit_bx_all->Fill(bx,orbit_in_ls);
+  unsigned int orbit = event.orbitNumber() % s_orbit_range;
+  unsigned int bx    = event.bunchCrossing();
+  histograms.orbit_bx_all.fill(bx, orbit);
 
-  int iLS = ls-m_minLS;
-  if (iLS >= 0 && iLS < int(m_orbit_bx_all_byLS.size()))
-    m_orbit_bx_all_byLS.at(iLS)->Fill(bx,orbit_in_ls);
- 
+  int iLS = ls - m_minLS;
+  if (iLS >= 0 and iLS < int(histograms.orbit_bx_all_byLS.size()))
+    histograms.orbit_bx_all_byLS[iLS].fill(bx, orbit);
 
   // monitor the bx distribution for the TCDS trigger types
-  size_t size = sizeof(s_tcds_trigger_types) / sizeof(const char *);
-  unsigned int type = event.experimentType();
-  if (type < size and m_orbit_bx[type]) {
-    m_orbit_bx[type]->Fill(bx,orbit_in_ls);
+  size_t size = std::size(s_tcds_trigger_types);
+  if (type < size and histograms.orbit_bx[type]) {
+    histograms.orbit_bx[type].fill(bx, orbit);
   }
-
 }
 
 

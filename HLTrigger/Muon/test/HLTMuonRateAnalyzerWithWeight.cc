@@ -39,8 +39,8 @@ HLTMuonRateAnalyzerWithWeight::HLTMuonRateAnalyzerWithWeight(const ParameterSet&
   theHLTCollectionLabels = pset.getUntrackedParameter<std::vector<InputTag> >("HLTCollectionLabels");
   theGenToken = consumes<edm::HepMCProduct>(theGenLabel);
   theL1CollectionToken = consumes<trigger::TriggerFilterObjectWithRefs>(theL1CollectionLabel);
-  for (unsigned int i=0; i<theHLTCollectionLabels.size(); ++i) {
-    theHLTCollectionTokens.push_back(consumes<trigger::TriggerFilterObjectWithRefs>(theHLTCollectionLabels[i]));
+  for (auto & theHLTCollectionLabel : theHLTCollectionLabels) {
+    theHLTCollectionTokens.push_back(consumes<trigger::TriggerFilterObjectWithRefs>(theHLTCollectionLabel));
   }
   theL1ReferenceThreshold = pset.getUntrackedParameter<double>("L1ReferenceThreshold");
   theNSigmas = pset.getUntrackedParameter<std::vector<double> >("NSigmas90");
@@ -62,8 +62,7 @@ HLTMuonRateAnalyzerWithWeight::HLTMuonRateAnalyzerWithWeight(const ParameterSet&
 }
 
 /// Destructor
-HLTMuonRateAnalyzerWithWeight::~HLTMuonRateAnalyzerWithWeight(){
-}
+HLTMuonRateAnalyzerWithWeight::~HLTMuonRateAnalyzerWithWeight()= default;
 
 void HLTMuonRateAnalyzerWithWeight::beginJob(){
   // Create the root file
@@ -239,8 +238,8 @@ void HLTMuonRateAnalyzerWithWeight::analyze(const Event & event, const EventSetu
   double epsilon = 0.001;
   vector<L1MuonParticleRef> l1mu;
   l1cands->getObjects(TriggerL1Mu,l1mu);
-  for (unsigned int k=0; k<l1mu.size(); k++) {
-      L1MuonParticleRef candref = L1MuonParticleRef(l1mu[k]);
+  for (auto & k : l1mu) {
+      L1MuonParticleRef candref = L1MuonParticleRef(k);
       // L1 PTs are "quantized" due to LUTs. 
       // Their meaning: true_pt > ptLUT more than 90% pof the times
       double ptLUT = candref->pt();
@@ -253,8 +252,8 @@ void HLTMuonRateAnalyzerWithWeight::analyze(const Event & event, const EventSetu
 
       // L1 filling
       unsigned int nFound = 0;
-      for (unsigned int k=0; k<l1mu.size(); k++) {
-	L1MuonParticleRef candref = L1MuonParticleRef(l1mu[k]);
+      for (auto & k : l1mu) {
+	L1MuonParticleRef candref = L1MuonParticleRef(k);
 	double pt = candref->pt();
 	if (pt>ptcut) nFound++;
       }
@@ -270,8 +269,8 @@ void HLTMuonRateAnalyzerWithWeight::analyze(const Event & event, const EventSetu
             unsigned nFound = 0;
 	    vector<RecoChargedCandidateRef> vref;
 	    hltcands[i]->getObjects(TriggerMuon,vref);
-            for (unsigned int k=0; k<vref.size(); k++) {
-                  RecoChargedCandidateRef candref =  RecoChargedCandidateRef(vref[k]);
+            for (auto & k : vref) {
+                  RecoChargedCandidateRef candref =  RecoChargedCandidateRef(k);
                   TrackRef tk = candref->get<TrackRef>();
                   double pt = tk->pt();
                   double err0 = tk->error(0);
@@ -308,7 +307,7 @@ bool HLTMuonRateAnalyzerWithWeight::isbc(HepMC::GenEvent const & Gevt){
 	    break;
 	  } else {
 	    HepMC::GenVertex* parent=(*particle)->production_vertex();
-	    for (HepMC::GenVertex::particles_in_const_iterator ic=parent->particles_in_const_begin() ; ic!=parent->particles_in_const_end() ; ic++ )
+	    for (auto ic=parent->particles_in_const_begin() ; ic!=parent->particles_in_const_end() ; ic++ )
 	      {
 		int pid=(*ic)->pdg_id(); 
 		if (pid == 21 && id==5 ) nb++;
@@ -331,7 +330,7 @@ double HLTMuonRateAnalyzerWithWeight::parentWeight(HepMC::GenEvent const & Gevt)
 	double pt=(*particle)->momentum().perp();
 	if (id==13 && pt>10 ){
 	  HepMC::GenVertex* parent=(*particle)->production_vertex();
-	  for (HepMC::GenVertex::particles_in_const_iterator ic=parent->particles_in_const_begin() ; ic!=parent->particles_in_const_end() ; ic++ )
+	  for (auto ic=parent->particles_in_const_begin() ; ic!=parent->particles_in_const_end() ; ic++ )
 	    {
 	      int apid=abs((*ic)->pdg_id());
 	      LogInfo("HLTMuonRateAnalyzerWithWeight") << " Absolute parent id is "<<apid;

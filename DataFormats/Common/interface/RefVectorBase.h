@@ -53,8 +53,8 @@ namespace edm {
 
 
 
-    explicit RefVectorBase(ProductID const& productID, void const* prodPtr = 0,
-                           EDProductGetter const* prodGetter = 0) :
+    explicit RefVectorBase(ProductID const& productID, void const* prodPtr = nullptr,
+                           EDProductGetter const* prodGetter = nullptr) :
       product_(productID, prodPtr, prodGetter, false), keys_() {}
 
 

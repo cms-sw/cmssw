@@ -26,10 +26,10 @@ class PFRecoTauMassPlugin : public RecoTauModifierPlugin
  public:
 
   explicit PFRecoTauMassPlugin(const edm::ParameterSet&, edm::ConsumesCollector &&iC);
-  virtual ~PFRecoTauMassPlugin();
-  void operator()(PFTau&) const;
-  virtual void beginEvent();
-  virtual void endEvent();
+  ~PFRecoTauMassPlugin() override;
+  void operator()(PFTau&) const override;
+  void beginEvent() override;
+  void endEvent() override;
 
  private:
   

@@ -25,7 +25,7 @@
 class TKStatus : public edm::EDAnalyzer {
  public:
   TKStatus( const edm::ParameterSet& );
-  ~TKStatus();
+  ~TKStatus() override;
 
  protected:
 

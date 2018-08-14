@@ -1,23 +1,22 @@
-#ifndef DDCompactViewImpl_h
-# define DDCompactViewImpl_h
+#ifndef DETECTOR_DESCRIPTION_CORE_DD_COMPACT_VIEW_IMPL_H
+# define DETECTOR_DESCRIPTION_CORE_DD_COMPACT_VIEW_IMPL_H
 
-#include "DetectorDescription/Base/interface/DDTranslation.h"
-# include "DetectorDescription/Core/interface/DDLogicalPart.h"
-# include "DetectorDescription/Core/interface/DDPosData.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDPosData.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
-#include "DetectorDescription/Core/interface/adjgraph.h"
-# include "DetectorDescription/Core/interface/graphwalker.h"
+#include "DataFormats/Math/interface/Graph.h"
+#include "DataFormats/Math/interface/GraphWalker.h"
 
 class DDDivision;
-class DDPartSelector;
 struct DDPosData;
 
 class DDCompactViewImpl 
 {
 public:
   
-  typedef ::graph<DDLogicalPart, DDPosData* > GraphNav;
-  typedef graphwalker<DDLogicalPart, DDPosData* > WalkerType;
+  using Graph = math::Graph<DDLogicalPart, DDPosData* >;
+  using GraphWalker = math::GraphWalker<DDLogicalPart, DDPosData* >;
 
   explicit DDCompactViewImpl();
   DDCompactViewImpl(const DDLogicalPart & rootnodedata);
@@ -30,11 +29,8 @@ public:
   
   DDLogicalPart & current() const;
   
-  const GraphNav & graph() const { return graph_; }
-
-  graphwalker<DDLogicalPart,DDPosData*> walker() const; 
-  
-  double weight(const DDLogicalPart &) const;
+  const Graph& graph() const { return graph_; }
+  GraphWalker walker() const;
 
   void position (const DDLogicalPart & self,
 		 const DDLogicalPart & parent,
@@ -48,7 +44,7 @@ public:
 protected:    
   // internal use ! (see comments in DDCompactView(bool)!)
   DDLogicalPart root_;
-  GraphNav graph_;
+  Graph graph_;
 };
 
 #endif

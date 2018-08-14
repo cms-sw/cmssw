@@ -2,8 +2,8 @@
 #include "G4ProcessManager.hh"
 #include "G4ParticleTable.hh"
 
-#include "SimG4Core/CustomPhysics/interface/FullModelHadronicProcess.hh"
-#include "SimG4Core/CustomPhysics/interface/G4ProcessHelper.hh"
+#include "SimG4Core/CustomPhysics/interface/FullModelHadronicProcess.h"
+#include "SimG4Core/CustomPhysics/interface/G4ProcessHelper.h"
 #include "SimG4Core/CustomPhysics/interface/Decay3Body.h"
 #include "SimG4Core/CustomPhysics/interface/CustomPDGParser.h"
 #include "SimG4Core/CustomPhysics/interface/CustomParticle.h"
@@ -61,13 +61,13 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
 							  const G4Step&  aStep)
 {
   //  G4cout<<"**** Entering FullModelHadronicProcess::PostStepDoIt       ******"<<G4endl;
-  const G4TouchableHandle thisTouchable(aTrack.GetTouchableHandle());
+  const G4TouchableHandle& thisTouchable(aTrack.GetTouchableHandle());
 
   // A little setting up
   aParticleChange.Initialize(aTrack);
   const G4DynamicParticle* IncidentRhadron = aTrack.GetDynamicParticle();
   CustomParticle* CustomIncident = static_cast<CustomParticle*>(IncidentRhadron->GetDefinition());
-  const G4ThreeVector aPosition = aTrack.GetPosition();
+  const G4ThreeVector& aPosition = aTrack.GetPosition();
   //  G4cout<<"G: "<<aStep.GetStepLength()/cm<<G4endl;
   const G4int theIncidentPDG = IncidentRhadron->GetDefinition()->GetPDGEncoding();
   G4ParticleTable* theParticleTable = G4ParticleTable::GetParticleTable();
@@ -75,9 +75,9 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
   G4bool IncidentSurvives = false;
   G4bool TargetSurvives = false;
   G4Nucleus targetNucleus(aTrack.GetMaterial());
-  G4ParticleDefinition* outgoingRhadron=0;
-  G4ParticleDefinition* outgoingCloud=0;
-  G4ParticleDefinition* outgoingTarget=0;
+  G4ParticleDefinition* outgoingRhadron=nullptr;
+  G4ParticleDefinition* outgoingCloud=nullptr;
+  G4ParticleDefinition* outgoingTarget=nullptr;
 
   G4ThreeVector p_0 = IncidentRhadron->GetMomentum();
   G4double e_kin_0 = IncidentRhadron->GetKineticEnergy();
@@ -92,7 +92,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
   */
   cloudParticle->SetDefinition(CustomIncident->GetCloud());
 
-  if(cloudParticle->GetDefinition() == 0) 
+  if(cloudParticle->GetDefinition() == nullptr) 
      {
       G4cout << "FullModelHadronicProcess::PostStepDoIt  Definition of particle cloud not available!!" << G4endl;
      }
@@ -111,7 +111,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
 
   //These two for getting CMS transforms later (histogramming purposes...)
   G4LorentzVector FullRhadron4Momentum = IncidentRhadron->Get4Momentum();
-  G4LorentzVector Cloud4Momentum = cloudMomentum;
+  const G4LorentzVector& Cloud4Momentum = cloudMomentum;
 
   cloudParticle->Set4Momentum(cloudMomentum);         	
 
@@ -178,11 +178,11 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
     if (tempDef==aTarget) TargetSurvives = true;
 
     //      if (tempDef->GetParticleType()=="rhadron")
-    if (tempCust!=0) {
+    if (tempCust!=nullptr) {
       outgoingRhadron = tempDef; 
       //Setting outgoing cloud definition
       outgoingCloud=tempCust->GetCloud();
-      if(outgoingCloud == 0) {
+      if(outgoingCloud == nullptr) {
 	G4cout << "FullModelHadronicProcess::PostStepDoIt  Definition of outgoing particle cloud not available!" << G4endl;
       }
       /*
@@ -192,7 +192,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
     }
 
     if (tempDef==G4Proton::Proton()||tempDef==G4Neutron::Neutron()) outgoingTarget = tempDef;
-    if (tempCust==0&&rp.size()==2) outgoingTarget = tempDef;
+    if (tempCust==nullptr&&rp.size()==2) outgoingTarget = tempDef;
     if (tempDef->GetPDGEncoding()==theIncidentPDG) {
       IncidentSurvives = true;
     } else {
@@ -200,7 +200,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
     }
   }
 
-  if (outgoingTarget==0) outgoingTarget = theParticleTable->FindParticle(rp[1]);
+  if (outgoingTarget==nullptr) outgoingTarget = theParticleTable->FindParticle(rp[1]);
 
   // A little debug information
   /*
@@ -444,7 +444,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
   // Histogram filling  
   const G4DynamicParticle* theRhadron = FindRhadron(&aParticleChange);
   
-  if (theRhadron!=NULL||IncidentSurvives) {      
+  if (theRhadron!=nullptr||IncidentSurvives) {      
     double E_new;
     if(IncidentSurvives) {
       E_new = e_kin;
@@ -604,7 +604,7 @@ void FullModelHadronicProcess::CalculateMomenta(
 							   targetHasChanged, leadFlag,
 							   leadingStrangeParticle );
 	}
-      catch(G4HadReentrentException aC)
+      catch(G4HadReentrentException &aC)
 	{
 	  aC.Report(G4cout);
 	  throw G4HadReentrentException(__FILE__, __LINE__, "Failing to calculate momenta");
@@ -678,17 +678,17 @@ void FullModelHadronicProcess::Rotate(G4FastVector<G4ReactionProduct,MYGHADLISTS
 const G4DynamicParticle* FullModelHadronicProcess::FindRhadron(G4ParticleChange* aParticleChange)
 {
   G4int nsec = aParticleChange->GetNumberOfSecondaries();
-  if (nsec==0) return 0;
+  if (nsec==0) return nullptr;
   int i = 0;
   G4bool found = false;
   while (i!=nsec && !found){
     //    G4cout<<"Checking "<<aParticleChange->GetSecondary(i)->GetDynamicParticle()->GetDefinition()->GetParticleName()<<G4endl;
     //    if (aParticleChange->GetSecondary(i)->GetDynamicParticle()->GetDefinition()->GetParticleType()=="rhadron") found = true;
-    if (dynamic_cast<CustomParticle*>(aParticleChange->GetSecondary(i)->GetDynamicParticle()->GetDefinition())!=0) found = true;
+    if (dynamic_cast<CustomParticle*>(aParticleChange->GetSecondary(i)->GetDynamicParticle()->GetDefinition())!=nullptr) found = true;
     i++;
   }
   i--;
   if(found) return aParticleChange->GetSecondary(i)->GetDynamicParticle();
-  return 0;
+  return nullptr;
 }
 

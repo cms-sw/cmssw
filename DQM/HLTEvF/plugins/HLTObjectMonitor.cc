@@ -91,14 +91,14 @@ class HLTObjectMonitor : public DQMEDAnalyzer {
 
    public:
       explicit HLTObjectMonitor(const edm::ParameterSet&);
-      ~HLTObjectMonitor();
+      ~HLTObjectMonitor() override;
 
   //      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
    private:
       void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
+      void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
       void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
       void endRun(edm::Run const&, edm::EventSetup const&) override;
       vector<hltPlot*> plotList;
@@ -901,7 +901,7 @@ double HLTObjectMonitor::dxyFinder(double eta, double phi, edm::Handle<reco::Rec
 double HLTObjectMonitor::get_wall_time()
 {
   struct timeval time;
-  if (gettimeofday(&time,NULL)) return 0;
+  if (gettimeofday(&time,nullptr)) return 0;
   return (double)time.tv_sec + (double)time.tv_usec * .000001;
 }
 

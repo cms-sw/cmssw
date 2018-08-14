@@ -36,7 +36,7 @@ namespace l1t {
                caloEmCands_(new L1CaloEmCollection()),
                caloRegions_(new L1CaloRegionCollection()) {};
 
-            virtual ~CaloCollections();
+            ~CaloCollections() override;
 
             inline CaloTowerBxCollection* getTowers() { return towers_.get(); };
             inline EGammaBxCollection* getEGammas() { return egammas_.get(); };

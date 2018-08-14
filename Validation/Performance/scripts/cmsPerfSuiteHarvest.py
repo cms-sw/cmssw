@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 #A script to "harverst" PerfSuite work directories, producing an xml file with all the data ready to be uploaded to the PerfSuiteDB DB.
+from __future__ import print_function
 import sys, os, re
 import getopt
 from Validation.Performance.parserTimingReport import *
@@ -63,7 +64,7 @@ def get_params(argv):
     try:                              
         opts, args = getopt.getopt(argv[1:], "v:", ["version=", "outdir="])
     except getopt.GetoptError as e:  
-        print e
+        print(e)
     for opt, arg in opts:
         if opt in ("-v", "--version"):
             version = arg
@@ -92,9 +93,9 @@ def _eventContent_DEBUG(edm_report):
 				EC_count[ec].append(prod)
 		#print out the statistics
 		for (ec, prods) in EC_count.items():
-			print "==== %s EVENT CONTENT: have %d items, the listing is: ===" % (ec, len(prods))
+			print("==== %s EVENT CONTENT: have %d items, the listing is: ===" % (ec, len(prods)))
 			# list of products
-			print "\n *".join(["%(cpp_type)s_%(module_name)s_%(module_label)s" % prod for prod in prods])
+			print("\n *".join(["%(cpp_type)s_%(module_name)s_%(module_label)s" % prod for prod in prods]))
 
 
 def assign_event_content_for_product(product):
@@ -127,9 +128,9 @@ def exportIgProfReport(path, igProfReport, igProfType, runinfo):
                 break
 		
     if not found:
-        print "============ (almost) ERROR: NOT FOUND THE ENTRY in cmsPerfSuite.log, exporting as separate entry ======== "
-        print "JOB ID: %s " % str(jobID)
-        print " ====================== "
+        print("============ (almost) ERROR: NOT FOUND THE ENTRY in cmsPerfSuite.log, exporting as separate entry ======== ")
+        print("JOB ID: %s " % str(jobID))
+        print(" ====================== ")
         runinfo['unrecognized_jobs'].append(igProfReport)
         #export_xml(xml_doc = xmldoc, **igProfReport)	
         
@@ -155,9 +156,9 @@ def exportTimeSizeJob(path, timeSizeReport,  runinfo):
 					break
 		
 		if not found:
-			print "============ (almost) ERROR: NOT FOUND THE ENTRY in cmsPerfSuite.log, exporting as separate entry ======== "
-			print "JOB ID: %s " % str(jobID)
-			print " ====================== "
+			print("============ (almost) ERROR: NOT FOUND THE ENTRY in cmsPerfSuite.log, exporting as separate entry ======== ")
+			print("JOB ID: %s " % str(jobID))
+			print(" ====================== ")
 			runinfo['unrecognized_jobs'].append(timeSizeReport)
 			#export_xml(xml_doc = xmldoc, **timeSizeReport)	
 			
@@ -183,9 +184,9 @@ def exportMemcheckReport(path, MemcheckReport, runinfo):
 					break
 		
 		if not found:
-			print "============ (almost) ERROR: NOT FOUND THE ENTRY in cmsPerfSuite.log, exporting as separate entry ======== "
-			print "JOB ID: %s " % str(jobID)
-			print " ====================== "
+			print("============ (almost) ERROR: NOT FOUND THE ENTRY in cmsPerfSuite.log, exporting as separate entry ======== ")
+			print("JOB ID: %s " % str(jobID))
+			print(" ====================== ")
 			runinfo['unrecognized_jobs'].append(MemcheckReport)
 
 def process_timesize_dir(path, runinfo):
@@ -194,7 +195,7 @@ def process_timesize_dir(path, runinfo):
 	if (not release):
 		release_fromlogfile = read_SimulationCandles(path)
 		release  = release_fromlogfile 
-		print "release from simulation candles: %s" % release
+		print("release from simulation candles: %s" % release)
 	
 	if (not release):
 		# TODO: raise exception!
@@ -211,29 +212,29 @@ def process_timesize_dir(path, runinfo):
 
 	# print timing_report_files
 	for timelog_f in timing_report_files:
-		print "\nProcessing file: %s" % timelog_f
-		print "------- "
+		print("\nProcessing file: %s" % timelog_f)
+		print("------- ")
 		
 		jobID = getJobID_fromTimeReportLogName(os.path.join(path, timelog_f))
-		print "jobID: %s" % str(jobID)
+		print("jobID: %s" % str(jobID))
 		(candle, step, pileup_type, conditions, event_content) = jobID
 		jobID = dict(list(zip(("candle", "step", "pileup_type", "conditions", "event_content"), jobID)))
-		print "Dictionary based jobID %s: " % str(jobID)
+		print("Dictionary based jobID %s: " % str(jobID))
 		
 		#if any of jobID fields except (isPILEUP) is empty we discard the job as all those are the jobID keys and we must have them
 		discard = len([key for key, value in jobID.items() if key != "pileup_type" and not value])
 		if discard:
-			print " ====================== The job HAS BEEN DISCARDED =============== "
-			print " NOT ALL DATA WAS AVAILABLE "
-			print " JOB ID = %s " % str(jobID)
-			print " ======================= end ===================================== "
+			print(" ====================== The job HAS BEEN DISCARDED =============== ")
+			print(" NOT ALL DATA WAS AVAILABLE ")
+			print(" JOB ID = %s " % str(jobID))
+			print(" ======================= end ===================================== ")
 			continue
 
 		# TODO: automaticaly detect type of report file!!!
 		(mod_timelog, evt_timelog, rss_data, vsize_data) =loadTimeLog(timelog_f)
 	
 		mod_timelog= processModuleTimeLogData(mod_timelog, groupBy = "module_name")
-		print "Number of modules grouped by (module_label+module_name): %s" % len(mod_timelog)
+		print("Number of modules grouped by (module_label+module_name): %s" % len(mod_timelog))
 
 		# add to the list to generate the readable filename :)
 		steps[step] = 1
@@ -257,7 +258,7 @@ def process_timesize_dir(path, runinfo):
 				# for testing / imformation
 				_eventContent_DEBUG(edm_report)
 			except Exception as e:
-				print e
+				print(e)
 
 		timeSizeReport = {
 				"jobID":jobID,
@@ -276,7 +277,7 @@ def process_memcheck_dir(path, runinfo):
 	if (not release):
 		release_fromlogfile = read_SimulationCandles(path)
 		release  = release_fromlogfile 
-		print "release from simulation candles: %s" % release
+		print("release from simulation candles: %s" % release)
 	
 	if (not release):
 		# TODO: raise exception!
@@ -291,25 +292,25 @@ def process_memcheck_dir(path, runinfo):
 					and os.path.isfile(os.path.join(path, f)) ]
 
         if len(memcheck_files) == 0: # Fast protection for old runs, where the _vlgd files is not created...
-            print "No _vlgd files found!"
+            print("No _vlgd files found!")
         else:
             for file in memcheck_files:
                 jobID = getJobID_fromMemcheckLogName(os.path.join(path, file))
 
                 (candle, step, pileup_type, conditions, event_content) = jobID
                 
-                print "jobID: %s" % str(jobID)
+                print("jobID: %s" % str(jobID))
                 jobID = dict(list(zip(("candle", "step", "pileup_type", "conditions", "event_content"), jobID)))
 
-                print "Dictionary based jobID %s: " % str(jobID)
+                print("Dictionary based jobID %s: " % str(jobID))
             
                 #if any of jobID fields except (isPILEUP) is empty we discard the job as all those are the jobID keys and we must have them
                 discard = len([key for key, value in jobID.items() if key != "pileup_type" and not value])
                 if discard:
-                    print " ====================== The job HAS BEEN DISCARDED =============== "
-                    print " NOT ALL DATA WAS AVAILABLE "
-                    print " JOB ID = %s " % str(jobID)
-                    print " ======================= end ===================================== "
+                    print(" ====================== The job HAS BEEN DISCARDED =============== ")
+                    print(" NOT ALL DATA WAS AVAILABLE ")
+                    print(" JOB ID = %s " % str(jobID))
+                    print(" ======================= end ===================================== ")
                     continue
             
                 # add to the list to generate the readable filename :)
@@ -352,7 +353,7 @@ def process_igprof_dir(path, runinfo):
 	if (not release):
 		release_fromlogfile = read_SimulationCandles(path)
 		release  = release_fromlogfile 
-		print "release from simulation candles: %s" % release
+		print("release from simulation candles: %s" % release)
 	
 	if (not release):
 		# TODO: raise exception!
@@ -367,27 +368,27 @@ def process_igprof_dir(path, runinfo):
 					and os.path.isfile(os.path.join(path, f)) ]
 
         if len(igprof_files) == 0: # No files...
-            print "No igprof files found!"
+            print("No igprof files found!")
         else:
             for file in igprof_files:
                 jobID = getJobID_fromIgProfLogName(file)
 
                 (candle, step, pileup_type, conditions, event_content) = jobID
 
-                print "jobID: %s" % str(jobID)
+                print("jobID: %s" % str(jobID))
                 jobID = dict(list(zip(("candle", "step", "pileup_type", "conditions", "event_content"), jobID)))
                 
-                print "Dictionary based jobID %s: " % str(jobID)
+                print("Dictionary based jobID %s: " % str(jobID))
                 
                 igProfType = path.split("/")[-1].replace("TTbar_", "").replace("MinBias_", "").replace("PU_", "")
                 
 	        #if any of jobID fields except (isPILEUP) is empty we discard the job as all those are the jobID keys and we must have them
                 discard = len([key for key, value in jobID.items() if key != "pileup_type" and not value])
                 if discard:
-                    print " ====================== The job HAS BEEN DISCARDED =============== "
-                    print " NOT ALL DATA WAS AVAILABLE "
-                    print " JOB ID = %s " % str(jobID)
-                    print " ======================= end ===================================== "
+                    print(" ====================== The job HAS BEEN DISCARDED =============== ")
+                    print(" NOT ALL DATA WAS AVAILABLE ")
+                    print(" JOB ID = %s " % str(jobID))
+                    print(" ======================= end ===================================== ")
                     continue
         
                 # add to the list to generate the readable filename :)
@@ -468,7 +469,7 @@ def searchTimeSizeFiles(runinfo):
 	""" so far we will use the current dir to search in """
 	path = os.getcwd()
 	#print path
-	print 'full path =', os.path.abspath(path)
+	print('full path =', os.path.abspath(path))
 
 	files = os.listdir(path)
 	
@@ -484,7 +485,7 @@ def searchMemcheckFiles(runinfo):
 	""" so far we will use the current dir to search in """
 	path = os.getcwd()
 	#print path
-	print 'full path =', os.path.abspath(path)
+	print('full path =', os.path.abspath(path))
 
 	files = os.listdir(path)
 	
@@ -492,7 +493,7 @@ def searchMemcheckFiles(runinfo):
 	memcheck_dirs = [os.path.join(path, f) for f in files if test_MemcheckDirs.search(f) and os.path.isdir(os.path.join(path, f))]
 	
 	for memcheck_dir in memcheck_dirs:
-		print memcheck_dir
+		print(memcheck_dir)
 		process_memcheck_dir(memcheck_dir, runinfo)
 
 #IgProf
@@ -500,7 +501,7 @@ def searchIgProfFiles(runinfo):
 	""" so far we will use the current dir to search in """
 	path = os.getcwd()
 	#print path
-	print 'full path =', os.path.abspath(path)
+	print('full path =', os.path.abspath(path))
 
 	files = os.listdir(path)
 	
@@ -508,7 +509,7 @@ def searchIgProfFiles(runinfo):
 	igprof_dirs = [os.path.join(path, f) for f in files if test_IgProfDirs.search(f) and os.path.isdir(os.path.join(path, f))]
 	
 	for igprof_dir in igprof_dirs:
-		print igprof_dir
+		print(igprof_dir)
 		process_igprof_dir(igprof_dir, runinfo)
 
 def exportSequences():
@@ -516,11 +517,11 @@ def exportSequences():
     try:
     	env_cmssw_version = os.environ["CMSSW_VERSION"]
     except KeyError:
-    	print "<<<<<  ====== Error: cannot get CMSSW version [just integrity check for sequences]. \
-					 Is the CMSSW environment initialized? (use cmsenv) ==== >>>>"
+    	print("<<<<<  ====== Error: cannot get CMSSW version [just integrity check for sequences]. \
+					 Is the CMSSW environment initialized? (use cmsenv) ==== >>>>")
 	env_cmssw_version = None
 
-    print " ==== exporting the sequences. loading files for currently loaded CMSSW version: %s, while the CMSSW we are currently harversting is %s ===" %(env_cmssw_version, release)
+    print(" ==== exporting the sequences. loading files for currently loaded CMSSW version: %s, while the CMSSW we are currently harversting is %s ===" %(env_cmssw_version, release))
     xml_export_Sequences(xml_doc = xmldoc, sequences = get_modules_sequences_relationships(), release=release)
 
 
@@ -535,15 +536,15 @@ if __name__ == "__main__":
     if not release:
         """ print usage(sys.argv)
         sys.exit(2) """
-	print "The version was not provided explicitly, will try to get one from SimulationCandles file """
+	print("The version was not provided explicitly, will try to get one from SimulationCandles file """)
 
 
     # Export the metadata from cmsPerfSuite.log (in current working directory!)
-    print "Parsing cmsPerfSuite.log: getting all the metadata concerning the run"
+    print("Parsing cmsPerfSuite.log: getting all the metadata concerning the run")
     p = parserPerfsuiteMetadata(os.getcwd())
     run_info = p.parseAll()
 
-    print "Loading Sequences and Event-Content(s). Please wait..."
+    print("Loading Sequences and Event-Content(s). Please wait...")
 
     Sequences_OK = False
     EventContents_OK = False
@@ -553,25 +554,25 @@ if __name__ == "__main__":
 		 import Validation.Performance.ModuleToSequenceAssign as ModuleToSequenceAssign
 		 Sequences_OK = True
 	 except Exception as e:
-		print e
+		print(e)
 	 try:
     	 	import Validation.Performance.parseEventContent as parseEventContent
 		EventContents_OK = True
 	 except Exception as e:
-		print e	
+		print(e)	
 
-    print "Parsing TimeSize report"
+    print("Parsing TimeSize report")
     # Search for TimeSize files: EdmSize, TimingReport
     searchTimeSizeFiles(run_info)
-    print "Parsing IgProf report"
+    print("Parsing IgProf report")
     # Search for IgProf files
     searchIgProfFiles(run_info)
-    print "Parsing Memcheck report"
+    print("Parsing Memcheck report")
     # Search for Memcheck files
     searchMemcheckFiles(run_info)
     #print run_info
 
-    print "Exporting sequences and event-content rules"
+    print("Exporting sequences and event-content rules")
     if not _TEST_RUN:
 	    """ for testing on laptom we have no CMSSW """
 	    # export sequences (for currently loaded CMSSW)
@@ -591,7 +592,7 @@ if __name__ == "__main__":
     #Changing slightly the XML filename format
     #FIXME: review this convention and archive the xml in a separate CASTOR xml directory for quick recovery of DB...
     file_name = "%s___%s___%s___%s___%s___%s___%s.xml" % (release, "_".join(steps.keys()), "_".join(candles.keys()), "_".join(pileups.keys()),event_content,conditions,now.isoformat())
-    print "Writing the output to: %s " % file_name
+    print("Writing the output to: %s " % file_name)
 
     write_xml(xmldoc, output_dir, file_name) #change this function to be able to handle directories in remote machines (via tar pipes for now could always revert to rsync later).
     #NB write_xml is in Validation/Performance/python/cmssw_exportdb_xml.py 

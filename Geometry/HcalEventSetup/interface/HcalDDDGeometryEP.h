@@ -25,7 +25,7 @@ class HcalDDDGeometryEP : public edm::ESProducer {
 public:
 
   HcalDDDGeometryEP(const edm::ParameterSet&);
-  ~HcalDDDGeometryEP();
+  ~HcalDDDGeometryEP() override;
 
   typedef std::shared_ptr<CaloSubdetectorGeometry> ReturnType;
  

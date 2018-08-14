@@ -287,7 +287,7 @@ void PFElectronTranslator::createBasicCluster(const reco::PFBlockElement & PFBE,
 					      std::vector<const reco::PFCluster *> & pfClusters,
 					      const reco::PFCandidate & coCandidate) const
 {
-  reco::PFClusterRef myPFClusterRef= PFBE.clusterRef();
+  const reco::PFClusterRef& myPFClusterRef= PFBE.clusterRef();
   if(myPFClusterRef.isNull()) return;  
 
   const reco::PFCluster & myPFCluster (*myPFClusterRef);
@@ -309,7 +309,7 @@ void PFElectronTranslator::createBasicCluster(const reco::PFBlockElement & PFBE,
 
 void PFElectronTranslator::createPreshowerCluster(const reco::PFBlockElement & PFBE, reco::PreshowerClusterCollection& preshowerClusters,unsigned plane) const
 {
-  reco::PFClusterRef  myPFClusterRef= PFBE.clusterRef();
+  const reco::PFClusterRef&  myPFClusterRef= PFBE.clusterRef();
   preshowerClusters.push_back(reco::PreshowerCluster(myPFClusterRef->energy(),myPFClusterRef->position(),
 					       myPFClusterRef->hitsAndFractions(),plane));
 }
@@ -575,7 +575,7 @@ void PFElectronTranslator::createGsfElectronCoreRefs(const edm::OrphanHandle<rec
 
 void PFElectronTranslator::getAmbiguousGsfTracks(const reco::PFBlockElement & PFBE, std::vector<reco::GsfTrackRef>& tracks) const {
   const reco::PFBlockElementGsfTrack *  GsfEl =  dynamic_cast<const reco::PFBlockElementGsfTrack*>(&PFBE);
-  if(GsfEl==0) return;
+  if(GsfEl==nullptr) return;
   const std::vector<reco::GsfPFRecTrackRef>& ambPFRecTracks(GsfEl->GsftrackRefPF()->convBremGsfPFRecTrackRef());
   unsigned ntracks=ambPFRecTracks.size();
   for(unsigned it=0;it<ntracks;++it) {
@@ -624,7 +624,7 @@ void PFElectronTranslator::createGsfElectrons(const reco::PFCandidateCollection 
       }
 
       // isolation
-      if( isolationValues.size() != 0 ) {
+      if( !isolationValues.empty() ) {
       	reco::GsfElectron::PflowIsolationVariables myPFIso;
       	myPFIso.sumChargedHadronPt=(*isolationValues[0])[CandidatePtr_[iGSF]];
       	myPFIso.sumPhotonEt=(*isolationValues[1])[CandidatePtr_[iGSF]];

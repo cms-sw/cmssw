@@ -25,10 +25,6 @@ namespace edm {
   class HepMCProduct;
 }
 
-namespace CLHEP {
-  class HepJamesRandom;
-}
-
 namespace sim {
   class ChordFinderSetter;
 }
@@ -107,6 +103,7 @@ private:
   G4RunManagerKernel * m_kernel;
     
   Generator * m_generator;
+
   edm::EDGetTokenT<edm::HepMCProduct> m_HepMC;
   edm::EDGetTokenT<edm::LHCTransportLinkContainer> m_LHCtr;
     
@@ -134,10 +131,8 @@ private:
   bool m_RestorePhysicsTables;
   int m_EvtMgrVerbosity;
   bool m_check;
-  edm::ParameterSet m_pGeometry;
   edm::ParameterSet m_pField;
   edm::ParameterSet m_pGenerator;   
-  edm::ParameterSet m_pVertexGenerator;
   edm::ParameterSet m_pPhysics; 
   edm::ParameterSet m_pRunAction;      
   edm::ParameterSet m_pEventAction;

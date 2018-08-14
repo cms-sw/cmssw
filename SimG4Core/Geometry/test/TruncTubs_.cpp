@@ -1,15 +1,16 @@
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 #include "cppunit/extensions/HelperMacros.h"
-
-#include <DetectorDescription/Core/interface/DDSolid.h>
-#include <DetectorDescription/Core/interface/DDSolidShapes.h>
-
-#include <DetectorDescription/Core/src/TruncTubs.h>
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "DetectorDescription/Core/src/TruncTubs.h"
+#include "SimG4Core/Geometry/interface/DDG4SolidConverter.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <G4VSolid.hh>
-
+#include <cmath>
 #include <string>
-#include <SimG4Core/Geometry/interface/DDG4SolidConverter.h>
+#include <limits>
+
+using namespace std;
 
 class testTruncTubs : public CppUnit::TestFixture
 {
@@ -34,27 +35,27 @@ testTruncTubs::matched_g4_and_dd( void )
   double cutAtStart = 25.0*cm;
   double cutAtDelta = 35.0*cm;
   bool cutInside = true;
-  std::string name( "fred1" );
+  string name( "fred1" );
 
   DDI::TruncTubs dd( zHalf, rIn, rOut, startPhi, deltaPhi, cutAtStart, cutAtDelta, cutInside );
   DDTruncTubs dds = DDSolidFactory::truncTubs( name, zHalf, rIn, rOut, startPhi, deltaPhi, cutAtStart, cutAtDelta, cutInside );
   G4VSolid *g4 = DDG4SolidConverter::trunctubs( dds );
-  std::cout << std::endl;
-  dd.stream( std::cout );
-  std::cout << std::endl;
+  cout << endl;
+  dd.stream( cout );
+  cout << endl;
 
-  double g4_volume = g4->GetCubicVolume()/cm3;
-  double dd_volume = dd.volume()/cm3;
-  double dds_volume = dds.volume()/cm3;
+  double g4v = g4->GetCubicVolume()/cm3;
+  double ddv = dd.volume()/cm3;
+  double ddsv = dds.volume()/cm3;
   
-  std::cout << "\tg4 volume = " << g4_volume <<" cm3" << std::endl;
-  std::cout << "\tdd volume = " << dd_volume << " cm3" <<  std::endl;
-  std::cout << "\tDD Information: " << dds << " vol=" << dds_volume << " cm3" << std::endl;
+  cout << "\tg4 volume = " << g4v <<" cm3" << endl;
+  cout << "\tdd volume = " << ddv << " cm3" <<  endl;
+  cout << "\tDD Information: " << dds << " vol=" << ddsv << " cm3" << endl;
 
-  if( dd_volume > 0 )
+  if( ddv > 0 )
   {
-    CPPUNIT_ASSERT( g4_volume == dd_volume );
-    CPPUNIT_ASSERT( g4_volume == dds_volume );
+    CPPUNIT_ASSERT( abs(g4v - ddv) < numeric_limits<float>::epsilon());
+    CPPUNIT_ASSERT( abs(g4v - ddsv) < numeric_limits<float>::epsilon());
   }
 }
 

@@ -16,7 +16,7 @@ public:
 
   explicit TestWriteESAlignments(const edm::ParameterSet& /*iConfig*/)
     : nEventCalls_(0) {}
-  ~TestWriteESAlignments() {}
+  ~TestWriteESAlignments() override {}
   
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;

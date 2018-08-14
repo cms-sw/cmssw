@@ -28,7 +28,7 @@ template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
       recHitToken_ = iC.consumes<edm::SortedCollection<Digi>  >(iConfig.getParameter<edm::InputTag>("src"));
     }
 
-    void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
+    void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) override {
 
 
       beginEvent(iEvent,iSetup);
@@ -55,7 +55,7 @@ template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
 	if (esd !=Detector && Detector != HcalOther  ) 
 	  continue;
 
-        if (theHcalTopology->withSpecialRBXHBHE() && esd == HcalEndcap) {
+        if (theHcalTopology->getMergePositionFlag() && esd == HcalEndcap) {
           detid = theHcalTopology->idFront(detid);
 	}
 
@@ -64,7 +64,7 @@ template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
 	auto depth =detid.depth();
 	  
 	
-	const CaloCellGeometry * thisCell= hcalGeo->getGeometry(detid);
+	auto thisCell= hcalGeo->getGeometry(detid);
   
 	// find rechit geometry
 	if(!thisCell) {

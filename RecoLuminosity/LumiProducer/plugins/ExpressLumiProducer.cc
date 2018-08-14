@@ -75,15 +75,15 @@ public:
   
   explicit ExpressLumiProducer(const edm::ParameterSet&);
   
-  ~ExpressLumiProducer();
+  ~ExpressLumiProducer() override;
   
 private:
   
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override final;
+  void produce(edm::Event&, const edm::EventSetup&) final;
 
-  virtual void beginLuminosityBlockProduce(edm::LuminosityBlock & iLBlock,
-				    edm::EventSetup const& iSetup) override final;
+  void beginLuminosityBlockProduce(edm::LuminosityBlock & iLBlock,
+				    edm::EventSetup const& iSetup) final;
 
   bool fillLumi(edm::LuminosityBlock & iLBlock);
   void fillLSCache(unsigned int runnum,unsigned int luminum);
@@ -101,8 +101,8 @@ ExpressLumiProducer::
 ExpressLumiProducer::ExpressLumiProducer(const edm::ParameterSet& iConfig):m_cachedrun(0),m_isNullRun(false),m_cachesize(0)
 {
   // register your products
-  produces<LumiSummary, edm::InLumi>();
-  produces<LumiDetails, edm::InLumi>();
+  produces<LumiSummary, edm::Transition::BeginLuminosityBlock>();
+  produces<LumiDetails, edm::Transition::BeginLuminosityBlock>();
   // set up cache
   m_connectStr=iConfig.getParameter<std::string>("connect");
   m_cachesize=iConfig.getUntrackedParameter<unsigned int>("ncacheEntries",5);
@@ -204,7 +204,7 @@ ExpressLumiProducer::fillLSCache(unsigned int runnumber,unsigned int currentlsnu
   if( !mydbservice.isAvailable() ){
     throw cms::Exception("Non existing service lumi::service::DBService");
   }
-  coral::ISessionProxy* session=mydbservice->connectReadOnly(m_connectStr);
+  auto session=mydbservice->connectReadOnly(m_connectStr);
   coral::ITypeConverter& tconverter=session->typeConverter();
   tconverter.setCppTypeForSqlType(std::string("float"),std::string("FLOAT(63)"));
   tconverter.setCppTypeForSqlType(std::string("unsigned int"),std::string("NUMBER(10)"));
@@ -220,7 +220,6 @@ ExpressLumiProducer::fillLSCache(unsigned int runnumber,unsigned int currentlsnu
     }else if(maxavailableLS==0){
       //this run not existing (yet)
       session->transaction().commit();
-      mydbservice->disconnect(session);
       return;
     }
     if(m_cachesize!=0){
@@ -343,10 +342,8 @@ ExpressLumiProducer::fillLSCache(unsigned int runnumber,unsigned int currentlsnu
     session->transaction().commit();
   }catch(const coral::Exception& er){
     session->transaction().rollback();
-    mydbservice->disconnect(session);
     throw cms::Exception("DatabaseError ")<<er.what();
   }
-  mydbservice->disconnect(session);
 }
 void
 ExpressLumiProducer::writeProductsForEntry(edm::LuminosityBlock & iLBlock,unsigned int luminum){

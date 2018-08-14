@@ -10,6 +10,7 @@ TaNC output for *clean* signal and background taus.
 Author: Evan K. Friis (UC Davis)
 
 '''
+from __future__ import print_function
 
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
@@ -48,7 +49,7 @@ options.parseArguments()
 
 
 if options.tracks < 0 or options.pizeros < 0:
-    print "You must specify the [tracks] and [pizeros] arguments."
+    print("You must specify the [tracks] and [pizeros] arguments.")
     sys.exit(1)
 # Make a nice tuple of the decay mode
 _decay_mode = (options.tracks, options.pizeros)
@@ -75,7 +76,7 @@ process.TFileService = cms.Service(
     fileName = cms.string(options.outputFile)
 )
 
-print "WARNING: input branch workaround!"
+print("WARNING: input branch workaround!")
 # Input files
 process.source = cms.Source(
     "PoolSource",

@@ -22,14 +22,14 @@ class VpspScanAnalysis : public CommissioningAnalysis {
 
   VpspScanAnalysis();
 
-  virtual ~VpspScanAnalysis() {;}
+  ~VpspScanAnalysis() override {;}
 
   friend class VpspScanAlgorithm;
 
   // ---------- public interface ----------
   
   /** Identifies if analysis is valid or not. */
-  bool isValid() const;
+  bool isValid() const override;
 
   /** VPSP settings for both APVs. */
   inline const VInt& vpsp() const;
@@ -55,13 +55,13 @@ class VpspScanAnalysis : public CommissioningAnalysis {
   // ---------- misc ----------
 
   /** Prints analysis results. */
-  void print( std::stringstream&, uint32_t not_used = 0 );
+  void print( std::stringstream&, uint32_t not_used = 0 ) override;
   
   /** Overrides base method. */
-  void summary( std::stringstream& ) const;
+  void summary( std::stringstream& ) const override;
   
   /** Resets analysis member data. */
-  void reset();
+  void reset() override;
 
   // ---------- private member data ----------
   

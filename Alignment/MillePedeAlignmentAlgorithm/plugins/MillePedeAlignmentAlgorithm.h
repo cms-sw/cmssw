@@ -20,14 +20,11 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectoryBase.h"
+#include "CondFormats/PCLConfig/interface/AlignPCLThresholds.h" 
 
 #include <vector>
 #include <string>
 #include <memory>
-
-#include <TMatrixDSym.h>
-#include <TMatrixD.h>
-#include <TMatrixF.h>
 
 class Alignable;
 class AlignableTracker;
@@ -60,34 +57,36 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   MillePedeAlignmentAlgorithm(const edm::ParameterSet &cfg);
 
   /// Destructor
-  virtual ~MillePedeAlignmentAlgorithm();
+  ~MillePedeAlignmentAlgorithm() override;
 
   /// Called at beginning of job
-  virtual void initialize(const edm::EventSetup &setup,
-			  AlignableTracker *tracker, AlignableMuon *muon, AlignableExtras *extras,
-			  AlignmentParameterStore *store) override;
+  void initialize(const edm::EventSetup &setup,
+                          AlignableTracker *tracker, AlignableMuon *muon, AlignableExtras *extras,
+                          AlignmentParameterStore *store) override;
 
   /// Returns whether MP supports calibrations
-  virtual bool supportsCalibrations() override;
+  bool supportsCalibrations() override;
   /// Pass integrated calibrations to Millepede (they are not owned by Millepede!)
-  virtual bool addCalibrations(const std::vector<IntegratedCalibrationBase*> &iCals) override;
+  bool addCalibrations(const std::vector<IntegratedCalibrationBase*> &iCals) override;
+
+  virtual bool storeThresholds(const int & nRecords,const AlignPCLThresholds::threshold_map & thresholdMap);
 
   /// Called at end of job
-  virtual void terminate(const edm::EventSetup& iSetup) override;
+  void terminate(const edm::EventSetup& iSetup) override;
   /// Called at end of job
-  virtual void terminate() override;
+  void terminate() override;
 
   /// Returns whether MP should process events in the current configuration
-  virtual bool processesEvents() override;
+  bool processesEvents() override;
 
   /// Returns whether MP produced results to be stored
-  virtual bool storeAlignments() override;
+  bool storeAlignments() override;
 
   /// Run the algorithm on trajectories and tracks
-  virtual void run(const edm::EventSetup &setup, const EventInfo &eventInfo) override;
+  void run(const edm::EventSetup &setup, const EventInfo &eventInfo) override;
 
   /// called at begin of run
-  virtual void beginRun(const edm::Run& run,
+  void beginRun(const edm::Run& run,
                         const edm::EventSetup& setup,
                         bool changed) override;
 
@@ -98,13 +97,13 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
                       const edm::EventSetup&); //override;
 
   // This one will be called since it matches the interface of the base class
-  virtual void endRun(const EndRunInfo &runInfo, const edm::EventSetup &setup) override;
+  void endRun(const EndRunInfo &runInfo, const edm::EventSetup &setup) override;
 
   /// called at begin of luminosity block (resets Mille binary in mille mode)
-  virtual void beginLuminosityBlock(const edm::EventSetup&) override;
+  void beginLuminosityBlock(const edm::EventSetup&) override;
 
   /// called at end of luminosity block
-  virtual void endLuminosityBlock(const edm::EventSetup&) override;
+  void endLuminosityBlock(const edm::EventSetup&) override;
 
 
 /*   virtual void beginLuminosityBlock(const edm::EventSetup &setup) {} */
@@ -112,22 +111,22 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 
   /// Called in order to pass parameters to alignables for a specific run
   /// range in case the algorithm supports run range dependent alignment.
-  virtual bool setParametersForRunRange(const RunRange &runrange) override;
+  bool setParametersForRunRange(const RunRange &runrange) override;
 
  private:
   enum MeasurementDirection {kLocalX = 0, kLocalY};
 
   /// fill mille for a trajectory, returning number of x/y hits ([0,0] if 'bad' trajectory)
   std::pair<unsigned int, unsigned int>
-    addReferenceTrajectory(const edm::EventSetup &setup, const EventInfo &eventInfo, 
-			   const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr);
+    addReferenceTrajectory(const edm::EventSetup &setup, const EventInfo &eventInfo,
+                           const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr);
 
   /// If hit is usable: callMille for x and (probably) y direction.
   /// If globalDerivatives fine: returns 2 if 2D-hit, 1 if 1D-hit, 0 if no Alignable for hit.
   /// Returns -1 if any problem (for params cf. globalDerivativesHierarchy)
-  int addMeasurementData(const edm::EventSetup &setup, const EventInfo &eventInfo, 
-			 const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
-			 unsigned int iHit, AlignmentParameters *&params);
+  int addMeasurementData(const edm::EventSetup &setup, const EventInfo &eventInfo,
+                         const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
+                         unsigned int iHit, AlignmentParameters *&params);
 
   /// Add global data (labels, derivatives) to GBL trajectory
   /// Returns -1 if any problem (for params cf. globalDerivativesHierarchy)
@@ -140,30 +139,40 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   /// assuming 'parVec' and 'validHitVecY' to be parallel.
   /// Returns number of valid y-hits.
   unsigned int addHitCount(const std::vector<AlignmentParameters*> &parVec,
-			   const std::vector<bool> &validHitVecY) const;
+                           const std::vector<bool> &validHitVecY) const;
 
   /// adds data from reference trajectory from a specific Hit
+  template <typename CovarianceMatrix,
+            typename ResidualMatrix,
+            typename LocalDerivativeMatrix>
   void addRefTrackData2D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
-			 unsigned int iTrajHit, TMatrixDSym &aHitCovarianceM,
-			 TMatrixF &aHitResidualsM, TMatrixF &aLocalDerivativesM);
-  
+                         unsigned int iTrajHit,
+                         Eigen::MatrixBase<CovarianceMatrix>& aHitCovarianceM,
+                         Eigen::MatrixBase<ResidualMatrix>& aHitResidualsM,
+                         Eigen::MatrixBase<LocalDerivativeMatrix>& aLocalDerivativesM);
+
   /// adds data for virtual measurements from reference trajectory
   void addVirtualMeas(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
-		      unsigned int iVirtualMeas);
-			   
- /// adds data for a specific virtual measurement from reference trajectory 
+                      unsigned int iVirtualMeas);
+
+  /// adds data for a specific virtual measurement from reference trajectory
+  template <typename CovarianceMatrix,
+            typename ResidualMatrix,
+            typename LocalDerivativeMatrix>
   void addRefTrackVirtualMeas1D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
-				unsigned int iVirtualMeas,TMatrixDSym &aHitCovarianceM,
-				TMatrixF &aHitResidualsM, TMatrixF &aLocalDerivativesM);
-  
+                                unsigned int iVirtualMeas,
+                                Eigen::MatrixBase<CovarianceMatrix>& aHitCovarianceM,
+                                Eigen::MatrixBase<ResidualMatrix>& aHitResidualsM,
+                                Eigen::MatrixBase<LocalDerivativeMatrix>& aLocalDerivativesM);
+
   /// recursively adding derivatives and labels, false if problems
-  bool globalDerivativesHierarchy(const EventInfo &eventInfo, 
-				  const TrajectoryStateOnSurface &tsos,
-				  Alignable *ali, const AlignableDetOrUnitPtr &alidet,
-				  std::vector<float> &globalDerivativesX,
-				  std::vector<float> &globalDerivativesY,
-				  std::vector<int> &globalLabels,
-				  AlignmentParameters *&lowestParams) const;
+  bool globalDerivativesHierarchy(const EventInfo &eventInfo,
+                                  const TrajectoryStateOnSurface &tsos,
+                                  Alignable *ali, const AlignableDetOrUnitPtr &alidet,
+                                  std::vector<float> &globalDerivativesX,
+                                  std::vector<float> &globalDerivativesY,
+                                  std::vector<int> &globalLabels,
+                                  AlignmentParameters *&lowestParams) const;
 
   /// recursively adding derivatives (double) and labels, false if problems
   bool globalDerivativesHierarchy(const EventInfo &eventInfo,
@@ -184,53 +193,62 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 
   /// calls callMille1D or callMille2D
   int callMille(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
-		unsigned int iTrajHit, const std::vector<int> &globalLabels,
-		const std::vector<float> &globalDerivativesX,
-		const std::vector<float> &globalDerivativesY);
+                unsigned int iTrajHit, const std::vector<int> &globalLabels,
+                const std::vector<float> &globalDerivativesX,
+                const std::vector<float> &globalDerivativesY);
 
   /// calls Mille for 1D hits
   int callMille1D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
-		  unsigned int iTrajHit, const std::vector<int> &globalLabels,
-		  const std::vector<float> &globalDerivativesX);
+                  unsigned int iTrajHit, const std::vector<int> &globalLabels,
+                  const std::vector<float> &globalDerivativesX);
 
   /// calls Mille for x and possibly y component of hit,
   /// y is skipped for non-real 2D (e.g. SiStripRecHit2D),
   /// for TID/TEC first diagonalises if correlation is larger than configurable
   int callMille2D ( const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
-		    unsigned int iTrajHit, const std::vector<int> &globalLabels,
-		    const std::vector<float> &globalDerivativesx,
-		    const std::vector<float> &globalDerivativesy);
-  void  diagonalize(TMatrixDSym &aHitCovarianceM, TMatrixF &aLocalDerivativesM,
-		    TMatrixF &aHitResidualsM,TMatrixF &theGlobalDerivativesM) const;
-  // deals with the non matrix format of theFloatBufferX ...
-  void makeGlobDerivMatrix(const std::vector<float> &globalDerivativesx,
-			   const std::vector<float> &globalDerivativesy,
-			   TMatrixF &aGlobalDerivativesM);
+                    unsigned int iTrajHit, const std::vector<int> &globalLabels,
+                    const std::vector<float> &globalDerivativesx,
+                    const std::vector<float> &globalDerivativesy);
 
-//   void callMille(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr, 
-// 		 unsigned int iTrajHit, MeasurementDirection xOrY,
-// 		 const std::vector<float> &globalDerivatives, const std::vector<int> &globalLabels);
+  template <typename CovarianceMatrix,
+            typename LocalDerivativeMatrix,
+            typename ResidualMatrix,
+            typename GlobalDerivativeMatrix>
+  void diagonalize(Eigen::MatrixBase<CovarianceMatrix>& aHitCovarianceM,
+                   Eigen::MatrixBase<LocalDerivativeMatrix>& aLocalDerivativesM,
+                   Eigen::MatrixBase<ResidualMatrix>& aHitResidualsM,
+                   Eigen::MatrixBase<GlobalDerivativeMatrix>& aGlobalDerivativesM) const;
+
+  // deals with the non matrix format of theFloatBufferX ...
+  template <typename GlobalDerivativeMatrix>
+  void makeGlobDerivMatrix(const std::vector<float> &globalDerivativesx,
+                           const std::vector<float> &globalDerivativesy,
+                           Eigen::MatrixBase<GlobalDerivativeMatrix>& aGlobalDerivativesM);
+
+//   void callMille(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
+//               unsigned int iTrajHit, MeasurementDirection xOrY,
+//               const std::vector<float> &globalDerivatives, const std::vector<int> &globalLabels);
   /// true if hit belongs to 2D detector (currently tracker specific)
   bool is2D(const TransientTrackingRecHit::ConstRecHitPointer &recHit) const;
 
   /// read pede input defined by 'psetName', flag to create/not create MillePedeVariables
   bool readFromPede(const edm::ParameterSet &mprespset, bool setUserVars,
-		    const RunRange &runrange);
-  bool areEmptyParams(const std::vector<Alignable*> &alignables) const;
+                    const RunRange &runrange);
+  bool areEmptyParams(const align::Alignables& alignables) const;
   unsigned int doIO(int loop) const;
   /// add MillePedeVariables for each AlignmentParameters (exception if no parameters...)
-  void buildUserVariables(const std::vector<Alignable*> &alignables) const;
+  void buildUserVariables(const align::Alignables& alignables) const;
 
   /// Generates list of files to read, given the list and dir from the configuration.
   /// This will automatically expand formatting directives, if they appear.
   std::vector<std::string> getExistingFormattedFiles(const std::vector<std::string>& plainFiles, const std::string& theDir);
 
-  void addLaserData(const EventInfo &eventInfo, 
-		    const TkFittedLasBeamCollection &tkLasBeams,
-		    const TsosVectorCollection &tkLasBeamTsoses);
-  void addLasBeam(const EventInfo &eventInfo, 
-		  const TkFittedLasBeam &lasBeam,
-		  const std::vector<TrajectoryStateOnSurface> &tsoses);
+  void addLaserData(const EventInfo &eventInfo,
+                    const TkFittedLasBeamCollection &tkLasBeams,
+                    const TsosVectorCollection &tkLasBeamTsoses);
+  void addLasBeam(const EventInfo &eventInfo,
+                  const TkFittedLasBeam &lasBeam,
+                  const std::vector<TrajectoryStateOnSurface> &tsoses);
 
   /// add measurement data from PXB survey
   void addPxbSurvey(const edm::ParameterSet &pxbSurveyCfg);
@@ -242,19 +260,19 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   // Data members
   //--------------------------------------------------------
   enum EModeBit {myMilleBit = 1 << 0, myPedeRunBit = 1 << 1, myPedeSteerBit = 1 << 2,
-		 myPedeReadBit = 1 << 3};
+                 myPedeReadBit = 1 << 3};
   unsigned int decodeMode(const std::string &mode) const;
   bool isMode(unsigned int testMode) const {return (theMode & testMode);}
   bool addHitStatistics(int fromLoop, const std::string &outFile,
-			const std::vector<std::string> &inFiles) const;
-  bool addHits(const std::vector<Alignable*> &alis,
-	       const std::vector<AlignmentUserVariables*> &mpVars) const;
+                        const std::vector<std::string> &inFiles) const;
+  bool addHits(const align::Alignables& alis,
+               const std::vector<AlignmentUserVariables*> &mpVars) const;
 
   edm::ParameterSet         theConfig;
   unsigned int              theMode;
   std::string               theDir; /// directory for all kind of files
   AlignmentParameterStore  *theAlignmentParameterStore;
-  std::vector<Alignable*>   theAlignables;
+  align::Alignables         theAlignables;
   std::unique_ptr<AlignableNavigator>    theAlignableNavigator;
   std::unique_ptr<MillePedeMonitor>      theMonitor;
   std::unique_ptr<Mille>                 theMille;
@@ -262,6 +280,7 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   std::unique_ptr<PedeSteerer>           thePedeSteer;
   std::unique_ptr<TrajectoryFactoryBase> theTrajectoryFactory;
   std::vector<IntegratedCalibrationBase*> theCalibrations;
+  std::shared_ptr<AlignPCLThresholds> theThresholds; 
   unsigned int              theMinNumHits;
   double                    theMaximalCor2D; /// maximal correlation allowed for 2D hit in TID/TEC.
                                              /// If larger, the 2D measurement gets diagonalized!!!
@@ -288,5 +307,5 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 };
 
 DEFINE_EDM_PLUGIN(AlignmentAlgorithmPluginFactory,
-		   MillePedeAlignmentAlgorithm, "MillePedeAlignmentAlgorithm");
+                   MillePedeAlignmentAlgorithm, "MillePedeAlignmentAlgorithm");
 #endif

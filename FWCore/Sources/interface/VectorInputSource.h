@@ -30,7 +30,7 @@ namespace edm {
     virtual ~VectorInputSource();
 
     template<typename T>
-    size_t loopOverEvents(EventPrincipal& cache, size_t& fileNameHash, size_t number, T eventOperator, CLHEP::HepRandomEngine* = nullptr, EventID const* id = nullptr);
+    size_t loopOverEvents(EventPrincipal& cache, size_t& fileNameHash, size_t number, T eventOperator, CLHEP::HepRandomEngine* = nullptr, EventID const* id = nullptr, bool recycleFiles = true);
 
     template<typename T, typename Iterator>
     size_t loopSpecified(EventPrincipal& cache, size_t& fileNameHash, Iterator const& begin, Iterator const& end, T eventOperator);
@@ -54,7 +54,7 @@ namespace edm {
     void clearEventPrincipal(EventPrincipal& cache);
 
   private:
-    virtual bool readOneEvent(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine*, EventID const* id) = 0;
+    virtual bool readOneEvent(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine*, EventID const* id, bool recycleFiles) = 0;
     virtual void readOneSpecified(EventPrincipal& cache, size_t& fileNameHash, SecondaryEventIDAndFileInfo const& event) = 0;
     void readOneSpecified(EventPrincipal& cache, size_t& fileNameHash, EventID const& event) {
       SecondaryEventIDAndFileInfo info(event, fileNameHash);
@@ -70,11 +70,11 @@ namespace edm {
   };
 
   template<typename T>
-  size_t VectorInputSource::loopOverEvents(EventPrincipal& cache, size_t& fileNameHash, size_t number, T eventOperator, CLHEP::HepRandomEngine* engine, EventID const* id) {
+  size_t VectorInputSource::loopOverEvents(EventPrincipal& cache, size_t& fileNameHash, size_t number, T eventOperator, CLHEP::HepRandomEngine* engine, EventID const* id, bool recycleFiles) {
     size_t i = 0U;
     for(; i < number; ++i) {
       clearEventPrincipal(cache);
-      bool found = readOneEvent(cache, fileNameHash, engine, id);
+      bool found = readOneEvent(cache, fileNameHash, engine, id, recycleFiles);
       if(!found) break;
       eventOperator(cache, fileNameHash);
     }

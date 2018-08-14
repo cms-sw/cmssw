@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import os
 import argparse
 
@@ -20,7 +21,7 @@ class LimitTrackAlgo:
         return True
 
 def limitRelVal(algo, quality):
-    return quality in ["", "highPurity"]
+    return quality in ["", "highPurity", "ByOriginalAlgo", "highPurityByOriginalAlgo"]
 
 def main(opts):
     sample = SimpleSample(opts.subdirprefix, opts.html_sample, [(f, f.replace(".root", "")) for f in opts.files])
@@ -45,8 +46,10 @@ def main(opts):
             "allTPEffic": limitProcessing,
             "fromPV": limitProcessing,
             "fromPVAllTP": limitProcessing,
+            "tpPtLess09": limitProcessing,
             "seeding": limitProcessing,
             "building": limitProcessing,
+            "bhadron": limitProcessing,
         }
     }
     if opts.limit_relval:
@@ -56,26 +59,27 @@ def main(opts):
             "allTPEffic": ignore,
             "fromPV": ignore,
             "fromPVAllTP": ignore,
+            "tpPtLess09": limitRelVal,
             "seeding": ignore,
-            "building": ignore,
+            "bhadron": limitRelVal,
         }
 
     trk = [trackingPlots.plotter]
-    other = [trackingPlots.timePlotter, vertexPlots.plotter]
+    other = [trackingPlots.timePlotter, vertexPlots.plotter, trackingPlots.plotterHLT]
     if opts.extended:
         trk.append(trackingPlots.plotterExt)
-        other.append(vertexPlots.plotterExt)
+        other.extend([vertexPlots.plotterExt, trackingPlots.plotterHLTExt])
     val.doPlots(trk, plotterDrawArgs=drawArgs, **kwargs_tracking)
     val.doPlots(other, plotterDrawArgs=drawArgs)
-    print
+    print()
     if opts.no_html:
-        print "Plots created into directory '%s'." % opts.outputDir
+        print("Plots created into directory '%s'." % opts.outputDir)
     else:
         htmlReport.write()
-        print "Plots and HTML report created into directory '%s'. You can just move it to some www area and access the pages via web browser" % opts.outputDir
+        print("Plots and HTML report created into directory '%s'. You can just move it to some www area and access the pages via web browser" % opts.outputDir)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Create standard set of tracking validation plots from one or more DQM files.")
+    parser = argparse.ArgumentParser(description="Create standard set of tracking validation plots from one or more DQM files.\nNote that for timing plots you have to include FastTimerService (typically it gets included via DQM/VALIDATION), and set\nprocess.FastTimerService.enableDQMbyPath = True")
     parser.add_argument("files", metavar="file", type=str, nargs="+",
                         help="DQM file to plot the validation plots from")
     parser.add_argument("-o", "--outputDir", type=str, default="plots",
@@ -119,13 +123,13 @@ if __name__ == "__main__":
             parser.error("DQM file %s does not exist" % f)
 
     if opts.ignoreMissing:
-        print "--ignoreMissing is now the only operation mode, so you can stop using this parameter"
+        print("--ignoreMissing is now the only operation mode, so you can stop using this parameter")
 
     if opts.ratio:
-        print "--ratio is now the default, so you can stop using this parameter"
+        print("--ratio is now the default, so you can stop using this parameter")
 
     if opts.html:
-        print "--html is now the default, so you can stop using this parameter"
+        print("--html is now the default, so you can stop using this parameter")
 
     if opts.limit_tracking_algo is not None:
         if opts.limit_relval:
@@ -133,6 +137,6 @@ if __name__ == "__main__":
         opts.limit_tracking_algo = opts.limit_tracking_algo.split(",")
 
     if opts.limit_relval and opts.ptcut:
-        print "With --limit-relval enabled, --ptcut option does not have any effect"
+        print("With --limit-relval enabled, --ptcut option does not have any effect")
 
     main(opts)

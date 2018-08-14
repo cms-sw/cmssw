@@ -36,19 +36,19 @@ class GenXSecAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one
 
 public:
   explicit GenXSecAnalyzer(const edm::ParameterSet&);
-  ~GenXSecAnalyzer();
+  ~GenXSecAnalyzer() override;
   const double final_xsec_value() const {return xsec_.value();}
   const double final_xsec_error() const {return xsec_.error();}
   
 private:
 
-  virtual void beginJob() override;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endJob() override;
+  void beginJob() override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void endJob() override;
   // computation of cross section after matching and before HepcFilter and GenFilter
   GenLumiInfoProduct::XSec compute(const GenLumiInfoProduct &);
   // combination of cross section from different MCs after matching (could be either before or after HepcFilter and GenFilter)

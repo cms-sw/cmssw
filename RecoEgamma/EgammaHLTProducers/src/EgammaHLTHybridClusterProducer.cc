@@ -38,73 +38,58 @@
 
 // EgammaCoreTools
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
 
 // Class header file
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTHybridClusterProducer.h"
 
 
-EgammaHLTHybridClusterProducer::EgammaHLTHybridClusterProducer(const edm::ParameterSet& ps) {
-
-  basicclusterCollection_ = ps.getParameter<std::string>("basicclusterCollection");
-  superclusterCollection_ = ps.getParameter<std::string>("superclusterCollection");
-  hitcollection_ = ps.getParameter<edm::InputTag>("ecalhitcollection");
-  hittoken_ = consumes<EcalRecHitCollection>(hitcollection_);
+EgammaHLTHybridClusterProducer::EgammaHLTHybridClusterProducer(const edm::ParameterSet& ps)
+  : basicclusterCollection_ (ps.getParameter<std::string>("basicclusterCollection"))
+  , superclusterCollection_ (ps.getParameter<std::string>("superclusterCollection"))
+  , hittoken_               (consumes<EcalRecHitCollection>(hitcollection_))
+  , hitcollection_          (ps.getParameter<edm::InputTag>("ecalhitcollection"))
   
   // L1 matching parameters
-  l1TagIsolated_    = consumes<l1extra::L1EmParticleCollection>(ps.getParameter< edm::InputTag > ("l1TagIsolated"));
-  l1TagNonIsolated_ = consumes<l1extra::L1EmParticleCollection>(ps.getParameter< edm::InputTag > ("l1TagNonIsolated"));
+  , l1TagIsolated_    (consumes<l1extra::L1EmParticleCollection>(ps.getParameter< edm::InputTag > ("l1TagIsolated")))
+  , l1TagNonIsolated_ (consumes<l1extra::L1EmParticleCollection>(ps.getParameter< edm::InputTag > ("l1TagNonIsolated")))
 
-  doIsolated_   = ps.getParameter<bool>("doIsolated");
+  , doIsolated_   (ps.getParameter<bool>("doIsolated"))
 
-  l1LowerThr_ = ps.getParameter<double> ("l1LowerThr");
-  l1UpperThr_ = ps.getParameter<double> ("l1UpperThr");
-  l1LowerThrIgnoreIsolation_ = ps.getParameter<double> ("l1LowerThrIgnoreIsolation");
+  , l1LowerThr_ (ps.getParameter<double> ("l1LowerThr"))
+  , l1UpperThr_ (ps.getParameter<double> ("l1UpperThr"))
+  , l1LowerThrIgnoreIsolation_ (ps.getParameter<double> ("l1LowerThrIgnoreIsolation"))
 
-  regionEtaMargin_   = ps.getParameter<double>("regionEtaMargin");
-  regionPhiMargin_   = ps.getParameter<double>("regionPhiMargin");
+  , regionEtaMargin_   (ps.getParameter<double>("regionEtaMargin"))
+  , regionPhiMargin_   (ps.getParameter<double>("regionPhiMargin"))
 
   // Parameters for the position calculation:
-  posCalculator_ = PositionCalc( ps.getParameter<edm::ParameterSet>("posCalcParameters") );
-  
-  const std::vector<std::string> flagnames = 
-    ps.getParameter<std::vector<std::string> >("RecHitFlagToBeExcluded");
+  , posCalculator_ (PositionCalc( ps.getParameter<edm::ParameterSet>("posCalcParameters") ))
 
-  const std::vector<int> flagsexcl= 
-    StringToEnumValue<EcalRecHit::Flags>(flagnames);
-
-  const std::vector<std::string> severitynames = 
-    ps.getParameter<std::vector<std::string> >("RecHitSeverityToBeExcluded");
-   
-  const std::vector<int> severitiesexcl= 
-    StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynames);
-
-
-  hybrid_p = new HybridClusterAlgo(ps.getParameter<double>("HybridBarrelSeedThr"), 
-                                   ps.getParameter<int>("step"),
-                                   ps.getParameter<double>("ethresh"),
-                                   ps.getParameter<double>("eseed"),
-                                   ps.getParameter<double>("xi"),
-                                   ps.getParameter<bool>("useEtForXi"),
-                                   ps.getParameter<double>("ewing"),
-                                   flagsexcl,
-                                   posCalculator_,
-			           ps.getParameter<bool>("dynamicEThresh"),
-                                   ps.getParameter<double>("eThreshA"),
-                                   ps.getParameter<double>("eThreshB"),
-				   severitiesexcl,
-				   ps.getParameter<bool>("excludeFlagged")
-				   );
-
-  bool dynamicPhiRoad = ps.getParameter<bool>("dynamicPhiRoad");
-    if (dynamicPhiRoad) {
+  , hybrid_p (new HybridClusterAlgo(
+              ps.getParameter<double>("HybridBarrelSeedThr"), 
+              ps.getParameter<int>("step"),
+              ps.getParameter<double>("ethresh"),
+              ps.getParameter<double>("eseed"),
+              ps.getParameter<double>("xi"),
+              ps.getParameter<bool>("useEtForXi"),
+              ps.getParameter<double>("ewing"),
+              StringToEnumValue<EcalRecHit::Flags>(
+                  ps.getParameter<std::vector<std::string> >("RecHitFlagToBeExcluded")),
+              posCalculator_,
+              ps.getParameter<bool>("dynamicEThresh"),
+              ps.getParameter<double>("eThreshA"),
+              ps.getParameter<double>("eThreshB"),
+              StringToEnumValue<EcalSeverityLevel::SeverityLevel>(
+                  ps.getParameter<std::vector<std::string> >("RecHitSeverityToBeExcluded")),
+              ps.getParameter<bool>("excludeFlagged")))
+{
+  if (ps.getParameter<bool>("dynamicPhiRoad")) {
      edm::ParameterSet bremRecoveryPset = ps.getParameter<edm::ParameterSet>("bremRecoveryPset");
      hybrid_p->setDynamicPhiRoad(bremRecoveryPset);
   }
 
   produces< reco::BasicClusterCollection >(basicclusterCollection_);
   produces< reco::SuperClusterCollection >(superclusterCollection_);
-  nEvt_ = 0;
 }
 
 
@@ -159,8 +144,8 @@ void EgammaHLTHybridClusterProducer::fillDescriptions(edm::ConfigurationDescript
 }
 
 
-void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
-{
+void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
+
   // get the hit collection from the event:
   edm::Handle<EcalRecHitCollection> rhcHandle;
   evt.getByToken(hittoken_, rhcHandle);
@@ -212,7 +197,7 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
   edm::ESHandle<L1CaloGeometry> l1CaloGeom ;
   es.get<L1CaloGeometryRecord>().get(l1CaloGeom) ;
 
-  std::vector<EcalEtaPhiRegion> regions;
+  std::vector<RectangularEtaPhiRegion> regions;
 
   if(doIsolated_) {
     for( l1extra::L1EmParticleCollection::const_iterator emItr = emIsolColl->begin(); emItr != emIsolColl->end() ;++emItr ){
@@ -243,7 +228,7 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
       if (etaHigh>1.479) etaHigh=1.479;
       if (etaLow<-1.479) etaLow=-1.479;
 
-      if(isbarl) regions.push_back(EcalEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
+      if(isbarl) regions.push_back(RectangularEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
 
     }
   }
@@ -280,7 +265,7 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
        if (etaHigh>1.479) etaHigh=1.479;
        if (etaLow<-1.479) etaLow=-1.479;
        
-       if(isbarl) regions.push_back(EcalEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
+       if(isbarl) regions.push_back(RectangularEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
        
     }
     }
@@ -310,9 +295,6 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
   auto superclusters_p = std::make_unique<reco::SuperClusterCollection>();
   superclusters_p->assign(superClusters.begin(), superClusters.end());
   evt.put(std::move(superclusters_p), superclusterCollection_);
-
-
-  nEvt_++;
 }
 
  

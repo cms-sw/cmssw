@@ -134,8 +134,8 @@ void HotlineDQM::analyze(edm::Event const& e, edm::EventSetup const& eSetup){
     trigger::TriggerObjectCollection triggerObjects = triggerSummary->getObjects();
     if( !(filterIndex >= triggerSummary->sizeFilters()) ){
         const trigger::Keys& keys = triggerSummary->filterKeys( filterIndex );
-        for( size_t j = 0; j < keys.size(); ++j ){
-            trigger::TriggerObject foundObject = triggerObjects[keys[j]];
+        for(unsigned short key : keys){
+            trigger::TriggerObject foundObject = triggerObjects[key];
             if(useMuons && fabs(foundObject.id()) == 13){ //muon
                 if(foundObject.pt() > ptMuon) ptMuon = foundObject.pt();
             }
@@ -163,7 +163,7 @@ void HotlineDQM::analyze(edm::Event const& e, edm::EventSetup const& eSetup){
         if(useHT) h_OnlineHT->Fill(ht);
 
         //fill muon pt histogram
-        if(MuonCollection->size() > 0){
+        if(!MuonCollection->empty()){
             float maxMuPt = -1.0;
             for(auto &mu : *MuonCollection){
                 if(mu.pt() > maxMuPt) maxMuPt = mu.pt();
@@ -172,7 +172,7 @@ void HotlineDQM::analyze(edm::Event const& e, edm::EventSetup const& eSetup){
         }
 
         //fill photon pt histogram
-        if(PhotonCollection->size() > 0){
+        if(!PhotonCollection->empty()){
             float maxPhoPt = -1.0;
             for(auto &pho : *PhotonCollection){
                 if(pho.pt() > maxPhoPt) maxPhoPt = pho.pt();
@@ -182,10 +182,10 @@ void HotlineDQM::analyze(edm::Event const& e, edm::EventSetup const& eSetup){
 
         //fill HT histogram
         float caloHT = 0.0;
-        for (reco::CaloJetCollection::const_iterator i_calojet = caloJetCollection->begin(); i_calojet != caloJetCollection->end(); ++i_calojet){
-            if (i_calojet->pt() < 40) continue;
-            if (fabs(i_calojet->eta()) > 3.0) continue;
-            caloHT += i_calojet->pt();
+        for (auto const & i_calojet : *caloJetCollection){
+            if (i_calojet.pt() < 40) continue;
+            if (fabs(i_calojet.eta()) > 3.0) continue;
+            caloHT += i_calojet.pt();
         }
         h_HT->Fill(caloHT);
 

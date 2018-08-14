@@ -22,14 +22,14 @@ class PFTauExtractor : public reco::isodeposit::IsoDepositExtractor
  public:
 
   explicit PFTauExtractor(const edm::ParameterSet&, edm::ConsumesCollector && iC);
-  virtual ~PFTauExtractor(){}
+  ~PFTauExtractor() override{}
 
   /// definition of pure virtual functions inherited from IsoDepositExtractor base-class
-  virtual void fillVetos(const edm::Event&, const edm::EventSetup&, const reco::TrackCollection&) { }
-  virtual reco::IsoDeposit deposit(const edm::Event& evt, const edm::EventSetup& es, const reco::Track& track) const {
+  void fillVetos(const edm::Event&, const edm::EventSetup&, const reco::TrackCollection&) override { }
+  reco::IsoDeposit deposit(const edm::Event& evt, const edm::EventSetup& es, const reco::Track& track) const override {
     return depositFromObject(evt, es, track);
   }
-  virtual reco::IsoDeposit deposit(const edm::Event& evt, const edm::EventSetup& es, const reco::Candidate& candidate) const {
+  reco::IsoDeposit deposit(const edm::Event& evt, const edm::EventSetup& es, const reco::Candidate& candidate) const override {
     return depositFromObject(evt, es, candidate);
   }
 

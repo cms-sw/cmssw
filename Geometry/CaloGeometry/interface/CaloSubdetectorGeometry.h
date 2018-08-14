@@ -1,6 +1,7 @@
 #ifndef GEOMETRY_CALOGEOMETRY_CALOSUBDETECTORGEOMETRY_H
 #define GEOMETRY_CALOGEOMETRY_CALOSUBDETECTORGEOMETRY_H 1
 
+#include <memory>
 #include <vector>
 #include <set>
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
@@ -24,7 +25,7 @@ Base class for a geometry container for a specific calorimetry subdetector.
 class CaloSubdetectorGeometry {
 
 public:
-  typedef std::vector<CaloCellGeometry const *> CellSet;
+  typedef std::vector<std::shared_ptr<const CaloCellGeometry> > CellSet;
   typedef CaloCellGeometry::CCGFloat CCGFloat ;
 
   typedef std::set<DetId>       DetIdSet;
@@ -43,6 +44,10 @@ public:
   /// The base class DOES assume that it owns the CaloCellGeometry objects
   virtual ~CaloSubdetectorGeometry();
 
+  /// avoid copies
+  CaloSubdetectorGeometry(            const CaloSubdetectorGeometry& ) = delete;
+  CaloSubdetectorGeometry& operator=( const CaloSubdetectorGeometry& ) = delete;
+
   virtual void newCell( const GlobalPoint& f1 ,
 			const GlobalPoint& f2 ,
 			const GlobalPoint& f3 ,
@@ -53,7 +58,7 @@ public:
   virtual bool present( const DetId& id ) const;
 
   /// Get the cell geometry of a given detector id.  Should return false if not found.
-  virtual const CaloCellGeometry* getGeometry( const DetId& id ) const ;
+  virtual std::shared_ptr<const CaloCellGeometry> getGeometry(const DetId& id) const;
 
   /** \brief Get a list of valid detector ids (for the given subdetector)
       \note The implementation in this class is relevant for SubdetectorGeometries which handle only
@@ -62,7 +67,7 @@ public:
   virtual const std::vector<DetId>& getValidDetIds( DetId::Detector det    = DetId::Detector(0) , int subdet = 0 ) const ;
 
   // Get closest cell, etc...
-  virtual DetId getClosestCell( const GlobalPoint& r ) const ;
+  virtual DetId getClosestCell( const GlobalPoint& r ) const;
 
   /** \brief Get a list of all cells within a dR of the given cell
 	  
@@ -70,12 +75,12 @@ public:
       Cleverer implementations are suggested to use rough conversions between
       eta/phi and ieta/iphi and test on the boundaries.
   */
-  virtual DetIdSet getCells( const GlobalPoint& r, double dR ) const ;
-  virtual CellSet getCellSet( const GlobalPoint& r, double dR ) const ;
+  virtual DetIdSet getCells( const GlobalPoint& r, double dR ) const;
+  virtual CellSet getCellSet( const GlobalPoint& r, double dR ) const;
 
-  CCGFloat deltaPhi( const DetId& detId ) const ;
+  CCGFloat deltaPhi( const DetId& detId ) const;
   
-  CCGFloat deltaEta( const DetId& detId ) const ;
+  CCGFloat deltaEta( const DetId& detId ) const;
 
   void allocateCorners( CaloCellGeometry::CornersVec::size_type n ) ;
   
@@ -98,7 +103,7 @@ public:
   virtual void getSummary( TrVec&  trVector,
 			   IVec&   iVector,
 			   DimVec& dimVector,
-			   IVec&   dinsVector ) const ;
+			   IVec&   dinsVector ) const;
 
   virtual void initializeParms() { return ; } 
 
@@ -107,7 +112,8 @@ protected:
   virtual unsigned int indexFor(const DetId& id) const;
   virtual unsigned int sizeForDenseIndex(const DetId& id) const;
 
-  virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const = 0 ;
+  virtual const CaloCellGeometry* getGeometryRawPtr(uint32_t index) const = 0;
+  virtual std::shared_ptr<const CaloCellGeometry> cellGeomPtr( uint32_t index ) const;
 
   ParVecVec m_parVecVec ;
 
@@ -124,10 +130,6 @@ private:
   ParMgr*   m_parMgr ;
 
   CaloCellGeometry::CornersMgr* m_cmgr ;
-
-  /// avoid copies
-  CaloSubdetectorGeometry(            const CaloSubdetectorGeometry& ) ;
-  CaloSubdetectorGeometry& operator=( const CaloSubdetectorGeometry& ) ;
 
   bool               m_sortedIds ;
 

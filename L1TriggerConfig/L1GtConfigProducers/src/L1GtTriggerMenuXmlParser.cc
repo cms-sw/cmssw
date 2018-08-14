@@ -38,7 +38,7 @@
 
 // constructor
 L1GtTriggerMenuXmlParser::L1GtTriggerMenuXmlParser() :
-    L1GtXmlParserTags(), m_xmlErrHandler(0), m_triggerMenuInterface("NULL"),
+    L1GtXmlParserTags(), m_xmlErrHandler(nullptr), m_triggerMenuInterface("NULL"),
     m_triggerMenuName("NULL"), m_triggerMenuImplementation("NULL"), m_scaleDbKey("NULL")
 
 {
@@ -267,13 +267,13 @@ void L1GtTriggerMenuXmlParser::parseXmlFile(const std::string& defXmlFile,
     m_triggerMenuName.erase(m_triggerMenuName.begin() + xmlPos, m_triggerMenuName.end());
 
     // error handler for xml-parser
-    m_xmlErrHandler = 0;
+    m_xmlErrHandler = nullptr;
 
     XercesDOMParser* parser;
 
     LogTrace("L1GtTriggerMenuXmlParser") << "\nOpening XML-File: \n  " << defXmlFile << std::endl;
 
-    if ((parser = initXML(defXmlFile)) != 0) {
+    if ((parser = initXML(defXmlFile)) != nullptr) {
         workXML(parser);
     }
     cleanupXML(parser);
@@ -354,14 +354,14 @@ XERCES_CPP_NAMESPACE::XercesDOMParser* L1GtTriggerMenuXmlParser::initXML(const s
         << message << std::endl;
 
         XMLString::release(&message);
-        return 0;
+        return nullptr;
     }
 
     XercesDOMParser* parser = new XercesDOMParser();
     parser->setValidationScheme(XercesDOMParser::Val_Always);
     parser->setDoNamespaces(false); // we got no dtd
 
-    if (m_xmlErrHandler == 0) { // redundant check
+    if (m_xmlErrHandler == nullptr) { // redundant check
         m_xmlErrHandler = (ErrorHandler*) new HandlerBase();
     }
     else {
@@ -383,8 +383,8 @@ XERCES_CPP_NAMESPACE::XercesDOMParser* L1GtTriggerMenuXmlParser::initXML(const s
         XMLString::release(&message);
         delete parser;
         delete m_xmlErrHandler;
-        m_xmlErrHandler = 0;
-        return 0;
+        m_xmlErrHandler = nullptr;
+        return nullptr;
     }
     catch (const DOMException &toCatch) {
         char *message = XMLString::transcode(toCatch.msg);
@@ -396,8 +396,8 @@ XERCES_CPP_NAMESPACE::XercesDOMParser* L1GtTriggerMenuXmlParser::initXML(const s
         XMLString::release(&message);
         delete parser;
         delete m_xmlErrHandler;
-        m_xmlErrHandler = 0;
-        return 0;
+        m_xmlErrHandler = nullptr;
+        return nullptr;
     }
     catch (...) {
 
@@ -407,8 +407,8 @@ XERCES_CPP_NAMESPACE::XercesDOMParser* L1GtTriggerMenuXmlParser::initXML(const s
 
         delete parser;
         delete m_xmlErrHandler;
-        m_xmlErrHandler = 0;
-        return 0;
+        m_xmlErrHandler = nullptr;
+        return nullptr;
     }
 
     return parser;
@@ -421,11 +421,11 @@ XERCES_CPP_NAMESPACE::DOMNode* L1GtTriggerMenuXmlParser::findXMLChild(
 
     XERCES_CPP_NAMESPACE_USE
 
-    char* nodeName = 0;
+    char* nodeName = nullptr;
 
     DOMNode *n1 = startChild;
-    if (n1 == 0) {
-        return 0;
+    if (n1 == nullptr) {
+        return nullptr;
     }
 
     if ( !tagName.empty() ) {
@@ -437,7 +437,7 @@ XERCES_CPP_NAMESPACE::DOMNode* L1GtTriggerMenuXmlParser::findXMLChild(
 
                 XMLString::release(&nodeName);
                 n1 = n1->getNextSibling();
-                if (n1 == 0) {
+                if (n1 == nullptr) {
                     break;
                 }
 
@@ -449,13 +449,13 @@ XERCES_CPP_NAMESPACE::DOMNode* L1GtTriggerMenuXmlParser::findXMLChild(
             while (XMLString::compareNIString(nodeName, tagName.c_str(), tagName.length())) {
                 XMLString::release(&nodeName);
                 n1 = n1->getNextSibling();
-                if (n1 == 0) {
+                if (n1 == nullptr) {
                     break;
                 }
 
                 nodeName = XMLString::transcode(n1->getNodeName());
             }
-            if (n1 != 0 && rest != 0) {
+            if (n1 != nullptr && rest != nullptr) {
                 *rest = std::string(nodeName).substr(tagName.length(), strlen(nodeName) - tagName.length());
             }
         }
@@ -463,12 +463,12 @@ XERCES_CPP_NAMESPACE::DOMNode* L1GtTriggerMenuXmlParser::findXMLChild(
     else { // empty string given
         while (n1->getNodeType() != DOMNode::ELEMENT_NODE) {
             n1 = n1->getNextSibling();
-            if (n1 == 0) {
+            if (n1 == nullptr) {
                 break;
             }
 
         }
-        if (n1 != 0 && rest != 0) {
+        if (n1 != nullptr && rest != nullptr) {
             nodeName = XMLString::transcode(n1->getNodeName());
             *rest = std::string(nodeName);
         }
@@ -498,7 +498,7 @@ std::string L1GtTriggerMenuXmlParser::getXMLAttribute(const XERCES_CPP_NAMESPACE
 
     // get attributes list
     DOMNamedNodeMap* attributes = node->getAttributes();
-    if (attributes == 0) {
+    if (attributes == nullptr) {
         return ret;
     }
 
@@ -507,7 +507,7 @@ std::string L1GtTriggerMenuXmlParser::getXMLAttribute(const XERCES_CPP_NAMESPACE
     DOMNode* attribNode = attributes->getNamedItem(attrName);
 
     XMLString::release(&attrName);
-    if (attribNode == 0) {
+    if (attribNode == nullptr) {
         return ret;
     }
 
@@ -533,12 +533,12 @@ std::string L1GtTriggerMenuXmlParser::getXMLTextValue(XERCES_CPP_NAMESPACE::DOMN
     std::string ret;
 
     DOMNode* n1 = node;
-    if (n1 == 0) {
+    if (n1 == nullptr) {
         return ret;
     }
 
     const XMLCh* retXmlCh = n1->getTextContent();
-    if (retXmlCh == 0) {
+    if (retXmlCh == nullptr) {
         return ret;
     }
 
@@ -648,7 +648,7 @@ bool L1GtTriggerMenuXmlParser::hexString2UInt128(const std::string& hexString,
 bool L1GtTriggerMenuXmlParser::getXMLHexTextValue128(XERCES_CPP_NAMESPACE::DOMNode* node,
     boost::uint64_t& dstL, boost::uint64_t& dstH) {
 
-    if (node == 0) {
+    if (node == nullptr) {
 
         LogDebug("L1GtTriggerMenuXmlParser") << "node == 0 in " << __PRETTY_FUNCTION__ << std::endl;
 
@@ -716,7 +716,7 @@ bool L1GtTriggerMenuXmlParser::countConditionChildMaxBits(XERCES_CPP_NAMESPACE::
     XERCES_CPP_NAMESPACE_USE
 
     // should never happen...
-    if (node == 0) {
+    if (node == nullptr) {
 
         LogDebug("L1GtTriggerMenuXmlParser")
         << "node == 0 in " << __PRETTY_FUNCTION__ << std::endl;
@@ -726,7 +726,7 @@ bool L1GtTriggerMenuXmlParser::countConditionChildMaxBits(XERCES_CPP_NAMESPACE::
 
     DOMNode* n1 = findXMLChild(node->getFirstChild(), childName);
 
-    if (n1 == 0) {
+    if (n1 == nullptr) {
 
         LogDebug("L1GtTriggerMenuXmlParser") << "Child of condition not found ( " << childName
             << ")" << std::endl;
@@ -736,7 +736,7 @@ bool L1GtTriggerMenuXmlParser::countConditionChildMaxBits(XERCES_CPP_NAMESPACE::
 
     DOMNode* n2 = findXMLChild(n1->getFirstChild(), m_xmlTagValue);
 
-    if (n2 == 0) {
+    if (n2 == nullptr) {
 
         LogDebug("L1GtTriggerMenuXmlParser") << "No value tag found for child " << childName
             << " in " << __PRETTY_FUNCTION__ << std::endl;
@@ -837,7 +837,7 @@ bool L1GtTriggerMenuXmlParser::getConditionChildValues(XERCES_CPP_NAMESPACE::DOM
 
     XERCES_CPP_NAMESPACE_USE
 
-    if (node == 0) {
+    if (node == nullptr) {
 
         LogDebug("L1GtTriggerMenuXmlParser")
         << "node == 0 in " << __PRETTY_FUNCTION__
@@ -849,7 +849,7 @@ bool L1GtTriggerMenuXmlParser::getConditionChildValues(XERCES_CPP_NAMESPACE::DOM
     DOMNode* n1 = findXMLChild(node->getFirstChild(), childName);
 
     // if child not found
-    if (n1 == 0) {
+    if (n1 == nullptr) {
 
         LogDebug("L1GtTriggerMenuXmlParser") << "Child of condition not found ( " << childName
             << ")" << std::endl;
@@ -868,7 +868,7 @@ bool L1GtTriggerMenuXmlParser::getConditionChildValues(XERCES_CPP_NAMESPACE::DOM
     //
     n1 = findXMLChild(n1->getFirstChild(), m_xmlTagValue);
     for (unsigned int i = 0; i < num; i++) {
-        if (n1 == 0) {
+        if (n1 == nullptr) {
 
             LogDebug("L1GtTriggerMenuXmlParser") << "Not enough values in condition child ( "
                 << childName << ")" << std::endl;
@@ -901,13 +901,13 @@ void L1GtTriggerMenuXmlParser::cleanupXML(XERCES_CPP_NAMESPACE::XercesDOMParser*
 
     XERCES_CPP_NAMESPACE_USE
 
-    if (parser != 0) {
+    if (parser != nullptr) {
         delete parser;
     }
 
-    if (m_xmlErrHandler != 0) {
+    if (m_xmlErrHandler != nullptr) {
         delete m_xmlErrHandler;
-        m_xmlErrHandler = 0;
+        m_xmlErrHandler = nullptr;
     }
 
     cms::concurrency::xercesTerminate();
@@ -934,7 +934,7 @@ bool L1GtTriggerMenuXmlParser::parseVmeXML(XERCES_CPP_NAMESPACE::XercesDOMParser
     DOMDocument* doc = parser->getDocument();
     DOMNode* n1 = doc->getFirstChild();
 
-    if (n1 == 0) {
+    if (n1 == nullptr) {
 
         edm::LogError("L1GtTriggerMenuXmlParser") << "Error: Found no XML child" << std::endl;
 
@@ -943,7 +943,7 @@ bool L1GtTriggerMenuXmlParser::parseVmeXML(XERCES_CPP_NAMESPACE::XercesDOMParser
 
     // find "vme"-tag
     n1 = findXMLChild(n1, m_xmlTagVme);
-    if (n1 == 0) {
+    if (n1 == nullptr) {
 
         edm::LogError("L1GtTriggerMenuXmlParser") << "Error: No vme tag found." << std::endl;
         return false;
@@ -956,7 +956,7 @@ bool L1GtTriggerMenuXmlParser::parseVmeXML(XERCES_CPP_NAMESPACE::XercesDOMParser
     while (chipCounter < m_numberConditionChips) {
 
         n1 = findXMLChild(n1, m_xmlTagChip, true);
-        if (n1 == 0) {
+        if (n1 == nullptr) {
             // just break if no more chips found
             break;
         }
@@ -1025,7 +1025,7 @@ bool L1GtTriggerMenuXmlParser::insertConditionIntoMap(L1GtCondition& cond, const
 bool L1GtTriggerMenuXmlParser::insertAlgorithmIntoMap(const L1GtAlgorithm& alg) {
 
     std::string algName = alg.algoName();
-    std::string algAlias = alg.algoAlias();
+    const std::string& algAlias = alg.algoAlias();
     //LogTrace("L1GtTriggerMenuXmlParser")
     //<< "    Trying to insert algorithm \"" << algName << "\" in the algorithm map." ;
 
@@ -1293,7 +1293,7 @@ int L1GtTriggerMenuXmlParser::getGEqFlag(XERCES_CPP_NAMESPACE::DOMNode* node,
 
     XERCES_CPP_NAMESPACE_USE
 
-    if (node == 0) {
+    if (node == nullptr) {
 
         LogDebug("L1GtTriggerMenuXmlParser")
         << "node == 0 in " << __PRETTY_FUNCTION__
@@ -1306,9 +1306,9 @@ int L1GtTriggerMenuXmlParser::getGEqFlag(XERCES_CPP_NAMESPACE::DOMNode* node,
     DOMNode* n1 = node->getFirstChild();
     n1 = findXMLChild(n1, nodeName);
 
-    if (n1 != 0) {
+    if (n1 != nullptr) {
         n1 = findXMLChild(n1->getFirstChild(), m_xmlTagGEq);
-        if (n1 == 0) {
+        if (n1 == nullptr) {
 
             LogDebug("L1GtTriggerMenuXmlParser") << "No \"greater or equal\" tag found"
                 << std::endl;
@@ -1344,14 +1344,14 @@ bool L1GtTriggerMenuXmlParser::getMuonMipIsoBits(XERCES_CPP_NAMESPACE::DOMNode* 
 
     XERCES_CPP_NAMESPACE_USE
 
-    if (node == 0) {
+    if (node == nullptr) {
         return false;
     }
 
     // find ptLowThreshold child
     DOMNode* n1 = findXMLChild(node->getFirstChild(), m_xmlTagPtLowThreshold);
 
-    if (n1 == 0) {
+    if (n1 == nullptr) {
         return false;
     }
 
@@ -1360,14 +1360,14 @@ bool L1GtTriggerMenuXmlParser::getMuonMipIsoBits(XERCES_CPP_NAMESPACE::DOMNode* 
 
     for (unsigned int i = 0; i < num; i++) {
 
-        if (n1 == 0) {
+        if (n1 == nullptr) {
             return false;
         }
 
         // MIP bit
 
         DOMNode* bitnode = findXMLChild(n1->getFirstChild(), m_xmlTagEnableMip);
-        if (bitnode == 0) {
+        if (bitnode == nullptr) {
             return true;
         }
 
@@ -1385,7 +1385,7 @@ bool L1GtTriggerMenuXmlParser::getMuonMipIsoBits(XERCES_CPP_NAMESPACE::DOMNode* 
 
         // enable iso bit
         bitnode = findXMLChild(n1->getFirstChild(), m_xmlTagEnableIso);
-        if (bitnode == 0) {
+        if (bitnode == nullptr) {
             return true;
         }
 
@@ -1402,7 +1402,7 @@ bool L1GtTriggerMenuXmlParser::getMuonMipIsoBits(XERCES_CPP_NAMESPACE::DOMNode* 
 
         // request iso bit
         bitnode = findXMLChild(n1->getFirstChild(), m_xmlTagRequestIso);
-        if (bitnode == 0) {
+        if (bitnode == nullptr) {
             return true;
         }
 
@@ -2038,13 +2038,13 @@ bool L1GtTriggerMenuXmlParser::parseEnergySum(
 
         // get energyOverflow logical flag and fill into structure
         DOMNode* n1;
-        if ( (n1 = findXMLChild(node->getFirstChild(), m_xmlTagEtThreshold)) == 0) {
+        if ( (n1 = findXMLChild(node->getFirstChild(), m_xmlTagEtThreshold)) == nullptr) {
             edm::LogError("L1GtTriggerMenuXmlParser")
                 << "    Could not get energyOverflow for EnergySum condition (" << name << ")"
                 << std::endl;
             return false;
         }
-        if ( (n1 = findXMLChild(n1->getFirstChild(), m_xmlTagEnergyOverflow)) == 0) {
+        if ( (n1 = findXMLChild(n1->getFirstChild(), m_xmlTagEnergyOverflow)) == nullptr) {
             edm::LogError("L1GtTriggerMenuXmlParser")
                 << "    Could not get energyOverflow for EnergySum condition (" << name << ")"
                 << std::endl;
@@ -3017,7 +3017,7 @@ bool L1GtTriggerMenuXmlParser::parseCorrelation(
 
     std::string valString;
 
-    if (node1 == 0) {
+    if (node1 == nullptr) {
         edm::LogError("L1GtTriggerMenuXmlParser")
                 << "    Could not get deltaEta for correlation condition "
                 << name << ". " << std::endl;
@@ -3042,7 +3042,7 @@ bool L1GtTriggerMenuXmlParser::parseCorrelation(
 
    node1 = findXMLChild(node->getFirstChild(), m_xmlTagDeltaPhi);
 
-    if (node1 == 0) {
+    if (node1 == nullptr) {
         return false;
         edm::LogError("L1GtTriggerMenuXmlParser")
                 << "    Could not get deltaPhi for correlation condition "
@@ -3121,14 +3121,14 @@ bool L1GtTriggerMenuXmlParser::parseId(XERCES_CPP_NAMESPACE::XercesDOMParser* pa
     // we assume that the first child is m_xmlTagDef because it was checked in workXML
 
     DOMNode* headerNode = n1->getFirstChild();
-    if (headerNode == 0) {
+    if (headerNode == nullptr) {
         edm::LogError("L1GtTriggerMenuXmlParser") << "Error: No child of <" << m_xmlTagDef
                 << "> tag found." << std::endl;
         return false;
     }
 
     headerNode = findXMLChild(headerNode, m_xmlTagHeader);
-    if (headerNode == 0) {
+    if (headerNode == nullptr) {
 
         LogDebug("L1GtTriggerMenuXmlParser") << "\n  Warning: Could not find <" << m_xmlTagHeader
                 << "> tag" << "\n   - No header information." << std::endl;
@@ -3139,7 +3139,7 @@ bool L1GtTriggerMenuXmlParser::parseId(XERCES_CPP_NAMESPACE::XercesDOMParser* pa
 
         // find menu interface name
         idNode = findXMLChild(idNode, m_xmlTagMenuInterface);
-        if (idNode == 0) {
+        if (idNode == nullptr) {
 
             LogTrace("L1GtTriggerMenuXmlParser") << "\n  Warning: Could not find <"
                     << m_xmlTagMenuInterface << "> tag"
@@ -3168,7 +3168,7 @@ bool L1GtTriggerMenuXmlParser::parseId(XERCES_CPP_NAMESPACE::XercesDOMParser* pa
         idNode = headerNode->getFirstChild();
         idNode = findXMLChild(idNode, m_xmlTagMenuInterfaceDate);
 
-        if (idNode == 0) {
+        if (idNode == nullptr) {
 
             LogTrace("L1GtTriggerMenuXmlParser") << "\n  Warning: Could not find <"
                     << m_xmlTagMenuInterfaceDate << "> tag" << "\n   - No creation date."
@@ -3183,7 +3183,7 @@ bool L1GtTriggerMenuXmlParser::parseId(XERCES_CPP_NAMESPACE::XercesDOMParser* pa
         idNode = headerNode->getFirstChild();
         idNode = findXMLChild(idNode, m_xmlTagMenuInterfaceAuthor);
 
-        if (idNode == 0) {
+        if (idNode == nullptr) {
 
             LogTrace("L1GtTriggerMenuXmlParser") << "\n  Warning: Could not find <"
                     << m_xmlTagMenuInterfaceAuthor << "> tag" << "\n   - No creation author."
@@ -3198,7 +3198,7 @@ bool L1GtTriggerMenuXmlParser::parseId(XERCES_CPP_NAMESPACE::XercesDOMParser* pa
         idNode = headerNode->getFirstChild();
         idNode = findXMLChild(idNode, m_xmlTagMenuInterfaceDescription);
 
-        if (idNode == 0) {
+        if (idNode == nullptr) {
 
             LogTrace("L1GtTriggerMenuXmlParser") << "\n  Warning: Could not find <"
                     << m_xmlTagMenuInterfaceDescription << "> tag" << "\n   - No description."
@@ -3213,7 +3213,7 @@ bool L1GtTriggerMenuXmlParser::parseId(XERCES_CPP_NAMESPACE::XercesDOMParser* pa
         idNode = headerNode->getFirstChild();
         idNode = findXMLChild(idNode, m_xmlTagMenuDate);
 
-        if (idNode == 0) {
+        if (idNode == nullptr) {
 
             LogTrace("L1GtTriggerMenuXmlParser") << "\n  Warning: Could not find <"
                     << m_xmlTagMenuDate << "> tag" << "\n   - No creation date."
@@ -3228,7 +3228,7 @@ bool L1GtTriggerMenuXmlParser::parseId(XERCES_CPP_NAMESPACE::XercesDOMParser* pa
         idNode = headerNode->getFirstChild();
         idNode = findXMLChild(idNode, m_xmlTagMenuAuthor);
 
-        if (idNode == 0) {
+        if (idNode == nullptr) {
 
             LogTrace("L1GtTriggerMenuXmlParser") << "\n  Warning: Could not find <"
                     << m_xmlTagMenuAuthor << "> tag" << "\n   - No creation author."
@@ -3243,7 +3243,7 @@ bool L1GtTriggerMenuXmlParser::parseId(XERCES_CPP_NAMESPACE::XercesDOMParser* pa
         idNode = headerNode->getFirstChild();
         idNode = findXMLChild(idNode, m_xmlTagMenuDescription);
 
-        if (idNode == 0) {
+        if (idNode == nullptr) {
 
             LogTrace("L1GtTriggerMenuXmlParser") << "\n  Warning: Could not find <"
                     << m_xmlTagMenuDescription << "> tag" << "\n   - No description."
@@ -3259,7 +3259,7 @@ bool L1GtTriggerMenuXmlParser::parseId(XERCES_CPP_NAMESPACE::XercesDOMParser* pa
         idNode = headerNode->getFirstChild();
 
         idNode = findXMLChild(idNode, m_xmlTagMenuAlgImpl);
-        if (idNode == 0) {
+        if (idNode == nullptr) {
 
             m_algorithmImplementation = "";
             LogTrace("L1GtTriggerMenuXmlParser") << "\n  Warning: Could not find <"
@@ -3276,7 +3276,7 @@ bool L1GtTriggerMenuXmlParser::parseId(XERCES_CPP_NAMESPACE::XercesDOMParser* pa
         idNode = headerNode->getFirstChild();
 
         idNode = findXMLChild(idNode, m_xmlTagScaleDbKey);
-        if (idNode == 0) {
+        if (idNode == nullptr) {
 
             m_scaleDbKey = "NULL";
             LogTrace("L1GtTriggerMenuXmlParser") << "\n  Warning: Could not find <"
@@ -3436,7 +3436,7 @@ bool L1GtTriggerMenuXmlParser::parseConditions(XERCES_CPP_NAMESPACE::XercesDOMPa
     // we assume that the first child is m_xmlTagDef because it was checked in workXML
 
     DOMNode* chipNode = n1->getFirstChild();
-    if (chipNode == 0) {
+    if (chipNode == nullptr) {
 
         edm::LogError("L1GtTriggerMenuXmlParser") << "Error: No child of <" << m_xmlTagDef
             << "> tag found." << std::endl;
@@ -3448,7 +3448,7 @@ bool L1GtTriggerMenuXmlParser::parseConditions(XERCES_CPP_NAMESPACE::XercesDOMPa
 
     std::string chipName; // name of the actual chip
     chipNode = findXMLChild(chipNode, m_xmlTagChip, true, &chipName);
-    if (chipNode == 0) {
+    if (chipNode == nullptr) {
 
         edm::LogError("L1GtTriggerMenuXmlParser") << "  Error: Could not find <" << m_xmlTagChip
             << "> tag" << std::endl;
@@ -3462,7 +3462,7 @@ bool L1GtTriggerMenuXmlParser::parseConditions(XERCES_CPP_NAMESPACE::XercesDOMPa
         // find conditions
         DOMNode* conditionsNode = chipNode->getFirstChild();
         conditionsNode = findXMLChild(conditionsNode, m_xmlTagConditions);
-        if (conditionsNode == 0) {
+        if (conditionsNode == nullptr) {
 
             edm::LogError("L1GtTriggerMenuXmlParser") << "Error: No <" << m_xmlTagConditions
                 << "> child found in Chip " << chipName << std::endl;
@@ -3481,7 +3481,7 @@ bool L1GtTriggerMenuXmlParser::parseConditions(XERCES_CPP_NAMESPACE::XercesDOMPa
         DOMNode* conditionNameNode = conditionsNode->getFirstChild();
         std::string conditionNameNodeName;
         conditionNameNode = findXMLChild(conditionNameNode, "", true, &conditionNameNodeName);
-        while (conditionNameNode != 0) {
+        while (conditionNameNode != nullptr) {
 
             LogTrace("L1GtTriggerMenuXmlParser")
             << "\n    Found a condition with name: " << conditionNameNodeName
@@ -3498,7 +3498,7 @@ bool L1GtTriggerMenuXmlParser::parseConditions(XERCES_CPP_NAMESPACE::XercesDOMPa
         chipNode = findXMLChild(chipNode->getNextSibling(), m_xmlTagChip, true, &chipName);
         chipNr++;
 
-    } while (chipNode != 0 && chipNr < m_numberConditionChips);
+    } while (chipNode != nullptr && chipNr < m_numberConditionChips);
 
     return true;
 }
@@ -3519,7 +3519,7 @@ bool L1GtTriggerMenuXmlParser::workAlgorithm(XERCES_CPP_NAMESPACE::DOMNode* node
 
     XERCES_CPP_NAMESPACE_USE
 
-    if (node == 0) {
+    if (node == nullptr) {
         LogDebug("L1GtTriggerMenuXmlParser")
         << "    Node is 0 in " << __PRETTY_FUNCTION__
         << " can not parse the algorithm " << algName
@@ -3559,7 +3559,7 @@ bool L1GtTriggerMenuXmlParser::workAlgorithm(XERCES_CPP_NAMESPACE::DOMNode* node
     int outputPin = 0;
 
     pinNode = node->getFirstChild();
-    if ( (pinNode = findXMLChild(pinNode, m_xmlTagOutputPin) ) != 0) {
+    if ( (pinNode = findXMLChild(pinNode, m_xmlTagOutputPin) ) != nullptr) {
         pinString = getXMLAttribute(pinNode, m_xmlAttrNr);
 
         // convert pinString to integer
@@ -3576,7 +3576,7 @@ bool L1GtTriggerMenuXmlParser::workAlgorithm(XERCES_CPP_NAMESPACE::DOMNode* node
 
     }
 
-    if (pinNode == 0) {
+    if (pinNode == nullptr) {
         LogTrace("L1GtTriggerMenuXmlParser") << "    Warning: No pin number found for algorithm: "
             << algName << std::endl;
 
@@ -3642,7 +3642,7 @@ bool L1GtTriggerMenuXmlParser::parseAlgorithms(XERCES_CPP_NAMESPACE::XercesDOMPa
     DOMNode* node = doc->getFirstChild();
 
     DOMNode* chipNode = node->getFirstChild();
-    if (chipNode == 0) {
+    if (chipNode == nullptr) {
         edm::LogError("L1GtTriggerMenuXmlParser") << "  Error: No child found for " << m_xmlTagDef
             << std::endl;
         return false;
@@ -3651,7 +3651,7 @@ bool L1GtTriggerMenuXmlParser::parseAlgorithms(XERCES_CPP_NAMESPACE::XercesDOMPa
     // find first chip
     std::string chipName;
     chipNode = findXMLChild(chipNode, m_xmlTagChip, true, &chipName);
-    if (chipNode == 0) {
+    if (chipNode == nullptr) {
         edm::LogError("L1GtTriggerMenuXmlParser") << "  Error: Could not find <" << m_xmlTagChip
             << std::endl;
         return false;
@@ -3670,7 +3670,7 @@ bool L1GtTriggerMenuXmlParser::parseAlgorithms(XERCES_CPP_NAMESPACE::XercesDOMPa
         // find algorithms
         DOMNode* algNode = chipNode->getFirstChild();
         algNode = findXMLChild(algNode, m_xmlTagAlgorithms);
-        if (algNode == 0) {
+        if (algNode == nullptr) {
             edm::LogError("L1GtTriggerMenuXmlParser") << "    Error: No <" << m_xmlTagAlgorithms
                 << "> child found in chip " << chipName << std::endl;
             return false;
@@ -3681,7 +3681,7 @@ bool L1GtTriggerMenuXmlParser::parseAlgorithms(XERCES_CPP_NAMESPACE::XercesDOMPa
         std::string algNameNodeName;
         algNameNode = findXMLChild(algNameNode, "", true, &algNameNodeName);
 
-        while (algNameNode != 0) {
+        while (algNameNode != nullptr) {
             //LogTrace("L1GtTriggerMenuXmlParser")
             //<< "    Found an algorithm with name: " << algNameNodeName
             //<< std::endl;
@@ -3698,7 +3698,7 @@ bool L1GtTriggerMenuXmlParser::parseAlgorithms(XERCES_CPP_NAMESPACE::XercesDOMPa
         chipNode = findXMLChild(chipNode->getNextSibling(), m_xmlTagChip, true, &chipName);
         chipNr++;
 
-    } while (chipNode != 0 && chipNr < m_numberConditionChips);
+    } while (chipNode != nullptr && chipNr < m_numberConditionChips);
 
     return true;
 }
@@ -3718,7 +3718,7 @@ bool L1GtTriggerMenuXmlParser::workTechTrigger(XERCES_CPP_NAMESPACE::DOMNode* no
 
     XERCES_CPP_NAMESPACE_USE
 
-    if (node == 0) {
+    if (node == nullptr) {
         LogDebug("L1GtTriggerMenuXmlParser")
         << "    Node is 0 in " << __PRETTY_FUNCTION__
         << " can not parse the technical trigger " << algName
@@ -3739,7 +3739,7 @@ bool L1GtTriggerMenuXmlParser::workTechTrigger(XERCES_CPP_NAMESPACE::DOMNode* no
     int outputPin = 0;
 
     pinNode = node->getFirstChild();
-    if ( (pinNode = findXMLChild(pinNode, m_xmlTagOutputPin) ) != 0) {
+    if ( (pinNode = findXMLChild(pinNode, m_xmlTagOutputPin) ) != nullptr) {
         pinString = getXMLAttribute(pinNode, m_xmlAttrNr);
 
         // convert pinString to integer
@@ -3756,7 +3756,7 @@ bool L1GtTriggerMenuXmlParser::workTechTrigger(XERCES_CPP_NAMESPACE::DOMNode* no
 
     }
 
-    if (pinNode == 0) {
+    if (pinNode == nullptr) {
         LogTrace("L1GtTriggerMenuXmlParser")
             << "    Warning: No pin number found for technical trigger: "
             << algName << std::endl;
@@ -3813,14 +3813,14 @@ bool L1GtTriggerMenuXmlParser::parseTechTriggers(XERCES_CPP_NAMESPACE::XercesDOM
     DOMNode* node = doc->getFirstChild();
 
     DOMNode* algNode = node->getFirstChild();
-    if (algNode == 0) {
+    if (algNode == nullptr) {
         edm::LogError("L1GtTriggerMenuXmlParser")
                 << "  Error: No child found for " << m_xmlTagDef << std::endl;
         return false;
     }
 
     algNode = findXMLChild(algNode, m_xmlTagTechTriggers);
-    if (algNode == 0) {
+    if (algNode == nullptr) {
         edm::LogError("L1GtTriggerMenuXmlParser") << "    Error: No <"
                 << m_xmlTagTechTriggers << "> child found."
                 << std::endl;
@@ -3832,7 +3832,7 @@ bool L1GtTriggerMenuXmlParser::parseTechTriggers(XERCES_CPP_NAMESPACE::XercesDOM
     std::string algNameNodeName;
     algNameNode = findXMLChild(algNameNode, "", true, &algNameNodeName);
 
-    while (algNameNode != 0) {
+    while (algNameNode != nullptr) {
         //LogTrace("L1GtTriggerMenuXmlParser")
         //<< "    Found an technical trigger with name: " << algNameNodeName
         //<< std::endl;
@@ -3865,7 +3865,7 @@ bool L1GtTriggerMenuXmlParser::workXML(XERCES_CPP_NAMESPACE::XercesDOMParser* pa
     DOMDocument* doc = parser->getDocument();
     DOMNode* n1 = doc->getFirstChild();
 
-    if (n1 == 0) {
+    if (n1 == nullptr) {
 
         edm::LogError("L1GtTriggerMenuXmlParser") << "Error: Found no XML child" << std::endl;
 

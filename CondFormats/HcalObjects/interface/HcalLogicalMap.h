@@ -30,7 +30,7 @@ class HcalLogicalMap {
     void checkElectronicsHashIds() ;
     void checkIdFunctions();
     void printMap( unsigned int mapIOV );
-    HcalElectronicsMap generateHcalElectronicsMap();
+    std::unique_ptr<HcalElectronicsMap> generateHcalElectronicsMap();
     const DetId getDetId(const HcalElectronicsId&);
     const HcalFrontEndId getHcalFrontEndId(const DetId&);
     uint32_t static makeEntryNumber(bool,int,int);

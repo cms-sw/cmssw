@@ -47,7 +47,7 @@
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 
@@ -59,6 +59,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -76,33 +77,44 @@
 namespace cms
 {
 
-  Phase2TrackerDigitizer::Phase2TrackerDigitizer(const edm::ParameterSet& iConfig, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
+  Phase2TrackerDigitizer::Phase2TrackerDigitizer(const edm::ParameterSet& iConfig, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC) :
     first_(true),
     hitsProducer_(iConfig.getParameter<std::string>("hitsProducer")),
     trackerContainers_(iConfig.getParameter<std::vector<std::string> >("ROUList")),
     geometryType_(iConfig.getParameter<std::string>("GeometryType")),
-    iconfig_(iConfig)
+    isOuterTrackerReadoutAnalog(iConfig.getParameter<bool>("isOTreadoutAnalog")),
+    premixStage1_(iConfig.getParameter<bool>("premixStage1")),
+    makeDigiSimLinks_(iConfig.getParameter<edm::ParameterSet>("AlgorithmCommon").getUntrackedParameter<bool>("makeDigiSimLinks"))
   {
     //edm::LogInfo("Phase2TrackerDigitizer") << "Initialize Digitizer Algorithms";
     const std::string alias1("simSiPixelDigis"); 
     mixMod.produces<edm::DetSetVector<PixelDigi> >("Pixel").setBranchAlias(alias1);
-    mixMod.produces<edm::DetSetVector<PixelDigiSimLink> >("Pixel").setBranchAlias(alias1);
+    if(makeDigiSimLinks_) {
+      mixMod.produces<edm::DetSetVector<PixelDigiSimLink> >("Pixel").setBranchAlias(alias1);
+    }
 
-    const std::string alias2("simSiTrackerDigis"); 
-    mixMod.produces<edm::DetSetVector<Phase2TrackerDigi> >("Tracker").setBranchAlias(alias2);
-    mixMod.produces<edm::DetSetVector<PixelDigiSimLink> >("Tracker").setBranchAlias(alias2);
-
+    if(!iConfig.getParameter<bool>("isOTreadoutAnalog")) {
+      const std::string alias2("simSiTrackerDigis");
+      if(premixStage1_) {
+        // Premixing exploits the ADC field of PixelDigi to store the collected charge
+        // But we still want everything else to be treated like for Phase2TrackerDigi
+        mixMod.produces<edm::DetSetVector<PixelDigi> >("Tracker").setBranchAlias(alias2);
+      }
+      else {
+        mixMod.produces<edm::DetSetVector<Phase2TrackerDigi> >("Tracker").setBranchAlias(alias2);
+      }
+      if(makeDigiSimLinks_) {
+        mixMod.produces<edm::DetSetVector<PixelDigiSimLink> >("Tracker").setBranchAlias(alias2);
+      }
+    }
+    // creating algorithm objects and pushing them into the map
+    algomap_[AlgorithmType::InnerPixel] = std::make_unique<PixelDigitizerAlgorithm>(iConfig);
+    algomap_[AlgorithmType::PixelinPS]  = std::make_unique<PSPDigitizerAlgorithm>(iConfig);
+    algomap_[AlgorithmType::StripinPS]  = std::make_unique<PSSDigitizerAlgorithm>(iConfig);
+    algomap_[AlgorithmType::TwoStrip]   = std::make_unique<SSDigitizerAlgorithm>(iConfig);
   }
 
   void Phase2TrackerDigitizer::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& iSetup) {
-    edm::Service<edm::RandomNumberGenerator> rng;
-    if (!rng.isAvailable()) {
-      throw cms::Exception("Configuration")
-        << "Phase2TrackerDigitizer requires the RandomNumberGeneratorService\n"
-           "which is not present in the configuration file.  You must add the service\n"
-           "in the configuration file or remove the modules that require it.";
-    }
-    rndEngine_ = &(rng->getEngine(lumi.index()));
 
     iSetup.get<IdealMagneticFieldRecord>().get(pSetup_);
     iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
@@ -122,21 +134,9 @@ namespace cms
 	}
       }
     }
-  
-    // one type of Digi and DigiSimLink suffices 
-    // changes in future: InnerPixel -> Tracker
-    // creating algorithm objects and pushing them into the map
-    algomap_[AlgorithmType::InnerPixel] = std::unique_ptr<Phase2TrackerDigitizerAlgorithm>(new PixelDigitizerAlgorithm(iconfig_, (*rndEngine_)));
-    algomap_[AlgorithmType::PixelinPS]  = std::unique_ptr<Phase2TrackerDigitizerAlgorithm>(new PSPDigitizerAlgorithm(iconfig_, (*rndEngine_)));
-    algomap_[AlgorithmType::StripinPS]  = std::unique_ptr<Phase2TrackerDigitizerAlgorithm>(new PSSDigitizerAlgorithm(iconfig_, (*rndEngine_)));
-    algomap_[AlgorithmType::TwoStrip]   = std::unique_ptr<Phase2TrackerDigitizerAlgorithm>(new SSDigitizerAlgorithm(iconfig_, (*rndEngine_)));
   }
 
-  void Phase2TrackerDigitizer::endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& iSetup) {
-    algomap_.clear();
-  }
   Phase2TrackerDigitizer::~Phase2TrackerDigitizer() {  
-    edm::LogInfo("Phase2TrackerDigitizer") << "Destroying the Digitizer";
   }
   void
   Phase2TrackerDigitizer::accumulatePixelHits(edm::Handle<std::vector<PSimHit> > hSimHits,
@@ -169,10 +169,19 @@ namespace cms
   void
   Phase2TrackerDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& iSetup) {
     
+    edm::Service<edm::RandomNumberGenerator> rng;
+    if (!rng.isAvailable()) {
+      throw cms::Exception("Configuration")
+	<< "Phase2TrackerDigitizer requires the RandomNumberGeneratorService\n"
+	"which is not present in the configuration file.  You must add the service\n"
+	"in the configuration file or remove the modules that require it.";
+    }
+    
     // Must initialize all the algorithms
     for (auto const & el : algomap_) {
       if (first_) el.second->init(iSetup); 
-      el.second->initializeEvent(); 
+      
+      el.second->initializeEvent(rng->getEngine(e.streamID())); 
     }
     first_ = false;
     // Make sure that the first crossing processed starts indexing the sim hits from zero.
@@ -211,12 +220,27 @@ namespace cms
       if (simHits.isValid()) crossingSimHitIndexOffset_[tag.encode()] += simHits->size();
      }
   }
+
+  // For premixing
+  void Phase2TrackerDigitizer::loadAccumulator(const std::map<unsigned int, std::map<int, float> >& accumulator) {
+    for(const auto& detMap: accumulator) {
+      AlgorithmType algoType = getAlgoType(detMap.first);
+      auto& algo = *(algomap_.at(algoType));
+      algo.loadAccumulator(detMap.first, detMap.second);
+    }
+  }
+
   void Phase2TrackerDigitizer::finalizeEvent(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-    const bool isOuterTrackerReadoutAnalog = iconfig_.getParameter<bool>("isOTreadoutAnalog");
     //Decide if we want analog readout for Outer Tracker.
     addPixelCollection(iEvent, iSetup, isOuterTrackerReadoutAnalog);
-    if(!isOuterTrackerReadoutAnalog)
-      addOuterTrackerCollection(iEvent, iSetup);
+    if(!isOuterTrackerReadoutAnalog) {
+      if(premixStage1_) {
+        addOuterTrackerCollection<PixelDigi>(iEvent, iSetup);
+      }
+      else {
+        addOuterTrackerCollection<Phase2TrackerDigi>(iEvent, iSetup);
+      }
+    }
   }
   Phase2TrackerDigitizer::AlgorithmType Phase2TrackerDigitizer::getAlgoType(unsigned int detId_raw) {
     DetId detId(detId_raw); 
@@ -286,8 +310,8 @@ namespace cms
 	  linkcollector.data.emplace_back(digi_p.first, sim_p.second->trackId(), sim_p.second->hitIndex(), sim_p.second->tofBin(), sim_p.second->eventId(), sim_p.first);
 	}
       }  	
-      if (collector.data.size() > 0) digiVector.push_back(std::move(collector));	  
-      if (linkcollector.data.size() > 0) digiLinkVector.push_back(std::move(linkcollector));
+      if (!collector.data.empty()) digiVector.push_back(std::move(collector));	  
+      if (!linkcollector.data.empty()) digiLinkVector.push_back(std::move(linkcollector));
     } 
     
     // Step C: create collection with the cache vector of DetSet 
@@ -298,11 +322,30 @@ namespace cms
     
     // Step D: write output to file 
     iEvent.put(std::move(output), "Pixel");
-    iEvent.put(std::move(outputlink), "Pixel");
+    if(makeDigiSimLinks_) {
+      iEvent.put(std::move(outputlink), "Pixel");
+    }
   }
+}
+namespace {
+  void addToCollector(edm::DetSet<PixelDigi>& collector, const int channel, const DigitizerUtility::DigiSimInfo& info) {
+    // For premixing stage1 the channel must be decoded with PixelDigi
+    // so that when the row and column are inserted to PixelDigi the
+    // coded channel stays the same (so that it can then be decoded
+    // with Phase2TrackerDigi in stage2).
+    std::pair<int,int> ip = PixelDigi::channelToPixel(channel);
+    collector.data.emplace_back(ip.first, ip.second, info.sig_tot);
+  }
+  void addToCollector(edm::DetSet<Phase2TrackerDigi>& collector, const int channel, const DigitizerUtility::DigiSimInfo& info) {
+    std::pair<int,int> ip = Phase2TrackerDigi::channelToPixel(channel);
+    collector.data.emplace_back(ip.first, ip.second, info.ot_bit);
+  }
+}
+namespace cms {
+  template <typename DigiType>
   void Phase2TrackerDigitizer::addOuterTrackerCollection(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     const TrackerTopology* tTopo = tTopoHand.product();
-    std::vector<edm::DetSet<Phase2TrackerDigi> > digiVector;
+    std::vector<edm::DetSet<DigiType> > digiVector;
     std::vector<edm::DetSet<PixelDigiSimLink> > digiLinkVector;
     for (auto const & det_u : pDD_->detUnits()) {
       DetId detId_raw = DetId(det_u->geographicalId().rawId());
@@ -313,32 +356,33 @@ namespace cms
       std::map<int, DigitizerUtility::DigiSimInfo> digi_map;
       algomap_[algotype]->digitize(dynamic_cast<const Phase2TrackerGeomDetUnit*>(det_u),
 				   digi_map, tTopo);
-      edm::DetSet<Phase2TrackerDigi> collector(det_u->geographicalId().rawId());
+      edm::DetSet<DigiType> collector(det_u->geographicalId().rawId());
       edm::DetSet<PixelDigiSimLink> linkcollector(det_u->geographicalId().rawId());
       
       for (auto const & digi_p : digi_map) {
 	DigitizerUtility::DigiSimInfo info = digi_p.second;  
-	std::pair<int,int> ip = Phase2TrackerDigi::channelToPixel(digi_p.first);
-	collector.data.emplace_back(ip.first, ip.second, info.ot_bit);
+        addToCollector(collector, digi_p.first, info);
         for (auto const & sim_p : info.simInfoList) {
 
 	  linkcollector.data.emplace_back(digi_p.first, sim_p.second->trackId(), sim_p.second->hitIndex(), sim_p.second->tofBin(), sim_p.second->eventId(), sim_p.first);
 	}
      }  	
 	
-      if (collector.data.size() > 0) digiVector.push_back(std::move(collector));	  
-      if (linkcollector.data.size() > 0) digiLinkVector.push_back(std::move(linkcollector));
+      if (!collector.data.empty()) digiVector.push_back(std::move(collector));	  
+      if (!linkcollector.data.empty()) digiLinkVector.push_back(std::move(linkcollector));
     } 
     
     // Step C: create collection with the cache vector of DetSet 
-    std::unique_ptr<edm::DetSetVector<Phase2TrackerDigi> >
-      output(new edm::DetSetVector<Phase2TrackerDigi>(digiVector));
+    std::unique_ptr<edm::DetSetVector<DigiType> >
+      output(new edm::DetSetVector<DigiType>(digiVector));
     std::unique_ptr<edm::DetSetVector<PixelDigiSimLink> >
       outputlink(new edm::DetSetVector<PixelDigiSimLink>(digiLinkVector));
     
     // Step D: write output to file 
     iEvent.put(std::move(output), "Tracker");
-    iEvent.put(std::move(outputlink), "Tracker");
+    if(makeDigiSimLinks_) {
+      iEvent.put(std::move(outputlink), "Tracker");
+    }
   }
 }
 

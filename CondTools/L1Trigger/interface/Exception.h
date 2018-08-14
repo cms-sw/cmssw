@@ -34,7 +34,7 @@ namespace l1t {
 
   public:
     explicit DataAlreadyPresentException( const std::string& message );
-    virtual ~DataAlreadyPresentException() throw();
+    ~DataAlreadyPresentException() throw() override;
 
       // ---------- const member functions ---------------------
 
@@ -56,7 +56,7 @@ namespace l1t {
 
   public:
     explicit DataInvalidException( const std::string& message );
-    virtual ~DataInvalidException() throw();
+    ~DataInvalidException() throw() override;
 
       // ---------- const member functions ---------------------
 

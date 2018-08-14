@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 import os
 import subprocess
@@ -46,10 +47,7 @@ sys.path.extend( os.environ["PYTHONPATH"].split( ':' ) )
 import crab
 import crab_exceptions
 
-class CrabWrapper:
-    def __init__( self ):
-        pass
-
+class CrabWrapper(object):
     def run( self, options ):
         theCrab = crab.Crab()
         try:
@@ -76,4 +74,4 @@ if __name__ == "__main__":
     try:
         theCrab.run( theCrabOptions )
     except AllInOneError as e:
-        print "crab: ", e
+        print("crab: ", e)

@@ -3,7 +3,7 @@
 void BackgroundFunction::readParameters( TString fileName )
 {
   iterationNum_ = 0;
-  parArray_ = 0;
+  parArray_ = nullptr;
   // std::vector<double> parameterErrors;
 
   // Read the parameters file

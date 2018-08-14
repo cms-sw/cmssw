@@ -1,4 +1,5 @@
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -14,9 +15,9 @@
 class SiStripDetVOffHandler : public edm::EDAnalyzer {
 public:
   explicit SiStripDetVOffHandler(const edm::ParameterSet& iConfig );
-  virtual ~SiStripDetVOffHandler();
-  virtual void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup);
-  virtual void endJob();
+  ~SiStripDetVOffHandler() override;
+  void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup) override;
+  void endJob() override;
 
 private:
   cond::persistency::ConnectionPool m_connectionPool;

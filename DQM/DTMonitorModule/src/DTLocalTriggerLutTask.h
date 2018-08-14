@@ -31,12 +31,16 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <array>
 
 class DTGeometry;
 class DTTrigGeomUtils;
 class DTChamberId;
 class L1MuDTChambPhDigi;
 
+typedef std::array<std::array<std::array<int,13>, 5 > ,6> DTArr3int;
+typedef std::array<std::array<std::array<int,15>, 5 > ,6> DTArr3bool;
+typedef std::array<std::array<std::array<const L1MuDTChambPhDigi*,15>, 5 > ,6> DTArr3Digi;
 
 class DTLocalTriggerLutTask: public DQMEDAnalyzer{
 
@@ -48,7 +52,7 @@ class DTLocalTriggerLutTask: public DQMEDAnalyzer{
   DTLocalTriggerLutTask(const edm::ParameterSet& ps );
 
   /// Destructor
-  virtual ~DTLocalTriggerLutTask();
+  ~DTLocalTriggerLutTask() override;
 
   /// bookHistograms
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
@@ -59,13 +63,16 @@ class DTLocalTriggerLutTask: public DQMEDAnalyzer{
   void dqmBeginRun(const edm::Run& , const edm::EventSetup&) override;
 
   /// Find best (highest qual) TM trigger segments
-  void searchDccBest(std::vector<L1MuDTChambPhDigi> const* trigs);
+  void searchTMBestIn(std::vector<L1MuDTChambPhDigi> const* trigs);
+  void searchTMBestOut(std::vector<L1MuDTChambPhDigi> const* trigs);
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   /// To reset the MEs
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override ;
+
+  const int wheelArrayShift = 3;
 
  private:
 
@@ -86,12 +93,15 @@ class DTLocalTriggerLutTask: public DQMEDAnalyzer{
   bool detailedAnalysis;
   bool overUnderIn;
 
-  edm::EDGetTokenT<L1MuDTChambPhContainer> tm_Token_;
+  edm::EDGetTokenT<L1MuDTChambPhContainer> tm_TokenIn_;
+  edm::EDGetTokenT<L1MuDTChambPhContainer> tm_TokenOut_;
   edm::EDGetTokenT<DTRecSegment4DCollection> seg_Token_;
 
-  int trigQualBest[6][5][13];
-  const L1MuDTChambPhDigi* trigBest[6][5][13];
-  bool track_ok[6][5][15]; // CB controlla se serve
+  DTArr3int trigQualBestIn;
+  DTArr3int trigQualBestOut;
+  DTArr3Digi trigBestIn;
+  DTArr3Digi trigBestOut;
+  DTArr3bool track_ok; // CB controlla se serve
 
   edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;

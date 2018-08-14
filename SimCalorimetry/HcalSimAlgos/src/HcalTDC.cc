@@ -6,7 +6,7 @@
 #include "CLHEP/Random/RandGaussQ.h"
 
 HcalTDC::HcalTDC(unsigned int thresholdDAC) : theTDCParameters(), 
-					      theDbService(0),
+					      theDbService(nullptr),
 					      theDAC(thresholdDAC),
 					      lsb(3.74) {}
 

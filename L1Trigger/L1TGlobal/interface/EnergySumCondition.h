@@ -50,7 +50,7 @@ public:
     EnergySumCondition(const EnergySumCondition&);
 
     // destructor
-    virtual ~EnergySumCondition();
+    ~EnergySumCondition() override;
 
     // assign operator
     EnergySumCondition& operator=(const EnergySumCondition&);
@@ -58,10 +58,10 @@ public:
 public:
 
     /// the core function to check if the condition matches
-    const bool evaluateCondition(const int bxEval) const;
+    const bool evaluateCondition(const int bxEval) const override;
 
     /// print condition
-     void print(std::ostream& myCout) const;
+     void print(std::ostream& myCout) const override;
 
 public:
 

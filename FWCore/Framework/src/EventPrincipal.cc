@@ -37,7 +37,7 @@ namespace edm {
         bool isForPrimaryProcess) :
     Base(reg, reg->productLookup(InEvent), pc, InEvent, historyAppender,isForPrimaryProcess),
           aux_(),
-          luminosityBlockPrincipal_(),
+          luminosityBlockPrincipal_(nullptr),
           provRetrieverPtr_(new ProductProvenanceRetriever(streamIndex)),
           eventSelectionIDs_(),
           branchIDListHelper_(branchIDListHelper),
@@ -52,7 +52,8 @@ namespace edm {
   EventPrincipal::clearEventPrincipal() {
     clearPrincipal();
     aux_ = EventAuxiliary();
-    luminosityBlockPrincipal_ = nullptr; // propagate_const<T> has no reset() function
+    //do not clear luminosityBlockPrincipal_ since
+    // it is only connected at beginLumi transition
     provRetrieverPtr_->reset();
     branchListIndexToProcessIndex_.clear();
   }
@@ -135,7 +136,7 @@ namespace edm {
   }
 
   void
-  EventPrincipal::setLuminosityBlockPrincipal(std::shared_ptr<LuminosityBlockPrincipal> const& lbp) {
+  EventPrincipal::setLuminosityBlockPrincipal(LuminosityBlockPrincipal* lbp) {
     luminosityBlockPrincipal_ = lbp;
   }
 
@@ -173,13 +174,35 @@ namespace edm {
   }
 
   void
+  EventPrincipal::put(
+             ProductResolverIndex index,
+             std::unique_ptr<WrapperBase> edp,
+             ParentageID parentage) const {
+    if(edp.get() == nullptr) {
+      throw Exception(errors::InsertFailure, "Null Pointer")
+      << "put: Cannot put because ptr to product is null."
+      << "\n";
+    }
+    auto phb = getProductResolverByIndex(index);
+    
+    productProvenanceRetrieverPtr()->insertIntoSet(ProductProvenance(phb->branchDescription().branchID(), std::move(parentage)));
+
+    assert(phb);
+    // ProductResolver assumes ownership
+    phb->putProduct(std::move(edp));
+
+  }
+
+  void
   EventPrincipal::putOnRead(
         BranchDescription const& bd,
         std::unique_ptr<WrapperBase> edp,
-        ProductProvenance const& productProvenance) const {
+        ProductProvenance const* productProvenance) const {
 
     assert(!bd.produced());
-    productProvenanceRetrieverPtr()->insertIntoSet(productProvenance);
+    if (productProvenance) {
+      productProvenanceRetrieverPtr()->insertIntoSet(*productProvenance);
+    }
     auto phb = getExistingProduct(bd.branchID());
     assert(phb);
     // ProductResolver assumes ownership
@@ -386,13 +409,6 @@ namespace edm {
   EventPrincipal::getProvenance(ProductID const& pid, ModuleCallingContext const* mcc) const {
     BranchID bid = pidToBid(pid);
     return getProvenance(bid, mcc);
-  }
-
-  void
-  EventPrincipal::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
-    applyToResolvers([&iConfigure](ProductResolverBase* iResolver) {
-      iResolver->setupUnscheduled(iConfigure);
-    });
   }
 
   EventSelectionIDVector const&

@@ -9,6 +9,7 @@
  *
  * \author: M. Fierro            - HEPHY Vienna - ORCA version
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version
+ * \author: Vladimir Rekovic - add correlation with overlap removal cases
  *
  * $Date$
  * $Revision$
@@ -31,8 +32,10 @@
 #include "L1Trigger/L1TGlobal/interface/EnergySumTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/ExternalTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationTemplate.h"
+#include "L1Trigger/L1TGlobal/interface/CorrelationWithOverlapRemovalTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/GlobalCondition.h"
 #include "L1Trigger/L1TGlobal/interface/CorrCondition.h"
+#include "L1Trigger/L1TGlobal/interface/CorrWithOverlapRemovalCondition.h"
 
 
 #include "L1Trigger/L1TGlobal/interface/ConditionEvaluation.h"
@@ -64,6 +67,7 @@ l1t::GlobalBoard::GlobalBoard() :
     m_candL1External( new BXVector<const GlobalExtBlk*>),
     m_firstEv(true),
     m_firstEvLumiSegment(true),
+    m_currentLumi(0),
     m_isDebugEnabled(edm::isDebugEnabled())
 {
 
@@ -394,7 +398,7 @@ void l1t::GlobalBoard::receiveMuonObjectData(edm::Event& iEvent,
 		  edm::LogWarning("L1TGlobal") << " Too many Muons ("<<nObj<<") for uGT Configuration maxMu =" <<nrL1Mu << std::endl;
 		}
 		   
-	        LogDebug("L1TGlobal") << "Muon  Pt " << mu->hwPt() << " Eta  " << mu->hwEta() << " Phi " << mu->hwPhi() << "  Qual " << mu->hwQual() <<"  Iso " << mu->hwIso() << std::endl;
+	        LogDebug("L1TGlobal") << "Muon  Pt " << mu->hwPt() << " EtaAtVtx  " << mu->hwEtaAtVtx() << " PhiAtVtx " << mu->hwPhiAtVtx() << "  Qual " << mu->hwQual() <<"  Iso " << mu->hwIso() << std::endl;
 		nObj++;
               } //end loop over muons in bx
 	   } //end loop over bx   
@@ -621,8 +625,6 @@ void l1t::GlobalBoard::runGTL(
                 case CondCorrelation: {
 
 
-
-
                     // get first the sub-conditions
                     const CorrelationTemplate* corrTemplate =
 	            static_cast<const CorrelationTemplate*>(itCond->second);
@@ -631,8 +633,8 @@ void l1t::GlobalBoard::runGTL(
 		    const int cond0Ind = corrTemplate->cond0Index();
 		    const int cond1Ind = corrTemplate->cond1Index();
 
-		    const GlobalCondition* cond0Condition = 0;
-		    const GlobalCondition* cond1Condition = 0;
+		    const GlobalCondition* cond0Condition = nullptr;
+		    const GlobalCondition* cond1Condition = nullptr;
 
 		    // maximum number of objects received for evaluation of l1t::Type1s condition
 		    int cond0NrL1Objects = 0;
@@ -699,6 +701,107 @@ void l1t::GlobalBoard::runGTL(
                 
                 }
                     break;
+                case CondCorrelationWithOverlapRemoval: {
+
+                    // get first the sub-conditions
+                    const CorrelationWithOverlapRemovalTemplate* corrTemplate =
+	            static_cast<const CorrelationWithOverlapRemovalTemplate*>(itCond->second);
+		    const GtConditionCategory cond0Categ = corrTemplate->cond0Category();
+		    const GtConditionCategory cond1Categ = corrTemplate->cond1Category();
+		    const GtConditionCategory cond2Categ = corrTemplate->cond2Category();
+		    const int cond0Ind = corrTemplate->cond0Index();
+		    const int cond1Ind = corrTemplate->cond1Index();
+		    const int cond2Ind = corrTemplate->cond2Index();
+
+		    const GlobalCondition* cond0Condition = nullptr;
+		    const GlobalCondition* cond1Condition = nullptr;
+		    const GlobalCondition* cond2Condition = nullptr;
+
+		    // maximum number of objects received for evaluation of l1t::Type1s condition
+		    int cond0NrL1Objects = 0;
+		    int cond1NrL1Objects = 0;
+		    int cond2NrL1Objects = 0;
+		     LogDebug("L1TGlobal") << " cond0NrL1Objects" << cond0NrL1Objects << "  cond1NrL1Objects  " << cond1NrL1Objects << "  cond2NrL1Objects  " << cond2NrL1Objects << std::endl;
+
+
+		    switch (cond0Categ) {
+			case CondMuon: {
+			    cond0Condition = &((corrMuon[iChip])[cond0Ind]);
+			}
+			    break;
+			case CondCalo: {
+                            cond0Condition = &((corrCalo[iChip])[cond0Ind]);
+			}
+			    break;
+			case CondEnergySum: {
+			    cond0Condition = &((corrEnergySum[iChip])[cond0Ind]);
+			}
+			    break;
+			default: {
+			    // do nothing, should not arrive here
+			}
+			    break;
+		    }
+
+		    switch (cond1Categ) {
+			case CondMuon: {
+			    cond1Condition = &((corrMuon[iChip])[cond1Ind]);
+			}
+			    break;
+			case CondCalo: {
+                            cond1Condition = &((corrCalo[iChip])[cond1Ind]);
+			}
+			    break;
+			case CondEnergySum: {
+			    cond1Condition = &((corrEnergySum[iChip])[cond1Ind]);
+			}
+			    break;
+			default: {
+			    // do nothing, should not arrive here
+			}
+			    break;
+		    }
+
+		    switch (cond2Categ) {
+			case CondMuon: {
+			    cond2Condition = &((corrMuon[iChip])[cond2Ind]);
+			}
+			    break;
+			case CondCalo: {
+                            cond2Condition = &((corrCalo[iChip])[cond2Ind]);
+			}
+			    break;
+			case CondEnergySum: {
+			    cond2Condition = &((corrEnergySum[iChip])[cond2Ind]);
+			}
+			    break;
+			default: {
+			    // do nothing, should not arrive here
+			}
+			    break;
+		    }
+
+		    CorrWithOverlapRemovalCondition* correlationCondWOR =
+			new CorrWithOverlapRemovalCondition(itCond->second, cond0Condition, cond1Condition, cond2Condition, this);
+
+		    correlationCondWOR->setVerbosity(m_verbosity);
+		    correlationCondWOR->setScales(&gtScales);
+		    correlationCondWOR->evaluateConditionStoreResult(iBxInEvent);
+
+		    cMapResults[itCond->first] = correlationCondWOR;
+
+		    if (m_verbosity && m_isDebugEnabled) {
+			std::ostringstream myCout;
+			correlationCondWOR->print(myCout);
+
+			LogTrace("L1TGlobal") << myCout.str() << std::endl;
+		    }
+
+		    //  		delete correlationCondWOR;
+
+                
+                }
+                    break;
                 case CondNull: {
 		  
                     // do nothing
@@ -749,12 +852,12 @@ void l1t::GlobalBoard::runGTL(
         // object maps only for BxInEvent = 0
         if (produceL1GtObjectMapRecord && (iBxInEvent == 0)) {
 
-	  std::vector<ObjectTypeInCond> otypes;	  
+	  std::vector<L1TObjectTypeInCond> otypes;	  
 	  for (auto iop = gtAlg.operandTokenVector().begin(); iop != gtAlg.operandTokenVector().end(); ++iop){
 	    //cout << "INFO:  operand name:  " << iop->tokenName << "\n";
 	    int myChip = -1;
 	    int found =0;
-	    ObjectTypeInCond otype;	      
+	    L1TObjectTypeInCond otype;	      
 	    for (auto imap = conditionMap.begin(); imap != conditionMap.end(); imap++) {
 	      myChip++;
 	      auto match = imap->find(iop->tokenName);
@@ -819,7 +922,7 @@ void l1t::GlobalBoard::runGTL(
                 itCond != itCondOnChip->end(); itCond++) {
 
             delete itCond->second;
-            itCond->second = 0;
+            itCond->second = nullptr;
         }
     }
 
@@ -855,10 +958,11 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
 	m_prescaleCounterAlgoTrig.push_back(prescaleFactorsAlgoTrig);
       }
       m_firstEv = false;
+      m_currentLumi=iEvent.luminosityBlock();
     }
 
-    // TODO FIXME find the beginning of the luminosity segment
-    if( m_firstEvLumiSegment ){
+    // update and clear prescales at the beginning of the luminosity segment
+    if( m_firstEvLumiSegment || m_currentLumi != iEvent.luminosityBlock() ){
 
       m_prescaleCounterAlgoTrig.clear();
       for( int iBxInEvent = 0; iBxInEvent <= totalBxInEvent; ++iBxInEvent ){
@@ -866,6 +970,7 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
       }
 
       m_firstEvLumiSegment = false;
+      m_currentLumi=iEvent.luminosityBlock();
     }
 
     // Copy Algorithm bits to Prescaled word 

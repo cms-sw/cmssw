@@ -23,14 +23,13 @@ class L1TStage2CaloLayer2 : public DQMEDAnalyzer {
   
   L1TStage2CaloLayer2(const edm::ParameterSet & ps);
 
-  virtual ~L1TStage2CaloLayer2();
+  ~L1TStage2CaloLayer2() override;
 
  protected:
 
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override ;
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override ;
 
  private:
 
@@ -44,6 +43,7 @@ class L1TStage2CaloLayer2 : public DQMEDAnalyzer {
   bool verbose_;
 
   MonitorElement* stage2CaloLayer2CenJetEtEtaPhi_;
+  MonitorElement* stage2CaloLayer2CenJetEtEtaPhi_shift_;
   MonitorElement* stage2CaloLayer2CenJetEta_;
   MonitorElement* stage2CaloLayer2CenJetPhi_;
   MonitorElement* stage2CaloLayer2CenJetRank_;
@@ -52,6 +52,7 @@ class L1TStage2CaloLayer2 : public DQMEDAnalyzer {
   MonitorElement* stage2CaloLayer2CenJetQual_;
 
   MonitorElement* stage2CaloLayer2ForJetEtEtaPhi_;
+  MonitorElement* stage2CaloLayer2ForJetEtEtaPhi_shift_;
   MonitorElement* stage2CaloLayer2ForJetEta_;
   MonitorElement* stage2CaloLayer2ForJetPhi_;
   MonitorElement* stage2CaloLayer2ForJetRank_;
@@ -62,6 +63,7 @@ class L1TStage2CaloLayer2 : public DQMEDAnalyzer {
   MonitorElement* stage2CaloLayer2EGIso_;
 
   MonitorElement* stage2CaloLayer2IsoEGEtEtaPhi_;
+  MonitorElement* stage2CaloLayer2IsoEGEtEtaPhi_shift_;
   MonitorElement* stage2CaloLayer2IsoEGEta_;
   MonitorElement* stage2CaloLayer2IsoEGPhi_;
   MonitorElement* stage2CaloLayer2IsoEGRank_;
@@ -70,6 +72,7 @@ class L1TStage2CaloLayer2 : public DQMEDAnalyzer {
   MonitorElement* stage2CaloLayer2IsoEGQual_;
 
   MonitorElement* stage2CaloLayer2NonIsoEGEtEtaPhi_;
+  MonitorElement* stage2CaloLayer2NonIsoEGEtEtaPhi_shift_;
   MonitorElement* stage2CaloLayer2NonIsoEGEta_;
   MonitorElement* stage2CaloLayer2NonIsoEGPhi_;
   MonitorElement* stage2CaloLayer2NonIsoEGRank_;
@@ -80,6 +83,7 @@ class L1TStage2CaloLayer2 : public DQMEDAnalyzer {
   MonitorElement* stage2CaloLayer2TauIso_;
 
   MonitorElement* stage2CaloLayer2IsoTauEtEtaPhi_;
+  MonitorElement* stage2CaloLayer2IsoTauEtEtaPhi_shift_;
   MonitorElement* stage2CaloLayer2IsoTauEta_;
   MonitorElement* stage2CaloLayer2IsoTauPhi_;
   MonitorElement* stage2CaloLayer2IsoTauRank_;
@@ -88,6 +92,7 @@ class L1TStage2CaloLayer2 : public DQMEDAnalyzer {
   MonitorElement* stage2CaloLayer2IsoTauQual_;
 
   MonitorElement* stage2CaloLayer2TauEtEtaPhi_;
+  MonitorElement* stage2CaloLayer2TauEtEtaPhi_shift_;
   MonitorElement* stage2CaloLayer2TauEta_;
   MonitorElement* stage2CaloLayer2TauPhi_;
   MonitorElement* stage2CaloLayer2TauRank_;
@@ -102,6 +107,18 @@ class L1TStage2CaloLayer2 : public DQMEDAnalyzer {
   MonitorElement* stage2CaloLayer2MHTRank_;
   MonitorElement* stage2CaloLayer2MHTPhi_;
   MonitorElement* stage2CaloLayer2HTTRank_;
+  MonitorElement* stage2CaloLayer2METHFRank_;
+  MonitorElement* stage2CaloLayer2METHFPhi_;
+  // MonitorElement* stage2CaloLayer2ETTHFRank_;
+  MonitorElement* stage2CaloLayer2MHTHFRank_;
+  MonitorElement* stage2CaloLayer2MHTHFPhi_;
+  // MonitorElement* stage2CaloLayer2HTTHFRank_;
+  MonitorElement* stage2CaloLayer2MinBiasHFP0_;
+  MonitorElement* stage2CaloLayer2MinBiasHFM0_;
+  MonitorElement* stage2CaloLayer2MinBiasHFP1_;
+  MonitorElement* stage2CaloLayer2MinBiasHFM1_;
+  MonitorElement* stage2CaloLayer2ETTEMRank_;
+  MonitorElement* stage2CaloLayer2TowCount_;
 
   MonitorElement* timingStage2CaloLayer2CenJetBxOcc_;
   MonitorElement* timingStage2CaloLayer2ForJetBxOcc_;

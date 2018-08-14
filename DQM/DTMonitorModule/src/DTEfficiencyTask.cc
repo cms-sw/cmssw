@@ -180,7 +180,7 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
     const DTChamber* chamber = dtGeom->chamber(*chamberId);
 
     // Get all 1D RecHits to be used for searches of hits not associated to segments and map them by wire
-    const vector<const DTSuperLayer*> SLayers = chamber->superLayers();
+    const vector<const DTSuperLayer*>& SLayers = chamber->superLayers();
     map<DTWireId, int> wireAnd1DRecHits;
     for(vector<const DTSuperLayer*>::const_iterator superlayer = SLayers.begin();
 	superlayer != SLayers.end();
@@ -239,7 +239,7 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 	continue;
       }
       copy(phiRecHits.begin(), phiRecHits.end(), back_inserter(recHits1D));
-      const DTSLRecSegment2D* zSeg = 0;
+      const DTSLRecSegment2D* zSeg = nullptr;
       if((*segment4D).dimension() == 4) {
 	rZ = true;
 	zSeg = (*segment4D).zSegment();
@@ -319,7 +319,7 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 	}
 
 	// Find the layer without RecHits ----------------------------------------
-	const vector<const DTSuperLayer*> SupLayers = chamber->superLayers();
+	const vector<const DTSuperLayer*>& SupLayers = chamber->superLayers();
         map<DTLayerId, bool> layerMap;
 	map<DTWireId, float> wireAndPosInChamberAtLayerZ;
 	// Loop over layers and wires to fill a map

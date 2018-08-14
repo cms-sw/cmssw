@@ -82,33 +82,33 @@ class SteppingHelixPropagator final : public Propagator {
   SteppingHelixPropagator();
   SteppingHelixPropagator(const MagneticField* field, PropagationDirection dir = alongMomentum);
 
-  virtual SteppingHelixPropagator* clone() const  override {return new SteppingHelixPropagator(*this);}
+  SteppingHelixPropagator* clone() const  override {return new SteppingHelixPropagator(*this);}
 
   //! Destructor
-  virtual ~SteppingHelixPropagator();
+  ~SteppingHelixPropagator() override;
   
-  virtual const MagneticField* magneticField() const override { return field_;}
+  const MagneticField* magneticField() const override { return field_;}
 
   using Propagator::propagate;
   using Propagator::propagateWithPath;
   
   //! Propagate to Plane given a starting point: return final 
   //! TrajectoryState and path length from start to this point
-  virtual std::pair<TrajectoryStateOnSurface, double> 
+  std::pair<TrajectoryStateOnSurface, double> 
     propagateWithPath(const FreeTrajectoryState& ftsStart, const Plane& pDest) const override;
   //! Propagate to Cylinder given a starting point: return final TrajectoryState 
   //!and path length from start to this point
-  virtual std::pair<TrajectoryStateOnSurface, double> 
+  std::pair<TrajectoryStateOnSurface, double> 
     propagateWithPath(const FreeTrajectoryState& ftsStart, const Cylinder& cDest) const override;
   //! Propagate to PCA to point given a starting point 
-  virtual std::pair<FreeTrajectoryState, double> 
+  std::pair<FreeTrajectoryState, double> 
     propagateWithPath(const FreeTrajectoryState& ftsStart, const GlobalPoint& pDest) const override;
   //! Propagate to PCA to a line (given by 2 points) given a starting point 
-  virtual std::pair<FreeTrajectoryState, double> 
+  std::pair<FreeTrajectoryState, double> 
     propagateWithPath(const FreeTrajectoryState& ftsStart, 
 		      const GlobalPoint& pDest1, const GlobalPoint& pDest2) const override;
   //! Propagate to PCA to a line (given by beamSpot position and slope) given a starting point 
-  virtual std::pair<FreeTrajectoryState, double> 
+  std::pair<FreeTrajectoryState, double> 
     propagateWithPath(const FreeTrajectoryState& ftsStart, 
 		      const reco::BeamSpot& beamSpot) const override;
 

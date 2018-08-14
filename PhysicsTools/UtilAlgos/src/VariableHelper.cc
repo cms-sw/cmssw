@@ -54,6 +54,6 @@ const CachingVariable* VariableHelper::variable(std::string name) const{
       edm::LogError("VariableHelper")<<"I don't know anything named: "<<name
 				     <<" list of available variables follows.";
       print();
-      return 0;
+      return nullptr;
     }
 }

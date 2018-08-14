@@ -1,7 +1,7 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCAnodeData2006.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <string.h> // for bzero
+#include <cstring> // for bzero
 #include <iostream>
 
 CSCAnodeDataFrame2006::CSCAnodeDataFrame2006(unsigned chip, unsigned tbin, unsigned data)

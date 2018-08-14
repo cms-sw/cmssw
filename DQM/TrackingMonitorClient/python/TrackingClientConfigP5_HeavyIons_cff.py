@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 #from DQM.TrackingMonitorSummary.OnDemandMonitoring_cfi import *
 #  TrackingMonitorAnalyser ####
-TrackingAnalyserHI = cms.EDAnalyzer("TrackingAnalyser",
+TrackingAnalyserHI = DQMEDHarvester("TrackingAnalyser",
     nFEDinfoDir              = cms.string("SiStrip/FEDIntegrity_SM"),                                   
     nFEDinVsLSname           = cms.string("nFEDinVsLS"),
     nFEDinWdataVsLSname      = cms.string("nFEDinWdataVsLS"),

@@ -46,7 +46,7 @@ DTTriggerLutTest::DTTriggerLutTest(const edm::ParameterSet& ps){
   validRange = ps.getUntrackedParameter<double>("validRange");
   detailedAnalysis = ps.getUntrackedParameter<bool>("detailedAnalysis");
 
-  bookingdone = 0;
+  bookingdone = false;
 
 }
 
@@ -58,7 +58,7 @@ DTTriggerLutTest::~DTTriggerLutTest(){
 
 void DTTriggerLutTest::Bookings(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
-  bookingdone = 1;  
+  bookingdone = true;  
 
   vector<string>::const_iterator iTr   = trigSources.begin();
   vector<string>::const_iterator trEnd = trigSources.end();
@@ -304,9 +304,9 @@ void DTTriggerLutTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMStore
 	  else 
 	    phibStatus=5;
 	  
-	  cmsME.find("TrigLutSummary")->second->setBinContent(sect,wh+3,glbStatus);
-	  cmsME.find(fullName("PhiLutSummary"))->second->setBinContent(sect,wh+3,phiStatus);
-	  cmsME.find(fullName("PhibLutSummary"))->second->setBinContent(sect,wh+3,phibStatus);
+	  cmsME.find("TrigLutSummary")->second->setBinContent(sect,wh+wheelArrayShift,glbStatus);
+	  cmsME.find(fullName("PhiLutSummary"))->second->setBinContent(sect,wh+wheelArrayShift,phiStatus);
+	  cmsME.find(fullName("PhibLutSummary"))->second->setBinContent(sect,wh+wheelArrayShift,phibStatus);
 	}
       }
     }

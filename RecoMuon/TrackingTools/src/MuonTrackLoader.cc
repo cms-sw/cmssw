@@ -202,7 +202,6 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   reco::TrackRef::key_type trackUpdatedIndex = 0;
   
   reco::TrackExtraRef::key_type trackExtraIndex = 0;
-  TrackingRecHitRef::key_type recHitsIndex = 0;
   
   edm::Ref<reco::TrackCollection>::key_type iTkRef = 0;
   edm::Ref< std::vector<Trajectory> >::key_type iTjRef = 0;
@@ -305,12 +304,12 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
       auto const & hit = (*recHitCollection)[ih];
       auto hits = MuonTrackLoader::unpackHit(hit);
       for (auto hh : hits) {
-          if unlikely(!track.appendHitPattern(*hh, ttopo)) break;
+          if UNLIKELY(!track.appendHitPattern(*hh, ttopo)) break;
       }
  
       if(theUpdatingAtVtx && updateResult.first){
         for (auto hh : hits) {
-              if unlikely(!updateResult.second.appendHitPattern(*hh, ttopo)) break;
+              if UNLIKELY(!updateResult.second.appendHitPattern(*hh, ttopo)) break;
         }
       }
     }
@@ -480,7 +479,7 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
     delete *it;
   }
 
-  if( thePutTkTrackFlag && trackerTracks.isValid() && !(combinedTracks->size() > 0 && trackerTracks->size() > 0 ) )
+  if( thePutTkTrackFlag && trackerTracks.isValid() && !(!combinedTracks->empty() && !trackerTracks->empty() ) )
     LogWarning(metname)<<"The MuonTrackLinkCollection is incomplete"; 
   
   // put the MuonCollection in the event
@@ -541,10 +540,8 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   event.getByToken(theBeamSpotToken,beamSpot);
 
   reco::TrackRef::key_type trackIndex = 0;
-  //  reco::TrackRef::key_type trackUpdatedIndex = 0;
   
   reco::TrackExtraRef::key_type trackExtraIndex = 0;
-  TrackingRecHitRef::key_type recHitsIndex = 0;
   
   edm::Ref<reco::TrackCollection>::key_type iTkRef = 0;
   edm::Ref< std::vector<Trajectory> >::key_type iTjRef = 0;
@@ -633,12 +630,12 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
       auto const & hit = (*recHitCollection)[ih];
       auto hits = MuonTrackLoader::unpackHit(hit);
       for (auto hh : hits) {
-          if unlikely(!track.appendHitPattern(*hh, ttopo)) break;
+          if UNLIKELY(!track.appendHitPattern(*hh, ttopo)) break;
       }
  
       if(theUpdatingAtVtx && updateResult.first){
         for (auto hh : hits) {
-              if unlikely(!updateResult.second.appendHitPattern(*hh, ttopo)) break;
+              if UNLIKELY(!updateResult.second.appendHitPattern(*hh, ttopo)) break;
         }
       }
     }

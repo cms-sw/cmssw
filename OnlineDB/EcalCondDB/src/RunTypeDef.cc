@@ -8,8 +8,8 @@ using namespace oracle::occi;
 
 RunTypeDef::RunTypeDef()
 {
-  m_env = NULL;
-  m_conn = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
   m_ID = 0;
   m_runType = "";
   m_desc = "";
@@ -73,7 +73,7 @@ int RunTypeDef::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunTypeDef::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunTypeDef::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;
@@ -94,15 +94,15 @@ void RunTypeDef::setByID(int id)
 
     ResultSet* rset = stmt->executeQuery();
     if (rset->next()) {
-      m_runType = rset->getString(1);
-      m_desc = rset->getString(2);
+      m_runType = getOraString(rset,1);
+      m_desc = getOraString(rset,2);
     } else {
       throw(std::runtime_error("RunTypeDef::setByID:  Given def_id is not in the database"));
     }
     
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(std::runtime_error("RunTypeDef::setByID:  "+e.getMessage()));
+   throw(std::runtime_error(std::string("RunTypeDef::setByID:  ")+getOraMessage(&e)));
   }
 }
 
@@ -125,6 +125,6 @@ void RunTypeDef::fetchAllDefs( std::vector<RunTypeDef>* fillVec)
       fillVec->push_back( runTypeDef );
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunTypeDef::fetchAllDefs:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunTypeDef::fetchAllDefs:  ")+getOraMessage(&e)));
   }
 }

@@ -2,9 +2,7 @@
 #define Geometry_CaloTopology_HGCalTopology_h 1
 
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
-#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
@@ -15,85 +13,85 @@ class HGCalTopology : public CaloSubdetectorTopology {
 
 public:
   /// create a new Topology
-  HGCalTopology(const HGCalDDDConstants& hdcons, ForwardSubdetector subdet, bool halfChamber);
+  HGCalTopology(const HGCalDDDConstants& hdcons, int subdet);
 
   /// virtual destructor
-  virtual ~HGCalTopology() { }  
+  ~HGCalTopology() override { }  
 
   /// move the Topology north (increment iy)  
-  virtual DetId  goNorth(const DetId& id) const {
+  DetId  goNorth(const DetId& id) const override {
     return changeXY(id,0,+1);
   }
-  virtual std::vector<DetId> north(const DetId& id) const { 
+  std::vector<DetId> north(const DetId& id) const override { 
     DetId nextId= goNorth(id);
     std::vector<DetId> vNeighborsDetId;
     if (! (nextId==DetId(0)))
-      vNeighborsDetId.push_back(nextId);
+      vNeighborsDetId.emplace_back(nextId);
     return vNeighborsDetId;
   }
 
   /// move the Topology south (decrement iy)
-  virtual DetId goSouth(const DetId& id) const {
+  DetId goSouth(const DetId& id) const override {
     return changeXY(id,0,-1);
   }
-  virtual std::vector<DetId> south(const DetId& id) const { 
+  std::vector<DetId> south(const DetId& id) const override { 
     DetId nextId= goSouth(id);
     std::vector<DetId> vNeighborsDetId;
     if (! (nextId==DetId(0)))
-      vNeighborsDetId.push_back(nextId);
+      vNeighborsDetId.emplace_back(nextId);
     return vNeighborsDetId;
   }
 
   /// move the Topology east (positive ix)
-  virtual DetId  goEast(const DetId& id) const {
+  DetId  goEast(const DetId& id) const override {
     return changeXY(id,+1,0);
   }
-  virtual std::vector<DetId> east(const DetId& id) const { 
+  std::vector<DetId> east(const DetId& id) const override { 
     DetId nextId=goEast(id);
     std::vector<DetId> vNeighborsDetId;
     if (! (nextId==DetId(0)))
-      vNeighborsDetId.push_back(nextId);
+      vNeighborsDetId.emplace_back(nextId);
     return vNeighborsDetId;
   }
 
   /// move the Topology west (negative ix)
-  virtual DetId goWest(const DetId& id) const {
+  DetId goWest(const DetId& id) const override {
     return changeXY(id,-1,0);
   }
-  virtual std::vector<DetId> west(const DetId& id) const { 
+  std::vector<DetId> west(const DetId& id) const override { 
     DetId nextId=goWest(id);
     std::vector<DetId> vNeighborsDetId;
     if (! (nextId==DetId(0)))
-      vNeighborsDetId.push_back(nextId);
+      vNeighborsDetId.emplace_back(nextId);
     return vNeighborsDetId;
   }
   
-  virtual std::vector<DetId> up(const DetId& id) const {
+  std::vector<DetId> up(const DetId& id) const override {
     DetId nextId=changeZ(id,+1);
     std::vector<DetId> vNeighborsDetId;
     if (! (nextId==DetId(0)))
-      vNeighborsDetId.push_back(nextId);
+      vNeighborsDetId.emplace_back(nextId);
     return vNeighborsDetId;
   }
   
-  virtual std::vector<DetId> down(const DetId& id) const {
+  std::vector<DetId> down(const DetId& id) const override {
     DetId nextId=changeZ(id,-1);
     std::vector<DetId> vNeighborsDetId;
     if (! (nextId==DetId(0)))
-      vNeighborsDetId.push_back(nextId);
+      vNeighborsDetId.emplace_back(nextId);
     return vNeighborsDetId;
   }
 
   ///Geometry mode
-  HGCalGeometryMode geomMode() const {return mode_;}
+  HGCalGeometryMode::GeometryMode geomMode() const {return mode_;}
 
   ///Dense indexing
-  virtual uint32_t detId2denseId(const DetId& id) const;
-  virtual DetId denseId2detId(uint32_t denseId) const;
+  uint32_t detId2denseId(const DetId& id) const override;
+  DetId denseId2detId(uint32_t denseId) const override;
   virtual uint32_t detId2denseGeomId(const DetId& id) const;
 
   ///Is this a valid cell id
-  virtual bool valid(const DetId& id) const;
+  bool valid(const DetId& id) const override;
   bool validHashIndex(uint32_t ix) const {return (ix < kSizeForDenseIndexing);}
 
   unsigned int totalModules() const {return kSizeForDenseIndexing;}
@@ -111,17 +109,22 @@ public:
   static const int subSectors_ = 2;
 
   struct DecodedDetId {
-    DecodedDetId() : iCell(0), iLay(0), iSec(0), iSubSec(0), zside(0), 
-		     subdet(0) {}
-    int                       iCell, iLay, iSec, iSubSec, zside, subdet;
+    DecodedDetId() : iCell1(0), iCell2(0), iLay(0), iSec1(0), iSec2(0),
+                     iType(0), zSide(0), det(0) {}
+    int              iCell1, iCell2, iLay, iSec1, iSec2, iType, zSide, det;
   };
 
   DecodedDetId geomDenseId2decId(const uint32_t& hi) const;
   DecodedDetId decode(const DetId& id)  const ;
   DetId encode(const DecodedDetId& id_) const ;
 
-  ForwardSubdetector subDetector()  const { return subdet_;}
-  bool               detectorType() const { return half_;}
+  DetId::Detector    detector()  const { return det_;}
+  ForwardSubdetector subDetector()  const {return subdet_;}
+  bool               detectorType() const { return false;}
+  bool               isHFNose() const { 
+    return (((det_ == DetId::Forward) && 
+	     (subdet_ == ForwardSubdetector::HFNose)) ?  true : false);
+  }
 private:
 
   /// move the nagivator along x, y
@@ -130,14 +133,15 @@ private:
   /// move the nagivator along z
   DetId changeZ(const DetId& id, int nrStepsZ) const ;
 
-  const HGCalDDDConstants&    hdcons_;
-  HGCalGeometryMode           mode_;
+  const HGCalDDDConstants&        hdcons_;
+  HGCalGeometryMode::GeometryMode mode_;
 
-  ForwardSubdetector          subdet_;
-  bool                        half_;
-  int                         sectors_, layers_, cells_, kHGhalf_, kHGeomHalf_;
-  std::vector<int>            maxcells_;
-  unsigned int                kSizeForDenseIndexing;
+  DetId::Detector                 det_;
+  ForwardSubdetector              subdet_;
+  int                             sectors_, layers_, cells_, types_;
+  int                             firstLay_, cellMax_, waferOff_, waferMax_;
+  int                             kHGhalf_, kHGeomHalf_;
+  unsigned int                    kSizeForDenseIndexing;
 };
 
 #endif

@@ -28,10 +28,10 @@ class PrimaryVertexMonitor : public DQMEDAnalyzer {
    public:
       explicit PrimaryVertexMonitor(const edm::ParameterSet& pSet);
 
-      ~PrimaryVertexMonitor();
+      ~PrimaryVertexMonitor() override;
 
-      virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-      virtual void analyze(const edm::Event &, const edm::EventSetup &) override;
+      void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+      void analyze(const edm::Event &, const edm::EventSetup &) override;
 
    private:
 
@@ -51,7 +51,9 @@ class PrimaryVertexMonitor : public DQMEDAnalyzer {
 
   std::string TopFolderName_;
   std::string AlignmentLabel_;
-
+  int ndof_;
+  bool errorPrinted_;
+  
   // the histos
   MonitorElement *nbvtx, *nbgvtx, *nbtksinvtx[2], *trksWeight[2], *score[2];
   MonitorElement *tt[2];

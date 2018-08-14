@@ -65,7 +65,7 @@ int AlignableDataIO::writeRelPos(Alignable* ali, bool validCheck)
   if ( !(validCheck) || ali->alignmentParameters()->isValid() ) 
     {
       // rel. shift in global frame
-      align::GlobalVector pos = ali->displacement();
+      const align::GlobalVector& pos = ali->displacement();
       // rel. rotation in global frame
       align::RotationType rot = ali->rotation();
       // FIXME: should add something to store changes of surface deformations...

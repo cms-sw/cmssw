@@ -33,7 +33,9 @@ public:
 private:
 
   bool particlePassesPrimaryCuts(const G4ThreeVector& p) const;
-  bool isExotic(HepMC::GenParticle* p) const;
+  bool isExotic(int pdgcode) const;
+  bool isExoticNonDetectable(int pdgcode) const;
+  bool IsInTheFilterList(int pdgcode) const;
   void particleAssignDaughters(G4PrimaryParticle * p, HepMC::GenParticle * hp, 
 			       double length);
   void setGenId(G4PrimaryParticle* p, int id) const 

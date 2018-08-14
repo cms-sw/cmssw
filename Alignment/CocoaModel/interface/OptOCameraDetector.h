@@ -23,11 +23,11 @@ public:
   OptOCameraDetector(){ };
   OptOCameraDetector(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data) :
   OpticalObject( parent, type, name, copy_data){ };
-  ~OptOCameraDetector(){ };
+  ~OptOCameraDetector() override{ };
 
   //---------- Propagate light for measurement meas
-  virtual void participateInMeasurement( LightRay& lightray, Measurement& meas, const ALIstring& behav ) override;
-  virtual void constructSolidShape() override;
+  void participateInMeasurement( LightRay& lightray, Measurement& meas, const ALIstring& behav ) override;
+  void constructSolidShape() override;
 
 
 };

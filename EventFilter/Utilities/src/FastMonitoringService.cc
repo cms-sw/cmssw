@@ -192,7 +192,6 @@ namespace evf{
       throw cms::Exception("FastMonitoringService") << "EvFDaqDirector is not present";
     
     }
-    emptyLumisectionMode_ = edm::Service<evf::EvFDaqDirector>()->emptyLumisectionMode();
     boost::filesystem::path runDirectory(edm::Service<evf::EvFDaqDirector>()->baseRunDir());
     workingDirectory_ = runDirectory_ = runDirectory;
     workingDirectory_ /= "mon";
@@ -256,18 +255,18 @@ namespace evf{
     encModule_.completeReservedWithDummies();
 
     for (unsigned int i=0;i<nStreams_;i++) {
-       ministate_.push_back(&nopath_);
-       microstate_.push_back(&reservedMicroStateNames[mInvalid]);
+       ministate_.emplace_back(&nopath_);
+       microstate_.emplace_back(&reservedMicroStateNames[mInvalid]);
 
        //for synchronization
-       streamCounterUpdating_.push_back(new std::atomic<bool>(0));
+       streamCounterUpdating_.push_back(new std::atomic<bool>(false));
 
        //path (mini) state
        encPath_.emplace_back(0);
        encPath_[i].update(static_cast<const void*>(&nopath_));
        eventCountForPathInit_.push_back(0);
        firstEventId_.push_back(0);
-       collectedPathList_.push_back(new std::atomic<bool>(0));
+       collectedPathList_.push_back(new std::atomic<bool>(false));
 
     }
     //for (unsigned int i=0;i<nThreads_;i++)
@@ -279,8 +278,7 @@ namespace evf{
     fmt_.m_data.microstateBins_ = 0; 
     fmt_.m_data.inputstateBins_ = FastMonitoringThread::inCOUNT;
  
-    lastGlobalLumi_=0; 
-    isGlobalLumiTransition_=false;
+    lastGlobalLumi_=0;
     isInitTransition_=true;
     lumiFromSource_=0;
 
@@ -396,25 +394,14 @@ namespace evf{
   void FastMonitoringService::preGlobalBeginLumi(edm::GlobalContext const& gc)
   {
 	  timeval lumiStartTime;
-	  gettimeofday(&lumiStartTime, 0);
+	  gettimeofday(&lumiStartTime, nullptr);
 	  unsigned int newLumi = gc.luminosityBlockID().luminosityBlock();
+	  lastGlobalLumi_ = newLumi;
 
           std::lock_guard<std::mutex> lock(fmt_.monlock_);
-
 	  lumiStartTime_[newLumi]=lumiStartTime;
-	  while (!lastGlobalLumisClosed_.empty()) {
-		  //wipe out old map entries as they aren't needed and slow down access
-		  unsigned int oldLumi = lastGlobalLumisClosed_.back();
-		  lastGlobalLumisClosed_.pop();
-		  lumiStartTime_.erase(oldLumi);
-		  avgLeadTime_.erase(oldLumi);
-		  filesProcessedDuringLumi_.erase(oldLumi);
-		  accuSize_.erase(oldLumi);
-		  lockStatsDuringLumi_.erase(oldLumi);
-		  processedEventsPerLumi_.erase(oldLumi);
-	  }
-	  lastGlobalLumi_= newLumi;
-	  isGlobalLumiTransition_=false;
+
+
   }
 
   void FastMonitoringService::preGlobalEndLumi(edm::GlobalContext const& gc)
@@ -423,15 +410,17 @@ namespace evf{
           LogDebug("FastMonitoringService") << "Lumi ended. Writing JSON information. LUMI -: "
                                                 << lumi;
 	  timeval lumiStopTime;
-	  gettimeofday(&lumiStopTime, 0);
+	  gettimeofday(&lumiStopTime, nullptr);
 
           std::lock_guard<std::mutex> lock(fmt_.monlock_);
 
 	  // Compute throughput
 	  timeval stt = lumiStartTime_[lumi];
+          lumiStartTime_.erase(lumi);
 	  unsigned long usecondsForLumi = (lumiStopTime.tv_sec - stt.tv_sec)*1000000
 		                  + (lumiStopTime.tv_usec - stt.tv_usec);
 	  unsigned long accuSize = accuSize_.find(lumi)==accuSize_.end() ? 0 : accuSize_[lumi];
+          accuSize_.erase(lumi);
 	  double throughput = throughputFactor()* double(accuSize) / double(usecondsForLumi);
 	  //store to registered variable
 	  fmt_.m_data.fastThroughputJ_.value() = throughput;
@@ -501,18 +490,25 @@ namespace evf{
           }
 	  fmt_.jsonMonitor_->discardCollected(lumi);//we don't do further updates for this lumi
 
-	  isGlobalLumiTransition_=true;
   }
 
   void FastMonitoringService::postGlobalEndLumi(edm::GlobalContext const& gc)
   {
-    //mark closed lumis (still keep map entries until next one)
-    lastGlobalLumisClosed_.push(gc.luminosityBlockID().luminosityBlock());
+    std::lock_guard<std::mutex> lock(fmt_.monlock_);
+    unsigned int lumi = gc.luminosityBlockID().luminosityBlock();
+    //LS monitoring snapshot with input source data has been taken in previous callback
+    avgLeadTime_.erase(lumi);
+    filesProcessedDuringLumi_.erase(lumi);
+    lockStatsDuringLumi_.erase(lumi);
+
+    //output module already used this in end lumi (this could be migrated to EvFDaqDirector as it is essential for FFF bookkeeping)
+    processedEventsPerLumi_.erase(lumi);
   }
 
   void FastMonitoringService::preStreamBeginLumi(edm::StreamContext const& sc)
   {
     unsigned int sid = sc.streamID().value();
+    
     std::lock_guard<std::mutex> lock(fmt_.monlock_);
     fmt_.m_data.streamLumi_[sid] = sc.eventID().luminosityBlock();
 
@@ -533,11 +529,6 @@ namespace evf{
     unsigned int sid = sc.streamID().value();
     std::lock_guard<std::mutex> lock(fmt_.monlock_);
 
-    #if ATOMIC_LEVEL>=2
-    //spinlock to make sure we are not still updating event counter somewhere
-    while (streamCounterUpdating_[sid]->load(std::memory_order_acquire)) {}
-    #endif
-
     //update processed count to be complete at this time
     doStreamEOLSnapshot(sc.eventID().luminosityBlock(),sid);
     //reset this in case stream does not get notified of next lumi (we keep processed events only)
@@ -554,7 +545,7 @@ namespace evf{
   {
     //make sure that all path names are retrieved before allowing ministate to change
     //hack: assume memory is synchronized after ~50 events seen by each stream
-    if (unlikely(eventCountForPathInit_[sc.streamID()]<50) && false==collectedPathList_[sc.streamID()]->load(std::memory_order_acquire))
+    if (UNLIKELY(eventCountForPathInit_[sc.streamID()]<50) && false==collectedPathList_[sc.streamID()]->load(std::memory_order_acquire))
     {
       //protection between stream threads, as well as the service monitoring thread
       std::lock_guard<std::mutex> lock(fmt_.monlock_);
@@ -593,20 +584,8 @@ namespace evf{
 
     ministate_[sc.streamID()] = &nopath_;
 
-    #if ATOMIC_LEVEL>=2
-    //use atomic flag to make sure end of lumi sees this
-    streamCounterUpdating_[sc.streamID()]->store(true,std::memory_order_release);
-    fmt_.m_data.processed_[sc.streamID()]->fetch_add(1,std::memory_order_release);
-    streamCounterUpdating_[sc.streamID()]->store(false,std::memory_order_release);
-
-    #elif ATOMIC_LEVEL==1
-    //writes are atomic, we assume writes propagate to memory before stream EOL snap
-    fmt_.m_data.processed_[sc.streamID()]->fetch_add(1,std::memory_order_relaxed);
-
-    #elif ATOMIC_LEVEL==0 //default
     (*(fmt_.m_data.processed_[sc.streamID()]))++;
-    #endif
-    eventCountForPathInit_[sc.streamID()]++;
+    eventCountForPathInit_[sc.streamID()].m_value++;
 
     //fast path counter (events accumulated in a run)
     unsigned long res = totalEventsProcessed_.fetch_add(1,std::memory_order_relaxed);
@@ -665,7 +644,7 @@ namespace evf{
   }
 
   void FastMonitoringService::startedLookingForFile() {
-	  gettimeofday(&fileLookStart_, 0);
+	  gettimeofday(&fileLookStart_, nullptr);
 	  /*
 	 std::cout << "Started looking for .raw file at: s=" << fileLookStart_.tv_sec << ": ms = "
 	 << fileLookStart_.tv_usec / 1000.0 << std::endl;
@@ -673,7 +652,7 @@ namespace evf{
   }
 
   void FastMonitoringService::stoppedLookingForFile(unsigned int lumi) {
-	  gettimeofday(&fileLookStop_, 0);
+	  gettimeofday(&fileLookStop_, nullptr);
 	  /*
 	 std::cout << "Stopped looking for .raw file at: s=" << fileLookStop_.tv_sec << ": ms = "
 	 << fileLookStop_.tv_usec / 1000.0 << std::endl;
@@ -732,7 +711,7 @@ namespace evf{
     }
     else {
       throw cms::Exception("FastMonitoringService") << "output module wants already deleted (or never reported by SOURCE) lumisection status for LUMI -: "<<lumi;
-      return 0;
+      return false;
     }
   }
 
@@ -740,8 +719,9 @@ namespace evf{
     // update macrostate
     fmt_.m_data.fastMacrostateJ_ = macrostate_;
 
-    //update these unless in the midst of a global transition
-    if (!isGlobalLumiTransition_ && !isInitTransition_) {
+    std::vector<const void*> microstateCopy(microstate_.begin(),microstate_.end());
+
+    if (!isInitTransition_) {
 
       auto itd = avgLeadTime_.find(ls);
       if (itd != avgLeadTime_.end()) 
@@ -763,18 +743,10 @@ namespace evf{
        fmt_.m_data.fastLockCountJ_=0.;
       }
     }
-    else {
-      if (isGlobalLumiTransition_)
-        for (unsigned int i=0;i<nStreams_;i++) {
-          if (microstate_[i]==&reservedMicroStateNames[mFwkEoL]) {
-            microstate_[i]=&reservedMicroStateNames[mGlobEoL];
-          }
-        }
-    }
 
     for (unsigned int i=0;i<nStreams_;i++) {
       fmt_.m_data.ministateEncoded_[i] = encPath_[i].encode(ministate_[i]);
-      fmt_.m_data.microstateEncoded_[i] = encModule_.encode(microstate_[i]);
+      fmt_.m_data.microstateEncoded_[i] = encModule_.encode(microstateCopy[i]);
     }
 
     bool inputStatePerThread=false;
@@ -883,33 +855,23 @@ namespace evf{
       }
     }
     else if (inputState_==FastMonitoringThread::inNoRequest) {
-      if (isGlobalLumiTransition_ && !isInitTransition_)
-        fmt_.m_data.inputState_[0]=FastMonitoringThread::inNoRequestWithGlobalEoL;
-      else {
-        inputStatePerThread=true;
-        for (unsigned int i=0;i<nStreams_;i++) {
-          if (microstate_[i]==&reservedMicroStateNames[mIdle])
-            fmt_.m_data.inputState_[i]=FastMonitoringThread::inNoRequestWithIdleThreads;
-          else if (microstate_[i]==&reservedMicroStateNames[mEoL] || 
-            microstate_[i]==&reservedMicroStateNames[mFwkEoL] || 
-            microstate_[i]==&reservedMicroStateNames[mGlobEoL])
-            fmt_.m_data.inputState_[i]=FastMonitoringThread::inNoRequestWithEoLThreads;
-          else
-            fmt_.m_data.inputState_[i]=FastMonitoringThread::inNoRequest;
-        }
+      inputStatePerThread=true;
+      for (unsigned int i=0;i<nStreams_;i++) {
+        if (microstateCopy[i]==&reservedMicroStateNames[mIdle])
+          fmt_.m_data.inputState_[i]=FastMonitoringThread::inNoRequestWithIdleThreads;
+        else if (microstateCopy[i]==&reservedMicroStateNames[mEoL] || 
+          microstateCopy[i]==&reservedMicroStateNames[mFwkEoL])
+          fmt_.m_data.inputState_[i]=FastMonitoringThread::inNoRequestWithEoLThreads;
+        else
+          fmt_.m_data.inputState_[i]=FastMonitoringThread::inNoRequest;
       }
     }
     else if (inputState_ == FastMonitoringThread::inNewLumi) {
       inputStatePerThread=true;
       for (unsigned int i=0;i<nStreams_;i++) {
-        if (microstate_[i]==&reservedMicroStateNames[mEoL] || 
-          microstate_[i]==&reservedMicroStateNames[mFwkEoL] || 
-          microstate_[i]==&reservedMicroStateNames[mGlobEoL])
+        if (microstateCopy[i]==&reservedMicroStateNames[mEoL] || 
+          microstateCopy[i]==&reservedMicroStateNames[mFwkEoL])
           fmt_.m_data.inputState_[i]=FastMonitoringThread::inNewLumi;
-        else if (microstate_[i]==&reservedMicroStateNames[mIdle])
-          fmt_.m_data.inputState_[i]=FastMonitoringThread::inNewLumiIdleEndingLS;
-        else
-          fmt_.m_data.inputState_[i]=FastMonitoringThread::inNewLumiBusyEndingLS;
       }
     }
     else

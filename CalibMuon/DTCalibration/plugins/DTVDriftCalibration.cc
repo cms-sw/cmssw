@@ -234,7 +234,7 @@ void DTVDriftCalibration::analyze(const Event & event, const EventSetup& eventSe
           DTWireId wireId(slId, 0, 0);
           theFile->cd();
           cellInfo* cell = theWireIdAndCellMap[wireId];
-          if (cell==0) {
+          if (cell==nullptr) {
             TString name = (((((TString) "TMax"+(long) slId.wheel()) +(long) slId.station())
                              +(long) slId.sector())+(long) slId.superLayer());
             cell = new cellInfo(name);
@@ -304,7 +304,7 @@ void DTVDriftCalibration::endJob() {
 	if(vDriftAndReso.front() == -1)
 	  continue;
 	const DTCalibrationMap::CalibConsts* oldConstants = calibValuesFile.getConsts(wireId);
-	if(oldConstants != 0) {
+	if(oldConstants != nullptr) {
 	  newConstants.push_back((*oldConstants)[0]);
 	  newConstants.push_back((*oldConstants)[1]);
 	  newConstants.push_back((*oldConstants)[2]);
@@ -409,7 +409,7 @@ void DTVDriftCalibration::cellInfo::add(const vector<const TMax*>& _tMaxes) {
   unsigned hSubGroup = 0;
   for (vector<const TMax*>::const_iterator it=tMaxes.begin(); it!=tMaxes.end();
        ++it) {
-    if(*it == 0) {
+    if(*it == nullptr) {
       continue;  
     }
     else { 

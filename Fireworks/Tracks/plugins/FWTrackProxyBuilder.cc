@@ -27,15 +27,15 @@ class FWTrackProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Track> {
 
 public:
    FWTrackProxyBuilder();
-   virtual ~FWTrackProxyBuilder();
+   ~FWTrackProxyBuilder() override;
 
    REGISTER_PROXYBUILDER_METHODS();
   
-   virtual void setItem(const FWEventItem* iItem) override;
+   void setItem(const FWEventItem* iItem) override;
 private:
-   FWTrackProxyBuilder(const FWTrackProxyBuilder&); // stop default
+   FWTrackProxyBuilder(const FWTrackProxyBuilder&) = delete; // stop default
 
-   const FWTrackProxyBuilder& operator=(const FWTrackProxyBuilder&); // stop default
+   const FWTrackProxyBuilder& operator=(const FWTrackProxyBuilder&) = delete; // stop default
 
    using FWSimpleProxyBuilderTemplate<reco::Track>::build;
    void build(const reco::Track& iData, unsigned int iIndex,TEveElement& oItemHolder, const FWViewContext*) override;

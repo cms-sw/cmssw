@@ -72,7 +72,7 @@ double MVAComputer::eval(Iterator_t first, Iterator_t last) const
 
 	// allocate value array and fill input variables
 	double *values = __TMP_ALLOC(max - size + 1, double);
-	values[0] = 0.0;
+	std::fill_n(values, max - size + 1, 0.0);
 	for(Iterator_t cur = first; cur < last; ++cur) {
 		int id = getVariableId(cur->getName());
 		if(id<0) continue;

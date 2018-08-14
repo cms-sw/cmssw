@@ -20,17 +20,17 @@
 class CSCPedestalsDBConditions: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
  public:
   CSCPedestalsDBConditions(const edm::ParameterSet&);
-  ~CSCPedestalsDBConditions();
+  ~CSCPedestalsDBConditions() override;
   
   inline static CSCDBPedestals * prefillDBPedestals();
 
-  typedef const  CSCDBPedestals * ReturnType;
+  typedef std::unique_ptr<CSCDBPedestals> ReturnType;
   
   ReturnType produceDBPedestals(const CSCDBPedestalsRcd&);
   
  private:
   // ----------member data ---------------------------
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
   CSCDBPedestals *cndbPedestals ;
 
 };

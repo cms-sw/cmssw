@@ -41,9 +41,9 @@ class L1TGlobalProducer : public edm::stream::EDProducer<>
 public:
 
     explicit L1TGlobalProducer(const edm::ParameterSet&);
-    ~L1TGlobalProducer();
+    ~L1TGlobalProducer() override;
 
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
@@ -98,6 +98,8 @@ private:
 
     /// CSV file for prescales
     std::string m_prescalesFile;
+
+    uint m_currentLumi;
 
     /// trigger masks & veto masks
     const L1GtTriggerMask* m_l1GtTmAlgo;
@@ -173,7 +175,11 @@ private:
     int m_verbosity;
     bool m_printL1Menu;
     bool m_isDebugEnabled;
-    
+
+    bool m_getPrescaleColumnFromData;    
+    edm::InputTag m_algoblkInputTag;
+    edm::EDGetToken m_algoblkInputToken;
+
 
 };
 

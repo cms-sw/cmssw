@@ -1,6 +1,6 @@
 #include <stdexcept>
 #include <string>
-#include <string.h>
+#include <cstring>
 #include "OnlineDB/Oracle/interface/Oracle.h"
 #include "OnlineDB/EcalCondDB/interface/DateHandler.h"
 
@@ -11,10 +11,10 @@ using namespace oracle::occi;
 
 ODCond2ConfInfo::ODCond2ConfInfo()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   m_config_tag="";
    m_ID=0;
    clear();   
@@ -59,7 +59,7 @@ int ODCond2ConfInfo::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODCond2ConfInfo::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODCond2ConfInfo::fetchNextId():  ")+getOraMessage(&e)));
   }
 
 }
@@ -70,7 +70,7 @@ void ODCond2ConfInfo::fetchParents()  noexcept(false) {
 
   if(m_typ_id==0) {
   
-    if(getType()!=""){
+    if(!getType().empty()){
     try {
       this->checkConnection();
       m_readStmt = m_conn->createStatement(); 
@@ -83,12 +83,12 @@ void ODCond2ConfInfo::fetchParents()  noexcept(false) {
       
       
     } catch (SQLException &e) {
-      throw(std::runtime_error("ODCond2ConfInfo::fetchParents():  "+e.getMessage()));
+      throw(std::runtime_error(std::string("ODCond2ConfInfo::fetchParents():  ")+getOraMessage(&e)));
     }
   }
   }
   if(m_loc_id==0){
-  if(getLocation()!=""){
+  if(!getLocation().empty()){
     try {
       this->checkConnection();
       m_readStmt = m_conn->createStatement(); 
@@ -99,7 +99,7 @@ void ODCond2ConfInfo::fetchParents()  noexcept(false) {
       }
       m_conn->terminateStatement(m_readStmt);
     } catch (SQLException &e) {
-      throw(std::runtime_error("ODCond2ConfInfo::fetchParents():  "+e.getMessage()));
+      throw(std::runtime_error(std::string("ODCond2ConfInfo::fetchParents():  ")+getOraMessage(&e)));
     }
   }
   }
@@ -130,7 +130,7 @@ void ODCond2ConfInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODCond2ConfInfo::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODCond2ConfInfo::prepareWrite():  ")+getOraMessage(&e)));
   }
 
 }
@@ -174,7 +174,7 @@ void ODCond2ConfInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODCond2ConfInfo::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODCond2ConfInfo::writeDB():  ")+getOraMessage(&e)));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -216,18 +216,18 @@ void ODCond2ConfInfo::fetchData(ODCond2ConfInfo * result)
     //    result->setId(rset->getInt(1));
 
 
-    result->setType(rset->getString(2));
+    result->setType(getOraString(rset,2));
     Date startDate = rset->getDate(3);
-    result->setLocation(rset->getString(4));
+    result->setLocation(getOraString(rset,4));
     result->setRunNumber(rset->getInt(5));
-    result->setDescription(rset->getString(6));
+    result->setDescription(getOraString(rset,6));
     Date endDate = rset->getDate(7);
 
     m_rec_time = dh.dateToTm( startDate );
     m_db_time = dh.dateToTm( endDate );
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODCond2ConfInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODCond2ConfInfo::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -261,7 +261,7 @@ int ODCond2ConfInfo::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODCond2ConfInfo::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODCond2ConfInfo::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;

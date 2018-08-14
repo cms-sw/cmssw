@@ -70,7 +70,6 @@ PhotonOfflineClient::~PhotonOfflineClient()
 {}
 //void PhotonOfflineClient::beginJob(){}
 //void PhotonOfflineClient::analyze(const edm::Event& e, const edm::EventSetup& esup){}
-//void PhotonOfflineClient::endLuminosityBlock( const edm::LuminosityBlock& , const edm::EventSetup& setup){}
 
 void PhotonOfflineClient::dqmEndJob(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter)
 {

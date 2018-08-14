@@ -79,18 +79,12 @@ void GEMHitAssociator::initEvent(const edm::Event& e, const edm::EventSetup& eve
 }
 // end of constructor
 
-std::vector<GEMHitAssociator::SimHitIdpr> GEMHitAssociator::associateRecHit(const TrackingRecHit & hit) const {
+std::vector<GEMHitAssociator::SimHitIdpr> GEMHitAssociator::associateRecHit(const GEMRecHit * gemrechit) const {
   
   std::vector<SimHitIdpr> matched;
 
   if(useGEMs_){
-	
-	  //std::cout<<"gemboo "<<useGEMs_<<std::endl;
-
-	  const TrackingRecHit * hitp = &hit;
-	  const GEMRecHit * gemrechit = dynamic_cast<const GEMRecHit *>(hitp);
-
-	  if (gemrechit) {
+    if (gemrechit) {
 	    
 	    GEMDetId gemDetId = gemrechit->gemId();
 	    int fstrip = gemrechit->firstClusterStrip();

@@ -46,10 +46,10 @@ class MuonTrackingRegionBuilder : public TrackingRegionProducer {
     explicit MuonTrackingRegionBuilder(const edm::ParameterSet& par, edm::ConsumesCollector&& iC) { build(par, iC); }
 
     /// Destructor
-    virtual ~MuonTrackingRegionBuilder() {}
+    ~MuonTrackingRegionBuilder() override {}
 
     /// Create Region of Interest
-    virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event&, const edm::EventSetup&) const override;
+    std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event&, const edm::EventSetup&) const override;
   
     /// Define tracking region
     std::unique_ptr<RectangularEtaPhiTrackingRegion> region(const reco::TrackRef&) const;
@@ -60,11 +60,8 @@ class MuonTrackingRegionBuilder : public TrackingRegionProducer {
     virtual void setEvent(const edm::Event&);
 
     /// Add Fill Descriptions
-    static void fillDescriptions(edm::ParameterSetDescription& descriptions);
-
-    // Separating the offline part of the fillDescriptions() above
-    // TODO: make similar fillDescriptionsHLT, and switch the
-    // fillDescriptions() above take edm::ConfigurationDescriptions&
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+    static void fillDescriptionsHLT(edm::ParameterSetDescription& descriptions);
     static void fillDescriptionsOffline(edm::ParameterSetDescription& descriptions);
 
   private:

@@ -174,7 +174,6 @@ namespace {
         unsigned int sizenew = (hitSample).size();
         unsigned int sizeold = resultSample.size();
         if (sizenew > sizeold) { // extend sample
-          for (unsigned int isamp = sizeold; isamp < sizenew; ++isamp) resultSample[isamp] = 0;
           resultSample.setSize (sizenew);
         }
         for(unsigned int isamp = 0; isamp<sizenew; isamp++) { // add new values
@@ -292,7 +291,7 @@ namespace edm
 
      Handle< ZDCDigiCollection > pZDCDigis;
 
-     const ZDCDigiCollection*  ZDCDigis = 0;
+     const ZDCDigiCollection*  ZDCDigis = nullptr;
 
      if( e.getByToken( ZDCDigiToken_, pZDCDigis) ) {
        ZDCDigis = pZDCDigis.product(); // get a ptr to the product

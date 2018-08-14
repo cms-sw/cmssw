@@ -2,7 +2,7 @@
 #define OMTFinputMaker_H
 
 #include <vector>
-#include <stdint.h>
+#include <cstdint>
 #include <memory>
 
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"

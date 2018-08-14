@@ -6,7 +6,7 @@
 
 #include "HLTrigger/JetMET/interface/HLTHPDFilter.h"
 
-#include <math.h>
+#include <cmath>
 
 #include <set>
 
@@ -84,7 +84,7 @@ HLTHPDFilter::HLTHPDFilter(const edm::ParameterSet& iConfig) :
   m_theRecHitCollectionToken = consumes<HBHERecHitCollection>(mInputTag);
 }
 
-HLTHPDFilter::~HLTHPDFilter(){}
+HLTHPDFilter::~HLTHPDFilter()= default;
 
 void
 HLTHPDFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -107,7 +107,7 @@ bool HLTHPDFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   // collect energies
   float hpdEnergy[4][73];
-  for (size_t i = 0; i < 4; ++i) for (size_t j = 0; j < 73; ++j) hpdEnergy[i][j] = 0;
+  for (auto & i : hpdEnergy) for (size_t j = 0; j < 73; ++j) i[j] = 0;
   
   // select hist above threshold
   for (unsigned i = 0; i < hbhe->size(); ++i) {
@@ -119,14 +119,14 @@ bool HLTHPDFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   // not single HPD spike
   if (mHPDSpikeEnergyThreshold > 0) {
-    for (size_t partition = 0; partition < 4; ++partition) {
+    for (auto & partition : hpdEnergy) {
       for (size_t i = 1; i < 73; ++i) {
-	if (hpdEnergy [partition][i] > mHPDSpikeEnergyThreshold) {
+	if (partition[i] > mHPDSpikeEnergyThreshold) {
 	  int hpdPlus = i + 1;
 	  if (hpdPlus == 73) hpdPlus = 1;
 	  int hpdMinus = i - 1;
 	  if (hpdMinus == 0) hpdMinus = 72;
-	  double maxNeighborEnergy = fmax (hpdEnergy[partition][hpdPlus], hpdEnergy[partition][hpdMinus]);
+	  double maxNeighborEnergy = fmax (partition[hpdPlus], partition[hpdMinus]);
 	  if (maxNeighborEnergy < mHPDSpikeIsolationEnergyThreshold)  return false; // HPD spike found
 	}
       }
@@ -135,7 +135,7 @@ bool HLTHPDFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // not RBX flash
   if (mRBXSpikeEnergyThreshold > 0) {
-    for (size_t partition = 0; partition < 4; ++partition) {
+    for (auto & partition : hpdEnergy) {
       for (size_t rbx = 1; rbx < 19; ++rbx) {
 	int ifirst = (rbx-1)*4-1;
 	int iend = (rbx-1)*4+3;
@@ -145,13 +145,13 @@ bool HLTHPDFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	for (int irm = ifirst; irm < iend; ++irm) {
 	  int hpd = irm;
 	  if (hpd <= 0) hpd = 72 + hpd;
-	  totalEnergy += hpdEnergy[partition][hpd];
+	  totalEnergy += partition[hpd];
 	  if (minEnergy > maxEnergy) {
-	    minEnergy = maxEnergy = hpdEnergy[partition][hpd];
+	    minEnergy = maxEnergy = partition[hpd];
 	  }
 	  else {
-	    if (hpdEnergy[partition][hpd] < minEnergy) minEnergy = hpdEnergy[partition][hpd];
-	    if (hpdEnergy[partition][hpd] > maxEnergy) maxEnergy = hpdEnergy[partition][hpd];
+	    if (partition[hpd] < minEnergy) minEnergy = partition[hpd];
+	    if (partition[hpd] > maxEnergy) maxEnergy = partition[hpd];
 	  }
 	}
 	if (totalEnergy > mRBXSpikeEnergyThreshold) {

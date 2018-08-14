@@ -453,7 +453,7 @@ void ElectronTagProbeAnalyzer::analyze( const edm::Event& iEvent, const edm::Eve
 
         // inv Mass with opposite sign
 	bool invMassTTAlreadyFilled = false;
-	if(TTCheck.size() != 0){
+	if(!TTCheck.empty()){
 	  int TTCheckDim = TTCheck.size();
 	  for(int i=0 ;i<TTCheckDim;i++){
 	    if((bestGsfElectron.eta() == TTCheck.at(i).first) && (gsfIter->eta() == TTCheck.at(i).second)){

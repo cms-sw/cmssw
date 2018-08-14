@@ -19,11 +19,13 @@
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -137,6 +139,9 @@ private:
 };
 
 namespace {
+
+  edm::ActivityRegistry activityRegistry;
+
   struct ShadowStreamID {
     constexpr ShadowStreamID():value(0){}
     unsigned int value;
@@ -173,8 +178,9 @@ m_ep()
   edm::Timestamp now(1234567UL);
   auto runAux = std::make_shared<edm::RunAuxiliary>(eventID.run(), now, now);
   m_rp.reset(new edm::RunPrincipal(runAux, m_prodReg, m_procConfig, &historyAppender_,0));
-  auto lumiAux = std::make_shared<edm::LuminosityBlockAuxiliary>(m_rp->run(), 1, now, now);
-  m_lbp.reset(new edm::LuminosityBlockPrincipal(lumiAux, m_prodReg, m_procConfig, &historyAppender_,0));
+  edm::LuminosityBlockAuxiliary lumiAux(m_rp->run(), 1, now, now);
+  m_lbp.reset(new edm::LuminosityBlockPrincipal(m_prodReg, m_procConfig, &historyAppender_,0));
+  m_lbp->setAux(lumiAux);
   m_lbp->setRunPrincipal(m_rp);
   edm::EventAuxiliary eventAux(eventID, uuid, now, true);
 
@@ -184,11 +190,11 @@ m_ep()
                                      m_procConfig,nullptr));
   edm::ProcessHistoryRegistry phr;
   m_ep->fillEventPrincipal(eventAux, phr);
-  m_ep->setLuminosityBlockPrincipal(m_lbp);
+  m_ep->setLuminosityBlockPrincipal(m_lbp.get());
   m_actReg.reset(new edm::ActivityRegistry);
 
   //For each transition, bind a lambda which will call the proper method of the Worker
-  m_transToFunc[Trans::kGlobalOpenInputFile] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
+  m_transToFunc[Trans::kGlobalOpenInputFile] = [](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
     edm::FileBlock fb;
     iBase->respondToOpenInputFile(fb);
   };
@@ -215,17 +221,29 @@ m_ep()
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalEnd> Traits;
     edm::ParentContext parentContext;
     iBase->doWork<Traits>(*m_lbp,*m_es, edm::StreamID::invalidStreamID(), parentContext, nullptr);
-    iComm->writeLumi(*m_lbp, nullptr);
+    auto t = edm::make_empty_waiting_task();
+    t->increment_ref_count();
+    iComm->writeLumiAsync(edm::WaitingTaskHolder(t.get()), *m_lbp, nullptr, &activityRegistry);
+    t->wait_for_all();
+    if(t->exceptionPtr() != nullptr) {
+      std::rethrow_exception(*t->exceptionPtr());
+    }
   };
 
   m_transToFunc[Trans::kGlobalEndRun] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator* iComm) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalEnd> Traits;
     edm::ParentContext parentContext;
     iBase->doWork<Traits>(*m_rp,*m_es, edm::StreamID::invalidStreamID(), parentContext, nullptr);
-    iComm->writeRun(*m_rp, nullptr);
+    auto t = edm::make_empty_waiting_task();
+    t->increment_ref_count();
+    iComm->writeRunAsync(edm::WaitingTaskHolder(t.get()), *m_rp, nullptr, &activityRegistry, nullptr);
+    t->wait_for_all();
+    if(t->exceptionPtr() != nullptr) {
+      std::rethrow_exception(*t->exceptionPtr());
+    }
   };
   
-  m_transToFunc[Trans::kGlobalCloseInputFile] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
+  m_transToFunc[Trans::kGlobalCloseInputFile] = [](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
     edm::FileBlock fb;
     iBase->respondToCloseInputFile(fb);
   };

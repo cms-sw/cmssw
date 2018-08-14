@@ -6,7 +6,7 @@ Scenario supporting proton collisions
 
 """
 
-from Configuration.DataProcessing.Impl.AlCa import AlCa
+from Configuration.DataProcessing.Impl.AlCa import *
 
 class AlCaTestEnable(AlCa):
     def __init__(self):
@@ -19,3 +19,15 @@ class AlCaTestEnable(AlCa):
     collision data taking
 
     """
+    def expressProcessing(self, globalTag, **args):
+        """
+        _expressProcessing_
+
+        Proton collision data taking express processing
+
+        """
+        if 'skims' in args:
+            if 'EcalTestPulsesRaw' not in args['skims']:
+                args['skims'].append('EcalTestPulsesRaw')
+
+        return super(AlCaTestEnable, self).expressProcessing(globalTag, **args)

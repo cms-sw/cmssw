@@ -2,6 +2,8 @@
 #include "Alignment/LaserAlignment/interface/LASGlobalData.h"
 #include <DataFormats/Common/interface/DetSetVector.h>
 #include <FWCore/Framework/interface/Event.h> 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Alignment/LaserAlignment/interface/LASGlobalLoop.h"
 
 // Forward declarations 
 class TFile;
@@ -11,15 +13,15 @@ class RawDataConverter : public edm::EDAnalyzer {
   
  public:
   explicit RawDataConverter(const edm::ParameterSet&);
-  ~RawDataConverter();
+  ~RawDataConverter() override;
   
   
  private:
   enum DigiType {ZeroSuppressed, VirginRaw, ProcessedRaw, Unknown};
-  virtual void beginJob() ;
-  virtual void beginRun(edm::Run const &, edm::EventSetup const &) ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override ;
+  void beginRun(edm::Run const &, edm::EventSetup const &) override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   void fillDetectorId( void );
   void ClearData( void );

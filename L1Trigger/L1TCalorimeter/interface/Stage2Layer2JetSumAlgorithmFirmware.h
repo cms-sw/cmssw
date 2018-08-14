@@ -21,12 +21,11 @@ namespace l1t {
   // Imp1 is for v1 and v2
   class Stage2Layer2JetSumAlgorithmFirmwareImp1 : public Stage2Layer2JetSumAlgorithm {
   public:
-    Stage2Layer2JetSumAlgorithmFirmwareImp1(CaloParamsHelper* params);
-    virtual ~Stage2Layer2JetSumAlgorithmFirmwareImp1();
-    virtual void processEvent(const std::vector<l1t::Jet> & alljets,
-			      std::vector<l1t::EtSum> & htsums);
+    Stage2Layer2JetSumAlgorithmFirmwareImp1(CaloParamsHelper const* params);
+    ~Stage2Layer2JetSumAlgorithmFirmwareImp1() override = default;
+    void processEvent(const std::vector<l1t::Jet> & alljets,
+			      std::vector<l1t::EtSum> & htsums) override;
   private:
-    CaloParamsHelper* params_;
     int32_t mhtJetThresholdHw_;
     int32_t httJetThresholdHw_;
     int32_t mhtEtaMax_;

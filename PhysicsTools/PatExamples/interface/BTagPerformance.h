@@ -9,6 +9,8 @@
  *
  */
 
+#include <map>
+#include <assert.h>
 #include "TGraph.h"
 #include "TArrayD.h"
 

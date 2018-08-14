@@ -7,9 +7,7 @@
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <string>
-#include <map>
-#include <vector>
+#include <set>
 
 
 GEMPadDigiProducer::GEMPadDigiProducer(const edm::ParameterSet& ps)
@@ -52,29 +50,27 @@ void GEMPadDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetu
 }
 
 
-void GEMPadDigiProducer::buildPads(const GEMDigiCollection &det_digis, GEMPadDigiCollection &out_pads)
+void GEMPadDigiProducer::buildPads(const GEMDigiCollection &det_digis, GEMPadDigiCollection &out_pads) const
 {
-  auto etaPartitions = geometry_->etaPartitions();
-  for(auto p: etaPartitions)
+  for(const auto& p: geometry_->etaPartitions())
   {
     // set of <pad, bx> pairs, sorted first by pad then by bx
     std::set<std::pair<int, int> > proto_pads;
-  
-    // walk over digis in this partition, 
+
+    // walk over digis in this partition,
     // and stuff them into a set of unique pads (equivalent of OR operation)
     auto digis = det_digis.get(p->id());
     for (auto d = digis.first; d != digis.second; ++d)
     {
       int pad_num = 1 + static_cast<int>( p->padOfStrip(d->strip()) );
-      auto pad = std::make_pair(pad_num, d->bx());
-      proto_pads.insert(pad);
+      proto_pads.emplace(pad_num, d->bx());
     }
-  
+
     // in the future, do some dead-time handling
     // emulateDeadTime(proto_pads)
-  
+
     // fill the output collections
-    for (auto & d: proto_pads)
+    for (const auto& d: proto_pads)
     {
       GEMPadDigi pad_digi(d.first, d.second);
       out_pads.insertDigi(p->id(), pad_digi);

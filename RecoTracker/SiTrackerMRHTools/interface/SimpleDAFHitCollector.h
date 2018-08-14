@@ -16,16 +16,17 @@ class StripRecHit1D;
 
 class SimpleDAFHitCollector :public MultiRecHitCollector {
 	public:
-	explicit SimpleDAFHitCollector(const MeasurementTracker* measurementTracker,
+	explicit SimpleDAFHitCollector(const TrackerTopology* trackerTopology,
+                                 const MeasurementTracker* measurementTracker,
 				 const SiTrackerMultiRecHitUpdator* updator,
 			         const MeasurementEstimator* est,
 				 const Propagator* propagator, bool debug
-				 ):MultiRecHitCollector(measurementTracker), theUpdator(updator), theEstimator(est), thePropagator(propagator), debug_(debug){
+				 ):MultiRecHitCollector(measurementTracker), theTopology(trackerTopology), theUpdator(updator), theEstimator(est), thePropagator(propagator), debug_(debug){
     theHitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(theUpdator->getBuilder())->cloner();
 }
 			
 
-	virtual ~SimpleDAFHitCollector(){}
+	~SimpleDAFHitCollector() override{}
 	
 	//given a trajectory it returns a collection
         //of SiTrackerMultiRecHits and InvalidTransientRecHits.
@@ -34,7 +35,7 @@ class SimpleDAFHitCollector :public MultiRecHitCollector {
         //If measurements are found a SiTrackerMultiRecHit is built.
 	//All the components will lay on the same detector  
 	
-	virtual std::vector<TrajectoryMeasurement> recHits(const Trajectory&, const MeasurementTrackerEvent *theMTE) const override;
+	std::vector<TrajectoryMeasurement> recHits(const Trajectory&, const MeasurementTrackerEvent *theMTE) const override;
 
 	const SiTrackerMultiRecHitUpdator* getUpdator() const {return theUpdator;}
 	const MeasurementEstimator* getEstimator() const {return theEstimator;}
@@ -76,6 +77,7 @@ class SimpleDAFHitCollector :public MultiRecHitCollector {
         }
 
 	private:
+	const TrackerTopology* theTopology;
 	const SiTrackerMultiRecHitUpdator* theUpdator;
 	const MeasurementEstimator* theEstimator;
 	//this actually is not used in the fastMeasurement method 	

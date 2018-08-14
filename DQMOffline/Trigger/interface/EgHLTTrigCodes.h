@@ -22,7 +22,7 @@ namespace egHLT {
     
   public:
     static const int maxNrBits_=128;
-    typedef std::bitset<maxNrBits_> TrigBitSet;
+    using TrigBitSet = std::bitset<maxNrBits_>;
     
   private:
     //sorted vector
@@ -30,7 +30,7 @@ namespace egHLT {
     
   public:
     static TrigCodes *makeCodes(std::vector<std::string>& filterNames);
-    ~TrigCodes(){}
+    ~TrigCodes()= default;
 
     TrigCodes & operator=(const TrigCodes&) = delete;
     TrigCodes(const TrigCodes&) = delete;
@@ -39,7 +39,7 @@ namespace egHLT {
     TrigBitSet getCode(const std::string& descript) const { return getCode(descript.c_str()); }
 
   private:
-    TrigCodes(){}
+    TrigCodes()= default;
  
     void getCodeName(TrigBitSet code,std::string& id)const;
     

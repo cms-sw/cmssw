@@ -24,8 +24,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "PhysicsTools/UtilAlgos/interface/InputTagDistributor.h"
-#include "PhysicsTools/UtilAlgos/interface/CachingVariable.h"
+#include "CommonTools/UtilAlgos/interface/InputTagDistributor.h"
 
 #include "DataFormats/PatCandidates/interface/PFParticle.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
@@ -66,7 +65,7 @@ class TreeBranch {
   const std::string branchName()const{
 	std::string name(branchAlias_);
 	std::replace(name.begin(), name.end(), '_','0');
-	return std::string(name.c_str());}
+	return std::string(name);}
   const std::string & branchAlias()const{ return branchAlias_;}
   const std::string & branchTitle()const{ return branchTitle_;}
   typedef std::unique_ptr<std::vector<float> > value;
@@ -152,7 +151,7 @@ public:
         value_.reset(new std::vector<float>());
         value_->reserve(oH->size());
 
-	StringCutObjectSelector<Object> * selection=0;
+	StringCutObjectSelector<Object> * selection=nullptr;
 	if (B.selection()!=""){
 	  //std::cout<<"trying to get to a selection"<<std::endl;
 	  selection = new StringCutObjectSelector<Object>(B.selection());
@@ -292,7 +291,7 @@ class StringBasedNTupler : public NTupler {
 
 
 
-  uint registerleaves(edm::ProducerBase * producer){
+  uint registerleaves(edm::ProducerBase * producer) override{
     uint nLeaves=0;
 
     if (useTFileService_){
@@ -369,7 +368,7 @@ class StringBasedNTupler : public NTupler {
     return nLeaves;
   }
 
-  void fill(edm::Event& iEvent){
+  void fill(edm::Event& iEvent) override{
     //    if (!edm::Service<UpdaterService>()->checkOnce("StringBasedNTupler::fill")) return;
     //well if you do that, you cannot have two ntupler of the same type in the same job...
 
@@ -469,7 +468,7 @@ class StringBasedNTupler : public NTupler {
     }
   }
 
-  ~StringBasedNTupler(){
+  ~StringBasedNTupler() override{
     delete indexDataHolder_;
     delete ev_;
     delete run_;

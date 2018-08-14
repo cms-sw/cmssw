@@ -46,7 +46,7 @@
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"

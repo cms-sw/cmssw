@@ -62,7 +62,7 @@
 //      i.e. it returns an integer corresponding to nevhep
 //
 
-#include <ctype.h>
+#include <cctype>
 
     const unsigned int epos_bytes_allocation = 
                 sizeof(long int) * ( 2 + 6 * EPOS_EntriesAllocation )

@@ -346,7 +346,7 @@ void popcon::EcalDAQHandler::getNewObjects() {
       std::map<EcalLogicID, RunFEConfigDat> feconfig;
       econn->fetchDataSet(&feconfig, &run_vec[kr]);
 
-      if(fed_dat.size() == 0 || feconfig.size() == 0) {
+      if(fed_dat.empty() || feconfig.empty()) {
 	std::cout << " run " << irun << " tag " << run_vec[kr].getRunTag().getGeneralTag()
 	          << " Run type " << run_vec[kr].getRunTag().getRunTypeDef().getRunType()
 	          << " feconfig and/or read FED size = 0, leaving..." << std::endl;

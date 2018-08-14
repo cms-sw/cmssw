@@ -95,12 +95,17 @@ public:
     return LocalVector(px, py, pz);
   }
 
- /// Momentum vector unit in the local frame. 
+  /// Momentum vector unit in the local frame. 
   LocalVector direction() const {
     float dz = float(thePzSign)/std::sqrt(1.f + theDxdz*theDxdz + theDydz*theDydz);
     float dx = dz*theDxdz;
     float dy = dz*theDydz;
     return LocalVector(dx, dy, dz);
+  }
+
+  /// Momentum vector unit in the local frame.
+  LocalVector directionNotNormalized() const {
+    return LocalVector(theDxdz, theDydz, 1.f);
   }
 
 

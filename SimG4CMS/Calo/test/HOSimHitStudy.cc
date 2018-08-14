@@ -1,16 +1,89 @@
-#include "SimG4CMS/Calo/test/HOSimHitStudy.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+
 #include "SimG4CMS/Calo/interface/CaloHitID.h"
 #include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
 
-#include "FWCore/Utilities/interface/Exception.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+
+#include <TH1F.h>
+#include <TProfile.h>
+#include <TProfile2D.h>
+
+#include <fstream>
 #include <iostream>
 #include <iomanip>
+#include <memory>
+#include <map>
+#include <string>
+#include <vector>
+
+class HOSimHitStudy: public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
+
+public:
+
+  HOSimHitStudy(const edm::ParameterSet& ps);
+  ~HOSimHitStudy() override {}
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+protected:
+
+  void beginJob() override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override {}
+  void endJob() override {}
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+
+  void analyzeHits  ();
+
+private:
+
+  std::string           g4Label, hitLab[2];
+  edm::EDGetTokenT<edm::HepMCProduct> tok_evt_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> toks_calo_[2];
+  std::vector<PCaloHit> ecalHits, hcalHits;
+  double                maxEnergy, scaleEB, scaleHB, scaleHO;
+  bool                  scheme_, print_;
+  double                tcut_;
+  TH1F                  *hit_[3],  *time_[3], *edepTW_[3], *edepTWT_[3];
+  TH1F                  *edep_[3], *hitTow_[3], *eneInc_, *etaInc_, *phiInc_;
+  TH1F                  *edepT_[3], *eEB_, *eEBHB_, *eEBHBHO_, *eEBHBHOT_;
+  TH1F                  *edepZon_[3], *edepZonT_[3], *eEBT_, *eEBHBT_;
+  TH1F                  *eHOE17_[15], *eHOE18_[15], *eHOE_[15];
+  TH1F                  *eHOE17T_[15], *eHOE18T_[15], *eHOET_[15];
+  TH1F                  *eHOEta17_[15], *eHOEta18_[15], *eHOEta_[15];
+  TH1F                  *eHOEta17T_[15], *eHOEta18T_[15], *eHOEtaT_[15];
+  TH1F                  *nHOE1_[15],*nHOE1T_[15], *nHOEta1_[15],*nHOEta1T_[15];
+  TProfile              *eHO1_, *eHO1T_, *eHO17_, *eHO17T_, *eHO18_, *eHO18T_;
+  TProfile              *nHO1_, *nHO1T_, *nHOE2_[15], *nHOE2T_[15];
+  TProfile              *nHOEta2_[15], *nHOEta2T_[15];
+  TProfile2D            *eHO2_, *eHO2T_, *nHO2_, *nHO2T_;
+  double                eInc, etaInc, phiInc;
+};
 
 HOSimHitStudy::HOSimHitStudy(const edm::ParameterSet& ps) {
+
+  usesResource(TFileService::kSharedResource);
 
   tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag(ps.getUntrackedParameter<std::string>("SourceLabel","VtxSmeared")));
   g4Label   = ps.getUntrackedParameter<std::string>("ModuleLabel","g4SimHits");
@@ -33,6 +106,26 @@ HOSimHitStudy::HOSimHitStudy(const edm::ParameterSet& ps) {
 			   << "   Scale factor for EB " << scaleEB 
 			   << ", for HB " << scaleHB << " and for HO " 
 			   << scaleHO << " time Cut " << tcut_;
+}
+
+void  HOSimHitStudy::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<std::string>("SourceLabel","generatorSmeared");
+  desc.addUntracked<std::string>("ModuleLabel","g4SimHits");
+  desc.addUntracked<std::string>("EBCollection","EcalHitsEB");
+  desc.addUntracked<std::string>("HCCollection","HcalHits");
+  desc.addUntracked<double>("MaxEnergy",50.0);
+  desc.addUntracked<double>("ScaleEB",1.02);
+  desc.addUntracked<double>("ScaleHB",104.4);
+  desc.addUntracked<double>("ScaleHO",2.33);
+  desc.addUntracked<double>("TimeCut",100.0);
+  desc.addUntracked<bool>("PrintExcessEnergy",true);
+  desc.addUntracked<bool>("TestNumbering",false);
+  descriptions.add("HOSimHitStudy",desc);
+}
+
+void HOSimHitStudy::beginJob() {
 
   edm::Service<TFileService> tfile;
  

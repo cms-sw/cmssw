@@ -35,7 +35,7 @@ namespace fwlite
       public:
          RunBase();
 
-         virtual ~RunBase();
+         ~RunBase() override;
 
          virtual bool getByLabel(
                                   std::type_info const&,
@@ -62,7 +62,7 @@ namespace fwlite
 
       private:
 
-         virtual edm::BasicHandle getByLabelImpl(std::type_info const&, std::type_info const&, const edm::InputTag&) const;
+         edm::BasicHandle getByLabelImpl(std::type_info const&, std::type_info const&, const edm::InputTag&) const override;
    };
 } // fwlite namespace
 

@@ -11,7 +11,7 @@
 
 #include <vector>
 #include <cstddef>
-#include <stdint.h>
+#include <cstdint>
 
 /**
  * Representation of VFAT frame plus extra info added by DAQ.
@@ -21,7 +21,7 @@ class VFATFrame
   public:
     typedef uint16_t word;
   public:
-    VFATFrame(const word* _data = NULL);
+    VFATFrame(const word* _data = nullptr);
 
     VFATFrame(const VFATFrame& copy)
     {
@@ -38,6 +38,11 @@ class VFATFrame
     void setData(const word *_data);
 
     VFATFrame::word* getData()
+    {
+      return data;
+    }
+    
+    const VFATFrame::word* getData() const
     {
       return data;
     }
@@ -141,7 +146,7 @@ class VFATFrame
     /// Returns positive number if it was active, 0 otherwise.
     virtual bool channelActive(unsigned char channel) const
     {
-      return ( data[1 + (channel / 16)] & (1 << (channel % 16)) ) ? 1 : 0;
+      return ( data[1 + (channel / 16)] & (1 << (channel % 16)) ) ? true : false;
     }
 
     /// Returns list  of active channels.

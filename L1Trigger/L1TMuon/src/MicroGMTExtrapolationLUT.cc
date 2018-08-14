@@ -1,13 +1,9 @@
-#include "../interface/MicroGMTExtrapolationLUT.h"
+#include "L1Trigger/L1TMuon/interface/MicroGMTExtrapolationLUT.h"
 
-l1t::MicroGMTExtrapolationLUT::MicroGMTExtrapolationLUT (const std::string& fname, const int type) : MicroGMTLUT(), m_etaRedInWidth(6), m_ptRedInWidth(6)
+l1t::MicroGMTExtrapolationLUT::MicroGMTExtrapolationLUT (const std::string& fname, const int outWidth, const int etaRedInWidth, const int ptRedInWidth) : MicroGMTLUT(), m_etaRedInWidth(etaRedInWidth), m_ptRedInWidth(ptRedInWidth)
 {
   m_totalInWidth = m_ptRedInWidth + m_etaRedInWidth;
-  if (type == MicroGMTConfiguration::ETA_OUT) {
-    m_outWidth = 4;
-  } else {
-    m_outWidth = 3;
-  }
+  m_outWidth = outWidth;
 
   m_ptRedMask = (1 << m_ptRedInWidth) - 1;
   m_etaRedMask = ((1 << m_etaRedInWidth) - 1) << m_ptRedInWidth;
@@ -20,14 +16,10 @@ l1t::MicroGMTExtrapolationLUT::MicroGMTExtrapolationLUT (const std::string& fnam
   } 
 }
 
-l1t::MicroGMTExtrapolationLUT::MicroGMTExtrapolationLUT (l1t::LUT* lut, const int type) : MicroGMTLUT(lut), m_etaRedInWidth(6), m_ptRedInWidth(6)
+l1t::MicroGMTExtrapolationLUT::MicroGMTExtrapolationLUT (l1t::LUT* lut, const int outWidth, const int etaRedInWidth, const int ptRedInWidth) : MicroGMTLUT(lut), m_etaRedInWidth(etaRedInWidth), m_ptRedInWidth(ptRedInWidth)
 {
   m_totalInWidth = m_ptRedInWidth + m_etaRedInWidth;
-  if (type == MicroGMTConfiguration::ETA_OUT) {
-    m_outWidth = 4;
-  } else {
-    m_outWidth = 3;
-  }
+  m_outWidth = outWidth;
 
   m_ptRedMask = (1 << m_ptRedInWidth) - 1;
   m_etaRedMask = ((1 << m_etaRedInWidth) - 1) << m_ptRedInWidth;
@@ -66,3 +58,16 @@ l1t::MicroGMTExtrapolationLUT::unHashInput(int input, int& eta, int& pt) const
   pt = input & m_ptRedMask;
   eta = (input & m_etaRedMask) >> m_ptRedInWidth;
 } 
+
+int
+l1t::MicroGMTExtrapolationLUT::getEtaRedInWidth() const
+{
+  return m_etaRedInWidth;
+}
+
+int
+l1t::MicroGMTExtrapolationLUT::getPtRedInWidth() const
+{
+  return m_ptRedInWidth;
+}
+

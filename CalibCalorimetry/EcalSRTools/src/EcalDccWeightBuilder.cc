@@ -101,7 +101,7 @@ EcalDccWeightBuilder::analyze(const edm::Event& event,
 
   
   //computes the weights:
-  computeAllWeights(dccWeightsWithIntercalib_);
+  computeAllWeights(dccWeightsWithIntercalib_, es);
 
   //Writing out weights.
   if(writeToAsciiFile_) writeWeightToAsciiFile();
@@ -109,7 +109,7 @@ EcalDccWeightBuilder::analyze(const edm::Event& event,
   if(writeToDB_)        writeWeightToDB();
 }
 
-void EcalDccWeightBuilder::computeAllWeights(bool withIntercalib){
+void EcalDccWeightBuilder::computeAllWeights(bool withIntercalib, const edm::EventSetup& es){
   const int nw = nDccWeights_;
   int iSkip0_ = sampleToSkip_>=0?(sampleToSkip_-dcc1stSample_):-1;
 
@@ -169,8 +169,9 @@ void EcalDccWeightBuilder::computeAllWeights(bool withIntercalib){
 #endif
     
     try{
-      EBShape ebShape;
-      EEShape eeShape;
+      bool useDBShape = false;
+      EBShape ebShape(useDBShape);  
+      EEShape eeShape(useDBShape); 
       EcalShapeBase* pShape;      
 
       if(it->subdetId()==EcalBarrel){
@@ -278,7 +279,7 @@ void EcalDccWeightBuilder::sort(const std::vector<T>& a,
   bool changed = false;
   s.resize(a.size());
   for(unsigned i=0; i<a.size(); ++i) s[i] = i;
-  if(a.size() == 0) return;
+  if(a.empty()) return;
   do {
     changed = false;
     for(unsigned i = 0; i < a.size()-1; ++i){
@@ -358,7 +359,7 @@ void EcalDccWeightBuilder::unbiasWeights(std::vector<double>& weights,
 //   cout << "\n";
   
   //copy result
-  if(encodedWeights!=0) encodedWeights->resize(nw);
+  if(encodedWeights!=nullptr) encodedWeights->resize(nw);
   for(unsigned i = 0; i < nw; ++i){
     weights[i] = decodeWeight(W[i]);
     if(encodedWeights) (*encodedWeights)[i] = W[i];
@@ -393,7 +394,7 @@ double EcalDccWeightBuilder::intercalib(const DetId& detId){
 }
 
 void EcalDccWeightBuilder::writeWeightToAsciiFile(){
-  string fName = asciiOutputFileName_.size()!=0?
+  string fName = !asciiOutputFileName_.empty()?
     asciiOutputFileName_.c_str()
     :"dccWeights.txt";
   ofstream file(fName.c_str());
@@ -478,7 +479,7 @@ void EcalDccWeightBuilder::writeWeightToAsciiFile(){
   }
 }
 void EcalDccWeightBuilder::writeWeightToRootFile(){
-  string fName = rootOutputFileName_.size()!=0?
+  string fName = !rootOutputFileName_.empty()?
     rootOutputFileName_.c_str()
     :"dccWeights.root";
   TFile file(fName.c_str(), "RECREATE");

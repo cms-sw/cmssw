@@ -12,8 +12,8 @@ class KillSecondariesRunAction : public SimWatcher,
 {
 public:
     KillSecondariesRunAction(edm::ParameterSet const & p);
-    ~KillSecondariesRunAction();
-    void update(const BeginOfRun * run);
+    ~KillSecondariesRunAction() override;
+    void update(const BeginOfRun * run) override;
 };
 
 #endif

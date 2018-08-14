@@ -31,9 +31,6 @@
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
-/// EgammaCoreTools
-//#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
 
 #include "TVector3.h"
 
@@ -321,25 +318,9 @@ void DQMSourcePi0::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & 
 
   hS4S92EtaEE_ = ibooker.book1D("S4S92EtaEE","S4S9 2nd most energetic Pi0 photon in EE",50,0.,1.);
   hS4S92EtaEE_->setAxisTitle("S4S9 of the 2nd Eta Photon",1);
-
-  
-
-
-}
-
-//--------------------------------------------------------
-//void DQMSourcePi0::beginRun(const edm::Run& r, const EventSetup& context) {
-//
-//}
-
-//--------------------------------------------------------
-void DQMSourcePi0::beginLuminosityBlock(const LuminosityBlock& lumiSeg, 
-     const EventSetup& context) {
-  
 }
 
 //-------------------------------------------------------------
-
 void DQMSourcePi0::analyze(const Event& iEvent, 
 			       const EventSetup& iSetup ){  
  
@@ -375,28 +356,21 @@ void DQMSourcePi0::analyze(const Event& iEvent,
   if(isMonEEeta_) iEvent.getByToken(productMonitoredEEeta_, rhEEeta);
 
   // Initialize the Position Calc
-  const CaloSubdetectorGeometry *geometry_p; 
-  const CaloSubdetectorGeometry *geometryEE_p;    
-  const CaloSubdetectorGeometry *geometryES_p;
-  
-  const CaloSubdetectorTopology *topology_p;
-  const CaloSubdetectorTopology *topology_ee;
-  
-
 
   edm::ESHandle<CaloGeometry> geoHandle;
   iSetup.get<CaloGeometryRecord>().get(geoHandle);     
-  geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
-  geometryEE_p = geoHandle->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
-  geometryES_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
-  topology_p = theCaloTopology->getSubdetectorTopology(DetId::Ecal,EcalBarrel);
-  topology_ee = theCaloTopology->getSubdetectorTopology(DetId::Ecal,EcalEndcap);
+  const CaloSubdetectorGeometry* geometry_p   = geoHandle->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
+  const CaloSubdetectorGeometry* geometryEE_p = geoHandle->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
+  const CaloSubdetectorGeometry* geometryES_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+
+  const CaloSubdetectorTopology* topology_p  = theCaloTopology->getSubdetectorTopology(DetId::Ecal,EcalBarrel);
+  const CaloSubdetectorTopology* topology_ee = theCaloTopology->getSubdetectorTopology(DetId::Ecal,EcalEndcap);
   
   EcalRecHitCollection::const_iterator itb;
   
   // fill EB pi0 histos 
   if(isMonEBpi0_ ){
-    if (rhEBpi0.isValid() && (rhEBpi0->size() > 0)){
+    if (rhEBpi0.isValid() && (!rhEBpi0->empty())){
 
 
       const EcalRecHitCollection *hitCollection_p = rhEBpi0.product();
@@ -693,7 +667,7 @@ void DQMSourcePi0::analyze(const Event& iEvent,
 
   // fill EB eta histos 
   if(isMonEBeta_ ){
-    if (rhEBeta.isValid() && (rhEBeta->size() > 0)){
+    if (rhEBeta.isValid() && (!rhEBeta->empty())){
 
 
       const EcalRecHitCollection *hitCollection_p = rhEBeta.product();
@@ -998,7 +972,7 @@ void DQMSourcePi0::analyze(const Event& iEvent,
 
       // fill pi0 EE histos
       if(isMonEEpi0_){
-	if (rhEEpi0.isValid() && (rhEEpi0->size() > 0)){
+	if (rhEEpi0.isValid() && (!rhEEpi0->empty())){
 
 	  const EcalRecHitCollection *hitCollection_ee = rhEEpi0.product();
 	  float etot =0;
@@ -1253,7 +1227,7 @@ void DQMSourcePi0::analyze(const Event& iEvent,
 
       // fill pi0 EE histos
       if(isMonEEeta_){
-	if (rhEEeta.isValid() && (rhEEeta->size() > 0)){
+	if (rhEEeta.isValid() && (!rhEEeta->empty())){
 
 	  const EcalRecHitCollection *hitCollection_ee = rhEEeta.product();
 	  float etot =0;
@@ -1506,28 +1480,6 @@ void DQMSourcePi0::analyze(const Event& iEvent,
 
 
 } 
-
-
-
-
-//--------------------------------------------------------
-void DQMSourcePi0::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
-                                          const EventSetup& context) {
-}
-//--------------------------------------------------------
-void DQMSourcePi0::endRun(const Run& r, const EventSetup& context){
-
-}
-//--------------------------------------------------------
-void DQMSourcePi0::endJob(){
-
-//  if(dbe_) {  
-//    if (saveToFile_) {
-//      dbe_->save(fileName_);
-//    }
-//  }
-}
-
 
 void DQMSourcePi0::convxtalid(Int_t &nphi,Int_t &neta)
 {

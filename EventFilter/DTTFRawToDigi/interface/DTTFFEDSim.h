@@ -34,7 +34,7 @@ class DTTFFEDSim : public edm::stream::EDProducer<> {
   DTTFFEDSim(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~DTTFFEDSim();
+  ~DTTFFEDSim() override;
 
   /// Produce digis out of raw data
   void produce(edm::Event & e, const edm::EventSetup& c) override;
@@ -58,8 +58,6 @@ class DTTFFEDSim : public edm::stream::EDProducer<> {
   int sector(int channel);
 
   int wheel(int channel);
-
-  void calcCRC(int myD1, int myD2, int &myC);
 
   edm::InputTag getDTDigiInputTag() { return DTDigiInputTag; }
   edm::InputTag getDTPHTFInputTag() { return DTPHTFInputTag; }

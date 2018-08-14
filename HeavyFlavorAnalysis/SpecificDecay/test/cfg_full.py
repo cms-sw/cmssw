@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
+from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
 
 process = cms.Process("bphAnalysis")
+
+patAlgosToolsTask = getPatAlgosToolsTask(process)
 
 #process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
@@ -14,12 +17,12 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
+patAlgosToolsTask.add(process.MEtoEDMConverter)
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
-process.options.allowUnscheduled = cms.untracked.bool(True)
 
 process.source = cms.Source("PoolSource",fileNames = cms.untracked.vstring(
 #
@@ -38,8 +41,11 @@ from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 process.load('PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff')
+patAlgosToolsTask.add(process.patCandidatesTask)
 process.load('PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff')
+patAlgosToolsTask.add(process.selectedPatCandidatesTask)
 process.load('PhysicsTools.PatAlgos.cleaningLayer1.cleanPatCandidates_cff')
+patAlgosToolsTask.add(process.cleanPatCandidatesTask)
 
 process.selectedPatMuons.cut = cms.string('muonID(\"TMOneStationTight\")'
     ' && abs(innerTrack.dxy) < 0.3'
@@ -71,6 +77,6 @@ process.testBPHSpecificDecay = cms.EDAnalyzer('TestBPHSpecificDecay',
 )
 
 process.p = cms.Path(
-    process.testBPHSpecificDecay
+    process.testBPHSpecificDecay,
+    patAlgosToolsTask
 )
-

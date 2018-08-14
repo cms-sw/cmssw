@@ -18,7 +18,7 @@
 #include <set>
 
 #include <sys/types.h>
-#include <signal.h>
+#include <csignal>
 
 EcalDetIdToBeRecoveredProducer::EcalDetIdToBeRecoveredProducer(const edm::ParameterSet& ps)
 {
@@ -190,10 +190,10 @@ void EcalDetIdToBeRecoveredProducer::produce(edm::Event& ev, const edm::EventSet
                 }
         }
         // SRP switched off: get the list from the DB
-        if ( ebSrFlags->size() == 0 ) {
+        if ( ebSrFlags->empty() ) {
         }
         // SRP switched off: get the list from the DB
-        if ( eeSrFlags->size() == 0 ) {
+        if ( eeSrFlags->empty() ) {
         }
 
         /*

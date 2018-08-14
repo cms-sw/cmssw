@@ -25,7 +25,7 @@ class GeometricSearchTracker: public DetLayerGeometry {
 			 const std::vector<ForwardDetLayer const*>& posTec,
 			 const TrackerTopology* tTopo) __attribute__ ((cold));
   
-  virtual ~GeometricSearchTracker() __attribute__ ((cold));
+  ~GeometricSearchTracker() override __attribute__ ((cold));
 
   std::vector<DetLayer const*> const & allLayers()     const {return theAllLayers;}  
 
@@ -49,7 +49,7 @@ class GeometricSearchTracker: public DetLayerGeometry {
 
   
   /// Give the DetId of a module, returns the pointer to the corresponding DetLayer
-  virtual const DetLayer* idToLayer(const DetId& detId) const;
+  const DetLayer* idToLayer(const DetId& detId) const override;
 
   /// obsolete method. Use idToLayer() instead.
   const DetLayer*   detLayer( const DetId& id) const {return idToLayer(id);};

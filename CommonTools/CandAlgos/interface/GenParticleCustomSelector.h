@@ -60,6 +60,10 @@ namespace reco {
     template<>
     struct ParameterAdapter<GenParticleCustomSelector> {
       static GenParticleCustomSelector make( const edm::ParameterSet & cfg, edm::ConsumesCollector & iC ) {
+        return make(cfg);
+      }
+
+      static GenParticleCustomSelector make( const edm::ParameterSet & cfg) {
 	return GenParticleCustomSelector(
  	  cfg.getParameter<double>( "ptMin" ),
 	  cfg.getParameter<double>( "minRapidity" ),

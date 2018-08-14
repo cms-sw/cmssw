@@ -76,7 +76,7 @@ class AssociationMatchRefSelector : public edm::EDFilter {
           output->push_back(toPut);
         }
       }
-      bool notEmpty = output->size();
+      bool notEmpty = !output->empty();
       evt.put(std::move(output));
       // Filter if no events passed
       return ( !filter_ || notEmpty );

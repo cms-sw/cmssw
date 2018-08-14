@@ -34,7 +34,7 @@ class MuonNumberingInitialization : public edm::ESProducer
 public:
   
   MuonNumberingInitialization( const edm::ParameterSet& );
-  ~MuonNumberingInitialization();
+  ~MuonNumberingInitialization() override;
 
   typedef std::unique_ptr<MuonDDDConstants> ReturnType;
 
@@ -49,7 +49,7 @@ private:
 };
 
 MuonNumberingInitialization::MuonNumberingInitialization( const edm::ParameterSet& iConfig )
-  : muonDDDConst_( 0 )
+  : muonDDDConst_( nullptr )
 {
   setWhatProduced( this, dependsOn( &MuonNumberingInitialization::initializeMuonDDDConstants ));
 }
@@ -60,12 +60,12 @@ MuonNumberingInitialization::~MuonNumberingInitialization()
 MuonNumberingInitialization::ReturnType
 MuonNumberingInitialization::produce(const MuonNumberingRecord& iRecord)
 {
-  if ( muonDDDConst_ == 0 )
+  if ( muonDDDConst_ == nullptr )
   {
     edm::LogError( "MuonNumberingInitialization" ) << "MuonNumberingInitialization::produceMuonDDDConstants has NOT been initialized!";
     throw;
   }
-  return std::auto_ptr<MuonDDDConstants> ( muonDDDConst_ ) ;
+  return std::unique_ptr<MuonDDDConstants> ( muonDDDConst_ ) ;
 }
 
 void
@@ -74,7 +74,7 @@ MuonNumberingInitialization::initializeMuonDDDConstants( const IdealGeometryReco
   edm::ESTransientHandle<DDCompactView> pDD;
   igr.get( label_, pDD );
 
-  if( muonDDDConst_ != 0 ) {
+  if( muonDDDConst_ != nullptr ) {
     delete muonDDDConst_;
   }
 

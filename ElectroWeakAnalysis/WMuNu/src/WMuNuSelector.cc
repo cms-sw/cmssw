@@ -35,9 +35,9 @@
 class WMuNuSelector : public edm::EDFilter {
 public:
   WMuNuSelector (const edm::ParameterSet &);
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void beginJob() override;
-  virtual void endJob() override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override;
+  void endJob() override;
   void init_histograms();
 private:
   bool plotHistograms_;
@@ -229,7 +229,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
       Handle<View<Muon> > muonCollection;
       if (!ev.getByToken(muonToken_, muonCollection)) {
             LogError("") << ">>> Muon collection does not exist !!!";
-            return 0;
+            return false;
       }
       unsigned int muonCollectionSize = muonCollection->size();
 
@@ -237,7 +237,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
       Handle<TriggerResults> triggerResults;
       if (!ev.getByToken(trigToken_, triggerResults)) {
             LogError("") << ">>> TRIGGER collection does not exist !!!";
-            return 0;
+            return false;
       }
       const edm::TriggerNames & triggerNames = ev.triggerNames(*triggerResults);
       bool trigger_fired = false;
@@ -262,7 +262,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
       Handle<View<Jet> > jetCollection;
       if (!ev.getByToken(jetToken_, jetCollection)) {
             LogError("") << ">>> JET collection does not exist !!!";
-            return 0;
+            return false;
       }
       unsigned int jetCollectionSize = jetCollection->size();
       int njets = 0;
@@ -291,7 +291,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             return false;
       }
 
-      if(WMuNuCollection->size() < 1) {LogTrace("")<<"No WMuNu Candidates in the Event!"; return 0;}
+      if(WMuNuCollection->empty()) {LogTrace("")<<"No WMuNu Candidates in the Event!"; return false;}
       if(WMuNuCollection->size() > 1) {LogTrace("")<<"This event contains more than one W Candidate";}
 
       // W->mu nu selection criteria
@@ -310,11 +310,11 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
       // Preselection cuts:
 
-      if (!trigger_fired) {LogTrace("")<<"Event did not fire the Trigger"; return 0;}
+      if (!trigger_fired) {LogTrace("")<<"Event did not fire the Trigger"; return false;}
       ntrig++;
 
-      if (nmuonsForZ1>=1 && nmuonsForZ2>=2) {LogTrace("")<<"Z Candidate!!"; return 0;}
-      if (njets>nJetMax_) {LogTrace("")<<"NJets > threshold";  return 0;}
+      if (nmuonsForZ1>=1 && nmuonsForZ2>=2) {LogTrace("")<<"Z Candidate!!"; return false;}
+      if (njets>nJetMax_) {LogTrace("")<<"NJets > threshold";  return false;}
 
       npresel++;
 
@@ -325,7 +325,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
       // W->mu nu selection criteria
 
-            if (!mu.isGlobalMuon()) return 0;
+            if (!mu.isGlobalMuon()) return false;
 
             reco::TrackRef gm = mu.globalTrack();
             //reco::TrackRef tk = mu.innerTrack();
@@ -335,9 +335,9 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             double eta = mu.eta();
             LogTrace("") << "\t... Muon pt, eta: " << pt << " [GeV], " << eta;
                   if(plotHistograms_){ h1_["hPtMu_sel"]->Fill(pt);}
-            if (pt<ptCut_) return 0;
+            if (pt<ptCut_) return false;
                   if(plotHistograms_){ h1_["hEtaMu_sel"]->Fill(eta);}
-            if (fabs(eta)>etaCut_) return 0;
+            if (fabs(eta)>etaCut_) return false;
 
             nkin++;
 
@@ -349,13 +349,13 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             LogTrace("") << "\t... Muon dxy, normalizedChi2, trackerHits, isTrackerMuon?: " << dxy << " [cm], "<<normalizedChi2 << ", "<<trackerHits << ", " << mu.isTrackerMuon();
 
                   if(plotHistograms_){ h1_["hd0_sel"]->Fill(dxy);}
-            if (!muon::isGoodMuon(mu,muon::GlobalMuonPromptTight) ) return 0;
+            if (!muon::isGoodMuon(mu,muon::GlobalMuonPromptTight) ) return false;
                   if(plotHistograms_){ h1_["hNormChi2_sel"]->Fill(normalizedChi2);}
-            if (normalizedChi2>normalizedChi2Cut_) return 0;
+            if (normalizedChi2>normalizedChi2Cut_) return false;
                   if(plotHistograms_){ h1_["hNHits_sel"]->Fill(trackerHits);}
-            if (trackerHits<trackerHitsCut_) return 0;
+            if (trackerHits<trackerHitsCut_) return false;
                   if(plotHistograms_){ h1_["hTracker_sel"]->Fill(mu.isTrackerMuon());}
-            if (!mu.isTrackerMuon()) return 0;
+            if (!mu.isTrackerMuon()) return false;
 
             nid++;
 
@@ -398,12 +398,12 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
                   h2_["hMET_TotIsoNorm_inclusive"]->Fill((SumPt+Cal)/pt,met_et);
                   }
 
-            if (!iso) return 0;
+            if (!iso) return false;
 
             niso++;
 
              if(plotHistograms_){ h1_["hAcop_sel"]->Fill(acop);}
-            if (acop>=acopCut_) return 0;
+            if (acop>=acopCut_) return false;
 
            nacop++;
 
@@ -413,8 +413,8 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             }
 
 
-            if (massT<=mtMin_ || massT>=mtMax_)  return 0;
-            if (met_et<=metMin_ || met_et>=metMax_) return 0;
+            if (massT<=mtMin_ || massT>=mtMax_)  return false;
+            if (met_et<=metMin_ || met_et>=metMax_) return false;
 
            LogTrace("") << ">>>> Event ACCEPTED";
             nsel++;

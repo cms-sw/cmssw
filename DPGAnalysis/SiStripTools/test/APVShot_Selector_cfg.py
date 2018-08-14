@@ -11,9 +11,7 @@ process = cms.Process('APVShotAnalyzer',eras.Run2_2016)
 
 #prepare options
 
-process.DQMStore=cms.Service("DQMStore")
-process.TkDetMap=cms.Service("TkDetMap")
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+process.load("DQM.SiStripCommon.TkHistoMap_cff")
 
 options = VarParsing.VarParsing("analysis")
 

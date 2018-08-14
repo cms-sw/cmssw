@@ -10,6 +10,8 @@
 
 
 #include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -23,6 +25,9 @@
 
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 
+#include "RecoTracker/FinalTrackSelectors/interface/TrackAlgoPriorityOrder.h"
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+
 #include <vector>
 #include <algorithm>
 #include <string>
@@ -30,8 +35,6 @@
 #include<memory>
 
 // #include "TMVA/Reader.h"
-
-#include "trackAlgoPriorityOrder.h"
 
 using namespace reco;
 
@@ -41,7 +44,7 @@ class DuplicateListMerger final : public edm::global::EDProducer<> {
   /// constructor
   explicit DuplicateListMerger(const edm::ParameterSet& iPara);
   /// destructor
-  virtual ~DuplicateListMerger();
+  ~DuplicateListMerger() override;
   
   /// alias for container of candidate and input tracks
   using CandidateToDuplicate = std::vector<std::pair<int, int>>;
@@ -73,6 +76,8 @@ class DuplicateListMerger final : public edm::global::EDProducer<> {
   edm::EDGetTokenT<MVACollection> originalMVAValsToken_;
   edm::EDGetTokenT<MVACollection> mergedMVAValsToken_;
 
+  std::string priorityName_;
+
   int diffHitsCut_;
  
 
@@ -101,6 +106,7 @@ void DuplicateListMerger::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<edm::InputTag>("originalMVAVals",edm::InputTag());
   desc.add<edm::InputTag>("candidateSource",edm::InputTag());
   desc.add<edm::InputTag>("candidateComponents",edm::InputTag());
+  desc.add<std::string>("trackAlgoPriorityOrder", "trackAlgoPriorityOrder");
   desc.add<int>("diffHitsCut",5);
   TrackCollectionCloner::fill(desc);
   descriptions.add("DuplicateListMerger", desc);  
@@ -109,7 +115,8 @@ void DuplicateListMerger::fillDescriptions(edm::ConfigurationDescriptions& descr
 DuplicateListMerger::DuplicateListMerger(const edm::ParameterSet& iPara) :
   collectionCloner(*this, iPara, true),
   mergedTrackSource_(iPara.getParameter<edm::InputTag>("mergedSource"),consumesCollector()),
-  originalTrackSource_(iPara.getParameter<edm::InputTag>("originalSource"),consumesCollector())
+  originalTrackSource_(iPara.getParameter<edm::InputTag>("originalSource"),consumesCollector()),
+  priorityName_(iPara.getParameter<std::string>("trackAlgoPriorityOrder"))
 {
   
   diffHitsCut_ = iPara.getParameter<int>("diffHitsCut");
@@ -160,6 +167,10 @@ void DuplicateListMerger::produce(edm::StreamID, edm::Event& iEvent, const edm::
 
   iEvent.getByToken(originalMVAValsToken_,originalMVAStore);
   iEvent.getByToken(mergedMVAValsToken_,mergedMVAStore);
+
+  edm::ESHandle<TrackAlgoPriorityOrder> priorityH;
+  iSetup.get<CkfComponentsRecord>().get(priorityName_, priorityH);
+  auto const & trackAlgoPriorityOrder = *priorityH;
 
   MVACollection mvaVec;
 
@@ -230,8 +241,8 @@ void DuplicateListMerger::produce(edm::StreamID, edm::Event& iEvent, const edm::
     const reco::Track& inTrk1 = originals[(*matchIter0)[1]];
     const reco::Track& inTrk2 = originals[(*matchIter0)[2]];
     oriAlgo[nsel] = std::min(inTrk1.algo(),inTrk2.algo(),
-			     [](reco::TrackBase::TrackAlgorithm a, reco::TrackBase::TrackAlgorithm b) {
-			       return trackAlgoPriorityOrder[a] < trackAlgoPriorityOrder[b];
+			     [&](reco::TrackBase::TrackAlgorithm a, reco::TrackBase::TrackAlgorithm b) {
+			       return trackAlgoPriorityOrder.priority(a) < trackAlgoPriorityOrder.priority(b);
 			     });
 
 

@@ -21,7 +21,7 @@ public:
   typedef TkTrackingRegionsMargin<float> Margin;
 
   ThirdHitRZPredictionBase();
-  ThirdHitRZPredictionBase(float tolerance, const DetLayer* layer = 0);
+  ThirdHitRZPredictionBase(float tolerance, const DetLayer* layer = nullptr);
 
   const Range & detRange() const { return theDetRange; }
   const Range & detSize() const { return theDetSize; }

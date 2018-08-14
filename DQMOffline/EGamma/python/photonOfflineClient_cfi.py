@@ -1,9 +1,10 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 from DQMOffline.EGamma.photonAnalyzer_cfi import *
 
 
-photonOfflineClient = cms.EDAnalyzer("PhotonOfflineClient",
+photonOfflineClient = DQMEDHarvester("PhotonOfflineClient",
 
     ComponentName = cms.string('photonOfflineClient'),
     analyzerName = cms.string('gedPhotonAnalyzer'),

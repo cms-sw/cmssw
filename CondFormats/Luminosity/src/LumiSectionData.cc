@@ -62,7 +62,7 @@ lumi::LumiSectionData::nHLTPath()const{
 }
 bool 
 lumi::LumiSectionData::HLThasData()const{
-  return m_hlt.size()>0;
+  return !m_hlt.empty();
 }
 lumi::HLTIterator
 lumi::LumiSectionData::hltBegin()const{
@@ -74,7 +74,7 @@ lumi::LumiSectionData::hltEnd()const{
 }
 bool
 lumi::LumiSectionData::TriggerhasData()const{
-  return m_trigger.size()>0;
+  return !m_trigger.empty();
 }
 lumi::TriggerIterator
 lumi::LumiSectionData::trgBegin()const{

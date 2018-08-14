@@ -1,3 +1,12 @@
+#include "SimG4Core/CustomPhysics/interface/G4ProcessHelper.h"
+#include "SimG4Core/CustomPhysics/interface/CustomPDGParser.h"
+#include "SimG4Core/CustomPhysics/interface/CustomParticle.h"
+#include "SimG4Core/CustomPhysics/interface/CustomParticleFactory.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include"G4ParticleTable.hh" 
 #include "Randomize.hh"
 
@@ -5,17 +14,11 @@
 #include<fstream>
 #include <string>
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include"SimG4Core/CustomPhysics/interface/G4ProcessHelper.hh"
-#include "SimG4Core/CustomPhysics/interface/CustomPDGParser.h"
-#include "SimG4Core/CustomPhysics/interface/CustomParticle.h"
-
 using namespace CLHEP;
 
-G4ProcessHelper::G4ProcessHelper(const edm::ParameterSet & p){
+G4ProcessHelper::G4ProcessHelper(const edm::ParameterSet & p, 
+                                 CustomParticleFactory* ptr) {
+  fParticleFactory = ptr;
 
   particleTable = G4ParticleTable::GetParticleTable();
 
@@ -94,25 +97,18 @@ G4ProcessHelper::G4ProcessHelper(const edm::ParameterSet & p){
 
   process_stream.close();
 
-  G4ParticleTable::G4PTblDicIterator* theParticleIterator;
-  theParticleIterator = particleTable->GetIterator();
-
-  theParticleIterator->reset();
-  while( (*theParticleIterator)() ){
-    CustomParticle* particle = dynamic_cast<CustomParticle*>(theParticleIterator->value());
-    std::string name = theParticleIterator->value()->GetParticleName();
-    G4DecayTable* table = theParticleIterator->value()->GetDecayTable();
-    if(particle!=0&&table!=0&&name.find("cloud")>name.size()&&hadronlifetime > 0)
-      {
-	particle->SetPDGLifeTime(hadronlifetime*s);
-	particle->SetPDGStable(false);
-	edm::LogInfo("SimG4CoreCustomPhysics")
-	  <<"ProcessHelper: Lifetime of "<<name<<" set to "
-	  <<particle->GetPDGLifeTime()/s<<" s;"
-	  <<" isStable: "<<particle->GetPDGStable();
-      }
+  for(auto part : fParticleFactory->GetCustomParticles()) {
+    CustomParticle* particle = dynamic_cast<CustomParticle*>(part);
+    if(particle) {
+      edm::LogInfo("SimG4CoreCustomPhysics")
+	<<"ProcessHelper: Lifetime of "<<part->GetParticleName()<<" set to "
+	<<particle->GetPDGLifeTime()/s<<" s;"
+	<<" isStable: "<<particle->GetPDGStable();
+    }
   }
-  theParticleIterator->reset();
+}
+
+G4ProcessHelper::~G4ProcessHelper(){
 }
 
 G4bool G4ProcessHelper::ApplicabilityTester(const G4ParticleDefinition& aPart){
@@ -301,7 +297,7 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
   }
   //  edm::LogInfo("SimG4CoreCustomPhysics")<<"The size of the ReactionProductList is: "<<theReactionProductList.size()<<G4endl;
 
-  if (theReactionProductList.size()==0) G4Exception("G4ProcessHelper", "NoProcessPossible", FatalException,
+  if (theReactionProductList.empty()) G4Exception("G4ProcessHelper", "NoProcessPossible", FatalException,
 						    "GetFinalState: No process could be selected from the given list.");
 
   // For the Regge model no phase space considerations. We pick a process at random

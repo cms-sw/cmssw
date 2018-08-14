@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-import FWCore.ParameterSet.Config as cms
-
 XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
     geomXMLFiles = cms.vstring('Geometry/CMSCommonData/data/materials.xml',
         'Geometry/CMSCommonData/data/rotations.xml',
@@ -14,12 +12,12 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/CMSCommonData/data/muonBase.xml',
         'Geometry/CMSCommonData/data/cmsMuon.xml',
         'Geometry/CMSCommonData/data/mgnt.xml',
-        'Geometry/CMSCommonData/data/beampipe.xml',
+        'Geometry/CMSCommonData/data/beampipe/2015/v1/beampipe.xml',
         'Geometry/CMSCommonData/data/cmsBeam.xml',
         'Geometry/CMSCommonData/data/muonMB.xml',
         'Geometry/CMSCommonData/data/muonMagnet.xml',
         'Geometry/CMSCommonData/data/cavern.xml',
-        'Geometry/CMSCommonData/data/eta3/etaMax.xml',
+        'Geometry/TrackerCommonData/data/trackerParameters.xml',
         'Geometry/TrackerCommonData/data/pixfwdMaterials.xml',
         'Geometry/TrackerCommonData/data/pixfwdCommon.xml',
         'Geometry/TrackerCommonData/data/pixfwdPlaq.xml',
@@ -210,17 +208,16 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/EcalCommonData/data/esalgo.xml',
         'Geometry/EcalCommonData/data/eeF.xml',
         'Geometry/EcalCommonData/data/eeB.xml',
+        'Geometry/EcalCommonData/data/ectkcable.xml',
         'Geometry/HcalCommonData/data/hcalrotations.xml',
-        'Geometry/HcalCommonData/data/Phase0/hcalalgo.xml',
+        'Geometry/HcalCommonData/data/hcalalgo.xml',
         'Geometry/HcalCommonData/data/hcalbarrelalgo.xml',
-        'Geometry/HcalCommonData/data/hcalcablealgo.xml',
-        'Geometry/HcalCommonData/data/Phase0/hcalendcapalgo.xml',
+        'Geometry/HcalCommonData/data/hcalendcapalgo.xml',
         'Geometry/HcalCommonData/data/hcalouteralgo.xml',
         'Geometry/HcalCommonData/data/hcalforwardalgo.xml',
-        'Geometry/HcalCommonData/data/hcalforwardalgo.xml',
         'Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml',
-        'Geometry/HcalCommonData/data/Run2/hcalSimNumbering16.xml', 
-        'Geometry/HcalCommonData/data/Run2/hcalRecNumbering16.xml', 
+        'Geometry/HcalCommonData/data/hcalSimNumbering.xml', 
+        'Geometry/HcalCommonData/data/hcalRecNumbering.xml', 
         'Geometry/MuonCommonData/data/mbCommon.xml',
         'Geometry/MuonCommonData/data/mb1.xml',
         'Geometry/MuonCommonData/data/mb2.xml',
@@ -245,6 +242,8 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/ForwardCommonData/data/zdc.xml',
         'Geometry/ForwardCommonData/data/zdclumi.xml',
         'Geometry/ForwardCommonData/data/cmszdc.xml')+cms.vstring(
+        'Geometry/ForwardCommonData/data/bhm.xml',
+        ##'Geometry/ForwardCommonData/data/bhmsens.xml', #not needed for geomtery purposes only
         'Geometry/MuonCommonData/data/muonNumbering.xml',
         'Geometry/TrackerCommonData/data/trackerStructureTopology.xml',
         'Geometry/TrackerSimData/data/trackersens.xml',
@@ -275,7 +274,5 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/CMSCommonData/data/FieldParameters.xml'),
     rootNodeName = cms.string('cms:OCMS')
 )
-
-
 
 

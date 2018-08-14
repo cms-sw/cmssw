@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-l1TdeRCT = cms.EDAnalyzer("L1TdeRCT",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+l1TdeRCT = DQMEDAnalyzer('L1TdeRCT',
     rctSourceData = cms.InputTag("gctDigis"),
     HistFolder = cms.untracked.string('L1TEMU/L1TdeRCT'),
     outputFile = cms.untracked.string(''),

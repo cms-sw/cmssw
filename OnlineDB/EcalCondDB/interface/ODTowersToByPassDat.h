@@ -12,10 +12,10 @@ class ODTowersToByPassDat : public IODConfig {
  public:
   friend class EcalCondDBInterface;
   ODTowersToByPassDat();
-  ~ODTowersToByPassDat();
+  ~ODTowersToByPassDat() override;
 
   // User data methods
-  inline std::string getTable() { return "TOWERS_TO_BYPASS_DAT"; }
+  inline std::string getTable() override { return "TOWERS_TO_BYPASS_DAT"; }
 
   inline void setId(int dac) { m_ID = dac; }
   inline int getId() const { return m_ID; }
@@ -38,7 +38,7 @@ class ODTowersToByPassDat : public IODConfig {
 
  private:
   void prepareWrite() 
-    noexcept(false);
+    noexcept(false) override;
 
   void writeDB(const ODTowersToByPassDat* item, ODTowersToByPassInfo* iov )
     noexcept(false);

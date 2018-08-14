@@ -18,6 +18,8 @@
 // system include files
 #include <memory>
 #include <vector>
+#include <regex>
+#include <cassert>
 
 // user include files
 #include "Alignment/OfflineValidation/plugins/PrimaryVertexValidation.h"
@@ -36,22 +38,24 @@
 #include "TVectorD.h"
 
 // CMSSW includes
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "MagneticField/Engine/interface/MagneticField.h" 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
+#include "RecoVertex/PrimaryVertexProducer/interface/DAClusterizerInZ_vect.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/DAClusterizerInZ.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/GapClusterizerInZ.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
@@ -67,27 +71,30 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
   lightNtupleSwitch_(iConfig.getParameter<bool>("isLightNtuple")),
   useTracksFromRecoVtx_(iConfig.getParameter<bool>("useTracksFromRecoVtx")),
   vertexZMax_(iConfig.getUntrackedParameter<double>("vertexZMax",99.)),
+  intLumi_(iConfig.getUntrackedParameter<double>("intLumi",0.)),
   askFirstLayerHit_(iConfig.getParameter<bool>("askFirstLayerHit")),
   doBPix_(iConfig.getUntrackedParameter<bool>("doBPix",true)),
   doFPix_(iConfig.getUntrackedParameter<bool>("doFPix",true)),
   ptOfProbe_(iConfig.getUntrackedParameter<double>("probePt",0.)),
+  pOfProbe_(iConfig.getUntrackedParameter<double>("probeP",0.)),
   etaOfProbe_(iConfig.getUntrackedParameter<double>("probeEta",2.4)),
+  nHitsOfProbe_(iConfig.getUntrackedParameter<double>("probeNHits",0.)),
   nBins_(iConfig.getUntrackedParameter<int>("numberOfBins",24)),
+  minPt_(iConfig.getUntrackedParameter<double>("minPt",1.)),
+  maxPt_(iConfig.getUntrackedParameter<double>("maxPt",20.)),
   debug_(iConfig.getParameter<bool>("Debug")),
-  runControl_(iConfig.getUntrackedParameter<bool>("runControl",false))
+  runControl_(iConfig.getUntrackedParameter<bool>("runControl",false)),
+  forceBeamSpotContraint_(iConfig.getUntrackedParameter<bool>("forceBeamSpot",false))
 {
   
   // now do what ever initialization is needed
   // initialize phase space boundaries
   
   usesResource(TFileService::kSharedResource);
-
+  
   std::vector<unsigned int> defaultRuns;
   defaultRuns.push_back(0);
   runControlNumbers_ = iConfig.getUntrackedParameter<std::vector<unsigned int> >("runControlNumber",defaultRuns);
-
-  phiSect_ = (2*TMath::Pi())/nBins_;
-  etaSect_ = (2*etaOfProbe_)/nBins_;
 
   edm::InputTag TrackCollectionTag_ = iConfig.getParameter<edm::InputTag>("TrackCollectionTag");
   theTrackCollectionToken = consumes<reco::TrackCollection>(TrackCollectionTag_);
@@ -106,9 +113,73 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
     theTrackClusterizer_ = new GapClusterizerInZ(iConfig.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<edm::ParameterSet>("TkGapClusParameters"));
   }else if(clusteringAlgorithm=="DA"){
     theTrackClusterizer_ = new DAClusterizerInZ(iConfig.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<edm::ParameterSet>("TkDAClusParameters"));
-  }else{
+    // provide the vectorized version of the clusterizer, if supported by the build
+  } else if(clusteringAlgorithm=="DA_vect") {
+    theTrackClusterizer_ = new DAClusterizerInZ_vect(iConfig.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<edm::ParameterSet>("TkDAClusParameters"));
+  } else {
     throw VertexException("PrimaryVertexProducerAlgorithm: unknown clustering algorithm: " + clusteringAlgorithm);  
   }
+
+  theDetails_.histobins = 500;
+  theDetails_.setMap(PVValHelper::dxy,PVValHelper::phi      ,-2000.,2000.); 
+  theDetails_.setMap(PVValHelper::dxy,PVValHelper::eta      ,-3000.,3000.);
+  theDetails_.setMap(PVValHelper::dxy,PVValHelper::pT       ,-1000.,1000.);
+  theDetails_.setMap(PVValHelper::dxy,PVValHelper::pTCentral,-1000.,1000.);
+  theDetails_.setMap(PVValHelper::dxy,PVValHelper::ladder   ,-1000.,1000.);
+  theDetails_.setMap(PVValHelper::dxy,PVValHelper::modZ     ,-1000.,1000.);
+
+  for (int i = PVValHelper::phi; i < PVValHelper::END_OF_PLOTS; i++ ){
+    for (int j = PVValHelper::dx; j < PVValHelper::END_OF_TYPES; j++ ){
+
+      auto plot_index = static_cast<PVValHelper::plotVariable>(i);
+      auto res_index  = static_cast<PVValHelper::residualType>(j);
+      
+      if(debug_){
+	edm::LogInfo("PrimaryVertexValidation")<<"==> "<<std::get<0>(PVValHelper::getTypeString(res_index)) << " "<< std::setw(10)<< std::get<0>(PVValHelper::getVarString(plot_index))<<std::endl;
+      }
+      if(res_index!=PVValHelper::d3D && res_index!=PVValHelper::norm_d3D)
+	theDetails_.setMap(res_index,plot_index,theDetails_.getLow(PVValHelper::dxy,plot_index),theDetails_.getHigh(PVValHelper::dxy,plot_index));
+      else
+	theDetails_.setMap(res_index,plot_index,0.,theDetails_.getHigh(PVValHelper::dxy,plot_index));
+    }
+  }
+
+  edm::LogVerbatim("PrimaryVertexValidation") <<"######################################";
+  for (const auto & it : theDetails_.range){
+    edm::LogVerbatim("PrimaryVertexValidation")<< "|" <<std::setw(10) << std::get<0>(PVValHelper::getTypeString(it.first.first)) << "|" << std::setw(10)<< std::get<0>(PVValHelper::getVarString(it.first.second)) << "| (" << std::setw(5)<< it.second.first << ";" <<std::setw(5)<< it.second.second << ") |"<<std::endl;
+  }
+
+  theDetails_.trendbins[PVValHelper::phi] = PVValHelper::generateBins(nBins_+1,-180.,360.);
+  theDetails_.trendbins[PVValHelper::eta] = PVValHelper::generateBins(nBins_+1,-etaOfProbe_,2*etaOfProbe_);
+
+  if(debug_){
+    edm::LogVerbatim("PrimaryVertexValidation") << "etaBins: ";
+    for (auto ieta: theDetails_.trendbins[PVValHelper::eta]) {
+      edm::LogVerbatim("PrimaryVertexValidation") << ieta << " ";
+    }
+    edm::LogVerbatim("PrimaryVertexValidation") << "\n";
+    
+    edm::LogVerbatim("PrimaryVertexValidation") << "phiBins: ";
+    for (auto iphi: theDetails_.trendbins[PVValHelper::phi]) {
+      edm::LogVerbatim("PrimaryVertexValidation") << iphi << " ";
+    }
+    edm::LogVerbatim("PrimaryVertexValidation") << "\n";
+  }
+  
+  // create the bins of the pT-binned distributions 
+
+  mypT_bins_ = PVValHelper::makeLogBins<float,nPtBins_>(minPt_,maxPt_);
+
+  std::string toOutput="";
+  for (auto ptbin: mypT_bins_){
+    toOutput+=" ";
+    toOutput+=std::to_string(ptbin);
+    toOutput+=",";
+  }
+  
+  edm::LogVerbatim("PrimaryVertexValidation") <<"######################################\n";
+  edm::LogVerbatim("PrimaryVertexValidation") <<"The pT binning is: [" << toOutput << "] \n";
+
 }
    
 // Destructor
@@ -116,6 +187,8 @@ PrimaryVertexValidation::~PrimaryVertexValidation()
 {
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
+  if (theTrackFilter_) delete theTrackFilter_;
+  if (theTrackClusterizer_) delete theTrackClusterizer_;
 }
 
 
@@ -132,17 +205,25 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   using namespace reco;
   using namespace IPTools;
 
-  if(nBins_!=24){ 
+  if (!isBFieldConsistentWithMode(iSetup)) {
+    edm::LogWarning("PrimaryVertexValidation") << "*********************************************************************************\n" 
+					       << "* The configuration (ptOfProbe > " << ptOfProbe_ << "GeV) is not correctly set for current value of magnetic field \n" 
+					       << "* Switching it to 0. !!! \n"
+					       << "*********************************************************************************"<< std::endl;
+    ptOfProbe_=0.;
+  }
+
+  if(nBins_!=24 && debug_){ 
     edm::LogInfo("PrimaryVertexValidation")<<"Using: "<<nBins_<<" bins plots";
   }
   
   bool passesRunControl = false;
 
   if(runControl_){
-    for(unsigned int j=0;j<runControlNumbers_.size();j++){
-      if(iEvent.eventAuxiliary().run() == runControlNumbers_[j]){ 
+    for(const auto & runControlNumber : runControlNumbers_){
+      if(iEvent.eventAuxiliary().run() == runControlNumber){ 
 	if (debug_){
-	  edm::LogInfo("PrimaryVertexValidation")<<" run number: "<<iEvent.eventAuxiliary().run()<<" keeping run:"<<runControlNumbers_[j];
+	  edm::LogInfo("PrimaryVertexValidation")<<" run number: "<<iEvent.eventAuxiliary().run()<<" keeping run:"<<runControlNumber;
 	}
 	passesRunControl = true;
 	break;
@@ -186,10 +267,32 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   if( (pDD->isThere(GeomDetEnumerators::P1PXB)) || 
       (pDD->isThere(GeomDetEnumerators::P1PXEC)) ) {
     isPhase1_ = true;
-    edm::LogInfo("PrimaryVertexValidation")<<" pixel phase1 setup ";
+    nLadders_ = 12;
+                        
+    if(h_dxy_ladderOverlap_.size()!=nLadders_){
+
+      PVValHelper::shrinkHistVectorToFit(h_dxy_ladderOverlap_,nLadders_);
+      PVValHelper::shrinkHistVectorToFit(h_dxy_ladderNoOverlap_,nLadders_);
+      PVValHelper::shrinkHistVectorToFit(h_dxy_ladder_,nLadders_);	  
+      PVValHelper::shrinkHistVectorToFit(h_dz_ladder_,nLadders_);	  
+      PVValHelper::shrinkHistVectorToFit(h_norm_dxy_ladder_,nLadders_);  
+      PVValHelper::shrinkHistVectorToFit(h_norm_dz_ladder_,nLadders_);   
+      
+      if (debug_){
+	edm::LogInfo("PrimaryVertexValidation")<<"checking size:"<<h_dxy_ladder_.size()<<std::endl;
+      }
+    }
+
+    if (debug_){
+      edm::LogInfo("PrimaryVertexValidation")<<" pixel phase1 setup, nLadders: "<<nLadders_;
+    }
+    
   } else {
     isPhase1_ = false;
-    edm::LogInfo("PrimaryVertexValidation")<<" pixel phase0 setup ";
+    nLadders_ = 20;
+    if (debug_){
+      edm::LogInfo("PrimaryVertexValidation")<<" pixel phase0 setup, nLadders: "<<nLadders_;
+    }
   }
 
   if(isPhase1_){
@@ -199,8 +302,12 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   }
 
   if(h_etaMax->GetEntries()==0.){
-    h_etaMax->SetBinContent(1,etaOfProbe_);
-    h_nbins->SetBinContent(1,nBins_);
+    h_etaMax->SetBinContent(1.,etaOfProbe_);
+    h_nbins->SetBinContent(1.,nBins_);
+    h_nLadders->SetBinContent(1.,nLadders_);
+    h_pTinfo->SetBinContent(1.,mypT_bins_.size());
+    h_pTinfo->SetBinContent(2.,minPt_);
+    h_pTinfo->SetBinContent(3.,maxPt_);
   }
 
   //=======================================================
@@ -217,7 +324,17 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   
   edm::Handle<TrackCollection>  trackCollectionHandle;
   iEvent.getByToken(theTrackCollectionToken, trackCollectionHandle);
-  
+  if(!trackCollectionHandle.isValid()) return;
+  auto const & tracks = *trackCollectionHandle;
+
+  //=======================================================
+  // Retrieve tracker topology from geometry
+  //=======================================================
+
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
   //=======================================================
   // Retrieve offline vartex information (only for reco)
   //=======================================================
@@ -237,9 +354,11 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   std::sort( vsorted.begin(), vsorted.end(), PrimaryVertexValidation::vtxSort );
   
   // skip events with no PV, this should not happen
-  if( vsorted.size() == 0) return;
+
+  if( vsorted.empty()) return;
+
   // skip events failing vertex cut
-  if( fabs(vsorted[0].z()) > vertexZMax_ ) return; 
+  if( std::abs(vsorted[0].z()) > vertexZMax_ ) return; 
   
   if ( vsorted[0].isValid() ) {
     xOfflineVertex_ = (vsorted)[0].x();
@@ -269,7 +388,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   nOfflineVertices_ = nvvertex;
   h_nOfflineVertices->Fill(nvvertex);
 
-  if ( vsorted.size() && useTracksFromRecoVtx_ ) {
+  if ( !vsorted.empty() && useTracksFromRecoVtx_ ) {
    
     double sumpt    = 0;
     size_t ntracks  = 0;
@@ -300,37 +419,37 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	double dxy_err = (**itrk).dxyError();
 	double dz_err  = (**itrk).dzError();
 	
-	float trackphi = ((**itrk).phi())*(180/TMath::Pi());
+	float trackphi = ((**itrk).phi())*(180/M_PI);
 	float tracketa = (**itrk).eta();
 	
 	for(int i=0; i<nBins_; i++){
 	  
-	  float phiF = (-TMath::Pi()+i*phiSect_)*(180/TMath::Pi());
-	  float phiL = (-TMath::Pi()+(i+1)*phiSect_)*(180/TMath::Pi());
+	  float phiF = theDetails_.trendbins[PVValHelper::phi][i];
+	  float phiL = theDetails_.trendbins[PVValHelper::phi][i+1];
 	  
-	  float etaF=-etaOfProbe_+i*etaSect_;
-	  float etaL=-etaOfProbe_+(i+1)*etaSect_;
-	  
+	  float etaF = theDetails_.trendbins[PVValHelper::eta][i];
+	  float etaL = theDetails_.trendbins[PVValHelper::eta][i+1];
+
 	  if(tracketa >= etaF && tracketa < etaL ){
 
-	    a_dxyEtaBiasResiduals[i]->Fill(dxyRes*cmToum);
-	    a_dzEtaBiasResiduals[i]->Fill(dzRes*cmToum); 
-	    n_dxyEtaBiasResiduals[i]->Fill((dxyRes)/dxy_err);
-	    n_dzEtaBiasResiduals[i]->Fill((dzRes)/dz_err);
+	    PVValHelper::fillByIndex(a_dxyEtaBiasResiduals,i,dxyRes*cmToum);
+	    PVValHelper::fillByIndex(a_dzEtaBiasResiduals,i,dzRes*cmToum); 
+	    PVValHelper::fillByIndex(n_dxyEtaBiasResiduals,i,(dxyRes)/dxy_err);
+	    PVValHelper::fillByIndex(n_dzEtaBiasResiduals,i,(dzRes)/dz_err);
 
 	  }
 
 	  if(trackphi >= phiF && trackphi < phiL ){ 
 
-	    a_dxyPhiBiasResiduals[i]->Fill(dxyRes*cmToum);
-	    a_dzPhiBiasResiduals[i]->Fill(dzRes*cmToum); 
-	    n_dxyPhiBiasResiduals[i]->Fill((dxyRes)/dxy_err);
-	    n_dzPhiBiasResiduals[i]->Fill((dzRes)/dz_err); 
+	    PVValHelper::fillByIndex(a_dxyPhiBiasResiduals,i,dxyRes*cmToum);
+	    PVValHelper::fillByIndex(a_dzPhiBiasResiduals,i,dzRes*cmToum); 
+	    PVValHelper::fillByIndex(n_dxyPhiBiasResiduals,i,(dxyRes)/dxy_err);
+	    PVValHelper::fillByIndex(n_dzPhiBiasResiduals,i,(dzRes)/dz_err); 
 	    
 	    for(int j=0; j<nBins_; j++){
 	      
-	      float etaJ=-etaOfProbe_+j*etaSect_;
-	      float etaK=-etaOfProbe_+(j+1)*etaSect_;
+	      float etaJ = theDetails_.trendbins[PVValHelper::eta][j];
+	      float etaK = theDetails_.trendbins[PVValHelper::eta][j+1];
 	      
 	      if(tracketa >= etaJ && tracketa < etaK ){
 		
@@ -391,6 +510,11 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   
   RunNumber_=iEvent.eventAuxiliary().run();
   h_runNumber->Fill(RunNumber_);
+
+  if(h_runFromEvent->GetEntries()==0){
+    h_runFromEvent->SetBinContent(1,RunNumber_);
+  }
+
   LuminosityBlockNumber_=iEvent.eventAuxiliary().luminosityBlock();
   EventNumber_=iEvent.eventAuxiliary().id().event();
     
@@ -404,10 +528,8 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   //======================================================
  
   std::vector<TransientTrack> t_tks;
-  unsigned int k = 0;   
-  for(TrackCollection::const_iterator track = trackCollectionHandle->begin(); track!= trackCollectionHandle->end(); ++track, ++k){
-  
-    TransientTrack tt = theB_->build(&(*track));  
+  for (const auto & track : tracks){
+    TransientTrack tt = theB_->build(&(track));  
     tt.setBeamSpot(beamSpot);
     t_tks.push_back(tt);
   
@@ -439,20 +561,21 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   //======================================================
   // Starts loop on clusters 
   //======================================================
-
-  for (vector< vector<TransientTrack> >::const_iterator iclus = clusters.begin(); iclus != clusters.end(); iclus++) {
+  for (const auto & iclus : clusters){
 
     nTracksPerClus_=0;
 
-    unsigned int i = 0;   
-    for(vector<TransientTrack>::const_iterator theTTrack = iclus->begin(); theTTrack!= iclus->end(); ++theTTrack, ++i)
+    unsigned int i=0;
+    for(const auto & theTTrack : iclus)
       {
+	i++;
+
 	if ( nTracks_ >= nMaxtracks_ ) {
 	  edm::LogError("PrimaryVertexValidation")<<" Warning - Number of tracks: " << nTracks_ << " , greater than " << nMaxtracks_;
 	  continue;
 	}
 	
-	const Track & theTrack = theTTrack->track();
+	const Track & theTrack = theTTrack.track();
 
 	pt_[nTracks_]       = theTrack.pt();
 	p_[nTracks_]        = theTrack.p();
@@ -493,7 +616,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	int nhitinBPIX = hits.numberOfValidPixelBarrelHits();
 	int nhitinFPIX = hits.numberOfValidPixelEndcapHits();
 	
-	for (trackingRecHit_iterator iHit = theTTrack->recHitsBegin(); iHit != theTTrack->recHitsEnd(); ++iHit) {
+	for (trackingRecHit_iterator iHit = theTTrack.recHitsBegin(); iHit != theTTrack.recHitsEnd(); ++iHit) {
 	  if((*iHit)->isValid()) {	
 	    
 	    if (this->isHit2D(**iHit)) {++nRecHit2D;}
@@ -515,8 +638,12 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	//=======================================================  
 
 	bool pass = true;
-	if(askFirstLayerHit_) pass = this->hasFirstLayerPixelHits((*theTTrack));
-	if (pass && (theTrack.pt() >=ptOfProbe_) && fabs(theTrack.eta()) <= etaOfProbe_){
+	if(askFirstLayerHit_) pass = this->hasFirstLayerPixelHits(theTTrack);
+	if (pass 
+	    && (theTrack.pt() >=ptOfProbe_) 
+	    && std::abs(theTrack.eta()) <= etaOfProbe_ 
+	    && (theTrack.numberOfValidHits())>=nHitsOfProbe_
+	    && (theTrack.p()) >= pOfProbe_ ){
 	  isGoodTrack_[nTracks_]=1;
 	}
       
@@ -526,14 +653,14 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	
 	vector<TransientTrack> theFinalTracks;
 	theFinalTracks.clear();
-
-	for(vector<TransientTrack>::const_iterator tk = iclus->begin(); tk!= iclus->end(); ++tk){
 	  
-	  pass = this->hasFirstLayerPixelHits((*tk));
+	for (const auto & tk : iclus) {
+
+	  pass = this->hasFirstLayerPixelHits(tk);
 	  if (pass){
 	    if( tk == theTTrack ) continue;
 	    else {
-	      theFinalTracks.push_back((*tk));
+	      theFinalTracks.push_back(tk);
 	    }
 	  }
 	}
@@ -543,22 +670,28 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	  if(debug_)
 	    edm::LogInfo("PrimaryVertexValidation")<<"Transient Track Collection size: "<<theFinalTracks.size();
 	  try{
-	      
-	    VertexFitter<5>* theFitter = new AdaptiveVertexFitter;
-	    TransientVertex theFittedVertex = theFitter->vertex(theFinalTracks);
 
 	    //AdaptiveVertexFitter* theFitter = new AdaptiveVertexFitter;
-	    //TransientVertex theFittedVertex = theFitter->vertex(theFinalTracks,beamSpot);  // if you want the beam constraint
+	    auto theFitter = std::unique_ptr<VertexFitter<5> >( new AdaptiveVertexFitter());
+	    TransientVertex theFittedVertex;
+
+	    if(forceBeamSpotContraint_){
+	      theFittedVertex = theFitter->vertex(theFinalTracks,beamSpot);  // if you want the beam constraint
+	    } else {
+	      theFittedVertex = theFitter->vertex(theFinalTracks);
+	    }
+
+
 
 	    double totalTrackWeights=0;
 	    if(theFittedVertex.isValid ()){
 
 	      
 	      if(theFittedVertex.hasTrackWeight()){
-		for(size_t rtracks= 0; rtracks < theFinalTracks.size(); rtracks++){
-		  sumOfWeightsUnbiasedVertex_[nTracks_] += theFittedVertex.trackWeight(theFinalTracks[rtracks]);
-		  totalTrackWeights+= theFittedVertex.trackWeight(theFinalTracks[rtracks]);
-		  h_fitVtxTrackWeights_->Fill(theFittedVertex.trackWeight(theFinalTracks[rtracks]));
+		for(const auto & theFinalTrack : theFinalTracks){
+		  sumOfWeightsUnbiasedVertex_[nTracks_] += theFittedVertex.trackWeight(theFinalTrack);
+		  totalTrackWeights+= theFittedVertex.trackWeight(theFinalTrack);
+		  h_fitVtxTrackWeights_->Fill(theFittedVertex.trackWeight(theFinalTrack));
 		}
 	      }
 	      
@@ -568,7 +701,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      const math::XYZPoint myVertex(theFittedVertex.position().x(),theFittedVertex.position().y(),theFittedVertex.position().z());
 
 	      const Vertex vertex = theFittedVertex;
-	      fillTrackHistos(hDA,"all",&(*theTTrack),vertex,beamSpot,fBfield_);
+	      fillTrackHistos(hDA,"all",&theTTrack,vertex,beamSpot,fBfield_);
 
 	      hasRecVertex_[nTracks_]    = 1;
 	      xUnbiasedVertex_[nTracks_] = theFittedVertex.position().x();
@@ -593,7 +726,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 	      GlobalPoint vert(theFittedVertex.position().x(),theFittedVertex.position().y(),theFittedVertex.position().z());
 
-	      //FreeTrajectoryState theTrackNearVertex = (*theTTrack).trajectoryStateClosestToPoint(vert).theState();
+	      //FreeTrajectoryState theTrackNearVertex = theTTrack.trajectoryStateClosestToPoint(vert).theState();
 	      //double dz_err = sqrt(theFittedVertex.positionError().czz() + theTrackNearVertex.cartesianError().position().czz());      
 	      //double dz_err = hypot(theTrack.dzError(),theFittedVertex.positionError().czz());
 	      
@@ -601,7 +734,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 
 	      // PV2D 
-	      std::pair<bool,Measurement1D> s_ip2dpv = signedTransverseImpactParameter(*theTTrack,
+	      std::pair<bool,Measurement1D> s_ip2dpv = signedTransverseImpactParameter(theTTrack,
 										       GlobalVector(theTrack.px(),
 												    theTrack.py(),
 												    theTrack.pz()),
@@ -611,7 +744,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      double s_ip2dpv_err  = s_ip2dpv.second.error();
 	      
 	      // PV3D
-	      std::pair<bool, Measurement1D> s_ip3dpv = signedImpactParameter3D(*theTTrack,		    
+	      std::pair<bool, Measurement1D> s_ip3dpv = signedImpactParameter3D(theTTrack,		    
 										GlobalVector(theTrack.px(),  
 											     theTrack.py(),  
 											     theTrack.pz()), 
@@ -621,12 +754,12 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      double s_ip3dpv_err  = s_ip3dpv.second.error();
 
 	      // PV3D absolute
-	      std::pair<bool,Measurement1D> ip3dpv = absoluteImpactParameter3D(*theTTrack,theFittedVertex);
+	      std::pair<bool,Measurement1D> ip3dpv = absoluteImpactParameter3D(theTTrack,theFittedVertex);
 	      double ip3d_corr = ip3dpv.second.value(); 
 	      double ip3d_err  = ip3dpv.second.error(); 
 	      
 	      // with respect to any specified vertex, such as primary vertex
-	      TrajectoryStateClosestToPoint traj = (*theTTrack).trajectoryStateClosestToPoint(vert);
+	      TrajectoryStateClosestToPoint traj = (theTTrack).trajectoryStateClosestToPoint(vert);
 
 	      GlobalPoint refPoint = traj.position();
 	      GlobalPoint cPToVtx  = traj.theState().position();
@@ -644,18 +777,20 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      double z0 = traj.perigeeParameters().longitudinalImpactParameter();
 	      double z0_error = traj.perigeeError().longitudinalImpactParameterError();
 
-	      edm::LogInfo("PrimaryVertexValidation")<< "my_dx:"   << my_dx  
-						     << " my_dy:"  << my_dy  
-						     << " my_dxy:" << my_dxy
-						     << " my_dx2:" << my_dx2  
-						     << " my_dy2:" << my_dy2
-						     << " d0: "    << d0
-						     << " dxyFromVtx:" << dxyFromMyVertex << "\n"
-						     << " ============================== "<< "\n"
-						     << "diff1:"    << std::abs(d0) - std::abs(my_dxy) << "\n"
-						     << "diff2:"    << std::abs(d0) - std::abs(dxyFromMyVertex) << "\n"
-						     << "diff3:"    << (my_dx - my_dx2) << " " << (my_dy - my_dy2) << "\n" 
-						     << std::endl;	
+	      if(debug_){
+		edm::LogInfo("PrimaryVertexValidation")<< "my_dx:"   << my_dx  
+						       << " my_dy:"  << my_dy  
+						       << " my_dxy:" << my_dxy
+						       << " my_dx2:" << my_dx2  
+						       << " my_dy2:" << my_dy2
+						       << " d0: "    << d0
+						       << " dxyFromVtx:" << dxyFromMyVertex << "\n"
+						       << " ============================== "<< "\n"
+						       << "diff1:"    << std::abs(d0) - std::abs(my_dxy) << "\n"
+						       << "diff2:"    << std::abs(d0) - std::abs(dxyFromMyVertex) << "\n"
+						       << "diff3:"    << (my_dx - my_dx2) << " " << (my_dy - my_dy2) << "\n" 
+						       << std::endl;	
+	      }
 
 	      // define IPs
 	     
@@ -673,31 +808,90 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	     	      
 	      // fill directly the histograms of residuals
 	      
-	      float trackphi = (theTrack.phi())*(180/TMath::Pi());
+	      float trackphi = (theTrack.phi())*(180./M_PI);
 	      float tracketa = theTrack.eta();
 	      float trackpt  = theTrack.pt();
+	      float trackp   = theTrack.p();
+	      float tracknhits = theTrack.numberOfValidHits();
 
+	      // determine the module number and ladder
+
+	      int ladder_num = -1.;
+	      int module_num = -1.;
+	      int L1BPixHitCount = 0;
+
+	      for (trackingRecHit_iterator iHit = theTrack.recHitsBegin(); iHit != theTrack.recHitsEnd(); ++iHit) {
+		const DetId& detId = (*iHit)->geographicalId();
+		unsigned int subid = detId.subdetId();
+		
+		if((*iHit)->isValid() && ( subid == PixelSubdetector::PixelBarrel ) ) {
+		  int layer = tTopo->pxbLayer(detId);
+		  if(layer==1){
+		    L1BPixHitCount+=1;
+		    ladder_num = tTopo->pxbLadder(detId);    
+		    module_num = tTopo->pxbModule(detId);
+		  }
+		}
+	      }
+
+	      h_probeL1Ladder_->Fill(ladder_num);
+	      h_probeL1Module_->Fill(module_num);
+	      h_probeHasBPixL1Overlap_->Fill(L1BPixHitCount);
+
+	      // filling the pT-binned distributions
+
+	      for(int ipTBin=0; ipTBin<nPtBins_; ipTBin++){
+		
+		float pTF = mypT_bins_[ipTBin];
+		float pTL = mypT_bins_[ipTBin+1];
+		
+		if(debug_)
+		  edm::LogInfo("PrimaryVertexValidation")<<"ipTBin:"<<ipTBin<< " "<<mypT_bins_[ipTBin]<< " < pT < "<<mypT_bins_[ipTBin+1]<<std::endl;
+		
+		if( std::abs(tracketa)<1.5 && (trackpt >= pTF && trackpt < pTL) ){
+		  
+		  if(debug_)
+		    edm::LogInfo("PrimaryVertexValidation")<<"passes this cut: "<<mypT_bins_[ipTBin]<<std::endl;
+		  PVValHelper::fillByIndex(h_dxy_pT_,ipTBin,dxyFromMyVertex*cmToum);
+		  PVValHelper::fillByIndex(h_dz_pT_,ipTBin,dzFromMyVertex*cmToum);
+		  PVValHelper::fillByIndex(h_norm_dxy_pT_,ipTBin,dxyFromMyVertex/s_ip2dpv_err);
+		  PVValHelper::fillByIndex(h_norm_dz_pT_,ipTBin,dzFromMyVertex/dz_err);
+		  
+		  if(std::abs(tracketa)<1.){
+		    
+		    if(debug_)
+		      edm::LogInfo("PrimaryVertexValidation")<<"passes tight eta cut: "<<mypT_bins_[ipTBin]<<std::endl;
+		    PVValHelper::fillByIndex(h_dxy_Central_pT_,ipTBin,dxyFromMyVertex*cmToum);
+		    PVValHelper::fillByIndex(h_dz_Central_pT_,ipTBin,dzFromMyVertex*cmToum);
+		    PVValHelper::fillByIndex(h_norm_dxy_Central_pT_,ipTBin,dxyFromMyVertex/s_ip2dpv_err);
+		    PVValHelper::fillByIndex(h_norm_dz_Central_pT_,ipTBin,dzFromMyVertex/dz_err);
+		  }
+		}
+	      }
+	      
 	      // checks on the probe track quality
-	      if(trackpt >= ptOfProbe_ && fabs(tracketa)<= etaOfProbe_){
+	      if(trackpt >= ptOfProbe_ 
+		 && std::abs(tracketa)<= etaOfProbe_ 
+		 && tracknhits>=nHitsOfProbe_
+		 && trackp >= pOfProbe_){
 
-		std::pair<bool,bool> pixelOcc = pixelHitsCheck((*theTTrack));
+		std::pair<bool,bool> pixelOcc = pixelHitsCheck((theTTrack));
 
-		/*
+		if(debug_){
 		  if(pixelOcc.first == true)
-		  std::cout<<"has BPIx hits"<<std::endl;
+		    edm::LogInfo("PrimaryVertexValidation")<<"has BPIx hits"<<std::endl;
 		  if(pixelOcc.second == true)
-		  std::cout<<"has FPix hits"<<std::endl;
-		*/		  
+		    edm::LogInfo("PrimaryVertexValidation")<<"has FPix hits"<<std::endl;
+		}		  
 
 		if(!doBPix_ && (pixelOcc.first == true))  continue;
 		if(!doFPix_ && (pixelOcc.second == true)) continue;
-	
-		//std::cout<<"track passed"<<std::endl;
-	
-		fillTrackHistos(hDA,"sel",&(*theTTrack),vertex,beamSpot,fBfield_);
+		
+		fillTrackHistos(hDA,"sel",&(theTTrack),vertex,beamSpot,fBfield_);
 
 		// probe checks
 		h_probePt_->Fill(theTrack.pt());
+		h_probePtRebin_->Fill(theTrack.pt());
 		h_probeP_->Fill(theTrack.p());
 		h_probeEta_->Fill(theTrack.eta());
 		h_probePhi_->Fill(theTrack.phi());
@@ -723,9 +917,9 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 		float dxysigmaRecoV = TMath::Sqrt(theTrack.d0Error()*theTrack.d0Error()+xErrOfflineVertex_*yErrOfflineVertex_);
 		float dzsigmaRecoV  = TMath::Sqrt(theTrack.dzError()*theTrack.dzError()+zErrOfflineVertex_*zErrOfflineVertex_);
 
-		double zTrack=(theTTrack->stateAtBeamLine().trackStateAtPCA()).position().z();
+		double zTrack=(theTTrack.stateAtBeamLine().trackStateAtPCA()).position().z();
 		double zVertex=theFittedVertex.position().z();
-		double tantheta=tan((theTTrack->stateAtBeamLine().trackStateAtPCA()).momentum().theta());
+		double tantheta=tan((theTTrack.stateAtBeamLine().trackStateAtPCA()).momentum().theta());
 
 		double dz2= pow(theTrack.dzError(),2)+wxy2_/pow(tantheta,2);
 		double restrkz   = zTrack-zVertex;
@@ -761,55 +955,81 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 		a_dzVsEta->Fill(tracketa,z0*cmToum);  
 		n_dxyVsEta->Fill(tracketa,dxyFromMyVertex/s_ip2dpv_err); 
 		n_dzVsEta->Fill(tracketa,z0/z0_error); 
- 
+
+		if( ladder_num > 0 && module_num > 0 ) {
+		  
+		  LogDebug("PrimaryVertexValidation")<<" ladder_num"<<ladder_num <<" module_num"<<module_num <<std::endl;
+
+		  PVValHelper::fillByIndex(h_dxy_modZ_,module_num-1,dxyFromMyVertex*cmToum);
+		  PVValHelper::fillByIndex(h_dz_modZ_,module_num-1,dzFromMyVertex*cmToum);	  
+		  PVValHelper::fillByIndex(h_norm_dxy_modZ_,module_num-1,dxyFromMyVertex/s_ip2dpv_err);	  
+		  PVValHelper::fillByIndex(h_norm_dz_modZ_,module_num-1,dzFromMyVertex/dz_err);	  
+		  
+		  PVValHelper::fillByIndex(h_dxy_ladder_,ladder_num-1,dxyFromMyVertex*cmToum);	  
+
+		  LogDebug("PrimaryVertexValidation")<<"h_dxy_ladder size:" <<h_dxy_ladder_.size() << std::endl;
+
+		  if(L1BPixHitCount==1){
+		    PVValHelper::fillByIndex(h_dxy_ladderNoOverlap_,ladder_num-1,dxyFromMyVertex*cmToum);	  
+		  } else {
+		    PVValHelper::fillByIndex(h_dxy_ladderOverlap_,ladder_num-1,dxyFromMyVertex*cmToum);	  
+		  }
+
+		  PVValHelper::fillByIndex(h_dz_ladder_,ladder_num-1,dzFromMyVertex*cmToum);	  
+		  PVValHelper::fillByIndex(h_norm_dxy_ladder_,ladder_num-1,dxyFromMyVertex/s_ip2dpv_err);  
+		  PVValHelper::fillByIndex(h_norm_dz_ladder_,ladder_num-1,dzFromMyVertex/dz_err);   
+		  
+		}
+
 		// filling the binned distributions
 		for(int i=0; i<nBins_; i++){
-		  
-		  float phiF = (-TMath::Pi()+i*phiSect_)*(180/TMath::Pi());
-		  float phiL = (-TMath::Pi()+(i+1)*phiSect_)*(180/TMath::Pi());
-		  
-		  float etaF=-etaOfProbe_+i*etaSect_;
-		  float etaL=-etaOfProbe_+(i+1)*etaSect_;
+		
+		  float phiF = theDetails_.trendbins[PVValHelper::phi][i];
+		  float phiL = theDetails_.trendbins[PVValHelper::phi][i+1];
 
+		  float etaF = theDetails_.trendbins[PVValHelper::eta][i];
+		  float etaL = theDetails_.trendbins[PVValHelper::eta][i+1];
+  
 		  if(tracketa >= etaF && tracketa < etaL ){
 
-		    a_dxyEtaResiduals[i]->Fill(dxyFromMyVertex*cmToum);
-		    a_dxEtaResiduals[i]->Fill(my_dx*cmToum);
-		    a_dyEtaResiduals[i]->Fill(my_dy*cmToum);
-		    a_dzEtaResiduals[i]->Fill(dzFromMyVertex*cmToum);   
-		    n_dxyEtaResiduals[i]->Fill(dxyFromMyVertex/s_ip2dpv_err);
-		    n_dzEtaResiduals[i]->Fill(dzFromMyVertex/dz_err);	    
-		    a_IP2DEtaResiduals[i]->Fill(s_ip2dpv_corr*cmToum);
-		    n_IP2DEtaResiduals[i]->Fill(s_ip2dpv_corr/s_ip2dpv_err);
-		    a_reszEtaResiduals[i]->Fill(restrkz*cmToum);
-		    n_reszEtaResiduals[i]->Fill(pulltrkz);
-		    a_d3DEtaResiduals[i]->Fill(ip3d_corr*cmToum);   
-		    n_d3DEtaResiduals[i]->Fill(ip3d_corr/ip3d_err);
-		    a_IP3DEtaResiduals[i]->Fill(s_ip3dpv_corr*cmToum);
-		    n_IP3DEtaResiduals[i]->Fill(s_ip3dpv_corr/s_ip3dpv_err);
+		    PVValHelper::fillByIndex(a_dxyEtaResiduals,i,dxyFromMyVertex*cmToum,"1");
+		    PVValHelper::fillByIndex(a_dxEtaResiduals,i,my_dx*cmToum,"2");
+		    PVValHelper::fillByIndex(a_dyEtaResiduals,i,my_dy*cmToum,"3");
+		    PVValHelper::fillByIndex(a_dzEtaResiduals,i,dzFromMyVertex*cmToum,"4");   
+		    PVValHelper::fillByIndex(n_dxyEtaResiduals,i,dxyFromMyVertex/s_ip2dpv_err,"5");
+		    PVValHelper::fillByIndex(n_dzEtaResiduals,i,dzFromMyVertex/dz_err,"6");	    
+		    PVValHelper::fillByIndex(a_IP2DEtaResiduals,i,s_ip2dpv_corr*cmToum,"7");
+		    PVValHelper::fillByIndex(n_IP2DEtaResiduals,i,s_ip2dpv_corr/s_ip2dpv_err,"8");
+		    PVValHelper::fillByIndex(a_reszEtaResiduals,i,restrkz*cmToum,"9");
+		    PVValHelper::fillByIndex(n_reszEtaResiduals,i,pulltrkz,"10");
+		    PVValHelper::fillByIndex(a_d3DEtaResiduals,i,ip3d_corr*cmToum,"11");   
+		    PVValHelper::fillByIndex(n_d3DEtaResiduals,i,ip3d_corr/ip3d_err,"12");
+		    PVValHelper::fillByIndex(a_IP3DEtaResiduals,i,s_ip3dpv_corr*cmToum,"13");
+		    PVValHelper::fillByIndex(n_IP3DEtaResiduals,i,s_ip3dpv_corr/s_ip3dpv_err,"14");
 
 		  }
 		  	  
 		  if(trackphi >= phiF && trackphi < phiL ){
-		    a_dxyPhiResiduals[i]->Fill(dxyFromMyVertex*cmToum);
-		    a_dxPhiResiduals[i]->Fill(my_dx*cmToum);
-		    a_dyPhiResiduals[i]->Fill(my_dy*cmToum);
-		    a_dzPhiResiduals[i]->Fill(dzFromMyVertex*cmToum); 
-		    n_dxyPhiResiduals[i]->Fill(dxyFromMyVertex/s_ip2dpv_err);
-		    n_dzPhiResiduals[i]->Fill(dzFromMyVertex/dz_err); 
-		    a_IP2DPhiResiduals[i]->Fill(s_ip2dpv_corr*cmToum);
-		    n_IP2DPhiResiduals[i]->Fill(s_ip2dpv_corr/s_ip2dpv_err); 
-		    a_reszPhiResiduals[i]->Fill(restrkz*cmToum);
-		    n_reszPhiResiduals[i]->Fill(pulltrkz);
-		    a_d3DPhiResiduals[i]->Fill(ip3d_corr*cmToum);   
-		    n_d3DPhiResiduals[i]->Fill(ip3d_corr/ip3d_err);
-		    a_IP3DPhiResiduals[i]->Fill(s_ip3dpv_corr*cmToum);
-		    n_IP3DPhiResiduals[i]->Fill(s_ip3dpv_corr/s_ip3dpv_err);
+
+		    PVValHelper::fillByIndex(a_dxyPhiResiduals,i,dxyFromMyVertex*cmToum,"15");
+		    PVValHelper::fillByIndex(a_dxPhiResiduals,i,my_dx*cmToum,"16");
+		    PVValHelper::fillByIndex(a_dyPhiResiduals,i,my_dy*cmToum,"17");
+		    PVValHelper::fillByIndex(a_dzPhiResiduals,i,dzFromMyVertex*cmToum,"18"); 
+		    PVValHelper::fillByIndex(n_dxyPhiResiduals,i,dxyFromMyVertex/s_ip2dpv_err,"19");
+		    PVValHelper::fillByIndex(n_dzPhiResiduals,i,dzFromMyVertex/dz_err,"20"); 
+		    PVValHelper::fillByIndex(a_IP2DPhiResiduals,i,s_ip2dpv_corr*cmToum,"21");
+		    PVValHelper::fillByIndex(n_IP2DPhiResiduals,i,s_ip2dpv_corr/s_ip2dpv_err,"22"); 
+		    PVValHelper::fillByIndex(a_reszPhiResiduals,i,restrkz*cmToum,"23");
+		    PVValHelper::fillByIndex(n_reszPhiResiduals,i,pulltrkz,"24");
+		    PVValHelper::fillByIndex(a_d3DPhiResiduals,i,ip3d_corr*cmToum,"25");   
+		    PVValHelper::fillByIndex(n_d3DPhiResiduals,i,ip3d_corr/ip3d_err,"26");
+		    PVValHelper::fillByIndex(a_IP3DPhiResiduals,i,s_ip3dpv_corr*cmToum,"27");
+		    PVValHelper::fillByIndex(n_IP3DPhiResiduals,i,s_ip3dpv_corr/s_ip3dpv_err,"28");
 
 		    for(int j=0; j<nBins_; j++){
 
-		      float etaJ=-etaOfProbe_+j*etaSect_;
-		      float etaK=-etaOfProbe_+(j+1)*etaSect_;
+		      float etaJ = theDetails_.trendbins[PVValHelper::eta][j];
+		      float etaK = theDetails_.trendbins[PVValHelper::eta][j+1];
 
 		      if(tracketa >= etaJ && tracketa < etaK ){
 			a_dxyResidualsMap[i][j]->Fill(dxyFromMyVertex*cmToum); 
@@ -835,7 +1055,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      }// ends if debug_
 	    } // ends if the fitted vertex is Valid
 
-	    delete theFitter;
+	    //delete theFitter;
 
 	  }  catch ( cms::Exception& er ) {
 	    LogTrace("PrimaryVertexValidation")<<"caught std::exception "<<er.what()<<std::endl;
@@ -898,7 +1118,7 @@ bool PrimaryVertexValidation::isHit2D(const TrackingRecHit &hit) const
 
 
 // ------------ method to check the presence of pixel hits  ------------
-std::pair<bool,bool> PrimaryVertexValidation::pixelHitsCheck(const reco::TransientTrack track){
+std::pair<bool,bool> PrimaryVertexValidation::pixelHitsCheck(const reco::TransientTrack& track){
   
   bool hasBPixHits = false;
   bool hasFPixHits = false;
@@ -916,11 +1136,11 @@ std::pair<bool,bool> PrimaryVertexValidation::pixelHitsCheck(const reco::Transie
 
 
 // ------------ method to check the presence of pixel hits  ------------
-bool PrimaryVertexValidation::hasFirstLayerPixelHits(const reco::TransientTrack track)
+bool PrimaryVertexValidation::hasFirstLayerPixelHits(const reco::TransientTrack& track)
 {
   using namespace reco;
   const HitPattern& p = track.hitPattern();      
-  for (int i=0; i<p.numberOfHits(HitPattern::TRACK_HITS); i++) {
+  for (int i=0; i<p.numberOfAllHits(HitPattern::TRACK_HITS); i++) {
     uint32_t pattern = p.getHitPattern(HitPattern::TRACK_HITS, i);   
     if (p.pixelBarrelHitFilter(pattern) || p.pixelEndcapHitFilter(pattern) ) {
       if (p.getLayer(pattern) == 1) {
@@ -945,7 +1165,6 @@ void PrimaryVertexValidation::beginJob()
   Nevt_    = 0;
   
   //  rootFile_ = new TFile(filename_.c_str(),"recreate");
-  edm::Service<TFileService> fs;
   rootTree_ = fs->make<TTree>("tree","PV Validation tree");
  
   // Track Paramters 
@@ -1034,10 +1253,20 @@ void PrimaryVertexValidation::beginJob()
 
   TH1F::SetDefaultSumw2(kTRUE);
 
+  h_lumiFromConfig    = EventFeatures.make<TH1F>("h_lumiFromConfig","luminosity from config;;luminosity of present run",1,-0.5,0.5);
+  h_lumiFromConfig->SetBinContent(1,intLumi_);
+
+  h_runFromConfig     = EventFeatures.make<TH1I>("h_runFromConfig","run number from config;;run number (from configuration)",
+						 runControlNumbers_.size(),0.,runControlNumbers_.size());
+  for(const auto r : runControlNumbers_){
+    h_runFromConfig->SetBinContent(r+1, r);
+  }
+  
+  h_runFromEvent      = EventFeatures.make<TH1I>("h_runFromEvent","run number from config;;run number (from event)",1,-0.5,0.5);
   h_nTracks           = EventFeatures.make<TH1F>("h_nTracks","number of tracks per event;n_{tracks}/event;n_{events}",300,-0.5,299.5);	     
   h_nClus             = EventFeatures.make<TH1F>("h_nClus","number of track clusters;n_{clusters}/event;n_{events}",50,-0.5,49.5);	     
   h_nOfflineVertices  = EventFeatures.make<TH1F>("h_nOfflineVertices","number of offline reconstructed vertices;n_{vertices}/event;n_{events}",50,-0.5,49.5);  
-  h_runNumber         = EventFeatures.make<TH1F>("h_runNumber","run number;run number;n_{events}",100000,150000.,250000.);	     
+  h_runNumber         = EventFeatures.make<TH1F>("h_runNumber","run number;run number;n_{events}",100000,250000.,350000.);	     
   h_xOfflineVertex    = EventFeatures.make<TH1F>("h_xOfflineVertex","x-coordinate of offline vertex;x_{vertex};n_{events}",100,-0.1,0.1);    
   h_yOfflineVertex    = EventFeatures.make<TH1F>("h_yOfflineVertex","y-coordinate of offline vertex;y_{vertex};n_{events}",100,-0.1,0.1);    
   h_zOfflineVertex    = EventFeatures.make<TH1F>("h_zOfflineVertex","z-coordinate of offline vertex;z_{vertex};n_{events}",100,-30.,30.);    
@@ -1052,12 +1281,19 @@ void PrimaryVertexValidation::beginJob()
   h_BeamWidthY        = EventFeatures.make<TH1F>("h_BeamWidthY","y-coordinate beam width;#sigma_{Y}^{beam};n_{events}",100,0.,0.01);        
 
   h_etaMax            = EventFeatures.make<TH1F>("etaMax","etaMax",1,-0.5,0.5);
+  h_pTinfo            = EventFeatures.make<TH1F>("pTinfo","pTinfo",3,-1.5,1.5);
+  h_pTinfo->GetXaxis()->SetBinLabel(1,"n. bins");
+  h_pTinfo->GetXaxis()->SetBinLabel(2,"pT min");
+  h_pTinfo->GetXaxis()->SetBinLabel(3,"pT max");
+
   h_nbins             = EventFeatures.make<TH1F>("nbins","nbins",1,-0.5,0.5);
+  h_nLadders          = EventFeatures.make<TH1F>("nladders","n. ladders",1,-0.5,0.5);
 
   // probe track histograms
   TFileDirectory ProbeFeatures = fs->mkdir("ProbeTrackFeatures");
 
   h_probePt_         = ProbeFeatures.make<TH1F>("h_probePt","p_{T} of probe track;track p_{T} (GeV); tracks",100,0.,50.);   
+  h_probePtRebin_    = ProbeFeatures.make<TH1F>("h_probePtRebin","p_{T} of probe track;track p_{T} (GeV); tracks",mypT_bins_.size()-1,mypT_bins_.data());   
   h_probeP_          = ProbeFeatures.make<TH1F>("h_probeP","momentum of probe track;track p (GeV); tracks",100,0.,100.);   
   h_probeEta_        = ProbeFeatures.make<TH1F>("h_probeEta","#eta of the probe track;track #eta;tracks",54,-2.8,2.8);  
   h_probePhi_        = ProbeFeatures.make<TH1F>("h_probePhi","#phi of probe track;track #phi (rad);tracks",100,-3.15,3.15);  
@@ -1071,9 +1307,9 @@ void PrimaryVertexValidation::beginJob()
   h_probeQoverP_     = ProbeFeatures.make<TH1F>("h_probeQoverP","q/p of probe track; track Q/p (GeV^{-1});tracks",200,-1.,1.);
   h_probedzRecoV_    = ProbeFeatures.make<TH1F>("h_probedzRecoV","d_{z}(V_{offline}) of probe track;track d_{z}(V_{off}) (cm);tracks",200,-1.,1.);  
   h_probedxyRecoV_   = ProbeFeatures.make<TH1F>("h_probedxyRecoV","d_{xy}(V_{offline}) of probe track;track d_{xy}(V_{off}) (cm);tracks",200,-1.,1.);      
-  h_probedzRefitV_   = ProbeFeatures.make<TH1F>("h_probedzRefitV","d_{z}(V_{refit}) of probe track;track d_{z}(V_{fit}) (cm);tracks",200,-1.,1.);
+  h_probedzRefitV_   = ProbeFeatures.make<TH1F>("h_probedzRefitV","d_{z}(V_{refit}) of probe track;track d_{z}(V_{fit}) (cm);tracks",200,-0.5,0.5);
   h_probesignIP2DRefitV_ = ProbeFeatures.make<TH1F>("h_probesignIPRefitV","ip_{2D}(V_{refit}) of probe track;track ip_{2D}(V_{fit}) (cm);tracks",200,-1.,1.);
-  h_probedxyRefitV_  = ProbeFeatures.make<TH1F>("h_probedxyRefitV","d_{xy}(V_{refit}) of probe track;track d_{xy}(V_{fit}) (cm);tracks",200,-1.,1.); 
+  h_probedxyRefitV_  = ProbeFeatures.make<TH1F>("h_probedxyRefitV","d_{xy}(V_{refit}) of probe track;track d_{xy}(V_{fit}) (cm);tracks",200,-0.5,0.5); 
 
   h_probez0RefitV_   = ProbeFeatures.make<TH1F>("h_probez0RefitV","z_{0}(V_{refit}) of probe track;track z_{0}(V_{fit}) (cm);tracks",200,-1.,1.);
   h_probed0RefitV_   = ProbeFeatures.make<TH1F>("h_probed0RefitV","d_{0}(V_{refit}) of probe track;track d_{0}(V_{fit}) (cm);tracks",200,-1.,1.);
@@ -1098,6 +1334,10 @@ void PrimaryVertexValidation::beginJob()
   h_probeHitsInTEC_  = ProbeFeatures.make<TH1F>("h_probeNRechitsTEC" ,"N_{hits} TEC ;N_{hits} TEC;tracks",40,-0.5,39.5);
   h_probeHitsInBPIX_ = ProbeFeatures.make<TH1F>("h_probeNRechitsBPIX","N_{hits} BPIX;N_{hits} BPIX;tracks",40,-0.5,39.5);
   h_probeHitsInFPIX_ = ProbeFeatures.make<TH1F>("h_probeNRechitsFPIX","N_{hits} FPIX;N_{hits} FPIX;tracks",40,-0.5,39.5);
+
+  h_probeL1Ladder_         = ProbeFeatures.make<TH1F>("h_probeL1Ladder","Ladder number (L1 hit); ladder number",22,-1.5,20.5); 
+  h_probeL1Module_         = ProbeFeatures.make<TH1F>("h_probeL1Module","Module number (L1 hit); module number",10,-1.5,8.5);
+  h_probeHasBPixL1Overlap_ = ProbeFeatures.make<TH1I>("h_probeHasBPixL1Overlap","n. hits in L1;n. L1-BPix hits;tracks",5,0,5);
 
   // refit vertex features
   TFileDirectory RefitVertexFeatures = fs->mkdir("RefitVertexFeatures");
@@ -1130,15 +1370,12 @@ void PrimaryVertexValidation::beginJob()
 
   // initialize the residuals histograms 
 
-  float dxymax_phi = 2000; 
-  float dzmax_phi  = 2000; 
-  float dxymax_eta = 3000; 
-  float dzmax_eta  = 3000;
-
-  float d3Dmax_phi = hypot(dxymax_phi,dzmax_phi);
-  float d3Dmax_eta = hypot(dxymax_eta,dzmax_eta);
-
-  const int mybins_ = 500;
+  const float dxymax_phi = theDetails_.getHigh(PVValHelper::dxy,PVValHelper::phi);
+  const float dzmax_phi  = theDetails_.getHigh(PVValHelper::dz ,PVValHelper::eta); 
+  const float dxymax_eta = theDetails_.getHigh(PVValHelper::dxy,PVValHelper::phi);
+  const float dzmax_eta  = theDetails_.getHigh(PVValHelper::dz, PVValHelper::eta);
+  //const float d3Dmax_phi = theDetails_.getHigh(PVValHelper::d3D,PVValHelper::phi);
+  const float d3Dmax_eta = theDetails_.getHigh(PVValHelper::d3D,PVValHelper::eta);
 
   ///////////////////////////////////////////////////////////////////
   //  
@@ -1147,214 +1384,175 @@ void PrimaryVertexValidation::beginJob()
   //
   ///////////////////////////////////////////////////////////////////
 
+  //    _   _            _      _         ___        _    _           _    
+  //   /_\ | |__ ___ ___| |_  _| |_ ___  | _ \___ __(_)__| |_  _ __ _| |___
+  //  / _ \| '_ (_-</ _ \ | || |  _/ -_) |   / -_|_-< / _` | || / _` | (_-<
+  // /_/ \_\_.__/__/\___/_|\_,_|\__\___| |_|_\___/__/_\__,_|\_,_\__,_|_/__/
+  //
+  
   TFileDirectory AbsTransPhiRes  = fs->mkdir("Abs_Transv_Phi_Residuals");
+  a_dxyPhiResiduals  = bookResidualsHistogram(AbsTransPhiRes,nBins_,PVValHelper::dxy,PVValHelper::phi);
+  a_dxPhiResiduals   = bookResidualsHistogram(AbsTransPhiRes,nBins_,PVValHelper::dx,PVValHelper::phi);
+  a_dyPhiResiduals   = bookResidualsHistogram(AbsTransPhiRes,nBins_,PVValHelper::dy,PVValHelper::phi);  
+  a_IP2DPhiResiduals = bookResidualsHistogram(AbsTransPhiRes,nBins_,PVValHelper::IP2D,PVValHelper::phi);
+
   TFileDirectory AbsTransEtaRes  = fs->mkdir("Abs_Transv_Eta_Residuals");
+  a_dxyEtaResiduals  = bookResidualsHistogram(AbsTransEtaRes,nBins_,PVValHelper::dxy,PVValHelper::eta);
+  a_dxEtaResiduals   = bookResidualsHistogram(AbsTransEtaRes,nBins_,PVValHelper::dx,PVValHelper::eta);
+  a_dyEtaResiduals   = bookResidualsHistogram(AbsTransEtaRes,nBins_,PVValHelper::dy,PVValHelper::eta);
+  a_IP2DEtaResiduals = bookResidualsHistogram(AbsTransEtaRes,nBins_,PVValHelper::IP2D,PVValHelper::eta);
 		 					  
   TFileDirectory AbsLongPhiRes   = fs->mkdir("Abs_Long_Phi_Residuals");
+  a_dzPhiResiduals   = bookResidualsHistogram(AbsLongPhiRes,nBins_,PVValHelper::dz,PVValHelper::phi);
+  a_reszPhiResiduals = bookResidualsHistogram(AbsLongPhiRes,nBins_,PVValHelper::resz,PVValHelper::phi);
+
   TFileDirectory AbsLongEtaRes   = fs->mkdir("Abs_Long_Eta_Residuals");
+  a_dzEtaResiduals   = bookResidualsHistogram(AbsLongEtaRes,nBins_,PVValHelper::dz,PVValHelper::eta);
+  a_reszEtaResiduals = bookResidualsHistogram(AbsLongEtaRes,nBins_,PVValHelper::resz,PVValHelper::eta);
 		 		  
   TFileDirectory Abs3DPhiRes     = fs->mkdir("Abs_3D_Phi_Residuals");
+  a_d3DPhiResiduals  = bookResidualsHistogram(Abs3DPhiRes,nBins_,PVValHelper::d3D,PVValHelper::phi);
+  a_IP3DPhiResiduals = bookResidualsHistogram(Abs3DPhiRes,nBins_,PVValHelper::IP3D,PVValHelper::phi);
+
   TFileDirectory Abs3DEtaRes     = fs->mkdir("Abs_3D_Eta_Residuals");
+  a_d3DEtaResiduals  = bookResidualsHistogram(Abs3DEtaRes ,nBins_,PVValHelper::d3D,PVValHelper::eta);
+  a_IP3DEtaResiduals = bookResidualsHistogram(Abs3DEtaRes ,nBins_,PVValHelper::IP3D,PVValHelper::eta);
 
   TFileDirectory NormTransPhiRes = fs->mkdir("Norm_Transv_Phi_Residuals");
+  n_dxyPhiResiduals  = bookResidualsHistogram(NormTransPhiRes,nBins_,PVValHelper::norm_dxy,PVValHelper::phi,true);
+  n_IP2DPhiResiduals = bookResidualsHistogram(NormTransPhiRes,nBins_,PVValHelper::norm_IP2D,PVValHelper::phi,true);
+
   TFileDirectory NormTransEtaRes = fs->mkdir("Norm_Transv_Eta_Residuals");
+  n_dxyEtaResiduals  = bookResidualsHistogram(NormTransEtaRes,nBins_,PVValHelper::norm_dxy,PVValHelper::eta,true);
+  n_IP2DEtaResiduals = bookResidualsHistogram(NormTransEtaRes,nBins_,PVValHelper::norm_IP2D,PVValHelper::eta,true);
 		 					  
   TFileDirectory NormLongPhiRes  = fs->mkdir("Norm_Long_Phi_Residuals");
+  n_dzPhiResiduals   = bookResidualsHistogram(NormLongPhiRes,nBins_,PVValHelper::norm_dz,PVValHelper::phi,true);
+  n_reszPhiResiduals = bookResidualsHistogram(NormLongPhiRes,nBins_,PVValHelper::norm_resz,PVValHelper::phi,true);
+
   TFileDirectory NormLongEtaRes  = fs->mkdir("Norm_Long_Eta_Residuals");
+  n_dzEtaResiduals   = bookResidualsHistogram(NormLongEtaRes,nBins_,PVValHelper::norm_dz,PVValHelper::eta,true);
+  n_reszEtaResiduals = bookResidualsHistogram(NormLongEtaRes,nBins_,PVValHelper::norm_resz,PVValHelper::eta,true);
 
   TFileDirectory Norm3DPhiRes    = fs->mkdir("Norm_3D_Phi_Residuals");
+  n_d3DPhiResiduals  = bookResidualsHistogram(Norm3DPhiRes,nBins_,PVValHelper::norm_d3D,PVValHelper::phi,true);
+  n_IP3DPhiResiduals = bookResidualsHistogram(Norm3DPhiRes,nBins_,PVValHelper::norm_IP3D,PVValHelper::phi,true);
+  
   TFileDirectory Norm3DEtaRes    = fs->mkdir("Norm_3D_Eta_Residuals");
+  n_d3DEtaResiduals  = bookResidualsHistogram(Norm3DEtaRes,nBins_,PVValHelper::norm_d3D,PVValHelper::eta,true);
+  n_IP3DEtaResiduals = bookResidualsHistogram(Norm3DEtaRes,nBins_,PVValHelper::norm_IP3D,PVValHelper::eta,true);
 
   TFileDirectory AbsDoubleDiffRes   = fs->mkdir("Abs_DoubleDiffResiduals");
   TFileDirectory NormDoubleDiffRes  = fs->mkdir("Norm_DoubleDiffResiduals");
+  
+  // book residuals vs pT histograms
+  
+  TFileDirectory AbsTranspTRes  = fs->mkdir("Abs_Transv_pT_Residuals"); 
+  h_dxy_pT_      = bookResidualsHistogram(AbsTranspTRes,nPtBins_,PVValHelper::dxy,PVValHelper::pT);	       
 
-  for ( int i=0; i<nBins_; ++i ) {
+  TFileDirectory AbsLongpTRes   = fs->mkdir("Abs_Long_pT_Residuals"); 
+  h_dz_pT_       = bookResidualsHistogram(AbsLongpTRes,nPtBins_,PVValHelper::dz,PVValHelper::pT);		       
 
-    float phiF = (-TMath::Pi()+i*phiSect_)*(180/TMath::Pi());
-    float phiL = (-TMath::Pi()+(i+1)*phiSect_)*(180/TMath::Pi());
-    
-    float etaF=-etaOfProbe_+i*etaSect_;
-    float etaL=-etaOfProbe_+(i+1)*etaSect_;
-    
-    // dxy vs phi and eta
-     
-    a_dxyPhiResiduals[i] = AbsTransPhiRes.make<TH1F>(Form("histo_dxy_phi_plot%i",i),
-						     Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{xy} [#mum];tracks",phiF,phiL),
-						     mybins_,-dxymax_phi,dxymax_phi);
-    
-    a_dxyEtaResiduals[i] = AbsTransEtaRes.make<TH1F>(Form("histo_dxy_eta_plot%i",i),
-						     Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{xy} [#mum];tracks",etaF,etaL),
-						     mybins_,-dxymax_eta,dxymax_eta);
+  TFileDirectory NormTranspTRes = fs->mkdir("Norm_Transv_pT_Residuals"); 
+  h_norm_dxy_pT_ = bookResidualsHistogram(NormTranspTRes,nPtBins_,PVValHelper::norm_dxy,PVValHelper::pT,true);	       
 
+  TFileDirectory NormLongpTRes  = fs->mkdir("Norm_Long_pT_Residuals"); 
+  h_norm_dz_pT_  = bookResidualsHistogram(NormLongpTRes,nPtBins_,PVValHelper::norm_dz,PVValHelper::pT,true);	       
 
-    // dx vs phi and eta
-     
-    a_dxPhiResiduals[i] = AbsTransPhiRes.make<TH1F>(Form("histo_dx_phi_plot%i",i),
-						    Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{x} [#mum];tracks",phiF,phiL),
-						    mybins_,-dxymax_phi,dxymax_phi);
-    
-    a_dxEtaResiduals[i] = AbsTransEtaRes.make<TH1F>(Form("histo_dx_eta_plot%i",i),
-						    Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{x} [#mum];tracks",etaF,etaL),
-						    mybins_,-dxymax_eta,dxymax_eta);
+  // book residuals vs pT histograms in central region (|eta|<1.0)
+               
+  TFileDirectory AbsTranspTCentralRes  = fs->mkdir("Abs_Transv_pTCentral_Residuals"); 
+  h_dxy_Central_pT_ = bookResidualsHistogram(AbsTranspTCentralRes,nPtBins_,PVValHelper::dxy,PVValHelper::pTCentral);       
 
+  TFileDirectory AbsLongpTCentralRes   = fs->mkdir("Abs_Long_pTCentral_Residuals"); 
+  h_dz_Central_pT_  = bookResidualsHistogram(AbsLongpTCentralRes,nPtBins_,PVValHelper::dz,PVValHelper::pTCentral);	       
 
-    // dy vs phi and eta
-     
-    a_dyPhiResiduals[i] = AbsTransPhiRes.make<TH1F>(Form("histo_dy_phi_plot%i",i),
-						    Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{y} [#mum];tracks",phiF,phiL),
-						    mybins_,-dxymax_phi,dxymax_phi);
-    
-    a_dyEtaResiduals[i] = AbsTransEtaRes.make<TH1F>(Form("histo_dy_eta_plot%i",i),
-						    Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{y} [#mum];tracks",etaF,etaL),
-						    mybins_,-dxymax_eta,dxymax_eta);
-    
-    // IP2D vs phi and eta
+  TFileDirectory NormTranspTCentralRes = fs->mkdir("Norm_Transv_pTCentral_Residuals"); 
+  h_norm_dxy_Central_pT_ = bookResidualsHistogram(NormTranspTCentralRes,nPtBins_,PVValHelper::norm_dxy,PVValHelper::pTCentral,true);  
 
-    a_IP2DPhiResiduals[i] = AbsTransPhiRes.make<TH1F>(Form("histo_IP2D_phi_plot%i",i),
-						     Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;IP_{2D} [#mum];tracks",phiF,phiL),
-						     mybins_,-dxymax_phi,dxymax_phi);
-    
-    a_IP2DEtaResiduals[i] = AbsTransEtaRes.make<TH1F>(Form("histo_IP2D_eta_plot%i",i),
-						     Form("%.2f<#eta^{probe}_{tk}<%.2f;IP_{2D} [#mum];tracks",etaF,etaL),
-						     mybins_,-dxymax_eta,dxymax_eta);
+  TFileDirectory NormLongpTCentralRes  = fs->mkdir("Norm_Long_pTCentral_Residuals"); 
+  h_norm_dz_Central_pT_  = bookResidualsHistogram(NormLongpTCentralRes,nPtBins_,PVValHelper::norm_dz,PVValHelper::pTCentral,true);   
 
-    // IP3D vs phi and eta
+  // book residuals vs module number
+  
+  TFileDirectory AbsTransModZRes  = fs->mkdir("Abs_Transv_modZ_Residuals"); 
+  h_dxy_modZ_      = bookResidualsHistogram(AbsTransModZRes,8,PVValHelper::dxy,PVValHelper::modZ);	       
 
-    a_IP3DPhiResiduals[i] = Abs3DPhiRes.make<TH1F>(Form("histo_IP3D_phi_plot%i",i),
-						   Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;IP_{3D} [#mum];tracks",phiF,phiL),
-						   mybins_,-dxymax_phi,dxymax_phi);
-    
-    a_IP3DEtaResiduals[i] = Abs3DEtaRes.make<TH1F>(Form("histo_IP3D_eta_plot%i",i),
-						   Form("%.2f<#eta^{probe}_{tk}<%.2f;IP_{3D} [#mum];tracks",etaF,etaL),
-						   mybins_,-dxymax_eta,dxymax_eta);
-
-    // dz vs phi and eta
-
-    a_dzPhiResiduals[i]  = AbsLongPhiRes.make<TH1F>(Form("histo_dz_phi_plot%i",i),
-						    Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{z} [#mum];tracks",phiF,phiL),
-						    mybins_,-dzmax_phi,dzmax_phi);
-    
-    a_dzEtaResiduals[i]  = AbsLongEtaRes.make<TH1F>(Form("histo_dz_eta_plot%i",i),
-						    Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{z} [#mum];tracks",etaF,etaL),
-						    mybins_,-dzmax_eta,dzmax_eta);
+  TFileDirectory AbsLongModZRes   = fs->mkdir("Abs_Long_modZ_Residuals"); 
+  h_dz_modZ_       = bookResidualsHistogram(AbsLongModZRes,8,PVValHelper::dz,PVValHelper::modZ);		       
 
 
-    // resz vs phi and eta
+  //  _  _                    _ _           _   ___        _    _           _    
+  // | \| |___ _ _ _ __  __ _| (_)______ __| | | _ \___ __(_)__| |_  _ __ _| |___
+  // | .` / _ \ '_| '  \/ _` | | |_ / -_) _` | |   / -_|_-< / _` | || / _` | (_-<
+  // |_|\_\___/_| |_|_|_\__,_|_|_/__\___\__,_| |_|_\___/__/_\__,_|\_,_\__,_|_/__/
+  //
+  
+  TFileDirectory NormTransModZRes = fs->mkdir("Norm_Transv_modZ_Residuals"); 
+  h_norm_dxy_modZ_ = bookResidualsHistogram(NormTransModZRes,8,PVValHelper::norm_dxy,PVValHelper::modZ,true);	       
 
-    a_reszPhiResiduals[i]  = AbsLongPhiRes.make<TH1F>(Form("histo_resz_phi_plot%i",i),
-						    Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;z_{trk} - z_{vtx} [#mum];tracks",phiF,phiL),
-						    mybins_,-dzmax_phi,dzmax_phi);
-    
-    a_reszEtaResiduals[i]  = AbsLongEtaRes.make<TH1F>(Form("histo_resz_eta_plot%i",i),
-						    Form("%.2f<#eta^{probe}_{tk}<%.2f;z_{trk} - z_{vtx} [#mum];tracks",etaF,etaL),
-						    mybins_,-dzmax_eta,dzmax_eta);
+  TFileDirectory NormLongModZRes  = fs->mkdir("Norm_Long_modZ_Residuals"); 
+  h_norm_dz_modZ_  = bookResidualsHistogram(NormLongModZRes,8,PVValHelper::norm_dz,PVValHelper::modZ,true);	       
 
-    // d3D vs phi and eta
+  TFileDirectory AbsTransLadderRes  = fs->mkdir("Abs_Transv_ladder_Residuals"); 
+  h_dxy_ladder_ = bookResidualsHistogram(AbsTransLadderRes,nLadders_,PVValHelper::dxy,PVValHelper::ladder);
 
-    a_d3DPhiResiduals[i] = Abs3DPhiRes.make<TH1F>(Form("histo_d3D_phi_plot%i",i),
-						  Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{3D} [#mum];tracks",phiF,phiL),
-						  mybins_,0.,d3Dmax_phi);
-    
-    a_d3DEtaResiduals[i] = Abs3DEtaRes.make<TH1F>(Form("histo_d3D_eta_plot%i",i),
-						  Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{3D} [#mum];tracks",etaF,etaL),
-						  mybins_,0.,d3Dmax_eta);
-       
-    //  _  _                    _ _           _   ___        _    _           _    
-    // | \| |___ _ _ _ __  __ _| (_)______ __| | | _ \___ __(_)__| |_  _ __ _| |___
-    // | .` / _ \ '_| '  \/ _` | | |_ / -_) _` | |   / -_|_-< / _` | || / _` | (_-<
-    // |_|\_\___/_| |_|_|_\__,_|_|_/__\___\__,_| |_|_\___/__/_\__,_|\_,_\__,_|_/__/
-    //
-                                                                             
-    // normalized dxy vs eta and phi
-   				
-    n_dxyPhiResiduals[i] = NormTransPhiRes.make<TH1F>(Form("histo_norm_dxy_phi_plot%i",i),
-						      Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{xy}/#sigma_{d_{xy}};tracks",phiF,phiL),
-						      mybins_,-dxymax_phi/100.,dxymax_phi/100.);
-    
-    n_dxyEtaResiduals[i] = NormTransEtaRes.make<TH1F>(Form("histo_norm_dxy_eta_plot%i",i),
-						      Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{xy}/#sigma_{d_{xy}};tracks",etaF,etaL),
-						      mybins_,-dxymax_eta/100.,dxymax_eta/100.);
-    
-    // normalized IP2d vs eta and phi
-    
-    n_IP2DPhiResiduals[i] = NormTransPhiRes.make<TH1F>(Form("histo_norm_IP2D_phi_plot%i",i),
-						       Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;IP_{2D}/#sigma_{IP_{2D}};tracks",phiF,phiL),
-						       mybins_,-dxymax_phi/100.,dxymax_phi/100.);
-    
-    n_IP2DEtaResiduals[i] = NormTransEtaRes.make<TH1F>(Form("histo_norm_IP2D_eta_plot%i",i),
-						       Form("%.2f<#eta^{probe}_{tk}<%.2f;IP_{2D}/#sigma_{IP_{2D}};tracks",etaF,etaL),
-						       mybins_,-dxymax_eta/100.,dxymax_eta/100.);
-    
-    // normalized IP3d vs eta and phi
-    
-    n_IP3DPhiResiduals[i] = Norm3DPhiRes.make<TH1F>(Form("histo_norm_IP3D_phi_plot%i",i),
-						    Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;IP_{3D}/#sigma_{IP_{3D}};tracks",phiF,phiL),
-						    mybins_,-dxymax_phi/100.,dxymax_phi/100.);
-    
-    n_IP3DEtaResiduals[i] = Norm3DEtaRes.make<TH1F>(Form("histo_norm_IP3D_eta_plot%i",i),
-						    Form("%.2f<#eta^{probe}_{tk}<%.2f;IP_{3D}/#sigma_{IP_{3D}};tracks",etaF,etaL),
-						    mybins_,-dxymax_eta/100.,dxymax_eta/100.);
+  TFileDirectory AbsTransLadderResOverlap  = fs->mkdir("Abs_Transv_ladderOverlap_Residuals"); 
+  h_dxy_ladderOverlap_ = bookResidualsHistogram(AbsTransLadderResOverlap,nLadders_,PVValHelper::dxy,PVValHelper::ladder);       
 
-    // normalized dz vs phi and eta
+  TFileDirectory AbsTransLadderResNoOverlap  = fs->mkdir("Abs_Transv_ladderNoOverlap_Residuals"); 
+  h_dxy_ladderNoOverlap_ = bookResidualsHistogram(AbsTransLadderResNoOverlap,nLadders_,PVValHelper::dxy,PVValHelper::ladder);       
 
-    n_dzPhiResiduals[i]  = NormLongPhiRes.make<TH1F>(Form("histo_norm_dz_phi_plot%i",i),
-						     Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{z}/#sigma_{d_{z}};tracks",phiF,phiL),
-						     mybins_,-dzmax_phi/100.,dzmax_phi/100.);
-    
-    n_dzEtaResiduals[i]  = NormLongEtaRes.make<TH1F>(Form("histo_norm_dz_eta_plot%i",i),
-						     Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{z}/#sigma_{d_{z}};tracks",etaF,etaL),
-						     mybins_,-dzmax_eta/100.,dzmax_eta/100.);
+  TFileDirectory AbsLongLadderRes   = fs->mkdir("Abs_Long_ladder_Residuals"); 
+  h_dz_ladder_  = bookResidualsHistogram(AbsLongLadderRes,nLadders_,PVValHelper::dz,PVValHelper::ladder);	       
 
-    // pull of resz
+  TFileDirectory NormTransLadderRes = fs->mkdir("Norm_Transv_ladder_Residuals"); 
+  h_norm_dxy_ladder_ = bookResidualsHistogram(NormTransLadderRes,nLadders_,PVValHelper::norm_dxy,PVValHelper::ladder,true);  
 
-    n_reszPhiResiduals[i]  = NormLongPhiRes.make<TH1F>(Form("histo_norm_resz_phi_plot%i",i),
-						     Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;(z_{trk}-z_{vtx})/#sigma_{res_{z}};tracks",phiF,phiL),
-						     mybins_,-dzmax_phi/100.,dzmax_phi/100.);
-    
-    n_reszEtaResiduals[i]  = NormLongEtaRes.make<TH1F>(Form("histo_norm_resz_eta_plot%i",i),
-						     Form("%.2f<#eta^{probe}_{tk}<%.2f;(z_{trk}-z_{vtx})/#sigma_{res_{z}};tracks",etaF,etaL),
-						     mybins_,-dzmax_eta/100.,dzmax_eta/100.);
+  TFileDirectory NormLongLadderRes  = fs->mkdir("Norm_Long_ladder_Residuals"); 
+  h_norm_dz_ladder_  = bookResidualsHistogram(NormLongLadderRes,nLadders_,PVValHelper::norm_dz,PVValHelper::ladder,true);   
 
-    // normalized d3D vs phi and eta
 
-    n_d3DPhiResiduals[i] = Norm3DPhiRes.make<TH1F>(Form("histo_norm_d3D_phi_plot%i",i),
-						   Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{3D}/#sigma_{d_{3D}};tracks",phiF,phiL),
-						   mybins_,0.,d3Dmax_phi/100.);
-    
-    n_d3DEtaResiduals[i] = Norm3DEtaRes.make<TH1F>(Form("histo_norm_d3D_eta_plot%i",i),
-						   Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{3D}/#sigma_{d_{3D}};tracks",etaF,etaL),
-						   mybins_,0.,d3Dmax_eta/100.);
+  // book residuals as function of phi and eta
 
+  for (int i=0; i<nBins_; ++i ) {
+
+    float phiF = theDetails_.trendbins[PVValHelper::phi][i];
+    float phiL = theDetails_.trendbins[PVValHelper::phi][i+1];
+                                                                                    
     //  ___           _    _     ___  _  __  __   ___        _    _           _    
     // |   \ ___ _  _| |__| |___|   \(_)/ _|/ _| | _ \___ __(_)__| |_  _ __ _| |___
     // | |) / _ \ || | '_ \ / -_) |) | |  _|  _| |   / -_|_-< / _` | || / _` | (_-<
     // |___/\___/\_,_|_.__/_\___|___/|_|_| |_|   |_|_\___/__/_\__,_|\_,_\__,_|_/__/
     
     for ( int j=0; j<nBins_; ++j ) {
- 
+
+      float etaF = theDetails_.trendbins[PVValHelper::eta][j];
+      float etaL = theDetails_.trendbins[PVValHelper::eta][j+1];
+
       a_dxyResidualsMap[i][j] = AbsDoubleDiffRes.make<TH1F>(Form("histo_dxy_eta_plot%i_phi_plot%i",i,j),
 							    Form("%.2f<#eta_{tk}<%.2f %.2f#circ<#varphi_{tk}<%.2f#circ;d_{xy};tracks",etaF,etaL,phiF,phiL),
-							    mybins_,-dzmax_eta,dzmax_eta);
+							    theDetails_.histobins,-dzmax_eta,dzmax_eta);
       
       a_dzResidualsMap[i][j]  = AbsDoubleDiffRes.make<TH1F>(Form("histo_dz_eta_plot%i_phi_plot%i",i,j),
 							    Form("%.2f<#eta_{tk}<%.2f %.2f#circ<#varphi_{tk}<%.2f#circ;d_{z};tracks",etaF,etaL,phiF,phiL),
-							    mybins_,-dzmax_eta,dzmax_eta);
+							    theDetails_.histobins,-dzmax_eta,dzmax_eta);
       
       a_d3DResidualsMap[i][j] = AbsDoubleDiffRes.make<TH1F>(Form("histo_d3D_eta_plot%i_phi_plot%i",i,j),
 							    Form("%.2f<#eta_{tk}<%.2f %.2f#circ<#varphi_{tk}<%.2f#circ;d_{3D};tracks",etaF,etaL,phiF,phiL),
-							    mybins_,0.,d3Dmax_eta);
+							    theDetails_.histobins,0.,d3Dmax_eta);
       
       n_dxyResidualsMap[i][j] = NormDoubleDiffRes.make<TH1F>(Form("histo_norm_dxy_eta_plot%i_phi_plot%i",i,j),
 							     Form("%.2f<#eta_{tk}<%.2f %.2f#circ<#varphi_{tk}<%.2f#circ;d_{xy}/#sigma_{d_{xy}};tracks",etaF,etaL,phiF,phiL),
-							     mybins_,-dzmax_eta/100,dzmax_eta/100);
+							     theDetails_.histobins,-dzmax_eta/100,dzmax_eta/100);
 
       n_dzResidualsMap[i][j]  = NormDoubleDiffRes.make<TH1F>(Form("histo_norm_dz_eta_plot%i_phi_plot%i",i,j),
 							     Form("%.2f<#eta_{tk}<%.2f %.2f#circ<#varphi_{tk}<%.2f#circ;d_{z}/#sigma_{d_{z}};tracks",etaF,etaL,phiF,phiL),
-							     mybins_,-dzmax_eta/100,dzmax_eta/100);
+							     theDetails_.histobins,-dzmax_eta/100,dzmax_eta/100);
 
       n_d3DResidualsMap[i][j] = NormDoubleDiffRes.make<TH1F>(Form("histo_norm_d3D_eta_plot%i_phi_plot%i",i,j),
 							     Form("%.2f<#eta_{tk}<%.2f %.2f#circ<#varphi_{tk}<%.2f#circ;d_{3D}/#sigma_{d_{3D}};tracks",etaF,etaL,phiF,phiL),
-							     mybins_,0.,d3Dmax_eta);
+							     theDetails_.histobins,0.,d3Dmax_eta);
 
     }
   }
@@ -1364,39 +1562,39 @@ void PrimaryVertexValidation::beginJob()
   TFileDirectory BiasVsParameter = fs->mkdir("BiasVsParameter");
 
   a_dxyVsPhi = BiasVsParameter.make<TH2F>("h2_dxy_vs_phi","d_{xy} vs track #phi;track #phi [rad];track d_{xy}(PV) [#mum]",
-					  48,-TMath::Pi(),TMath::Pi(),mybins_,-dxymax_phi,dxymax_phi); 
+					  nBins_,-M_PI,M_PI,theDetails_.histobins,-dxymax_phi,dxymax_phi); 
  
   a_dzVsPhi  = BiasVsParameter.make<TH2F>("h2_dz_vs_phi","d_{z} vs track #phi;track #phi [rad];track d_{z}(PV) [#mum]",
-					  48,-TMath::Pi(),TMath::Pi(),mybins_,-dzmax_phi,dzmax_phi);   
+					  nBins_,-M_PI,M_PI,theDetails_.histobins,-dzmax_phi,dzmax_phi);   
                
   n_dxyVsPhi = BiasVsParameter.make<TH2F>("h2_n_dxy_vs_phi","d_{xy}/#sigma_{d_{xy}} vs track #phi;track #phi [rad];track d_{xy}(PV)/#sigma_{d_{xy}}",
-					  48,-TMath::Pi(),TMath::Pi(),mybins_,-dxymax_phi/100.,dxymax_phi/100.); 
+					  nBins_,-M_PI,M_PI,theDetails_.histobins,-dxymax_phi/100.,dxymax_phi/100.); 
   
   n_dzVsPhi  = BiasVsParameter.make<TH2F>("h2_n_dz_vs_phi","d_{z}/#sigma_{d_{z}} vs track #phi;track #phi [rad];track d_{z}(PV)/#sigma_{d_{z}}",
-					  48,-TMath::Pi(),TMath::Pi(),mybins_,-dzmax_phi/100.,dzmax_phi/100.);   
+					  nBins_,-M_PI,M_PI,theDetails_.histobins,-dzmax_phi/100.,dzmax_phi/100.);   
                
   a_dxyVsEta = BiasVsParameter.make<TH2F>("h2_dxy_vs_eta","d_{xy} vs track #eta;track #eta;track d_{xy}(PV) [#mum]",
-					  48,-etaOfProbe_,etaOfProbe_,mybins_,-dxymax_eta,dzmax_eta);
+					  nBins_,-etaOfProbe_,etaOfProbe_,theDetails_.histobins,-dxymax_eta,dzmax_eta);
   
   a_dzVsEta  = BiasVsParameter.make<TH2F>("h2_dz_vs_eta","d_{z} vs track #eta;track #eta;track d_{z}(PV) [#mum]",
-					  48,-etaOfProbe_,etaOfProbe_,mybins_,-dzmax_eta,dzmax_eta);   
+					  nBins_,-etaOfProbe_,etaOfProbe_,theDetails_.histobins,-dzmax_eta,dzmax_eta);   
                
   n_dxyVsEta = BiasVsParameter.make<TH2F>("h2_n_dxy_vs_eta","d_{xy}/#sigma_{d_{xy}} vs track #eta;track #eta;track d_{xy}(PV)/#sigma_{d_{xy}}",
-					  48,-etaOfProbe_,etaOfProbe_,mybins_,-dxymax_eta/100.,dxymax_eta/100.);  
+					  nBins_,-etaOfProbe_,etaOfProbe_,theDetails_.histobins,-dxymax_eta/100.,dxymax_eta/100.);  
 
   n_dzVsEta  = BiasVsParameter.make<TH2F>("h2_n_dz_vs_eta","d_{z}/#sigma_{d_{z}} vs track #eta;track #eta;track d_{z}(PV)/#sigma_{d_{z}}",
-					  48,-etaOfProbe_,etaOfProbe_,mybins_,-dzmax_eta/100.,dzmax_eta/100.);   
+					  nBins_,-etaOfProbe_,etaOfProbe_,theDetails_.histobins,-dzmax_eta/100.,dzmax_eta/100.);   
 
-  TFileDirectory MeanTrendsDir   = fs->mkdir("MeanTrends");
-  TFileDirectory WidthTrendsDir  = fs->mkdir("WidthTrends");
-  TFileDirectory MedianTrendsDir = fs->mkdir("MedianTrends");
-  TFileDirectory MADTrendsDir    = fs->mkdir("MADTrends");
+  MeanTrendsDir   = fs->mkdir("MeanTrends");
+  WidthTrendsDir  = fs->mkdir("WidthTrends");
+  MedianTrendsDir = fs->mkdir("MedianTrends");
+  MADTrendsDir    = fs->mkdir("MADTrends");
 
-  TFileDirectory Mean2DMapsDir   = fs->mkdir("MeanMaps");
-  TFileDirectory Width2DMapsDir  = fs->mkdir("WidthMaps");
+  Mean2DMapsDir   = fs->mkdir("MeanMaps");
+  Width2DMapsDir  = fs->mkdir("WidthMaps");
 
-  Double_t highedge=nBins_-0.5;
-  Double_t lowedge=-0.5;
+  double highedge=nBins_-0.5;
+  double lowedge=-0.5;
 
   // means and widths from the fit
 
@@ -1463,6 +1661,73 @@ void PrimaryVertexValidation::beginJob()
 						 "width(d_{z}/#sigma_{d_{z}}) vs #eta sector;#eta (sector);width(d_{z}/#sigma_{d_{z}})",
 						 nBins_,lowedge,highedge);                        
   
+  // means and widhts vs pT and pTCentral
+  
+  a_dxypTMeanTrend  = MeanTrendsDir.make<TH1F> ("means_dxy_pT",
+						"#LT d_{xy} #GT vs pT;p_{T} [GeV];#LT d_{xy} #GT [#mum]",
+						mypT_bins_.size()-1,mypT_bins_.data()); 
+  
+  a_dxypTWidthTrend = WidthTrendsDir.make<TH1F>("widths_dxy_pT",
+						"#sigma_{d_{xy}} vs pT;p_{T} [GeV];#sigma_{d_{xy}} [#mum]",
+						mypT_bins_.size()-1,mypT_bins_.data());
+  
+  a_dzpTMeanTrend   = MeanTrendsDir.make<TH1F> ("means_dz_pT",
+						"#LT d_{z} #GT vs pT;p_{T} [GeV];#LT d_{z} #GT [#mum]",
+						mypT_bins_.size()-1,mypT_bins_.data()); 
+  
+  a_dzpTWidthTrend  = WidthTrendsDir.make<TH1F>("widths_dz_pT","#sigma_{d_{z}} vs pT;p_{T} [GeV];#sigma_{d_{z}} [#mum]",
+						mypT_bins_.size()-1,mypT_bins_.data());
+  
+  
+  n_dxypTMeanTrend  = MeanTrendsDir.make<TH1F> ("norm_means_dxy_pT",
+						"#LT d_{xy}/#sigma_{d_{xy}} #GT vs pT;p_{T} [GeV];#LT d_{xy}/#sigma_{d_{xy}} #GT",
+						mypT_bins_.size()-1,mypT_bins_.data());
+  
+  n_dxypTWidthTrend = WidthTrendsDir.make<TH1F>("norm_widths_dxy_pT",
+						"width(d_{xy}/#sigma_{d_{xy}}) vs pT;p_{T} [GeV]; width(d_{xy}/#sigma_{d_{xy}})",
+						mypT_bins_.size()-1,mypT_bins_.data());
+  
+  n_dzpTMeanTrend   = MeanTrendsDir.make<TH1F> ("norm_means_dz_pT",
+						"#LT d_{z}/#sigma_{d_{z}} #GT vs pT;p_{T} [GeV];#LT d_{z}/#sigma_{d_{z}} #GT",
+						mypT_bins_.size()-1,mypT_bins_.data()); 
+  
+  n_dzpTWidthTrend  = WidthTrendsDir.make<TH1F>("norm_widths_dz_pT",
+						"width(d_{z}/#sigma_{d_{z}}) vs pT;p_{T} [GeV];width(d_{z}/#sigma_{d_{z}})",
+						mypT_bins_.size()-1,mypT_bins_.data());
+
+
+  a_dxypTCentralMeanTrend  = MeanTrendsDir.make<TH1F> ("means_dxy_pTCentral",
+						       "#LT d_{xy} #GT vs p_{T};p_{T}(|#eta|<1.) [GeV];#LT d_{xy} #GT [#mum]",
+						       mypT_bins_.size()-1,mypT_bins_.data());
+  
+  a_dxypTCentralWidthTrend = WidthTrendsDir.make<TH1F>("widths_dxy_pTCentral",
+						       "#sigma_{d_{xy}} vs p_{T};p_{T}(|#eta|<1.) [GeV];#sigma_{d_{xy}} [#mum]",
+						       mypT_bins_.size()-1,mypT_bins_.data());
+  
+  a_dzpTCentralMeanTrend   = MeanTrendsDir.make<TH1F> ("means_dz_pTCentral",
+						       "#LT d_{z} #GT vs p_{T};p_{T}(|#eta|<1.) [GeV];#LT d_{z} #GT [#mum]"
+						       ,mypT_bins_.size()-1,mypT_bins_.data()); 
+  
+  a_dzpTCentralWidthTrend  = WidthTrendsDir.make<TH1F>("widths_dz_pTCentral",
+						       "#sigma_{d_{z}} vs p_{T};p_{T}(|#eta|<1.) [GeV];#sigma_{d_{z}} [#mum]",
+						       mypT_bins_.size()-1,mypT_bins_.data());
+  
+  n_dxypTCentralMeanTrend  = MeanTrendsDir.make<TH1F> ("norm_means_dxy_pTCentral",
+						       "#LT d_{xy}/#sigma_{d_{xy}} #GT vs p_{T};p_{T}(|#eta|<1.) [GeV];#LT d_{xy}/#sigma_{d_{z}} #GT",
+						       mypT_bins_.size()-1,mypT_bins_.data());
+  
+  n_dxypTCentralWidthTrend = WidthTrendsDir.make<TH1F>("norm_widths_dxy_pTCentral",
+						       "width(d_{xy}/#sigma_{d_{xy}}) vs p_{T};p_{T}(|#eta|<1.) [GeV];width(d_{xy}/#sigma_{d_{z}})",
+						       mypT_bins_.size()-1,mypT_bins_.data());
+  
+  n_dzpTCentralMeanTrend   = MeanTrendsDir.make<TH1F> ("norm_means_dz_pTCentral",
+						       "#LT d_{z}/#sigma_{d_{z}} #GT vs p_{T};p_{T}(|#eta|<1.) [GeV];#LT d_{z}/#sigma_{d_{z}} #GT",
+						       mypT_bins_.size()-1,mypT_bins_.data());  
+  
+  n_dzpTCentralWidthTrend  = WidthTrendsDir.make<TH1F>("norm_widths_dz_pTCentral",
+						       "width(d_{z}/#sigma_{d_{z}}) vs p_{T};p_{T}(|#eta|<1.) [GeV];width(d_{z}/#sigma_{d_{z}})",
+						       mypT_bins_.size()-1,mypT_bins_.data()); 
+
   // 2D maps
 
   a_dxyMeanMap       =  Mean2DMapsDir.make<TH2F>  ("means_dxy_map",
@@ -1574,77 +1839,57 @@ void PrimaryVertexValidation::beginJob()
   if (useTracksFromRecoVtx_){
 
     TFileDirectory AbsTransPhiBiasRes  = fs->mkdir("Abs_Transv_Phi_BiasResiduals");
+    a_dxyPhiBiasResiduals  = bookResidualsHistogram(AbsTransPhiBiasRes,nBins_,PVValHelper::dxy,PVValHelper::phi);
+
     TFileDirectory AbsTransEtaBiasRes  = fs->mkdir("Abs_Transv_Eta_BiasResiduals");
-    
+    a_dxyEtaBiasResiduals  = bookResidualsHistogram(AbsTransEtaBiasRes,nBins_,PVValHelper::dxy,PVValHelper::eta);
+
     TFileDirectory AbsLongPhiBiasRes   = fs->mkdir("Abs_Long_Phi_BiasResiduals");
+    a_dzPhiBiasResiduals  = bookResidualsHistogram(AbsLongPhiBiasRes,nBins_,PVValHelper::dz,PVValHelper::phi);
+						    
     TFileDirectory AbsLongEtaBiasRes   = fs->mkdir("Abs_Long_Eta_BiasResiduals");
+    a_dzEtaBiasResiduals  = bookResidualsHistogram(AbsLongEtaBiasRes,nBins_,PVValHelper::dz,PVValHelper::eta);
     
     TFileDirectory NormTransPhiBiasRes = fs->mkdir("Norm_Transv_Phi_BiasResiduals");
+    n_dxyPhiBiasResiduals  = bookResidualsHistogram(NormTransPhiBiasRes,nBins_,PVValHelper::dxy,PVValHelper::phi);
+    
     TFileDirectory NormTransEtaBiasRes = fs->mkdir("Norm_Transv_Eta_BiasResiduals");
+    n_dxyEtaBiasResiduals  = bookResidualsHistogram(NormTransEtaBiasRes,nBins_,PVValHelper::dxy,PVValHelper::eta);
     
     TFileDirectory NormLongPhiBiasRes  = fs->mkdir("Norm_Long_Phi_BiasResiduals");
+    n_dzPhiBiasResiduals  = bookResidualsHistogram(NormLongPhiBiasRes,nBins_,PVValHelper::dz,PVValHelper::phi);
+
     TFileDirectory NormLongEtaBiasRes  = fs->mkdir("Norm_Long_Eta_BiasResiduals");
+    n_dzEtaBiasResiduals  = bookResidualsHistogram(NormLongEtaBiasRes,nBins_,PVValHelper::dz,PVValHelper::eta);
     
     TFileDirectory AbsDoubleDiffBiasRes   = fs->mkdir("Abs_DoubleDiffBiasResiduals");
     TFileDirectory NormDoubleDiffBiasRes  = fs->mkdir("Norm_DoubleDiffBiasResiduals");
     
     for ( int i=0; i<nBins_; ++i ) {
-      
-      float phiF = (-TMath::Pi()+i*phiSect_)*(180/TMath::Pi());
-      float phiL = (-TMath::Pi()+(i+1)*phiSect_)*(180/TMath::Pi());
-      
-      float etaF=-etaOfProbe_+i*etaSect_;
-      float etaL=-etaOfProbe_+(i+1)*etaSect_;
-      
-      a_dxyPhiBiasResiduals[i] = AbsTransPhiBiasRes.make<TH1F>(Form("histo_dxy_phi_plot%i",i),
-							       Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{xy} [#mum];tracks",phiF,phiL),
-							       mybins_,-dxymax_phi,dxymax_phi);
-
-      a_dxyEtaBiasResiduals[i] = AbsTransEtaBiasRes.make<TH1F>(Form("histo_dxy_eta_plot%i",i),
-							       Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{xy} [#mum];tracks",etaF,etaL),
-							       mybins_,-dxymax_eta,dxymax_eta);
-      
-      a_dzPhiBiasResiduals[i]  = AbsLongPhiBiasRes.make<TH1F>(Form("histo_dz_phi_plot%i",i),
-							      Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f #circ;d_{z} [#mum];tracks",phiF,phiL),
-							      mybins_,-dzmax_phi,dzmax_phi);
-
-      a_dzEtaBiasResiduals[i]  = AbsLongEtaBiasRes.make<TH1F>(Form("histo_dz_eta_plot%i",i),
-							      Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{z} [#mum];tracks",etaF,etaL),
-							      mybins_,-dzmax_eta,dzmax_eta);
-      
-      n_dxyPhiBiasResiduals[i] = NormTransPhiBiasRes.make<TH1F>(Form("histo_norm_dxy_phi_plot%i",i),
-								Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{xy}/#sigma_{d_{xy}};tracks",phiF,phiL),
-								mybins_,-dxymax_phi/100.,dxymax_phi/100.);
-
-      n_dxyEtaBiasResiduals[i] = NormTransEtaBiasRes.make<TH1F>(Form("histo_norm_dxy_eta_plot%i",i),
-								Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{xy}/#sigma_{d_{xy}};tracks",etaF,etaL),
-								mybins_,-dxymax_eta/100.,dxymax_eta/100.);
-      
-      n_dzPhiBiasResiduals[i]  = NormLongPhiBiasRes.make<TH1F>(Form("histo_norm_dz_phi_plot%i",i),
-							       Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{z}/#sigma_{d_{z}};tracks",phiF,phiL),
-							       mybins_,-dzmax_phi/100.,dzmax_phi/100.);
-
-      n_dzEtaBiasResiduals[i]  = NormLongEtaBiasRes.make<TH1F>(Form("histo_norm_dz_eta_plot%i",i),
-							       Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{z}/#sigma_{d_{z}};tracks",etaF,etaL),
-							       mybins_,-dzmax_eta/100.,dzmax_eta/100.);
+         
+      float phiF = theDetails_.trendbins[PVValHelper::phi][i];
+      float phiL = theDetails_.trendbins[PVValHelper::phi][i+1];
       
       for ( int j=0; j<nBins_; ++j ) {
-	
+
+	float etaF = theDetails_.trendbins[PVValHelper::eta][j];
+	float etaL = theDetails_.trendbins[PVValHelper::eta][j+1];
+
 	a_dxyBiasResidualsMap[i][j] = AbsDoubleDiffBiasRes.make<TH1F>(Form("histo_dxy_eta_plot%i_phi_plot%i",i,j),
 								      Form("%.2f<#eta_{tk}<%.2f %.2f#circ<#varphi_{tk}<%.2f#circ;d_{xy} [#mum];tracks",etaF,etaL,phiF,phiL),
-								      mybins_,-dzmax_eta,dzmax_eta);
+								      theDetails_.histobins,-dzmax_eta,dzmax_eta);
 	
 	a_dzBiasResidualsMap[i][j]  = AbsDoubleDiffBiasRes.make<TH1F>(Form("histo_dxy_eta_plot%i_phi_plot%i",i,j),
 								      Form("%.2f<#eta_{tk}<%.2f %.2f#circ<#varphi_{tk}<%.2f#circ;d_{z} [#mum];tracks",etaF,etaL,phiF,phiL),
-								      mybins_,-dzmax_eta,dzmax_eta);
+								      theDetails_.histobins,-dzmax_eta,dzmax_eta);
 	
 	n_dxyBiasResidualsMap[i][j] = NormDoubleDiffBiasRes.make<TH1F>(Form("histo_norm_dxy_eta_plot%i_phi_plot%i",i,j),
 								       Form("%.2f<#eta_{tk}<%.2f %.2f#circ<#varphi_{tk}<%.2f#circ;d_{xy}/#sigma_{d_{xy}};tracks",etaF,etaL,phiF,phiL),
-								       mybins_,-dzmax_eta/100,dzmax_eta/100);
+								       theDetails_.histobins,-dzmax_eta/100,dzmax_eta/100);
 
 	n_dzBiasResidualsMap[i][j]  = NormDoubleDiffBiasRes.make<TH1F>(Form("histo_norm_dxy_eta_plot%i_phi_plot%i",i,j),
 								       Form("%.2f<#eta_{tk}<%.2f %.2f#circ<#varphi_{tk}<%.2f#circ;d_{z}/#sigma_{d_{z}};tracks",etaF,etaL,phiF,phiL),
-								       mybins_,-dzmax_eta/100,dzmax_eta/100);
+								       theDetails_.histobins,-dzmax_eta/100,dzmax_eta/100);
       }
     }
     
@@ -1836,120 +2081,245 @@ void PrimaryVertexValidation::endJob()
     <<"# Number of analyzed events: "<<Nevt_<<"\n"
     <<"######################################";
 
+  // means and widhts vs ladder and module number
+  
+  a_dxymodZMeanTrend  = MeanTrendsDir.make<TH1F> ("means_dxy_modZ",
+						  "#LT d_{xy} #GT vs modZ;module number (Z);#LT d_{xy} #GT [#mum]",
+						  nModZ_,0.,nModZ_); 
+  
+  a_dxymodZWidthTrend = WidthTrendsDir.make<TH1F>("widths_dxy_modZ",
+						  "#sigma_{d_{xy}} vs modZ;module number (Z);#sigma_{d_{xy}} [#mum]",
+						  nModZ_,0.,nModZ_);
+  
+  a_dzmodZMeanTrend   = MeanTrendsDir.make<TH1F> ("means_dz_modZ",
+						  "#LT d_{z} #GT vs modZ;module number (Z);#LT d_{z} #GT [#mum]",
+						  nModZ_,0.,nModZ_); 
+  
+  a_dzmodZWidthTrend  = WidthTrendsDir.make<TH1F>("widths_dz_modZ",
+						  "#sigma_{d_{z}} vs modZ;module number (Z);#sigma_{d_{z}} [#mum]",
+						  nModZ_,0.,nModZ_);
+ 
+  a_dxyladderMeanTrend  = MeanTrendsDir.make<TH1F> ("means_dxy_ladder",
+						    "#LT d_{xy} #GT vs ladder;ladder number (#phi);#LT d_{xy} #GT [#mum]",
+						    nLadders_,0.,nLadders_);
+  
+  a_dxyladderWidthTrend = WidthTrendsDir.make<TH1F>("widths_dxy_ladder",
+						    "#sigma_{d_{xy}} vs ladder;ladder number (#phi);#sigma_{d_{xy}} [#mum]",
+						    nLadders_,0.,nLadders_);
+  
+  a_dzladderMeanTrend   = MeanTrendsDir.make<TH1F> ("means_dz_ladder",
+						    "#LT d_{z} #GT vs ladder;ladder number (#phi);#LT d_{z} #GT [#mum]"
+						    ,nLadders_,0.,nLadders_); 
+  
+  a_dzladderWidthTrend  = WidthTrendsDir.make<TH1F>("widths_dz_ladder",
+						    "#sigma_{d_{z}} vs ladder;ladder number (#phi);#sigma_{d_{z}} [#mum]",
+						    nLadders_,0.,nLadders_);
+  
+  n_dxymodZMeanTrend  = MeanTrendsDir.make<TH1F> ("norm_means_dxy_modZ",
+						  "#LT d_{xy}/#sigma_{d_{xy}} #GT vs modZ;module number (Z);#LT d_{xy}/#sigma_{d_{xy}} #GT",
+						  nModZ_,0.,nModZ_);
+  
+  n_dxymodZWidthTrend = WidthTrendsDir.make<TH1F>("norm_widths_dxy_modZ",
+						  "width(d_{xy}/#sigma_{d_{xy}}) vs modZ;module number (Z); width(d_{xy}/#sigma_{d_{xy}})",
+						  nModZ_,0.,nModZ_);
+  
+  n_dzmodZMeanTrend   = MeanTrendsDir.make<TH1F> ("norm_means_dz_modZ",
+						  "#LT d_{z}/#sigma_{d_{z}} #GT vs modZ;module number (Z);#LT d_{z}/#sigma_{d_{z}} #GT",
+						  nModZ_,0.,nModZ_); 
+  
+  n_dzmodZWidthTrend  = WidthTrendsDir.make<TH1F>("norm_widths_dz_modZ",
+						  "width(d_{z}/#sigma_{d_{z}}) vs pT;module number (Z);width(d_{z}/#sigma_{d_{z}})",
+						  nModZ_,0.,nModZ_);
+  
+  n_dxyladderMeanTrend  = MeanTrendsDir.make<TH1F> ("norm_means_dxy_ladder",
+						    "#LT d_{xy}/#sigma_{d_{xy}} #GT vs ladder;ladder number (#phi);#LT d_{xy}/#sigma_{d_{z}} #GT",
+						    nLadders_,0.,nLadders_);
+  
+  n_dxyladderWidthTrend = WidthTrendsDir.make<TH1F>("norm_widths_dxy_ladder",
+						    "width(d_{xy}/#sigma_{d_{xy}}) vs ladder;ladder number (#phi);width(d_{xy}/#sigma_{d_{z}})",
+						    nLadders_,0.,nLadders_);
+  
+  n_dzladderMeanTrend   = MeanTrendsDir.make<TH1F> ("norm_means_dz_ladder",
+						    "#LT d_{z}/#sigma_{d_{z}} #GT vs ladder;ladder number (#phi);#LT d_{z}/#sigma_{d_{z}} #GT",
+						    nLadders_,0.,nLadders_);  
+  
+  n_dzladderWidthTrend  = WidthTrendsDir.make<TH1F>("norm_widths_dz_ladder",
+						    "width(d_{z}/#sigma_{d_{z}}) vs ladder;ladder number (#phi);width(d_{z}/#sigma_{d_{z}})",
+						    nLadders_,0.,nLadders_); 
+
   if(useTracksFromRecoVtx_){
 
-    fillTrendPlot(a_dxyPhiMeanBiasTrend ,a_dxyPhiBiasResiduals,"mean","phi");  
-    fillTrendPlot(a_dxyPhiWidthBiasTrend,a_dxyPhiBiasResiduals,"width","phi");
-    fillTrendPlot(a_dzPhiMeanBiasTrend  ,a_dzPhiBiasResiduals ,"mean","phi");   
-    fillTrendPlot(a_dzPhiWidthBiasTrend ,a_dzPhiBiasResiduals ,"width","phi");  
+    fillTrendPlotByIndex(a_dxyPhiMeanBiasTrend ,a_dxyPhiBiasResiduals,PVValHelper::MEAN,PVValHelper::phi);  
+    fillTrendPlotByIndex(a_dxyPhiWidthBiasTrend,a_dxyPhiBiasResiduals,PVValHelper::WIDTH,PVValHelper::phi);
+    fillTrendPlotByIndex(a_dzPhiMeanBiasTrend  ,a_dzPhiBiasResiduals ,PVValHelper::MEAN,PVValHelper::phi);   
+    fillTrendPlotByIndex(a_dzPhiWidthBiasTrend ,a_dzPhiBiasResiduals ,PVValHelper::WIDTH,PVValHelper::phi);  
     
-    fillTrendPlot(a_dxyEtaMeanBiasTrend ,a_dxyEtaBiasResiduals,"mean","eta"); 
-    fillTrendPlot(a_dxyEtaWidthBiasTrend,a_dxyEtaBiasResiduals,"width","eta");
-    fillTrendPlot(a_dzEtaMeanBiasTrend  ,a_dzEtaBiasResiduals ,"mean","eta"); 
-    fillTrendPlot(a_dzEtaWidthBiasTrend ,a_dzEtaBiasResiduals ,"width","eta");
+    fillTrendPlotByIndex(a_dxyEtaMeanBiasTrend ,a_dxyEtaBiasResiduals,PVValHelper::MEAN,PVValHelper::eta); 
+    fillTrendPlotByIndex(a_dxyEtaWidthBiasTrend,a_dxyEtaBiasResiduals,PVValHelper::WIDTH,PVValHelper::eta);
+    fillTrendPlotByIndex(a_dzEtaMeanBiasTrend  ,a_dzEtaBiasResiduals ,PVValHelper::MEAN,PVValHelper::eta); 
+    fillTrendPlotByIndex(a_dzEtaWidthBiasTrend ,a_dzEtaBiasResiduals ,PVValHelper::WIDTH,PVValHelper::eta);
     
-    fillTrendPlot(n_dxyPhiMeanBiasTrend ,n_dxyPhiBiasResiduals,"mean","phi"); 
-    fillTrendPlot(n_dxyPhiWidthBiasTrend,n_dxyPhiBiasResiduals,"width","phi");
-    fillTrendPlot(n_dzPhiMeanBiasTrend  ,n_dzPhiBiasResiduals ,"mean","phi"); 
-    fillTrendPlot(n_dzPhiWidthBiasTrend ,n_dzPhiBiasResiduals ,"width","phi");
+    fillTrendPlotByIndex(n_dxyPhiMeanBiasTrend ,n_dxyPhiBiasResiduals,PVValHelper::MEAN,PVValHelper::phi); 
+    fillTrendPlotByIndex(n_dxyPhiWidthBiasTrend,n_dxyPhiBiasResiduals,PVValHelper::WIDTH,PVValHelper::phi);
+    fillTrendPlotByIndex(n_dzPhiMeanBiasTrend  ,n_dzPhiBiasResiduals ,PVValHelper::MEAN,PVValHelper::phi); 
+    fillTrendPlotByIndex(n_dzPhiWidthBiasTrend ,n_dzPhiBiasResiduals ,PVValHelper::WIDTH,PVValHelper::phi);
     
-    fillTrendPlot(n_dxyEtaMeanBiasTrend ,n_dxyEtaBiasResiduals,"mean","eta"); 
-    fillTrendPlot(n_dxyEtaWidthBiasTrend,n_dxyEtaBiasResiduals,"width","eta");
-    fillTrendPlot(n_dzEtaMeanBiasTrend  ,n_dzEtaBiasResiduals ,"mean","eta"); 
-    fillTrendPlot(n_dzEtaWidthBiasTrend ,n_dzEtaBiasResiduals ,"width","eta");
+    fillTrendPlotByIndex(n_dxyEtaMeanBiasTrend ,n_dxyEtaBiasResiduals,PVValHelper::MEAN,PVValHelper::eta); 
+    fillTrendPlotByIndex(n_dxyEtaWidthBiasTrend,n_dxyEtaBiasResiduals,PVValHelper::WIDTH,PVValHelper::eta);
+    fillTrendPlotByIndex(n_dzEtaMeanBiasTrend  ,n_dzEtaBiasResiduals ,PVValHelper::MEAN,PVValHelper::eta); 
+    fillTrendPlotByIndex(n_dzEtaWidthBiasTrend ,n_dzEtaBiasResiduals ,PVValHelper::WIDTH,PVValHelper::eta);
     
     // medians and MADs	  
     
-    fillTrendPlot(a_dxyPhiMedianBiasTrend,a_dxyPhiBiasResiduals,"median","phi");  
-    fillTrendPlot(a_dxyPhiMADBiasTrend   ,a_dxyPhiBiasResiduals,"mad","phi"); 
-    fillTrendPlot(a_dzPhiMedianBiasTrend ,a_dzPhiBiasResiduals ,"median","phi");  
-    fillTrendPlot(a_dzPhiMADBiasTrend    ,a_dzPhiBiasResiduals ,"mad","phi"); 
+    fillTrendPlotByIndex(a_dxyPhiMedianBiasTrend,a_dxyPhiBiasResiduals,PVValHelper::MEDIAN,PVValHelper::phi);  
+    fillTrendPlotByIndex(a_dxyPhiMADBiasTrend   ,a_dxyPhiBiasResiduals,PVValHelper::MAD,PVValHelper::phi); 
+    fillTrendPlotByIndex(a_dzPhiMedianBiasTrend ,a_dzPhiBiasResiduals ,PVValHelper::MEDIAN,PVValHelper::phi);  
+    fillTrendPlotByIndex(a_dzPhiMADBiasTrend    ,a_dzPhiBiasResiduals ,PVValHelper::MAD,PVValHelper::phi); 
     
-    fillTrendPlot(a_dxyEtaMedianBiasTrend,a_dxyEtaBiasResiduals,"median","eta");  
-    fillTrendPlot(a_dxyEtaMADBiasTrend   ,a_dxyEtaBiasResiduals,"mad","eta"); 
-    fillTrendPlot(a_dzEtaMedianBiasTrend ,a_dzEtaBiasResiduals ,"median","eta");  
-    fillTrendPlot(a_dzEtaMADBiasTrend    ,a_dzEtaBiasResiduals ,"mad","eta"); 
+    fillTrendPlotByIndex(a_dxyEtaMedianBiasTrend,a_dxyEtaBiasResiduals,PVValHelper::MEDIAN,PVValHelper::eta);  
+    fillTrendPlotByIndex(a_dxyEtaMADBiasTrend   ,a_dxyEtaBiasResiduals,PVValHelper::MAD,PVValHelper::eta); 
+    fillTrendPlotByIndex(a_dzEtaMedianBiasTrend ,a_dzEtaBiasResiduals ,PVValHelper::MEDIAN,PVValHelper::eta);  
+    fillTrendPlotByIndex(a_dzEtaMADBiasTrend    ,a_dzEtaBiasResiduals ,PVValHelper::MAD,PVValHelper::eta); 
     
-    fillTrendPlot(n_dxyPhiMedianBiasTrend,n_dxyPhiBiasResiduals,"median","phi");  
-    fillTrendPlot(n_dxyPhiMADBiasTrend   ,n_dxyPhiBiasResiduals,"mad","phi"); 
-    fillTrendPlot(n_dzPhiMedianBiasTrend ,n_dzPhiBiasResiduals ,"median","phi");  
-    fillTrendPlot(n_dzPhiMADBiasTrend    ,n_dzPhiBiasResiduals ,"mad","phi"); 
+    fillTrendPlotByIndex(n_dxyPhiMedianBiasTrend,n_dxyPhiBiasResiduals,PVValHelper::MEDIAN,PVValHelper::phi);  
+    fillTrendPlotByIndex(n_dxyPhiMADBiasTrend   ,n_dxyPhiBiasResiduals,PVValHelper::MAD,PVValHelper::phi); 
+    fillTrendPlotByIndex(n_dzPhiMedianBiasTrend ,n_dzPhiBiasResiduals ,PVValHelper::MEDIAN,PVValHelper::phi);  
+    fillTrendPlotByIndex(n_dzPhiMADBiasTrend    ,n_dzPhiBiasResiduals ,PVValHelper::MAD,PVValHelper::phi); 
     
-    fillTrendPlot(n_dxyEtaMedianBiasTrend,n_dxyEtaBiasResiduals,"median","eta");  
-    fillTrendPlot(n_dxyEtaMADBiasTrend   ,n_dxyEtaBiasResiduals,"mad","eta"); 
-    fillTrendPlot(n_dzEtaMedianBiasTrend ,n_dzEtaBiasResiduals ,"median","eta");  
-    fillTrendPlot(n_dzEtaMADBiasTrend    ,n_dzEtaBiasResiduals ,"mad","eta"); 
+    fillTrendPlotByIndex(n_dxyEtaMedianBiasTrend,n_dxyEtaBiasResiduals,PVValHelper::MEDIAN,PVValHelper::eta);  
+    fillTrendPlotByIndex(n_dxyEtaMADBiasTrend   ,n_dxyEtaBiasResiduals,PVValHelper::MAD,PVValHelper::eta); 
+    fillTrendPlotByIndex(n_dzEtaMedianBiasTrend ,n_dzEtaBiasResiduals ,PVValHelper::MEDIAN,PVValHelper::eta);  
+    fillTrendPlotByIndex(n_dzEtaMADBiasTrend    ,n_dzEtaBiasResiduals ,PVValHelper::MAD,PVValHelper::eta); 
    
     // 2d Maps
 
-    fillMap(a_dxyMeanBiasMap ,a_dxyBiasResidualsMap,"mean"); 
-    fillMap(a_dxyWidthBiasMap,a_dxyBiasResidualsMap,"width");
-    fillMap(a_dzMeanBiasMap  ,a_dzBiasResidualsMap,"mean"); 
-    fillMap(a_dzWidthBiasMap ,a_dzBiasResidualsMap,"width");
+    fillMap(a_dxyMeanBiasMap ,a_dxyBiasResidualsMap,PVValHelper::MEAN); 
+    fillMap(a_dxyWidthBiasMap,a_dxyBiasResidualsMap,PVValHelper::WIDTH);
+    fillMap(a_dzMeanBiasMap  ,a_dzBiasResidualsMap,PVValHelper::MEAN); 
+    fillMap(a_dzWidthBiasMap ,a_dzBiasResidualsMap,PVValHelper::WIDTH);
 
-    fillMap(n_dxyMeanBiasMap ,n_dxyBiasResidualsMap,"mean"); 
-    fillMap(n_dxyWidthBiasMap,n_dxyBiasResidualsMap,"width");
-    fillMap(n_dzMeanBiasMap  ,n_dzBiasResidualsMap,"mean"); 
-    fillMap(n_dzWidthBiasMap ,n_dzBiasResidualsMap,"width");
+    fillMap(n_dxyMeanBiasMap ,n_dxyBiasResidualsMap,PVValHelper::MEAN); 
+    fillMap(n_dxyWidthBiasMap,n_dxyBiasResidualsMap,PVValHelper::WIDTH);
+    fillMap(n_dzMeanBiasMap  ,n_dzBiasResidualsMap,PVValHelper::MEAN); 
+    fillMap(n_dzWidthBiasMap ,n_dzBiasResidualsMap,PVValHelper::WIDTH);
    
   }
 
   // do profiles
 
-  fillTrendPlot(a_dxyPhiMeanTrend ,a_dxyPhiResiduals,"mean","phi");  
-  fillTrendPlot(a_dxyPhiWidthTrend,a_dxyPhiResiduals,"width","phi");
-  fillTrendPlot(a_dzPhiMeanTrend  ,a_dzPhiResiduals ,"mean","phi");   
-  fillTrendPlot(a_dzPhiWidthTrend ,a_dzPhiResiduals ,"width","phi");  
+  fillTrendPlotByIndex(a_dxyPhiMeanTrend, a_dxyPhiResiduals,PVValHelper::MEAN,PVValHelper::phi);  
+  fillTrendPlotByIndex(a_dxyPhiWidthTrend,a_dxyPhiResiduals,PVValHelper::WIDTH,PVValHelper::phi);  
+  fillTrendPlotByIndex(a_dzPhiMeanTrend  ,a_dzPhiResiduals ,PVValHelper::MEAN,PVValHelper::phi);   
+  fillTrendPlotByIndex(a_dzPhiWidthTrend ,a_dzPhiResiduals ,PVValHelper::WIDTH,PVValHelper::phi);  
   
-  fillTrendPlot(a_dxyEtaMeanTrend ,a_dxyEtaResiduals,"mean","eta"); 
-  fillTrendPlot(a_dxyEtaWidthTrend,a_dxyEtaResiduals,"width","eta");
-  fillTrendPlot(a_dzEtaMeanTrend  ,a_dzEtaResiduals ,"mean","eta"); 
-  fillTrendPlot(a_dzEtaWidthTrend ,a_dzEtaResiduals ,"width","eta");
+  fillTrendPlotByIndex(a_dxyEtaMeanTrend ,a_dxyEtaResiduals,PVValHelper::MEAN,PVValHelper::eta); 
+  fillTrendPlotByIndex(a_dxyEtaWidthTrend,a_dxyEtaResiduals,PVValHelper::WIDTH,PVValHelper::eta);
+  fillTrendPlotByIndex(a_dzEtaMeanTrend  ,a_dzEtaResiduals ,PVValHelper::MEAN,PVValHelper::eta); 
+  fillTrendPlotByIndex(a_dzEtaWidthTrend ,a_dzEtaResiduals ,PVValHelper::WIDTH,PVValHelper::eta);
   
-  fillTrendPlot(n_dxyPhiMeanTrend ,n_dxyPhiResiduals,"mean","phi"); 
-  fillTrendPlot(n_dxyPhiWidthTrend,n_dxyPhiResiduals,"width","phi");
-  fillTrendPlot(n_dzPhiMeanTrend  ,n_dzPhiResiduals ,"mean","phi"); 
-  fillTrendPlot(n_dzPhiWidthTrend ,n_dzPhiResiduals ,"width","phi");
+  fillTrendPlotByIndex(n_dxyPhiMeanTrend ,n_dxyPhiResiduals,PVValHelper::MEAN,PVValHelper::phi); 
+  fillTrendPlotByIndex(n_dxyPhiWidthTrend,n_dxyPhiResiduals,PVValHelper::WIDTH,PVValHelper::phi);
+  fillTrendPlotByIndex(n_dzPhiMeanTrend  ,n_dzPhiResiduals ,PVValHelper::MEAN,PVValHelper::phi); 
+  fillTrendPlotByIndex(n_dzPhiWidthTrend ,n_dzPhiResiduals ,PVValHelper::WIDTH);
   
-  fillTrendPlot(n_dxyEtaMeanTrend ,n_dxyEtaResiduals,"mean","eta"); 
-  fillTrendPlot(n_dxyEtaWidthTrend,n_dxyEtaResiduals,"width","eta");
-  fillTrendPlot(n_dzEtaMeanTrend  ,n_dzEtaResiduals ,"mean","eta"); 
-  fillTrendPlot(n_dzEtaWidthTrend ,n_dzEtaResiduals ,"width","eta");
+  fillTrendPlotByIndex(n_dxyEtaMeanTrend ,n_dxyEtaResiduals,PVValHelper::MEAN,PVValHelper::eta); 
+  fillTrendPlotByIndex(n_dxyEtaWidthTrend,n_dxyEtaResiduals,PVValHelper::WIDTH,PVValHelper::eta);
+  fillTrendPlotByIndex(n_dzEtaMeanTrend  ,n_dzEtaResiduals ,PVValHelper::MEAN,PVValHelper::eta); 
+  fillTrendPlotByIndex(n_dzEtaWidthTrend ,n_dzEtaResiduals ,PVValHelper::WIDTH,PVValHelper::eta);
     
+  // vs transverse momentum
+
+  fillTrendPlotByIndex(a_dxypTMeanTrend ,h_dxy_pT_,PVValHelper::MEAN );  
+  fillTrendPlotByIndex(a_dxypTWidthTrend,h_dxy_pT_,PVValHelper::WIDTH);
+  fillTrendPlotByIndex(a_dzpTMeanTrend  ,h_dz_pT_ ,PVValHelper::MEAN );   
+  fillTrendPlotByIndex(a_dzpTWidthTrend ,h_dz_pT_ ,PVValHelper::WIDTH);  
+  
+  fillTrendPlotByIndex(a_dxypTCentralMeanTrend ,h_dxy_Central_pT_,PVValHelper::MEAN ); 
+  fillTrendPlotByIndex(a_dxypTCentralWidthTrend,h_dxy_Central_pT_,PVValHelper::WIDTH);
+  fillTrendPlotByIndex(a_dzpTCentralMeanTrend  ,h_dz_Central_pT_ ,PVValHelper::MEAN ); 
+  fillTrendPlotByIndex(a_dzpTCentralWidthTrend ,h_dz_Central_pT_ ,PVValHelper::WIDTH);
+  
+  fillTrendPlotByIndex(n_dxypTMeanTrend ,h_norm_dxy_pT_,PVValHelper::MEAN ); 
+  fillTrendPlotByIndex(n_dxypTWidthTrend,h_norm_dxy_pT_,PVValHelper::WIDTH);
+  fillTrendPlotByIndex(n_dzpTMeanTrend  ,h_norm_dz_pT_ ,PVValHelper::MEAN ); 
+  fillTrendPlotByIndex(n_dzpTWidthTrend ,h_norm_dz_pT_ ,PVValHelper::WIDTH);
+  
+  fillTrendPlotByIndex(n_dxypTCentralMeanTrend ,h_norm_dxy_Central_pT_,PVValHelper::MEAN ); 
+  fillTrendPlotByIndex(n_dxypTCentralWidthTrend,h_norm_dxy_Central_pT_,PVValHelper::WIDTH);
+  fillTrendPlotByIndex(n_dzpTCentralMeanTrend  ,h_norm_dz_Central_pT_ ,PVValHelper::MEAN ); 
+  fillTrendPlotByIndex(n_dzpTCentralWidthTrend ,h_norm_dz_Central_pT_ ,PVValHelper::WIDTH);
+
+  // vs ladder and module number
+
+  fillTrendPlotByIndex(a_dxymodZMeanTrend   ,h_dxy_modZ_,PVValHelper::MEAN);  
+  fillTrendPlotByIndex(a_dxymodZWidthTrend  ,h_dxy_modZ_,PVValHelper::WIDTH);
+  fillTrendPlotByIndex(a_dzmodZMeanTrend    ,h_dz_modZ_,PVValHelper::MEAN);   
+  fillTrendPlotByIndex(a_dzmodZWidthTrend   ,h_dz_modZ_,PVValHelper::WIDTH);  
+  		       		      
+  fillTrendPlotByIndex(a_dxyladderMeanTrend ,h_dxy_ladder_,PVValHelper::MEAN); 
+  fillTrendPlotByIndex(a_dxyladderWidthTrend,h_dxy_ladder_,PVValHelper::WIDTH);
+  fillTrendPlotByIndex(a_dzladderMeanTrend  ,h_dz_ladder_,PVValHelper::MEAN); 
+  fillTrendPlotByIndex(a_dzladderWidthTrend ,h_dz_ladder_,PVValHelper::WIDTH);
+  		       		      
+  fillTrendPlotByIndex(n_dxymodZMeanTrend   ,h_norm_dxy_modZ_,PVValHelper::MEAN); 
+  fillTrendPlotByIndex(n_dxymodZWidthTrend  ,h_norm_dxy_modZ_,PVValHelper::WIDTH);
+  fillTrendPlotByIndex(n_dzmodZMeanTrend    ,h_norm_dz_modZ_,PVValHelper::MEAN); 
+  fillTrendPlotByIndex(n_dzmodZWidthTrend   ,h_norm_dz_modZ_,PVValHelper::WIDTH);
+  		       		      
+  fillTrendPlotByIndex(n_dxyladderMeanTrend ,h_norm_dxy_ladder_,PVValHelper::MEAN); 
+  fillTrendPlotByIndex(n_dxyladderWidthTrend,h_norm_dxy_ladder_,PVValHelper::WIDTH);
+  fillTrendPlotByIndex(n_dzladderMeanTrend  ,h_norm_dz_ladder_,PVValHelper::MEAN); 
+  fillTrendPlotByIndex(n_dzladderWidthTrend ,h_norm_dz_ladder_,PVValHelper::WIDTH);
+
   // medians and MADs	  
   
-  fillTrendPlot(a_dxyPhiMedianTrend,a_dxyPhiResiduals,"median","phi");  
-  fillTrendPlot(a_dxyPhiMADTrend   ,a_dxyPhiResiduals,"mad","phi"); 
-  fillTrendPlot(a_dzPhiMedianTrend ,a_dzPhiResiduals ,"median","phi");  
-  fillTrendPlot(a_dzPhiMADTrend    ,a_dzPhiResiduals ,"mad","phi"); 
+  fillTrendPlotByIndex(a_dxyPhiMedianTrend,a_dxyPhiResiduals,PVValHelper::MEDIAN,PVValHelper::phi);
+  fillTrendPlotByIndex(a_dxyPhiMADTrend   ,a_dxyPhiResiduals,PVValHelper::MAD,PVValHelper::phi);   
   
-  fillTrendPlot(a_dxyEtaMedianTrend,a_dxyEtaResiduals,"median","eta");  
-  fillTrendPlot(a_dxyEtaMADTrend   ,a_dxyEtaResiduals,"mad","eta"); 
-  fillTrendPlot(a_dzEtaMedianTrend ,a_dzEtaResiduals ,"median","eta");  
-  fillTrendPlot(a_dzEtaMADTrend    ,a_dzEtaResiduals ,"mad","eta"); 
+  fillTrendPlotByIndex(a_dzPhiMedianTrend ,a_dzPhiResiduals ,PVValHelper::MEDIAN,PVValHelper::phi);  
+  fillTrendPlotByIndex(a_dzPhiMADTrend    ,a_dzPhiResiduals ,PVValHelper::MAD,PVValHelper::phi); 
   
-  fillTrendPlot(n_dxyPhiMedianTrend,n_dxyPhiResiduals,"median","phi");  
-  fillTrendPlot(n_dxyPhiMADTrend   ,n_dxyPhiResiduals,"mad","phi"); 
-  fillTrendPlot(n_dzPhiMedianTrend ,n_dzPhiResiduals ,"median","phi");  
-  fillTrendPlot(n_dzPhiMADTrend    ,n_dzPhiResiduals ,"mad","phi"); 
+  fillTrendPlotByIndex(a_dxyEtaMedianTrend,a_dxyEtaResiduals,PVValHelper::MEDIAN,PVValHelper::eta);  
+  fillTrendPlotByIndex(a_dxyEtaMADTrend   ,a_dxyEtaResiduals,PVValHelper::MAD,PVValHelper::eta); 
+  fillTrendPlotByIndex(a_dzEtaMedianTrend ,a_dzEtaResiduals ,PVValHelper::MEDIAN,PVValHelper::eta);  
+  fillTrendPlotByIndex(a_dzEtaMADTrend    ,a_dzEtaResiduals ,PVValHelper::MAD,PVValHelper::eta); 
   
-  fillTrendPlot(n_dxyEtaMedianTrend,n_dxyEtaResiduals,"median","eta");  
-  fillTrendPlot(n_dxyEtaMADTrend   ,n_dxyEtaResiduals,"mad","eta"); 
-  fillTrendPlot(n_dzEtaMedianTrend ,n_dzEtaResiduals ,"median","eta");  
-  fillTrendPlot(n_dzEtaMADTrend    ,n_dzEtaResiduals ,"mad","eta"); 
+  fillTrendPlotByIndex(n_dxyPhiMedianTrend,n_dxyPhiResiduals,PVValHelper::MEDIAN,PVValHelper::phi);  
+  fillTrendPlotByIndex(n_dxyPhiMADTrend   ,n_dxyPhiResiduals,PVValHelper::MAD,PVValHelper::phi); 
+  fillTrendPlotByIndex(n_dzPhiMedianTrend ,n_dzPhiResiduals ,PVValHelper::MEDIAN,PVValHelper::phi);  
+  fillTrendPlotByIndex(n_dzPhiMADTrend    ,n_dzPhiResiduals ,PVValHelper::MAD,PVValHelper::phi); 
+  
+  fillTrendPlotByIndex(n_dxyEtaMedianTrend,n_dxyEtaResiduals,PVValHelper::MEDIAN,PVValHelper::eta);  
+  fillTrendPlotByIndex(n_dxyEtaMADTrend   ,n_dxyEtaResiduals,PVValHelper::MAD,PVValHelper::eta); 
+  fillTrendPlotByIndex(n_dzEtaMedianTrend ,n_dzEtaResiduals ,PVValHelper::MEDIAN,PVValHelper::eta);  
+  fillTrendPlotByIndex(n_dzEtaMADTrend    ,n_dzEtaResiduals ,PVValHelper::MAD,PVValHelper::eta); 
     
   // 2D Maps
 
-  fillMap(a_dxyMeanMap ,a_dxyResidualsMap,"mean"); 
-  fillMap(a_dxyWidthMap,a_dxyResidualsMap,"width");
-  fillMap(a_dzMeanMap  ,a_dzResidualsMap,"mean"); 
-  fillMap(a_dzWidthMap ,a_dzResidualsMap,"width");
+  fillMap(a_dxyMeanMap ,a_dxyResidualsMap,PVValHelper::MEAN); 
+  fillMap(a_dxyWidthMap,a_dxyResidualsMap,PVValHelper::WIDTH);
+  fillMap(a_dzMeanMap  ,a_dzResidualsMap,PVValHelper::MEAN); 
+  fillMap(a_dzWidthMap ,a_dzResidualsMap,PVValHelper::WIDTH);
   
-  fillMap(n_dxyMeanMap ,n_dxyResidualsMap,"mean"); 
-  fillMap(n_dxyWidthMap,n_dxyResidualsMap,"width");
-  fillMap(n_dzMeanMap  ,n_dzResidualsMap,"mean"); 
-  fillMap(n_dzWidthMap ,n_dzResidualsMap,"width");
+  fillMap(n_dxyMeanMap ,n_dxyResidualsMap,PVValHelper::MEAN); 
+  fillMap(n_dxyWidthMap,n_dxyResidualsMap,PVValHelper::WIDTH);
+  fillMap(n_dzMeanMap  ,n_dzResidualsMap,PVValHelper::MEAN); 
+  fillMap(n_dzWidthMap ,n_dzResidualsMap,PVValHelper::WIDTH);
 
+}
+
+//*************************************************************
+bool PrimaryVertexValidation::isBFieldConsistentWithMode(const edm::EventSetup& iSetup) const
+//*************************************************************
+{
+  edm::ESHandle<RunInfo> runInfo;
+  iSetup.get<RunInfoRcd>().get(runInfo);
+  
+  double average_current = runInfo.product()->m_avg_current;
+  bool isOn = (average_current > 2000.);
+  bool is0T = (ptOfProbe_==0.);
+  
+  return ( (isOn && !is0T) || (!isOn && is0T) );
 }
 
 //*************************************************************
@@ -2028,202 +2398,193 @@ void PrimaryVertexValidation::SetVarToZero()
 }
 
 //*************************************************************
-std::pair<Double_t,Double_t> PrimaryVertexValidation::getMedian(TH1F *histo)
-//*************************************************************
-{
-  Double_t median = 999;
-  int nbins = histo->GetNbinsX();
-
-  //extract median from histogram
-  double *x = new double[nbins];
-  double *y = new double[nbins];
-  for (int j = 0; j < nbins; j++) {
-    x[j] = histo->GetBinCenter(j+1);
-    y[j] = histo->GetBinContent(j+1);
-  }
-  median = TMath::Median(nbins, x, y);
-  
-  delete[] x; x = 0;
-  delete[] y; y = 0;  
-
-  std::pair<Double_t,Double_t> result;
-  result = std::make_pair(median,median/TMath::Sqrt(histo->GetEntries()));
-
-  return result;
-
-}
-
-//*************************************************************
-std::pair<Double_t,Double_t> PrimaryVertexValidation::getMAD(TH1F *histo)
-//*************************************************************
-{
-
-  int nbins = histo->GetNbinsX();
-  Double_t median = getMedian(histo).first;
-  Double_t x_lastBin = histo->GetBinLowEdge(nbins+1);
-  const char *HistoName =histo->GetName();
-  TString Finalname = Form("resMed%s",HistoName);
-  TH1F *newHisto = new TH1F(Finalname,Finalname,nbins,0.,x_lastBin);
-  Double_t *residuals = new Double_t[nbins];
-  Double_t *weights = new Double_t[nbins];
-
-  for (int j = 0; j < nbins; j++) {
-    residuals[j] = TMath::Abs(median - histo->GetBinCenter(j+1));
-    weights[j]=histo->GetBinContent(j+1);
-    newHisto->Fill(residuals[j],weights[j]);
-  }
-  
-  Double_t theMAD = (getMedian(newHisto).first)*1.4826;
-  
-  delete[] residuals; residuals=0;
-  delete[] weights; weights=0;
-  newHisto->Delete("");
-  
-  std::pair<Double_t,Double_t> result;
-  result = std::make_pair(theMAD,theMAD/histo->GetEntries());
-
-  return result;
-
-}
-
-//*************************************************************
-std::pair<std::pair<Double_t,Double_t>, std::pair<Double_t,Double_t>  > PrimaryVertexValidation::fitResiduals(TH1 *hist)
-//*************************************************************
-{
-  //float fitResult(9999);
-  //if (hist->GetEntries() < 20) return ;
-  
-  float mean  = hist->GetMean();
-  float sigma = hist->GetRMS();
-  
-  TF1 func("tmp", "gaus", mean - 1.5*sigma, mean + 1.5*sigma); 
-  if (0 == hist->Fit(&func,"QNR")) { // N: do not blow up file by storing fit!
-    mean  = func.GetParameter(1);
-    sigma = func.GetParameter(2);
-    // second fit: three sigma of first fit around mean of first fit
-    func.SetRange(mean - 2*sigma, mean + 2*sigma);
-      // I: integral gives more correct results if binning is too wide
-      // L: Likelihood can treat empty bins correctly (if hist not weighted...)
-    if (0 == hist->Fit(&func, "Q0LR")) {
-      if (hist->GetFunction(func.GetName())) { // Take care that it is later on drawn:
-	hist->GetFunction(func.GetName())->ResetBit(TF1::kNotDraw);
-      }
-    }
-  }
-
-  float res_mean  = func.GetParameter(1);
-  float res_width = func.GetParameter(2);
-  
-  float res_mean_err  = func.GetParError(1);
-  float res_width_err = func.GetParError(2);
-
-  std::pair<Double_t,Double_t> resultM;
-  std::pair<Double_t,Double_t> resultW;
-
-  resultM = std::make_pair(res_mean,res_mean_err);
-  resultW = std::make_pair(res_width,res_width_err);
-
-  std::pair<std::pair<Double_t,Double_t>, std::pair<Double_t,Double_t>  > result;
-  
-  result = std::make_pair(resultM,resultW);
-  return result;
-}
-
-//*************************************************************
-void PrimaryVertexValidation::fillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot[100], TString fitPar_, TString var_)
+void PrimaryVertexValidation::fillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot[100], PVValHelper::estimator fitPar_, const std::string& var_)
 //*************************************************************
 {
    
   for ( int i=0; i<nBins_; ++i ) {
     
-    char phipositionString[129];
-    float phiInterval = phiSect_*(180/TMath::Pi());
-    float phiposition = (-180+i*phiInterval)+(phiInterval/2);
-    sprintf(phipositionString,"%.f",phiposition);
+    char phibincenter[129];
+    auto phiBins = theDetails_.trendbins[PVValHelper::phi];
+    sprintf(phibincenter,"%.f",(phiBins[i]+phiBins[i+1])/2.);
     
-    char etapositionString[129];
-    float etaposition = (-etaOfProbe_+i*etaSect_)+(etaSect_/2);
-    sprintf(etapositionString,"%.1f",etaposition);
-    
-    if(fitPar_=="mean"){
-      float mean_      = fitResiduals(residualsPlot[i]).first.first;
-      float meanErr_   = fitResiduals(residualsPlot[i]).first.second;
-      trendPlot->SetBinContent(i+1,mean_);
-      trendPlot->SetBinError(i+1,meanErr_);
-    } else if (fitPar_=="width"){
-      float width_     = fitResiduals(residualsPlot[i]).second.first;
-      float widthErr_  = fitResiduals(residualsPlot[i]).second.second;
-      trendPlot->SetBinContent(i+1,width_);
-      trendPlot->SetBinError(i+1,widthErr_);
-    } else if (fitPar_=="median"){
-      float median_    = getMedian(residualsPlot[i]).first;
-      float medianErr_ = getMedian(residualsPlot[i]).second;
-      trendPlot->SetBinContent(i+1,median_);
-      trendPlot->SetBinError(i+1,medianErr_);
-    } else if (fitPar_=="mad"){
-      float mad_       = getMAD(residualsPlot[i]).first; 
-      float madErr_    = getMAD(residualsPlot[i]).second;
-      trendPlot->SetBinContent(i+1,mad_);
-      trendPlot->SetBinError(i+1,madErr_);
-    } else {
-      std::cout<<"PrimaryVertexValidation::fillTrendPlot() "<<fitPar_<<" unknown estimator!"<<std::endl;
-    }
+    char etabincenter[129];
+    auto etaBins = theDetails_.trendbins[PVValHelper::eta];
+    sprintf(etabincenter,"%.1f",(etaBins[i]+etaBins[i+1])/2.);   
 
-    if(var_=="eta"){
-      trendPlot->GetXaxis()->SetBinLabel(i+1,etapositionString); 
-    } else if(var_=="phi"){
-      trendPlot->GetXaxis()->SetBinLabel(i+1,phipositionString); 
+    switch(fitPar_)
+      {
+      case PVValHelper::MEAN:
+	{
+	  float mean_      = PVValHelper::fitResiduals(residualsPlot[i]).first.value();
+	  float meanErr_   = PVValHelper::fitResiduals(residualsPlot[i]).first.error();
+	  trendPlot->SetBinContent(i+1,mean_);
+	  trendPlot->SetBinError(i+1,meanErr_);
+	  break;
+	} 
+      case PVValHelper::WIDTH:
+	{
+	  float width_     = PVValHelper::fitResiduals(residualsPlot[i]).second.value();
+	  float widthErr_  = PVValHelper::fitResiduals(residualsPlot[i]).second.error();
+	  trendPlot->SetBinContent(i+1,width_);
+	  trendPlot->SetBinError(i+1,widthErr_);
+	  break;
+	}
+      case PVValHelper::MEDIAN:
+	{
+	  float median_    = PVValHelper::getMedian(residualsPlot[i]).value();
+	  float medianErr_ = PVValHelper::getMedian(residualsPlot[i]).error();
+	  trendPlot->SetBinContent(i+1,median_);
+	  trendPlot->SetBinError(i+1,medianErr_);
+	  break;
+	} 
+      case PVValHelper::MAD:
+	{
+	  float mad_       = PVValHelper::getMAD(residualsPlot[i]).value(); 
+	  float madErr_    = PVValHelper::getMAD(residualsPlot[i]).error();
+	  trendPlot->SetBinContent(i+1,mad_);
+	  trendPlot->SetBinError(i+1,madErr_);
+	  break;
+	} 
+      default:
+	edm::LogWarning("PrimaryVertexValidation")<<"fillTrendPlot() "<<fitPar_<<" unknown estimator!"<<std::endl;
+	break;
+      }
+
+    if(var_.find("eta") != std::string::npos){
+      trendPlot->GetXaxis()->SetBinLabel(i+1,etabincenter); 
+    } else if(var_.find("phi") != std::string::npos){
+      trendPlot->GetXaxis()->SetBinLabel(i+1,phibincenter); 
     } else {
-      std::cout<<"PrimaryVertexValidation::fillTrendPlot() "<<var_<<" unknown track parameter!"<<std::endl;
+      edm::LogWarning("PrimaryVertexValidation")<<"fillTrendPlot() "<<var_<<" unknown track parameter!"<<std::endl;
     }
   }
 }
 
 //*************************************************************
-void PrimaryVertexValidation::fillMap(TH2F* trendMap, TH1F* residualsMapPlot[100][100], TString fitPar_)
+void PrimaryVertexValidation::fillTrendPlotByIndex(TH1F* trendPlot,std::vector<TH1F*>& h,  PVValHelper::estimator fitPar_, PVValHelper::plotVariable plotVar)
+//*************************************************************
+{  
+
+  for(auto iterator = h.begin(); iterator != h.end(); iterator++) {
+    
+    unsigned int bin = std::distance(h.begin(),iterator)+1;
+    std::pair<Measurement1D, Measurement1D> myFit = PVValHelper::fitResiduals((*iterator));
+
+    switch(fitPar_)
+      {
+      case PVValHelper::MEAN: 
+	{   
+	  float mean_      = myFit.first.value();
+	  float meanErr_   = myFit.first.error();
+	  trendPlot->SetBinContent(bin,mean_);
+	  trendPlot->SetBinError(bin,meanErr_);
+	  break;
+	}
+      case PVValHelper::WIDTH:
+	{
+	  float width_     = myFit.second.value();
+	  float widthErr_  = myFit.second.error();
+	  trendPlot->SetBinContent(bin,width_);
+	  trendPlot->SetBinError(bin,widthErr_);
+	  break;
+	}
+      case PVValHelper::MEDIAN:
+	{
+	  float median_    = PVValHelper::getMedian(*iterator).value();
+	  float medianErr_ = PVValHelper::getMedian(*iterator).error();
+	  trendPlot->SetBinContent(bin,median_);
+	  trendPlot->SetBinError(bin,medianErr_);
+	  break;
+	}
+      case PVValHelper::MAD:
+	{
+	  float mad_       = PVValHelper::getMAD(*iterator).value(); 
+	  float madErr_    = PVValHelper::getMAD(*iterator).error();
+	  trendPlot->SetBinContent(bin,mad_);
+	  trendPlot->SetBinError(bin,madErr_);
+	  break;
+	}
+      default:
+	edm::LogWarning("PrimaryVertexValidation")<<"fillTrendPlotByIndex() "<<fitPar_<<" unknown estimator!"<<std::endl;
+	break;
+      }
+
+    char bincenter[129];
+    if(plotVar == PVValHelper::eta){
+      auto etaBins = theDetails_.trendbins[PVValHelper::eta];
+      sprintf(bincenter,"%.1f",(etaBins[bin-1]+etaBins[bin])/2.);      
+      trendPlot->GetXaxis()->SetBinLabel(bin,bincenter); 
+    } else if(plotVar == PVValHelper::phi){
+      auto phiBins = theDetails_.trendbins[PVValHelper::phi];
+      sprintf(bincenter,"%.f",(phiBins[bin-1]+phiBins[bin])/2.);
+      trendPlot->GetXaxis()->SetBinLabel(bin,bincenter); 
+    } else {
+      /// FIXME DO SOMETHING HERE
+      //edm::LogWarning("PrimaryVertexValidation")<<"fillTrendPlotByIndex() "<< plotVar <<" unknown track parameter!"<<std::endl;
+    }
+    
+  }
+}
+
+//*************************************************************
+void PrimaryVertexValidation::fillMap(TH2F* trendMap, TH1F* residualsMapPlot[100][100],  PVValHelper::estimator fitPar_)
 //*************************************************************
 {
  
   for ( int i=0; i<nBins_; ++i ) {
-    
-    char phipositionString[129];
-    float phiInterval = phiSect_*(180/TMath::Pi());
-    float phiposition = (-180+i*phiInterval)+(phiInterval/2);
-    sprintf(phipositionString,"%.f",phiposition);
-    
-    trendMap->GetYaxis()->SetBinLabel(i+1,phipositionString); 
+   
+    char phibincenter[129];
+    auto phiBins = theDetails_.trendbins[PVValHelper::phi];
+    sprintf(phibincenter,"%.f",(phiBins[i]+phiBins[i+1])/2.);
+
+    trendMap->GetYaxis()->SetBinLabel(i+1,phibincenter); 
 
     for ( int j=0; j<nBins_; ++j ) {
+      
+      char etabincenter[129];
+      auto etaBins = theDetails_.trendbins[PVValHelper::eta];
+      sprintf(etabincenter,"%.1f",(etaBins[j]+etaBins[j+1])/2.);   
+      
+      if(i==0) { trendMap->GetXaxis()->SetBinLabel(j+1,etabincenter); }
 
-      char etapositionString[129];
-      float etaposition = (-etaOfProbe_+j*etaSect_)+(etaSect_/2);
-      sprintf(etapositionString,"%.1f",etaposition);
-
-      if(i==0) { trendMap->GetXaxis()->SetBinLabel(j+1,etapositionString); }
-
-      if(fitPar_=="mean"){
-	float mean_      = fitResiduals(residualsMapPlot[i][j]).first.first;
-	float meanErr_   = fitResiduals(residualsMapPlot[i][j]).first.second;
-	trendMap->SetBinContent(j+1,i+1,mean_);
-	trendMap->SetBinError(j+1,i+1,meanErr_);
-      } else if (fitPar_=="width"){
-	float width_     = fitResiduals(residualsMapPlot[i][j]).second.first;
-	float widthErr_  = fitResiduals(residualsMapPlot[i][j]).second.second;
-	trendMap->SetBinContent(j+1,i+1,width_);
-	trendMap->SetBinError(j+1,i+1,widthErr_);
-      } else if (fitPar_=="median"){
-	float median_    = getMedian(residualsMapPlot[i][j]).first;
-	float medianErr_ = getMedian(residualsMapPlot[i][j]).second;
-	trendMap->SetBinContent(j+1,i+1,median_);
-	trendMap->SetBinError(j+1,i+1,medianErr_);
-      } else if (fitPar_=="mad"){
-	float mad_       = getMAD(residualsMapPlot[i][j]).first; 
-	float madErr_    = getMAD(residualsMapPlot[i][j]).second;
-	trendMap->SetBinContent(j+1,i+1,mad_);
-	trendMap->SetBinError(j+1,i+1,madErr_);
-      } else {
-	std::cout<<"PrimaryVertexValidation::fillMap() "<<fitPar_<<" unknown estimator!"<<std::endl;
-      }   
+      switch (fitPar_)
+	{ 
+	case PVValHelper::MEAN:
+	  {
+	    float mean_      = PVValHelper::fitResiduals(residualsMapPlot[i][j]).first.value();
+	    float meanErr_   = PVValHelper::fitResiduals(residualsMapPlot[i][j]).first.error();
+	    trendMap->SetBinContent(j+1,i+1,mean_);
+	    trendMap->SetBinError(j+1,i+1,meanErr_);
+	    break;
+	  }
+	case PVValHelper::WIDTH:
+	  {
+	    float width_     = PVValHelper::fitResiduals(residualsMapPlot[i][j]).second.value();
+	    float widthErr_  = PVValHelper::fitResiduals(residualsMapPlot[i][j]).second.error();
+	    trendMap->SetBinContent(j+1,i+1,width_);
+	    trendMap->SetBinError(j+1,i+1,widthErr_);
+	    break;
+	  }     
+	case PVValHelper::MEDIAN:
+	  {
+	    float median_    = PVValHelper::getMedian(residualsMapPlot[i][j]).value();
+	    float medianErr_ = PVValHelper::getMedian(residualsMapPlot[i][j]).error();
+	    trendMap->SetBinContent(j+1,i+1,median_);
+	    trendMap->SetBinError(j+1,i+1,medianErr_);
+	    break;
+	  }     
+	case PVValHelper::MAD:
+	  {
+	    float mad_       = PVValHelper::getMAD(residualsMapPlot[i][j]).value(); 
+	    float madErr_    = PVValHelper::getMAD(residualsMapPlot[i][j]).error();
+	    trendMap->SetBinContent(j+1,i+1,mad_);
+	    trendMap->SetBinError(j+1,i+1,madErr_);
+	    break;
+	  }     
+	default:
+	  edm::LogWarning("PrimaryVertexValidation:") <<" fillMap() "<<fitPar_<<" unknown estimator!"<<std::endl;
+	}   
     } // closes loop on eta bins
   } // cloeses loop on phi bins
 }
@@ -2239,7 +2600,7 @@ bool PrimaryVertexValidation::vtxSort( const reco::Vertex & a, const reco::Verte
 }
 
 //*************************************************************
-bool PrimaryVertexValidation::passesTrackCuts(const reco::Track & track, const reco::Vertex & vertex,std::string qualityString_, double dxyErrMax_,double dzErrMax_, double ptErrMax_)
+bool PrimaryVertexValidation::passesTrackCuts(const reco::Track & track, const reco::Vertex & vertex,const std::string& qualityString_, double dxyErrMax_,double dzErrMax_, double ptErrMax_)
 //*************************************************************
 {
  
@@ -2257,8 +2618,8 @@ bool PrimaryVertexValidation::passesTrackCuts(const reco::Track & track, const r
    dzsigma = sqrt(track.dzError()*track.dzError()+vzErr*vzErr);
  
    if(track.quality(reco::TrackBase::qualityByName(qualityString_)) != 1)return false;
-   if(fabs(dxy/dxysigma) > dxyErrMax_) return false;
-   if(fabs(dz/dzsigma) > dzErrMax_) return false;
+   if(std::abs(dxy/dxysigma) > dxyErrMax_) return false;
+   if(std::abs(dz/dzsigma) > dzErrMax_) return false;
    if(track.ptError() / track.pt() > ptErrMax_) return false;
 
    return true;
@@ -2266,7 +2627,7 @@ bool PrimaryVertexValidation::passesTrackCuts(const reco::Track & track, const r
 
 
 //*************************************************************
-std::map<std::string, TH1*> PrimaryVertexValidation::bookVertexHistograms(TFileDirectory dir)
+std::map<std::string, TH1*> PrimaryVertexValidation::bookVertexHistograms(const TFileDirectory& dir)
 //*************************************************************
 {
 
@@ -2276,43 +2637,95 @@ std::map<std::string, TH1*> PrimaryVertexValidation::bookVertexHistograms(TFileD
   
   // histograms of track quality (Data and MC)
   std::string types[] = {"all","sel"};
-  for(int t=0; t<2; t++){
-    h["pseudorapidity_"+types[t]] =dir.make <TH1F>(("rapidity_"+types[t]).c_str(),"track pseudorapidity; track #eta; tracks",100,-3., 3.);
-    h["z0_"+types[t]] = dir.make<TH1F>(("z0_"+types[t]).c_str(),"track z_{0};track z_{0} (cm);tracks",80,-40., 40.);
-    h["phi_"+types[t]] = dir.make<TH1F>(("phi_"+types[t]).c_str(),"track #phi; track #phi;tracks",80,-TMath::Pi(), TMath::Pi());
-    h["eta_"+types[t]] = dir.make<TH1F>(("eta_"+types[t]).c_str(),"track #eta; track #eta;tracks",80,-4., 4.);
-    h["pt_"+types[t]] = dir.make<TH1F>(("pt_"+types[t]).c_str(),"track p_{T}; track p_{T} [GeV];tracks",100,0., 20.);
-    h["p_"+types[t]] = dir.make<TH1F>(("p_"+types[t]).c_str(),"track p; track p [GeV];tracks",100,0., 20.);
-    h["found_"+types[t]] = dir.make<TH1F>(("found_"+types[t]).c_str(),"n. found hits;n^{found}_{hits};tracks",30, 0., 30.);
-    h["lost_"+types[t]] = dir.make<TH1F>(("lost_"+types[t]).c_str(),"n. lost hits;n^{lost}_{hits};tracks",20, 0., 20.);
-    h["nchi2_"+types[t]] = dir.make<TH1F>(("nchi2_"+types[t]).c_str(),"normalized track #chi^{2};track #chi^{2}/ndf;tracks",100, 0., 20.);
-    h["rstart_"+types[t]] = dir.make<TH1F>(("rstart_"+types[t]).c_str(),"track start radius; track innermost radius r (cm);tracks",100, 0., 20.);
-    h["expectedInner_"+types[t]] = dir.make<TH1F>(("expectedInner_"+types[t]).c_str(),"n. expected inner hits;n^{expected}_{inner};tracks",10, 0., 10.);
-    h["expectedOuter_"+types[t]] = dir.make<TH1F>(("expectedOuter_"+types[t]).c_str(),"n. expected outer hits;n^{expected}_{outer};tracks ",10, 0., 10.);
-    h["logtresxy_"+types[t]] = dir.make<TH1F>(("logtresxy_"+types[t]).c_str(),"log10(track r-#phi resolution/#mum);log10(track r-#phi resolution/#mum);tracks",100, 0., 5.);
-    h["logtresz_"+types[t]] = dir.make<TH1F>(("logtresz_"+types[t]).c_str(),"log10(track z resolution/#mum);log10(track z resolution/#mum);tracks",100, 0., 5.);
-    h["tpullxy_"+types[t]] = dir.make<TH1F>(("tpullxy_"+types[t]).c_str(),"track r-#phi pull;pull_{r-#phi};tracks",100, -10., 10.);
-    h["tpullz_"+types[t]] = dir.make<TH1F>(("tpullz_"+types[t]).c_str(),"track r-z pull;pull_{r-z};tracks",100, -50., 50.);
-    h["tlogDCAxy_"+types[t]] = dir.make<TH1F>(("tlogDCAxy_"+types[t]).c_str(),"track log_{10}(DCA_{r-#phi});track log_{10}(DCA_{r-#phi});tracks",200, -5., 3.);
-    h["tlogDCAz_"+types[t]] = dir.make<TH1F>(("tlogDCAz_"+types[t]).c_str(),"track log_{10}(DCA_{r-z});track log_{10}(DCA_{r-z});tracks",200, -5., 5.);
-    h["lvseta_"+types[t]] = dir.make<TH2F>(("lvseta_"+types[t]).c_str(),"cluster length vs #eta;track #eta;cluster length",60,-3., 3., 20, 0., 20);
-    h["lvstanlambda_"+types[t]] = dir.make<TH2F>(("lvstanlambda_"+types[t]).c_str(),"cluster length vs tan #lambda; tan#lambda;cluster length",60,-6., 6., 20, 0., 20);
-    h["restrkz_"+types[t]] = dir.make<TH1F>(("restrkz_"+types[t]).c_str(),"z-residuals (track vs vertex);res_{z} (cm);tracks", 200, -5., 5.);
-    h["restrkzvsphi_"+types[t]] = dir.make<TH2F>(("restrkzvsphi_"+types[t]).c_str(),"z-residuals (track - vertex) vs track #phi;track #phi;res_{z} (cm)", 12,-TMath::Pi(),TMath::Pi(),100, -0.5,0.5);
-    h["restrkzvseta_"+types[t]] = dir.make<TH2F>(("restrkzvseta_"+types[t]).c_str(),"z-residuals (track - vertex) vs track #eta;track #eta;res_{z} (cm)", 12,-3.,3.,200, -0.5,0.5);
-    h["pulltrkzvsphi_"+types[t]] = dir.make<TH2F>(("pulltrkzvsphi_"+types[t]).c_str(),"normalized z-residuals (track - vertex) vs track #phi;track #phi;res_{z}/#sigma_{res_{z}}", 12,-TMath::Pi(),TMath::Pi(),100, -5., 5.);
-    h["pulltrkzvseta_"+types[t]] = dir.make<TH2F>(("pulltrkzvseta_"+types[t]).c_str(),"normalized z-residuals (track - vertex) vs track #eta;track #eta;res_{z}/#sigma_{res_{z}}", 12,-3.,3.,100, -5., 5.);
-    h["pulltrkz_"+types[t]] = dir.make<TH1F>(("pulltrkz_"+types[t]).c_str(),"normalized z-residuals (track vs vertex);res_{z}/#sigma_{res_{z}};tracks", 100, -5., 5.);
-    h["sigmatrkz0_"+types[t]] = dir.make<TH1F>(("sigmatrkz0_"+types[t]).c_str(),"z-resolution (excluding beam);#sigma^{trk}_{z_{0}} (cm);tracks", 100, 0., 5.);
-    h["sigmatrkz_"+types[t]] = dir.make<TH1F>(("sigmatrkz_"+types[t]).c_str(),"z-resolution (including beam);#sigma^{trk}_{z} (cm);tracks", 100,0., 5.);
-    h["nbarrelhits_"+types[t]] = dir.make<TH1F>(("nbarrelhits_"+types[t]).c_str(),"number of pixel barrel hits;n. hits Barrel Pixel;tracks", 10, 0., 10.);
-    h["nbarrelLayers_"+types[t]] = dir.make<TH1F>(("nbarrelLayers_"+types[t]).c_str(),"number of pixel barrel layers;n. layers Barrel Pixel;tracks", 10, 0., 10.);
-    h["nPxLayers_"+types[t]] = dir.make<TH1F>(("nPxLayers_"+types[t]).c_str(),"number of pixel layers (barrel+endcap);n. Pixel layers;tracks", 10, 0., 10.);
-    h["nSiLayers_"+types[t]] = dir.make<TH1F>(("nSiLayers_"+types[t]).c_str(),"number of Tracker layers;n. Tracker layers;tracks", 20, 0., 20.);
-    h["trackAlgo_"+types[t]] = dir.make<TH1F>(("trackAlgo_"+types[t]).c_str(),"track algorithm;track algo;tracks", 30, 0., 30.);
-    h["trackQuality_"+types[t]] = dir.make<TH1F>(("trackQuality_"+types[t]).c_str(),"track quality;track quality;tracks", 7, -1., 6.);
+  for(const auto & type : types){
+    h["pseudorapidity_"+type] =dir.make <TH1F>(("rapidity_"+type).c_str(),"track pseudorapidity; track #eta; tracks",100,-3., 3.);
+    h["z0_"+type] = dir.make<TH1F>(("z0_"+type).c_str(),"track z_{0};track z_{0} (cm);tracks",80,-40., 40.);
+    h["phi_"+type] = dir.make<TH1F>(("phi_"+type).c_str(),"track #phi; track #phi;tracks",80,-M_PI, M_PI);
+    h["eta_"+type] = dir.make<TH1F>(("eta_"+type).c_str(),"track #eta; track #eta;tracks",80,-4., 4.);
+    h["pt_"+type] = dir.make<TH1F>(("pt_"+type).c_str(),"track p_{T}; track p_{T} [GeV];tracks",100,0., 20.);
+    h["p_"+type] = dir.make<TH1F>(("p_"+type).c_str(),"track p; track p [GeV];tracks",100,0., 20.);
+    h["found_"+type] = dir.make<TH1F>(("found_"+type).c_str(),"n. found hits;n^{found}_{hits};tracks",30, 0., 30.);
+    h["lost_"+type] = dir.make<TH1F>(("lost_"+type).c_str(),"n. lost hits;n^{lost}_{hits};tracks",20, 0., 20.);
+    h["nchi2_"+type] = dir.make<TH1F>(("nchi2_"+type).c_str(),"normalized track #chi^{2};track #chi^{2}/ndf;tracks",100, 0., 20.);
+    h["rstart_"+type] = dir.make<TH1F>(("rstart_"+type).c_str(),"track start radius; track innermost radius r (cm);tracks",100, 0., 20.);
+    h["expectedInner_"+type] = dir.make<TH1F>(("expectedInner_"+type).c_str(),"n. expected inner hits;n^{expected}_{inner};tracks",10, 0., 10.);
+    h["expectedOuter_"+type] = dir.make<TH1F>(("expectedOuter_"+type).c_str(),"n. expected outer hits;n^{expected}_{outer};tracks ",10, 0., 10.);
+    h["logtresxy_"+type] = dir.make<TH1F>(("logtresxy_"+type).c_str(),"log10(track r-#phi resolution/#mum);log10(track r-#phi resolution/#mum);tracks",100, 0., 5.);
+    h["logtresz_"+type] = dir.make<TH1F>(("logtresz_"+type).c_str(),"log10(track z resolution/#mum);log10(track z resolution/#mum);tracks",100, 0., 5.);
+    h["tpullxy_"+type] = dir.make<TH1F>(("tpullxy_"+type).c_str(),"track r-#phi pull;pull_{r-#phi};tracks",100, -10., 10.);
+    h["tpullz_"+type] = dir.make<TH1F>(("tpullz_"+type).c_str(),"track r-z pull;pull_{r-z};tracks",100, -50., 50.);
+    h["tlogDCAxy_"+type] = dir.make<TH1F>(("tlogDCAxy_"+type).c_str(),"track log_{10}(DCA_{r-#phi});track log_{10}(DCA_{r-#phi});tracks",200, -5., 3.);
+    h["tlogDCAz_"+type] = dir.make<TH1F>(("tlogDCAz_"+type).c_str(),"track log_{10}(DCA_{r-z});track log_{10}(DCA_{r-z});tracks",200, -5., 5.);
+    h["lvseta_"+type] = dir.make<TH2F>(("lvseta_"+type).c_str(),"cluster length vs #eta;track #eta;cluster length",60,-3., 3., 20, 0., 20);
+    h["lvstanlambda_"+type] = dir.make<TH2F>(("lvstanlambda_"+type).c_str(),"cluster length vs tan #lambda; tan#lambda;cluster length",60,-6., 6., 20, 0., 20);
+    h["restrkz_"+type] = dir.make<TH1F>(("restrkz_"+type).c_str(),"z-residuals (track vs vertex);res_{z} (cm);tracks", 200, -5., 5.);
+    h["restrkzvsphi_"+type] = dir.make<TH2F>(("restrkzvsphi_"+type).c_str(),"z-residuals (track - vertex) vs track #phi;track #phi;res_{z} (cm)", 12,-M_PI,M_PI,100, -0.5,0.5);
+    h["restrkzvseta_"+type] = dir.make<TH2F>(("restrkzvseta_"+type).c_str(),"z-residuals (track - vertex) vs track #eta;track #eta;res_{z} (cm)", 12,-3.,3.,200, -0.5,0.5);
+    h["pulltrkzvsphi_"+type] = dir.make<TH2F>(("pulltrkzvsphi_"+type).c_str(),"normalized z-residuals (track - vertex) vs track #phi;track #phi;res_{z}/#sigma_{res_{z}}", 12,-M_PI,M_PI,100, -5., 5.);
+    h["pulltrkzvseta_"+type] = dir.make<TH2F>(("pulltrkzvseta_"+type).c_str(),"normalized z-residuals (track - vertex) vs track #eta;track #eta;res_{z}/#sigma_{res_{z}}", 12,-3.,3.,100, -5., 5.);
+    h["pulltrkz_"+type] = dir.make<TH1F>(("pulltrkz_"+type).c_str(),"normalized z-residuals (track vs vertex);res_{z}/#sigma_{res_{z}};tracks", 100, -5., 5.);
+    h["sigmatrkz0_"+type] = dir.make<TH1F>(("sigmatrkz0_"+type).c_str(),"z-resolution (excluding beam);#sigma^{trk}_{z_{0}} (cm);tracks", 100, 0., 5.);
+    h["sigmatrkz_"+type] = dir.make<TH1F>(("sigmatrkz_"+type).c_str(),"z-resolution (including beam);#sigma^{trk}_{z} (cm);tracks", 100,0., 5.);
+    h["nbarrelhits_"+type] = dir.make<TH1F>(("nbarrelhits_"+type).c_str(),"number of pixel barrel hits;n. hits Barrel Pixel;tracks", 10, 0., 10.);
+    h["nbarrelLayers_"+type] = dir.make<TH1F>(("nbarrelLayers_"+type).c_str(),"number of pixel barrel layers;n. layers Barrel Pixel;tracks", 10, 0., 10.);
+    h["nPxLayers_"+type] = dir.make<TH1F>(("nPxLayers_"+type).c_str(),"number of pixel layers (barrel+endcap);n. Pixel layers;tracks", 10, 0., 10.);
+    h["nSiLayers_"+type] = dir.make<TH1F>(("nSiLayers_"+type).c_str(),"number of Tracker layers;n. Tracker layers;tracks", 20, 0., 20.);
+    h["trackAlgo_"+type] = dir.make<TH1F>(("trackAlgo_"+type).c_str(),"track algorithm;track algo;tracks", 30, 0., 30.);
+    h["trackQuality_"+type] = dir.make<TH1F>(("trackQuality_"+type).c_str(),"track quality;track quality;tracks", 7, -1., 6.);
   }
 
+  return h;
+  
+}
+
+//*************************************************************
+// Generic booker function
+//*************************************************************
+std::vector<TH1F*> PrimaryVertexValidation::bookResidualsHistogram(const TFileDirectory& dir,
+								   unsigned int theNOfBins,
+								   PVValHelper::residualType resType,
+								   PVValHelper::plotVariable varType,
+								   bool isNormalized){
+
+  TH1F::SetDefaultSumw2(kTRUE);
+  
+  auto hash = std::make_pair(resType,varType);
+
+  double down =  theDetails_.range[hash].first;
+  double up   =  theDetails_.range[hash].second;
+
+  if(isNormalized){
+    up   =  up/100.;
+    down = down/100.;
+  }
+  
+  std::vector<TH1F*> h;
+  h.reserve(theNOfBins);
+
+  if (theNOfBins==0) {
+    edm::LogError("PrimaryVertexValidation") <<"bookResidualsHistogram() The number of bins cannot be identically 0" << std::endl;
+    assert(false);
+  }
+  
+  std::string s_resType = std::get<0>(PVValHelper::getTypeString(resType));
+  std::string s_varType = std::get<0>(PVValHelper::getVarString(varType));
+      
+  std::string t_resType = std::get<1>(PVValHelper::getTypeString(resType));
+  std::string t_varType = std::get<1>(PVValHelper::getVarString(varType));
+  std::string units     = std::get<2>(PVValHelper::getTypeString(resType));
+
+  for(unsigned int i=0; i<theNOfBins;i++){
+
+    TString title = (varType == PVValHelper::phi || varType == PVValHelper::eta) ? 	 
+      Form("%s vs %s - bin %i (%f < %s < %f);%s %s;tracks",t_resType.c_str(),t_varType.c_str(),i, theDetails_.trendbins[varType][i],t_varType.c_str(),theDetails_.trendbins[varType][i+1],t_resType.c_str(),units.c_str()) : Form("%s vs %s - bin %i;%s %s;tracks",t_resType.c_str(),t_varType.c_str(),i,t_resType.c_str(),units.c_str());
+
+    TH1F* htemp = dir.make<TH1F>(Form("histo_%s_%s_plot%i",s_resType.c_str(),s_varType.c_str(),i),
+				 //Form("%s vs %s - bin %i;%s %s;tracks",t_resType.c_str(),t_varType.c_str(),i,t_resType.c_str(),units.c_str()),
+				 title.Data(),
+				 theDetails_.histobins,down,up); 
+    h.push_back(htemp);
+  }
+  
   return h;
   
 }
@@ -2324,39 +2737,39 @@ void PrimaryVertexValidation::fillTrackHistos(std::map<std::string, TH1*> & h, c
 
   using namespace reco;
 
-  fill(h,"pseudorapidity_"+ttype,tt->track().eta());
-  fill(h,"z0_"+ttype,tt->track().vz());
-  fill(h,"phi_"+ttype,tt->track().phi());
-  fill(h,"eta_"+ttype,tt->track().eta());
-  fill(h,"pt_"+ttype,tt->track().pt());
-  fill(h,"p_"+ttype,tt->track().p());
-  fill(h,"found_"+ttype,tt->track().found());
-  fill(h,"lost_"+ttype,tt->track().lost());
-  fill(h,"nchi2_"+ttype,tt->track().normalizedChi2());
-  fill(h,"rstart_"+ttype,(tt->track().innerPosition()).Rho());
+  PVValHelper::fill(h,"pseudorapidity_"+ttype,tt->track().eta());
+  PVValHelper::fill(h,"z0_"+ttype,tt->track().vz());
+  PVValHelper::fill(h,"phi_"+ttype,tt->track().phi());
+  PVValHelper::fill(h,"eta_"+ttype,tt->track().eta());
+  PVValHelper::fill(h,"pt_"+ttype,tt->track().pt());
+  PVValHelper::fill(h,"p_"+ttype,tt->track().p());
+  PVValHelper::fill(h,"found_"+ttype,tt->track().found());
+  PVValHelper::fill(h,"lost_"+ttype,tt->track().lost());
+  PVValHelper::fill(h,"nchi2_"+ttype,tt->track().normalizedChi2());
+  PVValHelper::fill(h,"rstart_"+ttype,(tt->track().innerPosition()).Rho());
   
   double d0Error=tt->track().d0Error();
   double d0=tt->track().dxy(beamSpot.position());
   double dz=tt->track().dz(beamSpot.position());
   if (d0Error>0){
-    fill(h,"logtresxy_"+ttype,log(d0Error/0.0001)/log(10.));
-    fill(h,"tpullxy_"+ttype,d0/d0Error);
-    fill(h,"tlogDCAxy_"+ttype,log(fabs(d0/d0Error)));
+    PVValHelper::fill(h,"logtresxy_"+ttype,log(d0Error/0.0001)/log(10.));
+    PVValHelper::fill(h,"tpullxy_"+ttype,d0/d0Error);
+    PVValHelper::fill(h,"tlogDCAxy_"+ttype,log(std::abs(d0/d0Error)));
     
   }
   //double z0=tt->track().vz();
   double dzError=tt->track().dzError();
   if(dzError>0){
-    fill(h,"logtresz_"+ttype,log(dzError/0.0001)/log(10.));
-    fill(h,"tpullz_"+ttype,dz/dzError);
-    fill(h,"tlogDCAz_"+ttype,log(fabs(dz/dzError)));
+    PVValHelper::fill(h,"logtresz_"+ttype,log(dzError/0.0001)/log(10.));
+    PVValHelper::fill(h,"tpullz_"+ttype,dz/dzError);
+    PVValHelper::fill(h,"tlogDCAz_"+ttype,log(std::abs(dz/dzError)));
   }
   
   //
   double wxy2_=pow(beamSpot.BeamWidthX(),2)+pow(beamSpot.BeamWidthY(),2);
 
-  fill(h,"sigmatrkz_"+ttype,sqrt(pow(tt->track().dzError(),2)+wxy2_/pow(tan(tt->track().theta()),2)));
-  fill(h,"sigmatrkz0_"+ttype,tt->track().dzError());
+  PVValHelper::fill(h,"sigmatrkz_"+ttype,sqrt(pow(tt->track().dzError(),2)+wxy2_/pow(tan(tt->track().theta()),2)));
+  PVValHelper::fill(h,"sigmatrkz0_"+ttype,tt->track().dzError());
   
   // track vs vertex
   if( v.isValid()){ // && (v.ndof()<10.)) {
@@ -2368,13 +2781,13 @@ void PrimaryVertexValidation::fillTrackHistos(std::map<std::string, TH1*> & h, c
     double tantheta=tan((tt->stateAtBeamLine().trackStateAtPCA()).momentum().theta());
     double dz2= pow(tt->track().dzError(),2)+wxy2_/pow(tantheta,2);
     
-    fill(h,"restrkz_"+ttype,z-v.position().z());
-    fill(h,"restrkzvsphi_"+ttype,tt->track().phi(), z-v.position().z());
-    fill(h,"restrkzvseta_"+ttype,tt->track().eta(), z-v.position().z());
-    fill(h,"pulltrkzvsphi_"+ttype,tt->track().phi(), (z-v.position().z())/sqrt(dz2));
-    fill(h,"pulltrkzvseta_"+ttype,tt->track().eta(), (z-v.position().z())/sqrt(dz2));
+    PVValHelper::fill(h,"restrkz_"+ttype,z-v.position().z());
+    PVValHelper::fill(h,"restrkzvsphi_"+ttype,tt->track().phi(), z-v.position().z());
+    PVValHelper::fill(h,"restrkzvseta_"+ttype,tt->track().eta(), z-v.position().z());
+    PVValHelper::fill(h,"pulltrkzvsphi_"+ttype,tt->track().phi(), (z-v.position().z())/sqrt(dz2));
+    PVValHelper::fill(h,"pulltrkzvseta_"+ttype,tt->track().eta(), (z-v.position().z())/sqrt(dz2));
     
-    fill(h,"pulltrkz_"+ttype,(z-v.position().z())/sqrt(dz2));
+    PVValHelper::fill(h,"pulltrkz_"+ttype,(z-v.position().z())/sqrt(dz2));
     
     double x1=tt->track().vx()-beamSpot.x0(); double y1=tt->track().vy()-beamSpot.y0();
     
@@ -2383,7 +2796,7 @@ void PrimaryVertexValidation::fillTrackHistos(std::map<std::string, TH1*> & h, c
     double q=sqrt(1.-2.*kappa*D0);
     double s0=(x1*cos(tt->track().phi())+y1*sin(tt->track().phi()))/q;
     // double s1;
-    if (fabs(kappa*s0)>0.001){
+    if (std::abs(kappa*s0)>0.001){
       //s1=asin(kappa*s0)/kappa;
     }else{
       //double ks02=(kappa*s0)*(kappa*s0);
@@ -2396,13 +2809,13 @@ void PrimaryVertexValidation::fillTrackHistos(std::map<std::string, TH1*> & h, c
   //
   
   // collect some info on hits and clusters
-  fill(h,"nbarrelLayers_"+ttype,tt->track().hitPattern().pixelBarrelLayersWithMeasurement());
-  fill(h,"nPxLayers_"+ttype,tt->track().hitPattern().pixelLayersWithMeasurement());
-  fill(h,"nSiLayers_"+ttype,tt->track().hitPattern().trackerLayersWithMeasurement());
-  fill(h,"expectedInner_"+ttype,tt->track().hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS));
-  fill(h,"expectedOuter_"+ttype,tt->track().hitPattern().numberOfHits(HitPattern::MISSING_OUTER_HITS));
-  fill(h,"trackAlgo_"+ttype,tt->track().algo());
-  fill(h,"trackQuality_"+ttype,tt->track().qualityMask());
+  PVValHelper::fill(h,"nbarrelLayers_"+ttype,tt->track().hitPattern().pixelBarrelLayersWithMeasurement());
+  PVValHelper::fill(h,"nPxLayers_"+ttype,tt->track().hitPattern().pixelLayersWithMeasurement());
+  PVValHelper::fill(h,"nSiLayers_"+ttype,tt->track().hitPattern().trackerLayersWithMeasurement());
+  PVValHelper::fill(h,"expectedInner_"+ttype,tt->track().hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS));
+  PVValHelper::fill(h,"expectedOuter_"+ttype,tt->track().hitPattern().numberOfLostHits(HitPattern::MISSING_OUTER_HITS));
+  PVValHelper::fill(h,"trackAlgo_"+ttype,tt->track().algo());
+  PVValHelper::fill(h,"trackQuality_"+ttype,tt->track().qualityMask());
   
   //
   int longesthit=0, nbarrel=0;
@@ -2417,51 +2830,21 @@ void PrimaryVertexValidation::fillTrackHistos(std::map<std::string, TH1*> & h, c
 	  nbarrel++;
 	  if (clust->sizeY()-longesthit>0) longesthit=clust->sizeY();
 	  if (clust->sizeY()>20.){
-	    fill(h,"lvseta_"+ttype,tt->track().eta(), 19.9);
-	    fill(h,"lvstanlambda_"+ttype,tan(tt->track().lambda()), 19.9);
+	    PVValHelper::fill(h,"lvseta_"+ttype,tt->track().eta(), 19.9);
+	    PVValHelper::fill(h,"lvstanlambda_"+ttype,tan(tt->track().lambda()), 19.9);
 	  }else{
-	    fill(h,"lvseta_"+ttype,tt->track().eta(), float(clust->sizeY()));
-	    fill(h,"lvstanlambda_"+ttype,tan(tt->track().lambda()), float(clust->sizeY()));
+	    PVValHelper::fill(h,"lvseta_"+ttype,tt->track().eta(), float(clust->sizeY()));
+	    PVValHelper::fill(h,"lvstanlambda_"+ttype,tan(tt->track().lambda()), float(clust->sizeY()));
 	  }
 	}
       }
     }
   }
-  fill(h,"nbarrelhits_"+ttype,float(nbarrel));
+  PVValHelper::fill(h,"nbarrelhits_"+ttype,float(nbarrel));
   //------------------------------------------------------------------- 
-}
-
-//*************************************************************
-void PrimaryVertexValidation::add(std::map<std::string, TH1*>& h, TH1* hist)
-//*************************************************************
-{ 
-  h[hist->GetName()]=hist; 
-  hist->StatOverflows(kTRUE);
-}
-
-//*************************************************************
-void PrimaryVertexValidation::fill(std::map<std::string, TH1*>& h, std::string s, double x)
-//*************************************************************
-{
-  // cout << "fill1 " << s << endl;
-  if(h.count(s)==0){
-    std::cout << "Trying to fill non-exiting Histogram named " << s << std::endl;
-    return;
-  }
-  h[s]->Fill(x);
-}
-
-//*************************************************************
-void PrimaryVertexValidation::fill(std::map<std::string, TH1*>& h, std::string s, double x, double y)
-//*************************************************************
-{
-  // cout << "fill2 " << s << endl;
-  if(h.count(s)==0){
-    std::cout << "Trying to fill non-exiting Histogram named " << s << std::endl;
-    return;
-  }
-  h[s]->Fill(x,y);
 }
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(PrimaryVertexValidation);
+
+

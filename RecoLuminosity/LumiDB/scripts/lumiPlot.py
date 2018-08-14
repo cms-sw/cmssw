@@ -6,6 +6,7 @@
 # Author:      Zhen Xie                                                 #
 #########################################################################
 #
+from __future__ import print_function
 import os,os.path,sys,datetime,time,csv,re
 from RecoLuminosity.LumiDB import argparse,lumiTime,matplotRender,sessionManager,lumiParameters,RegexValidator,revisionDML,lumiCalcAPI,normDML
 import matplotlib
@@ -224,7 +225,7 @@ if __name__=='__main__':
                         help='type of plots')
     options=parser.parse_args()
     if options.yscale=='both' and options.interactive:
-        print '--interactive mode can draw either yscale log or linear at a time'
+        print('--interactive mode can draw either yscale log or linear at a time')
         exit(0)
     outplotfilename = options.outplot
     if not outplotfilename:
@@ -326,19 +327,19 @@ if __name__=='__main__':
         rruns=irunlsdict.keys()
             
     if options.verbose:
-        print '[INFO] runs from db: ',irunlsdict
+        print('[INFO] runs from db: ',irunlsdict)
         if lastDrawnRun:
-            print '[INFO] last run in old plot: ',lastDrawnRun
-            print '[INFO] first run from DB in fresh plot: ',newFirstRun
+            print('[INFO] last run in old plot: ',lastDrawnRun)
+            print('[INFO] first run from DB in fresh plot: ',newFirstRun)
         if maxDrawnDay:
-            print '[INFO] last day in old plot: ',maxDrawnDay
-            print '[INFO] first day from DB in fresh plot: ',newFirstDay
+            print('[INFO] last day in old plot: ',maxDrawnDay)
+            print('[INFO] first day from DB in fresh plot: ',newFirstDay)
 
     if len(rruns)==0:
         if len(resultlines)!=0:
-            print '[INFO] drawing all from old plot data'
+            print('[INFO] drawing all from old plot data')
         else:
-            print '[INFO] found no old nor new data, do nothing'
+            print('[INFO] found no old nor new data, do nothing')
             exit(0)
 
     GrunsummaryData=lumiCalcAPI.runsummaryMap(session.nominalSchema(),irunlsdict)
@@ -576,7 +577,7 @@ if __name__=='__main__':
                 exit(0)
     else:
         if options.interactive:
-            print 'cannot draw both log and linear from interactive'
+            print('cannot draw both log and linear from interactive')
             exit(0)
         if not options.withoutpng:
             m.drawPNG(outplotfilename+'.png')

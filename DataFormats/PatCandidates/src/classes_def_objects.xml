@@ -16,7 +16,10 @@
   <class name="pat::Lepton<reco::BaseTau>" />
 
   <!-- PAT Objects, and embedded data  -->
-  <class name="pat::Electron"  ClassVersion="35">
+  <class name="pat::Electron"  ClassVersion="38">
+   <version ClassVersion="38" checksum="1251314096"/>
+   <version ClassVersion="37" checksum="4284869321"/>
+   <version ClassVersion="36" checksum="199321903"/>
    <version ClassVersion="35" checksum="482655666"/>
    <version ClassVersion="34" checksum="3720919820"/>
    <version ClassVersion="33" checksum="459924678"/>
@@ -58,7 +61,13 @@
   </ioread>
 
 
-  <class name="pat::Muon"  ClassVersion="19">
+  <class name="pat::Muon"  ClassVersion="25">
+   <version ClassVersion="25" checksum="574733987"/>
+   <version ClassVersion="24" checksum="2298704767"/>
+   <version ClassVersion="23" checksum="3471390119"/>
+   <version ClassVersion="22" checksum="1816533594"/>
+   <version ClassVersion="21" checksum="1539691612"/>
+   <version ClassVersion="20" checksum="357097717"/>
    <version ClassVersion="19" checksum="2754486523"/>
    <version ClassVersion="18" checksum="1163602263"/>
    <version ClassVersion="17" checksum="1509153359"/>
@@ -80,7 +89,8 @@
     <![CDATA[ cachedIP_ = onfile.cachedIP_[1] + 2*onfile.cachedIP_[2] + 4*onfile.cachedIP_[3] + 8*onfile.cachedIP_[4]; ]]>
   </ioread>
 
-  <class name="pat::Tau"  ClassVersion="17">
+  <class name="pat::Tau"  ClassVersion="18">
+   <version ClassVersion="18" checksum="3279584614"/>
    <version ClassVersion="17" checksum="2561486007"/>
    <version ClassVersion="16" checksum="2793593983"/>
    <field name="isolationTracksTransientRefVector_" transient="true"/>
@@ -100,6 +110,17 @@
    <version ClassVersion="11" checksum="3100353428"/>
    <version ClassVersion="10" checksum="2244564938"/>
   </class>
+
+  <class name="pat::IsolatedTrack" ClassVersion="5">
+   <version ClassVersion="5" checksum="139818330"/>
+   <version ClassVersion="4" checksum="71166093"/>
+   <version ClassVersion="3" checksum="550880582"/>
+  </class>
+
+  <class name="pat::PFIsolation" ClassVersion="3">
+    <version ClassVersion="3" checksum="2961562419" />
+  </class>
+
   <!--NOTE: the declaration of AtomicPtrCache are a temporary work around until ROOT 6 where they will not be needed -->
    <class name="edm::AtomicPtrCache<reco::TrackRefVector>">
      <field name="m_data" transient="true"/>
@@ -194,7 +215,8 @@
   </ioread>
 
   <class name="std::vector<pat::tau::TauPFEssential>" />
-  <class name="pat::Photon"  ClassVersion="20">
+  <class name="pat::Photon"  ClassVersion="21">
+   <version ClassVersion="21" checksum="3263223164"/>
    <version ClassVersion="20" checksum="1579185367"/>
    <version ClassVersion="19" checksum="4285818507"/>
    <version ClassVersion="18" checksum="1413598928"/>
@@ -214,6 +236,7 @@
   </ioread>
 
   <class name="pat::Jet"  ClassVersion="16">
+   <field name="daughtersTemp_" transient="true"/>
    <version ClassVersion="16" checksum="4069285947"/>
    <version ClassVersion="15" checksum="727883729"/>
    <version ClassVersion="14" checksum="1304049301"/>
@@ -226,6 +249,15 @@
   </class>
   <ioread sourceClass = "pat::Jet" version="[1-11]" targetClass="pat::Jet" source="int partonFlavour_" target="jetFlavourInfo_">
     <![CDATA[jetFlavourInfo_ = reco::JetFlavourInfo(0,onfile.partonFlavour_);]]>
+  </ioread>
+  <ioread sourceClass = "pat::Jet" version="[1-]" targetClass="pat::Jet" source="" target="caloTowersTemp_">
+    <![CDATA[caloTowersTemp_.reset();]]>
+  </ioread>
+  <ioread sourceClass = "pat::Jet" version="[1-]" targetClass="pat::Jet" source="" target="pfCandidatesTemp_">
+    <![CDATA[pfCandidatesTemp_.reset();]]>
+  </ioread>
+  <ioread sourceClass = "pat::Jet" version="[1-]" targetClass="pat::Jet" source="" target="daughtersTemp_">
+    <![CDATA[daughtersTemp_.reset();]]>
   </ioread>
   <class name="pat::MET"  ClassVersion="15">
     <version ClassVersion="15" checksum="428901429"/>
@@ -266,7 +298,8 @@
    <version ClassVersion="11" checksum="3492108938"/>
    <version ClassVersion="10" checksum="417284221"/>
   </class>
-  <class name="pat::PFParticle"  ClassVersion="14">
+  <class name="pat::PFParticle"  ClassVersion="15">
+   <version ClassVersion="15" checksum="1485536104"/>
    <version ClassVersion="14" checksum="2795911745"/>
    <version ClassVersion="13" checksum="223824921"/>
    <version ClassVersion="12" checksum="4118931093"/>
@@ -286,8 +319,16 @@
   <class name="pat::Conversion"  ClassVersion="11">
    <version ClassVersion="11" checksum="1239840459"/>
   </class>
-
-  <class name="pat::PackedCandidate" ClassVersion="27">
+  <class name="pat::PackedCandidate::PackedCovariance" ClassVersion="3">
+   <version ClassVersion="3" checksum="3320406063"/>
+  </class>
+  <class name="pat::PackedCandidate" ClassVersion="33">
+   <version ClassVersion="33" checksum="1092680546"/>
+   <version ClassVersion="32" checksum="926869123"/>
+   <version ClassVersion="31" checksum="1248040002"/>
+   <version ClassVersion="30" checksum="3338823671"/>
+   <version ClassVersion="29" checksum="649303924"/>
+   <version ClassVersion="28" checksum="1956349111"/>
     <version ClassVersion="27" checksum="2418936168"/>
     <version ClassVersion="26" checksum="2986327792"/>
     <version ClassVersion="25" checksum="3654469025"/>
@@ -311,16 +352,13 @@
     <field name="vertex_" transient="true" />
     <field name="dxy_" transient="true" />
     <field name="dz_" transient="true" />
+    <field name="dtrkpt_" transient="true" />
     <field name="dphi_" transient="true" />
-    <field name="dxydxy_" transient="true" />
-    <field name="dzdz_" transient="true" />
-    <field name="dxydz_" transient="true" />
-    <field name="dlambdadz_" transient="true" />
-    <field name="dphidxy_" transient="true" />
-    <field name="dphidphi_" transient="true" />
-    <field name="detadeta_" transient="true" />
-    <field name="dptdpt_" transient="true" />
+    <field name="deta_" transient="true" />
     <field name="track_" transient="true" />
+    <field name="m_" transient="true" />
+    <!--- <field name="covariance_load_flag" transient="true"/> -->
+   <!--- <field name="covarianceParameterization_" transient="true" />-->
   </class>
   <ioread sourceClass="pat::PackedCandidate"  version="[1-]" targetClass="pat::PackedCandidate" source="" target="p4_">
     <![CDATA[delete p4_.exchange(nullptr);
@@ -338,6 +376,36 @@
     <![CDATA[delete track_.exchange(nullptr);
     ]]>
   </ioread>
+  <ioread sourceClass="pat::PackedCandidate"  version="[1-]" targetClass="pat::PackedCandidate" source="" target="m_">
+    <![CDATA[delete m_.exchange(nullptr);
+    ]]>
+  </ioread>
+  <ioread sourceClass="pat::PackedCandidate" source="uint16_t packedCovarianceDxyDxy_; uint16_t packedCovarianceDxyDz_; uint16_t packedCovarianceDzDz_;   int8_t packedCovarianceDlambdaDz_; int8_t packedCovarianceDphiDxy_;  int8_t packedCovarianceDptDpt_; int8_t packedCovarianceDetaDeta_;  int8_t packedCovarianceDphiDphi_ " version="[-28]" targetClass="pat::PackedCandidate"
+   target="packedCovariance_" embed="false" >
+   <![CDATA[
+            packedCovariance_.dxydxy = onfile.packedCovarianceDxyDxy_;
+            packedCovariance_.dxydz = onfile.packedCovarianceDxyDz_;
+	    packedCovariance_.dzdz = onfile.packedCovarianceDzDz_;
+	    packedCovariance_.dlambdadz = onfile.packedCovarianceDlambdaDz_;
+	    packedCovariance_.dphidxy = onfile.packedCovarianceDphiDxy_;
+            packedCovariance_.dptdpt = onfile.packedCovarianceDptDpt_;
+            packedCovariance_.detadeta = onfile.packedCovarianceDetaDeta_;
+            packedCovariance_.dphidphi = onfile.packedCovarianceDphiDphi_;
+   ]]>
+   </ioread>
+  <ioread sourceClass="pat::PackedCandidate" source="int8_t packedPuppiweight_" version="[-32]" targetClass="pat::PackedCandidate"
+   target="packedPuppiweight_" include="DataFormats/Math/interface/liblogintpack.h">
+   <![CDATA[
+            packedPuppiweight_ = std::numeric_limits<uint8_t>::max()*(logintpack::unpack8logClosed(onfile.packedPuppiweight_,-2,0,64)/2. + 0.5);
+   ]]>
+   </ioread>
+  <ioread sourceClass="pat::PackedCandidate" source="int8_t packedPuppiweightNoLepDiff_; int8_t packedPuppiweight_" version="[-32]" targetClass="pat::PackedCandidate"
+   target="packedPuppiweightNoLepDiff_" include="DataFormats/Math/interface/liblogintpack.h">
+   <![CDATA[
+            packedPuppiweightNoLepDiff_ = std::numeric_limits<int8_t>::max()*(logintpack::unpack8logClosed(onfile.packedPuppiweightNoLepDiff_+onfile.packedPuppiweight_,-2,0,64)/2. - logintpack::unpack8logClosed(onfile.packedPuppiweight_,-2,0,64)/2.);
+   ]]>
+   </ioread>
+
 
   <class name="pat::PackedGenParticle" ClassVersion="12">
     <version ClassVersion="12" checksum="2626711017"/>
@@ -370,12 +438,27 @@
   <class name="edm::Ptr<pat::Jet>" />
   <class name="edm::Ptr<pat::MET>" />
   <class name="edm::Ptr<pat::Conversion>" />
+  <class name="edm::Ptr<pat::PackedCandidate>" />
+  <class name="edm::Ptr<pat::PackedGenParticle>" />
+
 
   <class name="edm::FwdPtr<pat::PackedCandidate>" />
   <class name="std::vector<edm::FwdPtr<pat::PackedCandidate> >" />
   <class name="edm::Wrapper<edm::FwdPtr<pat::PackedCandidate> >" />
   <class name="edm::Wrapper<std::vector<edm::FwdPtr<pat::PackedCandidate> > >" />
 
+  <class name="edm::FwdPtr<pat::PackedGenParticle>" />
+  <class name="std::vector<edm::FwdPtr<pat::PackedGenParticle> >" />
+  <class name="edm::Wrapper<edm::FwdPtr<pat::PackedGenParticle> >" />
+  <class name="edm::Wrapper<std::vector<edm::FwdPtr<pat::PackedGenParticle> > >" />
+
+  <class name="std::vector<edm::Ptr<pat::PackedCandidate> >" />
+  <class name="edm::Wrapper<edm::Ptr<pat::PackedCandidate> >" />
+  <class name="edm::Wrapper<std::vector<edm::Ptr<pat::PackedCandidate> > >" />
+
+  <class name="std::vector<edm::Ptr<pat::PackedGenParticle> >" />
+  <class name="edm::Wrapper<edm::Ptr<pat::PackedGenParticle> >" />
+  <class name="edm::Wrapper<std::vector<edm::Ptr<pat::PackedGenParticle> > >" />
 
   <!-- PAT Object Collections -->
   <class name="std::vector<pat::Electron>" />
@@ -392,6 +475,7 @@
   <class name="std::vector<pat::Hemisphere>" />
   <class name="std::vector<pat::Conversion>" />
   <class name="std::vector<pat::PackedCandidate>"/>
+  <class name="std::vector<pat::IsolatedTrack>"/>
   <class name="std::vector<pat::PackedGenParticle>"/>
 
   <!-- PAT Object Collection Iterators -->
@@ -426,6 +510,7 @@
   <class name="edm::Wrapper<std::vector<pat::Hemisphere> >" />
   <class name="edm::Wrapper<std::vector<pat::Conversion> >" />
   <class name="edm::Wrapper<std::vector<pat::PackedCandidate> >"/>
+  <class name="edm::Wrapper<std::vector<pat::IsolatedTrack> >"/>
   <class name="edm::Wrapper<std::vector<pat::PackedGenParticle> >"/>
 
   <!-- PAT Object References -->
@@ -533,6 +618,7 @@
 
   <class name="std::pair<pat::TauRef, float>"/>
   <class name="std::vector<std::pair<pat::TauRef, float> >" />
+  <class name="edm::RefProd<std::vector<pat::Tau> >"/>
 
   </selection>
  <exclusion>

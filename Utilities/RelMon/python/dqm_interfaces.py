@@ -1,3 +1,4 @@
+from __future__ import print_function
 ################################################################################
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
@@ -108,7 +109,7 @@ class DQMcommunicator(object):
     try:
       raw_folder=eval(self.get_data(url))
     except:
-      print "Retrying.."
+      print("Retrying..")
       for ntrials in xrange(5):
         try:
           if ntrials!=0:
@@ -117,7 +118,7 @@ class DQMcommunicator(object):
           raw_folder=eval(self.get_data(url))
           break
         except:
-          print "Could not fetch %s. Retrying" %url
+          print("Could not fetch %s. Retrying" %url)
         
     #raw_folder=loads(self.get_data(url))
     for content_dict in raw_folder["contents"]:      
@@ -365,7 +366,7 @@ class DirID(object):
     #if self.name in name2 or name2 in self.name:
     if search(self.compname,name2)!=None or search(compname2,self.name)!=None:
       is_equal = self.depth*depth2 <0 or self.depth==depth2
-    if len(self.mother)*(dirid.mother)>0:
+    if len(self.mother)*len(dirid.mother)>0:
       is_equal = is_equal and self.mother==dirid.mother
     return is_equal
     
@@ -408,7 +409,7 @@ class DirWalkerDB(Thread):
     
     this_dir=DirID(self.directory.name,self.depth)
     if this_dir in self.black_list: 
-      print "Skipping %s since blacklisted!" %this_dir
+      print("Skipping %s since blacklisted!" %this_dir)
       return 0 
     
     self.depth+=1
@@ -479,14 +480,14 @@ class DQMRootFile(object):
     self.rootfilepwd=self.rootfile.GetDirectory(dqmdatadir)
     self.rootfileprevpwd=self.rootfile.GetDirectory(dqmdatadir)
     if self.rootfilepwd == None:
-      print "Directory %s does not exist: skipping. Is this a custom rootfile?" %dqmdatadir
+      print("Directory %s does not exist: skipping. Is this a custom rootfile?" %dqmdatadir)
       self.rootfilepwd=self.rootfile
       self.rootfileprevpwd=self.rootfile
   
   def __is_null(self,directory,name):
     is_null = not directory
     if is_null:
-        print >> stderr, "Directory %s does not exist!" %name
+        print("Directory %s does not exist!" %name, file=stderr)
     return is_null
 
   def ls(self,directory_name=""):
@@ -594,7 +595,7 @@ class DirWalkerFile(object):
     contents={}
     self.different_histograms['file1']= {}
     self.different_histograms['file2']= {}
-    keys = filter(lambda key: key in contents1,contents2.keys()) #set of all possible contents from both files
+    keys = [key for key in contents2.keys() if key in contents1] #set of all possible contents from both files
     #print " ## keys: %s" %(keys)
     for key in keys:  #iterate on all unique keys
       if contents1[key]!=contents2[key]:
@@ -657,7 +658,7 @@ class DirWalkerFile(object):
         #We have a dir, launch recursion!
         #Some feedback on the progress
         if depth==1:
-          print "Studying directory %s, %s/%s" %(name,cont_counter,n_top_contents)
+          print("Studying directory %s, %s/%s" %(name,cont_counter,n_top_contents))
           cont_counter+=1          
  
         #print "Studying directory",name
@@ -668,10 +669,10 @@ class DirWalkerFile(object):
         self.__fill_single_dir(name,subdir,join(mother_name,dir_name),depth)
         if not subdir.is_empty():
           if depth==1:
-            print " ->Appending %s..." %name,
+            print(" ->Appending %s..." %name, end=' ')
           directory.subdirs.append(subdir)
           if depth==1:
-            print "Appended."
+            print("Appended.")
       else:
         # We have probably an histo. Let's make the plot and the png.        
         if obj_type[:2]!="TH" and obj_type[:3]!="TPr" :
@@ -680,7 +681,7 @@ class DirWalkerFile(object):
         #print "COMPARISON : +%s+%s+" %(mother_name,dir_name)
         path = join(mother_name,dir_name,name)
         if path in self.black_list_histos:
-          print "  Skipping %s" %(path)
+          print("  Skipping %s" %(path))
           directory.comparisons.append(Comparison(name,
                               join(mother_name,dir_name),
                               h1,h2,
@@ -711,12 +712,12 @@ class DirWalkerFile(object):
       try:
         first_run_dir = filter(lambda k: "Run " in k, self.ls().keys())[0]
       except:
-         print "\nRundir not there: Is this a generic rootfile?\n"
+         print("\nRundir not there: Is this a generic rootfile?\n")
       rundir=first_run_dir
       try:
 	self.run= int(rundir.split(" ")[1])
       except:
-        print "Setting run number to 0"
+        print("Setting run number to 0")
         self.run= 0
     else:
       rundir="Run %s"%self.run
@@ -724,14 +725,14 @@ class DirWalkerFile(object):
     try:
       self.cd(rundir, False, True) #True -> for checking the Rundir in case of different runs
     except:
-      print "\nRundir not there: Is this a generic rootfile?\n"
+      print("\nRundir not there: Is this a generic rootfile?\n")
     
     # Let's rock!
     self.__fill_single_dir(self.directory.name,self.directory)
-    print "Finished"
+    print("Finished")
     n_left_threads=len(tcanvas_print_processes)
     if n_left_threads>0:
-      print "Waiting for %s threads to finish..." %n_left_threads
+      print("Waiting for %s threads to finish..." %n_left_threads)
       for p in tcanvas_print_processes:
         p.join()  
 

@@ -5,7 +5,7 @@
 #include <iostream>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -19,10 +19,10 @@ class  METCorrectorDBWriter : public edm::one::EDAnalyzer<>
 {
  public:
   METCorrectorDBWriter(const edm::ParameterSet&);
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override {}
-  virtual void endJob() override {}
-  ~METCorrectorDBWriter() {}
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override {}
+  void endJob() override {}
+  ~METCorrectorDBWriter() override {}
 
  private:
   std::string era;
@@ -64,7 +64,7 @@ void METCorrectorDBWriter::beginJob()
       std::vector<std::string> sections;
       payload->getSections(fip.fullPath(), sections );
       //MEtXYcorrectParametersCollection::getSections(fip.fullPath(), sections );
-      if(sections.size() == 0){
+      if(sections.empty()){
         payload->push_back(ilev, MEtXYcorrectParameters(fip.fullPath(),"") );
       }else{
 	for ( std::vector<std::string>::const_iterator isectbegin = sections.begin(), isectend = sections.end(), isect = isectbegin;
@@ -75,7 +75,7 @@ void METCorrectorDBWriter::beginJob()
       }
       std::cout << "Added record " << ilev << std::endl;
     }
-    catch(edm::Exception ex) {
+    catch(edm::Exception const&) {
       std::cout<<"Have not found METC file: "<<inputTxtFile<<std::endl;
     }
   }

@@ -23,7 +23,7 @@ class Phase2StripCPEESProducer: public edm::ESProducer {
     public:
     
         Phase2StripCPEESProducer(const edm::ParameterSet&);
-        std::shared_ptr<ClusterParameterEstimator<Phase2TrackerCluster1D> > produce(const TkStripCPERecord & iRecord);
+        std::unique_ptr<ClusterParameterEstimator<Phase2TrackerCluster1D> > produce(const TkStripCPERecord & iRecord);
 
     private:
 
@@ -32,7 +32,6 @@ class Phase2StripCPEESProducer: public edm::ESProducer {
 
         CPE_t cpeNum_;
         edm::ParameterSet pset_;
-        std::shared_ptr<ClusterParameterEstimator<Phase2TrackerCluster1D> > cpe_;
 
 };
 
@@ -51,17 +50,20 @@ Phase2StripCPEESProducer::Phase2StripCPEESProducer(const edm::ParameterSet & p) 
 }
 
 
-std::shared_ptr<ClusterParameterEstimator<Phase2TrackerCluster1D> > Phase2StripCPEESProducer::produce(const TkStripCPERecord & iRecord) {
+std::unique_ptr<ClusterParameterEstimator<Phase2TrackerCluster1D> > Phase2StripCPEESProducer::produce(const TkStripCPERecord & iRecord) {
 
   edm::ESHandle<MagneticField> magfield;
+  edm::ESHandle<TrackerGeometry> pDD;
 
+  std::unique_ptr<ClusterParameterEstimator<Phase2TrackerCluster1D> > cpe_;
   switch(cpeNum_) {
     case DEFAULT:
       iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield );
-      cpe_ = std::make_shared<Phase2StripCPE>(pset_, *magfield);
+      iRecord.getRecord<TrackerDigiGeometryRecord>().get( pDD );
+      cpe_ = std::make_unique<Phase2StripCPE>(pset_, *magfield,*pDD);
       break;
     case GEOMETRIC:
-      cpe_ = std::make_shared<Phase2StripCPEGeometric>(pset_);
+      cpe_ = std::make_unique<Phase2StripCPEGeometric>(pset_);
       break;
   }
   return cpe_;

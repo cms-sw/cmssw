@@ -5,9 +5,9 @@ from RecoEgamma.EgammaElectronProducers.electronEDIsolationDeposits_cff import *
 from RecoEgamma.EgammaElectronProducers.electronEDIsolationValues_cff import *
 
 
-edBasedElectronIsoSequence = cms.Sequence(
-    pfParticleSelectionSequence +
-    electronEDIsolationDepositsSequence +
-    electronEDIsolationValuesSequence
+edBasedElectronIsoTask = cms.Task(
+    pfParticleSelectionTask,
+    electronEDIsolationDepositsTask,
+    electronEDIsolationValuesTask
     )
-
+edBasedElectronIsoSequence = cms.Sequence(edBasedElectronIsoTask)

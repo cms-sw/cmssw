@@ -12,7 +12,7 @@ namespace reco {
       CaloRecHitCandidateProducer( const edm::ParameterSet & cfg ) :
 	srcToken_( consumes<HitCollection>( cfg.template getParameter<edm::InputTag>( "src" ) ) ) { }
       /// destructor
-      ~CaloRecHitCandidateProducer() { }
+      ~CaloRecHitCandidateProducer() override { }
 
     private:
       /// process one event

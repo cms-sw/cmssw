@@ -8,6 +8,8 @@
 
 #include<vector>
 #include<algorithm>
+#include <cstddef> // for size_t
+#include <utility> // for pair
 
 class TestDataFrame;
 

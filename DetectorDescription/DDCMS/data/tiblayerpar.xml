@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="tiblayerpar.xml" eval="true">
+		<Constant name="DetTilt" value="-9.00*deg"/>
+		<Constant name="Tolerance" value="0.25*cm"/>
+		<Constant name="SupportT" value="0.5*mm"/>
+		<Constant name="RibWidth1" value="3.50*cm"/>
+		<Constant name="RibWidth2" value="0.13*cm"/>
+		<Constant name="RadiusLo0" value="23.90*cm"/>
+		<Constant name="RadiusLo1" value="32.30*cm"/>
+		<Constant name="RadiusLo2" value="40.25*cm"/>
+		<Constant name="RadiusLo3" value="48.20*cm"/>
+		<Constant name="DRUpLo" value="3.20*cm"/>
+		<Constant name="MFRingT" value="8.0*mm"/>
+		<Constant name="MFRingDz" value="17.0*mm"/>
+		<Constant name="DOHMCarrierW" value="29.5*cm"/>
+		<Constant name="DOHMCarrierT" value="1.15*mm"/>
+		<Constant name="DOHMCarrierPhiOff" value="2.*deg"/>
+		<Constant name="DOHMtoMF" value="1.00*cm"/>
+		<Constant name="DOHM_PRIM_W" value="6.0*cm"/>
+		<Constant name="DOHM_PRIM_L" value="28.5*cm"/>
+		<Constant name="DOHM_PRIM_T" value="4.0*mm"/>
+		<Constant name="DOHM_AUX_W" value="6.0*cm"/>
+		<Constant name="DOHM_AUX_L" value="15.5*cm"/>
+		<Constant name="DOHM_AUX_T" value="4.0*mm"/>
+		<Constant name="Tol" value="0.1*mm"/>
+	</ConstantsSection>
+	<SolidSection label="tiblayerpar.xml">
+		<Box name="TIBDOHMPrim" dx="0.5*[tiblayerpar:DOHM_PRIM_W]" dy="0.5*[tiblayerpar:DOHM_PRIM_T]" dz="0.5*[tiblayerpar:DOHM_PRIM_L]"/>
+		<Box name="TIBDOHMAux" dx="0.5*[tiblayerpar:DOHM_AUX_W]" dy="0.5*[tiblayerpar:DOHM_AUX_T]" dz="0.5*[tiblayerpar:DOHM_AUX_L]"/>
+	</SolidSection>
+	<LogicalPartSection label="tiblayerpar.xml">
+		<LogicalPart name="TIBDOHMPrim" category="unspecified">
+			<rSolid name="tiblayerpar:TIBDOHMPrim"/>
+			<rMaterial name="tibmaterial:TIB_DOHM"/>
+		</LogicalPart>
+		<LogicalPart name="TIBDOHMAux" category="unspecified">
+			<rSolid name="tiblayerpar:TIBDOHMAux"/>
+			<rMaterial name="tibmaterial:TIB_AUX"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<RotationSection label="tiblayerpar.xml">
+		<Rotation name="D180" thetaX="90*deg" phiX="0*deg" thetaY="90*deg" phiY="270*deg" thetaZ="180*deg" phiZ="0*deg"/>
+	</RotationSection>
+</DDDefinition>

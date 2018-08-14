@@ -17,16 +17,16 @@ public:
 
   typedef typename std::pair<bool, double> BDpair;
 
-  virtual ~KalmanSmoothedVertexChi2Estimator() {}
+  ~KalmanSmoothedVertexChi2Estimator() override {}
 
   /**
    *  Methode which calculates the smoothed vertex chi**2.
    *  \param vertex is the final estimate of the vertex, with the refited tracks
    *  \return the smoothed vertex chi**2
    */
-  BDpair estimate(const CachingVertex<N> & vertex) const;
+  BDpair estimate(const CachingVertex<N> & vertex) const override;
    
-  KalmanSmoothedVertexChi2Estimator * clone() const 
+  KalmanSmoothedVertexChi2Estimator * clone() const override 
   {
    return new KalmanSmoothedVertexChi2Estimator(* this);
   }

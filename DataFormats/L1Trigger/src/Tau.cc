@@ -95,3 +95,15 @@ bool Tau::isMerged() const {
   return isMerged_;
 }
 
+bool Tau::operator==(const l1t::Tau& rhs) const
+{
+  return l1t::L1Candidate::operator==(static_cast<const l1t::L1Candidate &>(rhs))
+      && towerIEta_ == rhs.towerIEta()
+      && towerIPhi_ == rhs.towerIPhi()
+      && rawEt_ == rhs.rawEt()
+      && isoEt_ == rhs.isoEt()
+      && nTT_ == rhs.nTT()
+      && hasEM_ == rhs.hasEM()
+      && isMerged_ == rhs.isMerged();
+}
+

@@ -25,7 +25,7 @@ class CSCLayerGeometryInside : public edm::one::EDAnalyzer<edm::one::SharedResou
 public:
  
   explicit CSCLayerGeometryInside( const edm::ParameterSet& );
-  ~CSCLayerGeometryInside();
+  ~CSCLayerGeometryInside() override;
 
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;

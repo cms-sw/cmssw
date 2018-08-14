@@ -29,19 +29,19 @@ public:
 TrackerHitAnalyzer(const edm::ParameterSet& ps);
 
 /// Destructor
-~TrackerHitAnalyzer();
+~TrackerHitAnalyzer() override;
 
 protected:
 
- void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es);
+ void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es) override;
 
 /// Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c);
+void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 
 
 // EndJob
-void endJob();
+void endJob() override;
 
 //void BookTestHistos(Char_t sname, int nbin, float *xmin, float *xmax);
 
@@ -112,6 +112,7 @@ private:
 
  bool runStandalone;
  std::string fOutputFile;
+ bool pixelOutput;
 
 };
 

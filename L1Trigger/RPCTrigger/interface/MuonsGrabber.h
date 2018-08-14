@@ -65,9 +65,9 @@ class MuonsGrabber
       void addMuon(RPCTBMuon & mu, int lvl, int region, int hs, int index);
 
    private:
-      MuonsGrabber(const MuonsGrabber&); // stop default
+      MuonsGrabber(const MuonsGrabber&) = delete; // stop default
 
-      const MuonsGrabber& operator=(const MuonsGrabber&); // stop default
+      const MuonsGrabber& operator=(const MuonsGrabber&) = delete; // stop default
       std::string IntToString(int i);
 
       // ---------- member data --------------------------------

@@ -137,7 +137,4 @@ void L1TPUM::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& run , co
   regionBxEtSum_ = ibooker.book2D("regionBxEtSum", "Et per region per bunch crossing;Region index (18*eta+phi);BX index;Counts*et", 396, -0.5, 395.5, 5, -2.5, 2.5);
 }
 
-void L1TPUM::beginLuminosityBlock(const edm::LuminosityBlock& ls,const edm::EventSetup& es)
-{
-}
 

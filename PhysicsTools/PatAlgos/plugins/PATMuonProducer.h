@@ -29,25 +29,56 @@
 #include "PhysicsTools/PatAlgos/interface/KinResolutionsLoader.h"
 
 #include "DataFormats/PatCandidates/interface/UserData.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-
+#include "PhysicsTools/PatAlgos/interface/MuonMvaEstimator.h"
+#include "PhysicsTools/PatAlgos/interface/SoftMuonMvaEstimator.h"
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 
 namespace pat {
+
+  class PATMuonHeavyObjectCache {
+  public:
+
+    PATMuonHeavyObjectCache(const edm::ParameterSet&);
+
+    std::unique_ptr<const pat::MuonMvaEstimator> const& muonMvaEstimator() const {
+      return muonMvaEstimator_;
+    }
+
+    std::unique_ptr<const pat::SoftMuonMvaEstimator> const& softMuonMvaEstimator() const {
+      return softMuonMvaEstimator_;
+    }
+
+  private:
+    std::unique_ptr<const pat::MuonMvaEstimator> muonMvaEstimator_;
+    std::unique_ptr<const pat::SoftMuonMvaEstimator> softMuonMvaEstimator_;
+  };
+
   /// foward declarations
   class TrackerIsolationPt;
   class CaloIsolationEnergy;
 
   /// class definition
-  class PATMuonProducer : public edm::stream::EDProducer<> {
+  class PATMuonProducer : public edm::stream::EDProducer<edm::GlobalCache<PATMuonHeavyObjectCache>> {
 
   public:
     /// default constructir
-    explicit PATMuonProducer(const edm::ParameterSet & iConfig);
+    explicit PATMuonProducer(const edm::ParameterSet & iConfig, PATMuonHeavyObjectCache const*);
     /// default destructur
-    ~PATMuonProducer();
+    ~PATMuonProducer() override;
+
+    static std::unique_ptr<PATMuonHeavyObjectCache> initializeGlobalCache(const edm::ParameterSet& iConfig) {
+      return std::make_unique<PATMuonHeavyObjectCache>(iConfig);
+    }
+
+    static void globalEndJob(PATMuonHeavyObjectCache*) { }
+
     /// everything that needs to be done during the event loop
-    virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+    void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
     /// description of config file parameters
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
@@ -62,11 +93,13 @@ namespace pat {
 
 
     /// common muon filling, for both the standard and PF2PAT case
-    void fillMuon( Muon& aMuon, const MuonBaseRef& muonRef, const reco::CandidateBaseRef& baseRef, const GenAssociations& genMatches, const IsoDepositMaps& deposits, const IsolationValueMaps& isolationValues) const;
+      void fillMuon( Muon& aMuon, const MuonBaseRef& muonRef, const reco::CandidateBaseRef& baseRef, const GenAssociations& genMatches, const IsoDepositMaps& deposits, const IsolationValueMaps& isolationValues) const;
     /// fill label vector from the contents of the parameter set,
     /// for the embedding of isoDeposits or userIsolation values
     template<typename T> void readIsolationLabels( const edm::ParameterSet & iConfig, const char* psetName, IsolationLabels& labels, std::vector<edm::EDGetTokenT<edm::ValueMap<T> > > & tokens);
 
+    void setMuonMiniIso(pat::Muon& aMuon, const pat::PackedCandidateCollection *pc);
+    double getRelMiniIsoPUCorrected(const pat::Muon& muon, float rho);
 
     // embed various impact parameters with errors
     // embed high level selection
@@ -77,11 +110,28 @@ namespace pat {
 			 bool primaryVertexIsValid,
 			 reco::BeamSpot & beamspot,
 			 bool beamspotIsValid );
-
-
+    double relMiniIsoPUCorrected( const pat::Muon& aMuon,
+				  double rho);
+    std::optional<GlobalPoint> getMuonDirection(const reco::MuonChamberMatch& chamberMatch,
+                                                const edm::ESHandle<GlobalTrackingGeometry>& geometry,
+                                                const DetId& chamberId);
+    void fillL1TriggerInfo(pat::Muon& muon,
+			   edm::Handle<std::vector<pat::TriggerObjectStandAlone> >& triggerObjects,
+			   const edm::TriggerNames & names,
+			   const edm::ESHandle<GlobalTrackingGeometry>& geometry);
+    void fillHltTriggerInfo(pat::Muon& muon,
+			    edm::Handle<std::vector<pat::TriggerObjectStandAlone> >& triggerObjects,
+			    const edm::TriggerNames & names,
+			    const std::vector<std::string>& collection_names);
   private:
     /// input source
     edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
+    
+    // for mini-iso calculation
+    edm::EDGetTokenT<pat::PackedCandidateCollection > pcToken_;
+    bool computeMiniIso_;
+    std::vector<double> miniIsoParams_;
+    double relMiniIsoPUCorrected_;
 
     /// embed the track from best muon measurement (global pflow)
     bool embedBestTrack_;
@@ -143,7 +193,26 @@ namespace pat {
     bool useUserData_;
     /// add ecal PF energy
     bool embedPfEcalEnergy_;
-
+    /// add puppi isolation
+    bool addPuppiIsolation_;
+    //PUPPI isolation tokens
+    edm::EDGetTokenT<edm::ValueMap<float> > PUPPIIsolation_charged_hadrons_;
+    edm::EDGetTokenT<edm::ValueMap<float> > PUPPIIsolation_neutral_hadrons_;
+    edm::EDGetTokenT<edm::ValueMap<float> > PUPPIIsolation_photons_;
+    //PUPPINoLeptons isolation tokens
+    edm::EDGetTokenT<edm::ValueMap<float> > PUPPINoLeptonsIsolation_charged_hadrons_;
+    edm::EDGetTokenT<edm::ValueMap<float> > PUPPINoLeptonsIsolation_neutral_hadrons_;
+    edm::EDGetTokenT<edm::ValueMap<float> > PUPPINoLeptonsIsolation_photons_;
+    /// standard muon selectors
+    bool computeMuonMVA_;
+    bool computeSoftMuonMVA_;
+    bool recomputeBasicSelectors_;
+    bool mvaUseJec_;
+    edm::EDGetTokenT<reco::JetTagCollection> mvaBTagCollectionTag_;
+    edm::EDGetTokenT<reco::JetCorrector> mvaL1Corrector_;
+    edm::EDGetTokenT<reco::JetCorrector> mvaL1L2L3ResCorrector_;
+    edm::EDGetTokenT<double> rho_;
+    
     /// --- tools ---
     /// comparator for pt ordering
     GreaterByPt<Muon> pTComparator_;
@@ -155,6 +224,15 @@ namespace pat {
     pat::helper::EfficiencyLoader efficiencyLoader_;
     /// helper class to add userData to the muon
     pat::PATUserDataHelper<pat::Muon> userDataHelper_;
+
+    /// MC info
+    edm::EDGetTokenT<edm::ValueMap<reco::MuonSimInfo> > simInfo_;
+
+    /// Trigger
+    bool addTriggerMatching_;
+    edm::EDGetTokenT<std::vector<pat::TriggerObjectStandAlone>> triggerObjects_;
+    edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
+    std::vector<std::string> hltCollectionFilters_;
   };
 
 }

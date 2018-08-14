@@ -7,4 +7,13 @@
   <use   name="CondCore/CondDB"/>
   <use   name="CondFormats/Common"/>
   <use   name="boost_python"/>
+  <use   name="root"/>
+</library>
+<library   file="Module_PayloadInspector.cc" name="Module_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="boost_python"/>
+</library>
+<library   file="Module_2XML.cc" name="Utilities_payload2xml">
+  <use   name="CondCore/Utilities"/>
+  <use   name="boost_python"/>
 </library>

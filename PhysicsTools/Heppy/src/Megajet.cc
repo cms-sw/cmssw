@@ -1,7 +1,7 @@
 #include "PhysicsTools/Heppy/interface/Megajet.h"
 
 #include <vector>
-#include <math.h>
+#include <cmath>
 #include <TLorentzVector.h>
 
 using namespace std;

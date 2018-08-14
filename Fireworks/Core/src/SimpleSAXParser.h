@@ -137,8 +137,8 @@ public:
    virtual void data(const std::string &/*data*/) {}
 
 private:
-   SimpleSAXParser(const SimpleSAXParser&);    // stop default
-   const SimpleSAXParser& operator=(const SimpleSAXParser&);    // stop default
+   SimpleSAXParser(const SimpleSAXParser&) = delete;    // stop default
+   const SimpleSAXParser& operator=(const SimpleSAXParser&) = delete;    // stop default
    
    std::string parseEntity(const std::string &entity);
    std::string getToken(const char *delim)

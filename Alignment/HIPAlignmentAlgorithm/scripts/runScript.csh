@@ -6,18 +6,24 @@ set workdir = $1
 # The batch job directory (will vanish after job end):
 set curdir = `pwd`
 
-cp <ODIR>/../main/IOIteration*.root $curdir/.
-cp <ODIR>/../main/IOAlignedPositions*.root $curdir/. 
+cp <ODIR>/../main/IOIteration*.root $curdir/
+cp <ODIR>/../main/IOAlignedPositions*.root $curdir/
 
 # printing
 echo Setting up CMSSW environment in $workdir
 echo Running in $curdir...
+echo $curdir contains:
+ls
 
 # set up the CMS environment (choose your release and working area):
 cd $workdir
 eval `scramv1 runtime -csh`
 setenv STAGE_SVCCLASS cmscaf
 rehash
+
+if (<PROXYREDIRECT> == 1) then
+  setenv X509_USER_PROXY <ODIR>/../.user_proxy
+endif
 
 cd $curdir
 # Execute

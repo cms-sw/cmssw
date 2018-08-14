@@ -1,5 +1,5 @@
 
-#include <math.h>
+#include <cmath>
 #include <cstdlib>
 #include <iostream>
 
@@ -212,7 +212,7 @@ void TrackClassifier::reconstructionInformation(reco::TrackBaseRef const & track
         flags_[Bad] = (dxyPull > badPull_ || dzPull > badPull_);
 
     }
-    catch (cms::Exception exception)
+    catch (cms::Exception const&)
     {
         flags_[Bad] = true;
     }
@@ -556,7 +556,7 @@ bool TrackClassifier::isCharged(const HepMC::GenParticle * p)
     else
     {
         // the new/improved particle table doesn't know anti-particles
-        return  particleDataTable_->particle( -p->pdg_id() ) != 0;
+        return  particleDataTable_->particle( -p->pdg_id() ) != nullptr;
     }
 }
 

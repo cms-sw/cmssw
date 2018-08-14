@@ -2,7 +2,7 @@
 #define Geometry_GEMGeometryBuilder_ME0GeometryESModule_h
 
 /** \class ME0GeometryESModule
- * 
+ *
  *  ESProducer for ME0Geometry in MuonGeometryRecord
  *
  *  \author M. Maggi - INFN Bari
@@ -15,20 +15,20 @@
 
 #include <memory>
 
-class ME0GeometryESModule : public edm::ESProducer 
+class ME0GeometryESModule : public edm::ESProducer
 {
  public:
   /// Constructor
   ME0GeometryESModule(const edm::ParameterSet & p);
 
   /// Destructor
-  virtual ~ME0GeometryESModule();
-  
+  ~ME0GeometryESModule() override;
+
   /// Produce ME0Geometry.
   std::shared_ptr<ME0Geometry>  produce(const MuonGeometryRecord & record);
-  
- private:  
+
+ private:
   // use the DDD as Geometry source
-  bool useDDD, use10EtaPart;
+  bool useDDD;
 };
 #endif

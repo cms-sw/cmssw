@@ -44,6 +44,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
@@ -56,13 +57,13 @@
 class APVModeFilter : public edm::stream::EDFilter<> {
 public:
   explicit APVModeFilter(const edm::ParameterSet&);
-  ~APVModeFilter() = default;
+  ~APVModeFilter() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
   using BitMask = std::bitset<16>; /// APV mode is encoded in uin16_t
 
@@ -100,6 +101,10 @@ constexpr APVModeFilter::BitMask APVModeFilter::multi_;
 //
 APVModeFilter::APVModeFilter(const edm::ParameterSet& iConfig) :
   mode_(convertMode(iConfig.getUntrackedParameter<std::string>("apvMode"))) {
+  edm::LogInfo("Alignment")
+    << "@SUB=APVModeFilter::APVModeFilter"
+    << "Selecting events with APV mode '"
+    << iConfig.getUntrackedParameter<std::string>("apvMode") << "'.";
 }
 
 

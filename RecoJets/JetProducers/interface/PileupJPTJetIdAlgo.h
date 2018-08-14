@@ -15,7 +15,7 @@
 namespace edm {
   class Event;
   class EventSetup;
-  class ParameterSets;
+  class ParameterSet;
 }
 // For MVA analysis
 

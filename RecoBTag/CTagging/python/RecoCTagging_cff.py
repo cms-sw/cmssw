@@ -3,12 +3,12 @@ from RecoBTag.CTagging.cTagging_cff import *
 
 # new candidate-based ctagging sequence, requires its own IVF vertices (relaxed IVF reconstruction cuts)
 # but IP and soft-lepton taginfos from btagging sequence can be recycled
-pfCTagging = cms.Sequence(
-    ( inclusiveCandidateVertexingCvsL *
-      pfInclusiveSecondaryVertexFinderCvsLTagInfos
-    )
+pfCTaggingTask = cms.Task(
+    inclusiveCandidateVertexingCvsLTask,
+    pfInclusiveSecondaryVertexFinderCvsLTagInfos,
 
     # CSV + soft-lepton variables combined (ctagger optimized for c vs dusg)
-    * pfCombinedCvsLJetTags
-    * pfCombinedCvsBJetTags
+    pfCombinedCvsLJetTags,
+    pfCombinedCvsBJetTags
 )
+pfCTagging = cms.Sequence(pfCTaggingTask)

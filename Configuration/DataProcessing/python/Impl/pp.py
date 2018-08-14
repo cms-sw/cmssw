@@ -18,8 +18,11 @@ class pp(Reco):
         Reco.__init__(self)
         self.recoSeq=''
         self.cbSc='pp'
+        self.addEI=True
+        self.isRepacked=False
         self.promptCustoms= [ 'Configuration/DataProcessing/RecoTLR.customisePrompt' ]
         self.expressCustoms=[ ]
+        self.alcaHarvCustoms=[]
         self.expressModifiers = modifyExpress
         self.visCustoms=[ ]
         self.visModifiers = modifyExpress
@@ -31,7 +34,10 @@ class pp(Reco):
 
     """
 
-
+    def _setRepackedFlag(self,args):
+        if not 'repacked' in args:
+            args['repacked']= True
+            
     def promptReco(self, globalTag, **args):
         """
         _promptReco_
@@ -48,10 +54,12 @@ class pp(Reco):
         for c in self.promptCustoms:
             args['customs'].append(c)
 
+        if self.isRepacked:
+            self._setRepackedFlag(args)
+
         process = Reco.promptReco(self,globalTag, **args)
 
         return process
-
 
     def expressProcessing(self, globalTag, **args):
         """
@@ -69,6 +77,9 @@ class pp(Reco):
         for c in self.expressCustoms:
             args['customs'].append(c)
 
+        if self.isRepacked:
+            self._setRepackedFlag(args)
+            
         process = Reco.expressProcessing(self,globalTag, **args)
         
         return process
@@ -85,6 +96,9 @@ class pp(Reco):
 
         for c in self.visCustoms:
             args['customs'].append(c)
+            
+        if self.isRepacked:
+            self._setRepackedFlag(args)
 
         process = Reco.visualizationProcessing(self,globalTag, **args)
         
@@ -98,6 +112,12 @@ class pp(Reco):
 
         """
 
+        if not 'customs' in args:
+            args['customs']=[ ]
+
+        for c in self.alcaHarvCustoms:
+            args['customs'].append(c)
+
 
         if not 'skims' in args and not 'alcapromptdataset' in args:
             args['skims']=['BeamSpotByRun',
@@ -105,4 +125,3 @@ class pp(Reco):
                            'SiStripQuality']
             
         return Reco.alcaHarvesting(self, globalTag, datasetName, **args)
-

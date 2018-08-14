@@ -4,8 +4,6 @@ import DQM.TrackingMonitor.TrackingMonitor_cfi
 
 TrackMonSeed = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
 
-TrackMonSeed.OutputMEsInRootFile        = cms.bool(False)
-TrackMonSeed.OutputFileName             = cms.string('TrackingMonitorSeedMultiplicity.root')
 TrackMonSeed.MeasurementState           = cms.string('ImpactPoint')
 TrackMonSeed.FolderName                 = cms.string('Tracking/TrackParameters')
 TrackMonSeed.BSFolderName               = cms.string('Tracking/TrackParameters/BeamSpotParameters')

@@ -11,6 +11,8 @@
 # Fermilab, 2008
 #
 # imported from UserCode/Yumiceva/cuy
+from __future__ import print_function
+import six
 #
 # modified by Adrien Caudron to create TGraphErrors for b-tag performance plots
 # UCLouvain, 2012 
@@ -44,12 +46,12 @@ import os, string, re, sys, math
 try:
     import ROOT
 except:
-    print "\nCannot load PYROOT, make sure you have setup ROOT in the path"
-    print "and pyroot library is also defined in the variable PYTHONPATH, try:\n"
+    print("\nCannot load PYROOT, make sure you have setup ROOT in the path")
+    print("and pyroot library is also defined in the variable PYTHONPATH, try:\n")
     if (os.getenv("PYTHONPATH")):
-	print " setenv PYTHONPATH ${PYTHONPATH}:$ROOTSYS/lib\n"
+	print(" setenv PYTHONPATH ${PYTHONPATH}:$ROOTSYS/lib\n")
     else:
-	print " setenv PYTHONPATH $ROOTSYS/lib\n"
+	print(" setenv PYTHONPATH $ROOTSYS/lib\n")
     sys.exit()
 
 from ROOT import TFile
@@ -77,7 +79,7 @@ USAGE = re.compile(r'(?s)\s*usage: (.*?)(\n[ \t]*\n|$)')
 
 def nonzero(self): # will become the nonzero method of optparse.Values
     "True if options were given"
-    for v in self.__dict__.itervalues():
+    for v in six.itervalues(self.__dict__):
         if v is not None: return True
     return False
 
@@ -340,7 +342,7 @@ if __name__ == '__main__':
 	xmlfile = open(option.xml)
 	xmlfile.close()
     except:
-	print " ERROR: xml file \"" + option.xml + "\" does not exist"
+	print(" ERROR: xml file \"" + option.xml + "\" does not exist")
 	sys.exit()
     
     # Create a parser
@@ -375,26 +377,26 @@ if __name__ == '__main__':
     firstFilename = ''
 
     for ikey in thedata:
-	if verbose : print "= Processing set called: " + ikey
+	if verbose : print("= Processing set called: " + ikey)
 	afilename = thedata[ikey].filename
 	if firstFilename == '':
 	    firstFilename = afilename
 	arelease = ""
 	if thedata[ikey].release != None:
 	    arelease = thedata[ikey].release
-	if verbose : print "== filename: " + afilename
-	if verbose : print "== release:  " + arelease
-	if verbose : print "== weight:   " + thedata[ikey].weight
+	if verbose : print("== filename: " + afilename)
+	if verbose : print("== release:  " + arelease)
+	if verbose : print("== weight:   " + thedata[ikey].weight)
 	thehistos = thedata[ikey].histos
 	afilelist[afilename] = TFile(afilename)
-	if verbose : print "== get histograms: "
+	if verbose : print("== get histograms: ")
 	histonamekeys = thehistos.keys()
 	for ihname in histonamekeys:
-	    if verbose : print "=== Histogram name: \""+ ihname + "\" source: \""+thehistos[ihname]+"\""
+	    if verbose : print("=== Histogram name: \""+ ihname + "\" source: \""+thehistos[ihname]+"\"")
 	    thedata[ikey].TH1s[ihname] = ROOT.gDirectory.Get(thehistos[ihname])
 	    #SetOwnership(thedata[ikey].TH1s[ihname], 0)
 	    # check if file exists
-	    print thedata[ikey].TH1s[ihname].GetName()
+	    print(thedata[ikey].TH1s[ihname].GetName())
             
 
     # plot superimpose histograms
@@ -404,10 +406,10 @@ if __name__ == '__main__':
 
 
     theaddition = dh.addition
-    if verbose : print "= Create addition histograms:"
+    if verbose : print("= Create addition histograms:")
     
     for ikey in theaddition:
-	if verbose : print "== plot name: \""+theaddition[ikey].name+"\" title: \""+theaddition[ikey].title+"\""
+	if verbose : print("== plot name: \""+theaddition[ikey].name+"\" title: \""+theaddition[ikey].title+"\"")
 	listname = theaddition[ikey].histos
 	listweight = theaddition[ikey].weight
 
@@ -428,9 +430,9 @@ if __name__ == '__main__':
 		    if tmpname == ihname:
 			ath = thedata[jkey].TH1s[tmpname]
 			if ath is None:
-			    print "ERROR: histogram name \""+tmpname+"\" does not exist in file "+thedata[jkey].filename
+			    print("ERROR: histogram name \""+tmpname+"\" does not exist in file "+thedata[jkey].filename)
 			    exit(0)
-			if verbose : print "=== add histogram: "+ath.GetName() + " from " + thedata[jkey].filename + " mean = " + "%.2f" % round(ath.GetMean(),2) + " weight= " + str(aweight)
+			if verbose : print("=== add histogram: "+ath.GetName() + " from " + thedata[jkey].filename + " mean = " + "%.2f" % round(ath.GetMean(),2) + " weight= " + str(aweight))
 			#ath.Print("all")
 			if isFirst:
 			    newth = ath.Clone(theaddition[ikey].name)
@@ -475,11 +477,11 @@ if __name__ == '__main__':
 	newth.Write()
 	
     
-    if verbose : print "= Create ratio histograms:"
+    if verbose : print("= Create ratio histograms:")
     
     thedivition = dh.divide
     for ikey in thedivition:
-	if verbose : print "== plot name: \""+thedivition[ikey].name+"\" title: \""+"\""
+	if verbose : print("== plot name: \""+thedivition[ikey].name+"\" title: \""+"\"")
 	numerator = thedivition[ikey].numerator
 	denominator = thedivition[ikey].denominator
 
@@ -492,14 +494,14 @@ if __name__ == '__main__':
 		if tmpname == numerator:
 		    numeratorth = thedata[jkey].TH1s[tmpname]
 		    if numeratorth is None:
-			print "ERROR: histogram name \""+tmpname+"\" does not exist in file "+thedata[jkey].filename
+			print("ERROR: histogram name \""+tmpname+"\" does not exist in file "+thedata[jkey].filename)
 			exit(0)
 			#print "=== numerator histogram: "+numeratorth.GetName() + " from " + thedata[jkey].filename + " mean = " + "%.2f" % round(numeratorth.GetMean(),2) + " weight= " + str(aweight)
 
 		if tmpname == denominator:
 		    denominatorth = thedata[jkey].TH1s[tmpname]
 		    if denominatorth is None:
-			print "ERROR: histogram name \""+tmpname+"\" does not exist in file "+thedata[jkey].filename
+			print("ERROR: histogram name \""+tmpname+"\" does not exist in file "+thedata[jkey].filename)
 			exit(0)
 			#print "=== denominator histogram: "+denominatorth.GetName() + " from " + thedata[jkey].filename + " mean = " + "%.2f" % round(denominatorth.GetMean(),2) + " weight= " + str(aweight)
 
@@ -543,9 +545,9 @@ if __name__ == '__main__':
 
 
     thesuper = dh.superimpose
-    if verbose : print "= Create superimpose histograms:"
+    if verbose : print("= Create superimpose histograms:")
     for ikey in thesuper:
-	if verbose : print "== plot name: \""+thesuper[ikey].name+"\" title: \""+thesuper[ikey].title+"\""
+	if verbose : print("== plot name: \""+thesuper[ikey].name+"\" title: \""+thesuper[ikey].title+"\"")
 	listname = thesuper[ikey].histos
 	listcolor = thesuper[ikey].color
 	listmarker = thesuper[ikey].marker
@@ -554,15 +556,15 @@ if __name__ == '__main__':
 	dolegend = False
 	for il in listlegend:
 	    if il==None: dolegend = False
-	if verbose : print "dolegend = " +str(dolegend)
+	if verbose : print("dolegend = " +str(dolegend))
 	doNormalize = False
         doRebin=thesuper[ikey].Rebin
         if doRebin is not None :
             doRebin=int(doRebin)
-            if verbose : print "Rebin is ", doRebin
+            if verbose : print("Rebin is ", doRebin)
         if thesuper[ikey].Normalize == "true":
 	    doNormalize = True
-	    if verbose : print "normalize = " +str(doNormalize)
+	    if verbose : print("normalize = " +str(doNormalize))
 	projectAxis = "no"
 	projectBin = -1 #all
 	if thesuper[ikey].projection == "x": projectAxis = "x"
@@ -573,7 +575,7 @@ if __name__ == '__main__':
 	if thesuper[ikey].profile == "y": profileAxis = "y"
 	doFill = False
 	if thesuper[ikey].Fill == "true": doFill = True
-	if verbose : print "fill option:"+ doFill
+	if verbose : print("fill option:"+ doFill)
 	#create canvas
 	cv[thesuper[ikey].name] = TCanvas(thesuper[ikey].name,thesuper[ikey].title,700,700)
 	#legend
@@ -599,9 +601,9 @@ if __name__ == '__main__':
 		    if tmpname == ihname:
 			ath = thedata[jkey].TH1s[tmpname]
 			if ath is None:
-			    print "ERROR: histogram name \""+tmpname+"\" does not exist in file "+thedata[jkey].filename
+			    print("ERROR: histogram name \""+tmpname+"\" does not exist in file "+thedata[jkey].filename)
 			    exit(0)
-			if verbose : print "=== superimpose histogram: "+ath.GetName() + " mean = " + "%.2f" % round(ath.GetMean(),2)
+			if verbose : print("=== superimpose histogram: "+ath.GetName() + " mean = " + "%.2f" % round(ath.GetMean(),2))
 			# project 2D histogram if requested
 			if projectAxis == "x":
 			    if projectBin == -1:
@@ -626,7 +628,7 @@ if __name__ == '__main__':
 			aweight = 1
 			if thedata[jkey].weight != None and thesuper[ikey].Weight=="true":
 			    aweight = float( thedata[jkey].weight )
-			if verbose: print " with weight = " + str(aweight)
+			if verbose: print(" with weight = " + str(aweight))
 			#if listweight[ii]:
 			 #   aweight = float( listweight[ii] )
 
@@ -787,9 +789,9 @@ if __name__ == '__main__':
 
 
     thegraph = dh.graph
-    if verbose : print "= Create graph histograms:"
+    if verbose : print("= Create graph histograms:")
     for ikey in thegraph:
-        if verbose : print "== plot name: \""+thegraph[ikey].name+"\" title: \""+thegraph[ikey].title+"\""
+        if verbose : print("== plot name: \""+thegraph[ikey].name+"\" title: \""+thegraph[ikey].title+"\"")
         listname = thegraph[ikey].histos
         listcolor = thegraph[ikey].color
         listmarker = thegraph[ikey].marker
@@ -799,11 +801,11 @@ if __name__ == '__main__':
         dolegend = False
         for il in listlegend:
             if il==None: dolegend = False
-        if verbose : print "dolegend = " +str(dolegend)
+        if verbose : print("dolegend = " +str(dolegend))
         doNormalize = False
         if thegraph[ikey].Normalize == "true":
             doNormalize = True
-            if verbose : print "normalize = " +str(doNormalize)
+            if verbose : print("normalize = " +str(doNormalize))
         projectAxis = "no"
         projectBin = -1 #all
         if thegraph[ikey].projection == "x": projectAxis = "x"
@@ -814,7 +816,7 @@ if __name__ == '__main__':
         if thegraph[ikey].profile == "y": profileAxis = "y"
         doFill = False
         if thegraph[ikey].Fill == "true": doFill = True
-        if verbose : print "fill option:"+ doFill
+        if verbose : print("fill option:"+ doFill)
         #create canvas
         cv[thegraph[ikey].name] = TCanvas(thegraph[ikey].name,thegraph[ikey].title,700,700)
         #legend
@@ -862,9 +864,9 @@ if __name__ == '__main__':
                         
                         ath = thedata[jkey].TH1s[tmpname]
                         if ath is None:
-                            print "ERROR: histogram name \""+tmpname+"\" does not exist in file "+thedata[jkey].filename
+                            print("ERROR: histogram name \""+tmpname+"\" does not exist in file "+thedata[jkey].filename)
                             exit(0)
-                        if verbose : print "=== graph histogram: "+ath.GetName() + " mean = " + "%.2f" % round(ath.GetMean(),2)
+                        if verbose : print("=== graph histogram: "+ath.GetName() + " mean = " + "%.2f" % round(ath.GetMean(),2))
                         #print listflavour[ii]
                         if listflavour[ii] == "5":
                             #print "iiiiiiiiiii" 

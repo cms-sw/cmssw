@@ -56,10 +56,10 @@
 class JetPlusTrackProducerAA : public edm::EDProducer {
    public:
       explicit JetPlusTrackProducerAA(const edm::ParameterSet&);
-      ~JetPlusTrackProducerAA();
-      virtual void beginJob();
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob();
+      ~JetPlusTrackProducerAA() override;
+      void beginJob() override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override;
 ////     reco::TrackRefVector calculateBGtracksJet(reco::JPTJetCollection&, std::vector <reco::TrackRef>&);
 
       reco::TrackRefVector calculateBGtracksJet(reco::JPTJetCollection&, std::vector <reco::TrackRef>&,  

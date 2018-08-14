@@ -18,19 +18,17 @@ AlignableDTStation::AlignableDTStation( const std::vector<AlignableDTChamber*>& 
 
   theDTChambers.insert( theDTChambers.end(), dtChambers.begin(), dtChambers.end() );
 
+  // maintain also list of components
+  for (const auto& chamber: dtChambers) {
+    const auto mother = chamber->mother();
+    this->addComponent(chamber); // components will be deleted by dtor of AlignableComposite
+    chamber->setMother(mother); // restore previous behaviour where mother is not set
+  }
+
   setSurface( computeSurface() );
   compConstraintType_ = Alignable::CompConstraintType::POSITION_Z;
 }
-      
 
-/// Clean delete of the vector and its elements
-AlignableDTStation::~AlignableDTStation() 
-{
-  for ( std::vector<AlignableDTChamber*>::iterator iter = theDTChambers.begin(); 
-	iter != theDTChambers.end(); iter++)
-    delete *iter;
-
-}
 
 /// Return Alignable DT Chamber at given index
 AlignableDTChamber &AlignableDTStation::chamber(int i) 

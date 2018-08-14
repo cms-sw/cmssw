@@ -39,7 +39,7 @@ namespace edm {
     typedef EDProducer ModuleType;
 
     EDProducer ();
-    virtual ~EDProducer();
+    ~EDProducer() override;
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
     static void prevalidate(ConfigurationDescriptions& descriptions);
@@ -47,7 +47,14 @@ namespace edm {
 
     // Warning: the returned moduleDescription will be invalid during construction
     ModuleDescription const& moduleDescription() const { return moduleDescription_; }
+    
+    static bool wantsGlobalRuns() {return true;}
+    static bool wantsGlobalLuminosityBlocks() {return true;}
+    static bool wantsStreamRuns() {return false;}
+    static bool wantsStreamLuminosityBlocks() {return false;};
 
+    SerialTaskQueue* globalRunsQueue() { return &runQueue_;}
+    SerialTaskQueue* globalLuminosityBlocksQueue() { return &luminosityBlockQueue_;}
   private:
     bool doEvent(EventPrincipal const& ep, EventSetup const& c,
                  ActivityRegistry* act,
@@ -68,8 +75,6 @@ namespace edm {
                               ModuleCallingContext const* mcc);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
-    void doPreForkReleaseResources();
-    void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
     void doRegisterThinnedAssociations(ProductRegistry const&,
                                        ThinnedAssociationsHelper&) { }
     void registerProductsAndCallbacks(EDProducer* module, ProductRegistry* reg) {
@@ -92,8 +97,9 @@ namespace edm {
     virtual void endLuminosityBlock(LuminosityBlock const& /* iL */, EventSetup const& /* iE */){}
     virtual void respondToOpenInputFile(FileBlock const&) {}
     virtual void respondToCloseInputFile(FileBlock const&) {}
-    virtual void preForkReleaseResources() {}
-    virtual void postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/) {}
+
+    bool hasAcquire() const { return false; }
+    bool hasAccumulator() const { return false; }
 
     void setModuleDescription(ModuleDescription const& md) {
       moduleDescription_ = md;
@@ -101,6 +107,8 @@ namespace edm {
     ModuleDescription moduleDescription_;
     std::vector<BranchID> previousParentage_;
     SharedResourcesAcquirer resourceAcquirer_;
+    SerialTaskQueue runQueue_;
+    SerialTaskQueue luminosityBlockQueue_;
     ParentageID previousParentageId_;
   };
 }

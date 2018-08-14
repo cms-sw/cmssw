@@ -9,31 +9,30 @@ process.MessageLogger = cms.Service(
     destinations = cms.untracked.vstring('SiStripDetVOffReader.log')
 )
 
-process.source = cms.Source("EmptySource",
-    numberEventsInRun = cms.untracked.uint32(1),
-    firstRun = cms.untracked.uint32(1)
-)
+process.source = cms.Source("EmptyIOVSource",
+                            timetype = cms.string('timestamp'),
+                            firstValue = cms.uint64(6318323863869830144),
+                            lastValue = cms.uint64(6318587115701303296),
+                            interval = cms.uint64(1)
+                            )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
-)
+    )
 
-process.poolDBESSource = cms.ESSource("PoolDBESSource",
-    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
-    DBParameters = cms.PSet(
-        messageLevel = cms.untracked.int32(2),
-        authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
-    ),
-    timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:dbfile.db'),
-    toGet = cms.VPSet(cms.PSet(
-        record = cms.string('SiStripDetVOffRcd'),
-        tag = cms.string('SiStripDetVOff_v1')
-    ))
-)
+#process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+#from Configuration.AlCa.GlobalTag import GlobalTag
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
-process.load("Configuration.StandardSequences.Geometry_cff")
-process.TrackerDigiGeometryESModule.applyAlignment = False
+from CondCore.CondDB.CondDB_cfi import *
+CondDBDetVOff = CondDB.clone(connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'))
+process.dbInput = cms.ESSource("PoolDBESSource",
+                               CondDBDetVOff,
+                               toGet = cms.VPSet(cms.PSet(record = cms.string('SiStripDetVOffRcd'),
+                                                          tag = cms.string('SiStripDetVOff_1hourDelay_v1_Validation') #choose your own favourite
+                                                          )
+                                                 )
+                               )
 
 process.fedcablingreader = cms.EDAnalyzer("SiStripDetVOffReader")
 

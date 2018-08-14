@@ -9,10 +9,10 @@ using namespace oracle::occi;
 
 ODJBH4Config::ODJBH4Config()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   m_config_tag="";
   m_ID=0;
   clear();
@@ -54,7 +54,7 @@ int ODJBH4Config::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODJBH4Config::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODJBH4Config::fetchNextId():  ")+getOraMessage(&e)));
   }
 
 }
@@ -75,7 +75,7 @@ void ODJBH4Config::prepareWrite()
     m_writeStmt->setInt(1, next_id);
     m_ID=next_id;
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODJBH4Config::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODJBH4Config::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -105,7 +105,7 @@ void ODJBH4Config::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODJBH4Config::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODJBH4Config::writeDB():  ")+getOraMessage(&e)));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -135,19 +135,19 @@ void ODJBH4Config::fetchData(ODJBH4Config * result)
     rset->next();
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(rset->getString(2));
+    result->setConfigTag(getOraString(rset,2));
 
     result->setUseBuffer(           rset->getInt(3) );
-    result->setHalModuleFile(        rset->getString(4) );
-    result->setHalAddressTableFile(         rset->getString(5) );
-    result->setHalStaticTableFile(    rset->getString(6) );
-    result->setCbd8210SerialNumber(        rset->getString(7) );
-    result->setCaenBridgeType(           rset->getString(8) );
+    result->setHalModuleFile(        getOraString(rset,4) );
+    result->setHalAddressTableFile(         getOraString(rset,5) );
+    result->setHalStaticTableFile(    getOraString(rset,6) );
+    result->setCbd8210SerialNumber(        getOraString(rset,7) );
+    result->setCaenBridgeType(           getOraString(rset,8) );
     result->setCaenLinkNumber(            rset->getInt(9) );
     result->setCaenBoardNumber(              rset->getInt(10) );
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODJBH4Config::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODJBH4Config::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -177,7 +177,7 @@ int ODJBH4Config::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODJBH4Config::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODJBH4Config::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;

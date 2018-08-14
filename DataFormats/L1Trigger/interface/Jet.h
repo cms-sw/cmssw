@@ -4,6 +4,7 @@
 
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
+#include "DataFormats/L1Trigger/interface/L1TObjComparison.h"
 
 namespace l1t {
 
@@ -13,10 +14,14 @@ namespace l1t {
   typedef edm::RefVector< JetBxCollection > JetRefVector ;
   typedef std::vector< JetRef > JetVectorRef ;
 
+  typedef ObjectRefBxCollection<Jet> JetRefBxCollection;
+  typedef ObjectRefPair<Jet> JetRefPair;
+  typedef ObjectRefPairBxCollection<Jet> JetRefPairBxCollection;
+
   class Jet : public L1Candidate {
 
   public:
-  Jet(){}
+  Jet(){ clear_extended(); }
   Jet( const LorentzVector& p4,
        int pt=0,
        int eta=0,
@@ -28,7 +33,7 @@ namespace l1t {
        int phi=0,
        int qual=0);
 
-  ~Jet();
+  ~Jet() override;
 
                   
   void setTowerIEta(short int ieta);  // ieta of seed tower                   
@@ -36,7 +41,7 @@ namespace l1t {
   void setRawEt(short int et);    // raw (uncalibrated) cluster sum
   void setSeedEt(short int et);
   void setPUEt(short int et);
-  void setPUDonutEt(uint i, short int et);
+  void setPUDonutEt(unsigned int i, short int et);
 
   short int towerIEta() const;
   short int towerIPhi() const;
@@ -44,6 +49,9 @@ namespace l1t {
   short int seedEt() const;
   short int puEt() const ;
   short int puDonutEt(int i) const;
+
+  virtual bool operator==(const l1t::Jet& rhs) const;
+  virtual inline bool operator!=(const l1t::Jet& rhs) const { return !(operator==(rhs)); };
 
   private:
 

@@ -28,10 +28,12 @@
    Fermilab 2010
    
 """
+from __future__ import print_function
 
 
 import sys,os, re
 import commands
+import six
 
 #_______________OPTIONS________________
 import optparse
@@ -40,7 +42,7 @@ USAGE = re.compile(r'(?s)\s*usage: (.*?)(\n[ \t]*\n|$)')
 
 def nonzero(self): # will become the nonzero method of optparse.Values
     "True if options were given"
-    for v in self.__dict__.itervalues():
+    for v in six.itervalues(self.__dict__):
         if v is not None: return True
     return False
 
@@ -111,7 +113,7 @@ if __name__ == '__main__':
     globaltag = ''
     
     if ((option.tag and option.globaltag)) == False: 
-	print " NEED to provide beam spot DB tag name, or global tag"
+	print(" NEED to provide beam spot DB tag name, or global tag")
 	exit()
     elif option.tag:
 	tagname = option.tag
@@ -122,7 +124,7 @@ if __name__ == '__main__':
         atag = outcmd[1].split()
         atag = atag[2]
         tagname = atag.replace("tag:","")
-        print " Global tag: "+globaltag+" includes the beam spot tag: "+tagname
+        print(" Global tag: "+globaltag+" includes the beam spot tag: "+tagname)
     
     iov_since = ''
     iov_till = ''
@@ -202,12 +204,12 @@ process.p = cms.Path(process.beamspot)
     status_rDB = commands.getstatusoutput('cmsRun '+ readdb_out)
     
     outtext = status_rDB[1]
-    print outtext
+    print(outtext)
 
     #### CLEAN up
     #os.system("rm "+ readdb_out)
 
-    print "DONE.\n"
+    print("DONE.\n")
     
 #_________________________________    
         

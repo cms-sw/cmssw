@@ -81,7 +81,7 @@ void TotemTestGem::update(const EndOfEvent * evt) {
     LogDebug("ForwardSim") << "TotemTestGem :: Hit Collection for " <<names[in]
 			   << " of ID " << HCid << " is obtained at " << theHC;
 
-    if (HCid >= 0 && theHC > 0) {
+    if (HCid >= 0 && theHC != nullptr) {
       int nentries = theHC->entries();
       LogDebug("ForwardSim") << "TotemTestGem :: " << names[in] << " with "
 			     << nentries << " entries";

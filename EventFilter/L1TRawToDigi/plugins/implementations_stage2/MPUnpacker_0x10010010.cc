@@ -23,7 +23,7 @@ namespace stage2 {
      const unsigned int bxid = block.amc().getBX();
 
      // handle offset between BC0 marker and actual BC0...
-     if( (tmt-1) != ((bxid-1+3)%9) ) return true;
+     //if( (tmt-1) != ((bxid-1+3)%9) ) return true;
      LogDebug("L1T") << "Unpacking TMT # " << tmt << " for BX " << bxid;
 
      auto res1_ = static_cast<CaloCollections*>(coll)->getMPJets();

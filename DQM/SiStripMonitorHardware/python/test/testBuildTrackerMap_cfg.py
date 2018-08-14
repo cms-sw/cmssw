@@ -55,11 +55,10 @@ process.GlobalTag.globaltag = "CRAFT0831X_V1::All"
 #process.GlobalTag.globaltag = "GR09_31X_V1P::All"
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
-process.DQMStore = cms.Service("DQMStore")
-
 #needed to produce tkHistoMap
-process.TkDetMap = cms.Service("TkDetMap")
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+process.load("DQM.SiStripCommon.TkHistoMap_cff")
+# load TrackerTopology (needed for TkDetMap and TkHistoMap)
+process.trackerTopology = cms.ESProducer("TrackerTopologyEP")
 
 process.load('DQM.SiStripMonitorHardware.siStripBuildTrackerMap_cfi')
 process.siStripBuildTrackerMap.InputFileName = '/home/magnan/SOFTWARE/CMS/data/FED/CMAnalysis/69797/CM_69797.root'

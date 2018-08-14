@@ -1,4 +1,4 @@
-#include "../interface/TrigPrimTask.h"
+#include "DQM/EcalMonitorTasks/interface/TrigPrimTask.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -16,15 +16,17 @@ namespace ecaldqm
 {
   TrigPrimTask::TrigPrimTask() :
     DQWorkerTask(),
-    realTps_(0),
+    realTps_(nullptr),
     runOnEmul_(false),
     //     HLTCaloPath_(""),
     //     HLTMuonPath_(""),
     //     HLTCaloBit_(false),
     //     HLTMuonBit_(false),
-    bxBinEdges_{1, 271, 541, 892, 1162, 1432, 1783, 2053, 2323, 2674, 2944, 3214, 3446, 3490, 3491, 3565},
+    bxBinEdges_{ {1, 271, 541, 892, 1162, 1432, 1783, 2053, 2323, 2674, 2944, 3214, 3446, 3490, 3491, 3565} },
     bxBin_(0.),
-    towerReadouts_()
+    towerReadouts_(),
+    lhcStatusInfoCollectionTag_(),
+    lhcStatusSet_(false)
   {
   }
 
@@ -39,6 +41,7 @@ namespace ecaldqm
       MEs_.erase(std::string("EtEmulError"));
       MEs_.erase(std::string("FGEmulError"));
     }
+    lhcStatusInfoCollectionTag_ = _params.getUntrackedParameter<edm::InputTag>("lhcStatusInfoCollectionTag", edm::InputTag("tcdsDigis", "tcdsRecord"));
   }
 
   void
@@ -62,6 +65,11 @@ namespace ecaldqm
   {
     // Reset by LS plots at beginning of every LS
     MEs_.at("EtSummaryByLumi").reset();
+    MEs_.at("TTFlags4ByLumi").reset();
+    MEs_.at("LHCStatusByLumi").reset(-1);
+
+    // Reset lhcStatusSet_ to false at the beginning of each LS; when LHC status is set in some event this variable will be set to true
+    lhcStatusSet_ = false;
   }
 
   void
@@ -71,13 +79,24 @@ namespace ecaldqm
 
     towerReadouts_.clear();
 
-    realTps_ = 0;
+    if (!lhcStatusSet_) {
+      // Update LHC status once each LS
+      MESet& meLHCStatusByLumi(static_cast<MESet&>(MEs_.at("LHCStatusByLumi")));
+      edm::Handle<TCDSRecord> tcdsData;
+      _evt.getByToken(lhcStatusInfoRecordToken_, tcdsData);
+      if (tcdsData.isValid()) {
+        meLHCStatusByLumi.fill(double(tcdsData->getBST().getBeamMode()));
+        lhcStatusSet_ = true;
+      }
+    }
+
+    realTps_ = nullptr;
 
     //     HLTCaloBit_ = false;
     //     HLTMuonBit_ = false;
 
-    int* pBin(std::upper_bound(bxBinEdges_, bxBinEdges_ + nBXBins + 1, _evt.bunchCrossing()));
-    bxBin_ = static_cast<int>(pBin - bxBinEdges_) - 0.5;
+    int* pBin(std::upper_bound(bxBinEdges_.begin(), bxBinEdges_.end(), _evt.bunchCrossing()));
+    bxBin_ = static_cast<int>(pBin - bxBinEdges_.begin()) - 0.5;
 
     edm::ESHandle<EcalTPGTowerStatus> TTStatusRcd_;
     _es.get<EcalTPGTowerStatusRcd>().get(TTStatusRcd_);
@@ -178,6 +197,12 @@ namespace ecaldqm
   }
 
   void
+  TrigPrimTask::setTokens(edm::ConsumesCollector& _collector)
+  {
+    lhcStatusInfoRecordToken_ = _collector.consumes<TCDSRecord>(lhcStatusInfoCollectionTag_);
+  }
+
+  void
   TrigPrimTask::runOnRealTPs(EcalTrigPrimDigiCollection const& _tps)
   {
     MESet& meEtVsBx(MEs_.at("EtVsBx"));
@@ -191,6 +216,7 @@ namespace ecaldqm
     MESet& meTTFlags(MEs_.at("TTFlags"));
     MESet& meTTFlagsVsEt(MEs_.at("TTFlagsVsEt"));
     MESet& meTTFlags4( MEs_.at("TTFlags4") );
+    MESet& meTTFlags4ByLumi( MEs_.at("TTFlags4ByLumi") );
     MESet& meTTFMismatch(MEs_.at("TTFMismatch"));
     MESet& meOccVsBx(MEs_.at("OccVsBx"));
 
@@ -234,15 +260,16 @@ namespace ecaldqm
       }
 
       // Fill TT Flag MEs
-      float ttF( tpItr->ttFlag() );
-      meTTFlags.fill( ttid, ttF );
-      meTTFlagsVsEt.fill(ttid, et, ttF);
+      int ttF( tpItr->ttFlag() );
+      meTTFlags.fill( ttid, 1.0*ttF );
+      meTTFlagsVsEt.fill(ttid, et, 1.0*ttF);
       // Monitor occupancy of TTF=4
       // which contains info about TT auto-masking
-      if ( ttF == 4. )
+      if ( ttF >= 4 ) {
         meTTFlags4.fill( ttid );
-
-      if((interest == 1 || interest == 3) && towerReadouts_[ttid.rawId()] != getTrigTowerMap()->constituentsOf(ttid).size())
+        meTTFlags4ByLumi.fill( ttid );
+      }
+      if((ttF == 1 || ttF == 3) && towerReadouts_[ttid.rawId()] != getTrigTowerMap()->constituentsOf(ttid).size())
         meTTFMismatch.fill(ttid);
     }
 
@@ -321,8 +348,8 @@ namespace ecaldqm
 
         if(realEt > 0){
 
-          int interest(realItr->ttFlag() & 0x3);
-          if((interest == 1 || interest == 3) && towerReadouts_[ttid.rawId()] == getTrigTowerMap()->constituentsOf(ttid).size()){
+          int ttF(realItr->ttFlag());
+          if((ttF == 1 || ttF == 3) && towerReadouts_[ttid.rawId()] == getTrigTowerMap()->constituentsOf(ttid).size()){
 
             if(et != realEt) match = false;
             if(tpItr->fineGrain() != realItr->fineGrain()) matchFG = false;
@@ -347,7 +374,7 @@ namespace ecaldqm
                 }
               } // Et match found
             } // iDigi
-            if(!matchedIndex.size()) matchedIndex.push_back(0); // no Et match found => no emul
+            if(matchedIndex.empty()) matchedIndex.push_back(0); // no Et match found => no emul
                         
             // Fill Real vs Emulated TP Et
             meRealvEmulEt.fill( ttid,realEt,(*tpItr)[2].compressedEt() ); // iDigi=2:in-time BX

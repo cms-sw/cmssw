@@ -84,8 +84,8 @@ void testGenericHandle::failgetbyLabelTest() {
   preg->setFrozen();
   auto runAux = std::make_shared<edm::RunAuxiliary>(id.run(), time, time);
   auto rp = std::make_shared<edm::RunPrincipal>(runAux, preg, pc, &historyAppender_,0);
-  auto lumiAux = std::make_shared<edm::LuminosityBlockAuxiliary>(rp->run(), 1, time, time);
-  auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(lumiAux, preg, pc, &historyAppender_,0);
+  auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(preg, pc, &historyAppender_,0);
+  lbp->setAux(edm::LuminosityBlockAuxiliary(rp->run(), 1, time, time));
   lbp->setRunPrincipal(rp);
   auto branchIDListHelper = std::make_shared<edm::BranchIDListHelper>();
   branchIDListHelper->updateFromRegistry(*preg);
@@ -94,7 +94,7 @@ void testGenericHandle::failgetbyLabelTest() {
   edm::EventPrincipal ep(preg, branchIDListHelper, thinnedAssociationsHelper, pc, &historyAppender_,edm::StreamID::invalidStreamID());
   edm::ProcessHistoryRegistry phr; 
   ep.fillEventPrincipal(eventAux, phr);
-  ep.setLuminosityBlockPrincipal(lbp);
+  ep.setLuminosityBlockPrincipal(lbp.get());
   edm::GenericHandle h("edmtest::DummyProduct");
   bool didThrow=true;
   try {
@@ -177,14 +177,14 @@ void testGenericHandle::getbyLabelTest() {
   std::shared_ptr<edm::ProductRegistry const> pregc(preg.release());
   auto runAux = std::make_shared<edm::RunAuxiliary>(col.run(), fakeTime, fakeTime);
   auto rp = std::make_shared<edm::RunPrincipal>(runAux, pregc, pc, &historyAppender_,0);
-  auto lumiAux = std::make_shared<edm::LuminosityBlockAuxiliary>(rp->run(), 1, fakeTime, fakeTime);
-  auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(lumiAux, pregc, pc, &historyAppender_,0);
+  auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(pregc, pc, &historyAppender_,0);
+  lbp->setAux(edm::LuminosityBlockAuxiliary(rp->run(), 1, fakeTime, fakeTime));
   lbp->setRunPrincipal(rp);
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, true);
   edm::EventPrincipal ep(pregc, branchIDListHelper, thinnedAssociationsHelper, pc, &historyAppender_,edm::StreamID::invalidStreamID());
   edm::ProcessHistoryRegistry phr; 
   ep.fillEventPrincipal(eventAux, phr);
-  ep.setLuminosityBlockPrincipal(lbp);
+  ep.setLuminosityBlockPrincipal(lbp.get());
   edm::BranchDescription const& branchFromRegistry = it->second;
   std::vector<edm::BranchID> const ids;
   edm::ProductProvenance prov(branchFromRegistry.branchID(), ids);

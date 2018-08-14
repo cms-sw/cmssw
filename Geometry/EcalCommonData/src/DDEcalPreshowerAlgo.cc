@@ -4,7 +4,7 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
@@ -637,7 +637,7 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
       if(K==2) type = typeOfLaddRow2[J];
       if(K==3) type = typeOfLaddRow3[J]; 
 
-      for(int i=0;i<int(types_l5_.size());i++) if(type == types_l5_[i]) {
+      for(const auto & i : types_l5_) if(type == i) {
 	  ladder_new_length_ = micromodule_length + 4*waf_active;
 	  ladd_shift_ = 5*waf_active;}
       

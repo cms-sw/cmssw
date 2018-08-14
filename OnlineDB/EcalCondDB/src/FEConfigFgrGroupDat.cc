@@ -10,10 +10,10 @@ using namespace oracle::occi;
 
 FEConfigFgrGroupDat::FEConfigFgrGroupDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_group_id=0;
   m_thresh_low = 0;
@@ -44,7 +44,7 @@ void FEConfigFgrGroupDat::prepareWrite()
 		      "VALUES (:fgr_conf_id, :group_id, "
 		      ":3, :4, :5, :6, :7 )" );
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigFgrGroupDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigFgrGroupDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -75,7 +75,7 @@ void FEConfigFgrGroupDat::writeDB(const EcalLogicID* ecid, const FEConfigFgrGrou
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigFgrGroupDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigFgrGroupDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -121,7 +121,7 @@ void FEConfigFgrGroupDat::fetchData(map< EcalLogicID, FEConfigFgrGroupDat >* fil
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigFgrGroupDat::fetchData:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigFgrGroupDat::fetchData:  ")+getOraMessage(&e)));
   }
 }
 
@@ -227,6 +227,6 @@ void FEConfigFgrGroupDat::writeArrayDB(const std::map< EcalLogicID, FEConfigFgrG
     delete [] t_len;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigFgrGroupDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigFgrGroupDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

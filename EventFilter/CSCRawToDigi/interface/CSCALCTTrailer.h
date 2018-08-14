@@ -5,7 +5,7 @@
   http://www.phys.ufl.edu/~madorsky/alctv/alct2000_spec.PDF
 */
 
-#include <string.h> // memcpy
+#include <cstring> // memcpy
 #ifndef LOCAL_UNPACK
 #include <atomic>
 #endif
@@ -14,6 +14,11 @@
 
 struct CSCALCTTrailer2006 {
   CSCALCTTrailer2006();
+
+  void setFromBuffer(unsigned short const* buf) {
+    memcpy(this, buf, sizeInWords()*2);
+  }
+
   void setSize(int size) {frameCount = size;}
   void setCRC(unsigned int crc) {crc0 = crc&0x7FF; crc1 = (crc >> 11) & 0x7FF;}
   short unsigned int sizeInWords() const { ///size of ALCT Header
@@ -27,6 +32,11 @@ struct CSCALCTTrailer2006 {
 
 struct CSCALCTTrailer2007 {
   CSCALCTTrailer2007();
+
+  void setFromBuffer(unsigned short const* buf) {
+    memcpy(this, buf, sizeInWords()*2);
+  }
+
   void setSize(int size) {frameCount = size;}
   void setCRC(unsigned int crc) {crc0 = crc&0x7FF; crc1 = (crc >> 11) & 0x7FF;}
   short unsigned int sizeInWords() const { ///size of ALCT Header
@@ -125,7 +135,7 @@ public:
     default:
       edm::LogError("CSCALCTTrailer|CSCRawToDigi")
 	<<"couldn't check: ALCT firmware version is bad/not defined!";
-      return 0;
+      return false;
     }
   }
   

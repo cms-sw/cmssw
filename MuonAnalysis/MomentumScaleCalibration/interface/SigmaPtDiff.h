@@ -1,6 +1,9 @@
 #ifndef SigmaPtDiff_h
 #define SigmaPtDiff_h
 
+#include <vector>
+#include <cmath>
+
 class SigmaPt
 {
  public:

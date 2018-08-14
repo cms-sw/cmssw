@@ -14,9 +14,9 @@ class FWLiteJobMetadataManager : public FWJobMetadataManager
 {
 public:
    FWLiteJobMetadataManager(void);
-   virtual bool doUpdate(FWJobMetadataUpdateRequest *request);
+   bool doUpdate(FWJobMetadataUpdateRequest *request) override;
 
-   virtual bool  hasModuleLabel(std::string& moduleLabel);
+   bool  hasModuleLabel(std::string& moduleLabel) override;
 
 private:
    const fwlite::Event *m_event;

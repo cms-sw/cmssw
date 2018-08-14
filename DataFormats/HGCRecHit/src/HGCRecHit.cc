@@ -1,9 +1,10 @@
 #include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
-#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include <cassert>
-#include <math.h>
+#include <cmath>
 
 HGCRecHit::HGCRecHit() : CaloRecHit(), flagBits_(0) {
 }
@@ -14,12 +15,12 @@ HGCRecHit::HGCRecHit(const DetId& id, float energy, float time, uint32_t flags, 
 
 float HGCRecHit::chi2() const {
   uint32_t rawChi2 = 0x7F & (flags()>>4);
-  return (float)rawChi2 / (float)((1<<7)-1) * 64.;
+  return (float)rawChi2 / (float)((1<<7)-1) * 64.f;
 }
 
 float HGCRecHit::outOfTimeChi2() const {
   uint32_t rawChi2Prob = 0x7F & (flags()>>24);
-  return (float)rawChi2Prob / (float)((1<<7)-1) * 64.;
+  return (float)rawChi2Prob / (float)((1<<7)-1) * 64.f;
 }
 
 float HGCRecHit::outOfTimeEnergy() const {
@@ -33,13 +34,13 @@ void HGCRecHit::setChi2( float chi2 ) {
   // bound the max value of the chi2
   if ( chi2 > 64 ) chi2 = 64;
   // use 7 bits
-  uint32_t rawChi2 = lround( chi2 / 64. * ((1<<7)-1) );
+  uint32_t rawChi2 = lround( chi2 / 64.f * ((1<<7)-1) );
   // shift by 4 bits (recoFlag)
   setFlags( (~(0x7F<<4) & flags()) | ((rawChi2 & 0x7F)<<4) );
 }
 
 void HGCRecHit::setOutOfTimeEnergy( float energy ) {
-  if ( energy > 0.001 ) {
+  if ( energy > 0.001f ) {
     uint16_t exponent = lround(floor(log10(energy)))+3;
     uint16_t significand = lround(energy/pow(10,exponent-5));
     // use 13 bits (3 exponent, 10 significand)
@@ -53,9 +54,20 @@ void HGCRecHit::setOutOfTimeChi2( float chi2 ) {
   // bound the max value of chi2
   if ( chi2 > 64 ) chi2 = 64;
   // use 7 bits
-  uint32_t rawChi2 = lround( chi2 / 64. * ((1<<7)-1) );
+  uint32_t rawChi2 = lround( chi2 / 64.f * ((1<<7)-1) );
   // shift by 24 bits (recoFlag + chi2 + outOfTimeEnergy)
   setFlags( (~(0x7F<<24) & flags()) | ((rawChi2 & 0x7F)<<24) );
+}
+
+void HGCRecHit::setSignalOverSigmaNoise( float sOverNoise ) {
+    // bound the max value of sOverNoise
+    if(sOverNoise > 32.f) sOverNoise = 32.f;
+    //use 8 bits
+    signalOverSigmaNoise_ = lround( sOverNoise / 32.f * ((1<<8)-1) );
+}
+
+float HGCRecHit::signalOverSigmaNoise() const {
+    return (float)signalOverSigmaNoise_ * 0.125f;
 }
 
 void HGCRecHit::setTimeError( uint8_t timeErrBits ) {
@@ -75,7 +87,7 @@ float HGCRecHit::timeError() const {
   float LSB = 1.26008;
   uint8_t exponent = timeErrorBits>>5;
   uint8_t significand = timeErrorBits & ~(0x7<<5);
-  return pow(2.,exponent)*significand*LSB/1000.;
+  return pow(2.,exponent)*significand*LSB/1000.f;
 }
 
 bool HGCRecHit::isTimeValid() const {
@@ -110,8 +122,12 @@ std::ostream& operator<<(std::ostream& s, const HGCRecHit& hit) {
     return s << HGCalDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
   else if (hit.detid().det() == DetId::Forward && hit.detid().subdetId() == HGCHEF) 
     return s << HGCalDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
-  else if (hit.detid().det() == DetId::Forward && hit.detid().subdetId() == HGCHEB) 
-    return s << HGCHEDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
+  else if (hit.detid().det() == DetId::Hcal && hit.detid().subdetId() == HcalEndcap) 
+    return s << HcalDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
+  else if (hit.detid().det() == DetId::HGCalEE || hit.detid().det() == DetId::HGCalHSi) 
+    return s << HGCSiliconDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
+  else if (hit.detid().det() == DetId::HGCalHSc) 
+    return s << HGCScintillatorDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
   else
     return s << "HGCRecHit undefined subdetector" ;
 }

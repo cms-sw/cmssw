@@ -7,7 +7,7 @@
 class BjetAnalysis : public edm::EDAnalyzer {
 public:
   BjetAnalysis(const edm::ParameterSet & cfg);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   //  virtual void endJob();
 private:
   edm::EDGetTokenT<reco::JetTagCollection> bTagToken_;

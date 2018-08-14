@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-hltSMPPostProcessor  = cms.EDAnalyzer("DQMGenericClient",
+hltSMPPostProcessor  = DQMEDHarvester("DQMGenericClient",
     subDirs           = cms.untracked.vstring('HLT/SMP/*'),
     verbose           = cms.untracked.uint32(2),
     outputFileName    = cms.untracked.string(''),

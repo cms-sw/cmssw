@@ -54,19 +54,19 @@ class MuonTrackAnalyzer: public DQMEDAnalyzer {
   MuonTrackAnalyzer(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~MuonTrackAnalyzer();
+  ~MuonTrackAnalyzer() override;
 
   // Operations
 
+  void beginJob() override;
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
   void tracksAnalysis(const edm::Event & event, const edm::EventSetup& eventSetup,
 		      edm::Handle<edm::SimTrackContainer> simTracks);
   void seedsAnalysis(const edm::Event & event, const edm::EventSetup& eventSetup,
 		     edm::Handle<edm::SimTrackContainer> simTracks);
     
-
-  virtual void beginJob() ;
-  virtual void endRun(DQMStore::IBooker & ibooker) ;
+  using DQMEDAnalyzer::endRun;
+  void endRun(DQMStore::IBooker & ibooker) ;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
  protected:
 

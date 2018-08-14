@@ -17,7 +17,7 @@ class TrackingMaterialAnalyser : public edm::one::EDAnalyzer<>
 {
 public:
   explicit TrackingMaterialAnalyser(const edm::ParameterSet &);
-  virtual ~TrackingMaterialAnalyser();
+  ~TrackingMaterialAnalyser() override;
   
 private:
   enum SplitMode {
@@ -27,9 +27,9 @@ private:
     UNDEFINED
   };
   
-  void analyze(const edm::Event &, const edm::EventSetup &);
-  void beginJob() {}
-  void endJob();
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void beginJob() override {}
+  void endJob() override;
 
   void split( MaterialAccountingTrack & track );
   int  findLayer( const MaterialAccountingDetector & detector );

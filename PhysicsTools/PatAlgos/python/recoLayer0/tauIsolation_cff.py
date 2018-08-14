@@ -51,7 +51,10 @@ tauIsoDepositPFNeutralHadrons.ExtractorPSet.candidateSource = cms.InputTag("pfAl
 tauIsoDepositPFGammas = copy.deepcopy(tauIsoDepositPFCandidates)
 tauIsoDepositPFGammas.ExtractorPSet.candidateSource = cms.InputTag("pfAllPhotonsPFBRECO")
 
-patPFTauIsolation = cms.Sequence( tauIsoDepositPFCandidates
-                                 * tauIsoDepositPFChargedHadrons
-                                 * tauIsoDepositPFNeutralHadrons
-                                 * tauIsoDepositPFGammas )
+patPFTauIsolationTask = cms.Task(
+    tauIsoDepositPFCandidates,
+    tauIsoDepositPFChargedHadrons,
+    tauIsoDepositPFNeutralHadrons,
+    tauIsoDepositPFGammas
+)
+patPFTauIsolation = cms.Sequence(patPFTauIsolationTask)

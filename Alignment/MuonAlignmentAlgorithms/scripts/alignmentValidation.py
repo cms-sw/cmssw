@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import re,os,sys,shutil
 import optparse
 
@@ -144,7 +145,7 @@ parser.add_option("-v", "--verbose",
 options,args=parser.parse_args()
 
 if options.runLabel=='' or options.inputDir=='' or options.i1=='' or options.iN=='':
-  print "\nOne or more of REQUIRED options is missing!\n"
+  print("\nOne or more of REQUIRED options is missing!\n")
   parser.print_help()
   # See \n"+sys.argv[0]+" --help"
   sys.exit()
@@ -159,7 +160,7 @@ iNprefix = options.iNprefix
 if iNprefix=='' : iNprefix = options.iN
 
 if not os.access(outdir,os.F_OK):
-  print "\noutDir = "+outdir+"\ndoes not exist! Exiting..."
+  print("\noutDir = "+outdir+"\ndoes not exist! Exiting...")
   sys.exit()
 
 # If neither --dt or --csc is present, plots for both systems will be created
@@ -171,7 +172,7 @@ if options.csc or not ( options.dt or options.csc):
   DO_CSC = True
 
 if not (options.all or options.map or options.curvature or options.segdiff or options.fit or options.median or options.diagnostic):
-  print "\nOptions must include either -a or any of the following: --map, --segdiff, --fit, --median, --diagnostic. Exiting..."
+  print("\nOptions must include either -a or any of the following: --map, --segdiff, --fit, --median, --diagnostic. Exiting...")
   sys.exit()
 
 SINGLE_ITERATION = False
@@ -209,7 +210,7 @@ if options.curvature: allOptions += " --curvature"
 if options.fit: allOptions += " --fit"
 if options.median: allOptions += " --median"
 if options.diagnostic: allOptions += " --diagnostic"
-print sys.argv[0]+" "+allOptions
+print(sys.argv[0]+" "+allOptions)
 
 
 QUICKTESTN=10000
@@ -340,7 +341,7 @@ def createDirectoryStructure(iteration_name):
         #print dt_basedir+wheel[0]+'/'+station[1]+'/'+ssector
         os.mkdir(dt_basedir+wheel[0]+'/'+station[1]+'/'+ssector)
 
-  print os.getcwd()
+  print(os.getcwd())
 
 ######################################################
 
@@ -435,7 +436,7 @@ def doMapPlotsDT(dt_basedir, tfiles_plotting):
       label = "DTvsz_st%ssecALL" % (station[1])
       htitle = "station %s" % (station[1])
       
-      print label, 
+      print(label, end=' ') 
       mapplot(tfiles_plotting, label, "x", window=10., title=htitle, peaksbins=2)
       c1.SaveAs(pdir+'map_DTvsz_all_x.png')
       mapplot(tfiles_plotting, label, "dxdz", window=10., title=htitle, peaksbins=2)
@@ -561,7 +562,7 @@ def doCurvaturePlotsDT(dt_basedir, tfiles_plotting):
     #station = 1
     #station = wheel[2][0]
     for station in wheel[2]:
-      print "curv in ", wheel[0]+'/'+station[1]
+      print("curv in ", wheel[0]+'/'+station[1])
       for sector in range(1,station[2]+1):
         #if sector>12: break
         if qcount>QUICKTESTN: break
@@ -777,7 +778,7 @@ def doFitFunctionsPlotsDT(dt_basedir, iter_tfile, iter_reports):
   for wheel in DT_TYPES:
     if wheel[1]=="ALL": continue
     for station in wheel[2]:
-      print wheel[0]+'/'+station[1]
+      print(wheel[0]+'/'+station[1])
       for sector in range(1,station[2]+1):
         if qcount>QUICKTESTN: break
         qcount += 1
@@ -815,7 +816,7 @@ def doFitFunctionsPlotsCSC(csc_basedir, iter_tfile, iter_reports):
     for station in endcap[2]:
       for ring in station[2]:
         if ring[1]=="ALL": continue
-        print endcap[0]+'/'+station[1]+'/'+ring[1]
+        print(endcap[0]+'/'+station[1]+'/'+ring[1])
         for chamber in range(1,ring[2]+1):
           if qcount>QUICKTESTN: break
           qcount += 1
@@ -872,7 +873,7 @@ def createCanvasesList(fname="canvases_list.js"):
     CANVASES_LIST.append(scope_entry)
 
   ff = open(fname,mode="w")
-  print >>ff, "var CANVASES_LIST = "
+  print("var CANVASES_LIST = ", file=ff)
   json.dump(CANVASES_LIST,ff)
   ff.close()
 
@@ -893,14 +894,14 @@ def createCanvasToIDList(fname="canvas2id_list.js"):
         set_ids = set(ids)
         uids = list(set_ids)
         ID_LIST.extend(uids)
-        print canvas_entry, ":", len(uids), "ids"
+        print(canvas_entry, ":", len(uids), "ids")
         if (len(uids)>0):
           CANVAS2ID_LIST.append( (canvas_entry[1],uids) )
   #print CANVAS2ID_LIST
   CANVAS2ID_LIST_DICT = dict(CANVAS2ID_LIST)
   #print CANVAS2ID_LIST_DICT
   ff = open(fname,mode="w")
-  print >>ff, "var CANVAS2ID_LIST = "
+  print("var CANVAS2ID_LIST = ", file=ff)
   json.dump(CANVAS2ID_LIST_DICT,ff)
   ff.close()
   set_ids = set(ID_LIST)
@@ -960,13 +961,13 @@ iter1_tfile = None
 iter1_reports = []
 if not SINGLE_ITERATION:
   if (DO_MAP or DO_SEGDIFF or DO_CURVATURE) and not os.access(fname+"_plotting.root",os.F_OK):
-    print "no file "+fname+"_plotting.root"
+    print("no file "+fname+"_plotting.root")
     sys.exit()
   if DO_FIT and not os.access(fname+".root",os.F_OK):
-    print "no file "+fname+".root"
+    print("no file "+fname+".root")
     sys.exit()
   if DO_MEDIAN and not os.access(fname+"_report.py",os.F_OK):
-    print "no file "+fname+"_report.py"
+    print("no file "+fname+"_report.py")
     sys.exit()
   if DO_MAP or DO_SEGDIFF or DO_CURVATURE: tfiles1_plotting.append(ROOT.TFile(fname+"_plotting.root"))
   if os.access(fname+".root",os.F_OK):
@@ -980,13 +981,13 @@ tfilesN_plotting = []
 iterN_tfile = None
 iterN_reports = []
 if (DO_MAP or DO_SEGDIFF or DO_CURVATURE) and not os.access(fname+"_plotting.root",os.F_OK):
-  print "no file "+fname+"_plotting.root"
+  print("no file "+fname+"_plotting.root")
   sys.exit()
 if DO_FIT and not os.access(fname+".root",os.F_OK):
-  print "no file "+fname+".root"
+  print("no file "+fname+".root")
   sys.exit()
 if DO_MEDIAN and not os.access(fname+"_report.py",os.F_OK):
-  print "no file "+fname+"_report.py"
+  print("no file "+fname+"_report.py")
   sys.exit()
 if DO_MAP or DO_SEGDIFF or DO_CURVATURE: tfilesN_plotting.append(ROOT.TFile(fname+"_plotting.root"))
 if os.access(fname+".root",os.F_OK):
@@ -1011,7 +1012,7 @@ iterationN = "iterN"
 
 # create directory structure
 if options.createDirSructure:
-  print "WARNING: all existing results in "+options.outputDir+" will be deleted!"
+  print("WARNING: all existing results in "+options.outputDir+" will be deleted!")
   if not SINGLE_ITERATION: createDirectoryStructure(iteration1)
   createDirectoryStructure(iterationN)
   if not os.access(comdir,os.F_OK):
@@ -1024,9 +1025,9 @@ c1 = ROOT.TCanvas("c1","c1",800,600)
 
 set_palette("blues")
 
-print "--- ITERATION 1 ---"
+print("--- ITERATION 1 ---")
 if not SINGLE_ITERATION: doIterationPlots(iteration1, tfiles1_plotting, iter1_tfile, iter1_reports)
-print "--- ITERATION N ---"
+print("--- ITERATION N ---")
 doIterationPlots(iterationN, tfilesN_plotting, iterN_tfile, iterN_reports)
 
 if CPP_LOADED: ROOT.cleanUpHeap()

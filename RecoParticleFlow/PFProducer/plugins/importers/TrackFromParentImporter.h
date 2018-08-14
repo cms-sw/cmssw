@@ -60,7 +60,7 @@ namespace pflow {
       auto bpar = pfparents->cbegin();
       auto epar = pfparents->cend();
       edm::Ref<Collection> parentRef;
-      reco::PFBlockElement* trkElem = NULL;
+      reco::PFBlockElement* trkElem = nullptr;
       for( auto pfparent =  bpar; pfparent != epar; ++pfparent ) {
 	if( Adaptor::check_importable(*pfparent) ) {
 	  parentRef = edm::Ref<Collection>(pfparents,std::distance(bpar,pfparent));

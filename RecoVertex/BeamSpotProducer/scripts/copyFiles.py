@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys,os,commands
 from CommonMethods import *
 
@@ -7,7 +8,7 @@ def main():
         error = "Usage: copyFiles.py fromDir destDir (optional filter)"
         exit(error)
     fromDir = sys.argv[1]
-    print fromDir
+    print(fromDir)
     if (fromDir[len(fromDir)-1] != '/'):
         fromDir += '/'
     destDir = sys.argv[2] + "/"

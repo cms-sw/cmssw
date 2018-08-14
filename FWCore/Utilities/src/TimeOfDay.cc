@@ -2,7 +2,7 @@
 #include <iomanip>
 #include <locale>
 #include <ostream>
-#include <time.h>
+#include <ctime>
 
 namespace {
   int const power[] = {1000*1000, 100*1000, 10*1000, 1000, 100, 10, 1};
@@ -19,7 +19,7 @@ namespace edm {
   timeval
   TimeOfDay::setTime_() {
     timeval tv;
-    gettimeofday(&tv, 0);
+    gettimeofday(&tv, nullptr);
     return tv;
   }
 

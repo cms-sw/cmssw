@@ -25,7 +25,7 @@ using SimpleHitContainer=std::vector<BaseTrackerRecHit *>;
 
 
 // dummy default constructor (obviously you can't use any object created this way), but it can be needed in some cases
-LayerMeasurements() : theDetSystem(0), theData(0) {}
+LayerMeasurements() : theDetSystem(nullptr), theData(nullptr) {}
   
   // the constructor that most of the people should be using
   LayerMeasurements( const MeasurementDetSystem& detSystem, const MeasurementTrackerEvent &data) :

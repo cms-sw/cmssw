@@ -53,7 +53,7 @@ MuonNavigationSchool::MuonNavigationSchool(const MuonDetLayerGeometry * muonLayo
 
   for ( auto i = barrel.begin(); i != barrel.end(); i++ ) {
     const BarrelDetLayer* mbp = dynamic_cast<const BarrelDetLayer*>(*i);
-    if ( mbp == 0 ) throw cms::Exception("MuonNavigationSchool", "Bad BarrelDetLayer");
+    if ( mbp == nullptr ) throw cms::Exception("MuonNavigationSchool", "Bad BarrelDetLayer");
     addBarrelLayer(mbp);
   }
 
@@ -72,7 +72,7 @@ MuonNavigationSchool::MuonNavigationSchool(const MuonDetLayerGeometry * muonLayo
 
   for ( auto i = endcap.begin(); i != endcap.end(); i++ ) {
     const ForwardDetLayer* mep = dynamic_cast<const ForwardDetLayer*>(*i);
-    if ( mep == 0 ) throw cms::Exception("MuonNavigationSchool", "Bad ForwardDetLayer");
+    if ( mep == nullptr ) throw cms::Exception("MuonNavigationSchool", "Bad ForwardDetLayer");
     addEndcapLayer(mep);
   }
 

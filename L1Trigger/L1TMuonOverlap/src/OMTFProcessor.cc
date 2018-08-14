@@ -220,7 +220,7 @@ const std::vector<OMTFProcessor::resultsMap> & OMTFProcessor::processInput(unsig
    
   for(unsigned int iLayer=0;iLayer<myOmtfConfig->nLayers();++iLayer){
     const OMTFinput::vector1D & layerHits = aInput.getLayerData(iLayer);
-    if(!layerHits.size()) continue;
+    if(layerHits.empty()) continue;
     ///Number of reference hits to be checked. 
     unsigned int nTestedRefHits = myOmtfConfig->nTestRefHits();
     for(unsigned int iRefHit=0;iRefHit<myOmtfConfig->nRefHits();++iRefHit){
@@ -303,7 +303,7 @@ void OMTFProcessor::fillCounts(unsigned int iProcessor,
    
   for(unsigned int iLayer=0;iLayer<myOmtfConfig->nLayers();++iLayer){
     const OMTFinput::vector1D & layerHits = aInput.getLayerData(iLayer);
-    if(!layerHits.size()) continue;
+    if(layerHits.empty()) continue;
     ///Number of reference hits to be checked. 
     for(unsigned int iRefHit=0;iRefHit<myOmtfConfig->nRefHits();++iRefHit){
       if(!refHitsBits[iRefHit]) continue;

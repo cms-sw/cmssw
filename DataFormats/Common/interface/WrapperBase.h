@@ -13,12 +13,20 @@ WrapperBase: The base class of all things that will be inserted into the Event.
 
 #include <typeinfo>
 #include <vector>
+#include <memory>
 
 namespace edm {
+  namespace soa {
+    class TableExaminerBase;
+  }
+  
   class WrapperBase : public ViewTypeChecker {
   public:
+    //used by inheriting classes to force construction via emplace
+    struct Emplace {};
+
     WrapperBase();
-    virtual ~WrapperBase();
+    ~WrapperBase() override;
     bool isPresent() const {return isPresent_();}
 
     // We have to use vector<void*> to keep the type information out
@@ -47,7 +55,12 @@ namespace edm {
     bool mergeProduct(WrapperBase const* newProduct) {return mergeProduct_(newProduct);}
     bool hasIsProductEqual() const {return hasIsProductEqual_();}
     bool isProductEqual(WrapperBase const* newProduct) const {return isProductEqual_(newProduct);}
+    bool hasSwap() const {return hasSwap_();}
+    void swapProduct(WrapperBase* newProduct) {swapProduct_(newProduct);}
 
+    std::shared_ptr<soa::TableExaminerBase> tableExaminer() const {
+      return tableExaminer_();
+    }
   private:
     virtual std::type_info const& dynamicTypeInfo_() const = 0;
 
@@ -62,6 +75,8 @@ namespace edm {
     virtual bool mergeProduct_(WrapperBase const* newProduct ) = 0;
     virtual bool hasIsProductEqual_() const = 0;
     virtual bool isProductEqual_(WrapperBase const* newProduct) const = 0;
+    virtual bool hasSwap_() const = 0;
+    virtual void swapProduct_(WrapperBase* newProduct) = 0;
 
     virtual void do_fillView(ProductID const& id,
                              std::vector<void const*>& pointers,
@@ -73,6 +88,9 @@ namespace edm {
     virtual void do_fillPtrVector(std::type_info const& iToType,
                                   std::vector<unsigned long> const& iIndicies,
                                   std::vector<void const*>& oPtr) const = 0;
+    
+    virtual std::shared_ptr<soa::TableExaminerBase> tableExaminer_() const = 0;
+
   };
 }
 #endif

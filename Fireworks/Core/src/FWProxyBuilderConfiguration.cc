@@ -99,7 +99,7 @@ template <class T> FWGenericParameter<T>* FWProxyBuilderConfiguration::assertPar
 {
    for ( const_iterator i = begin(); i != end(); ++i) {
       if ((*i)->name() == name) {
-         return 0;
+         return nullptr;
       }
    }
 
@@ -107,7 +107,7 @@ template <class T> FWGenericParameter<T>* FWProxyBuilderConfiguration::assertPar
 
    //   std::cout << "FWProxyBuilderConfiguration::getVarParameter(). No parameter with name " << name << std::endl;
    if ( m_txtConfig) {
-      const FWConfiguration* varConfig = m_txtConfig->keyValues() ? m_txtConfig->valueForKey("Var") : 0;
+      const FWConfiguration* varConfig = m_txtConfig->keyValues() ? m_txtConfig->valueForKey("Var") : nullptr;
       if (varConfig) mode->setFrom(*varConfig);
    }
    mode->changed_.connect(boost::bind(&FWEventItem::proxyConfigChanged, (FWEventItem*)m_item));
@@ -120,14 +120,14 @@ template <class T> FWGenericParameterWithRange<T>* FWProxyBuilderConfiguration::
 {
    for ( const_iterator i = begin(); i != end(); ++i) {
       if ((*i)->name() == name) {
-         return 0;
+         return nullptr;
       }
    }
 
    FWGenericParameterWithRange<T>*  mode = new FWGenericParameterWithRange<T>(this, name, def, min, max);
 
    //   std::cout << "FWProxyBuilderConfiguration::getVarParameter(). No parameter with name " << name << std::endl;
-   const FWConfiguration* varConfig = m_txtConfig &&  m_txtConfig->keyValues() ? m_txtConfig->valueForKey("Var") : 0;
+   const FWConfiguration* varConfig = m_txtConfig &&  m_txtConfig->keyValues() ? m_txtConfig->valueForKey("Var") : nullptr;
    if (varConfig) mode->setFrom(*varConfig);
 
    mode->changed_.connect(boost::bind(&FWEventItem::proxyConfigChanged, (FWEventItem*)m_item));
@@ -136,7 +136,7 @@ template <class T> FWGenericParameterWithRange<T>* FWProxyBuilderConfiguration::
 
 template <class T> T FWProxyBuilderConfiguration::value(const std::string& pname)
 {
-   FWGenericParameter<T>* param = 0;
+   FWGenericParameter<T>* param = nullptr;
 
    for (FWConfigurableParameterizable::const_iterator i = begin(); i != end(); ++i) 
    {

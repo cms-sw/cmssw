@@ -48,7 +48,7 @@ EgammaRecHitIsolation::EgammaRecHitIsolation (double extRadius,
     sevLevel_(sl),
     useNumCrystals_(false),
     vetoClustered_(false),
-    ecalBarHits_(0),
+    ecalBarHits_(nullptr),
     //chStatus_(0),
     severitiesexcl_(0),
     //severityRecHitThreshold_(0),
@@ -91,7 +91,7 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
       for (CaloSubdetectorGeometry::DetIdSet::const_iterator  i = chosen.begin ();i != chosen.end (); ++i){ //loop selected cells
 	j = caloHits_.find(*i); // find selected cell among rechits
 	if(j != caloHits_.end()) { // add rechit only if available 
-	  auto const cell  = theCaloGeom_.product()->getGeometry(*i);
+	  auto cell  = theCaloGeom_->getGeometry(*i);
 	  float eta = cell->etaPos();
 	  float phi = cell->phiPos();
 	  float etaDiff = eta - etaclus;
@@ -144,8 +144,8 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
 	  
 	  
 	  
-	  //std::cout << "detid " << ((EcalRecHit*)(&*j))->detid() << std::endl;
-	  int severityFlag = ecalBarHits_ == 0 ? -1 : sevLevel_->severityLevel(((const EcalRecHit*)(&*j))->detid(), *ecalBarHits_);
+	  //std::cout << "detid " << j->detid() << std::endl;
+	  int severityFlag = ecalBarHits_ == nullptr ? -1 : sevLevel_->severityLevel(j->detid(), *ecalBarHits_);
 	  std::vector<int>::const_iterator sit = std::find(severitiesexcl_.begin(), 
 							   severitiesexcl_.end(), 
 							   severityFlag);
@@ -156,11 +156,11 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
 	  // new rechit flag checks
 	  //std::vector<int>::const_iterator vit = std::find(flags_.begin(), 
 	  //						   flags_.end(),
-	  //						   ((const EcalRecHit*)(&*j))->recoFlag());
+	  //						   j->recoFlag());
 	  //if (vit != flags_.end()) 
 	  //  continue;
-	  if (!((EcalRecHit*)(&*j))->checkFlag(EcalRecHit::kGood)) {
-	    if (((EcalRecHit*)(&*j))->checkFlags(flags_)) {                
+	  if (!j->checkFlag(EcalRecHit::kGood)) {
+	    if (j->checkFlags(flags_)) {                
 	      continue;
 	    }
 	  }
@@ -189,7 +189,7 @@ double EgammaRecHitIsolation::getSum_(const reco::SuperCluster* sc, bool returnE
   if (! caloHits_.empty()){
     //Take the SC position
  
-    math::XYZPoint theCaloPosition = sc->position();
+    const math::XYZPoint& theCaloPosition = sc->position();
     GlobalPoint pclu (theCaloPosition.x () ,
 		      theCaloPosition.y () ,
 		      theCaloPosition.z () );
@@ -208,7 +208,7 @@ double EgammaRecHitIsolation::getSum_(const reco::SuperCluster* sc, bool returnE
 	
 	j=caloHits_.find(*i); // find selected cell among rechits
 	if( j!=caloHits_.end()){ // add rechit only if available 
-	  const  GlobalPoint & position = theCaloGeom_.product()->getPosition(*i);
+	  const  GlobalPoint & position = (theCaloGeom_.product())->getPosition(*i);
 	  double eta = position.eta();
 	  double phi = position.phi();
 	  double etaDiff = eta - etaclus;
@@ -258,11 +258,11 @@ double EgammaRecHitIsolation::getSum_(const reco::SuperCluster* sc, bool returnE
 	  // new rechit flag checks
 	  //std::vector<int>::const_iterator vit = std::find(flags_.begin(), 
 	  //						   flags_.end(),
-	  //						   ((EcalRecHit*)(&*j))->recoFlag());
+	  //						   j->recoFlag());
 	  //if (vit != flags_.end()) 
 	  //  continue;
-	  if (!((EcalRecHit*)(&*j))->checkFlag(EcalRecHit::kGood)) {
-	    if (((EcalRecHit*)(&*j))->checkFlags(flags_)) {                
+	  if (!j->checkFlag(EcalRecHit::kGood)) {
+	    if (j->checkFlags(flags_)) {                
 	      continue;
 	    }
 	  }

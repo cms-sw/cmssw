@@ -38,7 +38,6 @@
 
 /// EgammaCoreTools
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
@@ -101,9 +100,9 @@ class ZToMuMuGammaAnalyzer : public DQMEDAnalyzer
 {
  public:
   explicit ZToMuMuGammaAnalyzer(const edm::ParameterSet&);
-  virtual ~ZToMuMuGammaAnalyzer();
+  ~ZToMuMuGammaAnalyzer() override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;                                
-  virtual void analyze( const edm::Event&, const edm::EventSetup&) override;
+  void analyze( const edm::Event&, const edm::EventSetup&) override;
 
  private:
   edm::EDGetTokenT<std::vector<reco::Photon> > photon_token_;

@@ -42,7 +42,7 @@ void CountProcessesAction::update(const BeginOfRun * run)
 	    theProcessList[pss(particleName,processName)] = 0;
 	}
     }
-    DumpProcessList(0);
+    DumpProcessList(false);
 }
 
 void CountProcessesAction::update(const BeginOfTrack * trk)
@@ -55,7 +55,7 @@ void CountProcessesAction::update(const BeginOfTrack * trk)
     //----- Fill counter of Creator Processes
     const G4VProcess * proc = aTrack->GetCreatorProcess();
     std::string processName;
-    if (proc != 0) processName = proc->GetProcessName();
+    if (proc != nullptr) processName = proc->GetProcessName();
     else processName = "Primary";
     pss parproc(particleName,processName);
     mpssi::iterator ite = theCreatorProcessList.find(parproc);
@@ -69,7 +69,7 @@ void CountProcessesAction::update(const BeginOfTrack * trk)
 void CountProcessesAction::update(const G4Step* aStep )
 {
     std::string processName;
-    if(aStep->GetPostStepPoint()->GetProcessDefinedStep() != 0)
+    if(aStep->GetPostStepPoint()->GetProcessDefinedStep() != nullptr)
 	processName = aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
     else processName = "User Limit";
     std::string particleName = aStep->GetTrack()->GetDefinition()->GetParticleName();
@@ -78,8 +78,8 @@ void CountProcessesAction::update(const G4Step* aStep )
 
 void CountProcessesAction::update(const EndOfRun * run)
 {
-    DumpProcessList(1);
-    DumpCreatorProcessList(1);
+    DumpProcessList(true);
+    DumpCreatorProcessList(true);
     DumpParticleList();
 }
 

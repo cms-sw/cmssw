@@ -20,20 +20,20 @@ class SiStripGainESSource : public edm::ESProducer, public edm::EventSetupRecord
  public:
 
   SiStripGainESSource( const edm::ParameterSet& );
-  virtual ~SiStripGainESSource() {;}
+  ~SiStripGainESSource() override {;}
   
   virtual std::unique_ptr<SiStripApvGain> produce( const SiStripApvGainRcd& );
   
  protected:
 
-  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
 			       const edm::IOVSyncValue&,
-			       edm::ValidityInterval& );
+			       edm::ValidityInterval& ) override;
   
  private:
   
-  SiStripGainESSource( const SiStripGainESSource& );
-  const SiStripGainESSource& operator=( const SiStripGainESSource& );
+  SiStripGainESSource( const SiStripGainESSource& ) = delete;
+  const SiStripGainESSource& operator=( const SiStripGainESSource& ) = delete;
 
   virtual SiStripApvGain* makeGain() = 0; 
 

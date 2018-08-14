@@ -28,10 +28,15 @@ namespace edm {
     typedef T wrapped_type; // used with the dictionary to identify Wrappers
     Wrapper() : WrapperBase(), present(false), obj() {}
     explicit Wrapper(std::unique_ptr<T> ptr);
-    virtual ~Wrapper() {}
-    T const* product() const {return (present ? &obj : 0);}
+    
+    template<typename... Args>
+    explicit Wrapper( Emplace, Args&&... );
+    ~Wrapper() override {}
+    T const* product() const {return (present ? &obj : nullptr);}
     T const* operator->() const {return product();}
 
+    T& bareProduct() { return obj;}
+    
     //these are used by FWLite
     static std::type_info const& productTypeInfo() {return typeid(T);}
     static std::type_info const& typeInfo() {return typeid(Wrapper<T>);}
@@ -43,53 +48,57 @@ namespace edm {
     CMS_CLASS_VERSION(3)
 
 private:
-    virtual bool isPresent_() const override {return present;}
-    virtual std::type_info const& dynamicTypeInfo_() const override {return typeid(T);}
-    virtual std::type_info const& wrappedTypeInfo_() const override {return typeid(Wrapper<T>);}
+    bool isPresent_() const override {return present;}
+    std::type_info const& dynamicTypeInfo_() const override {return typeid(T);}
+    std::type_info const& wrappedTypeInfo_() const override {return typeid(Wrapper<T>);}
 
-    virtual std::type_info const& valueTypeInfo_() const override;
-    virtual std::type_info const& memberTypeInfo_() const override;
-    virtual bool isMergeable_() const override;
-    virtual bool mergeProduct_(WrapperBase const* newProduct) override;
-    virtual bool hasIsProductEqual_() const override;
-    virtual bool isProductEqual_(WrapperBase const* newProduct) const override;
+    std::type_info const& valueTypeInfo_() const override;
+    std::type_info const& memberTypeInfo_() const override;
+    bool isMergeable_() const override;
+    bool mergeProduct_(WrapperBase const* newProduct) override;
+    bool hasIsProductEqual_() const override;
+    bool isProductEqual_(WrapperBase const* newProduct) const override;
+    bool hasSwap_() const override;
+    void swapProduct_(WrapperBase* newProduct) override;
 
-    virtual void do_fillView(ProductID const& id,
+    void do_fillView(ProductID const& id,
                              std::vector<void const*>& pointers,
                              FillViewHelperVector& helpers) const override;
-    virtual void do_setPtr(std::type_info const& iToType,
+    void do_setPtr(std::type_info const& iToType,
                            unsigned long iIndex,
                            void const*& oPtr) const override;
-    virtual void do_fillPtrVector(std::type_info const& iToType,
+    void do_fillPtrVector(std::type_info const& iToType,
                                   std::vector<unsigned long> const& iIndices,
                                   std::vector<void const*>& oPtr) const override;
+
+    std::shared_ptr<soa::TableExaminerBase> tableExaminer_() const override;
 
   private:
     // We wish to disallow copy construction and assignment.
     // We make the copy constructor and assignment operator private.
-    Wrapper(Wrapper<T> const& rh); // disallow copy construction
-    Wrapper<T>& operator=(Wrapper<T> const&); // disallow assignment
+    Wrapper(Wrapper<T> const& rh) = delete; // disallow copy construction
+    Wrapper<T>& operator=(Wrapper<T> const&) = delete; // disallow assignment
 
     bool present;
     T obj;
   };
 
   template<typename T>
-  inline
-  void swap_or_assign(T& a, T& b) {
-    detail::doSwapOrAssign<T>()(a, b);
-  } 
-
-  template<typename T>
   Wrapper<T>::Wrapper(std::unique_ptr<T> ptr) :
     WrapperBase(),
-    present(ptr.get() != 0),
+    present(ptr.get() != nullptr),
     obj() {
     if (present) {
-      // The following will call swap if T has such a function,
-      // and use assignment if T has no such function.
-      swap_or_assign(obj, *ptr);
+      obj = std::move(*ptr);
     }
+  }
+
+  template<typename T>
+  template<typename... Args>
+  Wrapper<T>::Wrapper(Emplace, Args&&... args) :
+  WrapperBase(),
+  present(true),
+  obj(std::forward<Args>(args)...) {
   }
 
   template<typename T>
@@ -99,9 +108,7 @@ private:
   obj() {
      std::unique_ptr<T> temp(ptr);
      if (present) {
-        // The following will call swap if T has such a function,
-        // and use assignment if T has no such function.
-        swap_or_assign(obj, *ptr);
+       obj = std::move(*ptr);
      }
   }
 
@@ -144,6 +151,35 @@ private:
     assert(wrappedNewProduct != nullptr);
     return detail::doIsProductEqual<T>()(obj, wrappedNewProduct->obj);
   }
+  
+  template<typename T>
+  inline
+  bool Wrapper<T>::hasSwap_() const {
+    return detail::getHasSwapFunction<T>()();
+  }
+
+  template<typename T>
+  inline
+  void Wrapper<T>::swapProduct_(WrapperBase* newProduct) {
+    Wrapper<T>* wrappedNewProduct = dynamic_cast<Wrapper<T>*>(newProduct);
+    assert(wrappedNewProduct != nullptr);
+    detail::doSwapProduct<T>()(obj, wrappedNewProduct->obj);
+  }
+
+  namespace soa {
+    template<class T>
+    struct MakeTableExaminer {
+      static std::shared_ptr<edm::soa::TableExaminerBase> make(void const*) {
+        return std::shared_ptr<edm::soa::TableExaminerBase>{};
+      }
+    };
+  }
+  template <typename T>
+  inline
+  std::shared_ptr<edm::soa::TableExaminerBase> Wrapper<T>::tableExaminer_() const {
+    return soa::MakeTableExaminer<T>::make(&obj);
+  }
+
 }
 
 #include "DataFormats/Common/interface/WrapperView.icc"

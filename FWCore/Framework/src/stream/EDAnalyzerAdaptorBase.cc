@@ -74,6 +74,7 @@ EDAnalyzerAdaptorBase::doPreallocate(PreallocationConfiguration const& iPrealloc
   m_streamModules.resize(iPrealloc.numberOfStreams(),
                          static_cast<stream::EDAnalyzerBase*>(nullptr));
   setupStreamModules();
+  preallocLumis(iPrealloc.numberOfLuminosityBlocks());
 }
 
 void
@@ -95,9 +96,9 @@ EDAnalyzerAdaptorBase::itemsMayGet(BranchType iType, std::vector<ProductResolver
 }
 
 std::vector<edm::ProductResolverIndexAndSkipBit> const&
-EDAnalyzerAdaptorBase::itemsToGetFromEvent() const {
+EDAnalyzerAdaptorBase::itemsToGetFrom(BranchType iType) const {
   assert(not m_streamModules.empty());
-  return m_streamModules[0]->itemsToGetFromEvent();  
+  return m_streamModules[0]->itemsToGetFrom(iType);
 }
 
 void
@@ -121,6 +122,13 @@ EDAnalyzerAdaptorBase::modulesWhoseProductsAreConsumed(std::vector<ModuleDescrip
                                                        std::string const& processName) const {
   assert(not m_streamModules.empty());
   return m_streamModules[0]->modulesWhoseProductsAreConsumed(modules, preg, labelsToDesc, processName);
+}
+
+void
+EDAnalyzerAdaptorBase::convertCurrentProcessAlias(std::string const& processName) {
+  for(auto mod: m_streamModules) {
+    mod->convertCurrentProcessAlias(processName);
+  }
 }
 
 std::vector<edm::ConsumesInfo>
@@ -164,7 +172,7 @@ EDAnalyzerAdaptorBase::doStreamBeginRun(StreamID id,
   auto mod = m_streamModules[id];
   setupRun(mod, rp.index());
   
-  Run r(rp, moduleDescription_, mcc);
+  Run r(rp, moduleDescription_, mcc, false);
   r.setConsumer(mod);
   mod->beginRun(r, c);
 
@@ -177,7 +185,7 @@ EDAnalyzerAdaptorBase::doStreamEndRun(StreamID id,
                     ModuleCallingContext const* mcc)
 {
   auto mod = m_streamModules[id];
-  Run r(rp, moduleDescription_, mcc);
+  Run r(rp, moduleDescription_, mcc, true);
   r.setConsumer(mod);
   mod->endRun(r, c);
   streamEndRunSummary(mod,r,c);
@@ -191,7 +199,7 @@ EDAnalyzerAdaptorBase::doStreamBeginLuminosityBlock(StreamID id,
   auto mod = m_streamModules[id];
   setupLuminosityBlock(mod,lbp.index());
   
-  LuminosityBlock lb(lbp, moduleDescription_, mcc);
+  LuminosityBlock lb(lbp, moduleDescription_, mcc, false);
   lb.setConsumer(mod);
   mod->beginLuminosityBlock(lb, c);
 }
@@ -202,7 +210,7 @@ EDAnalyzerAdaptorBase::doStreamEndLuminosityBlock(StreamID id,
                                 ModuleCallingContext const* mcc)
 {
   auto mod = m_streamModules[id];
-  LuminosityBlock lb(lbp, moduleDescription_, mcc);
+  LuminosityBlock lb(lbp, moduleDescription_, mcc, true);
   lb.setConsumer(mod);
   mod->endLuminosityBlock(lb, c);
   streamEndLuminosityBlockSummary(mod,lb, c);
@@ -213,20 +221,6 @@ void
 EDAnalyzerAdaptorBase::doRespondToOpenInputFile(FileBlock const&){}
 void
 EDAnalyzerAdaptorBase::doRespondToCloseInputFile(FileBlock const&){}
-void
-EDAnalyzerAdaptorBase::doPreForkReleaseResources()
-{
-  for(auto mod: m_streamModules) {
-    mod->preForkReleaseResources();
-  }
-}
-void
-EDAnalyzerAdaptorBase::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren)
-{
-  for(auto mod: m_streamModules) {
-    mod->postForkReacquireResources(iChildIndex,iNumberOfChildren);
-  }
-}
 
 void
 EDAnalyzerAdaptorBase::setModuleDescriptionPtr(EDAnalyzerBase* m) {

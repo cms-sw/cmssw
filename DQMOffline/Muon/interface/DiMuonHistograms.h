@@ -36,7 +36,7 @@ class DiMuonHistograms : public DQMEDAnalyzer {
   DiMuonHistograms(const edm::ParameterSet& pset);
   
   /* Destructor */ 
-  virtual ~DiMuonHistograms() ;
+  ~DiMuonHistograms() override ;
   
   /* Operations */ 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
@@ -65,6 +65,7 @@ class DiMuonHistograms : public DQMEDAnalyzer {
   double etaECMin;
   double etaECMax;
 
+
   //Defining the relevant invariant mass regions
   double LowMassMin;
   double LowMassMax;
@@ -78,8 +79,14 @@ class DiMuonHistograms : public DQMEDAnalyzer {
   std::vector<MonitorElement*> TrkTrkMuon_LM;
   std::vector<MonitorElement*> TrkTrkMuon_HM;
 
+  std::vector<MonitorElement*> LooseLooseMuon;
+  std::vector<MonitorElement*> MediumMediumMuon;
   std::vector<MonitorElement*> TightTightMuon;
   std::vector<MonitorElement*> SoftSoftMuon;
+  std::vector<MonitorElement*> LooseLooseMuonBadFrac;
+  std::vector<MonitorElement*> MediumMediumMuonBadFrac;
+  std::vector<MonitorElement*> TightTightMuonBadFrac;
+  std::vector<MonitorElement*> SoftSoftMuonBadFrac;
   
   MonitorElement* test; // my test
 
@@ -91,6 +98,8 @@ class DiMuonHistograms : public DQMEDAnalyzer {
   std::string theFolder;
 
   int nTightTight;
+  int nMediumMedium;
+  int nLooseLoose;
   int nGlbGlb;
 
 };

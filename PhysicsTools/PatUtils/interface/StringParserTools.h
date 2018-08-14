@@ -39,7 +39,7 @@ private:
     boost::shared_ptr<StringObjectFunction<Obj> > tryGet(const std::string &str) {
         try {
             return boost::shared_ptr<StringObjectFunction<Obj> >(new StringObjectFunction<Obj>(str));
-        } catch (cms::Exception) { 
+        } catch (cms::Exception const&) {
             return boost::shared_ptr<StringObjectFunction<Obj> >();
         }
     }
@@ -83,7 +83,7 @@ private:
     boost::shared_ptr<StringCutObjectSelector<Obj> > tryGet(const std::string &str) {
         try {
             return boost::shared_ptr<StringCutObjectSelector<Obj> >(new StringCutObjectSelector<Obj>(str));
-        } catch (cms::Exception) { 
+        } catch (cms::Exception const&) {
             return boost::shared_ptr<StringCutObjectSelector<Obj> >();
         }
     }

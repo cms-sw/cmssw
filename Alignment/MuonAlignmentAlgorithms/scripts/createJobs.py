@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import os, sys, optparse, math
 
 copyargs = sys.argv[:]
@@ -327,7 +328,7 @@ if options.noCSC: doCSC = False
 doDT = True
 if options.noDT: doDT = False
 if options.noCSC and options.noDT:
-  print "cannot do --noCSC and --noDT at the same time!"
+  print("cannot do --noCSC and --noDT at the same time!")
   sys.exit()
 
 json_file = options.json
@@ -339,12 +340,12 @@ njobs = options.subjobs
 if (options.inputInBlocks):
   njobs = len(fileNamesBlocks)
   if njobs==0:
-    print "while --inputInBlocks is specified, the INPUTFILES has no blocks!"
+    print("while --inputInBlocks is specified, the INPUTFILES has no blocks!")
     sys.exit()
 
 stepsize = int(math.ceil(1.*len(fileNames)/options.subjobs))
 
-pwd = str(os.getcwdu())
+pwd = str(os.getcwd())
 
 copytrackerdb = ""
 if trackerconnect[0:12] == "sqlite_file:": copytrackerdb += "%s " % trackerconnect[12:]
@@ -358,11 +359,11 @@ if gprcdconnect[0:12] == "sqlite_file:": copytrackerdb += "%s " % gprcdconnect[1
 INITIALXML = INITIALGEOM + '.xml'
 if INITIALGEOM[-3:]=='.db':
   INITIALXML = INITIALGEOM[:-3] + '.xml'
-print "Converting",INITIALGEOM,"to",INITIALXML," ...will be done in several seconds..."
-print "./Alignment/MuonAlignmentAlgorithms/scripts/convertSQLiteXML.py  %s %s --gprcdconnect %s --gprcd %s" % (INITIALGEOM,INITIALXML,gprcdconnect,gprcd)
+print("Converting",INITIALGEOM,"to",INITIALXML," ...will be done in several seconds...")
+print("./Alignment/MuonAlignmentAlgorithms/scripts/convertSQLiteXML.py  %s %s --gprcdconnect %s --gprcd %s" % (INITIALGEOM,INITIALXML,gprcdconnect,gprcd))
 exit_code = os.system("./Alignment/MuonAlignmentAlgorithms/scripts/convertSQLiteXML.py  %s %s --gprcdconnect %s --gprcd %s" % (INITIALGEOM,INITIALXML,gprcdconnect,gprcd))
 if exit_code>0:
-  print "problem: conversion exited with code:", exit_code
+  print("problem: conversion exited with code:", exit_code)
   sys.exit()
 
 #####################################################################

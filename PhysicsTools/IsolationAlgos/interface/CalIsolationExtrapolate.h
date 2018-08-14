@@ -4,6 +4,7 @@
  *
  */
 #include "PhysicsTools/IsolationAlgos/interface/CalIsolationAlgo.h"
+#include "PhysicsTools/IsolationAlgos/interface/IsolationProducer.h"
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"

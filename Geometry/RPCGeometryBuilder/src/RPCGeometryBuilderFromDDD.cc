@@ -36,18 +36,10 @@ RPCGeometry* RPCGeometryBuilderFromDDD::build(const DDCompactView* cview, const 
 {
   const std::string attribute = "ReadOutName"; // could come from .orcarc
   const std::string value     = "MuonRPCHits";    // could come from .orcarc
-  DDValue val(attribute, value, 0.0);
 
   // Asking only for the MuonRPC's
-  DDSpecificsFilter filter;
-  filter.setCriteria(val, // name & value of a variable
-                     DDCompOp::matches,
-                     DDLogOp::AND,
-                     true, // compare strings otherwise doubles
-                     true // use merged-specifics or simple-specifics
-                     );
-  DDFilteredView fview(*cview);
-  fview.addFilter(filter);
+  DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0.0)};
+  DDFilteredView fview(*cview,filter);
 
   return this->buildGeometry(fview, muonConstants);
 }
@@ -87,8 +79,8 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
 
     std::vector<const DDsvalues_type* > specs(fview.specifics());
     int nStrips=0;
-    for (auto is=specs.begin();is!=specs.end(); ++is){
-      if (DDfetch( *is, numbOfStrips)){
+    for (auto & spec : specs){
+      if (DDfetch( spec, numbOfStrips)){
         nStrips=int(numbOfStrips.doubles()[0]);
       }
     }
@@ -114,8 +106,8 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
                                float(y.X()),float(y.Y()),float(y.Z()),
                                float(z.X()),float(z.Y()),float(z.Z()));
 
-    RPCRollSpecs* rollspecs= 0;
-    Bounds* bounds = 0;
+    RPCRollSpecs* rollspecs= nullptr;
+    Bounds* bounds = nullptr;
 
     if (dpar.size()==3){
       const float width     = dpar[0]/cm;
@@ -176,17 +168,17 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
 
     auto rls = chids.find(chid);
     if ( rls == chids.end() ) rls = chids.insert(std::make_pair(chid, std::list<RPCRoll*>())).first;
-    rls->second.push_back(r);
+    rls->second.emplace_back(r);
 
     doSubDets = fview.nextSibling(); // go to next layer
   }
   // Create the RPCChambers and store them on the Geometry
-  for ( auto ich=chids.begin(); ich != chids.end(); ++ich ) {
-    const RPCDetId& chid = ich->first;
-    const auto& rls = ich->second;
+  for (auto & ich : chids) {
+    const RPCDetId& chid = ich.first;
+    const auto& rls = ich.second;
 
     // compute the overall boundplane.
-    BoundPlane* bp=0;
+    BoundPlane* bp=nullptr;
     if ( !rls.empty() ) {
       // First set the baseline plane to calculate relative poisions
       const auto& refSurf = (*rls.begin())->surface();

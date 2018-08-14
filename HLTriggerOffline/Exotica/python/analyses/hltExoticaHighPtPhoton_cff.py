@@ -7,8 +7,12 @@ HighPtPhotonPSet = cms.PSet(
         "HLT_Photon36_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon31_AND_HE10_R9Id65_Mass10_v",  # Run2 proposal
         "HLT_Photon26_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon16_AND_HE10_R9Id65_Mass60_v",  # Run2 proposal
         "HLT_Photon90_CaloIdL_PFHT500_v", #50ns backup menu
-        "HLT_Photon150_v" # 0T
+        "HLT_Photon150_v", # 0T
         #"HLT_Photon135_v"  # Run1 (frozenHLT)
+        "HLT_Photon60_R9Id90_CaloIdL_IsoL_DisplacedIdL_PFHT350MinPFJet15_v", # 2017
+        "HLT_Photon33_v", # 2017
+        "HLT_Photon60_R9Id90_CaloIdL_IsoL_v", # 2017
+        "HLT_Photon60_R9Id90_CaloIdL_IsoL_DisplacedIdL_v" # 2017
         ),
     recPhotonLabel  = cms.InputTag("gedPhotons"),
     # -- Analysis specific cuts

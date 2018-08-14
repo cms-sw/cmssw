@@ -1,4 +1,5 @@
 #include "Validation/MuonGEMRecHits/interface/GEMRecHitTrackMatch.h"
+#include "Validation/MuonGEMHits/interface/GEMDetLabel.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
@@ -23,23 +24,29 @@ GEMRecHitTrackMatch::GEMRecHitTrackMatch(const edm::ParameterSet& ps) : GEMTrack
 }
 
 void GEMRecHitTrackMatch::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& run, edm::EventSetup const & iSetup){
+  edm::LogInfo("GEMRecHitTrackMatch")<<"GEM RecHitTrackMatch :: bookHistograms"<<std::endl;
   edm::ESHandle<GEMGeometry> hGeom;
   iSetup.get<MuonGeometryRecord>().get(hGeom);
   const GEMGeometry& geom = *hGeom;
+  edm::LogInfo("GEMRecHitTrackMatch")<<"GEM RecHitTrackMatch :: about to set the geometry"<<std::endl;
   setGeometry(geom);
-
+  edm::LogInfo("GEMRecHitTrackMatch")<<"GEM RecHitTrackMatch :: successfully set the geometry"<<std::endl;
+  edm::LogInfo("GEMRecHitTrackMatch")<<"GEM RecHitTrackMatch :: geom = "<<&geom<<std::endl;
+    
+  ibooker.setCurrentFolder("MuonGEMRecHitsV/GEMRecHitsTask");
+  edm::LogInfo("GEMRecHitTrackMatch")<<"ibooker set current folder\n";
+    
   const float PI=TMath::Pi();
-  const char* l_suffix[4] = {"_l1","_l2","_l1or2","_l1and2"};
-  const char* s_suffix[2] = {"_st1","_st2"};
-  const char* c_suffix[3] = {"_even","_odd","_all"};
+
+  using namespace GEMDetLabel;
 
   nstation = geom.regions()[0]->stations().size(); 
   for( unsigned int j=0 ; j<nstation ; j++) {
-      string track_eta_name  = string("track_eta")+s_suffix[j];
+      string track_eta_name  = string("track_eta")+s_suffix.at(j);
       string track_eta_title = string("track_eta")+";SimTrack |#eta|;# of tracks";
       track_eta[j] = ibooker.book1D(track_eta_name.c_str(), track_eta_title.c_str(),140,minEta_,maxEta_);
 
-      for ( unsigned int k = 0 ; k<3 ; k++) {
+      for ( unsigned int k = 0 ; k < c_suffix.size() ; k++) {
           string suffix = string(s_suffix[j])+ string(c_suffix[k]);
           string track_phi_name  = string("track_phi")+suffix;
           string track_phi_title = string("track_phi")+suffix+";SimTrack #phi;# of tracks";
@@ -47,7 +54,7 @@ void GEMRecHitTrackMatch::bookHistograms(DQMStore::IBooker& ibooker, edm::Run co
       }
 
 
-      for( unsigned int i=0 ; i< 4; i++) {
+      for( unsigned int i=0 ; i < l_suffix.size(); i++) {
          string suffix = string(s_suffix[j])+string(l_suffix[i]);
          string rh_eta_name = string("rh_eta")+suffix;
          string rh_eta_title = rh_eta_name+"; tracks |#eta|; # of tracks";
@@ -57,7 +64,7 @@ void GEMRecHitTrackMatch::bookHistograms(DQMStore::IBooker& ibooker, edm::Run co
          string rh_sh_eta_title = rh_sh_eta_name+"; tracks |#eta|; # of tracks";
          rh_sh_eta[i][j] = ibooker.book1D( rh_sh_eta_name.c_str(), rh_sh_eta_title.c_str(), 140, minEta_, maxEta_) ;
 
-         for ( unsigned int k = 0 ; k<3 ; k++) {
+         for ( unsigned int k = 0 ; k < c_suffix.size() ; k++) {
           suffix = string(s_suffix[j])+string(l_suffix[i])+ string(c_suffix[k]);
           string rh_phi_name = string("rh_phi")+suffix;
           string rh_phi_title = rh_phi_name+"; tracks #phi; # of tracks";
@@ -76,6 +83,7 @@ GEMRecHitTrackMatch::~GEMRecHitTrackMatch() {  }
 
 void GEMRecHitTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  edm::LogInfo("GEMRecHitTrackMatch")<<"GEM RecHitTrackMatch :: analyze"<<std::endl;
   edm::ESHandle<GEMGeometry> hGeom;
   iSetup.get<MuonGeometryRecord>().get(hGeom);
   const GEMGeometry& geom = *hGeom;
@@ -124,7 +132,7 @@ void GEMRecHitTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetu
       const GEMDetId id(d);
       if ( id.chamber() %2 ==0 ) track_.hitEven[id.station()-1] = true;
       else if ( id.chamber() %2 ==1 ) track_.hitOdd[id.station()-1] = true;
-      else { std::cout<<"Error to get chamber id"<<std::endl;}
+      else { edm::LogInfo("GEMRecHitTrackMatch")<<"Error to get chamber id"<<std::endl; }
 
       track_.gem_sh[ id.station()-1][ (id.layer()-1)] = true;
 

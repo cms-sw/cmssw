@@ -66,7 +66,7 @@ DTCombinatorialExtendedPatternReco::reconstruct(const DTSuperLayer* sl,
     
     DTSLRecSegment2D *segment = (**cand);
 
-    theUpdator->update(segment,0);
+    theUpdator->update(segment,false);
 
     result.push_back(segment);
 
@@ -302,7 +302,7 @@ DTCombinatorialExtendedPatternReco::buildBestSegment(std::vector<DTSegmentCand::
     hits.size()  << endl;
   if (hits.size()<3) {
     //cout << "buildBestSegment: hits " << hits.size()<< endl;
-    return 0; // a least 3 point
+    return nullptr; // a least 3 point
   }
 
   // hits with defined LR
@@ -364,7 +364,7 @@ DTCombinatorialExtendedPatternReco::buildBestSegment(std::vector<DTSegmentCand::
   if (bestCandIter != extendedCands.end()) {
     return (*bestCandIter);
   }
-  return 0;
+  return nullptr;
 }
 
 void
@@ -377,7 +377,7 @@ DTCombinatorialExtendedPatternReco::buildPointsCollection(vector<DTSegmentCand::
     cout << "DTCombinatorialExtendedPatternReco::buildPointsCollection " << endl;
     cout << "points: " << points.size() << " NOLR: " << pointsNoLR.size()<< endl;
   }
-  if (pointsNoLR.size()>0) { // still unassociated points!
+  if (!pointsNoLR.empty()) { // still unassociated points!
     std::shared_ptr<DTHitPairForFit> unassHit = pointsNoLR.front();
     // try with the right
     if(debug)
@@ -419,7 +419,7 @@ DTCombinatorialExtendedPatternReco::buildPointsCollection(vector<DTSegmentCand::
     }
 
     DTSegmentCand* newCand = new DTSegmentCand(pointsSet,sl);
-    if (theUpdator->fit(newCand,0,0)) candidates.push_back(newCand);
+    if (theUpdator->fit(newCand,false,false)) candidates.push_back(newCand);
     else delete newCand; // bad seg, too few hits
   }
 }
@@ -490,7 +490,7 @@ DTCombinatorialExtendedPatternReco::extendCandidates(vector<DTSegmentCand*>& can
       }
       // fit the segment
       if (debug) cout << "extended cands nHits: " << extendedCand->nHits() <<endl;
-      if (theUpdator->fit(extendedCand,0,0)) {
+      if (theUpdator->fit(extendedCand,false,false)) {
         // add to result
         result.push_back(extendedCand);
       } else {

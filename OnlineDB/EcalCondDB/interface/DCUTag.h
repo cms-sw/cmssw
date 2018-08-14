@@ -16,7 +16,7 @@ class DCUTag : public ITag {
   friend class EcalCondDBInterface;
 
   DCUTag();
-  ~DCUTag();
+  ~DCUTag() override;
 
   // Methods for user data
   std::string getGeneralTag() const;
@@ -26,8 +26,8 @@ class DCUTag : public ITag {
   void setLocationDef(const LocationDef& locDef);
 
   // Methods using ID
-  int fetchID() noexcept(false);
-  void setByID(int id) noexcept(false);
+  int fetchID() noexcept(false) override;
+  void setByID(int id) noexcept(false) override;
 
   // Operators
   inline bool operator==(const DCUTag &t) const 

@@ -19,7 +19,7 @@
 //
 
 // system include files
-
+#include <memory>
 // user include files
 
 // forward declarations

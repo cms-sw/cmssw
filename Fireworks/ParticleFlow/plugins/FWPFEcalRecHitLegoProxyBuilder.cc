@@ -30,8 +30,7 @@ FWPFEcalRecHitLegoProxyBuilder::localModelChanges( const FWModelId &iId, TEveEle
          TEveStraightLineSet* line = dynamic_cast<TEveStraightLineSet*>(*i);
          if (line)
          {
-            const FWDisplayProperties &p = item()->modelInfo( iId.index() ).displayProperties();
-            line->SetMarkerColor( p.color() );
+            line->SetMarkerColor( item()->modelInfo( iId.index() ).displayProperties().color() );
          }
       }
    }
@@ -71,7 +70,7 @@ FWPFEcalRecHitLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementList
       std::vector<TEveVector> etaphiCorners(8);
       TEveVector centre;
 
-      if( corners == 0 )
+      if( corners == nullptr )
          continue;
 
       int k = 3;

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 import collections
+import six
 
 def customiseEarlyDeleteForSeeding(process, products):
     # Find the producers
@@ -9,7 +10,7 @@ def customiseEarlyDeleteForSeeding(process, products):
     def _branchName(productType, moduleLabel, instanceLabel=""):
         return "%s_%s_%s_%s" % (productType, moduleLabel, instanceLabel, process.name_())
 
-    for name, module in process.producers_().iteritems():
+    for name, module in six.iteritems(process.producers_()):
         cppType = module._TypedParameterizable__type
         if cppType == "HitPairEDProducer":
             if module.produceSeedingHitSets:
@@ -21,19 +22,16 @@ def customiseEarlyDeleteForSeeding(process, products):
                 products[name].append(_branchName("RegionsSeedingHitSets", name))
             if module.produceIntermediateHitTriplets:
                 products[name].append(_branchName("IntermediateHitTriplets", name))
+            # LayerHitMapCache of the doublets is forwarded to both
+            # products, hence the dependency
             depends[name].append(module.doublets.getModuleLabel())
         elif cppType in ["MultiHitFromChi2EDProducer"]:
             products[name].extend([
                 _branchName("RegionsSeedingHitSets", name),
                 _branchName("BaseTrackerRecHitsOwned", name)
             ])
-        elif cppType == "PixelQuadrupletEDProducer":
+        elif cppType in ["CAHitQuadrupletEDProducer", "CAHitTripletEDProducer"]:
             products[name].append(_branchName("RegionsSeedingHitSets", name))
-        elif cppType == "PixelQuadrupletMergerEDProducer":
-            products[name].extend([
-                    _branchName("RegionsSeedingHitSets", name),
-                    _branchName("TrajectorySeeds", name)
-                    ])
 
     if len(products) == 0:
         return products

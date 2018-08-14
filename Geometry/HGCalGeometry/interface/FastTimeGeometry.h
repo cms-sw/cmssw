@@ -11,8 +11,6 @@
 
 #include "DataFormats/Common/interface/AtomicPtrCache.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/FlatTrd.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -46,26 +44,28 @@ public:
  
   FastTimeGeometry(const FastTimeTopology& topology) ;
   
-  virtual ~FastTimeGeometry();
+  ~FastTimeGeometry() override;
 
   void localCorners(Pt3DVec&        lc,
 		    const CCGFloat* pv, 
 		    unsigned int    i,
 		    Pt3D&           ref) ;
   
-  virtual void newCell(const GlobalPoint& f1 ,
-		       const GlobalPoint& f2 ,
-		       const GlobalPoint& f3 ,
-		       const CCGFloat*    parm ,
-		       const DetId&       detId) override;
+  void newCell(const GlobalPoint& f1 ,
+	       const GlobalPoint& f2 ,
+	       const GlobalPoint& f3 ,
+	       const CCGFloat*    parm ,
+	       const DetId&       detId) override;
   
   /// Get the cell geometry of a given detector id.  Should return false if not found.
-  virtual const CaloCellGeometry* getGeometry(const DetId& id) const override;
+  std::shared_ptr<const CaloCellGeometry> getGeometry(const DetId& id) const override;
 
-  virtual void getSummary(CaloSubdetectorGeometry::TrVec&  trVector,
-			  CaloSubdetectorGeometry::IVec&   iVector,
-			  CaloSubdetectorGeometry::DimVec& dimVector,
-			  CaloSubdetectorGeometry::IVec& dinsVector ) const override;
+  bool present (const DetId& id) const override;
+
+  void getSummary(CaloSubdetectorGeometry::TrVec&  trVector,
+		  CaloSubdetectorGeometry::IVec&   iVector,
+		  CaloSubdetectorGeometry::DimVec& dimVector,
+		  CaloSubdetectorGeometry::IVec& dinsVector ) const override;
   
   GlobalPoint getPosition(const DetId& id) const;
       
@@ -73,11 +73,11 @@ public:
   CornersVec getCorners(const DetId& id) const; 
 
   // avoid sorting set in base class  
-  virtual const std::vector<DetId>& getValidDetIds( DetId::Detector det = DetId::Detector(0), int subdet = 0) const override { return m_validIds; }
+  const std::vector<DetId>& getValidDetIds( DetId::Detector det = DetId::Detector(0), int subdet = 0) const override { return m_validIds; }
   const std::vector<DetId>& getValidGeomDetIds( void ) const { return m_validGeomIds; }
 					       
   // Get closest cell, etc...
-  virtual DetId getClosestCell(const GlobalPoint& r) const override;
+  DetId getClosestCell(const GlobalPoint& r) const override;
   
   /** \brief Get a list of all cells within a dR of the given cell
       
@@ -85,10 +85,10 @@ public:
       Cleverer implementations are suggested to use rough conversions between
       eta/phi and ieta/iphi and test on the boundaries.
   */
-  virtual DetIdSet getCells(const GlobalPoint& r, double dR) const override;
+  DetIdSet getCells(const GlobalPoint& r, double dR) const override;
   
   virtual void fillNamedParams (DDFilteredView fv);
-  virtual void initializeParms() override;
+  void initializeParms() override;
   
   static std::string producerTag() { return "FastTime" ; }
   std::string cellElement() const;
@@ -98,15 +98,20 @@ public:
      
 protected:
 
-  virtual unsigned int indexFor(const DetId& id) const override;
+  unsigned int indexFor(const DetId& id) const override;
   using CaloSubdetectorGeometry::sizeForDenseIndex;
   unsigned int sizeForDenseIndex() const;
   
-  virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const override;
+  // Modify the RawPtr class
+  const CaloCellGeometry* getGeometryRawPtr(uint32_t index) const override;
+  std::shared_ptr<const CaloCellGeometry> cellGeomPtr( uint32_t index ) const override;
   
   void addValidID(const DetId& id);
   
 private:
+
+  std::shared_ptr<const CaloCellGeometry> cellGeomPtr( uint32_t index, const GlobalPoint& p) const;
+
   const FastTimeTopology& m_topology;
   
   CellVec                 m_cellVec ; 

@@ -59,7 +59,7 @@ public:
         HcalDetIdTransform::validateCode(transformCode_);
     }
 
-    inline virtual ~HcalItemCollById() {}
+    inline ~HcalItemCollById() override {}
 
     // Modifier for the default item
     inline void setDefault(std::unique_ptr<Item> f)
@@ -101,7 +101,7 @@ public:
     }
 
 protected:
-    virtual bool isEqual(const AbsHcalAlgoData& other) const override
+    bool isEqual(const AbsHcalAlgoData& other) const override
     {
         const HcalItemCollById& r =
             static_cast<const HcalItemCollById&>(other);

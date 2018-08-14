@@ -21,21 +21,22 @@ namespace edmtest {
     //
     explicit ThingSource(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc);
 
-    virtual ~ThingSource();
+    ~ThingSource() override;
 
-    virtual bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&) {return true;}
+    bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&) override {return true;}
 
-    virtual void produce(edm::Event& e);
+    void produce(edm::Event& e) override;
 
-    virtual void beginRun(edm::Run& r);
+    void beginRun(edm::Run& r) override;
 
-    virtual void endRun(edm::Run& r);
+    void beginLuminosityBlock(edm::LuminosityBlock& lb) override;
 
-    virtual void beginLuminosityBlock(edm::LuminosityBlock& lb);
-
-    virtual void endLuminosityBlock(edm::LuminosityBlock& lb);
 
   private:
+    //called internally, not by the framework
+    void endRun(edm::Run& r);
+    void endLuminosityBlock(edm::LuminosityBlock& lb);
+    
     ThingAlgorithm alg_;
   };
 }

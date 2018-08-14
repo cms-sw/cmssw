@@ -320,6 +320,7 @@ struct Cache {
   class LumiSummaryIntFilter : public edm::stream::EDFilter<edm::LuminosityBlockCache<Cache>,edm::LuminosityBlockSummaryCache<Cache>> {
   public:
     static std::atomic<unsigned int> m_count;
+    static std::atomic<unsigned int> m_lumiSumCalls;
     unsigned int trans_;
     static std::atomic<unsigned int> cvalue_;
     static std::atomic<bool> gbl;
@@ -374,10 +375,12 @@ struct Cache {
     }
     
     void endLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, Cache* gCache) const override {
+      ++m_lumiSumCalls;
       bls=false;
       els=true;
-      gCache->value += luminosityBlockCache()->value;
-      luminosityBlockCache()->value = 0;
+      //This routine could be called at the same time as another stream is calling filter so must do the change atomically
+      auto v = luminosityBlockCache()->value.exchange(0);
+      gCache->value += v;
       if ( el ) {
         throw cms::Exception("end out of sequence")
           << "endLuminosityBlock seen before endLuminosityBlockSummary";
@@ -386,6 +389,7 @@ struct Cache {
     
     static void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, LuminosityBlockContext const*, Cache* gCache){
      ++m_count;
+     auto nLumis = m_lumiSumCalls.load();
      gbls=false;
      gels=true;
       if ( !els ) {
@@ -395,7 +399,7 @@ struct Cache {
       }
       if( gCache->value != cvalue_) {
         throw cms::Exception("cache value")
-          << gCache->value << " but it was supposed to be " << cvalue_;
+          << gCache->value << " but it was supposed to be " << cvalue_<<" endLumiBlockSummary called "<<nLumis;
       }
     }
 
@@ -441,6 +445,7 @@ struct Cache {
       cvalue_ = p.getParameter<int>("cachevalue");
       m_count = 0;
       produces<unsigned int>();
+      produces<unsigned int, edm::Transition::BeginRun>("a");
     }
 
   static std::shared_ptr<Cache> globalBeginRun(edm::Run const& iRun, edm::EventSetup const&, GlobalCache const*) {
@@ -507,6 +512,7 @@ struct Cache {
       cvalue_ = p.getParameter<int>("cachevalue");
       m_count = 0;
       produces<unsigned int>();
+      produces<unsigned int, edm::Transition::EndRun>("a");
     }
 
     bool filter(edm::Event&, edm::EventSetup const&) override {
@@ -556,6 +562,7 @@ struct Cache {
       cvalue_ = p.getParameter<int>("cachevalue");
       m_count = 0;
       produces<unsigned int>();
+      produces<unsigned int, edm::Transition::BeginLuminosityBlock>("a");
     }
 
     bool filter(edm::Event&, edm::EventSetup const&) override {
@@ -614,6 +621,7 @@ struct Cache {
       cvalue_ = p.getParameter<int>("cachevalue");
       m_count = 0;
       produces<unsigned int>();
+      produces<unsigned int, edm::Transition::EndLuminosityBlock>("a");
     }
 
     bool filter(edm::Event&, edm::EventSetup const&) override {
@@ -693,6 +701,7 @@ std::atomic<bool> edmtest::stream::RunSummaryIntFilter::brs{false};
 std::atomic<bool> edmtest::stream::RunSummaryIntFilter::ers{false};
 std::atomic<bool> edmtest::stream::RunSummaryIntFilter::br{false};
 std::atomic<bool> edmtest::stream::RunSummaryIntFilter::er{false};
+std::atomic<unsigned int> edmtest::stream::LumiSummaryIntFilter::m_lumiSumCalls{0};
 std::atomic<bool> edmtest::stream::LumiSummaryIntFilter::gbl{false};
 std::atomic<bool> edmtest::stream::LumiSummaryIntFilter::gel{false};
 std::atomic<bool> edmtest::stream::LumiSummaryIntFilter::gbls{false};

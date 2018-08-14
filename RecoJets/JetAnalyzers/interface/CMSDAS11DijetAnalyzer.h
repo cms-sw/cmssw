@@ -20,10 +20,10 @@ class TH2D;
 class CMSDAS11DijetAnalyzer : public edm::EDAnalyzer {
  public:
   CMSDAS11DijetAnalyzer(const edm::ParameterSet &);
-  void analyze( const edm::Event& , const edm::EventSetup& );
-  virtual ~CMSDAS11DijetAnalyzer() {}
-  virtual void beginJob() {}
-  virtual void endJob(void);
+  void analyze( const edm::Event& , const edm::EventSetup& ) override;
+  ~CMSDAS11DijetAnalyzer() override {}
+  void beginJob() override {}
+  void endJob(void) override;
   
   static bool compare_JetPt(const reco::CaloJet& jet1, const reco::CaloJet& jet2) {
     return (jet1.pt() > jet2.pt() );

@@ -238,7 +238,7 @@ void AlignableMuon::buildCSCEndcap(const CSCGeometry* pCSC, bool update)
 
         if (!update) {
           // Not all stations have 4 rings: only add the rings that exist (have chambers associated with them)
-          if (tmpCSCChambersInRing.size() > 0) {
+          if (!tmpCSCChambersInRing.empty()) {
 
             // Store the alignable CSC chambers
             theCSCChambers.insert(theCSCChambers.end(),
@@ -425,16 +425,13 @@ align::Alignables AlignableMuon::CSCEndcaps()
 //__________________________________________________________________________________________________
 void AlignableMuon::recursiveSetMothers( Alignable* alignable )
 {
-  
-  align::Alignables components = alignable->components();
-  for ( align::Alignables::iterator iter = components.begin();
-		iter != components.end(); iter++ )
-	{
-	  (*iter)->setMother( alignable );
-	  recursiveSetMothers( *iter );
-	}
-
+  for (const auto& iter: alignable->components()) {
+    iter->setMother(alignable);
+    recursiveSetMothers(iter);
+  }
 }
+
+
 //__________________________________________________________________________________________________
 Alignments* AlignableMuon::alignments( void ) const
 {

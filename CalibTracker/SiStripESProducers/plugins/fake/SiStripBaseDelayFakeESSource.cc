@@ -25,17 +25,16 @@
 class SiStripBaseDelayFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   SiStripBaseDelayFakeESSource(const edm::ParameterSet&);
-  ~SiStripBaseDelayFakeESSource();
+  ~SiStripBaseDelayFakeESSource() override;
 
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity );
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity ) override;
 
-  typedef std::shared_ptr<SiStripBaseDelay> ReturnType;
+  typedef std::unique_ptr<SiStripBaseDelay> ReturnType;
   ReturnType produce(const SiStripBaseDelayRcd&);
 
 private:
   uint16_t m_coarseDelay;
   uint16_t m_fineDelay;
-  edm::FileInPath m_file;
 };
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -48,7 +47,6 @@ SiStripBaseDelayFakeESSource::SiStripBaseDelayFakeESSource(const edm::ParameterS
 
   m_coarseDelay = iConfig.getParameter<uint32_t>("CoarseDelay");
   m_fineDelay = iConfig.getParameter<uint32_t>("FineDelay");
-  m_file = iConfig.getParameter<edm::FileInPath>("file");
 }
 
 SiStripBaseDelayFakeESSource::~SiStripBaseDelayFakeESSource() {}
@@ -64,15 +62,14 @@ SiStripBaseDelayFakeESSource::produce(const SiStripBaseDelayRcd& iRecord)
 {
   using namespace edm::es;
 
-  std::shared_ptr<SiStripBaseDelay> baseDelay{new SiStripBaseDelay};
+  auto baseDelay = std::make_unique<SiStripBaseDelay>();
 
-  SiStripDetInfoFileReader reader{m_file.fullPath()};
-
-  const auto detInfos = reader.getAllData();
+  const edm::Service<SiStripDetInfoFileReader> reader;
+  const auto& detInfos = reader->getAllData();
   if ( detInfos.empty() ) {
     edm::LogError("SiStripBaseDelayGenerator") << "Error: detInfo map is empty.";
   }
-  for ( const auto& elm : reader.getAllData() ) {
+  for ( const auto& elm : reader->getAllData() ) {
     baseDelay->put(elm.first, m_coarseDelay, m_fineDelay);
   }
 

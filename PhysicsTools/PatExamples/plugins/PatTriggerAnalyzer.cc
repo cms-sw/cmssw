@@ -19,15 +19,15 @@ class PatTriggerAnalyzer : public edm::EDAnalyzer {
   /// default constructor
   explicit PatTriggerAnalyzer( const edm::ParameterSet & iConfig );
   /// default destructor
-  ~PatTriggerAnalyzer();
+  ~PatTriggerAnalyzer() override;
 
  private:
   /// everythin that needs to be done before the event loop
-  virtual void beginJob();
+  void beginJob() override;
   /// everythin that needs to be done during the event loop
-  virtual void analyze( const edm::Event & iEvent, const edm::EventSetup & iSetup );
+  void analyze( const edm::Event & iEvent, const edm::EventSetup & iSetup ) override;
   /// everythin that needs to be done after the event loop
-  virtual void endJob();
+  void endJob() override;
 
   /// input for patTrigger
   edm::InputTag trigger_;

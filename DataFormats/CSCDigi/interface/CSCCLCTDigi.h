@@ -3,13 +3,13 @@
 
 /**\class CSCCLCTDigi
  *
- * Digi for CLCT trigger primitives. 
+ * Digi for CLCT trigger primitives.
  *
  *
  * \author N. Terentiev, CMU
  */
 
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include <iosfwd>
 
 class CSCCLCTDigi {
@@ -29,26 +29,50 @@ class CSCCLCTDigi {
   /// check CLCT validity (1 - valid CLCT)
   bool isValid()     const {return valid_ ;}
 
+  /// set valid
+  void setValid(const int valid) {valid_ = valid;}
+
   /// return quality of a pattern (number of layers hit!)
   int getQuality()   const {return quality_ ;}
+
+  /// set quality
+  void setQuality(const int quality) {quality_ = quality;}
 
   /// return pattern
   int getPattern()   const {return pattern_ ;}
 
+  /// set pattern
+  void setPattern(const int pattern) {pattern_ = pattern;}
+
   /// return striptype
   int getStripType() const {return striptype_ ;}
+
+  /// set stripType
+  void setStripType(const int stripType) {striptype_ = stripType;}
 
   /// return bend
   int getBend()      const {return bend_ ;}
 
-  /// return halfstrip that goes from 0 to 31 
+  /// set bend
+  void setBend(const int bend) {bend_ = bend;}
+
+  /// return halfstrip that goes from 0 to 31
   int getStrip()     const {return strip_ ;}
+
+  /// set strip
+  void setStrip(const int strip) {strip_ = strip;}
 
   /// return Key CFEB ID
   int getCFEB()      const {return cfeb_ ;}
 
+  /// set Key CFEB ID
+  void setCFEB(const int cfeb) {cfeb_ = cfeb;}
+
   /// return BX
   int getBX()        const {return bx_ ;}
+
+  /// set bx
+  void setBX(const int bx) {bx_ = bx;}
 
   /// return track number (1,2)
   int getTrknmb()    const {return trknmb_ ;}

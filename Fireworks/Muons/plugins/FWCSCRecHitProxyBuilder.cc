@@ -19,13 +19,13 @@ class FWCSCRecHitProxyBuilder : public FWSimpleProxyBuilderTemplate<CSCRecHit2D>
 {
 public:
   FWCSCRecHitProxyBuilder( void ) {}
-  virtual ~FWCSCRecHitProxyBuilder( void ) {}
+  ~FWCSCRecHitProxyBuilder( void ) override {}
   
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
-  FWCSCRecHitProxyBuilder( const FWCSCRecHitProxyBuilder& );
-  const FWCSCRecHitProxyBuilder& operator=( const FWCSCRecHitProxyBuilder& );
+  FWCSCRecHitProxyBuilder( const FWCSCRecHitProxyBuilder& ) = delete;
+  const FWCSCRecHitProxyBuilder& operator=( const FWCSCRecHitProxyBuilder& ) = delete;
 
   using FWSimpleProxyBuilderTemplate<CSCRecHit2D>::build;
   void build( const CSCRecHit2D& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;

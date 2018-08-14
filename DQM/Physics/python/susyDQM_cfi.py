@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-susyDQM = cms.EDAnalyzer("RecoSusyDQM",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+susyDQM = DQMEDAnalyzer("RecoSusyDQM",
 
     moduleName     = cms.untracked.string('Physics/Susy'),
 

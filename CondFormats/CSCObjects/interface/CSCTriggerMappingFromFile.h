@@ -18,10 +18,10 @@ class CSCTriggerMappingFromFile : public CSCTriggerSimpleMapping {
    CSCTriggerMappingFromFile() {}
 
   /// Destructor
-   virtual ~CSCTriggerMappingFromFile();
+   ~CSCTriggerMappingFromFile() override;
 
   /// Fill mapping store
-   virtual void fill( void );
+   void fill( void ) override;
 
  private: 
    std::string filename_;

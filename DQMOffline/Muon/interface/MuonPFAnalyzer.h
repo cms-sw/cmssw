@@ -42,7 +42,7 @@ public:
   explicit MuonPFAnalyzer(const edm::ParameterSet&);
 
   /// Destructor
-  ~MuonPFAnalyzer();
+  ~MuonPFAnalyzer() override;
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;

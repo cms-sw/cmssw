@@ -11,26 +11,26 @@ class TT6PedestalCalculator: public TkPedestalCalculator {
 public: 
 
   TT6PedestalCalculator(int evnt_ini, int evnt_iter, float sig_cut);
-  virtual ~TT6PedestalCalculator();
+  ~TT6PedestalCalculator() override;
 
 
 
-  void resetPedestals() {
+  void resetPedestals() override {
     thePedestal.clear();
     theRawNoise.clear();
   } 
-  void setPedestals (ApvAnalysis::PedestalType& in) {thePedestal=in;}
+  void setPedestals (ApvAnalysis::PedestalType& in) override {thePedestal=in;}
   void setRawNoise (ApvAnalysis::PedestalType& in) {theRawNoise=in;}
     
-  void updateStatus();
+  void updateStatus() override;
 
-  void updatePedestal (ApvAnalysis::RawSignalType& in);
+  void updatePedestal (ApvAnalysis::RawSignalType& in) override;
 
-  ApvAnalysis::PedestalType rawNoise() const { return theRawNoise;}
-  ApvAnalysis::PedestalType  pedestal() const { return thePedestal;}
+  ApvAnalysis::PedestalType rawNoise() const override { return theRawNoise;}
+  ApvAnalysis::PedestalType  pedestal() const override { return thePedestal;}
 
  
-  void newEvent();
+  void newEvent() override;
 
 private:
   void init();

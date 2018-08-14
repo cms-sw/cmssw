@@ -14,6 +14,8 @@
  *   \author  A.Everett, R.Bellan
  *
  *    ORCA's author: N. Neumeister 
+ *
+ *    Modified by M.Oh
  */
 //L2MuonSeedGeneratorFromL1T
 //--------------------------------------------------
@@ -51,10 +53,10 @@ class L2MuonSeedGeneratorFromL1T : public edm::stream::EDProducer<> {
   explicit L2MuonSeedGeneratorFromL1T(const edm::ParameterSet&);
 
   /// Destructor
-  ~L2MuonSeedGeneratorFromL1T();
+  ~L2MuonSeedGeneratorFromL1T() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
  private:
 
@@ -69,6 +71,8 @@ class L2MuonSeedGeneratorFromL1T : public edm::stream::EDProducer<> {
   const double theL1MinPt;
   const double theL1MaxEta;
   const unsigned theL1MinQuality;
+  const double theMinPtBarrel;
+  const double theMinPtEndcap;
   const bool useOfflineSeed;
   const bool useUnassociatedL1;
   std::vector<double> matchingDR;
@@ -76,6 +80,8 @@ class L2MuonSeedGeneratorFromL1T : public edm::stream::EDProducer<> {
 
   /// use central bx only muons
   bool centralBxOnly_;
+  const unsigned matchType;
+  const unsigned sortType;
 
   /// the event setup proxy, it takes care the services update
   MuonServiceProxy *theService;  
@@ -86,6 +92,13 @@ class L2MuonSeedGeneratorFromL1T : public edm::stream::EDProducer<> {
 						  std::vector<int> &, 
 						  TrajectoryStateOnSurface &,
 						  double );
+
+  bool isAssociateOfflineSeedToL1( edm::Handle<edm::View<TrajectorySeed> > &,
+              std::vector< std::vector<double> > &,
+              TrajectoryStateOnSurface &,
+              unsigned int,
+              std::vector< std::vector<const TrajectorySeed *> > &,
+              double );
 
 };
 

@@ -10,19 +10,20 @@
 
 ________________________________________________________________**/
 
-#include "RecoVertex/BeamSpotProducer/interface/BeamFitter.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/Common/interface/View.h"
 
+#include "RecoVertex/BeamSpotProducer/interface/BeamFitter.h"
+#include "RecoVertex/BeamSpotProducer/interface/BeamSpotWrite2Txt.h"
+
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Update the string representations of the time
 void BeamFitter::updateBTime() {
@@ -37,7 +38,7 @@ void BeamFitter::updateBTime() {
 
 
 BeamFitter::BeamFitter(const edm::ParameterSet& iConfig,
-                       edm::ConsumesCollector &&iColl): fPVTree_(0)
+                       edm::ConsumesCollector &&iColl): fPVTree_(nullptr)
 {
 
   debug_             = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("Debug");
@@ -246,7 +247,7 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 
   //------ Beam Spot in current event
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  const reco::BeamSpot *refBS =  0;
+  const reco::BeamSpot *refBS =  nullptr;
   if ( iEvent.getByToken(beamSpotToken_, recoBeamSpotHandle) )
       refBS = recoBeamSpotHandle.product();
   //-------
@@ -301,7 +302,7 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
     falgo = true;
 
     if (! isMuon_ ) {
-      if (quality_.size()!=0) {
+      if (!quality_.empty()) {
           fquality = false;
           for (unsigned int i = 0; i<quality_.size();++i) {
               if(debug_) edm::LogInfo("BeamFitter") << "quality_[" << i << "] = " << track->qualityName(quality_[i]) << std::endl;
@@ -315,7 +316,7 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 
       // Track algorithm
 
-      if (algorithm_.size()!=0) {
+      if (!algorithm_.empty()) {
 	if (std::find(algorithm_.begin(),algorithm_.end(),track->algo())==algorithm_.end())
 	  falgo = false;
       }
@@ -672,43 +673,19 @@ void BeamFitter::dumpTxtFile(std::string & fileName, bool append){
     }
   }//if bx results needed
   else {
-    outFile << "Runnumber " << frun << std::endl;
-    outFile << "BeginTimeOfFit " << fbeginTimeOfFit << " " << freftime[0] << std::endl;
-    outFile << "EndTimeOfFit " << fendTimeOfFit << " " << freftime[1] << std::endl;
-    outFile << "LumiRange " << fbeginLumiOfFit << " - " << fendLumiOfFit << std::endl;
-    outFile << "Type " << fbeamspot.type() << std::endl;
-    outFile << "X0 " << fbeamspot.x0() << std::endl;
-    outFile << "Y0 " << fbeamspot.y0() << std::endl;
-    outFile << "Z0 " << fbeamspot.z0() << std::endl;
-    outFile << "sigmaZ0 " << fbeamspot.sigmaZ() << std::endl;
-    outFile << "dxdz " << fbeamspot.dxdz() << std::endl;
-    outFile << "dydz " << fbeamspot.dydz() << std::endl;
-    //  if (inputBeamWidth_ > 0 ) {
-    //    outFile << "BeamWidthX " << inputBeamWidth_ << std::endl;
-    //    outFile << "BeamWidthY " << inputBeamWidth_ << std::endl;
-    //  } else {
-    outFile << "BeamWidthX " << fbeamspot.BeamWidthX() << std::endl;
-    outFile << "BeamWidthY " << fbeamspot.BeamWidthY() << std::endl;
-    //  }
-
-    for (int i = 0; i<6; ++i) {
-      outFile << "Cov("<<i<<",j) ";
-      for (int j=0; j<7; ++j) {
-	outFile << fbeamspot.covariance(i,j) << " ";
-      }
-      outFile << std::endl;
-    }
-
-    // beam width error
-    //if (inputBeamWidth_ > 0 ) {
-    //  outFile << "Cov(6,j) 0 0 0 0 0 0 " << "1e-4" << std::endl;
-    //} else {
-    outFile << "Cov(6,j) 0 0 0 0 0 0 " << fbeamspot.covariance(6,6) << std::endl;
-    //}
-    outFile << "EmittanceX " << fbeamspot.emittanceX() << std::endl;
-    outFile << "EmittanceY " << fbeamspot.emittanceY() << std::endl;
-    outFile << "BetaStar " << fbeamspot.betaStar() << std::endl;
-
+  
+    beamspot::BeamSpotContainer currentBS;
+    
+    currentBS.beamspot       = fbeamspot      ;
+    currentBS.run            = frun           ;
+    std::copy(fbeginTimeOfFit, fbeginTimeOfFit+32, currentBS.beginTimeOfFit);
+    std::copy(fendTimeOfFit  , fendTimeOfFit  +32, currentBS.endTimeOfFit  );
+    currentBS.beginLumiOfFit = fbeginLumiOfFit;
+    currentBS.endLumiOfFit   = fendLumiOfFit  ;
+    std::copy(freftime, freftime+2, currentBS.reftime);
+          
+    beamspot::dumpBeamSpotTxt(outFile, currentBS);
+        
     //write here Pv info for DIP only: This added only if append is false, which happen for DIP only :)
   if(!append){
     outFile << "events "<< (int)ForDIPPV_[0] << std::endl;
@@ -720,7 +697,7 @@ void BeamFitter::dumpTxtFile(std::string & fileName, bool append){
     outFile << "nPV "<< (int)ForDIPPV_[6] << std::endl;
    }//writeDIPPVInfo_
   }//else end  here
-
+  
   outFile.close();
 }
 
@@ -765,7 +742,7 @@ void BeamFitter::write2DB(){
 }
 
 void BeamFitter::runAllFitter() {
-  if(fBSvector.size()!=0){
+  if(!fBSvector.empty()){
     BSFitter *myalgo = new BSFitter( fBSvector );
     fbeamspot = myalgo->Fit_d0phi();
 

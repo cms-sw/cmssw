@@ -24,6 +24,7 @@
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoTracker/CkfPattern/interface/BaseCkfTrajectoryBuilder.h"
@@ -39,10 +40,10 @@ class ConversionTrackCandidateProducer : public edm::stream::EDProducer<> {
  public:
 
   ConversionTrackCandidateProducer (const edm::ParameterSet& ps);
-  ~ConversionTrackCandidateProducer();
+  ~ConversionTrackCandidateProducer() override;
   
-  virtual void beginRun (edm::Run const&, edm::EventSetup const & es) override final;
-  virtual void produce(edm::Event& evt, const edm::EventSetup& es) override;
+  void beginRun (edm::Run const&, edm::EventSetup const & es) final;
+  void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
  private:
 

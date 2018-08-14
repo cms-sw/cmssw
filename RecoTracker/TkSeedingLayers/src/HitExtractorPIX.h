@@ -1,7 +1,7 @@
 #ifndef RecoTracker_TkSeedingLayers_HitExtractorPIX_H
 #define RecoTracker_TkSeedingLayers_HitExtractorPIX_H
 
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
+#include "DataFormats/TrackerCommon/interface/TrackerDetSide.h"
 #include "HitExtractor.h"
 
 #include <string>
@@ -13,10 +13,10 @@
 namespace ctfseeding {
   class HitExtractorPIX final : public HitExtractor {
   public:
-    HitExtractorPIX( SeedingLayer::Side & side, int idLayer, const std::string & hitProducer, edm::ConsumesCollector& iC);
-    virtual ~HitExtractorPIX(){}
-    virtual HitExtractor::Hits hits(const TkTransientTrackingRecHitBuilder &ttrhBuilder, const edm::Event& , const edm::EventSetup& ) const override;
-    virtual HitExtractorPIX * clone() const override { return new HitExtractorPIX(*this); }
+    HitExtractorPIX( TrackerDetSide side, int idLayer, const std::string & hitProducer, edm::ConsumesCollector& iC);
+    ~HitExtractorPIX() override{}
+    HitExtractor::Hits hits(const TkTransientTrackingRecHitBuilder &ttrhBuilder, const edm::Event& , const edm::EventSetup& ) const override;
+    HitExtractorPIX * clone() const override { return new HitExtractorPIX(*this); }
     
   private:
     typedef edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > SkipClustersCollection;
@@ -24,7 +24,7 @@ namespace ctfseeding {
     
     edm::EDGetTokenT<SkipClustersCollection> theSkipClusters;
     edm::EDGetTokenT<SiPixelRecHitCollection> theHitProducer;
-    SeedingLayer::Side theSide;
+    TrackerDetSide theSide;
     int theIdLayer;
   };
 }

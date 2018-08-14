@@ -14,7 +14,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -22,7 +22,6 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
-#include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
 #include "RecoBTag/SecondaryVertex/interface/SecondaryVertex.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
 #include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
@@ -31,15 +30,10 @@
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameter.h"
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterFwd.h"
 
@@ -56,11 +50,10 @@ using namespace std;
 
 class PFTauTransverseImpactParameters : public edm::stream::EDProducer<> {
  public:
-  enum Alg{useInputPV=0, useFont};
   enum CMSSWPerigee{aCurv=0,aTheta,aPhi,aTip,aLip};
   explicit PFTauTransverseImpactParameters(const edm::ParameterSet& iConfig);
-  ~PFTauTransverseImpactParameters();
-  virtual void produce(edm::Event&,const edm::EventSetup&);
+  ~PFTauTransverseImpactParameters() override;
+  void produce(edm::Event&,const edm::EventSetup&) override;
  private:
   edm::EDGetTokenT<std::vector<reco::PFTau> > PFTauToken_;
   edm::EDGetTokenT<edm::AssociationVector<PFTauRefProd, std::vector<reco::VertexRef> > > PFTauPVAToken_;
@@ -101,7 +94,6 @@ void PFTauTransverseImpactParameters::produce(edm::Event& iEvent,const edm::Even
   auto TIPCollection_out = std::make_unique<PFTauTransverseImpactParameterCollection>();
   reco::PFTauTransverseImpactParameterRefProd TIPRefProd_out = iEvent.getRefBeforePut<reco::PFTauTransverseImpactParameterCollection>("PFTauTIP");
 
-
   // For each Tau Run Algorithim
   if(Tau.isValid()) {
     for(reco::PFTauCollection::size_type iPFTau = 0; iPFTau < Tau->size(); iPFTau++) {
@@ -113,9 +105,14 @@ void PFTauTransverseImpactParameters::produce(edm::Event& iEvent,const edm::Even
       double ip3d(-999), ip3d_err(-999);
       reco::Vertex::Point ip3d_poca(0,0,0);
       if(RefPFTau->leadPFChargedHadrCand().isNonnull()){
-	if(RefPFTau->leadPFChargedHadrCand()->trackRef().isNonnull()){
+	const reco::Track* track = nullptr;
+	if(RefPFTau->leadPFChargedHadrCand()->trackRef().isNonnull())
+	  track = RefPFTau->leadPFChargedHadrCand()->trackRef().get();
+	else if(RefPFTau->leadPFChargedHadrCand()->gsfTrackRef().isNonnull())
+	  track = RefPFTau->leadPFChargedHadrCand()->gsfTrackRef().get();
+	if(track != nullptr){
 	  if(useFullCalculation_){
-	    reco::TransientTrack transTrk=transTrackBuilder->build(RefPFTau->leadPFChargedHadrCand()->trackRef());
+	    reco::TransientTrack transTrk=transTrackBuilder->build(*track);
 	    GlobalVector direction(RefPFTau->p4().px(), RefPFTau->p4().py(), RefPFTau->p4().pz()); //To compute sign of IP
 	    std::pair<bool,Measurement1D> signed_IP2D = IPTools::signedTransverseImpactParameter(transTrk, direction, (*PV));
 	    dxy=signed_IP2D.second.value();
@@ -131,14 +128,14 @@ void PFTauTransverseImpactParameters::produce(edm::Event& iEvent,const edm::Even
 	    ip3d_poca=reco::Vertex::Point(pos3d.x(),pos3d.y(),pos3d.z());
 	  }
 	  else{
-	    dxy_err=RefPFTau->leadPFChargedHadrCand()->trackRef()->d0Error();
-	    dxy=RefPFTau->leadPFChargedHadrCand()->trackRef()->dxy(PV->position());
-	    ip3d_err=RefPFTau->leadPFChargedHadrCand()->trackRef()->dzError(); //store dz, ip3d not available
-	    ip3d=RefPFTau->leadPFChargedHadrCand()->trackRef()->dz(PV->position()); //store dz, ip3d not available 
+	    dxy_err=track->d0Error();
+	    dxy=track->dxy(PV->position());
+	    ip3d_err=track->dzError(); //store dz, ip3d not available
+	    ip3d=track->dz(PV->position()); //store dz, ip3d not available
 	  }
 	}
       }
-      if(SV.size()>0){
+      if(!SV.empty()){
 	reco::Vertex::CovarianceMatrix cov;
 	reco::Vertex::Point v(SV.at(0)->x()-PV->x(),SV.at(0)->y()-PV->y(),SV.at(0)->z()-PV->z());
 	for(int i=0;i<reco::Vertex::dimension;i++){

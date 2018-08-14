@@ -9,14 +9,15 @@
 
 #include "TLorentzVector.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 #include <vector>
 
 class AlphaTVarProducer : public edm::EDProducer {
  public: 
   explicit AlphaTVarProducer(const edm::ParameterSet&);
-  ~AlphaTVarProducer();
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  ~AlphaTVarProducer() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
   double CalcAlphaT(const std::vector<TLorentzVector>&);

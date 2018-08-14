@@ -9,7 +9,7 @@ class RootChamberWriter
 {
 public:
   /// default ctor, for STL
-  RootChamberWriter() : theTree(0), theHits(0) {}
+  RootChamberWriter() : theTree(nullptr), theHits(nullptr) {}
   RootChamberWriter(const std::string & treeName);
 
   /// writes the tree, and deletes everything

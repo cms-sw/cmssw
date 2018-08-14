@@ -2,10 +2,14 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 
-muonRecoAnalyzer = cms.EDAnalyzer("MuonRecoAnalyzer",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+muonRecoAnalyzer = DQMEDAnalyzer('MuonRecoAnalyzer',
                                   MuonServiceProxy, 
                                   MuonCollection       = cms.InputTag("muons"),
+                                  inputTagVertex       = cms.InputTag("offlinePrimaryVertices"),
+                                  inputTagBeamSpot     = cms.InputTag("offlineBeamSpot"),
                                   IsminiAOD            = cms.bool( False ),
+                                  doMVA                = cms.bool( False ),
                                   # histograms parameters
                                   thetaBin = cms.int32(100),
                                   thetaMin = cms.double(0.0),
@@ -44,11 +48,13 @@ muonRecoAnalyzer = cms.EDAnalyzer("MuonRecoAnalyzer",
                                   tunePMax = cms.double(1.0),
                                   folder = cms.string("Muons/MuonRecoAnalyzer")
                                   )
-muonRecoAnalyzer_miniAOD = cms.EDAnalyzer("MuonRecoAnalyzer",
+muonRecoAnalyzer_miniAOD = DQMEDAnalyzer('MuonRecoAnalyzer',
                                           MuonServiceProxy, 
                                           MuonCollection = cms.InputTag("slimmedMuons"),
+                                          inputTagVertex       = cms.InputTag("offlinePrimaryVertices"),
+                                          inputTagBeamSpot     = cms.InputTag("offlineBeamSpot"),
                                           IsminiAOD            = cms.bool( True ),
-                                          
+                                          doMVA                = cms.bool( False ),
                                           # histograms parameters
                                           thetaBin = cms.int32(100),
                                           thetaMin = cms.double(0.0),

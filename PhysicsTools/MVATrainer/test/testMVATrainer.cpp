@@ -112,7 +112,7 @@ int main()
 {
 	try {
 		test();
-	} catch(cms::Exception e) {
+	} catch(cms::Exception const& e) {
 		std::cerr << e.what() << std::endl;
 	}
 

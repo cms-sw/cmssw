@@ -1,5 +1,6 @@
 #include "RecoEgamma/EgammaTools/interface/EcalRegressionData.h"
 
+#include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -10,6 +11,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 float EcalRegressionData::seedLeftRightAsym()const
 {
@@ -54,7 +56,7 @@ void EcalRegressionData::fill(const reco::SuperCluster& superClus,
   isEB_ = ( seedid.subdetId()==EcalBarrel );
   
   // skip HGCal
-  if( seedid.det() == DetId::Forward ) return;
+  if( EcalTools::isHGCalDet(seedid.det()) ) return;
   
   const EcalRecHitCollection* recHits = isEB_ ? ebRecHits : eeRecHits;
 
@@ -76,8 +78,8 @@ void EcalRegressionData::fill(const reco::SuperCluster& superClus,
   eLeft_ = EcalClusterTools::eLeft(*superClus.seed(),recHits,topology);
   eRight_ = EcalClusterTools::eRight(*superClus.seed(),recHits,topology);
   std::vector<float> localCovs = EcalClusterTools::localCovariances(*superClus.seed(),recHits,topology);
-  sigmaIEtaIEta_ = std::isnan(localCovs[0]) ? 0. : std::sqrt(localCovs[0]);
-  sigmaIPhiIPhi_ = std::isnan(localCovs[2]) ? 0. : std::sqrt(localCovs[2]);
+  sigmaIEtaIEta_ = edm::isNotFinite(localCovs[0]) ? 0. : std::sqrt(localCovs[0]);
+  sigmaIPhiIPhi_ = edm::isNotFinite(localCovs[2]) ? 0. : std::sqrt(localCovs[2]);
   
   if(sigmaIEtaIEta_*sigmaIPhiIPhi_>0) sigmaIEtaIPhi_ = localCovs[1]/(sigmaIEtaIEta_*sigmaIPhiIPhi_);
   else if(localCovs[1]>0) sigmaIEtaIPhi_ = 1.;

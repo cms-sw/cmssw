@@ -10,6 +10,7 @@
 
 #include <string>
 #include "PixelROCMaskBits.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelMaskOverrideBase.h"
 
 namespace pos{
 /*!  \ingroup ConfigurationObjects "Configuration Objects"

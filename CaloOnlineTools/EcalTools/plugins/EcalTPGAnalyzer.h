@@ -5,7 +5,7 @@
 //
 // Original Author:  Pascal Paganini
 //
-
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -39,9 +39,9 @@ class towerEner {
 class EcalTPGAnalyzer : public edm::EDAnalyzer {
 public:
   explicit EcalTPGAnalyzer(const edm::ParameterSet&);
-  ~EcalTPGAnalyzer();  
-  virtual void analyze(edm::Event const &, edm::EventSetup const &);
-  virtual void beginRun(edm::Run const &, edm::EventSetup const &) ;
+  ~EcalTPGAnalyzer() override;  
+  void analyze(edm::Event const &, edm::EventSetup const &) override;
+  void beginRun(edm::Run const &, edm::EventSetup const &) override ;
   
 private:
   struct EcalTPGVariables

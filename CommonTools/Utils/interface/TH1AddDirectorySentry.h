@@ -30,8 +30,8 @@ class TH1AddDirectorySentry
 
 
    private:
-      TH1AddDirectorySentry(const TH1AddDirectorySentry&);
-      TH1AddDirectorySentry& operator=(const TH1AddDirectorySentry&);
+      TH1AddDirectorySentry(const TH1AddDirectorySentry&) = delete;
+      TH1AddDirectorySentry& operator=(const TH1AddDirectorySentry&) = delete;
       bool status_;
 };
 

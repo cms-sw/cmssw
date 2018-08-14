@@ -11,9 +11,9 @@ public:
   //-------------------------
   GflashAntiProtonShowerProfile (const edm::ParameterSet& parSet) : 
     GflashHadronShowerProfile (parSet) {}; 
-  ~GflashAntiProtonShowerProfile () {};
+  ~GflashAntiProtonShowerProfile () override {};
 
-  void loadParameters();
+  void loadParameters() override;
 
 };
 

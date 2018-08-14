@@ -95,10 +95,10 @@ class MuonGeometrySanityCheckPoint {
 class MuonGeometrySanityCheck : public edm::EDAnalyzer {
    public:
       explicit MuonGeometrySanityCheck(const edm::ParameterSet &iConfig);
-      ~MuonGeometrySanityCheck();
+      ~MuonGeometrySanityCheck() override;
 
    private:
-      virtual void analyze(const edm::Event&, const edm::EventSetup &iConfig) override;
+      void analyze(const edm::Event&, const edm::EventSetup &iConfig) override;
 
       std::string printout;
       double tolerance;
@@ -448,15 +448,15 @@ MuonGeometrySanityCheckPoint::MuonGeometrySanityCheckPoint(const edm::ParameterS
    const std::map<std::string,const MuonGeometrySanityCheckCustomFrame*>::const_iterator frameIter = frames.find(frameName);
    if (frameName == std::string("global")) {
       frame = kGlobal;
-      customFrame = NULL;
+      customFrame = nullptr;
    }
    else if (frameName == std::string("local")) {
       frame = kLocal;
-      customFrame = NULL;
+      customFrame = nullptr;
    }
    else if (frameName == std::string("chamber")) {
       frame = kChamber;
-      customFrame = NULL;
+      customFrame = nullptr;
    }
    else if (frameIter != frames.end()) {
       frame = kCustom;
@@ -474,7 +474,7 @@ MuonGeometrySanityCheckPoint::MuonGeometrySanityCheckPoint(const edm::ParameterS
    displacement = GlobalPoint(point[0], point[1], point[2]);
 
    const edm::Entry *entry = iConfig.retrieveUnknown("expectation");
-   if (entry != NULL) {
+   if (entry != nullptr) {
       has_expectation = true;
 
       point = iConfig.getParameter<std::vector<double> >("expectation");
@@ -489,7 +489,7 @@ MuonGeometrySanityCheckPoint::MuonGeometrySanityCheckPoint(const edm::ParameterS
    }
 
    entry = iConfig.retrieveUnknown("name");
-   if (entry != NULL) {
+   if (entry != nullptr) {
       name = iConfig.getParameter<std::string>("name");
    }
    else {
@@ -497,20 +497,20 @@ MuonGeometrySanityCheckPoint::MuonGeometrySanityCheckPoint(const edm::ParameterS
    }
 
    entry = iConfig.retrieveUnknown("outputFrame");
-   if (entry != NULL) {
+   if (entry != nullptr) {
       frameName = iConfig.getParameter<std::string>("outputFrame");
       const std::map<std::string,const MuonGeometrySanityCheckCustomFrame*>::const_iterator frameIter = frames.find(frameName);
       if (frameName == std::string("global")) {
 	 outputFrame = kGlobal;
-	 outputCustomFrame = NULL;
+	 outputCustomFrame = nullptr;
       }
       else if (frameName == std::string("local")) {
 	 outputFrame = kLocal;
-	 outputCustomFrame = NULL;
+	 outputCustomFrame = nullptr;
       }
       else if (frameName == std::string("chamber")) {
 	 outputFrame = kChamber;
-	 outputCustomFrame = NULL;
+	 outputCustomFrame = nullptr;
       }
       else if (frameIter != frames.end()) {
 	 outputFrame = kCustom;
@@ -522,7 +522,7 @@ MuonGeometrySanityCheckPoint::MuonGeometrySanityCheckPoint(const edm::ParameterS
    }
    else {
       outputFrame = kGlobal;
-      outputCustomFrame = NULL;
+      outputCustomFrame = nullptr;
    }
 }
 

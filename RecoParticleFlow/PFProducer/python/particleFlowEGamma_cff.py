@@ -6,10 +6,11 @@ import copy
 # are not stored in the event!
 from RecoParticleFlow.PFProducer.particleFlowEGamma_cfi import *
 from RecoEgamma.EgammaPhotonProducers.gedPhotonSequence_cff import *
+from RecoEgamma.EgammaPhotonProducers.ootPhotonSequence_cff import *
 from RecoEgamma.EgammaElectronProducers.gedGsfElectronSequence_cff import *
 from RecoEgamma.EgammaElectronProducers.pfBasedElectronIso_cff import *
 from RecoEgamma.EgammaIsolationAlgos.particleBasedIsoProducer_cfi import particleBasedIsolation as _particleBasedIsolation
-from RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationAOD_cff import egmPhotonIsolationAOD as _egmPhotonIsolationAOD
+from RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationAOD_cff import egmPhotonIsolation as _egmPhotonIsolationAOD
 from RecoEgamma.EgammaIsolationAlgos.egmGedGsfElectronPFIsolation_cff import egmGedGsfElectronPFNoPileUpIsolationMapBasedVeto as _egmElectronIsolationCITK
 from RecoEgamma.EgammaIsolationAlgos.egmGedGsfElectronPFIsolation_cff import egmGedGsfElectronPFPileUpIsolationMapBasedVeto as _egmElectronIsolationCITKPileUp
 
@@ -52,6 +53,10 @@ egmElectronIsolationCITK.srcForIsolationCone = cms.InputTag("pfNoPileUpCandidate
 egmElectronIsolationPileUpCITK.srcToIsolate = cms.InputTag("gedGsfElectronsTmp")
 egmElectronIsolationPileUpCITK.srcForIsolationCone = cms.InputTag("pfPileUpAllChargedParticles")
 
-particleFlowEGammaFull = cms.Sequence(particleFlowEGamma*gedGsfElectronSequenceTmp*gedPhotonSequenceTmp)
-particleFlowEGammaFinal = cms.Sequence(particleBasedIsolationTmp*pfNoPileUpIsoSequence*pfNoPileUpCandidates*pfPileUpAllChargedParticles*\
+particleFlowEGammaFull = cms.Sequence(particleFlowEGamma*gedGsfElectronSequenceTmp*gedPhotonSequenceTmp*ootPhotonSequence)
+particleFlowEGammaFinal = cms.Sequence(particleBasedIsolationTmp*\
+pfNoPileUpIsoSequence*cms.ignore(pfNoPileUpCandidates)*cms.ignore(pfPileUpAllChargedParticles)*\
 egmPhotonIsolationCITK*egmElectronIsolationCITK*egmElectronIsolationPileUpCITK*gedPhotonSequence*gedElectronPFIsoSequence)
+
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toReplaceWith(particleFlowEGammaFull, particleFlowEGammaFull.copyAndExclude([ootPhotonSequence]))

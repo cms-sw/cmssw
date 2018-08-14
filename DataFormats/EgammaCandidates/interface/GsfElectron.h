@@ -102,7 +102,7 @@ class GsfElectron : public RecoCandidate
       const ConversionRejection &,
       const SaturationInfo &
      ) ;
-    GsfElectron * clone() const ;
+    GsfElectron * clone() const override ;
     GsfElectron * clone
      (
       const GsfElectronCoreRef & core,
@@ -111,7 +111,7 @@ class GsfElectron : public RecoCandidate
       const TrackBaseRef & conversionPartner,
       const GsfTrackRefVector & ambiguousTracks
      ) const ;
-    virtual ~GsfElectron() {} ;
+    ~GsfElectron() override {} ;
 
   private:
 
@@ -157,8 +157,8 @@ class GsfElectron : public RecoCandidate
     const ChargeInfo & chargeInfo() const { return chargeInfo_ ; }
 
     // Candidate redefined methods
-    virtual bool isElectron() const { return true ; }
-    virtual bool overlap( const Candidate & ) const ;
+    bool isElectron() const override { return true ; }
+    bool overlap( const Candidate & ) const override ;
 
   private:
 
@@ -181,13 +181,13 @@ class GsfElectron : public RecoCandidate
     void setCore(const reco::GsfElectronCoreRef &core) { core_ = core; }
 
     // forward core methods
-    virtual SuperClusterRef superCluster() const { return core()->superCluster() ; }
-    virtual GsfTrackRef gsfTrack() const { return core()->gsfTrack() ; }
+    SuperClusterRef superCluster() const override { return core()->superCluster() ; }
+    GsfTrackRef gsfTrack() const override { return core()->gsfTrack() ; }
     virtual TrackRef closestTrack() const { return core()->ctfTrack() ; }
     float ctfGsfOverlap() const { return core()->ctfGsfOverlap() ; }
     bool ecalDrivenSeed() const { return core()->ecalDrivenSeed() ; }
     bool trackerDrivenSeed() const { return core()->trackerDrivenSeed() ; }
-    SuperClusterRef parentSuperCluster() const { return core()->parentSuperCluster() ; }
+    virtual SuperClusterRef parentSuperCluster() const { return core()->parentSuperCluster() ; }
 
     // backward compatibility
     struct ClosestCtfTrack
@@ -198,8 +198,8 @@ class GsfElectron : public RecoCandidate
       ClosestCtfTrack( TrackRef track, float sh ) : ctfTrack(track), shFracInnerHits(sh) {}
      } ;
     float shFracInnerHits() const { return core()->ctfGsfOverlap() ; }
-    TrackRef closestCtfTrackRef() const { return core()->ctfTrack() ; }
-    ClosestCtfTrack closestCtfTrack() const { return ClosestCtfTrack(core()->ctfTrack(),core()->ctfGsfOverlap()) ; }
+    virtual TrackRef closestCtfTrackRef() const { return core()->ctfTrack() ; }
+    virtual ClosestCtfTrack closestCtfTrack() const { return ClosestCtfTrack(core()->ctfTrack(),core()->ctfGsfOverlap()) ; }
 
   private:
 
@@ -630,10 +630,13 @@ class GsfElectron : public RecoCandidate
        float sumNeutralHadronEtHighThreshold;  //!< sum pt of neutral hadrons with a higher threshold
        float sumPhotonEtHighThreshold;  //!< sum pt of PF photons with a higher threshold
        float sumPUPt;  //!< sum pt of charged Particles not from PV  (for Pu corrections)
-
+       //new pf cluster based isolation values
+       float sumEcalClusterEt; //sum pt of ecal clusters, vetoing clusters part of electron
+       float sumHcalClusterEt; //sum pt of hcal clusters, vetoing clusters part of electron
        PflowIsolationVariables() :
         sumChargedHadronPt(0),sumNeutralHadronEt(0),sumPhotonEt(0),sumChargedParticlePt(0),
-        sumNeutralHadronEtHighThreshold(0),sumPhotonEtHighThreshold(0),sumPUPt(0) {}; 
+        sumNeutralHadronEtHighThreshold(0),sumPhotonEtHighThreshold(0),sumPUPt(0),
+	sumEcalClusterEt(0),sumHcalClusterEt(0){}; 
       } ;
 
     struct MvaInput
@@ -668,6 +671,10 @@ class GsfElectron : public RecoCandidate
 
     // accessors
     const PflowIsolationVariables & pfIsolationVariables() const { return pfIso_ ; }
+    //backwards compat functions for pat::Electron
+    float ecalPFClusterIso() const { return pfIso_.sumEcalClusterEt; };
+    float hcalPFClusterIso() const { return pfIso_.sumHcalClusterEt; };
+   
     const MvaInput & mvaInput() const { return mvaInput_ ; }
     const MvaOutput & mvaOutput() const { return mvaOutput_ ; }
 

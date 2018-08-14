@@ -36,8 +36,8 @@ void TTbarSpinCorrHepMCAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
   Handle<reco::GenParticleCollection> genParticles;
   iEvent.getByToken(genParticlesTagToken_, genParticles);   
 
-  const reco::GenParticle * _lepton   (0) ;
-  const reco::GenParticle * _leptonBar(0) ;
+  const reco::GenParticle * _lepton   (nullptr) ;
+  const reco::GenParticle * _leptonBar(nullptr) ;
 
   bool hasTop(false), hasTopbar(false);
   for(size_t i = 0; i < genParticles->size(); ++ i) {
@@ -62,8 +62,8 @@ void TTbarSpinCorrHepMCAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
     
     if (_lepton && _leptonBar) {
       
-      math::XYZTLorentzVector lepton    = _lepton   ->p4() ;
-      math::XYZTLorentzVector leptonBar = _leptonBar->p4() ;
+      const math::XYZTLorentzVector& lepton    = _lepton   ->p4() ;
+      const math::XYZTLorentzVector& leptonBar = _leptonBar->p4() ;
       
       double deltaPhi = fabs(TVector2::Phi_mpi_pi(lepton.phi() - leptonBar.phi())) ;
       _h_deltaPhi->Fill(deltaPhi, weight) ;

@@ -14,9 +14,9 @@
 class DiJetVarAnalyzer : public ScoutingAnalyzerBase {
   public:
     explicit DiJetVarAnalyzer( const edm::ParameterSet &  ) ;
-    virtual ~DiJetVarAnalyzer() ;
+    ~DiJetVarAnalyzer() override ;
     void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-    virtual void analyze( const edm::Event & , const edm::EventSetup &  ) override;
+    void analyze( const edm::Event & , const edm::EventSetup &  ) override;
   private: 
     edm::InputTag jetCollectionTag_;
     edm::InputTag widejetsCollectionTag_;

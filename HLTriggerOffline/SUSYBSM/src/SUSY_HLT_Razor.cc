@@ -37,11 +37,6 @@ void SUSY_HLT_Razor::dqmBeginRun(edm::Run const &, edm::EventSetup const &)
   bookHistos(ibooker_);
 }
 
-void SUSY_HLT_Razor::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-  edm::EventSetup const& context)
-{
-   edm::LogInfo("SUSY_HLT_Razor") << "SUSY_HLT_Razor::beginLuminosityBlock" << std::endl;
-}
 
 void SUSY_HLT_Razor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -165,7 +160,7 @@ void SUSY_HLT_Razor::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 
   if(hasFired){
 
-      if(hemispheres->size() ==0){  // the Hemisphere Maker will produce an empty collection of hemispheres if the number of jets in the
+      if(hemispheres->empty()){  // the Hemisphere Maker will produce an empty collection of hemispheres if the number of jets in the
           edm::LogError("SUSY_HLT_Razor") << "Cannot calculate M_R and R^2 because there are too many jets! (trigger passed automatically without forming the hemispheres)" << endl;
           return;
       }
@@ -173,7 +168,7 @@ void SUSY_HLT_Razor::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
       //***********************************
       //Calculate R 
 
-      if(hemispheres->size() != 0 && hemispheres->size() != 2 && hemispheres->size() != 5 && hemispheres->size() != 10){
+      if(!hemispheres->empty() && hemispheres->size() != 2 && hemispheres->size() != 5 && hemispheres->size() != 10){
           edm::LogError("SUSY_HLT_Razor") << "Invalid hemisphere collection!  hemispheres->size() = " << hemispheres->size() << endl;
           return;
       }
@@ -215,10 +210,6 @@ void SUSY_HLT_Razor::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 
 }
 
-void SUSY_HLT_Razor::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
-{
-  edm::LogInfo("SUSY_HLT_Razor") << "SUSY_HLT_Razor::endLuminosityBlock" << std::endl;
-}
 
 
 void SUSY_HLT_Razor::endRun(edm::Run const& run, edm::EventSetup const& eSetup)

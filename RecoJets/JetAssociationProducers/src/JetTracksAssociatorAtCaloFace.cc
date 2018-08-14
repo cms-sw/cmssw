@@ -50,7 +50,7 @@ void JetTracksAssociatorAtCaloFace::produce(edm::Event& fEvent, const edm::Event
   auto jetTracks = std::make_unique<reco::JetTracksAssociation::Container>(reco::JetRefBaseProd(jets_h));
 
   // Check to make sure we have inputs
-  if ( jets_h->size() == 0 ){
+  if ( jets_h->empty() ){
     // store output regardless the size of the inputs
     fEvent.put(std::move(jetTracks));
     return;
@@ -58,7 +58,7 @@ void JetTracksAssociatorAtCaloFace::produce(edm::Event& fEvent, const edm::Event
   // Check to make sure the inputs are calo jets
   reco::CaloJet const * caloJet0 = dynamic_cast<reco::CaloJet const *>( & (jets_h->at(0)) );
   // Disallowed non-CaloJet inputs
-  if ( caloJet0 == 0 ) {
+  if ( caloJet0 == nullptr ) {
     throw cms::Exception("InvalidInput") << " Jet-track association is only defined for CaloJets.";
   }
   

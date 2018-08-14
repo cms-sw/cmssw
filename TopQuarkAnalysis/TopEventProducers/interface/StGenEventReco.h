@@ -10,8 +10,8 @@ class StGenEventReco : public edm::EDProducer {
  public:
 
   explicit StGenEventReco(const edm::ParameterSet&);
-  ~StGenEventReco();
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  ~StGenEventReco() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
 

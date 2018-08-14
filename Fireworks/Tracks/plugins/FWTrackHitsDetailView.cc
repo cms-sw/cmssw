@@ -21,8 +21,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
 // Fireworks includes
 #include "Fireworks/Core/interface/FWModelId.h"
@@ -41,12 +39,12 @@
 #include "boost/bind.hpp"
 
 FWTrackHitsDetailView::FWTrackHitsDetailView ():
-  m_modules(0),
-  m_moduleLabels(0),
-  m_hits(0),
-  m_slider(0),
+  m_modules(nullptr),
+  m_moduleLabels(nullptr),
+  m_hits(nullptr),
+  m_slider(nullptr),
   m_sliderListener(),
-  m_legend(0)
+  m_legend(nullptr)
 {}
 
 FWTrackHitsDetailView::~FWTrackHitsDetailView ()
@@ -104,7 +102,7 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track)
    for( TEveElement::List_i i = m_modules->BeginChildren(), end = m_modules->EndChildren(); i != end; ++i )
    {
       TEveGeoShape* gs = dynamic_cast<TEveGeoShape*>(*i);
-      if (gs == 0 && (*i != 0)) {
+      if (gs == nullptr && (*i != nullptr)) {
         std::cerr << "Got a " << typeid(**i).name() << ", expecting TEveGeoShape. ignoring (it must be the clusters)." << std::endl;
         continue;
       }
@@ -253,13 +251,13 @@ FWTrackHitsDetailView::setTextInfo(const FWModelId &id, const reco::Track* track
 
    m_legend->SetY2(y);
    m_legend->Draw();
-   m_legend = 0; // Deleted together with TPad.
+   m_legend = nullptr; // Deleted together with TPad.
 }
 
 void
 FWTrackHitsDetailView::makeLegend( void )
 {
-   m_legend = new TLegend( 0.01, 0.01, 0.99, 0.99, 0, "NDC" );
+   m_legend = new TLegend( 0.01, 0.01, 0.99, 0.99, nullptr, "NDC" );
    m_legend->SetFillColor(kWhite);
    m_legend->SetTextSize( 0.07 );
    m_legend->SetBorderSize( 0 );
@@ -369,49 +367,7 @@ FWTrackHitsDetailView::addModules( const reco::Track& track,
 	 switch( detid.det())
 	 {
 	 case DetId::Tracker:
-	    switch( detid.subdetId())
-	    {
-	    case SiStripDetId::TIB:
-	       name = "TIB ";
-	       break;
-	    case SiStripDetId::TOB:
-	       name = "TOB ";
-	       break;
-	    case SiStripDetId::TID:
-	       name = "TID ";
-	       break;
-	    case SiStripDetId::TEC:
-	       name = "TEC ";
-	       break;
-	    case PixelSubdetector::PixelBarrel:
-	       name = "Pixel Barrel ";
-	       { 
-		  PXBDetId idid = PXBDetId( detid.rawId() );
-		  unsigned int layer = idid.layer();
-		  unsigned int ladder = idid.ladder();
-		  unsigned int module = idid.module();
-
-		  name += TString::Format( ": Layer=%u, Ladder=%u, Module=%u \n",
-					   layer, ladder, module );
-	       }
-	       break;
-	    case PixelSubdetector::PixelEndcap:
-	       name = "Pixel Endcap ";
-	       {    
-	          PXFDetId idid = PXFDetId( detid.rawId() );
-		  unsigned int side = idid.side();
-		  unsigned int disk = idid.disk();
-		  unsigned int blade = idid.blade();
-		  unsigned int panel = idid.panel();
-		  unsigned int module = idid.module();
-
-		  name += TString::Format( ": Side=%u, Disk=%u, Blade=%u, Panel=%u, Module=%u \n",
-					   side, disk, blade, panel, module );
-	       }
-		
-	    default:
-	       break;
-	    }
+            name = iItem->getGeom()->getTrackerTopology()->print(detid);
 	    break;
 	    
 	 case DetId::Muon:
@@ -444,7 +400,7 @@ FWTrackHitsDetailView::addModules( const reco::Track& track,
 	 if( iItem->getGeom())
 	 {
 	    TEveGeoShape* shape = iItem->getGeom()->getEveShape( detid );
-	    if( 0 != shape )
+	    if( nullptr != shape )
 	    {
 	       shape->SetMainTransparency( 65 );
 	       shape->SetPickable( kTRUE );
@@ -459,6 +415,8 @@ FWTrackHitsDetailView::addModules( const reco::Track& track,
 		  name += "LOST ";
 		  shape->SetMainColor( kRed );
 		  break;
+               case TrackingRecHit::inactive_inner:
+               case TrackingRecHit::inactive_outer:
 	       case TrackingRecHit::inactive:
 		  name += "INACTIVE ";
 		  shape->SetMainColor( 28 );

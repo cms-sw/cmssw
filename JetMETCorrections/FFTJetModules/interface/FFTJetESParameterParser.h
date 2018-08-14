@@ -10,7 +10,7 @@
 #include "JetMETCorrections/FFTJetObjects/interface/loadFFTJetInterpolationTable.h"
 
 #include "JetMETCorrections/InterpolationTables/interface/CoordinateSelector.h"
-
+class parseFFTJetCorrectorApp;
 
 // Parser for the adjuster of the adjustable :-)
 template<class Jet, class Adjustable>

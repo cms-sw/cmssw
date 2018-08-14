@@ -26,35 +26,32 @@ GsfMaterialEffectsESProducer::GsfMaterialEffectsESProducer(const edm::ParameterS
 
 GsfMaterialEffectsESProducer::~GsfMaterialEffectsESProducer() {}
 
-std::shared_ptr<GsfMaterialEffectsUpdator> 
+std::unique_ptr<GsfMaterialEffectsUpdator> 
 GsfMaterialEffectsESProducer::produce(const TrackingComponentsRecord & iRecord){ 
   double mass = pset_.getParameter<double>("Mass");
   std::string msName = pset_.getParameter<std::string>("MultipleScatteringUpdator");
   std::string elName = pset_.getParameter<std::string>("EnergyLossUpdator");
 
-  GsfMaterialEffectsUpdator* msUpdator;
+  std::unique_ptr<GsfMaterialEffectsUpdator> msUpdator;
   if ( msName == "GsfMultipleScatteringUpdator" ) {
-    msUpdator = new GsfMultipleScatteringUpdator(mass);
+    msUpdator.reset(new GsfMultipleScatteringUpdator(mass));
   }
   else {
-    msUpdator = new GsfMaterialEffectsAdapter(MultipleScatteringUpdator(mass));
+    msUpdator.reset(new GsfMaterialEffectsAdapter(MultipleScatteringUpdator(mass)));
   }
   
-  GsfMaterialEffectsUpdator* elUpdator;
+  std::unique_ptr<GsfMaterialEffectsUpdator> elUpdator;
   if ( elName == "GsfBetheHeitlerUpdator" ) {
     std::string fileName = pset_.getParameter<std::string>("BetheHeitlerParametrization");
     int correction = pset_.getParameter<int>("BetheHeitlerCorrection");
-    elUpdator = new GsfBetheHeitlerUpdator(fileName,correction);
+    elUpdator.reset(new GsfBetheHeitlerUpdator(fileName,correction));
   }
   else {
-    elUpdator = new GsfMaterialEffectsAdapter(EnergyLossUpdator(mass));
+    elUpdator.reset(new GsfMaterialEffectsAdapter(EnergyLossUpdator(mass)));
   }
 
-  std::shared_ptr<GsfMaterialEffectsUpdator> updator =
-    std::shared_ptr<GsfMaterialEffectsUpdator>(new GsfCombinedMaterialEffectsUpdator(*msUpdator,
-										       *elUpdator));
-  delete msUpdator;
-  delete elUpdator;
+  auto updator =
+    std::make_unique<GsfCombinedMaterialEffectsUpdator>(*msUpdator, *elUpdator);
 
   return updator;
 }

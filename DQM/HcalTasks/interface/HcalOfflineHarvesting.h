@@ -40,17 +40,17 @@ class HcalOfflineHarvesting : public hcaldqm::DQHarvester
 {
 	public:
 		HcalOfflineHarvesting(edm::ParameterSet const&);
-		virtual ~HcalOfflineHarvesting(){}
+		~HcalOfflineHarvesting() override{}
 
-		virtual void beginRun(edm::Run const&,
-			edm::EventSetup const&);
+		void beginRun(edm::Run const&,
+			edm::EventSetup const&) override;
 
 	protected:
-		virtual void _dqmEndLuminosityBlock(DQMStore::IBooker&,
+		void _dqmEndLuminosityBlock(DQMStore::IBooker&,
 			DQMStore::IGetter&, edm::LuminosityBlock const&,
-			edm::EventSetup const&);
-		virtual void _dqmEndJob(DQMStore::IBooker&,
-			DQMStore::IGetter&);
+			edm::EventSetup const&) override;
+		void _dqmEndJob(DQMStore::IBooker&,
+			DQMStore::IGetter&) override;
 
 		enum Summary
 		{
@@ -61,11 +61,13 @@ class HcalOfflineHarvesting : public hcaldqm::DQHarvester
 			nSummary=4
 		};
 
+		std::vector<Summary> _summaryList;
+
 		//	vector of Summary Generators and marks of being present
 		//	by default all false
-		std::vector<hcaldqm::DQClient*> _vsumgen;
-		std::vector<bool> _vmarks;
-		std::vector<std::string> _vnames;
+		std::map<Summary, hcaldqm::DQClient*> _sumgen;
+		std::map<Summary, bool> _summarks;
+		std::map<Summary, std::string> _sumnames;
 		
 		//	reportSummaryMap
 		MonitorElement *_reportSummaryMap;

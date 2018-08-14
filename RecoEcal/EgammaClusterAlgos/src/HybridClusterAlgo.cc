@@ -59,7 +59,7 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl,
 				     reco::BasicClusterCollection &basicClusters,
 				     const EcalSeverityLevelAlgo * sevLv,
 				     bool regional,
-				     const std::vector<EcalEtaPhiRegion>& regions
+				     const std::vector<RectangularEtaPhiRegion>& regions
 				     )
 {
   //clear vector of seeds
@@ -90,17 +90,17 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl,
       
       //Make the vector of seeds that we're going to use.
       //One of the few places position is used, needed for ET calculation.    
-      const CaloCellGeometry & this_cell = *(*geometry).getGeometry(it->id());
-      GlobalPoint position = this_cell.getPosition();
+      auto this_cell = geometry->getGeometry(it->id());
+      const GlobalPoint& position = this_cell->getPosition();
       
       
       // Require that RecHit is within clustering region in case
       // of regional reconstruction
       bool withinRegion = false;
       if (regional) {
-	std::vector<EcalEtaPhiRegion>::const_iterator region;
+	std::vector<RectangularEtaPhiRegion>::const_iterator region;
 	for (region=regions.begin(); region!=regions.end(); region++) {
-	  if (region->inRegion(this_cell.etaPos(),this_cell.phiPos())) {
+	  if (region->inRegion(this_cell->etaPos(),this_cell->phiPos())) {
 	    withinRegion =  true;
 	    break;
 	  }
@@ -453,7 +453,7 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
 
 		// Make association so that superclusters can be made later.
 		// but only if some BasicClusters have been found...
-		if (thisseedClusters.size() > 0) 
+		if (!thisseedClusters.empty()) 
 		{
 			clustered_.insert(std::make_pair(clustercounter, thisseedClusters));
 			clustercounter++;

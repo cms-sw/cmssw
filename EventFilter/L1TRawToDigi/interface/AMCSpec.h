@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <vector>
-#include <stdint.h>
+#include <cstdint>
 
 namespace amc {
    static const unsigned int split_block_size = 0x1000;
@@ -123,7 +123,7 @@ namespace amc {
    class Packet {
       public:
          Packet(const uint64_t* d) : block_header_(d) {};
-         Packet(unsigned int amc, unsigned int board, unsigned int lv1id, unsigned int orbit, unsigned int bx, const std::vector<uint64_t>& load);
+         Packet(unsigned int amc, unsigned int board, unsigned int lv1id, unsigned int orbit, unsigned int bx, const std::vector<uint64_t>& load, unsigned int user=0);
 
          // Add payload fragment from an AMC13 block to the AMC packet
          void addPayload(const uint64_t*, unsigned int);

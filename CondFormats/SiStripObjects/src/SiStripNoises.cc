@@ -2,7 +2,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 #include <iomanip>
 #include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
 
@@ -188,7 +188,7 @@ std::string SiStripNoises::print_short_as_binary(const short ch) const
 }
 */
 
-void SiStripNoises::printDebug(std::stringstream& ss) const{
+void SiStripNoises::printDebug(std::stringstream& ss, const TrackerTopology* /*trackerTopo*/) const{
   RegistryIterator rit=getRegistryVectorBegin(), erit=getRegistryVectorEnd();
   uint16_t Nstrips;
   std::vector<float> vstripnoise;
@@ -215,9 +215,9 @@ void SiStripNoises::printDebug(std::stringstream& ss) const{
   }
 }
 
-void SiStripNoises::printSummary(std::stringstream& ss) const{
+void SiStripNoises::printSummary(std::stringstream& ss, const TrackerTopology* trackerTopo) const{
 
-  SiStripDetSummary summary;
+  SiStripDetSummary summary{trackerTopo};
 
   std::stringstream tempss;
 

@@ -32,7 +32,7 @@ namespace gen
   public:
 
     Pythia6ParticleGun( const edm::ParameterSet& );
-    virtual ~Pythia6ParticleGun();
+    ~Pythia6ParticleGun() override;
 
   protected:
        

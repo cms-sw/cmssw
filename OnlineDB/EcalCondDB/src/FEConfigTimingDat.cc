@@ -10,10 +10,10 @@ using namespace oracle::occi;
 
 FEConfigTimingDat::FEConfigTimingDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_par1 = 0;
   m_par2 = 0;
@@ -38,7 +38,7 @@ void FEConfigTimingDat::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO "+getTable()+" (tim_conf_id, logic_id, "
 		      "time_par1, time_par2 ) VALUES (:tim_conf_id, :logic_id, :time_par1, :time_par2 )" );
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigTimingDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigTimingDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -63,7 +63,7 @@ void FEConfigTimingDat::writeDB(const EcalLogicID* ecid, const FEConfigTimingDat
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigTimingDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigTimingDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -93,12 +93,12 @@ void FEConfigTimingDat::fetchData(map< EcalLogicID, FEConfigTimingDat >* fillMap
     std::pair< EcalLogicID, FEConfigTimingDat > p;
     FEConfigTimingDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
 
       dat.setTimingPar1( rset->getInt(7) );  
       dat.setTimingPar2( rset->getInt(8) );  
@@ -107,7 +107,7 @@ void FEConfigTimingDat::fetchData(map< EcalLogicID, FEConfigTimingDat >* fillMap
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigTimingDat::fetchData:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigTimingDat::fetchData:  ")+getOraMessage(&e)));
   }
 }
 
@@ -180,6 +180,6 @@ void FEConfigTimingDat::writeArrayDB(const std::map< EcalLogicID, FEConfigTiming
     delete [] y_len;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigTimingDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigTimingDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

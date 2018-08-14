@@ -78,7 +78,7 @@ class KinematicParticleFactoryFromTransientTrack
  */ 
   RefCountedKinematicParticle particle(const KinematicState& kineState, float& chiSquared,
                  float& ndf, ReferenceCountingPointer<KinematicParticle> previousParticle,
-				         KinematicConstraint * lastConstraint = 0) const;
+				         KinematicConstraint * lastConstraint = nullptr) const;
 
 private:
   

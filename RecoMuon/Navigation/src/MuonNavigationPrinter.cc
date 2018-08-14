@@ -93,7 +93,7 @@ MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLa
 //  vector<ForwardDetLayer*>::const_iterator tkfiter;
   PRINT("MuonNavigationPrinter")<<"================================" << std::endl;
   PRINT("MuonNavigationPrinter")<< "BARREL:" << std::endl;
-  vector<const BarrelDetLayer*> tkbarrel = tracker->barrelLayers();
+  const vector<const BarrelDetLayer*>& tkbarrel = tracker->barrelLayers();
   PRINT("MuonNavigationPrinter")<<"There are "<<tkbarrel.size()<<" Tk Barrel DetLayers" << std::endl;
 //  for ( tkiter = tkbarrel.begin(); tkiter != tkbarrel.end(); tkiter++ ) printLayer(*tkiter);
   vector<const DetLayer*> barrel = muonLayout->allBarrelLayers();
@@ -101,7 +101,7 @@ MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLa
   for ( auto i : barrel ) printLayer(i);
   PRINT("MuonNavigationPrinter")<<"================================" << std::endl;
   PRINT("MuonNavigationPrinter")  << "BACKWARD:" << std::endl;
-  vector<const ForwardDetLayer*> tkbackward = tracker->negForwardLayers();
+  const vector<const ForwardDetLayer*>& tkbackward = tracker->negForwardLayers();
   PRINT("MuonNavigationPrinter")<<"There are "<<tkbackward.size()<<" Tk Backward DetLayers" << std::endl;
 ///  for ( tkfiter = tkbackward.begin(); tkfiter != tkbackward.end(); tkfiter++ ) printLayer(*tkfiter);
   vector<const DetLayer*> backward = muonLayout->allBackwardLayers();
@@ -109,7 +109,7 @@ MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLa
   for (auto i : backward ) printLayer(i);
   PRINT("MuonNavigationPrinter") << "==============================" << std::endl;
   PRINT("MuonNavigationPrinter") << "FORWARD:" << std::endl;
-  vector<const ForwardDetLayer*> tkforward =  tracker->posForwardLayers();
+  const vector<const ForwardDetLayer*>& tkforward =  tracker->posForwardLayers();
   PRINT("MuonNavigationPrinter")<<"There are "<<tkforward.size()<<" Tk Forward DetLayers" << std::endl;
 //  for ( tkfiter = tkforward.begin(); tkfiter != tkforward.end(); tkfiter++ ) printLayer(*tkfiter);
 

@@ -12,7 +12,7 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -92,8 +92,8 @@ void DDPixFwdBlades::initialize(const DDNumericArguments & nArgs,
   
   // -- Static initialization :  -----------------------------------------------------------
 
-  nippleRotationZPlus = 0;
-  nippleRotationZMinus = 0;
+  nippleRotationZPlus = nullptr;
+  nippleRotationZMinus = nullptr;
   nippleTranslationX = 0.;
   nippleTranslationY = 0.;
   nippleTranslationZ = 0.;

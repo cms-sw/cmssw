@@ -64,10 +64,10 @@ class StEvtSolution {
   //-------------------------------------------
   // get objects from kinematic fit
   //-------------------------------------------
-  pat::Particle getFitBottom() const { return (fitBottom_.size()>0 ? fitBottom_.front() : pat::Particle()); };
-  pat::Particle getFitLight() const { return (fitLight_.size()>0 ? fitLight_.front() : pat::Particle()); };
-  pat::Particle getFitLepton() const { return (fitLepton_.size()>0 ? fitLepton_.front() : pat::Particle()); };
-  pat::Particle getFitNeutrino() const { return (fitNeutrino_.size()>0 ? fitNeutrino_.front() : pat::Particle()); };
+  pat::Particle getFitBottom() const { return (!fitBottom_.empty() ? fitBottom_.front() : pat::Particle()); };
+  pat::Particle getFitLight() const { return (!fitLight_.empty() ? fitLight_.front() : pat::Particle()); };
+  pat::Particle getFitLepton() const { return (!fitLepton_.empty() ? fitLepton_.front() : pat::Particle()); };
+  pat::Particle getFitNeutrino() const { return (!fitNeutrino_.empty() ? fitNeutrino_.front() : pat::Particle()); };
   reco::Particle getFitLepW() const;
   reco::Particle getFitLept() const;
 

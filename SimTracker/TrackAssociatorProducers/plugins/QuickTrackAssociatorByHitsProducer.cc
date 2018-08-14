@@ -43,14 +43,14 @@ namespace {
 class QuickTrackAssociatorByHitsProducer : public edm::global::EDProducer<> {
    public:
       explicit QuickTrackAssociatorByHitsProducer(const edm::ParameterSet&);
-      ~QuickTrackAssociatorByHitsProducer();
+      ~QuickTrackAssociatorByHitsProducer() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() override;
-      virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-      virtual void endJob() override;
+      void beginJob() override;
+      void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+      void endJob() override;
       edm::ParameterSet makeHitAssociatorParameters(const edm::ParameterSet&);
       
       // ----------member data ---------------------------
@@ -80,7 +80,6 @@ class QuickTrackAssociatorByHitsProducer : public edm::global::EDProducer<> {
 // constructors and destructor
 //
 QuickTrackAssociatorByHitsProducer::QuickTrackAssociatorByHitsProducer(const edm::ParameterSet& iConfig):
-  trackerHitAssociatorConfig_(makeHitAssociatorParameters(iConfig), consumesCollector()),
   qualitySimToReco_( iConfig.getParameter<double>( "Quality_SimToReco" ) ),
   puritySimToReco_( iConfig.getParameter<double>( "Purity_SimToReco" ) ),
   pixelHitWeight_( iConfig.getParameter<double>( "PixelHitWeight" ) ),
@@ -122,6 +121,9 @@ QuickTrackAssociatorByHitsProducer::QuickTrackAssociatorByHitsProducer(const edm
 
   if(useClusterTPAssociation_) {
     cluster2TPToken_ = consumes<ClusterTPAssociation>(iConfig.getParameter < edm::InputTag > ("cluster2TPSrc"));
+  }
+  else {
+    trackerHitAssociatorConfig_ = TrackerHitAssociator::Config(makeHitAssociatorParameters(iConfig), consumesCollector());
   }
 
 }

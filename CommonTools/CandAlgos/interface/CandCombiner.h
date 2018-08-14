@@ -12,7 +12,7 @@
  * $Id: CandCombiner.h,v 1.2 2009/04/22 17:51:05 kaulmer Exp $
  *
  */
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "CommonTools/CandUtils/interface/CandCombiner.h"
 #include "CommonTools/CandAlgos/interface/decayParser.h"
@@ -64,7 +64,7 @@ namespace reco {
     };
 
 
-    struct CandCombinerBase : public edm::EDProducer {
+    struct CandCombinerBase : public edm::stream::EDProducer<> {
       CandCombinerBase(const edm::ParameterSet & cfg) :
 	setLongLived_(false),
 	setMassConstraint_(false),
@@ -141,20 +141,18 @@ namespace reco {
         produces<OutputCollection>();
       }
 	/// destructor
-      virtual ~CandCombiner() { }
+      ~CandCombiner() override { }
 
     private:
       /// process an event
-      void produce(edm::Event& evt, const edm::EventSetup& es) {
-	using namespace std;
-	using namespace reco;
+      void produce(edm::Event& evt, const edm::EventSetup& es) override {
 	Init::init(combiner_.setup(), evt, es);
 	int n = labels_.size();
-	vector<edm::Handle<CandidateView> > colls(n);
+	std::vector<edm::Handle<CandidateView> > colls(n);
 	for(int i = 0; i < n; ++i)
 	  evt.getByToken(tokens_[i], colls[i]);
 
-	unique_ptr<OutputCollection> out = combiner_.combine(colls, names_.roles());
+	std::unique_ptr<OutputCollection> out = combiner_.combine(colls, names_.roles());
 	if(setLongLived_ || setMassConstraint_ || setPdgId_) {
 	  typename OutputCollection::iterator i = out->begin(), e = out->end();
 	  for(; i != e; ++i) {

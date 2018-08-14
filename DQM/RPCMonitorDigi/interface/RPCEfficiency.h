@@ -95,12 +95,12 @@ private:
 class RPCEfficiency : public DQMEDAnalyzer {
    public:
       explicit RPCEfficiency(const edm::ParameterSet&);
-      ~RPCEfficiency();
+      ~RPCEfficiency() override;
 
 
  protected:
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
       void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
       void bookDetUnitSeg(DQMStore::IBooker &, RPCDetId & detId,int nstrips, std::string folder, std::map<std::string, MonitorElement*> & );
       std::map<DTStationIndex,std::set<RPCDetId> > rollstoreDT;

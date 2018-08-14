@@ -34,9 +34,9 @@ namespace edm {
   public:
     typedef EventPrincipal MyPrincipal;
     typedef StreamContext Context;
-    static BranchType const branchType_ = InEvent;
-    static bool const begin_ = true;
-    static bool const isEvent_ = true;
+    static BranchType constexpr branchType_ = InEvent;
+    static bool constexpr begin_ = true;
+    static bool constexpr isEvent_ = true;
 
     static void setStreamContext(StreamContext& streamContext, MyPrincipal const& principal) {
       streamContext.setTransition(StreamContext::Transition::kEvent);
@@ -56,6 +56,10 @@ namespace edm {
     static void postPathSignal(ActivityRegistry *a, HLTPathStatus const& status, PathContext const* pathContext) {
       a->postPathEventSignal_(*pathContext->streamContext(), *pathContext, status);
     }
+    
+    static const char* transitionName() {
+      return "Event";
+    }
   };
 
   template <>
@@ -63,9 +67,9 @@ namespace edm {
   public:
     typedef RunPrincipal MyPrincipal;
     typedef GlobalContext Context;
-    static BranchType const branchType_ = InRun;
-    static bool const begin_ = true;
-    static bool const isEvent_ = false;
+    static BranchType constexpr branchType_ = InRun;
+    static bool constexpr begin_ = true;
+    static bool constexpr isEvent_ = false;
 
     static GlobalContext makeGlobalContext(MyPrincipal const& principal, ProcessContext const* processContext) {
       return GlobalContext(GlobalContext::Transition::kBeginRun,
@@ -92,6 +96,9 @@ namespace edm {
     static void postModuleSignal(ActivityRegistry *a, GlobalContext const* globalContext, ModuleCallingContext const*  moduleCallingContext) {
       a->postModuleGlobalBeginRunSignal_(*globalContext, *moduleCallingContext);
     }
+    static const char* transitionName() {
+      return "global begin Run";
+    }
   };
 
   template <>
@@ -99,9 +106,9 @@ namespace edm {
   public:
     typedef RunPrincipal MyPrincipal;
     typedef StreamContext Context;
-    static BranchType const branchType_ = InRun;
-    static bool const begin_ = true;
-    static bool const isEvent_ = false;
+    static BranchType constexpr branchType_ = InRun;
+    static bool constexpr begin_ = true;
+    static bool constexpr isEvent_ = false;
 
     static void setStreamContext(StreamContext& streamContext, MyPrincipal const& principal) {
       streamContext.setTransition(StreamContext::Transition::kBeginRun);
@@ -127,6 +134,9 @@ namespace edm {
     static void postModuleSignal(ActivityRegistry *a, StreamContext const* streamContext, ModuleCallingContext const*  moduleCallingContext) {
       a->postModuleStreamBeginRunSignal_(*streamContext, *moduleCallingContext);
     }
+    static const char* transitionName() {
+      return "stream begin Run";
+    }
   };
 
   template <>
@@ -134,9 +144,9 @@ namespace edm {
   public:
     typedef RunPrincipal MyPrincipal;
     typedef StreamContext Context;
-    static BranchType const branchType_ = InRun;
-    static bool const begin_ = false;
-    static bool const isEvent_ = false;
+    static BranchType constexpr branchType_ = InRun;
+    static bool constexpr begin_ = false;
+    static bool constexpr isEvent_ = false;
 
     static void setStreamContext(StreamContext& streamContext, MyPrincipal const& principal) {
       streamContext.setTransition(StreamContext::Transition::kEndRun);
@@ -162,6 +172,9 @@ namespace edm {
     static void postModuleSignal(ActivityRegistry *a, StreamContext const* streamContext, ModuleCallingContext const*  moduleCallingContext) {
       a->postModuleStreamEndRunSignal_(*streamContext, *moduleCallingContext);
     }
+    static const char* transitionName() {
+      return "stream end Run";
+    }
   };
 
   template <>
@@ -169,9 +182,9 @@ namespace edm {
   public:
     typedef RunPrincipal MyPrincipal;
     typedef GlobalContext Context;
-    static BranchType const branchType_ = InRun;
-    static bool const begin_ = false;
-    static bool const isEvent_ = false;
+    static BranchType constexpr branchType_ = InRun;
+    static bool constexpr begin_ = false;
+    static bool constexpr isEvent_ = false;
 
     static GlobalContext makeGlobalContext(MyPrincipal const& principal, ProcessContext const* processContext) {
       return GlobalContext(GlobalContext::Transition::kEndRun,
@@ -198,6 +211,9 @@ namespace edm {
     static void postModuleSignal(ActivityRegistry *a, GlobalContext const* globalContext, ModuleCallingContext const*  moduleCallingContext) {
       a->postModuleGlobalEndRunSignal_(*globalContext, *moduleCallingContext);
     }
+    static const char* transitionName() {
+      return "global end Run";
+    }
   };
 
   template <>
@@ -205,9 +221,9 @@ namespace edm {
   public:
     typedef LuminosityBlockPrincipal MyPrincipal;
     typedef GlobalContext Context;
-    static BranchType const branchType_ = InLumi;
-    static bool const begin_ = true;
-    static bool const isEvent_ = false;
+    static BranchType constexpr branchType_ = InLumi;
+    static bool constexpr begin_ = true;
+    static bool constexpr isEvent_ = false;
 
     static GlobalContext makeGlobalContext(MyPrincipal const& principal, ProcessContext const* processContext) {
       return GlobalContext(GlobalContext::Transition::kBeginLuminosityBlock,
@@ -234,6 +250,9 @@ namespace edm {
     static void postModuleSignal(ActivityRegistry *a, GlobalContext const* globalContext, ModuleCallingContext const*  moduleCallingContext) {
       a->postModuleGlobalBeginLumiSignal_(*globalContext, *moduleCallingContext);
     }
+    static const char* transitionName() {
+      return "global begin LuminosityBlock";
+    }
   };
 
   template <>
@@ -241,9 +260,9 @@ namespace edm {
   public:
     typedef LuminosityBlockPrincipal MyPrincipal;
     typedef StreamContext Context;
-    static BranchType const branchType_ = InLumi;
-    static bool const begin_ = true;
-    static bool const isEvent_ = false;
+    static BranchType constexpr branchType_ = InLumi;
+    static bool constexpr begin_ = true;
+    static bool constexpr isEvent_ = false;
 
     static void setStreamContext(StreamContext& streamContext, MyPrincipal const& principal) {
       streamContext.setTransition(StreamContext::Transition::kBeginLuminosityBlock);
@@ -269,6 +288,9 @@ namespace edm {
     static void postModuleSignal(ActivityRegistry *a, StreamContext const* streamContext, ModuleCallingContext const*  moduleCallingContext) {
       a->postModuleStreamBeginLumiSignal_(*streamContext, *moduleCallingContext);
     }
+    static const char* transitionName() {
+      return "stream begin LuminosityBlock";
+    }
   };
 
   template <>
@@ -276,9 +298,9 @@ namespace edm {
   public:
     typedef LuminosityBlockPrincipal MyPrincipal;
     typedef StreamContext Context;
-    static BranchType const branchType_ = InLumi;
-    static bool const begin_ = false;
-    static bool const isEvent_ = false;
+    static BranchType constexpr branchType_ = InLumi;
+    static bool constexpr begin_ = false;
+    static bool constexpr isEvent_ = false;
 
     static StreamContext const* context(StreamContext const* s, GlobalContext const*) { return s; }
 
@@ -306,6 +328,9 @@ namespace edm {
     static void postModuleSignal(ActivityRegistry *a, StreamContext const* streamContext, ModuleCallingContext const*  moduleCallingContext) {
       a->postModuleStreamEndLumiSignal_(*streamContext, *moduleCallingContext);
     }
+    static const char* transitionName() {
+      return "end stream LuminosityBlock";
+    }
   };
 
   template <>
@@ -313,9 +338,9 @@ namespace edm {
   public:
     typedef LuminosityBlockPrincipal MyPrincipal;
     typedef GlobalContext Context;
-    static BranchType const branchType_ = InLumi;
-    static bool const begin_ = false;
-    static bool const isEvent_ = false;
+    static BranchType constexpr branchType_ = InLumi;
+    static bool constexpr begin_ = false;
+    static bool constexpr isEvent_ = false;
 
     static GlobalContext makeGlobalContext(MyPrincipal const& principal, ProcessContext const* processContext) {
       return GlobalContext(GlobalContext::Transition::kEndLuminosityBlock,
@@ -341,6 +366,9 @@ namespace edm {
     }
     static void postModuleSignal(ActivityRegistry *a, GlobalContext const* globalContext, ModuleCallingContext const*  moduleCallingContext) {
       a->postModuleGlobalEndLumiSignal_(*globalContext, *moduleCallingContext);
+    }
+    static const char* transitionName() {
+      return "end global LuminosityBlock";
     }
   };
 }

@@ -13,7 +13,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.prod = cms.EDAnalyzer("SimHitCaloHitDumper",
-    processName = cms.string("SIM")
+    moduleName = cms.string("g4SimHits")
 )
 
 process.p1 = cms.Path(process.prod)

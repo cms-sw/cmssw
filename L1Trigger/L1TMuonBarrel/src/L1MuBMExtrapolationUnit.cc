@@ -35,11 +35,12 @@
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMEUX.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMERS.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSectorProcessor.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMSecProcId.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMDataBuffer.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackSegPhi.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTTFParameters.h"
 #include "CondFormats/DataRecord/interface/L1MuDTTFParametersRcd.h"
+
+#include "DataFormats/L1TMuon/interface/BMTF/L1MuBMSecProcId.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhi.h"
 
 using namespace std;
 
@@ -84,7 +85,7 @@ L1MuBMExtrapolationUnit::~L1MuBMExtrapolationUnit() {
 
   for ( SEUmap::iterator iter = m_SEUs.begin(); iter != m_SEUs.end(); iter++ ) {
     delete (*iter).second;
-    (*iter).second = 0;
+    (*iter).second = nullptr;
   }
   m_SEUs.clear();
 
@@ -112,12 +113,12 @@ void L1MuBMExtrapolationUnit::run(const edm::EventSetup& c) {
     pair<int,int> ext_pair = which_ext(((*iter).second)->ext());
     int start = ext_pair.first;
 
-    const L1MuBMTrackSegPhi* ts = 0;
+    const L1MuBMTrackSegPhi* ts = nullptr;
 
     //get start track segment
     ts = m_sp.data()->getTSphi(start, ((*iter).second)->tsId() );
 
-    if ( ts != 0 && !ts->empty() ) {
+    if ( ts != nullptr && !ts->empty() ) {
       ((*iter).second)->load(ts);
       ((*iter).second)->run(c);
     }

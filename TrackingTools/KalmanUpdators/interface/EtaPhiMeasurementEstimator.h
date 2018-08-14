@@ -19,18 +19,18 @@ public:
     thedEta(dEta),
     thedPhi(dPhi)
    {}
-  ~EtaPhiMeasurementEstimator(){}
+  ~EtaPhiMeasurementEstimator() override{}
 
   std::pair<bool,double> estimate(const TrajectoryStateOnSurface&,
-				  const TrackingRecHit&) const;
+				  const TrackingRecHit&) const override;
 
-  virtual bool estimate(const TrajectoryStateOnSurface& tsos,
-			const Plane& plane) const;
+  bool estimate(const TrajectoryStateOnSurface& tsos,
+			const Plane& plane) const override;
 
-  virtual Local2DVector maximalLocalDisplacement( const TrajectoryStateOnSurface& tsos,
-						   const Plane& plane) const;
+  Local2DVector maximalLocalDisplacement( const TrajectoryStateOnSurface& tsos,
+						   const Plane& plane) const override;
 
-  EtaPhiMeasurementEstimator* clone() const {
+  EtaPhiMeasurementEstimator* clone() const override {
     return new EtaPhiMeasurementEstimator(*this);
   }
  private:

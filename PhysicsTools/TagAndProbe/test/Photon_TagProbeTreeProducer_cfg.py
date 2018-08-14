@@ -203,7 +203,7 @@ process.ext_ToNearestJet_sequence = cms.Sequence(
 process.ElectronPassingWP80 = cms.EDFilter("GsfElectronRefSelector",
     src = cms.InputTag( ELECTRON_COLL ),
     cut = cms.string( ELECTRON_CUTS  +
-    " && (gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\') == 0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
+    " && (gsfTrack.hitPattern().numberOfLostHits(\'MISSING_INNER_HITS\') == 0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
     " && ((isEB"
     " && ( dr03TkSumPt/p4.Pt <0.09 && dr03EcalRecHitSumEt/p4.Pt < 0.07 && dr03HcalTowerSumEt/p4.Pt  < 0.1 )"
     " && (sigmaIetaIeta<0.01)"

@@ -87,6 +87,8 @@ class PF_PU_AssoMapAlgos{
    PF_PU_AssoMapAlgos(const edm::ParameterSet& iConfig, edm::ConsumesCollector && iC) :
      PF_PU_AssoMapAlgos(iConfig, iC) {};
    PF_PU_AssoMapAlgos(const edm::ParameterSet&, edm::ConsumesCollector &);
+   // virtual destructor needed when virtual functions declared
+   virtual ~PF_PU_AssoMapAlgos() noexcept(false) {};
 
    //get all needed collections at the beginning
    virtual void GetInputCollections(edm::Event&, const edm::EventSetup&);

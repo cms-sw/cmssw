@@ -19,7 +19,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-//#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+//#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 //#include "DataFormats/DetId/interface/DetId.h"
 #include "TRandom.h"
 #include "TRandom3.h"
@@ -66,7 +66,7 @@
 //#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <memory>
 #include <vector>
@@ -79,8 +79,8 @@ class GlobalHitsTester : public DQMEDAnalyzer
  public:
 
   explicit GlobalHitsTester(const edm::ParameterSet&);
-  virtual ~GlobalHitsTester();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  ~GlobalHitsTester() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &,
     edm::Run const &, edm::EventSetup const &) override;
   

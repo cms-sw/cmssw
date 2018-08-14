@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import sys, optparse, re, math
 from Alignment.MuonAlignment.geometryXMLparser import MuonGeometry
 
@@ -85,12 +86,11 @@ for line in constraints.readlines():
             empty = False
 
 if not empty:
-    keys = byRing.keys()
-    keys.sort()
-    print "for fitter in process.looper.algoConfig.fitters:"
+    keys = sorted(byRing.keys())
+    print("for fitter in process.looper.algoConfig.fitters:")
     for ringName in keys:
         if len(byRing[ringName]) > 0:
-            print "    if fitter.name.value() == \"%(ringName)s\":" % vars()
-            print "        fitter.alignables.append(\"%(frameName)s\")" % vars()
+            print("    if fitter.name.value() == \"%(ringName)s\":" % vars())
+            print("        fitter.alignables.append(\"%(frameName)s\")" % vars())
             for line in byRing[ringName]:
-                print "        fitter.constraints.append(%(line)s)" % vars()
+                print("        fitter.constraints.append(%(line)s)" % vars())

@@ -13,7 +13,7 @@
 #ifndef TauAnalysis_MCEmbeddingTools_TrackerCleaner_H
 #define TauAnalysis_MCEmbeddingTools_TrackerCleaner_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -41,10 +41,10 @@ class TrackerCleaner : public edm::stream::EDProducer<>
 {
  public:
   explicit TrackerCleaner(const edm::ParameterSet&);
-  ~TrackerCleaner();
+  ~TrackerCleaner() override;
 
  private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   const edm::EDGetTokenT<edm::View<pat::Muon> > mu_input_;
   typedef edmNew::DetSetVector<T> TrackClusterCollection;

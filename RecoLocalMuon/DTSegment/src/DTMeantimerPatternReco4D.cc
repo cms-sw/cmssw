@@ -155,8 +155,8 @@ DTMeantimerPatternReco4D::reconstruct(){
   bool hasZed=false;
 
   // has this chamber the Z-superlayer?
-  if (theSegments2DTheta.size()){
-    hasZed = theSegments2DTheta.size()>0;
+  if (!theSegments2DTheta.empty()){
+    hasZed = !theSegments2DTheta.empty();
     if (debug) cout << "There are " << theSegments2DTheta.size() << " Theta cand" << endl;
   } else {
     if (debug) cout << "No Theta candidates." << endl;
@@ -164,13 +164,13 @@ DTMeantimerPatternReco4D::reconstruct(){
 
   // Now I want to build the concrete DTRecSegment4D.
   if(debug) cout << "Building the concrete DTRecSegment4D" << endl;
-  if (resultPhi.size()) {
+  if (!resultPhi.empty()) {
     for (vector<DTSegmentCand*>::const_iterator phi=resultPhi.begin();
          phi!=resultPhi.end(); ++phi) {
 
       std::unique_ptr<DTChamberRecSegment2D> superPhi(**phi);
 
-      theUpdator->update(superPhi.get(),1);
+      theUpdator->update(superPhi.get(),true);
       if(debug) cout << "superPhi: " << *superPhi << endl;
 
       if (hasZed) {
@@ -199,12 +199,12 @@ DTMeantimerPatternReco4D::reconstruct(){
           DTRecSegment4D* newSeg = new DTRecSegment4D(*superPhi,*zed,posZInCh,dirZInCh);
 
           /// 4d segment: I have the pos along the wire => further update!
-          theUpdator->update(newSeg,0,1);
+          theUpdator->update(newSeg,false,true);
           if (debug) cout << "Created a 4D seg " << *newSeg << endl;
 
           //update the segment with the t0 and possibly vdrift correction
           if(!applyT0corr && computeT0corr) theUpdator->calculateT0corr(newSeg);
-          if(applyT0corr) theUpdator->update(newSeg,true,1);
+          if(applyT0corr) theUpdator->update(newSeg,true,true);
 
           result.push_back(newSeg);
         }
@@ -216,7 +216,7 @@ DTMeantimerPatternReco4D::reconstruct(){
 
         //update the segment with the t0 and possibly vdrift correction
         if(!applyT0corr && computeT0corr) theUpdator->calculateT0corr(newSeg);
-        if(applyT0corr) theUpdator->update(newSeg,true,1);
+        if(applyT0corr) theUpdator->update(newSeg,true,true);
 
         result.push_back(newSeg);
       }
@@ -239,7 +239,7 @@ DTMeantimerPatternReco4D::reconstruct(){
         if (debug) cout << "Created a 4D segment using only the 2D Theta segment" << endl;
 
         if(!applyT0corr && computeT0corr) theUpdator->calculateT0corr(newSeg);
-        if(applyT0corr) theUpdator->update(newSeg,true,1);
+        if(applyT0corr) theUpdator->update(newSeg,true,true);
 
         result.push_back(newSeg);
       }
@@ -258,10 +258,10 @@ vector<DTSegmentCand*> DTMeantimerPatternReco4D::buildPhiSuperSegmentsCandidates
 
   DTSuperLayerId slId;
 
-  if(theHitsFromPhi1.size())
+  if(!theHitsFromPhi1.empty())
     slId = theHitsFromPhi1.front().wireId().superlayerId();
   else
-    if(theHitsFromPhi2.size())
+    if(!theHitsFromPhi2.empty())
       slId = theHitsFromPhi2.front().wireId().superlayerId();
     else{
       if(debug) cout<<"DTMeantimerPatternReco4D::buildPhiSuperSegmentsCandidates: "

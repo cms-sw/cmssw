@@ -20,19 +20,7 @@ namespace {
 }
 
 using namespace std;
-using namespace ctfseeding; 
 
-
-TrackingRegion::ctfHits CosmicTrackingRegion::hits(const edm::EventSetup& es,
-						const  ctfseeding::SeedingLayer* layer) const
-{
-  TrackingRegion::ctfHits result;
-  TrackingRegion::Hits tmp;
-  hits_(es, *layer, tmp);
-  result.reserve(tmp.size());
-  for ( auto h : tmp) result.emplace_back(*h); // not owned
-  return result;
-}
 
 TrackingRegion::Hits CosmicTrackingRegion::hits(const edm::EventSetup& es,
 						const SeedingLayerSetsHits::SeedingLayer& layer) const

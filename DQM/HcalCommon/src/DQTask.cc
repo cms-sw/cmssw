@@ -108,6 +108,10 @@ namespace hcaldqm
 		_cRunKeyVal.fill(_runkeyVal);
 		_cRunKeyName.fill(_runkeyName);
 		_cProcessingTypeName.fill(pTypeNames[_ptype]);
+
+		// Load conditions and emap
+		es.get<HcalDbRecord>().get(_dbService);
+		_emap = _dbService->getHcalMapping();
 	}
 
 	/* virtual */ void DQTask::dqmBeginRun(edm::Run const& r,
@@ -187,7 +191,7 @@ namespace hcaldqm
 			int cval = (int)((HcalDCCHeader const*)(fd.data()))->getCalibType();
 			if (cval>7)
 				_logger.warn("Unexpected Calib Type in FED " + 
-					boost::lexical_cast<std::string>(i));
+					std::to_string(i));
 			types[cval]++;
 		}
 		for (int i=FED_uTCA_MIN; i<=FED_uTCA_MAX; i++)
@@ -201,7 +205,7 @@ namespace hcaldqm
 			int cval = (int)((HcalDCCHeader const*)(fd.data()))->getCalibType();
 			if (cval>7)
 				_logger.warn("Unexpected Calib Type in FED " + 
-					boost::lexical_cast<std::string>(i));
+					std::to_string(i));
 			types[cval]++;
 		}
 
@@ -216,7 +220,7 @@ namespace hcaldqm
 		}
 		if (max!=(FED_VME_NUM+(FED_uTCA_MAX-FED_uTCA_MIN+1)-badFEDs))
 			_logger.warn("Conflicting Calibration Types found. Assigning " +
-				boost::lexical_cast<std::string>(calibType));
+				std::to_string(calibType));
 
 		return calibType;
 	}

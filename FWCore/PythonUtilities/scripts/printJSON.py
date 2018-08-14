@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import sys
 import optparse
 from FWCore.PythonUtilities.LumiList import LumiList
@@ -20,6 +21,6 @@ if __name__ == '__main__':
         keys = alphaList.compactList.keys()
         minRun = min (keys)
         maxRun = max (keys)
-        print "runs %s - %s" % (minRun, maxRun)
+        print("runs %s - %s" % (minRun, maxRun))
         sys.exit()
-    print alphaList
+    print(alphaList)

@@ -55,10 +55,10 @@
 class TTbar_GenJetAnalyzer : public DQMEDAnalyzer {
    public:
       explicit TTbar_GenJetAnalyzer(const edm::ParameterSet&);
-      ~TTbar_GenJetAnalyzer();
+      ~TTbar_GenJetAnalyzer() override;
 
-      virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
 
    private:
 

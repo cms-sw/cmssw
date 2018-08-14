@@ -61,19 +61,19 @@ static bool compare_l1candidate(const L1Candidate & a, const L1Candidate & b, in
 class L1TComparison : public EDAnalyzer {
 public:
   explicit L1TComparison(const ParameterSet&);
-  ~L1TComparison();
+  ~L1TComparison() override;
   
   static void fillDescriptions(ConfigurationDescriptions& descriptions);
   
 private:
-  virtual void beginJob();
-  virtual void analyze(Event const&, EventSetup const&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(Event const&, EventSetup const&) override;
+  void endJob() override;
   
-  virtual void beginRun(Run const&, EventSetup const&);
-  virtual void endRun(Run const&, EventSetup const&);
-  virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&);
-  virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&);
+  void beginRun(Run const&, EventSetup const&) override;
+  void endRun(Run const&, EventSetup const&) override;
+  void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
+  void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
 
   // Tag string to mark summary with:
   string tag_;

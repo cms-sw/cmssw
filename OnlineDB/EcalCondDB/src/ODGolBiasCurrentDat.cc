@@ -9,10 +9,10 @@ using namespace oracle::occi;
 
 ODGolBiasCurrentDat::ODGolBiasCurrentDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
 
   m_gol = 0;
@@ -41,7 +41,7 @@ void ODGolBiasCurrentDat::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, fed_id, tt_id, gol_id, gol_current, pll_current, status ) "
 			"VALUES (:1, :2, :3, :4, :5 , :6, :7)");
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODGolBiasCurrentDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODGolBiasCurrentDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -64,7 +64,7 @@ void ODGolBiasCurrentDat::writeDB(const ODGolBiasCurrentDat* item, ODGolBiasCurr
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODGolBiasCurrentDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODGolBiasCurrentDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -104,7 +104,7 @@ void ODGolBiasCurrentDat::fetchData(std::vector< ODGolBiasCurrentDat >* p, ODGol
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODGolBiasCurrentDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODGolBiasCurrentDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -194,6 +194,6 @@ void ODGolBiasCurrentDat::writeArrayDB(const std::vector< ODGolBiasCurrentDat >&
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODGolBiasCurrentDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODGolBiasCurrentDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

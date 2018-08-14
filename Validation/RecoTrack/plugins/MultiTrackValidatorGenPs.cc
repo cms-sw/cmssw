@@ -46,7 +46,7 @@ MultiTrackValidatorGenPs::MultiTrackValidatorGenPs(const edm::ParameterSet& pset
 					 pset.getParameter<int>("statusGP"),
 					 pset.getParameter<std::vector<int> >("pdgIdGP"));
 
-  if(UseAssociators) {
+  if(useAssociators_) {
     for(auto const& src: associators) {
       if( src.label() == kTrackAssociatorByChi2) {
         label_gen_associator = consumes<reco::TrackToGenParticleAssociator>(src);
@@ -66,7 +66,7 @@ MultiTrackValidatorGenPs::MultiTrackValidatorGenPs(const edm::ParameterSet& pset
 MultiTrackValidatorGenPs::~MultiTrackValidatorGenPs(){}
 
 
-void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::EventSetup& setup){
+void MultiTrackValidatorGenPs::dqmAnalyze(const edm::Event& event, const edm::EventSetup& setup, const Histograms& histograms) const {
   using namespace reco;
   
   edm::LogInfo("TrackValidator") << "\n====================================================" << "\n"
@@ -109,7 +109,7 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
   }
 
   const reco::TrackToGenParticleAssociator* trackGenAssociator =nullptr;
-  if(UseAssociators) {
+  if(useAssociators_) {
     if(label_gen_associator.isUninitialized()) {
       return;
     }
@@ -152,7 +152,7 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
     reco::RecoToGenCollection recGenColl;
     reco::GenToRecoCollection genRecColl;
     //associate tracks
-    if(UseAssociators){
+    if(useAssociators_){
       edm::LogVerbatim("TrackValidator") << "Analyzing " 
                                          << label[www].process()<<":"
                                          << label[www].label()<<":"
@@ -240,7 +240,7 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
       // - dzGen
       
       if(doSimPlots_ && w == 0) {
-        histoProducerAlgo_->fill_generic_simTrack_histos(momentumTP,vertexTP, tp->collisionId());//fixme: check meaning of collisionId
+        histoProducerAlgo_->fill_generic_simTrack_histos(histograms.histoProducerAlgo,momentumTP,vertexTP, tp->collisionId());//fixme: check meaning of collisionId
       }
       if(!doSimTrackPlots_)
         continue;
@@ -250,11 +250,11 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
       // fill RecoAssociated GenTracks' histograms
       // ##############################################
       // bool isRecoMatched(false); // UNUSED
-      const reco::Track* matchedTrackPointer=0;
+      const reco::Track* matchedTrackPointer=nullptr;
       std::vector<std::pair<RefToBase<Track>, double> > rt;
       if(genRecColl.find(tpr) != genRecColl.end()){
         rt = (std::vector<std::pair<RefToBase<Track>, double> >) genRecColl[tpr];
-        if (rt.size()!=0) {
+        if (!rt.empty()) {
           ats++; //This counter counts the number of simTracks that have a recoTrack associated
           // isRecoMatched = true; // UNUSED
           matchedTrackPointer = rt.begin()->first.get();
@@ -275,7 +275,7 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
       
       
       int nSimHits = 0;
-      histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,*tp,momentumTP,vertexTP,dxyGen,dzGen,nSimHits,matchedTrackPointer,puinfo.getPU_NumInteractions());
+      histoProducerAlgo_->fill_recoAssociated_simTrack_histos(histograms.histoProducerAlgo,w,*tp,momentumTP,vertexTP,dxyGen,dzGen,nSimHits,matchedTrackPointer,puinfo.getPU_NumInteractions());
       
       sts++;
       if (matchedTrackPointer) asts++;
@@ -286,7 +286,7 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
     } // End  for (GenParticleCollection::size_type i=0; i<tPCeff.size(); i++){
     
     if(doSimPlots_ && w == 0) {
-      histoProducerAlgo_->fill_simTrackBased_histos(st);
+      histoProducerAlgo_->fill_simTrackBased_histos(histograms.histoProducerAlgo,st);
     }
     
     
@@ -319,7 +319,7 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
       std::vector<std::pair<GenParticleRef, double> > tp;
       if(recGenColl.find(track) != recGenColl.end()){
         tp = recGenColl[track];
-        if (tp.size()!=0) {
+        if (!tp.empty()) {
           /*
 	    std::vector<PSimHit> simhits=tp[0].first->trackPSimHit(DetId::Tracker);
             nSimHits = simhits.end()-simhits.begin();
@@ -350,18 +350,18 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
       
       
       double dR=0;//fixme: plots vs dR not implemented for now
-      histoProducerAlgo_->fill_generic_recoTrack_histos(w,*track, ttopo, bs.position(), nullptr, nullptr, isGenMatched,isSigGenMatched, isChargeMatched, numAssocRecoTracks, puinfo.getPU_NumInteractions(), nSimHits, sharedFraction, dR, mvaDummy, 0, 0);
+      histoProducerAlgo_->fill_generic_recoTrack_histos(histograms.histoProducerAlgo,w,*track, ttopo, bs.position(), nullptr, nullptr, isGenMatched,isSigGenMatched, isChargeMatched, numAssocRecoTracks, puinfo.getPU_NumInteractions(), nSimHits, sharedFraction, dR, mvaDummy, 0, 0);
       
       // dE/dx
-      if (dodEdxPlots_) histoProducerAlgo_->fill_dedx_recoTrack_histos(w,track, v_dEdx);
+      if (dodEdxPlots_) histoProducerAlgo_->fill_dedx_recoTrack_histos(histograms.histoProducerAlgo,w,track, v_dEdx);
       
       
       //Fill other histos
       //try{ //Is this really necessary ????
       
-      if (tp.size()==0) continue;	
+      if (tp.empty()) continue;	
       
-      histoProducerAlgo_->fill_simAssociated_recoTrack_histos(w,*track);
+      histoProducerAlgo_->fill_simAssociated_recoTrack_histos(histograms.histoProducerAlgo,w,*track);
       
       GenParticleRef tpr = tp.begin()->first;
       
@@ -385,7 +385,7 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
       TrackingParticle::Point vertexTP = parametersDefinerTP->vertex(event,setup,*(tpr.get()));		 	 
       int chargeTP = tpr->charge();
       
-      histoProducerAlgo_->fill_ResoAndPull_recoTrack_histos(w,momentumTP,vertexTP,chargeTP,
+      histoProducerAlgo_->fill_ResoAndPull_recoTrack_histos(histograms.histoProducerAlgo,w,momentumTP,vertexTP,chargeTP,
                                                             *track,bs.position());
       
       
@@ -402,7 +402,7 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
       
     } // End of for(View<Track>::size_type i=0; i<trackCollection->size(); ++i){
     
-    histoProducerAlgo_->fill_trackBased_histos(w,at,rT,st);
+    histoProducerAlgo_->fill_trackBased_histos(histograms.histoProducerAlgo,w,at,rT,rT,st);
     
     edm::LogVerbatim("TrackValidator") << "Total Simulated: " << st << "\n"
                                        << "Total Associated (genToReco): " << ats << "\n"

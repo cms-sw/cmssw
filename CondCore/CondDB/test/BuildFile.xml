@@ -31,4 +31,8 @@
 <bin   file="testConnectionPool.cpp" name="testConnectionPool">
   <use   name="CondFormats/RunInfo"/>
 </bin>
-
+<bin   file="testRunInfo.cpp" name="testRunInfo">
+</bin>
+<architecture name="slc.*_amd64_.*">
+  <test name="condTestRegression" command="condTestRegression.py"/>
+</architecture>

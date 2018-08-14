@@ -54,18 +54,18 @@ class ProcTMVA : public TrainProcessor {
 
 	ProcTMVA(const char *name, const AtomicId *id,
 	         MVATrainer *trainer);
-	virtual ~ProcTMVA();
+	~ProcTMVA() override;
 
-	virtual void configure(DOMElement *elem) override;
-	virtual Calibration::VarProcessor *getCalibration() const override;
+	void configure(DOMElement *elem) override;
+	Calibration::VarProcessor *getCalibration() const override;
 
-	virtual void trainBegin() override;
-	virtual void trainData(const std::vector<double> *values,
+	void trainBegin() override;
+	void trainData(const std::vector<double> *values,
 	                       bool target, double weight) override;
-	virtual void trainEnd() override;
+	void trainEnd() override;
 
-	virtual bool load() override;
-	virtual void cleanup() override;
+	bool load() override;
+	void cleanup() override;
 
     private:
 	void runTMVATrainer();
@@ -104,12 +104,12 @@ class ProcTMVA : public TrainProcessor {
 	std::string			setupOptions;	// training/test tree TMVA setup options
 };
 
-static ProcTMVA::Registry registry("ProcTMVA");
+ProcTMVA::Registry registry("ProcTMVA");
 
 ProcTMVA::ProcTMVA(const char *name, const AtomicId *id,
                    MVATrainer *trainer) :
 	TrainProcessor(name, id, trainer),
-	iteration(ITER_EXPORT), treeSig(0), treeBkg(0), needCleanup(false),
+	iteration(ITER_EXPORT), treeSig(nullptr), treeBkg(nullptr), needCleanup(false),
 	doUserTreeSetup(false), setupOptions("SplitMode = Block:!V")
 {
 }
@@ -189,7 +189,7 @@ void ProcTMVA::configure(DOMElement *elem)
 		}
 	}
 
-	if (!methods.size())
+	if (methods.empty())
 		throw cms::Exception("ProcTMVA")
 			<< "Expected TMVA method in config section."
 			<< std::endl;
@@ -215,7 +215,7 @@ bool ProcTMVA::load()
 	return true;
 }
 
-static std::size_t getStreamSize(std::ifstream &in)
+std::size_t getStreamSize(std::ifstream &in)
 {
 	std::ifstream::pos_type begin = in.tellg();
 	in.seekg(0, std::ios::end);
@@ -406,8 +406,8 @@ void ProcTMVA::trainEnd()
 			runTMVATrainer();
 
 			file->Close();
-			treeSig = 0;
-			treeBkg = 0;
+			treeSig = nullptr;
+			treeBkg = nullptr;
 			file.reset();
 		}
 		vars.clear();

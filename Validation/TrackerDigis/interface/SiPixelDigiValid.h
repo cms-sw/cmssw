@@ -22,13 +22,12 @@ class  SiPixelDigiValid: public DQMEDAnalyzer {
  public:
     
     SiPixelDigiValid(const edm::ParameterSet& ps);
-    ~SiPixelDigiValid();
+    ~SiPixelDigiValid() override;
 
  protected:
-     void analyze(const edm::Event& e, const edm::EventSetup& c);
-     void beginJob();
-     void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es);
-     void endJob(void);
+     void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+     void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es) override;
+     void endJob(void) override;
 
  private:
 

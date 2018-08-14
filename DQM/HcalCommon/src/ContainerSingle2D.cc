@@ -4,11 +4,13 @@
 
 namespace hcaldqm
 {
+	using namespace constants;
+	using namespace quantity;
 	ContainerSingle2D::ContainerSingle2D()
 	{
-		_qx = NULL;
-		_qy = NULL;
-		_qz = NULL;
+		_qx = nullptr;
+		_qy = nullptr;
+		_qz = nullptr;
 	}
 
 	ContainerSingle2D::ContainerSingle2D(std::string const& folder,
@@ -41,15 +43,15 @@ namespace hcaldqm
 
 	ContainerSingle2D::~ContainerSingle2D()
 	{
-		if (_qx!=NULL)
+		if (_qx!=nullptr)
 			delete _qx;
-		if (_qy!=NULL)
+		if (_qy!=nullptr)
 			delete _qy;
-		if (_qz!=NULL)
+		if (_qz!=nullptr)
 			delete _qz;
-		_qx=NULL;
-		_qy=NULL;
-		_qz=NULL;
+		_qx=nullptr;
+		_qy=nullptr;
+		_qz=nullptr;
 	}
 
 	/* virtual */ void ContainerSingle2D::initialize(std::string const& folder,
@@ -82,8 +84,8 @@ namespace hcaldqm
 		 std::string subsystem, std::string aux)
 	{
 		ib.setCurrentFolder(subsystem+"/"+_folder+"/"+_qname);
-		_me = ib.book2D(_qname+(aux==""?aux:"_"+aux), 
-			_qname+(aux==""?aux:" "+aux),
+		_me = ib.book2D(_qname+(aux.empty()?aux:"_"+aux), 
+			_qname+(aux.empty()?aux:" "+aux),
 			_qx->nbins(), _qx->min(), _qx->max(),
 			_qy->nbins(), _qy->min(), _qy->max());
 		customize();
@@ -93,15 +95,15 @@ namespace hcaldqm
 		std::string subsystem, std::string aux)
 	{
 		_me = ig.get(subsystem+"/"+_folder+"/"+_qname+"/"+
-			_qname+(aux==""?aux:"_"+aux));
+			_qname+(aux.empty()?aux:"_"+aux));
 	}
 
 	/* virtual */ void ContainerSingle2D::book(DQMStore *store,
 		 std::string subsystem, std::string aux)
 	{
 		store->setCurrentFolder(subsystem+"/"+_folder+"/"+_qname);
-		_me = store->book2D(_qname+(aux==""?aux:"_"+aux), 
-			_qname+(aux==""?aux:" "+aux),
+		_me = store->book2D(_qname+(aux.empty()?aux:"_"+aux), 
+			_qname+(aux.empty()?aux:" "+aux),
 			_qx->nbins(), _qx->min(), _qx->max(),
 			_qy->nbins(), _qy->min(), _qy->max());
 		customize();
@@ -120,10 +122,12 @@ namespace hcaldqm
 
 		std::vector<std::string> xlabels = _qx->getLabels();
 		std::vector<std::string> ylabels = _qy->getLabels();
-		for (unsigned int i=0; i<xlabels.size(); i++)
+		for (unsigned int i=0; i<xlabels.size(); i++) {
 			_me->setBinLabel(i+1, xlabels[i], 1);
-		for (unsigned int i=0; i<ylabels.size(); i++)
+		}
+		for (unsigned int i=0; i<ylabels.size(); i++) {
 			_me->setBinLabel(i+1, ylabels[i], 2);
+		}
 	}
 
 	/* virtual */ void ContainerSingle2D::fill(int x, int y)
@@ -702,5 +706,8 @@ namespace hcaldqm
 			_qx->setMax(x);
 		}
 	}
-}
 
+	void ContainerSingle2D::showOverflowZ(bool showOverflow) {
+		_qz->showOverflow(showOverflow);
+	}
+}

@@ -25,6 +25,10 @@
 
 #include "PhysicsTools/PatUtils/interface/ParticleCode.h"
 
+namespace reco {
+  class ClusterShape;
+}
+
 namespace pat {
 
   /// Structure defining the electron selection

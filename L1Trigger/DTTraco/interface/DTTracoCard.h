@@ -64,7 +64,7 @@ class DTTracoCard : public TRACOCache, public DTGeomSupplier {
     DTTracoCard(DTTrigGeom*, DTBtiCard*, DTTSTheta*);
 
     /// Destructor 
-    ~DTTracoCard();
+    ~DTTracoCard() override;
 
     /// Clear all traco stuff (cache & map)
     void clearCache();
@@ -96,13 +96,13 @@ class DTTracoCard : public TRACOCache, public DTGeomSupplier {
     DTTracoTrig* storeTrigger(DTTracoTrigData);
 
     /// NEWGEO Local position in chamber of a trigger-data object
-    LocalPoint localPosition(const DTTrigData*) const;
+    LocalPoint localPosition(const DTTrigData*) const override;
 
     /// NEWGEO Local direction in chamber of a trigger-data object
-    LocalVector localDirection(const DTTrigData*) const;
+    LocalVector localDirection(const DTTrigData*) const override;
     
     /// Load BTIs triggers and run TRACOs algorithm
-    virtual void reconstruct() { clearCache(); loadTRACO(); runTRACO(); }
+    void reconstruct() override { clearCache(); loadTRACO(); runTRACO(); }
 
     /// Return LUTS config for this chamber (=minicrate)
     const DTConfigLUTs* config_luts() const { return _conf_luts; } 

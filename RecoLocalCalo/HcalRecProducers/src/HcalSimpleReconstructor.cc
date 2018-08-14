@@ -22,20 +22,11 @@ HcalSimpleReconstructor::HcalSimpleReconstructor(edm::ParameterSet const& conf):
   firstSample_(conf.getParameter<int>("firstSample")),
   samplesToAdd_(conf.getParameter<int>("samplesToAdd")),
   tsFromDB_(conf.getParameter<bool>("tsFromDB")),
-  paramTS(0),
-  theTopology(0)
+  paramTS(nullptr),
+  theTopology(nullptr)
 {
-  // Intitialize "method 3"
-  reco_.setMeth3Params(
-	    conf.getParameter<bool>    ("applyTimeSlewM3"),
-            conf.getParameter<double>  ("pedestalUpperLimit"),
-            conf.getParameter<int>     ("timeSlewParsType"),
-            conf.getParameter<std::vector<double> >("timeSlewPars"),
-            conf.getParameter<double>  ("respCorrM3")
-      );
 
   // register for data access
-  tok_hbhe_ = consumes<HBHEDigiCollection>(inputLabel_);
   tok_hf_ = consumes<HFDigiCollection>(inputLabel_);
   tok_ho_ = consumes<HODigiCollection>(inputLabel_);
   tok_calib_ = consumes<HcalCalibDigiCollection>(inputLabel_);
@@ -45,10 +36,6 @@ HcalSimpleReconstructor::HcalSimpleReconstructor(edm::ParameterSet const& conf):
     subdet_=HcalOuter;
     produces<HORecHitCollection>();
   }  
-  else if (!strcasecmp(subd.c_str(),"HBHE")) {
-    subdet_=HcalBarrel;
-    produces<HBHERecHitCollection>();
-  } 
   else if (!strcasecmp(subd.c_str(),"HF")) {
     subdet_=HcalForward;
     produces<HFRecHitCollection>();
@@ -57,17 +44,6 @@ HcalSimpleReconstructor::HcalSimpleReconstructor(edm::ParameterSet const& conf):
     std::cout << "HcalSimpleReconstructor is not associated with a specific subdetector!" << std::endl;
   }       
   
-}
-
-void HcalSimpleReconstructor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
-  desc.setAllowAnything();
-  desc.add<bool>("applyTimeSlewM3", true);
-  desc.add<double>("pedestalUpperLimit", 2.7); 
-  desc.add<int>("timeSlewParsType",3);
-  desc.add<std::vector<double>>("timeSlewPars", { 12.2999, -2.19142, 0, 12.2999, -2.19142, 0, 12.2999, -2.19142, 0 });
-  desc.add<double>("respCorrM3", 0.95);
-  descriptions.add("simpleHbhereco",desc);
 }
 
 HcalSimpleReconstructor::~HcalSimpleReconstructor() { 
@@ -93,7 +69,7 @@ void HcalSimpleReconstructor::beginRun(edm::Run const&r, edm::EventSetup const &
 void HcalSimpleReconstructor::endRun(edm::Run const&r, edm::EventSetup const & es){
   if(tsFromDB_ && paramTS) {
     delete paramTS;
-    paramTS = 0;
+    paramTS = nullptr;
     reco_.endRun();
   }
 }
@@ -142,13 +118,8 @@ void HcalSimpleReconstructor::process(edm::Event& e, const edm::EventSetup& even
 
 void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {
-  // HACK related to HB- corrections
-  if(e.isRealData()) reco_.setForData(e.run());
- 
   if (det_==DetId::Hcal) {
-    if ((subdet_==HcalBarrel || subdet_==HcalEndcap)) {
-      process<HBHEDigiCollection, HBHERecHitCollection>(e, eventSetup, tok_hbhe_);
-    } else if (subdet_==HcalForward) {
+    if (subdet_==HcalForward) {
       process<HFDigiCollection, HFRecHitCollection>(e, eventSetup, tok_hf_);
     } else if (subdet_==HcalOuter) {
       process<HODigiCollection, HORecHitCollection>(e, eventSetup, tok_ho_);
@@ -156,4 +127,35 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
       process<HcalCalibDigiCollection, HcalCalibRecHitCollection>(e, eventSetup, tok_calib_);
     }
   } 
+}
+
+void
+HcalSimpleReconstructor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+
+  // horeco
+  edm::ParameterSetDescription descHO;
+  descHO.add<double>("correctionPhaseNS", 13.0);
+  descHO.add<edm::InputTag>("digiLabel", edm::InputTag("hcalDigis"));
+  descHO.add<bool>("tsFromDB", true);
+  descHO.add<int>("samplesToAdd", 4);
+  descHO.add<std::string>("Subdetector", "HO");
+  descHO.add<bool>("correctForTimeslew", true);
+  descHO.add<bool>("dropZSmarkedPassed", true);
+  descHO.add<bool>("correctForPhaseContainment", true);
+  descHO.add<int>("firstSample", 4);
+  descriptions.add("hosimplereco", descHO);
+
+  // hfreco
+  edm::ParameterSetDescription descHF;
+  descHF.add<double>("correctionPhaseNS", 0.0);
+  descHF.add<edm::InputTag>("digiLabel", edm::InputTag("hcalDigis"));
+  descHF.add<bool>("tsFromDB", true);
+  descHF.add<int>("samplesToAdd", 2);
+  descHF.add<std::string>("Subdetector", "HF");
+  descHF.add<bool>("correctForTimeslew", false);
+  descHF.add<bool>("dropZSmarkedPassed", true);
+  descHF.add<bool>("correctForPhaseContainment", false);
+  descHF.add<int>("firstSample", 4);
+  descriptions.add("hfsimplereco", descHF);
 }

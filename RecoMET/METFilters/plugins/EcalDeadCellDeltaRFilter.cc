@@ -97,14 +97,14 @@
 class EcalDeadCellDeltaRFilter : public edm::EDFilter {
 public:
   explicit EcalDeadCellDeltaRFilter(const edm::ParameterSet&);
-  ~EcalDeadCellDeltaRFilter();
+  ~EcalDeadCellDeltaRFilter() override;
 
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void beginJob() override;
-  virtual void endJob() override;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override;
+  void endJob() override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
   virtual void envSet(const edm::EventSetup&);
 
   // ----------member data ---------------------------
@@ -483,8 +483,8 @@ int EcalDeadCellDeltaRFilter::getChannelStatusMaps(){
 // refer https://twiki.cern.ch/twiki/bin/viewauth/CMS/EcalChannelStatus
         int status = ( chit != ecalStatus->end() ) ? chit->getStatusCode() & 0x1F : -1;
 
-        const CaloSubdetectorGeometry*  subGeom = geometry->getSubdetectorGeometry (detid);
-        const CaloCellGeometry*        cellGeom = subGeom->getGeometry (detid);
+	const CaloSubdetectorGeometry* subGeom = geometry->getSubdetectorGeometry (detid);
+        auto cellGeom = subGeom->getGeometry (detid);
         double eta = cellGeom->getPosition ().eta ();
         double phi = cellGeom->getPosition ().phi ();
         double theta = cellGeom->getPosition().theta();
@@ -510,8 +510,8 @@ int EcalDeadCellDeltaRFilter::getChannelStatusMaps(){
            EcalChannelStatus::const_iterator chit = ecalStatus->find( detid );
            int status = ( chit != ecalStatus->end() ) ? chit->getStatusCode() & 0x1F : -1;
 
-           const CaloSubdetectorGeometry*  subGeom = geometry->getSubdetectorGeometry (detid);
-           const CaloCellGeometry*        cellGeom = subGeom->getGeometry (detid);
+           const CaloSubdetectorGeometry* subGeom = geometry->getSubdetectorGeometry (detid);
+           auto cellGeom = subGeom->getGeometry (detid);
            double eta = cellGeom->getPosition ().eta () ;
            double phi = cellGeom->getPosition ().phi () ;
            double theta = cellGeom->getPosition().theta();

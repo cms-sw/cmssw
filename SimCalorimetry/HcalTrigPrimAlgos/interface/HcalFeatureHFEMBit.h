@@ -8,10 +8,10 @@
 class HcalFeatureHFEMBit : public HcalFeatureBit {
    public:
       HcalFeatureHFEMBit(double ShortMinE, double LongMinE, double ShortLongCutSlope, double ShortLongCutOffset, const HcalDbService& conditions);
-      ~HcalFeatureHFEMBit();
+      ~HcalFeatureHFEMBit() override;
 
       // Provides FG bit based on energy cuts in long & short fibers.
-      virtual bool fineGrainbit(
+      bool fineGrainbit(
             const QIE10DataFrame& short1,
             const QIE10DataFrame& short2,
             const QIE10DataFrame& long1,
@@ -21,7 +21,7 @@ class HcalFeatureHFEMBit : public HcalFeatureBit {
             bool validLong1,
             bool validLong2,
             int idx) const override;
-      virtual bool fineGrainbit(
+      bool fineGrainbit(
             const HFDataFrame& shortDigi,
             const HFDataFrame& longDigi,
             int idx) const override;
@@ -46,7 +46,7 @@ HcalFeatureHFEMBit::getE(const T& f, int idx) const
    CaloSamples samples;
    db.adc2fC(f, samples);
 
-   auto ped = calibrations.pedestal(f[idx].capid());
+   auto ped = calibrations.effpedestal(f[idx].capid());
    auto corr = calibrations.respcorrgain(f[idx].capid());
 
    return (samples[idx] - ped) * corr;

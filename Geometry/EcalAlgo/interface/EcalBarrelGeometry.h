@@ -47,12 +47,12 @@ class EcalBarrelGeometry final : public CaloSubdetectorGeometry
 
       static std::string dbString() { return "PEcalBarrelRcd" ; }
 
-      virtual unsigned int numberOfShapes() const { return k_NumberOfShapes ; }
-      virtual unsigned int numberOfParametersPerShape() const { return k_NumberOfParametersPerShape ; }
+      unsigned int numberOfShapes() const override { return k_NumberOfShapes ; }
+      unsigned int numberOfParametersPerShape() const override { return k_NumberOfParametersPerShape ; }
 
       EcalBarrelGeometry() ;
   
-      virtual ~EcalBarrelGeometry();
+      ~EcalBarrelGeometry() override;
 
       int getNumXtalsPhiDirection()           const { return _nnxtalPhi ; }
 
@@ -73,12 +73,13 @@ class EcalBarrelGeometry final : public CaloSubdetectorGeometry
       const OrderedListOfEEDetId* getClosestEndcapCells( EBDetId id ) const ;
 
       // Get closest cell, etc...
-      virtual DetId getClosestCell( const GlobalPoint& r ) const ;
 
-      virtual CaloSubdetectorGeometry::DetIdSet getCells( const GlobalPoint& r,
-							  double             dR ) const ;
+      DetId getClosestCell( const GlobalPoint& r ) const override ;
 
-      CCGFloat avgRadiusXYFrontFaceCenter() const ;
+      CaloSubdetectorGeometry::DetIdSet getCells( const GlobalPoint& r,
+							  double             dR ) const override ;
+
+      CCGFloat avgRadiusXYFrontFaceCenter() const;
 
       static std::string hitString() { return "EcalHitsEB" ; }
 
@@ -97,14 +98,18 @@ class EcalBarrelGeometry final : public CaloSubdetectorGeometry
 				unsigned int    i   ,
 				Pt3D&           ref   ) ;
 
-      virtual void newCell( const GlobalPoint& f1 ,
+      void newCell( const GlobalPoint& f1 ,
 			    const GlobalPoint& f2 ,
 			    const GlobalPoint& f3 ,
 			    const CCGFloat*    parm ,
-			    const DetId&       detId ) ;
+			    const DetId&       detId ) override ;
+
+      bool present( const DetId& id ) const override;
+
    protected:
 
-      virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const ;
+      // Modify the RawPtr class
+      const CaloCellGeometry* getGeometryRawPtr (uint32_t index) const override;
 
    private:
 

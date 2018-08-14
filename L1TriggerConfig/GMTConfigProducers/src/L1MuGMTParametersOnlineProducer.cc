@@ -127,7 +127,7 @@ void L1MuGMTParametersOnlineProducer::checkCMSSWVersion(const coral::AttributeLi
   /* PROJECT_VERSION is passed as a -D #define from scramv1 (eg CMSSW_2_1_0) */
   if(versionString != PROJECT_VERSION) { 
     std::string errMsg = "CMSSW version mismatch: Configuration requires " + 
-      versionString + ", but this is " PROJECT_VERSION "!";
+      versionString + ", but this is " + PROJECT_VERSION + "!";
    
     if(ignoreVersionMismatch_) { 
       edm::LogWarning(errMsg + " (will continue because ignoreVersionMismatch is set)");

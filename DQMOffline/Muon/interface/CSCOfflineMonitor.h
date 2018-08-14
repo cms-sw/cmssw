@@ -74,7 +74,7 @@ class CSCOfflineMonitor : public DQMEDAnalyzer {
 public:
 
   CSCOfflineMonitor(const edm::ParameterSet& pset);
-  virtual ~CSCOfflineMonitor() { };
+  ~CSCOfflineMonitor() override { };
 
   enum LabelType {SMALL, EXTENDED};
   enum AxisType  {X=1, Y=2, Z=3};
@@ -174,9 +174,13 @@ private:
   MonitorElement *hSGlobalTheta;
   MonitorElement *hSGlobalPhi;
   MonitorElement *hSTimeDiff;
+  std::vector<MonitorElement*> hSTimeDiffByChamberType;
   MonitorElement *hSTimeAnode;
+  std::vector<MonitorElement*> hSTimeAnodeByChamberType;
   MonitorElement *hSTimeCathode;
+  std::vector<MonitorElement*> hSTimeCathodeByChamberType;
   MonitorElement *hSTimeCombined;
+  std::vector<MonitorElement*> hSTimeCombinedByChamberType;
   MonitorElement *hSTimeDiffSerial;
   MonitorElement *hSTimeAnodeSerial;
   MonitorElement *hSTimeCathodeSerial;

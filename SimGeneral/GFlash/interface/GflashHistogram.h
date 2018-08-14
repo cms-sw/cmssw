@@ -20,7 +20,7 @@ class GflashHistogram : public TObject {
   static GflashHistogram* instance();
   
   GflashHistogram();
-  ~GflashHistogram();
+  ~GflashHistogram() override;
 
   void bookHistogram(std::string histFileName="gflash_histogram.root");
   void setStoreFlag(bool flag) { theStoreFlag = flag; }

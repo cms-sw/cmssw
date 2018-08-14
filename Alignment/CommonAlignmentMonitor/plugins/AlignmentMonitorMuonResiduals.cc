@@ -34,11 +34,11 @@
 class AlignmentMonitorMuonResiduals: public AlignmentMonitorBase {
    public:
       AlignmentMonitorMuonResiduals(const edm::ParameterSet& cfg);
-      ~AlignmentMonitorMuonResiduals() {};
+      ~AlignmentMonitorMuonResiduals() override {};
 
       void book() override;
       void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks) override;
-      void afterAlignment(const edm::EventSetup &iSetup) override;
+      void afterAlignment() override;
 
    private:
       std::map<int, int> m_numx;
@@ -198,14 +198,12 @@ void AlignmentMonitorMuonResiduals::book() {
    m_y_wy.clear();
    m_y_wyy.clear();
 
-   std::vector<Alignable*> chambers;
-   std::vector<Alignable*> tmp1 = pMuon()->DTChambers();
-   for (std::vector<Alignable*>::const_iterator iter = tmp1.begin();  iter != tmp1.end();  ++iter) chambers.push_back(*iter);
-   std::vector<Alignable*> tmp2 = pMuon()->CSCChambers();
-   for (std::vector<Alignable*>::const_iterator iter = tmp2.begin();  iter != tmp2.end();  ++iter) chambers.push_back(*iter);
+   align::Alignables chambers;
+   for (const auto& iter: pMuon()->DTChambers()) chambers.push_back(iter);
+   for (const auto& iter: pMuon()->CSCChambers()) chambers.push_back(iter);
 
-   for (std::vector<Alignable*>::const_iterator chamber = chambers.begin();  chamber != chambers.end();  ++chamber) {
-      int id = (*chamber)->geomDetId().rawId();
+   for (const auto& chamber: chambers) {
+      int id = chamber->geomDetId().rawId();
       m_numx[id] = 0;
       m_x_w[id] = 0;
       m_x_ww[id] = 0;
@@ -820,16 +818,14 @@ void AlignmentMonitorMuonResiduals::event(const edm::Event &iEvent, const edm::E
    } // end loop over track-trajectories
 }
 
-void AlignmentMonitorMuonResiduals::afterAlignment(const edm::EventSetup &iSetup) {
-   std::vector<Alignable*> chambers;
-   std::vector<Alignable*> tmp1 = pMuon()->DTChambers();
-   for (std::vector<Alignable*>::const_iterator iter = tmp1.begin();  iter != tmp1.end();  ++iter) chambers.push_back(*iter);
-   std::vector<Alignable*> tmp2 = pMuon()->CSCChambers();
-   for (std::vector<Alignable*>::const_iterator iter = tmp2.begin();  iter != tmp2.end();  ++iter) chambers.push_back(*iter);
+void AlignmentMonitorMuonResiduals::afterAlignment() {
+   align::Alignables chambers;
+   for (const auto& iter: pMuon()->DTChambers()) chambers.push_back(iter);
+   for (const auto& iter: pMuon()->CSCChambers()) chambers.push_back(iter);
 
    int index = 0;
-   for (std::vector<Alignable*>::const_iterator chamber = chambers.begin();  chamber != chambers.end();  ++chamber) {
-      const int id = (*chamber)->geomDetId().rawId();
+   for (const auto& chamber: chambers) {
+      const int id = chamber->geomDetId().rawId();
       
       m_chambers_rawid = id;
       m_chambers_numx = m_numx[id];
@@ -848,8 +844,8 @@ void AlignmentMonitorMuonResiduals::afterAlignment(const edm::EventSetup &iSetup
       m_sumnumy->SetBinContent(index, m_numy[id]);
 
       std::ostringstream name;
-      if ((*chamber)->geomDetId().subdetId() == MuonSubdetId::DT) {
-	 DTChamberId dtId((*chamber)->geomDetId());
+      if (chamber->geomDetId().subdetId() == MuonSubdetId::DT) {
+	 DTChamberId dtId(chamber->geomDetId());
 	 name << "MB" << dtId.wheel() << "/" << dtId.station() << " (" << dtId.sector() << ")";
 	 m_chambers_endcap = 0;
 	 m_chambers_wheel = dtId.wheel();
@@ -859,7 +855,7 @@ void AlignmentMonitorMuonResiduals::afterAlignment(const edm::EventSetup &iSetup
 	 m_chambers_chamber = 0;
       }
       else {
-	 CSCDetId cscId((*chamber)->geomDetId());
+	 CSCDetId cscId(chamber->geomDetId());
 	 name << "ME" << (cscId.endcap() == 1? "+": "-") << cscId.station() << "/" << cscId.ring() << " (" << cscId.chamber() << ")";
 	 m_chambers_endcap = cscId.endcap();
 	 m_chambers_wheel = 0;
@@ -884,9 +880,9 @@ void AlignmentMonitorMuonResiduals::afterAlignment(const edm::EventSetup &iSetup
 	 m_xsummary->SetBinError(index, xerronmean);
 
 	 m_xmean->Fill(xmean);  m_xstdev->Fill(xstdev);  m_xerronmean->Fill(xerronmean);
-	 if ((*chamber)->geomDetId().subdetId() == MuonSubdetId::DT) {
+	 if (chamber->geomDetId().subdetId() == MuonSubdetId::DT) {
 	    m_xmean_mb->Fill(xmean);  m_xstdev_mb->Fill(xstdev);  m_xerronmean_mb->Fill(xerronmean);
-	    DTChamberId id((*chamber)->geomDetId().rawId());
+	    DTChamberId id(chamber->geomDetId().rawId());
 	    if (id.station() == 1) {
 	       m_xmean_mb1->Fill(xmean);  m_xstdev_mb1->Fill(xstdev);  m_xerronmean_mb1->Fill(xerronmean);
 	    }
@@ -919,7 +915,7 @@ void AlignmentMonitorMuonResiduals::afterAlignment(const edm::EventSetup &iSetup
 	 else {
 	    m_xmean_me->Fill(xmean);  m_xstdev_me->Fill(xstdev);  m_xerronmean_me->Fill(xerronmean);
 
-	    CSCDetId id((*chamber)->geomDetId().rawId());
+	    CSCDetId id(chamber->geomDetId().rawId());
 
 	    if ((id.endcap() == 1? 1: -1)*id.station() == 1  &&  id.ring() == 1) {
 	       m_xmean_mep11->Fill(xmean);  m_xstdev_mep11->Fill(xstdev);  m_xerronmean_mep11->Fill(xerronmean);
@@ -1005,9 +1001,9 @@ void AlignmentMonitorMuonResiduals::afterAlignment(const edm::EventSetup &iSetup
 	 m_ysummary->SetBinError(index, yerronmean);
 
 	 m_ymean->Fill(ymean);  m_ystdev->Fill(ystdev);  m_yerronmean->Fill(yerronmean);
-	 if ((*chamber)->geomDetId().subdetId() == MuonSubdetId::DT) {
+	 if (chamber->geomDetId().subdetId() == MuonSubdetId::DT) {
 	    m_ymean_mb->Fill(ymean);  m_ystdev_mb->Fill(ystdev);  m_yerronmean_mb->Fill(yerronmean);
-	    DTChamberId id((*chamber)->geomDetId().rawId());
+	    DTChamberId id(chamber->geomDetId().rawId());
 	    if (id.station() == 1) {
 	       m_ymean_mb1->Fill(ymean);  m_ystdev_mb1->Fill(ystdev);  m_yerronmean_mb1->Fill(yerronmean);
 	    }
@@ -1040,7 +1036,7 @@ void AlignmentMonitorMuonResiduals::afterAlignment(const edm::EventSetup &iSetup
 	 else {
 	    m_ymean_me->Fill(ymean);  m_ystdev_me->Fill(ystdev);  m_yerronmean_me->Fill(yerronmean);
 
-	    CSCDetId id((*chamber)->geomDetId().rawId());
+	    CSCDetId id(chamber->geomDetId().rawId());
 
 	    if ((id.endcap() == 1? 1: -1)*id.station() == 1  &&  id.ring() == 1) {
 	       m_ymean_mep11->Fill(ymean);  m_ystdev_mep11->Fill(ystdev);  m_yerronmean_mep11->Fill(yerronmean);

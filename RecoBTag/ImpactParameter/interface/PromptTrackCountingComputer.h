@@ -40,7 +40,7 @@ class PromptTrackCountingComputer : public JetTagComputer
      uses("ipTagInfos");
   }
   
-  float discriminator(const TagInfoHelper & ti) const 
+  float discriminator(const TagInfoHelper & ti) const override 
    {
      const reco::TrackIPTagInfo & tkip = ti.get<reco::TrackIPTagInfo>();
      std::multiset<float> significances = orderedSignificances(tkip);

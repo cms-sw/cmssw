@@ -45,7 +45,10 @@
 #include <vector>
 
 #define DEBUG
-EcalTBWeightUncalibRecHitProducer::EcalTBWeightUncalibRecHitProducer(const edm::ParameterSet& ps) {
+EcalTBWeightUncalibRecHitProducer::EcalTBWeightUncalibRecHitProducer(const edm::ParameterSet& ps):
+testbeamEEShape(EEShape(false)), // Shapes have been updated in 2018 such as to be able to fetch shape from the DB if EBShape(true)//EEShape(true) are used
+testbeamEBShape(EBShape(false))  // use false as argument if you would rather prefer to use Phase I hardcoded shapes (18.05.2018 K. Theofilatos)
+{
 
    EBdigiCollection_ = ps.getParameter<edm::InputTag>("EBdigiCollection");
    EEdigiCollection_ = ps.getParameter<edm::InputTag>("EEdigiCollection");
@@ -62,13 +65,14 @@ EcalTBWeightUncalibRecHitProducer::~EcalTBWeightUncalibRecHitProducer() {
 }
 
 void
-EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
+EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
+{
 
    using namespace edm;
    
    Handle< EBDigiCollection > pEBDigis;
-   const EBDigiCollection* EBdigis =0;
-   if (EBdigiCollection_.label() != "" || EBdigiCollection_.instance() != "")
+   const EBDigiCollection* EBdigis =nullptr;
+   if (!EBdigiCollection_.label().empty() || !EBdigiCollection_.instance().empty())
      {
        //     evt.getByLabel( digiProducer_, EBdigiCollection_, pEBDigis);
        evt.getByLabel( EBdigiCollection_, pEBDigis);
@@ -83,9 +87,9 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
      }
 
    Handle< EEDigiCollection > pEEDigis;
-   const EEDigiCollection* EEdigis =0;
+   const EEDigiCollection* EEdigis =nullptr;
 
-   if (EEdigiCollection_.label() != "" || EEdigiCollection_.instance() != "")
+   if (!EEdigiCollection_.label().empty() || !EEdigiCollection_.instance().empty())
      {
        //     evt.getByLabel( digiProducer_, EEdigiCollection_, pEEDigis);
        evt.getByLabel( EEdigiCollection_, pEEDigis);
@@ -105,7 +109,7 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
      return;
 
    Handle< EcalTBTDCRecInfo > pRecTDC;
-   const EcalTBTDCRecInfo* recTDC =0;
+   const EcalTBTDCRecInfo* recTDC =nullptr;
 
    //     evt.getByLabel( digiProducer_, EBdigiCollection_, pEBDigis);
    evt.getByLabel( tdcRecInfoCollection_, pRecTDC);
@@ -454,7 +458,7 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
 	 //chi2mat[1]=&mat4;
 
 	 EcalUncalibratedRecHit aHit =
-	   EEalgo_.makeRecHit(itdg, pedVec, pedRMSVec, gainRatios, weights, testbeamEEShape);
+	   EEalgo_.makeRecHit(itdg, pedVec, pedRMSVec, gainRatios, weights, testbeamEEShape); 
 	   //EEalgo_.makeRecHit(itdg, pedVec, gainRatios, weights, chi2mat);
 	 EEuncalibRechits->push_back( aHit );
 #ifdef DEBUG

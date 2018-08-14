@@ -4,6 +4,7 @@
 #2-kill them
 #3-report their results using cmsScimarkParser.py
 
+from __future__ import print_function
 import subprocess,os,sys
 
 def main():
@@ -19,24 +20,24 @@ def main():
             PID=tokens[1]
             #Look up the cpu core
             core=tokens[9]
-            print "Found process:\n%s"%line[:-1] #to eliminate the extra \n
+            print("Found process:\n%s"%line[:-1]) #to eliminate the extra \n
             #Kill the PID
-            print "Killing process with PID %s"%PID
+            print("Killing process with PID %s"%PID)
             kill_stdouterr=subprocess.Popen("kill %s"%PID,shell=True,stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.read() 
-            print kill_stdouterr
+            print(kill_stdouterr)
             #Harvest the cmsScimark scores
             #Look for the cmsScimark log:
             if os.path.exists("cmsScimark_%s.log"%core): 
                 #Create the results dir
                 mkdir_stdouterr=subprocess.Popen("mkdir cmsScimarkResults_cpu%s"%core,shell=True,stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.read()
-                print mkdir_stdouterr
+                print(mkdir_stdouterr)
                 #Execute the harvesting scrip cmsScimarkParser.py (it is in the release)
                 harvest_stdouterr=subprocess.Popen("cmsScimarkParser.py -i cmsScimark_%s.log -o cmsScimarkResults_cpu%s"%(core,core),shell=True,stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.read()
-                print harvest_stdouterr
+                print(harvest_stdouterr)
             else:
-                print "No cmsScimark_%s.log file was found for cpu%s, log might be in another directory!"%(core,core)
+                print("No cmsScimark_%s.log file was found for cpu%s, log might be in another directory!"%(core,core))
     else:
-        print "No cmsScimarkLaunch processes found in the ps -ef output"
+        print("No cmsScimarkLaunch processes found in the ps -ef output")
     return 0
 
 if __name__ == "__main__":

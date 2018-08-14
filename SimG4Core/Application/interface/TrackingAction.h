@@ -18,10 +18,10 @@ class TrackingAction : public G4UserTrackingAction
 public:
     explicit TrackingAction(EventAction * ea, const edm::ParameterSet & ps, 
                             CMSSteppingVerbose*);
-    virtual ~TrackingAction();
+    ~TrackingAction() override;
 
-    virtual void PreUserTrackingAction(const G4Track * aTrack);
-    virtual void PostUserTrackingAction(const G4Track * aTrack);
+    void PreUserTrackingAction(const G4Track * aTrack) override;
+    void PostUserTrackingAction(const G4Track * aTrack) override;
 
     inline TrackWithHistory* currentTrackWithHistory() { return currentTrack_; }
     inline const G4Track* geant4Track() const { return g4Track_; }

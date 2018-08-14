@@ -60,10 +60,10 @@ class HcalDigisValidation : public DQMEDAnalyzer {
 public:
     explicit HcalDigisValidation(const edm::ParameterSet&);
 
-    ~HcalDigisValidation(); 
+    ~HcalDigisValidation() override; 
 
-    virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
-    virtual void dqmBeginRun(const edm::Run& run, const edm::EventSetup& c);
+    void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+    void dqmBeginRun(const edm::Run& run, const edm::EventSetup& c) override;
 
 private:
 
@@ -77,7 +77,7 @@ private:
         double max;
     };
 
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     std::map<std::string, MonitorElement*> *msm_;
 
@@ -120,6 +120,10 @@ private:
     std::string mc_;
     int noise_;
     bool testNumber_;
+    bool hep17_;
+    bool HEPhase1_;
+    bool HBPhase1_;
+    bool Plot_TP_ver_;
 
     edm::EDGetTokenT<edm::PCaloHitContainer> tok_mc_;
     edm::EDGetTokenT< HBHEDigiCollection > tok_hbhe_; 

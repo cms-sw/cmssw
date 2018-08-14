@@ -19,8 +19,8 @@ public:
 
 private:
   // --- no copying:
-  AbstractMLscribe(AbstractMLscribe const &);
-  void  operator = (AbstractMLscribe const &);
+  AbstractMLscribe(AbstractMLscribe const &) = delete;
+  void  operator = (AbstractMLscribe const &) = delete;
 
 };  // AbstractMLscribe
 

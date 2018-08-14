@@ -14,7 +14,7 @@
 
 #include <iostream>
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 HGCalTBMB::HGCalTBMB(const edm::ParameterSet& p) {
   
@@ -65,7 +65,7 @@ void HGCalTBMB::update(const BeginOfTrack* trk) {
   intLen_  = std::vector<double>(nList_+1,0);
   stepLen_ = std::vector<double>(nList_+1,0);
 
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   const G4Track *   aTrack = (*trk)(); // recover G4 pointer if wanted
   const G4ThreeVector& mom = aTrack->GetMomentum() ;
   double         theEnergy = aTrack->GetTotalEnergy();
@@ -94,7 +94,7 @@ void HGCalTBMB::update(const G4Step* aStep) {
   stepLen_[nList_] += step;
   radLen_[nList_]  += (step/radl);
   intLen_[nList_]  += (step/intl);
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "HGCalTBMB::Step in "
 	    << touch->GetVolume(0)->GetLogicalVolume()->GetName()
 	    << " Index " << indx <<" Step " << step << " RadL " << step/radl
@@ -113,7 +113,7 @@ void HGCalTBMB::update(const EndOfTrack* trk) {
     me100_[ii]->Fill(radLen_[ii]);
     me200_[ii]->Fill(intLen_[ii]);
     me300_[ii]->Fill(stepLen_[ii]);
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     std::string name("Total");
     if (ii < nList_) name = listNames_[ii];
     std::cout << "HGCalTBMB::Volume[" << ii << "]: " << name  << " == Step "
@@ -128,12 +128,12 @@ bool HGCalTBMB::stopAfter(const G4Step* aStep) {
   bool   flag(false);
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   G4ThreeVector hitPoint    = aStep->GetPreStepPoint()->GetPosition();
-  if (aStep->GetPostStepPoint() != 0) 
+  if (aStep->GetPostStepPoint() != nullptr) 
     hitPoint = aStep->GetPostStepPoint()->GetPosition();
   double zz    = hitPoint.z();
 
   if ((findVolume(touch,true) == 0) || (zz > stopZ_)) flag = true;
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << " HGCalTBMB::Name " << touch->GetVolume(0)->GetName() << " z "
 	    << zz << " Flag" << flag << std::endl;
 #endif

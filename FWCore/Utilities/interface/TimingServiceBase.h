@@ -36,16 +36,21 @@ namespace edm {
     ///Extra CPU time used by a job but not seen by cmsRun
     /// The value should be in seconds.
     /// This function is safe to call from multiple threads
-    virtual void addToCPUTime(StreamID id, double iTime) = 0;
+    virtual void addToCPUTime(double iTime) = 0;
 
     ///CPU time used by this process and all its children.
     /// The value returned should be in seconds.
     virtual double getTotalCPU() const = 0;
 
+    static void jobStarted();
+    
+    static double jobStartTime() { return s_jobStartTime; }
   private:
     TimingServiceBase(const TimingServiceBase&) =delete; // stop default
     
     const TimingServiceBase& operator=(const TimingServiceBase&) =delete; // stop default
+    
+    static double s_jobStartTime;
   };
 }
 

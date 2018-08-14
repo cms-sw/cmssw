@@ -27,7 +27,7 @@ class EwkMuTauHistManager;
 class EwkTauDQM : public DQMEDAnalyzer {
  public:
   EwkTauDQM(const edm::ParameterSet&);
-  ~EwkTauDQM();
+  ~EwkTauDQM() override;
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&,
                       edm::EventSetup const&) override;

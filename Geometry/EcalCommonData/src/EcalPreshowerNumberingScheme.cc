@@ -119,7 +119,7 @@ uint32_t EcalPreshowerNumberingScheme::getUnitID(const EcalBaseNumber& baseNumbe
 
     int x=0,y=0,ix,iy,id;
     int mapX[10] ={0,0,0,0,0,0,0,0,0,0};  int mapY[10] ={0,0,0,0,0,0,0,0,0,0};
-    std::string ladd = baseNumber.getLevelName(3);
+    const std::string& ladd = baseNumber.getLevelName(3);
     int ladd_copy = baseNumber.getCopyNumber(3);
     
     if(ladd=="SFLX0a" || ladd=="SFLY0a" ) { 

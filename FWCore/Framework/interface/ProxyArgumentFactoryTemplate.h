@@ -41,11 +41,11 @@ class ProxyArgumentFactoryTemplate : public ProxyFactoryBase
       //virtual ~ProxyArgumentFactoryTemplate()
 
       // ---------- const member functions ---------------------
-      virtual std::unique_ptr<DataProxy> makeProxy() const {
+      std::unique_ptr<DataProxy> makeProxy() const override {
          return std::make_unique<T>(arg_);
       }
             
-      virtual DataKey makeKey(const std::string& iName) const {
+      DataKey makeKey(const std::string& iName) const override {
          return DataKey(DataKey::makeTypeTag< typename T::value_type>(),iName.c_str());
       }
       
@@ -54,9 +54,9 @@ class ProxyArgumentFactoryTemplate : public ProxyFactoryBase
       // ---------- member functions ---------------------------
 
    private:
-      ProxyArgumentFactoryTemplate(const ProxyArgumentFactoryTemplate&); // stop default
+      ProxyArgumentFactoryTemplate(const ProxyArgumentFactoryTemplate&) = delete; // stop default
 
-      const ProxyArgumentFactoryTemplate& operator=(const ProxyArgumentFactoryTemplate&); // stop default
+      const ProxyArgumentFactoryTemplate& operator=(const ProxyArgumentFactoryTemplate&) = delete; // stop default
 
       // ---------- member data --------------------------------
       mutable ArgT arg_;

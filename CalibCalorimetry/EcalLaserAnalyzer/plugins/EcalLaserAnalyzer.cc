@@ -158,7 +158,7 @@ pnID(-1), moduleID(-1), channelIteratorEE(0)
 
   // PN linearity corrector
 
-  pnCorrector = new TPNCor(pncorfile_.c_str());
+  pnCorrector = new TPNCor(pncorfile_);
 
 
   // Objects dealing with pulses
@@ -262,13 +262,13 @@ void EcalLaserAnalyzer::beginJob() {
     test = fopen(alphainitfile.c_str(),"r"); 
   else 
     test = fopen(alphafile.c_str(),"r"); 
-  if(test == NULL) {
+  if(test == nullptr) {
     doesABTreeExist=false;
     _fitab=true;
   };
   delete test;
   
-  TFile *fAB=0; TTree *ABInit=0;
+  TFile *fAB=nullptr; TTree *ABInit=nullptr;
   if(doesABTreeExist){
     fAB=new TFile(nameabinitfile.str().c_str());
   }
@@ -314,7 +314,7 @@ void EcalLaserAnalyzer:: analyze( const edm::Event & e, const  edm::EventSetup& 
   // retrieving DCC header
 
   edm::Handle<EcalRawDataCollection> pDCCHeader;
-  const  EcalRawDataCollection* DCCHeader=0;
+  const  EcalRawDataCollection* DCCHeader=nullptr;
   try {
     e.getByLabel(eventHeaderProducer_,eventHeaderCollection_, pDCCHeader);
     DCCHeader=pDCCHeader.product();
@@ -326,9 +326,9 @@ void EcalLaserAnalyzer:: analyze( const edm::Event & e, const  edm::EventSetup& 
   //retrieving crystal data from Event
 
   edm::Handle<EBDigiCollection>  pEBDigi;
-  const  EBDigiCollection* EBDigi=0;
+  const  EBDigiCollection* EBDigi=nullptr;
   edm::Handle<EEDigiCollection>  pEEDigi;
-  const  EEDigiCollection* EEDigi=0;
+  const  EEDigiCollection* EEDigi=nullptr;
 
 
   if (_ecalPart == "EB") {
@@ -355,7 +355,7 @@ void EcalLaserAnalyzer:: analyze( const edm::Event & e, const  edm::EventSetup& 
   // retrieving crystal PN diodes from Event
   
   edm::Handle<EcalPnDiodeDigiCollection>  pPNDigi;
-  const  EcalPnDiodeDigiCollection* PNDigi=0;
+  const  EcalPnDiodeDigiCollection* PNDigi=nullptr;
   try {
     e.getByLabel(digiProducer_, pPNDigi);
     PNDigi=pPNDigi.product(); 
@@ -366,7 +366,7 @@ void EcalLaserAnalyzer:: analyze( const edm::Event & e, const  edm::EventSetup& 
   // retrieving electronics mapping
 
   edm::ESHandle< EcalElectronicsMapping > ecalmapping;
-  const EcalElectronicsMapping* TheMapping=0; 
+  const EcalElectronicsMapping* TheMapping=nullptr; 
   try{
     c.get< EcalMappingRcd >().get(ecalmapping);
     TheMapping = ecalmapping.product();
@@ -737,7 +737,7 @@ void EcalLaserAnalyzer::endJob() {
   if(_fitab){
     std::cout <<  "\n\t+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+" << std::endl;
     std::cout <<   "\t+=+     Analyzing data: getting (alpha, beta)     +=+" << std::endl;
-    TFile *fAB=0; TTree *ABInit=0;
+    TFile *fAB=nullptr; TTree *ABInit=nullptr;
     if(doesABTreeExist){
       fAB=new TFile(alphainitfile.c_str());
     }

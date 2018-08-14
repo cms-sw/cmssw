@@ -54,11 +54,14 @@
 #include "DataFormats/Alignment/interface/TkFittedLasBeam.h"
 #include "Alignment/LaserAlignment/interface/TsosVectorCollection.h"
 
-#include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
+#include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h>
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+
+#include "CondFormats/PCLConfig/interface/AlignPCLThresholds.h"
+#include "CondFormats/DataRecord/interface/AlignPCLThresholdsRcd.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 
@@ -68,7 +71,6 @@
 #include <sys/stat.h>
 
 #include <TMath.h>
-#include <TMatrixDSymEigen.h>
 typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
 typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
 typedef TrajectoryFactoryBase::ReferenceTrajectoryCollection RefTrajColl;
@@ -89,7 +91,7 @@ using namespace gbl;
 // Constructor ----------------------------------------------------------------
 //____________________________________________________
 MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet &cfg) :
-  AlignmentAlgorithmBase(cfg), 
+  AlignmentAlgorithmBase(cfg),
   theConfig(cfg),
   theMode(this->decodeMode(theConfig.getUntrackedParameter<std::string>("mode"))),
   theDir(theConfig.getUntrackedParameter<std::string>("fileDir")),
@@ -130,13 +132,13 @@ MillePedeAlignmentAlgorithm::~MillePedeAlignmentAlgorithm()
 
 // Call at beginning of job ---------------------------------------------------
 //____________________________________________________
-void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup, 
+void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
                                              AlignableTracker *tracker, AlignableMuon *muon, AlignableExtras *extras,
                                              AlignmentParameterStore *store)
 {
   if (muon) {
     edm::LogWarning("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
-				 << "Running with AlignabeMuon not yet tested.";
+                                 << "Running with AlignabeMuon not yet tested.";
   }
 
   if (!runAtPCL_ && enforceSingleIOVInput_) {
@@ -195,6 +197,15 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
   setup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
+  //Retrieve the thresolds cuts from DB for the PCL
+  if (runAtPCL_) {
+    edm::ESHandle<AlignPCLThresholds> thresholdHandle;
+    setup.get<AlignPCLThresholdsRcd>().get(thresholdHandle);
+    auto th = thresholdHandle.product();    
+    theThresholds = std::make_shared<AlignPCLThresholds>();
+    storeThresholds(th->getNrecords(),th->getThreshold_Map());
+  } 
+
   theAlignableNavigator = std::make_unique<AlignableNavigator>(extras, tracker, muon);
   theAlignmentParameterStore = store;
   theAlignables = theAlignmentParameterStore->alignables();
@@ -202,19 +213,19 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
   edm::ParameterSet pedeLabelerCfg(theConfig.getParameter<edm::ParameterSet>("pedeLabeler"));
   edm::VParameterSet RunRangeSelectionVPSet(theConfig.getUntrackedParameter<edm::VParameterSet>("RunRangeSelection"));
   pedeLabelerCfg.addUntrackedParameter<edm::VParameterSet>("RunRangeSelection",
-							   RunRangeSelectionVPSet);
+                                                           RunRangeSelectionVPSet);
 
   std::string labelerPlugin = "PedeLabeler";
-  if (RunRangeSelectionVPSet.size()>0) {
+  if (!RunRangeSelectionVPSet.empty()) {
     labelerPlugin = "RunRangeDependentPedeLabeler";
     if (pedeLabelerCfg.exists("plugin")) {
       std::string labelerPluginCfg = pedeLabelerCfg.getParameter<std::string>("plugin");
       if ((labelerPluginCfg!="PedeLabeler" && labelerPluginCfg!="RunRangeDependentPedeLabeler") ||
-	  pedeLabelerCfg.getUntrackedParameter<edm::VParameterSet>("parameterInstances").size()>0) {
-	throw cms::Exception("BadConfig")
-	  << "MillePedeAlignmentAlgorithm::initialize"
-	  << "both RunRangeSelection and generic labeler specified in config file. "
-	  << "Please get rid of either one of them.\n";
+          !pedeLabelerCfg.getUntrackedParameter<edm::VParameterSet>("parameterInstances").empty()) {
+        throw cms::Exception("BadConfig")
+          << "MillePedeAlignmentAlgorithm::initialize"
+          << "both RunRangeSelection and generic labeler specified in config file. "
+          << "Please get rid of either one of them.\n";
       }
     }
   } else {
@@ -222,56 +233,56 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
       labelerPlugin = pedeLabelerCfg.getParameter<std::string>("plugin");
     }
   }
-  
+
   if (!pedeLabelerCfg.exists("plugin")) {
     pedeLabelerCfg.addUntrackedParameter<std::string>("plugin", labelerPlugin);
   }
 
   edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
-			    << "Using plugin '" << labelerPlugin << "' to generate labels.";
-  
+                            << "Using plugin '" << labelerPlugin << "' to generate labels.";
+
   thePedeLabels = std::shared_ptr<PedeLabelerBase>(PedeLabelerPluginFactory::get()
                                                    ->create(labelerPlugin,
                                                             PedeLabelerBase::TopLevelAlignables(tracker, muon, extras),
                                                             pedeLabelerCfg));
-  
+
   // 1) Create PedeSteerer: correct alignable positions for coordinate system selection
   edm::ParameterSet pedeSteerCfg(theConfig.getParameter<edm::ParameterSet>("pedeSteerer"));
   thePedeSteer = std::make_unique<PedeSteerer>(tracker, muon, extras,
                                                theAlignmentParameterStore, thePedeLabels.get(),
                                                pedeSteerCfg, theDir, !this->isMode(myPedeSteerBit));
-  
+
   // 2) If requested, directly read in and apply result of previous pede run,
   //    assuming that correction from 1) was also applied to create the result:
   const std::vector<edm::ParameterSet> mprespset
     (theConfig.getParameter<std::vector<edm::ParameterSet> >("pedeReaderInputs"));
   if (!mprespset.empty()) {
     edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
-			      << "Apply " << mprespset.end() - mprespset.begin()
-			      << " previous MillePede constants from 'pedeReaderInputs'.";
+                              << "Apply " << mprespset.end() - mprespset.begin()
+                              << " previous MillePede constants from 'pedeReaderInputs'.";
   }
 
   // FIXME: add selection of run range via 'pedeReaderInputs'
-  // Note: Results for parameters of IntegratedCalibration's cannot be treated... 
+  // Note: Results for parameters of IntegratedCalibration's cannot be treated...
   RunRange runrange(cond::timeTypeSpecs[cond::runnumber].beginValue,
-		    cond::timeTypeSpecs[cond::runnumber].endValue);
+                    cond::timeTypeSpecs[cond::runnumber].endValue);
   for (std::vector<edm::ParameterSet>::const_iterator iSet = mprespset.begin(), iE = mprespset.end();
        iSet != iE; ++iSet) {
     // This read will ignore calibrations as long as they are not yet passed to Millepede
     // during/before initialize(..) - currently addCalibrations(..) is called later in AlignmentProducer
     if (!this->readFromPede((*iSet), false, runrange)) { // false: do not erase SelectionUserVariables
       throw cms::Exception("BadConfig")
-	<< "MillePedeAlignmentAlgorithm::initialize: Problems reading input constants of "
-	<< "pedeReaderInputs entry " << iSet - mprespset.begin() << '.';
+        << "MillePedeAlignmentAlgorithm::initialize: Problems reading input constants of "
+        << "pedeReaderInputs entry " << iSet - mprespset.begin() << '.';
     }
     theAlignmentParameterStore->applyParameters();
     // Needed to shut up later warning from checkAliParams:
     theAlignmentParameterStore->resetParameters();
   }
-  
+
   // 3) Now create steerings with 'final' start position:
   thePedeSteer->buildSubSteer(tracker, muon, extras);
-  
+
   // After (!) 1-3 of PedeSteerer which uses the SelectionUserVariables attached to the parameters:
   this->buildUserVariables(theAlignables); // for hit statistics and/or pede result
 
@@ -283,7 +294,7 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
         << "modes running mille.";
     }
     const std::string moniFile(theConfig.getUntrackedParameter<std::string>("monitorFile"));
-    if (moniFile.size()) theMonitor = std::make_unique<MillePedeMonitor>(tTopo, (theDir + moniFile).c_str());
+    if (!moniFile.empty()) theMonitor = std::make_unique<MillePedeMonitor>(tTopo, (theDir + moniFile).c_str());
 
     // Get trajectory factory. In case nothing found, FrameWork will throw...
     const edm::ParameterSet fctCfg(theConfig.getParameter<edm::ParameterSet>("TrajectoryFactory"));
@@ -313,6 +324,13 @@ bool MillePedeAlignmentAlgorithm::addCalibrations(const std::vector<IntegratedCa
   return true;
 }
 
+//____________________________________________________
+bool MillePedeAlignmentAlgorithm::storeThresholds(const int & nRecords,const AlignPCLThresholds::threshold_map & thresholdMap)
+{
+  theThresholds->setAlignPCLThresholds(nRecords,thresholdMap);
+  return true;
+}
+
 //_____________________________________________________________________________
 bool MillePedeAlignmentAlgorithm::processesEvents()
 {
@@ -326,10 +344,13 @@ bool MillePedeAlignmentAlgorithm::processesEvents()
 //_____________________________________________________________________________
 bool MillePedeAlignmentAlgorithm::storeAlignments()
 {
-  if (isMode(myPedeRunBit)) {
+  if (isMode(myPedeReadBit)) {
     if (runAtPCL_) {
+
       MillePedeFileReader mpReader(theConfig.getParameter<edm::ParameterSet>("MillePedeFileReader"),
-                                   thePedeLabels);
+				   thePedeLabels,
+				   theThresholds
+				   );
       mpReader.read();
       return mpReader.storeAlignments();
     } else {
@@ -355,7 +376,7 @@ bool MillePedeAlignmentAlgorithm::setParametersForRunRange(const RunRange &runra
     theAlignmentParameterStore->resetParameters();
     // To avoid that they keep values from previous IOV if no new one in pede result
     this->buildUserVariables(theAlignables);
-    
+
     if (!this->readFromPede(theConfig.getParameter<edm::ParameterSet>("pedeReader"), true, runrange)) {
       edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::setParametersForRunRange"
                                  << "Problems reading pede result, but applying!";
@@ -364,7 +385,7 @@ bool MillePedeAlignmentAlgorithm::setParametersForRunRange(const RunRange &runra
 
     this->doIO(++theLastWrittenIov); // pre-increment!
   }
-  
+
   return true;
 }
 
@@ -433,7 +454,7 @@ void MillePedeAlignmentAlgorithm::terminate()
 std::vector<std::string> MillePedeAlignmentAlgorithm::getExistingFormattedFiles(const std::vector<std::string>& plainFiles, const std::string& theDir) {
   std::vector<std::string> files;
   for (const auto& plainFile: plainFiles) {
-    std::string theInputFileName = plainFile;
+    const std::string& theInputFileName = plainFile;
     int theNumber = 0;
     while (true) {
       // Create a formatted version of the filename, with growing numbers
@@ -461,9 +482,9 @@ std::vector<std::string> MillePedeAlignmentAlgorithm::getExistingFormattedFiles(
       }
     }
     // warning if unformatted (-> theNumber stays at 0) does not exist
-    if (theNumber == 0 && (files.size() == 0 || files.back() != plainFile)) {
+    if (theNumber == 0 && (files.empty() || files.back() != plainFile)) {
       edm::LogWarning("Alignment")
-	<< "The input file '" << plainFile << "' does not exist.";
+        << "The input file '" << plainFile << "' does not exist.";
     }
   }
   return files;
@@ -490,7 +511,7 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup, const EventI
   for (auto iRefTraj = trajectories.cbegin(), iRefTrajE = trajectories.cend();
        iRefTraj != iRefTrajE; ++iRefTraj, ++refTrajCount) {
 
-    RefTrajColl::value_type refTrajPtr = *iRefTraj; 
+    RefTrajColl::value_type refTrajPtr = *iRefTraj;
     if (theMonitor) theMonitor->fillRefTrajectory(refTrajPtr);
 
     const auto nHitXy = this->addReferenceTrajectory(setup, eventInfo, refTrajPtr);
@@ -499,8 +520,8 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup, const EventI
       // if trajectory used (i.e. some hits), fill monitoring
       const auto offset = tracksPerTraj*refTrajCount;
       for (unsigned int iTrack = 0; iTrack < tracksPerTraj; ++iTrack) {
-	theMonitor->fillUsedTrack(tracks[offset+iTrack].second,
-				  nHitXy.first, nHitXy.second);
+        theMonitor->fillUsedTrack(tracks[offset+iTrack].second,
+                                  nHitXy.first, nHitXy.second);
       }
     }
 
@@ -510,20 +531,20 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup, const EventI
 //____________________________________________________
 std::pair<unsigned int, unsigned int>
 MillePedeAlignmentAlgorithm::addReferenceTrajectory(const edm::EventSetup &setup,
-                                                    const EventInfo &eventInfo, 
-						    const RefTrajColl::value_type &refTrajPtr)
+                                                    const EventInfo &eventInfo,
+                                                    const RefTrajColl::value_type &refTrajPtr)
 {
   std::pair<unsigned int, unsigned int> hitResultXy(0,0);
   if (refTrajPtr->isValid()) {
-    
+
 
     // GblTrajectory?
-    if (refTrajPtr->gblInput().size() > 0) {
+    if (!refTrajPtr->gblInput().empty()) {
       // by construction: number of GblPoints == number of recHits or == zero !!!
       unsigned int iHit = 0;
       unsigned int numPointsWithMeas = 0;
       std::vector<GblPoint>::iterator itPoint;
-      std::vector<std::pair<std::vector<GblPoint>, TMatrixD> > theGblInput = refTrajPtr->gblInput();
+      auto theGblInput = refTrajPtr->gblInput();
       for (unsigned int iTraj = 0; iTraj < refTrajPtr->gblInput().size(); ++iTraj) {
         for (itPoint = refTrajPtr->gblInput()[iTraj].first.begin(); itPoint < refTrajPtr->gblInput()[iTraj].first.end(); ++itPoint) {
           if (this->addGlobalData(setup, eventInfo, refTrajPtr, iHit++, *itPoint) < 0) return hitResultXy;
@@ -596,31 +617,31 @@ MillePedeAlignmentAlgorithm::addReferenceTrajectory(const edm::EventSetup &setup
 //____________________________________________________
 unsigned int
 MillePedeAlignmentAlgorithm::addHitCount(const std::vector<AlignmentParameters*> &parVec,
-					 const std::vector<bool> &validHitVecY) const
+                                         const std::vector<bool> &validHitVecY) const
 {
   // Loop on all hit information in the input arrays and count valid y-hits:
   unsigned int nHitY = 0;
   for (unsigned int iHit = 0; iHit < validHitVecY.size(); ++iHit) {
-    Alignable *ali = (parVec[iHit] ? parVec[iHit]->alignable() : 0);
-    // Loop upwards on hierarchy of alignables to add hits to all levels 
+    Alignable *ali = (parVec[iHit] ? parVec[iHit]->alignable() : nullptr);
+    // Loop upwards on hierarchy of alignables to add hits to all levels
     // that are currently aligned. If only a non-selected alignable was hit,
     // (i.e. flagXY == 0 in addReferenceTrajectory(..)), there is no loop at all...
     while (ali) {
       AlignmentParameters *pars = ali->alignmentParameters();
       if (pars) { // otherwise hierarchy level not selected
-	// cast ensured by previous checks:
-	MillePedeVariables *mpVar = static_cast<MillePedeVariables*>(pars->userVariables());
-	// every hit has an x-measurement, cf. addReferenceTrajectory(..):
-	mpVar->increaseHitsX();
-	if (validHitVecY[iHit]) {
-	  mpVar->increaseHitsY();
-	  if (pars == parVec[iHit]) ++nHitY; // do not count hits twice
-	}
+        // cast ensured by previous checks:
+        MillePedeVariables *mpVar = static_cast<MillePedeVariables*>(pars->userVariables());
+        // every hit has an x-measurement, cf. addReferenceTrajectory(..):
+        mpVar->increaseHitsX();
+        if (validHitVecY[iHit]) {
+          mpVar->increaseHitsY();
+          if (pars == parVec[iHit]) ++nHitY; // do not count hits twice
+        }
       }
       ali = ali->mother();
     }
   }
-  
+
   return nHitY;
 }
 
@@ -716,7 +737,7 @@ void MillePedeAlignmentAlgorithm::beginRun(const edm::Run& run,
 
 //____________________________________________________
 void MillePedeAlignmentAlgorithm::endRun(const EventInfo &eventInfo, const EndRunInfo &runInfo,
-					 const edm::EventSetup &setup)
+                                         const edm::EventSetup &setup)
 {
   if(runInfo.tkLasBeams() && runInfo.tkLasBeamTsoses()){
     // LAS beam treatment
@@ -747,16 +768,16 @@ void MillePedeAlignmentAlgorithm::endLuminosityBlock(const edm::EventSetup&)
 
 //____________________________________________________
 int MillePedeAlignmentAlgorithm::addMeasurementData(const edm::EventSetup &setup,
-                                                    const EventInfo &eventInfo, 
-						    const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
-						    unsigned int iHit,
-						    AlignmentParameters *&params)
+                                                    const EventInfo &eventInfo,
+                                                    const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
+                                                    unsigned int iHit,
+                                                    AlignmentParameters *&params)
 {
-  params = 0;
+  params = nullptr;
   theFloatBufferX.clear();
   theFloatBufferY.clear();
   theIntBuffer.clear();
- 
+
   const TrajectoryStateOnSurface &tsos = refTrajPtr->trajectoryStates()[iHit];
   const ConstRecHitPointer &recHitPtr = refTrajPtr->recHits()[iHit];
   // ignore invalid hits
@@ -769,10 +790,10 @@ int MillePedeAlignmentAlgorithm::addMeasurementData(const edm::EventSetup &setup
 
   // get AlignableDet/Unit for this hit
   AlignableDetOrUnitPtr alidet(theAlignableNavigator->alignableFromDetId(recHitPtr->geographicalId()));
-  
+
   if (!this->globalDerivativesHierarchy(eventInfo,
-					tsos, alidet, alidet, theFloatBufferX, // 2x alidet, sic!
-					theFloatBufferY, theIntBuffer, params)) {
+                                        tsos, alidet, alidet, theFloatBufferX, // 2x alidet, sic!
+                                        theFloatBufferY, theIntBuffer, params)) {
     return -1; // problem
   } else if (theFloatBufferX.empty() && ignoreHitsWithoutGlobalDerivatives_) {
      return 0; // empty for X: no alignable for hit, nor calibrations
@@ -789,7 +810,7 @@ int MillePedeAlignmentAlgorithm::addGlobalData(const edm::EventSetup &setup, con
                                                     const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
                                                     unsigned int iHit, GblPoint &gblPoint)
 {
-  AlignmentParameters* params = 0;
+  AlignmentParameters* params = nullptr;
   std::vector<double> theDoubleBufferX, theDoubleBufferY;
   theDoubleBufferX.clear();
   theDoubleBufferY.clear();
@@ -823,16 +844,16 @@ int MillePedeAlignmentAlgorithm::addGlobalData(const edm::EventSetup &setup, con
         theDoubleBufferX.push_back(iValuesInd->first.first);
         theDoubleBufferY.push_back(iValuesInd->first.second);
       } else {
-	edm::LogError("Alignment")
-	  << "@SUB=MillePedeAlignmentAlgorithm::addGlobalData"
-	  << "Invalid label " << globalLabel << " <= 0 or > 2147483647";
+        edm::LogError("Alignment")
+          << "@SUB=MillePedeAlignmentAlgorithm::addGlobalData"
+          << "Invalid label " << globalLabel << " <= 0 or > 2147483647";
       }
     }
   }
   unsigned int numGlobals = theIntBuffer.size();
   if (numGlobals > 0)
   {
-    TMatrixD globalDer(2,numGlobals);
+    Eigen::Matrix<double, 2, Eigen::Dynamic> globalDer{2, numGlobals};
     for (unsigned int i = 0; i < numGlobals; ++i) {
       globalDer(0,i) = theDoubleBufferX[i];
       globalDer(1,i) = theDoubleBufferY[i];
@@ -842,11 +863,11 @@ int MillePedeAlignmentAlgorithm::addGlobalData(const edm::EventSetup &setup, con
   }
   return iret;
 }
-  
+
 //____________________________________________________
 bool MillePedeAlignmentAlgorithm
 ::globalDerivativesHierarchy(const EventInfo &eventInfo,
-			     const TrajectoryStateOnSurface &tsos,
+                             const TrajectoryStateOnSurface &tsos,
                              Alignable *ali, const AlignableDetOrUnitPtr &alidet,
                              std::vector<float> &globalDerivativesX,
                              std::vector<float> &globalDerivativesY,
@@ -865,13 +886,13 @@ bool MillePedeAlignmentAlgorithm
 
     bool hasSplitParameters = thePedeLabels->hasSplitParameters(ali);
     const unsigned int alignableLabel = thePedeLabels->alignableLabel(ali);
-    
+
     if (0 == alignableLabel) { // FIXME: what about regardAllHits in Markus' code?
       edm::LogWarning("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::globalDerivativesHierarchy"
                                    << "Label not found, skip Alignable.";
       return false;
     }
-    
+
     const std::vector<bool> &selPars = params->selector();
     const AlgebraicMatrix derivs(params->derivatives(tsos, alidet));
 
@@ -879,14 +900,14 @@ bool MillePedeAlignmentAlgorithm
     for (unsigned int iSel = 0; iSel < selPars.size(); ++iSel) {
       if (selPars[iSel]) {
         globalDerivativesX.push_back(derivs[iSel][kLocalX]
-				     /thePedeSteer->cmsToPedeFactor(iSel));
-	if (hasSplitParameters==true) {
-	  globalLabels.push_back(thePedeLabels->parameterLabel(ali, iSel, eventInfo, tsos));
-	} else {
-	  globalLabels.push_back(thePedeLabels->parameterLabel(alignableLabel, iSel));
-	}
-	globalDerivativesY.push_back(derivs[iSel][kLocalY]
-				     /thePedeSteer->cmsToPedeFactor(iSel));
+                                     /thePedeSteer->cmsToPedeFactor(iSel));
+        if (hasSplitParameters==true) {
+          globalLabels.push_back(thePedeLabels->parameterLabel(ali, iSel, eventInfo, tsos));
+        } else {
+          globalLabels.push_back(thePedeLabels->parameterLabel(alignableLabel, iSel));
+        }
+        globalDerivativesY.push_back(derivs[iSel][kLocalY]
+                                     /thePedeSteer->cmsToPedeFactor(iSel));
       }
     }
     // Exclude mothers if Alignable selected to be no part of a hierarchy:
@@ -894,9 +915,9 @@ bool MillePedeAlignmentAlgorithm
   }
   // Call recursively for mother, will stop if mother == 0:
   return this->globalDerivativesHierarchy(eventInfo,
-					  tsos, ali->mother(), alidet,
+                                          tsos, ali->mother(), alidet,
                                           globalDerivativesX, globalDerivativesY,
-					  globalLabels, lowestParams);
+                                          globalLabels, lowestParams);
 }
 
 //____________________________________________________
@@ -945,9 +966,9 @@ bool MillePedeAlignmentAlgorithm
           globalDerivativesX.push_back(derivs[iSel][kLocalX] / thePedeSteer->cmsToPedeFactor(iSel));
           globalDerivativesY.push_back(derivs[iSel][kLocalY] / thePedeSteer->cmsToPedeFactor(iSel));
         } else {
-	  edm::LogError("Alignment")
-	    << "@SUB=MillePedeAlignmentAlgorithm::globalDerivativesHierarchy"
-	    << "Invalid label " << globalLabel << " <= 0 or > 2147483647";
+          edm::LogError("Alignment")
+            << "@SUB=MillePedeAlignmentAlgorithm::globalDerivativesHierarchy"
+            << "Invalid label " << globalLabel << " <= 0 or > 2147483647";
         }
       }
     }
@@ -960,7 +981,7 @@ bool MillePedeAlignmentAlgorithm
                                           globalDerivativesX, globalDerivativesY,
                                           globalLabels, lowestParams);
 }
-					  
+
 //____________________________________________________
 void MillePedeAlignmentAlgorithm::
 globalDerivativesCalibration(const TransientTrackingRecHit::ConstRecHitPointer &recHit,
@@ -975,7 +996,7 @@ globalDerivativesCalibration(const TransientTrackingRecHit::ConstRecHitPointer &
     // get all derivatives of this calibration // const unsigned int num =
     (*iCalib)->derivatives(derivs, *recHit, tsos, setup, eventInfo);
     for (auto iValuesInd = derivs.begin(); iValuesInd != derivs.end(); ++iValuesInd) {
-      // transfer label and x/y derivatives 
+      // transfer label and x/y derivatives
       globalLabels.push_back(thePedeLabels->calibrationLabel(*iCalib, iValuesInd->second));
       globalDerivativesX.push_back(iValuesInd->first.first);
       globalDerivativesY.push_back(iValuesInd->first.second);
@@ -1003,17 +1024,17 @@ globalDerivativesCalibration(const TransientTrackingRecHit::ConstRecHitPointer &
 //     localDerivs[i] = locDerivMatrix[xyIndex][i];
 //   }
 
-//   // &(vector[0]) is valid - as long as vector is not empty 
+//   // &(vector[0]) is valid - as long as vector is not empty
 //   // cf. http://www.parashift.com/c++-faq-lite/containers.html#faq-34.3
 //   theMille->mille(localDerivs.size(), &(localDerivs[0]),
-// 		  globalDerivatives.size(), &(globalDerivatives[0]), &(globalLabels[0]),
-// 		  residuum, sigma);
+//                globalDerivatives.size(), &(globalDerivatives[0]), &(globalLabels[0]),
+//                residuum, sigma);
 //   if (theMonitor) {
 //     theMonitor->fillDerivatives(refTrajPtr->recHits()[iTrajHit],localDerivs, globalDerivatives,
-// 				(xOrY == kLocalY));
+//                              (xOrY == kLocalY));
 //     theMonitor->fillResiduals(refTrajPtr->recHits()[iTrajHit],
-// 			      refTrajPtr->trajectoryStates()[iTrajHit],
-// 			      iTrajHit, residuum, sigma, (xOrY == kLocalY));
+//                            refTrajPtr->trajectoryStates()[iTrajHit],
+//                            iTrajHit, residuum, sigma, (xOrY == kLocalY));
 //   }
 // }
 
@@ -1024,7 +1045,7 @@ bool MillePedeAlignmentAlgorithm::is2D(const ConstRecHitPointer &recHit) const
 
   if (recHit->dimension() < 2) {
     return false; // some muon and TIB/TOB stuff really has RecHit1D
-  } else if (recHit->detUnit()) { // detunit in strip is 1D, in pixel 2D 
+  } else if (recHit->detUnit()) { // detunit in strip is 1D, in pixel 2D
     return recHit->detUnit()->type().isTrackerPixel();
   } else { // stereo strips  (FIXME: endcap trouble due to non-parallel strips (wedge sensors)?)
     if (dynamic_cast<const ProjectedSiStripRecHit2D*>(recHit->hit())) { // check persistent hit
@@ -1038,29 +1059,29 @@ bool MillePedeAlignmentAlgorithm::is2D(const ConstRecHitPointer &recHit) const
 
 //__________________________________________________________________________________________________
 bool MillePedeAlignmentAlgorithm::readFromPede(const edm::ParameterSet &mprespset, bool setUserVars,
-					       const RunRange &runrange)
+                                               const RunRange &runrange)
 {
   bool allEmpty = this->areEmptyParams(theAlignables);
 
   PedeReader reader(mprespset, *thePedeSteer, *thePedeLabels, runrange);
-  std::vector<Alignable*> alis;
+  align::Alignables alis;
   bool okRead = reader.read(alis, setUserVars); // also may set params of IntegratedCalibration's
   bool numMatch = true;
-  
+
   std::stringstream out;
   out << "Read " << alis.size() << " alignables";
   if (alis.size() != theAlignables.size()) {
     out << " while " << theAlignables.size() << " in store";
     numMatch = false; // FIXME: Should we check one by one? Or transfer 'alis' to the store?
   }
-  if (!okRead) out << ", but problems in reading"; 
+  if (!okRead) out << ", but problems in reading";
   if (!allEmpty) out << ", possibly overwriting previous settings";
   out << ".";
 
   if (okRead && allEmpty) {
     if (numMatch) { // as many alignables with result as trying to align
       edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::readFromPede" << out.str();
-    } else if (alis.size()) { // dead module do not get hits and no pede result
+    } else if (!alis.empty()) { // dead module do not get hits and no pede result
       edm::LogWarning("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::readFromPede" << out.str();
     } else { // serious problem: no result read - and not all modules can be dead...
       edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::readFromPede" << out.str();
@@ -1074,12 +1095,11 @@ bool MillePedeAlignmentAlgorithm::readFromPede(const edm::ParameterSet &mprespse
 }
 
 //__________________________________________________________________________________________________
-bool MillePedeAlignmentAlgorithm::areEmptyParams(const std::vector<Alignable*> &alignables) const
+bool MillePedeAlignmentAlgorithm::areEmptyParams(const align::Alignables& alignables) const
 {
-  
-  for (std::vector<Alignable*>::const_iterator iAli = alignables.begin();
-       iAli != alignables.end(); ++iAli) {
-    const AlignmentParameters *params = (*iAli)->alignmentParameters();
+
+  for (const auto& iAli: alignables) {
+    const AlignmentParameters *params = iAli->alignmentParameters();
     if (params) {
       const auto& parVec(params->parameters());
       const auto& parCov(params->covariance());
@@ -1091,7 +1111,7 @@ bool MillePedeAlignmentAlgorithm::areEmptyParams(const std::vector<Alignable*> &
       }
     }
   }
-  
+
   return true;
 }
 
@@ -1138,11 +1158,11 @@ unsigned int MillePedeAlignmentAlgorithm::doIO(int loop) const
                                << "Problem " << ioerr << " writing MillePedeVariables";
     ++result;
   }
-  
+
   aliIO.writeOrigRigidBodyAlignmentParameters(theAlignables, outFile.c_str(), loop, false, ioerr);
   if (ioerr) {
     edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::doIO" << "Problem " << ioerr
-			       << " in writeOrigRigidBodyAlignmentParameters, " << loop;
+                               << " in writeOrigRigidBodyAlignmentParameters, " << loop;
     ++result;
   }
   aliIO.writeAlignableAbsolutePositions(theAlignables, outFile.c_str(), loop, false, ioerr);
@@ -1156,25 +1176,26 @@ unsigned int MillePedeAlignmentAlgorithm::doIO(int loop) const
 }
 
 //__________________________________________________________________________________________________
-void MillePedeAlignmentAlgorithm::buildUserVariables(const std::vector<Alignable*> &alis) const
+void MillePedeAlignmentAlgorithm::buildUserVariables(const align::Alignables& alis) const
 {
-  for (std::vector<Alignable*>::const_iterator iAli = alis.begin(); iAli != alis.end(); ++iAli) {
-    AlignmentParameters *params = (*iAli)->alignmentParameters();
+  for (const auto& iAli: alis) {
+    AlignmentParameters *params = iAli->alignmentParameters();
     if (!params) {
       throw cms::Exception("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::buildUserVariables"
                                         << "No parameters for alignable";
     }
-    MillePedeVariables *userVars = dynamic_cast<MillePedeVariables*>(params->userVariables()); 
+    MillePedeVariables *userVars = dynamic_cast<MillePedeVariables*>(params->userVariables());
     if (userVars) { // Just re-use existing, keeping label and numHits:
       for (unsigned int iPar = 0; iPar < userVars->size(); ++iPar) {
-	//	if (params->hierarchyLevel() > 0) {
-	//std::cout << params->hierarchyLevel() << "\nBefore: " << userVars->parameter()[iPar];
-	//	}
-	userVars->setAllDefault(iPar);
-	//std::cout << "\nAfter: " << userVars->parameter()[iPar] << std::endl;
+        //      if (params->hierarchyLevel() > 0) {
+        //std::cout << params->hierarchyLevel() << "\nBefore: " << userVars->parameter()[iPar];
+        //      }
+        userVars->setAllDefault(iPar);
+        //std::cout << "\nAfter: " << userVars->parameter()[iPar] << std::endl;
       }
     } else { // Nothing yet or erase wrong type:
-      userVars = new MillePedeVariables(params->size(), thePedeLabels->alignableLabel(*iAli));
+      userVars = new MillePedeVariables(params->size(), thePedeLabels->alignableLabel(iAli),
+                                        thePedeLabels->alignableTracker()->objectIdProvider().typeToName(iAli->alignableObjectId()));
       params->setUserVariables(userVars);
     }
   }
@@ -1197,8 +1218,8 @@ unsigned int MillePedeAlignmentAlgorithm::decodeMode(const std::string &mode) co
     return myPedeReadBit;
   }
 
-  throw cms::Exception("BadConfig") 
-    << "Unknown mode '" << mode  
+  throw cms::Exception("BadConfig")
+    << "Unknown mode '" << mode
     << "', use 'full', 'mille', 'pede', 'pedeRun', 'pedeSteer' or 'pedeRead'.";
 
   return 0;
@@ -1213,17 +1234,17 @@ bool MillePedeAlignmentAlgorithm::addHitStatistics(int fromIov, const std::strin
   MillePedeVariablesIORoot millePedeIO;
   for (std::vector<std::string>::const_iterator iFile = inFiles.begin();
        iFile != inFiles.end(); ++iFile) {
-    const std::string inFile(theDir + *iFile); 
+    const std::string inFile(theDir + *iFile);
     const std::vector<AlignmentUserVariables*> mpVars =
       millePedeIO.readMillePedeVariables(theAlignables, inFile.c_str(), fromIov, ierr);
     if (ierr || !this->addHits(theAlignables, mpVars)) {
       edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::addHitStatistics"
-				 << "Error " << ierr << " reading from " << inFile 
-				 << ", tree " << fromIov << ", or problems in addHits";
+                                 << "Error " << ierr << " reading from " << inFile
+                                 << ", tree " << fromIov << ", or problems in addHits";
       allOk = false;
     }
     for (std::vector<AlignmentUserVariables*>::const_iterator i = mpVars.begin();
-	 i != mpVars.end(); ++i) {
+         i != mpVars.end(); ++i) {
       delete *i; // clean created objects
     }
   }
@@ -1232,16 +1253,15 @@ bool MillePedeAlignmentAlgorithm::addHitStatistics(int fromIov, const std::strin
 }
 
 //__________________________________________________________________________________________________
-bool MillePedeAlignmentAlgorithm::addHits(const std::vector<Alignable*> &alis,
+bool MillePedeAlignmentAlgorithm::addHits(const align::Alignables& alis,
                                           const std::vector<AlignmentUserVariables*> &mpVars) const
 {
   bool allOk = (mpVars.size() == alis.size());
   std::vector<AlignmentUserVariables*>::const_iterator iUser = mpVars.begin();
-  for (std::vector<Alignable*>::const_iterator iAli = alis.begin(); 
-       iAli != alis.end() && iUser != mpVars.end(); ++iAli, ++iUser) {
+  for (auto iAli = alis.cbegin(); iAli != alis.cend() && iUser != mpVars.end(); ++iAli, ++iUser) {
     MillePedeVariables *mpVarNew = dynamic_cast<MillePedeVariables*>(*iUser);
     AlignmentParameters *ps = (*iAli)->alignmentParameters();
-    MillePedeVariables *mpVarOld = (ps ? dynamic_cast<MillePedeVariables*>(ps->userVariables()) : 0);
+    MillePedeVariables *mpVarOld = (ps ? dynamic_cast<MillePedeVariables*>(ps->userVariables()) : nullptr);
     if (!mpVarNew || !mpVarOld || mpVarOld->size() != mpVarNew->size()) {
       allOk = false;
       continue; // FIXME error etc.?
@@ -1250,104 +1270,108 @@ bool MillePedeAlignmentAlgorithm::addHits(const std::vector<Alignable*> &alis,
     mpVarOld->increaseHitsX(mpVarNew->hitsX());
     mpVarOld->increaseHitsY(mpVarNew->hitsY());
   }
-  
+
   return allOk;
 }
 
 //__________________________________________________________________________________________________
+template <typename GlobalDerivativeMatrix>
 void MillePedeAlignmentAlgorithm::makeGlobDerivMatrix(const std::vector<float> &globalDerivativesx,
                                                       const std::vector<float> &globalDerivativesy,
-                                                      TMatrixF &aGlobalDerivativesM)
+                                                      Eigen::MatrixBase<GlobalDerivativeMatrix>& aGlobalDerivativesM)
 {
+  static_assert(GlobalDerivativeMatrix::RowsAtCompileTime == 2,
+                "global derivative matrix must have two rows");
 
-  for (unsigned int i = 0; i < globalDerivativesx.size(); ++i) {
+  for (size_t i = 0; i < globalDerivativesx.size(); ++i) {
     aGlobalDerivativesM(0,i) = globalDerivativesx[i];
-    aGlobalDerivativesM(1,i) = globalDerivativesy[i]; 
+    aGlobalDerivativesM(1,i) = globalDerivativesy[i];
   }
 }
 
 //__________________________________________________________________________________________________
+template <typename CovarianceMatrix,
+          typename LocalDerivativeMatrix,
+          typename ResidualMatrix,
+          typename GlobalDerivativeMatrix>
 void MillePedeAlignmentAlgorithm::diagonalize
-(TMatrixDSym &aHitCovarianceM, TMatrixF &aLocalDerivativesM, TMatrixF &aHitResidualsM,
- TMatrixF &aGlobalDerivativesM) const
+(Eigen::MatrixBase<CovarianceMatrix>& aHitCovarianceM,
+ Eigen::MatrixBase<LocalDerivativeMatrix>& aLocalDerivativesM,
+ Eigen::MatrixBase<ResidualMatrix>& aHitResidualsM,
+ Eigen::MatrixBase<GlobalDerivativeMatrix>& aGlobalDerivativesM) const
 {
-  TMatrixDSymEigen myDiag(aHitCovarianceM);
-  TMatrixD aTranfoToDiagonalSystem = myDiag.GetEigenVectors();
-  TMatrixD aTranfoToDiagonalSystemInv = myDiag.GetEigenVectors( );
-  TMatrixF aTranfoToDiagonalSystemInvF = myDiag.GetEigenVectors( );
-  TMatrixD aMatrix = aTranfoToDiagonalSystemInv.Invert() * aHitCovarianceM * aTranfoToDiagonalSystem;
-  // Tranformation of matrix M is done by A^T*M*A, not A^{-1}*M*A.
-  // But here A^T == A^{-1}, so we would only save CPU by Transpose()...
-  // FIXME this - I guess simply use T(), not Transpose()...
-  // TMatrixD aMatrix = aTranfoToDiagonalSystemInv.Transpose() * aHitCovarianceM
-  //    * aTranfoToDiagonalSystem;
-  aHitCovarianceM = TMatrixDSym(2, aMatrix.GetMatrixArray());
-  aTranfoToDiagonalSystemInvF.Invert();
-  //edm::LogInfo("Alignment") << "NEW HIT loca in matrix"<<aLocalDerivativesM(0,0);
-  aLocalDerivativesM = aTranfoToDiagonalSystemInvF * aLocalDerivativesM;
-  
-  //edm::LogInfo("Alignment") << "NEW HIT loca in matrix after diag:"<<aLocalDerivativesM(0,0);
-  aHitResidualsM      = aTranfoToDiagonalSystemInvF * aHitResidualsM;
-  if (aGlobalDerivativesM.GetNoElements() > 0) {
-    // diagnoalize only if measurement depends on alignables or calibrations
-    aGlobalDerivativesM = aTranfoToDiagonalSystemInvF * aGlobalDerivativesM;
+  static_assert(std::is_same<typename LocalDerivativeMatrix::Scalar,
+                             typename ResidualMatrix::Scalar>::value,
+                "'aLocalDerivativesM' and 'aHitResidualsM' must have the "
+                "same underlying scalar type");
+  static_assert(std::is_same<typename LocalDerivativeMatrix::Scalar,
+                             typename GlobalDerivativeMatrix::Scalar>::value,
+                "'aLocalDerivativesM' and 'aGlobalDerivativesM' must have the "
+                "same underlying scalar type");
+
+  Eigen::SelfAdjointEigenSolver<typename CovarianceMatrix::PlainObject> myDiag{aHitCovarianceM};
+  // eigenvectors of real symmetric matrices are orthogonal, i.e. invert == transpose
+  auto aTranfoToDiagonalSystemInv =
+    myDiag.eigenvectors().transpose().template cast<typename LocalDerivativeMatrix::Scalar>();
+
+  aHitCovarianceM    = myDiag.eigenvalues().asDiagonal();
+  aLocalDerivativesM = aTranfoToDiagonalSystemInv * aLocalDerivativesM;
+  aHitResidualsM     = aTranfoToDiagonalSystemInv * aHitResidualsM;
+  if (aGlobalDerivativesM.size() > 0) {
+    // diagonalize only if measurement depends on alignables or calibrations
+    aGlobalDerivativesM = aTranfoToDiagonalSystemInv * aGlobalDerivativesM;
   }
 }
 
 //__________________________________________________________________________________________________
+template <typename CovarianceMatrix,
+          typename ResidualMatrix,
+          typename LocalDerivativeMatrix>
 void MillePedeAlignmentAlgorithm
 ::addRefTrackVirtualMeas1D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
-			   unsigned int iVirtualMeas, TMatrixDSym &aHitCovarianceM,
-			   TMatrixF &aHitResidualsM, TMatrixF &aLocalDerivativesM)
+                           unsigned int iVirtualMeas,
+                           Eigen::MatrixBase<CovarianceMatrix>& aHitCovarianceM,
+                           Eigen::MatrixBase<ResidualMatrix>& aHitResidualsM,
+                           Eigen::MatrixBase<LocalDerivativeMatrix>& aLocalDerivativesM)
 {
   // This Method is valid for 1D measurements only
 
   const unsigned int xIndex = iVirtualMeas + refTrajPtr->numberOfHitMeas();
-  // Covariance into a TMatrixDSym
-  
-  //aHitCovarianceM = new TMatrixDSym(1);
+
   aHitCovarianceM(0,0)=refTrajPtr->measurementErrors()[xIndex][xIndex];
-  
-  //theHitResidualsM= new TMatrixF(1,1);
   aHitResidualsM(0,0)= refTrajPtr->measurements()[xIndex];
-  
-  // Local Derivatives into a TMatrixDSym (to use matrix operations)
-  const AlgebraicMatrix &locDerivMatrix = refTrajPtr->derivatives();
-  //  theLocalDerivativeNumber = locDerivMatrix.num_col();
-  
-  //theLocalDerivativesM = new TMatrixF(1,locDerivMatrix.num_col());
+
+  const auto& locDerivMatrix = refTrajPtr->derivatives();
   for (int i = 0; i < locDerivMatrix.num_col(); ++i) {
     aLocalDerivativesM(0,i) = locDerivMatrix[xIndex][i];
   }
 }
 
 //__________________________________________________________________________________________________
+template <typename CovarianceMatrix,
+          typename ResidualMatrix,
+          typename LocalDerivativeMatrix>
 void MillePedeAlignmentAlgorithm
 ::addRefTrackData2D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
-                    unsigned int iTrajHit, TMatrixDSym &aHitCovarianceM,
-                    TMatrixF &aHitResidualsM, TMatrixF &aLocalDerivativesM)
+                    unsigned int iTrajHit,
+                    Eigen::MatrixBase<CovarianceMatrix>& aHitCovarianceM,
+                    Eigen::MatrixBase<ResidualMatrix>& aHitResidualsM,
+                    Eigen::MatrixBase<LocalDerivativeMatrix>& aLocalDerivativesM)
 {
   // This Method is valid for 2D measurements only
-  
+
   const unsigned int xIndex = iTrajHit*2;
   const unsigned int yIndex = iTrajHit*2+1;
-  // Covariance into a TMatrixDSym
 
-  //aHitCovarianceM = new TMatrixDSym(2);
   aHitCovarianceM(0,0)=refTrajPtr->measurementErrors()[xIndex][xIndex];
   aHitCovarianceM(0,1)=refTrajPtr->measurementErrors()[xIndex][yIndex];
   aHitCovarianceM(1,0)=refTrajPtr->measurementErrors()[yIndex][xIndex];
   aHitCovarianceM(1,1)=refTrajPtr->measurementErrors()[yIndex][yIndex];
-  
-  //theHitResidualsM= new TMatrixF(2,1);
+
   aHitResidualsM(0,0)= refTrajPtr->measurements()[xIndex] - refTrajPtr->trajectoryPositions()[xIndex];
   aHitResidualsM(1,0)= refTrajPtr->measurements()[yIndex] - refTrajPtr->trajectoryPositions()[yIndex];
-  
-  // Local Derivatives into a TMatrixDSym (to use matrix operations)
-  const AlgebraicMatrix &locDerivMatrix = refTrajPtr->derivatives();
-  //  theLocalDerivativeNumber = locDerivMatrix.num_col();
-  
-  //theLocalDerivativesM = new TMatrixF(2,locDerivMatrix.num_col());
+
+  const auto& locDerivMatrix = refTrajPtr->derivatives();
   for (int i = 0; i < locDerivMatrix.num_col(); ++i) {
     aLocalDerivativesM(0,i) = locDerivMatrix[xIndex][i];
     aLocalDerivativesM(1,i) = locDerivMatrix[yIndex][i];
@@ -1357,17 +1381,17 @@ void MillePedeAlignmentAlgorithm
 //__________________________________________________________________________________________________
 int MillePedeAlignmentAlgorithm
 ::callMille(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
-	    unsigned int iTrajHit, const std::vector<int> &globalLabels,
-	    const std::vector<float> &globalDerivativesX,
-	    const std::vector<float> &globalDerivativesY)
-{    
+            unsigned int iTrajHit, const std::vector<int> &globalLabels,
+            const std::vector<float> &globalDerivativesX,
+            const std::vector<float> &globalDerivativesY)
+{
   const ConstRecHitPointer aRecHit(refTrajPtr->recHits()[iTrajHit]);
 
   if((aRecHit)->dimension() == 1) {
     return this->callMille1D(refTrajPtr, iTrajHit, globalLabels, globalDerivativesX);
   } else {
     return this->callMille2D(refTrajPtr, iTrajHit, globalLabels,
-			     globalDerivativesX, globalDerivativesY);
+                             globalDerivativesX, globalDerivativesY);
   }
 }
 
@@ -1399,13 +1423,13 @@ int MillePedeAlignmentAlgorithm
   // &(localDerivatives[0]) etc. are valid - as long as vector is not empty
   // cf. http://www.parashift.com/c++-faq-lite/containers.html#faq-34.3
   theMille->mille(nLocal, &(localDerivatives[0]), nGlobal, &(globalDerivativesX[0]),
-		  &(globalLabels[0]), residX, hitErrX);
+                  &(globalLabels[0]), residX, hitErrX);
 
   if (theMonitor) {
     theMonitor->fillDerivatives(aRecHit, &(localDerivatives[0]), nLocal,
-				&(globalDerivativesX[0]), nGlobal, &(globalLabels[0]));
+                                &(globalDerivativesX[0]), nGlobal, &(globalLabels[0]));
     theMonitor->fillResiduals(aRecHit, refTrajPtr->trajectoryStates()[iTrajHit],
-			      iTrajHit, residX, hitErrX, false);
+                              iTrajHit, residX, hitErrX, false);
   }
 
   return 1;
@@ -1419,25 +1443,27 @@ int MillePedeAlignmentAlgorithm
               const std::vector<float> &globalDerivativesy)
 {
   const ConstRecHitPointer aRecHit(refTrajPtr->recHits()[iTrajHit]);
-  
+
   if((aRecHit)->dimension() != 2) {
     edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::callMille2D"
-                               << "You try to call method for 2D hits for a " 
+                               << "You try to call method for 2D hits for a "
                                << (aRecHit)->dimension()
                                <<  "D Hit. Hit gets ignored!";
     return -1;
   }
 
-  TMatrixDSym aHitCovarianceM(2);
-  TMatrixF aHitResidualsM(2,1);
-  TMatrixF aLocalDerivativesM(2, refTrajPtr->derivatives().num_col());
+  Eigen::Matrix<double, 2, 2> aHitCovarianceM;
+  Eigen::Matrix<float, 2, 1> aHitResidualsM;
+  Eigen::Matrix<float, 2, Eigen::Dynamic>
+    aLocalDerivativesM{2, refTrajPtr->derivatives().num_col()};
   // below method fills above 3 matrices
   this->addRefTrackData2D(refTrajPtr, iTrajHit, aHitCovarianceM,aHitResidualsM,aLocalDerivativesM);
-  TMatrixF aGlobalDerivativesM(2,globalDerivativesx.size());
+  Eigen::Matrix<float, 2, Eigen::Dynamic>
+    aGlobalDerivativesM{2, globalDerivativesx.size()};
   this->makeGlobDerivMatrix(globalDerivativesx, globalDerivativesy, aGlobalDerivativesM);
- 
+
   // calculates correlation between Hit measurements
-  // FIXME: Should take correlation (and resulting transformation) from original hit, 
+  // FIXME: Should take correlation (and resulting transformation) from original hit,
   //        not 2x2 matrix from ReferenceTrajectory: That can come from error propagation etc.!
   const double corr = aHitCovarianceM(0,1) / sqrt(aHitCovarianceM(0,0) * aHitCovarianceM(1,1));
   if (theMonitor) theMonitor->fillCorrelations2D(corr, aRecHit);
@@ -1457,12 +1483,29 @@ int MillePedeAlignmentAlgorithm
   float newResidY = aHitResidualsM(1,0);
   float newHitErrX = TMath::Sqrt(aHitCovarianceM(0,0));
   float newHitErrY = TMath::Sqrt(aHitCovarianceM(1,1));
-  float *newLocalDerivsX = aLocalDerivativesM[0].GetPtr();
-  float *newLocalDerivsY = aLocalDerivativesM[1].GetPtr();
-  float *newGlobDerivsX  = aGlobalDerivativesM[0].GetPtr();
-  float *newGlobDerivsY  = aGlobalDerivativesM[1].GetPtr();
-  const int nLocal  = aLocalDerivativesM.GetNcols();
-  const int nGlobal = aGlobalDerivativesM.GetNcols();
+
+  // change from column major (Eigen default) to row major to have row entries
+  // in continuous memory
+  std::vector<float> newLocalDerivs(aLocalDerivativesM.size());
+  Eigen::Map<Eigen::Matrix<float, 2, Eigen::Dynamic, Eigen::RowMajor> >
+    (newLocalDerivs.data(),
+     aLocalDerivativesM.rows(),
+     aLocalDerivativesM.cols()) = aLocalDerivativesM;
+  float* newLocalDerivsX = &(newLocalDerivs[0]);
+  float* newLocalDerivsY = &(newLocalDerivs[aLocalDerivativesM.cols()]);
+
+  // change from column major (Eigen default) to row major to have row entries
+  // in continuous memory
+  std::vector<float> newGlobDerivs(aGlobalDerivativesM.size());
+  Eigen::Map<Eigen::Matrix<float, 2, Eigen::Dynamic, Eigen::RowMajor> >
+    (newGlobDerivs.data(),
+     aGlobalDerivativesM.rows(),
+     aGlobalDerivativesM.cols()) = aGlobalDerivativesM;
+  float* newGlobDerivsX = &(newGlobDerivs[0]);
+  float* newGlobDerivsY = &(newGlobDerivs[aGlobalDerivativesM.cols()]);
+
+  const int nLocal  = aLocalDerivativesM.cols();
+  const int nGlobal = aGlobalDerivativesM.cols();
 
   if (diag && (newHitErrX > newHitErrY)) { // also for 2D hits?
     // measurement with smaller error is x-measurement (for !is2D do not fill y-measurement):
@@ -1472,26 +1515,26 @@ int MillePedeAlignmentAlgorithm
     std::swap(newGlobDerivsX, newGlobDerivsY);
   }
 
-  // &(globalLabels[0]) is valid - as long as vector is not empty 
+  // &(globalLabels[0]) is valid - as long as vector is not empty
   // cf. http://www.parashift.com/c++-faq-lite/containers.html#faq-34.3
   theMille->mille(nLocal, newLocalDerivsX, nGlobal, newGlobDerivsX,
-		  &(globalLabels[0]), newResidX, newHitErrX);
+                  &(globalLabels[0]), newResidX, newHitErrX);
 
   if (theMonitor) {
-    theMonitor->fillDerivatives(aRecHit, newLocalDerivsX, nLocal, newGlobDerivsX, nGlobal,
-				&(globalLabels[0]));
+    theMonitor->fillDerivatives(aRecHit, newLocalDerivsX, nLocal, newGlobDerivsX,
+                                nGlobal, &(globalLabels[0]));
     theMonitor->fillResiduals(aRecHit, refTrajPtr->trajectoryStates()[iTrajHit],
-			      iTrajHit, newResidX, newHitErrX, false);
+                              iTrajHit, newResidX, newHitErrX, false);
   }
   const bool isReal2DHit = this->is2D(aRecHit); // strip is 1D (except matched hits)
   if (isReal2DHit) {
     theMille->mille(nLocal, newLocalDerivsY, nGlobal, newGlobDerivsY,
                     &(globalLabels[0]), newResidY, newHitErrY);
     if (theMonitor) {
-      theMonitor->fillDerivatives(aRecHit, newLocalDerivsY, nLocal, newGlobDerivsY, nGlobal,
-				  &(globalLabels[0]));
+      theMonitor->fillDerivatives(aRecHit, newLocalDerivsY, nLocal, newGlobDerivsY,
+                                  nGlobal, &(globalLabels[0]));
       theMonitor->fillResiduals(aRecHit, refTrajPtr->trajectoryStates()[iTrajHit],
-				iTrajHit, newResidY, newHitErrY, true);// true: y
+                                iTrajHit, newResidY, newHitErrY, true);// true: y
     }
   }
 
@@ -1502,55 +1545,65 @@ int MillePedeAlignmentAlgorithm
 void MillePedeAlignmentAlgorithm
 ::addVirtualMeas(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr, unsigned int iVirtualMeas)
 {
-  TMatrixDSym aHitCovarianceM(1);
-  TMatrixF aHitResidualsM(1,1);
-  TMatrixF aLocalDerivativesM(1, refTrajPtr->derivatives().num_col());
+  Eigen::Matrix<double, 1, 1> aHitCovarianceM;
+  Eigen::Matrix<float, 1, 1> aHitResidualsM;
+  Eigen::Matrix<float, 1, Eigen::Dynamic>
+    aLocalDerivativesM{1, refTrajPtr->derivatives().num_col()};
   // below method fills above 3 'matrices'
   this->addRefTrackVirtualMeas1D(refTrajPtr, iVirtualMeas, aHitCovarianceM, aHitResidualsM, aLocalDerivativesM);
-  
+
   // no global parameters (use dummy 0)
-  TMatrixF aGlobalDerivativesM(1,1);
-  aGlobalDerivativesM(0,0) = 0;
-      
-  float newResidX = aHitResidualsM(0,0);  
+  auto aGlobalDerivativesM = Eigen::Matrix<float, 1, 1>::Zero();
+
+  float newResidX = aHitResidualsM(0,0);
   float newHitErrX = TMath::Sqrt(aHitCovarianceM(0,0));
-  float *newLocalDerivsX = aLocalDerivativesM[0].GetPtr();
-  float *newGlobDerivsX  = aGlobalDerivativesM[0].GetPtr();
-  const int nLocal  = aLocalDerivativesM.GetNcols();
+  std::vector<float> newLocalDerivsX(aLocalDerivativesM.size());
+  Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> >
+    (newLocalDerivsX.data(),
+     aLocalDerivativesM.rows(),
+     aLocalDerivativesM.cols()) = aLocalDerivativesM;
+
+  std::vector<float> newGlobDerivsX(aGlobalDerivativesM.size());
+  Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> >
+    (newGlobDerivsX.data(),
+     aGlobalDerivativesM.rows(),
+     aGlobalDerivativesM.cols()) = aGlobalDerivativesM;
+
+  const int nLocal  = aLocalDerivativesM.cols();
   const int nGlobal = 0;
-  
-  theMille->mille(nLocal, newLocalDerivsX, nGlobal, newGlobDerivsX,
-		  &nGlobal, newResidX, newHitErrX);  
+
+  theMille->mille(nLocal, newLocalDerivsX.data(), nGlobal, newGlobDerivsX.data(),
+                  &nGlobal, newResidX, newHitErrX);
 }
 
 //____________________________________________________
-void MillePedeAlignmentAlgorithm::addLaserData(const EventInfo &eventInfo, 
-					       const TkFittedLasBeamCollection &lasBeams,
-					       const TsosVectorCollection &lasBeamTsoses)
+void MillePedeAlignmentAlgorithm::addLaserData(const EventInfo &eventInfo,
+                                               const TkFittedLasBeamCollection &lasBeams,
+                                               const TsosVectorCollection &lasBeamTsoses)
 {
   TsosVectorCollection::const_iterator iTsoses = lasBeamTsoses.begin();
   for(TkFittedLasBeamCollection::const_iterator iBeam = lasBeams.begin(), iEnd = lasBeams.end();
       iBeam != iEnd; ++iBeam, ++iTsoses){ // beam/tsoses parallel!
 
     edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::addLaserData"
-			      << "Beam " << iBeam->getBeamId() << " with " 
-			      << iBeam->parameters().size() << " parameters and " 
-			      << iBeam->getData().size() << " hits.\n There are " 
-			      << iTsoses->size() << " TSOSes.";
+                              << "Beam " << iBeam->getBeamId() << " with "
+                              << iBeam->parameters().size() << " parameters and "
+                              << iBeam->getData().size() << " hits.\n There are "
+                              << iTsoses->size() << " TSOSes.";
 
     this->addLasBeam(eventInfo, *iBeam, *iTsoses);
   }
 }
 
 //____________________________________________________
-void MillePedeAlignmentAlgorithm::addLasBeam(const EventInfo &eventInfo, 
-					     const TkFittedLasBeam &lasBeam,
-					     const std::vector<TrajectoryStateOnSurface> &tsoses)
+void MillePedeAlignmentAlgorithm::addLasBeam(const EventInfo &eventInfo,
+                                             const TkFittedLasBeam &lasBeam,
+                                             const std::vector<TrajectoryStateOnSurface> &tsoses)
 {
-  AlignmentParameters *dummyPtr = 0; // for globalDerivativesHierarchy()
+  AlignmentParameters *dummyPtr = nullptr; // for globalDerivativesHierarchy()
   std::vector<float> lasLocalDerivsX; // buffer for local derivatives
   const unsigned int beamLabel = thePedeLabels->lasBeamLabel(lasBeam.getBeamId());// for global par
-  
+
   for (unsigned int iHit = 0; iHit < tsoses.size(); ++iHit) {
     if (!tsoses[iHit].isValid()) continue;
     // clear buffer
@@ -1562,131 +1615,131 @@ void MillePedeAlignmentAlgorithm::addLasBeam(const EventInfo &eventInfo,
     const SiStripLaserRecHit2D &hit = lasBeam.getData()[iHit];
     AlignableDetOrUnitPtr lasAli(theAlignableNavigator->alignableFromDetId(hit.getDetId()));
     this->globalDerivativesHierarchy(eventInfo,
-				     tsoses[iHit], lasAli, lasAli, 
-				     theFloatBufferX, theFloatBufferY, theIntBuffer, dummyPtr);
+                                     tsoses[iHit], lasAli, lasAli,
+                                     theFloatBufferX, theFloatBufferY, theIntBuffer, dummyPtr);
     // fill derivatives vector from derivatives matrix
-    for (unsigned int nFitParams = 0; 
-	 nFitParams < static_cast<unsigned int>(lasBeam.parameters().size()); 
-	 ++nFitParams) {
+    for (unsigned int nFitParams = 0;
+         nFitParams < static_cast<unsigned int>(lasBeam.parameters().size());
+         ++nFitParams) {
       const float derivative = lasBeam.derivatives()[iHit][nFitParams];
       if (nFitParams < lasBeam.firstFixedParameter()) { // first local beam parameters
-	lasLocalDerivsX.push_back(derivative);
+        lasLocalDerivsX.push_back(derivative);
       } else {                                          // now global ones
-	const unsigned int numPar = nFitParams - lasBeam.firstFixedParameter();
-	theIntBuffer.push_back(thePedeLabels->parameterLabel(beamLabel, numPar));
-	theFloatBufferX.push_back(derivative);
+        const unsigned int numPar = nFitParams - lasBeam.firstFixedParameter();
+        theIntBuffer.push_back(thePedeLabels->parameterLabel(beamLabel, numPar));
+        theFloatBufferX.push_back(derivative);
       }
     } // end loop over parameters
 
     const float residual = hit.localPosition().x() - tsoses[iHit].localPosition().x();
     // error from file or assume 0.003
     const float error = 0.003; // hit.localPositionError().xx(); sqrt???
-    
+
     theMille->mille(lasLocalDerivsX.size(), &(lasLocalDerivsX[0]), theFloatBufferX.size(),
-		    &(theFloatBufferX[0]), &(theIntBuffer[0]), residual, error);
+                    &(theFloatBufferX[0]), &(theIntBuffer[0]), residual, error);
   } // end of loop over hits
-  
+
   theMille->end();
 }
 
 void MillePedeAlignmentAlgorithm::addPxbSurvey(const edm::ParameterSet &pxbSurveyCfg)
 {
-	// do some printing, if requested
-	const bool doOutputOnStdout(pxbSurveyCfg.getParameter<bool>("doOutputOnStdout"));
-	if (doOutputOnStdout) {
-	  edm::LogInfo("Alignment")
-	    << "@SUB=MillePedeAlignmentAlgorithm::addPxbSurvey"
-	    << "# Output from addPxbSurvey follows below because "
-	    << "doOutputOnStdout is set to True";
-	}
+        // do some printing, if requested
+        const bool doOutputOnStdout(pxbSurveyCfg.getParameter<bool>("doOutputOnStdout"));
+        if (doOutputOnStdout) {
+          edm::LogInfo("Alignment")
+            << "@SUB=MillePedeAlignmentAlgorithm::addPxbSurvey"
+            << "# Output from addPxbSurvey follows below because "
+            << "doOutputOnStdout is set to True";
+        }
 
-	// instantiate a dicer object
-	SurveyPxbDicer dicer(pxbSurveyCfg.getParameter<std::vector<edm::ParameterSet> >("toySurveyParameters"), pxbSurveyCfg.getParameter<unsigned int>("toySurveySeed"));
-	std::ofstream outfile(pxbSurveyCfg.getUntrackedParameter<std::string>("toySurveyFile").c_str());
+        // instantiate a dicer object
+        SurveyPxbDicer dicer(pxbSurveyCfg.getParameter<std::vector<edm::ParameterSet> >("toySurveyParameters"), pxbSurveyCfg.getParameter<unsigned int>("toySurveySeed"));
+        std::ofstream outfile(pxbSurveyCfg.getUntrackedParameter<std::string>("toySurveyFile").c_str());
 
-	// read data from file
-	std::vector<SurveyPxbImageLocalFit> measurements;
-	std::string filename(pxbSurveyCfg.getParameter<edm::FileInPath>("infile").fullPath());
-	SurveyPxbImageReader<SurveyPxbImageLocalFit> reader(filename, measurements, 800);
+        // read data from file
+        std::vector<SurveyPxbImageLocalFit> measurements;
+        std::string filename(pxbSurveyCfg.getParameter<edm::FileInPath>("infile").fullPath());
+        SurveyPxbImageReader<SurveyPxbImageLocalFit> reader(filename, measurements, 800);
 
-	// loop over photographs (=measurements) and perform the fit
-	for(std::vector<SurveyPxbImageLocalFit>::size_type i=0; i!=measurements.size(); i++)
-	{
+        // loop over photographs (=measurements) and perform the fit
+        for(std::vector<SurveyPxbImageLocalFit>::size_type i=0; i!=measurements.size(); i++)
+        {
                 if (doOutputOnStdout) {
                   edm::LogInfo("Alignment")
                     << "@SUB=MillePedeAlignmentAlgorithm::addPxbSurvey"
                     << "Module " << i << ": ";
                 }
 
-		// get the Alignables and their surfaces
-		AlignableDetOrUnitPtr mod1(theAlignableNavigator->alignableFromDetId(measurements[i].getIdFirst()));
-		AlignableDetOrUnitPtr mod2(theAlignableNavigator->alignableFromDetId(measurements[i].getIdSecond()));
-		const AlignableSurface& surf1 = mod1->surface();
-		const AlignableSurface& surf2 = mod2->surface();
-		
-		// the position of the fiducial points in local frame of a PXB module
-		const LocalPoint fidpoint0(-0.91,+3.30);
-		const LocalPoint fidpoint1(+0.91,+3.30);
-		const LocalPoint fidpoint2(+0.91,-3.30);
-		const LocalPoint fidpoint3(-0.91,-3.30);
-		
-		// We choose the local frame of the first module as reference,
-		// so take the fidpoints of the second module and calculate their
-		// positions in the reference frame
-		const GlobalPoint surf2point0(surf2.toGlobal(fidpoint0));
-		const GlobalPoint surf2point1(surf2.toGlobal(fidpoint1));
-		const LocalPoint fidpoint0inSurf1frame(surf1.toLocal(surf2point0));
-		const LocalPoint fidpoint1inSurf1frame(surf1.toLocal(surf2point1));
-		
-		// Create the vector for the fit
-		SurveyPxbImageLocalFit::fidpoint_t fidpointvec;
-		fidpointvec.push_back(fidpoint0inSurf1frame);
-		fidpointvec.push_back(fidpoint1inSurf1frame);
-		fidpointvec.push_back(fidpoint2);
-		fidpointvec.push_back(fidpoint3);
+                // get the Alignables and their surfaces
+                AlignableDetOrUnitPtr mod1(theAlignableNavigator->alignableFromDetId(measurements[i].getIdFirst()));
+                AlignableDetOrUnitPtr mod2(theAlignableNavigator->alignableFromDetId(measurements[i].getIdSecond()));
+                const AlignableSurface& surf1 = mod1->surface();
+                const AlignableSurface& surf2 = mod2->surface();
 
-		// if toy survey is requested, dice the values now
-		if (pxbSurveyCfg.getParameter<bool>("doToySurvey"))
-		{
-			dicer.doDice(fidpointvec,measurements[i].getIdPair(), outfile);
-		}
-		
-		// do the fit
-		measurements[i].doFit(fidpointvec, thePedeLabels->alignableLabel(mod1), thePedeLabels->alignableLabel(mod2));
-	    SurveyPxbImageLocalFit::localpars_t a; // local pars from fit
-		a = measurements[i].getLocalParameters();
-		const SurveyPxbImageLocalFit::value_t chi2 = measurements[i].getChi2();
+                // the position of the fiducial points in local frame of a PXB module
+                const LocalPoint fidpoint0(-0.91,+3.30);
+                const LocalPoint fidpoint1(+0.91,+3.30);
+                const LocalPoint fidpoint2(+0.91,-3.30);
+                const LocalPoint fidpoint3(-0.91,-3.30);
 
-		// do some reporting, if requested
-		if (doOutputOnStdout)
-		{
+                // We choose the local frame of the first module as reference,
+                // so take the fidpoints of the second module and calculate their
+                // positions in the reference frame
+                const GlobalPoint surf2point0(surf2.toGlobal(fidpoint0));
+                const GlobalPoint surf2point1(surf2.toGlobal(fidpoint1));
+                const LocalPoint fidpoint0inSurf1frame(surf1.toLocal(surf2point0));
+                const LocalPoint fidpoint1inSurf1frame(surf1.toLocal(surf2point1));
+
+                // Create the vector for the fit
+                SurveyPxbImageLocalFit::fidpoint_t fidpointvec;
+                fidpointvec.push_back(fidpoint0inSurf1frame);
+                fidpointvec.push_back(fidpoint1inSurf1frame);
+                fidpointvec.push_back(fidpoint2);
+                fidpointvec.push_back(fidpoint3);
+
+                // if toy survey is requested, dice the values now
+                if (pxbSurveyCfg.getParameter<bool>("doToySurvey"))
+                {
+                        dicer.doDice(fidpointvec,measurements[i].getIdPair(), outfile);
+                }
+
+                // do the fit
+                measurements[i].doFit(fidpointvec, thePedeLabels->alignableLabel(mod1), thePedeLabels->alignableLabel(mod2));
+            SurveyPxbImageLocalFit::localpars_t a; // local pars from fit
+                a = measurements[i].getLocalParameters();
+                const SurveyPxbImageLocalFit::value_t chi2 = measurements[i].getChi2();
+
+                // do some reporting, if requested
+                if (doOutputOnStdout)
+                {
                   edm::LogInfo("Alignment")
                     << "@SUB=MillePedeAlignmentAlgorithm::addPxbSurvey"
                     << "a: " << a[0] << ", " << a[1]  << ", " << a[2] << ", " << a[3]
                     << " S= " << sqrt(a[2]*a[2]+a[3]*a[3])
                     << " phi= " << atan(a[3]/a[2])
                     << " chi2= " << chi2 << std::endl;
-		}
-		if (theMonitor) 
-		{
-			theMonitor->fillPxbSurveyHistsChi2(chi2);
-			theMonitor->fillPxbSurveyHistsLocalPars(a[0],a[1],sqrt(a[2]*a[2]+a[3]*a[3]),atan(a[3]/a[2]));
-		}
+                }
+                if (theMonitor)
+                {
+                        theMonitor->fillPxbSurveyHistsChi2(chi2);
+                        theMonitor->fillPxbSurveyHistsLocalPars(a[0],a[1],sqrt(a[2]*a[2]+a[3]*a[3]),atan(a[3]/a[2]));
+                }
 
-		// pass the results from the local fit to mille
-		for(SurveyPxbImageLocalFit::count_t j=0; j!=SurveyPxbImageLocalFit::nMsrmts; j++)
-		{
-			theMille->mille((int)measurements[i].getLocalDerivsSize(),
-				measurements[i].getLocalDerivsPtr(j),
-				(int)measurements[i].getGlobalDerivsSize(),
-				measurements[i].getGlobalDerivsPtr(j),
-				measurements[i].getGlobalDerivsLabelPtr(j),
-				measurements[i].getResiduum(j),
-				measurements[i].getSigma(j));
-		}
-		theMille->end();
-	}
-	outfile.close();
+                // pass the results from the local fit to mille
+                for(SurveyPxbImageLocalFit::count_t j=0; j!=SurveyPxbImageLocalFit::nMsrmts; j++)
+                {
+                        theMille->mille((int)measurements[i].getLocalDerivsSize(),
+                                measurements[i].getLocalDerivsPtr(j),
+                                (int)measurements[i].getGlobalDerivsSize(),
+                                measurements[i].getGlobalDerivsPtr(j),
+                                measurements[i].getGlobalDerivsLabelPtr(j),
+                                measurements[i].getResiduum(j),
+                                measurements[i].getSigma(j));
+                }
+                theMille->end();
+        }
+        outfile.close();
 }
 
 

@@ -24,9 +24,9 @@ class PixelTracksProducer :  public edm::stream::EDProducer <> {
 public:
   explicit PixelTracksProducer(const edm::ParameterSet& conf);
 
-  ~PixelTracksProducer();
+  ~PixelTracksProducer() override;
 
-  virtual void produce(edm::Event& ev, const edm::EventSetup& es);
+  void produce(edm::Event& ev, const edm::EventSetup& es) override;
 
 private:
 

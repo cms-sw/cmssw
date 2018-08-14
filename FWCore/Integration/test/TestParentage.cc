@@ -6,14 +6,17 @@
 #include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
+#include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include <iostream>
+#include <map>
 #include <set>
 #include <string>
 #include <vector>
@@ -23,9 +26,11 @@ namespace {
                     edm::BranchID const& branchID,
                     std::set<edm::BranchID>& ancestors) {
     edm::Provenance prov = e.getProvenance(branchID);
-    for (auto const& parent : prov.productProvenance()->parentage().parents()) {
-      ancestors.insert(parent);
-      getAncestors(e, parent, ancestors);
+    if (prov.productProvenance()) {
+      for (auto const& parent : prov.productProvenance()->parentage().parents()) {
+        ancestors.insert(parent);
+        getAncestors(e, parent, ancestors);
+      }
     }
   }
 
@@ -62,11 +67,13 @@ namespace edmtest {
     edm::InputTag inputTag_;
     edm::EDGetTokenT<IntProduct> token_;
     std::vector<std::string> expectedAncestors_;
+    bool callGetProvenance_;
   };
 
   TestParentage::TestParentage(edm::ParameterSet const& pset) :
     inputTag_(pset.getParameter<edm::InputTag>("inputTag")),
-    expectedAncestors_(pset.getParameter<std::vector<std::string> >("expectedAncestors")) {
+    expectedAncestors_(pset.getParameter<std::vector<std::string> >("expectedAncestors")),
+    callGetProvenance_(pset.getUntrackedParameter<bool>("callGetProvenance", true)) {
 
     token_ = consumes<IntProduct>(inputTag_);
   }
@@ -80,27 +87,46 @@ namespace edmtest {
     e.getByToken(token_, h);
 
     edm::Provenance const* prov = h.provenance();
-    std::set<edm::BranchID> ancestors;
-    getAncestors(e, prov->branchID(), ancestors);
 
-    std::set<std::string> ancestorLabels;
-    for (edm::BranchID const& ancestor : ancestors) {
-      edm::Provenance ancestorProv = e.getProvenance(ancestor);
-      ancestorLabels.insert(ancestorProv.moduleLabel());
-    }
-    std::set<std::string> expectedAncestors(expectedAncestors_.begin(), expectedAncestors_.end());
-    if (ancestorLabels != expectedAncestors) {
-      std::cerr << "TestParentage::analyze: ancestors do not match expected ancestors" << std::endl;
+    if (prov->originalBranchID() != prov->branchDescription().originalBranchID()) {
+      std::cerr << "TestParentage::analyze: test of Provenance::originalBranchID function failed" << std::endl;
       abort();
     }
+
+    std::set<std::string> expectedAncestors(expectedAncestors_.begin(), expectedAncestors_.end());
+
+    std::map<edm::BranchID, std::string> branchIDToLabel;
+    edm::Service<edm::ConstProductRegistry> reg;
+    for(auto const& prod : reg->productList()) {
+      branchIDToLabel[prod.second.branchID()] = prod.second.moduleLabel();
+    }
+
+    // Currently we need to turn off this part of the test of when calling
+    // from a SubProcess and the parentage includes a product not kept
+    // in the SubProcess. This might get fixed someday ...
+    if (callGetProvenance_) {
+
+      std::set<edm::BranchID> ancestors;
+      getAncestors(e, prov->branchID(), ancestors);
+
+
+      std::set<std::string> ancestorLabels;
+      for (edm::BranchID const& ancestor : ancestors) {
+        ancestorLabels.insert(branchIDToLabel[ancestor]);
+      }
+      if (ancestorLabels != expectedAncestors) {
+        std::cerr << "TestParentage::analyze: ancestors do not match expected ancestors" << std::endl;
+        abort();
+      }
+    }
+
     edm::ProductProvenanceRetriever const* retriever = prov->store();
     std::set<edm::BranchID> ancestorsFromRetriever;
-    getAncestorsFromRetriever(retriever, prov->branchID(), ancestorsFromRetriever);
+    getAncestorsFromRetriever(retriever, prov->originalBranchID(), ancestorsFromRetriever);
 
     std::set<std::string> ancestorLabels2;
     for (edm::BranchID const& ancestor : ancestorsFromRetriever) {
-      edm::Provenance ancestorProv = e.getProvenance(ancestor);
-      ancestorLabels2.insert(ancestorProv.moduleLabel());
+      ancestorLabels2.insert(branchIDToLabel[ancestor]);
     }
     if (ancestorLabels2 != expectedAncestors) {
       std::cerr << "TestParentage::analyze: ancestors do not match expected ancestors (parentage from retriever)" << std::endl;

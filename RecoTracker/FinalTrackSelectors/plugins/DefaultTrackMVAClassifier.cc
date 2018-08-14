@@ -1,5 +1,8 @@
 #include "RecoTracker/FinalTrackSelectors/interface/TrackMVAClassifier.h"
 
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -7,17 +10,38 @@
 
 #include "getBestVertex.h"
 
+#include "TFile.h"
+
 namespace {
   
 template<bool PROMPT>
 struct mva {
-  mva(const edm::ParameterSet &){}
+  mva(const edm::ParameterSet &cfg):
+    forestLabel_    ( cfg.getParameter<std::string>("GBRForestLabel") ),
+    dbFileName_     ( cfg.getParameter<std::string>("GBRForestFileName") ),
+    useForestFromDB_( (!forestLabel_.empty()) & dbFileName_.empty())
+  {}
+
+  void beginStream() {
+    if(!dbFileName_.empty()){
+      TFile gbrfile(dbFileName_.c_str());
+      forestFromFile_.reset((GBRForest*)gbrfile.Get(forestLabel_.c_str()));
+    }
+  }
+
+  void initEvent(const edm::EventSetup& es) {
+    forest_ = forestFromFile_.get();
+    if(useForestFromDB_){
+      edm::ESHandle<GBRForest> forestHandle;
+      es.get<GBRWrapperRcd>().get(forestLabel_,forestHandle);
+      forest_ = forestHandle.product();
+    }
+  }
+
   float operator()(reco::Track const & trk,
 		   reco::BeamSpot const & beamSpot,
-		   reco::VertexCollection const & vertices,
-		   GBRForest const * forestP) const {
+		   reco::VertexCollection const & vertices) const {
 
-    auto const & forest = *forestP;
     auto tmva_pt_ = trk.pt();
     auto tmva_ndof_ = trk.ndof();
     auto tmva_nlayers_ = trk.hitPattern().trackerLayersWithMeasurement();
@@ -43,8 +67,8 @@ struct mva {
     auto tmva_eta_ = trk.eta();
     auto tmva_relpterr_ = float(trk.ptError())/std::max(float(trk.pt()),0.000001f);
     auto tmva_nhits_ = trk.numberOfValidHits();
-    int lostIn = trk.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS);
-    int lostOut = trk.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS);
+    int lostIn = trk.hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+    int lostOut = trk.hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS);
     auto tmva_minlost_ = std::min(lostIn,lostOut);
     auto tmva_lostmidfrac_ = static_cast<float>(trk.numberOfLostHits()) / static_cast<float>(trk.numberOfValidHits() + trk.numberOfLostHits());
    
@@ -77,17 +101,22 @@ struct mva {
 
  
 
-    
-    return forest.GetClassifier(gbrVals_);
+    return forest_->GetClassifier(gbrVals_);
     
   }
 
   static const char * name();
 
   static void fillDescriptions(edm::ParameterSetDescription & desc) {
+    desc.add<std::string>("GBRForestLabel",std::string());
+    desc.add<std::string>("GBRForestFileName",std::string());
   }
   
-  
+  std::unique_ptr<GBRForest> forestFromFile_;
+  const GBRForest *forest_ = nullptr; // owned by somebody else
+  const std::string forestLabel_;
+  const std::string dbFileName_;
+  const bool useForestFromDB_;
 };
 
   using TrackMVAClassifierDetached = TrackMVAClassifier<mva<false>>;

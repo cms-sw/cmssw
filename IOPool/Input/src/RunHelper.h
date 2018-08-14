@@ -37,20 +37,20 @@ namespace edm {
   class DefaultRunHelper : public RunHelperBase {
   public:
     explicit DefaultRunHelper() = default;
-    virtual ~DefaultRunHelper();
+    ~DefaultRunHelper() override;
   };
 
   class SetRunHelper : public RunHelperBase {
   public: 
     explicit SetRunHelper(ParameterSet const& pset);
-    virtual ~SetRunHelper();
+    ~SetRunHelper() override;
 
-    virtual void setForcedRunOffset(RunNumber_t firstRun) override;
+    void setForcedRunOffset(RunNumber_t firstRun) override;
 
-    virtual void checkRunConsistency(RunNumber_t run, RunNumber_t origninalRun) const override;
-    virtual void overrideRunNumber(EventID& event, bool isRealData) override;
-    virtual void overrideRunNumber(RunID& run) override;
-    virtual void overrideRunNumber(LuminosityBlockID& lumi) override;
+    void checkRunConsistency(RunNumber_t run, RunNumber_t origninalRun) const override;
+    void overrideRunNumber(EventID& event, bool isRealData) override;
+    void overrideRunNumber(RunID& run) override;
+    void overrideRunNumber(LuminosityBlockID& lumi) override;
 
   private:
     RunNumber_t setRun_;
@@ -61,19 +61,19 @@ namespace edm {
   class SetRunForEachLumiHelper : public RunHelperBase {
   public: 
     explicit SetRunForEachLumiHelper(ParameterSet const& pset);
-    virtual ~SetRunForEachLumiHelper();
+    ~SetRunForEachLumiHelper() override;
 
-    virtual InputSource::ItemType nextItemType(
+    InputSource::ItemType nextItemType(
       InputSource::ItemType const& previousItemType,
       InputSource::ItemType const& newIemType) override;
-    virtual RunNumber_t runNumberToUseForThisLumi() const override;
-    virtual bool fakeNewRun() const override {return fakeNewRun_;}
-    virtual void checkForNewRun(RunNumber_t run) override;
+    RunNumber_t runNumberToUseForThisLumi() const override;
+    bool fakeNewRun() const override {return fakeNewRun_;}
+    void checkForNewRun(RunNumber_t run) override;
 
-    virtual void checkRunConsistency(RunNumber_t run, RunNumber_t origninalRun) const override; 
-    virtual void overrideRunNumber(EventID& event, bool isRealData) override;
-    virtual void overrideRunNumber(RunID& run) override;
-    virtual void overrideRunNumber(LuminosityBlockID& lumi) override;
+    void checkRunConsistency(RunNumber_t run, RunNumber_t origninalRun) const override; 
+    void overrideRunNumber(EventID& event, bool isRealData) override;
+    void overrideRunNumber(RunID& run) override;
+    void overrideRunNumber(LuminosityBlockID& lumi) override;
 
   private:
     std::vector<RunNumber_t> setRunNumberForEachLumi_;

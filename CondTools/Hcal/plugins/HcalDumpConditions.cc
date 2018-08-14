@@ -49,10 +49,10 @@ namespace edmtest
 
     explicit  HcalDumpConditions(int i) 
     { }
-    virtual ~ HcalDumpConditions() { }
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+    ~ HcalDumpConditions() override { }
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-    template<class S, class SRcd> void dumpIt(S* myS, SRcd* mySRcd, const edm::Event& e, const edm::EventSetup& context, std::string name, const HcalTopology * topo);
+    template<class S, class SRcd> void dumpIt(S* myS, SRcd* mySRcd, const edm::Event& e, const edm::EventSetup& context, std::string name, const HcalTopology * topo, std::string label="");
     template<class S, class SRcd> void dumpIt(S* myS, SRcd* mySRcd, const edm::Event& e, const edm::EventSetup& context, std::string name);
     template<class S> void writeToFile(S* myS, const edm::Event& e, std::string name);
 
@@ -63,10 +63,10 @@ namespace edmtest
   
 
   template<class S, class SRcd>
-  void HcalDumpConditions::dumpIt(S* myS, SRcd* mySRcd, const edm::Event& e, const edm::EventSetup& context, std::string name, const HcalTopology * topo)
+  void HcalDumpConditions::dumpIt(S* myS, SRcd* mySRcd, const edm::Event& e, const edm::EventSetup& context, std::string name, const HcalTopology * topo, std::string label)
   {
     edm::ESHandle<S> p;
-    if( name == "ChannelQuality") context.get<SRcd>().get("withTopo", p);
+    if(!label.empty()) context.get<SRcd>().get(label, p);
     else context.get<SRcd>().get(p);
     S* myobject = new S(*p.product());
     if( topo ) myobject->setTopo(topo);
@@ -132,12 +132,16 @@ namespace edmtest
       dumpIt(new HcalPedestals(&(*topology)), new HcalPedestalsRcd, e,context,"Pedestals", topo);
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("PedestalWidths")) != mDumpRequest.end())
       dumpIt(new HcalPedestalWidths(&(*topology)), new HcalPedestalWidthsRcd, e,context,"PedestalWidths", topo);
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("EffectivePedestals")) != mDumpRequest.end())
+      dumpIt(new HcalPedestals(&(*topology)), new HcalPedestalsRcd, e,context,"EffectivePedestals", topo, "effective");
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("EffectivePedestalWidths")) != mDumpRequest.end())
+      dumpIt(new HcalPedestalWidths(&(*topology)), new HcalPedestalWidthsRcd, e,context,"EffectivePedestalWidths", topo, "effective");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("Gains")) != mDumpRequest.end())
       dumpIt(new HcalGains(&(*topology)), new HcalGainsRcd, e,context,"Gains", topo);
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("GainWidths")) != mDumpRequest.end())
       dumpIt(new HcalGainWidths(&(*topology)), new HcalGainWidthsRcd, e,context,"GainWidths", topo);
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ChannelQuality")) != mDumpRequest.end())
-      dumpIt(new HcalChannelQuality(&(*topology)), new HcalChannelQualityRcd, e,context,"ChannelQuality", topo);
+      dumpIt(new HcalChannelQuality(&(*topology)), new HcalChannelQualityRcd, e,context,"ChannelQuality", topo, "withTopo");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("RespCorrs")) != mDumpRequest.end())
       dumpIt(new HcalRespCorrs(&(*topology)), new HcalRespCorrsRcd, e,context,"RespCorrs", topo);
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ZSThresholds")) != mDumpRequest.end())

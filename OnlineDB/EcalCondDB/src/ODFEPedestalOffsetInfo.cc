@@ -1,7 +1,7 @@
 #include <stdexcept>
 #include <cstdlib>
 #include <string>
-#include <string.h>
+#include <cstring>
 #include "OnlineDB/Oracle/interface/Oracle.h"
 
 #include "OnlineDB/EcalCondDB/interface/ODFEPedestalOffsetInfo.h"
@@ -11,10 +11,10 @@ using namespace oracle::occi;
 
 ODFEPedestalOffsetInfo::ODFEPedestalOffsetInfo()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   m_config_tag="";
    m_ID=0;
    m_version=0;
@@ -51,7 +51,7 @@ int ODFEPedestalOffsetInfo::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODFEPedestalOffsetInfo::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODFEPedestalOffsetInfo::fetchNextId():  ")+getOraMessage(&e)));
   }
 
 }
@@ -75,7 +75,7 @@ void ODFEPedestalOffsetInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODFEPedestalOffsetInfo::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODFEPedestalOffsetInfo::prepareWrite():  ")+getOraMessage(&e)));
   }
 
 }
@@ -111,7 +111,7 @@ void ODFEPedestalOffsetInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODFEPedestalOffsetInfo::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODFEPedestalOffsetInfo::writeDB():  ")+getOraMessage(&e)));
   }
 
 
@@ -136,7 +136,7 @@ void ODFEPedestalOffsetInfo::fetchData(ODFEPedestalOffsetInfo * result)
 {
   this->checkConnection();
   result->clear();
-  if(result->getId()==0 && (result->getConfigTag()=="") ){
+  if(result->getId()==0 && (result->getConfigTag().empty()) ){
     throw(std::runtime_error("ODFEPedestalOffsetInfo::fetchData(): no Id defined for this ODFEPedestalOffsetInfo "));
   }
 
@@ -145,7 +145,7 @@ void ODFEPedestalOffsetInfo::fetchData(ODFEPedestalOffsetInfo * result)
       m_readStmt->setSQL("SELECT * FROM " + getTable() +   
 			 " where  rec_id = :1 ");
       m_readStmt->setInt(1, result->getId());
-    } else if (result->getConfigTag()!="") {
+    } else if (!result->getConfigTag().empty()) {
       m_readStmt->setSQL("SELECT * FROM " + getTable() +   
 			 " where  tag=:1 AND version=:2 " );
       m_readStmt->setString(1, result->getConfigTag());
@@ -162,11 +162,11 @@ void ODFEPedestalOffsetInfo::fetchData(ODFEPedestalOffsetInfo * result)
     // 1 is the id and 2 is the config tag and 3 is the version
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(rset->getString(2));
+    result->setConfigTag(getOraString(rset,2));
     result->setVersion(rset->getInt(3));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODFEPedestalOffsetInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODFEPedestalOffsetInfo::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -184,11 +184,11 @@ void ODFEPedestalOffsetInfo::fetchLastData(ODFEPedestalOffsetInfo * result)
     rset->next();
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(rset->getString(2));
+    result->setConfigTag(getOraString(rset,2));
     result->setVersion(rset->getInt(3));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODFEPedestalOffsetInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODFEPedestalOffsetInfo::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -218,7 +218,7 @@ int ODFEPedestalOffsetInfo::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODFEPedestalOffsetInfo::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODFEPedestalOffsetInfo::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;

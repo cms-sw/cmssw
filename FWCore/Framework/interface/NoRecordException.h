@@ -39,8 +39,7 @@ namespace edm {
    class EventSetup;
    namespace eventsetup {
       class EventSetupRecordKey;
-      void no_record_exception_message_builder(cms::Exception&,const char*, IOVSyncValue const&, bool iKnownRecord);
-      IOVSyncValue const& iovSyncValueFrom( edm::EventSetup const& );
+      void no_record_exception_message_builder(cms::Exception&,const char*, bool iKnownRecord);
      bool recordDoesExist( edm::EventSetup const& , edm::eventsetup::EventSetupRecordKey const&);
 
 //NOTE: when EDM gets own exception hierarchy, will need to change inheritance
@@ -49,13 +48,13 @@ class NoRecordException : public cms::Exception
 {
  public:
   // ---------- Constructors and destructor ----------------
-  explicit NoRecordException(IOVSyncValue const& iValue, bool iKnownRecord )
+  explicit NoRecordException(bool iKnownRecord )
   :cms::Exception("NoRecord")
   {
-    no_record_exception_message_builder(*this,heterocontainer::className<T>(), iValue, iKnownRecord);
+    no_record_exception_message_builder(*this,heterocontainer::className<T>(), iKnownRecord);
   }
 
-      virtual ~NoRecordException() throw() {}
+      ~NoRecordException() noexcept override {}
 
       // ---------- const member functions ---------------------
 

@@ -2,6 +2,7 @@
   <lib   name="1"/>
 </export>
 <use   name="SimG4Core/Geometry"/>
+<use   name="SimG4Core/Notification"/>
 <use   name="boost"/>
 <use   name="geant4core"/>
 <use   name="sigcpp"/>

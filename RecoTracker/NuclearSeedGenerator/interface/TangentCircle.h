@@ -47,7 +47,6 @@ class TangentCircle
 
      int charge(float magz);
 
-     bool isValid() const { return isValid(); } 
 
  private :
      GlobalPoint theInnerPoint;

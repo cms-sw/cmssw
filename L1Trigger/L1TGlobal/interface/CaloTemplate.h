@@ -11,6 +11,7 @@
  *    <TODO: enter implementation details>
  *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
+ *          Vladimir Rekovic - exted for indexing
  *
  * $Date$
  * $Revision$
@@ -47,7 +48,7 @@ public:
     CaloTemplate( const CaloTemplate& );
 
     // destructor
-    virtual ~CaloTemplate();
+    ~CaloTemplate() override;
 
     // assign operator
     CaloTemplate& operator= (const CaloTemplate&);
@@ -59,6 +60,8 @@ public:
     {
       unsigned int etLowThreshold;
       unsigned int etHighThreshold;
+      unsigned int indexLow;
+      unsigned int indexHigh;
       unsigned int etaRange;
       unsigned int phiRange;
 
@@ -113,7 +116,7 @@ public:
 
 
     /// print the condition
-    virtual void print(std::ostream& myCout) const;
+    void print(std::ostream& myCout) const override;
 
     /// output stream operator
     friend std::ostream& operator<<(std::ostream&, const CaloTemplate&);

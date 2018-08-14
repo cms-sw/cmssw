@@ -95,7 +95,7 @@ FWItemAccessorFactory::accessorFor(const TClass* iClass) const
 {
    static const bool debug = false;
 
-   TClass *member = 0;
+   TClass *member = nullptr;
    size_t offset=0;
 
    if(hasTVirtualCollectionProxy(iClass)) 
@@ -227,7 +227,7 @@ FWItemAccessorFactory::hasAccessor(const TClass *iClass, std::string &result)
 bool FWItemAccessorFactory::classAccessedAsCollection(const TClass* iClass)
 {
    std::string accessorName;
-   TClass *member = 0;
+   TClass *member = nullptr;
    size_t offset=0;
    
    // This is pretty much the same thing that happens 

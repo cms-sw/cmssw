@@ -37,8 +37,8 @@
 // constructors and destructor
 //
 FWTGLViewer::FWTGLViewer(const TGWindow *parent) :
-   TGLEmbeddedViewer(parent, 0, 0, 0),
-   m_fbo(0),
+   TGLEmbeddedViewer(parent, nullptr, nullptr, 0),
+   m_fbo(nullptr),
    m_fbo_w(-1), m_fbo_h(-1)
 {
 }
@@ -168,14 +168,14 @@ TGLFBO* FWTGLViewer::GenerateFbo(Int_t w, Int_t h, Float_t pixel_object_scale)
 
    if ( ! TakeLock(kDrawLock)) {
       ::Error(eh, "viewer locked - try later.");
-      return 0;
+      return nullptr;
    }
 
    TUnlocker ulck(this);
 
    MakeCurrent();
 
-   if (m_fbo == 0)
+   if (m_fbo == nullptr)
    {
       m_fbo = new TGLFBO();
    }
@@ -190,7 +190,7 @@ TGLFBO* FWTGLViewer::GenerateFbo(Int_t w, Int_t h, Float_t pixel_object_scale)
          m_fbo_w = m_fbo_h = -1;
 
          ::Error(eh, "%s",exc.what());
-         return 0;
+         return nullptr;
       }
 
       m_fbo_w = w; m_fbo_h = h;

@@ -13,7 +13,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -30,11 +30,11 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class EgammaHLTElectronCombinedIsolationProducer : public edm::EDProducer {
+class EgammaHLTElectronCombinedIsolationProducer : public edm::global::EDProducer<> {
 public:
   explicit EgammaHLTElectronCombinedIsolationProducer(const edm::ParameterSet&);
-  ~EgammaHLTElectronCombinedIsolationProducer();
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  ~EgammaHLTElectronCombinedIsolationProducer() override;
+  void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:

@@ -5,7 +5,7 @@
 namespace ecaldqm
 {
   MESetDet2D::MESetDet2D(std::string const& _fullPath, binning::ObjectType _otype, binning::BinningType _btype, MonitorElement::Kind _kind, binning::AxisSpecs const* _zaxis/* = 0*/) :
-    MESetEcal(_fullPath, _otype, _btype, _kind, 2, 0, 0, _zaxis)
+    MESetEcal(_fullPath, _otype, _btype, _kind, 2, nullptr, nullptr, _zaxis)
   {
     switch(kind_){
     case MonitorElement::DQM_KIND_TH2F:

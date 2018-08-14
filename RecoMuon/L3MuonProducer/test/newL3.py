@@ -261,7 +261,7 @@ def addL3ToHLT(process):
 	        numberMeasurementsForFit = cms.int32(4)
 	    ),
 	    MeasurementTrackerEvent = cms.InputTag("hltSiStripClusters"),
-	    reverseTrajectories = cms.bool( True )
+	    reverseTrajectories = cms.bool( True ),
 	)
 	
 	###-------------  Fitter-Smoother -------------------
@@ -545,7 +545,7 @@ def addL3ToHLT(process):
 	    maxNSeeds = cms.uint32( 100000 ),
 	    TrajectoryBuilderPSet = cms.PSet(  refToPSet_ = cms.string( "HLTIter0HighPtTkMuPSetTrajectoryBuilderIT" ) ),
 	    NavigationSchool = cms.string( "SimpleNavigationSchool" ),
-	    TrajectoryBuilder = cms.string( "" )
+	    TrajectoryBuilder = cms.string( "" ),
 	)
 	process.hltIterL3Iter0HighPtTkMuCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
 	    src = cms.InputTag( "hltIterL3Iter0HighPtTkMuCkfTrackCandidates" ),
@@ -709,7 +709,7 @@ def addL3ToHLT(process):
 	    maxNSeeds = cms.uint32( 100000 ),
 	    TrajectoryBuilderPSet = cms.PSet(  refToPSet_ = cms.string( "HLTIter2HighPtTkMuPSetTrajectoryBuilderIT" ) ),
 	    NavigationSchool = cms.string( "SimpleNavigationSchool" ),
-	    TrajectoryBuilder = cms.string( "" )
+	    TrajectoryBuilder = cms.string( "" ),
 	)
 	process.hltIterL3Iter2HighPtTkMuCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
 	    src = cms.InputTag( "hltIterL3Iter2HighPtTkMuCkfTrackCandidates" ),
@@ -766,6 +766,12 @@ def addL3ToHLT(process):
 	    res_par = cms.vdouble( 0.003, 0.001 ),
 	    minHitsToBypassChecks = cms.uint32( 20 )
 	)
+	if not hasattr(process, "hltTrackAlgoPriorityOrder"):
+	    from RecoTracker.FinalTrackSelectors.trackAlgoPriorityOrder_cfi import trackAlgoPriorityOrder
+	    process.hltTrackAlgoPriorityOrder = trackAlgoPriorityOrder.clone(
+	        ComponentName = "hltTrackAlgoPriorityOrder",
+	        algoOrder = [] # HLT iteration order is correct in the hard-coded default
+	    )
 	process.hltIterL3Iter2HighPtTkMuMerged = cms.EDProducer( "TrackListMerger",
 	    ShareFrac = cms.double( 0.19 ),
 	    writeOnlyTrkQuals = cms.bool( False ),
@@ -787,7 +793,8 @@ def addL3ToHLT(process):
 	    hasSelector = cms.vint32( 0, 0 ),
 	    TrackProducers = cms.VInputTag( 'hltIterL3Iter0HighPtTkMuTrackSelectionHighPurity','hltIterL3Iter2HighPtTkMuTrackSelectionHighPurity' ),
 	    LostHitPenalty = cms.double( 20.0 ),
-	    newQuality = cms.string( "confirmed" )
+	    newQuality = cms.string( "confirmed" ),
+	    trackAlgoPriorityOrder = cms.string("hltTrackAlgoPriorityOrder"),
 	)
 
 	#Iterative tracking finished

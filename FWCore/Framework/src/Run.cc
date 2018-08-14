@@ -9,8 +9,8 @@ namespace edm {
   std::string const Run::emptyString_;
 
   Run::Run(RunPrincipal const& rp, ModuleDescription const& md,
-           ModuleCallingContext const* moduleCallingContext) :
-        provRecorder_(rp, md),
+           ModuleCallingContext const* moduleCallingContext, bool isAtEnd) :
+        provRecorder_(rp, md, isAtEnd),
         aux_(rp.aux()),
         moduleCallingContext_(moduleCallingContext)  {
   }
@@ -76,28 +76,38 @@ namespace edm {
 */
 
   void
+  Run::setProducer(ProducerBase const* iProducer) {
+    provRecorder_.setProducer(iProducer);
+    //set appropriate size
+    putProducts_.resize(
+                        provRecorder_.putTokenIndexToProductResolverIndex().size());
+  }
+
+  void
   Run::commit_(std::vector<edm::ProductResolverIndex> const& iShouldPut) {
     RunPrincipal const& rp = runPrincipal();
-    ProductPtrVec::iterator pit(putProducts().begin());
-    ProductPtrVec::iterator pie(putProducts().end());
-
-    while(pit != pie) {
-        rp.put(*pit->second, std::move(get_underlying_safe(pit->first)));
-        ++pit;
+    size_t nPut = 0;
+    for(size_t i = 0; i < putProducts().size();++i) {
+      auto& p = get_underlying_safe(putProducts()[i]);
+      if(p) {
+        rp.put(provRecorder_.putTokenIndexToProductResolverIndex()[i],  std::move(p));
+        ++nPut;
+      }
     }
-
+    
     auto sz = iShouldPut.size();
-    if(sz !=0 and sz != putProducts().size()) {
+    if(sz !=0 and sz != nPut) {
       //some were missed
       auto& p = provRecorder_.principal();
       for(auto index: iShouldPut){
         auto resolver = p.getProductResolverByIndex(index);
-        if(not resolver->productResolved()) {
+        if(not resolver->productResolved() and
+           isEndTransition(provRecorder_.transition()) == resolver->branchDescription().availableOnlyAtEndTransition()) {
           resolver->putProduct(std::unique_ptr<WrapperBase>());
         }
       }
     }
-
+    
     // the cleanup is all or none
     putProducts().clear();
   }

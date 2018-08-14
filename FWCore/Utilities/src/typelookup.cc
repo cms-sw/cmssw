@@ -60,7 +60,7 @@ namespace {
    // for the strings are assigned at compile time via a macro call
    using TypeNameToValueMap = tbb::concurrent_unordered_map<const char*, const std::type_info*, StringHash, StringEqual>;
 
-   static TypeNameToValueMap& typeNameToValueMap() {
+   TypeNameToValueMap& typeNameToValueMap() {
       static TypeNameToValueMap s_map;
       return s_map;
    }
@@ -78,7 +78,7 @@ edm::typelookup::findType(const char* iTypeName) {
    auto itFind = typeNameToValueMap().find(iTypeName);
    
    if(itFind == typeNameToValueMap().end()) {
-      return std::make_pair(static_cast<const char*>(0), static_cast<std::type_info*> (0));
+      return std::make_pair(static_cast<const char*>(nullptr), static_cast<std::type_info*> (nullptr));
    }
    
    return (*itFind);

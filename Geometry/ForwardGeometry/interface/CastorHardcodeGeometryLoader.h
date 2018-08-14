@@ -15,8 +15,8 @@ public:
   explicit CastorHardcodeGeometryLoader(const CastorTopology& ht);
   virtual ~CastorHardcodeGeometryLoader() { delete theTopology ; };
   
-  virtual std::auto_ptr<CaloSubdetectorGeometry> load(DetId::Detector det, int subdet);
-  std::auto_ptr<CaloSubdetectorGeometry> load();
+  virtual std::unique_ptr<CaloSubdetectorGeometry> load(DetId::Detector det, int subdet);
+  std::unique_ptr<CaloSubdetectorGeometry> load();
   
 private:
   void init();

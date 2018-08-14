@@ -38,10 +38,13 @@ namespace edm {
   }
 
   void
-  ProductResolverBase::retrieveAndMerge_(Principal const& principal) const {
+  ProductResolverBase::retrieveAndMerge_(Principal const&, MergeableRunProductMetadata const*) const {
   }
 
-  
+  void
+  ProductResolverBase::setMergeableRunProductMetadata_(MergeableRunProductMetadata const*) {
+  }
+
   void
   ProductResolverBase::write(std::ostream& os) const {
     // This is grossly inadequate. It is also not critical for the
@@ -53,6 +56,4 @@ namespace edm {
   void
   ProductResolverBase::setupUnscheduled(UnscheduledConfigurator const&) {}
   
-  void ProductResolverBase::resetFailedFromThisProcess() {}
-
 }

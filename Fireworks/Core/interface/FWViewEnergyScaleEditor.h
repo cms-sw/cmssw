@@ -38,7 +38,7 @@ class FWViewEnergyScaleEditor : public TGVerticalFrame, public FWParameterSetter
 {
 public:
    FWViewEnergyScaleEditor( FWViewEnergyScale* s, TGCompositeFrame* w, bool addAutoScaleControll = true);
-   virtual ~FWViewEnergyScaleEditor();
+   ~FWViewEnergyScaleEditor() override;
 
    // ---------- const member functions ---------------------
 
@@ -47,13 +47,13 @@ public:
    // ---------- member functions ---------------------------
    void setEnabled(bool);
 
-   ClassDef(FWViewEnergyScaleEditor, 0);
+   ClassDefOverride(FWViewEnergyScaleEditor, 0);
 
 private:
    FWViewEnergyScaleEditor(const FWViewEnergyScaleEditor&); // stop default
    const FWViewEnergyScaleEditor& operator=(const FWViewEnergyScaleEditor&); // stop default
    
-   void addParam(FWParameterBase*, const char* title = 0);   
+   void addParam(FWParameterBase*, const char* title = nullptr);   
    
    // ---------- member data --------------------------------
 

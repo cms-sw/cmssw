@@ -13,10 +13,10 @@ class MonLed1Dat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   MonLed1Dat();
-  ~MonLed1Dat();
+  ~MonLed1Dat() override;
 
   // User data methods
-  inline std::string getTable() { return "MON_LED1_DAT"; }
+  inline std::string getTable() override { return "MON_LED1_DAT"; }
 
   inline void setVPTMean(float mean) { m_vptMean = mean; }
   inline float getVPTMean() const { return m_vptMean; }
@@ -36,7 +36,7 @@ class MonLed1Dat : public IDataItem {
 
  private:
   void prepareWrite() 
-    noexcept(false);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const MonLed1Dat* item, MonRunIOV* iov)
     noexcept(false);

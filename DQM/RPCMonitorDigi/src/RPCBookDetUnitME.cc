@@ -1,20 +1,19 @@
 #include <DQM/RPCMonitorDigi/interface/RPCMonitorDigi.h>
 #include <DQM/RPCMonitorDigi/interface/RPCBookFolderStructure.h>
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include <DQM/RPCMonitorDigi/interface/utils.h>
 #include <iomanip>
 
-void RPCMonitorDigi::bookRollME(DQMStore::IBooker & ibooker, RPCDetId & detId, const edm::EventSetup & iSetup, const std::string & recHitType, std::map<std::string, MonitorElement*>  & meMap) {
- 
-  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
-  std::string folder = subsystemFolder_+ "/"+ recHitType +"/"+folderStr->folderStructure(detId);
+void RPCMonitorDigi::bookRollME(DQMStore::IBooker & ibooker, const RPCDetId& detId, const RPCGeometry* rpcGeo, const std::string & recHitType, std::map<std::string, MonitorElement*>  & meMap)
+{
+  RPCBookFolderStructure folderStr;
+  std::string folder = subsystemFolder_+ "/"+ recHitType +"/"+folderStr.folderStructure(detId);
 
   ibooker.setCurrentFolder(folder);
   
   //get number of strips in current roll
-  int nstrips = this->stripsInRoll(detId, iSetup);
+  int nstrips = this->stripsInRoll(detId, rpcGeo);
   if (nstrips == 0 ){ nstrips = 1;}
 
   /// Name components common to current RPCDetId  
@@ -32,9 +31,7 @@ void RPCMonitorDigi::bookRollME(DQMStore::IBooker & ibooker, RPCDetId & detId, c
     else {
       nstrips *= 2;
     }
-    
   }
-
 
   std::stringstream os;
   os.str("");
@@ -74,17 +71,11 @@ void RPCMonitorDigi::bookRollME(DQMStore::IBooker & ibooker, RPCDetId & detId, c
   os.str("");
   os<<"NumberOfClusters_"<<nameRoll;
   meMap[os.str()] = ibooker.book1D(os.str(), os.str(),10,0.5,10.5);
-  
-
-  delete folderStr;
-  //  return meMap;
 }
 
 
-void RPCMonitorDigi::bookSectorRingME(DQMStore::IBooker & ibooker, const std::string &recHitType, std::map<std::string, MonitorElement*> & meMap) {  
-  //std::map<std::string, MonitorElement*> RPCMonitorDigi::bookSectorRingME(std::string recHitType) {  
-
-  //  std::map<std::string, MonitorElement*> meMap;  
+void RPCMonitorDigi::bookSectorRingME(DQMStore::IBooker & ibooker, const std::string &recHitType, std::map<std::string, MonitorElement*> & meMap)
+{ 
   std::stringstream os;
  
   for(int wheel = -2 ; wheel <= 2; wheel++){
@@ -108,10 +99,6 @@ void RPCMonitorDigi::bookSectorRingME(DQMStore::IBooker & ibooker, const std::st
 	rpcdqm::utils rpcUtils;
 	rpcUtils.labelYAxisRoll( meMap[os.str()], 0, wheel, true);
 	
-// 	os.str("");
-// 	os<<"BxDistribution_Wheel_"<<wheel<<"_Sector_"<<sector;
-// 	meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 11, -5.5, 5.5);
-
       }
   }
 
@@ -135,6 +122,7 @@ void RPCMonitorDigi::bookSectorRingME(DQMStore::IBooker & ibooker, const std::st
 
 	meMap[os.str()] = ibooker.book2D(os.str(), os.str(), 96, 0.5, 96.5, 18 , 0.5,  18.5);
 	meMap[os.str()]->setAxisTitle("strip", 1);
+	rpcdqm::RPCMEHelper::setNoAlphanumeric(meMap[os.str()]);
 
 	std::stringstream yLabel;
 	for (int i = 1 ; i<=18; i++) {
@@ -163,6 +151,7 @@ void RPCMonitorDigi::bookSectorRingME(DQMStore::IBooker & ibooker, const std::st
 
 	meMap[os.str()] = ibooker.book2D(os.str(), os.str(), 96, 0.5, 96.5, 18 , 18.5,  36.5);
 	meMap[os.str()]->setAxisTitle("strip", 1);
+	rpcdqm::RPCMEHelper::setNoAlphanumeric(meMap[os.str()]);
 	
 	for (int i = 1 ; i<= 18; i++) {
 	  yLabel.str("");
@@ -184,35 +173,20 @@ void RPCMonitorDigi::bookSectorRingME(DQMStore::IBooker & ibooker, const std::st
 	  else  meMap[os.str()]->setBinLabel(i, "", 1);
 	}
    
-        
-// 	os.str("");
-// 	os<<"BxDistribution_Disk_"<<(region * disk)<<"_Ring_"<<ring;
-// 	meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 11, -5.5, 5.5);
-	
       }  //loop ring
     } //loop disk
   } //loop region
-
-  // return meMap;
 } 
 
 
-void RPCMonitorDigi::bookWheelDiskME(DQMStore::IBooker & ibooker,const std::string &recHitType, std::map<std::string, MonitorElement*> &meMap) {  
-  //std::map<std::string, MonitorElement*> RPCMonitorDigi::bookWheelDiskME(std::string recHitType) {  
-
-  //  std::map<std::string, MonitorElement*> meMap;  
+void RPCMonitorDigi::bookWheelDiskME(DQMStore::IBooker & ibooker,const std::string &recHitType, std::map<std::string, MonitorElement*> &meMap)
+{
   ibooker.setCurrentFolder(subsystemFolder_ +"/"+recHitType+"/"+ globalFolder_);
 
   std::stringstream os, label, name, title ;
   rpcdqm::utils rpcUtils;
 
   for (int wheel = -2 ; wheel<= 2; wheel++ ) {//Loop on wheel
-
-    //    os<<"OccupancyXY_"<<ringType<<"_"<<ring;
-    //    meMap[os.str()] = ibooker.book2D(os.str(), os.str(),63, -800, 800, 63, -800, 800);
-    //    meMap[os.str()] = ibooker.book2D(os.str(), os.str(),1000, -800, 800, 1000, -800, 800);
-    
-    
     os.str("");
     os<<"1DOccupancy_Wheel_"<<wheel;
     meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 12, 0.5, 12.5);
@@ -288,34 +262,22 @@ void RPCMonitorDigi::bookWheelDiskME(DQMStore::IBooker & ibooker,const std::stri
    }
 
 
-
-      
-  //  return meMap; 
 }
 
 
 
 //returns the number of strips in each roll
-int  RPCMonitorDigi::stripsInRoll(RPCDetId & id, const edm::EventSetup & iSetup) {
-  edm::ESHandle<RPCGeometry> rpcgeo;
-  iSetup.get<MuonGeometryRecord>().get(rpcgeo);
-
-  const RPCRoll * rpcRoll = rpcgeo->roll(id);
-
+int RPCMonitorDigi::stripsInRoll(const RPCDetId& id, const RPCGeometry* rpcGeo) const
+{
+  const RPCRoll * rpcRoll = rpcGeo->roll(id);
   if (!rpcRoll) return 1;
 
   return  rpcRoll->nstrips();
-
-  
-
 }
 
 
-void RPCMonitorDigi::bookRegionME(DQMStore::IBooker &ibooker,const std::string & recHitType, std::map<std::string, MonitorElement*>  & meMap) {
-  //std::map<std::string, MonitorElement*>   RPCMonitorDigi::bookRegionME(std::string recHitType) {
-
-  //  std::map<std::string, MonitorElement*> meMap;  
-
+void RPCMonitorDigi::bookRegionME(DQMStore::IBooker &ibooker,const std::string & recHitType, std::map<std::string, MonitorElement*>  & meMap)
+{
   std::string currentFolder = subsystemFolder_ +"/"+recHitType+"/"+ globalFolder_;
   ibooker.setCurrentFolder(currentFolder);  
   
@@ -427,6 +389,4 @@ void RPCMonitorDigi::bookRegionME(DQMStore::IBooker &ibooker,const std::string &
      meMap["Occupancy_for_Barrel"]->setBinLabel( bin , binlabel.str(), 2);
     }
   }
-  //  return meMap; 
-
 }

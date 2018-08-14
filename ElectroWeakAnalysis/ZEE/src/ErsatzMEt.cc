@@ -392,7 +392,7 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es)
 	{
 		for(unsigned int itrig = 0; itrig < HltRes->size(); ++itrig)
 		{
-			std::string nom = triggerNames.triggerName(itrig);
+			const std::string& nom = triggerNames.triggerName(itrig);
 			edm::LogInfo("")<< itrig <<" : Name = "<< nom <<"\t Accepted = "<< HltRes->accept(itrig);
 		}
 	}

@@ -66,19 +66,23 @@ EcalEBTrigPrimAnalyzer::EcalEBTrigPrimAnalyzer(const edm::ParameterSet&  iConfig
   nEvents_=0;
 
   hTPvsTow_eta_= new TH2F("TP_vs_Tow_eta","TP vs Tow eta ; #eta(tow); #eta(tp)",50,-2.5,2.5,50,-2.5,2.5);
+  hAllTPperEvt_ = new TH1F("AllTPperEvt","TP per Event; N_{TP};  ", 100, 0., 20000.);
+  hTPperEvt_ = new TH1F("TPperEvt","N_{TP} per Event; N_{TP};  ", 100, 0., 500.);
+  hTP_iphiVsieta_= new TH2F("TP_iphiVsieta","TP i#phi vs i#eta ; i#eta(tp); i#phi(tp)",10,70,80,10,340,350);
+  hTP_iphiVsieta_fullrange_= new TH2F("TP_iphiVsieta_fullrange","TP i#phi vs i#eta ; i#eta(tp); i#phi(tp)",200,-100,100,350,0,350);
+
   if (recHits_) {
     hTPvsTow_ieta_= new TH2F("TP_vs_Tow_ieta","TP vs Tow ieta ; i#eta(tow); i#eta(tp)",200,-100,100,200,-100,100);
 
     hTPvsRechit_= new TH2F("TP_vs_RecHit","TP vs rechit Et;E_{T}(rh) (GeV);E_{T}(tp) (GeV)",100,0,50,100,0,50);
-    hTPoverRechit_= new TH1F("TP_over_RecHit","Et(TP/rechit); E_{T}(tp)/E_{T}(rh); Counts",500,0,4);
+    hDeltaEt_ = new TH1F("DeltaEt","[Et(rh)-Et(TP)]/Et(rh); [E_{T}(rh)-E_{T}(tp)]/E_{T}(rh); Counts",200,-1,1);
+    hTPoverRechit_= new TH1F("TP_over_RecHit","Et(TP/rechit); E_{T}(tp)/E_{T}(rh); Counts",200,0,2);
     hRechitEt_= new TH1F("RecHitEt","E_{T};E_{T}(rh) (GeV);Counts",100,0,50);
     hTPEt_= new TH1F("TPEt","E_{T}{tp);E_{T}(rh) (GeV);Count",100,0,50);
     hRatioEt_ = new TH1F("RatioTPoverRH","Et",100,0,50);
     hAllRechitEt_= new TH1F("AllRecHit","Et",100,0,50);
 
-    hTP_iphiVsieta_= new TH2F("TP_iphiVsieta","TP i#phi vs i#eta ; i#eta(tp); i#phi(tp)",10,70,80,10,340,350);
     hRH_iphiVsieta_= new TH2F("RH_iphiVsieta","RH i#phi vs i#eta ; i#eta(rh); i#phi(rh)",10,70,80,10,340,350);
-    hTP_iphiVsieta_fullrange_= new TH2F("TP_iphiVsieta_fullrange","TP i#phi vs i#eta ; i#eta(tp); i#phi(tp)",200,-100,100,350,0,350);
     hRH_iphiVsieta_fullrange_= new TH2F("RH_iphiVsieta_fullrange","RH i#phi vs i#eta ; i#eta(rh); i#phi(rh)",200,-100,100,350,0,350);
 
 
@@ -132,64 +136,80 @@ EcalEBTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup
     EcalEBTriggerPrimitiveDigi d=(*(tp.product()))[i];
     int subdet=0;
     if (subdet==0) {
-      ecal_et_[subdet]->Fill(d.compressedEt());
+      ecal_et_[subdet]->Fill(d.encodedEt());
     }
   }
-  if (!recHits_) return;
 
-  // comparison with RecHits
+
+  //  if (!recHits_) return;
+
   edm::Handle<EcalRecHitCollection> rechit_EB_col;
-  iEvent.getByToken(rechits_labelEB_,rechit_EB_col);
- 
+  if ( recHits_ ) {
+    // get the  RecHits
+    iEvent.getByToken(rechits_labelEB_,rechit_EB_col);
+  }
 
   edm::ESHandle<CaloSubdetectorGeometry> theBarrelGeometry_handle;
   iSetup.get<EcalBarrelGeometryRecord>().get("EcalBarrel",theBarrelGeometry_handle);
-  const CaloSubdetectorGeometry *theBarrelGeometry;
-  theBarrelGeometry = &(*theBarrelGeometry_handle);
+  const CaloSubdetectorGeometry *theBarrelGeometry = theBarrelGeometry_handle.product();
 
-  if (debug_) std::cout << " TP analyzer  =================> Treating event  "<<iEvent.id()<< ", Number of EB rechits "<<  rechit_EB_col.product()->size() <<  " Number of TPs " <<  tp.product()->size() <<  std::endl;
-
+  if (debug_) { std::cout << " TP analyzer  =================> Treating event  "<<iEvent.id()  <<  " Number of TPs " <<  tp.product()->size() <<  std::endl;
+    if ( recHits_ ) std::cout << " Number of EB rechits "<<  rechit_EB_col.product()->size() << std::endl;
+  }
+  hAllTPperEvt_->Fill(float(tp.product()->size())); 
+  
   //if ( iEvent.id().event() != 648) return;
 
   //EcalEBTPGScale ecalScale ;
   EcalTPGScale ecalScale ;
   ecalScale.setEventSetup(iSetup) ;
-
-
+  
+  
   //  for(unsigned int iDigi = 0; iDigi < ebdigi->size() ; ++iDigi) {
   // EBDataFrame myFrame((*ebdigi)[iDigi]);  
   // const EBDetId & myId = myFrame.id();
      
-   
-    for (unsigned int i=0;i<tp.product()->size();i++) {
-      EcalEBTriggerPrimitiveDigi d=(*(tp.product()))[i];
-      const EBDetId TPid= d.id();
-      // if ( myId != TPid ) continue;
-   
+  int nTP=0;   
+  for (unsigned int i=0;i<tp.product()->size();i++) {
+    EcalEBTriggerPrimitiveDigi d=(*(tp.product()))[i];
+    const EBDetId TPid= d.id();
+    // if ( myId != TPid ) continue;
+    
+    
+    /*    
+	  int index=getIndex(ebdigi,coarser);
+	  std::cout << " Same xTal " << myId << " " << TPid << " coarser " << coarser << " index " << index << std::endl;
+	  double Et = ecalScale.getTPGInGeV(d.encodedEt(), coarser) ; 
+    */
+    //this works if the energy is compressed into 8 bits float Et=d.compressedEt()/2.; // 2ADC counts/GeV
+    float Et=d.encodedEt()/8.;    // 8 ADCcounts/GeV
+    if ( Et<= 5 ) continue;
+    //if ( Et<= 0 ) continue;
+    nTP++;
 
-      /*    
-      int index=getIndex(ebdigi,coarser);
-      std::cout << " Same xTal " << myId << " " << TPid << " coarser " << coarser << " index " << index << std::endl;
-      double Et = ecalScale.getTPGInGeV(d.compressedEt(), coarser) ; 
-      */
-      float Et=d.compressedEt()*0.5;
-      if ( Et==0) continue;
+    std::cout << " TP digi size " << d.size() << std::endl;
+    for (int iBx=0;iBx<d.size();iBx++) {
+      std::cout << " TP samples " << d.sample(iBx) << std::endl; 
 
-      //      EcalTrigTowerDetId coarser=(*eTTmap_).towerOf(myId);
-      // does not work float etaTow =  theBarrelGeometry->getGeometry(coarser)->getPosition().theta();
-      // float etaTP =  theBarrelGeometry->getGeometry(TPid)->getPosition().eta();
-      // does not work hTPvsTow_eta_->Fill ( etaTow,  etaTP );
-      //      hTPvsTow_ieta_->Fill ( coarser.ieta(),  TPid.ieta() );
+    }
 
-
-      tpIphi_ = TPid.iphi() ;
-      tpIeta_ = TPid.ieta() ;
-      tpgADC_ = d.compressedEt();
-      tpgGeV_ = Et ;
-
-      hTP_iphiVsieta_->Fill(TPid.ieta(), TPid.iphi(), Et);
-      hTP_iphiVsieta_fullrange_->Fill(TPid.ieta(), TPid.iphi(), Et);
-      
+    //      EcalTrigTowerDetId coarser=(*eTTmap_).towerOf(myId);
+    // does not work float etaTow =  theBarrelGeometry->getGeometry(coarser)->getPosition().theta();
+    // float etaTP =  theBarrelGeometry->getGeometry(TPid)->getPosition().eta();
+    // does not work hTPvsTow_eta_->Fill ( etaTow,  etaTP );
+    //      hTPvsTow_ieta_->Fill ( coarser.ieta(),  TPid.ieta() );
+    
+    
+    tpIphi_ = TPid.iphi() ;
+    tpIeta_ = TPid.ieta() ;
+    tpgADC_ = d.encodedEt();
+    tpgGeV_ = Et ;
+    
+    hTP_iphiVsieta_->Fill(TPid.ieta(), TPid.iphi(), Et);
+    hTP_iphiVsieta_fullrange_->Fill(TPid.ieta(), TPid.iphi(), Et);
+    
+    
+    if ( recHits_ ) {      
       for (unsigned int j=0;j<rechit_EB_col.product()->size();j++) {
 	const EBDetId & myid1=(*rechit_EB_col.product())[j].id();
 	float theta =  theBarrelGeometry->getGeometry(myid1)->getPosition().theta();
@@ -198,15 +218,15 @@ EcalEBTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup
 	  if (debug_) std::cout << " Analyzer same cristal " << myid1 << " " << TPid << std::endl;
 	  //	  if ( rhEt < 1.5 && Et > 10 )  {
 	  // std::cout << " TP analyzer  =================> Treating event  "<<iEvent.id()<< ", Number of EB rechits "<<  rechit_EB_col.product()->size() <<  " Number of TPs " <<  tp.product()->size() <<  std::endl;
-	  //std::cout << " TP compressed et " << d.compressedEt()  << " Et in GeV  " <<  Et << " RH Et " << rhEt << " Et/rhEt " << Et/rhEt << std::endl;          
+	  //std::cout << " TP compressed et " << d.encodedEt()  << " Et in GeV  " <<  Et << " RH Et " << rhEt << " Et/rhEt " << Et/rhEt << std::endl;          
 	  //} 
-
+	  
 	  //std::cout << " TP out " <<  d << std::endl;
-
+	  
 	  //	  for (int isam=0;isam< d.size();++isam) {
 	  // std::cout << " d[isam].raw() "  <<  d[isam].raw() << std::endl;
 	  //}
-
+	  
 	  rhIphi_ =  myid1.iphi() ;
 	  rhIeta_ =  myid1.ieta() ;
 	  hRH_iphiVsieta_->Fill(myid1.ieta(), myid1.iphi(), rhEt);
@@ -214,31 +234,35 @@ EcalEBTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup
 	  
 	  hTPvsRechit_->Fill(rhEt,Et);
 	  hTPoverRechit_->Fill(Et/rhEt);
-	  if (debug_) std::cout << " TP compressed et " << d.compressedEt()  << " Et in GeV  " <<  Et << " RH Et " << rhEt << " Et/rhEt " << Et/rhEt << std::endl;          
+	  hDeltaEt_ ->Fill ((rhEt-Et)/rhEt);
+	  if (debug_) std::cout << " TP compressed et " << d.encodedEt()  << " Et in GeV  " <<  Et << " RH Et " << rhEt << " Et/rhEt " << Et/rhEt << std::endl;          
 	  hRechitEt_->Fill(rhEt);
 	  hTPEt_->Fill(Et);
 	  if ( rhEt < 1000000) eRec_ = rhEt;
 	  tree_->Fill() ;
 	}
-
-      }
-      
-    }   // end loop over TP collection
+	
+      }  // end loop of recHits
+    }  // if recHits
     
-    //  } // end loop over digi collection
+  }   // end loop over TP collection
   
-  hRatioEt_->Divide( hTPEt_, hRechitEt_);
+  //  } // end loop over digi collection
 
-  for (unsigned int j=0;j<rechit_EB_col.product()->size();j++) {
-    const EBDetId & myid1=(*rechit_EB_col.product())[j].id();
-    float theta =  theBarrelGeometry->getGeometry(myid1)->getPosition().theta();
-    float rhEt=((*rechit_EB_col.product())[j].energy())*sin(theta);
-    if ( rhEt >0 ) 
-      hAllRechitEt_ ->Fill(rhEt);
+    hTPperEvt_->Fill(float(nTP));  
+  
+  if ( recHits_) {  
+    hRatioEt_->Divide( hTPEt_, hRechitEt_);
+    for (unsigned int j=0;j<rechit_EB_col.product()->size();j++) {
+      const EBDetId & myid1=(*rechit_EB_col.product())[j].id();
+      float theta =  theBarrelGeometry->getGeometry(myid1)->getPosition().theta();
+      float rhEt=((*rechit_EB_col.product())[j].energy())*sin(theta);
+      if ( rhEt >0 ) 
+	hAllRechitEt_ ->Fill(rhEt);
+    }
   }
-
-
-
+  
+  
 }
 
 void
@@ -250,6 +274,9 @@ EcalEBTrigPrimAnalyzer::endJob(){
   }
 
 
+  hAllTPperEvt_->Write();
+  hTPperEvt_->Write();
+
   if (recHits_) {
     hTPvsTow_ieta_->Write();
     hTPvsTow_eta_->Write();    
@@ -257,6 +284,7 @@ EcalEBTrigPrimAnalyzer::endJob(){
     hTPoverRechit_->Write();
     hAllRechitEt_->Write();
     hRechitEt_->Write();
+    hDeltaEt_ ->Write();
     hTPEt_->Write();
     hRatioEt_->Write();
     hTP_iphiVsieta_->Write();

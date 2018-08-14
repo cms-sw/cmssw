@@ -85,7 +85,7 @@ void ExampleMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSe
 
     // what is the resolution in pt? Easy! We have the association with generated information
     //    cout<<muon->pt()<<" "<<muon->genParticle()->pt()<<endl;
-    if( muon->genLepton()!=0){
+    if( muon->genLepton()!=nullptr){
       double reso = (muon->pt() - muon->genLepton()->pt())/muon->genLepton()->pt();
       hPtReso->Fill(muon->genLepton()->pt(),reso);
     }

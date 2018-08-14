@@ -73,7 +73,7 @@ bool LaserAlignmentEventFilter::filter(edm::StreamID sid, edm::Event& iEvent, co
 
     // construct FEDBuffer
     sistrip::FEDBuffer buffer(input.data(), input.size());
-    if (not buffer.doChecks()) {
+    if (not buffer.doChecks(true)) {
       edm::LogWarning("LaserAlignmentEventFilter") << "FED Buffer check fails for FED ID " << *ifed << ".";
       continue;
     }

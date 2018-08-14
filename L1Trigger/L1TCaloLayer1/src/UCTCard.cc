@@ -1,6 +1,6 @@
 #include <iostream>
-#include <stdlib.h>
-#include <stdint.h>
+#include <cstdlib>
+#include <cstdint>
 
 #include "UCTCard.hh"
 #include "UCTRegion.hh"
@@ -24,14 +24,14 @@ UCTCard::UCTCard(uint32_t crt, uint32_t crd, int fwv) :
 
 UCTCard::~UCTCard() {
   for(uint32_t i = 0; i < regions.size(); i++) {
-    if(regions[i] != 0) delete regions[i];
+    if(regions[i] != nullptr) delete regions[i];
   }
 }
 
 bool UCTCard::process() {
   cardSummary = 0;
   for(uint32_t i = 0; i < regions.size(); i++) {
-    if(regions[i] != 0) regions[i]->process();
+    if(regions[i] != nullptr) regions[i]->process();
     cardSummary += regions[i]->et();
   }
   return true;
@@ -47,8 +47,8 @@ bool UCTCard::clearEvent() {
 
 bool UCTCard::setECALData(UCTTowerIndex t, bool ecalFG, uint32_t ecalET) {
   UCTGeometry g;
-  uint32_t absCaloEta = abs(t.first);
-  uint32_t absCaloPhi = abs(t.second);
+  uint32_t absCaloEta = std::abs(t.first);
+  uint32_t absCaloPhi = std::abs(t.second);
   bool negativeEta = false;
   if(t.first < 0) negativeEta = true;
   uint32_t i = g.getRegion(absCaloEta, absCaloPhi) * 2;
@@ -62,8 +62,8 @@ bool UCTCard::setECALData(UCTTowerIndex t, bool ecalFG, uint32_t ecalET) {
 
 bool UCTCard::setHCALData(UCTTowerIndex t, uint32_t hcalFB, uint32_t hcalET) {
   UCTGeometry g;
-  uint32_t absCaloEta = abs(t.first);
-  uint32_t absCaloPhi = abs(t.second);
+  uint32_t absCaloEta = std::abs(t.first);
+  uint32_t absCaloPhi = std::abs(t.second);
   bool negativeEta = false;
   if(t.first < 0) negativeEta = true;
   uint32_t i = g.getRegion(absCaloEta, absCaloPhi) * 2;

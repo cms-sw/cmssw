@@ -53,7 +53,7 @@ class DTRunConditionVarClient: public DQMEDHarvester{
     DTRunConditionVarClient(const edm::ParameterSet& ps);
 
     /// Destructor
-    virtual ~DTRunConditionVarClient();
+    ~DTRunConditionVarClient() override;
 
   void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
 

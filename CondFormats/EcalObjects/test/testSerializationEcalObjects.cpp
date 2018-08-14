@@ -1,12 +1,13 @@
 #include "CondFormats/Serialization/interface/Test.h"
 
-#include "../src/headers.h"
+#include "CondFormats/EcalObjects/src/headers.h"
 
 int main()
 {
     testSerialization<EcalADCToGeVConstant>();
     testSerialization<EcalChannelStatus>();
     testSerialization<EcalChannelStatusCode>();
+
     testSerialization<EcalClusterCrackCorrParameters>();
     testSerialization<EcalClusterEnergyCorrectionObjectSpecificParameters>();
     testSerialization<EcalClusterEnergyCorrectionParameters>();
@@ -18,6 +19,7 @@ int main()
     testSerialization<EcalCondObjectContainer<EcalMGPAGainRatio>>();
     testSerialization<EcalCondObjectContainer<EcalMappingElement>>();
     testSerialization<EcalCondObjectContainer<EcalPedestal>>();
+
     testSerialization<EcalCondObjectContainer<EcalTPGCrystalStatusCode>>();
     testSerialization<EcalCondObjectContainer<EcalTPGLinearizationConstant>>();
     testSerialization<EcalCondObjectContainer<EcalTPGPedestal>>();
@@ -68,6 +70,7 @@ int main()
     testSerialization<EcalFunParams>();
     testSerialization<EcalGainRatios>();
     testSerialization<EcalIntercalibConstants>();
+    testSerialization<EcalPFRecHitThresholds>();
     testSerialization<EcalIntercalibConstantsMC>();
     testSerialization<EcalIntercalibErrors>();
     testSerialization<EcalLaserAPDPNRatios>();
@@ -84,6 +87,7 @@ int main()
     testSerialization<EcalPedestal>();
     testSerialization<EcalPedestals>();
     testSerialization<EcalSRSettings>();
+    testSerialization<EcalSimPulseShape>();
     testSerialization<EcalSampleMask>();
     testSerialization<EcalTBWeights>();
     testSerialization<EcalTPGCrystalStatus>();

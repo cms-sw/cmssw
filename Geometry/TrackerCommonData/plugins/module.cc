@@ -29,7 +29,7 @@
 #include "Geometry/TrackerCommonData/plugins/DDPixPhase1FwdDiskAlgo.h"
 #include "Geometry/TrackerCommonData/plugins/DDPixBarLayerUpgradeAlgo.h"
 #include "Geometry/TrackerCommonData/plugins/DDCutTubsFromPoints.h"
-#include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDPixBarLayerAlgo,   "track:DDPixBarLayerAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDPixFwdBlades,      "track:DDPixFwdBlades");

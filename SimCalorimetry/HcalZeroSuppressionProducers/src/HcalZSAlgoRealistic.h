@@ -15,14 +15,14 @@ class HcalZSAlgoRealistic : public HcalZeroSuppressionAlgo {
 public:
   HcalZSAlgoRealistic(bool markAndPass, std::pair<int,int> HBsearchTS, std::pair<int,int> HEsearchTS, std::pair<int,int> HOsearchTS, std::pair<int,int> HFsearchTS);
   HcalZSAlgoRealistic(bool markAndPass, int levelHB, int levelHE, int levelHO, int levelHF, std::pair<int,int> HBsearchTS, std::pair<int,int> HEsearchTS, std::pair<int,int> HOsearchTS, std::pair<int,int> HFsearchTS);
-  
+  ~HcalZSAlgoRealistic() override = default; 
 protected:
   //these need to be overloads instead of templates to avoid linking issues when calling private member function templates
-  virtual bool shouldKeep(const HBHEDataFrame& digi) const;
-  virtual bool shouldKeep(const HODataFrame& digi) const;
-  virtual bool shouldKeep(const HFDataFrame& digi) const;
-  virtual bool shouldKeep(const QIE10DataFrame& digi) const;
-  virtual bool shouldKeep(const QIE11DataFrame& digi) const;
+  bool shouldKeep(const HBHEDataFrame& digi) const override;
+  bool shouldKeep(const HODataFrame& digi) const override;
+  bool shouldKeep(const HFDataFrame& digi) const override;
+  bool shouldKeep(const QIE10DataFrame& digi) const override;
+  bool shouldKeep(const QIE11DataFrame& digi) const override;
 private:
   bool usingDBvalues; 
   int thresholdHB_, thresholdHE_, thresholdHO_, thresholdHF_;

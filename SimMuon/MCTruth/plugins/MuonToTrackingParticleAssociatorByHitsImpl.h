@@ -49,9 +49,9 @@ class MuonToTrackingParticleAssociatorByHitsImpl: public reco::MuonToTrackingPar
    // ---------- member functions ---------------------------
    
  private:
-   MuonToTrackingParticleAssociatorByHitsImpl(const MuonToTrackingParticleAssociatorByHitsImpl&); // stop default
+   MuonToTrackingParticleAssociatorByHitsImpl(const MuonToTrackingParticleAssociatorByHitsImpl&) = delete; // stop default
    
-   const MuonToTrackingParticleAssociatorByHitsImpl& operator=(const MuonToTrackingParticleAssociatorByHitsImpl&); // stop default
+   const MuonToTrackingParticleAssociatorByHitsImpl& operator=(const MuonToTrackingParticleAssociatorByHitsImpl&) = delete; // stop default
    
       // ---------- member data --------------------------------
    TrackerMuonHitExtractor const* m_hitExtractor;

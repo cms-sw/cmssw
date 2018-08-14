@@ -8,18 +8,18 @@ from RecoEgamma.EgammaIsolationAlgos.electronTrackIsolationLcone_cfi import *
 from RecoEgamma.EgammaIsolationAlgos.electronTrackIsolationScone_cfi import *
 from RecoEgamma.EgammaIsolationAlgos.pfClusterIsolation_cfi import *
 #Standard reco sequence with both electrons and photons
-egammaIsolationSequence = cms.Sequence(
-    electronEcalRecHitIsolationLcone + 
-    electronEcalRecHitIsolationScone + 
-    electronHcalTowerIsolationLcone +
-    electronHcalDepth1TowerIsolationLcone +
-    electronHcalDepth2TowerIsolationLcone +
-    electronHcalTowerIsolationScone +
-    electronHcalDepth1TowerIsolationScone +
-    electronHcalDepth2TowerIsolationScone +
-    electronTrackIsolationLcone + 
-    electronTrackIsolationScone +
-    pfClusterIsolationSequence
+egammaIsolationTask = cms.Task(
+    electronEcalRecHitIsolationLcone,
+    electronEcalRecHitIsolationScone,
+    electronHcalTowerIsolationLcone,
+    electronHcalDepth1TowerIsolationLcone,
+    electronHcalDepth2TowerIsolationLcone,
+    electronHcalTowerIsolationScone,
+    electronHcalDepth1TowerIsolationScone,
+    electronHcalDepth2TowerIsolationScone,
+    electronTrackIsolationLcone,
+    electronTrackIsolationScone,
+    pfClusterIsolationTask
 )
-
+egammaIsolationSequence = cms.Sequence(egammaIsolationTask)
 

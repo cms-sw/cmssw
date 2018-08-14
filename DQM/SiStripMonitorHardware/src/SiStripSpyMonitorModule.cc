@@ -54,11 +54,11 @@ class SiStripSpyMonitorModule : public DQMEDAnalyzer
 
 
   explicit SiStripSpyMonitorModule(const edm::ParameterSet&);
-  ~SiStripSpyMonitorModule();
+  ~SiStripSpyMonitorModule() override;
 
  private:
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void dqmBeginRun(const edm::Run& , const edm::EventSetup& ) override;
 
@@ -207,8 +207,12 @@ void SiStripSpyMonitorModule::bookHistograms(DQMStore::IBooker & ibooker , const
 				     << ibooker.pwd() 
 				     << std::endl;
   
+  edm::ESHandle<TkDetMap> tkDetMapHandle;
+  eSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
+  const TkDetMap* tkDetMap = tkDetMapHandle.product();
+
   //this propagates dqm_ to the histoclass, must be called !
-  histManager_.bookTopLevelHistograms(ibooker);
+  histManager_.bookTopLevelHistograms(ibooker, tkDetMap);
   
   if (fillAllDetailedHistograms_) histManager_.bookAllFEDHistograms(ibooker);
 

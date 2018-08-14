@@ -11,11 +11,11 @@ namespace edm {
   
   public:
     RandomtXiGunProducer(const ParameterSet &);
-    virtual ~RandomtXiGunProducer();
+    ~RandomtXiGunProducer() override;
 
   private:
    
-    virtual void produce(Event & e, const EventSetup& es) override;
+    void produce(Event & e, const EventSetup& es) override;
 
     HepMC::FourVector make_particle(double t,double Xi,double phi,int PartID, int direction);
     double Minimum_t(double xi) {double partE = fpEnergy*(1.-xi);

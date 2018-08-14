@@ -58,8 +58,8 @@ namespace sistrip {
     {
       public:
         SpyUnpackerModule( const edm::ParameterSet& );
-        virtual ~SpyUnpackerModule();
-        virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+        ~SpyUnpackerModule() override;
+        void produce( edm::Event&, const edm::EventSetup& ) override;
       private:
         static const char* msgLb_;
 
@@ -72,8 +72,7 @@ namespace sistrip {
         const bool allowIncompleteEvents_;  //!< Allow inconsistent (by event count, APV address) event storage.
         const bool storeCounters_;          //!< True = store L1ID and TotalEventCount by FED key.
         const bool storeScopeRawDigis_;           //!< True = store the scope mode raw digis.
-
-        // Unpacking
+      // Unpacking
         SpyUnpacker* unpacker_;      //!<
     
       //utilities for cabling etc...
@@ -93,11 +92,11 @@ namespace sistrip {
     allowIncompleteEvents_(pset.getParameter<bool>("AllowIncompleteEvents")),
     storeCounters_(pset.getParameter<bool>("StoreCounters")),
     storeScopeRawDigis_(pset.getParameter<bool>("StoreScopeRawDigis")),
-    unpacker_(NULL)
+    unpacker_(nullptr)
   {
     productToken_ = consumes<FEDRawDataCollection>(productLabel_);
 
-    if ((fed_ids_.size()==0)) {
+    if ((fed_ids_.empty())) {
       LogInfo(msgLb_) << "No FED IDs specified, so will try to unpack all FEDs with data" << std::endl;
       fed_ids_.reserve(FEDNumbering::MAXSiStripFEDID-FEDNumbering::MINSiStripFEDID+1);
       for ( uint32_t ifed = FEDNumbering::MINSiStripFEDID; ifed <= FEDNumbering::MAXSiStripFEDID; ifed++ ) {

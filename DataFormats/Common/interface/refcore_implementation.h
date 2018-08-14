@@ -29,6 +29,8 @@
 
 // forward declarations
 namespace edm {
+  class EDProductGetter;
+  
   namespace refcoreimpl {
     const unsigned short kTransientBit = 0x8000;
     const unsigned short kProcessIndexMask = 0x3FFF;

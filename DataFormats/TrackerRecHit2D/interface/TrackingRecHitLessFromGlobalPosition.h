@@ -2,7 +2,6 @@
 #define DataFormats_TrackerRecHit2D_TrackingRecHitLessFromGlobalPosition_H
 
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
-#include "DataFormats/TrajectorySeed/interface/GeomDetLess.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include <functional>
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"

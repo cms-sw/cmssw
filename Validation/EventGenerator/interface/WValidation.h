@@ -35,10 +35,10 @@
 class WValidation : public DQMEDAnalyzer{
   public:
 	explicit WValidation(const edm::ParameterSet&);
-	virtual ~WValidation();
-	virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-        virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
-        virtual void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
+	~WValidation() override;
+	void analyze(const edm::Event&, const edm::EventSetup&) override;
+        void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
+        void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
 
   private:
 

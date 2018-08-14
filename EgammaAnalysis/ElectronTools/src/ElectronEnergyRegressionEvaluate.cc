@@ -16,10 +16,10 @@
 ElectronEnergyRegressionEvaluate::ElectronEnergyRegressionEvaluate() : 
   fIsInitialized(kFALSE),
   fVersionType(kNoTrkVar),
-  forestCorrection_eb(0), 
-  forestCorrection_ee(0), 
-  forestUncertainty_eb(0), 
-  forestUncertainty_ee(0) {
+  forestCorrection_eb(nullptr), 
+  forestCorrection_ee(nullptr), 
+  forestUncertainty_eb(nullptr), 
+  forestUncertainty_ee(nullptr) {
 }
 
 ElectronEnergyRegressionEvaluate::~ElectronEnergyRegressionEvaluate() {}

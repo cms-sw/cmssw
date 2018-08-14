@@ -1,8 +1,12 @@
+from __future__ import print_function
 import os
 import coral,datetime
 from RecoLuminosity.LumiDB import nameDealer,lumiTime,CommonUtil,lumiCorrections
 import array
-from RecoLuminosity.LumiDB import argparse, nameDealer, selectionParser, hltTrgSeedMapper, \
+import argparse
+
+import six
+from RecoLuminosity.LumiDB import  nameDealer, selectionParser, hltTrgSeedMapper, \
      connectstrParser, cacheconfigParser, tablePrinter, csvReporter, csvSelectionParser
 from RecoLuminosity.LumiDB.wordWrappers import wrap_always, wrap_onspace, wrap_onspace_strict
 from pprint import pprint, pformat
@@ -89,7 +93,7 @@ def deliveredLumiForRange (dbsession, parameters,inputRange,finecorrections=None
         runs=inputRange.runs()
     for r in sorted(runs):
         if parameters.verbose:
-            print "run", run
+            print("run", run)
         c=None
         if finecorrections:
             c=finecorrections[r]
@@ -124,9 +128,9 @@ def recordedLumiForRange (dbsession, parameters, inputRange,finecorrections=None
                 maxLumiSectionDict[run] = max ( max (lslist),
                                            maxLumiSectionDict.get(run,0) )
             runLsDict.setdefault (run, []).append (lslist)
-        for run, metaLsList in sorted (runLsDict.iteritems()):
+        for run, metaLsList in sorted (six.iteritems(runLsDict)):
             if parameters.verbose:
-                print "run", run
+                print("run", run)
             runLumiData = []
             for lslist in metaLsList:
                 if finecorrections and finecorrections[run]:
@@ -209,7 +213,7 @@ def deliveredLumiForRun (dbsession, parameters, runnum, finecorrections=None ):
             lumidata = [str (runnum), str (totalls), '%.3f'%delivered, parameters.beammode]
         return lumidata
     except Exception as e:
-        print str (e)
+        print(str (e))
         dbsession.transaction().rollback()
         del dbsession
 
@@ -365,12 +369,12 @@ def recordedLumiForRun (dbsession, parameters, runnum, lslist=None,finecorrectio
             if len(lumidata[2])!=0:
                 for lumi, deaddata in lumidata[2].items():
                     if deaddata[1] == 0.0 and deaddata[2]!=0 and deaddata[0]!=0:
-                        print '[Warning] : run %s :ls %d has 0 instlumi but trigger has data' % (runnum, lumi)
+                        print('[Warning] : run %s :ls %d has 0 instlumi but trigger has data' % (runnum, lumi))
                     if (deaddata[2] == 0 or deaddata[0] == 0) and deaddata[1]!=0.0:
-                        print '[Warning] : run %s :ls %d has 0 dead counts or 0 zerobias bit counts, but inst!=0' % (runnum, lumi)
+                        print('[Warning] : run %s :ls %d has 0 dead counts or 0 zerobias bit counts, but inst!=0' % (runnum, lumi))
         #print 'lumidata[2] ', lumidata[2]
     except Exception as e:
-        print str (e)
+        print(str (e))
         dbsession.transaction().rollback()
         del dbsession
     #print 'before return lumidata ', lumidata
@@ -394,9 +398,9 @@ def filterDeadtable (inTable, lslist):
 
 def printDeliveredLumi (lumidata, mode):
     labels = [ ('Run', 'Delivered LS', 'Delivered'+u' (/\u03bcb)'.encode ('utf-8'), 'Beam Mode')]
-    print tablePrinter.indent (labels+lumidata, hasHeader = True, separateRows = False,
+    print(tablePrinter.indent (labels+lumidata, hasHeader = True, separateRows = False,
                                prefix = '| ', postfix = ' |', justify = 'right',
-                               delim = ' | ', wrapfunc = lambda x: wrap_onspace (x, 20) )
+                               delim = ' | ', wrapfunc = lambda x: wrap_onspace (x, 20) ))
 
 def dumpData (lumidata, filename):
     """
@@ -501,14 +505,14 @@ def printPerLSLumi (lumidata, isVerbose = False):
                 totalRecorded = totalRecorded+dataperls[1]
             datatoprint.append (rowdata)
     totalrow.append ([str (totalSelectedLS), '%.3f'% (totalDelivered), '%.3f'% (totalRecorded)])
-    print ' ==  = '
-    print tablePrinter.indent (labels+datatoprint, hasHeader = True, separateRows = False, prefix = '| ',
+    print(' ==  = ')
+    print(tablePrinter.indent (labels+datatoprint, hasHeader = True, separateRows = False, prefix = '| ',
                                postfix = ' |', justify = 'right', delim = ' | ',
-                               wrapfunc = lambda x: wrap_onspace_strict (x, 22))
-    print ' ==  =  Total : '
-    print tablePrinter.indent (lastrowlabels+totalrow, hasHeader = True, separateRows = False, prefix = '| ',
+                               wrapfunc = lambda x: wrap_onspace_strict (x, 22)))
+    print(' ==  =  Total : ')
+    print(tablePrinter.indent (lastrowlabels+totalrow, hasHeader = True, separateRows = False, prefix = '| ',
                                postfix = ' |', justify = 'right', delim = ' | ',
-                               wrapfunc = lambda x: wrap_onspace (x, 20))    
+                               wrapfunc = lambda x: wrap_onspace (x, 20)))    
 
     
 def dumpPerLSLumi (lumidata):
@@ -600,19 +604,19 @@ def printRecordedLumi (lumidata, isVerbose = False, hltpath = ''):
                     rowdata += [trg, l1bit, 'N/A', 'N/A', '%.3f'% (effective[trg])]
             datatoprint.append (rowdata)
     #print datatoprint
-    print ' ==  = '
-    print tablePrinter.indent (labels+datatoprint, hasHeader = True, separateRows = False, prefix = '| ',
+    print(' ==  = ')
+    print(tablePrinter.indent (labels+datatoprint, hasHeader = True, separateRows = False, prefix = '| ',
                                postfix = ' |', justify = 'right', delim = ' | ',
-                               wrapfunc = lambda x: wrap_onspace_strict (x, 22))
+                               wrapfunc = lambda x: wrap_onspace_strict (x, 22)))
 
     if len (hltpath) != 0 and hltpath != 'all':
         totalrow.append ([str (totalSelectedLS), '%.3f'% (totalRecorded), '%.3f'% (totalRecordedInPath)])
     else:
         totalrow.append ([str (totalSelectedLS), '%.3f'% (totalRecorded)])
-    print ' ==  =  Total : '
-    print tablePrinter.indent (lastrowlabels+totalrow, hasHeader = True, separateRows = False, prefix = '| ',
+    print(' ==  =  Total : ')
+    print(tablePrinter.indent (lastrowlabels+totalrow, hasHeader = True, separateRows = False, prefix = '| ',
                                postfix = ' |', justify = 'right', delim = ' | ',
-                               wrapfunc = lambda x: wrap_onspace (x, 20))    
+                               wrapfunc = lambda x: wrap_onspace (x, 20)))    
     if isVerbose:
         deadtoprint = []
         deadtimelabels = [ ('Run', 'Lumi section : Dead fraction')]
@@ -632,10 +636,10 @@ def printRecordedLumi (lumidata, isVerbose = False, hltpath = ''):
                 else:
                     t += str (myls)+':'+'%.5f'% (de)+' '
             deadtoprint.append ([str (runnum), t])
-        print ' ==  = '
-        print tablePrinter.indent (deadtimelabels+deadtoprint, hasHeader = True, separateRows = True, prefix = '| ',
+        print(' ==  = ')
+        print(tablePrinter.indent (deadtimelabels+deadtoprint, hasHeader = True, separateRows = True, prefix = '| ',
                                    postfix = ' |', justify = 'right', delim = ' | ',
-                                   wrapfunc = lambda x: wrap_onspace (x, 80))
+                                   wrapfunc = lambda x: wrap_onspace (x, 80)))
 
 
 def dumpRecordedLumi (lumidata, hltpath = ''):
@@ -739,13 +743,13 @@ def printOverviewData (delivered, recorded, hltpath = ''):
     else:
         totaltable = [[str (totalDeliveredLS), '%.3f'% (totalDelivered), str (totalSelectedLS),
                        '%.3f'% (totalRecorded)]]
-    print tablePrinter.indent (toprowlabels+datatable, hasHeader = True, separateRows = False, prefix = '| ',
+    print(tablePrinter.indent (toprowlabels+datatable, hasHeader = True, separateRows = False, prefix = '| ',
                                postfix = ' |', justify = 'right', delim = ' | ',
-                               wrapfunc = lambda x: wrap_onspace (x, 20))
-    print ' ==  =  Total : '
-    print tablePrinter.indent (lastrowlabels+totaltable, hasHeader = True, separateRows = False, prefix = '| ',
+                               wrapfunc = lambda x: wrap_onspace (x, 20)))
+    print(' ==  =  Total : ')
+    print(tablePrinter.indent (lastrowlabels+totaltable, hasHeader = True, separateRows = False, prefix = '| ',
                                postfix = ' |', justify = 'right', delim = ' | ',
-                               wrapfunc = lambda x: wrap_onspace (x, 20))
+                               wrapfunc = lambda x: wrap_onspace (x, 20)))
 
 
 def dumpOverview (delivered, recorded, hltpath = ''):
@@ -790,7 +794,7 @@ def xingLuminosityForRun (dbsession, runnum, parameters, lumiXingDict = {},
         dbsession.transaction().start (True)
         schema = dbsession.schema (parameters.lumischema)
         if not schema:
-            raise 'cannot connect to schema ', parameters.lumischema
+            raise RuntimeError('cannot connect to schema '+ parameters.lumischema)
         detailOutput = coral.AttributeList()
         detailOutput.extend ('startorbit',    'unsigned int')
         detailOutput.extend ('cmslsnum',      'unsigned int')
@@ -855,8 +859,8 @@ def xingLuminosityForRun (dbsession, runnum, parameters, lumiXingDict = {},
         dbsession.transaction().commit()
         return lumiXingDict      
     except Exception as e:
-        print str (e)
-        print "whoops"
+        print(str (e))
+        print("whoops")
         dbsession.transaction().rollback()
         del dbsession
 
@@ -865,7 +869,7 @@ def flatten (obj):
     '''Given nested lists or tuples, returns a single flattened list'''
     result = []
     for piece in obj:
-        if hasattr (piece, '__iter__') and not isinstance (piece, basestring):
+        if hasattr (piece, '__iter__') and not isinstance (piece, str):
             result.extend( flatten (piece) )
         else:
             result.append (piece)
@@ -877,7 +881,7 @@ def mergeXingLumi (triplet, xingLumiDict):
     luminosity information is merged with the general information'''
     runNumber = triplet[0]
     deadTable = triplet[2]
-    for lumi, lumiList in deadTable.iteritems():
+    for lumi, lumiList in six.iteritems(deadTable):
         key = ( int(runNumber), int(lumi) )
         xingLumiValues = xingLumiDict.get (key)
         if xingLumiValues:
@@ -925,8 +929,8 @@ def allruns(schemaHandle,requireRunsummary=True,requireLumisummary=False,require
     find all runs in the DB. By default requires cmsrunsummary table contain the run. The condition can be loosed in situation where db loading failed on certain data portions.
     '''
     if not requireRunsummary and not requireLumiummary and not requireTrg and not requireHlt:
-        print 'must require at least one table'
-        raise
+        print('must require at least one table')
+        raise RuntimeError('one table')
     runresult=[]
     runlist=[]
     numdups=0
@@ -1780,7 +1784,7 @@ if __name__=='__main__':
     session.transaction().start(True)
     schema=session.nominalSchema()
     allruns=allruns(schema,requireLumisummary=True,requireTrg=True,requireHlt=True)
-    print 'allruns in runsummary and lumisummary and trg and hlt ',len(allruns)
+    print('allruns in runsummary and lumisummary and trg and hlt ',len(allruns))
     #q=schema.newQuery()
     #runsummaryOut=runsummaryByrun(q,139400)
     #del q
@@ -1874,4 +1878,4 @@ if __name__=='__main__':
     #print 'runsbyfill ',runsbyfill
     #print
     #print 'runsinaweek ',runsinaweek.keys()
-    print 'all fills ',allfills
+    print('all fills ',allfills)

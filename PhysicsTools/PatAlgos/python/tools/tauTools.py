@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 from FWCore.GuiBrowsers.ConfigToolBase import *
@@ -19,7 +20,7 @@ def switchToCaloTau(process,
                     tauSource = cms.InputTag('caloRecoTauProducer'),
                     patTauLabel = "",
                     postfix = ""):
-    print ' switching PAT Tau input to: ', tauSource
+    print(' switching PAT Tau input to: ', tauSource)
 
     applyPostfix(process, "tauMatch" + patTauLabel, postfix).src = tauSource
     applyPostfix(process, "tauGenJetMatch"+ patTauLabel, postfix).src = tauSource
@@ -30,7 +31,7 @@ def switchToCaloTau(process,
     applyPostfix(process, "patTaus" + patTauLabel, postfix).tauIDSources = _buildIDSourcePSet('caloRecoTau', classicTauIDSources, postfix)
 
     ## Isolation is somewhat an issue, so we start just by turning it off
-    print "NO PF Isolation will be computed for CaloTau (this could be improved later)"
+    print("NO PF Isolation will be computed for CaloTau (this could be improved later)")
     applyPostfix(process, "patTaus" + patTauLabel, postfix).isolation   = cms.PSet()
     applyPostfix(process, "patTaus" + patTauLabel, postfix).isoDeposits = cms.PSet()
     applyPostfix(process, "patTaus" + patTauLabel, postfix).userIsolation = cms.PSet()
@@ -57,7 +58,7 @@ def _switchToPFTau(process,
                    patTauLabel = "",
                    postfix = ""):
     """internal auxiliary function to switch to **any** PFTau collection"""
-    print ' switching PAT Tau input to: ', tauSource
+    print(' switching PAT Tau input to: ', tauSource)
 
     applyPostfix(process, "tauMatch" + patTauLabel, postfix).src = tauSource
     applyPostfix(process, "tauGenJetMatch" + patTauLabel, postfix).src = tauSource
@@ -118,6 +119,7 @@ hpsTauIDSources = [
     ("againstMuonLoose3", "DiscriminationByLooseMuonRejection3"),
     ("againstMuonTight3", "DiscriminationByTightMuonRejection3"),
     ("byIsolationMVArun2v1DBoldDMwLTraw", "DiscriminationByIsolationMVArun2v1DBoldDMwLTraw"),
+    ("byVVLooseIsolationMVArun2v1DBoldDMwLT", "DiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT"),
     ("byVLooseIsolationMVArun2v1DBoldDMwLT", "DiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT"),
     ("byLooseIsolationMVArun2v1DBoldDMwLT", "DiscriminationByLooseIsolationMVArun2v1DBoldDMwLT"),
     ("byMediumIsolationMVArun2v1DBoldDMwLT", "DiscriminationByMediumIsolationMVArun2v1DBoldDMwLT"),
@@ -306,7 +308,7 @@ class AddTauCollection(ConfigToolBase):
         ## disable computation of particle-flow based IsoDeposits
         ## in case tau is of CaloTau type
         if typeLabel == 'Tau':
-            print "NO PF Isolation will be computed for CaloTau (this could be improved later)"
+            print("NO PF Isolation will be computed for CaloTau (this could be improved later)")
             doPFIsoDeposits = False
 
         ## create old module label from standardAlgo

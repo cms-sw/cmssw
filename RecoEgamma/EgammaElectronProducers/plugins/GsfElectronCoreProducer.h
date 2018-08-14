@@ -13,8 +13,8 @@ class GsfElectronCoreProducer : public GsfElectronCoreBaseProducer
     //static void fillDescriptions( edm::ConfigurationDescriptions & ) ;
 
     explicit GsfElectronCoreProducer( const edm::ParameterSet & ) ;
-    virtual ~GsfElectronCoreProducer() ;
-    virtual void produce( edm::Event &, const edm::EventSetup & ) ;
+    ~GsfElectronCoreProducer() override ;
+    void produce( edm::Event &, const edm::EventSetup & ) override ;
 
   private:
 

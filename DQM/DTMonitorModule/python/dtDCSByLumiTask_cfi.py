@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-dtDCSByLumiMonitor = cms.EDAnalyzer("DTDCSByLumiTask",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dtDCSByLumiMonitor = DQMEDAnalyzer('DTDCSByLumiTask',
 )
 
 

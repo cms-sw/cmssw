@@ -90,18 +90,22 @@ class PFEnergyCalibration
   const ESEEIntercalibConstants* esEEInterCalib_;
   
   // Barrel calibration (eta 0.00 -> 1.48)
-  TF1* faBarrel;
-  TF1* fbBarrel; 
-  TF1* fcBarrel; 
-  TF1* faEtaBarrel; 
-  TF1* fbEtaBarrel; 
+  std::unique_ptr<TF1> faBarrel;
+  std::unique_ptr<TF1> fbBarrel; 
+  std::unique_ptr<TF1> fcBarrel; 
+  std::unique_ptr<TF1> faEtaBarrelEH; 
+  std::unique_ptr<TF1> fbEtaBarrelEH; 
+  std::unique_ptr<TF1> faEtaBarrelH; 
+  std::unique_ptr<TF1> fbEtaBarrelH; 
 
   // Endcap calibration (eta 1.48 -> 3.xx)
-  TF1* faEndcap;
-  TF1* fbEndcap; 
-  TF1* fcEndcap; 
-  TF1* faEtaEndcap; 
-  TF1* fbEtaEndcap; 
+  std::unique_ptr<TF1> faEndcap;
+  std::unique_ptr<TF1> fbEndcap; 
+  std::unique_ptr<TF1> fcEndcap; 
+  std::unique_ptr<TF1> faEtaEndcapEH; 
+  std::unique_ptr<TF1> fbEtaEndcapEH; 
+  std::unique_ptr<TF1> faEtaEndcapH; 
+  std::unique_ptr<TF1> fbEtaEndcapH; 
 
  private:
   
@@ -126,13 +130,17 @@ class PFEnergyCalibration
   double aBarrel(double x) const;
   double bBarrel(double x) const;
   double cBarrel(double x) const;
-  double aEtaBarrel(double x) const;
-  double bEtaBarrel(double x) const; 
+  double aEtaBarrelEH(double x) const;
+  double bEtaBarrelEH(double x) const; 
+  double aEtaBarrelH(double x) const;
+  double bEtaBarrelH(double x) const; 
   double aEndcap(double x) const;
   double bEndcap(double x) const;
   double cEndcap(double x) const;
-  double aEtaEndcap(double x) const; 
-  double bEtaEndcap(double x) const;
+  double aEtaEndcapEH(double x) const; 
+  double bEtaEndcapEH(double x) const;
+  double aEtaEndcapH(double x) const; 
+  double bEtaEndcapH(double x) const;
 
   // Threshold correction (offset)
   double threshE, threshH;

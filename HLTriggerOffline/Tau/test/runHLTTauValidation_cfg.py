@@ -12,13 +12,14 @@ process.options = cms.untracked.PSet(
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(-1)
 )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        "/store/relval/CMSSW_7_0_0_pre3/RelValQQH1352T_Tauola/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/18ECF342-A314-E311-BD79-002618943979.root",
-        "/store/relval/CMSSW_7_0_0_pre3/RelValQQH1352T_Tauola/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/724D547F-9B14-E311-B1DB-003048678F78.root",
+	'/store/relval/CMSSW_9_0_0/RelValQQH1352T_13/GEN-SIM-RECO/90X_mcRun2_asymptotic_v5-v1/00000/00BB2C00-480F-E711-9381-0CC47A7C3636.root',
+	'/store/relval/CMSSW_9_0_0/RelValQQH1352T_13/GEN-SIM-RECO/90X_mcRun2_asymptotic_v5-v1/00000/2ED8B184-480F-E711-8E31-0CC47A4C8E28.root',
+	'/store/relval/CMSSW_9_0_0/RelValQQH1352T_13/GEN-SIM-RECO/90X_mcRun2_asymptotic_v5-v1/00000/C8E5EDFA-480F-E711-994B-0025905B85CA.root'
     )
 )
 

@@ -1,7 +1,10 @@
 #include "DQM/HcalCommon/interface/DQHarvester.h"
+#include "FWCore/Framework/interface/Run.h"
 
 namespace hcaldqm
 {
+	using namespace constants;
+
 	DQHarvester::DQHarvester(edm::ParameterSet const& ps) :
 		DQModule(ps)
 	{}
@@ -14,7 +17,10 @@ namespace hcaldqm
 				return;
 
 		//      TEMPORARY FIX
-		_vhashFEDs.clear(); _vcdaqEids.clear();
+		if (_ptype != fOffline) { // hidefed2crate
+			_vhashFEDs.clear();
+			_vcdaqEids.clear();
+		}
 
 		//	- get the Hcal Electronics Map
 		//	- collect all the FED numbers and FED's rawIds
@@ -22,60 +28,68 @@ namespace hcaldqm
 		es.get<HcalDbRecord>().get(dbs);
 		_emap = dbs->getHcalMapping();
 
-		_vFEDs = utilities::getFEDList(_emap);
-		for (std::vector<int>::const_iterator it=_vFEDs.begin();
-			it!=_vFEDs.end(); ++it)
-		{
-			//
-			//	FIXME
-			//	until there exists a map of FED2Crate and Crate2FED,
-			//	all the unknown Crates will be mapped to 0...
-			//
-			if (*it==0)
+		if (_ptype != fOffline) { // hidefed2crate
+			_vFEDs = utilities::getFEDList(_emap);
+			for (std::vector<int>::const_iterator it=_vFEDs.begin();
+				it!=_vFEDs.end(); ++it)
 			{
-				_vhashFEDs.push_back(HcalElectronicsId(
-					0, SLOT_uTCA_MIN, FIBER_uTCA_MIN1,
-					FIBERCH_MIN, false).rawId());
-				continue;
+				//
+				//	FIXME
+				//	until there exists a map of FED2Crate and Crate2FED,
+				//	all the unknown Crates will be mapped to 0...
+				//
+				if (*it==0)
+				{
+					_vhashFEDs.push_back(HcalElectronicsId(
+						0, SLOT_uTCA_MIN, FIBER_uTCA_MIN1,
+						FIBERCH_MIN, false).rawId());
+					continue;
+				}
+		
+				if (*it>FED_VME_MAX)
+	            {
+	                std::pair<uint16_t, uint16_t> cspair = utilities::fed2crate(*it);
+					_vhashFEDs.push_back(HcalElectronicsId(
+						cspair.first, cspair.second, FIBER_uTCA_MIN1,
+						FIBERCH_MIN, false).rawId());
+	            }
+				else
+					_vhashFEDs.push_back(HcalElectronicsId(FIBERCH_MIN,
+						FIBER_VME_MIN, SPIGOT_MIN, (*it)-FED_VME_MIN).rawId());
 			}
-	
-			if (*it>FED_VME_MAX)
-            {
-                std::pair<uint16_t, uint16_t> cspair = utilities::fed2crate(*it);
-				_vhashFEDs.push_back(HcalElectronicsId(
-					cspair.first, cspair.second, FIBER_uTCA_MIN1,
-					FIBERCH_MIN, false).rawId());
-            }
-			else
-				_vhashFEDs.push_back(HcalElectronicsId(FIBERCH_MIN,
-					FIBER_VME_MIN, SPIGOT_MIN, (*it)-FED_VME_MIN).rawId());
-		}
 
-		//	get the FEDs registered at cDAQ
-		edm::eventsetup::EventSetupRecordKey recordKey(
-			edm::eventsetup::EventSetupRecordKey::TypeTag::findType(
-			"RunInfoRcd"));
-		if (es.find(recordKey))
-		{
-			edm::ESHandle<RunInfo> ri;
-			es.get<RunInfoRcd>().get(ri);
-			std::vector<int> vfeds= ri->m_fed_in;
-			for (std::vector<int>::const_iterator it=vfeds.begin();
-				it!=vfeds.end(); ++it)
+			//	get the FEDs registered at cDAQ
+			edm::eventsetup::EventSetupRecordKey recordKey(
+				edm::eventsetup::EventSetupRecordKey::TypeTag::findType(
+				"RunInfoRcd"));
+			if (es.find(recordKey))
 			{
-				if (*it>=constants::FED_VME_MIN && *it<=FED_VME_MAX)
-					_vcdaqEids.push_back(HcalElectronicsId(
-						constants::FIBERCH_MIN,
-						constants::FIBER_VME_MIN, SPIGOT_MIN,
-						(*it)-FED_VME_MIN).rawId());
-				else if (*it>=constants::FED_uTCA_MIN && 
-					*it<=FEDNumbering::MAXHCALuTCAFEDID)
-                {
-                    std::pair<uint16_t, uint16_t> cspair = utilities::fed2crate(*it);
-					_vcdaqEids.push_back(HcalElectronicsId(
-						cspair.first, cspair.second,
-						FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
-                }
+				edm::ESHandle<RunInfo> ri;
+				es.get<RunInfoRcd>().get(ri);
+				std::vector<int> vfeds= ri->m_fed_in;
+				for (std::vector<int>::const_iterator it=vfeds.begin();
+					it!=vfeds.end(); ++it)
+				{
+					if (*it>=constants::FED_VME_MIN && *it<=FED_VME_MAX)
+						_vcdaqEids.push_back(HcalElectronicsId(
+							constants::FIBERCH_MIN,
+							constants::FIBER_VME_MIN, SPIGOT_MIN,
+							(*it)-FED_VME_MIN).rawId());
+					else if (*it>=constants::FED_uTCA_MIN && 
+						*it<=FEDNumbering::MAXHCALuTCAFEDID)
+	                {
+	                    std::pair<uint16_t, uint16_t> cspair = utilities::fed2crate(*it);
+						_vcdaqEids.push_back(HcalElectronicsId(
+							cspair.first, cspair.second,
+							FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
+	                }
+				}
+			}
+		} else {
+			_vCrates = utilities::getCrateList(_emap);
+			std::map<int, uint32_t> crateHashMap = utilities::getCrateHashMap(_emap);
+			for (auto& it_crate : _vCrates) {
+				_vhashCrates.push_back(crateHashMap[it_crate]);
 			}
 		}
 

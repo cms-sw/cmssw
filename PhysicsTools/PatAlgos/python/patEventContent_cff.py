@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 patEventContentNoCleaning = [
     'keep *_selectedPatPhotons*_*_*',
+    'keep *_selectedPatOOTPhotons*_*_*',
     'keep *_selectedPatElectrons*_*_*',
     'keep *_selectedPatMuons*_*_*',
     'keep *_selectedPatTaus*_*_*',

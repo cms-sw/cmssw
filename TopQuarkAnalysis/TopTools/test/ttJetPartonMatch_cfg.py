@@ -23,7 +23,6 @@ process.maxEvents = cms.untracked.PSet(
 
 ## configure process options
 process.options = cms.untracked.PSet(
-    allowUnscheduled = cms.untracked.bool(True),
     wantSummary      = cms.untracked.bool(True)
 )
 
@@ -34,15 +33,21 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
+process.task = cms.Task()
+
 ## std sequence for PAT
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+process.task.add(process.patCandidatesTask)
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
+process.task.add(process.selectedPatCandidatesTask)
 
 ## std sequence to produce the ttGenEvt
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
+process.task.add(process.makeGenEvtTask)
 
 ## configure jet-parton matching
 process.load("TopQuarkAnalysis.TopTools.TtFullHadJetPartonMatch_cfi")
+process.task.add(process.ttFullHadJetPartonMatch)
 process.ttFullHadJetPartonMatch.verbosity  = 1              #default: 0
 #process.ttFullHadJetPartonMatch.algorithm  = "minSumDist"   #default: totalMinDist
 #process.ttFullHadJetPartonMatch.useDeltaR  = True           #default: True
@@ -51,6 +56,7 @@ process.ttFullHadJetPartonMatch.verbosity  = 1              #default: 0
 #process.ttFullHadJetPartonMatch.maxNJets   = 7              #default: 6
 #process.ttFullHadJetPartonMatch.maxNComb   = 1              #default: 1
 process.load("TopQuarkAnalysis.TopTools.TtFullLepJetPartonMatch_cfi")
+process.task.add(process.ttFullLepJetPartonMatch)
 process.ttFullLepJetPartonMatch.verbosity  = 1              #default: 0
 #process.ttFullLepJetPartonMatch.algorithm  = "minSumDist"   #default: totalMinDist
 #process.ttFullLepJetPartonMatch.useDeltaR  = True           #default: True
@@ -59,6 +65,7 @@ process.ttFullLepJetPartonMatch.verbosity  = 1              #default: 0
 #process.ttFullLepJetPartonMatch.maxNJets   = 3              #default: 2
 #process.ttFullLepJetPartonMatch.maxNComb   = 1              #default: 1
 process.load("TopQuarkAnalysis.TopTools.TtSemiLepJetPartonMatch_cfi")
+process.task.add(process.ttSemiLepJetPartonMatch)
 process.ttSemiLepJetPartonMatch.verbosity  = 1              #default: 0
 #process.ttSemiLepJetPartonMatch.algorithm  = "minSumDist"   #default: totalMinDist
 #process.ttSemiLepJetPartonMatch.useDeltaR  = True           #default: True
@@ -77,4 +84,4 @@ process.out.outputCommands += ['keep *_ttFullHadJetPartonMatch_*_*',
                                'keep *_ttSemiLepJetPartonMatch_*_*']
 
 ## output path
-process.outpath = cms.EndPath(process.out)
+process.outpath = cms.EndPath(process.out, process.task)

@@ -42,6 +42,7 @@
 #include <atomic>
 
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #ifndef IOSTREAM_INCLUDED
 #endif
@@ -69,7 +70,7 @@ namespace edm
 
   // ---  class-wide serial number stamper:
   //
-[[cms::thread_safe]] static std::atomic<int>  ourSerial(  0 );
+CMS_THREAD_SAFE static std::atomic<int>  ourSerial(  0 );
 const unsigned int  maxIDlength( 200 );		// changed 4/28/06 from 20
 
 
@@ -244,7 +245,7 @@ void ErrorObj::set( const ELseverityLevel & sev, const ELstring & id )  {
 
   clear();
 
-  myTimestamp = time( 0 );
+  myTimestamp = time( nullptr );
   mySerial = ++ ourSerial;
 
   setID( id );

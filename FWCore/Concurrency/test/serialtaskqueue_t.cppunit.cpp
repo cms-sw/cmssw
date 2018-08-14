@@ -11,9 +11,9 @@
 #include <unistd.h>
 #include <memory>
 #include <atomic>
-#include <thread>
 #include "tbb/task.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
+#include "FWCore/Concurrency/interface/FunctorTask.h"
 
 class SerialTaskQueue_test : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(SerialTaskQueue_test);
@@ -129,11 +129,11 @@ void SerialTaskQueue_test::testPause()
             CPPUNIT_ASSERT(count++ == 1);
             pWaitTask->decrement_ref_count();
          });
-         queue.push([&count,&queue,pWaitTask]{
+         queue.push([&count,pWaitTask]{
             CPPUNIT_ASSERT(count++ == 2);
             pWaitTask->decrement_ref_count();
          });
-         queue.push([&count,&queue,pWaitTask]{
+         queue.push([&count,pWaitTask]{
             CPPUNIT_ASSERT(count++ == 3);
             pWaitTask->decrement_ref_count();
          });
@@ -146,12 +146,6 @@ void SerialTaskQueue_test::testPause()
       }
    }
    
-}
-
-namespace {
-   void join_thread(std::thread* iThread){
-      if(iThread->joinable()){iThread->join();}
-   }
 }
 
 void SerialTaskQueue_test::stressTest()
@@ -169,12 +163,13 @@ void SerialTaskQueue_test::stressTest()
       
       std::atomic<bool> waitToStart{true};
       {
-         std::thread pushThread([&queue,&waitToStart,pWaitTask,&count]{
+         auto j = edm::make_functor_task(tbb::task::allocate_root(),
+                                         [&queue,&waitToStart,pWaitTask,&count]{
 	    //gcc 4.7 doesn't preserve the 'atomic' nature of waitToStart in the loop
 	    while(waitToStart.load()) {__sync_synchronize();};
             for(unsigned int i = 0; i<nTasks;++i) {
                pWaitTask->increment_ref_count();
-               queue.push([i,&count,pWaitTask] {
+               queue.push([&count,pWaitTask] {
                   ++count;
                   pWaitTask->decrement_ref_count();
                });
@@ -182,17 +177,17 @@ void SerialTaskQueue_test::stressTest()
          
             pWaitTask->decrement_ref_count();
             });
+         tbb::task::enqueue(*j);
          
          waitToStart=false;
          for(unsigned int i=0; i<nTasks;++i) {
             pWaitTask->increment_ref_count();
-            queue.push([i,&count,pWaitTask] {
+            queue.push([&count,pWaitTask] {
                ++count;
                pWaitTask->decrement_ref_count();
             });
          }
          pWaitTask->decrement_ref_count();
-         std::shared_ptr<std::thread>(&pushThread,join_thread);
       }
       waitTask->wait_for_all();
 

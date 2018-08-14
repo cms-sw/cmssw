@@ -43,9 +43,17 @@ namespace reco {
         {}
 
       // ---------- const member functions ---------------------
-      virtual double evaluate(double const* iVariables, double const* iParameters) const override final {
+      double evaluate(double const* iVariables, double const* iParameters) const final {
         return m_function( m_arg1->evaluate(iVariables,iParameters),
                            m_arg2->evaluate(iVariables,iParameters) );
+      }
+      std::vector<std::string> abstractSyntaxTree() const final {
+        auto ret = shiftAST(m_arg1->abstractSyntaxTree());
+        for(auto& v: shiftAST(m_arg2->abstractSyntaxTree()) ) {
+          ret.emplace_back(std::move(v));
+        }
+        ret.emplace(ret.begin(), "func 2 args");
+        return ret;
       }
 
     private:

@@ -40,15 +40,13 @@ class SUSY_HLT_Razor: public DQMEDAnalyzer{
   SUSY_HLT_Razor(const edm::ParameterSet& ps);
   static double CalcMR(TLorentzVector ja,TLorentzVector jb);
   static double CalcR(double MR, TLorentzVector ja,TLorentzVector jb, edm::Handle<edm::View<reco::MET> > met, const std::vector<math::XYZTLorentzVector>& muons);
-  virtual ~SUSY_HLT_Razor();
+  ~SUSY_HLT_Razor() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   protected:
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup)  override;
-  void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
   private:

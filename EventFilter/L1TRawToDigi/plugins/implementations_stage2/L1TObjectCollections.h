@@ -15,13 +15,13 @@ namespace l1t {
        public:
          L1TObjectCollections(edm::Event& e) :
            UnpackerCollections(e) { };
-	 virtual ~L1TObjectCollections() ;
+         ~L1TObjectCollections() override ;
 
-         virtual MuonBxCollection* getMuons() { return  0;}
-	 virtual EGammaBxCollection* getEGammas() { return 0;} //= 0;
-	 virtual EtSumBxCollection* getEtSums() { return 0;}
-	 virtual JetBxCollection* getJets() {return 0; }
-	 virtual TauBxCollection* getTaus() {return 0; }
+         virtual MuonBxCollection*   getMuons(  const unsigned int copy) { return  nullptr;}
+         virtual EGammaBxCollection* getEGammas(const unsigned int copy) { return  nullptr;} //= 0;
+         virtual EtSumBxCollection*  getEtSums( const unsigned int copy) { return  nullptr;}
+         virtual JetBxCollection*    getJets(   const unsigned int copy) { return  nullptr;}
+         virtual TauBxCollection*    getTaus(   const unsigned int copy) { return  nullptr;}
 	 
       };
    }

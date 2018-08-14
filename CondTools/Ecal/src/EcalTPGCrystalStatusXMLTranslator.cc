@@ -44,9 +44,9 @@ std::string EcalTPGCrystalStatusXMLTranslator::dumpXML(const EcalCondHeader& hea
   DOMLSSerializer* writer = impl->createLSSerializer();
   if( writer->getDomConfig()->canSetParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true ))
     writer->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
-  DOMDocumentType* doctype = impl->createDocumentType(cms::xerces::uStr("XML").ptr(), 0, 0 );
+  DOMDocumentType* doctype = impl->createDocumentType(cms::xerces::uStr("XML").ptr(), nullptr, nullptr );
   DOMDocument *    doc = 
-    impl->createDocument( 0, cms::xerces::uStr(TPGCrystalStatus_tag.c_str()).ptr(), doctype );
+    impl->createDocument( nullptr, cms::xerces::uStr(TPGCrystalStatus_tag.c_str()).ptr(), doctype );
 
   DOMElement* root = doc->getDocumentElement();
 

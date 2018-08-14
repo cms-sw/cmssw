@@ -11,7 +11,6 @@ CSCChamberIndexValues::CSCChamberIndexValues(const edm::ParameterSet& iConfig)
 {
   //the following line is needed to tell the framework what
   // data is being produced
-  mapObj = fillChamberIndex();
   setWhatProduced(this,&CSCChamberIndexValues::produceChamberIndex);
   findingRecord<CSCChamberIndexRcd>();
   //now do what ever other initialization is needed
@@ -23,7 +22,6 @@ CSCChamberIndexValues::~CSCChamberIndexValues()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-  delete mapObj;
 }
 
 
@@ -36,8 +34,7 @@ CSCChamberIndexValues::ReturnType
 CSCChamberIndexValues::produceChamberIndex(const CSCChamberIndexRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  CSCChamberIndex* mydata=new CSCChamberIndex( *mapObj );
-  return mydata;
+  return  ReturnType(fillChamberIndex());
   
 }
 

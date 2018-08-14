@@ -1,6 +1,6 @@
 # The following comments couldn't be translated into the new config version:
 
-# replace famosSimHits.SimulateMuons = false
+# replace fastSimProducer.SimulateMuons = false
 # The digis are needed for the L1 simulation
 # replace caloRecHits.RecHitsFactory.doDigis=true
 
@@ -30,12 +30,11 @@ process.load("FastSimulation.Configuration.DiElectrons_cfi")
 # Famos sequences (no HLT here)
 process.load("FastSimulation.Configuration.CommonInputsFake_cff")
 
-process.load("FastSimulation.Configuration.FamosSequences_cff")
 
 # Set the early collions 10TeV parameters (as in the standard RelVals)
-process.famosSimHits.VertexGenerator.SigmaZ=cms.double(3.8)
-process.famosSimHits.VertexGenerator.Emittance = cms.double(7.03e-08)
-process.famosSimHits.VertexGenerator.BetaStar = cms.double(300.0)
+process.fastSimProducer.VertexGenerator.SigmaZ=cms.double(3.8)
+process.fastSimProducer.VertexGenerator.Emittance = cms.double(7.03e-08)
+process.fastSimProducer.VertexGenerator.BetaStar = cms.double(300.0)
 
 
 #     
@@ -107,8 +106,11 @@ process.famosPileUp.PileUpSimulator.averageNumber = 0.0
 #process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
-process.famosSimHits.SimulateCalorimetry = True
-process.famosSimHits.SimulateTracking = True
+process.fastSimProducer.SimulateCalorimetry = True
+for layer in process.fastSimProducer.detectorDefinition.BarrelLayers: 
+    layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
+for layer in process.fastSimProducer.detectorDefinition.ForwardLayers: 
+    layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
 process.MessageLogger.destinations = ['detailedInfo.txt']
 
 

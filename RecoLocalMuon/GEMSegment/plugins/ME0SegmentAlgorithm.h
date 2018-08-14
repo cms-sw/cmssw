@@ -27,32 +27,31 @@ class ME0SegmentAlgorithm : public ME0SegmentAlgorithmBase {
 public:
 
   /// Typedefs
-  typedef std::vector<const ME0RecHit*> EnsembleHitContainer;
-  typedef std::vector<EnsembleHitContainer> ProtoSegments;
+  typedef std::vector<HitAndPositionPtrContainer> ProtoSegments;
 
   /// Constructor
   explicit ME0SegmentAlgorithm(const edm::ParameterSet& ps);
   /// Destructor
-  virtual ~ME0SegmentAlgorithm();
+  ~ME0SegmentAlgorithm() override;
 
   /**
    * Build segments for all desired groups of hits
    */
-  std::vector<ME0Segment> run(const ME0Ensemble& ensemble, const EnsembleHitContainer& rechits); 
+  std::vector<ME0Segment> run(const ME0Chamber * chamber, const HitAndPositionContainer& rechits) override;
 
 private:
   /// Utility functions 
 
   //  Build groups of rechits that are separated in x and y to save time on the segment finding
-  ProtoSegments clusterHits(const EnsembleHitContainer& rechits);
+  ProtoSegments clusterHits(const HitAndPositionContainer& rechits);
 
   // Build groups of rechits that are separated in strip numbers and Z to save time on the segment finding
-  ProtoSegments chainHits(const ME0Ensemble& ensemble, const EnsembleHitContainer& rechits);
+  ProtoSegments chainHits(const ME0Chamber * chamber, const HitAndPositionContainer& rechits);
 
-  bool isGoodToMerge(const ME0Ensemble& ensemble, const EnsembleHitContainer& newChain, const EnsembleHitContainer& oldChain);
+  bool isGoodToMerge(const ME0Chamber * chamber, const HitAndPositionPtrContainer& newChain, const HitAndPositionPtrContainer& oldChain);
 
   // Build track segments in this chamber (this is where the actual segment-building algorithm hides.)
-  void buildSegments(const ME0Ensemble& ensemble, const EnsembleHitContainer& rechits, std::vector<ME0Segment>& me0segs);
+  void buildSegments(const ME0Chamber * chamber, const HitAndPositionPtrContainer& rechits, std::vector<ME0Segment>& me0segs);
 
   // Member variables
   const std::string myName; 
@@ -69,8 +68,6 @@ private:
   double  dTimeChainBoxMax;
   int     maxRecHitsInCluster;
   
-  EnsembleHitContainer proto_segment;
-
   static constexpr float running_max=std::numeric_limits<float>::max();
   std::unique_ptr<MuonSegFit> sfit_;
 

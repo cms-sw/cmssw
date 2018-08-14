@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 # prep a FED skip list
 
-rawTask = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+rawTask = DQMEDAnalyzer(
 	"RawTask",
 	
 	#	standard parameters

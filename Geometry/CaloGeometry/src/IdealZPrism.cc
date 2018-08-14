@@ -1,5 +1,5 @@
 #include "Geometry/CaloGeometry/interface/IdealZPrism.h"
-#include <math.h>
+#include <cmath>
 
 typedef IdealZPrism::CCGFloat CCGFloat ;
 typedef IdealZPrism::Pt3D     Pt3D     ;
@@ -124,7 +124,7 @@ IdealZPrism::localCorners( Pt3DVec&        lc  ,
 			   Pt3D&           ref   )
 {
    assert( 8 == lc.size() ) ;
-   assert( 0 != pv ) ;
+   assert( nullptr != pv ) ;
    
    const CCGFloat dEta ( pv[0] ) ;
    const CCGFloat dPhi ( pv[1] ) ;

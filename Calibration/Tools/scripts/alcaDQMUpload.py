@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import sys, os, os.path, re, string, httplib, mimetypes, urllib, urllib2, httplib, gzip, md5
 from cStringIO import StringIO
 from stat import *
@@ -155,8 +156,8 @@ def checkSSL(opts):
         sys.stderr.write("no certificate public key file found, please specify one via $X509_USER_CERT or --ssl-cert-file\n")
         sys.exit(3)
 
-    print "Using SSL private key", ssl_key_file
-    print "Using SSL public key", ssl_cert_file
+    print("Using SSL private key", ssl_key_file)
+    print("Using SSL public key", ssl_cert_file)
 
                                                                                   
 def checkFileName(fileName):
@@ -171,7 +172,7 @@ def checkFileName(fileName):
     if regRelval.match(fileName):
         # TODO check for pre-versions
         if not regCMSSW.match(fileName):
-            print "no CMSSW"
+            print("no CMSSW")
     return True
     # DQM stuff
 
@@ -179,22 +180,22 @@ def startUpload(url, filename):
     global ssl_key_file
     global ssl_cert_file
 
-    print url, filename
+    print(url, filename)
     try:
         (headers, data) = \
                   upload(url,
                      { 'size': os.stat(filename).st_size,
                        'checksum': "md5:%s" % md5.new(file(filename).read()).hexdigest() },
                      { 'file': filename })
-        print 'Status code: ', headers.get("Dqm-Status-Code", "None")
-        print 'Message:     ', headers.get("Dqm-Status-Message", "None")
-        print 'Detail:      ', headers.get("Dqm-Status-Detail", "None")
-        print data
+        print('Status code: ', headers.get("Dqm-Status-Code", "None"))
+        print('Message:     ', headers.get("Dqm-Status-Message", "None"))
+        print('Detail:      ', headers.get("Dqm-Status-Detail", "None"))
+        print(data)
     except urllib2.HTTPError as e:
-        print "ERROR", e
-        print 'Status code: ', e.hdrs.get("Dqm-Status-Code", "None")
-        print 'Message:     ', e.hdrs.get("Dqm-Status-Message", "None")
-        print 'Detail:      ', e.hdrs.get("Dqm-Status-Detail", "None")
+        print("ERROR", e)
+        print('Status code: ', e.hdrs.get("Dqm-Status-Code", "None"))
+        print('Message:     ', e.hdrs.get("Dqm-Status-Message", "None"))
+        print('Detail:      ', e.hdrs.get("Dqm-Status-Detail", "None"))
         sys.exit(1)
 
 def getURL(filename, destination):
@@ -231,7 +232,7 @@ def registerFileAtLogServer(filename, destination, tags):
 		if dataset=="":
 			dataset="/Global/Online/ALL"
 	tempurl = "https://www-ekp.physik.uni-karlsruhe.de/~zeise/cgi-bin/register.py?run="+runNr+"&dataset="+dataset+"&filename="+filename+"&tags="+tags+"&instance="+destination
-	print "Link that is used to register: ", tempurl
+	print("Link that is used to register: ", tempurl)
 	urllib.urlopen(tempurl)
 
 def main(args):
@@ -270,7 +271,7 @@ def main(args):
           sys.stdout.write("file '%s' would be uploaded to '%s'\n" % (fileName, opts.destination))
         if opts.registration:
           registerFileAtLogServer(fileName, opts.destination, opts.tags)       
-        print "You should see the plots here: "+getURL(fileName, opts.destination)
+        print("You should see the plots here: "+getURL(fileName, opts.destination))
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))

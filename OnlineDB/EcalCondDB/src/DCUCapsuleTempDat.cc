@@ -11,10 +11,10 @@ using namespace oracle::occi;
 
 DCUCapsuleTempDat::DCUCapsuleTempDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_capsuleTemp = 0;
 }
@@ -39,7 +39,7 @@ void DCUCapsuleTempDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":capsule_temp)");
   } catch (SQLException &e) {
-    throw(std::runtime_error("DCUCapsuleTempDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("DCUCapsuleTempDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -65,7 +65,7 @@ void DCUCapsuleTempDat::writeDB(const EcalLogicID* ecid, const DCUCapsuleTempDat
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("DCUCapsuleTempDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("DCUCapsuleTempDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -97,12 +97,12 @@ void DCUCapsuleTempDat::fetchData(std::map< EcalLogicID, DCUCapsuleTempDat >* fi
     std::pair< EcalLogicID, DCUCapsuleTempDat > p;
     DCUCapsuleTempDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
 
       dat.setCapsuleTemp( rset->getFloat(7) );
 
@@ -110,7 +110,7 @@ void DCUCapsuleTempDat::fetchData(std::map< EcalLogicID, DCUCapsuleTempDat >* fi
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("DCUCapsuleTempDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("DCUCapsuleTempDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 void DCUCapsuleTempDat::writeArrayDB(const std::map< EcalLogicID, DCUCapsuleTempDat >* data, DCUIOV* iov)
@@ -178,6 +178,6 @@ void DCUCapsuleTempDat::writeArrayDB(const std::map< EcalLogicID, DCUCapsuleTemp
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("DCUCapsuleTempDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("DCUCapsuleTempDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

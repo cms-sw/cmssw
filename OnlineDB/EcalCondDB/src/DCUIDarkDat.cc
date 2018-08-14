@@ -11,10 +11,10 @@ using namespace oracle::occi;
 
 DCUIDarkDat::DCUIDarkDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_apdIDark = 0;
 }
@@ -39,7 +39,7 @@ void DCUIDarkDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":apd_idark)");
   } catch (SQLException &e) {
-    throw(std::runtime_error("DCUIDarkDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("DCUIDarkDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -65,7 +65,7 @@ void DCUIDarkDat::writeDB(const EcalLogicID* ecid, const DCUIDarkDat* item, DCUI
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("DCUIDarkDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("DCUIDarkDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -97,12 +97,12 @@ void DCUIDarkDat::fetchData(std::map< EcalLogicID, DCUIDarkDat >* fillMap, DCUIO
     std::pair< EcalLogicID, DCUIDarkDat > p;
     DCUIDarkDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
 
       dat.setAPDIDark( rset->getFloat(7) );
 
@@ -110,7 +110,7 @@ void DCUIDarkDat::fetchData(std::map< EcalLogicID, DCUIDarkDat >* fillMap, DCUIO
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("DCUIDarkDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("DCUIDarkDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 void DCUIDarkDat::writeArrayDB(const std::map< EcalLogicID, DCUIDarkDat >* data, DCUIOV* iov)
@@ -176,6 +176,6 @@ void DCUIDarkDat::writeArrayDB(const std::map< EcalLogicID, DCUIDarkDat >* data,
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("DCUIDarkDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("DCUIDarkDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

@@ -1,12 +1,8 @@
-#ifndef DD_DividedCons_H
-#define DD_DividedCons_H
-//
-// ********************************************************************
-// 25.04.04 - M. Case ddd-ize G4ParameterisationCons*
-// ********************************************************************
+#ifndef DETECTOR_DESCRIPTION_PARSER_DD_DIVIDED_CONS_H
+#define DETECTOR_DESCRIPTION_PARSER_DD_DIVIDED_CONS_H
 
 #include "DDDividedGeometryObject.h"
-#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDDivision.h"
 
 class DDCompactView;
@@ -19,10 +15,10 @@ class DDDividedConsRho final : public DDDividedGeometryObject
   
   DDDividedConsRho( const DDDivision& div, DDCompactView* cpv );
 
-  virtual double getMaxParameter() const override;
-  virtual DDTranslation makeDDTranslation( const int copyNo ) const override;
-  virtual DDRotation makeDDRotation(const int copyNo ) const override;
-  virtual DDLogicalPart makeDDLogicalPart( const int copyNo ) const override;
+  double getMaxParameter() const override;
+  DDTranslation makeDDTranslation( int copyNo ) const override;
+  DDRotation makeDDRotation( int copyNo ) const override;
+  DDLogicalPart makeDDLogicalPart( int copyNo ) const override;
 };
 
 class DDDividedConsPhi final : public DDDividedGeometryObject
@@ -31,10 +27,10 @@ class DDDividedConsPhi final : public DDDividedGeometryObject
   
   DDDividedConsPhi( const DDDivision& div, DDCompactView* cpv );
 
-  virtual double getMaxParameter() const override;
-  virtual DDTranslation makeDDTranslation( const int copyNo ) const override;
-  virtual DDRotation makeDDRotation(const int copyNo ) const override;
-  virtual DDLogicalPart makeDDLogicalPart( const int copyNo ) const override;
+  double getMaxParameter() const override;
+  DDTranslation makeDDTranslation( int copyNo ) const override;
+  DDRotation makeDDRotation( int copyNo ) const override;
+  DDLogicalPart makeDDLogicalPart( int copyNo ) const override;
 };
 
 class DDDividedConsZ final : public DDDividedGeometryObject
@@ -43,10 +39,10 @@ class DDDividedConsZ final : public DDDividedGeometryObject
   
   DDDividedConsZ( const DDDivision& div, DDCompactView* cpv) ;
 
-  virtual double getMaxParameter() const override;
-  virtual DDTranslation makeDDTranslation( const int copyNo ) const override;
-  virtual DDRotation makeDDRotation(const int copyNo ) const override;
-  virtual DDLogicalPart makeDDLogicalPart( const int copyNo ) const override;
+  double getMaxParameter() const override;
+  DDTranslation makeDDTranslation( int copyNo ) const override;
+  DDRotation makeDDRotation( int copyNo ) const override;
+  DDLogicalPart makeDDLogicalPart( int copyNo ) const override;
 };
 
 #endif

@@ -39,12 +39,12 @@ Description: Producer for ScoutingCaloJets from reco::CaloJet objects
 class HLTScoutingCaloProducer : public edm::global::EDProducer<> {
     public:
         explicit HLTScoutingCaloProducer(const edm::ParameterSet&);
-        ~HLTScoutingCaloProducer();
+        ~HLTScoutingCaloProducer() override;
 
         static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
     private:
-        virtual void produce(edm::StreamID sid, edm::Event & iEvent, edm::EventSetup const & setup) const override final;
+        void produce(edm::StreamID sid, edm::Event & iEvent, edm::EventSetup const & setup) const final;
 
         const edm::EDGetTokenT<reco::CaloJetCollection> caloJetCollection_;
         const edm::EDGetTokenT<reco::JetTagCollection> caloJetBTagCollection_;
@@ -84,8 +84,7 @@ HLTScoutingCaloProducer::HLTScoutingCaloProducer(const edm::ParameterSet& iConfi
     produces<double>("caloMetPhi");
 }
 
-HLTScoutingCaloProducer::~HLTScoutingCaloProducer()
-{ }
+HLTScoutingCaloProducer::~HLTScoutingCaloProducer() = default;
 
 // ------------ method called to produce the data  ------------
     void
@@ -187,5 +186,5 @@ HLTScoutingCaloProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
     descriptions.add("hltScoutingCaloProducer", desc);
 }
 
-//define this as a plug-in
+// declare this class as a framework plugin
 DEFINE_FWK_MODULE(HLTScoutingCaloProducer);

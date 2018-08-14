@@ -93,7 +93,7 @@ void JetValidation::analyze(edm::Event const& evt, edm::EventSetup const& iSetup
   evt.getByLabel(jetTracksAssociator,jetTracks);
   jetInd = 0;
   jetCounter = 0;
-  if (caljets->size()==0)
+  if (caljets->empty())
     cout<<"WARNING: NO calo jets in event "<<evt.id().event()<<", Run "<<evt.id().run()<<" !!!!"<<endl;
   for(i_caljet = caljets->begin(); i_caljet != caljets->end() && jetInd<Njets; ++i_caljet) 
     {
@@ -151,7 +151,7 @@ void JetValidation::analyze(edm::Event const& evt, edm::EventSetup const& iSetup
       FillHist1D("ptHat",pthat);
       CaloJet MatchedJet;
       jetInd = 0;
-      if (genjets->size()==0)
+      if (genjets->empty())
         cout<<"WARNING: NO gen jets in event "<<evt.id().event()<<", Run "<<evt.id().run()<<" !!!!"<<endl;
       for(i_genjet = genjets->begin(); i_genjet != genjets->end() && jetInd<Njets; ++i_genjet) 
         {
@@ -201,7 +201,7 @@ void JetValidation::analyze(edm::Event const& evt, edm::EventSetup const& iSetup
 void JetValidation::endJob() 
 {
   /////////// Write Histograms in output ROOT file ////////
-  if (m_file !=0) 
+  if (m_file !=nullptr) 
     {
       m_file->cd();
       for (std::map<TString, TH1*>::iterator hid = m_HistNames1D.begin(); hid != m_HistNames1D.end(); hid++)
@@ -211,7 +211,7 @@ void JetValidation::endJob()
       for (std::map<TString, TProfile*>::iterator hid = m_HistNamesProfile.begin(); hid != m_HistNamesProfile.end(); hid++)
         hid->second->Write(); 
       delete m_file;
-      m_file = 0;      
+      m_file = nullptr;      
     }
 }
 ////////////////////////////////////////////////////////////////////////////////////////

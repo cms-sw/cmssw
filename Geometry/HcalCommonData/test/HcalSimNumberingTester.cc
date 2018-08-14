@@ -29,7 +29,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
@@ -42,7 +42,7 @@
 class HcalSimNumberingTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HcalSimNumberingTester( const edm::ParameterSet& );
-  ~HcalSimNumberingTester();
+  ~HcalSimNumberingTester() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -61,20 +61,21 @@ void HcalSimNumberingTester::analyze( const edm::Event& iEvent, const edm::Event
   iSetup.get<HcalSimNumberingRecord>().get( pHSNDC );
 
   if (pHSNDC.isValid()) {
-    std::cout << "about to de-reference the edm::ESHandle<HcalDDDSimConstants> pHSNDC" << std::endl;
+    edm::LogVerbatim("HcalGeom") << "about to de-reference the edm::ESHandle<HcalDDDSimConstants> pHSNDC";
     const HcalDDDSimConstants hdc (*pHSNDC);
-    std::cout << "about to getConst for 0..1" << std::endl;
+    edm::LogVerbatim("HcalGeom") << "about to getConst for 0..1";
     for (int i=0; i<1; ++i) {
       std::vector<std::pair<double,double> > gcons = hdc.getConstHBHE(i);
-      std::cout << "Geometry Constants for [" << i << "] with " 
-		<< gcons.size() << "  elements" << std::endl;
+      edm::LogVerbatim("HcalGeom") << "Geometry Constants for [" << i 
+				   << "] with " << gcons.size() << "  elements";
       for (unsigned int k=0; k<gcons.size(); ++k)
-	std::cout << "Element[" << k << "] = " << gcons[k].first << " : "
-		  << gcons[k].second << std::endl;
+	edm::LogVerbatim("HcalGeom") << "Element[" << k << "] = " 
+				     << gcons[k].first << " : "
+				     << gcons[k].second;
     }
     hdc.printTiles();
   } else {
-    std::cout << "No record found with HcalDDDSimConstants" << std::endl;
+    edm::LogVerbatim("HcalGeom") << "No record found with HcalDDDSimConstants";
   }
 }
 

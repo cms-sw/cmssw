@@ -16,7 +16,7 @@
    
 */
 
-class FlatTrd  final : public CaloCellGeometry {
+class FlatTrd : public CaloCellGeometry {
 public:
 
   typedef CaloCellGeometry::CCGFloat CCGFloat ;
@@ -41,10 +41,10 @@ public:
   
   FlatTrd( const FlatTrd& tr, const Pt3D& local) ;
 
-  virtual ~FlatTrd() ;
+  ~FlatTrd() override ;
   
-  virtual const GlobalPoint& getPosition() const { return m_global; }
-  GlobalPoint getPosition( const Pt3D& local ) const;
+  GlobalPoint const & getPosition() const override { return m_global; }
+  GlobalPoint getPosition( const Pt3D& local ) const override;
   virtual float etaPos() const { return m_global.eta(); }
   virtual float phiPos() const { return m_global.phi(); }
   Pt3D getLocal( const GlobalPoint& global ) const;
@@ -55,9 +55,9 @@ public:
   // Return phiAxis azimuthal angle of axis of the crystal
   CCGFloat getPhiAxis() const ;
 
-  virtual void vocalCorners( Pt3DVec&        vec ,
-                             const CCGFloat* pv  ,
-                             Pt3D&           ref  ) const override;
+  void vocalCorners( Pt3DVec&        vec ,
+		     const CCGFloat* pv  ,
+		     Pt3D&           ref  ) const override;
   
   const GlobalVector& axis() const ;
   
@@ -69,15 +69,20 @@ public:
                             const CCGFloat* pv  ,
                             Pt3D&           ref  ) ;
   
-  virtual void getTransform( Tr3D& tr, Pt3DVec* lptr ) const override;
+  void getTransform( Tr3D& tr, Pt3DVec* lptr ) const override;
+
+  void setPosition ( const GlobalPoint& p ) { m_global = p;  setRefPoint(p); }
+
+  static constexpr unsigned int ncorner_    = 8;
+  static constexpr unsigned int ncornerBy2_ = 4;
 
 private:
 
-  virtual void initCorners(CornersVec& ) override;
+  void initCorners(CornersVec& ) override;
   
   GlobalVector makeAxis( void );
   
-  const GlobalPoint backCtr( void ) const;    
+  GlobalPoint backCtr( void ) const;    
   GlobalVector m_axis;
   Pt3D         m_corOne, m_local;
   GlobalPoint  m_global;

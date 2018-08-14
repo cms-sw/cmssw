@@ -42,13 +42,13 @@ class DTKeyedConfigDBDump: public edm::EDAnalyzer {
 
   /** Destructor
    */
-  virtual ~DTKeyedConfigDBDump();
+  ~DTKeyedConfigDBDump() override;
 
   /** Operations
    */
   /// 
-  virtual void beginJob();
-  virtual void analyze( const edm::Event& e, const edm::EventSetup& c );
+  void beginJob() override;
+  void analyze( const edm::Event& e, const edm::EventSetup& c ) override;
 
  private:
 

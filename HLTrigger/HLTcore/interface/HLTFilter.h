@@ -30,10 +30,10 @@ class HLTFilter : public edm::global::EDFilter<> {
 public:
   explicit HLTFilter(const edm::ParameterSet & config);
   static void makeHLTFilterDescription(edm::ParameterSetDescription& desc);
-  virtual ~HLTFilter();
+  ~HLTFilter() override;
 
 private:
-  bool filter(edm::StreamID, edm::Event & event, const edm::EventSetup & setup) const override final;
+  bool filter(edm::StreamID, edm::Event & event, const edm::EventSetup & setup) const final;
 
   // declared pure virtual to enforce inheriting classes to implement it
   virtual bool hltFilter(edm::Event & event, const edm::EventSetup & setup, trigger::TriggerFilterObjectWithRefs & filterobject) const = 0;

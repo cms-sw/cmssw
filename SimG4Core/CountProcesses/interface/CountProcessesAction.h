@@ -28,11 +28,11 @@ class CountProcessesAction : public SimWatcher,
 {
 public:
     CountProcessesAction(edm::ParameterSet const & p);
-    ~CountProcessesAction();
-    void update(const BeginOfRun * run);
-    void update(const BeginOfTrack * trk);
-    void update(const EndOfRun * track);
-    void update(const G4Step * track);
+    ~CountProcessesAction() override;
+    void update(const BeginOfRun * run) override;
+    void update(const BeginOfTrack * trk) override;
+    void update(const EndOfRun * track) override;
+    void update(const G4Step * track) override;
     //---- Dump list of processes for each particle. 
     // printNsteps = 1 print in how many step the process was called, 
     // print only those processes with this number <> 0

@@ -51,7 +51,7 @@ AlphaT::AlphaT(std::vector<T> const & p4, bool setDHtZero, bool use_et /* = true
 // -----------------------------------------------------------------------------
 inline
 double AlphaT::value(void) const {
-  return value_(0);
+  return value_(nullptr);
 }
 
 // -----------------------------------------------------------------------------

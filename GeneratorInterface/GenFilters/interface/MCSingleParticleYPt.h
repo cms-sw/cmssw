@@ -39,8 +39,8 @@ namespace edm {
 class MCSingleParticleYPt : public edm::EDFilter {
    public:
       explicit MCSingleParticleYPt(const edm::ParameterSet&);
-      ~MCSingleParticleYPt();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      ~MCSingleParticleYPt() override;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
    private:
       // ----------member data ---------------------------
      

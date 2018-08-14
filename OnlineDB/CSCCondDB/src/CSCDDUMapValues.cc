@@ -11,7 +11,6 @@ CSCDDUMapValues::CSCDDUMapValues(const edm::ParameterSet& iConfig)
 {
   //the following line is needed to tell the framework what
   // data is being produced
-  fillDDUMap();
   setWhatProduced(this,&CSCDDUMapValues::produceDDUMap);
   findingRecord<CSCDDUMapRcd>();
   //now do what ever other initialization is needed
@@ -23,7 +22,6 @@ CSCDDUMapValues::~CSCDDUMapValues()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-  delete mapObj;
 }
 
 
@@ -36,8 +34,7 @@ CSCDDUMapValues::ReturnType
 CSCDDUMapValues::produceDDUMap(const CSCDDUMapRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  CSCDDUMap* mydata=new CSCDDUMap( *mapObj );
-  return mydata;
+  return ReturnType(fillDDUMap());
   
 }
 

@@ -1,3 +1,4 @@
+from __future__ import print_function
 ######################################################################
 ## File: public_plots_tools.py
 ######################################################################
@@ -196,8 +197,7 @@ class ColorScheme(object):
             self.logo_name = "cms_logo_alt.png"
             self.file_suffix = "_alt"
         else:
-            print >> sys.stderr, \
-                  "ERROR Unknown color scheme '%s'" % self.name
+            print("ERROR Unknown color scheme '%s'" % self.name, file=sys.stderr)
             sys.exit(1)
 
         # Find the full path to the logo PNG file.

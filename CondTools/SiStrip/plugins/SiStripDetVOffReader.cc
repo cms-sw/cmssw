@@ -4,7 +4,7 @@
 #include "CondTools/SiStrip/plugins/SiStripDetVOffReader.h"
 
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <sys/time.h>
 
 SiStripDetVOffReader::SiStripDetVOffReader( const edm::ParameterSet& iConfig ):

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-triggerSynchTest = cms.EDAnalyzer("DTLocalTriggerSynchTest",
+triggerSynchTest = DQMEDHarvester("DTLocalTriggerSynchTest",
     # prescale factor (in luminosity blocks) to perform client analysis
     diagnosticPrescale = cms.untracked.int32(1),
     # run in online environment
@@ -26,4 +27,7 @@ triggerSynchTest = cms.EDAnalyzer("DTLocalTriggerSynchTest",
     ratioHistoTag   = cms.string("TrackCrossingTimeAllOverHHInBX")                                  
 )
 
+
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+run2_common.toModify( triggerSynchTest, hwSources = cms.untracked.vstring('TM'))
 

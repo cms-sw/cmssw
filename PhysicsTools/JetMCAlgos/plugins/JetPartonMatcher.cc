@@ -95,10 +95,10 @@ class JetPartonMatcher : public edm::global::EDProducer<>
 {
   public:
     JetPartonMatcher( const edm::ParameterSet & );
-    ~JetPartonMatcher();
+    ~JetPartonMatcher() override;
 
   private:
-    virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup& ) const override;
+    void produce(edm::StreamID, edm::Event&, const edm::EventSetup& ) const override;
 
     struct WorkingVariables {
       Handle <GenParticleRefVector> particles;
@@ -154,7 +154,7 @@ void JetPartonMatcher::produce(edm::StreamID, Event& iEvent, const EventSetup& i
 
   edm::LogVerbatim("JetPartonMatcher") << "=== Partons size:" << wv.particles->size();
 
-  for( size_t m = 0; m != wv.particles->size(); ++ m ) {
+  for( size_t m = 0; m < wv.particles->size(); ++ m ) {
     const GenParticle & aParton = *(wv.particles->at(m).get());
     edm::LogVerbatim("JetPartonMatcher") <<  aParton.status() << " " <<
                                              aParton.pdgId()  << " " <<
@@ -240,15 +240,16 @@ int JetPartonMatcher::fillAlgoritDefinition( const Jet& theJet, WorkingVariables
   //    then it will first look for top quarks, then W bosons, then gluons.
   // 2) If no priority items are found, do the default "standard"
   //    matching.
-  for( size_t m = 0; m != wv.particles->size() && !foundPriority; ++ m ) {
-    const Candidate & aParton = *(wv.particles->at(m).get());
+  for( size_t m = 0; m < wv.particles->size() && !foundPriority; ++ m ) {
+    //    const Candidate & aParton = *(wv.particles->at(m).get());
+    const GenParticle & aParton = *(wv.particles->at(m).get());
+    int flavour = abs(aParton.pdgId());
 
     // "Priority" behavoir:
     // Associate to the first particle found in the priority list, regardless
     // of delta R.
     if ( doPriority ) {
-      int ipdgId = aParton.pdgId();
-      vector<int>::const_iterator ipriority = find( priorityList.begin(), priorityList.end(), abs(ipdgId) );
+      vector<int>::const_iterator ipriority = find( priorityList.begin(), priorityList.end(), flavour );
       // Check to see if this particle is in our priority list
       if ( ipriority != priorityList.end() ) {
 	// This particle is on our priority list. If it matches,
@@ -278,8 +279,8 @@ int JetPartonMatcher::fillAlgoritDefinition( const Jet& theJet, WorkingVariables
 	  minDr = dist;
 	  tempNearest = m;
 	}
-	if( tempParticle == -1 && ( abs( aParton.pdgId() ) == 4 )  ) tempParticle = m;
-	if(                         abs( aParton.pdgId() ) == 5    ) tempParticle = m;
+	if( tempParticle == -1 && ( flavour == 4 )  ) tempParticle = m;
+	if(                         flavour == 5    ) tempParticle = m;
 	if( aParton.pt() > maxPt ) {
 	  maxPt = aParton.pt();
 	  tempPartonHighestPt = m;
@@ -354,16 +355,17 @@ int JetPartonMatcher::fillPhysicsDefinition( const Jet& theJet, WorkingVariables
   //    then it will first look for top quarks, then W bosons, then gluons.
   // 2) If no priority items are found, do the default "standard"
   //    matching.
-  for( size_t m = 0; m != wv.particles->size() && !foundPriority; ++ m ) {
+  for( size_t m = 0; m < wv.particles->size() && !foundPriority; ++ m ) {
 
-    const Candidate & aParticle = *(wv.particles->at(m).get());
+    //    const Candidate & aParticle = *(wv.particles->at(m).get());
+    const GenParticle & aParticle = *(wv.particles->at(m).get());
+    int flavour = abs(aParticle.pdgId());
 
     // "Priority" behavoir:
     // Associate to the first particle found in the priority list, regardless
     // of delta R.
     if ( doPriority ) {
-      int ipdgId = aParticle.pdgId();
-      vector<int>::const_iterator ipriority = find( priorityList.begin(), priorityList.end(), abs(ipdgId) );
+      vector<int>::const_iterator ipriority = find( priorityList.begin(), priorityList.end(), flavour );
       // Check to see if this particle is in our priority list
       if ( ipriority != priorityList.end() ) {
 	// This particle is on our priority list. If it matches,
@@ -386,7 +388,6 @@ int JetPartonMatcher::fillPhysicsDefinition( const Jet& theJet, WorkingVariables
 
       // skipping all particle but udscbg (is this correct/enough?!?!)
       bool isAParton = false;
-      int flavour = abs(aParticle.pdgId());
       if(flavour == 1 ||
 	 flavour == 2 ||
 	 flavour == 3 ||
@@ -421,7 +422,7 @@ int JetPartonMatcher::fillPhysicsDefinition( const Jet& theJet, WorkingVariables
     wv.theNearest3 = tempNearest;
 
     if(nInTheCone != 1) return -1; // rejected --> only one initialParton requested
-    if(theContaminations.size() == 0 ) return tempParticle; //no contamination
+    if(theContaminations.empty() ) return tempParticle; //no contamination
     int initialPartonFlavour = abs( (wv.particles->at(tempParticle).get()) ->pdgId() );
 
     vector<const Candidate *>::const_iterator itCont = theContaminations.begin();

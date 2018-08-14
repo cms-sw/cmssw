@@ -36,11 +36,6 @@ void SUSY_HLT_PhotonMET::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run c
   bookHistos(ibooker_);
 }
 
-void SUSY_HLT_PhotonMET::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-                                              edm::EventSetup const& context)
-{
-  edm::LogInfo("SUSY_HLT_PhotonMET") << "SUSY_HLT_PhotonMET::beginLuminosityBlock" << std::endl;
-}
 
 void SUSY_HLT_PhotonMET::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 {
@@ -74,11 +69,11 @@ void SUSY_HLT_PhotonMET::analyze(edm::Event const& e, edm::EventSetup const& eSe
   }
 
   // use only events with leading photon in barrel
-  if (photonCollection->size()==0 || abs(photonCollection->begin()->superCluster()->eta()) > 1.4442) return;
+  if (photonCollection->empty() || abs(photonCollection->begin()->superCluster()->eta()) > 1.4442) return;
 
   // get reco photon and met
-  float const recoPhotonPt = photonCollection->size() ? photonCollection->begin()->et() : 0;
-  float const recoMET = pfMETCollection->size() ? pfMETCollection->begin()->et() : 0;
+  float const recoPhotonPt = !photonCollection->empty() ? photonCollection->begin()->et() : 0;
+  float const recoMET = !pfMETCollection->empty() ? pfMETCollection->begin()->et() : 0;
   h_recoPhotonPt->Fill(recoPhotonPt);
   h_recoMet->Fill(recoMET);
 
@@ -103,10 +98,6 @@ void SUSY_HLT_PhotonMET::analyze(edm::Event const& e, edm::EventSetup const& eSe
   }
 }
 
-void SUSY_HLT_PhotonMET::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
-{
-  edm::LogInfo("SUSY_HLT_PhotonMET") << "SUSY_HLT_PhotonMET::endLuminosityBlock" << std::endl;
-}
 
 
 void SUSY_HLT_PhotonMET::endRun(edm::Run const& run, edm::EventSetup const& eSetup)

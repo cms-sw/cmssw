@@ -16,10 +16,10 @@ class SiStripNoiseBuilderFromDb : public SiStripNoiseESSource {
  public:
 
   SiStripNoiseBuilderFromDb( const edm::ParameterSet& );
-  virtual ~SiStripNoiseBuilderFromDb();
+  ~SiStripNoiseBuilderFromDb() override;
   
   /** Builds pedestals using info from configuration database. */
-  virtual SiStripNoises* makeNoise();
+  SiStripNoises* makeNoise() override;
   
   
  protected:

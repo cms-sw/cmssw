@@ -11,8 +11,8 @@ using namespace oracle::occi;
 
 ODRunConfigInfo::ODRunConfigInfo()
 {
-  m_env = NULL;
-  m_conn = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
   m_ID = 0;
   //
   m_tag ="";
@@ -67,7 +67,7 @@ int ODRunConfigInfo::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODDCCConfig::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODDCCConfig::fetchNextId():  ")+getOraMessage(&e)));
   }
 
 }
@@ -101,7 +101,7 @@ int ODRunConfigInfo::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODRunConfigInfo::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODRunConfigInfo::fetchID:  ")+getOraMessage(&e)));
   }
   setByID(m_ID);
   return m_ID;
@@ -129,7 +129,7 @@ int ODRunConfigInfo::fetchIDLast()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODRunConfigInfo::fetchIDLast:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODRunConfigInfo::fetchIDLast:  ")+getOraMessage(&e)));
   }
 
   setByID(m_ID);
@@ -163,14 +163,14 @@ void ODRunConfigInfo::setByID(int id)
      
      ResultSet* rset = stmt->executeQuery();
      if (rset->next()) {
-       m_tag= rset->getString(1);
+       m_tag= getOraString(rset,1);
        m_version= rset->getInt(2);
        int run_type_id=rset->getInt(3);
        int run_mode_id=rset->getInt(4);
        m_num_seq=rset->getInt(5);
-       m_description= rset->getString(6);
+       m_description= getOraString(rset,6);
        m_defaults= rset->getInt(7);
-       m_trigger_mode= rset->getString(8);
+       m_trigger_mode= getOraString(rset,8);
        m_num_events= rset->getInt(9);
        Date dbdate = rset->getDate(10);
        m_db_time = dh.dateToTm( dbdate );
@@ -179,13 +179,13 @@ void ODRunConfigInfo::setByID(int id)
        m_runModeDef.setByID(run_mode_id);
        m_runTypeDef.setConnection(m_env, m_conn);
        m_runTypeDef.setByID(run_type_id);
-       m_usage_status=rset->getString(11);
+       m_usage_status=getOraString(rset,11);
      } else {
        throw(std::runtime_error("ODRunConfigInfo::setByID:  Given config_id is not in the database"));
      }
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(std::runtime_error("ODRunConfigInfo::setByID:  "+e.getMessage()));
+     throw(std::runtime_error(std::string("ODRunConfigInfo::setByID:  ")+getOraMessage(&e)));
    }
 }
 
@@ -209,7 +209,7 @@ void ODRunConfigInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODRunConfigInfo::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODRunConfigInfo::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -249,7 +249,7 @@ void ODRunConfigInfo::writeDB()
     m_writeStmt->executeUpdate();
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODRunConfigInfo::writeDB:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODRunConfigInfo::writeDB:  ")+getOraMessage(&e)));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -285,7 +285,7 @@ int ODRunConfigInfo::updateDefaultCycle()
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODRunConfigInfo::writeDB:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODRunConfigInfo::writeDB:  ")+getOraMessage(&e)));
   }
   
   return m_ID;
@@ -321,23 +321,23 @@ void ODRunConfigInfo::fetchData(ODRunConfigInfo * result)
     rset->next();
 
     result->setId(               rset->getInt(1) );
-    result->setTag(              rset->getString(2) );
+    result->setTag(              getOraString(rset,2) );
     result->setVersion(          rset->getInt(3) );
     //    RunTypeDef myRunType = rset->getInt(4);
     //    result->setRunTypeDef( myRunType );
     //    RunModeDef myRunMode = rset->getInt(5);
     //    result->setRunModeDef( myRunMode );
     result->setNumberOfSequences(rset->getInt(6) );
-    result->setDescription(      rset->getString(7) );
+    result->setDescription(      getOraString(rset,7) );
     result->setDefaults(         rset->getInt(8) );
-    result->setTriggerMode(      rset->getString(9) );
+    result->setTriggerMode(      getOraString(rset,9) );
     result->setNumberOfEvents(   rset->getInt(10) );
     Date dbdate = rset->getDate(11);
     result->setDBTime(dh.dateToTm( dbdate ));
-    result->setUsageStatus(      rset->getString(12) );
+    result->setUsageStatus(      getOraString(rset,12) );
 
   } catch (SQLException &e) {
-    cout << " ODRunConfigInfo::fetchData():  " << e.getMessage() << endl;
-    throw(std::runtime_error("ODRunConfigInfo::fetchData():  "+e.getMessage()));
+    cout << " ODRunConfigInfo::fetchData():  " << getOraMessage(&e) << endl;
+    throw(std::runtime_error(std::string("ODRunConfigInfo::fetchData():  ")+getOraMessage(&e)));
   }
 }

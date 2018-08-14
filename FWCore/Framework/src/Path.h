@@ -31,7 +31,9 @@
 
 namespace edm {
   class EventPrincipal;
+  class EventSetup;
   class ModuleDescription;
+  class PathStatusInserter;
   class RunPrincipal;
   class LuminosityBlockPrincipal;
   class EarlyDeleteHelper;
@@ -59,10 +61,15 @@ namespace edm {
     Path(Path const&);
 
     template <typename T>
-    void processOneOccurrence(typename T::MyPrincipal const&, EventSetup const&,
-                              StreamID const&, typename T::Context const*);
+    void runAllModulesAsync(WaitingTask*,
+                            typename T::MyPrincipal const&,
+                            EventSetup  const&,
+                            ServiceToken const&,
+                            StreamID const&,
+                            typename T::Context const*);
 
-    void processOneOccurrenceAsync(WaitingTask*, EventPrincipal const&, EventSetup const&, StreamID const&, StreamContext const*);
+    void processOneOccurrenceAsync(WaitingTask*, EventPrincipal const&, EventSetup const&,
+                                   ServiceToken const&, StreamID const&, StreamContext const*);
     
     int bitPosition() const { return bitpos_; }
     std::string const& name() const { return pathContext_.pathName(); }
@@ -84,6 +91,9 @@ namespace edm {
     Worker const* getWorker(size_type i) const { return workers_.at(i).getWorker(); }
     
     void setEarlyDeleteHelpers(std::map<const Worker*,EarlyDeleteHelper*> const&);
+
+    void setPathStatusInserter(PathStatusInserter* pathStatusInserter,
+                               Worker* pathStatusInserterWorker);
 
   private:
 
@@ -110,8 +120,9 @@ namespace edm {
     WaitingTaskList waitingTasks_;
     std::atomic<bool>* stopProcessingEvent_;
 
+    PathStatusInserter* pathStatusInserter_;
+    Worker* pathStatusInserterWorker_;
 
-    
     // Helper functions
     // nwrwue = numWorkersRunWithoutUnhandledException (really!)
     bool handleWorkerFailure(cms::Exception & e,
@@ -132,8 +143,11 @@ namespace edm {
     void updateCounters(bool succeed, bool isEvent);
     
     void finished(int iModuleIndex, bool iSucceeded, std::exception_ptr,
-                  StreamContext const*);
-    
+                  StreamContext const*,
+                  EventPrincipal const& iEP,
+                  EventSetup const& iES,
+                  StreamID const& streamID);
+
     void handleEarlyFinish(EventPrincipal const&);
     void handleEarlyFinish(RunPrincipal const&) {}
     void handleEarlyFinish(LuminosityBlockPrincipal const&) {}
@@ -142,9 +156,11 @@ namespace edm {
     void workerFinished(std::exception_ptr const* iException,
                         unsigned int iModuleIndex,
                         EventPrincipal const& iEP, EventSetup const& iES,
+                        ServiceToken const& iToken,
                         StreamID const& iID, StreamContext const* iContext);
     void runNextWorkerAsync(unsigned int iNextModuleIndex,
                             EventPrincipal const&, EventSetup const&,
+                            ServiceToken const&,
                             StreamID const&, StreamContext const*);
 
   };
@@ -173,50 +189,15 @@ namespace edm {
   }
 
   template <typename T>
-  void Path::processOneOccurrence(typename T::MyPrincipal const& ep, EventSetup const& es,
-                                  StreamID const& streamID, typename T::Context const* context) {
-
-    int nwrwue = -1;
-    PathSignalSentry<T> signaler(actReg_.get(), nwrwue, state_, &pathContext_);
-
-    if (T::isEvent_) {
-      ++timesRun_;
+  void Path::runAllModulesAsync(WaitingTask* task,
+                                typename T::MyPrincipal const& p,
+                                EventSetup  const& es,
+                                ServiceToken const& token,
+                                StreamID const& streamID,
+                                typename T::Context const* context) {
+    for(auto& worker: workers_) {
+      worker.runWorkerAsync<T>(task,p,es,token,streamID,context);
     }
-    state_ = hlt::Ready;
-
-    // nwrue =  numWorkersRunWithoutUnhandledException
-    bool should_continue = true;
-    WorkersInPath::iterator i = workers_.begin(), end = workers_.end();
-    
-    auto earlyFinishSentry = make_sentry(this,[&i,end, &ep](Path*){
-      for(auto j=i; j!= end;++j) {
-        j->skipWorker(ep);
-      }
-    });
-    for (;
-          i != end && should_continue;
-          ++i) {
-      ++nwrwue;
-      try {
-        convertException::wrap([&]() {
-            should_continue = i->runWorker<T>(ep, es, streamID, context);
-        });
-      }
-      catch(cms::Exception& ex) {
-        // handleWorkerFailure may throw a new exception.
-	std::ostringstream ost;
-        ost << ep.id();
-        should_continue = handleWorkerFailure(ex, nwrwue, T::isEvent_, T::begin_, T::branchType_,
-                                              i->getWorker()->description(), ost.str());
-        //If we didn't rethrow, then we effectively skipped
-        i->skipWorker(ep);
-      }
-    }
-    if (not should_continue) {
-      handleEarlyFinish(ep);
-    }
-    updateCounters(should_continue, T::isEvent_);
-    recordStatus(nwrwue, T::isEvent_);
   }
 
 }

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("CASTORDQM")
@@ -55,7 +56,8 @@ process.load('RecoLocalCalo.Castor.Castor_cff') #castor tower and jet reconstruc
 from EventFilter.CastorRawToDigi.CastorRawToDigi_cff import *
 process.castorDigis = castorDigis.clone()
 
-process.castorMonitor = cms.EDAnalyzer("CastorMonitorModule",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.castorMonitor = DQMEDAnalyzer('CastorMonitorModule',
        ### GLOBAL VARIABLES
        debug = cms.untracked.int32(0), # make debug an int so that different
        # values can trigger different levels of messaging
@@ -125,7 +127,7 @@ process.castorMonitor.rawLabel = cms.InputTag("rawDataCollector")
 # Heavy Ion Specific Fed Raw Data Collection Label
 #--------------------------------------------------
 
-print "Running with run type = ", process.runType.getRunTypeName()
+print("Running with run type = ", process.runType.getRunTypeName())
 
 if (process.runType.getRunType() == process.runType.hi_run):
     process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")

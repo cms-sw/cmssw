@@ -34,57 +34,57 @@ public:
 
   ProxyStripTopology(StripGeomDetType const * type, Plane * bp);
 
-  virtual LocalPoint localPosition( const MeasurementPoint& mp ) const { return specificTopology().localPosition(mp);}
+  LocalPoint localPosition( const MeasurementPoint& mp ) const override { return specificTopology().localPosition(mp);}
   /// conversion taking also the predicted track state 
-  virtual LocalPoint localPosition( const MeasurementPoint& mp, const Topology::LocalTrackPred &trkPred ) const;
+  LocalPoint localPosition( const MeasurementPoint& mp, const Topology::LocalTrackPred &trkPred ) const override;
 
-  virtual LocalPoint localPosition( float strip ) const {return specificTopology().localPosition(strip);}
+  LocalPoint localPosition( float strip ) const override {return specificTopology().localPosition(strip);}
   /// conversion taking also the predicted track state
-  virtual LocalPoint localPosition( float strip, const Topology::LocalTrackPred &trkPred) const;
+  LocalPoint localPosition( float strip, const Topology::LocalTrackPred &trkPred) const override;
 
-  virtual LocalError localError( float strip, float stripErr2 ) const {return specificTopology().localError(strip, stripErr2);}
+  LocalError localError( float strip, float stripErr2 ) const override {return specificTopology().localError(strip, stripErr2);}
   /// conversion taking also the predicted track state
-  virtual LocalError localError( float strip, float stripErr2, const Topology::LocalTrackPred &trkPred) const;
+  LocalError localError( float strip, float stripErr2, const Topology::LocalTrackPred &trkPred) const override;
 
-  virtual LocalError localError( const MeasurementPoint& mp,
-				 const MeasurementError& me) const { return specificTopology().localError(mp, me);}
+  LocalError localError( const MeasurementPoint& mp,
+				 const MeasurementError& me) const override { return specificTopology().localError(mp, me);}
   /// conversion taking also the predicted track state
-  virtual LocalError localError( const MeasurementPoint& mp,
+  LocalError localError( const MeasurementPoint& mp,
 				 const MeasurementError& me,
-				 const Topology::LocalTrackPred &trkPred) const;
+				 const Topology::LocalTrackPred &trkPred) const override;
   
-  virtual MeasurementPoint measurementPosition( const LocalPoint& lp) const  {return specificTopology().measurementPosition(lp);}
-  virtual MeasurementPoint measurementPosition( const LocalPoint &lp, 
-						const Topology::LocalTrackAngles &dir) const;
+  MeasurementPoint measurementPosition( const LocalPoint& lp) const override  {return specificTopology().measurementPosition(lp);}
+  MeasurementPoint measurementPosition( const LocalPoint &lp, 
+						const Topology::LocalTrackAngles &dir) const override;
 
-  virtual MeasurementError measurementError( const LocalPoint& lp,
-					     const LocalError& le ) const { return specificTopology().measurementError(lp, le); }
-  virtual MeasurementError measurementError( const LocalPoint &lp, const LocalError &le,
-					     const Topology::LocalTrackAngles &dir) const;
+  MeasurementError measurementError( const LocalPoint& lp,
+					     const LocalError& le ) const override { return specificTopology().measurementError(lp, le); }
+  MeasurementError measurementError( const LocalPoint &lp, const LocalError &le,
+					     const Topology::LocalTrackAngles &dir) const override;
   
-  virtual int channel( const LocalPoint& lp) const {return specificTopology().channel(lp);}
-  virtual int channel( const LocalPoint &lp, const Topology::LocalTrackAngles &dir) const;
+  int channel( const LocalPoint& lp) const override {return specificTopology().channel(lp);}
+  int channel( const LocalPoint &lp, const Topology::LocalTrackAngles &dir) const override;
   
-  virtual float strip( const LocalPoint& lp) const { return specificTopology().strip(lp);}
+  float strip( const LocalPoint& lp) const override { return specificTopology().strip(lp);}
   /// conversion taking also the track state (LocalTrajectoryParameters)
-  virtual float strip( const LocalPoint& lp, const Topology::LocalTrackAngles &dir ) const;
+  float strip( const LocalPoint& lp, const Topology::LocalTrackAngles &dir ) const override;
 
-  virtual float coveredStrips(const LocalPoint& lp1, const LocalPoint& lp2)  const {
+  float coveredStrips(const LocalPoint& lp1, const LocalPoint& lp2)  const override {
     return specificTopology().coveredStrips(lp1,lp2);
   }
 
-  virtual float pitch() const { return specificTopology().pitch(); }
-  virtual float localPitch( const LocalPoint& lp) const { return specificTopology().localPitch(lp);}
+  float pitch() const override { return specificTopology().pitch(); }
+  float localPitch( const LocalPoint& lp) const override { return specificTopology().localPitch(lp);}
   /// conversion taking also the angle from the track state (LocalTrajectoryParameters)
-  virtual float localPitch( const LocalPoint& lp, const Topology::LocalTrackAngles &dir ) const;
+  float localPitch( const LocalPoint& lp, const Topology::LocalTrackAngles &dir ) const override;
   
-  virtual float stripAngle( float strip ) const { return specificTopology().stripAngle(strip);}
+  float stripAngle( float strip ) const override { return specificTopology().stripAngle(strip);}
 
-  virtual int nstrips() const {return specificTopology().nstrips();}
+  int nstrips() const override {return specificTopology().nstrips();}
   
-  virtual float stripLength() const {return specificTopology().stripLength();}
-  virtual float localStripLength(const LocalPoint& lp) const { return specificTopology().localStripLength(lp);}
-  virtual float localStripLength( const LocalPoint& lp, const Topology::LocalTrackAngles &dir ) const;
+  float stripLength() const override {return specificTopology().stripLength();}
+  float localStripLength(const LocalPoint& lp) const override { return specificTopology().localStripLength(lp);}
+  float localStripLength( const LocalPoint& lp, const Topology::LocalTrackAngles &dir ) const override;
   
   virtual const GeomDetType& type() const  { return *theType;}
   virtual StripGeomDetType const & specificType() const  { return *theType;}

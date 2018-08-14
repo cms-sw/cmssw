@@ -16,11 +16,11 @@ public:
     setWhatProduced(this);
   }
 
-  ~DTObjectMapESProducer() {
+  ~DTObjectMapESProducer() override {
   }
 
-  std::shared_ptr<DTObjectMap> produce(MuonGeometryRecord const& record) {
-    return std::make_shared<DTObjectMap>(record);
+  std::unique_ptr<DTObjectMap> produce(MuonGeometryRecord const& record) {
+    return std::make_unique<DTObjectMap>(record);
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

@@ -1,4 +1,4 @@
-Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at {Timestamp} 
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 on stream 0 at {Timestamp} 
 %MSG-w cat_A:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
 Test of std::setprecision(p): Pi with precision 12 is 3.14159265358
 %MSG
@@ -65,3 +65,5 @@ MessageLogger Summary
 Severity    # Occurrences   Total Occurrences
 --------    -------------   -----------------
 Warning                16                  16
+
+dropped waiting message count 0

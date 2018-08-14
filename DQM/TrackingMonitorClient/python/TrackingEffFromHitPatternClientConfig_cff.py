@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 def _layers(suffix, quant, histoPostfix):
     return [
@@ -43,16 +44,21 @@ def _layers(suffix, quant, histoPostfix):
         "effic_vs_{0}_TEC9  'TEC Layer9 Efficiency vs {1}'  Hits{2}_valid_TEC_Subdet9  Hits{2}_total_TEC_Subdet9" .format(suffix, quant, histoPostfix),
     ]
 
-trackingEffFromHitPattern = cms.EDAnalyzer("DQMGenericClient",
+trackingEffFromHitPattern = DQMEDHarvester("DQMGenericClient",
                                            subDirs = cms.untracked.vstring(
         "Tracking/TrackParameters/generalTracks/HitEffFromHitPattern*",
         "Tracking/TrackParameters/highPurityTracks/pt_1/HitEffFromHitPattern*",
         "Tracking/TrackParameters/highPurityTracks/dzPV0p1/HitEffFromHitPattern*",
+        "Tracking/TrackParameters/highPurityTracks/pt_1/HIP_OOT_noINpu/HitEffFromHitPattern*",
+        "Tracking/TrackParameters/highPurityTracks/pt_1/HIP_noOOT_INpu/HitEffFromHitPattern*",
+        "Tracking/TrackParameters/highPurityTracks/pt_1/noHIP_noOOT_INpu/HitEffFromHitPattern*",
+        "Muons/Tracking/innerTrack/HitEffFromHitPattern*",
+        "Muons/globalMuons/HitEffFromHitPattern*",
                                            ),
                                            efficiency = cms.vstring(
         _layers("PU", "GoodNumVertices", "") +
         _layers("BX", "BX", "VsBX") +
-        _layers("LUMI", "LUMI", "VsLumi")
+        _layers("LUMI", "LUMI", "VsLUMI")
         ),
                                            resolution = cms.vstring(),
                                            verbose = cms.untracked.uint32(5),

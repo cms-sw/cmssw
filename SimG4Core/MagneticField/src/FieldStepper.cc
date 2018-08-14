@@ -6,8 +6,9 @@
 #include "G4SimpleRunge.hh"
 #include "G4SimpleHeum.hh"
 #include "G4CashKarpRKF45.hh"
-#include "G4RKG3_Stepper.hh"
-#include "G4ExplicitEuler.hh"
+#include "G4DormandPrince745.hh"
+#include "G4BogackiShampine45.hh"
+#include "G4TsitourasRK45.hh"
 #include "G4ImplicitEuler.hh"
 #include "G4HelixExplicitEuler.hh"
 #include "G4HelixImplicitEuler.hh"
@@ -38,8 +39,9 @@ G4MagIntegratorStepper * FieldStepper::select(const std::string & ss)
     else if (ss == "G4SimpleRunge")        theStepper = new G4SimpleRunge(theEquation);
     else if (ss == "G4SimpleHeum")         theStepper = new G4SimpleHeum(theEquation);
     else if (ss == "G4CashKarpRKF45")      theStepper = new G4CashKarpRKF45(theEquation);
-    else if (ss == "G4RKG3_Stepper")       theStepper = new G4RKG3_Stepper(theEquation);
-    else if (ss == "G4ExplicitEuler")      theStepper = new G4ExplicitEuler(theEquation);
+    else if (ss == "G4DormandPrince745")   theStepper = new G4DormandPrince745(theEquation);
+    else if (ss == "G4BogackiShampine45")  theStepper = new G4BogackiShampine45(theEquation);
+    else if (ss == "G4TsitourasRK45")      theStepper = new G4TsitourasRK45(theEquation);
     else if (ss == "G4ImplicitEuler")      theStepper = new G4ImplicitEuler(theEquation);
     else if (ss == "G4HelixExplicitEuler") theStepper = new G4HelixExplicitEuler(theEquation);
     else if (ss == "G4HelixImplicitEuler") theStepper = new G4HelixImplicitEuler(theEquation);
@@ -48,8 +50,10 @@ G4MagIntegratorStepper * FieldStepper::select(const std::string & ss)
     else
     {
       edm::LogWarning("SimG4CoreMagneticField") 
-        << " FieldStepper invalid choice, defaulting to G4ClassicalRK4 ";
+        << " FieldStepper <" << ss << "> is not known, defaulting to G4ClassicalRK4 ";
       theStepper = new G4ClassicalRK4(theEquation);
     }
+    edm::LogInfo("SimG4CoreMagneticField") 
+      << "### FieldStepper: <" << ss << ">";
     return theStepper;
 }

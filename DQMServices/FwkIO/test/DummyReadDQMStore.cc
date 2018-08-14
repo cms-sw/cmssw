@@ -39,6 +39,7 @@
 namespace {
   class ReaderBase {
   public:
+    virtual ~ReaderBase()  = default;
     virtual void read() = 0;
   };
   

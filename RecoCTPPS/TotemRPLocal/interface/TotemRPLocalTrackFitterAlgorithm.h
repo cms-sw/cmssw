@@ -16,7 +16,7 @@
 #include "DataFormats/CTPPSReco/interface/TotemRPRecHit.h"
 #include "DataFormats/CTPPSReco/interface/TotemRPLocalTrack.h"
 
-#include "Geometry/VeryForwardGeometryBuilder/interface/TotemRPGeometry.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 #include "Geometry/VeryForwardRPTopology/interface/RPTopology.h"
 
 #include "TVector3.h"
@@ -35,7 +35,7 @@ class TotemRPLocalTrackFitterAlgorithm
     TotemRPLocalTrackFitterAlgorithm(const edm::ParameterSet &conf);
 
     /// performs the track fit, returns true if successful
-    bool fitTrack(const edm::DetSetVector<TotemRPRecHit> &hits, double z_0, const TotemRPGeometry &tot_geom, TotemRPLocalTrack &fitted_track);
+    bool fitTrack(const edm::DetSetVector<TotemRPRecHit> &hits, double z_0, const CTPPSGeometry &tot_geom, TotemRPLocalTrack &fitted_track);
 
     /// Resets the reconstruction-data cache.
     void reset();
@@ -56,10 +56,10 @@ class TotemRPLocalTrackFitterAlgorithm
 
     /// Returns the reconstruction data for the chosen detector from the cache DetReconstructionDataMap.
     /// If it is not yet in the cache, calls PrepareReconstAlgebraData to make it.
-    RPDetCoordinateAlgebraObjs *getDetAlgebraData(unsigned int det_id, const TotemRPGeometry &tot_rp_geom);
+    RPDetCoordinateAlgebraObjs *getDetAlgebraData(unsigned int det_id, const CTPPSGeometry &tot_rp_geom);
 
     /// Build the reconstruction data.
-    RPDetCoordinateAlgebraObjs prepareReconstAlgebraData(unsigned int det_id, const TotemRPGeometry &tot_rp_geom);
+    RPDetCoordinateAlgebraObjs prepareReconstAlgebraData(unsigned int det_id, const CTPPSGeometry &tot_rp_geom);
 
     /// A matrix multiplication shorthand.
     void multiplyByDiagonalInPlace(TMatrixD &mt, const TVectorD &diag);

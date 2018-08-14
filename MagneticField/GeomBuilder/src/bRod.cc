@@ -20,7 +20,7 @@ MagGeoBuilderFromDDD::bRod::~bRod(){}
 MagGeoBuilderFromDDD::bRod::bRod(handles::const_iterator begin,
 					handles::const_iterator end) :
   volumes(begin,end),
-  mrod(0)
+  mrod(nullptr)
 {
   precomputed_value_sort(volumes.begin(), volumes.end(), ExtractZ());
 
@@ -82,7 +82,7 @@ MagGeoBuilderFromDDD::bRod::bRod(handles::const_iterator begin,
 
 
 MagBRod* MagGeoBuilderFromDDD::bRod::buildMagBRod() const{
-  if (mrod==0) {
+  if (mrod==nullptr) {
     std::vector<MagBSlab*> mSlabs;
     for (std::vector<bSlab>::const_iterator slab = slabs.begin();
 	 slab!=slabs.end(); ++slab) {

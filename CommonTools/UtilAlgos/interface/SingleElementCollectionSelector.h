@@ -16,11 +16,18 @@
 #include "CommonTools/UtilAlgos/interface/SelectionAdderTrait.h"
 #include "CommonTools/UtilAlgos/interface/StoreContainerTrait.h"
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
+#include "CommonTools/UtilAlgos/interface/SelectedOutputCollectionTrait.h"
+
 namespace reco {
   namespace modules {
     template<typename S> struct SingleElementCollectionSelectorEventSetupInit;
   }
 }
+namespace edm {
+  class Event;
+  class EventSetup;
+}
+
 template<typename InputCollection, typename Selector,
 	 typename OutputCollection = typename ::helper::SelectedOutputCollectionTrait<InputCollection>::type,
 	 typename StoreContainer = typename ::helper::StoreContainerTrait<OutputCollection>::type,

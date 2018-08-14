@@ -13,9 +13,9 @@ namespace ecaldqm
   class MESetTrend : public MESetEcal
   {
   public :
-    MESetTrend(std::string const&, binning::ObjectType, binning::BinningType, MonitorElement::Kind, binning::AxisSpecs const* = 0, binning::AxisSpecs const* = 0);
+    MESetTrend(std::string const&, binning::ObjectType, binning::BinningType, MonitorElement::Kind, binning::AxisSpecs const* = nullptr, binning::AxisSpecs const* = nullptr);
     MESetTrend(MESetTrend const&);
-    ~MESetTrend() {}
+    ~MESetTrend() override {}
 
     MESet& operator=(MESet const&) override;
 

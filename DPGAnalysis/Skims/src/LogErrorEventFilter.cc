@@ -10,12 +10,11 @@
 */
 
 
-#include "FWCore/Framework/interface/one/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-//#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
@@ -29,52 +28,94 @@
 #include <boost/foreach.hpp>
 #define foreach BOOST_FOREACH
 
+namespace leef {
+  using Error = edm::ErrorSummaryEntry;
+  struct ErrorSort {
+    bool operator()(const Error &e1, const Error &e2) const {
+      if (e1.severity.getLevel() != e2.severity.getLevel()) return e1.severity.getLevel() > e2.severity.getLevel();
+      if (e1.module != e2.module) return e1.module < e2.module;
+      if (e1.category != e2.category) return e1.category < e2.category;
+      return false;
+    }
+  };
+  using ErrorSet = std::set<edm::ErrorSummaryEntry,ErrorSort>;
 
-class LogErrorEventFilter : public edm::one::EDFilter<edm::one::WatchRuns,
-                                                      edm::one::WatchLuminosityBlocks,
-                                                      edm::EndLuminosityBlockProducer> {
+  struct RunErrors {
+    RunErrors():
+      npass_{0}, nfail_{0}, collectionGuard_{false} {}
+    //Errors should be sufficiently infrequent so that the use of a
+    // spin lock on a thread-unsafe container should not pose a
+    // performance problem
+    CMS_THREAD_GUARD(collectionGuard_) mutable ErrorSet errorCollection_;
+    mutable std::atomic<size_t> npass_;
+    mutable std::atomic<size_t> nfail_;
+    
+    mutable std::atomic<bool> collectionGuard_;
+  };
+
+  struct LumiErrors {
+    LumiErrors():
+      npass_{0}, nfail_{0}, collectionGuard_{false} {}
+
+    CMS_THREAD_GUARD(collectionGuard_) mutable ErrorSet errorCollection_;
+    mutable std::atomic<size_t> npass_;
+    mutable std::atomic<size_t> nfail_;
+
+    mutable std::atomic<bool> collectionGuard_;
+  };
+}
+
+namespace {
+  //Use std::unique_ptr to guarantee that the use of an atomic
+  // as a spin lock will get reset to false
+  struct release {
+    void operator()(std::atomic<bool>* b) const noexcept { b->store(false); }
+  };
+  std::unique_ptr<std::atomic<bool>, release> make_guard(std::atomic<bool>& b) noexcept { 
+    bool expected = false;
+    while( not b.compare_exchange_strong(expected,true) );
+    
+    return std::unique_ptr<std::atomic<bool>, release>(&b,release()); 
+  }
+
+}
+
+using namespace leef;
+
+class LogErrorEventFilter : public edm::global::EDFilter<edm::RunCache<leef::RunErrors>,
+                                                         edm::LuminosityBlockCache<LumiErrors>,
+                                                         edm::EndLuminosityBlockProducer> {
     public:
         explicit LogErrorEventFilter(const edm::ParameterSet & iConfig);
-        virtual ~LogErrorEventFilter() { }
+        ~LogErrorEventFilter() override { }
 
-        virtual bool filter(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
-        virtual void beginLuminosityBlock(const edm::LuminosityBlock &lumi, const edm::EventSetup &iSetup) override;
-        virtual void endLuminosityBlock(const edm::LuminosityBlock &lumi, const edm::EventSetup &iSetup) override;
-        virtual void endLuminosityBlockProduce(edm::LuminosityBlock &lumi, const edm::EventSetup &iSetup) override;
-        virtual void beginRun(const edm::Run &run, const edm::EventSetup &iSetup) override;
-        virtual void endRun(const edm::Run &run, const edm::EventSetup &iSetup) override;
-        virtual void endJob() override;
+        bool filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const override;
+        std::shared_ptr<LumiErrors> globalBeginLuminosityBlock(const edm::LuminosityBlock &lumi, const edm::EventSetup &iSetup) const override;
+        void globalEndLuminosityBlock(const edm::LuminosityBlock &lumi, const edm::EventSetup &iSetup) const override;
+        void globalEndLuminosityBlockProduce(edm::LuminosityBlock &lumi, const edm::EventSetup &iSetup) const override;
+        std::shared_ptr<RunErrors> globalBeginRun(const edm::Run &run, const edm::EventSetup &iSetup) const override;
+        void globalEndRun(const edm::Run &run, const edm::EventSetup &iSetup) const override;
+        void endJob() override;
 
     private:
         typedef edm::ErrorSummaryEntry              Error;
-        struct ErrorSort {
-            bool operator()(const Error &e1, const Error &e2) {
-                if (e1.severity.getLevel() != e2.severity.getLevel()) return e1.severity.getLevel() > e2.severity.getLevel();
-                if (e1.module != e2.module) return e1.module < e2.module;
-                if (e1.category != e2.category) return e1.category < e2.category;
-                return false;
-            }
-        };
         typedef std::vector<edm::ErrorSummaryEntry> ErrorList;
-        typedef std::set<edm::ErrorSummaryEntry,ErrorSort>    ErrorSet;
 
         edm::InputTag src_;
         edm::EDGetTokenT<ErrorList> srcT_;
         bool readSummaryMode_;
-        size_t npassLumi_, nfailLumi_;
-        size_t npassRun_, nfailRun_;
         std::set<std::string> modulesToWatch_;
         std::set<std::string> modulesToIgnore_;
         std::set<std::string> categoriesToWatch_;
         std::set<std::string> categoriesToIgnore_;
-        std::map<std::pair<uint32_t,uint32_t>, std::pair<size_t,size_t> > statsPerLumi_;
-        std::map<uint32_t, std::pair<size_t,size_t> > statsPerRun_;
-        ErrorSet errorCollectionAll_;
-        ErrorSet errorCollectionThisLumi_, errorCollectionThisRun_;
+        CMS_THREAD_GUARD(statsGuard_) mutable std::map<std::pair<uint32_t,uint32_t>, std::pair<size_t,size_t> > statsPerLumi_;
+        CMS_THREAD_GUARD(statsGuard_) mutable std::map<uint32_t, std::pair<size_t,size_t> > statsPerRun_;
+        CMS_THREAD_GUARD(statsGuard_) mutable ErrorSet errorCollectionAll_;
         double thresholdPerLumi_, thresholdPerRun_;
         size_t maxSavedEventsPerLumi_;
         bool verbose_, veryVerbose_;
         bool taggedMode_, forcedValue_;
+        mutable std::atomic<bool> statsGuard_;
 
         template<typename Collection> static void increment(ErrorSet &scoreboard, Collection &list);
         template<typename Collection> static void print(const Collection &errors) ;
@@ -96,9 +137,9 @@ LogErrorEventFilter::LogErrorEventFilter(const edm::ParameterSet & iConfig) :
     taggedMode_(iConfig.getUntrackedParameter<bool>("taggedMode", false)),
     forcedValue_(iConfig.getUntrackedParameter<bool>("forcedValue", true))
 {
-    produces<ErrorList, edm::InLumi>();
-    produces<int, edm::InLumi>("pass");
-    produces<int, edm::InLumi>("fail");
+    produces<ErrorList, edm::Transition::EndLuminosityBlock>();
+    produces<int, edm::Transition::EndLuminosityBlock>("pass");
+    produces<int, edm::Transition::EndLuminosityBlock>("fail");
     //produces<ErrorList, edm::InRun>();
     produces<bool>();
 
@@ -135,70 +176,104 @@ LogErrorEventFilter::LogErrorEventFilter(const edm::ParameterSet & iConfig) :
 
 }
 
-void
-LogErrorEventFilter::beginLuminosityBlock(const edm::LuminosityBlock &lumi, const edm::EventSetup &iSetup) {
-    npassLumi_ = 0; nfailLumi_ = 0;
-    errorCollectionThisLumi_.clear();
+std::shared_ptr<LumiErrors>
+LogErrorEventFilter::globalBeginLuminosityBlock(const edm::LuminosityBlock &lumi, const edm::EventSetup &iSetup) const{
+  auto ret = std::make_shared<LumiErrors>();
     if (readSummaryMode_) {
         edm::Handle<ErrorList> handle;
         edm::Handle<int> hpass, hfail;
         lumi.getByLabel(src_, handle);
         lumi.getByLabel(edm::InputTag(src_.label(), "pass", src_.process()), hpass);
         lumi.getByLabel(edm::InputTag(src_.label(), "fail", src_.process()), hfail);
-        increment(errorCollectionThisLumi_, *handle);
-        npassLumi_ = *hpass;
-        nfailLumi_ = *hfail;
-        npassRun_ += npassLumi_;
-        nfailRun_ += nfailLumi_;
+        increment(ret->errorCollection_, *handle);
+        ret->npass_ = *hpass;
+        ret->nfail_ = *hfail;
+
+        auto runC = runCache(lumi.getRun().index());
+        runC->npass_ +=*hpass;
+        runC->nfail_ += *hfail;
     }
+    return ret;
 }
 void
-LogErrorEventFilter::endLuminosityBlock(edm::LuminosityBlock const &lumi, const edm::EventSetup &iSetup) {
-   statsPerLumi_[std::pair<uint32_t,uint32_t>(lumi.run(), lumi.luminosityBlock())] = std::pair<size_t,size_t>(npassLumi_, nfailLumi_);
-   if (nfailLumi_ < thresholdPerLumi_*(npassLumi_+nfailLumi_)) {
-       increment(errorCollectionThisRun_, errorCollectionThisLumi_);
+LogErrorEventFilter::globalEndLuminosityBlock(edm::LuminosityBlock const &lumi, const edm::EventSetup &iSetup) const {
+   auto lumiC = luminosityBlockCache(lumi.index());
+   auto nfail = lumiC->nfail_.load();
+   auto npass = lumiC->npass_.load();
+   {
+     auto guard = make_guard(statsGuard_);
+     statsPerLumi_[std::pair<uint32_t,uint32_t>(lumi.run(), lumi.luminosityBlock())] = std::pair<size_t,size_t>(npass, nfail);
    }
-   if (verbose_) {
-       if (!errorCollectionThisLumi_.empty()) {
-           std::cout << "\n === REPORT FOR RUN " << lumi.run() << " LUMI " << lumi.luminosityBlock() << " === " << std::endl;
-           print(errorCollectionThisLumi_);
+   {
+     //synchronize lumiC->errorCollection_
+     auto guard = make_guard(lumiC->collectionGuard_);
+     
+     {
+       if (nfail < thresholdPerLumi_*(npass+nfail)) {
+         //synchronize runC->errorCollection_
+         auto runC = runCache(lumi.getRun().index()); 
+         auto guard = make_guard(runC->collectionGuard_);
+         increment(runC->errorCollection_, lumiC->errorCollection_);
        }
+     }
+     if (verbose_) {
+       if (!lumiC->errorCollection_.empty()) {
+         std::cout << "\n === REPORT FOR RUN " << lumi.run() << " LUMI " << lumi.luminosityBlock() << " === " << std::endl;
+         print(lumiC->errorCollection_);
+       }
+     }
    }
 }
 
 void
-LogErrorEventFilter::endLuminosityBlockProduce(edm::LuminosityBlock &lumi, const edm::EventSetup &iSetup) {
-    lumi.put(serialize(errorCollectionThisLumi_));
-    lumi.put(std::make_unique<int>(npassLumi_), "pass");
-    lumi.put(std::make_unique<int>(nfailLumi_), "fail");
-}
-
-
-void
-LogErrorEventFilter::beginRun(const edm::Run &run, const edm::EventSetup &iSetup) {
-    npassRun_ = 0; nfailRun_ = 0;
-    errorCollectionThisRun_.clear();
-}
-
-void
-LogErrorEventFilter::endRun(const edm::Run &run, const edm::EventSetup &iSetup) {
-    statsPerRun_[run.run()] = std::pair<size_t,size_t>(npassRun_, nfailRun_);
-    if (nfailRun_ < thresholdPerRun_*(npassRun_+nfailRun_)) {
-        increment(errorCollectionAll_, errorCollectionThisRun_);
+LogErrorEventFilter::globalEndLuminosityBlockProduce(edm::LuminosityBlock &lumi, const edm::EventSetup &iSetup) const {
+    auto lumiC = luminosityBlockCache(lumi.index());
+    {
+        //synchronize errorCollection_
+        auto guard = make_guard(lumiC->collectionGuard_);
+        lumi.put(serialize(lumiC->errorCollection_));
     }
-    if (verbose_) {
-        if (!errorCollectionThisRun_.empty()) {
-            std::cout << "\n === REPORT FOR RUN " << run.run() << " === " << std::endl;
-            print(errorCollectionThisRun_);
+    lumi.put(std::make_unique<int>(lumiC->npass_.load()), "pass");
+    lumi.put(std::make_unique<int>(lumiC->nfail_.load()), "fail");
+}
+
+
+std::shared_ptr<RunErrors>
+LogErrorEventFilter::globalBeginRun(const edm::Run &run, const edm::EventSetup &iSetup) const {
+    return std::make_shared<RunErrors>();
+}
+
+void
+LogErrorEventFilter::globalEndRun(const edm::Run &run, const edm::EventSetup &iSetup) const {
+    auto runC = runCache(run.index());
+    auto npass = runC->npass_.load();
+    auto nfail = runC->nfail_.load();
+    {
+      auto guard = make_guard(statsGuard_);
+      statsPerRun_[run.run()] = std::pair<size_t,size_t>(npass, nfail);
+    }
+    {
+        //synchronize errorCollection_
+        auto guard = make_guard(runC->collectionGuard_);
+        if (nfail < thresholdPerRun_*(npass+nfail)) {
+          auto guard = make_guard(statsGuard_);
+          increment(errorCollectionAll_, runC->errorCollection_);
+        }
+        if (verbose_) {
+            if (!runC->errorCollection_.empty()) {
+                std::cout << "\n === REPORT FOR RUN " << run.run() << " === " << std::endl;
+                print(runC->errorCollection_);
+            }
         }
     }
-    //run.put(serialize(errorCollectionThisRun_));
 }
 
 void
 LogErrorEventFilter::endJob() {
     if (verbose_) {
         std::cout << "\n === REPORT FOR JOB === " << std::endl;
+        //synchronizes statsPerRun_ and errorCollectionAll_
+        auto guard = make_guard(statsGuard_);
         print(errorCollectionAll_);
         
         typedef std::pair<size_t,size_t> counter;
@@ -220,7 +295,7 @@ LogErrorEventFilter::endJob() {
 }
 
 bool 
-LogErrorEventFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) {
+LogErrorEventFilter::filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const {
     if (readSummaryMode_) return true;
 
     bool fail = false, save = false;
@@ -228,9 +303,12 @@ LogErrorEventFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
     edm::Handle<ErrorList> errors;
     iEvent.getByToken(srcT_, errors);
 
-   
-    if (errors->empty()) { 
-        npassRun_++; npassLumi_++;
+    auto runC = runCache(iEvent.getRun().index()); 
+    auto lumiC = luminosityBlockCache(iEvent.getLuminosityBlock().index());
+
+    if (errors->empty()) {
+        ++(runC->npass_);
+        ++(lumiC->npass_);
 	iEvent.put(std::make_unique<bool>(false));
 
 	if(taggedMode_) return forcedValue_;
@@ -244,7 +322,11 @@ LogErrorEventFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
         if (!categoriesToIgnore_.empty() && (categoriesToIgnore_.count(err.category) != 0)) continue;
         
         fail = true;
-        std::pair<ErrorSet::iterator, bool> result = errorCollectionThisLumi_.insert(err);
+        
+        //synchronize errorCollection_
+        auto guard = make_guard(lumiC->collectionGuard_);
+        
+        std::pair<ErrorSet::iterator, bool> result = lumiC->errorCollection_.insert(err);
         if (!result.second) { // already there
             // need the const_cast as set elements are const
             const_cast<unsigned int &>(result.first->count) += err.count;
@@ -260,7 +342,7 @@ LogErrorEventFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
     }
 
 
-    if (fail) { nfailLumi_++; nfailRun_++; } else { npassRun_++; npassLumi_++; }
+    if (fail) { ++(lumiC->nfail_); ++(runC->nfail_); } else { ++(runC->npass_); ++(lumiC->npass_); }
     iEvent.put(std::make_unique<bool>(fail));  // fail is the unbiased boolean 
 
     if(taggedMode_) return forcedValue_;

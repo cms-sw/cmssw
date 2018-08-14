@@ -44,6 +44,11 @@ class DTLocalTrigger;
 class L1MuDTChambPhDigi;
 class L1MuDTChambThDigi;
 
+typedef std::array<std::array<std::array<int,13>, 5 > ,6> DTArr3int;
+typedef std::array<std::array<std::array<const L1MuDTChambPhDigi*,15>, 5 > ,6> DTArr3PhDigi;
+typedef std::array<std::array<std::array<const L1MuDTChambThDigi*,15>, 5 > ,6> DTArr3ThDigi;
+typedef std::array<std::array<std::array<const DTLocalTrigger*,15>, 5 > ,6> DTArr3LocalTrigger;
+typedef std::array<std::array<std::array<int,2>, 13 > ,6> DTArr3mapInt;
 
 class DTLocalTriggerTask: public DQMEDAnalyzer{
 
@@ -55,7 +60,7 @@ class DTLocalTriggerTask: public DQMEDAnalyzer{
   DTLocalTriggerTask(const edm::ParameterSet& ps );
 
   /// Destructor
-  virtual ~DTLocalTriggerTask();
+  ~DTLocalTriggerTask() override;
 
  protected:
 
@@ -101,9 +106,9 @@ class DTLocalTriggerTask: public DQMEDAnalyzer{
   /// Get the Top folder (different between Physics and TP and TM/DDU)
   std::string& topFolder(bool isTM) { return isTM ? baseFolderTM : baseFolderDDU; }
 
- private:
+  const int wheelArrayShift = 3;
 
-  edm::InputTag tmTh_label_;
+ private:
 
   edm::EDGetTokenT<L1MuDTChambPhContainer> tm_Token_;
   edm::EDGetTokenT<L1MuDTChambThContainer> tmTh_Token_;    
@@ -121,14 +126,14 @@ class DTLocalTriggerTask: public DQMEDAnalyzer{
   bool detailedAnalysis;
 
 
-  int phcode_best[6][5][13];
-  int dduphcode_best[6][5][13];
-  int thcode_best[6][5][13];
-  int dduthcode_best[6][5][13];
-  int mapDTTF[6][13][2];
-  const L1MuDTChambPhDigi* iphbest[6][5][13];
-  const DTLocalTrigger*    iphbestddu[6][5][13];
-  const L1MuDTChambThDigi* ithbest[6][5][13];
+  DTArr3int phcode_best;
+  DTArr3int dduphcode_best;
+  DTArr3int thcode_best;
+  DTArr3int dduthcode_best;
+  DTArr3mapInt mapDTTF;
+  DTArr3PhDigi iphbest;
+  DTArr3LocalTrigger  iphbestddu;
+  DTArr3ThDigi ithbest;
   bool track_ok[6][5][15];
 
   edm::ParameterSet parameters;

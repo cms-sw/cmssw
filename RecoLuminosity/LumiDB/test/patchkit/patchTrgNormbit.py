@@ -1,3 +1,4 @@
+from __future__ import print_function
 import csv,os,sys,coral,array
 from RecoLuminosity.LumiDB import argparse,sessionManager,CommonUtil,idDealer,dbUtil,dataDML,revisionDML
 NCOLS=4
@@ -65,7 +66,7 @@ def main(*args):
     options=parser.parse_args()
     os.environ['CORAL_AUTH_PATH'] = options.authpath      
     perlsrawdata=parseInputFile(options.ifile)
-    print perlsrawdata
+    print(perlsrawdata)
     msg=coral.MessageStream('')
     msg.setMsgVerbosity(coral.message_Level_Error)
     svc=sessionManager.sessionManager(options.connect,authpath=options.authpath,debugON=options.debug)

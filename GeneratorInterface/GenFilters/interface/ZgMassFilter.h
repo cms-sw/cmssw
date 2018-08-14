@@ -42,10 +42,10 @@ namespace edm {
 class ZgMassFilter : public edm::EDFilter {
    public:
       explicit ZgMassFilter(const edm::ParameterSet&);
-      ~ZgMassFilter();
+      ~ZgMassFilter() override;
 
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::Event&, const edm::EventSetup&) override;
    private:
       // ----------memeber function----------------------
        int charge(const int& Id);

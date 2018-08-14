@@ -19,12 +19,12 @@
 class UpdatedMuonInnerTrackRef : public edm::EDProducer {
    public:
       explicit UpdatedMuonInnerTrackRef(const edm::ParameterSet&);
-      ~UpdatedMuonInnerTrackRef();
+      ~UpdatedMuonInnerTrackRef() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       reco::TrackRef findNewRef(reco::TrackRef oldTrackRef, edm::Handle<reco::TrackCollection>& newTrackCollection);
 

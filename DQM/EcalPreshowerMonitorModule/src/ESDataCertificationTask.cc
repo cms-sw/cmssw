@@ -33,8 +33,8 @@ ESDataCertificationTask::ESDataCertificationTask(const ParameterSet& ps) {
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
-  meESDataCertificationSummary_ = 0;
-  meESDataCertificationSummaryMap_ = 0;
+  meESDataCertificationSummary_ = nullptr;
+  meESDataCertificationSummaryMap_ = nullptr;
 
 }
 
@@ -75,9 +75,6 @@ void ESDataCertificationTask::beginLuminosityBlock(const edm::LuminosityBlock& l
 
 }
 
-void ESDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup) {
-
-}
 
 void ESDataCertificationTask::reset(void) {
 

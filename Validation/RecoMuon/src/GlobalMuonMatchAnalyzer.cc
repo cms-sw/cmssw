@@ -123,7 +123,7 @@ GlobalMuonMatchAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
      RefToBase<Track> rGlb;
      if(glbsimToRecoCollection.find(tp) != glbsimToRecoCollection.end()){
        rvGlb = glbsimToRecoCollection[tp];
-       if(rvGlb.size() != 0) {
+       if(!rvGlb.empty()) {
 	 rGlb = rvGlb.begin()->first;
        }
      }
@@ -132,7 +132,7 @@ GlobalMuonMatchAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
      RefToBase<Track> rSta;
      if(stasimToRecoCollection.find(tp) != stasimToRecoCollection.end()){
        rvSta = stasimToRecoCollection[tp];
-       if(rvSta.size() != 0) {
+       if(!rvSta.empty()) {
 	 rSta = rvSta.begin()->first;
        }
      }
@@ -141,12 +141,12 @@ GlobalMuonMatchAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
      RefToBase<Track> rTk;
      if(tksimToRecoCollection.find(tp) != tksimToRecoCollection.end()){
        rvTk = tksimToRecoCollection[tp];
-       if(rvTk.size() != 0) {
+       if(!rvTk.empty()) {
 	 rTk = rvTk.begin()->first;
        }
      }
      
-     if( rvSta.size() != 0 && rvTk.size() != 0 ){
+     if( !rvSta.empty() && !rvTk.empty() ){
        //should have matched
        h_shouldMatch->Fill(rTk->eta(),rTk->pt());
      }
@@ -184,7 +184,7 @@ GlobalMuonMatchAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
      TrackingParticleRef tp1r;
      if(glbrecoToSimCollection.find(glbRef) != glbrecoToSimCollection.end()){
        tp1 = glbrecoToSimCollection[glbRef];
-       if(tp1.size() != 0) {
+       if(!tp1.empty()) {
 	 tp1r = tp1.begin()->first;
        }
      }
@@ -193,7 +193,7 @@ GlobalMuonMatchAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
      TrackingParticleRef tp2r;
      if(starecoToSimCollection.find(staRef) != starecoToSimCollection.end()){
        tp2 = starecoToSimCollection[staRef];
-       if(tp2.size() != 0) {
+       if(!tp2.empty()) {
 	 tp2r = tp2.begin()->first;
        }
      }
@@ -202,13 +202,13 @@ GlobalMuonMatchAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
      TrackingParticleRef tp3r;
      if(tkrecoToSimCollection.find(tkRef) != tkrecoToSimCollection.end()){
        tp3 = tkrecoToSimCollection[tkRef];
-       if(tp3.size() != 0) {
+       if(!tp3.empty()) {
 	 tp3r = tp3.begin()->first;
        }
      }
      
      
-     if(tp1.size() != 0) {
+     if(!tp1.empty()) {
        //was reconstructed
        h_totReco->Fill(glbRef->eta(),glbRef->pt());
        if(tp2r == tp3r) { // && tp1r == tp3r) {
@@ -226,12 +226,6 @@ GlobalMuonMatchAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 }
 
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-GlobalMuonMatchAnalyzer::beginJob()
-{
-}
-void GlobalMuonMatchAnalyzer::endJob() {}
 // ------------ method called once each job just after ending the event loop  ------------
 void GlobalMuonMatchAnalyzer::endRun(edm::Run const&, edm::EventSetup const&) {
   computeEfficiencyEta(h_effic,h_goodMatchSim,h_shouldMatch);
@@ -240,7 +234,7 @@ void GlobalMuonMatchAnalyzer::endRun(edm::Run const&, edm::EventSetup const&) {
   computeEfficiencyEta(h_fake,h_fakeMatch,h_totReco);
   computeEfficiencyPt(h_fakePt,h_fakeMatch,h_totReco);
 
-  if( out.size() != 0 && dbe_ ) dbe_->save(out);
+  if( !out.empty() && dbe_ ) dbe_->save(out);
 }
 
 //void GlobalMuonMatchAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& setup)
@@ -254,7 +248,7 @@ void GlobalMuonMatchAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
   ibooker.cd();
   std::string dirName="Matcher/";
   //  ibooker.setCurrentFolder("RecoMuonV/Matcher");
-  ibooker.setCurrentFolder(dirName.c_str()) ;
+  ibooker.setCurrentFolder(dirName) ;
 
   h_shouldMatch = ibooker.book2D("h_shouldMatch","SIM associated to Tk and Sta",50,-2.5,2.5,100,0.,500.);
   h_goodMatchSim = ibooker.book2D("h_goodMatchSim","SIM associated to Glb Sta Tk",50,-2.5,2.5,100,0.,500.);

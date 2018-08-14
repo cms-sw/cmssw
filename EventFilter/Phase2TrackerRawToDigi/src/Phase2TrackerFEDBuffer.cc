@@ -78,7 +78,7 @@ namespace Phase2Tracker
             }
             else
             {
-              channels_.push_back(Phase2TrackerFEDChannel(NULL,0,0));
+              channels_.push_back(Phase2TrackerFEDChannel(nullptr,0,0));
             }
           }
         }
@@ -146,7 +146,7 @@ namespace Phase2Tracker
     else
     {
       // put a null pointer to indicate lack of condition data
-      condDataPointer_ = 0;
+      condDataPointer_ = nullptr;
       // check buffer size :
       if (bufferDiff != 0)
       {

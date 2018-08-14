@@ -15,22 +15,22 @@ public:
   /// standard constructor
   CaloTowerTopology(const HcalTopology * topology);
   /// virtual destructor
-  virtual ~CaloTowerTopology() { }
+  ~CaloTowerTopology() override { }
   /// is this detid present in the Topology?
-  virtual bool valid(const DetId& id) const;
+  bool valid(const DetId& id) const override;
   virtual bool validDetId(const CaloTowerDetId& id) const;
   /** Get the neighbors of the given cell in east direction*/
-  virtual std::vector<DetId> east(const DetId& id) const;
+  std::vector<DetId> east(const DetId& id) const override;
   /** Get the neighbors of the given cell in west direction*/
-  virtual std::vector<DetId> west(const DetId& id) const;
+  std::vector<DetId> west(const DetId& id) const override;
   /** Get the neighbors of the given cell in north direction*/
-  virtual std::vector<DetId> north(const DetId& id) const;
+  std::vector<DetId> north(const DetId& id) const override;
   /** Get the neighbors of the given cell in south direction*/
-  virtual std::vector<DetId> south(const DetId& id) const;
+  std::vector<DetId> south(const DetId& id) const override;
   /** Get the neighbors of the given cell in up direction (outward)*/
-  virtual std::vector<DetId> up(const DetId& id) const;
+  std::vector<DetId> up(const DetId& id) const override;
   /** Get the neighbors of the given cell in down direction (inward)*/
-  virtual std::vector<DetId> down(const DetId& id) const;
+  std::vector<DetId> down(const DetId& id) const override;
 
   //mimic accessors from HcalTopology, but with continuous ieta
   int firstHBRing() const {return firstHBRing_;}

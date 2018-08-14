@@ -14,9 +14,9 @@ namespace Exhume{
     DiPhoton(const edm::ParameterSet&);
    
     //declare inherited functions
-    double SubProcess();
-    void LIPS2Amp();
-    void Amp2LIPS();
+    double SubProcess() override;
+    void LIPS2Amp() override;
+    void Amp2LIPS() override;
   
   private:
     double MatrixElement();

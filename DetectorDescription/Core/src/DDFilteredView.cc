@@ -9,26 +9,17 @@
 class DDCompactView;
 class DDLogicalPart;
 
-DDFilteredView::DDFilteredView(const DDCompactView & cpv)
- : epv_(cpv)
+DDFilteredView::DDFilteredView(const DDCompactView & cpv, const DDFilter& fltr)
+  : epv_(cpv), filter_(&fltr)
 {
-   parents_.push_back(epv_.geoHistory());
+   parents_.emplace_back(epv_.geoHistory());
 }
-
-DDFilteredView::~DDFilteredView()
-{ }
 
 const DDLogicalPart & DDFilteredView::logicalPart() const
 {
   return epv_.logicalPart();
 }
 
-void DDFilteredView::addFilter(const DDFilter & f, DDLogOp op)
-{
-  criteria_.push_back(&f); 
-  logOps_.push_back(op);
-}
- 
 const DDTranslation & DDFilteredView::translation() const
 {
    return epv_.translation();
@@ -82,7 +73,7 @@ bool DDFilteredView::setScope(const DDGeoHistory & hist)
   bool result = epv_.setScope(hist,0);
   if (result) {
     parents_.clear();
-    parents_.push_back(hist);
+    parents_.emplace_back(hist);
   }  
   return result;
 }  
@@ -91,7 +82,7 @@ void DDFilteredView::clearScope()
 {
    epv_.clearScope();
    parents_.clear();
-   parents_.push_back(epv_.geoHistory());
+   parents_.emplace_back(epv_.geoHistory());
 }
 
 bool DDFilteredView::next()
@@ -142,7 +133,7 @@ bool DDFilteredView::firstChild()
    }
    
    if (result) {
-     parents_.push_back(epv_.geoHistory());
+     parents_.emplace_back(epv_.geoHistory());
    }
      
    return result;
@@ -221,30 +212,12 @@ void DDFilteredView::reset()
 {
   epv_.reset();
   parents_.clear();
-  parents_.push_back(epv_.geoHistory());          
+  parents_.emplace_back(epv_.geoHistory());          
 }
 
 bool DDFilteredView::filter()
 {
-  bool result = true;
-  auto logOpIt = logOps_.begin();
-  // loop over all user-supplied criteria (==filters)
-  for( auto it = begin(criteria_); it != end(criteria_); ++it, ++logOpIt) {
-    // avoid useless evaluations
-    if(( result && ( *logOpIt ) == DDLogOp::OR ) ||
-       (( !result ) && ( *logOpIt ) == DDLogOp::AND )) continue; 
-    
-    bool locres = (*it)->accept(epv_);
-    
-    // now do the logical-operations on the results encountered so far:
-    if (*logOpIt == DDLogOp::AND) { // AND
-      result &= locres; 
-    }
-    else { // OR
-      result |= locres;  
-    }
-  } // <-- loop over filters     
-  return result;
+  return filter_->accept(epv_) ;
 }
 
 DDFilteredView::nav_type DDFilteredView::navPos() const
@@ -270,8 +243,8 @@ void DDFilteredView::print() {
        << "-------------------" << std::endl
        << "scope = " << epv_.scope_ << std::endl
        << "parents:" << std::endl;
-  for (unsigned int i=0; i<parents_.size(); ++i)
-    edm::LogInfo("DDFliteredView") << "  " << parents_[i] << std::endl;
+  for (const auto & parent : parents_)
+    edm::LogInfo("DDFliteredView") << "  " << parent << std::endl;
     
 }
 

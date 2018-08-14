@@ -66,13 +66,13 @@ public:
   CMSTopTagger(double delta_p=0.05, double delta_r=0.4, double A=0.0004);
 
   /// returns a textual description of the tagger
-  virtual std::string description() const;
+  std::string description() const override;
 
   /// runs the tagger on the given jet and
   /// returns the tagged PseudoJet if successful, or a PseudoJet==0 otherwise
   /// (standard access is through operator()).
   ///  \param jet   the PseudoJet to tag
-  virtual PseudoJet result(const PseudoJet & jet) const;
+  PseudoJet result(const PseudoJet & jet) const override;
 
   // the type of the associated structure
   typedef CMSTopTaggerStructure StructureType;
@@ -95,7 +95,7 @@ protected:
 class CMSTopTaggerStructure : public JHTopTaggerStructure {
 public:
   CMSTopTaggerStructure(const std::vector<PseudoJet>& pieces,
-      const JetDefinition::Recombiner *recombiner = 0)
+      const JetDefinition::Recombiner *recombiner = nullptr)
     : JHTopTaggerStructure(pieces, recombiner) {}
 
 protected:
@@ -139,13 +139,13 @@ inline PseudoJet CMSTopTagger::result(const PseudoJet & jet) const{
 
   // do the first splitting
   std::vector<PseudoJet> split0 = _split_once(jet, jet);
-  if (split0.size() == 0) return PseudoJet();
+  if (split0.empty()) return PseudoJet();
 
   // now try a second splitting on each of the resulting objects
   std::vector<PseudoJet> subjets;
   for (unsigned i = 0; i < 2; i++) {
     std::vector<PseudoJet> split1 = _split_once(split0[i], jet);
-    if (split1.size() > 0) {
+    if (!split1.empty()) {
       subjets.push_back(split1[0]);
       subjets.push_back(split1[1]);
     } else {

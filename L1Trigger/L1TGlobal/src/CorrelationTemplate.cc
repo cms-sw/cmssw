@@ -185,7 +185,10 @@ void CorrelationTemplate::print(std::ostream& myCout) const
     myCout << "    minMassCutValue       = " << std::dec << m_correlationParameter.minMassCutValue<< std::endl;
     myCout << "    maxMassCutValue       = " << std::dec << m_correlationParameter.maxMassCutValue<< std::endl;
     myCout << "    precMassCut           = " << std::dec << m_correlationParameter.precMassCut    << std::endl;
- 
+    myCout << "    minTBPTCutValue       = " << std::dec << m_correlationParameter.minTBPTCutValue<< std::endl;
+    myCout << "    maxTBPTCutValue       = " << std::dec << m_correlationParameter.maxTBPTCutValue<< std::endl;
+    myCout << "    precTBPTCut           = " << std::dec << m_correlationParameter.precTBPTCut    << std::endl;
+
     myCout << "    chargeCorrelation  = " << std::dec << m_correlationParameter.chargeCorrelation << std::endl;
 
     // reset to decimal output
@@ -218,6 +221,3 @@ std::ostream& operator<<(std::ostream& os, const CorrelationTemplate& result)
     return os;
 
 }
-
-
-

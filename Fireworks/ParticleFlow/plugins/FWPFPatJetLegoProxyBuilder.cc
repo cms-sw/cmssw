@@ -56,8 +56,7 @@ FWPFPatJetLegoProxyBuilder<T>::localModelChanges(const FWModelId& iId, TEveEleme
       for( TEveElement::List_i j = parent->BeginChildren(); j != parent->EndChildren(); ++j )
       {
          FWLegoCandidate *cand = dynamic_cast<FWLegoCandidate*> ( *j );
-         const FWDisplayProperties &dp = FWProxyBuilderBase::item()->modelInfo( iId.index() ).displayProperties();
-         cand->SetMarkerColor( dp.color() );
+         cand->SetMarkerColor( FWProxyBuilderBase::item()->modelInfo( iId.index() ).displayProperties().color() );
          cand->ElementChanged();
       }
    }
@@ -68,7 +67,7 @@ class FWPatJetLegoProxyBuilder : public FWPFPatJetLegoProxyBuilder<pat::Jet>
 {
    public:
       FWPatJetLegoProxyBuilder(){}
-      virtual ~FWPatJetLegoProxyBuilder(){}
+      ~FWPatJetLegoProxyBuilder() override{}
 
       REGISTER_PROXYBUILDER_METHODS();
 };
@@ -78,7 +77,7 @@ class FWPFJetLegoProxyBuilder : public FWPFPatJetLegoProxyBuilder<reco::PFJet>
 {
    public:
       FWPFJetLegoProxyBuilder(){}
-      virtual ~FWPFJetLegoProxyBuilder(){}
+      ~FWPFJetLegoProxyBuilder() override{}
 
       REGISTER_PROXYBUILDER_METHODS();
 };

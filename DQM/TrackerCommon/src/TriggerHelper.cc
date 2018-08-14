@@ -16,7 +16,7 @@
 
 /// To be called from the ED module's c'tor
 TriggerHelper::TriggerHelper( const edm::ParameterSet & config )
-  : watchDB_( 0 )
+  : watchDB_( nullptr )
   , gtDBKey_( "" )
   , l1DBKey_( "" )
   , hltDBKey_( "" )
@@ -97,15 +97,15 @@ void TriggerHelper::initRun( const edm::Run & run, const edm::EventSetup & setup
   // FIXME Can this stay safely in the run loop, or does it need to go to the event loop?
   // Means: Are the event setups identical?
   if ( watchDB_->check( setup ) ) {
-    if ( onGt_ && gtDBKey_.size() > 0 ) {
+    if ( onGt_ && !gtDBKey_.empty() ) {
       const std::vector< std::string > exprs( expressionsFromDB( gtDBKey_, setup ) );
       if ( exprs.empty() || exprs.at( 0 ) != configError_ ) gtLogicalExpressions_ = exprs;
     }
-    if ( onL1_ && l1DBKey_.size() > 0 ) {
+    if ( onL1_ && !l1DBKey_.empty() ) {
       const std::vector< std::string > exprs( expressionsFromDB( l1DBKey_, setup ) );
       if ( exprs.empty() || exprs.at( 0 ) != configError_ ) l1LogicalExpressions_ = exprs;
     }
-    if ( onHlt_ && hltDBKey_.size() > 0 ) {
+    if ( onHlt_ && !hltDBKey_.empty() ) {
       const std::vector< std::string > exprs( expressionsFromDB( hltDBKey_, setup ) );
       if ( exprs.empty() || exprs.at( 0 ) != configError_ ) hltLogicalExpressions_ = exprs;
     }
@@ -113,7 +113,7 @@ void TriggerHelper::initRun( const edm::Run & run, const edm::EventSetup & setup
 
   hltConfigInit_ = false;
   if ( onHlt_ ) {
-    if ( hltInputTag_.process().size() == 0 ) {
+    if ( hltInputTag_.process().empty() ) {
       edm::LogError( "TriggerHelper" ) << "HLT TriggerResults InputTag \"" << hltInputTag_.encode() << "\" specifies no process";
     } else {
       bool hltChanged( false );

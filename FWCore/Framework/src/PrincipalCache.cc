@@ -26,7 +26,7 @@ namespace edm {
   PrincipalCache::runPrincipal(ProcessHistoryID const& phid, RunNumber_t run) const {
     if (phid != reducedInputProcessHistoryID_ ||
         run != run_ ||
-        runPrincipal_.get() == 0) {
+        runPrincipal_.get() == nullptr) {
       throwRunMissing();
     }
     return *runPrincipal_.get();
@@ -36,7 +36,7 @@ namespace edm {
   PrincipalCache::runPrincipalPtr(ProcessHistoryID const& phid, RunNumber_t run) const {
     if (phid != reducedInputProcessHistoryID_ ||
         run != run_ ||
-        runPrincipal_.get() == 0) {
+        runPrincipal_.get() == nullptr) {
       throwRunMissing();
     }
     return runPrincipal_;
@@ -44,7 +44,7 @@ namespace edm {
 
   RunPrincipal&
   PrincipalCache::runPrincipal() const {
-    if (runPrincipal_.get() == 0) {
+    if (runPrincipal_.get() == nullptr) {
       throwRunMissing();
     }
     return *runPrincipal_.get();
@@ -52,52 +52,17 @@ namespace edm {
 
   std::shared_ptr<RunPrincipal> const&
   PrincipalCache::runPrincipalPtr() const {
-    if (runPrincipal_.get() == 0) {
+    if (runPrincipal_.get() == nullptr) {
       throwRunMissing();
     }
     return runPrincipal_;
   }
 
-  LuminosityBlockPrincipal&
-  PrincipalCache::lumiPrincipal(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) const {
-    if (phid != reducedInputProcessHistoryID_ ||
-        run != run_ ||
-        lumi != lumi_ ||
-        lumiPrincipal_.get() == 0) {
-      throwLumiMissing();
-    }
-    return *lumiPrincipal_.get();
-  }
-
-  std::shared_ptr<LuminosityBlockPrincipal> const&
-  PrincipalCache::lumiPrincipalPtr(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) const {
-    if (phid != reducedInputProcessHistoryID_ ||
-        run != run_ ||
-        lumi != lumi_ ||
-        lumiPrincipal_.get() == 0) {
-      throwLumiMissing();
-    }
-    return lumiPrincipal_;
-  }
-
-  LuminosityBlockPrincipal&
-  PrincipalCache::lumiPrincipal() const {
-    if (lumiPrincipal_.get() == 0) {
-      throwLumiMissing();
-    }
-    return *lumiPrincipal_.get();
-  }
-
-  std::shared_ptr<LuminosityBlockPrincipal> const&
-  PrincipalCache::lumiPrincipalPtr() const {
-    if (lumiPrincipal_.get() == 0) {
-      throwLumiMissing();
-    }
-    return lumiPrincipal_;
-  }
+  std::shared_ptr<LuminosityBlockPrincipal>
+  PrincipalCache::getAvailableLumiPrincipalPtr() { return lumiHolder_.tryToGet();}
 
   void PrincipalCache::merge(std::shared_ptr<RunAuxiliary> aux, std::shared_ptr<ProductRegistry const> reg) {
-    if (runPrincipal_.get() == 0) {
+    if (runPrincipal_.get() == nullptr) {
       throw edm::Exception(edm::errors::LogicError)
         << "PrincipalCache::merge\n"
         << "Illegal attempt to merge run into cache\n"
@@ -126,39 +91,8 @@ namespace edm {
     runPrincipal_->mergeAuxiliary(*aux);
   }
 
-  void PrincipalCache::merge(std::shared_ptr<LuminosityBlockAuxiliary> aux, std::shared_ptr<ProductRegistry const> reg) {
-    if (lumiPrincipal_.get() == 0) {
-      throw edm::Exception(edm::errors::LogicError)
-        << "PrincipalCache::merge\n"
-        << "Illegal attempt to merge luminosity block into cache\n"
-        << "There is no luminosity block in the cache to merge with\n"
-        << "Contact a Framework Developer\n";
-    }
-    if (inputProcessHistoryID_ != aux->processHistoryID()) {
-      if (reducedInputProcessHistoryID_ != processHistoryRegistry_->reducedProcessHistoryID(aux->processHistoryID())) {
-        throw edm::Exception(edm::errors::LogicError)
-          << "PrincipalCache::merge\n"
-          << "Illegal attempt to merge run into cache\n"
-          << "Reduced ProcessHistoryID inconsistent with the one already in cache\n"
-          << "Contact a Framework Developer\n";
-      }
-      inputProcessHistoryID_ = aux->processHistoryID();
-    }
-    if (aux->run() != run_ ||
-        aux->luminosityBlock() != lumi_) {
-      throw edm::Exception(edm::errors::LogicError)
-        << "PrincipalCache::merge\n"
-        << "Illegal attempt to merge lumi into cache\n"
-        << "Run and lumi numbers are inconsistent with the ones already in the cache\n"
-        << "Contact a Framework Developer\n";
-    }
-    bool lumiOK = lumiPrincipal_->adjustToNewProductRegistry(*reg);
-    assert(lumiOK);
-    lumiPrincipal_->mergeAuxiliary(*aux);
-  }
-
   void PrincipalCache::insert(std::shared_ptr<RunPrincipal> rp) {
-    if (runPrincipal_.get() != 0) {
+    if (runPrincipal_.get() != nullptr) {
       throw edm::Exception(edm::errors::LogicError)
         << "PrincipalCache::insert\n"
         << "Illegal attempt to insert run into cache\n"
@@ -172,39 +106,8 @@ namespace edm {
     runPrincipal_ = rp; 
   }
 
-  void PrincipalCache::insert(std::shared_ptr<LuminosityBlockPrincipal> lbp) {
-    if (lumiPrincipal_.get() != 0) {
-      throw edm::Exception(edm::errors::LogicError)
-        << "PrincipalCache::insert\n"
-        << "Illegal attempt to insert lumi into cache\n"
-        << "Contact a Framework Developer\n";
-    }
-    if (runPrincipal_.get() == 0) {
-      throw edm::Exception(edm::errors::LogicError)
-        << "PrincipalCache::insert\n"
-        << "Illegal attempt to insert lumi into cache\n"
-        << "Run is invalid\n"
-        << "Contact a Framework Developer\n";
-    }
-    if (inputProcessHistoryID_ != lbp->aux().processHistoryID()) {
-      if (reducedInputProcessHistoryID_ != processHistoryRegistry_->reducedProcessHistoryID(lbp->aux().processHistoryID())) {
-        throw edm::Exception(edm::errors::LogicError)
-          << "PrincipalCache::insert\n"
-          << "Illegal attempt to insert lumi into cache\n"
-          << "luminosity block has ProcessHistoryID inconsistent with run\n"
-          << "Contact a Framework Developer\n";
-      }
-      inputProcessHistoryID_ = lbp->aux().processHistoryID();
-    }
-    if (lbp->run() != run_) {
-      throw edm::Exception(edm::errors::LogicError)
-        << "PrincipalCache::insert\n"
-        << "Illegal attempt to insert lumi into cache\n"
-        << "luminosity block inconsistent with run number of run in cache\n"
-        << "Contact a Framework Developer\n";
-    }
-    lumi_ = lbp->luminosityBlock();
-    lumiPrincipal_ = lbp; 
+  void PrincipalCache::insert(std::unique_ptr<LuminosityBlockPrincipal> lbp) {
+    lumiHolder_.add(std::move(lbp));
   }
 
   void PrincipalCache::insert(std::shared_ptr<EventPrincipal> ep) {
@@ -214,7 +117,7 @@ namespace edm {
   }
 
   void PrincipalCache::deleteRun(ProcessHistoryID const& phid, RunNumber_t run) {
-    if (runPrincipal_.get() == 0) {
+    if (runPrincipal_.get() == nullptr) {
       throw edm::Exception(edm::errors::LogicError)
         << "PrincipalCache::deleteRun\n"
         << "Illegal attempt to delete run from cache\n"
@@ -232,26 +135,6 @@ namespace edm {
     runPrincipal_.reset();
   }
 
-  void PrincipalCache::deleteLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) {
-    if (lumiPrincipal_.get() == 0) {
-      throw edm::Exception(edm::errors::LogicError)
-        << "PrincipalCache::deleteLumi\n"
-        << "Illegal attempt to delete luminosity block from cache\n"
-        << "There is no luminosity block in the cache to delete\n"
-        << "Contact a Framework Developer\n";
-    }
-    if (reducedInputProcessHistoryID_ != phid ||
-        run != run_ ||
-        lumi != lumi_) {
-      throw edm::Exception(edm::errors::LogicError)
-        << "PrincipalCache::deleteLumi\n"
-        << "Illegal attempt to delete luminosity block from cache\n"
-        << "Run number, lumi numbers, or reduced ProcessHistoryID inconsistent with those in cache\n"
-        << "Contact a Framework Developer\n";
-    }
-    lumiPrincipal_.reset();
-  }
-
   void PrincipalCache::adjustEventsToNewProductRegistry(std::shared_ptr<ProductRegistry const> reg) {
     for(auto &eventPrincipal : eventPrincipals_) {
       if (eventPrincipal) {
@@ -266,8 +149,18 @@ namespace edm {
     if (runPrincipal_) {
       runPrincipal_->adjustIndexesAfterProductRegistryAddition();
     }
-    if (lumiPrincipal_) {
-      lumiPrincipal_->adjustIndexesAfterProductRegistryAddition();
+    //Need to temporarily hold all the lumis to clear out the lumiHolder_
+    std::vector<std::shared_ptr<LuminosityBlockPrincipal>> temp;
+    while(auto p = lumiHolder_.tryToGet()) {
+      p->adjustIndexesAfterProductRegistryAddition();
+      temp.emplace_back(std::move(p));
+    }
+  }
+
+  void
+  PrincipalCache::preReadFile() {
+    if (runPrincipal_) {
+      runPrincipal_->preReadFile();
     }
   }
 

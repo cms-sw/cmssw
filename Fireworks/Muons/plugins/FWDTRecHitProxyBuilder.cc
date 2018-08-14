@@ -22,20 +22,20 @@ class FWDTRecHitProxyBuilder : public FWSimpleProxyBuilderTemplate<DTRecHit1DPai
 {
 public:
   FWDTRecHitProxyBuilder( void ) {}
-  virtual ~FWDTRecHitProxyBuilder( void ) {}
+  ~FWDTRecHitProxyBuilder( void ) override {}
 	
-  virtual bool haveSingleProduct() const override { return false; }
+  bool haveSingleProduct() const override { return false; }
    
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
   // Disable default copy constructor
-  FWDTRecHitProxyBuilder( const FWDTRecHitProxyBuilder& );
+  FWDTRecHitProxyBuilder( const FWDTRecHitProxyBuilder& ) = delete;
   // Disable default assignment operator
-  const FWDTRecHitProxyBuilder& operator=( const FWDTRecHitProxyBuilder& );
+  const FWDTRecHitProxyBuilder& operator=( const FWDTRecHitProxyBuilder& ) = delete;
 
   using FWSimpleProxyBuilderTemplate<DTRecHit1DPair>::buildViewType;
-  virtual void buildViewType( const DTRecHit1DPair& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext* ) override;
+  void buildViewType( const DTRecHit1DPair& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext* ) override;
 };
 
 void

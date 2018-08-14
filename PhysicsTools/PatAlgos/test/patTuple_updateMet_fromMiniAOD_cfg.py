@@ -1,10 +1,12 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
-## switch to uncheduled mode
-process.options.allowUnscheduled = cms.untracked.bool(True)
 
 #process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+#patAlgosToolsTask.add(process.patCandidatesTask)
+
 #process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
+#patAlgosToolsTask.add(process.selectedPatCandidatesTask)
+
 #process.load("PhysicsTools.PatUtils.patPFMETCorrections_cff")
 
 # apply type I PFMEt corrections to pat::MET object
@@ -34,6 +36,8 @@ from Configuration.EventContent.EventContent_cff import MINIAODSIMEventContent
 process.out.outputCommands = MINIAODSIMEventContent.outputCommands
 process.out.outputCommands.append("keep *_slimmedMETs_*_*")
 process.out.outputCommands.append("keep *_patPFMet_*_*")
+process.out.outputCommands.append("keep *_patCHSMet_*_*")
+process.out.outputCommands.append("keep *_patTrkMet_*_*")
 process.out.outputCommands.append("keep *_patPFMetT1_*_*")
 process.out.outputCommands.append("keep *_patPFMetT1JetResDown_*_*")
 process.out.outputCommands.append("keep *_patPFMetT1JetResUp_*_*")

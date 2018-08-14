@@ -6,7 +6,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
@@ -65,7 +65,7 @@ public:
   std::unique_ptr<SiStripMatchedRecHit2D> match(const SiStripRecHit2D *monoRH,
 				 const SiStripRecHit2D *stereoRH,
 				 const GluedGeomDet* gluedDet,
-				 LocalVector trackdirection, bool force=false) const;
+				 LocalVector trackdirection, bool force) const;
 
   
 // this is the one used by the RecHitConverter
@@ -212,7 +212,7 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
     
    // in case of no track hypothesis assume a track from the origin through the center of the strip
     if(notk){
-      LocalPoint lcenterofstrip=secondHit.localPositionFast();
+      const LocalPoint& lcenterofstrip=secondHit.localPositionFast();
       GlobalPoint gcenterofstrip= partnerStripDetTrans.toGlobal(lcenterofstrip);
       GlobalVector gtrackdirection=gcenterofstrip-GlobalPoint(0,0,0);
       trdir=gluedDetInvTrans.toLocal(gtrackdirection);
@@ -255,7 +255,7 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
     
     // in case of no track hypothesis assume a track from the origin through the center of the strip
     if(notk){
-      LocalPoint lcenterofstrip=monoRH.localPositionFast();
+      const LocalPoint& lcenterofstrip=monoRH.localPositionFast();
       GlobalPoint gcenterofstrip= stripDetTrans.toGlobal(lcenterofstrip);
       GlobalVector gtrackdirection=gcenterofstrip-GlobalPoint(0,0,0);
       trdir=gluedDetInvTrans.toLocal(gtrackdirection);

@@ -64,7 +64,7 @@ void RPCEventSummary::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStor
     int defaultValue = 1;
     isIn_ = true;
 
-    if(0 != setup.find( recordKey ) ) {
+    if(nullptr != setup.find( recordKey ) ) {
       defaultValue = -1;
       //get fed summary information
       edm::ESHandle<RunInfo> sumFED;
@@ -89,12 +89,12 @@ void RPCEventSummary::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStor
     //a global summary float [0,1] providing a global summary of the status 
     //and showing the goodness of the data taken by the the sub-system 
     std::string histoName="reportSummary";
-    me=0;
+    me=nullptr;
     me = ibooker.bookFloat(histoName);
     me->Fill(defaultValue);
     
     //TH2F ME providing a mapof values[0-1] to show if problems are localized or distributed
-    me=0;    
+    me=nullptr;    
     me = ibooker.book2D("reportSummaryMap", "RPC Report Summary Map", 15, -7.5, 7.5, 12, 0.5 ,12.5);
     
     //customize the 2d histo
@@ -156,7 +156,7 @@ void RPCEventSummary::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStor
     
     
     for(unsigned int i=0; i<segmentNames.size(); i++){
-      me =0;
+      me =nullptr;
       me = ibooker.bookFloat(segmentNames[i]);
       me->Fill(defaultValue);
     }

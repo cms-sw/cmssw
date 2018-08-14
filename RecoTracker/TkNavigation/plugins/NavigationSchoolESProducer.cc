@@ -18,16 +18,15 @@
 class dso_hidden NavigationSchoolESProducer final : public edm::ESProducer {
 public:
   NavigationSchoolESProducer(const edm::ParameterSet&);
-  ~NavigationSchoolESProducer();
+  ~NavigationSchoolESProducer() override;
   
-  typedef std::shared_ptr<NavigationSchool> ReturnType;
+  typedef std::unique_ptr<NavigationSchool> ReturnType;
 
   virtual ReturnType produce(const NavigationSchoolRecord&);
  protected:
   // ----------member data ---------------------------
   edm::ParameterSet theNavigationPSet;
   std::string theNavigationSchoolName;
-  std::shared_ptr<NavigationSchool> theNavigationSchool ;
 };
 
 //
@@ -78,10 +77,9 @@ NavigationSchoolESProducer::produce(const NavigationSchoolRecord& iRecord)
    edm::ESHandle<GeometricSearchTracker>         geometricSearchTracker;
    iRecord.getRecord<TrackerRecoGeometryRecord>().get(geometricSearchTracker);
    
-   theNavigationSchool.reset(NavigationSchoolFactory::get()->create(theNavigationSchoolName,
+   return ReturnType(NavigationSchoolFactory::get()->create(theNavigationSchoolName,
 								    geometricSearchTracker.product(),
 								    field.product()));
-   return theNavigationSchool ;
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

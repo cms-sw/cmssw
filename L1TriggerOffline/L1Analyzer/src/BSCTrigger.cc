@@ -44,12 +44,12 @@ Implementation:
 class BSCTrigger : public edm::EDProducer {
 public:
   explicit BSCTrigger(const edm::ParameterSet&);
-  ~BSCTrigger();
+  ~BSCTrigger() override;
 
 private:
-  virtual void beginJob() override ;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
   int   getBSCNum(int id, float z);
   bool  isInner(int id);
   bool  isZplus(int id);

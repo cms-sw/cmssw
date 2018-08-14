@@ -3,7 +3,7 @@
 #include "CalibCalorimetry/CastorCalib/interface/CastorTimeSlew.h"
 #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 #include <algorithm> // for "max"
-#include <math.h>
+#include <cmath>
 
 constexpr double MaximumFractionalError = 0.0005; // 0.05% error allowed from this source
 
@@ -75,7 +75,7 @@ namespace CastorSimpleRecAlgoImpl {
       if (wpksamp!=0) wpksamp=(maxA + 2.0*t2) / wpksamp; 
       time = (maxI - digi.presamples())*25.0 + timeshift_ns_hf(wpksamp);
 
-      if (corr!=0) {
+      if (corr!=nullptr) {
 	// Apply phase-based amplitude correction:
 	ampl *= corr->getCorrection(fc_ampl);
 	//      std::cout << fc_ampl << " --> " << corr->getCorrection(fc_ampl) << std::endl;
@@ -149,7 +149,7 @@ namespace CastorSimpleRecAlgoImpl {
 CastorRecHit CastorSimpleRecAlgo::reconstruct(const CastorDataFrame& digi, const CastorCoder& coder, const CastorCalibrations& calibs) const {
   return CastorSimpleRecAlgoImpl::reco<CastorDataFrame,CastorRecHit>(digi,coder,calibs,
 							     firstSample_,samplesToAdd_,false,
-							     0,
+							     nullptr,
 							     CastorTimeSlew::Fast);
 }
 

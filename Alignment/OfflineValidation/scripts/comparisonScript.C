@@ -26,9 +26,10 @@ void comparisonScript (TString inFile,//="mp1510_vs_mp1509.Comparison_commonTrac
                        TString modulesToPlot="all",
                        TString alignmentName="Alignment",
                        TString referenceName="Ideal",
-                       TString useDefaultRange= "false",
-                       TString plotOnlyGlobal= "false",
-                       TString plotPng= "true",
+                       bool useDefaultRange= false,
+                       bool plotOnlyGlobal= false,
+                       bool plotPng= true,
+                       bool makeProfilePlots= true,
                        float dx_min = -99999,
                        float dx_max = -99999,
                        float dy_min = -99999,
@@ -68,7 +69,7 @@ void comparisonScript (TString inFile,//="mp1510_vs_mp1509.Comparison_commonTrac
     float dgamma_min_temp = dgamma_min;
     float dgamma_max_temp = dgamma_max;
     
-    if (useDefaultRange != "false"){
+    if (useDefaultRange){
 		dx_min = -200;
 		dx_max = 200;
 		dy_min = -200;
@@ -117,11 +118,11 @@ void comparisonScript (TString inFile,//="mp1510_vs_mp1509.Comparison_commonTrac
     // now the object to produce the comparison plots is created
     
     // Plot Translations
-    GeometryComparisonPlotter * trans = new GeometryComparisonPlotter (inFile, outDir,modulesToPlot,alignmentName,referenceName,plotOnlyGlobal);
+    GeometryComparisonPlotter * trans = new GeometryComparisonPlotter (inFile, outDir,modulesToPlot,alignmentName,referenceName,plotOnlyGlobal,makeProfilePlots);
     // x and y contain the couples to plot
     // -> every combination possible will be performed
     // /!\ always give units (otherwise, unexpected bug from root...)
-    vector<TString> x,y;
+    vector<TString> x,y, xmean;
     vector<float> dyMin,dyMax;
     x.push_back("r");                                           	trans->SetBranchUnits("r",     "cm");
     x.push_back("phi");                                         	trans->SetBranchUnits("phi",   "rad");
@@ -142,18 +143,28 @@ void comparisonScript (TString inFile,//="mp1510_vs_mp1509.Comparison_commonTrac
     dyMin.push_back(dy_min);
     dyMax.push_back(dy_max);
     
+    xmean.push_back("x");                                         	
+    trans->SetBranchUnits("x",     "cm");
+    xmean.push_back("y");                                           	
+    trans->SetBranchUnits("y",   "cm");
+    xmean.push_back("z");                         
+    xmean.push_back("r");                     
+    
+    
     trans->SetGrid(1,1);
     trans->MakePlots(x, y, dyMin, dyMax); // default output is pdf, but png gives a nicer result, so we use it as well
     // remark: what takes the more time is the creation of the output files,
     //         not the looping on the tree (because the code is perfect, of course :p)
-    if (plotPng=="true"){
+    if (plotPng){
 	    trans->SetPrintOption("png");
 	    trans->MakePlots(x, y, dyMin, dyMax);
 	}
+	
+	trans->MakeTables(xmean,y,dyMin,dyMax);
 
     
     // Plot Rotations
-    GeometryComparisonPlotter * rot = new GeometryComparisonPlotter (inFile, outDir,modulesToPlot,alignmentName,referenceName,plotOnlyGlobal);
+    GeometryComparisonPlotter * rot = new GeometryComparisonPlotter (inFile, outDir,modulesToPlot,alignmentName,referenceName,plotOnlyGlobal,makeProfilePlots);
     // x and y contain the couples to plot
     // -> every combination possible will be performed
     // /!\ always give units (otherwise, unexpected bug from root...)
@@ -178,7 +189,7 @@ void comparisonScript (TString inFile,//="mp1510_vs_mp1509.Comparison_commonTrac
     rot->SetGrid(1,1);
     rot->SetPrintOption("pdf");
     rot->MakePlots(x, b,dbMin, dbMax);
-    if (plotPng=="true"){
+    if (plotPng){
 	    rot->SetPrintOption("png");
 	    rot->MakePlots(x, b,dbMin, dbMax);
 	}	

@@ -27,7 +27,7 @@ class TkTransientTrackingRecHitBuilder final : public TransientTrackingRecHitBui
 				    const PixelClusterParameterEstimator * ,
 				    const ClusterParameterEstimator<Phase2TrackerCluster1D> * );
 
-  TransientTrackingRecHit::RecHitPointer build (const TrackingRecHit * p) const ;
+  TransientTrackingRecHit::RecHitPointer build (const TrackingRecHit * p) const override ;
 
 
   const PixelClusterParameterEstimator * pixelClusterParameterEstimator() const {return pixelCPE;}
@@ -38,7 +38,7 @@ class TkTransientTrackingRecHitBuilder final : public TransientTrackingRecHitBui
 
   // for the time being here...
   TkClonerImpl cloner() const { 
-    if(phase2OTCPE == 0)
+    if(phase2OTCPE == nullptr)
       return TkClonerImpl(pixelCPE,stripCPE,theMatcher);
     else
       return TkClonerImpl(pixelCPE,phase2OTCPE);

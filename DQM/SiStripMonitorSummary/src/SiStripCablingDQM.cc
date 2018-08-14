@@ -6,12 +6,16 @@ using namespace std;
 // -----
 
 SiStripCablingDQM::SiStripCablingDQM(const edm::EventSetup & eSetup,
+                                     edm::RunNumber_t iRun,
 				     edm::ParameterSet const& hPSet,
-				     edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, hPSet, fPSet){
+				     edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, iRun, hPSet, fPSet){
 
   // Build the Histo_TkMap:
-  if(HistoMaps_On_ ) Tk_HM_ = new TkHistoMap("SiStrip/Histo_Map","Cabling_TkMap",0.);
-
+  if ( HistoMaps_On_ ) {
+    edm::ESHandle<TkDetMap> tkDetMapHandle;
+    eSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
+    Tk_HM_ = std::make_unique<TkHistoMap>(tkDetMapHandle.product(), "SiStrip/Histo_Map","Cabling_TkMap",0.);
+  }
 }
 // -----
 
@@ -67,7 +71,7 @@ void SiStripCablingDQM::getActiveDetIds(const edm::EventSetup & eSetup){
 
     int32_t n_conn = 0;
       for(uint32_t connDet_i=0; connDet_i<cablingHandle_->getConnections(detId).size(); connDet_i++){
-        if(cablingHandle_->getConnections(detId)[connDet_i]!=0 &&  cablingHandle_->getConnections(detId)[connDet_i]->isConnected()!=0) n_conn++;
+        if(cablingHandle_->getConnections(detId)[connDet_i]!=nullptr &&  cablingHandle_->getConnections(detId)[connDet_i]->isConnected()!=0) n_conn++;
       }
       fillTkMap(detId,n_conn*2.); 
     }

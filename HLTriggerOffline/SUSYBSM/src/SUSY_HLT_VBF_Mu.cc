@@ -6,7 +6,7 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "HLTriggerOffline/SUSYBSM/interface/SUSY_HLT_VBF_Mu.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include <assert.h>
+#include <cassert>
 #include <cstdlib>
 #include "TLorentzVector.h"
 #include <string>
@@ -14,7 +14,7 @@
 #include <fstream>
 #include <sys/types.h>
 #include <regex.h>
-#include <stdio.h>
+#include <cstdio>
 
 SUSY_HLT_VBF_Mu::SUSY_HLT_VBF_Mu(const edm::ParameterSet& ps)
 {
@@ -84,11 +84,6 @@ void SUSY_HLT_VBF_Mu::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run cons
   bookHistos(ibooker_);
 }
 
-void SUSY_HLT_VBF_Mu::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-				       edm::EventSetup const& context)
-{
-  edm::LogInfo("SUSY_HLT_VBF_Mu") << "SUSY_HLT_VBF_Mu::beginLuminosityBlock" << std::endl;
-}
 
 
 
@@ -248,7 +243,7 @@ void SUSY_HLT_VBF_Mu::analyze(edm::Event const& e, edm::EventSetup const& eSetup
   size_t filterIndexCaloMET = triggerSummary->filterIndex( triggerCaloMETFilter_ );
   if( filterIndexCaloMET  < triggerSummary->sizeFilters() ) {
     const trigger::Keys& keys = triggerSummary->filterKeys( filterIndexCaloMET );
-     if(keys.size() ) {
+     if(!keys.empty() ) {
       float met_h = triggerObjects[ keys[0] ].pt();
       h_triggerCaloMet->Fill(met_h);
      } 
@@ -260,7 +255,7 @@ void SUSY_HLT_VBF_Mu::analyze(edm::Event const& e, edm::EventSetup const& eSetup
   size_t filterIndexHt = triggerSummary->filterIndex( triggerHTFilter_ );
   if( filterIndexHt < triggerSummary->sizeFilters() ) {
     const trigger::Keys& keys = triggerSummary->filterKeys( filterIndexHt );
-    if( keys.size() ) {
+    if( !keys.empty() ) {
       float ht = triggerObjects[ keys[0] ].pt();
       h_ht->Fill( ht );
     }
@@ -376,10 +371,6 @@ void SUSY_HLT_VBF_Mu::analyze(edm::Event const& e, edm::EventSetup const& eSetup
     
 }
 
-void SUSY_HLT_VBF_Mu::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
-{
-    edm::LogInfo("SUSY_HLT_VBF_Mu") << "SUSY_HLT_VBF_Mu::endLuminosityBlock" << std::endl;
-}
 
 
 void SUSY_HLT_VBF_Mu::endRun(edm::Run const& run, edm::EventSetup const& eSetup)

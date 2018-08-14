@@ -15,9 +15,9 @@
 #include "FWCore/Framework/interface/Run.h"
 
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <string>
-#include <math.h>
+#include <cmath>
 #include "TF1.h"
 #include "TH1F.h"
 
@@ -59,6 +59,9 @@ void EfficiencyPlotter::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter
   
   // efficiency plot
   h_eff_eta_ID          = ibooker.book1D("Eff_eta_"+ID_,          ID_+" Eff. vs #eta",                  etaBin, etaMin, etaMax);
+  h_eff_inner_pt_ID     = ibooker.book1D("Eff_inner_pt_"+ID_,     ID_+" Eff. vs pt",                    ptBin, ptMin, ptMax);
+  h_eff_inner_eta_ID    = ibooker.book1D("Eff_inner_eta_"+ID_,    ID_+" Eff. vs #eta",                  etaBin, etaMin, etaMax);
+  h_eff_inner_phi_ID    = ibooker.book1D("Eff_inner_phi_"+ID_,    ID_+" Eff. vs #phi",                  phiBin, phiMin, phiMax);
   h_eff_hp_eta_ID       = ibooker.book1D("Eff_hp_eta_"+ID_,       "High Pt "+ID_+" Eff. vs #eta",       etaBin, etaMin, etaMax);
   h_eff_phi_ID          = ibooker.book1D("Eff_phi_"+ID_,          ID_+" Eff. vs #phi",                  phiBin, phiMin, phiMax);
   h_eff_pt_ID           = ibooker.book1D("Eff_pt_"+ID_,           ID_+" Eff. vs Pt",                    ptBin, ptMin, ptMax);
@@ -86,6 +89,9 @@ void EfficiencyPlotter::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter
 
   // This prevents this ME to be normalized when drawn into the GUI
   h_eff_eta_ID         ->setEfficiencyFlag();
+  h_eff_inner_eta_ID   ->setEfficiencyFlag();
+  h_eff_inner_pt_ID    ->setEfficiencyFlag();
+  h_eff_inner_phi_ID   ->setEfficiencyFlag();
   h_eff_hp_eta_ID      ->setEfficiencyFlag();
   h_eff_phi_ID         ->setEfficiencyFlag();
   h_eff_pt_ID          ->setEfficiencyFlag();
@@ -114,6 +120,9 @@ void EfficiencyPlotter::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter
 
   // AXIS TITLES....
   h_eff_hp_eta_ID      ->setAxisTitle("#eta",         1);  
+  h_eff_inner_eta_ID   ->setAxisTitle("#eta",         1);  
+  h_eff_inner_pt_ID    ->setAxisTitle("#eta",         1);  
+  h_eff_inner_phi_ID   ->setAxisTitle("#eta",         1);  
   h_eff_eta_ID         ->setAxisTitle("#eta",         1);  
   h_eff_phi_ID         ->setAxisTitle("#phi",         1);  
   h_eff_pt_ID          ->setAxisTitle("p_{T} (GeV)",  1);  
@@ -156,6 +165,54 @@ void EfficiencyPlotter::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter
     if (h_eff_pt->GetSumw2N() == 0) h_eff_pt->Sumw2();  
     h_eff_pt->Divide(h_numerator_pt, h_denominator_pt, 1., 1., "B");
   }
+  
+  /// --- Tight Muon efficiency vs muon inner Pt 
+  string numpath_inner_pt = inputdir+"/passProbes_ID_inner_pt";
+  string denpath_inner_pt = inputdir+"/allProbes_inner_pt";
+  
+  MonitorElement *Numerator_inner_pt   = igetter.get(numpath_inner_pt);
+  MonitorElement *Denominator_inner_pt = igetter.get(denpath_inner_pt);
+  
+  if (Numerator_inner_pt && Denominator_inner_pt){
+    TH1F *h_numerator_inner_pt   = Numerator_inner_pt->getTH1F();
+    TH1F *h_denominator_inner_pt = Denominator_inner_pt->getTH1F();
+    TH1F *h_eff_inner_pt         = h_eff_inner_pt_ID->getTH1F();
+    
+    if (h_eff_inner_pt->GetSumw2N() == 0) h_eff_inner_pt->Sumw2();  
+    h_eff_inner_pt->Divide(h_numerator_inner_pt, h_denominator_inner_pt, 1., 1., "B");
+  }
+
+  /// --- Tight Muon efficiency vs muon inner eta 
+  string numpath_inner_eta = inputdir+"/passProbes_ID_inner_eta";
+  string denpath_inner_eta = inputdir+"/allProbes_inner_eta";
+  
+  MonitorElement *Numerator_inner_eta   = igetter.get(numpath_inner_eta);
+  MonitorElement *Denominator_inner_eta = igetter.get(denpath_inner_eta);
+  
+  if (Numerator_inner_eta && Denominator_inner_eta){
+    TH1F *h_numerator_inner_eta   = Numerator_inner_eta->getTH1F();
+    TH1F *h_denominator_inner_eta = Denominator_inner_eta->getTH1F();
+    TH1F *h_eff_inner_eta         = h_eff_inner_eta_ID->getTH1F();
+    
+    if (h_eff_inner_eta->GetSumw2N() == 0) h_eff_inner_eta->Sumw2();  
+    h_eff_inner_eta->Divide(h_numerator_inner_eta, h_denominator_inner_eta, 1., 1., "B");
+  }
+
+  /// --- Tight Muon efficiency vs muon inner phi 
+  string numpath_inner_phi = inputdir+"/passProbes_ID_inner_phi";
+  string denpath_inner_phi = inputdir+"/allProbes_inner_phi";
+  
+  MonitorElement *Numerator_inner_phi   = igetter.get(numpath_inner_phi);
+  MonitorElement *Denominator_inner_phi = igetter.get(denpath_inner_phi);
+  
+  if (Numerator_inner_phi && Denominator_inner_phi){
+    TH1F *h_numerator_inner_phi   = Numerator_inner_phi->getTH1F();
+    TH1F *h_denominator_inner_phi = Denominator_inner_phi->getTH1F();
+    TH1F *h_eff_inner_phi         = h_eff_inner_phi_ID->getTH1F();
+    
+    if (h_eff_inner_phi->GetSumw2N() == 0) h_eff_inner_phi->Sumw2();  
+    h_eff_inner_phi->Divide(h_numerator_inner_phi, h_denominator_inner_phi, 1., 1., "B");
+  }  
   
   /// --- Tight Muon efficiency vs muon Pt [EB]
   string numpath_EB_pt = inputdir+"/passProbes_ID_EB_pt";

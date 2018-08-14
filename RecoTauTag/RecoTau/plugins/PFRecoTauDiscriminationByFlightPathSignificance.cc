@@ -33,7 +33,7 @@ class PFRecoTauDiscriminationByFlightPathSignificance
       vertexAssociator_ = new reco::tau::RecoTauVertexAssociator(iConfig.getParameter<ParameterSet>("qualityCuts"),consumesCollector());
     }
 
-    ~PFRecoTauDiscriminationByFlightPathSignificance(){}
+    ~PFRecoTauDiscriminationByFlightPathSignificance() override{}
 
     void beginEvent(const edm::Event&, const edm::EventSetup&) override;
     double discriminate(const reco::PFTauRef&) const override;
@@ -89,6 +89,10 @@ double PFRecoTauDiscriminationByFlightPathSignificance::threeProngFlightPathSig(
     const PFCandidate& pfCand = *(iTrack->get());
     if(pfCand.trackRef().isNonnull()){
       const TransientTrack transientTrack = transientTrackBuilder->build(pfCand.trackRef());
+      transientTracks.push_back(transientTrack);
+    }
+    else if(pfCand.gsfTrackRef().isNonnull()){
+      const TransientTrack transientTrack = transientTrackBuilder->build(pfCand.gsfTrackRef());
       transientTracks.push_back(transientTrack);
     }
   }

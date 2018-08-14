@@ -13,13 +13,14 @@ muonAssociatorByHitsNoSimHitsHelper.RPCsimhitsTag = ""
 muonAssociatorByHitsNoSimHitsHelper.GEMsimhitsTag = ""
 muonAssociatorByHitsNoSimHitsHelper.DTsimhitsTag  = ""
 
-### The following is useful when running only on RECO
+### The following was used when running only on RECO
 # don't normalize on the total number of hits (which is unknown, if I don't have simHits)
-muonAssociatorByHitsNoSimHitsHelper.AbsoluteNumberOfHits_muon = True
-muonAssociatorByHitsNoSimHitsHelper.AbsoluteNumberOfHits_track = True
+#muonAssociatorByHitsNoSimHitsHelper.AbsoluteNumberOfHits_muon = True
+#muonAssociatorByHitsNoSimHitsHelper.AbsoluteNumberOfHits_track = True
+#
+### currently this is dealt with in the code itself (MuonAssociatorByHitsHelper.cc) 
+### to allow ranking the simToReco matches according to the number of shared hits: 
+### this is relevant for the definition of duplicates
+   
 # use only muon system
 muonAssociatorByHitsNoSimHitsHelper.UseTracker = False
-
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toModify( muonAssociatorByHitsNoSimHitsHelper, pixelSimLinkSrc = "simSiPixelDigis:Pixel" )
-phase2_tracker.toModify( muonAssociatorByHitsNoSimHitsHelper, stripSimLinkSrc = "simSiPixelDigis:Tracker" )

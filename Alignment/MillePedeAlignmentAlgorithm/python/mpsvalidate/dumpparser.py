@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 ##########################################################################
 # Parse the pede.dump.gz file and returns a pedeDump object with the
 # parsed information of the file.
@@ -9,7 +7,7 @@ import gzip
 import logging
 import re
 
-from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.classes import PedeDumpData
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.classes as mpsv_classes
 
 
 def parse(path, config):
@@ -17,7 +15,7 @@ def parse(path, config):
     
     # parse pede.dump.gz
 
-    pedeDump = PedeDumpData()
+    pedeDump = mpsv_classes.PedeDumpData()
 
     # only recognize warning the first time
     warningBool = False

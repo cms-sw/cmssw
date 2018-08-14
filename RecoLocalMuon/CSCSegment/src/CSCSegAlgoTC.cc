@@ -24,7 +24,7 @@
 #include <string>
 
 CSCSegAlgoTC::CSCSegAlgoTC(const edm::ParameterSet& ps) 
-  : CSCSegmentAlgorithm(ps), sfit_(0), myName("CSCSegAlgoTC") {
+  : CSCSegmentAlgorithm(ps), sfit_(nullptr), myName("CSCSegAlgoTC") {
   
   debugInfo = ps.getUntrackedParameter<bool>("verboseInfo");
   
@@ -122,7 +122,7 @@ std::vector<CSCSegment> CSCSegAlgoTC::buildSegments(const ChamberHitContainer& u
   
   std::vector<CSCSegment> segments;
 
-  sfit_ = 0;
+  sfit_ = nullptr;
   
   ChamberHitContainerCIt ib = rechits.begin();
   ChamberHitContainerCIt ie = rechits.end();
@@ -204,7 +204,7 @@ std::vector<CSCSegment> CSCSegAlgoTC::buildSegments(const ChamberHitContainer& u
 
   // reset member variables  
   candidates.clear();
-  sfit_ = 0;
+  sfit_ = nullptr;
 
   //  edm::LogVerbatim("CSCSegment") << "[CSCSegAlgoTC::buildSegments] no. of segments returned = " << segments.size();
 

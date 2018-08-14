@@ -87,8 +87,7 @@ void PreshowerPhiClusterProducer::produce(edm::Event& evt, const edm::EventSetup
   set(es);
   const ESChannelStatus *channelStatus = esChannelStatus_.product();
   
-  const CaloSubdetectorGeometry *geometry = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
-  const CaloSubdetectorGeometry *& geometry_p = geometry;
+  const CaloSubdetectorGeometry *geometry_p = (geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower));
   
   // create unique_ptr to a PreshowerClusterCollection
   auto clusters_p1 = std::make_unique<reco::PreshowerClusterCollection>();
@@ -96,8 +95,8 @@ void PreshowerPhiClusterProducer::produce(edm::Event& evt, const edm::EventSetup
   // create new collection of corrected super clusters
   auto superclusters_p = std::make_unique<reco::SuperClusterCollection>();
   
-  CaloSubdetectorTopology * topology_p=0;
-  if (geometry)
+  CaloSubdetectorTopology * topology_p=nullptr;
+  if (geometry_p)
     topology_p  = new EcalPreshowerTopology(geoHandle);
   
   // fetch the product (pSuperClusters)
@@ -170,7 +169,7 @@ void PreshowerPhiClusterProducer::produce(edm::Event& evt, const edm::EventSetup
 
     nBC = 0;
     for (bc_iter = it_super->clustersBegin() ; bc_iter !=it_super->clustersEnd(); ++bc_iter) {  
-      if (geometry) {
+      if (geometry_p) {
 	
 	// Get strip position at intersection point of the line EE - Vertex:
 	double X = (*bc_iter)->x();

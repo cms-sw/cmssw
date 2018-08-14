@@ -15,6 +15,7 @@
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
+#include <cstddef>
 #include <fstream>
 #include <iomanip>
 #include <map>
@@ -22,14 +23,13 @@
 #include <ostream>
 #include <set>
 #include <string>
-#include <stddef.h>
 #include <utility>
 #include <vector>
 
 namespace {
   /// is sv1 < sv2 
   struct ddsvaluesCmp {
-    bool operator() ( const  DDsvalues_type& sv1, const DDsvalues_type& sv2 );
+    bool operator() ( const  DDsvalues_type& sv1, const DDsvalues_type& sv2 ) const;
   };
 }
 
@@ -37,7 +37,7 @@ class OutputDDToDDL : public edm::one::EDAnalyzer<edm::one::WatchRuns>
 {
 public:
   explicit OutputDDToDDL( const edm::ParameterSet& iConfig );
-  ~OutputDDToDDL();
+  ~OutputDDToDDL() override;
 
   void beginJob() override {}
   void beginRun( edm::Run const& iEvent, edm::EventSetup const& ) override;
@@ -56,7 +56,7 @@ private:
 };
 
 bool
-ddsvaluesCmp::operator() ( const DDsvalues_type& sv1, const DDsvalues_type& sv2 )
+ddsvaluesCmp::operator() ( const DDsvalues_type& sv1, const DDsvalues_type& sv2 ) const
 {
   if( sv1.size() < sv2.size()) return true;
   if( sv2.size() < sv1.size()) return false;
@@ -76,7 +76,7 @@ OutputDDToDDL::OutputDDToDDL( const edm::ParameterSet& iConfig )
 {
   m_rotNumSeed = iConfig.getParameter<int>("rotNumSeed");
   m_fname = iConfig.getUntrackedParameter<std::string>("fileName");
-  if( m_fname == "" ) {
+  if( m_fname.empty() ) {
     m_xos = &std::cout;
   } else {
     m_xos = new std::ofstream( m_fname.c_str());
@@ -103,7 +103,10 @@ OutputDDToDDL::beginRun( const edm::Run&, edm::EventSetup const& es )
   edm::ESTransientHandle<DDCompactView> pDD;
   es.get<IdealGeometryRecord>().get( pDD );
 
-  DDCompactView::DDCompactView::graph_type gra = pDD->graph();
+  using Graph = DDCompactView::Graph;
+  using adjl_iterator = Graph::const_adj_iterator;
+ 
+  const auto& gra = pDD->graph();
   // temporary stores:
   std::set<DDLogicalPart> lpStore;
   std::set<DDMaterial> matStore;
@@ -133,12 +136,11 @@ OutputDDToDDL::beginRun( const edm::Run&, edm::EventSetup const& es )
   std::string ns_ = out.ns_;
 
   (*m_xos) << std::fixed << std::setprecision(18);
-  typedef  DDCompactView::graph_type::const_adj_iterator adjl_iterator;
 
   adjl_iterator git = gra.begin();
   adjl_iterator gend = gra.end();    
     
-  DDCompactView::graph_type::index_type i=0;
+  Graph::index_type i=0;
   (*m_xos) << "<PosPartSection label=\"" << ns_ << "\">" << std::endl;
   git = gra.begin();
   for( ; git != gend; ++git ) {
@@ -150,10 +152,10 @@ OutputDDToDDL::beginRun( const edm::Run&, edm::EventSetup const& es )
     addToMatStore( ddLP.material(), matStore );
     addToSolStore( ddLP.solid(), solStore, rotStore );
     ++i;
-    if( git->size()) {
+    if( !git->empty()) {
       // ask for children of ddLP  
-      DDCompactView::graph_type::edge_list::const_iterator cit  = git->begin();
-      DDCompactView::graph_type::edge_list::const_iterator cend = git->end();
+      auto cit  = git->begin();
+      auto cend = git->end();
       for( ; cit != cend; ++cit ) {
 	const DDLogicalPart & ddcurLP = gra.nodeData( cit->first );
 	if( lpStore.find( ddcurLP ) != lpStore.end()) {
@@ -162,7 +164,7 @@ OutputDDToDDL::beginRun( const edm::Run&, edm::EventSetup const& es )
 	lpStore.insert( ddcurLP );
 	addToMatStore( ddcurLP.material(), matStore );
 	addToSolStore( ddcurLP.solid(), solStore, rotStore );
-	rotStore.insert( gra.edgeData( cit->second )->rot_ );
+	rotStore.insert( gra.edgeData( cit->second )->ddrot() );
 	out.position( ddLP, ddcurLP, gra.edgeData( cit->second ), m_rotNumSeed, *m_xos );
       } // iterate over children
     } // if (children)
@@ -236,7 +238,7 @@ void
 OutputDDToDDL::addToSolStore( const DDSolid& sol, std::set<DDSolid> & solStore, std::set<DDRotation>& rotStore )
 {
   solStore.insert(sol);
-  if( sol.shape() == ddunion || sol.shape() == ddsubtraction || sol.shape() == ddintersection ) {
+  if( sol.shape() == DDSolidShape::ddunion || sol.shape() == DDSolidShape::ddsubtraction || sol.shape() == DDSolidShape::ddintersection ) {
     const DDBooleanSolid& bs (sol);
     if( solStore.find( bs.solidA()) == solStore.end()) {
       addToSolStore( bs.solidA(), solStore, rotStore );

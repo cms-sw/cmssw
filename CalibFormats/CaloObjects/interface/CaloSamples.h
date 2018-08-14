@@ -52,14 +52,16 @@ public:
 
   void setDetId( DetId detId ) { id_ = detId ; }
 
-  void setSize( unsigned int size ) { size_ = size ; }
+  void setSize( unsigned int size ) { size_ = size ; data_.resize(size,0.); }
+
+  void setPreciseSize( unsigned int size ) { preciseSize_ = size ; preciseData_.resize(preciseSize_,0.); }
 
   bool isBlank() const ; // are the samples blank (zero?)
 
   void setBlank() ; // keep id, presamples, size but zero out data
 
   /// get the size
-  int preciseSize() const { if ( preciseData_.size() ==0 ) return 0; return preciseSize_; }
+  int preciseSize() const { if ( preciseData_.empty() ) return 0; return preciseSize_; }
   int precisePresamples() const { return precisePresamples_; }
   float preciseDeltaT() const { return deltaTprecise_; }
 
@@ -70,11 +72,12 @@ public:
 
   void resetPrecise();
 
+  //preserved for use in other packages - no longer used in this class
   static const int MAXSAMPLES=10;
 private:
   DetId id_;
-  double data_[MAXSAMPLES]; // 
   int size_, presamples_;
+  std::vector<double> data_; // 
   float deltaTprecise_;
   std::vector<float> preciseData_;
   int preciseSize_,precisePresamples_;

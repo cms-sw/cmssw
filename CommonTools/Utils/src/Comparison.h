@@ -16,7 +16,7 @@ namespace reco {
   namespace parser {
     template<class CompT>
     struct Comparison : public ComparisonBase {
-      virtual bool compare(double lhs, double rhs) const { return comp(lhs, rhs); }
+      bool compare(double lhs, double rhs) const override { return comp(lhs, rhs); }
     private:
       CompT comp;
     };

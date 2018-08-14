@@ -87,9 +87,9 @@ class SimActivityRegistryEnroller
       // ---------- member functions ---------------------------
 
    private:
-      SimActivityRegistryEnroller(const SimActivityRegistryEnroller&); // stop default
+      SimActivityRegistryEnroller(const SimActivityRegistryEnroller&) = delete; // stop default
 
-      const SimActivityRegistryEnroller& operator=(const SimActivityRegistryEnroller&); // stop default
+      const SimActivityRegistryEnroller& operator=(const SimActivityRegistryEnroller&) = delete; // stop default
 
       // ---------- member data --------------------------------
 

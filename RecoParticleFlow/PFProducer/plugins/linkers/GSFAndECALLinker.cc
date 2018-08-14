@@ -28,8 +28,8 @@ double GSFAndECALLinker::testLink
     const reco::PFBlockElement* elem2) const {  
   constexpr reco::PFTrajectoryPoint::LayerType ECALShowerMax =
     reco::PFTrajectoryPoint::ECALShowerMax;
-  const reco::PFBlockElementCluster  *ecalelem(NULL);
-  const reco::PFBlockElementGsfTrack *gsfelem(NULL);
+  const reco::PFBlockElementCluster  *ecalelem(nullptr);
+  const reco::PFBlockElementGsfTrack *gsfelem(nullptr);
   double dist(-1.0);
   if( elem1->type() < elem2->type() ) {
     ecalelem = static_cast<const reco::PFBlockElementCluster*>(elem1);

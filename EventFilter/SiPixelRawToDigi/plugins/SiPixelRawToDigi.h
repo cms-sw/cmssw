@@ -30,12 +30,12 @@ public:
   explicit SiPixelRawToDigi( const edm::ParameterSet& );
 
   /// dtor
-  virtual ~SiPixelRawToDigi();
+  ~SiPixelRawToDigi() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   /// get data, convert to digis attach againe to Event
-  virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+  void produce( edm::Event&, const edm::EventSetup& ) override;
 
 private:
 

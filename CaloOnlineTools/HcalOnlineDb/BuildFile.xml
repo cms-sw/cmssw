@@ -6,7 +6,6 @@
 <use   name="boost"/>
 <use   name="oracle"/>
 <use   name="DataFormats/Common"/>
-
 <use   name="xerces-c"/>
 <use   name="zlib"/>
 <use   name="DataFormats/HcalDetId"/>
@@ -16,6 +15,9 @@
 <use   name="Geometry/CaloTopology"/>
 <use   name="CondTools/Hcal"/>
 <use   name="OnlineDB/Oracle"/>
+<use   name="root"/>
+<use   name="rootgraphics"/>
+
 <export>
   <lib   name="1"/>
 </export>

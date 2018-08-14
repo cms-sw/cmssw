@@ -54,9 +54,9 @@ public:
    void eventEnd();
 
 private:
-   FWViewManagerManager(const FWViewManagerManager&);    // stop default
+   FWViewManagerManager(const FWViewManagerManager&) = delete;    // stop default
 
-   const FWViewManagerManager& operator=(const FWViewManagerManager&);    // stop default
+   const FWViewManagerManager& operator=(const FWViewManagerManager&) = delete;    // stop default
 
    // ---------- member data --------------------------------
    std::vector<std::shared_ptr<FWViewManagerBase> > m_viewManagers;

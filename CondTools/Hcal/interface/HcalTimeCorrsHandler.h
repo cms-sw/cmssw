@@ -25,9 +25,9 @@
 class HcalTimeCorrsHandler : public popcon::PopConSourceHandler<HcalTimeCorrs>
 {
  public:
-  void getNewObjects();
-  std::string id() const { return m_name;}
-  ~HcalTimeCorrsHandler();
+  void getNewObjects() override;
+  std::string id() const override { return m_name;}
+  ~HcalTimeCorrsHandler() override;
   HcalTimeCorrsHandler(edm::ParameterSet const &);
 
   void initObject(HcalTimeCorrs*);

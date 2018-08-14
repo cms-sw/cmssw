@@ -14,8 +14,7 @@ DQMFileReader::DQMFileReader(const edm::ParameterSet& ps)
   referenceFileName_=pset_.getUntrackedParameter<std::string>("referenceFileName","");
 }
 
-DQMFileReader::~DQMFileReader()
-{}
+DQMFileReader::~DQMFileReader() = default;
 
 void 
 DQMFileReader::beginJob()
@@ -52,11 +51,11 @@ DQMFileReader::beginJob()
   
   // read in files, stripping off Run Summary and Run <number> folders
   
-  for (unsigned int i=0; i<filenames_.size(); i++)
+  for (auto const & filename : filenames_)
   {
-    std::cout << "DQMFileReader::beginJob: loading" << filenames_[i] << std::endl;
+    std::cout << "DQMFileReader::beginJob: loading" << filename << std::endl;
     if (dbe_) 
-       dbe_->load(filenames_[i]);
+       dbe_->load(filename);
   }
 }
 

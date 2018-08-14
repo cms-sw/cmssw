@@ -24,22 +24,22 @@
 #include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaElectronTkNumIsolationProducer.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
 
-EgammaElectronTkNumIsolationProducer::EgammaElectronTkNumIsolationProducer(const edm::ParameterSet& config) : conf_(config)
-{
+EgammaElectronTkNumIsolationProducer::EgammaElectronTkNumIsolationProducer(const edm::ParameterSet& config) :
   // use configuration file to setup input/output collection names
-  electronProducer_               = conf_.getParameter<edm::InputTag>("electronProducer");
+  electronProducer_     (config.getParameter<edm::InputTag>("electronProducer")),
   
-  trackProducer_           = conf_.getParameter<edm::InputTag>("trackProducer");
-  beamspotProducer_        = conf_.getParameter<edm::InputTag>("BeamspotProducer");
+  trackProducer_        (config.getParameter<edm::InputTag>("trackProducer")),
+  beamspotProducer_     (config.getParameter<edm::InputTag>("BeamspotProducer")),
 
-  ptMin_                = conf_.getParameter<double>("ptMin");
-  intRadiusBarrel_      = conf_.getParameter<double>("intRadiusBarrel");
-  intRadiusEndcap_      = conf_.getParameter<double>("intRadiusEndcap");
-  stripBarrel_          = conf_.getParameter<double>("stripBarrel");
-  stripEndcap_          = conf_.getParameter<double>("stripEndcap");
-  extRadius_            = conf_.getParameter<double>("extRadius");
-  maxVtxDist_           = conf_.getParameter<double>("maxVtxDist");
-  drb_                  = conf_.getParameter<double>("maxVtxDistXY");
+  ptMin_                (config.getParameter<double>("ptMin")),
+  intRadiusBarrel_      (config.getParameter<double>("intRadiusBarrel")),
+  intRadiusEndcap_      (config.getParameter<double>("intRadiusEndcap")),
+  stripBarrel_          (config.getParameter<double>("stripBarrel")),
+  stripEndcap_          (config.getParameter<double>("stripEndcap")),
+  extRadius_            (config.getParameter<double>("extRadius")),
+  maxVtxDist_           (config.getParameter<double>("maxVtxDist")),
+  drb_                  (config.getParameter<double>("maxVtxDistXY"))
+{
 
   //register your products
   produces < edm::ValueMap<int> >();
@@ -50,7 +50,7 @@ EgammaElectronTkNumIsolationProducer::~EgammaElectronTkNumIsolationProducer(){}
 
 
 								       
-void EgammaElectronTkNumIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void EgammaElectronTkNumIsolationProducer::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
   // Get the  filtered objects
   edm::Handle< reco::GsfElectronCollection> electronHandle;

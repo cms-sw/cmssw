@@ -1,3 +1,5 @@
+#include <memory>
+
 // Framework
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -63,7 +65,7 @@ void AlignableComposite::update(align::ID id,
 //__________________________________________________________________________________________________
 void AlignableComposite::addComponent(Alignable* ali)
 {
-  const Alignables& newComps = ali->deepComponents();
+  const auto& newComps = ali->deepComponents();
 
   theDeepComponents.insert( theDeepComponents.end(), newComps.begin(), newComps.end() );
 
@@ -79,15 +81,14 @@ void AlignableComposite::addComponent(Alignable* ali)
 void AlignableComposite::recursiveComponents(Alignables &result) const
 {
 
-  Alignables components = this->components();
+  const auto& components = this->components();
   if (this->alignableObjectId() == align::AlignableDet 
       && components.size() <= 1) { // Non-glued AlignableDets (still) contain themselves
     return; // (would be better to implement AlignableDet::recursiveComponents!)
   }
-  for (Alignables::const_iterator iter = components.begin();
-       iter != components.end(); ++iter) {
-    result.push_back(*iter); // could use std::copy(..), but here we build a real hierarchy
-    (*iter)->recursiveComponents(result);
+  for (const auto& iter: components) {
+    result.push_back(iter); // could use std::copy(..), but here we build a real hierarchy
+    iter->recursiveComponents(result);
   }
 }
 
@@ -96,9 +97,7 @@ void AlignableComposite::move( const GlobalVector& displacement )
 {
   
   // Move components
-  Alignables comp = this->components();
-  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); ++i )
-    (**i).move( displacement);
+  for (const auto& i: this->components()) i->move(displacement);
 
   // Move surface
   this->addDisplacement( displacement );
@@ -123,7 +122,7 @@ void AlignableComposite::moveComponentLocal( const int i, const LocalVector& loc
     throw cms::Exception("LogicError")
       << "AlignableComposite index (" << i << ") out of range";
 
-  Alignables comp = this->components();
+  const auto& comp = this->components();
   comp[i]->move( this->surface().toGlobal( localDisplacement ) );
 
 }
@@ -137,11 +136,11 @@ void AlignableComposite::moveComponentLocal( const int i, const LocalVector& loc
 void AlignableComposite::rotateInGlobalFrame( const RotationType& rotation )
 {
   
-  Alignables comp = this->components();
+  const auto& comp = this->components();
   
   PositionType myPosition = this->globalPosition();
   
-  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); ++i )
+  for (const auto& i: comp)
     {
       
       // It is much simpler to calculate the local position given in coordinates 
@@ -159,8 +158,8 @@ void AlignableComposite::rotateInGlobalFrame( const RotationType& rotation )
     
     
       // Local Position given in coordinates of the GLOBAL Frame
-      const GlobalVector localPositionVector = (**i).globalPosition() - myPosition;
-      GlobalVector::BasicVectorType lpvgf = localPositionVector.basicVector();
+      const GlobalVector localPositionVector = i->globalPosition() - myPosition;
+      const GlobalVector::BasicVectorType& lpvgf = localPositionVector.basicVector();
 
       // rotate with GLOBAL rotation matrix  and subtract => moveVector in 
       // global Coordinates
@@ -169,8 +168,8 @@ void AlignableComposite::rotateInGlobalFrame( const RotationType& rotation )
       GlobalVector moveVector( rotation.multiplyInverse(lpvgf) - lpvgf );
     
     
-      (**i).move( moveVector );
-      (**i).rotateInGlobalFrame( rotation );
+      i->move(moveVector);
+      i->rotateInGlobalFrame(rotation);
 
     }
 
@@ -190,9 +189,8 @@ void AlignableComposite::setAlignmentPositionError( const AlignmentPositionError
   // The APE is, therefore, just propagated down
   if (!propagateDown) return;
 
-  Alignables comp = this->components();
-  for (Alignables::const_iterator i = comp.begin(); i != comp.end(); ++i) {
-    (*i)->setAlignmentPositionError(ape, propagateDown);
+  for (const auto& i: this->components()) {
+    i->setAlignmentPositionError(ape, propagateDown);
   }
 }
 
@@ -207,11 +205,9 @@ AlignableComposite::addAlignmentPositionError( const AlignmentPositionError& ape
   // The APE is, therefore, just propagated down
   if (!propagateDown) return;
 
-  Alignables comp = this->components();
-  for (Alignables::const_iterator i = comp.begin(); i != comp.end(); ++i) {
-    (*i)->addAlignmentPositionError(ape, propagateDown);
+  for (const auto& i: this->components()) {
+    i->addAlignmentPositionError(ape, propagateDown);
   }
-  
 }
 
 
@@ -222,20 +218,16 @@ AlignableComposite::addAlignmentPositionError( const AlignmentPositionError& ape
 void AlignableComposite::addAlignmentPositionErrorFromRotation( const RotationType& rotation,
 								bool propagateDown )
 {
-
   if (!propagateDown) return;
 
-  Alignables comp = this->components();
   PositionType myPosition=this->globalPosition();
 
-  for ( Alignables::const_iterator i=comp.begin(); i!=comp.end(); ++i )
-    {
-
+  for (const auto& i: this->components()) {
       // It is just similar to to the "movement" that results to the components
       // when the composite is rotated. 
       // Local Position given in coordinates of the GLOBAL Frame
-      const GlobalVector localPositionVector = (**i).globalPosition()-myPosition;
-      GlobalVector::BasicVectorType lpvgf = localPositionVector.basicVector();
+      const GlobalVector localPositionVector = i->globalPosition()-myPosition;
+      const GlobalVector::BasicVectorType& lpvgf = localPositionVector.basicVector();
 
       // rotate with GLOBAL rotation matrix  and subtract => moveVector in global coordinates
       // apparently... you have to use the inverse of the rotation here
@@ -243,11 +235,9 @@ void AlignableComposite::addAlignmentPositionErrorFromRotation( const RotationTy
       GlobalVector moveVector( rotation.multiplyInverse(lpvgf) - lpvgf );    
       
       AlignmentPositionError ape( moveVector.x(), moveVector.y(), moveVector.z() );
-      (*i)->addAlignmentPositionError( ape, propagateDown );
-      (*i)->addAlignmentPositionErrorFromRotation( rotation, propagateDown );
-	  
+      i->addAlignmentPositionError( ape, propagateDown );
+      i->addAlignmentPositionErrorFromRotation( rotation, propagateDown );
     }
-
 }
 
 
@@ -275,9 +265,8 @@ void AlignableComposite::setSurfaceDeformation(const SurfaceDeformation *deforma
   // The parameters are, therefore, just propagated down.
   if (!propagateDown) return;
 
-  Alignables comp(this->components());
-  for (Alignables::const_iterator i = comp.begin(); i != comp.end(); ++i) {
-    (*i)->setSurfaceDeformation(deformation, propagateDown);
+  for (const auto& i: this->components()) {
+    i->setSurfaceDeformation(deformation, propagateDown);
   }
 }
 
@@ -289,9 +278,8 @@ void AlignableComposite::addSurfaceDeformation(const SurfaceDeformation *deforma
   // The parameters are, therefore, just propagated down.
   if (!propagateDown) return;
 
-  Alignables comp(this->components());
-  for (Alignables::const_iterator i = comp.begin(); i != comp.end(); ++i) {
-    (*i)->addSurfaceDeformation(deformation, propagateDown);
+  for (const auto& i: this->components()) {
+    i->addSurfaceDeformation(deformation, propagateDown);
   }
 }
 
@@ -301,7 +289,7 @@ void AlignableComposite::dump( void ) const
 
   // A simple printout method. Could be specialized in the implementation classes.
 
-  Alignables comp = this->components();
+  const auto& comp = this->components();
 
   // Dump this
   edm::LogInfo("AlignableDump") 
@@ -311,9 +299,7 @@ void AlignableComposite::dump( void ) const
     << this->globalRotation();
 
   // Dump components
-  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); ++i )
-    (*i)->dump();
-
+  for (const auto& i: comp) i->dump();
 }
 
 
@@ -321,64 +307,48 @@ void AlignableComposite::dump( void ) const
 //__________________________________________________________________________________________________
 Alignments* AlignableComposite::alignments( void ) const
 {
-
   // Recursively call alignments, until we get to an AlignableDetUnit
-  Alignables comp = this->components();
 
   Alignments* m_alignments = new Alignments();
 
   // Add components recursively
-  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); ++i )
-    {
-      Alignments* tmpAlignments = (*i)->alignments();
-      std::copy( tmpAlignments->m_align.begin(), tmpAlignments->m_align.end(), 
-		 std::back_inserter(m_alignments->m_align) );
-	  delete tmpAlignments;
-    }
-
+  for (const auto& i: this->components()) {
+    std::unique_ptr<Alignments> tmpAlignments{i->alignments()};
+    std::copy(tmpAlignments->m_align.begin(), tmpAlignments->m_align.end(), 
+              std::back_inserter(m_alignments->m_align));
+  }
   
   return m_alignments;
-
 }
 
 
 //__________________________________________________________________________________________________
 AlignmentErrorsExtended* AlignableComposite::alignmentErrors( void ) const
 {
-
   // Recursively call alignmentsErrors, until we get to an AlignableDetUnit
-  Alignables comp = this->components();
 
   AlignmentErrorsExtended* m_alignmentErrors = new AlignmentErrorsExtended();
 
   // Add components recursively
-  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); ++i )
-    {
-      AlignmentErrorsExtended* tmpAlignmentErrorsExtended = (*i)->alignmentErrors();
-      std::copy( tmpAlignmentErrorsExtended->m_alignError.begin(), tmpAlignmentErrorsExtended->m_alignError.end(), 
-		 std::back_inserter(m_alignmentErrors->m_alignError) );
-	  delete tmpAlignmentErrorsExtended;
+  for (const auto& i: this->components()) {
+    std::unique_ptr<AlignmentErrorsExtended> tmpAlignmentErrorsExtended{i->alignmentErrors()};
+    std::copy(tmpAlignmentErrorsExtended->m_alignError.begin(), tmpAlignmentErrorsExtended->m_alignError.end(), 
+               std::back_inserter(m_alignmentErrors->m_alignError));
     }
 
-  
   return m_alignmentErrors;
-
 }
 
 
 //__________________________________________________________________________________________________
 int AlignableComposite::surfaceDeformationIdPairs(std::vector<std::pair<int,SurfaceDeformation*> > & result) const
 {
-
-  Alignables comp = this->components();
-
   int count = 0;
 
   // Add components recursively
-  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); ++i) {
-    count += (*i)->surfaceDeformationIdPairs(result);
+  for (const auto& i: this->components()) {
+    count += i->surfaceDeformationIdPairs(result);
   }
   
   return count;
-
 }

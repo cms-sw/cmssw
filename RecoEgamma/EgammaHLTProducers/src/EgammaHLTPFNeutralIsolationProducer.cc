@@ -79,7 +79,7 @@ void EgammaHLTPFNeutralIsolationProducer::fillDescriptions(edm::ConfigurationDes
   descriptions.add(("hltEgammaHLTPFNeutralIsolationProducer"), desc);
 }
 
-void EgammaHLTPFNeutralIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
+void EgammaHLTPFNeutralIsolationProducer::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
 
   edm::Handle<double> rhoHandle;
   double rho = 0.0;
@@ -137,7 +137,7 @@ void EgammaHLTPFNeutralIsolationProducer::produce(edm::Event& iEvent, const edm:
 	  }
 	  
 	  // Shift the RecoEcalCandidate direction vector according to the PF vertex
-	  math::XYZPoint pfvtx = pfc.vertex();
+	  const math::XYZPoint& pfvtx = pfc.vertex();
 	  math::XYZVector candDirectionWrtVtx(candRef->superCluster()->x() - pfvtx.x(),
 					      candRef->superCluster()->y() - pfvtx.y(),
 					      candRef->superCluster()->z() - pfvtx.z());

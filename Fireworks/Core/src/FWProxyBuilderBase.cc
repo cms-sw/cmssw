@@ -41,7 +41,7 @@
 //
 
 
-FWProxyBuilderBase::Product::Product(FWViewType::EType t, const FWViewContext* c) : m_viewType(t), m_viewContext(c), m_elements(0)
+FWProxyBuilderBase::Product::Product(FWViewType::EType t, const FWViewContext* c) : m_viewType(t), m_viewContext(c), m_elements(nullptr)
 {
    m_elements = new TEveElementList("ProxyProduct");
    m_elements->IncDenyDestroy();
@@ -72,8 +72,8 @@ FWProxyBuilderBase::Product::~Product()
 //______________________________________________________________________________
 
 FWProxyBuilderBase::FWProxyBuilderBase():
-   m_interactionList(0),
-   m_item(0),
+   m_interactionList(nullptr),
+   m_item(nullptr),
    m_modelsChanged(false),
    m_haveWindow(false),
    m_mustBuild(true),
@@ -113,7 +113,7 @@ FWProxyBuilderBase::setHaveWindow(bool iFlag)
 void
 FWProxyBuilderBase::itemBeingDestroyed(const FWEventItem* iItem)
 {
-   m_item=0;
+   m_item=nullptr;
 
    cleanLocal();
 
@@ -495,8 +495,8 @@ FWProxyBuilderBase::increaseComponentTransparency(unsigned int index, TEveElemen
 {
    // Helper function to increse transparency of certain components.
 
-   const FWDisplayProperties& dp = item()->modelInfo(index).displayProperties();
-   Char_t transp = TMath::Min(100, transpOffset + (100 - transpOffset) * dp.transparency() / 100);
+   Char_t transparency = item()->modelInfo(index).displayProperties().transparency();
+   Char_t transp = TMath::Min(100, transpOffset + (100 - transpOffset) * transparency / 100);
    TEveElement::List_t matches;
    holder->FindChildren(matches, name.c_str());
    for (TEveElement::List_i m = matches.begin(); m != matches.end(); ++m)

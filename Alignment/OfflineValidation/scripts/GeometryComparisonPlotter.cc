@@ -28,7 +28,8 @@ GeometryComparisonPlotter::GeometryComparisonPlotter (TString tree_file_name,
                                                       TString modulesToPlot,
                                                       TString alignmentName,
                                                       TString referenceName,
-                                                      TString printOnlyGlobal
+                                                      bool printOnlyGlobal,
+                                                      bool makeProfilePlots
                                                       ) :
     _output_directory(output_directory + TString(output_directory.EndsWith("/") ? "" : "/")),
     _output_filename("comparison.root"),
@@ -37,6 +38,7 @@ GeometryComparisonPlotter::GeometryComparisonPlotter (TString tree_file_name,
     _alignment_name(alignmentName),
     _reference_name(referenceName),
     _print_only_global(printOnlyGlobal),
+    _make_profile_plots(makeProfilePlots),
     _print(true),       // print the graphs in a file (e.g. pdf)
     _legend(true),      // print the graphs in a file (e.g. pdf)
     _write(true),       // write the graphs in a root file
@@ -232,10 +234,12 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
     CHECK_MAP_CONTENT(_SF ,float);
 #endif
 
-    /// 1) declare TGraphs
-    // the idea is to produce at the end a table of 7 TMultiGraphs:
+    /// 1) declare TGraphs and Histograms for profile plots if these are to be plotted
+    // the idea is to produce at the end a table of 8 TMultiGraphs and histograms:
     // - 0=Tracker, with color code for the different sublevels
     // - 1..6=different sublevels, with color code for z < or > 0
+    // - 7=only pixel with color code for BPIX and FPIX
+    
     // (convention: the six first (resp. last) correspond to z>0 (resp. z<0))
     // Modules with bad quality and in a list of modules that is given
     // by the user (e.g. list of bad/untouched modules, default: empty list) 
@@ -243,30 +247,61 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
     // plot option, default: all modules plotted)
     // This means that 3*2*6 TGraphs will be filled during the loop on the TTree,
     // and will be arranged differently with different color codes in the TMultiGraphs
+    
+    // For the profile plots
+    // Either all modules, only good modules or good modules + those in a given list will be plotted
+    // This means that 2*6 TH2F will be filled during the loop on the TTree,
+    // and will be arranged differently with different color codes in the Histograms
 #ifndef NB_SUBLEVELS
 #define NB_SUBLEVELS 6
 #endif
 #define NB_Z_SLICES 2
 #define NB_MODULE_QUALITY 3
+#define COLOR_CODE(icolor) int(icolor/4)+icolor+1
  
     TGraph * graphs[x.size()][y.size()][NB_SUBLEVELS*NB_Z_SLICES*NB_MODULE_QUALITY];
     long int ipoint[x.size()][y.size()][NB_SUBLEVELS*NB_Z_SLICES*NB_MODULE_QUALITY];
     
-    TMultiGraph * mgraphs[x.size()][y.size()][1+NB_SUBLEVELS]; // the 0th is for global plots, the 1..6th for sublevel plots
-    TCanvas * c[x.size()][y.size()][1+NB_SUBLEVELS],
-            * c_global[1+NB_SUBLEVELS];
+    TMultiGraph * mgraphs[x.size()][y.size()][2+NB_SUBLEVELS]; // the 0th is for global plots, the 1..6th for sublevel plots, 7th for pixel only
+    TCanvas * c[x.size()][y.size()][2+NB_SUBLEVELS],
+            * c_global[2+NB_SUBLEVELS];
     canvas_index++; // this static index is a safety used in case the MakePlots method is used several times to avoid overloading
     
+	// histograms for profile plots, 
+	// 2D-hists to store the data
+	// 1D-hists to calculate mean and sigma of y-values for each x-bin of the 2D-hists and for the final profile hist
+	TH2F * histos2D[x.size()][y.size()][NB_SUBLEVELS*NB_Z_SLICES];
+	TH1F * histos[x.size()][y.size()][NB_SUBLEVELS*NB_Z_SLICES];
+    TH1F * histosYValues[x.size()][y.size()][NB_SUBLEVELS*NB_Z_SLICES]; // Used to calculate the mean and RMS for each x-bin of the 2D-hist
+    TH1F * histosTracker[x.size()][y.size()][NB_SUBLEVELS*NB_Z_SLICES]; // for the tracker plots all histos are copied to avoid using the same hists in different canvas
     
-    for (unsigned int ic = 0 ; ic <= NB_SUBLEVELS ; ic++)
+    TCanvas * c_hist[x.size()][y.size()][2+NB_SUBLEVELS], * c_global_hist[2+NB_SUBLEVELS];
+    
+    unsigned int nXBins; // Sensible number of x-bins differs depending on the variable
+ 
+   
+    
+    
+    for (unsigned int ic = 0 ; ic <= NB_SUBLEVELS+1 ; ic++)
     {
-        c_global[ic] = new TCanvas (TString::Format("global_%s_%d", ic==0?"tracker":_sublevel_names[ic-1].Data(),
+        c_global[ic] = new TCanvas (TString::Format("global_%s_%d", ic==0 ? "tracker" : ( ic==7 ? "pixel" : _sublevel_names[ic-1].Data() ),
                                                                     canvas_index),
-                                    TString::Format("Global overview of the %s variables", ic==0?"tracker":_sublevel_names[ic-1].Data()),
+                                    TString::Format("Global overview of the %s variables", ic==0 ? "tracker" : ( ic==7 ? "pixel" : _sublevel_names[ic-1].Data() ) ),
                                    _window_width,
                                    _window_height);
         c_global[ic]->Divide(x.size(),y.size());
+        
+        if (_make_profile_plots) {
+			c_global_hist[ic] = new TCanvas (TString::Format("global_profile_plots_%s_%d", ic==0 ? "tracker" : ( ic==7 ? "pixel" : _sublevel_names[ic-1].Data() ),
+																							canvas_index),
+											TString::Format("Global overview profile plots of the %s variables", ic==0 ? "tracker" : ( ic==7 ? "pixel" : _sublevel_names[ic-1].Data() ) ),
+											_window_width,
+											_window_height);
+			c_global_hist[ic]->Divide(x.size(),y.size());
+		}
+				
     }
+
     
     for (unsigned int ix = 0 ; ix < x.size() ; ix++)
     { 
@@ -278,7 +313,7 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
                 // declaring
                 ipoint[ix][iy][igraph] = 0; // the purpose of an index for every graph is to avoid thousands of points at the origin of each
                 graphs[ix][iy][igraph] = new TGraph ();
-#define COLOR_CODE(icolor) int(icolor/4)+icolor+1
+
                 graphs[ix][iy][igraph]->SetMarkerColor(COLOR_CODE(igraph));
                 graphs[ix][iy][igraph]->SetMarkerStyle(6);
                 // pimping
@@ -297,6 +332,28 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
             }
         }
     }
+    
+    // Use seperate loop for the profile histograms since we do not produce histograms for the different module qualities
+    if (_make_profile_plots) {
+	    for (unsigned int ix = 0 ; ix < x.size() ; ix++)
+	    {
+			if ( x[ix] == "phi") nXBins = 10;
+			else nXBins = 40;
+			
+	        for (unsigned int iy = 0 ; iy < y.size() ; iy++)
+	        {
+	            for (unsigned int igraph = 0 ; igraph < NB_SUBLEVELS*NB_Z_SLICES ; igraph++)
+	            {
+	                // declaring
+	                histos2D[ix][iy][igraph] = new TH2F ("2Dhist"+x[ix]+y[iy]+_sublevel_names[igraph%NB_SUBLEVELS]
+															+TString(igraph%(NB_SUBLEVELS*NB_Z_SLICES)>=NB_SUBLEVELS ? "n"      : "p" )
+															+std::to_string(canvas_index),
+															"",nXBins,_min[x[ix]],_max[x[ix]],
+															1000,_min[y[iy]],_max[y[iy]]+1.);
+	            }
+	        }
+	    }
+	}
    
 #ifdef DEBUG
     cout << __FILE__ << ":" << __LINE__ << ":Info: Creation of the TGraph[" << x.size() << "][" << y.size() << "][" << NB_SUBLEVELS*NB_Z_SLICES*NB_MODULE_QUALITY << "] ended." << endl;
@@ -344,6 +401,30 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
                 // CUTS on y[iy]
                 //if (x[ix] == y[iy])                                                   continue; // TO DO: handle display when such a case occurs
                 if (branch_i["sublevel"] < 1 || branch_i["sublevel"] > NB_SUBLEVELS) continue;
+                
+                // FILLING histograms take even those outside the plotted range into account
+                if (_make_profile_plots) {
+	                if (_module_plot_option == "all"){
+						const short int igraph = (branch_i["sublevel"]-1) 
+													+ (branch_f["z"]>=0?0:NB_SUBLEVELS);
+						histos2D[ix][iy][igraph]->Fill(_SF[x[ix]]*branch_f[x[ix]],
+		                                                 _SF[y[iy]]*branch_f[y[iy]]);
+					}
+	                else if (_module_plot_option == "good" && branch_i["badModuleQuality"]==0 ){
+						const short int igraph = (branch_i["sublevel"]-1) 
+													+ (branch_f["z"]>=0?0:NB_SUBLEVELS);
+						histos2D[ix][iy][igraph]->Fill(_SF[x[ix]]*branch_f[x[ix]],
+		                                                 _SF[y[iy]]*branch_f[y[iy]]);
+					}
+	                else if (_module_plot_option == "list" && (branch_i["inModuleList"]==1 || branch_i["badModuleQuality"]==0) ){
+						const short int igraph = (branch_i["sublevel"]-1) 
+													+ (branch_f["z"]>=0?0:NB_SUBLEVELS);
+						histos2D[ix][iy][igraph]->Fill(_SF[x[ix]]*branch_f[x[ix]],
+		                                                 _SF[y[iy]]*branch_f[y[iy]]);
+					}
+				}
+                
+                // restrict scatter plots to chosen range
                 if (_SF[y[iy]]*branch_f[y[iy]] > _max[y[iy]] || _SF[y[iy]]*branch_f[y[iy]] < _min[y[iy]])
                 {
 //#ifdef DEBUG
@@ -416,7 +497,7 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
     cout << __FILE__ << ":" << __LINE__ << ":Info: 100%\tLoop ended" << endl;
 #endif
 
-    /// 3) merge TGraph objects into TMultiGraph objects, then draw, print and write (according to the options _batchMode, _print and _write respectively)
+    /// 3) merge TGraph objects into TMultiGraph objects, then draw, print and write (according to the options _batchMode, _print and _write respectively)    
     gROOT->SetBatch(_batchMode); // if true, then equivalent to "root -b", i.e. no canvas
     if (_write)
     {   // opening the file to write the graphs
@@ -433,7 +514,7 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
     // declaring TMultiGraphs and TCanvas
     // Usually more y variables than x variables
     // creating TLegend
-    TLegend * legend = MakeLegend(.1,.92,.9,1.);
+    TLegend * legend = MakeLegend(.1,.92,.9,1.,NB_SUBLEVELS);
     if (_write) legend->Write();
     
     // check which modules are supposed to be plotted 
@@ -473,8 +554,15 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
                                                   //LateXstyle(x[ix]) + TString(" vs. ") + LateXstyle(y[iy]) + TString(" for Tracker") // graph title
                                                     TString (";") + LateXstyle(x[ix]) + " /" + _units[x[ix]]                     // x axis title
                                                   + TString (";") + LateXstyle(y[iy]) + " /" + _units[y[iy]]);                   // y axis title
+                                                  
+            mgraphs[ix][iy][7] = new TMultiGraph (TString::Format("mgr_%s_vs_%s_pixel_%d", x[ix].Data(),
+                                                                                             y[iy].Data(),
+                                                                                             canvas_index),        // name
+                                                  //LateXstyle(x[ix]) + TString(" vs. ") + LateXstyle(y[iy]) + TString(" for Tracker") // graph title
+                                                    TString (";") + LateXstyle(x[ix]) + " /" + _units[x[ix]]                     // x axis title
+                                                  + TString (";") + LateXstyle(y[iy]) + " /" + _units[y[iy]]);                   // y axis title
 
-            /// TRACKER
+            /// TRACKER and PIXEL
             // fixing ranges and filling TMultiGraph
             // for (unsigned short int jgraph = NB_SUBLEVELS*NB_Z_SLICES-1 ; jgraph >= 0 ; --jgraph)
             for (unsigned short int jgraph = 0 ; jgraph < NB_SUBLEVELS*NB_Z_SLICES*n_module_types ; jgraph++)
@@ -504,6 +592,8 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
                 // color
                 gr->SetMarkerColor(COLOR_CODE(igraph%NB_SUBLEVELS));
                 mgraphs[ix][iy][0]->Add(gr, "P");//, (mgraphs[ix][iy][0]->GetListOfGraphs()==0?"AP":"P"));
+                
+                if (igraph%NB_SUBLEVELS == 0 || igraph%NB_SUBLEVELS == 1) mgraphs[ix][iy][7]->Add(gr, "P"); // Add BPIX (0) and FPIX (1) to pixel plot
    
             }
             
@@ -553,9 +643,9 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
             }
             
 
-            // fixing ranges, saving, and drawing of TMultiGraph (tracker AND sublevels, i.e. 1+NB_SUBLEVELS objects)
+            // fixing ranges, saving, and drawing of TMultiGraph (tracker AND sublevels AND pixel, i.e. 2+NB_SUBLEVELS objects)
             // the individual canvases are saved, but the global are just drawn and will be saved later
-            for (unsigned short int imgr = 0 ; imgr <= NB_SUBLEVELS ; imgr++)
+            for (unsigned short int imgr = 0 ; imgr <= NB_SUBLEVELS+1 ; imgr++)
             {
 #ifdef DEBUG
                 cout << __FILE__ << ":" << __LINE__ << ":Info: treating individual canvases." << endl;
@@ -563,15 +653,14 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
                 // drawing into individual canvas and printing it (including a legend for the tracker canvas)
                 c[ix][iy][imgr] = new TCanvas (TString::Format("c_%s_vs_%s_%s_%d", x[ix].Data(),
                                                                                    y[iy].Data(),
-                                                                                   imgr==0?"tracker":_sublevel_names[imgr-1].Data(),
+                                                                                   imgr==0 ? "tracker" : ( imgr==7 ? "pixel" : _sublevel_names[imgr-1].Data() ),
                                                                                    canvas_index),
                                                TString::Format("%s vs. %s at %s level", x[ix].Data(),
                                                                                         y[iy].Data(),
-                                                                                        imgr==0?"tracker":_sublevel_names[imgr-1].Data()),
+                                                                                        imgr==0 ? "tracker" : ( imgr==7 ? "pixel" : _sublevel_names[imgr-1].Data() ) ),
                                                _window_width,
                                                _window_height);
                 c[ix][iy][imgr]->SetGrid(_grid_x,_grid_y); // grid
-                
                 
                 if (mgraphs[ix][iy][imgr]->GetListOfGraphs() != 0) {
 	                if (dyMin[iy] != -99999) {
@@ -583,7 +672,7 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
 					mgraphs[ix][iy][imgr]->Draw("A");
 				}
                 if (imgr == 0 && _legend) legend->Draw(); // only for the tracker
-                if (_print && _print_only_global != "true") c[ix][iy][imgr]->Print(_output_directory + mgraphs[ix][iy][imgr]->GetName() + ExtensionFromPrintOption(_print_option), _print_option);
+                if (_print && !_print_only_global) c[ix][iy][imgr]->Print(_output_directory + mgraphs[ix][iy][imgr]->GetName() + ExtensionFromPrintOption(_print_option), _print_option);
 
                 // writing into root file
                 if (_write) mgraphs[ix][iy][imgr]->Write();
@@ -611,7 +700,7 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
     // CUSTOMISATION
     gStyle->SetOptTitle(0); // otherwise, the title is repeated in every pad of the global canvases
                             // -> instead, we will write it in the upper part in a TPaveText or in a TLegend
-    for (unsigned int ic = 0 ; ic <= NB_SUBLEVELS ; ic++)
+    for (unsigned int ic = 0 ; ic <= NB_SUBLEVELS+1 ; ic++)
     {
         c_global[ic]->Draw();
 
@@ -637,12 +726,23 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
         p_up->cd();
         if (ic == 0) // tracker
         {
-            TLegend * global_legend = MakeLegend(.05,.1,.7,.8);//, "brNDC");
+            TLegend * global_legend = MakeLegend(.05,.1,.7,.8,NB_SUBLEVELS);//, "brNDC");
             global_legend->Draw();
             TPaveText * pt_geom = new TPaveText(.75,.1,.95,.8, "NB");
             pt_geom->SetFillColor(0);
             pt_geom->SetTextSize(0.25);
-            pt_geom->AddText(TString("x: ")+_alignment_name);
+            pt_geom->AddText(TString("x: ")+_reference_name);
+            pt_geom->AddText(TString("y: ")+_alignment_name+TString(" - ")+_reference_name);
+            pt_geom->Draw();
+        }
+        else if (ic == 7) // pixel
+        {
+            TLegend * global_legend = MakeLegend(.05,.1,.7,.8,2);//, "brNDC");
+            global_legend->Draw();
+            TPaveText * pt_geom = new TPaveText(.75,.1,.95,.8, "NB");
+            pt_geom->SetFillColor(0);
+            pt_geom->SetTextSize(0.25);
+            pt_geom->AddText(TString("x: ")+_reference_name);
             pt_geom->AddText(TString("y: ")+_alignment_name+TString(" - ")+_reference_name);
             pt_geom->Draw();
         }
@@ -655,7 +755,7 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
             TPaveText * pt_geom = new TPaveText(.6,.1,.95,.8, "NB");
             pt_geom->SetFillColor(0);
             pt_geom->SetTextSize(0.3);
-            pt_geom->AddText(TString("x: ")+_alignment_name);
+            pt_geom->AddText(TString("x: ")+_reference_name);
             pt_geom->AddText(TString("y: ")+_alignment_name+TString(" - ")+_reference_name);
             pt_geom->Draw();
         }
@@ -666,8 +766,602 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
     
     // printing global canvases
     if (_write) output->Close();
+    
+    
+    // Now produce the profile plots if the option is chosen
+    // Use seperate loops since no seperate plots are produced for different module qualities
+    if (_make_profile_plots) {
+    
+	    // Fill Content of 2D-hists into 1D-hists for the profile plots
+		// Loop over all y-bins for a certain x-bin, calculate mean and RMS as entries of the 1D-hists
+		bool entries = false;
+		for (unsigned int ix = 0 ; ix < x.size() ; ix++)
+        {
+			for (unsigned int iy = 0 ; iy < y.size() ; iy++)
+            {
+				 for (unsigned int igraph = 0 ; igraph < NB_SUBLEVELS*NB_Z_SLICES ; igraph++)
+	            {
+					
+					// Declare hists which will be plotted for the profile plots
+					histos[ix][iy][igraph] = new TH1F ("1Dhist"+x[ix]+y[iy]+_sublevel_names[igraph%NB_SUBLEVELS]
+														+TString(igraph%(NB_SUBLEVELS*NB_Z_SLICES)>=NB_SUBLEVELS ? "n"      : "p"       )
+														+std::to_string(canvas_index),
+														"",histos2D[ix][iy][igraph]->GetXaxis()->GetNbins(),_min[x[ix]],_max[x[ix]]);
+	                histos[ix][iy][igraph]->SetMarkerColor(COLOR_CODE(igraph));
+	                histos[ix][iy][igraph]->SetLineColor(COLOR_CODE(igraph));
+	                histos[ix][iy][igraph]->StatOverflows(kTRUE);
+	
+	                                                
+					// Loop over x bins
+					for (int binx = 0 ; binx <= histos2D[ix][iy][igraph]->GetXaxis()->GetNbins() ; binx++)
+					{
+						entries = false;
+						// Declare y-histogram for each x bin
+						histosYValues[ix][iy][igraph] = new TH1F ("1Dhist_Y-Values"+x[ix]+y[iy]+_sublevel_names[igraph%NB_SUBLEVELS]
+																	+TString(igraph%(NB_SUBLEVELS*NB_Z_SLICES)>=NB_SUBLEVELS ? "n"      : "p"       )
+																	+std::to_string(canvas_index)
+																	+std::to_string(binx),
+																	"",histos2D[ix][iy][igraph]->GetYaxis()->GetNbins(),
+																	_min[y[iy]],
+																	_max[y[iy]]+1.);
+						histosYValues[ix][iy][igraph]->StatOverflows(kTRUE);
+						// Loop over y-bins for each x-bin of the 2D histogram and put it into the 1-d y histograms
+						// Take overflow bin into account 
+						for (int biny = 0 ; biny <= histos2D[ix][iy][igraph]->GetYaxis()->GetNbins()+1 ; biny++)
+						{
+							if (histos2D[ix][iy][igraph]->GetBinContent(binx,biny) > 1.)
+							{
+								histosYValues[ix][iy][igraph]->SetBinContent(biny,histos2D[ix][iy][igraph]->GetBinContent(binx,biny));
+								entries = true;
+							}
+						}
+						if (entries)
+						{							
+							histos[ix][iy][igraph]->SetBinContent(binx,histosYValues[ix][iy][igraph]->GetMean());
+							histos[ix][iy][igraph]->SetBinError(binx,histosYValues[ix][iy][igraph]->GetRMS());	
+						}
+						else histos[ix][iy][igraph]->SetBinContent(binx,-999999.);
+
+					}
+					
+				}
+
+	            // Customize and print the histograms
+	            
+	            /// TRACKER
+	            // fixing ranges and draw profile plot histos
+	            
+	            c_hist[ix][iy][0] = new TCanvas (TString::Format("c_hist_%s_vs_%s_tracker_%d", x[ix].Data(),
+																							   y[iy].Data(),
+																							   canvas_index),
+												TString::Format("Profile plot %s vs. %s at tracker level", x[ix].Data(),
+																										   y[iy].Data()),
+																										   _window_width,
+																										   _window_height);
+				c_hist[ix][iy][0]->SetGrid(_grid_x,_grid_y); // grid
+				// Draw the frame that will contain the histograms
+				// One needs to specify the binning and title
+				c_hist[ix][iy][0]->GetPad(0)->DrawFrame(_min[x[ix]],
+														dyMin[iy] != -99999 ? dyMin[iy] : _min[y[iy]],
+														_max[x[ix]],
+														dyMax[iy] != -99999 ? dyMax[iy] : _max[y[iy]],
+														TString (";") + LateXstyle(x[ix]) + " /" + _units[x[ix]]
+														+ TString (";") + LateXstyle(y[iy]) + " /" + _units[y[iy]]);
+				if (_legend) legend->Draw("same"); 
+	                
+	            for (unsigned short int jgraph = 0 ; jgraph < NB_SUBLEVELS*NB_Z_SLICES ; jgraph++)
+	            {
+	                unsigned short int igraph = NB_SUBLEVELS*NB_Z_SLICES - jgraph - 1; // reverse counting for humane readability (one of the sublevel takes much more place than the others)
+	                
+	                // clone to prevent any injure on the graph
+	                histosTracker[ix][iy][igraph] = (TH1F *) histos[ix][iy][igraph]->Clone();
+	                // color
+	                histosTracker[ix][iy][igraph]->SetMarkerColor(COLOR_CODE(igraph%NB_SUBLEVELS));
+		            histosTracker[ix][iy][igraph]->SetLineColor(COLOR_CODE(igraph%NB_SUBLEVELS));
+		            histosTracker[ix][iy][igraph]->SetMarkerStyle(6);
+		            histosTracker[ix][iy][igraph]->Draw("same pe0");
+	   
+	            }
+	            
+	            if (_print && !_print_only_global) c_hist[ix][iy][0]->Print(_output_directory 
+															+ TString::Format("Profile_plot_%s_vs_%s_tracker_%d", x[ix].Data(), y[iy].Data(), canvas_index)
+															+ ExtensionFromPrintOption(_print_option),
+															_print_option);
+	
+	            //Draw into profile hists global tracker canvas
+	            c_global_hist[0]->cd(INDEX_IN_GLOBAL_CANVAS(ix,iy)); 
+				c_global_hist[0]->GetPad(INDEX_IN_GLOBAL_CANVAS(ix,iy))->SetFillStyle(4000); //  make the pad transparent
+				c_global_hist[0]->GetPad(INDEX_IN_GLOBAL_CANVAS(ix,iy))->SetGrid(_grid_x,_grid_y); // grid
+				c_global_hist[0]->GetPad(INDEX_IN_GLOBAL_CANVAS(ix,iy))->DrawFrame(_min[x[ix]],
+														dyMin[iy] != -99999 ? dyMin[iy] : _min[y[iy]],
+														_max[x[ix]],
+														dyMax[iy] != -99999 ? dyMax[iy] : _max[y[iy]],
+														TString (";") + LateXstyle(x[ix]) + " /" + _units[x[ix]]
+														+ TString (";") + LateXstyle(y[iy]) + " /" + _units[y[iy]]);
+				
+				for (unsigned short int jgraph = 0 ; jgraph < NB_SUBLEVELS*NB_Z_SLICES ; jgraph++)
+	            {
+	                unsigned short int igraph = NB_SUBLEVELS*NB_Z_SLICES - jgraph - 1; // reverse counting for humane readability (one of the sublevel takes much more place than the others)
+	                histosTracker[ix][iy][igraph]->Draw("same pe0");
+				}
+	            
+	            /// PIXEL
+	            // fixing ranges and draw profile plot histos
+	            
+	            c_hist[ix][iy][7] = new TCanvas (TString::Format("c_hist_%s_vs_%s_pixel_%d", x[ix].Data(),
+																							   y[iy].Data(),
+																							   canvas_index),
+												TString::Format("Profile plot %s vs. %s at pixel level", x[ix].Data(),
+																										   y[iy].Data()),
+																										   _window_width,
+																										   _window_height);
+				c_hist[ix][iy][7]->SetGrid(_grid_x,_grid_y); // grid
+				// Draw the frame that will contain the histograms
+				// One needs to specify the binning and title
+				c_hist[ix][iy][7]->GetPad(0)->DrawFrame(_min[x[ix]],
+														dyMin[iy] != -99999 ? dyMin[iy] : _min[y[iy]],
+														_max[x[ix]],
+														dyMax[iy] != -99999 ? dyMax[iy] : _max[y[iy]],
+														TString (";") + LateXstyle(x[ix]) + " /" + _units[x[ix]]
+														+ TString (";") + LateXstyle(y[iy]) + " /" + _units[y[iy]]);
+				if (_legend) legend->Draw("same"); 
+	                
+	            for (unsigned short int jgraph = 0 ; jgraph < NB_SUBLEVELS*NB_Z_SLICES ; jgraph++)
+	            {
+	                unsigned short int igraph = NB_SUBLEVELS*NB_Z_SLICES - jgraph - 1; // reverse counting for humane readability (one of the sublevel takes much more place than the others)
+	                
+	                if (igraph%NB_SUBLEVELS == 0 || igraph%NB_SUBLEVELS == 1) //Only BPIX and FPIX
+	                {
+		                // clone to prevent any injure on the graph
+		                histosTracker[ix][iy][igraph] = (TH1F *) histos[ix][iy][igraph]->Clone();
+		                // color
+		                histosTracker[ix][iy][igraph]->SetMarkerColor(COLOR_CODE(igraph%NB_SUBLEVELS));
+			            histosTracker[ix][iy][igraph]->SetLineColor(COLOR_CODE(igraph%NB_SUBLEVELS));
+			            histosTracker[ix][iy][igraph]->SetMarkerStyle(6);
+			            histosTracker[ix][iy][igraph]->Draw("same pe0");
+					}
+	   
+	            }
+	            
+	            if (_print && !_print_only_global) c_hist[ix][iy][7]->Print(_output_directory 
+															+ TString::Format("Profile_plot_%s_vs_%s_pixel_%d", x[ix].Data(), y[iy].Data(), canvas_index)
+															+ ExtensionFromPrintOption(_print_option),
+															_print_option);
+	
+	            //Draw into profile hists global tracker canvas
+	            c_global_hist[7]->cd(INDEX_IN_GLOBAL_CANVAS(ix,iy)); 
+				c_global_hist[7]->GetPad(INDEX_IN_GLOBAL_CANVAS(ix,iy))->SetFillStyle(4000); //  make the pad transparent
+				c_global_hist[7]->GetPad(INDEX_IN_GLOBAL_CANVAS(ix,iy))->SetGrid(_grid_x,_grid_y); // grid
+				c_global_hist[7]->GetPad(INDEX_IN_GLOBAL_CANVAS(ix,iy))->DrawFrame(_min[x[ix]],
+														dyMin[iy] != -99999 ? dyMin[iy] : _min[y[iy]],
+														_max[x[ix]],
+														dyMax[iy] != -99999 ? dyMax[iy] : _max[y[iy]],
+														TString (";") + LateXstyle(x[ix]) + " /" + _units[x[ix]]
+														+ TString (";") + LateXstyle(y[iy]) + " /" + _units[y[iy]]);
+				
+				for (unsigned short int jgraph = 0 ; jgraph < NB_SUBLEVELS*NB_Z_SLICES ; jgraph++)
+	            {
+	                unsigned short int igraph = NB_SUBLEVELS*NB_Z_SLICES - jgraph - 1; // reverse counting for humane readability (one of the sublevel takes much more place than the others)
+	                histosTracker[ix][iy][igraph]->Draw("same pe0");
+				}
+				// printing will be performed after customisation (e.g. legend or title) just after the loops on ix and iy
+	            /// SUBLEVELS (1..6)
+	            for (unsigned int isublevel = 1 ; isublevel <= NB_SUBLEVELS ; isublevel++)
+	            {
+		
+					// Draw and print profile histograms
+	                c_hist[ix][iy][isublevel] = new TCanvas (TString::Format("c_hist_%s_vs_%s_%s_%d", x[ix].Data(),
+	                                                                                   y[iy].Data(),
+	                                                                                   isublevel==0?"tracker":_sublevel_names[isublevel-1].Data(),
+	                                                                                   canvas_index),
+	                                               TString::Format("Profile plot %s vs. %s at %s level", x[ix].Data(),
+	                                                                                        y[iy].Data(),
+	                                                                                        isublevel==0?"tracker":_sublevel_names[isublevel-1].Data()),
+	                                               _window_width,
+	                                               _window_height);
+	                c_hist[ix][iy][isublevel]->SetGrid(_grid_x,_grid_y); // grid
+	                c_hist[ix][iy][isublevel]->GetPad(0)->DrawFrame(_min[x[ix]],
+														dyMin[iy] != -99999 ? dyMin[iy] : _min[y[iy]],
+														_max[x[ix]],
+														dyMax[iy] != -99999 ? dyMax[iy] : _max[y[iy]],
+														TString (";") + LateXstyle(x[ix]) + " /" + _units[x[ix]]
+														+ TString (";") + LateXstyle(y[iy]) + " /" + _units[y[iy]]);
+	                
+	                histos[ix][iy][             isublevel-1]->SetMarkerColor(kBlack);
+	                histos[ix][iy][             isublevel-1]->SetLineColor(kBlack);
+	                histos[ix][iy][NB_SUBLEVELS+isublevel-1]->SetMarkerColor(kRed);
+	                histos[ix][iy][NB_SUBLEVELS+isublevel-1]->SetLineColor(kRed);
+	                
+	                
+					histos[ix][iy][             isublevel-1]->Draw("same pe0");
+	                histos[ix][iy][NB_SUBLEVELS+isublevel-1]->Draw("same pe0");
+	                
+	                if (_print && !_print_only_global) c_hist[ix][iy][isublevel]->Print(_output_directory 
+																	+ TString::Format("Profile_plot_%s_vs_%s_%s_%d", x[ix].Data(), y[iy].Data(),_sublevel_names[isublevel-1].Data(), canvas_index)
+																	+ ExtensionFromPrintOption(_print_option),
+																	_print_option);
+					
+					// draw into global canvas
+					// printing will be performed after customisation (e.g. legend or title) just after the loops on ix and iy
+					c_global_hist[isublevel]->cd(INDEX_IN_GLOBAL_CANVAS(ix,iy)); 
+	                c_global_hist[isublevel]->GetPad(INDEX_IN_GLOBAL_CANVAS(ix,iy))->SetFillStyle(4000); //  make the pad transparent
+	                c_global_hist[isublevel]->GetPad(INDEX_IN_GLOBAL_CANVAS(ix,iy))->SetGrid(_grid_x,_grid_y); // grid
+	                c_global_hist[isublevel]->GetPad(INDEX_IN_GLOBAL_CANVAS(ix,iy))->DrawFrame(_min[x[ix]],
+														dyMin[iy] != -99999 ? dyMin[iy] : _min[y[iy]],
+														_max[x[ix]],
+														dyMax[iy] != -99999 ? dyMax[iy] : _max[y[iy]],
+														TString (";") + LateXstyle(x[ix]) + " /" + _units[x[ix]]
+														+ TString (";") + LateXstyle(y[iy]) + " /" + _units[y[iy]]);
+	                
+	
+					histos[ix][iy][             isublevel-1]->Draw("same pe0");
+	                histos[ix][iy][NB_SUBLEVELS+isublevel-1]->Draw("same pe0");
+	            }
+	           
+	        } // end of loop on y
+	    }     // end of loop on x
+			
+		    
+		
+	    // CUSTOMISATION
+	    gStyle->SetOptTitle(0); // otherwise, the title is repeated in every pad of the global canvases
+	                            // -> instead, we will write it in the upper part in a TPaveText or in a TLegend
+	    for (unsigned int ic = 0 ; ic <= NB_SUBLEVELS ; ic++)
+	    {
+	        // setting legend to tracker canvases
+	        if (!_legend) break;
+	  
+	        // setting legend to tracker canvases
+	        if (!_legend) break;
+	        TCanvas * c_temp_hist = (TCanvas *) c_global_hist[ic]->Clone(c_global_hist[ic]->GetTitle() + TString("_sub"));
+	        c_temp_hist->Draw();
+	        c_global_hist[ic] = new TCanvas (c_temp_hist->GetName() + TString("_final"), c_temp_hist->GetTitle(), c_temp_hist->GetWindowWidth(), c_temp_hist->GetWindowHeight());
+	        c_global_hist[ic]->Draw();
+	        TPad * p_up = new TPad (TString("legend_") + c_temp_hist->GetName(), "",
+	                                    0., 0.9, 1., 1., // relative position
+	                                    -1, 0, 0),       // display options
+	             * p_down = new TPad (TString("main_") + c_temp_hist->GetName(), "",
+	                                    0., 0., 1., 0.9,
+	                                    -1, 0, 0);
+	        // in the lower part, draw the plots
+	        p_down->Draw();
+	        p_down->cd();
+	        c_temp_hist->DrawClonePad();
+	        c_global_hist[ic]->cd();
+	        // in the upper part, pimp the canvas :p
+	        p_up->Draw();
+	        p_up->cd();
+	        if (ic == 0) // tracker
+	        {
+	            TLegend * global_legend = MakeLegend(.05,.1,.7,.8,NB_SUBLEVELS);//, "brNDC");
+	            global_legend->Draw();
+	            TPaveText * pt_geom = new TPaveText(.75,.1,.95,.8, "NB");
+	            pt_geom->SetFillColor(0);
+	            pt_geom->SetTextSize(0.25);
+	            pt_geom->AddText(TString("x: ")+_reference_name);
+	            pt_geom->AddText(TString("y: ")+_alignment_name+TString(" - ")+_reference_name);
+	            pt_geom->Draw();
+	        }
+	        else if (ic == 7) // pixel
+	        {
+	            TLegend * global_legend = MakeLegend(.05,.1,.7,.8,2);//, "brNDC");
+	            global_legend->Draw();
+	            TPaveText * pt_geom = new TPaveText(.75,.1,.95,.8, "NB");
+	            pt_geom->SetFillColor(0);
+	            pt_geom->SetTextSize(0.25);
+	            pt_geom->AddText(TString("x: ")+_reference_name);
+	            pt_geom->AddText(TString("y: ")+_alignment_name+TString(" - ")+_reference_name);
+	            pt_geom->Draw();
+	        }
+	        else         // sublevels
+	        {
+	            TPaveText * pt = new TPaveText(.05,.1,.7,.8, "NB");
+	            pt->SetFillColor(0);
+	            pt->AddText(_sublevel_names[ic-1]);
+	            pt->Draw();
+	            TPaveText * pt_geom = new TPaveText(.6,.1,.95,.8, "NB");
+	            pt_geom->SetFillColor(0);
+	            pt_geom->SetTextSize(0.3);
+	            pt_geom->AddText(TString("x: ")+_reference_name);
+	            pt_geom->AddText(TString("y: ")+_alignment_name+TString(" - ")+_reference_name);
+	            pt_geom->Draw();
+	        }
+	        // printing
+	        if (_print) c_global_hist[ic]->Print(_output_directory + c_global_hist[ic]->GetName() + ExtensionFromPrintOption(_print_option), _print_option);
+	    }
+			
+	}
+		
 #ifdef TALKATIVE
     cout << __FILE__ << ":" << __LINE__ << ":Info: End of MakePlots method" << endl;
+#endif
+
+}
+
+
+// Make additional table for the mean/RMS values of differences
+void GeometryComparisonPlotter::MakeTables (vector<TString> x, // axes to combine to plot
+                                           vector<TString> y, // only requires the differences (y values in the plots) and ranges
+                                           vector<float> dyMin, // Minimum of y-variable to enable fixed ranges of the histogram
+                                           vector<float> dyMax) // Maximum of y-variable to enable fixed ranges of the histogram 
+{
+
+    /// -1) check that only existing branches are called 
+    // (we use a macro to avoid copy/paste)
+#define CHECK_BRANCHES(branchname_vector) \
+    for (unsigned int i = 0 ; i < branchname_vector.size() ; i++) \
+    {   \
+        if (branch_f.find(branchname_vector[i]) == branch_f.end()) \
+        {   \
+            cout << __FILE__ << ":" << __LINE__ << ":Error: The branch " << branchname_vector[i] << " is not recognised." << endl; \
+            return; \
+        }   \
+    }
+    CHECK_BRANCHES(x);
+    CHECK_BRANCHES(y);
+
+    const unsigned int nentries = data->GetEntries();
+
+#ifdef TALKATIVE
+    cout << __FILE__ << ":" << __LINE__ << ":Info: ";    INSIDE_VECTOR(x);   cout << endl;
+    cout << __FILE__ << ":" << __LINE__ << ":Info: ";    INSIDE_VECTOR(y);   cout << endl;
+#endif
+
+
+    /// 0) min and max values
+    // the max and min of the graphs are computed from the tree if they have not been manually input yet
+    // (we use a macro to avoid copy/paste)
+#define LIMITS(axes_vector) \
+    for (unsigned int i = 0 ; i < axes_vector.size() ; i++) \
+    {   \
+        if ( _SF.find(axes_vector[i]) ==  _SF.end())  _SF[axes_vector[i]] = 1.; \
+        if (_min.find(axes_vector[i]) == _min.end()) _min[axes_vector[i]] = _SF[axes_vector[i]]*data->GetMinimum(axes_vector[i]); \
+        if (_max.find(axes_vector[i]) == _max.end()) _max[axes_vector[i]] = _SF[axes_vector[i]]*data->GetMaximum(axes_vector[i]); \
+    }
+    LIMITS(x);
+    LIMITS(y);
+
+#ifdef TALKATIVE 
+    CHECK_MAP_CONTENT(_min,float);
+    CHECK_MAP_CONTENT(_max,float);
+    CHECK_MAP_CONTENT(_SF ,float);
+#endif
+
+    /// 1) declare histograms
+    // the idea is to produce tables of the differences and the absolute positions containing mean and RMS values
+    // for the different subdetectors - 0..5=different sublevels.
+    // Values for each endcap detector are to be split in +/-z, for the barrel detectors in +/- x (half barrels)
+    // Since it is easier to handle in the loops, all subdetectors will be split in
+    // 4 parts at first: (+/-x)X(+/-z) 
+    // This means that 2*2*6 histograms will be filled during the loop on the TTree
+    // Pairs of histograms need to be combined afterwards again
+    // Histograms 0-5 are at +x and +z, 6-11 at +x and -z, 12-17 at -x and +z, and 18-23 at -x and -z
+    //
+    // Two version of the table containing the differences are produced. Once using Gaussian fits (more stable
+    // vs single outliers but perform poorly if the distributions are non-Gaussian) and once using
+    // the mean and RMS of the histograms (more stable but outliers have a strong impact on the RMS).
+    // For the absolute positions, only mean+RMS are used since the detector layout is not Gaussian
+    // (structures due to layers/rings etc)
+#ifndef NB_SUBLEVELS
+#define NB_SUBLEVELS 6
+#endif
+#define NB_Z_SLICES 2
+#define NB_X_SLICES 2
+ 
+    TH1F * histosx[x.size()][NB_SUBLEVELS*NB_Z_SLICES*NB_X_SLICES];  
+    float meanValuex[x.size()][NB_SUBLEVELS*NB_Z_SLICES*NB_X_SLICES];
+    float RMSx[x.size()][NB_SUBLEVELS*NB_Z_SLICES*NB_X_SLICES];      
+    
+    TH1F * histos[y.size()][NB_SUBLEVELS*NB_Z_SLICES*NB_X_SLICES];
+    TF1 * gausFit[y.size()][NB_SUBLEVELS*NB_Z_SLICES*NB_X_SLICES];
+    float meanValue[y.size()][NB_SUBLEVELS*NB_Z_SLICES*NB_X_SLICES];
+    float meanValueGaussian[y.size()][NB_SUBLEVELS*NB_Z_SLICES*NB_X_SLICES];
+    float RMS[y.size()][NB_SUBLEVELS*NB_Z_SLICES*NB_X_SLICES];     
+    float RMSGaussian[y.size()][NB_SUBLEVELS*NB_Z_SLICES*NB_X_SLICES];      
+    
+	for (unsigned int iy = 0 ; iy < y.size() ; iy++)
+	{
+		for (unsigned int ihist = 0 ; ihist < NB_SUBLEVELS*NB_Z_SLICES*NB_X_SLICES ; ihist++)
+		{
+			
+			// Create and correctly name a histogram for each subdetector*Z_Slice*X_Slice
+			histos[iy][ihist] = new TH1F ("hist"+y[iy]+_sublevel_names[ihist%NB_SUBLEVELS]
+														+TString(ihist%(NB_SUBLEVELS*NB_Z_SLICES)>=NB_SUBLEVELS ? "zn"      : "zp" )
+														+TString(ihist>=NB_SUBLEVELS*NB_Z_SLICES ? "xn"      : "xp" ),														
+														"",1000,
+														_min[y[iy]],
+														_max[y[iy]]+1.);
+			histos[iy][ihist]->StatOverflows(kTRUE);
+														
+		}
+	}
+
+	for (unsigned int ix = 0 ; ix < x.size() ; ix++)
+	{
+		for (unsigned int ihist = 0 ; ihist < NB_SUBLEVELS*NB_Z_SLICES*NB_X_SLICES ; ihist++)
+		{
+			
+			// Create and correctly name a histogram for each subdetector*Z_Slice*ModuleType
+			histosx[ix][ihist] = new TH1F ("histx"+x[ix]+_sublevel_names[ihist%NB_SUBLEVELS]
+														+TString(ihist%(NB_SUBLEVELS*NB_Z_SLICES)>=NB_SUBLEVELS ? "zn"      : "zp" )
+														+TString(ihist>=NB_SUBLEVELS*NB_Z_SLICES ? "xn"      : "xp" ),
+														"",1000,
+														_min[x[ix]],
+														_max[x[ix]]+1.);
+			histosx[ix][ihist]->StatOverflows(kTRUE);
+														
+		}
+	}
+
+#ifdef DEBUG
+    cout << __FILE__ << ":" << __LINE__ << ":Info: Creation of the TH1F[" << y.size() << "][" << NB_SUBLEVELS*NB_Z_SLICES*NB_X_SLICES << "] ended." << endl;
+#endif
+
+    /// 2) loop on the TTree data
+#ifdef DEBUG
+    cout << __FILE__ << ":" << __LINE__ << ":Info: Looping on the TTree" << endl;
+#endif
+#ifdef TALKATIVE
+    unsigned int progress = 0;
+    cout << __FILE__ << ":" << __LINE__ << ":Info: 0%" << endl;
+#endif
+    for (unsigned int ientry = 0 ; ientry < nentries ; ientry++)
+    {
+#ifdef  TALKATIVE
+        if (10*ientry/nentries != progress)
+        {
+            progress = 10*ientry/nentries;
+            cout << __FILE__ << ":" << __LINE__ << ":Info: " << 10*progress << "%" << endl;
+        }
+#endif
+        // load current tree entry
+        data->GetEntry(ientry);
+
+        // CUTS on entry
+        if (branch_i["level"] != _levelCut)        continue;
+        if (!_1dModule && branch_i["detDim"] == 1) continue;
+        if (!_2dModule && branch_i["detDim"] == 2) continue;
+
+
+		for (unsigned int iy = 0 ; iy < y.size() ; iy++)
+		{			
+			if (branch_i["sublevel"] < 1 || branch_i["sublevel"] > NB_SUBLEVELS) continue;
+			if (_SF[y[iy]]*branch_f[y[iy]] > _max[y[iy]] || _SF[y[iy]]*branch_f[y[iy]] < _min[y[iy]])
+			{
+//#ifdef DEBUG
+//                    cout << "branch_f[y[iy]]=" << branch_f[y[iy]] << endl;
+//#endif
+				continue;
+			}
+
+			// FILLING HISTOGRAMS
+			
+			// histogram for all modules
+			const short int ihisto = (branch_i["sublevel"]-1) + (branch_f["z"]>=0?0:NB_SUBLEVELS) + (branch_f["x"]>=0?0:NB_SUBLEVELS*NB_Z_SLICES);
+			
+			if (_module_plot_option == "all") histos[iy][ihisto]->Fill( _SF[y[iy]]*branch_f[y[iy]]);
+			
+			// Only good modules
+			else if (_module_plot_option == "good" && branch_i["badModuleQuality"]==0) histos[iy][ihisto]->Fill( _SF[y[iy]]*branch_f[y[iy]]);
+			
+			// Only good modules and those in the list
+			else if (_module_plot_option == "list" && (branch_i["inModuleList"]==1 || branch_i["badModuleQuality"]==0)) histos[iy][ihisto]->Fill( _SF[y[iy]]*branch_f[y[iy]]);		
+			
+		}
+		
+		for (unsigned int ix = 0 ; ix < x.size() ; ix++)
+		{			
+			if (branch_i["sublevel"] < 1 || branch_i["sublevel"] > NB_SUBLEVELS) continue;
+			if (_SF[x[ix]]*branch_f[x[ix]] > _max[x[ix]] || _SF[x[ix]]*branch_f[x[ix]] < _min[x[ix]])
+			{
+//#ifdef DEBUG
+//                    cout << "branch_f[y[iy]]=" << branch_f[y[iy]] << endl;
+//#endif
+				continue;
+			}
+
+			// FILLING HISTOGRAMS
+			
+			// histogram for all modules
+			const short int ihistosx = (branch_i["sublevel"]-1) + (branch_f["z"]>=0?0:NB_SUBLEVELS) + (branch_f["x"]>=0?0:NB_SUBLEVELS*NB_Z_SLICES);
+			
+			if (_module_plot_option == "all") histosx[ix][ihistosx]->Fill( _SF[x[ix]]*branch_f[x[ix]]);
+			
+			// Only good modules
+			else if (_module_plot_option == "good" && branch_i["badModuleQuality"]==0) histosx[ix][ihistosx]->Fill( _SF[x[ix]]*branch_f[x[ix]]);
+			
+			// Only good modules and those in the list
+			else if (_module_plot_option == "list" && (branch_i["inModuleList"]==1 || branch_i["badModuleQuality"]==0)) histosx[ix][ihistosx]->Fill( _SF[x[ix]]*branch_f[x[ix]]);	
+			
+		}
+    }
+#ifdef TALKATIVE
+    cout << __FILE__ << ":" << __LINE__ << ":Info: 100%\tLoop ended" << endl;
+#endif
+
+	//~ TString rangeLabel = "";
+	// Calculate mean and standard deviation for each histogram
+	for (unsigned int iy = 0 ; iy < y.size() ; iy++)
+	{
+		
+		for (unsigned int ihist = 0 ; ihist < NB_SUBLEVELS*NB_Z_SLICES*NB_X_SLICES ; ihist++)
+		{
+			// combine +/-z histograms for barrel detectors
+			if (ihist%(NB_SUBLEVELS*NB_Z_SLICES) == 0 || ihist%(NB_SUBLEVELS*NB_Z_SLICES) == 2 ||  ihist%(NB_SUBLEVELS*NB_Z_SLICES) == 4) {
+				histos[iy][ihist]->Add(histos[iy][ihist+NB_SUBLEVELS]);
+			}			
+			// combine +/-x histograms for endcap detectors (only used for half shells in barrel)
+			if (ihist < NB_SUBLEVELS*NB_Z_SLICES && ( ihist%NB_SUBLEVELS == 1 || ihist%NB_SUBLEVELS == 3 ||  ihist%NB_SUBLEVELS  == 5)) {
+				histos[iy][ihist]->Add(histos[iy][ihist+NB_SUBLEVELS*NB_Z_SLICES]);
+			}
+			meanValue[iy][ihist] = histos[iy][ihist]->GetMean();
+			RMS[iy][ihist] = histos[iy][ihist]->GetRMS();
+			
+			histos[iy][ihist]->Fit("gaus");
+			gausFit[iy][ihist] = histos[iy][ihist]->GetFunction("gaus");
+			meanValueGaussian[iy][ihist] = gausFit[iy][ihist]->GetParameter(1);
+			RMSGaussian[iy][ihist] = gausFit[iy][ihist]->GetParameter(2);	
+			
+			
+														
+		}
+	}
+	
+	for (unsigned int ix = 0 ; ix < x.size() ; ix++)
+	{
+		
+		for (unsigned int ihist = 0 ; ihist < NB_SUBLEVELS*NB_Z_SLICES*NB_X_SLICES ; ihist++)
+		{
+			// combine +/-z histograms for barrel detectors
+			if (ihist%(NB_SUBLEVELS*NB_Z_SLICES) == 0 || ihist%(NB_SUBLEVELS*NB_Z_SLICES) == 2 ||  ihist%(NB_SUBLEVELS*NB_Z_SLICES) == 4)  {
+				histosx[ix][ihist]->Add(histosx[ix][ihist+NB_SUBLEVELS]);
+			}			
+			// combine +/-x histograms for endcap detectors (only used for half shells in barrel)
+			if (ihist < NB_SUBLEVELS*NB_Z_SLICES && ( ihist%NB_SUBLEVELS == 1 || ihist%NB_SUBLEVELS == 3 ||  ihist%NB_SUBLEVELS  == 5) ) {
+				histosx[ix][ihist]->Add(histosx[ix][ihist+NB_SUBLEVELS*NB_Z_SLICES]);
+			}	
+			meanValuex[ix][ihist] = histosx[ix][ihist]->GetMean();
+			RMSx[ix][ihist] = histosx[ix][ihist]->GetRMS();					
+														
+		}
+	}
+	
+	TString tableFileName,tableCaption,tableAlign,tableHeadline;	
+	TString PXBpLine,PXBmLine,PXFpLine,PXFmLine,TIBpLine,TIBmLine,TOBpLine,TOBmLine,TIDpLine,TIDmLine,TECpLine,TECmLine;	
+	
+	
+	// table using mean and RMS, round to integers in µm etc.
+	tableFileName = "table_differences.tex";
+	if (_module_plot_option == "all") tableCaption = "Means and standard deviations of "+_alignment_name+" - "+_reference_name+" for each subdetector, all modules used.";
+	else if (_module_plot_option == "good") tableCaption = "Means and standard deviations of "+_alignment_name+" - "+_reference_name+" for each subdetector, only good modules used.";
+	else if (_module_plot_option == "list") tableCaption = "Means and standard deviations of "+_alignment_name+" - "+_reference_name+" for each subdetector, good modules and those in given list used.";
+	
+	WriteTable(y,NB_SUBLEVELS*NB_Z_SLICES*NB_X_SLICES,meanValue,RMS,"0",tableCaption,tableFileName);
+		
+		
+	//~ // table using  Gaussian fit, round to integers in µm etc.
+	tableFileName = "table_differences_Gaussian.tex";
+	if (_module_plot_option == "all") tableCaption = "Means and standard deviations for Gaussian fit of "+_alignment_name+" - "+_reference_name+" for each subdetector, all modules used.";
+	else if (_module_plot_option == "good") tableCaption = "Means and standard deviations for Gaussian fit of "+_alignment_name+" - "+_reference_name+" for each subdetector, only good modules used.";
+	else if (_module_plot_option == "list") tableCaption = "Means and standard deviations for Gaussian fit of "+_alignment_name+" - "+_reference_name+" for each subdetector, good modules and those in given list used.";
+	
+	
+	WriteTable(y,NB_SUBLEVELS*NB_Z_SLICES*NB_X_SLICES,meanValueGaussian,RMSGaussian,"0",tableCaption,tableFileName);
+	      
+
+
+	// Table for the mean positions on the x-axis, round to 3 digits in cm etc.
+	tableFileName = "table_meanPos.tex";	
+	
+	if (_module_plot_option == "all") tableCaption = "Mean positions and standard deviations in "+_reference_name+" geometry for each subdetector, all modules used.";
+	else if (_module_plot_option == "good") tableCaption = "Mean positions and standard deviations in "+_reference_name+" geometry for each subdetector, only good modules used.";
+	else if (_module_plot_option == "list") tableCaption = "Mean positions and standard deviations in "+_reference_name+" geometry for each subdetector, good modules and those in given list used.";
+	
+	WriteTable(x,NB_SUBLEVELS*NB_Z_SLICES*NB_X_SLICES,meanValuex,RMSx,"3",tableCaption,tableFileName);
+
+	
+#ifdef TALKATIVE
+    cout << __FILE__ << ":" << __LINE__ << ":Info: End of MakeLegends method" << endl;
 #endif
 
 }
@@ -713,6 +1407,19 @@ TString GeometryComparisonPlotter::LateXstyle (TString word)
     return word;
 }
 
+TString GeometryComparisonPlotter::LateXstyleTable (TString word)
+{
+    word.ToLower();
+    if (word.BeginsWith("d"))          word.ReplaceAll("d", "$\\Delta$");
+    if      (word == TString("rdphi")) word = "r$\\Delta\\phi$";            // TO DO: find something less ad hoc...
+    else if (word.EndsWith("phi"))     word.ReplaceAll("phi", "$\\phi$");
+    else if (word.EndsWith("alpha"))   word.ReplaceAll("alpha", "$\\alpha$");
+    else if (word.EndsWith("beta"))    word.ReplaceAll("beta" , "$\\beta$");
+    else if (word.EndsWith("gamma"))   word.ReplaceAll("gamma", "#$\\gamma$");
+    else if (word.EndsWith("eta"))     word.ReplaceAll("eta", "$\\eta$");
+    return word;
+}
+
 TString GeometryComparisonPlotter::ExtensionFromPrintOption (TString print_option)
 {
          if (print_option.Contains("pdf" ))  return TString(".pdf" );
@@ -739,14 +1446,15 @@ TLegend * GeometryComparisonPlotter::MakeLegend (double x1,
                                                  double y1,
                                                  double x2,
                                                  double y2,
+                                                 int nPlottedSublevels,
                                                  const TString title)
 {
     TLegend * legend = new TLegend (x1, y1, x2, y2, title.Data(), "NBNDC");
-    legend->SetNColumns(NB_SUBLEVELS);
+    legend->SetNColumns(nPlottedSublevels);
     legend->SetFillColor(0);
     legend->SetLineColor(0); // redundant with option
     legend->SetLineWidth(0); // redundant with option
-    for (unsigned int isublevel = 0 ; isublevel < NB_SUBLEVELS ; isublevel++)
+    for (int isublevel = 0 ; isublevel < nPlottedSublevels ; isublevel++) // nPlottedSublevels is either NB_SUBLEVELS for the tracker or 2 for the pixel
     {
         TGraph * g = new TGraph (0);
         g->SetMarkerColor(COLOR_CODE(isublevel));
@@ -756,4 +1464,87 @@ TLegend * GeometryComparisonPlotter::MakeLegend (double x1,
         legend->AddEntry(g,_sublevel_names[isublevel], "p");
     }
     return legend;
+}
+	
+
+void GeometryComparisonPlotter::WriteTable (vector<TString> x,
+											unsigned int nLevelsTimesSlices,
+											float meanValue[10][24],
+                                            float RMS[10][24],                                            
+                                            const TString nDigits,                                            
+                                            const TString tableCaption,
+                                            const TString tableFileName)
+{
+	std::ofstream output(_output_directory+tableFileName);   
+	   
+	TString tableAlign,tableHeadline;	
+	TString PXBpLine,PXBmLine,PXFpLine,PXFmLine,TIBpLine,TIBmLine,TOBpLine,TOBmLine,TIDpLine,TIDmLine,TECpLine,TECmLine;   
+	char meanChar[x.size()][nLevelsTimesSlices][10];
+	char RMSChar[x.size()][nLevelsTimesSlices][10];    
+	                                    
+	tableAlign = "l";
+	tableHeadline = "";
+	PXBpLine = "PXB x$+$";
+	PXBmLine = "PXB x$-$";
+	PXFpLine = "PXF z$+$";
+	PXFmLine = "PXF z$-$";
+	TIBpLine = "TIB x$+$";
+	TIBmLine = "TIB x$-$";
+	TIDpLine = "TID z$+$";
+	TIDmLine = "TID z$-$";
+	TOBpLine = "TOB x$+$";
+	TOBmLine = "TOB x$-$";
+	TECpLine = "TEC z$+$";
+	TECmLine = "TEC z$-$";
+	
+	
+	
+	for (unsigned int ix = 0 ; ix < x.size() ; ix++)
+	{
+		for (unsigned int isubDet = 0 ; isubDet < nLevelsTimesSlices; isubDet++)
+		{
+			
+			sprintf(meanChar[ix][isubDet],"%."+nDigits+"f",meanValue[ix][isubDet]);
+			sprintf(RMSChar[ix][isubDet],"%."+nDigits+"f",RMS[ix][isubDet]);
+		}
+		tableAlign += "|c";
+		tableHeadline += " & " + LateXstyleTable(x[ix]) + " / " + _units[x[ix]].ReplaceAll("#mum", "$\\mu$m");
+		
+		PXBpLine += " & $"; PXBpLine += meanChar[ix][0]; PXBpLine += "\\pm"; PXBpLine += RMSChar[ix][0]; PXBpLine += " $";
+		PXBmLine += " & $"; PXBmLine += meanChar[ix][12]; PXBmLine += "\\pm"; PXBmLine += RMSChar[ix][12]; PXBmLine += " $";
+		PXFpLine += " & $"; PXFpLine += meanChar[ix][1]; PXFpLine += "\\pm"; PXFpLine += RMSChar[ix][1]; PXFpLine += " $";
+		PXFmLine += " & $"; PXFmLine += meanChar[ix][7]; PXFmLine += "\\pm"; PXFmLine += RMSChar[ix][7]; PXFmLine += " $";
+		TIBpLine += " & $"; TIBpLine += meanChar[ix][2]; TIBpLine += "\\pm"; TIBpLine += RMSChar[ix][2]; TIBpLine += " $";
+		TIBmLine += " & $"; TIBmLine += meanChar[ix][14]; TIBmLine += "\\pm"; TIBmLine += RMSChar[ix][14]; TIBmLine += " $";
+		TIDpLine += " & $"; TIDpLine += meanChar[ix][3]; TIDpLine += "\\pm"; TIDpLine += RMSChar[ix][3]; TIDpLine += " $";
+		TIDmLine += " & $"; TIDmLine += meanChar[ix][9]; TIDmLine += "\\pm"; TIDmLine += RMSChar[ix][9]; TIDmLine += " $";
+		TOBpLine += " & $"; TOBpLine += meanChar[ix][4]; TOBpLine += "\\pm"; TOBpLine += RMSChar[ix][4]; TOBpLine += " $";
+		TOBmLine += " & $"; TOBmLine += meanChar[ix][16]; TOBmLine += "\\pm"; TOBmLine += RMSChar[ix][16]; TOBmLine += " $";
+		TECpLine += " & $"; TECpLine += meanChar[ix][5]; TECpLine += "\\pm"; TECpLine += RMSChar[ix][5]; TECpLine += " $";
+		TECmLine += " & $"; TECmLine += meanChar[ix][11]; TECmLine += "\\pm"; TECmLine += RMSChar[ix][11]; TECmLine += " $";
+	}	
+		
+	// Write the table to the tex file
+	output << "\\begin{table}" << std::endl;
+	output << "\\caption{" << tableCaption << "}" << std::endl;
+	output << "\\begin{tabular}{"<< tableAlign <<"}" << std::endl;
+	output << "\\hline" << std::endl;
+	output << tableHeadline << " \\\\" << std::endl;
+	output << "\\hline" << std::endl;
+	output << PXBpLine << " \\\\"<< std::endl;
+	output << PXBmLine << " \\\\"<< std::endl;
+	output << PXFpLine << " \\\\"<< std::endl;
+	output << PXFmLine << " \\\\"<< std::endl;
+	output << TIBpLine << " \\\\"<< std::endl;
+	output << TIBmLine << " \\\\"<< std::endl;
+	output << TIDpLine << " \\\\"<< std::endl;
+	output << TIDmLine << " \\\\"<< std::endl;
+	output << TOBpLine << " \\\\"<< std::endl;
+	output << TOBmLine << " \\\\"<< std::endl;
+	output << TECpLine << " \\\\"<< std::endl;
+	output << TECmLine << " \\\\"<< std::endl;
+	output << "\\hline" << std::endl;
+	output << "\\end{tabular}" << std::endl;
+	output << "\\end{table}" << std::endl;
+	
 }

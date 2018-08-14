@@ -20,7 +20,7 @@ bool ME0Chamber::operator==(const ME0Chamber& ch) const {
 }
 
 void ME0Chamber::add(ME0Layer* rl) {
-  layers_.push_back(rl);
+  layers_.emplace_back(rl);
 }
 
 std::vector<const GeomDet*> ME0Chamber::components() const {
@@ -40,22 +40,22 @@ int ME0Chamber::nLayers() const {
 }
 
 const ME0Layer* ME0Chamber::layer(ME0DetId id) const {
-  if (id.chamberId()!=detId_) return 0; // not in this layer!
-  return layer(id.roll());
+  if (id.chamberId()!=detId_) return nullptr; // not in this layer!
+  return layer(id.layer());
 }
 
 const ME0Layer* ME0Chamber::layer(int isl) const {
-  for (auto roll : layers_){
-    if (roll->id().roll()==isl) 
-      return roll;
+  for (auto layer : layers_){
+    if (layer->id().layer()==isl)
+      return layer;
   }
-  return 0;
+  return nullptr;
 }
 
 // For the old ME0 Geometry (with one eta partition)
 // we need to maintain this for a while 
 void ME0Chamber::add(ME0EtaPartition* rl) {
-  etaPartitions_.push_back(rl);
+  etaPartitions_.emplace_back(rl);
 }
 
 const std::vector<const ME0EtaPartition*>& ME0Chamber::etaPartitions() const {
@@ -67,7 +67,7 @@ int ME0Chamber::nEtaPartitions() const {
 }
 
 const ME0EtaPartition* ME0Chamber::etaPartition(ME0DetId id) const {
-  if (id.chamberId()!=detId_) return 0; // not in this eta partition!                                                                                                                                                             
+  if (id.chamberId()!=detId_) return nullptr; // not in this eta partition!                                                                                                                                                             
   return etaPartition(id.roll());
 }
 
@@ -76,5 +76,25 @@ const ME0EtaPartition* ME0Chamber::etaPartition(int isl) const {
     if (roll->id().roll()==isl)
       return roll;
   }
-  return 0;
+  return nullptr;
+}
+
+float ME0Chamber::computeDeltaPhi(const LocalPoint& position, const LocalVector& direction ) const {
+	auto extrap = [] (const LocalPoint& point, const LocalVector& dir, double extZ) -> LocalPoint {
+	    double extX = point.x()+extZ*dir.x()/dir.z();
+	    double extY = point.y()+extZ*dir.y()/dir.z();
+	    return LocalPoint(extX,extY,extZ);
+	  };
+	if(nLayers() < 2){return 0;}
+
+	const float beginOfChamber  = layer(1)->position().z();
+	const float centerOfChamber = this->position().z();
+	const float endOfChamber    = layer(nLayers())->position().z();
+
+	LocalPoint projHigh = extrap(position,direction, (centerOfChamber < 0 ? -1.0 : 1.0) * ( endOfChamber-  centerOfChamber));
+	LocalPoint projLow = extrap(position,direction, (centerOfChamber < 0 ? -1.0 : 1.0) *( beginOfChamber-  centerOfChamber));
+    auto globLow  = toGlobal(projLow );
+	auto globHigh = toGlobal(projHigh);
+	return  globHigh.phi() - globLow.phi(); //Geom::phi automatically normalizes to [-pi, pi]
+
 }

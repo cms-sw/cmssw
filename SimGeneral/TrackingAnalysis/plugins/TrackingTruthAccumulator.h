@@ -13,9 +13,7 @@ namespace edm
 {
 	class ParameterSet;
         class ConsumesCollector;
-  namespace stream {
-	class EDProducerBase;
-  }
+	class ProducerBase;
 	class Event;
 	class EventSetup;
         class StreamID;
@@ -75,12 +73,12 @@ class PSimHit;
 class TrackingTruthAccumulator : public DigiAccumulatorMixMod
 {
 public:
-	explicit TrackingTruthAccumulator( const edm::ParameterSet& config, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
+	explicit TrackingTruthAccumulator( const edm::ParameterSet& config, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC);
 private:
-	virtual void initializeEvent( const edm::Event& event, const edm::EventSetup& setup );
-	virtual void accumulate( const edm::Event& event, const edm::EventSetup& setup );
-	virtual void accumulate( const PileUpEventPrincipal& event, const edm::EventSetup& setup, edm::StreamID const& );
-	virtual void finalizeEvent( edm::Event& event, const edm::EventSetup& setup );
+	void initializeEvent( const edm::Event& event, const edm::EventSetup& setup ) override;
+	void accumulate( const edm::Event& event, const edm::EventSetup& setup ) override;
+	void accumulate( const PileUpEventPrincipal& event, const edm::EventSetup& setup, edm::StreamID const& ) override;
+	void finalizeEvent( edm::Event& event, const edm::EventSetup& setup ) override;
 
 	/** @brief Both forms of accumulate() delegate to this templated method. */
 	template<class T> void accumulateEvent( const T& event, const edm::EventSetup& setup, const edm::Handle< edm::HepMCProduct >& hepMCproduct );

@@ -34,7 +34,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
-#include <time.h>
+#include <ctime>
 
 #include <TF1.h>
 #include <TH2F.h>
@@ -54,7 +54,7 @@ double oneOverEtResolEt(double *x, double *par) {
 }
 
 EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
-  : xtal_LSB_EB_(0), xtal_LSB_EE_(0), nSample_(5), complement2_(7)
+  : xtal_LSB_EB_(0), xtal_LSB_EE_(0), nSample_(5), complement2_(7), useDBShape_(false)
 {
   ped_conf_id_=0;
   lin_conf_id_=0;
@@ -408,8 +408,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   evtSetup.get<EcalEndcapGeometryRecord>().get("EcalEndcap",theEndcapGeometry_handle);
   evtSetup.get<EcalBarrelGeometryRecord>().get("EcalBarrel",theBarrelGeometry_handle);
   evtSetup.get<IdealGeometryRecord>().get(eTTmap_);
-  theEndcapGeometry_ = &(*theEndcapGeometry_handle);
-  theBarrelGeometry_ = &(*theBarrelGeometry_handle);
+  theEndcapGeometry_ = theEndcapGeometry_handle.product();
+  theBarrelGeometry_ = theBarrelGeometry_handle.product();
 
   // electronics mapping
   ESHandle< EcalElectronicsMapping > ecalmapping;
@@ -1450,8 +1450,9 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   const int NWEIGROUPS = 2 ; 
   std::vector<unsigned int> weights[NWEIGROUPS] ;
 
-  EBShape shapeEB ;
-  EEShape shapeEE ;
+  bool useDBShape = useDBShape_;
+  EBShape shapeEB(useDBShape) ; shapeEB.setEventSetup(evtSetup); // EBShape, EEShape are fetched now from DB (2018.05.22 K. Theofilatos)
+  EEShape shapeEE(useDBShape) ; shapeEE.setEventSetup(evtSetup); //
   weights[0] = computeWeights(shapeEB, hshapeEB) ;
   weights[1] = computeWeights(shapeEE, hshapeEE) ;
 

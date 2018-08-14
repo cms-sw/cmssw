@@ -51,6 +51,7 @@ private:
   long property_;
 public:
   static TypeWithDict byName(std::string const& name);
+  static TypeWithDict byTypeInfo(std::type_info const& ti);
 private:
   static TypeWithDict byName(std::string const& name, long property);
 public:
@@ -71,6 +72,10 @@ public:
   explicit operator bool() const;
   bool invalidTypeInfo() const;
   std::type_info const& typeInfo() const;
+  //Do not check is 'invalidTypeInfo()' would return true
+  std::type_info const& unvalidatedTypeInfo() const {
+    return *ti_;
+  }
   TClass* getClass() const;
   TEnum* getEnum() const;
   TDataType* getDataType() const;

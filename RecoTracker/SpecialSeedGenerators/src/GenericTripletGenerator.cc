@@ -6,7 +6,6 @@ typedef SeedingHitSet::ConstRecHitPointer SeedingHit;
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <map>
-using namespace ctfseeding;
 
 
 GenericTripletGenerator::GenericTripletGenerator(const edm::ParameterSet& conf, edm::ConsumesCollector& iC):

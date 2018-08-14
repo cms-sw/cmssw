@@ -14,12 +14,12 @@
 class PixelTrackFilterByKinematicsProducer: public edm::global::EDProducer<> {
 public:
   explicit PixelTrackFilterByKinematicsProducer(const edm::ParameterSet& iConfig);
-  ~PixelTrackFilterByKinematicsProducer();
+  ~PixelTrackFilterByKinematicsProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
+  void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
   const float theoPtMin;
   const float theNSigmaInvPtTolerance;
@@ -47,7 +47,7 @@ void PixelTrackFilterByKinematicsProducer::fillDescriptions(edm::ConfigurationDe
   desc.add<double>("nSigmaTipMaxTolerance", 0.0);
   desc.add<double>("chi2", 1000.0);
 
-  descriptions.add("pixelTrackFilterByKinematicsDefault", desc);
+  descriptions.add("pixelTrackFilterByKinematics", desc);
 }
 
 PixelTrackFilterByKinematicsProducer::~PixelTrackFilterByKinematicsProducer() {}

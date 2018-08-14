@@ -26,11 +26,11 @@ class TrackCategoriesAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedReso
 public:
 
     explicit TrackCategoriesAnalyzer(const edm::ParameterSet&);
-    ~TrackCategoriesAnalyzer();
+    ~TrackCategoriesAnalyzer() override;
 
 private:
 
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     // Member data
 

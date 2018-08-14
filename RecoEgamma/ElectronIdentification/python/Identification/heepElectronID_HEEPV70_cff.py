@@ -98,6 +98,6 @@ heepElectronID_HEEPV70  = configureHEEPElectronID_V70 (idName, WP_HEEP70_EB, WP_
 # 3) update the MD5 sum strings below and uncomment the lines again.
 #
 
-central_id_registry.register(heepElectronID_HEEPV70.idName,"45d49ea5f46f3f13f579d208e5e3412b")
+central_id_registry.register(heepElectronID_HEEPV70.idName,"49b6b60e9f16727f241eb34b9d345a8f")
 heepElectronID_HEEPV70.isPOGApproved = cms.untracked.bool(True)
  

@@ -9,16 +9,16 @@ using namespace oracle::occi;
 
 MonLed1Dat::MonLed1Dat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_vptMean = 0;
   m_vptRMS = 0;
   m_vptOverPNMean = 0;
   m_vptOverPNRMS = 0;
-  m_taskStatus = 0;
+  m_taskStatus = false;
   
 }
 
@@ -42,7 +42,7 @@ void MonLed1Dat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":vpt_mean, :vpt_rms, :vpt_over_pn_mean, :vpt_over_pn_rms, :task_status)");
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonLed1Dat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonLed1Dat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -72,7 +72,7 @@ void MonLed1Dat::writeDB(const EcalLogicID* ecid, const MonLed1Dat* item, MonRun
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonLed1Dat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonLed1Dat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -105,12 +105,12 @@ void MonLed1Dat::fetchData(std::map< EcalLogicID, MonLed1Dat >* fillMap, MonRunI
     std::pair< EcalLogicID, MonLed1Dat > p;
     MonLed1Dat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
 
       dat.setVPTMean( rset->getFloat(7) );
       dat.setVPTRMS( rset->getFloat(8) );
@@ -123,7 +123,7 @@ void MonLed1Dat::fetchData(std::map< EcalLogicID, MonLed1Dat >* fillMap, MonRunI
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonLed1Dat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonLed1Dat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -226,6 +226,6 @@ void MonLed1Dat::writeArrayDB(const std::map< EcalLogicID, MonLed1Dat >* data, M
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonLed1Dat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonLed1Dat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

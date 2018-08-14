@@ -21,7 +21,7 @@ public:
               const MagneticField *field, const TransientTrackingRecHitBuilder *ttrhBuilder):
     theES(es), theTracker(tracker), theField(field), theTTRecHitBuilder(ttrhBuilder)
   {}
-  virtual ~TrackFitter() { }
+  ~TrackFitter() override { }
 
   std::unique_ptr<reco::Track> run(const std::vector<const TrackingRecHit *>& hits, const TrackingRegion& region) const override;
 

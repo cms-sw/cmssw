@@ -23,7 +23,7 @@ public:
   //! Calling this method fill the shape corresponding to a given channel (tower, crystal and gain) 
   virtual bool fillShapeFor(int tower=0, int crystal=0, int gain=0) = 0 ; 
 
-  ClassDef(Shape,1) // Definition of a general interface to pulse shapes
+  ClassDefOverride(Shape,1) // Definition of a general interface to pulse shapes
 };
 
 #endif

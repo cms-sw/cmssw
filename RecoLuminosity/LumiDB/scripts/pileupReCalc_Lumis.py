@@ -7,6 +7,7 @@ from RecoLuminosity.LumiDB import selectionParser
 from RecoLuminosity.LumiDB import csvLumibyLSParser
 from math import exp
 from math import sqrt
+import six
 
 def parseInputFile(inputfilename):
     '''
@@ -95,7 +96,7 @@ if __name__ == '__main__':
 
     # loop over pileup JSON as source, since it should have more lumi sections
 
-    for (run, LSPUlist) in sorted (inputPileupRange.iteritems() ):
+    for (run, LSPUlist) in sorted (six.iteritems(inputPileupRange)) ):
         # now, look for matching run, then match lumi sections
         #print "searching for run %d" % (run)
         if run in inputRange.keys():

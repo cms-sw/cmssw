@@ -16,13 +16,13 @@ using namespace std;
 
 MatchCandidateBenchmark::MatchCandidateBenchmark(Mode mode)  : Benchmark(mode) {
 
-  delta_et_Over_et_VS_et_   = 0; 
-  delta_et_VS_et_           = 0; 
-  delta_eta_VS_et_          = 0; 
-  delta_phi_VS_et_          = 0;
+  delta_et_Over_et_VS_et_   = nullptr; 
+  delta_et_VS_et_           = nullptr; 
+  delta_eta_VS_et_          = nullptr; 
+  delta_phi_VS_et_          = nullptr;
 
-  BRdelta_et_Over_et_VS_et_ = 0; 
-  ERdelta_et_Over_et_VS_et_ = 0; 
+  BRdelta_et_Over_et_VS_et_ = nullptr; 
+  ERdelta_et_Over_et_VS_et_ = nullptr; 
   // pTRes are initialzied in the setup since ptBinsPS.size() is needed
 
   histogramBooked_ = false;
@@ -117,7 +117,7 @@ void MatchCandidateBenchmark::setup(DQMStore::IBooker& b) {
     */
     pTRes_.resize(size); BRpTRes_.resize(size); ERpTRes_.resize(size);
     for (size_t i = 0; i < pTRes_.size(); i++) {
-      pTRes_[i] = 0; BRpTRes_[i] = 0; ERpTRes_[i] = 0; }
+      pTRes_[i] = nullptr; BRpTRes_[i] = nullptr; ERpTRes_[i] = nullptr; }
 
     histogramBooked_ = true;
   } 
@@ -128,9 +128,9 @@ void MatchCandidateBenchmark::setup(DQMStore::IBooker& b, const edm::ParameterSe
 
   std::vector<double> ptBinsPS = parameterSet.getParameter< std::vector<double> >( "VariablePtBins" );
   pTRes_.resize(ptBinsPS.size()-1); BRpTRes_.resize(ptBinsPS.size()-1); ERpTRes_.resize(ptBinsPS.size()-1);
-  if (pTRes_.size() > 0) 
+  if (!pTRes_.empty()) 
     for (size_t i = 0; i < pTRes_.size(); i++) {
-      pTRes_[i] = 0; BRpTRes_[i] = 0; ERpTRes_[i] = 0; } 
+      pTRes_[i] = nullptr; BRpTRes_[i] = nullptr; ERpTRes_[i] = nullptr; } 
   
   if (!histogramBooked_) { 
     

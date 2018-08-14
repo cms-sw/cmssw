@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="tecpetalf.xml" eval="true">
+		<Constant name="PetalWidth0" value="37.4*deg"/>
+		<Constant name="PetalWidth1" value="30.3*deg"/>
+		<Constant name="PetalWidth2" value="26.9*deg"/>
+		<Constant name="PetalR1" value="53.60*cm"/>
+		<Constant name="PetalR2" value="88.20*cm"/>
+		<Constant name="ICC35F5shift" value="3.41*deg"/>
+	</ConstantsSection>
+	<!-- TECPetal0F is defined in tecpetal{N}f.xml so that the inner radius can be altered
+	     it would be most usefull to introduce i.e. TECPetal0Flong and TECPetal0Fshort with their 
+	     logical definitions here. then the CoolAlgo would not have to be called so often and 
+	     everything would be much tidier. However changing the names of anything seems to be no
+	     good idea so it will stay this way
+	     Matthias-->
+	<SolidSection label="tecpetalf.xml">
+		<Tubs name="TECPetal1F" rMin="[tecpetalf:PetalR1]" rMax="[tecpetalf:PetalR2]" dz="[tecpetpar:PetalThick]/2" startPhi="-[tecpetalf:PetalWidth1]/2" deltaPhi="[tecpetalf:PetalWidth1]"/>
+		<Tubs name="TECPetal2F" rMin="[tecpetalf:PetalR2]" rMax="[tecpetpar:PetalRmax]" dz="[tecpetpar:PetalThick]/2" startPhi="-[tecpetalf:PetalWidth2]/2" deltaPhi="[tecpetalf:PetalWidth2]"/>
+		<Tubs name="TECICC01LF1" rMin="256*mm" rMax="280.59*mm" dz="[tecpetpar:ICCThick]/2" startPhi="-15.0295*deg" deltaPhi="30.059*deg"/>
+		<Tubs name="TECICC01LF2" rMin="280.59*mm" rMax="445.95*mm" dz="[tecpetpar:ICCThick]/2" startPhi="-2.22838*deg" deltaPhi="4.45675*deg"/>
+		<Tubs name="TECICC01LF3" rMin="445.95*mm" rMax="489.83*mm" dz="[tecpetpar:ICCThick]/2" startPhi="-14.4933*deg" deltaPhi="28.9867*deg"/>
+		<Tubs name="TECICC01LF4" rMin="489.83*mm" rMax="583.28*mm" dz="[tecpetpar:ICCThick]/2" startPhi="-2.60597*deg" deltaPhi="5.21194*deg"/>
+		<Tubs name="TECICC35F1" rMin="583.28*mm" rMax="643.28*mm" dz="[tecpetpar:ICCThick]/2" startPhi="-3.09787*deg" deltaPhi="6.19574*deg"/>
+		<Tubs name="TECICC35F2" rMin="643.28*mm" rMax="713.23*mm" dz="[tecpetpar:ICCThick]/2" startPhi="-8.83675*deg" deltaPhi="17.6735*deg"/>
+		<Tubs name="TECICC35F3" rMin="713.23*mm" rMax="943.22*mm" dz="[tecpetpar:ICCThick]/2" startPhi="-3.06064*deg" deltaPhi="6.12128*deg"/>
+		<Tubs name="TECICC35F4" rMin="943.22*mm" rMax="962.58*mm" dz="[tecpetpar:ICCThick]/2" startPhi="-13.3485*deg" deltaPhi="26.697*deg"/>
+		<Tubs name="TECICC35F5" rMin="962.58*mm" rMax="1092.71*mm" dz="[tecpetpar:ICCThick]/2" startPhi="-3.9312*deg+[ICC35F5shift]" deltaPhi="7.86239*deg"/>
+		<Tubs name="TECICC1SF1" rMin="407.84*mm" rMax="445.95*mm" dz="[tecpetpar:ICCThick]/2" startPhi="-2.01346*deg" deltaPhi="4.02691*deg"/>
+		<Tubs name="TECICC1SF2" rMin="445.95*mm" rMax="489.48*mm" dz="[tecpetpar:ICCThick]/2" startPhi="-14.1382*deg" deltaPhi="28.2764*deg"/>
+		<Tubs name="TECICC1SF3" rMin="489.48*mm" rMax="582.93*mm" dz="[tecpetpar:ICCThick]/2" startPhi="-2.60767*deg" deltaPhi="5.21534*deg"/>
+		<Tubs name="TECICC0F1" rMin="361*mm" rMax="389.81*mm" dz="[tecpetpar:ICCThick]/2" startPhi="-13.6144*deg" deltaPhi="27.2288*deg"/>
+		<Tubs name="TECICC0F2" rMin="389.81*mm" rMax="446.04*mm" dz="[tecpetpar:ICCThick]/2" startPhi="-1.7847*deg" deltaPhi="3.56939*deg"/>
+		<Tubs name="TECICC2F1" rMin="543*mm" rMax="565.1*mm" dz="[tecpetpar:ICCThick]/2" startPhi="-11.4782*deg" deltaPhi="22.9565*deg"/>
+		<Tubs name="TECICC2F2" rMin="565.1*mm" rMax="636.46*mm" dz="[tecpetpar:ICCThick]/2" startPhi="-1.25806*deg" deltaPhi="2.51612*deg"/>
+		<Tubs name="TECICC46F1" rMin="795*mm" rMax="852.44*mm" dz="[tecpetpar:ICCThick]/2" startPhi="-11.0046*deg" deltaPhi="22.0091*deg"/>
+		<Tubs name="TECICC46F2" rMin="852.44*mm" rMax="914.9*mm" dz="[tecpetpar:ICCThick]/2" startPhi="-1.47394*deg" deltaPhi="2.94789*deg"/>
+	</SolidSection>
+	<LogicalPartSection label="tecpetalf.xml">
+		<LogicalPart name="TECICC01LF1" category="unspecified">
+			<rSolid name="tecpetalf:TECICC01LF1"/>
+			<rMaterial name="tecmaterial:TEC_ICC01LF"/>
+		</LogicalPart>
+		<LogicalPart name="TECICC01LF2" category="unspecified">
+			<rSolid name="tecpetalf:TECICC01LF2"/>
+			<rMaterial name="tecmaterial:TEC_ICC01LF"/>
+		</LogicalPart>
+		<LogicalPart name="TECICC01LF3" category="unspecified">
+			<rSolid name="tecpetalf:TECICC01LF3"/>
+			<rMaterial name="tecmaterial:TEC_ICC01LF"/>
+		</LogicalPart>
+		<LogicalPart name="TECICC01LF4" category="unspecified">
+			<rSolid name="tecpetalf:TECICC01LF4"/>
+			<rMaterial name="tecmaterial:TEC_ICC01LF"/>
+		</LogicalPart>
+		<LogicalPart name="TECICC35F1" category="unspecified">
+			<rSolid name="tecpetalf:TECICC35F1"/>
+			<rMaterial name="tecmaterial:TEC_ICC35F"/>
+		</LogicalPart>
+		<LogicalPart name="TECICC35F2" category="unspecified">
+			<rSolid name="tecpetalf:TECICC35F2"/>
+			<rMaterial name="tecmaterial:TEC_ICC35F"/>
+		</LogicalPart>
+		<LogicalPart name="TECICC35F3" category="unspecified">
+			<rSolid name="tecpetalf:TECICC35F3"/>
+			<rMaterial name="tecmaterial:TEC_ICC35F"/>
+		</LogicalPart>
+		<LogicalPart name="TECICC35F4" category="unspecified">
+			<rSolid name="tecpetalf:TECICC35F4"/>
+			<rMaterial name="tecmaterial:TEC_ICC35F"/>
+		</LogicalPart>
+		<LogicalPart name="TECICC35F5" category="unspecified">
+			<rSolid name="tecpetalf:TECICC35F5"/>
+			<rMaterial name="tecmaterial:TEC_ICC35F"/>
+		</LogicalPart>
+		<LogicalPart name="TECICC1SF1" category="unspecified">
+			<rSolid name="tecpetalf:TECICC1SF1"/>
+			<rMaterial name="tecmaterial:TEC_ICC1SF"/>
+		</LogicalPart>
+		<LogicalPart name="TECICC1SF2" category="unspecified">
+			<rSolid name="tecpetalf:TECICC1SF2"/>
+			<rMaterial name="tecmaterial:TEC_ICC1SF"/>
+		</LogicalPart>
+		<LogicalPart name="TECICC1SF3" category="unspecified">
+			<rSolid name="tecpetalf:TECICC1SF3"/>
+			<rMaterial name="tecmaterial:TEC_ICC1SF"/>
+		</LogicalPart>
+		<LogicalPart name="TECICC0F1" category="unspecified">
+			<rSolid name="tecpetalf:TECICC0F1"/>
+			<rMaterial name="tecmaterial:TEC_ICC0F"/>
+		</LogicalPart>
+		<LogicalPart name="TECICC0F2" category="unspecified">
+			<rSolid name="tecpetalf:TECICC0F2"/>
+			<rMaterial name="tecmaterial:TEC_ICC0F"/>
+		</LogicalPart>
+		<LogicalPart name="TECICC2F1" category="unspecified">
+			<rSolid name="tecpetalf:TECICC2F1"/>
+			<rMaterial name="tecmaterial:TEC_ICC2F"/>
+		</LogicalPart>
+		<LogicalPart name="TECICC2F2" category="unspecified">
+			<rSolid name="tecpetalf:TECICC2F2"/>
+			<rMaterial name="tecmaterial:TEC_ICC2F"/>
+		</LogicalPart>
+		<LogicalPart name="TECICC46F1" category="unspecified">
+			<rSolid name="tecpetalf:TECICC46F1"/>
+			<rMaterial name="tecmaterial:TEC_ICC46F"/>
+		</LogicalPart>
+		<LogicalPart name="TECICC46F2" category="unspecified">
+			<rSolid name="tecpetalf:TECICC46F2"/>
+			<rMaterial name="tecmaterial:TEC_ICC46F"/>
+		</LogicalPart>
+	</LogicalPartSection>
+</DDDefinition>

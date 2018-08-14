@@ -131,10 +131,10 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
 
  public:
   explicit PrimaryVertexAnalyzer4PUSlimmed(const edm::ParameterSet&);
-  ~PrimaryVertexAnalyzer4PUSlimmed();
+  ~PrimaryVertexAnalyzer4PUSlimmed() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void bookHistograms(DQMStore::IBooker &i,
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &i,
                               edm::Run const&,
                               edm::EventSetup const&) override;
 
@@ -193,6 +193,8 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   edm::EDGetTokenT<reco::SimToRecoCollection> simToRecoAssociationToken_;
   edm::EDGetTokenT<reco::RecoToSimCollection> recoToSimAssociationToken_;
   edm::EDGetTokenT<reco::VertexToTrackingVertexAssociator> vertexAssociatorToken_;
+
+  std::vector<bool> errorPrintedForColl_;
 };
 
 #endif  // VALIDATION_RECOVERTEX_INTERFACE_PRIMARYVERTEXANALYZER4PUSLIMMED_H_

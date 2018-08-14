@@ -1,7 +1,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <fstream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <set>
 #include "TGClient.h"
 #include "TGHtml.h"
@@ -39,10 +39,10 @@ private:
 
 const static unsigned int s_columns = 3;
 const static char* const s_prefixes[][s_columns] ={ 
-  {"http://", "Web site known by you",0},
-  {"file:","Local file [you must type full path name]",0},
-  {"dcap://","dCache [FNAL]",0},
-  {"rfio://","Castor [CERN]",0}
+  {"http://", "Web site known by you",nullptr},
+  {"file:","Local file [you must type full path name]",nullptr},
+  {"dcap://","dCache [FNAL]",nullptr},
+  {"rfio://","Castor [CERN]",nullptr}
   
 };
 
@@ -124,7 +124,7 @@ CmsShowSearchFiles::CmsShowSearchFiles (const char *filename,
 
    MapSubwindows();
    Layout();
-   m_prefixMenu=0;
+   m_prefixMenu=nullptr;
    m_choosePrefix->Connect("Clicked()","CmsShowSearchFiles",this,"showPrefixes()");
 }
 
@@ -216,7 +216,7 @@ CmsShowSearchFiles::openClicked()
 void 
 CmsShowSearchFiles::showPrefixes()
 {
-   if(0==m_prefixMenu) {
+   if(nullptr==m_prefixMenu) {
       m_prefixMenu = new TGPopupMenu(this);
       const char* const (*itEnd)[s_columns] = s_prefixes+sizeof(s_prefixes)/sizeof(const char*[3]);
       int index = 0;
@@ -231,7 +231,7 @@ CmsShowSearchFiles::showPrefixes()
              gPluginMgr->FindHandler("TSystem",prefix.c_str())->CheckPlugin() != -1)) {
 	    m_prefixMenu->AddEntry((std::string((*it)[0])+" ("+((*it)[1])+")").c_str(),index);
 	    m_prefixes.push_back((*it)[0]);
-	    m_prefixComplete.push_back(0!=(*it)[2]);
+	    m_prefixComplete.push_back(nullptr!=(*it)[2]);
          }
       }
       m_prefixMenu->Connect("Activated(Int_t)","CmsShowSearchFiles",this,"prefixChoosen(Int_t)");
@@ -248,7 +248,7 @@ static std::string readRemote(const char *url)
 {
    // Read (open) remote files.
    
-   char *buf = 0;
+   char *buf = nullptr;
    TUrl fUrl(url);
 
    TString msg = "GET ";
@@ -306,7 +306,7 @@ CmsShowSearchFiles::sendToWebBrowser(std::string& fileName)
       TUrl url(fileName.c_str());
       std::string buffer = readRemote(url.GetUrl());
 
-      if (buffer.size()) {
+      if (!buffer.empty()) {
          m_webFile->SetBaseUri(url.GetUrl());
          m_webFile->ParseText(const_cast<char*>(buffer.c_str()));
       }
@@ -333,7 +333,7 @@ CmsShowSearchFiles::readError()
       "<BODY> ",
       "<P>Unknown error while trying to get file via http</P>",
       "</BODY></HTML> ",
-      0
+      nullptr
    };
 
    m_webFile->SetBaseUri("");
@@ -360,7 +360,7 @@ CmsShowSearchFiles::readInfo()
       "<BR>"
       "<b>You also may load files with Choose Prefix </b><BR>"
       "</BODY></HTML> ",
-      0
+      nullptr
    };
 
    m_webFile->SetBaseUri("");

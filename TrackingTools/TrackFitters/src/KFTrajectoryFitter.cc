@@ -1,5 +1,6 @@
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateWithArbitraryError.h"
+#include "TrackingTools/TrackFitters/interface/DebugHelpers.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -7,94 +8,13 @@
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/TkCloner.h"
 
-#ifdef EDM_ML_DEBUG
-
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "DataFormats/MuonDetId/interface/DTWireId.h"
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include "DataFormats/MuonDetId/interface/GEMDetId.h"
-#include "DataFormats/MuonDetId/interface/ME0DetId.h"
-#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-
-namespace {
-   void dump(TrackingRecHit const & hit, int hitcounter) {
-    if (hit.isValid()) {
-      LogTrace("TrackFitters")<< " ----------------- HIT #" << hitcounter << " (VALID)-----------------------\n"
-	<< "  HIT IS AT R   " << hit.globalPosition().perp() << "\n"
-	<< "  HIT IS AT Z   " << hit.globalPosition().z() << "\n"
-	<< "  HIT IS AT Phi " << hit.globalPosition().phi() << "\n"
-	<< "  HIT IS AT Loc " << hit.localPosition() << "\n"
-	<< "  WITH LocError " << hit.localPositionError() << "\n"
-	<< "  HIT IS AT Glo " << hit.globalPosition() << "\n"
-	<< "SURFACE POSITION" << "\n"
-	<< hit.surface()->position()<<"\n"
-	<< "SURFACE ROTATION" << "\n"
-	<< hit.surface()->rotation()
-        <<  "dimension " << hit.dimension();
-
-      DetId hitId = hit.geographicalId();
-
-      LogDebug("TrackFitters") << " hit det=" << hitId.rawId();
-
-      if(hitId.det() == DetId::Tracker) {
-	if (hitId.subdetId() == StripSubdetector::TIB )
-	  LogDebug("TrackFitters") << " I am TIB " << TIBDetId(hitId).layer();
-	else if (hitId.subdetId() == StripSubdetector::TOB )
-	  LogDebug("TrackFitters") << " I am TOB " << TOBDetId(hitId).layer();
-	else if (hitId.subdetId() == StripSubdetector::TEC )
-	  LogDebug("TrackFitters") << " I am TEC " << TECDetId(hitId).wheel();
-	else if (hitId.subdetId() == StripSubdetector::TID )
-	  LogDebug("TrackFitters") << " I am TID " << TIDDetId(hitId).wheel();
-	else if (hitId.subdetId() == (int) PixelSubdetector::PixelBarrel )
-	  LogDebug("TrackFitters") << " I am PixBar " << PXBDetId(hitId).layer();
-	else if (hitId.subdetId() == (int) PixelSubdetector::PixelEndcap )
-	  LogDebug("TrackFitters") << " I am PixFwd " << PXFDetId(hitId).disk();
-	else
-	  LogDebug("TrackFitters") << " UNKNOWN TRACKER HIT TYPE ";
-      }
-      else if(hitId.det() == DetId::Muon) {
-	if(hitId.subdetId() == MuonSubdetId::DT)
-	  LogDebug("TrackFitters") << " I am DT " << DTWireId(hitId);
-	else if (hitId.subdetId() == MuonSubdetId::CSC )
-	  LogDebug("TrackFitters") << " I am CSC " << CSCDetId(hitId);
-	else if (hitId.subdetId() == MuonSubdetId::RPC )
-	  LogDebug("TrackFitters") << " I am RPC " << RPCDetId(hitId);
-	else if (hitId.subdetId() == MuonSubdetId::GEM )
-	  LogDebug("TrackFitters") << " I am GEM " << GEMDetId(hitId);
-
-	else if (hitId.subdetId() == MuonSubdetId::ME0 )
-	  LogDebug("TrackFitters") << " I am ME0 " << ME0DetId(hitId);
-	else 
-	  LogDebug("TrackFitters") << " UNKNOWN MUON HIT TYPE ";
-      }
-      else
-	LogDebug("TrackFitters") << " UNKNOWN HIT TYPE ";
-
-    } else {
-      LogDebug("TrackFitters")
-	<< " ----------------- INVALID HIT #" << hitcounter << " -----------------------";
-    }
-   }
-}
-#else
-namespace {
-   inline void dump(TrackingRecHit const &, int) {}
-}
-#endif
-
 const DetLayerGeometry KFTrajectoryFitter::dummyGeometry;
 
 Trajectory KFTrajectoryFitter::fitOne(const Trajectory& aTraj, fitType type) const {
 
   if(aTraj.empty()) return Trajectory();
 
-  TM firstTM = aTraj.firstMeasurement();
+  const TM& firstTM = aTraj.firstMeasurement();
   TSOS firstTsos = TrajectoryStateWithArbitraryError()(firstTM.updatedState());
 
   return fitOne(aTraj.seed(), aTraj.recHits(), firstTsos,type);
@@ -116,7 +36,7 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
   if(hits.empty()) return Trajectory();
 
 
-  if unlikely(aSeed.direction() == anyDirection)
+  if UNLIKELY(aSeed.direction() == anyDirection)
     throw cms::Exception("KFTrajectoryFitter","TrajectorySeed::direction() requested but not set");
 
   std::unique_ptr<Propagator> p_cloned = SetPropagationDirection(*thePropagator,
@@ -150,9 +70,9 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
 
     const TransientTrackingRecHit & hit = (*ihit);
 
-    // if unlikely(hit.det() == nullptr) continue;
+    // if UNLIKELY(hit.det() == nullptr) continue;
 
-    if unlikely( (!hit.isValid()) && hit.surface() == nullptr) {
+    if UNLIKELY( (!hit.isValid()) && hit.surface() == nullptr) {
        LogDebug("TrackFitters")<< " Error: invalid hit with no GeomDet attached .... skipping";
       continue;
     }
@@ -163,7 +83,7 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
       predTsos = p_cloned->propagate( currTsos, *(hit.surface()) );
 
 
-    if unlikely(!predTsos.isValid()) {
+    if UNLIKELY(!predTsos.isValid()) {
       LogDebug("TrackFitters")
 	<< "SOMETHING WRONG !" << "\n"
 	<< "KFTrajectoryFitter: predicted tsos not valid!\n"
@@ -181,7 +101,7 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
     }
 
 
-    if likely(hit.isValid()) {
+    if LIKELY(hit.isValid()) {
         assert( (hit.geographicalId()!=0U) | !hit.canImproveWithTrack() ) ;
        	assert(hit.surface()!=nullptr);
 	//update
@@ -189,12 +109,12 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
         assert( (!hit.canImproveWithTrack()) | (nullptr!=theHitCloner));
         assert( (!hit.canImproveWithTrack()) | (nullptr!=dynamic_cast<BaseTrackerRecHit const*>((ihit).get())));
 	auto preciseHit = theHitCloner->makeShared(ihit,predTsos);
-        dump(*preciseHit,hitcounter);
+        dump(*preciseHit,hitcounter,"TrackFitters");
         assert(preciseHit->isValid());
        	assert( (preciseHit->geographicalId()!=0U)  | (!preciseHit->canImproveWithTrack()) );
        	assert(preciseHit->surface()!=nullptr);
 
-	if unlikely(!preciseHit->isValid()){
+	if UNLIKELY(!preciseHit->isValid()){
 	    LogTrace("TrackFitters") << "THE Precise HIT IS NOT VALID: using currTsos = predTsos" << "\n";
 	    currTsos = predTsos;
 	    myTraj.push(TM(predTsos, ihit,0,theGeometry->idToLayer((ihit)->geographicalId()) ));
@@ -209,14 +129,20 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
               (std::abs(currTsos.localParameters().qbp())>100
                || std::abs(currTsos.localParameters().position().y()) > 1000
                || std::abs(currTsos.localParameters().position().x()) > 1000
-               ) ) || edm::isNotFinite(currTsos.localParameters().qbp());
-	  if unlikely(badState){
+               ) ) 
+            || edm::isNotFinite(currTsos.localParameters().qbp()) 
+            || !currTsos.localError().posDef();
+	  if UNLIKELY(badState){
 	    if (!currTsos.isValid()) {
 	      edm::LogError("FailedUpdate") <<"updating with the hit failed. Not updating the trajectory with the hit";
 
             } 
 	    else if (edm::isNotFinite(currTsos.localParameters().qbp())) {
               edm::LogError("TrajectoryNaN")<<"Trajectory has NaN";
+
+            }
+	    else if (!currTsos.localError().posDef()) {
+              edm::LogError("TrajectoryNotPosDef")<<"Trajectory covariance is not positive-definite";
 
             }
 	    else{ 
@@ -245,7 +171,7 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
 	  }
 	}
       } else {  // invalid hit
-        dump(hit,hitcounter);
+        dump(hit,hitcounter,"TrackFitters");
         //no update
         LogDebug("TrackFitters") << "THE HIT IS NOT VALID: using currTsos" << "\n";
         currTsos = predTsos;

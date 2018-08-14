@@ -1,6 +1,8 @@
 #ifndef FastSimulation_Event_FSimTrackEqual_H
 #define FastSimulation_Event_FSimTrackEqual_H
 
+#include "FastSimulation/Event/interface/FSimTrack.h"
+
 class FSimTrackEqual
 {
  public: 

@@ -62,7 +62,7 @@ GeometricDetLoader::beginRun( edm::Run const& /* iEvent */, edm::EventSetup cons
     std::vector<const GeometricDet*> inone = (*git)->components();
     //    << ctste.name((*git)->type())
     //    std::cout << lev << " type " << (*git)->type() << " " << int((*git)->geographicalId()) << std::endl; // << " has " << inone.size() << " components." << std::endl;
-    if ( inone.size() == 0 )  ++count;
+    if ( inone.empty() )  ++count;
     std::vector<const GeometricDet*>::const_iterator git2 = inone.begin();
     std::vector<const GeometricDet*>::const_iterator egit2 = inone.end();
     ++lev;
@@ -70,7 +70,7 @@ GeometricDetLoader::beginRun( edm::Run const& /* iEvent */, edm::EventSetup cons
       putOne(*git2, pgd, lev);
       std::vector<const GeometricDet*> intwo= (*git2)->components();
       //      std::cout << lev << "\ttype " << (*git2)->type() << " " << int((*git2)->geographicalId()) << std::endl; // << " has " << intwo.size() << " components." << std::endl;
-      if ( intwo.size() == 0 )  ++count;
+      if ( intwo.empty() )  ++count;
       std::vector<const GeometricDet*>::const_iterator git3 = intwo.begin();
       std::vector<const GeometricDet*>::const_iterator egit3 = intwo.end();
       ++lev;
@@ -78,7 +78,7 @@ GeometricDetLoader::beginRun( edm::Run const& /* iEvent */, edm::EventSetup cons
 	putOne(*git3, pgd, lev);
 	std::vector<const GeometricDet*> inthree= (*git3)->components();
 	//	std::cout << lev << "\t\ttype " << (*git3)->type() << " " << int((*git3)->geographicalId()) << std::endl; // << " has " << inthree.size() << " components." << std::endl;
-	if ( inthree.size() == 0 )  ++count;
+	if ( inthree.empty() )  ++count;
 	std::vector<const GeometricDet*>::const_iterator git4 = inthree.begin();
 	std::vector<const GeometricDet*>::const_iterator egit4 = inthree.end();
 	++lev;
@@ -86,7 +86,7 @@ GeometricDetLoader::beginRun( edm::Run const& /* iEvent */, edm::EventSetup cons
 	  putOne(*git4, pgd, lev);
 	  std::vector<const GeometricDet*> infour= (*git4)->components();
 	  //	  std::cout << lev << "\t\t\ttype " << (*git4)->type() << " " << int((*git4)->geographicalId()) << std::endl; // << " has " << infour.size() << " components." << std::endl;
-	  if ( infour.size() == 0 )  ++count;
+	  if ( infour.empty() )  ++count;
 	  std::vector<const GeometricDet*>::const_iterator git5 = infour.begin();
 	  std::vector<const GeometricDet*>::const_iterator egit5 = infour.end();
 	  ++lev;
@@ -94,7 +94,7 @@ GeometricDetLoader::beginRun( edm::Run const& /* iEvent */, edm::EventSetup cons
 	    putOne(*git5, pgd, lev);
 	    std::vector<const GeometricDet*> infive= (*git5)->components();
 	    //	    std::cout << lev << "\t\t\t\ttype " << (*git5)->type() << " " << int((*git5)->geographicalId()) << std::endl; // << " has " << infive.size() << " components." << std::endl;
-	    if ( infive.size() == 0 )  ++count;
+	    if ( infive.empty() )  ++count;
 	    std::vector<const GeometricDet*>::const_iterator git6 = infive.begin();
 	    std::vector<const GeometricDet*>::const_iterator egit6 = infive.end();
 	    ++lev;
@@ -102,7 +102,7 @@ GeometricDetLoader::beginRun( edm::Run const& /* iEvent */, edm::EventSetup cons
 	      putOne(*git6, pgd, lev);
 	      std::vector<const GeometricDet*> insix= (*git6)->components();
 	      //	      std::cout << lev << "\t\t\t\t\ttype " << (*git6)->type() << " " << int((*git6)->geographicalId()) << std::endl; // << " has " << insix.size() << " components." << std::endl;
-	      if ( insix.size() == 0 )  ++count;
+	      if ( insix.empty() )  ++count;
 	    } // level 6
 	    --lev;
 	  } // level 5
@@ -134,8 +134,8 @@ void GeometricDetLoader::putOne ( const GeometricDet* gd, PGeometricDet* pgd, in
 //   std::cout << " type: " << gd->type() << std::endl;
 //  std::cout << "shape = " << gd->shape()<<"; name = "<<gd->name().name()<<"; parameter number = "<<gd->params().size()<<std::endl;
   PGeometricDet::Item item;
-  DDTranslation tran = gd->translation();
-  DDRotationMatrix rot = gd->rotation();
+  const DDTranslation& tran = gd->translation();
+  const DDRotationMatrix& rot = gd->rotation();
   DD3Vector x, y, z;
   rot.GetComponents(x, y, z);
   item._name           = gd->name().name();
@@ -154,9 +154,9 @@ void GeometricDetLoader::putOne ( const GeometricDet* gd, PGeometricDet* pgd, in
   item._a31            = x.Z();
   item._a32            = y.Z();
   item._a33            = z.Z();
-  item._shape          = gd->shape();
+  item._shape          = static_cast<int>(gd->shape());
   item._type           = gd->type();
-  if(gd->shape()==1){
+  if(gd->shape()==DDSolidShape::ddbox){
     item._params0=gd->params()[0];
     item._params1=gd->params()[1];
     item._params2=gd->params()[2];
@@ -168,7 +168,7 @@ void GeometricDetLoader::putOne ( const GeometricDet* gd, PGeometricDet* pgd, in
     item._params8=0;
     item._params9=0;
     item._params10=0;
-  }else if(gd->shape()==3){
+  }else if(gd->shape()==DDSolidShape::ddtrap){
     item._params0=gd->params()[0];
     item._params1=gd->params()[1];
     item._params2=gd->params()[2];

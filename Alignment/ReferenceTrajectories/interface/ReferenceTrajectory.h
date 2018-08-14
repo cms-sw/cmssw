@@ -39,11 +39,8 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/TrajectoryState/interface/SurfaceSideDefinition.h"
-#include "Alignment/ReferenceTrajectories/interface/GblTrajectory.h"
 
-#include <TMatrixDSym.h>
-#include <TMatrixD.h>
-#include <TVectorD.h>
+#include "GblTrajectory.h"
 
 class TrajectoryStateOnSurface;
 class MagneticField;
@@ -73,9 +70,9 @@ public:
                       const reco::BeamSpot& beamSpot,
                       const ReferenceTrajectoryBase::Config& config);
 
-  virtual ~ReferenceTrajectory() {}
+  ~ReferenceTrajectory() override {}
 
-  virtual ReferenceTrajectory* clone() const { return new ReferenceTrajectory(*this); }
+  ReferenceTrajectory* clone() const override { return new ReferenceTrajectory(*this); }
 
 protected:
 
@@ -185,9 +182,12 @@ protected:
     AlgebraicMatrix
     getHitProjectionMatrixT(const TransientTrackingRecHit::ConstRecHitPointer &recHit) const;
 private:
-  void clhep2root(const AlgebraicVector& in, TVectorD& out);
-  void clhep2root(const AlgebraicMatrix& in, TMatrixD& out);
-  void clhep2root(const AlgebraicSymMatrix& in, TMatrixDSym& out);
+  template <typename Derived>
+  void clhep2eigen(const AlgebraicVector& in, Eigen::MatrixBase<Derived>& out);
+  template <typename Derived>
+  void clhep2eigen(const AlgebraicMatrix& in, Eigen::MatrixBase<Derived>& out);
+  template <typename Derived>
+  void clhep2eigen(const AlgebraicSymMatrix& in, Eigen::MatrixBase<Derived>& out);
 
   const double mass_;
   const MaterialEffects materialEffects_;

@@ -26,7 +26,7 @@
 SiPixelDigiValid::SiPixelDigiValid(const edm::ParameterSet& ps)
   : outputFile_( ps.getUntrackedParameter<std::string>( "outputFile", "pixeldigihisto.root" ) )
   , runStandalone ( ps.getParameter<bool>("runStandalone")  )  
-  , dbe_(0)
+  , dbe_(nullptr)
   , edmDetSetVector_PixelDigi_Token_( consumes< edm::DetSetVector<PixelDigi> >( ps.getParameter<edm::InputTag>( "src" ) ) ) {
  
  
@@ -35,9 +35,6 @@ SiPixelDigiValid::SiPixelDigiValid(const edm::ParameterSet& ps)
 SiPixelDigiValid::~SiPixelDigiValid(){
 }
 
-
-void SiPixelDigiValid::beginJob(){
-}
 
 void SiPixelDigiValid::bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es){
    dbe_ = edm::Service<DQMStore>().operator->();
@@ -277,7 +274,7 @@ void SiPixelDigiValid::bookHistograms(DQMStore::IBooker & ibooker,const edm::Run
 
 void SiPixelDigiValid::endJob() {
   //Save histos in a file only in standalone mode
-  if ( runStandalone && outputFile_.size() != 0 && dbe_ ){dbe_->save(outputFile_);}
+  if ( runStandalone && !outputFile_.empty() && dbe_ ){dbe_->save(outputFile_);}
 }
 
 void SiPixelDigiValid::analyze(const edm::Event& e, const edm::EventSetup& c){

@@ -51,7 +51,7 @@ class L1MuGMTLFSortRankEtaQLUT : public L1MuGMTLUT {
   } ;
 
   /// destructor
-  virtual ~L1MuGMTLFSortRankEtaQLUT() {};
+  ~L1MuGMTLFSortRankEtaQLUT() override {};
 
   /// specific lookup function for vlq
   unsigned SpecificLookup_vlq (int idx, unsigned eta, unsigned q) const {
@@ -81,7 +81,7 @@ class L1MuGMTLFSortRankEtaQLUT : public L1MuGMTLUT {
 
   /// access to lookup function with packed input and output
 
-  virtual unsigned LookupFunctionPacked (int idx, unsigned address) const {
+  unsigned LookupFunctionPacked (int idx, unsigned address) const override {
     std::vector<unsigned> addr = u2vec(address, m_Inputs);
     return TheLookupFunction(idx ,addr[0] ,addr[1]);
 

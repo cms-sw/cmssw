@@ -11,6 +11,7 @@
 #include "Fireworks/Core/interface/FWDetailViewGL.h"
 
 class FWECALDetailViewBuilder;
+class TEveCaloData;
 namespace reco {
   class Muon;
 }
@@ -19,15 +20,15 @@ class FWMuonDetailView : public FWDetailViewGL<reco::Muon> {
 
 public:
    FWMuonDetailView();
-   virtual ~FWMuonDetailView();
+   ~FWMuonDetailView() override;
 
 
 private:
-   FWMuonDetailView(const FWMuonDetailView&); // stop default
-   const FWMuonDetailView& operator=(const FWMuonDetailView&); // stop default
+   FWMuonDetailView(const FWMuonDetailView&) = delete; // stop default
+   const FWMuonDetailView& operator=(const FWMuonDetailView&) = delete; // stop default
 
-   virtual void build (const FWModelId &id, const reco::Muon*);
-   virtual void setTextInfo(const FWModelId&, const reco::Muon*);
+   void build (const FWModelId &id, const reco::Muon*) override;
+   void setTextInfo(const FWModelId&, const reco::Muon*) override;
 
    void addSceneInfo(const reco::Muon *i, TEveElementList* tList);
 

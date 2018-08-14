@@ -84,7 +84,7 @@ class JetAnalyzer_HeavyIons_matching : public DQMEDAnalyzer {
  public:
 
   explicit JetAnalyzer_HeavyIons_matching (const edm::ParameterSet&);
-  virtual ~JetAnalyzer_HeavyIons_matching();
+  ~JetAnalyzer_HeavyIons_matching() override;
   
   void analyze(const edm::Event&, const edm::EventSetup&) override; 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
@@ -158,7 +158,7 @@ class JetAnalyzer_HeavyIons_matching : public DQMEDAnalyzer {
 
   struct CompareMatchedJets {
     //! A-B jet match
-    bool operator()(const ABJetPair &A1, const ABJetPair &A2){
+    bool operator()(const ABJetPair &A1, const ABJetPair &A2) const{
       MyJet jet1_pair1 = A1.first; //! Jet1 1st pair
       MyJet jet2_pair1 = A1.second; //! Jet2 1st pair
       MyJet jet1_pair2 = A2.first; //! Jet1 2nd pair

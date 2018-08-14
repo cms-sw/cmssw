@@ -8,22 +8,25 @@ using namespace HGCalTriggerBackend;
 class RandomClusterAlgo : public Algorithm<HGCal64BitRandomCodec> {
 public:
   
-  RandomClusterAlgo(const edm::ParameterSet& conf):
-    Algorithm<HGCal64BitRandomCodec>(conf),
+  RandomClusterAlgo(const edm::ParameterSet& conf,edm::ConsumesCollector &cc):
+    Algorithm<HGCal64BitRandomCodec>(conf,cc),
     cluster_product_( new l1t::HGCalClusterBxCollection ){
   }
 
-  virtual void setProduces(edm::EDProducer& prod) const override final {
+  void setProduces(edm::stream::EDProducer<>& prod) const final {
     prod.produces<l1t::HGCalClusterBxCollection>(name());
   }
 
-  virtual void run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es) override final;
+  void run(const l1t::HGCFETriggerDigiCollection& coll,
+		  const edm::EventSetup& es,
+		  edm::Event&evt
+		   ) final;
 
-  virtual void putInEvent(edm::Event& evt) override final {
+  void putInEvent(edm::Event& evt) final {
     evt.put(std::move(cluster_product_),name());
   }
 
-  virtual void reset() override final {
+  void reset() final {
     cluster_product_.reset( new l1t::HGCalClusterBxCollection );
   }
   
@@ -32,7 +35,10 @@ private:
 
 };
 
-void RandomClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es) {
+void RandomClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll,
+			    const edm::EventSetup& es,
+			    edm::Event&evt
+			    ) {
   for( const auto& digi : coll ) {
     HGCal64BitRandomCodec::data_type my_data;
     digi.decode(codec_,my_data);

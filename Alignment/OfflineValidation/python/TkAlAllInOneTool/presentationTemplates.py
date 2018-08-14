@@ -6,6 +6,7 @@ texTemplate=r"""%Offline Alignment Validation presentation.
 \documentclass{beamer}
 \usepackage[latin1]{inputenc}
 \usepackage{color}
+\usepackage{longtable}
 %\usepackage{siunitx}
 %\usepackage{epstopdf}
 \usetheme{default}
@@ -63,6 +64,13 @@ frameTemplate=r"""
 [plots]
     %\\Comments here
   \end{figure}
+\end{frame}
+"""
+
+summaryTemplate = r"""
+\begin{frame}[allowframebreaks]{[title]}
+\centering
+[summary]
 \end{frame}
 """
 

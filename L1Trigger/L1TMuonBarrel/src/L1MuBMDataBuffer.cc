@@ -31,8 +31,8 @@
 
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSectorProcessor.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackSegLoc.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackSegPhi.h"
+#include "DataFormats/L1TMuon/interface/BMTF/L1MuBMTrackSegLoc.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhi.h"
 
 using namespace std;
 
@@ -44,7 +44,7 @@ using namespace std;
 // Constructors --
 //----------------
 L1MuBMDataBuffer::L1MuBMDataBuffer(const L1MuBMSectorProcessor& sp) :
-        m_sp(sp), m_tsphi(0) {
+        m_sp(sp), m_tsphi(nullptr) {
 
 
   m_tsphi = new TSPhivector(38);
@@ -76,7 +76,7 @@ void L1MuBMDataBuffer::reset() {
   while ( iter != m_tsphi->end() ) {
     if ( *iter) {
       delete *iter;
-      *iter = 0;
+      *iter = nullptr;
     }
     iter++;
   }

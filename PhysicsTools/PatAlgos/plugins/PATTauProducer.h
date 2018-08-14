@@ -48,14 +48,15 @@ namespace pat {
     public:
 
       explicit PATTauProducer(const edm::ParameterSet & iConfig);
-      ~PATTauProducer();
+      ~PATTauProducer() override;
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
     private:
-      
+      bool firstOccurence_; // used to print LogWarnings only at first occurnece in the event loop
+
       // configurables
       edm::EDGetTokenT<edm::View<reco::BaseTau> > baseTauToken_;
       edm::EDGetTokenT<PFTauTIPAssociationByRef> tauTransverseImpactParameterToken_;
@@ -93,7 +94,7 @@ namespace pat {
       std::vector<NameTag> tauIDSrcs_;
       std::vector<edm::EDGetTokenT<reco::CaloTauDiscriminator> > caloTauIDTokens_;
       std::vector<edm::EDGetTokenT<reco::PFTauDiscriminator> > pfTauIDTokens_;
-
+      bool          skipMissingTauID_;
       // tools
       GreaterByPt<Tau>       pTTauComparator_;
 

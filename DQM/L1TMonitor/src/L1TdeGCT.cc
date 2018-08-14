@@ -21,7 +21,7 @@ L1TdeGCT::L1TdeGCT(const edm::ParameterSet& iConfig) {
   if(iConfig.getUntrackedParameter<bool> ("disableROOToutput", true))
     histFile_ = "";
 
-  if (histFile_.size()!=0) {
+  if (!histFile_.empty()) {
     edm::LogInfo("OutputRootFile") 
       << "L1TEmulator GCT specific histograms will be saved to " 
       << histFile_.c_str() 
@@ -41,8 +41,6 @@ L1TdeGCT::~L1TdeGCT() {}
 void L1TdeGCT::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& evSetup)
 {}
 
-void L1TdeGCT::beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& evSetup)
-{}
 
 void L1TdeGCT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&){
 

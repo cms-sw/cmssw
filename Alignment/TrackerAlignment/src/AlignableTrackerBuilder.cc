@@ -5,7 +5,6 @@
 
 // geometry
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 
 // alignment
@@ -225,7 +224,7 @@ void AlignableTrackerBuilder
 
   // 2D- or 'pure' 1D-module
   if (!detId.glued()) {
-    if (geomDet->components().size()) {
+    if (!geomDet->components().empty()) {
       // 2D-module, convert it to GluedGeomDet
       const GluedGeomDet* gluedGeomDet = dynamic_cast<const GluedGeomDet*>(geomDet);
       if (!gluedGeomDet) {

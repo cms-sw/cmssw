@@ -13,18 +13,20 @@ class OptoScanHistosUsingDb : public CommissioningHistosUsingDb, public OptoScan
                          DQMStore*,
                          SiStripConfigDb* const );
 
-  virtual ~OptoScanHistosUsingDb();
+  ~OptoScanHistosUsingDb() override;
 
-  virtual void uploadConfigurations();
+  void uploadConfigurations() override;
   
  private:
   
   void update( SiStripConfigDb::DeviceDescriptionsRange );
   
-  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis ); 
+  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis ) override; 
 
   // parameters
   bool skipGainUpdate_;
+  // Perform a selective upload either for or excluding a certain set of FEDs                                                                                                                    
+  bool allowSelectiveUpload_;
 
 };
 

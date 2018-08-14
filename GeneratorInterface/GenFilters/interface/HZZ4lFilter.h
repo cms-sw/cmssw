@@ -42,10 +42,10 @@ namespace edm {
 class HZZ4lFilter : public edm::EDFilter {
    public:
       explicit HZZ4lFilter(const edm::ParameterSet&);
-      ~HZZ4lFilter();
+      ~HZZ4lFilter() override;
 
    private:
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::Event&, const edm::EventSetup&) override;
       // virtual void endJob() ;
       
       // ----------member data ---------------------------

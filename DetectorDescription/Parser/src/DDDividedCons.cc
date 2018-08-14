@@ -1,22 +1,22 @@
 #include "DetectorDescription/Parser/src/DDDividedCons.h"
-
-#include <iostream>
-#include <string>
-#include <utility>
-
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Core/interface/DDAxes.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/DDUnits.h"
 #include "DetectorDescription/Parser/src/DDDividedGeometryObject.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <iostream>
+#include <string>
+#include <utility>
+
 class DDCompactView;
+
+using namespace dd::operators;
 
 DDDividedConsRho::DDDividedConsRho( const DDDivision& div, DDCompactView* cpv )
   : DDDividedGeometryObject::DDDividedGeometryObject( div, cpv )
@@ -114,7 +114,7 @@ DDDividedConsPhi::DDDividedConsPhi( const DDDivision& div, DDCompactView* cpv )
   {
     DDCons msol = (DDCons)(div_.parent().solid());
     //If you divide a tube of 360 degrees the offset displaces the starting angle, but you still fill the 360 degrees
-    if( msol.deltaPhi() == 360.*deg )
+    if( msol.deltaPhi() == 360._deg )
     {
       compNDiv_ = calculateNDiv( msol.deltaPhi(), div_.width(), 0. );
     }
@@ -126,7 +126,7 @@ DDDividedConsPhi::DDDividedConsPhi( const DDDivision& div, DDCompactView* cpv )
   else if( divisionType_ == DivNDIV )
   {
     DDCons msol = (DDCons)(div_.parent().solid());
-    if( msol.deltaPhi() == 360.*deg )
+    if( msol.deltaPhi() == 360._deg )
     {
       compWidth_ = calculateWidth( msol.deltaPhi(), div_.nReplicas(), 0. );
     }

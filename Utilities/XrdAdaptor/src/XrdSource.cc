@@ -5,7 +5,7 @@
 #include <chrono>
 #include <atomic>
 #include <iostream>
-#include <assert.h>
+#include <cassert>
 #include <netdb.h>
 
 #include "XrdCl/XrdClFile.hh"
@@ -55,10 +55,10 @@ public:
     }
 
 
-    virtual ~DelayedClose() = default;
+    ~DelayedClose() override = default;
 
 
-    virtual void HandleResponseWithHosts(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response, XrdCl::HostList *hostList) override
+    void HandleResponseWithHosts(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response, XrdCl::HostList *hostList) override
     {
         if (status && !status->IsOK())
         {
@@ -91,7 +91,7 @@ class QueryAttrHandler : public XrdCl::ResponseHandler
 
 public:
 
-    virtual ~QueryAttrHandler() = default;
+    ~QueryAttrHandler() override = default;
     QueryAttrHandler(const QueryAttrHandler&) = delete;
     QueryAttrHandler& operator=(const QueryAttrHandler&) = delete;
 
@@ -137,7 +137,7 @@ private:
     QueryAttrHandler() {}
 
 
-    virtual void HandleResponse(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response ) override
+    void HandleResponse(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response ) override
     {
         // NOTE: we own the status and response pointers.
         std::unique_ptr<XrdCl::AnyObject> response_mgr;
@@ -206,7 +206,7 @@ Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh, const std::string 
         edm::LogWarning("XrdFileWarning")
           << "Source::Source() failed to determine data server name.'";
       }
-      if (!m_exclude.size()) {m_exclude = m_id;}
+      if (m_exclude.empty()) {m_exclude = m_id;}
     }
     m_qm = QualityMetricFactory::get(now, m_id);
     m_prettyid = m_id + " (unknown site)";
@@ -231,16 +231,16 @@ bool Source::getHostname(const std::string &id, std::string &hostname)
     if ((pos != std::string::npos) && (pos > 0)) {hostname = id.substr(0, pos);}
 
     bool retval = true;
-    if (hostname.size() && ((hostname[0] == '[') || isdigit(hostname[0])))
+    if (!hostname.empty() && ((hostname[0] == '[') || isdigit(hostname[0])))
     {
         retval = false;
         struct addrinfo hints; memset(&hints, 0, sizeof(struct addrinfo));
         hints.ai_family = AF_UNSPEC;
         struct addrinfo *result;
-        if (!getaddrinfo(hostname.c_str(), NULL, &hints, &result))
+        if (!getaddrinfo(hostname.c_str(), nullptr, &hints, &result))
         {
             std::vector<char> host; host.reserve(256);
-            if (!getnameinfo(result->ai_addr, result->ai_addrlen, &host[0], 255, NULL, 0, NI_NAMEREQD))
+            if (!getnameinfo(result->ai_addr, result->ai_addrlen, &host[0], 255, nullptr, 0, NI_NAMEREQD))
             {
                 hostname = &host[0];
                 retval = true;
@@ -258,7 +258,7 @@ bool Source::getDomain(const std::string &host, std::string &domain)
     size_t pos = domain.find(".");
     if (pos != std::string::npos && (pos < domain.size())) {domain = domain.substr(pos+1);}
 
-    return domain.size();
+    return !domain.empty();
 }
 
 
@@ -273,7 +273,7 @@ Source::isDCachePool(XrdCl::File &file, const XrdCl::HostList *hostList)
     // wouldn't happen at a real site, as the previous server should look like a dCache door.
     std::string lastUrl;
     file.GetProperty("LastURL", lastUrl);
-    if (lastUrl.size())
+    if (!lastUrl.empty())
     {
         bool result = isDCachePool(lastUrl);
         if (result && hostList && (hostList->size() > 1))
@@ -327,14 +327,14 @@ Source::getXrootdSite(XrdCl::File &fh, std::string &site)
 {
     std::string lastUrl;
     fh.GetProperty("LastURL", lastUrl);
-    if (!lastUrl.size() || isDCachePool(lastUrl))
+    if (lastUrl.empty() || isDCachePool(lastUrl))
     {
         std::string server, id;
         if (!fh.GetProperty("DataServer", server)) {id = "(unknown)";}
         else {id = server;}
-        if (!lastUrl.size()) {edm::LogWarning("XrdFileWarning") << "Unable to determine the URL associated with server " << id;}
+        if (lastUrl.empty()) {edm::LogWarning("XrdFileWarning") << "Unable to determine the URL associated with server " << id;}
         site = "Unknown";
-        if (server.size()) {getDomain(server, site);}
+        if (!server.empty()) {getDomain(server, site);}
         return false;
     }
     return getXrootdSiteFromURL(lastUrl, site);
@@ -344,7 +344,7 @@ bool
 Source::getXrootdSiteFromURL(std::string url, std::string &site)
 {
     const std::string attr = "sitename";
-    XrdCl::Buffer *response = 0;
+    XrdCl::Buffer *response = nullptr;
     XrdCl::Buffer arg( attr.size() );
     arg.FromString( attr );
 

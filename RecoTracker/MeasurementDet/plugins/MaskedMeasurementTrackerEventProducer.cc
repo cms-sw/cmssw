@@ -8,7 +8,7 @@
 class dso_hidden MaskedMeasurementTrackerEventProducer final : public edm::stream::EDProducer<> {
 public:
       explicit MaskedMeasurementTrackerEventProducer(const edm::ParameterSet &iConfig) ;
-      ~MaskedMeasurementTrackerEventProducer() {}
+      ~MaskedMeasurementTrackerEventProducer() override {}
 private:
       void produce(edm::Event&, const edm::EventSetup&) override;
 
@@ -18,17 +18,18 @@ private:
 
       edm::EDGetTokenT<MeasurementTrackerEvent> src_;
 
+      bool skipClusters_;
+      bool phase2skipClusters_;
+
       edm::EDGetTokenT<StripMask> maskStrips_;
       edm::EDGetTokenT<PixelMask> maskPixels_;
       edm::EDGetTokenT<Phase2OTMask> maskPhase2OTs_;
-
-      bool skipClusters_;
-      bool phase2skipClusters_;
 };
 
 
 MaskedMeasurementTrackerEventProducer::MaskedMeasurementTrackerEventProducer(const edm::ParameterSet &iConfig) :
-    src_(consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>("src")))
+    src_(consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>("src"))),
+    skipClusters_(false), phase2skipClusters_(false)
 {
     //FIXME:temporary solution in order to use this class for both phase0/1 and phase2
     if (iConfig.existsAs<edm::InputTag>("clustersToSkip")) {

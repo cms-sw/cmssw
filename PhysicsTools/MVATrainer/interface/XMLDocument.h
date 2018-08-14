@@ -54,8 +54,8 @@ class XMLDocument {
 
 	    private:
 		// do not make any kind of copies
-		XercesPlatform(const XercesPlatform &orig);
-		XercesPlatform &operator = (const XercesPlatform &orig);
+		XercesPlatform(const XercesPlatform &orig) = delete;
+		XercesPlatform &operator = (const XercesPlatform &orig) = delete;
 
 		static unsigned int instances;
 	};

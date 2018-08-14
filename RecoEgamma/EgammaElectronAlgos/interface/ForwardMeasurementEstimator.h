@@ -42,16 +42,16 @@ class ForwardMeasurementEstimator
      { theRMinI = rmin ; theRMaxI = rmax ; }
 
     // zero value indicates incompatible ts - hit pair
-    virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface & ts, const TrackingRecHit & hit ) const ;
+    std::pair<bool,double> estimate( const TrajectoryStateOnSurface & ts, const TrackingRecHit & hit ) const override ;
     virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface & ts, const GlobalPoint & gp ) const ;
     virtual std::pair<bool,double> estimate( const GlobalPoint & vprim, const TrajectoryStateOnSurface & ts, const GlobalPoint & gp ) const ;
-    virtual bool estimate( const TrajectoryStateOnSurface & ts, const BoundPlane & plane ) const ;
+    bool estimate( const TrajectoryStateOnSurface & ts, const BoundPlane & plane ) const override ;
 
-    virtual ForwardMeasurementEstimator* clone() const
+    ForwardMeasurementEstimator* clone() const override
      { return new ForwardMeasurementEstimator(*this) ; }
 
     MeasurementEstimator::Local2DVector
-    maximalLocalDisplacement( const TrajectoryStateOnSurface & ts, const BoundPlane & plane) const ;
+    maximalLocalDisplacement( const TrajectoryStateOnSurface & ts, const BoundPlane & plane) const override ;
 
   private :
 

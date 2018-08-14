@@ -55,15 +55,14 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
-#include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
+#include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 // To access kinks and bows 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h" 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 
 #include "CLHEP/Matrix/SymMatrix.h"
@@ -75,11 +74,11 @@
 class TrackerGeometryIntoNtuples : public edm::EDAnalyzer {
 public:
 	explicit TrackerGeometryIntoNtuples(const edm::ParameterSet&);
-	~TrackerGeometryIntoNtuples();
+	~TrackerGeometryIntoNtuples() override;
 	
 	
 private:
-	virtual void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
+	void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
 	
 	void addBranches();
 	
@@ -123,7 +122,7 @@ private:
 // constructors and destructor
 //
 TrackerGeometryIntoNtuples::TrackerGeometryIntoNtuples(const edm::ParameterSet& iConfig) :
-  theCurrentTracker(0),
+  theCurrentTracker(nullptr),
   m_rawid(0),
   m_x(0.), m_y(0.), m_z(0.),
   m_alpha(0.), m_beta(0.), m_gamma(0.),
@@ -132,7 +131,7 @@ TrackerGeometryIntoNtuples::TrackerGeometryIntoNtuples(const edm::ParameterSet& 
   m_dNpar(0), 
   m_d1(0.), m_d2(0.), m_d3(0.),
   m_dtype(0), 
-  mp_dpar(0)	
+  mp_dpar(nullptr)	
 {
 	m_outputFile = iConfig.getUntrackedParameter< std::string > ("outputFile");
 	m_outputTreename = iConfig.getUntrackedParameter< std::string > ("outputTreename");
@@ -166,7 +165,7 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
         const TrackerTopology* const tTopo = tTopoHandle.product();
 
 
-	edm::LogInfo("beginJob") << "Begin Job" << std::endl;
+	edm::LogInfo("beginJob") << "Begin Job";
 	
 	//accessing the initial geometry
 	edm::ESHandle<GeometricDet> theGeometricDet;

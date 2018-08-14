@@ -1,18 +1,17 @@
 #include "DetectorDescription/Parser/src/DDLRotationByAxis.h"
-
-#include <map>
-#include <utility>
-#include <vector>
-
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
-#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Core/interface/ClhepEvaluator.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Math/GenVector/RotationX.h"
 #include "Math/GenVector/RotationY.h"
 #include "Math/GenVector/RotationZ.h"
+
+#include <map>
+#include <utility>
+#include <vector>
 
 class DDCompactView;
 
@@ -21,14 +20,16 @@ DDLRotationByAxis::DDLRotationByAxis( DDLElementRegistry* myreg )
 {}
 
 void
-DDLRotationByAxis::preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
+DDLRotationByAxis::preProcessElement( const std::string& name, const std::string& nmspace,
+				      DDCompactView& cpv )
 {
   pNameSpace = nmspace;
   pName = name;
 }
 
 void
-DDLRotationByAxis::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
+DDLRotationByAxis::processElement( const std::string& name, const std::string& nmspace,
+				   DDCompactView& cpv )
 {
   DDXMLAttribute atts = getAttributeSet();
   if (parent() != "RotationSequence")
@@ -42,25 +43,20 @@ DDLRotationByAxis::processElement( const std::string& name, const std::string& n
     DDRotationMatrix* ddr = new DDRotationMatrix(R);
     if (atts.find("name") == atts.end())
     {
-      //how do we make up a ddname! damn_it!
-      //          DDXMLElement * myRealParent = DDLElementRegistry::instance()->getElement(parent());
-      DDXMLElement * myRealParent = myRegistry_->getElement(parent());
+      auto myRealParent = myRegistry_->getElement(parent());
       DDName pName = myRealParent->getDDName(nmspace);
       std::string tn = pName.name() + std::string("Rotation");
       std::vector<std::string> names;
-      names.push_back("name");
-      //no need, used already names.push_back("axis");
-      //no need, used already names.push_back("angle");
+      names.emplace_back("name");
 
       std::vector<std::string> values;
-      values.push_back(tn);
-      //no need, used already values.push_back(atts.find("axis")->second);
-      //no need, used already values.push_back(atts.find("angle")->second);
+      values.emplace_back(tn);
+
       clear();
       loadAttributes(name, names, values, nmspace, cpv);
     }
     DDRotation rot = DDrot(getDDName(nmspace), ddr);
-      
+    
     clear();
   }
   else { } //let the parent handle the clearing, etc.

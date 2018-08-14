@@ -31,8 +31,8 @@
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSectorProcessor.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMDataBuffer.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackSegLoc.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackSegPhi.h"
+#include "DataFormats/L1TMuon/interface/BMTF/L1MuBMTrackSegLoc.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhi.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMExtrapolationUnit.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMEUX.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMERS.h"
@@ -49,7 +49,7 @@ using namespace std;
 
 L1MuBMSEU::L1MuBMSEU(const L1MuBMSectorProcessor& sp, Extrapolation ext, unsigned int tsId) :
      m_sp(sp), m_ext(ext),
-     m_startTS_Id(tsId), m_startTS(0), m_EUXs(), m_ERS() {
+     m_startTS_Id(tsId), m_startTS(nullptr), m_EUXs(), m_ERS() {
 
   m_EUXs.reserve(12);
 
@@ -71,10 +71,10 @@ L1MuBMSEU::~L1MuBMSEU() {
   vector<L1MuBMEUX*>::iterator iter_eux;
   for ( iter_eux = m_EUXs.begin(); iter_eux != m_EUXs.end(); iter_eux++ ) {
     delete (*iter_eux);
-    *iter_eux = 0;
+    *iter_eux = nullptr;
   }
 
-  m_startTS = 0;
+  m_startTS = nullptr;
   m_EUXs.clear();
 
   delete m_ERS;
@@ -154,7 +154,7 @@ void L1MuBMSEU::run(const edm::EventSetup& c) {
 //
 void L1MuBMSEU::reset() {
 
-  m_startTS = 0;
+  m_startTS = nullptr;
   vector<L1MuBMEUX*>::iterator iter_eux;
   for ( iter_eux = m_EUXs.begin(); iter_eux != m_EUXs.end(); iter_eux++ ) {
     (*iter_eux)->reset();

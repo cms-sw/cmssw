@@ -1,6 +1,6 @@
 // -*- C++ -*
 //
-// Package:    IsolatedTracksNxN
+// Package:    IsolatedParticles
 // Class:      IsolatedTracksNxN
 // 
 /**\class IsolatedTracksNxN IsolatedTracksNxN.cc Calibration/IsolatedParticles/plugins/IsolatedTracksNxN.cc
@@ -16,56 +16,389 @@
 //
 //
 
-#include "DataFormats/TrackReco/interface/TrackBase.h"
-#include "Calibration/IsolatedParticles/plugins/IsolatedTracksNxN.h"
+// system include files
+#include <cmath>
+#include <map>
+#include <string>
+#include <vector>
 
+// user include files
+#include <Math/GenVector/VectorUtil.h>
+
+// root objects
+#include "TROOT.h"
+#include "TSystem.h"
+#include "TFile.h"
+#include "TH1F.h"
+#include "TH2F.h"
+#include "TProfile.h"
+#include "TDirectory.h"
+#include "TTree.h"
+
+#include "Calibration/IsolatedParticles/interface/CaloSimInfo.h"
 #include "Calibration/IsolatedParticles/interface/CaloPropagateTrack.h"
 #include "Calibration/IsolatedParticles/interface/ChargeIsolation.h"
+#include "Calibration/IsolatedParticles/interface/eECALMatrix.h"
+#include "Calibration/IsolatedParticles/interface/eHCALMatrix.h"
 #include "Calibration/IsolatedParticles/interface/eHCALMatrixExtra.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "Calibration/IsolatedParticles/interface/FindCaloHit.h"
+#include "Calibration/IsolatedParticles/interface/MatchingSimTrack.h"
+
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
+//L1 trigger Menus etc
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskTechTrigRcd.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+// muons and tracks
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
+#include "DataFormats/TrackReco/interface/HitPattern.h"
+// Vertices
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+// Calorimeters
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+// Trigger
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
+#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
+//L1 objects
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
+// Jets in the event
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/JetExtendedAssociation.h"
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+// TFile Service
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
+// ecal / hcal
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
+#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+#include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
+
+// SimHit + SimTrack
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+
+// track associator
+#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
+#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
+
+class IsolatedTracksNxN : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+
+public:
+  explicit IsolatedTracksNxN(const edm::ParameterSet&);
+  ~IsolatedTracksNxN() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  void   beginJob() override ;
+  void   analyze(const edm::Event&, const edm::EventSetup&) override;
+  void   endJob() override ;
+
+  void   printTrack(const reco::Track* pTrack);
+
+  void   bookHistograms();
+
+  double deltaPhi(double v1, double v2);
+  double deltaR(double eta1, double phi1, double eta2, double phi2);
+
+
+  void clearTreeVectors();  
+  
+private:
+
+  L1GtUtils                 m_l1GtUtils;
+  static constexpr size_t   nL1BitsMax=128;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
+
+  // map of trig bit, algo name and num events passed
+  std::map< std::pair<unsigned int,std::string>, int> l1AlgoMap_;
+  std::vector<unsigned int> m_triggerMaskAlgoTrig;
+
+  const bool                doMC_, writeAllTracks_;
+  const int                 myverbose_;
+  const double              pvTracksPtMin_;
+  const int                 debugTrks_;
+  const bool                printTrkHitPattern_;
+  const double              minTrackP_, maxTrackEta_;
+  const bool                debugL1Info_, L1TriggerAlgoInfo_;
+  const double              tMinE_, tMaxE_, tMinH_, tMaxH_;
+  bool                      initL1_;
+  int                       nEventProc_, nbad_;
+
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection>  tok_L1extTauJet_;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection>  tok_L1extCenJet_;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection>  tok_L1extFwdJet_;
+
+  edm::EDGetTokenT<l1extra::L1MuonParticleCollection> tok_L1extMu_;
+  edm::EDGetTokenT<l1extra::L1EmParticleCollection>   tok_L1extIsoEm_;
+  edm::EDGetTokenT<l1extra::L1EmParticleCollection>   tok_L1extNoIsoEm_;
+
+  edm::EDGetTokenT<reco::CaloJetCollection>           tok_jets_;
+  edm::EDGetTokenT<HBHERecHitCollection>              tok_hbhe_;
+
+  edm::EDGetTokenT<reco::TrackCollection>             tok_genTrack_;
+  edm::EDGetTokenT<reco::VertexCollection>            tok_recVtx_;
+  edm::EDGetTokenT<reco::BeamSpot>                    tok_bs_;
+
+  edm::EDGetTokenT<EcalRecHitCollection>              tok_EB_;
+  edm::EDGetTokenT<EcalRecHitCollection>              tok_EE_;
+  edm::EDGetTokenT<edm::SimTrackContainer>            tok_simTk_;
+  edm::EDGetTokenT<edm::SimVertexContainer>           tok_simVtx_;
+  edm::EDGetTokenT<edm::PCaloHitContainer>            tok_caloEB_;
+  edm::EDGetTokenT<edm::PCaloHitContainer>            tok_caloEE_;
+  edm::EDGetTokenT<edm::PCaloHitContainer>            tok_caloHH_;
+
+
+  static constexpr size_t   NPBins   = 15;
+  static constexpr size_t   NEtaBins = 3;
+  double                    genPartPBins[NPBins+1], genPartEtaBins[NEtaBins+1];
+  
+  TH1F                     *h_maxNearP15x15[NPBins][NEtaBins],
+                           *h_maxNearP21x21[NPBins][NEtaBins],
+                           *h_maxNearP25x25[NPBins][NEtaBins],
+                           *h_maxNearP31x31[NPBins][NEtaBins];
+  TH1I                     *h_L1AlgoNames;
+  TH1F                     *h_PVTracksWt;
+  TH1F                     *h_nTracks;
+  TH1F                     *h_recPt_0,    *h_recP_0,    *h_recEta_0, *h_recPhi_0;
+  TH2F                     *h_recEtaPt_0, *h_recEtaP_0;
+  TH1F                     *h_recPt_1,    *h_recP_1,    *h_recEta_1, *h_recPhi_1;
+  TH2F                     *h_recEtaPt_1, *h_recEtaP_1;
+  TH1F                     *h_recPt_2,    *h_recP_2,    *h_recEta_2, *h_recPhi_2;
+  TH2F                     *h_recEtaPt_2, *h_recEtaP_2;
+ 
+  TTree                    *tree_;
+
+  int                       t_nTracks;
+  int                       t_RunNo, t_EvtNo, t_Lumi, t_Bunch;
+  std::vector<std::string> *t_L1AlgoNames;
+  std::vector<int>         *t_L1PreScale;
+  int                       t_L1Decision[128];
+
+  std::vector<double>      *t_L1CenJetPt,    *t_L1CenJetEta,    *t_L1CenJetPhi;
+  std::vector<double>      *t_L1FwdJetPt,    *t_L1FwdJetEta,    *t_L1FwdJetPhi;
+  std::vector<double>      *t_L1TauJetPt,    *t_L1TauJetEta,    *t_L1TauJetPhi;
+  std::vector<double>      *t_L1MuonPt,      *t_L1MuonEta,      *t_L1MuonPhi;
+  std::vector<double>      *t_L1IsoEMPt,     *t_L1IsoEMEta,     *t_L1IsoEMPhi;
+  std::vector<double>      *t_L1NonIsoEMPt,  *t_L1NonIsoEMEta,  *t_L1NonIsoEMPhi;
+  std::vector<double>      *t_L1METPt,       *t_L1METEta,       *t_L1METPhi;
+
+  std::vector<double>      *t_PVx, *t_PVy, *t_PVz, *t_PVTracksSumPt;
+  std::vector<double>      *t_PVTracksSumPtWt, *t_PVTracksSumPtHP, *t_PVTracksSumPtHPWt;
+  std::vector<int>         *t_PVisValid, *t_PVNTracks, *t_PVNTracksWt, *t_PVndof;
+  std::vector<int>         *t_PVNTracksHP, *t_PVNTracksHPWt;
+
+  std::vector<double>      *t_jetPt,         *t_jetEta,         *t_jetPhi;
+  std::vector<double>      *t_nTrksJetCalo,  *t_nTrksJetVtx;
+
+  std::vector<double>      *t_trackPAll,     *t_trackEtaAll,    *t_trackPhiAll,  *t_trackPdgIdAll;
+  std::vector<double>      *t_trackPtAll;
+  std::vector<double>      *t_trackDxyAll,   *t_trackDzAll,     *t_trackDxyPVAll,*t_trackDzPVAll, *t_trackChiSqAll;
+
+  std::vector<double>      *t_trackP,        *t_trackPt,        *t_trackEta,      *t_trackPhi;
+  std::vector<double>      *t_trackEcalEta,  *t_trackEcalPhi,   *t_trackHcalEta,  *t_trackHcalPhi;   
+  std::vector<double>      *t_trackDxy,      *t_trackDxyBS,     *t_trackDz,       *t_trackDzBS;  
+  std::vector<double>      *t_trackDxyPV,    *t_trackDzPV;
+  std::vector<double>      *t_trackChiSq;
+  std::vector<int>         *t_trackPVIdx;
+
+  std::vector<int>         *t_NLayersCrossed,    *t_trackNOuterHits;
+  std::vector<int>         *t_trackHitsTOB,      *t_trackHitsTEC;
+  std::vector<int>         *t_trackHitInMissTOB, *t_trackHitInMissTEC,  *t_trackHitInMissTIB,  *t_trackHitInMissTID,  *t_trackHitInMissTIBTID;
+  std::vector<int>         *t_trackHitOutMissTOB,*t_trackHitOutMissTEC, *t_trackHitOutMissTIB, *t_trackHitOutMissTID, *t_trackHitOutMissTOBTEC;
+  std::vector<int>         *t_trackHitInMeasTOB, *t_trackHitInMeasTEC,  *t_trackHitInMeasTIB,  *t_trackHitInMeasTID;
+  std::vector<int>         *t_trackHitOutMeasTOB,*t_trackHitOutMeasTEC, *t_trackHitOutMeasTIB, *t_trackHitOutMeasTID;
+  std::vector<double>      *t_trackOutPosOutHitDr, *t_trackL;
+
+  std::vector<double>      *t_maxNearP31x31;
+  std::vector<double>      *t_maxNearP21x21;
+  std::vector<int>         *t_ecalSpike11x11;
+
+  std::vector<double>      *t_e7x7,       *t_e9x9,       *t_e11x11,       *t_e15x15;
+  std::vector<double>      *t_e7x7_10Sig, *t_e9x9_10Sig, *t_e11x11_10Sig, *t_e15x15_10Sig;
+  std::vector<double>      *t_e7x7_15Sig, *t_e9x9_15Sig, *t_e11x11_15Sig, *t_e15x15_15Sig;
+  std::vector<double>      *t_e7x7_20Sig, *t_e9x9_20Sig, *t_e11x11_20Sig, *t_e15x15_20Sig;
+  std::vector<double>      *t_e7x7_25Sig, *t_e9x9_25Sig, *t_e11x11_25Sig, *t_e15x15_25Sig;
+  std::vector<double>      *t_e7x7_30Sig, *t_e9x9_30Sig, *t_e11x11_30Sig, *t_e15x15_30Sig;
+
+  std::vector<double>      *t_esimPdgId,  *t_simTrackP,  *t_trkEcalEne;
+  std::vector<double>      *t_esim7x7,       *t_esim9x9,         *t_esim11x11,        *t_esim15x15;
+  std::vector<double>      *t_esim7x7Matched, *t_esim9x9Matched, *t_esim11x11Matched, *t_esim15x15Matched;
+  std::vector<double>      *t_esim7x7Rest,    *t_esim9x9Rest,    *t_esim11x11Rest,    *t_esim15x15Rest;
+  std::vector<double>      *t_esim7x7Photon,  *t_esim9x9Photon,  *t_esim11x11Photon,  *t_esim15x15Photon;
+  std::vector<double>      *t_esim7x7NeutHad, *t_esim9x9NeutHad, *t_esim11x11NeutHad, *t_esim15x15NeutHad;
+  std::vector<double>      *t_esim7x7CharHad, *t_esim9x9CharHad, *t_esim11x11CharHad, *t_esim15x15CharHad;
+
+  std::vector<double>      *t_maxNearHcalP3x3,   *t_maxNearHcalP5x5,   *t_maxNearHcalP7x7;
+  std::vector<double>      *t_h3x3,              *t_h5x5,              *t_h7x7;
+  std::vector<double>      *t_h3x3Sig,           *t_h5x5Sig,           *t_h7x7Sig;
+  std::vector<int>         *t_infoHcal;
+
+  std::vector<double>      *t_trkHcalEne;
+  std::vector<double>      *t_hsim3x3,           *t_hsim5x5,           *t_hsim7x7;
+  std::vector<double>      *t_hsim3x3Matched,    *t_hsim5x5Matched,    *t_hsim7x7Matched;
+  std::vector<double>      *t_hsim3x3Rest,       *t_hsim5x5Rest,       *t_hsim7x7Rest;
+  std::vector<double>      *t_hsim3x3Photon,     *t_hsim5x5Photon,     *t_hsim7x7Photon;
+  std::vector<double>      *t_hsim3x3NeutHad,    *t_hsim5x5NeutHad,    *t_hsim7x7NeutHad;
+  std::vector<double>      *t_hsim3x3CharHad,    *t_hsim5x5CharHad,    *t_hsim7x7CharHad;
+
+};
 
 static const bool useL1EventSetup(true);
 static const bool useL1GtTriggerMenuLite(true);
 
 IsolatedTracksNxN::IsolatedTracksNxN(const edm::ParameterSet& iConfig) :
   m_l1GtUtils(iConfig, consumesCollector(), useL1GtTriggerMenuLite, *this),
-  trackerHitAssociatorConfig_(consumesCollector()) {
+  trackerHitAssociatorConfig_(consumesCollector()),
+  doMC_(iConfig.getUntrackedParameter<bool>("doMC",false)),
+  writeAllTracks_(iConfig.getUntrackedParameter<bool>("writeAllTracks",false)), 
+  myverbose_(iConfig.getUntrackedParameter<int>("verbosity",5)),
+  pvTracksPtMin_(iConfig.getUntrackedParameter<double>("pvTracksPtMin",1.0)),
+  debugTrks_(iConfig.getUntrackedParameter<int>("debugTracks",0)),
+  printTrkHitPattern_(iConfig.getUntrackedParameter<bool>("printTrkHitPattern",false)),
+  minTrackP_(iConfig.getUntrackedParameter<double>("minTrackP",1.0)),
+  maxTrackEta_(iConfig.getUntrackedParameter<double>("maxTrackEta",5.0)),
+  debugL1Info_(iConfig.getUntrackedParameter<bool>("debugL1Info",false)),
+  L1TriggerAlgoInfo_(iConfig.getUntrackedParameter<bool>("l1TriggerAlgoInfo",false)),
+  tMinE_(iConfig.getUntrackedParameter<double>("timeMinCutECAL",-500.)),
+  tMaxE_(iConfig.getUntrackedParameter<double>("timeMaxCutECAL",500.)),
+  tMinH_(iConfig.getUntrackedParameter<double>("timeMinCutHCAL",-500.)),
+  tMaxH_(iConfig.getUntrackedParameter<double>("timeMaxCutHCAL",500.)),
+  t_L1AlgoNames(nullptr), t_L1PreScale(nullptr), t_L1CenJetPt(nullptr),
+  t_L1CenJetEta(nullptr), t_L1CenJetPhi(nullptr), t_L1FwdJetPt(nullptr),
+  t_L1FwdJetEta(nullptr), t_L1FwdJetPhi(nullptr), t_L1TauJetPt(nullptr),
+  t_L1TauJetEta(nullptr), t_L1TauJetPhi(nullptr), t_L1MuonPt(nullptr),
+  t_L1MuonEta(nullptr),   t_L1MuonPhi(nullptr),  t_L1IsoEMPt(nullptr),
+  t_L1IsoEMEta(nullptr),  t_L1IsoEMPhi(nullptr), t_L1NonIsoEMPt(nullptr),
+  t_L1NonIsoEMEta(nullptr), t_L1NonIsoEMPhi(nullptr), t_L1METPt(nullptr),
+  t_L1METEta(nullptr), t_L1METPhi(nullptr),t_PVx(nullptr), t_PVy(nullptr), 
+  t_PVz(nullptr), t_PVTracksSumPt(nullptr), t_PVTracksSumPtWt(nullptr), 
+  t_PVTracksSumPtHP(nullptr),t_PVTracksSumPtHPWt(nullptr),
+  t_PVisValid(nullptr), t_PVNTracks(nullptr), t_PVNTracksWt(nullptr),
+  t_PVndof(nullptr), t_PVNTracksHP(nullptr), t_PVNTracksHPWt(nullptr),
+  t_jetPt(nullptr), t_jetEta(nullptr), t_jetPhi(nullptr),
+  t_nTrksJetCalo(nullptr), t_nTrksJetVtx(nullptr), t_trackPAll(nullptr),
+  t_trackEtaAll(nullptr), t_trackPhiAll(nullptr), t_trackPdgIdAll(nullptr),
+  t_trackPtAll(nullptr),  t_trackDxyAll(nullptr), t_trackDzAll(nullptr),
+  t_trackDxyPVAll(nullptr), t_trackDzPVAll(nullptr), t_trackChiSqAll(nullptr),
+  t_trackP(nullptr), t_trackPt(nullptr), t_trackEta(nullptr), 
+  t_trackPhi(nullptr), t_trackEcalEta(nullptr), t_trackEcalPhi(nullptr),
+  t_trackHcalEta(nullptr), t_trackHcalPhi(nullptr), t_trackDxy(nullptr),
+  t_trackDxyBS(nullptr), t_trackDz(nullptr), t_trackDzBS(nullptr),
+  t_trackDxyPV(nullptr), t_trackDzPV(nullptr), t_trackChiSq(nullptr),
+  t_trackPVIdx(nullptr), t_NLayersCrossed(nullptr), t_trackNOuterHits(nullptr),
+  t_trackHitsTOB(nullptr), t_trackHitsTEC(nullptr),t_trackHitInMissTOB(nullptr),
+  t_trackHitInMissTEC(nullptr), t_trackHitInMissTIB(nullptr),
+  t_trackHitInMissTID(nullptr), t_trackHitInMissTIBTID(nullptr),
+  t_trackHitOutMissTOB(nullptr), t_trackHitOutMissTEC(nullptr),
+  t_trackHitOutMissTIB(nullptr), t_trackHitOutMissTID(nullptr),
+  t_trackHitOutMissTOBTEC(nullptr), t_trackHitInMeasTOB(nullptr),
+  t_trackHitInMeasTEC(nullptr), t_trackHitInMeasTIB(nullptr),
+  t_trackHitInMeasTID(nullptr), t_trackHitOutMeasTOB(nullptr),
+  t_trackHitOutMeasTEC(nullptr), t_trackHitOutMeasTIB(nullptr),
+  t_trackHitOutMeasTID(nullptr), t_trackOutPosOutHitDr(nullptr),
+  t_trackL(nullptr), t_maxNearP31x31(nullptr), t_maxNearP21x21(nullptr),
+  t_ecalSpike11x11(nullptr), t_e7x7(nullptr), t_e9x9(nullptr),
+  t_e11x11(nullptr),  t_e15x15(nullptr), t_e7x7_10Sig(nullptr),
+  t_e9x9_10Sig(nullptr), t_e11x11_10Sig(nullptr), t_e15x15_10Sig(nullptr),
+  t_e7x7_15Sig(nullptr), t_e9x9_15Sig(nullptr), t_e11x11_15Sig(nullptr),
+  t_e15x15_15Sig(nullptr), t_e7x7_20Sig(nullptr), t_e9x9_20Sig(nullptr),
+  t_e11x11_20Sig(nullptr), t_e15x15_20Sig(nullptr), t_e7x7_25Sig(nullptr),
+  t_e9x9_25Sig(nullptr), t_e11x11_25Sig(nullptr), t_e15x15_25Sig(nullptr),
+  t_e7x7_30Sig(nullptr), t_e9x9_30Sig(nullptr), t_e11x11_30Sig(nullptr),
+  t_e15x15_30Sig(nullptr), t_esimPdgId(nullptr), t_simTrackP(nullptr),
+  t_trkEcalEne(nullptr), t_esim7x7(nullptr), t_esim9x9(nullptr),
+  t_esim11x11(nullptr), t_esim15x15(nullptr), t_esim7x7Matched(nullptr),
+  t_esim9x9Matched(nullptr), t_esim11x11Matched(nullptr),
+  t_esim15x15Matched(nullptr), t_esim7x7Rest(nullptr), t_esim9x9Rest(nullptr),
+  t_esim11x11Rest(nullptr), t_esim15x15Rest(nullptr), t_esim7x7Photon(nullptr),
+  t_esim9x9Photon(nullptr), t_esim11x11Photon (nullptr), 
+  t_esim15x15Photon(nullptr), t_esim7x7NeutHad(nullptr),
+  t_esim9x9NeutHad(nullptr), t_esim11x11NeutHad(nullptr),
+  t_esim15x15NeutHad(nullptr), t_esim7x7CharHad(nullptr),
+  t_esim9x9CharHad(nullptr), t_esim11x11CharHad(nullptr),
+  t_esim15x15CharHad(nullptr), t_maxNearHcalP3x3 (nullptr),
+  t_maxNearHcalP5x5(nullptr), t_maxNearHcalP7x7(nullptr),
+  t_h3x3(nullptr), t_h5x5(nullptr), t_h7x7(nullptr), t_h3x3Sig(nullptr),
+  t_h5x5Sig(nullptr), t_h7x7Sig(nullptr), t_infoHcal(nullptr),
+  t_trkHcalEne(nullptr), t_hsim3x3(nullptr), t_hsim5x5(nullptr),
+  t_hsim7x7(nullptr), t_hsim3x3Matched(nullptr), t_hsim5x5Matched(nullptr),
+  t_hsim7x7Matched(nullptr), t_hsim3x3Rest(nullptr), t_hsim5x5Rest(nullptr),
+  t_hsim7x7Rest(nullptr), t_hsim3x3Photon(nullptr), t_hsim5x5Photon(nullptr),
+  t_hsim7x7Photon(nullptr), t_hsim3x3NeutHad(nullptr),t_hsim5x5NeutHad(nullptr),
+  t_hsim7x7NeutHad(nullptr), t_hsim3x3CharHad(nullptr), 
+  t_hsim5x5CharHad(nullptr), t_hsim7x7CharHad(nullptr) {
+
+  usesResource(TFileService::kSharedResource);
 
   //now do what ever initialization is needed
-  doMC                   = iConfig.getUntrackedParameter<bool>  ("DoMC", false); 
-  writeAllTracks         = iConfig.getUntrackedParameter<bool>  ("WriteAllTracks", false ); 
-  myverbose_             = iConfig.getUntrackedParameter<int>   ("Verbosity", 5          );
-  pvTracksPtMin_         = iConfig.getUntrackedParameter<double>("PVTracksPtMin", 1.0    );
-  debugTrks_             = iConfig.getUntrackedParameter<int>   ("DebugTracks"           );
-  printTrkHitPattern_    = iConfig.getUntrackedParameter<bool>  ("PrintTrkHitPattern"    );
-  minTrackP_             = iConfig.getUntrackedParameter<double>("minTrackP", 1.0        );
-  maxTrackEta_           = iConfig.getUntrackedParameter<double>("maxTrackEta", 5.0      );
-  debugL1Info_           = iConfig.getUntrackedParameter<bool>  ("DebugL1Info", false    );
-  L1TriggerAlgoInfo_     = iConfig.getUntrackedParameter<bool>  ("L1TriggerAlgoInfo");
-  tMinE_                 = iConfig.getUntrackedParameter<double>("TimeMinCutECAL", -500.);
-  tMaxE_                 = iConfig.getUntrackedParameter<double>("TimeMaxCutECAL",  500.);
-  tMinH_                 = iConfig.getUntrackedParameter<double>("TimeMinCutHCAL", -500.);
-  tMaxH_                 = iConfig.getUntrackedParameter<double>("TimeMaxCutHCAL",  500.);
 
-  edm::InputTag L1extraTauJetSource_   = iConfig.getParameter<edm::InputTag>  ("L1extraTauJetSource"   );
-  edm::InputTag L1extraCenJetSource_   = iConfig.getParameter<edm::InputTag>  ("L1extraCenJetSource"   );
-  edm::InputTag L1extraFwdJetSource_   = iConfig.getParameter<edm::InputTag>  ("L1extraFwdJetSource"   );
-  edm::InputTag L1extraMuonSource_     = iConfig.getParameter<edm::InputTag>  ("L1extraMuonSource"     );
-  edm::InputTag L1extraIsoEmSource_    = iConfig.getParameter<edm::InputTag>  ("L1extraIsoEmSource"    );
-  edm::InputTag L1extraNonIsoEmSource_ = iConfig.getParameter<edm::InputTag>  ("L1extraNonIsoEmSource" );
-  edm::InputTag L1GTReadoutRcdSource_  = iConfig.getParameter<edm::InputTag>  ("L1GTReadoutRcdSource"  );
-  edm::InputTag L1GTObjectMapRcdSource_= iConfig.getParameter<edm::InputTag>  ("L1GTObjectMapRcdSource");
-  edm::InputTag JetSrc_                = iConfig.getParameter<edm::InputTag>  ("JetSource");
-  edm::InputTag JetExtender_           = iConfig.getParameter<edm::InputTag>  ("JetExtender");
-  edm::InputTag HBHERecHitSource_      = iConfig.getParameter<edm::InputTag>  ("HBHERecHitSource");
+  edm::InputTag L1extraTauJetSource_   = iConfig.getParameter<edm::InputTag>("l1extraTauJetSource"   );
+  edm::InputTag L1extraCenJetSource_   = iConfig.getParameter<edm::InputTag>("l1extraCenJetSource"   );
+  edm::InputTag L1extraFwdJetSource_   = iConfig.getParameter<edm::InputTag>("l1extraFwdJetSource"   );
+  edm::InputTag L1extraMuonSource_     = iConfig.getParameter<edm::InputTag>("l1extraMuonSource"     );
+  edm::InputTag L1extraIsoEmSource_    = iConfig.getParameter<edm::InputTag>("l1extraIsoEmSource"    );
+  edm::InputTag L1extraNonIsoEmSource_ = iConfig.getParameter<edm::InputTag>("l1extraNonIsoEmSource" );
+  edm::InputTag L1GTReadoutRcdSource_  = iConfig.getParameter<edm::InputTag>("l1GTReadoutRcdSource"  );
+  edm::InputTag L1GTObjectMapRcdSource_= iConfig.getParameter<edm::InputTag>("l1GTObjectMapRcdSource");
+  edm::InputTag JetSrc_                = iConfig.getParameter<edm::InputTag>("jetSource");
+  edm::InputTag JetExtender_           = iConfig.getParameter<edm::InputTag>("jetExtender");
+  edm::InputTag HBHERecHitSource_      = iConfig.getParameter<edm::InputTag>("hbheRecHitSource");
 
   // define tokens for access
   tok_L1extTauJet_  = consumes<l1extra::L1JetParticleCollection>(L1extraTauJetSource_);
@@ -88,53 +421,259 @@ IsolatedTracksNxN::IsolatedTracksNxN(const edm::ParameterSet& iConfig) :
   tok_caloEB_       = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalHitsEB"));
   tok_caloEE_       = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalHitsEE"));
   tok_caloHH_       = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "HcalHits"));
-  nbad              = 0;
 
-  if(myverbose_>=0) {
-    std::cout <<"Parameters read from config file \n" 
-	      <<" doMC         "               << doMC
-	      <<"\t myverbose_ "               << myverbose_        
-	      <<"\t minTrackP_ "               << minTrackP_     
-	      << "\t maxTrackEta_ "            << maxTrackEta_
-	      << "\t tMinE_ "                  << tMinE_
-	      << "\t tMaxE_ "                  << tMaxE_
-	      << "\t tMinH_ "                  << tMinH_
-	      << "\t tMaxH_ "                  << tMaxH_
-	      << "\n debugL1Info_ "            << debugL1Info_  
-	      << "\t L1TriggerAlgoInfo_ "      << L1TriggerAlgoInfo_
-	      << "\n" << std::endl;
+  if (myverbose_>=0) {
+    edm::LogVerbatim("IsoTrack") <<"Parameters read from config file \n" 
+				 <<" doMC        "          << doMC_
+				 <<"\t myverbose "          << myverbose_
+				 <<"\t minTrackP "          << minTrackP_
+				 << "\t maxTrackEta "       << maxTrackEta_
+				 << "\t tMinE "             << tMinE_
+				 << "\t tMaxE "             << tMaxE_
+				 << "\t tMinH "             << tMinH_
+				 << "\t tMaxH "             << tMaxH_
+				 << "\n debugL1Info "       << debugL1Info_
+				 << "\t L1TriggerAlgoInfo " << L1TriggerAlgoInfo_
+				 << "\n";
   }
-
-  initL1 = false;
-
 }
 
 IsolatedTracksNxN::~IsolatedTracksNxN() {
+  delete t_PVx;
+  delete t_PVy;
+  delete t_PVz;
+  delete t_PVisValid;
+  delete t_PVndof;
+  delete t_PVNTracks;
+  delete t_PVNTracksWt;
+  delete t_PVTracksSumPt;
+  delete t_PVTracksSumPtWt;
+  delete t_PVNTracksHP;
+  delete t_PVNTracksHPWt;
+  delete t_PVTracksSumPtHP;
+  delete t_PVTracksSumPtHPWt;
+  delete t_L1AlgoNames;
+  delete t_L1PreScale;
+  delete t_L1CenJetPt;
+  delete t_L1CenJetEta;    
+  delete t_L1CenJetPhi;
+  delete t_L1FwdJetPt;
+  delete t_L1FwdJetEta;
+  delete t_L1FwdJetPhi;
+  delete t_L1TauJetPt;
+  delete t_L1TauJetEta;     
+  delete t_L1TauJetPhi;
+  delete t_L1MuonPt;
+  delete t_L1MuonEta;     
+  delete t_L1MuonPhi;
+  delete t_L1IsoEMPt;
+  delete t_L1IsoEMEta;
+  delete t_L1IsoEMPhi;
+  delete t_L1NonIsoEMPt;
+  delete t_L1NonIsoEMEta;
+  delete t_L1NonIsoEMPhi;
+  delete t_L1METPt;
+  delete t_L1METEta;
+  delete t_L1METPhi;
+  delete t_jetPt;
+  delete t_jetEta;
+  delete t_jetPhi;
+  delete t_nTrksJetCalo;
+  delete t_nTrksJetVtx;
+  delete t_trackPAll;
+  delete t_trackEtaAll;
+  delete t_trackPhiAll;
+  delete t_trackPdgIdAll;
+  delete t_trackPtAll;
+  delete t_trackDxyAll;
+  delete t_trackDzAll;
+  delete t_trackDxyPVAll;
+  delete t_trackDzPVAll;
+  delete t_trackChiSqAll;
+  delete t_trackP;
+  delete t_trackPt;
+  delete t_trackEta;
+  delete t_trackPhi;
+  delete t_trackEcalEta;
+  delete t_trackEcalPhi;
+  delete t_trackHcalEta;
+  delete t_trackHcalPhi;
+  delete t_trackNOuterHits;
+  delete t_NLayersCrossed;
+  delete t_trackDxy;
+  delete t_trackDxyBS;
+  delete t_trackDz;
+  delete t_trackDzBS;
+  delete t_trackDxyPV;
+  delete t_trackDzPV;
+  delete t_trackPVIdx;
+  delete t_trackChiSq;
+  delete t_trackHitsTOB;
+  delete t_trackHitsTEC;
+  delete t_trackHitInMissTOB;
+  delete t_trackHitInMissTEC;
+  delete t_trackHitInMissTIB;
+  delete t_trackHitInMissTID;
+  delete t_trackHitOutMissTOB;
+  delete t_trackHitOutMissTEC;
+  delete t_trackHitOutMissTIB;
+  delete t_trackHitOutMissTID;
+  delete t_trackHitInMissTIBTID;
+  delete t_trackHitOutMissTOB;
+  delete t_trackHitOutMissTEC;
+  delete t_trackHitOutMissTIB;
+  delete t_trackHitOutMissTID;
+  delete t_trackHitOutMissTOBTEC;
+  delete t_trackHitInMeasTOB;
+  delete t_trackHitInMeasTEC;
+  delete t_trackHitInMeasTIB;
+  delete t_trackHitInMeasTID;
+  delete t_trackHitOutMeasTOB;
+  delete t_trackHitOutMeasTEC;
+  delete t_trackHitOutMeasTIB;
+  delete t_trackHitOutMeasTID;
+  delete t_trackOutPosOutHitDr;
+  delete t_trackL;
+  delete t_maxNearP31x31;
+  delete t_maxNearP21x21;
+  delete t_ecalSpike11x11;
+  delete t_e7x7;
+  delete t_e9x9;
+  delete t_e11x11;
+  delete t_e15x15;
+  delete t_e7x7_10Sig;
+  delete t_e9x9_10Sig;
+  delete t_e11x11_10Sig;
+  delete t_e15x15_10Sig;
+  delete t_e7x7_15Sig;
+  delete t_e9x9_15Sig;
+  delete t_e11x11_15Sig;
+  delete t_e15x15_15Sig;
+  delete t_e7x7_20Sig;
+  delete t_e9x9_20Sig;
+  delete t_e11x11_20Sig;
+  delete t_e15x15_20Sig;
+  delete t_e7x7_25Sig;
+  delete t_e9x9_25Sig;
+  delete t_e11x11_25Sig;
+  delete t_e15x15_25Sig;
+  delete t_e7x7_30Sig;
+  delete t_e9x9_30Sig;
+  delete t_e11x11_30Sig;
+  delete t_e15x15_30Sig;
+  delete t_esim7x7;
+  delete t_esim9x9;
+  delete t_esim11x11;
+  delete t_esim15x15;
+  delete t_esim7x7Matched;
+  delete t_esim9x9Matched;
+  delete t_esim11x11Matched;
+  delete t_esim15x15Matched;
+  delete t_esim7x7Rest;
+  delete t_esim9x9Rest;
+  delete t_esim11x11Rest;
+  delete t_esim15x15Rest;
+  delete t_esim7x7Photon;
+  delete t_esim9x9Photon;
+  delete t_esim11x11Photon;
+  delete t_esim15x15Photon;
+  delete t_esim7x7NeutHad;
+  delete t_esim9x9NeutHad;
+  delete t_esim11x11NeutHad;
+  delete t_esim15x15NeutHad;
+  delete t_esim7x7CharHad;
+  delete t_esim9x9CharHad;
+  delete t_esim11x11CharHad;
+  delete t_esim15x15CharHad;
+  delete t_trkEcalEne;
+  delete t_simTrackP;
+  delete t_esimPdgId;
+  delete t_maxNearHcalP3x3;
+  delete t_maxNearHcalP5x5;
+  delete t_maxNearHcalP7x7;
+  delete t_h3x3;
+  delete t_h5x5;
+  delete t_h7x7;
+  delete t_h3x3Sig;
+  delete t_h5x5Sig;
+  delete t_h7x7Sig;
+  delete t_infoHcal;
+  delete t_trkHcalEne;
+  delete t_hsim3x3;
+  delete t_hsim5x5;
+  delete t_hsim7x7;
+  delete t_hsim3x3Matched;
+  delete t_hsim5x5Matched;
+  delete t_hsim7x7Matched;
+  delete t_hsim3x3Rest;
+  delete t_hsim5x5Rest;
+  delete t_hsim7x7Rest;
+  delete t_hsim3x3Photon;
+  delete t_hsim5x5Photon;
+  delete t_hsim7x7Photon;
+  delete t_hsim3x3NeutHad;
+  delete t_hsim5x5NeutHad;
+  delete t_hsim7x7NeutHad;
+  delete t_hsim3x3CharHad;
+  delete t_hsim5x5CharHad;
+  delete t_hsim7x7CharHad;
+}
+
+void IsolatedTracksNxN::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<bool>("doMC",                  false);
+  desc.addUntracked<bool>("writeAllTracks",        false);
+  desc.addUntracked<int>("verbosity",              1);
+  desc.addUntracked<double>("pvTracksPtMin",       0.200);
+  desc.addUntracked<int>("debugTracks",            0);
+  desc.addUntracked<bool>("printTrkHitPattern",    true);
+  desc.addUntracked<double>("minTrackP",           1.0);
+  desc.addUntracked<double>("maxTrackEta",         2.6);
+  desc.addUntracked<bool>("debugL1Info",           false);
+  desc.addUntracked<bool>("l1TriggerAlgoInfo",     false);
+  desc.add<edm::InputTag>("l1extraTauJetSource",   edm::InputTag("l1extraParticles","Tau"));
+  desc.add<edm::InputTag>("l1extraCenJetSource",   edm::InputTag("l1extraParticles","Central"));
+  desc.add<edm::InputTag>("l1extraFwdJetSource",   edm::InputTag("l1extraParticles","Forward"));
+  desc.add<edm::InputTag>("l1extraMuonSource",     edm::InputTag("l1extraParticles"));
+  desc.add<edm::InputTag>("l1extraIsoEmSource",    edm::InputTag("l1extraParticles","Isolated"));
+  desc.add<edm::InputTag>("l1extraNonIsoEmSource", edm::InputTag("l1extraParticles","NonIsolated"));
+  desc.add<edm::InputTag>("l1GTReadoutRcdSource",  edm::InputTag("gtDigis"));
+  desc.add<edm::InputTag>("l1GTObjectMapRcdSource",edm::InputTag("hltL1GtObjectMap"));
+  desc.add<edm::InputTag>("jetSource",             edm::InputTag("iterativeCone5CaloJets"));
+  desc.add<edm::InputTag>("jetExtender",           edm::InputTag("iterativeCone5JetExtender"));
+  desc.add<edm::InputTag>("hbheRecHitSource",      edm::InputTag("hbhereco"));
+  desc.addUntracked<double>("maxNearTrackPT",      1.0);
+  desc.addUntracked<double>("timeMinCutECAL",     -500.0);
+  desc.addUntracked<double>("timeMaxCutECAL",      500.0);
+  desc.addUntracked<double>("timeMinCutHCAL",     -500.0);
+  desc.addUntracked<double>("timeMaxCutHCAL",      500.0);
+  descriptions.add("isolatedTracksNxN",desc);
 }
 
 void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
+  
   bool haveIsoTrack=false;  
 
   edm::ESHandle<MagneticField> bFieldH;
   iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
-  bField = bFieldH.product();
-
+  const MagneticField* bField = bFieldH.product();
+  
   clearTreeVectors();
-
+  
   t_RunNo = iEvent.id().run();
   t_EvtNo = iEvent.id().event();
   t_Lumi  = iEvent.luminosityBlock();
   t_Bunch = iEvent.bunchCrossing();
-
-  nEventProc++;
+  
+  ++nEventProc_;
 
   edm::Handle<reco::TrackCollection> trkCollection;
   iEvent.getByToken(tok_genTrack_, trkCollection);
-  reco::TrackCollection::const_iterator trkItr;
-  if(debugTrks_>1){
-    std::cout << "Track Collection: " << std::endl;
-    std::cout << "Number of Tracks " << trkCollection->size() << std::endl;
+  if (debugTrks_>1) {
+    edm::LogVerbatim("IsoTrack") << "Track Collection: ";
+    edm::LogVerbatim("IsoTrack") << "Number of Tracks " 
+				 << trkCollection->size();
   }
   std::string theTrackQuality = "highPurity";
   reco::TrackBase::TrackQuality trackQuality_=reco::TrackBase::qualityByName(theTrackQuality);
@@ -143,33 +682,34 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
   if( L1TriggerAlgoInfo_ ) {
 
     m_l1GtUtils.getL1GtRunCache(iEvent, iSetup, useL1EventSetup, useL1GtTriggerMenuLite);
-
+    
     int iErrorCode = -1;
     int l1ConfCode = -1;
     const bool l1Conf = m_l1GtUtils.availableL1Configuration(iErrorCode, l1ConfCode);
     if( !l1Conf) { 
-      std::cout << "\nL1 configuration code:" << l1ConfCode
-		<< "\nNo valid L1 trigger configuration available."
-		<< "\nSee text above for error code interpretation"
-		<< "\nNo return here, in order to test each method, protected against configuration error."
-		<< std::endl;
+      edm::LogVerbatim("IsoTrack") << "\nL1 configuration code:" << l1ConfCode
+				   << "\nNo valid L1 trigger configuration available."
+				   << "\nSee text above for error code interpretation"
+				   << "\nNo return here, in order to test each method, protected against configuration error.";
     }
 
     const L1GtTriggerMenu* m_l1GtMenu   = m_l1GtUtils.ptrL1TriggerMenuEventSetup(iErrorCode);
     const AlgorithmMap&    algorithmMap = m_l1GtMenu->gtAlgorithmMap();
     const std::string&     menuName     = m_l1GtMenu->gtTriggerMenuName();
 
-    if (!initL1) {
-      initL1=true;
-      std::cout << "menuName " << menuName << std::endl;
+    if (!initL1_) {
+      initL1_=true;
+      edm::LogVerbatim("IsoTrack") << "menuName " << menuName;
       for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
 	std::string algName = itAlgo->first;
 	int algBitNumber = ( itAlgo->second ).algoBitNumber();
-	l1AlgoMap.insert( std::pair<std::pair<unsigned int,std::string>,int>( std::pair<unsigned int,std::string>(algBitNumber, algName) , 0) ) ;
+	l1AlgoMap_.insert( std::pair<std::pair<unsigned int,std::string>,int>( std::pair<unsigned int,std::string>(algBitNumber, algName) , 0) ) ;
       }
       std::map< std::pair<unsigned int,std::string>, int>::iterator itr;
-      for(itr=l1AlgoMap.begin(); itr!=l1AlgoMap.end(); itr++) {
-	std::cout << " ********** " << (itr->first).first <<" "<<(itr->first).second <<" "<<itr->second << std::endl;
+      for(itr=l1AlgoMap_.begin(); itr!=l1AlgoMap_.end(); itr++) {
+	edm::LogVerbatim("IsoTrack") << " ********** " << (itr->first).first 
+				     << " " << (itr->first).second << " "
+				     << itr->second;
       }
     }
 
@@ -181,8 +721,8 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
       int  preScale            = m_l1GtUtils.prescaleFactor    (iEvent, itAlgo->first, iErrorCode);
     
       // save the algo names which fired
-      if( decision ){
-	l1AlgoMap[std::pair<unsigned int,std::string>(algBitNumber, algName)] += 1;
+      if (decision) {
+	l1AlgoMap_[std::pair<unsigned int,std::string>(algBitNumber, algName)] += 1;
 	h_L1AlgoNames->Fill( algBitNumber );
 	t_L1AlgoNames->push_back(itAlgo->first); 
 	t_L1PreScale->push_back(preScale);
@@ -191,14 +731,15 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
       }
     }
 
-    if(debugL1Info_) {
+    if (debugL1Info_) {
       for(unsigned int ii=0; ii<t_L1AlgoNames->size(); ii++){
-	std::cout<<ii<<" "<<(*t_L1AlgoNames)[ii]<<" "<<(*t_L1PreScale)[ii]<<" "<<algbits[ii]<<std::endl;
+	edm::LogVerbatim("IsoTrack") << ii << " " << (*t_L1AlgoNames)[ii] << " "
+				     << (*t_L1PreScale)[ii] << " " 
+				     << algbits[ii];
       }
-      std::cout << "L1Decision: ";
       for (int i=0; i<128; ++i) {
-	std::cout << " " << i << ":" << t_L1Decision[i];
-	if ((i+1)%32 == 0) std::cout << std::endl;
+	edm::LogVerbatim("IsoTrack") << "L1Decision: " << i << ":" 
+				     << t_L1Decision[i];
       }
     }
 
@@ -207,48 +748,48 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
     iEvent.getByToken(tok_L1extTauJet_,l1TauHandle);
     l1extra::L1JetParticleCollection::const_iterator itr;
     int iL1Obj=0;
-    for(itr = l1TauHandle->begin(),iL1Obj=0; itr != l1TauHandle->end(); ++itr,iL1Obj++) {    
-      if(iL1Obj<1) {
+    for (itr = l1TauHandle->begin(),iL1Obj=0; itr != l1TauHandle->end(); ++itr,iL1Obj++) {    
+      if (iL1Obj<1) {
 	t_L1TauJetPt      ->push_back( itr->pt() );
 	t_L1TauJetEta     ->push_back( itr->eta() );
 	t_L1TauJetPhi     ->push_back( itr->phi() );
       }
-      if(debugL1Info_) {
-	std::cout << "tauJ p/pt  " << itr->momentum() << " " << itr->pt() 
-		  << "  eta/phi " << itr->eta() << " " << itr->phi()
-		  << std::endl;
+      if (debugL1Info_) {
+	edm::LogVerbatim("IsoTrack") << "tauJ p/pt  " << itr->momentum() << " "
+				     << itr->pt() << "  eta/phi " << itr->eta()
+				     << " " << itr->phi();
       }
     }
 
     // L1 Central Jets
     edm::Handle<l1extra::L1JetParticleCollection> l1CenJetHandle;
     iEvent.getByToken(tok_L1extCenJet_,l1CenJetHandle);
-    for( itr = l1CenJetHandle->begin(),iL1Obj=0;  itr != l1CenJetHandle->end(); ++itr,iL1Obj++ ) {
-      if(iL1Obj<1) {
+    for (itr = l1CenJetHandle->begin(),iL1Obj=0;  itr != l1CenJetHandle->end(); ++itr,iL1Obj++) {
+      if (iL1Obj<1) {
 	t_L1CenJetPt    ->push_back( itr->pt() );
 	t_L1CenJetEta   ->push_back( itr->eta() );
 	t_L1CenJetPhi   ->push_back( itr->phi() );
       }
-      if(debugL1Info_) {
-	std::cout << "cenJ p/pt     " << itr->momentum() << " " << itr->pt() 
-		  << "  eta/phi " << itr->eta() << " " << itr->phi()
-		  << std::endl;
+      if (debugL1Info_) {
+	edm::LogVerbatim("IsoTrack") << "cenJ p/pt     " << itr->momentum()
+				     << " " << itr->pt() << "  eta/phi " 
+				     << itr->eta() << " " << itr->phi();
       }
     }
-  
+    
     // L1 Forward Jets
     edm::Handle<l1extra::L1JetParticleCollection> l1FwdJetHandle;
     iEvent.getByToken(tok_L1extFwdJet_,l1FwdJetHandle);
-    for( itr = l1FwdJetHandle->begin(),iL1Obj=0;  itr != l1FwdJetHandle->end(); ++itr,iL1Obj++ ) {
-      if(iL1Obj<1) {
+    for (itr = l1FwdJetHandle->begin(),iL1Obj=0;  itr != l1FwdJetHandle->end(); ++itr,iL1Obj++) {
+      if (iL1Obj<1) {
 	t_L1FwdJetPt    ->push_back( itr->pt() );
 	t_L1FwdJetEta   ->push_back( itr->eta() );
 	t_L1FwdJetPhi   ->push_back( itr->phi() );
       }
-      if(debugL1Info_) {
-	std::cout << "fwdJ p/pt     " << itr->momentum() << " " << itr->pt() 
-		  << "  eta/phi " << itr->eta() << " " << itr->phi()
-		  << std::endl;
+      if (debugL1Info_) {
+	edm::LogVerbatim("IsoTrack") << "fwdJ p/pt     " << itr->momentum()
+				     << " " << itr->pt() << "  eta/phi " 
+				     << itr->eta() << " " << itr->phi();
       }
     }
 
@@ -256,32 +797,32 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
     l1extra::L1EmParticleCollection::const_iterator itrEm;
     edm::Handle<l1extra::L1EmParticleCollection> l1IsoEmHandle ;
     iEvent.getByToken(tok_L1extIsoEm_, l1IsoEmHandle);
-    for( itrEm = l1IsoEmHandle->begin(),iL1Obj=0;  itrEm != l1IsoEmHandle->end(); ++itrEm,iL1Obj++ ) {
-      if(iL1Obj<1) {
+    for (itrEm = l1IsoEmHandle->begin(),iL1Obj=0;  itrEm != l1IsoEmHandle->end(); ++itrEm,iL1Obj++) {
+      if (iL1Obj<1) {
 	t_L1IsoEMPt     ->push_back(  itrEm->pt() );
 	t_L1IsoEMEta    ->push_back(  itrEm->eta() );
 	t_L1IsoEMPhi    ->push_back(  itrEm->phi() );
       }
-      if(debugL1Info_) {
-	std::cout << "isoEm p/pt    " << itrEm->momentum() << " " << itrEm->pt()
-		  << "  eta/phi " << itrEm->eta() << " " << itrEm->phi()
-		  << std::endl;
+      if (debugL1Info_) {
+	edm::LogVerbatim("IsoTrack") << "isoEm p/pt    " << itrEm->momentum()
+				     << " " << itrEm->pt() << "  eta/phi "
+				     << itrEm->eta() << " " << itrEm->phi();
       }
     }
   
     // L1 Non-Isolated EM onjects
     edm::Handle<l1extra::L1EmParticleCollection> l1NonIsoEmHandle ;
     iEvent.getByToken(tok_L1extNoIsoEm_, l1NonIsoEmHandle);
-    for( itrEm = l1NonIsoEmHandle->begin(),iL1Obj=0;  itrEm != l1NonIsoEmHandle->end(); ++itrEm,iL1Obj++ ) {
-      if(iL1Obj<1) {
+    for (itrEm = l1NonIsoEmHandle->begin(),iL1Obj=0;  itrEm != l1NonIsoEmHandle->end(); ++itrEm,iL1Obj++) {
+      if (iL1Obj<1) {
 	t_L1NonIsoEMPt  ->push_back( itrEm->pt() );
 	t_L1NonIsoEMEta ->push_back( itrEm->eta() );
 	t_L1NonIsoEMPhi ->push_back( itrEm->phi() );
       }
-      if(debugL1Info_) {
-	std::cout << "nonIsoEm p/pt " << itrEm->momentum() << " " << itrEm->pt()
-		  << "  eta/phi " << itrEm->eta() << " " << itrEm->phi()
-		  << std::endl;
+      if (debugL1Info_) {
+	edm::LogVerbatim("IsoTrack") << "nonIsoEm p/pt " << itrEm->momentum()
+				     << " " << itrEm->pt() << "  eta/phi " 
+				     << itrEm->eta() << " " << itrEm->phi();
       }
     }
   
@@ -289,16 +830,16 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
     l1extra::L1MuonParticleCollection::const_iterator itrMu;
     edm::Handle<l1extra::L1MuonParticleCollection> l1MuHandle ;
     iEvent.getByToken(tok_L1extMu_, l1MuHandle);
-    for( itrMu = l1MuHandle->begin(),iL1Obj=0;  itrMu != l1MuHandle->end(); ++itrMu,iL1Obj++ ) {
-      if(iL1Obj<1) {
+    for (itrMu = l1MuHandle->begin(),iL1Obj=0;  itrMu != l1MuHandle->end(); ++itrMu,iL1Obj++) {
+      if (iL1Obj<1) {
 	t_L1MuonPt      ->push_back( itrMu->pt() );
 	t_L1MuonEta     ->push_back( itrMu->eta() );
 	t_L1MuonPhi     ->push_back( itrMu->phi() );
       }
-      if(debugL1Info_) {
-	std::cout << "l1muon p/pt   " << itrMu->momentum() << " " << itrMu->pt()
-		  << "  eta/phi " << itrMu->eta() << " " << itrMu->phi()
-		  << std::endl;
+      if (debugL1Info_) {
+	edm::LogVerbatim("IsoTrack") << "l1muon p/pt   " << itrMu->momentum()
+				     << " " << itrMu->pt() << "  eta/phi " 
+				     << itrMu->eta() << " " << itrMu->phi();
       }
     }
   }
@@ -312,42 +853,42 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
   math::XYZPoint leadPV(0,0,0);
   double sumPtMax = -1.0;
   for(unsigned int ind=0;ind<recVtxs->size();ind++) {
-
+    
     if ( !((*recVtxs)[ind].isFake()) ) {
       double vtxTrkSumPt=0.0, vtxTrkSumPtWt=0.0;
       int    vtxTrkNWt =0;
       double vtxTrkSumPtHP=0.0, vtxTrkSumPtHPWt=0.0;
       int    vtxTrkNHP =0, vtxTrkNHPWt =0;
-
+      
       reco::Vertex::trackRef_iterator vtxTrack = (*recVtxs)[ind].tracks_begin();
-
+      
       for (vtxTrack = (*recVtxs)[ind].tracks_begin(); vtxTrack!=(*recVtxs)[ind].tracks_end(); vtxTrack++) {
 
 	if((*vtxTrack)->pt()<pvTracksPtMin_) continue;
-
+	
 	bool trkQuality  = (*vtxTrack)->quality(trackQuality_);
 	
 	vtxTrkSumPt += (*vtxTrack)->pt();
 	
 	vtxTrkSumPt += (*vtxTrack)->pt();
-	if( trkQuality ) {
+	if (trkQuality) {
 	  vtxTrkSumPtHP += (*vtxTrack)->pt();
 	  vtxTrkNHP++;
 	}
 
 	double weight = (*recVtxs)[ind].trackWeight(*vtxTrack);
 	h_PVTracksWt ->Fill(weight);
-	if( weight>0.5) {
+	if (weight>0.5) {
 	  vtxTrkSumPtWt += (*vtxTrack)->pt();
 	  vtxTrkNWt++;
-	  if( trkQuality ) {
+	  if (trkQuality) {
 	    vtxTrkSumPtHPWt += (*vtxTrack)->pt();
 	    vtxTrkNHPWt++;
 	  }
 	}
       }
 
-      if(vtxTrkSumPt>sumPtMax) {
+      if (vtxTrkSumPt>sumPtMax) {
 	sumPtMax = vtxTrkSumPt;
 	leadPV = math::XYZPoint( (*recVtxs)[ind].x(),(*recVtxs)[ind].y(), (*recVtxs)[ind].z() );
       } 
@@ -361,18 +902,23 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
       t_PVNTracksWt    ->push_back( vtxTrkNWt );
       t_PVTracksSumPt  ->push_back( vtxTrkSumPt );
       t_PVTracksSumPtWt->push_back( vtxTrkSumPtWt );
-
+      
       t_PVNTracksHP      ->push_back( vtxTrkNHP );
       t_PVNTracksHPWt    ->push_back( vtxTrkNHPWt );
       t_PVTracksSumPtHP  ->push_back( vtxTrkSumPtHP );
       t_PVTracksSumPtHPWt->push_back( vtxTrkSumPtHPWt );
-
-      if(myverbose_==4) {
-	std::cout<<"PV "<<ind<<" isValid "<<(*recVtxs)[ind].isValid()<<" isFake "<<(*recVtxs)[ind].isFake()
-		 <<" hasRefittedTracks() "<<ind<<" "<<(*recVtxs)[ind].hasRefittedTracks()
-		 <<" refittedTrksSize "<<(*recVtxs)[ind].refittedTracks().size()
-		 <<"  tracksSize() "<<(*recVtxs)[ind].tracksSize()<<" sumPt "<<vtxTrkSumPt
-		 <<std::endl;
+      
+      if (myverbose_==4) {
+	edm::LogVerbatim("IsoTrack") << "PV " << ind << " isValid "
+				     << (*recVtxs)[ind].isValid() << " isFake "
+				     <<(*recVtxs)[ind].isFake()
+				     << " hasRefittedTracks() " << ind << " "
+				     << (*recVtxs)[ind].hasRefittedTracks()
+				     << " refittedTrksSize "
+				     << (*recVtxs)[ind].refittedTracks().size()
+				     << "  tracksSize() "
+				     << (*recVtxs)[ind].tracksSize()
+				     << " sumPt " << vtxTrkSumPt;
       }
     } // if vtx is not Fake
   } // loop over PVs
@@ -391,7 +937,7 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
   //  edm::Handle<reco::JetExtendedAssociation::Container> jetExtender;
   //  iEvent.getByLabel(JetExtender_,jetExtender);
 
-  for(unsigned int ijet=0;ijet<(*jets).size();ijet++) {
+  for (unsigned int ijet=0;ijet<(*jets).size();ijet++) {
     t_jetPt       ->push_back( (*jets)[ijet].pt()     );
     t_jetEta      ->push_back( (*jets)[ijet].eta()    );
     t_jetPhi      ->push_back( (*jets)[ijet].phi()    );
@@ -432,33 +978,32 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
   edm::Handle<HBHERecHitCollection> hbhe;
   iEvent.getByToken(tok_hbhe_, hbhe);
   if (!hbhe.isValid()) {
-    nbad++;
-    if (nbad < 10) std::cout << "No HBHE rechit collection\n";
+    ++nbad_;
+    if (nbad_ < 10) edm::LogVerbatim("IsoTrack") << "No HBHE rechit collection";
     return;
   }
   const HBHERecHitCollection Hithbhe = *(hbhe.product());
 
   //get Handles to SimTracks and SimHits
   edm::Handle<edm::SimTrackContainer> SimTk;
-  if (doMC) iEvent.getByToken(tok_simTk_,SimTk);
-  edm::SimTrackContainer::const_iterator simTrkItr;
+  if (doMC_) iEvent.getByToken(tok_simTk_,SimTk);
 
   edm::Handle<edm::SimVertexContainer> SimVtx;
-  if (doMC) iEvent.getByToken(tok_simVtx_,SimVtx);
+  if (doMC_) iEvent.getByToken(tok_simVtx_,SimVtx);
 
   //get Handles to PCaloHitContainers of eb/ee/hbhe
   edm::Handle<edm::PCaloHitContainer> pcaloeb;
-  if (doMC) iEvent.getByToken(tok_caloEB_, pcaloeb);
+  if (doMC_) iEvent.getByToken(tok_caloEB_, pcaloeb);
 
   edm::Handle<edm::PCaloHitContainer> pcaloee;
-  if (doMC) iEvent.getByToken(tok_caloEE_, pcaloee);
+  if (doMC_) iEvent.getByToken(tok_caloEE_, pcaloee);
 
   edm::Handle<edm::PCaloHitContainer> pcalohh;
-  if (doMC) iEvent.getByToken(tok_caloHH_, pcalohh);
+  if (doMC_) iEvent.getByToken(tok_caloHH_, pcalohh);
   
   //associates tracker rechits/simhits to a track
   std::unique_ptr<TrackerHitAssociator> associate;
-  if (doMC) associate.reset(new TrackerHitAssociator(iEvent, trackerHitAssociatorConfig_));
+  if (doMC_) associate.reset(new TrackerHitAssociator(iEvent, trackerHitAssociatorConfig_));
 
   //===================================================================================
   
@@ -474,40 +1019,48 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
   std::vector<spr::propagatedTrackID>::const_iterator trkDetItr;
 
   if(myverbose_>2) {
-    for(trkDetItr = trkCaloDets.begin(); trkDetItr != trkCaloDets.end(); trkDetItr++){
-      std::cout<<trkDetItr->trkItr->p()<<" "<<trkDetItr->trkItr->eta()<<" "<<trkDetItr->okECAL<<" ";
-      if(trkDetItr->detIdECAL.subdetId() == EcalBarrel) std::cout << (EBDetId)trkDetItr->detIdECAL <<" ";
-      else                                              std::cout << (EEDetId)trkDetItr->detIdECAL <<" ";
-      std::cout<<trkDetItr->okHCAL<<" ";
-      if(trkDetItr->okHCAL) std::cout<<(HcalDetId)trkDetItr->detIdHCAL;
-      std::cout << std::endl;
+    for (trkDetItr = trkCaloDets.begin(); trkDetItr != trkCaloDets.end(); trkDetItr++) {
+      edm::LogVerbatim("IsoTrack") << trkDetItr->trkItr->p() << " "
+				   << trkDetItr->trkItr->eta() << " "
+				   << trkDetItr->okECAL << " " 
+				   << trkDetItr->okHCAL;
+      if (trkDetItr->okECAL) {
+	if (trkDetItr->detIdECAL.subdetId() == EcalBarrel) 
+	  edm::LogVerbatim("IsoTrack") << (EBDetId)trkDetItr->detIdECAL;
+	else 
+	  edm::LogVerbatim("IsoTrack") << (EEDetId)trkDetItr->detIdECAL;
+      }
+      if (trkDetItr->okHCAL) 
+	edm::LogVerbatim("IsoTrack") << (HcalDetId)trkDetItr->detIdHCAL;
     }
   }
   
   int nvtxTracks=0;
-  for(trkDetItr = trkCaloDets.begin(),nTracks=0; trkDetItr != trkCaloDets.end(); trkDetItr++,nTracks++){
+  for (trkDetItr = trkCaloDets.begin(),nTracks=0; trkDetItr != trkCaloDets.end(); trkDetItr++,nTracks++) {
     
     const reco::Track* pTrack = &(*(trkDetItr->trkItr));
     
     // find vertex index the track is associated with
     int pVtxTkId = -1;
-    for(unsigned int ind=0; ind<recVtxs->size(); ind++) {
+    for (unsigned int ind=0; ind<recVtxs->size(); ind++) {
       if (!((*recVtxs)[ind].isFake())) {
 	reco::Vertex::trackRef_iterator vtxTrack = (*recVtxs)[ind].tracks_begin();
 	for (vtxTrack = (*recVtxs)[ind].tracks_begin(); vtxTrack!=(*recVtxs)[ind].tracks_end(); vtxTrack++) {
 	  
 	  const edm::RefToBase<reco::Track> pvtxTrack = (*vtxTrack);
-	  if ( pTrack == pvtxTrack.get() ) { 
+	  if (pTrack == pvtxTrack.get()) { 
 	    pVtxTkId = ind;
 	    break;
-	    if(myverbose_>2) {
-	      if( pTrack->pt()>1.0) {
-		std::cout<<"Debug the track association with vertex "<<std::endl;
-		std::cout<< pTrack << " "<< pvtxTrack.get() << std::endl;
-		std::cout<<" trkVtxIndex "<<nvtxTracks<<" vtx "<<ind<<" pt "<<pTrack->pt()
-			 <<" eta "<<pTrack->eta()<<" "<<pTrack->pt()-pvtxTrack->pt()
-			 <<" "<< pTrack->eta()-pvtxTrack->eta()
-			 << std::endl;
+	    if (myverbose_>2) {
+	      if (pTrack->pt()>1.0) {
+		edm::LogVerbatim("IsoTrack") << "Debug the track association with vertex ";
+		edm::LogVerbatim("IsoTrack") << pTrack << " " <<pvtxTrack.get();
+		edm::LogVerbatim("IsoTrack") << " trkVtxIndex " << nvtxTracks
+					     << " vtx " << ind << " pt "
+					     << pTrack->pt() << " eta "
+					     << pTrack->eta() << " "
+					     <<pTrack->pt()-pvtxTrack->pt()<<" "
+					     << pTrack->eta()-pvtxTrack->eta();
 		nvtxTracks++;
 	      }
 	    }
@@ -536,7 +1089,7 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
     double dzbs1       = beamSpotH.isValid() ? pTrack->dz(bspot)  : pTrack->dz();	
     double dxypv1      = pTrack->dxy();	
     double dzpv1       = pTrack->dz();	
-    if(pVtxTkId>=0) {
+    if (pVtxTkId>=0) {
       math::XYZPoint thisTkPV = math::XYZPoint( (*recVtxs)[pVtxTkId].x(),(*recVtxs)[pVtxTkId].y(), (*recVtxs)[pVtxTkId].z() );
       dxypv1 = pTrack->dxy(thisTkPV);
       dzpv1  = pTrack->dz (thisTkPV);
@@ -549,7 +1102,7 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
     h_recEta_0  ->Fill(eta1);
     h_recPhi_0  ->Fill(phi1);
     
-    if(ifGood && nLayersCrossed>7 ) {
+    if (ifGood && nLayersCrossed>7 ) {
       h_recEtaPt_1->Fill(eta1, pt1);
       h_recEtaP_1 ->Fill(eta1, p1);
       h_recPt_1   ->Fill(pt1);
@@ -558,9 +1111,9 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
       h_recPhi_1  ->Fill(phi1);
     }
     
-    if( ! ifGood ) continue;
+    if (! ifGood) continue;
 
-    if( writeAllTracks && p1>2.0 && nLayersCrossed>7) {
+    if (writeAllTracks_ && p1>2.0 && nLayersCrossed>7) {
       t_trackPAll             ->push_back( p1 );
       t_trackEtaAll           ->push_back( eta1 );
       t_trackPhiAll           ->push_back( phi1 );
@@ -571,12 +1124,12 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
       t_trackDzPVAll          ->push_back( dzpv1 );	
       t_trackChiSqAll         ->push_back( chisq1 );	
     }
-    if (doMC) {
+    if (doMC_) {
       edm::SimTrackContainer::const_iterator matchedSimTrkAll = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, *associate, false); 
-      if( writeAllTracks && matchedSimTrkAll != SimTk->end())     t_trackPdgIdAll->push_back( matchedSimTrkAll->type() );
+      if (writeAllTracks_ && matchedSimTrkAll != SimTk->end())     t_trackPdgIdAll->push_back( matchedSimTrkAll->type() );
     }
     
-    if( pt1>minTrackP_ && std::abs(eta1)<maxTrackEta_ && trkDetItr->okECAL) { 
+    if (pt1>minTrackP_ && std::abs(eta1)<maxTrackEta_ && trkDetItr->okECAL) { 
       
       double maxNearP31x31=999.0, maxNearP25x25=999.0, maxNearP21x21=999.0, maxNearP15x15=999.0;
       maxNearP31x31 = spr::chargeIsolationEcal(nTracks, trkCaloDets, geo, caloTopology, 15,15);
@@ -588,16 +1141,16 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
       for(unsigned int ieta=0; ieta<NEtaBins; ieta++) {
         if(std::abs(eta1)>genPartEtaBins[ieta] && std::abs(eta1)<genPartEtaBins[ieta+1] ) iTrkEtaBin = ieta;
       }
-      for(unsigned int ipt=0;  ipt<NPBins;   ipt++) {
-        if( p1>genPartPBins[ipt] &&  p1<genPartPBins[ipt+1] )  iTrkMomBin = ipt;
+      for (unsigned int ipt=0;  ipt<NPBins;   ipt++) {
+        if (p1>genPartPBins[ipt] &&  p1<genPartPBins[ipt+1])  iTrkMomBin = ipt;
       }
-      if( iTrkMomBin>=0 && iTrkEtaBin>=0 ) {
+      if (iTrkMomBin>=0 && iTrkEtaBin>=0) {
 	h_maxNearP31x31[iTrkMomBin][iTrkEtaBin]->Fill( maxNearP31x31 );
 	h_maxNearP25x25[iTrkMomBin][iTrkEtaBin]->Fill( maxNearP25x25 );
 	h_maxNearP21x21[iTrkMomBin][iTrkEtaBin]->Fill( maxNearP21x21 );
 	h_maxNearP15x15[iTrkMomBin][iTrkEtaBin]->Fill( maxNearP15x15 );
       }
-      if( maxNearP31x31<0.0 && nLayersCrossed>7 && nOuterHits>4) {
+      if (maxNearP31x31<0.0 && nLayersCrossed>7 && nOuterHits>4) {
 	h_recEtaPt_2->Fill(eta1, pt1);
 	h_recEtaP_2 ->Fill(eta1, p1);
 	h_recPt_2   ->Fill(pt1);
@@ -607,13 +1160,13 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
       }
       
       // if charge isolated in ECAL, store the further quantities
-      if( maxNearP31x31<1.0) {
-
+      if (maxNearP31x31<1.0) {
+	
 	haveIsoTrack = true;
 	
 	// get the matching simTrack
 	double simTrackP = -1;
-	if (doMC) {
+	if (doMC_) {
 	  edm::SimTrackContainer::const_iterator matchedSimTrk = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, *associate, false);
 	  if( matchedSimTrk != SimTk->end() )simTrackP = matchedSimTrk->momentum().P();
 	}
@@ -663,13 +1216,18 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	e9x9_30SigP   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,sevlv.product(),4,4,   0.090,  0.450, tMinE_,tMaxE_);
 	e11x11_30SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,sevlv.product(),5,5,   0.090,  0.450, tMinE_,tMaxE_);
 	e15x15_30SigP = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology,sevlv.product(),7,7,   0.090,  0.450, tMinE_,tMaxE_);
-	if(myverbose_ == 2) {
-	  std::cout << "clean  ecal rechit " << std::endl;
-	  std::cout<<"e7x7 "<<e7x7P.first<<" e9x9 "<<e9x9P.first<<" e11x11 " << e11x11P.first << " e15x15 "<<e15x15P.first<<std::endl;
-	  std::cout<<"e7x7_10Sig "<<e7x7_10SigP.first<<" e11x11_10Sig "<<e11x11_10SigP.first<<" e15x15_10Sig "<<e15x15_10SigP.first<<std::endl;
+	if (myverbose_ == 2) {
+	  edm::LogVerbatim("IsoTrack") << "clean  ecal rechit ";
+	  edm::LogVerbatim("IsoTrack") << "e7x7 " <<e7x7P.first << " e9x9 "
+				       << e9x9P.first << " e11x11 " 
+				       << e11x11P.first << " e15x15 "
+				       <<e15x15P.first;
+	  edm::LogVerbatim("IsoTrack") << "e7x7_10Sig " << e7x7_10SigP.first
+				       << " e11x11_10Sig " <<e11x11_10SigP.first
+				       <<" e15x15_10Sig " <<e15x15_10SigP.first;
 	}
 
-	if (doMC) {
+	if (doMC_) {
 	  // check the energy from SimHits
 	  spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 1,1, simInfo3x3);
 	  spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 2,2, simInfo5x5);
@@ -683,19 +1241,67 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  spr::eECALSimInfo(iEvent,isoCell,geo,caloTopology,pcaloeb,pcaloee,SimTk,SimVtx,pTrack, *associate, 15,15, simInfo31x31);
   
 	  trkEcalEne   = spr::eCaloSimInfo(iEvent, geo, pcaloeb,pcaloee, SimTk, SimVtx, pTrack, *associate);
-	   if(myverbose_ == 1) {
-	    std::cout << "Track momentum " << pt1 << std::endl;
-
-	    std::cout << "ecal siminfo " << std::endl;
-	    std::cout << "simInfo3x3: " << "eTotal " << simInfo3x3.eTotal << " eMatched " << simInfo3x3.eMatched << " eRest " << simInfo3x3.eRest << " eGamma "<<simInfo3x3.eGamma << " eNeutralHad " << simInfo3x3.eNeutralHad << " eChargedHad " << simInfo3x3.eChargedHad << std::endl;
-	    std::cout << "simInfo5x5: " << "eTotal " << simInfo5x5.eTotal << " eMatched " << simInfo5x5.eMatched << " eRest " << simInfo5x5.eRest << " eGamma "<<simInfo5x5.eGamma << " eNeutralHad " << simInfo5x5.eNeutralHad << " eChargedHad " << simInfo5x5.eChargedHad << std::endl;
-	    std::cout << "simInfo7x7: " << "eTotal " << simInfo7x7.eTotal << " eMatched " << simInfo7x7.eMatched << " eRest " << simInfo7x7.eRest << " eGamma "<<simInfo7x7.eGamma << " eNeutralHad " << simInfo7x7.eNeutralHad << " eChargedHad " << simInfo7x7.eChargedHad << std::endl;
-	    std::cout << "simInfo9x9: " << "eTotal " << simInfo9x9.eTotal << " eMatched " << simInfo9x9.eMatched << " eRest " << simInfo9x9.eRest << " eGamma "<<simInfo9x9.eGamma << " eNeutralHad " << simInfo9x9.eNeutralHad << " eChargedHad " << simInfo9x9.eChargedHad << std::endl;
-	    std::cout << "simInfo11x11: " << "eTotal " << simInfo11x11.eTotal << " eMatched " << simInfo11x11.eMatched << " eRest " << simInfo11x11.eRest << " eGamma "<<simInfo11x11.eGamma << " eNeutralHad " << simInfo11x11.eNeutralHad << " eChargedHad " << simInfo11x11.eChargedHad << std::endl;
-	    std::cout << "simInfo15x15: " << "eTotal " << simInfo15x15.eTotal << " eMatched " << simInfo15x15.eMatched << " eRest " << simInfo15x15.eRest << " eGamma "<<simInfo15x15.eGamma << " eNeutralHad " << simInfo15x15.eNeutralHad << " eChargedHad " << simInfo15x15.eChargedHad << std::endl;
-	    std::cout << "simInfo31x31: " << "eTotal " << simInfo31x31.eTotal << " eMatched " << simInfo31x31.eMatched << " eRest " << simInfo31x31.eRest << " eGamma "<<simInfo31x31.eGamma << " eNeutralHad " << simInfo31x31.eNeutralHad << " eChargedHad " << simInfo31x31.eChargedHad << std::endl;
-	    std::cout << "trkEcalEne" << trkEcalEne << std::endl;
-	   }
+	  if (myverbose_ == 1) {
+	    edm::LogVerbatim("IsoTrack") << "Track momentum " << pt1;
+	    edm::LogVerbatim("IsoTrack") << "ecal siminfo ";
+	    edm::LogVerbatim("IsoTrack") << "simInfo3x3: eTotal " 
+					 << simInfo3x3.eTotal << " eMatched "
+					 << simInfo3x3.eMatched << " eRest " 
+					 << simInfo3x3.eRest << " eGamma "
+					 << simInfo3x3.eGamma <<" eNeutralHad "
+					 << simInfo3x3.eNeutralHad 
+					 << " eChargedHad " 
+					 << simInfo3x3.eChargedHad;
+	    edm::LogVerbatim("IsoTrack") << "simInfo5x5: eTotal " 
+					 << simInfo5x5.eTotal << " eMatched " 
+					 << simInfo5x5.eMatched << " eRest " 
+					 << simInfo5x5.eRest << " eGamma "
+					 << simInfo5x5.eGamma << " eNeutralHad "
+					 << simInfo5x5.eNeutralHad 
+					 << " eChargedHad "
+					 << simInfo5x5.eChargedHad;
+	    edm::LogVerbatim("IsoTrack") << "simInfo7x7: eTotal " 
+					 << simInfo7x7.eTotal << " eMatched " 
+					 << simInfo7x7.eMatched << " eRest " 
+					 << simInfo7x7.eRest << " eGamma "
+					 << simInfo7x7.eGamma <<" eNeutralHad "
+					 << simInfo7x7.eNeutralHad 
+					 << " eChargedHad "
+					 << simInfo7x7.eChargedHad;
+	    edm::LogVerbatim("IsoTrack") << "simInfo9x9: eTotal " 
+					 << simInfo9x9.eTotal << " eMatched " 
+					 << simInfo9x9.eMatched << " eRest " 
+					 << simInfo9x9.eRest << " eGamma "
+					 << simInfo9x9.eGamma <<" eNeutralHad "
+					 << simInfo9x9.eNeutralHad 
+					 << " eChargedHad " 
+					 << simInfo9x9.eChargedHad;
+	    edm::LogVerbatim("IsoTrack") << "simInfo11x11: eTotal " 
+					 << simInfo11x11.eTotal << " eMatched "
+					 << simInfo11x11.eMatched << " eRest "
+					 << simInfo11x11.eRest << " eGamma "
+					 <<simInfo11x11.eGamma <<" eNeutralHad "
+					 << simInfo11x11.eNeutralHad 
+					 << " eChargedHad "
+					 << simInfo11x11.eChargedHad;
+	    edm::LogVerbatim("IsoTrack") << "simInfo15x15: eTotal " 
+					 << simInfo15x15.eTotal << " eMatched "
+					 << simInfo15x15.eMatched << " eRest " 
+					 << simInfo15x15.eRest << " eGamma "
+					 <<simInfo15x15.eGamma <<" eNeutralHad "
+					 << simInfo15x15.eNeutralHad 
+					 << " eChargedHad " 
+					 << simInfo15x15.eChargedHad;
+	    edm::LogVerbatim("IsoTrack") << "simInfo31x31: eTotal "
+					 << simInfo31x31.eTotal << " eMatched "
+					  << simInfo31x31.eMatched << " eRest " 
+					 << simInfo31x31.eRest << " eGamma "
+					 <<simInfo31x31.eGamma <<" eNeutralHad "
+					 << simInfo31x31.eNeutralHad 
+					 << " eChargedHad " 
+					 << simInfo31x31.eChargedHad;
+	    edm::LogVerbatim("IsoTrack") << "trkEcalEne" << trkEcalEne;
+	  }
 	}
 
 	// =======  Get HCAL information 
@@ -710,13 +1316,13 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	maxNearHcalP3x3  = spr::chargeIsolationHcal(nTracks, trkCaloDets, theHBHETopology, 1,1);
 	maxNearHcalP5x5  = spr::chargeIsolationHcal(nTracks, trkCaloDets, theHBHETopology, 2,2);
 	maxNearHcalP7x7  = spr::chargeIsolationHcal(nTracks, trkCaloDets, theHBHETopology, 3,3);
-
+	
 	double h3x3=0,    h5x5=0,    h7x7=0;
  	double h3x3Sig=0, h5x5Sig=0, h7x7Sig=0;
 	double trkHcalEne = 0;
 	spr::caloSimInfo hsimInfo3x3, hsimInfo5x5, hsimInfo7x7;
 	
-	if(trkDetItr->okHCAL) {
+	if (trkDetItr->okHCAL) {
 	  const DetId ClosestCell(trkDetItr->detIdHCAL);
 	  // bool includeHO=false, bool algoNew=true, bool debug=false
 	  h3x3 = spr::eHCALmatrix(theHBHETopology, ClosestCell, hbhe,1,1, false, true, -100.0, -100.0, -100.0, -100.0, tMinH_,tMaxH_);  
@@ -726,42 +1332,74 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  h5x5Sig = spr::eHCALmatrix(theHBHETopology, ClosestCell, hbhe,2,2, false, true, 0.7, 0.8, -100.0, -100.0, tMinH_,tMaxH_);  
 	  h7x7Sig = spr::eHCALmatrix(theHBHETopology, ClosestCell, hbhe,3,3, false, true, 0.7, 0.8, -100.0, -100.0, tMinH_,tMaxH_);  
 
-	  if(myverbose_==2) {
-	    std::cout << "HCAL 3x3 " << h3x3 << " " << h3x3Sig << " 5x5 " <<  h5x5 << " " << h5x5Sig << " 7x7 " << h7x7 << " " << h7x7Sig << std::endl;
+	  if (myverbose_==2) {
+	    edm::LogVerbatim("IsoTrack") << "HCAL 3x3 " << h3x3 << " " 
+					 << h3x3Sig << " 5x5 " <<  h5x5 << " " 
+					 << h5x5Sig << " 7x7 " << h7x7 << " " 
+					 << h7x7Sig;
 	  }
 	  
-	  if (doMC) {
+	  if (doMC_) {
 	    spr::eHCALSimInfo(iEvent, theHBHETopology, ClosestCell, geo,pcalohh, SimTk, SimVtx, pTrack, *associate, 1,1, hsimInfo3x3);
 	    spr::eHCALSimInfo(iEvent, theHBHETopology, ClosestCell, geo,pcalohh, SimTk, SimVtx, pTrack, *associate, 2,2, hsimInfo5x5);
 	    spr::eHCALSimInfo(iEvent, theHBHETopology, ClosestCell, geo,pcalohh, SimTk, SimVtx, pTrack, *associate, 3,3, hsimInfo7x7, 150.0, false,false);
 	    trkHcalEne  = spr::eCaloSimInfo(iEvent, geo,pcalohh, SimTk, SimVtx, pTrack, *associate);
-	    if(myverbose_ == 1) {
-	      std::cout << "Hcal siminfo " << std::endl;
-	      std::cout << "hsimInfo3x3: " << "eTotal " << hsimInfo3x3.eTotal << " eMatched " << hsimInfo3x3.eMatched << " eRest " << hsimInfo3x3.eRest << " eGamma "<<hsimInfo3x3.eGamma << " eNeutralHad " << hsimInfo3x3.eNeutralHad << " eChargedHad " << hsimInfo3x3.eChargedHad << std::endl;
-	      std::cout << "hsimInfo5x5: " << "eTotal " << hsimInfo5x5.eTotal << " eMatched " << hsimInfo5x5.eMatched << " eRest " << hsimInfo5x5.eRest << " eGamma "<<hsimInfo5x5.eGamma << " eNeutralHad " << hsimInfo5x5.eNeutralHad << " eChargedHad " << hsimInfo5x5.eChargedHad << std::endl;
-	      std::cout << "hsimInfo7x7: " << "eTotal " << hsimInfo7x7.eTotal << " eMatched " << hsimInfo7x7.eMatched << " eRest " << hsimInfo7x7.eRest << " eGamma "<<hsimInfo7x7.eGamma << " eNeutralHad " << hsimInfo7x7.eNeutralHad << " eChargedHad " << hsimInfo7x7.eChargedHad << std::endl;
-	      std::cout << "trkHcalEne " << trkHcalEne << std::endl;
+	    if (myverbose_ == 1) {
+	      edm::LogVerbatim("IsoTrack") << "Hcal siminfo ";
+	      edm::LogVerbatim("IsoTrack") << "hsimInfo3x3: eTotal " 
+					   << hsimInfo3x3.eTotal << " eMatched "
+					   << hsimInfo3x3.eMatched << " eRest "
+					   << hsimInfo3x3.eRest << " eGamma "
+					   << hsimInfo3x3.eGamma 
+					   << " eNeutralHad " 
+					   << hsimInfo3x3.eNeutralHad 
+					   << " eChargedHad "
+					   << hsimInfo3x3.eChargedHad;
+	      edm::LogVerbatim("IsoTrack") << "hsimInfo5x5: eTotal " 
+					   << hsimInfo5x5.eTotal << " eMatched "
+					   << hsimInfo5x5.eMatched << " eRest "
+					   << hsimInfo5x5.eRest << " eGamma "
+					   << hsimInfo5x5.eGamma 
+					   << " eNeutralHad " 
+					   << hsimInfo5x5.eNeutralHad 
+					   << " eChargedHad " 
+					   << hsimInfo5x5.eChargedHad;
+	      edm::LogVerbatim("IsoTrack") << "hsimInfo7x7: eTotal " 
+					   << hsimInfo7x7.eTotal << " eMatched "
+					   << hsimInfo7x7.eMatched << " eRest "
+					   << hsimInfo7x7.eRest << " eGamma "
+					   << hsimInfo7x7.eGamma 
+					   << " eNeutralHad " 
+					   << hsimInfo7x7.eNeutralHad 
+					   << " eChargedHad " 
+					   << hsimInfo7x7.eChargedHad;
+	      edm::LogVerbatim("IsoTrack") << "trkHcalEne " << trkHcalEne;
 	    }
 	  }
 
 	  // debug the ecal and hcal matrix
-	  if(myverbose_==4) {
-	    std::cout<<"Run "<<iEvent.id().run()<<"  Event "<<iEvent.id().event()<<std::endl; 
+	  if (myverbose_==4) {
+	    edm::LogVerbatim("IsoTrack") << "Run " << iEvent.id().run()
+					 << "  Event " <<iEvent.id().event();
 	    std::vector<std::pair<DetId,double> > v7x7 = spr::eHCALmatrixCell(theHBHETopology, ClosestCell, hbhe,3,3, false, false);
 	    double sumv=0.0;
 	    
-	    for(unsigned int iv=0; iv<v7x7.size(); iv++) { 
+	    for (unsigned int iv=0; iv<v7x7.size(); iv++) { 
 	      sumv += v7x7[iv].second;
 	    }
-	    std::cout<<"h7x7 "<<h7x7<<" v7x7 "<<sumv << " in " << v7x7.size() <<std::endl;
+	    edm::LogVerbatim("IsoTrack") << "h7x7 " << h7x7 << " v7x7 " << sumv
+					 << " in " << v7x7.size();
 	    for(unsigned int iv=0; iv<v7x7.size(); iv++) { 
 	      HcalDetId id = v7x7[iv].first;
-	      std::cout << " Cell " << iv << " 0x" << std::hex << v7x7[iv].first() << std::dec << " " << id << " Energy " << v7x7[iv].second << std::endl;
+	      edm::LogVerbatim("IsoTrack") << " Cell " << iv << " 0x" 
+					   << std::hex << v7x7[iv].first() 
+					   << std::dec << " " << id <<" Energy "
+					   << v7x7[iv].second;
 	    }
 	  }
 	  
 	}
-	if (doMC) {
+	if (doMC_) {
 	  trkHcalEne  = spr::eCaloSimInfo(iEvent, geo,pcalohh, SimTk, SimVtx, pTrack, *associate);
 	}
 
@@ -774,15 +1412,22 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	double trackOutPosOutHitDr = diff.R();
 	double trackL              = point2_TK0.second;
 	if (myverbose_==5) {
-	  std::cout<<" propagted "<<point2_TK0.first<<" "<< point2_TK0.first.eta()<<" "<<point2_TK0.first.phi()<<std::endl;
-	  std::cout<<" outerPosition() "<< pTrack->outerPosition() << " "<< pTrack->outerPosition().eta()<< " " << pTrack->outerPosition().phi()<< std::endl;
-	  std::cout<<"diff " << diff << " diffR " <<diff.R()<<" diffR/L "<<diff.R()/point2_TK0.second <<std::endl;
+	  edm::LogVerbatim("IsoTrack") << " propagted " << point2_TK0.first 
+				       << " " << point2_TK0.first.eta() << " "
+				       << point2_TK0.first.phi();
+	  edm::LogVerbatim("IsoTrack") << " outerPosition() "
+				       << pTrack->outerPosition() << " "
+				       << pTrack->outerPosition().eta() << " "
+				       << pTrack->outerPosition().phi();
+	  edm::LogVerbatim("IsoTrack") <<"diff " << diff << " diffR " 
+				       << diff.R() << " diffR/L "
+				       << diff.R()/point2_TK0.second;
 	}
-
-	for(unsigned int ind=0;ind<recVtxs->size();ind++) {
+	
+	for (unsigned int ind=0;ind<recVtxs->size();ind++) {
 	  if (!((*recVtxs)[ind].isFake())) {
 	    reco::Vertex::trackRef_iterator vtxTrack = (*recVtxs)[ind].tracks_begin();
-	    if( DeltaR(eta1,phi1, (*vtxTrack)->eta(),(*vtxTrack)->phi()) < 0.01 ) t_trackPVIdx ->push_back( ind );
+	    if (deltaR(eta1,phi1, (*vtxTrack)->eta(),(*vtxTrack)->phi()) < 0.01 ) t_trackPVIdx ->push_back( ind );
 	    else                                                                  t_trackPVIdx ->push_back( -1 );
 	  }
 	}
@@ -862,7 +1507,7 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	t_e11x11_30Sig          ->push_back( e11x11_30SigP.first ); 
 	t_e15x15_30Sig          ->push_back( e15x15_30SigP.first );
 
-	if (doMC) {
+	if (doMC_) {
 	  t_esim7x7               ->push_back( simInfo7x7.eTotal );
 	  t_esim9x9               ->push_back( simInfo9x9.eTotal );
 	  t_esim11x11             ->push_back( simInfo11x11.eTotal );
@@ -910,7 +1555,7 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	t_h7x7Sig               ->push_back( h7x7Sig );
 	
 	t_infoHcal              ->push_back( trkDetItr->okHCAL );
-	if (doMC) {
+	if (doMC_) {
 	  t_trkHcalEne            ->push_back( hcalScale*trkHcalEne );
 	
 	  t_hsim3x3               ->push_back( hcalScale*hsimInfo3x3.eTotal );
@@ -942,42 +1587,42 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
     } // check p1/eta
   } // loop over track collection
   
-  if(haveIsoTrack) tree->Fill();
+  if(haveIsoTrack) tree_->Fill();
 }
 
 // ----- method called once each job just before starting event loop ----
 void IsolatedTracksNxN::beginJob() {
 
-  nEventProc=0;
+  nEventProc_ = 0;
+  nbad_       = 0;
+  initL1_     = false;
+  double tempgen_TH[NPBins+1] = { 0.0,  1.0,  2.0,  3.0,  4.0,  
+				  5.0,  6.0,  7.0,  9.0, 11.0, 
+				  15.0, 20.0, 30.0, 50.0, 75.0, 100.0};
 
-  //  double tempgen_TH[21] = { 1.0,  2.0,  3.0,  4.0,  5.0, 
- double tempgen_TH[16] = { 0.0,  1.0,  2.0,  3.0,  4.0,  
-			   5.0,  6.0,  7.0,  9.0, 11.0, 
-			  15.0, 20.0, 30.0, 50.0, 75.0, 100.0};
+  for (unsigned int i=0; i<NPBins+1; i++)  genPartPBins[i]  = tempgen_TH[i];
 
-  for(int i=0; i<16; i++)  genPartPBins[i]  = tempgen_TH[i];
+  double tempgen_Eta[NEtaBins+1] = {0.0, 1.131, 1.653, 2.172};
 
-  double tempgen_Eta[4] = {0.0, 1.131, 1.653, 2.172};
+  for (unsigned int i=0; i<NEtaBins+1; i++) genPartEtaBins[i] = tempgen_Eta[i];
 
-  for(int i=0; i<4; i++) genPartEtaBins[i] = tempgen_Eta[i];
-
-  BookHistograms();
+  bookHistograms();
 }
 
 // ----- method called once each job just after ending the event loop ----
 void IsolatedTracksNxN::endJob() {
 
-  if(L1TriggerAlgoInfo_) {
+  if (L1TriggerAlgoInfo_) {
     std::map< std::pair<unsigned int,std::string>, int>::iterator itr;
-    for(itr=l1AlgoMap.begin(); itr!=l1AlgoMap.end(); itr++) {
-      std::cout << " ****endjob**** " << (itr->first).first <<" "
-		<<(itr->first).second <<" "<<itr->second 
-		<< std::endl;
+    for (itr=l1AlgoMap_.begin(); itr!=l1AlgoMap_.end(); itr++) {
+      edm::LogVerbatim("IsoTrack") << " ****endjob**** " << (itr->first).first
+				   << " " << (itr->first).second << " "
+				   << itr->second;
       int ibin = (itr->first).first;
       TString name( (itr->first).second );
       h_L1AlgoNames->GetXaxis()->SetBinLabel(ibin+1,name);
     }
-    std::cout << "Number of Events Processed " << nEventProc << std::endl;
+    edm::LogVerbatim("IsoTrack") << "Number of Events Processed " <<nEventProc_;
   }
 
 }
@@ -1114,7 +1759,7 @@ void IsolatedTracksNxN::clearTreeVectors() {
   t_e11x11_30Sig      ->clear();
   t_e15x15_30Sig      ->clear();
 
-  if (doMC) {
+  if (doMC_) {
     t_simTrackP         ->clear();
     t_esimPdgId         ->clear();
     t_trkEcalEne        ->clear();
@@ -1163,7 +1808,7 @@ void IsolatedTracksNxN::clearTreeVectors() {
 
   t_infoHcal          ->clear();
 
-  if (doMC) {
+  if (doMC_) {
     t_trkHcalEne        ->clear();
 
     t_hsim3x3           ->clear();
@@ -1187,10 +1832,11 @@ void IsolatedTracksNxN::clearTreeVectors() {
   }
 }
 
-void IsolatedTracksNxN::BookHistograms(){
+void IsolatedTracksNxN::bookHistograms(){
 
   char hname[100], htit[100];
 
+  edm::Service<TFileService> fs;
   TFileDirectory dir = fs->mkdir("nearMaxTrackP");
 
   for(unsigned int ieta=0; ieta<NEtaBins; ieta++) {
@@ -1268,16 +1914,13 @@ void IsolatedTracksNxN::BookHistograms(){
   h_recEta_2 = fs->make<TH1F>("h_recEta_2", "Eta (charge isolation)", 60, -3.0,   3.0);
   h_recPhi_2 = fs->make<TH1F>("h_recPhi_2", "Phi (charge isolation)", 100, -3.2,   3.2);
 
+  tree_ = fs->make<TTree>("tree", "tree");
+  tree_->SetAutoSave(10000);
 
-  tree = fs->make<TTree>("tree", "tree");
-  tree->SetAutoSave(10000);
-
-
-  tree->Branch("t_EvtNo"              ,&t_EvtNo               ,"t_EvtNo/I");
-  tree->Branch("t_RunNo"              ,&t_RunNo               ,"t_RunNo/I");
-  tree->Branch("t_Lumi"               ,&t_Lumi                ,"t_Lumi/I");
-  tree->Branch("t_Bunch"              ,&t_Bunch               ,"t_Bunch/I");
-
+  tree_->Branch("t_EvtNo"              ,&t_EvtNo               ,"t_EvtNo/I");
+  tree_->Branch("t_RunNo"              ,&t_RunNo               ,"t_RunNo/I");
+  tree_->Branch("t_Lumi"               ,&t_Lumi                ,"t_Lumi/I");
+  tree_->Branch("t_Bunch"              ,&t_Bunch               ,"t_Bunch/I");
 
   t_PVx               = new std::vector<double>();
   t_PVy               = new std::vector<double>();
@@ -1293,19 +1936,19 @@ void IsolatedTracksNxN::BookHistograms(){
   t_PVTracksSumPtHP   = new std::vector<double>();
   t_PVTracksSumPtHPWt = new std::vector<double>();
 
-  tree->Branch("PVx"                  ,"vector<double>"      ,&t_PVx);
-  tree->Branch("PVy"                  ,"vector<double>"      ,&t_PVy);
-  tree->Branch("PVz"                  ,"vector<double>"      ,&t_PVz);
-  tree->Branch("PVisValid"            ,"vector<int>"         ,&t_PVisValid);
-  tree->Branch("PVndof"               ,"vector<int>"         ,&t_PVndof);
-  tree->Branch("PVNTracks"            ,"vector<int>"         ,&t_PVNTracks);
-  tree->Branch("PVNTracksWt"          ,"vector<int>"         ,&t_PVNTracksWt);
-  tree->Branch("t_PVTracksSumPt"      ,"vector<double>"      ,&t_PVTracksSumPt);
-  tree->Branch("t_PVTracksSumPtWt"    ,"vector<double>"      ,&t_PVTracksSumPtWt);
-  tree->Branch("PVNTracksHP"          ,"vector<int>"         ,&t_PVNTracksHP);
-  tree->Branch("PVNTracksHPWt"        ,"vector<int>"         ,&t_PVNTracksHPWt);
-  tree->Branch("t_PVTracksSumPtHP"    ,"vector<double>"      ,&t_PVTracksSumPtHP);
-  tree->Branch("t_PVTracksSumPtHPWt"  ,"vector<double>"      ,&t_PVTracksSumPtHPWt);
+  tree_->Branch("PVx"                  ,"std::vector<double>"      ,&t_PVx);
+  tree_->Branch("PVy"                  ,"std::vector<double>"      ,&t_PVy);
+  tree_->Branch("PVz"                  ,"std::vector<double>"      ,&t_PVz);
+  tree_->Branch("PVisValid"            ,"std::vector<int>"         ,&t_PVisValid);
+  tree_->Branch("PVndof"               ,"std::vector<int>"         ,&t_PVndof);
+  tree_->Branch("PVNTracks"            ,"std::vector<int>"         ,&t_PVNTracks);
+  tree_->Branch("PVNTracksWt"          ,"std::vector<int>"         ,&t_PVNTracksWt);
+  tree_->Branch("t_PVTracksSumPt"      ,"std::vector<double>"      ,&t_PVTracksSumPt);
+  tree_->Branch("t_PVTracksSumPtWt"    ,"std::vector<double>"      ,&t_PVTracksSumPtWt);
+  tree_->Branch("PVNTracksHP"          ,"std::vector<int>"         ,&t_PVNTracksHP);
+  tree_->Branch("PVNTracksHPWt"        ,"std::vector<int>"         ,&t_PVNTracksHPWt);
+  tree_->Branch("t_PVTracksSumPtHP"    ,"std::vector<double>"      ,&t_PVTracksSumPtHP);
+  tree_->Branch("t_PVTracksSumPtHPWt"  ,"std::vector<double>"      ,&t_PVTracksSumPtHPWt);
 
   //----- L1Trigger information
   for(int i=0; i<128; i++) t_L1Decision[i]=0;
@@ -1333,41 +1976,41 @@ void IsolatedTracksNxN::BookHistograms(){
   t_L1METEta          = new std::vector<double>();
   t_L1METPhi          = new std::vector<double>();
   
-  tree->Branch("t_L1Decision",        t_L1Decision,     "t_L1Decision[128]/I");
-  tree->Branch("t_L1AlgoNames",       "vector<string>", &t_L1AlgoNames);
-  tree->Branch("t_L1PreScale",        "vector<int>",    &t_L1PreScale);
-  tree->Branch("t_L1CenJetPt",        "vector<double>", &t_L1CenJetPt);
-  tree->Branch("t_L1CenJetEta",       "vector<double>", &t_L1CenJetEta);
-  tree->Branch("t_L1CenJetPhi",       "vector<double>", &t_L1CenJetPhi);
-  tree->Branch("t_L1FwdJetPt",        "vector<double>", &t_L1FwdJetPt);
-  tree->Branch("t_L1FwdJetEta",       "vector<double>", &t_L1FwdJetEta);
-  tree->Branch("t_L1FwdJetPhi",       "vector<double>", &t_L1FwdJetPhi);
-  tree->Branch("t_L1TauJetPt",        "vector<double>", &t_L1TauJetPt);
-  tree->Branch("t_L1TauJetEta",       "vector<double>", &t_L1TauJetEta);     
-  tree->Branch("t_L1TauJetPhi",       "vector<double>", &t_L1TauJetPhi);
-  tree->Branch("t_L1MuonPt",          "vector<double>", &t_L1MuonPt);
-  tree->Branch("t_L1MuonEta",         "vector<double>", &t_L1MuonEta);
-  tree->Branch("t_L1MuonPhi",         "vector<double>", &t_L1MuonPhi);
-  tree->Branch("t_L1IsoEMPt",         "vector<double>", &t_L1IsoEMPt);
-  tree->Branch("t_L1IsoEMEta",        "vector<double>", &t_L1IsoEMEta);
-  tree->Branch("t_L1IsoEMPhi",        "vector<double>", &t_L1IsoEMPhi);
-  tree->Branch("t_L1NonIsoEMPt",      "vector<double>", &t_L1NonIsoEMPt);
-  tree->Branch("t_L1NonIsoEMEta",     "vector<double>", &t_L1NonIsoEMEta);
-  tree->Branch("t_L1NonIsoEMPhi",     "vector<double>", &t_L1NonIsoEMPhi);
-  tree->Branch("t_L1METPt",           "vector<double>", &t_L1METPt);
-  tree->Branch("t_L1METEta",          "vector<double>", &t_L1METEta);
-  tree->Branch("t_L1METPhi",          "vector<double>", &t_L1METPhi);
+  tree_->Branch("t_L1Decision",        t_L1Decision,     "t_L1Decision[128]/I");
+  tree_->Branch("t_L1AlgoNames",       "std::vector<string>", &t_L1AlgoNames);
+  tree_->Branch("t_L1PreScale",        "std::vector<int>",    &t_L1PreScale);
+  tree_->Branch("t_L1CenJetPt",        "std::vector<double>", &t_L1CenJetPt);
+  tree_->Branch("t_L1CenJetEta",       "std::vector<double>", &t_L1CenJetEta);
+  tree_->Branch("t_L1CenJetPhi",       "std::vector<double>", &t_L1CenJetPhi);
+  tree_->Branch("t_L1FwdJetPt",        "std::vector<double>", &t_L1FwdJetPt);
+  tree_->Branch("t_L1FwdJetEta",       "std::vector<double>", &t_L1FwdJetEta);
+  tree_->Branch("t_L1FwdJetPhi",       "std::vector<double>", &t_L1FwdJetPhi);
+  tree_->Branch("t_L1TauJetPt",        "std::vector<double>", &t_L1TauJetPt);
+  tree_->Branch("t_L1TauJetEta",       "std::vector<double>", &t_L1TauJetEta);     
+  tree_->Branch("t_L1TauJetPhi",       "std::vector<double>", &t_L1TauJetPhi);
+  tree_->Branch("t_L1MuonPt",          "std::vector<double>", &t_L1MuonPt);
+  tree_->Branch("t_L1MuonEta",         "std::vector<double>", &t_L1MuonEta);
+  tree_->Branch("t_L1MuonPhi",         "std::vector<double>", &t_L1MuonPhi);
+  tree_->Branch("t_L1IsoEMPt",         "std::vector<double>", &t_L1IsoEMPt);
+  tree_->Branch("t_L1IsoEMEta",        "std::vector<double>", &t_L1IsoEMEta);
+  tree_->Branch("t_L1IsoEMPhi",        "std::vector<double>", &t_L1IsoEMPhi);
+  tree_->Branch("t_L1NonIsoEMPt",      "std::vector<double>", &t_L1NonIsoEMPt);
+  tree_->Branch("t_L1NonIsoEMEta",     "std::vector<double>", &t_L1NonIsoEMEta);
+  tree_->Branch("t_L1NonIsoEMPhi",     "std::vector<double>", &t_L1NonIsoEMPhi);
+  tree_->Branch("t_L1METPt",           "std::vector<double>", &t_L1METPt);
+  tree_->Branch("t_L1METEta",          "std::vector<double>", &t_L1METEta);
+  tree_->Branch("t_L1METPhi",          "std::vector<double>", &t_L1METPhi);
 
   t_jetPt            = new std::vector<double>();
   t_jetEta           = new std::vector<double>();
   t_jetPhi           = new std::vector<double>();
   t_nTrksJetCalo     = new std::vector<double>();  
   t_nTrksJetVtx      = new std::vector<double>();
-  tree->Branch("t_jetPt",             "vector<double>",&t_jetPt);
-  tree->Branch("t_jetEta",            "vector<double>",&t_jetEta);
-  tree->Branch("t_jetPhi",            "vector<double>",&t_jetPhi);
-  tree->Branch("t_nTrksJetCalo",      "vector<double>",&t_nTrksJetCalo);  
-  tree->Branch("t_nTrksJetVtx",       "vector<double>",&t_nTrksJetVtx);
+  tree_->Branch("t_jetPt",             "std::vector<double>",&t_jetPt);
+  tree_->Branch("t_jetEta",            "std::vector<double>",&t_jetEta);
+  tree_->Branch("t_jetPhi",            "std::vector<double>",&t_jetPhi);
+  tree_->Branch("t_nTrksJetCalo",      "std::vector<double>",&t_nTrksJetCalo);  
+  tree_->Branch("t_nTrksJetVtx",       "std::vector<double>",&t_nTrksJetVtx);
 
   t_trackPAll        = new std::vector<double>();
   t_trackEtaAll      = new std::vector<double>();
@@ -1379,16 +2022,16 @@ void IsolatedTracksNxN::BookHistograms(){
   t_trackDxyPVAll    = new std::vector<double>();
   t_trackDzPVAll     = new std::vector<double>();
   t_trackChiSqAll    = new std::vector<double>();
-  tree->Branch("t_trackPAll",         "vector<double>", &t_trackPAll    );
-  tree->Branch("t_trackPhiAll",       "vector<double>", &t_trackPhiAll  );
-  tree->Branch("t_trackEtaAll",       "vector<double>", &t_trackEtaAll  );
-  tree->Branch("t_trackPtAll",        "vector<double>", &t_trackPtAll    );
-  tree->Branch("t_trackDxyAll",       "vector<double>", &t_trackDxyAll    );
-  tree->Branch("t_trackDzAll",        "vector<double>", &t_trackDzAll    );
-  tree->Branch("t_trackDxyPVAll",     "vector<double>", &t_trackDxyPVAll    );
-  tree->Branch("t_trackDzPVAll",      "vector<double>", &t_trackDzPVAll    );
-  tree->Branch("t_trackChiSqAll",     "vector<double>", &t_trackChiSqAll    );
-  //tree->Branch("t_trackPdgIdAll",     "vector<double>", &t_trackPdgIdAll);
+  tree_->Branch("t_trackPAll",         "std::vector<double>", &t_trackPAll    );
+  tree_->Branch("t_trackPhiAll",       "std::vector<double>", &t_trackPhiAll  );
+  tree_->Branch("t_trackEtaAll",       "std::vector<double>", &t_trackEtaAll  );
+  tree_->Branch("t_trackPtAll",        "std::vector<double>", &t_trackPtAll    );
+  tree_->Branch("t_trackDxyAll",       "std::vector<double>", &t_trackDxyAll    );
+  tree_->Branch("t_trackDzAll",        "std::vector<double>", &t_trackDzAll    );
+  tree_->Branch("t_trackDxyPVAll",     "std::vector<double>", &t_trackDxyPVAll    );
+  tree_->Branch("t_trackDzPVAll",      "std::vector<double>", &t_trackDzPVAll    );
+  tree_->Branch("t_trackChiSqAll",     "std::vector<double>", &t_trackChiSqAll    );
+  //tree_->Branch("t_trackPdgIdAll",     "std::vector<double>", &t_trackPdgIdAll);
 
   t_trackP               = new std::vector<double>();
   t_trackPt              = new std::vector<double>();
@@ -1435,54 +2078,54 @@ void IsolatedTracksNxN::BookHistograms(){
   t_trackOutPosOutHitDr  = new std::vector<double>();
   t_trackL               = new std::vector<double>();
 
-  tree->Branch("t_trackP",            "vector<double>", &t_trackP            );
-  tree->Branch("t_trackPt",           "vector<double>", &t_trackPt           );
-  tree->Branch("t_trackEta",          "vector<double>", &t_trackEta          );
-  tree->Branch("t_trackPhi",          "vector<double>", &t_trackPhi          );
-  tree->Branch("t_trackEcalEta",      "vector<double>", &t_trackEcalEta      );
-  tree->Branch("t_trackEcalPhi",      "vector<double>", &t_trackEcalPhi      );
-  tree->Branch("t_trackHcalEta",      "vector<double>", &t_trackHcalEta      );
-  tree->Branch("t_trackHcalPhi",      "vector<double>", &t_trackHcalPhi      );
+  tree_->Branch("t_trackP",            "std::vector<double>", &t_trackP            );
+  tree_->Branch("t_trackPt",           "std::vector<double>", &t_trackPt           );
+  tree_->Branch("t_trackEta",          "std::vector<double>", &t_trackEta          );
+  tree_->Branch("t_trackPhi",          "std::vector<double>", &t_trackPhi          );
+  tree_->Branch("t_trackEcalEta",      "std::vector<double>", &t_trackEcalEta      );
+  tree_->Branch("t_trackEcalPhi",      "std::vector<double>", &t_trackEcalPhi      );
+  tree_->Branch("t_trackHcalEta",      "std::vector<double>", &t_trackHcalEta      );
+  tree_->Branch("t_trackHcalPhi",      "std::vector<double>", &t_trackHcalPhi      );
 
-  tree->Branch("t_trackNOuterHits",      "vector<int>",    &t_trackNOuterHits   );
-  tree->Branch("t_NLayersCrossed",       "vector<int>",    &t_NLayersCrossed    );
-  tree->Branch("t_trackHitsTOB",         "vector<int>",   &t_trackHitsTOB      ); 
-  tree->Branch("t_trackHitsTEC",         "vector<int>",   &t_trackHitsTEC      );
-  tree->Branch("t_trackHitInMissTOB",    "vector<int>",   &t_trackHitInMissTOB ); 
-  tree->Branch("t_trackHitInMissTEC",    "vector<int>",   &t_trackHitInMissTEC );  
-  tree->Branch("t_trackHitInMissTIB",    "vector<int>",   &t_trackHitInMissTIB );  
-  tree->Branch("t_trackHitInMissTID",    "vector<int>",   &t_trackHitInMissTID );
-  tree->Branch("t_trackHitInMissTIBTID", "vector<int>",   &t_trackHitInMissTIBTID );  
-  tree->Branch("t_trackHitOutMissTOB",   "vector<int>",   &t_trackHitOutMissTOB);
-  tree->Branch("t_trackHitOutMissTEC",   "vector<int>",   &t_trackHitOutMissTEC); 
-  tree->Branch("t_trackHitOutMissTIB",   "vector<int>",   &t_trackHitOutMissTIB);
-  tree->Branch("t_trackHitOutMissTID",   "vector<int>",   &t_trackHitOutMissTID);
-  tree->Branch("t_trackHitOutMissTOBTEC","vector<int>",   &t_trackHitOutMissTOBTEC);
-  tree->Branch("t_trackHitInMeasTOB",    "vector<int>",   &t_trackHitInMeasTOB ); 
-  tree->Branch("t_trackHitInMeasTEC",    "vector<int>",   &t_trackHitInMeasTEC );  
-  tree->Branch("t_trackHitInMeasTIB",    "vector<int>",   &t_trackHitInMeasTIB );  
-  tree->Branch("t_trackHitInMeasTID",    "vector<int>",   &t_trackHitInMeasTID );
-  tree->Branch("t_trackHitOutMeasTOB",   "vector<int>",   &t_trackHitOutMeasTOB);
-  tree->Branch("t_trackHitOutMeasTEC",   "vector<int>",   &t_trackHitOutMeasTEC); 
-  tree->Branch("t_trackHitOutMeasTIB",   "vector<int>",   &t_trackHitOutMeasTIB);
-  tree->Branch("t_trackHitOutMeasTID",   "vector<int>",   &t_trackHitOutMeasTID);
-  tree->Branch("t_trackOutPosOutHitDr",  "vector<double>", &t_trackOutPosOutHitDr);
-  tree->Branch("t_trackL",               "vector<double>", &t_trackL);
+  tree_->Branch("t_trackNOuterHits",      "std::vector<int>",    &t_trackNOuterHits   );
+  tree_->Branch("t_NLayersCrossed",       "std::vector<int>",    &t_NLayersCrossed    );
+  tree_->Branch("t_trackHitsTOB",         "std::vector<int>",   &t_trackHitsTOB      ); 
+  tree_->Branch("t_trackHitsTEC",         "std::vector<int>",   &t_trackHitsTEC      );
+  tree_->Branch("t_trackHitInMissTOB",    "std::vector<int>",   &t_trackHitInMissTOB ); 
+  tree_->Branch("t_trackHitInMissTEC",    "std::vector<int>",   &t_trackHitInMissTEC );  
+  tree_->Branch("t_trackHitInMissTIB",    "std::vector<int>",   &t_trackHitInMissTIB );  
+  tree_->Branch("t_trackHitInMissTID",    "std::vector<int>",   &t_trackHitInMissTID );
+  tree_->Branch("t_trackHitInMissTIBTID", "std::vector<int>",   &t_trackHitInMissTIBTID );  
+  tree_->Branch("t_trackHitOutMissTOB",   "std::vector<int>",   &t_trackHitOutMissTOB);
+  tree_->Branch("t_trackHitOutMissTEC",   "std::vector<int>",   &t_trackHitOutMissTEC); 
+  tree_->Branch("t_trackHitOutMissTIB",   "std::vector<int>",   &t_trackHitOutMissTIB);
+  tree_->Branch("t_trackHitOutMissTID",   "std::vector<int>",   &t_trackHitOutMissTID);
+  tree_->Branch("t_trackHitOutMissTOBTEC","std::vector<int>",   &t_trackHitOutMissTOBTEC);
+  tree_->Branch("t_trackHitInMeasTOB",    "std::vector<int>",   &t_trackHitInMeasTOB ); 
+  tree_->Branch("t_trackHitInMeasTEC",    "std::vector<int>",   &t_trackHitInMeasTEC );  
+  tree_->Branch("t_trackHitInMeasTIB",    "std::vector<int>",   &t_trackHitInMeasTIB );  
+  tree_->Branch("t_trackHitInMeasTID",    "std::vector<int>",   &t_trackHitInMeasTID );
+  tree_->Branch("t_trackHitOutMeasTOB",   "std::vector<int>",   &t_trackHitOutMeasTOB);
+  tree_->Branch("t_trackHitOutMeasTEC",   "std::vector<int>",   &t_trackHitOutMeasTEC); 
+  tree_->Branch("t_trackHitOutMeasTIB",   "std::vector<int>",   &t_trackHitOutMeasTIB);
+  tree_->Branch("t_trackHitOutMeasTID",   "std::vector<int>",   &t_trackHitOutMeasTID);
+  tree_->Branch("t_trackOutPosOutHitDr",  "std::vector<double>", &t_trackOutPosOutHitDr);
+  tree_->Branch("t_trackL",               "std::vector<double>", &t_trackL);
 
-  tree->Branch("t_trackDxy",          "vector<double>", &t_trackDxy     );
-  tree->Branch("t_trackDxyBS",        "vector<double>", &t_trackDxyBS   );
-  tree->Branch("t_trackDz",           "vector<double>", &t_trackDz      );
-  tree->Branch("t_trackDzBS",         "vector<double>", &t_trackDzBS    );
-  tree->Branch("t_trackDxyPV",        "vector<double>", &t_trackDxyPV   );
-  tree->Branch("t_trackDzPV",         "vector<double>", &t_trackDzPV    );
-  tree->Branch("t_trackChiSq",        "vector<double>", &t_trackChiSq   );
-  tree->Branch("t_trackPVIdx",        "vector<int>",    &t_trackPVIdx   );
+  tree_->Branch("t_trackDxy",          "std::vector<double>", &t_trackDxy     );
+  tree_->Branch("t_trackDxyBS",        "std::vector<double>", &t_trackDxyBS   );
+  tree_->Branch("t_trackDz",           "std::vector<double>", &t_trackDz      );
+  tree_->Branch("t_trackDzBS",         "std::vector<double>", &t_trackDzBS    );
+  tree_->Branch("t_trackDxyPV",        "std::vector<double>", &t_trackDxyPV   );
+  tree_->Branch("t_trackDzPV",         "std::vector<double>", &t_trackDzPV    );
+  tree_->Branch("t_trackChiSq",        "std::vector<double>", &t_trackChiSq   );
+  tree_->Branch("t_trackPVIdx",        "std::vector<int>",    &t_trackPVIdx   );
 
   t_maxNearP31x31     = new std::vector<double>();
   t_maxNearP21x21     = new std::vector<double>();
 
-  tree->Branch("t_maxNearP31x31",     "vector<double>", &t_maxNearP31x31);
-  tree->Branch("t_maxNearP21x21",     "vector<double>", &t_maxNearP21x21);
+  tree_->Branch("t_maxNearP31x31",     "std::vector<double>", &t_maxNearP31x31);
+  tree_->Branch("t_maxNearP21x21",     "std::vector<double>", &t_maxNearP21x21);
 
   t_ecalSpike11x11    = new std::vector<int>();
   t_e7x7              = new std::vector<double>();
@@ -1490,11 +2133,11 @@ void IsolatedTracksNxN::BookHistograms(){
   t_e11x11            = new std::vector<double>();
   t_e15x15            = new std::vector<double>();
 
-  tree->Branch("t_ecalSpike11x11",    "vector<int>",    &t_ecalSpike11x11);
-  tree->Branch("t_e7x7",              "vector<double>", &t_e7x7);
-  tree->Branch("t_e9x9",              "vector<double>", &t_e9x9);
-  tree->Branch("t_e11x11",            "vector<double>", &t_e11x11);
-  tree->Branch("t_e15x15",            "vector<double>", &t_e15x15);
+  tree_->Branch("t_ecalSpike11x11",    "std::vector<int>",    &t_ecalSpike11x11);
+  tree_->Branch("t_e7x7",              "std::vector<double>", &t_e7x7);
+  tree_->Branch("t_e9x9",              "std::vector<double>", &t_e9x9);
+  tree_->Branch("t_e11x11",            "std::vector<double>", &t_e11x11);
+  tree_->Branch("t_e15x15",            "std::vector<double>", &t_e15x15);
 
   t_e7x7_10Sig        = new std::vector<double>();
   t_e9x9_10Sig        = new std::vector<double>();
@@ -1517,28 +2160,28 @@ void IsolatedTracksNxN::BookHistograms(){
   t_e11x11_30Sig      = new std::vector<double>();
   t_e15x15_30Sig      = new std::vector<double>();
 
-  tree->Branch("t_e7x7_10Sig"        ,"vector<double>", &t_e7x7_10Sig);
-  tree->Branch("t_e9x9_10Sig"        ,"vector<double>", &t_e9x9_10Sig);
-  tree->Branch("t_e11x11_10Sig"      ,"vector<double>", &t_e11x11_10Sig);
-  tree->Branch("t_e15x15_10Sig"      ,"vector<double>", &t_e15x15_10Sig);
-  tree->Branch("t_e7x7_15Sig"        ,"vector<double>", &t_e7x7_15Sig);
-  tree->Branch("t_e9x9_15Sig"        ,"vector<double>", &t_e9x9_15Sig);
-  tree->Branch("t_e11x11_15Sig"      ,"vector<double>", &t_e11x11_15Sig);
-  tree->Branch("t_e15x15_15Sig"      ,"vector<double>", &t_e15x15_15Sig);
-  tree->Branch("t_e7x7_20Sig"        ,"vector<double>", &t_e7x7_20Sig);
-  tree->Branch("t_e9x9_20Sig"        ,"vector<double>", &t_e9x9_20Sig);
-  tree->Branch("t_e11x11_20Sig"      ,"vector<double>", &t_e11x11_20Sig);
-  tree->Branch("t_e15x15_20Sig"      ,"vector<double>", &t_e15x15_20Sig);
-  tree->Branch("t_e7x7_25Sig"        ,"vector<double>", &t_e7x7_25Sig);
-  tree->Branch("t_e9x9_25Sig"        ,"vector<double>", &t_e9x9_25Sig);
-  tree->Branch("t_e11x11_25Sig"      ,"vector<double>", &t_e11x11_25Sig);
-  tree->Branch("t_e15x15_25Sig"      ,"vector<double>", &t_e15x15_25Sig);
-  tree->Branch("t_e7x7_30Sig"        ,"vector<double>", &t_e7x7_30Sig);
-  tree->Branch("t_e9x9_30Sig"        ,"vector<double>", &t_e9x9_30Sig);
-  tree->Branch("t_e11x11_30Sig"      ,"vector<double>", &t_e11x11_30Sig);
-  tree->Branch("t_e15x15_30Sig"      ,"vector<double>", &t_e15x15_30Sig);
+  tree_->Branch("t_e7x7_10Sig"        ,"std::vector<double>", &t_e7x7_10Sig);
+  tree_->Branch("t_e9x9_10Sig"        ,"std::vector<double>", &t_e9x9_10Sig);
+  tree_->Branch("t_e11x11_10Sig"      ,"std::vector<double>", &t_e11x11_10Sig);
+  tree_->Branch("t_e15x15_10Sig"      ,"std::vector<double>", &t_e15x15_10Sig);
+  tree_->Branch("t_e7x7_15Sig"        ,"std::vector<double>", &t_e7x7_15Sig);
+  tree_->Branch("t_e9x9_15Sig"        ,"std::vector<double>", &t_e9x9_15Sig);
+  tree_->Branch("t_e11x11_15Sig"      ,"std::vector<double>", &t_e11x11_15Sig);
+  tree_->Branch("t_e15x15_15Sig"      ,"std::vector<double>", &t_e15x15_15Sig);
+  tree_->Branch("t_e7x7_20Sig"        ,"std::vector<double>", &t_e7x7_20Sig);
+  tree_->Branch("t_e9x9_20Sig"        ,"std::vector<double>", &t_e9x9_20Sig);
+  tree_->Branch("t_e11x11_20Sig"      ,"std::vector<double>", &t_e11x11_20Sig);
+  tree_->Branch("t_e15x15_20Sig"      ,"std::vector<double>", &t_e15x15_20Sig);
+  tree_->Branch("t_e7x7_25Sig"        ,"std::vector<double>", &t_e7x7_25Sig);
+  tree_->Branch("t_e9x9_25Sig"        ,"std::vector<double>", &t_e9x9_25Sig);
+  tree_->Branch("t_e11x11_25Sig"      ,"std::vector<double>", &t_e11x11_25Sig);
+  tree_->Branch("t_e15x15_25Sig"      ,"std::vector<double>", &t_e15x15_25Sig);
+  tree_->Branch("t_e7x7_30Sig"        ,"std::vector<double>", &t_e7x7_30Sig);
+  tree_->Branch("t_e9x9_30Sig"        ,"std::vector<double>", &t_e9x9_30Sig);
+  tree_->Branch("t_e11x11_30Sig"      ,"std::vector<double>", &t_e11x11_30Sig);
+  tree_->Branch("t_e15x15_30Sig"      ,"std::vector<double>", &t_e15x15_30Sig);
 
-  if (doMC) {
+  if (doMC_) {
     t_esim7x7              = new std::vector<double>();
     t_esim9x9              = new std::vector<double>();
     t_esim11x11            = new std::vector<double>();
@@ -1573,40 +2216,39 @@ void IsolatedTracksNxN::BookHistograms(){
     t_simTrackP            = new std::vector<double>();
     t_esimPdgId            = new std::vector<double>();
 
-    tree->Branch("t_esim7x7",             "vector<double>", &t_esim7x7);
-    tree->Branch("t_esim9x9",             "vector<double>", &t_esim9x9);
-    tree->Branch("t_esim11x11",           "vector<double>", &t_esim11x11);
-    tree->Branch("t_esim15x15",           "vector<double>", &t_esim15x15);
+    tree_->Branch("t_esim7x7",             "std::vector<double>", &t_esim7x7);
+    tree_->Branch("t_esim9x9",             "std::vector<double>", &t_esim9x9);
+    tree_->Branch("t_esim11x11",           "std::vector<double>", &t_esim11x11);
+    tree_->Branch("t_esim15x15",           "std::vector<double>", &t_esim15x15);
 
-    tree->Branch("t_esim7x7Matched",      "vector<double>", &t_esim7x7Matched);
-    tree->Branch("t_esim9x9Matched",      "vector<double>", &t_esim9x9Matched);
-    tree->Branch("t_esim11x11Matched",    "vector<double>", &t_esim11x11Matched);
-    tree->Branch("t_esim15x15Matched",    "vector<double>", &t_esim15x15Matched);
+    tree_->Branch("t_esim7x7Matched",      "std::vector<double>", &t_esim7x7Matched);
+    tree_->Branch("t_esim9x9Matched",      "std::vector<double>", &t_esim9x9Matched);
+    tree_->Branch("t_esim11x11Matched",    "std::vector<double>", &t_esim11x11Matched);
+    tree_->Branch("t_esim15x15Matched",    "std::vector<double>", &t_esim15x15Matched);
 
-    tree->Branch("t_esim7x7Rest",         "vector<double>", &t_esim7x7Rest);
-    tree->Branch("t_esim9x9Rest",         "vector<double>", &t_esim9x9Rest);
-    tree->Branch("t_esim11x11Rest",       "vector<double>", &t_esim11x11Rest);
-    tree->Branch("t_esim15x15Rest",       "vector<double>", &t_esim15x15Rest);
+    tree_->Branch("t_esim7x7Rest",         "std::vector<double>", &t_esim7x7Rest);
+    tree_->Branch("t_esim9x9Rest",         "std::vector<double>", &t_esim9x9Rest);
+    tree_->Branch("t_esim11x11Rest",       "std::vector<double>", &t_esim11x11Rest);
+    tree_->Branch("t_esim15x15Rest",       "std::vector<double>", &t_esim15x15Rest);
 
-    tree->Branch("t_esim7x7Photon",       "vector<double>", &t_esim7x7Photon);
-    tree->Branch("t_esim9x9Photon",       "vector<double>", &t_esim9x9Photon);
-    tree->Branch("t_esim11x11Photon",     "vector<double>", &t_esim11x11Photon);
-    tree->Branch("t_esim15x15Photon",     "vector<double>", &t_esim15x15Photon);
+    tree_->Branch("t_esim7x7Photon",       "std::vector<double>", &t_esim7x7Photon);
+    tree_->Branch("t_esim9x9Photon",       "std::vector<double>", &t_esim9x9Photon);
+    tree_->Branch("t_esim11x11Photon",     "std::vector<double>", &t_esim11x11Photon);
+    tree_->Branch("t_esim15x15Photon",     "std::vector<double>", &t_esim15x15Photon);
 
-;
-    tree->Branch("t_esim7x7NeutHad",      "vector<double>", &t_esim7x7NeutHad);
-    tree->Branch("t_esim9x9NeutHad",      "vector<double>", &t_esim9x9NeutHad);
-    tree->Branch("t_esim11x11NeutHad",    "vector<double>", &t_esim11x11NeutHad);
-    tree->Branch("t_esim15x15NeutHad",    "vector<double>", &t_esim15x15NeutHad);
+    tree_->Branch("t_esim7x7NeutHad",      "std::vector<double>", &t_esim7x7NeutHad);
+    tree_->Branch("t_esim9x9NeutHad",      "std::vector<double>", &t_esim9x9NeutHad);
+    tree_->Branch("t_esim11x11NeutHad",    "std::vector<double>", &t_esim11x11NeutHad);
+    tree_->Branch("t_esim15x15NeutHad",    "std::vector<double>", &t_esim15x15NeutHad);
 
-    tree->Branch("t_esim7x7CharHad",      "vector<double>", &t_esim7x7CharHad);
-    tree->Branch("t_esim9x9CharHad",      "vector<double>", &t_esim9x9CharHad);
-    tree->Branch("t_esim11x11CharHad",    "vector<double>", &t_esim11x11CharHad);
-    tree->Branch("t_esim15x15CharHad",    "vector<double>", &t_esim15x15CharHad);
+    tree_->Branch("t_esim7x7CharHad",      "std::vector<double>", &t_esim7x7CharHad);
+    tree_->Branch("t_esim9x9CharHad",      "std::vector<double>", &t_esim9x9CharHad);
+    tree_->Branch("t_esim11x11CharHad",    "std::vector<double>", &t_esim11x11CharHad);
+    tree_->Branch("t_esim15x15CharHad",    "std::vector<double>", &t_esim15x15CharHad);
 
-    tree->Branch("t_trkEcalEne",          "vector<double>", &t_trkEcalEne);
-    tree->Branch("t_simTrackP",           "vector<double>", &t_simTrackP);
-    tree->Branch("t_esimPdgId",           "vector<double>", &t_esimPdgId);
+    tree_->Branch("t_trkEcalEne",          "std::vector<double>", &t_trkEcalEne);
+    tree_->Branch("t_simTrackP",           "std::vector<double>", &t_simTrackP);
+    tree_->Branch("t_esimPdgId",           "std::vector<double>", &t_esimPdgId);
   }
 
   t_maxNearHcalP3x3      = new std::vector<double>();
@@ -1620,7 +2262,7 @@ void IsolatedTracksNxN::BookHistograms(){
   t_h7x7Sig              = new std::vector<double>();
   t_infoHcal             = new std::vector<int>();
 
-  if (doMC) {
+  if (doMC_) {
     t_trkHcalEne           = new std::vector<double>();
     t_hsim3x3              = new std::vector<double>();
     t_hsim5x5              = new std::vector<double>();
@@ -1642,58 +2284,53 @@ void IsolatedTracksNxN::BookHistograms(){
     t_hsim7x7CharHad       = new std::vector<double>();
   }
 
-  tree->Branch("t_maxNearHcalP3x3",     "vector<double>", &t_maxNearHcalP3x3);
-  tree->Branch("t_maxNearHcalP5x5",     "vector<double>", &t_maxNearHcalP5x5);
-  tree->Branch("t_maxNearHcalP7x7",     "vector<double>", &t_maxNearHcalP7x7);
-  tree->Branch("t_h3x3",                "vector<double>", &t_h3x3);
-  tree->Branch("t_h5x5",                "vector<double>", &t_h5x5);
-  tree->Branch("t_h7x7",                "vector<double>", &t_h7x7);
-  tree->Branch("t_h3x3Sig",             "vector<double>", &t_h3x3Sig);
-  tree->Branch("t_h5x5Sig",             "vector<double>", &t_h5x5Sig);
-  tree->Branch("t_h7x7Sig",             "vector<double>", &t_h7x7Sig);
-  tree->Branch("t_infoHcal",            "vector<int>",    &t_infoHcal);
+  tree_->Branch("t_maxNearHcalP3x3",     "std::vector<double>", &t_maxNearHcalP3x3);
+  tree_->Branch("t_maxNearHcalP5x5",     "std::vector<double>", &t_maxNearHcalP5x5);
+  tree_->Branch("t_maxNearHcalP7x7",     "std::vector<double>", &t_maxNearHcalP7x7);
+  tree_->Branch("t_h3x3",                "std::vector<double>", &t_h3x3);
+  tree_->Branch("t_h5x5",                "std::vector<double>", &t_h5x5);
+  tree_->Branch("t_h7x7",                "std::vector<double>", &t_h7x7);
+  tree_->Branch("t_h3x3Sig",             "std::vector<double>", &t_h3x3Sig);
+  tree_->Branch("t_h5x5Sig",             "std::vector<double>", &t_h5x5Sig);
+  tree_->Branch("t_h7x7Sig",             "std::vector<double>", &t_h7x7Sig);
+  tree_->Branch("t_infoHcal",            "std::vector<int>",    &t_infoHcal);
 
-  if (doMC) {
-    tree->Branch("t_trkHcalEne",          "vector<double>", &t_trkHcalEne);
-    tree->Branch("t_hsim3x3",             "vector<double>", &t_hsim3x3);
-    tree->Branch("t_hsim5x5",             "vector<double>", &t_hsim5x5);
-    tree->Branch("t_hsim7x7",             "vector<double>", &t_hsim7x7);
-    tree->Branch("t_hsim3x3Matched",      "vector<double>", &t_hsim3x3Matched);
-    tree->Branch("t_hsim5x5Matched",      "vector<double>", &t_hsim5x5Matched);
-    tree->Branch("t_hsim7x7Matched",      "vector<double>", &t_hsim7x7Matched);
-    tree->Branch("t_hsim3x3Rest",         "vector<double>", &t_hsim3x3Rest);
-    tree->Branch("t_hsim5x5Rest",         "vector<double>", &t_hsim5x5Rest);
-    tree->Branch("t_hsim7x7Rest",         "vector<double>", &t_hsim7x7Rest);
-    tree->Branch("t_hsim3x3Photon",       "vector<double>", &t_hsim3x3Photon);
-    tree->Branch("t_hsim5x5Photon",       "vector<double>", &t_hsim5x5Photon);
-    tree->Branch("t_hsim7x7Photon",       "vector<double>", &t_hsim7x7Photon);
-    tree->Branch("t_hsim3x3NeutHad",      "vector<double>", &t_hsim3x3NeutHad);
-    tree->Branch("t_hsim5x5NeutHad",      "vector<double>", &t_hsim5x5NeutHad);
-    tree->Branch("t_hsim7x7NeutHad",      "vector<double>", &t_hsim7x7NeutHad);
-    tree->Branch("t_hsim3x3CharHad",      "vector<double>", &t_hsim3x3CharHad);
-    tree->Branch("t_hsim5x5CharHad",      "vector<double>", &t_hsim5x5CharHad);
-    tree->Branch("t_hsim7x7CharHad",      "vector<double>", &t_hsim7x7CharHad);
+  if (doMC_) {
+    tree_->Branch("t_trkHcalEne",          "std::vector<double>", &t_trkHcalEne);
+    tree_->Branch("t_hsim3x3",             "std::vector<double>", &t_hsim3x3);
+    tree_->Branch("t_hsim5x5",             "std::vector<double>", &t_hsim5x5);
+    tree_->Branch("t_hsim7x7",             "std::vector<double>", &t_hsim7x7);
+    tree_->Branch("t_hsim3x3Matched",      "std::vector<double>", &t_hsim3x3Matched);
+    tree_->Branch("t_hsim5x5Matched",      "std::vector<double>", &t_hsim5x5Matched);
+    tree_->Branch("t_hsim7x7Matched",      "std::vector<double>", &t_hsim7x7Matched);
+    tree_->Branch("t_hsim3x3Rest",         "std::vector<double>", &t_hsim3x3Rest);
+    tree_->Branch("t_hsim5x5Rest",         "std::vector<double>", &t_hsim5x5Rest);
+    tree_->Branch("t_hsim7x7Rest",         "std::vector<double>", &t_hsim7x7Rest);
+    tree_->Branch("t_hsim3x3Photon",       "std::vector<double>", &t_hsim3x3Photon);
+    tree_->Branch("t_hsim5x5Photon",       "std::vector<double>", &t_hsim5x5Photon);
+    tree_->Branch("t_hsim7x7Photon",       "std::vector<double>", &t_hsim7x7Photon);
+    tree_->Branch("t_hsim3x3NeutHad",      "std::vector<double>", &t_hsim3x3NeutHad);
+    tree_->Branch("t_hsim5x5NeutHad",      "std::vector<double>", &t_hsim5x5NeutHad);
+    tree_->Branch("t_hsim7x7NeutHad",      "std::vector<double>", &t_hsim7x7NeutHad);
+    tree_->Branch("t_hsim3x3CharHad",      "std::vector<double>", &t_hsim3x3CharHad);
+    tree_->Branch("t_hsim5x5CharHad",      "std::vector<double>", &t_hsim5x5CharHad);
+    tree_->Branch("t_hsim7x7CharHad",      "std::vector<double>", &t_hsim7x7CharHad);
   }
-  tree->Branch("t_nTracks",             &t_nTracks,       "t_nTracks/I");
+  tree_->Branch("t_nTracks",             &t_nTracks,       "t_nTracks/I");
 
 }
 
-
-double IsolatedTracksNxN::DeltaPhi(double v1, double v2) {
+double IsolatedTracksNxN::deltaPhi(double v1, double v2) {
   // Computes the correctly normalized phi difference
   // v1, v2 = phi of object 1 and 2
-  
-  double pi    = 3.141592654;
-  double twopi = 6.283185307;
-  
   double diff = std::abs(v2 - v1);
-  double corr = twopi - diff;
-  if (diff < pi){ return diff;} else { return corr;} 
+  double corr = 2*M_PI - diff;
+  return ((diff < M_PI) ? diff : corr); 
 }
 
-double IsolatedTracksNxN::DeltaR(double eta1, double phi1, double eta2, double phi2) {
+double IsolatedTracksNxN::deltaR(double eta1, double phi1, double eta2, double phi2) {
   double deta = eta1 - eta2;
-  double dphi = DeltaPhi(phi1, phi2);
+  double dphi = deltaPhi(phi1, phi2);
   return std::sqrt(deta*deta + dphi*dphi);
 }
 
@@ -1702,45 +2339,56 @@ void IsolatedTracksNxN::printTrack(const reco::Track* pTrack) {
   std::string theTrackQuality = "highPurity";
   reco::TrackBase::TrackQuality trackQuality_ = reco::TrackBase::qualityByName(theTrackQuality);
 
-  std::cout << " Reference Point " << pTrack->referencePoint() <<"\n"
-	    << " TrackMmentum " << pTrack->momentum()
-	    << " (pt,eta,phi)(" << pTrack->pt()<<","<<pTrack->eta()<<","<<pTrack->phi()<<")"
-	    << " p " << pTrack->p() << "\n"
-	    << " Normalized chi2 " << pTrack->normalizedChi2() <<"  charge " << pTrack->charge()
-	    << " qoverp() " << pTrack->qoverp() <<"+-" << pTrack->qoverpError()
-	    << " d0 " << pTrack->d0() << "\n"
-	    << " NValidHits " << pTrack->numberOfValidHits() << "  NLostHits " << pTrack->numberOfLostHits()
-	    << " TrackQuality " << pTrack->qualityName(trackQuality_) << " " << pTrack->quality(trackQuality_) 
-	    << std::endl;
+  edm::LogVerbatim("IsoTrack") << " Reference Point " <<pTrack->referencePoint()
+			       << "\n TrackMmentum " << pTrack->momentum()
+			       << " (pt,eta,phi)(" << pTrack->pt() << ","
+			       << pTrack->eta() << "," << pTrack->phi() << ")"
+			       << " p " << pTrack->p() << "\n Normalized chi2 "
+			       << pTrack->normalizedChi2() << "  charge " 
+			       << pTrack->charge() << " qoverp() " 
+			       << pTrack->qoverp() << "+-" 
+			       << pTrack->qoverpError() << " d0 " 
+			       << pTrack->d0() << "\n NValidHits " 
+			       << pTrack->numberOfValidHits() << "  NLostHits "
+			       << pTrack->numberOfLostHits() << " TrackQuality "
+			       << pTrack->qualityName(trackQuality_) << " " 
+			       << pTrack->quality(trackQuality_);
   
   if( printTrkHitPattern_ ) {
     const reco::HitPattern& p = pTrack->hitPattern();
 
-    std::cout<<"default " << std::endl;
-    for (int i=0; i<p.numberOfHits(reco::HitPattern::TRACK_HITS); i++) {
+    edm::LogVerbatim("IsoTrack") << "default ";
+    for (int i=0; i<p.numberOfAllHits(reco::HitPattern::TRACK_HITS); i++) {
       p.printHitPattern(reco::HitPattern::TRACK_HITS, i, std::cout);
     }
-    std::cout<<"trackerMissingInnerHits() " << std::endl;
-    for (int i=0; i<p.numberOfHits(reco::HitPattern::MISSING_INNER_HITS); i++) {
+    edm::LogVerbatim("IsoTrack")<<"trackerMissingInnerHits() ";
+    for (int i=0; i<p.numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS); i++) {
       p.printHitPattern(reco::HitPattern::MISSING_INNER_HITS, i, std::cout);
     }
-    std::cout<<"trackerMissingOuterHits() " << std::endl;
-    for (int i=0; i<p.numberOfHits(reco::HitPattern::MISSING_OUTER_HITS); i++) {
+    edm::LogVerbatim("IsoTrack")<<"trackerMissingOuterHits() ";
+    for (int i=0; i<p.numberOfAllHits(reco::HitPattern::MISSING_OUTER_HITS); i++) {
       p.printHitPattern(reco::HitPattern::MISSING_OUTER_HITS, i, std::cout);
     }
 
 
-    std::cout << "\n \t trackerLayersWithMeasurement() "     << p.trackerLayersWithMeasurement() 
-	      << "\n \t pixelLayersWithMeasurement() "       << p.pixelLayersWithMeasurement() 
-	      << "\n \t stripLayersWithMeasurement() "       << p.stripLayersWithMeasurement()  
-	      << "\n \t pixelBarrelLayersWithMeasurement() " << p.pixelBarrelLayersWithMeasurement()
-	      << "\n \t pixelEndcapLayersWithMeasurement() " << p.pixelEndcapLayersWithMeasurement()
-	      << "\n \t stripTIBLayersWithMeasurement() "    << p.stripTIBLayersWithMeasurement()
-	      << "\n \t stripTIDLayersWithMeasurement() "    << p.stripTIDLayersWithMeasurement()
-	      << "\n \t stripTOBLayersWithMeasurement() "    << p.stripTOBLayersWithMeasurement()
-	      << "\n \t stripTECLayersWithMeasurement() "    << p.stripTECLayersWithMeasurement()
-	      << std::endl;
-
+    edm::LogVerbatim("IsoTrack") << "\n \t trackerLayersWithMeasurement() "     
+				 << p.trackerLayersWithMeasurement() 
+				 << "\n \t pixelLayersWithMeasurement() "
+				 << p.pixelLayersWithMeasurement() 
+				 << "\n \t stripLayersWithMeasurement() " 
+				 << p.stripLayersWithMeasurement()  
+				 << "\n \t pixelBarrelLayersWithMeasurement() "
+				 << p.pixelBarrelLayersWithMeasurement()
+				 << "\n \t pixelEndcapLayersWithMeasurement() "
+				 << p.pixelEndcapLayersWithMeasurement()
+				 << "\n \t stripTIBLayersWithMeasurement() "    
+				 << p.stripTIBLayersWithMeasurement()
+				 << "\n \t stripTIDLayersWithMeasurement() "    
+				 << p.stripTIDLayersWithMeasurement()
+				 << "\n \t stripTOBLayersWithMeasurement() "
+				 << p.stripTOBLayersWithMeasurement()
+				 << "\n \t stripTECLayersWithMeasurement() "
+				 << p.stripTECLayersWithMeasurement();
   }
 }
 

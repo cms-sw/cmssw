@@ -27,12 +27,12 @@ class TtFullHadSignalSelMVATrainer : public edm::EDAnalyzer {
  public:
 
   explicit TtFullHadSignalSelMVATrainer(const edm::ParameterSet&);
-  ~TtFullHadSignalSelMVATrainer();
+  ~TtFullHadSignalSelMVATrainer() override;
 
  private:
 
-  virtual void analyze(const edm::Event& evt, const edm::EventSetup& setup);
-  virtual void beginJob();
+  void analyze(const edm::Event& evt, const edm::EventSetup& setup) override;
+  void beginJob() override;
 
   edm::EDGetTokenT< std::vector<pat::Jet> > jetsToken_;
   edm::EDGetTokenT<TtGenEvent> genEvtToken_;

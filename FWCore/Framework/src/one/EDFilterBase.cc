@@ -55,11 +55,12 @@ namespace edm {
                           ModuleCallingContext const* mcc) {
       Event e(ep, moduleDescription_, mcc);
       e.setConsumer(this);
+      e.setProducer(this,&previousParentage_);
       bool returnValue =true;
       e.setSharedResourcesAcquirer(&resourcesAcquirer_);
       EventSignalsSentry sentry(act,mcc);
       returnValue = this->filter(e, c);
-      commit_(e,&previousParentage_, &previousParentageId_);
+      commit_(e, &previousParentageId_);
       return returnValue;
     }
     
@@ -67,6 +68,9 @@ namespace edm {
       return SharedResourcesAcquirer{
         std::vector<std::shared_ptr<SerialTaskQueue>>(1, std::make_shared<SerialTaskQueue>())};
     }
+
+    SerialTaskQueue* EDFilterBase::globalRunsQueue() {return nullptr;}
+    SerialTaskQueue* EDFilterBase::globalLuminosityBlocksQueue() {return nullptr;};
 
     void
     EDFilterBase::doBeginJob() {
@@ -89,10 +93,11 @@ namespace edm {
     void
     EDFilterBase::doBeginRun(RunPrincipal const& rp, EventSetup const& c,
                              ModuleCallingContext const* mcc) {
-      Run r(rp, moduleDescription_, mcc);
+      Run r(rp, moduleDescription_, mcc, false);
       r.setConsumer(this);
       Run const& cnstR = r;
       this->doBeginRun_(cnstR, c);
+      r.setProducer(this);
       this->doBeginRunProduce_(r,c);
       commit_(r);
     }
@@ -100,10 +105,11 @@ namespace edm {
     void
     EDFilterBase::doEndRun(RunPrincipal const& rp, EventSetup const& c,
                            ModuleCallingContext const* mcc) {
-      Run r(rp, moduleDescription_, mcc);
+      Run r(rp, moduleDescription_, mcc, true);
       r.setConsumer(this);
       Run const& cnstR = r;
       this->doEndRun_(cnstR, c);
+      r.setProducer(this);
       this->doEndRunProduce_(r, c);
       commit_(r);
     }
@@ -111,10 +117,11 @@ namespace edm {
     void
     EDFilterBase::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                          ModuleCallingContext const* mcc) {
-      LuminosityBlock lb(lbp, moduleDescription_, mcc);
+      LuminosityBlock lb(lbp, moduleDescription_, mcc, false);
       lb.setConsumer(this);
       LuminosityBlock const& cnstLb = lb;
       this->doBeginLuminosityBlock_(cnstLb, c);
+      lb.setProducer(this);
       this->doBeginLuminosityBlockProduce_(lb, c);
       commit_(lb);
     }
@@ -122,10 +129,11 @@ namespace edm {
     void
     EDFilterBase::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                        ModuleCallingContext const* mcc) {
-      LuminosityBlock lb(lbp, moduleDescription_, mcc);
+      LuminosityBlock lb(lbp, moduleDescription_, mcc, true);
       lb.setConsumer(this);
       LuminosityBlock const& cnstLb = lb;
       this->doEndLuminosityBlock_(cnstLb, c);
+      lb.setProducer(this);
       this->doEndLuminosityBlockProduce_(lb, c);
       commit_(lb);
     }
@@ -138,16 +146,6 @@ namespace edm {
     void
     EDFilterBase::doRespondToCloseInputFile(FileBlock const& fb) {
       //respondToCloseInputFile(fb);
-    }
-    
-    void
-    EDFilterBase::doPreForkReleaseResources() {
-      preForkReleaseResources();
-    }
-    
-    void
-    EDFilterBase::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-      postForkReacquireResources(iChildIndex, iNumberOfChildren);
     }
     
     void EDFilterBase::doBeginRun_(Run const& rp, EventSetup const& c) {}

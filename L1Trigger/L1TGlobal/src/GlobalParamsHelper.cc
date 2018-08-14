@@ -21,7 +21,7 @@ GlobalParamsHelper::GlobalParamsHelper(L1TGlobalParameters * w) {
   read_ = write_; 
 }
 
-GlobalParamsHelper::GlobalParamsHelper(const L1TGlobalParameters * es) {read_ = es; write_=NULL;}
+GlobalParamsHelper::GlobalParamsHelper(const L1TGlobalParameters * es) {read_ = es; write_=nullptr;}
 
 void GlobalParamsHelper::useCopy(){
   write_ = new L1TGlobalParameters(*read_);

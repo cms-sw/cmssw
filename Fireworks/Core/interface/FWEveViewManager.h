@@ -31,6 +31,7 @@
 // forward declarations
 class TEveCompund;
 class TEveScene;
+class TEveElement;
 class TEveWindowSlot;
 class FWViewBase;
 class FWEveView;
@@ -57,35 +58,35 @@ public:
    };
 
    FWEveViewManager(FWGUIManager*);
-   virtual ~FWEveViewManager();
+   ~FWEveViewManager() override;
 
    // ---------- const member functions ---------------------
 
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   virtual void newItem(const FWEventItem*);
+   void newItem(const FWEventItem*) override;
    virtual void removeItem(const FWEventItem*);
-   virtual void eventBegin();
-   virtual void eventEnd();
-   virtual void setContext(const fireworks::Context*);
+   void eventBegin() override;
+   void eventEnd() override;
+   void setContext(const fireworks::Context*) override;
 
    void highlightAdded(TEveElement*);
    void selectionAdded(TEveElement*);
    void selectionRemoved(TEveElement*);
    void selectionCleared();
 
-   FWTypeToRepresentations supportedTypesAndRepresentations() const;
+   FWTypeToRepresentations supportedTypesAndRepresentations() const override;
 
    static void syncAllViews() { s_syncAllViews = true; }
 protected:
-   virtual void modelChangesComing();
-   virtual void modelChangesDone();
-   virtual void colorsChanged();
+   void modelChangesComing() override;
+   void modelChangesDone() override;
+   void colorsChanged() override;
 
 private:
-   FWEveViewManager(const FWEveViewManager&); // stop default
-   const FWEveViewManager& operator=(const FWEveViewManager&); // stop default
+   FWEveViewManager(const FWEveViewManager&) = delete; // stop default
+   const FWEveViewManager& operator=(const FWEveViewManager&) = delete; // stop default
 
    FWViewBase* buildView(TEveWindowSlot* iParent, const std::string& type);
    FWEveView*  finishViewCreate     (std::shared_ptr<FWEveView>);
@@ -95,6 +96,7 @@ private:
    void itemChanged(const FWEventItem*);
    bool haveViewForBit (int) const;
    void globalEnergyScaleChanged();
+   void eventCenterChanged();
 
    // ---------- member data --------------------------------
    

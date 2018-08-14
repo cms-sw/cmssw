@@ -9,11 +9,14 @@
 <use   name="Geometry/Records"/>
 <use   name="SimDataFormats/CaloTest"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="SimDataFormats/HcalTestBeam"/>
 <use   name="SimDataFormats/Track"/>
 <use   name="SimDataFormats/Vertex"/>
 <use   name="SimG4CMS/HGCalTestBeam"/>
+<use   name="SimG4CMS/Calo"/>
 <use   name="SimG4Core/Notification"/>
 <use   name="SimG4Core/Watcher"/>
+<use   name="geant4core"/>
 <use   name="clhep"/>
 <use   name="rootphysics"/>
 <use   name="root"/>

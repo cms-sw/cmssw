@@ -13,7 +13,7 @@
 #define TauAnalysis_MCEmbeddingTools_TrackMergeremb_H
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -39,10 +39,10 @@ class TrackMergeremb : public edm::stream::EDProducer<>
 {
  public:
   explicit TrackMergeremb(const edm::ParameterSet&);
-  ~TrackMergeremb();
+  ~TrackMergeremb() override;
 
  private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
   typedef T1 TrackCollectionemb;
   

@@ -42,7 +42,7 @@ class FastTimeTopologyBuilder : public edm::ESProducer {
 
 public:
   FastTimeTopologyBuilder( const edm::ParameterSet& iP );
-  ~FastTimeTopologyBuilder() ;
+  ~FastTimeTopologyBuilder() override ;
 
   typedef std::shared_ptr< FastTimeTopology > ReturnType;
 

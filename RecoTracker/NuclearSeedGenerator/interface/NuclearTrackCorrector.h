@@ -24,7 +24,7 @@
 // system include files
 #include <memory>
 #include <string>
-#include <stdio.h>
+#include <cstdio>
 
 // user include files
 
@@ -82,11 +82,11 @@ public:
    public:
 
       explicit NuclearTrackCorrector(const edm::ParameterSet&);
-      ~NuclearTrackCorrector();
+      ~NuclearTrackCorrector() override;
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       /// check if the trajectory has to be refitted and get the new trajectory
       bool newTrajNeeded(Trajectory& newtrajectory, const TrajectoryRef& trajRef, const reco::NuclearInteraction& ni);

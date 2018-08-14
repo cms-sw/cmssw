@@ -165,25 +165,25 @@ public:
   std::string oEtaExtrapolationLUTPath() const     { return pnodes_[oEtaExtrapolation].sparams_.size() > spIdx::fname ? pnodes_[oEtaExtrapolation].sparams_[spIdx::fname] : ""; }
   std::string fEtaExtrapolationLUTPath() const     { return pnodes_[fEtaExtrapolation].sparams_.size() > spIdx::fname ? pnodes_[fEtaExtrapolation].sparams_[spIdx::fname] : ""; }
   std::string sortRankLUTPath() const              { return pnodes_[sortRank].sparams_.size() > spIdx::fname ? pnodes_[sortRank].sparams_[spIdx::fname] : ""; }
-  void setAbsIsoCheckMemLUTPath        (std::string path) { pnodes_[absIsoCheckMem].sparams_.push_back(path); }
-  void setRelIsoCheckMemLUTPath        (std::string path) { pnodes_[relIsoCheckMem].sparams_.push_back(path); }
-  void setIdxSelMemPhiLUTPath          (std::string path) { pnodes_[idxSelMemPhi].sparams_.push_back(path); }
-  void setIdxSelMemEtaLUTPath          (std::string path) { pnodes_[idxSelMemEta].sparams_.push_back(path); }
-  void setFwdPosSingleMatchQualLUTPath (std::string path) { pnodes_[fwdPosSingleMatchQual].sparams_.push_back(path); }
-  void setFwdNegSingleMatchQualLUTPath (std::string path) { pnodes_[fwdNegSingleMatchQual].sparams_.push_back(path); }
-  void setOvlPosSingleMatchQualLUTPath (std::string path) { pnodes_[ovlPosSingleMatchQual].sparams_.push_back(path); }
-  void setOvlNegSingleMatchQualLUTPath (std::string path) { pnodes_[ovlNegSingleMatchQual].sparams_.push_back(path); }
-  void setBOPosMatchQualLUTPath        (std::string path) { pnodes_[bOPosMatchQual].sparams_.push_back(path); }
-  void setBONegMatchQualLUTPath        (std::string path) { pnodes_[bONegMatchQual].sparams_.push_back(path); }
-  void setFOPosMatchQualLUTPath        (std::string path) { pnodes_[fOPosMatchQual].sparams_.push_back(path); }
-  void setFONegMatchQualLUTPath        (std::string path) { pnodes_[fONegMatchQual].sparams_.push_back(path); }
-  void setBPhiExtrapolationLUTPath     (std::string path) { pnodes_[bPhiExtrapolation].sparams_.push_back(path); }
-  void setOPhiExtrapolationLUTPath     (std::string path) { pnodes_[oPhiExtrapolation].sparams_.push_back(path); }
-  void setFPhiExtrapolationLUTPath     (std::string path) { pnodes_[fPhiExtrapolation].sparams_.push_back(path); }
-  void setBEtaExtrapolationLUTPath     (std::string path) { pnodes_[bEtaExtrapolation].sparams_.push_back(path); }
-  void setOEtaExtrapolationLUTPath     (std::string path) { pnodes_[oEtaExtrapolation].sparams_.push_back(path); }
-  void setFEtaExtrapolationLUTPath     (std::string path) { pnodes_[fEtaExtrapolation].sparams_.push_back(path); }
-  void setSortRankLUTPath              (std::string path) { pnodes_[sortRank].sparams_.push_back(path); }
+  void setAbsIsoCheckMemLUTPath        (const std::string &path) { pnodes_[absIsoCheckMem].sparams_.push_back(path); }
+  void setRelIsoCheckMemLUTPath        (const std::string &path) { pnodes_[relIsoCheckMem].sparams_.push_back(path); }
+  void setIdxSelMemPhiLUTPath          (const std::string &path) { pnodes_[idxSelMemPhi].sparams_.push_back(path); }
+  void setIdxSelMemEtaLUTPath          (const std::string &path) { pnodes_[idxSelMemEta].sparams_.push_back(path); }
+  void setFwdPosSingleMatchQualLUTPath (const std::string &path) { pnodes_[fwdPosSingleMatchQual].sparams_.push_back(path); }
+  void setFwdNegSingleMatchQualLUTPath (const std::string &path) { pnodes_[fwdNegSingleMatchQual].sparams_.push_back(path); }
+  void setOvlPosSingleMatchQualLUTPath (const std::string &path) { pnodes_[ovlPosSingleMatchQual].sparams_.push_back(path); }
+  void setOvlNegSingleMatchQualLUTPath (const std::string &path) { pnodes_[ovlNegSingleMatchQual].sparams_.push_back(path); }
+  void setBOPosMatchQualLUTPath        (const std::string &path) { pnodes_[bOPosMatchQual].sparams_.push_back(path); }
+  void setBONegMatchQualLUTPath        (const std::string &path) { pnodes_[bONegMatchQual].sparams_.push_back(path); }
+  void setFOPosMatchQualLUTPath        (const std::string &path) { pnodes_[fOPosMatchQual].sparams_.push_back(path); }
+  void setFONegMatchQualLUTPath        (const std::string &path) { pnodes_[fONegMatchQual].sparams_.push_back(path); }
+  void setBPhiExtrapolationLUTPath     (const std::string &path) { pnodes_[bPhiExtrapolation].sparams_.push_back(path); }
+  void setOPhiExtrapolationLUTPath     (const std::string &path) { pnodes_[oPhiExtrapolation].sparams_.push_back(path); }
+  void setFPhiExtrapolationLUTPath     (const std::string &path) { pnodes_[fPhiExtrapolation].sparams_.push_back(path); }
+  void setBEtaExtrapolationLUTPath     (const std::string &path) { pnodes_[bEtaExtrapolation].sparams_.push_back(path); }
+  void setOEtaExtrapolationLUTPath     (const std::string &path) { pnodes_[oEtaExtrapolation].sparams_.push_back(path); }
+  void setFEtaExtrapolationLUTPath     (const std::string &path) { pnodes_[fEtaExtrapolation].sparams_.push_back(path); }
+  void setSortRankLUTPath              (const std::string &path) { pnodes_[sortRank].sparams_.push_back(path); }
 
   // Cancel out LUT max dR
   double fwdPosSingleMatchQualLUTMaxDR() const { return pnodes_[fwdPosSingleMatchQual].dparams_.size() > dpIdx::maxdr ? pnodes_[fwdPosSingleMatchQual].dparams_[dpIdx::maxdr] : 0.; }

@@ -106,9 +106,9 @@ public:
    mutable sigc::signal<void> colorsHaveChangedFinished_;
 
 private:
-   FWColorManager(const FWColorManager&); // stop default
+   FWColorManager(const FWColorManager&) = delete; // stop default
    
-   const FWColorManager& operator=(const FWColorManager&); // stop default
+   const FWColorManager& operator=(const FWColorManager&) = delete; // stop default
    void updateColors();
    void initColorTable();
 

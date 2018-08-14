@@ -4,6 +4,8 @@
 #include "CommonTools/Clustering1D/interface/Cluster1D.h"
 #include "CommonTools/Clustering1D/interface/WeightEstimator.h"
 
+#include "DataFormats/Math/interface/Point3D.h"
+
 /**
  *  The class that should always be used to merge
  *  two Cluster1D into a single Cluster1D.

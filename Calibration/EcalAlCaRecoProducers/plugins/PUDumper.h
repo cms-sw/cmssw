@@ -25,14 +25,14 @@ class PUDumper : public edm::EDAnalyzer
   explicit PUDumper(const edm::ParameterSet&);
   
   //! dtor 
-  ~PUDumper();
+  ~PUDumper() override;
   
   
   
  private:
   
   //! the actual analyze method 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   
   
   

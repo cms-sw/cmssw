@@ -20,6 +20,7 @@ Test of the EventPrincipal class.
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
@@ -70,20 +71,23 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   std::shared_ptr<edm::ProductRegistry const> pregc(preg.release());
   auto runAux = std::make_shared<edm::RunAuxiliary>(col.run(), fakeTime, fakeTime);
   auto rp = std::make_shared<edm::RunPrincipal>(runAux, pregc, pc, &historyAppender_,0);
-  auto lumiAux = std::make_shared<edm::LuminosityBlockAuxiliary>(rp->run(), 1, fakeTime, fakeTime);
-  auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(lumiAux, pregc, pc, &historyAppender_,0);
+  edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, fakeTime, fakeTime);
+  auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(pregc, pc, &historyAppender_,0);
+  lbp->setAux(lumiAux);
   lbp->setRunPrincipal(rp);
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, true);
   edm::EventPrincipal ep(pregc, branchIDListHelper, thinnedAssociationsHelper, pc, &historyAppender_,edm::StreamID::invalidStreamID());
   edm::ProcessHistoryRegistry phr;
   ep.fillEventPrincipal(eventAux, phr);
-  ep.setLuminosityBlockPrincipal(lbp);
+  ep.setLuminosityBlockPrincipal(lbp.get());
   try {
      edm::ParameterSet pset;
      pset.registerIt();
      auto processConfiguration = std::make_shared<edm::ProcessConfiguration>();
      edm::ModuleDescription modDesc(pset.id(), "Blah", "blahs", processConfiguration.get(), edm::ModuleDescription::getUniqueID());
      edm::Event event(ep, modDesc, nullptr);
+     edm::ProducerBase prod;
+     event.setProducer(&prod,nullptr);
 
      std::string label("this does not exist");
      edm::RefProd<edmtest::DummyProduct> ref = event.getRefBeforePut<edmtest::DummyProduct>(label);
@@ -95,6 +99,27 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   catch (...) {
     CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
   }
+  
+  try {
+    edm::ParameterSet pset;
+    pset.registerIt();
+    auto processConfiguration = std::make_shared<edm::ProcessConfiguration>();
+    edm::ModuleDescription modDesc(pset.id(), "Blah", "blahs", processConfiguration.get(), edm::ModuleDescription::getUniqueID());
+    edm::Event event(ep, modDesc, nullptr);
+    edm::ProducerBase prod;
+    event.setProducer(&prod,nullptr);
+    
+    std::string label("this does not exist");
+    edm::RefProd<edmtest::DummyProduct> ref = event.getRefBeforePut<edmtest::DummyProduct>(edm::EDPutTokenT<edmtest::DummyProduct>{});
+    CPPUNIT_ASSERT("Failed to throw required exception" == 0);
+  }
+  catch (edm::Exception& x) {
+    // nothing to do
+  }
+  catch (...) {
+    CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
+  }
+
 }
 
 void testEventGetRefBeforePut::getRefTest() {
@@ -142,20 +167,25 @@ void testEventGetRefBeforePut::getRefTest() {
   std::shared_ptr<edm::ProductRegistry const> pregc(preg.release());
   auto runAux = std::make_shared<edm::RunAuxiliary>(col.run(), fakeTime, fakeTime);
   auto rp = std::make_shared<edm::RunPrincipal>(runAux, pregc, pc, &historyAppender_,0);
-  auto lumiAux = std::make_shared<edm::LuminosityBlockAuxiliary>(rp->run(), 1, fakeTime, fakeTime);
-  auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(lumiAux, pregc, pc, &historyAppender_,0);
+  edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, fakeTime, fakeTime);
+  auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(pregc, pc, &historyAppender_,0);
+  lbp->setAux(lumiAux);
   lbp->setRunPrincipal(rp);
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, true);
   edm::EventPrincipal ep(pregc, branchIDListHelper, thinnedAssociationsHelper, pc, &historyAppender_,edm::StreamID::invalidStreamID());
   edm::ProcessHistoryRegistry phr;
   ep.fillEventPrincipal(eventAux, phr);
-  ep.setLuminosityBlockPrincipal(lbp);
+  ep.setLuminosityBlockPrincipal(lbp.get());
 
   edm::RefProd<edmtest::IntProduct> refToProd;
   try {
     edm::ModuleDescription modDesc("Blah", label, pcPtr.get());
 
     edm::Event event(ep, modDesc, nullptr);
+    edm::ProducerBase prod;
+    prod.produces<edmtest::IntProduct>(productInstanceName);
+    const_cast<std::vector<edm::ProductResolverIndex>&>(prod.putTokenIndexToProductResolverIndex()).push_back(0);
+    event.setProducer(&prod,nullptr);
     auto pr = std::make_unique<edmtest::IntProduct>();
     pr->value = 10;
 

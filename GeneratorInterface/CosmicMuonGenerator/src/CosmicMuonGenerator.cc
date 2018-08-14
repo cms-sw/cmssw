@@ -78,7 +78,7 @@ void CosmicMuonGenerator::initialize(CLHEP::HepRandomEngine *rng){
     std::cout << std::endl;
     
     if (MultiMuon) {
-      MultiIn = 0;
+      MultiIn = nullptr;
       
       std::cout << "MultiMuonFileName.c_str()=" << MultiMuonFileName.c_str() << std::endl;
       MultiIn = new TFile( MultiMuonFileName.c_str() );
@@ -682,7 +682,7 @@ bool CosmicMuonGenerator::nextMultiEvent() {
 		<< " without accepting event!" << std::endl;
       if (Debug) {
 	std::cout << " N(mu)=" << Id_ug.size();
-	if (Id_ug.size()>=1) 
+	if (!Id_ug.empty()) 
 	  std::cout << " E[0]=" << E_ug[0] << " theta=" 
 		    << acos(-Py_ug[0]/sqrt(Px_ug[0]*Px_ug[0]+Py_ug[0]*Py_ug[0]+Pz_ug[0]*Pz_ug[0]))
 		    << " R_xz=" << sqrt(Vx_sf[0]*Vx_sf[0]+Vy_sf[0]*Vy_sf[0]);

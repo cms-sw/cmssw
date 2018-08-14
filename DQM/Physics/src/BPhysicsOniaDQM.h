@@ -30,7 +30,7 @@ class BPhysicsOniaDQM : public DQMEDAnalyzer {
   BPhysicsOniaDQM(const edm::ParameterSet&);
 
   /// Destructor
-  virtual ~BPhysicsOniaDQM();
+  ~BPhysicsOniaDQM() override;
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&,
                       edm::EventSetup const&) override;

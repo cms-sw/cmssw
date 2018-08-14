@@ -45,10 +45,10 @@ class DTClusterer : public edm::EDProducer {
     DTClusterer(const edm::ParameterSet&) ;
 
     /* Destructor */ 
-    virtual ~DTClusterer() ;
+    ~DTClusterer() override ;
 
     /* Operations */ 
-    virtual void produce(edm::Event& event, const edm::EventSetup& setup);
+    void produce(edm::Event& event, const edm::EventSetup& setup) override;
 
   private:
     // build clusters from hits

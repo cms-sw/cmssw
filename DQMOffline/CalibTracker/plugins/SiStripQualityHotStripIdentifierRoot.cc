@@ -40,7 +40,7 @@ SiStripQualityHotStripIdentifierRoot::SiStripQualityHotStripIdentifierRoot(const
 
   if(filename!=""){
     edm::LogInfo("SiStripQualityHotStripIdentifierRoot") << " before opening file " << filename.c_str();  
-    dqmStore_->open(filename.c_str(), false); 
+    dqmStore_->open(filename, false); 
     edm::LogInfo("SiStripQualityHotStripIdentifierRoot") << " after opening file ";  
   }
 }
@@ -248,7 +248,7 @@ void SiStripQualityHotStripIdentifierRoot::bookHistos(){
   for (; iter!=iterEnd;++iter) {
     std::string me_name = (*iter)->getName();
     
-    if (!gotNentries && strstr(me_name.c_str(),"TotalNumberOfCluster__T")!=NULL && strstr(me_name.c_str(),"Profile")==NULL ){
+    if (!gotNentries && strstr(me_name.c_str(),"TotalNumberOfCluster__T")!=nullptr && strstr(me_name.c_str(),"Profile")==nullptr ){
 
       TotNumberOfEvents = ((TH1F*)(*iter)->getTH1F())->GetEntries();
       MeanNumberOfCluster = ((TH1F*)(*iter)->getTH1F())->GetMean();
@@ -265,7 +265,7 @@ void SiStripQualityHotStripIdentifierRoot::bookHistos(){
   for (; iter!=iterEnd;++iter) {
     std::string me_name = (*iter)->getName();
     
-    if (strstr(me_name.c_str(),(parameters.getUntrackedParameter<std::string>("OccupancyHisto")).c_str())==NULL)
+    if (strstr(me_name.c_str(),(parameters.getUntrackedParameter<std::string>("OccupancyHisto")).c_str())==nullptr)
       continue;
 
     unsigned int detid=0;
@@ -273,12 +273,12 @@ void SiStripQualityHotStripIdentifierRoot::bookHistos(){
     sprintf(title,"%s",me_name.c_str());
     char *ptr=strtok(title,"__");
     int c=0;
-    while (ptr!=NULL){
+    while (ptr!=nullptr){
       if (c==2){
 	detid=atol(ptr);
 	break;
       }
-      ptr=strtok(NULL,"_");
+      ptr=strtok(nullptr,"_");
       c++;
     }
     LogDebug("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::bookHistos] detid " << detid<< std::endl;

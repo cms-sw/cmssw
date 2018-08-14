@@ -48,10 +48,10 @@
 class RPCTrigger : public edm::EDProducer {
   public:
     explicit RPCTrigger(const edm::ParameterSet&);
-    ~RPCTrigger();
+    ~RPCTrigger() override;
 
 
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    void produce(edm::Event&, const edm::EventSetup&) override;
   private:
       // ----------member data ---------------------------
     

@@ -13,10 +13,10 @@ class MonMemTTConsistencyDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   MonMemTTConsistencyDat();
-  ~MonMemTTConsistencyDat();
+  ~MonMemTTConsistencyDat() override;
 
   // User data methods
-  inline std::string getTable() { return "MON_MEM_TT_CONSISTENCY_DAT"; }
+  inline std::string getTable() override { return "MON_MEM_TT_CONSISTENCY_DAT"; }
 
   inline void setProcessedEvents(int proc) { m_processedEvents = proc; }
   inline int getProcessedEvents() const { return m_processedEvents; }
@@ -41,7 +41,7 @@ class MonMemTTConsistencyDat : public IDataItem {
   
  private:
   void prepareWrite() 
-    noexcept(false);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const MonMemTTConsistencyDat* item, MonRunIOV* iov)
     noexcept(false);

@@ -40,7 +40,8 @@
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
 
 #include <FWCore/Framework/interface/ESHandle.h>
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMAddressArray.h"
+#include "DataFormats/L1TMuon/interface/BMTF/L1MuBMAddressArray.h"
+
 class L1MuBMTrackSegPhi;
 class L1MuBMSectorProcessor;
 class L1MuBMLUTHandler;
@@ -56,13 +57,13 @@ class L1MuBMAssignmentUnit : public L1AbstractProcessor {
     L1MuBMAssignmentUnit(L1MuBMSectorProcessor& sp, int id );
 
     /// destructor
-    virtual ~L1MuBMAssignmentUnit();
+    ~L1MuBMAssignmentUnit() override;
 
     /// run Assignment Unit
-    virtual void run(const edm::EventSetup& c);
+    void run(const edm::EventSetup& c) override;
 
     /// reset Assignment Unit
-    virtual void reset();
+    void reset() override;
 
     /// assign phi
     void PhiAU(const edm::EventSetup& c);

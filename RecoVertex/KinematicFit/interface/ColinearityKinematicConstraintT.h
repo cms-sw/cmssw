@@ -41,7 +41,7 @@ public:
   
   // initialize the constraint so it can precompute common qualtities to the three next call
   void init(const std::vector<KinematicState>& states,
-	    const GlobalPoint& ipoint,  const GlobalVector& fieldValue) {
+	    const GlobalPoint& ipoint,  const GlobalVector& fieldValue) override {
     if(states.size()!=2) throw VertexException("ColinearityKinematicConstraint::<2 states passed");
 
     point = ipoint;
@@ -56,9 +56,9 @@ public:
   /**
    * Number of equations per track used for the fit
    */
-  virtual int numberOfEquations() const {return Dim == colinearityKinematic::Phi ? 1 :2;}
+  int numberOfEquations() const override {return Dim == colinearityKinematic::Phi ? 1 :2;}
   
-  virtual ColinearityKinematicConstraintT<Dim> * clone()const
+  ColinearityKinematicConstraintT<Dim> * clone()const override
   {return new ColinearityKinematicConstraintT<Dim>(*this);}
 
 
@@ -68,7 +68,7 @@ private:
    * equations at the point where the input
    * particles are defined.
    */
-  virtual void fillValue() const;
+  void fillValue() const override;
   
   
   /**
@@ -76,14 +76,14 @@ private:
    * constraint equations w.r.t. 
    * particle parameters
    */
-  virtual void fillParametersDerivative() const;
+  void fillParametersDerivative() const override;
   
   /**
    * Returns a matrix of derivatives of
    * constraint equations w.r.t. 
    * vertex position
    */
-  virtual void fillPositionDerivative() const;
+  void fillPositionDerivative() const override;
   
   
 };

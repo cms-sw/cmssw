@@ -1,7 +1,15 @@
-<use   name="boost"/>
-<use   name="DataFormats/HcalDigi"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
 <library   file="HcalDigiDump.cc" name="HcalDigiDump">
   <flags   EDM_PLUGIN="1"/>
+  <use   name="boost"/>
+  <use   name="DataFormats/HcalDigi"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
 </library>
+<architecture match="_amd64_">
+<bin name="test_hcal_digi" file="test_hcal_digi.cu">
+    <use name="DataFormats/DetId"/>
+    <use name="DataFormats/HcalDetId"/>
+    <use name="DataFormats/HcalDigi"/>
+    <use name="DataFormats/Common"/>
+</bin>
+</architecture>

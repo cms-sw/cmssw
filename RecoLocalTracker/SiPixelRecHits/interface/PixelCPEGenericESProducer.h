@@ -10,10 +10,9 @@
 class  PixelCPEGenericESProducer: public edm::ESProducer{
  public:
   PixelCPEGenericESProducer(const edm::ParameterSet & p);
-  virtual ~PixelCPEGenericESProducer(); 
-  std::shared_ptr<PixelClusterParameterEstimator> produce(const TkPixelCPERecord &);
+  ~PixelCPEGenericESProducer() override; 
+  std::unique_ptr<PixelClusterParameterEstimator> produce(const TkPixelCPERecord &);
  private:
-  std::shared_ptr<PixelClusterParameterEstimator> cpe_;
   edm::ParameterSet pset_;
   edm::ESInputTag magname_;
   bool useLAWidthFromDB_;

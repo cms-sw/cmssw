@@ -69,7 +69,7 @@ EgammaHLTRegionalPixelSeedGeneratorProducers::EgammaHLTRegionalPixelSeedGenerato
   edm::ParameterSet creatorPSet;
   creatorPSet.addParameter<std::string>("propagator","PropagatorWithMaterial");
 
-  combinatorialSeedGenerator.reset(new SeedGeneratorFromRegionHits( hitsGenerator, 0,
+  combinatorialSeedGenerator.reset(new SeedGeneratorFromRegionHits( hitsGenerator, nullptr,
                                                                     SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
                                                                     ));
   // setup orderedhits setup (in order to tell seed generator to use pairs/triplets, which layers)
@@ -101,13 +101,6 @@ void EgammaHLTRegionalPixelSeedGeneratorProducers::fillDescriptions(edm::Configu
   desc.add<edm::ParameterSetDescription>("OrderedHitsFactoryPSet", orderedHitsPSET);
   
   descriptions.add(("hltEgammaHLTRegionalPixelSeedGeneratorProducers"), desc);  
-}
-
-void EgammaHLTRegionalPixelSeedGeneratorProducers::endRun(edm::Run const&run, const edm::EventSetup& es) {}
-
-
-void EgammaHLTRegionalPixelSeedGeneratorProducers::beginRun(edm::Run const&run, const edm::EventSetup& es)
-{
 }
 
 // Functions that gets called by framework every event

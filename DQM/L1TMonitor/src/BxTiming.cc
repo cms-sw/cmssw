@@ -253,7 +253,7 @@ BxTiming::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if(gtdata.isValid())
     gtbits = gtdata->decisionWord();
   
-  if(gtbits.size()==0) {
+  if(gtbits.empty()) {
     gtbits.push_back(true); // gtdata->decision();
     if(verbose())
       std::cout << "BxTiming::analyze() | unexpected empty decision bits!";

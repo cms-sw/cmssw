@@ -2,17 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DDFilteredViewTest")
 process.load("Configuration.Geometry.GeometryDB_cff")
-process.XMLFromDBSource.label=''
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
+process.load('CondCore.CondDB.CondDB_cfi')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['mc']
 
-process.PoolDBESSourceGeometry = cms.ESSource("PoolDBESSource",
-                               process.CondDBSetup,
-                               timetype = cms.string('runnumber'),
-                               toGet = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'),tag = cms.string('XMLFILE_Geometry_75YV4_Extended_mc')),
-                                                 cms.PSet(record = cms.string('IdealGeometryRecord'),tag = cms.string('TKRECO_Geometry_75YV4'))
-                                                  ),
-                               connect = cms.string('sqlite_file:myfile.db')
-                               )
 process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(

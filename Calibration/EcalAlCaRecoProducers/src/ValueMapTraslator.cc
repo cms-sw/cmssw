@@ -45,12 +45,12 @@ class ValueMapTraslator : public edm::EDProducer {
 
    public:
       explicit ValueMapTraslator(const edm::ParameterSet&);
-      ~ValueMapTraslator();
+      ~ValueMapTraslator() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
   edm::InputTag referenceCollectionTAG,oldreferenceCollectionTAG;

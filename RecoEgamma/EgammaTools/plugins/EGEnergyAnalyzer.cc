@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -45,23 +45,18 @@
 // class declaration
 //
 
-class EGEnergyAnalyzer : public edm::EDAnalyzer {
+class EGEnergyAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit EGEnergyAnalyzer(const edm::ParameterSet&);
-  ~EGEnergyAnalyzer();
+  ~EGEnergyAnalyzer() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
   
 private:
-  virtual void beginJob() override ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
-  
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void beginJob() override ;
+  void analyze( const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
   
   EGEnergyCorrector corfile;
   EGEnergyCorrector cordb;
@@ -92,7 +87,7 @@ EGEnergyAnalyzer::~EGEnergyAnalyzer()
 
 // ------------ method called for each event  ------------
 void
-EGEnergyAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+EGEnergyAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
@@ -143,30 +138,6 @@ EGEnergyAnalyzer::beginJob()
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 EGEnergyAnalyzer::endJob() 
-{
-}
-
-// ------------ method called when starting to processes a run  ------------
-void 
-EGEnergyAnalyzer::beginRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when ending the processing of a run  ------------
-void 
-EGEnergyAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-void 
-EGEnergyAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void 
-EGEnergyAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 

@@ -12,7 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
@@ -43,7 +43,7 @@
 
 #include <iostream>
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <memory>
 #include <vector>
@@ -67,9 +67,9 @@ class MuonSimHitsValidAnalyzer : public DQMEDAnalyzer
   typedef std::vector<unsigned int>   UnsigIntegerVector;
 
   explicit MuonSimHitsValidAnalyzer(const edm::ParameterSet&);
-  virtual ~MuonSimHitsValidAnalyzer();
+  ~MuonSimHitsValidAnalyzer() override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
  private:
   void fillDT(const edm::Event&, const edm::EventSetup&);

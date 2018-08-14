@@ -211,7 +211,7 @@ void MuonKinVsEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	  pGlbTrack[iEtaRegion]->Fill(recoCombinedGlbTrack->p());
 	  ptGlbTrack[iEtaRegion]->Fill(recoCombinedGlbTrack->pt());
 	  chi2GlbTrack[iEtaRegion]->Fill(recoCombinedGlbTrack->normalizedChi2());
-	  chi2probGlbTrack[iEtaRegion]->Fill(TMath::Prob(recoCombinedGlbTrack->normalizedChi2(),recoCombinedGlbTrack->ndof()));
+	  chi2probGlbTrack[iEtaRegion]->Fill(TMath::Prob(recoCombinedGlbTrack->chi2(),recoCombinedGlbTrack->ndof()));
 	}
       }
 
@@ -228,7 +228,7 @@ void MuonKinVsEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	  pTrack[iEtaRegion]->Fill(recoTrack->p());
 	  ptTrack[iEtaRegion]->Fill(recoTrack->pt());
 	  chi2Track[iEtaRegion]->Fill(recoTrack->normalizedChi2());
-	  chi2probTrack[iEtaRegion]->Fill(TMath::Prob(recoTrack->normalizedChi2(),recoTrack->ndof()));
+	  chi2probTrack[iEtaRegion]->Fill(TMath::Prob(recoTrack->chi2(),recoTrack->ndof()));
 	}
       }
 
@@ -245,7 +245,7 @@ void MuonKinVsEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	  pStaTrack[iEtaRegion]->Fill(recoStaTrack->p());
 	  ptStaTrack[iEtaRegion]->Fill(recoStaTrack->pt());
 	  chi2StaTrack[iEtaRegion]->Fill(recoStaTrack->normalizedChi2());
-	  chi2probStaTrack[iEtaRegion]->Fill(TMath::Prob(recoStaTrack->normalizedChi2(),recoStaTrack->ndof()));
+	  chi2probStaTrack[iEtaRegion]->Fill(TMath::Prob(recoStaTrack->chi2(),recoStaTrack->ndof()));
 	}
       }
 
@@ -261,7 +261,7 @@ void MuonKinVsEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	  pTightTrack[iEtaRegion]->Fill(recoTightTrack->p());
 	  ptTightTrack[iEtaRegion]->Fill(recoTightTrack->pt());
 	  chi2TightTrack[iEtaRegion]->Fill(recoTightTrack->normalizedChi2());
-	  chi2probTightTrack[iEtaRegion]->Fill(TMath::Prob(recoTightTrack->normalizedChi2(),recoTightTrack->ndof()));
+	  chi2probTightTrack[iEtaRegion]->Fill(TMath::Prob(recoTightTrack->chi2(),recoTightTrack->ndof()));
 	}
       }
 
@@ -282,7 +282,7 @@ void MuonKinVsEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	  pLooseTrack[iEtaRegion]->Fill(recoLooseTrack->p());
 	  ptLooseTrack[iEtaRegion]->Fill(recoLooseTrack->pt());
 	  chi2LooseTrack[iEtaRegion]->Fill(recoLooseTrack->normalizedChi2());
-	  chi2probLooseTrack[iEtaRegion]->Fill(TMath::Prob(recoLooseTrack->normalizedChi2(),recoLooseTrack->ndof()));
+	  chi2probLooseTrack[iEtaRegion]->Fill(TMath::Prob(recoLooseTrack->chi2(),recoLooseTrack->ndof()));
 	}
       }
 
@@ -302,7 +302,7 @@ void MuonKinVsEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	  pMediumTrack[iEtaRegion]->Fill(recoMediumTrack->p());
 	  ptMediumTrack[iEtaRegion]->Fill(recoMediumTrack->pt());
 	  chi2MediumTrack[iEtaRegion]->Fill(recoMediumTrack->normalizedChi2());
-	  chi2probMediumTrack[iEtaRegion]->Fill(TMath::Prob(recoMediumTrack->normalizedChi2(),recoMediumTrack->ndof()));
+	  chi2probMediumTrack[iEtaRegion]->Fill(TMath::Prob(recoMediumTrack->chi2(),recoMediumTrack->ndof()));
 	}
       }
 
@@ -318,7 +318,7 @@ void MuonKinVsEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	  pSoftTrack[iEtaRegion]->Fill(recoSoftTrack->p());
 	  ptSoftTrack[iEtaRegion]->Fill(recoSoftTrack->pt());
 	  chi2SoftTrack[iEtaRegion]->Fill(recoSoftTrack->normalizedChi2());
-	  chi2probSoftTrack[iEtaRegion]->Fill(TMath::Prob(recoSoftTrack->normalizedChi2(),recoSoftTrack->ndof()));
+	  chi2probSoftTrack[iEtaRegion]->Fill(TMath::Prob(recoSoftTrack->chi2(),recoSoftTrack->ndof()));
 	}
       }
 
@@ -334,7 +334,7 @@ void MuonKinVsEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	  pHighPtTrack[iEtaRegion]->Fill(recoHighPtTrack->p());
 	  ptHighPtTrack[iEtaRegion]->Fill(recoHighPtTrack->pt());
 	  chi2HighPtTrack[iEtaRegion]->Fill(recoHighPtTrack->normalizedChi2());
-	  chi2probHighPtTrack[iEtaRegion]->Fill(TMath::Prob(recoHighPtTrack->normalizedChi2(),recoHighPtTrack->ndof()));
+	  chi2probHighPtTrack[iEtaRegion]->Fill(TMath::Prob(recoHighPtTrack->chi2(),recoHighPtTrack->ndof()));
 	}
       }
     } //end iEtaRegions

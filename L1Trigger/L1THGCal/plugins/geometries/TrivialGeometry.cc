@@ -6,7 +6,7 @@ public:
     HGCalTriggerGeometryGenericMapping(conf) {
   }
 
-  virtual void initialize(const es_info& ) override final {
+  void initialize(const edm::ESHandle<CaloGeometry>& ) final {
     constexpr unsigned nmodules = 6;
     for( unsigned i = 0; i < nmodules; ++i ) {
       trigger_cells_to_modules_[i] = i;

@@ -6,7 +6,14 @@
 #include <string>
 #include <cassert>
 
-static const edm::ProcessHistory s_emptyHistory;
+namespace {
+  edm::ProcessHistory initializeEmpty() {
+    edm::ProcessHistory tmp{};
+    tmp.setProcessHistoryID();
+    return tmp;
+  }
+}
+static const edm::ProcessHistory s_emptyHistory = initializeEmpty();
 
 namespace edm {
 

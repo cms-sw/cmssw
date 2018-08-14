@@ -18,9 +18,7 @@ namespace CLHEP {
 
 namespace edm {
   class ConsumesCollector;
-  namespace stream {
-    class EDProducerBase;
-  }
+  class ProducerBase;
   class Event;
   class EventSetup;
   class ParameterSet;
@@ -45,28 +43,27 @@ class TrackerGeometry;
  */
 class SiStripDigitizer : public DigiAccumulatorMixMod {
 public:
-  explicit SiStripDigitizer(const edm::ParameterSet& conf, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
+  explicit SiStripDigitizer(const edm::ParameterSet& conf, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC);
   
-  virtual ~SiStripDigitizer();
+  ~SiStripDigitizer() override;
   
-  virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
-  virtual void accumulate(edm::Event const& e, edm::EventSetup const& c) override;
-  virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
-  virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
+  void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
+  void accumulate(edm::Event const& e, edm::EventSetup const& c) override;
+  void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
+  void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
 
-  virtual void StorePileupInformation( std::vector<int> &numInteractionList,
+  void StorePileupInformation( std::vector<int> &numInteractionList,
 				       std::vector<int> &bunchCrossingList,
 				       std::vector<float> &TrueInteractionList,
 				       std::vector<edm::EventID> &eventInfoList, int bunchSpacing) override{
     PileupInfo_ = new PileupMixingContent(numInteractionList, bunchCrossingList, TrueInteractionList, eventInfoList, bunchSpacing);
   } 
 
-  virtual PileupMixingContent* getEventPileupInfo() override { return PileupInfo_; } 
+  PileupMixingContent* getEventPileupInfo() override { return PileupInfo_; } 
 
   
 private:
-  void accumulateStripHits(edm::Handle<std::vector<PSimHit> >, const TrackerTopology *tTopo, size_t globalSimHitIndex, const unsigned int tofBin, CLHEP::HepRandomEngine*);
-  CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
+  void accumulateStripHits(edm::Handle<std::vector<PSimHit> >, const TrackerTopology *tTopo, size_t globalSimHitIndex, const unsigned int tofBin);
 
   typedef std::vector<std::string> vstring;
   typedef std::map<unsigned int, std::vector<std::pair<const PSimHit*, int> >,std::less<unsigned int> > simhit_map;
@@ -100,7 +97,7 @@ private:
   edm::ESHandle<TrackerGeometry> pDD;
   edm::ESHandle<MagneticField> pSetup;
   std::map<unsigned int, StripGeomDetUnit const *> detectorUnits;
-  std::vector<CLHEP::HepRandomEngine*> randomEngines_;
+  CLHEP::HepRandomEngine* randomEngine_ = nullptr;
   std::vector<std::pair<int,std::bitset<6>>> theAffectedAPVvector;
 
   PileupMixingContent* PileupInfo_;

@@ -1,24 +1,26 @@
 import FWCore.ParameterSet.Config as cms
-process = cms.Process("CTPPS")
 
-# minimum of logs
-#process.MessageLogger = cms.Service("MessageLogger",
-#    statistics = cms.untracked.vstring(),
-#    destinations = cms.untracked.vstring('cerr'),
-#    cerr = cms.untracked.PSet(
-#        threshold = cms.untracked.string('WARNING')
-#    )
-#)
+process = cms.Process('CTPPS')
+
+# import of standard configurations
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load('Configuration.EventContent.EventContent_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_hlt_relval', '')
 
 # raw data source
 #process.source = cms.Source("NewEventStreamFileReader",
 #    fileNames = cms.untracked.vstring(
 #        '/store/t0streamer/Data/Physics/000/286/591/run286591_ls0521_streamPhysics_StorageManager.dat',
+#        '/store/t0streamer/Minidaq/A/000/303/982/run303982_ls0001_streamA_StorageManager.dat',
 #    )
 #)
 process.source = cms.Source('PoolSource',
     fileNames = cms.untracked.vstring(
-        'root://eoscms.cern.ch:1094//eos/totem/data/ctpps/run284036.root',
+        '/store/data/Run2017E/ZeroBias/RAW/v1/000/304/447/00000/001C958C-7FA9-E711-858F-02163E011A5F.root',
     ),
 )
 
@@ -26,33 +28,18 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)
 )
 
-# diamonds mapping
-process.totemDAQMappingESSourceXML_TimingDiamond = cms.ESSource("TotemDAQMappingESSourceXML",
-  verbosity = cms.untracked.uint32(0),
-  subSystem = cms.untracked.string("TimingDiamond"),
-  configuration = cms.VPSet(
-    # before diamonds inserted in DAQ
-    cms.PSet(
-      validityRange = cms.EventRange("1:min - 283819:max"),
-      mappingFileNames = cms.vstring(),
-      maskFileNames = cms.vstring()
-    ),
-    # after diamonds inserted in DAQ
-    cms.PSet(
-      validityRange = cms.EventRange("283820:min - 999999999:max"),
-      mappingFileNames = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/mapping_timing_diamond.xml"),
-      maskFileNames = cms.vstring()
-    )
-  )
-)
-
 # raw-to-digi conversion
-process.load('EventFilter.CTPPSRawToDigi.ctppsDiamondRawToDigi_cfi')
-process.ctppsDiamondRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
+process.load("EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff")
+
+# local RP reconstruction chain with standard settings
+process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
 
 # rechits production
 process.load('Geometry.VeryForwardGeometry.geometryRP_cfi')
 process.load('RecoCTPPS.TotemRPLocal.ctppsDiamondRecHits_cfi')
+
+# local tracks fitter
+process.load('RecoCTPPS.TotemRPLocal.ctppsDiamondLocalTracks_cfi')
 
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string("file:AOD.root"),
@@ -65,7 +52,8 @@ process.output = cms.OutputModule("PoolOutputModule",
 # execution configuration
 process.p = cms.Path(
     process.ctppsDiamondRawToDigi *
-    process.ctppsDiamondRecHits
+    process.ctppsDiamondLocalReconstruction
 )
 
-process.outpath = cms.EndPath(process.output) 
+process.outpath = cms.EndPath(process.output)
+

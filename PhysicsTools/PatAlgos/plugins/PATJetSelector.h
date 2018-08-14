@@ -5,6 +5,7 @@
 #define PhysicsTools_PatAlgos_PATJetSelector_h
 
 #include "FWCore/Framework/interface/stream/EDFilter.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DataFormats/Common/interface/RefVector.h"
 
@@ -28,8 +29,11 @@ namespace pat {
   PATJetSelector( edm::ParameterSet const & params ) :
       srcToken_(consumes<edm::View<pat::Jet> >( params.getParameter<edm::InputTag>("src") )),
       cut_( params.getParameter<std::string>("cut") ),
+      cutLoose_( params.getParameter<std::string>("cutLoose") ),
       filter_( params.exists("filter") ? params.getParameter<bool>("filter") : false ),
-      selector_( cut_ )
+      nLoose_( params.getParameter<unsigned>("nLoose") ),
+      selector_( cut_ ),
+      selectorLoose_( cutLoose_ )
       {
 	produces< std::vector<pat::Jet> >();
 	produces<reco::GenJetCollection> ("genJets");
@@ -38,12 +42,12 @@ namespace pat {
 	produces<edm::OwnVector<reco::BaseTagInfo> > ("tagInfos");
       }
 
-    virtual ~PATJetSelector() {}
+    ~PATJetSelector() override {}
 
     virtual void beginJob() {}
     virtual void endJob() {}
 
-    virtual bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
+    bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
 
       auto patJets = std::make_unique<std::vector<Jet>>();
 
@@ -61,13 +65,20 @@ namespace pat {
       edm::Handle< edm::View<pat::Jet> > h_jets;
       iEvent.getByToken( srcToken_, h_jets );
 
+      unsigned nl = 0; // number of loose jets
       // First loop over the products and make the secondary output collections
       for ( edm::View<pat::Jet>::const_iterator ibegin = h_jets->begin(),
 	      iend = h_jets->end(), ijet = ibegin;
 	    ijet != iend; ++ijet ) {
+	
+	bool selectedLoose = false;
+	if ( nLoose_ > 0 && nl < nLoose_ && selectorLoose_(*ijet) ) {
+	  selectedLoose = true;
+	  ++nl;
+	}
 
-	// Check the selection
-	if ( selector_(*ijet) ) {
+
+	if ( selector_(*ijet) || selectedLoose ) {
 	  // Copy over the calo towers
 	  for ( CaloTowerFwdPtrVector::const_iterator itowerBegin = ijet->caloTowersFwdPtr().begin(),
 		  itowerEnd = ijet->caloTowersFwdPtr().end(), itower = itowerBegin;
@@ -94,7 +105,7 @@ namespace pat {
 	  }
 
 	  // Copy the gen jet
-	  if ( ijet->genJet() != 0 ) {
+	  if ( ijet->genJet() != nullptr ) {
 	    genJetsOut->push_back( *(ijet->genJet()) );
 	  }
 
@@ -117,15 +128,21 @@ namespace pat {
       unsigned int tagInfoIndex = 0;
       unsigned int genJetIndex = 0;
       // Now set the Ptrs with the orphan handles.
+      nl = 0; // Reset number of loose jets
       for ( edm::View<pat::Jet>::const_iterator ibegin = h_jets->begin(),
 	      iend = h_jets->end(), ijet = ibegin;
 	    ijet != iend; ++ijet ) {
 
-	// Check the selection
-	if ( selector_(*ijet) ) {
+	bool selectedLoose = false;
+	if ( nLoose_ > 0 && nl < nLoose_ && selectorLoose_(*ijet) ) {
+	  selectedLoose = true;
+	  ++nl;
+	}
+
+	if ( selector_(*ijet) || selectedLoose ) {
 	  // Add the jets that pass to the output collection
 	  patJets->push_back( *ijet );
-
+	 
 	  // Copy over the calo towers
 	  for ( CaloTowerFwdPtrVector::const_iterator itowerBegin = ijet->caloTowersFwdPtr().begin(),
 		  itowerEnd = ijet->caloTowersFwdPtr().end(), itower = itowerBegin;
@@ -170,7 +187,7 @@ namespace pat {
 	  }
 
 	  // Copy the gen jet
-	  if ( ijet->genJet() != 0 ) {
+	  if ( ijet->genJet() != nullptr ) {
 	    patJets->back().updateFwdGenJetFwdRef( edm::Ref<reco::GenJetCollection>( oh_genJetsOut, genJetIndex) // ref to "this" genjet in the global list
 						   );
 	    ++genJetIndex;
@@ -181,7 +198,7 @@ namespace pat {
 
 
       // put genEvt  in Event
-      bool pass = patJets->size() > 0;
+      bool pass = !patJets->empty();
       iEvent.put(std::move(patJets));
 
       if ( filter_ )
@@ -190,11 +207,26 @@ namespace pat {
 	return true;
     }
 
+
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+      edm::ParameterSetDescription iDesc;
+      iDesc.setComment("Energy Correlation Functions adder");
+      iDesc.add<edm::InputTag>("src", edm::InputTag("no default"))->setComment("input collection");
+      iDesc.add<std::string> ("cut", "")->setComment("Jet selection.");
+      iDesc.add<std::string> ("cutLoose", "")->setComment("Loose jet selection. Will keep nLoose loose jets.");
+      iDesc.add<bool> ("filter", false)->setComment("Filter selection?");
+      iDesc.add<unsigned>("nLoose", 0)->setComment("Keep nLoose loose jets that satisfy cutLoose");
+      descriptions.add("PATJetSelector", iDesc);
+    }
+    
   protected:
     const edm::EDGetTokenT<edm::View<pat::Jet> > srcToken_;
     const std::string                    cut_;
-    const bool                           filter_;
-    const StringCutObjectSelector<Jet>   selector_;
+    const std::string                    cutLoose_;      // Cut to define loose jets.     
+    const bool                           filter_;    
+    const unsigned                       nLoose_;        // If desired, keep nLoose loose jets. 
+    const StringCutObjectSelector<Jet>   selector_;   
+    const StringCutObjectSelector<Jet>   selectorLoose_; // Selector for loose jets. 
   };
 
 }

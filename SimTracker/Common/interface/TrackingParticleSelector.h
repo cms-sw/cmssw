@@ -11,16 +11,29 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Math/interface/PtEtaPhiMass.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 class TrackingParticleSelector {
 
 public:
   TrackingParticleSelector(){}
-  TrackingParticleSelector ( double ptMin,double minRapidity,double maxRapidity,
+  TrackingParticleSelector ( double ptMin, double ptMax, double minRapidity,double maxRapidity,
 			     double tip,double lip,int minHit, bool signalOnly, bool intimeOnly, bool chargedOnly, bool stableOnly,
-			     const std::vector<int>& pdgId = std::vector<int>()) :
-    ptMin2_( ptMin*ptMin ), minRapidity_( minRapidity ), maxRapidity_( maxRapidity ),
-    tip2_( tip*tip ), lip_( lip ), minHit_( minHit ), signalOnly_(signalOnly), intimeOnly_(intimeOnly), chargedOnly_(chargedOnly), stableOnly_(stableOnly), pdgId_( pdgId ) { }
+			     const std::vector<int>& pdgId = std::vector<int>(),
+			     double minPhi=-3.2, double maxPhi=3.2) :
+    ptMin2_( ptMin*ptMin ), ptMax2_( ptMax*ptMax ), minRapidity_( minRapidity ), maxRapidity_( maxRapidity ),
+    meanPhi_((minPhi+maxPhi)/2.), rangePhi_((maxPhi-minPhi)/2.),
+    tip2_( tip*tip ), lip_( lip ), minHit_( minHit ), signalOnly_(signalOnly), intimeOnly_(intimeOnly), chargedOnly_(chargedOnly), stableOnly_(stableOnly), pdgId_( pdgId ) {
+    if(minPhi >= maxPhi) {
+      throw cms::Exception("Configuration") << "TrackingParticleSelector: minPhi (" << minPhi << ") must be smaller than maxPhi (" << maxPhi << "). The range is constructed from minPhi to maxPhi around their average.";
+    }
+    if(minPhi >= M_PI) {
+      throw cms::Exception("Configuration") << "TrackingParticleSelector: minPhi (" << minPhi << ") must be smaller than PI. The range is constructed from minPhi to maxPhi around their average.";
+    }
+    if(maxPhi <= -M_PI) {
+      throw cms::Exception("Configuration") << "TrackingParticleSelector: maxPhi (" << maxPhi << ") must be larger than -PI. The range is constructed from minPhi to maxPhi around their average.";
+    }
+  }
 
   /// Operator() performs the selection: e.g. if (tPSelector(tp)) {...}
   bool operator()( const TrackingParticle & tp ) const {
@@ -43,7 +56,7 @@ public:
     // select only stable particles
     if (stableOnly_) {
       for( TrackingParticle::genp_iterator j = tp.genParticle_begin(); j != tp.genParticle_end(); ++ j ) {
-        if (j->get()==0 || j->get()->status() != 1) {
+        if (j->get()==nullptr || j->get()->status() != 1) {
           return false;
         }
       }
@@ -56,10 +69,13 @@ public:
     }
 
     auto etaOk = [&](const TrackingParticle& p)->bool{ float eta= etaFromXYZ(p.px(),p.py(),p.pz()); return (eta>= minRapidity_) & (eta<=maxRapidity_);};
+    auto phiOk = [&](const TrackingParticle& p) { float dphi = deltaPhi(atan2f(p.py(),p.px()), meanPhi_); return dphi >= -rangePhi_ && dphi <= rangePhi_; };
+    auto ptOk = [&](const TrackingParticle& p) { double pt2 = tp.p4().perp2(); return pt2 >= ptMin2_ && pt2 <= ptMax2_; };
     return (
  	    tp.numberOfTrackerLayers() >= minHit_ &&
-	    tp.p4().perp2() >= ptMin2_ &&
+            ptOk(tp) &&
             etaOk(tp) &&
+            phiOk(tp) &&
             std::abs(tp.vertex().z()) <= lip_ &&   // vertex last to avoid to load it if not striclty necessary...
 	    tp.vertex().perp2() <= tip2_
 	    );
@@ -67,8 +83,11 @@ public:
 
 private:
   double ptMin2_;
+  double ptMax2_;
   float minRapidity_;
   float maxRapidity_;
+  float meanPhi_;
+  float rangePhi_;
   double tip2_;
   double lip_;
   int    minHit_;
@@ -89,8 +108,13 @@ namespace reco {
     template<>
     struct ParameterAdapter<TrackingParticleSelector> {
       static TrackingParticleSelector make( const edm::ParameterSet & cfg, edm::ConsumesCollector & iC ) {
+        return make(cfg);
+      }
+
+      static TrackingParticleSelector make( const edm::ParameterSet & cfg) {
 	return TrackingParticleSelector(
  	  cfg.getParameter<double>( "ptMin" ),
+ 	  cfg.getParameter<double>( "ptMax" ),
 	  cfg.getParameter<double>( "minRapidity" ),
 	  cfg.getParameter<double>( "maxRapidity" ),
 	  cfg.getParameter<double>( "tip" ),
@@ -100,7 +124,9 @@ namespace reco {
           cfg.getParameter<bool>( "intimeOnly" ),
 	  cfg.getParameter<bool>( "chargedOnly" ),
 	  cfg.getParameter<bool>( "stableOnly" ),
-	cfg.getParameter<std::vector<int> >( "pdgId" ));
+	  cfg.getParameter<std::vector<int> >( "pdgId" ),
+	  cfg.getParameter<double>( "minPhi" ),
+	  cfg.getParameter<double>( "maxPhi" ));
       }
     };
 

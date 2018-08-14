@@ -8,6 +8,8 @@
 #include "FWCore/Integration/interface/ESTestRecords.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <algorithm>
 #include <vector>
@@ -19,21 +21,43 @@ namespace edmtest {
     explicit ESTestAnalyzerA(edm::ParameterSet const&);
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   private:
     std::vector<int> runsToGetDataFor_;
+    std::vector<int> expectedValues_;
   };
 
   ESTestAnalyzerA::ESTestAnalyzerA(edm::ParameterSet const& pset) :
-    runsToGetDataFor_(pset.getParameter<std::vector<int> >("runsToGetDataFor")) {
+    runsToGetDataFor_(pset.getParameter<std::vector<int> >("runsToGetDataFor")),
+    expectedValues_(pset.getUntrackedParameter<std::vector<int>>("expectedValues")){
+      assert( expectedValues_.empty() or expectedValues_.size() == runsToGetDataFor_.size());
   }
 
   void ESTestAnalyzerA::analyze(edm::Event const& ev, edm::EventSetup const& es) {
-    if (std::find(runsToGetDataFor_.begin(), runsToGetDataFor_.end(), ev.run()) != runsToGetDataFor_.end()) {
+    auto found = std::find(runsToGetDataFor_.begin(), runsToGetDataFor_.end(), ev.run());
+    if ( found != runsToGetDataFor_.end()) {
       ESTestRecordA const& rec = es.get<ESTestRecordA>();
       edm::ESHandle<ESTestDataA> dataA;
       rec.get(dataA);
       edm::LogAbsolute("ESTestAnalyzerA") << "ESTestAnalyzerA: process = " << moduleDescription().processName() << ": Data value = " << dataA->value();
+      if(not expectedValues_.empty()) {
+        if(expectedValues_[found-runsToGetDataFor_.begin()] != dataA->value()) {
+          throw cms::Exception("TestError")<<"Exptected value "<<expectedValues_[found-runsToGetDataFor_.begin()]<<" but saw "<<dataA->value();
+        }
+      }
     }
+  }
+
+  void ESTestAnalyzerA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    //The following says we do not know what parameters are allowed so do no validation
+    // Please change this to state exactly what you do use, even if it is no parameters
+    edm::ParameterSetDescription desc;
+    desc.setComment("Test module for the EventSetup");
+    desc.add<std::vector<int>>("runsToGetDataFor")
+    ->setComment("ID number for each Run for which we should get EventSetup data.");
+    desc.addUntracked<std::vector<int>>("expectedValues",std::vector<int>())
+    ->setComment("EventSetup value expected for each Run. If empty, no values compared.");
+    descriptions.addDefault(desc);
   }
 
 

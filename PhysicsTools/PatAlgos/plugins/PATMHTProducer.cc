@@ -59,7 +59,7 @@ void
 pat::PATMHTProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 {
   // make sure the SigInputObj container is empty
-  while(physobjvector_.size()>0){
+  while(!physobjvector_.empty()){
     physobjvector_.erase(physobjvector_.begin(),physobjvector_.end());
   }
 
@@ -87,7 +87,7 @@ pat::PATMHTProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
   auto themetsigcoll = std::make_unique<pat::MHTCollection>();
 
-  if(physobjvector_.size() >= 1) { // Only when the vector is not empty
+  if(!physobjvector_.empty()) { // Only when the vector is not empty
 
     // calculate the MHT significance
 
@@ -229,7 +229,6 @@ pat::PATMHTProducer::getElectrons(edm::Event& iEvent, const edm::EventSetup & iS
   edm::Handle<edm::View<pat::Electron> > electronHandle;
   iEvent.getByToken(eleToken_,electronHandle);
   edm::View<pat::Electron> electrons = *electronHandle;
-  DetId nullDetId;
 
   // Fill Input Vector with Electrons
   for(edm::View<pat::Electron>::const_iterator electron_iter = electrons.begin(); electron_iter!=electrons.end(); ++electron_iter){

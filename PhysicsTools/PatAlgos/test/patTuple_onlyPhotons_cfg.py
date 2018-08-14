@@ -1,12 +1,14 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
-## switch to uncheduled mode
-process.options.allowUnscheduled = cms.untracked.bool(True)
+
 #process.Tracer = cms.Service("Tracer")
 
 ## load photon sequencesup to selectedPatPhotons
 process.load("PhysicsTools.PatAlgos.producersLayer1.photonProducer_cff")
+patAlgosToolsTask.add(process.makePatPhotonsTask)
+
 process.load("PhysicsTools.PatAlgos.selectionLayer1.photonSelector_cfi")
+patAlgosToolsTask.add(process.selectedPatPhotons)
 
 ## make sure to keep the created objects
 process.out.outputCommands = ['keep *_selectedPat*_*_*']

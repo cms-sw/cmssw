@@ -17,7 +17,7 @@ class EmbeddingHepMCFilter : public BaseHepMCFilter{
         const int muonPDGID_ = 13;
         const int electron_neutrino_PDGID_ = 12;
         const int electronPDGID_ = 11;
-	const int ZPDGID_ = 23;
+        const int ZPDGID_ = 23;
         
         enum class TauDecayMode : int
         {
@@ -74,11 +74,10 @@ class EmbeddingHepMCFilter : public BaseHepMCFilter{
         
         std::vector<CutsContainer> cuts_;
         DecayChannel DecayChannel_;
-	
-	virtual void fill_cut(std::string cut_string, EmbeddingHepMCFilter::DecayChannel &dc, CutsContainer &cut);
-	virtual void fill_cuts(std::string cut_string, EmbeddingHepMCFilter::DecayChannel &dc);
-	
-	
+
+        virtual void fill_cut(std::string cut_string, EmbeddingHepMCFilter::DecayChannel &dc, CutsContainer &cut);
+        virtual void fill_cuts(std::string cut_string, EmbeddingHepMCFilter::DecayChannel &dc);
+
         virtual void decay_and_sump4Vis(HepMC::GenParticle* particle, reco::Candidate::LorentzVector &p4Vis);
         virtual void sort_by_convention(std::vector<reco::Candidate::LorentzVector> &p4VisPair);
         virtual bool apply_cuts(std::vector<reco::Candidate::LorentzVector> &p4VisPair);
@@ -86,9 +85,9 @@ class EmbeddingHepMCFilter : public BaseHepMCFilter{
     public:
         
         explicit EmbeddingHepMCFilter(const edm::ParameterSet &);
-        ~EmbeddingHepMCFilter();
+        ~EmbeddingHepMCFilter() override;
         
-        virtual bool filter(const HepMC::GenEvent* evt);
+        bool filter(const HepMC::GenEvent* evt) override;
         
 };
 

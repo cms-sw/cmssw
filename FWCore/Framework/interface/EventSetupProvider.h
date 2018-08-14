@@ -33,6 +33,7 @@
 
 // forward declarations
 namespace edm {
+   class ActivityRegistry;
    class EventSetupRecordIntervalFinder;
    class IOVSyncValue;
    class ParameterSet;
@@ -41,7 +42,7 @@ namespace edm {
       struct ComponentDescription;
       class DataKey;
       class DataProxyProvider;
-      class EventSetupRecord;
+      class EventSetupRecordImpl;
       class EventSetupRecordKey;
       class EventSetupRecordProvider;
       class EventSetupsController;
@@ -57,12 +58,13 @@ class EventSetupProvider {
       typedef std::multimap<RecordName, DataKeyInfo> RecordToDataMap;
       typedef std::map<ComponentDescription, RecordToDataMap> PreferredProviderInfo;
 
-      EventSetupProvider(unsigned subProcessIndex = 0U, PreferredProviderInfo const* iInfo = 0);
+      EventSetupProvider(ActivityRegistry*, unsigned subProcessIndex = 0U, PreferredProviderInfo const* iInfo = nullptr);
       virtual ~EventSetupProvider();
 
       // ---------- const member functions ---------------------
       std::set<ComponentDescription> proxyProviderDescriptions() const;
-
+      bool isWithinValidityInterval(IOVSyncValue const& ) const;
+  
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
@@ -71,7 +73,7 @@ class EventSetupProvider {
       EventSetup const& eventSetup() const {return eventSetup_;}
 
       //called by specializations of EventSetupRecordProviders
-      void addRecordToEventSetup(EventSetupRecord& iRecord);
+      void addRecordToEventSetup(EventSetupRecordImpl& iRecord);
 
       void add(std::shared_ptr<DataProxyProvider>);
       void replaceExisting(std::shared_ptr<DataProxyProvider>);
@@ -107,19 +109,12 @@ class EventSetupProvider {
 
    protected:
 
-      template <typename T>
-         void insert(std::unique_ptr<T> iRecordProvider) {
-            std::unique_ptr<EventSetupRecordProvider> temp(iRecordProvider.release());
-            insert(eventsetup::heterocontainer::makeKey<
-                    typename T::RecordType,
-                       eventsetup::EventSetupRecordKey>(),
-                    std::move(temp));
-         }
+      void insert(std::unique_ptr<EventSetupRecordProvider> iRecordProvider);
 
    private:
-      EventSetupProvider(EventSetupProvider const&); // stop default
+      EventSetupProvider(EventSetupProvider const&) = delete; // stop default
 
-      EventSetupProvider const& operator=(EventSetupProvider const&); // stop default
+      EventSetupProvider const& operator=(EventSetupProvider const&) = delete; // stop default
 
       void insert(EventSetupRecordKey const&, std::unique_ptr<EventSetupRecordProvider>);
 

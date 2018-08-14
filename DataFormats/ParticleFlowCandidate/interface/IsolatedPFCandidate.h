@@ -25,10 +25,10 @@ namespace reco {
 			 double isolation );
 
     /// destructor
-    virtual ~IsolatedPFCandidate();
+    ~IsolatedPFCandidate() override;
 
     /// return a clone
-    virtual IsolatedPFCandidate * clone() const;
+    IsolatedPFCandidate * clone() const override;
     
 /*     const PFCandidateRef& parent() const { return parent_;} */
 

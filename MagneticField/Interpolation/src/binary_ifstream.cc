@@ -5,12 +5,12 @@
 
 struct binary_ifstream_error {};
 
-binary_ifstream::binary_ifstream( const char* name) : file_(0)
+binary_ifstream::binary_ifstream( const char* name) : file_(nullptr)
 {
     init (name);
 }
 
-binary_ifstream::binary_ifstream( const std::string& name) : file_(0)
+binary_ifstream::binary_ifstream( const std::string& name) : file_(nullptr)
 {
     init (name.c_str());
 }
@@ -18,7 +18,7 @@ binary_ifstream::binary_ifstream( const std::string& name) : file_(0)
 void binary_ifstream::init( const char* name)
 {
     file_ = fopen( name, "rb");
-    if (file_ == 0) {
+    if (file_ == nullptr) {
 	std::cout << "file " << name << " cannot be opened for reading"
 		  << std::endl;
 	throw binary_ifstream_error();
@@ -31,8 +31,8 @@ binary_ifstream::~binary_ifstream()
 }
 void binary_ifstream::close()
 {
-    if (file_ != 0) fclose( file_);
-    file_ = 0;
+    if (file_ != nullptr) fclose( file_);
+    file_ = nullptr;
 }
 
 binary_ifstream& binary_ifstream::operator>>( char& n) {
@@ -92,7 +92,7 @@ bool binary_ifstream::eof() const
 
 bool binary_ifstream::fail() const
 {
-    return file_ == 0 || ferror( file_) != 0;
+    return file_ == nullptr || ferror( file_) != 0;
 }
 
 // don't know the difference between fail() and bad() (yet)

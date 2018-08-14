@@ -8,10 +8,10 @@ using namespace oracle::occi;
 
 ODTCCCycle::ODTCCCycle()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   //
   m_ID = 0;
   m_tcc_config_id = 0;
@@ -33,7 +33,7 @@ void ODTCCCycle::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO ECAL_TCC_Cycle (cycle_id, tcc_configuration_id ) "
 		 "VALUES (:1, :2 )");
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODTCCCycle::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODTCCCycle::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -52,7 +52,7 @@ void ODTCCCycle::writeDB()  noexcept(false)
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODTCCCycle::writeDB:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODTCCCycle::writeDB:  ")+getOraMessage(&e)));
   }
 
   // Now get the ID
@@ -93,7 +93,7 @@ int ODTCCCycle::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODTCCCycle::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODTCCCycle::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;
@@ -122,7 +122,7 @@ void ODTCCCycle::setByID(int id)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODTCCCycle::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODTCCCycle::fetchID:  ")+getOraMessage(&e)));
   }
 }
 
@@ -151,7 +151,7 @@ void ODTCCCycle::fetchData(ODTCCCycle * result)
     result->setTCCConfigurationID(       rset->getInt(1) );
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODTCCCycle::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODTCCCycle::fetchData():  ")+getOraMessage(&e)));
   }
 }
 

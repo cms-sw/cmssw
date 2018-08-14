@@ -19,9 +19,9 @@ public:
     RawDataCollectorByLabel(const edm::ParameterSet& pset);
     
     ///Destructor
-    virtual ~RawDataCollectorByLabel();
+    ~RawDataCollectorByLabel() override;
     
-    void produce(edm::Event & e, const edm::EventSetup& c); 
+    void produce(edm::Event & e, const edm::EventSetup& c) override; 
           
 private:
 

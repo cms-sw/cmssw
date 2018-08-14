@@ -117,11 +117,12 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 # emulator
 process.load('L1Trigger.L1TCalorimeter.simCaloStage2Layer1Digis_cfi')
 process.load('L1Trigger.L1TCalorimeter.simCaloStage2Digis_cfi')
+process.simCaloStage2Digis.useStaticConfig = True
 process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("ecalDigis:EcalTriggerPrimitives")
 process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag("hcalDigis")
 
 # emulator ES
-process.load('L1Trigger.L1TCalorimeter.caloStage2Params_2016_v3_3_HI_cfi')
+process.load('L1Trigger.L1TCalorimeter.caloParams_2018_v1_3_cfi')
 
 # histograms
 process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')

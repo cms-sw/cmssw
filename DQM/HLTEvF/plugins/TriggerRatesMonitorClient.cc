@@ -92,7 +92,7 @@ void TriggerRatesMonitorClient::fillDescriptions(edm::ConfigurationDescriptions 
 
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::string>("dqmPath","HLT/Datasets");
-  descriptions.add("dqmCorrelationClient", desc);
+  descriptions.add("triggerRatesMonitorClient", desc);
 
 }
 

@@ -2,22 +2,6 @@
 
 
 
-isData=false
-isMc=false
-isParticleGun=false
-if [[ "$datasetName" == data1 ]] ||  [[ "$datasetName" == data2 ]]; then
-  isData=true;
-elif [[ "$datasetName" == qcd ]] || [[ "$datasetName" == wlnu ]] || [[ "$datasetName" == zmumu ]] || [[ "$datasetName" == ztautau ]]  || [[ "$datasetName" == zmumu10 ]] || [[ "$datasetName" == zmumu20 ]] || [[ "$datasetName" == zmumu50 ]]; then
-  isMc=true;
-elif [[ "$datasetName" == ParticleGunMuon ]] || [[ "$datasetName" == ParticleGunPion ]] || [[ "$datasetName" == ParticleGunAntiMuon ]] || [[ "$datasetName" == ParticleGunAntiPion ]] ; then
-  isParticleGun=true;
-else
-  echo "Invalid dataset: $datasetName"
-  exit 3
-fi
-
-
-
 ## Batch submit file template
 BATCH_TEMPLATEFILE="${CMSSW_BASE}/src/Alignment/APEEstimation/test/cfgTemplate/batchSubmitTemplate.tcsh"
 BATCH_OUTPUTBASE1="${CMSSW_BASE}/src/Alignment/APEEstimation/test/batch/workingArea/${datasetName}BatchSubmit"

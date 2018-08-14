@@ -2,11 +2,10 @@
 #include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Common/interface/RefCoreWithIndex.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "DataFormats/Common/interface/EDProductGetter.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 #include "TBuffer.h"
 #include "TClass.h"
-#include <ostream>
-#include <cassert>
-#include <iostream>
 
 namespace edm {
 
@@ -75,41 +74,29 @@ namespace edm {
   }
 
 
-  void setRefCoreStreamer(bool resetAll) {
+  void setRefCoreStreamerInTClass() {
+
+    TClass *cl = TClass::GetClass("edm::RefCore");
+    TClassStreamer *st = cl->GetStreamer();
+    if (st == nullptr) {
+      cl->AdoptStreamer(new RefCoreStreamer());
+    }
     {
-      TClass *cl = TClass::GetClass("edm::RefCore");
+      TClass *cl = TClass::GetClass("edm::RefCoreWithIndex");
       TClassStreamer *st = cl->GetStreamer();
-      if (st == 0) {
-        cl->AdoptStreamer(new RefCoreStreamer());
-      }
-      {
-        TClass *cl = TClass::GetClass("edm::RefCoreWithIndex");
-        TClassStreamer *st = cl->GetStreamer();
-        if (st == 0) {
-          cl->AdoptStreamer(new RefCoreWithIndexStreamer());
-        }
+      if (st == nullptr) {
+        cl->AdoptStreamer(new RefCoreWithIndexStreamer());
       }
     }
-    EDProductGetter::switchProductGetter(0);
+  }
+
+  void setRefCoreStreamer(bool) {
+    EDProductGetter::switchProductGetter(nullptr);
   }
 
   EDProductGetter const* setRefCoreStreamer(EDProductGetter const* ep) {
-    EDProductGetter const* returnValue=0;
-    if (ep != 0) {
-      {
-        TClass *cl = TClass::GetClass("edm::RefCore");
-        TClassStreamer *st = cl->GetStreamer();
-        if (st == 0) {
-          cl->AdoptStreamer(new RefCoreStreamer());
-        }
-      }
-      {
-        TClass *cl = TClass::GetClass("edm::RefCoreWithIndex");
-        TClassStreamer *st = cl->GetStreamer();
-        if (st == 0) {
-          cl->AdoptStreamer(new RefCoreWithIndexStreamer());
-        }
-      }
+    EDProductGetter const* returnValue=nullptr;
+    if (ep != nullptr) {
       returnValue = edm::EDProductGetter::switchProductGetter(ep);
     }
     return returnValue;

@@ -15,6 +15,7 @@
 <use name="FWCore/FWLite"/>
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/Utilities"/>
+<use name="CalibTracker/StandaloneTrackerTopology"/>
 <use name="Fireworks/TableWidget"/>
 <use name="boost"/>
 <use name="boost_program_options"/>

@@ -11,10 +11,10 @@ using namespace oracle::occi;
 
 DCUIDarkPedDat::DCUIDarkPedDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_ped = 0;
 }
@@ -39,7 +39,7 @@ void DCUIDarkPedDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":ped)");
   } catch (SQLException &e) {
-    throw(std::runtime_error("DCUIDarkPedDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("DCUIDarkPedDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -65,7 +65,7 @@ void DCUIDarkPedDat::writeDB(const EcalLogicID* ecid, const DCUIDarkPedDat* item
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("DCUIDarkPedDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("DCUIDarkPedDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -97,12 +97,12 @@ void DCUIDarkPedDat::fetchData(std::map< EcalLogicID, DCUIDarkPedDat >* fillMap,
     std::pair< EcalLogicID, DCUIDarkPedDat > p;
     DCUIDarkPedDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
 
       dat.setPed( rset->getFloat(7) );
 
@@ -110,7 +110,7 @@ void DCUIDarkPedDat::fetchData(std::map< EcalLogicID, DCUIDarkPedDat >* fillMap,
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("DCUIDarkPedDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("DCUIDarkPedDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 void DCUIDarkPedDat::writeArrayDB(const std::map< EcalLogicID, DCUIDarkPedDat >* data, DCUIOV* iov)
@@ -178,6 +178,6 @@ void DCUIDarkPedDat::writeArrayDB(const std::map< EcalLogicID, DCUIDarkPedDat >*
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("DCUIDarkPedDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("DCUIDarkPedDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

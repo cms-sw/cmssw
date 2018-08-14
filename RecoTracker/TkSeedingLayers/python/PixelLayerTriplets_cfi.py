@@ -36,10 +36,6 @@ _layersForPhase1 = [
 ]
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
 trackingPhase1.toModify(PixelLayerTriplets, layerList=_layersForPhase1)
-from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
-trackingPhase1QuadProp.toModify(PixelLayerTriplets, layerList=_layersForPhase1)
-from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
-trackingPhase1PU70.toModify(PixelLayerTriplets, layerList=_layersForPhase1)
 
 _layersForPhase2 = [ 'BPix1+BPix2+BPix3', 'BPix2+BPix3+BPix4',
                      'BPix2+BPix3+FPix1_pos', 'BPix2+BPix3+FPix1_neg',

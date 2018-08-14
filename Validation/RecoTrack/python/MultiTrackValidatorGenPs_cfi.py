@@ -6,7 +6,8 @@ from SimTracker.TrackAssociation.LhcParametersDefinerForTP_cfi import *
 from SimTracker.TrackAssociation.CosmicParametersDefinerForTP_cfi import *
 from Validation.RecoTrack.MTVHistoProducerAlgoForTrackerBlock_cfi import *
 
-multiTrackValidatorGenPs = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+multiTrackValidatorGenPs = DQMEDAnalyzer(
     "MultiTrackValidatorGenPs",
 
     ### general settings ###

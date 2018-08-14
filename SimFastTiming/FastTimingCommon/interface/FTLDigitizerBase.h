@@ -1,7 +1,7 @@
 #ifndef FastTimingSimProducers_FastTimingCommon_FTLDigitizerBase_h
 #define FastTimingSimProducers_FastTimingCommon_FTLDigitizerBase_h
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -31,7 +31,7 @@ class FTLDigitizerBase {
  public:
  FTLDigitizerBase(const edm::ParameterSet& config, 
 		  edm::ConsumesCollector& iC,
-		  edm::stream::EDProducerBase& parent) :
+		  edm::ProducerBase& parent) :
   inputSimHits_( config.getParameter<edm::InputTag>("inputSimHits") ),
   digiCollection_( config.getParameter<std::string>("digiCollectionTag") ),
   mySubDet_(FastTime),
@@ -87,7 +87,7 @@ class FTLDigitizerBase {
 };
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory< FTLDigitizerBase* (const edm::ParameterSet&, edm::ConsumesCollector&, edm::stream::EDProducerBase&) > FTLDigitizerFactory;
+typedef edmplugin::PluginFactory< FTLDigitizerBase* (const edm::ParameterSet&, edm::ConsumesCollector&, edm::ProducerBase&) > FTLDigitizerFactory;
 
 
 

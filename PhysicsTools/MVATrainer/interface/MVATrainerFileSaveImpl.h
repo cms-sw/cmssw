@@ -24,8 +24,8 @@ class MVATrainerFileSaveImpl : public MVATrainerFileSave {
 		MVATrainerFileSave(params) {}
 
     protected:
-	virtual const Calibration::MVAComputerContainer *
-	getToPut(const edm::EventSetup& es) const
+	const Calibration::MVAComputerContainer *
+	getToPut(const edm::EventSetup& es) const override
 	{
 		edm::ESHandle<Calibration::MVAComputerContainer> handle;
 		if (trained)

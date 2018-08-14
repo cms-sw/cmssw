@@ -23,10 +23,10 @@ egammaSuperClusterAnalyzer.endcapCorSuperClusterCollection = cms.InputTag("corre
 
 
 # prevalidation sequence for all EDFilters and EDProducers
+#
 globalPrevalidationHI = cms.Sequence(
     hiTrackPrevalidation
   * hiRecoMuonPrevalidation
-
 )
 
 
@@ -49,7 +49,6 @@ globalValidationHI = cms.Sequence(
     
     + hiTrackValidation         # validation of 'hiGeneralTracks'
     + hiJetValidation           # validation of pileup jet finders
-    + hiRecoMuonValidation      # validation of offline muon reco
-   
+    + hiRecoMuonValidation      # validation of offline muon reco   
     )
 

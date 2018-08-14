@@ -29,7 +29,7 @@ void OptOPlateSplitter::detailedDeviatesLightRay( LightRay& lightray )
   if (ALIUtils::debug >= 3) ALIUtils::dump3v( centreGlob(), " centre Global RF ");
 
   //---------- Get forward plate
-  ALIPlane plate = getPlate(1, 1);
+  ALIPlane plate = getPlate(true, true);
   //---------- Reflect
   lightray.reflect( plate );
   if (ALIUtils::debug >= 2) {
@@ -53,7 +53,7 @@ void OptOPlateSplitter::detailedTraversesLightRay( LightRay& lightray )
   if (ALIUtils::debug >= 2) std::cout << "LR: DETAILED TRAVERSE IN PLATE SPLITTER " << name() << std::endl;
 
   //---------- Get forward plate
-  ALIPlane plate = getPlate(1, 1);
+  ALIPlane plate = getPlate(true, true);
   //---------- If width is 0, just keep the same point 
   ALIdouble width = findExtraEntryValue("width");
   if( width == 0 ) {
@@ -70,7 +70,7 @@ void OptOPlateSplitter::detailedTraversesLightRay( LightRay& lightray )
   }
 
   //---------- Get backward plate
-  plate = getPlate(0, 1);
+  plate = getPlate(false, true);
   //---------- Refract while exiting splitter
   lightray.refract( plate, refra_ind2, refra_ind1 );
   if (ALIUtils::debug >= 2) {
@@ -92,7 +92,7 @@ void OptOPlateSplitter::fastDeviatesLightRay( LightRay& lightray )
   if (ALIUtils::debug >= 2) std::cout << "LR: REFLECTION IN PLATE SPLITTER " << name() << std::endl;
 
   //---------- Get forward plate
-  ALIPlane plate = getPlate(1, 0);
+  ALIPlane plate = getPlate(true, false);
   //---------- Reflect in plate (including intersection with it)
   lightray.reflect( plate );
   if (ALIUtils::debug >= 2) {
@@ -121,7 +121,7 @@ void OptOPlateSplitter::fastTraversesLightRay( LightRay& lightray )
   if (ALIUtils::debug >= 2) std::cout << "LR: TRAVERSE PLATE SPLITTER  " << name() << std::endl;
   
   //---------- Get backward plate
-  ALIPlane plate = getPlate(0, 0);
+  ALIPlane plate = getPlate(false, false);
   lightray.intersect( plate );
   if (ALIUtils::debug >= 2) {
     lightray.dumpData("Intersected with plate"); 

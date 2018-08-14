@@ -20,24 +20,24 @@ class AnnealingGhostTrackFitter : public SequentialGhostTrackFitter {
 	AnnealingGhostTrackFitter(const AnnealingGhostTrackFitter &orig) :
 		annealing(orig.annealing->clone()),
 		firstStep(orig.firstStep) {}
-	~AnnealingGhostTrackFitter() {}
+	~AnnealingGhostTrackFitter() override {}
 
     private:
-	virtual FitterImpl *clone() const
+	FitterImpl *clone() const override
 	{ return new AnnealingGhostTrackFitter(*this); }
 
-	virtual bool stable(const GhostTrackPrediction &before,
-	                    const GhostTrackPrediction &after) const
+	bool stable(const GhostTrackPrediction &before,
+	                    const GhostTrackPrediction &after) const override
 	{
 		return SequentialGhostTrackFitter::stable(before, after) &&
 		       annealing->isAnnealed();
 	}
 
-	virtual void reset() { annealing->resetAnnealing(); firstStep = true; }
-	virtual void postFit(
+	void reset() override { annealing->resetAnnealing(); firstStep = true; }
+	void postFit(
 			const GhostTrackFitter::PredictionUpdater &updater,
 			const GhostTrackPrediction &pred,
-			std::vector<GhostTrackState> &states);
+			std::vector<GhostTrackState> &states) override;
 
 	std::auto_ptr<AnnealingSchedule>	annealing;
 	bool					firstStep;

@@ -11,15 +11,15 @@ using namespace oracle::occi;
 
 MonPedestalOffsetsDat::MonPedestalOffsetsDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_dacG1 = 0;
   m_dacG6 = 0;
   m_dacG12 = 0;
-  m_taskStatus = 0;
+  m_taskStatus = false;
 }
 
 
@@ -42,7 +42,7 @@ void MonPedestalOffsetsDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":dac_g1, :dac_g6, :dac_g12, :task_status)");
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonPedestalOffsetsDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonPedestalOffsetsDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -70,7 +70,7 @@ void MonPedestalOffsetsDat::writeDB(const EcalLogicID* ecid, const MonPedestalOf
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonPedestalOffsetsDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonPedestalOffsetsDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -101,12 +101,12 @@ void MonPedestalOffsetsDat::fetchData(std::map< EcalLogicID, MonPedestalOffsetsD
     std::pair< EcalLogicID, MonPedestalOffsetsDat > p;
     MonPedestalOffsetsDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
 
       dat.setDACG1( rset->getInt(7) );
       dat.setDACG6( rset->getInt(8) );
@@ -117,7 +117,7 @@ void MonPedestalOffsetsDat::fetchData(std::map< EcalLogicID, MonPedestalOffsetsD
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonPedestalOffsetsDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonPedestalOffsetsDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -211,6 +211,6 @@ void MonPedestalOffsetsDat::writeArrayDB(const std::map< EcalLogicID, MonPedesta
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonPedestalOffsetsDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonPedestalOffsetsDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

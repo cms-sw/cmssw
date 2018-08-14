@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import six
 
 process = cms.Process('SIMDIGIRECO')
 
@@ -23,7 +24,7 @@ process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('SimG4CMS.HGCalTestBeam.DigiHGCalTB160_cff')
-process.load('RecoLocalCalo.HGCalRecProducers.HGCalLocalRecoSequence_cff')
+process.load('RecoLocalCalo.HGCalRecProducers.HGCalLocalRecoTestBeamSequence_cff')
 process.load('SimG4CMS.HGCalTestBeam.HGCalTBAnalyzer_cfi')
 
 process.maxEvents = cms.untracked.PSet(
@@ -99,7 +100,7 @@ process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.digitisation_step = cms.Path(process.mix)
-process.reconstruction_step = cms.Path(process.HGCalLocalRecoSequence)
+process.reconstruction_step = cms.Path(process.HGCalLocalRecoTestBeamSequence)
 process.analysis_step = cms.Path(process.HGCalTBAnalyzer)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
@@ -110,8 +111,7 @@ process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary
 for path in process.paths:
         getattr(process,path)._seq = process.generator * getattr(process,path)._seq
 
-for label, prod in process.producers_().iteritems():
+for label, prod in six.iteritems(process.producers_()):
         if prod.type_() == "OscarMTProducer":
             # ugly hack
             prod.__dict__['_TypedParameterizable__type'] = "OscarProducer"
-

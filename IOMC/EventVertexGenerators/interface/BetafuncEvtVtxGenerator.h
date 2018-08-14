@@ -30,16 +30,16 @@ class BetafuncEvtVtxGenerator : public BaseEvtVtxGenerator
 {
 public:
   BetafuncEvtVtxGenerator(const edm::ParameterSet & p);
-  virtual ~BetafuncEvtVtxGenerator();
+  ~BetafuncEvtVtxGenerator() override;
 
-  virtual void beginRun(const edm::Run & , const edm::EventSetup&) override;
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void beginRun(const edm::Run & , const edm::EventSetup&) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   /// return a new event vertex
   //virtual CLHEP::Hep3Vector * newVertex();
-  virtual HepMC::FourVector* newVertex(CLHEP::HepRandomEngine*) override ;
+  HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override ;
 
-  virtual TMatrixD* GetInvLorentzBoost() override;
+  TMatrixD const* GetInvLorentzBoost() const override;
 
     
   /// set resolution in Z in cm
@@ -52,38 +52,33 @@ public:
   /// set mean in Z in cm
   void Z0(double m=0) { fZ0=m; }
 
-  /// set half crossing angle
-  void Phi(double m=0) { phi_=m; }
-  /// angle between crossing plane and horizontal plane
-  void Alpha(double m=0) { alpha_=m; }
-
   /// set beta_star
   void betastar(double m=0) { fbetastar=m; }
   /// emittance (no the normalized)
   void emittance(double m=0) { femittance=m; }
 
   /// beta function
-  double BetaFunction(double z, double z0);
+  double BetaFunction(double z, double z0) const;
     
 private:
   /** Copy constructor */
-  BetafuncEvtVtxGenerator(const BetafuncEvtVtxGenerator &p);
+  BetafuncEvtVtxGenerator(const BetafuncEvtVtxGenerator &p) = delete;
   /** Copy assignment operator */
-  BetafuncEvtVtxGenerator&  operator = (const BetafuncEvtVtxGenerator & rhs );
-  
+  BetafuncEvtVtxGenerator&  operator = (const BetafuncEvtVtxGenerator & rhs ) = delete;
+
+  void setBoost(double alpha, double phi);
 private:
 
   bool readDB_;
 
-  double alpha_, phi_;
-  //TMatrixD boost_;
-  
   double fX0, fY0, fZ0;
   double fSigmaZ;
   //double fdxdz, fdydz;
   double fbetastar, femittance;
   //  double falpha;
   double fTimeOffset;
+
+  TMatrixD boost_;
 
   void update(const edm::EventSetup& iEventSetup);
   edm::ESWatcher<SimBeamSpotObjectsRcd> parameterWatcher_;

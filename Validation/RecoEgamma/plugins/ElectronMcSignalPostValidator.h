@@ -8,9 +8,9 @@ class ElectronMcSignalPostValidator : public ElectronDqmHarvesterBase
  {
   public:
     explicit ElectronMcSignalPostValidator( const edm::ParameterSet & conf ) ;
-    virtual ~ElectronMcSignalPostValidator() ;
+    ~ElectronMcSignalPostValidator() override ;
 //    virtual void book() ;
-    virtual void finalize( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter ) ; 
+    void finalize( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter ) override ; 
 
   private:
     std::string inputFile_ ;

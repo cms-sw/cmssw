@@ -2,7 +2,7 @@
 #define DDRoot_h
 
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Base/interface/Singleton.h"
+#include "DetectorDescription/Core/interface/Singleton.h"
 
 //!  Defines the root of the CompactView
 /**

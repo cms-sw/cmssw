@@ -154,13 +154,16 @@ void BowedSurfaceAlignmentParameters::apply()
   align::rectify(rot);
   alignable->rotateInGlobalFrame(rot);
 
-  const AlgebraicVector &params = theData->parameters();
-  const BowedSurfaceDeformation deform(params[dsagittaX], params[dsagittaXY], params[dsagittaY]);
+  // only update the surface deformations if they were selected for alignment
+  if (selector()[dsagittaX] || selector()[dsagittaXY] || selector()[dsagittaY]) {
+    const auto& params = theData->parameters();
+    const BowedSurfaceDeformation deform{params[dsagittaX], params[dsagittaXY], params[dsagittaY]};
 
-  // FIXME: true to propagate down?
-  //        Needed for hierarchy with common deformation parameter,
-  //        but that is not possible now anyway.
-  alignable->addSurfaceDeformation(&deform, false);
+    // FIXME: true to propagate down?
+    //        Needed for hierarchy with common deformation parameter,
+    //        but that is not possible now anyway.
+    alignable->addSurfaceDeformation(&deform, false);
+  }
 }
 
 //_________________________________________________________________________________________________

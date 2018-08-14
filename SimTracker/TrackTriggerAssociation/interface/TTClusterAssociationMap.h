@@ -68,6 +68,8 @@ class TTClusterAssociationMap
     std::map< edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > >, std::vector< edm::Ptr< TrackingParticle > > > clusterToTrackingParticleVectorMap;
     std::map< edm::Ptr< TrackingParticle >, std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > > > trackingParticleToClusterVectorMap;
 
+    int nclus;
+
 }; /// Close class
 
 /*! \brief   Implementation of methods
@@ -85,6 +87,7 @@ TTClusterAssociationMap< T >::TTClusterAssociationMap()
   /// Set default data members
   clusterToTrackingParticleVectorMap.clear();
   trackingParticleToClusterVectorMap.clear();
+  nclus=0;
 }
 
 /// Destructor
@@ -131,14 +134,28 @@ std::vector< edm::Ptr< TrackingParticle > > TTClusterAssociationMap< T >::findTr
 /// ----------------------
 /// >0       | U | C | C
 ///
+
+/// NEW SV 060617
+///
+/// N / D--> | 0 | 1 | >1 (with 1 TP getting >99 of the total pT) | >1
+/// -------------------------------------------------------------------
+/// 0        | U | G | G                                          | C
+/// -------------------------------------------------------------------
+/// >0       | U | G | G                                          | C
+///
+
 template< typename T >
 bool TTClusterAssociationMap< T >::isGenuine( edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > aCluster ) const
 {
+
+
   /// Get the TrackingParticles
   std::vector< edm::Ptr< TrackingParticle > > theseTrackingParticles = this->findTrackingParticlePtrs( aCluster );
 
+
+
   /// If the vector is empty, then the cluster is UNKNOWN
-  if ( theseTrackingParticles.size() == 0 )
+  if ( theseTrackingParticles.empty() )
     return false;
 
   /// If we are here, it means there are some TrackingParticles
@@ -146,14 +163,38 @@ bool TTClusterAssociationMap< T >::isGenuine( edm::Ref< edmNew::DetSetVector< TT
   unsigned int goodDifferentTPs = 0;
   std::vector< const TrackingParticle* > tpAddressVector;
 
+  std::vector<float> tp_mom;
+
+  float tp_tot=0;
+
   /// Loop over the TrackingParticles
+  for ( const auto& tp : theseTrackingParticles )
+  {
+    /// Get the TrackingParticle
+    edm::Ptr< TrackingParticle > curTP = tp;
+
+    /// Count the NULL TrackingParticles
+    if ( curTP.isNull() )
+    {
+      //      nullTPs++;
+      tp_mom.push_back(0);
+    }
+    else
+    {
+      tp_mom.push_back(curTP.get()->p4().pt());
+      tp_tot+=curTP.get()->p4().pt();
+    }
+  }
+
+  if (tp_tot==0) return false;
+  
   for ( unsigned int itp = 0; itp < theseTrackingParticles.size(); itp++ )
   {
     /// Get the TrackingParticle
     edm::Ptr< TrackingParticle > curTP = theseTrackingParticles.at(itp);
 
     /// Count the NULL TrackingParticles
-    if ( curTP.isNull() )
+    if ( tp_mom.at(itp) <= 0.01*tp_tot)
     {
       nullTPs++;
     }
@@ -164,14 +205,14 @@ bool TTClusterAssociationMap< T >::isGenuine( edm::Ref< edmNew::DetSetVector< TT
       tpAddressVector.push_back( curTP.get() );
     }
   }
+  
 
   /// Count how many different TrackingParticle there are
   std::sort( tpAddressVector.begin(), tpAddressVector.end() );
   tpAddressVector.erase( std::unique( tpAddressVector.begin(), tpAddressVector.end() ), tpAddressVector.end() );
   goodDifferentTPs = tpAddressVector.size();
 
-  /// GENUINE means no NULLs and only one good TP
-  return ( nullTPs == 0 && goodDifferentTPs == 1 );
+  return ( goodDifferentTPs == 1 );
 }
 
 template< typename T >
@@ -181,7 +222,7 @@ bool TTClusterAssociationMap< T >::isUnknown( edm::Ref< edmNew::DetSetVector< TT
   std::vector< edm::Ptr< TrackingParticle > > theseTrackingParticles = this->findTrackingParticlePtrs( aCluster );
 
   /// If the vector is empty, then the cluster is UNKNOWN
-  if ( theseTrackingParticles.size() == 0 )
+  if ( theseTrackingParticles.empty() )
     return true;
 
   /// If we are here, it means there are some TrackingParticles
@@ -219,8 +260,16 @@ bool TTClusterAssociationMap< T >::isCombinatoric( edm::Ref< edmNew::DetSetVecto
   std::vector< edm::Ptr< TrackingParticle > > theseTrackingParticles = this->findTrackingParticlePtrs( aCluster );
 
   /// If the vector is empty, then the cluster is UNKNOWN
-  if ( theseTrackingParticles.size() == 0 )
+  if ( theseTrackingParticles.empty())
     return false;
+
+
+  bool genuineClu = this->isGenuine( aCluster );
+  bool unknownClu = this->isUnknown( aCluster );
+
+  if (genuineClu || unknownClu) return false;
+
+  return true;
 
   /// If we are here, it means there are some TrackingParticles
   unsigned int nullTPs = 0;
@@ -253,7 +302,8 @@ bool TTClusterAssociationMap< T >::isCombinatoric( edm::Ref< edmNew::DetSetVecto
 
   /// COMBINATORIC means no NULLs and more than one good TP
   /// OR, in alternative, only one good TP but non-zero NULLS
-  return ( ( nullTPs == 0 && goodDifferentTPs > 1 ) || ( nullTPs > 0 && goodDifferentTPs > 0 ) );
+  //return ( ( nullTPs == 0 && goodDifferentTPs > 1 ) || ( nullTPs > 0 && goodDifferentTPs > 0 ) );
+  return (goodDifferentTPs > 1);
 }
 
 template< typename T >

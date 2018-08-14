@@ -9,8 +9,11 @@ OutALCARECOHcalCalIsoTrkFilter_noDrop = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECOHcalCalIsoTrkFilter')
     ),
     outputCommands = cms.untracked.vstring( 
+        'keep *_gtStage2Digis_*_*',
+        'keep HcalNoiseSummary_hcalnoise_*_*',
         'keep *_hbhereco_*_*',
         'keep *_ecalRecHit_*_*',
+        'keep *_towerMaker_*_*',
         'keep *_offlineBeamSpot_*_*',
         'keep *_hltTriggerSummaryAOD_*_*',
         'keep *_TriggerResults_*_*',

@@ -29,9 +29,9 @@ class PFDisplacedVertexCandidateProducer : public edm::stream::EDProducer<> {
 
   explicit PFDisplacedVertexCandidateProducer(const edm::ParameterSet&);
 
-  ~PFDisplacedVertexCandidateProducer();
+  ~PFDisplacedVertexCandidateProducer() override;
   
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
 

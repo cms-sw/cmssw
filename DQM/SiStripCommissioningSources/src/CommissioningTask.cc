@@ -25,7 +25,7 @@ CommissioningTask::CommissioningTask( DQMStore* dqm,
   fecKey_(0),
   booked_(false),
   myName_(my_name),
-  eventSetup_(0)
+  eventSetup_(nullptr)
 {
   uint16_t fed_ch = connection_.fedCh();
   fedKey_ = SiStripFedKey( connection_.fedId(), 
@@ -89,8 +89,8 @@ CommissioningTask::HistoSet::HistoSet() :
   vSumOfSquares_(), 
   isProfile_(true),
   explicitFill_(false),
-  histo_(0),
-  axis_(0)
+  histo_(nullptr),
+  axis_(nullptr)
 {;}
 
 // -----------------------------------------------------------------------------
@@ -98,7 +98,7 @@ CommissioningTask::HistoSet::HistoSet() :
 CommissioningTask::CompactHistoSet::CompactHistoSet() :
   vNumOfEntries_(), 
   explicitFill_(false),
-  histo_(0)
+  histo_(nullptr)
 {;}
 
 // -----------------------------------------------------------------------------
@@ -156,6 +156,16 @@ void CommissioningTask::fill( const SiStripEventSummary& summary,
     << " No derived implementation exists!";
 }
 
+// -----------------------------------------------------------------------------                                                                                                                  
+//                                                                                                                                                                                                   
+void CommissioningTask::fill( const SiStripEventSummary& summary,
+                              const edm::DetSet<SiStripRawDigi>& digis,
+                              const edm::DetSet<SiStripRawDigi>& digisAlt) {
+  edm::LogWarning(mlDqmSource_)
+    << "[CommissioningTask::" << __func__ << "]"
+    << " No derived implementation exists!";
+}
+
 // -----------------------------------------------------------------------------
 //
 void CommissioningTask::fill( const SiStripEventSummary& summary,
@@ -185,6 +195,30 @@ void CommissioningTask::bookHistograms() {
 //
 void CommissioningTask::fillHistograms( const SiStripEventSummary& summary,
 					const edm::DetSet<SiStripRawDigi>& digis ) {
+  if(summary.runType() != sistrip::CALIBRATION_SCAN and
+     summary.runType() != sistrip::CALIBRATION_SCAN_DECO and
+     summary.runType() != sistrip::CALIBRATION and
+     summary.runType() != sistrip::CALIBRATION_DECO){
+    if ( !booked_ ) {
+      edm::LogWarning(mlDqmSource_)
+	<< "[CommissioningTask::" << __func__ << "]"
+	<< " Attempting to fill histos that haven't been booked yet!";
+      return;
+    }
+  }
+  fillCntr_++;
+  fill( summary, digis ); 
+  if ( updateFreq_ && !(fillCntr_%updateFreq_) ) { 
+    update(); 
+  }  
+}
+
+// -----------------------------------------------------------------------------                                                                                                                
+//                                                                                                                                                                                                      
+void CommissioningTask::fillHistograms( const SiStripEventSummary& summary,
+                                        const edm::DetSet<SiStripRawDigi>& digis,
+                                        const edm::DetSet<SiStripRawDigi>& digisAlt
+                                        ) {
   if ( !booked_ ) {
     edm::LogWarning(mlDqmSource_)
       << "[CommissioningTask::" << __func__ << "]"
@@ -192,11 +226,10 @@ void CommissioningTask::fillHistograms( const SiStripEventSummary& summary,
     return;
   }
   fillCntr_++;
-  fill( summary, digis ); 
-  if ( updateFreq_ && !(fillCntr_%updateFreq_) ) { 
-    update(); 
+  fill( summary, digis, digisAlt );
+  if ( updateFreq_ && !(fillCntr_%updateFreq_) ) {
+    update();
   }
-  
 }
 
 // -----------------------------------------------------------------------------

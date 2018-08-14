@@ -1,11 +1,6 @@
 
 #include "FWCore/Utilities/interface/HRRealTime.h"
 
-// #include <boost/mpl/assert.hpp>
-// #include <boost/type_traits/is_same.hpp>
-
-// #include <boost/function_types/result_type.hpp>
-
 
 #include <ctime>
 #include <cmath>

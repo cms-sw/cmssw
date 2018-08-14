@@ -6,7 +6,7 @@
 #include "SimG4Core/Application/interface/EventAction.h"
 #include "SimG4Core/Application/interface/TrackingAction.h"
 #include "SimG4Core/Application/interface/SteppingAction.h"
-#include "SimG4Core/Application/interface/G4SimEvent.h"
+#include "SimG4Core/Notification/interface/G4SimEvent.h"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -104,7 +104,7 @@ void SimRunInterface::abortRun(bool softAbort)
 
 G4SimEvent* SimRunInterface::simEvent()
 {
-  G4SimEvent* ptr = 0;
+  G4SimEvent* ptr = nullptr;
   if(m_runManager) {
     ptr = m_runManager->simEvent();
   } else if(m_runManagerMTWorker) {

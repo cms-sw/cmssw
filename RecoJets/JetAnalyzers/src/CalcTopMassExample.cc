@@ -56,8 +56,8 @@
 class calcTopMass : public edm::EDAnalyzer {
   public:
     explicit calcTopMass(const edm::ParameterSet & );
-    ~calcTopMass() {};
-    virtual void analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+    ~calcTopMass() override {};
+    void analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   private:
     edm::InputTag sourcePartons_;
     edm::InputTag sourceByRefer_;
@@ -133,7 +133,7 @@ void calcTopMass::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
     const math::XYZTLorentzVector theJet = (*j).first.get()->p4();
     const MatchedPartons aMatch = (*j).second;
-    const GenParticleRef thePhyDef = aMatch.physicsDefinitionParton() ;
+    const GenParticleRef& thePhyDef = aMatch.physicsDefinitionParton() ;
     
     if(thePhyDef.isNonnull()) {
 

@@ -16,8 +16,8 @@ using namespace sistrip;
 // 
 FedCablingAlgorithm::FedCablingAlgorithm( const edm::ParameterSet & pset, FedCablingAnalysis* const anal ) 
   : CommissioningAlgorithm(anal),
-    hFedId_(0,""),
-    hFedCh_(0,"")
+    hFedId_(nullptr,""),
+    hFedCh_(nullptr,"")
 {;}
 
 // ----------------------------------------------------------------------------

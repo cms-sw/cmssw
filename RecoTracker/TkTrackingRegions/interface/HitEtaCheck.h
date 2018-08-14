@@ -24,18 +24,18 @@ public:
     isBarrel(inbarrel), 
     theRZ(HitRZConstraint(point, cotLeftLine, point, cotRightLine)) { }
 
-  virtual bool operator() (const float & r, const float & z) const {
+  bool operator() (const float & r, const float & z) const override {
     const auto & lineLeft = theRZ.lineLeft();
     const auto & lineRight = theRZ.lineRight();
     float cotHit = (lineLeft.origin().z()-z)/(lineLeft.origin().r()-r);
     return lineRight.cotLine() < cotHit && cotHit < lineLeft.cotLine();
   }
 
-  virtual Range range(const float & rORz) const {
+  Range range(const float & rORz) const override {
     return (isBarrel) ? 
         HitZCheck(theRZ).range(rORz) : HitRCheck(theRZ).range(rORz);
   }
-  virtual HitEtaCheck* clone() const { return new HitEtaCheck(*this); }
+  HitEtaCheck* clone() const override { return new HitEtaCheck(*this); }
 private:
   bool isBarrel;
   HitRZConstraint theRZ;

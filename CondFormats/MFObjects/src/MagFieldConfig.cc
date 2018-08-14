@@ -28,7 +28,7 @@ MagFieldConfig::MagFieldConfig(const edm::ParameterSet& pset, bool debug) {
   typedef vector<edm::ParameterSet> VPSet;
   
   VPSet fileSpec = pset.getParameter<VPSet>("gridFiles");
-  if (fileSpec.size()!=0) {
+  if (!fileSpec.empty()) {
     for(VPSet::const_iterator rule = fileSpec.begin(); rule != fileSpec.end(); ++rule){
       string s_volumes = rule->getParameter<string>("volumes");
       string s_sectors = rule->getParameter<string>("sectors"); // 0 means all volumes

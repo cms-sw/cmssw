@@ -17,8 +17,8 @@ class GsfElectronFull5x5Filler : public edm::stream::EDProducer<>
     //static void fillDescriptions( edm::ConfigurationDescriptions & ) ;
 
     explicit GsfElectronFull5x5Filler( const edm::ParameterSet & ) ;
-    virtual ~GsfElectronFull5x5Filler() ;
-    virtual void produce( edm::Event &, const edm::EventSetup & ) override ;
+    ~GsfElectronFull5x5Filler() override ;
+    void produce( edm::Event &, const edm::EventSetup & ) override ;
     void calculateShowerShape_full5x5(const reco::SuperClusterRef & theClus, bool pflow, reco::GsfElectron::ShowerShape & showerShape);
 
     void beginLuminosityBlock(edm::LuminosityBlock const&, 

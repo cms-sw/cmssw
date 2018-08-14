@@ -1,6 +1,7 @@
 #ifndef RKCurvilinearDistance_H
 #define RKCurvilinearDistance_H
 
+#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 #include "FWCore/Utilities/interface/Visibility.h"
 #include "RKDistance.h"
 #include "RKSmallVector.h"
@@ -12,9 +13,9 @@ public:
   typedef T                                   Scalar;
   typedef RKSmallVector<T,N>                  Vector;
 
-  virtual ~RKCurvilinearDistance() {}
+  ~RKCurvilinearDistance() override {}
 
-  virtual Scalar operator()( const Vector& a, const Vector& b, const Scalar& s) const {
+  Scalar operator()( const Vector& a, const Vector& b, const Scalar& s) const override {
       Basic3DVector<Scalar> amom = momentum(a);
       Basic3DVector<Scalar> bmom = momentum(b);
 

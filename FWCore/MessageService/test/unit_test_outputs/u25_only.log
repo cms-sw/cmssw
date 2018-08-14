@@ -1,4 +1,4 @@
-Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at {Timestamp} 
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 on stream 0 at {Timestamp} 
 %MSG-e cat_A:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
 A 0
 %MSG
@@ -112,3 +112,5 @@ Severity    # Occurrences   Total Occurrences
 --------    -------------   -----------------
 Info                    1                   1
 Error               20000               20000
+
+dropped waiting message count 0

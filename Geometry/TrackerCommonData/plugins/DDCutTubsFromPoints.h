@@ -4,8 +4,8 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "DetectorDescription/Base/interface/DDTypes.h"
-#include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 
 // This algorithm creates a ring made of CutTubs segments from the phi,z points
@@ -15,15 +15,15 @@ class DDCutTubsFromPoints : public DDAlgorithm {
  public:
   //Constructor and Destructor
   DDCutTubsFromPoints(); 
-  virtual ~DDCutTubsFromPoints();
+  ~DDCutTubsFromPoints() override;
   
   void initialize(const DDNumericArguments & nArgs,
                   const DDVectorArguments & vArgs,
                   const DDMapArguments & mArgs,
                   const DDStringArguments & sArgs,
-                  const DDStringVectorArguments & vsArgs);
+                  const DDStringVectorArguments & vsArgs) override;
 
-  void execute(DDCompactView& cpv);
+  void execute(DDCompactView& cpv) override;
 
 private:
   struct Section {

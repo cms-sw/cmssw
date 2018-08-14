@@ -30,10 +30,10 @@ public:
   explicit RPCPackingModule( const edm::ParameterSet& );
 
   /// dtor
-  virtual ~RPCPackingModule();
+  ~RPCPackingModule() override;
 
   /// get data, convert to raw event, attach again to Event
-  virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+  void produce( edm::Event&, const edm::EventSetup& ) override;
 
   static std::vector<rpcrawtodigi::EventRecords> eventRecords(
       int fedId, int trigger_BX, const RPCDigiCollection* , const RPCRecordFormatter& ); 

@@ -408,7 +408,7 @@ void DTHVStatusHandler::getChannelSplit() {
     DTWireId sId( swhe, ssta, ssec, squa, slay, 10 + sl_p );
     int pRaw = pId.rawId();
     int sRaw = sId.rawId();
-    std::vector<int>* splitList = 0;
+    std::vector<int>* splitList = nullptr;
     std::map< int,std::vector<int>* >::iterator iter =
                                                 channelSplit.find( pRaw );
     std::map< int,std::vector<int>* >::iterator iend =
@@ -999,7 +999,7 @@ void DTHVStatusHandler::copyHVData() {
   if ( condUntil > procUntil ) condUntil = procUntil;
 
   int dum = 0;
-  lastStatus = 0;
+  lastStatus = nullptr;
   while ( condSince < condUntil ) {
     checkForPeriod( condSince, condUntil, dum, true );
     condSince = condUntil;

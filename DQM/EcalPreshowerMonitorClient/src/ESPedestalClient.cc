@@ -23,8 +23,8 @@ ESPedestalClient::ESPedestalClient(const edm::ParameterSet& ps) :
     for (int j=0; j<2; j++) 
       for (int k=0; k<40; k++) 
 	for (int m=0; m<40; m++) {
-	  hPed_[i][j][k][m] = 0;
-	  hTotN_[i][j][k][m] = 0;
+	  hPed_[i][j][k][m] = nullptr;
+	  hTotN_[i][j][k][m] = nullptr;
 	}
 
    std::string lutPath(ps.getUntrackedParameter<edm::FileInPath>("LookupTable").fullPath());
@@ -77,7 +77,7 @@ void ESPedestalClient::endJobAnalyze(DQMStore::IGetter& _igetter) {
 	    sprintf(hname, "ADC Z %d P %d X %d Y %d Str %d", senZ_[i], senP_[i], senX_[i], senY_[i], is+1);
 	    MonitorElement *meFit = _igetter.get(dirname+hname);
 
-	    if (meFit==0) continue;
+	    if (meFit==nullptr) continue;
 	    TH1F *rootHisto = meFit->getTH1F();
 
 	    rootHisto->Fit(fg_, "Q", "", 500, 1800);
@@ -101,7 +101,7 @@ void ESPedestalClient::endJobAnalyze(DQMStore::IGetter& _igetter) {
 	    sprintf(hname, "ADC Z %d P %d X %d Y %d Str %d", senZ_[i], senP_[i], senX_[i], senY_[i], is+1);
 	    MonitorElement *meMean = _igetter.get(dirname+hname);
 	    
-	    if (meMean==0) continue;
+	    if (meMean==nullptr) continue;
 	    TH1F *rootHisto = meMean->getTH1F();
 
 	    hPed_[iz][senP_[i]-1][senX_[i]-1][senY_[i]-1]->setBinContent(is+1, (int)(rootHisto->GetMean()+0.5));

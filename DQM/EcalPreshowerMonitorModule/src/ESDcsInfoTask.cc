@@ -29,8 +29,8 @@ ESDcsInfoTask::ESDcsInfoTask(const ParameterSet& ps) {
 
    dcsStatustoken_ = consumes<DcsStatusCollection>(ps.getParameter<InputTag>("DcsStatusLabel"));
 
-   meESDcsFraction_ = 0;
-   meESDcsActiveMap_ = 0;
+   meESDcsFraction_ = nullptr;
+   meESDcsActiveMap_ = nullptr;
 
 }
 
@@ -75,9 +75,6 @@ void ESDcsInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
 
 }
 
-void ESDcsInfoTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup) {
-
-}
 
 void ESDcsInfoTask::reset(void) {
 

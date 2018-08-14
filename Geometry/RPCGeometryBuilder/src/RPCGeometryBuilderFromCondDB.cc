@@ -53,8 +53,8 @@ RPCGeometry* RPCGeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
                               *(rotStart+3),*(rotStart+4),*(rotStart+5),
                               *(rotStart+6),*(rotStart+7),*(rotStart+8));
 
-    RPCRollSpecs* rollspecs= 0;
-    Bounds* bounds = 0;
+    RPCRollSpecs* rollspecs= nullptr;
+    Bounds* bounds = nullptr;
 
     //    if (dpar.size()==4){
     if ( rgeo.shapeEnd(id) - shapeStart == 4 ) {
@@ -109,16 +109,16 @@ RPCGeometry* RPCGeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
 
     auto rls = chids.find(chid);
     if ( rls == chids.end() ) rls = chids.insert(std::make_pair(chid, std::list<RPCRoll*>())).first;
-    rls->second.push_back(r);
+    rls->second.emplace_back(r);
   }
 
   // Create the RPCChambers and store them on the Geometry
-  for ( auto ich=chids.begin(); ich != chids.end(); ++ich ) {
-    const RPCDetId& chid = ich->first;
-    const auto& rls = ich->second;
+  for (auto & ich : chids) {
+    const RPCDetId& chid = ich.first;
+    const auto& rls = ich.second;
 
     // compute the overall boundplane.
-    BoundPlane* bp=0;
+    BoundPlane* bp=nullptr;
     if ( !rls.empty() ) {
       // First set the baseline plane to calculate relative poisions
       const auto& refSurf = (*rls.begin())->surface();

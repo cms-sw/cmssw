@@ -38,6 +38,12 @@ void MonitorTrackResidualsBase<pixel_or_strip>::bookHistograms(DQMStore::IBooker
     m_cacheID_ = cacheID;
     this->createMEs( ibooker , iSetup);
   }
+  std::string topFolderName_ = "SiStrip";
+  SiStripFolderOrganizer folder_organizer;
+  folder_organizer.setSiStripFolderName(topFolderName_);
+  edm::ESHandle<TkDetMap> tkDetMapHandle;
+  iSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
+  tkhisto_ResidualsMean = std::make_unique<TkHistoMap>(tkDetMapHandle.product(), ibooker , topFolderName_ ,"TkHMap_ResidualsMean", 0.0,true);
 }
 
 template<TrackerType pixel_or_strip>
@@ -221,7 +227,7 @@ void MonitorTrackResidualsBase<pixel_or_strip>::analyze(const edm::Event& iEvent
 
   edm::Handle<reco::VertexCollection> vertices;
   iEvent.getByToken(offlinePrimaryVerticesToken_, vertices);
-  if (!vertices.isValid() || vertices->size() == 0) return;
+  if (!vertices.isValid() || vertices->empty()) return;
   const auto primaryVertex = vertices->at(0); 
 
   //Retrieve tracker topology from geometry
@@ -259,6 +265,7 @@ void MonitorTrackResidualsBase<pixel_or_strip>::analyze(const edm::Event& iEvent
       if(it.resXprimeErr != 0 && histos.x.base) {
 	histos.x.base->Fill(it.resXprime);
 	histos.x.normed->Fill(it.resXprime/it.resXprimeErr);
+	if(!isPixel) tkhisto_ResidualsMean->fill(RawId,it.resXprime);
       }
       if(it.resYprimeErr != 0 && histos.y.base) {
 	histos.y.base->Fill(it.resYprime);

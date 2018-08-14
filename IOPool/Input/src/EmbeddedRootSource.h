@@ -34,7 +34,7 @@ namespace edm {
   class EmbeddedRootSource : public VectorInputSource {
   public:
     explicit EmbeddedRootSource(ParameterSet const& pset, VectorInputSourceDescription const& desc);
-    virtual ~EmbeddedRootSource();
+    ~EmbeddedRootSource() override;
     using VectorInputSource::processHistoryRegistryForUpdate;
     using VectorInputSource::productRegistryUpdate;
 
@@ -50,11 +50,11 @@ namespace edm {
 
   private:
     virtual void closeFile_();
-    virtual void beginJob() override;
-    virtual void endJob() override;
-    virtual bool readOneEvent(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine*, EventID const* id) override;
-    virtual void readOneSpecified(EventPrincipal& cache, size_t& fileNameHash, SecondaryEventIDAndFileInfo const& id) override;
-    virtual void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches) override;
+    void beginJob() override;
+    void endJob() override;
+    bool readOneEvent(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine*, EventID const* id, bool recycleFiles) override;
+    void readOneSpecified(EventPrincipal& cache, size_t& fileNameHash, SecondaryEventIDAndFileInfo const& id) override;
+    void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches) override;
 
     RootServiceChecker rootServiceChecker_;
 

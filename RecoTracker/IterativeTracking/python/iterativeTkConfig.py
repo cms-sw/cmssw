@@ -4,7 +4,7 @@
 import FWCore.ParameterSet.Config as cms
 
 _defaultEraName = ""
-_nonDefaultEraNames = ["trackingLowPU", "trackingPhase1", "trackingPhase1QuadProp", "trackingPhase1PU70", "trackingPhase2PU140"]
+_nonDefaultEraNames = ["trackingLowPU", "trackingPhase1", "trackingPhase2PU140"]
 
 # name, postfix, era
 _defaultEra = (_defaultEraName, "", None)
@@ -42,21 +42,11 @@ _iterations_trackingPhase1 = [
     "LowPtTripletStep",
     "DetachedQuadStep",
     "DetachedTripletStep",
+    "PixelPairStep",
     "MixedTripletStep",
     "PixelLessStep",
     "TobTecStep",
     "JetCoreRegionalStep",
-]
-_iterations_trackingPhase1QuadProp = _iterations_trackingPhase1
-_iterations_trackingPhase1PU70 = [
-    "InitialStep",
-    "HighPtTripletStep",
-    "LowPtQuadStep",
-    "LowPtTripletStep",
-    "DetachedQuadStep",
-    "MixedTripletStep",
-    "PixelPairStep",
-    "TobTecStep",
 ]
 _iterations_trackingPhase2PU140 = [
     "InitialStep",
@@ -64,14 +54,16 @@ _iterations_trackingPhase2PU140 = [
     "LowPtQuadStep",
     "LowPtTripletStep",
     "DetachedQuadStep",
+    "PixelPairStep",
 ]
 _iterations_muonSeeded = [
     "MuonSeededStepInOut",
     "MuonSeededStepOutIn",
 ]
-#Phase2 : just muon Seed InOut is used in this moment
+#Phase2
 _iterations_muonSeeded_trackingPhase2PU140 = [
     "MuonSeededStepInOut",
+    "MuonSeededStepOutIn",
 ]
 _multipleSeedProducers = {
     "MixedTripletStep": ["A", "B"],
@@ -80,9 +72,11 @@ _multipleSeedProducers = {
 _multipleSeedProducers_trackingLowPU = {
     "MixedTripletStep": ["A", "B"],
 }
-_multipleSeedProducers_trackingPhase1 = _multipleSeedProducers
-_multipleSeedProducers_trackingPhase1QuadProp = _multipleSeedProducers_trackingPhase1
-_multipleSeedProducers_trackingPhase1PU70 = _multipleSeedProducers_trackingLowPU
+_multipleSeedProducers_trackingPhase1 = {
+    "PixelPairStep": ["A", "B"],
+    "MixedTripletStep": ["A", "B"],
+    "TobTecStep": ["Pair", "Tripl"],
+}
 _multipleSeedProducers_trackingPhase2PU140 = {}
 _oldStyleHasSelector = set([
     "InitialStep",
@@ -138,11 +132,11 @@ def allEras():
 def nonDefaultEras():
     return _nonDefaultEras
 
-def createEarlySequence(eraName, postfix, modDict):
-    seq = cms.Sequence()
+def createEarlyTask(eraName, postfix, modDict):
+    task = cms.Task()
     for it in globals()["_iterations"+postfix]:
-        seq += modDict[it]
-    return seq
+        task.add(modDict[it+'Task'])
+    return task
 
 def iterationAlgos(postfix, includeSequenceName=False):
     muonVariable = "_iterations_muonSeeded"+postfix
@@ -199,7 +193,7 @@ def clusterRemoverForIter(iteration, eraName="", postfix="", module=None):
         trajectories          = _tracks(prevIter),
         oldClusterRemovalInfo = _clusterRemover(prevIter) if ind >= 2 else "", # 1st iteration does not have cluster remover
     )
-    if eraName in ["trackingPhase1PU70", "trackingPhase2PU140"]:
+    if eraName in ["trackingPhase2PU140"]:
         customize["overrideTrkQuals"] = _classifier(prevIter, oldStyle=True) # old-style selector
     elif eraName == "trackingLowPU":
         customize["overrideTrkQuals"] = _classifier(prevIter, oldStyle=True, oldStyleQualityMasks=True) # old-style selector with 'QualityMasks' instance label

@@ -21,7 +21,7 @@
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
-#include "../interface/PhotonFixCMS.h"
+#include "HiggsAnalysis/HiggsToGammaGamma/interface/PhotonFixCMS.h"
 
 PhotonFixCMS::PhotonFixCMS(const reco::Photon &p):
   pf(p.energy(),p.superCluster()->eta(),p.superCluster()->phi(),p.r9()) {
@@ -49,8 +49,8 @@ bool PhotonFixCMS::initialise(const edm::EventSetup &iSetup, const std::string &
       for(int ip(0);ip<360;ip++) {
 	EBDetId eb(id,ip+1);
 	
-	const CaloCellGeometry *cellGeometry = barrelGeometry->getGeometry(eb);
-	GlobalPoint crystalPos = cellGeometry->getPosition();
+	auto cellGeometry = barrelGeometry->getGeometry(eb);
+	const GlobalPoint& crystalPos = cellGeometry->getPosition();
 	bc[85*iz+ie][ip][0]=crystalPos.eta();
 	bc[85*iz+ie][ip][1]=crystalPos.phi();
       }
@@ -102,8 +102,8 @@ if(iz==0) PhotonFix::endcapCrystal(ix,iy,valid[ix][iy]);
 	  EEDetId ee(ix+1,iy+1,2*iz-1);
     val_count+=1;
 	  
-	  const CaloCellGeometry *cellGeometry = endcapGeometry->getGeometry(ee);
-	  GlobalPoint crystalPos = cellGeometry->getPosition();
+	  auto cellGeometry = endcapGeometry->getGeometry(ee);
+	  const GlobalPoint& crystalPos = cellGeometry->getPosition();
 	  ec[iz][ix][iy][0]=asinh(crystalPos.x()/fabs(crystalPos.z()));
 	  ec[iz][ix][iy][1]=asinh(crystalPos.y()/fabs(crystalPos.z()));
 	}

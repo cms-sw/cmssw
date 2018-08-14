@@ -12,35 +12,22 @@
 
 #include "SimG4Core/Notification/interface/BeginOfTrack.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
-// last
-//#include "SimG4Core/Application/interface/SimTrackManager.h"
-//#include "SimG4CMS/Calo/interface/CaloSD.h"
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
-//#include "SimG4Core/Notification/interface/TrackWithHistory.h"
-//#include "SimG4Core/Notification/interface/TrackContainer.h"
 
 #include "SimG4CMS/FP420/interface/FP420G4Hit.h"
 #include "SimG4CMS/FP420/interface/FP420G4HitCollection.h"
 #include "SimG4CMS/FP420/interface/FP420NumberingScheme.h"
-
   
 #include "G4Step.hh"
 #include "G4StepPoint.hh"
 #include "G4Track.hh"
 #include "G4VPhysicalVolume.hh"
 
-//#include <iostream>
-//#include <fstream>
-//#include <vector>
-//#include <map>
 #include <string>
  
-
-
 class TrackingSlaveSD;
 //AZ:
-class FP420SD;
 class FrameRotation;
 class TrackInformation;
 class SimTrackManager;
@@ -59,51 +46,28 @@ class FP420SD : public SensitiveTkDetector,
 
 public:
   
-  FP420SD(std::string, const DDCompactView &, const SensitiveDetectorCatalog &,
+  FP420SD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog &,
   	  edm::ParameterSet const &, const SimTrackManager* );
 
-//-------------------------------------------------------------------
-/*
-class FP420SD : public CaloSD {
-
-public:    
-  FP420SD(G4String, const DDCompactView &, edm::ParameterSet const &,const SimTrackManager*);
-*/
-//-------------------------------------------------------------------
-
-
-
-
-  virtual ~FP420SD();
+  ~FP420SD() override;
   
-  virtual bool ProcessHits(G4Step *,G4TouchableHistory *);
-  virtual uint32_t  setDetUnitId(G4Step*);
+  bool ProcessHits(G4Step *,G4TouchableHistory *) override;
+  uint32_t  setDetUnitId(const G4Step*) override;
 
-  virtual void Initialize(G4HCofThisEvent * HCE);
-  virtual void EndOfEvent(G4HCofThisEvent * eventHC);
-  virtual void clear();
-  virtual void DrawAll();
-  virtual void PrintAll();
+  void Initialize(G4HCofThisEvent * HCE) override;
+  void EndOfEvent(G4HCofThisEvent * eventHC) override;
+  void clear() override;
+  void DrawAll() override;
+  void PrintAll() override;
 
   virtual double getEnergyDeposit(G4Step* step);
-  //protected:
-  //    Collection       hits_;
-    void fillHits(edm::PSimHitContainer&, std::string use);
-  
-  std::vector<std::string> getNames();
+  void fillHits(edm::PSimHitContainer&, const std::string&) override;
+  void clearHits() override;
   
  private:
-  void           update(const BeginOfRun *);
-  void           update(const BeginOfEvent *);
-  void           update(const ::EndOfEvent *);
-  virtual void   clearHits();
-  
-  //void SetNumberingScheme(FP420NumberingScheme* scheme);
-  
-  
-  
-  //  int eventno;
- private:
+  void           update(const BeginOfRun *) override;
+  void           update(const BeginOfEvent *) override;
+  void           update(const ::EndOfEvent *) override;
   
   G4ThreeVector SetToLocal(const G4ThreeVector& global);
   G4ThreeVector SetToLocalExit(const G4ThreeVector& globalPoint);
@@ -114,27 +78,19 @@ public:
   void          StoreHit(FP420G4Hit*);
   void          ResetForNewPrimary();
   void          Summarize();
-  
-  
+    
  private:
   
   //AZ:
   TrackingSlaveSD* slave;
   FP420NumberingScheme * numberingScheme;
   
-    G4ThreeVector entrancePoint, exitPoint;
-    G4ThreeVector theEntryPoint ;
-    G4ThreeVector theExitPoint  ;
+  G4ThreeVector entrancePoint, exitPoint;
+  G4ThreeVector theEntryPoint ;
+  G4ThreeVector theExitPoint  ;
 
-    //  Local3DPoint  entrancePoint, exitPoint, theEntryPoint, theExitPoint;
-
-
-
-  
   float                incidentEnergy;
   
-  //  G4String             name;
-  std::string             name;
   G4int                    hcID;
   FP420G4HitCollection*       theHC; 
   const SimTrackManager*      theManager;
@@ -155,7 +111,6 @@ public:
   float                edeposit;
   
   G4ThreeVector        hitPoint;
-  //  G4ThreeVector    Position;
   G4ThreeVector        hitPointExit;
   G4ThreeVector        hitPointLocal;
   G4ThreeVector        hitPointLocalExit;

@@ -38,9 +38,9 @@ class MixEvtVtxGenerator : public edm::stream::EDProducer<>
   
   // ctor & dtor
   explicit MixEvtVtxGenerator( const edm::ParameterSet& );
-  virtual ~MixEvtVtxGenerator();
+  ~MixEvtVtxGenerator() override;
   
-  virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+  void produce( edm::Event&, const edm::EventSetup& ) override;
   
   virtual HepMC::FourVector* getVertex(edm::Event&);
   virtual HepMC::FourVector* getRecVertex(edm::Event&);
@@ -63,7 +63,7 @@ class MixEvtVtxGenerator : public edm::stream::EDProducer<>
 };
 
 MixEvtVtxGenerator::MixEvtVtxGenerator( const ParameterSet& pset ) 
-	: fVertex(0), boost_(0),
+	: fVertex(nullptr), boost_(nullptr),
 	  useRecVertex(pset.exists("useRecVertex")?pset.getParameter<bool>("useRecVertex"):false)
 	  
 {   
@@ -71,7 +71,7 @@ MixEvtVtxGenerator::MixEvtVtxGenerator( const ParameterSet& pset )
    vtxOffset.resize(3);
    if(pset.exists("vtxOffset")) vtxOffset=pset.getParameter< std::vector<double> >("vtxOffset");
 
-   if(useRecVertex) useCF_ = 0;
+   if(useRecVertex) useCF_ = false;
    else{
      useCF_ = pset.getUntrackedParameter<bool>("useCF",false);
      cfLabel = consumes<CrossingFrame<HepMCProduct> >(pset.getParameter<edm::InputTag>("mixLabel"));
@@ -83,15 +83,15 @@ MixEvtVtxGenerator::MixEvtVtxGenerator( const ParameterSet& pset )
 MixEvtVtxGenerator::~MixEvtVtxGenerator() 
 {
    delete fVertex ;
-   if (boost_ != 0 ) delete boost_;
+   if (boost_ != nullptr ) delete boost_;
    // no need since now it's done in HepMCProduct
    // delete fEvt ;
 }
 
 HepMC::FourVector* MixEvtVtxGenerator::getVertex( Event& evt){
 
-  HepMC::GenVertex* genvtx = 0;
-  const HepMC::GenEvent* inev = 0;
+  HepMC::GenVertex* genvtx = nullptr;
+  const HepMC::GenEvent* inev = nullptr;
 
   if(useCF_){
     Handle<CrossingFrame<HepMCProduct> > cf;

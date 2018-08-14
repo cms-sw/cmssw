@@ -1,3 +1,4 @@
+from __future__ import print_function
 #-------------------------------------
 #	Hcal DQM Application using New DQM Sources/Clients
 #	Online Mode
@@ -12,16 +13,23 @@ import os, sys, socket, string
 #	Standard CMSSW Imports/Definitions
 #-------------------------------------
 import FWCore.ParameterSet.Config as cms
-process			= cms.Process('HCALDQM')
-subsystem		= 'Hcal2'
-cmssw			= os.getenv("CMSSW_VERSION").split("_")
-debugstr		= "### HcalDQM::cfg::DEBUG: "
-warnstr			= "### HcalDQM::cfg::WARN: "
-errorstr		= "### HcalDQM::cfg::ERROR:"
-useOfflineGT	= False
-useFileInput	= False
-useMap		= False
-useMapText		= False
+
+#
+# these Modifiers are like eras as well, for more info check
+# Configuration/StandardSequences/python/Eras.py
+# PRocess accepts a (*list) of modifiers
+#
+from Configuration.StandardSequences.Eras import eras
+process      = cms.Process('HCALDQM', eras.Run2_2018)
+subsystem    = 'Hcal2'
+cmssw        = os.getenv("CMSSW_VERSION").split("_")
+debugstr     = "### HcalDQM::cfg::DEBUG: "
+warnstr      = "### HcalDQM::cfg::WARN: "
+errorstr     = "### HcalDQM::cfg::ERROR:"
+useOfflineGT = False
+useFileInput = False
+useMap       = False
+useMapText   = False
 
 #-------------------------------------
 #	Central DQM Stuff imports
@@ -29,7 +37,8 @@ useMapText		= False
 from DQM.Integration.config.online_customizations_cfi import *
 if useOfflineGT:
 	process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-	process.GlobalTag.globaltag = '74X_dataRun2_HLT_v1'
+	#process.GlobalTag.globaltag = '100X_dataRun2_HLT_Candidate_2018_01_31_16_04_35'
+	process.GlobalTag.globaltag = '100X_dataRun2_HLT_v1'
 else:
 	process.load('DQM.Integration.config.FrontierCondition_GT_cfi')
 if useFileInput:
@@ -52,7 +61,7 @@ process.source.minEventsPerLumi=5
 #	Note, runType is obtained after importing DQM-related modules
 #	=> DQM-dependent
 runType			= process.runType.getRunType()
-print debugstr, "Running with run type= ", runType
+print(debugstr, "Running with run type= ", runType)
 
 #-------------------------------------
 #	CMSSW/Hcal non-DQM Related Module import
@@ -86,28 +95,6 @@ if isHeavyIon:
 	rawTag			= cms.InputTag("rawDataRepacker")
 	rawTagUntracked	= cms.untracked.InputTag("rawDataRepacker")
 
-process.hcalRecAlgos.DropChannelStatusBits = cms.vstring('')
-#	init 2 emulators
-process.emulTPPrim = \
-		process.simHcalTriggerPrimitiveDigis.clone()
-process.emulTPSec = \
-		process.simHcalTriggerPrimitiveDigis.clone()
-#	settings for emulators
-process.emulTPPrim.inputLabel = \
-		cms.VInputTag("primDigis", 'primDigis')
-process.emulTPSec.inputLabel = \
-		cms.VInputTag("secDigis", 'secDigis')
-process.emulTPPrim.FrontEndFormatError = \
-		cms.bool(True)
-process.emulTPSec.FrontEndFormatError = \
-		cms.bool(True)
-process.HcalTPGCoderULUT.LUTGenerationMode = cms.bool(False)
-process.emulTPPrim.FG_threshold = cms.uint32(2)
-process.emulTPPrim.InputTagFEDRaw = rawTag
-process.emulTPSec.FG_threshold = cms.uint32(2)
-process.emulTPSec.InputTagFEDRaw = rawTag
-process.hbhereco = process.hbheprereco.clone()
-
 #	set the tag for default unpacker
 process.hcalDigis.InputLabel = rawTag
 
@@ -118,7 +105,6 @@ process.hcalDigis.InputLabel = rawTag
 process.load('DQM.HcalTasks.RecHitTask')
 process.load('DQM.HcalTasks.HcalOnlineHarvesting')
 process.load('DQM.HcalTasks.DigiComparisonTask')
-process.load('DQM.HcalTasks.TPComparisonTask')
 
 #-------------------------------------
 #	To force using uTCA
@@ -136,43 +122,10 @@ if useMap:
 #-------------------------------------
 
 #-------------------------------------
-#	prep 2 unpackers and assign the right label to the reco producer
-#-------------------------------------
-process.primDigis = process.hcalDigis.clone()
-process.primDigis.InputLabel = rawTag
-primFEDs = [x*2+1100 for x in range(9)]
-primFEDs[len(primFEDs):] = [x+724 for x in range(8)]
-primFEDs[len(primFEDs):] = [1118,1119,1120,1121,1122,1123]
-print "Primary FEDs to be Unpacked:", primFEDs
-process.primDigis.FEDs = cms.untracked.vint32(primFEDs)
-process.hbhereco.digiLabel = cms.InputTag("primDigis")
-process.horeco.digiLabel = cms.InputTag("primDigis")
-process.hfreco.digiLabel = cms.InputTag("primDigis")
-
-process.secDigis = process.hcalDigis.clone()
-process.secDigis.InputLabel = rawTag
-process.secDigis.ElectronicsMap = cms.string("full")
-secFEDs = [x+700 for x in range(18)]
-print "Secondary FEDs to be Unpacked:", secFEDs
-process.secDigis.FEDs = cms.untracked.vint32(secFEDs)
-
-process.digiComparisonTask.tagHBHE1 = cms.untracked.InputTag('primDigis')
-process.digiComparisonTask.tagHBHE2 = cms.untracked.InputTag('secDigis')
-process.digiComparisonTask.runkeyVal = runType
-process.digiComparisonTask.runkeyName = runTypeName
-process.digiComparisonTask.subsystem = cms.untracked.string(subsystem)
-
-process.tpComparisonTask.tag1 = cms.untracked.InputTag('primDigis')
-process.tpComparisonTask.tag2 = cms.untracked.InputTag('secDigis')
-process.tpComparisonTask.runkeyVal = runType
-process.tpComparisonTask.runkeyName = runTypeName
-process.tpComparisonTask.subsystem = cms.untracked.string(subsystem)
-
-#-------------------------------------
-#	Settigns for the Primary Modules
+#	Settings for the Primary Modules
 #-------------------------------------
 oldsubsystem = subsystem
-process.recHitTask.tagHBHE = cms.untracked.InputTag("hbhereco")
+process.recHitTask.tagHBHE = cms.untracked.InputTag("hbheprereco")
 process.recHitTask.tagHO = cms.untracked.InputTag("horeco")
 process.recHitTask.tagHF = cms.untracked.InputTag("hfreco")
 process.recHitTask.runkeyVal = runType
@@ -187,8 +140,6 @@ process.hcalOnlineHarvesting.subsystem = cms.untracked.string(subsystem)
 #-------------------------------------
 process.tasksPath = cms.Path(
 		process.recHitTask
-		+process.digiComparisonTask
-		+process.tpComparisonTask
 )
 
 process.harvestingPath = cms.Path(
@@ -196,19 +147,15 @@ process.harvestingPath = cms.Path(
 )
 
 #-------------------------------------
-#	Paths/Sequences Definitions
-#-------------------------------------
-process.preRecoPath = cms.Path(
-		process.primDigis
-		*process.secDigis
-		*process.emulTPPrim
-		*process.emulTPSec
+process.digiPath = cms.Path(
+		process.hcalDigis
 )
 
 process.recoPath = cms.Path(
-		process.hfreco
-		*process.hbhereco
-		*process.horeco
+    process.horeco
+    *process.hfprereco
+    *process.hfreco
+    *process.hbheprereco
 )
 
 process.dqmPath = cms.Path(
@@ -217,7 +164,7 @@ process.dqmPath = cms.Path(
 )
 
 process.schedule = cms.Schedule(
-		process.preRecoPath,
+		process.digiPath,
 		process.recoPath,
 		process.tasksPath,
 		process.harvestingPath,

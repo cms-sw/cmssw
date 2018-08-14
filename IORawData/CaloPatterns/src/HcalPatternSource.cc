@@ -102,7 +102,7 @@ void HcalPatternSource::loadPatternFile(const std::string& filename) {
   std::map<std::string,std::string> params;
   std::vector<uint32_t> data;
   FILE* f=fopen(filename.c_str(), "r");
-  if (f==0) return;
+  if (f==nullptr) return;
   else {
     char block[4096];
     while (!feof(f)) {

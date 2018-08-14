@@ -22,18 +22,17 @@
 class CSCDDUMapValues: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
  public:
   CSCDDUMapValues(const edm::ParameterSet&);
-  ~CSCDDUMapValues();
+  ~CSCDDUMapValues() override;
+
+  typedef std::unique_ptr<CSCDDUMap> ReturnType;
   
   inline static CSCDDUMap * fillDDUMap();
-
-  typedef const  CSCDDUMap * ReturnType;
   
-  ReturnType produceDDUMap(const CSCDDUMapRcd&);
+  CSCDDUMapValues::ReturnType produceDDUMap(const CSCDDUMapRcd&);
   
  private:
   // ----------member data ---------------------------
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
-  CSCDDUMap *mapObj ;
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
 
 };
 
@@ -42,10 +41,10 @@ class CSCDDUMapValues: public edm::ESProducer, public edm::EventSetupRecordInter
 #include<iostream>
 
 // to workaround plugin library
-inline CSCDDUMap *  CSCDDUMapValues::fillDDUMap()
+inline  CSCDDUMap *  CSCDDUMapValues::fillDDUMap()
 {
-  CSCDDUMap * mapobj = new CSCDDUMap();
-  cscmap1 *map = new cscmap1 ();
+  CSCDDUMap *mapobj = new CSCDDUMap();
+  cscmap1 map;
   CSCMapItem::MapItem item;
 
   int i,j,k,l; //i - endcap, j - station, k - ring, l - chamber.
@@ -64,7 +63,7 @@ inline CSCDDUMap *  CSCDDUMapValues::fillDDUMap()
        else c=36;
         for(l=1;l<=c;++l){
          chamberid=i*100000+j*10000+k*1000+l*10;
-         map->chamber(chamberid,&item);
+         map.chamber(chamberid,&item);
          ddu_ddu_input=item.ddu*100+item.ddu_input;
          mapobj->ddu_map[ddu_ddu_input]=item;
          count=count+1;

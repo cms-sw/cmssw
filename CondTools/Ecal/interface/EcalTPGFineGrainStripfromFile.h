@@ -20,11 +20,11 @@ namespace popcon {
   class EcalTPGFineGrainStripfromFile : public popcon::PopConSourceHandler<EcalTPGFineGrainStripEE> {
 
   public:
-    void getNewObjects();
-    ~EcalTPGFineGrainStripfromFile();
+    void getNewObjects() override;
+    ~EcalTPGFineGrainStripfromFile() override;
     EcalTPGFineGrainStripfromFile(edm::ParameterSet const & ); 
     
-    std::string id() const { return m_name;}
+    std::string id() const override { return m_name;}
 
   private:
     std::string m_name;

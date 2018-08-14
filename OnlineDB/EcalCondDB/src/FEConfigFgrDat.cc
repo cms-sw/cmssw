@@ -10,10 +10,10 @@ using namespace oracle::occi;
 
 FEConfigFgrDat::FEConfigFgrDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_group_id = 0;
 
@@ -39,7 +39,7 @@ void FEConfigFgrDat::prepareWrite()
 		      "VALUES (:fgr_conf_id, :logic_id, "
 		      ":group_id )" );
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigFgrDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigFgrDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -63,7 +63,7 @@ void FEConfigFgrDat::writeDB(const EcalLogicID* ecid, const FEConfigFgrDat* item
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigFgrDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigFgrDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -95,12 +95,12 @@ void FEConfigFgrDat::fetchData(map< EcalLogicID, FEConfigFgrDat >* fillMap, FECo
     std::pair< EcalLogicID, FEConfigFgrDat > p;
     FEConfigFgrDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
 
       dat.setFgrGroupId( rset->getInt(7) );  
        
@@ -108,7 +108,7 @@ void FEConfigFgrDat::fetchData(map< EcalLogicID, FEConfigFgrDat >* fillMap, FECo
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigFgrDat::fetchData:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigFgrDat::fetchData:  ")+getOraMessage(&e)));
   }
 }
 
@@ -174,6 +174,6 @@ void FEConfigFgrDat::writeArrayDB(const std::map< EcalLogicID, FEConfigFgrDat >*
     delete [] x_len;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigFgrDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigFgrDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

@@ -8,7 +8,8 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include<cmath>
+#include <cmath>
+#include <stdlib.h>
 #include "DataFormats/Math/interface/approx_exp.h"
 inline
 int bits(int a) {
@@ -37,7 +38,7 @@ int main(int argc, char **argv)
   binary_ifstream inFile(filename);
   if (!inFile) {
     cout << "file open failed!" << endl;
-    return false;
+    return EXIT_FAILURE;
   }
 
   cout << "Data File: " << filename << endl;

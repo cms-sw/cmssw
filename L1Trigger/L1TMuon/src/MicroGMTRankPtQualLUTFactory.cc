@@ -20,7 +20,7 @@ namespace l1t {
     ReturnType p;
 
     if (fwVersion >= 1) {
-      p = ReturnType(new MicroGMTRankPtQualLUT(filename, ptFactor, qualFactor));
+      p = std::make_shared<l1t::MicroGMTRankPtQualLUT>(filename, ptFactor, qualFactor);
     } else {
       LogError("MicroGMTRankPtQualLUTFactory") << "Invalid firmware version requested: 0x" << std::hex << fwVersion << std::dec;
     }
@@ -32,7 +32,7 @@ namespace l1t {
     ReturnType p;
 
     if (fwVersion >= 1) {
-      p = ReturnType(new MicroGMTRankPtQualLUT(lut));
+      p = std::make_shared<l1t::MicroGMTRankPtQualLUT>(lut);
     } else {
       LogError("MicroGMTRankPtQualLUTFactory") << "Invalid firmware version requested: 0x" << std::hex << fwVersion << std::dec;
     }

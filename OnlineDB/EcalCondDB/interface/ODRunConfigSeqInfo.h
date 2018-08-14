@@ -17,9 +17,9 @@ class ODRunConfigSeqInfo : public IODConfig {
   friend class EcalCondDBInterface;
 
   ODRunConfigSeqInfo();
-  ~ODRunConfigSeqInfo();
+  ~ODRunConfigSeqInfo() override;
 
-  inline std::string getTable() { return "ECAL_SEQUENCE_DAT"; }
+  inline std::string getTable() override { return "ECAL_SEQUENCE_DAT"; }
 
 
   // Methods for user data
@@ -61,7 +61,7 @@ class ODRunConfigSeqInfo : public IODConfig {
 
   void  writeDB()noexcept(false);
 
-  void prepareWrite()  noexcept(false);
+  void prepareWrite()  noexcept(false) override;
 
   void fetchData(ODRunConfigSeqInfo * result)     noexcept(false);
   void clear();

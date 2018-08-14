@@ -11,7 +11,8 @@
    <class name="CSCComparatorDigi" ClassVersion="10">
     <version ClassVersion="10" checksum="656608282"/>
    </class>
-   <class name="CSCCorrelatedLCTDigi" ClassVersion="10">
+   <class name="CSCCorrelatedLCTDigi" ClassVersion="11">
+    <version ClassVersion="11" checksum="2118578151"/>
     <version ClassVersion="10" checksum="1301481852"/>
    </class>
    <class name="GEMCSCLCTDigi" ClassVersion="11">
@@ -20,6 +21,9 @@
    </class>
    <class name="CSCCLCTDigi" ClassVersion="10">
     <version ClassVersion="10" checksum="3910057547"/>
+   </class>
+   <class name="CSCCLCTPreTriggerDigi" ClassVersion="10">
+    <version ClassVersion="10" checksum="1207676078"/>
    </class>
    <class name="CSCALCTDigi" ClassVersion="10">
     <version ClassVersion="10" checksum="817473300"/>
@@ -53,6 +57,7 @@
    <class name="std::vector<CSCCorrelatedLCTDigi>"/>
    <class name="std::vector<GEMCSCLCTDigi>"/>
    <class name="std::vector<CSCCLCTDigi>"/>
+   <class name="std::vector<CSCCLCTPreTriggerDigi>"/>
    <class name="std::vector<CSCALCTDigi>"/>
    <class name="std::vector<CSCCFEBStatusDigi>"/>
    <class name="std::vector<CSCTMBStatusDigi>"/>
@@ -69,6 +74,7 @@
    <class name="std::map<CSCDetId,std::vector<CSCCorrelatedLCTDigi> >"/>
    <class name="std::map<CSCDetId,std::vector<GEMCSCLCTDigi> >"/>
    <class name="std::map<CSCDetId,std::vector<CSCCLCTDigi> >"/>
+   <class name="std::map<CSCDetId,std::vector<CSCCLCTPreTriggerDigi> >"/>
    <class name="std::map<CSCDetId,std::vector<CSCALCTDigi> >"/>
    <class name="std::map<CSCDetId,std::vector<CSCCFEBStatusDigi> >"/>
    <class name="std::map<CSCDetId,std::vector<CSCTMBStatusDigi> >"/>
@@ -86,6 +92,7 @@
    <class name="std::pair<CSCDetId,std::vector<CSCCorrelatedLCTDigi> >"/>
    <class name="std::pair<CSCDetId,std::vector<GEMCSCLCTDigi> >"/>
    <class name="std::pair<CSCDetId,std::vector<CSCCLCTDigi> >"/>
+   <class name="std::pair<CSCDetId,std::vector<CSCCLCTPreTriggerDigi> >"/>   
    <class name="std::pair<CSCDetId,std::vector<CSCALCTDigi> >"/>
    <class name="std::pair<CSCDetId,std::vector<CSCCFEBStatusDigi> >"/>
    <class name="std::pair<CSCDetId,std::vector<CSCTMBStatusDigi> >"/>
@@ -104,6 +111,7 @@
    <class name="MuonDigiCollection<CSCDetId,CSCCorrelatedLCTDigi>"/>
    <class name="MuonDigiCollection<CSCDetId,GEMCSCLCTDigi>"/>
    <class name="MuonDigiCollection<CSCDetId,CSCCLCTDigi>"/>
+   <class name="MuonDigiCollection<CSCDetId,CSCCLCTPreTriggerDigi>"/>      
    <class name="MuonDigiCollection<CSCDetId,CSCALCTDigi>"/>
    <class name="MuonDigiCollection<CSCDetId,CSCCFEBStatusDigi>"/>
    <class name="MuonDigiCollection<CSCDetId,CSCTMBStatusDigi>"/>
@@ -121,6 +129,7 @@
    <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCCorrelatedLCTDigi> >" splitLevel="0"/>
    <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,GEMCSCLCTDigi> >" splitLevel="0"/>
    <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCCLCTDigi> >" splitLevel="0"/>
+   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCCLCTPreTriggerDigi> >" splitLevel="0"/>     
    <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCALCTDigi> >" splitLevel="0"/>
    <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCCFEBStatusDigi> >" splitLevel="0"/>
    <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCTMBStatusDigi> >" splitLevel="0"/>

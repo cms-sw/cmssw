@@ -6,6 +6,7 @@ from RecoLuminosity.LumiDB import pileupParser
 from RecoLuminosity.LumiDB import selectionParser
 from math import exp
 from math import sqrt
+import six
 
 def parseInputFile(inputfilename):
     '''
@@ -249,7 +250,7 @@ if __name__ == '__main__':
         # now, we have to find the information for the input runs and LumiSections 
         # in the Lumi/Pileup list. First, loop over inputs
 
-        for (run, lslist) in sorted (inputRange.iteritems() ):
+        for (run, lslist) in sorted (six.iteritems(inputRange)) ):
             # now, look for matching run, then match lumi sections
             # print "searching for run %d" % (run)
             if run in inputPileupRange.keys():

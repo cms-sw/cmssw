@@ -9,7 +9,7 @@
  */
 
 #include <unistd.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <fstream>
 #include <vector>
 #include <iostream>
@@ -160,7 +160,7 @@ void MatacqRawEvent::setRawData(const unsigned char* pData, size_t maxSize){
   if((size_t)(pData16-begin16)>maxSize){
     throwExcept(string("Corrupted or truncated data"));
   }
-  uint32le_t* trailer32 = (uint32le_t*)(pData16);
+  const uint32le_t* trailer32 = (const uint32le_t*)(pData16);
   fragLen = trailer32[1]&0xFFFFFF;
   
   //cout << "Event fragment length including headers: " << fragLen

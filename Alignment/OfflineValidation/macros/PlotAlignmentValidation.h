@@ -1,32 +1,33 @@
 #ifndef PLOTALIGNNMENTVALIDATION_H_
 #define PLOTALIGNNMENTVALIDATION_H_
 
-#include <TStyle.h>
-#include <TSystem.h>
-#include <vector>
-#include <memory>
-#include <string>
+#include "Alignment/OfflineValidation/interface/TkOffTreeVariables.h"
+
+#include "TCanvas.h"
+#include "TDirectory.h"
+#include "TDirectoryFile.h"
+#include "TFile.h"
+#include "THStack.h"
+#include "TLegend.h"
+#include "TString.h"
+#include "TStyle.h"
+#include "TSystem.h"
+#include "TTree.h"
+
+#include <cstdio>
+#include <cstdlib>
+#include <exception>
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <sstream>
-#include <stdio.h>
-#include <stdlib.h>
-#include "TTree.h"
-#include "TString.h"
-#include "TDirectory.h"
-#include "TCanvas.h"
-#include "TFile.h"
-#include "TDirectoryFile.h"
-#include "TLegend.h"
-#include "THStack.h"
-#include <exception>
-
-// This line works only if we have a CMSSW environment...
-#include "Alignment/OfflineValidation/interface/TkOffTreeVariables.h"
+#include <string>
+#include <vector>
 
 class TkOfflineVariables {
 public:
   TkOfflineVariables(std::string fileName, std::string baseDir, std::string legName="", int color=1, int style=1);
+  ~TkOfflineVariables();
   int getLineColor(){ return lineColor; }
   int getLineStyle(){ return lineStyle; }
   std::string getName(){ return legendName; }
@@ -76,10 +77,14 @@ TkOfflineVariables::TkOfflineVariables(std::string fileName, std::string baseDir
   }
 }
 
+TkOfflineVariables::~TkOfflineVariables() {
+  delete file;
+}
+
 class PlotAlignmentValidation {
 public:
   //PlotAlignmentValidation(TString *tmp);
-  PlotAlignmentValidation() {}
+  PlotAlignmentValidation(bool bigtext=false);
   PlotAlignmentValidation(const char *inputFile,std::string fileName="", int lineColor=1, int lineStyle=1, bool bigtext=false);
   ~PlotAlignmentValidation();
   void loadFileList(const char *inputFile, std::string fileName="", int lineColor=2, int lineStyle=1);
@@ -94,10 +99,13 @@ public:
   void plotHitMaps();
   void setOutputDir( std::string dir );
   void setTreeBaseDir( std::string dir = "TrackerOfflineValidationStandalone");
+  void residual_by_moduleID(unsigned int moduleid);
   int numberOfLayers(int phase, int subdetector);
   int maxNumberOfLayers(int subdetector);
   
   THStack* addHists(const TString& selection, const TString &residType = "xPrime", TLegend **myLegend = 0, bool printModuleIds = false, bool validforphase0 = false);//add hists fulfilling 'selection' on TTree; residType: xPrime,yPrime,xPrimeNorm,yPrimeNorm,x,y,xNorm; if (printModuleIds): cout DetIds
+
+  float twotailedStudentTTestEqualMean(float t, float v);
   
   // These are helpers for DMR plotting
 
@@ -131,6 +139,13 @@ private :
   bool showUnderOverFlow_;
   bool twolines_;
   bool bigtext_;
+  const static TString summaryfilename;
+  ofstream summaryfile;
+  bool openedsummaryfile = false;
+
+  std::vector<double> vmean, vdeltamean, vrms, vmeanerror, vPValueEqualSplitMeans, vPValueMeanEqualIdeal, vPValueRMSEqualIdeal, vAlignmentUncertainty;
+  double resampleTestOfEqualMeans(TH1F* h1, TH1F* h2, int numSamples);
+  double resampleTestOfEqualRMS(TH1F* h1, TH1F* h2, int numSamples);
 
   TF1 *fitGauss(TH1 *hist,int color);
   //void plotBoxOverview(TCanvas &c1, TList &treeList,std::string plot_Var1a,std::string plot_Var1b, std::string plot_Var2, Int_t filenumber,Int_t minHits);
@@ -160,6 +175,9 @@ private :
   void setDMRHistStyleAndLegend(TH1F* h, DMRPlotInfo& plotinfo, int direction = 0, int layer = 0);
   void plotDMRHistogram(DMRPlotInfo& plotinfo, int direction = 0, int layer = 0);
   void modifySSHistAndLegend(THStack* hs, TLegend* legend);
+  void openSummaryFile();
+  vector <TH1*> findmodule (TFile* f, unsigned int moduleid);
+
 };
 
 #endif // PLOTALIGNNMENTVALIDATION_H_

@@ -16,7 +16,7 @@ namespace edm {
 class  TrackerDigiGeometryESModule: public edm::ESProducer{
  public:
   TrackerDigiGeometryESModule(const edm::ParameterSet & p);
-  virtual ~TrackerDigiGeometryESModule(); 
+  ~TrackerDigiGeometryESModule() override; 
   std::shared_ptr<TrackerGeometry> produce(const TrackerDigiGeometryRecord &);
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);

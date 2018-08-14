@@ -103,3 +103,17 @@ short int EGamma::shape() const {
 short int EGamma::towerHoE() const {
   return towerHoE_;
 }
+
+bool EGamma::operator==(const l1t::EGamma& rhs) const
+{
+  return l1t::L1Candidate::operator==(static_cast<const l1t::L1Candidate &>(rhs))
+      && towerIEta_ == rhs.towerIEta()
+      && towerIPhi_ == rhs.towerIPhi()
+      && rawEt_ == rhs.rawEt()
+      && isoEt_ == rhs.isoEt()
+      && footprintEt_ == rhs.footprintEt()
+      && nTT_ == rhs.nTT()
+      && shape_ == rhs.shape()
+      && towerHoE_ == rhs.towerHoE();
+}
+

@@ -12,6 +12,7 @@ from RecoHI.HiMuonAlgos.HiRegitMuonMixedTripletStep_cff import *
 from RecoHI.HiMuonAlgos.HiRegitMuonPixelLessStep_cff import *
 from RecoHI.HiMuonAlgos.HiRegitMuonSeededStep_cff import *
 
+from RecoTracker.FinalTrackSelectors.trackAlgoPriorityOrder_cfi import trackAlgoPriorityOrder
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 hiGeneralAndRegitMuTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
     TrackProducers = (cms.InputTag('hiRegitMuInitialStepTracks'),

@@ -11,10 +11,10 @@
 
 #include <iostream>
 #include <sstream>
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cerrno>
+#include <cstring>
 #include <boost/filesystem/fstream.hpp>
 
 using namespace jsoncollector;
@@ -285,7 +285,7 @@ void RawEventFileWriterForBU::stop()
 {
   if (lumiOpen_>lumiClosed_)  endOfLS(lumiOpen_);
   edm::LogInfo("RawEventFileWriterForBU") << "Writing EOR file!";
-  if (destinationDir_.size() > 0)
+  if (!destinationDir_.empty())
     {
       // create EoR file
       if (run_==-1) makeRunPrefix(destinationDir_);

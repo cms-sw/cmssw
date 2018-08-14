@@ -12,10 +12,10 @@ class FEConfigFgrParamDat : public IDataItem {
  public:
   friend class EcalCondDBInterface; // XXX temp should not need
   FEConfigFgrParamDat();
-  ~FEConfigFgrParamDat();
+  ~FEConfigFgrParamDat() override;
 
   // User data methods
-  inline std::string getTable() { return "FE_CONFIG_FGRPARAM_DAT"; }
+  inline std::string getTable() override { return "FE_CONFIG_FGRPARAM_DAT"; }
 
 
   inline void setFGlowthresh(float x) { m_fglowthresh = x; }
@@ -29,7 +29,7 @@ class FEConfigFgrParamDat : public IDataItem {
   inline float getFGhighratio() const { return m_highratio; }
 
  private:
-  void prepareWrite() noexcept(false);
+  void prepareWrite() noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const FEConfigFgrParamDat* item, FEConfigFgrInfo* iconf) noexcept(false);
 

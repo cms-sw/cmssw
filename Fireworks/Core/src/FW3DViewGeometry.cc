@@ -30,8 +30,6 @@
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
 
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 //
 // constants, enums and typedefs
 //
@@ -45,12 +43,12 @@
 //
 FW3DViewGeometry::FW3DViewGeometry(const fireworks::Context& context):
    FWViewGeometryList(context, false),
-   m_muonBarrelElements(0), m_muonBarrelFullElements(0),
-   m_muonEndcapElements(0), m_muonEndcapFullElements(0),
-   m_pixelBarrelElements(0),
-   m_pixelEndcapElements(0),
-   m_trackerBarrelElements(0),
-   m_trackerEndcapElements(0)
+   m_muonBarrelElements(nullptr), m_muonBarrelFullElements(nullptr),
+   m_muonEndcapElements(nullptr), m_muonEndcapFullElements(nullptr),
+   m_pixelBarrelElements(nullptr),
+   m_pixelEndcapElements(nullptr),
+   m_trackerBarrelElements(nullptr),
+   m_trackerEndcapElements(nullptr)
 {  
 
    SetElementName("3D Geometry");
@@ -163,7 +161,7 @@ FW3DViewGeometry::showMuonEndcap( bool showMuonEndcap )
 
       for( Int_t iEndcap = 1; iEndcap <= 2; ++iEndcap ) // 1=forward (+Z), 2=backward(-Z)
       { 
-         TEveElementList* cEndcap = 0;
+         TEveElementList* cEndcap = nullptr;
          if( iEndcap == 1 )
             cEndcap = new TEveElementList( "CSC Forward" );
          else
@@ -204,14 +202,14 @@ FW3DViewGeometry::showMuonEndcap( bool showMuonEndcap )
       }
       // hardcoded gem and me0; need to find better way for different gem geometries
       for( Int_t iRegion = GEMDetId::minRegionId; iRegion <= GEMDetId::maxRegionId; iRegion= iRegion+2){
-	TEveElementList* teEndcap = 0;
+	TEveElementList* teEndcap = nullptr;
 	if( iRegion == 1 )
 	  teEndcap = new TEveElementList( "GEM Forward" );
 	else
 	  teEndcap = new TEveElementList( "GEM Backward" );
 	m_muonEndcapElements->AddElement( teEndcap );
 
-	int mxSt = m_geom->versionInfo().haveExtraDet("GE2") ? 3:1; 
+	int mxSt = m_geom->versionInfo().haveExtraDet("GE2") ? GEMDetId::maxStationId :1; 
 
 	for( Int_t iStation = GEMDetId::minStationId; iStation <= mxSt; ++iStation ){
 	  std::ostringstream s; s << "Station" << iStation;
@@ -247,7 +245,7 @@ FW3DViewGeometry::showMuonEndcap( bool showMuonEndcap )
       // adding me0
       if (m_geom->versionInfo().haveExtraDet("ME0") ){
 	for( Int_t iRegion = ME0DetId::minRegionId; iRegion <= ME0DetId::maxRegionId; iRegion= iRegion+2 ){
-	  TEveElementList* teEndcap = 0;
+	  TEveElementList* teEndcap = nullptr;
 	  if( iRegion == 1 )
 	    teEndcap = new TEveElementList( "ME0 Forward" );
 	  else
@@ -299,13 +297,11 @@ FW3DViewGeometry::showPixelBarrel( bool showPixelBarrel )
 	   id != ids.end(); ++id )
       {
 	 TEveGeoShape* shape = m_geom->getEveShape( *id );
-	 PXBDetId idid = PXBDetId( *id );
-	 unsigned int layer = idid.layer();
-	 unsigned int ladder = idid.ladder();
-	 unsigned int module = idid.module();
-	 
-         shape->SetTitle( TString::Format( "PixelBarrel %d: Layer=%u, Ladder=%u, Module=%u",
-					   *id, layer, ladder, module ));
+
+	 uint32_t rawId = *id;
+         DetId did = DetId(rawId);
+         std::string title = m_geom->getTrackerTopology()->print(did);
+         shape->SetTitle( title.c_str());
 
          addToCompound(shape, kFWPixelBarrelColorIndex);
          m_pixelBarrelElements->AddElement( shape );
@@ -332,16 +328,10 @@ FW3DViewGeometry::showPixelEndcap(bool  showPixelEndcap )
 	   id != ids.end(); ++id )
       {
 	 TEveGeoShape* shape = m_geom->getEveShape( *id );
-	 PXFDetId idid = PXFDetId( *id );
-	 unsigned int side = idid.side();
-	 unsigned int disk = idid.disk();
-	 unsigned int blade = idid.blade();
-	 unsigned int panel = idid.panel();
-	 unsigned int module = idid.module();
-
-         shape->SetTitle( TString::Format( "PixelEndcap %d: Side=%u, Disk=%u, Blade=%u, Panel=%u, Module=%u",
-					   *id, side, disk, blade, panel, module ));
-	 
+         uint32_t rawId = *id;
+         DetId did = DetId(rawId);
+         std::string title = m_geom->getTrackerTopology()->print(did);
+         shape->SetTitle( title.c_str());
          addToCompound(shape, kFWPixelEndcapColorIndex);
          m_pixelEndcapElements->AddElement( shape );
       }

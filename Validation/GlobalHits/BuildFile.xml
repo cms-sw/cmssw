@@ -10,6 +10,7 @@
 <use   name="Geometry/CommonDetUnit"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="DataFormats/MuonDetId"/>
+<use   name="Geometry/HcalTowerAlgo"/>
 <use   name="Geometry/CSCGeometry"/>
 <use   name="Geometry/DTGeometry"/>
 <use   name="Geometry/RPCGeometry"/>

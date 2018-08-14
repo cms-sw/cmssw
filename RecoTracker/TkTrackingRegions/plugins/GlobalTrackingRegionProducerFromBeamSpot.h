@@ -1,6 +1,8 @@
 #ifndef RecoTracker_TkTrackingRegions_GlobalTrackingRegionProducerFromBeamSpot_H
 #define RecoTracker_TkTrackingRegions_GlobalTrackingRegionProducerFromBeamSpot_H
 
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -36,7 +38,7 @@ public:
 
   }
 
-  virtual ~GlobalTrackingRegionProducerFromBeamSpot(){}
+  ~GlobalTrackingRegionProducerFromBeamSpot() override{}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     {
@@ -76,7 +78,7 @@ public:
     }
   }
 
-  virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event&ev, const edm::EventSetup&) const override {
+  std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event&ev, const edm::EventSetup&) const override {
     std::vector<std::unique_ptr<TrackingRegion> > result;
     edm::Handle<reco::BeamSpot> bsHandle;
     ev.getByToken( token_beamSpot, bsHandle);

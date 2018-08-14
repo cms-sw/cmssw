@@ -27,13 +27,12 @@ class  SmartPropagatorESProducer: public edm::ESProducer{
   SmartPropagatorESProducer(const edm::ParameterSet &);
   
   /// Destructor
-  virtual ~SmartPropagatorESProducer(); 
+  ~SmartPropagatorESProducer() override; 
   
   // Operations
-  std::shared_ptr<Propagator> produce(const TrackingComponentsRecord &);
+  std::unique_ptr<Propagator> produce(const TrackingComponentsRecord &);
   
  private:
-  std::shared_ptr<Propagator> thePropagator;
   PropagationDirection thePropagationDirection;
   std::string theTrackerPropagatorName;
   std::string theMuonPropagatorName;

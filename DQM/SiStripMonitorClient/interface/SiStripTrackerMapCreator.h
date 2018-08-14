@@ -40,7 +40,7 @@ class SiStripTrackerMapCreator {
  private:
 
   void paintTkMapFromAlarm(uint32_t det_id, const TrackerTopology* tTopo,
-                           DQMStore* dqm_store, bool isBad=false, std::map<unsigned int,std::string>* badmodmap=0);
+                           DQMStore* dqm_store, bool isBad=false, std::map<unsigned int,std::string>* badmodmap=nullptr);
   void paintTkMapFromHistogram(DQMStore* dqm_store, MonitorElement* me, std::string& map_type, std::vector<std::pair<float,uint32_t> >* topNmodVec);
   void setTkMapFromHistogram(DQMStore* dqm_store, std::string& htype, const edm::EventSetup& eSetup);
   void setTkMapFromAlarm(DQMStore* dqm_store,  const edm::EventSetup& eSetup);
@@ -61,13 +61,14 @@ class SiStripTrackerMapCreator {
   float tkMapMin_;
   float meanToMaxFactor_;
   bool useSSQuality_;
+  bool ResidualsRMS_;
   std::string ssqLabel_;
   int   nDet;
-  TkDetMap* tkDetMap_;
+  const TkDetMap* tkDetMap_;
   const edm::EventSetup& eSetup_;
   edm::ESHandle< SiStripDetCabling > detcabling_;
   //  SiStripPsuDetIdMap psumap_;
-  uint32_t cached_detid;
+  DetId cached_detid;
   int16_t cached_layer;
   std::map<uint32_t, uint16_t> detflag_;
   TkLayerMap::XYbin cached_XYbin;

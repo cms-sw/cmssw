@@ -32,9 +32,9 @@ namespace fwlite {
             std::shared_ptr<fwlite::Run> makeRun(std::shared_ptr<BranchMapReader> branchMap) const;
 
         private:
-            RunFactory(const RunFactory&); // stop default
+            RunFactory(const RunFactory&) = delete; // stop default
 
-            const RunFactory& operator=(const RunFactory&); // stop default
+            const RunFactory& operator=(const RunFactory&) = delete; // stop default
             mutable std::shared_ptr<fwlite::Run> run_;
 
 

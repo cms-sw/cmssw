@@ -26,6 +26,7 @@
 
 namespace edm {
 
+   class ActivityRegistry;
    class EventSetupRecordIntervalFinder;
    class ParameterSet;
    class IOVSyncValue;
@@ -74,10 +75,12 @@ namespace edm {
       public:
          EventSetupsController();
 
-         std::shared_ptr<EventSetupProvider> makeProvider(ParameterSet&);
+         std::shared_ptr<EventSetupProvider> makeProvider(ParameterSet&, ActivityRegistry*);
 
          void eventSetupForInstance(IOVSyncValue const& syncValue);
 
+         bool isWithinValidityInterval(IOVSyncValue const& syncValue) const;
+        
          void forceCacheClear() const;
 
          std::shared_ptr<DataProxyProvider> getESProducerAndRegisterProcess(ParameterSet const& pset, unsigned subProcessIndex);
@@ -124,9 +127,9 @@ namespace edm {
          bool mustFinishConfiguration() const { return mustFinishConfiguration_; }
 
       private:
-         EventSetupsController(EventSetupsController const&); // stop default
+         EventSetupsController(EventSetupsController const&) = delete; // stop default
          
-         EventSetupsController const& operator=(EventSetupsController const&); // stop default
+         EventSetupsController const& operator=(EventSetupsController const&) = delete; // stop default
 
          void checkESProducerSharing();
          

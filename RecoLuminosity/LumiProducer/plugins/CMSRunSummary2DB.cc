@@ -40,11 +40,11 @@ namespace lumi{
   class CMSRunSummary2DB : public DataPipe{
   public:
     CMSRunSummary2DB( const std::string& dest);
-    virtual unsigned long long retrieveData( unsigned int runnumber ) override;
-    virtual const std::string dataType() const override;
-    virtual const std::string sourceType() const override;
+    unsigned long long retrieveData( unsigned int runnumber ) override;
+    const std::string dataType() const override;
+    const std::string sourceType() const override;
     unsigned int str2int(const std::string& s) const;
-    virtual ~CMSRunSummary2DB();
+    ~CMSRunSummary2DB() override;
   private:
     struct cmsrunsum{
       std::string l1key;
@@ -173,10 +173,10 @@ namespace lumi{
 	if(it->find("PHYS")==std::string::npos) continue;
 	amd=*it;
       }
-      if(amd.size()==0&&amodes.size()!=0){
+      if(amd.empty()&&!amodes.empty()){
 	amd=*(amodes.begin());
       }
-      if(amd.size()==0){
+      if(amd.empty()){
 	 amd=std::string("PROTPHYS");//last resort
       }
       //std::cout<<"amd "<<amd<<std::endl;
@@ -328,7 +328,7 @@ namespace lumi{
     runinfosession->transaction().commit();
     delete runinfosession;
     
-    if(csvsource.size()!=0){
+    if(!csvsource.empty()){
       parseFillCSV(csvsource,result);
     }else{
       result.fillscheme=std::string("");

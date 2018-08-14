@@ -6,6 +6,7 @@
 <use   name="DataFormats/EgammaReco"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/EgammaCandidates"/>
+<use   name="DataFormats/TCDS"/>
 <use   name="CondFormats/EcalObjects"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="RecoLocalCalo/EcalRecAlgos"/>
@@ -21,6 +22,8 @@
 <use   name="CalibCalorimetry/CaloMiscalibTools"/>
 <use   name="CondTools/Ecal"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
+<use name="DQMServices/Core"/>
+<use name="CondCore/DBOutputService"/>
 <export>
   <lib   name="1"/>
 </export>

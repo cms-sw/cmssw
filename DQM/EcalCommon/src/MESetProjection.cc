@@ -5,7 +5,7 @@
 namespace ecaldqm
 {
   MESetProjection::MESetProjection(std::string const& _fullPath, binning::ObjectType _otype, binning::BinningType _btype, MonitorElement::Kind _kind, binning::AxisSpecs const* _yaxis/* = 0*/) :
-    MESetEcal(_fullPath, _otype, _btype, _kind, 1, 0, _yaxis)
+    MESetEcal(_fullPath, _otype, _btype, _kind, 1, nullptr, _yaxis)
   {
     switch(kind_){
     case MonitorElement::DQM_KIND_TH1F:

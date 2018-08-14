@@ -21,12 +21,12 @@
 // system include files
 #include <memory>
 #include <map>
-#include <math.h>
+#include <cmath>
 
 // user include files
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "TFile.h"
 #include "TH1F.h"
@@ -43,16 +43,16 @@
 // class decleration
 //
 
-class SiStripElectronAnalyzer : public edm::EDAnalyzer {
+class SiStripElectronAnalyzer : public edm::one::EDAnalyzer<> {
    public:
       explicit SiStripElectronAnalyzer(const edm::ParameterSet&);
-      ~SiStripElectronAnalyzer();
+      ~SiStripElectronAnalyzer() override;
 
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void beginJob();
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void beginJob() override;
       virtual void initNtuple ( void ) ;
-      virtual void endJob( void );
+      void endJob( void ) override;
 
    private:
       double unwrapPhi(double phi) const {

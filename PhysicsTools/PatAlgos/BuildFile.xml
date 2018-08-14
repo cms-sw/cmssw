@@ -19,6 +19,9 @@
 <use   name="PhysicsTools/IsolationAlgos"/>
 <use   name="Geometry/CaloTopology"/>
 <use   name="RecoEgamma/EgammaTools"/>
+<use   name="RecoTracker/DeDx"/>
+<use   name="CondFormats/HcalObjects"/>
+<use   name="CondFormats/EcalObjects"/>
 <use   name="clhep"/>
 <export>
   <lib   name="1"/>

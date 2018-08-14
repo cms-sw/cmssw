@@ -11,10 +11,10 @@ using namespace oracle::occi;
 
 DCULVRBTempsDat::DCULVRBTempsDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_t1 = 0;
   m_t2 = 0;
@@ -41,7 +41,7 @@ void DCULVRBTempsDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4, :5)");
   } catch (SQLException &e) {
-    throw(std::runtime_error("DCULVRBTempsDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("DCULVRBTempsDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -69,7 +69,7 @@ void DCULVRBTempsDat::writeDB(const EcalLogicID* ecid, const DCULVRBTempsDat* it
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("DCULVRBTempsDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("DCULVRBTempsDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -101,12 +101,12 @@ void DCULVRBTempsDat::fetchData(std::map< EcalLogicID, DCULVRBTempsDat >* fillMa
     std::pair< EcalLogicID, DCULVRBTempsDat > p;
     DCULVRBTempsDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
 
       dat.setT1( rset->getFloat(7) );
       dat.setT2( rset->getFloat(8) );
@@ -116,7 +116,7 @@ void DCULVRBTempsDat::fetchData(std::map< EcalLogicID, DCULVRBTempsDat >* fillMa
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("DCULVRBTempsDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("DCULVRBTempsDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -204,6 +204,6 @@ void DCULVRBTempsDat::writeArrayDB(const std::map< EcalLogicID, DCULVRBTempsDat 
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("DCULVRBTempsDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("DCULVRBTempsDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

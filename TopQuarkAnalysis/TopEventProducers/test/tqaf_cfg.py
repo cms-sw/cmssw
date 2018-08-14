@@ -17,7 +17,6 @@ process.maxEvents = cms.untracked.PSet(
 )
 ## configure process options
 process.options = cms.untracked.PSet(
-    allowUnscheduled = cms.untracked.bool(True),
     wantSummary      = cms.untracked.bool(True)
 )
 
@@ -28,12 +27,19 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
+process.task = cms.Task()
+
 ## std sequence for PAT
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+process.task.add(process.patCandidatesTask)
+#Temporary customize to the unit tests that fail due to old input samples
+process.patTaus.skipMissingTauID = True
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
+process.task.add(process.selectedPatCandidatesTask)
 
 ## std sequence for TQAF
 process.load("TopQuarkAnalysis.TopEventProducers.tqafSequences_cff")
+process.task.add(process.tqafTtSemiLeptonicTask)
 
 ## configure output module
 process.out = cms.OutputModule("PoolOutputModule",
@@ -42,7 +48,7 @@ process.out = cms.OutputModule("PoolOutputModule",
     dropMetaData   = cms.untracked.string("DROPPED")  ## NONE    for none
                                                       ## DROPPED for drop for dropped data
 )
-process.outpath = cms.EndPath(process.out)
+process.outpath = cms.EndPath(process.out, process.task)
 
 ## PAT content
 from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoCleaning

@@ -24,8 +24,6 @@ process.MessageLogger = cms.Service("MessageLogger",
     )
 )
 
-process.EnableFloatingPointExceptions = cms.Service("EnableFloatingPointExceptions")                                                    
-
 process.m = cms.EDAnalyzer("PerfectGeometryAnalyzer",
     dumpGeoHistory = cms.untracked.bool(False),
     dumpPosInfo    = cms.untracked.bool(False),

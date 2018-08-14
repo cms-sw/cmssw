@@ -1,3 +1,5 @@
+#ifndef PhysicsTools_FWLite_Scanner_h
+#define PhysicsTools_FWLite_Scanner_h
 // these includes are FWLite-safe
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/FWLite/interface/Event.h"
@@ -658,3 +660,4 @@ namespace fwlite {
 
     };
 }
+#endif // PhysicsTools_FWLite_Scanner_h

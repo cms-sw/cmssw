@@ -105,8 +105,8 @@
 //
 // constants, enums and typedefs
 //
-typedef boost::shared_ptr<fastjet::ClusterSequence>  ClusterSequencePtr;
-typedef boost::shared_ptr<fastjet::JetDefinition>    JetDefPtr;
+typedef std::shared_ptr<fastjet::ClusterSequence>  ClusterSequencePtr;
+typedef std::shared_ptr<fastjet::JetDefinition>    JetDefPtr;
 
 //
 // class declaration
@@ -141,12 +141,12 @@ class GhostInfo : public fastjet::PseudoJet::UserInfoBase{
 class JetFlavourClustering : public edm::stream::EDProducer<> {
    public:
       explicit JetFlavourClustering(const edm::ParameterSet&);
-      ~JetFlavourClustering();
+      ~JetFlavourClustering() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
   
       void insertGhosts(const edm::Handle<reco::GenParticleRefVector>& particles,
                         const double ghostRescaling,
@@ -294,6 +294,9 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // vector of constituents for reclustering jets and "ghosts"
    std::vector<fastjet::PseudoJet> fjInputs;
+   unsigned int reserve = jets->size()*128 + bHadrons->size() + cHadrons->size() + partons->size();
+   if (useLeptons_) reserve += leptons->size();
+   fjInputs.reserve(reserve);
    // loop over all input jets and collect all their constituents
    for(edm::View<reco::Jet>::const_iterator it = jets->begin(); it != jets->end(); ++it)
    {
@@ -375,7 +378,7 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        (*jetFlavourInfos)[jets->refAt(i)] = reco::JetFlavourInfo(clusteredbHadrons, clusteredcHadrons, clusteredPartons, clusteredLeptons, 0, 0);
 
        // if subjets are used
-       if( useSubjets_ && subjetIndices.at(i).size()>0 )
+       if( useSubjets_ && !subjetIndices.at(i).empty() )
        {
          // loop over subjets
          for(size_t sj=0; sj<subjetIndices.at(i).size(); ++sj)
@@ -440,7 +443,7 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      // if subjets are used, determine their flavour
      if( useSubjets_ )
      {
-       if( subjetIndices.at(i).size()==0 ) continue; // continue if the original jet does not have subjets assigned
+       if( subjetIndices.at(i).empty() ) continue; // continue if the original jet does not have subjets assigned
 
        // define vectors of GenParticleRefVectors for hadrons and partons assigned to different subjets
        std::vector<reco::GenParticleRefVector> assignedbHadrons(subjetIndices.at(i).size(),reco::GenParticleRefVector());
@@ -473,6 +476,9 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
    }
 
+   //deallocate only at the end of the event processing
+   fjClusterSeq_.reset();
+  
    // put jet flavour infos in the event
    iEvent.put(std::move(jetFlavourInfos));
    // put subjet flavour infos in the event
@@ -622,7 +628,7 @@ JetFlavourClustering::matchSubjets(const std::vector<int>& groomedIndices,
          }
        }
 
-       if( subjetIndices.size() == 0 )
+       if( subjetIndices.empty() )
          edm::LogError("SubjetMatchingFailed") << "Matching subjets to original jets failed. Please check that the groomed jet and subjet collections belong to each other.";
 
        matchedIndices.push_back(subjetIndices);
@@ -670,9 +676,9 @@ JetFlavourClustering::setFlavours(const reco::GenParticleRefVector& clusteredbHa
    }
 
    // set hadron-based flavour
-   if( clusteredbHadrons.size()>0 )
+   if( !clusteredbHadrons.empty() )
      hadronFlavour = 5;
-   else if( clusteredcHadrons.size()>0 && clusteredbHadrons.size()==0 )
+   else if( !clusteredcHadrons.empty() && clusteredbHadrons.empty() )
      hadronFlavour = 4;
    // set parton-based flavour
    if( flavourParton.isNull() )

@@ -1,9 +1,11 @@
+from __future__ import print_function
 # Copyright (C) 2014 Colin Bernet
 # https://github.com/cbernet/heppy/blob/master/LICENSE
 
 from weight import Weight
 import copy
 import glob
+import six
 
 def printComps(comps, details=False):
     '''
@@ -16,18 +18,18 @@ def printComps(comps, details=False):
     for c in comps:
         if not hasattr(c, 'splitFactor'):
             c.splitFactor = 1
-        print c.name, c.splitFactor, len(c.files)
+        print(c.name, c.splitFactor, len(c.files))
         if len(c.files)==0:
             continue
         else:
             if details:
-                print c.files[0]
+                print(c.files[0])
             nJobs += c.splitFactor
             nCompsWithFiles += 1
 
-    print '-'*70
-    print '# components with files = ', nCompsWithFiles
-    print '# jobs                  = ', nJobs
+    print('-'*70)
+    print('# components with files = ', nCompsWithFiles)
+    print('# jobs                  = ', nJobs)
 
 
 class CFG(object):
@@ -41,7 +43,7 @@ class CFG(object):
         header = '{type}: {name}'.format( type=self.__class__.__name__,
                                           name=self.name)
         varlines = ['\t{var:<15}:   {value}'.format(var=var, value=value) \
-                    for var,value in sorted(vars(self).iteritems()) \
+                    for var,value in sorted(vars(six.iteritems(self))) \
                     if var is not 'name']
         all = [ header ]
         all.extend(varlines)
@@ -70,7 +72,7 @@ class CFG(object):
            module2 will share the same instance of value1, and not have two copies.
         '''
         other = copy.copy(self)
-        for k,v in kwargs.iteritems():
+        for k,v in six.iteritems(kwargs):
             setattr(other, k, v)
         return other
     
@@ -188,9 +190,9 @@ class Component( CFG ):
     DataComponent, MCComponent, EmbedComponent
     for more information.'''
     def __init__(self, name, files, tree_name=None, triggers=None, **kwargs):
-        if isinstance(triggers, basestring):
+        if isinstance(triggers, str):
             triggers = [triggers]
-        if type(files) == str:
+        if isinstance(files, str):
             files = sorted(glob.glob(files))
         super( Component, self).__init__( name = name,
                                           files = files,

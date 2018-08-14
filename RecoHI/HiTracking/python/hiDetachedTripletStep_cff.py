@@ -21,6 +21,11 @@ hiDetachedTripletStepClusters = cms.EDProducer("HITrackClusterRemover",
 )
 
 
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(hiDetachedTripletStepClusters,
+     trajectories = cms.InputTag("hiDetachedQuadStepTracks"),
+     overrideTrkQuals = cms.InputTag("hiDetachedQuadStepSelector","hiDetachedQuadStep"),
+)
 
 
 # SEEDING LAYERS
@@ -48,7 +53,7 @@ hiDetachedTripletStepTrackingRegions = _globalTrackingRegionWithVertices.clone(R
     nSigmaZ = 4.0,
     sigmaZVertex = 4.0,
     fixedError = 0.5,
-    VertexCollection = "hiSelectedVertex",
+    VertexCollection = "hiSelectedPixelVertex",
     ptMin = 0.9,
     useFoundVertices = True,
     originRadius = 0.5
@@ -60,6 +65,7 @@ hiDetachedTripletStepTracksHitDoublets = _hitPairEDProducer.clone(
     maxElement = 0,
     produceIntermediateHitDoublets = True,
 )
+from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 hiDetachedTripletStepTracksHitTriplets = _pixelTripletHLTEDProducer.clone(
     doublets = "hiDetachedTripletStepTracksHitDoublets",
     extraHitRPhitolerance = 0.0,
@@ -68,6 +74,24 @@ hiDetachedTripletStepTracksHitTriplets = _pixelTripletHLTEDProducer.clone(
     SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone(),
     produceSeedingHitSets = True,
 )
+
+from RecoPixelVertexing.PixelTriplets.caHitTripletEDProducer_cfi import caHitTripletEDProducer as _caHitTripletEDProducer
+hiDetachedTripletStepTracksHitDoubletsCA = hiDetachedTripletStepTracksHitDoublets.clone()
+hiDetachedTripletStepTracksHitDoubletsCA.layerPairs = [0,1]
+
+hiDetachedTripletStepTracksHitTripletsCA = _caHitTripletEDProducer.clone(
+    doublets = "hiDetachedTripletStepTracksHitDoubletsCA",
+    extraHitRPhitolerance = hiDetachedTripletStepTracksHitTriplets.extraHitRPhitolerance,
+    maxChi2 = dict(
+        pt1    = 0.8, pt2    = 2,
+        value1 = 300 , value2 = 10,
+    ),
+    useBendingCorrection = True,
+    CAThetaCut = 0.001,
+    CAPhiCut = 0,
+    CAHardPtCut = 0.2,
+)
+
 hiDetachedTripletStepPixelTracksFilter = hiFilter.clone(
     nSigmaTipMaxTolerance = 0,
     lipMax = 1.0,
@@ -89,6 +113,9 @@ hiDetachedTripletStepPixelTracks = cms.EDProducer("PixelTrackProducer",
 	
     # Cleaner
     Cleaner = cms.string("trackCleaner")
+)
+trackingPhase1.toModify(hiDetachedTripletStepPixelTracks,
+    SeedingHitSets = cms.InputTag("hiDetachedTripletStepTracksHitTripletsCA")
 )
 
 
@@ -178,6 +205,30 @@ hiDetachedTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMul
     ),
     ) #end of vpset
     ) #end of clone
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(hiDetachedTripletStepSelector, useAnyMVA = cms.bool(False))
+trackingPhase1.toModify(hiDetachedTripletStepSelector, trackSelectors= cms.VPSet(
+    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
+    name = 'hiDetachedTripletStepLoose',
+    applyAdaptedPVCuts = cms.bool(False),
+    useMVA = cms.bool(False),
+    ), #end of pset
+    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
+    name = 'hiDetachedTripletStepTight',
+    preFilterName = 'hiDetachedTripletStepLoose',
+    applyAdaptedPVCuts = cms.bool(False),
+    useMVA = cms.bool(False),
+    minMVA = cms.double(-0.2)
+    ),
+    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
+    name = 'hiDetachedTripletStep',
+    preFilterName = 'hiDetachedTripletStepTight',
+    applyAdaptedPVCuts = cms.bool(False),
+    useMVA = cms.bool(False),
+    minMVA = cms.double(-0.09)
+    ),
+    ) #end of vpset
+)
 
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 hiDetachedTripletStepQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
@@ -192,8 +243,8 @@ hiDetachedTripletStepQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.
 hiDetachedTripletStep = cms.Sequence(hiDetachedTripletStepClusters*
                                      hiDetachedTripletStepSeedLayers*
                                      hiDetachedTripletStepTrackingRegions*
-                                     hiDetachedTripletStepTracksHitDoublets*
-                                     hiDetachedTripletStepTracksHitTriplets*
+                                     hiDetachedTripletStepTracksHitDoublets*  
+                                     hiDetachedTripletStepTracksHitTriplets* 
                                      pixelFitterByHelixProjections*
                                      hiDetachedTripletStepPixelTracksFilter*
                                      hiDetachedTripletStepPixelTracks*
@@ -202,5 +253,8 @@ hiDetachedTripletStep = cms.Sequence(hiDetachedTripletStepClusters*
                                      hiDetachedTripletStepTracks*
                                      hiDetachedTripletStepSelector*
                                      hiDetachedTripletStepQual)
-
+hiDetachedTripletStep_Phase1 = hiDetachedTripletStep.copy()
+hiDetachedTripletStep_Phase1.replace(hiDetachedTripletStepTracksHitDoublets, hiDetachedTripletStepTracksHitDoubletsCA)
+hiDetachedTripletStep_Phase1.replace(hiDetachedTripletStepTracksHitTriplets, hiDetachedTripletStepTracksHitTripletsCA)
+trackingPhase1.toReplaceWith(hiDetachedTripletStep, hiDetachedTripletStep_Phase1)
 

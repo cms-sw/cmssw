@@ -62,13 +62,13 @@ class L1MuBMExtrapolationUnit : public L1AbstractProcessor {
     L1MuBMExtrapolationUnit(const L1MuBMSectorProcessor& );
 
     /// destructor
-    virtual ~L1MuBMExtrapolationUnit();
+    ~L1MuBMExtrapolationUnit() override;
 
     /// run Extrapolation Unit
-    virtual void run(const edm::EventSetup& c);
+    void run(const edm::EventSetup& c) override;
 
     /// reset Extrapolation Unit
-    virtual void reset();
+    void reset() override;
 
      /// reset a single extrapolation
     void reset(Extrapolation ext, unsigned int startAdr, unsigned int relAdr );

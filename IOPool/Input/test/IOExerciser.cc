@@ -45,7 +45,7 @@ to use this plugin.
 class IOExerciser : public edm::OutputModule {
    public:
       explicit IOExerciser(const edm::ParameterSet&);
-      ~IOExerciser();
+      ~IOExerciser() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -57,11 +57,11 @@ class IOExerciser : public edm::OutputModule {
 
       typedef std::map<edm::BranchID, edm::EDGetToken> TokenMap;
       // ----------required OutputModule functions-----------------------------
-      virtual void write(edm::EventForOutput const &e);
-      virtual void writeRun(edm::RunForOutput const&){}
-      virtual void writeLuminosityBlock(edm::LuminosityBlockForOutput const&){}
+      void write(edm::EventForOutput const &e) override;
+      void writeRun(edm::RunForOutput const&) override{}
+      void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override{}
 
-      virtual void respondToOpenInputFile(edm::FileBlock const& fb);
+      void respondToOpenInputFile(edm::FileBlock const& fb) override;
 
       // ----------internal implementation functions---------------------------
       void computeProducts(edm::EventForOutput const& e, TokenMap const& tokens);

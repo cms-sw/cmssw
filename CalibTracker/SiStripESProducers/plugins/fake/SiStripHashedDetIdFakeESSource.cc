@@ -12,8 +12,7 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 //
 SiStripHashedDetIdFakeESSource::SiStripHashedDetIdFakeESSource( const edm::ParameterSet& pset )
-  : SiStripHashedDetIdESProducer( pset ),
-    detIds_( pset.getParameter<edm::FileInPath>("DetIdsFile") )
+  : SiStripHashedDetIdESProducer( pset )
 {
   findingRecord<SiStripHashedDetIdRcd>();
   edm::LogVerbatim("HashedDetId") 
@@ -37,7 +36,8 @@ SiStripHashedDetId* SiStripHashedDetIdFakeESSource::make( const SiStripHashedDet
     << " Building \"fake\" hashed DetId map from ascii file";
   
   typedef std::map<uint32_t,SiStripDetInfoFileReader::DetInfo>  Dets;
-  Dets det_info = SiStripDetInfoFileReader( detIds_.fullPath() ).getAllData();
+  const edm::Service<SiStripDetInfoFileReader> reader;
+  Dets det_info = reader->getAllData();
   
   std::vector<uint32_t> dets;
   dets.reserve(16000);

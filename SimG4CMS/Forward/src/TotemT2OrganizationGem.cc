@@ -24,21 +24,14 @@
 // constructors and destructor
 //
 
-TotemT2OrganizationGem :: TotemT2OrganizationGem() :
-  _needUpdateUnitID(false), _needUpdateData(false),
-  _currentUnitID(-1), _currentPlane(-1), _currentCSC(-1),
-  _currentLayer(-1) {
+TotemT2OrganizationGem :: TotemT2OrganizationGem() {
   edm::LogInfo("ForwardSim") << "Creating TotemT2OrganizationGem";
 }
 
 TotemT2OrganizationGem :: ~TotemT2OrganizationGem() {
 }
 
-uint32_t TotemT2OrganizationGem :: GetUnitID(const G4Step* aStep) const {
-  return const_cast<TotemT2OrganizationGem *>(this)->GetUnitID(aStep);
-}
-
-uint32_t TotemT2OrganizationGem :: GetUnitID(const G4Step* aStep) {
+uint32_t TotemT2OrganizationGem :: getUnitID(const G4Step* aStep) const {
 
  G4VPhysicalVolume* physVol;
  uint32_t UNITA = 0;
@@ -52,7 +45,6 @@ uint32_t TotemT2OrganizationGem :: GetUnitID(const G4Step* aStep) {
 			  << ii << ", physVol->GetCopyNo()=" 
 			  << physVol->GetCopyNo();
 #endif
-   if (physVol->GetName() == "TotemT2gem") _currentDetectorPosition = 3;
  }
   
  physVol= touch->GetVolume(0);

@@ -77,6 +77,16 @@ namespace edm {
         static constexpr bool kEndLuminosityBlockProducer = true;
       };
       
+      template<typename... U>
+      struct HasAbility<edm::ExternalWork, U...> :public HasAbility<U...> {
+        static constexpr bool kExternalWork = true;
+      };
+
+      template<typename... U>
+      struct HasAbility<edm::Accumulator, U...> :public HasAbility<U...> {
+        static constexpr bool kAccumulator = true;
+      };
+
       template<>
       struct HasAbility<LastCheck> {
         static constexpr bool kGlobalCache = false;
@@ -88,6 +98,8 @@ namespace edm {
         static constexpr bool kEndRunProducer = false;
         static constexpr bool kBeginLuminosityBlockProducer = false;
         static constexpr bool kEndLuminosityBlockProducer = false;
+        static constexpr bool kExternalWork = false;
+        static constexpr bool kAccumulator = false;
       };
     }
     template<typename... T>

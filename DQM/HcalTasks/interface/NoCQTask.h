@@ -18,18 +18,18 @@ class NoCQTask : public hcaldqm::DQTask
 {
 	public:
 		NoCQTask(edm::ParameterSet const&);
-		virtual ~NoCQTask() {}
+		~NoCQTask() override {}
 
-		virtual void bookHistograms(DQMStore::IBooker&,
-			edm::Run const&, edm::EventSetup const&);
-		virtual void beginLuminosityBlock(edm::LuminosityBlock const&,
-			edm::EventSetup const&);
-		virtual void endLuminosityBlock(edm::LuminosityBlock const&,
-			edm::EventSetup const&);
+		void bookHistograms(DQMStore::IBooker&,
+			edm::Run const&, edm::EventSetup const&) override;
+		void beginLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&) override;
+		void endLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&) override;
 
 	protected:
-		virtual void _process(edm::Event const&, edm::EventSetup const&);
-		virtual void _resetMonitors(hcaldqm::UpdateFreq);
+		void _process(edm::Event const&, edm::EventSetup const&) override;
+		void _resetMonitors(hcaldqm::UpdateFreq) override;
 
 		edm::InputTag _tagHBHE;
 		edm::InputTag _tagHO;
@@ -42,7 +42,6 @@ class NoCQTask : public hcaldqm::DQTask
 
 		double _cutSumQ_HBHE, _cutSumQ_HO, _cutSumQ_HF;
 
-		HcalElectronicsMap const* _emap;
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmap;
 
 		hcaldqm::ContainerProf2D _cTimingCut_depth;

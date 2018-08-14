@@ -14,9 +14,9 @@ public:
   /// configurable parameters
   CastorSimParameterMap(const edm::ParameterSet & p);
 
-  virtual ~CastorSimParameterMap() {}
+  ~CastorSimParameterMap() override {}
 
-  virtual const CaloSimParameters & simParameters(const DetId & id) const;
+  const CaloSimParameters & simParameters(const DetId & id) const override;
 
   /// accessors
   //CaloSimParameters castorParameters() const  {return theCastorParameters;}
