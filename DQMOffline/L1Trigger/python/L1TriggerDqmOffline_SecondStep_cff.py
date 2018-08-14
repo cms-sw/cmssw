@@ -26,7 +26,7 @@ DQMHarvestL1TMon = cms.Sequence(
 # harvesting sequence for electron dataset
 DQMHarvestL1TEg = cms.Sequence(
     l1tEGammaEfficiency
-    #* l1tEGammaEmuEfficiency
+    * l1tEGammaEmuEfficiency
     #* l1tEGammaEmuDiff
 )
 
@@ -39,11 +39,12 @@ DQMHarvestL1TEg = cms.Sequence(
 DQMHarvestL1TMuon = cms.Sequence(
     l1tEtSumEfficiency
     * l1tJetEfficiency
-    #* l1tEtSumEmuEfficiency
-    #* l1tJetEmuEfficiency
+    * l1tEtSumEmuEfficiency
+    * l1tJetEmuEfficiency
     #* l1tEtSumEmuDiff
     #* l1tJetEmuDiff
     * l1tTauEfficiency
+    * l1tTauEmuEfficiency
     #* l1tTauEmuDiff
     * l1tMuonDQMEfficiency
 )
