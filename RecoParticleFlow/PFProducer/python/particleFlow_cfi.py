@@ -72,10 +72,10 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     ),
     electron_protectionsForBadHcal = cms.PSet(
         enableProtections = cms.bool(False),   
-        full5x5_sigmaIetaIeta = cms.vdouble(0.0126, 0.0457), # EB, EE
-        eInvPInv = cms.vdouble(0.209, 0.132),
-        dEta = cms.vdouble(0.01, 0.02),
-        dPhi = cms.vdouble(0.148, 0.19),
+        full5x5_sigmaIetaIeta = cms.vdouble(0.0106, 0.0387), # EB, EE; 94Xv2 cut-based medium id
+        eInvPInv = cms.vdouble(0.184, 0.0721),
+        dEta = cms.vdouble(0.0032*2, 0.00632*2), # relax factor 2 to be safer against misalignment
+        dPhi = cms.vdouble(0.0547, 0.0394),
     ),
     # New photon selection cuts for CMSSW_700
     photon_MinEt = cms.double(10.),
