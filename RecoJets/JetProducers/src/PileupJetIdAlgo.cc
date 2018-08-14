@@ -528,7 +528,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 
           float partPuppiWeight=1.0;
 	  if (usePuppi){
-	    const pat::PackedCandidate* partpack = dynamic_cast<const pat::PackedCandidate *>( part );
+	    const pat::PackedCandidate* partpack = dynamic_cast<const pat::PackedCandidate *>( part.get() );
 	    if (partpack!=nullptr)  partPuppiWeight = partpack->puppiWeight();
 	  }
 
@@ -554,10 +554,9 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 
           float partPuppiWeight=1.0;
 	  if (usePuppi){
-	    const pat::PackedCandidate* partpack = dynamic_cast<const pat::PackedCandidate *>( part );
+	    const pat::PackedCandidate* partpack = dynamic_cast<const pat::PackedCandidate *>( part.get() );
 	    if (partpack!=nullptr)  partPuppiWeight = partpack->puppiWeight();
 	  }
-
 
 	  float weight = partPuppiWeight*(part->pt())*partPuppiWeight*(part->pt());
 	  float deta = part->eta() - jet->eta();
