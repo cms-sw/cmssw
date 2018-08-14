@@ -47,7 +47,7 @@ DDRotation DDrotReflect( const DDName & name,
     users responsibility to keep the reference object DDRotation!
     Will be mostly used by algorithmic positioning.
 */    
-DDRotation DDanonymousRot( DDRotationMatrix * rot );
+DDRotation DDanonymousRot( std::unique_ptr<DDRotationMatrix> rot );
 
 //! create a new DDRotationMatrix in the GEANT3 style.
 /** The Matrix must be orthonormal - left or right handed - otherwise a DDException is thrown; 
