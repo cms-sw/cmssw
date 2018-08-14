@@ -165,8 +165,8 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
       boost::posix_time::ptime tagSnapshotTime = boost::posix_time::time_from_string(std::string(cond::time::MAX_TIMESTAMP) );
       if( toGet.exists("snapshotTime") ) tagSnapshotTime = boost::posix_time::time_from_string( toGet.getParameter<std::string>("snapshotTime" ) );
       std::string recordLabelKey = joinRecordAndLabel( recordname, labelname );
-      replacements.insert( std::make_pair( recordLabelKey, cond::GTEntry_t( std::make_tuple(recordname, labelname, fqTag )  ) ) );
-      specialSnapshots.insert( std::make_pair( recordLabelKey, tagSnapshotTime ) );
+      replacements.emplace( recordLabelKey, cond::GTEntry_t( std::make_tuple(recordname, labelname, fqTag )  ) );
+      specialSnapshots.emplace( recordLabelKey, tagSnapshotTime );
     }
   }
   
@@ -205,16 +205,16 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
    * this will allow to initialize POOL in one go for each "database"
    * The real initialization of the Data-Proxies is done in the second loop 
    */
-  std::vector<cond::DataProxyWrapperBase *> proxyWrappers(m_tagCollection.size());
-  size_t ipb=0;
+  std::vector<std::unique_ptr<cond::DataProxyWrapperBase>> proxyWrappers;
+  proxyWrappers.reserve(m_tagCollection.size());
   for(auto const& tag: m_tagCollection){
-    proxyWrappers[ipb++] =  
-      cond::ProxyFactory::get()->create(buildName(tag.second.recordName()));
+    proxyWrappers.emplace_back(
+                     cond::ProxyFactory::get()->create(buildName(tag.second.recordName())));
   }
 
   // now all required libraries have been loaded
   // init sessions and DataProxies
-  ipb=0;
+  size_t ipb=0;
   for(auto const& tagInfo: m_tagCollection){
     std::string connStr = m_connectionString;
     std::string tag = tagInfo.second.tagName();
@@ -223,7 +223,7 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
       connStr =  tagParams.second;
       tag = tagParams.first;
     }
-    std::map<std::string, cond::persistency::Session>::iterator p = sessions.find( connStr );
+    auto p = sessions.find( connStr );
     cond::persistency::Session nsess;
     if (p == sessions.end()) {
       std::string oracleConnStr = cond::persistency::convertoToOracleConnection( connStr );
@@ -234,13 +234,9 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
 	edm::LogWarning( "CondDBESSource" )<<"[WARNING] You are reading tag \""<<tag<<"\" from V1 account \""<<connStr<<"\". The concerned Conditions might be out of date."<<std::endl;
       //open db get tag info (i.e. the IOV token...)
       nsess = m_connection.createReadOnlySession( connStr, "" );
-      sessions.insert(std::make_pair( connStr, nsess));
+      sessions.emplace(connStr, nsess);
     } else nsess = (*p).second;
 
-    // ownership...
-    ProxyP proxy(proxyWrappers[ipb++]);
-   //  instert in the map
-    m_proxies.insert(std::make_pair(tagInfo.second.recordName(), proxy));
     // initialize
     boost::posix_time::ptime tagSnapshotTime = snapshotTime;
     auto tagSnapshotIter = specialSnapshots.find( tagInfo.first );
@@ -249,7 +245,10 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
     if(tagSnapshotTime == boost::posix_time::time_from_string(std::string(cond::time::MAX_TIMESTAMP) ) )
       tagSnapshotTime = boost::posix_time::ptime();
 
+    auto& proxy =proxyWrappers[ipb++];
     proxy->lateInit(nsess, tag, tagSnapshotTime, tagInfo.second.recordLabel(), connStr);
+    //  instert in the map
+    m_proxies.emplace(tagInfo.second.recordName(), std::move(proxy));
   }
 
   // one loaded expose all other tags to the Proxy! 
@@ -340,7 +339,7 @@ CondDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   bool doRefresh = false;
   if( m_policy == REFRESH_EACH_RUN || m_policy == RECONNECT_EACH_RUN ) {
     // find out the last run number for the proxy of the specified record
-    std::map<std::string,unsigned int>::iterator iRec = m_lastRecordRuns.find( recordname );
+    auto iRec = m_lastRecordRuns.find( recordname );
     if( iRec != m_lastRecordRuns.end() ){
       unsigned int lastRecordRun = iRec->second;
       if( lastRecordRun != m_lastRun ){
@@ -354,7 +353,7 @@ CondDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
       }
     } else {
       doRefresh = true;
-      m_lastRecordRuns.insert( std::make_pair( recordname, m_lastRun ) );
+      m_lastRecordRuns.emplace(recordname, m_lastRun );
       edm::LogInfo( "CondDBESSource" ) << "Preparing refresh for record \"" << recordname 
 				       << "\" for " << iTime.eventID() << ", timestamp: " << iTime.time().value()
 				       << "; from CondDBESSource::setIntervalFor";
@@ -377,9 +376,7 @@ CondDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   cond::TimeType timetype = cond::TimeType::invalid;
   bool userTime=true;
 
- //FIXME use equal_range
-  ProxyMap::const_iterator pmBegin = m_proxies.lower_bound(recordname);
-  ProxyMap::const_iterator pmEnd = m_proxies.upper_bound(recordname);
+  auto [pmBegin, pmEnd] = m_proxies.equal_range(recordname);
   if ( pmBegin == pmEnd ) {
     edm::LogInfo( "CondDBESSource" ) << "No DataProxy (Pluging) found for record \""<< recordname
 				     << "\"; from CondDBESSource::setIntervalFor";
@@ -421,7 +418,7 @@ CondDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
 	std::string connStr = m_connectionString;
 	std::pair<std::string,std::string> tagParams = cond::persistency::parseTag( tcIter->second.tagName() );
 	if( !tagParams.second.empty() ) connStr =  tagParams.second;
-	std::map<std::string,std::pair<cond::persistency::Session,std::string> >::iterator iSess = m_sessionPool.find( connStr );
+	auto iSess = m_sessionPool.find( connStr );
 	bool reopen = false;
 	if( iSess != m_sessionPool.end() ){
 	  if( iSess->second.second != transId.str() ) {
@@ -431,7 +428,7 @@ CondDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
 	  }
 	} else {
           // no available session: probably first run analysed... 
-	  iSess = m_sessionPool.insert(std::make_pair( connStr, std::make_pair( cond::persistency::Session(),transId.str()) )).first; 
+	  iSess = m_sessionPool.emplace(connStr, std::make_pair( cond::persistency::Session(),transId.str()) ).first; 
 	  reopen = true;
 	} 
 	if( reopen ){
@@ -524,8 +521,7 @@ void
 CondDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey , KeyedProxies& aProxyList) {
   std::string recordname=iRecordKey.name();
 
-  ProxyMap::const_iterator b = m_proxies.lower_bound(recordname);
-  ProxyMap::const_iterator e = m_proxies.upper_bound(recordname);
+  auto [ b, e ] = m_proxies.equal_range(recordname);
   if ( b == e) {
     edm::LogInfo( "CondDBESSource" ) << "No DataProxy (Pluging) found for record \""<< recordname
 				     << "\"; from CondDBESSource::registerProxies";
@@ -536,7 +532,7 @@ CondDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
     if(nullptr != (*p).second.get()) {
       edm::eventsetup::TypeTag type =  (*p).second->type(); 
       edm::eventsetup::DataKey key( type, edm::eventsetup::IdTags((*p).second->label().c_str()) );
-      aProxyList.push_back(KeyedProxies::value_type(key,(*p).second->edmProxy()));
+      aProxyList.emplace_back(key,(*p).second->makeEdmProxy());
     }
   }
 }
@@ -573,7 +569,7 @@ void CondDBESSource::fillTagCollectionFromGT( const std::string & connectionStri
     cond::persistency::GTProxy gtp = session.readGlobalTag( roottag, prefix, postfix );
     gtMetadata.snapshotTime = gtp.snapshotTime(); 
     for( const auto& gte : gtp ){
-      tagcoll.insert( gte );
+      tagcoll.emplace( gte );
     }
     session.transaction().commit();
   }
@@ -604,18 +600,18 @@ void CondDBESSource::fillTagCollectionFromDB( const std::vector<std::string> & c
     if( fid != replacement.end() ) {
       if( !fid->second.tagName().empty() ){
 	cond::GTEntry_t tagMetadata( std::make_tuple( tag.recordName(), tag.recordLabel(), fid->second.tagName() ) );  
-	m_tagCollection.insert( std::make_pair( recordLabelKey, tagMetadata ) );
+	m_tagCollection.emplace( recordLabelKey, tagMetadata );
 	edm::LogInfo( "CondDBESSource" ) << "Replacing tag \"" << tag.tagName()
 					 << "\" for record \"" << tagMetadata.recordName()
 					 << "\" and label \"" << tagMetadata.recordLabel()
 					 << "\" with tag " << tagMetadata.tagName()
 					 << "\"; from CondDBESSource::fillTagCollectionFromDB";
       } else {
-	m_tagCollection.insert( std::make_pair( recordLabelKey, tag) );
+	m_tagCollection.emplace( recordLabelKey, tag );
       }
       replacement.erase( fid );
     } else {
-      m_tagCollection.insert( std::make_pair( recordLabelKey, tag) );
+      m_tagCollection.emplace( recordLabelKey, tag );
     }
   }
   for( auto const& rep: replacement ) {
@@ -625,7 +621,7 @@ void CondDBESSource::fillTagCollectionFromDB( const std::vector<std::string> & c
       if( !rep.second.recordLabel().empty() ) msg << " and label "<<rep.second.recordLabel();
       throw cond::Exception( msg.str() );
     }
-    m_tagCollection.insert( rep );
+    m_tagCollection.emplace( rep );
   }
 }
 

@@ -22,10 +22,9 @@ template< class RecordT, class DataT , typename Initializer=cond::DefaultInitial
 class DataProxy : public edm::eventsetup::DataProxy{
   public:
     using self = DataProxy<RecordT,DataT>;
-    using DataP = std::shared_ptr<cond::persistency::PayloadProxy<DataT>>;
 
-    explicit DataProxy(std::shared_ptr<cond::persistency::PayloadProxy<DataT>> pdata) 
-    : m_data{std::move(pdata)},
+    explicit DataProxy(cond::persistency::PayloadProxy<DataT>& pdata) 
+    : m_data{pdata},
       m_initializer{}
     { }
   //virtual ~DataProxy();
@@ -39,23 +38,23 @@ class DataProxy : public edm::eventsetup::DataProxy{
   protected:
   void const* getImpl(const edm::eventsetup::EventSetupRecordImpl& iRecord, const edm::eventsetup::DataKey&) override {
     assert(iRecord.key() == RecordT::keyForClass());
-    m_data->make();
-    m_initializer(const_cast<DataT&>((*m_data)()));
-    return &(*m_data)();
+    m_data.make();
+    m_initializer(const_cast<DataT&>(m_data()));
+    return &(m_data());
   }
   void invalidateCache() override {
     // don't, preserve data for future access
     // m_data->invalidateCache();
   }
   void invalidateTransientCache() override {
-    m_data->invalidateTransientCache();
+    m_data.invalidateTransientCache();
   }
   private:
   //DataProxy(); // stop default
   const DataProxy& operator=( const DataProxy& ) = delete; // stop default
   // ---------- member data --------------------------------
 
-  std::shared_ptr<cond::persistency::PayloadProxy<DataT>>  m_data;
+  cond::persistency::PayloadProxy<DataT>&  m_data;
   Initializer const  m_initializer;
 };
 
@@ -66,7 +65,7 @@ namespace cond {
    */
   class DataProxyWrapperBase {
   public:
-    using ProxyP = std::shared_ptr<cond::persistency::BasePayloadProxy>;
+    using ProxyP = cond::persistency::BasePayloadProxy*;
     using edmProxyP =  std::shared_ptr<edm::eventsetup::DataProxy>;
     
     // limitation of plugin manager...
@@ -74,7 +73,7 @@ namespace cond {
 
     virtual edm::eventsetup::TypeTag type() const=0;
     virtual ProxyP proxy() const=0;
-    virtual edmProxyP edmProxy() const=0;
+    virtual edmProxyP makeEdmProxy() const=0;
 
 
     DataProxyWrapperBase();
@@ -108,15 +107,13 @@ class DataProxyWrapper : public  cond::DataProxyWrapperBase {
 public:
   using DataProxy =  ::DataProxy<RecordT,DataT, Initializer>;
   using PayProxy =  cond::persistency::PayloadProxy<DataT>;
-  using DataP =  std::shared_ptr<PayProxy>;
-  
   
   DataProxyWrapper(cond::persistency::Session& session,
 		   const std::string& tag, const std::string& ilabel, const char * source=nullptr) :
     cond::DataProxyWrapperBase(ilabel),
     m_source( source ? source : "" ),
-    m_proxy(new PayProxy( source)), //'errorPolicy set to true: PayloadProxy should catch and re-throw ORA exceptions' still needed?
-    m_edmProxy(new DataProxy(m_proxy)){
+    m_proxy(std::make_unique<PayProxy>( source)) //'errorPolicy set to true: PayloadProxy should catch and re-throw ORA exceptions' still needed?
+    {
     m_proxy->setUp( session );
     //NOTE: We do this so that the type 'DataT' will get registered
     // when the plugin is dynamically loaded
@@ -133,23 +130,20 @@ public:
   // late initialize (to allow to load ALL library first)
   void lateInit(cond::persistency::Session& session, const std::string & tag, const boost::posix_time::ptime& snapshotTime,
 			std::string const & il, std::string const & cs) override {
-    m_proxy.reset(new PayProxy(m_source.empty() ?  (const char *)nullptr : m_source.c_str() ) );
+    m_proxy =std::make_unique<PayProxy>(m_source.empty() ?  (const char *)nullptr : m_source.c_str() );
     m_proxy->setUp( session );
     m_proxy->loadTag( tag, snapshotTime );
-    m_edmProxy.reset(new DataProxy(m_proxy));
     addInfo(il, cs, tag);
   }
     
   edm::eventsetup::TypeTag type() const override { return m_type;}
-  ProxyP proxy() const override { return m_proxy;}
-  edmProxyP edmProxy() const override { return m_edmProxy;}
+  ProxyP proxy() const override { return m_proxy.get();}
+  edmProxyP makeEdmProxy() const override { return std::make_shared<DataProxy>(*m_proxy);}
  
 private:
   std::string m_source;
   edm::eventsetup::TypeTag m_type;
-  std::shared_ptr<cond::persistency::PayloadProxy<DataT>>  m_proxy;
-  edmProxyP m_edmProxy;
-
+  std::unique_ptr<PayProxy>  m_proxy;
 };
 
 

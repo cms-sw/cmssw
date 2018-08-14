@@ -13,6 +13,7 @@
 // system include files
 #include <string>
 #include <map>
+#include <unordered_map>
 #include <memory>
 #include <set>
 // user include files
@@ -33,8 +34,8 @@ namespace cond{
 class CondDBESSource : public edm::eventsetup::DataProxyProvider,
 		       public edm::EventSetupRecordIntervalFinder{
  public:
-  using ProxyP = std::shared_ptr<cond::DataProxyWrapperBase>;
-  using ProxyMap = std::multimap< std::string,  ProxyP>;
+  using ProxyP = std::unique_ptr<cond::DataProxyWrapperBase>;
+  using ProxyMap = std::unordered_multimap< std::string,  ProxyP>;
 
   enum RefreshPolicy { NOREFRESH, REFRESH_ALWAYS, REFRESH_OPEN_IOVS, REFRESH_EACH_RUN, RECONNECT_EACH_RUN };
   
@@ -62,11 +63,11 @@ class CondDBESSource : public edm::eventsetup::DataProxyProvider,
   ProxyMap m_proxies;
 
 
-  using TagCollection = std::map< std::string, cond::GTEntry_t >;
+  using TagCollection = std::unordered_map< std::string, cond::GTEntry_t >;
   // the collections of tag, record/label used in this ESSource
   TagCollection m_tagCollection;
-  std::map<std::string,std::pair<cond::persistency::Session,std::string> > m_sessionPool;
-  std::map<std::string,unsigned int> m_lastRecordRuns;
+  std::unordered_map<std::string,std::pair<cond::persistency::Session,std::string> > m_sessionPool;
+  std::unordered_map<std::string,unsigned int> m_lastRecordRuns;
   
   struct Stats {
     int nData;
