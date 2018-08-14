@@ -265,7 +265,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeMva()
 
 // ------------------------------------------------------------------------------------------
 PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, float jec, const reco::Vertex * vtx,
-							const reco::VertexCollection & allvtx, double rho) 
+							const reco::VertexCollection & allvtx, double rho, bool usePuppi) 
 {
 
 	static std::atomic<int> printWarning{10};
@@ -305,7 +305,6 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	internalId_.rho_ = rho;
 
 	float dRmin(1000);
-	
 	for ( unsigned i = 0; i < jet->numberOfSourceCandidatePtrs(); ++i ) {
 	  reco::CandidatePtr pfJetConstituent = jet->sourceCandidatePtr(i);
   
@@ -316,8 +315,9 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	  if (lPack == nullptr){
 	    isPacked = false;
 	  }
-
-	    float candPt = icand->pt();
+	    float candPuppiWeight = 1.0;
+	    if (usePuppi && isPacked) candPuppiWeight = lPack->puppiWeight();
+	    float candPt = (icand->pt())*candPuppiWeight;
 	    float candPtFrac = candPt/jetPt;
 	    float candDr   = reco::deltaR(*icand,*jet);
 	    float candDeta = icand->eta() - jet->eta();
@@ -597,12 +597,13 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	internalId_.dRMeanEm_   /= jetPt;
 	internalId_.dRMeanCh_   /= jetPt;
 	internalId_.dR2Mean_    /= sumPt2;
-	
+	float conesum=0.0;
 	for(size_t ic=0; ic<ncones; ++ic){
 		*coneFracs[ic]     /= jetPt;
 		*coneEmFracs[ic]   /= jetPt;
 		*coneNeutFracs[ic] /= jetPt;
 		*coneChFracs[ic]   /= jetPt;
+		conesum+=*coneFracs[ic];
 	}
 	//http://jets.physics.harvard.edu/qvg/
 	double ptMean = sumPt/internalId_.nParticles_;
