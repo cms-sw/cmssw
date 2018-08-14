@@ -13,8 +13,8 @@ namespace cond {
      */
     class CondGetter {
     public:
-      virtual ~CondGetter(){}
-      virtual IOVProxy get(std::string name) const=0;
+      virtual ~CondGetter() = default;
+      virtual IOVProxy get(std::string const& name) const=0;
       
     };
     
@@ -81,7 +81,7 @@ namespace cond {
       explicit PayloadProxy( const char * source=nullptr ) :
 	BasePayloadProxy() {}
       
-      ~PayloadProxy() override{}
+      ~PayloadProxy() override = default;
       
       // dereference 
       const DataT & operator()() const {

@@ -33,10 +33,10 @@ namespace cond{
 class CondDBESSource : public edm::eventsetup::DataProxyProvider,
 		       public edm::EventSetupRecordIntervalFinder{
  public:
-  typedef std::shared_ptr<cond::DataProxyWrapperBase > ProxyP;
-  typedef std::multimap< std::string,  ProxyP> ProxyMap;
+  using ProxyP = std::shared_ptr<cond::DataProxyWrapperBase>;
+  using ProxyMap = std::multimap< std::string,  ProxyP>;
 
-  typedef enum { NOREFRESH, REFRESH_ALWAYS, REFRESH_OPEN_IOVS, REFRESH_EACH_RUN, RECONNECT_EACH_RUN } RefreshPolicy;
+  enum RefreshPolicy { NOREFRESH, REFRESH_ALWAYS, REFRESH_OPEN_IOVS, REFRESH_EACH_RUN, RECONNECT_EACH_RUN };
   
 
   explicit CondDBESSource( const edm::ParameterSet& );
@@ -62,7 +62,7 @@ class CondDBESSource : public edm::eventsetup::DataProxyProvider,
   ProxyMap m_proxies;
 
 
-  typedef std::map< std::string, cond::GTEntry_t > TagCollection;
+  using TagCollection = std::map< std::string, cond::GTEntry_t >;
   // the collections of tag, record/label used in this ESSource
   TagCollection m_tagCollection;
   std::map<std::string,std::pair<cond::persistency::Session,std::string> > m_sessionPool;
