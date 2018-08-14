@@ -526,7 +526,13 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
             continue;
 	  }
 
-	  float weight = part->pt();
+          float partPuppiWeight=1.0;
+	  if (usePuppi){
+	    const pat::PackedCandidate* partpack = dynamic_cast<const pat::PackedCandidate *>( part );
+	    if (partpack!=nullptr)  partPuppiWeight = partpack->puppiWeight();
+	  }
+
+	  float weight = (part->pt())*partPuppiWeight;
 	  float weight2 = weight * weight;
 	  sumW2        += weight2;
 	  float deta = part->eta() - jet->eta();
@@ -545,7 +551,15 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	  if (!(part.isAvailable() && part.isNonnull()) ){
             continue;
           }
-	  float weight =part->pt()*part->pt();
+
+          float partPuppiWeight=1.0;
+	  if (usePuppi){
+	    const pat::PackedCandidate* partpack = dynamic_cast<const pat::PackedCandidate *>( part );
+	    if (partpack!=nullptr)  partPuppiWeight = partpack->puppiWeight();
+	  }
+
+
+	  float weight = partPuppiWeight*(part->pt())*partPuppiWeight*(part->pt());
 	  float deta = part->eta() - jet->eta();
 	  float dphi = reco::deltaPhi(*part, *jet);
 	  float ddeta, ddphi, ddR;
