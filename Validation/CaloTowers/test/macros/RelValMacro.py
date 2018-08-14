@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #RelValMacro.py
 
 import sys

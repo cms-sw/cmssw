@@ -1,4 +1,4 @@
-#!/bin/tcsh
+#!/bin/env tcsh
 
 #Check to see if the CMS environment is set up
 if ($?CMSSW_BASE != 1) then
