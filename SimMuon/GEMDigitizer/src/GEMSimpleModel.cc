@@ -278,7 +278,7 @@ std::vector<std::pair<int, int> > GEMSimpleModel::simulateClustering(
   const LocalPoint & hit_exit(simHit->exitPoint());
 
   LocalPoint start_point, end_point;
-  if(hit_entry.x() < hit_entry.x()) {
+  if(hit_entry.x() < hit_exit.x()) {
     start_point = hit_entry;
     end_point = hit_exit;
   } else {
