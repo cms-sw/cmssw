@@ -5,26 +5,29 @@
 #include <string>
 
 // user include files
-#include "FWCore/Framework/interface/DataProxyTemplate.h"
+#include "FWCore/Framework/interface/DataProxy.h"
+#include "FWCore/Framework/interface/EventSetupRecordImpl.h"
+#include "FWCore/Framework/interface/DataKey.h"
 
 #include "CondCore/CondDB/interface/PayloadProxy.h"
 
 // expose a cond::PayloadProxy as a eventsetup::DataProxy
 namespace cond {
   template< typename DataT> struct DefaultInitializer {
-    void operator()(DataT &){}
+    void operator()(DataT &) const {}
   };
 }
 
 template< class RecordT, class DataT , typename Initializer=cond::DefaultInitializer<DataT> >
-class DataProxy : public edm::eventsetup::DataProxyTemplate<RecordT, DataT >{
+class DataProxy : public edm::eventsetup::DataProxy{
   public:
-  typedef DataProxy<RecordT,DataT> self;
-    typedef std::shared_ptr<cond::persistency::PayloadProxy<DataT> > DataP;
+    using self = DataProxy<RecordT,DataT>;
+    using DataP = std::shared_ptr<cond::persistency::PayloadProxy<DataT>>;
 
-    explicit DataProxy(std::shared_ptr<cond::persistency::PayloadProxy<DataT> > pdata) : m_data(pdata) { 
- 
-  }
+    explicit DataProxy(std::shared_ptr<cond::persistency::PayloadProxy<DataT>> pdata) 
+    : m_data{std::move(pdata)},
+      m_initializer{}
+    { }
   //virtual ~DataProxy();
   
   // ---------- const member functions ---------------------
@@ -34,7 +37,8 @@ class DataProxy : public edm::eventsetup::DataProxyTemplate<RecordT, DataT >{
   // ---------- member functions ---------------------------
   
   protected:
-  const DataT* make(const RecordT&, const edm::eventsetup::DataKey&) override {
+  void const* getImpl(const edm::eventsetup::EventSetupRecordImpl& iRecord, const edm::eventsetup::DataKey&) override {
+    assert(iRecord.key() == RecordT::keyForClass());
     m_data->make();
     m_initializer(const_cast<DataT&>((*m_data)()));
     return &(*m_data)();
@@ -51,7 +55,7 @@ class DataProxy : public edm::eventsetup::DataProxyTemplate<RecordT, DataT >{
   const DataProxy& operator=( const DataProxy& ) = delete; // stop default
   // ---------- member data --------------------------------
 
-  std::shared_ptr<cond::persistency::PayloadProxy<DataT> >  m_data;
+  std::shared_ptr<cond::persistency::PayloadProxy<DataT>>  m_data;
   Initializer m_initializer;
 };
 
@@ -62,11 +66,11 @@ namespace cond {
    */
   class DataProxyWrapperBase {
   public:
-    typedef std::shared_ptr<cond::persistency::BasePayloadProxy> ProxyP;
-    typedef std::shared_ptr<edm::eventsetup::DataProxy> edmProxyP;
+    using ProxyP = std::shared_ptr<cond::persistency::BasePayloadProxy>;
+    using edmProxyP =  std::shared_ptr<edm::eventsetup::DataProxy>;
     
     // limitation of plugin manager...
-    typedef std::pair< std::string, std::string> Args;
+    using Args = std::pair< std::string, std::string>;
 
     virtual edm::eventsetup::TypeTag type() const=0;
     virtual ProxyP proxy() const=0;
@@ -102,9 +106,9 @@ namespace cond {
 template< class RecordT, class DataT, typename Initializer=cond::DefaultInitializer<DataT> >
 class DataProxyWrapper : public  cond::DataProxyWrapperBase {
 public:
-  typedef ::DataProxy<RecordT,DataT, Initializer> DataProxy;
-  typedef cond::persistency::PayloadProxy<DataT> PayProxy;
-  typedef std::shared_ptr<PayProxy> DataP;
+  using DataProxy =  ::DataProxy<RecordT,DataT, Initializer>;
+  using PayProxy =  cond::persistency::PayloadProxy<DataT>;
+  using DataP =  std::shared_ptr<PayProxy>;
   
   
   DataProxyWrapper(cond::persistency::Session& session,
@@ -143,7 +147,7 @@ public:
 private:
   std::string m_source;
   edm::eventsetup::TypeTag m_type;
-  std::shared_ptr<cond::persistency::PayloadProxy<DataT> >  m_proxy;
+  std::shared_ptr<cond::persistency::PayloadProxy<DataT>>  m_proxy;
   edmProxyP m_edmProxy;
 
 };
