@@ -22,22 +22,10 @@ updateJetCollection(
     jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
     )
 
-
-updateJetCollection(
-    process,
-    labelName = 'AK4PFPUPPI',
-    jetSource = cms.InputTag('slimmedJetsPuppi'),
-    algo = 'ak4',
-    rParam = 0.4,
-    jetCorrections = ('AK4PFPuppi', cms.vstring(['L2Relative', 'L3Absolute']), 'None'),
-    )
-
-
 patJetsAK4 = process.updatedPatJetsAK4PFCHS
-patJetsAK4Puppi = process.updatedPatJetsAK4PFPUPPI
 patJetsAK8 = process.updatedPatJetsAK8PFCHS
 
-process.out.outputCommands += ['keep *_updatedPatJetsAK4PFCHS_*_*','keep *_updatedPatJetsAK4PFPUPPI_*_*',
+process.out.outputCommands += ['keep *_updatedPatJetsAK4PFCHS_*_*',
                                'keep *_updatedPatJetsAK8PFCHS_*_*']
 
 ####################################################################################################
@@ -50,18 +38,16 @@ process.out.outputCommands += ['keep *_updatedPatJetsAK4PFCHS_*_*','keep *_updat
 
 process.load('RecoJets.JetProducers.PileupJetID_cfi')
 patAlgosToolsTask.add(process.pileUpJetIDTask)
-process.pileupJetIdCalculator.jets=cms.InputTag("slimmedJetsPuppi")
+process.pileupJetIdCalculator.jets=cms.InputTag("slimmedJets")
 process.pileupJetIdCalculator.inputIsCorrected=True
 process.pileupJetIdCalculator.applyJec=True
-process.pileupJetIdCalculator.usePuppi=True
 process.pileupJetIdCalculator.vertexes=cms.InputTag("offlineSlimmedPrimaryVertices")
 process.pileupJetIdEvaluator.jets=process.pileupJetIdCalculator.jets
 process.pileupJetIdEvaluator.inputIsCorrected=process.pileupJetIdCalculator.inputIsCorrected
 process.pileupJetIdEvaluator.applyJec=process.pileupJetIdCalculator.applyJec
-process.pileupJetIdEvaluator.usePuppi=process.pileupJetIdCalculator.usePuppi
 process.pileupJetIdEvaluator.vertexes=process.pileupJetIdCalculator.vertexes
-patJetsAK4Puppi.userData.userFloats.src += ['pileupJetIdEvaluator:fullDiscriminant']
-patJetsAK4Puppi.userData.userInts.src += ['pileupJetIdEvaluator:cutbasedId','pileupJetIdEvaluator:fullId']
+patJetsAK4.userData.userFloats.src += ['pileupJetIdEvaluator:fullDiscriminant']
+patJetsAK4.userData.userInts.src += ['pileupJetIdEvaluator:cutbasedId','pileupJetIdEvaluator:fullId']
 process.out.outputCommands += ['keep *_pileupJetIdEvaluator_*_*']
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -179,14 +165,11 @@ import PhysicsTools.PatAlgos.patInputFiles_cff
 from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarPileUpMINIAODSIM
 process.source.fileNames = filesRelValTTbarPileUpMINIAODSIM
 #                                         ##
-process.maxEvents.input = 5000
-
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 10000
-
+process.maxEvents.input = 5
 #                                         ##
 #   process.out.outputCommands = [ ... ]  ##  (e.g. taken from PhysicsTools/PatAlgos/python/patEventContent_cff.py)
 #                                         ##
-process.out.fileName = 'testJetTools_PON.root'
+process.out.fileName = 'testJetTools.root'
 #                                         ##
 #   process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)
+
