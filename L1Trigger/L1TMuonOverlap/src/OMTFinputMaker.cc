@@ -217,7 +217,7 @@ unsigned int OMTFinputMaker::getInputNumber(unsigned int rawId,
 OMTFinput OMTFinputMaker::processDT(const L1MuDTChambPhContainer *dtPhDigis,
 	       const L1MuDTChambThContainer *dtThDigis,
 	       unsigned int iProcessor,
-	       l1t::tftype type)
+	       l1t::tftype type, int bxTrg)
 {
 
   OMTFinput result(myOmtfConfig);
@@ -236,8 +236,14 @@ OMTFinput OMTFinputMaker::processDT(const L1MuDTChambPhContainer *dtPhDigis,
     ///code()>=3     - take only double layer hits, HH, HL and LL
     // FIXME (MK): at least Ts2Tag selection is not correct! Check it
 //    if (digiIt.bxNum()!= 0 || digiIt.BxCnt()!= 0 || digiIt.Ts2Tag()!= 0 || digiIt.code()<4) continue;
-    if (digiIt.bxNum()!= 0) continue;
-    if (digiIt.code() != 4 && digiIt.code() != 5 && digiIt.code() != 6) continue;
+
+    if (digiIt.bxNum()!= bxTrg) continue;
+    
+    if (myOmtfConfig->fwVersion() <= 4) {
+      if (digiIt.code() != 4 && digiIt.code() != 5 && digiIt.code() != 6) continue;
+    } else {
+      if (digiIt.code() != 2 && digiIt.code() != 3 && digiIt.code() != 4 && digiIt.code() != 5 && digiIt.code() != 6) continue;
+    }
 
     unsigned int hwNumber = myOmtfConfig->getLayerNumber(detid.rawId());
     if(myOmtfConfig->getHwToLogicLayer().find(hwNumber)==myOmtfConfig->getHwToLogicLayer().end()) continue;
@@ -258,7 +264,7 @@ OMTFinput OMTFinputMaker::processDT(const L1MuDTChambPhContainer *dtPhDigis,
 ////////////////////////////////////////////
 OMTFinput OMTFinputMaker::processCSC(const CSCCorrelatedLCTDigiCollection *cscDigis,
 	       unsigned int iProcessor,
-	       l1t::tftype type){
+	       l1t::tftype type, int bxTrg){
 
   OMTFinput result(myOmtfConfig);
   if(!cscDigis) return result;
@@ -275,7 +281,7 @@ OMTFinput OMTFinputMaker::processCSC(const CSCCorrelatedLCTDigiCollection *cscDi
     for( ; digi != dend; ++digi ) {
 
       ///Check if LCT trigger primitive has the right BX.
-      if (abs(digi->getBX()- CSCConstants::LCT_CENTRAL_BX)>0) continue;
+      if (digi->getBX()-CSCConstants::LCT_CENTRAL_BX != bxTrg) continue;
 
       unsigned int hwNumber = myOmtfConfig->getLayerNumber(rawid);
       if(myOmtfConfig->getHwToLogicLayer().find(hwNumber)==myOmtfConfig->getHwToLogicLayer().end()) continue;
@@ -302,7 +308,7 @@ bool rpcPrimitiveCmp(const  RPCDigi &a, const  RPCDigi &b) { return a.strip() < 
 ////////////////////////////////////////////
 OMTFinput OMTFinputMaker::processRPC(const RPCDigiCollection *rpcDigis,
 				unsigned int iProcessor,
-				l1t::tftype type){
+				l1t::tftype type, int bxTrg){
 
   OMTFinput result(myOmtfConfig); 
   if(!rpcDigis) return result;
@@ -318,10 +324,11 @@ OMTFinput OMTFinputMaker::processRPC(const RPCDigiCollection *rpcDigis,
     if(!acceptDigi(rawid, iProcessor, type)) continue;    
     ///Find clusters of consecutive fired strips.
     ///Have to copy the digis in chamber to sort them (not optimal).
-    ///NOTE: when copying I select only digis with bx==0       //FIXME: find a better place/way to filtering digi against quality/BX etc.
-//    for (auto tdigi = rollDigis.second.first; tdigi != rollDigis.second.second; tdigi++) { std::cout << "RPC DIGIS: " << roll.rawId()<< " "<<roll<<" digi: " << tdigi->strip() <<" bx: " << tdigi->bx() << std::endl; }
+    ///NOTE: when copying I select only digis with bx==       //FIXME: find a better place/way to filtering digi against quality/BX etc.
+//  for (auto tdigi = rollDigis.second.first; tdigi != rollDigis.second.second; tdigi++) { std::cout << "RPC DIGIS: " << roll.rawId()<< " "<<roll<<" digi: " << tdigi->strip() <<" bx: " << tdigi->bx() << std::endl; }
     std::vector<RPCDigi> digisCopy;
-    std::copy_if(rollDigis.second.first, rollDigis.second.second, std::back_inserter(digisCopy), [](const RPCDigi & aDigi){return (aDigi.bx()==0);});
+//  std::copy_if(rollDigis.second.first, rollDigis.second.second, std::back_inserter(digisCopy), [](const RPCDigi & aDigi){return (aDigi.bx()==0);} );
+    for (auto pDigi=rollDigis.second.first; pDigi != rollDigis.second.second; pDigi++) { if (pDigi->bx()==bxTrg) digisCopy.push_back( *pDigi); }
     std::sort(digisCopy.begin(),digisCopy.end(),rpcPrimitiveCmp);
     typedef std::pair<unsigned int, unsigned int> Cluster;
     std::vector<Cluster> clusters;
@@ -373,11 +380,12 @@ OMTFinput OMTFinputMaker::buildInputForProcessor(const L1MuDTChambPhContainer *d
 							 const CSCCorrelatedLCTDigiCollection *cscDigis,
 							 const RPCDigiCollection *rpcDigis,
 							 unsigned int iProcessor,
-							 l1t::tftype type){
+							 l1t::tftype type,
+                                           int bx){
   OMTFinput result(myOmtfConfig);
-  result += processDT(dtPhDigis, dtThDigis, iProcessor, type);
-  result += processCSC(cscDigis, iProcessor, type);
-  result += processRPC(rpcDigis, iProcessor, type);
+  result += processDT(dtPhDigis, dtThDigis, iProcessor, type, bx);
+  result += processCSC(cscDigis, iProcessor, type, bx);
+  result += processRPC(rpcDigis, iProcessor, type, bx);
   return result;
 }
 ////////////////////////////////////////////
