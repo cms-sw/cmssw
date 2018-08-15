@@ -23,7 +23,6 @@
 //---------------
 // C++ Headers --
 //---------------
-using namespace std;
 
 //-------------------
 // Initializations --
