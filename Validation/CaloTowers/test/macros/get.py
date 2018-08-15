@@ -2,7 +2,7 @@ import sys
 
 def func(var):
 	out = var.split('/')
-	print out[27]
+	print (out[27])
 	return out[27]
 
 def betterfunc(var):
@@ -11,7 +11,7 @@ def betterfunc(var):
 		if(ar[x].find('boost') >= 0):
 			out = ar[x]
 	out = out.replace('/include','')
-	print out
+	print (out)
 	return out
 
 betterfunc(sys.argv[1])

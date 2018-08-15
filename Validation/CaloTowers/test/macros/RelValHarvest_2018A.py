@@ -28,12 +28,12 @@ def getDataSets( dsFlags = {'RelValMinBias_13__':'MinBias'},
                  printDS = False,
                  camType = "MC"):
                
-    print "Taking filenames from directory %s"%relValDIR
+    print ("Taking filenames from directory %s"%relValDIR)
 
     # retrieve the list of datasets
     if not os.path.isfile(relValDIR):
         curlCommand = curl%{"CERT_DIR":X509_CERT_DIR, "USER_PROXY":X509_USER_PROXY, "relValDIR":relValDIR}
-        print curlCommand
+        print (curlCommand)
         os.system(curlCommand)
 
     # open raw input file 
@@ -48,10 +48,10 @@ def getDataSets( dsFlags = {'RelValMinBias_13__':'MinBias'},
                 if str in line:
                     # extract dataset path
                     path = line.split('\'')[1].strip()
-                    #print "Getting DQM output from dataset: %s"%path
+                    #print ("Getting DQM output from dataset: %s"%path)
                     if (path.find("Ideal") > 0 or path.find("design") > 0 or path.find("FastSim") > 0 or path.find("DQM") < 0 or path.find("Pixel") > 0 ):  #skip for unnecessary samples
                         continue
-                    print path.split("/")[-1] #path
+                    print (path.split("/")[-1]) #path
                     if printDS:
                         continue
 
@@ -65,9 +65,9 @@ def getDataSets( dsFlags = {'RelValMinBias_13__':'MinBias'},
 
                     if camType == "DATA":
                         iparts = info.split("_")
-			info = ""
-			skip = False
-			for fragment in iparts:
+                        info = ""
+                        skip = False
+                        for fragment in iparts:
                             if skip:
                                 info = info.strip("_")
                                 skip = False
@@ -80,23 +80,23 @@ def getDataSets( dsFlags = {'RelValMinBias_13__':'MinBias'},
                         info = info.strip("_")
 
                     ofn = ofnBlank%{"sample":dsFlags[str],"label":slabel,"info":info}
-                    print "ofn = ",ofn
+                    print ("ofn = ",ofn)
                     #Check if file exists already
                     if not os.path.isfile(ofn):
                         # copy file with curl
                         curlCommand = curl%{"CERT_DIR":X509_CERT_DIR,"USER_PROXY":X509_USER_PROXY, "relValDIR":relValDIR} + "/" + fname
-                        print curlCommand
+                        print (curlCommand)
                         os.system(curlCommand)
 
                         # Rename file for use with HCAL scripts
                         mvCommand = "mv %(fn)s %(ofn)s"%{"fn":fname,"ofn":ofn}
-                        print mvCommand
+                        print (mvCommand)
                         os.system(mvCommand)
-                        print ""
+                        #print ""
 
     fin.close();
     rmCommand = "rm %(ofn)s"%{"ofn":relValDIR}
-    print rmCommand
+    print (rmCommand)
     os.system(rmCommand)
 
     if printDS:
@@ -148,16 +148,16 @@ dfTextFile = "%s"
 
 # ensure all required parameters are included
 if len(args) < 1:
-    print "Usage: ./RelValHarvest.py -M (or -D) fullReleaseName"
-    print "fullReleaseName : CMSSW_7_4_0_pre8"
+    print ("Usage: ./RelValHarvest.py -M (or -D) fullReleaseName")
+    print ("fullReleaseName : CMSSW_7_4_0_pre8")
     exit(0)
 
 #Make sure a Dataset is specified
 if not options.getMC and not options.getDATA and not options.get2023:
-    print "You must specify a dataset:"
-    print "    -M : Monte Carlo"
-    print "    -D : Data"
-    print "    -2 : 2023"
+    print ("You must specify a dataset:")
+    print ("    -M : Monte Carlo")
+    print ("    -D : Data")
+    print ("    -2 : 2023")
     exit(0)
 
 # gather input parameter
@@ -169,8 +169,8 @@ match = pattern.match(label)
 if match:
     slabel = match.group().replace('CMSSW','').replace("_","")
 else:
-    print label, " is an invalid CMMSW release name."
-    print "Please provide a release name in the form: CMSSW_X_Y_Z"
+    print (label, " is an invalid CMMSW release name.")
+    print ("Please provide a release name in the form: CMSSW_X_Y_Z")
     exit(0)
 
 # gather necessary proxy info for curl
