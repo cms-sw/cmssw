@@ -1,5 +1,5 @@
 #
-# File: PhotonMVAEstimatorRun2VariablesFall17V1.txt
+# File: PhotonMVAEstimatorRun2VariablesFall17.txt
 #
 # This file is to be read by the MVAVariableManager class. Lists all the
 # variables which appear in the xml files for the MVA based Photon IDs for Run2.
@@ -22,7 +22,7 @@ s4                        full5x5_showerShapeVariables.e2x2/full5x5_showerShapeV
 scEta                     superCluster.eta                                                    None None
 rho                       fixedGridRhoAll                                                     None None
 esEffSigmaRR              full5x5_showerShapeVariables.effSigmaRR                             None None
-esEnergy/SCRawE           superCluster.preshowerEnergy/superCluster.rawEnergy                 None None
+esEnergyOverRawE          superCluster.preshowerEnergy/superCluster.rawEnergy                 None None
 phoIso03                  photonIDValueMapProducer:phoPhotonIsolation                         None None
 chgIsoWrtChosenVtx        photonIDValueMapProducer:phoChargedIsolation                        None None
-chgIsoWrtWorstVtx         photonIDValueMapProducer:phoWorstChargedIsolationWithPVConstraint   None None
+chgIsoWrtWorstVtx         photonIDValueMapProducer:phoWorstChargedIsolationConeVetoPVConstr   None None
