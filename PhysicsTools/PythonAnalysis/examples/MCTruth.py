@@ -1,8 +1,9 @@
+from __future__ import print_function
 from PhysicsTools.PythonAnalysis import *
 from ROOT import *
 # prepare the FWLite autoloading mechanism
 gSystem.Load("libFWCoreFWLite.so")
-FWLiteEnabler::enable()
+ROOT.FWLiteEnabler.enable()
 
 # load the file with the generator output
 theFile = TFile("generatorOutput.root")
@@ -31,4 +32,4 @@ for index in all(events):
 
     # do something with the data
     genEvent = source.GetEvent();
-    print genEvent.event_number()
+    print(genEvent.event_number())
