@@ -299,6 +299,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	TMatrixDSym covMatrix(2); covMatrix = 0.;
 	float jetPt = jet->pt() / jec; // use uncorrected pt for shape variables
 	float sumPt = 0., sumPt2 = 0., sumTkPt = 0.,sumPtCh=0,sumPtNe = 0;
+	float multNeut = 0.0;
 	setPtEtaPhi(*jet,internalId_.jetPt_,internalId_.jetEta_,internalId_.jetPhi_); // use corrected pt for jet kinematics
 	internalId_.jetM_ = jet->mass(); 
 	internalId_.nvtx_ = allvtx.size();
@@ -359,6 +360,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 			if( icone < ncones ) { *coneNeutFracs[icone] += candPt; }
 			internalId_.ptDNe_    += candPt*candPt;
 			sumPtNe               += candPt;
+			multNeut += candPuppiWeight;
 		}
 		// EM candidated
 		if( icand->pdgId() == 22 ) {
@@ -368,7 +370,10 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 			if( icone < ncones ) { *coneEmFracs[icone] += candPt; }
 			internalId_.ptDNe_    += candPt*candPt;
 			sumPtNe               += candPt;
+			multNeut += candPuppiWeight;
 		}
+		if((abs(icand->pdgId()) == 1) || (abs(icand->pdgId()) == 2)) multNeut += candPuppiWeight;
+
 		// Charged  particles
 		if(  icand->charge() != 0 ) {
 		        if (lLeadCh == nullptr || candPt > lLeadCh->pt()) { 
@@ -484,6 +489,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 				}
 			}
 		}
+
 		// trailing candidate
 		if( lTrail == nullptr || candPt < lTrail->pt() ) {
 			lTrail = icand; 
@@ -506,8 +512,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	 internalId_.neuEMfrac_   = patjet->neutralEmEnergy()    /jet->energy();
 	 internalId_.chgHadrfrac_ = patjet->chargedHadronEnergy()/jet->energy();
 	 internalId_.neuHadrfrac_ = patjet->neutralHadronEnergy()/jet->energy();
-	 if (patjet->hasUserFloat("patPuppiJetSpecificProducer:neutralPuppiMultiplicity"))
-	   internalId_.nNeutrals_ = patjet->userFloat("patPuppiJetSpecificProducer:neutralPuppiMultiplicity");
+	 if (usePuppi) internalId_.nNeutrals_ = multNeut;
 	} else {
 	 internalId_.nCharged_    = pfjet->chargedMultiplicity();
 	 internalId_.nNeutrals_   = pfjet->neutralMultiplicity();
