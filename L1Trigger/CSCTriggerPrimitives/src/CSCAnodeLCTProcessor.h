@@ -84,7 +84,6 @@ class CSCAnodeLCTProcessor
 
   /** Pre-defined patterns. */
   static const int pattern_envelope[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN];
-  static const int pattern_mask_slim[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN];
   static const int pattern_mask_open[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN];
   static const int pattern_mask_r1[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN];
   static const int time_weights[CSCConstants::MAX_WIRES_IN_PATTERN];
@@ -120,12 +119,6 @@ class CSCAnodeLCTProcessor
   int quality[CSCConstants::MAX_NUM_WIRES][3];
   std::vector<CSCWireDigi> digiV[CSCConstants::NUM_LAYERS];
   unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES];
-
-  /** Flag for MTCC data (i.e., "open" patterns). */
-  bool isMTCC;
-
-  /** Use TMB07 flag for DAQ-2006 version (implemented in late 2007). */
-  bool isTMB07;
 
   /** Flag for SLHC studies. */
   bool isSLHC;

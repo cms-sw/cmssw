@@ -6,7 +6,7 @@
 //     This class simulates the functionality of the cathode LCT card.  It is
 //     run by the MotherBoard and returns up to two CathodeLCTs. It can be
 //     run either in a test mode, where it is passed arrays of halfstrip
-//     and distrip times, or in normal mode where it determines
+//     times, or in normal mode where it determines
 //     the time and comparator information from the comparator digis.
 //
 //     Additional comments by Jason Mumford 01/31/01 (mumford@physics.ucla.edu)
@@ -38,90 +38,6 @@
 //-----------------
 // Static variables
 //-----------------
-
-// This is the strip pattern that we use for pretrigger.
-// pre_hit_pattern[0][i] = layer. pre_hit_pattern[1][i] = key_strip offset.
-const int CSCCathodeLCTProcessor::pre_hit_pattern[2][CSCConstants::MAX_STRIPS_IN_PATTERN] = {
-  { 999,  0,  0,  0,  999,
-    999,  1,  1,  1,  999,
-    999,  2,  2,  2,  999,
-              3,                // layer
-    999,  4,  4,  4,  999,
-    999,  5,  5,  5,  999},
-  //-------------------------------------------
-  { 999, -1,  0,  1,  999,
-    999, -1,  0,  1,  999,
-    999, -1,  0,  1,  999,
-              0,                // offset
-    999, -1,  0,  1,  999,
-    999, -1,  0,  1,  999}
-};
-
-// The old set of half-strip/di-strip patterns used prior to 2007.
-// For the given pattern, set the unused parts of the pattern to 999.
-// Pattern[i][CSCConstants::MAX_STRIPS_IN_PATTERN] contains pt bend value. JM
-// bend of 0 is left/straight and bend of 1 is right bht 21 June 2001
-// note that the left/right-ness of this is exactly opposite of what one would
-// expect naively (at least it was for me). The only way to make sure you've
-// got the patterns you want is to use the printPatterns() method to dump
-// them. BHT 21 June 2001
-const int CSCCathodeLCTProcessor::pattern[CSCConstants::NUM_CLCT_PATTERNS_PRE_TMB07][CSCConstants::MAX_STRIPS_IN_PATTERN+1] = {
-  { 999, 999, 999, 999, 999,
-    999, 999, 999, 999, 999,
-    999, 999, 999, 999, 999,
-              999,            // dummy (reserved)
-    999, 999, 999, 999, 999,
-    999, 999, 999, 999, 999, 0},
-  //-------------------------------------------------------------
-  { 999, 999, 999,   0, 999,
-    999, 999, 999,   1, 999,
-    999, 999,   2,   2, 999,
-                3,            // right bending pattern (large)
-    999,   4,   4, 999, 999,
-    999,   5, 999, 999, 999, 1},
-  //-------------------------------------------------------------
-  { 999,   0, 999, 999, 999,
-    999,   1, 999, 999, 999,
-    999,   2,   2, 999, 999,
-                3,            // left bending pattern (large)
-    999, 999,   4,   4, 999,
-    999, 999, 999,   5, 999, 0},
-  //-------------------------------------------------------------
-  { 999, 999,   0, 999, 999,
-    999, 999,   1, 999, 999,
-    999, 999,   2, 999, 999,
-                3,            // right bending pattern (medium)
-    999,   4, 999, 999, 999,
-    999,   5, 999, 999, 999, 1},
-  //-------------------------------------------------------------
-  { 999, 999,   0, 999, 999,
-    999, 999,   1, 999, 999,
-    999, 999,   2, 999, 999,
-                3,            // left bending pattern (medium)
-    999, 999, 999,   4, 999,
-    999, 999, 999,   5, 999, 0},
-  //-------------------------------------------------------------
-  { 999, 999, 999,   0, 999,
-    999, 999, 999,   1, 999,
-    999, 999,   2,   2, 999,
-                3,            // right bending pattern (small)
-    999, 999,   4, 999, 999,
-    999, 999,   5, 999, 999, 1},
-  //-------------------------------------------------------------
-  { 999,   0, 999, 999, 999,
-    999,   1, 999, 999, 999,
-    999,   2,   2, 999, 999,
-                3,            // left bending pattern (small)
-    999, 999,   4, 999, 999,
-    999, 999,   5, 999, 999, 0},
-  //-------------------------------------------------------------
-  { 999, 999,   0, 999, 999,
-    999, 999,   1, 999, 999,
-    999, 999,   2, 999, 999,
-                3,            // straight through pattern
-    999, 999,   4, 999, 999,
-    999, 999,   5, 999, 999, 1}
-};
 
 // New set of halfstrip patterns for 2007 version of the algorithm.
 // For the given pattern, set the unused parts of the pattern to 999.
@@ -261,13 +177,6 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
   // Not used yet.
   fifo_pretrig = conf.getParameter<unsigned int>("clctFifoPretrig");
 
-  // Defines pre-2007 version of the CLCT algorithm used in test beams and
-  // MTCC.
-  isMTCC       = comm.getParameter<bool>("isMTCC");
-
-  // TMB07 firmware used since 2007: switch and config. parameters.
-  isTMB07      = comm.getParameter<bool>("isTMB07");
-
   // Flag for SLHC studies
   isSLHC       = comm.getParameter<bool>("isSLHC");
 
@@ -289,14 +198,12 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
     << "+++ SLHC upgrade configuration is used (isSLHC=True) but smartME1aME1b=False!\n"
     << "Only smartME1aME1b algorithm is so far supported for upgrade! +++\n";
 
-  if (isTMB07) {
-    pid_thresh_pretrig =
-      conf.getParameter<unsigned int>("clctPidThreshPretrig");
-    min_separation    =
-      conf.getParameter<unsigned int>("clctMinSeparation");
+  pid_thresh_pretrig =
+    conf.getParameter<unsigned int>("clctPidThreshPretrig");
+  min_separation    =
+    conf.getParameter<unsigned int>("clctMinSeparation");
 
-    start_bx_shift = conf.getParameter<int>("clctStartBxShift");
-  }
+  start_bx_shift = conf.getParameter<int>("clctStartBxShift");
 
   if (smartME1aME1b) {
     // use of localized dead-time zones
@@ -360,8 +267,6 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor() :
   // CLCT configuration parameters.
   setDefaultConfigParameters();
   infoV =  2;
-  isMTCC  = false;
-  isTMB07 = true;
 
   smartME1aME1b = false;
   disableME1a = false;
@@ -393,7 +298,8 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor() :
   thePreTriggerDigis.clear();
 }
 
-void CSCCathodeLCTProcessor::setDefaultConfigParameters() {
+void CSCCathodeLCTProcessor::setDefaultConfigParameters()
+{
   // Set default values for configuration parameters.
   fifo_tbins   = def_fifo_tbins;
   fifo_pretrig = def_fifo_pretrig;
@@ -401,21 +307,14 @@ void CSCCathodeLCTProcessor::setDefaultConfigParameters() {
   drift_delay  = def_drift_delay;
   nplanes_hit_pretrig = def_nplanes_hit_pretrig;
   nplanes_hit_pattern = def_nplanes_hit_pattern;
-
-  isMTCC = false;
-
-  // New TMB07 parameters.
-  isTMB07 = true;
-  if (isTMB07) {
-    pid_thresh_pretrig = def_pid_thresh_pretrig;
-    min_separation     = def_min_separation;
-  }
-
+  pid_thresh_pretrig = def_pid_thresh_pretrig;
+  min_separation     = def_min_separation;
   tmb_l1a_window_size = def_tmb_l1a_window_size;
 }
 
 // Set configuration parameters obtained via EventSetup mechanism.
-void CSCCathodeLCTProcessor::setConfigParameters(const CSCDBL1TPParameters* conf) {
+void CSCCathodeLCTProcessor::setConfigParameters(const CSCDBL1TPParameters* conf)
+{
   static std::atomic<bool> config_dumped{false};
 
   fifo_tbins   = conf->clctFifoTbins();
@@ -424,12 +323,8 @@ void CSCCathodeLCTProcessor::setConfigParameters(const CSCDBL1TPParameters* conf
   drift_delay  = conf->clctDriftDelay();
   nplanes_hit_pretrig = conf->clctNplanesHitPretrig();
   nplanes_hit_pattern = conf->clctNplanesHitPattern();
-
-  // TMB07 parameters.
-  if (isTMB07) {
-    pid_thresh_pretrig = conf->clctPidThreshPretrig();
-    min_separation     = conf->clctMinSeparation();
-  }
+  pid_thresh_pretrig = conf->clctPidThreshPretrig();
+  min_separation     = conf->clctMinSeparation();
 
   // Check and print configuration parameters.
   checkConfigParameters();
@@ -504,23 +399,21 @@ void CSCCathodeLCTProcessor::checkConfigParameters() {
     nplanes_hit_pattern = def_nplanes_hit_pattern;
   }
 
-  if (isTMB07) {
-    if (pid_thresh_pretrig >= max_pid_thresh_pretrig) {
-      if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
-	<< "+++ Value of pid_thresh_pretrig, " << pid_thresh_pretrig
-	<< ", exceeds max allowed, " << max_pid_thresh_pretrig-1 << " +++\n"
-	<< "+++ Try to proceed with the default value, pid_thresh_pretrig="
-	<< def_pid_thresh_pretrig << " +++\n";
-      pid_thresh_pretrig = def_pid_thresh_pretrig;
-    }
-    if (min_separation >= max_min_separation) {
-      if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
-	<< "+++ Value of min_separation, " << min_separation
-	<< ", exceeds max allowed, " << max_min_separation-1 << " +++\n"
-	<< "+++ Try to proceed with the default value, min_separation="
-	<< def_min_separation << " +++\n";
-      min_separation = def_min_separation;
-    }
+  if (pid_thresh_pretrig >= max_pid_thresh_pretrig) {
+    if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
+	    << "+++ Value of pid_thresh_pretrig, " << pid_thresh_pretrig
+	    << ", exceeds max allowed, " << max_pid_thresh_pretrig-1 << " +++\n"
+	    << "+++ Try to proceed with the default value, pid_thresh_pretrig="
+	    << def_pid_thresh_pretrig << " +++\n";
+    pid_thresh_pretrig = def_pid_thresh_pretrig;
+  }
+  if (min_separation >= max_min_separation) {
+    if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
+	    << "+++ Value of min_separation, " << min_separation
+      << ", exceeds max allowed, " << max_min_separation-1 << " +++\n"
+      << "+++ Try to proceed with the default value, min_separation="
+      << def_min_separation << " +++\n";
+    min_separation = def_min_separation;
   }
 
   if (tmb_l1a_window_size >= max_tmb_l1a_window_size) {
@@ -641,19 +534,12 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
   bool noDigis = getDigis(compdc);
 
   if (!noDigis) {
-    // Get halfstrip (and possibly distrip) times from comparator digis.
+    // Get halfstrip times from comparator digis.
     std::vector<int>
       halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS];
-    std::vector<int>
-      distrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS];
-    if (isTMB07) { // TMB07 (latest) version: halfstrips only.
-      readComparatorDigis(halfstrip);
-    }
-    else { // Earlier versions: halfstrips and distrips.
-      readComparatorDigis(halfstrip, distrip);
-    }
+    readComparatorDigis(halfstrip);
 
-    // Pass arrays of halfstrips and distrips on to another run() doing the
+    // Pass arrays of halfstrips on to another run() doing the
     // LCT search.
     // If the number of layers containing digis is smaller than that
     // required to trigger, quit right away.  (If LCT-based digi suppression
@@ -669,7 +555,7 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
     // Run the algorithm only if the probability for the pre-trigger
     // to fire is not null.  (Pre-trigger decisions are used for the
     // strip read-out conditions in DigiToRaw.)
-    if (layersHit >= nplanes_hit_pretrig) run(halfstrip, distrip);
+    if (layersHit >= nplanes_hit_pretrig) run(halfstrip);
   }
 
   // Return vector of CLCTs.
@@ -689,11 +575,10 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
   return tmpV;
 }
 
-void CSCCathodeLCTProcessor::run(
-  const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
-  const std::vector<int> distrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]) {
+void CSCCathodeLCTProcessor::run(const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS])
+{
   // This version of the run() function can either be called in a standalone
-  // test, being passed the halfstrip and distrip times, or called by the
+  // test, being passed the halfstrip times, or called by the
   // run() function above.  It uses the findLCTs() method to find vectors
   // of LCT candidates. These candidates are sorted and the best two per bx
   // are returned.
@@ -714,18 +599,13 @@ void CSCCathodeLCTProcessor::run(
     int bx = plct->getBX();
     if (bx >= CSCConstants::MAX_CLCT_TBINS) {
       if (infoV > 0) edm::LogWarning("L1CSCTPEmulatorOutOfTimeCLCT")
-	<< "+++ Bx of CLCT candidate, " << bx << ", exceeds max allowed, "
-	<< CSCConstants::MAX_CLCT_TBINS-1 << "; skipping it... +++\n";
+                       << "+++ Bx of CLCT candidate, " << bx << ", exceeds max allowed, "
+                       << CSCConstants::MAX_CLCT_TBINS-1 << "; skipping it... +++\n";
       continue;
     }
 
     if (!bestCLCT[bx].isValid()) bestCLCT[bx] = *plct;
     else if (!secondCLCT[bx].isValid()) {
-      // Ignore CLCT if it is the same as the best (i.e. if the same
-      // CLCT was found in both half- and di-strip pattern search).
-      // This can never happen in the test beam and MTCC
-      // implementations.
-      if (!isMTCC && !isTMB07 && *plct == bestCLCT[bx]) continue;
       secondCLCT[bx] = *plct;
     }
   }
@@ -734,18 +614,18 @@ void CSCCathodeLCTProcessor::run(
     if (bestCLCT[bx].isValid()) {
       bestCLCT[bx].setTrknmb(1);
       if (infoV > 0) LogDebug("CSCCathodeLCTProcessor")
-	<< bestCLCT[bx] << " found in ME" << ((theEndcap == 1) ? "+" : "-")
-        << theStation << "/" << theRing << "/" << theChamber
-	<< " (sector " << theSector << " subsector " << theSubsector
-	<< " trig id. " << theTrigChamber << ")" << "\n";
+                       << bestCLCT[bx] << " found in ME" << ((theEndcap == 1) ? "+" : "-")
+                       << theStation << "/" << theRing << "/" << theChamber
+                       << " (sector " << theSector << " subsector " << theSubsector
+                       << " trig id. " << theTrigChamber << ")" << "\n";
     }
     if (secondCLCT[bx].isValid()) {
       secondCLCT[bx].setTrknmb(2);
       if (infoV > 0) LogDebug("CSCCathodeLCTProcessor")
-	<< secondCLCT[bx] << " found in ME" << ((theEndcap == 1) ? "+" : "-")
-        << theStation << "/" << theRing << "/" << theChamber
-	<< " (sector " << theSector << " subsector " << theSubsector
-	<< " trig id. " << theTrigChamber << ")" << "\n";
+                       << secondCLCT[bx] << " found in ME" << ((theEndcap == 1) ? "+" : "-")
+                       << theStation << "/" << theRing << "/" << theChamber
+                       << " (sector " << theSector << " subsector " << theSubsector
+                       << " trig id. " << theTrigChamber << ")" << "\n";
     }
   }
   // Now that we have our best CLCTs, they get correlated with the best
@@ -906,8 +786,6 @@ void CSCCathodeLCTProcessor::readComparatorDigis(
 	      << " digi #"           << i_digi+1
 	      << " strip "           << thisStrip
 	      << " halfstrip "       << thisHalfstrip
-	      << " distrip "         << thisStrip/2 + // [0-39]
-			     ((thisStrip%2 == 1 && thisComparator == 1 && stagger[i_layer] == 1) ? 1 : 0)
 	      << " time "            << bx_times[i]
 	      << " comparator "      << thisComparator
 	      << " stagger "         << stagger[i_layer];
@@ -930,224 +808,6 @@ void CSCCathodeLCTProcessor::readComparatorDigis(
   }
 }
 
-void CSCCathodeLCTProcessor::readComparatorDigis(
-  std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
-  std::vector<int> distrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]) {
-  // Two-argument version for pre-TMB07 (halfstrip and distrips) firmware.
-  // Takes the comparator & time info and stuffs it into halfstrip and (and
-  // possibly distrip) vector.
-
-  int time[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS_7CFEBS];
-  int comp[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS_7CFEBS];
-  int digiNum[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_STRIPS_7CFEBS];
-  for (int i = 0; i < CSCConstants::NUM_LAYERS; i++){
-    for (int j = 0; j < CSCConstants::MAX_NUM_STRIPS_7CFEBS; j++) {
-      time[i][j]    = -999;
-      comp[i][j]    =    0;
-      digiNum[i][j] = -999;
-    }
-  }
-
-  for (int i = 0; i < CSCConstants::NUM_LAYERS; i++) {
-    std::vector <CSCComparatorDigi> layerDigiV = digiV[i];
-    for (unsigned int j = 0; j < layerDigiV.size(); j++) {
-      // Get one digi at a time for the layer.  -Jm
-      CSCComparatorDigi thisDigi = layerDigiV[j];
-
-      // Dump raw digi info
-      if (infoV > 1) LogTrace("CSCCathodeLCTProcessor")
-	<< "Comparator digi: comparator = " << thisDigi.getComparator()
-	<< " strip #" << thisDigi.getStrip()
-	<< " time bin = " << thisDigi.getTimeBin();
-
-      // Get comparator: 0/1 for left/right halfstrip for each comparator
-      // that fired.
-      int thisComparator = thisDigi.getComparator();
-      if (thisComparator != 0 && thisComparator != 1) {
-	if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongInput")
-	  << "+++ Comparator digi with wrong comparator value: digi #" << j
-	  << ", comparator = " << thisComparator << "; skipping it... +++\n";
-	continue;
-      }
-
-      // Get strip number.
-      int thisStrip = thisDigi.getStrip() - 1; // count from 0
-      if (thisStrip < 0 || thisStrip >= numStrips) {
-	if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongInput")
-	  << "+++ Comparator digi with wrong strip number: digi #" << j
-	  << ", strip = " << thisStrip
-	  << ", max strips = " << numStrips << "; skipping it... +++\n";
-	continue;
-      }
-
-      // Get Bx of this Digi and check that it is within the bounds
-      int thisDigiBx = thisDigi.getTimeBin();
-
-      // Total number of time bins in DAQ readout is given by fifo_tbins,
-      // which thus determines the maximum length of time interval.
-      if (thisDigiBx >= 0 && thisDigiBx < static_cast<int>(fifo_tbins)) {
-
-	// If there is more than one hit in the same strip, pick one
-	// which occurred earlier.
-	// In reality, the second hit on the same distrip is ignored only
-	// during the number of clocks defined by the "hit_persist"
-	// parameter (i.e., 6 bx's by default).  So if one simulates
-	// a large number of bx's in a crowded environment, this
-	// approximation here may not be sufficiently good.
-	if (time[i][thisStrip] == -999 || time[i][thisStrip] > thisDigiBx) {
-	  digiNum[i][thisStrip] = j;
-	  time[i][thisStrip]    = thisDigiBx;
-	  comp[i][thisStrip]    = thisComparator;
-	  if (infoV > 1) LogTrace("CSCCathodeLCTProcessor")
-	    << "Comp digi: layer " << i+1
-	    << " digi #"           << j+1
-	    << " strip "           << thisStrip
-	    << " halfstrip "       << 2*thisStrip + comp[i][thisStrip] + stagger[i]
-	    << " distrip "         << thisStrip/2 + // [0-39]
-	      ((thisStrip%2 == 1 && comp[i][thisStrip] == 1 && stagger[i] == 1) ? 1 : 0)
-	    << " time "            <<    time[i][thisStrip]
-	    << " comparator "      <<    comp[i][thisStrip]
-	    << " stagger "         << stagger[i];
-	}
-      }
-      else {
-	if (infoV > 1) LogTrace("CSCCathodeLCTProcessor")
-	  << "+++ Skipping comparator digi: strip = " << thisStrip
-	  << ", layer = " << i+1 << ", bx = " << thisDigiBx << " +++";
-      }
-    }
-  }
-
-  // Take the comparator & time info and stuff it into half- and di-strip
-  // arrays.
-  for (int i = 0; i < CSCConstants::NUM_LAYERS; i++) {
-    // Use the comparator info to setup the halfstrips and distrips.  -BT
-    // This loop is only for halfstrips.
-    for (int j = 0; j < CSCConstants::MAX_NUM_STRIPS_7CFEBS; j++) {
-      if (time[i][j] >= 0) {
-	int i_halfstrip = 2*j + comp[i][j] + stagger[i];
-	// 2*j    : convert strip to 1/2 strip
-	// comp   : comparator output
-	// stagger: stagger for this layer
-	if (i_halfstrip >= 2*numStrips + 1) {
-	  if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongInput")
-	    << "+++ Found wrong halfstrip number = " << i_halfstrip
-	    << "; skipping this digi... +++\n";
-	  continue;
-	}
-	halfstrip[i][i_halfstrip].push_back(time[i][j]);
-      }
-    }
-
-    // There are no di-strips in the 2007 version of the TMB firmware.
-    if (!isTMB07) {
-      // This loop is only for distrips.  We have to separate the routines
-      // because triad and time arrays can be changed by the distripStagger
-      // routine which could mess up the halfstrips.
-      static std::atomic<int> test_iteration{0};
-      for (int j = 0; j < CSCConstants::MAX_NUM_STRIPS; j++){
-	if (time[i][j] >= 0) {
-	  int i_distrip = j/2;
-	  if (j%2 == 1 && comp[i][j] == 1 && stagger[i] == 1) {
-	    // @@ Needs to be checked.
-	    bool stagger_debug = (infoV > 2);
-	    distripStagger(comp[i], time[i], digiNum[i], j, stagger_debug);
-	  }
-	  // comp[i][j] == 1	: hit on right half-strip.
-	  // stagger[i] == 1	: half-strips are shifted by 1.
-	  // if these conditions are met add 1; otherwise add 0.
-	  // So if there is a hit on the far right half-strip, and the
-	  // half-strips have been staggered to the right, then the di-strip
-	  // would actually correspond to the next highest di-strip.  -JM
-	  if (infoV > 2 && test_iteration == 1) {
-	    testDistripStagger();
-	    test_iteration++;
-	  }
-	  if (i_distrip >= numStrips/2 + 1) {
-	    if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongInput")
-	      << "+++ Found wrong distrip number = " << i_distrip
-	      << "; skipping this digi... +++\n";
-	    continue;
-	  }
-	  distrip[i][i_distrip].push_back(time[i][j]);
-	}
-      }
-    }
-  }
-}
-
-void CSCCathodeLCTProcessor::distripStagger(int stag_triad[CSCConstants::MAX_NUM_STRIPS_7CFEBS],
-				   int stag_time[CSCConstants::MAX_NUM_STRIPS_7CFEBS],
-				   int stag_digi[CSCConstants::MAX_NUM_STRIPS_7CFEBS],
-				   int i_strip, bool debug) {
-  // Author: Jason Mumford (mumford@physics.ucla.edu)
-  // This routine takes care of the stagger situation where there is a hit
-  // on the right half-strip of a di-strip.  If there is a stagger, then
-  // we must associate that distrip with the next distrip. The situation
-  // gets more complicated if the next distrip also has a hit on its right
-  // half-strip.  One could imagine a whole chain of these in which case
-  // we need to go into this routine recursively.  The formula is that
-  // while this condition is satisfied, we enquire the next distrip,
-  // until we have a hit on any other halfstrip (or triad!=3).  Then we
-  // must compare the 2 different bx times and take the smallest one.
-  // Afterwards, we must cycle out of the routine assigning the bx times
-  // to the one strip over.
-
-  // Used only for pre-TMB07 firmware.
-
-  if (i_strip >= CSCConstants::MAX_NUM_STRIPS) {
-    if (debug) edm::LogWarning("L1CSCTPEmulatorWrongInput")
-      << "+++ Found wrong strip number = " << i_strip
-      << "; cannot apply distrip staggering... +++\n";
-    return;
-  }
-
-  if (debug)
-    LogDebug("CSCCathodeLCTProcessor")
-      << " Enter distripStagger: i_strip = " << i_strip
-      << " stag_triad[i_strip] = "   << stag_triad[i_strip]
-      << " stag_time[i_strip] =  "   << stag_time[i_strip]
-      << " stag_triad[i_strip+2] = " << stag_triad[i_strip+2]
-      << " stag_time[i_strip+2] = "  << stag_time[i_strip+2];
-
-  // So if the next distrip has a stagger hit, go into the routine again
-  // for the next distrip.
-  if (i_strip+2 < CSCConstants::MAX_NUM_STRIPS && stag_triad[i_strip+2] == 1)
-    distripStagger(stag_triad, stag_time, stag_digi, i_strip+2);
-
-  // When we have reached a distrip that does not have a staggered hit,
-  // if it has a hit, we compare the bx times of the
-  // staggered distrip with the non-staggered distrip and we take the
-  // smallest of the two and assign it to the shifted distrip time.
-  if (stag_time[i_strip+2] >= 0) {
-    if (stag_time[i_strip] < stag_time[i_strip+2]) {
-      stag_time[i_strip+2] = stag_time[i_strip];
-      stag_digi[i_strip+2] = stag_digi[i_strip];
-    }
-  }
-  // If the next distrip did not have a hit, then we merely assign the
-  // shifted time to the time associated with the staggered distrip.
-  else {
-    stag_time[i_strip+2] = stag_time[i_strip];
-    stag_digi[i_strip+2] = stag_digi[i_strip];
-  }
-
-  // Then to prevent previous staggers from being overwritten, we assign
-  // the unshifted time to -999, and then mark the triads that were shifted
-  // so that we don't go into the routine ever again (such as when making
-  // the next loop over strips).
-  stag_time[i_strip]  = -999;
-  stag_triad[i_strip] =    4;
-  stag_digi[i_strip]  = -999;
-
-  if (debug)
-    LogDebug("CSCCathodeLCTProcessor")
-      << " Exit  distripStagger: i_strip = " << i_strip
-      << " stag_triad[i_strip] = "   << stag_triad[i_strip]
-      << " stag_time[i_strip] = "    << stag_time[i_strip]
-      << " stag_triad[i_strip+2] = " << stag_triad[i_strip+2]
-      << " stag_time[i_strip+2] = "  << stag_time[i_strip+2];
-}
 
 // --------------------------------------------------------------------------
 // The code below is a description of the 2007 version of the CLCT
@@ -1282,9 +942,9 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const std::vector<int>
 	    keystrip_data[ilct][CLCT_STRIP_TYPE] = 1;           // obsolete
 	    keystrip_data[ilct][CLCT_QUALITY]    = nhits[best_hs];
 	    keystrip_data[ilct][CLCT_CFEB]       =
-	      keystrip_data[ilct][CLCT_STRIP]/cfeb_strips[1];
+	      keystrip_data[ilct][CLCT_STRIP]/CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
 	    int halfstrip_in_cfeb = keystrip_data[ilct][CLCT_STRIP] -
-	      cfeb_strips[1]*keystrip_data[ilct][CLCT_CFEB];
+	      CSCConstants::NUM_HALF_STRIPS_PER_CFEB*keystrip_data[ilct][CLCT_CFEB];
 
 	    if (infoV > 1) LogTrace("CSCCathodeLCTProcessor")
 	      << " Final selection: ilct " << ilct
@@ -1778,8 +1438,8 @@ CSCCathodeLCTProcessor::findLCTsSLHC(const std::vector<int> halfstrip[CSCConstan
             keystrip_data[ilct][CLCT_BX] = bx;
             keystrip_data[ilct][CLCT_STRIP_TYPE] = 1; // obsolete
             keystrip_data[ilct][CLCT_QUALITY] = nhits[best_hs];
-            keystrip_data[ilct][CLCT_CFEB] = keystrip_data[ilct][CLCT_STRIP] / cfeb_strips[1];
-            int halfstrip_in_cfeb = keystrip_data[ilct][CLCT_STRIP] - cfeb_strips[1] * keystrip_data[ilct][CLCT_CFEB];
+            keystrip_data[ilct][CLCT_CFEB] = keystrip_data[ilct][CLCT_STRIP] / CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
+            int halfstrip_in_cfeb = keystrip_data[ilct][CLCT_STRIP] - CSCConstants::NUM_HALF_STRIPS_PER_CFEB * keystrip_data[ilct][CLCT_CFEB];
 
             if (infoV > 1)
               LogTrace("CSCCathodeLCTProcessor") << " Final selection: ilct " << ilct << " key halfstrip "
@@ -1887,12 +1547,10 @@ void CSCCathodeLCTProcessor::dumpConfigParams() const {
        << nplanes_hit_pretrig << "\n";
   strm << " nplanes_hit_pattern [min. number of layers hit for trigger] = "
        << nplanes_hit_pattern << "\n";
-  if (isTMB07) {
-    strm << " pid_thresh_pretrig [lower threshold on pattern id] = "
-	 << pid_thresh_pretrig << "\n";
-    strm << " min_separation     [region of busy key strips] = "
-	 << min_separation << "\n";
-  }
+  strm << " pid_thresh_pretrig [lower threshold on pattern id] = "
+       << pid_thresh_pretrig << "\n";
+  strm << " min_separation     [region of busy key strips] = "
+       << min_separation << "\n";
   strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
   LogDebug("CSCCathodeLCTProcessor") << strm.str();
   //std::cerr<<strm.str()<<std::endl;
@@ -2027,57 +1685,6 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::getCLCTs() {
 }
 
 
-// --------------------------------------------------------------------------
-// Test routines.  Mostly for older versions of the algorithm and outdated.
-// --------------------------------------------------------------------------
-void CSCCathodeLCTProcessor::testDistripStagger() {
-  // Author: Jason Mumford (mumford@physics.ucla.edu)
-  // This routine tests the distripStagger routine.
-  // @@
-  bool debug = true;
-  int test_triad[CSCConstants::NUM_DI_STRIPS], test_time[CSCConstants::NUM_DI_STRIPS];
-  int test_digi[CSCConstants::NUM_DI_STRIPS];
-  int distrip = 0;
-  test_triad[distrip] = 3;    //After routine, I expect 4
-  test_triad[distrip+1] = 3;  //                        4
-  test_triad[distrip+2] = 3;  //                        4
-  test_triad[distrip+3] = 3;  //                        4
-  test_triad[distrip+4] = 3;  //                        4
-  test_triad[distrip+5] = 3;  //                        4
-  test_triad[distrip+6] = 3;  //                        4
-  test_triad[distrip+7] = 3;  //                        4
-  test_triad[distrip+8] = 3;  //                        4
-  test_triad[distrip+9] = 3;  //                        4
-  test_triad[distrip+10] = 2;  //                       2
-
-  test_time[distrip] = 4;     //      ""      ""        0
-  test_time[distrip+1] = 10;  //                        4
-  test_time[distrip+2] = 2;   //                        10
-  test_time[distrip+3] = 0;   //                        2
-  test_time[distrip+4] = 6;   //                        2
-  test_time[distrip+5] = 8;   //                        2
-  test_time[distrip+6] = 10;   //                        2
-  test_time[distrip+7] = 1;   //                        2
-  test_time[distrip+8] = 8;   //                        2
-  test_time[distrip+9] = 5;   //                        2
-  test_time[distrip+10] = 6;   //                        2
-
-  std::cout << "\n ------------------------------------------------- \n";
-  std::cout << "!!!!!!Testing distripStagger routine!!!!!!" << std::endl;
-  std::cout << "Values before distripStagger routine:" << std::endl;
-  for (int i=distrip; i<distrip+11; i++){
-    test_digi[i] = 999;
-    std::cout << "test_triad[" << i << "] = " << test_triad[i];
-    std::cout << "   test_time[" << i << "] = " << test_time[i] << std::endl;
-  }
-  distripStagger(test_triad, test_time, test_digi, distrip, debug);
-  std::cout << "Values after distripStagger routine:" << std::endl;
-  for (int i=distrip; i<distrip+11; i++){
-    std::cout << "test_triad[" << i << "] = " << test_triad[i];
-    std::cout << "   test_time[" << i << "] = " << test_time[i] << std::endl;
-  }
-  std::cout << "\n ------------------------------------------------- \n \n";
-}
 
 void CSCCathodeLCTProcessor::testLCTs() {
   // test to make sure what goes into an LCT is what comes out.
@@ -2123,17 +1730,3 @@ void CSCCathodeLCTProcessor::testLCTs() {
     }
   }
 }
-
-
-int CSCCathodeLCTProcessor::findNumLayersHit(std::vector<int>
-          stripsHit[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]) {
-  int number = 0;
-  for (int layer = 0; layer < CSCConstants::NUM_LAYERS; layer++) {
-    if ((!stripsHit[layer][ 9].empty()) ||
-        (!stripsHit[layer][10].empty()) ||
-	(!stripsHit[layer][11].empty()) ) number++;
-  }
-  return number;
-}
-
-//  LocalWords:  CMSSW pretrig

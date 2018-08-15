@@ -1,7 +1,8 @@
+from __future__ import print_function
 from math import pi
 
 
-print int(((-330+1024)*pi/(6.0*2048.0))/(0.625*pi/180.0))
+print(int(((-330+1024)*pi/(6.0*2048.0))/(0.625*pi/180.0)))
 
 
 
@@ -11,7 +12,7 @@ for i in range(0,2048):
     p = int((i*2*pi/(6.0*2048.0))/(0.625*pi/180.0))
     phi.append(str(p))
 
-print 'const ap_int<8> phiLUT[2047] = {'+','.join(phi)+'};'
+print('const ap_int<8> phiLUT[2047] = {'+','.join(phi)+'};')
 #import pdb;pdb.set_trace()
 pt=[]
 lsb = 1.25/(1<<13)
@@ -31,4 +32,4 @@ for i in range(0,4096):
     pt.append(str(p))
     
  
-print 'const ap_uint<9> ptLUT[4096] = {'+','.join(pt)+'};'
+print('const ap_uint<9> ptLUT[4096] = {'+','.join(pt)+'};')

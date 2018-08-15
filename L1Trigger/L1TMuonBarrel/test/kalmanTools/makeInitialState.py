@@ -1,5 +1,5 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
-
 
 from L1Trigger.L1TMuonBarrel.simKBmtfDigis_cfi import bmtfKalmanTrackingSettings as settings
 
@@ -56,12 +56,12 @@ for i in range(0,4):
             K=-8191
         arr[address]=str(K)    
 #    import pdb;pdb.set_trace()    
-    print '\n\n\n'    
+    print('\n\n\n')
     if i in [0,1]:
         lut = 'ap_int<14> initialK_'+str(i+1)+'[1024] = {'+','.join(arr)+'};'
     if i in [2,3]:
         lut = 'ap_int<14> initialK_'+str(i+1)+'[1024] = {'+','.join(arr)+'};'
-    print lut
+    print(lut)
 
         
 
