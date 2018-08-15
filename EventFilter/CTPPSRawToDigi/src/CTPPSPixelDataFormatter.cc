@@ -14,6 +14,8 @@
 #include <iostream>
 
 using namespace edm;
+using namespace std;
+using namespace ctppspixelobjects;
 
 namespace {
   constexpr int m_LINK_bits = 6;
@@ -43,7 +45,7 @@ CTPPSPixelDataFormatter::CTPPSPixelDataFormatter(std::map<CTPPSPixelFramePositio
       <<", send exception" ;
   }
 
-  m_IncludeErrors = false;
+  //m_IncludeErrors = false;
 
   m_ADC_shift  = 0;
   m_PXID_shift = m_ADC_shift + m_ADC_bits;
@@ -61,13 +63,11 @@ CTPPSPixelDataFormatter::CTPPSPixelDataFormatter(std::map<CTPPSPixelFramePositio
 
 }
 
-
 void CTPPSPixelDataFormatter::setErrorStatus(bool errorStatus)
 {
   m_IncludeErrors = errorStatus;
   m_ErrorCheck.setErrorStatus(m_IncludeErrors);
 }
-
 
 void CTPPSPixelDataFormatter::interpretRawData(  bool& errorsInEvent, int fedId, const FEDRawData& rawData, 
 						 Collection & digis, Errors & errors)
@@ -188,6 +188,110 @@ void CTPPSPixelDataFormatter::interpretRawData(  bool& errorsInEvent, int fedId,
 
 }
 
+void CTPPSPixelDataFormatter::formatRawData(unsigned int lvl1_ID, RawData & fedRawData, const Digis & digis, std::map<std::map<const uint32_t,std::map<short unsigned int, short unsigned int> >, std::map<short unsigned int,short unsigned int>> iDdet2fed)
+{
+  std::map<int, vector< Word32 > > words; 
+
+  // translate digis into 32-bit raw words and store in map indexed by Fed
+ 
+  for (Digis::const_iterator im = digis.begin(); im != digis.end(); im++) {
+    //if (mapping_.size== 0 ) return; 
+    allDetDigis++;
+    cms_uint32_t rawId = im->first;
+      edm::LogInfo("--- RPix") << " \t\t digi rawId = " << rawId;
+
+    hasDetDigis++;
+    const DetDigis & detDigis = im->second;
+    for (DetDigis::const_iterator it = detDigis.begin(); it != detDigis.end(); it++) {
+        m_DigiCounter++;
+
+        const CTPPSPixelDigi & digi = (*it);
+        int matchRoc = 999, matchfedId = 999, nroc = 999, nlink = 999, rocinCh = 999;
+        int rocPixelRow = -1, rocPixelColumn = -1, rocID = -1;
+        int modulePixelColumn = digi.column();
+        int modulePixelRow = digi.row();
+
+        theIndices.transformToROC(modulePixelColumn, modulePixelRow, rocID, rocPixelColumn, rocPixelRow);
+        const int dcol = theIndices.DColumn(rocPixelColumn);
+        const int pxid =  2*(ROCSizeInX-rocPixelRow)+ (rocPixelColumn%2);
+        for (auto &p : iDdet2fed) {
+           for (auto &pf : p.first){
+              cms_uint32_t prawId = pf.first;
+              for (auto &pfs : pf.second){
+		rocinCh = pfs.second; 
+              if (prawId == rawId){
+                matchRoc = pfs.first;
+                if (matchRoc == rocID){
+                   for (auto &ps : p.second){
+                      matchfedId = ps.first;
+                      nlink = ps.second;
+		      nroc = rocinCh + 1; 
+
+                      CTPPSElectronicIndex cabling = {nlink, nroc, dcol, pxid};
+
+                      cms_uint32_t word =
+                               (cabling.link << m_LINK_shift)
+                             | (cabling.roc  << m_ROC_shift)
+                             | (cabling.dcol << m_DCOL_shift)
+                             | (cabling.pxid << m_PXID_shift)
+                             | (digi.adc() << m_ADC_shift);
+                      words[matchfedId].push_back(word);
+                      m_WordCounter++;
+                   }
+                 } //if rocID
+		}//pfs
+              } // if prawId
+           }
+        }
+    } // for DetDigis
+  } // for Digis
+  LogTrace(" allDetDigis/hasDetDigis : ") << allDetDigis<<"/"<<hasDetDigis;
+  typedef std::map<int, vector<Word32> >::const_iterator RI;
+  for (RI feddata = words.begin(); feddata != words.end(); feddata++) {
+    int fedId = feddata->first;
+
+    // since raw words are written in the form of 64-bit packets
+    // add extra 32-bit word to make number of words even if necessary
+    if (words.find(fedId)->second.size() %2 != 0) words[fedId].push_back( Word32(0) );
+
+    // size in Bytes; create output structure
+    int dataSize = words.find(fedId)->second.size() * sizeof(Word32);
+    int nHeaders = 1;
+    int nTrailers = 1;
+    dataSize += (nHeaders+nTrailers)*sizeof(Word64);
+
+    FEDRawData * rawData = new FEDRawData(dataSize);
+
+    // get begining of data;
+    Word64 * word = reinterpret_cast<Word64* >(rawData->data());
+
+    // write one header
+    FEDHeader::set(  reinterpret_cast<unsigned char*>(word), 0, lvl1_ID, 0, fedId);
+    word++;
+
+    // write data
+    unsigned int nWord32InFed = words.find(fedId)->second.size();
+    for (unsigned int i=0; i < nWord32InFed; i+=2) {
+      *word = (Word64(words.find(fedId)->second[i]) << 32 ) | words.find(fedId)->second[i+1];
+      LogDebug("CTPPSPixelDataFormatter")  << print(*word);
+      word++;
+
+    }
+
+    // write one trailer
+    FEDTrailer::set(  reinterpret_cast<unsigned char*>(word), dataSize/sizeof(Word64), 0,0,0);
+    word++;
+
+    // check memory
+    if (word != reinterpret_cast<Word64* >(rawData->data()+dataSize)) {
+      string s = "** PROBLEM in CTPPSPixelDataFormatter !!!";
+      LogError("CTPPSPixelDataFormatter") << "** PROBLEM in CTPPSPixelDataFormatter!!!";
+      throw cms::Exception(s);
+    } // if (word !=
+    fedRawData[fedId] = *rawData;
+    delete rawData;
+  } // for (RI feddata 
+}
 
 std::string CTPPSPixelDataFormatter::print(const  Word64 & word) const
 {
