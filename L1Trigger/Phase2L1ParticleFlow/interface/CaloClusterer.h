@@ -37,14 +37,15 @@ namespace l1tpf_calo {
             std::vector<std::array<int,8>> neighbours_; // indices of the neigbours, -1 = none
     };
 
-    class Phase1Grid : public Grid {
+    class Phase1GridBase : public Grid {
         public:
-            Phase1Grid() ;
+            Phase1GridBase(int nEta, int nPhi, int ietaCoarse, int ietaVeryCoarse, const float *towerEtas) ;
+
             virtual int find_cell(float eta, float phi) const override ;
             int ifind_cell(int ieta, int iphi) const { return cell_map_[(ieta+nEta_) + 2*nEta_*(iphi-1)]; }
         protected:
-            static const int nEta_ = 41, nPhi_ = 72, ietaCoarse_ = 29, ietaVeryCoarse_ = 40;
-            static const float towerEtas_[nEta_];
+            const int nEta_, nPhi_, ietaCoarse_, ietaVeryCoarse_;
+            const float *towerEtas_;
             std::vector<int> cell_map_;
             // valid ieta, iphi (does not check for outside bounds, only for non-existence of ieta=0, iphi=0, and coarser towers at high eta)
             bool valid_ieta_iphi(int ieta, int iphi) const {
@@ -55,7 +56,21 @@ namespace l1tpf_calo {
             }
             // move by +/-1 around a cell; return icell or -1 if not available
             int imove(int ieta, int iphi, int deta, int dphi) ;
-            
+    };
+
+    class Phase1Grid : public Phase1GridBase {
+        public:
+            Phase1Grid() : Phase1GridBase(phase1_nEta_, phase1_nPhi_, phase1_ietaCoarse_, phase1_ietaVeryCoarse_, phase1_towerEtas_) {}
+        protected:
+            static const int phase1_nEta_ = 41, phase1_nPhi_ = 72, phase1_ietaCoarse_ = 29, phase1_ietaVeryCoarse_ = 40;
+            static const float phase1_towerEtas_[phase1_nEta_];
+    };
+    class Phase2Grid : public Phase1GridBase {
+        public:
+            Phase2Grid() : Phase1GridBase(phase2_nEta_, phase2_nPhi_, phase2_ietaCoarse_, phase2_ietaVeryCoarse_, phase2_towerEtas_) {}
+        protected:
+            static const int phase2_nEta_ = 48, phase2_nPhi_ = 72, phase2_ietaCoarse_ = 36, phase2_ietaVeryCoarse_ = 47;
+            static const float phase2_towerEtas_[phase2_nEta_];
     };
 
     template<typename T>
