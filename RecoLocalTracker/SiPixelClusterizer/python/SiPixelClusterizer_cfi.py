@@ -47,7 +47,7 @@ phase2_tracker.toModify(siPixelClusters, # FIXME
   src = cms.InputTag('simSiPixelDigis', "Pixel"),
   MissCalibrate = False,
   Phase2Calibration = cms.bool(True),
-  Phase2ReadoutMethod = cms.int32(1),
+  Phase2ReadoutMethod = cms.int32(-1),
   Phase2DigiBaseline = cms.double(1200.), 
   ElectronPerADCGain = cms.double(600.) # it can be changed to something else (e.g. 135e) if needed
 )

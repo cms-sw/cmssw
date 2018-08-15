@@ -261,13 +261,13 @@ void PixelThresholdClusterizer::copy_to_buffer( DigiIterator begin, DigiIterator
         const float pedestal = 0.; //
         electron[i] = int(adc * gain + pedestal);
         if (layer_>=theFirstStack_) {
-      if (theStackADC_==1&&adc==1) {
-        electron[i] = int(255*135); // Arbitrarily use overflow value.
-      }
-      if (theStackADC_>1&&theStackADC_!=255&&adc>=1){
-        const float gain = theElectronPerADCGain_; // default: 1 ADC = 135 electrons
-        electron[i] = int((adc-1) * gain * 255/float(theStackADC_-1));
-      }
+        if (theStackADC_==1&&adc==1) {
+          electron[i] = int(255*135); // Arbitrarily use overflow value.
+        }
+        if (theStackADC_>1&&theStackADC_!=255&&adc>=1){
+          const float gain = theElectronPerADCGain_; // default: 1 ADC = 135 electrons
+          electron[i] = int((adc-1) * gain * 255/float(theStackADC_-1));
+        }
         }
         ++i;
       }
