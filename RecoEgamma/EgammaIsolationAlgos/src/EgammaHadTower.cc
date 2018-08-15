@@ -124,7 +124,12 @@ bool EgammaHadTower::hasActiveHcal( const std::vector<CaloTowerDetId> & towers )
           HcalDetId hid(id);
           if (debug) std::cout << "      hcal constituent on subdet " << hid.subdet() << ", ieta " << hid.ieta() << " iphi " << hid.iphi() << ", depth " << hid.depth() << std::endl;
           if (hid.subdet() != HcalBarrel && hid.subdet() != HcalEndcap) continue;
-          int status = hcalQuality_->getValues(id)->getValue();
+          const auto * values = hcalQuality_->getValues(id,/*throwOnFail=*/false);
+          if (!values) {
+              if (debug) std::cout << "          MISSING IN CONDITIONS" << std::endl;
+              continue;
+          }
+          int status = values->getValue();
           if (status & statusMask) {
               if (debug) std::cout << "          BAD!" << std::endl;
               nbad++;
