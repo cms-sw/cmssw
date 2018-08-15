@@ -116,8 +116,8 @@ hiConformalPixelTracksPhase1Filter = hiConformalPixelFilter.clone(
         tipMax = 999.0
 )
 
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-pp_on_AA_2018.toModify(hiConformalPixelTracks,
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toModify(hiConformalPixelTracks,
     Cleaner = 'pixelTrackCleanerBySharedHits',
     Filter = "hiConformalPixelTracksPhase1Filter",
     Fitter = "pixelFitterByConformalMappingAndLine",
