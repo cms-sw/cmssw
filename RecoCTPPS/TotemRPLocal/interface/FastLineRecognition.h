@@ -38,7 +38,7 @@ class FastLineRecognition
     void getPatterns(const edm::DetSetVector<TotemRPRecHit> &input, double _z0, double threshold,
       edm::DetSet<TotemRPUVPattern> &patterns);
 
-  protected:
+  private:
     /// the uncertainty of 1-hit cluster, in mm
     static const double sigma0;
 
