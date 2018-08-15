@@ -17,6 +17,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
+#include "DataFormats/L1THGCal/interface/HGCalTower.h"
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 
@@ -37,7 +38,9 @@ class L1TPFCaloProducer : public edm::stream::EDProducer<> {
         std::vector<edm::EDGetTokenT<HcalTrigPrimDigiCollection>> hcalDigis_;
         edm::ESHandle<CaloTPGTranscoder> decoder_;
         std::vector<edm::EDGetTokenT<l1t::HGCalTriggerCellBxCollection>> hcalHGCTCs_;
+        std::vector<edm::EDGetTokenT<l1t::HGCalTowerBxCollection>> hcalHGCTowers_;
         double hcalHGCTCEtCut_;
+        bool hcalHGCTowersHadOnly_;
 
         l1tpf::corrector emCorrector_;
         l1tpf::corrector hcCorrector_;
@@ -52,6 +55,7 @@ class L1TPFCaloProducer : public edm::stream::EDProducer<> {
 
         void readHcalDigis_(edm::Event &event, const edm::EventSetup&) ;
         void readHcalHGCTCs_(edm::Event &event, const edm::EventSetup &) ;
+        void readHcalHGCTowers_(edm::Event &event, const edm::EventSetup &) ;
         struct SimpleHGCTC {
             float et, eta, phi;
             SimpleHGCTC(float aet, float aeta, float aphi) : et(aet), eta(aeta), phi(aphi) {}
@@ -104,6 +108,11 @@ L1TPFCaloProducer::L1TPFCaloProducer(const edm::ParameterSet& iConfig):
         hcalHGCTCs_.push_back(consumes<l1t::HGCalTriggerCellBxCollection>(tag));
     }
     if (!hcalHGCTCs_.empty()) hcalHGCTCEtCut_ = iConfig.getParameter<double>("hcalHGCTCEtMin");
+    for (auto & tag : iConfig.getParameter<std::vector<edm::InputTag>>("hcalHGCTowers")) {
+        hcalHGCTowers_.push_back(consumes<l1t::HGCalTowerBxCollection>(tag));
+    }
+    if (!hcalHGCTowers_.empty()) hcalHGCTowersHadOnly_ = iConfig.getParameter<bool>("hcalHGCTowersHadOnly");
+
 
 }
 
@@ -163,6 +172,9 @@ L1TPFCaloProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
     if (!hcalHGCTCs_.empty()) {
         readHcalHGCTCs_(iEvent, iSetup);
+    }
+    if (!hcalHGCTowers_.empty()) {
+        readHcalHGCTowers_(iEvent, iSetup);
     }
     hcalClusterer_.run();
 
@@ -258,6 +270,20 @@ L1TPFCaloProducer::readHcalHGCTCs_(edm::Event& iEvent, const edm::EventSetup& iS
 
     }
 }
+
+void
+L1TPFCaloProducer::readHcalHGCTowers_(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+    edm::Handle<l1t::HGCalTowerBxCollection> hgcTowers;
+
+    for (const auto & token : hcalHGCTowers_) {
+        iEvent.getByToken(token, hgcTowers);
+        for(auto it = hgcTowers->begin(0), ed = hgcTowers->end(0); it != ed; ++it) {
+            float et = hcalHGCTowersHadOnly_ ? it->etHad() : it->pt();
+            hcalClusterer_.add(et, it->eta(), it->phi());
+        }
+    }
+}
+
 
 //define this as a plug-in
 #include "FWCore/Framework/interface/MakerMacros.h"
