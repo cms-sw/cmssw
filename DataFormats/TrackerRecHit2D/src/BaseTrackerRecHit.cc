@@ -6,6 +6,7 @@
 
 
 namespace {
+#ifdef EDM_LM_DEBUG
   inline void
   throwExceptionUninitialized(const char *where)
   {
@@ -14,7 +15,7 @@ namespace {
       "If you want to get coarse position/error estimation from disk, please set: ComputeCoarseLocalPositionFromDisk = True \n " <<
       " to the TransientTrackingRecHitBuilder you are using from RecoTracker/TransientTrackingRecHit/python/TTRHBuilders_cff.py";
   }
-  
+#endif
   void obsolete() {
     throw cms::Exception("BaseTrackerRecHit") << "CLHEP is obsolete for Tracker Hits";
   }
