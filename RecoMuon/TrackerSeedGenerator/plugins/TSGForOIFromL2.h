@@ -101,7 +101,7 @@ class TSGForOIFromL2 : public edm::global::EDProducer<> {
 
     /// Counters and flags for the implementation
     const std::string propagatorName_;
-    const std::string theCategory;
+    const std::string theCategory_;
 
     /// Create seeds without hits on a given layer (TOB or TEC)
     void makeSeedsWithoutHits(

@@ -10,8 +10,6 @@
 
 #include <memory>
 
-using namespace edm;
-using namespace std;
 
 TSGForOIFromL2::TSGForOIFromL2(const edm::ParameterSet & iConfig) :
   src_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("src"))),
@@ -50,25 +48,19 @@ TSGForOIFromL2::TSGForOIFromL2(const edm::ParameterSet & iConfig) :
   tsosDiff1_(iConfig.getParameter<double>("tsosDiff1")),
   tsosDiff2_(iConfig.getParameter<double>("tsosDiff2")),
   propagatorName_(iConfig.getParameter<std::string>("propagatorName")), 
-  theCategory(string("Muon|RecoMuon|TSGForOIFromL2"))
+  theCategory_(std::string("Muon|RecoMuon|TSGForOIFromL2"))
 {
   produces<std::vector<TrajectorySeed> >();
 }
-
 
 TSGForOIFromL2::~TSGForOIFromL2() {
 
 }
 
-
 //
 // Produce seeds
 //
 void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-    
-  using namespace std;
-
-
 
   // Initialize variables
   unsigned int numSeedsMade = 0;
@@ -122,14 +114,14 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
   iSetup.get<TrackingComponentsRecord>().get("hltESPSteppingHelixPropagatorOpposite", SHPOpposite);
 
   // Loop over the L2's and make seeds for all of them
-  LogTrace(theCategory) << "TSGForOIFromL2::produce: Number of L2's: " << l2TrackCol->size();
+  LogTrace(theCategory_) << "TSGForOIFromL2::produce: Number of L2's: " << l2TrackCol->size();
   for (unsigned int l2TrackColIndex(0); l2TrackColIndex!=l2TrackCol->size(); ++l2TrackColIndex) {
 
     const reco::TrackRef l2(l2TrackCol, l2TrackColIndex);
 
     // Container of Seeds
     std::vector<TrajectorySeed> out;
-    LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::produce: L2 muon pT, eta, phi --> " << l2->pt() << " , " << l2->eta() << " , " << l2->phi() << endl;
+    LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::produce: L2 muon pT, eta, phi --> " << l2->pt() << " , " << l2->eta() << " , " << l2->phi() << std::endl;
  
     FreeTrajectoryState fts = trajectoryStateTransform::initialFreeState(*l2, magfieldH.product());
 
@@ -139,9 +131,9 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
     
     // Get the TSOS on the innermost layer of the L2
     TrajectoryStateOnSurface tsosAtMuonSystem = trajectoryStateTransform::innerStateOnSurface(*l2, *geometryH, magfieldH.product());
-    LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::produce: Created TSOSatMuonSystem: " << tsosAtMuonSystem <<endl;
+    LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::produce: Created TSOSatMuonSystem: " << tsosAtMuonSystem <<std::endl;
     
-    LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::produce: Check the error of the L2 parameter and use hit seeds if big errors" << endl;
+    LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::produce: Check the error of the L2 parameter and use hit seeds if big errors" << std::endl;
 
     StateOnTrackerBound fromInside(propagatorAlong.get());
     TrajectoryStateOnSurface outerTkStateInside = fromInside(fts);
@@ -151,6 +143,7 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
 
     // Check if the two positions (using updated and not-updated TSOS) agree withing certain extent.
     // If both TSOSs agree, use only the one at vertex, as it uses more information. If they do not agree, search for seeds based on both.
+    double L2muonEta=l2->eta();
     bool useBoth = false;
     if (outerTkStateInside.isValid() && outerTkStateOutside.isValid()) {
       //following commented out variables dist1 (5 par compatibility of tsos at outertracker surface)  
@@ -160,8 +153,8 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
       //auto dist2 = deltaR(outerTkStateInside.globalMomentum(),outerTkStateOutside.globalMomentum());//for future developers
       //if ((dist1 > tsosDiff1_ || dist2 > tsosDiff2_) && l2->numberOfValidHits() < 20) useBoth = true;//for future developers
       if (l2->numberOfValidHits() < numL2ValidHitsCutAllEta_) useBoth = true;
-      if (l2->numberOfValidHits() < numL2ValidHitsCutAllEndcap_ && (std::abs(l2->eta()) > eta7_)) useBoth = true;
-      if (std::abs(l2->eta()) > eta1_ && std::abs(l2->eta()) < eta1_) useBoth = true;
+      if (l2->numberOfValidHits() < numL2ValidHitsCutAllEndcap_ && (std::abs(L2muonEta) > eta7_)) useBoth = true;
+      if (std::abs(L2muonEta) > eta1_ && std::abs(L2muonEta) < eta1_) useBoth = true;
     }
 
     numSeedsMade = 0;
@@ -170,23 +163,19 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
     hitSeedsMade = 0;
 
     // calculate scale factors
-    double errorSFHits = 1.0;
-    double errorSFHitless = 1.0;
-    if (!adjustErrorsDynamicallyForHits_) errorSFHits = fixedErrorRescalingForHits_;
-    else                                  errorSFHits = calculateSFFromL2(l2);
-    if (!adjustErrorsDynamicallyForHitless_) errorSFHitless = fixedErrorRescalingForHitless_;
-    else                                  errorSFHitless = calculateSFFromL2(l2);
-      
+    double errorSFHits = (adjustErrorsDynamicallyForHits_? calculateSFFromL2(l2) : fixedErrorRescalingForHits_);
+    double errorSFHitless = (adjustErrorsDynamicallyForHitless_? calculateSFFromL2(l2) : fixedErrorRescalingForHitless_);
+  
     // BARREL
-    if (std::abs(l2->eta()) < maxEtaForTOB_) {
+    if (std::abs(L2muonEta) < maxEtaForTOB_) {
       layerCount = 0;
       for (auto it=tob.rbegin(); it!=tob.rend(); ++it) { 
-        LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::produce: looping in TOB layer " << layerCount << endl;
+        LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::produce: looping in TOB layer " << layerCount << std::endl;
         if ( useHitLessSeeds_ && hitlessSeedsMadeIP < maxHitlessSeeds_ && numSeedsMade < maxSeeds_ ) 
            makeSeedsWithoutHits(**it, tsosAtIP, *(propagatorAlong.get()), estimatorH, errorSFHitless, hitlessSeedsMadeIP, numSeedsMade, out);
 
         // Do not create hitbased seeds in barrel region
-        if (std::abs(l2->eta()) > 1.0 && hitSeedsMade < maxHitSeeds_ && numSeedsMade < maxSeeds_ ) 
+        if (std::abs(L2muonEta) > 1.0 && hitSeedsMade < maxHitSeeds_ && numSeedsMade < maxSeeds_ ) 
            makeSeedsFromHits(**it, tsosAtIP, *(propagatorAlong.get()), estimatorH, measurementTrackerH, errorSFHits, hitSeedsMade, numSeedsMade, layerCount, out);
 
         if (useBoth) {
@@ -194,11 +183,11 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
              makeSeedsWithoutHits(**it, outerTkStateOutside, *(propagatorOpposite.get()), estimatorH, errorSFHitless, hitlessSeedsMadeMuS, numSeedsMade, out);
         }
       }
-      LogTrace("TSGForOIFromL2") << "TSGForOIFromL2:::produce: NumSeedsMade = " << numSeedsMade << " , layerCount = " << layerCount << endl;
+      LogTrace("TSGForOIFromL2") << "TSGForOIFromL2:::produce: NumSeedsMade = " << numSeedsMade << " , layerCount = " << layerCount << std::endl;
     }
 
     // Reset number of seeds if in overlap region
-    if (std::abs(l2->eta()) > minEtaForTEC_ && std::abs(l2->eta()) < maxEtaForTOB_) {
+    if (std::abs(L2muonEta) > minEtaForTEC_ && std::abs(L2muonEta) < maxEtaForTOB_) {
       numSeedsMade = 0;
       hitlessSeedsMadeIP = 0;
       hitlessSeedsMadeMuS = 0;
@@ -206,14 +195,14 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
     }
 
     // ENDCAP+
-    if (l2->eta() > minEtaForTEC_) {
+    if (L2muonEta > minEtaForTEC_) {
       layerCount = 0;
       for (auto it=tecPositive.rbegin(); it!=tecPositive.rend(); ++it) {
-        LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::produce: looping in TEC+ layer " << layerCount << endl;
+        LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::produce: looping in TEC+ layer " << layerCount << std::endl;
         if ( useHitLessSeeds_ && hitlessSeedsMadeIP < maxHitlessSeeds_ && numSeedsMade < maxSeeds_ ) 
            makeSeedsWithoutHits(**it, tsosAtIP, *(propagatorAlong.get()), estimatorH, errorSFHitless, hitlessSeedsMadeIP, numSeedsMade, out);
 
-        if (std::abs(l2->eta()) > 1.0 && hitSeedsMade < maxHitSeeds_ && numSeedsMade < maxSeeds_ ) 
+        if (std::abs(L2muonEta) > 1.0 && hitSeedsMade < maxHitSeeds_ && numSeedsMade < maxSeeds_ ) 
            makeSeedsFromHits(**it, tsosAtIP, *(propagatorAlong.get()), estimatorH, measurementTrackerH, errorSFHits, hitSeedsMade, numSeedsMade, layerCount, out);
 
         if (useBoth) {
@@ -221,18 +210,18 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
              makeSeedsWithoutHits(**it, outerTkStateOutside, *(propagatorOpposite.get()), estimatorH, errorSFHitless, hitlessSeedsMadeMuS, numSeedsMade, out);
         } 
       }
-      LogTrace("TSGForOIFromL2") << "TSGForOIFromL2:::produce: NumSeedsMade = " << numSeedsMade << " , layerCount = " << layerCount << endl;
+      LogTrace("TSGForOIFromL2") << "TSGForOIFromL2:::produce: NumSeedsMade = " << numSeedsMade << " , layerCount = " << layerCount << std::endl;
     }
 
     // ENDCAP-
-    if (l2->eta() < -minEtaForTEC_) {
+    if (L2muonEta < -minEtaForTEC_) {
       layerCount = 0;
       for (auto it=tecNegative.rbegin(); it!=tecNegative.rend(); ++it) {
-        LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::produce: looping in TEC- layer " << layerCount << endl;
+        LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::produce: looping in TEC- layer " << layerCount << std::endl;
         if ( useHitLessSeeds_ && hitlessSeedsMadeIP < maxHitlessSeeds_ && numSeedsMade < maxSeeds_ ) 
            makeSeedsWithoutHits(**it, tsosAtIP, *(propagatorAlong.get()), estimatorH, errorSFHitless, hitlessSeedsMadeIP, numSeedsMade, out);
 
-        if (std::abs(l2->eta()) > 1.0 && hitSeedsMade < maxHitSeeds_ && numSeedsMade < maxSeeds_ ) 
+        if (std::abs(L2muonEta) > 1.0 && hitSeedsMade < maxHitSeeds_ && numSeedsMade < maxSeeds_ ) 
            makeSeedsFromHits(**it, tsosAtIP, *(propagatorAlong.get()), estimatorH, measurementTrackerH, errorSFHits, hitSeedsMade, numSeedsMade, layerCount, out);
 
         if (useBoth) {
@@ -240,7 +229,7 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
              makeSeedsWithoutHits(**it, outerTkStateOutside, *(propagatorOpposite.get()), estimatorH, errorSFHitless, hitlessSeedsMadeMuS, numSeedsMade, out);
         }
       }
-      LogTrace("TSGForOIFromL2") << "TSGForOIFromL2:::produce: NumSeedsMade = " << numSeedsMade << " , layerCount = " << layerCount << endl;
+      LogTrace("TSGForOIFromL2") << "TSGForOIFromL2:::produce: NumSeedsMade = " << numSeedsMade << " , layerCount = " << layerCount << std::endl;
     }
 
     for (std::vector<TrajectorySeed>::iterator it=out.begin(); it!=out.end(); ++it) {
@@ -249,7 +238,7 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
 
   } // L2Collection
  
-  edm::LogInfo(theCategory) << "TSGForOIFromL2::produce: number of seeds made: " << result->size();
+  edm::LogInfo(theCategory_) << "TSGForOIFromL2::produce: number of seeds made: " << result->size();
 
   iEvent.put(std::move(result));
 }
@@ -269,22 +258,22 @@ void TSGForOIFromL2::makeSeedsWithoutHits(
                                 std::vector<TrajectorySeed>& out) const {
     
   // create hitless seeds
-  LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::makeSeedsWithoutHits: Start hitless" << endl;
+  LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::makeSeedsWithoutHits: Start hitless" << std::endl;
   std::vector< GeometricSearchDet::DetWithState > dets;
   layer.compatibleDetsV(tsos, propagatorAlong, *estimator, dets);
   if (!dets.empty()) {
     auto const& detOnLayer = dets.front().first;
     auto const& tsosOnLayer = dets.front().second;
-    LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::makeSeedsWithoutHits: tsosOnLayer " << tsosOnLayer << endl;
+    LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::makeSeedsWithoutHits: tsosOnLayer " << tsosOnLayer << std::endl;
     if (!tsosOnLayer.isValid()) {
-      edm::LogInfo(theCategory) << "ERROR!: Hitless TSOS is not valid!";
+      edm::LogInfo(theCategory_) << "ERROR!: Hitless TSOS is not valid!";
     }
     else {
       dets.front().second.rescaleError(errorSF);
       PTrajectoryStateOnDet const& ptsod = trajectoryStateTransform::persistentState(tsosOnLayer,detOnLayer->geographicalId().rawId());
       TrajectorySeed::recHitContainer rHC;
       out.push_back(TrajectorySeed(ptsod,rHC,oppositeToMomentum));
-      LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::makeSeedsWithoutHits: TSOD (Hitless) done " << endl;
+      LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::makeSeedsWithoutHits: TSOS (Hitless) done " << std::endl;
       hitlessSeedsMade++;
       numSeedsMade++;
    }
@@ -318,7 +307,7 @@ void TSGForOIFromL2::makeSeedsFromHits(
   layer.compatibleDetsV(onLayer, propagatorAlong, *estimator, dets);
 
   // Find Measurements on each DetWithState
-  LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::makeSeedsFromHits: Find measurements on each detWithState  " << dets.size() << endl;
+  LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::makeSeedsFromHits: Find measurements on each detWithState  " << dets.size() << std::endl;
   std::vector<TrajectoryMeasurement> meas;
   for (std::vector<GeometricSearchDet::DetWithState>::iterator it=dets.begin(); it!=dets.end(); ++it) {
     MeasurementDetWithData det = measurementTracker->idToDet(it->first->geographicalId());
@@ -332,21 +321,20 @@ void TSGForOIFromL2::makeSeedsFromHits(
   }
   
   // Update TSOS using TMs after sorting, then create Trajectory Seed and put into vector
-  LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::makeSeedsFromHits: Update TSOS using TMs after sorting, then create Trajectory Seed, number of TM = " << meas.size() << endl;
+  LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::makeSeedsFromHits: Update TSOS using TMs after sorting, then create Trajectory Seed, number of TM = " << meas.size() << std::endl;
   std::sort(meas.begin(), meas.end(), TrajMeasLessEstim());
 
   unsigned int found = 0;
   for (std::vector<TrajectoryMeasurement>::const_iterator it=meas.begin(); it!=meas.end(); ++it) {
     TrajectoryStateOnSurface updatedTSOS = updator_->update(it->forwardPredictedState(), *it->recHit());
-    LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::makeSeedsFromHits: TSOS for TM " << found << endl;
+    LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::makeSeedsFromHits: TSOS for TM " << found << std::endl;
     if (not updatedTSOS.isValid()) continue;
-
     
     edm::OwnVector<TrackingRecHit> seedHits;
     seedHits.push_back(*it->recHit()->hit());
     PTrajectoryStateOnDet const& pstate = trajectoryStateTransform::persistentState(updatedTSOS, it->recHit()->geographicalId().rawId());
     TrajectorySeed seed(pstate, std::move(seedHits), oppositeToMomentum);
-    LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::makeSeedsFromHits: Number of seedHits: " << seedHits.size() << endl;
+    LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::makeSeedsFromHits: Number of seedHits: " << seedHits.size() << std::endl;
     out.push_back(seed);
     found++;
     numSeedsMade++;
@@ -371,33 +359,31 @@ double TSGForOIFromL2::calculateSFFromL2(const reco::TrackRef track) const {
   // Split into different eta ranges depending in pT
   double abseta = std::abs(track->eta());
   if (track->pt() <= pT1_) theSF = SF1_;
-  if (track->pt() > pT1_ && track->pt() <= pT2_) {
+  else if (track->pt() > pT1_ && track->pt() <= pT2_) {
     if (abseta <= eta3_) theSF = SF3_;
-    if (abseta > eta3_ && abseta <= eta6_) theSF = SF2_;
-    if (abseta > eta6_) theSF = SF3_;
+    else if (abseta > eta3_ && abseta <= eta6_) theSF = SF2_;
+    else if (abseta > eta6_) theSF = SF3_;
   }
-  if (track->pt() > pT2_ && track->pt() <= pT3_) {
+  else if (track->pt() > pT2_ && track->pt() <= pT3_) {
     if (abseta <= eta1_) theSF = SF6_;
-    if (abseta > eta1_  && abseta <= eta2_) theSF = SF4_;
-    if (abseta > eta2_  && abseta <= eta3_) theSF = SF6_;
-    if (abseta > eta3_ && abseta <= eta4_) theSF = SF1_;
-    if (abseta > eta4_ && abseta <= eta5_) theSF = SF1_;
-    if (abseta > eta5_ ) theSF = SF5_;
+    else if (abseta > eta1_  && abseta <= eta2_) theSF = SF4_;
+    else if (abseta > eta2_  && abseta <= eta3_) theSF = SF6_;
+    else if (abseta > eta3_ && abseta <= eta4_) theSF = SF1_;
+    else if (abseta > eta4_ && abseta <= eta5_) theSF = SF1_;
+    else if (abseta > eta5_ ) theSF = SF5_;
   }
-    
-  if (track->pt() > pT3_) {
+  else if (track->pt() > pT3_) {
     if (abseta <= eta3_) theSF = SF5_;
-    if (abseta > eta3_ && abseta <= eta4_) theSF = SF4_;
-    if (abseta > eta4_ && abseta <= eta5_) theSF = SF4_;
-    if (abseta > eta5_ ) theSF = SF5_;
+    else if (abseta > eta3_ && abseta <= eta4_) theSF = SF4_;
+    else if (abseta > eta4_ && abseta <= eta5_) theSF = SF4_;
+    else if (abseta > eta5_ ) theSF = SF5_;
   }
     
-  LogTrace(theCategory) << "TSGForOIFromL2::calculateSFFromL2: SF has been calculated as: " << theSF;
+  LogTrace(theCategory_) << "TSGForOIFromL2::calculateSFFromL2: SF has been calculated as: " << theSF;
     
   return theSF;
     
 }
-
 
 //
 // calculate Chi^2 of two trajectory states
