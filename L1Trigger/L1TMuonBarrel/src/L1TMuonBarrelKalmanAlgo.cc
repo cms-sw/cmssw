@@ -278,6 +278,9 @@ void L1TMuonBarrelKalmanAlgo::propagate(L1MuKBMTrack& track) {
   a[5] = -bPhi_[step-1];
   //a[6]=0.0;
   a[6] = aPhiB_[step-1];
+  if (step==1)
+    a[6] = aPhiB_[step-1]/2.0;
+
   a[7] = 0.0;
   a[8] = bPhiB_[step-1];
 
@@ -350,8 +353,6 @@ bool L1TMuonBarrelKalmanAlgo::updateOffline(L1MuKBMTrack& track,const L1MuKBMTCo
    
    
 
-    //    if (stub->quality()<4)
-    //  phiB=trackPhiB;
 
     Matrix23 H;
     H(0,0)=0.0;
