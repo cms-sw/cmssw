@@ -79,7 +79,7 @@ namespace DDI {
     Store<N,I,K>::create( const name_type & n )
     {
       prep_type tmp = nullptr;
-      auto result = reg_.insert( std::make_pair( n, tmp ));
+      auto result = reg_.emplace( n, tmp );
       if( result.second ) {
 	if( readOnly_ )
 	  throw cms::Exception( "DetectorDescriptionStore" )
@@ -102,7 +102,7 @@ namespace DDI {
 	  << n << " to a global store."; 
       // ELSE
       prep_type tmp = nullptr;
-      auto result = reg_.insert( std::make_pair( n, tmp ));
+      auto result = reg_.emplace( n, tmp );
       if( !result.second ) {
 	result.first->second->second.swap( p );
       }
