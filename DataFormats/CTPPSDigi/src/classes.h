@@ -21,6 +21,8 @@
 #include "DataFormats/CTPPSDigi/interface/CTPPSPixelDigiCollection.h"
 #include "DataFormats/CTPPSDigi/interface/CTPPSPixelDataError.h"
 
+#include "DataFormats/CTPPSDigi/interface/RPDetTrigger.h"
+
 #include <vector>
 
 namespace DataFormats_CTPPSDigi {
@@ -32,6 +34,14 @@ namespace DataFormats_CTPPSDigi {
     std::vector<edm::DetSet<TotemRPDigi> > vec_ds_rp_str_dig;
     edm::Wrapper<edm::DetSet<TotemRPDigi> > wds_rp_str_dig;
     edm::Wrapper<edm::DetSetVector<TotemRPDigi> > wdsv_rp_str_dig;
+
+    RPDetTrigger rp_str_tri;
+    edm::DetSet<RPDetTrigger> ds_rp_str_tri;
+    std::vector<RPDetTrigger> vec_rp_str_tri;
+    std::vector<edm::DetSet<RPDetTrigger> > vec_ds_rp_str_tri;
+    edm::DetSetVector<RPDetTrigger> dsv_rp_str_tri;
+    edm::Wrapper<edm::DetSet<RPDetTrigger> > wds_rp_str_tri;
+    edm::Wrapper<edm::DetSetVector<RPDetTrigger> > wdsv_rp_str_tri;
 
     TotemTriggerCounters dummy10;
     edm::Wrapper<TotemTriggerCounters> dummy11;
