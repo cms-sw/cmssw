@@ -49,11 +49,11 @@ SiStripQualityHotStripIdentifierRoot::SiStripQualityHotStripIdentifierRoot(const
 SiStripQualityHotStripIdentifierRoot::~SiStripQualityHotStripIdentifierRoot(){
 }
 
-SiStripBadStrip* SiStripQualityHotStripIdentifierRoot::getNewObject(){
+std::unique_ptr<SiStripBadStrip> SiStripQualityHotStripIdentifierRoot::getNewObject(){
 
   edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<"SiStripQualityHotStripIdentifierRoot::getNewObject called"<<std::endl;
 
-  SiStripBadStrip* obj=new SiStripBadStrip();
+  auto obj = std::make_unique<SiStripBadStrip>();
 
   edm::ParameterSet parameters=conf_.getParameter<edm::ParameterSet>("AlgoParameters");
   std::string AlgoName = parameters.getParameter<std::string>("AlgoName");

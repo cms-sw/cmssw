@@ -14,6 +14,7 @@
 #include "CLHEP/Random/RandGauss.h"
 
 #include <vector>
+#include <memory>
 #include <ext/hash_map>
 
 class SiStripBadChannelBuilder : public ConditionDBWriter<SiStripBadStrip> {
@@ -23,16 +24,12 @@ public:
   explicit SiStripBadChannelBuilder(const edm::ParameterSet&);
   ~SiStripBadChannelBuilder() override;
 
-  void algoAnalyze(const edm::Event & event, const edm::EventSetup& iSetup) override;
-
 private:
 
-  SiStripBadStrip* getNewObject() override{return obj;}
+  std::unique_ptr<SiStripBadStrip> getNewObject() override;
 
-private:
   edm::FileInPath fp_;
   bool printdebug_;
-  SiStripBadStrip* obj ;
 
   typedef std::vector< edm::ParameterSet > Parameters;
   Parameters BadComponentList_;
