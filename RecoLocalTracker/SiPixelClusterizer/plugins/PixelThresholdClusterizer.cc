@@ -55,6 +55,10 @@ PixelThresholdClusterizer::PixelThresholdClusterizer
     theStackADC_( conf.exists("AdcFullScaleStack") ? conf.getParameter<int>("AdcFullScaleStack") : 255 ),
     theFirstStack_( conf.exists("FirstStackLayer") ? conf.getParameter<int>("FirstStackLayer") : 5 ),
     theElectronPerADCGain_( conf.exists("ElectronPerADCGain") ? conf.getParameter<double>("ElectronPerADCGain") : 135. ),
+    doPhase2Calibration( conf.exists("Phase2Calibration") ? conf.getParameter<bool>("Phase2Calibration") : false),
+    phase2ReadoutMethod( conf.exists("Phase2ReadoutMethod") ? conf.getParameter<int>("Phase2ReadoutMethod") : -1),
+    phase2DigiBaseline( conf.exists("Phase2DigiBaseline") ? conf.getParameter<double>("Phase2DigiBaseline") : 0.),
+    phase2KinkADC( conf.exists("Phase2KinkADC") ? conf.getParameter<int>("Phase2KinkADC") : 8),
     theNumOfRows(0), theNumOfCols(0), detid_(0),
     // Get the constants for the miss-calibration studies
     doMissCalibrate( conf.getUntrackedParameter<bool>("MissCalibrate",true) ),
@@ -232,31 +236,43 @@ void PixelThresholdClusterizer::copy_to_buffer( DigiIterator begin, DigiIterator
 #endif
   int electron[end-begin]; // pixel charge in electrons 
   memset(electron, 0, sizeof(electron));
-  if ( doMissCalibrate ) {
-    if (layer_==1) {
-      (*theSiPixelGainCalibrationService_).calibrate(detid_,begin,end,theConversionFactor_L1, theOffset_L1,electron);
-    } else {
-      (*theSiPixelGainCalibrationService_).calibrate(detid_,begin,end,theConversionFactor,    theOffset,  electron);
-    }
-  } else {
-    int i=0;
+
+  if (doPhase2Calibration) {
+    int i = 0;
     for(DigiIterator di = begin; di != end; ++di) {
-      auto adc = di->adc();
-      const float gain = theElectronPerADCGain_; // default: 1 ADC = 135 electrons
-      const float pedestal = 0.; //
-      electron[i] = int(adc * gain + pedestal);
-      if (layer_>=theFirstStack_) {
-	if (theStackADC_==1&&adc==1) {
-	  electron[i] = int(255*135); // Arbitrarily use overflow value.
-	}
-	if (theStackADC_>1&&theStackADC_!=255&&adc>=1){
-	  const float gain = theElectronPerADCGain_; // default: 1 ADC = 135 electrons
-	  electron[i] = int((adc-1) * gain * 255/float(theStackADC_-1));
-	}
-      }
-      ++i;
+      electron[i] = calibrate(di->adc(), di->column(), di->row());
+      i++;
     }
     assert(i==(end-begin));
+  }
+
+  else {
+    if ( doMissCalibrate ) {
+      if (layer_==1) {
+        (*theSiPixelGainCalibrationService_).calibrate(detid_,begin,end,theConversionFactor_L1, theOffset_L1,electron);
+      } else {
+        (*theSiPixelGainCalibrationService_).calibrate(detid_,begin,end,theConversionFactor,    theOffset,  electron);
+      }
+    } else {
+      int i=0;
+      for(DigiIterator di = begin; di != end; ++di) {
+        auto adc = di->adc();
+        const float gain = theElectronPerADCGain_; // default: 1 ADC = 135 electrons
+        const float pedestal = 0.; //
+        electron[i] = int(adc * gain + pedestal);
+        if (layer_>=theFirstStack_) {
+      if (theStackADC_==1&&adc==1) {
+        electron[i] = int(255*135); // Arbitrarily use overflow value.
+      }
+      if (theStackADC_>1&&theStackADC_!=255&&adc>=1){
+        const float gain = theElectronPerADCGain_; // default: 1 ADC = 135 electrons
+        electron[i] = int((adc-1) * gain * 255/float(theStackADC_-1));
+      }
+        }
+        ++i;
+      }
+      assert(i==(end-begin));
+    }
   }
 
   int i=0;
@@ -313,6 +329,28 @@ void PixelThresholdClusterizer::copy_to_buffer( ClusterIterator begin, ClusterIt
 int PixelThresholdClusterizer::calibrate(int adc, int col, int row) 
 {
   int electrons = 0;
+
+  if (doPhase2Calibration) {
+
+    const float gain = theElectronPerADCGain_;
+    int p2rm = (phase2ReadoutMethod < -1 ? -1 : phase2ReadoutMethod);
+    if (p2rm > 10) p2rm = 10;
+    const int dualslopeparam = abs(p2rm);
+    const int dualslope = int(dualslopeparam <= 1 ? 1. : pow(2, dualslopeparam-1));
+
+    if (adc < phase2KinkADC) electrons = int(adc * gain - gain * 0.5);
+    else {
+        adc -= (phase2KinkADC-1);
+        adc *= dualslope;
+        adc += (phase2KinkADC-1);
+        electrons = int(adc * gain - 0.5 * gain * dualslope);
+    }
+
+    if (phase2ReadoutMethod > 0) electrons += int(phase2DigiBaseline);
+
+    return electrons;
+
+  }
 
   if ( doMissCalibrate ) 
     {
