@@ -28,15 +28,6 @@
 #include <fstream>
 #include <string>
 #include "TFile.h"
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TKey.h"
-#include "TObject.h"
-#include "TDirectory.h"
-#include "TMath.h"
-#include "TCanvas.h"
-#include "TStyle.h"
-#include "TClass.h"
 
 class SiStripHotStripAlgorithmFromClusterOccupancy;
 class SiStripBadAPVAlgorithmFromClusterOccupancy;
@@ -73,11 +64,9 @@ private:
   edm::ESHandle<SiStripQuality> SiStripQuality_;
   bool UseInputDB_;
   const edm::ParameterSet conf_;
-  edm::FileInPath fp_;
-  SiStripDetInfoFileReader* reader;
 
   edm::ESHandle<TrackerGeometry> theTrackerGeom;
-  const TrackerGeometry* _tracker;
+  const TrackerGeometry* tracker_;
   const TrackerTopology* tTopo;
 
   DQMStore* dqmStore_;
