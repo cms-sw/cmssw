@@ -891,7 +891,14 @@ def das_client(query, check_key = None):
 
     error = True
     for i in xrange(5):         # maximum of 5 tries
-        das_data = cmssw_das_client.get_data(query, limit = 0)
+        try:
+            das_data = cmssw_das_client.get_data(query, limit = 0)
+        except IOError as e:
+            if e.errno == 14: #https://stackoverflow.com/q/36397853/5228524
+                continue
+        except ValueError as e:
+            if str(e) == "No JSON object could be decoded":
+                continue
 
         if das_data["status"] == "ok":
             if das_data["nresults"] == 0 or check_key is None:
