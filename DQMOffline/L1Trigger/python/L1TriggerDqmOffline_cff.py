@@ -281,14 +281,10 @@ from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 from L1Trigger.L1TGlobal.GlobalParameters_cff import *
 
 from DQMOffline.L1Trigger.L1TEtSumJetOffline_cfi import *
-l1tEtSumJetOfflineDQMEmu.stage2CaloLayer2JetSource=cms.InputTag("valCaloStage2Layer2DigisOffline")
-l1tEtSumJetOfflineDQMEmu.stage2CaloLayer2EtSumSource=cms.InputTag("valCaloStage2Layer2DigisOffline")
 
 from DQMOffline.L1Trigger.L1TEGammaOffline_cfi import *
-l1tEGammaOfflineDQMEmu.stage2CaloLayer2EGammaSource=cms.InputTag("valCaloStage2Layer2DigisOffline")
 
 from DQMOffline.L1Trigger.L1TTauOffline_cfi import *
-l1tTauOfflineDQMEmu.stage2CaloLayer2TauSource=cms.InputTag("valCaloStage2Layer2DigisOffline")
 
 from DQMOffline.L1Trigger.L1TMuonDQMOffline_cfi import *
 
