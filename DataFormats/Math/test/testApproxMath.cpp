@@ -187,7 +187,7 @@ void perf() {
   Measure<DEGREE,WHAT> measure;
   using namespace approx_math;
   unsigned long long t=0;
-  binary32 x,r;
+  binary32 x;
   float sum=0;
   long long ntot=0;
   x.f=1.0; // should be 0 but 
