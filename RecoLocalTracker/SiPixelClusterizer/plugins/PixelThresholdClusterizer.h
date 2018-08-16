@@ -110,7 +110,7 @@ class dso_hidden PixelThresholdClusterizer final : public PixelClusterizerBase {
   const double theElectronPerADCGain_;  //  ADC to electrons conversion
 
   const bool doPhase2Calibration;    // The ADC --> electrons calibration is for phase-2 tracker
-  const int  phase2ReadoutMethod;    // Readout mode of the phase-2 IT digitizer
+  const int  phase2ReadoutMode;      // Readout mode of the phase-2 IT digitizer
   const double phase2DigiBaseline;   // Threshold above which digis are measured in the phase-2 IT
   const int  phase2KinkADC;          // ADC count at which the kink in the dual slop kicks in
 
