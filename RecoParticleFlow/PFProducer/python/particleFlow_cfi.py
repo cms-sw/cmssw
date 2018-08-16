@@ -275,6 +275,6 @@ particleFlowTmp = cms.EDProducer("PFProducer",
 
 from Configuration.Eras.Modifier_PF_badHcalMitigation_cff import PF_badHcalMitigation
 PF_badHcalMitigation.toModify(particleFlowTmp,
-        electron_protectionsForBadHcal = dict(enableProtections = cms.bool(True)),
-        photon_protectionsForBadHcal   = dict(enableProtections = cms.bool(True)))
+        electron_protectionsForBadHcal = dict(enableProtections = True),
+        photon_protectionsForBadHcal   = dict(enableProtections = True))
 
