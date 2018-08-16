@@ -87,7 +87,10 @@ bool PFEGammaFilters::passPhotonSelection(const reco::Photon & photon) {
 		     << "   isoDr03 " << (photon.trkSumPtHollowConeDR03()+photon.ecalRecHitSumEtConeDR03()+photon.hcalTowerSumEtConeDR03())  << " (cut: " << ph_combIso_ << ")"
 		     << "   H/E " << photon.hadTowOverEm() << " (valid? " << validHoverE << ", cut: " << ph_loose_hoe_ << ")"
 		     << "   s(ieie) " << photon.sigmaIetaIeta()  << " (cut: " << (photon.isEB() ? ph_sietaieta_eb_ : ph_sietaieta_ee_) << ")"
-		     << "   isoTrkDr03Solid " << (photon.trkSumPtSolidConeDR03())  << " (cut: " << (validHoverE || !badHcal_phoEnable_ ? -1 : badHcal_phoTrkSolidConeIso_offs_ + badHcal_phoTrkSolidConeIso_slope_*photon.pt()) << ")"
+		     << "   isoTrkDr03Solid " << (photon.trkSumPtSolidConeDR03())  << " (cut: " << (
+		                    validHoverE || !badHcal_phoEnable_ ? 
+		                    -1 : 
+		                    badHcal_phoTrkSolidConeIso_offs_ + badHcal_phoTrkSolidConeIso_slope_*photon.pt()) << ")"
  << std::endl;
 
   if (photon.hadTowOverEm() >ph_loose_hoe_ ) return false;
