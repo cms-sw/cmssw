@@ -31,27 +31,27 @@ def addToProcessAndTask(label, module, process, task):
     task.add(getattr(process, label))
 
 def addESProducers(process,config):
-	config = config.replace("/",".")
-	#import RecoBTag.Configuration.RecoBTag_cff as btag
-	#print btag
-	module = __import__(config)
-	for name in dir(sys.modules[config]):
-		item = getattr(sys.modules[config],name)
-		if isinstance(item,cms._Labelable) and not isinstance(item,cms._ModuleSequenceType) and not name.startswith('_') and not (name == "source" or name == "looper" or name == "subProcess") and not isinstance(item, cms.PSet):
-			if 'ESProducer' in item.type_():
-				setattr(process,name,item)
+    config = config.replace("/",".")
+    #import RecoBTag.Configuration.RecoBTag_cff as btag
+    #print btag
+    module = __import__(config)
+    for name in dir(sys.modules[config]):
+        item = getattr(sys.modules[config],name)
+        if isinstance(item,cms._Labelable) and not isinstance(item,cms._ModuleSequenceType) and not name.startswith('_') and not (name == "source" or name == "looper" or name == "subProcess") and not isinstance(item, cms.PSet):
+            if 'ESProducer' in item.type_():
+                setattr(process,name,item)
 
 def loadWithPrefix(process,moduleName,prefix='',loadedProducersAndFilters=None):
-        loadWithPrePostfix(process,moduleName,prefix,'',loadedProducersAndFilters)
+    loadWithPrePostfix(process,moduleName,prefix,'',loadedProducersAndFilters)
 
 def loadWithPostfix(process,moduleName,postfix='',loadedProducersAndFilters=None):
-        loadWithPrePostfix(process,moduleName,'',postfix,loadedProducersAndFilters)
+    loadWithPrePostfix(process,moduleName,'',postfix,loadedProducersAndFilters)
 
 def loadWithPrePostfix(process,moduleName,prefix='',postfix='',loadedProducersAndFilters=None):
-	moduleName = moduleName.replace("/",".")
-        module = __import__(moduleName)
-	#print module.PatAlgos.patSequences_cff.patDefaultSequence
-        extendWithPrePostfix(process,sys.modules[moduleName],prefix,postfix,loadedProducersAndFilters)
+    moduleName = moduleName.replace("/",".")
+    module = __import__(moduleName)
+    #print module.PatAlgos.patSequences_cff.patDefaultSequence
+    extendWithPrePostfix(process,sys.modules[moduleName],prefix,postfix,loadedProducersAndFilters)
 
 def addToTask(loadedProducersAndFilters, module):
     if loadedProducersAndFilters:
@@ -255,19 +255,19 @@ def contains(sequence, moduleName):
 
 
 def cloneProcessingSnippet(process, sequence, postfix, removePostfix="", noClones = [], addToTask = False):
-   """
-   ------------------------------------------------------------------
-   copy a sequence plus the modules and sequences therein
-   both are renamed by getting a postfix
-   input tags are automatically adjusted
-   ------------------------------------------------------------------
-   """
-   result = sequence
-   if not postfix == "":
-       visitor = CloneSequenceVisitor(process, sequence.label(), postfix, removePostfix, noClones, addToTask)
-       sequence.visit(visitor)
-       result = visitor.clonedSequence()
-   return result
+    """
+    ------------------------------------------------------------------
+    copy a sequence plus the modules and sequences therein
+    both are renamed by getting a postfix
+    input tags are automatically adjusted
+    ------------------------------------------------------------------
+    """
+    result = sequence
+    if not postfix == "":
+        visitor = CloneSequenceVisitor(process, sequence.label(), postfix, removePostfix, noClones, addToTask)
+        sequence.visit(visitor)
+        result = visitor.clonedSequence()
+    return result
 
 def listDependencyChain(process, module, sources, verbose=False):
     """
@@ -321,7 +321,7 @@ def listDependencyChain(process, module, sources, verbose=False):
             # then add them and their processed dependencies to our deps
             mydeps.add(d)
             if d in flatgraph: 
-                 mydeps.update(flatgraph[d])
+                mydeps.update(flatgraph[d])
         flatgraph[tip] = mydeps
     flatdeps = {}
     allmodules = set()
@@ -336,7 +336,7 @@ def listDependencyChain(process, module, sources, verbose=False):
             if module in flatdeps and m in flatdeps[module]:
                 modulelist.insert(i, module)
                 break
-	if module not in modulelist:
+        if module not in modulelist:
             modulelist.append(module)
     # Validate
     for i,m1 in enumerate(modulelist):
@@ -363,20 +363,20 @@ def addKeepStatement(process, oldKeep, newKeeps, verbose=False):
 
 
 if __name__=="__main__":
-   import unittest
-   class TestModuleCommand(unittest.TestCase):
-       def setUp(self):
-           """Nothing to do """
-           pass
-       def testCloning(self):
-           p = cms.Process("test")
-           p.a = cms.EDProducer("a", src=cms.InputTag("gen"))
-           p.b = cms.EDProducer("b", src=cms.InputTag("a"))
-           p.c = cms.EDProducer("c", src=cms.InputTag("b","instance"))
-           p.s = cms.Sequence(p.a*p.b*p.c *p.a)
-           cloneProcessingSnippet(p, p.s, "New", addToTask = True)
-           self.assertEqual(p.dumpPython(),
-"""import FWCore.ParameterSet.Config as cms
+    import unittest
+    class TestModuleCommand(unittest.TestCase):
+        def setUp(self):
+            """Nothing to do """
+            pass
+        def testCloning(self):
+            p = cms.Process("test")
+            p.a = cms.EDProducer("a", src=cms.InputTag("gen"))
+            p.b = cms.EDProducer("b", src=cms.InputTag("a"))
+            p.c = cms.EDProducer("c", src=cms.InputTag("b","instance"))
+            p.s = cms.Sequence(p.a*p.b*p.c *p.a)
+            cloneProcessingSnippet(p, p.s, "New", addToTask = True)
+            self.assertEqual(p.dumpPython(),
+ """import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("test")
 
@@ -420,24 +420,24 @@ process.sNew = cms.Sequence(process.aNew+process.bNew+process.cNew+process.aNew)
 
 
 """)
-       def testContains(self):
-           p = cms.Process("test")
-           p.a = cms.EDProducer("a", src=cms.InputTag("gen"))
-           p.b = cms.EDProducer("ab", src=cms.InputTag("a"))
-           p.c = cms.EDProducer("ac", src=cms.InputTag("b"))
-           p.s1 = cms.Sequence(p.a*p.b*p.c)
-           p.s2 = cms.Sequence(p.b*p.c)
-           self.assert_( contains(p.s1, "a") )
-           self.assert_( not contains(p.s2, "a") )
-       def testJetCollectionString(self):
-           self.assertEqual(jetCollectionString(algo = 'Foo', type = 'Bar'), 'patJetsFooBar')
-           self.assertEqual(jetCollectionString(prefix = 'prefix', algo = 'Foo', type = 'Bar'), 'prefixPatJetsFooBar')
-       def testListModules(self):
-           p = cms.Process("test")
-           p.a = cms.EDProducer("a", src=cms.InputTag("gen"))
-           p.b = cms.EDProducer("ab", src=cms.InputTag("a"))
-           p.c = cms.EDProducer("ac", src=cms.InputTag("b"))
-           p.s = cms.Sequence(p.a*p.b*p.c)
-           self.assertEqual([p.a,p.b,p.c], listModules(p.s))
+        def testContains(self):
+            p = cms.Process("test")
+            p.a = cms.EDProducer("a", src=cms.InputTag("gen"))
+            p.b = cms.EDProducer("ab", src=cms.InputTag("a"))
+            p.c = cms.EDProducer("ac", src=cms.InputTag("b"))
+            p.s1 = cms.Sequence(p.a*p.b*p.c)
+            p.s2 = cms.Sequence(p.b*p.c)
+            self.assert_( contains(p.s1, "a") )
+            self.assert_( not contains(p.s2, "a") )
+        def testJetCollectionString(self):
+            self.assertEqual(jetCollectionString(algo = 'Foo', type = 'Bar'), 'patJetsFooBar')
+            self.assertEqual(jetCollectionString(prefix = 'prefix', algo = 'Foo', type = 'Bar'), 'prefixPatJetsFooBar')
+        def testListModules(self):
+            p = cms.Process("test")
+            p.a = cms.EDProducer("a", src=cms.InputTag("gen"))
+            p.b = cms.EDProducer("ab", src=cms.InputTag("a"))
+            p.c = cms.EDProducer("ac", src=cms.InputTag("b"))
+            p.s = cms.Sequence(p.a*p.b*p.c)
+            self.assertEqual([p.a,p.b,p.c], listModules(p.s))
 
-   unittest.main()
+    unittest.main()

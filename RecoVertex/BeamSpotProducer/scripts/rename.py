@@ -26,7 +26,7 @@ def main():
         sourceDir = sourceDirList[n] + '/'
         destDir   = path + destDirList[n] + '/'
         if not dirExists(sourceDir):
-	    print(sourceDir + " doesn't exist!")
+            print(sourceDir + " doesn't exist!")
             continue
         fileList = ls(sourceDir)
         if not os.path.isdir(destDir):
@@ -44,7 +44,7 @@ def main():
             regExp = re.search('(\D+)(\d+)_(\d+)_[a-zA-Z0-9]+.txt',fileName)
             #if regExp:
                 #print regExp.group(1) + regExp.group(2) + "_" + str(1) + "_" + regExp.group(3) + ".txt" 
-                
+
             fullFileName = destDir + fileName
             print(fullFileName)
             runNumber = -1
@@ -80,6 +80,6 @@ def main():
 
 
 
-        
+
 if __name__ == "__main__":
     main()
