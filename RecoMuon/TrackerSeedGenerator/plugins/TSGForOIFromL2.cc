@@ -144,6 +144,7 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
     // Check if the two positions (using updated and not-updated TSOS) agree withing certain extent.
     // If both TSOSs agree, use only the one at vertex, as it uses more information. If they do not agree, search for seeds based on both.
     double L2muonEta=l2->eta();
+    double absL2muonEta=std::abs(L2muonEta);
     bool useBoth = false;
     if (outerTkStateInside.isValid() && outerTkStateOutside.isValid()) {
       //following commented out variables dist1 (5 par compatibility of tsos at outertracker surface)  
@@ -153,8 +154,8 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
       //auto dist2 = deltaR(outerTkStateInside.globalMomentum(),outerTkStateOutside.globalMomentum());//for future developers
       //if ((dist1 > tsosDiff1_ || dist2 > tsosDiff2_) && l2->numberOfValidHits() < 20) useBoth = true;//for future developers
       if (l2->numberOfValidHits() < numL2ValidHitsCutAllEta_) useBoth = true;
-      if (l2->numberOfValidHits() < numL2ValidHitsCutAllEndcap_ && (std::abs(L2muonEta) > eta7_)) useBoth = true;
-      if (std::abs(L2muonEta) > eta1_ && std::abs(L2muonEta) < eta1_) useBoth = true;
+      if (l2->numberOfValidHits() < numL2ValidHitsCutAllEndcap_ && absL2muonEta > eta7_) useBoth = true;
+      if (absL2muonEta > eta1_ && absL2muonEta < eta1_) useBoth = true;
     }
 
     numSeedsMade = 0;
@@ -167,7 +168,7 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
     double errorSFHitless = (adjustErrorsDynamicallyForHitless_? calculateSFFromL2(l2) : fixedErrorRescalingForHitless_);
   
     // BARREL
-    if (std::abs(L2muonEta) < maxEtaForTOB_) {
+    if (absL2muonEta < maxEtaForTOB_) {
       layerCount = 0;
       for (auto it=tob.rbegin(); it!=tob.rend(); ++it) { 
         LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::produce: looping in TOB layer " << layerCount << std::endl;
@@ -175,7 +176,7 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
            makeSeedsWithoutHits(**it, tsosAtIP, *(propagatorAlong.get()), estimatorH, errorSFHitless, hitlessSeedsMadeIP, numSeedsMade, out);
 
         // Do not create hitbased seeds in barrel region
-        if (std::abs(L2muonEta) > 1.0 && hitSeedsMade < maxHitSeeds_ && numSeedsMade < maxSeeds_ ) 
+        if (absL2muonEta > 1.0 && hitSeedsMade < maxHitSeeds_ && numSeedsMade < maxSeeds_ ) 
            makeSeedsFromHits(**it, tsosAtIP, *(propagatorAlong.get()), estimatorH, measurementTrackerH, errorSFHits, hitSeedsMade, numSeedsMade, layerCount, out);
 
         if (useBoth) {
@@ -187,7 +188,7 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
     }
 
     // Reset number of seeds if in overlap region
-    if (std::abs(L2muonEta) > minEtaForTEC_ && std::abs(L2muonEta) < maxEtaForTOB_) {
+    if (absL2muonEta > minEtaForTEC_ && absL2muonEta < maxEtaForTOB_) {
       numSeedsMade = 0;
       hitlessSeedsMadeIP = 0;
       hitlessSeedsMadeMuS = 0;
@@ -202,7 +203,7 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
         if ( useHitLessSeeds_ && hitlessSeedsMadeIP < maxHitlessSeeds_ && numSeedsMade < maxSeeds_ ) 
            makeSeedsWithoutHits(**it, tsosAtIP, *(propagatorAlong.get()), estimatorH, errorSFHitless, hitlessSeedsMadeIP, numSeedsMade, out);
 
-        if (std::abs(L2muonEta) > 1.0 && hitSeedsMade < maxHitSeeds_ && numSeedsMade < maxSeeds_ ) 
+        if (absL2muonEta > 1.0 && hitSeedsMade < maxHitSeeds_ && numSeedsMade < maxSeeds_ ) 
            makeSeedsFromHits(**it, tsosAtIP, *(propagatorAlong.get()), estimatorH, measurementTrackerH, errorSFHits, hitSeedsMade, numSeedsMade, layerCount, out);
 
         if (useBoth) {
@@ -221,7 +222,7 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
         if ( useHitLessSeeds_ && hitlessSeedsMadeIP < maxHitlessSeeds_ && numSeedsMade < maxSeeds_ ) 
            makeSeedsWithoutHits(**it, tsosAtIP, *(propagatorAlong.get()), estimatorH, errorSFHitless, hitlessSeedsMadeIP, numSeedsMade, out);
 
-        if (std::abs(L2muonEta) > 1.0 && hitSeedsMade < maxHitSeeds_ && numSeedsMade < maxSeeds_ ) 
+        if (absL2muonEta > 1.0 && hitSeedsMade < maxHitSeeds_ && numSeedsMade < maxSeeds_ ) 
            makeSeedsFromHits(**it, tsosAtIP, *(propagatorAlong.get()), estimatorH, measurementTrackerH, errorSFHits, hitSeedsMade, numSeedsMade, layerCount, out);
 
         if (useBoth) {
