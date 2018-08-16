@@ -53,7 +53,6 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
   
   while (dodet) {
     const DDSolid & sol  = fv.logicalPart().solid();
-    std::string name = sol.name();
     // Layers first
     std::vector<int> copy = fv.copyNumbers();
     int nsiz = (int)(copy.size());
@@ -123,7 +122,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
     std::unordered_set<std::string> names;
     while (dodet) {
       const DDSolid & sol  = fv1.logicalPart().solid();
-      std::string name = fv1.logicalPart().name();
+      const std::string & name = fv1.logicalPart().name().name();
       std::vector<int> copy = fv1.copyNumbers();
       int nsiz  = (int)(copy.size());
       int wafer = (nsiz > 0) ? copy[nsiz-1] : 0;
@@ -198,7 +197,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
     dodet = true;
     while (dodet) {
       const DDSolid & sol  = fv2.logicalPart().solid();
-      std::string name = sol.name();
+      const std::string & name = sol.name().name();
       std::vector<int> copy = fv2.copyNumbers();
       int nsiz = (int)(copy.size());
       int cellx= (nsiz > 0) ? copy[nsiz-1] : 0;
@@ -483,7 +482,6 @@ void HGCalGeomParameters::loadGeometryHexagon8(const DDFilteredView& _fv,
   int levelTop = 3+std::max(php.levelT_[0],php.levelT_[1]);
   while (dodet) {
     const DDSolid & sol  = fv.logicalPart().solid();
-    std::string name = sol.name();
     // Layers first
     std::vector<int> copy = fv.copyNumbers();
     int nsiz = (int)(copy.size());

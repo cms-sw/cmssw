@@ -186,7 +186,7 @@ void TestMTDNumbering::theBaseNumber( const DDGeoHistory& gh ) {
   thisN_.setSize( gh.size() );
 
   for ( uint i = gh.size(); i-- > 0; ) {
-    std::string name(gh[i].logicalPart().name());
+    std::string name(gh[i].logicalPart().name().fullname());
     int copyN(gh[i].copyno());
     thisN_.addLevel( name, copyN );
 #ifdef EDM_ML_DEBUG
