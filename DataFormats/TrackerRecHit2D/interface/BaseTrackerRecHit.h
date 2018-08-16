@@ -134,7 +134,7 @@ private:
 
 #ifdef VI_DEBUG
   void check() const { assert(det());}
-#elif EDM_LM_DEBUG
+#elif DO_THROW_UNINITIALIZED
   void check() const;
 #else 
   static void check(){}
