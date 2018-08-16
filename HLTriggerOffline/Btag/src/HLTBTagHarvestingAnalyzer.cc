@@ -32,6 +32,7 @@ HLTBTagHarvestingAnalyzer::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
 	{
 	  dqmFolder_hist = Form("%s/Discriminator/%s",mainFolder_.c_str(),hltPathNames_[ind].c_str());
 	  std::string effDir = Form("%s/Discriminator/%s/efficiency",mainFolder_.c_str(),hltPathNames_[ind].c_str());
+	  //std::string varDir = Form("%s/Discriminator/%s/inputs",mainFolder_.c_str(),hltPathNames_[ind].c_str());
 	  std::string relationsDir = Form("%s/Discriminator/%s/HEP17_HEM17",mainFolder_.c_str(),hltPathNames_[ind].c_str());
 		ibooker.setCurrentFolder(effDir);
 		TH1 *den =nullptr;
