@@ -200,6 +200,7 @@ void perf() {
       justcomp::a[i++]= (WHAT<2) ? -x.f : 1.f/x.f;
     }
     measure(t);
+    // binary32 r;
     //  r.f=approx_expf<6>(x.f);// time	0m1.180s
     // r.f=expf(x.f);	// time 0m4.372s
     // r.f=exp(x.f);  // time 	0m1.789s
