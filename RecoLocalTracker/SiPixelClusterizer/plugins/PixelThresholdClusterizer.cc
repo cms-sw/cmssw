@@ -56,7 +56,7 @@ PixelThresholdClusterizer::PixelThresholdClusterizer
     theFirstStack_( conf.exists("FirstStackLayer") ? conf.getParameter<int>("FirstStackLayer") : 5 ),
     theElectronPerADCGain_( conf.exists("ElectronPerADCGain") ? conf.getParameter<double>("ElectronPerADCGain") : 135. ),
     doPhase2Calibration( conf.exists("Phase2Calibration") ? conf.getParameter<bool>("Phase2Calibration") : false),
-    phase2ReadoutMethod( conf.exists("Phase2ReadoutMethod") ? conf.getParameter<int>("Phase2ReadoutMethod") : -1),
+    phase2ReadoutMode( conf.exists("Phase2ReadoutMode") ? conf.getParameter<int>("Phase2ReadoutMode") : -1),
     phase2DigiBaseline( conf.exists("Phase2DigiBaseline") ? conf.getParameter<double>("Phase2DigiBaseline") : 0.),
     phase2KinkADC( conf.exists("Phase2KinkADC") ? conf.getParameter<int>("Phase2KinkADC") : 8),
     theNumOfRows(0), theNumOfCols(0), detid_(0),
@@ -333,7 +333,7 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row)
   if (doPhase2Calibration) {
 
     const float gain = theElectronPerADCGain_;
-    int p2rm = (phase2ReadoutMethod < -1 ? -1 : phase2ReadoutMethod);
+    int p2rm = (phase2ReadoutMode < -1 ? -1 : phase2ReadoutMode);
     if (p2rm > 10) p2rm = 10;
     const int dualslopeparam = abs(p2rm);
     const int dualslope = int(dualslopeparam <= 1 ? 1. : pow(2, dualslopeparam-1));
@@ -346,7 +346,7 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row)
         electrons = int(adc * gain - 0.5 * gain * dualslope);
     }
 
-    if (phase2ReadoutMethod > 0) electrons += int(phase2DigiBaseline);
+    if (phase2ReadoutMode > 0) electrons += int(phase2DigiBaseline);
 
     return electrons;
 
