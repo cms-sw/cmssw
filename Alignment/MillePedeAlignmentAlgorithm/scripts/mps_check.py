@@ -74,7 +74,7 @@ for i in xrange(len(lib.JOBID)):
         if os.access(stdOut+'.gz', os.R_OK):
             os.system('gunzip '+stdOut+'.gz')
 
-	try:
+        try:
             with open(stdOut, "r") as STDFILE:
                 # scan records in input file.
                 # use regular expression to search. re.compile needed for options re.M and re.I
@@ -366,9 +366,9 @@ for i in xrange(len(lib.JOBID)):
             print(lib.JOBDIR[i],lib.JOBID[i],'did not reach end of file')
             okStatus = 'ABEND'
         if quotaspace == 1:
-             print(lib.JOBDIR[i],lib.JOBID[i],'had quota space problem')
-             okStatus = 'FAIL'
-             remark = 'eos quota space problem'
+            print(lib.JOBDIR[i],lib.JOBID[i],'had quota space problem')
+            okStatus = 'FAIL'
+            remark = 'eos quota space problem'
         if ioprob == 1:
             print(lib.JOBDIR[i],lib.JOBID[i],'had I/O problem')
             okStatus = 'FAIL'

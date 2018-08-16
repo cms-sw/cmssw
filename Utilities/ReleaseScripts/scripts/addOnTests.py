@@ -12,7 +12,7 @@ scriptPath = os.path.dirname( os.path.abspath(sys.argv[0]) )
 if scriptPath not in sys.path:
     sys.path.append(scriptPath)
 
-        
+
 class testit(Thread):
     def __init__(self,dirName, commandList):
         Thread.__init__(self)
@@ -24,7 +24,7 @@ class testit(Thread):
         self.npass=[]
 
         return
-    
+
     def run(self):
 
         startime='date %s' %time.asctime()
@@ -37,7 +37,7 @@ class testit(Thread):
 
             commandbase = command.replace(' ','_').replace('/','_')
             logfile='%s.log' % commandbase[:150].replace("'",'').replace('"','').replace('../','')
-            
+
             executable = 'cd '+self.dirName+'; '+command+' > '+logfile+' 2>&1'
 
             ret = os.system(executable)
@@ -45,7 +45,7 @@ class testit(Thread):
 
         endtime='date %s' %time.asctime()
         tottime='%s-%s'%(endtime,startime)
-    
+
         for i in range(len(self.commandList)):
             command = self.commandList[i]
             exitcode = exitCodes[i]
@@ -81,7 +81,7 @@ class StandardTester(object):
         return nActive
 
     def prepare(self):
-    
+
         self.devPath = os.environ['LOCALRT'] + '/src/'
         self.relPath = self.devPath
         if 'CMSSW_RELEASE_BASE' in os.environ and (os.environ['CMSSW_RELEASE_BASE'] != ""): self.relPath = os.environ['CMSSW_RELEASE_BASE'] + '/src/'
@@ -95,7 +95,7 @@ class StandardTester(object):
 
         hltFlag_data = ' realData=True  globalTag=@ inputFiles=@ '
         hltFlag_mc   = ' realData=False globalTag=@ inputFiles=@ '
- 
+
         hltTests = {
                     'hlt_mc_Fake' : ['cmsDriver.py TTbar_Tauola_8TeV_TuneCUETP8M1_cfi -s GEN,SIM,DIGI,L1,DIGI2RAW  --mc --scenario=pp -n 10 --conditions auto:run1_mc_Fake --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAWSIM --customise=HLTrigger/Configuration/CustomConfigs.L1T --fileout file:RelVal_Raw_Fake_MC.root',
                                'cmsRun '+self.file2Path('HLTrigger/Configuration/test/OnLine_HLT_Fake.py')+hltFlag_mc,
@@ -154,7 +154,7 @@ class StandardTester(object):
         for dirName, commandList in hltTests.items():
             self.commands[dirName] = commandList
         return
-	
+
     def dumpTest(self):
         print(",".join(self.commands.keys()))
         return
@@ -174,48 +174,48 @@ class StandardTester(object):
         os.chdir('addOnTests')
 
         nfail=0
-    	npass=0
-    	report=''
-    	
-    	print('Running in %s thread(s)' % self.maxThreads)
-    	
+        npass=0
+        report=''
+
+        print('Running in %s thread(s)' % self.maxThreads)
+
         for dirName, command in self.commands.items():
 
-    	    if testList and not dirName in testList:
+            if testList and not dirName in testList:
                 del self.commands[dirName]
                 continue
 
             # make sure we don't run more than the allowed number of threads:
-    	    while self.activeThreads() >= self.maxThreads:
-    	        time.sleep(10)
+            while self.activeThreads() >= self.maxThreads:
+                time.sleep(10)
                 continue
-    	    
-    	    print('Preparing to run %s' % str(command))
-    	    current = testit(dirName, command)
-    	    self.threadList.append(current)
-    	    current.start()
+
+            print('Preparing to run %s' % str(command))
+            current = testit(dirName, command)
+            self.threadList.append(current)
+            current.start()
             time.sleep(random.randint(1,5)) # try to avoid race cond by sleeping random amount of time [1,5] sec 
-            
+
         # wait until all threads are finished
         while self.activeThreads() > 0:
-    	    time.sleep(5)
-    	    
-    	# all threads are done now, check status ...
-    	for pingle in self.threadList:
-    	    pingle.join()
+            time.sleep(5)
+
+        # all threads are done now, check status ...
+        for pingle in self.threadList:
+            pingle.join()
             for f in pingle.nfail: nfail  += f
             for p in pingle.npass: npass  += p
-    	    report += pingle.report
-    	    print(pingle.report)
+            report += pingle.report
+            print(pingle.report)
             sys.stdout.flush()
-            
-    	reportSumm = '\n %s tests passed, %s failed \n' %(npass,nfail)
-    	print(reportSumm)
-    	
-    	runall_report_name='runall-report.log'
-    	runall_report=open(runall_report_name,'w')
-    	runall_report.write(report+reportSumm)
-    	runall_report.close()
+
+        reportSumm = '\n %s tests passed, %s failed \n' %(npass,nfail)
+        print(reportSumm)
+
+        runall_report_name='runall-report.log'
+        runall_report=open(runall_report_name,'w')
+        runall_report.write(report+reportSumm)
+        runall_report.close()
 
         # get the logs to the logs dir:
         print('==> in :', os.getcwd())
@@ -231,8 +231,8 @@ class StandardTester(object):
         pickle.dump(self.commands, open('logs/addOnTests.pkl', 'w') )
 
         os.chdir(actDir)
-        
-    	return
+
+        return
 
     def upload(self, tgtDir):
 
@@ -240,7 +240,7 @@ class StandardTester(object):
 
         if not os.path.exists(tgtDir):
             os.makedirs(tgtDir)
-        
+
         cmd = 'tar cf - addOnTests.log addOnTests/logs | (cd '+tgtDir+' ; tar xf - ) '
         try:
             print('executing: ',cmd)
@@ -249,20 +249,20 @@ class StandardTester(object):
                 print("ERROR uploading logs:", ret, cmd)
         except Exception as e:
             print("EXCEPTION while uploading addOnTest-logs : ", str(e))
-            
-    	return
 
-                
+        return
+
+
 def main(argv) :
 
     import getopt
-    
+
     try:
         opts, args = getopt.getopt(argv, "dj:t:", ["nproc=", 'uploadDir=', 'tests=','noRun','dump'])
     except getopt.GetoptError as e:
         print("unknown option", str(e))
         sys.exit(2)
-        
+
     np        = 4
     uploadDir = None
     runTests  = True
@@ -289,6 +289,6 @@ def main(argv) :
         if uploadDir:
             tester.upload(uploadDir)
     return
-    
+
 if __name__ == '__main__' :
     main(sys.argv[1:])
