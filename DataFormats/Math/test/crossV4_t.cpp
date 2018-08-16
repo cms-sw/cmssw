@@ -2,6 +2,7 @@
 #include "DataFormats/Math/interface/SSEVec.h"
 
 int main() {
+#ifdef  CMS_USE_SSE
 {
   mathSSE::Vec4<float> yAxis(-0.0144846,0.932024,-0.362108);
   mathSSE::Vec4<float> zAxis(-0.204951,0.351689,0.913406);
@@ -34,6 +35,10 @@ int main() {
 }
 
 
+ std::cout << "arch->x86" << std::endl;
+#else
+ std::cout << "arch->non-x86" << std::endl;
+#endif
    return 0;
 }
 
