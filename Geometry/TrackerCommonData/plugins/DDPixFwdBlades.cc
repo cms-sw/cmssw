@@ -185,7 +185,7 @@ void DDPixFwdBlades::execute(DDCompactView& cpv) {
     // create DDRotation for placing the child if not already existent :
 
     DDRotation rotation;   
-    std::string rotstr = DDSplit(mother).first + DDSplit(childName).first + std::to_string(copy);
+    std::string rotstr = mother.name() + DDSplit(childName).first + std::to_string(copy);
     rotation = DDRotation(DDName(rotstr, idNameSpace));
 
     if (!rotation) {

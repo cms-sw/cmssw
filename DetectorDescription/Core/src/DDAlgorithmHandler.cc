@@ -6,7 +6,7 @@
 class DDCompactView;
 
 void
-DDAlgorithmHandler::initialize( const std::string & algoName,
+DDAlgorithmHandler::initialize( const DDName & algoName,
 				const DDLogicalPart & parent,
 				const DDNumericArguments & nArgs,
 				const DDVectorArguments & vArgs,
@@ -14,8 +14,7 @@ DDAlgorithmHandler::initialize( const std::string & algoName,
 				const DDStringArguments & sArgs,
 				const DDStringVectorArguments & svArgs )
 {
-  algoname_ = algoName;
-  algo_ = std::unique_ptr<DDAlgorithm>(DDAlgorithmFactory::get()->create( algoname_ ));
+  algo_ = std::unique_ptr<DDAlgorithm>(DDAlgorithmFactory::get()->create( algoName.fullname()));
   algo_->setParent( parent );
   algo_->initialize( nArgs, vArgs, mArgs, sArgs, svArgs );
 }
