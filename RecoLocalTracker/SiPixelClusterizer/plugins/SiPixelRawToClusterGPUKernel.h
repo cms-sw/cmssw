@@ -173,7 +173,7 @@ namespace pixelgpudetails {
     void makeClustersAsync(const SiPixelFedCablingMapGPU *cablingMap, const unsigned char *modToUnp,
                            const SiPixelGainForHLTonGPU *gains,
                            const uint32_t wordCounter, const uint32_t fedCounter, bool convertADCtoElectrons,
-                           bool useQualityInfo, bool includeErrors, bool debug,
+                           bool useQualityInfo, bool includeErrors, bool transferToCPU_, bool debug,
                            cuda::stream_t<>& stream);
 
     auto getProduct() {
