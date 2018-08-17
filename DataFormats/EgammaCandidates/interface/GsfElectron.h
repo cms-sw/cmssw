@@ -416,7 +416,7 @@ class GsfElectron : public RecoCandidate
 	     r9(-std::numeric_limits<float>::max()),
        hcalDepth1OverEcal(0.), hcalDepth2OverEcal(0.),
        hcalDepth1OverEcalBc(0.), hcalDepth2OverEcalBc(0.),
-       invalidHcal(0),
+       invalidHcal(false),
        sigmaIetaIphi(0.f),
        eMax(0.f),
        e2nd(0.f),
