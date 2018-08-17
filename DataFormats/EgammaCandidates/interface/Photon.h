@@ -178,7 +178,7 @@ namespace reco {
 	  hcalDepth2OverEcal(0),
 	  hcalDepth1OverEcalBc(0),
           hcalDepth2OverEcalBc(0),
-          invalidHcal(0),
+          invalidHcal(false),
           effSigmaRR(std::numeric_limits<float>::max()),
           sigmaIetaIphi(std::numeric_limits<float>::max()),
           sigmaIphiIphi(std::numeric_limits<float>::max()),
