@@ -427,8 +427,8 @@ TrackMon.PVBin = cms.int32 ( 40 )
 TrackMon.PVMin = cms.double( -0.5)
 TrackMon.PVMax = cms.double( 79.5) ## it might need to be adjust if CMS asks to have lumi levelling at lower values
 
-TrackMon.DxyBin = cms.int32(200)
-TrackMon.DxyMax = cms.double(0.1)
+TrackMon.DxyErrBin = cms.int32(200)
+TrackMon.DxyErrMax = cms.double(0.1)
 
 TrackMon.RegionProducer = cms.InputTag("")
 TrackMon.RegionSeedingLayersProducer = cms.InputTag("")
