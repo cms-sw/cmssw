@@ -57,7 +57,7 @@ namespace gem {
     // need to include all the flags
     //!Reads the word for GEM Chamber Trailer
     /**
-       Fills the OH CRC, VFAT word count, InFIFO underflow, and Stuck data.
+       Fills the OH CRC, VFAT word count, InFIFO underflow, Stuck data, OH BC and OH EC.
     */
     void setChamberTrailer(uint64_t word)
     {
