@@ -37,7 +37,12 @@ namespace L1Analysis
       kTotalHtxHF,
       kTotalHtyHF,
       kMissingHtHF,
-      kTowerCount      
+      kTowerCount,
+      kCentrality,
+      kAsymEt,
+      kAsymHt,
+      kAsymEtHF,
+      kAsymHtHF    
   };
   
   struct L1AnalysisL1UpgradeDataFormat
