@@ -1,19 +1,19 @@
-#ifndef RecHitsMap_H
-#define RecHitsMap_H
-  // store T for each cluster...
+//FIXME move it to a better place...
 
-#include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
+#ifndef RecoPixelVertexing_PixelTriplets_plugins_RecHitsMap_h
+#define RecoPixelVertexing_PixelTriplets_plugins_RecHitsMap_h
+
+
 #include <cstdint>
 #include <unordered_map>
 
+#include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
-//FIXME move it to a better place...
+// store T for each cluster
 template<typename T>
 class RecHitsMap {
-public: 
-
+public:
      explicit RecHitsMap(T const & d=T()) : dummy(d){}
 
      void clear() {m_map.clear();}
@@ -26,7 +26,7 @@ public:
        auto const & thit = static_cast<BaseTrackerRecHit const&>(hit);
        auto const & clus = thit.firstClusterRef();
 
-       if (clus.isPixel()) 
+       if (clus.isPixel())
           add(clus.pixelCluster(), *thit.detUnit(),v);
        else
           add(clus.stripCluster(), *thit.detUnit(),v);
@@ -51,7 +51,7 @@ public:
      }
 
      static uint64_t encode(uint32_t ind, uint16_t mr, uint16_t mc) {
-          uint64_t u1 = ind;                            
+          uint64_t u1 = ind;
           uint64_t u2 = mr;
           uint64_t u3 = mc;
           return (u1<<32) | (u2<<16) | u3;
@@ -69,9 +69,8 @@ public:
        	  return (u1<<32) | u2;
      }
 
-
      std::unordered_map<uint64_t, T > m_map;
      T dummy;
   };
 
-#endif
+#endif // RecoPixelVertexing_PixelTriplets_plugins_RecHitsMap_h
