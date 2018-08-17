@@ -273,10 +273,12 @@ void L1TStage2CaloLayer2::analyze(const edm::Event & e, const edm::EventSetup & 
 	  // stage2CaloLayer2ETTHFRank_->Fill(itEtSum->hwPt());
 	} else if(l1t::EtSum::EtSumType::kMissingHt == itEtSum->getType()){    // MHT
 	  stage2CaloLayer2MHTRank_->Fill(itEtSum->hwPt());
-	  stage2CaloLayer2MHTPhi_->Fill(itEtSum->hwPhi());
+          if (itEtSum->hwPt()>0)
+		  stage2CaloLayer2MHTPhi_->Fill(itEtSum->hwPhi());
 	} else if(l1t::EtSum::EtSumType::kMissingHtHF == itEtSum->getType()){  // MHTHF
 	  stage2CaloLayer2MHTHFRank_->Fill(itEtSum->hwPt());
-	  stage2CaloLayer2MHTHFPhi_->Fill(itEtSum->hwPhi());
+	  if (itEtSum->hwPt()>0)
+	          stage2CaloLayer2MHTHFPhi_->Fill(itEtSum->hwPhi());
 	} else if(l1t::EtSum::EtSumType::kMinBiasHFP0 == itEtSum->getType()){  // MBHFP0
 	  stage2CaloLayer2MinBiasHFP0_->Fill(itEtSum->hwPt());
 	} else if(l1t::EtSum::EtSumType::kMinBiasHFM0 == itEtSum->getType()){  // MBHFM0
