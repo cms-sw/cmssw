@@ -104,7 +104,7 @@ std::unique_ptr<reco::Track> PixelFitterByRiemannParaboloid::run(
   float errValCotTheta = std::sqrt(fittedTrack.cov(3, 3));
   float errValZip = std::sqrt(fittedTrack.cov(4, 4));
 
-  float chi2 = fittedTrack.chi2_line;
+  float chi2 = fittedTrack.chi2_line + fittedTrack.chi2_circle;
 
   PixelTrackBuilder builder;
   Measurement1D phi(valPhi, errValPhi);
