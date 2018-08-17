@@ -7,7 +7,7 @@ def customizePixelTracksForProfiling(process):
         ),
         verbosity = cms.untracked.uint32(0),
     )
-    
+
     process.outPath = cms.EndPath(process.out)
 
     process.schedule = cms.Schedule(process.raw2digi_step, process.reconstruction_step, process.outPath)

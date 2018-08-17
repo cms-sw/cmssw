@@ -5,9 +5,11 @@
 #include <string>
 #include <vector>
 
-struct CALayer {
+struct CALayer
+{
   CALayer(const std::string &layerName, std::size_t numberOfHits)
-      : theName(layerName) {
+      : theName(layerName)
+  {
     isOuterHitOfCell.resize(numberOfHits);
   }
 
@@ -28,8 +30,8 @@ private:
   std::string theName;
 };
 
-struct CALayerPair {
-
+struct CALayerPair
+{
   CALayerPair(int a, int b)
 
   {
@@ -46,7 +48,8 @@ struct CALayerPair {
   std::array<unsigned int, 2> theFoundCells = {{0, 0}};
 };
 
-struct CAGraph {
+struct CAGraph
+{
   std::vector<CALayer> theLayers;
   std::vector<CALayerPair> theLayerPairs;
   std::vector<int> theRootLayers;

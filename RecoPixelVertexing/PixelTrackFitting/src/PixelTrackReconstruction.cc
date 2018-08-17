@@ -1,28 +1,21 @@
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackReconstruction.h"
+#include <vector>
 
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
-
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
-
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
-
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleaner.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleanerWrapper.h"
-
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/TrackExtra.h"
-
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackReconstruction.h"
 #include "RecoTracker/TkHitPairs/interface/RegionsSeedingHitSets.h"
-
-#include <vector>
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 
 using namespace pixeltrackfitting;
 using edm::ParameterSet;
@@ -34,7 +27,7 @@ PixelTrackReconstruction::PixelTrackReconstruction(const ParameterSet& cfg,
     theCleanerName(cfg.getParameter<std::string>("Cleaner"))
 {
   edm::InputTag filterTag = cfg.getParameter<edm::InputTag>("Filter");
-  if(filterTag.label() != "") {
+  if (not filterTag.label().empty()) {
     theFilterToken = iC.consumes<PixelTrackFilter>(filterTag);
   }
 }
@@ -68,10 +61,9 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
   }
 
   std::vector<const TrackingRecHit *> hits;hits.reserve(4);
-  int counter = -1;
   for(const auto& regionHitSets: hitSets) {
     const TrackingRegion& region = regionHitSets.region();
-    counter++;
+
     for(const SeedingHitSet& tuplet: regionHitSets) {
       /// FIXME at some point we need to migrate the fitter...
       auto nHits = tuplet.size(); hits.resize(nHits);
