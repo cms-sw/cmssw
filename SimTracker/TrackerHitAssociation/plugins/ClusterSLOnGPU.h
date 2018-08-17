@@ -1,28 +1,23 @@
-#ifndef SimTrackerTrackerHitAssociationClusterSLOnGPU_H
-#define SimTrackerTrackerHitAssociationClusterSLOnGPU_H
+#ifndef SimTracker_TrackerHitAssociation_plugins_ClusterSLOnGPU_h
+#define SimTracker_TrackerHitAssociation_plugins_ClusterSLOnGPU_h
 
 #include <cuda_runtime.h>
 #include <cuda/api_wrappers.h>
+
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-
-
-#include "trackerHitAssociationHeterogeneousProduct.h"
-
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/siPixelRawToClusterHeterogeneousProduct.h"
 #include "RecoLocalTracker/SiPixelRecHits/plugins/siPixelRecHitsHeterogeneousProduct.h"
 
-
-
+#include "trackerHitAssociationHeterogeneousProduct.h"
 
 namespace clusterSLOnGPU {
 
   using ClusterSLGPU = trackerHitAssociationHeterogeneousProduct::ClusterSLGPU;
-  using GPUProduct = trackerHitAssociationHeterogeneousProduct::GPUProduct;
+  using GPUProduct   = trackerHitAssociationHeterogeneousProduct::GPUProduct;
 
-  using DigisOnGPU = siPixelRawToClusterHeterogeneousProduct::GPUProduct;
-  using HitsOnGPU = siPixelRecHitsHeterogeneousProduct::HitsOnGPU;
-  using HitsOnCPU = siPixelRecHitsHeterogeneousProduct::HitsOnCPU;
-
+  using DigisOnGPU   = siPixelRawToClusterHeterogeneousProduct::GPUProduct;
+  using HitsOnGPU    = siPixelRecHitsHeterogeneousProduct::HitsOnGPU;
+  using HitsOnCPU    = siPixelRecHitsHeterogeneousProduct::HitsOnCPU;
 
   class Kernel {
   public:
@@ -35,10 +30,11 @@ namespace clusterSLOnGPU {
      void alloc(cuda::stream_t<>& stream);
      void deAlloc(); 
      void zero(cudaStream_t stream);
+
   public:
      ClusterSLGPU slgpu; 
      bool doDump;
   };
 }
 
-#endif
+#endif // SimTracker_TrackerHitAssociation_plugins_ClusterSLOnGPU_h

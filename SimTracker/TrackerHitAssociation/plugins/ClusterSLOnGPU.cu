@@ -15,42 +15,45 @@ void simLink(clusterSLOnGPU::DigisOnGPU const * ddp, uint32_t ndigis, clusterSLO
 {
   assert(slp == slp->me_d);
 
-  constexpr int32_t invTK = 0; // std::numeric_limits<int32_t>::max();
-
-  constexpr uint16_t InvId = 9999; // must be > MaxNumModules
+  constexpr int32_t  invTK = 0;     // std::numeric_limits<int32_t>::max();
+  constexpr uint16_t InvId = 9999;  // must be > MaxNumModules
 
   auto const & dd = *ddp;
   auto const & hh = *hhp;
   auto const & sl = *slp;
   auto i = blockIdx.x * blockDim.x + threadIdx.x;
 
-  if (i>ndigis) return;
+  if (i >= ndigis)
+    return;
 
   auto id = dd.moduleInd_d[i];
-  if (InvId==id) return;
-  assert(id<2000);
+  if (InvId == id)
+    return;
+  assert(id < 2000);
 
   auto ch = pixelgpudetails::pixelToChannel(dd.xx_d[i], dd.yy_d[i]);
   auto first = hh.hitsModuleStart_d[id];
   auto cl = first + dd.clus_d[i];
-  assert(cl<256*2000);
+  assert(cl < 2000 * blockDim.x);
 
   const std::array<uint32_t, 4> me{{id, ch, 0, 0}};
 
-  auto less = [] __device__ __host__ (std::array<uint32_t, 4> const & a, std::array<uint32_t, 4> const & b)->bool {
-     return a[0]<b[0] || ( !(b[0]<a[0]) && a[1]<b[1]); // in this context we do not care of [2]
+  auto less = [] __host__ __device__ (std::array<uint32_t, 4> const & a, std::array<uint32_t, 4> const & b)->bool {
+     // in this context we do not care of [2]
+     return a[0] < b[0] or (not b[0] < a[0] and a[1] < b[1]);
   };
 
-  auto equal = [] __device__ __host__ (std::array<uint32_t, 4> const & a, std::array<uint32_t, 4> const & b)->bool {
-     return a[0]==b[0] && a[1]==b[1]; // in this context we do not care of [2]
+  auto equal = [] __host__ __device__ (std::array<uint32_t, 4> const & a, std::array<uint32_t, 4> const & b)->bool {
+     // in this context we do not care of [2]
+     return a[0] == b[0] and a[1] == b[1];
   };
 
   auto const * b = sl.links_d;
-  auto const * e = b+n;
+  auto const * e = b + n;
 
   auto p = cuda_std::lower_bound(b, e, me, less);
   int32_t j = p-sl.links_d;
-  assert(j>=0);
+  assert(j >= 0);
 
   auto getTK = [&](int i) { auto const & l = sl.links_d[i]; return l[2];};
 
@@ -59,23 +62,13 @@ void simLink(clusterSLOnGPU::DigisOnGPU const * ddp, uint32_t ndigis, clusterSLO
     auto const itk = j;
     auto const tk = getTK(j);
     auto old = atomicCAS(&sl.tkId_d[cl], invTK, itk);
-    if (invTK==old || tk==getTK(old)) {
+    if (invTK == old or tk == getTK(old)) {
        atomicAdd(&sl.n1_d[cl], 1);
-//         sl.n1_d[cl] = tk;
     } else {
       auto old = atomicCAS(&sl.tkId2_d[cl], invTK, itk);
-      if (invTK==old || tk==getTK(old)) atomicAdd(&sl.n2_d[cl], 1);
+      if (invTK == old or tk == getTK(old)) atomicAdd(&sl.n2_d[cl], 1);
     }
-//    if (92==tk) printf("TK3: %d %d %d  %d: %d,%d ?%d?%d\n", j, cl, id, i, dd.xx_d[i], dd.yy_d[i], hh.mr_d[cl], hh.mc_d[cl]);
   }
-  /*
-  else {
-    auto const & k=sl.links_d[j];
-    auto const & kk = j+1<n ? sl.links_d[j+1] : k;
-    printf("digi not found %d:%d closest %d:%d:%d, %d:%d:%d\n", id, ch, k[0], k[1], k[2], kk[0], kk[1], kk[2]);
-  }
-  */
-
 }
 
 __global__
@@ -116,15 +109,15 @@ void dumpLink(int first, int ev, clusterSLOnGPU::HitsOnGPU const * hhp, uint32_t
 
 namespace clusterSLOnGPU {
 
- constexpr uint32_t invTK = 0; // std::numeric_limits<int32_t>::max();
+  constexpr uint32_t invTK = 0; // std::numeric_limits<int32_t>::max();
 
- void printCSVHeader() {
-      printf("HIT: %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n", "ev", "ind",
-         "det", "charge",	
-         "xg","yg","zg","rg","iphi",
-         "tkId","pt","n1","tkId2","pt2","n2"
+  void printCSVHeader() {
+    printf("HIT: %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n", "ev", "ind",
+        "det", "charge",
+        "xg","yg","zg","rg","iphi",
+        "tkId","pt","n1","tkId2","pt2","n2"
         );
-     }
+  }
 
   std::atomic<int> evId(0);
   std::once_flag doneCSVHeader;
@@ -134,46 +127,33 @@ namespace clusterSLOnGPU {
     alloc(stream);
   }
 
-  void
-  Kernel::alloc(cuda::stream_t<>& stream) {
-   cudaCheck(cudaMalloc((void**) & slgpu.links_d, (ClusterSLGPU::MAX_DIGIS)*sizeof(std::array<uint32_t, 4>)));
-
-   cudaCheck(cudaMalloc((void**) & slgpu.tkId_d, (ClusterSLGPU::MaxNumModules*256)*sizeof(uint32_t)));
-   cudaCheck(cudaMalloc((void**) & slgpu.tkId2_d, (ClusterSLGPU::MaxNumModules*256)*sizeof(uint32_t)));
-   cudaCheck(cudaMalloc((void**) & slgpu.n1_d, (ClusterSLGPU::MaxNumModules*256)*sizeof(uint32_t)));
-   cudaCheck(cudaMalloc((void**) & slgpu.n2_d, (ClusterSLGPU::MaxNumModules*256)*sizeof(uint32_t)));
-
-   cudaCheck(cudaMalloc((void**) & slgpu.me_d, sizeof(ClusterSLGPU)));
-   cudaCheck(cudaMemcpyAsync(slgpu.me_d, &slgpu, sizeof(ClusterSLGPU), cudaMemcpyDefault, stream.id()));
+  void Kernel::alloc(cuda::stream_t<>& stream) {
+    cudaCheck(cudaMalloc((void**) & slgpu.links_d, (ClusterSLGPU::MAX_DIGIS)*sizeof(std::array<uint32_t, 4>)));
+    cudaCheck(cudaMalloc((void**) & slgpu.tkId_d, (ClusterSLGPU::MaxNumModules*256)*sizeof(uint32_t)));
+    cudaCheck(cudaMalloc((void**) & slgpu.tkId2_d, (ClusterSLGPU::MaxNumModules*256)*sizeof(uint32_t)));
+    cudaCheck(cudaMalloc((void**) & slgpu.n1_d, (ClusterSLGPU::MaxNumModules*256)*sizeof(uint32_t)));
+    cudaCheck(cudaMalloc((void**) & slgpu.n2_d, (ClusterSLGPU::MaxNumModules*256)*sizeof(uint32_t)));
+    cudaCheck(cudaMalloc((void**) & slgpu.me_d, sizeof(ClusterSLGPU)));
+    cudaCheck(cudaMemcpyAsync(slgpu.me_d, &slgpu, sizeof(ClusterSLGPU), cudaMemcpyDefault, stream.id()));
   }
 
- void
-  Kernel::deAlloc() {
-   cudaCheck(cudaFree(slgpu.links_d));
-   cudaCheck(cudaFree(slgpu.tkId_d));
-   cudaCheck(cudaFree(slgpu.tkId2_d));
-   cudaCheck(cudaFree(slgpu.n1_d));
-   cudaCheck(cudaFree(slgpu.n2_d));
-   cudaCheck(cudaFree(slgpu.me_d));
-}
-
-  void
-  Kernel::zero(cudaStream_t stream) {
-   cudaCheck(cudaMemsetAsync(slgpu.tkId_d, invTK, (ClusterSLGPU::MaxNumModules*256)*sizeof(uint32_t), stream));
-   cudaCheck(cudaMemsetAsync(slgpu.tkId2_d, invTK, (ClusterSLGPU::MaxNumModules*256)*sizeof(uint32_t), stream));
-   cudaCheck(cudaMemsetAsync(slgpu.n1_d, 0, (ClusterSLGPU::MaxNumModules*256)*sizeof(uint32_t), stream));
-   cudaCheck(cudaMemsetAsync(slgpu.n2_d, 0, (ClusterSLGPU::MaxNumModules*256)*sizeof(uint32_t), stream));
+  void Kernel::deAlloc() {
+    cudaCheck(cudaFree(slgpu.links_d));
+    cudaCheck(cudaFree(slgpu.tkId_d));
+    cudaCheck(cudaFree(slgpu.tkId2_d));
+    cudaCheck(cudaFree(slgpu.n1_d));
+    cudaCheck(cudaFree(slgpu.n2_d));
+    cudaCheck(cudaFree(slgpu.me_d));
   }
 
-  void
-  Kernel::algo(DigisOnGPU const & dd, uint32_t ndigis, HitsOnCPU const & hh, uint32_t nhits, uint32_t n, cuda::stream_t<>& stream) {
-    /*
-    size_t pfs = 16*1024*1024;
-    // cudaDeviceSetLimit(cudaLimitPrintfFifoSize, pfs);
-    cudaDeviceGetLimit(&pfs, cudaLimitPrintfFifoSize);
-    std::cout << "cudaLimitPrintfFifoSize " << pfs << std::endl;
-    */
+  void Kernel::zero(cudaStream_t stream) {
+    cudaCheck(cudaMemsetAsync(slgpu.tkId_d, invTK, (ClusterSLGPU::MaxNumModules*256)*sizeof(uint32_t), stream));
+    cudaCheck(cudaMemsetAsync(slgpu.tkId2_d, invTK, (ClusterSLGPU::MaxNumModules*256)*sizeof(uint32_t), stream));
+    cudaCheck(cudaMemsetAsync(slgpu.n1_d, 0, (ClusterSLGPU::MaxNumModules*256)*sizeof(uint32_t), stream));
+    cudaCheck(cudaMemsetAsync(slgpu.n2_d, 0, (ClusterSLGPU::MaxNumModules*256)*sizeof(uint32_t), stream));
+  }
 
+  void Kernel::algo(DigisOnGPU const & dd, uint32_t ndigis, HitsOnCPU const & hh, uint32_t nhits, uint32_t n, cuda::stream_t<>& stream) {
     zero(stream.id());
 
     ClusterSLGPU const & sl = slgpu;
