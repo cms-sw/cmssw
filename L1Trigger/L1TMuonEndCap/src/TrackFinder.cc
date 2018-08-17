@@ -15,12 +15,14 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
     config_(iConfig),
     tokenCSC_(iConsumes.consumes<CSCTag::digi_collection>(iConfig.getParameter<edm::InputTag>("CSCInput"))),
     tokenRPC_(iConsumes.consumes<RPCTag::digi_collection>(iConfig.getParameter<edm::InputTag>("RPCInput"))),
+    tokenCPPF_(iConsumes.consumes<CPPFTag::digi_collection>(iConfig.getParameter<edm::InputTag>("CPPFInput"))),
     tokenGEM_(iConsumes.consumes<GEMTag::digi_collection>(iConfig.getParameter<edm::InputTag>("GEMInput"))),
     verbose_(iConfig.getUntrackedParameter<int>("verbosity")),
     primConvLUT_(iConfig.getParameter<edm::ParameterSet>("spPCParams16").getParameter<int>("PrimConvLUT")),
     fwConfig_(iConfig.getParameter<bool>("FWConfig")),
     useCSC_(iConfig.getParameter<bool>("CSCEnable")),
     useRPC_(iConfig.getParameter<bool>("RPCEnable")),
+    useCPPF_(iConfig.getParameter<bool>("CPPFEnable")),
     useGEM_(iConfig.getParameter<bool>("GEMEnable")),
     era_(iConfig.getParameter<std::string>("Era"))
 {
@@ -132,7 +134,9 @@ void TrackFinder::process(
   EMTFSubsystemCollector collector;
   if (useCSC_)
     collector.extractPrimitives(CSCTag(), iEvent, tokenCSC_, muon_primitives);
-  if (useRPC_)
+  if (useRPC_ && useCPPF_)
+    collector.extractPrimitives(CPPFTag(), iEvent, tokenCPPF_, muon_primitives);
+  else if (useRPC_)
     collector.extractPrimitives(RPCTag(), iEvent, tokenRPC_, muon_primitives);
   if (useGEM_)
     collector.extractPrimitives(GEMTag(), iEvent, tokenGEM_, muon_primitives);
