@@ -149,6 +149,7 @@ void CAHitQuadrupletGeneratorGPU::allocateOnGPU()
 
 void CAHitQuadrupletGeneratorGPU::launchKernels(const TrackingRegion &region,
                                                 int regionIndex, HitsOnCPU const & hh,
+                                                bool transferToCPU,
                                                 cudaStream_t cudaStream)
 {
   assert(regionIndex < maxNumberOfRegions_);
@@ -186,26 +187,30 @@ void CAHitQuadrupletGeneratorGPU::launchKernels(const TrackingRegion &region,
 
   // kernel_print_found_ntuplets<<<1,1,0, cudaStream>>>(d_foundNtupletsVec_[regionIndex],10);
 
-  cudaCheck(cudaMemcpyAsync(h_foundNtupletsVec_[regionIndex], d_foundNtupletsVec_[regionIndex],
-                            sizeof(GPU::SimpleVector<Quadruplet>),
-                            cudaMemcpyDeviceToHost, cudaStream));
+  if(transferToCPU) {
+    cudaCheck(cudaMemcpyAsync(h_foundNtupletsVec_[regionIndex], d_foundNtupletsVec_[regionIndex],
+                              sizeof(GPU::SimpleVector<Quadruplet>),
+                              cudaMemcpyDeviceToHost, cudaStream));
 
-  cudaCheck(cudaMemcpyAsync(h_foundNtupletsData_[regionIndex], d_foundNtupletsData_[regionIndex],
-                            maxNumberOfQuadruplets_*sizeof(Quadruplet),
-                            cudaMemcpyDeviceToHost, cudaStream));
-
+    cudaCheck(cudaMemcpyAsync(h_foundNtupletsData_[regionIndex], d_foundNtupletsData_[regionIndex],
+                              maxNumberOfQuadruplets_*sizeof(Quadruplet),
+                              cudaMemcpyDeviceToHost, cudaStream));
+  }
 }
 
-std::vector<std::array<int, 4>>
-CAHitQuadrupletGeneratorGPU::fetchKernelResult(int regionIndex, cudaStream_t cudaStream)
-{
-  assert(0==regionIndex);
-  h_foundNtupletsVec_[regionIndex]->set_data(h_foundNtupletsData_[regionIndex]);
+void CAHitQuadrupletGeneratorGPU::cleanup(cudaStream_t cudaStream) {
   // this lazily resets temporary memory for the next event, and is not needed for reading the output
   cudaCheck(cudaMemsetAsync(device_isOuterHitOfCell_, 0,
                             maxNumberOfLayers_ * maxNumberOfHits_ * sizeof(GPU::VecArray<unsigned int, maxCellsPerHit_>),
                             cudaStream));
   cudaCheck(cudaMemsetAsync(device_nCells_,0,sizeof(uint32_t),cudaStream));
+}
+
+std::vector<std::array<int, 4>>
+CAHitQuadrupletGeneratorGPU::fetchKernelResult(int regionIndex)
+{
+  assert(0==regionIndex);
+  h_foundNtupletsVec_[regionIndex]->set_data(h_foundNtupletsData_[regionIndex]);
 
   std::vector<std::array<int, 4>> quadsInterface(h_foundNtupletsVec_[regionIndex]->size());
   for (int i = 0; i < h_foundNtupletsVec_[regionIndex]->size(); ++i) {

@@ -56,11 +56,12 @@ public:
 
     void hitNtuplets(const TrackingRegion &region, HitsOnCPU const & hh,
                      const edm::EventSetup& es,
+                     bool transferToCPU,
                      cudaStream_t stream);
+    void cleanup(cudaStream_t stream);
     void fillResults(const TrackingRegion &region, SiPixelRecHitCollectionNew const & rechits,
                      std::vector<OrderedHitSeeds>& result,
-                     const edm::EventSetup& es,
-                     cudaStream_t stream);
+                     const edm::EventSetup& es);
 
     void allocateOnGPU();
     void deallocateOnGPU();
@@ -134,8 +135,8 @@ private:
         const bool enabled_;
     };
 
-    void  launchKernels(const TrackingRegion &, int, HitsOnCPU const & hh, cudaStream_t);
-    std::vector<std::array<int,4>> fetchKernelResult(int, cudaStream_t);
+    void  launchKernels(const TrackingRegion &, int, HitsOnCPU const & hh, bool transferToCPU, cudaStream_t);
+    std::vector<std::array<int,4>> fetchKernelResult(int);
 
 
     const float extraHitRPhitolerance;

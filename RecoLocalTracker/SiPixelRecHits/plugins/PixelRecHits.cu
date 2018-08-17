@@ -123,6 +123,7 @@ namespace pixelgpudetails {
   void PixelRecHitGPUKernel::makeHitsAsync(const siPixelRawToClusterHeterogeneousProduct::GPUProduct& input,
                                            float const * bs,
                                            pixelCPEforGPU::ParamsOnGPU const * cpeParams,
+                                           bool transferToCPU,
                                            cuda::stream_t<>& stream) {
     cudaCheck(cudaMemcpyAsync(gpu_.bs_d, bs, 3 * sizeof(float), cudaMemcpyDefault, stream.id()));
     gpu_.hitsModuleStart_d = input.clusModuleStart_d;
@@ -156,33 +157,35 @@ namespace pixelgpudetails {
 
     // needed only if hits on CPU are required...
     nhits_ = input.nClusters;
-    cudaCheck(cudaMemcpyAsync(h_hitsModuleStart_, gpu_.hitsModuleStart_d, (gpuClustering::MaxNumModules+1) * sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
+    if(transferToCPU) {
+      cudaCheck(cudaMemcpyAsync(h_hitsModuleStart_, gpu_.hitsModuleStart_d, (gpuClustering::MaxNumModules+1) * sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
 #ifdef GPU_DEBUG
-    cudaCheck(cudaMemcpyAsync(h_hitsLayerStart_, gpu_.hitsLayerStart_d, 11 * sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
+      cudaCheck(cudaMemcpyAsync(h_hitsLayerStart_, gpu_.hitsLayerStart_d, 11 * sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
 #endif
 
-    cudaCheck(cudaMemcpy2DAsync(h_owner_16bit_, h_owner_16bit_pitch_,
-                                gpu_.owner_16bit_, gpu_.owner_16bit_pitch_,
-                                nhits_*sizeof(uint16_t), 3,
-                                cudaMemcpyDefault, stream.id()));
+      cudaCheck(cudaMemcpy2DAsync(h_owner_16bit_, h_owner_16bit_pitch_,
+                                  gpu_.owner_16bit_, gpu_.owner_16bit_pitch_,
+                                  nhits_*sizeof(uint16_t), 3,
+                                  cudaMemcpyDefault, stream.id()));
 
-    cudaCheck(cudaMemcpy2DAsync(h_owner_32bit_, h_owner_32bit_pitch_,
-                                gpu_.owner_32bit_, gpu_.owner_32bit_pitch_,
-                                nhits_*sizeof(uint32_t), 5,
-                                cudaMemcpyDefault, stream.id()));
+      cudaCheck(cudaMemcpy2DAsync(h_owner_32bit_, h_owner_32bit_pitch_,
+                                  gpu_.owner_32bit_, gpu_.owner_32bit_pitch_,
+                                  nhits_*sizeof(uint32_t), 5,
+                                  cudaMemcpyDefault, stream.id()));
 
 #ifdef GPU_DEBUG
-    cudaStreamSynchronize(stream.id());
+      cudaStreamSynchronize(stream.id());
 
-    std::cout << "hit layerStart ";
-    for (int i=0;i<10;++i) std::cout << phase1PixelTopology::layerName[i] << ':' << h_hitsLayerStart_[i] << ' ';
-    std::cout << "end:" << h_hitsLayerStart_[10] << std::endl;
+      std::cout << "hit layerStart ";
+      for (int i=0;i<10;++i) std::cout << phase1PixelTopology::layerName[i] << ':' << h_hitsLayerStart_[i] << ' ';
+      std::cout << "end:" << h_hitsLayerStart_[10] << std::endl;
 #endif
 
-    // for timing test
-    // cudaStreamSynchronize(stream.id());
-    // auto nhits_ = h_hitsLayerStart_[10];
-    // radixSortMultiWrapper<int16_t><<<10, 256, 0, c.stream>>>(gpu_.iphi_d, gpu_.sortIndex_d, gpu_.hitsLayerStart_d);
+      // for timing test
+      // cudaStreamSynchronize(stream.id());
+      // auto nhits_ = h_hitsLayerStart_[10];
+      // radixSortMultiWrapper<int16_t><<<10, 256, 0, c.stream>>>(gpu_.iphi_d, gpu_.sortIndex_d, gpu_.hitsLayerStart_d);
+    }
 
     cudautils::fillManyFromVector(gpu_.hist_d, 10, gpu_.iphi_d, gpu_.hitsLayerStart_d, nhits_, 256, stream.id());
   }

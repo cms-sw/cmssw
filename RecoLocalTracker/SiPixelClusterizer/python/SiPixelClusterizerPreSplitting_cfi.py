@@ -4,5 +4,8 @@ from CondTools.SiPixel.SiPixelGainCalibrationService_cfi import *
 from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi import siPixelClusters as _siPixelClusters
 siPixelClustersPreSplitting = _siPixelClusters.clone()
 
-# In principle we could remove `siPixelClustersPreSplitting` from the `pixeltrackerlocalreco` 
-# sequence when the `gpu` modufier is active; for the time being we keep it for simplicity.
+from Configuration.ProcessModifiers.gpu_cff import gpu
+from RecoLocalTracker.SiPixelClusterizer.siPixelClustersHeterogeneous_cfi import siPixelClustersHeterogeneous as _siPixelClustersHeterogeneous
+from RecoLocalTracker.SiPixelClusterizer.siPixelFedCablingMapGPUWrapper_cfi import *
+from CalibTracker.SiPixelESProducers.siPixelGainCalibrationForHLTGPU_cfi import *
+gpu.toReplaceWith(siPixelClustersPreSplitting, _siPixelClustersHeterogeneous.clone())

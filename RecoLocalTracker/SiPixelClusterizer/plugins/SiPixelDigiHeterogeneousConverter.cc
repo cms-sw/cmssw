@@ -4,9 +4,18 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "HeterogeneousCore/Product/interface/HeterogeneousProduct.h"
 
-#include "siPixelRawToClusterHeterogeneousProduct.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/DetId/interface/DetIdCollection.h"
+#include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
+#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
+
+/**
+ * This is very stupid but currently the easiest way to go forward as
+ * one can't replace and EDProducer with an EDAlias in the
+ * configuration...
+ */
 
 class SiPixelDigiHeterogeneousConverter: public edm::global::EDProducer<> {
 public:
@@ -18,26 +27,39 @@ public:
 private:
   void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
-  edm::EDGetTokenT<HeterogeneousProduct> token_;
+  edm::EDGetTokenT<edm::DetSetVector<PixelDigi> > token_collection_;
+  edm::EDGetTokenT<edm::DetSetVector<SiPixelRawDataError>> token_errorcollection_;
+  edm::EDGetTokenT<DetIdCollection> token_tkerror_detidcollection_;
+  edm::EDGetTokenT<DetIdCollection> token_usererror_detidcollection_;
+  edm::EDGetTokenT<edmNew::DetSetVector<PixelFEDChannel>> token_disabled_channelcollection_;
   bool includeErrors_;
 };
 
 SiPixelDigiHeterogeneousConverter::SiPixelDigiHeterogeneousConverter(edm::ParameterSet const& iConfig):
-  token_(consumes<HeterogeneousProduct>(iConfig.getParameter<edm::InputTag>("src"))),
   includeErrors_(iConfig.getParameter<bool>("includeErrors"))
 {
+  auto src = iConfig.getParameter<edm::InputTag>("src");
+
+  token_collection_ = consumes<edm::DetSetVector<PixelDigi> >(src);
   produces<edm::DetSetVector<PixelDigi> >();
   if(includeErrors_) {
+    token_errorcollection_ = consumes<edm::DetSetVector<SiPixelRawDataError>>(src);
     produces< edm::DetSetVector<SiPixelRawDataError> >();
+
+    token_tkerror_detidcollection_ = consumes<DetIdCollection>(src);
     produces<DetIdCollection>();
+
+    token_usererror_detidcollection_ = consumes<DetIdCollection>(edm::InputTag(src.label(), "UserErrorModules"));
     produces<DetIdCollection>("UserErrorModules");
+
+    token_disabled_channelcollection_ = consumes<edmNew::DetSetVector<PixelFEDChannel>>(src);
     produces<edmNew::DetSetVector<PixelFEDChannel> >();
   }
 }
 
 void SiPixelDigiHeterogeneousConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("src", edm::InputTag("siPixelClustersHeterogeneous"));
+  desc.add<edm::InputTag>("src", edm::InputTag("siPixelClustersPreSplitting"));
   desc.add<bool>("includeErrors",true);
 
   descriptions.addWithDefaultLabel(desc);
@@ -45,23 +67,27 @@ void SiPixelDigiHeterogeneousConverter::fillDescriptions(edm::ConfigurationDescr
 
 namespace {
   template <typename T>
-  auto copy_unique(const T& t) {
-    return std::make_unique<T>(t);
+  void copy(edm::Event& iEvent, const edm::EDGetTokenT<T>& token) {
+    edm::Handle<T> h;
+    iEvent.getByToken(token, h);
+    iEvent.put(std::make_unique<T>(*h));
+  }
+
+  template <typename T>
+  void copy(edm::Event& iEvent, const edm::EDGetTokenT<T>& token, const std::string& instance) {
+    edm::Handle<T> h;
+    iEvent.getByToken(token, h);
+    iEvent.put(std::make_unique<T>(*h), instance);
   }
 }
 
 void SiPixelDigiHeterogeneousConverter::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-  edm::Handle<HeterogeneousProduct> hinput;
-  iEvent.getByToken(token_, hinput);
-
-  const auto& input = hinput->get<siPixelRawToClusterHeterogeneousProduct::HeterogeneousDigiCluster>().getProduct<HeterogeneousDevice::kCPU>();
-
-  iEvent.put(copy_unique(input.collection));
+  copy(iEvent, token_collection_);
   if(includeErrors_) {
-    iEvent.put(copy_unique(input.errorcollection));
-    iEvent.put(copy_unique(input.tkerror_detidcollection));
-    iEvent.put(copy_unique(input.usererror_detidcollection), "UserErrorModules");
-    iEvent.put(copy_unique(input.disabled_channelcollection));
+    copy(iEvent, token_errorcollection_);
+    copy(iEvent, token_tkerror_detidcollection_);
+    copy(iEvent, token_usererror_detidcollection_, "UserErrorModules");
+    copy(iEvent, token_disabled_channelcollection_);
   }
 }
 

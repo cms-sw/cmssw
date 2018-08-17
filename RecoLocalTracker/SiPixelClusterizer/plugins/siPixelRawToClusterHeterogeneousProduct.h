@@ -1,25 +1,12 @@
 #ifndef EventFilter_SiPixelRawToDigi_siPixelRawToClusterHeterogeneousProduct_h
 #define EventFilter_SiPixelRawToDigi_siPixelRawToClusterHeterogeneousProduct_h
 
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "DataFormats/DetId/interface/DetIdCollection.h"
-#include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
-#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
-#include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
 #include "FWCore/Utilities/interface/typedefs.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/GPUSimpleVector.h"
 #include "HeterogeneousCore/Product/interface/HeterogeneousProduct.h"
 
 namespace siPixelRawToClusterHeterogeneousProduct {
-  struct CPUProduct {
-    edm::DetSetVector<PixelDigi> collection;
-    edm::DetSetVector<SiPixelRawDataError> errorcollection;
-    DetIdCollection tkerror_detidcollection;
-    DetIdCollection usererror_detidcollection;
-    edmNew::DetSetVector<PixelFEDChannel> disabled_channelcollection;
-    SiPixelClusterCollectionNew outputClusters;
-  };
+  using CPUProduct = int; // dummy...
 
   struct error_obj {
     uint32_t rawId;

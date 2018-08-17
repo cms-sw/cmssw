@@ -11,9 +11,7 @@
 
 namespace siPixelRecHitsHeterogeneousProduct {
 
-  struct CPUProduct {
-    SiPixelRecHitCollectionNew collection;
-  };
+  using CPUProduct = int; // dummy
 
   struct HitsOnGPU{
      float * bs_d;

@@ -614,7 +614,7 @@ namespace pixelgpudetails {
       const SiPixelGainForHLTonGPU *gains,
       const uint32_t wordCounter, const uint32_t fedCounter,
       bool convertADCtoElectrons,
-      bool useQualityInfo, bool includeErrors, bool debug,
+      bool useQualityInfo, bool includeErrors, bool transferToCPU, bool debug,
       cuda::stream_t<>& stream)
   {
     nDigis = wordCounter;
@@ -646,25 +646,26 @@ namespace pixelgpudetails {
     cudaCheck(cudaGetLastError());
 
     // copy data to host variable
+    if(transferToCPU) {
+      cudaCheck(cudaMemcpyAsync(pdigi_h, pdigi_d, wordCounter*sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
+      cudaCheck(cudaMemcpyAsync(rawIdArr_h, rawIdArr_d, wordCounter*sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
 
-    cudaCheck(cudaMemcpyAsync(pdigi_h, pdigi_d, wordCounter*sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
-    cudaCheck(cudaMemcpyAsync(rawIdArr_h, rawIdArr_d, wordCounter*sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
-
-    if (includeErrors) {
-      cudaCheck(cudaMemcpyAsync(error_h, error_d, vsize, cudaMemcpyDefault, stream.id()));
-      cudaCheck(cudaMemcpyAsync(data_h, data_d, MAX_ERROR_SIZE, cudaMemcpyDefault, stream.id()));
-      // If we want to transfer only the minimal amount of data, we
-      // need a synchronization point. A single ExternalWork (of
-      // SiPixelRawToClusterHeterogeneous) does not help because it is
-      // already used to synchronize the data movement. So we'd need
-      // two ExternalWorks (or explicit use of TBB tasks). The
-      // prototype of #100 would allow this easily (as there would be
-      // two ExternalWorks).
-      //
-      //error_h->set_data(data_h);
-      //cudaCheck(cudaStreamSynchronize(stream.id()));
-      //int size = error_h->size();
-      //cudaCheck(cudaMemcpyAsync(data_h, data_d, size*esize, cudaMemcpyDefault, stream.id()));
+      if (includeErrors) {
+        cudaCheck(cudaMemcpyAsync(error_h, error_d, vsize, cudaMemcpyDefault, stream.id()));
+        cudaCheck(cudaMemcpyAsync(data_h, data_d, MAX_ERROR_SIZE, cudaMemcpyDefault, stream.id()));
+        // If we want to transfer only the minimal amount of data, we
+        // need a synchronization point. A single ExternalWork (of
+        // SiPixelRawToClusterHeterogeneous) does not help because it is
+        // already used to synchronize the data movement. So we'd need
+        // two ExternalWorks (or explicit use of TBB tasks). The
+        // prototype of #100 would allow this easily (as there would be
+        // two ExternalWorks).
+        //
+        //error_h->set_data(data_h);
+        //cudaCheck(cudaStreamSynchronize(stream.id()));
+        //int size = error_h->size();
+        //cudaCheck(cudaMemcpyAsync(data_h, data_d, size*esize, cudaMemcpyDefault, stream.id()));
+      }
     }
     // End  of Raw2Digi and passing data for cluserisation
 
@@ -682,7 +683,9 @@ namespace pixelgpudetails {
       cudaCheck(cudaGetLastError());
 
       // calibrated adc
-      cudaCheck(cudaMemcpyAsync(adc_h, adc_d, wordCounter*sizeof(uint16_t), cudaMemcpyDefault, stream.id()));
+      if(transferToCPU) {
+        cudaCheck(cudaMemcpyAsync(adc_h, adc_d, wordCounter*sizeof(uint16_t), cudaMemcpyDefault, stream.id()));
+      }
 
       /*
          std::cout
@@ -730,7 +733,9 @@ namespace pixelgpudetails {
 
 
       // clusters
-      cudaCheck(cudaMemcpyAsync(clus_h, clus_d, wordCounter*sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
+      if(transferToCPU) {
+        cudaCheck(cudaMemcpyAsync(clus_h, clus_d, wordCounter*sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
+      }
     } // end clusterizer scope
   }
 

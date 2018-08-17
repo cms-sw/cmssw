@@ -83,17 +83,17 @@ void CAHitQuadrupletGeneratorGPU::hitNtuplets(
     TrackingRegion const& region,
     HitsOnCPU const& hh,
     edm::EventSetup const& es,
+    bool transferToCPU,
     cudaStream_t cudaStream)
 {
   hitsOnCPU = &hh;
   int index = 0;
-  launchKernels(region, index, hh, cudaStream);
+  launchKernels(region, index, hh, transferToCPU, cudaStream);
 }
 
 void CAHitQuadrupletGeneratorGPU::fillResults(
     const TrackingRegion &region, SiPixelRecHitCollectionNew const & rechits,
-    std::vector<OrderedHitSeeds> &result, const edm::EventSetup &es,
-    cudaStream_t cudaStream)
+    std::vector<OrderedHitSeeds> &result, const edm::EventSetup &es)
 {
   hitmap_.clear();
   auto const & rcs = rechits.data();
@@ -103,7 +103,7 @@ void CAHitQuadrupletGeneratorGPU::fillResults(
   auto nhits = hitsOnCPU->nHits;
   int index = 0;
 
-  auto const & foundQuads = fetchKernelResult(index, cudaStream);
+  auto const & foundQuads = fetchKernelResult(index);
   unsigned int numberOfFoundQuadruplets = foundQuads.size();
   const QuantityDependsPtEval maxChi2Eval = maxChi2.evaluator(es);
 

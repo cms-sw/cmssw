@@ -56,7 +56,3 @@ from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 (premix_stage2 & phase2_tracker).toModify(siPixelClusters,
     src = "mixData:Pixel"
 )
-
-from Configuration.ProcessModifiers.gpu_cff import gpu
-from RecoLocalTracker.SiPixelClusterizer.siPixelClusterHeterogeneousConverter_cfi import siPixelClusterHeterogeneousConverter as _siPixelClusterHeterogeneousConverter
-gpu.toReplaceWith(siPixelClusters, _siPixelClusterHeterogeneousConverter.clone())
