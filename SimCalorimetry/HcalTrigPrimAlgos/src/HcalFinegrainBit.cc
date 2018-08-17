@@ -23,5 +23,21 @@ HcalFinegrainBit::compute(const HcalFinegrainBit::Tower& tower) const
 
       return result;
    }
+   if (version_ == 1) {
+      std::bitset<4> result;
+
+      // All algorithms the same for testing purposes
+      result[0] = result[1] = result[2] = result [3] = tower[is_mip][0];
+
+      return result;
+   }
+   if (version_ == 2) {
+      std::bitset<4> result;
+
+      // All algorithms the same for testing purposes
+      result[0] = result[1] = result[2] = result [3] = true;
+
+      return result;
+   }
    return 0;
 }
