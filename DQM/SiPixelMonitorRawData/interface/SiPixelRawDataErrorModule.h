@@ -75,6 +75,6 @@ class SiPixelRawDataErrorModule {
   static const int LINK_bits,  ROC_bits,  DCOL_bits,  PXID_bits,  ADC_bits, DataBit_bits, TRLRBGN_bits, EVTLGT_bits, TRLREND_bits;
   static const int LINK_shift, ROC_shift, DCOL_shift, PXID_shift, ADC_shift, DB0_shift, DB1_shift, DB2_shift, DB3_shift, DB4_shift, DB5_shift, DB6_shift, DB7_shift, TRLRBGN_shift, EVTLGT_shift, TRLREND_shift;
   static const uint32_t LINK_mask, ROC_mask, DCOL_mask, PXID_mask, ADC_mask, DataBit_mask;
-  static const long long TRLRBGN_mask, EVTLGT_mask, TRLREND_mask;
+  static const unsigned long long TRLRBGN_mask, EVTLGT_mask, TRLREND_mask;
 };
 #endif
