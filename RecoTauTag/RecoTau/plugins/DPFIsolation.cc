@@ -155,7 +155,8 @@ std::vector<float> calculate(edm::Handle<TauCollection>& taus, edm::Handle<pat::
 			pfCandLostInnerHits = p.lostInnerHits();
 		  } else{
 			float disp = 1;
-			if (r0->Rndm(1) > .5){
+                        int psudorand = p.pt()*1000000;
+                        if (psudorand%2 == 0){
 				disp = -1;
 			}
 			pfCandDz = 5*disp;
