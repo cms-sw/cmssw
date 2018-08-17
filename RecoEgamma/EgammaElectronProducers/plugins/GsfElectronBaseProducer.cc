@@ -334,7 +334,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, 
   EcalClusterFunctionBaseClass * superClusterErrorFunction = nullptr ;
   std::string superClusterErrorFunctionName
    = cfg.getParameter<std::string>("superClusterErrorFunction") ;
-  if (superClusterErrorFunctionName!="")
+  if (!superClusterErrorFunctionName.empty())
    {
     superClusterErrorFunction
      = EcalClusterFunctionFactory::get()->create(superClusterErrorFunctionName,cfg) ;
@@ -347,7 +347,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, 
   EcalClusterFunctionBaseClass * crackCorrectionFunction = nullptr ;
   std::string crackCorrectionFunctionName
    = cfg.getParameter<std::string>("crackCorrectionFunction") ;
-  if (crackCorrectionFunctionName!="")
+  if (!crackCorrectionFunctionName.empty())
    {
     crackCorrectionFunction
      = EcalClusterFunctionFactory::get()->create(crackCorrectionFunctionName,cfg) ;
