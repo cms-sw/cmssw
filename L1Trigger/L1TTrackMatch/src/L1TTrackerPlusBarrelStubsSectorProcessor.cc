@@ -56,6 +56,10 @@ std::vector<l1t::L1TkMuonParticle> L1TTrackerPlusBarrelStubsSectorProcessor::pro
     //propagate and match here 
 
 
+    //You only need to add stubs to the muons  at this stage
+    //To do that just do:
+    //muon.addBarrelStub(stub);
+     
 
     //for now just add it
     out.push_back(muon);
