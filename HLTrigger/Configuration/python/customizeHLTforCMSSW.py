@@ -209,6 +209,16 @@ def customizeHLTForL3OIPR24267(process):
 
 
 
+###For parameter changes in SiStripClusterizerFromRaw for PbPb 2018 data-taking
+def customiseForPR24339HybridFormatSiStripZS(process):
+    for producer in producers_by_type(process, "SiStripClusterizerFromRaw"): 
+        producer.Algorithms.Use10bitsTruncation  = cms.bool( False )
+        producer.HybridZeroSuppressed = cms.bool( False )
+    return process  
+
+
+
+
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
