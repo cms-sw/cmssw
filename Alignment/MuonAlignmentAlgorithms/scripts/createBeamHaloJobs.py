@@ -195,10 +195,10 @@ fileNamesBlocks=[]
 execfile(INPUTFILES)
 njobs = options.subjobs
 if (options.inputInBlocks):
-  njobs = len(fileNamesBlocks)
-  if njobs==0:
-    print("while --inputInBlocks is specified, the INPUTFILES has no blocks!")
-    sys.exit()
+    njobs = len(fileNamesBlocks)
+    if njobs==0:
+        print("while --inputInBlocks is specified, the INPUTFILES has no blocks!")
+        sys.exit()
 
 stepsize = int(math.ceil(1.*len(fileNames)/options.subjobs))
 pwd = str(os.getcwd())
@@ -275,9 +275,9 @@ python $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/scripts/relativeConst
     for jobnumber in range(njobs):
         gather_fileName = "%sgather%03d.sh" % (directory, jobnumber)
         if not options.inputInBlocks:
-          inputfiles = " ".join(fileNames[jobnumber*stepsize:(jobnumber+1)*stepsize])
+            inputfiles = " ".join(fileNames[jobnumber*stepsize:(jobnumber+1)*stepsize])
         else:
-          inputfiles = " ".join(fileNamesBlocks[jobnumber])
+            inputfiles = " ".join(fileNamesBlocks[jobnumber])
 
         if len(inputfiles) > 0:
             file(gather_fileName, "w").write("""#/bin/sh
@@ -341,10 +341,10 @@ cp -f *.tmp *.root $ALIGNMENT_AFSDIR/%(directory)s
             else: waiter = "-w \"ended(%s)\"" % last_align
             if options.big: queue = "cmscaf1nd"
             else: queue = "cmscaf1nh"
-            
-	    if user_mail: bsubfile.append("bsub -R \"type==SLC5_64\" -q %s -J \"%s_gather%03d\" -u %s %s gather%03d.sh" % (queue, director, jobnumber, user_mail, waiter, jobnumber))
+
+            if user_mail: bsubfile.append("bsub -R \"type==SLC5_64\" -q %s -J \"%s_gather%03d\" -u %s %s gather%03d.sh" % (queue, director, jobnumber, user_mail, waiter, jobnumber))
             else: bsubfile.append("bsub -R \"type==SLC5_64\" -q %s -J \"%s_gather%03d\" %s gather%03d.sh" % (queue, director, jobnumber, waiter, jobnumber))
-	    
+
             bsubnames.append("ended(%s_gather%03d)" % (director, jobnumber))
 
     file("%sconvert-db-to-xml_cfg.py" % directory, "w").write("""from Alignment.MuonAlignment.convertSQLitetoXML_cfg import *
@@ -435,10 +435,10 @@ fi
     os.system("chmod +x %salign.sh" % directory)
 
     bsubfile.append("echo %salign.sh" % directory)
-    
+
     if user_mail: bsubfile.append("bsub -R \"type==SLC5_64\" -q cmscaf1nd -J \"%s_align\" -u %s -w \"%s\" align.sh" % (director, user_mail, " && ".join(bsubnames)))
     else: bsubfile.append("bsub -R \"type==SLC5_64\" -q cmscaf1nd -J \"%s_align\" -w \"%s\" align.sh" % (director, " && ".join(bsubnames)))
-    
+
     bsubfile.append("cd ..")
     bsubnames = []
     last_align = "%s_align" % director
