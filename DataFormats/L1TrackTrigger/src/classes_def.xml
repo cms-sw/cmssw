@@ -92,6 +92,7 @@
 
 
   <class name="l1t::L1TkMuonParticle" ClassVersion="13">
+   <version ClassVersion="13" checksum="602108190"/>
    <version ClassVersion="13" checksum="3532596056"/>
    <version ClassVersion="12" checksum="1571385768"/>
   </class>
