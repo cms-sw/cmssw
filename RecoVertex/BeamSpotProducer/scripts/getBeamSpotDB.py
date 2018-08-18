@@ -108,15 +108,15 @@ if __name__ == '__main__':
     #################################
     option,args = parse(__doc__)
     if not args and not option: exit()
-    
+
     tagname = ''
     globaltag = ''
-    
+
     if ((option.tag and option.globaltag)) == False: 
-	print(" NEED to provide beam spot DB tag name, or global tag")
-	exit()
+        print(" NEED to provide beam spot DB tag name, or global tag")
+        exit()
     elif option.tag:
-	tagname = option.tag
+        tagname = option.tag
     elif option.globaltag:
         globaltag = option.globaltag
         cmd = 'cmscond_tagtree_list -c frontier://cmsfrontier.cern.ch:8000/Frontier/CMS_COND_31X_GLOBALTAG -P /afs/cern.ch/cms/DB/conddb -T '+globaltag+' | grep BeamSpot'
@@ -125,33 +125,33 @@ if __name__ == '__main__':
         atag = atag[2]
         tagname = atag.replace("tag:","")
         print(" Global tag: "+globaltag+" includes the beam spot tag: "+tagname)
-    
+
     iov_since = ''
     iov_till = ''
     destDB = 'frontier://PromptProd/CMS_COND_31X_BEAMSPOT'
     if option.destDB:
         destDB = option.destDB
-    
+
     auth = '/afs/cern.ch/cms/DB/conddb'
     if option.auth:
         auth = option.auth
-    
+
     run = '1'
     if option.run:
         run = option.run
     lumi = '1'
     if option.lumi:
         lumi = option.lumi
-        
+
     #sqlite_file = "sqlite_file:"+ tagname +".db"
 
-    
+
     ##### READ 
 
     #print "read back sqlite file to check content ..."
-    
+
     readdb_out = "readDB_"+tagname+".py"
-    
+
     rnewfile = open(readdb_out,'w')
 
     rnewfile.write('''
@@ -170,7 +170,7 @@ process.BeamSpotDBSource = cms.ESSource("PoolDBESSource",
     rnewfile.write('tag = cms.string(\''+tagname+'\')\n')
     rnewfile.write(')),\n')
     rnewfile.write('connect = cms.string(\''+destDB+'\')\n')
-    
+
     #connect = cms.string('sqlite_file:Early900GeVCollision_7p4cm_STARTUP_mc.db')
     #connect = cms.string('oracle://cms_orcoff_prod/CMS_COND_31X_BEAMSPOT')
     #connect = cms.string('frontier://PromptProd/CMS_COND_31X_BEAMSPOT')
@@ -199,10 +199,10 @@ process.beamspot = cms.EDAnalyzer("BeamSpotFromDB")
 process.p = cms.Path(process.beamspot)
 
 ''')
-        
+
     rnewfile.close()
     status_rDB = commands.getstatusoutput('cmsRun '+ readdb_out)
-    
+
     outtext = status_rDB[1]
     print(outtext)
 
@@ -210,6 +210,6 @@ process.p = cms.Path(process.beamspot)
     #os.system("rm "+ readdb_out)
 
     print("DONE.\n")
-    
+
 #_________________________________    
-        
+
