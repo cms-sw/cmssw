@@ -86,7 +86,7 @@ class Alignment(object):
                 if matches[0]:
                     alignments = True
                     deformations = True
-                    APEs = True
+                    APEs = {"hp": False, "mp": True}[option]
                 elif matches[1]:
                     alignments = True
                     deformations = False
