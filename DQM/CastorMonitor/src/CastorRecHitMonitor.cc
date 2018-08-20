@@ -64,25 +64,15 @@ void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker& ibooker,
   string st = "Castor Cell Energy Map (cell-wise)";
     h2RHchan = ibooker.book2D(st,st+";moduleZ*16 + sector #Phi;RecHit / GeV",
 	nxCh, xCh, nyE, yErh);
-//    h2RHchan->getTH2F()->GetXaxis()->SetTitle("moduleZ*16 + sector #Phi");
-//    h2RHchan->getTH2F()->GetYaxis()->SetTitle("RecHit / GeV");
     h2RHchan->getTH2F()->SetOption("colz");  
 
   sprintf(s,"Castor Cell Energy");
    hallchan = ibooker.book1D(s,s,nyE,yErh);
    hallchan->getTH1F()->GetXaxis()->SetTitle("GeV");
-/* 
-  sprintf(s,"Castor Cell Energy Map Z-#Phi (cumulative)");
-    h2RHmap = ibooker.book2D(s,s,14, 0,14, 16, 0,16);
-    h2RHmap->getTH2F()->GetXaxis()->SetTitle("module Z");  
-    h2RHmap->getTH2F()->GetYaxis()->SetTitle("sector #Phi");
-    h2RHmap->getTH2F()->SetOption("colz");
-*/
-    st = "Castor cell avr Energy per event Map Z-Phi";
+
+   st = "Castor cell avr Energy per event Map Z-Phi";
     h2RHoccmap = ibooker.bookProfile2D(st,st+";module Z;sector Phi",
 	14, 0,14, 16, 0,16,0.,1.e10,"");
-//    h2RHoccmap->getTH2F()->GetXaxis()->SetTitle("moduleZ");
-//    h2RHoccmap->getTH2F()->GetYaxis()->SetTitle("sector #Phi");
     h2RHoccmap->getTProfile2D()->SetOption("colz");
 
   sprintf(s,"CastorRecHitEntriesMap");
@@ -170,9 +160,6 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits)
 
  if(castorHits.empty()) return;
 
- //for(edm::TriggerResults::const_iterator iTrig= hltResults->begin();
-//  iTrig!= hltResults->end(); iTrig++) {;}
-
  for(CASTORiter=castorHits.begin(); CASTORiter!=castorHits.end(); ++CASTORiter)
  { 
    float energy = CASTORiter->energy();    
@@ -201,21 +188,13 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits)
       h2RHchan->Fill(ind,rh);
       hallchan->Fill(rh);
       if(rh < 0.) continue;      
-//      h2RHmap->Fill(z,phi,rh);
       h2RHoccmap->Fill(z,phi,rh);
       es += rh;
     }
     h2RHvsSec->Fill(phi,es);
     etot += es;
   } // end for(int phi=0;
-/*
-  if(ievt_ %100 == 0) 
-    for(int mod=1; mod<=14; mod++) 
-      for(int sec=1; sec<=16;sec++) {
-	double a= h2RHmap->getTH2F()->GetBinContent(mod,sec);
-	h2RHoccmap->getTH2F()->SetBinContent(mod,sec,a/double(ievt_));
-      }
-*/
+
   if(fVerbosity>0) std::cout << "CastorRecHitMonitor::processEvent (end)"<< std::endl;
   return;
 }
