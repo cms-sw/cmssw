@@ -50,7 +50,7 @@ namespace hcaldqm
     //  check Container1D.cc for the format
     //
     ib.setCurrentFolder(subsystem+"/"+_folder+"/"+_qname
-                        +(aux==""?aux:"_"+aux)+"/"+_hashmap.getHashTypeName());
+                        +(aux.empty()?aux:"_"+aux)+"/"+_hashmap.getHashTypeName());
     if (_hashmap.isDHash())
       {
         std::vector<HcalGenericDetId> dids = emap->allPrecisionId();
@@ -126,7 +126,7 @@ namespace hcaldqm
     //  check Container1D.cc for the format
     //
     ib.setCurrentFolder(subsystem+"/"+_folder+"/"+_qname
-                        +(aux==""?aux:"_"+aux)+"/"+_hashmap.getHashTypeName());
+                        +(aux.empty()?aux:"_"+aux)+"/"+_hashmap.getHashTypeName());
     if (_hashmap.isDHash())
       {
         std::vector<HcalGenericDetId> dids = emap->allPrecisionId();
