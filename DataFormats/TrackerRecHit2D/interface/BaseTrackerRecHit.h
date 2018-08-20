@@ -8,8 +8,8 @@
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
 
 
-
-// #define VI_DEBUG
+//#define DO_INTERNAL_CHECKS_BTR
+//#define VI_DEBUG
 
 class OmniClusterRef;
 
@@ -134,7 +134,7 @@ private:
 
 #ifdef VI_DEBUG
   void check() const { assert(det());}
-#elif DO_THROW_UNINITIALIZED
+#elif defined(DO_INTERNAL_CHECKS_BTR)
   void check() const;
 #else 
   static void check(){}
