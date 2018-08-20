@@ -38,8 +38,6 @@ namespace hcaldqm
     //	booking
     void book(DQMStore::IBooker&,
               std::string subsystem="Hcal", std::string aux="") override;
-    void book(DQMStore*,
-              std::string subsystem="Hcal", std::string aux="") override;
 
     void fill(int, int) override;
     void fill(int, double) override;

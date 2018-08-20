@@ -11,7 +11,7 @@ namespace hcaldqm
   }
 
   ContainerSingleProf1D::ContainerSingleProf1D(std::string const& folder,
-					       Quantity *qx, Quantity *qy):
+                                               Quantity *qx, Quantity *qy):
     ContainerSingle1D(folder, qx, qy)
   {
     _qx->setAxisType(quantity::fXAxis);
@@ -19,8 +19,8 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingleProf1D::initialize(std::string const&
-						       folder, Quantity *qx, Quantity *qy,
-						       int debug/*=0*/)
+                                                       folder, Quantity *qx, Quantity *qy,
+                                                       int debug/*=0*/)
   {
     ContainerSingle1D::initialize(folder, qx, qy, debug);
     _qx->setAxisType(quantity::fXAxis);
@@ -28,9 +28,9 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingleProf1D::initialize(std::string const&
-						       folder, std::string const& qname,
-						       Quantity *qx, Quantity *qy,
-						       int debug/*=0*/)
+                                                       folder, std::string const& qname,
+                                                       Quantity *qx, Quantity *qy,
+                                                       int debug/*=0*/)
   {
     ContainerSingle1D::initialize(folder, qname, qx, qy, debug);
     _qx->setAxisType(quantity::fXAxis);
@@ -38,24 +38,13 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingleProf1D::book(DQMStore::IBooker& ib,
-						 std::string subsystem, std::string aux)
+                                                 std::string subsystem, std::string aux)
   {
     ib.setCurrentFolder(subsystem+"/"+_folder+"/"+_qname);
     _me = ib.bookProfile(_qname+(aux.empty()?aux:"_"+aux),
-			 _qname+(aux.empty()?aux:" "+aux),
-			 _qx->nbins(), _qx->min(), _qx->max(),
-			 _qy->min(), _qy->max());
-    customize();
-  }
-
-  /* virtual */ void ContainerSingleProf1D::book(DQMStore *store,
-						 std::string subsystem, std::string aux)
-  {
-    store->setCurrentFolder(subsystem+"/"+_folder+"/"+_qname);
-    _me = store->bookProfile(_qname+(aux.empty()?aux:"_"+aux),
-			     _qname+(aux.empty()?aux:" "+aux),
-			     _qx->nbins(), _qx->min(), _qx->max(),
-			     _qy->min(), _qy->max());
+                         _qname+(aux.empty()?aux:" "+aux),
+                         _qx->nbins(), _qx->min(), _qx->max(),
+                         _qy->min(), _qy->max());
     customize();
   }
 }

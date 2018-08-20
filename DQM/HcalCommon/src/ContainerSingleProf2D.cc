@@ -12,7 +12,7 @@ namespace hcaldqm
   }
 
   ContainerSingleProf2D::ContainerSingleProf2D(std::string const& folder,
-					       Quantity *qx, Quantity *qy, Quantity *qz):
+                                               Quantity *qx, Quantity *qy, Quantity *qz):
     ContainerSingle2D(folder, qx, qy, qz)
   {
     _qx->setAxisType(quantity::fXAxis);
@@ -21,8 +21,8 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingleProf2D::initialize(std::string const&
-						       folder, Quantity *qx, Quantity *qy, Quantity *qz,
-						       int debug/*=0*/)
+                                                       folder, Quantity *qx, Quantity *qy, Quantity *qz,
+                                                       int debug/*=0*/)
   {
     ContainerSingle2D::initialize(folder, qx, qy, qz, debug);
     _qx->setAxisType(quantity::fXAxis);
@@ -31,9 +31,9 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingleProf2D::initialize(std::string const&
-						       folder, std::string const& qname,
-						       Quantity *qx, Quantity *qy, Quantity *qz,
-						       int debug/*=0*/)
+                                                       folder, std::string const& qname,
+                                                       Quantity *qx, Quantity *qy, Quantity *qz,
+                                                       int debug/*=0*/)
   {
     ContainerSingle2D::initialize(folder, qname, qx, qy, qz, debug);
     _qx->setAxisType(quantity::fXAxis);
@@ -42,26 +42,14 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingleProf2D::book(DQMStore::IBooker& ib,
-						 std::string subsystem, std::string aux)
+                                                 std::string subsystem, std::string aux)
   {
     ib.setCurrentFolder(subsystem+"/"+_folder+"/"+_qname);
     _me = ib.bookProfile2D(_qname+(aux.empty()?aux:"_"+aux),
-			   _qname+(aux.empty()?aux:" "+aux),
-			   _qx->nbins(), _qx->min(), _qx->max(),
-			   _qy->nbins(), _qy->min(), _qy->max(),
-			   _qz->min(), _qz->max());
-    customize();
-  }
-
-  /* virtual */ void ContainerSingleProf2D::book(DQMStore *store,
-						 std::string subsystem, std::string aux)
-  {
-    store->setCurrentFolder(subsystem+"/"+_folder+"/"+_qname);
-    _me = store->bookProfile2D(_qname+(aux.empty()?aux:"_"+aux),
-			       _qname+(aux.empty()?aux:" "+aux),
-			       _qx->nbins(), _qx->min(), _qx->max(),
-			       _qy->nbins(), _qy->min(), _qy->max(),
-			       _qz->min(), _qz->max());
+                           _qname+(aux.empty()?aux:" "+aux),
+                           _qx->nbins(), _qx->min(), _qx->max(),
+                           _qy->nbins(), _qy->min(), _qy->max(),
+                           _qz->min(), _qz->max());
     customize();
   }
 
@@ -131,7 +119,7 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingleProf2D::fill(HcalDetId const& id, double x,
-						 double y)
+                                                 double y)
   {
     if (_qx->isCoordinate() && _qy->isCoordinate())
       _me->Fill(_qx->getValue(id), _qy->getValue(id), x);
@@ -142,7 +130,7 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingleProf2D::fill(HcalDetId const& id, int x,
-						 int y)
+                                                 int y)
   {
     if (_qx->isCoordinate() && _qy->isCoordinate())
       _me->Fill(_qx->getValue(id), _qy->getValue(id), x);
@@ -153,7 +141,7 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingleProf2D::fill(HcalDetId const& id, int x,
-						 double y)
+                                                 double y)
   {
     if (_qx->isCoordinate() && _qy->isCoordinate())
       _me->Fill(_qx->getValue(id), _qy->getValue(id), x);
@@ -169,7 +157,7 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingleProf2D::fill(HcalElectronicsId const& id,
-						 double x)
+                                                 double x)
   {
     if (_qx->isCoordinate() && _qy->isCoordinate())
       _me->Fill(_qx->getValue(id), _qy->getValue(id), x);
@@ -180,7 +168,7 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingleProf2D::fill(HcalElectronicsId const& id,
-						 int x)
+                                                 int x)
   {
     if (_qx->isCoordinate() && _qy->isCoordinate())
       _me->Fill(_qx->getValue(id), _qy->getValue(id), x);
@@ -191,8 +179,8 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingleProf2D::fill(HcalElectronicsId const& id,
-						 double x,
-						 double y)
+                                                 double x,
+                                                 double y)
   {
     if (_qx->isCoordinate() && _qy->isCoordinate())
       _me->Fill(_qx->getValue(id), _qy->getValue(id), x);
@@ -203,8 +191,8 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingleProf2D::fill(HcalElectronicsId const& id,
-						 int x,
-						 int y)
+                                                 int x,
+                                                 int y)
   {
     if (_qx->isCoordinate() && _qy->isCoordinate())
       _me->Fill(_qx->getValue(id), _qy->getValue(id), x);
@@ -215,8 +203,8 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingleProf2D::fill(HcalElectronicsId const& id,
-						 int x,
-						 double y)
+                                                 int x,
+                                                 double y)
   {
     if (_qx->isCoordinate() && _qy->isCoordinate())
       _me->Fill(_qx->getValue(id), _qy->getValue(id), x);
@@ -232,7 +220,7 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingleProf2D::fill(HcalTrigTowerDetId const& id,
-						 double x)
+                                                 double x)
   {
     if (_qx->isCoordinate() && _qy->isCoordinate())
       _me->Fill(_qx->getValue(id), _qy->getValue(id), x);
@@ -243,7 +231,7 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingleProf2D::fill(HcalTrigTowerDetId const& id,
-						 int x)
+                                                 int x)
   {
     if (_qx->isCoordinate() && _qy->isCoordinate())
       _me->Fill(_qx->getValue(id), _qy->getValue(id), x);
@@ -254,7 +242,7 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingleProf2D::fill(HcalTrigTowerDetId const& id,
-						 double x, double y)
+                                                 double x, double y)
   {
     if (_qx->isCoordinate() && _qy->isCoordinate())
       _me->Fill(_qx->getValue(id), _qy->getValue(id), x);
@@ -265,7 +253,7 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingleProf2D::fill(HcalTrigTowerDetId const& id,
-						 int x, int y)
+                                                 int x, int y)
   {
     if (_qx->isCoordinate() && _qy->isCoordinate())
       _me->Fill(_qx->getValue(id), _qy->getValue(id), x);
@@ -276,7 +264,7 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingleProf2D::fill(HcalTrigTowerDetId const& id,
-						 int x, double y)
+                                                 int x, double y)
   {
     if (_qx->isCoordinate() && _qy->isCoordinate())
       _me->Fill(_qx->getValue(id), _qy->getValue(id), x);
@@ -287,7 +275,7 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingleProf2D::fill(HcalDetId const& did,
-						 HcalElectronicsId const& eid)
+                                                 HcalElectronicsId const& eid)
   {
     if (_qx->type()==fDetectorQuantity)
       _me->Fill(_qx->getValue(did), _qy->getValue(eid));
@@ -296,7 +284,7 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingleProf2D::fill(HcalDetId const& did,
-						 HcalElectronicsId const& eid, double x)
+                                                 HcalElectronicsId const& eid, double x)
   {
     if (_qx->type()==fDetectorQuantity)
       _me->Fill(_qx->getValue(did), _qy->getValue(eid), x);
