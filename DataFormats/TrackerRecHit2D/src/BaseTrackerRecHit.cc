@@ -7,7 +7,7 @@
 
 
 namespace {
-#ifdef DO_THROW_UNINITIALIZED
+#if defined(DO_THROW_UNINITIALIZED) || defined(DO_INTERNAL_CHECKS_BTR)
   inline void
   throwExceptionUninitialized(const char *where)
   {
@@ -22,7 +22,7 @@ namespace {
   }
 }
 
-#if !defined(VI_DEBUG) && defined(DO_THROW_UNINITIALIZED)
+#if !defined(VI_DEBUG) && defined(DO_INTERNAL_CHECKS_BTR)
 void BaseTrackerRecHit::check() const {
   if (!hasPositionAndError()) throwExceptionUninitialized("localPosition or Error");
 }
