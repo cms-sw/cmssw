@@ -146,7 +146,7 @@ void CastorDigiMonitor::bookHistograms(DQMStore::IBooker& ibooker,
       h2QmeanMap->getTH2F()->GetYaxis()->SetTitle("Sector #phi");
       h2QmeanMap->getTH2F()->SetOption("textcolz");
 
- const int NEtow = 20;
+  const int NEtow = 20;
   float EhadTow[NEtow+1];
   float EMTow[NEtow+1];
   float ETower[NEtow+2];
@@ -165,15 +165,15 @@ void CastorDigiMonitor::bookHistograms(DQMStore::IBooker& ibooker,
     h2towEMvsHAD->getTH2F()->GetYaxis()->SetTitle("EM [fC]");
     h2towEMvsHAD->getTH2F()->SetOption("colz");
 
- sprintf(s,"CASTOR_TowerTotalEnergy(fC)");
-   htowE = ibooker.book1D(s,s,NEtow+1,ETower);
-   htowE->getTH1F()->GetXaxis()->SetTitle("fC");
+  sprintf(s,"CASTOR_TowerTotalEnergy(fC)");
+  htowE = ibooker.book1D(s,s,NEtow+1,ETower);
+  htowE->getTH1F()->GetXaxis()->SetTitle("fC");
 
- for(int ts=0; ts<=1; ts++) {
+  for(int ts=0; ts<=1; ts++) {
    sprintf(s,"QIErms_TS=%d",ts);
    hQIErms[ts] = ibooker.book1D(s,s,1000,0.,100.);  
    hQIErms[ts]->getTH1F()->GetXaxis()->SetTitle("QIErms(fC)");
- }
+  }
 
  for(int ind=0; ind<224; ind++) for(int ts=0; ts<10; ts++) 
    QrmsTS[ind][ts] = QmeanTS[ind][ts]= 0.;
@@ -328,11 +328,6 @@ void CastorDigiMonitor::processEvent(edm::Event const& event,
   hReport->Fill(float(nGoodCh)/N_GoodChannels);
   return;
  }
-
-void CastorDigiMonitor::beginLuminosityBlock(int LumiSec) {
- if(fVerbosity>0)
- LogPrint("CastorDigiMonitor")<<"Digi Monitor::beginLumiBlock: "<<LumiSec;
-}
 
 void CastorDigiMonitor::endRun() {
  if(fVerbosity>0)

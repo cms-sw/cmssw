@@ -74,34 +74,7 @@ void CastorMonitorModule::dqmBeginRun(const edm::Run& iRun,
  if(fVerbosity>0) LogPrint("CastorMonitorModule")<<"dqmBeginRun(start)";
  NLumiSec = 0;
 
-  iSetup.get<CastorDbRecord>().get(conditions_);
-  ////---- get Castor Pedestal Values from the DB
-/*  iSetup.get<CastorPedestalsRcd>().get(dbPedestals);
-  if(!dbPedestals.isValid() && fVerbosity>0) {
-    std::cout<<"CASTOR has no CastorPedestals in the CondDB"<<std::endl;
-   return;
-  }
-
-  int chInd = 0;
-  for(int mod=0; mod<14; mod++) for(int sec=0; sec<16; sec++) fPedSigma[mod][sec]=0.;
- 
-  std::vector<DetId> channels = dbPedestals->getAllChannels();
-  if(fVerbosity>0) 
-    std::cout<<"CastorMonitorModule::bookHistograms: dbPedSize="<<channels.size()<<std::endl;
-  for (std::vector<DetId>::iterator ch=channels.begin(); ch!=channels.end(); ch++) {
-    const CastorPedestal * pedestal = dbPedestals->getValues(*ch);
-    chInd++;
-    float sigma_avr = 0.;
-    printf("%d[mod %d][sec %d]: ",
-	chInd,HcalCastorDetId(*ch).module(),HcalCastorDetId(*ch).sector());
-    for (short unsigned int iCapId = 0; iCapId < 4; iCapId++){
-      printf("%f ",sqrt(pedestal->getWidth(iCapId)));
-      sigma_avr += sqrt(pedestal->getWidth(iCapId));
-    }
-    printf("= %f\n",sigma_avr);
-fPedSigma[HcalCastorDetId(*ch).module()-1][HcalCastorDetId(*ch).sector()-1]=sigma_avr/4;
-  } // end for (std::vector<DetId>::iterator ch=channels.begin();...
-*/
+ iSetup.get<CastorDbRecord>().get(conditions_);
 }
 
 void CastorMonitorModule::bookHistograms(DQMStore::IBooker& ibooker,
@@ -142,7 +115,6 @@ void CastorMonitorModule::beginLuminosityBlock(const edm::LuminosityBlock& lumiS
  if(fVerbosity>0)  
   LogPrint("CastorMonitorModule") <<"beginLuminosityBlock(start): "
 	<<NLumiSec<<"("<<ilumisec_<<")";
- if(digiOK_) DigiMon_->beginLuminosityBlock( NLumiSec);
 }
 
 void CastorMonitorModule::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
