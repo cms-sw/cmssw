@@ -227,5 +227,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
 
     customizeHLTForL3OIPR24267(process)
+    process = customiseForPR24339HybridFormatSiStripZS(process)
 
     return process
