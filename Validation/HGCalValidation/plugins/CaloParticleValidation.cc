@@ -167,6 +167,12 @@ CaloParticleValidation::dqmAnalyze(edm::Event const& iEvent, edm::EventSetup con
   reco::PFCandidateCollection const & simPFCandidates = *simPFCandidatesHandle;
 
   for (auto const caloParticle : caloParticles) {
+    if (caloParticle.g4Tracks()[0].eventId().event() != 0 or caloParticle.g4Tracks()[0].eventId().bunchCrossing() != 0) {
+      LogDebug("CaloParticleValidation") << "Excluding CaloParticles from event: "
+        << caloParticle.g4Tracks()[0].eventId().event()
+        << " with BX: " << caloParticle.g4Tracks()[0].eventId().bunchCrossing() << std::endl;
+      continue;
+    }
     int id = caloParticle.pdgId();
     if (histos.count(id)) {
       auto & histo = histos.at(id);
