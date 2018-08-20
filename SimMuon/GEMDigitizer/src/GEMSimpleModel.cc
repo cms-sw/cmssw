@@ -293,11 +293,8 @@ std::vector<std::pair<int, int> > GEMSimpleModel::simulateClustering(
   LocalPoint smeared_start_point(smeared_start_x, start_point.y(), start_point.z());
   LocalPoint smeared_end_point(smeared_end_x, end_point.y(), end_point.z());
 
-  // Round up for preventing truncation caused by typecasting.
-  // If local point hit strip #2, the fractional strip number would be somewhere
-  // in the (1., 2] interval. (ref. GEMGeometry/interface/GEMEtaPartition.h)
-  int cluster_start = std::ceil(roll->strip(smeared_start_point));
-  int cluster_end = std::ceil(roll->strip(smeared_end_point));
+  int cluster_start = roll->strip(smeared_start_point);
+  int cluster_end = roll->strip(smeared_end_point);
 
   std::vector< std::pair<int, int> > cluster;
   for (int strip = cluster_start; strip <= cluster_end; strip++) {
