@@ -1,4 +1,4 @@
-#include "DQMOffline/Trigger/interface/VarRangeCutColl.h"
+#include "DQMOffline/Trigger/interface/FunctionDefs.h"
 
 template<>
 std::function<float(const reco::GsfElectron&)> hltdqm::getUnaryFuncExtraFloat<reco::GsfElectron>(const std::string& varName){
