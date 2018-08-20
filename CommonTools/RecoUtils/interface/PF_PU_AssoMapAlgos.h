@@ -100,7 +100,7 @@ class PF_PU_AssoMapAlgos{
    std::auto_ptr<VertexToTrackAssMap> CreateVertexToTrackMap(edm::Handle<reco::TrackCollection>, const edm::EventSetup&);
 
    //function to sort the vertices in the AssociationMap by the sum of (pT - pT_Error)**2
-   std::unique_ptr<TrackToVertexAssMap> SortAssociationMap(TrackToVertexAssMap*);
+   std::unique_ptr<TrackToVertexAssMap> SortAssociationMap(TrackToVertexAssMap*,edm::Handle<reco::TrackCollection>);
 
  protected:
   //protected functions
