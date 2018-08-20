@@ -13,6 +13,7 @@ L1TkMuons = cms.EDProducer("L1TkMuonProducer",
     DRmax = cms.double( 0.5 ),
     nStubsmin = cms.int32( 3 ),        # minimum number of stubs
 #    closest = cms.bool( True ),
+    emtfMatchAlgoVersion = cms.int32( 1 ),        # version of matching EMTF with Trackes (1 or 2)
     correctGMTPropForTkZ = cms.bool(True),
     use5ParameterFit = cms.bool(False) #use 4-pars by defaults
 
