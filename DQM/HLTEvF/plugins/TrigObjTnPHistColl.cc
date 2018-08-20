@@ -1,5 +1,7 @@
 #include "TrigObjTnPHistColl.h"
 
+#include "FWCore/Common/interface/TriggerNames.h"
+
 namespace{
   std::vector<float> convertToFloat(const std::vector<double>& vecD){
     std::vector<float> vecF;
@@ -8,14 +10,15 @@ namespace{
   }
 }
 
-TrigObjTnPHistColl::TrigObjTnPHistColl(const edm::ParameterSet& config,edm::ConsumesCollector&& cc):
+TrigObjTnPHistColl::TrigObjTnPHistColl(const edm::ParameterSet& config):
   tagCuts_(config.getParameter<std::vector<edm::ParameterSet>>("tagCuts")),
   probeCuts_(config.getParameter<std::vector<edm::ParameterSet>>("probeCuts")),
   tagFilters_(config.getParameter<edm::ParameterSet>("tagFilters")),
   collName_(config.getParameter<std::string>("collName")),
   folderName_(config.getParameter<std::string>("folderName")),
   histDefs_(config.getParameter<edm::ParameterSet>("histDefs")),
-  evtTrigSel_(config.getParameter<edm::ParameterSet>("evtTrigSel"),cc)
+  evtTrigSel_(config.getParameter<edm::ParameterSet>("evtTrigSel"))
+  
 {
   for(auto probeFilter : config.getParameter<std::vector<std::string> >("probeFilters")){
     probeHists_.emplace_back(ProbeData(std::move(probeFilter)));
@@ -32,26 +35,11 @@ edm::ParameterSetDescription TrigObjTnPHistColl::makePSetDescription()
   desc.add<std::string>("folderName","HLT/EGM/TrigObjTnP");
   desc.add<edm::ParameterSetDescription>("histDefs",HistDefs::makePSetDescription());
   desc.add<std::vector<std::string>>("probeFilters",std::vector<std::string>());  
-
-  edm::ParameterSetDescription trigEvtFlagDesc;
-  trigEvtFlagDesc.add<bool>("andOr",false);
-  trigEvtFlagDesc.add<unsigned int>("verbosityLevel",1);
-  trigEvtFlagDesc.add<bool>("andOrDcs", false);  
-  trigEvtFlagDesc.add<edm::InputTag>("dcsInputTag", edm::InputTag("scalersRawToDigi") );
-  trigEvtFlagDesc.add<std::vector<int> >("dcsPartitions",{24,25,26,27,28,29});
-  trigEvtFlagDesc.add<bool>("errorReplyDcs", true);
-  trigEvtFlagDesc.add<std::string>("dbLabel","");
-  trigEvtFlagDesc.add<bool>("andOrHlt", true); //true = OR, false = and
-  trigEvtFlagDesc.add<edm::InputTag>("hltInputTag", edm::InputTag("TriggerResults::HLT") );
-  trigEvtFlagDesc.add<std::vector<std::string> >("hltPaths",{});
-  trigEvtFlagDesc.add<std::string>("hltDBKey","");
-  trigEvtFlagDesc.add<bool>("errorReplyHlt",false);
-  desc.add<edm::ParameterSetDescription>("evtTrigSel",trigEvtFlagDesc);
-  
+  desc.add<edm::ParameterSetDescription>("evtTrigSel",PathSelector::makePSetDescription());  
   return desc;
 }
 
-void TrigObjTnPHistColl::bookHists(DQMStore::IBooker& iBooker)
+void TrigObjTnPHistColl::bookHists(DQMStore::ConcurrentBooker& iBooker)
 {
   iBooker.setCurrentFolder(folderName_);
   for(auto& probe : probeHists_){
@@ -60,9 +48,10 @@ void TrigObjTnPHistColl::bookHists(DQMStore::IBooker& iBooker)
 }
 
 void TrigObjTnPHistColl::fill(const trigger::TriggerEvent& trigEvt,
-			      const edm::Event& event,const edm::EventSetup& setup)
+			      const edm::TriggerResults& trigResults,
+			      const edm::TriggerNames& trigNames)const
 {
-  if(evtTrigSel_.accept(event,setup)==false) return;
+  if(evtTrigSel_(trigResults,trigNames)==false) return;
 
   auto tagTrigKeys = tagFilters_.getPassingKeys(trigEvt);
   for(auto& tagKey : tagTrigKeys){
@@ -144,6 +133,111 @@ TrigObjTnPHistColl::FilterSelector::FilterSet::FilterSet(const edm::ParameterSet
   
 }
 
+TrigObjTnPHistColl::PathSelector::PathSelector(const edm::ParameterSet& config):
+  selectionStr_(config.getParameter<std::string>("selectionStr")),
+  isANDForExpandedPaths_(config.getParameter<bool>("isANDForExpandedPaths")),
+  verbose_(config.getParameter<int>("verbose")),
+  isInited_(false)
+{
+
+}
+
+edm::ParameterSetDescription TrigObjTnPHistColl::PathSelector::makePSetDescription()
+{
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("selectionStr",std::string(""));
+  desc.add<bool>("isANDForExpandedPaths",false);
+  desc.add<int>("verbose",1);
+  return desc;
+}
+
+void TrigObjTnPHistColl::PathSelector::init(const HLTConfigProvider& hltConfig)
+{
+  expandedSelStr_ = expandSelectionStr(selectionStr_,hltConfig,isANDForExpandedPaths_,verbose_);
+  isInited_ = true;
+  if(verbose_>1){
+    edm::LogInfo("TrigObjTnPHistColl::PathSelector" ) << "trigger selection string: \"" << expandedSelStr_ << "\"";
+  }
+}
+
+bool TrigObjTnPHistColl::PathSelector::operator()(const edm::TriggerResults& trigResults,const edm::TriggerNames& trigNames)const
+{
+  if(selectionStr_.empty()) return true; //didnt specify any selection, default to pass
+  else if(!isInited_){
+    edm::LogError("TrigObjTnPHistColl") <<" error, TrigObjTnPHistColl::PathSelector is not initalised, returning false ";
+    return false; 
+  }else if(expandedSelStr_.empty()){
+    //there was a problem parsing the expression, it was logged at the start, no need to do each run
+    return false;
+  }else{
+    //as of 20/08/18, there is a bug in L1GtLogicParser, it must take a non-const std::string
+    //as input because it overloads the constructor between const and non-const std::string
+    //for like no reason. And the const version is broken, you have to use non-const
+    //hence we make a non-const copy of the selection string
+    std::string selStr = expandedSelStr_;
+    L1GtLogicParser logicParser(selStr);
+    for(auto& token : logicParser.operandTokenVector()){
+      const std::string&  pathName = token.tokenName;
+      auto pathIndex = trigNames.triggerIndex(pathName);
+      bool accept = pathIndex < trigNames.size() ? trigResults.accept(pathIndex) : false;
+      token.tokenResult = accept;      
+    } 
+    return logicParser.expressionResult();
+  }
+} 
+
+//a port of https://github.com/cms-sw/cmssw/blob/51eb73f59e2016d54618e2a8e19abab84fe33b47/CommonTools/TriggerUtils/src/GenericTriggerEventFlag.cc#L225-L238
+std::string TrigObjTnPHistColl::PathSelector::expandSelectionStr(const std::string& selStr, const HLTConfigProvider& hltConfig, bool isAND,int verbose)
+{
+  std::string expandedSelStr(selStr);
+  //it is very important to pass in as a non-const std::string, see comments else where
+  L1GtLogicParser logicParser(expandedSelStr);
+  for(const auto& token : logicParser.operandTokenVector()){
+    const std::string&  pathName = token.tokenName;
+    if ( pathName.find('*') != std::string::npos ) {
+      std::string pathPatternExpanded =  expandPath(pathName, hltConfig, isAND, verbose);
+      expandedSelStr.replace( expandedSelStr.find( pathName ), pathName.size(), pathPatternExpanded);
+    }
+  }
+  return expandedSelStr;
+}
+
+//a port of GenericTriggerEventFlag::expandLogicalExpression 
+//https://github.com/cms-sw/cmssw/blob/51eb73f59e2016d54618e2a8e19abab84fe33b47/CommonTools/TriggerUtils/src/GenericTriggerEventFlag.cc#L600-L632
+std::string TrigObjTnPHistColl::PathSelector::expandPath(const std::string& pathPattern, const HLTConfigProvider& hltConfig, bool isAND,int verbose)
+{
+   // Find matching entries in the menu
+  const std::vector<std::string>& trigNames = hltConfig.triggerNames();
+  std::vector<std::string> matched;
+  const std::string versionWildcard("_v*");
+  if(pathPattern.substr(pathPattern.size() - versionWildcard.size()) == versionWildcard) {
+    const std::string pathPatternBase(pathPattern.substr( 0, pathPattern.size() - versionWildcard.size()));
+    matched = hltConfig.restoreVersion(trigNames, pathPatternBase);
+  } else {
+    matched = hltConfig.matched(trigNames, pathPattern);
+  }
+  
+  if( matched.empty() ) {
+    if(verbose>=1 ) edm::LogWarning("TrigObjTnPHistColl::PathSelector") << "pattern: \"" << pathPattern << "\" could not be resolved, please check your triggers are spelt correctly and present in the data you are running over";
+    return "";
+  }
+  
+  // Compose logical expression
+  std::string expanded( "(" );
+   for( unsigned iVers = 0; iVers < matched.size(); ++iVers ) {
+     if( iVers > 0 ) expanded.append( isAND ? " AND " : " OR " );
+     expanded.append( matched.at( iVers ) );
+   }
+   expanded.append( ")" );
+   if(verbose>1 ) {
+     edm::LogInfo("TrigObjTnPHistColl::PathSelector" ) << "Logical expression : \"" << pathPattern     << "\"\n"
+						       << "        expanded to:  \"" << expanded << "\"";
+   }
+   return expanded;
+}
+
+
+
 edm::ParameterSetDescription TrigObjTnPHistColl::FilterSelector::FilterSet::makePSetDescription()
 {
   edm::ParameterSetDescription desc;
@@ -204,9 +298,9 @@ edm::ParameterSetDescription TrigObjTnPHistColl::HistFiller::makePSetDescription
 }
 
 void TrigObjTnPHistColl::HistFiller::operator()(const trigger::TriggerObject& probe,float mass,
-						MonitorElement* hist)
+						const ConcurrentMonitorElement& hist)const
 {
-  if(localCuts_(probe)) hist->Fill(var_(probe),mass);
+  if(localCuts_(probe)) hist.fill(var_(probe),mass);
 }
 
 
@@ -230,9 +324,9 @@ edm::ParameterSetDescription TrigObjTnPHistColl::HistDefs::makePSetDescription()
   return desc;
 }
 
-std::vector<std::pair<TrigObjTnPHistColl::HistFiller,MonitorElement*> > TrigObjTnPHistColl::HistDefs::bookHists(DQMStore::IBooker& iBooker,const std::string& name,const std::string& title)const
+std::vector<std::pair<TrigObjTnPHistColl::HistFiller,ConcurrentMonitorElement> > TrigObjTnPHistColl::HistDefs::bookHists(DQMStore::ConcurrentBooker& iBooker,const std::string& name,const std::string& title)const
 {
-  std::vector<std::pair<HistFiller,MonitorElement*> > hists;
+  std::vector<std::pair<HistFiller,ConcurrentMonitorElement> > hists;
   for(const auto& data : histData_){
     hists.push_back({data.filler(),data.book(iBooker,name,title,massBins_)});
   }
@@ -258,7 +352,7 @@ edm::ParameterSetDescription TrigObjTnPHistColl::HistDefs::Data::makePSetDescrip
   return desc;
 }
 
-MonitorElement* TrigObjTnPHistColl::HistDefs::Data::book(DQMStore::IBooker& iBooker,
+ConcurrentMonitorElement TrigObjTnPHistColl::HistDefs::Data::book(DQMStore::ConcurrentBooker& iBooker,
 					      const std::string& name,const std::string& title,
 					      const std::vector<float>& massBins)const
 {
@@ -266,14 +360,14 @@ MonitorElement* TrigObjTnPHistColl::HistDefs::Data::book(DQMStore::IBooker& iBoo
 			bins_.size()-1,bins_.data(),massBins.size()-1,massBins.data());
 }
 
-void TrigObjTnPHistColl::HistColl::bookHists(DQMStore::IBooker& iBooker,
+void TrigObjTnPHistColl::HistColl::bookHists(DQMStore::ConcurrentBooker& iBooker,
 					     const std::string& name,const std::string& title,
 					     const HistDefs& histDefs)
 {
   hists_ = histDefs.bookHists(iBooker,name,title);
 }
 
-void TrigObjTnPHistColl::HistColl::fill(const trigger::TriggerObject& probe,float mass)
+void TrigObjTnPHistColl::HistColl::fill(const trigger::TriggerObject& probe,float mass)const
 {
   for(auto& hist : hists_){
     hist.first(probe,mass,hist.second);
@@ -281,13 +375,13 @@ void TrigObjTnPHistColl::HistColl::fill(const trigger::TriggerObject& probe,floa
 }
 
 void TrigObjTnPHistColl::ProbeData::bookHists(const std::string& tagName,
-					      DQMStore::IBooker& iBooker,
+					      DQMStore::ConcurrentBooker& iBooker,
 					      const HistDefs& histDefs)
 {
   hists_.bookHists(iBooker,tagName+"_"+probeFilter_,tagName+"_"+probeFilter_,histDefs);
 }
 
-void TrigObjTnPHistColl::ProbeData::fill(const trigger::size_type tagKey,const trigger::TriggerEvent& trigEvt,const VarRangeCutColl<trigger::TriggerObject>& probeCuts)
+void TrigObjTnPHistColl::ProbeData::fill(const trigger::size_type tagKey,const trigger::TriggerEvent& trigEvt,const VarRangeCutColl<trigger::TriggerObject>& probeCuts)const
 {
   auto probeKeys = getKeys(trigEvt,probeFilter_);
   for(auto probeKey : probeKeys){
