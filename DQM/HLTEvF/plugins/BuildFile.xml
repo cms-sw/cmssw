@@ -32,7 +32,6 @@
   <use   name="MagneticField/Records"/>
   <use   name="MagneticField/Engine"/>
   <use   name="TrackingTools/TrajectoryState"/>
-  <use   name="CommonTools/TriggerUtils"/>
   <use   name="DQMOffline/Trigger"/>
   <use   name="rootcore"/>
   <flags   EDM_PLUGIN="1"/>

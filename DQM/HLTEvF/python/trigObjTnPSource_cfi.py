@@ -34,7 +34,7 @@ _phiEBHist = cms.PSet(
     )
 _phiEEHist = cms.PSet(
     nameSuffex = cms.string("_phiEE"),
-    titleSuffex = cms.string(" (Barrel);#phi [rad];mass [GeV]"),
+    titleSuffex = cms.string(" (Endcap);#phi [rad];mass [GeV]"),
     bins = cms.vdouble(-3.14,-1.57,0,1.57,3.14),
     filler = cms.PSet(var = cms.string("phi"),localCuts = cms.VPSet(_ecalEndcapEtaCut))
     )
@@ -45,8 +45,9 @@ _etaHist = cms.PSet(
     filler = cms.PSet(var = cms.string("eta"),localCuts = cms.VPSet())
     )
 
-trigObjTnPSource = cms.EDProducer('TrigObjTnPSource',
+trigObjTnPSource = cms.EDAnalyzer('TrigObjTnPSource',
   triggerEvent = cms.InputTag('hltTriggerSummaryAOD','','HLT'),
+  triggerResults = cms.InputTag('TriggerResults','','HLT'),
   histColls = cms.VPSet(cms.PSet(
     tagCuts = cms.VPSet(_ecalBarrelEtaCut),
     probeCuts = cms.VPSet(_ecalEtaCut),
@@ -64,8 +65,9 @@ trigObjTnPSource = cms.EDProducer('TrigObjTnPSource',
     collName = cms.string("stdTag"),
     folderName = cms.string("HLT/EGM/TrigObjTnP"),
     evtTrigSel = cms.PSet(
-      hltInputTag = cms.InputTag('TriggerResults','','HLT'),
-      hltPaths = cms.vstring("HLT_Ele32_WPTight_Gsf_v*")
+      selectionStr = cms.string("HLT_Ele32_WPTight_Gsf_v*"),
+      isANDForExpandedPaths = cms.bool(False),
+      verbose = cms.int32(1)
     ),
     histDefs = cms.PSet(
       massBins = cms.vdouble(i for i in range(60,120+1)),

@@ -34,6 +34,12 @@
 //                    any of those filters in the set.
 //                    An object can then be required to pass all defined FilterSets or any of them
 //
+//   PathSelector : checks that a given path has fired. Was originally supposed to use instead
+//                  GenericTriggerEventFlag but that class was awkward to use in the 
+//                  concurrentME workflow so PathSelector was created to mimic the required 
+//                  functionality. It was a quick port of GenericTriggerEventFlag adapted to 
+//                  to work in our desired workflow and may be replaced/reworked in the future
+//
 //   TrigObjVarF : allows arbitary access to a given float variable of trigger::TriggerObject
 //                 it can also return the abs value of that variable if so requested
 //  
@@ -76,7 +82,7 @@
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 #include "DQMOffline/Trigger/interface/VarRangeCutColl.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
 
@@ -110,6 +116,27 @@ public:
     
   };
 
+  //A rather late addition to replace GenericTriggerEventFlag as it was incompatible with the 
+  //move to concurrentMEs as GenericTriggerEventFlag owns tokens
+  //its more or less a direct port of that class, with the functions inspired by it
+  //obviously much less feature rich, only handles HLT
+  class PathSelector { 
+  public:
+    PathSelector(const edm::ParameterSet& config);
+    static edm::ParameterSetDescription makePSetDescription();
+    void init(const HLTConfigProvider& hltConfig);
+    bool operator()(const edm::TriggerResults& trigResults,const edm::TriggerNames& trigNames)const;
+  private:
+    static std::string expandSelectionStr(const std::string& selStr,const HLTConfigProvider& hltConfig,bool isAND,int verbose);
+    static std::string expandPath(const std::string& pathPattern, const HLTConfigProvider& hltConfig,bool isAND,int verbose);
+    
+    std::string selectionStr_; //with wildcard etc
+    std::string expandedSelStr_; //with wildcards expanded, set by init
+    bool isANDForExpandedPaths_;
+    int verbose_;
+    bool isInited_;
+  };
+    
   class TrigObjVarF {
   public:
     explicit TrigObjVarF(std::string varName);
@@ -125,7 +152,7 @@ public:
   public:
     explicit HistFiller(const edm::ParameterSet& config);
     static edm::ParameterSetDescription makePSetDescription();
-    void operator()(const trigger::TriggerObject& probe,float mass,MonitorElement* hist);    
+    void operator()(const trigger::TriggerObject& probe,float mass,const ConcurrentMonitorElement& hist)const;    
   private:
     VarRangeCutColl<trigger::TriggerObject> localCuts_;
     TrigObjVarF var_;
@@ -138,7 +165,7 @@ public:
     public:
       explicit Data(const edm::ParameterSet& config); 
       static edm::ParameterSetDescription makePSetDescription();
-      MonitorElement* book(DQMStore::IBooker& iBooker,const std::string& name,const std::string& title,const std::vector<float>& massBins)const;
+      ConcurrentMonitorElement book(DQMStore::ConcurrentBooker& iBooker,const std::string& name,const std::string& title,const std::vector<float>& massBins)const;
       const HistFiller& filler()const{return histFiller_;}
     private:
       HistFiller histFiller_;
@@ -149,7 +176,7 @@ public:
   public:
     explicit HistDefs(const edm::ParameterSet& config);  
     static edm::ParameterSetDescription makePSetDescription();
-    std::vector<std::pair<HistFiller,MonitorElement*> > bookHists(DQMStore::IBooker& iBooker,const std::string& name,const std::string& title)const;
+    std::vector<std::pair<HistFiller,ConcurrentMonitorElement> > bookHists(DQMStore::ConcurrentBooker& iBooker,const std::string& name,const std::string& title)const;
   private:
     std::vector<Data> histData_;
     std::vector<float> massBins_;
@@ -158,19 +185,19 @@ public:
   class HistColl {
   public:
     HistColl(){}
-    void bookHists(DQMStore::IBooker& iBooker,const std::string& name,
+    void bookHists(DQMStore::ConcurrentBooker& iBooker,const std::string& name,
 		   const std::string& title,const HistDefs& histDefs);
-    void fill(const trigger::TriggerObject& probe,float mass);
+    void fill(const trigger::TriggerObject& probe,float mass)const;
   private:
-    std::vector<std::pair<HistFiller,MonitorElement*> > hists_; //we do not own the MonitorElement*
+    std::vector<std::pair<HistFiller,ConcurrentMonitorElement> > hists_; //we do not own the MonitorElement*
   };
 
 
   class ProbeData {
   public:
     explicit ProbeData(std::string probeFilter):probeFilter_(std::move(probeFilter)){}
-    void bookHists(const std::string& tagName,DQMStore::IBooker& iBooker,const HistDefs& histDefs);
-    void fill(const trigger::size_type tagKey,const trigger::TriggerEvent& trigEvt,const VarRangeCutColl<trigger::TriggerObject>& probeCuts);
+    void bookHists(const std::string& tagName,DQMStore::ConcurrentBooker& iBooker,const HistDefs& histDefs);
+    void fill(const trigger::size_type tagKey,const trigger::TriggerEvent& trigEvt,const VarRangeCutColl<trigger::TriggerObject>& probeCuts)const;
 
   private:
     std::string probeFilter_;
@@ -178,11 +205,13 @@ public:
   };
   
 public:
-  TrigObjTnPHistColl(const edm::ParameterSet& config,edm::ConsumesCollector&& cc);
+  TrigObjTnPHistColl(const edm::ParameterSet& config);
   static edm::ParameterSetDescription makePSetDescription();
-  void bookHists(DQMStore::IBooker& iBooker);
+  void init(const HLTConfigProvider& hltConfig){evtTrigSel_.init(hltConfig);}
+  void bookHists(DQMStore::ConcurrentBooker& iBooker);
   void fill(const trigger::TriggerEvent& trigEvt,
-	    const edm::Event& event,const edm::EventSetup& setup);
+	    const edm::TriggerResults& trigResults,
+	    const edm::TriggerNames& trigNames)const;
 
 private: 
   //helper function, probably should go in a utilty class
@@ -194,7 +223,7 @@ private:
   std::string folderName_;
   HistDefs histDefs_;
   std::vector<ProbeData> probeHists_; 
-  GenericTriggerEventFlag evtTrigSel_;
+  PathSelector evtTrigSel_;
 
 };
 
