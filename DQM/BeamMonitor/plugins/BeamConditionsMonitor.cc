@@ -33,7 +33,7 @@ BeamConditionsMonitor::BeamConditionsMonitor( const ParameterSet& ps ):
 
   monitorName_    = ps.getUntrackedParameter<string>("monitorName","YourSubsystemName");
   
-  if (monitorName_ != "" ) monitorName_ = monitorName_+"/" ;
+  if (!monitorName_.empty() ) monitorName_ = monitorName_+"/" ;
 }
 
 

@@ -15,7 +15,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
-#include "FWCore/Utilities/interface/propagate_const.h"
 
 //
 // class declaration
