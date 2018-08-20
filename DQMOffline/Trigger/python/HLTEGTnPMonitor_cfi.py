@@ -988,7 +988,7 @@ for id_module_name in my_id_modules:
             setupVIDSelection(egmGsfElectronIDsForDQM,item)
 
 
-from RecoEgamma.PhotonIdentification.PhotonIDValueMapProducer_cfi import photonIDValueMapProducer
+from RecoEgamma.PhotonIdentification.photonIDValueMapProducer_cff import photonIDValueMapProducer
 from RecoEgamma.PhotonIdentification.egmPhotonIDs_cfi import egmPhotonIDs
 egmPhotonIDsForDQM = egmPhotonIDs.clone()
 egmPhotonIDsForDQM.physicsObjectsIDs = cms.VPSet()

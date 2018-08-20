@@ -7,17 +7,17 @@ def make_efficiency_string(objtype, plot_type, triggerpath):
     # --- IMPORTANT: Add here a elif if you are introduce a new collection
     #                (see EVTColContainer::getTypeString) 
     if objtype == "Mu" :
-	objtypeLatex="#mu"
+        objtypeLatex="#mu"
     elif objtype == "refittedStandAloneMuons": 
-	objtypeLatex="refittedStandAlone #mu"
+        objtypeLatex="refittedStandAlone #mu"
     elif objtype == "Ele": 
-	objtypeLatex="e"
+        objtypeLatex="e"
     elif objtype == "Photon": 
-	objtypeLatex="#gamma"
+        objtypeLatex="#gamma"
     elif objtype == "PFTau": 
-	objtypeLatex="#tau"
+        objtypeLatex="#tau"
     else:
-	objtypeLatex=objtype
+        objtypeLatex=objtype
     numer_description = "# gen %s passed the %s" % (objtypeLatex,triggerpath)
     denom_description = "# gen %s " % (objtypeLatex)
 
@@ -54,7 +54,7 @@ def make_efficiency_string(objtype, plot_type, triggerpath):
     all_titles = "%s for trigger %s; %s; %s" % (title, triggerpath,
                                         xAxis, yAxis)
     return "Eff_%s_%s '%s' %s_%s %s" % (input_type,triggerpath,
-		    all_titles,input_type,triggerpath,input_type)
+                    all_titles,input_type,triggerpath,input_type)
 
 
 #--- IMPORTANT: Trigger are extracted from the hltExoticaValidator_cfi.py module

@@ -53,7 +53,7 @@ MuonGmtPair::MuonGmtPair(const MuonGmtPair& muonGmtPair) {
 
 double MuonGmtPair::dR() {
     float dEta = m_regMu ? (m_gmtEta - eta()) : 999.;
-    float dPhi = m_regMu ? (m_gmtPhi - phi()) : 999.;
+    float dPhi = m_regMu ? reco::deltaPhi(m_gmtPhi, phi()) : 999.;
     return sqrt(dEta*dEta + dPhi*dPhi);
 }
 

@@ -154,7 +154,6 @@ namespace spr{
     if (debug) std::cout << (HcalDetId) ClosestCell << std::endl;
 #endif
     std::vector<DetId> vdets = spr::matrixHCALIds(dets, topology, ieta, iphi, false, debug);
-    std::vector<DetId>::iterator it;  
   
 #ifdef EDM_ML_DEBUG
     if (debug) {

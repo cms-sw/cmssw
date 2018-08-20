@@ -188,11 +188,34 @@ def customiseForEcalTestPR22254thresholdC(process):
 
 
 
+def customizeHLTForL3OIPR24267(process):
+   for seedproducer in producers_by_type(process, "TSGForOI"):
+       if "hltIterL3OISeedsFromL2Muons" == seedproducer.label():
+           process.hltIterL3OISeedsFromL2Muons = cms.EDProducer("TSGForOIFromL2")
+       if "hltIterL3OISeedsFromL2MuonsOpenMu" == seedproducer.label():
+           process.hltIterL3OISeedsFromL2MuonsOpenMu = cms.EDProducer("TSGForOIFromL2")
+       if "hltIterL3OISeedsFromL2MuonsNoVtx" == seedproducer.label():
+           process.hltIterL3OISeedsFromL2MuonsNoVtx = cms.EDProducer("TSGForOIFromL2")
+           process.hltIterL3OISeedsFromL2MuonsNoVtx.src = cms.InputTag( 'hltL2Muons' )
+
+
+   for trackproducer in producers_by_type(process, "CkfTrackCandidateMaker"):
+       if "hltIterL3OITrackCandidates" in trackproducer.label():
+           trackproducer.reverseTrajectories  =cms.bool(True)
+
+
+   return process
+
+
+
+
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
+
+    customizeHLTForL3OIPR24267(process)
 
     return process

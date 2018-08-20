@@ -67,7 +67,7 @@ PATTriggerEventProducer::PATTriggerEventProducer( const ParameterSet & iConfig )
   if ( iConfig.exists( "patTriggerMatches" ) ) tagsTriggerMatcher_ = iConfig.getParameter< std::vector< InputTag > >( "patTriggerMatches" );
   triggerMatcherTokens_ = vector_transform( tagsTriggerMatcher_, [this](InputTag const & tag) { return mayConsume< TriggerObjectStandAloneMatch >( tag ); } );
 
-  callWhenNewProductsRegistered( [ this, &iConfig ]( BranchDescription const& bd ) {
+  callWhenNewProductsRegistered( [ this ]( BranchDescription const& bd ) {
     if(not ( this->autoProcessName_ and bd.processName()==this->moduleDescription().processName()) ) {
       triggerResultsGetter_( bd );
     }

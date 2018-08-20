@@ -11,22 +11,16 @@
 #include "EventFilter/EcalDigiToRaw/interface/BlockFormatter.h"
 
 
-
-
 class SRBlockFormatter : public BlockFormatter {
  public :
 
-	SRBlockFormatter();
-	~SRBlockFormatter();
-        void DigiToRaw(int dccid, int dcc_channel, int flag, FEDRawData& rawdata);
+  SRBlockFormatter(BlockFormatter::Config const&, BlockFormatter::Params const& );
 
-	void StartEvent();
-
+  void DigiToRaw(int dccid, int dcc_channel, int flag, FEDRawData& rawdata);
+  
  private :
-	std::map<int, int> header_;
+  std::map<int, int> header_;
 };
-
-
 
 #endif
 

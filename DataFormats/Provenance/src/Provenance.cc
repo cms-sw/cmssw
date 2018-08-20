@@ -1,4 +1,6 @@
 #include "DataFormats/Provenance/interface/Provenance.h"
+
+#include "DataFormats/Provenance/interface/MergeableRunProductMetadataBase.h"
 #include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
@@ -19,12 +21,14 @@ namespace edm {
 
   Provenance::Provenance(std::shared_ptr<BranchDescription const> const& p, ProductID const& pid) :
     stableProvenance_(p, pid),
-    store_() {
+    store_(),
+    mergeableRunProductMetadata_() {
   }
 
   Provenance::Provenance(StableProvenance const& stable) :
     stableProvenance_(stable),
-    store_() {
+    store_(),
+    mergeableRunProductMetadata_() {
   }
 
   ProductProvenance const*
@@ -33,6 +37,17 @@ namespace edm {
       return nullptr;
     }
     return store_->branchIDToProvenance(originalBranchID());
+  }
+
+  bool
+  Provenance::knownImproperlyMerged() const {
+    if (mergeableRunProductMetadata_ && branchDescription().isMergeable()) {
+      // This part handles the cases where the product is
+      // a mergeable run product from the input.
+      return mergeableRunProductMetadata_->knownImproperlyMerged(processName());
+    }
+    // All other cases
+    return false;
   }
 
   void
@@ -55,5 +70,6 @@ namespace edm {
   Provenance::swap(Provenance& iOther) {
     stableProvenance_.swap(iOther.stableProvenance_);
     std::swap(store_,iOther.store_);
+    std::swap(mergeableRunProductMetadata_,iOther.mergeableRunProductMetadata_);
  }
 }

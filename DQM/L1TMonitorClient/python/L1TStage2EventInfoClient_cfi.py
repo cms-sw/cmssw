@@ -343,6 +343,11 @@ l1tStage2EventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                                 QualityTestHist = cms.string("L1T/L1TStage2uGT/uGMToutput_vs_uGTinput/mismatchRatio"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
+                            cms.PSet(
+                                QualityTestName = cms.string("caloLayer2vsuGT_MismatchRatioMax0"),
+                                QualityTestHist = cms.string("L1T/L1TStage2uGT/calol2ouput_vs_uGTinput/mismatchRatio"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
                             )
                         )
                     ),

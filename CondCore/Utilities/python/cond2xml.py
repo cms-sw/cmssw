@@ -11,7 +11,7 @@ import subprocess
 
 # as we need to load the shared lib from here, make sure it's in our path:
 if os.path.join( os.environ['CMSSW_BASE'], 'src') not in sys.path:
-   sys.path.append( os.path.join( os.environ['CMSSW_BASE'], 'src') )
+    sys.path.append( os.path.join( os.environ['CMSSW_BASE'], 'src') )
 
 # -------------------------------------------------------------------------------------------------------
 
@@ -45,26 +45,26 @@ def localLibName( payloadType ):
     # required to avoid ( unlikely ) clashes between lib names from templates and lib names from classes
     prefix = ''
     if '<' in payloadType and '>' in payloadType:
-       prefix = 't'
+        prefix = 't'
     return "%s_%spayload2xml" %(sanitize(payloadType),prefix)
 
 class CondXmlProcessor(object):
 
     def __init__(self, condDBIn):
-    	self.conddb = condDBIn
+        self.conddb = condDBIn
 
-	if not os.path.exists( os.path.join( os.environ['CMSSW_BASE'], 'src') ):
-	   raise Exception("Looks like you are not running in a CMSSW developer area, $CMSSW_BASE/src/ does not exist")
+        if not os.path.exists( os.path.join( os.environ['CMSSW_BASE'], 'src') ):
+            raise Exception("Looks like you are not running in a CMSSW developer area, $CMSSW_BASE/src/ does not exist")
 
-	self.fakePkgName = "fakeSubSys4pl/fakePkg4pl"
-	self._pl2xml_tmpDir = os.path.join( os.environ['CMSSW_BASE'], 'src', self.fakePkgName )
+        self.fakePkgName = "fakeSubSys4pl/fakePkg4pl"
+        self._pl2xml_tmpDir = os.path.join( os.environ['CMSSW_BASE'], 'src', self.fakePkgName )
 
-	self.doCleanup = False
+        self.doCleanup = False
 
     def __del__(self):
 
-    	if self.doCleanup: 
-           shutil.rmtree( '/'.join( self._pl2xml_tmpDir.split('/')[:-1] ) )
+        if self.doCleanup: 
+            shutil.rmtree( '/'.join( self._pl2xml_tmpDir.split('/')[:-1] ) )
         return 
 
     def discover(self, payloadType):
@@ -77,85 +77,85 @@ class CondXmlProcessor(object):
         releaseBase = os.environ["CMSSW_RELEASE_BASE"]
         devCheckout = (releaseBase != '')
         if not devCheckout:
-           logging.debug('Looks like the current working environment is a read-only release')
+            logging.debug('Looks like the current working environment is a read-only release')
         if not os.path.exists( libPath ) and devCheckout:
-           # main release ( for dev checkouts )
-           libDir = os.path.join( releaseBase, 'lib', os.environ["SCRAM_ARCH"] )
-           libPath = os.path.join( libDir, libName )
-           if not os.path.exists( libPath ):
-              if "CMSSW_FULL_RELEASE_BASE" in os.environ:
-                 libDir = os.path.join( os.environ["CMSSW_FULL_RELEASE_BASE"], 'lib', os.environ["SCRAM_ARCH"] )
-                 libPath = os.path.join( libDir, libName )
+            # main release ( for dev checkouts )
+            libDir = os.path.join( releaseBase, 'lib', os.environ["SCRAM_ARCH"] )
+            libPath = os.path.join( libDir, libName )
+            if not os.path.exists( libPath ):
+                if "CMSSW_FULL_RELEASE_BASE" in os.environ:
+                    libDir = os.path.join( os.environ["CMSSW_FULL_RELEASE_BASE"], 'lib', os.environ["SCRAM_ARCH"] )
+                    libPath = os.path.join( libDir, libName )
         if not os.path.exists( libPath ):
-           # it should never happen!
-           raise Exception('No built-in library %s found with XML converters.' %libPath)
+            # it should never happen!
+            raise Exception('No built-in library %s found with XML converters.' %libPath)
         logging.debug("Importing built-in library %s" %libPath)
         module = importlib.import_module( libName.replace('.so', '') )
         functors = dir(module)
         funcName = payloadType+'2xml'
         if funcName in functors:
-           logging.info('XML converter for payload class %s found in the built-in library.' %payloadType)
-           return getattr( module, funcName)
+            logging.info('XML converter for payload class %s found in the built-in library.' %payloadType)
+            return getattr( module, funcName)
         if not devCheckout:
-           # give-up if it is a read-only release...
-           raise Exception('No XML converter suitable for payload class %s has been found in the built-in library.')
+            # give-up if it is a read-only release...
+            raise Exception('No XML converter suitable for payload class %s has been found in the built-in library.')
         libName = 'plugin%s.so' %localLibName( payloadType )
         libPath = os.path.join( devLibDir, libName )
         if os.path.exists( libPath ):
-           logging.info('Found local library with XML converter for class %s' %payloadType )
-           module = importlib.import_module( libName.replace('.so', '') )
-           return getattr( module, funcName)
+            logging.info('Found local library with XML converter for class %s' %payloadType )
+            module = importlib.import_module( libName.replace('.so', '') )
+            return getattr( module, funcName)
         logging.warning('No XML converter for payload class %s found in the built-in library.' %payloadType)
         return None
 
     def prepPayload2xml(self, payloadType):
-    
+
         converter = self.discover(payloadType)
-	if converter: return converter
+        if converter: return converter
 
         #otherwise, go for the code generation in the local checkout area.
-    	startTime = time.time()
+        startTime = time.time()
 
         libName = localLibName( payloadType )
         pluginName = 'plugin%s' % libName
         tmpLibName = "Tmp_payload2xml"
         tmpPluginName = 'plugin%s' %tmpLibName
-         
+
         libDir = os.path.join( os.environ["CMSSW_BASE"], 'lib', os.environ["SCRAM_ARCH"] )
         tmpLibFile = os.path.join( libDir,tmpPluginName+'.so' )
         code = payload2xmlCodeTemplate %(pluginName,payloadType) 
-    
+
         tmpSrcFileName = 'Local_2XML.cpp' 
         tmpDir = self._pl2xml_tmpDir
         if ( os.path.exists( tmpDir ) ) :
-           msg = '\nERROR: %s already exists, please remove if you did not create that manually !!' % tmpDir
-	   raise Exception(msg)
+            msg = '\nERROR: %s already exists, please remove if you did not create that manually !!' % tmpDir
+            raise Exception(msg)
 
         logging.debug('Creating temporary package %s' %self._pl2xml_tmpDir)
         os.makedirs( tmpDir+'/plugins' )
-    
+
         buildFileName = "%s/plugins/BuildFile.xml" % (tmpDir,)
         with open(buildFileName, 'w') as buildFile:
-        	 buildFile.write( buildFileTemplate %(tmpSrcFileName,tmpLibName) )
-    	 	 buildFile.close()
-    
+            buildFile.write( buildFileTemplate %(tmpSrcFileName,tmpLibName) )
+            buildFile.close()
+
         tmpSrcFilePath = "%s/plugins/%s" % (tmpDir, tmpSrcFileName,)
         with open(tmpSrcFilePath, 'w') as codeFile:
-        	 codeFile.write(code)
-    	 	 codeFile.close()
-    
-    	cmd = "source $CMS_PATH/cmsset_default.sh;"
-    	cmd += "(cd %s ; scram b 2>&1 >build.log)" %tmpDir
+            codeFile.write(code)
+            codeFile.close()
+
+        cmd = "source $CMS_PATH/cmsset_default.sh;"
+        cmd += "(cd %s ; scram b 2>&1 >build.log)" %tmpDir
         pipe = subprocess.Popen( cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
         out, err = pipe.communicate()
         ret = pipe.returncode
 
-	buildTime = time.time()-startTime
+        buildTime = time.time()-startTime
         logging.info("Building done in %s sec., return code from build: %s" %(buildTime,ret) )
 
-	if (ret != 0):
-           logging.error("Local build for xml dump failed.")
-           return None
+        if (ret != 0):
+            logging.error("Local build for xml dump failed.")
+            return None
 
         libFile = os.path.join(libDir,pluginName + '.so')
         shutil.copyfile(tmpLibFile,libFile)
@@ -165,24 +165,24 @@ class CondXmlProcessor(object):
         functor = getattr( module, funcName ) 
         self.doCleanup = True
         return functor
-    
+
     def payload2xml(self, session, payloadHash, destFile):
-    
+
         Payload = session.get_dbtype(self.conddb.Payload)
         # get payload from DB:
         result = session.query(Payload.data, Payload.object_type).filter(Payload.hash == payloadHash).one()
         data, plType = result
         logging.info('Found payload of type %s' %plType)
-    
+
         convFuncName = sanitize(plType)+'2xml'
         xmlConverter = self.prepPayload2xml(plType)
 
         if xmlConverter is not None:
-           obj = xmlConverter()
-           resultXML = obj.write( str(data) )
-           if destFile is None:
-              print(resultXML)    
-           else:
-              with open(destFile, 'w') as outFile:
-                 outFile.write(resultXML)
-                 outFile.close()
+            obj = xmlConverter()
+            resultXML = obj.write( str(data) )
+            if destFile is None:
+                print(resultXML)    
+            else:
+                with open(destFile, 'w') as outFile:
+                    outFile.write(resultXML)
+                    outFile.close()

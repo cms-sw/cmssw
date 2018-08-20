@@ -145,7 +145,6 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
 
     edm::Handle<reco::PFCandidateCollection> cands;
     iEvent.getByToken( Cands_, cands );
-    std::vector<reco::Candidate>::const_iterator cand;
 
     edm::Handle<edm::ValueMap<float> > puppiWeight;
     edm::Handle<edm::ValueMap<reco::CandidatePtr> > puppiCandsMap;

@@ -16,27 +16,22 @@ class DDAlgorithmHandler
 {
  public:
   //! creates an DDAlgorithm wrapper
-  /** @param a is a pointer to an DDAlgorithm object; 
-      its memory is NOT managed by DDAlgorithmHandler */
-  DDAlgorithmHandler();
-  
-  virtual  ~DDAlgorithmHandler();
+  DDAlgorithmHandler() {}
   
   //! initializes the wrapped algorithm algo_ and does some pre- and post-processing
   /** pre- and postprocessing mainly covers exception handling,
       the algorithm object algo_ is fetched from the plugin-manager */
-  void initialize(const std::string & algoName,
-		  const DDLogicalPart & parent,
-		  const DDNumericArguments & nArgs,
-                  const DDVectorArguments & vArgs,
-                  const DDMapArguments & mArgs,
-                  const DDStringArguments & sArgs,
-		  const DDStringVectorArguments & svArgs);
-
+  void initialize( const std::string & algoName,
+		   const DDLogicalPart & parent,
+		   const DDNumericArguments & nArgs,
+		   const DDVectorArguments & vArgs,
+		   const DDMapArguments & mArgs,
+		   const DDStringArguments & sArgs,
+		   const DDStringVectorArguments & svArgs);
+  
   //! executes the wrapped algorithm algo_; some pre- and post-processing (exception handling)
   void execute( DDCompactView& );
 
- 
  private:
   std::unique_ptr<DDAlgorithm> algo_;   //!< the wrapped algorithm object
   std::string algoname_; //!< name of the algorithm object

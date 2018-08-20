@@ -30,7 +30,6 @@ public:
 protected:
 
   void          constructLayers (const DDLogicalPart&, DDCompactView& cpv);
-  double        rMax(double z);
   void          positionMix(const DDLogicalPart& glog,const std::string& name,
 			    int copy, double thick, const DDMaterial& matter,
 			    double rin, double rmid, double routF, double zz,
@@ -77,8 +76,10 @@ private:
   double                   waferSepar_;   //Sensor separation
   int                      sectors_;      //Sectors   
   std::vector<double>      slopeB_;       //Slope at the lower R
+  std::vector<double>      zFrontB_;      //Starting Z values for the slopes
+  std::vector<double>      rMinFront_;    //Corresponding rMin's
   std::vector<double>      slopeT_;       //Slopes at the larger R
-  std::vector<double>      zFront_;       //Starting Z values for the slopes
+  std::vector<double>      zFrontT_;      //Starting Z values for the slopes
   std::vector<double>      rMaxFront_;    //Corresponding rMax's
   std::string              nameSpace_;    //Namespace of this and ALL sub-parts
   std::unordered_set<int>  copies_;       //List of copy #'s

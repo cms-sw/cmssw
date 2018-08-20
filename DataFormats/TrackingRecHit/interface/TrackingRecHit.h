@@ -167,12 +167,12 @@ public:
 private:
   friend class  TkCloner;
   // double dispatch
-  virtual TrackingRecHit * clone(TkCloner const&, TrajectoryStateOnSurface const&) const {
+  virtual TrackingRecHit * clone_(TkCloner const&, TrajectoryStateOnSurface const&) const {
     assert("clone"==nullptr);
     return clone(); // default
   }
 #ifndef __GCCXML__
-  virtual  RecHitPointer cloneSH(TkCloner const&, TrajectoryStateOnSurface const&) const {
+  virtual  RecHitPointer cloneSH_(TkCloner const&, TrajectoryStateOnSurface const&) const {
     assert("cloneSH"==nullptr);
     return cloneSH(); // default
   }

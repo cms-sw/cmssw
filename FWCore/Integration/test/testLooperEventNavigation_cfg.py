@@ -19,6 +19,10 @@ process.source = cms.Source("PoolSource",
     #, processingMode = cms.untracked.string('RunsAndLumis')
     #, duplicateCheckMode = cms.untracked.string('checkEachRealDataFile')
     , noEventSort = cms.untracked.bool(False)
+    , inputCommands = cms.untracked.vstring(
+        'keep *',
+        'drop edmtestThingWithMerge_makeThingToBeDropped1_*_*'
+    )
 )
 
 
