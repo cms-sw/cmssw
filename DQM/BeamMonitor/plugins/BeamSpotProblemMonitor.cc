@@ -168,10 +168,10 @@ void BeamSpotProblemMonitor::analyze(const Event& iEvent,
   }
 
   bool allTkOn = true;
-  //BUG??? DcsStatus::TECm is ignored
-  for (int i=0; i<5; i++) {
-    if (!dcsTk[i]) {
+  for (auto status: dcsTk) {
+    if (!status) {
       allTkOn = false;
+      break;
     }
   }
 
