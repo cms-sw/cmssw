@@ -27,8 +27,6 @@ public:
  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
  void processEvent(edm::Event const& event, const CastorDigiCollection& cast, 
        const edm::TriggerResults& trig, const CastorDbService& cond);
-// void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context);
- void beginLuminosityBlock(int lumiSec);
  void endRun();
  void getDbData(const edm::EventSetup& iSetup);
  int ModSecToIndex(int module, int sector);
