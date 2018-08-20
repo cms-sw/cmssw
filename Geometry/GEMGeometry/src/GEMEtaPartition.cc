@@ -53,7 +53,7 @@ GEMEtaPartition::nstrips() const
 LocalPoint
 GEMEtaPartition::centreOfStrip(int strip) const
 {
-  float s = static_cast<float>(strip) - 0.5;
+  float s = static_cast<float>(strip) + 0.5;
   return this->specificTopology().localPosition(s);
 }
 
