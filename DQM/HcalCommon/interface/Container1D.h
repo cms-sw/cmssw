@@ -18,8 +18,6 @@
 #include "DQM/HcalCommon/interface/Utilities.h"
 
 #include <vector>
-//#include <unordered_map>
-//#include "boost/ptr_container/ptr_map.hpp"
 #include "boost/unordered_map.hpp"
 #include "boost/foreach.hpp"
 #include <string>
@@ -271,12 +269,6 @@ namespace hcaldqm
     virtual void book(DQMStore::IBooker&, HcalElectronicsMap const*,
                       filter::HashFilter const&, std::string subsystem="Hcal",
                       std::string aux="");
-    virtual void book(DQMStore*, HcalElectronicsMap const*,
-                      std::string subsystem="Hcal",
-                      std::string aux="");
-    virtual void book(DQMStore*, HcalElectronicsMap const*,
-                      filter::HashFilter const&, std::string subsystem="Hcal",
-                      std::string aux="");
 
     //      loading using DQMStore
     //      @DQMStore
@@ -287,19 +279,6 @@ namespace hcaldqm
     //      @mode - if StripRunDirs - then there will be no Run Summary
     //      otherwise there is Run Summary folde. Used for retrieving
     //      MEs which were loaded into the DQM store from a file
-    virtual void load(DQMStore*, HcalElectronicsMap const*,
-                      std::string const& subsystem="Hcal",
-                      std::string const& aux="",
-                      std::string const& prepend="", DQMStore::OpenRunDirs
-                      mode=DQMStore::StripRunDirs);
-    virtual void load(DQMStore*, HcalElectronicsMap const*,
-                      filter::HashFilter const&,
-                      std::string const& subsystem="Hcal",
-                      std::string const& aux="",
-                      std::string const& prepend="", DQMStore::OpenRunDirs
-                      mode=DQMStore::StripRunDirs);
-
-    //      loading using DQMStore::IGetter
     virtual void load(DQMStore::IGetter&, HcalElectronicsMap const*,
                       std::string const& subsystem="Hcal",
                       std::string const& aux="");

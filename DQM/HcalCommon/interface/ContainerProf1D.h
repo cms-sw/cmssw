@@ -45,14 +45,6 @@ namespace hcaldqm
     void book(DQMStore::IBooker&,
               HcalElectronicsMap const*, filter::HashFilter const&,
               std::string subsystem="Hcal", std::string aux="") override;
-    void book(DQMStore*,
-              HcalElectronicsMap const*,
-              std::string subsystem="Hcal", std::string aux="") override;
-    void book(DQMStore*,
-              HcalElectronicsMap const*, filter::HashFilter const&,
-              std::string subsystem="Hcal", std::string aux="") override;
-
-  protected:
   };
 }
 

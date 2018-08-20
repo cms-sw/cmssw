@@ -18,7 +18,7 @@ namespace hcaldqm
   }
 
   ContainerSingle1D::ContainerSingle1D(std::string const& folder,
-				       Quantity *qx, Quantity *qy):
+                                       Quantity *qx, Quantity *qy):
     Container(folder, qy->name()+"vs"+qx->name()), _qx(qx), _qy(qy)
   {
     _qx->setAxisType(quantity::fXAxis);
@@ -26,8 +26,8 @@ namespace hcaldqm
   }
 
   ContainerSingle1D::ContainerSingle1D(std::string const& folder,
-				       std::string const& qname,
-				       Quantity *qx, Quantity *qy):
+                                       std::string const& qname,
+                                       Quantity *qx, Quantity *qy):
     Container(folder, qname), _qx(qx), _qy(qy)
   {
     _qx->setAxisType(quantity::fXAxis);
@@ -45,7 +45,7 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle1D::initialize(std::string const& folder,
-						   Quantity *qx, Quantity *qy, int debug/*=0*/)
+                                                   Quantity *qx, Quantity *qy, int debug/*=0*/)
   {
     Container::initialize(folder, qy->name()+"vs"+qx->name(), debug);
     _qx = qx;
@@ -55,8 +55,8 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle1D::initialize(std::string const& folder,
-						   std::string const& qname,
-						   Quantity *qx, Quantity *qy, int debug/*=0*/)
+                                                   std::string const& qname,
+                                                   Quantity *qx, Quantity *qy, int debug/*=0*/)
   {
     Container::initialize(folder, qname, debug);
     _qx = qx;
@@ -66,22 +66,12 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle1D::book(DQMStore::IBooker &ib,
-					     std::string subsystem, std::string aux)
+                                             std::string subsystem, std::string aux)
   {
     ib.setCurrentFolder(subsystem+"/"+_folder+"/"+_qname);
     _me = ib.book1D(_qname+(aux.empty()?aux:"_"+aux),
-		    _qname+(aux.empty()?aux:" "+aux),
-		    _qx->nbins(), _qx->min(), _qx->max());
-    customize();
-  }
-
-  /* virtual */ void ContainerSingle1D::book(DQMStore *store,
-					     std::string subsystem, std::string aux)
-  {
-    store->setCurrentFolder(subsystem+"/"+_folder+"/"+_qname);
-    _me = store->book1D(_qname+(aux.empty()?aux:"_"+aux),
-			_qname+(aux.empty()?aux:" "+aux),
-			_qx->nbins(), _qx->min(), _qx->max());
+                    _qname+(aux.empty()?aux:" "+aux),
+                    _qx->nbins(), _qx->min(), _qx->max());
     customize();
   }
 
@@ -176,7 +166,7 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle1D::fill(HcalDetId const& id, double x,
-					     double y)
+                                             double y)
   {
     if (_qx->isCoordinate())
       _me->Fill(_qx->getValue(id), _qy->getValue(x), y);
@@ -194,12 +184,12 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle1D::setBinContent(HcalDetId const& id,
-						      int x)
+                                                      int x)
   {
     _me->setBinContent(_qx->getBin(id), x);
   }
   /* virtual */ void ContainerSingle1D::setBinContent(HcalDetId const& id,
-						      double x)
+                                                      double x)
   {
     _me->setBinContent(_qx->getBin(id), x);
   }
@@ -210,7 +200,7 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle1D::fill(HcalElectronicsId const& id,
-					     double x)
+                                             double x)
   {
     if (_qx->isCoordinate())
       _me->Fill(_qx->getValue(id), _qy->getValue(x));
@@ -219,7 +209,7 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle1D::fill(HcalElectronicsId const& id,
-					     double x, double y)
+                                             double x, double y)
   {
     if (_qx->isCoordinate())
       _me->Fill(_qx->getValue(id), _qy->getValue(x), y);
@@ -237,12 +227,12 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle1D::setBinContent(HcalElectronicsId const& id,
-						      int x)
+                                                      int x)
   {
     _me->setBinContent(_qx->getBin(id), x);
   }
   /* virtual */ void ContainerSingle1D::setBinContent(HcalElectronicsId const& id,
-						      double x)
+                                                      double x)
   {
     _me->setBinContent(_qx->getBin(id), x);
   }
@@ -253,7 +243,7 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle1D::fill(HcalTrigTowerDetId const& id,
-					     double x)
+                                             double x)
   {
     if (_qx->isCoordinate())
       _me->Fill(_qx->getValue(id), _qy->getValue(x));
@@ -262,8 +252,8 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle1D::fill(HcalTrigTowerDetId const& id,
-					     double x,
-					     double y)
+                                             double x,
+                                             double y)
   {
     if (_qx->isCoordinate())
       _me->Fill(_qx->getValue(id), _qy->getValue(x), y);
@@ -281,12 +271,12 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle1D::setBinContent(HcalTrigTowerDetId const& id,
-						      int x)
+                                                      int x)
   {
     _me->setBinContent(_qx->getBin(id), x);
   }
   /* virtual */ void ContainerSingle1D::setBinContent(HcalTrigTowerDetId const& id,
-						      double x)
+                                                      double x)
   {
     _me->setBinContent(_qx->getBin(id), x);
   }
@@ -299,9 +289,9 @@ namespace hcaldqm
     int x=_qx->nbins();
     while(l>=x)
       {
-	_me->getTH1()->LabelsInflate();
-	x*=2;
-	_qx->setMax(x);
+        _me->getTH1()->LabelsInflate();
+        x*=2;
+        _qx->setMax(x);
       }
   }
 

@@ -13,7 +13,7 @@ namespace hcaldqm
   }
 
   ContainerSingle2D::ContainerSingle2D(std::string const& folder,
-				       Quantity *qx, Quantity *qy, Quantity *qz):
+                                       Quantity *qx, Quantity *qy, Quantity *qz):
     Container(folder, qz->name()+"vs"+qy->name()+"vs"+qx->name()),
     _qx(qx), _qy(qy), _qz(qz)
   {
@@ -23,8 +23,8 @@ namespace hcaldqm
   }
 
   ContainerSingle2D::ContainerSingle2D(std::string const& folder,
-				       std::string const& qname,
-				       Quantity *qx, Quantity *qy, Quantity *qz, int debug/*=0*/):
+                                       std::string const& qname,
+                                       Quantity *qx, Quantity *qy, Quantity *qz, int debug/*=0*/):
     Container(folder, qname), _qx(qx), _qy(qy), _qz(qz)
   {
     _qx->setAxisType(quantity::fXAxis);
@@ -54,10 +54,10 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle2D::initialize(std::string const& folder,
-						   Quantity *qx, Quantity *qy, Quantity *qz, int debug/*=0*/)
+                                                   Quantity *qx, Quantity *qy, Quantity *qz, int debug/*=0*/)
   {
     Container::initialize(folder, qz->name()+"vs"+qy->name()+"vs"+
-			  qx->name(), debug);
+                          qx->name(), debug);
     _qx = qx;
     _qy = qy;
     _qz = qz;
@@ -67,8 +67,8 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle2D::initialize(std::string const& folder,
-						   std::string const& qname,
-						   Quantity *qx, Quantity *qy, Quantity *qz, int debug/*=0*/)
+                                                   std::string const& qname,
+                                                   Quantity *qx, Quantity *qy, Quantity *qz, int debug/*=0*/)
   {
     Container::initialize(folder, qname, debug);
     _qx = qx;
@@ -80,32 +80,21 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle2D::book(DQMStore::IBooker &ib,
-					     std::string subsystem, std::string aux)
+                                             std::string subsystem, std::string aux)
   {
     ib.setCurrentFolder(subsystem+"/"+_folder+"/"+_qname);
     _me = ib.book2D(_qname+(aux.empty()?aux:"_"+aux),
-		    _qname+(aux.empty()?aux:" "+aux),
-		    _qx->nbins(), _qx->min(), _qx->max(),
-		    _qy->nbins(), _qy->min(), _qy->max());
+                    _qname+(aux.empty()?aux:" "+aux),
+                    _qx->nbins(), _qx->min(), _qx->max(),
+                    _qy->nbins(), _qy->min(), _qy->max());
     customize();
   }
 
   /* virtual */ void ContainerSingle2D::load(DQMStore::IGetter& ig,
-					     std::string subsystem, std::string aux)
+                                             std::string subsystem, std::string aux)
   {
     _me = ig.get(subsystem+"/"+_folder+"/"+_qname+"/"+
-		 _qname+(aux.empty()?aux:"_"+aux));
-  }
-
-  /* virtual */ void ContainerSingle2D::book(DQMStore *store,
-					     std::string subsystem, std::string aux)
-  {
-    store->setCurrentFolder(subsystem+"/"+_folder+"/"+_qname);
-    _me = store->book2D(_qname+(aux.empty()?aux:"_"+aux),
-			_qname+(aux.empty()?aux:" "+aux),
-			_qx->nbins(), _qx->min(), _qx->max(),
-			_qy->nbins(), _qy->min(), _qy->max());
-    customize();
+                 _qname+(aux.empty()?aux:"_"+aux));
   }
 
   /* virtual */ void ContainerSingle2D::customize()
@@ -220,7 +209,7 @@ namespace hcaldqm
     _me->setBinContent(_qx->getBin(x), _qy->getBin(y), z);
   }
   /* virtual */ void ContainerSingle2D::setBinContent(double x,
-						      double y, int z)
+                                                      double y, int z)
   {
     _me->setBinContent(_qx->getBin(x), _qy->getBin(y), z);
   }
@@ -229,17 +218,17 @@ namespace hcaldqm
     _me->setBinContent(_qx->getBin(x), _qy->getBin(y), z);
   }
   /* virtual */ void ContainerSingle2D::setBinContent(int x, double y,
-						      double z)
+                                                      double z)
   {
     _me->setBinContent(_qx->getBin(x), _qy->getBin(y), z);
   }
   /* virtual */ void ContainerSingle2D::setBinContent(double x, int y,
-						      double z)
+                                                      double z)
   {
     _me->setBinContent(_qx->getBin(x), _qy->getBin(y), z);
   }
   /* virtual */ void ContainerSingle2D::setBinContent(double x,
-						      double y, double z)
+                                                      double y, double z)
   {
     _me->setBinContent(_qx->getBin(x), _qy->getBin(y), z);
   }
@@ -265,7 +254,7 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle2D::fill(HcalDetId const& id, double x,
-					     double y)
+                                             double y)
   {
     if (_qx->isCoordinate() && _qy->isCoordinate())
       _me->Fill(_qx->getValue(id), _qy->getValue(id), x);
@@ -276,7 +265,7 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle2D::fill(HcalDetId const& id, int x,
-					     int y)
+                                             int y)
   {
     if (_qx->isCoordinate() && _qy->isCoordinate())
       _me->Fill(_qx->getValue(id), _qy->getValue(id), x);
@@ -287,7 +276,7 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle2D::fill(HcalDetId const& id, int x,
-					     double y)
+                                             double y)
   {
     if (_qx->isCoordinate() && _qy->isCoordinate())
       _me->Fill(_qx->getValue(id), _qy->getValue(id), x);
@@ -302,7 +291,7 @@ namespace hcaldqm
     return _me->getBinContent(_qx->getBin(id), _qy->getBin(id));
   }
   /* virtual */ double ContainerSingle2D::getBinContent(HcalDetId const& id,
-							int x)
+                                                        int x)
   {
     if (_qx->isCoordinate())
       return _me->getBinContent(_qx->getBin(id), _qy->getBin(x));
@@ -310,7 +299,7 @@ namespace hcaldqm
       return _me->getBinContent(_qx->getBin(x), _qy->getBin(id));
   }
   /* virtual */ double ContainerSingle2D::getBinContent(HcalDetId const& id,
-							double x)
+                                                        double x)
   {
     if (_qx->isCoordinate())
       return _me->getBinContent(_qx->getBin(id), _qy->getBin(x));
@@ -322,7 +311,7 @@ namespace hcaldqm
     return _me->getBinEntries(_qx->getBin(id)+_qx->wofnbins()* _qy->getBin(id));
   }
   /* virtual */ double ContainerSingle2D::getBinEntries(HcalDetId const& id,
-							int x)
+                                                        int x)
   {
     if (_qx->isCoordinate())
       return _me->getBinEntries(_qx->getBin(id)+_qx->wofnbins()*_qy->getBin(x));
@@ -330,7 +319,7 @@ namespace hcaldqm
       return _me->getBinEntries(_qx->getBin(x)+_qx->wofnbins()*_qy->getBin(id));
   }
   /* virtual */ double ContainerSingle2D::getBinEntries(HcalDetId const& id,
-							double x)
+                                                        double x)
   {
     if (_qx->isCoordinate())
       return _me->getBinEntries(_qx->getBin(id)+_qx->wofnbins()*_qy->getBin(x));
@@ -339,17 +328,17 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle2D::setBinContent(HcalDetId const& id,
-						      int x)
+                                                      int x)
   {
     _me->setBinContent(_qx->getBin(id), _qy->getBin(id), x);
   }
   /* virtual */ void ContainerSingle2D::setBinContent(HcalDetId const& id,
-						      double x)
+                                                      double x)
   {
     _me->setBinContent(_qx->getBin(id), _qy->getBin(id), x);
   }
   /* virtual */ void ContainerSingle2D::setBinContent(HcalDetId const& id,
-						      int x, int y)
+                                                      int x, int y)
   {
     if (_qx->isCoordinate())
       _me->setBinContent(_qx->getBin(id), _qy->getBin(x), y);
@@ -357,7 +346,7 @@ namespace hcaldqm
       _me->setBinContent(_qx->getBin(x), _qy->getBin(id), y);
   }
   /* virtual */ void ContainerSingle2D::setBinContent(HcalDetId const& id,
-						      int x, double y)
+                                                      int x, double y)
   {
     if (_qx->isCoordinate())
       _me->setBinContent(_qx->getBin(id), _qy->getBin(x), y);
@@ -365,7 +354,7 @@ namespace hcaldqm
       _me->setBinContent(_qx->getBin(x), _qy->getBin(id), y);
   }
   /* virtual */ void ContainerSingle2D::setBinContent(HcalDetId const& id,
-						      double x, int y)
+                                                      double x, int y)
   {
     if (_qx->isCoordinate())
       _me->setBinContent(_qx->getBin(id), _qy->getBin(x), y);
@@ -373,7 +362,7 @@ namespace hcaldqm
       _me->setBinContent(_qx->getBin(x), _qy->getBin(id), y);
   }
   /* virtual */ void ContainerSingle2D::setBinContent(HcalDetId const& id,
-						      double x, double y)
+                                                      double x, double y)
   {
     if (_qx->isCoordinate())
       _me->setBinContent(_qx->getBin(id), _qy->getBin(x), y);
@@ -388,7 +377,7 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle2D::fill(HcalElectronicsId const& id,
-					     double x)
+                                             double x)
   {
     if (_qx->isCoordinate() && _qy->isCoordinate())
       _me->Fill(_qx->getValue(id), _qy->getValue(id), x);
@@ -399,7 +388,7 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle2D::fill(HcalElectronicsId const& id,
-					     int x)
+                                             int x)
   {
     if (_qx->isCoordinate() && _qy->isCoordinate())
       _me->Fill(_qx->getValue(id), _qy->getValue(id), x);
@@ -410,8 +399,8 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle2D::fill(HcalElectronicsId const& id,
-					     double x,
-					     double y)
+                                             double x,
+                                             double y)
   {
     if (_qx->isCoordinate() && _qy->isCoordinate())
       _me->Fill(_qx->getValue(id), _qy->getValue(id), x);
@@ -422,8 +411,8 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle2D::fill(HcalElectronicsId const& id,
-					     int x,
-					     int y)
+                                             int x,
+                                             int y)
   {
     if (_qx->isCoordinate() && _qy->isCoordinate())
       _me->Fill(_qx->getValue(id), _qy->getValue(id), x);
@@ -434,8 +423,8 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle2D::fill(HcalElectronicsId const& id,
-					     int x,
-					     double y)
+                                             int x,
+                                             double y)
   {
     if (_qx->isCoordinate() && _qy->isCoordinate())
       _me->Fill(_qx->getValue(id), _qy->getValue(id), x);
@@ -450,7 +439,7 @@ namespace hcaldqm
     return _me->getBinContent(_qx->getBin(id), _qy->getBin(id));
   }
   /* virtual */ double ContainerSingle2D::getBinContent(HcalElectronicsId const& id,
-							int x)
+                                                        int x)
   {
     if (_qx->isCoordinate())
       return _me->getBinContent(_qx->getBin(id), _qy->getBin(x));
@@ -458,7 +447,7 @@ namespace hcaldqm
       return _me->getBinContent(_qx->getBin(x), _qy->getBin(id));
   }
   /* virtual */ double ContainerSingle2D::getBinContent(HcalElectronicsId const& id,
-							double x)
+                                                        double x)
   {
     if (_qx->isCoordinate())
       return _me->getBinContent(_qx->getBin(id), _qy->getBin(x));
@@ -470,7 +459,7 @@ namespace hcaldqm
     return _me->getBinEntries(_qx->getBin(id)+_qx->wofnbins()*_qy->getBin(id));
   }
   /* virtual */ double ContainerSingle2D::getBinEntries(HcalElectronicsId const& id,
-							int x)
+                                                        int x)
   {
     if (_qx->isCoordinate())
       return _me->getBinEntries(_qx->getBin(id)+_qx->wofnbins()*_qy->getBin(x));
@@ -478,7 +467,7 @@ namespace hcaldqm
       return _me->getBinEntries(_qx->getBin(x)+_qx->wofnbins()*_qy->getBin(id));
   }
   /* virtual */ double ContainerSingle2D::getBinEntries(HcalElectronicsId const& id,
-							double x)
+                                                        double x)
   {
     if (_qx->isCoordinate())
       return _me->getBinEntries(_qx->getBin(id)+_qx->wofnbins()*_qy->getBin(x));
@@ -487,17 +476,17 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle2D::setBinContent(HcalElectronicsId const& id,
-						      int x)
+                                                      int x)
   {
     _me->setBinContent(_qx->getBin(id), _qy->getBin(id), x);
   }
   /* virtual */ void ContainerSingle2D::setBinContent(HcalElectronicsId const& id,
-						      double x)
+                                                      double x)
   {
     _me->setBinContent(_qx->getBin(id), _qy->getBin(id), x);
   }
   /* virtual */ void ContainerSingle2D::setBinContent(HcalElectronicsId const& id,
-						      int x, int y)
+                                                      int x, int y)
   {
     if (_qx->isCoordinate())
       _me->setBinContent(_qx->getBin(id), _qy->getBin(x), y);
@@ -505,7 +494,7 @@ namespace hcaldqm
       _me->setBinContent(_qx->getBin(x), _qy->getBin(id), y);
   }
   /* virtual */ void ContainerSingle2D::setBinContent(HcalElectronicsId const& id,
-						      int x, double y)
+                                                      int x, double y)
   {
     if (_qx->isCoordinate())
       _me->setBinContent(_qx->getBin(id), _qy->getBin(x), y);
@@ -513,7 +502,7 @@ namespace hcaldqm
       _me->setBinContent(_qx->getBin(x), _qy->getBin(id), y);
   }
   /* virtual */ void ContainerSingle2D::setBinContent(HcalElectronicsId const& id,
-						      double x, int y)
+                                                      double x, int y)
   {
     if (_qx->isCoordinate())
       _me->setBinContent(_qx->getBin(id), _qy->getBin(x), y);
@@ -521,7 +510,7 @@ namespace hcaldqm
       _me->setBinContent(_qx->getBin(x), _qy->getBin(id), y);
   }
   /* virtual */ void ContainerSingle2D::setBinContent(HcalElectronicsId const& id,
-						      double x, double y)
+                                                      double x, double y)
   {
     if (_qx->isCoordinate())
       _me->setBinContent(_qx->getBin(id), _qy->getBin(x), y);
@@ -536,7 +525,7 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle2D::fill(HcalTrigTowerDetId const& id,
-					     double x)
+                                             double x)
   {
     if (_qx->isCoordinate() && _qy->isCoordinate())
       _me->Fill(_qx->getValue(id), _qy->getValue(id), x);
@@ -547,7 +536,7 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle2D::fill(HcalTrigTowerDetId const& id,
-					     int x)
+                                             int x)
   {
     if (_qx->isCoordinate() && _qy->isCoordinate())
       _me->Fill(_qx->getValue(id), _qy->getValue(id), x);
@@ -558,7 +547,7 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle2D::fill(HcalTrigTowerDetId const& id,
-					     double x, double y)
+                                             double x, double y)
   {
     if (_qx->isCoordinate() && _qy->isCoordinate())
       _me->Fill(_qx->getValue(id), _qy->getValue(id), x);
@@ -569,7 +558,7 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle2D::fill(HcalTrigTowerDetId const& id,
-					     int x, int y)
+                                             int x, int y)
   {
     if (_qx->isCoordinate() && _qy->isCoordinate())
       _me->Fill(_qx->getValue(id), _qy->getValue(id), x);
@@ -580,7 +569,7 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle2D::fill(HcalTrigTowerDetId const& id,
-					     int x, double y)
+                                             int x, double y)
   {
     if (_qx->isCoordinate() && _qy->isCoordinate())
       _me->Fill(_qx->getValue(id), _qy->getValue(id), x);
@@ -591,7 +580,7 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle2D::fill(HcalDetId const& did,
-					     HcalElectronicsId const& eid)
+                                             HcalElectronicsId const& eid)
   {
     if (_qx->type()==fDetectorQuantity)
       _me->Fill(_qx->getValue(did), _qy->getValue(eid));
@@ -600,7 +589,7 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle2D::fill(HcalDetId const& did,
-					     HcalElectronicsId const& eid, double x)
+                                             HcalElectronicsId const& eid, double x)
   {
     if (_qx->type()==fDetectorQuantity)
       _me->Fill(_qx->getValue(did), _qy->getValue(eid), x);
@@ -613,7 +602,7 @@ namespace hcaldqm
     return _me->getBinContent(_qx->getBin(id), _qy->getBin(id));
   }
   /* virtual */ double ContainerSingle2D::getBinContent(HcalTrigTowerDetId const& id,
-							int x)
+                                                        int x)
   {
     if (_qx->isCoordinate())
       return _me->getBinContent(_qx->getBin(id), _qy->getBin(x));
@@ -621,7 +610,7 @@ namespace hcaldqm
       return _me->getBinContent(_qx->getBin(x), _qy->getBin(id));
   }
   /* virtual */ double ContainerSingle2D::getBinContent(HcalTrigTowerDetId const& id,
-							double x)
+                                                        double x)
   {
     if (_qx->isCoordinate())
       return _me->getBinContent(_qx->getBin(id), _qy->getBin(x));
@@ -633,7 +622,7 @@ namespace hcaldqm
     return _me->getBinEntries(_qx->getBin(id)+_qx->wofnbins()*_qy->getBin(id));
   }
   /* virtual */ double ContainerSingle2D::getBinEntries(HcalTrigTowerDetId const& id,
-							int x)
+                                                        int x)
   {
     if (_qx->isCoordinate())
       return _me->getBinEntries(_qx->getBin(id)+_qx->wofnbins()*_qy->getBin(x));
@@ -641,7 +630,7 @@ namespace hcaldqm
       return _me->getBinEntries(_qx->getBin(x)+_qx->wofnbins()*_qy->getBin(id));
   }
   /* virtual */ double ContainerSingle2D::getBinEntries(HcalTrigTowerDetId const& id,
-							double x)
+                                                        double x)
   {
     if (_qx->isCoordinate())
       return _me->getBinEntries(_qx->getBin(id)+_qx->wofnbins()*_qy->getBin(x));
@@ -650,17 +639,17 @@ namespace hcaldqm
   }
 
   /* virtual */ void ContainerSingle2D::setBinContent(HcalTrigTowerDetId const& id,
-						      int x)
+                                                      int x)
   {
     _me->setBinContent(_qx->getBin(id), _qy->getBin(id), x);
   }
   /* virtual */ void ContainerSingle2D::setBinContent(HcalTrigTowerDetId const& id,
-						      double x)
+                                                      double x)
   {
     _me->setBinContent(_qx->getBin(id), _qy->getBin(id), x);
   }
   /* virtual */ void ContainerSingle2D::setBinContent(HcalTrigTowerDetId const& id,
-						      int x, int y)
+                                                      int x, int y)
   {
     if (_qx->isCoordinate())
       _me->setBinContent(_qx->getBin(id), _qy->getBin(x), y);
@@ -668,7 +657,7 @@ namespace hcaldqm
       _me->setBinContent(_qx->getBin(x), _qy->getBin(id), y);
   }
   /* virtual */ void ContainerSingle2D::setBinContent(HcalTrigTowerDetId const& id,
-						      int x, double y)
+                                                      int x, double y)
   {
     if (_qx->isCoordinate())
       _me->setBinContent(_qx->getBin(id), _qy->getBin(x), y);
@@ -676,7 +665,7 @@ namespace hcaldqm
       _me->setBinContent(_qx->getBin(x), _qy->getBin(id), y);
   }
   /* virtual */ void ContainerSingle2D::setBinContent(HcalTrigTowerDetId const& id,
-						      double x, int y)
+                                                      double x, int y)
   {
     if (_qx->isCoordinate())
       _me->setBinContent(_qx->getBin(id), _qy->getBin(x), y);
@@ -684,7 +673,7 @@ namespace hcaldqm
       _me->setBinContent(_qx->getBin(x), _qy->getBin(id), y);
   }
   /* virtual */ void ContainerSingle2D::setBinContent(HcalTrigTowerDetId const& id,
-						      double x, double y)
+                                                      double x, double y)
   {
     if (_qx->isCoordinate())
       _me->setBinContent(_qx->getBin(id), _qy->getBin(x), y);
@@ -700,9 +689,9 @@ namespace hcaldqm
     int x=_qx->nbins();
     while(l>=x)
       {
-	_me->getTH1()->LabelsInflate();
-	x*=2;
-	_qx->setMax(x);
+        _me->getTH1()->LabelsInflate();
+        x*=2;
+        _qx->setMax(x);
       }
   }
 
