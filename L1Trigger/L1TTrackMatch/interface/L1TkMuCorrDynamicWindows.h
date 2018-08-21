@@ -35,6 +35,7 @@ class L1TkMuCorrDynamicWindows{
         std::vector<int> find_match(const EMTFTrackCollection& l1mus, const L1TTTrackCollectionType& l1trks); // gives a vector with the idxs of muons for each L1TTT
 
         // ------------------------------
+        static std::vector<double> prepare_corr_bounds(string fname, string hname);
 
         void set_safety_factor (float sf_l, float sf_h) {
             safety_factor_l_ = sf_l;
@@ -60,9 +61,15 @@ class L1TkMuCorrDynamicWindows{
             // std::cout << "L1TkMuCorrDynamicWindows : set do_relax to " << std::boolalpha << do_relax_factor_ << std::noboolalpha << std::endl;
         }
 
-        void set_do_trk_qual_presel (bool val) {
-            track_qual_presel_ = val;
-        }
+        void set_do_trk_qual_presel (bool val) { track_qual_presel_ = val; }
+
+        // setters for trk
+        void set_n_trk_par      (int val)    {nTrkPars_       = val;}
+        void set_min_trk_p      (float val ) {min_trk_p_      = val;}
+        void set_max_trk_aeta   (float val ) {max_trk_aeta_   = val;}
+        void set_max_trk_chi2   (float val ) {max_trk_chi2_   = val;}
+        void set_min_trk_nstubs (int   val ) {min_trk_nstubs_ = val;}
+
 
     private:
         int getBin(double val);
@@ -121,6 +128,13 @@ class L1TkMuCorrDynamicWindows{
         float pt_end_; // the relaxation of the threshold
         bool  do_relax_factor_; // true if applying the linear relaxation
         bool  track_qual_presel_; // if true, apply the track preselection
+
+        // trk configurable params
+        int nTrkPars_; // 4
+        float min_trk_p_; // 3.5
+        float max_trk_aeta_; // 2.5
+        float max_trk_chi2_; // 100
+        int   min_trk_nstubs_; // 4
 };
 
 #endif

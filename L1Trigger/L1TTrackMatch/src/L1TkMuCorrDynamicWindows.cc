@@ -1,5 +1,9 @@
 #include "L1Trigger/L1TTrackMatch/interface/L1TkMuCorrDynamicWindows.h"
 
+// ROOT includes
+#include "TH1.h"
+#include "TH2.h"
+
 L1TkMuCorrDynamicWindows::L1TkMuCorrDynamicWindows(std::vector<double>& bounds, TFile* fIn_theta, TFile* fIn_phi) :
     wdws_theta_(bounds.size()-1, MuMatchWindow()),
     wdws_phi_(bounds.size()-1, MuMatchWindow())
@@ -82,7 +86,7 @@ int L1TkMuCorrDynamicWindows::getBin(double val)
 // std::vector<int> L1TkMuCorrDynamicWindows::find_match(MuTkTree& mtkt, std::vector<int>* narbitrated)
 std::vector<int> L1TkMuCorrDynamicWindows::find_match(const EMTFTrackCollection& l1mus, const L1TTTrackCollectionType& l1trks)
 {
-    const int nTrkPars_ = 4; // FIXME: make confiugurable from python cfg
+    // const int nTrkPars_ = 4; // FIXME: make confiugurable from python cfg
 
     std::vector<int> out (l1trks.size());
     for (auto l1trkit = l1trks.begin(); l1trkit != l1trks.end(); ++l1trkit)
@@ -98,14 +102,14 @@ std::vector<int> L1TkMuCorrDynamicWindows::find_match(const EMTFTrackCollection&
         // https://github.com/cms-l1t-offline/cmssw/blob/l1t-phase2-932-v1.6/L1Trigger/L1TTrackMatch/plugins/L1TkMuonProducer.cc#L264
         // FIXME: make preselections confiuguable
         bool reject_trk = false;
-        if (trk_p  < 3.5 )  reject_trk = true;
-        if (trk_aeta > 2.5) reject_trk = true;
+        if (trk_p    < min_trk_p_ )   reject_trk = true;
+        if (trk_aeta > max_trk_aeta_) reject_trk = true;
         if (track_qual_presel_)
         {
             float l1tk_chi2 = l1trkit->getChi2(nTrkPars_);
             int l1tk_nstubs = l1trkit->getStubRefs().size();
-            if (l1tk_chi2 >= 100) reject_trk = true;
-            if (l1tk_nstubs < 4) reject_trk = true;
+            if (l1tk_chi2 >= max_trk_chi2_)    reject_trk = true;
+            if (l1tk_nstubs < min_trk_nstubs_) reject_trk = true;
         }
 
         int ibin = getBin(trk_aeta);
@@ -248,4 +252,28 @@ std::vector<int> L1TkMuCorrDynamicWindows::make_unique_coll(const EMTFTrackColle
     }
 
     return out;
+}
+
+
+std::vector<double> L1TkMuCorrDynamicWindows::prepare_corr_bounds(string fname, string hname)
+{
+    // find the boundaries of the match windoww
+    TFile* fIn = TFile::Open(fname.c_str());
+    TH2* h_test = (TH2*) fIn->Get(hname.c_str());
+    if (h_test == nullptr)
+    {
+        // cout << "Can't find histo to derive bounds" << endl;
+        throw std::runtime_error("Can't find histo to derive bounds");
+    }
+
+    int nbds = h_test->GetNbinsY()+1;
+    // cout << "... using " << nbds-1 << " eta bins" << endl;
+    vector<double> bounds (nbds);
+    for (int ib = 0; ib < nbds; ++ib)
+    {
+        bounds.at(ib) = h_test->GetYaxis()->GetBinLowEdge(ib+1);
+        // cout << "Low edge " << ib << " is " << bounds.at(ib) << endl;
+    }
+    fIn->Close();
+    return bounds;
 }
