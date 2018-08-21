@@ -40,7 +40,10 @@ class CSCConstants
     // All ME1A readout by 3 CFEBs -> 3*32 -1
     MAX_HALF_STRIP_ME1A_UNGANGED = 95,
     // All ME1B readout by 4 CFEBs -> 4*32 -1
-    MAX_HALF_STRIP_ME1B = 127
+    MAX_HALF_STRIP_ME1B = 127,
+    MAX_NUM_STRIPS_ME1B = 64,
+    MAX_NUM_STRIPS_ME1A_GANGED = 16,
+    MAX_NUM_STRIPS_ME1A_UNGANGED = 48,
   };
 
   // CSCs have 6 layers. The key (refernce) layer is the third layer
@@ -71,11 +74,13 @@ class CSCConstants
     MAX_CLCT_TBINS = 16,
     MAX_ALCT_TBINS = 16,
     MAX_LCT_TBINS = 16,
-    // Each CLCT processor can snd up to 2 CLCTs to TMB
+    // Maximum allowed matching window size
+    MAX_MATCH_WINDOW_SIZE = 15,
+    // Each CLCT processor can send up to 2 CLCTs to TMB per BX
     MAX_CLCTS_PER_PROCESSOR = 2,
-    // Each ALCT processor can snd up to 2 ALCTs to TMB
+    // Each ALCT processor can send up to 2 ALCTs to TMB per BX
     MAX_ALCTS_PER_PROCESSOR = 2,
-    // Each CSC can send up to 2 LCTs to the MPC.
+    // Each CSC can send up to 2 LCTs to the MPC per BX
     MAX_LCTS_PER_CSC = 2,
     // An MPC receives up to 18 LCTs from 9 CSCs in the trigger sector
     MAX_LCTS_PER_MPC = 18,

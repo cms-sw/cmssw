@@ -34,8 +34,8 @@ CSCMotherboardME3141::run(const CSCWireDigiCollection* wiredc,
     return;
   }
 
-  alctProc->setCSCGeometry(csc_g);
-  clctProc->setCSCGeometry(csc_g);
+  alctProc->setCSCGeometry(cscGeometry_);
+  clctProc->setCSCGeometry(cscGeometry_);
 
   alctV = alctProc->run(wiredc); // run anodeLCT
   clctV = clctProc->run(compdc); // run cathodeLCT
@@ -51,12 +51,12 @@ CSCMotherboardME3141::run(const CSCWireDigiCollection* wiredc,
   {
     if (alctProc->bestALCT[bx_alct].isValid())
     {
-      const int bx_clct_start(bx_alct - match_trig_window_size/2 - alctClctOffset);
-      const int bx_clct_stop(bx_alct + match_trig_window_size/2 - alctClctOffset);
+      const int bx_clct_start(bx_alct - match_trig_window_size/2 - alctClctOffset_);
+      const int bx_clct_stop(bx_alct + match_trig_window_size/2 - alctClctOffset_);
 
       if (debug_matching){
         LogTrace("CSCMotherboardME3141") << "========================================================================" << std::endl;
-        LogTrace("CSCMotherboardME3141") << "ALCT-CLCT matching in ME34/1 chamber: " << cscChamber->id() << std::endl;
+        LogTrace("CSCMotherboardME3141") << "ALCT-CLCT matching in ME34/1 chamber: " << cscId_ << std::endl;
         LogTrace("CSCMotherboardME3141") << "------------------------------------------------------------------------" << std::endl;
         LogTrace("CSCMotherboardME3141") << "+++ Best ALCT Details: ";
         alctProc->bestALCT[bx_alct].print();

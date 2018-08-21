@@ -22,6 +22,9 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         # Flag for SLHC studies (upgraded ME11, MPC)
         isSLHC = cms.bool(False),
 
+        ## Whether or not to use the SLHC ALCT algorithm
+        enableAlctSLHC = cms.bool(False),
+
         ## During Run-1, ME1a strips were triple-ganged
         ## Effectively, this means there were only 16 strips
         ## As of Run-2, ME1a strips are unganged,
@@ -423,10 +426,10 @@ me3141tmbSLHC = cms.PSet(
 ## unganging in ME1/a
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
 run2_common.toModify( cscTriggerPrimitiveDigis,
-                           debugParameters = True,
-                           checkBadChambers = False,
-                           commonParam = dict(gangedME1a = False)
-                           )
+                      debugParameters = True,
+                      checkBadChambers = False,
+                      commonParam = dict(gangedME1a = False),
+                      )
 
 ## GEM-CSC ILT in ME1/1
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
@@ -435,7 +438,8 @@ run3_GEM.toModify( cscTriggerPrimitiveDigis,
                    GEMPadDigiClusterProducer = cms.InputTag("simMuonGEMPadDigiClusters"),
                    commonParam = dict(isSLHC = True,
                                       runME11ILT = cms.bool(True),
-                                      useClusters = cms.bool(False)),
+                                      useClusters = cms.bool(False),
+                                      enableAlctSLHC = cms.bool(True)),
                    clctSLHC = dict(clctNplanesHitPattern = 3),
                    me11tmbSLHCGEM = me11tmbSLHCGEM,
                    copadParamGE11 = copadParamGE11

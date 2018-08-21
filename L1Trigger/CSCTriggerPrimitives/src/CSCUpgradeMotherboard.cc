@@ -1,5 +1,4 @@
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCUpgradeMotherboard.h"
-#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
 
 CSCUpgradeMotherboard::LCTContainer::LCTContainer(unsigned int trig_window_size)
   : match_trig_window_size_(trig_window_size)
@@ -17,7 +16,7 @@ CSCUpgradeMotherboard::LCTContainer::getTimeMatched(const int bx,
                                                     std::vector<CSCCorrelatedLCTDigi>& lcts) const
 {
   for (unsigned int mbx = 0; mbx < match_trig_window_size_; mbx++) {
-    for (int i=0;i<2;i++) {
+    for (int i=0; i < CSCConstants::MAX_LCTS_PER_CSC ;i++) {
       // consider only valid LCTs
       if (not data[bx][mbx][i].isValid()) continue;
 
@@ -61,16 +60,11 @@ CSCUpgradeMotherboard::CSCUpgradeMotherboard(unsigned endcap, unsigned station,
   // special configuration parameters for ME11 treatment
   CSCMotherboard(endcap, station, sector, subsector, chamber, conf)
   , allLCTs(match_trig_window_size)
-  // special configuration parameters for ME11 treatment
-  , disableME1a(commonParams_.getParameter<bool>("disableME1a"))
-  , gangedME1a(commonParams_.getParameter<bool>("gangedME1a"))
 {
   if (!isSLHC_) edm::LogError("CSCUpgradeMotherboard|ConfigError")
     << "+++ Upgrade CSCUpgradeMotherboard constructed while isSLHC_ is not set! +++\n";
 
-  theRegion = (theEndcap == 1) ? 1: -1;
-  theChamber = CSCTriggerNumbering::chamberFromTriggerLabels(theSector,theSubsector,theStation,theTrigChamber);
-  par = theChamber%2==0 ? Parity::Even : Parity::Odd;
+  theParity = theChamber%2==0 ? Parity::Even : Parity::Odd;
 
   // generate the LUTs
   generator_.reset(new CSCUpgradeMotherboardLUTGenerator());
@@ -105,7 +99,7 @@ enum CSCPart CSCUpgradeMotherboard::getCSCPart(int keystrip) const
 {
   if (theStation == 1 and (theRing ==1 or theRing == 4)){
     if (keystrip > CSCConstants::MAX_HALF_STRIP_ME1B){
-      if ( !gangedME1a )
+      if ( !gangedME1a_ )
         return CSCPart::ME1Ag;
       else
         return CSCPart::ME1A;
@@ -150,11 +144,7 @@ void CSCUpgradeMotherboard::sortLCTs(std::vector<CSCCorrelatedLCTDigi>& lcts,
 
 void CSCUpgradeMotherboard::setupGeometry()
 {
-  // check whether chamber is even or odd
-  const int chid(CSCTriggerNumbering::chamberFromTriggerLabels(theSector, theSubsector, theStation, theTrigChamber));
-  const CSCDetId csc_id(theEndcap, theStation, theStation, chid, 0);
-  cscChamber = csc_g->chamber(csc_id);
-  generator_->setCSCGeometry(csc_g);
+  generator_->setCSCGeometry(cscGeometry_);
 }
 
 

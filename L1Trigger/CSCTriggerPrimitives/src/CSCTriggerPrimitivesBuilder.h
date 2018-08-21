@@ -56,9 +56,15 @@ class CSCTriggerPrimitivesBuilder
   void setCSCGeometry(const CSCGeometry *g) { csc_g = g; }
   void setGEMGeometry(const GEMGeometry *g) { gem_g = g; }
 
-  /** Build anode, cathode, and correlated LCTs in each chamber and fill
-   *  them into output collections.  Select up to three best correlated LCTs
-   *  in each (sub)sector and put them into an output collection as well. */
+// Build anode, cathode, and correlated LCTs in each chamber and fill them
+// into output collections.  Pass collections of wire and comparator digis
+// to Trigger MotherBoard (TMB) processors, which, in turn, pass them to
+// ALCT and CLCT processors.  Up to 2 anode and 2 cathode LCTs can be found
+// in each chamber during any bunch crossing.  The 2 projections are then
+// combined into three-dimensional "correlated" LCTs in the TMB.  Finally,
+// MPC processor sorts up to 18 LCTs from 9 TMBs and writes collections of
+// up to 3 best LCTs per (sub)sector into Event (to be used by the Sector
+// Receiver).
   void build(const CSCBadChambers* badChambers,
              const CSCWireDigiCollection* wiredc,
              const CSCComparatorDigiCollection* compdc,

@@ -14,7 +14,6 @@
  */
 
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCUpgradeMotherboard.h"
-#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 
 class CSCMotherboardME11 : public CSCUpgradeMotherboard
 {

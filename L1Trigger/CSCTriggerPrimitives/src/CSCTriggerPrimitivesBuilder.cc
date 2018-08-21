@@ -1,35 +1,12 @@
-//-----------------------------------------------------------------------------
-//
-//   Class: CSCTriggerPrimitivesBuilder
-//
-//   Description: Algorithm to build anode, cathode, and correlated LCTs
-//                in each endcap muon CSC chamber from wire and comparator
-//                digis.
-//
-//   Author List: S. Valuev, UCLA.
-//
-//
-//   Modifications:
-//
-//-----------------------------------------------------------------------------
-
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCTriggerPrimitivesBuilder.h"
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h"
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME11.h"
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCGEMMotherboardME11.h"
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCGEMMotherboardME21.h"
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME3141.h"
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCMuonPortCard.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCTriggerPrimitivesBuilder.h"
 
-//------------------
-// Static variables
-//------------------
 const int CSCTriggerPrimitivesBuilder::min_endcap  = CSCDetId::minEndcapId();
 const int CSCTriggerPrimitivesBuilder::max_endcap  = CSCDetId::maxEndcapId();
 const int CSCTriggerPrimitivesBuilder::min_station = CSCDetId::minStationId();
@@ -41,13 +18,8 @@ const int CSCTriggerPrimitivesBuilder::max_subsector = CSCTriggerNumbering::maxT
 const int CSCTriggerPrimitivesBuilder::min_chamber = CSCTriggerNumbering::minTriggerCscId();
 const int CSCTriggerPrimitivesBuilder::max_chamber = CSCTriggerNumbering::maxTriggerCscId();
 
-//-------------
-// Constructor
-//-------------
 CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet& conf)
 {
-  // Receives ParameterSet percolated down from EDProducer.
-
   // special configuration parameters for ME11 treatment
   edm::ParameterSet commonParams = conf.getParameter<edm::ParameterSet>("commonParam");
   isSLHC_ = commonParams.getParameter<bool>("isSLHC");
@@ -120,10 +92,6 @@ CSCTriggerPrimitivesBuilder::~CSCTriggerPrimitivesBuilder()
 {
 }
 
-//------------
-// Operations
-//------------
-// Set configuration parameters obtained via EventSetup mechanism.
 void CSCTriggerPrimitivesBuilder::setConfigParameters(const CSCDBL1TPParameters* conf)
 {
   // Receives CSCDBL1TPParameters percolated down from ESProducer.
@@ -147,15 +115,6 @@ void CSCTriggerPrimitivesBuilder::setConfigParameters(const CSCDBL1TPParameters*
   }
 }
 
-// Build anode, cathode, and correlated LCTs in each chamber and fill them
-// into output collections.  Pass collections of wire and comparator digis
-// to Trigger MotherBoard (TMB) processors, which, in turn, pass them to
-// ALCT and CLCT processors.  Up to 2 anode and 2 cathode LCTs can be found
-// in each chamber during any bunch crossing.  The 2 projections are then
-// combined into three-dimensional "correlated" LCTs in the TMB.  Finally,
-// MPC processor sorts up to 18 LCTs from 9 TMBs and writes collections of
-// up to 3 best LCTs per (sub)sector into Event (to be used by the Sector
-// Receiver).
 void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
                                         const CSCWireDigiCollection* wiredc,
                                         const CSCComparatorDigiCollection* compdc,
@@ -248,7 +207,6 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
 
               CSCDetId detid1a(endc, stat, 4, chid, 0);
 
-              //if (!(lctV1a.empty()&&alctV1a.empty()&&clctV1a.empty())){
               if (!(lctV1a.empty() && clctV1a.empty())){
                 LogTrace("L1CSCTrigger") << "CSCTriggerPrimitivesBuilder results in " <<detid1a;
               }
