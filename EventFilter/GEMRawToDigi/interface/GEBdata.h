@@ -20,7 +20,7 @@ namespace gem {
     */
     void setChamberHeader(uint64_t word)
     {
-      m_ZeroSup = 0x00ffffff & (word >> 40);        /*!<Zero Suppression*/
+      m_ZeroSupWordsCnt = 0x0fff & (word >> 40);    /*!Zero suppressed words counter*/
       m_InputID = 0b00011111 & (word >> 35);        /*!<GLIB Input ID*/
       m_Vwh = 0x0fff & (word >> 23);                /*!<VFAT word count*/
       m_ErrorC = 0b0001111111111111 & (word);       /*!<Thirteen Flags*/
@@ -32,7 +32,7 @@ namespace gem {
     uint64_t getChamberHeader() const
     {
       return
-	(static_cast<uint64_t>(m_ZeroSup & 0x00ffffff) <<  40) |
+	(static_cast<uint64_t>(m_ZeroSupWordsCnt & 0x0fff) <<  40) |
 	(static_cast<uint64_t>(m_InputID & 0b00011111) <<  35) |
 	(static_cast<uint64_t>(m_Vwh & 0x0fff) <<  23) |
 	(static_cast<uint64_t>(m_ErrorC & 0b0001111111111111));
@@ -51,13 +51,13 @@ namespace gem {
       return m_GEBflags.at(c);
     }
     std::vector<uint8_t> getGEBflag() const
-    {
-      return m_GEBflags;
-    }    
+      {
+	return m_GEBflags;
+      }    
     // need to include all the flags
     //!Reads the word for GEM Chamber Trailer
     /**
-       Fills the OH CRC, VFAT word count, InFIFO underflow, and Stuck data.
+       Fills the OH CRC, VFAT word count, InFIFO underflow, Stuck data, OH BC and OH EC.
     */
     void setChamberTrailer(uint64_t word)
     {
@@ -65,6 +65,8 @@ namespace gem {
       m_Vwt = 0x0fff & (word >> 36);  /*!<VFAT word count*/
       m_InFu = 0x0f & (word >> 35);   /*!<InFIFO underflow*/
       m_Stuckd = 0x01 & (word >> 34); /*!<Stuck data*/
+      m_OHBC = 0x0fff & (word >> 20); /*!OH BC*/
+      m_OHEC = 0x000fffff & (word);   /*!OH EC*/      
     }
     uint64_t getChamberTrailer() const
     {
@@ -72,13 +74,15 @@ namespace gem {
 	(static_cast<uint64_t>(m_OHCRC) <<  48) |
 	(static_cast<uint64_t>(m_Vwt & 0x0fff) <<  36) |
 	(static_cast<uint64_t>(m_InFu & 0x0f) <<  35) |
-	(static_cast<uint64_t>(m_Stuckd & 0x01) << 34);
+	(static_cast<uint64_t>(m_Stuckd & 0x01) << 34) |
+	(static_cast<uint64_t>(m_OHBC & 0x0fff) << 20) |
+	(static_cast<uint64_t>(m_OHEC & 0x000fffff));
     }
 
     void setVwh(uint16_t n){m_Vwh = n;}             ///<Sets VFAT word count (size of VFAT payload)
     void setInputID(uint8_t n){m_InputID = n;}      ///<Sets GLIB input ID
 
-    uint32_t zeroSup()  const {return m_ZeroSup;}   ///<Returns Zero Suppression flags
+    uint16_t zeroSupWordsCnt() const {return m_ZeroSupWordsCnt;}   ///<Returns Zero suppression words counter
     uint8_t  inputID()  const {return m_InputID;}   ///<Returns GLIB input ID
     uint16_t vwh()      const {return m_Vwh;}       ///<Returns VFAT word count (size of VFAT payload)
     uint16_t errorC()   const {return m_ErrorC;}    ///<Returns thirteen flags in GEM Chamber Header
@@ -87,6 +91,8 @@ namespace gem {
     uint16_t vwt()      const {return m_Vwt;}       ///<Returns VFAT word count
     uint8_t  inFu()     const {return m_InFu;}      ///<Returns InFIFO underflow flag
     uint8_t  stuckd()   const {return m_Stuckd;}    ///<Returns Stuck data flag
+    uint16_t ohBC()     const {return m_OHBC;}      ///<Returns Optohybrid BC
+    uint32_t ohEC()     const {return m_OHEC;}      ///<Returns Optohybrid EC
 
     //!Adds VFAT data to the vector
     void addVFAT(VFATdata v){m_vfatd.push_back(v);}
@@ -101,9 +107,8 @@ namespace gem {
 
     //GEM chamber header
 
-    //!Zero Suppression Flags:24  (8 zeroes):8
-    /**Bitmask indicating if certain VFAT blocks have been zero suppressed*/
-    uint32_t m_ZeroSup;
+    //!Zero suppressed words counter
+    uint16_t m_ZeroSupWordsCnt;    
     //!Input ID:5    000:3
     /**GLIB input ID (starting at 0)*/
     uint8_t m_InputID;   
@@ -132,6 +137,10 @@ namespace gem {
     //!(7 0's):7    Stuck data:1    
     /**Input status (warning): Data in InFIFO or EvtFIFO when L1A FIFO was empty. Only resets with resync or reset*/
     uint8_t m_Stuckd; 
+    //!OH BC, bits [31:20]
+    uint16_t m_OHBC;
+    //!OH EC, bits [19:0]
+    uint32_t m_OHEC;
 
   };
 }
