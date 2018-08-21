@@ -82,7 +82,6 @@ private:
 	map<string, string> toadd_;
 	vector<MVAVar> variables_;
 };
-}
 
 class DeepFlavourJetTagsProducer : public edm::stream::EDProducer<edm::GlobalCache<NeuralNetworkAndConstants>> {
 public:
@@ -302,6 +301,7 @@ DeepFlavourJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.setUnknown();
   descriptions.addDefault(desc);
 }
+} // end unnamed namespace
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(DeepFlavourJetTagsProducer);
