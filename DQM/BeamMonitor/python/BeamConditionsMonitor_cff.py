@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
-dqmBeamCondMonitor = DQMEDAnalyzer("BeamConditionsMonitor",
+dqmBeamCondMonitor = cms.EDAnalyzer("BeamConditionsMonitor",
                               monitorName = cms.untracked.string('BeamMonitor'),
                               beamSpot = cms.untracked.InputTag('offlineBeamSpot') ## hltOfflineBeamSpot for HLTMON
                               )
