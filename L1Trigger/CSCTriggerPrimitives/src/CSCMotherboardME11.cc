@@ -68,8 +68,8 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
     return;
   }
 
-  alctProc->setCSCGeometry(csc_g);
-  clctProc->setCSCGeometry(csc_g);
+  alctProc->setCSCGeometry(cscGeometry_);
+  clctProc->setCSCGeometry(cscGeometry_);
 
   alctV = alctProc->run(wiredc); // run anodeLCT
   clctV = clctProc->run(compdc); // run cathodeLCT
@@ -88,8 +88,8 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
 
     if (clctProc->bestCLCT[bx_clct].isValid())
     {
-      const int bx_alct_start = bx_clct - match_trig_window_size/2 + alctClctOffset;
-      const int bx_alct_stop  = bx_clct + match_trig_window_size/2 + alctClctOffset;
+      const int bx_alct_start = bx_clct - match_trig_window_size/2 + alctClctOffset_;
+      const int bx_alct_stop  = bx_clct + match_trig_window_size/2 + alctClctOffset_;
       for (int bx_alct = bx_alct_start; bx_alct <= bx_alct_stop; bx_alct++)
       {
         if (bx_alct < 0 || bx_alct >= CSCConstants::MAX_ALCT_TBINS) continue;
@@ -120,8 +120,8 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
   {
     if (alctProc->bestALCT[bx_alct].isValid())
     {
-      const int bx_clct_start = bx_alct - match_trig_window_size/2 - alctClctOffset;
-      const int bx_clct_stop  = bx_alct + match_trig_window_size/2 - alctClctOffset;
+      const int bx_clct_start = bx_alct - match_trig_window_size/2 - alctClctOffset_;
+      const int bx_clct_stop  = bx_alct + match_trig_window_size/2 - alctClctOffset_;
 
       // matching in ME11
       for (int bx_clct = bx_clct_start; bx_clct <= bx_clct_stop; bx_clct++)
@@ -285,7 +285,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::getLCTs1a() const
   std::vector<CSCCorrelatedLCTDigi> tmpV;
 
   // disabled ME1a
-  if (mpc_block_me1a || disableME1a) return tmpV;
+  if (mpc_block_me1a || disableME1a_) return tmpV;
 
   for (int bx = 0; bx < CSCConstants::MAX_LCT_TBINS; bx++) {
     for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++) {
@@ -304,7 +304,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::getLCTs1a() const
 
 bool CSCMotherboardME11::doesALCTCrossCLCT(const CSCALCTDigi &a, const CSCCLCTDigi &c) const
 {
-  return cscTmbLUT_->doesALCTCrossCLCT(a, c, theEndcap, gangedME1a);
+  return cscTmbLUT_->doesALCTCrossCLCT(a, c, theEndcap, gangedME1a_);
 }
 
 void CSCMotherboardME11::correlateLCTsME11(const CSCALCTDigi& bALCT,
@@ -356,9 +356,7 @@ void CSCMotherboardME11::correlateLCTsME11(const CSCALCTDigi& bALCT,
     const int code = (ok11<<3) | (ok12<<2) | (ok21<<1) | (ok22);
 
     int dbg=0;
-    int chamb= CSCTriggerNumbering::chamberFromTriggerLabels(theSector,theSubsector, theStation, theTrigChamber);
-    CSCDetId did(theEndcap, theStation, 1, chamb, 0);
-    if (dbg) LogTrace("CSCMotherboardME11")<<"debug correlateLCTs in ME11 "<<did<<std::endl
+    if (dbg) LogTrace("CSCMotherboardME11")<<"debug correlateLCTs in ME11 "<< cscId_ <<std::endl
                                            <<"ALCT1: "<<bestALCT<<std::endl
                                            <<"ALCT2: "<<secondALCT<<std::endl
                                            <<"CLCT1: "<<bestCLCT<<std::endl

@@ -12,54 +12,45 @@ CSCBaseboard::CSCBaseboard(unsigned endcap, unsigned station,
 {
   theRegion = (theEndcap == 1) ? 1: -1;
 
-  // Ring number
   theRing = CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber);
 
-  // actual chamber number
   theChamber = CSCTriggerNumbering::chamberFromTriggerLabels(theSector, theSubsector,
                                                              theStation, theTrigChamber);
-  // is this an ME11 chamber?
   isME11_ = (theStation == 1 && theRing == 1);
 
-  // CSCDetId for this chamber
   cscId_ = CSCDetId(theEndcap, theStation, theRing, theChamber, 0);
 
-  // Parameters common for all boards
   commonParams_ = conf.getParameter<edm::ParameterSet>("commonParam");
 
-  // Flag for SLHC studies
-  isSLHC_       = commonParams_.getParameter<bool>("isSLHC");
+  theCSCName_ = CSCDetId::chamberName(theEndcap, theStation, theRing, theChamber);
 
-  // run the upgrade for the Phase-II ME1/1 integrated local trigger
+  isSLHC_ = commonParams_.getParameter<bool>("isSLHC");
+
+  enableAlctSLHC_ = commonParams_.getParameter<bool>("enableAlctSLHC");
+
+  disableME1a_ = commonParams_.getParameter<bool>("disableME1a");
+
+  gangedME1a_ = commonParams_.getParameter<bool>("gangedME1a");
+
+  alctClctOffset_ = commonParams_.getParameter<unsigned int>("alctClctOffset");
+
   runME11ILT_ = commonParams_.existsAs<bool>("runME11ILT") ?
     commonParams_.getParameter<bool>("runME11ILT"):false;
 
-  // run the upgrade for the Phase-II ME2/1 integrated local trigger
   runME21ILT_ = commonParams_.existsAs<bool>("runME21ILT")?
     commonParams_.getParameter<bool>("runME21ILT"):false;
 
-  // run the upgrade for the Phase-II ME3/1-ME4/1 local trigger
   runME3141ILT_ = commonParams_.existsAs<bool>("runME3141ILT")?
     commonParams_.getParameter<bool>("runME3141ILT"):false;
 
-  // chamber name, e.g. ME+1/1/9
-  theCSCName_ = CSCDetId::chamberName(theEndcap, theStation, theRing, theChamber);
-
-  upgradeChambers_ = commonParams_.existsAs< std::vector<std::string> >("upgradeChambers") ?
-    commonParams_.getParameter< std::vector<std::string> >("upgradeChambers"):std::vector<std::string>();
-
-  // is this particular board (ALCT processor, TMB or CLCT processor) running the upgrade algorithm?
-  runUpgradeBoard_ = false;
-  if (isSLHC_ and std::find(upgradeChambers_.begin(), upgradeChambers_.end(), theCSCName_) != upgradeChambers_.end()){
-    runUpgradeBoard_ = true;
-  }
-
-  // run upgrade scenarios for all MEX/1 stations
-  if (isSLHC_ and theRing == 1 and runUpgradeBoard_){
+  if (isSLHC_ and theRing == 1){
     if (theStation == 1) {
       tmbParams_ = conf.getParameter<edm::ParameterSet>("tmbSLHC");
-      alctParams_ = conf.getParameter<edm::ParameterSet>("alctParam07");
       clctParams_ = conf.getParameter<edm::ParameterSet>("clctSLHC");
+      alctParams_ = conf.getParameter<edm::ParameterSet>("alctSLHC");
+      if (not enableAlctSLHC_) {
+        alctParams_ = conf.getParameter<edm::ParameterSet>("alctParam07");
+      }
       if (runME11ILT_) {
         tmbParams_ = conf.getParameter<edm::ParameterSet>("me11tmbSLHCGEM");
       }
@@ -80,11 +71,6 @@ CSCBaseboard::CSCBaseboard(unsigned endcap, unsigned station,
     clctParams_ = conf.getParameter<edm::ParameterSet>("clctParam07");
   }
 
-  // special configuration parameters for ME11 treatment
-  disableME1a_ = commonParams_.getParameter<bool>("disableME1a");
-
-  // special configuration parameters for ME11 treatment
-  gangedME1a_ = commonParams_.getParameter<bool>("gangedME1a");
 }
 
 CSCBaseboard::CSCBaseboard() :
