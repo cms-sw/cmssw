@@ -1,5 +1,6 @@
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 
+#include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
@@ -59,6 +60,7 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp,
   }
   tot_wafers_ = wafers();
     
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants initialized for " 
 				<< name << " with " << layers(false) << ":" 
 				<< layers(true) << " layers, " << wafers() 
@@ -66,7 +68,7 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp,
 				<< maxWafersPerLayer_ << " per layer and "
 				<< "maximum of " << maxCells(false) << ":" 
 				<< maxCells(true) << " cells";
-
+#endif
   if ((mode_ == HGCalGeometryMode::Hexagon) ||
       (mode_ == HGCalGeometryMode::HexagonFull) ||
       (mode_ == HGCalGeometryMode::Hexagon8) ||
@@ -799,12 +801,30 @@ int HGCalDDDConstants::numberCellsHexagon(int lay, int waferU, int waferV,
 }
 
 std::pair<double,double> HGCalDDDConstants::rangeR(double z, bool reco) const {
-  double zz   = (reco ? std::abs(z) : 
-		 HGCalParameters::k_ScaleFromDDD*std::abs(z));
-  double rmin = HGCalGeomTools::radius(zz,hgpar_->zFrontMin_,
-				       hgpar_->rMinFront_,hgpar_->slopeMin_);
-  double rmax = HGCalGeomTools::radius(zz,hgpar_->zFrontTop_,
-				       hgpar_->rMaxFront_,hgpar_->slopeTop_);
+  double rmin(0), rmax(0);
+  if (hgpar_->detectorType_ > 0) {
+    double zz   = (reco ? std::abs(z) : 
+		   HGCalParameters::k_ScaleFromDDD*std::abs(z));
+    if (hgpar_->detectorType_ <= 2) {
+      rmin = HGCalGeomTools::radius(zz,hgpar_->zFrontMin_,
+				    hgpar_->rMinFront_, hgpar_->slopeMin_);
+    } else {
+      rmin = HGCalGeomTools::radius(zz, hgpar_->firstLayer_,
+				    hgpar_->firstMixedLayer_,
+				    hgpar_->zLayerHex_,
+				    hgpar_->radiusMixBoundary_);
+    }
+    if ((hgpar_->detectorType_ == 2) && 
+	(zz >= hgpar_->zLayerHex_[hgpar_->firstMixedLayer_ - 1])) {
+      rmax = HGCalGeomTools::radius(zz, hgpar_->firstLayer_,
+				    hgpar_->firstMixedLayer_,
+				    hgpar_->zLayerHex_,
+				    hgpar_->radiusMixBoundary_);
+    } else {
+      rmax = HGCalGeomTools::radius(zz, hgpar_->zFrontTop_,
+				    hgpar_->rMaxFront_, hgpar_->slopeTop_);
+    }
+  }
   if (!reco) {
     rmin *= HGCalParameters::k_ScaleToDDD;
     rmax *= HGCalParameters::k_ScaleToDDD;
@@ -1071,7 +1091,8 @@ int HGCalDDDConstants::waferType(DetId const& id) const {
   int type(1);
   if ((mode_ == HGCalGeometryMode::Hexagon8) ||
       (mode_ == HGCalGeometryMode::Hexagon8Full)) {
-    type = 1 + HGCSiliconDetId(id).type();
+    type = ((id.det() != DetId::Forward) ? (1 + HGCSiliconDetId(id).type()) :
+	    (1 + HFNoseDetId(id).type()));
   } else if ((mode_ == HGCalGeometryMode::Hexagon) ||
 	     (mode_ == HGCalGeometryMode::HexagonFull)) {
     type = waferTypeL(HGCalDetId(id).wafer());
