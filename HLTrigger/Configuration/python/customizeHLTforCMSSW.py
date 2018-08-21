@@ -194,6 +194,7 @@ def customizeHLTForL3OIPR24267(process):
            process.hltIterL3OISeedsFromL2Muons = cms.EDProducer("TSGForOIFromL2")
        if "hltIterL3OISeedsFromL2MuonsOpenMu" == seedproducer.label():
            process.hltIterL3OISeedsFromL2MuonsOpenMu = cms.EDProducer("TSGForOIFromL2")
+           process.hltIterL3OISeedsFromL2MuonsOpenMu.src = cms.InputTag( 'hltL2MuonsOpenMu','UpdatedAtVtx' )
        if "hltIterL3OISeedsFromL2MuonsNoVtx" == seedproducer.label():
            process.hltIterL3OISeedsFromL2MuonsNoVtx = cms.EDProducer("TSGForOIFromL2")
            process.hltIterL3OISeedsFromL2MuonsNoVtx.src = cms.InputTag( 'hltL2Muons' )
@@ -216,6 +217,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
 
-    customizeHLTForL3OIPR24267(process)
+    process = customizeHLTForL3OIPR24267(process)
 
     return process
