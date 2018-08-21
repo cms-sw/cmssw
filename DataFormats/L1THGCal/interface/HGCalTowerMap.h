@@ -9,7 +9,7 @@
 namespace l1t {
 
   class HGCalTowerMap;
-  class HGCalTowerCoord;
+  struct HGCalTowerCoord;
   typedef BXVector<HGCalTowerMap> HGCalTowerMapBxCollection;
 
   class HGCalTowerMap {
