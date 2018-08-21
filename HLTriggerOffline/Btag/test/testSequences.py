@@ -7,7 +7,7 @@ process.load("HLTriggerOffline.Btag.HltBtagValidation_cff")
 #process.load("HLTriggerOffline.Btag.HltBtagValidationFastSim_cff")
 process.load("HLTriggerOffline.Btag.HltBtagPostValidation_cff")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(500)   )
+#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(500)   )
 
 process.DQM_BTag = cms.Path(    process.hltbtagValidationSequence + process.HltBTagPostVal + process.dqmSaver)
 
