@@ -28,7 +28,6 @@ DDCheckMaterial( DDMaterial& mip, std::pair< std::string, std::string > & result
   if (mip.isDefined().first == nullptr) {
     err=true;
     curr_err += "material not declared; unknown material!";
-    //edm::LogError("DDCheckMaterials") << "material not declared!" << std::endl; //exit(1);
     result.first = curr_err;
     return err;
   }
@@ -72,9 +71,7 @@ DDCheckMaterial( DDMaterial& mip, std::pair< std::string, std::string > & result
   
   // recursive checking of constituents
   // the composite material is not ok if only one constituent is not ok
-  int loop = mp.noOfConstituents() - 1; 
-  
-  for (; loop>=0; --loop) { 
+  for (int loop = mp.noOfConstituents() - 1; loop>=0; --loop) { 
     std::pair< std::string, std::string > res("","");
     DDMaterial mat( mp.ddname()); // bit slow but comfortable ...
     DDMaterial mimpl = mat.constituent(loop).first;
