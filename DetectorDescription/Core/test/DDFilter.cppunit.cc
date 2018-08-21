@@ -18,6 +18,8 @@
 #include "cppunit/TestAssert.h"
 #include "cppunit/TestFixture.h"
 
+// Test comment
+
 class testDDFilter : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testDDFilter);
   CPPUNIT_TEST(checkFilters);
