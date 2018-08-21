@@ -45,11 +45,13 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
 
   std::cout << phgp->name_ << "\n";
   if (mode_ == 0) {
-    std::cout << "WaferR_: "    << phgp->waferR_     << "\n";
-    std::cout << "nCells_: "    << phgp->nCells_     << "\n";
-    std::cout << "nSectors_: "  << phgp->nSectors_   << "\n";
-    std::cout << "FirstLayer: " << phgp->firstLayer_ << "\n";
-    std::cout << "mode_: "      << phgp->mode_       << "\n";
+    std::cout << "DetectorType: "    << phgp->detectorType_    << "\n";
+    std::cout << "WaferR_: "         << phgp->waferR_          << "\n";
+    std::cout << "nCells_: "         << phgp->nCells_          << "\n";
+    std::cout << "nSectors_: "       << phgp->nSectors_        << "\n";
+    std::cout << "FirstLayer: "      << phgp->firstLayer_      << "\n";
+    std::cout << "FirstMixedLayer: " << phgp->firstMixedLayer_ << "\n";
+    std::cout << "mode_: "           << phgp->mode_            << "\n";
 
     myPrint("CellSize",          phgp->cellSize_,          10);
     myPrint("slopeMin",          phgp->slopeMin_,          10);
@@ -109,15 +111,17 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
 
   } else if (mode_ == 1) {
 
+    std::cout << "DetectorType: "    << phgp->detectorType_    << "\n";
     std::cout << "Wafer Parameters: " << phgp->waferSize_ << ":"
 	      << phgp->waferR_  << ":" << phgp->waferThick_ << ":"
 	      << phgp->sensorSeparation_ << ":" << phgp->mouseBite_ << "\n";
     std::cout << "nCells_: " << phgp->nCellsFine_  << ":" 
 	      << phgp->nCellsCoarse_ << "\n";
-    std::cout << "nSectors_: "  << phgp->nSectors_ << "\n";
-    std::cout << "FirstLayer: " << phgp->firstLayer_ << "\n";
-    std::cout << "mode_: "      << phgp->mode_     << "\n";
-    std::cout << "waferUVMax: " << phgp->waferUVMax_ << "\n";
+    std::cout << "nSectors_: "       << phgp->nSectors_        << "\n";
+    std::cout << "FirstLayer: "      << phgp->firstLayer_      << "\n";
+    std::cout << "FirstMixedLayer: " << phgp->firstMixedLayer_ << "\n";
+    std::cout << "mode_: "           << phgp->mode_            << "\n";
+    std::cout << "waferUVMax: "      << phgp->waferUVMax_      << "\n";
 
     myPrint("waferUVMaxLayer",   phgp->waferUVMaxLayer_,   20);
     myPrint("CellThickness",     phgp->cellThickness_,     10);
@@ -180,13 +184,15 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
 
   } else {
 
+    std::cout << "DetectorType: "    << phgp->detectorType_    << "\n";
     std::cout << "nCells_: " << phgp->nCellsFine_  << ":" 
 	      << phgp->nCellsCoarse_ << "\n";
-    std::cout << "EtaMinBH: "   << phgp->etaMinBH_   << "\n";
-    std::cout << "FirstLayer: " << phgp->firstLayer_ << "\n";
-    std::cout << "mode_: "      << phgp->mode_       << "\n";
-    std::cout << "waferUVMax: " << phgp->waferUVMax_ << "\n";
-    std::cout << "nSectors_: "  << phgp->nSectors_   << "\n";
+    std::cout << "EtaMinBH: "        << phgp->etaMinBH_        << "\n";
+    std::cout << "FirstLayer: "      << phgp->firstLayer_      << "\n";
+    std::cout << "FirstMixedLayer: " << phgp->firstMixedLayer_ << "\n";
+    std::cout << "mode_: "           << phgp->mode_            << "\n";
+    std::cout << "waferUVMax: "      << phgp->waferUVMax_      << "\n";
+    std::cout << "nSectors_: "       << phgp->nSectors_        << "\n";
     std::cout << "nCells_: " << phgp->nCellsFine_  << ":" 
 	      << phgp->nCellsCoarse_ << "\n";
   
