@@ -70,6 +70,13 @@ class L1TkMuCorrDynamicWindows{
         void set_max_trk_chi2   (float val ) {max_trk_chi2_   = val;}
         void set_min_trk_nstubs (int   val ) {min_trk_nstubs_ = val;}
 
+        // getters for trk
+        int   get_n_trk_par      () {return nTrkPars_ ;}
+        float get_min_trk_p      () {return min_trk_p_ ;}
+        float get_max_trk_aeta   () {return max_trk_aeta_ ;}
+        float get_max_trk_chi2   () {return max_trk_chi2_ ;}
+        int   get_min_trk_nstubs () {return min_trk_nstubs_ ;}
+
 
     private:
         int getBin(double val);

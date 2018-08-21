@@ -303,6 +303,39 @@ L1TkMuonProducer::runOnMTFCollection_v2(const edm::Handle<EMTFTrackCollection>& 
                                      const edm::Handle<L1TTTrackCollectionType>& l1tksH,
                                      L1TkMuonParticleCollection& tkMuons) const
 {
+  const EMTFTrackCollection& l1mus = (*muonH.product());
+  const L1TTTrackCollectionType& l1trks = (*l1tksH.product());
+  auto corr_mu_idxs = dwcorr_->find_match(l1mus, l1trks);
+  // it's a vector with as many entries as the L1TT vector.
+  // >= 0 : the idx in the EMTF vector of matched mu
+  // < 0: no match
+
+  // sanity check
+  if (corr_mu_idxs.size() != l1trks.size())
+    throw cms::Exception("TkMuAlgoOutput") << "the size of tkmu indices does not match the size of input trk collection\n";
+  
+  for (uint il1ttrack = 0; il1ttrack < corr_mu_idxs.size(); ++il1ttrack)
+  {
+    int emtf_idx = corr_mu_idxs.at(il1ttrack);
+    if (emtf_idx < 0)
+      continue;
+
+    const L1TTTrackType& matchTk = l1trks[il1ttrack];
+    const auto& p3 = matchTk.getMomentum(dwcorr_->get_n_trk_par());
+    const auto& tkv3 = matchTk.getPOCA(dwcorr_->get_n_trk_par());
+    float p4e = sqrt(0.105658369*0.105658369 + p3.mag2() );
+    math::XYZTLorentzVector l1tkp4(p3.x(), p3.y(), p3.z(), p4e);
+
+    edm::Ref< RegionalMuonCandBxCollection > l1muRef(nullptr, 0); // FIXME! The reference to the muon is null
+    edm::Ptr< L1TTTrackType > l1tkPtr(l1tksH, il1ttrack);
+    float trkisol = -999; // FIXME: now doing as in the TP algo
+    L1TkMuonParticle l1tkmu(l1tkp4, l1muRef, l1tkPtr, trkisol);
+    l1tkmu.setTrkzVtx( (float)tkv3.z() );
+    
+    tkMuons.push_back(l1tkmu);
+  }
+
+
   return;
 }
 
