@@ -281,14 +281,10 @@ from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 from L1Trigger.L1TGlobal.GlobalParameters_cff import *
 
 from DQMOffline.L1Trigger.L1TEtSumJetOffline_cfi import *
-l1tEtSumJetOfflineDQMEmu.stage2CaloLayer2JetSource=cms.InputTag("valCaloStage2Layer2Digis")
-l1tEtSumJetOfflineDQMEmu.stage2CaloLayer2EtSumSource=cms.InputTag("valCaloStage2Layer2Digis")
 
 from DQMOffline.L1Trigger.L1TEGammaOffline_cfi import *
-l1tEGammaOfflineDQMEmu.stage2CaloLayer2EGammaSource=cms.InputTag("valCaloStage2Layer2Digis")
 
 from DQMOffline.L1Trigger.L1TTauOffline_cfi import *
-l1tTauOfflineDQMEmu.stage2CaloLayer2TauSource=cms.InputTag("valCaloStage2Layer2Digis")
 
 from DQMOffline.L1Trigger.L1TMuonDQMOffline_cfi import *
 
@@ -298,18 +294,6 @@ from DQMOffline.L1Trigger.L1TriggerDqmOffline_SecondStep_cff import *
 ##Stage 2 Emulator
 
 from DQM.L1TMonitor.L1TStage2Emulator_cff import *
-from DQM.L1TMonitorClient.L1TStage2CaloLayer2DEClient_cfi import *
-from DQM.L1TMonitorClient.L1TStage2MonitorClient_cff import *
-# L1T monitor client sequence (system clients and quality tests)
-l1TStage2EmulatorClients = cms.Sequence(
-                        l1tStage2CaloLayer2DEClient
-                        # l1tStage2EmulatorEventInfoClient
-                        )
-
-l1tStage2EmulatorMonitorClient = cms.Sequence(
-                        # l1TStage2EmulatorQualityTests +
-                        l1TStage2EmulatorClients
-                        )
 
 #
 # define sequences
@@ -357,18 +341,21 @@ l1tStage2EmulatorOnlineDQM.remove(l1tStage2uGtEmul)
 
 # sequence to run for all datasets
 Stage2l1TriggerEmulatorOffline = cms.Sequence(
-                                Stage2l1TriggerEmulatorOnline
+                                Stage2l1TriggerEmulatorOnline +
+                                Stage2L1HardwareValidationForOfflineCalo +
+                                l1tStage2EmulatorOfflineDQMForCalo
                                 )
 
 # sequence to run only for modules requiring an electron dataset
 Stage2l1tEgEmulatorOffline = cms.Sequence(
-                                #l1tEGammaOfflineDQMEmu
+                                l1tEGammaOfflineDQMEmu
                                 )
 
 # sequence to run only for modules requiring a muon dataset
 Stage2l1tMuonEmulatorOffline = cms.Sequence(
-                                #l1tEtSumJetOfflineDQMEmu +
-                                #l1tTauOfflineDQMEmu
+                                l1tEtSumJetOfflineDQMEmu +
+                                l1tTauOfflineDQMEmu +
+                                l1tMuonDQMOfflineEmu
                                 )
 
 ##############################################################################
@@ -397,8 +384,6 @@ Stage2l1tMuonDqmOffline = cms.Sequence(
 
 # DQM Offline sequence
 Stage2l1TriggerDqmOfflineClient = cms.Sequence(
-                                l1tStage2EmulatorMonitorClient *
-                                l1tStage2MonitorClient *
                                 DQMHarvestL1TMon
                                 )
 
@@ -424,6 +409,5 @@ stage2L1Trigger.toReplaceWith(l1TriggerMuonDqmOffline, Stage2l1tMuonDqmOffline)
 stage2L1Trigger.toReplaceWith(l1TriggerDqmOfflineClient, Stage2l1TriggerDqmOfflineClient)
 stage2L1Trigger.toReplaceWith(l1TriggerEgDqmOfflineClient, Stage2l1tEgDqmOfflineClient)
 stage2L1Trigger.toReplaceWith(l1TriggerMuonDqmOfflineClient, Stage2l1tMuonDqmOfflineClient)
-stage2L1Trigger.toReplaceWith(l1EmulatorMonitorClient,l1tStage2EmulatorMonitorClient)
 stage2L1Trigger.toReplaceWith(l1TriggerDqmOfflineCosmics, Stage2l1TriggerDqmOffline)
 stage2L1Trigger.toReplaceWith(l1TriggerDqmOfflineCosmicsClient, Stage2l1TriggerDqmOfflineClient)
