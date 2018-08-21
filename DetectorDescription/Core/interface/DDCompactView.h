@@ -21,13 +21,6 @@ class DDDivision;
 class DDName;
 struct DDPosData;
 
-namespace DDI {
-  class LogicalPart;
-  class Material;
-  class Solid;
-  class Specific;
-}
-
 /**
   Navigation through the compact view of the detector ...
 
@@ -69,16 +62,6 @@ Updated: Michael Case [ MEC ] 2010-02-11
     (expansion of an acyclic directed multigraph into a tree). In the figure there are
     5 different paths from CMS to Module2 (e.g. CMS-Pos1->Ecal-Pos4->EEndcap-Pos21->Module2)
     thus there will be 5 nodes of Module2 in the expanded view.
-
-MEC:
-    There has been a re-purposing of the DDCompactView to not only hold the 
-    representation described above (in detail this is the DDCompactViewImpl)
-    but also own the memory of the stores refered to by the graph.
-
-    DDCompactView now owns the DDMaterial, DDSpecific, DDLogicalPart,
-    DDRotation, DDSolid and etc.  Removal of the global one-and-only 
-    stores, methods and details such as DDRoot will mean that all of
-    these will be accessed via the DDCompactView.
 */
 class DDCompactView
 { 
@@ -123,22 +106,11 @@ public:
   //! \b don't \b use : interface not stable ....
   void setRoot(const DDLogicalPart & root);
 
-  // ---------------------------------------------------------------
-  // +++ DDCore INTERNAL USE ONLY ++++++++++++++++++++++++++++++++++
-    
-  void swap( DDCompactView& );
-
   void lockdown();
   
  private:
   std::unique_ptr<DDCompactViewImpl> rep_;
   std::unique_ptr<DDPosData> worldpos_ ;
-  
-  DDI::Store<DDName, std::unique_ptr<DDI::Material>> matStore_;
-  DDI::Store<DDName, std::unique_ptr<DDI::Solid>> solidStore_;
-  DDI::Store<DDName, std::unique_ptr<DDI::LogicalPart>> lpStore_;
-  DDI::Store<DDName, std::unique_ptr<DDI::Specific>> specStore_;
-  DDI::Store<DDName, std::unique_ptr<DDRotationMatrix>> rotStore_;
 };
 
 #endif
