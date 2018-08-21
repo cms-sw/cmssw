@@ -45,15 +45,18 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
 
   std::cout << phgp->name_ << "\n";
   if (mode_ == 0) {
-    std::cout << "WaferR_: "   << phgp->waferR_   << "\n";
-    std::cout << "SlopeMin_: " << phgp->slopeMin_ << "\n";
-    std::cout << "nCells_: "   << phgp->nCells_   << "\n";
-    std::cout << "nSectors_: " << phgp->nSectors_ << "\n";
-    std::cout << "mode_: "     << phgp->mode_     << "\n";
+    std::cout << "DetectorType: "    << phgp->detectorType_    << "\n";
+    std::cout << "WaferR_: "         << phgp->waferR_          << "\n";
+    std::cout << "nCells_: "         << phgp->nCells_          << "\n";
+    std::cout << "nSectors_: "       << phgp->nSectors_        << "\n";
+    std::cout << "FirstLayer: "      << phgp->firstLayer_      << "\n";
+    std::cout << "FirstMixedLayer: " << phgp->firstMixedLayer_ << "\n";
+    std::cout << "mode_: "           << phgp->mode_            << "\n";
 
     myPrint("CellSize",          phgp->cellSize_,          10);
+    myPrint("slopeMin",          phgp->slopeMin_,          10);
     myPrint("slopeTop",          phgp->slopeTop_,          10);  
-    myPrint("zFront",            phgp->zFront_,            10);
+    myPrint("zFrontTop",         phgp->zFrontTop_,         10);
     myPrint("rMaxFront",         phgp->rMaxFront_,         10);
     myPrint("zRanges",           phgp->zRanges_,           10);  
     myPrint("moduleBlS",         phgp->moduleBlS_,         10);  
@@ -108,16 +111,17 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
 
   } else if (mode_ == 1) {
 
-    std::cout << "SlopeMin_: "   << phgp->slopeMin_ << "\n";
+    std::cout << "DetectorType: "    << phgp->detectorType_    << "\n";
     std::cout << "Wafer Parameters: " << phgp->waferSize_ << ":"
 	      << phgp->waferR_  << ":" << phgp->waferThick_ << ":"
 	      << phgp->sensorSeparation_ << ":" << phgp->mouseBite_ << "\n";
     std::cout << "nCells_: " << phgp->nCellsFine_  << ":" 
 	      << phgp->nCellsCoarse_ << "\n";
-    std::cout << "nSectors_: "  << phgp->nSectors_ << "\n";
-    std::cout << "FirstLayer: " << phgp->firstLayer_ << "\n";
-    std::cout << "mode_: "      << phgp->mode_     << "\n";
-    std::cout << "waferUVMax: " << phgp->waferUVMax_ << "\n";
+    std::cout << "nSectors_: "       << phgp->nSectors_        << "\n";
+    std::cout << "FirstLayer: "      << phgp->firstLayer_      << "\n";
+    std::cout << "FirstMixedLayer: " << phgp->firstMixedLayer_ << "\n";
+    std::cout << "mode_: "           << phgp->mode_            << "\n";
+    std::cout << "waferUVMax: "      << phgp->waferUVMax_      << "\n";
 
     myPrint("waferUVMaxLayer",   phgp->waferUVMaxLayer_,   20);
     myPrint("CellThickness",     phgp->cellThickness_,     10);
@@ -129,8 +133,11 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
   
     myPrint("CellSize",          phgp->cellSize_,          10);
     myPrint("radiusMixBoundary", phgp->radiusMixBoundary_, 10);  
+    myPrint("slopeMin",          phgp->slopeMin_,          10);
+    myPrint("zFrontMin",         phgp->zFrontMin_,         10);
+    myPrint("rMinFront",         phgp->rMinFront_,         10);
     myPrint("slopeTop",          phgp->slopeTop_,          10);  
-    myPrint("zFront",            phgp->zFront_,            10);
+    myPrint("zFrontTop",         phgp->zFrontTop_,         10);
     myPrint("rMaxFront",         phgp->rMaxFront_,         10);
     myPrint("zRanges",           phgp->zRanges_,           10);  
     myPrint("moduleBlS",         phgp->moduleBlS_,         10);  
@@ -177,14 +184,15 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
 
   } else {
 
-    std::cout << "SlopeMin_: "  << phgp->slopeMin_   << "\n";
+    std::cout << "DetectorType: "    << phgp->detectorType_    << "\n";
     std::cout << "nCells_: " << phgp->nCellsFine_  << ":" 
 	      << phgp->nCellsCoarse_ << "\n";
-    std::cout << "EtaMinBH: "   << phgp->etaMinBH_   << "\n";
-    std::cout << "FirstLayer: " << phgp->firstLayer_ << "\n";
-    std::cout << "mode_: "      << phgp->mode_       << "\n";
-    std::cout << "waferUVMax: " << phgp->waferUVMax_ << "\n";
-    std::cout << "nSectors_: "  << phgp->nSectors_   << "\n";
+    std::cout << "EtaMinBH: "        << phgp->etaMinBH_        << "\n";
+    std::cout << "FirstLayer: "      << phgp->firstLayer_      << "\n";
+    std::cout << "FirstMixedLayer: " << phgp->firstMixedLayer_ << "\n";
+    std::cout << "mode_: "           << phgp->mode_            << "\n";
+    std::cout << "waferUVMax: "      << phgp->waferUVMax_      << "\n";
+    std::cout << "nSectors_: "       << phgp->nSectors_        << "\n";
     std::cout << "nCells_: " << phgp->nCellsFine_  << ":" 
 	      << phgp->nCellsCoarse_ << "\n";
   
@@ -192,8 +200,11 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
     myPrint("radiusMixBoundary", phgp->radiusMixBoundary_, 10);  
     myPrint("nPhiBinBH",         phgp->nPhiBinBH_,         18);  
     myPrint("dPhiEtaBH",         phgp->dPhiEtaBH_,         10);  
+    myPrint("slopeMin",          phgp->slopeMin_,          10);
+    myPrint("zFrontMin",         phgp->zFrontMin_,         10);
+    myPrint("rMinFront",         phgp->rMinFront_,         10);
     myPrint("slopeTop",          phgp->slopeTop_,          10);  
-    myPrint("zFront",            phgp->zFront_,            10);
+    myPrint("zFrontTop",         phgp->zFrontTop_,            10);
     myPrint("rMaxFront",         phgp->rMaxFront_,         10);
     myPrint("zRanges",           phgp->zRanges_,           10);  
     myPrint("firstModule",       phgp->firstModule_,       10);

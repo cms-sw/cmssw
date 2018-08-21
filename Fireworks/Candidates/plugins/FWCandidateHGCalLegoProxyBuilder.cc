@@ -75,8 +75,7 @@ FWCandidateHGCalLegoProxyBuilder::localModelChanges( const FWModelId &iId, TEveE
    {
       TEveElement *el = (parent)->FirstChild();       // There is only one child
       FWLegoCandidate *candidate = dynamic_cast<FWLegoCandidate*> (el);
-      const FWDisplayProperties &dp = item()->modelInfo( iId.index() ).displayProperties();
-      candidate->SetMarkerColor( dp.color() );
+      candidate->SetMarkerColor( item()->modelInfo( iId.index() ).displayProperties().color() );
       candidate->ElementChanged();
    }
 }

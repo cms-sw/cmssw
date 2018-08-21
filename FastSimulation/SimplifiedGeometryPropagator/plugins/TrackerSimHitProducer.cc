@@ -87,7 +87,7 @@ namespace fastsim
             \param refPos Reference position that is used to sort the hits if layer consists of sub-detectors
             \ return Returns the SimHit and the distance relative to refPos since hits have to be ordered (in time) afterwards.
         */
-        std::pair<double, PSimHit*> createHitOnDetector(const TrajectoryStateOnSurface & particle, int pdgId, double layerThickness, double eLoss, int simTrackId, const GeomDet & detector, GlobalPoint & refPos);
+        std::pair<double, std::unique_ptr<PSimHit>> createHitOnDetector(const TrajectoryStateOnSurface & particle, int pdgId, double layerThickness, double eLoss, int simTrackId, const GeomDet & detector, GlobalPoint & refPos);
         
         private:
         const double onSurfaceTolerance_;  //!< Max distance between particle and active (sub-) module. Otherwise particle has to be propagated.
@@ -198,7 +198,7 @@ void fastsim::TrackerSimHitProducer::interact(Particle & particle,const Simplifi
 
     // Detector layers have to be sorted by proximity to particle.position
     // Propagate particle backwards a bit to make sure it's outside any components
-    std::map<double, PSimHit*> distAndHits;
+    std::map<double, std::unique_ptr<PSimHit>> distAndHits;
     // Position relative to which the hits should be sorted
     GlobalPoint positionOutside(particle.position().x()-particle.momentum().x()/particle.momentum().P()*10.,
                                 particle.position().y()-particle.momentum().y()/particle.momentum().P()*10.,
@@ -217,9 +217,9 @@ void fastsim::TrackerSimHitProducer::interact(Particle & particle,const Simplifi
         // if the detector has no components
         if(detector.isLeaf())
         {
-            std::pair<double, PSimHit*> hitPair = createHitOnDetector(particleState, pdgId, layer.getThickness(particle.position()), energyDeposit, simTrackId, detector, positionOutside);
+            std::pair<double, std::unique_ptr<PSimHit>> hitPair = createHitOnDetector(particleState, pdgId, layer.getThickness(particle.position()), energyDeposit, simTrackId, detector, positionOutside);
             if(hitPair.second){
-                distAndHits.insert(distAndHits.end(), hitPair);
+                distAndHits.insert(distAndHits.end(), std::move(hitPair));
             }
         }
         else
@@ -227,23 +227,23 @@ void fastsim::TrackerSimHitProducer::interact(Particle & particle,const Simplifi
             // if the detector has components
             for(const auto component : detector.components())
             {
-                std::pair<double, PSimHit*> hitPair = createHitOnDetector(particleState, pdgId,layer.getThickness(particle.position()), energyDeposit, simTrackId, *component, positionOutside);            
+                std::pair<double, std::unique_ptr<PSimHit>> hitPair = createHitOnDetector(particleState, pdgId,layer.getThickness(particle.position()), energyDeposit, simTrackId, *component, positionOutside);            
                 if(hitPair.second){
-                    distAndHits.insert(distAndHits.end(), hitPair);
+                    distAndHits.insert(distAndHits.end(), std::move(hitPair));
                 }
             }
         }
     }
 
     // Fill simHitContainer
-    for(std::map<double, PSimHit*>::const_iterator it = distAndHits.begin(); it != distAndHits.end(); it++){
+    for(std::map<double, std::unique_ptr<PSimHit>>::const_iterator it = distAndHits.begin(); it != distAndHits.end(); it++){
         simHitContainer_->push_back(*(it->second));
     }
     
 }
 
 // Also returns distance to simHit since hits have to be ordered (in time) afterwards. Necessary to do explicit copy of TrajectoryStateOnSurface particle (not call by reference)
-std::pair<double, PSimHit*> fastsim::TrackerSimHitProducer::createHitOnDetector(const TrajectoryStateOnSurface & particle, int pdgId, double layerThickness, double eLoss, int simTrackId, const GeomDet & detector, GlobalPoint & refPos)
+std::pair<double, std::unique_ptr<PSimHit>> fastsim::TrackerSimHitProducer::createHitOnDetector(const TrajectoryStateOnSurface & particle, int pdgId, double layerThickness, double eLoss, int simTrackId, const GeomDet & detector, GlobalPoint & refPos)
 {
     // determine position and momentum of particle in the coordinate system of the detector
     LocalPoint localPosition;
@@ -274,7 +274,7 @@ std::pair<double, PSimHit*> fastsim::TrackerSimHitProducer::createHitOnDetector(
         // case propagation fails
         else
         {
-            return std::pair<double, PSimHit*>(0, nullptr);
+            return std::pair<double, std::unique_ptr<PSimHit>>(0, std::unique_ptr<PSimHit>(nullptr));
         }
     }
 
@@ -295,7 +295,7 @@ std::pair<double, PSimHit*> fastsim::TrackerSimHitProducer::createHitOnDetector(
     boundX *=  1. - localPosition.y() / detectorPlane.position().perp();
     if(fabs(localPosition.x()) > boundX  || fabs(localPosition.y()) > boundY )
     {
-       return std::pair<double, PSimHit*>(0, nullptr);
+       return std::pair<double, std::unique_ptr<PSimHit>>(0, std::unique_ptr<PSimHit>(nullptr));
     }
 
     // Create the hit: the energy loss rescaled to the module thickness
@@ -307,11 +307,11 @@ std::pair<double, PSimHit*> fastsim::TrackerSimHitProducer::createHitOnDetector(
     // Position of the hit in global coordinates
     GlobalPoint hitPos(detector.surface().toGlobal(localPosition));
 
-    return std::pair<double, PSimHit*>((hitPos-refPos).mag(),
-                                        new PSimHit(entry, exit, localMomentum.mag(), tof, eLoss, pdgId,
+    return std::pair<double, std::unique_ptr<PSimHit>>((hitPos-refPos).mag(),
+                                        std::unique_ptr<PSimHit>(new PSimHit(entry, exit, localMomentum.mag(), tof, eLoss, pdgId,
                                                    detector.geographicalId().rawId(), simTrackId,
                                                    localMomentum.theta(),
-                                                   localMomentum.phi()));
+                                                   localMomentum.phi())));
 }
 
 DEFINE_EDM_PLUGIN(

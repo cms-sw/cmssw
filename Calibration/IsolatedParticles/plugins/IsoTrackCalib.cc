@@ -273,7 +273,6 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent,
   //Get track collection
   edm::Handle<reco::TrackCollection> trkCollection;
   iEvent.getByToken(tok_genTrack_, trkCollection);
-  reco::TrackCollection::const_iterator trkItr;
  
   //event weight for FLAT sample
   t_EventWeight = 1.0;
@@ -302,7 +301,6 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent,
   //pf jets 
   edm::Handle<reco::PFJetCollection> pfJets;
   iEvent.getByToken(tok_pfjets_, pfJets);
-  reco::PFJetCollection::const_iterator pfItr;  
 
   //Define the best vertex and the beamspot
   edm::Handle<reco::VertexCollection> recVtxs;

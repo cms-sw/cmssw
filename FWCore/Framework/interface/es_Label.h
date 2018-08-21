@@ -36,7 +36,8 @@ namespace edm {
          typedef T element_type;
          
          L() : product_() {}
-         explicit L(std::shared_ptr<T> iP) : product_(iP) {}
+         explicit L(std::shared_ptr<T> iP) : product_(std::move(iP)) {}
+         explicit L(std::unique_ptr<T> iP) : product_(std::move(iP)) {}
          explicit L(T* iP) : product_(iP) {}
          
          T& operator*() { return *product_;}

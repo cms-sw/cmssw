@@ -265,7 +265,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeMva()
 
 // ------------------------------------------------------------------------------------------
 PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, float jec, const reco::Vertex * vtx,
-							const reco::VertexCollection & allvtx, double rho) 
+							const reco::VertexCollection & allvtx, double rho, bool usePuppi) 
 {
 
 	static std::atomic<int> printWarning{10};
@@ -299,13 +299,14 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	TMatrixDSym covMatrix(2); covMatrix = 0.;
 	float jetPt = jet->pt() / jec; // use uncorrected pt for shape variables
 	float sumPt = 0., sumPt2 = 0., sumTkPt = 0.,sumPtCh=0,sumPtNe = 0;
+	float multNeut = 0.0;
 	setPtEtaPhi(*jet,internalId_.jetPt_,internalId_.jetEta_,internalId_.jetPhi_); // use corrected pt for jet kinematics
 	internalId_.jetM_ = jet->mass(); 
 	internalId_.nvtx_ = allvtx.size();
 	internalId_.rho_ = rho;
 
 	float dRmin(1000);
-	
+
 	for ( unsigned i = 0; i < jet->numberOfSourceCandidatePtrs(); ++i ) {
 	  reco::CandidatePtr pfJetConstituent = jet->sourceCandidatePtr(i);
   
@@ -316,8 +317,9 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	  if (lPack == nullptr){
 	    isPacked = false;
 	  }
-
-	    float candPt = icand->pt();
+	    float candPuppiWeight = 1.0;
+	    if (usePuppi && isPacked) candPuppiWeight = lPack->puppiWeight();
+	    float candPt = (icand->pt())*candPuppiWeight;
 	    float candPtFrac = candPt/jetPt;
 	    float candDr   = reco::deltaR(*icand,*jet);
 	    float candDeta = icand->eta() - jet->eta();
@@ -358,6 +360,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 			if( icone < ncones ) { *coneNeutFracs[icone] += candPt; }
 			internalId_.ptDNe_    += candPt*candPt;
 			sumPtNe               += candPt;
+			multNeut += candPuppiWeight;
 		}
 		// EM candidated
 		if( icand->pdgId() == 22 ) {
@@ -367,7 +370,10 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 			if( icone < ncones ) { *coneEmFracs[icone] += candPt; }
 			internalId_.ptDNe_    += candPt*candPt;
 			sumPtNe               += candPt;
+			multNeut += candPuppiWeight;
 		}
+		if((abs(icand->pdgId()) == 1) || (abs(icand->pdgId()) == 2)) multNeut += candPuppiWeight;
+
 		// Charged  particles
 		if(  icand->charge() != 0 ) {
 		        if (lLeadCh == nullptr || candPt > lLeadCh->pt()) { 
@@ -483,6 +489,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 				}
 			}
 		}
+
 		// trailing candidate
 		if( lTrail == nullptr || candPt < lTrail->pt() ) {
 			lTrail = icand; 
@@ -505,6 +512,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	 internalId_.neuEMfrac_   = patjet->neutralEmEnergy()    /jet->energy();
 	 internalId_.chgHadrfrac_ = patjet->chargedHadronEnergy()/jet->energy();
 	 internalId_.neuHadrfrac_ = patjet->neutralHadronEnergy()/jet->energy();
+	 if (usePuppi) internalId_.nNeutrals_ = multNeut;
 	} else {
 	 internalId_.nCharged_    = pfjet->chargedMultiplicity();
 	 internalId_.nNeutrals_   = pfjet->neutralMultiplicity();
@@ -525,7 +533,13 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
             continue;
 	  }
 
-	  float weight = part->pt();
+	  float partPuppiWeight=1.0;
+	  if (usePuppi){
+	    const pat::PackedCandidate* partpack = dynamic_cast<const pat::PackedCandidate *>( part.get() );
+	    if (partpack!=nullptr)  partPuppiWeight = partpack->puppiWeight();
+	  }
+
+	  float weight = (part->pt())*partPuppiWeight;
 	  float weight2 = weight * weight;
 	  sumW2        += weight2;
 	  float deta = part->eta() - jet->eta();
@@ -544,7 +558,14 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	  if (!(part.isAvailable() && part.isNonnull()) ){
             continue;
           }
-	  float weight =part->pt()*part->pt();
+ 
+	  float partPuppiWeight=1.0;
+	  if (usePuppi){
+	    const pat::PackedCandidate* partpack = dynamic_cast<const pat::PackedCandidate *>( part.get() );
+	    if (partpack!=nullptr)  partPuppiWeight = partpack->puppiWeight();
+	  }
+
+	  float weight = partPuppiWeight*(part->pt())*partPuppiWeight*(part->pt());
 	  float deta = part->eta() - jet->eta();
 	  float dphi = reco::deltaPhi(*part, *jet);
 	  float ddeta, ddphi, ddR;
@@ -597,7 +618,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	internalId_.dRMeanEm_   /= jetPt;
 	internalId_.dRMeanCh_   /= jetPt;
 	internalId_.dR2Mean_    /= sumPt2;
-	
+
 	for(size_t ic=0; ic<ncones; ++ic){
 		*coneFracs[ic]     /= jetPt;
 		*coneEmFracs[ic]   /= jetPt;

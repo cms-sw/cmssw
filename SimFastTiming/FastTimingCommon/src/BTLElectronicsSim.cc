@@ -10,6 +10,7 @@ using namespace mtd;
 
 BTLElectronicsSim::BTLElectronicsSim(const edm::ParameterSet& pset) :
   debug_( pset.getUntrackedParameter<bool>("debug",false) ),
+  bxTime_(pset.getParameter<double>("bxTime") ),
   ScintillatorRiseTime_( pset.getParameter<double>("ScintillatorRiseTime") ),
   ScintillatorDecayTime_( pset.getParameter<double>("ScintillatorDecayTime") ),
   ChannelTimeOffset_( pset.getParameter<double>("ChannelTimeOffset") ),
@@ -30,6 +31,9 @@ BTLElectronicsSim::BTLElectronicsSim(const edm::ParameterSet& pset) :
   adcLSB_MIP_( adcSaturation_MIP_/std::pow(2.,adcNbits_) ),
   adcThreshold_MIP_( pset.getParameter<double>("adcThreshold_MIP") ),
   toaLSB_ns_( pset.getParameter<double>("toaLSB_ns") ),
+  CorrCoeff_( pset.getParameter<double>("CorrelationCoefficient") ),
+  cosPhi_( 0.5*(sqrt(1.+CorrCoeff_)+sqrt(1.-CorrCoeff_)) ),
+  sinPhi_( 0.5*CorrCoeff_/cosPhi_ ),
   ScintillatorDecayTime2_(ScintillatorDecayTime_*ScintillatorDecayTime_),
   SPTR2_(SinglePhotonTimeResolution_*SinglePhotonTimeResolution_),
   DCRxRiseTime_(DarkCountRate_*ScintillatorRiseTime_),
@@ -82,38 +86,42 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
 
 
       // --- Uncertainty due to the fluctuations of the n-th photon arrival time:
-      float sigma2_tot_thr1 = ScintillatorDecayTime2_*sigma2_pe(TimeThreshold1_,Npe);
-      float sigma2_tot_thr2 = ScintillatorDecayTime2_*sigma2_pe(TimeThreshold2_,Npe);
+      //     the fluctuations due to the first TimeThreshold1_ p.e. are common to both times
+      float smearing_stat_thr1 = CLHEP::RandGaussQ::shoot(hre, 0., 
+				 ScintillatorDecayTime_*sqrt(sigma2_pe(TimeThreshold1_,Npe)));
+      float smearing_stat_thr2 = CLHEP::RandGaussQ::shoot(hre, 0.,
+			         ScintillatorDecayTime_*sqrt(sigma2_pe(TimeThreshold2_-TimeThreshold1_,Npe)));
+      finalToA1 += smearing_stat_thr1;
+      finalToA2 += smearing_stat_thr1 + smearing_stat_thr2;
 
 
-      // --- Add in quadrature the uncertainty due to the SiPM timing resolution:
-      sigma2_tot_thr1 += SPTR2_/TimeThreshold1_;
-      sigma2_tot_thr2 += SPTR2_/TimeThreshold2_;
-
-
-      // --- Add in quadrature the uncertainties due to the SiPM DCR, 
+      // --- Add in quadrature the uncertainties due to the SiPM timing resolution, the SiPM DCR,
       //     the electronic noise and the clock distribution:
       float slew2 = ScintillatorDecayTime2_/Npe/Npe;
 
-      sigma2_tot_thr1 += ( (DCRxRiseTime_ + SigmaElectronicNoise2_)*slew2 + SigmaClock2_ );
-      sigma2_tot_thr2 += ( (DCRxRiseTime_ + SigmaElectronicNoise2_)*slew2 + SigmaClock2_ );
+      float sigma2_tot_thr1 = SPTR2_/TimeThreshold1_ + (DCRxRiseTime_ + SigmaElectronicNoise2_)*slew2 + SigmaClock2_;
+      float sigma2_tot_thr2 = SPTR2_/TimeThreshold2_ + (DCRxRiseTime_ + SigmaElectronicNoise2_)*slew2 + SigmaClock2_;
 
 
-      // --- Smear the arrival times using the total uncertainty:
-      finalToA1 += CLHEP::RandGaussQ::shoot(hre, 0., sqrt(sigma2_tot_thr1));
-      finalToA2 += CLHEP::RandGaussQ::shoot(hre, 0., sqrt(sigma2_tot_thr2));
+      // --- Smear the arrival times using the correlated uncertainties:
+      float smearing_thr1_uncorr = CLHEP::RandGaussQ::shoot(hre, 0., sqrt(sigma2_tot_thr1));
+      float smearing_thr2_uncorr = CLHEP::RandGaussQ::shoot(hre, 0., sqrt(sigma2_tot_thr2));
+
+      finalToA1 += cosPhi_*smearing_thr1_uncorr + sinPhi_*smearing_thr2_uncorr;
+      finalToA2 += sinPhi_*smearing_thr1_uncorr + cosPhi_*smearing_thr2_uncorr;
 
 
-      while(finalToA1 < 0.f)  finalToA1 += 25.f;
-      while(finalToA1 > 25.f) finalToA1 -= 25.f;
-      toa1[i]=finalToA1;
-
-      while(finalToA2 < 0.f)  finalToA2 += 25.f;
-      while(finalToA2 > 25.f) finalToA2 -= 25.f;
-      toa2[i]=finalToA2;
-
-      chargeColl[i] = Npe*Npe_to_pC_;
+      // --- Fill the time and charge arrays
+      const unsigned int ibucket = std::floor( finalToA1/bxTime_ );
+      if ( (i+ibucket) >= chargeColl.size() ) continue;
       
+      chargeColl[i+ibucket] = Npe*Npe_to_pC_; // the p.e. number is here converted to pC
+      
+      if ( toa1[i+ibucket] == 0. || (finalToA1-ibucket*bxTime_) < toa1[i+ibucket] ){
+	toa1[i+ibucket] = finalToA1 - ibucket*bxTime_;
+	toa2[i+ibucket] = finalToA2 - ibucket*bxTime_;
+      }
+
     }
 
     //run the shaper to create a new data frame

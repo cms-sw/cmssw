@@ -16,7 +16,7 @@
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DataFormats/Math/interface/Graph.h"
 #include "DataFormats/Math/interface/GraphWalker.h"
-#include "DetectorDescription/Core/src/DDCheck.h"
+#include "DetectorDescription/RegressionTest/src/DDCheck.h"
 //**** to get rid of compile errors about ambiguous delete of Stores
 #include "DetectorDescription/Core/src/LogicalPart.h"
 #include "DetectorDescription/Core/src/Solid.h"

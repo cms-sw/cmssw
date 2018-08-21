@@ -2,6 +2,38 @@ from __future__ import print_function
 import os.path
 import FWCore.ParameterSet.Config as cms
 
+def L1TSettingsToCaloParams_2018_v1_2(process):
+    process.load("L1Trigger.L1TCalorimeter.caloParams_2018_v1_2_cfi")
+    return process
+
+def L1TSettingsToCaloParams_2018_v1_1_ECALZS_2018MET(process):
+    process.load("L1Trigger.L1TCalorimeter.caloParams_2018_v1_1_ECALZS_2018MET_cfi")
+    return process
+
+def L1TSettingsToCaloParams_2018_v1_1_ECALZS(process):
+    process.load("L1Trigger.L1TCalorimeter.caloParams_2018_v1_1_ECALZS_cfi")
+    return process
+
+def L1TSettingsToCaloParams_2018_v1_1_ECALZS_noHFJEC_newEGIso(process):
+    process.load("L1Trigger.L1TCalorimeter.caloParams_2018_v1_1_ECALZS_noHFJEC_newEGIso_cfi")
+    return process
+
+def L1TSettingsToCaloParams_2018_v1_1_ECALZS_noHFJEC(process):
+    process.load("L1Trigger.L1TCalorimeter.caloParams_2018_v1_1_ECALZS_noHFJEC_cfi")
+    return process
+
+def L1TSettingsToCaloParams_2018_v1_1(process):
+    process.load("L1Trigger.L1TCalorimeter.caloParams_2018_v1_1_cfi")
+    return process
+
+def L1TSettingsToCaloParams_2018_v1_1_inconsistent(process):
+    process.load("L1Trigger.L1TCalorimeter.caloParams_2018_v1_1_inconsistent_cfi")
+    return process
+
+def L1TSettingsToCaloParams_2018_v1_1_ECALZS_inconsistent(process):
+    process.load("L1Trigger.L1TCalorimeter.caloParams_2018_v1_1_ECALZS_inconsistent_cfi")
+    return process
+
 def L1TSettingsToCaloStage2Params_2017_v1_10_mean_inconsistent(process):
     process.load("L1Trigger.L1TCalorimeter.caloStage2Params_2017_v1_10_mean_inconsistent_cfi")
     return process
@@ -52,6 +84,14 @@ def L1TSettingsToCaloStage2Params_2017_v1_8_2_updateHFSF_v7MET(process):
 
 def L1TSettingsToCaloStage2Params_2017_v1_8_4(process):
     process.load("L1Trigger.L1TCalorimeter.caloStage2Params_2017_v1_8_4_cfi")
+    return process
+
+def L1TSettingsToCaloStage2Params_2017_v1_8_4_ECALZS(process):
+    process.load("L1Trigger.L1TCalorimeter.caloStage2Params_2017_v1_8_4_ECAL_ZS_cfi")
+    return process
+
+def L1TSettingsToCaloStage2Params_2017_v1_8_5(process):
+    process.load("L1Trigger.L1TCalorimeter.caloStage2Params_2017_v1_8_5_cfi")
     return process
 
 def L1TSettingsToCaloStage2Params_2017_v1_8_2_updateHFSF_v6MET(process):

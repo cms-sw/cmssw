@@ -319,4 +319,7 @@
   <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test transition_test.sh"/>
   <use   name="FWCore/Utilities"/>
 </bin>
-
+<bin file="test_catch2_main.cc,test_catch2notTP_*.cc" name="TestFWCoreFrameworkCatch2notTP">
+  <use name="catch2"/>
+  <use   name="FWCore/Framework"/>
+</bin>

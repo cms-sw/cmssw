@@ -110,6 +110,9 @@ private :
   std::unique_ptr<hgc::HGCSimHitDataAccumulator> simHitAccumulator_;  
   void resetSimHitDataAccumulator();
 
+  //debug position
+  void checkPosition(const HGCalDigiCollection* digis) const;
+
   //digitizers
   std::unique_ptr<HGCEEDigitizer>      theHGCEEDigitizer_;
   std::unique_ptr<HGCHEbackDigitizer>  theHGCHEbackDigitizer_;

@@ -216,7 +216,8 @@ topDiMuonHLTMonitor_Mass8.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT
 
 
 topDiMuonHLTMonitor_Mass3p8 = hltTOPmonitoring.clone()
-topDiMuonHLTMonitor_Mass3p8.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/DiMuon/Mass3p8/')
+#topDiMuonHLTMonitor_Mass3p8.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/DiMuon/Mass3p8/')
+topDiMuonHLTMonitor_Mass3p8.FolderName = cms.string('HLT/TOP/DiLepton/DiMuon/Mass3p8/')
 topDiMuonHLTMonitor_Mass3p8.nmuons = cms.uint32(2)
 topDiMuonHLTMonitor_Mass3p8.nelectrons = cms.uint32(0)
 topDiMuonHLTMonitor_Mass3p8.njets = cms.uint32(0)
@@ -226,7 +227,8 @@ topDiMuonHLTMonitor_Mass3p8.jetSelection = cms.string('pt>30 & abs(eta)<2.4')
 topDiMuonHLTMonitor_Mass3p8.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v*')
 
 topDiMuonHLTMonitor_Mass8Mon = hltTOPmonitoring.clone()
-topDiMuonHLTMonitor_Mass8Mon.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/DiMuon/Mu17_Mu8_Mass8Efficiency/')
+#topDiMuonHLTMonitor_Mass8Mon.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/DiMuon/Mu17_Mu8_Mass8Efficiency/')
+topDiMuonHLTMonitor_Mass8Mon.FolderName = cms.string('HLT/TOP/DiLepton/DiMuon/Mu17_Mu8_Mass8Efficiency/')
 topDiMuonHLTMonitor_Mass8Mon.nmuons = cms.uint32(2)
 topDiMuonHLTMonitor_Mass8Mon.nelectrons = cms.uint32(0)
 topDiMuonHLTMonitor_Mass8Mon.njets = cms.uint32(0)
@@ -237,7 +239,8 @@ topDiMuonHLTMonitor_Mass8Mon.numGenericTriggerEventPSet.hltPaths = cms.vstring('
 topDiMuonHLTMonitor_Mass8Mon.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*')
 
 topDiMuonHLTMonitor_Mass3p8Mon = hltTOPmonitoring.clone()
-topDiMuonHLTMonitor_Mass3p8Mon.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/DiMuon/Mu17_Mu8_Mass3p8Efficiency/')
+#topDiMuonHLTMonitor_Mass3p8Mon.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/DiMuon/Mu17_Mu8_Mass3p8Efficiency/')
+topDiMuonHLTMonitor_Mass3p8Mon.FolderName = cms.string('HLT/TOP/DiLepton/DiMuon/Mu17_Mu8_Mass3p8Efficiency/')
 topDiMuonHLTMonitor_Mass3p8Mon.nmuons = cms.uint32(2)
 topDiMuonHLTMonitor_Mass3p8Mon.nelectrons = cms.uint32(0)
 topDiMuonHLTMonitor_Mass3p8Mon.njets = cms.uint32(0)
@@ -574,9 +577,6 @@ fullyhadronic_TripleBTag_bjet.denGenericTriggerEventPSet.hltPaths = cms.vstring(
 from DQMOffline.Trigger.HLTEGTnPMonitor_cfi import egmGsfElectronIDsForDQM
 
 topMonitorHLT = cms.Sequence(
-    )
-
-topHLTDQMSourceExtra = cms.Sequence(
     topEleJet_ele
     + topEleJet_jet
     + topEleJet_all
@@ -620,4 +620,7 @@ topHLTDQMSourceExtra = cms.Sequence(
     + topElecMuonHLTMonitor_Mu23Ele12_ref
     + topDiMuonHLTMonitor_Dz_Mu17_Mu8,
      cms.Task(egmGsfElectronIDsForDQM) # Use of electron VID requires this module being executed first
+)
+
+topHLTDQMSourceExtra = cms.Sequence(
 )

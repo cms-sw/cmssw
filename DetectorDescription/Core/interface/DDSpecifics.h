@@ -1,5 +1,5 @@
-#ifndef DDSpecifics_h
-#define DDSpecifics_h
+#ifndef DETECTOR_DESCRIPTION_CORE_DDSPECIFICS_H
+#define DETECTOR_DESCRIPTION_CORE_DDSPECIFICS_H
 
 #include <iosfwd>
 #include <map>
@@ -16,14 +16,13 @@ class DDExpandedView;
 class DDNodes;
 class DDPartSelection;
 class DDSpecifics;
+
 namespace DDI {
-class Specific;
-}  // namespace DDI
+  class Specific;
+}
 
-typedef std::vector<std::string> selectors_type;
-
-std::ostream & operator<<(std::ostream &, const std::vector<std::string> &);
-std::ostream & operator<<(std::ostream &, const DDSpecifics &);
+std::ostream & operator<<( std::ostream &, const std::vector<std::string> & );
+std::ostream & operator<<( std::ostream &, const DDSpecifics & );
 
 /**
   used to attach specific (user defined) data to nodes in the expanded view.
@@ -39,7 +38,7 @@ std::ostream & operator<<(std::ostream &, const DDSpecifics &);
     DDSpecifics are lightweighted reference-objects. For further information concerning
     reference-objects refere to the documentation of DDLogicalPart. 
 */
-class DDSpecifics : public DDBase<DDName,DDI::Specific*>
+class DDSpecifics : public DDBase< DDName, DDI::Specific* >
 {
   friend std::ostream & operator<<( std::ostream  &, const DDSpecifics &);
 
@@ -69,8 +68,6 @@ public:
               const std::vector<std::string> & partSelections,
 	      const DDsvalues_type & svalues,
 	      bool doRegex=true);
-  
-  ~DDSpecifics() override;
   
   //! Gives a reference to the collection of part-selections
   const std::vector<DDPartSelection> & selection() const;

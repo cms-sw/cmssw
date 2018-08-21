@@ -2,22 +2,20 @@
 
 #include <utility>
 
-#include "DetectorDescription/Core/interface/Store.h"
-
 DDVector::DDVector()
-  : DDBase<DDName,std::vector<double>*>()
-{ }
+  : DDBase< DDName, std::vector< double >*>()
+{}
 
-DDVector::DDVector(const DDName & name) : DDBase<DDName,std::vector<double>*>() 
+DDVector::DDVector( const DDName & name )
+  : DDBase< DDName, std::vector< double >*>() 
 {
-  prep_ = StoreT::instance().create(name);
+  create( name );
 }
 
-DDVector::DDVector(const DDName & name,std::vector<double>* vals)
+DDVector::DDVector( const DDName & name, std::vector<double>* vals )
 {
-  prep_ = StoreT::instance().create(name,vals);
+  create( name, vals );
 }  
-
 
 std::ostream & operator<<(std::ostream & os, const DDVector & cons)
 {

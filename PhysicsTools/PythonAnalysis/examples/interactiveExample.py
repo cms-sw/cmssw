@@ -23,9 +23,9 @@ events = EventTree(theFile)
 
 print "Start looping over some events"
 for event in events:
-      photons = event.photons
-      print "  Number of photons in event %i: %i" % (event, len(photons))
-      if event > 2: break  # workaround will become obsolete 
+    photons = event.photons
+    print "  Number of photons in event %i: %i" % (event, len(photons))
+    if event > 2: break  # workaround will become obsolete 
 
 
 

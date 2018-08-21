@@ -2,6 +2,7 @@
 #define CSCRawToDigi_CSCALCTHeader2006_h
 
 #include <vector>
+#include <cstring>
 #include <strings.h>
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
 class CSCDMBHeader;
@@ -13,6 +14,10 @@ struct CSCALCTHeader2006 { ///this struct contains all 2006 ALCT Header words ex
   }
 
   explicit CSCALCTHeader2006(int chamberType);
+
+  void setFromBuffer(unsigned short const* buf) {
+    memcpy(this, buf, sizeInWords()*2);
+  }
 
   void init() {
      bzero(this,  sizeInWords()*2); ///size of header w/o LCTs = 8 bytes
@@ -76,6 +81,10 @@ struct CSCALCTHeader2006 { ///this struct contains all 2006 ALCT Header words ex
 struct CSCALCTs2006 {
   CSCALCTs2006() {
     bzero(this, 8); ///size of ALCT = 2bytes
+  }
+
+  void setFromBuffer(unsigned short const* buf) {
+    memcpy(this, buf, sizeInWords()*2);
   }
 
   short unsigned int sizeInWords() const { ///size of ALCT

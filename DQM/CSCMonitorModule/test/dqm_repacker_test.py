@@ -4,12 +4,6 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("CSCDQMLIVE")
 
 #-------------------------------------------------
-# CSC L1 Emulator Configuration
-#-------------------------------------------------
-
-# process.load("L1Trigger.CSCTriggerPrimitives.CSCTPE_setup_cfi")
-
-#-------------------------------------------------
 # DQM Module Configuration
 #-------------------------------------------------
 
@@ -155,8 +149,8 @@ MessageLogger = cms.Service("MessageLogger",
     threshold = cms.untracked.string('ERROR')
   ),
   debugModules = cms.untracked.vstring('CSCMonitormodule'),
-#  destinations = cms.untracked.vstring('detailedInfo', 
-#    'critical', 
+#  destinations = cms.untracked.vstring('detailedInfo',
+#    'critical',
 #    'cout')
 
 )
@@ -211,7 +205,7 @@ process.cscpacker.useFormatVersion = cms.untracked.uint32(2013)
 #-----------------------------
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
- 
+
 process.source = cms.Source("PoolSource",
     #debugFlag = cms.untracked.bool(True),
     #debugVebosity = cms.untracked.uint32(10),

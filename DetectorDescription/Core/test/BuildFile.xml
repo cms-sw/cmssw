@@ -10,6 +10,8 @@
 <bin   name="testDDFilter" file="DDFilter.cppunit.cc,testRunner.cpp"/>
 <bin   name="testShapes" file="testShapes.cpp">
 </bin>
+<bin   name="testUnits" file="testRunner.cpp,DDUnits.cppunit.cc">
+</bin>
 <bin   file="clhepToROOTMath.cpp">
 </bin>
 <bin   file="test_DDRotation.cpp">

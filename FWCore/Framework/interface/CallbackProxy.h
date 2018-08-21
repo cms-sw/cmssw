@@ -38,8 +38,9 @@ namespace edm {
       class CallbackProxy : public DataProxy {
          
       public:
-         typedef  typename produce::smart_pointer_traits<DataT>::type value_type;
-         typedef  RecordT record_type;
+         using smart_pointer_traits = produce::smart_pointer_traits<DataT>;
+         using value_type = typename smart_pointer_traits::type;
+         using record_type = RecordT;
          
          CallbackProxy(std::shared_ptr<CallbackT>& iCallback) :
          data_(),
@@ -62,7 +63,7 @@ namespace edm {
             record_type rec;
             rec.setImpl(&iRecord);
             (*callback_)(rec);
-            return &(*data_);
+            return smart_pointer_traits::getPointer(data_);
          }
          
          void invalidateCache() override {

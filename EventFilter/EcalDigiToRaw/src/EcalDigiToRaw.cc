@@ -18,10 +18,27 @@
 
 
 // system include files
+#include <memory>
+#include <iostream>
+#include <string>
 
 
 // user include files
-#include "EventFilter/EcalDigiToRaw/interface/EcalDigiToRaw.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "EventFilter/EcalDigiToRaw/interface/TowerBlockFormatter.h"
+#include "EventFilter/EcalDigiToRaw/interface/TCCBlockFormatter.h"
+#include "EventFilter/EcalDigiToRaw/interface/BlockFormatter.h"
+#include "EventFilter/EcalDigiToRaw/interface/SRBlockFormatter.h"
+
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalSrFlag.h"
 
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 
@@ -30,7 +47,6 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 
-// #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -38,29 +54,57 @@
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
+class EcalDigiToRaw : public edm::global::EDProducer<> {
+   public:
+      EcalDigiToRaw(const edm::ParameterSet& pset);
+
+      void produce(edm::StreamID, edm::Event& e, const edm::EventSetup& c) const override;
+
+      typedef long long Word64;
+      typedef unsigned int Word32;
+
+      static const int BXMAX = 2808;
 
 
+   private:
+
+
+      // ----------member data ---------------------------
+
+       edm::EDGetTokenT<EcalTrigPrimDigiCollection> labelTT_ ;
+       edm::EDGetTokenT<EBSrFlagCollection> labelEBSR_ ;
+       edm::EDGetTokenT<EESrFlagCollection> labelEESR_ ;
+       edm::EDGetTokenT<EBDigiCollection> EBDigiToken_ ;
+       edm::EDGetTokenT<EEDigiCollection> EEDigiToken_;
+       edm::EDPutTokenT<FEDRawDataCollection> putToken_;
+  
+       const std::vector<int32_t> listDCCId_;
+    
+
+       const BlockFormatter::Config config_;
+
+};
 
 using namespace edm;
 using namespace std;
 
-EcalDigiToRaw::EcalDigiToRaw(const edm::ParameterSet& iConfig)
+EcalDigiToRaw::EcalDigiToRaw(const edm::ParameterSet& iConfig):
+  listDCCId_{iConfig.getUntrackedParameter< std::vector<int32_t> >("listDCCId")},
+  config_{
+    &listDCCId_,
+      iConfig.getUntrackedParameter<bool>("debug"),
+      iConfig.getUntrackedParameter<bool>("DoBarrel"),
+      iConfig.getUntrackedParameter<bool>("DoEndCap"),
+      iConfig.getUntrackedParameter<bool>("WriteTCCBlock"),
+      iConfig.getUntrackedParameter<bool>("WriteSRFlags"),
+      iConfig.getUntrackedParameter<bool>("WriteTowerBlock") }
 {
+   auto label= iConfig.getParameter<string>("Label");
+   auto instanceNameEB = iConfig.getParameter<string>("InstanceEB");
+   auto instanceNameEE = iConfig.getParameter<string>("InstanceEE");
 
-   doTCC_    = iConfig.getUntrackedParameter<bool>("WriteTCCBlock");
-   doSR_     = iConfig.getUntrackedParameter<bool>("WriteSRFlags");
-   doTower_  = iConfig.getUntrackedParameter<bool>("WriteTowerBlock");
-
-   doBarrel_ = iConfig.getUntrackedParameter<bool>("DoBarrel");
-   doEndCap_ = iConfig.getUntrackedParameter<bool>("DoEndCap");
-
-   listDCCId_ = iConfig.getUntrackedParameter< std::vector<int32_t> >("listDCCId");
-   label_= iConfig.getParameter<string>("Label");
-   instanceNameEB_ = iConfig.getParameter<string>("InstanceEB");
-   instanceNameEE_ = iConfig.getParameter<string>("InstanceEE");
-
-   edm::InputTag EBlabel = edm::InputTag(label_,instanceNameEB_);
-   edm::InputTag EElabel = edm::InputTag(label_,instanceNameEE_);
+   edm::InputTag EBlabel = edm::InputTag(label,instanceNameEB);
+   edm::InputTag EElabel = edm::InputTag(label,instanceNameEE);
 
    EBDigiToken_ = consumes<EBDigiCollection>(EBlabel);
    EEDigiToken_ = consumes<EEDigiCollection>(EElabel);
@@ -70,32 +114,7 @@ EcalDigiToRaw::EcalDigiToRaw(const edm::ParameterSet& iConfig)
    labelEBSR_ = consumes<EBSrFlagCollection>(iConfig.getParameter<edm::InputTag>("labelEBSRFlags"));
    labelEESR_ = consumes<EESrFlagCollection>(iConfig.getParameter<edm::InputTag>("labelEESRFlags"));
 
-   counter_ = 0;
-   debug_ = iConfig.getUntrackedParameter<bool>("debug");
-
-
-   Towerblockformatter_ = new TowerBlockFormatter;
-   TCCblockformatter_   = new TCCBlockFormatter();
-   SRblockformatter_	= new SRBlockFormatter();
-   Headerblockformatter_= new BlockFormatter;
-
-   produces<FEDRawDataCollection>();
-
-
-}
-
-
-EcalDigiToRaw::~EcalDigiToRaw()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
- delete Towerblockformatter_;
- delete TCCblockformatter_;
- delete SRblockformatter_;
- delete Headerblockformatter_;
-
+   putToken_ = produces<FEDRawDataCollection>();
 }
 
 
@@ -105,34 +124,32 @@ EcalDigiToRaw::~EcalDigiToRaw()
 
 // ------------ method called to for each event  ------------
 void
-EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+EcalDigiToRaw::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
 
-   if (debug_) cout << "Enter in EcalDigiToRaw::produce ... " << endl;
+  if (config_.debug_) cout << "Enter in EcalDigiToRaw::produce ... " << endl;
 
-   ESHandle< EcalElectronicsMapping > ecalmapping;
-   iSetup.get< EcalMappingRcd >().get(ecalmapping);
-   const EcalElectronicsMapping* TheMapping = ecalmapping.product();
+  ESHandle< EcalElectronicsMapping > ecalmapping;
+  iSetup.get< EcalMappingRcd >().get(ecalmapping);
+  const EcalElectronicsMapping* TheMapping = ecalmapping.product();
+  
+  FEDRawDataCollection productRawData;
+  
+  BlockFormatter::Params params;
+  int counter = iEvent.id().event();
+  params.counter_ = counter;
+  params.orbit_number_ = iEvent.orbitNumber();
+  params.bx_ = iEvent.bunchCrossing();
+  params.lv1_ = counter % (0x1<<24);
+  params.runnumber_ = iEvent.id().run();
+  
+  BlockFormatter Headerblockformatter(config_,params);
+  TCCBlockFormatter TCCblockformatter(config_,params);
+  TowerBlockFormatter Towerblockformatter(config_,params);
+  SRBlockFormatter SRblockformatter(config_,params);
 
-   Towerblockformatter_ -> StartEvent();
-   SRblockformatter_ -> StartEvent();
-
-  runnumber_ = iEvent.id().run();
-
-  // bx_ = (counter_ % BXMAX);
-  // orbit_number_ = counter_ / BXMAX;
-  // counter_ ++;
-
-  counter_ = iEvent.id().event();
-  bx_ = iEvent.bunchCrossing();
-  orbit_number_ = iEvent.orbitNumber();
-
-  lv1_ = counter_ % (0x1<<24);
-
-  auto productRawData = std::make_unique<FEDRawDataCollection>();
-
-
-  Headerblockformatter_ -> DigiToRaw(productRawData.get());
+  
+  Headerblockformatter.DigiToRaw(&productRawData);
 
 
 // ---------   Now the Trigger Block part
@@ -143,9 +160,9 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle<EESrFlagCollection> eeSrFlags;
 
 
-  if (doTCC_) {
+  if (config_.doTCC_) {
 
-     if (debug_) cout << "Creation of the TCC block  " << endl;
+     if (config_.debug_) cout << "Creation of the TCC block  " << endl;
      // iEvent.getByType(ecalTrigPrim);
 	iEvent.getByToken(labelTT_, ecalTrigPrim);
 
@@ -156,26 +173,26 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   const EcalTriggerPrimitiveDigi& trigprim = *it;
 	   const EcalTrigTowerDetId& detid = it -> id();
 
-	   if ( (detid.subDet() == EcalBarrel) && (! doBarrel_) ) continue;
-           if ( (detid.subDet() == EcalEndcap) && (! doEndCap_) ) continue;
+	   if ( (detid.subDet() == EcalBarrel) && (! config_.doBarrel_) ) continue;
+           if ( (detid.subDet() == EcalEndcap) && (! config_.doEndCap_) ) continue;
 
 	   int iDCC = TheMapping -> DCCid(detid);
            int FEDid = FEDNumbering::MINECALFEDID + iDCC;
 
-           FEDRawData& rawdata = productRawData.get() -> FEDData(FEDid);
+           FEDRawData& rawdata = productRawData.FEDData(FEDid);
 	   
 	   // adding the primitive to the block
-	   TCCblockformatter_ -> DigiToRaw(trigprim, rawdata, TheMapping);
+	   TCCblockformatter.DigiToRaw(trigprim, rawdata, TheMapping);
 
      }   // end loop on ecalTrigPrim
 
    }  // endif doTCC
 
 
-   if (doSR_) {	
-	if (debug_) cout << " Process the SR flags " << endl;
+   if (config_.doSR_) {	
+	if (config_.debug_) cout << " Process the SR flags " << endl;
 
-	if (doBarrel_) {
+	if (config_.doBarrel_) {
 
         // iEvent.getByType(ebSrFlags);
 	   iEvent.getByToken(labelEBSR_, ebSrFlags);
@@ -190,16 +207,16 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		int DCC_Channel = TheMapping -> iTT(id);
 		int FEDid = FEDNumbering::MINECALFEDID + Dccid;
 		// if (Dccid == 10) cout << "Dcc " << Dccid << " DCC_Channel " << DCC_Channel << " flag " << flag << endl;
-		if (debug_) cout << "will process SRblockformatter_ for FEDid " << dec << FEDid << endl;
-		FEDRawData& rawdata = productRawData.get() -> FEDData(FEDid);
-		if (debug_) Headerblockformatter_ -> print(rawdata);
-		SRblockformatter_ -> DigiToRaw(Dccid,DCC_Channel,flag, rawdata);
+		if (config_.debug_) cout << "will process SRblockformatter_ for FEDid " << dec << FEDid << endl;
+		FEDRawData& rawdata = productRawData.FEDData(FEDid);
+		if (config_.debug_) Headerblockformatter.print(rawdata);
+		SRblockformatter.DigiToRaw(Dccid,DCC_Channel,flag, rawdata);
 
            }
 	}  // end DoBarrel
 
 
-	if (doEndCap_) {
+	if (config_.doEndCap_) {
 	// iEvent.getByType(eeSrFlags);
 	iEvent.getByToken(labelEESR_, eeSrFlags);
 
@@ -213,8 +230,8 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		int DCC_Channel = ind.second;
 
                 int FEDid = FEDNumbering::MINECALFEDID + Dccid;
-                FEDRawData& rawdata = productRawData.get() -> FEDData(FEDid);
-                SRblockformatter_ -> DigiToRaw(Dccid,DCC_Channel,flag, rawdata);
+                FEDRawData& rawdata = productRawData.FEDData(FEDid);
+                SRblockformatter.DigiToRaw(Dccid,DCC_Channel,flag, rawdata);
            }
 	}  // end doEndCap
 
@@ -226,10 +243,10 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle<EBDigiCollection> ebDigis;
   Handle<EEDigiCollection> eeDigis;
 
-  if (doTower_) {
+  if (config_.doTower_) {
 
-	if (doBarrel_) {
-   	if (debug_) cout << "Creation of the TowerBlock ... Barrel case " << endl;
+	if (config_.doBarrel_) {
+   	if (config_.debug_) cout << "Creation of the TowerBlock ... Barrel case " << endl;
         iEvent.getByToken(EBDigiToken_,ebDigis);
         for (EBDigiCollection::const_iterator it=ebDigis -> begin();
                                 it != ebDigis->end(); it++) {
@@ -237,14 +254,14 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                 const EBDetId& ebdetid = it -> id();
 		int DCCid = TheMapping -> DCCid(ebdetid);
         	int FEDid = FEDNumbering::MINECALFEDID + DCCid ;
-                FEDRawData& rawdata = productRawData.get() -> FEDData(FEDid);
-                Towerblockformatter_ -> DigiToRaw(dataframe, rawdata, TheMapping);
+                FEDRawData& rawdata = productRawData.FEDData(FEDid);
+                Towerblockformatter.DigiToRaw(dataframe, rawdata, TheMapping);
         }
 
 	}
 
-	if (doEndCap_) {
-	if (debug_) cout << "Creation of the TowerBlock ... EndCap case " << endl;
+	if (config_.doEndCap_) {
+	if (config_.debug_) cout << "Creation of the TowerBlock ... EndCap case " << endl;
         iEvent.getByToken(EEDigiToken_,eeDigis);
         for (EEDigiCollection::const_iterator it=eeDigis -> begin();
                                 it != eeDigis->end(); it++) {
@@ -253,20 +270,20 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		EcalElectronicsId elid = TheMapping -> getElectronicsId(eedetid);
                 int DCCid = elid.dccId() ;   
                 int FEDid = FEDNumbering::MINECALFEDID + DCCid;
-                FEDRawData& rawdata = productRawData.get() -> FEDData(FEDid);
-                Towerblockformatter_ -> DigiToRaw(dataframe, rawdata, TheMapping);
+                FEDRawData& rawdata = productRawData.FEDData(FEDid);
+                Towerblockformatter.DigiToRaw(dataframe, rawdata, TheMapping);
         }
 	}
 
-  }  // endif doTower_
+  }  // endif config_.doTower_
 
 
 
 // -------- Clean up things ...
 
-  map<int, map<int,int> >* FEDorder = Towerblockformatter_ -> GetFEDorder();
+  map<int, map<int,int> >& FEDorder = Towerblockformatter.GetFEDorder();
 
-  Headerblockformatter_ -> CleanUp(productRawData.get(), FEDorder);
+  Headerblockformatter.CleanUp(&productRawData, &FEDorder);
 
 
 /*
@@ -279,9 +296,9 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 
- Towerblockformatter_ -> EndEvent(productRawData.get());
+ Towerblockformatter.EndEvent(&productRawData);
 
- iEvent.put(std::move(productRawData));
+ iEvent.emplace(putToken_, std::move(productRawData));
 
 
  return;
@@ -289,24 +306,4 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-EcalDigiToRaw::beginJob()
-{
-	Headerblockformatter_ -> SetParam(this);
-	Towerblockformatter_  -> SetParam(this);
-	TCCblockformatter_  -> SetParam(this);
-	SRblockformatter_   -> SetParam(this);
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-EcalDigiToRaw::endJob() {
-}
-
-
-
-
-
-
-
+DEFINE_FWK_MODULE(EcalDigiToRaw);

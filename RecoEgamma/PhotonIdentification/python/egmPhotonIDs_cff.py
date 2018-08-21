@@ -8,7 +8,7 @@ def loadEgmIdSequence(process, dataFormat):
 
     # Load the producer module to build full 5x5 cluster shapes and whatever 
     # else is needed for IDs
-    process.load("RecoEgamma.PhotonIdentification.PhotonIDValueMapProducer_cfi")
+    process.load("RecoEgamma.PhotonIdentification.photonIDValueMapProducer_cff")
 
     # Load the producer for MVA IDs. Make sure it is also added to the sequence!
     process.load("RecoEgamma.PhotonIdentification.PhotonMVAValueMapProducer_cfi")

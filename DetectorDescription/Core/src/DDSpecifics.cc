@@ -2,7 +2,6 @@
 
 #include <ostream>
 
-#include "DetectorDescription/Core/interface/Store.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/src/Specific.h"
@@ -12,21 +11,22 @@
 using DDI::Specific;
 
 DDSpecifics::DDSpecifics()
-  : DDBase<DDName,Specific*>()
+  : DDBase< DDName, Specific*>()
 { }
 
-DDSpecifics::DDSpecifics(const DDName & name) : DDBase<DDName,Specific*>()
+DDSpecifics::DDSpecifics( const DDName & name )
+  : DDBase< DDName, Specific* >()
 {
-  prep_ = StoreT::instance().create(name);
+  create( name );
 }
 
 DDSpecifics::DDSpecifics(const DDName & name,
                          const std::vector<std::string> & partSelections,
 	      		 const DDsvalues_type & svalues,
 			 bool doRegex)
- : DDBase<DDName,Specific*>()
+ : DDBase< DDName, Specific* >()
 {
-  prep_ = StoreT::instance().create(name, new Specific(partSelections,svalues,doRegex));   
+  create( name, new Specific( partSelections, svalues, doRegex ));   
   std::vector<std::pair<DDLogicalPart,std::pair<const DDPartSelection*, const DDsvalues_type*> > > v;
   rep().updateLogicalPart(v);
   for( auto& it : v ) {
@@ -40,22 +40,17 @@ DDSpecifics::DDSpecifics(const DDName & name,
   }
 } 
 
-DDSpecifics::~DDSpecifics() { }
-
-const std::vector<DDPartSelection> & DDSpecifics::selection() const
+const std::vector<DDPartSelection> &
+DDSpecifics::selection() const
 { 
   return rep().selection(); 
 }
 
-const DDsvalues_type & DDSpecifics::specifics() const
+const DDsvalues_type &
+DDSpecifics::specifics() const
 { 
   return rep().specifics(); 
 }         
-
-// bool DDSpecifics::nodes(DDNodes & result) const 
-// {
-//    return rep().nodes(result);
-// }
 
 /** node() will only work, if
     - there is only one PartSelection std::string
@@ -65,7 +60,8 @@ const DDsvalues_type & DDSpecifics::specifics() const
     expanded-part in the ExpandedView, else it will return
     (false, xxx), whereas xxx is a history which is not valid.
 */      
-std::pair<bool,DDExpandedView> DDSpecifics::node() const
+std::pair<bool,DDExpandedView>
+DDSpecifics::node() const
 {
   return rep().node();
 }
