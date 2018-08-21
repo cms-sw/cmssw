@@ -80,14 +80,14 @@ def countBadROCForward(fin, ringNo, os):
     ny = digi2D.GetNbinsY()
     for xbin in range(1,nx+1):
         if xbin >= 25 and xbin <= 32:    continue;#region of cross on x-axis
-	if xbin > 1 and  (xbin-1)%8 == 0:    dcounter += 1; 
-	for ybin in range(1,ny+1):
-	    if (ybin >= 2*nblades_perRing_fpx[ringNo-1] + 1) and (ybin <= 2*nblades_perRing_fpx[ringNo-1] + 4):
-	        continue;#region of cross on y-axis
-	    bentries = digi2D.GetBinContent(xbin,ybin)
-	    if(bentries > 0):
+        if xbin > 1 and  (xbin-1)%8 == 0:    dcounter += 1; 
+        for ybin in range(1,ny+1):
+            if (ybin >= 2*nblades_perRing_fpx[ringNo-1] + 1) and (ybin <= 2*nblades_perRing_fpx[ringNo-1] + 4):
+                continue;#region of cross on y-axis
+            bentries = digi2D.GetBinContent(xbin,ybin)
+            if(bentries > 0):
                 Nrocspopulated[dcounter] += 1
-		totalEntries[dcounter] += bentries
+                totalEntries[dcounter] += bentries
     #Loop to find inefficient modules
     meanEntries = [6] * 6
     for d in range(0,6):
@@ -97,28 +97,28 @@ def countBadROCForward(fin, ringNo, os):
     dcounter = 0;
     for xbin in range(1,nx+1):
         if xbin >= 25 and xbin <= 32:    continue;#region of cross on x-axis
-	if xbin > 1 and  (xbin-1)%8 == 0:    dcounter += 1 
+        if xbin > 1 and  (xbin-1)%8 == 0:    dcounter += 1 
         for ybin in range(1,ny+1):
-	    if (ybin >= 2*nblades_perRing_fpx[ringNo-1] + 1) and (ybin <= 2*nblades_perRing_fpx[ringNo-1] + 4):
+            if (ybin >= 2*nblades_perRing_fpx[ringNo-1] + 1) and (ybin <= 2*nblades_perRing_fpx[ringNo-1] + 4):
                 continue;#region of cross on y-axis
-	    bentries = digi2D.GetBinContent(xbin,ybin)
-	    if(bentries > 0):#//Assume < 25% of MEAN = inefficient 
-	        if bentries > 0 and bentries < meanEntries[dcounter]/4.: 
-		    NineffROC[dcounter] += 1
+            bentries = digi2D.GetBinContent(xbin,ybin)
+            if(bentries > 0):#//Assume < 25% of MEAN = inefficient 
+                if bentries > 0 and bentries < meanEntries[dcounter]/4.: 
+                    NineffROC[dcounter] += 1
 
     print("#Summary for FPix Ring", ringNo, file=os)
     for d in range(0,6):
         disc = 0
-	if d < 3:    disc = "M" + str(3 - d)
-	else:    disc = "P" + str(d - 2)
+        if d < 3:    disc = "M" + str(3 - d)
+        else:    disc = "P" + str(d - 2)
         ##Printing Disc no., #dead ROC, #inefficienct ROC, #mean occupancy of Non-zer roc
-	tmpstr = "FPix R" + str(ringNo) + "D" + str(disc)
+        tmpstr = "FPix R" + str(ringNo) + "D" + str(disc)
         print('{0:10s} {1:4d} {2:4d} {3:4.1f}'.format(tmpstr, NexpectedROC_perRing[ringNo-1] - Nrocspopulated[d], NineffROC[d], round(meanEntries[d],1)), file=os)
         fpix_tot_deadROC += NexpectedROC_perRing[ringNo-1] - Nrocspopulated[d]
         fpix_tot_ineffROC += NineffROC[d]
         fpix_tot_Nrocspopulated += Nrocspopulated[d]
-	fpix_tot_totalentries += float(totalEntries[d])
-	
+        fpix_tot_totalentries += float(totalEntries[d])
+
     return 0;
 ################################################main#######################################
 fname=sys.argv[1]

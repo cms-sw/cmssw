@@ -62,16 +62,18 @@ namespace edmtest {
                                    std::vector<int> const& expectedValues,
                                    edm::InputTag const& tag,
                                    char const* functionName,
-                                   edm::LuminosityBlock const& lumi);
+                                   edm::LuminosityBlock const& lumi,
+                                   std::vector<int> const& expectedValueImproperlyMerged);
 
     void checkExpectedRunProducts(unsigned int index,
                                   std::vector<int> const& expectedValues,
                                   edm::InputTag const& tag,
                                   char const* functionName,
-                                  edm::Run const& run);
+                                  edm::Run const& run,
+                                  std::vector<int> const& expectedValueImproperlyMerged);
 
     void abortWithMessage(char const* whichFunction, char const* type, edm::InputTag const& tag,
-                          int expectedValue, int actualValue) const;
+                          int expectedValue, int actualValue, bool unexpectedImproperlyMergedValue = false) const;
 
     std::vector<int> default_;
     std::vector<std::string> defaultvstring_;
@@ -85,6 +87,9 @@ namespace edmtest {
     std::vector<int> expectedEndRunNew_;
     std::vector<int> expectedBeginLumiNew_;
     std::vector<int> expectedEndLumiNew_;
+
+    std::vector<int> expectedEndRunProdImproperlyMerged_;
+    std::vector<int> expectedEndLumiProdImproperlyMerged_;
 
     std::vector<std::string> expectedParents_;
 
@@ -102,14 +107,8 @@ namespace edmtest {
 
     bool verbose_;
 
-    unsigned int index0_;
-    unsigned int index1_;
-    unsigned int index2_;
-    unsigned int index3_;
-    unsigned int index4_;
-    unsigned int index5_;
-    unsigned int index6_;
-    unsigned int index7_;
+    unsigned int indexRun_;
+    unsigned int indexLumi_;
     unsigned int parentIndex_;
     unsigned int droppedIndex1_;
     unsigned int processHistoryIndex_;
@@ -136,6 +135,9 @@ namespace edmtest {
     expectedBeginLumiNew_(ps.getUntrackedParameter<std::vector<int> >("expectedBeginLumiNew", default_)),
     expectedEndLumiNew_(ps.getUntrackedParameter<std::vector<int> >("expectedEndLumiNew", default_)),
 
+    expectedEndRunProdImproperlyMerged_(ps.getUntrackedParameter<std::vector<int> >("expectedEndRunProdImproperlyMerged", default_)),
+    expectedEndLumiProdImproperlyMerged_(ps.getUntrackedParameter<std::vector<int> >("expectedEndLumiProdImproperlyMerged", default_)),
+
     expectedParents_(ps.getUntrackedParameter<std::vector<std::string> >("expectedParents", defaultvstring_)),
     expectedProcessHistoryInRuns_(ps.getUntrackedParameter<std::vector<std::string> >("expectedProcessHistoryInRuns", defaultvstring_)),
 
@@ -151,14 +153,8 @@ namespace edmtest {
 
     verbose_(ps.getUntrackedParameter<bool>("verbose", false)),
 
-    index0_(0),
-    index1_(0),
-    index2_(0),
-    index3_(0),
-    index4_(0),
-    index5_(0),
-    index6_(0),
-    index7_(0),
+    indexRun_(0),
+    indexLumi_(0),
     parentIndex_(0),
     droppedIndex1_(0),
     processHistoryIndex_(0),
@@ -168,17 +164,20 @@ namespace edmtest {
     edm::Wrapper<edmtest::Thing> w_thing(std::move(ap_thing));
     assert(!w_thing.isMergeable());
     assert(!w_thing.hasIsProductEqual());
+    assert(!w_thing.hasSwap());
 
     auto ap_thingwithmerge = std::make_unique<edmtest::ThingWithMerge>();
     edm::Wrapper<edmtest::ThingWithMerge> w_thingWithMerge(std::move(ap_thingwithmerge));
     assert(w_thingWithMerge.isMergeable());
     assert(!w_thingWithMerge.hasIsProductEqual());
+    assert(w_thingWithMerge.hasSwap());
 
     auto ap_thingwithisequal = std::make_unique<edmtest::ThingWithIsEqual>();
     edm::Wrapper<edmtest::ThingWithIsEqual> w_thingWithIsEqual(std::move(ap_thingwithisequal));
     assert(!w_thingWithIsEqual.isMergeable());
     assert(w_thingWithIsEqual.hasIsProductEqual());
-    
+    assert(!w_thingWithIsEqual.hasSwap());
+
     if(expectedDroppedEvent_.size() > 0) {
       consumes<edmtest::ThingWithIsEqual>(edm::InputTag{"makeThingToBeDropped", "event", "PROD"});
       consumes<edmtest::ThingWithMerge>(edm::InputTag{"makeThingToBeDropped", "event", "PROD"});
@@ -199,19 +198,33 @@ namespace edmtest {
     }
 
     {
+      edm::InputTag tag("thingWithMergeProducer", "beginRun", "PROD");
+      consumes<edmtest::Thing,edm::InRun>(tag);
+      consumes<edmtest::ThingWithMerge,edm::InRun>(tag);
+      consumes<edmtest::ThingWithIsEqual,edm::InRun>(tag);
+    }
+
+    {
+      edm::InputTag tag("thingWithMergeProducer", "beginRun");
+      consumes<edmtest::Thing,edm::InRun>(tag);
+      consumes<edmtest::ThingWithMerge,edm::InRun>(tag);
+      consumes<edmtest::ThingWithIsEqual,edm::InRun>(tag);
+    }
+
+    {
       edm::InputTag tag("thingWithMergeProducer", "endRun", "PROD");
       consumes<edmtest::Thing,edm::InRun>(tag);
       consumes<edmtest::ThingWithMerge,edm::InRun>(tag);
       consumes<edmtest::ThingWithIsEqual,edm::InRun>(tag);
     }
-    
+
     {
       edm::InputTag tag("thingWithMergeProducer", "endRun");
       consumes<edmtest::Thing,edm::InRun>(tag);
       consumes<edmtest::ThingWithMerge,edm::InRun>(tag);
       consumes<edmtest::ThingWithIsEqual,edm::InRun>(tag);
     }
-    
+
     if(expectedDroppedEvent_.size() > 2) {
       edm::InputTag tag("makeThingToBeDropped", "endRun", "PROD");
       consumes<edmtest::ThingWithMerge,edm::InRun>(tag);
@@ -234,20 +247,34 @@ namespace edmtest {
       consumes<edmtest::ThingWithMerge,edm::InLumi>(tag);
       consumes<edmtest::ThingWithIsEqual,edm::InLumi>(tag);
     }
-    
+
     {
       edm::InputTag tag("thingWithMergeProducer", "endLumi");
       consumes<edmtest::Thing,edm::InLumi>(tag);
       consumes<edmtest::ThingWithMerge,edm::InLumi>(tag);
       consumes<edmtest::ThingWithIsEqual,edm::InLumi>(tag);
     }
-    
+
+    {
+      edm::InputTag tag("thingWithMergeProducer", "beginLumi", "PROD");
+      consumes<edmtest::Thing,edm::InLumi>(tag);
+      consumes<edmtest::ThingWithMerge,edm::InLumi>(tag);
+      consumes<edmtest::ThingWithIsEqual,edm::InLumi>(tag);
+    }
+
+    {
+      edm::InputTag tag("thingWithMergeProducer", "beginLumi");
+      consumes<edmtest::Thing,edm::InLumi>(tag);
+      consumes<edmtest::ThingWithMerge,edm::InLumi>(tag);
+      consumes<edmtest::ThingWithIsEqual,edm::InLumi>(tag);
+    }
+
     if(expectedDroppedEvent_.size() > 4) {
       edm::InputTag tag("makeThingToBeDropped", "endLumi", "PROD");
       consumes<edmtest::ThingWithIsEqual,edm::InLumi>(tag);
       consumes<edmtest::ThingWithMerge,edm::InLumi>(tag);
     }
-    
+
     if (testAlias_) {
       consumes<edmtest::Thing,edm::InLumi>(edm::InputTag{"aliasForThingToBeDropped2", "endLumi2"});
       edm::InputTag tag("aliasForThingToBeDropped2", "endLumi2","PROD");
@@ -342,11 +369,6 @@ namespace edmtest {
 
   void TestMergeResults::beginRun(edm::Run const& run, edm::EventSetup const&) {
 
-    index0_ += 3;
-    index4_ += 3;
-    index1_ += 3;
-    index5_ += 3;
-
     if(verbose_) edm::LogInfo("TestMergeResults") << "beginRun";
 
     if(expectedDroppedEvent_.size() > 1) {
@@ -354,11 +376,6 @@ namespace edmtest {
       run.getByLabel(tagd, h_thingWithIsEqual);
       assert(h_thingWithIsEqual->a == expectedDroppedEvent_[1]);
     }
-
-    index0_ += 3;
-    index4_ += 3;
-    index1_ += 3;
-    index5_ += 3;
   }
 
   void TestMergeResults::endRun(edm::Run const& run, edm::EventSetup const&) {
@@ -374,18 +391,21 @@ namespace edmtest {
       }
     }
 
-    index0_ += 3;
-    index4_ += 3;
-    index1_ += 3;
-    index5_ += 3;
-
     if(verbose_) edm::LogInfo("TestMergeResults") << "endRun";
 
+    std::vector<int> emptyDummy;
+
     edm::InputTag tag("thingWithMergeProducer", "endRun", "PROD");
-    checkExpectedRunProducts(index1_, expectedEndRunProd_, tag, "endRun", run);
+    checkExpectedRunProducts(indexRun_, expectedEndRunProd_, tag, "endRun", run, expectedEndRunProdImproperlyMerged_);
 
     edm::InputTag tagnew("thingWithMergeProducer", "endRun");
-    checkExpectedRunProducts(index5_, expectedEndRunNew_, tagnew, "endRun", run);
+    checkExpectedRunProducts(indexRun_, expectedEndRunNew_, tagnew, "endRun", run, emptyDummy);
+
+    edm::InputTag tagb("thingWithMergeProducer", "beginRun", "PROD");
+    checkExpectedRunProducts(indexRun_, expectedBeginRunProd_, tagb, "endRun", run, emptyDummy);
+
+    edm::InputTag tagbnew("thingWithMergeProducer", "beginRun");
+    checkExpectedRunProducts(indexRun_, expectedBeginRunNew_, tagbnew, "endRun", run, emptyDummy);
 
     if(expectedDroppedEvent_.size() > 2) {
       edm::InputTag tagd("makeThingToBeDropped", "endRun", "PROD");
@@ -417,14 +437,11 @@ namespace edmtest {
       }
       assert(foundOriginalInRegistry);
     }
+
+    indexRun_ += 3;
   }
 
   void TestMergeResults::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const&) {
-
-    index2_ += 3;
-    index6_ += 3;
-    index3_ += 3;
-    index7_ += 3;
 
     if(verbose_) edm::LogInfo("TestMergeResults") << "beginLuminosityBlock";
 
@@ -433,28 +450,27 @@ namespace edmtest {
       lumi.getByLabel(tagd, h_thingWithIsEqual);
       assert(h_thingWithIsEqual->a == expectedDroppedEvent_[3]);
     }
-    index2_ += 3;
-    index6_ += 3;
-    index3_ += 3;
-    index7_ += 3;
   }
 
   void TestMergeResults::endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const&) {
 
     assert(lumi.processHistory().id() == lumi.processHistoryID());
 
-    index2_ += 3;
-    index6_ += 3;
-    index3_ += 3;
-    index7_ += 3;
-
     if(verbose_) edm::LogInfo("TestMergeResults") << "endLuminosityBlock";
 
+    std::vector<int> emptyDummy;
+
     edm::InputTag tag("thingWithMergeProducer", "endLumi", "PROD");
-    checkExpectedLumiProducts(index3_, expectedEndLumiProd_, tag, "endLumi", lumi);
+    checkExpectedLumiProducts(indexLumi_, expectedEndLumiProd_, tag, "endLumi", lumi, expectedEndLumiProdImproperlyMerged_);
 
     edm::InputTag tagnew("thingWithMergeProducer", "endLumi");
-    checkExpectedLumiProducts(index7_, expectedEndLumiNew_, tagnew, "endLumi", lumi);
+    checkExpectedLumiProducts(indexLumi_, expectedEndLumiNew_, tagnew, "endLumi", lumi, emptyDummy);
+
+    edm::InputTag tagb("thingWithMergeProducer", "beginLumi", "PROD");
+    checkExpectedLumiProducts(indexLumi_, expectedBeginLumiProd_, tagb, "endLumi", lumi, emptyDummy);
+
+    edm::InputTag tagbnew("thingWithMergeProducer", "beginLumi");
+    checkExpectedLumiProducts(indexLumi_, expectedBeginLumiNew_, tagbnew, "endLumi", lumi, emptyDummy);
 
     if(expectedDroppedEvent_.size() > 4) {
       edm::InputTag tagd("makeThingToBeDropped", "endLumi", "PROD");
@@ -486,18 +502,10 @@ namespace edmtest {
       }
       assert(foundOriginalInRegistry);
     }
+    indexLumi_ += 3;
   }
 
   void TestMergeResults::respondToOpenInputFile(edm::FileBlock const& fb) {
-
-    index0_ += 3;
-    index1_ += 3;
-    index2_ += 3;
-    index3_ += 3;
-    index4_ += 3;
-    index5_ += 3;
-    index6_ += 3;
-    index7_ += 3;
 
     if(verbose_) edm::LogInfo("TestMergeResults") << "respondToOpenInputFile";
 
@@ -540,7 +548,8 @@ namespace edmtest {
                                              std::vector<int> const& expectedValues,
                                              edm::InputTag const& tag,
                                              char const* functionName,
-                                             edm::Run const& run) {
+                                             edm::Run const& run,
+                                             std::vector<int> const& expectedValueImproperlyMerged) {
 
     if((index + 2) < expectedValues.size()) {
 
@@ -550,6 +559,11 @@ namespace edmtest {
         if(h_thing->a != expected) {
           abortWithMessage(functionName, "Thing", tag, expected, h_thing->a);
         }
+        if (index < expectedValueImproperlyMerged.size()) {
+          if ((expectedValueImproperlyMerged[index] != 0) != h_thing.provenance()->knownImproperlyMerged()) {
+            abortWithMessage(functionName, "Thing", tag, 0, 0, true);
+          }
+        }
       }
 
       expected = expectedValues[index + 1];
@@ -558,6 +572,16 @@ namespace edmtest {
         if(h_thingWithMerge->a != expected) {
           abortWithMessage(functionName, "ThingWithMerge", tag, expected, h_thingWithMerge->a);
         }
+        if (index + 1 < expectedValueImproperlyMerged.size()) {
+          if ((expectedValueImproperlyMerged[index + 1] != 0) != h_thingWithMerge.provenance()->knownImproperlyMerged()) {
+            abortWithMessage(functionName, "ThingWithMerge", tag, 0, 0, true);
+          }
+        }
+        if (!h_thingWithMerge.provenance()->branchDescription().isMergeable()) {
+          std::cerr << "TestMergeResults::checkExpectedRunProducts isMergeable from BranchDescription returns\n"
+                    << "unexpected value for ThingWithMerge type." << std::endl;
+          abort();
+        }
       }
 
       expected = expectedValues[index + 2];
@@ -565,6 +589,16 @@ namespace edmtest {
         run.getByLabel(tag, h_thingWithIsEqual);
         if(h_thingWithIsEqual->a != expected) {
           abortWithMessage(functionName, "ThingWithIsEqual", tag, expected, h_thingWithIsEqual->a);
+        }
+        if (index + 2 < expectedValueImproperlyMerged.size()) {
+          if ((expectedValueImproperlyMerged[index + 2] != 0) != h_thingWithIsEqual.provenance()->knownImproperlyMerged()) {
+            abortWithMessage(functionName, "ThingWithIsEqual", tag, 0, 0, true);
+          }
+        }
+        if (h_thingWithIsEqual.provenance()->branchDescription().isMergeable()) {
+          std::cerr << "TestMergeResults::checkExpectedRunProducts isMergeable from BranchDescription returns\n"
+                    << "unexpected value for ThingWithIsEqual type." << std::endl;
+          abort();
         }
       }
     }
@@ -575,7 +609,8 @@ namespace edmtest {
                                               std::vector<int> const& expectedValues,
                                               edm::InputTag const& tag,
                                               char const* functionName,
-                                              edm::LuminosityBlock const& lumi) {
+                                              edm::LuminosityBlock const& lumi,
+                                              std::vector<int> const& expectedValueImproperlyMerged) {
 
     if((index + 2) < expectedValues.size()) {
 
@@ -585,6 +620,11 @@ namespace edmtest {
         if(h_thing->a != expected) {
           abortWithMessage(functionName, "Thing", tag, expected, h_thing->a);
         }
+        if (index < expectedValueImproperlyMerged.size()) {
+          if ((expectedValueImproperlyMerged[index] != 0) != h_thing.provenance()->knownImproperlyMerged()) {
+            abortWithMessage(functionName, "Thing", tag, 0, 0, true);
+          }
+        }
       }
 
       expected = expectedValues[index + 1];
@@ -592,6 +632,16 @@ namespace edmtest {
         lumi.getByLabel(tag, h_thingWithMerge);
         if(h_thingWithMerge->a != expected) {
           abortWithMessage(functionName, "ThingWithMerge", tag, expected, h_thingWithMerge->a);
+        }
+        if (index + 1 < expectedValueImproperlyMerged.size()) {
+          if ((expectedValueImproperlyMerged[index + 1] != 0) != h_thingWithMerge.provenance()->knownImproperlyMerged()) {
+            abortWithMessage(functionName, "ThingWithMerge", tag, 0, 0, true);
+          }
+        }
+        if (!h_thingWithMerge.provenance()->branchDescription().isMergeable()) {
+          std::cerr << "TestMergeResults::checkExpectedLumiProducts isMergeable from BranchDescription returns\n"
+                    << "unexpected value for ThingWithMerge type." << std::endl;
+          abort();
         }
       }
 
@@ -601,16 +651,30 @@ namespace edmtest {
         if(h_thingWithIsEqual->a != expected) {
           abortWithMessage(functionName, "ThingWithIsEqual", tag, expected, h_thingWithIsEqual->a);
         }
+        if (index + 2 < expectedValueImproperlyMerged.size()) {
+          if ((expectedValueImproperlyMerged[index + 2] != 0) != h_thingWithIsEqual.provenance()->knownImproperlyMerged()) {
+            abortWithMessage(functionName, "ThingWithIsEqual", tag, 0, 0, true);
+          }
+        }
+        if (h_thingWithIsEqual.provenance()->branchDescription().isMergeable()) {
+          std::cerr << "TestMergeResults::checkExpectedLumiProducts isMergeable from BranchDescription returns\n"
+                    << "unexpected value for ThingWithIsEqual type." << std::endl;
+          abort();
+        }
       }
     }
   }
 
   void TestMergeResults::abortWithMessage(char const* whichFunction, char const* type, edm::InputTag const& tag,
-                                          int expectedValue, int actualValue) const {
+                                          int expectedValue, int actualValue, bool unexpectedImproperlyMergedValue) const {
     std::cerr << "Error while testing merging of run/lumi products in TestMergeResults.cc\n"
               << "In function " << whichFunction << " looking for product of type " << type << "\n"
-              << tag << "\n"
-              << "Expected value = " << expectedValue << " actual value = " << actualValue << std::endl; 
+              << tag << std::endl;
+    if (unexpectedImproperlyMergedValue) {
+      std::cerr << "Unexpected value of knownImproperlyMerged from provenance" << std::endl;
+    } else {
+      std::cerr << "Expected value = " << expectedValue << " actual value = " << actualValue << std::endl;
+    }
     abort();
   }
 }

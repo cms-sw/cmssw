@@ -987,6 +987,13 @@ FS_PREMIXUP15_PU25_OVERLAY = merge([
          },
         Kby(100,500),step1FastUpg2015Defaults])
 
+# For combined premixing stage1+stage2 workflow
+FS_PREMIXUP15_PU25_LOCAL_OVERLAY = merge([
+        {"--pileup_input": "file:step1.root"
+         },
+        FS_PREMIXUP15_PU25_OVERLAY
+])
+
 ### FastSim: list of processes used in FastSim validation
 fs_proclist = ["ZEE_13",'TTbar_13','H125GGgluonfusion_13','ZTT_13','ZMM_13','NuGun_UP15','QCD_FlatPt_15_3000HS_13','SMS-T1tttt_mGl-1500_mLSP-100_13']
 
@@ -994,6 +1001,9 @@ fs_proclist = ["ZEE_13",'TTbar_13','H125GGgluonfusion_13','ZTT_13','ZMM_13','NuG
 for x in fs_proclist:
     key = "FS_" + x + "_PRMXUP15_PU25"
     steps[key] = merge([FS_PREMIXUP15_PU25_OVERLAY,{"cfg":steps[x]["cfg"]}])
+
+    key = key.replace("PRMXUP15", "PRMXLOCALUP15")
+    steps[key] = merge([FS_PREMIXUP15_PU25_LOCAL_OVERLAY,{"cfg":steps[x]["cfg"]}])
 
 ### FastSim: produce sample of signal events, overlayed with minbias events
 for x in fs_proclist:

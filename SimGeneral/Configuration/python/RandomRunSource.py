@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 class RandomRunSource (cms.Source):
@@ -19,7 +20,7 @@ class RandomRunSource (cms.Source):
         #this is the same random generator used to set the seeds for the RandomNumberGeneratorService
         random = SystemRandom()
         runProb = random.uniform(0,totalProb)
-        print runProb
+        print(runProb)
         sumProb = 0
         runNumber = 0
         for r,p in self.__dict__['runsAndProbs']:

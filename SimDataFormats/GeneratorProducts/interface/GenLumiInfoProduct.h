@@ -148,6 +148,7 @@ class GenLumiInfoProduct {
 
   // methods used by EDM
   virtual bool mergeProduct(const GenLumiInfoProduct &other);
+  void swap(GenLumiInfoProduct& other);
   virtual bool isProductEqual(const GenLumiInfoProduct &other) const;
  private:
   // cross sections

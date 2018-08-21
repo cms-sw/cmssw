@@ -151,8 +151,9 @@ class WorkFlowRunner(Thread):
                     cmd+=' --filein file:step%d_inDQM.root --fileout file:step%d.root '%(istep-1,istep)
                 else:
                     # Disable input for premix stage1 to allow combined stage1+stage2 workflow
-                    # Bit of a hack but works
-                    if istep!=1 and not '--filein' in cmd and not 'premix_stage1' in cmd:
+                    # Disable input for premix stage2 in FastSim to allow combined stage1+stage2 workflow (in FS, stage2 does also GEN)
+                    # Ugly hack but works
+                    if istep!=1 and not '--filein' in cmd and not 'premix_stage1' in cmd and not ("--fast" in cmd and "premix_stage2" in cmd):
                         cmd+=' --filein  file:step%s.root '%(istep-1,)
                     if not '--fileout' in com:
                         cmd+=' --fileout file:step%s.root '%(istep,)

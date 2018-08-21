@@ -4,12 +4,6 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("CSCDQMLIVE")
 
 #-------------------------------------------------
-# CSC L1 Emulator Configuration
-#-------------------------------------------------
-
-process.load("L1Trigger.CSCTriggerPrimitives.CSCTPE_setup_cfi")
-
-#-------------------------------------------------
 # DQM Module Configuration
 #-------------------------------------------------
 
@@ -154,8 +148,8 @@ MessageLogger = cms.Service("MessageLogger",
     threshold = cms.untracked.string('ERROR')
   ),
   debugModules = cms.untracked.vstring('CSCMonitormodule'),
-#  destinations = cms.untracked.vstring('detailedInfo', 
-#    'critical', 
+#  destinations = cms.untracked.vstring('detailedInfo',
+#    'critical',
 #    'cout')
 
 )
@@ -165,8 +159,6 @@ MessageLogger = cms.Service("MessageLogger",
 #--------------------------
 
 #process.p = cms.Path(process.dqmCSCClient+process.dqmEnv+process.dqmSaver)
-# Configuration not working due to process.lctreader
-#process.p = cms.Path(process.dqmCSCClient * process.muonCSCDigis * process.cscTriggerPrimitiveDigis * process.lctreader * process.csc2DRecHits * process.cscSegments * process.cscMonitor + process.dqmEnv + process.dqmSaver)
 process.p = cms.Path(process.dqmCSCClient * process.muonCSCDigis * process.cscTriggerPrimitiveDigis * process.csc2DRecHits * process.cscSegments * process.cscMonitor + process.dqmEnv + process.dqmSaver)
 
 

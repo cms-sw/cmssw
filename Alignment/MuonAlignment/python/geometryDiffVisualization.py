@@ -12,9 +12,9 @@ def csc_colors(endcap, station, ring, chamber):
 
 def draw_station(geom1, geom2, station, filename, length_factor=100., angle_factor=100., colors=dt_colors, template_dir='./'):
     if station == 4: 
-      station_template = load_svg(template_dir + "station4_template.svg")
+        station_template = load_svg(template_dir + "station4_template.svg")
     else: 
-      station_template = load_svg(template_dir + "station_template.svg")
+        station_template = load_svg(template_dir + "station_template.svg")
 
     if station == 1: x_scale_factor = 1/6.
     if station == 2: x_scale_factor = 1/7.
@@ -57,7 +57,7 @@ def draw_station(geom1, geom2, station, filename, length_factor=100., angle_fact
             newBox["style"] = "fill:%s;fill-opacity:0.5;stroke:#000000;stroke-width:1.0;stroke-opacity:1;stroke-dasharray:none" % colors(wheel, station, sector)
 
             new_boxes.append(newBox)
-            
+
     for treeindex, svgitem in station_template:
         if isinstance(svgitem, SVG) and svgitem.t == "g" and "id" in svgitem.attr and svgitem["id"] == "chambers":
             svgitem.append(new_boxes)
@@ -85,15 +85,15 @@ def draw_wheel(geom1, geom2, wheel, filename, length_factor=100., angle_factor=1
             zdiff = length_factor * (geom1.dt[wheel, station, sector].z - geom2.dt[wheel, station, sector].z) * signConventions["DT", wheel, station, sector][2]
             phiydiff = -angle_factor * (geom1.dt[wheel, station, sector].phiy - geom2.dt[wheel, station, sector].phiy) * signConventions["DT", wheel, station, sector][1]
 
-	    m = re.search("translate\(([0-9\.\-\+eE]+),\s([0-9\.\-\+eE]+)\)\srotate\(([0-9\.\-\+eE]+)\)",svgitem["transform"])
+            m = re.search("translate\(([0-9\.\-\+eE]+),\s([0-9\.\-\+eE]+)\)\srotate\(([0-9\.\-\+eE]+)\)",svgitem["transform"])
 
-	    tx = float(m.group(1))
-	    ty = float(m.group(2))
-	    tr = float(m.group(3))
+            tx = float(m.group(1))
+            ty = float(m.group(2))
+            tr = float(m.group(3))
 
             newBox = svgitem.clone()
 
-	    svgitem["style"] = "fill:#e1e1e1;fill-opacity:1;stroke:#000000;stroke-width:5.0;stroke-dasharray:1, 1;stroke-dashoffset:0"
+            svgitem["style"] = "fill:#e1e1e1;fill-opacity:1;stroke:#000000;stroke-width:5.0;stroke-dasharray:1, 1;stroke-dashoffset:0"
             newBox["style"] = "fill:%s;fill-opacity:0.5;stroke:#000000;stroke-width:5.0;stroke-opacity:1;stroke-dasharray:none" % colors(wheel, station, sector)
             newBox["id"] = newBox["id"] + "_moved"
 
@@ -114,16 +114,16 @@ def draw_wheel(geom1, geom2, wheel, filename, length_factor=100., angle_factor=1
 
 def draw_disk(geom1, geom2, endcap, station, filename, length_factor=1., angle_factor=100., colors=csc_colors, template_dir='./'):
     if station == 1: 
-      disk_template = load_svg(template_dir + "disk1_template.svg")
+        disk_template = load_svg(template_dir + "disk1_template.svg")
     if station in (2, 3): 
-      disk_template = load_svg(template_dir + "disk23_template.svg")
+        disk_template = load_svg(template_dir + "disk23_template.svg")
     if endcap == 1 and station == 4: 
-      disk_template = load_svg(template_dir + "diskp4_template.svg")
+        disk_template = load_svg(template_dir + "diskp4_template.svg")
     if endcap == 2 and station == 4: 
-      disk_template = load_svg(template_dir + "diskm4_template.svg")
+        disk_template = load_svg(template_dir + "diskm4_template.svg")
 
     scale_factor = 0.233
-    
+
     new_boxes = SVG("g")
 
     for treeindex, svgitem in disk_template:

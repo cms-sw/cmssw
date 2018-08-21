@@ -3,6 +3,7 @@
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
+#include "DataFormats/Common/interface/setIsMergeable.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -88,6 +89,7 @@ namespace edm {
                               type,
                               true,
                               isEndTransition(p->transition_));
+      setIsMergeable(pdesc);
 
       if (pdesc.transient()) {
         if (!checkDictionary(missingDictionaries, pdesc.wrappedName(), pdesc.wrappedType())) {

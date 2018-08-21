@@ -5,7 +5,6 @@
 #include <string>
 #include <array>
 
-#include "DetectorDescription/Core/interface/Store.h"
 #include "DetectorDescription/Core/src/Boolean.h"
 #include "DetectorDescription/Core/src/Box.h"
 #include "DetectorDescription/Core/src/Cons.h"
@@ -54,18 +53,18 @@ operator<<(std::ostream & os, const DDSolid & solid)
 }
 
 DDSolid::DDSolid()
-  : DDBase<DDName,Solid*>() { }
+  : DDBase< DDName, Solid* >() { }
 
 DDSolid::DDSolid( const DDName & n )
-  : DDBase<DDName,Solid*>()
+  : DDBase< DDName, Solid* >()
 {
-  prep_ = StoreT::instance().create(n);
+  create( n );
 }
 
 DDSolid::DDSolid(const DDName & n, Solid * s)
-  : DDBase<DDName,Solid*>()
+  : DDBase< DDName, Solid* >()
 {
-  prep_ = StoreT::instance().create(n,s);
+  create( n, s );
 }
 
 DDSolid::DDSolid( const DDName & n, DDSolidShape s, const std::vector<double> & p )
@@ -125,7 +124,7 @@ DDSolid::DDSolid( const DDName & n, DDSolidShape s, const std::vector<double> & 
     throw cms::Exception("DDException") << "DDSolid::DDSolid(DDName,DDSolidShape,std::vector<double>: wrong shape";   
   }
   solid->setParameters(p);
-  prep_ = StoreT::instance().create(n,solid);
+  create( n, solid );
 }
 
 double

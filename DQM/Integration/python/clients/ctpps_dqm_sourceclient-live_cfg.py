@@ -43,6 +43,11 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 # raw-to-digi conversion
 process.load("EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff")
 
+# loading Meta tags used by commonDQM
+process.load('EventFilter.OnlineMetaDataRawToDigi.onlineMetaDataRawToDigi_cfi')
+process.onlineMetaDataDigis = cms.EDProducer('OnlineMetaDataRawToDigi')
+
+
 # local RP reconstruction chain with standard settings
 process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
 
@@ -52,6 +57,7 @@ process.load("DQM.CTPPS.ctppsDQM_cff")
 # processing path
 process.recoStep = cms.Sequence(
   process.ctppsRawToDigi *
+  process.onlineMetaDataDigis *
   process.recoCTPPS
 )
 

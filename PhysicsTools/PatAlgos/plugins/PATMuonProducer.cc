@@ -201,16 +201,16 @@ PATMuonProducer::~PATMuonProducer()
 {
 }
 
-std::unique_ptr<GlobalPoint> PATMuonProducer::getMuonDirection(const reco::MuonChamberMatch& chamberMatch,
-							       const edm::ESHandle<GlobalTrackingGeometry>& geometry,
-							       const DetId& chamberId)
+std::optional<GlobalPoint> PATMuonProducer::getMuonDirection(const reco::MuonChamberMatch& chamberMatch,
+                                                             const edm::ESHandle<GlobalTrackingGeometry>& geometry,
+                                                             const DetId& chamberId)
 {
   const GeomDet* chamberGeometry = geometry->idToDet( chamberId );
   if (chamberGeometry){
     LocalPoint localPosition(chamberMatch.x, chamberMatch.y, 0);
-    return std::unique_ptr<GlobalPoint>(new GlobalPoint(chamberGeometry->toGlobal(localPosition)));
+    return std::optional<GlobalPoint>(std::in_place, chamberGeometry->toGlobal(localPosition));
   }
-  return std::unique_ptr<GlobalPoint>();
+  return std::optional<GlobalPoint>();
 
 }
 
@@ -225,7 +225,7 @@ void PATMuonProducer::fillL1TriggerInfo(pat::Muon& aMuon,
   // muon trajectory and convert it to a global direction to match the
   // trigger objects
 
-  std::unique_ptr<GlobalPoint> muonPosition;
+  std::optional<GlobalPoint> muonPosition;
   // Loop over chambers
   // initialize muonPosition with any available match, just in case 
   // the second station is missing - it's better folling back to 
@@ -234,13 +234,13 @@ void PATMuonProducer::fillL1TriggerInfo(pat::Muon& aMuon,
     if ( chamberMatch.id.subdetId() == MuonSubdetId::DT) {
       DTChamberId detId(chamberMatch.id.rawId());
       if (abs(detId.station())>3) continue; 
-      muonPosition = std::move(getMuonDirection(chamberMatch, geometry, detId));
+      muonPosition = getMuonDirection(chamberMatch, geometry, detId);
       if (abs(detId.station())==2) break;
     }
     if ( chamberMatch.id.subdetId() == MuonSubdetId::CSC) {
       CSCDetId detId(chamberMatch.id.rawId());
       if (abs(detId.station())>3) continue;
-      muonPosition = std::move(getMuonDirection(chamberMatch, geometry, detId));
+      muonPosition = getMuonDirection(chamberMatch, geometry, detId);
       if (abs(detId.station())==2) break;
     }
   }

@@ -120,12 +120,12 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
 
       // Identification of the egamma
       // Based on the seed tower FG bit, the H/E ratio of the seed tower, and the shape of the cluster
-      bool hOverEBit = cluster.hOverE()>0;
-      bool hOverEExtBit = true;
+      bool hOverEBit = cluster.hOverE()>0 || params_->egBypassHoE();
+      bool hOverEExtBit = HoE_ext || params_->egBypassExtHOverE();
       if(!params_->egBypassExtHOverE())
 	hOverEExtBit = HoE_ext;
-      bool shapeBit  = idShape(cluster, egamma.hwPt());
-      bool fgBit     = !(cluster.fgECAL()); 
+      bool shapeBit  = idShape(cluster, egamma.hwPt()) || params_->egBypassShape();
+      bool fgBit     = !(cluster.fgECAL()) || params_->egBypassECALFG();
       int qual = 0;
       if(fgBit)     qual |= (0x1); // first bit = FG
       if(hOverEBit) qual |= (0x1<<1); // second bit = H/E
@@ -232,10 +232,10 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
       bool IDcuts = (fgBit && hOverEBit && shapeBit && hOverEExtBit) || (egammas_raw.at(iEG).pt()>=params_->egMaxPtHOverE()) || (params_->egBypassEGVetos());
 
       if(!IDcuts) continue;
+      egammas_raw.at(iEG).setHwQual( 7 ); //Default value in firmware, not used
 
       if (egammas_raw.at(iEG).hwEta() > 0) egEtaPos.at( egammas_raw.at(iEG).hwEta()-1).at((72-egammas_raw.at(iEG).hwPhi())/4) = egammas_raw.at(iEG);
-      else                                 egEtaNeg.at( -(egammas_raw.at(iEG).hwEta()+1)).at((72-egammas_raw.at(iEG).hwPhi())/4) = egammas_raw.at(iEG);
-      
+      else                                 egEtaNeg.at( -(egammas_raw.at(iEG).hwEta()+1)).at((72-egammas_raw.at(iEG).hwPhi())/4) = egammas_raw.at(iEG);      
   }
 
   AccumulatingSort <l1t::EGamma> etaPosSorter(6);

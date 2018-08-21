@@ -63,9 +63,11 @@
 
 
 
-  <class name="L1MuBMTrack" ClassVersion="11">
+  <class name="L1MuBMTrack" ClassVersion="13">
     <version ClassVersion="10" checksum="955528069"/>
-    <version ClassVersion="11" checksum="879964230"/>
+    <version ClassVersion="11" checksum="1941187557"/>
+    <version ClassVersion="12" checksum="4194061270"/>
+    <version ClassVersion="13" checksum="879964230"/>
   </class>
 
 
@@ -86,10 +88,12 @@
 
   <class name="L1MuBMTrackCollection"/>
   <class name="L1MuKBMTrackCollection"/>
+  <class name="L1MuKBMTrackBxCollection"/>
   <class name="L1MuBMTrackSegPhiCollection"/>
   <class name="L1MuBMTrackSegEtaCollection"/>
 
   <class name="edm::Wrapper<L1MuBMTrackCollection >"/>
+  <class name="edm::Wrapper<L1MuKBMTrackBxCollection >"/>
   <class name="edm::Wrapper<L1MuKBMTrackCollection >"/>
   <class name="edm::Wrapper<L1MuBMTrackSegPhiCollection >"/>
   <class name="edm::Wrapper<L1MuBMTrackSegEtaCollection >"/>

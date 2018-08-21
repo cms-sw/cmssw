@@ -1,10 +1,9 @@
 #include "DetectorDescription/Parser/src/DDLRotationAndReflection.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Core/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Core/interface/DDUnits.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -17,6 +16,8 @@
 #include <utility>
 
 class DDCompactView;
+
+using namespace dd::operators;
 
 DDLRotationAndReflection::DDLRotationAndReflection( DDLElementRegistry* myreg )
   : DDXMLElement( myreg ) 
@@ -95,48 +96,6 @@ DDLRotationAndReflection::isLeftHanded (const DD3Vector& x, const DD3Vector& y, 
 {
   int ret = 0;
 
-  /**************** copied and cannibalized code:
- 
-  from g3tog4
- 
-  http://atlassw1.phy.bnl.gov/lxr/source/external/geant4.3.1/source/g3tog4/src/G4gsrotm.cc
-
- 48         // Construct unit std::vectors 
- 49     
- 50     G4ThreeVector x(sin(th1r)*cos(phi1r), sin(th1r)*sin(phi1r), cos(th1r)->second;
- 51     G4ThreeVector y(sin(th2r)*cos(phi2r), sin(th2r)*sin(phi2r), cos(th2r));
- 52     G4ThreeVector z(sin(th3r)*cos(phi3r), sin(th3r)*sin(phi3r), cos(th3r));
- 53 
- 54         // check for orthonormality and left-handedness
- 55 
- 56     G4double check = (x.cross(y))*z;
- 57     G4double tol = 1.0e-3;
- 58         
- 59     if (1-abs(check)>tol) {
- 60         G4cerr << "Coordinate axes forming rotation matrix "
- 61                << irot << " are not orthonormal.(" << 1-abs(check) << ")" 
- 62          << G4std::endl;
- 63         G4cerr << " thetaX=" << theta1;
- 64         G4cerr << " phiX=" << phi1;
- 65         G4cerr << " thetaY=" << theta2;
- 66         G4cerr << " phiY=" << phi2;
- 67         G4cerr << " thetaZ=" << theta3;
- 68         G4cerr << " phiZ=" << phi3;
- 69         G4cerr << G4std::endl;
- 70         G4Exception("G4gsrotm error");
- 71     }
- 72     else if (1+check<=tol) {
- 73         G4cerr << "G4gsrotm warning: coordinate axes forming rotation "
- 74                << "matrix " << irot << " are left-handed" << G4std::endl;
- 75     }   
- 76
- 77     G3toG4RotationMatrix* rotp = new G3toG4RotationMatrix;
- 78 
- 79     rotp->SetRotationMatrixByRow(x, y, z);
-
-  ****************/
-
-
   // check for orthonormality and left-handedness
   
   double check = (x.Cross(y)).Dot(z);
@@ -151,17 +110,17 @@ DDLRotationAndReflection::isLeftHanded (const DD3Vector& x, const DD3Vector& y, 
 	      << " check=" << std::abs(check)  << ")" 
 	      << std::endl
 	      << " thetaX=" << (atts.find("thetaX")->second) 
-	      << ' ' << ev.eval(nmspace, atts.find("thetaX")->second)/deg << std::endl
+	      << ' ' << CONVERT_TO( ev.eval(nmspace, atts.find("thetaX")->second), deg ) << std::endl
 	      << " phiX=" << (atts.find("phiX")->second) 
-	      << ' ' << ev.eval(nmspace, atts.find("phiX")->second)/deg << std::endl
+	      << ' ' << CONVERT_TO( ev.eval(nmspace, atts.find("phiX")->second), deg ) << std::endl
 	      << " thetaY=" << (atts.find("thetaY")->second) 
-	      << ' ' << ev.eval(nmspace, atts.find("thetaY")->second)/deg << std::endl
+	      << ' ' << CONVERT_TO( ev.eval(nmspace, atts.find("thetaY")->second), deg ) << std::endl
 	      << " phiY=" << (atts.find("phiY")->second)
-	      << ' ' << ev.eval(nmspace, atts.find("phiY")->second)/deg << std::endl
+	      << ' ' << CONVERT_TO( ev.eval(nmspace, atts.find("phiY")->second), deg ) << std::endl
 	      << " thetaZ=" << (atts.find("thetaZ")->second)
-	      << ' ' << ev.eval(nmspace, atts.find("thetaZ")->second)/deg << std::endl
+	      << ' ' << CONVERT_TO( ev.eval(nmspace, atts.find("thetaZ")->second), deg ) << std::endl
 	      << " phiZ=" << (atts.find("phiZ")->second)
-	      << ' ' << ev.eval(nmspace, atts.find("phiZ")->second)/deg 
+	      << ' ' << CONVERT_TO( ev.eval(nmspace, atts.find("phiZ")->second), deg ) 
 	      << std::endl
 	      << "  WAS NOT CREATED!" << std::endl;
     ret = -1;
@@ -209,7 +168,8 @@ DDLRotationAndReflection::makeY(const std::string& nmspace)
   return y;
 }
 
-DD3Vector DDLRotationAndReflection::makeZ(const std::string& nmspace)
+DD3Vector
+DDLRotationAndReflection::makeZ(const std::string& nmspace)
 {
   DD3Vector z;
   DDXMLAttribute atts = getAttributeSet();

@@ -238,7 +238,7 @@ getModuleFromTriggerCell( const unsigned trigger_cell_id ) const
         }
         module = module_itr->second;
     }
-    return HGCalDetId((ForwardSubdetector)trigger_cell_det_id.subdetId(), trigger_cell_det_id.zside(), trigger_cell_det_id.layer(), trigger_cell_det_id.waferType(), module, HGCalDetId::kHGCalCellMask).rawId();
+    return HGCalDetId((ForwardSubdetector)trigger_cell_det_id.subdetId(), trigger_cell_det_id.zside(), trigger_cell_det_id.layer(), (trigger_cell_det_id.waferType()==1 ? 1:0), module, HGCalDetId::kHGCalCellMask).rawId();
 }
 
 HGCalTriggerGeometryBase::geom_set 
@@ -275,7 +275,7 @@ getCellsFromTriggerCell( const unsigned trigger_cell_id ) const
             unsigned wafer = 0;
             unsigned cell = 0;
             unpackWaferCellId(tc_c_itr->second, wafer, cell);
-            unsigned wafer_type = detIdWaferType(subdet, wafer);
+            unsigned wafer_type = (detIdWaferType(subdet, wafer)==1 ? 1 : 0);
             unsigned cell_det_id = HGCalDetId((ForwardSubdetector)trigger_cell_det_id.subdetId(), trigger_cell_det_id.zside(), trigger_cell_det_id.layer(), wafer_type, wafer, cell).rawId();
             if(validCellId(subdet, cell_det_id)) cell_det_ids.emplace(cell_det_id);
         }

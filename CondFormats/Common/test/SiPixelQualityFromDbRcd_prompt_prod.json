@@ -1,7 +1,7 @@
 {
     "destinationDatabase": "oracle://cms_orcon_prod/CMS_CONDITIONS", 
     "destinationTags": {
-        "SiPixelQuality_byPCL_prompt_v1": {}
+        "SiPixelQuality_byPCL_prompt_v2": {}
     }, 
     "inputTag": "SiPixelQualityFromDbRcd_prompt", 
     "since": null, 

@@ -111,14 +111,6 @@ const PtAssignmentEngineAux& PtAssignmentEngine::aux() const {
   return instance;
 }
 
-float PtAssignmentEngine::scale_pt(const float pt, const int mode) const {
-  return scale_pt(pt, mode);
-}
-
-float PtAssignmentEngine::unscale_pt(const float pt, const int mode) const {
-  return unscale_pt(pt, mode);
-}
-
 float PtAssignmentEngine::calculate_pt(const address_t& address) const {
   float pt = 0.;
 

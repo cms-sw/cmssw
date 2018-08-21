@@ -197,6 +197,7 @@ The interface is too complex for general use.
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/RunID.h"
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/value_ptr.h"
 
@@ -586,6 +587,8 @@ namespace edm {
 
         void copyPosition(IndexIntoFileItrImpl const& position);
 
+        void getLumisInRun(std::vector<LuminosityBlockNumber_t> & lumis) const;
+
       protected:
 
         void setInvalid();
@@ -605,6 +608,7 @@ namespace edm {
         virtual EntryType getRunOrLumiEntryType(int index) const = 0;
         virtual bool isSameLumi(int index1, int index2) const = 0;
         virtual bool isSameRun(int index1, int index2) const = 0;
+        virtual LuminosityBlockNumber_t lumi(int index) const = 0;
 
         IndexIntoFile const* indexIntoFile_;
         int size_;
@@ -650,6 +654,7 @@ namespace edm {
         EntryType getRunOrLumiEntryType(int index) const override;
         bool isSameLumi(int index1, int index2) const override;
         bool isSameRun(int index1, int index2) const override;
+        LuminosityBlockNumber_t lumi(int index) const override;
       };
 
       //*****************************************************************************
@@ -684,6 +689,7 @@ namespace edm {
         EntryType getRunOrLumiEntryType(int index) const override;
         bool isSameLumi(int index1, int index2) const override;
         bool isSameRun(int index1, int index2) const override;
+        LuminosityBlockNumber_t lumi(int index) const override;
       };
 
       //*****************************************************************************
@@ -806,6 +812,8 @@ namespace edm {
 
         /// Copy the position without modifying the pointer to the IndexIntoFile or size
         void copyPosition(IndexIntoFileItr const& position);
+
+        void getLumisInRun(std::vector<LuminosityBlockNumber_t> & lumis) const {impl_->getLumisInRun(lumis);}
 
       private:
         //for testing
@@ -1127,6 +1135,17 @@ namespace edm {
   class Compare_Index {
   public:
     bool operator()(IndexIntoFile::RunOrLumiIndexes const& lh, IndexIntoFile::RunOrLumiIndexes const& rh);
+  };
+
+  // This class exists only to allow forward declarations of IndexIntoFile::IndexIntoFileItr
+  class IndexIntoFileItrHolder {
+  public:
+    IndexIntoFileItrHolder(IndexIntoFile::IndexIntoFileItr const& iIter) : iter_(iIter) { }
+    void getLumisInRun(std::vector<LuminosityBlockNumber_t> & lumis) const {
+      iter_.getLumisInRun(lumis);
+    }
+  private:
+    IndexIntoFile::IndexIntoFileItr const& iter_;
   };
 }
 

@@ -22,14 +22,13 @@
 class TCCBlockFormatter : public BlockFormatter {
  public :
 
-	TCCBlockFormatter();
-	~TCCBlockFormatter();
-        static const int kCardsPerTower = 5;     // Number of VFE cards per trigger tower
-        void DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping);
+  TCCBlockFormatter(BlockFormatter::Config const&, BlockFormatter::Params const&);
 
+  static const int kCardsPerTower = 5;     // Number of VFE cards per trigger tower
+  void DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping);
+  
  private :
-	bool AllTPsamples_;
-
+  bool AllTPsamples_;
 };
 
 

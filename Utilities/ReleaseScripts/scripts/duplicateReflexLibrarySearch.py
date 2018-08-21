@@ -34,7 +34,7 @@ typedefsDict = \
 #Ordered List to search for matched packages
 equivDict = \
      [
-	 {'TrajectoryState'         : ['TrajectoryStateOnSurface']},
+         {'TrajectoryState'         : ['TrajectoryStateOnSurface']},
          {'TrackTriggerAssociation' : ['(TTClusterAssociationMap|TTStubAssociationMap|TTTrackAssociationMap).*Phase2TrackerDigi',
                                        '(TTStub|TTCluster|TTTrack).*Phase2TrackerDigi']},
          {'L1TCalorimeter'        : ['l1t::CaloTower.*']},
@@ -48,21 +48,21 @@ equivDict = \
          {'Egamma'                : ['reco::ElectronID']},
          {'TopObjects'            : ['reco::CATopJetProperties']},
          {'TauReco'               : ['reco::L2TauIsolationInfo','reco::RecoTauPiZero','reco::BaseTau']},
-	 {'ValidationFormats'     : ['PGlobalDigi::.+','PGlobalRecHit::.+']},
+         {'ValidationFormats'     : ['PGlobalDigi::.+','PGlobalRecHit::.+']},
          {'TrajectorySeed'        : ['TrajectorySeed']},
          {'TrackCandidate'        : ['TrackCandidate']},
-	 {'PatternTools'          : ['MomentumConstraint','VertexConstraint','Trajectory']},
-	 {'TrackerRecHit2D'       : ['SiStrip(Matched|)RecHit[12]D','SiTrackerGSRecHit[12]D','SiPixelRecHit']},
-	 {'MuonReco'              : ['reco::Muon(Ref|)(Vector|)']},
-	 {'MuonSeed'              : ['L3MuonTrajectorySeed']},
-	 {'HepMCCandidate'        : ['reco::GenParticle.*']},
-	 {'L1Trigger'             : ['l1extra::L1.+Particle']},
-	 {'TrackInfo'             : ['reco::TrackingRecHitInfo']},
-	 {'EgammaCandidates'      : ['reco::GsfElectron.*','reco::Photon.*']},
-	 {'HcalIsolatedTrack'     : ['reco::IsolatedPixelTrackCandidate', 'reco::EcalIsolatedParticleCandidate', 'reco::HcalIsolatedTrackCandidate']},
-	 {'HcalRecHit'            : ['HFRecHit','HORecHit','ZDCRecHit','HBHERecHit']},
+         {'PatternTools'          : ['MomentumConstraint','VertexConstraint','Trajectory']},
+         {'TrackerRecHit2D'       : ['SiStrip(Matched|)RecHit[12]D','SiTrackerGSRecHit[12]D','SiPixelRecHit']},
+         {'MuonReco'              : ['reco::Muon(Ref|)(Vector|)']},
+         {'MuonSeed'              : ['L3MuonTrajectorySeed']},
+         {'HepMCCandidate'        : ['reco::GenParticle.*']},
+         {'L1Trigger'             : ['l1extra::L1.+Particle']},
+         {'TrackInfo'             : ['reco::TrackingRecHitInfo']},
+         {'EgammaCandidates'      : ['reco::GsfElectron.*','reco::Photon.*']},
+         {'HcalIsolatedTrack'     : ['reco::IsolatedPixelTrackCandidate', 'reco::EcalIsolatedParticleCandidate', 'reco::HcalIsolatedTrackCandidate']},
+         {'HcalRecHit'            : ['HFRecHit','HORecHit','ZDCRecHit','HBHERecHit']},
          {'PFRootEvent'           : ['EventColin::']},
-	 {'CaloTowers'            : ['CaloTower.*']},
+         {'CaloTowers'            : ['CaloTower.*']},
          {'GsfTrackReco'          : ['GsfTrack.*']},
          {'METReco'               : ['reco::(Calo|PF|Gen|)MET','reco::PFClusterMET']},
          {'ParticleFlowReco'      : ['reco::RecoPFClusterRefCandidateRef.*']},
@@ -96,10 +96,10 @@ def searchClassDefXml ():
     print("Searching for 'classes_def.xml' in '%s'." % os.path.join(os.environ.get('CMSSW_BASE'),'src'))
     xmlFiles = []
     for srcDir in [os.environ.get('CMSSW_BASE'),os.environ.get('CMSSW_RELEASE_BASE')]:
-      if not len(srcDir): continue
-      for xml in commands.getoutput ('cd '+os.path.join(srcDir,'src')+'; find . -name "*classes_def*.xml" -follow -print').split ('\n'):
-        if xml and (not xml in xmlFiles):
-          xmlFiles.append(xml)
+        if not len(srcDir): continue
+        for xml in commands.getoutput ('cd '+os.path.join(srcDir,'src')+'; find . -name "*classes_def*.xml" -follow -print').split ('\n'):
+            if xml and (not xml in xmlFiles):
+                xmlFiles.append(xml)
     if options.showXMLs:
         pprint.pprint (xmlFiles)
     # try and figure out the names of the packages
@@ -137,7 +137,7 @@ def searchClassDefXml ():
         simpleObjectREs = []
         if options.lostDefs:
             lostMatch = srcClassNameRE.search (filename)
-	    if lostMatch:
+            if lostMatch:
                 exceptName = lostMatch.group (1)
                 regexList = equivREs[exceptName]
                 xcount = len(regexList)-1
@@ -146,12 +146,12 @@ def searchClassDefXml ():
                     print(regexList[xcount][0])
                     sys.exit()
             else: continue
-	if options.verbose:
+        if options.verbose:
             print("filename", filename)
         try:
             filepath = os.path.join(os.environ.get('CMSSW_BASE'),'src',filename)
             if not os.path.exists(filepath):
-              filepath = os.path.join(os.environ.get('CMSSW_RELEASE_BASE'),'src',filename)
+                filepath = os.path.join(os.environ.get('CMSSW_RELEASE_BASE'),'src',filename)
             xmlObj = xml2obj (filename = filepath,
                               filtering = True,
                               nameChangeDict = ncdict)
@@ -250,21 +250,21 @@ def searchDuplicatePlugins ():
     if os.environ.get('SCRAM_ARCH').startswith('osx'): libenv = 'DYLD_FALLBACK_LIBRARY_PATH'
     biglib = '/biglib/'+os.environ.get('SCRAM_ARCH')
     for libdir in os.environ.get(libenv).split(':'):
-      if libdir.endswith(biglib): continue
-      if os.path.exists(libdir+'/.edmplugincache'): edmpluginFile = edmpluginFile + ' ' + libdir+'/.edmplugincache'
+        if libdir.endswith(biglib): continue
+        if os.path.exists(libdir+'/.edmplugincache'): edmpluginFile = edmpluginFile + ' ' + libdir+'/.edmplugincache'
     if edmpluginFile == '': edmpluginFile = os.path.join(os.environ.get('CMSSW_BASE'),'lib',os.environ.get('SCRAM_ARCH'),'.edmplugincache')
     cmd = "cat %s | awk '{print $2\" \"$1}' | sort | uniq | awk '{print $1}' | sort | uniq -c | grep '2 ' | awk '{print $2}'" % edmpluginFile
     output = commands.getoutput (cmd).split('\n')
     for line in output:
-      if line in ignoreEdmDP: continue
-      line = line.replace("*","\*")
-      cmd = "cat %s | grep ' %s ' | awk '{print $1}' | sort | uniq " % (edmpluginFile,line)
-      out1 = commands.getoutput (cmd).split('\n')
-      print(line)
-      for plugin in out1:
-        if plugin:
-            print("   **"+plugin+"**")
-      print()
+        if line in ignoreEdmDP: continue
+        line = line.replace("*","\*")
+        cmd = "cat %s | grep ' %s ' | awk '{print $1}' | sort | uniq " % (edmpluginFile,line)
+        out1 = commands.getoutput (cmd).split('\n')
+        print(line)
+        for plugin in out1:
+            if plugin:
+                print("   **"+plugin+"**")
+        print()
 
 if __name__ == "__main__":
     # setup options parser
