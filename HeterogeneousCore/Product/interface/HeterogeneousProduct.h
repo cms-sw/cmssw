@@ -117,7 +117,7 @@ namespace heterogeneous {
   template <typename FunctionTuple, typename ProductTuple, typename BitSetArray, typename FunctionTupleElement, size_t sizeMinusIndex>
   struct CallFunctionIf {
     static bool call(const FunctionTuple& functionTuple, ProductTuple& productTuple, const BitSetArray& bitsetArray) {
-      constexpr const auto index = bitsetArray.size()-sizeMinusIndex;
+      constexpr const auto index = std::tuple_size<BitSetArray>::value - sizeMinusIndex;
       if(bitsetArray[index].any()) {
         const auto func = std::get<index>(functionTuple);
         if(!func) {
@@ -133,7 +133,7 @@ namespace heterogeneous {
   template <typename FunctionTuple, typename ProductTuple, typename BitSetArray, size_t sizeMinusIndex>
   struct CallFunctionIf<FunctionTuple, ProductTuple, BitSetArray, Empty, sizeMinusIndex> {
     static bool call(const FunctionTuple& functionTuple, ProductTuple& productTuple, const BitSetArray& bitsetArray) {
-      constexpr const auto index = bitsetArray.size()-sizeMinusIndex;
+      constexpr const auto index = std::tuple_size<BitSetArray>::value - sizeMinusIndex;
       return CallFunctionIf<FunctionTuple, ProductTuple, BitSetArray,
                             TupleElement_t<index+1, FunctionTuple>, sizeMinusIndex-1>::call(functionTuple, productTuple, bitsetArray);
     }
@@ -165,7 +165,7 @@ namespace heterogeneous {
       constexpr const auto index = static_cast<unsigned int>(HeterogeneousDevice::kCPU);
       if(!location[index].any()) {
         auto found = CallFunctionIf<FunctionTuple, ProductTuple, BitSetArray,
-                                    std::tuple_element_t<1, FunctionTuple>, location.size()-1>::call(functionTuple, productTuple, location);
+                                    std::tuple_element_t<1, FunctionTuple>, std::tuple_size<BitSetArray>::value-1>::call(functionTuple, productTuple, location);
         if(!found) {
           throw cms::Exception("LogicError") << "Attempted to transfer data to CPU, but the data is not available anywhere! Location bitfield is " << bitsetArrayToString(location);
         }
