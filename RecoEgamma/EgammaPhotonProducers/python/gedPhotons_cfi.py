@@ -87,6 +87,7 @@ gedPhotons = cms.EDProducer("GEDPhotonProducer",
     RecHitSeverityToBeExcludedEB = cleanedHybridSuperClusters.RecHitSeverityToBeExcluded,
     RecHitFlagToBeExcludedEE = multi5x5BasicClustersCleaned.RecHitFlagToBeExcluded,
     RecHitSeverityToBeExcludedEE = cleanedHybridSuperClusters.RecHitSeverityToBeExcluded,
+    checkHcalStatus = cms.bool(True),
 )
 
 

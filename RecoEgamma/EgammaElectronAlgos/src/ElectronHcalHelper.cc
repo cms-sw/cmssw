@@ -107,6 +107,16 @@ double ElectronHcalHelper::hcalESumDepth2( const SuperCluster & sc ,const std::v
    { return hcalIso_->getHcalESumDepth2(&sc) ; }
  }
 
+bool ElectronHcalHelper::hasActiveHcal( const reco::SuperCluster & sc ) 
+ {
+     if (cfg_.checkHcalStatus && cfg_.hOverEConeSize != 0 && cfg_.useTowers) {
+         return hadTower_->hasActiveHcal( sc );
+     } else {
+         return true;
+     }
+ }
+
+
 ElectronHcalHelper::~ElectronHcalHelper()
  {
   if (cfg_.hOverEConeSize==0)
