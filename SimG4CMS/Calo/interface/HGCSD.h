@@ -36,6 +36,7 @@ public:
 protected:
 
   double                  getEnergyDeposit(const G4Step* ) override;
+  using CaloSD::update;
   void                    update(const BeginOfJob *) override;
   void                    initRun() override;
   void                    initEvent(const BeginOfEvent*) override;
