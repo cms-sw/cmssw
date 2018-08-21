@@ -107,7 +107,29 @@ recoPFJetsWithSubstructure=cms.Sequence(recoPFJetsWithSubstructureTask)
 
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 
-from RecoJets.JetProducers.HiRecoPFJets_cff import recoPFJetsHI as _recoPFJetsHI
+from RecoJets.JetProducers.HiRecoPFJets_cff import PFTowers, akPu3PFJets, akPu4PFJets, akPu5PFJets, kt4PFJetsForRhoHI, hiFJRhoProducer, akCs3PFJets, akCs4PFJets
+
+recoPFJetsHITask =cms.Task(fixedGridRhoAll,
+                           fixedGridRhoFastjetAll,
+                           fixedGridRhoFastjetCentral,
+                           fixedGridRhoFastjetCentralChargedPileUp,
+                           fixedGridRhoFastjetCentralNeutral,
+			   ak4PFJets,
+			   ak4PFJetsCHS,
+                           ak8PFJetsCHS,
+                           PFTowers,			   
+			   akPu3PFJets,
+			   akPu4PFJets,
+			   akPu5PFJets,
+			   kt4PFJetsForRhoHI,
+			   hiFJRhoProducer,
+			   akCs3PFJets,
+			   akCs4PFJets
+
+   )
+_recoPFJetsHI   = cms.Sequence(recoPFJetsHITask)
+
 
 for e in [pp_on_AA_2018]:
  e.toReplaceWith(recoPFJets, _recoPFJetsHI)
+
