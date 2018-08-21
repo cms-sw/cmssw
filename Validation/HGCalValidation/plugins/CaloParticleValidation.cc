@@ -167,6 +167,12 @@ CaloParticleValidation::dqmAnalyze(edm::Event const& iEvent, edm::EventSetup con
   reco::PFCandidateCollection const & simPFCandidates = *simPFCandidatesHandle;
 
   for (auto const caloParticle : caloParticles) {
+    if (caloParticle.g4Tracks()[0].eventId().event() != 0 or caloParticle.g4Tracks()[0].eventId().bunchCrossing() != 0) {
+      LogDebug("CaloParticleValidation") << "Excluding CaloParticles from event: "
+        << caloParticle.g4Tracks()[0].eventId().event()
+        << " with BX: " << caloParticle.g4Tracks()[0].eventId().bunchCrossing() << std::endl;
+      continue;
+    }
     int id = caloParticle.pdgId();
     if (histos.count(id)) {
       auto & histo = histos.at(id);
@@ -256,7 +262,7 @@ CaloParticleValidation::fillDescriptions(edm::ConfigurationDescriptions& descrip
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
   desc.add<std::string>("folder", "HGCAL/"); // Please keep the trailing '/'
-  desc.add<std::vector<int> > ("particles_to_monitor", {11, -11, 13, 22, 111, 211, -211, 321, -321});
+  desc.add<std::vector<int> > ("particles_to_monitor", {11, -11, 13, -13, 22, 111, 211, -211, 321, -321});
   desc.add<edm::InputTag>("simVertices", edm::InputTag("g4SimHits"));
   desc.add<edm::InputTag>("caloParticles", edm::InputTag("mix", "MergedCaloTruth"));
   desc.add<edm::InputTag>("simPFClusters", edm::InputTag("simPFProducer", "perfect"));
