@@ -30,7 +30,7 @@ EcalDQMonitorTask::runOnCollection(edm::Event const& _evt, ecaldqm::Collections 
 
   CollectionClass const* collection(hndl.product());
 
-  executeOnWorkers_([collection, _col, &_enabledTasks, this](ecaldqm::DQWorker* worker){
+  executeOnWorkers_([collection, _col, &_enabledTasks](ecaldqm::DQWorker* worker){
                       if(_enabledTasks.find(worker) != _enabledTasks.end())
                         static_cast<ecaldqm::DQWorkerTask*>(worker)->analyze(collection, _col);
                     }, "analyze");

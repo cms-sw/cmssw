@@ -43,7 +43,7 @@
       0, 0, 0, 1, 0,  0, 0, 0, 1, 0,  0, 0, 0, 1, 0,
       0, 0, 0, 1, 0,  0, 0, 0, 1, 0,  0, 0, 0, 1, 0,
       0, 0, 0, 1, 0 </Vector>
-    <Numeric name="FirstLayer"       value="9"/>
+    <Numeric name="FirstLayer"       value="[hgcal:FirstMixedLayer]"/>
     <Vector name="TopMaterialNames" type="string" nEntries="3">
       materials:Cables, materials:H_Scintillator, 
       materials:M_NEMA FR4 plate</Vector>
