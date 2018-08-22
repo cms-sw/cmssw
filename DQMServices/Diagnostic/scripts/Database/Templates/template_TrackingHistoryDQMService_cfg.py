@@ -72,7 +72,7 @@ process.siStripDQMHistoryPopCon = cms.EDAnalyzer(
                 since = cms.untracked.uint32(RUNNUMBER),
                 RunNb = cms.uint32(RUNNUMBER),
                 iovSequence = cms.untracked.bool(False),
-                debug = cms.untracked.bool(False)
+                debug = cms.untracked.bool(False),
                 ## DQMStoreReader
                 accessDQMFile = cms.bool(True),
                 FILE_NAME = cms.untracked.string("FILENAME"),
