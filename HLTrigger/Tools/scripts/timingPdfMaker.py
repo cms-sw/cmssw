@@ -58,11 +58,11 @@ def maininfo(infile, outfile):
     ''' Creates main info tex file'''
 ##############################################################
     texpreamble = ['\documentclass[10pt,a5paper,landscape]{report}\n',
-                    '\usepackage{graphicx}\n',
-                    '\usepackage[a5paper,vmargin={5mm,2mm},hmargin={5mm,5mm}]{geometry}\n',
-                    '\usepackage[linktocpage]{hyperref}\n',
+                   '\\usepackage{graphicx}\n',
+                    '\\usepackage[a5paper,vmargin={5mm,2mm},hmargin={5mm,5mm}]{geometry}\n',
+                    '\\usepackage[linktocpage]{hyperref}\n',
                     '\hypersetup{backref, colorlinks=true}\n',
-                    '\\title{ \\textbf{\Huge{HLT Timing Summary}} \\footnote{\large{Documentation at \url{https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideHLTTimingSummary}}} \\\\ Main Info }\n',
+                    '\\title{ \\textbf{\Huge{HLT Timing Summary}} \\footnote{\large{Documentation at \\url{https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideHLTTimingSummary}}} \\\\ Main Info }\n',
                     '\\author{\Large{CMS Experiment}}\n',
                     '\date{\\today}\n',
                     '\\begin{document}\n',
@@ -134,13 +134,13 @@ def pathsinfo(infile,outfile):
 ################################################
 
     texpreamble = ['\documentclass[10pt,a5paper,landscape]{book}\n',
-                    '\usepackage{graphicx}\n',
-                    '\usepackage[a5paper,vmargin={5mm,2mm},hmargin={5mm,5mm}]{geometry}\n',
-                    '\usepackage[linktocpage]{hyperref}\n',
-                    '\usepackage[titles]{tocloft}\n'
+                    '\\usepackage{graphicx}\n',
+                    '\\usepackage[a5paper,vmargin={5mm,2mm},hmargin={5mm,5mm}]{geometry}\n',
+                    '\\usepackage[linktocpage]{hyperref}\n',
+                    '\\usepackage[titles]{tocloft}\n'
                     '\hypersetup{backref, colorlinks=true}\n',
                     '\setlength{\cftsecnumwidth}{4em}\n'
-                    '\\title{ \\textbf{\Huge{HLT Timing Summary}} \\footnote{\large{Documentation at \url{https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideHLTTimingSummary}}} \\\\ Paths Info }\n',
+                    '\\title{ \\textbf{\Huge{HLT Timing Summary}} \\footnote{\large{Documentation at \\url{https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideHLTTimingSummary}}} \\\\ Paths Info }\n',
                     '\\author{\Large{CMS Experiment}}\n',
                     '\date{\\today}\n',
                     '\\begin{document}\n',
@@ -194,13 +194,13 @@ def moduleinfo(infile,outfile):
 ################################################
 
     texpreamble = ['\documentclass[10pt,a5paper,landscape]{report}\n',
-                    '\usepackage{graphicx}\n',
-                    '\usepackage[a5paper,vmargin={5mm,2mm},hmargin={5mm,5mm}]{geometry}\n',
-                    '\usepackage[linktocpage]{hyperref}\n',
+                    '\\usepackage{graphicx}\n',
+                    '\\usepackage[a5paper,vmargin={5mm,2mm},hmargin={5mm,5mm}]{geometry}\n',
+                    '\\usepackage[linktocpage]{hyperref}\n',
                     '\hypersetup{backref, colorlinks=true}\n',
-                    '\usepackage[titles]{tocloft}\n'
+                    '\\usepackage[titles]{tocloft}\n'
                     '\setlength{\cftsecnumwidth}{4em}\n'
-                    '\\title{ \\textbf{\Huge{HLT Timing Summary}} \\footnote{\large{Documentation at \url{https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideHLTTimingSummary}}} \\\\ Modules Info }\n',
+                    '\\title{ \\textbf{\Huge{HLT Timing Summary}} \\footnote{\large{Documentation at \\url{https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideHLTTimingSummary}}} \\\\ Modules Info }\n',
                     '\\author{\Large{CMS Experiment}}\n',
                     '\date{\\today}\n',
                     '\\begin{document}\n',
@@ -248,13 +248,13 @@ def specificpathinfo(infile, outfile, path):
     ''' Creates an specific path info tex file'''
 ##############################################################
     texpreamble = ['\documentclass[10pt,a5paper,landscape]{report}\n',
-                    '\usepackage{graphicx}\n',
-                    '\usepackage[a5paper,vmargin={5mm,2mm},hmargin={5mm,5mm}]{geometry}\n',
-                    '\usepackage[linktocpage]{hyperref}\n',
-                    '\usepackage[titles]{tocloft}\n'
+                    '\\usepackage{graphicx}\n',
+                    '\\usepackage[a5paper,vmargin={5mm,2mm},hmargin={5mm,5mm}]{geometry}\n',
+                    '\\usepackage[linktocpage]{hyperref}\n',
+                    '\\usepackage[titles]{tocloft}\n'
                     '\hypersetup{backref, colorlinks=true}\n',
                     '\setlength{\cftsubsecnumwidth}{4em}\n'
-                    '\\title{ \\textbf{\Huge{HLT Timing Summary}} \\footnote{\large{Documentation at \url{https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideHLTTimingSummary}}} \\\\ Main Info + ' + path.replace('_','\_') +' info }\n',
+                    '\\title{ \\textbf{\Huge{HLT Timing Summary}} \\footnote{\large{Documentation at \\url{https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideHLTTimingSummary}}} \\\\ Main Info + ' + path.replace('_','\_') +' info }\n',
                     '\\author{\Large{CMS Experiment}}\n',
                     '\date{\\today}\n',
                     '\\begin{document}\n',
