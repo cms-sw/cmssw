@@ -107,6 +107,10 @@ void EgammaHLTIslandClusterProducer::fillDescriptions(edm::ConfigurationDescript
   desc.add<double>("regionEtaMargin", 0.3);
   desc.add<double>("regionPhiMargin", 0.4);
   //desc.add<edm::ParameterSet>("posCalcParameters"), edm::ParameterSet());
+  desc.add<std::vector<std::string>>("SeedRecHitFlagToBeExcludedEB", {});
+  desc.add<std::vector<std::string>>("SeedRecHitFlagToBeExcludedEE", {});
+  desc.add<std::vector<std::string>>("RecHitFlagToBeExcludedEB", {});
+  desc.add<std::vector<std::string>>("RecHitFlagToBeExcludedEE", {});
   descriptions.add("hltEgammaHLTIslandClusterProducer", desc);  
 }
 
