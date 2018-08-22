@@ -1,3 +1,4 @@
+from __future__ import print_function
 # has to be called with python -i interactiveExample.py
 
 from PhysicsTools.PythonAnalysis import *
@@ -5,7 +6,7 @@ from ROOT import *
 
 # prepare the FWLite autoloading mechanism
 gSystem.Load("libFWCoreFWLite.so")
-FWLiteEnabler::enable()
+ROOT.FWLiteEnabler.enable()
 
 # enable support for files > 2 GB
 gSystem.Load("libIOPoolTFileAdaptor")
@@ -17,15 +18,15 @@ theFile = TFile.Open("castor:/castor/cern.ch/cms/store/CSA06/CSA06-106-os-Jets-0
 
 
 # access the event tree
-print "=============================="
-print "Loading event tree"
+print("==============================")
+print("Loading event tree")
 events = EventTree(theFile)
 
-print "Start looping over some events"
+print("Start looping over some events")
 for event in events:
-    photons = event.photons
-    print "  Number of photons in event %i: %i" % (event, len(photons))
-    if event > 2: break  # workaround will become obsolete 
+      photons = event.photons
+      print("  Number of photons in event %i: %i" % (event, len(photons)))
+      if event > 2: break  # workaround will become obsolete 
 
 
 
