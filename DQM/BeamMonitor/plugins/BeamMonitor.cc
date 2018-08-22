@@ -19,6 +19,7 @@ V00-03-25
 
 #include "DQM/BeamMonitor/plugins/BeamMonitor.h"
 #include "DQMServices/Core/interface/QReport.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
@@ -111,7 +112,6 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   minVtxNdf_      = parameters_.getParameter<ParameterSet>("PVFitter").getUntrackedParameter<double>("minVertexNdf");
   minVtxWgt_      = parameters_.getParameter<ParameterSet>("PVFitter").getUntrackedParameter<double>("minVertexMeanWeight");
 
-  dbe_            = Service<DQMStore>().operator->();
 
   if (monitorName_ != "" ) monitorName_ = monitorName_+"/" ;
 
@@ -139,6 +139,8 @@ BeamMonitor::~BeamMonitor() {
 //--------------------------------------------------------
 void BeamMonitor::beginJob() {
 
+  auto dbe = Service<DQMStore>().operator->();
+
 
   // book some histograms here
   const int    dxBin = parameters_.getParameter<int>("dxBin");
@@ -158,27 +160,27 @@ void BeamMonitor::beginJob() {
   const double dzMax  = parameters_.getParameter<double>("dzMax");
 
   // create and cd into new folder
-  dbe_->setCurrentFolder(monitorName_+"Fit");
+  dbe->setCurrentFolder(monitorName_+"Fit");
 
-  h_nTrk_lumi=dbe_->book1D("nTrk_lumi","Num. of selected tracks vs lumi (Fit)",20,0.5,20.5);
+  h_nTrk_lumi=dbe->book1D("nTrk_lumi","Num. of selected tracks vs lumi (Fit)",20,0.5,20.5);
   h_nTrk_lumi->setAxisTitle("Lumisection",1);
   h_nTrk_lumi->setAxisTitle("Num of Tracks for Fit",2);
 
   //store vtx vs lumi for monitoring why fits fail
-  h_nVtx_lumi=dbe_->book1D("nVtx_lumi","Num. of selected Vtx vs lumi (Fit)",20,0.5,20.5);
+  h_nVtx_lumi=dbe->book1D("nVtx_lumi","Num. of selected Vtx vs lumi (Fit)",20,0.5,20.5);
   h_nVtx_lumi->setAxisTitle("Lumisection",1);
   h_nVtx_lumi->setAxisTitle("Num of Vtx for Fit",2);
   
-  h_nVtx_lumi_all=dbe_->book1D("nVtx_lumi_all","Num. of selected Vtx vs lumi (Fit) all",20,0.5,20.5);
+  h_nVtx_lumi_all=dbe->book1D("nVtx_lumi_all","Num. of selected Vtx vs lumi (Fit) all",20,0.5,20.5);
   h_nVtx_lumi_all->getTH1()->SetCanExtend(TH1::kAllAxes);
   h_nVtx_lumi_all->setAxisTitle("Lumisection",1);
   h_nVtx_lumi_all->setAxisTitle("Num of Vtx for Fit",2);
 
-  h_d0_phi0 = dbe_->bookProfile("d0_phi0","d_{0} vs. #phi_{0} (Selected Tracks)",phiBin,phiMin,phiMax,dxBin,dxMin,dxMax,"");
+  h_d0_phi0 = dbe->bookProfile("d0_phi0","d_{0} vs. #phi_{0} (Selected Tracks)",phiBin,phiMin,phiMax,dxBin,dxMin,dxMax,"");
   h_d0_phi0->setAxisTitle("#phi_{0} (rad)",1);
   h_d0_phi0->setAxisTitle("d_{0} (cm)",2);
 
-  h_vx_vy = dbe_->book2D("trk_vx_vy","Vertex (PCA) position of selected tracks",vxBin,vxMin,vxMax,vxBin,vxMin,vxMax);
+  h_vx_vy = dbe->book2D("trk_vx_vy","Vertex (PCA) position of selected tracks",vxBin,vxMin,vxMax,vxBin,vxMin,vxMax);
   h_vx_vy->getTH2F()->SetOption("COLZ");
   //   h_vx_vy->getTH1()->SetCanExtend(TH1::kAllAxes);
   h_vx_vy->setAxisTitle("x coordinate of input track at PCA (cm)",1);
@@ -192,7 +194,7 @@ void BeamMonitor::beginJob() {
   string label[nvar_] = {"x_{0} (cm)","y_{0} (cm)","z_{0} (cm)",
 			 "#sigma_{X_{0}} (cm)","#sigma_{Y_{0}} (cm)","#sigma_{Z_{0}} (cm)"};
   for (int i = 0; i < 4; i++) {
-    dbe_->setCurrentFolder(monitorName_+"Fit");
+    dbe->setCurrentFolder(monitorName_+"Fit");
     for (int ic=0; ic<nvar_; ++ic) {
       TString histName(coord[ic]);
       TString histTitle(coord[ic]);
@@ -211,7 +213,7 @@ void BeamMonitor::beginJob() {
 	break;
       case 2: // PV vs lumi
 	if (ic < 3) {
-	  dbe_->setCurrentFolder(monitorName_+"PrimaryVertex");
+	  dbe->setCurrentFolder(monitorName_+"PrimaryVertex");
 	  histName.Insert(0,"PV");
 	  histName += "_lumi";
 	  histTitle.Insert(0,"Avg. ");
@@ -226,7 +228,7 @@ void BeamMonitor::beginJob() {
 	break;
       case 3: // PV vs time
 	if (ic < 3) {
-	  dbe_->setCurrentFolder(monitorName_+"PrimaryVertex");
+	  dbe->setCurrentFolder(monitorName_+"PrimaryVertex");
 	  histName.Insert(0,"PV");
 	  histName += "_time";
 	  histTitle.Insert(0,"Avg. ");
@@ -250,7 +252,7 @@ void BeamMonitor::beginJob() {
       }
       if (createHisto) {
 	edm::LogInfo("BeamMonitor") << "hitsName = " << histName << "; histTitle = " << histTitle << std::endl;
-	hs[histName] = dbe_->book1D(histName,histTitle,40,0.5,40.5);
+	hs[histName] = dbe->book1D(histName,histTitle,40,0.5,40.5);
 	hs[histName]->setAxisTitle(xtitle,1);
 	hs[histName]->setAxisTitle(ytitle,2);
 	hs[histName]->getTH1()->SetOption("E1");
@@ -262,7 +264,7 @@ void BeamMonitor::beginJob() {
 	}
 	histName += "_all";
 	histTitle += " all";
-	hs[histName] = dbe_->book1D(histName,histTitle,40,0.5,40.5);
+	hs[histName] = dbe->book1D(histName,histTitle,40,0.5,40.5);
 	hs[histName]->getTH1()->SetCanExtend(TH1::kAllAxes);
 	hs[histName]->setAxisTitle(xtitle,1);
 	hs[histName]->setAxisTitle(ytitle,2);
@@ -276,54 +278,54 @@ void BeamMonitor::beginJob() {
       }
     }
   }
-  dbe_->setCurrentFolder(monitorName_+"Fit");
+  dbe->setCurrentFolder(monitorName_+"Fit");
 
-  h_trk_z0 = dbe_->book1D("trk_z0","z_{0} of selected tracks",dzBin,dzMin,dzMax);
+  h_trk_z0 = dbe->book1D("trk_z0","z_{0} of selected tracks",dzBin,dzMin,dzMax);
   h_trk_z0->setAxisTitle("z_{0} of selected tracks (cm)",1);
 
-  h_vx_dz = dbe_->bookProfile("vx_dz","v_{x} vs. dz of selected tracks",dzBin,dzMin,dzMax,dxBin,dxMin,dxMax,"");
+  h_vx_dz = dbe->bookProfile("vx_dz","v_{x} vs. dz of selected tracks",dzBin,dzMin,dzMax,dxBin,dxMin,dxMax,"");
   h_vx_dz->setAxisTitle("dz (cm)",1);
   h_vx_dz->setAxisTitle("x coordinate of input track at PCA (cm)",2);
 
-  h_vy_dz = dbe_->bookProfile("vy_dz","v_{y} vs. dz of selected tracks",dzBin,dzMin,dzMax,dxBin,dxMin,dxMax,"");
+  h_vy_dz = dbe->bookProfile("vy_dz","v_{y} vs. dz of selected tracks",dzBin,dzMin,dzMax,dxBin,dxMin,dxMax,"");
   h_vy_dz->setAxisTitle("dz (cm)",1);
   h_vy_dz->setAxisTitle("y coordinate of input track at PCA (cm)",2);
 
-  h_x0 = dbe_->book1D("BeamMonitorFeedBack_x0","x coordinate of beam spot (Fit)",100,-0.01,0.01);
+  h_x0 = dbe->book1D("BeamMonitorFeedBack_x0","x coordinate of beam spot (Fit)",100,-0.01,0.01);
   h_x0->setAxisTitle("x_{0} (cm)",1);
   h_x0->getTH1()->SetCanExtend(TH1::kAllAxes);
 
-  h_y0 = dbe_->book1D("BeamMonitorFeedBack_y0","y coordinate of beam spot (Fit)",100,-0.01,0.01);
+  h_y0 = dbe->book1D("BeamMonitorFeedBack_y0","y coordinate of beam spot (Fit)",100,-0.01,0.01);
   h_y0->setAxisTitle("y_{0} (cm)",1);
   h_y0->getTH1()->SetCanExtend(TH1::kAllAxes);
 
-  h_z0 = dbe_->book1D("BeamMonitorFeedBack_z0","z coordinate of beam spot (Fit)",dzBin,dzMin,dzMax);
+  h_z0 = dbe->book1D("BeamMonitorFeedBack_z0","z coordinate of beam spot (Fit)",dzBin,dzMin,dzMax);
   h_z0->setAxisTitle("z_{0} (cm)",1);
   h_z0->getTH1()->SetCanExtend(TH1::kAllAxes);
 
-  h_sigmaX0 = dbe_->book1D("BeamMonitorFeedBack_sigmaX0","sigma x0 of beam spot (Fit)",100,0,0.05);
+  h_sigmaX0 = dbe->book1D("BeamMonitorFeedBack_sigmaX0","sigma x0 of beam spot (Fit)",100,0,0.05);
   h_sigmaX0->setAxisTitle("#sigma_{X_{0}} (cm)",1);
   h_sigmaX0->getTH1()->SetCanExtend(TH1::kAllAxes);
 
-  h_sigmaY0 = dbe_->book1D("BeamMonitorFeedBack_sigmaY0","sigma y0 of beam spot (Fit)",100,0,0.05);
+  h_sigmaY0 = dbe->book1D("BeamMonitorFeedBack_sigmaY0","sigma y0 of beam spot (Fit)",100,0,0.05);
   h_sigmaY0->setAxisTitle("#sigma_{Y_{0}} (cm)",1);
   h_sigmaY0->getTH1()->SetCanExtend(TH1::kAllAxes);
 
-  h_sigmaZ0 = dbe_->book1D("BeamMonitorFeedBack_sigmaZ0","sigma z0 of beam spot (Fit)",100,0,10);
+  h_sigmaZ0 = dbe->book1D("BeamMonitorFeedBack_sigmaZ0","sigma z0 of beam spot (Fit)",100,0,10);
   h_sigmaZ0->setAxisTitle("#sigma_{Z_{0}} (cm)",1);
   h_sigmaZ0->getTH1()->SetCanExtend(TH1::kAllAxes);
 
   // Histograms of all reco tracks (without cuts):
-  h_trkPt=dbe_->book1D("trkPt","p_{T} of all reco'd tracks (no selection)",200,0.,50.);
+  h_trkPt=dbe->book1D("trkPt","p_{T} of all reco'd tracks (no selection)",200,0.,50.);
   h_trkPt->setAxisTitle("p_{T} (GeV/c)",1);
 
-  h_trkVz=dbe_->book1D("trkVz","Z coordinate of PCA of all reco'd tracks (no selection)",dzBin,dzMin,dzMax);
+  h_trkVz=dbe->book1D("trkVz","Z coordinate of PCA of all reco'd tracks (no selection)",dzBin,dzMin,dzMax);
   h_trkVz->setAxisTitle("V_{Z} (cm)",1);
 
-  cutFlowTable = dbe_->book1D("cutFlowTable","Cut flow table of track selection", 9, 0, 9 );
+  cutFlowTable = dbe->book1D("cutFlowTable","Cut flow table of track selection", 9, 0, 9 );
 
   // Results of previous good fit:
-  fitResults=dbe_->book2D("fitResults","Results of previous good beam fit",2,0,2,8,0,8);
+  fitResults=dbe->book2D("fitResults","Results of previous good beam fit",2,0,2,8,0,8);
   fitResults->setAxisTitle("Fitted Beam Spot (cm)",1);
   fitResults->setBinLabel(8,"x_{0}",2);
   fitResults->setBinLabel(7,"y_{0}",2);
@@ -338,48 +340,48 @@ void BeamMonitor::beginJob() {
   fitResults->getTH1()->SetOption("text");
 
   // Histos of PrimaryVertices:
-  dbe_->setCurrentFolder(monitorName_+"PrimaryVertex");
+  dbe->setCurrentFolder(monitorName_+"PrimaryVertex");
 
-  h_nVtx = dbe_->book1D("vtxNbr","Reconstructed Vertices(non-fake) in all Event",60,-0.5,59.5);
+  h_nVtx = dbe->book1D("vtxNbr","Reconstructed Vertices(non-fake) in all Event",60,-0.5,59.5);
   h_nVtx->setAxisTitle("Num. of reco. vertices",1);
   
   //For one Trigger only
-  h_nVtx_st = dbe_->book1D("vtxNbr_SelectedTriggers","Reconstructed Vertices(non-fake) in Events",60,-0.5,59.5);
+  h_nVtx_st = dbe->book1D("vtxNbr_SelectedTriggers","Reconstructed Vertices(non-fake) in Events",60,-0.5,59.5);
   //h_nVtx_st->setAxisTitle("Num. of reco. vertices for Un-Prescaled Jet Trigger",1);
 
   // Monitor only the PV with highest sum pt of assoc. trks:
-  h_PVx[0] = dbe_->book1D("PVX","x coordinate of Primary Vtx",50,-0.01,0.01);
+  h_PVx[0] = dbe->book1D("PVX","x coordinate of Primary Vtx",50,-0.01,0.01);
   h_PVx[0]->setAxisTitle("PVx (cm)",1);
   h_PVx[0]->getTH1()->SetCanExtend(TH1::kAllAxes);
 
-  h_PVy[0] = dbe_->book1D("PVY","y coordinate of Primary Vtx",50,-0.01,0.01);
+  h_PVy[0] = dbe->book1D("PVY","y coordinate of Primary Vtx",50,-0.01,0.01);
   h_PVy[0]->setAxisTitle("PVy (cm)",1);
   h_PVy[0]->getTH1()->SetCanExtend(TH1::kAllAxes);
 
-  h_PVz[0] = dbe_->book1D("PVZ","z coordinate of Primary Vtx",dzBin,dzMin,dzMax);
+  h_PVz[0] = dbe->book1D("PVZ","z coordinate of Primary Vtx",dzBin,dzMin,dzMax);
   h_PVz[0]->setAxisTitle("PVz (cm)",1);
 
-  h_PVx[1] = dbe_->book1D("PVXFit","x coordinate of Primary Vtx (Last Fit)",50,-0.01,0.01);
+  h_PVx[1] = dbe->book1D("PVXFit","x coordinate of Primary Vtx (Last Fit)",50,-0.01,0.01);
   h_PVx[1]->setAxisTitle("PVx (cm)",1);
   h_PVx[1]->getTH1()->SetCanExtend(TH1::kAllAxes);
 
-  h_PVy[1] = dbe_->book1D("PVYFit","y coordinate of Primary Vtx (Last Fit)",50,-0.01,0.01);
+  h_PVy[1] = dbe->book1D("PVYFit","y coordinate of Primary Vtx (Last Fit)",50,-0.01,0.01);
   h_PVy[1]->setAxisTitle("PVy (cm)",1);
   h_PVy[1]->getTH1()->SetCanExtend(TH1::kAllAxes);
 
-  h_PVz[1] = dbe_->book1D("PVZFit","z coordinate of Primary Vtx (Last Fit)",dzBin,dzMin,dzMax);
+  h_PVz[1] = dbe->book1D("PVZFit","z coordinate of Primary Vtx (Last Fit)",dzBin,dzMin,dzMax);
   h_PVz[1]->setAxisTitle("PVz (cm)",1);
 
-  h_PVxz = dbe_->bookProfile("PVxz","PVx vs. PVz",dzBin/2,dzMin,dzMax,dxBin/2,dxMin,dxMax,"");
+  h_PVxz = dbe->bookProfile("PVxz","PVx vs. PVz",dzBin/2,dzMin,dzMax,dxBin/2,dxMin,dxMax,"");
   h_PVxz->setAxisTitle("PVz (cm)",1);
   h_PVxz->setAxisTitle("PVx (cm)",2);
 
-  h_PVyz = dbe_->bookProfile("PVyz","PVy vs. PVz",dzBin/2,dzMin,dzMax,dxBin/2,dxMin,dxMax,"");
+  h_PVyz = dbe->bookProfile("PVyz","PVy vs. PVz",dzBin/2,dzMin,dzMax,dxBin/2,dxMin,dxMax,"");
   h_PVyz->setAxisTitle("PVz (cm)",1);
   h_PVyz->setAxisTitle("PVy (cm)",2);
 
   // Results of previous good fit:
-  pvResults=dbe_->book2D("pvResults","Results of fitting Primary Vertices",2,0,2,6,0,6);
+  pvResults=dbe->book2D("pvResults","Results of fitting Primary Vertices",2,0,2,6,0,6);
   pvResults->setAxisTitle("Fitted Primary Vertex (cm)",1);
   pvResults->setBinLabel(6,"PVx",2);
   pvResults->setBinLabel(5,"PVy",2);
@@ -392,22 +394,22 @@ void BeamMonitor::beginJob() {
   pvResults->getTH1()->SetOption("text");
 
   // Summary plots:
-  dbe_->setCurrentFolder(monitorName_+"EventInfo");
-  reportSummary = dbe_->get(monitorName_+"EventInfo/reportSummary");
-  if (reportSummary) dbe_->removeElement(reportSummary->getName());
+  dbe->setCurrentFolder(monitorName_+"EventInfo");
+  reportSummary = dbe->get(monitorName_+"EventInfo/reportSummary");
+  if (reportSummary) dbe->removeElement(reportSummary->getName());
 
-  reportSummary = dbe_->bookFloat("reportSummary");
+  reportSummary = dbe->bookFloat("reportSummary");
   if(reportSummary) reportSummary->Fill(std::numeric_limits<double>::quiet_NaN());
 
   char histo[20];
-  dbe_->setCurrentFolder(monitorName_+"EventInfo/reportSummaryContents");
+  dbe->setCurrentFolder(monitorName_+"EventInfo/reportSummaryContents");
   for (int n = 0; n < nFitElements_; n++) {
     switch(n){
     case 0 : sprintf(histo,"x0_status"); break;
     case 1 : sprintf(histo,"y0_status"); break;
     case 2 : sprintf(histo,"z0_status"); break;
     }
-    reportSummaryContents[n] = dbe_->bookFloat(histo);
+    reportSummaryContents[n] = dbe->bookFloat(histo);
   }
 
   for (int i = 0; i < nFitElements_; i++) {
@@ -415,12 +417,12 @@ void BeamMonitor::beginJob() {
     reportSummaryContents[i]->Fill(std::numeric_limits<double>::quiet_NaN());
   }
 
-  dbe_->setCurrentFolder(monitorName_+"EventInfo");
+  dbe->setCurrentFolder(monitorName_+"EventInfo");
 
-  reportSummaryMap = dbe_->get(monitorName_+"EventInfo/reportSummaryMap");
-  if (reportSummaryMap) dbe_->removeElement(reportSummaryMap->getName());
+  reportSummaryMap = dbe->get(monitorName_+"EventInfo/reportSummaryMap");
+  if (reportSummaryMap) dbe->removeElement(reportSummaryMap->getName());
 
-  reportSummaryMap = dbe_->book2D("reportSummaryMap", "Beam Spot Summary Map", 1, 0, 1, 3, 0, 3);
+  reportSummaryMap = dbe->book2D("reportSummaryMap", "Beam Spot Summary Map", 1, 0, 1, 3, 0, 3);
   reportSummaryMap->setAxisTitle("",1);
   reportSummaryMap->setAxisTitle("Fitted Beam Spot",2);
   reportSummaryMap->setBinLabel(1," ",1);
@@ -585,23 +587,21 @@ void BeamMonitor::analyze(const Event& iEvent,
   iEvent.getByToken(bsSrc_,recoBeamSpotHandle);
   refBS = *recoBeamSpotHandle;
 
-  dbe_->setCurrentFolder(monitorName_+"Fit/");
-
   //------Cut Flow Table filled every event!--------------------------------------
-  std::string cutFlowTableName = cutFlowTable->getName();
-  // Make a copy of the cut flow table from the beam fitter.
-  TH1F * tmphisto =
-    static_cast<TH1F*>((theBeamFitter->getCutFlow())->Clone("tmphisto"));
-  cutFlowTable->getTH1()->SetBins(
-      tmphisto->GetNbinsX(),
-      tmphisto->GetXaxis()->GetXmin(),
-      tmphisto->GetXaxis()->GetXmax());
-  // Update the bin labels
-  if (countEvt_ == 1) // SetLabel just once
-    for(int n=0; n < tmphisto->GetNbinsX(); n++)
-      cutFlowTable->setBinLabel(n+1,tmphisto->GetXaxis()->GetBinLabel(n+1),1);
-  cutFlowTable = dbe_->book1D(cutFlowTableName, tmphisto);
-  delete tmphisto;
+  {
+    // Make a copy of the cut flow table from the beam fitter.
+    auto tmphisto = static_cast<TH1F*>(theBeamFitter->getCutFlow());
+    cutFlowTable->getTH1()->SetBins(
+                                    tmphisto->GetNbinsX(),
+                                    tmphisto->GetXaxis()->GetXmin(),
+                                    tmphisto->GetXaxis()->GetXmax());
+    // Update the bin labels
+    if (countEvt_ == 1) // SetLabel just once
+      for(int n=0; n < tmphisto->GetNbinsX(); n++)
+        cutFlowTable->setBinLabel(n+1,tmphisto->GetXaxis()->GetBinLabel(n+1),1);
+    cutFlowTable->Reset();
+    cutFlowTable->getTH1()->Add(tmphisto);
+  }
 
   //----Reco tracks -------------------------------------
   Handle<reco::TrackCollection> TrackCollection;
@@ -913,16 +913,14 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       pvResults->setBinContent(2,6,meanErr);
       pvResults->setBinContent(2,3,widthErr);
 
-      dbe_->setCurrentFolder(monitorName_+"PrimaryVertex/");
-      const char* tmpfile;
-      TH1D * tmphisto;
-      // snap shot of the fit
-      tmpfile= (h_PVx[1]->getName()).c_str();
-      tmphisto = static_cast<TH1D *>((h_PVx[0]->getTH1())->Clone("tmphisto"));
-      h_PVx[1]->getTH1()->SetBins(tmphisto->GetNbinsX(),tmphisto->GetXaxis()->GetXmin(),tmphisto->GetXaxis()->GetXmax());
-      h_PVx[1] = dbe_->book1D(tmpfile,h_PVx[0]->getTH1F());
-      h_PVx[1]->getTH1()->Fit(fgaus.get(),"QLM");
-
+      {
+        // snap shot of the fit
+        auto tmphisto = h_PVx[0]->getTH1F();
+        h_PVx[1]->getTH1()->SetBins(tmphisto->GetNbinsX(),tmphisto->GetXaxis()->GetXmin(),tmphisto->GetXaxis()->GetXmax());
+        h_PVx[1]->Reset();
+        h_PVx[1]->getTH1()->Add(tmphisto);
+        h_PVx[1]->getTH1()->Fit(fgaus.get(),"QLM");
+      }
 
       h_PVy[0]->getTH1()->Fit(fgaus.get(),"QLM0");
       mean = fgaus->GetParameter(1);
@@ -945,13 +943,14 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       pvResults->setBinContent(2,5,meanErr);
       pvResults->setBinContent(2,2,widthErr);
       // snap shot of the fit
-      tmpfile= (h_PVy[1]->getName()).c_str();
-      tmphisto = static_cast<TH1D *>((h_PVy[0]->getTH1())->Clone("tmphisto"));
-      h_PVy[1]->getTH1()->SetBins(tmphisto->GetNbinsX(),tmphisto->GetXaxis()->GetXmin(),tmphisto->GetXaxis()->GetXmax());
-      h_PVy[1]->update();
-      h_PVy[1] = dbe_->book1D(tmpfile,h_PVy[0]->getTH1F());
-      h_PVy[1]->getTH1()->Fit(fgaus.get(),"QLM");
-
+      {
+        auto tmphisto = h_PVy[0]->getTH1F();
+        h_PVy[1]->getTH1()->SetBins(tmphisto->GetNbinsX(),tmphisto->GetXaxis()->GetXmin(),tmphisto->GetXaxis()->GetXmax());
+        h_PVy[1]->update();
+        h_PVy[1]->Reset();
+        h_PVy[1]->getTH1()->Add(tmphisto);
+        h_PVy[1]->getTH1()->Fit(fgaus.get(),"QLM");
+      }
 
       h_PVz[0]->getTH1()->Fit(fgaus.get(),"QLM0");
       mean = fgaus->GetParameter(1);
@@ -973,15 +972,15 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       pvResults->setBinContent(1,1,width);
       pvResults->setBinContent(2,4,meanErr);
       pvResults->setBinContent(2,1,widthErr);
-      // snap shot of the fit
-      tmpfile= (h_PVz[1]->getName()).c_str();
-      tmphisto = static_cast<TH1D *>((h_PVz[0]->getTH1())->Clone("tmphisto"));
-      h_PVz[1]->getTH1()->SetBins(tmphisto->GetNbinsX(),tmphisto->GetXaxis()->GetXmin(),tmphisto->GetXaxis()->GetXmax());
-      h_PVz[1]->update();
-      h_PVz[1] = dbe_->book1D(tmpfile,h_PVz[0]->getTH1F());
-      h_PVz[1]->getTH1()->Fit(fgaus.get(),"QLM");
-      delete tmphisto;
-
+      {
+        // snap shot of the fit
+        auto tmphisto = h_PVz[0]->getTH1F();
+        h_PVz[1]->getTH1()->SetBins(tmphisto->GetNbinsX(),tmphisto->GetXaxis()->GetXmin(),tmphisto->GetXaxis()->GetXmax());
+        h_PVz[1]->update();
+        h_PVz[1]->Reset();
+        h_PVz[1]->getTH1()->Add(tmphisto);
+        h_PVz[1]->getTH1()->Fit(fgaus.get(),"QLM");
+      }
     }//check if found min Vertices
   }//do PVfit
 
@@ -1380,12 +1379,6 @@ mapLSPVStoreSize.clear();
 mapLSCF.clear();
 
 
-}
-
-//--------------------------------------------------------
-void BeamMonitor::endJob(const LuminosityBlock& lumiSeg,
-			 const EventSetup& iSetup){
-  if (!onlineMode_) endLuminosityBlock(lumiSeg, iSetup);
 }
 
 //--------------------------------------------------------
