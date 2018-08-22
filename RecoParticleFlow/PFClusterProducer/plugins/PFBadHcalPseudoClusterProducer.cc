@@ -163,7 +163,7 @@ PFBadHcalPseudoClusterProducer::produce(edm::Event& iEvent, const edm::EventSetu
 
 void PFBadHcalPseudoClusterProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<bool>("enable", true);
+    desc.add<bool>("enable", false)->setComment("activate the module (if false, it doesn't check the DB and produces an empty collection)");
     desc.addUntracked<bool>("debug", false);
     descriptions.add("particleFlowBadHcalPseudoCluster", desc);
 }
