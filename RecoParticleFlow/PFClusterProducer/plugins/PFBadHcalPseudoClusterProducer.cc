@@ -42,7 +42,7 @@ using namespace edm;
 class PFBadHcalPseudoClusterProducer : public edm::stream::EDProducer<> {
     public:
         explicit PFBadHcalPseudoClusterProducer(const edm::ParameterSet&);
-        ~PFBadHcalPseudoClusterProducer();
+        ~PFBadHcalPseudoClusterProducer() override;
 
         static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
