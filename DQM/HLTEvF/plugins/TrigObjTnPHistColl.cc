@@ -4,9 +4,7 @@
 
 namespace{
   std::vector<float> convertToFloat(const std::vector<double>& vecD){
-    std::vector<float> vecF;
-    for(double x : vecD) vecF.push_back(x);
-    return vecF;
+    return std::vector<float>(vecD.begin(),vecD.end());
   }
 }
 
@@ -20,7 +18,8 @@ TrigObjTnPHistColl::TrigObjTnPHistColl(const edm::ParameterSet& config):
   evtTrigSel_(config.getParameter<edm::ParameterSet>("evtTrigSel"))
   
 {
-  for(auto probeFilter : config.getParameter<std::vector<std::string> >("probeFilters")){
+  auto probeFilters = config.getParameter<std::vector<std::string> >("probeFilters");
+  for(auto& probeFilter : probeFilters){
     probeHists_.emplace_back(ProbeData(std::move(probeFilter)));
   }
 }
