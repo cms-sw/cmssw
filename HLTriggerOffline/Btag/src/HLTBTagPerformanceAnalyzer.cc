@@ -222,7 +222,6 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 			for(auto entry = vars.begin(); entry != vars.end(); ++entry) 
 				{
 				if ( keepSet.find(TaggingVariableTokens[entry->first]) != keepSet.end()) {  // if Input name in defined list to keep
-					std::cout << entry->first  << TaggingVariableTokens[entry->first] <<  entry->second << std::endl;  //for debugging
 					try {H1_.at(ind)[TaggingVariableTokens[entry->first]] -> Fill(std::fmax(0.0, entry->second));  }
 					catch (const std::exception& e) {
 						continue;
@@ -318,14 +317,6 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm
 			H1_.back()[JetTagCollection_Label[ind]]      -> setAxisTitle(JetTagCollection_Label[ind] +"discriminant",1);
 			//Input storing 
 			ibooker.setCurrentFolder(dqmFolder+"/inputs");
-			/*for (int i=0; i < 100; i++) {
-				if ( keepSet.find(TaggingVariableTokens[i]) != keepSet.end()) { // if input name in defined set
-					std::string inpt = TaggingVariableTokens[i];
-					H1_.back()[inpt]       = ibooker.book1D(inpt,inpt,  105 , -5  , 100.);
-					H1_.back()[inpt]      -> setAxisTitle(inpt,1);
-					}
-				else continue;
-			} */
 			ibooker.setCurrentFolder(dqmFolder+"/inputs/Jet");
 			for (int i=0; i < 100; i++) {
 				if ( keepSetJet.find(TaggingVariableTokens[i]) != keepSetJet.end()) { // if input name in defined set
