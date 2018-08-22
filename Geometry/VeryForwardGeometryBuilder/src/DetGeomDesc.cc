@@ -30,13 +30,13 @@ DetGeomDesc::DetGeomDesc(nav_type navtype, GeometricEnumType type) : _ddd(std::m
 	_trans = ev.translation();
 	_rot = ev.rotation();
 	_shape = ((ev.logicalPart()).solid()).shape();
-	_ddname = ((ev.logicalPart()).ddname()).name();
+	_name = ((ev.logicalPart()).ddname()).name();
 	_parents = ev.geoHistory();
 	_volume   = ((ev.logicalPart()).solid()).volume();
 	_density  = ((ev.logicalPart()).material()).density();
 	_weight   = _density * ( _volume / 1000.); // volume mm3->cm3
 	_copy     = ev.copyno();
-	_material = ((ev.logicalPart()).material()).name();
+	_material = ((ev.logicalPart()).material()).name().fullname();
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -48,13 +48,13 @@ DetGeomDesc::DetGeomDesc(DDExpandedView* fv, GeometricEnumType type) : _type(typ
 	_trans = fv->translation();
 	_rot = fv->rotation();
 	_shape = ((fv->logicalPart()).solid()).shape();
-	_ddname = ((fv->logicalPart()).ddname()).name();
+	_name = ((fv->logicalPart()).ddname()).name();
 	_parents = fv->geoHistory();
 	_volume   = ((fv->logicalPart()).solid()).volume();  
 	_density  = ((fv->logicalPart()).material()).density();
 	_weight   = _density * ( _volume / 1000.); // volume mm3->cm3
 	_copy     = fv->copyno();
-	_material = ((fv->logicalPart()).material()).name();
+	_material = ((fv->logicalPart()).material()).name().fullname();
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -66,13 +66,13 @@ DetGeomDesc::DetGeomDesc(DDFilteredView* fv, GeometricEnumType type) : _type(typ
 	_trans = fv->translation();
 	_rot = fv->rotation();
 	_shape = ((fv->logicalPart()).solid()).shape();
-	_ddname = ((fv->logicalPart()).ddname()).name();
+	_name = ((fv->logicalPart()).ddname()).name();
 	_parents = fv->geoHistory();
 	_volume   = ((fv->logicalPart()).solid()).volume();
 	_density  = ((fv->logicalPart()).material()).density();
 	_weight   = _density * ( _volume / 1000.); // volume mm3->cm3
 	_copy     = fv->copyno();
-	_material = ((fv->logicalPart()).material()).name();
+	_material = ((fv->logicalPart()).material()).name().fullname();
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -91,7 +91,7 @@ DetGeomDesc& DetGeomDesc::operator= (const DetGeomDesc &ref)
 	_trans			= ref._trans;
 	_rot			= ref._rot;
 	_shape			= ref._shape;
-	_ddname			= ref._ddname;
+	_name			= ref._name;
 	_parents		= ref._parents;
 	_volume			= ref._volume;
 	_density		= ref._density;
