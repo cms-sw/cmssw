@@ -20,7 +20,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSTrkParameters.h"
 #include "RecoVertex/BeamSpotProducer/interface/BeamFitter.h"
@@ -53,8 +52,6 @@ class BeamMonitor : public edm::EDAnalyzer {
         const edm::EventSetup& c) override;
     // EndRun
     void endRun(const edm::Run& r, const edm::EventSetup& c) override;
-    // Endjob
-    void endJob(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
 
   private:
 
@@ -79,7 +76,6 @@ class BeamMonitor : public edm::EDAnalyzer {
     bool onlineMode_;
     std::vector<std::string> jetTrigger_;
 
-    DQMStore* dbe_;
     BeamFitter * theBeamFitter;
 
     int countEvt_;       //counter
