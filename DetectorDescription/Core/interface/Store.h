@@ -117,7 +117,6 @@ namespace DDI {
     struct Finalize
     {
       static void cleanup( I&& ptr ) {
-	ptr.reset( nullptr );
       }
     };
 
