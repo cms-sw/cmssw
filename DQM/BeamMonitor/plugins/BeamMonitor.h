@@ -151,7 +151,8 @@ class BeamMonitor : public edm::EDAnalyzer {
     MonitorElement * h_PVxz;
     MonitorElement * h_PVyz;
     MonitorElement * pvResults;
-    std::map<TString, MonitorElement*> hs;
+    std::vector<MonitorElement*> hs;
+    std::vector<MonitorElement*> hsTime;
 
     // The histo of the primary vertex for  DQM gui
     std::map<int, std::vector<float> > mapPVx,mapPVy,mapPVz;
