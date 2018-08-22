@@ -60,7 +60,21 @@ class BeamMonitor : public edm::EDAnalyzer {
     void scrollTH1(TH1 *, std::time_t);
     bool testScroll(std::time_t &, std::time_t &);
     void formatFitTime(char *, const std::time_t&);
-    edm::ParameterSet parameters_;
+    const int    dxBin_;
+    const double dxMin_;
+    const double dxMax_;
+
+    const int    vxBin_;
+    const double vxMin_;
+    const double vxMax_;
+
+    const int    phiBin_;
+    const double phiMin_;
+    const double phiMax_;
+
+    const int    dzBin_;
+    const double dzMin_;
+    const double dzMax_;
     std::string monitorName_;
     edm::EDGetTokenT<reco::BeamSpot> bsSrc_; // beam spot
     edm::EDGetTokenT<reco::TrackCollection> tracksLabel_;

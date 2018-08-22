@@ -84,38 +84,53 @@ void BeamMonitor::formatFitTime(char *ts, const time_t & t )  {
 // constructors and destructor
 //
 BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
+  dxBin_( ps.getParameter<int>("dxBin") ),
+  dxMin_( ps.getParameter<double>("dxMin") ),
+  dxMax_( ps.getParameter<double>("dxMax") ),
+
+  vxBin_(ps.getParameter<int>("vxBin")),
+  vxMin_(ps.getParameter<double>("vxMin")),
+  vxMax_(ps.getParameter<double>("vxMax")),
+
+  phiBin_(ps.getParameter<int>("phiBin")),
+  phiMin_(ps.getParameter<double>("phiMin")),
+  phiMax_(ps.getParameter<double>("phiMax")),
+
+  dzBin_(ps.getParameter<int>("dzBin")),
+  dzMin_(ps.getParameter<double>("dzMin")),
+  dzMax_(ps.getParameter<double>("dzMax")),
+
   countEvt_(0),countLumi_(0),nthBSTrk_(0),nFitElements_(3),resetHistos_(false),StartAverage_(false),firstAverageFit_(0),countGapLumi_(0) {
 
-  parameters_     = ps;
-  monitorName_    = parameters_.getUntrackedParameter<string>("monitorName","YourSubsystemName");
+  monitorName_    = ps.getUntrackedParameter<string>("monitorName","YourSubsystemName");
   bsSrc_          = consumes<reco::BeamSpot>(
-      parameters_.getUntrackedParameter<InputTag>("beamSpot"));
+      ps.getUntrackedParameter<InputTag>("beamSpot"));
   tracksLabel_    = consumes<reco::TrackCollection>(
-      parameters_.getParameter<ParameterSet>("BeamFitter")
+      ps.getParameter<ParameterSet>("BeamFitter")
       .getUntrackedParameter<InputTag>("TrackCollection"));
   pvSrc_          = consumes<reco::VertexCollection>(
-      parameters_.getUntrackedParameter<InputTag>("primaryVertex"));
+      ps.getUntrackedParameter<InputTag>("primaryVertex"));
   hltSrc_         = consumes<TriggerResults>(
-      parameters_.getParameter<InputTag>("hltResults"));
-  intervalInSec_  = parameters_.getUntrackedParameter<int>("timeInterval",920);//40 LS X 23"
-  fitNLumi_       = parameters_.getUntrackedParameter<int>("fitEveryNLumi",-1);
-  resetFitNLumi_  = parameters_.getUntrackedParameter<int>("resetEveryNLumi",-1);
-  fitPVNLumi_     = parameters_.getUntrackedParameter<int>("fitPVEveryNLumi",-1);
-  resetPVNLumi_   = parameters_.getUntrackedParameter<int>("resetPVEveryNLumi",-1);
-  deltaSigCut_    = parameters_.getUntrackedParameter<double>("deltaSignificanceCut",15);
-  debug_          = parameters_.getUntrackedParameter<bool>("Debug");
-  onlineMode_     = parameters_.getUntrackedParameter<bool>("OnlineMode");
-  jetTrigger_     = parameters_.getUntrackedParameter<std::vector<std::string> >("jetTrigger");
-  min_Ntrks_      = parameters_.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<int>("MinimumInputTracks");
-  maxZ_           = parameters_.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<double>("MaximumZ");
-  minNrVertices_  = parameters_.getParameter<ParameterSet>("PVFitter").getUntrackedParameter<unsigned int>("minNrVerticesForFit");
-  minVtxNdf_      = parameters_.getParameter<ParameterSet>("PVFitter").getUntrackedParameter<double>("minVertexNdf");
-  minVtxWgt_      = parameters_.getParameter<ParameterSet>("PVFitter").getUntrackedParameter<double>("minVertexMeanWeight");
+      ps.getParameter<InputTag>("hltResults"));
+  intervalInSec_  = ps.getUntrackedParameter<int>("timeInterval",920);//40 LS X 23"
+  fitNLumi_       = ps.getUntrackedParameter<int>("fitEveryNLumi",-1);
+  resetFitNLumi_  = ps.getUntrackedParameter<int>("resetEveryNLumi",-1);
+  fitPVNLumi_     = ps.getUntrackedParameter<int>("fitPVEveryNLumi",-1);
+  resetPVNLumi_   = ps.getUntrackedParameter<int>("resetPVEveryNLumi",-1);
+  deltaSigCut_    = ps.getUntrackedParameter<double>("deltaSignificanceCut",15);
+  debug_          = ps.getUntrackedParameter<bool>("Debug");
+  onlineMode_     = ps.getUntrackedParameter<bool>("OnlineMode");
+  jetTrigger_     = ps.getUntrackedParameter<std::vector<std::string> >("jetTrigger");
+  min_Ntrks_      = ps.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<int>("MinimumInputTracks");
+  maxZ_           = ps.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<double>("MaximumZ");
+  minNrVertices_  = ps.getParameter<ParameterSet>("PVFitter").getUntrackedParameter<unsigned int>("minNrVerticesForFit");
+  minVtxNdf_      = ps.getParameter<ParameterSet>("PVFitter").getUntrackedParameter<double>("minVertexNdf");
+  minVtxWgt_      = ps.getParameter<ParameterSet>("PVFitter").getUntrackedParameter<double>("minVertexMeanWeight");
 
 
   if (monitorName_ != "" ) monitorName_ = monitorName_+"/" ;
 
-  theBeamFitter = new BeamFitter(parameters_, consumesCollector());
+  theBeamFitter = new BeamFitter(ps, consumesCollector());
   theBeamFitter->resetTrkVector();
   theBeamFitter->resetLSRange();
   theBeamFitter->resetRefTime();
@@ -143,21 +158,6 @@ void BeamMonitor::beginJob() {
 
 
   // book some histograms here
-  const int    dxBin = parameters_.getParameter<int>("dxBin");
-  const double dxMin  = parameters_.getParameter<double>("dxMin");
-  const double dxMax  = parameters_.getParameter<double>("dxMax");
-
-  const int    vxBin = parameters_.getParameter<int>("vxBin");
-  const double vxMin  = parameters_.getParameter<double>("vxMin");
-  const double vxMax  = parameters_.getParameter<double>("vxMax");
-
-  const int    phiBin = parameters_.getParameter<int>("phiBin");
-  const double phiMin  = parameters_.getParameter<double>("phiMin");
-  const double phiMax  = parameters_.getParameter<double>("phiMax");
-
-  const int    dzBin = parameters_.getParameter<int>("dzBin");
-  const double dzMin  = parameters_.getParameter<double>("dzMin");
-  const double dzMax  = parameters_.getParameter<double>("dzMax");
 
   // create and cd into new folder
   dbe->setCurrentFolder(monitorName_+"Fit");
@@ -176,11 +176,11 @@ void BeamMonitor::beginJob() {
   h_nVtx_lumi_all->setAxisTitle("Lumisection",1);
   h_nVtx_lumi_all->setAxisTitle("Num of Vtx for Fit",2);
 
-  h_d0_phi0 = dbe->bookProfile("d0_phi0","d_{0} vs. #phi_{0} (Selected Tracks)",phiBin,phiMin,phiMax,dxBin,dxMin,dxMax,"");
+  h_d0_phi0 = dbe->bookProfile("d0_phi0","d_{0} vs. #phi_{0} (Selected Tracks)",phiBin_,phiMin_,phiMax_,dxBin_,dxMin_,dxMax_,"");
   h_d0_phi0->setAxisTitle("#phi_{0} (rad)",1);
   h_d0_phi0->setAxisTitle("d_{0} (cm)",2);
 
-  h_vx_vy = dbe->book2D("trk_vx_vy","Vertex (PCA) position of selected tracks",vxBin,vxMin,vxMax,vxBin,vxMin,vxMax);
+  h_vx_vy = dbe->book2D("trk_vx_vy","Vertex (PCA) position of selected tracks",vxBin_,vxMin_,vxMax_,vxBin_,vxMin_,vxMax_);
   h_vx_vy->getTH2F()->SetOption("COLZ");
   //   h_vx_vy->getTH1()->SetCanExtend(TH1::kAllAxes);
   h_vx_vy->setAxisTitle("x coordinate of input track at PCA (cm)",1);
@@ -280,14 +280,14 @@ void BeamMonitor::beginJob() {
   }
   dbe->setCurrentFolder(monitorName_+"Fit");
 
-  h_trk_z0 = dbe->book1D("trk_z0","z_{0} of selected tracks",dzBin,dzMin,dzMax);
+  h_trk_z0 = dbe->book1D("trk_z0","z_{0} of selected tracks",dzBin_,dzMin_,dzMax_);
   h_trk_z0->setAxisTitle("z_{0} of selected tracks (cm)",1);
 
-  h_vx_dz = dbe->bookProfile("vx_dz","v_{x} vs. dz of selected tracks",dzBin,dzMin,dzMax,dxBin,dxMin,dxMax,"");
+  h_vx_dz = dbe->bookProfile("vx_dz","v_{x} vs. dz of selected tracks",dzBin_,dzMin_,dzMax_,dxBin_,dxMin_,dxMax_,"");
   h_vx_dz->setAxisTitle("dz (cm)",1);
   h_vx_dz->setAxisTitle("x coordinate of input track at PCA (cm)",2);
 
-  h_vy_dz = dbe->bookProfile("vy_dz","v_{y} vs. dz of selected tracks",dzBin,dzMin,dzMax,dxBin,dxMin,dxMax,"");
+  h_vy_dz = dbe->bookProfile("vy_dz","v_{y} vs. dz of selected tracks",dzBin_,dzMin_,dzMax_,dxBin_,dxMin_,dxMax_,"");
   h_vy_dz->setAxisTitle("dz (cm)",1);
   h_vy_dz->setAxisTitle("y coordinate of input track at PCA (cm)",2);
 
@@ -299,7 +299,7 @@ void BeamMonitor::beginJob() {
   h_y0->setAxisTitle("y_{0} (cm)",1);
   h_y0->getTH1()->SetCanExtend(TH1::kAllAxes);
 
-  h_z0 = dbe->book1D("BeamMonitorFeedBack_z0","z coordinate of beam spot (Fit)",dzBin,dzMin,dzMax);
+  h_z0 = dbe->book1D("BeamMonitorFeedBack_z0","z coordinate of beam spot (Fit)",dzBin_,dzMin_,dzMax_);
   h_z0->setAxisTitle("z_{0} (cm)",1);
   h_z0->getTH1()->SetCanExtend(TH1::kAllAxes);
 
@@ -319,7 +319,7 @@ void BeamMonitor::beginJob() {
   h_trkPt=dbe->book1D("trkPt","p_{T} of all reco'd tracks (no selection)",200,0.,50.);
   h_trkPt->setAxisTitle("p_{T} (GeV/c)",1);
 
-  h_trkVz=dbe->book1D("trkVz","Z coordinate of PCA of all reco'd tracks (no selection)",dzBin,dzMin,dzMax);
+  h_trkVz=dbe->book1D("trkVz","Z coordinate of PCA of all reco'd tracks (no selection)",dzBin_,dzMin_,dzMax_);
   h_trkVz->setAxisTitle("V_{Z} (cm)",1);
 
   cutFlowTable = dbe->book1D("cutFlowTable","Cut flow table of track selection", 9, 0, 9 );
@@ -358,7 +358,7 @@ void BeamMonitor::beginJob() {
   h_PVy[0]->setAxisTitle("PVy (cm)",1);
   h_PVy[0]->getTH1()->SetCanExtend(TH1::kAllAxes);
 
-  h_PVz[0] = dbe->book1D("PVZ","z coordinate of Primary Vtx",dzBin,dzMin,dzMax);
+  h_PVz[0] = dbe->book1D("PVZ","z coordinate of Primary Vtx",dzBin_,dzMin_,dzMax_);
   h_PVz[0]->setAxisTitle("PVz (cm)",1);
 
   h_PVx[1] = dbe->book1D("PVXFit","x coordinate of Primary Vtx (Last Fit)",50,-0.01,0.01);
@@ -369,14 +369,14 @@ void BeamMonitor::beginJob() {
   h_PVy[1]->setAxisTitle("PVy (cm)",1);
   h_PVy[1]->getTH1()->SetCanExtend(TH1::kAllAxes);
 
-  h_PVz[1] = dbe->book1D("PVZFit","z coordinate of Primary Vtx (Last Fit)",dzBin,dzMin,dzMax);
+  h_PVz[1] = dbe->book1D("PVZFit","z coordinate of Primary Vtx (Last Fit)",dzBin_,dzMin_,dzMax_);
   h_PVz[1]->setAxisTitle("PVz (cm)",1);
 
-  h_PVxz = dbe->bookProfile("PVxz","PVx vs. PVz",dzBin/2,dzMin,dzMax,dxBin/2,dxMin,dxMax,"");
+  h_PVxz = dbe->bookProfile("PVxz","PVx vs. PVz",dzBin_/2,dzMin_,dzMax_,dxBin_/2,dxMin_,dxMax_,"");
   h_PVxz->setAxisTitle("PVz (cm)",1);
   h_PVxz->setAxisTitle("PVx (cm)",2);
 
-  h_PVyz = dbe->bookProfile("PVyz","PVy vs. PVz",dzBin/2,dzMin,dzMax,dxBin/2,dxMin,dxMax,"");
+  h_PVyz = dbe->bookProfile("PVyz","PVy vs. PVz",dzBin_/2,dzMin_,dzMax_,dxBin_/2,dxMin_,dxMax_,"");
   h_PVyz->setAxisTitle("PVz (cm)",1);
   h_PVyz->setAxisTitle("PVy (cm)",2);
 
