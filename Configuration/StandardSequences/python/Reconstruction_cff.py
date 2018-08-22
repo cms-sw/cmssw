@@ -158,6 +158,7 @@ _highlevelreco_HI = highlevelreco.copy()
 _highlevelreco_HI += hiCentrality
 _highlevelreco_HI += hiClusterCompatibility
 (pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(highlevelreco, _highlevelreco_HI)
+pp_on_AA_2018.toReplaceWith(highlevelreco,highlevelreco.copyAndExclude([PFTau]))
 
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 from RecoHI.HiTracking.HILowPtConformalPixelTracks_cfi import *
