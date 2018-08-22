@@ -670,7 +670,7 @@ HLT_Mu9_IP4_part4_v*	#	CMSHLT-1886
 HLT_Mu8_IP5_part4_v*	#	CMSHLT-1886
 HLT_Mu8_IP6_part4_v*	#	CMSHLT-1886
 HLT_ZeroBias_Alignment_v*	#	CMSHLT-1892
-HLT_CDC_L2cosmic_5p5_er1p0_v*	#	CMSHLT-1896
+# HLT_CDC_L2cosmic_5p5_er1p0_v*	#	CMSHLT-1896 removed with CMSHLT-1967
 HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed_NoL2Matched_v*	#	CMSHLT-1907
 HLT_DoubleL2Mu25NoVtx_2Cha_CosmicSeed_NoL2Matched_v*	#	CMSHLT-1907
 HLT_DoubleL2Mu23NoVtx_2Cha_NoL2Matched_v*	#	CMSHLT-1907
@@ -696,7 +696,14 @@ HLT_Mu8_IP6_ToCSCS_v*	#	CMSHLT-1951
 HLT_Mu9_IP4_ToCSCS_v*	#	CMSHLT-1951
 HLT_Mu9_IP5_ToCSCS_v*	#	CMSHLT-1951
 HLT_Mu9_IP6_ToCSCS_v*	#	CMSHLT-1951
-HLT_CDC_L2cosmic_10_er1p0_v*	#	CMSHLT-1896
+HLT_CDC_L2cosmic_10_er1p0_v*	#	CMSHLT-1967
+HLT_DiPFJet15_NoCaloMatched_v*		#	CMSHLT-1972
+HLT_DiPFJet25_NoCaloMatched_v*		#	CMSHLT-1972
+HLT_DiPFJet15_FBEta3_NoCaloMatched_v*	#	CMSHLT-1972
+HLT_DiPFJet25_FBEta3_NoCaloMatched_v*	#	CMSHLT-1972
+HLT_DiPFJetAve15_HFJEC_v*		#	CMSHLT-1972
+HLT_DiPFJetAve25_HFJEC_v*		#	CMSHLT-1972
+HLT_DiPFJetAve35_HFJEC_v*		#	CMSHLT-1972
 
 ## EndPath ##
 
