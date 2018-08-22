@@ -41,6 +41,92 @@ hiConformalPixelTracks = cms.EDProducer("PixelTrackProducer",
                                         Cleaner = cms.string("trackCleaner")
                                         )
 
+
+
+
+
+###Pixel Tracking -  PhaseI geometry
+
+#Tracking regions - use PV from pp tracking
+from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cfi import globalTrackingRegionWithVertices
+hiConformalPixelTracksPhase1TrackingRegions = globalTrackingRegionWithVertices.clone(RegionPSet=dict(
+    precise = True,
+    useMultipleScattering = False,
+    useFakeVertices       = False,
+    beamSpot = "offlineBeamSpot",
+    useFixedError = True,
+    nSigmaZ = 3.0,
+    sigmaZVertex = 3.0,
+    fixedError = 0.2,
+    VertexCollection = "offlinePrimaryVertices",
+    ptMin = 0.3,
+    useFoundVertices = True,
+    originRadius = 0.2 
+))
+
+# SEEDING LAYERS
+# Using 4 layers layerlist
+from RecoTracker.IterativeTracking.LowPtQuadStep_cff import lowPtQuadStepSeedLayers
+hiConformalPixelTracksPhase1SeedLayers = lowPtQuadStepSeedLayers.clone()
+hiConformalPixelTracksPhase1SeedLayers.BPix = cms.PSet( 
+         HitProducer = cms.string('siPixelRecHits'),
+         TTRHBuilder = cms.string('WithTrackAngle'),
+)
+hiConformalPixelTracksPhase1SeedLayers.FPix = cms.PSet( 
+         HitProducer = cms.string('siPixelRecHits'),
+         TTRHBuilder = cms.string('WithTrackAngle'),
+)
+
+
+# Hit ntuplets
+from RecoTracker.IterativeTracking.LowPtQuadStep_cff import lowPtQuadStepHitDoublets
+hiConformalPixelTracksPhase1HitDoubletsCA = lowPtQuadStepHitDoublets.clone(
+        seedingLayers = "hiConformalPixelTracksPhase1SeedLayers",
+        trackingRegions = "hiConformalPixelTracksPhase1TrackingRegions"
+)
+
+
+from RecoTracker.IterativeTracking.LowPtQuadStep_cff import lowPtQuadStepHitQuadruplets
+hiConformalPixelTracksPhase1HitQuadrupletsCA = lowPtQuadStepHitQuadruplets.clone(
+	doublets = "hiConformalPixelTracksPhase1HitDoubletsCA",
+        CAPhiCut = 0.2,
+        CAThetaCut = 0.0012,
+	SeedComparitorPSet = cms.PSet( 
+           ComponentName = cms.string('none')
+        ),
+        extraHitRPhitolerance = 0.032,
+        maxChi2 = cms.PSet(
+           enabled = cms.bool(True),
+           pt1 = cms.double(0.7),
+           pt2 = cms.double(2),
+           value1 = cms.double(200),
+           value2 = cms.double(50)
+        )
+)
+
+#Filter
+hiConformalPixelTracksPhase1Filter = hiConformalPixelFilter.clone(
+	VertexCollection = "offlinePrimaryVertices",
+        chi2 = 999.9,
+        lipMax = 999.0,
+        nSigmaLipMaxTolerance = 999.9,
+        nSigmaTipMaxTolerance = 999.0,
+        ptMax = 999999,
+        ptMin = 0.30,
+        tipMax = 999.0
+)
+
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toModify(hiConformalPixelTracks,
+    Cleaner = 'pixelTrackCleanerBySharedHits',
+    Filter = "hiConformalPixelTracksPhase1Filter",
+    Fitter = "pixelFitterByConformalMappingAndLine",
+    SeedingHitSets = "hiConformalPixelTracksPhase1HitQuadrupletsCA",
+)
+
+
+
+
 hiConformalPixelTracksSequence = cms.Sequence(
     hiTrackingRegionWithVertex +
     hiConformalPixelTracksHitDoublets +
@@ -49,3 +135,14 @@ hiConformalPixelTracksSequence = cms.Sequence(
     hiConformalPixelFilter +
     hiConformalPixelTracks
 )
+
+hiConformalPixelTracksSequencePhase1 = cms.Sequence(
+    hiConformalPixelTracksPhase1TrackingRegions +
+    hiConformalPixelTracksPhase1SeedLayers +
+    hiConformalPixelTracksPhase1HitDoubletsCA +
+    hiConformalPixelTracksPhase1HitQuadrupletsCA +
+    pixelFitterByConformalMappingAndLine +
+    hiConformalPixelTracksPhase1Filter +
+    hiConformalPixelTracks
+)
+
