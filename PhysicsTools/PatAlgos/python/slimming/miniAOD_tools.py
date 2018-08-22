@@ -357,11 +357,12 @@ def miniAOD_customizeCommon(process):
     run2_miniAOD_94XFall17.toReplaceWith(
         process.makePatTausTask, _makePatTausTaskWithRetrainedMVATauID
         )
-    #-- Adding customization for 80X 2016 legacy reMiniAOD
+    #-- Adding customization for 80X 2016 legacy reMiniAOD and 2018 heavy ions
     from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+    from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
     _makePatTausTaskWithTauReReco = process.makePatTausTask.copy()
     _makePatTausTaskWithTauReReco.add(process.PFTauTask)
-    run2_miniAOD_80XLegacy.toReplaceWith(
+    (run2_miniAOD_80XLegacy | pp_on_AA_2018).toReplaceWith(
         process.makePatTausTask, _makePatTausTaskWithTauReReco
         )
     
