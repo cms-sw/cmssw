@@ -142,11 +142,28 @@ L1TkMuonProducer::L1TkMuonProducer(const edm::ParameterSet& iConfig) :
       TFile* fIn_phi   = TFile::Open (fIn_phi_name.c_str());
       dwcorr_ = std::unique_ptr<L1TkMuCorrDynamicWindows> (new L1TkMuCorrDynamicWindows(bounds, fIn_theta, fIn_phi));
 
-      // FIXME: can the file be closed here already ? Functions are cloned, but does ROOT attach them to file?
+      // files can be closed since the correlator code clones the TF1s
       fIn_theta->Close();
       fIn_phi->Close();
 
       // FIXME: more initialisation using the parameters passed from the cfg
+      dwcorr_->set_safety_factor  (iConfig.getParameter<double>("final_window_factor"));
+      dwcorr_->set_sf_initialrelax(iConfig.getParameter<double>("initial_window_factor"));
+      
+      dwcorr_->set_relaxation_pattern(
+        iConfig.getParameter<double>("pt_start_relax"),
+        iConfig.getParameter<double>("pt_end_relax")
+        );
+      
+      dwcorr_->set_do_relax_factor(iConfig.getParameter<bool>("do_relax_factors"));
+
+      //
+      dwcorr_ -> set_n_trk_par       (iConfig.getParameter<int>("n_trk_par"));
+      dwcorr_ -> set_min_trk_p       (iConfig.getParameter<double>("min_trk_p"));
+      dwcorr_ -> set_max_trk_aeta    (iConfig.getParameter<double>("max_trk_aeta"));
+      dwcorr_ -> set_max_trk_chi2    (iConfig.getParameter<double>("max_trk_chi2"));
+      dwcorr_ -> set_min_trk_nstubs  (iConfig.getParameter<int>("min_trk_nstubs"));
+      dwcorr_ -> set_do_trk_qual_presel(true);
    }
 }
 
