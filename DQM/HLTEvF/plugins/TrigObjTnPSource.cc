@@ -30,6 +30,8 @@ private:
   edm::EDGetTokenT<trigger::TriggerEvent> trigEvtToken_;
   edm::EDGetTokenT<edm::TriggerResults> trigResultsToken_;
   std::string hltProcess_;
+  //it would be more memory efficient to save this as a vector of TrigTnPHistColls and then use this to instance
+  //the TrigTnPHistColls for each run, something to do for the future
   std::vector<edm::ParameterSet> histCollConfigs_;
  
 };
