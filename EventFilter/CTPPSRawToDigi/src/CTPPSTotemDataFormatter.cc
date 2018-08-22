@@ -74,7 +74,7 @@ void CTPPSTotemDataFormatter::formatRawData(unsigned int lvl1_ID, RawData & fedR
 	    TotemRPDetId chipId(pf.first);
 	    for( auto &ch : pId.second ) {
         int chInWord = ch/16;
-        buf[9-chInWord] = (1 << (ch%16)); //data[8->1]
+        buf[9-chInWord] |= (1 << (ch%16)); //data[8->1]
         bufCRC[chInWord+1] = buf[9-chInWord];
 	    } 
 	    for (auto &ps : p.second) {
