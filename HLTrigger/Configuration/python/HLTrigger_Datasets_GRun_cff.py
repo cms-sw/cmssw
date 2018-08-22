@@ -193,7 +193,6 @@ streamPhysicsCommissioning_datasetNoBPTX_selector.l1tResults = cms.InputTag('')
 streamPhysicsCommissioning_datasetNoBPTX_selector.throw      = cms.bool(False)
 streamPhysicsCommissioning_datasetNoBPTX_selector.triggerConditions = cms.vstring(
     'HLT_CDC_L2cosmic_10_er1p0_v1', 
-    'HLT_CDC_L2cosmic_5p5_er1p0_v1', 
     'HLT_L2Mu10_NoVertex_NoBPTX3BX_v5', 
     'HLT_L2Mu10_NoVertex_NoBPTX_v6', 
     'HLT_L2Mu40_NoVertex_3Sta_NoBPTX3BX_v5', 
@@ -341,6 +340,27 @@ streamPhysicsEndOfFill_datasetEmptyBX_selector.triggerConditions = cms.vstring(
     'HLT_L1NotBptxOR_v3', 
     'HLT_L1UnpairedBunchBptxMinus_v2', 
     'HLT_L1UnpairedBunchBptxPlus_v2'
+)
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsEndOfFill_datasetFSQJet1_selector
+streamPhysicsEndOfFill_datasetFSQJet1_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsEndOfFill_datasetFSQJet1_selector.l1tResults = cms.InputTag('')
+streamPhysicsEndOfFill_datasetFSQJet1_selector.throw      = cms.bool(False)
+streamPhysicsEndOfFill_datasetFSQJet1_selector.triggerConditions = cms.vstring(
+    'HLT_DiPFJet15_NoCaloMatched_v16', 
+    'HLT_DiPFJet25_NoCaloMatched_v16'
+)
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsEndOfFill_datasetFSQJet2_selector
+streamPhysicsEndOfFill_datasetFSQJet2_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsEndOfFill_datasetFSQJet2_selector.l1tResults = cms.InputTag('')
+streamPhysicsEndOfFill_datasetFSQJet2_selector.throw      = cms.bool(False)
+streamPhysicsEndOfFill_datasetFSQJet2_selector.triggerConditions = cms.vstring(
+    'HLT_DiPFJet15_FBEta3_NoCaloMatched_v17', 
+    'HLT_DiPFJet25_FBEta3_NoCaloMatched_v17', 
+    'HLT_DiPFJetAve15_HFJEC_v17', 
+    'HLT_DiPFJetAve25_HFJEC_v17', 
+    'HLT_DiPFJetAve35_HFJEC_v17'
 )
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsEndOfFill_datasetHINCaloJets_selector
