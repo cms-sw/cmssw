@@ -40,19 +40,19 @@ autoCond = {
     # GlobalTag for Run2 HLT for HI: it points to the online GT
     'run2_hlt_hi'       :   '94X_dataRun2_HLTHI_frozen_v5',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
-    'phase1_2017_design'       :  '94X_mc2017_design_IdealBS_v11',
+    'phase1_2017_design'       :  '94X_mc2017_design_IdealBS_v12',
     # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
-    'phase1_2017_realistic'    : '94X_mc2017_realistic_v15',
+    'phase1_2017_realistic'    : '94X_mc2017_realistic_v16',
     # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in DECO mode
-    'phase1_2017_cosmics'      : '94X_mc2017cosmics_realistic_deco_v11',
+    'phase1_2017_cosmics'      : '94X_mc2017cosmics_realistic_deco_v13',
     # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in PEAK mode
-    'phase1_2017_cosmics_peak' : '94X_mc2017cosmics_realistic_peak_v11',
+    'phase1_2017_cosmics_peak' : '94X_mc2017cosmics_realistic_peak_v12',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for full Phase1 2018 (and 0,0,0-centred beamspot)
-    'phase1_2018_design'       : '94X_upgrade2018_design_IdealBS_v7',
+    'phase1_2018_design'       : '94X_upgrade2018_design_IdealBS_v8',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector
-    'phase1_2018_realistic'    : '94X_upgrade2018_realistic_v7',
+    'phase1_2018_realistic'    : '94X_upgrade2018_realistic_v9',
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in DECO mode
-    'phase1_2018_cosmics'      :   '94X_upgrade2018cosmics_realistic_deco_v6',
+    'phase1_2018_cosmics'      :   '94X_upgrade2018cosmics_realistic_deco_v7',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
     'phase1_2019_design'       : 'DES19_70_V2', # placeholder (GT not meant for standard RelVal) 
     # GlobalTag for MC production with realistic conditions for Phase2 2023
