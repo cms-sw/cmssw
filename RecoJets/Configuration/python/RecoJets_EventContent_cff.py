@@ -167,5 +167,22 @@ for ec in [RecoJetsAOD.outputCommands, RecoJetsRECO.outputCommands, RecoJetsFEVT
 for ec in [RecoJetsAOD.outputCommands, RecoJetsRECO.outputCommands, RecoJetsFEVT.outputCommands]:
     peripheralPbPb.toModify( ec, 
                              func=lambda outputCommands: outputCommands.extend(['keep recoCentrality*_pACentrality_*_*'])
-                             )
+    )
+
+#HI-specific products: needed in AOD, propagate to more inclusive tiers as well
+for ec in [RecoJetsAOD.outputCommands, RecoJetsRECO.outputCommands, RecoJetsFEVT.outputCommands]:
+    pp_on_AA_2018.toModify( ec, 
+                                   func=lambda outputCommands: outputCommands.extend(['keep *_hiCentrality_*_*',
+                                                                                      'keep *_hiFJRhoProducer_*_*',
+                                                                                      'keep *_akPu3PFJets_*_*',
+                                                                                      'keep *_akPu4PFJets_*_*',
+                                                                                      'keep *_akPu5PFJets_*_*',
+                                                                                      'keep *_kt4PFJetsForRhoHI_*_*',
+                                                                                      'keep *_akCs3PFJets_*_*',
+                                                                                      'keep *_akCs4PFJets_*_*',
+                                                                                      'keep *_akPu3CaloJets_*_*',
+                                                                                      'keep *_akPu4CaloJets_*_*',
+                                                                                      'keep *_akPu5CaloJets_*_*'
+                                                                         ])
+    )
     
