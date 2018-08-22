@@ -34,22 +34,16 @@ class DDDivision;
    \todo define a stable interface for navigation (don't expose the user to the graph!)
 */    
 // 
-DDCompactView::DDCompactView(const DDLogicalPart & rootnodedata)
+DDCompactView::DDCompactView( const DDLogicalPart & rootnodedata )
   : rep_( new DDCompactViewImpl( rootnodedata )),
     worldpos_( new DDPosData( DDTranslation(), DDRotation(), 0 ))
 {
-  // 2010-01-27 I am leaving this here so that we are sure the global stores
-  // are open when a new DDCompactView is being made.  Eventually I want to
-  // get rid of the need for this somehow? think about it...
   DDMaterial::StoreT::instance().setReadOnly(false);
   DDSolid::StoreT::instance().setReadOnly(false);
   DDLogicalPart::StoreT::instance().setReadOnly(false);
   DDSpecifics::StoreT::instance().setReadOnly(false);
   DDRotation::StoreT::instance().setReadOnly(false);
 }
-
-DDCompactView::~DDCompactView() 
-{}
 
 /** 
    The compact-view is kept in an acyclic directed multigraph represented
@@ -67,37 +61,40 @@ DDCompactView::walker() const
   return rep_->walker();
 }
 
-const DDLogicalPart & DDCompactView::root() const
+const DDLogicalPart &
+DDCompactView::root() const
 {
   return rep_->root(); 
 } 
   
-const DDPosData* DDCompactView::worldPosition() const
+const DDPosData*
+DDCompactView::worldPosition() const
 {
   return worldpos_.get();
 }
 
-void DDCompactView::position (const DDLogicalPart & self, 
-			      const DDLogicalPart & parent,
-			      const std::string& copyno,
-			      const DDTranslation & trans,
-			      const DDRotation & rot,
-			      const DDDivision * div)
+void
+DDCompactView::position( const DDLogicalPart & self, 
+			 const DDLogicalPart & parent,
+			 const std::string& copyno,
+			 const DDTranslation & trans,
+			 const DDRotation & rot,
+			 const DDDivision * div )
 {
-  int cpno = atoi(copyno.c_str());
-  position(self,parent,cpno,trans,rot, div);
+  int cpno = atoi( copyno.c_str());
+  position( self, parent, cpno, trans, rot, div );
 }
 
-void DDCompactView::position (const DDLogicalPart & self,
-			      const DDLogicalPart & parent,
-			      int copyno,
-			      const DDTranslation & trans,
-			      const DDRotation & rot,
-			      const DDDivision * div)
+void
+DDCompactView::position( const DDLogicalPart & self,
+			 const DDLogicalPart & parent,
+			 int copyno,
+			 const DDTranslation & trans,
+			 const DDRotation & rot,
+			 const DDDivision * div )
 {
   rep_->position( self, parent, copyno, trans, rot, div );
 }
-
 
 // >>---==========================<()>==========================---<<
 
@@ -114,26 +111,28 @@ void DDCompactView::swap( DDCompactView& repToSwap ) {
 DDCompactView::DDCompactView()
   : rep_(new DDCompactViewImpl),
     worldpos_( new DDPosData( DDTranslation(), DDRotation(), 0 ))
-{ }
+{}
 
-void DDCompactView::lockdown() {
-  // at this point we should have a valid store of DDObjects and we will move these
-  // to the local storage area using swaps with the existing Singleton<Store...>'s
-  // 2010-01-27 memory patch
-  DDMaterial::StoreT::instance().swap(matStore_);
-  DDSolid::StoreT::instance().swap(solidStore_);
-  DDLogicalPart::StoreT::instance().swap(lpStore_);
-  DDSpecifics::StoreT::instance().swap(specStore_);
-  DDRotation::StoreT::instance().swap(rotStore_);
+void
+DDCompactView::lockdown() {
+  // FIXME: The store is not read-only
+  // // at this point we should have a valid store of DDObjects and we will move these
+  // // to the local storage area using swaps with the existing Singleton<Store...>'s
+  // // 2010-01-27 memory patch
+  DDMaterial::StoreT::instance().swap( matStore_ );
+  DDSolid::StoreT::instance().swap( solidStore_ );
+  DDLogicalPart::StoreT::instance().swap( lpStore_ );
+  DDSpecifics::StoreT::instance().swap( specStore_ );
+  DDRotation::StoreT::instance().swap( rotStore_ );
 
-  // 2010-01-27 memory patch
-  // not sure this will stay, but for now we want to explicitely lock the global stores.
-  // lock the global stores.
-  DDMaterial::StoreT::instance().setReadOnly(false);
-  DDSolid::StoreT::instance().setReadOnly(false);
-  DDLogicalPart::StoreT::instance().setReadOnly(false);
-  DDSpecifics::StoreT::instance().setReadOnly(false);
-  DDRotation::StoreT::instance().setReadOnly(false);
+  // // 2010-01-27 memory patch
+  // // not sure this will stay, but for now we want to explicitely lock the global stores.
+  // // lock the global stores.
+  // DDMaterial::StoreT::instance().setReadOnly(false);
+  // DDSolid::StoreT::instance().setReadOnly(false);
+  // DDLogicalPart::StoreT::instance().setReadOnly(false);
+  // DDSpecifics::StoreT::instance().setReadOnly(false);
+  // DDRotation::StoreT::instance().setReadOnly(false);
 
 }
 

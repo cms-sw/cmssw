@@ -32,11 +32,9 @@ DDLRotationAndReflection::processElement( const std::string& name, const std::st
 
   DDXMLAttribute atts = getAttributeSet();
 
-
   if ((name == "Rotation") && isLeftHanded(x, y, z, nmspace) == 0)
   {
-    DDRotationMatrix* ddr = new DDRotationMatrix(x, y, z);
-    DDRotation ddrot = DDrot(getDDName(nmspace), ddr);
+    DDRotation ddrot = DDrot( getDDName( nmspace ), std::make_unique<DDRotationMatrix>( x, y, z ));
   }
   else if ((name == "Rotation")  && isLeftHanded(x, y, z, nmspace) == 1)
   {

@@ -40,26 +40,24 @@ DDLRotationByAxis::processElement( const std::string& name, const std::string& n
     DDRotationMatrix R;
     R = processOne(R, axis, angle);
 
-    DDRotationMatrix* ddr = new DDRotationMatrix(R);
-    if (atts.find("name") == atts.end())
+    if( atts.find( "name" ) == atts.end())
     {
-      auto myRealParent = myRegistry_->getElement(parent());
-      DDName pName = myRealParent->getDDName(nmspace);
-      std::string tn = pName.name() + std::string("Rotation");
+      auto myRealParent = myRegistry_->getElement( parent());
+      DDName pName = myRealParent->getDDName( nmspace );
+      std::string tn = pName.name() + std::string( "Rotation" );
       std::vector<std::string> names;
-      names.emplace_back("name");
+      names.emplace_back( "name" );
 
       std::vector<std::string> values;
-      values.emplace_back(tn);
+      values.emplace_back( tn );
 
       clear();
-      loadAttributes(name, names, values, nmspace, cpv);
+      loadAttributes( name, names, values, nmspace, cpv );
     }
-    DDRotation rot = DDrot(getDDName(nmspace), ddr);
+    DDRotation rot = DDrot( getDDName( nmspace ), std::make_unique<DDRotationMatrix>( R ));
     
     clear();
   }
-  else { } //let the parent handle the clearing, etc.
 }
 
 DDRotationMatrix

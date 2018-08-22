@@ -14,6 +14,7 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
 #include <cmath>
+#include <memory>
 
 using namespace dd::operators;
 
@@ -155,8 +156,9 @@ DDAngular::execute( DDCompactView& cpv )
 				<< CONVERT_TO( phix, deg ) << ", 90.," 
 				<< CONVERT_TO( phiy, deg ) << ", 0, 0";
 	
-      rotation = DDrot( DDName( rotstr, m_idNameSpace ), new DDRotationMatrix(( *DDcreateRotationMatrix( theta, phix, theta, phiy,
-													 0., 0. ) * m_solidRot ))); 
+      rotation = DDrot( DDName( rotstr, m_idNameSpace ),
+			std::make_unique<DDRotationMatrix>( *DDcreateRotationMatrix( theta, phix, theta, phiy,
+										     0., 0. ) * m_solidRot )); 
     }
       
     double xpos = m_radius * cos( phi ) + m_center[0];

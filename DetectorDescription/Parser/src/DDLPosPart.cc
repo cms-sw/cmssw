@@ -91,14 +91,14 @@ DDLPosPart::processElement( const std::string& name, const std::string& nmspace,
 
   std::unique_ptr<DDRotation> myDDRotation;
   // if rotation is named ...
-  if ( rotn.name() != "" && rotn.ns() != "" ) {
+  if ( !rotn.name().empty() && !rotn.ns().empty() ) {
     myDDRotation = std::make_unique<DDRotation>(rotn);
   } else { 
     // rotn is not assigned a name anywhere therefore the DDPos assumes the identity matrix.
     myDDRotation = std::make_unique<DDRotation>(DDName(std::string("identity"),std::string("generatedForDDD")));
     // if the identity is not yet defined, then...
     if ( !myDDRotation->isValid() ) {
-      myDDRotation = DDrotPtr(DDName(std::string("identity"),std::string("generatedForDDD")), new DDRotationMatrix );
+      myDDRotation = DDrotPtr( DDName( std::string( "identity" ), std::string( "generatedForDDD" )), std::make_unique<DDRotationMatrix>());
     }
   }
 
