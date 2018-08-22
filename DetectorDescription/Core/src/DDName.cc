@@ -54,7 +54,7 @@ DDName::name() const
 {
   const static std::string ano_( "anonymous" );
   const std::string * result;
-  if( id_ < 0 ) {
+  if( id_ == 0 ) {
       result = &ano_;
   }
   else {
@@ -68,7 +68,7 @@ DDName::ns() const
 {
   const static std::string ano_( "anonymous" );
   const std::string * result;
-  if( id_ < 0 ) {
+  if( id_ == 0 ) {
     result = &ano_;
   }
   else {
