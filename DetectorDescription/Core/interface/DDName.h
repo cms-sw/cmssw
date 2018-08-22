@@ -42,6 +42,8 @@ public:
    */
   const std::string fullname() const { return ns() + ":" + name(); }
 
+  id_type id() const { return id_; }
+  
   bool operator<(const DDName & rhs) const { return id_ < rhs.id_; }
   bool operator==(const DDName & rhs) const { return id_ == rhs.id_; }
 
