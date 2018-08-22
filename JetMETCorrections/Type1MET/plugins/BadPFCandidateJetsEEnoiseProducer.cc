@@ -44,8 +44,8 @@ pat::BadPFCandidateJetsEEnoiseProducer::BadPFCandidateJetsEEnoiseProducer(const 
   userawPt_(iConfig.getParameter<bool>("userawPt"))
 {
   
-  produces<std::vector<edm::Ptr<reco::Candidate>>>();
-  produces<std::vector<pat::Jet>>("jets");
+  produces<std::vector<pat::Jet>>("good");
+  produces<std::vector<pat::Jet>>("bad");
   
 }
 
@@ -53,8 +53,8 @@ pat::BadPFCandidateJetsEEnoiseProducer::~BadPFCandidateJetsEEnoiseProducer() {}
 
 void pat::BadPFCandidateJetsEEnoiseProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   
-  auto badPFCandidates = std::make_unique<std::vector<edm::Ptr<reco::Candidate>>>();
   auto goodJets = std::make_unique<std::vector<pat::Jet>>();
+  auto badJets = std::make_unique<std::vector<pat::Jet>>();
   
   edm::Handle<edm::View<pat::Jet> > jetcandidates;
   iEvent.getByToken(jetsrc_, jetcandidates);
@@ -72,16 +72,15 @@ void pat::BadPFCandidateJetsEEnoiseProducer::produce(edm::StreamID, edm::Event& 
     if ( PtJet > PtThreshold_ || AbsEtaJet < MinEtaThreshold_ || AbsEtaJet > MaxEtaThreshold_) {
       // save good jets
       goodJets->emplace_back(candjet);
-      continue;
+    }
+    else {
+      // save bad jets
+      badJets->emplace_back(candjet);
     }
     
-    // now get a list of the PF candidates used to build this jet
-    for (unsigned int pfindex =0; pfindex < candjet->numberOfSourceCandidatePtrs(); pfindex++){
-      badPFCandidates -> push_back(candjet->sourceCandidatePtr(pfindex));
-    }
   }
-  iEvent.put(std::move(badPFCandidates));
-  iEvent.put(std::move(goodJets),"jets");
+  iEvent.put(std::move(goodJets),"good");
+  iEvent.put(std::move(badJets),"bad");
   
 }
 
