@@ -1800,10 +1800,15 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         )
         addToProcessAndTask("badUnclustered"+postfix, badUnclustered, process, task)
         patMetModuleSequence += getattr(process,"badUnclustered"+postfix)
+        blobUnclustered = cms.EDProducer("UnclusteredBlobProducer",
+            candsrc = cms.InputTag("badUnclustered"+postfix),
+        )
+        addToProcessAndTask("blobUnclustered"+postfix, blobUnclustered, process, task)
+        patMetModuleSequence += getattr(process,"blobUnclustered"+postfix)
         superbad = cms.EDProducer("CandViewMerger",
             src = cms.VInputTag(
-                cms.InputTag("badUnclustered"+postfix),
-                cms.InputTag("PFCandidateJetsWithEEnoise"+postfix),
+                cms.InputTag("blobUnclustered"+postfix),
+                cms.InputTag("PFCandidateJetsWithEEnoise"+postfix,"bad"),
             )
         )
         addToProcessAndTask("superbad"+postfix, superbad, process, task)
@@ -1815,7 +1820,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         addToProcessAndTask("pfCandidatesGoodEE2017"+postfix, pfCandidatesGoodEE2017, process, task)
         patMetModuleSequence += getattr(process,"pfCandidatesGoodEE2017"+postfix)
         # return good cands and jets
-        return (cms.InputTag("pfCandidatesGoodEE2017"+postfix), cms.InputTag("PFCandidateJetsWithEEnoise"+postfix,"jets"))
+        return (cms.InputTag("pfCandidatesGoodEE2017"+postfix), cms.InputTag("PFCandidateJetsWithEEnoise"+postfix,"good"))
 
 #========================================================================================
 runMETCorrectionsAndUncertainties = RunMETCorrectionsAndUncertainties()
