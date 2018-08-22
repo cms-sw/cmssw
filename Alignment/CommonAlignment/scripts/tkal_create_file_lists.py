@@ -146,6 +146,11 @@ class FileListCreator(object):
                                     "multiple IOVs use this option multiple "
                                     "times; files from runs before the lowest "
                                     "IOV are discarded (default: 1)"))
+        parser.add_argument("--miniiov", dest="miniiovs", metavar="RUN", type=int,
+                            action="append", default=[],
+                            help=("in addition to the standard IOVs, break up hippy jobs "
+                                  "at these points, so that jobs from before and after "
+                                  "these runs are not in the same job"))
         parser.add_argument("-r", "--random", action = "store_true",
                             default = False, help = "select files randomly")
         parser.add_argument("-n", "--events-for-alignment", "--maxevents",
@@ -256,13 +261,15 @@ class FileListCreator(object):
 
         self._iovs = sorted(set(self._args.iovs))
         if len(self._iovs) == 0: self._iovs.append(1)
-        self._iov_info_alignment = dict((iov, {"events": 0, "files": []})
-                                        for iov in self._iovs)
-        self._iov_info_validation = dict((iov, {"events": 0, "files": []})
-                                         for iov in self._iovs)
+        self._iov_info_alignment = {iov: {"events": 0, "files": []}
+                                        for iov in self._iovs}
+        self._iov_info_validation = {iov: {"events": 0, "files": []}
+                                         for iov in self._iovs}
+
+        self._miniiovs = sorted(set(self._iovs) | set(self._args.miniiovs))
 
 
-    def _get_iovs(self, runs):
+    def _get_iovs(self, runs, useminiiovs=False):
         """
         Return the IOV start for `run`. Returns 'None' if the run is before any
         defined IOV.
@@ -271,10 +278,12 @@ class FileListCreator(object):
         - `runs`: run numbers
         """
 
+        iovlist = self._miniiovs if useminiiovs else self._iovs
+
         iovs = []
         for run in runs:
-          iov_index = bisect.bisect(self._iovs, run)
-          if iov_index > 0: iovs.append(self._iovs[iov_index-1])
+          iov_index = bisect.bisect(iovlist, run)
+          if iov_index > 0: iovs.append(iovlist[iov_index-1])
         return iovs
 
 
@@ -443,21 +452,30 @@ class FileListCreator(object):
                         break   # break the file loop if already enough events
 
     def _split_hippy_jobs(self):
-        self._hippy_jobs = {}
-        for dataset, iov in itertools.product(self._datasets, self._iovs):
-            jobsforiov = []
-            self._hippy_jobs[dataset,iov] = jobsforiov
+        hippyjobs = {}
+        for dataset, miniiov in itertools.product(self._datasets, self._miniiovs):
+            jobsforminiiov = []
+            hippyjobs[dataset,miniiov] = jobsforminiiov
             eventsinthisjob = float("inf")
             for fileinfo in self._files_alignment:
                 if fileinfo.dataset != dataset: continue
-                iovs = self._get_iovs(fileinfo.runs)
-                if iov not in iovs: continue
+                miniiovs = self._get_iovs(fileinfo.runs, useminiiovs=True)
+                if miniiov not in miniiovs: continue
                 if eventsinthisjob >= self._args.hippy_events_per_job:
                     currentjob = []
-                    jobsforiov.append(currentjob)
+                    jobsforminiiov.append(currentjob)
                     eventsinthisjob = 0
                 currentjob.append(fileinfo)
+                currentjob.sort()
                 eventsinthisjob += fileinfo.nevents
+
+        self._hippy_jobs = {
+          (dataset, iov): sum((hippyjobs[dataset, miniiov]
+                               for miniiov in self._miniiovs
+                               if iov == max(_ for _ in self._iovs if _ <= miniiov)), []
+                           )
+          for dataset, iov in itertools.product(self._datasets, self._iovs)
+        }
 
     def _print_eventcounts(self):
         """Print the event counts per file list and per IOV."""
