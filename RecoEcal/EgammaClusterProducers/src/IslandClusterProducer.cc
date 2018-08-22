@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "CommonTools/Utils/interface/StringToEnumValue.h"
 
 // Reconstruction Classes
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
@@ -72,6 +73,18 @@ IslandClusterProducer::IslandClusterProducer(const edm::ParameterSet& ps)
   barrelClusterShapeAssociation_ = ps.getParameter<std::string>("barrelShapeAssociation");
   endcapClusterShapeAssociation_ = ps.getParameter<std::string>("endcapShapeAssociation");
 
+  const std::vector<std::string> seedflagnamesEB = ps.getParameter<std::vector<std::string> >("SeedRecHitFlagToBeExcludedEB");
+  const std::vector<int> seedflagsexclEB = StringToEnumValue<EcalRecHit::Flags>(seedflagnamesEB);
+
+  const std::vector<std::string> seedflagnamesEE = ps.getParameter<std::vector<std::string> >("SeedRecHitFlagToBeExcludedEE");
+  const std::vector<int> seedflagsexclEE = StringToEnumValue<EcalRecHit::Flags>(seedflagnamesEE);
+
+  const std::vector<std::string> flagnamesEB = ps.getParameter<std::vector<std::string> >("RecHitFlagToBeExcludedEB");
+  const std::vector<int> flagsexclEB = StringToEnumValue<EcalRecHit::Flags>(flagnamesEB);
+
+  const std::vector<std::string> flagnamesEE = ps.getParameter<std::vector<std::string> >("RecHitFlagToBeExcludedEE");
+  const std::vector<int> flagsexclEE = StringToEnumValue<EcalRecHit::Flags>(flagnamesEE);
+
   // Produces a collection of barrel and a collection of endcap clusters
 
   produces< reco::ClusterShapeCollection>(clustershapecollectionEE_);
@@ -81,7 +94,7 @@ IslandClusterProducer::IslandClusterProducer(const edm::ParameterSet& ps)
   produces< reco::BasicClusterShapeAssociationCollection >(barrelClusterShapeAssociation_);
   produces< reco::BasicClusterShapeAssociationCollection >(endcapClusterShapeAssociation_);
 
-  island_p = new IslandClusterAlgo(barrelSeedThreshold, endcapSeedThreshold, posCalculator_,verbosity);
+  island_p = new IslandClusterAlgo(barrelSeedThreshold, endcapSeedThreshold, posCalculator_, seedflagsexclEB, seedflagsexclEE, flagsexclEB, flagsexclEE, verbosity);
 
   nEvt_ = 0;
 }
