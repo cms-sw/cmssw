@@ -1,17 +1,20 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("PROD")
+process = cms.Process('PROD',eras.Phase2C4)
+
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
-process.load("Geometry.HGCalCommonData.testHGCV9XML_cfi")
-process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
-process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
+process.load('Configuration.Geometry.GeometryExtended2023D28_cff')
+#process.load("Geometry.HGCalCommonData.testHGCV9XML_cfi")
+#process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
+#process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('Validation.HGCalValidation.hgcalGeometryTest_cfi')
+process.load('Validation.HGCalValidation.hgcSimHitStudy_cfi')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['phase2_realistic']
@@ -29,7 +32,7 @@ process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 process.Timing = cms.Service("Timing")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100000)
+    input = cms.untracked.int32(1000)
 )
 
 process.source = cms.Source("EmptySource",
@@ -57,24 +60,23 @@ process.output = cms.OutputModule("PoolOutputModule",
 )
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('hgcGeomTest.root'),
+                                   fileName = cms.string('hgcSimHit.root'),
                                    closeFileFast = cms.untracked.bool(True)
                                    )
 
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
-process.analysis_step   = cms.Path(process.hgcalGeometryTest)
+process.analysis_step   = cms.Path(process.hgcalSimHitStudy)
 process.out_step = cms.EndPath(process.output)
 
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/FTFP_BERT_EMM'
 process.g4SimHits.Physics.DefaultCutValue   = 0.1
-process.hgcalGeometryTest.Verbosity = 0
+process.hgcalSimHitStudy.verbosity = 0
 
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,
                                 process.simulation_step,
                                 process.analysis_step,
-#                               process.out_step
                                 )
 
 # filter all path with the production filter sequence
