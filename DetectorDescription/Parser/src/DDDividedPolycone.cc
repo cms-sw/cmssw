@@ -100,7 +100,6 @@ DDDividedPolyconeRho::makeDDTranslation( const int copyNo ) const
 DDLogicalPart
 DDDividedPolyconeRho::makeDDLogicalPart( const int copyNo ) const
 {
-  DDName solname;
   DDSolid ddpolycone;
   DDMaterial usemat(div_.parent().material());
 
@@ -119,15 +118,11 @@ DDDividedPolyconeRho::makeDDLogicalPart( const int copyNo ) const
   {
     width = calculateWidth( localrMaxVec[ii]
 			    - localrMinVec[ii], compNDiv_, div_.offset() );
-    // hmmm different width every time... probably should use width 
-    // not compWidth_
-    // 	  newrMinVec[ii] = localrMinVec[ii]+div_.offset()+compWidth_*copyNo;
-    // 	  newrMaxVec[ii] = localrMinVec[ii]+div_.offset()+compWidth_*(copyNo+1);
     newrMinVec.emplace_back(localrMinVec[ii]+div_.offset()+width*copyNo);
     newrMaxVec.emplace_back(localrMinVec[ii]+div_.offset()+width*(copyNo+1));
   }
-  solname = DDName( div_.parent().ddname().name() + "_DIVCHILD" + std::to_string(copyNo),
-		    div_.parent().ddname().ns());
+  DDName solname( div_.parent().ddname().name() + "_DIVCHILD" + std::to_string(copyNo),
+		  div_.parent().ddname().ns());
       
   ddpolycone = DDSolidFactory::polycone( solname,
 					 msol.startPhi(),
@@ -204,7 +199,6 @@ DDDividedPolyconePhi::makeDDTranslation( const int copyNo ) const
 DDLogicalPart
 DDDividedPolyconePhi::makeDDLogicalPart( const int copyNo ) const
 {
-  DDName solname;
   DDSolid ddpolycone;
   DDMaterial usemat(div_.parent().material());
 
@@ -213,8 +207,8 @@ DDDividedPolyconePhi::makeDDLogicalPart( const int copyNo ) const
   std::vector<double> localrMinVec = msol.rMinVec();
   std::vector<double> localzVec = msol.zVec();
 
-  solname = DDName(div_.parent().ddname().name() + "_DIVCHILD",
-		   div_.parent().ddname().ns());
+  DDName solname( div_.parent().ddname().name() + "_DIVCHILD",
+		  div_.parent().ddname().ns());
   DDSolid sol( solname );
   if( !sol.isDefined().second )
   {
@@ -314,7 +308,6 @@ DDDividedPolyconeZ::makeDDTranslation( const int copyNo ) const
 DDLogicalPart
 DDDividedPolyconeZ::makeDDLogicalPart( const int copyNo ) const
 {
-  DDName solname;
   DDSolid ddpolycone;
   DDMaterial usemat(div_.parent().material());
 
@@ -323,8 +316,8 @@ DDDividedPolyconeZ::makeDDLogicalPart( const int copyNo ) const
   std::vector<double> localrMinVec = msol.rMinVec();
   std::vector<double> localzVec = msol.zVec();
 
-  solname = DDName( div_.parent().ddname().name() + "_DIVCHILD" + std::to_string(copyNo),
-		    div_.parent().ddname().ns());
+  DDName solname( div_.parent().ddname().name() + "_DIVCHILD" + std::to_string(copyNo),
+		  div_.parent().ddname().ns());
   ddpolycone = DDSolidFactory::cons( solname,
 				     compWidth_ / 2,
 				     localrMinVec[copyNo],
