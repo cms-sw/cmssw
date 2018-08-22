@@ -22,7 +22,7 @@ public:
   bool operator!=(const GEMDigi& digi) const;
   bool operator<(const GEMDigi& digi) const;
 
-  // return the strip number. counts from 1.
+  // return the strip number. counts from 0.
   int strip() const { return strip_; }
   int bx() const {return bx_; }
 
