@@ -4,7 +4,6 @@
 
 // Framework
 
-
 // Conditions database
 
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
@@ -24,6 +23,8 @@
 // EgammaCoreTools
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
+
+#include "CommonTools/Utils/interface/StringToEnumValue.h"
 
 //const double Pi0Calibration::PDGPi0Mass =  0.1349766;
 
@@ -85,7 +86,19 @@ Pi0FixedMassWindowCalibration::Pi0FixedMassWindowCalibration(const edm::Paramete
   //AssociationMap
   barrelClusterShapeAssociation_ = iConfig.getParameter<std::string>("barrelShapeAssociation");
 
-  island_p = new IslandClusterAlgo(barrelSeedThreshold, endcapSeedThreshold, posCalculator_,verbosity);
+  const std::vector<std::string> seedflagnamesEB = iConfig.getParameter<std::vector<std::string> >("SeedRecHitFlagToBeExcludedEB");
+  const std::vector<int> seedflagsexclEB = StringToEnumValue<EcalRecHit::Flags>(seedflagnamesEB);
+
+  const std::vector<std::string> seedflagnamesEE = iConfig.getParameter<std::vector<std::string> >("SeedRecHitFlagToBeExcludedEE");
+  const std::vector<int> seedflagsexclEE = StringToEnumValue<EcalRecHit::Flags>(seedflagnamesEE);
+
+  const std::vector<std::string> flagnamesEB = iConfig.getParameter<std::vector<std::string> >("RecHitFlagToBeExcludedEB");
+  const std::vector<int> flagsexclEB = StringToEnumValue<EcalRecHit::Flags>(flagnamesEB);
+
+  const std::vector<std::string> flagnamesEE = iConfig.getParameter<std::vector<std::string> >("RecHitFlagToBeExcludedEE");
+  const std::vector<int> flagsexclEE = StringToEnumValue<EcalRecHit::Flags>(flagnamesEE);
+
+  island_p = new IslandClusterAlgo(barrelSeedThreshold, endcapSeedThreshold, posCalculator_, seedflagsexclEB, seedflagsexclEE, flagsexclEB, flagsexclEE, verbosity);
 
   theParameterSet=iConfig;
 
