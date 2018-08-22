@@ -130,7 +130,7 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
 
   if (monitorName_ != "" ) monitorName_ = monitorName_+"/" ;
 
-  theBeamFitter = new BeamFitter(ps, consumesCollector());
+  theBeamFitter = std::make_unique<BeamFitter>(ps, consumesCollector());
   theBeamFitter->resetTrkVector();
   theBeamFitter->resetLSRange();
   theBeamFitter->resetRefTime();
@@ -145,10 +145,6 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   processed_ = false;
 }
 
-
-BeamMonitor::~BeamMonitor() {
-  delete theBeamFitter;
-}
 
 
 //--------------------------------------------------------
