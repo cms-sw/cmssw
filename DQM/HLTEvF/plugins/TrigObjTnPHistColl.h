@@ -189,7 +189,7 @@ public:
 		   const std::string& title,const HistDefs& histDefs);
     void fill(const trigger::TriggerObject& probe,float mass)const;
   private:
-    std::vector<std::pair<HistFiller,ConcurrentMonitorElement> > hists_; //we do not own the MonitorElement*
+    std::vector<std::pair<HistFiller,ConcurrentMonitorElement> > hists_;
   };
 
 
