@@ -85,7 +85,7 @@ void DDTrackerRingAlgo::execute(DDCompactView& cpv) {
       flipRot = DDrot(DDName(flipRotstr, idNameSpace), 
 		      90.*CLHEP::deg, 180.*CLHEP::deg, 90.*CLHEP::deg, 90.*CLHEP::deg, 180.*CLHEP::deg, 0.);
     }
-    flipMatrix = *flipRot.matrix();
+    flipMatrix = flipRot.matrix();
   }
   // tiltMatrix calculus
   if (isZPlus) {
@@ -99,7 +99,7 @@ void DDTrackerRingAlgo::execute(DDCompactView& cpv) {
       tiltRot = DDrot(DDName(tiltRotstr, idNameSpace), 
 		      90.*CLHEP::deg, 90.*CLHEP::deg, tiltAngle, 180.*CLHEP::deg, 90.*CLHEP::deg - tiltAngle, 0.);
     }
-    tiltMatrix = *tiltRot.matrix();
+    tiltMatrix = tiltRot.matrix();
     if (isFlipped) { tiltMatrix *= flipMatrix; }
   }
   else {
@@ -113,7 +113,7 @@ void DDTrackerRingAlgo::execute(DDCompactView& cpv) {
       tiltRot = DDrot(DDName(tiltRotstr, idNameSpace), 
 		      90.*CLHEP::deg, 90.*CLHEP::deg, tiltAngle, 0., 90.*CLHEP::deg + tiltAngle, 0.);
     }
-    tiltMatrix = *tiltRot.matrix();
+    tiltMatrix = tiltRot.matrix();
     if (isFlipped) { tiltMatrix *= flipMatrix; }
   }
 
@@ -140,7 +140,7 @@ void DDTrackerRingAlgo::execute(DDCompactView& cpv) {
 				<<", 0., 0.";
 	phiRot = DDrot(DDName(phiRotstr, idNameSpace), theta, phix, theta, phiy, 0., 0.);
       }
-      phiRotMatrix = *phiRot.matrix();
+      phiRotMatrix = phiRot.matrix();
     }
 
     // globalRot def
@@ -158,7 +158,7 @@ void DDTrackerRingAlgo::execute(DDCompactView& cpv) {
       LogDebug("TrackerGeom") << "DDTrackerRingAlgo test: Creating a new "
 			      << "rotation: " << globalRotstr;
       globalRotMatrix = phiRotMatrix * tiltMatrix;
-      globalRot = DDrot(DDName(globalRotstr, idNameSpace), new DDRotationMatrix(globalRotMatrix));
+      globalRot = DDrot(DDName(globalRotstr, idNameSpace), std::make_unique<DDRotationMatrix>(globalRotMatrix));
     }
    
     // translation def

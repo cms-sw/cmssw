@@ -11,11 +11,11 @@
 using DDI::Specific;
 
 DDSpecifics::DDSpecifics()
-  : DDBase< DDName, Specific*>()
+  : DDBase< DDName, std::unique_ptr<Specific> >()
 { }
 
 DDSpecifics::DDSpecifics( const DDName & name )
-  : DDBase< DDName, Specific* >()
+  : DDBase< DDName, std::unique_ptr<Specific> >()
 {
   create( name );
 }
@@ -24,9 +24,9 @@ DDSpecifics::DDSpecifics(const DDName & name,
                          const std::vector<std::string> & partSelections,
 	      		 const DDsvalues_type & svalues,
 			 bool doRegex)
- : DDBase< DDName, Specific* >()
+  : DDBase< DDName, std::unique_ptr<Specific> >()
 {
-  create( name, new Specific( partSelections, svalues, doRegex ));   
+  create( name, std::make_unique<Specific>( partSelections, svalues, doRegex ));   
   std::vector<std::pair<DDLogicalPart,std::pair<const DDPartSelection*, const DDsvalues_type*> > > v;
   rep().updateLogicalPart(v);
   for( auto& it : v ) {
@@ -60,7 +60,7 @@ DDSpecifics::specifics() const
     expanded-part in the ExpandedView, else it will return
     (false, xxx), whereas xxx is a history which is not valid.
 */      
-std::pair<bool,DDExpandedView>
+std::pair<bool, DDExpandedView>
 DDSpecifics::node() const
 {
   return rep().node();
@@ -68,7 +68,7 @@ DDSpecifics::node() const
   	
 std::ostream & operator<<( std::ostream  & os, const DDSpecifics & sp)
 {
-  DDBase<DDName,DDI::Specific*>::def_type defined(sp.isDefined());
+  DDBase<DDName,std::unique_ptr<DDI::Specific>>::def_type defined(sp.isDefined());
   if (defined.first) {
     os << *(defined.first) << " ";
     if (defined.second) {

@@ -220,16 +220,13 @@ DDDividedPolyhedraPhi::makeDDTranslation( const int copyNo ) const
 DDRotation
 DDDividedPolyhedraPhi::makeDDRotation( const int copyNo ) const
 {
-
+  DDRotation myddrot; // sets to identity.
   double posi = ( copyNo - 1 ) * compWidth_;
-  
-  //  ChangeRotMatrix( physVol, -posi );
-  DDRotationMatrix* rotMat = changeRotMatrix( posi);
-  // how to name the rotation??
-  // i do not like this...
-  DDName ddrotname(div_.parent().ddname().name() + "_DIVCHILD_ROT" + std::to_string(copyNo),
-		   div_.parent().ddname().ns());
-  DDRotation myddrot = DDrot(ddrotname, rotMat);
+  DDName ddrotname( div_.parent().ddname().name() +
+		    "_DIVCHILD_ROT" + std::to_string( copyNo ),
+		    div_.parent().ddname().ns());
+  myddrot = DDrot( ddrotname, changeRotMatrix( posi ));
+
   return myddrot;
 }
 

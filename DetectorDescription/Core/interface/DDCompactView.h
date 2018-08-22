@@ -7,6 +7,7 @@
 #include <utility>
 #include <vector>
 
+#include "DetectorDescription/Core/interface/DDCompactViewImpl.h"
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/Store.h"
@@ -16,7 +17,6 @@
 #include "DataFormats/Math/interface/Graph.h"
 #include "DataFormats/Math/interface/GraphWalker.h"
 
-class DDCompactViewImpl;
 class DDDivision;
 class DDName;
 struct DDPosData;
@@ -92,8 +92,6 @@ public:
   //! \b EXPERIMENTAL! Creates a compact-view using a different root of the geometrical hierarchy
   explicit DDCompactView(const DDLogicalPart & rootnodedata);
   
-  ~DDCompactView();
-  
   //! Provides read-only access to the data structure of the compact-view.
   const Graph & graph() const;
   GraphWalker walker() const;
@@ -136,11 +134,11 @@ public:
   std::unique_ptr<DDCompactViewImpl> rep_;
   std::unique_ptr<DDPosData> worldpos_ ;
   
-  DDI::Store<DDName, DDI::Material*> matStore_;
-  DDI::Store<DDName, DDI::Solid*> solidStore_;
-  DDI::Store<DDName, DDI::LogicalPart*> lpStore_;
-  DDI::Store<DDName, DDI::Specific*> specStore_;
-  DDI::Store<DDName, DDRotationMatrix*> rotStore_;
+  DDI::Store<DDName, std::unique_ptr<DDI::Material>> matStore_;
+  DDI::Store<DDName, std::unique_ptr<DDI::Solid>> solidStore_;
+  DDI::Store<DDName, std::unique_ptr<DDI::LogicalPart>> lpStore_;
+  DDI::Store<DDName, std::unique_ptr<DDI::Specific>> specStore_;
+  DDI::Store<DDName, std::unique_ptr<DDRotationMatrix>> rotStore_;
 };
 
 #endif
