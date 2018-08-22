@@ -14,6 +14,7 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
 #include <cmath>
+#include <memory>
 
 using namespace dd::operators;
 
@@ -104,7 +105,7 @@ DDLinear::execute( DDCompactView& cpv )
     LogDebug( "DDAlgorithm" ) << "DDLinear: Creating a new "
 			      << "rotation: IdentityRotation for " << ddname;
 	
-    rotation = DDrot( "IdentityRotation", new DDRotationMatrix());
+    rotation = DDrot( "IdentityRotation", std::unique_ptr< DDRotationMatrix >( new DDRotationMatrix()));
   }
   
   for( int i = 0; i < m_n; ++i )

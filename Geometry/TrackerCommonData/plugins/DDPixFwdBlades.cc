@@ -112,7 +112,7 @@ void DDPixFwdBlades::execute(DDCompactView& cpv) {
     computeNippleParameters(1.);   // Z Plus endcap
     computeNippleParameters(-1.);  // Z Minus endcap
   }
-  if (childName == "") return;
+  if (childName.empty()) return;
   
   // -- Signed versions of blade angle and z-shift :
   
@@ -127,11 +127,11 @@ void DDPixFwdBlades::execute(DDCompactView& cpv) {
   // -- Get translation and rotation from "blade frame" to "child frame", if any :
   
   CLHEP::HepRotation childRotMatrix = CLHEP::HepRotation();
-  if (childRotationName != "") {
+  if (!childRotationName.empty()) {
     DDRotation childRotation = DDRotation(DDName(DDSplit(childRotationName).first, DDSplit(childRotationName).second));
     // due to conversion to ROOT::Math::Rotation3D -- Michael Case
     DD3Vector x, y, z;
-    childRotation.rotation()->GetComponents(x, y, z); // these are the orthonormal columns.
+    childRotation.rotation().GetComponents(x, y, z); // these are the orthonormal columns.
     CLHEP::HepRep3x3 tr(x.X(), y.X(), z.X(), x.Y(), y.Y(), z.Y(), x.Z(), y.Z(), z.Z());
     childRotMatrix = CLHEP::HepRotation(tr);
   } else if (childName == "pixfwdNipple:PixelForwardNippleZPlus") {
@@ -190,16 +190,15 @@ void DDPixFwdBlades::execute(DDCompactView& cpv) {
 
     if (!rotation) {
       rotMatrix *= childRotMatrix;
-      DDRotationMatrix* temp = new DDRotationMatrix(rotMatrix.xx(), rotMatrix.xy(), rotMatrix.xz(),
-						    rotMatrix.yx(), rotMatrix.yy(), rotMatrix.yz(),
-						    rotMatrix.zx(), rotMatrix.zy(), rotMatrix.zz() );
-      rotation = DDrot(DDName(rotstr, idNameSpace), temp);
+      rotation = DDrot(DDName(rotstr, idNameSpace),
+		       std::make_unique<DDRotationMatrix>(rotMatrix.xx(), rotMatrix.xy(), rotMatrix.xz(),
+							  rotMatrix.yx(), rotMatrix.yy(), rotMatrix.yz(),
+							  rotMatrix.zx(), rotMatrix.zy(), rotMatrix.zz()));
     }
     // position the child :
 
     DDTranslation ddtran(translation.x(), translation.y(), translation.z());
     cpv.position(child, mother, copy, ddtran, rotation);
-    // LogDebug("PixelGeom") << "DDPixFwdBlades: " << child << " Copy " << copy << " positioned in " << mother << " at " << translation << " with rotation " << rotation;
   }
 
   // End of cycle over Phi positions
@@ -256,9 +255,9 @@ void DDPixFwdBlades::computeNippleParameters(double endcap) {
   // Vector JK in the "cover" blade frame:
   
   CLHEP::Hep3Vector jkC = kC - jC;
-  double* jkLength = new double(jkC.mag());
-  DDConstant JK(DDName("JK", "pixfwdNipple"), jkLength);
-  LogDebug("PixelGeom") << "+++++++++++++++ DDPixFwdBlades: " << "JK Length " <<  *jkLength * CLHEP::mm;
+  double jkLength = jkC.mag();
+  DDConstant JK(DDName("JK", "pixfwdNipple"), std::make_unique<double>( jkLength ));
+  LogDebug("PixelGeom") << "+++++++++++++++ DDPixFwdBlades: " << "JK Length " <<  jkLength * CLHEP::mm;
   
   // Position of the center of a nipple in "cover" blade frame :
   
@@ -284,26 +283,25 @@ void DDPixFwdBlades::computeNippleParameters(double endcap) {
   }
   //( endcap > 0. ? nippleRotationZPlus : nippleRotationZMinus ) = rpCN;
 
-  DDRotationMatrix* ddrpCN = new DDRotationMatrix(rpCN->xx(), rpCN->xy(), rpCN->xz(),
-						  rpCN->yx(), rpCN->yy(), rpCN->yz(),
-						  rpCN->zx(), rpCN->zy(), rpCN->zz() );
-
-  DDrot(DDName(rotNameCoverToNipple, "pixfwdNipple"), ddrpCN);
+  DDrot(DDName(rotNameCoverToNipple, "pixfwdNipple"),
+	std::make_unique<DDRotationMatrix>( rpCN->xx(), rpCN->xy(), rpCN->xz(),
+					    rpCN->yx(), rpCN->yy(), rpCN->yz(),
+					    rpCN->zx(), rpCN->zy(), rpCN->zz()));
   CLHEP::HepRotation rpNC(axis, -angleCover);
-  DDRotationMatrix* ddrpNC = new DDRotationMatrix(rpNC.xx(), rpNC.xy(), rpNC.xz(),
-						  rpNC.yx(), rpNC.yy(), rpNC.yz(),
-						  rpNC.zx(), rpNC.zy(), rpNC.zz() );
 
-  DDrot(DDName(rotNameNippleToCover, "pixfwdNipple"), ddrpNC);
+  DDrot(DDName(rotNameNippleToCover, "pixfwdNipple"),
+	std::make_unique<DDRotationMatrix>( rpNC.xx(), rpNC.xy(), rpNC.xz(),
+					    rpNC.yx(), rpNC.yy(), rpNC.yz(),
+					    rpNC.zx(), rpNC.zy(), rpNC.zz()));
   
   // Rotation from nipple frame to "body" blade frame :
   
   CLHEP::HepRotation rpNB( rpNC * rCB );
-  DDRotationMatrix* ddrpNB = new DDRotationMatrix(rpNB.xx(), rpNB.xy(), rpNB.xz(),
-						  rpNB.yx(), rpNB.yy(), rpNB.yz(),
-						  rpNB.zx(), rpNB.zy(), rpNB.zz() );
 
-  DDrot(DDName(rotNameNippleToBody, "pixfwdNipple"), ddrpNB);
+  DDrot(DDName(rotNameNippleToBody, "pixfwdNipple"),
+	std::make_unique<DDRotationMatrix>( rpNB.xx(), rpNB.xy(), rpNB.xz(),
+					    rpNB.yx(), rpNB.yy(), rpNB.yz(),
+					    rpNB.zx(), rpNB.zy(), rpNB.zz()));
   double angleBody = vZ.angle(rpNB * vZ);
   LogDebug("PixelGeom") << " Angle to body : " << angleBody;  
 }

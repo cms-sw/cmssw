@@ -501,7 +501,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	       TGeoSubtraction* sub = new TGeoSubtraction(left.release(),right.release(),
 							  nullptr,
 							  createPlacement(
-                                                                          *(boolSolid.rotation().matrix()),
+                                                                          boolSolid.rotation().matrix(),
                                                                           boolSolid.translation()));
 	       rSolid = new TGeoCompositeShape(iName.c_str(),
 					       sub);
@@ -605,7 +605,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	       TGeoUnion* boolS = new TGeoUnion(left.release(),right.release(),
 						nullptr,
 						createPlacement(
-                                                                *(boolSolid.rotation().matrix()),
+                                                                boolSolid.rotation().matrix(),
                                                                 boolSolid.translation()));
 	       rSolid = new TGeoCompositeShape(iName.c_str(),
 					       boolS);
@@ -629,7 +629,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 							      right.release(),
 							      nullptr,
 							      createPlacement(
-                                                                              *(boolSolid.rotation().matrix()),
+                                                                              boolSolid.rotation().matrix(),
                                                                               boolSolid.translation()));
 	       rSolid = new TGeoCompositeShape(iName.c_str(),
 					       boolS);

@@ -2,6 +2,7 @@
 #define DETECTOR_DESCRIPTION_CORE_DDSTRVECTOR_H
 
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -14,9 +15,9 @@ class DDStrVector;
 std::ostream & operator<<( std::ostream & o, const DDStrVector & cons );
 
 //! a named constant corresponding to the DDL-XML tag <Constant> and <ConstantsStrVector>
-class DDStrVector : public DDBase< DDName, std::vector<std::string>* >
+class DDStrVector : public DDBase< DDName, std::unique_ptr<std::vector<std::string>>>
 {
-public:
+ public:
   
   //! size type for the size of the stored values
   using size_t = std::vector<std::string>::size_type;
@@ -31,9 +32,9 @@ public:
   DDStrVector( const DDName & name );
   
   //! creation of a new named constant; if it already existed with the given name, it's overwritten with new values
-  DDStrVector( const DDName & name, std::vector<std::string>* value );
+  DDStrVector( const DDName & name, std::unique_ptr<std::vector<std::string>> value );
   
-  //! the size of the array of values 
+  //! the size of the array of values
   size_t size() const { return rep().size(); }
   
   //! the stored values

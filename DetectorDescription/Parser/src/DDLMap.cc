@@ -108,7 +108,7 @@ void
 DDLMap::preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
   pName = "";
-  pMap.clear() ;
+  pMap.clear();
   //pMapMap.clear(); only the DDLAlgorithm is allowed to clear this guy!
   pDouble = 0.0;
   pNameSpace = nmspace;
@@ -148,12 +148,12 @@ DDLMap::processElement( const std::string& name, const std::string& nmspace, DDC
   }
   else if (parent() == "ConstantsSection" || parent() == "DDDefinition") 
   {
-    dd_map_type * tMap = new dd_map_type;
+    dd_map_type tMap;
     for (std::map<std::string, double>::const_iterator it = pMap.begin(); it != pMap.end(); ++it)
     {
-      (*tMap)[it->first] = it->second;
+      tMap[it->first] = it->second;
     }
-    DDMap m ( getDDName(pNameSpace) , tMap);
+    DDMap m ( getDDName(pNameSpace) , std::make_unique<dd_map_type>( tMap ));
     // clear the map of maps, because in these elements we only have ONE at a time.
     pMapMap.clear(); 
   }
