@@ -9,6 +9,7 @@
  */
 // C++
 #include <string>
+#include <memory>
 // CMS
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -33,7 +34,6 @@ class BeamMonitor : public edm::EDAnalyzer {
   public:
 
     BeamMonitor( const edm::ParameterSet& );
-    ~BeamMonitor() override;
 
   protected:
 
@@ -90,7 +90,7 @@ class BeamMonitor : public edm::EDAnalyzer {
     bool onlineMode_;
     std::vector<std::string> jetTrigger_;
 
-    BeamFitter * theBeamFitter;
+    std::unique_ptr<BeamFitter> theBeamFitter;
 
     int countEvt_;       //counter
     int countLumi_;      //counter
