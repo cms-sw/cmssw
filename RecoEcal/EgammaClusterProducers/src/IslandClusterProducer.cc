@@ -9,6 +9,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 
@@ -105,6 +106,36 @@ IslandClusterProducer::~IslandClusterProducer()
   delete island_p;
 }
 
+void IslandClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("VerbosityLevel", "ERROR");
+  desc.add<edm::InputTag>("barrelHits", edm::InputTag("ecalRecHit", "EcalRecHitsEB"));
+  desc.add<edm::InputTag>("endcapHits", edm::InputTag("ecalRecHit", "EcalRecHitsEE"));
+  desc.add<std::string>("barrelClusterCollection", "islandBarrelBasicClusters");
+  desc.add<std::string>("endcapClusterCollection", "islandEndcapBasicClusters");
+  desc.add<double>("IslandBarrelSeedThr", 0.5);
+  desc.add<double>("IslandEndcapSeedThr", 0.18);
+
+  edm::ParameterSetDescription posCalcParameters;
+  posCalcParameters.add<bool>("LogWeighted", true);
+  posCalcParameters.add<double>("T0_barl", 7.4);
+  posCalcParameters.add<double>("T0_endc", 3.1);
+  posCalcParameters.add<double>("T0_endcPresh", 1.2);
+  posCalcParameters.add<double>("W0", 4.2);
+  posCalcParameters.add<double>("X0", 0.89);
+  desc.add<edm::ParameterSetDescription>("posCalcParameters", posCalcParameters);
+
+  desc.add<std::string>("clustershapecollectionEE", "islandEndcapShape");
+  desc.add<std::string>("clustershapecollectionEB", "islandBarrelShape");
+  desc.add<std::string>("barrelShapeAssociation", "islandBarrelShapeAssoc");
+  desc.add<std::string>("endcapShapeAssociation", "islandEndcapShapeAssoc");
+  desc.add<std::vector<std::string>>("SeedRecHitFlagToBeExcludedEB", {});
+  desc.add<std::vector<std::string>>("SeedRecHitFlagToBeExcludedEE", {});
+  desc.add<std::vector<std::string>>("RecHitFlagToBeExcludedEB", {});
+  desc.add<std::vector<std::string>>("RecHitFlagToBeExcludedEE", {});
+  descriptions.add("IslandClusterProducer", desc);
+}
 
 void IslandClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
