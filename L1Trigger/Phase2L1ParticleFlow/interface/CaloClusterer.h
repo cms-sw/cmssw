@@ -104,6 +104,13 @@ namespace l1tpf_calo {
                 data_ = other.data_;
                 return *this;
             }
+            GridData<T> & operator+=(const GridData<T> & other) {
+                assert(grid_ == other.grid_);
+                for (unsigned int i = 0, n = data_.size(); i < n; ++i) {
+                    data_[i] += other.data_[i];
+                }
+                return *this;
+            }
 
             // always defined
             void fill(const T &val) { std::fill(data_.begin(), data_.end(), val); }
@@ -134,13 +141,11 @@ namespace l1tpf_calo {
         std::vector<std::pair<int,float>> constituents;
         void clear() { et = eta = phi = 0; constituents.clear(); }
     };
-    typedef GridData<Cluster> ClusterGrid;
 
     struct CombinedCluster : public Cluster {
         float ecal_et, hcal_et;
         void clear() { Cluster::clear(); ecal_et = hcal_et = 0; }
     };
-    typedef GridData<CombinedCluster> CombinedClusterGrid;
 
     const Grid * getGrid(const std::string & type) ;
 
@@ -165,6 +170,9 @@ namespace l1tpf_calo {
             const Cluster & cluster(int i) const { 
                 return (i == -1 || clusterIndex_[i] == -1) ? nullCluster_ : clusters_[clusterIndex_[i]]; 
             }
+
+            /// non-const access to the energy: be careful to use it only before 'run()'
+            EtGrid & raw() { return rawet_; }
 
             // for the moment, generic interface that takes a cluster and returns the corrected pt
             template<typename Corrector>
@@ -196,12 +204,16 @@ namespace l1tpf_calo {
 
     };
 
-    class SimpleCaloLinker {
+    class SimpleCaloLinkerBase {
         public:
-            SimpleCaloLinker(const edm::ParameterSet &pset, const SingleCaloClusterer & ecal,  const SingleCaloClusterer & hcal) ;
-            ~SimpleCaloLinker() ;
-            void clear() ;
-            void run() ;
+            SimpleCaloLinkerBase(const edm::ParameterSet &pset, const SingleCaloClusterer & ecal,  const SingleCaloClusterer & hcal) ;
+            virtual ~SimpleCaloLinkerBase() ;
+            virtual void clear() { clearBase(); }
+            virtual void run() = 0;
+            void clearBase() {
+                clusters_.clear();
+                clusterIndex_.fill(-1);
+            }
 
             // for the moment, generic interface that takes a cluster and returns the corrected pt
             template<typename Corrector>
@@ -214,15 +226,37 @@ namespace l1tpf_calo {
             std::unique_ptr<l1t::PFClusterCollection> fetch() const ;
             std::unique_ptr<l1t::PFClusterCollection> fetch(const edm::OrphanHandle<l1t::PFClusterCollection> & ecal, const edm::OrphanHandle<l1t::PFClusterCollection> & hcal) const ;
 
-        private:
+        protected:
             const Grid * grid_;
             const SingleCaloClusterer & ecal_, & hcal_;
-            PreClusterGrid ecalToHCal_;
             IndexGrid    clusterIndex_;
             std::vector<CombinedCluster> clusters_;
-            const CombinedCluster nullCluster_;
             float hoeCut_, minPhotonEt_, minHadronRawEt_, minHadronEt_;
     };
+
+    class SimpleCaloLinker : public SimpleCaloLinkerBase {
+        public:
+            SimpleCaloLinker(const edm::ParameterSet &pset, const SingleCaloClusterer & ecal,  const SingleCaloClusterer & hcal) ;
+            ~SimpleCaloLinker() ;
+            void clear() override ;
+            void run() override ;
+        protected:
+            PreClusterGrid ecalToHCal_;
+    };
+    class FlatCaloLinker : public SimpleCaloLinkerBase {
+        public:
+            FlatCaloLinker(const edm::ParameterSet &pset, const SingleCaloClusterer & ecal,  const SingleCaloClusterer & hcal) ;
+            ~FlatCaloLinker() ;
+            void clear() override ;
+            void run() override ;
+        protected:
+            SingleCaloClusterer combClusterer_;
+    };
+
+    // makes a calo linker (pointer will be owned by the callee)
+    SimpleCaloLinkerBase * makeCaloLinker(const edm::ParameterSet &pset, const SingleCaloClusterer & ecal,  const SingleCaloClusterer & hcal);
+
+    
 
 } // namespace 
 

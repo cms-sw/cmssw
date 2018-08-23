@@ -47,7 +47,7 @@ class L1TPFCaloProducer : public edm::stream::EDProducer<> {
         l1tpf::corrector hadCorrector_;
 
         l1tpf_calo::SingleCaloClusterer ecalClusterer_, hcalClusterer_;
-        l1tpf_calo::SimpleCaloLinker caloLinker_;
+        std::unique_ptr<l1tpf_calo::SimpleCaloLinkerBase> caloLinker_;
 
         l1tpf::ParametricResolution resol_;
 
@@ -74,7 +74,7 @@ L1TPFCaloProducer::L1TPFCaloProducer(const edm::ParameterSet& iConfig):
     hadCorrector_(iConfig.getParameter<std::string>("hadCorrector"), iConfig.getParameter<double>("hadCorrectorEmfMax"), debug_),
     ecalClusterer_(iConfig.getParameter<edm::ParameterSet>("ecalClusterer")),
     hcalClusterer_(iConfig.getParameter<edm::ParameterSet>("hcalClusterer")),
-    caloLinker_(iConfig.getParameter<edm::ParameterSet>("linker"), ecalClusterer_, hcalClusterer_),
+    caloLinker_(l1tpf_calo::makeCaloLinker(iConfig.getParameter<edm::ParameterSet>("linker"), ecalClusterer_, hcalClusterer_)),
     resol_(iConfig.getParameter<edm::ParameterSet>("resol"))
 {
     produces<l1t::PFClusterCollection>("ecalCells");
@@ -194,18 +194,18 @@ L1TPFCaloProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     auto hcalClustH = iEvent.put(hcalClusterer_.fetch(hcalCellsH),  "hcalCalibrated");
  
     // Calorimeter linking
-    caloLinker_.run();
+    caloLinker_->run();
 
-    iEvent.put(caloLinker_.fetch(ecalClustH,hcalClustH),  "uncalibrated");
+    iEvent.put(caloLinker_->fetch(ecalClustH,hcalClustH),  "uncalibrated");
 
     if (hadCorrector_.valid()) {
-        caloLinker_.correct( [&](const l1tpf_calo::CombinedCluster &c) -> float { 
+        caloLinker_->correct( [&](const l1tpf_calo::CombinedCluster &c) -> float { 
                 if (debug_) std::cout << "L1TPFCaloProducer: raw linked cluster pt " << c.et << ", eta " << c.eta << ", phi " << c.phi << ", emPt " << c.ecal_et << std::endl;
                 return hadCorrector_.correctedPt(c.et, c.ecal_et, std::abs(c.eta)); 
                 } );
     }
 
-    std::unique_ptr<l1t::PFClusterCollection> clusters = caloLinker_.fetch(ecalClustH,hcalClustH);
+    std::unique_ptr<l1t::PFClusterCollection> clusters = caloLinker_->fetch(ecalClustH,hcalClustH);
     for (l1t::PFCluster & c : *clusters) {
         c.setPtError(resol_(c.pt(), std::abs(c.eta())));
         if (debug_) std::cout << "L1TPFCaloProducer: calibrated linked cluster pt " << c.pt() << ", eta " << c.eta() << ", phi " << c.phi() << ", emPt " << c.emEt() << std::endl;
@@ -214,7 +214,7 @@ L1TPFCaloProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     ecalClusterer_.clear();
     hcalClusterer_.clear();
-    caloLinker_.clear();
+    caloLinker_->clear();
 }
 
 void

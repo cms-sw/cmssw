@@ -29,6 +29,7 @@ pfClustersFromCombinedCalo = cms.EDProducer("L1TPFCaloProducer",
          energyShareAlgo = cms.string("fractions"),
      ),
      linker = cms.PSet(
+         algo = cms.string("simple"),
          grid = cms.string("phase2"),
          hoeCut = cms.double(0.1),
          minPhotonEt = cms.double(1.0),
