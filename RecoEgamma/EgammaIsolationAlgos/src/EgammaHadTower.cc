@@ -148,7 +148,7 @@ bool EgammaHadTower::hasActiveHcal( const std::vector<CaloTowerDetId> & towers )
 #endif
 	  // Sunanda's fix for 2017 Plan1   
           // and removed protection 
-          int status = hcalQuality_->getValues((DetId)(hcalTopology_->idFront(HcalDetId(id))),/*throwOnFail=*/false)->getValue();
+          int status = hcalQuality_->getValues((DetId)(hcalTopology_->idFront(HcalDetId(id))),/*throwOnFail=*/true)->getValue();
 
 #ifdef EDM_ML_DEBUG
 	  std::cout << "channels status = " << std::hex << status << std::dec 
