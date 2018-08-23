@@ -62,7 +62,7 @@ void L1TStage2ObjectComparison<T>::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<bool>("checkBxRange")->setComment("Check if BX ranges match");
   desc.add<bool>("checkCollSizePerBx")->setComment("Check if collection sizes within one BX match");
   desc.add<bool>("checkObject")->setComment("Check if objects match");
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 template <typename T>
