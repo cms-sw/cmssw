@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 ALCARECOSiStripCalSmallBiasScanHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
     andOr = True, ## choose logical OR between Triggerbits
-    eventSetupPathsKey = 'SiStripCalMinBias',
+    eventSetupPathsKey = 'SiStripCalSmallBiasScan',
     throw = False # tolerate triggers stated above, but not available
     )
 
