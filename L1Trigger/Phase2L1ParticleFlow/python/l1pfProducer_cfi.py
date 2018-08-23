@@ -42,6 +42,7 @@ l1pfProducer = cms.EDProducer("L1TPFProducer",
         useTrackCaloSigma = cms.bool(True), # take the uncertainty on the calo cluster from the track, for linking purposes
         sumTkCaloErr2 = cms.bool(True), # add up track calo errors in quadrature instead of linearly
         rescaleTracks = cms.bool(False), # if tracks exceed the calo, rescale the track momenta
+        useCaloTrkWeightedAverage = cms.bool(False), # do the weighted average of track & calo pTs if it's a 1-1 link 
         # how to deal with unlinked tracks
         maxInvisiblePt = cms.double(10.0), # max allowed pt of a track with no calo energy
         tightTrackMinStubs = cms.uint32(6),

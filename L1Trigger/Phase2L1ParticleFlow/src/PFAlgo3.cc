@@ -47,6 +47,7 @@ PFAlgo3::PFAlgo3( const edm::ParameterSet & iConfig ) :
     caloReLinkDr_ = linkcfg.getParameter<double>("caloReLinkDR");
     caloReLinkThreshold_ = linkcfg.getParameter<double>("caloReLinkThreshold");
     rescaleTracks_ = linkcfg.getParameter<bool>("rescaleTracks");
+    caloTrkWeightedAverage_ = linkcfg.getParameter<bool>("useCaloTrkWeightedAverage");
     sumTkCaloErr2_ = linkcfg.getParameter<bool>("sumTkCaloErr2");
     ecalPriority_ = linkcfg.getParameter<bool>("ecalPriority");
     tightTrackMinStubs_ = linkcfg.getParameter<unsigned>("tightTrackMinStubs");
@@ -536,7 +537,7 @@ void PFAlgo3::linkedtk_algo(Region & r, const std::vector<int> & tk2calo, const 
         p.cluster.src = calo.src;
         if (calo.hwFlags == 1) {
             // can do weighted average if there's just one track
-            if (calo2ntk[tk2calo[itk]] == 1) { 
+            if (calo2ntk[tk2calo[itk]] == 1 && caloTrkWeightedAverage_) { 
                 p.hwStatus = GoodTK_Calo_TkPt;
                 float ptavg = tk.floatPt();
                 if (tk.floatPtErr() > 0) {
