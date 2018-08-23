@@ -278,8 +278,8 @@ L1TPFCaloProducer::readHcalHGCTowers_(edm::Event& iEvent, const edm::EventSetup&
     for (const auto & token : hcalHGCTowers_) {
         iEvent.getByToken(token, hgcTowers);
         for(auto it = hgcTowers->begin(0), ed = hgcTowers->end(0); it != ed; ++it) {
-            float et = hcalHGCTowersHadOnly_ ? it->etHad() : it->pt();
-            hcalClusterer_.add(et, it->eta(), it->phi());
+            hcalClusterer_.add(it->etHad(), it->eta(), it->phi());
+            if (!hcalHGCTowersHadOnly_) ecalClusterer_.add(it->etEm(), it->eta(), it->phi());
         }
     }
 }
