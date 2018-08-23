@@ -146,7 +146,7 @@ template <typename T>
 void
 L1TComparisonResultFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("objComparisonColl")->setComment("Object comparison collection");
+  desc.add<edm::InputTag>("objComparisonColl", edm::InputTag("objComparisonColl"))->setComment("Object comparison collection");
   desc.add<int>("maxBxRangeDiff", -1)->setComment("Maximal BX range difference");
   desc.add<int>("maxExcess", -1)->setComment("Maximal allowed excess objects per BX");
   desc.add<int>("maxSize", -1)->setComment("Maximal allowed mismatches");
