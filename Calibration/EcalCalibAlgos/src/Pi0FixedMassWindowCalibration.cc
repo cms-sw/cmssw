@@ -73,9 +73,6 @@ Pi0FixedMassWindowCalibration::Pi0FixedMassWindowCalibration(const edm::Paramete
   selePi0MinvMeanFixed_ = iConfig.getParameter<double>("selePi0MinvMeanFixed");
   selePi0MinvSigmaFixed_ = iConfig.getParameter<double>("selePi0MinvSigmaFixed");
 
-
-
-
   // Parameters for the position calculation:
   edm::ParameterSet posCalcParameters = 
     iConfig.getParameter<edm::ParameterSet>("posCalcParameters");
@@ -112,6 +109,58 @@ Pi0FixedMassWindowCalibration::Pi0FixedMassWindowCalibration(const edm::Paramete
 Pi0FixedMassWindowCalibration::~Pi0FixedMassWindowCalibration()
 {
 
+}
+
+void Pi0FixedMassWindowCalibration::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+
+  desc.add<unsigned int>("maxLoops", 0);
+  desc.add<std::string>("ecalRecHitsProducer", "");
+  desc.add<std::string>("barrelHitCollection", "");
+
+  desc.add<std::string>("VerbosityLevel", "");
+  desc.add<std::string>("barrelClusterCollection", "");
+
+  desc.add<double>("IslandBarrelSeedThr", 0);
+  desc.add<double>("IslandEndcapSeedThr", 0);
+
+  desc.add<double>("selePi0PtGammaOneMin", 0);
+  desc.add<double>("selePi0PtGammaTwoMin", 0);
+
+  desc.add<double>("selePi0DRBelt", 0);
+  desc.add<double>("selePi0DetaBelt", 0);
+
+  desc.add<double>("selePi0PtPi0Min", 0);
+
+  desc.add<double>("selePi0S4S9GammaOneMin", 0);
+  desc.add<double>("selePi0S4S9GammaTwoMin", 0);
+  desc.add<double>("selePi0S9S25GammaOneMin", 0);
+  desc.add<double>("selePi0S9S25GammaTwoMin", 0);
+
+  desc.add<double>("selePi0EtBeltIsoRatioMax", 0);
+
+  desc.add<double>("selePi0MinvMeanFixed", 0);
+  desc.add<double>("selePi0MinvSigmaFixed", 0);
+
+  edm::ParameterSetDescription posCalcParameters;
+  posCalcParameters.add<bool>("LogWeighted", true);
+  posCalcParameters.add<double>("T0_barl", 7.4);
+  posCalcParameters.add<double>("T0_endc", 3.1);
+  posCalcParameters.add<double>("T0_endcPresh", 1.2);
+  posCalcParameters.add<double>("W0", 4.2);
+  posCalcParameters.add<double>("X0", 0.89);
+  desc.add<edm::ParameterSetDescription>("posCalcParameters", posCalcParameters);
+
+  desc.add<std::string>("clustershapecollectionEB", "islandBarrelShape");
+  desc.add<std::string>("barrelShapeAssociation", "islandBarrelShapeAssoc");
+
+  desc.add<std::vector<std::string>>("SeedRecHitFlagToBeExcludedEB", {});
+  desc.add<std::vector<std::string>>("SeedRecHitFlagToBeExcludedEE", {});
+  desc.add<std::vector<std::string>>("RecHitFlagToBeExcludedEB", {});
+  desc.add<std::vector<std::string>>("RecHitFlagToBeExcludedEE", {});
+
+  descriptions.add("Pi0FixedMassWindowCalibration", desc);
 }
 
 //_____________________________________________________________________________
