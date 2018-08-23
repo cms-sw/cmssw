@@ -13,15 +13,11 @@ jetHighLevelReco = cms.Sequence(recoPFJets*jetCorrectorsForReco*recoJetAssociati
 
 from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
 #HI-specific algorithms needed in pp scenario special configurations
-from RecoHI.HiJetAlgos.hiFJRhoProducer import hiFJRhoProducer
-
 from RecoHI.HiJetAlgos.hiFJGridEmptyAreaCalculator_cff import hiFJGridEmptyAreaCalculator
 pA_2016.toModify(hiFJGridEmptyAreaCalculator, doCentrality = False)
 
-kt4PFJetsForRho = kt4PFJets.clone(doAreaFastjet = True,
-                                  jetPtMin = 0.0,
-                                  GhostArea = 0.005)
-
+from RecoHI.HiJetAlgos.hiFJRhoProducer import hiFJRhoProducer
+from RecoHI.HiJetAlgos.HiRecoPFJets_cff import kt4PFJetsForRho
 from RecoHI.HiCentralityAlgos.pACentrality_cfi import pACentrality
 pA_2016.toModify(pACentrality, producePixelTracks = False)
 
