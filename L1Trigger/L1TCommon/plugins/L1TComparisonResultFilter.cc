@@ -151,7 +151,7 @@ L1TComparisonResultFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<int>("maxExcess", -1)->setComment("Maximal allowed excess objects per BX");
   desc.add<int>("maxSize", -1)->setComment("Maximal allowed mismatches");
   desc.add<bool>("invert", false)->setComment("Invert final result");
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define plugins for different L1T objects
