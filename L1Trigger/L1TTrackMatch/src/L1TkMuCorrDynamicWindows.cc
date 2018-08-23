@@ -216,16 +216,16 @@ std::vector<int> L1TkMuCorrDynamicWindows::make_unique_coll(const EMTFTrackColle
     //     return (pt1 < pt2);
     // };
 
-    std::function<bool(int, int, EMTFTrackCollection&)> track_less_than_proto = [](int idx1, int idx2, EMTFTrackCollection& l1emtfcoll)
+    std::function<bool(int, int, const L1TTTrackCollectionType&, int)> track_less_than_proto = [](int idx1, int idx2, const L1TTTrackCollectionType& l1trkcoll, int nTrackParams)
     {
-        float pt1 = l1emtfcoll[idx1].Pt();
-        float pt2 = l1emtfcoll[idx2].Pt();
+        float pt1 = l1trkcoll.at(idx1).getMomentum(nTrackParams).perp();
+        float pt2 = l1trkcoll.at(idx2).getMomentum(nTrackParams).perp();
         return (pt1 < pt2);
     };
 
     // // and binds to accept only 2 params
     // std::function<bool(int,int)> track_less_than = std::bind(track_less_than_proto, std::placeholders::_1, std::placeholders::_2, std::ref(l1mus));
-    std::function<bool(int,int)> track_less_than = std::bind(track_less_than_proto, std::placeholders::_1, std::placeholders::_2, l1mus);
+    std::function<bool(int,int)> track_less_than = std::bind(track_less_than_proto, std::placeholders::_1, std::placeholders::_2, l1trks, nTrkPars_);
 
 
     for (unsigned int iemtf = 0; iemtf < macthed_to_emtf.size(); ++iemtf)
