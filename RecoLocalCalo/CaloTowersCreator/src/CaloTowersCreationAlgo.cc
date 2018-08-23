@@ -1662,8 +1662,8 @@ void CaloTowersCreationAlgo::makeHcalDropChMap() {
               }
           }
           if (nbad > 0 && nbad >= ngood) {
-              CaloTowerDetId id(pair.first);
               //uncomment for debug (may be useful to tune the criteria above)
+              //CaloTowerDetId id(pair.first);
               //std::cout << "CaloTower at ieta = " << id.ieta() << ", iphi " << id.iphi() << ": set Hcal as not efficient (ngood =" << ngood << ", nbad = " << nbad << ")" << std::endl;
               pair.second.second = true;
           }
