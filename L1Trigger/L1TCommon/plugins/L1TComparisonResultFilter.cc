@@ -46,9 +46,9 @@ class L1TComparisonResultFilter : public edm::stream::EDFilter<> {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginStream(edm::StreamID) override { };
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endStream() override { };
+      void beginStream(edm::StreamID) override { };
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endStream() override { };
 
       // ----------member data ---------------------------
       edm::InputTag inputTag_;
