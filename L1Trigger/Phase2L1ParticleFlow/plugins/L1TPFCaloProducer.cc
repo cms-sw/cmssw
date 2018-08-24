@@ -129,6 +129,28 @@ L1TPFCaloProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         }
     }
 
+    /// ----------------HCAL INFO-------------------
+    if (!ecalOnly_) {
+        edm::Handle<reco::CandidateView> hcals;
+        for (const auto & token : hcalCands_) {
+            iEvent.getByToken(token, hcals);
+            for (const reco::Candidate & it : *hcals) {
+                if (debug_) std::cout << "L1TPFCaloProducer: adding HCal cand input pt " << it.pt() << ", eta " << it.eta() << ", phi " << it.phi() << std::endl;
+                hcalClusterer_.add(it);
+            }
+        }
+        if (!hcalDigis_.empty()) {
+            readHcalDigis_(iEvent, iSetup);
+        }
+        if (!hcalHGCTCs_.empty()) {
+            readHcalHGCTCs_(iEvent, iSetup);
+        }
+        if (!hcalHGCTowers_.empty()) {
+            readHcalHGCTowers_(iEvent, iSetup);
+        }
+    }
+
+    /// --------------- CLUSTERING ------------------
     ecalClusterer_.run();
 
     auto ecalCellsH = iEvent.put(ecalClusterer_.fetchCells(),  "ecalCells");
@@ -157,25 +179,6 @@ L1TPFCaloProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
 
 
-    // / ----------------HCAL INFO-------------------
-
-    edm::Handle<reco::CandidateView> hcals;
-    for (const auto & token : hcalCands_) {
-        iEvent.getByToken(token, hcals);
-        for (const reco::Candidate & it : *hcals) {
-            if (debug_) std::cout << "L1TPFCaloProducer: adding HCal cand input pt " << it.pt() << ", eta " << it.eta() << ", phi " << it.phi() << std::endl;
-            hcalClusterer_.add(it);
-        }
-    }
-    if (!hcalDigis_.empty()) {
-        readHcalDigis_(iEvent, iSetup);
-    }
-    if (!hcalHGCTCs_.empty()) {
-        readHcalHGCTCs_(iEvent, iSetup);
-    }
-    if (!hcalHGCTowers_.empty()) {
-        readHcalHGCTowers_(iEvent, iSetup);
-    }
     hcalClusterer_.run();
 
     auto hcalCellsH = iEvent.put(hcalClusterer_.fetchCells(),  "hcalCells");
@@ -278,6 +281,7 @@ L1TPFCaloProducer::readHcalHGCTowers_(edm::Event& iEvent, const edm::EventSetup&
     for (const auto & token : hcalHGCTowers_) {
         iEvent.getByToken(token, hgcTowers);
         for(auto it = hgcTowers->begin(0), ed = hgcTowers->end(0); it != ed; ++it) {
+            if (debug_) std::cout << "L1TPFCaloProducer: adding HGC Tower hadEt " << it->etHad() << ", emEt " << it->etEm() << ", pt " << it->pt() << ", eta " << it->eta() << ", phi " << it->phi() << std::endl;
             hcalClusterer_.add(it->etHad(), it->eta(), it->phi());
             if (!hcalHGCTowersHadOnly_) ecalClusterer_.add(it->etEm(), it->eta(), it->phi());
         }
