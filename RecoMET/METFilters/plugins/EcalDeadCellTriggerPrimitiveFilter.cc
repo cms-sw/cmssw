@@ -77,7 +77,7 @@ public:
 private:
   bool filter(edm::Event&, const edm::EventSetup&) override;
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void envSet(const edm::EventSetup&);
+  void envSet(const edm::EventSetup&);
 
   // ----------member data ---------------------------
 
@@ -92,15 +92,17 @@ private:
   edm::ESHandle<EcalChannelStatus>  ecalStatus;
   edm::ESHandle<CaloGeometry>       geometry;
 
-  void loadEcalDigis(edm::Event& iEvent, const edm::EventSetup& iSetup);
-  void loadEcalRecHits(edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void loadEcalDigis(edm::Event& iEvent,
+                     edm::Handle<EcalTrigPrimDigiCollection>& pTPDigis
+);
+  void loadEcalRecHits(edm::Event& iEvent,
+                       edm::Handle<EcalRecHitCollection>& barrelReducedRecHitsHandle,
+                       edm::Handle<EcalRecHitCollection>& endcapReducedRecHitsHandle);
 
   const edm::InputTag ebReducedRecHitCollection_;
   const edm::InputTag eeReducedRecHitCollection_;
   edm::EDGetTokenT<EcalRecHitCollection> ebReducedRecHitCollectionToken_;
   edm::EDGetTokenT<EcalRecHitCollection> eeReducedRecHitCollectionToken_;
-  edm::Handle<EcalRecHitCollection> barrelReducedRecHitsHandle;
-  edm::Handle<EcalRecHitCollection> endcapReducedRecHitsHandle;
 
   edm::ESHandle<EcalTrigTowerConstituentsMap> ttMap_;
 
@@ -125,12 +127,11 @@ private:
 
   const edm::InputTag tpDigiCollection_;
   edm::EDGetTokenT<EcalTrigPrimDigiCollection> tpDigiCollectionToken_;
-  edm::Handle<EcalTrigPrimDigiCollection> pTPDigis;
 
 // chnStatus > 0, then exclusive, i.e., only consider status == chnStatus
 // chnStatus < 0, then inclusive, i.e., consider status >= abs(chnStatus)
 // Return value:  + : positive zside  - : negative zside
-  int setEvtTPstatus(const double &tpCntCut, const int &chnStatus);
+  int setEvtTPstatus(const EcalTrigPrimDigiCollection& , const double &tpCntCut, const int &chnStatus);
 
   const bool useTTsum_; //If set to true, the filter will compare the sum of the 5x5 tower to the provided energy threshold
   const bool usekTPSaturated_; //If set to true, the filter will check the kTPSaturated flag
@@ -156,7 +157,9 @@ private:
 
 // To be used before a bug fix
   std::vector<DetId> avoidDuplicateVec;
-  int setEvtRecHitstatus(const double &tpValCut, const int &chnStatus, const int &towerTest);
+  int setEvtRecHitstatus(const double &tpValCut, const int &chnStatus, const int &towerTest,
+                         const EBRecHitCollection& HitecalEB,
+                         const EERecHitCollection& HitecalEE);
 
 };
 
@@ -243,14 +246,17 @@ void EcalDeadCellTriggerPrimitiveFilter::loadEventInfoForFilter(const edm::Event
 
 }
 
-void EcalDeadCellTriggerPrimitiveFilter::loadEcalDigis(edm::Event& iEvent, const edm::EventSetup& iSetup){
+void EcalDeadCellTriggerPrimitiveFilter::loadEcalDigis(edm::Event& iEvent, edm::Handle<EcalTrigPrimDigiCollection>& pTPDigis){
 
   iEvent.getByToken(tpDigiCollectionToken_, pTPDigis);
   if ( !pTPDigis.isValid() ) { edm::LogWarning("EcalDeadCellTriggerPrimitiveFilter") << "Can't get the product " << tpDigiCollection_.instance()
                                              << " with label " << tpDigiCollection_.label(); return; }
 }
 
-void EcalDeadCellTriggerPrimitiveFilter::loadEcalRecHits(edm::Event& iEvent, const edm::EventSetup& iSetup){
+void EcalDeadCellTriggerPrimitiveFilter::loadEcalRecHits(edm::Event& iEvent,
+                                                         edm::Handle<EcalRecHitCollection>& barrelReducedRecHitsHandle,
+                                                         edm::Handle<EcalRecHitCollection>& endcapReducedRecHitsHandle)
+{
 
   iEvent.getByToken(ebReducedRecHitCollectionToken_,barrelReducedRecHitsHandle);
   iEvent.getByToken(eeReducedRecHitCollectionToken_,endcapReducedRecHitsHandle);
@@ -290,13 +296,16 @@ bool EcalDeadCellTriggerPrimitiveFilter::filter(edm::Event& iEvent, const edm::E
   int evtTagged = 0;
 
   if( useTPmethod_ ){
-     loadEcalDigis(iEvent, iSetup);
-     evtTagged = setEvtTPstatus(etValToBeFlagged_, 13);
+     edm::Handle<EcalTrigPrimDigiCollection> pTPDigis;
+     loadEcalDigis(iEvent, pTPDigis);
+     evtTagged = setEvtTPstatus(*pTPDigis, etValToBeFlagged_, 13);
   }
 
   if( useHITmethod_ ){
-     loadEcalRecHits(iEvent, iSetup);
-     evtTagged = setEvtRecHitstatus(etValToBeFlagged_, 13, 13);
+     edm::Handle<EcalRecHitCollection> barrelReducedRecHitsHandle;
+     edm::Handle<EcalRecHitCollection> endcapReducedRecHitsHandle;
+     loadEcalRecHits(iEvent, barrelReducedRecHitsHandle, endcapReducedRecHitsHandle);
+     evtTagged = setEvtRecHitstatus(etValToBeFlagged_, 13, 13, *barrelReducedRecHitsHandle, *endcapReducedRecHitsHandle);
   }
 
   if( evtTagged ){ pass = false; }
@@ -322,7 +331,10 @@ void EcalDeadCellTriggerPrimitiveFilter::beginRun(const edm::Run &iRun, const ed
   return ;
 }
 
-int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCut, const int &chnStatus, const int &towerTest){
+int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCut, const int &chnStatus, const int &towerTest,
+                                                           const EBRecHitCollection& HitecalEB,
+                                                           const EERecHitCollection& HitecalEE
+                                                           ){
 
   if( debug_ && verbose_ >=2) edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter")<<"***begin setEvtTPstatusRecHits***";
 
@@ -334,9 +346,6 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCu
   const EBRecHitCollection HitecalEB = *(barrelRecHitsHandle.product());
   const EERecHitCollection HitecalEE = *(endcapRecHitsHandle.product());
 */
-  const EBRecHitCollection HitecalEB = *(barrelReducedRecHitsHandle.product());
-  const EERecHitCollection HitecalEE = *(endcapReducedRecHitsHandle.product());
-
   int isPassCut =0;
 
   EBRecHitCollection::const_iterator ebrechit;
@@ -524,7 +533,7 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCu
 }
 
 
-int EcalDeadCellTriggerPrimitiveFilter::setEvtTPstatus(const double &tpValCut, const int &chnStatus) {
+int EcalDeadCellTriggerPrimitiveFilter::setEvtTPstatus(EcalTrigPrimDigiCollection const& tpDigis, const double &tpValCut, const int &chnStatus) {
 
   if( debug_ && verbose_ >=2) edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter")<<"***begin setEvtTPstatus***";
 
@@ -551,10 +560,8 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtTPstatus(const double &tpValCut, c
         EcalTrigTowerDetId ttDetId = ttItor->second;
         int ttzside = ttDetId.zside();
 
-        const EcalTrigPrimDigiCollection * tpDigis = nullptr;
-        tpDigis = pTPDigis.product();
-        EcalTrigPrimDigiCollection::const_iterator tp = tpDigis->find( ttDetId );
-        if( tp != tpDigis->end() ){
+        EcalTrigPrimDigiCollection::const_iterator tp = tpDigis.find( ttDetId );
+        if( tp != tpDigis.end() ){
            double tpEt = ecalScale_.getTPGInGeV( tp->compressedEt(), tp->id() );
            if(tpEt >= tpValCut ){ isPassCut = 1; isPassCut *= ttzside; }
         }
