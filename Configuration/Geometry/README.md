@@ -16,6 +16,7 @@ Calorimeters:
 * C4: HGCal (v9) + Phase2 HCAL and EB
 * C5: HGCal (v9 without virtual wafers) + Phase2 HCAL and EB
 * C6: HGCal (v9) + HFNose + Phase2 HCAL and EB
+* C7: HGCal (v9a with inner support structure) + Phase2 HCAL and EB
 
 Muon system:
 * M2: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1)
@@ -45,5 +46,6 @@ Several detector combinations have been generated:
 * D29 = T11+C3+M2+I1+O2+F2 
 * D30 = T6+C5+M2+I1+O2+F2
 * D31 = T6+C6+M2+I1+O2+F3
+* D32 = T6+C7+M2+I1+O2+F2
 
 Currently, D17 is considered to be the baseline for the Phase 2 Muon and Barrel TDRs.
