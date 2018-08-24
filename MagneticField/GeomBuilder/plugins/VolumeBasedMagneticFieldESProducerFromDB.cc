@@ -140,9 +140,9 @@ std::unique_ptr<MagneticField> VolumeBasedMagneticFieldESProducerFromDB::produce
     parser.clearFiles();
     std::unique_ptr<std::vector<unsigned char> > tb = (*gdd).getUncompressedBlob();
     parser.parse(*tb, tb->size());
+    cpv->lockdown();
     
     builder.build(*cpv);
-    cpv->lockdown();
 
     // Build the VB map. Ownership of the parametrization is transferred to it
     return std::make_unique<VolumeBasedMagneticField>(conf->geometryVersion,builder.barrelLayers(), builder.endcapSectors(), builder.barrelVolumes(), builder.endcapVolumes(), builder.maxR(), builder.maxZ(), paramField.release(), true);
