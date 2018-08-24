@@ -173,8 +173,6 @@ EcalDeadCellTriggerPrimitiveFilter::EcalDeadCellTriggerPrimitiveFilter(const edm
   , doEEfilter_ (iConfig.getUntrackedParameter<bool>("doEEfilter") )
   , ebReducedRecHitCollection_ (iConfig.getParameter<edm::InputTag>("ebReducedRecHitCollection") )
   , eeReducedRecHitCollection_ (iConfig.getParameter<edm::InputTag>("eeReducedRecHitCollection") )
-  , ebReducedRecHitCollectionToken_ (consumes<EcalRecHitCollection>(ebReducedRecHitCollection_))
-  , eeReducedRecHitCollectionToken_ (consumes<EcalRecHitCollection>(eeReducedRecHitCollection_))
   , maskedEcalChannelStatusThreshold_ (iConfig.getParameter<int>("maskedEcalChannelStatusThreshold") )
   , etValToBeFlagged_ (iConfig.getParameter<double>("etValToBeFlagged") )
   , tpDigiCollection_ (iConfig.getParameter<edm::InputTag>("tpDigiCollection") )
@@ -187,24 +185,23 @@ EcalDeadCellTriggerPrimitiveFilter::EcalDeadCellTriggerPrimitiveFilter(const edm
   useTPmethod_ = true; useHITmethod_ = false;
 
   produces<bool>();
+
+  callWhenNewProductsRegistered([this](edm::BranchDescription const& iBranch) {
+    if( iBranch.moduleLabel() ==  tpDigiCollection_.label() ){ hastpDigiCollection_ = 1; }
+    if( iBranch.moduleLabel() == ebReducedRecHitCollection_.label() || iBranch.moduleLabel() == eeReducedRecHitCollection_.label() ){
+       hasReducedRecHits_++;
+       if(hasReducedRecHits_ == 2 and hastpDigiCollection_ == 0) {
+         ebReducedRecHitCollectionToken_ = consumes<EcalRecHitCollection>(ebReducedRecHitCollection_);
+         eeReducedRecHitCollectionToken_ = consumes<EcalRecHitCollection>(eeReducedRecHitCollection_);
+       }
+    }
+    });
 }
 
 EcalDeadCellTriggerPrimitiveFilter::~EcalDeadCellTriggerPrimitiveFilter() {
 }
 
 void EcalDeadCellTriggerPrimitiveFilter::loadEventInfoForFilter(const edm::Event &iEvent){
-
-  std::vector<edm::StableProvenance const*> provenances;
-  iEvent.getAllStableProvenance(provenances);
-  const unsigned int nProvenance = provenances.size();
-  for (unsigned int ip = 0; ip < nProvenance; ip++) {
-    const edm::StableProvenance& provenance = *( provenances[ip] );
-    if( provenance.moduleLabel() ==  tpDigiCollection_.label() ){ hastpDigiCollection_ = 1; }
-    if( provenance.moduleLabel() == ebReducedRecHitCollection_.label() || provenance.moduleLabel() == eeReducedRecHitCollection_.label() ){
-       hasReducedRecHits_++;
-    }
-    if( hastpDigiCollection_ && hasReducedRecHits_>=2 ){ break; }
-  }
 
   if( debug_ ) edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter")<<"\nhastpDigiCollection_ : "<<hastpDigiCollection_<<"  hasReducedRecHits_ : "<<hasReducedRecHits_;
 
