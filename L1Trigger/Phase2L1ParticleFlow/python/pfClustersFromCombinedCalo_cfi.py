@@ -1,12 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 pfClustersFromCombinedCalo = cms.EDProducer("L1TPFCaloProducer",
-     ecalCandidates = cms.VInputTag(cms.InputTag('pfClustersFromHGC3DClustersEM'), cms.InputTag('pfClustersFromL1EGClusters')),
+     ecalCandidates = cms.VInputTag(cms.InputTag('pfClustersFromL1EGClusters')), # using EM from towers in HGC, no longer reading also 'pfClustersFromHGC3DClustersEM'  
      hcalCandidates = cms.VInputTag(),
      hcalDigis = cms.VInputTag(cms.InputTag('simHcalTriggerPrimitiveDigis')),
      hcalHGCTCs = cms.VInputTag(), #cms.InputTag("hgcalTriggerPrimitiveDigiProducer","calibratedTriggerCells") ),
      hcalHGCTowers = cms.VInputTag(cms.InputTag("hgcalTriggerPrimitiveDigiProducer","tower") ),
-     hcalHGCTowersHadOnly = cms.bool(True),
+     hcalHGCTowersHadOnly = cms.bool(False), # take also EM part from towers
      hcalHGCTCEtMin = cms.double(0.0),
      emCorrector  = cms.string(""), # no need to correct further
      hcCorrector  = cms.string(""), # no correction to hcal-only in the default scheme
@@ -29,7 +29,14 @@ pfClustersFromCombinedCalo = cms.EDProducer("L1TPFCaloProducer",
          energyShareAlgo = cms.string("fractions"),
      ),
      linker = cms.PSet(
-         algo = cms.string("simple"),
+         algo = cms.string("flat"),
+
+         zsEt = cms.double(0.0), ## Ecal and Hcal are already ZS-ed above
+         seedEt = cms.double(1.0),
+         minClusterEt = cms.double(1.0),
+         energyWeightedPosition = cms.bool(True),
+         energyShareAlgo = cms.string("fractions"),
+ 
          grid = cms.string("phase2"),
          hoeCut = cms.double(0.1),
          minPhotonEt = cms.double(1.0),
