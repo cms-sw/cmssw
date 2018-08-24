@@ -13,7 +13,7 @@ HcalTestNS::HcalTestNS(const edm::EventSetup* iSetup) {
   edm::ESHandle<HcalDDDRecConstants>    hdc;
   iSetup->get<HcalRecNumberingRecord>().get(hdc);
   if (hdc.isValid()) {
-    hcons_ = (HcalDDDRecConstants*)(&(*hdc));
+    hcons_ = hdc.product();
   } else {
     edm::LogError("HcalSim") << "HcalTestNS : Cannot find HcalDDDRecConstant";
     hcons_ = nullptr;

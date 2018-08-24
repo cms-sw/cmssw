@@ -38,7 +38,8 @@ class HCalSD : public CaloSD, public Observer<const BeginOfJob *> {
 
 public:    
 
-  HCalSD(const std::string& , const DDCompactView &, const SensitiveDetectorCatalog &,
+  HCalSD(const std::string& , const DDCompactView &, 
+	 const SensitiveDetectorCatalog &,
          edm::ParameterSet const &, const SimTrackManager*);
   ~HCalSD() override = default;
   uint32_t              setDetUnitId(const G4Step* step) override;
@@ -94,7 +95,7 @@ private:
   std::unique_ptr<HFShowerPMT>          showerPMT;
   std::unique_ptr<HFShowerFibreBundle>  showerBundle;
 
-  HcalDDDSimConstants*          hcalConstants;
+  const HcalDDDSimConstants*    hcalConstants;
   const HBHEDarkening*          m_HBDarkening;
   const HBHEDarkening*          m_HEDarkening;
   std::unique_ptr<HFDarkening>  m_HFDarkening;

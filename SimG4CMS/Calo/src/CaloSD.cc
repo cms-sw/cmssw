@@ -142,16 +142,16 @@ G4bool CaloSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
     currentID.setID(unitID, time, primaryID, depth); 
   } else { 
     if(aStep->GetTotalEnergyDeposit() > 0.0) { 
-      G4TouchableHistory* touch =(G4TouchableHistory*)(theTrack->GetTouchable());
+      const G4TouchableHistory* touch = static_cast<const G4TouchableHistory*>(theTrack->GetTouchable());
       edm::LogInfo("CaloSim") << "CaloSD::ProcessHits: unitID= " << unitID
-				 << " currUnit=   " << currentID.unitID()
-				 << " Detector: " << GetName()
-				 << " trackID= " << theTrack->GetTrackID() 
-				 << " " << theTrack->GetDefinition()->GetParticleName()
-				 << "\n Edep= " << aStep->GetTotalEnergyDeposit()
-				 << " PV: "     << touch->GetVolume(0)->GetName()
-				 << " PVid= " << touch->GetReplicaNumber(0)
-				 << " MVid= " << touch->GetReplicaNumber(1);
+			      << " currUnit=   " << currentID.unitID()
+			      << " Detector: " << GetName()
+			      << " trackID= " << theTrack->GetTrackID() << " "
+			      << theTrack->GetDefinition()->GetParticleName()
+			      << "\n Edep= " << aStep->GetTotalEnergyDeposit()
+			      << " PV: "   << touch->GetVolume(0)->GetName()
+			      << " PVid= " << touch->GetReplicaNumber(0)
+			      << " MVid= " << touch->GetReplicaNumber(1);
     }
     return false;
   }
