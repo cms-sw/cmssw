@@ -45,7 +45,7 @@ private:
   const HGCalDDDConstants*               hgcons_;
   std::unique_ptr<HFNoseNumberingScheme> numberingScheme_;
   std::unique_ptr<HGCMouseBite>          mouseBite_;
-  const std::string                      nameX_ = "HFNoseSensitive";
+  std::string                            nameX_;
   HGCalGeometryMode::GeometryMode        geom_mode_;
   double                                 eminHit_, slopeMin_, weight_;
   double                                 mouseBiteCut_, distanceFromEdge_;
