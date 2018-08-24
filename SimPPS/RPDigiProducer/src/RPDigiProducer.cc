@@ -19,7 +19,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/CTPPSDigi/interface/TotemRPDigi.h"
-#include "DataFormats/CTPPSDigi/interface/RPDetTrigger.h"
 #include "DataFormats/CTPPSDigi/interface/TotemRPDigi.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
@@ -44,7 +43,6 @@ RPDigiProducer::RPDigiProducer(const edm::ParameterSet& conf) :
     */
     //now do what ever other initialization is needed
     produces<edm::DetSetVector<TotemRPDigi> > ();
-    produces<edm::DetSetVector<RPDetTrigger> > ();
 
     // register data to consume
     tokenCrossingFrameTotemRP = consumes<CrossingFrame<PSimHit>>(edm::InputTag("mix","g4SimHitsTotemHitsRP", ""));
@@ -126,12 +124,9 @@ void RPDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   // Step B: LOOP on hits in event
   theDigiVector.reserve(400);
   theDigiVector.clear();
-  theTriggerVector.reserve(240);
-  theTriggerVector.clear();
 
   for (simhit_map_iterator it = SimHitMap.begin(); it != SimHitMap.end(); ++it) {
     edm::DetSet<TotemRPDigi> digi_collector(it->first);
-    edm::DetSet<RPDetTrigger> trigger_collector(it->first);
 
     if (theAlgoMap.find(it->first) == theAlgoMap.end()) {
       theAlgoMap[it->first] = boost::shared_ptr<RPDetDigitizer>(
@@ -140,32 +135,24 @@ void RPDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
     std::vector<int> input_links;
     SimRP::DigiPrimaryMapType output_digi_links;
-    SimRP::TriggerPrimaryMapType output_trig_links;
 
     (theAlgoMap.find(it->first)->second)->run(SimHitMap[it->first], input_links, digi_collector.data,
-	trigger_collector.data, output_digi_links, output_trig_links);
+	output_digi_links);
 
     if (digi_collector.data.size() > 0) {
       theDigiVector.push_back(convertRPStripDetSet(digi_collector));
-    }
-    if (trigger_collector.data.size() > 0) {
-      theTriggerVector.push_back(trigger_collector);
     }
   }
 
   // Step C: create empty output collection
   std::unique_ptr<edm::DetSetVector<TotemRPDigi> > digi_output(
       new edm::DetSetVector<TotemRPDigi>(theDigiVector));
-  std::unique_ptr<edm::DetSetVector<RPDetTrigger> > trigger_output(
-      new edm::DetSetVector<RPDetTrigger>(theTriggerVector));
 
   if (verbosity_) {
     std::cout << "digi_output->size()=" << digi_output->size() << std::endl;
-    std::cout << "trigger_output->size()=" << trigger_output->size() << std::endl;
   }
   // Step D: write output to file
   iEvent.put(std::move(digi_output));
-  iEvent.put(std::move(trigger_output));
 }
 
 // ------------ method called once each job just before starting event loop  ------------

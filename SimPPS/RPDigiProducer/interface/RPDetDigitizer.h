@@ -16,7 +16,6 @@
 #include "SimPPS/RPDigiProducer/interface/RPHitChargeConverter.h"
 #include "SimPPS/RPDigiProducer/interface/RPVFATSimulator.h"
 #include "DataFormats/CTPPSDigi/interface/TotemRPDigi.h"
-#include "DataFormats/CTPPSDigi/interface/RPDetTrigger.h"
 #include "SimPPS/RPDigiProducer/interface/RPDisplacementGenerator.h"
 #include "SimPPS/RPDigiProducer/interface/RPGaussianTailNoiseAdder.h"
 #include "SimPPS/RPDigiProducer/interface/RPPileUpSignals.h"
@@ -32,9 +31,8 @@ class RPDetDigitizer
   public:
     RPDetDigitizer(const edm::ParameterSet &params, CLHEP::HepRandomEngine& eng, RPDetId det_id, const edm::EventSetup& iSetup);
     void run(const std::vector<PSimHit> &input, const std::vector<int> &input_links, 
-        std::vector<TotemRPDigi> &output_digi, std::vector<RPDetTrigger> &output_trig, 
-        SimRP::DigiPrimaryMapType &output_digi_links, 
-        SimRP::TriggerPrimaryMapType &output_trig_links);
+        std::vector<TotemRPDigi> &output_digi, 
+        SimRP::DigiPrimaryMapType &output_digi_links); 
     ~RPDetDigitizer();
       
   private:

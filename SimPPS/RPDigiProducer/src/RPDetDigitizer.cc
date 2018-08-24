@@ -35,9 +35,8 @@ RPDetDigitizer::~RPDetDigitizer()
 }
 
 void RPDetDigitizer::run(const std::vector<PSimHit> &input, const std::vector<int> &input_links, 
-    std::vector<TotemRPDigi> &output_digi, std::vector<RPDetTrigger> &output_trig, 
-    SimRP::DigiPrimaryMapType &output_digi_links, 
-    SimRP::TriggerPrimaryMapType &output_trig_links)
+    std::vector<TotemRPDigi> &output_digi, 
+    SimRP::DigiPrimaryMapType &output_digi_links) 
 {
   if(verbosity_)
     std::cout<<"RPDetDigitizer "<<det_id_<<" received input.size()="<<input.size()<<std::endl;
@@ -72,5 +71,5 @@ void RPDetDigitizer::run(const std::vector<PSimHit> &input, const std::vector<in
     afterNoise = theRPGaussianTailNoiseAdder->addNoise(theSignal);
 
   theRPVFATSimulator->ConvertChargeToHits(afterNoise, theSignalProvenance, 
-        output_digi, output_trig, output_digi_links, output_trig_links);
+        output_digi, output_digi_links);
 }

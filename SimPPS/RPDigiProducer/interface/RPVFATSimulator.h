@@ -4,7 +4,6 @@
 #include <set>
 
 #include "DataFormats/CTPPSDigi/interface/TotemRPDigi.h"
-#include "DataFormats/CTPPSDigi/interface/RPDetTrigger.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimPPS/RPDigiProducer/interface/RPSimTypes.h"
@@ -16,9 +15,7 @@ class RPVFATSimulator
     void ConvertChargeToHits(const SimRP::strip_charge_map &signals, 
           SimRP::strip_charge_map_links_type &theSignalProvenance, 
           std::vector<TotemRPDigi> &output_digi, 
-          std::vector<RPDetTrigger> &output_trig, 
-          SimRP::DigiPrimaryMapType &output_digi_links, 
-          SimRP::TriggerPrimaryMapType &output_trig_links);
+          SimRP::DigiPrimaryMapType &output_digi_links);
   private:
     typedef std::set<unsigned short, std::less<unsigned short> > dead_strip_set;
     void SetDeadStrips();
@@ -29,12 +26,8 @@ class RPVFATSimulator
     dead_strip_set dead_strips_;
     int verbosity_;
     
-    int trigger_mode_;
     unsigned short strips_no_;
     double threshold_;
-    short strips_per_section_;
-    SimRP::TriggerContainer the_trig_cont_;
-    SimRP::TriggerContainerLinkMap the_trig_cont_links_;
     bool links_persistence_;
 };
 
