@@ -1151,8 +1151,8 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
 #endif
     if (drlow < php.minTileSize_) {
       ++irlow;
-      drlow       = php.radiusLayer_[kk][irlow] - php.rMinLayHex_[k];
 #ifdef EDM_ML_DEBUG
+      drlow       = php.radiusLayer_[kk][irlow] - php.rMinLayHex_[k];
       edm::LogVerbatim("HGCalGeom") << "Modified irlow " << irlow << " dr " 
 				    << drlow;
 #endif
@@ -1174,8 +1174,8 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
 #endif
     if (drhigh < php.minTileSize_) {
       --irhigh;
-      drhigh = php.rMaxLayHex_[k] - php.radiusLayer_[kk][irhigh-1];
 #ifdef EDM_ML_DEBUG
+      drhigh = php.rMaxLayHex_[k] - php.radiusLayer_[kk][irhigh-1];
       edm::LogVerbatim("HGCalGeom") << "Modified irhigh " << irhigh << " dr "
 				    << drhigh;
 #endif
