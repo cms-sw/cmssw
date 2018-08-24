@@ -23,14 +23,16 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('L1Trigger.TrackFindingTracklet.L1TrackletTracks_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(10)
 )
 
 # Input source
 process.source = cms.Source("PoolSource",
-       fileNames = cms.untracked.vstring('/store/mc/PhaseIIFall17D/TT_TuneCUETP8M2T4_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW/L1TPU200_93X_upgrade2023_realistic_v5-v2/30000/04998910-0755-E811-B1FC-EC0D9A822606.root'),
+       fileNames = cms.untracked.vstring(
+'/store/mc/PhaseIIFall17D/SingleNeutrino/GEN-SIM-DIGI-RAW/L1TPU200_93X_upgrade2023_realistic_v5-v1/80000/00157B11-405C-E811-89CA-0CC47AFB81B4.root'),
+#'/store/mc/PhaseIIFall17D/TT_TuneCUETP8M2T4_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW/L1TPU200_93X_upgrade2023_realistic_v5-v2/30000/04998910-0755-E811-B1FC-EC0D9A822606.root'),
 #       fileNames = cms.untracked.vstring('/store/relval/CMSSW_9_3_7/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_93X_upgrade2023_realistic_v5_2023D17PU200-v1/10000/FCC765BD-332D-E811-A1F2-0242AC130002.root'),
-#    fileNames = cms.untracked.vstring('/store/relval/CMSSW_9_3_7/RelValNuGun/GEN-SIM-DIGI-RAW/PU25ns_93X_upgrade2023_realistic_v5_2023D17PU200-v1/10000/F0067730-182D-E811-BAB9-0242AC130002.root'),
+#'/store/relval/CMSSW_9_3_7/RelValNuGun/GEN-SIM-DIGI-RAW/PU25ns_93X_upgrade2023_realistic_v5_2023D17PU200-v1/10000/F0067730-182D-E811-BAB9-0242AC130002.root'),
 # /store/relval/CMSSW_9_3_7/RelValQCD_Pt-15To7000_Flat_14TeV/GEN-SIM-DIGI-RAW/93X_upgrade2023_realistic_v5_2023D17noPU-v2/10000/02FA84D0-8D2C-E811-A9EA-0CC47A4D767A.root'),
     secondaryFileNames = cms.untracked.vstring(),
     inputCommands = cms.untracked.vstring("keep *", 
@@ -92,139 +94,15 @@ process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 
 process.load("L1Trigger.L1TNtuples.l1PhaseIITreeProducer_cfi")
 
-process.L1TkElectronsCrystal = cms.EDProducer("L1TkElectronTrackProducer",
-    DRmax = cms.double(0.2),
-    DRmin = cms.double(0.03),
-    DeltaZ = cms.double(0.6),
-    ETmin = cms.double(-1.0),
-    IsoCut = cms.double(-0.1),
-    L1EGammaInputTag = cms.InputTag("l1EGammaCrystalsProducer","L1EGammaCollectionBXVWithCuts"),
-    L1TrackInputTag = cms.InputTag("TTTracksFromTracklet","Level1TTTracks"),
-    PTMINTRA = cms.double(2.0),
-    RelativeIsolation = cms.bool(True),
-    TrackChi2 = cms.double(10000000000.0),
-    TrackEGammaDeltaEta = cms.double(10000000000.0),
-    TrackEGammaDeltaPhi = cms.vdouble(0.07, 0.0, 0.0),
-    TrackEGammaDeltaR = cms.vdouble(0.08, 0.0, 0.0),
-    TrackMinPt = cms.double(10.0),
-    label = cms.string('EG'),
-    useTwoStubsPT = cms.bool(False)
-)
-process.L1TkPhotonsCrystal = cms.EDProducer("L1TkEmParticleProducer",
-    CHI2MAX = cms.double(100.0),
-    DRmax = cms.double(0.3),
-    DRmin = cms.double(0.07),
-    DeltaZMax = cms.double(999.0),
-    ETmin = cms.double(-1),
-    IsoCut = cms.double(-0.1),
-    L1EGammaInputTag = cms.InputTag("l1EGammaCrystalsProducer","L1EGammaCollectionBXVWithCuts"),
-    L1TrackInputTag = cms.InputTag("TTTracksFromTracklet","Level1TTTracks"),
-    L1VertexInputTag = cms.InputTag("NotUsed"),
-    PTMINTRA = cms.double(2.0),
-    PrimaryVtxConstrain = cms.bool(False),
-    RelativeIsolation = cms.bool(True),
-    ZMAX = cms.double(25.0),
-    label = cms.string('EG')
-)
-
-process.L1TkElectronsHGC = cms.EDProducer("L1TkElectronTrackProducer",
-    DRmax = cms.double(0.2),
-    DRmin = cms.double(0.03),
-    DeltaZ = cms.double(0.6),
-    ETmin = cms.double(-1.0),
-    IsoCut = cms.double(-0.1),
-    L1EGammaInputTag = cms.InputTag("l1EGammaEEProducer","L1EGammaCollectionBXVWithCuts"),
-    L1TrackInputTag = cms.InputTag("TTTracksFromTracklet","Level1TTTracks"),
-    PTMINTRA = cms.double(2.0),
-    RelativeIsolation = cms.bool(True),
-    TrackChi2 = cms.double(10000000000.0),
-    TrackEGammaDeltaEta = cms.double(10000000000.0),
-    TrackEGammaDeltaPhi = cms.vdouble(0.07, 0.0, 0.0),
-    TrackEGammaDeltaR = cms.vdouble(0.08, 0.0, 0.0),
-    TrackMinPt = cms.double(10.0),
-    label = cms.string('EG'),
-    useTwoStubsPT = cms.bool(False)
-)
-process.L1TkPhotonsHGC = cms.EDProducer("L1TkEmParticleProducer",
-    CHI2MAX = cms.double(100.0),
-    DRmax = cms.double(0.3),
-    DRmin = cms.double(0.07),
-    DeltaZMax = cms.double(999.0),
-    ETmin = cms.double(-1),
-    IsoCut = cms.double(-0.1),
-    L1EGammaInputTag = cms.InputTag("l1EGammaEEProducer","L1EGammaCollectionBXVWithCuts"),
-    L1TrackInputTag = cms.InputTag("TTTracksFromTracklet","Level1TTTracks"),
-    L1VertexInputTag = cms.InputTag("NotUsed"),
-    PTMINTRA = cms.double(2.0),
-    PrimaryVtxConstrain = cms.bool(False),
-    RelativeIsolation = cms.bool(True),
-    ZMAX = cms.double(25.0),
-    label = cms.string('EG')
-)
-
-process.L1TkElectronsLooseHGC = process.L1TkElectronsHGC.clone()
-process.L1TkElectronsLooseHGC.TrackEGammaDeltaPhi = cms.vdouble(0.07, 0.0, 0.0)
-process.L1TkElectronsLooseHGC.TrackEGammaDeltaR = cms.vdouble(0.12, 0.0, 0.0)
-process.L1TkElectronsLooseHGC.TrackMinPt = cms.double( 3.0 )
-
-process.L1TkElectronsLooseCrystal = process.L1TkElectronsHGC.clone()
-process.L1TkElectronsLooseCrystal.TrackEGammaDeltaPhi = cms.vdouble(0.07, 0.0, 0.0)
-process.L1TkElectronsLooseCrystal.TrackEGammaDeltaR = cms.vdouble(0.12, 0.0, 0.0)
-process.L1TkElectronsLooseCrystal.TrackMinPt = cms.double( 3.0 )
-
-
-from L1Trigger.L1TTrackMatch.L1TkHTMissProducer_cfi import L1TkCaloHTMiss 
-
-process.L1TrackerHTMiss5GeV = L1TkCaloHTMiss.clone()
-process.L1TrackerHTMiss5GeV.L1TkJetInputTag = cms.InputTag("L1TrackerJets","L1TrackerJets")
-process.L1TrackerHTMiss5GeV.jet_maxEta = cms.double(2.4)
-process.L1TrackerHTMiss5GeV.jet_minPt = cms.double(5.0)
-process.L1TrackerHTMiss5GeV.UseCaloJets = cms.bool(False)
-
-process.L1TrackerHTMiss10GeV = L1TkCaloHTMiss.clone()
-process.L1TrackerHTMiss10GeV.L1TkJetInputTag = cms.InputTag("L1TrackerJets","L1TrackerJets")
-process.L1TrackerHTMiss10GeV.jet_maxEta = cms.double(2.4)
-process.L1TrackerHTMiss10GeV.jet_minPt = cms.double(10.0)
-process.L1TrackerHTMiss10GeV.UseCaloJets = cms.bool(False)
-
-process.L1TrackerHTMiss20GeV = L1TkCaloHTMiss.clone()
-process.L1TrackerHTMiss20GeV.L1TkJetInputTag = cms.InputTag("L1TrackerJets","L1TrackerJets")
-process.L1TrackerHTMiss20GeV.jet_maxEta = cms.double(2.4)
-process.L1TrackerHTMiss20GeV.jet_minPt = cms.double(20.0)
-process.L1TrackerHTMiss20GeV.UseCaloJets = cms.bool(False)
-
-process.L1TrackerHTMiss30GeV = L1TkCaloHTMiss.clone()
-process.L1TrackerHTMiss30GeV.L1TkJetInputTag = cms.InputTag("L1TrackerJets","L1TrackerJets")
-process.L1TrackerHTMiss30GeV.jet_maxEta = cms.double(2.4)
-process.L1TrackerHTMiss30GeV.jet_minPt = cms.double(30.0)
-process.L1TrackerHTMiss30GeV.UseCaloJets = cms.bool(False)
-
-#process.load('L1Trigger.L1CaloTrigger.l1EGammaEEProducer_cfi')
-
-#process.phase2_SimL1Emulator = cms.Sequence(process.SimL1EmulatorCore+process.hgcalTriggerPrimitives+process.VertexProducer+process.simKBmtfStubs+process.simKBmtfDigis+process.l1EGammaCrystalsProducer+process.l1EGammaEEProducer+process.L1TkElectrons+process.L1TkIsoElectrons+process.L1TkPhotons+process.L1TkMatchedJets+process.L1TkPrimaryVertex+process.L1TkEtMiss+process.L1TkMuons+process.L1TkTauFromCalo+process.l1ParticleFlow+process.l1PFMets+process.l1PFJets+process.L1TkJets)
-
-process.genTree = cms.EDAnalyzer(
-    "L1GenTreeProducer",
-    genJetToken     = cms.untracked.InputTag("ak4GenJetsNoNu"),
-    genMETTrueToken = cms.untracked.InputTag("genMetTrue"),
-    genMETCaloToken     = cms.untracked.InputTag("genMetCalo"),
-    genParticleToken = cms.untracked.InputTag("genParticles"),
-    pileupInfoToken     = cms.untracked.InputTag("addPileupInfo")
-)
-
-
-process.runmenutree=cms.Path(process.L1TrackerHTMiss5GeV* process.L1TrackerHTMiss10GeV*process.L1TrackerHTMiss20GeV*process.L1TrackerHTMiss30GeV*process.L1TkElectronsCrystal*process.L1TkPhotonsCrystal*process.L1TkElectronsHGC*process.L1TkPhotonsHGC*process.L1TkElectronsLooseCrystal*process.L1TkElectronsLooseHGC*process.l1PhaseIITree*process.genTree)
-
 # Schedule definition
-#process.schedule = cms.Schedule(process.EcalEBtp_step,process.hgcl1tpg_step,process.L1TrackTrigger_step,process.L1simulation_step,process.endjob_step,process.FEVTDEBUGHLToutput_step)
-#process.schedule = cms.Schedule(process.L1TrackTrigger_step,process.L1simulation_step,process.endjob_step,process.FEVTDEBUGHLToutput_step)
-process.schedule = cms.Schedule(process.L1TrackTrigger_step,process.L1simulation_step,process.runmenutree,process.endjob_step)#,process.FEVTDEBUGHLToutput_step)
-#process.schedule = cms.Schedule(process.L1TrackTrigger_step,process.L1simulation_step,process.FEVTDEBUGHLToutput_step)
+process.schedule = cms.Schedule(process.L1TrackTrigger_step,process.L1simulation_step,process.extraCollectionsMenuTree, 
+                                process.runmenutree,process.endjob_step)#,process.FEVTDEBUGHLToutput_step)
+
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('L1Ntuple.root')
+    fileName = cms.string('L1NtuplePhaseII.root')
 )
 
 # End of customisation functions

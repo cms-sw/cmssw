@@ -21,6 +21,14 @@ namespace L1Analysis
     void Reset()
     {
 
+      z0Puppi=0;
+      z0VertexTDR=0;
+      z0Vertices.clear();
+      z0L1TkPV.clear();
+      sumL1TkPV.clear();
+      nL1TkPVs=0;
+      nVertices=0;
+
       nTaus = 0;
       tauEt.clear();
       tauEta.clear();
@@ -112,6 +120,11 @@ namespace L1Analysis
       tkEGTrkIso.clear();
       tkEGzVtx.clear();
       tkEGHwQual.clear();
+      tkEGEGRefPt.clear(); 
+      tkEGEGRefEta.clear();
+      tkEGEGRefPhi.clear();
+
+
 
       ntkEGLoose = 0;
       tkEGLooseEt.clear();
@@ -121,6 +134,9 @@ namespace L1Analysis
       tkEGLooseTrkIso.clear();
       tkEGLoosezVtx.clear();
       tkEGLooseHwQual.clear();
+      tkEGLooseEGRefPt.clear();
+      tkEGLooseEGRefEta.clear();
+      tkEGLooseEGRefPhi.clear();
 
       nTkEM = 0;
       tkEMEt.clear();
@@ -130,6 +146,9 @@ namespace L1Analysis
       tkEMTrkIso.clear();
       tkEMzVtx.clear();
       tkEMHwQual.clear();
+      tkEMEGRefPt.clear();
+      tkEMEGRefEta.clear();
+      tkEMEGRefPhi.clear();
 
       // TkTaus
       nTkTau = 0;
@@ -162,15 +181,15 @@ namespace L1Analysis
       tkGlbMuonPhi.clear();
       tkGlbMuonChg.clear();
       tkGlbMuonTrkIso.clear();
-      tkGlbMuonFwd.clear();
-      tkGlbMuonMip.clear();
-      tkGlbMuonRPC.clear();
       tkGlbMuonBx.clear();
       tkGlbMuonQuality.clear();
       tkGlbMuonzVtx.clear();
       tkGlbMuonMuRefPt.clear();
       tkGlbMuonTrkRefPt.clear();
-
+      tkGlbMuonMuRefPhi.clear();
+      tkGlbMuonMuRefEta.clear();
+      tkGlbMuonDRMuTrack.clear();
+      tkGlbMuonNMatchedTracks.clear();
 
       nTkMuons = 0;
       tkMuonEt.clear();
@@ -178,15 +197,15 @@ namespace L1Analysis
       tkMuonPhi.clear();
       tkMuonChg.clear();
       tkMuonTrkIso.clear();
-      tkMuonFwd.clear();
-      tkMuonMip.clear();
-      tkMuonRPC.clear();
       tkMuonBx.clear();
       tkMuonQuality.clear();
       tkMuonzVtx.clear();
       tkMuonMuRefPt.clear();
       tkMuonTrkRefPt.clear();
-
+      tkMuonMuRefPhi.clear(); 
+      tkMuonMuRefEta.clear();
+      tkMuonDRMuTrack.clear();
+      tkMuonNMatchedTracks.clear();
 
       // TrackerMet
       nTrackerMet = 0;
@@ -217,7 +236,15 @@ namespace L1Analysis
       puppiMHTPhi.clear();
       nPuppiMHT=0;
     }
-  
+ 
+    float z0Puppi;
+    float z0VertexTDR;
+    unsigned short int nVertices;
+    std::vector<float>z0Vertices;  
+    unsigned short int nL1TkPVs;
+    std::vector<float>  z0L1TkPV;
+    std::vector<float>  sumL1TkPV;
+ 
     unsigned short int nTaus;
     std::vector<float> tauEt;
     std::vector<float> tauEta;
@@ -308,6 +335,10 @@ namespace L1Analysis
     std::vector<double> tkEGTrkIso;
     std::vector<double> tkEGzVtx;
     std::vector<double> tkEGHwQual;
+    std::vector<double>   tkEGEGRefPt;
+    std::vector<double>   tkEGEGRefEta;
+    std::vector<double>   tkEGEGRefPhi;
+
 
     unsigned int ntkEGLoose;
     std::vector<double> tkEGLooseEt;
@@ -317,6 +348,9 @@ namespace L1Analysis
     std::vector<double> tkEGLooseTrkIso;
     std::vector<double> tkEGLoosezVtx;
     std::vector<double> tkEGLooseHwQual;
+    std::vector<double>   tkEGLooseEGRefPt;
+    std::vector<double>   tkEGLooseEGRefEta;
+    std::vector<double>   tkEGLooseEGRefPhi;
 
     unsigned int nTkEM;
     std::vector<double> tkEMEt;
@@ -326,7 +360,9 @@ namespace L1Analysis
     std::vector<double> tkEMTrkIso;
     std::vector<double> tkEMzVtx;
     std::vector<double> tkEMHwQual;
-
+    std::vector<double>   tkEMEGRefPt;
+    std::vector<double>   tkEMEGRefEta;
+    std::vector<double>   tkEMEGRefPhi;
 
     unsigned int nTkTau;
     std::vector<double> tkTauEt;
@@ -357,14 +393,15 @@ namespace L1Analysis
     std::vector<int>      tkGlbMuonChg;
     std::vector<unsigned int> tkGlbMuonIso;
     std::vector<double> tkGlbMuonTrkIso;
-    std::vector<unsigned int> tkGlbMuonFwd;
-    std::vector<unsigned int> tkGlbMuonMip;
-    std::vector<unsigned int> tkGlbMuonRPC;
     std::vector<int>      tkGlbMuonBx;
     std::vector<unsigned int>      tkGlbMuonQuality;
     std::vector<double>   tkGlbMuonzVtx;
     std::vector<double> tkGlbMuonMuRefPt;
     std::vector<double> tkGlbMuonTrkRefPt;
+    std::vector<double>  tkGlbMuonMuRefPhi;
+    std::vector<double>  tkGlbMuonMuRefEta;
+    std::vector<double>  tkGlbMuonDRMuTrack;
+    std::vector<double>  tkGlbMuonNMatchedTracks;
 
     unsigned int nTkMuons;
     std::vector<double>   tkMuonEt;
@@ -381,8 +418,10 @@ namespace L1Analysis
     std::vector<double>   tkMuonzVtx;
     std::vector<double> tkMuonMuRefPt;
     std::vector<double> tkMuonTrkRefPt;
-
-
+    std::vector<double>  tkMuonMuRefPhi;
+    std::vector<double>  tkMuonMuRefEta;
+    std::vector<double>  tkMuonDRMuTrack;
+    std::vector<double>  tkMuonNMatchedTracks;
 
     unsigned int nTrackerMet;
     std::vector<double> trackerMetSumEt;

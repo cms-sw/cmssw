@@ -27,6 +27,8 @@
 #include "DataFormats/L1Trigger/interface/L1HFRings.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
+#include "DataFormats/L1TVertex/interface/Vertex.h"
+
 #include "DataFormats/L1TrackTrigger/interface/L1TkMuonParticle.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkMuonParticleFwd.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkGlbMuonParticle.h"
@@ -58,6 +60,10 @@ namespace L1Analysis
     L1AnalysisPhaseII();
     ~L1AnalysisPhaseII();
     void Reset() {l1extra_.Reset();}
+
+    // Fill DZ of Vertex, different algorithms
+    void SetVertices(float z0Puppi, float z0VertexTDR, const edm::Handle<std::vector<l1t::Vertex> > l1vertices, const edm::Handle<std::vector<l1t::L1TkPrimaryVertex> > l1TkPrimaryVertex);
+
 
     // Old style objects (Phase I)
     void SetTau  (const edm::Handle<l1t::TauBxCollection>    tau,  unsigned maxL1Extra);

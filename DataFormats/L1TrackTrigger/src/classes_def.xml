@@ -91,8 +91,9 @@
   <class name="edm::Wrapper<std::vector<l1t::L1TkHTMissParticle> >"/>
 
 
-  <class name="l1t::L1TkMuonParticle" ClassVersion="13">
-   <version ClassVersion="13" checksum="602108190"/>
+  <class name="l1t::L1TkMuonParticle" ClassVersion="15">
+   <version ClassVersion="15" checksum="2096101246"/>
+   <version ClassVersion="14" checksum="818052779"/>
    <version ClassVersion="13" checksum="3532596056"/>
    <version ClassVersion="12" checksum="1571385768"/>
   </class>
@@ -100,7 +101,8 @@
   <class name="edm::Wrapper<std::vector<l1t::L1TkMuonParticle> >"/>
   <class name="edm::Ref<std::vector<l1t::L1TkMuonParticle>,l1t::L1TkMuonParticle,edm::refhelper::FindUsingAdvance<std::vector<l1t::L1TkMuonParticle>,l1t::L1TkMuonParticle> >"/>
 
-  <class name="l1t::L1TkGlbMuonParticle" ClassVersion="-1">
+  <class name="l1t::L1TkGlbMuonParticle" ClassVersion="0">
+   <version ClassVersion="0"  checksum="1258760671"/>
    <version ClassVersion="-1" checksum="1209763769"/>
   </class>
   <class name="std::vector<l1t::L1TkGlbMuonParticle>"/>

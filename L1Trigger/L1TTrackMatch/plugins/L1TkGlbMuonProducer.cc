@@ -156,7 +156,8 @@ L1TkGlbMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     PropState matchProp;
     int match_idx = -1;
     int il1tk = -1;
-
+   
+    int nTracksMatch=0;
 
     for (auto l1tk : l1tks ){
       il1tk++;
@@ -178,10 +179,10 @@ L1TkGlbMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       float l1tk_eta = l1tk.getMomentum(nPars).eta();
       float l1tk_phi = l1tk.getMomentum(nPars).phi();
 
-
       float dr2 = deltaR2(l1mu_eta, l1mu_phi, l1tk_eta, l1tk_phi);
       
       if (dr2 > 0.3) continue;
+      nTracksMatch++;
 
       PropState pstate = propagateToGMT(l1tk);
       if (!pstate.valid) continue;
@@ -194,6 +195,7 @@ L1TkGlbMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	matchProp = pstate;
       }
     }// over l1tks
+
     
     LogDebug("MYDEBUG")<<"matching index is "<<match_idx;
     if (match_idx >= 0){
@@ -207,6 +209,7 @@ L1TkGlbMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       LogDebug("MYDEBUG")<<"match details: prop "<<matchProp.pt<<" "<<matchProp.eta<<" "<<matchProp.phi
 			 <<" mutk "<<l1mu->pt()<<" "<<l1mu->eta()<<" "<<l1mu->phi()<<" delta "<<dEta<<" "<<dPhi<<" cut "<<etaCut<<" "<<phiCut;
+
       if (dEta < etaCut && dPhi < phiCut){
 	edm::Ptr< L1TTTrackType > l1tkPtr(l1tksH, match_idx);
 
@@ -225,6 +228,8 @@ L1TkGlbMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	// EP: add the zvtx information
 	l1tkmu.setTrkzVtx( (float)tkv3.z() );
+      l1tkmu.setdR(drmin);
+      l1tkmu.setNTracksMatched(nTracksMatch);
 
 	tkMuons->push_back(l1tkmu);
       }

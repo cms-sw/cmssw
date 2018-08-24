@@ -244,6 +244,8 @@ L1TkMuonProducer::runOnMTFCollection_v1(const edm::Handle<RegionalMuonCandBxColl
     int match_idx = -1;
     int il1tk = -1;
 
+    int nTracksMatch=0;
+
     for (const auto& l1tk : l1tks ){
       il1tk++;
 
@@ -266,6 +268,8 @@ L1TkMuonProducer::runOnMTFCollection_v1(const edm::Handle<RegionalMuonCandBxColl
 
       float dr2 = deltaR2(l1mu_eta, l1mu_phi, l1tk_eta, l1tk_phi);
       if (dr2 > 0.3) continue;
+
+      nTracksMatch++;
 
       const PropState& pstate = propagateToGMT(l1tk);
       if (!pstate.valid) continue;
@@ -303,11 +307,14 @@ L1TkMuonProducer::runOnMTFCollection_v1(const edm::Handle<RegionalMuonCandBxColl
         math::XYZTLorentzVector l1tkp4(p3.x(), p3.y(), p3.z(), p4e);
 
         const auto& tkv3=matchTk.getPOCA(nPars);
-        math::XYZPoint v3(tkv3.x(), tkv3.y(), tkv3.z());
+        math::XYZPoint v3(tkv3.x(), tkv3.y(), tkv3.z());  // why is this defined?
+
         float trkisol = -999;
 
         L1TkMuonParticle l1tkmu(l1tkp4, l1muRef, l1tkPtr, trkisol);
         l1tkmu.setTrkzVtx( (float)tkv3.z() );
+        l1tkmu.setdR(drmin);
+        l1tkmu.setNTracksMatched(nTracksMatch);   
 
         tkMuons.push_back(l1tkmu);
       }

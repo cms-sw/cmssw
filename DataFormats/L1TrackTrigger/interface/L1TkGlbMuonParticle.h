@@ -47,6 +47,8 @@ namespace l1t
       float getTrkIsol() const { return theIsolation; }
       float getTrkzVtx() const { return TrkzVtx_ ; }
 
+      float dR()  const { return dR_;}
+      int nTracksMatched() const { return nTracksMatch_;}
 
       unsigned int quality()  const {return quality_;}
 
@@ -54,6 +56,9 @@ namespace l1t
       
       void setTrkzVtx(float TrkzVtx) { TrkzVtx_ = TrkzVtx ; }
       void setTrkIsol(float TrkIsol) { theIsolation = TrkIsol ; }
+
+      void setdR(float dR) { dR_=dR;}
+      void setNTracksMatched(int nTracksMatch) { nTracksMatch_=nTracksMatch;}
 
       void setQuality(unsigned int q){ quality_ = q;}
 
@@ -68,6 +73,9 @@ namespace l1t
       float theIsolation;
       float TrkzVtx_ ;
       unsigned int quality_;
+      float dR_;
+      int nTracksMatch_;
+
   };
 }
 

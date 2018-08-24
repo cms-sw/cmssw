@@ -9,6 +9,7 @@
 <use name="CondFormats/L1TObjects"/>
 <use name="CalibFormats/CaloTPG"/>
 <use name="DataFormats/L1Trigger"/>
+<use name="DataFormats/L1TVertex"/>
 <use name="DataFormats/L1TMuon"/>
 <use name="DataFormats/L1GlobalTrigger"/>
 <use name="DataFormats/L1TCalorimeter"/>
