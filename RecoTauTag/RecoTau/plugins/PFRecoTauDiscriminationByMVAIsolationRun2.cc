@@ -161,7 +161,6 @@ class PFRecoTauDiscriminationByMVAIsolationRun2 : public PFTauDiscriminationProd
   std::unique_ptr<PFTauDiscriminator> category_output_;
 
   std::vector<TFile*> inputFilesToDelete_;
-  TauIdMVAAuxiliaries clusterVariables_;
 
   int verbosity_;
 };
@@ -219,13 +218,13 @@ double PFRecoTauDiscriminationByMVAIsolationRun2::discriminate(const PFTauRef& t
     float decayDistZ = tauLifetimeInfo.flightLength().z();
     float decayDistMag = std::sqrt(decayDistX*decayDistX + decayDistY*decayDistY + decayDistZ*decayDistZ);
 
-    float nPhoton = (float)clusterVariables_.tau_n_photons_total(*tau);
-    float ptWeightedDetaStrip = clusterVariables_.tau_pt_weighted_deta_strip(*tau, tauDecayMode);
-    float ptWeightedDphiStrip = clusterVariables_.tau_pt_weighted_dphi_strip(*tau, tauDecayMode);
-    float ptWeightedDrSignal = clusterVariables_.tau_pt_weighted_dr_signal(*tau, tauDecayMode);
-    float ptWeightedDrIsolation = clusterVariables_.tau_pt_weighted_dr_iso(*tau, tauDecayMode);
-    float leadingTrackChi2 = clusterVariables_.tau_leadTrackChi2(*tau);
-    float eRatio = clusterVariables_.tau_Eratio(*tau);
+    float nPhoton = (float)reco::tau::mva::tau_n_photons_total(*tau);
+    float ptWeightedDetaStrip = reco::tau::mva::tau_pt_weighted_deta_strip(*tau, tauDecayMode);
+    float ptWeightedDphiStrip = reco::tau::mva::tau_pt_weighted_dphi_strip(*tau, tauDecayMode);
+    float ptWeightedDrSignal = reco::tau::mva::tau_pt_weighted_dr_signal(*tau, tauDecayMode);
+    float ptWeightedDrIsolation = reco::tau::mva::tau_pt_weighted_dr_iso(*tau, tauDecayMode);
+    float leadingTrackChi2 = reco::tau::mva::tau_leadTrackChi2(*tau);
+    float eRatio = reco::tau::mva::tau_Eratio(*tau);
 
     // Difference between measured and maximally allowed Gottfried-Jackson angle
     float gjAngleDiff = -999;
