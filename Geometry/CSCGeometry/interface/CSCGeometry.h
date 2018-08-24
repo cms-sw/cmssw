@@ -44,6 +44,9 @@ class CSCGeometry : public TrackingGeometry {
   /// Destructor
   ~CSCGeometry() override;
 
+  // Clear containers and deallocate managed memory
+  void clear();
+
   //---- Base class' interface
 
   // Return a vector of all det types
@@ -133,7 +136,18 @@ class CSCGeometry : public TrackingGeometry {
   /// Dump parameters for overall strip and wire modelling
   void queryModelling() const;
 
+  unsigned long long muonNumberingCacheID() const { return muonNumberingCacheID_; }
+  unsigned long long geometryCacheID() const { return geometryCacheID_; }
+  unsigned long long digiParametersCacheID() const { return digiParametersCacheID_; }
+
+  void setMuonNumberingCacheID(unsigned long long v) { muonNumberingCacheID_ = v; }
+  void setGeometryCacheID(unsigned long long v) { geometryCacheID_ = v; }
+  void setDigiParametersCacheID(unsigned long long v) { digiParametersCacheID_ = v; }
+
  private:
+
+  // deallocate managed memory
+  void deallocate();
 
   /// Add a chamber with given DetId.
   void addChamber(CSCChamber* ch);
@@ -179,7 +193,9 @@ class CSCGeometry : public TrackingGeometry {
   // Store pointers to Specs objects as we build them.
   CSCSpecsContainer specsContainer;
 
+  unsigned long long muonNumberingCacheID_ = 0;
+  unsigned long long geometryCacheID_ = 0;
+  unsigned long long digiParametersCacheID_ = 0;
 };
 
 #endif
-

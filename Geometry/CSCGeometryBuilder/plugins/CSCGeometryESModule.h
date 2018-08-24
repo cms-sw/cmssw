@@ -10,6 +10,7 @@
 
 #include <FWCore/Framework/interface/ESProducer.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "FWCore/Utilities/interface/ReusableObjectHolder.h"
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 
@@ -29,14 +30,9 @@ public:
 
 private:  
 
-  /// Called when geometry description changes
-  void muonNumberingChanged_( const MuonNumberingRecord& );
-  void cscRecoGeometryChanged_( const CSCRecoGeometryRcd& );
-  void cscRecoDigiParametersChanged_( const CSCRecoDigiParametersRcd& );
+  void initCSCGeometry_(const MuonGeometryRecord&, std::shared_ptr<CSCGeometry>&);
 
-  void initCSCGeometry_(const MuonGeometryRecord& );
-  std::shared_ptr<CSCGeometry> cscGeometry;
-  bool recreateGeometry_;
+  edm::ReusableObjectHolder<CSCGeometry> cscGeometryHolder_;
 
   // Flags for controlling geometry modelling during build of CSCGeometry
   bool useRealWireGeometry;
@@ -48,12 +44,5 @@ private:
   bool useDDD_; // whether to build from DDD or DB
   const std::string alignmentsLabel_;
   const std::string myLabel_;
-
 };
 #endif
-
-
-
-
-
-
