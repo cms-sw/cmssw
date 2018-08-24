@@ -55,7 +55,6 @@ kt4PFJetsForRho.jetPtMin      = cms.double(0.0)
 kt4PFJetsForRho.GhostArea     = cms.double(0.005)
 
 from RecoHI.HiJetAlgos.hiFJRhoProducer import hiFJRhoProducer
-hiFJRhoProducer.etaRanges = cms.vdouble(-5., -3., -2.1, -1.3, 1.3, 2.1, 3., 5.)
 
 akCs4PFJets = cms.EDProducer(
     "CSJetProducer",
