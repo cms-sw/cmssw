@@ -42,9 +42,9 @@ public:
   void              addTrForm(const CLHEP::Hep3Vector& h3v);
   void              scaleTrForm(double);
   int               scintCells(const int layer) const
-  { return ((layer > layerFrontBH_[1]) ? nPhiBinBH_[1] : nPhiBinBH_[0]); }
+  { return nPhiBinBH_[scintType(layer)]; }
   double            scintCellSize(const int layer) const
-  { return ((layer > layerFrontBH_[1]) ? cellSize_[1] : cellSize_[0]); }
+  { return cellSize_[scintType(layer)]; }
   int               scintType(const int layer) const
   { return ((layer < layerFrontBH_[1]) ? 0 : 1); }
   std::array<int,4> getID(unsigned int k) const;

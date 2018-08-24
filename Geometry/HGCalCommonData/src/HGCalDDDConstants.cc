@@ -183,11 +183,8 @@ std::array<int,3> HGCalDDDConstants::assignCellTrap(float x, float y,
   auto  ir     = std::lower_bound(hgpar_->radiusLayer_[type].begin(),
 				  hgpar_->radiusLayer_[type].end(), r);
   irad   = (int)(ir - hgpar_->radiusLayer_[type].begin());
-  if       (irad < hgpar_->iradMinBH_[indx.first]) {
-    irad = hgpar_->iradMinBH_[indx.first];
-  } else if (irad > hgpar_->iradMaxBH_[indx.first]) {
-    irad = hgpar_->iradMaxBH_[indx.first];
-  }
+  irad   = std::min(std::max(irad,hgpar_->iradMinBH_[indx.first]),
+		    hgpar_->iradMaxBH_[indx.first]);
   iphi         = 1 + (int)(phi/indx.second);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "assignCellTrap Input " << x << ":" << y
