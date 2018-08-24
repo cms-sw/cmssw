@@ -143,6 +143,8 @@ private:
 
   bool useTPmethod_, useHITmethod_;
 
+  edm::EDPutTokenT<bool> putToken_;
+
   void loadEventInfoForFilter(const edm::Event& iEvent);
 
 // Only for EB since the dead front-end has one-to-one map to TT
@@ -179,12 +181,12 @@ EcalDeadCellTriggerPrimitiveFilter::EcalDeadCellTriggerPrimitiveFilter(const edm
   , tpDigiCollectionToken_(consumes<EcalTrigPrimDigiCollection>(tpDigiCollection_))
   , useTTsum_ (iConfig.getParameter<bool>("useTTsum") )
   , usekTPSaturated_ (iConfig.getParameter<bool>("usekTPSaturated") )
+  , putToken_ ( produces<bool>() )
 {
   getEventInfoForFilterOnce_ = false;
   hastpDigiCollection_ = 0; hasReducedRecHits_ = 0;
   useTPmethod_ = true; useHITmethod_ = false;
 
-  produces<bool>();
 
   callWhenNewProductsRegistered([this](edm::BranchDescription const& iBranch) {
     if( iBranch.moduleLabel() ==  tpDigiCollection_.label() ){ hastpDigiCollection_ = 1; }
@@ -312,7 +314,7 @@ bool EcalDeadCellTriggerPrimitiveFilter::filter(edm::Event& iEvent, const edm::E
      printf("\nrun : %8u  event : %10llu  lumi : %4u  evtTPstatus  ABS : %d  13 : % 2d\n", run, event, ls, evtstatusABS, evtTagged);
   }
 
-  iEvent.put(std::make_unique<bool>(pass));
+  iEvent.emplace(putToken_, pass);
 
   if (taggingMode_) return true;
   else return pass;
