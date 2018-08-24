@@ -36,11 +36,11 @@ from RecoHI.HiJetAlgos.HiRecoJets_cff import caloTowersRec, caloTowers, akPu3Cal
 recoJetsHI =cms.Sequence(fixedGridRhoFastjetAllCalo+
                          fixedGridRhoFastjetCentralCalo+
                          ak4CaloJets+
-			 caloTowersRec+
-			 caloTowers+
-			 akPu3CaloJets+
-			 akPu4CaloJets+
-			 akPu5CaloJets
+                         caloTowersRec+
+                         caloTowers+
+                         akPu3CaloJets+
+                         akPu4CaloJets+
+                         akPu5CaloJets
                          )
 
 for e in [pp_on_AA_2018]:

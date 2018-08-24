@@ -115,17 +115,17 @@ recoPFJetsHITask =cms.Task(fixedGridRhoAll,
                            fixedGridRhoFastjetCentral,
                            fixedGridRhoFastjetCentralChargedPileUp,
                            fixedGridRhoFastjetCentralNeutral,
-			   ak4PFJets,
-			   ak4PFJetsCHS,
+                           ak4PFJets,
+                           ak4PFJetsCHS,
                            ak8PFJetsCHS,
                            PFTowers,			   
-			   akPu3PFJets,
-			   akPu4PFJets,
-			   akPu5PFJets,
-			   kt4PFJetsForRho,
-			   hiFJRhoProducer,
-			   akCs3PFJets,
-			   akCs4PFJets
+                           akPu3PFJets,
+                           akPu4PFJets,
+                           akPu5PFJets,
+                           kt4PFJetsForRho,
+                           hiFJRhoProducer,
+                           akCs3PFJets,
+                           akCs4PFJets
 
    )
 recoPFJetsHI   = cms.Sequence(recoPFJetsHITask)
