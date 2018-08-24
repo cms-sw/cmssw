@@ -12,7 +12,7 @@ from SimGeneral.MixingModule.SiStripSimParameters_cfi import SiStripSimBlock
 from SimGeneral.MixingModule.SiPixelSimParameters_cfi import SiPixelSimBlock
 from SimTracker.SiPhase2Digitizer.phase2TrackerDigitizer_cfi import phase2TrackerDigitizer, _premixStage1ModifyDict as _phase2TrackerPremixStage1ModifyDict
 from SimGeneral.MixingModule.ecalDigitizer_cfi import ecalDigitizer
-from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchebackDigitizer, hgchefrontDigitizer
+from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchebackDigitizer, hgchefrontDigitizer, hfnoseDigitizer
 
 import EventFilter.EcalRawToDigi.EcalUnpackerData_cfi
 import EventFilter.ESRawToDigi.esRawToDigi_cfi
@@ -249,6 +249,7 @@ from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 from Configuration.Eras.Modifier_phase2_ecal_cff import phase2_ecal
 from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_common.toModify(mixData, input = dict(producers = [])) # we use digis directly, no need for raw2digi producers
 
@@ -336,6 +337,18 @@ phase2_hgcal.toModify(mixData,
         )
     )
 )
+
+phase2_hfnose.toModify(mixData,
+    workers = dict(
+        hfnose = cms.PSet(
+            hfnoseDigitizer,
+            workerType = cms.string("PreMixingHGCalWorker"),
+            digiTagSig = cms.InputTag("mix", "HFNoseDigis"),
+            pileInputTag = cms.InputTag("simHGCalUnsuppressedDigis", "HFNose"),
+        ),
+    )
+)
+
 
 # Muon
 phase2_muon.toModify(mixData,
