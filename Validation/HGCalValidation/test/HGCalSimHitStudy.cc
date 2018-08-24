@@ -45,12 +45,21 @@
 
 #include "TH2D.h"
 
-class HGCGeometryTest : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
+class HGCalSimHitStudy : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
   
 public:
+  
+  struct hitsinfo{
+    hitsinfo() {
+      phi=eta=energy=time=0.0;
+      layer=0;
+    }
+    double phi, eta, energy, time;
+    int    layer;
+  };
 
-  explicit HGCGeometryTest(const edm::ParameterSet&);
-  ~HGCGeometryTest() override {}
+  explicit HGCalSimHitStudy(const edm::ParameterSet&);
+  ~HGCalSimHitStudy() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
@@ -73,23 +82,24 @@ private:
   const HcalDDDRecConstants*            hcons_;
   std::vector<bool>                     heRebuild_;
   std::vector<edm::EDGetTokenT<edm::PCaloHitContainer> > tok_hits_;
-  std::vector<int>                      layers_;
+  std::vector<int>                      layers_, layerFront_;
   
   //histogram related stuff
-  std::vector<TH2D*>                    h_RZ_, h_EtaPhi_;
+  std::vector<TH2D*>                    h_RZ_, h_EtaPhi_, h_EtFiZp_, h_EtFiZm_;
+  std::vector<TH1D*>                    h_E_, h_T_, h_LayerZp_, h_LayerZm_;
 };
 
-HGCGeometryTest::HGCGeometryTest(const edm::ParameterSet& iConfig) :
-  nameDetectors_(iConfig.getParameter<std::vector<std::string> >("DetectorNames")),
-  caloHitSources_(iConfig.getParameter<std::vector<std::string> >("CaloHitSources")),
-  rmin_(iConfig.getUntrackedParameter<double>("RMin",0.0)),
-  rmax_(iConfig.getUntrackedParameter<double>("RMax",3000.0)),
-  zmin_(iConfig.getUntrackedParameter<double>("ZMin",3000.0)),
-  zmax_(iConfig.getUntrackedParameter<double>("ZMax",6000.0)),
-  nbinR_(iConfig.getUntrackedParameter<int>("NBinR",300)),
-  nbinZ_(iConfig.getUntrackedParameter<int>("NBinZ",300)),
-  verbosity_(iConfig.getUntrackedParameter<int>("Verbosity",0)),
-  ifNose_(iConfig.getUntrackedParameter<bool>("IfNose",false)) {
+HGCalSimHitStudy::HGCalSimHitStudy(const edm::ParameterSet& iConfig) :
+  nameDetectors_(iConfig.getParameter<std::vector<std::string> >("detectorNames")),
+  caloHitSources_(iConfig.getParameter<std::vector<std::string> >("caloHitSources")),
+  rmin_(iConfig.getUntrackedParameter<double>("rMin",0.0)),
+  rmax_(iConfig.getUntrackedParameter<double>("rMax",3000.0)),
+  zmin_(iConfig.getUntrackedParameter<double>("zMin",3000.0)),
+  zmax_(iConfig.getUntrackedParameter<double>("zMax",6000.0)),
+  nbinR_(iConfig.getUntrackedParameter<int>("nBinR",300)),
+  nbinZ_(iConfig.getUntrackedParameter<int>("nBinZ",300)),
+  verbosity_(iConfig.getUntrackedParameter<int>("verbosity",0)),
+  ifNose_(iConfig.getUntrackedParameter<bool>("ifNose",false)) {
 
   usesResource(TFileService::kSharedResource);
 
@@ -102,28 +112,28 @@ HGCGeometryTest::HGCGeometryTest(const edm::ParameterSet& iConfig) :
   }
 }
 
-void HGCGeometryTest::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void HGCalSimHitStudy::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   std::vector<std::string> names   = {"HGCalEESensitive",
 				      "HGCalHESiliconSensitive",
-				      "HGCalHEScintillatorSensitive"};
+				      "Hcal"};
   std::vector<std::string> sources = {"HGCHitsEE","HGCHitsHEfront",
-				      "HGCHitsHEback"};
-  desc.add<std::vector<std::string> >("DetectorNames", names);
-  desc.add<std::vector<std::string> >("CaloHitSources",sources);
-  desc.addUntracked<double>("RMin",0.0);
-  desc.addUntracked<double>("RMax",3000.0);
-  desc.addUntracked<double>("ZMin",3000.0);
-  desc.addUntracked<double>("ZMax",6000.0);
-  desc.addUntracked<int>("NBinR",300);
-  desc.addUntracked<int>("NBinZ",300);
-  desc.addUntracked<int>("Verbosity",0);
-  desc.addUntracked<bool>("IfNose",false);
-  descriptions.add("hgcalGeometryTest",desc);
+				      "HcalHits"};
+  desc.add<std::vector<std::string> >("detectorNames", names);
+  desc.add<std::vector<std::string> >("caloHitSources",sources);
+  desc.addUntracked<double>("rMin",0.0);
+  desc.addUntracked<double>("rMax",3000.0);
+  desc.addUntracked<double>("zMin",3000.0);
+  desc.addUntracked<double>("zMax",6000.0);
+  desc.addUntracked<int>("nBinR",300);
+  desc.addUntracked<int>("nBinZ",300);
+  desc.addUntracked<int>("verbosity",0);
+  desc.addUntracked<bool>("ifNose",false);
+  descriptions.add("hgcalSimHitStudy",desc);
 }
 
-void HGCGeometryTest::analyze(const edm::Event& iEvent, 
-			      const edm::EventSetup& iSetup) {
+void HGCalSimHitStudy::analyze(const edm::Event& iEvent, 
+			       const edm::EventSetup& iSetup) {
 
 
   //Now the hits
@@ -159,16 +169,21 @@ void HGCGeometryTest::analyze(const edm::Event& iEvent,
   }
 }
 
-void HGCGeometryTest::analyzeHits(int ih, std::string const& name,
-				  std::vector<PCaloHit> const& hits) {
+void HGCalSimHitStudy::analyzeHits(int ih, std::string const& name,
+				   std::vector<PCaloHit> const& hits) {
   
  
   if (verbosity_ > 0) 
     edm::LogVerbatim("HGCalValidation") << name << " with " << hits.size() 
 					<< " PcaloHit elements";
+  
+  std::map<uint32_t,hitsinfo> map_hits;
+  map_hits.clear();
+
   unsigned int nused(0);
   for (auto const& hit : hits) {
     double energy      = hit.energy();
+    double time        = hit.time();
     uint32_t id        = hit.id();
     int                     cell, sector, sector2(0), layer, zside;
     int                     subdet(0), cell2(0), type(0);
@@ -246,6 +261,7 @@ void HGCGeometryTest::analyzeHits(int ih, std::string const& name,
 					    << ":" << zp;
     }
     nused++;
+    double tof = (gcoord.mag()*CLHEP::mm)/CLHEP::c_light; 
     if (verbosity_>1) 
       edm::LogVerbatim("HGCalValidation") << "Detector " << name
 					  << " zside = " << zside
@@ -254,21 +270,63 @@ void HGCGeometryTest::analyzeHits(int ih, std::string const& name,
 					  << " wafer = " << sector << ":" << sector2
 					  << " cell = "  << cell << ":" << cell2
 					  << " positon = " << gcoord
-					  << " energy = "    << energy;
+					  << " energy = "  << energy
+					  << " time = " << time << ":" << tof;
+    time -= tof;
+    if (time < 0) time = 0;
+    hitsinfo   hinfo;
+    if (map_hits.count(id) != 0) {
+      hinfo = map_hits[id];
+    } else {
+      hinfo.layer  = layer+layerFront_[ih];
+      hinfo.phi    = gcoord.getPhi();
+      hinfo.eta    = gcoord.getEta();
+      hinfo.time   = time;
+    }
+    hinfo.energy  += energy;
+    map_hits[id]   = hinfo; 
+
     //Fill in histograms
     h_RZ_[0]   ->Fill(std::abs(gcoord.z()),gcoord.rho());
     h_RZ_[ih+1]->Fill(std::abs(gcoord.z()),gcoord.rho());
-    h_EtaPhi_[0]   ->Fill(std::abs(gcoord.eta()),gcoord.phi());
-    h_EtaPhi_[ih+1]->Fill(std::abs(gcoord.eta()),gcoord.phi());
+    h_EtaPhi_[0]   ->Fill(std::abs(hinfo.eta),hinfo.phi);
+    h_EtaPhi_[ih+1]->Fill(std::abs(hinfo.eta),hinfo.phi);
   }
   if (verbosity_>0) 
-    edm::LogVerbatim("HGCalValidation") << name << " with " << nused
-					<< " detector elements being hit";
+    edm::LogVerbatim("HGCalValidation") << name << " with " << map_hits.size()
+					<< ":" << nused << " detector elements"
+					<< " being hit";
+
+  for (auto const& hit : map_hits) {
+    hitsinfo hinfo = hit.second;
+    if (verbosity_>1) 
+      edm::LogVerbatim("HGCalValidation") << " ----------------------   eta = "
+					  << hinfo.eta << " phi = "
+					  << hinfo.phi << " layer = "
+					  << hinfo.layer << " E = "
+					  << hinfo.energy << " T = "
+					  << hinfo.time;
+    h_E_[0]   ->Fill(hinfo.energy);
+    h_E_[ih+1]->Fill(hinfo.energy);
+    h_T_[0]    ->Fill(hinfo.time);
+    h_T_[ih+1] ->Fill(hinfo.time);
+    if (hinfo.eta > 0) {
+      h_EtFiZp_[0]    ->Fill(std::abs(hinfo.eta),hinfo.phi,hinfo.energy);
+      h_EtFiZp_[ih+1] ->Fill(std::abs(hinfo.eta),hinfo.phi,hinfo.energy);
+      h_LayerZp_[0]   ->Fill(hinfo.layer,hinfo.energy);
+      h_LayerZp_[ih+1]->Fill(hinfo.layer,hinfo.energy);
+    } else {
+      h_EtFiZm_[0]    ->Fill(std::abs(hinfo.eta),hinfo.phi,hinfo.energy);
+      h_EtFiZm_[ih+1] ->Fill(std::abs(hinfo.eta),hinfo.phi,hinfo.energy);
+      h_LayerZm_[0]   ->Fill(hinfo.layer,hinfo.energy);
+      h_LayerZm_[ih+1]->Fill(hinfo.layer,hinfo.energy);
+    }
+  }
 }
 
 // ------------ method called when starting to processes a run  ------------
-void HGCGeometryTest::beginRun(const edm::Run&, 
-			       const edm::EventSetup& iSetup) {
+void HGCalSimHitStudy::beginRun(const edm::Run&, 
+				const edm::EventSetup& iSetup) {
   for (unsigned int k=0; k<nameDetectors_.size(); ++k) {
     if (heRebuild_[k]) {
       edm::ESHandle<HcalDDDRecConstants> pHRNDC;
@@ -276,20 +334,24 @@ void HGCGeometryTest::beginRun(const edm::Run&,
       hcons_  = &(*pHRNDC);
       layers_.emplace_back(hcons_->getMaxDepth(1));
       hgcons_.emplace_back(nullptr);
+      layerFront_.emplace_back(40);
     } else {
       edm::ESHandle<HGCalDDDConstants>  pHGDC;
       iSetup.get<IdealGeometryRecord>().get(nameDetectors_[k], pHGDC);
       hgcons_.emplace_back(&(*pHGDC));
       layers_.emplace_back(hgcons_.back()->layers(false));
+      if (k == 0) layerFront_.emplace_back(0);
+      else        layerFront_.emplace_back(28);
     }
     if (verbosity_>0) 
       edm::LogVerbatim("HGCalValidation") << nameDetectors_[k] 
 					  << " defined with "
-					  << layers_.back() << " Layers";
+					  << layers_.back() << " Layers with "
+					  << layerFront_.back() << " in front";
   }
 }
 
-void HGCGeometryTest::beginJob() {
+void HGCalSimHitStudy::beginJob() {
 
   edm::Service<TFileService> fs;
     
@@ -317,9 +379,75 @@ void HGCGeometryTest::beginJob() {
     h_EtaPhi_.emplace_back(fs->make<TH2D>(name.str().c_str(), 
 					  title.str().c_str(),
 					  200,1.0,3.0,200,-M_PI,M_PI));
+    name.str(""); title.str("");
+    if (ih == 0) {
+      name << "EtFiZp_AllDetectors";
+      title << "#phi vs #eta (+z) for All Detectors";
+    } else {
+      name  << "EtFiZp_" << nameDetectors_[ih-1];
+      title << "#phi vs #eta (+z) for " << nameDetectors_[ih-1];
+    }
+    h_EtFiZp_.emplace_back(fs->make<TH2D>(name.str().c_str(), 
+					  title.str().c_str(),
+					  200,1.0,3.0,200,-M_PI,M_PI));
+    name.str(""); title.str("");
+    if (ih == 0) {
+      name << "EtFiZm_AllDetectors";
+      title << "#phi vs #eta (-z) for All Detectors";
+    } else {
+      name  << "EtFiZm_" << nameDetectors_[ih-1];
+      title << "#phi vs #eta (-z) for " << nameDetectors_[ih-1];
+    }
+    h_EtFiZm_.emplace_back(fs->make<TH2D>(name.str().c_str(), 
+					  title.str().c_str(),
+					  200,1.0,3.0,200,-M_PI,M_PI));
+    name.str(""); title.str("");
+    if (ih == 0) {
+      name << "LayerZp_AllDetectors";
+      title << "Energy vs Layer (+z) for All Detectors";
+    } else {
+      name  << "LayerZp_" << nameDetectors_[ih-1];
+      title << "Energy vs Layer (+z) for " << nameDetectors_[ih-1];
+    }
+    h_LayerZp_.emplace_back(fs->make<TH1D>(name.str().c_str(), 
+					   title.str().c_str(),
+					   60,0.0,60.0));
+    name.str(""); title.str("");
+    if (ih == 0) {
+      name << "LayerZm_AllDetectors";
+      title << "Energy vs Layer (-z) for All Detectors";
+    } else {
+      name  << "LayerZm_" << nameDetectors_[ih-1];
+      title << "Energy vs Layer (-z) for " << nameDetectors_[ih-1];
+    }
+    h_LayerZm_.emplace_back(fs->make<TH1D>(name.str().c_str(), 
+					   title.str().c_str(),
+					   60,0.0,60.0));
+
+    name.str(""); title.str("");
+    if (ih == 0) {
+      name << "E_AllDetectors";
+      title << "Energy Deposit for All Detectors";
+    } else {
+      name  << "E_" << nameDetectors_[ih-1];
+      title << "Energy Deposit for " << nameDetectors_[ih-1];
+    }
+    h_E_.emplace_back(fs->make<TH1D>(name.str().c_str(), title.str().c_str(),
+				     1000,0.0,1.0));
+
+    name.str(""); title.str("");
+    if (ih == 0) {
+      name << "T_AllDetectors";
+      title << "Time for All Detectors";
+    } else {
+      name  << "T_" << nameDetectors_[ih-1];
+      title << "Time for " << nameDetectors_[ih-1];
+    }
+    h_T_.emplace_back(fs->make<TH1D>(name.str().c_str(), title.str().c_str(),
+				     1000,0.0,200.0));
   }
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 //define this as a plug-in
-DEFINE_FWK_MODULE(HGCGeometryTest);
+DEFINE_FWK_MODULE(HGCalSimHitStudy);
