@@ -3,7 +3,7 @@
 
 <SpecParSection label="hfnoseSense.xml" eval="true">
   <SpecPar name="hfnosesens">
-    <PartSelector path="//HFNoseSensitive.*"/>  
+    <PartSelector path="//HGCalHFNoseSensitive.*"/>  
     <Parameter name="SensitiveDetector" value="HFNoseSensitiveDetector" eval="false"/>
     <Parameter name="ReadOutName" value="HFNoseHits" eval="false"/>
   </SpecPar>
