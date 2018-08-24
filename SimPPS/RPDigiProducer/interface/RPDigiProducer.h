@@ -25,7 +25,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/CTPPSDigi/interface/TotemRPDigi.h"
 #include "DataFormats/CTPPSDigi/interface/TotemRPDigi.h"
-#include "DataFormats/CTPPSDigi/interface/RPDetTrigger.h"
 #include "SimPPS/RPDigiProducer/interface/RPSimTypes.h"
 
 #include "SimPPS/RPDigiProducer/interface/RPDetDigitizer.h"
@@ -65,7 +64,6 @@ class RPDigiProducer : public edm::EDProducer {
       edm::ParameterSet conf_;
       std::map<RPDetId, boost::shared_ptr<RPDetDigitizer> > theAlgoMap;
       std::vector<edm::DetSet<TotemRPDigi> > theDigiVector;
-      std::vector<edm::DetSet<RPDetTrigger> > theTriggerVector;
 
       CLHEP::HepRandomEngine* rndEngine = nullptr;
       int verbosity_;

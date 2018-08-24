@@ -9,16 +9,6 @@
   <class name="edm::Wrapper<edm::DetSet<TotemRPDigi> >"/>
   <class name="edm::Wrapper<edm::DetSetVector<TotemRPDigi> >"/>
 
-  <class name="RPDetTrigger" ClassVersion="4">
-    <version ClassVersion="4" checksum="467767359"/>
-  </class>
-  <class name="edm::DetSet<RPDetTrigger>"/>
-  <class name="std::vector<edm::DetSet<RPDetTrigger> >"/>
-  <class name="std::vector<RPDetTrigger>"/>
-  <class name="edm::DetSetVector<RPDetTrigger>"/>
-  <class name="edm::Wrapper<edm::DetSetVector<RPDetTrigger> >"/>
-  <class name="edm::Wrapper<edm::DetSet<RPDetTrigger> >"/>
-
   <class name="TotemTriggerCounters" ClassVersion="2">
     <version ClassVersion="2" checksum="719923071"/>
   </class>
