@@ -93,7 +93,7 @@ BTLDetId BTLDetId::getUnhashedIndex( int hi, CrysLayout lay ) const {
   ie = ( zside == 1 ? ie + 1 : -ie ) ; 
   rod = (ip-1)/nphi+1;
   module = (ie-1)/keta+1 ; 
-  if ( module > kTypeBoundaries[1] ) { module > kTypeBoundaries[2] ? modtype = 3  :  modtype = 2 ;  }
+  if ( module > kTypeBoundaries[1] ) { modtype = (module > kTypeBoundaries[2] ? 3 : 2 ) ;  }
   if ( modtype > 1 ) { module = module - kTypeBoundaries[modtype-1]; }
   crystal = ((ip-1)%nphi+1)+((ie-1)%keta)*nphi;
   return  BTLDetId( zside, rod, module, modtype, crystal);

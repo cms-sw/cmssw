@@ -29,12 +29,12 @@ class BTLDetId : public MTDDetId {
 
   /// range constants, need two sets for the time being (one for tiles and one for bars)
   static constexpr int kModulesPerROD = 54;
-  static constexpr int kTypeBoundaries[4] = { 0, 18, 36, 54 };;
+  static constexpr int kTypeBoundaries[4] = { 0, 18, 36, 54 };
   static constexpr int kCrystalsInPhiTile = 16; // per module and ROD
   static constexpr int kCrystalsInEtaTile = 4; // per module
   static constexpr int kCrystalsInPhiBar = 4; // per module and ROD
   static constexpr int kCrystalsInEtaBar = 16; // per module
-  static constexpr int kCrystalsPerROD = 3456; // 64 crystals per module x 54 modules per rod
+  static constexpr int kCrystalsPerROD = kModulesPerROD*kCrystalsInPhiTile*kCrystalsInEtaTile; // 64 crystals per module x 54 modules per rod, independent on geometry scenario Tile or Bar
   static constexpr int MIN_ROD = 1;
   static constexpr int MAX_ROD = 72;
   static constexpr int HALF_ROD = 36;
@@ -96,7 +96,7 @@ class BTLDetId : public MTDDetId {
 
   int ieta( CrysLayout lay ) const { return zside()*ietaAbs( lay ); }
 
-  /** define a dense index fo arrays from a DetId */
+  /** define a dense index of arrays from a DetId */
   int hashedIndex( CrysLayout lay ) const ;
 
   static bool validHashedIndex( uint32_t din ) { return ( din < kSizeForDenseIndexing ) ; }
