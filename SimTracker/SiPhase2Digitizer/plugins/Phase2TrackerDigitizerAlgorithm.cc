@@ -999,7 +999,7 @@ void Phase2TrackerDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* p
 int Phase2TrackerDigitizerAlgorithm::convertSignalToAdc(uint32_t detID, float signal_in_elec,float threshold) {
   int signal_in_adc;
   int temp_signal;
-  const unsigned int max_limit = 10;
+  const int max_limit = 10;
   if (thePhase2ReadoutMode == 0) signal_in_adc = theAdcFullScale;
   else { 
     
