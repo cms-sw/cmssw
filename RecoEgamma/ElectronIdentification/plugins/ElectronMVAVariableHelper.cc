@@ -27,20 +27,23 @@ class ElectronMVAVariableHelper : public edm::stream::EDProducer<> {
 private:
 
   // for AOD and MiniAOD case
-  MultiToken<edm::View<reco::GsfElectron> > electronsToken_;
-  MultiToken<reco::VertexCollection> vtxToken_;
-  MultiToken<reco::ConversionCollection> conversionsToken_;
-  MultiToken<reco::BeamSpot> beamSpotToken_;
+  MultiTokenT<edm::View<reco::GsfElectron> > electronsToken_;
+  MultiTokenT<reco::VertexCollection> vtxToken_;
+  MultiTokenT<reco::ConversionCollection> conversionsToken_;
+  MultiTokenT<reco::BeamSpot> beamSpotToken_;
 };
 
 ElectronMVAVariableHelper::ElectronMVAVariableHelper(const edm::ParameterSet & iConfig)
   : electronsToken_(consumes<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("src"))
                    ,consumes<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("srcMiniAOD")))
-  , vtxToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection"))
+  , vtxToken_(electronsToken_
+             ,consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection"))
              ,consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollectionMiniAOD")))
-  , conversionsToken_(consumes<reco::ConversionCollection>(iConfig.getParameter<edm::InputTag>("conversions"))
+  , conversionsToken_(electronsToken_
+                     ,consumes<reco::ConversionCollection>(iConfig.getParameter<edm::InputTag>("conversions"))
                      ,consumes<reco::ConversionCollection>(iConfig.getParameter<edm::InputTag>("conversionsMiniAOD")))
-  , beamSpotToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))
+  , beamSpotToken_(electronsToken_
+                  ,consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))
                   ,consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotMiniAOD")))
 {
   produces<edm::ValueMap<float>>("convVtxFitProb");

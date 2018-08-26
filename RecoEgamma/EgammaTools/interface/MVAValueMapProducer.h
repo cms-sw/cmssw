@@ -36,7 +36,7 @@ class MVAValueMapProducer : public edm::stream::EDProducer<> {
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   // for AOD and MiniAOD case
-  MultiToken<edm::View<ParticleType>> src_;
+  MultiTokenT<edm::View<ParticleType>> src_;
 
   // MVA estimator
   std::vector<std::unique_ptr<AnyMVAEstimatorRun2Base>> mvaEstimators_;

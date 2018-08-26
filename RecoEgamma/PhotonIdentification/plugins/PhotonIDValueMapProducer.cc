@@ -66,13 +66,13 @@ private:
     const bool usesES_;
 
     // Dual Tokens for AOD and MiniAOD case
-    MultiToken<EcalRecHitCollection> ebReducedRecHitCollection_;
-    MultiToken<EcalRecHitCollection> eeReducedRecHitCollection_;
-    MultiToken<EcalRecHitCollection> esReducedRecHitCollection_;
-    MultiToken<reco::VertexCollection> vtxToken_;
-    MultiToken<edm::ValueMap<std::vector<reco::PFCandidateRef>>> particleBasedIsolationToken_;
-    MultiToken<edm::View<reco::Candidate>> pfCandsToken_;
-    MultiToken<edm::View<reco::Photon>> src_;
+    MultiTokenT<edm::View<reco::Photon>> src_;
+    MultiTokenT<EcalRecHitCollection> ebReducedRecHitCollection_;
+    MultiTokenT<EcalRecHitCollection> eeReducedRecHitCollection_;
+    MultiTokenT<EcalRecHitCollection> esReducedRecHitCollection_;
+    MultiTokenT<reco::VertexCollection> vtxToken_;
+    MultiTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef>>> particleBasedIsolationToken_;
+    MultiTokenT<edm::View<reco::Candidate>> pfCandsToken_;
 
     bool isAOD_;
 };
@@ -120,26 +120,26 @@ const unsigned char PT_MIN_THRESH = 0x8;
 PhotonIDValueMapProducer::PhotonIDValueMapProducer(const edm::ParameterSet& cfg)
     : usesES_(!cfg.getParameter<edm::InputTag>("esReducedRecHitCollection").label().empty()
           || !cfg.getParameter<edm::InputTag>("esReducedRecHitCollectionMiniAOD").label().empty())
-    , ebReducedRecHitCollection_(
+    , src_(mayConsume<edm::View<reco::Photon>>(cfg.getParameter<edm::InputTag>("src")),
+           mayConsume<edm::View<reco::Photon>>(cfg.getParameter<edm::InputTag>("srcMiniAOD")))
+    , ebReducedRecHitCollection_(src_,
           mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("ebReducedRecHitCollection")),
           mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("ebReducedRecHitCollectionMiniAOD")))
-    , eeReducedRecHitCollection_(
+    , eeReducedRecHitCollection_(src_,
           mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("eeReducedRecHitCollection")),
           mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("eeReducedRecHitCollectionMiniAOD")))
-    , esReducedRecHitCollection_(
+    , esReducedRecHitCollection_(src_,
           mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("esReducedRecHitCollection")),
           mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("esReducedRecHitCollectionMiniAOD")))
-    , vtxToken_(
+    , vtxToken_(src_,
           mayConsume<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertices")),
           mayConsume<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("verticesMiniAOD")))
     , particleBasedIsolationToken_(mayConsume<edm::ValueMap<std::vector<reco::PFCandidateRef>>>(
           cfg.getParameter<edm::InputTag>("particleBasedIsolation"))
           /* ...only for AOD... */                                 )
-    , pfCandsToken_(
+    , pfCandsToken_(src_,
           mayConsume<edm::View<reco::Candidate>>(cfg.getParameter<edm::InputTag>("pfCandidates")),
           mayConsume<edm::View<reco::Candidate>>(cfg.getParameter<edm::InputTag>("pfCandidatesMiniAOD")))
-    , src_(mayConsume<edm::View<reco::Photon>>(cfg.getParameter<edm::InputTag>("src")),
-           mayConsume<edm::View<reco::Photon>>(cfg.getParameter<edm::InputTag>("srcMiniAOD")))
 {
 
     // Declare producibles

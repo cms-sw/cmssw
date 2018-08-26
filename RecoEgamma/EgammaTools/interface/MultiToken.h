@@ -20,16 +20,28 @@
  * Created by Jonas Rembser on August 3, 2018.
  */
 
+#include <memory>
+
 template <typename T>
-class MultiToken {
+class MultiTokenT {
 
   public:
 
     // Constructor from an arbitrary number of tokens
     template <typename ... Tokens>
-    MultiToken(edm::EDGetTokenT<T> token0, Tokens ... tokens)
-      : tokens_( { token0, tokens... } )
-      , goodIndex_(-1)
+    MultiTokenT(edm::EDGetTokenT<T> token0, Tokens ... tokens)
+      : isMaster_(true)
+      , tokens_( { token0, tokens... } )
+    {
+        goodIndex_ = std::make_shared<int>(-1);
+    }
+
+    // Constructor from an arbitrary number of tokens plus a master MultiToken
+    template <typename S, typename ... Tokens>
+    MultiTokenT(MultiTokenT<S>& master, edm::EDGetTokenT<T> token0, Tokens ... tokens)
+      : isMaster_(false)
+      , tokens_( { token0, tokens... } )
+      , goodIndex_(master.getGoodTokenIndexPtr())
     {}
 
     // Get a handle on the event data, non-valid handle is allowed
@@ -38,16 +50,21 @@ class MultiToken {
         edm::Handle<T> handle;
 
         // If we already know which token works, take that one
-        if (goodIndex_ >= 0) {
-            iEvent.getByToken(tokens_[goodIndex_], handle);
+        if (*goodIndex_ >= 0) {
+            iEvent.getByToken(tokens_[*goodIndex_], handle);
             return handle;
+        }
+
+        if (!isMaster_) {
+            throw cms::Exception("MultiTokenTException") <<
+                "Trying to get a handle from a depending MultiToken before the master!";
         }
 
         // If not, set the good token index parallel to getting the handle
         handle = getInitialHandle(iEvent);
 
-        if (goodIndex_ == -1) {
-            goodIndex_ = tokens_.size() - 1;
+        if (*goodIndex_ == -1) {
+            *goodIndex_ = tokens_.size() - 1;
         }
         return handle;
     }
@@ -59,19 +76,24 @@ class MultiToken {
         edm::Handle<T> handle;
 
         // If we already know which token works, take that one
-        if (goodIndex_ >= 0) {
-            iEvent.getByToken(tokens_[goodIndex_], handle);
+        if (*goodIndex_ >= 0) {
+            iEvent.getByToken(tokens_[*goodIndex_], handle);
             if (!handle.isValid())
-                throw cms::Exception("MultiTokenException") <<
-                    "Token gave valid handle in previous event but not anymore!";
+                throw cms::Exception("MultiTokenTException") <<
+                    "Token gave valid handle in previously but not anymore!";
             return handle;
+        }
+
+        if (!isMaster_) {
+            throw cms::Exception("MultiTokenTException") <<
+                "Trying to get a handle from a depending MultiToken before the master!";
         }
 
         // If not, set the good token index parallel to getting the handle
         handle = getInitialHandle(iEvent);
 
-        if (goodIndex_ == -1) {
-            throw cms::Exception("MultiTokenException") << "Neither handle is valid!";
+        if (*goodIndex_ == -1) {
+            throw cms::Exception("MultiTokenTException") << "Neither handle is valid!";
         }
         return handle;
     }
@@ -79,8 +101,15 @@ class MultiToken {
     // get the good token
     edm::EDGetTokenT<T> get(const edm::Event& iEvent)
     {
-        if (goodIndex_ >= 0)
-            return tokens_[goodIndex_];
+        // If we already know which token works, take that index
+        if (*goodIndex_ >= 0)
+            return tokens_[*goodIndex_];
+
+        // If this is not a master MultiToken, just return what it got
+        if (!isMaster_) {
+            throw cms::Exception("MultiTokenTException") <<
+                "Trying to get a handle from a depending MultiToken before the master!";
+        }
 
         // Find which token is the good one by trying to get a handle
         edm::Handle<T> handle;
@@ -91,17 +120,17 @@ class MultiToken {
             }
         }
 
-        throw cms::Exception("MultiTokenException") << "Neither token is valid!";
+        throw cms::Exception("MultiTokenTException") << "Neither token is valid!";
     }
 
     int getGoodTokenIndex() const
     {
-        return goodIndex_;
+        return *goodIndex_;
     }
 
-    void setGoodTokenIndex(int goodIndex)
+    std::shared_ptr<int> getGoodTokenIndexPtr() const
     {
-        goodIndex_ = goodIndex;
+        return goodIndex_;
     }
 
   private:
@@ -115,15 +144,16 @@ class MultiToken {
         for (size_t i = 0; i < tokens_.size(); ++i) {
             iEvent.getByToken(tokens_[i], handle);
             if (handle.isValid()) {
-                goodIndex_ = i;
+                *goodIndex_ = i;
                 return handle;
             }
         }
         return handle;
     }
 
+    const bool isMaster_;
     std::vector<edm::EDGetTokenT<T>> tokens_;
-    int goodIndex_;
+    std::shared_ptr<int> goodIndex_;
 };
 
 #endif
