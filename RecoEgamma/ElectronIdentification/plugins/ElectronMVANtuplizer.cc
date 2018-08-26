@@ -130,10 +130,10 @@ class ElectronMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResourc
       const size_t nCats_;
 
       // Tokens for AOD and MiniAOD case
-      MultiToken<edm::View<reco::GsfElectron>>   src_;
-      MultiToken<std::vector<reco::Vertex>>      vertices_;
-      MultiToken<std::vector<PileupSummaryInfo>> pileup_;
-      MultiToken<edm::View<reco::GenParticle>>   genParticles_;
+      MultiTokenT<edm::View<reco::GsfElectron>>   src_;
+      MultiTokenT<std::vector<reco::Vertex>>      vertices_;
+      MultiTokenT<std::vector<PileupSummaryInfo>> pileup_;
+      MultiTokenT<edm::View<reco::GenParticle>>   genParticles_;
 };
 
 //

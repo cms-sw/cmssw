@@ -110,9 +110,9 @@ class PhotonMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources
       const double ptThreshold_;
 
       // for AOD or MiniAOD case
-      MultiToken<edm::View<reco::Photon>>        src_;
-      MultiToken<std::vector<reco::Vertex>>      vertices_;
-      MultiToken<std::vector<PileupSummaryInfo>> pileup_;
+      MultiTokenT<edm::View<reco::Photon>>        src_;
+      MultiTokenT<std::vector<reco::Vertex>>      vertices_;
+      MultiTokenT<std::vector<PileupSummaryInfo>> pileup_;
 
 };
 
@@ -128,24 +128,23 @@ class PhotonMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources
 // constructors and destructor
 //
 PhotonMVANtuplizer::PhotonMVANtuplizer(const edm::ParameterSet& iConfig)
- :
-  phoMapTags_            (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVAs")),
-  phoMapBranchNames_     (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVALabels")),
-  nPhoMaps_              (phoMapBranchNames_.size()),
-  valMapTags_            (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVAValMaps")),
-  valMapBranchNames_     (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVAValMapLabels")),
-  nValMaps_              (valMapBranchNames_.size()),
-  mvaCatTags_            (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVACats")),
-  mvaCatBranchNames_     (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVACatLabels")),
-  nCats_                 (mvaCatBranchNames_.size()),
-  isMC_                  (iConfig.getParameter<bool>("isMC")),
-  ptThreshold_           (iConfig.getParameter<double>("ptThreshold")),
-  src_                   (consumes<edm::View<reco::Photon> >(iConfig.getParameter<edm::InputTag>("src")),
-                          consumes<edm::View<reco::Photon> >(iConfig.getParameter<edm::InputTag>("srcMiniAOD"))),
-  vertices_              (consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("vertices")),
-                          consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("verticesMiniAOD"))),
-  pileup_                (consumes<std::vector< PileupSummaryInfo > >(iConfig.getParameter<edm::InputTag>("pileup")),
-                          consumes<std::vector< PileupSummaryInfo > >(iConfig.getParameter<edm::InputTag>("pileupMiniAOD")))
+ : phoMapTags_            (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVAs"))
+ , phoMapBranchNames_     (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVALabels"))
+ , nPhoMaps_              (phoMapBranchNames_.size())
+ , valMapTags_            (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVAValMaps"))
+ , valMapBranchNames_     (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVAValMapLabels"))
+ , nValMaps_              (valMapBranchNames_.size())
+ , mvaCatTags_            (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVACats"))
+ , mvaCatBranchNames_     (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVACatLabels"))
+ , nCats_                 (mvaCatBranchNames_.size())
+ , isMC_                  (iConfig.getParameter<bool>("isMC"))
+ , ptThreshold_           (iConfig.getParameter<double>("ptThreshold"))
+ , src_                   (consumes<edm::View<reco::Photon> >(iConfig.getParameter<edm::InputTag>("src")),
+                           consumes<edm::View<reco::Photon> >(iConfig.getParameter<edm::InputTag>("srcMiniAOD")))
+ , vertices_        (src_, consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("vertices")),
+                           consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("verticesMiniAOD")))
+ , pileup_          (src_, consumes<std::vector< PileupSummaryInfo > >(iConfig.getParameter<edm::InputTag>("pileup")),
+                           consumes<std::vector< PileupSummaryInfo > >(iConfig.getParameter<edm::InputTag>("pileupMiniAOD")))
 {
     // phoMaps
     for (size_t k = 0; k < nPhoMaps_; ++k) {

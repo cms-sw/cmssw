@@ -76,27 +76,27 @@ class PhotonRegressionValueMapProducer : public edm::stream::EDProducer<> {
   const bool use_full5x5_;
 
   // for AOD and MiniAOD case
-  MultiToken<EcalRecHitCollection> ebReducedRecHitCollection_;
-  MultiToken<EcalRecHitCollection> eeReducedRecHitCollection_;
-  MultiToken<EcalRecHitCollection> esReducedRecHitCollection_;
-  MultiToken<edm::View<reco::Photon>> src_;
+  MultiTokenT<edm::View<reco::Photon>> src_;
+  MultiTokenT<EcalRecHitCollection> ebReducedRecHitCollection_;
+  MultiTokenT<EcalRecHitCollection> eeReducedRecHitCollection_;
+  MultiTokenT<EcalRecHitCollection> esReducedRecHitCollection_;
 };
 
 PhotonRegressionValueMapProducer::PhotonRegressionValueMapProducer(const edm::ParameterSet& iConfig)
   : use_full5x5_(iConfig.getParameter<bool>("useFull5x5"))
   // Declare consummables, handle both AOD and miniAOD case
-  , ebReducedRecHitCollection_(
-        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ebReducedRecHitCollection")),
-        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ebReducedRecHitCollectionMiniAOD")))
-  , eeReducedRecHitCollection_(
-        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("eeReducedRecHitCollection")),
-        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("eeReducedRecHitCollectionMiniAOD")))
-  , esReducedRecHitCollection_(
-        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("esReducedRecHitCollection")),
-        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("esReducedRecHitCollectionMiniAOD")))
   , src_(
         mayConsume<edm::View<reco::Photon> >(iConfig.getParameter<edm::InputTag>("src")),
         mayConsume<edm::View<reco::Photon> >(iConfig.getParameter<edm::InputTag>("srcMiniAOD")))
+  , ebReducedRecHitCollection_(src_,
+        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ebReducedRecHitCollection")),
+        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ebReducedRecHitCollectionMiniAOD")))
+  , eeReducedRecHitCollection_(src_,
+        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("eeReducedRecHitCollection")),
+        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("eeReducedRecHitCollectionMiniAOD")))
+  , esReducedRecHitCollection_(src_,
+        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("esReducedRecHitCollection")),
+        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("esReducedRecHitCollectionMiniAOD")))
 {
   //
   // Declare producibles

@@ -37,10 +37,10 @@ class ElectronIDValueMapProducer : public edm::stream::EDProducer<> {
   std::unique_ptr<noZS::EcalClusterLazyTools> lazyToolnoZS;
 
   // for AOD and MiniAOD case
-  MultiToken<EcalRecHitCollection> ebReducedRecHitCollection_;
-  MultiToken<EcalRecHitCollection> eeReducedRecHitCollection_;
-  MultiToken<EcalRecHitCollection> esReducedRecHitCollection_;
-  MultiToken<edm::View<reco::GsfElectron>> src_;
+  MultiTokenT<edm::View<reco::GsfElectron>> src_;
+  MultiTokenT<EcalRecHitCollection> ebReducedRecHitCollection_;
+  MultiTokenT<EcalRecHitCollection> eeReducedRecHitCollection_;
+  MultiTokenT<EcalRecHitCollection> esReducedRecHitCollection_;
 
   constexpr static char eleFull5x5SigmaIEtaIEta_[] = "eleFull5x5SigmaIEtaIEta";
   constexpr static char eleFull5x5SigmaIEtaIPhi_[] = "eleFull5x5SigmaIEtaIPhi";
@@ -53,19 +53,18 @@ class ElectronIDValueMapProducer : public edm::stream::EDProducer<> {
 
 ElectronIDValueMapProducer::ElectronIDValueMapProducer(const edm::ParameterSet& iConfig)
   // Declare consummables, handle both AOD and miniAOD case
-  : ebReducedRecHitCollection_(
-        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ebReducedRecHitCollection")),
-        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ebReducedRecHitCollectionMiniAOD")))
-  , eeReducedRecHitCollection_(
-        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("eeReducedRecHitCollection")),
-        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("eeReducedRecHitCollectionMiniAOD")))
-  , esReducedRecHitCollection_(
-        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("esReducedRecHitCollection")),
-        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("esReducedRecHitCollectionMiniAOD")))
-  , src_(
+  : src_(
         mayConsume<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("src")),
         mayConsume<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("srcMiniAOD")))
-
+  , ebReducedRecHitCollection_(src_,
+        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ebReducedRecHitCollection")),
+        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ebReducedRecHitCollectionMiniAOD")))
+  , eeReducedRecHitCollection_(src_,
+        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("eeReducedRecHitCollection")),
+        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("eeReducedRecHitCollectionMiniAOD")))
+  , esReducedRecHitCollection_(src_,
+        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("esReducedRecHitCollection")),
+        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("esReducedRecHitCollectionMiniAOD")))
 {
 
   produces<edm::ValueMap<float> >(eleFull5x5SigmaIEtaIEta_);  
