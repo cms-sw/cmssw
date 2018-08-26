@@ -1,4 +1,6 @@
 #include "RecoEgamma/PhotonIdentification/interface/PhotonMVAEstimator.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
 
 PhotonMVAEstimator::PhotonMVAEstimator(const edm::ParameterSet& conf):
   AnyMVAEstimatorRun2Base(conf),
@@ -30,13 +32,10 @@ PhotonMVAEstimator::PhotonMVAEstimator(const edm::ParameterSet& conf):
   // Create a TMVA reader object for each category
   for(int i=0; i<nCategories_; i++){
 
-    std::vector<std::string> variableNamesInCategory;
     std::vector<int> variablesInCategory;
 
-    // Use unique_ptr so that all readers are properly cleaned up
-    // when the vector clear() is called in the destructor
-
-    gbrForests_.push_back( GBRForestTools::createGBRForest( weightFileNames[i], variableNamesInCategory ) );
+    std::vector<std::string> variableNamesInCategory;
+    gbrForests_.push_back(createGBRForest(weightFileNames[i], variableNamesInCategory));
 
     nVariables_.push_back(variableNamesInCategory.size());
 

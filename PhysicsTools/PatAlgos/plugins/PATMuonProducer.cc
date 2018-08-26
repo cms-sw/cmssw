@@ -61,18 +61,14 @@ using namespace std;
 PATMuonHeavyObjectCache::PATMuonHeavyObjectCache(const edm::ParameterSet& iConfig) {
 
   if (iConfig.getParameter<bool>("computeMuonMVA")) {
-    std::string mvaTrainingFile = iConfig.getParameter<std::string>("mvaTrainingFile");
-    // xml training file
-    edm::FileInPath fip(mvaTrainingFile);
+    edm::FileInPath mvaTrainingFile = iConfig.getParameter<edm::FileInPath>("mvaTrainingFile");
     float mvaDrMax = iConfig.getParameter<double>("mvaDrMax");
-    muonMvaEstimator_ = std::make_unique<MuonMvaEstimator>(fip.fullPath(), mvaDrMax);
+    muonMvaEstimator_ = std::make_unique<MuonMvaEstimator>(mvaTrainingFile, mvaDrMax);
   }
 
   if (iConfig.getParameter<bool>("computeSoftMuonMVA")) {
-    std::string softMvaTrainingFile = iConfig.getParameter<std::string>("softMvaTrainingFile");
-    // xml soft mva training file
-    edm::FileInPath softfip(softMvaTrainingFile);
-    softMuonMvaEstimator_ = std::make_unique<SoftMuonMvaEstimator>(softfip.fullPath());
+    edm::FileInPath softMvaTrainingFile = iConfig.getParameter<edm::FileInPath>("softMvaTrainingFile");
+    softMuonMvaEstimator_ = std::make_unique<SoftMuonMvaEstimator>(softMvaTrainingFile);
   }
 }
 

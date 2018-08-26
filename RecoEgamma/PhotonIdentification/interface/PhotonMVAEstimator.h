@@ -8,10 +8,8 @@
 #include "RecoEgamma/EgammaTools/interface/AnyMVAEstimatorRun2Base.h"
 
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-
-#include "FWCore/ParameterSet/interface/FileInPath.h"
-
-#include "RecoEgamma/EgammaTools/interface/GBRForestTools.h"
+#include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
+#include "CondFormats/EgammaObjects/interface/GBRForest.h"
 #include "RecoEgamma/EgammaTools/interface/MVAVariableManager.h"
 
 #include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"

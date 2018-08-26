@@ -565,13 +565,6 @@ PFEGammaProducer::setPFVertexParameters(bool useVertex,
 //  pfmu_->setInputsForCleaning(primaryVertices);
 
 
-  //Now find the primary vertex!
-  //bool primaryVertexFound = false;
-  int nVtx=primaryVertices->size();
-  pfeg_->setnPU(nVtx);
-//   if(usePFPhotons_){
-//     pfpho_->setnPU(nVtx);
-//   }
   primaryVertex_ = primaryVertices->front();
   for (unsigned short i=0 ;i<primaryVertices->size();++i)
     {

@@ -15,6 +15,9 @@
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 
+
+#include "FWCore/Utilities/interface/isFinite.h"
+
 #include <memory>
 #include <vector>
 
@@ -142,7 +145,7 @@ void ElectronIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSet
     const auto& theseed = *(iEle->superCluster()->seed());
 
     std::vector<float> vCov = lazyToolnoZS->localCovariances( theseed );
-    const float see = (isnan(vCov[0]) ? 0. : sqrt(vCov[0]));
+    const float see = (edm::isNotFinite(vCov[0]) ? 0. : sqrt(vCov[0]));
     const float sep = vCov[1];
     eleFull5x5SigmaIEtaIEta.push_back(see);
     eleFull5x5SigmaIEtaIPhi.push_back(sep);
