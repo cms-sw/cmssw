@@ -5,5 +5,4 @@
 <use name="CondFormats/EgammaObjects"/>
 <use name="CommonTools/Utils"/>
 <use name="root"/>
-<use name="roottmva"/>
 <flags EDM_PLUGIN="1"/>

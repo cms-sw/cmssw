@@ -6,11 +6,9 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "CommonTools/Utils/interface/TMVAZipReader.h"
 
 #include "TMatrixDSym.h"
 #include "TMatrixDSymEigen.h"
-#include "TMVA/MethodBDT.h"
 
 #include <utility>
 
@@ -30,7 +28,6 @@ PileupJetIdAlgo::AlgoGBRForestsAndConstants::AlgoGBRForestsAndConstants(edm::Par
   betaStarCut_{}
  {
 
-  std::string tmvaWeights;
   std::vector<std::string> tmvaEtaWeights;
   std::vector<std::string> tmvaSpectators;
   int version;
@@ -41,7 +38,7 @@ PileupJetIdAlgo::AlgoGBRForestsAndConstants::AlgoGBRForestsAndConstants(edm::Par
       const std::vector<edm::ParameterSet>& trainings = ps.getParameter<std::vector <edm::ParameterSet> >("trainings");
       nEtaBins_ = ps.getParameter<int>("nEtaBins");
       for (int v = 0; v < nEtaBins_; v++) {
-        tmvaEtaWeights.push_back( edm::FileInPath(trainings.at(v).getParameter<std::string>("tmvaWeights")).fullPath() );
+        tmvaEtaWeights.push_back(trainings.at(v).getParameter<std::string>("tmvaWeights"));
         jEtaMin_.push_back( trainings.at(v).getParameter<double>("jEtaMin") );
         jEtaMax_.push_back( trainings.at(v).getParameter<double>("jEtaMax") );
       }
@@ -49,7 +46,6 @@ PileupJetIdAlgo::AlgoGBRForestsAndConstants::AlgoGBRForestsAndConstants(edm::Par
         tmvaEtaVariables_.push_back( trainings.at(v).getParameter<std::vector<std::string> >("tmvaVariables") );
       }
     } else {
-      tmvaWeights = edm::FileInPath(ps.getParameter<std::string>("tmvaWeights")).fullPath();
       tmvaVariables_ = ps.getParameter<std::vector<std::string> >("tmvaVariables");
     }
     tmvaMethod_ = ps.getParameter<std::string>("tmvaMethod");
@@ -105,7 +101,7 @@ PileupJetIdAlgo::AlgoGBRForestsAndConstants::AlgoGBRForestsAndConstants(edm::Par
         etaReader_.push_back(getMVA(tmvaEtaVariables_.at(v), tmvaEtaWeights.at(v), tmvaSpectators));
       }
     } else {
-      reader_ = getMVA(tmvaVariables_, tmvaWeights, tmvaSpectators);
+      reader_ = getMVA(tmvaVariables_, ps.getParameter<std::string>("tmvaWeights"), tmvaSpectators);
     }
   }
 }
@@ -118,17 +114,7 @@ PileupJetIdAlgo::AlgoGBRForestsAndConstants::getMVA(std::vector<std::string> con
   // A temporary only to access the variables while calling TMVA AddVariable and TMVA AddSpectator.
   PileupJetIdAlgo algo(nullptr);
 
-  TMVA::Reader tmpTMVAReader( "!Color:Silent:!Error" );
-  for (auto const& varName : varList) {
-    if ( tmvaNames_[varName].empty() ) tmvaNames_[varName] = varName;
-    tmpTMVAReader.AddVariable( varName, std::get<float *,float>(algo.getVariables().at(tmvaNames_[varName])) );
-  }
-  for (auto const& spectatorName : tmvaSpectators) {
-    if ( tmvaNames_[spectatorName].empty() ) tmvaNames_[spectatorName] = spectatorName;
-    tmpTMVAReader.AddSpectator( spectatorName, std::get<float *,float>(algo.getVariables().at(tmvaNames_[spectatorName])) );
-  }
-  reco::details::loadTMVAWeights(&tmpTMVAReader, tmvaMethod_, tmvaWeights);
-  return ( std::make_unique<const GBRForest> ( dynamic_cast<TMVA::MethodBDT*>( tmpTMVAReader.FindMVA(tmvaMethod_.c_str()) ) ) );
+  return std::make_unique<const GBRForest> ( tmvaWeights );
 }
 
 PileupJetIdAlgo::PileupJetIdAlgo(AlgoGBRForestsAndConstants const* cache) :

@@ -24,21 +24,17 @@
 
 
 #include "CondFormats/Serialization/interface/Serializable.h"
+#include "Utilities/General/interface/tinyxml2.h"
 
 #include <vector>
 #include <map>
-
-  namespace TMVA {
-    class DecisionTree;
-    class DecisionTreeNode;
-  }
 
   class GBRTree {
 
     public:
 
        GBRTree();
-       explicit GBRTree(const TMVA::DecisionTree *tree, double scale, bool useyesnoleaf, bool adjustboundary);
+       explicit GBRTree(tinyxml2::XMLElement* binaryTree, double scale, bool isregression, bool useyesnoleaf, bool adjustboundary);
        virtual ~GBRTree();
        
        double GetResponse(const float* vector) const;
@@ -62,10 +58,12 @@
 
        
     protected:      
-        unsigned int CountIntermediateNodes(const TMVA::DecisionTreeNode *node);
-        unsigned int CountTerminalNodes(const TMVA::DecisionTreeNode *node);
-      
-        void AddNode(const TMVA::DecisionTreeNode *node, double scale, bool isregression, bool useyesnoleaf, bool adjustboundary);
+        unsigned int CountIntermediateNodes(tinyxml2::XMLElement* node);
+        unsigned int CountTerminalNodes(tinyxml2::XMLElement* node);
+
+        void AddNode(tinyxml2::XMLElement* node, double scale, bool isregression, bool useyesnoleaf, bool adjustboundary);
+
+        bool isTerminal(tinyxml2::XMLElement* node);
         
 	std::vector<unsigned char> fCutIndices;
 	std::vector<float> fCutVals;

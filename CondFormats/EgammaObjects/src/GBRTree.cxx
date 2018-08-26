@@ -1,10 +1,4 @@
-
-
 #include "CondFormats/EgammaObjects/interface/GBRTree.h"
-
-using namespace std;
-#include "TMVA/DecisionTreeNode.h"
-#include "TMVA/DecisionTree.h"
 
 //_______________________________________________________________________
 GBRTree::GBRTree()
@@ -12,13 +6,22 @@ GBRTree::GBRTree()
 
 }
 
-//_______________________________________________________________________
-GBRTree::GBRTree(const TMVA::DecisionTree *tree, double scale, bool useyesnoleaf, bool adjustboundary)
+bool GBRTree::isTerminal(tinyxml2::XMLElement* node)
 {
-  
-  //printf("boostweights size = %i, forest size = %i\n",bdt->GetBoostWeights().size(),bdt->GetForest().size());
-  int nIntermediate = CountIntermediateNodes((TMVA::DecisionTreeNode*)tree->GetRoot());
-  int nTerminal = CountTerminalNodes((TMVA::DecisionTreeNode*)tree->GetRoot());
+  bool is = true;
+  for(tinyxml2::XMLElement* e = node->FirstChildElement("Node");
+          e != nullptr; e = e->NextSiblingElement("Node")) {
+      is = false;
+  }
+  return is;
+}
+
+GBRTree::GBRTree(tinyxml2::XMLElement* binaryTree, double scale, bool isregression, bool useyesnoleaf, bool adjustboundary)
+{
+  tinyxml2::XMLElement* root = binaryTree->FirstChildElement("Node");
+
+  int nIntermediate = CountIntermediateNodes(root);
+  int nTerminal = CountTerminalNodes(root);
   
   //special case, root node is terminal
   if (nIntermediate==0) nIntermediate = 1;
@@ -29,7 +32,7 @@ GBRTree::GBRTree(const TMVA::DecisionTree *tree, double scale, bool useyesnoleaf
   fRightIndices.reserve(nIntermediate);
   fResponses.reserve(nTerminal);
 
-  AddNode((TMVA::DecisionTreeNode*)tree->GetRoot(), scale, tree->DoRegression(), useyesnoleaf, adjustboundary);
+  AddNode(root, scale, isregression, useyesnoleaf, adjustboundary);
 
   //special case, root node is terminal, create fake intermediate node at root
   if (fCutIndices.size()==0) {
@@ -41,51 +44,50 @@ GBRTree::GBRTree(const TMVA::DecisionTree *tree, double scale, bool useyesnoleaf
 
 }
 
-
 //_______________________________________________________________________
 GBRTree::~GBRTree() {
 
 }
 
 //_______________________________________________________________________
-unsigned int GBRTree::CountIntermediateNodes(const TMVA::DecisionTreeNode *node) {
-  
-  if (!node->GetLeft() || !node->GetRight() || node->IsTerminal()) {
-    return 0;
+unsigned int GBRTree::CountIntermediateNodes(tinyxml2::XMLElement* node) {
+
+  unsigned int count = 0;
+  for(tinyxml2::XMLElement* e = node->FirstChildElement("Node");
+          e != nullptr; e = e->NextSiblingElement("Node")) {
+      count += CountIntermediateNodes(e);
   }
-  else {
-    return 1 + CountIntermediateNodes((TMVA::DecisionTreeNode*)node->GetLeft()) + CountIntermediateNodes((TMVA::DecisionTreeNode*)node->GetRight());
-  }
+  return count > 0 ? count + 1 : 0;
   
 }
 
 //_______________________________________________________________________
-unsigned int GBRTree::CountTerminalNodes(const TMVA::DecisionTreeNode *node) {
+unsigned int GBRTree::CountTerminalNodes(tinyxml2::XMLElement* node) {
   
-  if (!node->GetLeft() || !node->GetRight() || node->IsTerminal()) {
-    return 1;
+  unsigned int count = 0;
+  for(tinyxml2::XMLElement* e = node->FirstChildElement("Node");
+          e != nullptr; e = e->NextSiblingElement("Node")) {
+      count += CountTerminalNodes(e);
   }
-  else {
-    return 0 + CountTerminalNodes((TMVA::DecisionTreeNode*)node->GetLeft()) + CountTerminalNodes((TMVA::DecisionTreeNode*)node->GetRight());
-  }
+  return count > 0 ? count : 1;
   
 }
 
-
 //_______________________________________________________________________
-void GBRTree::AddNode(const TMVA::DecisionTreeNode *node, double scale, bool isregression, bool useyesnoleaf, bool adjustboundary) {
+void GBRTree::AddNode(tinyxml2::XMLElement* node, double scale, bool isregression, bool useyesnoleaf, bool adjustboundary) {
 
-  if (!node->GetLeft() || !node->GetRight() || node->IsTerminal()) {
+  bool nodeIsTerminal = isTerminal(node);
+  if (nodeIsTerminal) {
     double response = 0.;
     if (isregression) {
-      response = node->GetResponse();
+      node->QueryDoubleAttribute("res", &response);
     }
     else {
       if (useyesnoleaf) {
-        response = double(node->GetNodeType());
+        node->QueryDoubleAttribute("cType", &response);
       }
       else {
-        response  = node->GetPurity();
+        node->QueryDoubleAttribute("purity", &response);
       }
     }
     response *= scale;
@@ -95,8 +97,15 @@ void GBRTree::AddNode(const TMVA::DecisionTreeNode *node, double scale, bool isr
   else {    
     int thisidx = fCutIndices.size();
     
-    fCutIndices.push_back(node->GetSelector());
-    float cutval = node->GetCutValue();
+    int selector; 
+    float cutval; 
+    bool ctype; 
+
+    node->QueryIntAttribute("IVar", &selector);
+    node->QueryFloatAttribute("Cut", &cutval);
+    node->QueryBoolAttribute("cType", &ctype);
+
+    fCutIndices.push_back(static_cast<unsigned char>(selector));
     //newer tmva versions use >= instead of > in decision tree splits, so adjust cut value
     //to reproduce the correct behaviour
     if (adjustboundary) {
@@ -106,19 +115,21 @@ void GBRTree::AddNode(const TMVA::DecisionTreeNode *node, double scale, bool isr
     fLeftIndices.push_back(0);   
     fRightIndices.push_back(0);
     
-    TMVA::DecisionTreeNode *left;
-    TMVA::DecisionTreeNode *right;
-    if (node->GetCutType()) {
-      left = (TMVA::DecisionTreeNode*)node->GetLeft();
-      right = (TMVA::DecisionTreeNode*)node->GetRight();
+    tinyxml2::XMLElement* left = nullptr;
+    tinyxml2::XMLElement* right = nullptr;
+    for(tinyxml2::XMLElement* e = node->FirstChildElement("Node");
+            e != nullptr; e = e->NextSiblingElement("Node")) {
+        if (*(e->Attribute("pos")) == 'l') left = e;
+        else if (*(e->Attribute("pos")) == 'r') right = e;
     }
-    else {
-      left = (TMVA::DecisionTreeNode*)node->GetRight();
-      right = (TMVA::DecisionTreeNode*)node->GetLeft();
+    if (!ctype) {
+      std::swap(left, right);
     }
     
-    
-    if (!left->GetLeft() || !left->GetRight() || left->IsTerminal()) {
+    bool leftIsTerminal = isTerminal(left);
+    bool rightIsTerminal = isTerminal(right);
+
+    if (leftIsTerminal) {
       fLeftIndices[thisidx] = -fResponses.size();
     }
     else {
@@ -126,7 +137,7 @@ void GBRTree::AddNode(const TMVA::DecisionTreeNode *node, double scale, bool isr
     }
     AddNode(left, scale, isregression, useyesnoleaf, adjustboundary);
     
-    if (!right->GetLeft() || !right->GetRight() || right->IsTerminal()) {
+    if (rightIsTerminal) {
       fRightIndices[thisidx] = -fResponses.size();
     }
     else {

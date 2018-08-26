@@ -17,7 +17,7 @@ SoftElectronMVAEstimator::SoftElectronMVAEstimator(const Configuration & cfg):cf
   for(auto& weightsfile : cfg_.vweightsfiles) {
     // Taken from Daniele (his mail from the 30/11)    
     // training of the 7/12 with Nvtx added
-    gbr_.push_back( GBRForestTools::createGBRForest( weightsfile ));
+    gbr_.push_back( std::make_unique<GBRForest>( weightsfile ));
   }
 }
 

@@ -39,10 +39,10 @@ PhotonMVAEstimator::PhotonMVAEstimator(const edm::ParameterSet& conf)
   // Create a TMVA reader object for each category
   for(int i=0; i<getNCategories(); i++){
 
-    std::vector<std::string> variableNamesInCategory;
     std::vector<int> variablesInCategory;
 
-    gbrForests_.push_back( GBRForestTools::createGBRForest( weightFileNames[i], variableNamesInCategory ) );
+    std::vector<std::string> variableNamesInCategory;
+    gbrForests_.push_back(std::make_unique<GBRForest>(weightFileNames[i], variableNamesInCategory));
 
     nVariables_.push_back(variableNamesInCategory.size());
 
