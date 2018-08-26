@@ -8,19 +8,19 @@ ElectronMVAEstimator::ElectronMVAEstimator():
   cfg_{}
 {}
 
-ElectronMVAEstimator::ElectronMVAEstimator(std::string fileName):
+ElectronMVAEstimator::ElectronMVAEstimator(const std::string& fileName):
   cfg_{} 
 {
   // Taken from Daniele (his mail from the 30/11)
   //  tmvaReader.BookMVA("BDTSimpleCat","../Training/weights_Root527b_3Depth_DanVarConvRej_2PtBins_10Pt_800TPrune5_Min100Events_NoBjets_half/TMVA_BDTSimpleCat.weights.xm");
   // training of the 7/12 with Nvtx added
-  gbr_.push_back( GBRForestTools::createGBRForest( fileName ) );
+  gbr_.push_back( std::make_unique<GBRForest>(fileName) );
 }
 
 ElectronMVAEstimator::ElectronMVAEstimator(const Configuration & cfg):cfg_(cfg)
 {
-  for(auto& weightsfile : cfg_.vweightsfiles) {
-    gbr_.push_back( GBRForestTools::createGBRForest( weightsfile ));
+  for(const auto& weightsfile : cfg_.vweightsfiles) {
+    gbr_.push_back( std::make_unique<GBRForest>(weightsfile) );
   }
 }
 

@@ -6,40 +6,11 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
-#include "TMVA/Reader.h"
-#include "TMVA/MethodBDT.h"
-
 using namespace pat;
-
-namespace {
-  constexpr char softmuon_mva_name[] = "BDT";
-}
 
 SoftMuonMvaEstimator::SoftMuonMvaEstimator(const std::string& weightsfile)
 {
-  TMVA::Reader tmvaReader("!Color:!Silent:Error");
-  tmvaReader.AddVariable("segComp",			&segmentCompatibility_);
-  tmvaReader.AddVariable("chi2LocMom",			&chi2LocalMomentum_);
-  tmvaReader.AddVariable("chi2LocPos",			&chi2LocalPosition_);
-  tmvaReader.AddVariable("glbTrackTailProb",		&glbTrackProbability_);
-  tmvaReader.AddVariable("iValFrac",			&iValidFraction_);
-  tmvaReader.AddVariable("LWH",				&layersWithMeasurement_);
-  tmvaReader.AddVariable("kinkFinder",			&trkKink_);
-  tmvaReader.AddVariable("TMath::Log(2+glbKinkFinder)",	&log2PlusGlbKink_);
-  tmvaReader.AddVariable("timeAtIpInOutErr",		&timeAtIpInOutErr_);
-  tmvaReader.AddVariable("outerChi2",			&outerChi2_);
-  tmvaReader.AddVariable("innerChi2",			&innerChi2_);
-  tmvaReader.AddVariable("trkRelChi2",			&trkRelChi2_);
-  tmvaReader.AddVariable("vMuonHitComb",		&vMuonHitComb_);
-  tmvaReader.AddVariable("Qprod",			&qProd_);
-
-  tmvaReader.AddSpectator("pID",			&pID_);
-  tmvaReader.AddSpectator("pt",				&pt_);
-  tmvaReader.AddSpectator("eta",			&eta_);
-  tmvaReader.AddSpectator("MomID",			&momID_);
-
-  auto temp{ tmvaReader.BookMVA(softmuon_mva_name, weightsfile.c_str()) };
-  gbrForest_ = std::make_unique<GBRForest>( dynamic_cast<TMVA::MethodBDT*>( temp ) );
+  gbrForest_ = std::make_unique<GBRForest>( weightsfile );
 }
 
 SoftMuonMvaEstimator::~SoftMuonMvaEstimator() { }

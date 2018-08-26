@@ -1,20 +1,11 @@
 #include "CommonTools/Utils/plugins/GBRForestWriter.h"
 
-#include "CommonTools/Utils/interface/TMVAZipReader.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
-
-#include "TMVA/ClassifierFactory.h"
-#include "TMVA/Event.h"
-#include "TMVA/Factory.h"
-#include "TMVA/MethodBase.h"
-#include "TMVA/MethodBDT.h"
-#include "TMVA/Reader.h"
-#include "TMVA/Tools.h"
 
 #include <TFile.h>
 
@@ -47,27 +38,7 @@ void GBRForestWriter::analyze(const edm::Event&, const edm::EventSetup&)
 	  category != (*job)->categories_.end(); ++category ) {
       const GBRForest* gbrForest = nullptr;
       if ( (*category)->inputFileType_ == categoryEntryType::kXML ) {
-	TMVA::Tools::Instance();
-	TMVA::Reader* mvaReader = new TMVA::Reader("!V:!Silent");   
-	std::vector<Float_t> dummyVariables;
-	for ( vstring::const_iterator inputVariable = (*category)->inputVariables_.begin();
-	      inputVariable != (*category)->inputVariables_.end(); ++inputVariable ) {
-	  dummyVariables.push_back(0.);
-	  mvaReader->AddVariable(inputVariable->data(), &dummyVariables.back());
-	}
-	for ( vstring::const_iterator spectatorVariable = (*category)->spectatorVariables_.begin();
-	      spectatorVariable != (*category)->spectatorVariables_.end(); ++spectatorVariable ) {
-	  dummyVariables.push_back(0.);
-	  mvaReader->AddSpectator(spectatorVariable->data(), &dummyVariables.back());
-	}
-	reco::details::loadTMVAWeights(mvaReader, (*category)->methodName_, (*category)->inputFileName_);
-	TMVA::MethodBDT* bdt = dynamic_cast<TMVA::MethodBDT*>(mvaReader->FindMVA((*category)->methodName_.data()));
-	if ( !bdt )
-	  throw cms::Exception("GBRForestWriter") 
-	    << "Failed to load MVA = " << (*category)->methodName_.data() << " from file = " << (*category)->inputFileName_ << " !!\n";
-	gbrForest = new GBRForest(bdt);  
-	delete mvaReader;
-	TMVA::Tools::DestroyInstance();
+	gbrForest = new GBRForest((*category)->inputFileName_);
       } else if ( (*category)->inputFileType_ == categoryEntryType::kGBRForest ) {
 	TFile* inputFile = new TFile((*category)->inputFileName_.data());
 	//gbrForest = dynamic_cast<GBRForest*>(inputFile->Get((*category)->gbrForestName_.data())); // CV: dynamic_cast<GBRForest*> fails for some reason ?!

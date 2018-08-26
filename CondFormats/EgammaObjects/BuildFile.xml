@@ -2,9 +2,9 @@
 <use   name="CondFormats/Common"/>
 <use   name="CondFormats/Serialization"/>
 <use   name="CondFormats/PhysicsToolsObjects"/>
+<use   name="Utilities/General"/>
 <use   name="boost_serialization"/>
 
-<use   name="roottmva"/>
 <export>
   <lib   name="1"/>
 </export>

@@ -17,22 +17,25 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "CondFormats/Serialization/interface/Serializable.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include <vector>
 #include "GBRTree.h"
 #include <cmath>
 #include <cstdio>
 
-  namespace TMVA {
-    class MethodBDT;
-  }
-
   class GBRForest {
 
     public:
 
        GBRForest();
-       explicit GBRForest(const TMVA::MethodBDT *bdt);
+       // Regular constructors
+       explicit GBRForest(const std::string& weightsFile);
+       explicit GBRForest(const edm::FileInPath& weightsFile);
+       // Constructor if one wants the get the variables names
+       explicit GBRForest(const std::string& weightsFile, std::vector<std::string>& varNames);
+       explicit GBRForest(const edm::FileInPath& weightsFile, std::vector<std::string>& varNames);
+
        virtual ~GBRForest();
        
        double GetResponse(const float* vector) const;
@@ -48,8 +51,12 @@
        const std::vector<GBRTree> &Trees() const { return fTrees; }
        
     protected:
-      double               fInitialResponse;
-      std::vector<GBRTree> fTrees;  
+       void init(const std::string& weightsFileFullPath, std::vector<std::string>& varNames);
+
+       size_t readVariables(tinyxml2::XMLElement* root, const char * key, std::vector<std::string>& names);
+
+       double               fInitialResponse;
+       std::vector<GBRTree> fTrees;  
       
   
   COND_SERIALIZABLE;

@@ -8,17 +8,13 @@
 namespace pfEGHelpers {
   class HeavyObjectCache {
   public:
-    HeavyObjectCache(const edm::ParameterSet&);
+    HeavyObjectCache(const edm::ParameterSet& conf) {
+      gbrEle_ = std::make_unique<GBRForest>(conf.getParameter<edm::FileInPath>("pf_electronID_mvaWeightFile"));
+      gbrSingleLeg_ = std::make_unique<GBRForest>(conf.getParameter<edm::FileInPath>("pf_convID_mvaWeightFile"));
+  }
+
     std::unique_ptr<const GBRForest> gbrEle_;
     std::unique_ptr<const GBRForest> gbrSingleLeg_;
-  private:
-    // for electron mva
-    float lnPt_gsf, Eta_gsf, dPtOverPt_gsf, DPtOverPt_gsf, chi2_gsf, nhit_kf;
-    float chi2_kf, EtotPinMode, EGsfPoutMode, EtotBremPinPoutMode, DEtaGsfEcalClust;
-    float SigmaEtaEta, HOverHE, lateBrem, firstBrem;
-    // for single leg mva
-    float nlost, nlayers;
-    float chi2, STIP, del_phi,HoverPt, EoverPt, track_pt;
   };
 }
 
