@@ -25,7 +25,7 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanSectorProcessor::process(L1TMuonBarrel
       pretracks.insert(pretracks.end(),tmp.begin(),tmp.end());
   } 
 
-  L1MuKBMTrackCollection out =trackMaker->cleanAndSort(pretracks,3);
+  L1MuKBMTrackCollection out =cleanAndSort(pretracks,3);
   if (verbose_==1)
     verbose(trackMaker,out);
 
@@ -107,7 +107,10 @@ L1TMuonBarrelKalmanSectorProcessor::bmtf_out L1TMuonBarrelKalmanSectorProcessor:
       out.addr2_1=mu.trackSubAddress(l1t::RegionalMuonCand::kStat2);
       out.addr3_1=mu.trackSubAddress(l1t::RegionalMuonCand::kStat3);
       out.addr4_1=mu.trackSubAddress(l1t::RegionalMuonCand::kStat4);
-      out.wheel_1=mu.trackSubAddress(l1t::RegionalMuonCand::kWheelSide)*mu.trackSubAddress(l1t::RegionalMuonCand::kWheelNum);
+      if (mu.trackSubAddress(l1t::RegionalMuonCand::kWheelSide))
+	out.wheel_1=-mu.trackSubAddress(l1t::RegionalMuonCand::kWheelNum);
+      else
+	out.wheel_1=mu.trackSubAddress(l1t::RegionalMuonCand::kWheelNum);
       out.ptSTA_1=mu.hwPt2();
     }
 
@@ -126,7 +129,10 @@ L1TMuonBarrelKalmanSectorProcessor::bmtf_out L1TMuonBarrelKalmanSectorProcessor:
       out.addr2_2=mu.trackSubAddress(l1t::RegionalMuonCand::kStat2);
       out.addr3_2=mu.trackSubAddress(l1t::RegionalMuonCand::kStat3);
       out.addr4_2=mu.trackSubAddress(l1t::RegionalMuonCand::kStat4);
-      out.wheel_2=mu.trackSubAddress(l1t::RegionalMuonCand::kWheelSide)*mu.trackSubAddress(l1t::RegionalMuonCand::kWheelNum);
+      if (mu.trackSubAddress(l1t::RegionalMuonCand::kWheelSide))
+	out.wheel_2=-mu.trackSubAddress(l1t::RegionalMuonCand::kWheelNum);
+      else
+	out.wheel_2=mu.trackSubAddress(l1t::RegionalMuonCand::kWheelNum);
       out.ptSTA_2=mu.hwPt2();
     }
 
@@ -145,7 +151,10 @@ L1TMuonBarrelKalmanSectorProcessor::bmtf_out L1TMuonBarrelKalmanSectorProcessor:
       out.addr2_3=mu.trackSubAddress(l1t::RegionalMuonCand::kStat2);
       out.addr3_3=mu.trackSubAddress(l1t::RegionalMuonCand::kStat3);
       out.addr4_3=mu.trackSubAddress(l1t::RegionalMuonCand::kStat4);
-      out.wheel_3=mu.trackSubAddress(l1t::RegionalMuonCand::kWheelSide)*mu.trackSubAddress(l1t::RegionalMuonCand::kWheelNum);
+      if (mu.trackSubAddress(l1t::RegionalMuonCand::kWheelSide))
+	out.wheel_2=-mu.trackSubAddress(l1t::RegionalMuonCand::kWheelNum);
+      else
+	out.wheel_2=mu.trackSubAddress(l1t::RegionalMuonCand::kWheelNum);
       out.ptSTA_3=mu.hwPt2();
     }
     return out;
@@ -163,5 +172,55 @@ void L1TMuonBarrelKalmanSectorProcessor::verbose(L1TMuonBarrelKalmanAlgo* algo,c
 
 }
 
+
+
+
+L1MuKBMTrackCollection L1TMuonBarrelKalmanSectorProcessor::cleanAndSort(const L1MuKBMTrackCollection& pretracks,uint keep) {
+  L1MuKBMTrackCollection out;
+
+  if (verbose_) 
+    printf(" -----Preselected Kalman Tracks for sector %d----- \n",sector_);
+
+
+  for(const auto& track1 : pretracks) {
+    if (verbose_)
+      printf("Pre Track charge=%d pt=%f eta=%f phi=%f curvature=%d curvature STA =%d stubs=%d bitmask=%d rank=%d chi=%d pts=%f %f\n",track1.charge(),track1.pt(),track1.eta(),track1.phi(),track1.curvatureAtVertex(),track1.curvatureAtMuon(),int(track1.stubs().size()),track1.hitPattern(),track1.rank(),track1.approxChi2(),track1.pt(),track1.ptUnconstrained()); 
+
+    bool keep=true;
+    for(const auto& track2 : pretracks) {
+      if (track1==track2)
+	continue;
+      if (!track1.overlapTrack(track2))
+	continue;
+
+      if (track1.rank()<track2.rank())
+	keep=false;
+
+      if ((track1.rank()==track2.rank()) && (fabs(track1.stubs()[0]->whNum())<fabs(track2.stubs()[0]->whNum())))
+	keep=false;
+    }
+    if (keep) 
+      out.push_back(track1);
+  }
+
+  if (verbose_) {
+  printf(" -----Algo Result Kalman Tracks-----\n");
+  for (const auto& track1 :out)
+    printf("Final Kalman Track charge=%d pt=%f eta=%f phi=%f curvature=%d curvature STA =%d stubs=%d chi2=%d pts=%f %f\n",track1.charge(),track1.pt(),track1.eta(),track1.phi(),track1.curvatureAtVertex(),track1.curvatureAtMuon(),int(track1.stubs().size()),track1.approxChi2(),track1.pt(),track1.ptUnconstrained()); 
+  }
+
+
+
+  TrackSorter sorter;
+  if (!out.empty())
+    std::sort(out.begin(),out.end(),sorter);
+
+
+  L1MuKBMTrackCollection exported;
+  for (uint i=0;i<out.size();++i)
+    if (i<=keep)
+      exported.push_back(out[i]);
+  return exported;
+}
 
 

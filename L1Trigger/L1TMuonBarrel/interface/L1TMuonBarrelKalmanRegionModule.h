@@ -20,6 +20,26 @@ class L1TMuonBarrelKalmanRegionModule {
   int previousSector_;
   int nextWheel_;
 
+  L1MuKBMTrackCollection cleanRegion(const L1MuKBMTrackCollection&,const L1MuKBMTrackCollection&,const L1MuKBMTrackCollection&);
+  L1MuKBMTrackCollection selfClean(const L1MuKBMTrackCollection& tracks);
+  L1MuKBMTrackCollection cleanHigher(const L1MuKBMTrackCollection& tracks1,const L1MuKBMTrackCollection& tracks2);
+  L1MuKBMTrackCollection cleanLower(const L1MuKBMTrackCollection& tracks1,const L1MuKBMTrackCollection& tracks2);
+
+  class TrackSorter {
+  public:
+    TrackSorter() {
+    }
+
+    bool operator() (const L1MuKBMTrack& a ,const L1MuKBMTrack& b) {
+      if (abs(a.curvatureAtVertex())<=abs(b.curvatureAtVertex()))
+	return true;
+      return false;
+    }
+  };
+  
+
+
+
   
 };
 

@@ -14,23 +14,27 @@ bmtfKalmanTrackingSettings = cms.PSet(
 
     bPhi = cms.vdouble(-1,0.154297,0.173828,0.147461),
     bPhiB = cms.vdouble(-1,1.15332,1.17285,1.14648),
-    phiAt2 = cms.vdouble(0.214844,0.218750),
+    phiAt2 = cms.double(0.15918),
     etaLUT0 = cms.vdouble(8.946,7.508,6.279,6.399),
     etaLUT1 = cms.vdouble(0.159,0.116,0.088,0.128),
     chiSquare = cms.vdouble(0.0,0.109375,0.234375,0.359375),   
     globalChi2Cut = cms.uint32(126),
+    globalChi2CutLimit = cms.uint32(2500),
     chiSquareCutPattern = cms.vint32(3,6,12),
     chiSquareCutCurvMax = cms.vint32(273,273,273),
     chiSquareCut = cms.vint32(25,31,31),
-
 
     combos4=cms.vint32(9,10,11,12,13,14,15),
     combos3=cms.vint32(5,6,7),
     combos2=cms.vint32(3),
     combos1=cms.vint32(), #for future possible usage
 
-    useOfflineAlgo = cms.bool(False),
-    
+#    combos4=cms.vint32(10,11,14,15),
+#    combos3=cms.vint32(6,7),
+#    combos2=cms.vint32(3),
+#    combos1=cms.vint32(), #for future possible usage
+
+    useOfflineAlgo = cms.bool(False),   
     ###Only for the offline algo -not in firmware --------------------
     mScatteringPhi = cms.vdouble(2.49e-3,5.47e-5,3.49e-5,1.37e-5),
     mScatteringPhiB = cms.vdouble(7.22e-3,3.461e-3,4.447e-3,4.12e-3),
@@ -48,7 +52,6 @@ simKBmtfDigis = cms.EDProducer("L1TMuonBarrelKalmanTrackProducer",
     algoSettings = bmtfKalmanTrackingSettings,
     trackFinderSettings = cms.PSet(
         sectorsToProcess = cms.vint32(0,1,2,3,4,5,6,7,8,9,10,11),
-#        sectorsToProcess = cms.vint32(9),
         verbose = cms.int32(0),
         sectorSettings = cms.PSet(
 #            verbose = cms.int32(1),
