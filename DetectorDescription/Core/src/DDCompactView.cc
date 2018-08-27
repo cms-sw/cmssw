@@ -45,6 +45,8 @@ DDCompactView::DDCompactView( const DDLogicalPart & rootnodedata )
   DDRotation::StoreT::instance().setReadOnly(false);
 }
 
+DDCompactView::~DDCompactView() = default;
+
 /** 
    The compact-view is kept in an acyclic directed multigraph represented
    by an instance of class Graph<DDLogicalPart, DDPosData*). 
@@ -96,8 +98,6 @@ DDCompactView::position( const DDLogicalPart & self,
   rep_->position( self, parent, copyno, trans, rot, div );
 }
 
-// >>---==========================<()>==========================---<<
-
 // UNSTABLE STUFF below ...
 void DDCompactView::setRoot(const DDLogicalPart & root)
 {
@@ -109,16 +109,15 @@ void DDCompactView::swap( DDCompactView& repToSwap ) {
 }
 
 DDCompactView::DDCompactView()
-  : rep_(new DDCompactViewImpl),
+  : rep_( new DDCompactViewImpl ),
     worldpos_( new DDPosData( DDTranslation(), DDRotation(), 0 ))
 {}
 
 void
 DDCompactView::lockdown() {
   // FIXME: The store is not read-only
-  // // at this point we should have a valid store of DDObjects and we will move these
-  // // to the local storage area using swaps with the existing Singleton<Store...>'s
-  // // 2010-01-27 memory patch
+  // at this point we should have a valid store of DDObjects and we will move these
+  // to the local storage area using swaps with the existing Singleton<Store...>'s
   DDMaterial::StoreT::instance().swap( matStore_ );
   DDSolid::StoreT::instance().swap( solidStore_ );
   DDLogicalPart::StoreT::instance().swap( lpStore_ );

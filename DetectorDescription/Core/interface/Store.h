@@ -66,6 +66,7 @@ namespace DDI {
     bool readOnly() const { return readOnly_; }
     
     Store() : readOnly_(false) { }
+    ~Store();
     
     protected:
     std::map<name_type,prep_type> reg_;
@@ -110,6 +111,32 @@ namespace DDI {
 	result.first->second = new Rep_type( n, std::move( p ));
       }
       return result.first->second;
+    }
+
+  template <typename I>
+    struct Finalize
+    {
+      static void cleanup( I&& ptr ) {
+      }
+    };
+
+  template <typename I>
+    struct Finalize<I*>
+    {
+      static void cleanup( I* ptr ) {
+	delete ptr;
+	ptr = nullptr;
+      }
+    };
+  
+  template<class N, class I, class K>
+    Store<N,I,K>::~Store()
+    {
+      for( auto it : reg_ ) {
+	Finalize<I>::cleanup( std::move( it.second->second ));
+	delete it.second;
+	it.second = nullptr;
+      }
     }
   
   template<class N, class I, class K>

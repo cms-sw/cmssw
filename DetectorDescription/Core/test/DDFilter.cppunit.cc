@@ -120,7 +120,7 @@ void testDDFilter::checkFilters() {
         DDSpecifics ds{"EMinusVolume", {"//End[0]"}, values}; 
       } 
 
-      const DDRotation kXFlip = DDrot("xflip", std::unique_ptr< DDRotationMatrix >( new DDRotationMatrix{ ROOT::Math::RotationX{ kPI} } )); 
+      const DDRotation kXFlip = DDrot("xflip", std::make_unique< DDRotationMatrix >( ROOT::Math::RotationX{ kPI} )); 
       cv.position(endlp,root,1,DDTranslation{0.,0.,1.0+0.1},kXFlip);
       {
         DDValue val{"Volume","EPlus",0};
