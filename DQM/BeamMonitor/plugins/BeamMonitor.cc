@@ -44,8 +44,8 @@ using namespace std;
 using namespace edm;
 
 void BeamMonitor::formatFitTime(char *ts, const time_t & t )  {
-#define CET (+1)
-#define CEST (+2)
+  //constexpr int CET(+1);
+  constexpr int CEST (+2);
 
   //tm * ptm;
   //ptm = gmtime ( &t );
@@ -78,7 +78,7 @@ void BeamMonitor::formatFitTime(char *ts, const time_t & t )  {
 #endif
 }
 
-#define buffTime (23)
+static constexpr int buffTime=23;
 
 //
 // constructors and destructor
