@@ -108,7 +108,7 @@ Pi0FixedMassWindowCalibration::Pi0FixedMassWindowCalibration(const edm::Paramete
 
 Pi0FixedMassWindowCalibration::~Pi0FixedMassWindowCalibration()
 {
-
+  delete island_p;
 }
 
 void Pi0FixedMassWindowCalibration::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
