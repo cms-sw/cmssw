@@ -100,7 +100,7 @@ pp_on_AA_2018.toReplaceWith(tripletElectronTrackingRegions,
     _globalTrackingRegionWithVertices.clone(
         RegionPSet = dict(
             fixedError = 0.5,
-            ptMin = 4.0,
+            ptMin = 8.0,
             originRadius = 0.02)))
 
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
@@ -172,7 +172,7 @@ pixelPairElectronTrackingRegions = _globalTrackingRegionWithVertices.clone(Regio
     originRadius = 0.015,
     fixedError = 0.03,
 ))
-pp_on_AA_2018.toModify(pixelPairElectronTrackingRegions, RegionPSet = dict(ptMin = 4.0))
+pp_on_AA_2018.toModify(pixelPairElectronTrackingRegions, RegionPSet = dict(ptMin = 8.0))
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
 pixelPairElectronHitDoublets = _hitPairEDProducer.clone(
     seedingLayers = "pixelPairElectronSeedLayers",
@@ -222,7 +222,7 @@ pp_on_AA_2018.toReplaceWith(stripPairElectronTrackingRegions,
     _globalTrackingRegionWithVertices.clone(
         RegionPSet = dict(
             fixedError = 0.5,
-            ptMin = 4.0,
+            ptMin = 8.0,
             originRadius = 0.4)))
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
 stripPairElectronHitDoublets = _hitPairEDProducer.clone(
