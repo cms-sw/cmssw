@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Geometry.VeryForwardGeometry.geometryCTPPSFromDD_2017_cfi import *
+from Geometry.VeryForwardData.geometryPPS_CMSxz_fromDD_2017_cfi import *
 
 from RecoCTPPS.TotemRPLocal.totemRPLocalReconstruction_cff import *
 #from RecoCTPPS.TotemRPLocal.ctppsDiamondLocalReconstruction_cff import *
