@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
-dqmBeamSpotProblemMonitor = cms.EDAnalyzer("BeamSpotProblemMonitor",
+dqmBeamSpotProblemMonitor = DQMEDAnalyzer("BeamSpotProblemMonitor",
                               monitorName = cms.untracked.string('BeamSpotProblemMonitor'),
                               DCSStatus   = cms.untracked.InputTag('scalersRawToDigi'),
                               pixelTracks = cms.untracked.InputTag('pixelTracks'),
