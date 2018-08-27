@@ -78,9 +78,9 @@ private:
   HcalTestNumberingScheme*                 org_;
 
   // Hits for qie analysis
-  std::vector<CaloHit>                     caloHitCache; 
+  std::vector<CaloHit>                     caloHitCache_; 
   std::vector<int>                         group_, tower_;
-  int                                      nGroup, nTower;
+  int                                      nGroup_, nTower_;
   
   // to read from ParameterSet
   std::vector<std::string>                 names_;
@@ -88,10 +88,10 @@ private:
   int                                      centralTower_;
 
   // some private members for ananlysis 
-  unsigned int                             count;                  
-  double                                   edepEB, edepEE, edepHB, edepHE;
-  double                                   edepHO, edepl[20];
-  double                                   mudist[20];   // Distance of muon from central part
+  unsigned int                             count_;                  
+  double                                   edepEB_, edepEE_, edepHB_, edepHE_;
+  double                                   edepHO_, edepl_[20];
+  double                                   mudist_[20];   // Distance of muon from central part
 };
 
 #endif

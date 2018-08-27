@@ -45,16 +45,16 @@ HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet &p):
   edm::LogInfo("HcalSim") << "HcalTestAnalysis:: Initialised as observer of "
 			  << "begin/end events and of G4step";
 
-  count  = 0;
+  count_ = 0;
   group_ = layerGrouping(laygroup);
-  nGroup = 0;
+  nGroup_= 0;
   for (unsigned int i=0; i<group_.size(); i++) 
-    if (group_[i]>nGroup) nGroup = group_[i];
+    if (group_[i]>nGroup_) nGroup_ = group_[i];
   tower_ = towersToAdd(centralTower_, addTower_);
-  nTower = tower_.size()/2;
+  nTower_= tower_.size()/2;
 
-  edm::LogInfo("HcalSim") << "HcalTestAnalysis:: initialised for " << nGroup 
-			  << " Longitudinal groups and " << nTower 
+  edm::LogInfo("HcalSim") << "HcalTestAnalysis:: initialised for " << nGroup_
+			  << " Longitudinal groups and " << nTower_
 			  << " towers";
 
   // qie
@@ -63,7 +63,7 @@ HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet &p):
    
 HcalTestAnalysis::~HcalTestAnalysis() {
   edm::LogInfo("HcalSim") << "HcalTestAnalysis: -------->  Total number of "
-			  << "selected entries : " << count;
+			  << "selected entries : " << count_;
   edm::LogInfo("HcalSim") << "HcalTestAnalysis: Pointers:: HistoClass "
 			  << tuples_ << ", Numbering Scheme " << org_;
 }
@@ -231,9 +231,9 @@ void HcalTestAnalysis::update(const BeginOfEvent * evt) {
   tuples_->setCounters();
  
   int i = 0;
-  edepEB = edepEE = edepHB = edepHE = edepHO = 0.;
-  for (i = 0; i < 20; i++) edepl[i] = 0.;
-  for (i = 0; i < 20; i++) mudist[i] = -1.;
+  edepEB_ = edepEE_ = edepHB_ = edepHE_ = edepHO_ = 0.;
+  for (i = 0; i < 20; i++) edepl_[i] = 0.;
+  for (i = 0; i < 20; i++) mudist_[i] = -1.;
 
   edm::LogVerbatim("HcalSim") <<"HcalTestAnalysis: Begin of event = " 
 			      << (*evt)()->GetEventID();
@@ -249,13 +249,13 @@ void HcalTestAnalysis::update(const G4Step * aStep) {
     double edeposit = aStep->GetTotalEnergyDeposit();
     int    layer=-1;
     if (name == "EBR") {
-      edepEB += edeposit;
+      edepEB_ += edeposit;
     } else if (name == "EFR") {
-      edepEE += edeposit;
+      edepEE_ += edeposit;
     } else if (name == "HBS") {
       layer = (curPV->GetCopyNo()/10)%100;
       if (layer >= 0 && layer < 17) {
-	edepHB += edeposit;
+	edepHB_ += edeposit;
       } else {
 	edm::LogWarning("HcalSim") << "HcalTestAnalysis::Error in HB "
 				   << curPV->GetName() << curPV->GetCopyNo();
@@ -264,7 +264,7 @@ void HcalTestAnalysis::update(const G4Step * aStep) {
     } else if (name == "HES") {
       layer = (curPV->GetCopyNo()/10)%100;
       if (layer >= 0 && layer < 19) {
-	edepHE += edeposit;
+	edepHE_ += edeposit;
       } else {
 	edm::LogWarning("HcalSim") << "HcalTestAnalysis::Error in HE " 
 				   << curPV->GetName() << curPV->GetCopyNo();
@@ -273,7 +273,7 @@ void HcalTestAnalysis::update(const G4Step * aStep) {
     } else if (name == "HTS") {
       layer = (curPV->GetCopyNo()/10)%100;
       if (layer >= 17 && layer < 20) {
-	edepHO += edeposit;
+	edepHO_ += edeposit;
        } else {
 	 edm::LogWarning("HcalSim") << "HcalTestAnalysis::Error in HO " 
 				    << curPV->GetName() << curPV->GetCopyNo();
@@ -281,11 +281,11 @@ void HcalTestAnalysis::update(const G4Step * aStep) {
        }
     }
     if (layer >= 0 && layer < 20) {
-      edepl[layer] += edeposit;
+      edepl_[layer] += edeposit;
 
       // Calculate the distance if it is a muon
       G4String part = aStep->GetTrack()->GetDefinition()->GetParticleName();
-      if ((part == "mu-" || part == "mu+") && mudist[layer] < 0) {
+      if ((part == "mu-" || part == "mu+") && mudist_[layer] < 0) {
         math::XYZPoint pos(aStep->GetPreStepPoint()->GetPosition().x(),
                            aStep->GetPreStepPoint()->GetPosition().y(),
                            aStep->GetPreStepPoint()->GetPosition().z());
@@ -294,7 +294,7 @@ void HcalTestAnalysis::update(const G4Step * aStep) {
         double   phi   = pos.phi();
         double  dist   = sqrt ((eta-eta0_)*(eta-eta0_) + 
 			       (phi-phi0_)*(phi-phi0_));
-        mudist[layer]  = dist*std::sqrt(pos.perp2());
+        mudist_[layer]  = dist*std::sqrt(pos.perp2());
       }
     }
 
@@ -312,7 +312,7 @@ void HcalTestAnalysis::update(const G4Step * aStep) {
 //================================================================ End of EVENT
 void HcalTestAnalysis::update(const EndOfEvent * evt) {
 
-  count++;
+  ++count_;
   // Fill event input 
   fill(evt);
   edm::LogVerbatim("HcalSim") << "HcalTestAnalysis:: ---  after Fill";
@@ -343,7 +343,7 @@ void HcalTestAnalysis::fill(const EndOfEvent * evt) {
   G4HCofThisEvent* allHC = (*evt)()->GetHCofThisEvent();
   
   int nhc = 0, neb = 0, nef = 0, j = 0;    
-  caloHitCache.erase (caloHitCache.begin(), caloHitCache.end());
+  caloHitCache_.erase (caloHitCache_.begin(), caloHitCache_.end());
  
   // Hcal
   int HCHCid = G4SDManager::GetSDMpointer()->GetCollectionID(names_[0]);
@@ -370,7 +370,7 @@ void HcalTestAnalysis::fill(const EndOfEvent * evt) {
       double jitter   = time-timeOfFlight(subdet,lay,eta);
       if (jitter<0) jitter = 0;
       CaloHit hit(subdet,lay,e,eta,phi,jitter,unitID);
-      caloHitCache.push_back(hit);
+      caloHitCache_.push_back(hit);
       nhc++;
 
       std::string det =  "HB";
@@ -423,7 +423,7 @@ void HcalTestAnalysis::fill(const EndOfEvent * evt) {
       layer  = 0;
       unitID = org_->packHcalIndex(subdet,zside,layer,ieta,iphi,lay);
       CaloHit hit(subdet,lay,e,eta,phi,time,unitID);
-      caloHitCache.push_back(hit);
+      caloHitCache_.push_back(hit);
       neb++;
       edm::LogVerbatim("HcalSim") << "HcalTest: " << det << "  layer "
 				  << std::setw(2) << layer << " time "
@@ -464,7 +464,7 @@ void HcalTestAnalysis::fill(const EndOfEvent * evt) {
       layer  = 0;
       unitID = org_->packHcalIndex(subdet,zside,layer,ieta,iphi,lay);
       CaloHit hit(subdet,lay,e,eta,phi,time,unitID);
-      caloHitCache.push_back(hit);
+      caloHitCache_.push_back(hit);
       nef++;
       edm::LogVerbatim("HcalSim") << "HcalTest: " << det << "  layer " 
 				  << std::setw(2) << layer << " time "
@@ -482,8 +482,8 @@ void HcalTestAnalysis::fill(const EndOfEvent * evt) {
 void HcalTestAnalysis::qieAnalysis(CLHEP::HepRandomEngine* engine) {
 
   //Fill tuple with hit information
-  int hittot = caloHitCache.size();
-  tuples_->fillHits(caloHitCache);
+  int hittot = caloHitCache_.size();
+  tuples_->fillHits(caloHitCache_);
 
   //Get the index of the central tower
   HcalNumberingFromDDD::HcalID id = numberingFromDDD_->unitID(eta0_,phi0_,1,1);
@@ -508,7 +508,7 @@ void HcalTestAnalysis::qieAnalysis(CLHEP::HepRandomEngine* engine) {
     int etac = (centralTower_/100)%100;
     int phic = (centralTower_%100);
 
-    for (int layr=0; layr<nGroup; layr++) {
+    for (int layr=0; layr<nGroup_; layr++) {
       /*
       int layx, layy=20;
       for (int i=0; i<20; i++) 
@@ -523,11 +523,11 @@ void HcalTestAnalysis::qieAnalysis(CLHEP::HepRandomEngine* engine) {
 	else                  layx = 1;
       }
       */
-      for (int it=0; it<nTower; it++) {
+      for (int it=0; it<nTower_; it++) {
 	int    nhit = 0;
 	double esim = 0;
 	for (int k1 = 0; k1 < hittot; k1++) {
-	  CaloHit hit = caloHitCache[k1];
+	  CaloHit hit = caloHitCache_[k1];
 	  int     subdetc = hit.det();
 	  int     layer   = hit.layer();
 	  int     group   = 0;
@@ -562,7 +562,7 @@ void HcalTestAnalysis::qieAnalysis(CLHEP::HepRandomEngine* engine) {
 				    << layr << " Sim " << esim << " After QIE "
 				    << eqie;
 	for (int i=0; i<4; i++) {
-	  if (tower_[nTower+it] <= i) {
+	  if (tower_[nTower_+it] <= i) {
 	    esimtot[i]         += esim;
 	    eqietot[i]         += eqie;
 	    esimlay[20*i+layr] += esim;
@@ -586,16 +586,16 @@ void HcalTestAnalysis::qieAnalysis(CLHEP::HepRandomEngine* engine) {
       std::vector<double> latfs(10,0.), latfq(10,0.), longs(20), longq(20);
       if (esimtot[i]>0) scals = 1./esimtot[i];
       if (eqietot[i]>0) scalq = 1./eqietot[i];
-      for (int it=0; it<nTower; it++) {
+      for (int it=0; it<nTower_; it++) {
 	int phib = it%nt; 
 	latfs[phib] += scals*esimtow[50*i+it];
 	latfq[phib] += scalq*eqietow[50*i+it];
       }
-      for (int layr=0; layr<=nGroup; layr++) {
+      for (int layr=0; layr<=nGroup_; layr++) {
 	longs[layr] = scals*esimlay[20*i+layr];
 	longq[layr] = scalq*eqielay[20*i+layr];
       }
-      tuples_->fillQie(i,esimtot[i],eqietot[i],nGroup,longs,longq,
+      tuples_->fillQie(i,esimtot[i],eqietot[i],nGroup_,longs,longq,
 		       nt,latphi,latfs,latfq);
     }
   }
@@ -606,18 +606,18 @@ void HcalTestAnalysis::layerAnalysis(){
 
   int i = 0;
   edm::LogVerbatim("HcalSim") << "\n ===>>> HcalTestAnalysis: Energy deposit " 
-			      << "\n at EB : " << std::setw(6) << edepEB/MeV 
-			      << "\n at EE : " << std::setw(6) << edepEE/MeV 
-			      << "\n at HB : " << std::setw(6) << edepHB/MeV
-			      << "\n at HE : " << std::setw(6) << edepHE/MeV
-			      << "\n at HO : " << std::setw(6) << edepHO/MeV
+			      << "\n at EB : " << std::setw(6) << edepEB_/MeV 
+			      << "\n at EE : " << std::setw(6) << edepEE_/MeV 
+			      << "\n at HB : " << std::setw(6) << edepHB_/MeV
+			      << "\n at HE : " << std::setw(6) << edepHE_/MeV
+			      << "\n at HO : " << std::setw(6) << edepHO_/MeV
 			      << "\n ---- HcalTestAnalysis: Energy deposit "
 			      << "in Layers"; 
   for (i = 0; i < 20; i++) 
     edm::LogVerbatim("HcalSim") << " Layer " << std::setw(2) << i << " E " 
-				<< std::setw(8) << edepl[i]/MeV  << " MeV";
+				<< std::setw(8) << edepl_[i]/MeV  << " MeV";
 
-  tuples_->fillLayers(edepl, edepHO, edepHB+edepHE, mudist);  
+  tuples_->fillLayers(edepl_, edepHO_, edepHB_+edepHE_, mudist_);  
 }
 
 
