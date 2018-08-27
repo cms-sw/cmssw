@@ -15,6 +15,7 @@ castorDigitizer = cms.PSet(
         photoelectronsToAnalog = cms.double(4.1718),
         simHitToPhotoelectrons = cms.double(1000.0),
         syncPhase = cms.bool(True),
-        timePhase = cms.double(-4.0)
+        timePhase = cms.double(-4.0),
+	doDynamicNoise = cms.bool(True)
     )
 )

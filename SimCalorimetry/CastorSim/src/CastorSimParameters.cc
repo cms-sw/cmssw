@@ -12,7 +12,8 @@ CastorSimParameters::CastorSimParameters(double simHitToPhotoelectrons, double p
 : CaloSimParameters(simHitToPhotoelectrons, photoelectronsToAnalog, samplingFactor, timePhase, 6, 4, false, syncPhase),
   theDbService(0),
   theSamplingFactor( samplingFactor ),
-  nominalfCperPE( 1)
+  nominalfCperPE( 1),
+  dynamicNoise(false)
 {
 }
 
@@ -21,7 +22,8 @@ CastorSimParameters::CastorSimParameters(const edm::ParameterSet & p)
 :  CaloSimParameters(p),
    theDbService(0),
    theSamplingFactor( p.getParameter<double>("samplingFactor") ),
-   nominalfCperPE( p.getParameter<double>("photoelectronsToAnalog") )
+   nominalfCperPE( p.getParameter<double>("photoelectronsToAnalog") ),
+   dynamicNoise(p.getParameter<bool>("doDynamicNoise") )
 {
 }
 
@@ -29,6 +31,12 @@ double CastorSimParameters::getNominalfCperPE() const
 {
   // return the nominal PMT gain value of CASTOR from the config file.
   return nominalfCperPE;
+}
+
+bool CastorSimParameters::doDynamicNoise() const  
+{
+  // activate proper noise treatment depending on used gain values.
+  return dynamicNoise;
 }
 
 double CastorSimParameters::photoelectronsToAnalog(const DetId & detId) const
