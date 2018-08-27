@@ -7,89 +7,47 @@
 
 using namespace edm;
 
-TKStatus::TKStatus( const ParameterSet& ps ) :
-  checkStatus_(true) {
-  parameters_     = ps;
-  dcsTkFileName_  = parameters_.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<std::string>("DIPFileName");
+TKStatus::TKStatus( const ParameterSet& ps ) {
+  dcsTkFileName_  = ps.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<std::string>("DIPFileName");
+  {
+    std::string tmpname = dcsTkFileName_;
+    tmpname.insert(dcsTkFileName_.length()-4,"_TkStatus");
+    dcsTkFileName_ = std::move(tmpname);
+  }
   dcsStatus_ = consumes<DcsStatusCollection>(
-    parameters_.getUntrackedParameter<std::string>("DCSStatus", "scalersRawToDigi"));
-  for (int i=0;i<6;i++) dcsTk[i]=true;
-  countLumi_ = lastlumi_ = 0;
-  runnum = -1;
-}
-
-TKStatus::~TKStatus() {
-
-}
-
-//--------------------------------------------------------
-void TKStatus::beginJob() {
-}
-
-//--------------------------------------------------------
-void TKStatus::beginRun(const edm::Run& r, const EventSetup& context) {
-  runnum = r.run();
-}
-
-//--------------------------------------------------------
-void TKStatus::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
-				    const EventSetup& context) {
-  int nthlumi = lumiSeg.luminosityBlock();
-  if (nthlumi <= lastlumi_) return;
-  checkStatus_ = true;
-  lastlumi_ = nthlumi;
+    ps.getUntrackedParameter<std::string>("DCSStatus", "scalersRawToDigi"));
 }
 
 // ----------------------------------------------------------
 void TKStatus::analyze(const Event& iEvent,
 		       const EventSetup& iSetup ) {
-  if (checkStatus_) { // check every LS
+  int nthlumi = iEvent.luminosityBlock();
+  if (nthlumi > lastlumi_) { // check every LS
+    lastlumi_ = nthlumi;
     // Checking TK status
     Handle<DcsStatusCollection> dcsStatus;
     iEvent.getByToken(dcsStatus_, dcsStatus);
-    for (int i=0;i<6;i++) dcsTk[i]=true;
-    for (DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin();
-	 dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) {
-      if (!dcsStatusItr->ready(DcsStatus::BPIX))   dcsTk[0]=false;
-      if (!dcsStatusItr->ready(DcsStatus::FPIX))   dcsTk[1]=false;
-      if (!dcsStatusItr->ready(DcsStatus::TIBTID)) dcsTk[2]=false;
-      if (!dcsStatusItr->ready(DcsStatus::TOB))    dcsTk[3]=false;
-      if (!dcsStatusItr->ready(DcsStatus::TECp))   dcsTk[4]=false;
-      if (!dcsStatusItr->ready(DcsStatus::TECm))   dcsTk[5]=false;
+
+    std::array<bool,6> dcsTk;
+    for (auto& e: dcsTk) {e=true;}
+
+    for (auto const& status: *dcsStatus) {
+      if (!status.ready(DcsStatus::BPIX))   dcsTk[0]=false;
+      if (!status.ready(DcsStatus::FPIX))   dcsTk[1]=false;
+      if (!status.ready(DcsStatus::TIBTID)) dcsTk[2]=false;
+      if (!status.ready(DcsStatus::TOB))    dcsTk[3]=false;
+      if (!status.ready(DcsStatus::TECp))   dcsTk[4]=false;
+      if (!status.ready(DcsStatus::TECm))   dcsTk[5]=false;
     }
-    dumpTkDcsStatus(dcsTkFileName_);
-    checkStatus_ = false;
+    dumpTkDcsStatus(dcsTkFileName_,iEvent.run(), dcsTk );
   }
 }
 
 //--------------------------------------------------------
-void TKStatus::endLuminosityBlock(const LuminosityBlock& lumiSeg,
-				  const EventSetup& iSetup) {
-  int nlumi = lumiSeg.id().luminosityBlock();
-  if (nlumi <= lastlumi_ ) return;
-
-}
-
-//--------------------------------------------------------
-void TKStatus::endRun(const Run& r, const EventSetup& context){
-
-}
-
-//--------------------------------------------------------
-void TKStatus::endJob(const LuminosityBlock& lumiSeg,
-		      const EventSetup& iSetup){
-
-}
-
-//--------------------------------------------------------
-void TKStatus::dumpTkDcsStatus(std::string & fileName){
+void TKStatus::dumpTkDcsStatus(std::string const & fileName, edm::RunNumber_t runnum, std::array<bool,6> const& dcsTk){
   std::ofstream outFile;
-  std::string tmpname = fileName;
-  char index[10];
-  sprintf(index,"%s","_TkStatus");
-  tmpname.insert(fileName.length()-4,index);
 
-  outFile.open(tmpname.c_str());
+  outFile.open(fileName.c_str());
   outFile << "BPIX " << (dcsTk[0]?"On":"Off") << std::endl;
   outFile << "FPIX " << (dcsTk[1]?"On":"Off") << std::endl;
   outFile << "TIBTID " << (dcsTk[2]?"On":"Off") << std::endl;
@@ -97,8 +55,8 @@ void TKStatus::dumpTkDcsStatus(std::string & fileName){
   outFile << "TECp " << (dcsTk[4]?"On":"Off") << std::endl;
   outFile << "TECm " << (dcsTk[5]?"On":"Off") << std::endl;
   bool AllTkOn = true;
-  for (int i=0; i<5; i++) {
-    if (!dcsTk[i]) {
+  for (auto status: dcsTk) {
+    if (!status) {
       AllTkOn = false;
       break;
     }
