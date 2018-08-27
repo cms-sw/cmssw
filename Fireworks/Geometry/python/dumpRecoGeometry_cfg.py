@@ -4,13 +4,18 @@ import sys
 import FWCore.ParameterSet.VarParsing as VarParsing
 from FWCore.Utilities.Enumerate import Enumerate
 
-varType = Enumerate ("Run1 2015 2017 2019 2023D17 2023D19 MaPSA")
+varType = Enumerate ("Run1 2015 2017 2019 2023 MaPSA")
+defaultVersion=str();
+from Fireworks.Geometry.dumpSimGeometry_cfg import versionCheck
 
 def help():
    print("Usage: cmsRun dumpFWRecoGeometry_cfg.py  tag=TAG ")
    print("   tag=tagname")
    print("       identify geometry condition database tag")
    print("      ", varType.keys())
+   print("")
+   print("   version=versionNumber")
+   print("       scenario version from 2023 dictionary")
    print("")
    print("   tgeo=bool")
    print("       dump in TGeo format to browse in geometry viewer")
@@ -64,10 +69,11 @@ def recoGeoLoad(score):
        process.CSCGeometryESModule.applyAlignment = cms.bool(False)
        
     elif "2023" in score:
+       versionCheck(options.version)
        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
        from Configuration.AlCa.autoCond import autoCond
        process.GlobalTag.globaltag = autoCond['run2_mc']
-       process.load('Configuration.Geometry.GeometryExtended'+score+'Reco_cff')
+       process.load('Configuration.Geometry.GeometryExtended2023'+options.version+'Reco_cff')
        
     elif score == "MaPSA":
        process.load('Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff')
@@ -113,6 +119,12 @@ options.register ('tag',
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "tag info about geometry database conditions")
+
+options.register ('version',
+                  defaultVersion, # default value
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "info about 2023 geometry scenario version")
 
 options.register ('tgeo',
                   False, # default value
