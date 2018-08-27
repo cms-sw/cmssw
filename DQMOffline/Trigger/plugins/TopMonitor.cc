@@ -1050,7 +1050,6 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<edm::InputTag>( "met",      edm::InputTag("pfMet") );
   desc.add<edm::InputTag>( "jets",     edm::InputTag("ak4PFJetsCHS") );
   desc.add<edm::InputTag>( "electrons",edm::InputTag("gedGsfElectrons") );
-  //ATHER
   desc.add<edm::InputTag>( "elecID"    ,edm::InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Fall17-94X-V1-tight") );
   desc.add<edm::InputTag>( "muons",    edm::InputTag("muons") );
   //Menglei
