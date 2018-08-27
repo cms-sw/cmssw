@@ -66,13 +66,13 @@ private:
     const bool usesES_;
 
     // Dual Tokens for AOD and MiniAOD case
-    MultiTokenT<edm::View<reco::Photon>> src_;
-    MultiTokenT<EcalRecHitCollection> ebReducedRecHitCollection_;
-    MultiTokenT<EcalRecHitCollection> eeReducedRecHitCollection_;
-    MultiTokenT<EcalRecHitCollection> esReducedRecHitCollection_;
-    MultiTokenT<reco::VertexCollection> vtxToken_;
-    MultiTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef>>> particleBasedIsolationToken_;
+    MultiTokenT<edm::View<reco::Photon>>    src_;
+    MultiTokenT<EcalRecHitCollection>       ebRecHits_;
+    MultiTokenT<EcalRecHitCollection>       eeRecHits_;
+    MultiTokenT<EcalRecHitCollection>       esRecHits_;
+    MultiTokenT<reco::VertexCollection>     vtxToken_;
     MultiTokenT<edm::View<reco::Candidate>> pfCandsToken_;
+    edm::EDGetToken                         particleBasedIsolationToken_;
 
     bool isAOD_;
 };
@@ -120,26 +120,14 @@ const unsigned char PT_MIN_THRESH = 0x8;
 PhotonIDValueMapProducer::PhotonIDValueMapProducer(const edm::ParameterSet& cfg)
     : usesES_(!cfg.getParameter<edm::InputTag>("esReducedRecHitCollection").label().empty()
           || !cfg.getParameter<edm::InputTag>("esReducedRecHitCollectionMiniAOD").label().empty())
-    , src_(mayConsume<edm::View<reco::Photon>>(cfg.getParameter<edm::InputTag>("src")),
-           mayConsume<edm::View<reco::Photon>>(cfg.getParameter<edm::InputTag>("srcMiniAOD")))
-    , ebReducedRecHitCollection_(src_,
-          mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("ebReducedRecHitCollection")),
-          mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("ebReducedRecHitCollectionMiniAOD")))
-    , eeReducedRecHitCollection_(src_,
-          mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("eeReducedRecHitCollection")),
-          mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("eeReducedRecHitCollectionMiniAOD")))
-    , esReducedRecHitCollection_(src_,
-          mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("esReducedRecHitCollection")),
-          mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("esReducedRecHitCollectionMiniAOD")))
-    , vtxToken_(src_,
-          mayConsume<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertices")),
-          mayConsume<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("verticesMiniAOD")))
+    , src_(               consumesCollector(), cfg, "src", "srcMiniAOD")
+    , ebRecHits_   (src_, consumesCollector(), cfg, "ebReducedRecHitCollection", "ebReducedRecHitCollectionMiniAOD")
+    , eeRecHits_   (src_, consumesCollector(), cfg, "eeReducedRecHitCollection", "eeReducedRecHitCollectionMiniAOD")
+    , esRecHits_   (src_, consumesCollector(), cfg, "esReducedRecHitCollection", "esReducedRecHitCollectionMiniAOD")
+    , vtxToken_    (src_, consumesCollector(), cfg, "vertices", "verticesMiniAOD")
+    , pfCandsToken_(src_, consumesCollector(), cfg, "pfCandidates", "pfCandidatesMiniAOD")
     , particleBasedIsolationToken_(mayConsume<edm::ValueMap<std::vector<reco::PFCandidateRef>>>(
-          cfg.getParameter<edm::InputTag>("particleBasedIsolation"))
-          /* ...only for AOD... */                                 )
-    , pfCandsToken_(src_,
-          mayConsume<edm::View<reco::Candidate>>(cfg.getParameter<edm::InputTag>("pfCandidates")),
-          mayConsume<edm::View<reco::Candidate>>(cfg.getParameter<edm::InputTag>("pfCandidatesMiniAOD")))
+          cfg.getParameter<edm::InputTag>("particleBasedIsolation")) /* ...only for AOD... */ )
 {
 
     // Declare producibles
@@ -159,7 +147,7 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
     isAOD_ = src_.getGoodTokenIndex() == 0;
     edm::Handle<edm::ValueMap<std::vector<reco::PFCandidateRef>>> particleBasedIsolationMap;
     if (isAOD_) { // this exists only in AOD
-        particleBasedIsolationMap = particleBasedIsolationToken_.getValidHandle(iEvent);
+        iEvent.getByToken(particleBasedIsolationToken_, particleBasedIsolationMap);
     }
     if (!isAOD_ && !src->empty()) {
         edm::Ptr<pat::Photon> test(src->ptrAt(0));
@@ -174,10 +162,10 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
     if (usesES_) {
         lazyToolnoZS = std::make_unique<noZS::EcalClusterLazyTools>(
-            iEvent, iSetup, ebReducedRecHitCollection_.get(iEvent), eeReducedRecHitCollection_.get(iEvent), esReducedRecHitCollection_.get(iEvent));
+            iEvent, iSetup, ebRecHits_.get(iEvent), eeRecHits_.get(iEvent), esRecHits_.get(iEvent));
     } else {
         lazyToolnoZS = std::make_unique<noZS::EcalClusterLazyTools>(
-            iEvent, iSetup, ebReducedRecHitCollection_.get(iEvent), eeReducedRecHitCollection_.get(iEvent));
+            iEvent, iSetup, ebRecHits_.get(iEvent), eeRecHits_.get(iEvent));
     }
 
     // Get PV

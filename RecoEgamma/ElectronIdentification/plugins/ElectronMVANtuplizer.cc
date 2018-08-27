@@ -155,28 +155,23 @@ enum ElectronMatchType {
 // constructors and destructor
 //
 ElectronMVANtuplizer::ElectronMVANtuplizer(const edm::ParameterSet& iConfig)
- :
-  mvaVarMngr_            (iConfig.getParameter<std::string>("variableDefinition")),
-  isMC_                  (iConfig.getParameter<bool>("isMC")),
-  deltaR_                (iConfig.getParameter<double>("deltaR")),
-  ptThreshold_           (iConfig.getParameter<double>("ptThreshold")),
-  eleMapTags_            (iConfig.getUntrackedParameter<std::vector<std::string>>("eleMVAs")),
-  eleMapBranchNames_     (iConfig.getUntrackedParameter<std::vector<std::string>>("eleMVALabels")),
-  nEleMaps_              (eleMapBranchNames_.size()),
-  valMapTags_            (iConfig.getUntrackedParameter<std::vector<std::string>>("eleMVAValMaps")),
-  valMapBranchNames_     (iConfig.getUntrackedParameter<std::vector<std::string>>("eleMVAValMapLabels")),
-  nValMaps_              (valMapBranchNames_.size()),
-  mvaCatTags_            (iConfig.getUntrackedParameter<std::vector<std::string>>("eleMVACats")),
-  mvaCatBranchNames_     (iConfig.getUntrackedParameter<std::vector<std::string>>("eleMVACatLabels")),
-  nCats_                 (mvaCatBranchNames_.size()),
-  src_                   (consumes<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("src")),
-                          consumes<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("srcMiniAOD"))),
-  vertices_              (consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("vertices")),
-                          consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("verticesMiniAOD"))),
-  pileup_                (consumes<std::vector< PileupSummaryInfo > >(iConfig.getParameter<edm::InputTag>("pileup")),
-                          consumes<std::vector< PileupSummaryInfo > >(iConfig.getParameter<edm::InputTag>("pileupMiniAOD"))),
-  genParticles_          (consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("genParticles")),
-                          consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("genParticlesMiniAOD")))
+  : mvaVarMngr_            (iConfig.getParameter<std::string>("variableDefinition"))
+  , isMC_                  (iConfig.getParameter<bool>("isMC"))
+  , deltaR_                (iConfig.getParameter<double>("deltaR"))
+  , ptThreshold_           (iConfig.getParameter<double>("ptThreshold"))
+  , eleMapTags_            (iConfig.getUntrackedParameter<std::vector<std::string>>("eleMVAs"))
+  , eleMapBranchNames_     (iConfig.getUntrackedParameter<std::vector<std::string>>("eleMVALabels"))
+  , nEleMaps_              (eleMapBranchNames_.size())
+  , valMapTags_            (iConfig.getUntrackedParameter<std::vector<std::string>>("eleMVAValMaps"))
+  , valMapBranchNames_     (iConfig.getUntrackedParameter<std::vector<std::string>>("eleMVAValMapLabels"))
+  , nValMaps_              (valMapBranchNames_.size())
+  , mvaCatTags_            (iConfig.getUntrackedParameter<std::vector<std::string>>("eleMVACats"))
+  , mvaCatBranchNames_     (iConfig.getUntrackedParameter<std::vector<std::string>>("eleMVACatLabels"))
+  , nCats_                 (mvaCatBranchNames_.size())
+  , src_                   (consumesCollector(), iConfig, "src"         , "srcMiniAOD")
+  , vertices_        (src_, consumesCollector(), iConfig, "vertices"    , "verticesMiniAOD")
+  , pileup_          (src_, consumesCollector(), iConfig, "pileup"      , "pileupMiniAOD")
+  , genParticles_    (src_, consumesCollector(), iConfig, "genParticles", "genParticlesMiniAOD")
 {
     // eleMaps
     for (size_t k = 0; k < nEleMaps_; ++k) {
@@ -281,8 +276,8 @@ ElectronMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     nLumi_  = iEvent.luminosityBlock();
 
     // Get Handles
-    auto vertices     = vertices_.getValidHandle(iEvent);
     auto src          = src_.getValidHandle(iEvent);
+    auto vertices     = vertices_.getValidHandle(iEvent);
 
     // Get MC only Handles, which are allowed to be non-valid
     auto genParticles = genParticles_.getHandle(iEvent);

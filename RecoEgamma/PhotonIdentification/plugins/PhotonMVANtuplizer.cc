@@ -139,12 +139,9 @@ PhotonMVANtuplizer::PhotonMVANtuplizer(const edm::ParameterSet& iConfig)
  , nCats_                 (mvaCatBranchNames_.size())
  , isMC_                  (iConfig.getParameter<bool>("isMC"))
  , ptThreshold_           (iConfig.getParameter<double>("ptThreshold"))
- , src_                   (consumes<edm::View<reco::Photon> >(iConfig.getParameter<edm::InputTag>("src")),
-                           consumes<edm::View<reco::Photon> >(iConfig.getParameter<edm::InputTag>("srcMiniAOD")))
- , vertices_        (src_, consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("vertices")),
-                           consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("verticesMiniAOD")))
- , pileup_          (src_, consumes<std::vector< PileupSummaryInfo > >(iConfig.getParameter<edm::InputTag>("pileup")),
-                           consumes<std::vector< PileupSummaryInfo > >(iConfig.getParameter<edm::InputTag>("pileupMiniAOD")))
+ , src_                   (consumesCollector(), iConfig, "src"     , "srcMiniAOD")
+ , vertices_        (src_, consumesCollector(), iConfig, "vertices", "verticesMiniAOD")
+ , pileup_          (src_, consumesCollector(), iConfig, "pileup"  , "pileupMiniAOD")
 {
     // phoMaps
     for (size_t k = 0; k < nPhoMaps_; ++k) {
@@ -225,9 +222,9 @@ PhotonMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     nLumi_  = iEvent.luminosityBlock();
 
     // Get Handles
+    auto src      = src_.getValidHandle(iEvent);
     auto vertices = vertices_.getValidHandle(iEvent);
     auto pileup   = pileup_.getValidHandle(iEvent);
-    auto src      = src_.getValidHandle(iEvent);
 
     vtxN_ = vertices->size();
 
