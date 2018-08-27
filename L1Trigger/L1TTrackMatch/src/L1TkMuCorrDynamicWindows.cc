@@ -119,6 +119,10 @@ std::vector<int> L1TkMuCorrDynamicWindows::find_match(const EMTFTrackCollection&
         // for (uint im = 0; im < *(mtkt.n_EMTF_mu); ++im)
         for (auto l1muit = l1mus.begin(); l1muit != l1mus.end(); ++l1muit)
         {
+            // match only muons in the central bx - as the track collection refers anyway to bx 0 only
+            if (l1muit->BX() != 0)
+                continue;
+
             // putting everything in rad
             float emtf_theta  = to_mpio2_pio2(eta_to_theta(l1muit->Eta())) ;
             float emtf_phi    = deg_to_rad(l1muit->Phi_glob()) ;
