@@ -494,7 +494,7 @@ void BeamMonitor::beginRun(const edm::Run& r, const EventSetup& context) {
   startTime = refTime =  tmpTime;
   char eventTime[64];
   formatFitTime(eventTime, tmpTime);
-  std::cout << "TimeOffset = " << eventTime << std::endl;
+  edm::LogInfo("BeamMonitor") << "TimeOffset = " << eventTime << std::endl;
   TDatime da(eventTime);
   if (debug_) {
     edm::LogInfo("BeamMonitor") << "TimeOffset = ";
