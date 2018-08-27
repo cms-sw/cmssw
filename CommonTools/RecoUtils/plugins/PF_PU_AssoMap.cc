@@ -87,7 +87,7 @@ PF_PU_AssoMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	if ( ( asstype == "TracksToVertex" ) || ( asstype == "Both" ) ) {
 	  unique_ptr<TrackToVertexAssMap> Track2Vertex = CreateTrackToVertexMap(trkcollH, iSetup);
-  	  iEvent.put( SortAssociationMap( &(*Track2Vertex) ) );
+  	  iEvent.put( SortAssociationMap( &(*Track2Vertex) , trkcollH ) );
 	}
 
 	if ( ( asstype == "VertexToTracks" ) || ( asstype == "Both" ) ) {
