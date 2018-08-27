@@ -7,7 +7,6 @@
 #include <utility>
 #include <vector>
 
-#include "DetectorDescription/Core/interface/DDCompactViewImpl.h"
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/Store.h"
@@ -17,6 +16,7 @@
 #include "DataFormats/Math/interface/Graph.h"
 #include "DataFormats/Math/interface/GraphWalker.h"
 
+class DDCompactViewImpl;
 class DDDivision;
 class DDName;
 struct DDPosData;
@@ -30,9 +30,6 @@ namespace DDI {
 
 /**
   Navigation through the compact view of the detector ...
-
-Updated: Michael Case [ MEC ] 2010-02-11
-
 */
 //MEC: these comments are kept from original... Will we ever do this? don't think so.
 //FIXME: DDCompactView: check for proper acyclic directed graph structure!!
@@ -88,6 +85,8 @@ public:
   
   //! Creates a compact-view 
   explicit DDCompactView();
+
+  ~DDCompactView();
   
   //! \b EXPERIMENTAL! Creates a compact-view using a different root of the geometrical hierarchy
   explicit DDCompactView(const DDLogicalPart & rootnodedata);
@@ -123,17 +122,14 @@ public:
   //! \b don't \b use : interface not stable ....
   void setRoot(const DDLogicalPart & root);
 
-  // ---------------------------------------------------------------
-  // +++ DDCore INTERNAL USE ONLY ++++++++++++++++++++++++++++++++++
-    
-  void swap( DDCompactView& );
-
   void lockdown();
   
  private:
+  void swap( DDCompactView& );
+
   std::unique_ptr<DDCompactViewImpl> rep_;
   std::unique_ptr<DDPosData> worldpos_ ;
-  
+
   DDI::Store<DDName, std::unique_ptr<DDI::Material>> matStore_;
   DDI::Store<DDName, std::unique_ptr<DDI::Solid>> solidStore_;
   DDI::Store<DDName, std::unique_ptr<DDI::LogicalPart>> lpStore_;
