@@ -1,12 +1,13 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
-import sys
+import sys, os, operator
 import FWCore.ParameterSet.VarParsing as VarParsing
 from FWCore.Utilities.Enumerate import Enumerate
+from pprint import pprint
+from Configuration.Geometry.dict2023Geometry import detectorVersionDict
 
 varType = Enumerate ("Run1 2015 2017 2019 2023 MaPSA")
 defaultVersion=str();
-from Fireworks.Geometry.dumpSimGeometry_cfg import versionCheck
 
 def help():
    print("Usage: cmsRun dumpFWRecoGeometry_cfg.py  tag=TAG ")
@@ -34,7 +35,13 @@ def help():
    print("       include Timing subdetectors")
    print("")
    print("")
-   exit(1);
+   os._exit(1);
+
+def versionCheck(ver):
+   if ver == "":
+      print("Please, specify 2023 scenario version\n")
+      pprint(sorted(detectorVersionDict.items(),key=operator.itemgetter(1)))
+      help()
 
 def recoGeoLoad(score):
     print("Loading configuration for tag ", options.tag ,"...\n")
