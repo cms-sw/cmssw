@@ -132,12 +132,12 @@ void ElectronIDValueMapProducer::fillDescriptions(edm::ConfigurationDescriptions
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("gedGsfElectrons"));
   desc.add<edm::InputTag>("srcMiniAOD", edm::InputTag("slimmedElectrons","","@skipCurrentProcess"));
-  desc.add<edm::InputTag>("esReducedRecHitCollection", edm::InputTag("reducedEcalRecHitsES"));
+  desc.add<edm::InputTag>("ebReducedRecHitCollection", edm::InputTag("reducedEcalRecHitsEB"));
   desc.add<edm::InputTag>("eeReducedRecHitCollection", edm::InputTag("reducedEcalRecHitsEE"));
+  desc.add<edm::InputTag>("esReducedRecHitCollection", edm::InputTag("reducedEcalRecHitsES"));
   desc.add<edm::InputTag>("ebReducedRecHitCollectionMiniAOD", edm::InputTag("reducedEgamma","reducedEBRecHits"));
   desc.add<edm::InputTag>("eeReducedRecHitCollectionMiniAOD", edm::InputTag("reducedEgamma","reducedEERecHits"));
   desc.add<edm::InputTag>("esReducedRecHitCollectionMiniAOD", edm::InputTag("reducedEgamma","reducedESRecHits"));
-  desc.add<edm::InputTag>("ebReducedRecHitCollection", edm::InputTag("reducedEcalRecHitsEB"));
   descriptions.add("electronIDValueMapProducer", desc);
 }
 
