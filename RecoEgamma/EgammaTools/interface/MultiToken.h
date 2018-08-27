@@ -2,6 +2,7 @@
 #define RecoEgamma_EgammaTools_MultiToken_H
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 /*
@@ -27,22 +28,27 @@ class MultiTokenT {
 
   public:
 
-    // Constructor from an arbitrary number of tokens
-    template <typename ... Tokens>
-    MultiTokenT(edm::EDGetTokenT<T> token0, Tokens ... tokens)
+    // Constructor which gets the input tags from a config to create the tokens
+    template <typename ... Tags>
+    MultiTokenT(edm::ConsumesCollector && cc, const edm::ParameterSet& pset, Tags && ... tags)
       : isMaster_(true)
-      , tokens_( { token0, tokens... } )
     {
+        for (auto&& tag : { tags... }) {
+            tokens_.push_back(cc.mayConsume<T>(pset.getParameter<edm::InputTag>(tag)));
+        }
         goodIndex_ = std::make_shared<int>(-1);
     }
 
-    // Constructor from an arbitrary number of tokens plus a master MultiToken
-    template <typename S, typename ... Tokens>
-    MultiTokenT(MultiTokenT<S>& master, edm::EDGetTokenT<T> token0, Tokens ... tokens)
+    // Constructor which gets the input tags from a config to create the tokens plus master token
+    template <typename S, typename ... Tags>
+    MultiTokenT(MultiTokenT<S>& master, edm::ConsumesCollector && cc, const edm::ParameterSet& pset, Tags && ... tags)
       : isMaster_(false)
-      , tokens_( { token0, tokens... } )
       , goodIndex_(master.getGoodTokenIndexPtr())
-    {}
+    {
+        for (auto&& tag : { tags... }) {
+            tokens_.push_back(cc.mayConsume<T>(pset.getParameter<edm::InputTag>(tag)));
+        }
+    }
 
     // Get a handle on the event data, non-valid handle is allowed
     edm::Handle<T> getHandle(const edm::Event& iEvent)

@@ -27,22 +27,17 @@ class ElectronMVAVariableHelper : public edm::stream::EDProducer<> {
 private:
 
   // for AOD and MiniAOD case
-  MultiTokenT<edm::View<reco::GsfElectron> > electronsToken_;
-  MultiTokenT<reco::VertexCollection> vtxToken_;
-  MultiTokenT<reco::ConversionCollection> conversionsToken_;
-  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+  MultiTokenT<edm::View<reco::GsfElectron>> electronsToken_;
+  MultiTokenT<reco::VertexCollection>       vtxToken_;
+  MultiTokenT<reco::ConversionCollection>   conversionsToken_;
+  edm::EDGetTokenT<reco::BeamSpot>          beamSpotToken_;
 };
 
 ElectronMVAVariableHelper::ElectronMVAVariableHelper(const edm::ParameterSet & iConfig)
-  : electronsToken_(consumes<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("src"))
-                   ,consumes<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("srcMiniAOD")))
-  , vtxToken_(electronsToken_
-             ,consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection"))
-             ,consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollectionMiniAOD")))
-  , conversionsToken_(electronsToken_
-                     ,consumes<reco::ConversionCollection>(iConfig.getParameter<edm::InputTag>("conversions"))
-                     ,consumes<reco::ConversionCollection>(iConfig.getParameter<edm::InputTag>("conversionsMiniAOD")))
-  , beamSpotToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot")))
+  : electronsToken_  (                 consumesCollector(), iConfig, "src"             , "srcMiniAOD")
+  , vtxToken_        (electronsToken_, consumesCollector(), iConfig, "vertexCollection", "vertexCollectionMiniAOD")
+  , conversionsToken_(electronsToken_, consumesCollector(), iConfig, "conversions"     , "conversionsMiniAOD")
+  , beamSpotToken_   (consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot")))
 {
   produces<edm::ValueMap<float>>("convVtxFitProb");
   produces<edm::ValueMap<float>>("kfhits");

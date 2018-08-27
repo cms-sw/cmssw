@@ -77,26 +77,18 @@ class ElectronRegressionValueMapProducer : public edm::stream::EDProducer<> {
 
   // for AOD and MiniAOD case
   MultiTokenT<edm::View<reco::GsfElectron>> src_;
-  MultiTokenT<EcalRecHitCollection> ebReducedRecHitCollection_;
-  MultiTokenT<EcalRecHitCollection> eeReducedRecHitCollection_;
-  MultiTokenT<EcalRecHitCollection> esReducedRecHitCollection_;
+  MultiTokenT<EcalRecHitCollection> ebRecHits_;
+  MultiTokenT<EcalRecHitCollection> eeRecHits_;
+  MultiTokenT<EcalRecHitCollection> esRecHits_;
 };
 
 ElectronRegressionValueMapProducer::ElectronRegressionValueMapProducer(const edm::ParameterSet& iConfig)
   : use_full5x5_(iConfig.getParameter<bool>("useFull5x5"))
   // Declare consummables, handle both AOD and miniAOD case
-  , src_(
-        mayConsume<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("src")),
-        mayConsume<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("srcMiniAOD")))
-  , ebReducedRecHitCollection_(src_,
-        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ebReducedRecHitCollection")),
-        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ebReducedRecHitCollectionMiniAOD")))
-  , eeReducedRecHitCollection_(src_,
-        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("eeReducedRecHitCollection")),
-        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("eeReducedRecHitCollectionMiniAOD")))
-  , esReducedRecHitCollection_(src_,
-        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("esReducedRecHitCollection")),
-        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("esReducedRecHitCollectionMiniAOD")))
+  , src_(            consumesCollector(), iConfig, "src", "srcMiniAOD")
+  , ebRecHits_(src_, consumesCollector(), iConfig, "ebReducedRecHitCollection", "ebReducedRecHitCollectionMiniAOD")
+  , eeRecHits_(src_, consumesCollector(), iConfig, "eeReducedRecHitCollection", "eeReducedRecHitCollectionMiniAOD")
+  , esRecHits_(src_, consumesCollector(), iConfig, "esReducedRecHitCollection", "esReducedRecHitCollectionMiniAOD")
 {
 
   for( const std::string& name : float_var_names ) {
@@ -117,9 +109,9 @@ void ElectronRegressionValueMapProducer::produce(edm::Event& iEvent, const edm::
   auto src = src_.getHandle(iEvent);
 
   // configure lazy tools
-  edm::EDGetTokenT<EcalRecHitCollection> ebrh = ebReducedRecHitCollection_.get(iEvent);
-  edm::EDGetTokenT<EcalRecHitCollection> eerh = eeReducedRecHitCollection_.get(iEvent);
-  edm::EDGetTokenT<EcalRecHitCollection> esrh = esReducedRecHitCollection_.get(iEvent);
+  edm::EDGetTokenT<EcalRecHitCollection> ebrh = ebRecHits_.get(iEvent);
+  edm::EDGetTokenT<EcalRecHitCollection> eerh = eeRecHits_.get(iEvent);
+  edm::EDGetTokenT<EcalRecHitCollection> esrh = esRecHits_.get(iEvent);
   
   std::unique_ptr<EcalClusterLazyToolsBase> lazyTools;
   if( use_full5x5_ ) lazyTools =

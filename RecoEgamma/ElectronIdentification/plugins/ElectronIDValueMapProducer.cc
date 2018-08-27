@@ -38,9 +38,9 @@ class ElectronIDValueMapProducer : public edm::stream::EDProducer<> {
 
   // for AOD and MiniAOD case
   MultiTokenT<edm::View<reco::GsfElectron>> src_;
-  MultiTokenT<EcalRecHitCollection> ebReducedRecHitCollection_;
-  MultiTokenT<EcalRecHitCollection> eeReducedRecHitCollection_;
-  MultiTokenT<EcalRecHitCollection> esReducedRecHitCollection_;
+  MultiTokenT<EcalRecHitCollection>         ebRecHits_;
+  MultiTokenT<EcalRecHitCollection>         eeRecHits_;
+  MultiTokenT<EcalRecHitCollection>         esRecHits_;
 
   constexpr static char eleFull5x5SigmaIEtaIEta_[] = "eleFull5x5SigmaIEtaIEta";
   constexpr static char eleFull5x5SigmaIEtaIPhi_[] = "eleFull5x5SigmaIEtaIPhi";
@@ -53,18 +53,10 @@ class ElectronIDValueMapProducer : public edm::stream::EDProducer<> {
 
 ElectronIDValueMapProducer::ElectronIDValueMapProducer(const edm::ParameterSet& iConfig)
   // Declare consummables, handle both AOD and miniAOD case
-  : src_(
-        mayConsume<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("src")),
-        mayConsume<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("srcMiniAOD")))
-  , ebReducedRecHitCollection_(src_,
-        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ebReducedRecHitCollection")),
-        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ebReducedRecHitCollectionMiniAOD")))
-  , eeReducedRecHitCollection_(src_,
-        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("eeReducedRecHitCollection")),
-        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("eeReducedRecHitCollectionMiniAOD")))
-  , esReducedRecHitCollection_(src_,
-        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("esReducedRecHitCollection")),
-        mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("esReducedRecHitCollectionMiniAOD")))
+  : src_      (      consumesCollector(), iConfig, "src", "srcMiniAOD")
+  , ebRecHits_(src_, consumesCollector(), iConfig, "ebReducedRecHitCollection", "ebReducedRecHitCollectionMiniAOD")
+  , eeRecHits_(src_, consumesCollector(), iConfig, "eeReducedRecHitCollection", "eeReducedRecHitCollectionMiniAOD")
+  , esRecHits_(src_, consumesCollector(), iConfig, "esReducedRecHitCollection", "esReducedRecHitCollectionMiniAOD")
 {
 
   produces<edm::ValueMap<float> >(eleFull5x5SigmaIEtaIEta_);  
@@ -86,9 +78,9 @@ void ElectronIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSet
   auto src = src_.getValidHandle(iEvent);
 
   lazyToolnoZS = std::make_unique<noZS::EcalClusterLazyTools>(iEvent, iSetup, 
-                              ebReducedRecHitCollection_.get(iEvent), 
-                              eeReducedRecHitCollection_.get(iEvent),
-                              esReducedRecHitCollection_.get(iEvent));
+                              ebRecHits_.get(iEvent), 
+                              eeRecHits_.get(iEvent),
+                              esRecHits_.get(iEvent));
  
   // size_t n = src->size();
   std::vector<float> eleFull5x5SigmaIEtaIEta, eleFull5x5SigmaIEtaIPhi;
@@ -96,16 +88,15 @@ void ElectronIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSet
   std::vector<float> eleFull5x5E1x5,eleFull5x5E2x5,eleFull5x5E5x5;
   
   // reco::GsfElectron::superCluster() is virtual so we can exploit polymorphism
-  for (size_t i = 0; i < src->size(); ++i){
-    auto iEle = src->ptrAt(i);
-    const auto& theseed = *(iEle->superCluster()->seed());
+  for (const auto &ele : *src) {
+    const auto& theseed = *(ele.superCluster()->seed());
 
     std::vector<float> vCov = lazyToolnoZS->localCovariances( theseed );
     const float see = (isnan(vCov[0]) ? 0. : sqrt(vCov[0]));
     const float sep = vCov[1];
     eleFull5x5SigmaIEtaIEta.push_back(see);
     eleFull5x5SigmaIEtaIPhi.push_back(sep);
-    eleFull5x5R9.push_back(lazyToolnoZS->e3x3( theseed ) / iEle->superCluster()->rawEnergy() );    
+    eleFull5x5R9.push_back(lazyToolnoZS->e3x3( theseed ) / ele.superCluster()->rawEnergy() );    
     
     const float e1x5 = lazyToolnoZS->e1x5( theseed );
     const float e2x5 = lazyToolnoZS->e2x5Max( theseed );

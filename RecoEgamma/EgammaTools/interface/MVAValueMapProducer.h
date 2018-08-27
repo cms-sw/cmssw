@@ -50,8 +50,7 @@ class MVAValueMapProducer : public edm::stream::EDProducer<> {
 
 template <class ParticleType>
 MVAValueMapProducer<ParticleType>::MVAValueMapProducer(const edm::ParameterSet& iConfig)
-  : src_(mayConsume<edm::View<ParticleType> >(iConfig.getParameter<edm::InputTag>("src")),
-         mayConsume<edm::View<ParticleType> >(iConfig.getParameter<edm::InputTag>("srcMiniAOD")))
+  : src_(consumesCollector(), iConfig, "src", "srcMiniAOD")
 
 {
   // Loop over the list of MVA configurations passed here from python and
