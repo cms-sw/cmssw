@@ -122,7 +122,6 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
     addTOBGeometry();
     addTECGeometry();
     writeTrackerParametersXML();
-    return m_fwGeometry; //AMT
   }
   if( m_muon )
   {
