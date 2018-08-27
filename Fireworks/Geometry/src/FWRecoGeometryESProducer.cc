@@ -122,7 +122,6 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
     addTOBGeometry();
     addTECGeometry();
     writeTrackerParametersXML();
-    return m_fwGeometry; //AMT
   }
   if( m_muon )
   {
@@ -538,7 +537,8 @@ FWRecoGeometryESProducer::addCaloGeometry( void )
 	 end = vid.end();
        it != end; ++it ) {
     unsigned int id = insert_id( it->rawId());
-    if( DetId::Forward != it->det() ) {
+    if( !((DetId::Forward == it->det()) || (DetId::HGCalEE == it->det()) ||
+	  (DetId::HGCalHSi == it->det()) || (DetId::HGCalHSc == it->det())) ) {
       const CaloCellGeometry::CornersVec& cor = m_caloGeom->getGeometry( *it )->getCorners();      
       fillPoints( id, cor.begin(), cor.end());
     } else {
