@@ -12,11 +12,11 @@ defaultVersion=str();
 def help():
    print("Usage: cmsRun dumpSimGeometry_cfg.py  tag=TAG version=VERSION ")
    print("   tag=tagname")
-   print("       indentify geometry scenario ")
+   print("       identify geometry scenario ")
    print("      ", varType.keys())
    print("")
    print("   version=versionNumber")
-   print("       scenario version from 2023 dictionary:")
+   print("       scenario version from 2023 dictionary")
    print("")
    print("   out=outputFileName")
    print("       default is cmsSimGeom<tag><version>.root")
