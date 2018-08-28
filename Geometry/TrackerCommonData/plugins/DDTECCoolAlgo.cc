@@ -30,13 +30,12 @@ void DDTECCoolAlgo::initialize(const DDNumericArguments & nArgs,
 			       const DDStringArguments & sArgs,
 			       const DDStringVectorArguments & vsArgs) {
 
-  idNameSpace    = DDCurrentNamespace::ns();
   startCopyNo    = int(nArgs["StartCopyNo"]);
 
   DDName parentName = parent().name(); 
   rPosition       = nArgs["RPosition"];
   LogDebug("TECGeom") << "DDTECCoolAlgo debug: Parent " << parentName 
-		      <<" NameSpace " << idNameSpace << " at radial Position " 
+		      <<" NameSpace " << DDCurrentNamespace() << " at radial Position " 
 		      << rPosition ;
   phiPosition    = vArgs["PhiPosition"]; 
   coolInsert     = vsArgs["CoolInsert"];

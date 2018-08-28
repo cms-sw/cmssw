@@ -35,11 +35,10 @@ void DDTOBRodAlgo::initialize(const DDNumericArguments & nArgs,
 
   central      = sArgs["CentralName"];
   shift        = nArgs["Shift"];
-  idNameSpace  = DDCurrentNamespace::ns();
   DDName parentName = parent().name();
   LogDebug("TOBGeom") << "DDTOBRodAlgo debug: Parent " << parentName 
 		      << " Central " << central << " NameSpace "
-		      << idNameSpace << "\tShift " << shift;
+		      << DDCurrentNamespace() << "\tShift " << shift;
 
   sideRod      = vsArgs["SideRodName"];     
   sideRodX     = vArgs["SideRodX"];    

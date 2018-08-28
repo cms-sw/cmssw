@@ -32,13 +32,11 @@ void DDTrackerXYZPosAlgo::initialize(const DDNumericArguments & nArgs,
   yvec        = vArgs["YPositions"];
   zvec        = vArgs["ZPositions"];
   rotMat      = vsArgs["Rotations"];
-  
-  idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
   DDName parentName = parent().name();
   LogDebug("TrackerGeom") << "DDTrackerXYZPosAlgo debug: Parent " << parentName 
 			  << "\tChild " << childName << " NameSpace " 
-			  << idNameSpace << "\tCopyNo (Start/Increment) " 
+			  << DDCurrentNamespace() << "\tCopyNo (Start/Increment) " 
 			  << startCopyNo << ", " << incrCopyNo << "\tNumber " 
 			  << xvec.size() << ", " << yvec.size() << ", " << zvec.size();
   for (int i = 0; i < (int)(zvec.size()); i++) {
