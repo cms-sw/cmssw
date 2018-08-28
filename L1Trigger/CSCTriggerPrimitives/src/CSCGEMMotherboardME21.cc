@@ -100,8 +100,8 @@ CSCGEMMotherboardME21::run(const CSCWireDigiCollection* wiredc,
   {
     if (alct->bestALCT[bx_alct].isValid())
     {
-      const int bx_clct_start(bx_alct - match_trig_window_size/2);
-      const int bx_clct_stop(bx_alct + match_trig_window_size/2);
+      const int bx_clct_start(bx_alct - match_trig_window_size/2 - alctClctOffset);
+      const int bx_clct_stop(bx_alct + match_trig_window_size/2 - alctClctOffset);
       const int bx_copad_start(bx_alct - maxDeltaBXCoPad_);
       const int bx_copad_stop(bx_alct + maxDeltaBXCoPad_);
 
