@@ -1,0 +1,235 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="hgcal.xml" eval="true">
+  <Constant name="WaferSize"             value="167.4408*mm"/>
+  <Constant name="WaferThickness"        value="0.30*mm"/>
+  <Constant name="SensorSeparation"      value="1.00*mm"/>
+  <Constant name="MouseBite"             value="5.00*mm"/>
+  <Constant name="CellThicknessFine"     value="0.12*mm"/>
+  <Constant name="CellThicknessCoarse1"  value="0.20*mm"/>
+  <Constant name="CellThicknessCoarse2"  value="0.30*mm"/>
+  <Constant name="ScintillatorThickness" value="3.0*mm"/>
+  <Constant name="NumberOfCellsFine"     value="12"/>
+  <Constant name="NumberOfCellsCoarse"   value="8"/>
+  <Constant name="FirstMixedLayer"       value="9"/>
+  <Constant name="rad100200P0"           value="-2.152079E-05"/>
+  <Constant name="rad100200P1"           value="3.040344E-02"/>
+  <Constant name="rad100200P2"           value="-1.610902E+01"/>
+  <Constant name="rad100200P3"           value="3.793400E+03"/>
+  <Constant name="rad100200P4"           value="-3.348690E+05"/>
+  <Constant name="rad200300P0"           value="-5.18494E-07"/>
+  <Constant name="rad200300P1"           value="8.93133E-04"/>
+  <Constant name="rad200300P2"           value="-5.70664E-01"/>
+  <Constant name="rad200300P3"           value="1.59796E+02"/>
+  <Constant name="rad200300P4"           value="-1.64217E+04"/>
+  <Constant name="zMinForRadPar"         value="330.0*cm"/>
+  <Constant name="ChoiceType"            value="0"/>
+  <Constant name="NCornerCut"            value="2"/>
+  <Constant name="FracAreaMin"           value="0.2"/>
+  <Constant name="radMixL0"              value="1365.0*mm"/>
+  <Constant name="radMixL1"              value="1304.0*mm"/>
+  <Constant name="radMixL2"              value="1190.0*mm"/>
+  <Constant name="radMixL3"              value="1190.0*mm"/>
+  <Constant name="radMixL4"              value="1147.0*mm"/>
+  <Constant name="radMixL5"              value="1051.0*mm"/>
+  <Constant name="radMixL6"              value="902.0*mm"/>
+  <Constant name="radMixL7"              value="902.0*mm"/>
+  <Constant name="radMixL8"              value="902.0*mm"/>
+  <Constant name="radMixL9"              value="902.0*mm"/>
+  <Constant name="radMixL10"             value="902.0*mm"/>
+  <Constant name="radMixL11"             value="902.0*mm"/>
+  <Constant name="radMixL12"             value="902.0*mm"/>
+  <Constant name="radMixL13"             value="902.0*mm"/>
+  <Constant name="radMixL14"             value="902.0*mm"/>
+  <Constant name="radMixL15"             value="902.0*mm"/>
+  <Constant name="slope1"                value="0.0"/>
+  <Constant name="slope2"                value="tan(19.3*deg)"/>
+  <Constant name="slope3"                value="tan(53.0*deg)"/>
+  <Constant name="zHGCal1"               value="3190.50*mm"/>
+  <Constant name="zHGCal2"               value="3878.51*mm"/>
+  <Constant name="zHGCal4"               value="5137.70*mm"/>
+  <Constant name="rMinHGCal1"            value="[etaMax:slope]*[zHGCal1]"/>
+  <Constant name="rMinHGCal2"            value="[etaMax:slope]*[zHGCal2]"/>    
+  <Constant name="rMinHGCal4"            value="[etaMax:slope]*[zHGCal4]"/>
+  <Constant name="rMaxHGCal1"            value="1568.325*mm"/>
+  <Constant name="rMaxHGCal2"            value="([rMaxHGCal1]+(([zHGCal2]-[zHGCal1])*[slope2]))"/>
+  <Constant name="rMaxHGCal3"            value="2670.25*mm"/>
+  <Constant name="rMaxHGCal4"            value="[rMaxHGCal3]"/>
+  <Constant name="zHGCal3"               value="([zHGCal2]+([rMaxHGCal3]-[rMaxHGCal2])/[slope3])"/>
+  <Constant name="rMinHGCal3"            value="[etaMax:slope]*[zHGCal3]"/>
+  <Constant name="zMinEE"                value="3190.5*mm"/>
+  <Constant name="zMaxEE"                value="([zMinEE]+339.8*mm)"/>
+  <Constant name="zMinHEsil"             value="[zMaxEE]"/>
+  <Constant name="zMaxHEsil"             value="([zMinHEsil]+397.0*mm)"/>
+  <Constant name="zMinHEmix"             value="[zMaxHEsil]"/>
+  <Constant name="zMaxHEmix"             value="([zMinHEmix]+1210.4*mm)"/>
+  <Constant name="rMinEEMin"             value="[etaMax:slope]*[zMinEE]"/>
+  <Constant name="rMinEEMax"             value="[etaMax:slope]*[zMaxEE]"/>
+  <Constant name="rMinHEsilMin"          value="[etaMax:slope]*[zMinHEsil]"/>
+  <Constant name="rMinHEsilMax"          value="[etaMax:slope]*[zMaxHEsil]"/>
+  <Constant name="rMinHEmixMin"          value="[etaMax:slope]*[zMinHEmix]"/>
+  <Constant name="rMinHEmixMax"          value="[etaMax:slope]*[zMaxHEmix]"/>
+  <Constant name="rMaxEEMin"             value="([rMaxHGCal1]+(([zMinEE]-[zHGCal1])*[slope2]))"/>
+  <Constant name="rMaxEEMax"             value="([rMaxHGCal1]+(([zMaxEE]-[zHGCal1])*[slope2]))"/>
+  <Constant name="rMaxHEsilMin"          value="([rMaxHGCal1]+(([zMinHEsil]-[zHGCal1])*[slope2]))"/>
+  <Constant name="rMaxHEsilMax"          value="([rMaxHGCal2]+(([zMaxHEsil]-[zHGCal2])*[slope3]))"/>
+  <Constant name="rMaxHEmixMin"          value="([rMaxHGCal2]+(([zMinHEmix]-[zHGCal2])*[slope3]))"/>
+  <Constant name="rMaxHEmixMax"          value="[rMaxHGCal3]"/>
+  <Constant name="gapSi"                 value="14.0*mm"/>
+  <Constant name="gapMix"                value="15.9*mm"/>
+  <Constant name="absH1"                 value="35.0*mm"/>
+  <Constant name="absH2"                 value="65.0*mm"/>
+  <Constant name="zA1"                   value="[zHGCal1]"/>
+  <Constant name="zA2"                   value="([zA1]+339.8*mm+40.0*mm+[gapSi])"/> 
+  <Constant name="zA3"                   value="([zA2]+(([gapSi]+[absH1])*4.0))"/>  
+  <Constant name="zA4"                   value="([zA3]+([gapSi]+[absH1])*4.0-[gapSi]+[gapMix])"/> 
+  <Constant name="zA5"                   value="([zA4]+([gapMix]+[absH1])*3+([gapMix]+[absH2])*2.0)"/>
+  <Constant name="zA6"                   value="([zA5]+([gapMix]+[absH2])*9)"/>
+  <Constant name="zA7"                   value="([zA6]+([gapMix]+[absH2])*1)"/>
+  <Constant name="zB1"                   value="([zHGCal1])"/>
+  <Constant name="zB2"                   value="([zB1]+339.8*mm)"/>
+  <Constant name="zB3"                   value="([zB2]+40.0*mm+[gapSi]+([absH1]+[gapSi])*3.0)"/>
+  <Constant name="zB4"                   value="([zB3]+([absH1]+[gapSi])*4.0)"/>
+  <Constant name="zB5"                   value="([zB4]+([absH1]+[gapMix])*4.0+([absH2]+[gapMix])*1.0)"/>
+  <Constant name="zB6"                   value="([zB5]+([absH2]+[gapMix])*9.0)"/>
+  <Constant name="zB7"                   value="([zB6]+([absH2]+[gapMix])*2.0)"/>
+  <Constant name="rA1"                   value="417.0*mm"/>
+  <Constant name="rA2"                   value="[rA1]"/>
+  <Constant name="rA3"                   value="([rA2]+25.0*mm)"/>
+  <Constant name="rA4"                   value="([rA3]+50.0*mm)"/>
+  <Constant name="rA5"                   value="([rA4]+50.0*mm)"/>
+  <Constant name="rA6"                   value="([rA5]+65.0*mm)"/>
+  <Constant name="rA7"                   value="([rA6]+30.0*mm)"/>
+  <Constant name="rB1"                   value="[rA1]+25.0*mm"/>
+  <Constant name="rB2"                   value="[rA2]+25.0*mm"/>
+  <Constant name="rB3"                   value="[rA3]+50.0*mm"/>
+  <Constant name="rB4"                   value="[rA4]+50.0*mm"/>
+  <Constant name="rB5"                   value="[rA5]+65.0*mm"/>
+  <Constant name="rB6"                   value="[rA6]+35.0*mm"/>
+  <Constant name="rB7"                   value="[rA7]+35.0*mm"/>
+  <Constant name="rB3max"                value="([rMaxHEsilMin]+(tan(19.3*deg)*([zB3]-[zMinHEsil])))"/>
+  <Constant name="rB5max"                value="([rMaxHEmixMin]+(tan(53.0*deg)*([zB5]-[zMinHEmix])))"/>
+</ConstantsSection>
+
+<MaterialSection label="hgcal.xml">
+  <CompositeMaterial name="WCu" density="14.979*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.75">
+      <rMaterial name="materials:Tungsten"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.25">
+      <rMaterial name="materials:Copper"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+</MaterialSection>
+
+<SolidSection label="hgcal.xml">
+  <Polycone name="HGCal" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[zHGCal1]"   rMin="[rMinHGCal1]"   rMax="[rMaxHGCal1]"/>
+    <ZSection z="[zHGCal2]"   rMin="[rMinHGCal2]"   rMax="[rMaxHGCal2]"/>
+    <ZSection z="[zHGCal3]"   rMin="[rMinHGCal3]"   rMax="[rMaxHGCal3]"/>
+    <ZSection z="[zHGCal4]"   rMin="[rMinHGCal4]"   rMax="[rMaxHGCal4]"/>
+  </Polycone>
+  <Polycone name="HGCalEE" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[zMinEE]"    rMin="[rB1]"    rMax="[rMaxEEMin]"/>
+    <ZSection z="[zMaxEE]"    rMin="[rB1]"    rMax="[rMaxEEMax]"/>
+  </Polycone>
+  <Polycone name="HGCalHEsil" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[zMinHEsil]" rMin="[rB3]" rMax="[rMaxHEsilMin]"/>
+    <ZSection z="[zB3]"       rMin="[rB3]" rMax="[rB3max]"/>
+    <ZSection z="[zB3]"       rMin="[rB4]" rMax="[rB3max]"/>
+    <ZSection z="[zHGCal2]"   rMin="[rB4]" rMax="[rMaxHGCal2]"/>
+    <ZSection z="[zMaxHEsil]" rMin="[rB4]" rMax="[rMaxHEsilMax]"/>
+  </Polycone>
+  <Polycone name="HGCalHEmix" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[zMinHEmix]" rMin="[rMinHEmixMin]" rMax="[rMaxHEmixMin]"/>
+    <ZSection z="[zB5]"       rMin="[rB5]"          rMax="[rB5max]"/>
+    <ZSection z="[zB5]"       rMin="[rB6]"          rMax="[rB5max]"/>
+    <ZSection z="[zHGCal3]"   rMin="[rB6]"          rMax="[rMaxHGCal3]"/>
+    <ZSection z="[zB6]"       rMin="[rB6]"          rMax="[rMaxHGCal3]"/>
+    <ZSection z="[zB6]"       rMin="[rB7]"          rMax="[rMaxHGCal3]"/>
+    <ZSection z="[zMaxHEmix]" rMin="[rB7]"          rMax="[rMaxHEmixMax]"/>
+  </Polycone>
+  <Polycone name="HGCalInnerSupport" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[zA1]" rMin="[rA1]" rMax="[rB2]"/>  #ring1f
+    <ZSection z="[zB2]" rMin="[rA1]" rMax="[rB2]"/>  #ring1b
+    <ZSection z="[zB2]" rMin="[rA2]" rMax="[rB3]"/>  #ring21f
+    <ZSection z="[zA2]" rMin="[rA2]" rMax="[rB3]"/>  #ring21b
+    <ZSection z="[zA2]" rMin="[rA3]" rMax="[rB3]"/>  #ring22f
+    <ZSection z="[zB3]" rMin="[rA3]" rMax="[rB3]"/>  #ring22b
+    <ZSection z="[zB3]" rMin="[rA3]" rMax="[rB4]"/>  #ring31f
+    <ZSection z="[zA3]" rMin="[rA3]" rMax="[rB4]"/>  #ring31b
+    <ZSection z="[zB3]" rMin="[rA4]" rMax="[rB4]"/>  #ring32f
+    <ZSection z="[zB4]" rMin="[rA4]" rMax="[rB4]"/>  #ring32b
+    <ZSection z="[zB4]" rMin="[rA4]" rMax="[rB5]"/>  #ring41f
+    <ZSection z="[zB4]" rMin="[rA4]" rMax="[rB5]"/>  #ring41b
+    <ZSection z="[zB4]" rMin="[rA5]" rMax="[rB5]"/>  #ring42f
+    <ZSection z="[zB5]" rMin="[rA5]" rMax="[rB5]"/>  #ring42b
+    <ZSection z="[zB5]" rMin="[rA5]" rMax="[rB6]"/>  #ring51f
+    <ZSection z="[zB5]" rMin="[rA5]" rMax="[rB6]"/>  #ring51b
+    <ZSection z="[zB5]" rMin="[rA6]" rMax="[rB6]"/>  #ring52f
+    <ZSection z="[zB6]" rMin="[rA6]" rMax="[rB6]"/>  #ring52b
+    <ZSection z="[zB6]" rMin="[rA6]" rMax="[rB7]"/>  #ring61f
+    <ZSection z="[zB6]" rMin="[rA6]" rMax="[rB7]"/>  #ring61b
+    <ZSection z="[zB6]" rMin="[rA7]" rMax="[rB7]"/>  #ring62f
+    <ZSection z="[zB7]" rMin="[rA7]" rMax="[rB7]"/>  #ring62b
+    <ZSection z="[zMaxHEmix]" rMin="[rB7]" rMax="[rMaxHEmixMax]"/>
+  </Polycone>
+</SolidSection>
+
+<LogicalPartSection label="hgcal.xml">
+  <LogicalPart name="HGCal" category="unspecified">
+    <rSolid name="HGCal"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalEE" category="unspecified">
+    <rSolid name="HGCalEE"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalHEsil" category="unspecified">
+    <rSolid name="HGCalHEsil"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalHEmix" category="unspecified">
+    <rSolid name="HGCalHEmix"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalInnerSupport" category="unspecified">
+    <rSolid name="HGCalInnerSupport"/>
+    <rMaterial name="materials:StainlessSteel"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="hgcal.xml">
+  <PosPart copyNumber="1">
+    <rParent name="caloBase:CALO"/>
+    <rChild name="hgcal:HGCal"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="caloBase:CALO"/>
+    <rChild name="hgcal:HGCal"/>
+    <rRotation name="rotations:180D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcal:HGCal"/>
+    <rChild name="hgcal:HGCalEE"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcal:HGCal"/>
+    <rChild name="hgcal:HGCalHEsil"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcal:HGCal"/>
+    <rChild name="hgcal:HGCalHEmix"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcal:HGCal"/>
+    <rChild name="hgcal:HGCalInnerSupport"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+</PosPartSection>
+</DDDefinition>
