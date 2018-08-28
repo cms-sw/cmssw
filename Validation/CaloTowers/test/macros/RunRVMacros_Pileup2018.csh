@@ -43,10 +43,10 @@ mkdir TTbar/CaloTowers
 mkdir TTbar/RecHits
 mkdir TTbar/RBX
 
-cat ../html_indices/RelVal_RecHits.html | sed -e s/DATA_SAMPLE/TTbar/ > TTbar/RecHits/index.html
+cat ../html_indices/RelVal_RecHits2018.html | sed -e s/DATA_SAMPLE/TTbar/ > TTbar/RecHits/index.html
 
-cp ../html_indices/RelVal_CaloTowers.html TTbar/CaloTowers/index.html
-cp ../html_indices/RelVal_HcalDigis.html  TTbar/HcalDigis/index.html
+cp ../html_indices/RelVal_CaloTowers2018.html TTbar/CaloTowers/index.html
+cp ../html_indices/RelVal_HcalDigis2018.html  TTbar/HcalDigis/index.html
 cp ../html_indices/RBX.html               TTbar/RBX/index.html
 
 cd ../

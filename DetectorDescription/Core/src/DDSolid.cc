@@ -73,59 +73,59 @@ DDSolid::DDSolid( const DDName & name, DDSolidShape shape, const std::vector<dou
   std::vector<double> dummy;
   switch( shape ) {
   case DDSolidShape::ddbox:
-    solid = std::move( std::make_unique< DDI::Box >( 0, 0, 0 ));
+    solid = std::make_unique< DDI::Box >( 0, 0, 0 );
     break;
   case DDSolidShape::ddtubs:
-    solid = std::move( std::make_unique< DDI::Tubs >( 0, 0, 0, 0, 0 ));
+    solid = std::make_unique< DDI::Tubs >( 0, 0, 0, 0, 0 );
     break;
   case DDSolidShape::ddcons:
-    solid = std::move( std::make_unique< DDI::Cons >( 0, 0, 0, 0, 0, 0, 0 ));
+    solid = std::make_unique< DDI::Cons >( 0, 0, 0, 0, 0, 0, 0 );
     break;
   case DDSolidShape::ddpseudotrap:
-    solid = std::move( std::make_unique< DDI::PseudoTrap >( 0, 0, 0, 0, 0, 0, false ));
+    solid = std::make_unique< DDI::PseudoTrap >( 0, 0, 0, 0, 0, 0, false );
     break;
   case DDSolidShape::ddshapeless:
-    solid = std::move( std::make_unique< DDI::Shapeless >( ));
+    solid = std::make_unique< DDI::Shapeless >( );
     break;
   case DDSolidShape::ddtrap:
-    solid = std::move( std::make_unique< DDI::Trap >( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ));
+    solid = std::make_unique< DDI::Trap >( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 );
     break;
   case DDSolidShape::ddpolyhedra_rz:
-    solid = std::move( std::make_unique< DDI::Polyhedra >( 0, 0, 0, dummy, dummy ));
+    solid = std::make_unique< DDI::Polyhedra >( 0, 0, 0, dummy, dummy );
     break;
   case DDSolidShape::ddpolyhedra_rrz:
-    solid = std::move( std::make_unique< DDI::Polyhedra >( 0, 0, 0, dummy, dummy, dummy ));
+    solid = std::make_unique< DDI::Polyhedra >( 0, 0, 0, dummy, dummy, dummy );
     break;
   case DDSolidShape::ddpolycone_rz:
-    solid = std::move( std::make_unique< DDI::Polycone >( 0, 0, dummy, dummy ));
+    solid = std::make_unique< DDI::Polycone >( 0, 0, dummy, dummy );
     break;
   case DDSolidShape::ddpolycone_rrz:
-    solid = std::move( std::make_unique< DDI::Polycone >( 0, 0, dummy, dummy, dummy ));
+    solid = std::make_unique< DDI::Polycone >( 0, 0, dummy, dummy, dummy );
     break;			
   case DDSolidShape::ddtrunctubs:
-    solid = std::move( std::make_unique< DDI::TruncTubs >( 0, 0, 0, 0, 0, 0, 0, false ));
+    solid = std::make_unique< DDI::TruncTubs >( 0, 0, 0, 0, 0, 0, 0, false );
     break;
   case DDSolidShape::ddtorus:
-    solid = std::move( std::make_unique< DDI::Torus >( 0, 0, 0, 0, 0 ));
+    solid = std::make_unique< DDI::Torus >( 0, 0, 0, 0, 0 );
     break;
   case DDSolidShape::ddsphere:
-    solid = std::move( std::make_unique< DDI::Sphere >( 0, 0, 0, 0, 0, 0 ));
+    solid = std::make_unique< DDI::Sphere >( 0, 0, 0, 0, 0, 0 );
     break;
   case DDSolidShape::ddellipticaltube:
-    solid = std::move( std::make_unique< DDI::EllipticalTube >( 0, 0, 0 ));
+    solid = std::make_unique< DDI::EllipticalTube >( 0, 0, 0 );
     break;
   case DDSolidShape::ddcuttubs:
-    solid = std::move( std::make_unique< DDI::CutTubs >( 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., -1. ));
+    solid = std::make_unique< DDI::CutTubs >( 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., -1. );
     break;
   case DDSolidShape::ddextrudedpolygon:
-    solid = std::move( std::make_unique< DDI::ExtrudedPolygon >( dummy, dummy, dummy, dummy, dummy, dummy ));
+    solid = std::make_unique< DDI::ExtrudedPolygon >( dummy, dummy, dummy, dummy, dummy, dummy );
     break;
   default:
     throw cms::Exception( "DDException" )
 		<< "DDSolid::DDSolid( DDName, DDSolidShape, std::vector<double> ): wrong shape.";   
   }
   solid->setParameters( pars );
-		create( name, std::move( solid ));
+  create( name, std::move( solid ));
 }
 
 double
