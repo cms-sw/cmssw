@@ -160,7 +160,7 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
           position /= width;  
           local_mes.ClusterWidth->Fill(width);
           local_mes.ClusterPosition->Fill(position);
-	  for (std::vector<int>::iterator ic = charges.begin(); ic != charges.end(); ic++) local_mes.ChargeOfDigisVsWidth->Fill((*ic), width);
+	  for (auto v: charges) local_mes.ChargeOfDigisVsWidth->Fill(v, width);
 	  charges.clear();
           charges.push_back(adc);
 	  width  = 1;
