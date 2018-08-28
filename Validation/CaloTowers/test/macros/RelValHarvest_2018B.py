@@ -121,7 +121,8 @@ ds2023Flags = {'RelValTTbar_14TeV__':'TTbar', 'RelValMinBias_14TeV__':'MinBias'}
 
 #dsDATAFlags = {'301998__JetHT__':'JetHT', '301998__ZeroBias__':'ZeroBias'}  #Original
 #dsDATAFlags = {'305064__JetHT__':'JetHT','305064__ZeroBias__':'ZeroBias'} # 2017F
-dsDATAFlags = {'297557__JetHT__':'JetHT','297557__ZeroBias__':'ZeroBias'} # 2017B
+dsDATAFlags = {'317435__JetHT__':'JetHT','317435__ZeroBias__':'ZeroBias'} # 2018B
+#dsDATAFlags = {'297557__JetHT__':'JetHT','297557__ZeroBias__':'ZeroBias'} # 2017B
 #dsDATAFlags = {'274199__JetHT__':'JetHT','274199__ZeroBias__':'ZeroBias','297227__JetHT__':'JetHT','297227__ZeroBias__':'ZeroBias'} #2016B & 2017B dataset
 
 #dsDATAFlags = {'274199__JetHT__':'JetHT','274199__ZeroBias__':'ZeroBias','297227__JetHT__':'JetHT','297227__ZeroBias__':'ZeroBias','302663__JetHT__':'JetHT','302663__ZeroBias__':'ZeroBias'} #2016B & 2017B & 2017D dataset
