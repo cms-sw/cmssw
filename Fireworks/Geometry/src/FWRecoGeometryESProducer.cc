@@ -83,8 +83,8 @@ void FWRecoGeometryESProducer::ADD_PIXEL_TOPOLOGY( unsigned int rawid, const Geo
 
 namespace {
   const std::array<std::string,3> hgcal_geom_names =  { { "HGCalEESensitive",
-                                                                 "HGCalHESiliconSensitive",
-                                                                 "HGCalHEScintillatorSensitive" } };
+							  "HGCalHESiliconSensitive",
+							  "HGCalHEScintillatorSensitive" } };
 }
 									  
 FWRecoGeometryESProducer::FWRecoGeometryESProducer( const edm::ParameterSet& pset )
@@ -588,7 +588,7 @@ FWRecoGeometryESProducer::fillPoints( unsigned int id, std::vector<GlobalPoint>:
   unsigned int index( 0 );
   for( std::vector<GlobalPoint>::const_iterator i = begin; i != end; ++i )
   {
-    assert( index < 23 );
+    assert( index < 35 );
     m_fwGeometry->idToName[id].points[index] = i->x();
     m_fwGeometry->idToName[id].points[++index] = i->y();
     m_fwGeometry->idToName[id].points[++index] = i->z();
