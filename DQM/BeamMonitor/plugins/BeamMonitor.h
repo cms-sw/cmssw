@@ -12,7 +12,6 @@
 #include <memory>
 // CMS
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -22,6 +21,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSTrkParameters.h"
 #include "RecoVertex/BeamSpotProducer/interface/BeamFitter.h"
 #include <fstream>
@@ -30,18 +30,15 @@
 // class declaration
 //
 
-class BeamMonitor : public edm::EDAnalyzer {
+class BeamMonitor : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
   public:
 
     BeamMonitor( const edm::ParameterSet& );
 
   protected:
 
-    // BeginJob
-    void beginJob() override;
-
     // BeginRun
-    void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
+    void bookHistograms(DQMStore::IBooker &i, const edm::Run& r, const edm::EventSetup& c) override;
 
     void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
@@ -152,7 +149,6 @@ class BeamMonitor : public edm::EDAnalyzer {
     MonitorElement * h_PVyz;
     MonitorElement * pvResults;
     std::vector<MonitorElement*> hs;
-    std::vector<MonitorElement*> hsTime;
 
     // The histo of the primary vertex for  DQM gui
     std::map<int, std::vector<float> > mapPVx,mapPVy,mapPVz;
