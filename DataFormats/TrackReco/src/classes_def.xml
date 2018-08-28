@@ -1,7 +1,8 @@
 <lcgdict>
 
   <class name="reco::TrackBase::AlgoMask"/>
-  <class name="reco::HitPattern" ClassVersion="12">
+  <class name="reco::HitPattern" ClassVersion="13">
+      <version ClassVersion="13" checksum="2211596316"/>
       <version ClassVersion="12" checksum="3922863495"/>
       <version ClassVersion="11" checksum="1621684703"/>
   </class>
@@ -25,6 +26,149 @@
     <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
     <field name="momentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
   </class>
+ <ioread
+    sourceClass="reco::HitPattern"
+      source="uint16_t hitPattern[50]"
+      targetClass="reco::HitPattern"
+      target="hitPattern"
+      version="[12]"
+      include="utility,DataFormats/MuonDetId/interface/DTLayerId.h,DataFormats/MuonDetId/interface/CSCDetId.h,DataFormats/MuonDetId/interface/RPCDetId.h,DataFormats/MuonDetId/interface/GEMDetId.h,DataFormats/MuonDetId/interface/ME0DetId.h,"
+      >
+   <![CDATA[
+            using namespace reco;
+
+            const unsigned short HitSize = 11;
+            const unsigned short PatternSize = 50;
+            const int MaxHits = (PatternSize * sizeof(uint16_t) * 8) / HitSize;
+
+            auto getHitFromOldHitPattern = [](const uint16_t hitPattern[], const int position) {
+                uint16_t bitEndOffset = (position + 1) * HitSize;
+                uint8_t secondWord   = (bitEndOffset >> 4);
+                uint8_t secondWordBits = bitEndOffset & (16 - 1); // that is, bitEndOffset % 32
+                if (secondWordBits >= HitSize) {
+                    // full block is in this word
+                    uint8_t lowBitsToTrash = secondWordBits - HitSize;
+                    return (hitPattern[secondWord] >> lowBitsToTrash) & ((1 << HitSize) - 1);
+                } else {
+                    uint8_t  firstWordBits   = HitSize - secondWordBits;
+                    uint16_t firstWordBlock  = hitPattern[secondWord - 1] >> (16 - firstWordBits);
+                    uint16_t secondWordBlock = hitPattern[secondWord] & ((1 << secondWordBits) - 1);
+                    return firstWordBlock + (secondWordBlock << firstWordBits);
+                }
+            };
+
+            auto appendOldHitPattern = [&](const uint16_t pattern) {
+                // value used for those parameters needed by XXXDetId constructors
+                // but that we do not care about because they are not stored in the
+                // HitPattern.
+                const uint8_t DONT_CARE = 1;
+
+                const static unsigned short HitTypeMask = 0x3;
+                const static unsigned short HitTypeOffset = 0;
+                
+                const static unsigned short SideMask = 0x1;
+                const static unsigned short SideOffset = 2;
+                
+                const static unsigned short LayerMask = 0xF;
+                const static unsigned short LayerOffset = 3;
+
+                const static unsigned short SubstrMask = 0x7;
+                const static unsigned short SubstrOffset = 7;
+
+                const static unsigned short SubDetectorMask = 0x1;
+                const static unsigned short SubDetectorOffset = 10;
+
+                const uint16_t VALID_CONST = (uint16_t) TrackingRecHit::valid;
+                const uint16_t MISSING_CONST = (uint16_t) TrackingRecHit::missing;
+                const uint16_t INACTIVE_CONST = (uint16_t) TrackingRecHit::inactive;
+                const uint16_t BAD_CONST = (uint16_t) TrackingRecHit::bad;
+
+                uint16_t rawHitType = (pattern >> HitTypeOffset) & HitTypeMask;
+                uint16_t layer = (pattern >> LayerOffset) & LayerMask;
+                uint16_t subdet = (pattern >> SubstrOffset) & SubstrMask;
+                uint16_t detector = (pattern >> SubDetectorOffset) & SubDetectorMask;
+                uint16_t stereo = (pattern >> SideOffset) & SideMask;
+
+                // DetId::Tracker = 1 and DetId::Muon = 2 but
+                // in HitPattern Tracker = 1 and Muon = 0 so a conversion is needed:
+                if (detector == 0) {
+                    detector = DetId::Muon;
+                }
+
+                TrackingRecHit::Type hitType = TrackingRecHit::valid;
+                switch (rawHitType) {
+                case VALID_CONST:
+                    hitType = TrackingRecHit::valid;
+                    break;
+                case MISSING_CONST:
+                    hitType = TrackingRecHit::missing;
+                    break;
+                case INACTIVE_CONST:
+                    hitType = TrackingRecHit::inactive;
+                    break;
+                case BAD_CONST:
+                    hitType = TrackingRecHit::bad;
+                    break;
+                }
+
+                DetId detId;
+                if (detector == DetId::Tracker) {
+                    return newObj->appendTrackerHit(subdet, layer, stereo, hitType);
+                } else if (detector == DetId::Muon) {
+                    switch (subdet) {
+                    case MuonSubdetId::DT: {
+                        uint16_t station = 1 + ((layer >> 2) & 0x3);
+                        uint16_t superLayer = (layer & 0x3);
+                        detId = DTLayerId(DONT_CARE, station, DONT_CARE, superLayer, DONT_CARE);
+                    }
+                    break;
+                    case MuonSubdetId::CSC: {
+                        uint16_t station = 1 + ((layer >> 2) & 0x3);
+                        uint16_t ring = 1 + (layer & 0x3);
+                        detId = CSCDetId(DONT_CARE, station, ring, DONT_CARE, DONT_CARE);
+                    }
+                    break;
+                    case MuonSubdetId::RPC: {
+                        uint16_t station =  1 + ((layer >> 2) & 0x3);
+                        uint16_t region  = layer & 0x1;
+                        uint16_t layer_muon = 1 + ((station <= 2) ? ((layer >> 1) & 0x1) : 0);
+                        detId = RPCDetId(region, DONT_CARE, station, DONT_CARE, layer_muon, DONT_CARE, DONT_CARE);
+                    }
+                    break;
+                    case MuonSubdetId::GEM: {
+                        uint16_t station =  1 + ((layer >> 2) & 0x3);
+                        uint16_t layer_muon = 1 + (layer & 0x3);
+                        detId = GEMDetId(DONT_CARE, DONT_CARE, station, layer_muon, DONT_CARE, DONT_CARE);
+                    }
+                    break;
+                    case MuonSubdetId::ME0: {
+                        uint16_t roll =  layer & 0xF;
+                        detId = ME0DetId(DONT_CARE, DONT_CARE, DONT_CARE, roll);
+                    }
+                    break;
+                    }
+                    return newObj->appendMuonHit(detId, hitType);
+                }
+                return false;
+            };
+
+            auto fillNewHitPatternWithOldHitPattern = [&](const uint16_t oldHitPattern[]) {
+                newObj->clear();
+                for (int i = 0; i < MaxHits; i++) {
+                    uint16_t pattern = getHitFromOldHitPattern(oldHitPattern, i);
+                    if (pattern == 0) {
+                        break;
+                    }
+                    if(!appendOldHitPattern(pattern)) {
+                        return false;
+                    }
+                }
+                return true;
+            };
+
+            fillNewHitPatternWithOldHitPattern(onfile.hitPattern);
+      ]]>
+ </ioread>
  <ioread
       sourceClass="reco::HitPattern"
       source="uint32_t hitPattern_[25]"
