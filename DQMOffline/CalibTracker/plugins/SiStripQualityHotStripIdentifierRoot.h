@@ -20,25 +20,14 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
 #include <vector>
+#include <memory>
 #include <iostream>
 #include <cstdio>
 #include <cstring>
 #include <sstream>
-#include <iostream>
 #include <fstream>
 #include <string>
-#include <vector>
-#include <sstream>
 #include "TFile.h"
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TKey.h"
-#include "TObject.h"
-#include "TDirectory.h"
-#include "TMath.h"
-#include "TCanvas.h"
-#include "TStyle.h"
-#include "TClass.h"
 
 class SiStripHotStripAlgorithmFromClusterOccupancy;
 class SiStripBadAPVAlgorithmFromClusterOccupancy;
@@ -65,7 +54,7 @@ private:
   //Will be called at every event
   void algoAnalyze(const edm::Event&, const edm::EventSetup&) override{};
 
-  SiStripBadStrip* getNewObject() override;
+  std::unique_ptr<SiStripBadStrip> getNewObject() override;
 
   void bookHistos();
 
@@ -75,11 +64,9 @@ private:
   edm::ESHandle<SiStripQuality> SiStripQuality_;
   bool UseInputDB_;
   const edm::ParameterSet conf_;
-  edm::FileInPath fp_;
-  SiStripDetInfoFileReader* reader;
 
   edm::ESHandle<TrackerGeometry> theTrackerGeom;
-  const TrackerGeometry* _tracker;
+  const TrackerGeometry* tracker_;
   const TrackerTopology* tTopo;
 
   DQMStore* dqmStore_;

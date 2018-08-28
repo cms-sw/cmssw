@@ -26,9 +26,9 @@
 //#define DebugLog
 
 CaloSD::CaloSD(const std::string& name, const DDCompactView & cpv,
-        const SensitiveDetectorCatalog & clg,
-        edm::ParameterSet const & p, const SimTrackManager* manager,
-        float timeSliceUnit, bool ignoreTkID) : 
+	       const SensitiveDetectorCatalog & clg,
+	       edm::ParameterSet const & p, const SimTrackManager* manager,
+	       float timeSliceUnit, bool ignoreTkID) : 
   SensitiveCaloDetector(name, cpv, clg, p),
   G4VGFlashSensitiveDetector(), eminHit(0.),currentHit(nullptr), 
   m_trackManager(manager), theHC(nullptr), ignoreTrackID(ignoreTkID), hcID(-1), 
@@ -107,11 +107,11 @@ G4bool CaloSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 
 #ifdef DebugLog
   edm::LogVerbatim("CaloSim") << "CaloSD::" << GetName()
-                          << " ID= " << aStep->GetTrack()->GetTrackID() 
-                          << " prID= " << aStep->GetTrack()->GetParentID() 
-                          << " Eprestep= " << aStep->GetPreStepPoint()->GetKineticEnergy()
-                          << " step= " << aStep->GetStepLength() 
-			  << " Edep= " << aStep->GetTotalEnergyDeposit(); 
+			      << " ID= " << aStep->GetTrack()->GetTrackID() 
+			      << " prID= " << aStep->GetTrack()->GetParentID() 
+			      << " Eprestep= " << aStep->GetPreStepPoint()->GetKineticEnergy()
+			      << " step= " << aStep->GetStepLength() 
+			      << " Edep= " << aStep->GetTotalEnergyDeposit(); 
 #endif
   // apply shower library or parameterisation
   if(isParameterized) { 

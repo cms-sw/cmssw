@@ -92,8 +92,6 @@ public:
   std::pair<double,double> rangeR(double z, bool reco) const;
   std::pair<double,double> rangeZ(bool reco) const;
   std::pair<int,int>  rowColumnWafer(const int wafer) const;
-  int                 scintType(const float dPhi) const 
-  { return ((dPhi < dPhiMin) ? 0 : 1); }
   int                 sectors() const {return hgpar_->nSectors_;}
   std::pair<int,int>  simToReco(int cell, int layer, int mod, bool half) const;
   unsigned int        volumes() const {return hgpar_->moduleLayR_.size();}

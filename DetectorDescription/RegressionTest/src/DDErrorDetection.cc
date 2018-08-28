@@ -153,19 +153,17 @@ const std::map<DDMaterial, std::set<DDLogicalPart> > & DDErrorDetection::ma_lp()
   static std::map<DDMaterial, std::set<DDLogicalPart> > result_;
   if (!result_.empty()) return result_;
   
-  const std::vector<pair<std::string,DDName> > & err_mat = ma();
-  std::vector<pair<std::string,DDName> >::const_iterator it(err_mat.begin()), ed(err_mat.end());
+  const std::vector<pair<std::string, std::string> > & err_mat = ma();
+  std::vector<pair<std::string, std::string> >::const_iterator it(err_mat.begin()), ed(err_mat.end());
   for (; it != ed; ++it) {
     std::set<DDLogicalPart> s;
     DDMaterial m(it->second);
     result_[m]=s;
-    //std::cout << "insert: " << m.name() << std::endl;
   }
   DDLogicalPart::iterator<DDLogicalPart> lpit,lped; lped.end();
   for (; lpit != lped; ++lpit) {
     if (lpit->isDefined().second) {
       std::map<DDMaterial, std::set<DDLogicalPart> >::iterator i = result_.find(lpit->material());
-      //std::cout << "searching: " << lpit->name() << std::endl;
       if ( i != result_.end() ) {
       //std::cout << std::endl << "FOUND: " << lpit->name() << std::endl << std::endl;
       i->second.insert(*lpit);
@@ -176,9 +174,9 @@ const std::map<DDMaterial, std::set<DDLogicalPart> > & DDErrorDetection::ma_lp()
 }
 
   
-const std::vector<pair<std::string,DDName> > & DDErrorDetection::ma()
+const std::vector<pair<std::string, std::string> > & DDErrorDetection::ma()
 {
-  static std::vector<pair<std::string,DDName> > result_;
+  static std::vector<pair<std::string, std::string> > result_;
   ofstream o("/dev/null");
 
   if (!result_.empty()) return result_;
@@ -258,8 +256,8 @@ void DDErrorDetection::report(const DDCompactView& cpv, ostream & o)
   o << lp_cpv(cpv) << std::endl;
   
   o << "B) Detailed report on Materials:" << std::endl;
-  const std::vector<pair<std::string,DDName> > & res = ma();
-  std::vector<pair<std::string,DDName> >::const_iterator it(res.begin()), ed(res.end());
+  const std::vector<pair<std::string,std::string>> & res = ma();
+  std::vector<pair<std::string,std::string>>::const_iterator it(res.begin()), ed(res.end());
   for (; it != ed; ++it) {
     std::cout << it->second << ":  " << it->first << std::endl;
   }

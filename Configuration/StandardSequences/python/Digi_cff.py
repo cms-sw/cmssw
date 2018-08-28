@@ -38,7 +38,7 @@ pdigi_valid_nogen=cms.Sequence(pdigi_nogen)
 
 from GeneratorInterface.HiGenCommon.HeavyIon_cff import *
 pdigi_hi=cms.Sequence(pdigi+heavyIon)
-pdigi_hi_nogen=cms.Sequence(pdigi_nogen+heavyIon)
+pdigi_hi_nogen=cms.Sequence(pdigi_nogen+genJetMET+heavyIon)
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 def _fastSimDigis(process):

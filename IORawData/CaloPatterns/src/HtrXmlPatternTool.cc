@@ -143,6 +143,7 @@ void HtrXmlPatternTool::writeXML() {
       of=new std::ofstream(name.c_str(),std::ios_base::out|std::ios_base::trunc);
       if (!of->good()) {
 	std::cerr << "XML output file " << name << " is bad." << std::endl;
+    delete of;
 	return;
       }
       (*of) << "<?xml version='1.0' encoding='UTF-8'?>" << std::endl;
@@ -163,6 +164,7 @@ void HtrXmlPatternTool::writeXML() {
 	    of=new std::ofstream(name.c_str(),std::ios_base::out|std::ios_base::trunc);
 	    if (!of->good()) {
 	      std::cerr << "XML output file " << name << " is bad." << std::endl;
+          delete of;
 	      return;
 	    }
 	    (*of) << "<?xml version='1.0' encoding='UTF-8'?>" << std::endl;

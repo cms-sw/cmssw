@@ -205,9 +205,9 @@ namespace {
       float xma[3] = {1.0, 0.5, 1.0};
       float ymi[3] = {0.47, 0.0, 0.0};
       float yma[3] = {0.94, 0.47, 0.47};
-      TPad** pad = new TPad*;
+      std::vector<TPad*> pad;
       for (int obj = 0; obj < 3; obj++) {
-  pad[obj] = new TPad(Form("p_%i", obj),Form("p_%i", obj), xmi[obj], ymi[obj], xma[obj], yma[obj]);
+  pad.push_back(new TPad(Form("p_%i", obj),Form("p_%i", obj), xmi[obj], ymi[obj], xma[obj], yma[obj]));
   pad[obj]->Draw();
       }
 

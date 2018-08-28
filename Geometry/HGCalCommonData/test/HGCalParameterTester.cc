@@ -187,7 +187,7 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
     std::cout << "DetectorType: "    << phgp->detectorType_    << "\n";
     std::cout << "nCells_: " << phgp->nCellsFine_  << ":" 
 	      << phgp->nCellsCoarse_ << "\n";
-    std::cout << "EtaMinBH: "        << phgp->etaMinBH_        << "\n";
+    std::cout << "MinTileZize: "     << phgp->minTileSize_     << "\n";
     std::cout << "FirstLayer: "      << phgp->firstLayer_      << "\n";
     std::cout << "FirstMixedLayer: " << phgp->firstMixedLayer_ << "\n";
     std::cout << "mode_: "           << phgp->mode_            << "\n";
@@ -199,17 +199,21 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
     myPrint("CellSize",          phgp->cellSize_,          10);
     myPrint("radiusMixBoundary", phgp->radiusMixBoundary_, 10);  
     myPrint("nPhiBinBH",         phgp->nPhiBinBH_,         18);  
-    myPrint("dPhiEtaBH",         phgp->dPhiEtaBH_,         10);  
+    myPrint("layerFrontBH",      phgp->layerFrontBH_,      10);  
+    myPrint("rMinLayerBH",       phgp->rMinLayerBH_,       10);  
     myPrint("slopeMin",          phgp->slopeMin_,          10);
     myPrint("zFrontMin",         phgp->zFrontMin_,         10);
     myPrint("rMinFront",         phgp->rMinFront_,         10);
+    myPrint("radiusLayer[0]",    phgp->radiusLayer_[0],    10);  
+    myPrint("radiusLayer[1]",    phgp->radiusLayer_[1],    10);  
+    myPrint("iradMinBH",         phgp->iradMinBH_,         20);  
+    myPrint("iradMaxBH",         phgp->iradMaxBH_,         20);  
     myPrint("slopeTop",          phgp->slopeTop_,          10);  
-    myPrint("zFrontTop",         phgp->zFrontTop_,            10);
+    myPrint("zFrontTop",         phgp->zFrontTop_,         10);
     myPrint("rMaxFront",         phgp->rMaxFront_,         10);
     myPrint("zRanges",           phgp->zRanges_,           10);  
     myPrint("firstModule",       phgp->firstModule_,       10);
     myPrint("lastModule",        phgp->lastModule_,        10);  
-    myPrint("iEtaMinBH",         phgp->iEtaMinBH_,         20);  
     myPrint("moduleBlS",         phgp->moduleBlS_,         10);  
     myPrint("moduleTlS",         phgp->moduleTlS_,         10);  
     myPrint("moduleHS",          phgp->moduleHS_,          10);

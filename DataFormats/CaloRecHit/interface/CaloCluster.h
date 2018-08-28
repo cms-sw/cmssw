@@ -36,6 +36,8 @@ namespace reco {
 
     // super-cluster flags
     enum SCFlags { cleanOnly = 0, common = 100, uncleanOnly = 200 };
+    // hcal cluster flags (used for pf)
+    enum HCalFlags { badHcalMarker = 1 };
 
    //FIXME:  
    //temporary fix... to be removed before 310 final
