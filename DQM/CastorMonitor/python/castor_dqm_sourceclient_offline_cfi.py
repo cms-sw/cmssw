@@ -7,15 +7,14 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 castorOfflineMonitor = DQMEDAnalyzer('CastorMonitorModule',
-                           ### GLOBAL VARIABLES
-                           debug = cms.untracked.int32(0), # make debug an int so that different
-                                                           # values can trigger different levels of messaging
-                           # Turn on/off timing diagnostic info
+   debug = cms.untracked.int32(0), #(=0 - no messages)
+                           # Turn on/off timing diagnostic
                            showTiming          = cms.untracked.bool(False),
-                           dump2database       = cms.untracked.bool(False),
-                           pedestalsInFC = cms.untracked.bool(False),
-			   
-			   # Define Labels
+
+     l1tStage2uGtSource = cms.InputTag("gtStage2Digis"),
+     tagTriggerResults   = cms.InputTag('TriggerResults','','HLT'),
+    HltPaths  = cms.vstring("HLT_ZeroBias","HLT_Random"),
+
                            digiLabel            = cms.InputTag("castorDigis"),
                            rawLabel             = cms.InputTag("rawDataCollector"),
                            unpackerReportLabel  = cms.InputTag("castorDigis"),
@@ -23,40 +22,18 @@ castorOfflineMonitor = DQMEDAnalyzer('CastorMonitorModule',
                            CastorTowerLabel     = cms.InputTag("CastorTowerReco"),
                            CastorBasicJetsLabel = cms.InputTag("ak7CastorJets"),
                            CastorJetIDLabel     = cms.InputTag("ak7CastorJetID"),
-			  
-			 
+
                            DataIntMonitor= cms.untracked.bool(True),
                            TowerJetMonitor= cms.untracked.bool(True),
 
                            DigiMonitor = cms.untracked.bool(True),
-                           DigiPerChannel = cms.untracked.bool(True), 
-                           DigiInFC = cms.untracked.bool(False),
-                          
-                           RecHitMonitor = cms.untracked.bool(True), 
-			   RecHitsPerChannel = cms.untracked.bool(True),
 
-                           ChannelQualityMonitor= cms.untracked.bool(True),
-                           nThreshold = cms.untracked.double(60),
-                           dThreshold = cms.untracked.double(1.0),
-                           OfflineMode = cms.untracked.bool(False),
-                           averageEnergyMethod = cms.untracked.bool(True),          
+                           RecHitMonitor = cms.untracked.bool(True),
 
-                           PSMonitor= cms.untracked.bool(True),
-                           numberSigma = cms.untracked.double(1.5),
-                           thirdRegionThreshold =  cms.untracked.double(100),            
-                           EDMonitor= cms.untracked.bool(False),
-                           HIMonitor= cms.untracked.bool(True),
-                                      
-                           diagnosticPrescaleTime = cms.untracked.int32(-1),
-                           diagnosticPrescaleUpdate = cms.untracked.int32(-1),
-                           diagnosticPrescaleLS = cms.untracked.int32(-1),
-                             
-                           LEDMonitor = cms.untracked.bool(True),
-                           LEDPerChannel = cms.untracked.bool(True),
+
+#                           LEDMonitor = cms.untracked.bool(True),
+#                           LEDPerChannel = cms.untracked.bool(True),
                            FirstSignalBin = cms.untracked.int32(0),
-                           LastSignalBin = cms.untracked.int32(9),
-                           LED_ADC_Thresh = cms.untracked.double(-1000.0)      
-                           )
-
-
+                           LastSignalBin = cms.untracked.int32(9)
+)
 
