@@ -2,7 +2,6 @@
 #include "Geometry/HGCalCommonData/interface/FastTimeParameters.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDVectorGetter.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

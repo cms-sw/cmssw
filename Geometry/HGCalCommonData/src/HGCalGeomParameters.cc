@@ -8,7 +8,6 @@
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDConstant.h"
-#include "DetectorDescription/Core/interface/DDVectorGetter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDVectorGetter.h"
 #include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
@@ -18,6 +17,8 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+
+#include <algorithm>
 #include <unordered_set>
 
 //#define EDM_ML_DEBUG
@@ -632,7 +633,7 @@ void HGCalGeomParameters::loadSpecParsHexagon(const DDFilteredView& fv,
   edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: minimum slope " 
 				<< php.slopeMin_[0] << " and layer groupings "
 				<< "for the 3 ranges:";
-  for (int k=0; k<nmin; ++k)
+  for (unsigned int k=0; k<php.layerGroup_.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << php.layerGroup_[k] 
 				  << ":" << php.layerGroupM_[k] << ":"  
 				  << php.layerGroupO_[k];
@@ -758,15 +759,12 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv,
   DDsvalues_type sv(fv.mergedSpecifics());
   php.radiusMixBoundary_ = DDVectorGetter::get("RadiusMixBoundary");
   std::for_each(php.radiusMixBoundary_.begin(), php.radiusMixBoundary_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
-  php.nPhiBinBH_ = dbl_to_int(DDVectorGetter::get("NPhiBinBH"));
-  php.dPhiEtaBH_.clear();
+  php.nPhiBinBH_    = dbl_to_int(getDDDArray("NPhiBinBH",sv,0));
+  php.layerFrontBH_ = dbl_to_int(getDDDArray("LayerFrontBH",sv,0));
+  php.rMinLayerBH_  = getDDDArray("RMinLayerBH",sv,0);
+  std::for_each(php.rMinLayerBH_.begin(), php.rMinLayerBH_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
   php.nCellsFine_   = php.nPhiBinBH_[0];
-  php.nCellsCoarse_ = php.nPhiBinBH_[0];
-  for (auto const & nbin : php.nPhiBinBH_) { 
-    php.dPhiEtaBH_.emplace_back(2.0*M_PI/nbin);
-    if (nbin > php.nCellsFine_)   php.nCellsFine_   = nbin;
-    if (nbin < php.nCellsCoarse_) php.nCellsCoarse_ = nbin;
-  }
+  php.nCellsCoarse_ = php.nPhiBinBH_[1];
   php.cellSize_.emplace_back(2.0*M_PI/php.nCellsFine_);
   php.cellSize_.emplace_back(2.0*M_PI/php.nCellsCoarse_);
 #ifdef EDM_ML_DEBUG
@@ -774,11 +772,16 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv,
 				<< php.nCellsFine_ << ":" << php.nCellsCoarse_
 				<< " cellSize: " << php.cellSize_[0] << ":"
 				<< php.cellSize_[1];
-  for (unsigned int k = 0; k < php.radiusMixBoundary_.size(); ++k)
+  for (unsigned int k=0; k<php.layerFrontBH_.size(); ++k)
+    edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: Type[" << k 
+				  << "] Front Layer = " << php.layerFrontBH_[k]
+				  << " rMin = " << php.rMinLayerBH_[k];
+  for (unsigned int k = 0; k < php.radiusMixBoundary_.size(); ++k) {
     edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: Mix[" << k 
 				  << "] R = " << php.radiusMixBoundary_[k] 
-				  << " NphiBin = " << php.nPhiBinBH_[k]
-				  << " dPhiEta = " << php.dPhiEtaBH_[k];
+				  << " Nphi = " << php.scintCells(k+php.firstLayer_)
+				  << " dPhi = " << php.scintCellSize(k+php.firstLayer_);
+  }
 #endif
   php.slopeMin_  = getDDDArray("SlopeBottom",sv,0);
   php.zFrontMin_ = getDDDArray("ZFrontBottom",sv,0);
@@ -1095,49 +1098,118 @@ void HGCalGeomParameters::loadCellParsHexagon(const DDCompactView* cpv,
 }
 
 void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
-  // Find eta ranges in each layer
-  std::vector<double> etaMin, etaMax;
-  for (unsigned k=0; k<php.zLayerHex_.size(); ++k) {
-    double eta1 = -std::log(std::tan(0.5*std::atan(php.rMaxLayHex_[k]/php.zLayerHex_[k])));
-    double eta2 = -std::log(std::tan(0.5*std::atan(php.rMinLayHex_[k]/php.zLayerHex_[k])));
-    etaMin.emplace_back(eta1); etaMax.emplace_back(eta2);
-    if (eta1 < php.etaMinBH_) 
-      edm::LogWarning("HGCalGeom") << "HGCalGeomParameters::Check Etamin "
-				   << php.etaMinBH_ << " > " << eta1
-				   << " for layer " << k+php.firstLayer_;
-  }
+  // Find the radius of each eta-partitions
+  for (unsigned k=0; k<2; ++k) {
+    double rmax = ((k == 0) ? 
+		   (php.rMaxLayHex_[php.layerFrontBH_[1]-php.firstLayer_]-1) :
+		   (php.rMaxLayHex_[php.rMaxLayHex_.size()-1]));
+    double rv   = php.rMinLayerBH_[k];
+    double zv   = ((k == 0) ?
+		   (php.zLayerHex_[php.layerFrontBH_[1]-php.firstLayer_]) :
+		   (php.zLayerHex_[php.zLayerHex_.size()-1]));
+    php.radiusLayer_[k].emplace_back(rv);
 #ifdef EDM_ML_DEBUG
-  for (unsigned k=0; k<etaMin.size(); ++k) 
-    edm::LogVerbatim("HGCalGeom") << "Layer " << k+php.firstLayer_ << " Eta "
-				  << etaMin[k] << ":" << etaMax[k];
+    double eta =-(std::log(std::tan(0.5*std::atan(rv/zv))));
+    edm::LogVerbatim("HGCalGeom") << "[" << k << "] rmax " << rmax << " Z = "
+				  << zv << " dEta = " << php.cellSize_[k]
+				  << "\n[0] new R = " << rv << " Eta = " 
+				  << eta;
+    int kount(1);
 #endif
+    while (rv < rmax) {
+      double eta =-(php.cellSize_[k]+std::log(std::tan(0.5*std::atan(rv/zv))));
+      rv         = zv*std::tan(2.0*std::atan(std::exp(-eta)));
+      php.radiusLayer_[k].emplace_back(rv);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "[" << kount << "] new R = " << rv 
+				    << " Eta = " << eta;
+      ++kount;
+#endif
+    }
+  }
+
+  // Find minimum and maximum radius index for each layer
+  for (unsigned k=0; k<php.zLayerHex_.size(); ++k) {
+    int    kk   = php.scintType(php.firstLayer_+(int)(k));
+    std::vector<double>::iterator low, high;
+    low         = std::lower_bound(php.radiusLayer_[kk].begin(),
+				   php.radiusLayer_[kk].end(), 
+				   php.rMinLayHex_[k]);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "[" << k << "] RLow = " 
+				  << php.rMinLayHex_[k] << " pos " 
+				  << (int)(low-php.radiusLayer_[kk].begin());
+#endif
+    if (low == php.radiusLayer_[kk].begin()) ++low;
+    int    irlow  = (int)(low-php.radiusLayer_[kk].begin());
+    double drlow  = php.radiusLayer_[kk][irlow] - php.rMinLayHex_[k];
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "irlow " << irlow << " dr " << drlow 
+				  << " min " << php.minTileSize_;
+#endif
+    if (drlow < php.minTileSize_) {
+      ++irlow;
+#ifdef EDM_ML_DEBUG
+      drlow       = php.radiusLayer_[kk][irlow] - php.rMinLayHex_[k];
+      edm::LogVerbatim("HGCalGeom") << "Modified irlow " << irlow << " dr " 
+				    << drlow;
+#endif
+    }
+    high        = std::lower_bound(php.radiusLayer_[kk].begin(),
+                                   php.radiusLayer_[kk].end(), 
+				   php.rMaxLayHex_[k]);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "[" << k << "] RHigh = " 
+				  << php.rMaxLayHex_[k] << " pos " 
+				  << (int)(high-php.radiusLayer_[kk].begin());
+#endif
+    if (high == php.radiusLayer_[kk].end()) --high;
+    int    irhigh = (int)(high-php.radiusLayer_[kk].begin());
+    double drhigh = php.rMaxLayHex_[k] - php.radiusLayer_[kk][irhigh-1];
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "irhigh " << irhigh << " dr " << drhigh 
+				  << " min " << php.minTileSize_;
+#endif
+    if (drhigh < php.minTileSize_) {
+      --irhigh;
+#ifdef EDM_ML_DEBUG
+      drhigh = php.rMaxLayHex_[k] - php.radiusLayer_[kk][irhigh-1];
+      edm::LogVerbatim("HGCalGeom") << "Modified irhigh " << irhigh << " dr "
+				    << drhigh;
+#endif
+    }
+    php.iradMinBH_.emplace_back(irlow);
+    php.iradMaxBH_.emplace_back(irhigh);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGcalGeom") << "Layer " << k << " Type " << kk
+				  << " Low edge " << irlow << ":" << drlow
+				  << " Top edge " << irhigh << ":" << drhigh;
+#endif
+  }
+
   // Now define the volumes
   int im(0);
-  php.waferUVMax_ = 0;
+  php.waferUVMax_  = 0;
   HGCalParameters::hgtrap mytr;
   mytr.alpha = 0.0;
-  for (unsigned int k=0; k<etaMin.size(); ++k) {
-    int ietaMin = ((etaMin[k]-php.etaMinBH_)/php.dPhiEtaBH_[k]);
-    int ietaMax = 1 + ((etaMax[k]-php.etaMinBH_)/php.dPhiEtaBH_[k]);
-    php.iEtaMinBH_.emplace_back(ietaMin);
-    if (ietaMax > php.waferUVMax_) php.waferUVMax_ = ietaMax;
+  for (unsigned int k=0; k<php.zLayerHex_.size(); ++k) {
+    if (php.iradMaxBH_[k] > php.waferUVMax_) php.waferUVMax_ = php.iradMaxBH_[k];
+    int    kk   = ((php.firstLayer_+(int)(k)) < php.layerFrontBH_[1]) ? 0 : 1;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom")  << "Eta " << ietaMin << ":" << ietaMax 
-				   <<" "<<php.etaMinBH_+ietaMin*php.dPhiEtaBH_[k]
-				   <<":"<<php.etaMinBH_+ietaMax*php.dPhiEtaBH_[k]
-				   << " vs " << etaMin[k] << ":" << etaMax[k];
+    edm::LogVerbatim("HGCalGeom")  << "Layer " << php.firstLayer_+k << ":" 
+				   << kk << " Radius range " 
+				   << php.iradMinBH_[k] << ":"
+				   << php.iradMaxBH_[k];
 #endif
     mytr.lay = php.firstLayer_ + k;
-    for (int ieta=ietaMin; ieta<=ietaMax; ++ ieta) {
-      double etal= ieta*php.dPhiEtaBH_[k];
-      double etah= etal+php.dPhiEtaBH_[k];
-      double rmin= (php.zLayerHex_[k])*std::tan(2.0*std::atan(std::exp(-etah)));
-      double rmax= (php.zLayerHex_[k])*std::tan(2.0*std::atan(std::exp(-etal)));
-      mytr.bl        = 0.5*rmin*php.dPhiEtaBH_[k];
-      mytr.tl        = 0.5*rmax*php.dPhiEtaBH_[k];
+    for (int irad=php.iradMinBH_[k]; irad<=php.iradMaxBH_[k]; ++irad) {
+      double rmin    = php.radiusLayer_[kk][irad-1];
+      double rmax    = php.radiusLayer_[kk][irad];
+      mytr.bl        = 0.5*rmin*php.scintCellSize(mytr.lay);
+      mytr.tl        = 0.5*rmax*php.scintCellSize(mytr.lay);
       mytr.h         = 0.5*(rmax-rmin);
       mytr.dz        = 0.5*php.waferThick_;
-      mytr.cellSize  = 0.5*(rmax+rmin)*php.dPhiEtaBH_[k];
+      mytr.cellSize  = 0.5*(rmax+rmin)*php.scintCellSize(mytr.lay);
       php.fillModule(mytr,true);
       mytr.bl       *= HGCalParameters::k_ScaleToDDD;
       mytr.tl       *= HGCalParameters::k_ScaleToDDD;
@@ -1145,13 +1217,14 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
       mytr.dz       *= HGCalParameters::k_ScaleToDDD;
       mytr.cellSize *= HGCalParameters::k_ScaleFromDDD;
       php.fillModule(mytr, false);
-      if (ieta == ietaMin)   php.firstModule_.emplace_back(im);
+      if (irad == php.iradMinBH_[k])   php.firstModule_.emplace_back(im);
       ++im;
-      if (ieta == ietaMax-1) php.lastModule_.emplace_back(im);
+      if (irad == php.iradMaxBH_[k]-1) php.lastModule_.emplace_back(im);
     }
   }
   php.nSectors_       = php.waferUVMax_;
 #ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "Maximum radius index " << php.waferUVMax_;
   for (unsigned int k=0; k< php.firstModule_.size(); ++k)
     edm::LogVerbatim("HGCalGeom")  << "Layer " << k+php.firstLayer_
 				   << " Modules " << php.firstModule_[k]
