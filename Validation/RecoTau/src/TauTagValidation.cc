@@ -115,8 +115,16 @@ TauTagValidation::~TauTagValidation() {
 
 void TauTagValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, edm::EventSetup const & /* iSetup */)
 {
-  MonitorElement * ptTemp,* etaTemp,* phiTemp, *pileupTemp, *tmpME;
+  MonitorElement * ptTemp,* etaTemp,* phiTemp, *pileupTemp, *tmpME, *summaryTemp;
 
+  ibooker.setCurrentFolder("RecoTauV/" + TauProducer_ + extensionName_ + "_Summary" );
+  hinfo summaryHinfo = (histoSettings_.exists("summary")) ? hinfo(histoSettings_.getParameter<edm::ParameterSet>("summary")) : hinfo(17, -0.5, 15.5);
+  summaryTemp =  ibooker.book1D("summaryPlotNum", "summaryPlotNum", summaryHinfo.nbins, summaryHinfo.min, summaryHinfo.max);
+  summaryMap.insert( std::make_pair(refCollection_+"Num",summaryTemp));
+  summaryTemp =  ibooker.book1D("summaryPlotDen", "summaryPlotDen", summaryHinfo.nbins, summaryHinfo.min, summaryHinfo.max);
+  summaryMap.insert( std::make_pair(refCollection_+"Den",summaryTemp));
+  summaryTemp =  ibooker.book1D("summaryPlot", "summaryPlot", summaryHinfo.nbins, summaryHinfo.min, summaryHinfo.max);
+  summaryMap.insert( std::make_pair(refCollection_,summaryTemp));
 
   ibooker.setCurrentFolder("RecoTauV/" + TauProducer_ + extensionName_ + "_ReferenceCollection" );
 
@@ -153,11 +161,19 @@ void TauTagValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
   phiTauVisibleMap.insert( std::make_pair(TauProducer_+"Matched" ,phiTemp));
   pileupTauVisibleMap.insert( std::make_pair(TauProducer_+"Matched" ,pileupTemp));
 
-  for ( std::vector< edm::ParameterSet >::iterator it = discriminators_.begin(); it!= discriminators_.end();  it++)
+  int j = 0;
+  for ( std::vector< edm::ParameterSet >::iterator it = discriminators_.begin(); it!= discriminators_.end();  it++, j++)
   {
     string DiscriminatorLabel = it->getParameter<string>("discriminator");
     std::string histogramName;
     stripDiscriminatorLabel(DiscriminatorLabel, histogramName);
+
+    //Summary plots
+    string DiscriminatorLabelReduced = it->getParameter<string>("discriminator");
+    DiscriminatorLabelReduced.erase(0, 24);
+    summaryMap.find(refCollection_+"Den")->second->setBinLabel(j+1,DiscriminatorLabelReduced);
+    summaryMap.find(refCollection_+"Num")->second->setBinLabel(j+1,DiscriminatorLabelReduced);
+    summaryMap.find(refCollection_)->second->setBinLabel(j+1,DiscriminatorLabelReduced);
 
     ibooker.setCurrentFolder("RecoTauV/" +  TauProducer_ + extensionName_ + "_" +  DiscriminatorLabel );
 
@@ -367,6 +383,15 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     tauDeacyCountMap_.insert(std::make_pair("twoProng2Pi0" + DiscriminatorLabel, 0.));
     tauDeacyCountMap_.insert(std::make_pair("threeProng0Pi0" + DiscriminatorLabel, 0.));
     tauDeacyCountMap_.insert(std::make_pair("threeProng1Pi0" + DiscriminatorLabel, 0.));
+    tauDeacyCountMap_.find( "allHadronic"   + DiscriminatorLabel)->second = 0;
+    tauDeacyCountMap_.find( "oneProng0Pi0"  + DiscriminatorLabel)->second = 0;
+    tauDeacyCountMap_.find( "oneProng1Pi0"  + DiscriminatorLabel)->second = 0;
+    tauDeacyCountMap_.find( "oneProng2Pi0"  + DiscriminatorLabel)->second = 0;
+    tauDeacyCountMap_.find( "twoProng0Pi0"  + DiscriminatorLabel)->second = 0;
+    tauDeacyCountMap_.find( "twoProng1Pi0"  + DiscriminatorLabel)->second = 0;
+    tauDeacyCountMap_.find( "twoProng2Pi0"  + DiscriminatorLabel)->second = 0;
+    tauDeacyCountMap_.find( "threeProng0Pi0"+ DiscriminatorLabel)->second = 0;
+    tauDeacyCountMap_.find( "threeProng1Pi0"+ DiscriminatorLabel)->second = 0;
   }
 
   typedef edm::View<reco::Candidate> genCandidateCollection;
@@ -461,12 +486,14 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       {
         string currentDiscriminatorLabel = it->getParameter<string>("discriminator");
         iEvent.getByToken( currentDiscriminatorToken_[j], currentDiscriminator );
+	summaryMap.find(refCollection_+"Den")->second->Fill(j);
 
         if ((*currentDiscriminator)[thePFTau] >= it->getParameter<double>("selectionCut")){
           ptTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(RefJet->pt());
           etaTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(RefJet->eta());
           phiTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(RefJet->phi()*180.0/TMath::Pi());
           pileupTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(pvHandle->size());
+	  summaryMap.find(refCollection_+"Num")->second->Fill(j);
 
           //fill the momentum resolution plots
           double tauPtRes = thePFTau->pt()/gen_particle->pt();//WARNING: use only the visible parts!

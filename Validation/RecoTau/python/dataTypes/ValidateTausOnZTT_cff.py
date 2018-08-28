@@ -31,8 +31,40 @@ zttLabeler = lambda module : SetValidationExtention(module, 'ZTT')
 zttModifier = ApplyFunctionToSequence(zttLabeler)
 proc.TauValNumeratorAndDenominatorZTT.visit(zttModifier)
 
+#Set discriminators
+proc.RunHPSValidationZTT.discriminators = cms.VPSet(
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByDecayModeFinding"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByDecayModeFindingNewDMs"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3Hits"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightIsolationMVArun2v1DBnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseIsolationMVArun2v1PWnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumIsolationMVArun2v1PWnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightIsolationMVArun2v1PWnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVTightIsolationMVArun2v1PWnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVVTightIsolationMVArun2v1PWnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False))
+)
+
 #Sets the correct naming to efficiency histograms
 proc.efficienciesZTT.plots = Utils.SetPlotSequence(proc.TauValNumeratorAndDenominatorZTT)
+proc.efficienciesZTTSummary = cms.EDProducer("TauDQMHistEffProducer",
+    plots = cms.PSet(
+        Summary = cms.PSet(
+            denominator = cms.string('RecoTauV/hpsPFTauProducerZTT_Summary/#PAR#PlotDen'),
+            efficiency = cms.string('RecoTauV/hpsPFTauProducerZTT_Summary/#PAR#Plot'),
+            numerator = cms.string('RecoTauV/hpsPFTauProducerZTT_Summary/#PAR#PlotNum'),
+            parameter = cms.vstring('summary'),
+            stepByStep = cms.bool(True)
+        ),
+    )
+)
 
 #checks what's new in the process (the cloned sequences and modules in them)
 newProcAttributes = [x for x in dir(proc) if (x not in procAttributes) and (x.find('ZTT') != -1)]
