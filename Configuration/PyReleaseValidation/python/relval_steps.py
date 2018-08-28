@@ -1000,7 +1000,7 @@ steps["FS_PREMIXUP15_PU25"] = merge([
          "--conditions":"auto:run2_mc",
          "-s":"GEN,SIM,RECOBEFMIX,DIGI",
          "--eventcontent":"PREMIX",
-         "--datatier":"GEN-SIM-DIGI-RAW",
+         "--datatier":"PREMIX",
          "--procModifiers":"premix_stage1",
          "--era":"Run2_2016",
          },
@@ -1361,7 +1361,7 @@ premixUp2015Defaults = {
     '-s'            : 'GEN,SIM,DIGI:pdigi_valid',
     '-n'            : '10',
     '--conditions'  : 'auto:run2_mc', # 25ns GT; dedicated dict for 50ns
-    '--datatier'    : 'GEN-SIM-DIGI-RAW',
+    '--datatier'    : 'PREMIX',
     '--eventcontent': 'PREMIX',
     '--procModifiers':'premix_stage1',
     '--era'         : 'Run2_2016' # temporary replacement for premix; to be brought back to customisePostLS1 *EDIT - This comment possibly no longer relevant with switch to eras
