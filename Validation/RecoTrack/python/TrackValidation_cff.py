@@ -194,26 +194,33 @@ def _getSeedingLayers(seedProducers, config):
     seedingLayersMerged = []
     for seedName in seedProducers:
         seedProd = getattr(config, seedName)
-        if hasattr(seedProd, "OrderedHitsFactoryPSet"):
+        seedingLayersName = None
+        seedingLayers = None
+        if hasattr(seedProd, "OrderedHitsFactoryPSet"): # old seeding framework
             seedingLayersName = seedProd.OrderedHitsFactoryPSet.SeedingLayers.getModuleLabel()
-        elif hasattr(seedProd, "seedingHitSets"):
+        elif hasattr(seedProd, "seedingHitSets"): # new seeding framework
             seedingLayersName = _findSeedingLayers(seedProd.seedingHitSets.getModuleLabel())
+        elif hasattr(seedProd, "layerList"): # FastSim:
+            seedingLayers = seedProd.layerList.value()
         else:
             continue
 
-        seedingLayers = getattr(config, seedingLayersName).layerList.value()
+        if seedingLayersName is not None:
+            seedingLayers = getattr(config, seedingLayersName).layerList.value()
         for layerSet in seedingLayers:
             if layerSet not in seedingLayersMerged:
                 seedingLayersMerged.append(layerSet)
+
     return seedingLayersMerged
 import RecoTracker.IterativeTracking.iterativeTk_cff as _iterativeTk_cff
 import RecoTracker.IterativeTracking.ElectronSeeds_cff as _ElectronSeeds_cff
-for _eraName, _postfix, _era in _relevantEras:
+for _eraName, _postfix, _era in _relevantErasAndFastSim:
     _stdLayers = _getSeedingLayers(locals()["_seedProducers"+_postfix], _iterativeTk_cff)
     _eleLayers = []
-    for _layer in _getSeedingLayers(locals()["_electronSeedProducers"+_postfix], _ElectronSeeds_cff):
-        if _layer not in _stdLayers:
-            _eleLayers.append(_layer)
+    if "_electronSeedProducers"+_postfix in locals(): # doesn't exist for FastSim
+        for _layer in _getSeedingLayers(locals()["_electronSeedProducers"+_postfix], _ElectronSeeds_cff):
+            if _layer not in _stdLayers:
+                _eleLayers.append(_layer)
 
     locals()["_seedingLayerSets"+_postfix] = _stdLayers
     locals()["_seedingLayerSetsForElectrons"+_postfix] = _eleLayers
