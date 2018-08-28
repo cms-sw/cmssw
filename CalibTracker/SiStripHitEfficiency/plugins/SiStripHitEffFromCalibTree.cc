@@ -78,6 +78,8 @@
 #include "TLegend.h"
 #include "TEfficiency.h"
 
+#include <memory>
+
 using namespace edm;
 using namespace reco;
 using namespace std;
@@ -116,7 +118,7 @@ class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
     SiStripDetInfoFileReader* reader;
     edm::FileInPath FileInPath_;
     SiStripQuality* quality_;
-    SiStripBadStrip* getNewObject() override;
+    std::unique_ptr<SiStripBadStrip> getNewObject() override;
     
     TTree* CalibTree;
     vector<string> CalibTreeFilenames; 
@@ -1065,7 +1067,7 @@ void SiStripHitEffFromCalibTree::makeSQLite() {
   std::vector<unsigned int> BadStripList;
   unsigned short NStrips;
   unsigned int id1;
-  SiStripQuality* pQuality = new SiStripQuality;
+  std::unique_ptr<SiStripQuality> pQuality = std::make_unique<SiStripQuality>();
   //This is the list of the bad strips, use to mask out entire APVs
   //Now simply go through the bad hit list and mask out things that
   //are bad!
@@ -1485,10 +1487,10 @@ TString SiStripHitEffFromCalibTree::GetLayerSideName(Long_t k) {
     return layername;
 }
 
-SiStripBadStrip* SiStripHitEffFromCalibTree::getNewObject() {
+std::unique_ptr<SiStripBadStrip> SiStripHitEffFromCalibTree::getNewObject() {
   //Need this for a Condition DB Writer
   //Initialize a return variable
-  SiStripBadStrip* obj=new SiStripBadStrip();
+  auto obj = std::make_unique<SiStripBadStrip>();
   
   SiStripBadStrip::RegistryIterator rIter=quality_->getRegistryVectorBegin();
   SiStripBadStrip::RegistryIterator rIterEnd=quality_->getRegistryVectorEnd();
