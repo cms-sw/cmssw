@@ -20,7 +20,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 TrackingRecHitAlgorithm::TrackingRecHitAlgorithm(
     const std::string& name,
@@ -74,7 +74,7 @@ const RandomEngineAndDistribution& TrackingRecHitAlgorithm::getRandomEngine() co
 
 void TrackingRecHitAlgorithm::beginStream(const edm::StreamID& id)
 {
-    _randomEngine = std::make_shared<RandomEngineAndDistribution>(id);
+  _randomEngine = std::make_shared<RandomEngineAndDistribution>(id);
 }
 
 void TrackingRecHitAlgorithm::beginEvent(edm::Event& event, const edm::EventSetup& eventSetup)
@@ -90,6 +90,7 @@ void TrackingRecHitAlgorithm::beginEvent(edm::Event& event, const edm::EventSetu
     _trackerTopology = trackerTopologyHandle.product();
     _trackerGeometry = trackerGeometryHandle.product();
     _misalignedTrackerGeometry = misalignedGeometryHandle.product();
+
 }
 
 TrackingRecHitProductPtr TrackingRecHitAlgorithm::process(TrackingRecHitProductPtr product) const
