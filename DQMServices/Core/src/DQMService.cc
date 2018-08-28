@@ -105,8 +105,8 @@ void DQMService::flushStandalone()
     {
       const MonitorElement &me = *i;
       fullpath.clear();
-      fullpath += *me.data_.dirname;
-      if (! me.data_.dirname->empty())
+      fullpath += me.data_.dirname;
+      if (!me.data_.dirname.empty())
         fullpath += '/';
       fullpath += me.data_.objname;
 

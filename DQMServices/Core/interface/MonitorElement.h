@@ -83,8 +83,8 @@ private:
 
 public:
   MonitorElement();
-  MonitorElement(const std::string *path, const std::string &name);
-  MonitorElement(const std::string *path, const std::string &name, uint32_t run, uint32_t moduleId);
+  MonitorElement(std::string_view path, std::string_view name);
+  MonitorElement(std::string_view path, std::string_view name, uint32_t run, uint32_t moduleId);
   MonitorElement(const MonitorElement &, MonitorElementNoCloneTag);
   MonitorElement(const MonitorElement &);
   MonitorElement(MonitorElement &&);
@@ -114,16 +114,16 @@ public:
     { return data_.objname; }
 
   /// get pathname of parent folder
-  const std::string &getPathname() const
-    { return *data_.dirname; }
+  std::string_view getPathname() const
+    { return data_.dirname; }
 
   /// get full name of ME including Pathname
   const std::string getFullname() const
     {
       std::string path;
-      path.reserve(data_.dirname->size() + data_.objname.size() + 2);
-      path += *data_.dirname;
-      if (! data_.dirname->empty())
+      path.reserve(data_.dirname.size() + data_.objname.size() + 2);
+      path += data_.dirname;
+      if (! data_.dirname.empty())
         path += '/';
       path += data_.objname;
       return path;
