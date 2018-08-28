@@ -28,11 +28,10 @@ DDDividedGeometryObject::DDDividedGeometryObject( const DDDivision& div, DDCompa
   } 
 }
 
-DDRotationMatrix*
+std::unique_ptr<DDRotationMatrix>
 DDDividedGeometryObject::changeRotMatrix( double rotZ ) const
 {
-  DDRotationMatrix * rm = new DDRotationMatrix(ROOT::Math::RotationZ(rotZ));
-  return rm;
+  return std::make_unique<DDRotationMatrix>(ROOT::Math::RotationZ(rotZ));
 }
 
 int

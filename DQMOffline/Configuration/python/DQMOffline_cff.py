@@ -187,6 +187,8 @@ phase2_hcal.toReplaceWith( PostDQMOfflineMiniAOD, PostDQMOfflineMiniAOD.copyAndE
     pfMetDQMAnalyzerMiniAOD, pfPuppiMetDQMAnalyzerMiniAOD # No hcalnoise yet
 ]))
 
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toReplaceWith(DQMOffline, DQMOffline.copyAndExclude([pfTauRunDQMValidation]))
 
 from PhysicsTools.NanoAOD.nanoDQM_cff import nanoDQM
 DQMOfflineNanoAOD = cms.Sequence(nanoDQM)

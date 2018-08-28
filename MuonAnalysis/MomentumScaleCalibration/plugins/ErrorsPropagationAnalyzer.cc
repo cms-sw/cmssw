@@ -152,6 +152,9 @@ void ErrorsPropagationAnalyzer::drawHistograms(const TProfile * histo, const TPr
 
   canvas->Draw();
 
+  delete [] posErrors;
+  delete [] negErrors;
+
   graphAsymmErrors->SetTitle("");
   graphAsymmErrors->SetFillColor(kGray);
   graphAsymmErrors->Draw("A2");

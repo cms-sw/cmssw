@@ -1,9 +1,8 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
-import sys, os, operator
+import sys, os
 import FWCore.ParameterSet.VarParsing as VarParsing
 from FWCore.Utilities.Enumerate import Enumerate
-from pprint import pprint
 from Configuration.Geometry.dict2023Geometry import detectorVersionDict
 
 varType = Enumerate ("Run1 2015 2015dev 2017 2017Muon 2019 2023")
@@ -12,11 +11,11 @@ defaultVersion=str();
 def help():
    print("Usage: cmsRun dumpSimGeometry_cfg.py  tag=TAG version=VERSION ")
    print("   tag=tagname")
-   print("       indentify geometry scenario ")
+   print("       identify geometry scenario ")
    print("      ", varType.keys())
    print("")
    print("   version=versionNumber")
-   print("       scenario version from 2023 dictionary:")
+   print("       scenario version from 2023 dictionary")
    print("")
    print("   out=outputFileName")
    print("       default is cmsSimGeom<tag><version>.root")
@@ -26,7 +25,8 @@ def help():
 def versionCheck(ver):
    if ver == "":
       print("Please, specify 2023 scenario version\n")
-      pprint(sorted(detectorVersionDict.items(),key=operator.itemgetter(1)))
+      print(sorted([x[1] for x in detectorVersionDict.items()]))
+      print("")
       help()
 
 def simGeoLoad(score):

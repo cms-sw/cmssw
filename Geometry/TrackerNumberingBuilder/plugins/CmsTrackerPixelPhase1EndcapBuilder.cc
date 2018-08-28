@@ -18,7 +18,7 @@ CmsTrackerPixelPhase1EndcapBuilder::buildComponent( DDFilteredView& fv, Geometri
   CmsTrackerPhase1DiskBuilder  theCmsTrackerPhase1DiskBuilder;   
 
   GeometricDet * subdet = new GeometricDet( &fv, theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString( s, &fv )));
-  std::string subdet_name = subdet->name();
+  const std::string & subdet_name = subdet->name().name();
   switch( theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString( s, &fv )))
   {
   case GeometricDet::PixelPhase1Disk:    

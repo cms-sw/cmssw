@@ -21,7 +21,7 @@ class DDAlgorithmHandler
   //! initializes the wrapped algorithm algo_ and does some pre- and post-processing
   /** pre- and postprocessing mainly covers exception handling,
       the algorithm object algo_ is fetched from the plugin-manager */
-  void initialize( const std::string & algoName,
+  void initialize( const DDName & algoName,
 		   const DDLogicalPart & parent,
 		   const DDNumericArguments & nArgs,
 		   const DDVectorArguments & vArgs,
@@ -34,8 +34,6 @@ class DDAlgorithmHandler
 
  private:
   std::unique_ptr<DDAlgorithm> algo_;   //!< the wrapped algorithm object
-  std::string algoname_; //!< name of the algorithm object
-  DDLogicalPart parent_; //!< parent logical part 
 };
 
 #endif //  DD_DDALGORITHMHANDLER_H

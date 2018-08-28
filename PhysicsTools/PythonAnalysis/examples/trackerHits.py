@@ -3,7 +3,7 @@ from PhysicsTools.PythonAnalysis import *
 from ROOT import *
 
 gSystem.Load("libFWCoreFWLite.so")
-FWLiteEnabler::enable()
+ROOT.FWLiteEnabler.enable()
 
 # opening file
 events = EventTree("simevent.root")

@@ -26,7 +26,8 @@ class MTDUncalibratedRecHitProducer : public edm::stream::EDProducer<> {
   const std::string ftlbInstance_; // instance name of barrel hits
   const std::string ftleInstance_; // instance name of endcap hits
   
-  std::unique_ptr<MTDUncalibratedRecHitAlgoBase> barrel_,endcap_;
+  std::unique_ptr<BTLUncalibratedRecHitAlgoBase> barrel_;
+  std::unique_ptr<ETLUncalibratedRecHitAlgoBase> endcap_;
 };
 
 MTDUncalibratedRecHitProducer::MTDUncalibratedRecHitProducer(const edm::ParameterSet& ps) :
@@ -42,11 +43,11 @@ MTDUncalibratedRecHitProducer::MTDUncalibratedRecHitProducer(const edm::Paramete
 
   const edm::ParameterSet& barrel = ps.getParameterSet("barrel");
   const std::string& barrelAlgo = barrel.getParameter<std::string>("algoName");
-  barrel_.reset( MTDUncalibratedRecHitAlgoFactory::get()->create(barrelAlgo, barrel, sumes) );
+  barrel_.reset( BTLUncalibratedRecHitAlgoFactory::get()->create(barrelAlgo, barrel, sumes) );
 
   const edm::ParameterSet& endcap = ps.getParameterSet("endcap");
   const std::string& endcapAlgo = endcap.getParameter<std::string>("algoName");
-  endcap_.reset( MTDUncalibratedRecHitAlgoFactory::get()->create(endcapAlgo, endcap, sumes) );
+  endcap_.reset( ETLUncalibratedRecHitAlgoFactory::get()->create(endcapAlgo, endcap, sumes) );
 }
 
 MTDUncalibratedRecHitProducer::~MTDUncalibratedRecHitProducer() {

@@ -3,18 +3,18 @@
 #include <utility>
 
 DDVector::DDVector()
-  : DDBase< DDName, std::vector< double >*>()
+  : DDBase< DDName, std::unique_ptr<std::vector< double >>>()
 {}
 
 DDVector::DDVector( const DDName & name )
-  : DDBase< DDName, std::vector< double >*>() 
+  : DDBase< DDName, std::unique_ptr<std::vector< double >>>() 
 {
   create( name );
 }
 
-DDVector::DDVector( const DDName & name, std::vector<double>* vals )
+DDVector::DDVector( const DDName & name, std::unique_ptr<std::vector<double> > vals )
 {
-  create( name, vals );
+  create( name, std::move( vals ));
 }  
 
 std::ostream & operator<<(std::ostream & os, const DDVector & cons)
@@ -34,9 +34,6 @@ std::ostream & operator<<(std::ostream & os, const DDVector & cons)
   }  
   return os;
 }
-
-
-
 
 DDVector::operator std::vector<int>() const
 {

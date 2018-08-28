@@ -87,6 +87,7 @@ recordsWithALooperProxy_(new std::set<EventSetupRecordKey>)
 
 EventSetupProvider::~EventSetupProvider()
 {
+  forceCacheClear();
 }
 
 //

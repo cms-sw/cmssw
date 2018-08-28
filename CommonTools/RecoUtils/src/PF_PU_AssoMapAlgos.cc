@@ -210,10 +210,10 @@ PF_PU_AssoMapAlgos::CreateVertexToTrackMap(edm::Handle<reco::TrackCollection> tr
 /*****************************************************************************************/
 
 unique_ptr<TrackToVertexAssMap>
-PF_PU_AssoMapAlgos::SortAssociationMap(TrackToVertexAssMap* trackvertexassInput)
+PF_PU_AssoMapAlgos::SortAssociationMap(TrackToVertexAssMap* trackvertexassInput, edm::Handle<reco::TrackCollection> trkcollH)
 {
 	//create a new TrackVertexAssMap for the Output which will be sorted
-	unique_ptr<TrackToVertexAssMap> trackvertexassOutput(new TrackToVertexAssMap() );
+	unique_ptr<TrackToVertexAssMap> trackvertexassOutput(new TrackToVertexAssMap(vtxcollH, trkcollH));
 
 	//Create and fill a vector of pairs of vertex and the summed (pT-pT_Error)**2 of the tracks associated to the vertex
 	VertexPtsumVector vertexptsumvector;

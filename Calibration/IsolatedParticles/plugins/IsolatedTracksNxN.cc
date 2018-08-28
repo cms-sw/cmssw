@@ -519,7 +519,6 @@ IsolatedTracksNxN::~IsolatedTracksNxN() {
   delete t_trackHitOutMissTIB;
   delete t_trackHitOutMissTID;
   delete t_trackHitInMissTIBTID;
-  delete t_trackHitOutMissTOB;
   delete t_trackHitOutMissTEC;
   delete t_trackHitOutMissTIB;
   delete t_trackHitOutMissTID;

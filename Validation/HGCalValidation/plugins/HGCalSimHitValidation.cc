@@ -404,7 +404,7 @@ bool HGCalSimHitValidation::defineGeometry(edm::ESTransientHandle<DDCompactView>
   
     while (dodet) {
       const DDSolid & sol = fv.logicalPart().solid();
-      std::string name = sol.name();
+      const std::string & name = sol.name().fullname();
       int isd = (name.find(nameDetector_) == std::string::npos) ? -1 : 1;
       if (isd > 0) {
 	std::vector<int> copy = fv.copyNumbers();

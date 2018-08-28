@@ -67,7 +67,8 @@ template <class N, class C>
   static auto end()   { return StoreT::instance().end(); }
   static auto begin() { return StoreT::instance().begin(); }
 
-  DDBase() : prep_(nullptr) { }
+  DDBase()
+    : prep_( nullptr ) { }
   virtual ~DDBase() { /*never do this here: if (prep_) delete prep_;*/ }
   
   const N & name() const { return prep_->name(); }
@@ -118,14 +119,15 @@ template <class N, class C>
       : false;
   }
   void create( const N& name, C vals ) {
-    prep_ = StoreT::instance().create( name, vals );
+    prep_ = StoreT::instance().create( name, std::move( vals ) );
   }
   void create( const N& name ) {
     prep_ = StoreT::instance().create( name );
   }
 
  private:
-  DDI::rep_type<N, C>* prep_; 
+  
+  DDI::rep_type<N, C>* prep_;
 };
 
 #endif

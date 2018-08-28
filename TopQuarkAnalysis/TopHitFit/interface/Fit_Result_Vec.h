@@ -47,6 +47,7 @@
 
 #include <vector>
 #include <iosfwd>
+#include <memory>
 
 
 namespace hitfit {
@@ -81,7 +82,7 @@ public:
      @param max_len The maximum length of the list.  Must be a positive
      integer.
    */
-  Fit_Result_Vec (std::vector<Fit_Result*>::size_type max_len);
+  Fit_Result_Vec (std::vector<std::shared_ptr<Fit_Result>>::size_type max_len);
 
   /**
      @brief Destructor.
@@ -106,7 +107,7 @@ public:
   /**
      @brief Return the number of Fit_Result objects in the list.
    */
-  std::vector<Fit_Result*>::size_type size () const;
+  std::vector<std::shared_ptr<Fit_Result>>::size_type size () const;
 
   // Get back the Ith result in the vector.
   /**
@@ -114,7 +115,7 @@ public:
      objects in the vector.
      @param i The index of the desired Fit_Result object.
    */
-  const Fit_Result& operator[] (std::vector<Fit_Result*>::size_type i) const;
+  const Fit_Result& operator[] (std::vector<std::shared_ptr<Fit_Result>>::size_type i) const;
 
   // Add a new result to the list.
   /**
@@ -122,7 +123,7 @@ public:
      @param res The new Fit_Result object to be added into the list of
      Fit_Result object.
    */
-  void push (Fit_Result* res);
+  void push (std::shared_ptr<Fit_Result> res);
 
   // Dump out the vector.
   friend std::ostream& operator<< (std::ostream& s,
@@ -134,12 +135,12 @@ private:
   /**
      The list of Fit_Result pointers.
    */
-  std::vector<Fit_Result*> _v;
+  std::vector<std::shared_ptr<Fit_Result>> _v;
 
   /**
      Maximum number of Fit_Result pointers in the list.
    */
-  std::vector<Fit_Result*>::size_type _max_len;
+  std::vector<std::shared_ptr<Fit_Result>>::size_type _max_len;
 };
 
 
