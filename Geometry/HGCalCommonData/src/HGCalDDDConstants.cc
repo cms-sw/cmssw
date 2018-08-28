@@ -13,6 +13,7 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
+#include <algorithm>
 #include <functional>
 #include <numeric>
 
@@ -170,30 +171,29 @@ std::array<int,3> HGCalDDDConstants::assignCellTrap(float x, float y,
 						    float z, int layer,
 						    bool reco) const {
   
-  int ieta(-1), iphi(-1), type(-1);
+  int irad(-1), iphi(-1), type(-1);
   const auto & indx  = getIndex(layer,reco);
-  if (indx.first < 0) return std::array<int,3>{ {ieta,iphi,type} };
+  if (indx.first < 0) return std::array<int,3>{ {irad,iphi,type} };
   double xx    = (z > 0) ? x : -x;
-  double zz    = (reco ? hgpar_->zLayerHex_[indx.first] : 
-		  HGCalParameters::k_ScaleToDDD*hgpar_->zLayerHex_[indx.first]);
-  double r     = std::sqrt(x*x+y*y+zz*zz);
-  double theta = (r == 0. ? 0. : std::acos(std::max(std::min(zz/r,1.0),-1.0)));
-  double stheta= std::sin(theta);
-  double phi   = (r*stheta == 0. ? 0. : std::atan2(y,xx));
+  double r     = (reco ? std::sqrt(x*x+y*y) : 
+		  HGCalParameters::k_ScaleFromDDD*std::sqrt(x*x+y*y));
+  double phi   = (r == 0. ? 0. : std::atan2(y,xx));
   if (phi < 0) phi += (2.0*M_PI);
-  double eta   = (std::abs(stheta) == 1.? 0. : -std::log(std::abs(std::tan(0.5*theta))) );
-  ieta         = 1 + (int)((std::abs(eta)-hgpar_->etaMinBH_)/indx.second);
+  type         = hgpar_->scintType(layer);
+  auto  ir     = std::lower_bound(hgpar_->radiusLayer_[type].begin(),
+				  hgpar_->radiusLayer_[type].end(), r);
+  irad   = (int)(ir - hgpar_->radiusLayer_[type].begin());
+  irad   = std::min(std::max(irad,hgpar_->iradMinBH_[indx.first]),
+		    hgpar_->iradMaxBH_[indx.first]);
   iphi         = 1 + (int)(phi/indx.second);
-  type         = scintType(indx.second);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "assignCellTrap Input " << x << ":" << y
 				<< ":" << z << ":" << layer << ":" << reco
-				<< " x|z|r " << xx << ":" << zz << ":" << r
-				<< " theta|phi " << theta << ":" << stheta 
-				<< ":" << phi << " o/p " << ieta << ":" 
-				<< iphi << ":" << type;
+				<< " x|r " << xx << ":" << r << " phi " 
+				<< phi << " o/p " << irad << ":" << iphi 
+				<< ":" << type;
 #endif
-  return std::array<int,3>{ {ieta,iphi,type} };
+  return std::array<int,3>{ {irad,iphi,type} };
 }
 
 bool HGCalDDDConstants::cellInLayer(int waferU, int waferV, int cellU, 
@@ -298,37 +298,35 @@ double HGCalDDDConstants::distFromEdgeTrap(double x, double y, double z) const {
   int lay      = getLayer(z,false);
   double xx    = (z < 0) ? -x : x;
   int indx     = layerIndex(lay,false);
-  double zz    = HGCalParameters::k_ScaleToDDD*hgpar_->zLayerHex_[indx];
-  double r     = std::sqrt(x*x+y*y+zz*zz);
-  double theta = (r == 0. ? 0. : std::acos(std::max(std::min(zz/r,1.0),-1.0)));
-  double stheta= std::sin(theta);
-  double phi   = (r*stheta == 0. ? 0. : std::atan2(y,xx));
+  double r     = HGCalParameters::k_ScaleFromDDD*std::sqrt(x*x+y*y);
+  double phi   = (r == 0. ? 0. : std::atan2(y,xx));
   if (phi < 0) phi += (2.0*M_PI);
-  double eta   = (std::abs(stheta) == 1.0 ? 0. : -std::log(std::abs(std::tan(0.5*theta))) );
-  double cell  = hgpar_->dPhiEtaBH_[indx];
+  int    type  = hgpar_->scintType(lay);
+  double cell  = hgpar_->scintCellSize(lay);
   //Compare with the center of the tile find distances along R and also phi
   //Take the smaller value
-  int ieta     = 1 + (int)((std::abs(eta)-hgpar_->etaMinBH_)/cell);
-  int iphi     = 1 + (int)(phi/cell);
-  double rr    = std::sqrt(x*x+y*y);
+  auto  ir     = std::lower_bound(hgpar_->radiusLayer_[type].begin(),
+				  hgpar_->radiusLayer_[type].end(), r);
+  int irad     = (int)(ir-hgpar_->radiusLayer_[type].begin());
+  if      (irad < hgpar_->iradMinBH_[indx]) irad = hgpar_->iradMinBH_[indx];
+  else if (irad > hgpar_->iradMaxBH_[indx]) irad = hgpar_->iradMaxBH_[indx];
+  int    iphi  = 1 + (int)(phi/cell);
   double dphi  = std::max(0.0,(0.5*cell-std::abs(phi-(iphi-0.5)*cell)));
-  double dist  = ((eta > hgpar_->etaMinBH_+(ieta-0.5)*cell) ?
-		  (rr - zz/std::sinh(hgpar_->etaMinBH_+ieta*cell)) :
-		  (zz/std::sinh(hgpar_->etaMinBH_+(ieta-1)*cell) - rr));
+  double dist  = std::min((r-hgpar_->radiusLayer_[type][irad-1]),
+			  (hgpar_->radiusLayer_[type][irad]-r));
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DistFromEdgeTrap: Global " << x << ":"
 				<< y << ":" << z << " Layer " << lay 
-				<< " Index " << indx << " xx|zz " << xx << ":"
-				<< zz << " Eta " << eta << ":"<< ieta << ":" 
-				<< (hgpar_->etaMinBH_+(ieta-0.5)*cell) 
+				<< " Index " << indx << ":" << type << " xx " 
+				<< xx << " R " << r << ":" << irad << ":" 
+				<< hgpar_->radiusLayer_[type][irad-1] << ":"
+				<< hgpar_->radiusLayer_[type][irad] 
 				<< " Phi " << phi << ":" << iphi << ":" 
-				<< (iphi-0.5)*cell << " cell " << cell << " R "
-				<< rr << " Dphi " << dphi << " Dist " << dist
-				<< ":" << rr*dphi << ":" 
-				<< rr-zz/std::sinh(hgpar_->etaMinBH_+ieta*cell)
-				<< ":" << zz/std::sinh(hgpar_->etaMinBH_+(ieta-1)*cell)-rr;
+				<< (iphi-0.5)*cell << " cell " << cell 
+				<< " Dphi " << dphi << " Dist " << dist
+				<< ":" << r*dphi;
 #endif
-  return std::min(rr*dphi,dist);
+  return HGCalParameters::k_ScaleToDDD*std::min(r*dphi,dist);
 }
 
 int HGCalDDDConstants::getLayer(double z, bool reco) const {
@@ -391,8 +389,7 @@ std::vector<HGCalParameters::hgtrform> HGCalDDDConstants::getTrForms() const {
 int HGCalDDDConstants::getTypeTrap(int layer) const {
   //Get the module type for scinitllator
   if (mode_ == HGCalGeometryMode::Trapezoid) {
-    return ((hgpar_->nPhiBinBH_[layerIndex(layer,true)] == hgpar_->nCellsFine_)
-	    ? 0 : 1);
+    return hgpar_->scintType(layer);
   } else {
     return -1;
   }
@@ -482,15 +479,13 @@ bool HGCalDDDConstants::isValidHex8(int layer, int modU, int modV, int cellU,
   }
 }
 
-bool HGCalDDDConstants::isValidTrap(int layer, int ieta, int iphi) const {
+bool HGCalDDDConstants::isValidTrap(int layer, int irad, int iphi) const {
   //Check validity for a layer|eta|phi of scintillator
   const auto & indx  = getIndex(layer,true);
   if (indx.first < 0) return false;
-  return ((ieta >= hgpar_->iEtaMinBH_[indx.first]) &&
-	  (ieta <= (hgpar_->iEtaMinBH_[indx.first]+
-		    hgpar_->lastModule_[indx.first]-
-		    hgpar_->firstModule_[indx.first])) &&
-	  (iphi > 0) && (iphi <= hgpar_->nPhiBinBH_[indx.first]));
+  return ((irad >= hgpar_->iradMinBH_[indx.first]) &&
+	  (irad <= hgpar_->iradMaxBH_[indx.first]) &&
+	  (iphi > 0) && (iphi <= hgpar_->scintCells(layer)));
 }
 
 unsigned int HGCalDDDConstants::layers(bool reco) const {
@@ -620,21 +615,23 @@ std::pair<float,float> HGCalDDDConstants::locateCellHex(int cell, int wafer,
   return std::make_pair(x,y);
 }
 
-std::pair<float,float> HGCalDDDConstants::locateCellTrap(int lay, int ieta,
+std::pair<float,float> HGCalDDDConstants::locateCellTrap(int lay, int irad,
 							 int iphi, bool reco) const {
   
   float x(0), y(0);
   const auto & indx = getIndex(lay,reco);
   if (indx.first >= 0) {
-    ieta        = std::abs(ieta);
-    double eta  = hgpar_->etaMinBH_ + (ieta-0.5)*indx.second;
+    int    ir   = std::abs(irad);
+    int    type = hgpar_->scintType(lay);
     double phi  = (iphi-0.5)*indx.second;
     double z    = hgpar_->zLayerHex_[indx.first];
-    double r    = z*std::tan(2.0*std::atan(std::exp(-eta)));
+    double r    = 0.5*(hgpar_->radiusLayer_[type][ir-1] + 
+		       hgpar_->radiusLayer_[type][ir]);
     std::pair<double,double> range = rangeR(z,true);
     r           = std::max(range.first, std::min(r,range.second));
     x           = r*std::cos(phi);
     y           = r*std::sin(phi);
+    if (irad < 0) x =-x;
   }
   if (!reco) {
     x *= HGCalParameters::k_ScaleToDDD;
@@ -682,7 +679,7 @@ int HGCalDDDConstants::maxCells(int lay, bool reco) const {
     }
     return cells;
   } else if (mode_ == HGCalGeometryMode::Trapezoid) {
-    return hgpar_->nPhiBinBH_[index.first];
+    return hgpar_->scintCells(index.first+hgpar_->firstLayer_);
   } else {
     return 0;
   }
@@ -760,7 +757,7 @@ std::vector<int> HGCalDDDConstants::numberCells(int lay, bool reco) const {
 	}
       }
     } else if (mode_ == HGCalGeometryMode::Trapezoid) {
-      int nphi = hgpar_->nPhiBinBH_[i];
+      int nphi = hgpar_->scintCells(lay);
       for (int k=hgpar_->firstModule_[i]; k<=hgpar_->lastModule_[i]; ++k)
 	ncell.emplace_back(nphi);
     } else {
@@ -801,10 +798,9 @@ int HGCalDDDConstants::numberCellsHexagon(int lay, int waferU, int waferV,
 }
 
 std::pair<double,double> HGCalDDDConstants::rangeR(double z, bool reco) const {
-  double rmin(0), rmax(0);
+  double rmin(0), rmax(0), zz(0);
   if (hgpar_->detectorType_ > 0) {
-    double zz   = (reco ? std::abs(z) : 
-		   HGCalParameters::k_ScaleFromDDD*std::abs(z));
+    zz   = (reco ? std::abs(z) : HGCalParameters::k_ScaleFromDDD*std::abs(z));
     if (hgpar_->detectorType_ <= 2) {
       rmin = HGCalGeomTools::radius(zz,hgpar_->zFrontMin_,
 				    hgpar_->rMinFront_, hgpar_->slopeMin_);
@@ -1227,7 +1223,7 @@ std::pair<int,float> HGCalDDDConstants::getIndex(int lay, bool reco) const {
 	(mode_ == HGCalGeometryMode::Hexagon8Full)) {
       cell = (reco ? hgpar_->moduleCellR_[0] : hgpar_->moduleCellS_[0]);
     } else {
-      cell = hgpar_->dPhiEtaBH_[indx];
+      cell = hgpar_->scintCellSize(lay);
     }
   }
   return std::make_pair(indx,cell);
