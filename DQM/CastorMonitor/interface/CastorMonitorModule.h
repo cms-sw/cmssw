@@ -10,6 +10,11 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
+#include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
+#include "DataFormats/L1Trigger/interface/BXVector.h"
+#include "L1Trigger/L1TGlobal/interface/L1TGlobalUtil.h"
+
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -28,10 +33,6 @@
 #include "FWCore/Utilities/interface/CPUTimer.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "DataFormats/Provenance/interface/EventID.h"  
-
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Common/interface/TriggerNames.h"
@@ -83,7 +84,11 @@ protected:
   void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+                            const edm::EventSetup& eventSetup) override;
 
+  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+                          const edm::EventSetup& eventSetup) override;
   
   void endRun(const edm::Run& run, const edm::EventSetup& eventSetup) override;
 
@@ -93,9 +98,12 @@ private:
   bool rawOK_,reportOK_,digiOK_,rechitOK_ ;
   int irun_,ilumisec_,ievent_,ibunch_;
   std::string subsystemname_;
-  int NBunchesOrbit;
+//  int NBunchesOrbit;
   int ievt_;
+//  edm::EDGetTokenT<GlobalAlgBlkBxCollection> l1tStage2uGtSource_;//for L1 uGT DAQ readout record
+//  edm::EDGetTokenT<GlobalAlgBlkBxCollection> TokenL1TStage2uGtSource;
 
+  edm::EDGetTokenT<edm::TriggerResults> tokenTriggerResults;
   edm::EDGetTokenT<FEDRawDataCollection> inputTokenRaw_;
   edm::EDGetTokenT<HcalUnpackerReport> inputTokenReport_;
   edm::EDGetTokenT<CastorDigiCollection> inputTokenDigi_;
@@ -105,10 +113,14 @@ private:
    typedef std::vector<reco::BasicJet> BasicJetCollection;
   edm::EDGetTokenT<BasicJetCollection> JetAlgorithm;
 
+//  std::shared_ptr<l1t::L1TGlobalUtil> gtUtil_;
+
   CastorRecHitMonitor*      RecHitMon_;
   CastorDigiMonitor*        DigiMon_;
   CastorLEDMonitor*         LedMon_;
 
+//  MonitorElement* algoBits_before_bxmask_bx_inEvt;
+//  MonitorElement* algoBits_before_bxmask_bx_global;
   MonitorElement* CastorEventProduct;
   MonitorElement* hunpkrep;
 
