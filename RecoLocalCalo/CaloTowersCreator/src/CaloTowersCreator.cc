@@ -92,6 +92,7 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
 
 
 {
+  algo_.setMissingHcalRescaleFactorForEcal(conf.getParameter<double>("missingHcalRescaleFactorForEcal"));
 
   // register for data access
   tok_hbhe_ = consumes<HBHERecHitCollection>(conf.getParameter<edm::InputTag>("hbheInput"));
@@ -341,6 +342,7 @@ void CaloTowersCreator::fillDescriptions(edm::ConfigurationDescriptions& descrip
 	desc.add<bool>("UseRejectedHitsOnly", false);
 	desc.add<bool>("UseRejectedRecoveredHcalHits", true);
 	desc.add<bool>("UseRejectedRecoveredEcalHits", false);
+	desc.add<double>("missingHcalRescaleFactorForEcal", 0.0);
 	desc.add<bool>("AllowMissingInputs", false);
 	desc.add<std::vector<double> >("HBGrid", {-1.0, 1.0, 10.0, 100.0, 1000.0});
 	desc.add<std::vector<double> >("EEWeights", {1.0, 1.0, 1.0, 1.0, 1.0});
