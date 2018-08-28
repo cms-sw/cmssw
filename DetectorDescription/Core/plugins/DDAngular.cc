@@ -76,7 +76,7 @@ DDAngular::initialize( const DDNumericArguments & nArgs,
 
   m_solidRot   = DDRotationMatrix();
   
-  if( fabs( m_rangeAngle - 360.0_deg ) < 0.001_deg )
+  if( std::abs( m_rangeAngle - 360.0_deg ) < 0.001_deg )
   { 
     m_delta = m_rangeAngle / double( m_n );
   }
