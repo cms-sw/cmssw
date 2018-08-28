@@ -27,6 +27,8 @@
     <Parameter name="CellThickness"       value="[hgcal:CellThicknessFine]"/>
     <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse1]"/>
     <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse2]"/>
+    <Parameter name="FirstMixedLayer"     value="-1"/>
+    <Parameter name="DetectorType"        value="1"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P0]"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P1]"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P2]"/>
@@ -70,6 +72,8 @@
     <Parameter name="CellThickness"       value="[hgcal:CellThicknessFine]"/>
     <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse1]"/>
     <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse2]"/>
+    <Parameter name="FirstMixedLayer"     value="[hgcal:FirstMixedLayer]"/>
+    <Parameter name="DetectorType"        value="2"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P0]"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P1]"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P2]"/>
@@ -111,7 +115,9 @@
     <Parameter name="LevelZSide"          value="3"/>
     <Parameter name="LevelTop"            value="7"/>
     <Parameter name="LevelTop"            value="7"/>
-    <Parameter name="FirstLayer"          value="9"/>
+    <Parameter name="FirstLayer"          value="[hgcal:FirstMixedLayer]"/>
+    <Parameter name="FirstMixedLayer"     value="[hgcal:FirstMixedLayer]"/>
+    <Parameter name="DetectorType"        value="3"/>
     <Parameter name="WaferThickness"      value="[hgcal:ScintillatorThickness]"/>
     <Parameter name="SlopeBottom"         value="[hgcal:slope1]"/>
     <Parameter name="SlopeBottom"         value="[hgcal:slope1]"/>

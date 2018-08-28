@@ -36,6 +36,7 @@ CPPUNIT_TEST(registerTest);
 CPPUNIT_TEST(getFromTest);
 CPPUNIT_TEST(getfromShareTest);
 CPPUNIT_TEST(getfromUniqueTest);
+CPPUNIT_TEST(getfromOptionalTest);
 CPPUNIT_TEST(decoratorTest);
 CPPUNIT_TEST(dependsOnTest);
 CPPUNIT_TEST(labelTest);
@@ -51,6 +52,7 @@ public:
   void getFromTest();
   void getfromShareTest();
   void getfromUniqueTest();
+  void getfromOptionalTest();
   void decoratorTest();
   void dependsOnTest();
   void labelTest();
@@ -71,6 +73,20 @@ public:
 private:
    DummyData data_;
 };
+
+  class OptionalProducer : public ESProducer {
+  public:
+    OptionalProducer() : ESProducer(), data_() {
+      data_.value_ = 0;
+      setWhatProduced(this);
+    }
+    std::optional<DummyData> produce(const DummyRecord& /*iRecord*/) {
+      ++data_.value_;
+      return data_;
+    }
+  private:
+    DummyData data_;
+  };
 
 class MultiRegisterProducer : public ESProducer {
 public:
@@ -222,6 +238,27 @@ void testEsproducer::getfromUniqueTest()
       CPPUNIT_ASSERT(0 != pDummy.product());
       CPPUNIT_ASSERT(iTime == pDummy->value_);
    }
+}
+
+void testEsproducer::getfromOptionalTest()
+{
+  EventSetupProvider provider(&activityRegistry);
+  
+  std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<OptionalProducer>();
+  provider.add(pProxyProv);
+  
+  std::shared_ptr<DummyFinder> pFinder = std::make_shared<DummyFinder>();
+  provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
+  
+  for(int iTime=1; iTime != 6; ++iTime) {
+    const edm::Timestamp time(iTime);
+    pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time) , edm::IOVSyncValue(time)));
+    const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
+    edm::ESHandle<DummyData> pDummy;
+    eventSetup.get<DummyRecord>().get(pDummy);
+    CPPUNIT_ASSERT(0 != pDummy.product());
+    CPPUNIT_ASSERT(iTime == pDummy->value_);
+  }
 }
 
 void testEsproducer::labelTest()

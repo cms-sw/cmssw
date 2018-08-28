@@ -48,6 +48,7 @@ protected:
 
   double                getEnergyDeposit(const G4Step*) override;
   bool                  getFromLibrary(const G4Step*) override;
+  using CaloSD::update;
   void                  update(const BeginOfJob *) override;
   void                  initRun() override;
   bool                  filterHit(CaloG4Hit*, double) override;

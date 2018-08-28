@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("HFnoseParametersTest")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-process.load("Geometry.ForwardCommonData.hfnoseXML_cfi")
+process.load("Geometry.ForwardCommonData.testHFNoseXML_cfi")
 process.load("Geometry.ForwardCommonData.hfnoseParametersInitialization_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
@@ -34,7 +34,7 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
 )
  
 process.testNose = cms.EDAnalyzer("HGCalParameterTester",
-                                  Name = cms.untracked.string("HFNoseSensitive"),
+                                  Name = cms.untracked.string("HGCalHFNoseSensitive"),
                                   Mode = cms.untracked.int32(1)
 )
  

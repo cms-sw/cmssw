@@ -15,6 +15,7 @@ Calorimeters:
 * C3: HGCal (v8) + Phase2 HCAL and EB
 * C4: HGCal (v9) + Phase2 HCAL and EB
 * C5: HGCal (v9 without virtual wafers) + Phase2 HCAL and EB
+* C6: HGCal (v9) + HFNose + Phase2 HCAL and EB
 
 Muon system:
 * M2: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1)
@@ -28,7 +29,7 @@ Fast Timing system:
 The script also handles the common and forward elements of the geometry:
 * O2: detailed cavern description
 * F2: modifications needed to accommodate detailed cavern, ZDC description is removed.
-* F3: same as F2 but with added HFNose
+* F3: same as F2 but changes due to HFNose
 
 Several detector combinations have been generated:
 * D17 = T5+C3+M2+I1+O2+F2 
@@ -43,7 +44,6 @@ Several detector combinations have been generated:
 * D28 = T6+C4+M2+I1+O2+F2
 * D29 = T11+C3+M2+I1+O2+F2 
 * D30 = T6+C5+M2+I1+O2+F2
-* D31 = T6+C4+M2+I1+O2+F3
+* D31 = T6+C6+M2+I1+O2+F3
 
 Currently, D17 is considered to be the baseline for the Phase 2 Muon and Barrel TDRs.
-

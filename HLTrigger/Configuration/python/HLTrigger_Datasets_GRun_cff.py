@@ -20,6 +20,21 @@ streamParkingBPH1_datasetParkingBPH1_selector.triggerConditions = cms.vstring(
     'HLT_Mu9_IP6_part0_v3'
 )
 
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamParkingBPH1_datasetParkingBPHPromptCSCS_selector
+streamParkingBPH1_datasetParkingBPHPromptCSCS_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamParkingBPH1_datasetParkingBPHPromptCSCS_selector.l1tResults = cms.InputTag('')
+streamParkingBPH1_datasetParkingBPHPromptCSCS_selector.throw      = cms.bool(False)
+streamParkingBPH1_datasetParkingBPHPromptCSCS_selector.triggerConditions = cms.vstring(
+    'HLT_Mu12_IP6_ToCSCS_v1', 
+    'HLT_Mu7_IP4_ToCSCS_v1', 
+    'HLT_Mu8_IP3_ToCSCS_v1', 
+    'HLT_Mu8_IP5_ToCSCS_v1', 
+    'HLT_Mu8_IP6_ToCSCS_v1', 
+    'HLT_Mu9_IP4_ToCSCS_v1', 
+    'HLT_Mu9_IP5_ToCSCS_v1', 
+    'HLT_Mu9_IP6_ToCSCS_v1'
+)
+
 
 # stream ParkingBPH2
 
@@ -177,7 +192,7 @@ streamPhysicsCommissioning_datasetNoBPTX_selector.hltResults = cms.InputTag('Tri
 streamPhysicsCommissioning_datasetNoBPTX_selector.l1tResults = cms.InputTag('')
 streamPhysicsCommissioning_datasetNoBPTX_selector.throw      = cms.bool(False)
 streamPhysicsCommissioning_datasetNoBPTX_selector.triggerConditions = cms.vstring(
-    'HLT_CDC_L2cosmic_5_er1p0_v1', 
+    'HLT_CDC_L2cosmic_10_er1p0_v1', 
     'HLT_CDC_L2cosmic_5p5_er1p0_v1', 
     'HLT_L2Mu10_NoVertex_NoBPTX3BX_v5', 
     'HLT_L2Mu10_NoVertex_NoBPTX_v6', 

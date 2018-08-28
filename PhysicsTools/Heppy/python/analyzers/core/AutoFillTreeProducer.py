@@ -21,16 +21,16 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
         if not getattr(self.cfg_ana, 'saveTLorentzVectors', False):
             fourVectorType.removeVariable("p4")
 
- 
+
         self.collections = {}      
         self.globalObjects = {}
         self.globalVariables = []
         if hasattr(cfg_ana,"collections"):
-                self.collections.update(cfg_ana.collections)
+            self.collections.update(cfg_ana.collections)
         if hasattr(cfg_ana,"globalObjects"):
-                self.globalObjects.update(cfg_ana.globalObjects)
+            self.globalObjects.update(cfg_ana.globalObjects)
         if hasattr(cfg_ana,"globalVariables"):
-                self.globalVariables=cfg_ana.globalVariables[:]
+            self.globalVariables=cfg_ana.globalVariables[:]
 
     def beginLoop(self, setup) :
         super(AutoFillTreeProducer, self).beginLoop(setup)
@@ -105,7 +105,7 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
                 c.makeBranchesScalar(tree, isMC)
             else:
                 c.makeBranchesVector(tree, isMC)
-            
+
     def fillCoreVariables(self, tr, event, isMC):
         """Here we fill the variables that we always want and that are hard-coded"""
         tr.fill('run', event.input.eventAuxiliary().id().run())
@@ -125,31 +125,31 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
             tr.fill('xsec', getattr(self.cfg_comp,'xSection',1.0))
             ## PU weights, check if a PU analyzer actually filled it
             if hasattr(event,"nPU"):
-                    tr.fill("nTrueInt", event.nPU)
-                    tr.fill("puWeight", event.puWeight)
+                tr.fill("nTrueInt", event.nPU)
+                tr.fill("puWeight", event.puWeight)
             else :
-                    tr.fill("nTrueInt", -1)
-                    tr.fill("puWeight", 1.0)
-                
+                tr.fill("nTrueInt", -1)
+                tr.fill("puWeight", 1.0)
+
             tr.fill("genWeight", self.mchandles['GenInfo'].product().weight())
             ## PDF weights
             if hasattr(event,"pdfWeights") :
-              for (pdf,nvals) in self.pdfWeights:
-                if len(event.pdfWeights[pdf]) != nvals:
-                    raise RuntimeError("PDF lenght mismatch for %s, declared %d but the event has %d" % (pdf,nvals,event.pdfWeights[pdf]))
-                if self.scalar:
-                    for i,w in enumerate(event.pdfWeights[pdf]):
-                        tr.fill('pdfWeight_%s_%d' % (pdf,i), w)
-                else:
-                    tr.vfill('pdfWeight_%s' % pdf, event.pdfWeights[pdf])
+                for (pdf,nvals) in self.pdfWeights:
+                    if len(event.pdfWeights[pdf]) != nvals:
+                        raise RuntimeError("PDF lenght mismatch for %s, declared %d but the event has %d" % (pdf,nvals,event.pdfWeights[pdf]))
+                    if self.scalar:
+                        for i,w in enumerate(event.pdfWeights[pdf]):
+                            tr.fill('pdfWeight_%s_%d' % (pdf,i), w)
+                    else:
+                        tr.vfill('pdfWeight_%s' % pdf, event.pdfWeights[pdf])
 
     def process(self, event):
-	if hasattr(self.cfg_ana,"filter") :	
-		if not self.cfg_ana.filter(event) :
-			return True #do not stop processing, just filter myself
+        if hasattr(self.cfg_ana,"filter") :	
+            if not self.cfg_ana.filter(event) :
+                return True #do not stop processing, just filter myself
         self.readCollections( event.input)
         self.fillTree(event)
-         
+
     def fillTree(self, event, resetFirst=True):
         isMC = self.cfg_comp.isMC 
         if resetFirst: self.tree.reset()
@@ -177,13 +177,13 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
                 c.fillBranchesVector(self.tree, getattr(event, cn), isMC)
 
         self.tree.tree.Fill()      
-    
+
     def getPythonWrapper(self):
         """
         This function produces a string that contains a Python wrapper for the event.
         The wrapper is automatically generated based on the collections and allows the full
         event contents to be accessed from subsequent Analyzers using e.g.
-        
+
         leps = event.selLeptons #is of type selLeptons
         pt0 = leps[0].pt
 
@@ -204,6 +204,6 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
         for cname, coll in self.collections.items():
             classes += coll.get_py_wrapper_class(isMC)
             anclass += "        event.{0} = {0}.make_array(event)\n".format(coll.name)
-        
+
         return classes + "\n" + anclass
 

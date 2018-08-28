@@ -203,6 +203,17 @@ void HGCalNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSe
       i += increment_;
     }
   }
+
+  // Test the range variables
+  if (hgdc.getParameter()->detectorType_ > 0) {
+    unsigned int kk(0);
+    for (auto const& zz : hgdc.getParameter()->zLayerHex_) {
+      std::pair<double,double> rr = hgdc.rangeR(zz, true);
+      std::cout << "[" << kk << "]\t z = " << zz << "\t rMin = " << rr.first
+		<< "\t rMax = " << rr.second << std::endl;
+      ++kk;
+    }
+  }
 }
 
 
