@@ -16,6 +16,9 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
 
+#include "RecoEgamma/EgammaTools/interface/Utils.h"
+#include "RecoEgamma/EgammaTools/interface/MultiToken.h"
+
 #include <memory>
 #include <vector>
 #include <unordered_map>
@@ -39,7 +42,7 @@ namespace {
   }
 
   template<typename T>
-  inline void check_map(const std::unordered_map<std::string,T>& map, unsigned exp_size) {
+  inline void check_map(const std::unordered_map<std::string,T>& map, unsigned int exp_size) {
     if( map.size() != exp_size ) {
       throw cms::Exception("ElectronRegressionWeirdConfig")
         << "variable map size: " << map.size() 
@@ -70,52 +73,23 @@ class ElectronRegressionValueMapProducer : public edm::stream::EDProducer<> {
   
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-  template<typename T>
-  void writeValueMap(edm::Event &iEvent,
-		     const edm::Handle<edm::View<reco::GsfElectron> > & handle,
-		     const std::vector<T> & values,
-		     const std::string    & label) const ;  
-
-  std::unique_ptr<EcalClusterLazyToolsBase> lazyTools;
-
-  // for AOD case
-  edm::EDGetTokenT<EcalRecHitCollection> ebReducedRecHitCollection_;
-  edm::EDGetTokenT<EcalRecHitCollection> eeReducedRecHitCollection_;
-  edm::EDGetTokenT<EcalRecHitCollection> esReducedRecHitCollection_;
-  edm::EDGetToken src_;
-
-  // for miniAOD case
-  edm::EDGetTokenT<EcalRecHitCollection> ebReducedRecHitCollectionMiniAOD_;
-  edm::EDGetTokenT<EcalRecHitCollection> eeReducedRecHitCollectionMiniAOD_;
-  edm::EDGetTokenT<EcalRecHitCollection> esReducedRecHitCollectionMiniAOD_;
-  edm::EDGetToken srcMiniAOD_;
-
   const bool use_full5x5_;
+
+  // for AOD and MiniAOD case
+  MultiTokenT<edm::View<reco::GsfElectron>> src_;
+  MultiTokenT<EcalRecHitCollection> ebRecHits_;
+  MultiTokenT<EcalRecHitCollection> eeRecHits_;
+  MultiTokenT<EcalRecHitCollection> esRecHits_;
 };
 
-ElectronRegressionValueMapProducer::ElectronRegressionValueMapProducer(const edm::ParameterSet& iConfig) :
-  use_full5x5_(iConfig.getParameter<bool>("useFull5x5")) {
-
-  //
+ElectronRegressionValueMapProducer::ElectronRegressionValueMapProducer(const edm::ParameterSet& iConfig)
+  : use_full5x5_(iConfig.getParameter<bool>("useFull5x5"))
   // Declare consummables, handle both AOD and miniAOD case
-  //
-  ebReducedRecHitCollection_        = mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
-								       ("ebReducedRecHitCollection"));
-  ebReducedRecHitCollectionMiniAOD_ = mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
-								       ("ebReducedRecHitCollectionMiniAOD"));
-
-  eeReducedRecHitCollection_        = mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
-								       ("eeReducedRecHitCollection"));
-  eeReducedRecHitCollectionMiniAOD_ = mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
-								       ("eeReducedRecHitCollectionMiniAOD"));
-
-  esReducedRecHitCollection_        = mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
-								       ("esReducedRecHitCollection"));
-  esReducedRecHitCollectionMiniAOD_ = mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
-								       ("esReducedRecHitCollectionMiniAOD"));
-
-  src_        = mayConsume<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("src"));
-  srcMiniAOD_ = mayConsume<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("srcMiniAOD"));
+  , src_(            consumesCollector(), iConfig, "src", "srcMiniAOD")
+  , ebRecHits_(src_, consumesCollector(), iConfig, "ebReducedRecHitCollection", "ebReducedRecHitCollectionMiniAOD")
+  , eeRecHits_(src_, consumesCollector(), iConfig, "eeReducedRecHitCollection", "eeReducedRecHitCollectionMiniAOD")
+  , esRecHits_(src_, consumesCollector(), iConfig, "esReducedRecHitCollection", "esReducedRecHitCollectionMiniAOD")
+{
 
   for( const std::string& name : float_var_names ) {
     produces<edm::ValueMap<float> >(name);
@@ -131,41 +105,18 @@ ElectronRegressionValueMapProducer::~ElectronRegressionValueMapProducer() {
 
 void ElectronRegressionValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-  using namespace edm;
-  
-  edm::Handle<edm::View<reco::GsfElectron> > src;
+  // Get handle on electrons
+  auto src = src_.getHandle(iEvent);
 
-  // Retrieve the collection of electrons from the event.
-  // If we fail to retrieve the collection with the standard AOD
-  // name, we next look for the one with the stndard miniAOD name.
-  bool isAOD = true;
-  iEvent.getByToken(src_, src);
-
-  if( !src.isValid() ) {
-    isAOD = false;
-    iEvent.getByToken(srcMiniAOD_,src);
-  }
-  
   // configure lazy tools
-  edm::EDGetTokenT<EcalRecHitCollection> ebrh, eerh, esrh;
-
-  if( isAOD ) {
-    ebrh = ebReducedRecHitCollection_;
-    eerh = eeReducedRecHitCollection_;
-    esrh = esReducedRecHitCollection_;
-  } else {
-    ebrh = ebReducedRecHitCollectionMiniAOD_;
-    eerh = eeReducedRecHitCollectionMiniAOD_;
-    esrh = esReducedRecHitCollectionMiniAOD_;
-  }
+  edm::EDGetTokenT<EcalRecHitCollection> ebrh = ebRecHits_.get(iEvent);
+  edm::EDGetTokenT<EcalRecHitCollection> eerh = eeRecHits_.get(iEvent);
+  edm::EDGetTokenT<EcalRecHitCollection> esrh = esRecHits_.get(iEvent);
   
-  if( use_full5x5_ ) {
-    lazyTools = std::make_unique<noZS::EcalClusterLazyTools>(iEvent, iSetup, 
-                                                             ebrh, eerh, esrh );
-  } else {
-    lazyTools = std::make_unique<EcalClusterLazyTools>(iEvent, iSetup, 
-                                                       ebrh, eerh, esrh );
-  }
+  std::unique_ptr<EcalClusterLazyToolsBase> lazyTools;
+  if( use_full5x5_ ) lazyTools =
+      std::make_unique<noZS::EcalClusterLazyTools>( iEvent, iSetup, ebrh, eerh, esrh );
+  else lazyTools = std::make_unique<EcalClusterLazyTools>( iEvent, iSetup, ebrh, eerh, esrh );
 
   std::vector<std::vector<float> > float_vars(k_NFloatVars);
   std::vector<std::vector<int> > int_vars(k_NIntVars);
@@ -194,41 +145,24 @@ void ElectronRegressionValueMapProducer::produce(edm::Event& iEvent, const edm::
     check_map(float_vars_map, k_NFloatVars);
     check_map(int_vars_map, k_NIntVars);
     
-    for( unsigned i = 0; i < float_vars.size(); ++i ) {
+    for( unsigned int i = 0; i < float_vars.size(); ++i ) {
       float_vars[i].emplace_back(float_vars_map.at(float_var_names[i]));
     }
 
-    for( unsigned i = 0; i < int_vars.size(); ++i ) {
+    for( unsigned int i = 0; i < int_vars.size(); ++i ) {
       int_vars[i].emplace_back(int_vars_map.at(integer_var_names[i]));
     }
   }
   
-  for( unsigned i = 0; i < float_vars.size(); ++i ) {
+  for( unsigned int i = 0; i < float_vars.size(); ++i ) {
     writeValueMap(iEvent, src, float_vars[i], float_var_names[i]);
   }
   
-  for( unsigned i = 0; i < int_vars.size(); ++i ) {
+  for( unsigned int i = 0; i < int_vars.size(); ++i ) {
     writeValueMap(iEvent, src, int_vars[i], integer_var_names[i]);
   }
   
   lazyTools.reset();
-}
-
-template<typename T>
-void ElectronRegressionValueMapProducer::writeValueMap(edm::Event &iEvent,
-                                                       const edm::Handle<edm::View<reco::GsfElectron> > & handle,
-                                                       const std::vector<T> & values,
-                                                       const std::string    & label) const 
-{
-  using namespace edm; 
-  using namespace std;
-  typedef ValueMap<T> TValueMap;
-
-  auto valMap = std::make_unique<TValueMap>();
-  typename TValueMap::Filler filler(*valMap);
-  filler.insert(handle, values.begin(), values.end());
-  filler.fill();
-  iEvent.put(std::move(valMap), label);
 }
 
 void ElectronRegressionValueMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
