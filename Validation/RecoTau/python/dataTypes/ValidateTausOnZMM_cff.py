@@ -38,8 +38,27 @@ zttLabeler = lambda module : SetValidationExtention(module, 'ZMM')
 zttModifier = ApplyFunctionToSequence(zttLabeler)
 proc.TauValNumeratorAndDenominatorZMM.visit(zttModifier)
 
+#Set discriminators
+proc.RunHPSValidationZMM.discriminators = cms.VPSet(
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByDecayModeFinding"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByDecayModeFindingNewDMs"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseMuonRejection3"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightMuonRejection3"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+)
+
 #Sets the correct naming to efficiency histograms
 proc.efficienciesZMM.plots = Utils.SetPlotSequence(proc.TauValNumeratorAndDenominatorZMM)
+proc.efficienciesZMMSummary = cms.EDProducer("TauDQMHistEffProducer",
+    plots = cms.PSet(
+        Summary = cms.PSet(
+            denominator = cms.string('RecoTauV/hpsPFTauProducerZMM_Summary/#PAR#PlotDen'),
+            efficiency = cms.string('RecoTauV/hpsPFTauProducerZMM_Summary/#PAR#Plot'),
+            numerator = cms.string('RecoTauV/hpsPFTauProducerZMM_Summary/#PAR#PlotNum'),
+            parameter = cms.vstring('summary'),
+            stepByStep = cms.bool(True)
+        ),
+    )
+)
 
 #checks what's new in the process (the cloned sequences and modules in them)
 newProcAttributes = [x for x in dir(proc) if (x not in procAttributes) and (x.find('ZMM') != -1)]

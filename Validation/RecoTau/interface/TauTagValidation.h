@@ -137,6 +137,7 @@ private:
   std::map<std::string,  MonitorElement *> nTauVisibleMap;
   std::map<std::string,  MonitorElement *> massTauVisibleMap;
   std::map<std::string,  MonitorElement *> plotMap_;
+  std::map<std::string,  MonitorElement *> summaryMap;
 
   std::map<std::string,  int> tauDeacyCountMap_;
 
