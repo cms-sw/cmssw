@@ -21,7 +21,8 @@ process.testBTL = cms.EDAnalyzer("TestMTDNumbering",
                                isMagField = cms.untracked.bool(False),
                                outFileName = cms.untracked.string('BTL'),
                                numNodesToDump = cms.untracked.uint32(0),
-                               ddTopNodeName = cms.untracked.string('btl:BarrelTimingLayer')
+                               ddTopNodeName = cms.untracked.string('btl:BarrelTimingLayer'),
+                               theLayout = cms.untracked.uint32(1)
                                )
 
 process.testETL = cms.EDAnalyzer("TestMTDNumbering",

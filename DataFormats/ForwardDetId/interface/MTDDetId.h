@@ -59,8 +59,10 @@ class MTDDetId : public DetId {
   /** Returns enumerated type specifying MTD sub-detector, i.e. BTL or ETL. */
   inline int mtdSubDetector() const { return (id_>>kMTDsubdOffset)&kMTDsubdMask; }
 
-  /** Returns MTD side, i.e. Z-=1 or Z+=2. */
+  /** Returns MTD side, i.e. Z-=0 or Z+=1. */
   inline int mtdSide() const { return (id_>>kZsideOffset)&kZsideMask; }
+  /** Return MTD side, i.e. Z-=-1 or Z+=1. */
+  inline int zside() const { return (mtdSide()==1 ? (1):(-1)) ; }
   
   /** Returns MTD rod/ring number. */
   inline int mtdRR() const { return (id_>>kRodRingOffset)&kRodRingMask; }

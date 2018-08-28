@@ -18,12 +18,37 @@ class BTLDetId : public MTDDetId {
   
  private:
   
-  static const uint32_t kBTLmoduleOffset           = 10;
-  static const uint32_t kBTLmoduleMask             = 0x3F;
-  static const uint32_t kBTLmodTypeOffset          = 8;
-  static const uint32_t kBTLmodTypeMask            = 0x3;
-  static const uint32_t kBTLCrystalOffset          = 0;
-  static const uint32_t kBTLCrystalMask            = 0x3F;
+  static constexpr uint32_t kBTLmoduleOffset           = 10;
+  static constexpr uint32_t kBTLmoduleMask             = 0x3F;
+  static constexpr uint32_t kBTLmodTypeOffset          = 8;
+  static constexpr uint32_t kBTLmodTypeMask            = 0x3;
+  static constexpr uint32_t kBTLCrystalOffset          = 0;
+  static constexpr uint32_t kBTLCrystalMask            = 0x3F;
+
+ public:
+
+  /// range constants, need two sets for the time being (one for tiles and one for bars)
+  static constexpr int kModulesPerROD = 54;
+  static constexpr int kTypeBoundaries[4] = { 0, 18, 36, 54 };
+  static constexpr int kCrystalsInPhiTile = 16; // per module and ROD
+  static constexpr int kCrystalsInEtaTile = 4; // per module
+  static constexpr int kCrystalsInPhiBar = 4; // per module and ROD
+  static constexpr int kCrystalsInEtaBar = 16; // per module
+  static constexpr int kCrystalsPerROD = kModulesPerROD*kCrystalsInPhiTile*kCrystalsInEtaTile; // 64 crystals per module x 54 modules per rod, independent on geometry scenario Tile or Bar
+  static constexpr int MIN_ROD = 1;
+  static constexpr int MAX_ROD = 72;
+  static constexpr int HALF_ROD = 36;
+  static constexpr int MIN_IETA = 1;
+  static constexpr int MIN_IPHI = 1;
+  static constexpr int MAX_IETA_TILE = kCrystalsInEtaTile*kModulesPerROD;
+  static constexpr int MAX_IPHI_TILE = kCrystalsInPhiTile*HALF_ROD;
+  static constexpr int MAX_IETA_BAR = kCrystalsInEtaBar*kModulesPerROD;
+  static constexpr int MAX_IPHI_BAR = kCrystalsInPhiBar*HALF_ROD;
+  static constexpr int MIN_HASH =  0; // always 0 ...
+  static constexpr int MAX_HASH =  2*MAX_IPHI_TILE*MAX_IETA_TILE-1; // the total amount is invariant per tile or bar)
+  static constexpr int kSizeForDenseIndexing = MAX_HASH + 1 ;
+
+  enum class CrysLayout { tile = 1 , bar = 2 } ;
 
  public:
   
@@ -31,7 +56,7 @@ class BTLDetId : public MTDDetId {
   
   /** Construct a null id */
  BTLDetId() : MTDDetId( DetId::Forward, ForwardSubdetector::FastTime ) { id_ |= ( MTDType::BTL& kMTDsubdMask ) << kMTDsubdOffset ;}
-
+  
   /** Construct from a raw value */
  BTLDetId( const uint32_t& raw_id ) : MTDDetId( raw_id ) {;}
   
@@ -50,18 +75,34 @@ class BTLDetId : public MTDDetId {
       ( module& kBTLmoduleMask ) << kBTLmoduleOffset |
       ( modtyp& kBTLmodTypeMask ) << kBTLmodTypeOffset |
       ( (crystal-1)& kBTLCrystalMask ) << kBTLCrystalOffset ; 
-}
+  }
+  
+  // ---------- Common methods ----------
+  
+  /** Returns BTL module number. */
+  inline int module() const { return (id_>>kBTLmoduleOffset)&kBTLmoduleMask; }
+  
+  /** Returns BTL crystal type number. */
+  inline int modType() const { return (id_>>kBTLmodTypeOffset)&kBTLmodTypeMask; }
+  
+  /** Returns BTL crystal number. */
+  inline int crystal() const { return ((id_>>kBTLCrystalOffset)&kBTLCrystalMask) + 1; }
 
-// ---------- Common methods ----------
+  /** Returns BTL iphi index for crystal according to type tile or bar */
+  int iphi( CrysLayout lay ) const ;
 
-/** Returns BTL module number. */
-inline int module() const { return (id_>>kBTLmoduleOffset)&kBTLmoduleMask; }
+  /** Returns BTL ieta index for crystal according to type tile or bar */
+  int ietaAbs( CrysLayout lay ) const ;
 
-/** Returns BTL crystal type number. */
-inline int modType() const { return (id_>>kBTLmodTypeOffset)&kBTLmodTypeMask; }
+  int ieta( CrysLayout lay ) const { return zside()*ietaAbs( lay ); }
 
-/** Returns BTL crystal number. */
- inline int crystal() const { return ((id_>>kBTLCrystalOffset)&kBTLCrystalMask) + 1; }
+  /** define a dense index of arrays from a DetId */
+  int hashedIndex( CrysLayout lay ) const ;
+
+  static bool validHashedIndex( uint32_t din ) { return ( din < kSizeForDenseIndexing ) ; }
+
+  /** get a DetId from a compact index for arrays */
+  BTLDetId getUnhashedIndex( int hi, CrysLayout lay ) const ;
 
 };
 
