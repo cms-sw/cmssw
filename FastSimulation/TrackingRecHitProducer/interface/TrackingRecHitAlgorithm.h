@@ -6,9 +6,7 @@
 
 #include "FastSimulation/TrackingRecHitProducer/interface/TrackingRecHitProduct.h"
 
-//#include "CLHEP/Random/RandomEngine.h"
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
-
 
 #include <string>
 #include <memory>
