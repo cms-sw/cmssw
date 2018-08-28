@@ -3339,26 +3339,27 @@ int MLP_PrintInputStat()
 	sigma = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
 	minimum = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
 	maximum = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
+    int returnCode = -111; // to return if any malloc failed
 
-	if(mean == nullptr || sigma == nullptr || minimum == nullptr
-	   || maximum == nullptr) return -111;
+    if(mean && sigma && minimum && maximum) {
 
-	MLP_StatInputs(PAT.Npat[0],NET.Nneur[0],PAT.Rin[0],
-			mean,sigma,minimum,maximum);
+        MLP_StatInputs(PAT.Npat[0],NET.Nneur[0],PAT.Rin[0],mean,sigma,minimum,maximum);
 
-	printf("\t mean \t\t RMS \t\t min \t\t max\n");
-	for(j=0;j<NET.Nneur[0];j++)
-		{
-	 	printf("var%d \t %e \t %e \t %e \t %e\n",j+1,
-					mean[j],sigma[j],minimum[j],maximum[j]);
-		}
-	
+        printf("\t mean \t\t RMS \t\t min \t\t max\n");
+        for(j=0;j<NET.Nneur[0];j++)
+        {
+            printf("var%d \t %e \t %e \t %e \t %e\n",j+1,
+            mean[j],sigma[j],minimum[j],maximum[j]);
+        }
+        returnCode = 0; // everything went fine
+    }
+
 	free(mean);
 	free(sigma);
 	free(minimum);
 	free(maximum);	
 	printf("\n");
-	return 0;
+	return returnCode;
 }
 
 
@@ -3382,53 +3383,51 @@ int MLP_PrintInputStat()
 
 /* allocate memory */
 	mean = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
-        if (mean == nullptr) return -111;
 	sigma = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
-        if (sigma == nullptr) return -111;
 	STAT.mean = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
-        if (STAT.mean == nullptr) return -111;
 	STAT.sigma = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
-        if (STAT.sigma == nullptr) return -111;
 	minimum = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
-        if (minimum == nullptr) return -111;
 	maximum = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
-        if (maximum == nullptr) return -111;
-	
-	MLP_StatInputs(PAT.Npat[0],NET.Nneur[0],PAT.Rin[0],
-			mean,sigma,minimum,maximum);
+    int returnCode = -111; // to return if any malloc failed
 
-	if(NET.Debug>=1) printf("\t mean \t\t RMS \t\t min \t\t max\n");
-	for(j=0;j<NET.Nneur[0];j++)
-		{
-		if(NET.Debug>=1)
-	 		printf("var%d \t %e \t %e \t %e \t %e\n",j+1,
-					mean[j],sigma[j],minimum[j],maximum[j]);
-		
-/* store mean and sigma for output function */		
-		STAT.mean[j] = mean[j];			
-		STAT.sigma[j] = sigma[j];
-					
-/* finally apply the normalization */
-		for(ipat=0;ipat<PAT.Npat[0];ipat++)
-			{
-			PAT.Rin[0][ipat][j] =
-			(PAT.Rin[0][ipat][j]-(float) mean[j])/
-			(float) sigma[j];
-			}	
-		for(ipat=0;ipat<PAT.Npat[1];ipat++)
-			{
-			PAT.Rin[1][ipat][j] =
-			(PAT.Rin[1][ipat][j]-(float) mean[j])/
-			(float) sigma[j];
-			}	
-		}
+    if(mean && sigma && minimum && maximum && STAT.mean && STAT.sigma) {
+
+        MLP_StatInputs(PAT.Npat[0],NET.Nneur[0],PAT.Rin[0],mean,sigma,minimum,maximum);
+
+        if(NET.Debug>=1) printf("\t mean \t\t RMS \t\t min \t\t max\n");
+        for(j=0;j<NET.Nneur[0];j++)
+        {
+            if(NET.Debug>=1)
+                printf("var%d \t %e \t %e \t %e \t %e\n",j+1,
+                    mean[j],sigma[j],minimum[j],maximum[j]);
+
+            /* store mean and sigma for output function */
+            STAT.mean[j] = mean[j];
+            STAT.sigma[j] = sigma[j];
+
+            /* finally apply the normalization */
+            for(ipat=0;ipat<PAT.Npat[0];ipat++)
+            {
+                PAT.Rin[0][ipat][j] =
+                (PAT.Rin[0][ipat][j]-(float) mean[j])/
+                (float) sigma[j];
+            }
+            for(ipat=0;ipat<PAT.Npat[1];ipat++)
+            {
+                PAT.Rin[1][ipat][j] =
+                (PAT.Rin[1][ipat][j]-(float) mean[j])/
+                (float) sigma[j];
+            }
+        }
+        returnCode = 0; // everything went fine
+    }
 	
 	free(mean);
 	free(sigma);
 	free(minimum);
 	free(maximum);	
 	if(NET.Debug>=1) printf("\n");
-	return 0;
+	return returnCode;
 }
 
 

@@ -348,11 +348,9 @@ class TEcnaHistos : public TObject {
 
   //..... Attributes
 
-  //  static  const  Int_t        fgMaxCar    = 512;   <== DANGEROUS !
-
-  Int_t fgMaxCar;                    // Max nb of caracters for char*
-  Int_t fZerv;                       // = 0 , for ViewHisto non used arguments
-  Int_t fUnev;                       // = 1 , for ViewHisto non used arguments
+  constexpr static int charArrLen = 512;  // Max nb of caracters for char*
+  Int_t fZerv;                            // = 0 , for ViewHisto non used arguments
+  Int_t fUnev;                            // = 1 , for ViewHisto non used arguments
 
 
   Int_t fCnaCommand, fCnaError;
