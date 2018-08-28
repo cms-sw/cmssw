@@ -8,8 +8,7 @@
 #include "CLHEP/Random/RandomEngine.h"
 
 RandomEngineAndDistribution::RandomEngineAndDistribution(edm::StreamID const& streamID) :
-  engine_(nullptr),
-  rootEngine_(nullptr) {
+  engine_(nullptr) {
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable() ) {
     throw cms::Exception("Configuration") <<
@@ -18,15 +17,10 @@ RandomEngineAndDistribution::RandomEngineAndDistribution(edm::StreamID const& st
       "or remove the module that requires it.";
   }
   engine_ = &rng->getEngine(streamID);
-
-  // Get the TRandom3 egine, to benefit from Root functional random generation
-  if ( engine_->name() == "TRandom3" )
-    rootEngine_ = ( (edm::TRandomAdaptor*) engine_ )->getRootEngine();
 }
 
 RandomEngineAndDistribution::RandomEngineAndDistribution(edm::LuminosityBlockIndex const& luminosityBlockIndex) :
-  engine_(nullptr),
-  rootEngine_(nullptr) {
+  engine_(nullptr) {
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable() ) {
     throw cms::Exception("Configuration") <<
@@ -35,10 +29,6 @@ RandomEngineAndDistribution::RandomEngineAndDistribution(edm::LuminosityBlockInd
       "or remove the module that requires it.";
   }
   engine_ = &rng->getEngine(luminosityBlockIndex);
-
-  // Get the TRandom3 egine, to benefit from Root functional random generation
-  if ( engine_->name() == "TRandom3" )
-    rootEngine_ = ( (edm::TRandomAdaptor*) engine_ )->getRootEngine();
 }
 
 RandomEngineAndDistribution::~RandomEngineAndDistribution() {
