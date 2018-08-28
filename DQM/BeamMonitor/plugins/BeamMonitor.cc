@@ -128,7 +128,7 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   minVtxWgt_      = ps.getParameter<ParameterSet>("PVFitter").getUntrackedParameter<double>("minVertexMeanWeight");
 
 
-  if (monitorName_ != "" ) monitorName_ = monitorName_+"/" ;
+  if (!monitorName_.empty() ) monitorName_ = monitorName_+"/" ;
 
   theBeamFitter = std::make_unique<BeamFitter>(ps, consumesCollector());
   theBeamFitter->resetTrkVector();
