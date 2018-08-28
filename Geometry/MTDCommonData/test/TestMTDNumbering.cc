@@ -52,6 +52,7 @@ private:
   std::string fname_;
   int nNodes_;
   std::string ddTopNodeName_;
+  uint32_t theLayout_;
 
   MTDBaseNumber thisN_;
   BTLNumberingScheme btlNS_;
@@ -65,6 +66,7 @@ TestMTDNumbering::TestMTDNumbering( const edm::ParameterSet& iConfig ) :
   fname_(iConfig.getUntrackedParameter<std::string>("outFileName", "GeoHistory")),
   nNodes_(iConfig.getUntrackedParameter<uint32_t>("numNodesToDump", 0)),
   ddTopNodeName_(iConfig.getUntrackedParameter<std::string>("ddTopNodeName", "btl:BarrelTimingLayer")),
+  theLayout_(iConfig.getUntrackedParameter<uint32_t>("theLayout", 1)),
   thisN_(),btlNS_(),etlNS_()
 {
   if ( isMagField_ ) {
@@ -166,7 +168,24 @@ void TestMTDNumbering::checkMTD ( const DDCompactView& cpv, std::string fname, i
 
         theBaseNumber( epv.geoHistory() );
 
-        if ( isBarrel ) { BTLDetId theId(btlNS_.getUnitID(thisN_)); dump << theId; }
+        if ( isBarrel ) { 
+          BTLDetId::CrysLayout lay = static_cast< BTLDetId::CrysLayout >(theLayout_);
+          BTLDetId theId(btlNS_.getUnitID(thisN_)); 
+          int hIndex = theId.hashedIndex( lay );
+          BTLDetId theNewId( theId.getUnhashedIndex( hIndex ,  lay ) );
+          dump << theId; 
+          dump << "\n layout type = " << static_cast< int >(lay);
+          dump << "\n ieta        = " << theId.ieta( lay );
+          dump << "\n iphi        = " << theId.iphi( lay );
+          dump << "\n hashedIndex = " << theId.hashedIndex( lay );
+          dump << "\n BTLDetId hI = " << theNewId;
+          if ( theId.mtdSide() != theNewId.mtdSide() ) { dump << "\n DIFFERENCE IN SIDE"; }
+          if ( theId.mtdRR() != theNewId.mtdRR() ) { dump << "\n DIFFERENCE IN ROD"; }
+          if ( theId.module() != theNewId.module() ) { dump << "\n DIFFERENCE IN MODULE"; }
+          if ( theId.modType() != theNewId.modType() ) { dump << "\n DIFFERENCE IN MODTYPE"; }
+          if ( theId.crystal() != theNewId.crystal() ) { dump << "\n DIFFERENCE IN CRYSTAL"; }
+          dump << "\n";
+        }
         else { ETLDetId theId(etlNS_.getUnitID(thisN_)); dump << theId; }
         dump << "\n";
 
