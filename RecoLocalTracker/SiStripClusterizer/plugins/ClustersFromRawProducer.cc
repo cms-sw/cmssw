@@ -52,28 +52,28 @@ namespace {
     
     // Check on FEDRawData pointer
     if UNLIKELY( !rawData.data() ) {
-	if (edm::isDebugEnabled()) {
-	  edm::LogWarning(sistrip::mlRawToCluster_)
-	    << "[ClustersFromRawProducer::" 
-	    << __func__ 
-	    << "]"
-	    << " NULL pointer to FEDRawData for FED id " 
-	    << fedId;
-	}
-	return buffer;
-      }	
+      if (edm::isDebugEnabled()) {
+        edm::LogWarning(sistrip::mlRawToCluster_)
+          << "[ClustersFromRawProducer::" 
+          << __func__ 
+          << "]"
+          << " NULL pointer to FEDRawData for FED id " 
+          << fedId;
+      }
+      return buffer;
+    }	
     
     // Check on FEDRawData size
     if UNLIKELY( !rawData.size() ) {
-	if (edm::isDebugEnabled()) {
-	  edm::LogWarning(sistrip::mlRawToCluster_)
-	    << "[ClustersFromRawProducer::" 
-	    << __func__ << "]"
-	    << " FEDRawData has zero size for FED id " 
-	    << fedId;
-	}
-	return buffer;
+      if (edm::isDebugEnabled()) {
+        edm::LogWarning(sistrip::mlRawToCluster_)
+	  << "[ClustersFromRawProducer::" 
+	  << __func__ << "]"
+	  << " FEDRawData has zero size for FED id " 
+	  << fedId;
       }
+      return buffer;
+    }
     
     // construct FEDBuffer
     try {
@@ -105,18 +105,18 @@ namespace {
   
   class ClusterFiller final : public StripClusterizerAlgorithm::output_t::Getter {
   public:
-    ClusterFiller(const FEDRawDataCollection& irawColl,
-		  StripClusterizerAlgorithm & iclusterizer,
-		  SiStripRawProcessingAlgorithms & irawAlgos,
-		  bool idoAPVEmulatorCheck,
+    ClusterFiller(const FEDRawDataCollection& irawColl, 
+                  StripClusterizerAlgorithm & iclusterizer, 
+                  SiStripRawProcessingAlgorithms & irawAlgos, 
+                  bool idoAPVEmulatorCheck, 
                   bool hybridZeroSuppressed):
       rawColl(irawColl),
       clusterizer(iclusterizer),
       rawAlgos(irawAlgos),
       doAPVEmulatorCheck(idoAPVEmulatorCheck),
       hybridZeroSuppressed_(hybridZeroSuppressed){
-	incTot(clusterizer.allDetIds().size());
-	for (auto & d : done) d=nullptr;
+        incTot(clusterizer.allDetIds().size());
+        for (auto & d : done) d=nullptr;
       }
     
     

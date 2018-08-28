@@ -75,36 +75,37 @@
 //
 
 class SiStripBaselineComparator : public edm::EDAnalyzer {
-   public:
-      explicit SiStripBaselineComparator(const edm::ParameterSet&);
-      ~SiStripBaselineComparator() override;
+  public:
+    explicit SiStripBaselineComparator(const edm::ParameterSet&);
+    ~SiStripBaselineComparator() override;
 
 
-   private:
-      void beginJob() override ;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
-      
-	  edm::InputTag srcClusters_;
-	  edm::InputTag srcClusters2_;
-      
-          edm::Service<TFileService> fs_;
+  private:
+    void beginJob() override ;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void endJob() override ;
+     
+    edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > srcClusters_;
+    edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > srcClusters2_;
+
  
- 
-	  TH1F* h1_nOldClusters_;
-	  TH1F* h1_nMatchedClusters_;
-          TH1F* h1_nSplitClusters_;
-          TProfile* h1_matchingMult_;
-          TProfile* h1_matchedWidth_;
-          TProfile* h1_matchedCharges_;
+    edm::Service<TFileService> fs_;
+
+
+    TH1F* h1_nOldClusters_;
+    TH1F* h1_nMatchedClusters_;
+    TH1F* h1_nSplitClusters_;
+    TProfile* h1_matchingMult_;
+    TProfile* h1_matchedWidth_;
+    TProfile* h1_matchedCharges_;
 };
 
 
 SiStripBaselineComparator::SiStripBaselineComparator(const edm::ParameterSet& conf){
    
-  srcClusters_ =  conf.getParameter<edm::InputTag>( "srcClusters" );
-  srcClusters2_ =  conf.getParameter<edm::InputTag>( "srcClusters2" );
-  
+  srcClusters_  =  consumes<edmNew::DetSetVector<SiStripCluster> >(conf.getParameter<edm::InputTag>("srcClusters"));
+  srcClusters2_ =  consumes<edmNew::DetSetVector<SiStripCluster> >(conf.getParameter<edm::InputTag>("srcClusters2"));
+ 
   h1_nOldClusters_ = fs_->make<TH1F>("nOldClusters","nOldClusters;ClusterSize", 128, 0, 128);
   h1_nMatchedClusters_ = fs_->make<TH1F>("nMatchedClusters","nMatchedClusters;ClusterSize", 128, 0, 128);
   h1_nSplitClusters_ = fs_->make<TH1F>("nSplitClusters","nMatchedClusters;ClusterSize; n Split Clusters", 128, 0, 128);
@@ -121,56 +122,56 @@ SiStripBaselineComparator::~SiStripBaselineComparator()
 void
 SiStripBaselineComparator::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
-   edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusters;
-   e.getByLabel(srcClusters_,clusters);
-   edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusters2;
-   e.getByLabel(srcClusters2_,clusters2);
+  edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusters;
+  e.getByToken(srcClusters_,clusters);
+  edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusters2;
+  e.getByToken(srcClusters2_,clusters2);
 
-   edmNew::DetSetVector<SiStripCluster>::const_iterator itClusters = clusters->begin();
-   for ( ; itClusters != clusters->end(); ++itClusters ){
-     for ( edmNew::DetSet<SiStripCluster>::const_iterator clus = itClusters->begin(); clus != itClusters->end(); ++clus){
-       h1_nOldClusters_->Fill(clus->amplitudes().size(),1);
-       int nMatched = 0; 
-       int charge1 = 0;
-       for( auto itAmpl = clus->amplitudes().begin(); itAmpl != clus->amplitudes().end(); ++itAmpl) charge1 += *itAmpl;
-       std::vector< int > matchedWidths;      
-       std::vector< int > matchedCharges;      
+  edmNew::DetSetVector<SiStripCluster>::const_iterator itClusters = clusters->begin();
+  for ( ; itClusters != clusters->end(); ++itClusters ){
+    for ( edmNew::DetSet<SiStripCluster>::const_iterator clus = itClusters->begin(); clus != itClusters->end(); ++clus){
+      h1_nOldClusters_->Fill(clus->amplitudes().size(),1);
+      int nMatched = 0; 
+      int charge1 = 0;
+      for( auto itAmpl = clus->amplitudes().begin(); itAmpl != clus->amplitudes().end(); ++itAmpl) charge1 += *itAmpl;
+      std::vector< int > matchedWidths;      
+      std::vector< int > matchedCharges;      
 
-       //scan other set of clusters
-       edmNew::DetSetVector<SiStripCluster>::const_iterator itClusters2 = clusters2->begin();
-       for ( ; itClusters2 != clusters2->end(); ++itClusters2 ){
-         if(itClusters->id() != itClusters2->id()) continue;
-         for ( edmNew::DetSet<SiStripCluster>::const_iterator clus2 = itClusters2->begin(); clus2 != itClusters2->end(); ++clus2){
-           int charge2 = 0;
-           for( auto itAmpl = clus2->amplitudes().begin(); itAmpl != clus2->amplitudes().end(); ++itAmpl) charge2 += *itAmpl;
-           int strip=clus->firstStrip();
-	   for( auto itAmpl = clus->amplitudes().begin(); itAmpl != clus->amplitudes().end(); ++itAmpl){
-             if(clus2->firstStrip() == strip){
-               if(nMatched>0){
-                 if(nMatched==1) h1_nSplitClusters_->Fill(clus->amplitudes().size(),1);  
-                 matchedWidths.push_back(clus2->amplitudes().size());
-                 matchedCharges.push_back(charge2);
-                 nMatched++;
-               }
-               if(nMatched==0){
-                 matchedWidths.push_back(clus2->amplitudes().size());
-                 matchedCharges.push_back(charge2);
-                 nMatched++;
-                 h1_nMatchedClusters_->Fill(clus->amplitudes().size(),1);  
-               }
-               break;
-             }
-	     ++strip;
-           }
-         }
-       }
-       for(int i = 0; i<nMatched; i++){
-         if(matchedWidths.at(i)-clus->amplitudes().size()<1000) h1_matchedWidth_->Fill(clus->amplitudes().size(),matchedWidths.at(i)-clus->amplitudes().size());
-         if(charge1 != 0 && matchedCharges.at(i)/(float)charge1<10000000) h1_matchedCharges_->Fill(clus->amplitudes().size(),matchedCharges.at(i)/(float)charge1);
-       }
-       if(nMatched>1) h1_matchingMult_->Fill(clus->amplitudes().size(),nMatched);      
-     }
-   }
+      //scan other set of clusters
+      edmNew::DetSetVector<SiStripCluster>::const_iterator itClusters2 = clusters2->begin();
+      for ( ; itClusters2 != clusters2->end(); ++itClusters2 ){
+        if(itClusters->id() != itClusters2->id()) continue;
+        for ( edmNew::DetSet<SiStripCluster>::const_iterator clus2 = itClusters2->begin(); clus2 != itClusters2->end(); ++clus2){
+          int charge2 = 0;
+          for( auto itAmpl = clus2->amplitudes().begin(); itAmpl != clus2->amplitudes().end(); ++itAmpl) charge2 += *itAmpl;
+          int strip=clus->firstStrip();
+          for( auto itAmpl = clus->amplitudes().begin(); itAmpl != clus->amplitudes().end(); ++itAmpl){
+            if(clus2->firstStrip() == strip){
+              if(nMatched>0){
+                if(nMatched==1) h1_nSplitClusters_->Fill(clus->amplitudes().size(),1);  
+                matchedWidths.push_back(clus2->amplitudes().size());
+                matchedCharges.push_back(charge2);
+                nMatched++;
+              }
+              if(nMatched==0){
+                matchedWidths.push_back(clus2->amplitudes().size());
+                matchedCharges.push_back(charge2);
+                nMatched++;
+                h1_nMatchedClusters_->Fill(clus->amplitudes().size(),1);  
+              }
+              break;
+            }
+            ++strip;
+          }
+        }
+      }
+      for(int i = 0; i<nMatched; i++){
+        if(matchedWidths.at(i)-clus->amplitudes().size()<1000) h1_matchedWidth_->Fill(clus->amplitudes().size(),matchedWidths.at(i)-clus->amplitudes().size());
+        if(charge1 != 0 && matchedCharges.at(i)/(float)charge1<10000000) h1_matchedCharges_->Fill(clus->amplitudes().size(),matchedCharges.at(i)/(float)charge1);
+      }
+      if(nMatched>1) h1_matchingMult_->Fill(clus->amplitudes().size(),nMatched);      
+    } 
+  }
 
       //clusters	  
       /*    int nclust = 0;
