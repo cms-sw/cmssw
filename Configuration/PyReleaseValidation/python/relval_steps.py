@@ -1012,7 +1012,7 @@ FS_PREMIXUP15_PU25_OVERLAY = merge([
         {"-s" : "GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,DATAMIX,L1,DIGI2RAW,L1Reco,RECO,VALIDATION",
          "--datamix" : "PreMix",
          "--procModifiers": "premix_stage2",
-         "--pileup_input" : "dbs:/RelValFS_PREMIXUP15_PU25/%s/GEN-SIM-DIGI-RAW"%(baseDataSetRelease[8],),
+         "--pileup_input" : "dbs:/RelValFS_PREMIXUP15_PU25/%s/PREMIX"%(baseDataSetRelease[8],),
          },
         Kby(100,500),step1FastUpg2015Defaults])
 
@@ -1386,7 +1386,7 @@ steps['PREMIXUP18_PU25']=merge([PU25UP18,Kby(100,100),premixUp2018Defaults])
 digiPremixUp2015Defaults25ns = {
     '--conditions'   : 'auto:run2_mc',
     '-s'             : 'DIGI:pdigi_valid,DATAMIX,L1,DIGI2RAW,HLT:@relval2016',
-    '--pileup_input'  :  'das:/RelValPREMIXUP15_PU25/%s/GEN-SIM-DIGI-RAW'%baseDataSetRelease[5],
+    '--pileup_input'  :  'das:/RelValPREMIXUP15_PU25/%s/PREMIX'%baseDataSetRelease[5],
     '--eventcontent' : 'FEVTDEBUGHLT',
     '--datatier'     : 'GEN-SIM-DIGI-RAW-HLTDEBUG',
     '--datamix'      : 'PreMix',
@@ -1407,14 +1407,14 @@ digiPremixLocalPileupUp2015Defaults25ns = merge([digiPremixLocalPileup,
                                                  digiPremixUp2015Defaults25ns])
 digiPremixUp2015Defaults50ns=merge([{'-s':'DIGI:pdigi_valid,DATAMIX,L1,DIGI2RAW,HLT:@relval50ns'},
                                     {'--conditions':'auto:run2_mc_50ns'},
-                                    {'--pileup_input' : 'das:/RelValPREMIXUP15_PU50/%s/GEN-SIM-DIGI-RAW'%baseDataSetRelease[6]},
+                                    {'--pileup_input' : 'das:/RelValPREMIXUP15_PU50/%s/PREMIX'%baseDataSetRelease[6]},
                                     {'--era'            : 'Run2_50ns'},
                                     digiPremixUp2015Defaults25ns])
 
 digiPremixUp2017Defaults25ns = {
     '--conditions'   : 'auto:phase1_2017_realistic',
     '-s'             : 'DIGI:pdigi_valid,DATAMIX,L1,DIGI2RAW,HLT:@relval2017',
-    '--pileup_input'  :  'das:/RelValPREMIXUP17_PU25/%s/GEN-SIM-DIGI-RAW'%baseDataSetRelease[14],
+    '--pileup_input'  :  'das:/RelValPREMIXUP17_PU25/%s/PREMIX'%baseDataSetRelease[14],
     '--eventcontent' : 'FEVTDEBUGHLT',
     '--datatier'     : 'GEN-SIM-DIGI-RAW-HLTDEBUG',
     '--datamix'      : 'PreMix',
@@ -1428,7 +1428,7 @@ digiPremixLocalPileupUp2017Defaults25ns = merge([digiPremixLocalPileup,
 digiPremixUp2018Defaults25ns = {
     '--conditions'   : 'auto:phase1_2018_realistic',
     '-s'             : 'DIGI:pdigi_valid,DATAMIX,L1,DIGI2RAW,HLT:@relval2018',
-    '--pileup_input'  :  'das:/RelValPREMIXUP18_PU25/%s/GEN-SIM-DIGI-RAW'%baseDataSetRelease[15],
+    '--pileup_input'  :  'das:/RelValPREMIXUP18_PU25/%s/PREMIX'%baseDataSetRelease[15],
     '--eventcontent' : 'FEVTDEBUGHLT',
     '--datatier'     : 'GEN-SIM-DIGI-RAW-HLTDEBUG',
     '--datamix'      : 'PreMix',
