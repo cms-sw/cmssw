@@ -461,6 +461,8 @@ class FileListCreator(object):
                 if fileinfo.dataset != dataset: continue
                 miniiovs = self._get_iovs(fileinfo.runs, useminiiovs=True)
                 if miniiov not in miniiovs: continue
+                if len(miniiovs) > 1:
+                    hippyjobs[dataset,miniiov] = []
                 if eventsinthisjob >= self._args.hippy_events_per_job:
                     currentjob = []
                     jobsforminiiov.append(currentjob)
