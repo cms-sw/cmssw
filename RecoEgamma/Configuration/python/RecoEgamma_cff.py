@@ -21,8 +21,17 @@ from RecoEgamma.EgammaIsolationAlgos.egmIsolationDefinitions_cff import *
 from RecoEgamma.EgammaElectronProducers.pfBasedElectronIso_cff import *
 
 egammaGlobalReco = cms.Sequence(electronGsfTracking*conversionTrackSequence*allConversionSequence)
+# this might be historical: not sure why we do this
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+_fastSim_egammaGlobalReco = egammaGlobalReco.copy()
+_fastSim_egammaGlobalReco.replace(conversionTrackSequence,conversionTrackSequenceNoEcalSeeded)
+fastSim.toReplaceWith(egammaGlobalReco, _fastSim_egammaGlobalReco)
+
 egammareco = cms.Sequence(electronSequence*conversionSequence*photonSequence)
 egammaHighLevelRecoPrePF = cms.Sequence(gsfEcalDrivenElectronSequence*uncleanedOnlyElectronSequence*conversionSequence*photonSequence)
+# not commisoned and not relevant in FastSim (?):
+fastSim.toReplaceWith(egammareco, egammareco.copyAndExclude([conversionSequence]))
+fastSim.toReplaceWith(egammaHighLevelRecoPrePF,egammaHighLevelRecoPrePF.copyAndExclude([uncleanedOnlyElectronSequence,conversionSequence]))
 
 #egammaHighLevelRecoPostPF = cms.Sequence(gsfElectronMergingSequence*interestingEgammaIsoDetIds*photonIDSequence*eIdSequence*hfEMClusteringSequence)
 #adding new gedGsfElectronSequence and gedPhotonSequence :

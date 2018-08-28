@@ -15,5 +15,10 @@ from RecoMET.METProducers.BeamHaloSummary_cfi import *
 
 BeamHaloId = cms.Sequence(CSCHaloData*EcalHaloData*HcalHaloData*GlobalHaloData*BeamHaloSummary)
 
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+# CSCHaloData depends on cosmic muons, not available in fastsim
+# GlobalHaloData and BeamHaloSummary depend on CSCHaloData
+fastSim.toReplaceWith(BeamHaloId, BeamHaloId.copyAndExclude([CSCHaloData,GlobalHaloData,BeamHaloSummary]))
+
 # Needs FEVT content
 #BeamHaloIdWithGtRecord = cms.Sequence(gtDigis*l1GtRecord*CSCHaloData*EcalHaloData*HcalHaloData*GlobalHaloData*BeamHaloSummary)
