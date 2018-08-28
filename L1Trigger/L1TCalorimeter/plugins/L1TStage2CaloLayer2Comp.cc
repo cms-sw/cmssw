@@ -412,22 +412,20 @@ bool L1TStage2CaloLayer2Comp::compareJets(
 
       //bypass sorting bug
       if(etGood && !posGood){
-	l1t::JetBxCollection::const_iterator emulItCheckSort;
-	l1t::JetBxCollection::const_iterator dataItCheckSort;
-	for(emulItCheckSort = emulCol->begin(currBx),
-	      dataItCheckSort = jets->begin();
-	    emulItCheckSort != emulCol->end(currBx),
-	      dataItCheckSort != jets->end();
-	    ++emulItCheckSort, ++dataItCheckSort){
-
-	  if(dataItCheckSort->hwEta() > 0) ++nPos;
-	  if(dataItCheckSort->hwEta() < 0) ++nNeg;
-
-	  if(dataIt->hwPt() == emulItCheckSort->hwPt()
-	     && dataIt->hwPhi() == emulItCheckSort->hwPhi()
-	     && dataIt->hwEta() == emulItCheckSort->hwEta())
-	    posGood = true;
-	}
+        l1t::JetBxCollection::const_iterator emulItCheckSort;
+        l1t::JetBxCollection::const_iterator dataItCheckSort;
+        for(emulItCheckSort = emulCol->begin(currBx) ; emulItCheckSort != emulCol->end(currBx) ; ++emulItCheckSort) {
+          for (dataItCheckSort = jets->begin(); dataItCheckSort != jets->end(); ++dataItCheckSort){
+            
+            if(dataItCheckSort->hwEta() > 0) ++nPos;
+            if(dataItCheckSort->hwEta() < 0) ++nNeg;
+            
+            if(dataIt->hwPt() == emulItCheckSort->hwPt()
+               && dataIt->hwPhi() == emulItCheckSort->hwPhi()
+               && dataIt->hwEta() == emulItCheckSort->hwEta())
+              posGood = true;
+          }
+        }
       }
 
       if(etGood && dataIt->hwEta() > 0 && ((distance(dataIt, jets->end())-nNeg) < 5))
@@ -531,22 +529,20 @@ bool L1TStage2CaloLayer2Comp::compareEGs(
 
       //bypass sorting bug
       if(etGood && !posGood){
-	l1t::EGammaBxCollection::const_iterator emulItCheckSort;
-	l1t::EGammaBxCollection::const_iterator dataItCheckSort;
-	for(emulItCheckSort = emulCol->begin(currBx),
-	      dataItCheckSort = egs->begin();
-	    emulItCheckSort != emulCol->end(currBx),
-	      dataItCheckSort != egs->end();
-	    ++emulItCheckSort, ++dataItCheckSort){
-
-	  if(dataItCheckSort->hwEta() > 0) ++nPos;
-	  if(dataItCheckSort->hwEta() < 0) ++nNeg;
-
-	  if(dataIt->hwPt() == emulItCheckSort->hwPt()
-	     && dataIt->hwPhi() == emulItCheckSort->hwPhi()
-	     && dataIt->hwEta() == emulItCheckSort->hwEta())
-	    posGood = true;
-	}
+        l1t::EGammaBxCollection::const_iterator emulItCheckSort;
+        l1t::EGammaBxCollection::const_iterator dataItCheckSort;
+        for(emulItCheckSort = emulCol->begin(currBx); emulItCheckSort != emulCol->end(currBx); ++emulItCheckSort) {
+          for (dataItCheckSort = egs->begin(); dataItCheckSort != egs->end(); ++dataItCheckSort){
+            
+            if(dataItCheckSort->hwEta() > 0) ++nPos;
+            if(dataItCheckSort->hwEta() < 0) ++nNeg;
+            
+            if(dataIt->hwPt() == emulItCheckSort->hwPt()
+               && dataIt->hwPhi() == emulItCheckSort->hwPhi()
+               && dataIt->hwEta() == emulItCheckSort->hwEta())
+              posGood = true;
+          }
+        }
       }
 
       if(etGood && dataIt->hwEta() > 0 && ((distance(dataIt, egs->end())-nNeg) < 5))
@@ -650,22 +646,20 @@ bool L1TStage2CaloLayer2Comp::compareTaus(
 
       //bypass sorting bug
       if(etGood && !posGood){
-	l1t::TauBxCollection::const_iterator emulItCheckSort;
-	l1t::TauBxCollection::const_iterator dataItCheckSort;
-	for(emulItCheckSort = emulCol->begin(currBx),
-	      dataItCheckSort = taus->begin();
-	    emulItCheckSort != emulCol->end(currBx),
-	      dataItCheckSort != taus->end();
-	    ++emulItCheckSort, ++dataItCheckSort){
-
-	  if(dataItCheckSort->hwEta() > 0) ++nPos;
-	  if(dataItCheckSort->hwEta() < 0) ++nNeg;
-
-	  if(dataIt->hwPt() == emulItCheckSort->hwPt()
-	     && dataIt->hwPhi() == emulItCheckSort->hwPhi()
-	     && dataIt->hwEta() == emulItCheckSort->hwEta())
-	    posGood = true;
-	}
+        l1t::TauBxCollection::const_iterator emulItCheckSort;
+        l1t::TauBxCollection::const_iterator dataItCheckSort;
+        for(emulItCheckSort = emulCol->begin(currBx); emulItCheckSort != emulCol->end(currBx); ++emulItCheckSort) {
+          for (dataItCheckSort = taus->begin(); dataItCheckSort != taus->end(); ++dataItCheckSort){
+          
+            if(dataItCheckSort->hwEta() > 0) ++nPos;
+            if(dataItCheckSort->hwEta() < 0) ++nNeg;
+            
+            if(dataIt->hwPt() == emulItCheckSort->hwPt()
+               && dataIt->hwPhi() == emulItCheckSort->hwPhi()
+               && dataIt->hwEta() == emulItCheckSort->hwEta())
+              posGood = true;
+          }
+        }
       }
 
       if(etGood && dataIt->hwEta() > 0 && ((distance(dataIt, taus->end())-nNeg) < 5))

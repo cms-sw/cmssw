@@ -172,8 +172,8 @@ def get_serializable_classes_members(node, all_template_types=None, namespace=''
             if only_from_path is not None \
                 and child.location.file is not None \
                 and not child.location.file.name.startswith(only_from_path):
-                    logging.debug('Skipping since it is an external of this package: %s', child.spelling)
-                    continue
+                logging.debug('Skipping since it is an external of this package: %s', child.spelling)
+                continue
 
             serializable = is_serializable_class(child)
             if serializable:
@@ -216,8 +216,8 @@ def get_serializable_classes_members(node, all_template_types=None, namespace=''
                 # Template non-type parameters (e.g. <int N>)
                 elif member.kind == clang.cindex.CursorKind.TEMPLATE_NON_TYPE_PARAMETER:
                     type_string = get_type_string(member)
-		    if not type_string: 
-		       type_string = get_basic_type_string(member)
+                    if not type_string: 
+                        type_string = get_basic_type_string(member)
                     logging.info('    Found template non-type parameter: %s %s', type_string, member.spelling)
                     template_types.append((type_string, member.spelling))
 
@@ -449,12 +449,12 @@ class SerializationCodeGenerator(object):
         product_name = '%s%s' % (self.split_path[1], self.split_path[2])
         logging.debug('product_name = %s', product_name)
 
-	if not scramFlags:
-	   cpp_flags = get_flags(product_name, 'CPPFLAGS')
-           cxx_flags = get_flags(product_name, 'CXXFLAGS')
-	else:
-	   cpp_flags = self.cleanFlags( scramFlags )
-	   cxx_flags = []
+        if not scramFlags:
+            cpp_flags = get_flags(product_name, 'CPPFLAGS')
+            cxx_flags = get_flags(product_name, 'CXXFLAGS')
+        else:
+            cpp_flags = self.cleanFlags( scramFlags )
+            cxx_flags = []
 
         # We are using libClang, thus we have to follow Clang include paths
         std_flags = get_default_gcc_search_paths(gcc='clang++')
@@ -516,9 +516,9 @@ class SerializationCodeGenerator(object):
 
     def generate(self, outFileName):
 
-    	filename = outFileName
-	if not filename:  # in case we're not using scram, this may not be set, use the default then, assuming we're in the package dir ...
-	   filename = self._join_package_path('src', 'Serialization.cc')
+        filename = outFileName
+        if not filename:  # in case we're not using scram, this may not be set, use the default then, assuming we're in the package dir ...
+            filename = self._join_package_path('src', 'Serialization.cc')
 
         n_serializable_classes = 0
 
@@ -577,10 +577,10 @@ def main():
 
     logLevel = logging.INFO
     if opts.verbose < 1 and opts.output and opts.package:   # assume we're called by scram and reduce logging - but only if no verbose is requested
-       logLevel = logging.WARNING
+        logLevel = logging.WARNING
 
     if opts.verbose >= 1: 
-       logLevel = logging.DEBUG
+        logLevel = logging.DEBUG
 
     logging.basicConfig(
         format = '[%(asctime)s] %(levelname)s: %(message)s',
@@ -589,13 +589,13 @@ def main():
 
     if opts.package:  # we got a directory name to process, assume it's from scram and remove the last ('/src') dir from the path
         pkgDir = opts.package
-	if pkgDir.endswith('/src') :
-	    pkgDir, srcDir = os.path.split( opts.package )
+        if pkgDir.endswith('/src') :
+            pkgDir, srcDir = os.path.split( opts.package )
         os.chdir( pkgDir )
-	logging.info("Processing package in %s " % pkgDir)
+        logging.info("Processing package in %s " % pkgDir)
 
     if opts.output:
-       logging.info("Writing serialization code to %s " % opts.output)
+        logging.info("Writing serialization code to %s " % opts.output)
 
     SerializationCodeGenerator( scramFlags=args[1:] ).generate( opts.output )
 

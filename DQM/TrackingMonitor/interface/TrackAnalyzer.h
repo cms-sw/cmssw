@@ -351,6 +351,11 @@ class TrackAnalyzer
 	MonitorElement* Chi2ProbVsTheta;
 	
 	MonitorElement* DistanceOfClosestApproach;
+	MonitorElement* DistanceOfClosestApproachError;
+	MonitorElement* DistanceOfClosestApproachErrorVsPt;
+	MonitorElement* DistanceOfClosestApproachErrorVsEta;
+	MonitorElement* DistanceOfClosestApproachErrorVsPhi;
+	MonitorElement* DistanceOfClosestApproachErrorVsDxy;
 	MonitorElement* DistanceOfClosestApproachToBS;
 	MonitorElement* AbsDistanceOfClosestApproachToBS;
 	MonitorElement* DistanceOfClosestApproachToPV;

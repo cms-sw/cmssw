@@ -20,83 +20,83 @@ from ROOT import TFile
 class Inspector:
 
     def SetFilename(self, value):
-	self.Filename = value
+        self.Filename = value
     def Verbose(self, value):
-	self.Verbose = value
+        self.Verbose = value
 
     def createXML(self, value):
-	self.XML = value
+        self.XML = value
 
     def SetTag(self,value):
-	self.tag = value
-	self.TagOption = True
+        self.tag = value
+        self.TagOption = True
 
     def Loop(self):
-		
-	afile = TFile(self.Filename)
-	afilename = self.Filename
-	stripfilename = afilename
 
-	try:
-	    if self.TagOption:
-		stripfilename = self.tag
-	except:
-	    stripfilename = afilename.split('/')[len(afilename.split('/')) -1]
-	    stripfilename = stripfilename[0:(len(stripfilename)-5)]
-	
-	alist = self.dir.GetListOfKeys()
+        afile = TFile(self.Filename)
+        afilename = self.Filename
+        stripfilename = afilename
 
-	for i in alist:
-	    aobj = i.ReadObj()
-	    if aobj.IsA().InheritsFrom("TDirectory"):
-		if self.Verbose:
-		    print(' found directory: '+i.GetName())
+        try:
+            if self.TagOption:
+                stripfilename = self.tag
+        except:
+            stripfilename = afilename.split('/')[len(afilename.split('/')) -1]
+            stripfilename = stripfilename[0:(len(stripfilename)-5)]
 
-		if self.XML:
-		    print('   <!-- '+i.GetName()+' -->')
+        alist = self.dir.GetListOfKeys()
 
-		bdir = self.dir
-		afile.GetObject(i.GetName(),bdir)
-		blist = bdir.GetListOfKeys()
-		for j in blist:
-		    bobj = j.ReadObj()
-		    if bobj.IsA().InheritsFrom(ROOT.TH1.Class()):
-			if self.Verbose:
-			    print('  --> found TH1: name = '+j.GetName() + ' title = '+j.GetTitle())
-			if self.XML:
-			    print('   <TH1 name=\"'+stripfilename+'_'+j.GetName()+'\" source=\"'+'/'+i.GetName()+'/'+j.GetName()+'\"/>')
-			
+        for i in alist:
+            aobj = i.ReadObj()
+            if aobj.IsA().InheritsFrom("TDirectory"):
+                if self.Verbose:
+                    print(' found directory: '+i.GetName())
+
+                if self.XML:
+                    print('   <!-- '+i.GetName()+' -->')
+
+                bdir = self.dir
+                afile.GetObject(i.GetName(),bdir)
+                blist = bdir.GetListOfKeys()
+                for j in blist:
+                    bobj = j.ReadObj()
+                    if bobj.IsA().InheritsFrom(ROOT.TH1.Class()):
+                        if self.Verbose:
+                            print('  --> found TH1: name = '+j.GetName() + ' title = '+j.GetTitle())
+                        if self.XML:
+                            print('   <TH1 name=\"'+stripfilename+'_'+j.GetName()+'\" source=\"'+'/'+i.GetName()+'/'+j.GetName()+'\"/>')
+
     def GetListObjects(self):
-	
-	afile = TFile(self.Filename)
-	
-	if afile.IsZombie():
-	    print(" error trying to open file: " + self.Filename)
-	    sys.exit()
-	
-	if self.XML:
 
-	    print('''
+        afile = TFile(self.Filename)
+
+        if afile.IsZombie():
+            print(" error trying to open file: " + self.Filename)
+            sys.exit()
+
+        if self.XML:
+
+            print('''
 <cuy>
 ''')	
-	    print('  <validation type=\"'+afile.GetName()+'\" file=\"'+self.Filename+'\" release=\"x.y.z\">')
-	
-	self.dir = ROOT.gDirectory
-	self.Loop()
+            print('  <validation type=\"'+afile.GetName()+'\" file=\"'+self.Filename+'\" release=\"x.y.z\">')
 
-	if self.XML:
+        self.dir = ROOT.gDirectory
+        self.Loop()
 
-	    print('''
+        if self.XML:
+
+            print('''
   </validation>
 
 </cuy>
 ''')
-	    
 
 
 
 
 
-    
+
+
 
 

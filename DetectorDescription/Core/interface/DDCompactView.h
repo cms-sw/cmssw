@@ -120,7 +120,7 @@ public:
 		 const DDDivision * div = nullptr);
   
   void setRoot(const DDLogicalPart & root);
-  
+
   void lockdown();
   
  private:
