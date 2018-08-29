@@ -39,12 +39,7 @@ zttModifier = ApplyFunctionToSequence(zttLabeler)
 proc.TauValNumeratorAndDenominatorZMM.visit(zttModifier)
 
 #Set discriminators
-proc.RunHPSValidationZMM.discriminators = cms.VPSet(
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByDecayModeFinding"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByDecayModeFindingNewDMs"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseMuonRejection3"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightMuonRejection3"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-)
+proc.RunHPSValidationZMM.discriminators = cms.VPSet([p for p in proc.RunHPSValidationZMM.discriminators if 'ByDecayModeFinding' in p.discriminator.value() or 'MuonRejection3' in p.discriminator.value() ])
 
 #Sets the correct naming to efficiency histograms
 proc.efficienciesZMM.plots = Utils.SetPlotSequence(proc.TauValNumeratorAndDenominatorZMM)

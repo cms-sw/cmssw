@@ -42,15 +42,7 @@ zttModifier = ApplyFunctionToSequence(zttLabeler)
 proc.TauValNumeratorAndDenominatorZEE.visit(zttModifier)
 
 #Set discriminators
-proc.RunHPSValidationZEE.discriminators = cms.VPSet(
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByDecayModeFinding"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByDecayModeFindingNewDMs"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA6VLooseElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA6LooseElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA6MediumElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA6TightElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA6VTightElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False))
-)
+proc.RunHPSValidationZEE.discriminators = cms.VPSet([p for p in proc.RunHPSValidationZEE.discriminators if 'ByDecayModeFinding' in p.discriminator.value() or 'MVA6' in p.discriminator.value() ])
 
 #Sets the correct naming to efficiency histograms
 proc.efficienciesZEE.plots = Utils.SetPlotSequence(proc.TauValNumeratorAndDenominatorZEE)
