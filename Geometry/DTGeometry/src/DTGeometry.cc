@@ -11,10 +11,28 @@
 
 DTGeometry::DTGeometry() {}
 
-DTGeometry::~DTGeometry(){
+DTGeometry::~DTGeometry() {
+  deallocate();
+}
+
+void DTGeometry::deallocate() {
   // delete all the chambers (which will delete the SL which will delete the
   // layers)
   for (auto & theChamber : theChambers) delete theChamber;
+}
+
+void DTGeometry::clear() {
+  deallocate();
+
+  theChambers.clear();
+  theSuperLayers.clear();
+  theLayers.clear();
+  theMap.clear();
+  theDetUnits.clear();
+  theDets.clear();
+  theDetTypes.clear();
+  theDetUnitIds.clear();
+  theDetIds.clear();
 }
 
 const DTGeometry::DetTypeContainer&  DTGeometry::detTypes() const{
