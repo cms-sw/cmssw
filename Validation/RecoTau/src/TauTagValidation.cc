@@ -118,7 +118,7 @@ void TauTagValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
   MonitorElement * ptTemp,* etaTemp,* phiTemp, *pileupTemp, *tmpME, *summaryTemp;
 
   ibooker.setCurrentFolder("RecoTauV/" + TauProducer_ + extensionName_ + "_Summary" );
-  hinfo summaryHinfo = (histoSettings_.exists("summary")) ? hinfo(histoSettings_.getParameter<edm::ParameterSet>("summary")) : hinfo(17, -0.5, 15.5);
+  hinfo summaryHinfo = (histoSettings_.exists("summary")) ? hinfo(histoSettings_.getParameter<edm::ParameterSet>("summary")) : hinfo(21, -0.5, 20.5);
   summaryTemp =  ibooker.book1D("summaryPlotNum", "summaryPlotNum", summaryHinfo.nbins, summaryHinfo.min, summaryHinfo.max);
   summaryMap.insert( std::make_pair(refCollection_+"Num",summaryTemp));
   summaryTemp =  ibooker.book1D("summaryPlotDen", "summaryPlotDen", summaryHinfo.nbins, summaryHinfo.min, summaryHinfo.max);
