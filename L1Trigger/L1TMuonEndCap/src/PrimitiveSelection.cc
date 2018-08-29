@@ -83,17 +83,17 @@ void PrimitiveSelection::process(
         selected_csc_map[selected_csc].push_back(new_tp);
       }
       else {
-        LogDebug("L1T") << "\n******************* EMTF EMULATOR: SUPER-BIZZARE CASE *******************";
-        LogDebug("L1T") << "Found 3 CSC trigger primitives in the same chamber";
+        edm::LogWarning("L1T") << "\n******************* EMTF EMULATOR: SUPER-BIZZARE CASE *******************";
+        edm::LogWarning("L1T") << "Found 3 CSC trigger primitives in the same chamber";
         for (int ii = 0; ii < 3; ii++) {
           TriggerPrimitive tp_err = (ii < 2 ? selected_csc_map[selected_csc].at(ii) : new_tp);
-          LogDebug("L1T") << "LCT #" << ii+1 << ": BX " << tp_err.getBX()
+          edm::LogWarning("L1T") << "LCT #" << ii+1 << ": BX " << tp_err.getBX()
                     << ", endcap " << tp_err.detId<CSCDetId>().endcap() << ", sector " << tp_err.detId<CSCDetId>().triggerSector()
                     << ", station " << tp_err.detId<CSCDetId>().station() << ", ring " << tp_err.detId<CSCDetId>().ring()
                     << ", chamber " << tp_err.detId<CSCDetId>().chamber() << ", CSC ID " << tp_err.getCSCData().cscID
                     << ": strip " << tp_err.getStrip() << ", wire " << tp_err.getWire();
         }
-        LogDebug("L1T") << "************************* ONLY KEEP FIRST TWO *************************\n\n";
+        edm::LogWarning("L1T") << "************************* ONLY KEEP FIRST TWO *************************\n\n";
       }
 
     } // End conditional: if (selected_csc >= 0)
