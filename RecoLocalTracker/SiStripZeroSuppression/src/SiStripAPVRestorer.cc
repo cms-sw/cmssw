@@ -8,18 +8,18 @@
 
 SiStripAPVRestorer::SiStripAPVRestorer(const edm::ParameterSet& conf):
   quality_cache_id(-1), noise_cache_id(-1), pedestal_cache_id(-1),
-  ForceNoRestore_(conf.getParameter<bool>("ForceNoRestore")),
+  forceNoRestore_(conf.getParameter<bool>("ForceNoRestore")),
 // SelfSelectRestoreAlgo_(conf.getParameter<bool>("SelfSelectRestoreAlgo")),
-  InspectAlgo_(conf.getParameter<std::string>("APVInspectMode")),
-  RestoreAlgo_(conf.getParameter<std::string>("APVRestoreMode")),
+  inspectAlgo_(conf.getParameter<std::string>("APVInspectMode")),
+  restoreAlgo_(conf.getParameter<std::string>("APVRestoreMode")),
   // CM map settings
   useRealMeanCM_(conf.getParameter<bool>("useRealMeanCM")),
-  MeanCM_(conf.getParameter<int32_t>("MeanCM")),
-  DeltaCMThreshold_(conf.getParameter<uint32_t>("DeltaCMThreshold")),
+  meanCM_(conf.getParameter<int32_t>("MeanCM")),
+  deltaCMThreshold_(conf.getParameter<uint32_t>("DeltaCMThreshold")),
   // abnormal baseline inspect
   fraction_(conf.getParameter<double>("Fraction")),
   deviation_(conf.getParameter<uint32_t>("Deviation")),
-  // NullInspect
+  // nullInspect
   restoreThreshold_(conf.getParameter<double>("restoreThreshold")),
   // baseline and saturation inspect
   nSaturatedStrip_(conf.getParameter<uint32_t>("nSaturatedStrip")),
@@ -28,8 +28,8 @@ SiStripAPVRestorer::SiStripAPVRestorer(const edm::ParameterSet& conf):
   consecThreshold_(conf.getParameter<uint32_t>("consecThreshold")),
   nSmooth_(conf.getParameter<uint32_t>("nSmooth")),
   distortionThreshold_(conf.getParameter<uint32_t>("distortionThreshold")),
-  ApplyBaselineCleaner_(conf.getParameter<bool>("ApplyBaselineCleaner")),
-  CleaningSequence_(conf.getParameter<uint32_t>("CleaningSequence")),
+  applyBaselineCleaner_(conf.getParameter<bool>("ApplyBaselineCleaner")),
+  cleaningSequence_(conf.getParameter<uint32_t>("CleaningSequence")),
   // cleaner_localmin
   slopeX_(conf.getParameter<int32_t>("slopeX")),
   slopeY_(conf.getParameter<int32_t>("slopeY")),
@@ -37,7 +37,7 @@ SiStripAPVRestorer::SiStripAPVRestorer(const edm::ParameterSet& conf):
   hitStripThreshold_(conf.getParameter<uint32_t>("hitStripThreshold")),
   // baseline follower (restore)
   minStripsToFit_(conf.getParameter<uint32_t>("minStripsToFit")),
-  ApplyBaselineRejection_(conf.getParameter<bool>("ApplyBaselineRejection")),
+  applyBaselineRejection_(conf.getParameter<bool>("ApplyBaselineRejection")),
   filteredBaselineMax_(conf.getParameter<double>("filteredBaselineMax")),
   filteredBaselineDerivativeSumSquare_(conf.getParameter<double>("filteredBaselineDerivativeSumSquare")),
   // derivative follower restorer
@@ -46,7 +46,7 @@ SiStripAPVRestorer::SiStripAPVRestorer(const edm::ParameterSet& conf):
   size_window_(conf.getParameter<int>("sizeWindow")),
   width_cluster_(conf.getParameter<int>("widthCluster"))
 {
-  if ( RestoreAlgo_ == "BaselineFollower" && InspectAlgo_ != "BaselineFollower" )
+  if ( restoreAlgo_ == "BaselineFollower" && inspectAlgo_ != "BaselineFollower" )
     throw cms::Exception("Incompatible Algorithm") << "The BaselineFollower restore method requires the BaselineFollower inspect method";
 }
 
@@ -78,7 +78,7 @@ void SiStripAPVRestorer::init(const edm::EventSetup& es)
   }
 }
 
-uint16_t SiStripAPVRestorer::InspectAndRestore(uint32_t detId, uint16_t firstAPV, const digivector_t& rawDigisPedSubtracted, digivector_t& processedRawDigi, const medians_t& vmedians )
+uint16_t SiStripAPVRestorer::inspectAndRestore(uint32_t detId, uint16_t firstAPV, const digivector_t& rawDigisPedSubtracted, digivector_t& processedRawDigi, const medians_t& vmedians )
 {
   auto nAPVFlagged = inspect(detId, firstAPV, rawDigisPedSubtracted, vmedians);
   restore(firstAPV, processedRawDigi);
@@ -94,8 +94,8 @@ uint16_t SiStripAPVRestorer::inspect(uint32_t detId, uint16_t firstAPV, const di
   apvFlagsBool_.clear();
   median_.assign(6, -999);
   badAPVs_.assign(6, false);
-  SmoothedMaps_.clear();
-  BaselineMap_.clear();
+  smoothedMaps_.clear();
+  baselineMap_.clear();
   for ( const auto med : vmedians ) {
     auto iAPV = med.first;
     median_[iAPV] = med.second;
@@ -103,20 +103,20 @@ uint16_t SiStripAPVRestorer::inspect(uint32_t detId, uint16_t firstAPV, const di
   }
 
   uint16_t nAPVFlagged = 0;
-  if      ( InspectAlgo_ == "Hybrid" )
-    nAPVFlagged = HybridFormatInspect(firstAPV, digis);
-  else if ( InspectAlgo_ == "HybridEmulation" )
-    nAPVFlagged = HybridEmulationInspect(firstAPV, digis);
-  else if ( InspectAlgo_ == "BaselineFollower" )
-    nAPVFlagged = BaselineFollowerInspect(firstAPV, digis);
-  else if ( InspectAlgo_ == "AbnormalBaseline" )
-    nAPVFlagged = AbnormalBaselineInspect(firstAPV, digis);
-  else if ( InspectAlgo_ == "Null" )
-    nAPVFlagged = NullInspect(firstAPV, digis);
-  else if ( InspectAlgo_ == "BaselineAndSaturation" )
-    nAPVFlagged = BaselineAndSaturationInspect(firstAPV, digis);
-  else if ( InspectAlgo_ == "DerivativeFollower" )
-    nAPVFlagged = ForceRestoreInspect(firstAPV, digis);
+  if      ( inspectAlgo_ == "Hybrid" )
+    nAPVFlagged = hybridFormatInspect(firstAPV, digis);
+  else if ( inspectAlgo_ == "HybridEmulation" )
+    nAPVFlagged = hybridEmulationInspect(firstAPV, digis);
+  else if ( inspectAlgo_ == "BaselineFollower" )
+    nAPVFlagged = baselineFollowerInspect(firstAPV, digis);
+  else if ( inspectAlgo_ == "AbnormalBaseline" )
+    nAPVFlagged = abnormalBaselineInspect(firstAPV, digis);
+  else if ( inspectAlgo_ == "Null" )
+    nAPVFlagged = nullInspect(firstAPV, digis);
+  else if ( inspectAlgo_ == "BaselineAndSaturation" )
+    nAPVFlagged = baselineAndSaturationInspect(firstAPV, digis);
+  else if ( inspectAlgo_ == "DerivativeFollower" )
+    nAPVFlagged = forceRestoreInspect(firstAPV, digis);
   else
     throw cms::Exception("Unregistered Inspect Algorithm") << "SiStripAPVRestorer possibilities: (Null), (AbnormalBaseline), (BaselineFollower), (BaselineAndSaturation), (DerivativeFollower), (Hybrid), (HybridEmulation)";
 
@@ -130,18 +130,18 @@ uint16_t SiStripAPVRestorer::inspect(uint32_t detId, uint16_t firstAPV, const di
 
 void SiStripAPVRestorer::restore(uint16_t firstAPV, digivector_t& digis)
 {
-  if ( ForceNoRestore_ ) return;
+  if ( forceNoRestore_ ) return;
 
   for ( uint16_t iAPV=firstAPV; iAPV < digis.size()/128 + firstAPV; ++iAPV ) {
     auto algoToUse = apvFlags_[iAPV];
     if ( !algoToUse.empty()) {
-      // if(!SelfSelectRestoreAlgo_) algoToUse = RestoreAlgo_;
+      // if(!SelfSelectRestoreAlgo_) algoToUse = restoreAlgo_;
       if        ( algoToUse == "Flat" ) {
-        FlatRestore(iAPV, firstAPV, digis);
+        flatRestore(iAPV, firstAPV, digis);
       } else if ( algoToUse == "BaselineFollower" ) {
-        BaselineFollowerRestore(iAPV, firstAPV, median_[iAPV], digis);
+        baselineFollowerRestore(iAPV, firstAPV, median_[iAPV], digis);
       } else if ( algoToUse == "DerivativeFollower" ) {
-        DerivativeFollowerRestore(iAPV, firstAPV, digis);
+        derivativeFollowerRestore(iAPV, firstAPV, digis);
       } else {
         throw cms::Exception("Unregistered Restore Algorithm") << "SiStripAPVRestorer possibilities: (Flat), (BaselineFollower), (DerivativeFollower)";
       }
@@ -151,7 +151,7 @@ void SiStripAPVRestorer::restore(uint16_t firstAPV, digivector_t& digis)
 
 // Inspect method implementations
 
-inline uint16_t SiStripAPVRestorer::HybridFormatInspect(uint16_t firstAPV, const digivector_t& digis)
+inline uint16_t SiStripAPVRestorer::hybridFormatInspect(uint16_t firstAPV, const digivector_t& digis)
 {
   digivector_t singleAPVdigi; singleAPVdigi.reserve(128);
   uint16_t nAPVflagged = 0;
@@ -167,29 +167,29 @@ inline uint16_t SiStripAPVRestorer::HybridFormatInspect(uint16_t firstAPV, const
       }
 
       if ( stripsPerAPV > 64 ) {
-        FlatRegionsFinder(singleAPVdigi, smoothedmap, iAPV);
-        apvFlags_[iAPV]= RestoreAlgo_;    //specify any algo to make the restore
+        flatRegionsFinder(singleAPVdigi, smoothedmap, iAPV);
+        apvFlags_[iAPV]= restoreAlgo_;    //specify any algo to make the restore
         nAPVflagged++;
       }
     }
-    SmoothedMaps_.emplace_hint(SmoothedMaps_.end(), iAPV, std::move(smoothedmap));
+    smoothedMaps_.emplace_hint(smoothedMaps_.end(), iAPV, std::move(smoothedmap));
   }
   return nAPVflagged;
 }
 
-inline uint16_t SiStripAPVRestorer::BaselineFollowerInspect(uint16_t firstAPV, const digivector_t& digis)
+inline uint16_t SiStripAPVRestorer::baselineFollowerInspect(uint16_t firstAPV, const digivector_t& digis)
 {
   digivector_t singleAPVdigi; singleAPVdigi.reserve(128);
   uint16_t nAPVflagged = 0;
 
-  auto itCMMap = std::end(MeanCMmap_);
-  if (useRealMeanCM_) itCMMap = MeanCMmap_.find(detId_);
+  auto itCMMap = std::end(meanCMmap_);
+  if (useRealMeanCM_) itCMMap = meanCMmap_.find(detId_);
 
   for ( uint16_t iAPV = firstAPV; iAPV < firstAPV + digis.size()/128; ++iAPV ) {
     digimap_t smoothedmap;
     if ( ! badAPVs_[iAPV] ) {
-      float MeanAPVCM = MeanCM_;
-      if ( useRealMeanCM_ && ( std::end(MeanCMmap_) != itCMMap ) )
+      float MeanAPVCM = meanCM_;
+      if ( useRealMeanCM_ && ( std::end(meanCMmap_) != itCMMap ) )
         MeanAPVCM = itCMMap->second[iAPV];
 
       singleAPVdigi.clear();
@@ -197,42 +197,42 @@ inline uint16_t SiStripAPVRestorer::BaselineFollowerInspect(uint16_t firstAPV, c
 
       const float DeltaCM = median_[iAPV] - MeanAPVCM;
       //std::cout << "Delta CM: " << DeltaCM << " CM: " << median_[APV] << " detId " << (uint32_t) detId_ << std::endl;
-      if ( ( DeltaCM < 0 ) && ( std::abs(DeltaCM) > DeltaCMThreshold_ ) ) {
-        if ( ! FlatRegionsFinder(singleAPVdigi, smoothedmap, iAPV) ) {
-          apvFlags_[iAPV]= RestoreAlgo_;    //specify any algo to make the restore
+      if ( ( DeltaCM < 0 ) && ( std::abs(DeltaCM) > deltaCMThreshold_ ) ) {
+        if ( ! flatRegionsFinder(singleAPVdigi, smoothedmap, iAPV) ) {
+          apvFlags_[iAPV]= restoreAlgo_;    //specify any algo to make the restore
           ++nAPVflagged;
         }
       }
     }
-    SmoothedMaps_.emplace_hint(SmoothedMaps_.end(), iAPV, std::move(smoothedmap));
+    smoothedMaps_.emplace_hint(smoothedMaps_.end(), iAPV, std::move(smoothedmap));
   }
   return nAPVflagged;
 }
 
-inline uint16_t SiStripAPVRestorer::ForceRestoreInspect(uint16_t firstAPV, const digivector_t& digis)
+inline uint16_t SiStripAPVRestorer::forceRestoreInspect(uint16_t firstAPV, const digivector_t& digis)
 {
   uint16_t nAPVflagged = 0;
   for ( uint16_t iAPV = firstAPV; iAPV < firstAPV + digis.size()/128; ++iAPV ) {
     if ( ! badAPVs_[iAPV] ) {
-      apvFlags_[iAPV] = RestoreAlgo_;    //specify any algo to make the restore
+      apvFlags_[iAPV] = restoreAlgo_;    //specify any algo to make the restore
       nAPVflagged++;
     }
   }
   return nAPVflagged;
 }
 
-inline uint16_t SiStripAPVRestorer::BaselineAndSaturationInspect(uint16_t firstAPV, const digivector_t& digis)
+inline uint16_t SiStripAPVRestorer::baselineAndSaturationInspect(uint16_t firstAPV, const digivector_t& digis)
 {
   digivector_t singleAPVdigi; singleAPVdigi.reserve(128);
   uint16_t nAPVflagged = 0;
 
-  auto itCMMap = std::end(MeanCMmap_);
-  if (useRealMeanCM_) itCMMap = MeanCMmap_.find(detId_);
+  auto itCMMap = std::end(meanCMmap_);
+  if (useRealMeanCM_) itCMMap = meanCMmap_.find(detId_);
 
   for ( uint16_t iAPV = firstAPV; iAPV < firstAPV + digis.size()/128; ++iAPV ) {
     if ( ! badAPVs_[iAPV] ) {
-      float MeanAPVCM = MeanCM_;
-      if ( useRealMeanCM_ && ( std::end(MeanCMmap_) != itCMMap ) )
+      float MeanAPVCM = meanCM_;
+      if ( useRealMeanCM_ && ( std::end(meanCMmap_) != itCMMap ) )
         MeanAPVCM = itCMMap->second[iAPV];
 
       singleAPVdigi.clear();
@@ -244,8 +244,8 @@ inline uint16_t SiStripAPVRestorer::BaselineAndSaturationInspect(uint16_t firstA
       }
 
       const float DeltaCM = median_[iAPV] - MeanAPVCM;
-      if ( ( DeltaCM < 0 ) && ( std::abs(DeltaCM) > DeltaCMThreshold_ ) && ( nSatStrip >= nSaturatedStrip_ ) ) {
-        apvFlags_[iAPV] = RestoreAlgo_;    //specify any algo to make the restore
+      if ( ( DeltaCM < 0 ) && ( std::abs(DeltaCM) > deltaCMThreshold_ ) && ( nSatStrip >= nSaturatedStrip_ ) ) {
+        apvFlags_[iAPV] = restoreAlgo_;    //specify any algo to make the restore
         ++nAPVflagged;
       }
     }
@@ -253,20 +253,20 @@ inline uint16_t SiStripAPVRestorer::BaselineAndSaturationInspect(uint16_t firstA
   return nAPVflagged;
 }
 
-inline uint16_t SiStripAPVRestorer::AbnormalBaselineInspect(uint16_t firstAPV, const digivector_t& digis)
+inline uint16_t SiStripAPVRestorer::abnormalBaselineInspect(uint16_t firstAPV, const digivector_t& digis)
 {
   SiStripQuality::Range detQualityRange = qualityHandle->getRange(detId_);
 
   uint16_t nAPVflagged = 0;
 
-  auto itCMMap = std::end(MeanCMmap_);
-  if (useRealMeanCM_) itCMMap = MeanCMmap_.find(detId_);
+  auto itCMMap = std::end(meanCMmap_);
+  if (useRealMeanCM_) itCMMap = meanCMmap_.find(detId_);
 
   int devCount = 0, qualityCount = 0, minstrip = 0;
   for ( uint16_t iAPV = firstAPV; iAPV < firstAPV + digis.size()/128; ++iAPV ) {
     if ( ! badAPVs_[iAPV] ) {
-      float MeanAPVCM = MeanCM_;
-      if ( useRealMeanCM_ && ( std::end(MeanCMmap_) != itCMMap ) )
+      float MeanAPVCM = meanCM_;
+      if ( useRealMeanCM_ && ( std::end(meanCMmap_) != itCMMap ) )
         MeanAPVCM = itCMMap->second[iAPV];
 
       for (uint16_t istrip = iAPV*128; istrip < (iAPV+1)*128; ++istrip ) {
@@ -280,7 +280,7 @@ inline uint16_t SiStripAPVRestorer::AbnormalBaselineInspect(uint16_t firstAPV, c
         }
       }
       if ( devCount > fraction_ * qualityCount ) {
-        apvFlags_[iAPV] = RestoreAlgo_;      //specify any algo to make the restore
+        apvFlags_[iAPV] = restoreAlgo_;      //specify any algo to make the restore
         nAPVflagged++;
       }
     }
@@ -288,7 +288,7 @@ inline uint16_t SiStripAPVRestorer::AbnormalBaselineInspect(uint16_t firstAPV, c
   return nAPVflagged;
 }
 
-inline uint16_t SiStripAPVRestorer::NullInspect(uint16_t firstAPV, const digivector_t& digis)
+inline uint16_t SiStripAPVRestorer::nullInspect(uint16_t firstAPV, const digivector_t& digis)
 {
   SiStripQuality::Range detQualityRange = qualityHandle->getRange(detId_);
 
@@ -304,7 +304,7 @@ inline uint16_t SiStripAPVRestorer::NullInspect(uint16_t firstAPV, const digivec
         }
       }
       if ( zeroCount > restoreThreshold_ * qualityCount ) {
-        apvFlags_[iAPV] = RestoreAlgo_;     //specify any algo to make the restore
+        apvFlags_[iAPV] = restoreAlgo_;     //specify any algo to make the restore
         nAPVflagged++;
       }
     }
@@ -312,22 +312,22 @@ inline uint16_t SiStripAPVRestorer::NullInspect(uint16_t firstAPV, const digivec
   return nAPVflagged;
 }
 
-inline uint16_t SiStripAPVRestorer::HybridEmulationInspect(uint16_t firstAPV, const digivector_t& digis)
+inline uint16_t SiStripAPVRestorer::hybridEmulationInspect(uint16_t firstAPV, const digivector_t& digis)
 {
   uint16_t nAPVflagged = 0;
 
-  auto itCMMap = std::end(MeanCMmap_);
-  if (useRealMeanCM_) itCMMap = MeanCMmap_.find(detId_);
+  auto itCMMap = std::end(meanCMmap_);
+  if (useRealMeanCM_) itCMMap = meanCMmap_.find(detId_);
 
   for ( uint16_t iAPV = firstAPV; iAPV < firstAPV + digis.size()/128; ++iAPV ) {
     if ( ! badAPVs_[iAPV] ) {
-      float MeanAPVCM = MeanCM_;
-      if ( useRealMeanCM_ && ( std::end(MeanCMmap_) != itCMMap ) )
+      float MeanAPVCM = meanCM_;
+      if ( useRealMeanCM_ && ( std::end(meanCMmap_) != itCMMap ) )
         MeanAPVCM = itCMMap->second[iAPV];
 
       const float DeltaCM = median_[iAPV] - MeanAPVCM;
       //std::cout << "Delta CM: " << DeltaCM << " CM: " << median_[APV] << " detId " << (uint32_t) detId_ << std::endl;
-      if ( ( DeltaCM < 0 ) && ( std::abs(DeltaCM) > DeltaCMThreshold_ ) ) {
+      if ( ( DeltaCM < 0 ) && ( std::abs(DeltaCM) > deltaCMThreshold_ ) ) {
         apvFlags_[iAPV] = "HybridEmulation";
         ++nAPVflagged;
         //std::cout << "and it is APV: " << APV << "Delta CM: " << DeltaCM << " median " << median_[APV] << " Mean APV " << MeanAPVCM << " marked bad " << markedVRAPVs[APV] << std::endl; //to be removed
@@ -339,49 +339,49 @@ inline uint16_t SiStripAPVRestorer::HybridEmulationInspect(uint16_t firstAPV, co
 
 // Restore method implementations
 
-inline void SiStripAPVRestorer::BaselineFollowerRestore(uint16_t APVn, uint16_t firstAPV, float median, digivector_t& digis)
+inline void SiStripAPVRestorer::baselineFollowerRestore(uint16_t apvN, uint16_t firstAPV, float median, digivector_t& digis)
 {
   digivector_t baseline(size_t(128), 0);
 
   //============================= Find Flat Regions & Interpolating the baseline & subtracting the baseline  =================
-  if ( ! SmoothedMaps_.empty() ) {
-    auto itSmootedMap = SmoothedMaps_.find(APVn);
-    BaselineFollower(itSmootedMap->second, baseline, median);
+  if ( ! smoothedMaps_.empty() ) {
+    auto itSmootedMap = smoothedMaps_.find(apvN);
+    baselineFollower(itSmootedMap->second, baseline, median);
   } else {
     //median=0;
     digivector_t singleAPVdigi; singleAPVdigi.reserve(128);
-    std::copy_n(std::begin(digis)+128*(APVn-firstAPV), 128, std::back_inserter(singleAPVdigi));
+    std::copy_n(std::begin(digis)+128*(apvN-firstAPV), 128, std::back_inserter(singleAPVdigi));
     digimap_t smoothedpoints;
-    FlatRegionsFinder(singleAPVdigi, smoothedpoints, APVn);
-    BaselineFollower(smoothedpoints, baseline, median);
+    flatRegionsFinder(singleAPVdigi, smoothedpoints, apvN);
+    baselineFollower(smoothedpoints, baseline, median);
   }
 
-  if (ApplyBaselineRejection_) {
-    if ( CheckBaseline(baseline) ) apvFlagsBoolOverride_[APVn] = true;
+  if (applyBaselineRejection_) {
+    if ( checkBaseline(baseline) ) apvFlagsBoolOverride_[apvN] = true;
   }
 
   //============================= subtracting the baseline =============================================
   for ( int16_t itStrip = 0 ; itStrip < 128; ++itStrip ) {
-    digis[128*(APVn-firstAPV)+itStrip] -= baseline[itStrip] - median;
+    digis[128*(apvN-firstAPV)+itStrip] -= baseline[itStrip] - median;
   }
 
   //============================= storing baseline to the map =============================================
-  BaselineMap_.emplace_hint(BaselineMap_.end(), APVn, std::move(baseline));
+  baselineMap_.emplace_hint(baselineMap_.end(), apvN, std::move(baseline));
 }
 
-inline void SiStripAPVRestorer::FlatRestore(uint16_t APVn, uint16_t firstAPV, digivector_t& digis)
+inline void SiStripAPVRestorer::flatRestore(uint16_t apvN, uint16_t firstAPV, digivector_t& digis)
 {
   digivector_t baseline(size_t(128), 150);
   baseline[0] = 0; baseline[127] = 0;
 
   for ( int16_t itStrip = 0; itStrip < 128; ++itStrip ) {
-    digis[128*(APVn-firstAPV)+itStrip] = baseline[itStrip];
+    digis[128*(apvN-firstAPV)+itStrip] = baseline[itStrip];
   }
-  BaselineMap_.emplace_hint(BaselineMap_.end(), APVn, std::move(baseline));
+  baselineMap_.emplace_hint(baselineMap_.end(), apvN, std::move(baseline));
 }
 
 // Baseline calculation implementation =========================================
-bool inline SiStripAPVRestorer::FlatRegionsFinder(const digivector_t& adcs, digimap_t& smoothedpoints, uint16_t APVn)
+bool inline SiStripAPVRestorer::flatRegionsFinder(const digivector_t& adcs, digimap_t& smoothedpoints, uint16_t apvN)
 {
   smoothedpoints.clear();
 
@@ -405,8 +405,8 @@ bool inline SiStripAPVRestorer::FlatRegionsFinder(const digivector_t& adcs, digi
   uint16_t consecStrips = 0;
   for ( uint32_t istrip = 0; istrip < 128; ++istrip ) {
     const int16_t adc = adcs[istrip];
-   //if( adcsLocalMinSubtracted[istrip] < nSigmaNoiseDerTh_ * (float)noiseHandle->getNoise(istrip+APVn*128,detNoiseRange) && (adc - median) < hitStripThreshold_){
-    if ( adcsLocalMinSubtracted[istrip] < nSigmaNoiseDerTh_ * (float)noiseHandle->getNoiseFast(istrip+APVn*128,detNoiseRange) ) {
+   //if( adcsLocalMinSubtracted[istrip] < nSigmaNoiseDerTh_ * (float)noiseHandle->getNoise(istrip+apvN*128,detNoiseRange) && (adc - median) < hitStripThreshold_){
+    if ( adcsLocalMinSubtracted[istrip] < nSigmaNoiseDerTh_ * (float)noiseHandle->getNoiseFast(istrip+apvN*128,detNoiseRange) ) {
       consecpoints.emplace_hint(consecpoints.end(), istrip, adc);
       ++consecStrips;
     } else if ( consecStrips > 0 ) {
@@ -461,34 +461,34 @@ bool inline SiStripAPVRestorer::FlatRegionsFinder(const digivector_t& adcs, digi
   }
 
   if ( (MaxSmoothValue-MinSmoothValue) > distortionThreshold_) {
-    if (ApplyBaselineCleaner_)
-      BaselineCleaner(adcs, smoothedpoints, APVn);
+    if (applyBaselineCleaner_)
+      baselineCleaner(adcs, smoothedpoints, apvN);
     return false;
   }
   return true;
 }
 
-void inline SiStripAPVRestorer::BaselineCleaner(const digivector_t& adcs, digimap_t& smoothedpoints, uint16_t APVn)
+void inline SiStripAPVRestorer::baselineCleaner(const digivector_t& adcs, digimap_t& smoothedpoints, uint16_t apvN)
 {
-  if        ( CleaningSequence_ == 0 ) {  //default sequence used up to now
-    Cleaner_HighSlopeChecker(smoothedpoints);
-    Cleaner_LocalMinimumAdder(adcs, smoothedpoints, APVn);
-  } else if ( CleaningSequence_ == 1 ) {
-    Cleaner_LocalMinimumAdder(adcs, smoothedpoints, APVn);
-    Cleaner_HighSlopeChecker(smoothedpoints);
-    Cleaner_MonotonyChecker(smoothedpoints);
-  } else if ( CleaningSequence_ == 2 ) {
-    Cleaner_HighSlopeChecker(smoothedpoints);
-  } else if ( CleaningSequence_ == 3 ) {
-    Cleaner_LocalMinimumAdder(adcs, smoothedpoints, APVn);
-    Cleaner_HighSlopeChecker(smoothedpoints);
+  if        ( cleaningSequence_ == 0 ) {  //default sequence used up to now
+    cleaner_HighSlopeChecker(smoothedpoints);
+    cleaner_LocalMinimumAdder(adcs, smoothedpoints, apvN);
+  } else if ( cleaningSequence_ == 1 ) {
+    cleaner_LocalMinimumAdder(adcs, smoothedpoints, apvN);
+    cleaner_HighSlopeChecker(smoothedpoints);
+    cleaner_MonotonyChecker(smoothedpoints);
+  } else if ( cleaningSequence_ == 2 ) {
+    cleaner_HighSlopeChecker(smoothedpoints);
+  } else if ( cleaningSequence_ == 3 ) {
+    cleaner_LocalMinimumAdder(adcs, smoothedpoints, apvN);
+    cleaner_HighSlopeChecker(smoothedpoints);
   } else {
-    Cleaner_HighSlopeChecker(smoothedpoints);
-    Cleaner_LocalMinimumAdder(adcs, smoothedpoints, APVn);
+    cleaner_HighSlopeChecker(smoothedpoints);
+    cleaner_LocalMinimumAdder(adcs, smoothedpoints, apvN);
   }
 }
 
-void inline SiStripAPVRestorer::Cleaner_MonotonyChecker(digimap_t& smoothedpoints)
+void inline SiStripAPVRestorer::cleaner_MonotonyChecker(digimap_t& smoothedpoints)
 {
   //Removing points without monotony
   //--------------------------------------------------------------------------------------------------
@@ -510,7 +510,7 @@ void inline SiStripAPVRestorer::Cleaner_MonotonyChecker(digimap_t& smoothedpoint
   }
 }
 
-void inline SiStripAPVRestorer::Cleaner_LocalMinimumAdder(const digivector_t& adcs, digimap_t& smoothedpoints, uint16_t APVn)
+void inline SiStripAPVRestorer::cleaner_LocalMinimumAdder(const digivector_t& adcs, digimap_t& smoothedpoints, uint16_t apvN)
 {
   SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detId_);
   //inserting extra point is case of local minimum
@@ -532,9 +532,9 @@ void inline SiStripAPVRestorer::Cleaner_LocalMinimumAdder(const digivector_t& ad
         float strip = itStrip + strip1;
         while ( strip < strip2 ) {
           const float adc = adcs[strip];
-          const auto noise = static_cast<float>(noiseHandle->getNoiseFast(strip+APVn*128,detNoiseRange));
+          const auto noise = static_cast<float>(noiseHandle->getNoiseFast(strip+apvN*128,detNoiseRange));
           if ( adc < (adc1 + m * itStrip - 2 * noise) ) {
-            //std::cout << "applying correction strip: " << strip + APVn*128 << " adc " << adc << " detId: " << detId_ << std::endl;
+            //std::cout << "applying correction strip: " << strip + apvN*128 << " adc " << adc << " detId: " << detId_ << std::endl;
             smoothedpoints.emplace_hint(itNext, strip, adc);
             ++it;
           }
@@ -554,7 +554,7 @@ void inline SiStripAPVRestorer::Cleaner_LocalMinimumAdder(const digivector_t& ad
     float strip = 0;
     while ( strip < firstStripFlat ) {
       const float adc = adcs[strip];
-      const auto noise = static_cast<float>(noiseHandle->getNoiseFast(strip+APVn*128,detNoiseRange));
+      const auto noise = static_cast<float>(noiseHandle->getNoiseFast(strip+apvN*128,detNoiseRange));
       if ( adc < ( firstStripFlatADC - 2 * noise ) ) {
         smoothedpoints.emplace_hint(it, strip, adc);
         ++it;
@@ -566,7 +566,7 @@ void inline SiStripAPVRestorer::Cleaner_LocalMinimumAdder(const digivector_t& ad
     float strip = lastStripFlat+1;
     while ( strip < 128 ) {
       const float adc = adcs[strip];
-      const auto noise = static_cast<float>(noiseHandle->getNoiseFast(strip+APVn*128,detNoiseRange));
+      const auto noise = static_cast<float>(noiseHandle->getNoiseFast(strip+apvN*128,detNoiseRange));
       if ( adc < ( lastStripFlatADC - 2 * noise ) ) {
         smoothedpoints.emplace_hint(smoothedpoints.end(), strip,adc);
       }
@@ -575,7 +575,7 @@ void inline SiStripAPVRestorer::Cleaner_LocalMinimumAdder(const digivector_t& ad
   }
 }
 
-void inline SiStripAPVRestorer::Cleaner_HighSlopeChecker(digimap_t& smoothedpoints)
+void inline SiStripAPVRestorer::cleaner_HighSlopeChecker(digimap_t& smoothedpoints)
 {
   //Removing points in the slope is too high
   //----------------------------------------------------------------------------
@@ -606,7 +606,7 @@ void inline SiStripAPVRestorer::Cleaner_HighSlopeChecker(digimap_t& smoothedpoin
   }
 }
 
-void inline SiStripAPVRestorer::BaselineFollower(const digimap_t& smoothedpoints, digivector_t& baseline, float median)
+void inline SiStripAPVRestorer::baselineFollower(const digimap_t& smoothedpoints, digivector_t& baseline, float median)
 {
   //if not enough points
   if ( smoothedpoints.size() < minStripsToFit_ ) {
@@ -651,7 +651,7 @@ void inline SiStripAPVRestorer::BaselineFollower(const digimap_t& smoothedpoints
 }
 
 
-bool SiStripAPVRestorer::CheckBaseline(const digivector_t &baseline) const
+bool SiStripAPVRestorer::checkBaseline(const digivector_t &baseline) const
 {
 	// The Savitzky-Golay (S-G) filter of any left length nL, right
 	// length nR, and order m, and with an optional opt equals the
@@ -945,51 +945,51 @@ bool SiStripAPVRestorer::CheckBaseline(const digivector_t &baseline) const
 //Other methods implementation ==============================================
 //==========================================================================
 
-void SiStripAPVRestorer::LoadMeanCMMap(const edm::Event& iEvent)
+void SiStripAPVRestorer::loadMeanCMMap(const edm::Event& iEvent)
 {
   if ( useRealMeanCM_ ) {
     edm::Handle<edm::DetSetVector<SiStripRawDigi>> input;
     iEvent.getByLabel("siStripDigis","VirginRaw", input);
-    CreateCMMapRealPed(*input);
+    createCMMapRealPed(*input);
   } else {
     edm::Handle<edm::DetSetVector<SiStripProcessedRawDigi>> inputCM;
     iEvent.getByLabel("MEANAPVCM",inputCM);
-    CreateCMMapCMstored(*inputCM);
+    createCMMapCMstored(*inputCM);
   }
 }
-void SiStripAPVRestorer::CreateCMMapRealPed(const edm::DetSetVector<SiStripRawDigi>& input)
+void SiStripAPVRestorer::createCMMapRealPed(const edm::DetSetVector<SiStripRawDigi>& input)
 {
-  MeanCMmap_.clear();
+  meanCMmap_.clear();
   for ( const auto& rawDigis : input ) {
     const auto detPedestalRange = pedestalHandle->getRange(rawDigis.id);
     const size_t nAPVs = rawDigis.size()/128;
-    std::vector<float> MeanCMDetSet; MeanCMDetSet.reserve(nAPVs);
+    std::vector<float> meanCMDetSet; meanCMDetSet.reserve(nAPVs);
     for ( uint16_t iAPV = 0; iAPV < nAPVs; ++iAPV ) {
       uint16_t minPed = 128;
       for ( uint16_t strip = 128*iAPV; strip < 128*(iAPV+1); ++strip ) {
         uint16_t ped = static_cast<uint16_t>(pedestalHandle->getPed(strip, detPedestalRange));
         if (ped < minPed) minPed = ped;
       }
-      MeanCMDetSet.push_back(minPed);
+      meanCMDetSet.push_back(minPed);
     }
-    MeanCMmap_.emplace(rawDigis.id, std::move(MeanCMDetSet));
+    meanCMmap_.emplace(rawDigis.id, std::move(meanCMDetSet));
   }
 }
-void SiStripAPVRestorer::CreateCMMapCMstored(const edm::DetSetVector<SiStripProcessedRawDigi>& input)
+void SiStripAPVRestorer::createCMMapCMstored(const edm::DetSetVector<SiStripProcessedRawDigi>& input)
 {
-  MeanCMmap_.clear();
+  meanCMmap_.clear();
   for ( const auto& rawDigis : input ) {
     std::vector<float> meanCMNValue;
     meanCMNValue.reserve(rawDigis.size());
     std::transform(std::begin(rawDigis), std::end(rawDigis), std::back_inserter(meanCMNValue),
         [] ( SiStripProcessedRawDigi cm ) { return cm.adc(); });
-    MeanCMmap_.emplace(rawDigis.id, std::move(meanCMNValue));
+    meanCMmap_.emplace(rawDigis.id, std::move(meanCMNValue));
   }
 }
 
 //NEW algorithm designed for implementation in FW=============================
 //============================================================================
-void SiStripAPVRestorer::DerivativeFollowerRestore(uint16_t APVn, uint16_t firstAPV, digivector_t& digis)
+void SiStripAPVRestorer::derivativeFollowerRestore(uint16_t apvN, uint16_t firstAPV, digivector_t& digis)
 {
 //std::cout << "++++++++" << "SiStripAPVRestorer::DerivativeFollowe" << std::endl;
 //	int gradient_threshold_ =12;
@@ -1004,7 +1004,7 @@ void SiStripAPVRestorer::DerivativeFollowerRestore(uint16_t APVn, uint16_t first
 
   digivector_t singleAPVdigi;
   singleAPVdigi.clear();
-  for(int16_t strip = (APVn-firstAPV)*128; strip < (APVn-firstAPV+1)*128; ++strip) singleAPVdigi.push_back(digis[strip]+1024);
+  for(int16_t strip = (apvN-firstAPV)*128; strip < (apvN-firstAPV+1)*128; ++strip) singleAPVdigi.push_back(digis[strip]+1024);
 
   digimap_t discontinuities;   // it will contain the start and the end of each region in which a greadient is present
   discontinuities.clear();
@@ -1028,7 +1028,7 @@ void SiStripAPVRestorer::DerivativeFollowerRestore(uint16_t APVn, uint16_t first
   int number_good_minimum = 0;
   int first_gradient = 0;
   int strip_first_gradient = 0;
-  int ADC_start_point_cluster_pw = 0;
+  int adc_start_point_cluster_pw = 0;
   int auxiliary_end_cluster = 0;
   int first_start_cluster_strip = 0;
   int first_start_cluster_ADC = 0;
@@ -1067,8 +1067,8 @@ void SiStripAPVRestorer::DerivativeFollowerRestore(uint16_t APVn, uint16_t first
                         --itdiscontinuities;
                 }
                 strip_first_gradient= itdiscontinuities->first;
-                ADC_start_point_cluster_pw= itdiscontinuities->second;
-                first_gradient = abs(ADC_start_point_cluster_pw - singleAPVdigi[strip_first_gradient+1]);
+                adc_start_point_cluster_pw= itdiscontinuities->second;
+                first_gradient = abs(adc_start_point_cluster_pw - singleAPVdigi[strip_first_gradient+1]);
                 ++itdiscontinuities;
                 discontinuities.erase(itdiscontinuities);
                 itdiscontinuities=discontinuities.end();
@@ -1131,8 +1131,8 @@ void SiStripAPVRestorer::DerivativeFollowerRestore(uint16_t APVn, uint16_t first
 
         if ((abs(first_start_cluster_ADC - singleAPVdigi[strip+2])>first_gradient)&&(isPossible_wrong_minimum==true)) {
           discontinuities.erase(itdiscontinuities);
-          discontinuities.insert(discontinuities.end(), std::pair<int, int >(strip_first_gradient, ADC_start_point_cluster_pw));
-          discontinuities.insert(discontinuities.end(), std::pair<int, int >(strip, ADC_start_point_cluster_pw));//????
+          discontinuities.insert(discontinuities.end(), std::pair<int, int >(strip_first_gradient, adc_start_point_cluster_pw));
+          discontinuities.insert(discontinuities.end(), std::pair<int, int >(strip, adc_start_point_cluster_pw));//????
         } else {
           if ((discontinuities.size()%2==0)&&(discontinuities.size()>1)){
             itdiscontinuities=discontinuities.end();
@@ -1142,7 +1142,7 @@ void SiStripAPVRestorer::DerivativeFollowerRestore(uint16_t APVn, uint16_t first
           discontinuities.insert(discontinuities.end(), std::pair<int, int >(strip, actualStripADC));
         }
         isMax=false;
-        ADC_start_point_cluster_pw=0;
+        adc_start_point_cluster_pw=0;
         isPossible_wrong_minimum=false;
         strip_first_gradient=0;
         first_start_cluster_strip=0;
@@ -1152,7 +1152,7 @@ void SiStripAPVRestorer::DerivativeFollowerRestore(uint16_t APVn, uint16_t first
       if ((isMax==true)&&((actualStripADC-previousStripADC)>=0)&&(isAuxiliary_Minimum==false)){     //For the end Poit when strip >127-SW-1
         if ((abs(first_start_cluster_ADC - singleAPVdigi[strip+1])>first_gradient)&&(isPossible_wrong_minimum==true)) {
           discontinuities.erase(itdiscontinuities);
-          discontinuities.insert(discontinuities.end(), std::pair<int, int >(strip_first_gradient, ADC_start_point_cluster_pw));
+          discontinuities.insert(discontinuities.end(), std::pair<int, int >(strip_first_gradient, adc_start_point_cluster_pw));
         }
 
         if ((discontinuities.size()%2==0)&&(discontinuities.size()>1)){
@@ -1162,7 +1162,7 @@ void SiStripAPVRestorer::DerivativeFollowerRestore(uint16_t APVn, uint16_t first
         }
         discontinuities.insert(discontinuities.end(), std::pair<int, int >(strip-1, previousStripADC));
         isMax=false;
-        ADC_start_point_cluster_pw=0;
+        adc_start_point_cluster_pw=0;
         isPossible_wrong_minimum=false;
         strip_first_gradient=0;
         first_start_cluster_strip=0;
@@ -1211,10 +1211,10 @@ void SiStripAPVRestorer::DerivativeFollowerRestore(uint16_t APVn, uint16_t first
       }
 
       if ((firstStrip <= strip) && (strip <= lastStrip) && (0 < (singleAPVdigi[strip]- firstADC - ((secondADC-firstADC)/(lastStrip-firstStrip))*(strip-firstStrip)-gradient_threshold_))){
-        digis[(APVn-firstAPV)*128+strip]= singleAPVdigi[strip]- firstADC - (((secondADC-firstADC)/(lastStrip-firstStrip))*(strip-firstStrip));
-std::cout << "no baseline " << digis[(APVn-firstAPV)*128+strip] << std::endl;
+        digis[(apvN-firstAPV)*128+strip]= singleAPVdigi[strip]- firstADC - (((secondADC-firstADC)/(lastStrip-firstStrip))*(strip-firstStrip));
+std::cout << "no baseline " << digis[(apvN-firstAPV)*128+strip] << std::endl;
       } else {
-        digis[(APVn-firstAPV)*128+strip]=0;
+        digis[(apvN-firstAPV)*128+strip]=0;
       }
     }
   }
