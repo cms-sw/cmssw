@@ -869,7 +869,7 @@ packIetaIphi(unsigned ieta, unsigned iphi) const
 {
     unsigned packed_value = 0;
     packed_value |= ((iphi & HGCScintillatorDetId::kHGCalPhiMask) << HGCScintillatorDetId::kHGCalPhiOffset);
-    packed_value |= ((ieta & HGCScintillatorDetId::kHGCalEtaMask) << HGCScintillatorDetId::kHGCalEtaOffset);
+    packed_value |= ((ieta & HGCScintillatorDetId::kHGCalRadiusMask) << HGCScintillatorDetId::kHGCalRadiusOffset);
     return packed_value;
 }
 
@@ -906,7 +906,7 @@ HGCalTriggerGeometryV9Imp1::
 unpackIetaIphi(unsigned ieta_iphi, unsigned& ieta, unsigned& iphi) const
 {
     iphi =  (ieta_iphi>>HGCScintillatorDetId::kHGCalPhiOffset) & HGCScintillatorDetId::kHGCalPhiMask;
-    ieta = (ieta_iphi>>HGCScintillatorDetId::kHGCalEtaOffset) & HGCScintillatorDetId::kHGCalEtaMask;
+    ieta = (ieta_iphi>>HGCScintillatorDetId::kHGCalRadiusOffset) & HGCScintillatorDetId::kHGCalRadiusMask;
 }
 
 bool 
