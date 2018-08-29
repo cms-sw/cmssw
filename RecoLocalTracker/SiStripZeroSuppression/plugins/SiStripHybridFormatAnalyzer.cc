@@ -59,7 +59,7 @@
 // class decleration
 //
 
-class SiStripHybridFormatAnalyzer : public edm::one::EDAnalyzer<> {
+class SiStripHybridFormatAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
   public:
     explicit SiStripHybridFormatAnalyzer(const edm::ParameterSet&);
     ~SiStripHybridFormatAnalyzer() override;
@@ -100,6 +100,7 @@ class SiStripHybridFormatAnalyzer : public edm::one::EDAnalyzer<> {
 
 SiStripHybridFormatAnalyzer::SiStripHybridFormatAnalyzer(const edm::ParameterSet& conf){
    
+  usesResource(TFileService::kSharedResource);
 
   srcDigis_ = consumes<edm::DetSetVector<SiStripDigi>>(conf.getParameter<edm::InputTag>("srcDigis"));
   srcAPVCM_ = consumes<edm::DetSetVector<SiStripProcessedRawDigi>>(conf.getParameter<edm::InputTag>("srcAPVCM"));
