@@ -93,8 +93,7 @@ private:
   edm::ESHandle<CaloGeometry>       geometry;
 
   void loadEcalDigis(edm::Event& iEvent,
-                     edm::Handle<EcalTrigPrimDigiCollection>& pTPDigis
-);
+                     edm::Handle<EcalTrigPrimDigiCollection>& pTPDigis);
   void loadEcalRecHits(edm::Event& iEvent,
                        edm::Handle<EcalRecHitCollection>& barrelReducedRecHitsHandle,
                        edm::Handle<EcalRecHitCollection>& endcapReducedRecHitsHandle);
