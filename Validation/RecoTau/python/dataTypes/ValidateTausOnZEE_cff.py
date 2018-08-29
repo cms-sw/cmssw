@@ -42,7 +42,8 @@ zttModifier = ApplyFunctionToSequence(zttLabeler)
 proc.TauValNumeratorAndDenominatorZEE.visit(zttModifier)
 
 #Set discriminators
-proc.RunHPSValidationZEE.discriminators = cms.VPSet([p for p in proc.RunHPSValidationZEE.discriminators if 'ByDecayModeFinding' in p.discriminator.value() or 'MVA6' in p.discriminator.value() ])
+discs_to_retain = ['ByDecayModeFinding', 'MVA6']
+proc.RunHPSValidationZEE.discriminators = cms.VPSet([p for p in proc.RunHPSValidationZEE.discriminators if any(disc in p.discriminator.value() for disc in discs_to_retain) ])
 
 #Sets the correct naming to efficiency histograms
 proc.efficienciesZEE.plots = Utils.SetPlotSequence(proc.TauValNumeratorAndDenominatorZEE)

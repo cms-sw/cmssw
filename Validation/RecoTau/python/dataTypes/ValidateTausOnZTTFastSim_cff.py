@@ -18,7 +18,8 @@ zttModifier = ApplyFunctionToSequence(zttLabeler)
 proc.TauValNumeratorAndDenominatorZTTFastSim.visit(zttModifier)
 
 #Set discriminators
-proc.RunHPSValidationZTTFastSim.discriminators = cms.VPSet([p for p in proc.RunHPSValidationZTTFastSim.discriminators if 'ByDecayModeFinding' in p.discriminator.value() or 'CombinedIsolationDBSumPtCorr3Hits' in p.discriminator.value() or 'IsolationMVArun2v1DBnewDMwLT' in p.discriminator.value() or 'IsolationMVArun2v1PWnewDMwLT' in p.discriminator.value() ])
+discs_to_retain = ['ByDecayModeFinding', 'CombinedIsolationDBSumPtCorr3Hits', 'IsolationMVArun2v1DBnewDMwLT', 'IsolationMVArun2v1PWnewDMwLT']
+proc.RunHPSValidationZTTFastSim.discriminators = cms.VPSet([p for p in proc.RunHPSValidationZTTFastSim.discriminators if any(disc in p.discriminator.value() for disc in discs_to_retain) ])
 
 #Sets the correct naming to efficiency histograms
 proc.efficienciesZTTFastSim.plots = Utils.SetPlotSequence(proc.TauValNumeratorAndDenominatorZTTFastSim)

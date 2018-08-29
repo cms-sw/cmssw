@@ -46,7 +46,8 @@ proc.TauValNumeratorAndDenominatorRealData.visit(zttModifier)
 #-----------------------------------------
 
 #Set discriminators
-proc.RunHPSValidationRealData.discriminators = cms.VPSet([p for p in proc.RunHPSValidationRealData.discriminators if 'ByDecayModeFinding' in p.discriminator.value() or 'CombinedIsolationDBSumPtCorr3Hits' in p.discriminator.value() or 'IsolationMVArun2v1DBnewDMwLT' in p.discriminator.value() or 'IsolationMVArun2v1PWnewDMwLT' in p.discriminator.value() ])
+discs_to_retain = ['ByDecayModeFinding', 'CombinedIsolationDBSumPtCorr3Hits', 'IsolationMVArun2v1DBnewDMwLT', 'IsolationMVArun2v1PWnewDMwLT']
+proc.RunHPSValidationRealData.discriminators = cms.VPSet([p for p in proc.RunHPSValidationRealData.discriminators if any(disc in p.discriminator.value() for disc in discs_to_retain) ])
 
 #Sets the correct naming to efficiency histograms
 proc.efficienciesRealData.plots = Utils.SetPlotSequence(proc.TauValNumeratorAndDenominatorRealData)
