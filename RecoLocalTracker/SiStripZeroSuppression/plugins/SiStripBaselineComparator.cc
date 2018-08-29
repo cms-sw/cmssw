@@ -25,6 +25,9 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -52,10 +55,11 @@
 // class decleration
 //
 
-class SiStripBaselineComparator : public edm::EDAnalyzer {
+class SiStripBaselineComparator : public edm::one::EDAnalyzer<> {
   public:
     explicit SiStripBaselineComparator(const edm::ParameterSet&);
     ~SiStripBaselineComparator() override;
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 
   private:
@@ -95,6 +99,15 @@ SiStripBaselineComparator::SiStripBaselineComparator(const edm::ParameterSet& co
 
 SiStripBaselineComparator::~SiStripBaselineComparator()
 {
+}
+
+void
+SiStripBaselineComparator::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("srcClusters",edm::InputTag("siStripClusters",""));
+  desc.add<edm::InputTag>("srcClusters2",edm::InputTag("siStripClusters",""));
+  descriptions.addDefault(desc);
 }
 
 void
