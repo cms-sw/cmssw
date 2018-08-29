@@ -3,7 +3,8 @@
 
 void bitwise_compare(const char * tag, TTree * tree1, TTree * tree2, const char * var,  const char * var2, const char * cut, int nbins, double max, double min){
   char command[1000];
-  static int count = 0;
+  static int countDiscrep = 0;
+  static int countAgree = 0;
 
   TH1F h1("h1","",nbins,max,min);
   TH1F h2("h2","",nbins,max,min);
@@ -29,15 +30,23 @@ void bitwise_compare(const char * tag, TTree * tree1, TTree * tree2, const char 
   if (fail) {
     cout << "FAILURE:  variable " << var << " shows a disagreement\n";
     char name[1000];
-    sprintf(name,"discrep_%s_%s_%d.pdf",tag,var,count);
+    sprintf(name,"discrep_%s_%s_%d.pdf",tag,var,countDiscrep);
     TCanvas c1;
     h1.GetXaxis()->SetTitle(var);
     h1.Draw("L");
     h2.Draw("epSAME");
     c1.SaveAs(name);
-    count++;
+    countDiscrep++;
   } else {
     cout << "SUCCESS:  bitwise equality for variable " << var << "\n";
+    char name[1000];
+    sprintf(name,"agree_%s_%s_%d.pdf",tag,var,countAgree);
+    TCanvas c1;
+    h1.GetXaxis()->SetTitle(var);
+    h1.Draw("L");
+    h2.Draw("epSAME");
+    c1.SaveAs(name);
+    countAgree++;
   }
   
 }
@@ -87,9 +96,9 @@ void NtupleDiff(const char * tag, const char * file1, const char * file2, const 
   bitwise_compare(tag, tree1, tree2, "egEta", "egEt > 10.0", 20.0, -5.0, 5.0);
   bitwise_compare(tag, tree1, tree2, "egPhi", "egEt > 10.0", 20.0, -6.2, 6.2);
 
-  bitwise_compare(tag, tree1, tree2, "muonEt", "muonEt > 10.0", 20.0, 0.0, 200.0);
-  bitwise_compare(tag, tree1, tree2, "muonEta", "muonEt > 10.0", 20.0, -5.0, 5.0);
-  bitwise_compare(tag, tree1, tree2, "muonPhi", "muonEt > 10.0", 20.0, -6.2, 6.2);
+  bitwise_compare(tag, tree1, tree2, "muonEt", "muonEt > 3.0", 20.0, 0.0, 200.0);
+  bitwise_compare(tag, tree1, tree2, "muonEta", "muonEt > 3.0", 20.0, -5.0, 5.0);
+  bitwise_compare(tag, tree1, tree2, "muonPhi", "muonEt > 3.0", 20.0, -6.2, 6.2);
 
   bitwise_compare(tag, tree1, tree2, "sumEt[0]", "", 20.0, 0.0, 500.0);
   bitwise_compare(tag, tree1, tree2, "sumEt[2]", "", 20.0, 0.0, 500.0);
