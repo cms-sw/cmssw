@@ -17,6 +17,7 @@ virtual ~CastorSimParameters() {}
 void setDbService(const CastorDbService * service) {theDbService = service;}
 
 double getNominalfCperPE() const;
+bool doDynamicNoise() const; 
 
 virtual double photoelectronsToAnalog(const DetId & detId) const;
 
@@ -27,6 +28,7 @@ private:
 const CastorDbService * theDbService;
 double theSamplingFactor;
 double nominalfCperPE;
+bool dynamicNoise;
 };
 
 #endif

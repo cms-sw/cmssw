@@ -29,15 +29,13 @@ void CastorAmplifier::amplify(CaloSamples & frame, CLHEP::HepRandomEngine* engin
   const CastorPedestalWidth* pwidths = theDbService->getPedestalWidth(hcalGenDetId);
   if (!peds || !pwidths )
   {
-    edm::LogError("CastorAmplifier") 
-      << "Could not fetch HCAL/CASTOR conditions for channel " << hcalGenDetId;
+    edm::LogError("CastorAmplifier") << "Could not fetch HCAL/CASTOR conditions for channel " << hcalGenDetId;
   }
   else 
   {
     double gauss [32]; //big enough
     double noise [32]; //big enough
     double fCperPE = parameters.photoelectronsToAnalog(frame.id());
-    double nominalfCperPE = parameters.getNominalfCperPE();
 
     for (int i = 0; i < frame.size(); i++) { gauss[i] = CLHEP::RandGaussQ::shoot(engine, 0., 1.); }
     if(addNoise_) {
@@ -47,7 +45,11 @@ void CastorAmplifier::amplify(CaloSamples & frame, CLHEP::HepRandomEngine* engin
       int capId = (theStartingCapId + tbin)%4;
       double pedestal = peds->getValue(capId);
       if(addNoise_) {
-	pedestal += noise [tbin]*(fCperPE/nominalfCperPE);
+	if (parameters.doDynamicNoise()) {
+		pedestal += noise [tbin]*(fCperPE/parameters.getNominalfCperPE());
+	} else {
+		pedestal += noise [tbin];
+	}
       }
       frame[tbin] *= fCperPE;
       frame[tbin] += pedestal;
