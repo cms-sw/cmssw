@@ -75,6 +75,7 @@ public:
   ~EcalDeadCellTriggerPrimitiveFilter() override;
 
 private:
+  void beginStream(edm::StreamID) override;
   bool filter(edm::Event&, const edm::EventSetup&) override;
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void envSet(const edm::EventSetup&);
@@ -135,16 +136,12 @@ private:
   const bool useTTsum_; //If set to true, the filter will compare the sum of the 5x5 tower to the provided energy threshold
   const bool usekTPSaturated_; //If set to true, the filter will check the kTPSaturated flag
 
-  bool getEventInfoForFilterOnce_;
+  int hasReducedRecHits_ = 0;
 
-  std::string releaseVersion_;
-  int hastpDigiCollection_, hasReducedRecHits_;
-
-  bool useTPmethod_, useHITmethod_;
+  bool useTPmethod_ = false;
+  bool useHITmethod_ = false;
 
   edm::EDPutTokenT<bool> putToken_;
-
-  void loadEventInfoForFilter(const edm::Event& iEvent);
 
 // Only for EB since the dead front-end has one-to-one map to TT
   std::map<EcalTrigTowerDetId, double> accuTTetMap;
@@ -182,16 +179,21 @@ EcalDeadCellTriggerPrimitiveFilter::EcalDeadCellTriggerPrimitiveFilter(const edm
   , usekTPSaturated_ (iConfig.getParameter<bool>("usekTPSaturated") )
   , putToken_ ( produces<bool>() )
 {
-  getEventInfoForFilterOnce_ = false;
-  hastpDigiCollection_ = 0; hasReducedRecHits_ = 0;
-  useTPmethod_ = true; useHITmethod_ = false;
-
-
   callWhenNewProductsRegistered([this](edm::BranchDescription const& iBranch) {
-    if( iBranch.moduleLabel() ==  tpDigiCollection_.label() ){ hastpDigiCollection_ = 1; }
+    // If TP is available, always use TP.
+    // In RECO file, we always have ecalTPSkim (at least from 38X for data and 39X for MC).
+    // In AOD file, we can only have recovered rechits in the reduced rechits collection after 42X
+    // Do NOT expect end-users provide ecalTPSkim or recovered rechits themselves!!
+    // If they really can provide them, they must be experts to modify this code to suit their own purpose :-)
+    if( iBranch.moduleLabel() ==  tpDigiCollection_.label() ){ 
+      useTPmethod_ = true;
+      //if both collections are in the job then we may already have seen the reduced collections
+      useHITmethod_ = false;
+    }
     if( iBranch.moduleLabel() == ebReducedRecHitCollection_.label() || iBranch.moduleLabel() == eeReducedRecHitCollection_.label() ){
        hasReducedRecHits_++;
-       if(hasReducedRecHits_ == 2 and hastpDigiCollection_ == 0) {
+       if(not useTPmethod_ && hasReducedRecHits_ == 2) {
+         useHITmethod_ = true;
          ebReducedRecHitCollectionToken_ = consumes<EcalRecHitCollection>(ebReducedRecHitCollection_);
          eeReducedRecHitCollectionToken_ = consumes<EcalRecHitCollection>(eeReducedRecHitCollection_);
        }
@@ -202,45 +204,18 @@ EcalDeadCellTriggerPrimitiveFilter::EcalDeadCellTriggerPrimitiveFilter(const edm
 EcalDeadCellTriggerPrimitiveFilter::~EcalDeadCellTriggerPrimitiveFilter() {
 }
 
-void EcalDeadCellTriggerPrimitiveFilter::loadEventInfoForFilter(const edm::Event &iEvent){
+void EcalDeadCellTriggerPrimitiveFilter::beginStream(edm::StreamID){
 
-  if( debug_ ) edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter")<<"\nhastpDigiCollection_ : "<<hastpDigiCollection_<<"  hasReducedRecHits_ : "<<hasReducedRecHits_;
+  if( debug_ ) edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter")<<"\nuseTPmethod_ : "<<useTPmethod_<<"  hasReducedRecHits_ : "<<hasReducedRecHits_;
 
-  const edm::ProcessHistory& history = iEvent.processHistory();
-  const unsigned int nHist = history.size();
-// XXX: the last one is usually a USER process!
-  releaseVersion_ = history[nHist-2].releaseVersion();
-  TString tmpTstr(releaseVersion_);
-  TObjArray * split = tmpTstr.Tokenize("_");
-  int majorV = TString(split->At(1)->GetName()).Atoi();
-  int minorV = TString(split->At(2)->GetName()).Atoi();
-
-  if( debug_ ) edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter")<<"processName : "<<history[nHist-2].processName().data()<<"  releaseVersion : "<<releaseVersion_;
-
-// If TP is available, always use TP.
-// In RECO file, we always have ecalTPSkim (at least from 38X for data and 39X for MC).
-// In AOD file, we can only have recovered rechits in the reduced rechits collection after 42X
-// Do NOT expect end-users provide ecalTPSkim or recovered rechits themselves!!
-// If they really can provide them, they must be experts to modify this code to suit their own purpose :-)
-  if( !hastpDigiCollection_ && !hasReducedRecHits_ ){ useTPmethod_ = false; useHITmethod_ = false;
-     if( debug_ ){
-        edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter")<<"\nWARNING ... Cannot find either tpDigiCollection_ or reducedRecHitCollecion_ ?!";
-        edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter")<<"  Will NOT DO ANY FILTERING !";
-     }
-  }
-  else if( hastpDigiCollection_ ){ useTPmethod_ = true; useHITmethod_ = false; }
-//  else if( majorV >=4 && minorV >=2 ){ useTPmethod_ = false; useHITmethod_ = true; }
-  else if( majorV >=5 || (majorV==4 && minorV >=2) ){ useTPmethod_ = false; useHITmethod_ = true; }
-  else{ useTPmethod_ = false; useHITmethod_ = false;
-     if( debug_ ){
-        edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter")<<"\nWARNING ... TP filter can ONLY be used in AOD after 42X";
-        edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter")<<"  Will NOT DO ANY FILTERING !";
-     }
+  if( not useTPmethod_ and not useHITmethod_){ 
+    if( debug_ ){
+      edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter")<<"\nWARNING ... Cannot find either tpDigiCollection_ or reducedRecHitCollecion_ ?!";
+      edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter")<<"  Will NOT DO ANY FILTERING !";
+    }
   }
 
   if( debug_ ) edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter")<<"useTPmethod_ : "<<useTPmethod_<<"  useHITmethod_ : "<<useHITmethod_;
-
-  getEventInfoForFilterOnce_ = true;
 
 }
 
@@ -286,8 +261,6 @@ bool EcalDeadCellTriggerPrimitiveFilter::filter(edm::Event& iEvent, const edm::E
   edm::RunNumber_t run = iEvent.id().run();
   edm::EventNumber_t event = iEvent.id().event();
   edm::LuminosityBlockNumber_t ls = iEvent.luminosityBlock();
-
-  if( !getEventInfoForFilterOnce_ ){ loadEventInfoForFilter(iEvent); }
 
   bool pass = true;
 
