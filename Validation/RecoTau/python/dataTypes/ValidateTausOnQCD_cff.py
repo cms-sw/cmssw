@@ -26,7 +26,8 @@ zttModifier = ApplyFunctionToSequence(zttLabeler)
 proc.TauValNumeratorAndDenominatorQCD.visit(zttModifier)
 
 #Set discriminators
-proc.RunHPSValidationQCD.discriminators = cms.VPSet([p for p in proc.RunHPSValidationQCD.discriminators if 'ByDecayModeFinding' in p.discriminator.value() or 'CombinedIsolationDBSumPtCorr3Hits' in p.discriminator.value() or 'IsolationMVArun2v1DBnewDMwLT' in p.discriminator.value() or 'IsolationMVArun2v1PWnewDMwLT' in p.discriminator.value() ])
+discs_to_retain = ['ByDecayModeFinding', 'CombinedIsolationDBSumPtCorr3Hits', 'IsolationMVArun2v1DBnewDMwLT', 'IsolationMVArun2v1PWnewDMwLT']
+proc.RunHPSValidationQCD.discriminators = cms.VPSet([p for p in proc.RunHPSValidationQCD.discriminators if any(disc in p.discriminator.value() for disc in discs_to_retain) ])
 
 #Sets the correct naming to efficiency histograms
 proc.efficienciesQCD.plots = Utils.SetPlotSequence(proc.TauValNumeratorAndDenominatorQCD)
