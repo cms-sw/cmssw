@@ -22,7 +22,7 @@ class L1TMuonBarrelKalmanSectorProcessor {
     }
 
     bool operator() (const L1MuKBMTrack& a ,const L1MuKBMTrack& b) {
-      if (abs(a.curvatureAtVertex())<=abs(b.curvatureAtVertex()))
+      if (a.pt()>=b.pt())
 	return true;
       return false;
     }
@@ -100,7 +100,12 @@ class L1TMuonBarrelKalmanSectorProcessor {
 
 
   bmtf_out makeWord(L1TMuonBarrelKalmanAlgo*,const L1MuKBMTrackCollection&);
-  L1MuKBMTrackCollection cleanAndSort(const L1MuKBMTrackCollection&,uint keep);
+  //  L1MuKBMTrackCollection cleanAndSort(const L1MuKBMTrackCollection&,uint keep);
+
+  L1MuKBMTrackCollection cleanNeighbor(const L1MuKBMTrackCollection&,const L1MuKBMTrackCollection&);
+  L1MuKBMTrackCollection cleanNeighbors(const L1MuKBMTrackCollection&,const L1MuKBMTrackCollection&,const L1MuKBMTrackCollection&);
+  L1MuKBMTrackCollection wedgeSort(const L1MuKBMTrackCollection&,const L1MuKBMTrackCollection&,const L1MuKBMTrackCollection&,const L1MuKBMTrackCollection&,const L1MuKBMTrackCollection&);
+
 
 
 

@@ -149,27 +149,177 @@ void L1TMuonBarrelKalmanAlgo::addBMTFMuon(int bx,const L1MuKBMTrack& track,  std
 
 
 
+// std::pair<bool,uint> L1TMuonBarrelKalmanAlgo::match(const L1MuKBMTCombinedStubRef& seed, const L1MuKBMTCombinedStubRefVector& stubs,int step) {
+//   L1MuKBMTCombinedStubRefVector selected;
+
+//   bool found=false;
+//   uint best=0;
+//   int distance=100000;
+//   uint N=0;
+//   for (const auto& stub :stubs)  {
+//     N=N+1;
+//     if (stub->stNum()!=step) 
+//       continue;
+
+//     int d = fabs(wrapAround(((correctedPhi(seed,seed->scNum())-correctedPhi(stub,seed->scNum()))>>3),1024));
+//     if (d<distance) {
+//       distance = d;
+//       best=N-1;
+//       found=true;
+//     }
+//   }
+//   return std::make_pair(found,best);
+// }
+
+
+
+uint L1TMuonBarrelKalmanAlgo::matchAbs(std::map<uint,uint>& info, uint i, uint j) {
+  if (info[i]<info[j])
+    return i;
+  else
+    return j;
+}
+
+
 std::pair<bool,uint> L1TMuonBarrelKalmanAlgo::match(const L1MuKBMTCombinedStubRef& seed, const L1MuKBMTCombinedStubRefVector& stubs,int step) {
   L1MuKBMTCombinedStubRefVector selected;
 
-  bool found=false;
-  uint best=0;
-  int distance=100000;
+  std::map<uint,uint> diffInfo;
+  for (uint i=0;i<12;++i) {
+    diffInfo[i]=60000;
+  }
+
+  std::map<uint,uint> stubInfo;
+
+  int sector = seed->scNum();
+  int previousSector=sector-1;
+  int nextSector=sector+1;
+  if (sector==0) {
+    previousSector=11;
+  }
+  if (sector==11) {
+    nextSector=0;
+  }
+
+  int wheel = seed->whNum();
+  int innerWheel=0;
+  if (wheel==-2)
+    innerWheel=-1;
+  if (wheel==-1)
+    innerWheel=0;
+  if (wheel==0)
+    innerWheel=1982;
+  if (wheel==1)
+    innerWheel=0;
+  if (wheel==2)
+    innerWheel=1;
+
+
+  //First align the data 
   uint N=0;
   for (const auto& stub :stubs)  {
     N=N+1;
+
     if (stub->stNum()!=step) 
       continue;
 
-    int d = fabs(wrapAround(((correctedPhi(seed,seed->scNum())-correctedPhi(stub,seed->scNum()))>>3),1024));
-    if (d<distance) {
-      distance = d;
-      best=N-1;
-      found=true;
+    uint distance = fabs(wrapAround(((correctedPhi(seed,seed->scNum())-correctedPhi(stub,seed->scNum()))>>3),1024));
+
+    if (stub->scNum()==previousSector) {
+      if (stub->whNum()==wheel) {
+	if (!stub->tag()) {
+	  diffInfo[0]=distance;
+	  stubInfo[0]=N-1;
+	}
+	else {
+	  diffInfo[1]=distance;
+	  stubInfo[1]=N-1;
+	}
+      }
+      else if (stub->whNum()==innerWheel){
+	if (!stub->tag()) {
+	  diffInfo[2]=distance;
+	  stubInfo[2]=N-1;
+	}
+	else {
+	  diffInfo[3]=distance;
+	  stubInfo[3]=N-1;
+	}
+      }
     }
+    else  if (stub->scNum()==sector) {
+      if (stub->whNum()==wheel) {
+	if (!stub->tag()) {
+	  diffInfo[4]=distance;
+	  stubInfo[4]=N-1;
+	}
+	else {
+	  diffInfo[5]=distance;
+	  stubInfo[5]=N-1;
+	}
+      }
+      else if (stub->whNum()==innerWheel){
+	if (!stub->tag()) {
+	  diffInfo[6]=distance;
+	  stubInfo[6]=N-1;
+	}
+	else {
+	  diffInfo[7]=distance;
+	  stubInfo[7]=N-1;
+	}
+      }
+    }
+    else  if (stub->scNum()==nextSector) {
+      if (stub->whNum()==wheel) {
+	if (!stub->tag()) {
+	  diffInfo[8]=distance;
+	  stubInfo[8]=N-1;
+	}
+	else {
+	  diffInfo[9]=distance;
+	  stubInfo[9]=N-1;
+	}
+      }
+      else if (stub->whNum()==innerWheel){
+	if (!stub->tag()) {
+	  diffInfo[10]=distance;
+	  stubInfo[10]=N-1;
+	}
+	else {
+	  diffInfo[11]=distance;
+	  stubInfo[11]=N-1;
+	}
+      }
+    }
+
   }
-  return std::make_pair(found,best);
+
+
+  uint s1_1 = matchAbs(diffInfo,0,1);
+  uint s1_2 = matchAbs(diffInfo,2,3);
+  uint s1_3 = matchAbs(diffInfo,4,5);
+  uint s1_4 = matchAbs(diffInfo,6,7);
+  uint s1_5 = matchAbs(diffInfo,8,9);
+  uint s1_6 = matchAbs(diffInfo,10,11);
+
+  uint s2_1 = matchAbs(diffInfo,s1_1,s1_2);
+  uint s2_2 = matchAbs(diffInfo,s1_3,s1_4);
+  uint s2_3 = matchAbs(diffInfo,s1_5,s1_6);
+
+  uint s3_1 = matchAbs(diffInfo,s2_1,s2_2);
+
+  uint s4 = matchAbs(diffInfo,s3_1,s2_3);
+
+  
+
+  if (diffInfo[s4]!=60000)
+    return std::make_pair(true,stubInfo[s4]);
+  else
+    return std::make_pair(false,0);
 }
+
+
+
 
 
 
@@ -501,7 +651,7 @@ bool L1TMuonBarrelKalmanAlgo::updateLUT(L1MuKBMTrack& track,const L1MuKBMTCombin
     //      phiB=trackPhiB;
 
     Vector2 residual;
-    int residualPhi = wrapAround(phi-trackPhi,8192);
+    int residualPhi = wrapAround(phi-trackPhi,2048);
     int residualPhiB = wrapAround(phiB-trackPhiB,4096);
 
 
@@ -534,9 +684,10 @@ bool L1TMuonBarrelKalmanAlgo::updateLUT(L1MuKBMTrack& track,const L1MuKBMTCombin
     int k_1 = fp_product(GAIN[1],residualPhiB,5);
     int KNew  = wrapAround(trackK+k_0+k_1,8192);
 
-    if (verbose_)
+    if (verbose_) {
+      printf("Kpure=%d,wrapped=%d\n",trackK+k_0+k_1,KNew);
       printf("Kupdate: %d %d\n",k_0,k_1);
-
+    }
     int phiNew  = phi;
 
     //different products for different firmware logic
@@ -652,7 +803,7 @@ std::pair<float,float> GAIN = lutService_->vertexGain(track.hitPattern(),absK/2)
 
 
 void L1TMuonBarrelKalmanAlgo::setFloatingPointValues(L1MuKBMTrack& track,bool vertex) {
-  int K,phiINT,etaINT;
+  int K,etaINT;
 
   if (track.hasFineEta())
     etaINT=track.fineEta();
@@ -663,42 +814,15 @@ void L1TMuonBarrelKalmanAlgo::setFloatingPointValues(L1MuKBMTrack& track,bool ve
   double lsb = 1.25/float(1 << 13);
   double lsbEta = 0.010875;
 
+  
 
   if (vertex) {
-    K  = track.curvatureAtVertex();
-    if (K==0)
-      track.setCharge(1);
-    else
-      track.setCharge(K/fabs(K));
+    double pt = double(ptLUT(track.curvatureAtVertex()))/2.0;
 
-    phiINT = track.phiAtVertex();
-    double phi= track.sector()*M_PI/6.0+phiINT*M_PI/(6*2048.)-2*M_PI;
+
+    double phi= track.sector()*M_PI/6.0+track.phiAtVertex()*M_PI/(6*2048.)-2*M_PI;
+
     double eta = etaINT*lsbEta;
-    if (phi<-M_PI)
-      phi=phi+2*M_PI;
-
-    float FK=fabs(K);
-    if (FK>2047.)
-      FK=2047.;   
-    if (FK<26.)
-      FK=26.;   
-    FK=FK*lsb;
-    //step 1 -material and B-field
-    FK = 0.898*FK/(1-0.6*FK);
-    //step 2 -low Pt
-    FK=FK-26.382*FK*FK*FK*FK*FK;
-    //step 3 - misalignment
-    FK=FK-track.charge()*1.408e-3;
-
-
-
-    double pt =511.0;
-    if (FK!=0)
-      pt = 1.0/FK;
-
-    if (pt<3.0)
-      pt=3.0;
-
     track.setPtEtaPhi(pt,eta,phi);
   }
   else {
@@ -884,13 +1008,13 @@ bool L1TMuonBarrelKalmanAlgo::estimateChiSquare(L1MuKBMTrack& track) {
   int K = track.curvatureAtMuon();
 
   uint chi=0;
-  //  printf("Starting Chi calculation\n");
+  //   printf("Starting Chi calculation\n");
   int coords = (track.phiAtMuon()+track.phiBAtMuon())>>3;
   for (const auto& stub: track.stubs()) {   
     int AK = fp_product(-chiSquare_[stub->stNum()-1],K>>3,8);
     int stubCoords =   wrapAround((correctedPhi(stub,track.sector())>>3)+stub->phiB(),1024);
-    int diff1 = wrapAround(stubCoords-coords,1024);
-    uint delta = wrapAround(abs(diff1+AK),1024);
+    int diff1 = wrapAround(stubCoords-coords,2048);
+    uint delta = wrapAround(abs(diff1+AK),4096);
     //    printf("chi estimate station=%d AK=%d stubC=%d trackC=%d delta=%d\n",stub->stNum(),AK,stubCoords,coords,delta);
     chi=chi+delta;    
 
@@ -903,6 +1027,7 @@ bool L1TMuonBarrelKalmanAlgo::estimateChiSquare(L1MuKBMTrack& track) {
    
   
    track.setApproxChi2(chi);
+   //   printf("Chi square for track %d = %d %d %d\n",int(track.hitPattern()),chi,globalChi2Cut_,int(fabs(K)));
    return ((chi<=globalChi2Cut_) || (fabs(K)>globalChi2CutLimit_));
 
 }
@@ -920,10 +1045,11 @@ int L1TMuonBarrelKalmanAlgo::rank(const L1MuKBMTrack& track) {
 
 
 int L1TMuonBarrelKalmanAlgo::wrapAround(int value,int maximum) {
+
   if (value>maximum-1)
-    return value-2*maximum;
+    return wrapAround(value-2*maximum,maximum);
   if (value<-maximum)
-    return value+2*maximum;
+    return wrapAround(value+2*maximum,maximum);
   return value;
 
 }
@@ -1121,7 +1247,7 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanAlgo::clean(const L1MuKBMTrackCollecti
   int selected=15;
   if (seed==4) //station 4 seeded 
     {
-      int sel6 = infoRank[12]>= infoRank[10] ? 12 : 10;
+      int sel6 = infoRank[10]>= infoRank[12] ? 10 : 12;
       int sel5 = infoRank[14]>= infoRank[9] ? 14 : 9;
       int sel4 = infoRank[11]>= infoRank[13] ? 11 : 13;
       int sel3 = infoRank[sel6]>= infoRank[sel5] ? sel6 : sel5;
@@ -1237,6 +1363,8 @@ int L1TMuonBarrelKalmanAlgo::phiAt2(const L1MuKBMTrack& track) {
 
 
   int phiNew=phi+fp_product(phiAt2_,phiB,12);
+  if (verbose_)
+    printf("Phi at second station=%d\n",phiNew);
   if (phiNew>2047)
     phiNew=2047;
   if (phiNew<-2048)

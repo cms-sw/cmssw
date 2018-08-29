@@ -68,6 +68,7 @@ class L1TMuonBarrelKalmanAlgo {
   uint etaStubRank(const L1MuKBMTCombinedStubRef&);
 
   void calculateEta(L1MuKBMTrack& track);
+  uint matchAbs(std::map<uint,uint>&, uint, uint);
 
 
   //LUT service
