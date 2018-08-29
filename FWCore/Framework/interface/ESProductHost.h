@@ -94,7 +94,9 @@ namespace edm {
 
   public:
 
-    ESProductHost() : cacheIDs_(numberOfRecordTypes(), 0) { }
+    template <typename... Args>
+    ESProductHost(Args&&... args) : Product(std::forward<Args>(args)...),
+                                    cacheIDs_(numberOfRecordTypes(), 0) { }
 
     // Execute FUNC if the cacheIdentifier in the EventSetup RecordType
     // has changed since the last time we called FUNC for
