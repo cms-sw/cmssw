@@ -42,7 +42,7 @@ DQMService::DQMService(const edm::ParameterSet &pset, edm::ActivityRegistry &ar)
   publishFrequency_ = pset.getUntrackedParameter<double>("publishFrequency", publishFrequency_);
   std::string filter = pset.getUntrackedParameter<std::string>("filter", "");
 
-  if (host != "" && port > 0)
+  if (!host.empty() && port > 0)
   {
     net_ = new DQMBasicNet;
     net_->debug(verbose);
