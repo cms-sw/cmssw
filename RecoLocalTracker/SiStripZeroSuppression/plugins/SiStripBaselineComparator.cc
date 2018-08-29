@@ -55,7 +55,7 @@
 // class decleration
 //
 
-class SiStripBaselineComparator : public edm::one::EDAnalyzer<> {
+class SiStripBaselineComparator : public edm::one::EDAnalyzer<edm::one::SharedResources> {
   public:
     explicit SiStripBaselineComparator(const edm::ParameterSet&);
     ~SiStripBaselineComparator() override;
@@ -84,7 +84,9 @@ class SiStripBaselineComparator : public edm::one::EDAnalyzer<> {
 
 
 SiStripBaselineComparator::SiStripBaselineComparator(const edm::ParameterSet& conf){
-   
+ 
+  usesResource(TFileService::kSharedResource);
+  
   srcClusters_  =  consumes<edmNew::DetSetVector<SiStripCluster> >(conf.getParameter<edm::InputTag>("srcClusters"));
   srcClusters2_ =  consumes<edmNew::DetSetVector<SiStripCluster> >(conf.getParameter<edm::InputTag>("srcClusters2"));
  
