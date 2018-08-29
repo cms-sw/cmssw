@@ -34,7 +34,7 @@ process.esTestProducerBUsingHost = cms.ESProducer("ESTestProducerBUsingHost")
 # that they match expectations
 process.esTestAnalyzerB = cms.EDAnalyzer("ESTestAnalyzerB",
     runsToGetDataFor = cms.vint32(1,2,3,4,5,6,7,8,9,10),
-    expectedValues = cms.untracked.vint32(2,3,5,6,8,9,10,11,11,11)
+    expectedValues = cms.untracked.vint32(1102,1103,1105,1106,1108,1109,1110,1111,1111,1111)
 )
 
 process.p = cms.Path(process.esTestAnalyzerB)

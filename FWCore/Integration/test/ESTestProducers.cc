@@ -74,7 +74,7 @@ namespace edmtest {
   std::shared_ptr<ESTestDataB> ESTestProducerBUsingHost::produce(ESTestRecordB const& record) {
 
     auto host = holder_.makeOrGet([]() {
-      return new HostType;
+      return new HostType(100, 1000);
     });
 
     // Test that the numberOfRecordTypes and index functions are working properly
