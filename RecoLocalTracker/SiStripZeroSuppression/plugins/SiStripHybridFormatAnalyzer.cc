@@ -42,10 +42,6 @@
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
 
-#include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripPedestalsSubtractor.h"
-#include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripCommonModeNoiseSubtractor.h"
-#include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripRawProcessingFactory.h"
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CommonTools/Utils/interface/TFileDirectory.h"
@@ -53,20 +49,7 @@
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 
 //ROOT inclusion
-#include "TROOT.h"
-#include "TFile.h"
-#include "TNtuple.h"
-#include "TMath.h"
-#include "TCanvas.h"
 #include "TH1F.h"
-#include "TH2F.h"
-#include "TProfile.h"
-#include "TList.h"
-#include "TString.h"
-#include "TStyle.h"
-#include "TGraph.h"
-#include "TMultiGraph.h"
-#include "THStack.h"
 
 
 //
