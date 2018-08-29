@@ -115,7 +115,7 @@ void SiStripFedZeroSuppression::suppress(const std::vector<SiStripDigi>& in, std
       theNeighFEDhighThresh = theNextFEDhighThresh;
     }
     
-    if (IsAValidDigi()){
+    if (isAValidDigi()){
       selectedSignal.push_back(SiStripDigi(strip, adc));
     }
   }
@@ -211,7 +211,7 @@ void SiStripFedZeroSuppression::suppress(const edm::DetSet<SiStripRawDigi>& in, 
      thePrev2FEDlowThresh  = static_cast<int16_t>(thresholdHandle->getData(strip-2,detThRange).getLth()*noiseHandle->getNoiseFast(strip-2,detNoiseRange)+0.5);
     }
     //GB 23/6/08: truncation should be done at the very beginning
-    if (IsAValidDigi())
+    if (isAValidDigi())
       out.data.push_back(SiStripDigi(strip, truncate(in_iter->adc())));
   }
 }
@@ -337,7 +337,7 @@ void SiStripFedZeroSuppression::suppress(const std::vector<int16_t>& in, uint16_
       thePrev2FEDlowThresh  = lowThr_[strip-2];;
     }
     
-    if (IsAValidDigi()){
+    if (isAValidDigi()){
 #ifdef DEBUG_SiStripZeroSuppression_
       if (edm::isDebugEnabled())
 	LogTrace("SiStripZeroSuppression") << "[SiStripFedZeroSuppression::suppress] DetId " << out.id << " strip " << strip << " adc " << *in_iter << " digiCollection size " << out.data.size() ;
@@ -349,7 +349,7 @@ void SiStripFedZeroSuppression::suppress(const std::vector<int16_t>& in, uint16_
 }
 
 
-bool SiStripFedZeroSuppression::IsAValidDigi()
+bool SiStripFedZeroSuppression::isAValidDigi()
 {
 
 #ifdef DEBUG_SiStripZeroSuppression_

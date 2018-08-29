@@ -95,8 +95,6 @@ class SiStripHybridFormatAnalyzer : public edm::EDAnalyzer {
     TH1F* h1BadAPVperModuleOnlyBadModule_;
     TH1F* h1Pedestals_;
     
-    TCanvas* Canvas_;
-    
     TFileDirectory sdDigis_;
     TFileDirectory sdMisc_;
          
@@ -208,7 +206,7 @@ SiStripHybridFormatAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&
      
   //plotting digis histograms 
   //------------------------------------------------------------------
-  uint32_t NBadAPVevent=0; 
+  uint32_t nBadAPVevent=0; 
 
   edm::Handle<edm::DetSetVector<SiStripDigi> >moduleDigis;
   e.getByToken(srcDigis_, moduleDigis);
@@ -247,17 +245,17 @@ SiStripHybridFormatAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&
       stripsPerAPV[strip/128]++;
     }
     	
-    uint16_t NBadAPVmodule=0;
-    for(uint16_t APVn=0; APVn<6; APVn++){
-      if(stripsPerAPV[APVn]>64){
-        NBadAPVevent++;
-        NBadAPVmodule++;
+    uint16_t nBadAPVmodule=0;
+    for(uint16_t apvN=0; apvN<6; apvN++){
+      if(stripsPerAPV[apvN]>64){
+        nBadAPVevent++;
+        nBadAPVmodule++;
       }
     }
-    h1BadAPVperModule_->Fill(NBadAPVmodule);
-    if(NBadAPVmodule) h1BadAPVperModuleOnlyBadModule_->Fill(NBadAPVmodule);
+    h1BadAPVperModule_->Fill(nBadAPVmodule);
+    if(nBadAPVmodule) h1BadAPVperModuleOnlyBadModule_->Fill(nBadAPVmodule);
   }
-  h1BadAPVperEvent_->Fill(NBadAPVevent);
+  h1BadAPVperEvent_->Fill(nBadAPVevent);
 
 }
 

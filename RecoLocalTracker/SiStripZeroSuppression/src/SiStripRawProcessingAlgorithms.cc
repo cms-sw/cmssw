@@ -42,7 +42,7 @@ void SiStripRawProcessingAlgorithms::initialize(const edm::EventSetup& es)
 void SiStripRawProcessingAlgorithms::initialize(const edm::EventSetup& es, const edm::Event& e)
 {
   initialize(es);
-  if ( restorer.get() && doAPVRestore&&useCMMeanMap ) restorer->LoadMeanCMMap(e);
+  if ( restorer.get() && doAPVRestore&&useCMMeanMap ) restorer->loadMeanCMMap(e);
 }
 
 /**
@@ -61,15 +61,15 @@ void SiStripRawProcessingAlgorithms::initialize(const edm::EventSetup& es, const
  * @return number of restored APVs
  */
 //IMPORTANT: don't forget the conversion from  hybrids on the bad APVs (*2 -1024)
-uint16_t SiStripRawProcessingAlgorithms::SuppressHybridData(uint32_t id, uint16_t firstAPV, digivector_t& procRawDigis, edm::DetSet<SiStripDigi>& suppressedDigis)
+uint16_t SiStripRawProcessingAlgorithms::suppressHybridData(uint32_t id, uint16_t firstAPV, digivector_t& procRawDigis, edm::DetSet<SiStripDigi>& suppressedDigis)
 {
   digivector_t procRawDigisPedSubtracted(procRawDigis);
 
   subtractorCMN->subtract(id, firstAPV, procRawDigis);
 
-  const auto nAPVFlagged = restorer->InspectAndRestore(id, firstAPV, procRawDigisPedSubtracted, procRawDigis, subtractorCMN->getAPVsCM());
+  const auto nAPVFlagged = restorer->inspectAndRestore(id, firstAPV, procRawDigisPedSubtracted, procRawDigis, subtractorCMN->getAPVsCM());
 
-  const std::vector<bool>& apvf = GetAPVFlags();
+  const std::vector<bool>& apvf = getAPVFlags();
   const std::size_t nAPVs = procRawDigis.size()/128;
   for ( uint16_t iAPV = firstAPV; iAPV < firstAPV+nAPVs; ++iAPV ) {
     if ( apvf[iAPV] ) {
@@ -99,10 +99,10 @@ uint16_t SiStripRawProcessingAlgorithms::SuppressHybridData(uint32_t id, uint16_
  * @param RawDigis processed ADCs
  * @return number of restored APVs
  */
-uint16_t SiStripRawProcessingAlgorithms::SuppressHybridData(const edm::DetSet<SiStripDigi>& hybridDigis, edm::DetSet<SiStripDigi>& suppressedDigis, digivector_t& RawDigis)
+uint16_t SiStripRawProcessingAlgorithms::suppressHybridData(const edm::DetSet<SiStripDigi>& hybridDigis, edm::DetSet<SiStripDigi>& suppressedDigis, digivector_t& RawDigis)
 {
-  ConvertHybridDigiToRawDigiVector(hybridDigis, RawDigis);
-  return SuppressHybridData(hybridDigis.id, 0, RawDigis, suppressedDigis);
+  convertHybridDigiToRawDigiVector(hybridDigis, RawDigis);
+  return suppressHybridData(hybridDigis.id, 0, RawDigis, suppressedDigis);
 }
 
 /**
@@ -115,7 +115,7 @@ uint16_t SiStripRawProcessingAlgorithms::SuppressHybridData(const edm::DetSet<Si
  * @param inDigis input (non-ZS hybrid or ZS) data
  * @param RawDigis processed raw (or zero-filled ZS) ADCs
  */
-void SiStripRawProcessingAlgorithms::ConvertHybridDigiToRawDigiVector(const edm::DetSet<SiStripDigi>& inDigis, digivector_t& RawDigis)
+void SiStripRawProcessingAlgorithms::convertHybridDigiToRawDigiVector(const edm::DetSet<SiStripDigi>& inDigis, digivector_t& RawDigis)
 {
   const auto stripModuleGeom = dynamic_cast<const StripGeomDetUnit*>(trGeo->idToDetUnit(inDigis.id));
   const std::size_t nStrips = stripModuleGeom->specificTopology().nstrips();
@@ -149,10 +149,10 @@ void SiStripRawProcessingAlgorithms::ConvertHybridDigiToRawDigiVector(const edm:
  * @param output zero-suppressed digis
  * @return number of restored APVs
  */
-uint16_t SiStripRawProcessingAlgorithms::SuppressVirginRawData(uint32_t id, uint16_t firstAPV, digivector_t& procRawDigis, edm::DetSet<SiStripDigi>& output)
+uint16_t SiStripRawProcessingAlgorithms::suppressVirginRawData(uint32_t id, uint16_t firstAPV, digivector_t& procRawDigis, edm::DetSet<SiStripDigi>& output)
 {
   subtractorPed->subtract(id, firstAPV*128, procRawDigis);
-  return SuppressProcessedRawData(id, firstAPV, procRawDigis, output);
+  return suppressProcessedRawData(id, firstAPV, procRawDigis, output);
 }
 
 /**
@@ -165,12 +165,12 @@ uint16_t SiStripRawProcessingAlgorithms::SuppressVirginRawData(uint32_t id, uint
  * @param output zero-suppressed digis
  * @return number of restored APVs
  */
-uint16_t SiStripRawProcessingAlgorithms::SuppressVirginRawData(const edm::DetSet<SiStripRawDigi>& rawDigis, edm::DetSet<SiStripDigi>& output)
+uint16_t SiStripRawProcessingAlgorithms::suppressVirginRawData(const edm::DetSet<SiStripRawDigi>& rawDigis, edm::DetSet<SiStripDigi>& output)
 {
   digivector_t RawDigis; RawDigis.reserve(rawDigis.size());
   std::transform(std::begin(rawDigis), std::end(rawDigis), std::back_inserter(RawDigis),
       [] ( SiStripRawDigi digi ) { return digi.adc(); } );
-  return SuppressVirginRawData(rawDigis.id, 0, RawDigis, output);
+  return suppressVirginRawData(rawDigis.id, 0, RawDigis, output);
 }
 
 /**
@@ -185,7 +185,7 @@ uint16_t SiStripRawProcessingAlgorithms::SuppressVirginRawData(const edm::DetSet
  * @param output zero-suppressed digis
  * @return number of restored APVs
  */
-uint16_t SiStripRawProcessingAlgorithms::SuppressProcessedRawData(uint32_t id, uint16_t firstAPV, digivector_t& procRawDigis , edm::DetSet<SiStripDigi>& output)
+uint16_t SiStripRawProcessingAlgorithms::suppressProcessedRawData(uint32_t id, uint16_t firstAPV, digivector_t& procRawDigis , edm::DetSet<SiStripDigi>& output)
 {
   digivector_t procRawDigisPedSubtracted ;
 
@@ -194,7 +194,7 @@ uint16_t SiStripRawProcessingAlgorithms::SuppressProcessedRawData(uint32_t id, u
     procRawDigisPedSubtracted.assign(procRawDigis.begin(), procRawDigis.end());
   subtractorCMN->subtract(id, firstAPV, procRawDigis);
   if ( doAPVRestore )
-    nAPVFlagged = restorer->InspectAndRestore(id, firstAPV, procRawDigisPedSubtracted, procRawDigis, subtractorCMN->getAPVsCM());
+    nAPVFlagged = restorer->inspectAndRestore(id, firstAPV, procRawDigisPedSubtracted, procRawDigis, subtractorCMN->getAPVsCM());
   suppressor->suppress(procRawDigis, firstAPV, output);
   return nAPVFlagged;
 }
@@ -209,12 +209,12 @@ uint16_t SiStripRawProcessingAlgorithms::SuppressProcessedRawData(uint32_t id, u
  * @param output zero-suppressed digis
  * @return number of restored APVs
  */
-uint16_t SiStripRawProcessingAlgorithms::SuppressProcessedRawData(const edm::DetSet<SiStripRawDigi>& rawDigis, edm::DetSet<SiStripDigi>& output)
+uint16_t SiStripRawProcessingAlgorithms::suppressProcessedRawData(const edm::DetSet<SiStripRawDigi>& rawDigis, edm::DetSet<SiStripDigi>& output)
 {
   digivector_t RawDigis; RawDigis.reserve(rawDigis.size());
   std::transform(std::begin(rawDigis), std::end(rawDigis), std::back_inserter(RawDigis),
       [] ( SiStripRawDigi digi ) { return digi.adc(); } );
-  return SuppressProcessedRawData(rawDigis.id, 0, RawDigis, output);
+  return suppressProcessedRawData(rawDigis.id, 0, RawDigis, output);
 }
 
 /**
@@ -232,7 +232,7 @@ uint16_t SiStripRawProcessingAlgorithms::SuppressProcessedRawData(const edm::Det
  * @param output zero-suppressed digis (or pedestal-subtracted digis, see above)
  * @return number of restored APVs
  */
-uint16_t SiStripRawProcessingAlgorithms::ConvertVirginRawToHybrid(uint32_t id, uint16_t firstAPV, digivector_t& procRawDigis, edm::DetSet<SiStripDigi>& output)
+uint16_t SiStripRawProcessingAlgorithms::convertVirginRawToHybrid(uint32_t id, uint16_t firstAPV, digivector_t& procRawDigis, edm::DetSet<SiStripDigi>& output)
 {
   digivector_t procRawDigisPedSubtracted;
 
@@ -250,7 +250,7 @@ uint16_t SiStripRawProcessingAlgorithms::ConvertVirginRawToHybrid(uint32_t id, u
 
   for ( auto& digi : procRawDigis ) { digi *= 2; }
 
-  const std::vector<bool>& apvf = GetAPVFlags();
+  const std::vector<bool>& apvf = getAPVFlags();
   const std::size_t nAPVs = procRawDigis.size()/128;
   for ( uint16_t iAPV = firstAPV; iAPV < nAPVs+firstAPV; ++iAPV ) {
     if ( apvf[iAPV] ) {
@@ -281,10 +281,10 @@ uint16_t SiStripRawProcessingAlgorithms::ConvertVirginRawToHybrid(uint32_t id, u
  * @param output zero-suppressed digis (or pedestal-subtracted digis, see above)
  * @return number of restored APVs
  */
-uint16_t SiStripRawProcessingAlgorithms::ConvertVirginRawToHybrid(const edm::DetSet<SiStripRawDigi>& rawDigis, edm::DetSet<SiStripDigi>& suppressedDigis)
+uint16_t SiStripRawProcessingAlgorithms::convertVirginRawToHybrid(const edm::DetSet<SiStripRawDigi>& rawDigis, edm::DetSet<SiStripDigi>& suppressedDigis)
 {
   digivector_t RawDigis; RawDigis.reserve(rawDigis.size());
   std::transform(std::begin(rawDigis), std::end(rawDigis), std::back_inserter(RawDigis),
       [] ( SiStripRawDigi digi ) { return digi.adc(); } );
-  return ConvertVirginRawToHybrid(rawDigis.id, 0, RawDigis, suppressedDigis);
+  return convertVirginRawToHybrid(rawDigis.id, 0, RawDigis, suppressedDigis);
 }
