@@ -117,14 +117,14 @@ inline void SiStripZeroSuppression::processRaw(const edm::DetSetVector<SiStripRa
 
     int16_t nAPVflagged = 0;
     if ( RawType::ProcessedRaw == inType ) {
-      nAPVflagged = algorithms->SuppressProcessedRawData(rawDigis, suppressedDigis);
+      nAPVflagged = algorithms->suppressProcessedRawData(rawDigis, suppressedDigis);
     } else if ( RawType::ScopeMode == inType) {
-      nAPVflagged = algorithms->SuppressVirginRawData(rawDigis, suppressedDigis);
+      nAPVflagged = algorithms->suppressVirginRawData(rawDigis, suppressedDigis);
     } else if ( RawType::VirginRaw == inType ) {
       if ( produceHybridFormat ) {
-        nAPVflagged = algorithms->ConvertVirginRawToHybrid(rawDigis, suppressedDigis);
+        nAPVflagged = algorithms->convertVirginRawToHybrid(rawDigis, suppressedDigis);
       } else {
-        nAPVflagged = algorithms->SuppressVirginRawData(rawDigis, suppressedDigis);
+        nAPVflagged = algorithms->suppressVirginRawData(rawDigis, suppressedDigis);
       }
     }
 
@@ -144,7 +144,7 @@ inline void SiStripZeroSuppression::processHybrid(const edm::DetSetVector<SiStri
     edm::DetSet<SiStripDigi> suppressedDigis(inDigis.id);
 
     std::vector<int16_t> rawDigis;
-    const auto nAPVflagged = algorithms->SuppressHybridData(inDigis, suppressedDigis, rawDigis);
+    const auto nAPVflagged = algorithms->suppressHybridData(inDigis, suppressedDigis, rawDigis);
 
     storeExtraOutput(inDigis.id, nAPVflagged);
     if (!suppressedDigis.empty() && (storeInZScollBadAPV || nAPVflagged ==0))
@@ -160,11 +160,11 @@ inline edm::DetSet<SiStripRawDigi> SiStripZeroSuppression::formatRawDigis(const 
 {
   edm::DetSet<SiStripRawDigi> outRawDigis(rawDigis.id);
   outRawDigis.reserve(rawDigis.size());
-  const std::vector<bool>& apvf = algorithms->GetAPVFlags();
+  const std::vector<bool>& apvf = algorithms->getAPVFlags();
   uint32_t strip=0;
   for ( const auto rawDigi : rawDigis ) {
-    int16_t APVn = strip/128;
-    if (apvf[APVn]) outRawDigis.push_back(rawDigi);
+    int16_t apvN = strip/128;
+    if (apvf[apvN]) outRawDigis.push_back(rawDigi);
     else outRawDigis.push_back(SiStripRawDigi(0));
     ++strip;
   }
@@ -175,11 +175,11 @@ inline edm::DetSet<SiStripRawDigi> SiStripZeroSuppression::formatRawDigis(uint32
 {
   edm::DetSet<SiStripRawDigi> outRawDigis(detId);
   outRawDigis.reserve(rawDigis.size());
-  const std::vector<bool>& apvf = algorithms->GetAPVFlags();
+  const std::vector<bool>& apvf = algorithms->getAPVFlags();
   uint32_t strip=0;
   for ( const auto rawDigi : rawDigis ) {
-    int16_t APVn = strip/128;
-    if (apvf[APVn]) outRawDigis.push_back(SiStripRawDigi(rawDigi));
+    int16_t apvN = strip/128;
+    if (apvf[apvN]) outRawDigis.push_back(SiStripRawDigi(rawDigi));
     else outRawDigis.push_back(SiStripRawDigi(0));
     ++strip;
   }
@@ -198,14 +198,14 @@ inline void SiStripZeroSuppression::storeExtraOutput(uint32_t id, int16_t nAPVfl
 
 inline void SiStripZeroSuppression::storeBaseline(uint32_t id, const medians_t& vmedians)
 {
-  const auto& baselinemap = algorithms->GetBaselineMap();
+  const auto& baselinemap = algorithms->getBaselineMap();
 
   edm::DetSet<SiStripProcessedRawDigi> baselineDetSet(id);
   baselineDetSet.reserve(vmedians.size()*128);
   for ( const auto& vmed : vmedians ) {
-    const uint16_t APVn = vmed.first;
+    const uint16_t apvN = vmed.first;
     const float median = vmed.second;
-    auto itBaselineMap = baselinemap.find(APVn);
+    auto itBaselineMap = baselinemap.find(apvN);
     if ( baselinemap.end() == itBaselineMap ) {
       for (size_t strip=0; strip < 128; ++strip)
         baselineDetSet.push_back(SiStripProcessedRawDigi(median));
@@ -222,10 +222,10 @@ inline void SiStripZeroSuppression::storeBaseline(uint32_t id, const medians_t& 
 inline void SiStripZeroSuppression::storeBaselinePoints(uint32_t id)
 {
   edm::DetSet<SiStripDigi> baspointDetSet(id);
-  for ( const auto& itBaselinePointVect : algorithms->GetSmoothedPoints() ) {
-    const uint16_t APVn = itBaselinePointVect.first;
+  for ( const auto& itBaselinePointVect : algorithms->getSmoothedPoints() ) {
+    const uint16_t apvN = itBaselinePointVect.first;
     for ( const auto& itBaselinePointMap : itBaselinePointVect.second ) {
-      const uint16_t bpstrip = itBaselinePointMap.first + APVn*128;
+      const uint16_t bpstrip = itBaselinePointMap.first + apvN*128;
       const int16_t  bp = itBaselinePointMap.second;
       baspointDetSet.push_back(SiStripDigi(bpstrip, bp+128));
     }
@@ -239,7 +239,7 @@ inline void SiStripZeroSuppression::storeCMN(uint32_t id, const medians_t& vmedi
 {
   std::vector<bool> apvf(6, false);
   if (fixCM) {
-    const auto& apvFlagged = algorithms->GetAPVFlags();
+    const auto& apvFlagged = algorithms->getAPVFlags();
     std::copy(std::begin(apvFlagged), std::end(apvFlagged), std::begin(apvf));
   }
 

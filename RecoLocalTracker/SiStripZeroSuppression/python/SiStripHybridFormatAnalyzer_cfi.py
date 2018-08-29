@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SiStripHybridFormatAnalyzer = cms.EDAnalyzer("SiStripHybridFormatAnalyzer",
+siStripHybridFormatAnalyzer = cms.EDAnalyzer("SiStripHybridFormatAnalyzer",
 
     srcDigis =  cms.InputTag('siStripZeroSuppression','VirginRaw'),
     srcAPVCM =  cms.InputTag('siStripZeroSuppression','APVCMVirginRaw'),

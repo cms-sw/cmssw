@@ -450,9 +450,9 @@ try { // edmNew::CapacityExaustedException
           edm::DetSet<SiStripDigi> unpDigis{id}; unpDigis.reserve(256);
           unpackZS(buffer->channel(fedCh), mode, ipair*256, std::back_inserter(unpDigis));
           SiStripRawProcessingAlgorithms::digivector_t workRawDigis;
-          rawAlgos.ConvertHybridDigiToRawDigiVector(unpDigis, workRawDigis);
+          rawAlgos.convertHybridDigiToRawDigiVector(unpDigis, workRawDigis);
           edm::DetSet<SiStripDigi> suppDigis{id};
-          rawAlgos.SuppressHybridData(id, ipair*2, workRawDigis, suppDigis);
+          rawAlgos.suppressHybridData(id, ipair*2, workRawDigis, suppDigis);
           std::copy(std::begin(suppDigis), std::end(suppDigis), perStripAdder);
         }
       } catch (edmNew::CapacityExaustedException) {
@@ -495,7 +495,7 @@ try { // edmNew::CapacityExaustedException
       //rawAlgos_->subtractorCMN->subtract( id, digis);
       //rawAlgos_->suppressor->suppress( digis, zsdigis);
       uint16_t firstAPV = ipair*2;
-      rawAlgos.SuppressVirginRawData(id, firstAPV,digis, zsdigis);
+      rawAlgos.suppressVirginRawData(id, firstAPV,digis, zsdigis);
       for ( const auto digi : zsdigis ) {
         clusterizer.stripByStripAdd(state, digi.strip(), digi.adc(), record);
       }
@@ -518,7 +518,7 @@ try { // edmNew::CapacityExaustedException
       //rawAlgos_->subtractorCMN->subtract( id, digis);
       //rawAlgos_->suppressor->suppress( digis, zsdigis);
       uint16_t firstAPV = ipair*2;
-      rawAlgos.SuppressProcessedRawData(id, firstAPV,digis, zsdigis);
+      rawAlgos.suppressProcessedRawData(id, firstAPV,digis, zsdigis);
       for( edm::DetSet<SiStripDigi>::const_iterator it = zsdigis.begin(); it!=zsdigis.end(); it++) {
         clusterizer.stripByStripAdd(state, it->strip(), it->adc(), record);
       }

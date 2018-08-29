@@ -64,7 +64,7 @@ void SiStripMergeZeroSuppression::produce(edm::Event& event, const edm::EventSet
       if ( isModuleRestored ) {
         std::cout << "apply the ZS to the raw data collection" << std::endl;
         edm::DetSet<SiStripDigi> suppressedDigis(rawDetId);
-        m_algorithms->SuppressVirginRawData(rawDigis, suppressedDigis);
+        m_algorithms->suppressVirginRawData(rawDigis, suppressedDigis);
 
         if ( ! suppressedDigis.empty() ) {
           std::cout << "looking for the detId with the new ZS in the collection of the zero suppressed data" << std::endl;
@@ -80,7 +80,7 @@ void SiStripMergeZeroSuppression::produce(edm::Event& event, const edm::EventSet
           std::cout << "exiting looking for the detId with the new ZS in the collection of the zero suppressed data" << std::endl;
 
           //creating the map containing the digis (in rawdigi format) merged
-          std::vector<uint16_t> MergedRawDigis(size_t(nAPV*128),0);
+          std::vector<uint16_t> mergedRawDigis(size_t(nAPV*128),0);
 
           uint32_t count=0; // to be removed...
           edm::DetSet<SiStripDigi> newDigiToIndert(rawDetId);
@@ -97,7 +97,7 @@ void SiStripMergeZeroSuppression::produce(edm::Event& event, const edm::EventSet
               const uint16_t adc = itZsMod.adc();
               const uint16_t strip = itZsMod.strip();
               if ( ! restoredAPV[strip/128] ) {
-                MergedRawDigis[strip] = adc;
+                mergedRawDigis[strip] = adc;
                 ++count;
                 std::cout << "original count: "<< count << " strip: " << strip << " adc: " << adc << std::endl;
               }
@@ -111,15 +111,15 @@ void SiStripMergeZeroSuppression::produce(edm::Event& event, const edm::EventSet
             const uint16_t adc = itSuppDigi.adc();
             const uint16_t strip = itSuppDigi.strip();
             if ( restoredAPV[strip/128] ) {
-              MergedRawDigis[strip] = adc;
+              mergedRawDigis[strip] = adc;
               std::cout << "new suppressed strip: " << strip << " adc: " << adc << std::endl;
             }
           }
 
           std::cout << "suppressing the raw digis" << std::endl;
           zsModule->clear();
-          for ( uint16_t strip=0; strip < MergedRawDigis.size(); ++strip ) {
-            uint16_t adc = MergedRawDigis[strip];
+          for ( uint16_t strip=0; strip < mergedRawDigis.size(); ++strip ) {
+            uint16_t adc = mergedRawDigis[strip];
             if (adc) zsModule->push_back(SiStripDigi(strip, adc));
           }
           std::cout << "size zsModule after the merging: " << zsModule->size() << std::endl;
