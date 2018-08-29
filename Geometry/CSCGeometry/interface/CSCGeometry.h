@@ -44,6 +44,8 @@ class CSCGeometry : public TrackingGeometry {
   /// Destructor
   ~CSCGeometry() override;
 
+  void clear();
+
   //---- Base class' interface
 
   // Return a vector of all det types
@@ -134,6 +136,9 @@ class CSCGeometry : public TrackingGeometry {
   void queryModelling() const;
 
  private:
+
+  /// deallocate managed memory
+  void deallocate();
 
   /// Add a chamber with given DetId.
   void addChamber(CSCChamber* ch);
