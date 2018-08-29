@@ -25,6 +25,9 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -56,11 +59,11 @@
 // class decleration
 //
 
-class SiStripHybridFormatAnalyzer : public edm::EDAnalyzer {
+class SiStripHybridFormatAnalyzer : public edm::one::EDAnalyzer<> {
   public:
     explicit SiStripHybridFormatAnalyzer(const edm::ParameterSet&);
     ~SiStripHybridFormatAnalyzer() override;
-
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
   private:
     void beginJob() override ;
@@ -144,6 +147,17 @@ SiStripHybridFormatAnalyzer::~SiStripHybridFormatAnalyzer()
  
    
 
+}
+
+void
+SiStripHybridFormatAnalyzer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("srcDigis",edm::InputTag("siStripZeroSuppression","VirginRaw"));
+  desc.add<edm::InputTag>("srcAPVCM",edm::InputTag("siStripZeroSuppression","APVCMVirginRaw"));
+  desc.add<uint32_t>("nModuletoDisplay",10000);
+  desc.add<bool>("plotAPVCM",false);
+  descriptions.addDefault(desc);
 }
 
 void
