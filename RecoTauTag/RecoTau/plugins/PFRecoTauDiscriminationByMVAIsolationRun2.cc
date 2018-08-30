@@ -62,6 +62,8 @@ namespace
   }
 }
 
+namespace reco { namespace tau {
+
 class PFRecoTauDiscriminationByMVAIsolationRun2 : public PFTauDiscriminationProducerBase  
 {
  public:
@@ -138,7 +140,6 @@ class PFRecoTauDiscriminationByMVAIsolationRun2 : public PFTauDiscriminationProd
   bool loadMVAfromDB_;
   edm::FileInPath inputFileName_;
   const GBRForest* mvaReader_;
-  enum { kOldDMwoLT, kOldDMwLT, kNewDMwoLT, kNewDMwLT, kDBoldDMwLT, kDBnewDMwLT, kPWoldDMwLT, kPWnewDMwLT, kDBoldDMwLTwGJ, kDBnewDMwLTwGJ };
   int mvaOpt_;
   float* mvaInput_;
   
@@ -218,13 +219,13 @@ double PFRecoTauDiscriminationByMVAIsolationRun2::discriminate(const PFTauRef& t
     float decayDistZ = tauLifetimeInfo.flightLength().z();
     float decayDistMag = std::sqrt(decayDistX*decayDistX + decayDistY*decayDistY + decayDistZ*decayDistZ);
 
-    float nPhoton = (float)reco::tau::mva::tau_n_photons_total(*tau);
-    float ptWeightedDetaStrip = reco::tau::mva::tau_pt_weighted_deta_strip(*tau, tauDecayMode);
-    float ptWeightedDphiStrip = reco::tau::mva::tau_pt_weighted_dphi_strip(*tau, tauDecayMode);
-    float ptWeightedDrSignal = reco::tau::mva::tau_pt_weighted_dr_signal(*tau, tauDecayMode);
-    float ptWeightedDrIsolation = reco::tau::mva::tau_pt_weighted_dr_iso(*tau, tauDecayMode);
-    float leadingTrackChi2 = reco::tau::mva::tau_leadTrackChi2(*tau);
-    float eRatio = reco::tau::mva::tau_Eratio(*tau);
+    float nPhoton = (float)reco::tau::n_photons_total(*tau);
+    float ptWeightedDetaStrip = reco::tau::pt_weighted_deta_strip(*tau, tauDecayMode);
+    float ptWeightedDphiStrip = reco::tau::pt_weighted_dphi_strip(*tau, tauDecayMode);
+    float ptWeightedDrSignal = reco::tau::pt_weighted_dr_signal(*tau, tauDecayMode);
+    float ptWeightedDrIsolation = reco::tau::pt_weighted_dr_iso(*tau, tauDecayMode);
+    float leadingTrackChi2 = reco::tau::lead_track_chi2(*tau);
+    float eRatio = reco::tau::eratio(*tau);
 
     // Difference between measured and maximally allowed Gottfried-Jackson angle
     float gjAngleDiff = -999;
@@ -359,3 +360,5 @@ void PFRecoTauDiscriminationByMVAIsolationRun2::endEvent(edm::Event& evt)
 }
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationByMVAIsolationRun2);
+
+}} //namespace
