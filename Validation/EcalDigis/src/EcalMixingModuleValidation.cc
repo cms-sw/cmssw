@@ -35,7 +35,7 @@ EcalMixingModuleValidation::EcalMixingModuleValidation(const edm::ParameterSet& 
 										   , ps.getParameter<std::string>( "hitsProducer" ) + std::string( "EcalHitsES" )
 										   )
 								    )
-			       ), useDBShape(false) {
+			       ), useDBShape(true) {
 
 
   // needed for MixingModule checks

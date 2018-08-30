@@ -18,7 +18,7 @@
 #include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
 
 EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&ps,edm::ConsumesCollector& c) :
-  EcalUncalibRecHitWorkerRunOneDigiBase(ps,c), useDBShape(false), testbeamEEShape(EEShape(useDBShape)), testbeamEBShape(EBShape(useDBShape))
+  EcalUncalibRecHitWorkerRunOneDigiBase(ps,c), useDBShape(true), testbeamEEShape(EEShape(useDBShape)), testbeamEBShape(EBShape(useDBShape))
 {
         // ratio method parameters
         EBtimeFitParameters_ = ps.getParameter<std::vector<double> >("EBtimeFitParameters"); 
@@ -62,7 +62,7 @@ EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::Paramete
 
 
 EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&ps) :
-  EcalUncalibRecHitWorkerRunOneDigiBase(ps), useDBShape(false), testbeamEEShape(EEShape(useDBShape)), testbeamEBShape(EBShape(useDBShape))
+  EcalUncalibRecHitWorkerRunOneDigiBase(ps), useDBShape(true), testbeamEEShape(EEShape(useDBShape)), testbeamEBShape(EBShape(useDBShape))
 {
         // ratio method parameters
         EBtimeFitParameters_ = ps.getParameter<std::vector<double> >("EBtimeFitParameters"); 

@@ -32,7 +32,7 @@ class EcalUncalibRecHitWorkerWeights : public EcalUncalibRecHitWorkerRunOneDigiB
 
         public:
                 EcalUncalibRecHitWorkerWeights(const edm::ParameterSet&, edm::ConsumesCollector& c);
-		EcalUncalibRecHitWorkerWeights():useDBShape(false),testbeamEEShape(EEShape(useDBShape)), testbeamEBShape(EBShape(useDBShape)){;}
+		EcalUncalibRecHitWorkerWeights():useDBShape(true),testbeamEEShape(EEShape(useDBShape)), testbeamEBShape(EBShape(useDBShape)){;}
                 ~EcalUncalibRecHitWorkerWeights() override {};
 
                 void set(const edm::EventSetup& es) override;
