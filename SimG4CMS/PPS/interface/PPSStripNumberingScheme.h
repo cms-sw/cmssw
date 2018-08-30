@@ -7,7 +7,7 @@ class PPSStripNumberingScheme : public PPSStripOrganization {
 
 public:
   PPSStripNumberingScheme(int i);
-  ~PPSStripNumberingScheme();
+  ~PPSStripNumberingScheme() override;
 	 
 //  virtual unsigned int GetUnitID(const G4Step* aStep) const ;
 

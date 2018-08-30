@@ -60,7 +60,7 @@ class Totem_RP_SD : public SensitiveTkDetector,
  private:
   void clearHits() override;
   bool ProcessHits(G4Step * step, G4TouchableHistory * tHistory) override;
-  uint32_t setDetUnitId(const G4Step * step);
+  uint32_t setDetUnitId(const G4Step * step) override;
   void update(const BeginOfEvent *) override;
   void update (const ::EndOfEvent*) override;
   

@@ -63,12 +63,12 @@ namespace CLHEP {
 class CTPPSPixelDigiProducer : public edm::EDProducer {
    public:
       explicit CTPPSPixelDigiProducer(const edm::ParameterSet&);
-      ~CTPPSPixelDigiProducer();
+      ~CTPPSPixelDigiProducer() override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
    private:
       virtual void beginRun(edm::Run&, edm::EventSetup const&);
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       
       // ----------member data ---------------------------
       std::vector<std::string> RPix_hit_containers_;

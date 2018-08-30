@@ -33,9 +33,9 @@
 CTPPS_Diamond_SD::CTPPS_Diamond_SD(const std::string & name, const DDCompactView & cpv, const SensitiveDetectorCatalog & clg,
      edm::ParameterSet const & p, const SimTrackManager* manager) : 
   SensitiveTkDetector(name, cpv, clg, p), 
-  numberingScheme(0),  
-  hcID(-1), theHC(0), currentHit(0), theTrack(0), currentPV(0), 
-  unitID(0),  preStepPoint(0), postStepPoint(0), eventno(0)
+  numberingScheme(nullptr),  
+  hcID(-1), theHC(nullptr), currentHit(nullptr), theTrack(nullptr), currentPV(nullptr), 
+  unitID(0),  preStepPoint(nullptr), postStepPoint(nullptr), eventno(0)
 {
 
   
@@ -124,7 +124,7 @@ void CTPPS_Diamond_SD::Print_Hit_Info()
 
   LogDebug("CTPPSSimDiamond")  << " and created by " ;
   
-  if(theTrack->GetCreatorProcess()!=NULL)
+  if(theTrack->GetCreatorProcess()!=nullptr)
     LogDebug("CTPPSSimDiamond") << theTrack->GetCreatorProcess()->GetProcessName() ;
   else 
     LogDebug("CTPPSSimDiamond") << "NO process";
@@ -135,7 +135,7 @@ void CTPPS_Diamond_SD::Print_Hit_Info()
 
 bool CTPPS_Diamond_SD::ProcessHits(G4Step * aStep, G4TouchableHistory * )
 {
-  if (aStep == NULL)
+  if (aStep == nullptr)
   {	    
     LogDebug("CTPPSSimDiamond")  << " There is no hit to process " ;
     return true;
@@ -219,13 +219,13 @@ void CTPPS_Diamond_SD::GetStepInfo(G4Step* aStep)
 uint32_t CTPPS_Diamond_SD::setDetUnitId(const G4Step * aStep)
 { 
 
-  return (numberingScheme == 0 ? 0 : numberingScheme->GetUnitID(aStep)); 
+  return (numberingScheme == nullptr ? 0 : numberingScheme->GetUnitID(aStep)); 
 }
 
 
 void CTPPS_Diamond_SD::StoreHit(CTPPS_Diamond_G4Hit* hit)
 {
-  if (hit == 0 )
+  if (hit == nullptr )
   {
     if(verbosity_)
       LogDebug("CTPPSSimDiamond") << "CTPPS_Diamond: hit to be stored is NULL !!" <<std::endl;

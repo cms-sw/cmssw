@@ -39,9 +39,9 @@
 
 Totem_RP_SD::Totem_RP_SD(const std::string & name, const DDCompactView & cpv, const SensitiveDetectorCatalog & clg,edm::ParameterSet const & p, const SimTrackManager * manager) : 
   SensitiveTkDetector(name, cpv, clg, p), 
-  numberingScheme(0),  
-  hcID(-1), theHC(0), currentHit(0), theTrack(0), currentPV(0), 
-  unitID(0),  preStepPoint(0), postStepPoint(0), eventno(0)
+  numberingScheme(nullptr),  
+  hcID(-1), theHC(nullptr), currentHit(nullptr), theTrack(nullptr), currentPV(nullptr), 
+  unitID(0),  preStepPoint(nullptr), postStepPoint(nullptr), eventno(0)
 {
   collectionName.insert(name);
   
@@ -117,7 +117,7 @@ void Totem_RP_SD::Print_Hit_Info()
 
   LogDebug("TotemRP")  << " and created by " ;
   
-  if(theTrack->GetCreatorProcess()!=NULL)
+  if(theTrack->GetCreatorProcess()!=nullptr)
     LogDebug("TotemRP") << theTrack->GetCreatorProcess()->GetProcessName() ;
   else 
     LogDebug("TotemRP") << "NO process";
@@ -128,7 +128,7 @@ void Totem_RP_SD::Print_Hit_Info()
 
 bool Totem_RP_SD::ProcessHits(G4Step * aStep, G4TouchableHistory * )
 {
-  if (aStep == NULL)
+  if (aStep == nullptr)
   {	    
     return true;
   } else {
@@ -196,13 +196,13 @@ void Totem_RP_SD::GetStepInfo(G4Step* aStep)
 
 uint32_t Totem_RP_SD::setDetUnitId(const G4Step * aStep)
 { 
-  return (numberingScheme == 0 ? 0 : numberingScheme->GetUnitID(aStep));
+  return (numberingScheme == nullptr ? 0 : numberingScheme->GetUnitID(aStep));
 }
 
 
 void Totem_RP_SD::StoreHit(Totem_RP_G4Hit* hit)
 {
-  if (hit == 0 )
+  if (hit == nullptr )
   {
     if(verbosity_)
       LogDebug("TotemRP") << "Totem_RP_SD: hit to be stored is NULL !!" <<std::endl;

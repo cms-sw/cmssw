@@ -30,10 +30,10 @@ class PPSPixelDigiAnalyzer : public edm::EDAnalyzer{
   
  public:
   explicit PPSPixelDigiAnalyzer(const edm::ParameterSet& pset);
-  virtual ~PPSPixelDigiAnalyzer();
-  void endJob();
-  void beginJob();
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  ~PPSPixelDigiAnalyzer() override;
+  void endJob() override;
+  void beginJob() override;
+  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
   
  private:
 

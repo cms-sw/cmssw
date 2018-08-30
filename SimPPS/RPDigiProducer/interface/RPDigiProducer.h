@@ -46,12 +46,12 @@ namespace CLHEP {
 class RPDigiProducer : public edm::EDProducer {
    public:
       explicit RPDigiProducer(const edm::ParameterSet&);
-      ~RPDigiProducer();
+      ~RPDigiProducer() override;
 
    private:
       virtual void beginRun(edm::Run&, edm::EventSetup const&);
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob();
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override;
 
       edm::DetSet<TotemRPDigi> convertRPStripDetSet(const edm::DetSet<TotemRPDigi>&);
 

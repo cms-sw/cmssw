@@ -44,7 +44,7 @@ public:
 
   // ---------- Constructor and destructor -----------------
   PPSPixelG4Hit();
-  ~PPSPixelG4Hit();
+  ~PPSPixelG4Hit() override;
   PPSPixelG4Hit(const PPSPixelG4Hit &right);
 
   // ---------- operators ----------------------------------
@@ -52,8 +52,8 @@ public:
   int operator==(const PPSPixelG4Hit &){return 0;}
 
   // ---------- member functions ---------------------------
-  void         Draw(){}
-  void         Print();
+  void         Draw() override{}
+  void         Print() override;
 
   Hep3Vector   getMeanPosition() const {return MeanPosition;};
   void         setMeanPosition(Hep3Vector a) {MeanPosition = a;};

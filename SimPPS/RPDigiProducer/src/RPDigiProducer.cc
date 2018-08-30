@@ -139,7 +139,7 @@ void RPDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     (theAlgoMap.find(it->first)->second)->run(SimHitMap[it->first], input_links, digi_collector.data,
 	output_digi_links);
 
-    if (digi_collector.data.size() > 0) {
+    if (!digi_collector.data.empty()) {
       theDigiVector.push_back(convertRPStripDetSet(digi_collector));
     }
   }

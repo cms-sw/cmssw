@@ -21,10 +21,10 @@ class PPSStripOrganization : public TotemRPVDetectorOrganization
 {
  public:
   inline PPSStripOrganization();
-  virtual ~PPSStripOrganization();
+  ~PPSStripOrganization() override;
 
   uint32_t GetUnitID(const G4Step* aStep);
-  uint32_t GetUnitID(const G4Step* aStep) const;
+  uint32_t GetUnitID(const G4Step* aStep) const override;
 };
 
 
