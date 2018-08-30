@@ -191,14 +191,12 @@ SiStripHybridFormatAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&
      
   if(plotAPVCM_){
     edm::Handle<edm::DetSetVector<SiStripProcessedRawDigi> > moduleCM;
-    e.getByToken(srcAPVCM_,moduleCM);
-	  
+    e.getByToken(srcAPVCM_,moduleCM);	  
 
-    edm::DetSetVector<SiStripProcessedRawDigi>::const_iterator itCMDetSetV =moduleCM->begin();
-    for (; itCMDetSetV != moduleCM->end(); ++itCMDetSetV){  
-      edm::DetSet<SiStripProcessedRawDigi>::const_iterator  itCM= itCMDetSetV->begin();
-      for(;itCM != itCMDetSetV->end(); ++itCM) h1APVCM_->Fill(itCM->adc());
+    for (const auto & set : *moduleCM){
+       for(const auto & itCM : set)h1APVCM_->Fill(itCM.adc());
     }
+
   }
         
      
@@ -232,10 +230,9 @@ SiStripHybridFormatAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&
       h1Digis_->SetLineStyle(2);
     }
     uint16_t stripsPerAPV[6]={0,0,0,0,0,0};
-    edm::DetSet<SiStripDigi>::const_iterator  itDigi= itDigiDetSetV->begin();
-    for(;itDigi != itDigiDetSetV->end(); ++itDigi){
-      uint16_t strip = itDigi->strip();
-      uint16_t adc = itDigi->adc();
+    for(const auto & itDigi : *itDigiDetSetV){
+      uint16_t strip = itDigi.strip();
+      uint16_t adc = itDigi.adc();
       if(actualModule_ < nModuletoDisplay_) h1Digis_->Fill(strip, adc);
       actualModule_++;
       //std::cout << "detID " << detId << " strip " << strip << " adc " << adc << std::endl;
