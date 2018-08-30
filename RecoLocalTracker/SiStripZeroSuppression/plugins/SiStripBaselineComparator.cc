@@ -80,6 +80,11 @@ class SiStripBaselineComparator : public edm::one::EDAnalyzer<edm::one::SharedRe
     TProfile* h1_matchingMult_;
     TProfile* h1_matchedWidth_;
     TProfile* h1_matchedCharges_;
+   
+    const uint16_t nbins_clusterSize_ = 128;
+    const uint16_t min_clusterSize_ = 0;
+    const uint16_t max_clusterSize_ = 128; 
+
 };
 
 
@@ -90,12 +95,12 @@ SiStripBaselineComparator::SiStripBaselineComparator(const edm::ParameterSet& co
   srcClusters_  =  consumes<edmNew::DetSetVector<SiStripCluster> >(conf.getParameter<edm::InputTag>("srcClusters"));
   srcClusters2_ =  consumes<edmNew::DetSetVector<SiStripCluster> >(conf.getParameter<edm::InputTag>("srcClusters2"));
  
-  h1_nOldClusters_ = fs_->make<TH1F>("nOldClusters","nOldClusters;ClusterSize", 128, 0, 128);
-  h1_nMatchedClusters_ = fs_->make<TH1F>("nMatchedClusters","nMatchedClusters;ClusterSize", 128, 0, 128);
-  h1_nSplitClusters_ = fs_->make<TH1F>("nSplitClusters","nMatchedClusters;ClusterSize; n Split Clusters", 128, 0, 128);
-  h1_matchingMult_ = fs_->make<TProfile>("matchingMult","matchingMult;ClusterSize; average number of clusters if split", 128, 0, 128);
-  h1_matchedWidth_ = fs_->make<TProfile>("matchedWidth","matchedWidth;ClusterSize;average #Delta Width", 128, 0, 128);
-  h1_matchedCharges_ = fs_->make<TProfile>("matchedCharges","matchedCharges;ClusterSize;cluster Charge ratio", 128, 0, 128);
+  h1_nOldClusters_ = fs_->make<TH1F>("nOldClusters","nOldClusters;ClusterSize", nbins_clusterSize_, min_clusterSize_, max_clusterSize_);
+  h1_nMatchedClusters_ = fs_->make<TH1F>("nMatchedClusters","nMatchedClusters;ClusterSize", nbins_clusterSize_, min_clusterSize_, max_clusterSize_);
+  h1_nSplitClusters_ = fs_->make<TH1F>("nSplitClusters","nMatchedClusters;ClusterSize; n Split Clusters", nbins_clusterSize_, min_clusterSize_, max_clusterSize_);
+  h1_matchingMult_ = fs_->make<TProfile>("matchingMult","matchingMult;ClusterSize; average number of clusters if split", nbins_clusterSize_, min_clusterSize_, max_clusterSize_);
+  h1_matchedWidth_ = fs_->make<TProfile>("matchedWidth","matchedWidth;ClusterSize;average #Delta Width", nbins_clusterSize_, min_clusterSize_, max_clusterSize_);
+  h1_matchedCharges_ = fs_->make<TProfile>("matchedCharges","matchedCharges;ClusterSize;cluster Charge ratio", nbins_clusterSize_, min_clusterSize_, max_clusterSize_);
 }
 
 
