@@ -162,8 +162,10 @@ SiStripBaselineComparator::analyze(const edm::Event& e, const edm::EventSetup& e
         }
       }
       for(int i = 0; i<nMatched; i++){
-        if(matchedWidths.at(i)-clus.amplitudes().size()<1000) h1_matchedWidth_->Fill(clus.amplitudes().size(),matchedWidths.at(i)-clus.amplitudes().size());
-        if(charge1 != 0 && matchedCharges.at(i)/(float)charge1<10000000) h1_matchedCharges_->Fill(clus.amplitudes().size(),matchedCharges.at(i)/(float)charge1);
+        if(matchedWidths.at(i)-clus.amplitudes().size()<1000) 
+          h1_matchedWidth_->Fill(clus.amplitudes().size(),matchedWidths.at(i)-clus.amplitudes().size());
+        if(charge1 != 0 && matchedCharges.at(i)/(float)charge1<10000000) 
+          h1_matchedCharges_->Fill(clus.amplitudes().size(),matchedCharges.at(i)/(float)charge1);
       }
       if(nMatched>1) h1_matchingMult_->Fill(clus.amplitudes().size(),nMatched);      
     } 
