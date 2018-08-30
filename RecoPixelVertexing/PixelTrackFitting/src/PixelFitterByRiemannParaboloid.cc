@@ -77,7 +77,7 @@ std::unique_ptr<reco::Track> PixelFitterByRiemannParaboloid::run(
   }
 
   float bField = 1 / PixelRecoUtilities::fieldInInvGev(*es_);
-  helix_fit fittedTrack = Rfit::Helix_fit(riemannHits, riemannHits_cov, bField, useErrors_, useMultipleScattering_);
+  helix_fit fittedTrack = Rfit::Helix_fit(riemannHits, riemannHits_cov, bField, useErrors_);
   int iCharge = fittedTrack.q;
 
   // parameters are:

@@ -89,7 +89,7 @@ KernelCircleFitAllHits(float *hits_and_covariances, int hits_in_fit,
   circle_fit[helix_start] =
       Rfit::Circle_fit(hits[helix_start].block(0, 0, 2, n),
                        hits_cov[helix_start].block(0, 0, 2 * n, 2 * n),
-                       fast_fit[helix_start], rad, B, true, true);
+                       fast_fit[helix_start], rad, B, true);
 
 #ifdef GPU_DEBUG
     printf("KernelCircleFitAllHits circle.par(0): %d %f\n", helix_start,
@@ -131,7 +131,7 @@ KernelLineFitAllHits(float *hits_and_covariances, int hits_in_fit,
 
   line_fit[helix_start] =
       Rfit::Line_fit(hits[helix_start], hits_cov[helix_start],
-                     circle_fit[helix_start], fast_fit[helix_start], true);
+                     circle_fit[helix_start], fast_fit[helix_start], B, true);
 
   par_uvrtopak(circle_fit[helix_start], B, true);
 

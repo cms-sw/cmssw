@@ -214,7 +214,7 @@ void test_helix_fit() {
 //      gen.hits.col(1) << 4.47041416168, 4.82704305649, 18.6394691467;
 //      gen.hits.col(2) << 7.25991010666, 7.74653434753, 30.6931324005;
 //      gen.hits.col(3) << 8.99161434174, 9.54262828827, 38.1338043213;
-      helix[i] = Rfit::Helix_fit(gen.hits, gen.hits_cov, B_field, return_err, false);
+      helix[i] = Rfit::Helix_fit(gen.hits, gen.hits_cov, B_field, return_err);
 
       if (debug)
         cout << std::setprecision(10)

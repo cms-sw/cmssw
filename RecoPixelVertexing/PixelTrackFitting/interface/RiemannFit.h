@@ -45,7 +45,7 @@ struct circle_fit
       |cov(X0, R)|cov(Y0, R)|cov( R, R)|
   */
     int64_t q;  //!< particle charge
-    double chi2;
+    double chi2 = 0.0;
 };
 
 struct line_fit
@@ -56,7 +56,7 @@ struct line_fit
       |cov(c_t,c_t)|cov(Zip,c_t)| \n
       |cov(c_t,Zip)|cov(Zip,Zip)|
   */
-    double chi2;
+    double chi2 = 0.0;
 };
 
 struct helix_fit
@@ -70,8 +70,8 @@ struct helix_fit
       |(phi,c_t)|(Tip,c_t)|(p_t,c_t)|(c_t,c_t)|(Zip,c_t)| \n
       |(phi,Zip)|(Tip,Zip)|(p_t,Zip)|(c_t,Zip)|(Zip,Zip)|
   */
-    double chi2_circle;
-    double chi2_line;
+    double chi2_circle = 0.0;
+    double chi2_line = 0.0;
     Vector4d fast_fit;
     int64_t q;  //!< particle charge
                 //  VectorXd time;  // TO FIX just for profiling
@@ -160,7 +160,8 @@ __host__ __device__ inline MatrixNd Scatter_cov_rad(const Matrix2xNd& p2D,
             }
         }
     }
-    printIt(&scatter_cov_rad, "Scatter_cov_rad - scatter_cov_rad: ");
+    Rfit::printIt(&scatter_cov_rad, "Scatter_cov_rad - scatter_cov_rad: ");
+
     return scatter_cov_rad;
 }
 
@@ -340,7 +341,7 @@ __host__ __device__ inline int64_t Charge(const Matrix2xNd& p2D, const Vector3d&
     \param error flag for errors computation.
 */
 
-__host__ __device__ inline void par_uvrtopak(circle_fit& circle, const double B, const bool& error)
+__host__ __device__ inline void par_uvrtopak(circle_fit& circle, const double B, const bool error)
 {
     Vector3d par_pak;
     const double temp0 = circle.par.head(2).squaredNorm();
@@ -374,7 +375,7 @@ __host__ __device__ inline void par_uvrtopak(circle_fit& circle, const double B,
 */
 
 __host__ __device__ inline VectorNd X_err2(const Matrix3Nd& V, const circle_fit& circle, const MatrixNx5d& J,
-                                           const bool& error, u_int n)
+                                           const bool error, u_int n)
 {
     VectorNd x_err2(n);
     for (u_int i = 0; i < n; ++i)
@@ -539,7 +540,7 @@ __host__ __device__ inline Vector4d Fast_fit(const Matrix3xNd& hits)
     const Vector2d e = hits.block(0, n - 1, 2, 1) - result.head(2);
     printIt(&e, "Fast_fit - e: ");
     printIt(&d, "Fast_fit - d: ");
-    // Compute the arc-length between first and last point: L = R * theta = R *  atan (tan (Theta) )
+    // Compute the arc-length between first and last point: L = R * theta = R * atan (tan (Theta) )
     const double dr = result(2) * atan2(cross2D(d, e), d.dot(e));
     // Simple difference in Z between last and first hit
     const double dz = hits(2, n - 1) - hits(2, 0);
@@ -589,8 +590,7 @@ __host__ __device__ inline circle_fit Circle_fit(const Matrix2xNd& hits2D,
                                                  const Vector4d& fast_fit,
                                                  const VectorNd& rad,
                                                  const double B,
-                                                 const bool error = true,
-                                                 const bool scattering = false)
+                                                 const bool error = true)
 {
 #if RFIT_DEBUG
     printf("circle_fit - enter\n");
@@ -614,34 +614,25 @@ __host__ __device__ inline circle_fit Circle_fit(const Matrix2xNd& hits2D,
         printIt(&cov_rad, "circle_fit - cov_rad:");
         // cov_rad = cov_carttorad(hits2D, V);
 
-        if (scattering)
-        {
-            MatrixNd scatter_cov_rad = Scatter_cov_rad(hits2D, fast_fit, rad, B);
-            printIt(&scatter_cov_rad, "circle_fit - scatter_cov_rad:");
-            printIt(&hits2D, "circle_fit - hits2D bis:");
+        MatrixNd scatter_cov_rad = Scatter_cov_rad(hits2D, fast_fit, rad, B);
+        printIt(&scatter_cov_rad, "circle_fit - scatter_cov_rad:");
+        printIt(&hits2D, "circle_fit - hits2D bis:");
 #if RFIT_DEBUG
-            printf("Address of hits2D: a) %p\n", &hits2D);
+        printf("Address of hits2D: a) %p\n", &hits2D);
 #endif
-            V += cov_radtocart(hits2D, scatter_cov_rad, rad);
-            printIt(&V, "circle_fit - V:");
-            cov_rad += scatter_cov_rad;
-            printIt(&cov_rad, "circle_fit - cov_rad:");
-            Matrix4d cov_rad4 = cov_rad;
-            Matrix4d G4;
-            G4 = cov_rad4.inverse();
-            printIt(&G4, "circle_fit - G4:");
-            renorm = G4.sum();
-            G4 *= 1. / renorm;
-            printIt(&G4, "circle_fit - G4:");
-            G = G4;
-            weight = Weight_circle(G);
-        }
-        else
-        {
-            weight = cov_rad.diagonal().cwiseInverse();
-            renorm = weight.sum();
-            weight *= 1. / renorm;
-        }
+        V += cov_radtocart(hits2D, scatter_cov_rad, rad);
+        printIt(&V, "circle_fit - V:");
+        cov_rad += scatter_cov_rad;
+        printIt(&cov_rad, "circle_fit - cov_rad:");
+        Matrix4d cov_rad4 = cov_rad;
+        Matrix4d G4;
+        G4 = cov_rad4.inverse();
+        printIt(&G4, "circle_fit - G4:");
+        renorm = G4.sum();
+        G4 *= 1. / renorm;
+        printIt(&G4, "circle_fit - G4:");
+        G = G4;
+        weight = Weight_circle(G);
     }
     printIt(&weight, "circle_fit - weight:");
 
@@ -681,13 +672,7 @@ __host__ __device__ inline circle_fit Circle_fit(const Matrix2xNd& hits2D,
     Matrix3d A = Matrix3d::Zero();
     const Vector3d r0 = p3D * weight;  // center of gravity
     const Matrix3xNd X = p3D.colwise() - r0;
-    if (scattering)
-        A = X * G * X.transpose();
-    else
-    {
-        for (u_int i = 0; i < n; ++i)
-            A += weight(i) * (X.col(i) * X.col(i).transpose());
-    }
+    A = X * G * X.transpose();
     printIt(&A, "circle_fit - A:");
 
 #if RFIT_DEBUG
@@ -967,6 +952,7 @@ __host__ __device__ inline line_fit Line_fit(const Matrix3xNd& hits,
                                              const Matrix3Nd& hits_cov,
                                              const circle_fit& circle,
                                              const Vector4d& fast_fit,
+                                             const double B,
                                              const bool error = true)
 {
     u_int n = hits.cols();
@@ -983,13 +969,15 @@ __host__ __device__ inline line_fit Line_fit(const Matrix3xNd& hits,
     // a ==> -o i.e. the origin of the circle in XY plane, negative
     // b ==> p i.e. distances of the points wrt the origin of the circle.
     const Vector2d o(circle.par(0), circle.par(1));
+
+    // associated Jacobian, used in weights and errors computation
     for (u_int i = 0; i < n; ++i)
     {  // x
         Vector2d p = hits.block(0, i, 2, 1) - o;
         const double cross = cross2D(-o, p);
         const double dot = (-o).dot(p);
-        // atan2(cross, dot) give back the angle in the transverse plane so tha the final equation reads:
-        // x_i = -q*R*theta (theta = angle returned by atan2)
+        // atan2(cross, dot) give back the angle in the transverse plane so tha the
+        // final equation reads: x_i = -q*R*theta (theta = angle returned by atan2)
         const double atan2_ = -circle.q * atan2(cross, dot);
         p2D(0, i) = atan2_ * circle.par(2);
 
@@ -1142,7 +1130,7 @@ __host__ __device__ inline line_fit Line_fit(const Matrix3xNd& hits,
 */
 
 inline helix_fit Helix_fit(const Matrix3xNd& hits, const Matrix3Nd& hits_cov, const double B,
-                           const bool& error = true, const bool& scattering = false)
+                           const bool error = true)
 {
     u_int n = hits.cols();
     VectorNd rad = (hits.block(0, 0, 2, n).colwise().norm());
@@ -1150,10 +1138,10 @@ inline helix_fit Helix_fit(const Matrix3xNd& hits, const Matrix3Nd& hits_cov, co
     // Fast_fit gives back (X0, Y0, R, theta) w/o errors, using only 3 points.
     const Vector4d fast_fit = Fast_fit(hits);
 
-    circle_fit circle = Circle_fit(hits.block(0, 0, 2, n), hits_cov.block(0, 0, 2 * n, 2 * n),
-                                   fast_fit, rad, B, error, scattering);
-
-    const line_fit line = Line_fit(hits, hits_cov, circle, fast_fit, error);
+    circle_fit circle = Circle_fit(hits.block(0, 0, 2, n),
+                                   hits_cov.block(0, 0, 2 * n, 2 * n),
+                                   fast_fit, rad, B, error);
+    line_fit line = Line_fit(hits, hits_cov, circle, fast_fit, B, error);
 
     par_uvrtopak(circle, B, error);
 
