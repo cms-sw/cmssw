@@ -545,7 +545,7 @@ void inline SiStripAPVRestorer::cleaner_LocalMinimumAdder(const digivector_t& ad
       const float m = (adc2 -adc1)/(strip2 -strip1);
 
       //2,4
-      if ( (strip2 - strip1) > slopeX_ && abs(adc1-adc2) > slopeY_ ) {
+      if ( (strip2 - strip1) > slopeX_ && std::abs(adc1-adc2) > slopeY_ ) {
         float itStrip = 1;
         float strip = itStrip + strip1;
         while ( strip < strip2 ) {
@@ -1054,7 +1054,7 @@ void SiStripAPVRestorer::derivativeFollowerRestore(uint16_t apvN, uint16_t first
   for(uint16_t strip=0; strip < singleAPVdigi.size(); ++strip){
     if (strip == 0) {
       actualStripADC = singleAPVdigi[strip];
-      if (abs(singleAPVdigi[strip]-singleAPVdigi[strip+1])>gradient_threshold_){
+      if (std::abs(singleAPVdigi[strip]-singleAPVdigi[strip+1])>gradient_threshold_){
         isFirstStrip=true;
         isMinimumAndNoMax=true;
         discontinuities.insert(discontinuities.end(), std::pair<int, int >(strip, actualStripADC));
@@ -1070,30 +1070,24 @@ void SiStripAPVRestorer::derivativeFollowerRestore(uint16_t apvN, uint16_t first
       actualStripADC = singleAPVdigi[strip];
       greadient = actualStripADC - previousStripADC;
 
-      if (((greadient> gradient_threshold_)&&(isMax==false)&&(isMinimumAndNoMax==false))){
+      if (((greadient> gradient_threshold_)&&(!isMax)&&(!isMinimumAndNoMax))){
         isMax=false;
         if (((std::abs(maximum_value - previousStripADC) < (2*gradient_threshold_))&&discontinuities.size()>1)){ // add the || with the cluster size                                      
           //to verify if the noise do not interfere and is detected fake hits
           isPossible_wrong_minimum=true;
-          itdiscontinuities=discontinuities.end();
-          --itdiscontinuities;
+          itdiscontinuities = --discontinuities.end();
           if(discontinuities.size()>1){
                   --itdiscontinuities;
           }
           strip_first_gradient= itdiscontinuities->first;
           adc_start_point_cluster_pw= itdiscontinuities->second;
           first_gradient = std::abs(adc_start_point_cluster_pw - singleAPVdigi[strip_first_gradient+1]);
-          ++itdiscontinuities;
-          discontinuities.erase(itdiscontinuities);
-          itdiscontinuities=discontinuities.end();
-          --itdiscontinuities;
-          discontinuities.erase(itdiscontinuities);
+          discontinuities.erase(++itdiscontinuities);
+          discontinuities.erase(--discontinuities.end());
         }
 
         if ((discontinuities.size()%2==1)&&(!discontinuities.empty())){ //&&(no_minimo == 0)
-          itdiscontinuities=discontinuities.end();
-          --itdiscontinuities;
-          discontinuities.erase(itdiscontinuities);
+          discontinuities.erase(--discontinuities.end()); 
         }
 
         discontinuities.insert(discontinuities.end(), std::pair<uint16_t, int16_t >(strip-1, previousStripADC));
@@ -1102,14 +1096,14 @@ void SiStripAPVRestorer::derivativeFollowerRestore(uint16_t apvN, uint16_t first
         first_start_cluster_strip=strip -1;
         first_start_cluster_ADC=previousStripADC;
 
-      } else if ((isMax==false)&&((actualStripADC-previousStripADC<0)&&isMinimumAndNoMax==true)){
+      } else if ((!isMax)&&((actualStripADC-previousStripADC<0)&&(isMinimumAndNoMax))){
         isMax=true;
         isMinimumAndNoMax=false;
         high_maximum_cluster = n_high_maximum_cluster;
         if ((previousStripADC > maximum_value)&&(discontinuities.size()%2==1)) maximum_value = previousStripADC;
       }
 
-      if ((isMax==true)&&(strip<(nTotStripsPerAPV-2))){
+      if ((isMax)&&(strip<(nTotStripsPerAPV-2))){
         if (high_maximum_cluster>(std::abs(singleAPVdigi[strip+1]- actualStripADC))){
           high_maximum_cluster = singleAPVdigi[strip+1]- actualStripADC;
           auxiliary_end_cluster = strip+2;
@@ -1118,10 +1112,10 @@ void SiStripAPVRestorer::derivativeFollowerRestore(uint16_t apvN, uint16_t first
         }
       }
 
-      if ((isMax==true)&&((actualStripADC-previousStripADC)>=0)&&(size_window_>0)&&(strip<=((nTotStripsPerAPV-1)-size_window_-1))) {
+      if ((isMax)&&((actualStripADC-previousStripADC)>=0)&&(size_window_>0)&&(strip<=((nTotStripsPerAPV-1)-size_window_-1))) {
         number_good_minimum = 0;
         for (uint16_t wintry=0; wintry <= size_window_; wintry++){
-          if (abs(singleAPVdigi[strip+wintry] - singleAPVdigi[strip+wintry+1])<=last_gradient_) ++number_good_minimum;
+          if (std::abs(singleAPVdigi[strip+wintry] - singleAPVdigi[strip+wintry+1])<=last_gradient_) ++number_good_minimum;
         }
         --number_good_minimum;
 
@@ -1130,28 +1124,25 @@ void SiStripAPVRestorer::derivativeFollowerRestore(uint16_t apvN, uint16_t first
           isMinimumAndNoMax=true;
         }
 
-      } else if ((isMax==true)&&(strip > ((nTotStripsPerAPV-1)-size_window_-1))) {
+      } else if ((isMax)&&(strip > ((nTotStripsPerAPV-1)-size_window_-1))) {
         isMax=true;
         isAuxiliary_Minimum=true;//for minimums after strip 127-SW-1
       }
 
 
       if (!discontinuities.empty()){
-        itdiscontinuities=discontinuities.end();
-        --itdiscontinuities;
+        itdiscontinuities = --discontinuities.end();
       }
 
-      if ((isMax==true)&&(actualStripADC<=first_start_cluster_ADC)) {
+      if ((isMax)&&(actualStripADC<=first_start_cluster_ADC)) {
 
-        if ((abs(first_start_cluster_ADC - singleAPVdigi[strip+2])>first_gradient)&&(isPossible_wrong_minimum==true)) {
+        if ((std::abs(first_start_cluster_ADC - singleAPVdigi[strip+2])>first_gradient)&&(isPossible_wrong_minimum)) {
           discontinuities.erase(itdiscontinuities);
           discontinuities.insert(discontinuities.end(), std::pair<int, int >(strip_first_gradient, adc_start_point_cluster_pw));
           discontinuities.insert(discontinuities.end(), std::pair<int, int >(strip, adc_start_point_cluster_pw));//????
         } else {
           if ((discontinuities.size()%2==0)&&(discontinuities.size()>1)){
-            itdiscontinuities=discontinuities.end();
-            --itdiscontinuities;
-            discontinuities.erase(itdiscontinuities);
+            discontinuities.erase(--discontinuities.end());
           }
           discontinuities.insert(discontinuities.end(), std::pair<int, int >(strip, actualStripADC));
         }
@@ -1163,16 +1154,14 @@ void SiStripAPVRestorer::derivativeFollowerRestore(uint16_t apvN, uint16_t first
         first_start_cluster_ADC=0;
       }
 
-      if ((isMax==true)&&((actualStripADC-previousStripADC)>=0)&&(isAuxiliary_Minimum==false)){     //For the end Poit when strip >127-SW-1
-        if ((abs(first_start_cluster_ADC - singleAPVdigi[strip+1])>first_gradient)&&(isPossible_wrong_minimum==true)) {
+      if ((isMax)&&((actualStripADC-previousStripADC)>=0)&&(!isAuxiliary_Minimum)){     //For the end Poit when strip >127-SW-1
+        if ((std::abs(first_start_cluster_ADC - singleAPVdigi[strip+1])>first_gradient)&&(isPossible_wrong_minimum)) {
           discontinuities.erase(itdiscontinuities);
           discontinuities.insert(discontinuities.end(), std::pair<int, int >(strip_first_gradient, adc_start_point_cluster_pw));
         }
 
         if ((discontinuities.size()%2==0)&&(discontinuities.size()>1)){
-          itdiscontinuities=discontinuities.end();
-          --itdiscontinuities;
-          discontinuities.erase(itdiscontinuities);
+          discontinuities.erase(--discontinuities.end());
         }
         discontinuities.insert(discontinuities.end(), std::pair<int, int >(strip-1, previousStripADC));
         isMax=false;
@@ -1189,10 +1178,10 @@ void SiStripAPVRestorer::derivativeFollowerRestore(uint16_t apvN, uint16_t first
 
   if(!discontinuities.empty()){
     if ((first_start_cluster_strip)==(nTotStripsPerAPV-1)-1) discontinuities.insert(discontinuities.end(), std::pair<int, int >((nTotStripsPerAPV-1), first_start_cluster_ADC));
-    if ((isMax==true)&&(isAuxiliary_Minimum==true)) discontinuities.insert(discontinuities.end(), std::pair<int, int >(auxiliary_end_cluster, first_start_cluster_ADC));
+    if ((isMax)&&(isAuxiliary_Minimum)) discontinuities.insert(discontinuities.end(), std::pair<int, int >(auxiliary_end_cluster, first_start_cluster_ADC));
   }
 
-  if (isFirstStrip==true){
+  if (isFirstStrip){
     itdiscontinuities=discontinuities.begin();
     ++itdiscontinuities;
     ++itdiscontinuities;
