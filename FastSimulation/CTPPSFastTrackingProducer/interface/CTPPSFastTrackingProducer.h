@@ -24,13 +24,14 @@
 #include "FastSimulation/CTPPSFastGeometry/interface/CTPPSToFDetector.h"
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "SimTransport/HectorProducer/interface/CTPPSHectorParameters.h"
+#include "PPSTools/Utilities/interface/PPSUnitConversion.h"
 //#include "FastSimulation/CTPPSSimHitProducer/plugins/FastCTPPSParameters.h"
 
 //CLHEP
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include <CLHEP/Vector/LorentzVector.h>
+#include "PPSTools/Utilities/interface/PPSUtilities.h"
 
 //C++ library
 #include <iostream>
@@ -42,8 +43,6 @@
 #include <vector>
 #include <utility>
 #include <cmath>
-
-#include <TMatrixD.h>
 
 // hector includes
 #include "H_Parameters.h"
@@ -83,9 +82,8 @@ class CTPPSFastTrackingProducer : public edm::stream::EDProducer<> {
         void Reconstruction();	
         void ReconstructArm(H_RecRPObject* pps_station, double x1,double y1,double x2,double y2, double& tx, double& ty,double& eloss);
         void MatchCellId(int cellId, vector<int> vrecCellId, vector<double> vrecTof, bool& match, double& recTof);
-        bool SearchTrack(int ,int ,int Direction,double& xi,double& t,double& partP,double& pt,double& thx,double& thy,double& x0,double& y0, double& xt, double& yt, double& X1d, double& Y1d, double& X2d, double& Y2d);
-        void LorentzBoost(LorentzVector& p_out, const string& frame);
-        void Get_t_and_xi(const LorentzVector* p,double& t, double& xi);
+        bool SearchTrack(int ,int ,int Direction,double& xi,double& t,double& partP,double& pt,double& thx,double& thy,
+                        double& x0,double& y0, double& xt, double& yt, double& X1d, double& Y1d, double& X2d, double& Y2d);
         void TrackerStationClear();
         void TrackerStationStarting();
         void ProjectToToF(const double x1, const double y1, const double x2, const double y2, double& xt, double& yt) {    
@@ -93,11 +91,11 @@ class CTPPSFastTrackingProducer : public edm::stream::EDProducer<> {
             yt = ((fz_timing-fz_tracker2)*(y2-y1)/(fz_tracker2-fz_tracker1)) + y2;
         };
         // Hector objects
+        bool SetBeamLine();
 
         std::map<unsigned int, H_BeamParticle*> m_beamPart;
 	std::unique_ptr<H_BeamLine> m_beamlineCTPPS1;
         std::unique_ptr<H_BeamLine> m_beamlineCTPPS2;
-
         std::unique_ptr<H_RecRPObject> pps_stationF;
         std::unique_ptr<H_RecRPObject> pps_stationB;
 
@@ -110,7 +108,8 @@ class CTPPSFastTrackingProducer : public edm::stream::EDProducer<> {
         double fBeamEnergy;
         double fBeamMomentum;
         bool   fCrossAngleCorr;
-        double fCrossingAngle;
+        double fCrossingAngleBeam1;
+        double fCrossingAngleBeam2;
         ////////////////////////////////////////////////
         std::unique_ptr<CTPPSTrkStation> TrkStation_F; // auxiliary object with the tracker geometry
         std::unique_ptr<CTPPSTrkStation> TrkStation_B;
