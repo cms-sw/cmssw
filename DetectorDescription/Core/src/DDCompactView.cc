@@ -35,14 +35,19 @@ class DDDivision;
 */    
 // 
 DDCompactView::DDCompactView( const DDLogicalPart & rootnodedata )
-  : rep_( new DDCompactViewImpl( rootnodedata )),
-    worldpos_( new DDPosData( DDTranslation(), DDRotation(), 0 ))
+  : rep_( std::make_unique<DDCompactViewImpl>( rootnodedata )),
+    worldpos_( std::make_unique<DDPosData>( DDTranslation(), DDRotation(), 0 ))
+{}
+
+DDCompactView::DDCompactView( const DDName& name )
 {
-  DDMaterial::StoreT::instance().setReadOnly(false);
-  DDSolid::StoreT::instance().setReadOnly(false);
-  DDLogicalPart::StoreT::instance().setReadOnly(false);
-  DDSpecifics::StoreT::instance().setReadOnly(false);
-  DDRotation::StoreT::instance().setReadOnly(false);
+  DDMaterial::StoreT::instance().setReadOnly( false );
+  DDSolid::StoreT::instance().setReadOnly( false );
+  DDLogicalPart::StoreT::instance().setReadOnly( false );
+  DDSpecifics::StoreT::instance().setReadOnly( false );
+  DDRotation::StoreT::instance().setReadOnly( false );
+  rep_ = std::make_unique<DDCompactViewImpl>( DDLogicalPart( name ));
+  worldpos_ = std::make_unique<DDPosData>( DDTranslation(), DDRotation(), 0 );
 }
 
 DDCompactView::~DDCompactView() = default;
@@ -109,13 +114,12 @@ void DDCompactView::swap( DDCompactView& repToSwap ) {
 }
 
 DDCompactView::DDCompactView()
-  : rep_( new DDCompactViewImpl ),
-    worldpos_( new DDPosData( DDTranslation(), DDRotation(), 0 ))
+  : rep_( std::make_unique<DDCompactViewImpl>()),
+    worldpos_( std::make_unique<DDPosData>( DDTranslation(), DDRotation(), 0 ))
 {}
 
 void
 DDCompactView::lockdown() {
-  // FIXME: The store is not read-only
   // at this point we should have a valid store of DDObjects and we will move these
   // to the local storage area using swaps with the existing Singleton<Store...>'s
   DDMaterial::StoreT::instance().swap( matStore_ );
@@ -124,14 +128,11 @@ DDCompactView::lockdown() {
   DDSpecifics::StoreT::instance().swap( specStore_ );
   DDRotation::StoreT::instance().swap( rotStore_ );
 
-  // // 2010-01-27 memory patch
-  // // not sure this will stay, but for now we want to explicitely lock the global stores.
-  // // lock the global stores.
-  // DDMaterial::StoreT::instance().setReadOnly(false);
-  // DDSolid::StoreT::instance().setReadOnly(false);
-  // DDLogicalPart::StoreT::instance().setReadOnly(false);
-  // DDSpecifics::StoreT::instance().setReadOnly(false);
-  // DDRotation::StoreT::instance().setReadOnly(false);
-
+  // lock the global stores.
+  DDMaterial::StoreT::instance().setReadOnly( true );
+  DDSolid::StoreT::instance().setReadOnly( true );
+  DDLogicalPart::StoreT::instance().setReadOnly( true );
+  DDSpecifics::StoreT::instance().setReadOnly( true );
+  DDRotation::StoreT::instance().setReadOnly( true );
 }
 
