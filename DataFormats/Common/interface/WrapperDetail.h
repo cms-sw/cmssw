@@ -141,6 +141,42 @@ namespace edm {
         return true; // Should never be called
       }
     };
+
+    // bool hasSwap_() will return true if T::swap(T&) is declared and false otherwise
+    // void swapProduct_() will call T::swap(T&) if it is defined otherwise it does nothing
+    // Definitions for the following struct and function templates are not needed; we only require the declarations.
+    template<typename T, void (T::*)(T&)> struct swap_function;
+    template<typename T> static yes_tag has_swap(swap_function<T, &T::swap>* dummy);
+    template<typename T> static no_tag has_swap(...);
+
+    template<typename T>
+    struct has_swap_function {
+      static constexpr bool value =
+      std::is_same<decltype(has_swap<T>(nullptr)), yes_tag>::value;
+    };
+
+    template<typename T, bool = has_swap_function<T>::value> struct getHasSwapFunction;
+    template<typename T> struct getHasSwapFunction<T, true> {
+      bool operator()() {
+        return true;
+      }
+    };
+    template<typename T> struct getHasSwapFunction<T, false> {
+      bool operator()() {
+        return false;
+      }
+    };
+    template<typename T, bool = has_swap_function<T>::value> struct doSwapProduct;
+    template<typename T> struct doSwapProduct<T, true> {
+      void operator()(T& thisProduct, T& newProduct) {
+        thisProduct.swap(newProduct);
+      }
+    };
+    template<typename T> struct doSwapProduct<T, false> {
+      void operator()(T&, T&) {
+        return; // Should never be called
+      }
+    };
   }
 }
 #endif

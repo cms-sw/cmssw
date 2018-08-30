@@ -198,11 +198,11 @@ void SiPixelRecHitSource::buildStructure(const edm::EventSetup& iSetup){
 	 (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap))){ 
 
 	uint32_t id = detId();
-	SiPixelRecHitModule* theModule = new SiPixelRecHitModule(id);
 
 	if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
 	  if(isPIB) continue;
 	  LogDebug ("PixelDQM") << " ---> Adding Barrel Module " <<  detId.rawId() << endl;
+	  SiPixelRecHitModule* theModule = new SiPixelRecHitModule(id);
 	  thePixelStructure.insert(pair<uint32_t,SiPixelRecHitModule*> (id,theModule));
 		
 	} else if( (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) ) {
@@ -228,6 +228,7 @@ void SiPixelRecHitSource::buildStructure(const edm::EventSetup& iSetup){
 	    disk_str.find("Disk_2")!=string::npos;
 	  if(isPIB && mask) continue;
 	
+	  SiPixelRecHitModule* theModule = new SiPixelRecHitModule(id);
 	  thePixelStructure.insert(pair<uint32_t,SiPixelRecHitModule*> (id,theModule));
 	}
 

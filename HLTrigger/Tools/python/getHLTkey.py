@@ -25,32 +25,32 @@ runKeys = queryRR(options.firstRun,options.lastRun,options.groupName)
 runs = runKeys.keys(); runs.sort()
 
 if options.perKey:
- 	runsPerKey={}
-	for run in runs:
-		key = runKeys[run]
-		if not key in runsPerKey.keys():
-			tmpruns=[]
-			tmpruns.append(run)
-			runsPerKey[key] = tmpruns
-		else:
-			runsPerKey[key].append(run)
-	theKeys = runsPerKey.keys()
-	for key in theKeys:
-		theruns = runsPerKey[key]
-		topr=""
-		for r in theruns:
-			topr=topr+"\t"+r
-		print(key,topr)
-	exit(1)
-			
+    runsPerKey={}
+    for run in runs:
+        key = runKeys[run]
+        if not key in runsPerKey.keys():
+            tmpruns=[]
+            tmpruns.append(run)
+            runsPerKey[key] = tmpruns
+        else:
+            runsPerKey[key].append(run)
+    theKeys = runsPerKey.keys()
+    for key in theKeys:
+        theruns = runsPerKey[key]
+        topr=""
+        for r in theruns:
+            topr=topr+"\t"+r
+        print(key,topr)
+    exit(1)
+
 if options.HLTkey:
-	HLTkey = options.HLTkey
-	print("List of runs taken with HLT key = ",HLTkey) 
+    HLTkey = options.HLTkey
+    print("List of runs taken with HLT key = ",HLTkey) 
 for run in runs:
     key = runKeys[run]
 
     if not options.HLTkey:
-       print(run,key)	
+        print(run,key)	
     else:
-	if key == options.HLTkey:
-	   print(run)
+        if key == options.HLTkey:
+            print(run)

@@ -122,6 +122,7 @@ process.load('DQM.HcalTasks.NoCQTask')
 #process.load('DQM.HcalTasks.ZDCTask')
 #process.load('DQM.HcalTasks.QIE11Task') # 2018: integrate QIE11Task into DigiTask
 process.load('DQM.HcalTasks.HcalOnlineHarvesting')
+process.load('DQM.HcalTasks.HcalQualityTests')
 
 #-------------------------------------
 #	To force using uTCA
@@ -193,10 +194,12 @@ process.dqmPath = cms.EndPath(
 process.dqmPath1 = cms.EndPath(
 		process.dqmSaver
 )
+process.qtPath = cms.Path(process.hcalQualityTests)
 
 process.schedule = cms.Schedule(
 	process.preRecoPath,
 	process.tasksPath,
+	process.qtPath,
 	process.harvestingPath,
 	process.dqmPath,
 	process.dqmPath1

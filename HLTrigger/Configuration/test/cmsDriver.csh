@@ -111,7 +111,7 @@ foreach gtag ( MC DATA )
   if ( $1 == "" ) then
     set tables = ( GRun )
   else if ( ($1 == all) || ($1 == ALL) ) then
-    set tables = ( GRun HIon PIon PRef Fake Fake1 Fake2 2018v32 )
+    set tables = ( GRun HIon PIon PRef Fake Fake1 Fake2 2018v34 )
   else if ( ($1 == ib) || ($1 == IB) ) then
     set tables = ( GRun HIon PIon PRef )
   else if ( ($1 == dev) || ($1 == DEV) ) then
@@ -121,7 +121,7 @@ foreach gtag ( MC DATA )
   else if ( ($1 == fake) || ($1 == FAKE) ) then
     set tables = ( Fake Fake1 Fake2 )
   else if ( ($1 == frozen) || ($1 == FROZEN) ) then
-    set tables = ( Fake Fake1 Fake2 2018v32 )
+    set tables = ( Fake Fake1 Fake2 2018v34 )
   else
     set tables = ( $1 )
   endif
@@ -178,11 +178,11 @@ foreach gtag ( MC DATA )
       set Era  = $EraRun2pp2016
       set Custom = " "
       set L1REPACK = L1REPACK:Full
-    else if ( $table == 2018v32 ) then
+    else if ( $table == 2018v34 ) then
       set XL1T = $XL1TPP3
-      set XHLT = HLT:2018v32
-      set GTAG = ${BASE2}_2018v32
-      set RTAG = ${BASE2RD}_2018v32
+      set XHLT = HLT:2018v34
+      set GTAG = ${BASE2}_2018v34
+      set RTAG = ${BASE2RD}_2018v34
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun3

@@ -1,17 +1,29 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoLocalFastTime.FTLCommonAlgos.mtdUncalibRecHitAlgo_cff import mtdUncalibRecHitAlgo
-
 from SimFastTiming.FastTimingCommon.mtdDigitizer_cfi import mtdDigitizer
 
-_barrelAlgo = mtdUncalibRecHitAlgo.clone()
-_barrelAlgo.adcNbits = mtdDigitizer.barrelDigitizer.ElectronicsSimulation.adcNbits
-_barrelAlgo.adcSaturation = mtdDigitizer.barrelDigitizer.ElectronicsSimulation.adcSaturation_MIP
-_barrelAlgo.toaLSB_ns = mtdDigitizer.barrelDigitizer.ElectronicsSimulation.toaLSB_ns
-_endcapAlgo = mtdUncalibRecHitAlgo.clone()
-_endcapAlgo.adcNbits = mtdDigitizer.endcapDigitizer.ElectronicsSimulation.adcNbits
-_endcapAlgo.adcSaturation = mtdDigitizer.endcapDigitizer.ElectronicsSimulation.adcSaturation_MIP
-_endcapAlgo.toaLSB_ns = mtdDigitizer.endcapDigitizer.ElectronicsSimulation.toaLSB_ns
+
+_barrelAlgo = cms.PSet(
+    algoName = cms.string("BTLUncalibRecHitAlgo"),
+    adcNbits = mtdDigitizer.barrelDigitizer.ElectronicsSimulation.adcNbits,
+    adcSaturation = mtdDigitizer.barrelDigitizer.ElectronicsSimulation.adcSaturation_MIP,
+    toaLSB_ns = mtdDigitizer.barrelDigitizer.ElectronicsSimulation.toaLSB_ns,
+    timeResolutionInNs = cms.double(0.025),
+    timeCorr_p0 = cms.double(24.8997),
+    timeCorr_p1 = cms.double(-0.911385),
+    timeCorr_p2 = cms.double( 3.3744717)
+)
+
+
+_endcapAlgo = cms.PSet(
+    algoName      = cms.string("ETLUncalibRecHitAlgo"),
+    adcNbits      = mtdDigitizer.endcapDigitizer.ElectronicsSimulation.adcNbits,
+    adcSaturation = mtdDigitizer.endcapDigitizer.ElectronicsSimulation.adcSaturation_MIP,
+    toaLSB_ns     = mtdDigitizer.endcapDigitizer.ElectronicsSimulation.toaLSB_ns,
+    tofDelay      = mtdDigitizer.endcapDigitizer.DeviceSimulation.tofDelay,
+    timeResolutionInNs = cms.double(0.025)
+)
+
 
 mtdUncalibratedRecHits = cms.EDProducer(
     "MTDUncalibratedRecHitProducer",

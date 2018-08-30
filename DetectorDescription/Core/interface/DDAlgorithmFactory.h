@@ -6,6 +6,6 @@
 
 class DDAlgorithm;
 
-typedef edmplugin::PluginFactory<DDAlgorithm *(void)> DDAlgorithmFactory;
+using DDAlgorithmFactory = edmplugin::PluginFactory<DDAlgorithm *(void)>;
 
 #endif // DD_ALGO_PLUGIN_DD_ALGORITHM_FACTORY_H

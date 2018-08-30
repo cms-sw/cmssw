@@ -155,7 +155,7 @@ void SimG4HcalValidation::update(const BeginOfJob * job) {
   // Numbering From DDD
   edm::ESHandle<HcalDDDSimConstants>    hdc;
   (*job)()->get<HcalSimNumberingRecord>().get(hdc);
-  HcalDDDSimConstants *hcons = (HcalDDDSimConstants*)(&(*hdc));
+  const HcalDDDSimConstants *hcons = hdc.product();
   edm::LogInfo("ValidHcal") << "HcalTestAnalysis:: Initialise "
 			    << "HcalNumberingFromDDD";
   numberingFromDDD = new HcalNumberingFromDDD(hcons);

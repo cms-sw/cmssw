@@ -165,7 +165,9 @@ void SiPixelDigiToRaw::fillDescriptions(edm::ConfigurationDescriptions & descrip
   desc.add<edm::InputTag>("InputLabel");
   desc.add<bool>("UsePhase1", false);
   desc.addUntracked<bool>("Timing", false)->setComment("deprecated");
-  descriptions.add("siPixelRawData",desc);
+  descriptions.add("siPixelRawData",  desc);
 }
 
+// declare this as a framework plugin
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiPixelDigiToRaw);

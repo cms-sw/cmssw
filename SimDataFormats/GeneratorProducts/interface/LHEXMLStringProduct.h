@@ -31,7 +31,7 @@ public:
   
   // merge method. It will be used when merging different jobs populating the same lumi section
   bool mergeProduct(LHEXMLStringProduct const &other);
-  
+  void swap(LHEXMLStringProduct& other);
   
 private:
   std::vector<std::string> content_;

@@ -1,14 +1,15 @@
 #include "DetectorDescription/Core/src/Sphere.h"
+#include "DetectorDescription/Core/interface/DDUnits.h"
 
-#include <DataFormats/GeometryVector/interface/Pi.h>
 #include <cmath>
 #include <ostream>
 #include <vector>
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DetectorDescription/Core/src/Solid.h"
+
+using namespace dd;
+using namespace dd::operators;
 
 DDI::Sphere::Sphere(double innerRadius,
 		    double outerRadius,
@@ -26,28 +27,25 @@ DDI::Sphere::Sphere(double innerRadius,
   p_.emplace_back(deltaTheta);
 }	 
 
-
 void DDI::Sphere::stream(std::ostream & os) const
 {
-   os << " innerRadius=" << p_[0]/cm
-      << " outerRadius=" << p_[1]/cm
-      << " startPhi=" << p_[2]/deg
-      << " deltaPhi=" << p_[3]/deg
-      << " startTheta=" << p_[4]/deg
-      << " deltaTheta=" << p_[5]/deg;
+  os << " innerRadius=" << CONVERT_TO( p_[0], cm )
+     << " outerRadius=" << CONVERT_TO( p_[1], cm )
+     << " startPhi=" << CONVERT_TO( p_[2], deg )
+     << " deltaPhi=" << CONVERT_TO( p_[3], deg )
+     << " startTheta=" << CONVERT_TO( p_[4], deg )
+     << " deltaTheta=" << CONVERT_TO( p_[5], deg );
 }
 
 double DDI::Sphere::volume() const
 {
   double volume(0.);
-  if ( std::fabs(p_[3]) <= 2.*Geom::pi() && std::fabs(p_[5]) <= Geom::pi() ) {
+  if ( std::fabs(p_[3]) <= 2._pi && std::fabs(p_[5]) <= _pi ) {
     volume = std::fabs((p_[1]*p_[1]*p_[1] - p_[0]*p_[0]*p_[0])/3. * (std::cos(p_[4]+p_[5]) - std::cos(p_[4]))*p_[3]);
-  } else if (std::fabs(p_[3]) <= 2.*Geom::pi() && std::fabs(p_[5]) > Geom::pi() ) {
-    volume = std::fabs((p_[1]*p_[1]*p_[1] - p_[0]*p_[0]*p_[0])/3. * (std::cos(p_[4]+p_[5]-180.*deg) - std::cos(p_[4]))*p_[3]);
-  } else if (std::fabs(p_[3]) > 2.*Geom::pi() && std::fabs(p_[5]) <= Geom::pi() ) {
+  } else if (std::fabs(p_[3]) <= 2._pi && std::fabs(p_[5]) > _pi ) {
+    volume = std::fabs((p_[1]*p_[1]*p_[1] - p_[0]*p_[0]*p_[0])/3. * (std::cos(p_[4]+p_[5]-180._deg) - std::cos(p_[4]))*p_[3]);
+  } else if (std::fabs(p_[3]) > 2._pi && std::fabs(p_[5]) <= _pi ) {
     volume = std::fabs((p_[1]*p_[1]*p_[1] - p_[0]*p_[0]*p_[0])/3. * (std::cos(p_[4]+p_[5]) - std::cos(p_[4]))*(p_[3]-p_[2]));
   }
   return volume;
 }
-
-

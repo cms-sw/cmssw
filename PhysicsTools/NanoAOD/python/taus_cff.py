@@ -14,7 +14,7 @@ finalTaus = cms.EDFilter("PATTauRefSelector",
     src = cms.InputTag("slimmedTausUpdated"),
     cut = cms.string("pt > 18 && tauID('decayModeFindingNewDMs') && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || tauID('byVLooseIsolationMVArun2v1DBnewDMwLT') || tauID('byVLooseIsolationMVArun2v1DBdR03oldDMwLT') || tauID('byVVLooseIsolationMVArun2v1DBoldDMwLT') || tauID('byVVLooseIsolationMVArun2v1DBoldDMwLT2017v2') || tauID('byVVLooseIsolationMVArun2v1DBnewDMwLT2017v2') || tauID('byVVLooseIsolationMVArun2v1DBdR03oldDMwLT2017v2'))")
 )
-for era in [eras.run2_nanoAOD_94XMiniAODv2]:
+for era in [eras.run2_nanoAOD_94XMiniAODv2, eras.run2_nanoAOD_94X2016]:
     era.toModify(finalTaus,
                  cut =  cms.string("pt > 18 && tauID('decayModeFindingNewDMs') && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || tauID('byVLooseIsolationMVArun2v1DBoldDMwLT2015') || tauID('byVLooseIsolationMVArun2v1DBnewDMwLT') || tauID('byVLooseIsolationMVArun2v1DBdR03oldDMwLT') || tauID('byVVLooseIsolationMVArun2v1DBoldDMwLT') || tauID('byVVLooseIsolationMVArun2v1DBoldDMwLT2017v2') || tauID('byVVLooseIsolationMVArun2v1DBnewDMwLT2017v2') || tauID('byVVLooseIsolationMVArun2v1DBdR03oldDMwLT2017v2'))")
     )
@@ -108,6 +108,7 @@ _mvaIsoVars2017v2 = cms.PSet(
     idMVAoldDM2017v2 = _tauId7WPMask( "by%sIsolationMVArun2v1DBoldDMwLT2017v2", doc="IsolationMVArun2v1DBoldDMwLT ID working point (2017v2)"),
     idMVAoldDMdR032017v2 = _tauId7WPMask( "by%sIsolationMVArun2v1DBdR03oldDMwLT2017v2", doc="IsolationMVArun2v1DBoldDMdR0p3wLT ID working point (2017v2)")
 )
+
 _variablesMiniV2 = cms.PSet(
     tauTable.variables.clone(),
     _mvaIsoVars2015Reduced,
@@ -123,9 +124,11 @@ _variables80X =  cms.PSet(
     tauTable.variables.clone(),
     _mvaIsoVars2015
 )
-eras.run2_nanoAOD_94XMiniAODv2.toModify(tauTable,
-                                        variables = _variablesMiniV2
-)
+
+for era in [eras.run2_nanoAOD_94X2016, eras.run2_nanoAOD_94XMiniAODv2]:
+    era.toModify(tauTable,
+                 variables=_variablesMiniV2
+                )
 for era in [eras.run2_nanoAOD_94XMiniAODv1,eras.run2_nanoAOD_92X]:
     era.toModify(tauTable,
                  variables = _variablesMiniV1

@@ -97,7 +97,7 @@ void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es)
   }
   std::unordered_map<uint32_t,HGCalDigiCollection> hit_modules_bh;
   for(const auto& bhdata : bh_digis) {
-    if(HcalDetId(bhdata.id()).subdetId()!=HcalEndcap) continue;
+    if(DetId(bhdata.id()).det()!=DetId::HGCalHSc && HcalDetId(bhdata.id()).subdetId()!=HcalEndcap) continue;
     uint32_t module = triggerGeometry_->getModuleFromCell(bhdata.id());
     if(triggerGeometry_->disconnectedModule(module)) continue;
     auto itr_insert = hit_modules_bh.emplace(module, HGCalDigiCollection());

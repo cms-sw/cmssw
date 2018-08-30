@@ -72,7 +72,9 @@ GEMGeometryBuilderFromDDD::build( const std::shared_ptr<GEMGeometry>& theGeometr
     // loop over chambers
     // only 1 chamber
     bool doChambers = fv.firstChild();
+    bool loopExecuted = false;
     while (doChambers){
+        loopExecuted = true;
       
     // loop over GEMEtaPartitions
       bool doEtaPart = fv.firstChild();
@@ -97,6 +99,7 @@ GEMGeometryBuilderFromDDD::build( const std::shared_ptr<GEMGeometry>& theGeometr
     fv.parent();
 
     doSuper = fv.nextSibling();
+    if (!loopExecuted) delete gemChamber;
   }
   
   auto& superChambers(theGeometry->superChambers());

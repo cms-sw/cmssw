@@ -67,6 +67,19 @@ class HEPRUP {
 		LPRUP.resize(NPRUP);
 	}
 
+	void swap(HEPRUP& other) {
+		IDBMUP.swap(other.IDBMUP);
+		EBMUP.swap(other.EBMUP);
+		PDFGUP.swap(other.PDFGUP);
+		PDFSUP.swap(other.PDFSUP);
+		std::swap(IDWTUP, other.IDWTUP);
+		std::swap(NPRUP, other.NPRUP);
+		XSECUP.swap(other.XSECUP);
+		XERRUP.swap(other.XERRUP);
+		XMAXUP.swap(other.XMAXUP);
+		LPRUP.swap(other.LPRUP);
+	}
+
 	/**
 	 * PDG id's of beam particles. (first/second is in +/-z direction).
 	 */

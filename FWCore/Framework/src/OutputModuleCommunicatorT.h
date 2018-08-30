@@ -8,6 +8,7 @@
 
 namespace edm {
   class ActivityRegistry;
+  class MergeableRunProductMetadata;
   class OutputModule;
   class ThinnedAssociationsHelper;
 
@@ -47,7 +48,8 @@ namespace edm {
     void writeRunAsync(WaitingTaskHolder iTask,
                        edm::RunPrincipal const& rp,
                        ProcessContext const*,
-                       ActivityRegistry*) override;
+                       ActivityRegistry*,
+                       MergeableRunProductMetadata const*) override;
     
     void writeLumiAsync(WaitingTaskHolder iTask,
                         edm::LuminosityBlockPrincipal const& lbp,

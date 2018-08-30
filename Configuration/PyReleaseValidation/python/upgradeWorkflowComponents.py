@@ -64,8 +64,8 @@ numWFAll={
 for year in upgradeKeys:
     for i in range(0,len(upgradeKeys[year])):
         numWFtmp = numWFStart[year] if i==0 else (numWFAll[year][i-1] + numWFSkip)
-	for conflict in numWFConflict:
-	    if numWFtmp>=conflict[0] and numWFtmp<conflict[1]:
+        for conflict in numWFConflict:
+            if numWFtmp>=conflict[0] and numWFtmp<conflict[1]:
                 numWFtmp = conflict[1]
                 break
         numWFAll[year].append(numWFtmp)
@@ -349,7 +349,7 @@ upgradeProperties[2023] = {
         'Geom' : 'Extended2023D31',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic',
-        'Era' : 'Phase2C4',
+        'Era' : 'Phase2C6',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
      },
 }

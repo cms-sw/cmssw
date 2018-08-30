@@ -23,6 +23,7 @@
 #include "DQM/L1TMonitor/interface/L1TMenuHelper.h"
 
 #include "TList.h"
+#include <string>
 
 using namespace edm;
 using namespace std;
@@ -154,13 +155,13 @@ void L1TBPTX::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& iRun, c
     TString meTitle = "";
     ibooker.setCurrentFolder("L1T/L1TBPTX/Rate/");
     if(isAlgo){
-      meTitle="Algo "+bit; meTitle+=" - "; meTitle+=m_algoBit_Alias[bit]; meTitle+=" Rate";
+      meTitle="Algo "+std::to_string(bit); meTitle+=" - "; meTitle+=m_algoBit_Alias[bit]; meTitle+=" Rate";
       m_meRate[refME] = ibooker.book1D(testName,meTitle,maxNbins,-0.5,double(maxNbins)-0.5);
       m_meRate[refME]->setAxisTitle("Lumi Section"           ,1);
       m_meRate[refME]->setAxisTitle("Rate (unprescaled) [Hz]",2);
     }
     else{
-      meTitle="Tech "+bit; meTitle+=" - "; meTitle+=m_techBit_Alias[bit]; meTitle+=" Rate";
+      meTitle="Tech "+std::to_string(bit); meTitle+=" - "; meTitle+=m_techBit_Alias[bit]; meTitle+=" Rate";
       m_meRate[refME] = ibooker.book1D(testName,meTitle,maxNbins,-0.5,double(maxNbins)-0.5);
       m_meRate[refME]->setAxisTitle("Lumi Section" ,1);
       m_meRate[refME]->setAxisTitle("Rate (unprescaled) [Hz]",2);
@@ -214,9 +215,9 @@ void L1TBPTX::beginLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup 
 
     TString triggerName = "";
     if(m_monitorBits[i].getParameter<bool>("bitType")){
-      triggerName = "algo_"+m_monitorBits[i].getParameter<int>("bitNumber");
+      triggerName = "algo_"+std::to_string(m_monitorBits[i].getParameter<int>("bitNumber"));
     }else{
-      triggerName = "tech_"+m_monitorBits[i].getParameter<int>("bitNumber");
+      triggerName = "tech_"+std::to_string(m_monitorBits[i].getParameter<int>("bitNumber"));
     }
 
     m_effNumerator       [triggerName] = 0;
@@ -249,8 +250,8 @@ void L1TBPTX::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup co
       int     bit      = m_monitorBits[i].getParameter<int>   ("bitNumber");
 
       TString triggerName;
-      if(isAlgo){triggerName = "algo_"+bit;}
-      else      {triggerName = "tech_"+bit;}
+      if(isAlgo){triggerName = "algo_"+std::to_string(bit);}
+      else      {triggerName = "tech_"+std::to_string(bit);}
 
       double valEff;
       double valMiss;
@@ -389,8 +390,8 @@ void L1TBPTX::analyze(const Event & iEvent, const EventSetup & eventSetup){
         int  bit    = m_monitorBits[i].getParameter<int> ("bitNumber");
         int  offset = m_monitorBits[i].getParameter<int> ("bitOffset");
 
-        if(isAlgo){triggerName = "algo_"+bit;}
-        else      {triggerName = "tech_"+bit;}
+        if(isAlgo){triggerName = "algo_"+std::to_string(bit);}
+        else      {triggerName = "tech_"+std::to_string(bit);}
 
         int evBxStart = -2;
         int evBxEnd   =  2;

@@ -45,7 +45,7 @@ def parallelJobs(hltkeylistfile,jsonDir,globalTag,templateName,queue,cafsetup):
         templateFile = getConfigTemplateFilename()
     else:
         templateFile = os.path.abspath(os.path.expandvars(templateName))
-        
+
     tfile = open(templateFile, 'r')
     template = tfile.read()
     tfile.close()
@@ -54,13 +54,13 @@ def parallelJobs(hltkeylistfile,jsonDir,globalTag,templateName,queue,cafsetup):
     keylistlist = mkHLTKeyListList(hltkeylistfile)
     index = 0
     for keylist in keylistlist:
-        
+
         configName = 'AlCaHLTBitMon_%d_cfg.py'%index
         jobName = 'AlCaHLTBitMon_%d_job.csh'%index
         jsonFile = os.path.abspath('%(dir)s/%(index)d.json' % {'dir' : jsonDir, 'index' : index})
         dataFile = os.path.abspath('%(dir)s/%(index)d.data' % {'dir' : jsonDir, 'index' : index})
         logFile = 'AlCaHLTBitMon_%d'%index
-        
+
         dfile = open(dataFile, 'r')
         data = dfile.read()
         dfile.close()
@@ -79,7 +79,7 @@ def parallelJobs(hltkeylistfile,jsonDir,globalTag,templateName,queue,cafsetup):
         jfile.write('#!/bin/tcsh\n\n')
         if cafsetup == True:
             jfile.write('source /afs/cern.ch/cms/caf/setup.csh\n\n')
-            
+
         jfile.write('cd $1\n\n')
         jfile.write('eval `scramv1 run -csh`\n\n')
         jfile.write('cmsRun %s\n\n'%configName)
@@ -88,7 +88,7 @@ def parallelJobs(hltkeylistfile,jsonDir,globalTag,templateName,queue,cafsetup):
 
         if os.path.exists('./%s'%keylist) == False:
             os.system('mkdir ./%s'%keylist)
-            
+
         os.system('chmod u+x %s'%jobName)
         #print('bsub -q %(queue)s %(jobname)s %(pwd)s %(pwd)s/%(outdir)s' % {'queue' : queue, 'jobname' : jobName, 'pwd' : PWD, 'outdir' : keylist})
         os.system('bsub -q %(queue)s %(jobname)s %(pwd)s %(pwd)s/%(outdir)s' % {'queue' : queue, 'jobname' : jobName, 'pwd' : PWD, 'outdir' : keylist})
@@ -97,7 +97,7 @@ def parallelJobs(hltkeylistfile,jsonDir,globalTag,templateName,queue,cafsetup):
 
 def defineOptions():
     parser = OptionParser()
-    
+
     parser.add_option("-k", "--keylist",
                       dest="hltKeyListFile",
                       default="lista_key.txt",
@@ -106,7 +106,7 @@ def defineOptions():
     parser.add_option("-j", "--json",
                       dest="jsonDir",
                       help="directory with the corresponding json files")
-    
+
     parser.add_option("-g", "--globalTag",
                       dest="globalTag",
                       help="the global tag to use in the config files")
@@ -125,11 +125,11 @@ def defineOptions():
                       dest="cafsetup",
                       default=False,
                       help="wether the caf setup is sourced in the scripts")
-   
+
     (options, args) = parser.parse_args()
 
     if len(sys.argv) == 1:
-	print("\nUsage: %s --help"%sys.argv[0])
+        print("\nUsage: %s --help"%sys.argv[0])
         sys.exit(0)
 
     if str(options.hltKeyListFile) == 'None':
@@ -143,7 +143,7 @@ def defineOptions():
     if str(options.globalTag) == 'None':
         print("Please provide a global tag")
         sys.exit(0)
-    
+
     return options
 
 

@@ -60,6 +60,9 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanRegionModule::process(L1TMuonBarrelKal
   for (const auto& stub : stubsAll) {
     if (stub->bxNum()!=bx)
       continue;
+
+    if ((stub->scNum()==nextSector_ && stub->phi()>=-112)||(stub->scNum()==previousSector_ && stub->phi()<=111))
+      continue;
     
     if (stub->whNum()==wheel_  && stub->scNum()==sector_) {
       seeds.push_back(stub);
@@ -79,7 +82,7 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanRegionModule::process(L1TMuonBarrelKal
       pretracks.push_back(trackInfo.second);
   } 
 
-  trackMaker->resolveEtaUnit(pretracks);
+  //  trackMaker->resolveEtaUnit(pretracks);
   L1MuKBMTrackCollection out =trackMaker->cleanAndSort(pretracks,2);
   if (verbose_) {
     printf(" -----Sector Processor Kalman Tracks-----\n");
@@ -90,3 +93,5 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanRegionModule::process(L1TMuonBarrelKal
 
   return out;
 }
+
+

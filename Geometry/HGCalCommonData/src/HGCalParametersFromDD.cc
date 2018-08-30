@@ -4,7 +4,6 @@
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDVectorGetter.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -82,7 +81,9 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
 				  << HGCalGeometryMode::Hexagon8Full << ":"
 				  << ":" << HGCalGeometryMode::Trapezoid;
 #endif
-    php.levelZSide_ = 3;       // Default level for ZSide
+    php.levelZSide_      = 3;       // Default level for ZSide
+    php.detectorType_    = 0;       // These two parameters are
+    php.firstMixedLayer_ =-1;       // defined for post TDR geometry
     HGCalGeomParameters *geom = new HGCalGeomParameters();
     if ((php.mode_ == HGCalGeometryMode::Hexagon) ||
 	(php.mode_ == HGCalGeometryMode::HexagonFull)) {
@@ -101,16 +102,24 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
 				      << HGCalGeometryMode::ExtrudedPolygon;
 #endif
       }
+      php.minTileSize_     = 0;
     }
     if ((php.mode_ == HGCalGeometryMode::Hexagon8) ||
 	(php.mode_ == HGCalGeometryMode::Hexagon8Full)) {
-      php.levelT_     = dbl_to_int(getDDDArray("LevelTop",sv));
-      php.levelZSide_ = (int)(getDDDValue("LevelZSide",sv));
-      php.nCellsFine_ = php.nCellsCoarse_ = 0;
+      php.levelT_          = dbl_to_int(getDDDArray("LevelTop",sv));
+      php.levelZSide_      = (int)(getDDDValue("LevelZSide",sv));
+      php.nCellsFine_      = php.nCellsCoarse_ = 0;
+      php.firstLayer_      = 1;
+      php.firstMixedLayer_ = (int)(getDDDValue("FirstMixedLayer", sv));
+      php.detectorType_    = (int)(getDDDValue("DetectorType", sv));
+      php.minTileSize_     = 0;
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "Top levels " << php.levelT_[0] << ":" 
 				    << php.levelT_[1] << " ZSide Level "
-				    << php.levelZSide_;
+				    << php.levelZSide_ << " first layers "
+				    << php.firstLayer_ << ":"
+				    << php.firstMixedLayer_ << " Det Type "
+				    << php.detectorType_;
 #endif
       attribute   = "OnlyForHGCalNumbering";
       value       = namet;
@@ -128,7 +137,6 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
 	php.sensorSeparation_ = HGCalParameters::k_ScaleFromDDD*getDDDValue("SensorSeparation", sv2);
 	php.mouseBite_        = HGCalParameters::k_ScaleFromDDD*getDDDValue("MouseBite", sv2);
 	php.waferR_           = 0.5*HGCalParameters::k_ScaleToDDD*php.waferSize_/std::cos(30.0*CLHEP::deg);
-	php.etaMinBH_         = 0;
 	php.cellSize_.emplace_back(HGCalParameters::k_ScaleToDDD*php.waferSize_/php.nCellsFine_);
 	php.cellSize_.emplace_back(HGCalParameters::k_ScaleToDDD*php.waferSize_/php.nCellsCoarse_);
 #ifdef EDM_ML_DEBUG
@@ -173,7 +181,6 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
       php.defineFull_ = true;
     } else if (php.mode_ == HGCalGeometryMode::Hexagon8) {
       //Load the SpecPars
-      php.firstLayer_ = 1;
       geom->loadSpecParsHexagon8(fv, php);
       //Load Geometry parameters
       geom->loadGeometryHexagon8(fv, php, 1);
@@ -183,7 +190,6 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
       geom->loadWaferHexagon8(php);
     } else if (php.mode_ == HGCalGeometryMode::Hexagon8Full) {
       //Load the SpecPars
-      php.firstLayer_ = 1;
       geom->loadSpecParsHexagon8(fv, php);
       //Load Geometry parameters
       geom->loadGeometryHexagon8(fv, php, 1);
@@ -193,17 +199,20 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
       geom->loadWaferHexagon8(php);
     } else if (php.mode_ == HGCalGeometryMode::Trapezoid) {
       //Load maximum eta & top level
-      php.etaMinBH_        = getDDDValue("etaMinBH", sv);
       php.levelT_          = dbl_to_int(getDDDArray("LevelTop",sv));
       php.firstLayer_      = (int)(getDDDValue("FirstLayer", sv));
+      php.firstMixedLayer_ = (int)(getDDDValue("FirstMixedLayer", sv));
+      php.detectorType_    = (int)(getDDDValue("DetectorType", sv));
       php.waferThick_      = HGCalParameters::k_ScaleFromDDD*getDDDValue("WaferThickness", sv);
+      php.minTileSize_     = HGCalParameters::k_ScaleFromDDD*getDDDValue("MinimumTileSize", sv);
       php.waferSize_       = php.waferR_          = 0;
-      php.waferThick_      = php.sensorSeparation_= php.mouseBite_       = 0;
+      php.sensorSeparation_= php.mouseBite_       = 0;
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "Top levels " << php.levelT_[0] << ":" 
-				    << php.levelT_[1] << " EtaMinBH "
-				    << php.etaMinBH_ << " first layer "
-				    << php.firstLayer_ << " thickenss "
+				    << php.levelT_[1] << " first layers "
+				    << php.firstLayer_ << ":" 
+				    << php.firstMixedLayer_ << " Det Type "
+				    << php.detectorType_ << "  thickenss "
 				    << php.waferThick_;
 #endif
       //Load the SpecPars

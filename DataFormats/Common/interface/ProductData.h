@@ -13,7 +13,9 @@ is the storage unit of such information.
 
 namespace edm {
   class BranchDescription;
+  class MergeableRunProductMetadataBase;
   class WrapperBase;
+
   class ProductData {
   public:
     ProductData();
@@ -64,6 +66,10 @@ namespace edm {
       prov_.setProductID(pid);
       prov_.setStore(provRetriever);
       prov_.setProcessHistory(ph);
+    }
+
+    void setMergeableRunProductMetadata(MergeableRunProductMetadataBase const* mrpm) {
+      prov_.setMergeableRunProductMetadata(mrpm);
     }
 
     // NOTE: We should probably think hard about whether these

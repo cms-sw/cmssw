@@ -56,7 +56,7 @@ class BuildViewer(object):
 
         self.formatter.writeAnchor(ref='top')
         self.formatter.writeH2("CMSSW code rules violation for "+ib)
-            
+
         self.formatter.startTable([20,20,20,20,50], 
 ['Rule','Packages', 'Files','Sum of violations','Description'], id =
 'descriptionTable', tableAttr='border="0" cellspacing="5" cellpadding="5"')
@@ -64,7 +64,7 @@ class BuildViewer(object):
         for ruleName in rulesNames:
             try:
                 ruleRes = rulesResults[ruleName]
-		totalViolations = 0
+                totalViolations = 0
                 totalFiles = 0
                 for package, packageResult in ruleRes:
                     totalFiles += len(packageResult)
@@ -133,7 +133,7 @@ def numberConverter(number):
     number = str(number)
     length = len(number)
     if  length < 3:
-       number = (3-length)*str(0) + number
+        number = (3-length)*str(0) + number
     return number
 
 def createLogFiles(rulesResult, logsDir, ib):

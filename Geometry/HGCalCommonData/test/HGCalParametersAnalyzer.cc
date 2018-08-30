@@ -220,8 +220,11 @@ HGCalParametersAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetu
     std::cout << it << ", ";
   std::cout << "\n";
   
+  for (auto it : phgp->slopeMin_)
+    std::cout << it << ", ";
+  std::cout << "\n";
+  
   std::cout << phgp->waferR_   << "\n";
-  std::cout << phgp->slopeMin_ << "\n";
   std::cout << phgp->nCells_   << "\n";
   std::cout << phgp->nSectors_ << "\n";
   std::cout << phgp->mode_     << "\n";

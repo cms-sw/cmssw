@@ -124,6 +124,11 @@ void TrackAnalyzer::initHistos()
   NumberOfValidRecHitsPerTrackVsEta = nullptr;
 
   DistanceOfClosestApproach = nullptr;
+  DistanceOfClosestApproachError = nullptr;
+  DistanceOfClosestApproachErrorVsPt = nullptr;
+  DistanceOfClosestApproachErrorVsEta = nullptr;
+  DistanceOfClosestApproachErrorVsPhi = nullptr;
+  DistanceOfClosestApproachErrorVsDxy = nullptr;
   DistanceOfClosestApproachToBS = nullptr;
   AbsDistanceOfClosestApproachToBS = nullptr;
   DistanceOfClosestApproachToPV = nullptr;
@@ -727,6 +732,9 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker & ibooker) {
     
     if(doDCAPlots_ || doBSPlots_ || doAllPlots_) {
 	
+      int    DxyErrBin    = conf_->getParameter<int>(   "DxyErrBin");
+      double DxyErrMax    = conf_->getParameter<double>("DxyErrMax");
+      
       int    DxyBin       = conf_->getParameter<int>(   "DxyBin");
       double DxyMin       = conf_->getParameter<double>("DxyMin");
       double DxyMax       = conf_->getParameter<double>("DxyMax");
@@ -739,6 +747,14 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker & ibooker) {
       double PhiMin     = conf_->getParameter<double>("PhiMin");
       double PhiMax     = conf_->getParameter<double>("PhiMax");
       
+      int    EtaBin     = conf_->getParameter<int>(   "EtaBin");
+      double EtaMin     = conf_->getParameter<double>("EtaMin");
+      double EtaMax     = conf_->getParameter<double>("EtaMax");
+
+      int    PtBin      = conf_->getParameter<int>(   "TrackPtBin");
+      double PtMin      = conf_->getParameter<double>("TrackPtMin");
+      double PtMax      = conf_->getParameter<double>("TrackPtMax");
+
       int    X0Bin        = conf_->getParameter<int>(   "X0Bin");
       double X0Min        = conf_->getParameter<double>("X0Min");
       double X0Max        = conf_->getParameter<double>("X0Max");
@@ -758,6 +774,31 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker & ibooker) {
       
       ibooker.setCurrentFolder(TopFolder_+"/GeneralProperties");
       
+      histname = "DistanceOfClosestApproachError_";
+      DistanceOfClosestApproachError = ibooker.book1D(histname+CategoryName,histname+CategoryName,DxyErrBin,0.,DxyErrMax);
+      DistanceOfClosestApproachError->setAxisTitle("Track d_{xy} error (cm)",1);
+      DistanceOfClosestApproachError->setAxisTitle("Number of Tracks",2);
+      
+      histname = "DistanceOfClosestApproachErrorVsPt_";
+      DistanceOfClosestApproachErrorVsPt = ibooker.bookProfile(histname+CategoryName,histname+CategoryName,PtBin,PtMin,PtMax,0.,DxyErrMax);
+      DistanceOfClosestApproachErrorVsPt->setAxisTitle("Track p_{T} (GeV)",1);
+      DistanceOfClosestApproachErrorVsPt->setAxisTitle("Track d_{xy} error (cm)",2);
+      
+      histname = "DistanceOfClosestApproachErrorVsEta_";
+      DistanceOfClosestApproachErrorVsEta = ibooker.bookProfile(histname+CategoryName,histname+CategoryName,EtaBin,EtaMin,EtaMax,0.,DxyErrMax);
+      DistanceOfClosestApproachErrorVsEta->setAxisTitle("Track #eta",1);
+      DistanceOfClosestApproachErrorVsEta->setAxisTitle("Track d_{xy} error (cm)",2);
+      
+      histname = "DistanceOfClosestApproachErrorVsPhi_";
+      DistanceOfClosestApproachErrorVsPhi = ibooker.bookProfile(histname+CategoryName,histname+CategoryName,PhiBin,PhiMin,PhiMax,0.,DxyErrMax);
+      DistanceOfClosestApproachErrorVsPhi->setAxisTitle("Track #phi",1);
+      DistanceOfClosestApproachErrorVsPhi->setAxisTitle("Track d_{xy} error (cm)",2);
+      
+      histname = "DistanceOfClosestApproachErrorVsDxy_";
+      DistanceOfClosestApproachErrorVsDxy = ibooker.bookProfile(histname+CategoryName,histname+CategoryName,DxyBin,DxyMin,DxyMax,0.,DxyErrMax);
+      DistanceOfClosestApproachErrorVsDxy->setAxisTitle("Track d_{xy}",1);
+      DistanceOfClosestApproachErrorVsDxy->setAxisTitle("Track d_{xy} error (cm)",2);
+
       histname = "DistanceOfClosestApproachToBS_";
       DistanceOfClosestApproachToBS = ibooker.book1D(histname+CategoryName,histname+CategoryName,DxyBin,DxyMin,DxyMax);
       DistanceOfClosestApproachToBS->setAxisTitle("Track d_{xy} wrt beam spot (cm)",1);
@@ -1166,6 +1207,12 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
     iEvent.getByToken(beamSpotToken_,recoBeamSpotHandle);
     const reco::BeamSpot& bs = *recoBeamSpotHandle;
+
+    DistanceOfClosestApproachError      -> Fill(track.dxyError());
+    DistanceOfClosestApproachErrorVsPt  -> Fill(track.pt(),track.dxyError());
+    DistanceOfClosestApproachErrorVsEta -> Fill(track.eta(),track.dxyError());
+    DistanceOfClosestApproachErrorVsPhi -> Fill(track.phi(),track.dxyError());
+    DistanceOfClosestApproachErrorVsDxy -> Fill(track.dxy(bs.position()),track.dxyError());
 
     DistanceOfClosestApproachToBS      -> Fill(track.dxy(bs.position()));
     AbsDistanceOfClosestApproachToBS   -> Fill(std::abs(track.dxy(bs.position())));

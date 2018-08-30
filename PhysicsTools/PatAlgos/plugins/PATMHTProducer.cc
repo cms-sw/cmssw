@@ -229,7 +229,6 @@ pat::PATMHTProducer::getElectrons(edm::Event& iEvent, const edm::EventSetup & iS
   edm::Handle<edm::View<pat::Electron> > electronHandle;
   iEvent.getByToken(eleToken_,electronHandle);
   edm::View<pat::Electron> electrons = *electronHandle;
-  DetId nullDetId;
 
   // Fill Input Vector with Electrons
   for(edm::View<pat::Electron>::const_iterator electron_iter = electrons.begin(); electron_iter!=electrons.end(); ++electron_iter){

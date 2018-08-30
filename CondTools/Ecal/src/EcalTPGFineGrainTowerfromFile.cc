@@ -24,7 +24,6 @@ void popcon::EcalTPGFineGrainTowerfromFile::getNewObjects() {
   std::cout << "------- Ecal -> getNewObjects\n";
   edm::LogInfo("EcalTPGFineGrainTowerfromFile") << "Started GetNewObjects!!!";
   
-  EcalTPGFineGrainTowerEE * fgrMap = new EcalTPGFineGrainTowerEE;
   int fileIOV;
   std::cout << "LinPed which input IOV do you want " << std::endl;
   std::cin >> fileIOV; 
@@ -47,6 +46,7 @@ TOWER_EE                     375017/379768 : 4752 lines  1584 towers 2 lines : 0
   for(int i = 0; i < 375016; i++) getline (fLin, line);
   char tower[8];
   unsigned int towerId, LUTFg;
+  EcalTPGFineGrainTowerEE * fgrMap = new EcalTPGFineGrainTowerEE;
   for (int itower = 0; itower < 1584; itower++) {
     getline (fLin, line);
     sscanf(line.c_str(), "%s %u", tower, &towerId);
@@ -63,7 +63,7 @@ TOWER_EE                     375017/379768 : 4752 lines  1584 towers 2 lines : 0
   }   // end loop over EE towers
   fLin.close();
 
-  m_to_transfer.push_back(std::make_pair((EcalTPGFineGrainTowerEE*)fgrMap, fileIOV));
+  m_to_transfer.push_back(std::make_pair(fgrMap, fileIOV));
 
   std::cout << "Ecal -> end of getNewObjects -----------\n";	
 }

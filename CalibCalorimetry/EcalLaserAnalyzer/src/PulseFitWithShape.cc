@@ -173,9 +173,7 @@ double PulseFitWithShape::doFit(double *adc, double *cova)
   int nloop=fNb_iter;
   if(qm <= 5*noise)nloop=1; // Just one iteration for very low signal
 
-  double *resi;
-  resi= new double[fNsamples];  
-  for (int j=0;j<fNsamples;j++) resi[j]=0;
+  std::vector<double> resi(fNsamples, 0.0);
 
   while(std::fabs(chi2old-chi2) > 0.1 && iloop < nloop)
     {

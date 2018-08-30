@@ -11,15 +11,15 @@ HGCScintillatorDetId::HGCScintillatorDetId() : DetId() {
 HGCScintillatorDetId::HGCScintillatorDetId(uint32_t rawid) : DetId(rawid) {
 }
 
-HGCScintillatorDetId::HGCScintillatorDetId(int type, int layer, int eta,
+HGCScintillatorDetId::HGCScintillatorDetId(int type, int layer, int radius,
 					   int phi) : DetId(HGCalHSc,ForwardEmpty) {
 
-  int zside      = (eta < 0) ? 1 : 0;
-  int etaAbs     = std::abs(eta);
+  int zside      = (radius < 0) ? 1 : 0;
+  int radiusAbs  = std::abs(radius);
   id_ |= (((type&kHGCalTypeMask)<<kHGCalTypeOffset) | 
 	  ((zside&kHGCalZsideMask)<<kHGCalZsideOffset) |
 	  ((layer&kHGCalLayerMask)<<kHGCalLayerOffset) |
-	  ((etaAbs&kHGCalEtaMask)<<kHGCalEtaOffset) |
+	  ((radiusAbs&kHGCalRadiusMask)<<kHGCalRadiusOffset) |
 	  ((phi&kHGCalPhiMask)<<kHGCalPhiOffset));
 }
 
@@ -45,7 +45,5 @@ HGCScintillatorDetId& HGCScintillatorDetId::operator=(const DetId& gen) {
 std::ostream& operator<<(std::ostream& s,const HGCScintillatorDetId& id) {
   return s << " EE:HE= " << id.isEE() << ":" << id.isHE()
 	   << " type= " << id.type()  << " layer= " << id.layer() 
-	   << " eta= "  << id.ieta() << " phi= " << id.iphi();
+	   << " radius= "  << id.iradius() << " phi= " << id.iphi();
 }
-
-
