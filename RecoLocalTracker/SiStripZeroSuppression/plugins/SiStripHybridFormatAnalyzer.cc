@@ -180,7 +180,7 @@ SiStripHybridFormatAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&
     for(uint32_t i=0; i < detIdV.size(); ++i){
       pedestals_.clear();
       SiStripPedestals::Range pedestalsRange = pedestalsHandle_->getRange(detIdV[i]);
-      pedestals_.resize((pedestalsRange.second- pedestalsRange.first)*8/10);
+      pedestals_.resize((pedestalsRange.second- pedestalsRange.first)*0.8);
       pedestalsHandle_->allPeds(pedestals_, pedestalsRange);
       for(uint32_t it=0; it < pedestals_.size(); ++it) h1Pedestals_->Fill(pedestals_[it]);
     }
