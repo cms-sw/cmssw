@@ -143,17 +143,17 @@ namespace l1t {
     int egMaxPtJetIsolation() const { return egp_.maxPtJetIsolation_; }
     int egMinPtHOverEIsolation() const { return egp_.minPtHOverEIsolation_; }
     int egMaxPtHOverEIsolation() const { return egp_.maxPtHOverEIsolation_; }
-    unsigned egBypassEGVetos() const { return pnode_[egBypassEGVetosFlag].uparams_[0]; }
-    unsigned egBypassExtHOverE() const { return pnode_[egBypassExtHoE].uparams_[0]; }
-    unsigned egBypassShape() const {
+    unsigned egBypassEGVetos() { return pnode_[egBypassEGVetosFlag].uparams_[0]; }
+    unsigned egBypassExtHOverE() { return pnode_[egBypassExtHoE].uparams_[0]; }
+    unsigned egBypassShape() {
       if(pnode_[egBypassShapeFlag].uparams_.empty()) return 0;
       else return pnode_[egBypassShapeFlag].uparams_[0];
     }
-    unsigned egBypassECALFG()  const {
+    unsigned egBypassECALFG() {
       if(pnode_[egBypassECALFGFlag].uparams_.empty()) return 0;
       else return pnode_[egBypassECALFGFlag].uparams_[0];
     }
-    unsigned egBypassHoE() const {
+    unsigned egBypassHoE() {
       if(pnode_[egBypassHoEFlag].uparams_.empty()) return 0;
       else return pnode_[egBypassHoEFlag].uparams_[0];
     }

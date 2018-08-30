@@ -67,13 +67,13 @@ def parseOfflineLUTfile(aRelPath, aExpectedSize, aPaddingValue = None, aTruncate
         result = [x[1] for x in entries]
 
         if (len(result) < aExpectedSize) and not (aPaddingValue is None):
-            print ("WARNING : Padding", str(len(result))+"-entry LUT with value", aPaddingValue, "to have", aExpectedSize, "entries")
+            print "WARNING : Padding", str(len(result))+"-entry LUT with value", aPaddingValue, "to have", aExpectedSize, "entries"
             result += ([aPaddingValue] * (aExpectedSize - len(result)))
         elif (len(result) > aExpectedSize) and aTruncate:
-            print ("WARNING : Truncating", str(len(result))+"-entry LUT to have", aExpectedSize, "entries")
+            print "WARNING : Truncating", str(len(result))+"-entry LUT to have", aExpectedSize, "entries"
             result = result[0:aExpectedSize]
         elif len(result) != aExpectedSize:
-            print ("ERROR parsing file", resolvedPath, ": Expected LUT of size", aExpectedSize, ", but", len(result), "entries were specified (and no padding/truncation requested)")
+            print "ERROR parsing file", resolvedPath, ": Expected LUT of size", aExpectedSize, ", but", len(result), "entries were specified (and no padding/truncation requested)"
             sys.exit(1)
 
         return result
@@ -235,9 +235,7 @@ if __name__ == '__main__':
     print "Importing calo params from module:", moduleName
     caloParams = import_module(moduleName).caloStage2Params
 
-    print(caloParams.egCalibrationLUTFile.value())
-    print(caloParams.egIsoLUTFile.value())
-    print(caloParams.egIsoLUTFile2.value())
+    print
     os.mkdir(args.output_dir)
 
     if args.mif:

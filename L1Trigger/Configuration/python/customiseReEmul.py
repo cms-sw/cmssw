@@ -192,9 +192,9 @@ def L1TReEmulFromNANO(process):
     process.L1TReEmulPath = cms.Path(process.L1TReEmul)    
     process.schedule.append(process.L1TReEmulPath)
 
-    print ("# L1TReEmul sequence:  ")
-    print ("# {0}".format(process.L1TReEmul))
-    print ("# {0}".format(process.schedule))
+    print "# L1TReEmul sequence:  "
+    print "# {0}".format(process.L1TReEmul)
+    print "# {0}".format(process.schedule)
     return process 
 
 def L1TReEmulFromRAWCalo(process):
@@ -205,9 +205,9 @@ def L1TReEmulFromRAWCalo(process):
     process.L1TReEmulPath = cms.Path(process.L1TReEmul)
     process.schedule.append(process.L1TReEmulPath)
 
-    print ("# L1TReEmul sequence:  ")
-    print ("# {0}".format(process.L1TReEmul))
-    print ("# {0}".format(process.schedule))
+    print "# L1TReEmul sequence:  "
+    print "# {0}".format(process.L1TReEmul)
+    print "# {0}".format(process.schedule)
     return process
 
 def L1TReEmulMCFromRAW(process):
