@@ -97,7 +97,6 @@ private: // members
   // Configurable Parameters of Algorithm
   //--------------------------------------------------
   bool forceNoRestore_;
- // bool SelfSelectRestoreAlgo_;
   std::string inspectAlgo_;
   std::string restoreAlgo_;
   bool     useRealMeanCM_;
