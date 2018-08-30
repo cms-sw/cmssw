@@ -102,7 +102,7 @@ class L1EGCrystalClusterProducer : public edm::EDProducer {
       bool doBremClustering;
       edm::EDGetTokenT<EcalRecHitCollection> ecalRecHitEBToken_;
       edm::EDGetTokenT<EcalEBTrigPrimDigiCollection> ecalTPEBToken_;
-      edm::EDGetTokenT<HBHERecHitCollection> hcalRecHitToken_;
+      //edm::EDGetTokenT<HBHERecHitCollection> hcalRecHitToken_;
       edm::EDGetTokenT< edm::SortedCollection<HcalTriggerPrimitiveDigi> > hcalTPToken_;
       edm::ESHandle<CaloTPGTranscoder> decoder_;
 
@@ -181,7 +181,7 @@ L1EGCrystalClusterProducer::L1EGCrystalClusterProducer(const edm::ParameterSet& 
    doBremClustering(iConfig.getUntrackedParameter<bool>("doBremClustering", true)),
    ecalRecHitEBToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ecalRecHitEB"))),
    ecalTPEBToken_(consumes<EcalEBTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("ecalTPEB"))),
-   hcalRecHitToken_(consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hcalRecHit"))),
+   //hcalRecHitToken_(consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hcalRecHit"))),
    hcalTPToken_(consumes< edm::SortedCollection<HcalTriggerPrimitiveDigi> >(iConfig.getParameter<edm::InputTag>("hcalTP"))),
    useTowerMap(iConfig.getUntrackedParameter<bool>("useTowerMap", false)),
    towerMapName(iConfig.getUntrackedParameter<std::string>("towerMapName", "defaultMap.json"))
