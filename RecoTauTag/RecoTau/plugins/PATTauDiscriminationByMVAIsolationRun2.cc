@@ -69,6 +69,8 @@ namespace
   }
 }
 
+namespace reco { namespace tau {
+
 class PATTauDiscriminationByMVAIsolationRun2 : public PATTauDiscriminationProducerBase
 {
   public:
@@ -143,7 +145,6 @@ class PATTauDiscriminationByMVAIsolationRun2 : public PATTauDiscriminationProduc
     bool loadMVAfromDB_;
     edm::FileInPath inputFileName_;
     const GBRForest* mvaReader_;
-    enum { kOldDMwoLT, kOldDMwLT, kNewDMwoLT, kNewDMwLT, kDBoldDMwLT, kDBnewDMwLT, kPWoldDMwLT, kPWnewDMwLT, kDBoldDMwLTwGJ, kDBnewDMwLTwGJ };
     int mvaOpt_;
     float* mvaInput_;
 
@@ -183,7 +184,7 @@ double PATTauDiscriminationByMVAIsolationRun2::discriminate(const TauRef& tau) c
   // CV: computation of MVA value requires presence of leading charged hadron
   if ( tau->leadChargedHadrCand().isNull() ) return 0.;
 
-  if (reco::tau::mva::fillMVAInputs(mvaInput_, *tau, mvaOpt_, chargedIsoPtSums_, neutralIsoPtSums_, puCorrPtSums_, photonPtSumOutsideSignalCone_, footprintCorrection_)) {
+  if (reco::tau::fillIsoMVARun2Inputs(mvaInput_, *tau, mvaOpt_, chargedIsoPtSums_, neutralIsoPtSums_, puCorrPtSums_, photonPtSumOutsideSignalCone_, footprintCorrection_)) {
     double mvaValue = mvaReader_->GetClassifier(mvaInput_);
     if ( verbosity_ ) {
       edm::LogPrint("PATTauDiscByMVAIsolRun2") << "<PATTauDiscriminationByMVAIsolationRun2::discriminate>:";
@@ -207,3 +208,5 @@ void PATTauDiscriminationByMVAIsolationRun2::endEvent(edm::Event& evt)
 }
 
 DEFINE_FWK_MODULE(PATTauDiscriminationByMVAIsolationRun2);
+
+}} //namespace
