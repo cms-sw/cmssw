@@ -15,6 +15,8 @@ streamParkingBPH1_datasetParkingBPH1_selector.triggerConditions = cms.vstring(
     'HLT_Mu8_IP3_part0_v3', 
     'HLT_Mu8_IP5_part0_v2', 
     'HLT_Mu8_IP6_part0_v2', 
+    'HLT_Mu9_IP0_part0_v2', 
+    'HLT_Mu9_IP3_part0_v2', 
     'HLT_Mu9_IP4_part0_v2', 
     'HLT_Mu9_IP5_part0_v2', 
     'HLT_Mu9_IP6_part0_v3'
@@ -571,6 +573,9 @@ streamPhysicsHadronsTaus_datasetJetHT_selector.triggerConditions = cms.vstring(
     'HLT_PFHT350MinPFJet15_v9', 
     'HLT_PFHT350_v19', 
     'HLT_PFHT370_v17', 
+    'HLT_PFHT400_FivePFJet_100_100_60_30_30_DoublePFBTagDeepCSV_4p5_v8', 
+    'HLT_PFHT400_FivePFJet_100_100_60_30_30_v8', 
+    'HLT_PFHT400_FivePFJet_120_120_60_30_30_DoublePFBTagDeepCSV_4p5_v8', 
     'HLT_PFHT400_SixPFJet32_DoublePFBTagDeepCSV_2p94_v8', 
     'HLT_PFHT400_SixPFJet32_v8', 
     'HLT_PFHT430_v17', 
