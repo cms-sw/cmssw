@@ -170,46 +170,6 @@ SiStripBaselineComparator::analyze(const edm::Event& e, const edm::EventSetup& e
       if(nMatched>1) h1_matchingMult_->Fill(clus.amplitudes().size(),nMatched);      
     } 
   }
-
-      //clusters	  
-      /*    int nclust = 0;
-	  edmNew::DetSetVector<SiStripCluster>::const_iterator itClusters = clusters->begin();
-	  for ( ; itClusters != clusters->end(); ++itClusters ){
-		for ( edmNew::DetSet<SiStripCluster>::const_iterator clus =	itClusters->begin(); clus != itClusters->end(); ++clus){
-		  if(itClusters->id() == detId){
-		    int firststrip = clus->firstStrip();
-	            //std::cout << "Found cluster in detId " << detId << " " << firststrip << " " << clus->amplitudes().size() << " -----------------------------------------------" << std::endl;		
-     		    strip=0;
-		    for( auto itAmpl = clus->amplitudes().begin(); itAmpl != clus->amplitudes().end(); ++itAmpl){
-		      h1Clusters_->Fill(firststrip+strip, *itAmpl);
-		      ++strip;
-		    }
-		  }
-                  
-                  //cluster plots from here on
-                   
-                  if(ClusterDists == false){
-		    nclust++;
-
-     		    int strip2=0;
-                    double charge = 0;
-                    double mean = 0;
-                    double sigma = 0;
-		    for( auto itAmpl = clus->amplitudes().begin(); itAmpl != clus->amplitudes().end(); ++itAmpl){
-                      charge += *itAmpl;
-		      ++strip2;
-                      mean += strip2*(*itAmpl);
-		      sigma += strip2*strip2*(*itAmpl);
-		    }
-                    h1ClusterCharge_->Fill(charge);
-                    h1ClusterWidth_->Fill(strip2);
-                    mean = mean/charge;
-                    h1ClusterMean_->Fill(mean);
-                    sigma = TMath::Power((sigma/charge-mean*mean),0.5);
-                    h1ClusterSigma_->Fill(sigma);
-            }              
-	 }
-      }*/
 }
 
 
