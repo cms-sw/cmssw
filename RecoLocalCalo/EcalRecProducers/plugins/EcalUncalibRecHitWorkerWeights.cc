@@ -15,7 +15,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 
 EcalUncalibRecHitWorkerWeights::EcalUncalibRecHitWorkerWeights(const edm::ParameterSet&ps, edm::ConsumesCollector& c) :
-  EcalUncalibRecHitWorkerRunOneDigiBase(ps,c),useDBShape(false), testbeamEEShape(EEShape(useDBShape)), testbeamEBShape(EBShape(useDBShape))
+  EcalUncalibRecHitWorkerRunOneDigiBase(ps,c),useDBShape(true), testbeamEEShape(EEShape(useDBShape)), testbeamEBShape(EBShape(useDBShape))
 {
 }
 

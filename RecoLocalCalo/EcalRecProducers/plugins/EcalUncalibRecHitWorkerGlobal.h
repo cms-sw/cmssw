@@ -38,7 +38,7 @@ class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerRunOneDigiBa
         public:
                 EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&, edm::ConsumesCollector& c);
 		EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&);
-		EcalUncalibRecHitWorkerGlobal():useDBShape(false),testbeamEEShape(EEShape(useDBShape)), testbeamEBShape(EBShape(useDBShape)){;}
+		EcalUncalibRecHitWorkerGlobal():useDBShape(true),testbeamEEShape(EEShape(useDBShape)), testbeamEBShape(EBShape(useDBShape)){;}
                 ~EcalUncalibRecHitWorkerGlobal() override {};
 
                 void set(const edm::EventSetup& es) override;
