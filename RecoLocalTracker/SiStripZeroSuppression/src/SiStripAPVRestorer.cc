@@ -1011,7 +1011,8 @@ void SiStripAPVRestorer::derivativeFollowerRestore(uint16_t apvN, uint16_t first
 
   int greadient = 0;
   int maximum_value=0;
-  int high_maximum_cluster = 1025 + 1024;
+  const uint32_t n_high_maximum_cluster = 1025 + 1024;
+  int high_maximum_cluster = n_high_maximum_cluster;
   int number_good_minimum = 0;
   int first_gradient = 0;
   int strip_first_gradient = 0;
@@ -1078,7 +1079,7 @@ void SiStripAPVRestorer::derivativeFollowerRestore(uint16_t apvN, uint16_t first
       } else if ((isMax==false)&&((actualStripADC-previousStripADC<0)&&isMinimumAndNoMax==true)){
               isMax=true;
               isMinimumAndNoMax=false;
-              high_maximum_cluster = 1025 + 1024;
+              high_maximum_cluster = n_high_maximum_cluster;
               if ((previousStripADC > maximum_value)&&(discontinuities.size()%2==1)) maximum_value = previousStripADC;
       }
 

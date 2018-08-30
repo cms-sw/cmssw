@@ -90,9 +90,9 @@ class SiStripHybridFormatAnalyzer : public edm::one::EDAnalyzer<edm::one::Shared
     bool plotAPVCM_;
     
     //this to plot the pedestals distribution
-    edm::ESHandle<SiStripPedestals> pedestalsHandle;
-    std::vector<int> pedestals;
-    uint32_t peds_cache_id;
+    edm::ESHandle<SiStripPedestals> pedestalsHandle_;
+    std::vector<int> pedestals_;
+    uint32_t peds_cache_id_;
 	  
 	  
 };
@@ -170,19 +170,19 @@ SiStripHybridFormatAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&
   //------------------------------------------------------------------
   if(actualModule_ ==0){
     uint32_t p_cache_id = es.get<SiStripPedestalsRcd>().cacheIdentifier();
-    if(p_cache_id != peds_cache_id) {
-      es.get<SiStripPedestalsRcd>().get(pedestalsHandle);
-      peds_cache_id = p_cache_id;
+    if(p_cache_id != peds_cache_id_) {
+      es.get<SiStripPedestalsRcd>().get(pedestalsHandle_);
+      peds_cache_id_ = p_cache_id;
     }
     std::vector<uint32_t> detIdV;
-    pedestalsHandle->getDetIds(detIdV);
+    pedestalsHandle_->getDetIds(detIdV);
   
     for(uint32_t i=0; i < detIdV.size(); ++i){
-      pedestals.clear();
-      SiStripPedestals::Range pedestalsRange = pedestalsHandle->getRange(detIdV[i]);
-      pedestals.resize((pedestalsRange.second- pedestalsRange.first)*8/10);
-      pedestalsHandle->allPeds(pedestals, pedestalsRange);
-      for(uint32_t it=0; it < pedestals.size(); ++it) h1Pedestals_->Fill(pedestals[it]);
+      pedestals_.clear();
+      SiStripPedestals::Range pedestalsRange = pedestalsHandle_->getRange(detIdV[i]);
+      pedestals_.resize((pedestalsRange.second- pedestalsRange.first)*8/10);
+      pedestalsHandle_->allPeds(pedestals_, pedestalsRange);
+      for(uint32_t it=0; it < pedestals_.size(); ++it) h1Pedestals_->Fill(pedestals_[it]);
     }
   }
      
