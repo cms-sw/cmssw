@@ -86,9 +86,13 @@ public:
   //! Creates a compact-view 
   explicit DDCompactView();
 
+  //! Creates a compact-view using a different root of the geometry hierarchy
+  explicit DDCompactView( const DDName& );
+  
   ~DDCompactView();
   
-  //! \b EXPERIMENTAL! Creates a compact-view using a different root of the geometrical hierarchy
+  //! Creates a compact-view using a different root of the geometry hierarchy.
+  // NOTE: It cannot be used to modify the stores if they are locked.
   explicit DDCompactView(const DDLogicalPart & rootnodedata);
   
   //! Provides read-only access to the data structure of the compact-view.
@@ -115,11 +119,6 @@ public:
 		 const DDRotation & rot,
 		 const DDDivision * div = nullptr);
   
-  // ************************************************************************
-  // UNSTABLE STUFF below! DON'T USE!
-  // ************************************************************************
-  
-  //! \b don't \b use : interface not stable ....
   void setRoot(const DDLogicalPart & root);
 
   void lockdown();
