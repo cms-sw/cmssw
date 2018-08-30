@@ -99,10 +99,10 @@ uint16_t SiStripRawProcessingAlgorithms::suppressHybridData(uint32_t id, uint16_
  * @param RawDigis processed ADCs
  * @return number of restored APVs
  */
-uint16_t SiStripRawProcessingAlgorithms::suppressHybridData(const edm::DetSet<SiStripDigi>& hybridDigis, edm::DetSet<SiStripDigi>& suppressedDigis, digivector_t& RawDigis)
+uint16_t SiStripRawProcessingAlgorithms::suppressHybridData(const edm::DetSet<SiStripDigi>& hybridDigis, edm::DetSet<SiStripDigi>& suppressedDigis, digivector_t& rawDigis)
 {
-  convertHybridDigiToRawDigiVector(hybridDigis, RawDigis);
-  return suppressHybridData(hybridDigis.id, 0, RawDigis, suppressedDigis);
+  convertHybridDigiToRawDigiVector(hybridDigis, rawDigis);
+  return suppressHybridData(hybridDigis.id, 0, rawDigis, suppressedDigis);
 }
 
 /**
@@ -115,24 +115,24 @@ uint16_t SiStripRawProcessingAlgorithms::suppressHybridData(const edm::DetSet<Si
  * @param inDigis input (non-ZS hybrid or ZS) data
  * @param RawDigis processed raw (or zero-filled ZS) ADCs
  */
-void SiStripRawProcessingAlgorithms::convertHybridDigiToRawDigiVector(const edm::DetSet<SiStripDigi>& inDigis, digivector_t& RawDigis)
+void SiStripRawProcessingAlgorithms::convertHybridDigiToRawDigiVector(const edm::DetSet<SiStripDigi>& inDigis, digivector_t& rawDigis)
 {
   const auto stripModuleGeom = dynamic_cast<const StripGeomDetUnit*>(trGeo->idToDetUnit(inDigis.id));
   const std::size_t nStrips = stripModuleGeom->specificTopology().nstrips();
   const std::size_t nAPVs = nStrips/128;
 
-  RawDigis.assign(nStrips, 0);
+  rawDigis.assign(nStrips, 0);
   std::vector<uint16_t> stripsPerAPV(nAPVs, 0);
 
   for ( SiStripDigi digi : inDigis ) {
-    RawDigis[digi.strip()] = digi.adc();
+    rawDigis[digi.strip()] = digi.adc();
     ++stripsPerAPV[digi.strip()/128];
   }
 
   for ( uint16_t iAPV = 0; iAPV < nAPVs; ++iAPV ) {
     if ( stripsPerAPV[iAPV] > 64 ) {
       for ( uint16_t strip = iAPV*128; strip < (iAPV+1)*128; ++strip )
-        RawDigis[strip] = RawDigis[strip] * 2 - 1024;
+        rawDigis[strip] = rawDigis[strip] * 2 - 1024;
     }
   }
 }
@@ -167,10 +167,10 @@ uint16_t SiStripRawProcessingAlgorithms::suppressVirginRawData(uint32_t id, uint
  */
 uint16_t SiStripRawProcessingAlgorithms::suppressVirginRawData(const edm::DetSet<SiStripRawDigi>& rawDigis, edm::DetSet<SiStripDigi>& output)
 {
-  digivector_t RawDigis; RawDigis.reserve(rawDigis.size());
-  std::transform(std::begin(rawDigis), std::end(rawDigis), std::back_inserter(RawDigis),
+  digivector_t rawdigis; rawdigis.reserve(rawDigis.size());
+  std::transform(std::begin(rawDigis), std::end(rawDigis), std::back_inserter(rawdigis),
       [] ( SiStripRawDigi digi ) { return digi.adc(); } );
-  return suppressVirginRawData(rawDigis.id, 0, RawDigis, output);
+  return suppressVirginRawData(rawDigis.id, 0, rawdigis, output);
 }
 
 /**
@@ -211,10 +211,10 @@ uint16_t SiStripRawProcessingAlgorithms::suppressProcessedRawData(uint32_t id, u
  */
 uint16_t SiStripRawProcessingAlgorithms::suppressProcessedRawData(const edm::DetSet<SiStripRawDigi>& rawDigis, edm::DetSet<SiStripDigi>& output)
 {
-  digivector_t RawDigis; RawDigis.reserve(rawDigis.size());
-  std::transform(std::begin(rawDigis), std::end(rawDigis), std::back_inserter(RawDigis),
+  digivector_t rawdigis; rawdigis.reserve(rawDigis.size());
+  std::transform(std::begin(rawDigis), std::end(rawDigis), std::back_inserter(rawdigis),
       [] ( SiStripRawDigi digi ) { return digi.adc(); } );
-  return suppressProcessedRawData(rawDigis.id, 0, RawDigis, output);
+  return suppressProcessedRawData(rawDigis.id, 0, rawdigis, output);
 }
 
 /**
@@ -283,8 +283,8 @@ uint16_t SiStripRawProcessingAlgorithms::convertVirginRawToHybrid(uint32_t id, u
  */
 uint16_t SiStripRawProcessingAlgorithms::convertVirginRawToHybrid(const edm::DetSet<SiStripRawDigi>& rawDigis, edm::DetSet<SiStripDigi>& suppressedDigis)
 {
-  digivector_t RawDigis; RawDigis.reserve(rawDigis.size());
-  std::transform(std::begin(rawDigis), std::end(rawDigis), std::back_inserter(RawDigis),
+  digivector_t rawdigis; rawdigis.reserve(rawDigis.size());
+  std::transform(std::begin(rawDigis), std::end(rawDigis), std::back_inserter(rawdigis),
       [] ( SiStripRawDigi digi ) { return digi.adc(); } );
-  return convertVirginRawToHybrid(rawDigis.id, 0, RawDigis, suppressedDigis);
+  return convertVirginRawToHybrid(rawDigis.id, 0, rawdigis, suppressedDigis);
 }

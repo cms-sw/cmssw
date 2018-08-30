@@ -84,10 +84,10 @@ void SiStripMergeZeroSuppression::produce(edm::Event& event, const edm::EventSet
           std::vector<uint16_t> mergedRawDigis(size_t(nAPV*128),0);
 
           uint32_t count=0; // to be removed...
-          edm::DetSet<SiStripDigi> newDigiToIndert(rawDetId);
+          edm::DetSet<SiStripDigi> newDigiToInsert(rawDetId);
           if ( ! isModuleInZscollection ) {
             LogTrace("SiStripMergeZeroSuppression::produce") << "WE HAVE A PROBLEM, THE MODULE IS NTOT FOUND" << "\n";
-            zsModule = outputdigi.insert(zsModule, newDigiToIndert);
+            zsModule = outputdigi.insert(zsModule, newDigiToInsert);
             LogTrace("SiStripMergeZeroSuppression::produce") << "new module id -1 " << (zsModule-1)->id << "\n";
             LogTrace("SiStripMergeZeroSuppression::produce") << "new module id " << zsModule->id << "\n"; 
             LogTrace("SiStripMergeZeroSuppression::produce") << "new module id +1 " << (zsModule+1)->id << "\n";
