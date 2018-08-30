@@ -89,10 +89,15 @@ TrackBase::TrackBase() :
 
 TrackBase::TrackBase(double chi2, double ndof, const Point &vertex, const Vector &momentum,
                      int charge, const CovarianceMatrix &cov, TrackAlgorithm algorithm,
-                     TrackQuality quality, signed char nloops, uint8_t stopReason):
+                     TrackQuality quality, signed char nloops, uint8_t stopReason,
+		     double t0, double beta, double covt0t0, double covbetabeta):
+    covt0t0_(covt0t0),
+    covbetabeta_(covbetabeta),
     chi2_(chi2),
     vertex_(vertex),
+    t0_(t0),
     momentum_(momentum),
+    beta_(beta),
     ndof_(ndof),
     charge_(charge),
     algorithm_(algorithm),

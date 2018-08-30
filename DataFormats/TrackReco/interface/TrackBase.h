@@ -170,10 +170,15 @@ public:
     TrackBase(double chi2, double ndof, const Point &vertex,
               const Vector &momentum, int charge, const CovarianceMatrix &cov,
               TrackAlgorithm = undefAlgorithm, TrackQuality quality = undefQuality,
-              signed char nloops = 0, uint8_t stopReason = 0);
+              signed char nloops = 0, uint8_t stopReason = 0,
+	      double t0 = 0, double beta = 0, 
+	      double covt0t0 = -1., double covbetabeta = -1.);
 
     /// virtual destructor
     virtual ~TrackBase();
+
+    /// return true if timing measurement is usable
+    bool isTimeOk() const { return covt0t0_ > 0.f; }
 
     /// chi-squared of the fit
     double chi2() const;
@@ -244,6 +249,12 @@ public:
     /// Reference point on the track
     const Point &referencePoint() const;
 
+    /// time at the reference point
+    double t0() const;
+
+    /// velocity at the reference point
+    double beta() const;
+
     /// reference point on the track. This method is DEPRECATED, please use referencePoint() instead
     const Point &vertex() const ;
     //__attribute__((deprecated("This method is DEPRECATED, please use referencePoint() instead.")));
@@ -305,6 +316,12 @@ public:
     /// error on dz
     double dzError() const;
 
+    /// error on t0
+    double t0Error() const;
+    
+    /// error on beta
+    double betaError() const;
+    
     /// fill SMatrix
     CovarianceMatrix &fill(CovarianceMatrix &v) const;
 
@@ -407,14 +424,24 @@ private:
     /// perigee 5x5 covariance matrix
     float covariance_[covarianceSize];
 
+    /// errors for time and velocity (separate from cov for now)
+    float covt0t0_, covbetabeta_;
+
     /// chi-squared
     float chi2_;
 
     /// innermost (reference) point on track
     Point vertex_;
 
+    /// time at the reference point on track
+    float t0_;
+
     /// momentum vector at innermost point
     Vector momentum_;
+    
+    /// norm of the particle velocity at innermost point on track
+    /// can multiply by momentum_.Unit() to get velocity vector
+    float beta_;
 
     /// algo mask, bit set for the algo where it was reconstructed + each algo a track was found overlapping by the listmerger
     std::bitset<algoSize> algoMask_;
@@ -683,6 +710,18 @@ inline const TrackBase::Point & TrackBase::referencePoint() const
     return vertex_;
 }
 
+// Time at the reference point on the track
+inline double TrackBase::t0() const
+{
+    return t0_;
+}
+
+// Velocity at the reference point on the track
+inline double TrackBase::beta() const
+{
+    return beta_;
+}
+
 // reference point on the track. This method is DEPRECATED, please use referencePoint() instead
 inline const TrackBase::Point & TrackBase::vertex() const
 {
@@ -814,6 +853,18 @@ inline double TrackBase::dszError() const
 inline double TrackBase::dzError() const
 {
     return error(i_dsz) * p() / pt();
+}
+
+// error on t0
+inline double TrackBase::t0Error() const
+{
+    return std::sqrt(covt0t0_);
+}
+
+// error on beta
+inline double TrackBase::betaError() const
+{
+    return std::sqrt(covbetabeta_);
 }
 
 // number of valid hits found
