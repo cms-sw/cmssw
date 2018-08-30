@@ -207,7 +207,6 @@ SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& es)
     }
   }
    
-  //if(!plotRawDigi_) return;
   subtractorPed_->init(es);
    
    

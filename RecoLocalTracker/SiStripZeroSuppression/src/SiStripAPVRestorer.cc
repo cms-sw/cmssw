@@ -10,7 +10,6 @@
 SiStripAPVRestorer::SiStripAPVRestorer(const edm::ParameterSet& conf):
   quality_cache_id(-1), noise_cache_id(-1), pedestal_cache_id(-1),
   forceNoRestore_(conf.getParameter<bool>("ForceNoRestore")),
-// SelfSelectRestoreAlgo_(conf.getParameter<bool>("SelfSelectRestoreAlgo")),
   inspectAlgo_(conf.getParameter<std::string>("APVInspectMode")),
   restoreAlgo_(conf.getParameter<std::string>("APVRestoreMode")),
   // CM map settings
@@ -138,7 +137,6 @@ void SiStripAPVRestorer::restore(uint16_t firstAPV, digivector_t& digis)
   for ( uint16_t iAPV=firstAPV; iAPV < digis.size()/nTotStripsPerAPV + firstAPV; ++iAPV ) {
     auto algoToUse = apvFlags_[iAPV];
     if ( !algoToUse.empty()) {
-      // if(!SelfSelectRestoreAlgo_) algoToUse = restoreAlgo_;
       if        ( algoToUse == "Flat" ) {
         flatRestore(iAPV, firstAPV, digis);
       } else if ( algoToUse == "BaselineFollower" ) {
@@ -1185,7 +1183,6 @@ void SiStripAPVRestorer::derivativeFollowerRestore(uint16_t apvN, uint16_t first
     itdiscontinuities=discontinuities.begin();
     ++itdiscontinuities;
     ++itdiscontinuities;
-    //int firstStrip= itdiscontinuities->first;
     int firstADC= itdiscontinuities->second;
     --itdiscontinuities;
     itdiscontinuities->second=firstADC;
