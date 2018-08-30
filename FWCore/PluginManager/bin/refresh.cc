@@ -38,7 +38,7 @@ using namespace edmplugin;
 #ifdef __APPLE__
 #define PER_PROCESS_DSO 20
 #elif defined(__aarch64__)
-#define PER_PROCESS_DSO 20
+#define PER_PROCESS_DSO 10
 #else
 #define PER_PROCESS_DSO 2000
 #endif
