@@ -16,7 +16,5 @@ siStripZeroSuppression = cms.EDProducer("SiStripZeroSuppression",
     produceCalculatedBaseline = cms.bool(False),
     produceBaselinePoints = cms.bool(False),
     storeInZScollBadAPV = cms.bool(True),
+    produceHybridFormat = cms.bool(False)
 )
-
-
-

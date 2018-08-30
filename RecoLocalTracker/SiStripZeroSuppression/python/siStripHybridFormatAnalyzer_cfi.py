@@ -8,4 +8,3 @@ siStripHybridFormatAnalyzer = cms.EDAnalyzer("SiStripHybridFormatAnalyzer",
     plotAPVCM	= cms.bool(True)
    
 )
- 

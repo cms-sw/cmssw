@@ -60,16 +60,16 @@ process.GlobalTag.globaltag = '75X_dataRun2_HLTHI_v4'
 
 ## Offline Silicon Tracker Zero Suppression
 from RecoLocalTracker.SiStripZeroSuppression.DefaultAlgorithms_cff import *
-process.siStripZeroSuppression.produceRawDigis = cms.bool(False)
-process.siStripZeroSuppression.produceCalculatedBaseline = cms.bool(False)
-process.siStripZeroSuppression.produceBaselinePoints = cms.bool(False)
-process.siStripZeroSuppression.storeCM = cms.bool(True)
-process.siStripZeroSuppression.produceHybridFormat = cms.bool(True)
-process.siStripZeroSuppression.Algorithms.APVInspectMode = cms.string("HybridEmulation")
-process.siStripZeroSuppression.Algorithms.CommonModeNoiseSubtractionMode = cms.string('Median')
-process.siStripZeroSuppression.Algorithms.MeanCM = cms.int32(512)
-process.siStripZeroSuppression.Algorithms.DeltaCMThreshold = cms.uint32(20)
-process.siStripZeroSuppression.Algorithms.Use10bitsTruncation = cms.bool(True)     
+process.siStripZeroSuppression.produceRawDigis = False
+process.siStripZeroSuppression.produceCalculatedBaseline = False
+process.siStripZeroSuppression.produceBaselinePoints = False
+process.siStripZeroSuppression.storeCM = True
+process.siStripZeroSuppression.produceHybridFormat = True
+process.siStripZeroSuppression.Algorithms.APVInspectMode = "HybridEmulation"
+process.siStripZeroSuppression.Algorithms.CommonModeNoiseSubtractionMode = 'Median'
+process.siStripZeroSuppression.Algorithms.MeanCM = 512
+process.siStripZeroSuppression.Algorithms.DeltaCMThreshold = 20
+process.siStripZeroSuppression.Algorithms.Use10bitsTruncation = True
 
 process.TFileService = cms.Service("TFileService",
         fileName=cms.string("Baselines.root"))
