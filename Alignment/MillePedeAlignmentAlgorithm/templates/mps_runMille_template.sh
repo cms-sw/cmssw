@@ -22,7 +22,68 @@ clean_up () {
 #LSF signals according to http://batch.web.cern.ch/batch/lsf-return-codes.html
 trap clean_up HUP INT TERM SEGV USR2 XCPU XFSZ IO
 
+# a helper function to repeatedly try failing copy commands
+untilSuccess () {
+# trying "${1} ${2} ${3} > /dev/null" until success, if ${4} is a
+# positive number run {1} with -f flag,
+# break after ${5} tries (with four arguments do up to 5 tries).
+    if  [[ ${#} -lt 4 || ${#} -gt 5 ]]
+    then
+        echo ${0} needs 4 or 5 arguments
+        return 1
+    fi
+
+    TRIES=0
+    MAX_TRIES=5
+    if [[ ${#} -eq 5 ]]
+    then
+        MAX_TRIES=${5}
+    fi
+
+
+    if [[ ${4} -gt 0 ]]
+    then 
+        ${1} -f ${2} ${3} > /dev/null
+    else 
+        ${1} ${2} ${3} > /dev/null
+    fi
+    while [[ ${?} -ne 0 ]]
+    do # if not successfull, retry...
+        if [[ ${TRIES} -ge ${MAX_TRIES} ]]
+        then # ... but not until infinity!
+            if [[ ${4} -gt 0 ]]
+            then
+                echo ${0}: Give up doing \"${1} -f ${2} ${3} \> /dev/null\".
+                return 1
+            else
+                echo ${0}: Give up doing \"${1} ${2} ${3} \> /dev/null\".
+                return 1
+            fi
+        fi
+        TRIES=$((${TRIES}+1))
+        if [[ ${4} -gt 0 ]]
+        then
+            echo ${0}: WARNING, problems with \"${1} -f ${2} ${3} \> /dev/null\", try again.
+            sleep $((${TRIES}*5)) # for before each wait a litte longer...
+            ${1} -f ${2} ${3} > /dev/null
+        else
+            echo ${0}: WARNING, problems with \"${1} ${2} ${3} \> /dev/null\", try again.
+            sleep $((${TRIES}*5)) # for before each wait a litte longer...
+            ${1} ${2} ${3} > /dev/null
+        fi
+    done
+
+    if [[ ${4} -gt 0 ]]
+    then
+        echo successfully executed \"${1} -f ${2} ${3} \> /dev/null\"
+    else
+        echo successfully executed \"${1} ${2} ${3} \> /dev/null\"
+    fi
+    return 0
+}
+
 export X509_USER_PROXY=${RUNDIR}/.user_proxy
+
 
 # The batch job directory (will vanish after job end):
 BATCH_DIR=$(pwd)
@@ -58,9 +119,9 @@ if [ "$MSSDIRPOOL" != "cmscafuser" ]; then
   export STAGER_TRACE=
   nsrm -f $MSSDIR/milleBinaryISN.dat.gz
   echo "rfcp milleBinaryISN.dat.gz $MSSDIR/"
-  rfcp milleBinaryISN.dat.gz    $MSSDIR/
-  rfcp treeFile*root         $MSSDIR/treeFileISN.root
-  rfcp millePedeMonitor*root $MSSDIR/millePedeMonitorISN.root
+  untilSuccess rfcp milleBinaryISN.dat.gz   $MSSDIR/ 0
+  untilSuccess rfcp treeFile*root         $MSSDIR/treeFileISN.root 0
+  untilSuccess rfcp millePedeMonitor*root $MSSDIR/millePedeMonitorISN.root 0
 else
   MSSCAFDIR=`echo $MSSDIR | perl -pe 's/\/castor\/cern.ch\/cms//gi'`
   # ensure the directories exists
@@ -69,7 +130,7 @@ else
   mkdir -p ${MSSCAFDIR}/monitors
   # copy the files
   echo "xrdcp -f milleBinaryISN.dat.gz ${MSSCAFDIR}/binaries/milleBinaryISN.dat.gz > /dev/null"
-  xrdcp -f milleBinaryISN.dat.gz    ${MSSCAFDIR}/binaries/milleBinaryISN.dat.gz    > /dev/null
-  xrdcp -f treeFile.root            ${MSSCAFDIR}/tree_files/treeFileISN.root       > /dev/null
-  xrdcp -f millePedeMonitorISN.root ${MSSCAFDIR}/monitors/millePedeMonitorISN.root > /dev/null
+  untilSuccess xrdcp milleBinaryISN.dat.gz    ${MSSCAFDIR}/binaries/milleBinaryISN.dat.gz  1
+  untilSuccess xrdcp treeFile.root            ${MSSCAFDIR}/tree_files/treeFileISN.root 1
+  untilSuccess xrdcp millePedeMonitorISN.root ${MSSCAFDIR}/monitors/millePedeMonitorISN.root 1
 fi
