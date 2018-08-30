@@ -97,7 +97,7 @@ uint16_t SiStripAPVRestorer::inspect(uint32_t detId, uint16_t firstAPV, const di
   badAPVs_.assign(6, false);
   smoothedMaps_.clear();
   baselineMap_.clear();
-  for ( const auto med : vmedians ) {
+  for ( const auto & med : vmedians ) {
     auto iAPV = med.first;
     median_[iAPV] = med.second;
     badAPVs_[iAPV] = qualityHandle->IsApvBad(detId_, iAPV);
@@ -1011,7 +1011,7 @@ void SiStripAPVRestorer::derivativeFollowerRestore(uint16_t apvN, uint16_t first
 
   int greadient = 0;
   int maximum_value=0;
-  int high_maximun_cluster = 1025 + 1024;
+  int high_maximum_cluster = 1025 + 1024;
   int number_good_minimum = 0;
   int first_gradient = 0;
   int strip_first_gradient = 0;
@@ -1078,13 +1078,13 @@ void SiStripAPVRestorer::derivativeFollowerRestore(uint16_t apvN, uint16_t first
       } else if ((isMax==false)&&((actualStripADC-previousStripADC<0)&&isMinimumAndNoMax==true)){
               isMax=true;
               isMinimumAndNoMax=false;
-              high_maximun_cluster = 1025 + 1024;
+              high_maximum_cluster = 1025 + 1024;
               if ((previousStripADC > maximum_value)&&(discontinuities.size()%2==1)) maximum_value = previousStripADC;
       }
 
       if ((isMax==true)&&(strip<126)){
-        if (high_maximun_cluster>(abs(singleAPVdigi[strip+1]- actualStripADC))){
-          high_maximun_cluster = singleAPVdigi[strip+1]- actualStripADC;
+        if (high_maximum_cluster>(abs(singleAPVdigi[strip+1]- actualStripADC))){
+          high_maximum_cluster = singleAPVdigi[strip+1]- actualStripADC;
           auxiliary_end_cluster = strip+2;
         } else {
           auxiliary_end_cluster = 127;
