@@ -719,7 +719,7 @@ bool HcalTopology::incrementDepth(HcalDetId & detId) const {
   int depth   = detId.depth();
   int iphi    = detId.iphi();
   int zside   = detId.zside();
-  int nDepthBins, startingBin;
+  int nDepthBins(0), startingBin(0);
   depthBinInformation(subdet, etaRing, iphi, zside, nDepthBins, startingBin);
 
   // see if the new depth bin exists
