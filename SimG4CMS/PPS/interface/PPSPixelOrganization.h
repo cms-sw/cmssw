@@ -57,11 +57,11 @@ public:
 
   // ---------- Constructor and destructor -----------------
   PPSPixelOrganization();
-  virtual          ~PPSPixelOrganization();
+           ~PPSPixelOrganization() override;
 
   // ---------- member functions ---------------------------
   uint32_t         GetUnitID(const G4Step* aStep);
-  uint32_t         GetUnitID(const G4Step* aStep) const;
+  uint32_t         GetUnitID(const G4Step* aStep) const override;
   
 
 

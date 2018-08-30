@@ -18,8 +18,8 @@
 #include "CondFormats/DataRecord/interface/TotemReadoutRcd.h"
 
 #include "DataFormats/CTPPSDigi/interface/TotemFEDInfo.h"
-#include <inttypes.h>
-#include <stdint.h>
+#include <cinttypes>
+#include <cstdint>
 
 #include <iostream>
 #include <iomanip>

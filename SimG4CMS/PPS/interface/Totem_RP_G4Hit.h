@@ -33,13 +33,13 @@ class Totem_RP_G4Hit : public G4VHit {
   
 public:
   Totem_RP_G4Hit();
-  ~Totem_RP_G4Hit();
+  ~Totem_RP_G4Hit() override;
   Totem_RP_G4Hit(const Totem_RP_G4Hit &right);
   const Totem_RP_G4Hit& operator=(const Totem_RP_G4Hit &right);
   int operator==(const Totem_RP_G4Hit &){return 0;}
   
-  void Draw(){}
-  void Print();
+  void Draw() override{}
+  void Print() override;
   
 public:
   Hep3Vector getEntry() const;

@@ -172,7 +172,7 @@ void CTPPSPixelDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     //std::vector<CTPPSPixelDigi>::iterator pixelIterator = digi_collector.data.begin();
 
 
-    if (digi_collector.data.size() > 0) {
+    if (!digi_collector.data.empty()) {
       theDigiVector.push_back(digi_collector);   
     }
 

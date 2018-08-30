@@ -31,7 +31,7 @@ public:
 
   // ---------- Constructor and destructor -----------------
   PPSPixelNumberingScheme();
-  ~PPSPixelNumberingScheme();
+  ~PPSPixelNumberingScheme() override;
 	 
   //  virtual uint32_t GetUnitID(const G4Step* aStep) const ;
 

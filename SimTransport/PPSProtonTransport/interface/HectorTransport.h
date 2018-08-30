@@ -53,7 +53,7 @@ class HectorTransport: public ProtonTransport {
 
             HectorTransport();
             HectorTransport(const edm::ParameterSet & ps, bool verbosity);
-            virtual ~HectorTransport();
+            ~HectorTransport() override;
             void process( const HepMC::GenEvent * , const edm::EventSetup & , CLHEP::HepRandomEngine *) override;
 
 

@@ -17,13 +17,13 @@ class CTPPS_Diamond_G4Hit : public G4VHit {
   
 public:
   CTPPS_Diamond_G4Hit();
-  ~CTPPS_Diamond_G4Hit();
+  ~CTPPS_Diamond_G4Hit() override;
   CTPPS_Diamond_G4Hit(const CTPPS_Diamond_G4Hit &right);
   const CTPPS_Diamond_G4Hit& operator=(const CTPPS_Diamond_G4Hit &right);
   int operator==(const CTPPS_Diamond_G4Hit &){return 0;}
   
-  void Draw(){}
-  void Print();
+  void Draw() override{}
+  void Print() override;
   
 public:
   Hep3Vector getEntry() const;

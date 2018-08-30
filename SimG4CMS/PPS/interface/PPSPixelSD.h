@@ -61,7 +61,7 @@ public:
   ~PPSPixelSD() override;
   
   bool   ProcessHits(G4Step *,G4TouchableHistory *) override;
-  uint32_t setDetUnitId(const G4Step *);
+  uint32_t setDetUnitId(const G4Step *) override;
 
   void   Initialize(G4HCofThisEvent * HCE) override;
   void   EndOfEvent(G4HCofThisEvent * eventHC) override;

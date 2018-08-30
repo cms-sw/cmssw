@@ -22,7 +22,7 @@ class TotemTransport: public ProtonTransport {
       public:
              TotemTransport(const edm::ParameterSet & ps, bool verbosity);
              TotemTransport();
-             virtual ~TotemTransport() ;
+             ~TotemTransport() override ;
              // look for scattered protons, propagates them, add them to the event
 
             /*!Adds the stable protons from the event \a ev to a beamline*/

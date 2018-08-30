@@ -43,10 +43,10 @@ PPSPixelSD::PPSPixelSD(const std::string & name,
         const SensitiveDetectorCatalog &clg,
         edm::ParameterSet const &p,
         SimTrackManager const *manager) :
-    SensitiveTkDetector(name, cpv, clg, p), numberingScheme(0),
-    hcID(-1), theHC(0), theManager(manager), currentHit(0), theTrack(0), 
-    currentPV(0), unitID(0),  previousUnitID(0), preStepPoint(0), 
-    postStepPoint(0), eventno(0){
+    SensitiveTkDetector(name, cpv, clg, p), numberingScheme(nullptr),
+    hcID(-1), theHC(nullptr), theManager(manager), currentHit(nullptr), theTrack(nullptr), 
+    currentPV(nullptr), unitID(0),  previousUnitID(0), preStepPoint(nullptr), 
+    postStepPoint(nullptr), eventno(0){
 
         //Add PPS Sentitive Detector Names
         collectionName.insert(name);
@@ -90,7 +90,7 @@ bool PPSPixelSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 
 uint32_t PPSPixelSD::setDetUnitId( const G4Step * aStep) { 
 
-    return (numberingScheme == 0 ? 0 : numberingScheme->GetUnitID(aStep));
+    return (numberingScheme == nullptr ? 0 : numberingScheme->GetUnitID(aStep));
 }
 
 void PPSPixelSD::Initialize(G4HCofThisEvent * HCE) { 
@@ -445,7 +445,7 @@ void PPSPixelSD::UpdateHit() {
 void PPSPixelSD::StoreHit(PPSPixelG4Hit* hit) {
 
     if (primID<0) return;
-    if (hit == 0 ) {
+    if (hit == nullptr ) {
         edm::LogWarning("PPSSim") << "PPSPixelSD: hit to be stored is NULL !!";
         return;
     }
