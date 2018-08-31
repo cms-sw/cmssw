@@ -5,10 +5,11 @@
  *      Author: hqu
  */
 
+#include "PhysicsTools/MXNet/interface/Predictor.h"
+
 #include <cassert>
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "PhysicsTools/MXNet/interface/MXNetCppPredictor.h"
 
 namespace mxnet {
 
@@ -42,33 +43,34 @@ void Block::load_parameters(const std::string& param_file) {
   }
 }
 
-std::mutex MXNetCppPredictor::mutex_;
-const Context MXNetCppPredictor::context_ = Context(DeviceType::kCPU, 0);
+std::mutex Predictor::mutex_;
+const Context Predictor::context_ = Context(DeviceType::kCPU, 0);
 
-MXNetCppPredictor::MXNetCppPredictor() {
+Predictor::Predictor() {
 }
 
-MXNetCppPredictor::MXNetCppPredictor(const Block& block) : sym_(block.symbol()), arg_map_(block.arg_map()), aux_map_(block.aux_map()) {
+Predictor::Predictor(const Block& block)
+: sym_(block.symbol()), arg_map_(block.arg_map()), aux_map_(block.aux_map()) {
 }
 
-MXNetCppPredictor::MXNetCppPredictor(const Block &block, const std::string &output_node) : sym_(block.symbol(output_node)), arg_map_(block.arg_map()), aux_map_(block.aux_map()) {
+Predictor::Predictor(const Block &block, const std::string &output_node)
+: sym_(block.symbol(output_node)), arg_map_(block.arg_map()), aux_map_(block.aux_map()) {
 }
 
-MXNetCppPredictor::~MXNetCppPredictor() {
+Predictor::~Predictor() {
 }
 
-void MXNetCppPredictor::set_input_shapes(const std::vector<std::string>& input_names, const std::vector<std::vector<mx_uint> >& input_shapes) {
+void Predictor::set_input_shapes(const std::vector<std::string>& input_names, const std::vector<std::vector<mx_uint> >& input_shapes) {
   assert(input_names.size() == input_shapes.size());
   input_names_ = input_names;
   // init the input NDArrays and add them to the arg_map
   for (unsigned i=0; i<input_names_.size(); ++i){
     const auto& name = input_names_[i];
-    NDArray nd(input_shapes[i], context_, false);
-    arg_map_[name] = nd;
+    arg_map_.emplace(name, NDArray(input_shapes[i], context_, false));
   }
 }
 
-const std::vector<float>& MXNetCppPredictor::predict(const std::vector<std::vector<mx_float> >& input_data) {
+const std::vector<float>& Predictor::predict(const std::vector<std::vector<mx_float> >& input_data) {
   assert(input_names_.size() == input_data.size());
 
   try {
@@ -90,7 +92,7 @@ const std::vector<float>& MXNetCppPredictor::predict(const std::vector<std::vect
   }
 }
 
-void MXNetCppPredictor::bind_executor() {
+void Predictor::bind_executor() {
   // acquire lock
   std::lock_guard<std::mutex> lock(mutex_);
 
