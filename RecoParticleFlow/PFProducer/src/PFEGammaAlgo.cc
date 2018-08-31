@@ -33,7 +33,6 @@
 #include <functional>
 #include <numeric>
 #include <TMath.h>
-#include "TMVA/MethodBDT.h"
 
 // include combinations header (not yet included in boost)
 #include "combination.hpp"
@@ -598,28 +597,7 @@ namespace {
 }
 
 PFEGammaAlgo::
-PFEGammaAlgo(const PFEGammaAlgo::PFEGConfigInfo& cfg) : 
-  cfg_(cfg),
-  isvalid_(false), 
-  verbosityLevel_(Silent), 
-  nlost(0.0), nlayers(0.0),
-  chi2(0.0), STIP(0.0), del_phi(0.0),HoverPt(0.0), EoverPt(0.0), track_pt(0.0),
-  mvaValue(0.0),
-  CrysPhi_(0.0), CrysEta_(0.0),  VtxZ_(0.0), ClusPhi_(0.0), ClusEta_(0.0),
-  ClusR9_(0.0), Clus5x5ratio_(0.0),  PFCrysEtaCrack_(0.0), logPFClusE_(0.0), e3x3_(0.0),
-  CrysIPhi_(0), CrysIEta_(0),
-  CrysX_(0.0), CrysY_(0.0),
-  EB(0.0),
-  eSeed_(0.0), e1x3_(0.0),e3x1_(0.0), e1x5_(0.0), e2x5Top_(0.0),  e2x5Bottom_(0.0), e2x5Left_(0.0),  e2x5Right_(0.0),
-  etop_(0.0), ebottom_(0.0), eleft_(0.0), eright_(0.0),
-  e2x5Max_(0.0),
-  PFPhoEta_(0.0), PFPhoPhi_(0.0), PFPhoR9_(0.0), PFPhoR9Corr_(0.0), SCPhiWidth_(0.0), SCEtaWidth_(0.0), 
-  PFPhoEt_(0.0), RConv_(0.0), PFPhoEtCorr_(0.0), PFPhoE_(0.0), PFPhoECorr_(0.0), MustE_(0.0), E3x3_(0.0),
-  dEta_(0.0), dPhi_(0.0), LowClusE_(0.0), RMSAll_(0.0), RMSMust_(0.0), nPFClus_(0.0),
-  TotPS1_(0.0), TotPS2_(0.0),
-  nVtx_(0.0),
-  excluded_(0.0), Mustache_EtRatio_(0.0), Mustache_Et_out_(0.0),
-  channelStatus_(nullptr)
+PFEGammaAlgo(const PFEGammaAlgo::PFEGConfigInfo& cfg) : cfg_(cfg)
 {}
 
 void PFEGammaAlgo::RunPFEG(const pfEGHelpers::HeavyObjectCache* hoc,
@@ -628,13 +606,6 @@ void PFEGammaAlgo::RunPFEG(const pfEGHelpers::HeavyObjectCache* hoc,
 
   fifthStepKfTrack_.clear();
   convGsfTrack_.clear();
-  
-  egCandidate_.clear();
-  egExtra_.clear();
- 
-  // define how much is printed out for debugging.
-  // ... will be setable via CFG file parameter
-  verbosityLevel_ = Chatty;          // Chatty mode.
   
   buildAndRefineEGObjects(hoc, blockRef);
 }
@@ -649,11 +620,11 @@ EvaluateSingleLegMVA(const pfEGHelpers::HeavyObjectCache* hoc,
   //use this to store linkdata in the associatedElements function below  
   const PFBlock::LinkData& linkData =  block.linkData();  
   //calculate MVA Variables  
-  chi2=elements[track_index].trackRef()->chi2()/elements[track_index].trackRef()->ndof(); 
-  nlost=elements[track_index].trackRef()->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS); 
-  nlayers=elements[track_index].trackRef()->hitPattern().trackerLayersWithMeasurement(); 
-  track_pt=elements[track_index].trackRef()->pt();  
-  STIP=elements[track_index].trackRefPF()->STIP();  
+  const float chi2     = elements[track_index].trackRef()->chi2()/elements[track_index].trackRef()->ndof(); 
+  const float nlost    = elements[track_index].trackRef()->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS); 
+  const float nlayers  = elements[track_index].trackRef()->hitPattern().trackerLayersWithMeasurement(); 
+  const float track_pt = elements[track_index].trackRef()->pt();  
+  const float STIP     = elements[track_index].trackRefPF()->STIP();  
    
   float linked_e=0;  
   float linked_h=0;  
@@ -679,21 +650,19 @@ EvaluateSingleLegMVA(const pfEGHelpers::HeavyObjectCache* hoc,
       linked_h=linked_h+elements[ithcal->second].clusterRef()->energy();  
     }  
   }  
-  EoverPt=linked_e/elements[track_index].trackRef()->pt();  
-  HoverPt=linked_h/elements[track_index].trackRef()->pt();  
+  const float EoverPt = linked_e/elements[track_index].trackRef()->pt();  
+  const float HoverPt = linked_h/elements[track_index].trackRef()->pt();  
   GlobalVector rvtx(elements[track_index].trackRef()->innerPosition().X()-primaryvtx.x(),  
 		    elements[track_index].trackRef()->innerPosition().Y()-primaryvtx.y(),  
 		    elements[track_index].trackRef()->innerPosition().Z()-primaryvtx.z());  
   double vtx_phi=rvtx.phi();  
   //delta Phi between conversion vertex and track  
-  del_phi=fabs(deltaPhi(vtx_phi, elements[track_index].trackRef()->innerMomentum().Phi()));  
+  float del_phi=fabs(deltaPhi(vtx_phi, elements[track_index].trackRef()->innerMomentum().Phi()));  
   
   float vars[] = { del_phi, nlayers, chi2, EoverPt,
                    HoverPt, track_pt, STIP, nlost };
 
-  mvaValue = hoc->gbrSingleLeg_->GetAdaBoostClassifier(vars);
-  
-  return mvaValue;
+  return hoc->gbrSingleLeg_->GetAdaBoostClassifier(vars);
 }
 
 bool PFEGammaAlgo::isAMuon(const reco::PFBlockElement& pfbe) {
@@ -728,9 +697,7 @@ void PFEGammaAlgo::buildAndRefineEGObjects(const pfEGHelpers::HeavyObjectCache* 
   LOGVERB("PFEGammaAlgo") 
     << "Resetting PFEGammaAlgo for new block and running!" << std::endl;
   _splayedblock.clear();
-  _recoveredlinks.clear();
   _refinableObjects.clear();
-  _finalCandidates.clear();  
   _splayedblock.resize(13); // make sure that we always have the HGCAL entry
 
   _currentblock = block;
@@ -1338,14 +1305,7 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 	    // if associated to good non-GSF matched track remove this cluster
 	   if( PFTrackAlgoTools::isGoodForEGMPrimary(trackref->algo()) && nexhits == 0 && fromprimaryvertex ) {
 	     closestECAL.second = false;
-	   } else { // otherwise associate the cluster and KF track
-	     _recoveredlinks.emplace_back(closestECAL.first,kftrack.first);
-	     _recoveredlinks.emplace_back(kftrack.first,closestECAL.first);
 	   }
-
-
-
-
 	 }
        } // found a good closest ECAL match
      } // no GSF track matched to KF
@@ -2037,7 +1997,9 @@ calculate_ele_mva(const pfEGHelpers::HeavyObjectCache* hoc,
   } 
 
   // brem sequence information
-  lateBrem = firstBrem = earlyBrem = -1.0f;
+  float lateBrem  = -1.0f;
+  float firstBrem = -1.0f;
+  float earlyBrem = -1.0f;
   if(RO.nBremsWithClusters > 0) {
     if (RO.lateBrem == 1) lateBrem = 1.0f;
     else lateBrem = 0.0f;
@@ -2052,18 +2014,18 @@ calculate_ele_mva(const pfEGHelpers::HeavyObjectCache* hoc,
       xtra.setGsfTrackPout(gsfElement->Pout());
       // normalization observables
       const float Pt_gsf = RefGSF->ptMode();
-      lnPt_gsf = std::log(Pt_gsf);
-      Eta_gsf = RefGSF->etaMode();
+      const float lnPt_gsf = std::log(Pt_gsf);
+      const float Eta_gsf = RefGSF->etaMode();
       // tracking observables
       const double ptModeErrorGsf = RefGSF->ptModeError();
-      dPtOverPt_gsf = (ptModeErrorGsf > 0. ? ptModeErrorGsf/Pt_gsf : 1.0);
-      nhit_gsf = RefGSF->hitPattern().trackerLayersWithMeasurement();
-      chi2_gsf = RefGSF->normalizedChi2();
-      DPtOverPt_gsf =  (Pt_gsf - gsfElement->Pout().pt())/Pt_gsf;
+      float dPtOverPt_gsf = (ptModeErrorGsf > 0. ? ptModeErrorGsf/Pt_gsf : 1.0);
+      //const float nhit_gsf = RefGSF->hitPattern().trackerLayersWithMeasurement();
+      float chi2_gsf = RefGSF->normalizedChi2();
+      float DPtOverPt_gsf =  (Pt_gsf - gsfElement->Pout().pt())/Pt_gsf;
       // kalman filter vars
-      nhit_kf = 0;
-      chi2_kf = -0.01;
-      DPtOverPt_kf = -0.01;
+      float nhit_kf = 0;
+      float chi2_kf = -0.01;
+      float DPtOverPt_kf = -0.01;
       if( RefKF.isNonnull() ) {
 	nhit_kf = RefKF->hitPattern().trackerLayersWithMeasurement();
 	chi2_kf = RefKF->normalizedChi2();
@@ -2071,19 +2033,18 @@ calculate_ele_mva(const pfEGHelpers::HeavyObjectCache* hoc,
 	// DPtOverPt_kf = (RefKF->pt() - RefKF->outerPt())/RefKF->pt();
       }	
       //tracker + calorimetry observables
-      const double EcalETot = 
-	(FirstEcalGsfEnergy+OtherEcalGsfEnergy+EcalBremEnergy);
-      EtotPinMode  = EcalETot / Ein_gsf;
-      EGsfPoutMode = FirstEcalGsfEnergy / Eout_gsf;
-      EtotBremPinPoutMode = ( (EcalBremEnergy + OtherEcalGsfEnergy) / 
+      const double EcalETot = (FirstEcalGsfEnergy+OtherEcalGsfEnergy+EcalBremEnergy);
+      float EtotPinMode  = EcalETot / Ein_gsf;
+      float EGsfPoutMode = FirstEcalGsfEnergy / Eout_gsf;
+      float EtotBremPinPoutMode = ( (EcalBremEnergy + OtherEcalGsfEnergy) / 
 			      (Ein_gsf - Eout_gsf) );
-      DEtaGsfEcalClust = std::abs(deta_gsfecal);
-      SigmaEtaEta = std::log(sigmaEtaEta);
+      float DEtaGsfEcalClust = std::abs(deta_gsfecal);
+      float SigmaEtaEta = std::log(sigmaEtaEta);
       xtra.setDeltaEta(DEtaGsfEcalClust);
       xtra.setSigmaEtaEta(sigmaEtaEta);      
       
-      HOverHE = Ene_hcalgsf/(Ene_hcalgsf + FirstEcalGsfEnergy);
-      HOverPin = Ene_hcalgsf / Ein_gsf;
+      float HOverHE = Ene_hcalgsf/(Ene_hcalgsf + FirstEcalGsfEnergy);
+      float HOverPin = Ene_hcalgsf / Ein_gsf;
       xtra.setHadEnergy(Ene_hcalgsf);
 
       // Apply bounds to variables and calculate MVA

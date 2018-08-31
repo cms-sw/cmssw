@@ -363,9 +363,6 @@ PFEGammaProducer::setPFEGParameters(PFEGammaAlgo::PFEGConfigInfo& cfg) {
 void
 PFEGammaProducer::setPFVertexParameters(const reco::VertexCollection*  primaryVertices) {
 
-  //Now find the primary vertex!
-  int nVtx=primaryVertices->size();
-  pfeg_->setnPU(nVtx);
   primaryVertex_ = primaryVertices->front();
   for (unsigned short i=0 ;i<primaryVertices->size();++i)
     {
