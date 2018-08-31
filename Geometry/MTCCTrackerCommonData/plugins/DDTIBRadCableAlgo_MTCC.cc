@@ -27,8 +27,8 @@ void DDTIBRadCableAlgo_MTCC::initialize(const DDNumericArguments & nArgs,
 					const DDMapArguments & ,
 					const DDStringArguments & sArgs,
 					const DDStringVectorArguments & vsArgs) {
-
-  idNameSpace  = DDCurrentNamespace::ns();
+  DDCurrentNamespace ns;
+  idNameSpace  = *ns;
   unsigned int i;
   DDName parentName = parent().name();
   LogDebug("TIBGeom") << "DDTIBRadCableAlgo_MTCC debug: Parent " << parentName 

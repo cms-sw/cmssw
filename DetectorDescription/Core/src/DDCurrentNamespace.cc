@@ -1,8 +1,5 @@
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 
-std::string & 
-DDCurrentNamespace::ns()
-{
-  static std::string ns_ = "GLOBAL";
-  return ns_;
+std::ostream & operator<<( std::ostream & os, const DDCurrentNamespace & ns ) {
+  return os << *ns;
 }

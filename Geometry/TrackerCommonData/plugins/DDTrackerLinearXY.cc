@@ -31,13 +31,11 @@ void DDTrackerLinearXY::initialize(const DDNumericArguments & nArgs,
   numberY   = int(nArgs["NumberY"]);
   deltaY    = nArgs["DeltaY"];
   centre    = vArgs["Center"];
-  
-  idNameSpace = DDCurrentNamespace::ns();
-  childName   = sArgs["ChildName"]; 
+  childName = sArgs["ChildName"]; 
   DDName parentName = parent().name();
   LogDebug("TrackerGeom") << "DDTrackerLinearXY debug: Parent " << parentName
 			  << "\tChild " << childName << " NameSpace " 
-			  << idNameSpace << "\tNumber along X/Y " << numberX
+			  << DDCurrentNamespace() << "\tNumber along X/Y " << numberX
 			  << "/" << numberY << "\tDelta along X/Y " << deltaX
 			  << "/" << deltaY << "\tCentre " << centre[0] << ", " 
 			  << centre[1] << ", "	<< centre[2];

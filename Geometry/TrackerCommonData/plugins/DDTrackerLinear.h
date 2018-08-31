@@ -23,7 +23,6 @@ class DDTrackerLinear : public DDAlgorithm {
 
 private:
 
-  std::string              idNameSpace; //Namespace of this and ALL sub-parts
   std::string              childName;   //Child name
   int                      number;      //Number of positioning
   int                      startcn;     //Start copy no index

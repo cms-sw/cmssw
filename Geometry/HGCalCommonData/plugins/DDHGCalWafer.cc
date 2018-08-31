@@ -33,7 +33,8 @@ void DDHGCalWafer::initialize(const DDNumericArguments & nArgs,
   nCellsRow_   = dbl_to_int(vArgs["NCellsRow"]);
   angleEdges_ = dbl_to_int(vArgs["AngleEdges"]);
   detectorType_= dbl_to_int(vArgs["DetectorType"]);
-  idNameSpace_ = DDCurrentNamespace::ns();
+  DDCurrentNamespace ns;
+  idNameSpace_ = *ns;
   parentName_  = parent().name(); 
 #ifdef EDM_ML_DEBUG
   std::cout << childNames_.size() << " children: " << childNames_[0] << "; "
