@@ -22,14 +22,20 @@ QGSPCMS_BERT_HP_EML::QGSPCMS_BERT_HP_EML(const edm::ParameterSet & p)
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
   bool tracking= p.getParameter<bool>("TrackingCut");
+  double wEnergy = p.getUntrackedParameter<double>("ThresholdWarningEnergy");
+  double iEnergy = p.getUntrackedParameter<double>("ThresholdImportantEnergy");
+  int    ntrials = p.getUntrackedParameter<int>("ThresholdTrials");
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
 			      << "QGSP_BERT_HP_EML \n Flags for EM Physics "
 			      << emPhys << ", for Hadronic Physics "
-			      << hadPhys << " and tracking cut " << tracking;
+			      << hadPhys << " and tracking cut " << tracking
+                              << " Thresholds (warning) " << wEnergy
+                              << " (important) " << iEnergy << " trials "
+                              << ntrials;
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics( new CMSEmStandardPhysics(ver));
+    RegisterPhysics( new CMSEmStandardPhysics(ver,ntrials,wEnergy,iEnergy));
 
     // Synchroton Radiation & GN Physics
     G4EmExtraPhysics* gn = new G4EmExtraPhysics(ver);

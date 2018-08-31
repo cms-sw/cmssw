@@ -24,12 +24,15 @@ CustomPhysics::CustomPhysics(const edm::ParameterSet & p)
   bool tracking= p.getParameter<bool>("TrackingCut");
   bool ssPhys  = p.getUntrackedParameter<bool>("ExoticaPhysicsSS",false);
   double timeLimit = p.getParameter<double>("MaxTrackTime")*ns;
+  double wEnergy = p.getUntrackedParameter<double>("ThresholdWarningEnergy");
+  double iEnergy = p.getUntrackedParameter<double>("ThresholdImportantEnergy");
+  int    ntrials = p.getUntrackedParameter<int>("ThresholdTrials");
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
 			      << "FTFP_BERT_EMM for regular particles \n"
 			      << "CustomPhysicsList " << ssPhys << " for exotics; "
                               << " tracking cut " << tracking << "  t(ns)= " << timeLimit/ns;
   // EM Physics
-  RegisterPhysics(new CMSEmStandardPhysicsLPM(ver));
+  RegisterPhysics(new CMSEmStandardPhysicsLPM(ver,ntrials,wEnergy,iEnergy));
 
   // Synchroton Radiation & GN Physics
   RegisterPhysics(new G4EmExtraPhysics(ver));
