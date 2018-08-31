@@ -29,19 +29,12 @@ recoAllJetsPUOffsetCorr=cms.Sequence(fixedGridRhoFastjetAllCalo+
                                      fixedGridRhoFastjetCentralCalo+
                                      ak4CaloJetsPUCorr)
 
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-
-from RecoHI.HiJetAlgos.HiRecoJets_cff import caloTowersRec, caloTowers, akPu3CaloJets, akPu4CaloJets, akPu5CaloJets
+from RecoHI.HiJetAlgos.HiRecoJets_cff import caloTowersRec, caloTowers, akPu4CaloJets
 
 recoJetsHI =cms.Sequence(fixedGridRhoFastjetAllCalo+
                          fixedGridRhoFastjetCentralCalo+
                          ak4CaloJets+
                          caloTowersRec+
                          caloTowers+
-                         akPu3CaloJets+
-                         akPu4CaloJets+
-                         akPu5CaloJets
+                         akPu4CaloJets
                          )
-
-for e in [pp_on_AA_2018]:
- e.toReplaceWith(recoJets, recoJetsHI)
