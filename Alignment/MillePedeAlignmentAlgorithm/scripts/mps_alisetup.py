@@ -182,9 +182,8 @@ class SetupAlignment(object):
 
         # set directory on eos
         self._mss_dir = self._general_options.get("massStorageDir",
-                                                  "/eos/cms/store/caf/user/"
-                                                  +os.environ["USER"])
-        self._mss_dir = os.path.join(self._mss_dir, "MPproduction",
+                                                  "/eos/cms/store/group/alca_millepede/")
+        self._mss_dir = os.path.join(self._mss_dir, "MPproductionFiles",
                                      self._mps_dir_name)
 
         cmd = ["mkdir", "-p", self._mss_dir]
