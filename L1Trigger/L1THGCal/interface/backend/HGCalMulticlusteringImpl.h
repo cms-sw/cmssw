@@ -7,7 +7,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
-#include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalShowerShape.h"
+#include "L1Trigger/L1THGCal/interface/backend/HGCalShowerShape.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 #include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalTriggerClusterIdentificationBase.h"
 

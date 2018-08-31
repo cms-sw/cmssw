@@ -6,7 +6,7 @@
 /// Description: first iteration of HGCal Tower Maps
 
 
-#include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalTowerMap3DImpl.h"
+#include "L1Trigger/L1THGCal/interface/backend/HGCalTowerMap3DImpl.h"
 
 
 HGCalTowerMap3DImpl::HGCalTowerMap3DImpl( ) {}
