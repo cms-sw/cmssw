@@ -32,7 +32,8 @@ void DDHGCalWafer8::initialize(const DDNumericArguments & nArgs,
   cellType_    = (int)(nArgs["CellType"]);
   material_    = sArgs["Material"];
   cellNames_   = vsArgs["CellNames"];
-  nameSpace_   = DDCurrentNamespace::ns();
+  DDCurrentNamespace ns;
+  nameSpace_   = *ns;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer8: Wafer 2r " << waferSize_
 				<< " T " << waferT_ << " Half Separation " 

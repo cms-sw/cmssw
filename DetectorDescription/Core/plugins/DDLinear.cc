@@ -76,7 +76,7 @@ DDLinear::initialize( const DDNumericArguments & nArgs,
   
   m_childNmNs 	= DDSplit( sArgs["ChildName"] );
   if( m_childNmNs.second.empty())
-    m_childNmNs.second = DDCurrentNamespace::ns();
+    m_childNmNs.second = *DDCurrentNamespace();
   
   DDName parentName = parent().name();
   LogDebug( "DDAlgorithm" ) << "DDLinear: Parent " << parentName 

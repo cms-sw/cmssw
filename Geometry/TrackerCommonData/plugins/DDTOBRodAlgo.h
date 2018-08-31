@@ -24,7 +24,6 @@ class DDTOBRodAlgo : public DDAlgorithm {
 private:
 
   std::string              central;        // Name of the central piece
-  std::string              idNameSpace;    // Namespace of this and ALL sub-parts
 					      
   double                   shift;          // Shift in z
   std::vector<std::string> sideRod;        // Name of the Side Rod
