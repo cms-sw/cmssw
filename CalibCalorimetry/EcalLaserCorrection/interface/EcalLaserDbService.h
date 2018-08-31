@@ -27,7 +27,6 @@
 class EcalLaserDbService {
  public:
   EcalLaserDbService ();
-  EcalLaserDbService (const edm::ParameterSet&);
 
   const EcalLaserAlphas* getAlphas () const;
   const EcalLaserAPDPNRatiosRef* getAPDPNRatiosRef () const;
