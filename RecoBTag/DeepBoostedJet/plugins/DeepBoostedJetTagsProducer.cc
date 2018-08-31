@@ -13,10 +13,9 @@
 
 #include "DataFormats/BTauReco/interface/DeepBoostedJetTagInfo.h"
 
-#include "PhysicsTools/MXNet/interface/MXNetCppPredictor.h"
-
 #include <iostream>
 #include <fstream>
+#include "PhysicsTools/MXNet/interface/Predictor.h"
 
 // Hold the mxnet model block (symbol + params) in the edm::GlobalCache.
 struct MXBlockCache {
@@ -82,7 +81,7 @@ class DeepBoostedJetTagsProducer : public edm::stream::EDProducer<edm::GlobalCac
     std::unordered_map<std::string, PreprocessParams> prep_info_map_; // preprocessing info for each input group
 
     std::vector<std::vector<float>> data_;
-    std::unique_ptr<mxnet::cpp::MXNetCppPredictor> predictor_;
+    std::unique_ptr<mxnet::cpp::Predictor> predictor_;
 
     bool debug_ = false;
 };
@@ -128,7 +127,7 @@ DeepBoostedJetTagsProducer::DeepBoostedJetTagsProducer(const edm::ParameterSet& 
   }
 
   // init MXNetPredictor
-  predictor_.reset(new mxnet::cpp::MXNetCppPredictor(*cache->block));
+  predictor_.reset(new mxnet::cpp::Predictor(*cache->block));
   predictor_->set_input_shapes(input_names_, input_shapes_);
 
   // get output names from flav_table

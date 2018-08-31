@@ -47,12 +47,12 @@ private:
 
 // Simple helper class to run prediction
 // this cannot be shared between threads
-class MXNetCppPredictor {
+class Predictor {
 public:
-  MXNetCppPredictor();
-  MXNetCppPredictor(const Block &block);
-  MXNetCppPredictor(const Block &block, const std::string &output_node);
-  virtual ~MXNetCppPredictor();
+  Predictor();
+  Predictor(const Block &block);
+  Predictor(const Block &block, const std::string &output_node);
+  virtual ~Predictor();
 
   // set input array shapes
   void set_input_shapes(const std::vector<std::string>& input_names, const std::vector<std::vector<mx_uint>>& input_shapes);
