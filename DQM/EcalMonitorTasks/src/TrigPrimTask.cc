@@ -65,6 +65,7 @@ namespace ecaldqm
   {
     // Reset by LS plots at beginning of every LS
     MEs_.at("EtSummaryByLumi").reset();
+    MEs_.at("TTFlags4ByLumi").reset();
     MEs_.at("LHCStatusByLumi").reset(-1);
 
     // Reset lhcStatusSet_ to false at the beginning of each LS; when LHC status is set in some event this variable will be set to true
@@ -215,6 +216,7 @@ namespace ecaldqm
     MESet& meTTFlags(MEs_.at("TTFlags"));
     MESet& meTTFlagsVsEt(MEs_.at("TTFlagsVsEt"));
     MESet& meTTFlags4( MEs_.at("TTFlags4") );
+    MESet& meTTFlags4ByLumi( MEs_.at("TTFlags4ByLumi") );
     MESet& meTTFMismatch(MEs_.at("TTFMismatch"));
     MESet& meOccVsBx(MEs_.at("OccVsBx"));
 
@@ -263,9 +265,10 @@ namespace ecaldqm
       meTTFlagsVsEt.fill(ttid, et, 1.0*ttF);
       // Monitor occupancy of TTF=4
       // which contains info about TT auto-masking
-      if ( ttF >= 4 )
+      if ( ttF >= 4 ) {
         meTTFlags4.fill( ttid );
-
+        meTTFlags4ByLumi.fill( ttid );
+      }
       if((ttF == 1 || ttF == 3) && towerReadouts_[ttid.rawId()] != getTrigTowerMap()->constituentsOf(ttid).size())
         meTTFMismatch.fill(ttid);
     }

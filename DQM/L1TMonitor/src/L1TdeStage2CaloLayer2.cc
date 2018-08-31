@@ -488,17 +488,6 @@ bool L1TdeStage2CaloLayer2::compareJets(
 	  break;
       }
 
-      while (true) {
-
-	jetEtEmul->Fill(dataIt->hwPt());
-	jetEtaEmul->Fill(dataIt->hwEta());
-	jetPhiEmul->Fill(dataIt->hwPhi());
-         
-	++dataIt;
-
-	if (dataIt == dataCol->end(currBx))
-	  break;
-      }
     }
 
     problemSummary->Fill(JETCOLLSIZE);

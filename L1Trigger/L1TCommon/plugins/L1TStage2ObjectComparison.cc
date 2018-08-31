@@ -57,12 +57,12 @@ template <typename T>
 void L1TStage2ObjectComparison<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("collection1")->setComment("L1T object collection 1");
-  desc.add<edm::InputTag>("collection2")->setComment("L1T object collection 2");
-  desc.add<bool>("checkBxRange")->setComment("Check if BX ranges match");
-  desc.add<bool>("checkCollSizePerBx")->setComment("Check if collection sizes within one BX match");
-  desc.add<bool>("checkObject")->setComment("Check if objects match");
-  descriptions.addDefault(desc);
+  desc.add<edm::InputTag>("collection1", edm::InputTag("collection1"))->setComment("L1T object collection 1");
+  desc.add<edm::InputTag>("collection2", edm::InputTag("collection2"))->setComment("L1T object collection 2");
+  desc.add<bool>("checkBxRange", true)->setComment("Check if BX ranges match");
+  desc.add<bool>("checkCollSizePerBx", true)->setComment("Check if collection sizes within one BX match");
+  desc.add<bool>("checkObject", true)->setComment("Check if objects match");
+  descriptions.addWithDefaultLabel(desc);
 }
 
 template <typename T>
