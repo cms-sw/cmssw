@@ -67,12 +67,18 @@ namespace edmtest {
     explicit ESTestAnalyzerB(edm::ParameterSet const&);
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   private:
     std::vector<int> runsToGetDataFor_;
+    std::vector<int> expectedValues_;
+
+    unsigned int expectedIndex_ = 0;
   };
 
   ESTestAnalyzerB::ESTestAnalyzerB(edm::ParameterSet const& pset) :
-    runsToGetDataFor_(pset.getParameter<std::vector<int> >("runsToGetDataFor")) {
+    runsToGetDataFor_(pset.getParameter<std::vector<int> >("runsToGetDataFor")),
+    expectedValues_(pset.getUntrackedParameter<std::vector<int> >("expectedValues")) {
   }
 
   void ESTestAnalyzerB::analyze(edm::Event const& ev, edm::EventSetup const& es) {
@@ -81,7 +87,25 @@ namespace edmtest {
       edm::ESHandle<ESTestDataB> dataB;
       rec.get(dataB);
       edm::LogAbsolute("ESTestAnalyzerB") << "ESTestAnalyzerB: process = " << moduleDescription().processName() << ": Data value = " << dataB->value();
+
+      if (expectedIndex_ < expectedValues_.size()) {
+        if (expectedValues_[expectedIndex_] != dataB->value()) {
+          throw cms::Exception("TestError") << "Expected does not match actual value, "
+            << "expected value = " << expectedValues_[expectedIndex_]
+            << " actual value = " << dataB->value();
+        }
+        ++expectedIndex_;
+      }
     }
+  }
+
+  void ESTestAnalyzerB::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<std::vector<int>>("runsToGetDataFor")
+    ->setComment("ID number for each Run for which we should get EventSetup data.");
+    desc.addUntracked<std::vector<int>>("expectedValues",std::vector<int>())
+    ->setComment("EventSetup value expected for each Run. If empty, no values compared.");
+    descriptions.addDefault(desc);
   }
 
   class ESTestAnalyzerK : public edm::EDAnalyzer {
