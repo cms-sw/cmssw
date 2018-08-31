@@ -461,9 +461,10 @@ private:
     const static unsigned short SubDetectorOffset = 10;
     const static unsigned short SubDetectorMask = 0x3;
 
-    const static unsigned short minTrackerWord = 1<< SubDetectorOffset;
-    const static unsigned short minPixelWord = minTrackerWord |  (1<<SubstrOffset);
-    const static unsigned short minStripWord = minTrackerWord |  (3<<SubstrOffset);
+    const static unsigned short minTrackerWord = 1 << SubDetectorOffset;
+    const static unsigned short maxTrackerWord = (2 << SubDetectorOffset) - 1;
+    const static unsigned short minPixelWord = minTrackerWord | (1<<SubstrOffset);
+    const static unsigned short minStripWord = minTrackerWord | (3<<SubstrOffset);
 
 
     // detector side for tracker modules (mono/stereo)
@@ -699,7 +700,7 @@ inline bool HitPattern::muonME0HitFilter(uint16_t pattern) {
 
 inline bool HitPattern::trackerHitFilter(uint16_t pattern)
 {
-  return pattern > minTrackerWord;
+  return pattern > minTrackerWord && pattern <= maxTrackerWord;
 }
 
 inline bool HitPattern::muonHitFilter(uint16_t pattern)

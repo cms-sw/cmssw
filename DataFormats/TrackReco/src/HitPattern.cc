@@ -207,7 +207,7 @@ uint16_t HitPattern::encode(uint16_t det, uint16_t subdet, uint16_t layer, uint1
     pattern |= (layer & LayerMask) << LayerOffset;
 
     // adding mono/stereo bit
-    pattern |= (side & SideMask) << SideOffset;
+    pattern |= (side & SideMask) << SideOffset;    
 
     TrackingRecHit::Type patternHitType = (hitType == TrackingRecHit::missing_inner ||
                                            hitType == TrackingRecHit::missing_outer) ? TrackingRecHit::missing 
@@ -313,9 +313,9 @@ bool HitPattern::appendMuonHit(const DetId& id, TrackingRecHit::Type hitType) {
         throw cms::Exception("HitPattern") << "Got DetId from det " << id.det() << " that is not Muon in appendMuonHit(), which should only be used for muon hits in the HitPattern IO rule";
     }
 
-    uint16_t detid = id.det();
+    //uint16_t detid = id.det(); // force this to zero, MTD is 2
     uint16_t subdet = id.subdetId();
-    return appendHit(encode(detid, subdet, encodeMuonLayer(id), 0, hitType), hitType);
+    return appendHit(encode(0, subdet, encodeMuonLayer(id), 0, hitType), hitType);
 }
 
 uint16_t HitPattern::getHitPatternByAbsoluteIndex(int position) const
@@ -326,7 +326,7 @@ uint16_t HitPattern::getHitPatternByAbsoluteIndex(int position) const
     /*
     Note: you are not taking a consecutive sequence of HIT_LENGTH bits starting from position * HIT_LENGTH
      as the bit order in the words are reversed. 
-     e.g. if position = 0 you take the lowest 10 bits of the first word.
+     e.g. if position = 0 you take the lowest 12 bits of the first word.
 
      I hope this can clarify what is the memory layout of such thing
 
@@ -352,7 +352,7 @@ uint16_t HitPattern::getHitPatternByAbsoluteIndex(int position) const
       uint16_t myResult = (hitPattern[secondWord] >> lowBitsToTrash) & ((1 << HIT_LENGTH) - 1);
       return myResult;
     } else {
-      uint8_t  firstWordBits   = HIT_LENGTH - secondWordBits;
+      uint8_t firstWordBits   = HIT_LENGTH - secondWordBits;
       uint16_t firstWordBlock  = hitPattern[secondWord - 1] >> (16 - firstWordBits);
       uint16_t secondWordBlock = hitPattern[secondWord] & ((1 << secondWordBits) - 1);
       uint16_t myResult = firstWordBlock + (secondWordBlock << firstWordBits);
@@ -429,7 +429,8 @@ int HitPattern::numberOfValidStripLayersWithMonoAndStereo() const
    std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
    for (int i = range.first; i < range.second; ++i) {
      auto pattern = getHitPatternByAbsoluteIndex(i);
-     if (pattern<minStripWord) continue;
+     if (pattern > maxTrackerWord) continue;
+     if (pattern < minStripWord) continue;
      uint16_t hitType = (pattern >> HitTypeOffset) & HitTypeMask;
      if (hitType != HIT_TYPE::VALID) continue;
      auto apattern = (pattern-minTrackerWord) >> LayerOffset;
@@ -1061,7 +1062,7 @@ bool HitPattern::insertTrackHit(const uint16_t pattern)
         // before the first hit of this type is inserted, there are no hits
         endTrackHits = beginTrackHits;
     }
-
+    
     insertHit(pattern);
     endTrackHits++;
 
