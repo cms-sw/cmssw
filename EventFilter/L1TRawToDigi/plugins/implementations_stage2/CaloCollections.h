@@ -22,22 +22,22 @@ namespace l1t {
                jets_(new JetBxCollection()),
                taus_(new TauBxCollection()),
                mp_etsums_(new EtSumBxCollection()),
-	       mp_jets_(new JetBxCollection()),
-		 mp_egammas_(new EGammaBxCollection()),
-	       mp_taus_(new TauBxCollection()) {};
+               mp_jets_(new JetBxCollection()),
+               mp_egammas_(new EGammaBxCollection()),
+               mp_taus_(new TauBxCollection()) {};
 
             ~CaloCollections() override;
 
             inline CaloTowerBxCollection* getTowers() { return towers_.get(); };
-            inline EGammaBxCollection* getEGammas() override { return egammas_.get(); };
-            inline EtSumBxCollection* getEtSums() override { return etsums_.get(); };
-            inline JetBxCollection* getJets() override { return jets_.get(); };
-            inline TauBxCollection* getTaus() override { return taus_.get(); };
+            inline EGammaBxCollection* getEGammas(const unsigned int copy) override { return egammas_.get(); };
+            inline EtSumBxCollection*  getEtSums( const unsigned int copy) override { return etsums_.get(); };
+            inline JetBxCollection*    getJets(   const unsigned int copy) override { return jets_.get(); };
+            inline TauBxCollection*    getTaus(   const unsigned int copy) override { return taus_.get(); };
 
-            inline EtSumBxCollection* getMPEtSums() { return mp_etsums_.get(); };
-            inline JetBxCollection* getMPJets() { return mp_jets_.get(); };
-	    inline EGammaBxCollection* getMPEGammas() { return mp_egammas_.get(); };
-	    inline TauBxCollection* getMPTaus() { return mp_taus_.get(); };
+            inline EtSumBxCollection*  getMPEtSums() {  return mp_etsums_.get(); };
+            inline JetBxCollection*    getMPJets() {    return mp_jets_.get(); };
+            inline EGammaBxCollection* getMPEGammas() { return mp_egammas_.get(); };
+            inline TauBxCollection*    getMPTaus() {    return mp_taus_.get(); };
 
          private:
             std::unique_ptr<CaloTowerBxCollection> towers_;
@@ -48,8 +48,8 @@ namespace l1t {
 
             std::unique_ptr<EtSumBxCollection> mp_etsums_;
             std::unique_ptr<JetBxCollection> mp_jets_;
-	    std::unique_ptr<EGammaBxCollection> mp_egammas_;
-	    std::unique_ptr<TauBxCollection> mp_taus_;
+            std::unique_ptr<EGammaBxCollection> mp_egammas_;
+            std::unique_ptr<TauBxCollection> mp_taus_;
       };
    }
 }
