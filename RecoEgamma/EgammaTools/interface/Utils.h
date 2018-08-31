@@ -2,9 +2,12 @@
 #define RecoEgamma_EgammaTools_Utils_H
 
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include <memory>
+#include <string>
+#include <vector>
 
 template<typename ValueType, class HandleType>
 void writeValueMap(edm::Event &iEvent,
