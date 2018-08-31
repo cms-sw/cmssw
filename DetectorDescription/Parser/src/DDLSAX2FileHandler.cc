@@ -75,16 +75,16 @@ DDLSAX2FileHandler::endElement( const XMLCh* const uri,
   // The need for processElement to have the nmspace so that it can 
   // do the necessary gymnastics made things more complicated in the
   // effort to allow fully user-controlled namespaces.  So the "magic"
-  // trick of setting nmspace to "!" is used :(... I don't like this magic trick
-  // -- Michael Case 2008-11-06
-  // OPTIMISE in the near future, like the current nmspace_ impl. 
+  // trick of setting nmspace to "!" is used
+  // FIXME:
   // just set nmspace_ to "!" from Parser based on userNS_ so 
-  // userNS_ is set by parser ONCE and no if nec. here. MEC: 2009-06-22
+  // userNS_ is set by parser ONCE and no if nec. here.
   if ( userNS_ ) {
     nmspace = "!";
   } 
 
-  DDCurrentNamespace::ns() = nmspace;
+  DDCurrentNamespace ns;
+  *ns = nmspace;
   // tell the element it's parent name for recording/reporting purposes
   myElement->setParent(parent());
   myElement->setSelf(self());

@@ -38,7 +38,8 @@ void DDHGCalCell::initialize(const DDNumericArguments & nArgs,
   extenSensN_  = vsArgs["ExtendedSensitive"];
   cornrCN_     = vsArgs["CornerCell"];
   cornrSensN_  = vsArgs["CornerSensitive"];
-  nameSpace_   = DDCurrentNamespace::ns();
+  DDCurrentNamespace ns;
+  nameSpace_   = *ns;
   if ((truncCN_.size() != truncSensN_.size()) ||
       (extenCN_.size() != extenSensN_.size()) ||
       (cornrCN_.size() != cornrSensN_.size()))

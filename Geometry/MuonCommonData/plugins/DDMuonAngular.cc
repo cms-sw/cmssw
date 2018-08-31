@@ -42,7 +42,8 @@ void DDMuonAngular::initialize(const DDNumericArguments & nArgs,
 			   << startCopyNo << ", " << incrCopyNo;
 #endif
   rotns       = sArgs["RotNameSpace"];
-  idNameSpace = DDCurrentNamespace::ns();
+  DDCurrentNamespace ns;
+  idNameSpace = *ns;
   childName   = sArgs["ChildName"]; 
 #ifdef EDM_ML_DEBUG
   DDName parentName = parent().name(); 

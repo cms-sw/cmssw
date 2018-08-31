@@ -57,8 +57,8 @@ void DDTrackerRingAlgo::initialize(const DDNumericArguments & nArgs,
 			  << rangeAngle/CLHEP::deg << " " << delta/CLHEP::deg
 			  << " Radius " << radius << " Centre " << center[0]
 			  << ", " << center[1] << ", "<<center[2];
-
-  idNameSpace = DDCurrentNamespace::ns();
+  DDCurrentNamespace ns;
+  idNameSpace = *ns;
   childName   = sArgs["ChildName"];
 
   DDName parentName = parent().name();

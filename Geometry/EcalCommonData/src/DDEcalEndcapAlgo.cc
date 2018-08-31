@@ -79,10 +79,10 @@ void DDEcalEndcapAlgo::initialize(const DDNumericArguments      & nArgs,
 				  const DDVectorArguments       & vArgs,
 				  const DDMapArguments          & /*mArgs*/,
 				  const DDStringArguments       & sArgs,
-				  const DDStringVectorArguments & /*vsArgs*/) {
-
-//   edm::LogInfo("EcalGeom") << "DDEcalEndcapAlgo info: Initialize" ;
-   m_idNameSpace = DDCurrentNamespace::ns();
+				  const DDStringVectorArguments & /*vsArgs*/)
+{
+  DDCurrentNamespace ns;
+   m_idNameSpace = *ns;
    // TRICK!
    m_idNameSpace = parent().name().ns();
    // barrel parent volume
