@@ -175,7 +175,7 @@ float EcalBarrelClusterFastTimer::correctTimeToVertex(const float intime, const 
   auto cellGeometry = ecalGeom->getGeometry(timeDet);
   if( nullptr == cellGeometry ) {
     throw cms::Exception("BadECALBarrelCell")
-      << timeDet << " is not a valid ECAL Barrel DetId!";
+      << std::hex << timeDet.rawId() << std::dec<< " is not a valid ECAL Barrel DetId!";
   }
   //depth in mm in the middle of the layer position;
   GlobalPoint layerPos = cellGeometry->getPosition( ecalDepth_+0.5 ); 
