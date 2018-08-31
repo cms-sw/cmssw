@@ -175,12 +175,10 @@ for ec in [RecoJetsAOD.outputCommands, RecoJetsRECO.outputCommands, RecoJetsFEVT
                                                                                       'keep *_hiFJRhoProducer_*_*',
                                                                                       'keep *_akPu3PFJets_*_*',
                                                                                       'keep *_akPu4PFJets_*_*',
-                                                                                      'keep *_akPu5PFJets_*_*',
-                                                                                      'keep *_kt4PFJetsForRhoHI_*_*',
-                                                                                      'keep *_akCs3PFJets_*_*',
+                                                                                      'keep *_kt4PFJetsForRho_*_*',
                                                                                       'keep *_akCs4PFJets_*_*',
-                                                                                      'keep *_akPu3CaloJets_*_*',
                                                                                       'keep *_akPu4CaloJets_*_*',
-                                                                                      'keep *_akPu5CaloJets_*_*'
+                                                                                      'drop *_caloTowers_*_*'
+
                                                                          ])
     )    
