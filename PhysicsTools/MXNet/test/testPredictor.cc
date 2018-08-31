@@ -1,7 +1,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
+#include "PhysicsTools/MXNet/interface/Predictor.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "PhysicsTools/MXNet/interface/MXNetCppPredictor.h"
 
 using namespace mxnet::cpp;
 
@@ -29,7 +29,7 @@ void testMXNetCppPredictor::checkAll()
   CPPUNIT_ASSERT(block!=nullptr);
 
   // create predictor
-  MXNetCppPredictor predictor(*block);
+  Predictor predictor(*block);
 
   // set input shape
   std::vector<std::string> input_names {"data"};
