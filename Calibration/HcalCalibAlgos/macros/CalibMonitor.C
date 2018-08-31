@@ -60,7 +60,11 @@
 //   dataMC (bool)             = true/false for data/MC (default true)
 //   truncateFlag    (int)     = Flag to treat different depths differently (0)
 //                               both depths of ieta 15, 16 of HB as depth 1 (1)
-//                               all depths as depth 1 (2) (Default 0)
+//                               all depths as depth 1 (2), all depths in HE 
+//                               with values > 1 as depth 2 (3), all depths in 
+//                               HB with values > 1 as depth 2 (4), all depths 
+//                               in HB and HE with values > 1 as depth 2 (5)
+//                               (Default 0)
 //   useGen (bool)             = true/false to use generator level momentum
 //                               or reconstruction level momentum (def false)
 //   scale (double)            = energy scale if correction factor to be used
