@@ -23,12 +23,14 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
     #   * 'emtfStage2Digis' : real trigger primitives as received by EMTF, unpacked in EventFilter/L1TRawToDigi/
     CSCInput = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED'),
     RPCInput = cms.InputTag('simMuonRPCDigis'),
+    CPPFInput = cms.InputTag('simCPPFDigis'),  ## Cannot use in MC workflow, does not exist yet.  CPPFEnable set to False - AWB 01.06.18
     GEMInput = cms.InputTag('simMuonGEMPadDigis'),
 
     # Run with CSC, RPC, GEM
-    CSCEnable = cms.bool(True),  # Use CSC LCTs from the MPCs in track-building
-    RPCEnable = cms.bool(True),  # Use clustered RPC hits from CPPF in track-building
-    GEMEnable = cms.bool(False), # Use hits from GEMs in track-building
+    CSCEnable = cms.bool(True),   # Use CSC LCTs from the MPCs in track-building
+    RPCEnable = cms.bool(True),   # Use clustered RPC hits from CPPF in track-building
+    CPPFEnable = cms.bool(False), # Use CPPF-emulated clustered RPC hits from CPPF as the RPC hits
+    GEMEnable = cms.bool(False),  # Use hits from GEMs in track-building
 
     # Era (options: 'Run2_2016', 'Run2_2017', 'Run2_2018')
     Era = cms.string('Run2_2017'),
@@ -117,9 +119,12 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
 )
 
 simEmtfDigisData = simEmtfDigisMC.clone(
-    CSCInput = cms.InputTag('emtfStage2Digis'),
-    RPCInput = cms.InputTag('muonRPCDigis'),
-    GEMInput = cms.InputTag('muonGEMPadDigis'),
+    CSCInput  = cms.InputTag('emtfStage2Digis'),
+    RPCInput  = cms.InputTag('muonRPCDigis'),
+    CPPFInput = cms.InputTag('emtfStage2Digis'),
+    GEMInput  = cms.InputTag('muonGEMPadDigis'),
+
+    CPPFEnable = cms.bool(True), # Use CPPF-emulated clustered RPC hits from CPPF as the RPC hits
 )
 
 simEmtfDigis = simEmtfDigisMC.clone()
