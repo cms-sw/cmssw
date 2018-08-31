@@ -591,14 +591,14 @@ baseDataSetRelease=[
     'CMSSW_8_1_0_pre15-PU50ns_81X_mcRun2_startup_v12-v1',        # 6 - fullSim PU 50ns UP15 premix
     'CMSSW_10_2_0-102X_mcRun2_asymptotic_v3_gcc7_FastSim-v1',    # 7 - fastSim MinBias for mixing
     'CMSSW_10_2_0-PU25ns_102X_mcRun2_asymptotic_v3_gcc7_FastSim-v1',# 8 - fastSim premixed MinBias
-    'CMSSW_10_2_0-102X_upgrade2018_realistic_v9_gcc7-v1',        # 9 - Run2 HI GEN-SIM for mixing
+    'CMSSW_10_3_0_pre2-103X_upgrade2018_realistic_v2-v1',        # 9 - Run2 HI GEN-SIM for mixing
     'CMSSW_7_6_0-76X_mcRun2_asymptotic_v11-v1',                    # 10 - 13 TeV High Stats GEN-SIM
     'CMSSW_7_6_0_pre7-76X_mcRun2_asymptotic_v9_realBS-v1',         # 11 - 13 TeV High Stats MiniBias for mixing GEN-SIM
     'CMSSW_8_1_0_pre9_Geant4102-81X_mcRun2cosmics_startup_peak_v2-v1', # 12 - GEN-SIM input for 1307 cosmics wf from 810_p2
     'CMSSW_10_0_0_pre2-100X_mc2017_realistic_v1-v1',     # 13 - 13 TeV samples with GEN-SIM from PhaseI upgrade
     'CMSSW_10_0_0_pre2-PU25ns_100X_mc2017_realistic_v1-v1',     # 14 - fullSim PU 25ns UP17 premix
     'CMSSW_10_2_0-PU25ns_102X_upgrade2018_realistic_v9_gcc7-v1',  #15 - fullSim PU 25ns UP18 premix
-    'CMSSW_10_2_0-102X_upgrade2018_realistic_v9_gcc7-v1',  #16 - GENSIM input 2018
+    'CMSSW_10_3_0_pre2-103X_upgrade2018_realistic_v2_resub-v1',  #16 - GENSIM input 2018
     ]
 
 
@@ -1513,6 +1513,7 @@ hltKey2018='relval2018'
 steps['HLTDR2_2018']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2018,},{'--conditions':'auto:run2_hlt_relval'},{'--era' : 'Run2_2018'},steps['HLTD'] ] )
 
 steps['HLTDR2_2018_hBStar']=merge( [ {'--era' : 'Run2_2018_highBetaStar'},steps['HLTDR2_2018'] ] )
+steps['HLTDR2_2018_badHcalMitig']=merge( [ {'--era' : 'Run2_2018,pf_badHcalMitigation'},steps['HLTDR2_2018'] ] )
 
 # use --era
 steps['RECODR2_50ns']=merge([{'--scenario':'pp','--conditions':'auto:run2_data_relval','--era':'Run2_50ns',},dataReco])
@@ -1908,6 +1909,9 @@ steps['RECODR2_2018reHLT_skimSingleMu_Prompt_Lumi']=merge([{'-s':'RAW2DIGI,L1Rec
 steps['RECODR2_2018reHLTAlCaTkCosmics_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2018reHLTAlCaTkCosmics']])
 
 steps['RECODR2_2018reHLT_Prompt_hBStar']=merge([{'--era':'Run2_2018_highBetaStar'},steps['RECODR2_2018reHLT_Prompt']])
+steps['RECODR2_2018reHLT_skimJetHT_Prompt_HEfail']=merge([{'--conditions':'103X_dataRun2_Prompt_v1HEfail_v1'},steps['RECODR2_2018reHLT_skimJetHT']])
+steps['RECODR2_2018reHLT_skimJetHT_Prompt_HEfail_badHcalMitig']=merge([{'--conditions':'103X_dataRun2_Prompt_v1HEfail_v1','--era':'Run2_2018,pf_badHcalMitigation'},steps['RECODR2_2018reHLT_skimJetHT']])
+
 
 steps['RECO']=merge([step3Defaults])
 
@@ -2177,10 +2181,12 @@ steps['HARVEST2016_L1TMuDQM'] = merge([ {'-s':'HARVESTING:@standardDQM+@ExtraHLT
 steps['HARVEST2017'] = merge([ {'--conditions':'auto:run2_data_relval','--era':'Run2_2017','--conditions':'auto:run2_data_promptlike',}, steps['HARVESTD'] ])
 steps['HARVEST2017_L1TEgDQM'] = merge([ {'-s':'HARVESTING:@standardDQM+@ExtraHLT+@miniAODDQM+@L1TEgamma'}, steps['HARVEST2017'] ])
 steps['HARVEST2017_L1TMuDQM'] = merge([ {'-s':'HARVESTING:@standardDQM+@ExtraHLT+@miniAODDQM+@L1TMuon'}, steps['HARVEST2017'] ])
-steps['HARVEST2018'] = merge([ {'--conditions':'auto:run2_data_relval','--era':'Run2_2018','--conditions':'auto:run2_data_promptlike',}, steps['HARVESTD'] ])
+steps['HARVEST2018'] = merge([ {'--era':'Run2_2018','--conditions':'auto:run2_data_promptlike',}, steps['HARVESTD'] ])
 steps['HARVEST2018_L1TEgDQM'] = merge([ {'-s':'HARVESTING:@standardDQM+@ExtraHLT+@miniAODDQM+@L1TEgamma'}, steps['HARVEST2018'] ])
 steps['HARVEST2018_L1TMuDQM'] = merge([ {'-s':'HARVESTING:@standardDQM+@ExtraHLT+@miniAODDQM+@L1TMuon'}, steps['HARVEST2018'] ])
 steps['HARVEST2018_hBStar'] = merge([ {'--era' : 'Run2_2018_highBetaStar'}, steps['HARVEST2018'] ])
+steps['HARVEST2018_HEfail'] = merge([ {'--conditions':'103X_dataRun2_Prompt_v1HEfail_v1'}, steps['HARVEST2018'] ])
+steps['HARVEST2018_HEfail_badHcalMitig'] = merge([ {'--era' : 'Run2_2018,pf_badHcalMitigation','--conditions':'103X_dataRun2_Prompt_v1HEfail_v1'}, steps['HARVEST2018'] ])
 
 steps['DQMHLTonAOD_2017']={
     '-s':'DQM:offlineHLTSourceOnAOD', ### DQM-only workflow on AOD input: for HLT
@@ -2535,6 +2541,32 @@ steps['HARVESTNANOAOD2018']=merge([{'--conditions': 'auto:run2_data_promptlike',
 
 steps['NANOMERGE'] = { '-s': 'ENDJOB', '-n': 1000 , '--eventcontent' : 'NANOAODSIM','--datatier': 'NANOAODSIM', '--conditions': 'auto:run2_mc' }
 
+steps['HEfail'] = {'--conditions':'103X_upgrade2018_realistic_v3HEfail_v1',
+                   '-n':'10',
+                   '--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[16]),
+                   '--era' : 'Run2_2018',
+                   '--geometry' : 'DB:Extended'
+                  }
+steps['DigiFullHEfail']=merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2018','--datatier':'GEN-SIM-DIGI-RAW','--eventcontent':'FEVTDEBUGHLT'}, steps['HEfail']])    
+steps['RecoFullHEfail']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM',
+                                '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
+                                '--runUnscheduled':'',
+                                '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
+                               }, steps['HEfail']])
+steps['HARVESTFullHEfail']=merge([{'-s':'HARVESTING:@standardValidation+@standardDQM+@ExtraHLT+@miniAODValidation+@miniAODDQM','--mc':'','--scenario' : 'pp','--filetype':'DQM'}, steps['HEfail']])
+steps['NanoFullHEfail']={'-s':'NANO',
+                         '--conditions':'103X_upgrade2018_realistic_v3HEfail_v1',
+                         '-n':'10',
+                         '--era' : 'Run2_2018',
+                         '--geometry' : 'DB:Extended',
+                         '--datatier':'NANOAODSIM',
+                         '--eventcontent':'NANOEDMAODSIM',
+                         '--filein':'file:step3_inMINIAODSIM.root'}
+steps['DigiFullBadHcalMitig']=merge([{'--era' : 'Run2_2018,pf_badHcalMitigation'}, steps['DigiFullHEfail']])
+steps['RecoFullBadHcalMitig']=merge([{'--era' : 'Run2_2018,pf_badHcalMitigation'}, steps['RecoFullHEfail']])
+steps['HARVESTFullBadHcalMitig']=merge([{'--era' : 'Run2_2018,pf_badHcalMitigation'}, steps['HARVESTFullHEfail']])
+steps['NanoFullBadHcalMitig']=merge([{'--era' : 'Run2_2018,pf_badHcalMitigation'}, steps['NanoFullHEfail']])
+
 #################################################################################
 ####From this line till the end of the file :
 ####UPGRADE WORKFLOWS IN PREPARATION - Gaelle's sandbox -
@@ -2551,8 +2583,8 @@ from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 defaultDataSets={}
 defaultDataSets['2017']='CMSSW_10_0_0_pre2-100X_mc2017_realistic_v1-v'
 defaultDataSets['2017Design']='CMSSW_10_0_0_pre2-100X_mc2017_design_IdealBS_v1-v'
-defaultDataSets['2018']='CMSSW_10_2_0-102X_upgrade2018_realistic_v9_gcc7-v'
-defaultDataSets['2018Design']='CMSSW_10_2_0-102X_upgrade2018_design_v6_gcc7-v'
+defaultDataSets['2018']='CMSSW_10_3_0_pre2-103X_upgrade2018_realistic_v2_resub-v'
+defaultDataSets['2018Design']='CMSSW_10_3_0_pre2-103X_upgrade2018_design_v1-v'
 #defaultDataSets['2019']=''
 #defaultDataSets['2019Design']=''
 defaultDataSets['2023D17']='CMSSW_10_2_0_pre2-101X_upgrade2023_realistic_v5_2023D17noPU-v'
