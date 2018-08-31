@@ -98,23 +98,12 @@ PileupJetIdAlgo::AlgoGBRForestsAndConstants::AlgoGBRForestsAndConstants(edm::Par
   if (( ! cutBased_ ) && (runMvas_)) {
     if (etaBinnedWeights_) {
       for (int v = 0; v < nEtaBins_; v++) {
-        etaReader_.push_back(getMVA(tmvaEtaVariables_.at(v), tmvaEtaWeights.at(v), tmvaSpectators));
+        etaReader_.push_back(std::make_unique<GBRForest>(tmvaEtaWeights.at(v)));
       }
     } else {
-      reader_ = getMVA(tmvaVariables_, ps.getParameter<std::string>("tmvaWeights"), tmvaSpectators);
+      reader_ = std::make_unique<GBRForest>(ps.getParameter<std::string>("tmvaWeights"));
     }
   }
-}
-
-std::unique_ptr<const GBRForest>
-PileupJetIdAlgo::AlgoGBRForestsAndConstants::getMVA(std::vector<std::string> const& varList,
-                                                    std::string const& tmvaWeights,
-                                                    std::vector<std::string> const& tmvaSpectators) {
-
-  // A temporary only to access the variables while calling TMVA AddVariable and TMVA AddSpectator.
-  PileupJetIdAlgo algo(nullptr);
-
-  return std::make_unique<const GBRForest> ( tmvaWeights );
 }
 
 PileupJetIdAlgo::PileupJetIdAlgo(AlgoGBRForestsAndConstants const* cache) :

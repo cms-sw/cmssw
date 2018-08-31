@@ -3,21 +3,17 @@
 namespace convbremhelpers {
   HeavyObjectCache::HeavyObjectCache(const edm::ParameterSet& conf) {
 
-    pfcalib_.reset( new PFEnergyCalibration() );
+    pfcalib_ = std::make_unique<PFEnergyCalibration>();
 
     const bool useConvBremFinder_ = conf.getParameter<bool>("useConvBremFinder");
 
     if(useConvBremFinder_) {
 
-      gbrBarrelLowPt_   = setupMVA(conf.getParameter<std::string>("pf_convBremFinderID_mvaWeightFileBarrelLowPt"));
-      gbrBarrelHighPt_  = setupMVA(conf.getParameter<std::string>("pf_convBremFinderID_mvaWeightFileBarrelHighPt"));
-      gbrEndcapsLowPt_  = setupMVA(conf.getParameter<std::string>("pf_convBremFinderID_mvaWeightFileEndcapsLowPt"));
-      gbrEndcapsHighPt_ = setupMVA(conf.getParameter<std::string>("pf_convBremFinderID_mvaWeightFileEndcapsHighPt"));
+      gbrBarrelLowPt_   = std::make_unique<const GBRForest>(conf.getParameter<std::string>("pf_convBremFinderID_mvaWeightFileBarrelLowPt"));
+      gbrBarrelHighPt_  = std::make_unique<const GBRForest>(conf.getParameter<std::string>("pf_convBremFinderID_mvaWeightFileBarrelHighPt"));
+      gbrEndcapsLowPt_  = std::make_unique<const GBRForest>(conf.getParameter<std::string>("pf_convBremFinderID_mvaWeightFileEndcapsLowPt"));
+      gbrEndcapsHighPt_ = std::make_unique<const GBRForest>(conf.getParameter<std::string>("pf_convBremFinderID_mvaWeightFileEndcapsHighPt"));
 
     }
   }
-
-  std::unique_ptr<const GBRForest> HeavyObjectCache::setupMVA(const std::string& weights) {
-    return std::make_unique<const GBRForest>( weights );
-  }  
 }

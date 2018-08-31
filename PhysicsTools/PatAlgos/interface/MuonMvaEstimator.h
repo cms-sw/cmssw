@@ -38,19 +38,6 @@ namespace pat {
     std::unique_ptr<const GBRForest> gbrForest_;
     float dRmax_;
 
-    /// MVA VAriables
-    float pt_ = 0.0;
-    float eta_ = 0.0;
-    float jetNDauCharged_ = 0.0;
-    float miniRelIsoCharged_ = 0.0;
-    float miniRelIsoNeutral_ = 0.0;
-    float jetPtRel_ = 0.0;
-    float jetPtRatio_ = 0.0;
-    float jetBTagCSV_ = 0.0;
-    float sip_ = 0.0;
-    float log_abs_dxyBS_ = 0.0;
-    float log_abs_dzPV_ = 0.0;
-    float segmentCompatibility_ = 0.0;
   };
 }
 #endif
