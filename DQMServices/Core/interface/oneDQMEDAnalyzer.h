@@ -85,7 +85,7 @@ public:
   DQMLumisEDProducer(DQMLumisEDProducer const&) = delete;
   DQMLumisEDProducer(DQMLumisEDProducer &&) = delete;
 
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) final;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) override;
 
   void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
