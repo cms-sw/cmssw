@@ -500,7 +500,7 @@ namespace goodseedhelpers {
                                                            edm::FileInPath(conf.getParameter<string>("Weights9")) }};
             
       for(UInt_t j = 0; j < gbr.size(); ++j){
-        gbr[j].reset( new GBRForest( weights[j] ) );
+        gbr[j] = std::make_unique<GBRForest>( weights[j] );
       }    
     }
   }
