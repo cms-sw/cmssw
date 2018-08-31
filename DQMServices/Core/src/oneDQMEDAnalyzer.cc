@@ -3,8 +3,9 @@
 using namespace one::dqmimplementation;
 
 
-DQMLumisEDProducer::DQMLumisEDProducer() {
-}
+DQMLumisEDProducer::DQMLumisEDProducer():
+  lumiToken_{produces<DQMToken,edm::Transition::EndLuminosityBlock>("endLumi")}
+{}
 
 void DQMLumisEDProducer::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) 
 { 
