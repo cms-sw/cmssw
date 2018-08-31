@@ -1,0 +1,15 @@
+<TESTSCONFIGURATION>
+
+  <QTEST name="LEDMisfireThreshold">
+      <TYPE>ContentsYRange</TYPE>
+      <PARAM name="warning">0.</PARAM>
+      <PARAM name="error">1.</PARAM>
+      <PARAM name="ymin">0.0</PARAM>
+      <PARAM name="ymax">0.0</PARAM>
+      <PARAM name="useEmptyBins">0</PARAM>
+  </QTEST>
+  <LINK name="*Hcal/DigiTask/LED/LEDEventCount*">
+      <TestName activate="true">LEDMisfireThreshold</TestName>
+  </LINK>
+
+</TESTSCONFIGURATION>
