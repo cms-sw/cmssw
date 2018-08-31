@@ -45,6 +45,7 @@ l1tStage2OnlineDQM = cms.Sequence(
 # sequence to run only for validation events
 l1tStage2OnlineDQMValidationEvents = cms.Sequence(
     l1tStage2BmtfValidationEventOnlineDQMSeq +
-    l1tStage2uGMTValidationEventOnlineDQMSeq
+    l1tStage2uGMTValidationEventOnlineDQMSeq +
+    l1tStage2uGTValidationEventOnlineDQMSeq
 )
 
