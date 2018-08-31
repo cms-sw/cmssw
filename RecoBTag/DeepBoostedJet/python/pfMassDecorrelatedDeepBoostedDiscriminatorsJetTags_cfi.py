@@ -37,57 +37,6 @@ pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags = cms.EDProducer(
          ),
 
       cms.PSet(
-         name = cms.string('bbvsQCD'),
-         numerator = cms.VInputTag(
-            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probZbb'),
-            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probHbb'),
-            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probQCDbb'),
-            ),
-         denominator = cms.VInputTag(
-            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probZbb'),
-            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probHbb'),
-            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probQCDbb'),
-            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probQCDcc'),
-            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probQCDb'),
-            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probQCDc'),
-            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probQCDothers'),
-            ),
-         ),
-      cms.PSet(
-         name = cms.string('ccvsQCD'),
-         numerator = cms.VInputTag(
-            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probZcc'),
-            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probHcc'),
-            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probQCDcc'),
-            ),
-         denominator = cms.VInputTag(
-            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probZcc'),
-            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probHcc'),
-            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probQCDbb'),
-            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probQCDcc'),
-            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probQCDb'),
-            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probQCDc'),
-            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probQCDothers'),
-            ),
-         ),
-      cms.PSet(
-         name = cms.string('bbvscc'),
-         numerator = cms.VInputTag(
-            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probZbb'),
-            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probHbb'),
-            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probQCDbb'),
-            ),
-         denominator = cms.VInputTag(
-            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probZbb'),
-            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probHbb'),
-            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probQCDbb'),
-            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probZcc'),
-            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probHcc'),
-            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probQCDcc'),
-            ),
-         ),
-
-      cms.PSet(
          name = cms.string('ZHbbvsQCD'),
          numerator = cms.VInputTag(
             cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probZbb'),
@@ -119,18 +68,41 @@ pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags = cms.EDProducer(
             cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probQCDothers'),
             ),
          ),
+
       cms.PSet(
-         name = cms.string('ZHbbvsZHcc'),
+         name = cms.string('bbvsLight'),
          numerator = cms.VInputTag(
             cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probZbb'),
             cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probHbb'),
+            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probQCDbb'),
             ),
          denominator = cms.VInputTag(
             cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probZbb'),
             cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probHbb'),
-            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probZcc'),
-            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probHcc'),
+            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probQCDbb'),
+            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probQCDcc'),
+            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probQCDb'),
+            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probQCDc'),
+            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probQCDothers'),
             ),
          ),
+      cms.PSet(
+         name = cms.string('ccvsLight'),
+         numerator = cms.VInputTag(
+            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probZcc'),
+            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probHcc'),
+            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probQCDcc'),
+            ),
+         denominator = cms.VInputTag(
+            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probZcc'),
+            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probHcc'),
+            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probQCDbb'),
+            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probQCDcc'),
+            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probQCDb'),
+            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probQCDc'),
+            cms.InputTag('pfMassDecorrelatedDeepBoostedJetTags', 'probQCDothers'),
+            ),
+         ),
+
       )
    )
