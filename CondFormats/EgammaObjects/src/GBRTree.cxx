@@ -35,7 +35,7 @@ GBRTree::GBRTree(tinyxml2::XMLElement* binaryTree, double scale, bool isregressi
   AddNode(root, scale, isregression, useyesnoleaf, adjustboundary);
 
   //special case, root node is terminal, create fake intermediate node at root
-  if (fCutIndices.size()==0) {
+  if (fCutIndices.empty()) {
     fCutIndices.push_back(0);
     fCutVals.push_back(0);
     fLeftIndices.push_back(0);
