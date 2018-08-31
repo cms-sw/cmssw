@@ -39,8 +39,6 @@ namespace edm {
     }
   }
 
-  VParameterSetEntry::~VParameterSetEntry() {}
-
   void
   VParameterSetEntry::toString(std::string& result) const {
     assert(theIDs_);
