@@ -10,8 +10,7 @@ egammaMonitorHLT = cms.Sequence(
     egmMuonIDSequenceForDQM*
     egHLTMuonEleDQMOfflineTnPSource*
     egHLTMuonPhoDQMOfflineTnPSource,
-
-    cms.Task(egmGsfElectronIDsForDQM)
+    cms.Task(egmGsfElectronIDsForDQM) ## unschedule execution [Use of electron VID requires this module being executed first]
 )
 
 egmHLTDQMSourceExtra = cms.Sequence(
