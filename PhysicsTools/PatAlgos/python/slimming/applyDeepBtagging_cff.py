@@ -84,6 +84,10 @@ def applyDeepBtagging( process, postfix="" ) :
            # meta taggers
           'pfDeepBoostedDiscriminatorsJetTags:TvsQCD',
           'pfDeepBoostedDiscriminatorsJetTags:WvsQCD',
+          'pfDeepBoostedDiscriminatorsJetTags:ZvsQCD',
+          'pfDeepBoostedDiscriminatorsJetTags:ZbbvsQCD',
+          'pfDeepBoostedDiscriminatorsJetTags:HbbvsQCD',
+          'pfDeepBoostedDiscriminatorsJetTags:H4qvsQCD',
 
            # DeepBoostedJet (mass decorrelated)
           'pfMassDecorrelatedDeepBoostedJetTags:probTbcq',
@@ -106,8 +110,10 @@ def applyDeepBtagging( process, postfix="" ) :
            # meta taggers
           'pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:TvsQCD',
           'pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:WvsQCD',
-          'pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:bbvsQCD',
           'pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:ZHbbvsQCD',
+          'pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:ZHccvsQCD',
+          'pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:bbvsLight',
+          'pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:ccvsLight',
 
        ],
        postfix = 'SlimmedAK8DeepTags'+postfix,
