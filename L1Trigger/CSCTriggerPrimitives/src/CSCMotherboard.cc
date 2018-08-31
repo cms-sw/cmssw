@@ -123,6 +123,9 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
 
   clct_to_alct = tmbParams.getParameter<bool>("clctToAlct");
 
+  //add alct clct offset in matching
+  alctClctOffset = commonParams.getParameter<unsigned int>("alctClctOffset");
+
   // whether to readout only the earliest two LCTs in readout window
   readout_earliest_2 = tmbParams.getParameter<bool>("tmbReadoutEarliest2");
 
@@ -265,63 +268,6 @@ void CSCMotherboard::checkConfigParameters() {
   }
 }
 
-void CSCMotherboard::run(
-			 const std::vector<int> w_times[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES],
-			 const std::vector<int> hs_times[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]) {
-  // Debug version.  -JM
-  clear();
-
-  // set geometry
-  alct->setCSCGeometry(csc_g);
-  clct->setCSCGeometry(csc_g);
-
-  alct->run(w_times);            // run anode LCT
-  clct->run(hs_times); // run cathodeLCT
-
-  int bx_alct_matched = 0;
-  for (int bx_clct = 0; bx_clct < CSCConstants::MAX_CLCT_TBINS;
-       bx_clct++) {
-    if (clct->bestCLCT[bx_clct].isValid()) {
-      bool is_matched = false;
-      int bx_alct_start = bx_clct - match_trig_window_size/2;
-      int bx_alct_stop  = bx_clct + match_trig_window_size/2;
-      // Empirical correction to match 2009 collision data (firmware change?)
-      if (!isSLHC) bx_alct_stop += match_trig_window_size%2;
-
-      for (int bx_alct = bx_alct_start; bx_alct <= bx_alct_stop; bx_alct++) {
-        if (bx_alct < 0 || bx_alct >= CSCConstants::MAX_ALCT_TBINS)
-          continue;
-        if (alct->bestALCT[bx_alct].isValid()) {
-          correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
-                        clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct],
-                        CSCCorrelatedLCTDigi::CLCTALCT);
-          is_matched = true;
-          bx_alct_matched = bx_alct;
-          break;
-        }
-      }
-      // No ALCT within the match time interval found: report CLCT-only LCT
-      // (use dummy ALCTs).
-      if (!is_matched) {
-        correlateLCTs(alct->bestALCT[bx_clct], alct->secondALCT[bx_clct],
-                      clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct],
-                      CSCCorrelatedLCTDigi::CLCTONLY);
-      }
-    }
-    // No valid CLCTs; attempt to make ALCT-only LCT (use dummy CLCTs).
-    else {
-      int bx_alct = bx_clct - match_trig_window_size/2;
-      if (bx_alct >= 0 && bx_alct > bx_alct_matched) {
-        if (alct->bestALCT[bx_alct].isValid()) {
-          correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
-                        clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct],
-                        CSCCorrelatedLCTDigi::ALCTONLY);
-        }
-      }
-    }
-  }
-}
-
 void
 CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
                     const CSCComparatorDigiCollection* compdc) {
@@ -361,11 +307,8 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
           // need to access "full BX" words, which are not readily
           // available.
           bool is_matched = false;
-          int bx_alct_start = bx_clct - match_trig_window_size/2;
-          int bx_alct_stop  = bx_clct + match_trig_window_size/2;
-          // Empirical correction to match 2009 collision data (firmware change?)
-          // (but don't do it for SLHC case, assume it would not be there)
-          if (!isSLHC) bx_alct_stop += match_trig_window_size%2;
+          const int bx_alct_start = bx_clct - match_trig_window_size/2 + alctClctOffset;
+          const int bx_alct_stop  = bx_clct + match_trig_window_size/2 + alctClctOffset;
 
           for (int bx_alct = bx_alct_start; bx_alct <= bx_alct_stop; bx_alct++) {
             if (bx_alct < 0 || bx_alct >= CSCConstants::MAX_ALCT_TBINS)
@@ -388,7 +331,7 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
           }
           // No ALCT within the match time interval found: report CLCT-only LCT
           // (use dummy ALCTs).
-          if (!is_matched) {
+          if (!is_matched and clct_trig_enable) {
             if (infoV > 1) LogTrace("CSCMotherboard")
                              << "Unsuccessful ALCT-CLCT match (CLCT only): bx_clct = "
                              << bx_clct << "; match window: [" << bx_alct_start
@@ -405,7 +348,7 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
         else {
           int bx_alct = bx_clct - match_trig_window_size/2;
           if (bx_alct >= 0 && bx_alct > bx_alct_matched) {
-            if (alct->bestALCT[bx_alct].isValid()) {
+            if (alct->bestALCT[bx_alct].isValid() and alct_trig_enable) {
               if (infoV > 1) LogTrace("CSCMotherboard")
                                << "Unsuccessful ALCT-CLCT match (ALCT only): bx_alct = "
                                << bx_alct;
@@ -439,11 +382,8 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
           // need to access "full BX" words, which are not readily
           // available.
           bool is_matched = false;
-          int bx_clct_start = bx_alct - match_trig_window_size/2;
-          int bx_clct_stop  = bx_alct + match_trig_window_size/2;
-          // Empirical correction to match 2009 collision data (firmware change?)
-          // (but don't do it for SLHC case, assume it would not be there)
-          if (!isSLHC) bx_clct_stop += match_trig_window_size%2;
+          const int bx_clct_start = bx_alct - match_trig_window_size/2 - alctClctOffset;
+          const int bx_clct_stop  = bx_alct + match_trig_window_size/2 - alctClctOffset;
 
           for (int bx_clct = bx_clct_start; bx_clct <= bx_clct_stop; bx_clct++) {
             if (bx_clct < 0 || bx_clct >= CSCConstants::MAX_CLCT_TBINS)
@@ -466,7 +406,7 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
           }
           // No CLCT within the match time interval found: report ALCT-only LCT
           // (use dummy CLCTs).
-          if (!is_matched) {
+          if (!is_matched and alct_trig_enable) {
             if (infoV > 1) LogTrace("CSCMotherboard")
                              << "Unsuccessful CLCT-ALCT match (ALCT only): bx_alct = "
                              << bx_alct << "; match window: [" << bx_clct_start
@@ -483,7 +423,7 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
         else {
           int bx_clct = bx_alct - match_trig_window_size/2;
           if (bx_clct >= 0 && bx_clct > bx_clct_matched) {
-            if (clct->bestCLCT[bx_clct].isValid()) {
+            if (clct->bestCLCT[bx_clct].isValid() and clct_trig_enable) {
               if (infoV > 1) LogTrace("CSCMotherboard")
                                << "Unsuccessful CLCT-ALCT match (CLCT only): bx_clct = "
                                << bx_clct;

@@ -215,7 +215,7 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         #         take CLCTs in BX look for matching ALCTs in window)
         #  False = ALCT-centric matching (recommended for SLHC,
         #         take ALCTs in BX look for matching CLCTs in window)
-        clctToAlct = cms.bool(True),
+        clctToAlct = cms.bool(False),
     ),
 
     # to be used by ME11 chambers with upgraded TMB and ALCT
