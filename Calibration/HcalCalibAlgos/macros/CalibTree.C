@@ -47,7 +47,11 @@
 //  l1Cut           (double)  = Cut value for the closeness parameter (0.5)
 //  truncateFlag    (int)     = Flag to treat different depths differently (0)
 //                              both depths of ieta 15, 16 of HB as depth 1 (1)
-//                              all depths as depth 1 (2) (Default 0)
+//                              all depths as depth 1 (2), all depths in HE 
+//                              with values > 1 as depth 2 (3), all depths in 
+//                              HB with values > 1 as depth 2 (4), all depths 
+//                              in HB and HE with values > 1 as depth 2 (5)
+//                              (Default 0)
 //  maxIter         (int)     = number of iterations (30)
 //  useGen          (bool)    = use generator level momentum information (False)
 //  runlo           (int)     = lower value of run number to be included (+ve)

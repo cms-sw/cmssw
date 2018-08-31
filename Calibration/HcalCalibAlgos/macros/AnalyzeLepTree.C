@@ -1045,7 +1045,8 @@ void AnalyzeLepTree::getBins(int type, int ieta, int phi, int depth, int& nbin,
       xmax = 50.0;
     } else {
       // SiPM Channels
-      xmax = 5000.0;
+      xmax = 10000.0;
+      nbin = 10000
     }
   }
 }
