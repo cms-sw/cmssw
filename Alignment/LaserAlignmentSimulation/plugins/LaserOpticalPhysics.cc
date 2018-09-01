@@ -26,12 +26,15 @@ LaserOpticalPhysics::LaserOpticalPhysics(const edm::ParameterSet & p)
 : PhysicsList(p)
 {
   int  ver     = p.getUntrackedParameter<int>("Verbosity",0);
+  double wEnergy = p.getUntrackedParameter<double>("ThresholdWarningEnergy");
+  double iEnergy = p.getUntrackedParameter<double>("ThresholdImportantEnergy");
+  int    ntrials = p.getUntrackedParameter<int>("ThresholdTrials");
   G4DataQuestionaire it(photon);
   std::cout << "You are using the simulation engine: QGSP together with optical physics" 
 	    << std::endl;
   
   // EM Physics
-  RegisterPhysics(new CMSEmStandardPhysics(ver));
+  RegisterPhysics(new CMSEmStandardPhysics(ver,ntrials,wEnergy,iEnergy));
   // Synchroton Radiation & GN Physics
   RegisterPhysics(new G4EmExtraPhysics(ver));
   // Decays

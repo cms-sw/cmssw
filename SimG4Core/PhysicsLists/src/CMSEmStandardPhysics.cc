@@ -69,14 +69,18 @@
 
 #include "G4PhysicsListHelper.hh"
 #include "G4BuilderType.hh"
+#include "G4ProcessManager.hh"
+#include "G4Transportation.hh"
 
 #include "G4SystemOfUnits.hh"
 
-CMSEmStandardPhysics::CMSEmStandardPhysics(G4int ver) :
-  G4VPhysicsConstructor("CMSEmStandard_opt1"), verbose(ver) {
+CMSEmStandardPhysics::CMSEmStandardPhysics(G4int ver,G4int ntr,
+					   G4double wEn,G4double iEn) :
+  G4VPhysicsConstructor("CMSEmStandard_opt1"), verbose_(ver), ntrials_(ntr),
+  wEnergy_(wEn), iEnergy_(iEn) {
   G4EmParameters* param = G4EmParameters::Instance();
   param->SetDefaults();
-  param->SetVerbose(verbose);
+  param->SetVerbose(verbose_);
   param->SetApplyCuts(true);
   param->SetStepFunction(0.8, 1*CLHEP::mm);
   param->SetMscRangeFactor(0.2);
@@ -134,7 +138,7 @@ void CMSEmStandardPhysics::ConstructParticle() {
 
 void CMSEmStandardPhysics::ConstructProcess() {
 
-  if(verbose > 0) {
+  if(verbose_ > 0) {
     G4cout << "### " << GetPhysicsName() << " Construct Processes " << G4endl;
   }
 
@@ -345,6 +349,18 @@ void CMSEmStandardPhysics::ConstructProcess() {
       }
       ph->RegisterProcess(hmsc, particle);
       ph->RegisterProcess(new G4hIonisation(), particle);
+    }
+    
+    if ((particleName == "e-") || (particleName == "e+")) {
+      /*          Uncomment when GetProcess() is available
+      auto pme = particle->GetProcessManager();
+      G4Transportation* transPe = static_cast<G4Transportation*>(pme->GetProcess("Transportation"));
+      if (transPe != nullptr) {
+        transPe->SetThresholdWarningEnergy(wEnergy_);
+	transPe->SetThresholdImportantEnergy(iEnergy_);
+        transPe->SetThresholdTrials(ntrials_);
+      }
+      */
     }
   }
 }

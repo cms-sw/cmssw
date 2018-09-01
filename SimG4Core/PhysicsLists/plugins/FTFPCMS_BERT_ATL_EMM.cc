@@ -23,15 +23,21 @@ FTFPCMS_BERT_ATL_EMM::FTFPCMS_BERT_ATL_EMM(const edm::ParameterSet & p)
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
   bool tracking= p.getParameter<bool>("TrackingCut");
   double timeLimit = p.getParameter<double>("MaxTrackTime")*CLHEP::ns;
+  double wEnergy = p.getUntrackedParameter<double>("ThresholdWarningEnergy");
+  double iEnergy = p.getUntrackedParameter<double>("ThresholdImportantEnergy");
+  int    ntrials = p.getUntrackedParameter<int>("ThresholdTrials");
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
 			      << "FTFP_BERT_ATL_EMM \n Flags for EM Physics "
 			      << emPhys << ", for Hadronic Physics "
 			      << hadPhys << " and tracking cut " << tracking
-			      << "   t(ns)= " << timeLimit/CLHEP::ns;
+			      << "   t(ns)= " << timeLimit/CLHEP::ns
+                              << " Thresholds (warning) " << wEnergy
+                              << " (important) " << iEnergy << " trials "
+                              << ntrials;
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics( new CMSEmStandardPhysicsLPM(ver));
+    RegisterPhysics( new CMSEmStandardPhysicsLPM(ver,ntrials,wEnergy,iEnergy));
 
     // Synchroton Radiation & GN Physics
     G4EmExtraPhysics* gn = new G4EmExtraPhysics(ver);

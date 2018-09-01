@@ -8,14 +8,15 @@
 class CMSEmStandardPhysicsLPM : public G4VPhysicsConstructor {
 
 public: 
-  CMSEmStandardPhysicsLPM(G4int ver);
+  CMSEmStandardPhysicsLPM(G4int ver, G4int ntr, G4double wEn, G4double iEn);
   ~CMSEmStandardPhysicsLPM() override;
 
   void ConstructParticle() override;
   void ConstructProcess() override;
 
 private:
-  G4int               verbose;
+  const G4int         verbose_, ntrials_;
+  const G4double      wEnergy_, iEnergy_;
 };
 
 #endif
