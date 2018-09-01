@@ -1,9 +1,12 @@
 #ifndef RecoEgamma_EgammaTools_MultiToken_H
 #define RecoEgamma_EgammaTools_MultiToken_H
 
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 /*
  * This class is a wrapper around a vector of EDM tokens, of which at least one
