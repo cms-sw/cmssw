@@ -1137,7 +1137,7 @@ void SiStripAPVRestorer::derivativeFollowerRestore(uint16_t apvN, uint16_t first
         if ((std::abs(first_start_cluster_ADC - singleAPVdigi[strip+2])>first_gradient)&&(isPossible_wrong_minimum)) {
           discontinuities.erase(itdiscontinuities);
           discontinuities.insert(discontinuities.end(), std::pair<int, int >(strip_first_gradient, adc_start_point_cluster_pw));
-          discontinuities.insert(discontinuities.end(), std::pair<int, int >(strip, adc_start_point_cluster_pw));//????
+          discontinuities.insert(discontinuities.end(), std::pair<int, int >(strip, adc_start_point_cluster_pw));
         } else {
           if ((discontinuities.size()%2==0)&&(discontinuities.size()>1)){
             discontinuities.erase(--discontinuities.end());
@@ -1188,7 +1188,6 @@ void SiStripAPVRestorer::derivativeFollowerRestore(uint16_t apvN, uint16_t first
     itdiscontinuities->second=firstADC;
     --itdiscontinuities;
     itdiscontinuities->second=firstADC;
-    isFirstStrip=false;
   }
 
   if(!discontinuities.empty()){

@@ -59,7 +59,7 @@
 // class decleration
 //
 
-class SiStripHybridFormatAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+class SiStripHybridFormatAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one::WatchRuns> {
   public:
     explicit SiStripHybridFormatAnalyzer(const edm::ParameterSet&);
     ~SiStripHybridFormatAnalyzer() override;
@@ -69,6 +69,9 @@ class SiStripHybridFormatAnalyzer : public edm::one::EDAnalyzer<edm::one::Shared
     void beginJob() override ;
     void analyze(const edm::Event&, const edm::EventSetup&) override;
     void endJob() override ;
+    void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override;
+    void endRun(edm::Run const& iEvent, edm::EventSetup const&) override;
+
 
     edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > srcDigis_;
     edm::EDGetTokenT<edm::DetSetVector<SiStripProcessedRawDigi> > srcAPVCM_;
@@ -254,15 +257,23 @@ SiStripHybridFormatAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&
 
 }
 
+void
+SiStripHybridFormatAnalyzer::beginRun(edm::Run const& iEvent, edm::EventSetup const&){
+
+  actualModule_ =0;
+
+}
+
+void
+SiStripHybridFormatAnalyzer::endRun(edm::Run const& iEvent, edm::EventSetup const&){
+
+}
+
 
 // ------------ method called once each job just before starting event loop  ------------
 void SiStripHybridFormatAnalyzer::beginJob()
-{
-  
-  
-  actualModule_ =0;  
-   
- 
+{ 
+
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
