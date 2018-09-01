@@ -15,6 +15,7 @@ class Eras (object):
                  'Run2_25ns_HIPM',
                  'Run2_25ns_peripheralPbPb',
                  'Run2_HI',
+                 'Run2_HI_2018',
                  'Run2_2016',
                  'Run2_2016_HIPM',
                  'Run2_2016_trackingLowPU',
@@ -38,7 +39,7 @@ class Eras (object):
         ]
 
         internalUseMods = ['run2_common', 'run2_25ns_specific',
-                           'run2_50ns_specific', 'run2_HI_specific',
+                           'run2_50ns_specific', 'run2_HI_specific', 'run2_HI_2018',
                            'stage1L1Trigger', 'fastSim',
                            'peripheralPbPb', 'pA_2016',
                            'run2_HE_2017', 'stage2L1Trigger', 'stage2L1Trigger_2017',
