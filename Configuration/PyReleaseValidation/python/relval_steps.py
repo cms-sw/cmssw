@@ -1866,6 +1866,8 @@ steps['RECODR2_2017reHLTAlCaTkCosmics_Prompt']=merge([{'--conditions':'auto:run2
 steps['RECODR2_2017reHLTSiPixelCalZeroBias_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2017reHLTSiPixelCalZeroBias']])
 
 steps['RECODR2_2018reHLT_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2018reHLT']])
+steps['RECODR2_2018reHLT_Prompt_pixelTrackingOnly']=merge([{'-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,DQM:@pixelTrackingOnlyDQM'},steps['RECODR2_2018reHLT_Prompt']])
+steps['RECODR2_2018reHLT_Prompt_pixelTrackingOnlyGPU']=merge([step3_gpu, steps['RECODR2_2018reHLT_Prompt_pixelTrackingOnly']])
 steps['RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2018reHLT_skimEGamma_L1TEgDQM']])
 steps['RECODR2_2018reHLT_skimJetHT_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2018reHLT_skimJetHT']])
 steps['RECODR2_2018reHLT_skimDisplacedJet_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2018reHLT_skimDisplacedJet']])
@@ -2151,6 +2153,7 @@ steps['HARVEST2018'] = merge([ {'--conditions':'auto:run2_data_relval','--era':'
 steps['HARVEST2018_L1TEgDQM'] = merge([ {'-s':'HARVESTING:@standardDQM+@ExtraHLT+@miniAODDQM+@L1TEgamma'}, steps['HARVEST2018'] ])
 steps['HARVEST2018_L1TMuDQM'] = merge([ {'-s':'HARVESTING:@standardDQM+@ExtraHLT+@miniAODDQM+@L1TMuon'}, steps['HARVEST2018'] ])
 steps['HARVEST2018_hBStar'] = merge([ {'--era' : 'Run2_2018_highBetaStar'}, steps['HARVEST2018'] ])
+steps['HARVEST2018_pixelTrackingOnly'] = merge([ {'-s':'HARVESTING:@pixelTrackingOnlyDQM'}, steps['HARVEST2018'] ])
 
 steps['DQMHLTonAOD_2017']={
     '-s':'DQM:offlineHLTSourceOnAOD', ### DQM-only workflow on AOD input: for HLT
