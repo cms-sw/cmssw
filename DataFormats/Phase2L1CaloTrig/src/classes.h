@@ -11,6 +11,7 @@
 
 #include "DataFormats/Phase2L1CaloTrig/interface/L1EGCrystalCluster.h"
 #include "DataFormats/Phase2L1CaloTrig/interface/L1CaloTower.h"
+#include "DataFormats/Phase2L1CaloTrig/interface/L1CaloJet.h"
 
 
 namespace {
@@ -26,6 +27,12 @@ namespace {
     std::vector<L1CaloTower>                        l1CaloTowervec;
     L1CaloTowerCollection                           l1CaloTowercoll;
     edm::Wrapper<L1CaloTowerCollection>             wl1CaloTowercoll;
+
+    l1slhc::L1CaloJet                               l1calojet;
+    std::vector<l1slhc::L1CaloJet>                  l1calojetvec;
+    l1slhc::L1CaloJetsCollection                    l1calojetcoll;
+    edm::Wrapper<l1slhc::L1CaloJetsCollection>      wl1calojetcoll;
+
 
   }
 }

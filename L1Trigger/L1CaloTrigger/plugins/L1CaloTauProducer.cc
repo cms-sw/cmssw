@@ -46,6 +46,7 @@ Implementation:
 #include <iostream>
 
 #include "DataFormats/Phase2L1CaloTrig/interface/L1EGCrystalCluster.h"
+#include "DataFormats/Phase2L1CaloTrig/interface/L1CaloJet.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
@@ -91,8 +92,6 @@ class L1CaloTauProducer : public edm::EDProducer {
         edm::EDGetTokenT<BXVector<l1t::EGamma>> crystalClustersToken_;
         edm::Handle<BXVector<l1t::EGamma>> crystalClustersHandle;
         BXVector<l1t::EGamma> crystalClusters;
-        //std::vector< reco::Candidate::PolarLorentzVector > crystalClustersUnused;
-        //std::vector< reco::Candidate::PolarLorentzVector > l1egJetClusters;
 
         edm::ESHandle<CaloGeometry> caloGeometry_;
         const CaloSubdetectorGeometry * hbGeometry;
@@ -184,8 +183,8 @@ L1CaloTauProducer::L1CaloTauProducer(const edm::ParameterSet& iConfig) :
     crystalClustersToken_(consumes<BXVector<l1t::EGamma>>(iConfig.getParameter<edm::InputTag>("L1CrystalClustersInputTag")))
 
 {
-    produces<l1slhc::L1EGCrystalClusterCollection>("L1CaloTausNoCuts");
-    produces<l1slhc::L1EGCrystalClusterCollection>("L1CaloTausWithCuts");
+    produces<l1slhc::L1CaloJetsCollection>("L1CaloTausNoCuts");
+    produces<l1slhc::L1CaloJetsCollection>("L1CaloTausWithCuts");
     //produces<l1extra::L1JetParticleCollection>("L1CaloClusterCollectionWithCuts");
     produces< BXVector<l1t::Tau> >("L1CaloClusterCollectionBXVWithCuts");
 
@@ -217,56 +216,9 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     crystalClusters = (*crystalClustersHandle.product());
 
 
-    std::vector< simpleL1obj > crystalClustersUnused;
-    // Load L1EGs into a dictionary so we know if they have been previously clustered
-    //crystalClustersUnused.clear();
-    for (auto EGammaCand : crystalClusters)
-    {
-        //reco::Candidate::PolarLorentzVector l1eg(EGammaCand.pt(), EGammaCand.eta(), EGammaCand.phi(), 0.);
-        //crystalClustersUnused.push_back( l1eg );
-        simpleL1obj l1egObj;
-        l1egObj.SetP4(EGammaCand.pt(), EGammaCand.eta(), EGammaCand.phi(), 0.);
-        crystalClustersUnused.push_back( l1egObj );
-    }
-
-    // Sort clusters so we can always pick highest pt cluster to begin with in our jet clustering
-    std::sort(begin(crystalClustersUnused), end(crystalClustersUnused), [](const simpleL1obj& a,
-            simpleL1obj& b){return a.pt() > b.pt();});
-
-
-
-    // Cluster together the L1EGs around the leading pT L1EG.
-    // Delete used L1EGs from the crystalClustersUnused container, so they are not double used.
-    // Cluster within ~dR 0.4.  9 trigger towers gives diameter 0.783
-    //
-    std::cout << "L1EG Total Passing Cuts: " << crystalClusters.size() << std::endl;
-    std::vector< reco::Candidate::PolarLorentzVector > l1egJetClusters;
-    l1egJetClusters.clear();
-    while (crystalClustersUnused.size() > 0)
-    {
-
-        // We are pT ordered so we will always begin with the highest pT L1EG
-        reco::Candidate::PolarLorentzVector jetSeed( crystalClustersUnused.front().p4 );
-        // Then delet this entry so it's never double counted
-        // Setting it to 'stale' is an option, but then we will loop over it every time too
-        crystalClustersUnused.erase( crystalClustersUnused.begin() );
-        std::cout << " - L1EG Size after jetSeed: " << crystalClustersUnused.size() << " jetSeed pT: " << jetSeed.pt() << std::endl;
-
-        // DEAL WITH STALE AND PROPER REMOVAL
-
-        int cnt = 0;
-        for (auto l1eg : crystalClustersUnused)
-        {
-            if ( reco::deltaR( jetSeed, l1eg ) < 0.4 )
-            {
-                cnt++;
-                jetSeed = jetSeed + l1eg.GetP4();
-                std::cout << " --- jetSeed addition " << cnt << "   new jet pT: " << jetSeed.pt() << std::endl;
-            }
-        }
-        std::cout << " -- remaining crystalClustersUnused objs: " << crystalClustersUnused.size() << std::endl;
-    }
     
+    // Load HCAL TPs which have ET > 0 into hcalhits
+    // This section is directly from L1EGammaCrystalsProducer.cc
     std::vector<SimpleCaloHit> hcalhits;
     
     edm::Handle< edm::SortedCollection<HcalTriggerPrimitiveDigi> > hbhecoll;
@@ -320,14 +272,262 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         hhit.energy = et / sin(hhit.position.theta());
         hcalhits.push_back(hhit);
 
-        //if ( debug ) std::cout << "HCAL TP Position (x,y,z): " << hcal_tp_position << ", TP ET : " << hhit.energy << std::endl;
+        //std::cout << "HCAL TP Position (x,y,z): " << hcal_tp_position << ", TP ET : " << hhit.energy << std::endl;
+        //std::cout << " - position eta,phi " << hhit.position.eta() << ":" << hhit.position.phi() << std::endl;
     }
 
-    // Cluster containters
-    std::unique_ptr<l1slhc::L1EGCrystalClusterCollection> L1CaloTausNoCuts (new l1slhc::L1EGCrystalClusterCollection );
-    std::unique_ptr<l1slhc::L1EGCrystalClusterCollection> L1CaloTausWithCuts( new l1slhc::L1EGCrystalClusterCollection );
+
+
+
+    // Make simple L1objects with marker for 'stale'
+    std::vector< simpleL1obj > crystalClustersVect;
+    for (auto EGammaCand : crystalClusters)
+    {
+        simpleL1obj l1egObj;
+        l1egObj.SetP4(EGammaCand.pt(), EGammaCand.eta(), EGammaCand.phi(), 0.);
+        crystalClustersVect.push_back( l1egObj );
+    }
+
+    // Sort clusters so we can always pick highest pt cluster to begin with in our jet clustering
+    std::sort(begin(crystalClustersVect), end(crystalClustersVect), [](const simpleL1obj& a,
+            simpleL1obj& b){return a.pt() > b.pt();});
+
+
+
+    // Cluster together the L1EGs around the leading pT L1EG and store these p4 as ecalJetClusters
+    // Mark used l1eg objects as 'stale' so they are not double used.
+    // Cluster within ~dR 0.4.  9 trigger towers gives diameter 0.783
+    //
+    std::cout << " - Input L1EG Total Passing Cuts: " << crystalClustersVect.size() << std::endl;
+    std::vector< reco::Candidate::PolarLorentzVector > ecalJetClusters;
+    // Also, keep a copy of the ecal-based 4-vector, so we need a copy for each jet for the additive HCAL hits
+    std::vector< reco::Candidate::PolarLorentzVector > jetClusters;
+    // Count the number of unused L1EGs so we can stop while loop after done
+    int num_unused = crystalClustersVect.size();
+    while (num_unused > 0)
+    {
+
+        reco::Candidate::PolarLorentzVector ecalJetSeed( 0., 0., 0., 0.);
+
+        int cnt = 0;
+        // We are pT ordered so we will always begin with the highest pT L1EG
+        for (auto &l1eg : crystalClustersVect)
+        {
+
+            if (l1eg.stale) continue; // skip L1EGs which are already used
+
+            if (ecalJetSeed.pt() == 0.0) // this is the first L1EG to seed the jet
+            {
+                cnt++;
+                num_unused--;
+                ecalJetSeed.SetPt( l1eg.pt() );
+                ecalJetSeed.SetEta( l1eg.eta() );
+                ecalJetSeed.SetPhi( l1eg.phi() );
+                ecalJetSeed.SetM( l1eg.M() );
+                l1eg.stale = true;
+                //std::cout << " --- initial jet seed " << cnt << std::endl;
+                //std::cout << " ----- input p4 " << l1eg.pt() << " : " << l1eg.eta() << " : " << l1eg.phi() << " : " << l1eg.M() << std::endl;
+                //std::cout << " ----- jet seed p4 " << ecalJetSeed.pt() << " : " << ecalJetSeed.eta() << " : " << ecalJetSeed.phi() << " : " << ecalJetSeed.M()<< std::endl;
+                continue;
+            }
+
+            // Unused L1EGs which are not the initial seed
+            if ( fabs(ecalJetSeed.eta() - l1eg.eta() ) < 0.4 && fabs(reco::deltaPhi( ecalJetSeed, l1eg )) < 0.4 )
+            {
+                cnt++;
+                num_unused--;
+                //std::cout << " ------- input jet p4 " << ecalJetSeed.pt() << " : " << ecalJetSeed.eta() << " : " << ecalJetSeed.phi() << " : " << ecalJetSeed.M()<< std::endl;
+                //std::cout << " ------- input l1eg: " << cnt << " : p4 " << l1eg.pt() << " : " << l1eg.eta() << " : " << l1eg.phi() << " : " << l1eg.M() << std::endl;
+                ecalJetSeed += l1eg.GetP4();
+                //std::cout << " ------- resulting jet p4 " << ecalJetSeed.pt() << " : " << ecalJetSeed.eta() << " : " << ecalJetSeed.phi() << " : " << ecalJetSeed.M()<< std::endl;
+                l1eg.stale = true;
+            }
+        }
+        // ECAL copy
+        ecalJetClusters.push_back( ecalJetSeed );
+
+        // For total Jet
+        reco::Candidate::PolarLorentzVector jetCand = ecalJetSeed;
+        jetClusters.push_back( jetCand );
+        //std::cout << " -- remaining unused objs: " << num_unused << "    size ecalJetClusters: " << ecalJetClusters.size() << std::endl;
+    }
+
+    // Sort ecalJetClusters so we can begin with the highest pt for next step of jet clustering
+    std::sort(begin(ecalJetClusters), end(ecalJetClusters), [](const reco::Candidate::PolarLorentzVector& a,
+            reco::Candidate::PolarLorentzVector& b){return a.pt() > b.pt();});
+    std::sort(begin(jetClusters), end(jetClusters), [](const reco::Candidate::PolarLorentzVector& a,
+            reco::Candidate::PolarLorentzVector& b){return a.pt() > b.pt();});
+
+
+
+
+
+    // Output collections
+    std::unique_ptr<l1slhc::L1CaloJetsCollection> L1CaloTausNoCuts (new l1slhc::L1CaloJetsCollection );
+    std::unique_ptr<l1slhc::L1CaloJetsCollection> L1CaloTausWithCuts( new l1slhc::L1CaloJetsCollection );
     //std::unique_ptr<l1extra::L1JetParticleCollection> L1CaloClusterCollectionWithCuts( new l1extra::L1JetParticleCollection );
     std::unique_ptr<BXVector<l1t::Tau>> L1CaloClusterCollectionBXVWithCuts(new l1t::TauBxCollection);
+
+
+
+
+   
+    // Experimental parameters, don't want to bother with hardcoding them in data format
+    std::map<std::string, float> params;
+
+    // Loop over all jetClusters and make associated hcalJetCluster within 9x9 TTs behind them
+    // 9 trigger towers gives diameter 0.783
+    std::vector< reco::Candidate::PolarLorentzVector > hcalJetClusters;
+    //std::cout << " ...... njetClusters: " << jetClusters.size() << "    .......nHCAL hits: " << hcalhits.size() << std::endl;
+    
+    int cnt = 0;
+    for (auto &jetCand : jetClusters)
+    {
+
+        // Experimental vars to track energy per dR
+        //float ecal_pt;
+        //float ecal_eta;
+        //float ecal_phi;
+        //float ecal_mass;
+        //float ecal_energy;
+
+        //float hcal_pt;
+        //float hcal_eta;
+        //float hcal_phi;
+        //float hcal_mass;
+        //float hcal_energy;
+
+        //float jet_pt;
+        //float jet_eta;
+        //float jet_phi;
+        //float jet_mass;
+        //float jet_energy;
+
+        float hcal_dR0p05 = 0.;
+        float hcal_dR0p075 = 0.;
+        float hcal_dR0p1 = 0.;
+        float hcal_dR0p125 = 0.;
+        float hcal_dR0p15 = 0.;
+        float hcal_dR0p2 = 0.;
+        float hcal_dR0p3 = 0.;
+        float hcal_dR0p4 = 0.;
+
+        reco::Candidate::PolarLorentzVector hcalJet4Vec(0., 0., 0., 0.);
+
+        // For each jetCand, loop over all HCAL hits which are not yet stale and add those close by
+        for (auto &hcalHit : hcalhits)
+        {
+
+            if (hcalHit.stale) continue;
+
+            // Unused HCAL hits
+            if ( fabs(jetCand.eta() - hcalHit.position.eta() ) < 0.4 && fabs(reco::deltaPhi( jetCand.phi(), hcalHit.position.phi() )) < 0.4 )
+            {
+
+                //std::cout << " ------- input jet p4 " << jetCand.pt() << " : " << jetCand.eta() << " : " << jetCand.phi() << " : " << jetCand.M()<< std::endl;
+                reco::Candidate::PolarLorentzVector hcalP4( hcalHit.pt(), hcalHit.position.eta(), hcalHit.position.phi(), 0.);
+                //std::cout << " ------- input hcalHit p4: " << hcalP4.pt() << " : " << hcalP4.eta() << " : " << hcalP4.phi() << " : " << hcalP4.M() << std::endl;
+                jetCand += hcalP4;
+                hcalJet4Vec += hcalP4;
+                //std::cout << " ------- resulting jet p4 " << jetCand.pt() << " : " << jetCand.eta() << " : " << jetCand.phi() << " : " << jetCand.M()<< std::endl;
+                hcalHit.stale = true;
+
+                // Experimental HCAL clustering dimensions
+                float d_eta = fabs(jetCand.eta() - hcalHit.position.eta() );
+                float d_phi = fabs(reco::deltaPhi( jetCand.phi(), hcalHit.position.phi() ));
+                if (d_eta < 0.05   && d_phi < 0.05)  hcal_dR0p05 += hcalP4.energy();
+                if (d_eta < 0.075  && d_phi < 0.075) hcal_dR0p075 += hcalP4.energy();
+                if (d_eta < 0.1    && d_phi < 0.1)   hcal_dR0p1 += hcalP4.energy();
+                if (d_eta < 0.125  && d_phi < 0.125) hcal_dR0p125 += hcalP4.energy();
+                if (d_eta < 0.15   && d_phi < 0.15)  hcal_dR0p15 += hcalP4.energy();
+                if (d_eta < 0.2    && d_phi < 0.2)   hcal_dR0p2 += hcalP4.energy();
+                if (d_eta < 0.3    && d_phi < 0.3)   hcal_dR0p3 += hcalP4.energy();
+                if (d_eta < 0.4    && d_phi < 0.4)   hcal_dR0p4 += hcalP4.energy();
+
+            }
+
+        } // end HCAL hit loop
+
+        hcalJetClusters.push_back( hcalJet4Vec ); 
+
+        params["ecal_pt"] = ecalJetClusters[cnt].pt();
+        params["ecal_eta"] = ecalJetClusters[cnt].eta();
+        params["ecal_phi"] = ecalJetClusters[cnt].phi();
+        params["ecal_mass"] = ecalJetClusters[cnt].mass();
+        params["ecal_energy"] = ecalJetClusters[cnt].energy();
+        cnt++;
+
+        params["hcal_pt"] = hcalJet4Vec.pt();
+        params["hcal_eta"] = hcalJet4Vec.eta();
+        params["hcal_phi"] = hcalJet4Vec.phi();
+        params["hcal_mass"] = hcalJet4Vec.mass();
+        params["hcal_energy"] = hcalJet4Vec.energy();
+
+        params["jet_pt"] = jetCand.pt();
+        params["jet_eta"] = jetCand.eta();
+        params["jet_phi"] = jetCand.phi();
+        params["jet_mass"] = jetCand.mass();
+        params["jet_energy"] = jetCand.energy();
+
+
+        params["hcal_dR0p05"] = hcal_dR0p05;
+        params["hcal_dR0p075"] = hcal_dR0p075;
+        params["hcal_dR0p1"] = hcal_dR0p1;
+        params["hcal_dR0p125"] = hcal_dR0p125;
+        params["hcal_dR0p15"] = hcal_dR0p15;
+        params["hcal_dR0p2"] = hcal_dR0p2;
+        params["hcal_dR0p3"] = hcal_dR0p3;
+        params["hcal_dR0p4"] = hcal_dR0p4;
+
+        float calibratedPt = -1;
+        float hovere = hcalJet4Vec.energy() / ecalJetClusters[cnt].energy();
+        float ECalIsolation = -1;
+        float totalPtPUcorr = -1;
+        l1slhc::L1CaloJet caloJet(jetCand, calibratedPt, hovere, ECalIsolation, totalPtPUcorr);
+        caloJet.SetExperimentalParams(params);
+
+        L1CaloTausNoCuts->push_back( caloJet );
+        // Same for the moment...
+        L1CaloTausWithCuts->push_back( caloJet );
+
+
+    } // end jetClusters loop
+    //std::cout << " - resulting # jets: " << jetClusters.size() << std::endl;
+
+
+
+
+    // Per subdetector breakdown
+    //for (size_t i = 0; i < jetClusters.size(); i++ )
+    //{
+    //    std::cout << " --- Jet " << i <<  std::endl;
+    //    std::cout << " ----- ECAL      " << ecalJetClusters[i].pt() << " : " << ecalJetClusters[i].eta() << " : " << ecalJetClusters[i].phi() << " : " << ecalJetClusters[i].M()<< std::endl;
+    //    std::cout << " ----- HCAL      " << hcalJetClusters[i].pt() << " : " << hcalJetClusters[i].eta() << " : " << hcalJetClusters[i].phi() << " : " << hcalJetClusters[i].M()<< std::endl;
+    //    std::cout << " ----- Jet Cand  " << jetClusters[i].pt() << " : " << jetClusters[i].eta() << " : " << jetClusters[i].phi() << " : " << jetClusters[i].M()<< std::endl;
+    //}
+
+
+    iEvent.put(std::move(L1CaloTausNoCuts),"L1CaloTausNoCuts");
+    iEvent.put(std::move(L1CaloTausWithCuts), "L1CaloTausWithCuts" );
+    //iEvent.put(std::move(L1CaloClusterCollectionWithCuts), "L1CaloClusterCollectionWithCuts" );
+    iEvent.put(std::move(L1CaloClusterCollectionBXVWithCuts),"L1CaloClusterCollectionBXVWithCuts");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     
     // Clustering algorithm
     //while(true)
@@ -698,11 +898,6 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     //        }
     //    }
     //}
-
-    iEvent.put(std::move(L1CaloTausNoCuts),"L1CaloTausNoCuts");
-    iEvent.put(std::move(L1CaloTausWithCuts), "L1CaloTausWithCuts" );
-    //iEvent.put(std::move(L1CaloClusterCollectionWithCuts), "L1CaloClusterCollectionWithCuts" );
-    iEvent.put(std::move(L1CaloClusterCollectionBXVWithCuts),"L1CaloClusterCollectionBXVWithCuts");
 }
 
 
