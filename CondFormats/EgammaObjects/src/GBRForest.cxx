@@ -7,8 +7,6 @@
 #include <cstdlib>
 #include "zlib.h"
 
-#include <iostream>
-
 #define ROOT_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
 
 namespace {
@@ -154,9 +152,9 @@ void GBRForest::init(const std::string& weightsFileFullPath, std::vector<std::st
 
   // Get root version number if available
   int rootTrainingVersion(0);
-  if (options.find("ROOT Release") != options.end()) {
-    std::string s = options["ROOT Release"];
-    rootTrainingVersion = std::stoi(s.substr(s.find("[")+1,s.find("]")-s.find("[")));
+  if (info.find("ROOT Release") != info.end()) {
+    std::string s = info["ROOT Release"];
+    rootTrainingVersion = std::stoi(s.substr(s.find("[")+1,s.find("]")-s.find("[")-1));
   }
 
   // Get the boosting weights
@@ -211,7 +209,7 @@ void GBRForest::init(const std::string& weightsFileFullPath, std::vector<std::st
   for(tinyxml2::XMLElement* e = weightsElem->FirstChildElement("BinaryTree");
           e != nullptr; e = e->NextSiblingElement("BinaryTree")) {
     double scale = isadaclassifier ? boostWeights[itree]/norm : 1.0;
-    fTrees.push_back(GBRTree(e,scale,isregression,useyesnoleaf,adjustboundaries));
+    fTrees.push_back(GBRTree(e,scale,isregression,useyesnoleaf,adjustboundaries,isadaclassifier));
     ++itree;
   }
 }

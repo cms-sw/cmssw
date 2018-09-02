@@ -34,7 +34,7 @@
     public:
 
        GBRTree();
-       explicit GBRTree(tinyxml2::XMLElement* binaryTree, double scale, bool isregression, bool useyesnoleaf, bool adjustboundary);
+       explicit GBRTree(tinyxml2::XMLElement* binaryTree, double scale, bool isregression, bool useyesnoleaf, bool adjustboundary, bool isadaclassifier);
        virtual ~GBRTree();
        
        double GetResponse(const float* vector) const;
@@ -61,7 +61,7 @@
         unsigned int CountIntermediateNodes(tinyxml2::XMLElement* node);
         unsigned int CountTerminalNodes(tinyxml2::XMLElement* node);
 
-        void AddNode(tinyxml2::XMLElement* node, double scale, bool isregression, bool useyesnoleaf, bool adjustboundary);
+        void AddNode(tinyxml2::XMLElement* node, double scale, bool isregression, bool useyesnoleaf, bool adjustboundary, bool isadaclassifier);
 
         bool isTerminal(tinyxml2::XMLElement* node);
         
