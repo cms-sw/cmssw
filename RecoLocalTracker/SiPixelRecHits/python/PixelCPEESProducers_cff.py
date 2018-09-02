@@ -19,6 +19,7 @@ from RecoLocalTracker.SiPixelRecHits.PixelCPETemplateReco_cfi import *
 # 4. Pixel Generic CPE
 #
 from RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi import *
+from RecoLocalTracker.SiPixelRecHits.PixelCPEFast_cfi import *
 #
 # 5. ESProducer for the Magnetic-field dependent template records
 #
