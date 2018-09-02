@@ -16,7 +16,7 @@ bool GBRTree::isTerminal(tinyxml2::XMLElement* node)
   return is;
 }
 
-GBRTree::GBRTree(tinyxml2::XMLElement* binaryTree, double scale, bool isregression, bool useyesnoleaf, bool adjustboundary)
+GBRTree::GBRTree(tinyxml2::XMLElement* binaryTree, double scale, bool isregression, bool useyesnoleaf, bool adjustboundary, bool isadaclassifier)
 {
   tinyxml2::XMLElement* root = binaryTree->FirstChildElement("Node");
 
@@ -32,7 +32,7 @@ GBRTree::GBRTree(tinyxml2::XMLElement* binaryTree, double scale, bool isregressi
   fRightIndices.reserve(nIntermediate);
   fResponses.reserve(nTerminal);
 
-  AddNode(root, scale, isregression, useyesnoleaf, adjustboundary);
+  AddNode(root, scale, isregression, useyesnoleaf, adjustboundary, isadaclassifier);
 
   //special case, root node is terminal, create fake intermediate node at root
   if (fCutIndices.empty()) {
@@ -74,7 +74,7 @@ unsigned int GBRTree::CountTerminalNodes(tinyxml2::XMLElement* node) {
 }
 
 //_______________________________________________________________________
-void GBRTree::AddNode(tinyxml2::XMLElement* node, double scale, bool isregression, bool useyesnoleaf, bool adjustboundary) {
+void GBRTree::AddNode(tinyxml2::XMLElement* node, double scale, bool isregression, bool useyesnoleaf, bool adjustboundary, bool isadaclassifier) {
 
   bool nodeIsTerminal = isTerminal(node);
   if (nodeIsTerminal) {
@@ -84,10 +84,14 @@ void GBRTree::AddNode(tinyxml2::XMLElement* node, double scale, bool isregressio
     }
     else {
       if (useyesnoleaf) {
-        node->QueryDoubleAttribute("cType", &response);
+        node->QueryDoubleAttribute("nType", &response);
       }
       else {
-        node->QueryDoubleAttribute("purity", &response);
+        if (isadaclassifier) {
+            node->QueryDoubleAttribute("purity", &response);
+        } else {
+            node->QueryDoubleAttribute("res", &response);
+        }
       }
     }
     response *= scale;
@@ -135,7 +139,7 @@ void GBRTree::AddNode(tinyxml2::XMLElement* node, double scale, bool isregressio
     else {
       fLeftIndices[thisidx] = fCutIndices.size();
     }
-    AddNode(left, scale, isregression, useyesnoleaf, adjustboundary);
+    AddNode(left, scale, isregression, useyesnoleaf, adjustboundary,isadaclassifier);
     
     if (rightIsTerminal) {
       fRightIndices[thisidx] = -fResponses.size();
@@ -143,7 +147,7 @@ void GBRTree::AddNode(tinyxml2::XMLElement* node, double scale, bool isregressio
     else {
       fRightIndices[thisidx] = fCutIndices.size();
     }
-    AddNode(right, scale, isregression, useyesnoleaf, adjustboundary);
+    AddNode(right, scale, isregression, useyesnoleaf, adjustboundary,isadaclassifier);
     
   }
   
