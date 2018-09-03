@@ -1,5 +1,45 @@
 #include "RecoTauTag/RecoTau/interface/PFRecoTauClusterVariables.h"
 
+namespace {
+  struct PFTau_traits{ typedef reco::PFTau Tau_t; typedef const std::vector<reco::PFCandidatePtr>& Ret_t; };
+  struct PATTau_traits{ typedef pat::Tau Tau_t; typedef reco::CandidatePtrVector Ret_t; };
+
+  template<typename T>
+  typename T::Ret_t getGammas_T(const typename T::Tau_t& tau, bool signal) {
+    return typename T::Ret_t();
+  }
+  /// return pf photon candidates that are associated to signal
+  template<>
+  const std::vector<reco::PFCandidatePtr>& getGammas_T<PFTau_traits>(const reco::PFTau& tau, bool signal) {
+    if (signal){
+      return tau.signalPFGammaCands();
+    }
+    return tau.isolationPFGammaCands();
+  }
+
+  template<>
+  reco::CandidatePtrVector getGammas_T<PATTau_traits>(const pat::Tau& tau, bool signal) {
+    if(signal){
+      return tau.signalGammaCands();
+    }
+    return tau.isolationGammaCands();
+  }
+
+  /// decide if photon candidate is inside the cone to be associated to the tau signal
+  bool isInside(float photon_pt, float deta, float dphi) {
+    constexpr double stripEtaAssociationDistance_0p95_p0 = 0.197077;
+    constexpr double stripEtaAssociationDistance_0p95_p1 = 0.658701;
+    constexpr double stripPhiAssociationDistance_0p95_p0 = 0.352476;
+    constexpr double stripPhiAssociationDistance_0p95_p1 = 0.707716;
+    if(photon_pt==0){
+      return false;
+    }      if((dphi<0.3  && dphi<std::max(0.05, stripPhiAssociationDistance_0p95_p0*std::pow(photon_pt, -stripPhiAssociationDistance_0p95_p1))) && (deta<0.15 && deta<std::max(0.05, stripEtaAssociationDistance_0p95_p0*std::pow(photon_pt, -stripEtaAssociationDistance_0p95_p1)))){
+      return true;
+    }
+    return false;
+  }
+}
+
 namespace reco { namespace tau { 
   /// return chi2 of the leading track ==> deprecated? <==
   float lead_track_chi2(const reco::PFTau& tau) {
@@ -35,6 +75,59 @@ namespace reco { namespace tau {
       return -1;
     }
     return ecal_en_in_signal_cands/total;
+  }
+  /// return sum of pt weighted values of distance to tau candidate for all pf photon candidates,
+  /// which are associated to signal; depending on var the distance is in 0=:dr, 1=:deta, 2=:dphi
+  template<typename T>
+  float pt_weighted_dx_T(const typename T::Tau_t& tau, int mode, int var, int decaymode) {
+    float sum_pt = 0.;
+    float sum_dx_pt = 0.;
+    float signalrad = std::max(0.05, std::min(0.1, 3./std::max(1., tau.pt())));
+    int is3prong = (decaymode==10);
+    const auto& cands = getGammas_T<T>(tau, mode < 2);
+    for (const auto& cand : cands) {
+      // only look at electrons/photons with pT > 0.5
+      if (cand->pt() < 0.5){
+        continue;
+      }
+      float dr = reco::deltaR(cand->eta(), cand->phi(), tau.eta(), tau.phi());
+      float deta = std::abs(cand->eta() - tau.eta());
+      float dphi = std::abs(reco::deltaPhi(cand->phi(), tau.phi()));
+      float pt = cand->pt();
+      bool flag = isInside(pt, deta, dphi);
+      if(is3prong==0){
+        if (mode == 2 || (mode == 0 && dr < signalrad) || (mode == 1 && dr > signalrad)) {
+          sum_pt += pt;
+          if (var == 0)
+            sum_dx_pt += pt * dr;
+          else if (var == 1)
+            sum_dx_pt += pt * deta;
+          else if (var == 2)
+            sum_dx_pt += pt * dphi;
+        }
+      }
+      else if(is3prong==1){
+        if( (mode==2 && flag==false) || (mode==1 && flag==true) || mode==0){
+          sum_pt += pt;
+          if (var == 0)
+            sum_dx_pt += pt * dr;
+          else if (var == 1)
+            sum_dx_pt += pt * deta;
+          else if (var == 2)
+            sum_dx_pt += pt * dphi;
+        }
+      }
+    }
+    if (sum_pt > 0.){
+      return sum_dx_pt/sum_pt;
+    }
+    return 0.;
+  }
+  float pt_weighted_dx(const reco::PFTau& tau, int mode, int var, int decaymode) {
+    return pt_weighted_dx_T<PFTau_traits>(tau, mode, var, decaymode);
+  }
+  float pt_weighted_dx(const pat::Tau& tau, int mode, int var, int decaymode) {
+    return pt_weighted_dx_T<PATTau_traits>(tau, mode, var, decaymode);
   }
   /// return total number of pf photon candidates with pT>500 MeV, which are associated to signal
   unsigned int n_photons_total(const reco::PFTau& tau) {
