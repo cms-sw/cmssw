@@ -14,11 +14,16 @@
 
 METMonitor::METMonitor( const edm::ParameterSet& iConfig ) : 
   folderName_             ( iConfig.getParameter<std::string>("FolderName") )
-  , metToken_             ( consumes<reco::PFMETCollection>      (iConfig.getParameter<edm::InputTag>("met")       ) )   
-  , jetToken_             ( mayConsume<reco::PFJetCollection>      (iConfig.getParameter<edm::InputTag>("jets")      ) )   
-  , eleToken_             ( mayConsume<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons") ) )   
-  , muoToken_             ( mayConsume<reco::MuonCollection>       (iConfig.getParameter<edm::InputTag>("muons")     ) )   
-  , vtxToken_             ( mayConsume<reco::VertexCollection>      (iConfig.getParameter<edm::InputTag>("vertices")      ) )
+  , metInputTag_          ( iConfig.getParameter<edm::InputTag>    ("met")          )
+  , jetInputTag_          ( iConfig.getParameter<edm::InputTag>    ("jets")         )
+  , eleInputTag_          ( iConfig.getParameter<edm::InputTag>    ("electrons")    ) 
+  , muoInputTag_          ( iConfig.getParameter<edm::InputTag>    ("muons")        ) 
+  , vtxInputTag_          ( iConfig.getParameter<edm::InputTag>    ("vertices")     ) 
+  , metToken_             ( consumes<reco::PFMETCollection>        ( metInputTag_ ) )
+  , jetToken_             ( mayConsume<reco::PFJetCollection>      ( jetInputTag_ ) )
+  , eleToken_             ( mayConsume<reco::GsfElectronCollection>( eleInputTag_ ) )
+  , muoToken_             ( mayConsume<reco::MuonCollection>       ( muoInputTag_ ) )
+  , vtxToken_             ( mayConsume<reco::VertexCollection>     ( vtxInputTag_ ) )
   , met_variable_binning_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("metBinning") )
   , met_binning_          ( getHistoPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("metPSet")    ) )
   , ls_binning_           ( getHistoPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("lsPSet")     ) )
@@ -32,6 +37,12 @@ METMonitor::METMonitor( const edm::ParameterSet& iConfig ) :
   , nelectrons_ ( iConfig.getParameter<unsigned>("nelectrons" ) )
   , nmuons_     ( iConfig.getParameter<unsigned>("nmuons" )     )
 {
+    // this vector has to be alligned to the the number of Tokens accessed by this module
+    warningPrinted4token_.push_back(false); // PFMETCollection
+    warningPrinted4token_.push_back(false); // JetCollection
+    warningPrinted4token_.push_back(false); // GsfElectronCollection
+    warningPrinted4token_.push_back(false); // MuonCollection
+    warningPrinted4token_.push_back(false); // VertexCollection
 }
 
 METMonitor::~METMonitor() = default;
@@ -148,7 +159,13 @@ void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   if (den_genTriggerEventFlag_->on() && ! den_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
   edm::Handle<reco::PFMETCollection> metHandle;
   iEvent.getByToken( metToken_, metHandle );
-  if ( !metHandle.isValid() ) return;
+  if ( !metHandle.isValid() ) {
+    if (!warningPrinted4token_[0]) {
+      edm::LogWarning("METMonitor") << "skipping events because the collection " << metInputTag_.label().c_str() << " is not available";
+      warningPrinted4token_[0] = true;
+    }
+    return;
+  }
   reco::PFMET pfmet = metHandle->front();
   if ( ! metSelection_( pfmet ) ) return;
 
@@ -164,6 +181,11 @@ void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       if ( jetSelection_(j) ) {
 	jets.push_back(j);
       }
+    }
+  } else {
+    if (!warningPrinted4token_[1]) {
+      edm::LogWarning("METMonitor") << "skipping events because the collection " << jetInputTag_.label().c_str() << " is not available";
+      warningPrinted4token_[1] = true;
     }
   }
   float deltaPhi_met_j1= 10.0;
@@ -181,20 +203,32 @@ void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       if ( eleSelection_( e ) ) electrons.push_back(e);
     }
     if (electrons.size() < nelectrons_ ) return;
+  } else {
+    if (!warningPrinted4token_[2]) {
+      edm::LogWarning("METMonitor") << "skipping events because the collection " << jetInputTag_.label().c_str() << " is not available";
+      warningPrinted4token_[2] = true;
+    }    
   }
-
-  edm::Handle<reco::VertexCollection> vtxHandle;
-  iEvent.getByToken(vtxToken_, vtxHandle);
 
   reco::Vertex vtx;
-  for (auto const & v : *vtxHandle) {
-    bool isFake =  v.isFake() ;
+  edm::Handle<reco::VertexCollection> vtxHandle;
+  iEvent.getByToken(vtxToken_, vtxHandle);
+  if ( vtxHandle.isValid() ) {
+    for (auto const & v : *vtxHandle) {
+      bool isFake =  v.isFake() ;
     
-    if (!isFake) {
-      vtx = v;
-      break;
+      if (!isFake) {
+	vtx = v;
+	break;
+      }
+    }
+  } else {
+    if (!warningPrinted4token_[3]) {
+      edm::LogWarning("METMonitor") << "skipping events because the collection " << vtxInputTag_.label().c_str() << " is not available";
+      warningPrinted4token_[3] = true;
     }
   }
+
 
   std::vector<reco::Muon> muons;
   edm::Handle<reco::MuonCollection> muoHandle;
@@ -206,6 +240,11 @@ void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       if ( muoSelection_( m ) && pass ) muons.push_back(m);
     }
     if ( muons.size() < nmuons_ ) return;
+  } else {
+    if (!warningPrinted4token_[4]) {
+      edm::LogWarning("METMonitor") << "skipping events because the collection " << muoInputTag_.label().c_str() << " is not available";
+      warningPrinted4token_[4] = true;
+    }
   }
 
   // filling histograms (denominator)  
