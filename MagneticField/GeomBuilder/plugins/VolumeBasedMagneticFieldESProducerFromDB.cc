@@ -133,8 +133,11 @@ std::unique_ptr<MagneticField> VolumeBasedMagneticFieldESProducerFromDB::produce
     // (code taken from GeometryReaders/XMLIdealGeometryESSource/src/XMLIdealMagneticFieldGeometryESProducer.cc) 
     edm::ESTransientHandle<FileBlob> gdd;
     iRecord.getRecord<MFGeometryFileRcd>().get( std::to_string(conf->geometryVersion), gdd );
-
-    auto cpv = std::make_unique<DDCompactView>(DDName("cmsMagneticField:MAGF"));
+    
+    DDName ddName("cmsMagneticField:MAGF");
+    DDLogicalPart rootNode(ddName);
+    DDRootDef::instance().set(rootNode);
+    auto cpv = std::make_unique<DDCompactView>(rootNode);
     DDLParser parser(*cpv);
     parser.getDDLSAX2FileHandler()->setUserNS(true);
     parser.clearFiles();

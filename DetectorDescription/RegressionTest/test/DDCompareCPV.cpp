@@ -76,6 +76,8 @@ int main(int argc, char *argv[])
     std::string configfile("DetectorDescription/RegressionTest/test/configuration.xml");
     std::string configfile2("DetectorDescription/RegressionTest/test/configuration.xml");
     DDCompOptions ddco;
+    //    double dtol(0.0004), rottol(0.0004);
+    // bool usrns(false), comprot(false);
     bool usrns(false);
     try {
       if (vm.count("file1")) {
@@ -118,7 +120,7 @@ int main(int argc, char *argv[])
     std::cout << "Continue on error (data mismatch)? " << ddco.contOnError_ << std::endl;
     std::cout << "Attempt resyncronization of disparate graphs? " << ddco.attResync_ << std::endl;
 
-    DDCompactView cpv1( DDName( "CompactView1" ));
+    DDCompactView cpv1;
     DDLParser myP(cpv1);
     myP.getDDLSAX2FileHandler()->setUserNS(usrns);
 
@@ -154,7 +156,7 @@ int main(int argc, char *argv[])
     }
     cpv1.lockdown();
 
-    DDCompactView cpv2( DDName( "CompactView2" ));
+    DDCompactView cpv2;
     DDLParser myP2(cpv2);
     myP2.getDDLSAX2FileHandler()->setUserNS(usrns);
 
@@ -182,6 +184,19 @@ int main(int argc, char *argv[])
     cpv2.lockdown();
 
     std::cout << "Parsing completed. Start comparing." << std::endl;
+
+//      DDErrorDetection ed(cpv1);
+
+//      bool noErrors = ed.noErrorsInTheReport(cpv1);
+//      if (noErrors && fullPath) {
+//        std::cout << "DDCompareCPV did not find any errors and is finished." << std::endl;
+//      }
+//     else {
+//       ed.report(cpv1, std::cout);
+//       if (!noErrors) {
+//         return 1;
+//       }
+//     }
 
     DDCompareCPV ddccpv(ddco);
     bool graphmatch = ddccpv(cpv1, cpv2);

@@ -38,7 +38,10 @@ XMLIdealGeometryESProducer::produce( const IdealGeometryRecord& iRecord )
 {
   edm::ESTransientHandle<FileBlob> gdd;
   iRecord.getRecord<GeometryFileRcd>().get( label_, gdd );
-  auto cpv = std::make_unique<DDCompactView>( DDName( rootDDName_ ));
+  DDName ddName( rootDDName_ );
+  DDLogicalPart rootNode( ddName );
+  DDRootDef::instance().set( rootNode );
+  auto cpv = std::make_unique<DDCompactView>( rootNode );
   DDLParser parser( *cpv );
   parser.getDDLSAX2FileHandler()->setUserNS( true );
   parser.clearFiles();
