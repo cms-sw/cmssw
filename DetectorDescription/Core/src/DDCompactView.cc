@@ -128,11 +128,11 @@ DDCompactView::lockdown() {
   DDSpecifics::StoreT::instance().swap( specStore_ );
   DDRotation::StoreT::instance().swap( rotStore_ );
 
-  // lock the global stores.
-  DDMaterial::StoreT::instance().setReadOnly( true );
-  DDSolid::StoreT::instance().setReadOnly( true );
-  DDLogicalPart::StoreT::instance().setReadOnly( true );
-  DDSpecifics::StoreT::instance().setReadOnly( true );
-  DDRotation::StoreT::instance().setReadOnly( true );
+  // FIXME: lock the global stores.
+  DDMaterial::StoreT::instance().setReadOnly( false );
+  DDSolid::StoreT::instance().setReadOnly( false );
+  DDLogicalPart::StoreT::instance().setReadOnly( false );
+  DDSpecifics::StoreT::instance().setReadOnly( false );
+  DDRotation::StoreT::instance().setReadOnly( false );
 }
 
