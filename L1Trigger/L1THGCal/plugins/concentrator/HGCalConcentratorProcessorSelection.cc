@@ -17,10 +17,9 @@ HGCalConcentratorProcessorSelection::HGCalConcentratorProcessorSelection(const e
 void HGCalConcentratorProcessorSelection::run(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& triggerCellCollInput, 
                                               l1t::HGCalTriggerCellBxCollection& triggerCellCollOutput,
                                               const edm::EventSetup& es)
-{ //std::cout << " Entry HGCalConcentratorProcessorSelection triggerCellCollInput size = " << triggerCellCollInput->size() << std::endl;
+{ 
   const l1t::HGCalTriggerCellBxCollection& collInput = *triggerCellCollInput;
 
-  //std::cout << "transform Handle to non Handle collInput.size = " << collInput.size() << std::endl;
   std::unordered_map<uint32_t, std::vector<l1t::HGCalTriggerCell>> tc_modules;
   for(const auto& trigCell : collInput) {
     uint32_t module = geometry_->getModuleFromTriggerCell(trigCell.detId());
@@ -31,15 +30,12 @@ void HGCalConcentratorProcessorSelection::run(const edm::Handle<l1t::HGCalTrigge
   if (choice_ == "thresholdSelect")
   {
     for( const auto& module_trigcell : tc_modules ) {
-      //std::cout << " vector size given to thresholdSelectImpl = " << module_trigcell.second.size() << std::endl;    
       std::vector<l1t::HGCalTriggerCell> trigCellVecOutput;
       concentratorProcImpl_.thresholdSelectImpl(module_trigcell.second, trigCellVecOutput);
-      //std::cout << " vector size output from thresholdSelectImpl = " << trigCellVecOutput.size() << std::endl; 
       // Push trigger Cells for each module from std::vector<l1t::HGCalTriggerCell> into the final collection
       for( auto trigCell = trigCellVecOutput.begin(); trigCell != trigCellVecOutput.end(); ++trigCell){
         triggerCellCollOutput.push_back(0, *trigCell);     
       }
-      //std::cout << " Final collection from Concentrator Processor= " << triggerCellCollOutput.size() << std::endl;
     }
   }
   else if (choice_ == "bestChoiceSelect"){
