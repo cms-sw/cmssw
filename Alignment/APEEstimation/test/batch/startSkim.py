@@ -104,7 +104,11 @@ def main(argv):
     finalSamples = []
     for sample in args.samples:
         if "[" in sample and "]" in sample:
-            sampleName = sample[:sample.find("[")]
+            posS = sample.find("[")
+            posE = sample.find("]")
+            nums = sample[posS+1:posE].split(",")
+            expression = sample[posS:posE+1]
+            
             nums = sample[sample.find("[")+1:sample.find("]")]
             for interval in nums.split(","):
                 interval = interval.strip()
@@ -112,15 +116,15 @@ def main(argv):
                     lowNum = int(interval.split("-")[0])
                     upNum = int(interval.split("-")[1])
                     for i in range(lowNum, upNum+1):
-                        finalSamples.append("%s%d"%(sampleName, i))
+                        finalSamples.append("%s"%(sample.replace(expression,str(i))))
                 else:
-                    finalSamples.append("%s%d"%(sampleName, int(interval)))
+                    finalSamples.append("%s"%(sample.replace(expression,interval)))
         else:
             finalSamples.append(sample)
     
     args.samples = finalSamples
     print(args.samples)
-    return
+
     if len(args.samples) == 1 or args.consecutive:
         for sample in args.samples:
             doSkim(sample) 
