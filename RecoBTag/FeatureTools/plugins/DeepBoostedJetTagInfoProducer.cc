@@ -72,7 +72,7 @@ private:
   const reco::Vertex *pv_ = nullptr;
 };
 
-const static std::vector<std::string> DeepBoostedJetTagInfoProducer::particle_features_ {
+const std::vector<std::string> DeepBoostedJetTagInfoProducer::particle_features_ {
   "pfcand_puppiw",
   "pfcand_hcalFrac",
   "pfcand_VTX_ass",
@@ -117,7 +117,7 @@ const static std::vector<std::string> DeepBoostedJetTagInfoProducer::particle_fe
   "pfcand_btagJetDistVal",
 };
 
-const static std::vector<std::string> DeepBoostedJetTagInfoProducer::sv_features_ {
+const std::vector<std::string> DeepBoostedJetTagInfoProducer::sv_features_ {
   "sv_phirel",
   "sv_etarel",
   "sv_deltaR",

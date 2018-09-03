@@ -48,6 +48,7 @@ process.outpath = cms.EndPath(process.out, patAlgosToolsTask)
 
 ## and add them to the event content
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+from RecoBTag.MXNet.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll as pfDeepBoostedJetTagsAll
 
 updateJetCollection(
    process,
@@ -56,58 +57,7 @@ updateJetCollection(
    svSource = cms.InputTag('slimmedSecondaryVertices'),
    rParam = 0.8,
    jetCorrections = ('AK8PFPuppi', cms.vstring(['L2Relative', 'L3Absolute']), 'None'),
-   btagDiscriminators = [
-           # DeepBoostedJet (Nominal)
-          'pfDeepBoostedJetTags:probTbcq',
-          'pfDeepBoostedJetTags:probTbqq',
-          'pfDeepBoostedJetTags:probTbc',
-          'pfDeepBoostedJetTags:probTbq',
-          'pfDeepBoostedJetTags:probWcq',
-          'pfDeepBoostedJetTags:probWqq',
-          'pfDeepBoostedJetTags:probZbb',
-          'pfDeepBoostedJetTags:probZcc',
-          'pfDeepBoostedJetTags:probZqq',
-          'pfDeepBoostedJetTags:probHbb',
-          'pfDeepBoostedJetTags:probHcc',
-          'pfDeepBoostedJetTags:probHqqqq',
-          'pfDeepBoostedJetTags:probQCDbb',
-          'pfDeepBoostedJetTags:probQCDcc',
-          'pfDeepBoostedJetTags:probQCDb',
-          'pfDeepBoostedJetTags:probQCDc',
-          'pfDeepBoostedJetTags:probQCDothers',
-           # meta taggers
-          'pfDeepBoostedDiscriminatorsJetTags:TvsQCD',
-          'pfDeepBoostedDiscriminatorsJetTags:WvsQCD',
-
-           # DeepBoostedJet (mass decorrelated)
-          'pfMassDecorrelatedDeepBoostedJetTags:probTbcq',
-          'pfMassDecorrelatedDeepBoostedJetTags:probTbqq',
-          'pfMassDecorrelatedDeepBoostedJetTags:probTbc',
-          'pfMassDecorrelatedDeepBoostedJetTags:probTbq',
-          'pfMassDecorrelatedDeepBoostedJetTags:probWcq',
-          'pfMassDecorrelatedDeepBoostedJetTags:probWqq',
-          'pfMassDecorrelatedDeepBoostedJetTags:probZbb',
-          'pfMassDecorrelatedDeepBoostedJetTags:probZcc',
-          'pfMassDecorrelatedDeepBoostedJetTags:probZqq',
-          'pfMassDecorrelatedDeepBoostedJetTags:probHbb',
-          'pfMassDecorrelatedDeepBoostedJetTags:probHcc',
-          'pfMassDecorrelatedDeepBoostedJetTags:probHqqqq',
-          'pfMassDecorrelatedDeepBoostedJetTags:probQCDbb',
-          'pfMassDecorrelatedDeepBoostedJetTags:probQCDcc',
-          'pfMassDecorrelatedDeepBoostedJetTags:probQCDb',
-          'pfMassDecorrelatedDeepBoostedJetTags:probQCDc',
-          'pfMassDecorrelatedDeepBoostedJetTags:probQCDothers',
-           # meta taggers
-          'pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:TvsQCD',
-          'pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:WvsQCD',
-          'pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:bbvsQCD',
-          'pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:ZHbbvsQCD',
-          'pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:ccvsQCD',
-          'pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:ZHccvsQCD',
-          'pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:bbvscc',
-          'pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:ZHbbvsZHcc',
-
-      ]
+   btagDiscriminators = pfDeepBoostedJetTagsAll
    )
 
 from Configuration.EventContent.EventContent_cff import MINIAODSIMEventContent
