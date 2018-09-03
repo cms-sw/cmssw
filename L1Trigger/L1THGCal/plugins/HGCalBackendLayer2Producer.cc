@@ -21,11 +21,11 @@
 class HGCalBackendLayer2Producer : public edm::stream::EDProducer<> {  
  public:    
   HGCalBackendLayer2Producer(const edm::ParameterSet&);
-  ~HGCalBackendLayer2Producer() { }
+  ~HGCalBackendLayer2Producer() override { }
   
-  virtual void beginRun(const edm::Run&, 
-                        const edm::EventSetup&);
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void beginRun(const edm::Run&, 
+                        const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
   // inputs

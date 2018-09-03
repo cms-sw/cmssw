@@ -20,11 +20,11 @@
 class HGCalConcentratorProducer : public edm::stream::EDProducer<> {
  public:
   HGCalConcentratorProducer(const edm::ParameterSet&);
-  ~HGCalConcentratorProducer() { }
+  ~HGCalConcentratorProducer() override { }
 
-  virtual void beginRun(const edm::Run&, 
-                        const edm::EventSetup&);
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void beginRun(const edm::Run&, 
+                        const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
   // inputs

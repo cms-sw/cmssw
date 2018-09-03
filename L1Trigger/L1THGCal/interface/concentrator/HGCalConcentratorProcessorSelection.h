@@ -14,7 +14,7 @@ class HGCalConcentratorProcessorSelection : public HGCalConcentratorProcessorBas
   public:
     HGCalConcentratorProcessorSelection(const edm::ParameterSet& conf);
   
-    void run(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& triggerCellCollInput, l1t::HGCalTriggerCellBxCollection& triggerCellCollOutput, const edm::EventSetup& es);
+    void run(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& triggerCellCollInput, l1t::HGCalTriggerCellBxCollection& triggerCellCollOutput, const edm::EventSetup& es) override;
 
   private:
     std::string choice_;

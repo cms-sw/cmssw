@@ -11,7 +11,7 @@ triggerCellSums(const HGCalTriggerGeometryBase& geometry,
                 const std::vector<std::pair<DetId, uint32_t > >& linearized_dataframes,
                 std::map<HGCalDetId, uint32_t>& payload)
 {
-  if(linearized_dataframes.size()==0) return;
+  if(linearized_dataframes.empty()) return;
   // sum energies in trigger cells
   for(const auto& frame : linearized_dataframes)
   {

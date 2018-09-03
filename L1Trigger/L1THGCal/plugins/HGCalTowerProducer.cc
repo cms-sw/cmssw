@@ -19,11 +19,11 @@
 class HGCalTowerProducer : public edm::stream::EDProducer<> { 
  public:    
   HGCalTowerProducer(const edm::ParameterSet&);
-  ~HGCalTowerProducer() { }
+  ~HGCalTowerProducer() override { }
   
-  virtual void beginRun(const edm::Run&, 
-                        const edm::EventSetup&);
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void beginRun(const edm::Run&, 
+                        const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
  private:
   // inputs

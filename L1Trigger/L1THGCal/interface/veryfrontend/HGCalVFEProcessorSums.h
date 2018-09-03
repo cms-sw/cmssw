@@ -26,7 +26,7 @@ class HGCalVFEProcessorSums : public HGCalVFEProcessorBase
                       const HGCHEDigiCollection& fh,
                       const HGCBHDigiCollection& bh, 
                       l1t::HGCalTriggerCellBxCollection& triggerCellColl, 
-                      const edm::EventSetup& es);
+                      const edm::EventSetup& es) override;
 	             
   private:
           
