@@ -70,9 +70,7 @@ void HGCalConcentratorProducer::produce(edm::Event& e, const edm::EventSetup& es
   edm::Handle<l1t::HGCalTriggerCellBxCollection> trigCellBxColl;
 
   e.getByToken(input_cell_,trigCellBxColl);
-  //std::cout << " Entree HGCalConcentratorProducer trigCellBxColl size = " << trigCellBxColl->size() << std::endl;
   concentratorProcess_->run(trigCellBxColl, *cc_trigcell_output, es);
-  //std::cout << " Sortie du HGCalConcentratorProducer cc_trigcell_output size = " << cc_trigcell_output->size() << std::endl;
   // Put in the event
   // At the moment the HGCalTriggerSumsBxCollection is empty   
   e.put(std::move(cc_trigcell_output), concentratorProcess_->name());

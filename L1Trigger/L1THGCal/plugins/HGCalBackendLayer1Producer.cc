@@ -65,8 +65,6 @@ void HGCalBackendLayer1Producer::produce(edm::Event& e, const edm::EventSetup& e
   edm::Handle<l1t::HGCalTriggerCellBxCollection> trigCellBxColl;
 
   e.getByToken(input_cell_, trigCellBxColl);
-  //std::cout << " Entry HGCalBackendLayer1Producer::produce" << " trigCellBxColl->size = " << trigCellBxColl->size() << std::endl;
   backendProcess_->run(trigCellBxColl, *be_cluster_output, es);
-  //std::cout << " Output HGCalBackendLayer1Producer " << be_cluster_output->size() << std::endl;
   e.put(std::move(be_cluster_output), backendProcess_->name());
 }
