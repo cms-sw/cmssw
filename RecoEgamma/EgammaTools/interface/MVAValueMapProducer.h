@@ -14,6 +14,9 @@
 
 #include "RecoEgamma/EgammaTools/interface/AnyMVAEstimatorRun2Base.h"
 
+#include "RecoEgamma/EgammaTools/interface/Utils.h"
+#include "RecoEgamma/EgammaTools/interface/MultiToken.h"
+
 #include <memory>
 #include <vector>
 #include <cmath>
@@ -32,15 +35,8 @@ class MVAValueMapProducer : public edm::stream::EDProducer<> {
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-  template<typename T>
-  void writeValueMap(edm::Event &iEvent,
-             const edm::Handle<edm::View<ParticleType> > & handle,
-             const std::vector<T> & values,
-             const std::string    & label) const ;
-
-  // for AOD and miniAOD case
-  const edm::EDGetToken src_;
-  const edm::EDGetToken srcMiniAOD_;
+  // for AOD and MiniAOD case
+  MultiTokenT<edm::View<ParticleType>> src_;
 
   // MVA estimator
   std::vector<std::unique_ptr<AnyMVAEstimatorRun2Base>> mvaEstimators_;
@@ -54,11 +50,9 @@ class MVAValueMapProducer : public edm::stream::EDProducer<> {
 
 template <class ParticleType>
 MVAValueMapProducer<ParticleType>::MVAValueMapProducer(const edm::ParameterSet& iConfig)
-  // Declare consummables, handle both AOD and miniAOD case
-  : src_        (mayConsume<edm::View<ParticleType> >(iConfig.getParameter<edm::InputTag>("src")))
-  , srcMiniAOD_ (mayConsume<edm::View<ParticleType> >(iConfig.getParameter<edm::InputTag>("srcMiniAOD")))
-{
+  : src_(consumesCollector(), iConfig, "src", "srcMiniAOD")
 
+{
   // Loop over the list of MVA configurations passed here from python and
   // construct all requested MVA estimators.
   const std::vector<edm::ParameterSet>& mvaEstimatorConfigs
@@ -110,18 +104,7 @@ MVAValueMapProducer<ParticleType>::~MVAValueMapProducer() {
 template <class ParticleType>
 void MVAValueMapProducer<ParticleType>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-  edm::Handle<edm::View<ParticleType> > src;
-
-  // Retrieve the collection of particles from the event.
-  // If we fail to retrieve the collection with the standard AOD
-  // name, we next look for the one with the stndard miniAOD name.
-  iEvent.getByToken(src_, src);
-  if( !src.isValid() ){
-    iEvent.getByToken(srcMiniAOD_,src);
-    if( !src.isValid() )
-      throw cms::Exception(" Collection not found: ")
-        << " failed to find a standard AOD or miniAOD particle collection " << std::endl;
-  }
+  edm::Handle<edm::View<ParticleType> > src = src_.getValidHandle(iEvent);
 
   // Loop over MVA estimators
   for( unsigned iEstimator = 0; iEstimator < mvaEstimators_.size(); iEstimator++ ){
@@ -146,19 +129,6 @@ void MVAValueMapProducer<ParticleType>::produce(edm::Event& iEvent, const edm::E
 
   } // end loop over estimators
 
-}
-
-template<class ParticleType> template<typename T>
-void MVAValueMapProducer<ParticleType>::writeValueMap(edm::Event &iEvent,
-                                                      const edm::Handle<edm::View<ParticleType> > & handle,
-                                                      const std::vector<T> & values,
-                                                      const std::string    & label) const
-{
-  auto valMap = std::make_unique<edm::ValueMap<T>>();
-  typename edm::ValueMap<T>::Filler filler(*valMap);
-  filler.insert(handle, values.begin(), values.end());
-  filler.fill();
-  iEvent.put(std::move(valMap), label);
 }
 
 template <class ParticleType>

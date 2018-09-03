@@ -90,7 +90,7 @@
       materials:StainlessSteel</Vector>
     <Vector name="VolumeNames" type="string" nEntries="7">
       HFNoseModerator, HFNoseAbsorberCover, HFNoseAbsorber1, HFNoseHeatShield,
-      HFNosePCB, HFNoseSensitive, HFNoseAbsorber2</Vector>
+      HFNosePCB, HGCalHFNoseSensitive, HFNoseAbsorber2</Vector>
     <Vector name="Thickness" type="numeric" nEntries="7">
       [HFNoseDz1], 0.5*mm, 2.1*mm,  6.0*mm,  0.7*mm,  0.3*mm, [HFNoseDz3]
     </Vector>

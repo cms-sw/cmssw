@@ -61,25 +61,6 @@ DDLPosPart::processElement( const std::string& name, const std::string& nmspace,
 	      (( myDDLRotation->size() > 0) ? myDDLRotation->getDDName( nmspace ) :
 	       (( myDDLRefl->size() > 0) ? myDDLRefl->getDDName(nmspace) :
 		(( myrRefl->size() > 0 ) ? myrRefl->getDDName(nmspace) : DDName("")))));
-  // if (myrRotation->size() > 0){
-  //   rotn = myrRotation->getDDName(nmspace);
-  // }
-  // else if (myDDLRotation->size() > 0) {
-  //   // The assumption here is that the Rotation element created 
-  //   // a DDRotation already, and so we can use this as an rRotation
-  //   // just provide DDCore with the name of the one just added... 
-  //   // How to handle name conflicts? OVERWRITTEN by DDCore for now.
-  //   rotn = myDDLRotation->getDDName(nmspace);
-  // }
-  // else if (myDDLRefl->size() > 0) {
-  //   // The assumption is that a ReflectionRotation has been created and therefore 
-  //   // we can refer to it as the rotation associated with this PosPart.
-  //   // we can further assume that the namespace is the same as this PosPart.
-  //   rotn = myDDLRefl->getDDName(nmspace);
-  // }
-  // else if (myrRefl->size() > 0) {
-  //   rotn = myrRefl->getDDName(nmspace);
-  // }
 
   ClhepEvaluator & ev = myRegistry_->evaluator();
 

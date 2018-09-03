@@ -54,10 +54,6 @@ class CSCMotherboard
   /** Default destructor. */
   virtual ~CSCMotherboard() = default;
 
-  /** Test version of run function. */
-  void run(const std::vector<int> w_time[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES],
-           const std::vector<int> hs_times[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
-
   /** Run function for normal usage.  Runs cathode and anode LCT processors,
       takes results and correlates into CorrelatedLCT. */
   void run(const CSCWireDigiCollection* wiredc, const CSCComparatorDigiCollection* compdc);
@@ -126,6 +122,8 @@ class CSCMotherboard
   /** if true: use regular CLCT-to-ALCT matching in TMB
       if false: do ALCT-to-CLCT matching */
   bool clct_to_alct;
+
+  unsigned int alctClctOffset;
 
   /** Default values of configuration parameters. */
   static const unsigned int def_mpc_block_me1a;

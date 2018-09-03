@@ -1,11 +1,13 @@
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ESProductHost.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Integration/interface/ESTestData.h"
 #include "FWCore/Integration/interface/ESTestRecords.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Utilities/interface/ReusableObjectHolder.h"
 
-#include<memory>
+#include <memory>
 
 namespace edmtest {
 
@@ -43,6 +45,57 @@ namespace edmtest {
   std::shared_ptr<ESTestDataB> ESTestProducerB::produce(ESTestRecordB const& rec) {
     ++data_->value();
     return data_;
+  }
+
+  // ---------------------------------------------------------------------
+
+  // This class is used to test ESProductHost
+  class ESTestProducerBUsingHost : public edm::ESProducer {
+  public:
+    ESTestProducerBUsingHost(edm::ParameterSet const&);
+    std::shared_ptr<ESTestDataB> produce(ESTestRecordB const&);
+  private:
+
+    using HostType = edm::ESProductHost<ESTestDataB,
+                                        ESTestRecordC,
+                                        ESTestRecordD,
+                                        ESTestRecordE,
+                                        ESTestRecordF,
+                                        ESTestRecordG,
+                                        ESTestRecordH>;
+
+    edm::ReusableObjectHolder<HostType> holder_;
+  };
+
+  ESTestProducerBUsingHost::ESTestProducerBUsingHost(edm::ParameterSet const&) {
+    setWhatProduced(this);
+  }
+
+  std::shared_ptr<ESTestDataB> ESTestProducerBUsingHost::produce(ESTestRecordB const& record) {
+
+    auto host = holder_.makeOrGet([]() {
+      return new HostType(100, 1000);
+    });
+
+    // Test that the numberOfRecordTypes and index functions are working properly
+    if (host->numberOfRecordTypes() != 6 ||
+        host->index<ESTestRecordC>() != 0 ||
+        host->index<ESTestRecordD>() != 1 ||
+        host->index<ESTestRecordE>() != 2 ||
+        host->index<ESTestRecordF>() != 3 ||
+        host->index<ESTestRecordG>() != 4 ||
+        host->index<ESTestRecordH>() != 5) {
+
+      throw cms::Exception("TestError") << "Either function numberOfRecordTypes or index returns incorrect value";
+    }
+
+    host->ifRecordChanges<ESTestRecordC>(record,
+                                         [this, h=host.get()](auto const& rec) {
+      ++h->value();
+    });
+
+    ++host->value();
+    return host;
   }
 
   // ---------------------------------------------------------------------
@@ -250,6 +303,7 @@ namespace edmtest {
 using namespace edmtest;
 DEFINE_FWK_EVENTSETUP_MODULE(ESTestProducerA);
 DEFINE_FWK_EVENTSETUP_MODULE(ESTestProducerB);
+DEFINE_FWK_EVENTSETUP_MODULE(ESTestProducerBUsingHost);
 DEFINE_FWK_EVENTSETUP_MODULE(ESTestProducerC);
 DEFINE_FWK_EVENTSETUP_MODULE(ESTestProducerD);
 DEFINE_FWK_EVENTSETUP_MODULE(ESTestProducerE);

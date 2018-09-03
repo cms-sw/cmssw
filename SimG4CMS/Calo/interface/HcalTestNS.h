@@ -16,7 +16,7 @@ public:
 
 private:
 
-  HcalDDDRecConstants*          hcons_;
+  const HcalDDDRecConstants*    hcons_;
 
 };
 

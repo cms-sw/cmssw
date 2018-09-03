@@ -41,8 +41,8 @@ void DDTECPhiAlgo::initialize(const DDNumericArguments & nArgs,
 		      << zOut 	      << "\tCopy Numbers " << number 
 		      << " Start/Increment " << startCopyNo << ", " 
 		      << incrCopyNo;
-
-  idNameSpace = DDCurrentNamespace::ns();
+  DDCurrentNamespace ns;
+  idNameSpace = *ns;
   childName   = sArgs["ChildName"]; 
   DDName parentName = parent().name();
   LogDebug("TECGeom") << "DDTECPhiAlgo debug: Parent " << parentName 
