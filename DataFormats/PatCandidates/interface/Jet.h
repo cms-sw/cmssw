@@ -454,7 +454,7 @@ namespace pat {
 
       /// clear daughter references
       void clearDaughters() override {
-        reco::CompositePtrCandidate::clearDaughters();
+        PATObject<reco::Jet>::clearDaughters();
         daughtersTemp_.reset(); // need to reset daughtersTemp_ as well
       }
 

@@ -191,102 +191,30 @@ supportedBtagDiscr = {
   , 'pfNegativeDeepFlavourJetTags:probg'                            : [["pfNegativeDeepFlavourTagInfos"], ['pfDeepCSVNegativeTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderNegativeTagInfos']]
   , 'pfDeepDoubleBJetTags:probQ'                            : [["pfDeepDoubleBTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
   , 'pfDeepDoubleBJetTags:probH'                            : [["pfDeepDoubleBTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
-    # DeepBoostedJetTagging
-  , 'pfDeepBoostedJetTags:probTbcq'                       : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfDeepBoostedJetTags:probTbqq'                       : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfDeepBoostedJetTags:probTbc'                        : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfDeepBoostedJetTags:probTbq'                        : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfDeepBoostedJetTags:probWcq'                        : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfDeepBoostedJetTags:probWqq'                        : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfDeepBoostedJetTags:probZbb'                        : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfDeepBoostedJetTags:probZcc'                        : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfDeepBoostedJetTags:probZqq'                        : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfDeepBoostedJetTags:probHbb'                        : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfDeepBoostedJetTags:probHcc'                        : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfDeepBoostedJetTags:probHqqqq'                      : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfDeepBoostedJetTags:probQCDbb'                      : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfDeepBoostedJetTags:probQCDcc'                      : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfDeepBoostedJetTags:probQCDb'                       : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfDeepBoostedJetTags:probQCDc'                       : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfDeepBoostedJetTags:probQCDothers'                  : [["pfDeepBoostedJetTagInfos"]]
-    # DeepBoostedJetTagging - Mass-decorrelated
-  , 'pfMassDecorrelatedDeepBoostedJetTags:probTbcq'                       : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfMassDecorrelatedDeepBoostedJetTags:probTbqq'                       : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfMassDecorrelatedDeepBoostedJetTags:probTbc'                        : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfMassDecorrelatedDeepBoostedJetTags:probTbq'                        : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfMassDecorrelatedDeepBoostedJetTags:probWcq'                        : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfMassDecorrelatedDeepBoostedJetTags:probWqq'                        : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfMassDecorrelatedDeepBoostedJetTags:probZbb'                        : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfMassDecorrelatedDeepBoostedJetTags:probZcc'                        : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfMassDecorrelatedDeepBoostedJetTags:probZqq'                        : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfMassDecorrelatedDeepBoostedJetTags:probHbb'                        : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfMassDecorrelatedDeepBoostedJetTags:probHcc'                        : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfMassDecorrelatedDeepBoostedJetTags:probHqqqq'                      : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfMassDecorrelatedDeepBoostedJetTags:probQCDbb'                      : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfMassDecorrelatedDeepBoostedJetTags:probQCDcc'                      : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfMassDecorrelatedDeepBoostedJetTags:probQCDb'                       : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfMassDecorrelatedDeepBoostedJetTags:probQCDc'                       : [["pfDeepBoostedJetTagInfos"]]
-  , 'pfMassDecorrelatedDeepBoostedJetTags:probQCDothers'                  : [["pfDeepBoostedJetTagInfos"]]
 }
 
-#meta-taggers are simple arithmetic on top of other taggers, they are stored here
-#such that in case you want them re-run also the parent tagger is re-run as well
-_pfDeepBoostedJetTagsProbs = [
-    'pfDeepBoostedJetTags:probTbcq',
-    'pfDeepBoostedJetTags:probTbqq',
-    'pfDeepBoostedJetTags:probTbc',
-    'pfDeepBoostedJetTags:probTbq',
-    'pfDeepBoostedJetTags:probWcq',
-    'pfDeepBoostedJetTags:probWqq',
-    'pfDeepBoostedJetTags:probZbb',
-    'pfDeepBoostedJetTags:probZcc',
-    'pfDeepBoostedJetTags:probZqq',
-    'pfDeepBoostedJetTags:probHbb',
-    'pfDeepBoostedJetTags:probHcc',
-    'pfDeepBoostedJetTags:probHqqqq',
-    'pfDeepBoostedJetTags:probQCDbb',
-    'pfDeepBoostedJetTags:probQCDcc',
-    'pfDeepBoostedJetTags:probQCDb',
-    'pfDeepBoostedJetTags:probQCDc',
-    'pfDeepBoostedJetTags:probQCDothers',
-    ]
-_pfMassDecorrelatedDeepBoostedJetTagsProbs = [
-    'pfMassDecorrelatedDeepBoostedJetTags:probTbcq',
-    'pfMassDecorrelatedDeepBoostedJetTags:probTbqq',
-    'pfMassDecorrelatedDeepBoostedJetTags:probTbc',
-    'pfMassDecorrelatedDeepBoostedJetTags:probTbq',
-    'pfMassDecorrelatedDeepBoostedJetTags:probWcq',
-    'pfMassDecorrelatedDeepBoostedJetTags:probWqq',
-    'pfMassDecorrelatedDeepBoostedJetTags:probZbb',
-    'pfMassDecorrelatedDeepBoostedJetTags:probZcc',
-    'pfMassDecorrelatedDeepBoostedJetTags:probZqq',
-    'pfMassDecorrelatedDeepBoostedJetTags:probHbb',
-    'pfMassDecorrelatedDeepBoostedJetTags:probHcc',
-    'pfMassDecorrelatedDeepBoostedJetTags:probHqqqq',
-    'pfMassDecorrelatedDeepBoostedJetTags:probQCDbb',
-    'pfMassDecorrelatedDeepBoostedJetTags:probQCDcc',
-    'pfMassDecorrelatedDeepBoostedJetTags:probQCDb',
-    'pfMassDecorrelatedDeepBoostedJetTags:probQCDc',
-    'pfMassDecorrelatedDeepBoostedJetTags:probQCDothers',
-    ]
+# meta-taggers are simple arithmetic on top of other taggers, they are stored here
+# such that in case you want them re-run also the parent tagger is re-run as well
+
 supportedMetaDiscr = {
    'pfDeepCSVDiscriminatorsJetTags:BvsAll' : ['pfDeepCSVJetTags:probudsg', 'pfDeepCSVJetTags:probb', 'pfDeepCSVJetTags:probc', 'pfDeepCSVJetTags:probbb'],
    'pfDeepCSVDiscriminatorsJetTags:CvsB' : ['pfDeepCSVJetTags:probudsg', 'pfDeepCSVJetTags:probb', 'pfDeepCSVJetTags:probc', 'pfDeepCSVJetTags:probbb'],
    'pfDeepCSVDiscriminatorsJetTags:CvsL' : ['pfDeepCSVJetTags:probudsg', 'pfDeepCSVJetTags:probb', 'pfDeepCSVJetTags:probc', 'pfDeepCSVJetTags:probbb'],
-   'pfDeepCMVADiscriminatorsJetTags:BvsAll' : ['pfDeepCMVAJetTags:probudsg', 'pfDeepCMVAJetTags:probb', 'pfDeepCMVAJetTags:probc', 'pfDeepCMVAJetTags:probbb'],   
-   'pfDeepCMVADiscriminatorsJetTags:CvsB' : ['pfDeepCMVAJetTags:probudsg', 'pfDeepCMVAJetTags:probb', 'pfDeepCMVAJetTags:probc', 'pfDeepCMVAJetTags:probbb'],   
+   'pfDeepCMVADiscriminatorsJetTags:BvsAll' : ['pfDeepCMVAJetTags:probudsg', 'pfDeepCMVAJetTags:probb', 'pfDeepCMVAJetTags:probc', 'pfDeepCMVAJetTags:probbb'],
+   'pfDeepCMVADiscriminatorsJetTags:CvsB' : ['pfDeepCMVAJetTags:probudsg', 'pfDeepCMVAJetTags:probb', 'pfDeepCMVAJetTags:probc', 'pfDeepCMVAJetTags:probbb'],
    'pfDeepCMVADiscriminatorsJetTags:CvsL' : ['pfDeepCMVAJetTags:probudsg', 'pfDeepCMVAJetTags:probb', 'pfDeepCMVAJetTags:probc', 'pfDeepCMVAJetTags:probbb'],
-   'pfDeepBoostedDiscriminatorsJetTags:TvsQCD' : _pfDeepBoostedJetTagsProbs,
-   'pfDeepBoostedDiscriminatorsJetTags:WvsQCD' : _pfDeepBoostedJetTagsProbs,
-   'pfDeepBoostedDiscriminatorsJetTags:ZvsQCD' : _pfDeepBoostedJetTagsProbs,
-   'pfDeepBoostedDiscriminatorsJetTags:ZbbvsQCD' : _pfDeepBoostedJetTagsProbs,
-   'pfDeepBoostedDiscriminatorsJetTags:HbbvsQCD' : _pfDeepBoostedJetTagsProbs,
-   'pfDeepBoostedDiscriminatorsJetTags:H4qvsQCD' : _pfDeepBoostedJetTagsProbs,
-   'pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:TvsQCD'    : _pfMassDecorrelatedDeepBoostedJetTagsProbs,
-   'pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:WvsQCD'    : _pfMassDecorrelatedDeepBoostedJetTagsProbs,
-   'pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:ZHbbvsQCD' : _pfMassDecorrelatedDeepBoostedJetTagsProbs,
-   'pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:ZHccvsQCD' : _pfMassDecorrelatedDeepBoostedJetTagsProbs,
-   'pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:bbvsLight' : _pfMassDecorrelatedDeepBoostedJetTagsProbs,
-   'pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:ccvsLight' : _pfMassDecorrelatedDeepBoostedJetTagsProbs,
 }
 
+# -----------------------------------
+# setup DeepBoostedJet
+from RecoBTag.DeepBoostedJet.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsProbs, _pfDeepBoostedJetTagsMetaDiscrs, \
+    _pfMassDecorrelatedDeepBoostedJetTagsProbs, _pfMassDecorrelatedDeepBoostedJetTagsMetaDiscrs
+# update supportedBtagDiscr
+for disc in _pfDeepBoostedJetTagsProbs + _pfMassDecorrelatedDeepBoostedJetTagsProbs:
+    supportedBtagDiscr[disc] = [["pfDeepBoostedJetTagInfos"]]
+# update supportedMetaDiscr
+for disc in _pfDeepBoostedJetTagsMetaDiscrs:
+    supportedMetaDiscr[disc] = _pfDeepBoostedJetTagsProbs
+for disc in _pfMassDecorrelatedDeepBoostedJetTagsMetaDiscrs:
+    supportedMetaDiscr[disc] = _pfMassDecorrelatedDeepBoostedJetTagsProbs
+# -----------------------------------

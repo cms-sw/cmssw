@@ -15,6 +15,8 @@
 
 #include <iostream>
 #include <fstream>
+#include <algorithm>
+#include <numeric>
 #include "PhysicsTools/MXNet/interface/Predictor.h"
 
 // Hold the mxnet model block (symbol + params) in the edm::GlobalCache.
@@ -30,9 +32,9 @@ struct PreprocessParams {
   struct VarInfo {
     VarInfo() {}
     VarInfo(float median, float upper) :
-      center(median), scale(upper==median ? 1 : upper-median) {}
+      center(median), norm_factor(upper==median ? 1 : 1./(upper-median)) {}
     float center = 0;
-    float scale = 1;
+    float norm_factor = 1;
   };
 
   unsigned var_length = 0;
@@ -75,7 +77,7 @@ class DeepBoostedJetTagsProducer : public edm::stream::EDProducer<edm::GlobalCac
     void make_inputs(const reco::DeepBoostedJetTagInfo &taginfo);
 
     const edm::EDGetTokenT< TagInfoCollection > src_;
-    std::vector<std::pair<std::string,std::vector<unsigned int>>> flav_pairs_;
+    std::vector<std::string> flav_names_;  // names of the output scores
     std::vector<std::string> input_names_; // names of each input group - the ordering is important!
     std::vector<std::vector<unsigned int>> input_shapes_; // shapes of each input group
     std::unordered_map<std::string, PreprocessParams> prep_info_map_; // preprocessing info for each input group
@@ -88,12 +90,11 @@ class DeepBoostedJetTagsProducer : public edm::stream::EDProducer<edm::GlobalCac
 
 DeepBoostedJetTagsProducer::DeepBoostedJetTagsProducer(const edm::ParameterSet& iConfig, const MXBlockCache* cache)
 : src_(consumes<TagInfoCollection>(iConfig.getParameter<edm::InputTag>("src")))
+, flav_names_(iConfig.getParameter<std::vector<std::string>>("flav_names"))
 , debug_(iConfig.getUntrackedParameter<bool>("debugMode", false))
 {
 
   // load preprocessing info
-  input_shapes_.clear();
-  prep_info_map_.clear();
   const auto &prep_pset = iConfig.getParameterSet("preprocessParams");
   input_names_ = prep_pset.getParameter<std::vector<std::string>>("input_names");
   for (const auto &group_name : input_names_){
@@ -109,20 +110,24 @@ DeepBoostedJetTagsProducer::DeepBoostedJetTagsProducer(const edm::ParameterSet& 
       double upper = var_pset.getParameter<double>("upper");
       prep_params.var_info_map[var_name] = PreprocessParams::VarInfo(median, upper);
     }
+
+    // create data storage with a fixed size vector initilized w/ 0
+    unsigned len = prep_params.var_length * prep_params.var_names.size();
+    data_.emplace_back(len, 0);
   }
 
   if (debug_) {
     for (unsigned i=0; i<input_names_.size(); ++i){
       const auto &group_name = input_names_.at(i);
-      std::cerr << group_name << "\nshapes: ";
+      std::cout << group_name << "\nshapes: ";
       for (const auto &x : input_shapes_.at(i)){
-        std::cerr << x << ", ";
+        std::cout << x << ", ";
       }
-      std::cerr << "\nvariables: ";
+      std::cout << "\nvariables: ";
       for (const auto &x : prep_info_map_.at(group_name).var_names){
-        std::cerr << x << ", ";
+        std::cout << x << ", ";
       }
-      std::cerr << "\n";
+      std::cout << "\n";
     }
   }
 
@@ -130,16 +135,9 @@ DeepBoostedJetTagsProducer::DeepBoostedJetTagsProducer(const edm::ParameterSet& 
   predictor_.reset(new mxnet::cpp::Predictor(*cache->block));
   predictor_->set_input_shapes(input_names_, input_shapes_);
 
-  // get output names from flav_table
-  const auto & flav_pset = iConfig.getParameter<edm::ParameterSet>("flav_table");
-  for (const auto& flav_pair : flav_pset.tbl()) {
-    const auto & flav_name = flav_pair.first;
-    flav_pairs_.emplace_back(flav_name,
-                             flav_pset.getParameter<std::vector<unsigned int>>(flav_name));
-  }
-
-  for (const auto & flav_pair : flav_pairs_) {
-    produces<JetTagCollection>(flav_pair.first);
+  // get output names from flav_names
+  for (const auto &flav_name : flav_names_) {
+    produces<JetTagCollection>(flav_name);
   }
 
 }
@@ -149,7 +147,6 @@ DeepBoostedJetTagsProducer::~DeepBoostedJetTagsProducer(){
 
 void DeepBoostedJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 {
-
   // pfDeepBoostedJetTags
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("pfDeepBoostedJetTagInfos"));
@@ -160,27 +157,25 @@ void DeepBoostedJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptions
     edm::FileInPath("RecoBTag/Combined/data/DeepBoostedJet/V01/full/resnet-symbol.json"));
   desc.add<edm::FileInPath>("param_path",
     edm::FileInPath("RecoBTag/Combined/data/DeepBoostedJet/V01/full/resnet-0000.params"));
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::vector<unsigned int>>("probTbcq",      {0});
-    psd0.add<std::vector<unsigned int>>("probTbqq",      {1});
-    psd0.add<std::vector<unsigned int>>("probTbc",       {2});
-    psd0.add<std::vector<unsigned int>>("probTbq",       {3});
-    psd0.add<std::vector<unsigned int>>("probWcq",       {4});
-    psd0.add<std::vector<unsigned int>>("probWqq",       {5});
-    psd0.add<std::vector<unsigned int>>("probZbb",       {6});
-    psd0.add<std::vector<unsigned int>>("probZcc",       {7});
-    psd0.add<std::vector<unsigned int>>("probZqq",       {8});
-    psd0.add<std::vector<unsigned int>>("probHbb",       {9});
-    psd0.add<std::vector<unsigned int>>("probHcc",       {10});
-    psd0.add<std::vector<unsigned int>>("probHqqqq",     {11});
-    psd0.add<std::vector<unsigned int>>("probQCDbb",     {12});
-    psd0.add<std::vector<unsigned int>>("probQCDcc",     {13});
-    psd0.add<std::vector<unsigned int>>("probQCDb",      {14});
-    psd0.add<std::vector<unsigned int>>("probQCDc",      {15});
-    psd0.add<std::vector<unsigned int>>("probQCDothers", {16});
-    desc.add<edm::ParameterSetDescription>("flav_table", psd0);
-  }
+  desc.add<std::vector<std::string>>("flav_names", std::vector<std::string>{
+    "probTbcq",
+    "probTbqq",
+    "probTbc",
+    "probTbq",
+    "probWcq",
+    "probWqq",
+    "probZbb",
+    "probZcc",
+    "probZqq",
+    "probHbb",
+    "probHcc",
+    "probHqqqq",
+    "probQCDbb",
+    "probQCDcc",
+    "probQCDb",
+    "probQCDc",
+    "probQCDothers",
+  });
   desc.addOptionalUntracked<bool>("debugMode", false);
 
   descriptions.add("pfDeepBoostedJetTags", desc);
@@ -214,106 +209,91 @@ void DeepBoostedJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSet
 
   // initialize output collection
   std::vector<std::unique_ptr<JetTagCollection>> output_tags;
-  for (std::size_t i=0; i < flav_pairs_.size(); i++) {
-    if (!tag_infos->empty()) {
-      auto jet_ref = tag_infos->begin()->jet();
-      output_tags.emplace_back(std::make_unique<JetTagCollection>(
-            edm::makeRefToBaseProdFrom(jet_ref, iEvent)));
-    } else {
+  if (!tag_infos->empty()) {
+    auto jet_ref = tag_infos->begin()->jet();
+    auto ref2prod = edm::makeRefToBaseProdFrom(jet_ref, iEvent);
+    for (std::size_t i=0; i < flav_names_.size(); i++) {
+      output_tags.emplace_back(std::make_unique<JetTagCollection>(ref2prod));
+    }
+  } else {
+    for (std::size_t i=0; i < flav_names_.size(); i++) {
       output_tags.emplace_back(std::make_unique<JetTagCollection>());
     }
   }
 
   for (unsigned jet_n=0; jet_n<tag_infos->size(); ++jet_n){
 
-    const auto& taginfo = tag_infos->at(jet_n);
-    std::vector<float> outputs(flav_pairs_.size(), 0); // init as all zeros
+    const auto& taginfo = (*tag_infos)[jet_n];
+    std::vector<float> outputs(flav_names_.size(), 0); // init as all zeros
 
     if (!taginfo.features().empty()){
       // convert inputs
       make_inputs(taginfo);
       // run prediction and get outputs
       outputs = predictor_->predict(data_);
+      assert(outputs.size() == flav_names_.size());
     }
 
     const auto & jet_ref = tag_infos->at(jet_n).jet();
-    for (std::size_t flav_n=0; flav_n < flav_pairs_.size(); flav_n++) {
-      const auto & flav_pair = flav_pairs_.at(flav_n);
-      float o_sum = 0.;
-      for (const unsigned int & ind : flav_pair.second) {
-        o_sum += outputs.at(ind);
-      }
-      (*(output_tags.at(flav_n)))[jet_ref] = o_sum;
+    for (std::size_t flav_n=0; flav_n < flav_names_.size(); flav_n++) {
+      (*(output_tags[flav_n]))[jet_ref] = outputs[flav_n];
     }
 
   }
 
   if (debug_){
-    std::cerr << "=== " <<  iEvent.id().run() << ":" << iEvent.id().luminosityBlock() << ":" << iEvent.id().event() << " ===" << std::endl;
+    std::cout << "=== " <<  iEvent.id().run() << ":" << iEvent.id().luminosityBlock() << ":" << iEvent.id().event() << " ===" << std::endl;
     for (unsigned jet_n=0; jet_n<tag_infos->size(); ++jet_n){
       const auto & jet_ref = tag_infos->at(jet_n).jet();
-      std::cerr << " - Jet #" << jet_n << ", pt=" << jet_ref->pt() << ", eta=" << jet_ref->eta() << ", phi=" << jet_ref->phi() << std::endl;
-      for (std::size_t flav_n=0; flav_n < flav_pairs_.size(); ++flav_n) {
-        std::cerr << "    " << flav_pairs_.at(flav_n).first << " = " << (*(output_tags.at(flav_n)))[jet_ref] << std::endl;
+      std::cout << " - Jet #" << jet_n << ", pt=" << jet_ref->pt() << ", eta=" << jet_ref->eta() << ", phi=" << jet_ref->phi() << std::endl;
+      for (std::size_t flav_n=0; flav_n < flav_names_.size(); ++flav_n) {
+        std::cout << "    " << flav_names_.at(flav_n) << " = " << (*(output_tags.at(flav_n)))[jet_ref] << std::endl;
       }
     }
   }
 
   // put into the event
-  for (std::size_t i=0; i < flav_pairs_.size(); i++) {
-    iEvent.put(std::move(output_tags[i]), flav_pairs_.at(i).first);
+  for (std::size_t flav_n=0; flav_n < flav_names_.size(); ++flav_n) {
+    iEvent.put(std::move(output_tags[flav_n]), flav_names_[flav_n]);
   }
 
 }
 
 std::vector<float> DeepBoostedJetTagsProducer::center_norm_pad(
-    const std::vector<float>& input, float center, float scale,
+    const std::vector<float>& input, float center, float norm_factor,
     unsigned target_length, float pad_value, float min, float max) {
   // do variable shifting/scaling/padding/clipping in one go
 
-  auto clip = [](float value, float low, float high){
-    if (low >= high) throw cms::Exception("InvalidArgument") << "Error in clip: low >= high!";
-    if (value < low) return low;
-    if (value > high) return high;
-    return value;
-  };
+  assert(min<=pad_value && pad_value<=max);
 
-  pad_value = clip(pad_value, min, max);
   std::vector<float> out(target_length, pad_value);
   for (unsigned i=0; i<input.size() && i<target_length; ++i){
-    out.at(i) = (input.at(i) - center) / scale;
-    if (min < max) out.at(i) = clip(out.at(i), min, max);
+    out[i] = std::clamp((input[i] - center) * norm_factor, min, max);
   }
   return out;
 
 }
 
 void DeepBoostedJetTagsProducer::make_inputs(const reco::DeepBoostedJetTagInfo& taginfo) {
-  data_.clear();
-  for (const auto &group_name : input_names_) {
-    // initiate with an empty vector
-    data_.emplace_back();
-    auto &group_values = data_.back();
+  for (unsigned igroup = 0; igroup<input_names_.size(); ++igroup) {
+    const auto &group_name = input_names_[igroup];
+    auto &group_values = data_[igroup];
     const auto& prep_params = prep_info_map_.at(group_name);
+    // first reset group_values to 0
+    std::fill(group_values.begin(), group_values.end(), 0);
+    unsigned curr_pos = 0;
     // transform/pad
-    int var_ref_len = -1;
     for (const auto &varname : prep_params.var_names){
       const auto &raw_value = taginfo.features().get(varname);
-      // check consistency of the variable length
-      if (var_ref_len == -1) {
-        var_ref_len = raw_value.size();
-      } else {
-        if (static_cast<int>(raw_value.size()) != var_ref_len)
-          throw cms::Exception("InvalidArgument") << "Inconsistent variable length " << raw_value.size() << " for " << varname << ", should be " << var_ref_len;
-      }
       const auto &info = prep_params.get_info(varname);
-      float pad = 0; // pad w/ zero
-      auto val = center_norm_pad(raw_value, info.center, info.scale, prep_params.var_length, pad, -5, 5);
-      group_values.insert(group_values.end(), val.begin(), val.end());
+      const float pad = 0; // pad w/ zero
+      auto val = center_norm_pad(raw_value, info.center, info.norm_factor, prep_params.var_length, pad, -5, 5);
+      std::copy(val.begin(), val.end(), group_values.begin()+curr_pos);
+      curr_pos += prep_params.var_length;
 
       if (debug_){
-        std::cerr << " -- var=" << varname << ", center=" << info.center << ", scale=" << info.scale << ", pad=" << pad << std::endl;
-        std::cerr << "values (first 7 and last 3): " << val.at(0) << ", " << val.at(1) << ", " << val.at(2) << ", " << val.at(3) << ", " << val.at(4) << ", " << val.at(5) << ", " << val.at(6) << " ... "
+        std::cout << " -- var=" << varname << ", center=" << info.center << ", scale=" << info.norm_factor << ", pad=" << pad << std::endl;
+        std::cout << "values (first 7 and last 3): " << val.at(0) << ", " << val.at(1) << ", " << val.at(2) << ", " << val.at(3) << ", " << val.at(4) << ", " << val.at(5) << ", " << val.at(6) << " ... "
             << val.at(prep_params.var_length-3) << ", " << val.at(prep_params.var_length-2) << ", " << val.at(prep_params.var_length-1) << std::endl;
       }
 
