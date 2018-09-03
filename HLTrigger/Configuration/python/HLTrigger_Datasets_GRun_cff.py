@@ -195,6 +195,7 @@ streamPhysicsCommissioning_datasetNoBPTX_selector.l1tResults = cms.InputTag('')
 streamPhysicsCommissioning_datasetNoBPTX_selector.throw      = cms.bool(False)
 streamPhysicsCommissioning_datasetNoBPTX_selector.triggerConditions = cms.vstring(
     'HLT_CDC_L2cosmic_10_er1p0_v1', 
+    'HLT_CDC_L2cosmic_5p5_er1p0_v1', 
     'HLT_L2Mu10_NoVertex_NoBPTX3BX_v5', 
     'HLT_L2Mu10_NoVertex_NoBPTX_v6', 
     'HLT_L2Mu40_NoVertex_3Sta_NoBPTX3BX_v5', 
