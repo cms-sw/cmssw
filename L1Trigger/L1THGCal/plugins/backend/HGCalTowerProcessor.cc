@@ -23,7 +23,7 @@ class HGCalTowerProcessor : public HGCalTowerProcessorBase
             
     void run(const edm::Handle<l1t::HGCalTowerMapBxCollection>& collHandle,
              l1t::HGCalTowerBxCollection& collTowers,
-             const edm::EventSetup& es)
+             const edm::EventSetup& es) override
     {
       es.get<CaloGeometryRecord>().get("", triggerGeometry_);    
  

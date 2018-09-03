@@ -29,7 +29,7 @@ class HGCalBackendLayer2Processor3DClustering : public HGCalBackendLayer2Process
         
     void run(const edm::Handle<l1t::HGCalClusterBxCollection>& collHandle,
              l1t::HGCalMulticlusterBxCollection& collCluster3D,
-             const edm::EventSetup& es) 
+             const edm::EventSetup& es) override 
     {
       es.get<CaloGeometryRecord>().get("", triggerGeometry_);
       multiclustering_.eventSetup(es);
