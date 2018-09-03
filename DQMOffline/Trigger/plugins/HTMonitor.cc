@@ -180,11 +180,13 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
 
   edm::Handle<reco::PFMETCollection> metHandle;
   iEvent.getByToken( metToken_, metHandle );
+  if ( !metHandle.isValid() ) return;
   reco::PFMET pfmet = metHandle->front();
   if ( ! metSelection_( pfmet ) ) return;
 
   edm::Handle<reco::JetView> jetHandle; //add a configurable jet collection & jet pt selection
   iEvent.getByToken( jetToken_, jetHandle );
+  if ( !jetHandle.isValid() ) return;
   std::vector<reco::Jet> jets;
   if ( jetHandle->size() < njets_ ) return;
   for ( auto const & j : *jetHandle ) {
@@ -201,15 +203,17 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
   if (!jets.empty()) deltaPhi_met_j1 = fabs( deltaPhi( pfmet.phi(),  jets[0].phi() ));
   if (jets.size() >= 2) deltaPhi_j1_j2 = fabs( deltaPhi( jets[0].phi(),  jets[1].phi() ));
 
+  std::vector<reco::GsfElectron> electrons;
   edm::Handle<reco::GsfElectronCollection> eleHandle;
   iEvent.getByToken( eleToken_, eleHandle );
-  std::vector<reco::GsfElectron> electrons;
-  if ( eleHandle->size() < nelectrons_ ) return;
-  for ( auto const & e : *eleHandle ) {
-    if ( eleSelection_( e ) ) electrons.push_back(e);
+  if ( eleHandle.isValid() ) {
+    if ( eleHandle->size() < nelectrons_ ) return;
+    for ( auto const & e : *eleHandle ) {
+      if ( eleSelection_( e ) ) electrons.push_back(e);
+    }
+    if ( electrons.size() < nelectrons_ ) return;
   }
-  if ( electrons.size() < nelectrons_ ) return;
-  
+
   edm::Handle<reco::VertexCollection> vtxHandle;
   iEvent.getByToken(vtxToken_, vtxHandle);
 
@@ -223,14 +227,16 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
     }
   }
 
+  std::vector<reco::Muon> muons;
   edm::Handle<reco::MuonCollection> muoHandle;
   iEvent.getByToken( muoToken_, muoHandle );
-  if ( muoHandle->size() < nmuons_ ) return;
-  std::vector<reco::Muon> muons;
-  for ( auto const & m : *muoHandle ) {
-    if ( muoSelection_( m ) && m.isGlobalMuon() && m.isPFMuon() && m.globalTrack()->normalizedChi2() < 10. && m.globalTrack()->hitPattern().numberOfValidMuonHits() > 0 && m.numberOfMatchedStations() > 1 && fabs(m.muonBestTrack()->dxy(vtx.position())) < 0.2 && fabs(m.muonBestTrack()->dz(vtx.position())) < 0.5 && m.innerTrack()->hitPattern().numberOfValidPixelHits() > 0 && m.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 )  muons.push_back(m);
+  if ( muoHandle.isValid() ) {
+    if ( muoHandle->size() < nmuons_ ) return;
+    for ( auto const & m : *muoHandle ) {
+      if ( muoSelection_( m ) && m.isGlobalMuon() && m.isPFMuon() && m.globalTrack()->normalizedChi2() < 10. && m.globalTrack()->hitPattern().numberOfValidMuonHits() > 0 && m.numberOfMatchedStations() > 1 && fabs(m.muonBestTrack()->dxy(vtx.position())) < 0.2 && fabs(m.muonBestTrack()->dz(vtx.position())) < 0.5 && m.innerTrack()->hitPattern().numberOfValidPixelHits() > 0 && m.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 )  muons.push_back(m);
+    }
+    if ( muons.size() < nmuons_ ) return;
   }
-  if ( muons.size() < nmuons_ ) return;
 
   // fill histograms
   switch(quantity_)

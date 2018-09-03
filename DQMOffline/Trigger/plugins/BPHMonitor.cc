@@ -345,16 +345,18 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
   edm::Handle<reco::BeamSpot> beamSpot;
   iEvent.getByToken( bsToken_,  beamSpot);
+  if ( !beamSpot.isValid() ) return;
 
   edm::Handle<reco::MuonCollection> muoHandle;
   iEvent.getByToken( muoToken_, muoHandle );
+  if ( !muoHandle.isValid() ) return;
 
   edm::Handle<reco::TrackCollection> trHandle;
   iEvent.getByToken( trToken_, trHandle );
+  if ( !trHandle.isValid() ) return;
 
   edm::Handle<reco::PhotonCollection> phHandle;
   iEvent.getByToken( phToken_, phHandle );
-
 
   edm::Handle<edm::TriggerResults> handleTriggerTrigRes; 
 
@@ -683,11 +685,13 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
     if (enum_ == 7) { // photons
       const std::string & hltpath = hltpaths_den[0];
-      for (auto const & p : *phHandle) {
-	if (false && !matchToTrigger(hltpath,p, handleTriggerEvent)) continue;
-	phPhi_.denominator->Fill(p.phi());
-	phEta_.denominator->Fill(p.eta());
-	phPt_.denominator ->Fill(p.pt());
+      if ( phHandle.isValid() ) {
+	for (auto const & p : *phHandle) {
+	  if (false && !matchToTrigger(hltpath,p, handleTriggerEvent)) continue;
+	  phPhi_.denominator->Fill(p.phi());
+	  phEta_.denominator->Fill(p.eta());
+	  phPt_.denominator ->Fill(p.pt());
+	}
       }
 
     } 
@@ -965,11 +969,13 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     }
     if (enum_ == 7) { // photons
       const std::string &hltpath = hltpaths_num[0];
-      for (auto const & p : *phHandle) {
-	if (false && !matchToTrigger(hltpath,p, handleTriggerEvent)) continue;
-	phPhi_.numerator->Fill(p.phi(),PrescaleWeight);
-	phEta_.numerator->Fill(p.eta(),PrescaleWeight);
-	phPt_.numerator ->Fill(p.pt(),PrescaleWeight);
+      if ( phHandle.isValid() ) {
+	for (auto const & p : *phHandle) {
+	  if (false && !matchToTrigger(hltpath,p, handleTriggerEvent)) continue;
+	  phPhi_.numerator->Fill(p.phi(),PrescaleWeight);
+	  phEta_.numerator->Fill(p.eta(),PrescaleWeight);
+	  phPt_.numerator ->Fill(p.pt(),PrescaleWeight);
+	}
       }
     }
   }
