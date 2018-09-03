@@ -44,12 +44,11 @@ void DDTrackerLinear::initialize(const DDNumericArguments & nArgs,
     incrcn = 1;
   }
   
-  idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
   DDName parentName = parent().name();
   LogDebug("TrackerGeom") << "DDTrackerLinear debug: Parent " << parentName 
 			  << "\tChild " << childName << " NameSpace " 
-			  << idNameSpace << "\tNumber " << number 
+			  << DDCurrentNamespace() << "\tNumber " << number 
 			  << "\tAxis (theta/phi) " << theta/CLHEP::deg << ", "
 			  << phi/CLHEP::deg << "\t(Offset/Delta) " << offset 
 			  << ", "  << delta << "\tCentre " << centre[0] << ", "

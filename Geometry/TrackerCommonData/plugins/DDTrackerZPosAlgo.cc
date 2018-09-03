@@ -30,13 +30,11 @@ void DDTrackerZPosAlgo::initialize(const DDNumericArguments & nArgs,
   incrCopyNo  = int(nArgs["IncrCopyNo"]);
   zvec        = vArgs["ZPositions"];
   rotMat      = vsArgs["Rotations"];
-  
-  idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
   DDName parentName = parent().name();
   LogDebug("TrackerGeom") << "DDTrackerZPosAlgo debug: Parent " << parentName 
 			  << "\tChild " << childName << " NameSpace " 
-			  << idNameSpace << "\tCopyNo (Start/Increment) " 
+			  << DDCurrentNamespace() << "\tCopyNo (Start/Increment) " 
 			  << startCopyNo << ", " << incrCopyNo << "\tNumber " 
 			  << zvec.size();
   for (int i = 0; i < (int)(zvec.size()); i++) {

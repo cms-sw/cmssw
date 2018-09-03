@@ -63,12 +63,12 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell,
     if (id[2] >= 0) {
       index   = HGCScintillatorDetId(id[2], layer, iz*id[0], id[1]).rawId();
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCSim") << "Eta/Phi " << id[0] << ":" << id[1]
+      edm::LogVerbatim("HGCSim") << "Radius/Phi " << id[0] << ":" << id[1]
 				 << " Type " << id[2] << " Layer|iz " 
 				 << layer << ":" << iz << " " 
 				 << HGCScintillatorDetId(index);
     } else {
-      edm::LogVerbatim("HGCSim") << "Eta/Phi " << id[0] << ":" << id[1]
+      edm::LogVerbatim("HGCSim") << "Radius/Phi " << id[0] << ":" << id[1]
 				 << " Type " << id[2] << " Layer|iz " << layer
 				 << ":" << iz;
 #endif

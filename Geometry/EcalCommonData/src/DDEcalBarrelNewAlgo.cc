@@ -373,7 +373,8 @@ void DDEcalBarrelNewAlgo::initialize(const DDNumericArguments      & nArgs,
 				     const DDStringVectorArguments & vsArgs) {
 
    LogDebug("EcalGeom") << "DDEcalBarrelAlgo info: Initialize" ;
-   m_idNameSpace = DDCurrentNamespace::ns();
+   DDCurrentNamespace ns;
+   m_idNameSpace = *ns;
    // TRICK!
    m_idNameSpace = parent().name().ns();
    // barrel parent volume

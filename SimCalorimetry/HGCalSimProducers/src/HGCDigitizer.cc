@@ -27,7 +27,7 @@ using namespace hgc_digi;
 
 namespace {
 
-  constexpr std::array<double,3> occupancyGuesses = { { 0.5,0.2,0.2 } };
+  constexpr std::array<double,4> occupancyGuesses = { { 0.5,0.2,0.2,0.8 } };
 
 
   float getPositionDistance(const HGCalGeometry* geom, const DetId& id) {
@@ -240,6 +240,11 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps,
     myDet_   =DetId::HGCalHSc;
     theHGCHEbackDigitizer_=std::make_unique<HGCHEbackDigitizer>(ps);
   }
+  if(hitCollection_.find("HFNoseHits")!=std::string::npos) {
+    mySubDet_=ForwardSubdetector::HFNose;
+    myDet_   =DetId::Forward;
+    theHFNoseDigitizer_=std::make_unique<HFNoseDigitizer>(ps);
+  }
 }
 
 //
@@ -302,6 +307,17 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP
       theHGCHEbackDigitizer_->run(digiResult,*simHitAccumulator_,theGeom,validIds_,digitizationType_, hre);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " 
 				   << digiResult->size() <<  " HE back hits";
+#ifdef EDM_ML_DEBUG
+      checkPosition(&(*digiResult));
+#endif
+      e.put(std::move(digiResult),digiCollection());
+    }
+    if( producesHFNoseDigis() ) {
+      auto digiResult = std::make_unique<HGCalDigiCollection>();
+      theHFNoseDigitizer_->run(digiResult,*simHitAccumulator_,theGeom,
+			       validIds_,digitizationType_, hre);
+      edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " 
+				   << digiResult->size() <<  " HFNose hits";
 #ifdef EDM_ML_DEBUG
       checkPosition(&(*digiResult));
 #endif
@@ -511,6 +527,7 @@ void HGCDigitizer::beginRun(const edm::EventSetup & es) {
 
   if( producesEEDigis() )      gHGCal_ = dynamic_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(myDet_,mySubDet_));
   if( producesHEfrontDigis() ) gHGCal_ = dynamic_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(myDet_,mySubDet_));
+  if( producesHFNoseDigis() )  gHGCal_ = dynamic_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(myDet_,mySubDet_));
   
   if( producesHEbackDigis() )  {
     if (geometryType_ == 0) {
@@ -568,6 +585,9 @@ uint32_t HGCDigitizer::getType() const {
     case ForwardSubdetector::HGCHEB:
       idx = 2;
       break;
+    case ForwardSubdetector::HFNose:
+      idx = 3;
+      break;
     default:
       break;
     }
@@ -581,6 +601,9 @@ uint32_t HGCDigitizer::getType() const {
       break;
     case DetId::HGCalHSc:
       idx = 2;
+      break;
+    case DetId::Forward:
+      idx = 3;
       break;
     default:
       break;
@@ -610,6 +633,11 @@ bool HGCDigitizer::getWeight(std::array<float,3>& tdcForToAOnset,
       tdcForToAOnset    = theHGCHEbackDigitizer_->tdcForToAOnset();
       keV2fC            = theHGCHEbackDigitizer_->keV2fC();
       break;
+    case ForwardSubdetector::HFNose:
+      weightToAbyEnergy = theHFNoseDigitizer_->toaModeByEnergy();
+      tdcForToAOnset    = theHFNoseDigitizer_->tdcForToAOnset();
+      keV2fC            = theHFNoseDigitizer_->keV2fC();
+      break;
     default:
       break;
     }
@@ -629,6 +657,11 @@ bool HGCDigitizer::getWeight(std::array<float,3>& tdcForToAOnset,
       weightToAbyEnergy = theHGCHEbackDigitizer_->toaModeByEnergy();
       tdcForToAOnset    = theHGCHEbackDigitizer_->tdcForToAOnset();
       keV2fC            = theHGCHEbackDigitizer_->keV2fC();
+      break;
+    case DetId::Forward:
+      weightToAbyEnergy = theHFNoseDigitizer_->toaModeByEnergy();
+      tdcForToAOnset    = theHFNoseDigitizer_->tdcForToAOnset();
+      keV2fC            = theHFNoseDigitizer_->keV2fC();
       break;
     default:
       break;
@@ -662,8 +695,16 @@ void HGCDigitizer::checkPosition(const HGCalDigiCollection* digis) const {
 					   << ":" << zrange.first << ":"
 					   << zrange.second << " Flag "
 					   << ok << " " << ck;
-	} else {
+	} else if (id.det() == DetId::HGCalHSc) {
 	  edm::LogVerbatim("HGCDigitizer") << "Check " << HGCScintillatorDetId(id)
+					   << " " << global << " R " << r 
+					   << ":"  << rrange.first << ":" 
+					   << rrange.second << " Z " << z 
+					   << ":" << zrange.first << ":" 
+					   << zrange.second << " Flag "
+					   << ok << " " << ck;
+	} else {
+	  edm::LogVerbatim("HGCDigitizer") << "Check " << HFNoseDetId(id)
 					   << " " << global << " R " << r 
 					   << ":"  << rrange.first << ":" 
 					   << rrange.second << " Z " << z 

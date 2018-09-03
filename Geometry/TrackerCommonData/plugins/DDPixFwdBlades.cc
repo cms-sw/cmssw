@@ -69,8 +69,8 @@ void DDPixFwdBlades::initialize(const DDNumericArguments & nArgs,
   } else {
     childRotationName = "";
   }
-
-  idNameSpace = DDCurrentNamespace::ns();
+  DDCurrentNamespace ns;
+  idNameSpace = *ns;
 
   // -- Input geometry parameters :  -----------------------------------------------------
 

@@ -14,7 +14,7 @@
 
 //#define EDM_ML_DEBUG
 
-HcalNumberingFromDDD::HcalNumberingFromDDD(HcalDDDSimConstants *hcons) :
+HcalNumberingFromDDD::HcalNumberingFromDDD(const HcalDDDSimConstants *hcons) :
   hcalConstants(hcons) {
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("HCalGeom") << "Creating HcalNumberingFromDDD\n";

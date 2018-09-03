@@ -15,6 +15,9 @@ trackingLowPU.toModify(ak4CaloJetsForTrk,
 caloJetsForTrkTask = cms.Task(caloTowerForTrk,ak4CaloJetsForTrk)
 caloJetsForTrk = cms.Sequence(caloJetsForTrkTask)
 
+from Configuration.Eras.Modifier_pf_badHcalMitigation_cff import pf_badHcalMitigation
+pf_badHcalMitigation.toModify( caloTowerForTrk, missingHcalRescaleFactorForEcal = 1.0 )
+
 from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
 phase2_hcal.toModify( caloTowerForTrk, hbheInput = cms.InputTag("hbhereco") )
 

@@ -64,7 +64,8 @@ void DDTECAxialCableAlgo::initialize(const DDNumericArguments & nArgs,
     LogDebug("TECGeom") << "                          Cable " << i 
 			<< " from Z " << zPos[i] << " startAngle " 
 			<< startAngle[i]/CLHEP::deg;
-  idNameSpace = DDCurrentNamespace::ns();
+  DDCurrentNamespace ns;
+  idNameSpace = *ns;
   childName   = sArgs["ChildName"]; 
   matName     = sArgs["Material"]; 
 

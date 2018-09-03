@@ -25,8 +25,8 @@ void DDTECOptoHybAlgo::initialize(const DDNumericArguments & nArgs,
 				  const DDMapArguments & ,
 				  const DDStringArguments & sArgs,
 				  const DDStringVectorArguments & ) {
-
-  idNameSpace  = DDCurrentNamespace::ns();
+  DDCurrentNamespace ns;
+  idNameSpace  = *ns;
   childName    = sArgs["ChildName"];
 
   DDName parentName = parent().name(); 

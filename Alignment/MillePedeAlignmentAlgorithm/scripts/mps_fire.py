@@ -141,6 +141,13 @@ parser.add_argument("-f", "--force-merge", dest="forceMerge", default=False,
                     action="store_true",
                     help=("force the submission of the Pede job in case some "+
                           "Mille jobs are not in the OK state"))
+parser.add_argument("--force-merge-manual", dest="forceMergeManual", default=False,
+                    action="store_true",
+                    help=("force the submission of the Pede job in case some "+
+                          "Mille jobs are not in the OK state. Unlike --forceMerge "+
+                          "this option assumes the user has edited theScript.sh and "+
+                          "alignment_merge.py to consistently pick up only the mille "+
+                          "output files that exist"))
 parser.add_argument("-p", "--forward-proxy", dest="forwardProxy", default=False,
                     action="store_true",
                     help="forward VOMS proxy to batch system")
@@ -278,7 +285,7 @@ else:
         if lib.JOBSTATUS[i] != 'SETUP':
             print('Merge job %d status %s not submitted.' % \
                   (jobNumFrom1, lib.JOBSTATUS[i]))
-        elif not (mergeOK or args.forceMerge):
+        elif not (mergeOK or args.forceMerge or args.forceMergeManual):
             print('Merge job',jobNumFrom1,'not submitted since Mille jobs error/unfinished (Use -m -f to force).')
         else:
             # some paths for clarity

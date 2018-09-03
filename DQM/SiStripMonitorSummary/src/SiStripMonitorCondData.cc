@@ -71,17 +71,6 @@ SiStripMonitorCondData::SiStripMonitorCondData(edm::ParameterSet const& iConfig)
 // ----- Destructor
 // 
 SiStripMonitorCondData::~SiStripMonitorCondData(){
-
-  if(monitorPedestals_)   { delete pedestalsDQM_   ;}
-  if(monitorNoises_)      { delete noisesDQM_      ;}
-  if(monitorLowThreshold_) { delete lowthresholdDQM_ ;}
-  if(monitorHighThreshold_){ delete highthresholdDQM_;}
-  if(monitorQuality_)     { delete qualityDQM_     ;}
-  if(monitorApvGains_)    { delete apvgainsDQM_    ;}
-  if(monitorLorentzAngle_){ delete lorentzangleDQM_;}
-  if(monitorBackPlaneCorrection_){ delete bpcorrectionDQM_;}
-  if(monitorCabling_)     { delete cablingDQM_;}
-
 }
 // -----
 
@@ -93,69 +82,69 @@ SiStripMonitorCondData::~SiStripMonitorCondData(){
 void SiStripMonitorCondData::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) {
 
   if(monitorPedestals_){
-    pedestalsDQM_ = new SiStripPedestalsDQM(eSetup,
-                                            run.run(),
-                                            conf_.getParameter<edm::ParameterSet>("SiStripPedestalsDQM_PSet"),
-                                            conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
+    pedestalsDQM_ = std::make_unique<SiStripPedestalsDQM>(eSetup,
+							  run.run(),
+							  conf_.getParameter<edm::ParameterSet>("SiStripPedestalsDQM_PSet"),
+							  conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
   }
   
   
   if(monitorNoises_){
-    noisesDQM_ = new SiStripNoisesDQM(eSetup,
-                                      run.run(),
-                                      conf_.getParameter<edm::ParameterSet>("SiStripNoisesDQM_PSet"),
-                                      conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
+    noisesDQM_ = std::make_unique<SiStripNoisesDQM>(eSetup,
+						    run.run(),
+						    conf_.getParameter<edm::ParameterSet>("SiStripNoisesDQM_PSet"),
+						    conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
   }
   
   
   if(monitorLowThreshold_){
-    lowthresholdDQM_ = new SiStripThresholdDQM(eSetup,
-                                               run.run(),
-                                               conf_.getParameter<edm::ParameterSet>("SiStripLowThresholdDQM_PSet"),
-                                               conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
+    lowthresholdDQM_ = std::make_unique<SiStripThresholdDQM>(eSetup,
+							     run.run(),
+							     conf_.getParameter<edm::ParameterSet>("SiStripLowThresholdDQM_PSet"),
+							     conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
   }
 
   if(monitorHighThreshold_){
-    highthresholdDQM_ = new SiStripThresholdDQM(eSetup,
-                                                run.run(),
-                                                conf_.getParameter<edm::ParameterSet>("SiStripHighThresholdDQM_PSet"),
-                                                conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
+    highthresholdDQM_ = std::make_unique<SiStripThresholdDQM>(eSetup,
+							      run.run(),
+							      conf_.getParameter<edm::ParameterSet>("SiStripHighThresholdDQM_PSet"),
+							      conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
   }
 
   if(monitorQuality_){
-    qualityDQM_ = new SiStripQualityDQM(eSetup,
-                                        run.run(),
-                                        conf_.getParameter<edm::ParameterSet>("SiStripQualityDQM_PSet"),
-                                        conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
+    qualityDQM_ = std::make_unique<SiStripQualityDQM>(eSetup,
+						      run.run(),
+						      conf_.getParameter<edm::ParameterSet>("SiStripQualityDQM_PSet"),
+						      conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
   } 
   
  
   if(monitorApvGains_){
-    apvgainsDQM_ = new SiStripApvGainsDQM(eSetup,
-                                          run.run(),
-                                          conf_.getParameter<edm::ParameterSet>("SiStripApvGainsDQM_PSet"),
-                                          conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
+    apvgainsDQM_ = std::make_unique<SiStripApvGainsDQM>(eSetup,
+							run.run(),
+							conf_.getParameter<edm::ParameterSet>("SiStripApvGainsDQM_PSet"),
+							conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
   }
   
   
   if(monitorLorentzAngle_){
-    lorentzangleDQM_ = new SiStripLorentzAngleDQM(eSetup,
-                                                  run.run(),
-                                                 conf_.getParameter<edm::ParameterSet>("SiStripLorentzAngleDQM_PSet"),
-                                                 conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
+    lorentzangleDQM_ = std::make_unique<SiStripLorentzAngleDQM>(eSetup,
+								run.run(),
+								conf_.getParameter<edm::ParameterSet>("SiStripLorentzAngleDQM_PSet"),
+								conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
   }
 
   if(monitorBackPlaneCorrection_){
-    bpcorrectionDQM_ = new SiStripBackPlaneCorrectionDQM(eSetup,
-                                                         run.run(),
-                                                 conf_.getParameter<edm::ParameterSet>("SiStripBackPlaneCorrectionDQM_PSet"),
-                                                 conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
+    bpcorrectionDQM_ = std::make_unique<SiStripBackPlaneCorrectionDQM>(eSetup,
+								       run.run(),
+								       conf_.getParameter<edm::ParameterSet>("SiStripBackPlaneCorrectionDQM_PSet"),
+								       conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
   }
   if(monitorCabling_){
-    cablingDQM_ = new SiStripCablingDQM(eSetup,
-                                        run.run(),
-					conf_.getParameter<edm::ParameterSet>("SiStripCablingDQM_PSet"),
-					conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
+    cablingDQM_ = std::make_unique<SiStripCablingDQM>(eSetup,
+						      run.run(),
+						      conf_.getParameter<edm::ParameterSet>("SiStripCablingDQM_PSet"),
+						      conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
   }
 } // beginRun
 // -----

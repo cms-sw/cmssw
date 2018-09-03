@@ -9,9 +9,13 @@
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 #include <algorithm>
 #include <iostream>
+
+//#define EDM_ML_DEBUG
 
 EgammaHadTower::EgammaHadTower(const edm::EventSetup &es,HoeMode mode):mode_(mode) {
   edm::ESHandle<CaloTowerConstituentsMap> ctmaph;
@@ -22,6 +26,11 @@ EgammaHadTower::EgammaHadTower(const edm::EventSetup &es,HoeMode mode):mode_(mod
   edm::ESHandle<HcalChannelQuality> hQuality;
   es.get<HcalChannelQualityRcd>().get("withTopo",hQuality);
   hcalQuality_ = hQuality.product();
+
+  edm::ESHandle<HcalTopology> hcalTopology;
+  es.get<HcalRecNumberingRecord>().get( hcalTopology ); 
+  hcalTopology_ = hcalTopology.product();
+
 }
 
 CaloTowerDetId  EgammaHadTower::towerOf(const reco::CaloCluster& cluster) const {
@@ -62,6 +71,9 @@ std::vector<CaloTowerDetId>  EgammaHadTower::towersOf(const reco::SuperCluster& 
     for ( unsigned iclus =0 ; iclus <nclusters && iclus < NMaxClusters_; ++iclus) {
       // Get the tower
       CaloTowerDetId id = towerOf(*(orderedClusters[iclus]));
+#ifdef EDM_ML_DEBUG
+      std:: cout << "CaloTowerId " << id << std::endl;
+#endif
       std::vector<CaloTowerDetId>::const_iterator itcheck=find(towers.begin(),towers.end(),id);
       if( itcheck == towers.end() ) {
 	towers.push_back(id);
@@ -111,10 +123,14 @@ double EgammaHadTower::getDepth2HcalESum(const std::vector<CaloTowerDetId> & tow
 }
 
 bool EgammaHadTower::hasActiveHcal( const std::vector<CaloTowerDetId> & towers ) const {
-  bool debug = false; // change this to true to get debug output
+
   bool active = false;
   int statusMask = ((1<<HcalChannelStatus::HcalCellOff) | (1<<HcalChannelStatus::HcalCellMask) | (1<<HcalChannelStatus::HcalCellDead));
-  if (debug) std::cout << "DEBUG: hasActiveHcal called with " << towers.size() << " detids. First tower detid ieta " << towers.front().ieta() << " iphi " << towers.front().iphi() << std::endl;
+#ifdef EDM_ML_DEBUG
+  std::cout << "DEBUG: hasActiveHcal called with " << towers.size() 
+	    << " detids. First tower detid ieta " << towers.front().ieta() 
+	    << " iphi " << towers.front().iphi() << std::endl;
+#endif
   for (auto towerid : towers) {
       unsigned int ngood = 0, nbad = 0;
       for (DetId id : towerMap_->constituentsOf(towerid)) {
@@ -122,22 +138,35 @@ bool EgammaHadTower::hasActiveHcal( const std::vector<CaloTowerDetId> & towers )
               continue;
           }
           HcalDetId hid(id);
-          if (debug) std::cout << "      hcal constituent on subdet " << hid.subdet() << ", ieta " << hid.ieta() << " iphi " << hid.iphi() << ", depth " << hid.depth() << std::endl;
           if (hid.subdet() != HcalBarrel && hid.subdet() != HcalEndcap) continue;
-          const auto * values = hcalQuality_->getValues(id,/*throwOnFail=*/false);
-          if (!values) {
-              if (debug) std::cout << "          MISSING IN CONDITIONS" << std::endl;
-              continue;
-          }
-          int status = values->getValue();
+#ifdef EDM_ML_DEBUG
+          std::cout << "EgammaHadTower DetId " << std::hex << id.rawId() 
+		    << "  hid.rawId  " << hid.rawId() << std::dec   
+		    << "   sub " << hid.subdet() << "   ieta " << hid.ieta() 
+		    << "   iphi " << hid.iphi() 
+		    << "   depth " << hid.depth() << std::endl;
+#endif
+	  // Sunanda's fix for 2017 Plan1   
+          // and removed protection 
+          int status = hcalQuality_->getValues((DetId)(hcalTopology_->idFront(HcalDetId(id))),/*throwOnFail=*/true)->getValue();
+
+#ifdef EDM_ML_DEBUG
+	  std::cout << "channels status = " << std::hex << status << std::dec 
+		    << "  int value = " <<  status << std::endl;
+#endif
+
           if (status & statusMask) {
-              if (debug) std::cout << "          BAD!" << std::endl;
+#ifdef EDM_ML_DEBUG
+	    std::cout << "          BAD!" << std::endl;
+#endif
               nbad++;
           } else {
               ngood++;
           }
       }
-      if (debug) std::cout << "    overall ngood " << ngood << " nbad " << nbad << std::endl;
+#ifdef EDM_ML_DEBUG
+      std::cout << "    overall ngood " << ngood << " nbad " << nbad << "\n";
+#endif
       if (nbad == 0 || (ngood > 0 && nbad < ngood)) {
           active = true;
       }
