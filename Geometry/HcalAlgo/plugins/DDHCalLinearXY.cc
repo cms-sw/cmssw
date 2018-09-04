@@ -29,7 +29,9 @@ void DDHCalLinearXY::initialize(const DDNumericArguments & nArgs,
   numberY   = int(nArgs["NumberY"]);
   deltaY    = nArgs["DeltaY"];
   centre    = vArgs["Center"];
-  childName = vsArgs["Child"]; 
+  
+  idNameSpace = DDCurrentNamespace::ns();
+  childName   = vsArgs["Child"]; 
   DDName parentName = parent().name();
   LogDebug("HCalGeom") << "DDHCalLinearXY debug: Parent " << parentName
 		       << "\twith " << childName.size() << " children";
@@ -37,7 +39,7 @@ void DDHCalLinearXY::initialize(const DDNumericArguments & nArgs,
     LogDebug("HCalGeom") << "DDHCalLinearXY debug: Child[" << i << "] = "
 			 << childName[i];
   LogDebug("HCalGeom") << "DDHCalLinearXY debug: NameSpace " 
-		       << DDCurrentNamespace() << "\tNumber along X/Y " << numberX
+		       << idNameSpace << "\tNumber along X/Y " << numberX
 		       << "/" << numberY << "\tDelta along X/Y " << deltaX
 		       << "/" << deltaY << "\tCentre " << centre[0] << ", " 
 		       << centre[1] << ", "	<< centre[2];

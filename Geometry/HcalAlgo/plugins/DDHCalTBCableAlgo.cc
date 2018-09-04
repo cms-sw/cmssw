@@ -60,8 +60,7 @@ void DDHCalTBCableAlgo::initialize(const DDNumericArguments & nArgs,
 		       << " Gap " << gap2;
 
   idName      = sArgs["MotherName"];
-  DDCurrentNamespace ns;
-  idNameSpace = *ns;
+  idNameSpace = DDCurrentNamespace::ns();
   rotns       = sArgs["RotNameSpace"];
   DDName parentName = parent().name(); 
   LogDebug("HCalGeom") << "DDHCalTBCableAlgo debug: Parent " << parentName

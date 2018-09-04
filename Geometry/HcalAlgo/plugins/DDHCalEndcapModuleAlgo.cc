@@ -96,8 +96,7 @@ void DDHCalEndcapModuleAlgo::initialize(const DDNumericArguments & nArgs,
     edm::LogInfo("HCalGeom") << "LayerName[" << i << "] = " << layerName[i];
 
   idName      = sArgs["MotherName"];
-  DDCurrentNamespace ns;
-  idNameSpace = *ns;
+  idNameSpace = DDCurrentNamespace::ns();
   idOffset    = int (nArgs["IdOffset"]); 
   DDName parentName = parent().name(); 
   modName     = sArgs["ModName"];

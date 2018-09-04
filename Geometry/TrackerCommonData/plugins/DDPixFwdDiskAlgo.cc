@@ -32,13 +32,15 @@ void DDPixFwdDiskAlgo::initialize(const DDNumericArguments & nArgs,
   zPlane      = nArgs["BladeCommonZ"];
   bladeZShift = vArgs["BladeZShift"];
   anchorR     = nArgs["AnchorRadius"];
+ 
+  idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
   rotName     = sArgs["RotationName"]; 
   flagString  = sArgs["FlagString"];
   DDName parentName = parent().name();
   LogDebug("TrackerGeom") << "DDPixFwdDiskAlgo debug: Parent " << parentName 
 			  << "\tChild " << childName << " NameSpace " 
-			  << DDCurrentNamespace() << "\tRot Name " << rotName
+			  << idNameSpace << "\tRot Name " << rotName
 			  << "\tCopyNo (Start/Total) " << startCopyNo << ", " 
 			  << nBlades << "\tAngles " << bladeAngle/CLHEP::deg 
 			  << ", " << bladeTilt/CLHEP::deg << "\tZshifts " 

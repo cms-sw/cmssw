@@ -44,8 +44,8 @@ void DDTrackerPhiAltAlgo::initialize(const DDNumericArguments & nArgs,
 			  << "\t ZPos " << zpos << "\tCopy Numbers " << number 
 			  << " Start/Increment " << startCopyNo << ", " 
 			  << incrCopyNo;
-  DDCurrentNamespace ns;
-  idNameSpace = *ns;
+
+  idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
   DDName parentName = parent().name();
   LogDebug("TrackerGeom") << "DDTrackerPhiAltAlgo debug: Parent " << parentName

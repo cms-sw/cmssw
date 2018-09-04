@@ -120,11 +120,11 @@ DDAngular::initialize( const DDNumericArguments & nArgs,
     LogDebug( "DDAlgorithm" ) << "  rotsolid[" << i <<  "] axis=" << temp.Axis() << " rot.angle=" << CONVERT_TO( temp.Angle(), deg );
     m_solidRot = temp * m_solidRot;			  
   }
-  DDCurrentNamespace ns;
-  m_idNameSpace = *ns;
+
+  m_idNameSpace = DDCurrentNamespace::ns();
   m_childNmNs 	= DDSplit( sArgs["ChildName"] );
   if( m_childNmNs.second.empty())
-    m_childNmNs.second = *ns;
+    m_childNmNs.second = DDCurrentNamespace::ns();
 
   DDName parentName = parent().name();
   LogDebug( "DDAlgorithm" ) << "DDAngular: Parent " << parentName 
