@@ -39,56 +39,35 @@ class SiStripFedCabling;
 class TrackerTopology;
 
 class SiStripDaqInfo: public edm::EDAnalyzer {
-
  public:
 
-  /// Constructor
-  SiStripDaqInfo(const edm::ParameterSet& ps);
-  
-  /// Destructor
-  ~SiStripDaqInfo() override;
+  SiStripDaqInfo(edm::ParameterSet const& ps);
 
  private:
 
-  /// BeginJob
-  void beginJob() override;
-
-  /// Begin Run
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
-
-  /// End Of Luminosity
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) override;
-
-  /// EndRun
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
-
-  /// Analyze
   void analyze(edm::Event const&, edm::EventSetup const&) override;
 
+  void readFedIds(edm::ESHandle<SiStripFedCabling> const& fedcabling, edm::EventSetup const& iSetup);
+  void readSubdetFedFractions(DQMStore& dqm_store, std::vector<int> const& fed_ids, edm::EventSetup const& iSetup);
+  void bookStatus(DQMStore& dqm_store);
+  void fillDummyStatus(DQMStore& dqm_store);
+  void findExcludedModule(DQMStore& dqm_store, unsigned short fed_id, TrackerTopology const* tTopo);
 
-private:
-  void readFedIds(const edm::ESHandle<SiStripFedCabling>& fedcabling, edm::EventSetup const& iSetup);
-  void readSubdetFedFractions(std::vector<int>& fed_ids, edm::EventSetup const& iSetup);
-  void bookStatus();
-  void fillDummyStatus();
-  void findExcludedModule(unsigned short fed_id, const TrackerTopology* tTopo
-);
+  std::map<std::string, std::vector<unsigned short>> subDetFedMap_;
 
-  std::map<std::string,std::vector<unsigned short> > subDetFedMap;
-
-  DQMStore* dqmStore_;
-  MonitorElement * DaqFraction_;
+  MonitorElement* daqFraction_{nullptr};
 
   struct SubDetMEs{
-    MonitorElement* DaqFractionME;
-    int ConnectedFeds;
+    MonitorElement* daqFractionME;
+    int connectedFeds;
   };
 
-  std::map <std::string, SubDetMEs> SubDetMEsMap;
+  std::map<std::string, SubDetMEs> subDetMEsMap_;
 
-  unsigned long long m_cacheID_;
-  int nFedTotal;
-  bool bookedStatus_;
+  unsigned long long m_cacheID_{};
+  int nFedTotal_{};
+  bool bookedStatus_{false};
 
   edm::ESHandle< SiStripFedCabling > fedCabling_;
 };

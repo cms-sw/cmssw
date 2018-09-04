@@ -8,40 +8,43 @@
 //
 // Get a list of MEs in a folder
 //
-int SiStripUtility::getMEList(std::string name, std::vector<std::string>& values) {
+int SiStripUtility::getMEList(std::string const& name, std::vector<std::string>& values)
+{
   values.clear();
-  std::string prefix_str = name.substr(0,(name.find(":")));
+  auto prefix_str = name.substr(0,(name.find(":")));
   prefix_str += "/"; 
-  std::string temp_str = name.substr(name.find(":")+1);
+  auto const temp_str = name.substr(name.find(":")+1);
   split(temp_str, values, ",");
-  for (std::vector<std::string>::iterator it = values.begin();
-       it != values.end(); it++) (*it).insert(0,prefix_str);
+  for (auto& value : values) {
+    value.insert(0, prefix_str);
+  }
   return values.size();
 }
 //
 // Get a list of MEs in a folder and the path name
 //
-int SiStripUtility::getMEList(std::string name, std::string& dir_path, std::vector<std::string>& values) {
+int SiStripUtility::getMEList(std::string const& name, std::string& dir_path, std::vector<std::string>& values)
+{
   values.clear();
   dir_path = name.substr(0,(name.find(":")));
   dir_path += "/"; 
-  std::string temp_str = name.substr(name.find(":")+1);
+  auto const temp_str = name.substr(name.find(":")+1);
   split(temp_str, values, ",");
   return values.size();
 }
 
 // Check if the requested ME exists in a folder
-bool SiStripUtility::checkME(std::string name, std::string me_name, std::string& full_path) {
+bool SiStripUtility::checkME(std::string const& name, std::string const& me_name, std::string& full_path)
+{
   if (name.find(name) == std::string::npos) return false;
-  std::string prefix_str = name.substr(0,(name.find(":")));
+  auto prefix_str = name.substr(0,(name.find(":")));
   prefix_str += "/"; 
-  std::string temp_str = name.substr(name.find(":")+1);
+  auto const temp_str = name.substr(name.find(":")+1);
   std::vector<std::string> values;
   split(temp_str, values, ",");
-  for (std::vector<std::string>::iterator it = values.begin();
-       it != values.end(); it++) {
-    if ((*it).find(me_name) != std::string::npos) {
-      full_path = prefix_str + (*it);
+  for (auto const& value : values) {
+    if (value.find(me_name) != std::string::npos) {
+      full_path = prefix_str + value;
       return true;
     }
   }
@@ -143,10 +146,10 @@ void SiStripUtility::getDetectorStatusColor(int status, int& rval, int&gval, int
 //
 // -- Get Status of Monitor Element
 //
-int SiStripUtility::getMEStatus(MonitorElement* me) {
+int SiStripUtility::getMEStatus(MonitorElement const* me) {
   int status = 0; 
   if (me->getQReports().empty()) {
-    status = 0;
+    return status;
   } else if (me->hasError()) {
     status = dqm::qstatus::ERROR;
   } else if (me->hasWarning()) {
@@ -161,28 +164,42 @@ int SiStripUtility::getMEStatus(MonitorElement* me) {
 //
 // --  Fill Module Names
 // 
-void SiStripUtility::getModuleFolderList(DQMStore * dqm_store, std::vector<std::string>& mfolders){
-  std::string currDir = dqm_store->pwd();
-  if (currDir.find("module_") != std::string::npos)  {
-    //    std::string mId = currDir.substr(currDir.find("module_")+7, 9);
+void SiStripUtility::getModuleFolderList(DQMStore& dqm_store,
+                                         std::vector<std::string>& mfolders)
+{
+  if (auto currDir = dqm_store.pwd(); currDir.find("module_") != std::string::npos) {
     mfolders.push_back(currDir);
   } else {  
-    std::vector<std::string> subdirs = dqm_store->getSubdirs();
-    for (std::vector<std::string>::const_iterator it = subdirs.begin();
-	 it != subdirs.end(); it++) {
-      dqm_store->cd(*it);
+    auto const subdirs = dqm_store.getSubdirs();
+    for (auto const& subdir : subdirs) {
+      dqm_store.cd(subdir);
       getModuleFolderList(dqm_store, mfolders);
-      dqm_store->goUp();
+      dqm_store.goUp();
+    }
+  }
+}
+
+void SiStripUtility::getModuleFolderList(DQMStore::IBooker& ibooker,
+                                         DQMStore::IGetter& igetter,
+                                         std::vector<std::string>& mfolders)
+{
+  if (auto currDir = ibooker.pwd(); currDir.find("module_") != std::string::npos) {
+    mfolders.push_back(currDir);
+  } else {
+    auto const subdirs = igetter.getSubdirs();
+    for (auto const& subdir : subdirs) {
+      ibooker.cd(subdir);
+      getModuleFolderList(ibooker, igetter, mfolders);
+      ibooker.goUp();
     }
   }
 }
 //
 // -- Get Status of Monitor Element
 //
-int SiStripUtility::getMEStatus(MonitorElement* me, int& bad_channels) {
+int SiStripUtility::getMEStatus(MonitorElement const* me, int& bad_channels) {
   int status = 0; 
   if (me->getQReports().empty()) {
-    status       = 0;
     bad_channels = -1;
   } else {
     std::vector<QReport *> qreports = me->getQReports();
@@ -202,7 +219,7 @@ int SiStripUtility::getMEStatus(MonitorElement* me, int& bad_channels) {
 //
 // -- Get Status of Monitor Element
 //
-void SiStripUtility::getMEValue(MonitorElement* me, std::string & val){
+void SiStripUtility::getMEValue(MonitorElement const* me, std::string& val){
   val = "";
   if ( me && ( me->kind()==MonitorElement::DQM_KIND_REAL || me->kind()==MonitorElement::DQM_KIND_INT ) ) {
     val = me->valueString();
@@ -212,65 +229,82 @@ void SiStripUtility::getMEValue(MonitorElement* me, std::string & val){
 //
 // -- go to a given Directory
 //
-bool SiStripUtility::goToDir(DQMStore * dqm_store, std::string name) {
-  std::string currDir = dqm_store->pwd();
+bool SiStripUtility::goToDir(DQMStore& dqm_store, std::string const& name) {
+  std::string currDir = dqm_store.pwd();
   std::string dirName = currDir.substr(currDir.find_last_of("/")+1);
   if (dirName.find(name) == 0) {
     return true;
   }
-  std::vector<std::string> subDirVec = dqm_store->getSubdirs();
-  for (std::vector<std::string>::const_iterator ic = subDirVec.begin();
-       ic != subDirVec.end(); ic++) {
-    std::string fname = (*ic);
-    if (
-	(fname.find("Reference") != std::string::npos) ||
+  auto const subdirs = dqm_store.getSubdirs();
+  for (auto const& fname : subdirs) {
+    if ((fname.find("Reference")       != std::string::npos) ||
+        (fname.find("AlCaReco")        != std::string::npos) ||
+        (fname.find("HLT")             != std::string::npos) ||
+        (fname.find("IsolatedBunches") != std::string::npos)) continue;
+    dqm_store.cd(fname);
+    if (!goToDir(dqm_store, name)) {
+      dqm_store.goUp();
+    }
+    else {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool SiStripUtility::goToDir(DQMStore::IBooker& ibooker,
+                              DQMStore::IGetter& igetter,
+                              std::string const& name)
+{
+  std::string currDir = ibooker.pwd();
+  std::string dirName = currDir.substr(currDir.find_last_of("/")+1);
+  if (dirName.find(name) == 0) {
+    return true;
+  }
+  auto const subdirs = igetter.getSubdirs();
+  for (auto const& fname : subdirs) {
+    if ((fname.find("Reference")       != std::string::npos) ||
 	(fname.find("AlCaReco")  != std::string::npos) ||
 	(fname.find("HLT")       != std::string::npos) ||
-	(fname.find("IsolatedBunches")       != std::string::npos) 
-	) continue;
-    dqm_store->cd(fname);
-    if (!goToDir(dqm_store, name))  dqm_store->goUp();
+        (fname.find("IsolatedBunches") != std::string::npos)) continue;
+    igetter.cd(fname);
+    if (!goToDir(ibooker,igetter, name)) {
+      ibooker.goUp();
+    }
     else return true;
   }
   return false;  
 }
+
 //
 // -- Get Sub Detector tag from DetId
 //
-void SiStripUtility::getSubDetectorTag(uint32_t det_id, std::string& subdet_tag, const TrackerTopology* tTopo) {
-  StripSubdetector subdet(det_id);
+void SiStripUtility::getSubDetectorTag(uint32_t const det_id, std::string& subdet_tag, const TrackerTopology* tTopo) {
+  StripSubdetector const subdet(det_id);
   subdet_tag = "";
-  switch (subdet.subdetId()) 
-    {
-    case StripSubdetector::TIB:
-      {
+  switch (subdet.subdetId()) {
+    case StripSubdetector::TIB: {
 	subdet_tag = "TIB";
-	break;
+      return;
       }
-    case StripSubdetector::TID:
-      {
-	
+  case StripSubdetector::TID: {
 	if (tTopo->tidSide(det_id) == 2) {
 	  subdet_tag = "TIDF";
 	}  else if (tTopo->tidSide(det_id) == 1) {
 	  subdet_tag = "TIDB";
 	}
-	break;       
+    return;
       }
-    case StripSubdetector::TOB:
-      {
+  case StripSubdetector::TOB: {
 	subdet_tag = "TOB";
-	break;
+    return;
       }
-    case StripSubdetector::TEC:
-      {
-	
+  case StripSubdetector::TEC: {
 	if (tTopo->tecSide(det_id) == 2) {
 	  subdet_tag = "TECF";
 	}  else if (tTopo->tecSide(det_id) == 1) {
 	  subdet_tag = "TECB";	
 	}
-	break;       
       }
     }
 }
@@ -291,7 +325,6 @@ void SiStripUtility::setBadModuleFlag(std::string & hname, uint16_t& flg){
 void SiStripUtility::getBadModuleStatus(uint16_t flag, std::string & message){
   if (flag == 0) message += " No Error";
   else {
-    //    message += " Error from :: "; 
     if (((flag >> 0) & 0x1) > 0) message += " Fed BadChannel : ";
     if (((flag >> 1) & 0x1) > 0) message += " # of Digi : ";  
     if (((flag >> 2) & 0x1) > 0) message += " # of Clusters :";
@@ -302,20 +335,41 @@ void SiStripUtility::getBadModuleStatus(uint16_t flag, std::string & message){
 //
 // -- Set Event Info Folder
 //
-void SiStripUtility::getTopFolderPath(DQMStore * dqm_store, std::string top_dir, std::string& path) {
-
+void SiStripUtility::getTopFolderPath(DQMStore& dqm_store, std::string const& top_dir, std::string& path)
+{
   path = ""; 
-  dqm_store->cd();
-  if (dqm_store->dirExists(top_dir)) {
-    dqm_store->cd(top_dir);
-    path = dqm_store->pwd();
+  dqm_store.cd();
+  if (dqm_store.dirExists(top_dir)) {
+    dqm_store.cd(top_dir);
+    path = dqm_store.pwd();
   } else {
     if (SiStripUtility::goToDir(dqm_store, top_dir)) {
       std::string mdir = "MechanicalView";
       if (SiStripUtility::goToDir(dqm_store, mdir)) {
-	path = dqm_store->pwd(); 
+        path = dqm_store.pwd();
 	path = path.substr(0, path.find(mdir)-1);
       }
     }
   }
 } 
+
+void SiStripUtility::getTopFolderPath(DQMStore::IBooker& ibooker,
+                                       DQMStore::IGetter& igetter,
+                                       std::string const& top_dir,
+                                       std::string& path)
+{
+  path = "";
+  ibooker.cd();
+  if (igetter.dirExists(top_dir)) {
+    ibooker.cd(top_dir);
+    path = ibooker.pwd();
+  } else {
+    if (SiStripUtility::goToDir(ibooker,igetter, top_dir)) {
+      std::string tdir = "MechanicalView";
+      if (SiStripUtility::goToDir(ibooker,igetter, tdir)) {
+        path = ibooker.pwd();
+        path = path.substr(0, path.find(tdir)-1);
+      }
+    }
+  }
+}

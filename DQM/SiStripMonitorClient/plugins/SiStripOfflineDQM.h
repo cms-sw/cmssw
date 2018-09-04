@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
 
 #include <iostream>
 #include <fstream>
@@ -36,60 +37,38 @@
 #include <TTree.h>
 
 class DQMStore;
-class SiStripActionExecutor;
 class SiStripDetCabling;
 
 class SiStripOfflineDQM: public edm::EDAnalyzer {
-
  public:
 
-  /// Constructor
-  SiStripOfflineDQM(const edm::ParameterSet& ps);
-  
-  /// Destructor
-  ~SiStripOfflineDQM() override;
+  SiStripOfflineDQM(edm::ParameterSet const& ps);
 
  private:
 
-  /// BeginJob
   void beginJob() override;
-
-  /// BeginRun
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
-
-  /// Analyze
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
-
-  /// End Of Luminosity
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) override;
-
-  /// EndRun
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
-
-  /// Endjob
   void endJob() override;
 
-private:
-
   void checkTrackerFEDs(edm::Event const& e);
-  bool openInputFile();
+  bool openInputFile(DQMStore& dqm_store);
 
-  DQMStore* dqmStore_;
+  edm::ParameterSet const configPar_;
 
-  SiStripActionExecutor* actionExecutor_;
+  SiStripActionExecutor actionExecutor_;
 
-  bool createSummary_;
-  bool createTkInfoFile_;
-  std::string inputFileName_;
-  std::string outputFileName_;
-  int globalStatusFilling_; 
   bool usedWithEDMtoMEConverter_;
-  int nEvents_;
+  bool createSummary_;
+  bool const createTkInfoFile_;
+  std::string const inputFileName_;
+  std::string const outputFileName_;
+  int globalStatusFilling_; 
   bool trackerFEDsFound_;
   bool printFaultyModuleList_;
-  TTree* tkinfoTree_;
-
-  edm::ParameterSet configPar_;
+  TTree* tkinfoTree_{nullptr};
 
 };
 #endif

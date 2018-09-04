@@ -40,47 +40,27 @@ class SiStripDetVOff;
 class SiStripDetCabling; 
 
 class SiStripDcsInfo: public edm::EDAnalyzer {
-
  public:
 
-  /// Constructor
   SiStripDcsInfo(const edm::ParameterSet& ps);
   
-  /// Destructor
-  ~SiStripDcsInfo() override;
-
  private:
 
-  /// BeginJob
   void beginJob() override;
-
-  /// Begin Run
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
-
-  /// Begin Luminosity Block
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override ;
-
-  /// End Of Luminosity
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) override;
-
-  /// EndRun
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
-
-  /// Analyze
   void analyze(edm::Event const&, edm::EventSetup const&) override;
 
-
-
-private:
-  void bookStatus();
+  void bookStatus(DQMStore& dqm_store);
   void readStatus(edm::EventSetup const&);
   void readCabling(edm::EventSetup const&);
-  void addBadModules();
-  void fillStatus();
-  void fillDummyStatus();
+  void addBadModules(DQMStore& dqm_store);
+  void fillStatus(DQMStore& dqm_store);
+  void fillDummyStatus(DQMStore& dqm_store);
 
-  DQMStore* dqmStore_;
-  MonitorElement * DcsFraction_;
+  MonitorElement* DcsFraction_{nullptr};
 
   struct SubDetMEs{
     std::string folder_name;
@@ -90,21 +70,21 @@ private:
     std::unordered_map<uint32_t,uint16_t> NLumiDetectorIsFaulty;
   };
 
-  std::map <std::string, SubDetMEs> SubDetMEsMap;
-  unsigned long long m_cacheIDCabling_;
-  unsigned long long m_cacheIDDcs_;
-  bool bookedStatus_;
+  std::map<std::string, SubDetMEs> SubDetMEsMap{};
+  unsigned long long m_cacheIDCabling_{};
+  unsigned long long m_cacheIDDcs_{};
+  bool bookedStatus_{false};
 
-  edm::ESHandle<SiStripDetVOff> siStripDetVOff_;
-  int  nFEDConnected_;
+  edm::ESHandle<SiStripDetVOff> siStripDetVOff_{};
+  int nFEDConnected_{};
 
-  int nLumiAnalysed_;
+  int nLumiAnalysed_{};
 
-  bool IsLumiGoodDcs_;
-  int nGoodDcsLumi_;
-  float MinAcceptableDcsDetFrac_ = 0.90;
-  float MaxAcceptableBadDcsLumi_ = 2;
+  bool IsLumiGoodDcs_{false};
+  int nGoodDcsLumi_{};
+  static constexpr float MinAcceptableDcsDetFrac_{0.90};
+  static constexpr float MaxAcceptableBadDcsLumi_{2};
 
-  edm::ESHandle< SiStripDetCabling > detCabling_;
+  edm::ESHandle< SiStripDetCabling > detCabling_{};
 };
 #endif

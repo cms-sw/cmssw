@@ -33,22 +33,19 @@ SiStripHistoPlotter::SiStripHistoPlotter() {
 SiStripHistoPlotter::~SiStripHistoPlotter() {
   edm::LogInfo("SiStripHistoPlotter") << 
     " Deleting SiStripHistoPlotter " << "\n" ;
-  plotList_.clear();
-  condDBPlotList_.clear();
-
 }
 //
 // -- Set New Plot
 //
-void SiStripHistoPlotter::setNewPlot(std::string& path, std::string& option, int width, int height) {
+void SiStripHistoPlotter::setNewPlot(std::string const& path,
+                                     std::string const& option,
+                                     int const width,
+                                     int const height)
+{
   std::string name = "Dummy";
   if (!hasNamedImage(name)) createDummyImage(name);
-  PlotParameter local_par;
-  local_par.Path    = path;
-  local_par.Option  = option;
-  local_par.CWidth  = width;
-  local_par.CHeight = height;
-  plotList_.push_back(local_par);  
+  PlotParameter local_par{path, option, width, height};
+  plotList_.push_back(std::move(local_par));
 }
 //
 // -- Create Plots 
@@ -57,16 +54,15 @@ void SiStripHistoPlotter::createPlots(DQMStore* dqm_store) {
   if (plotList_.empty()) return;
   std::string name = "Dummy";
   if (!hasNamedImage(name)) createDummyImage(name);
-  for (std::vector<PlotParameter>::iterator it = plotList_.begin(); 
-       it != plotList_.end(); it++) {
-    makePlot(dqm_store, (*it));
+  for (auto const& par : plotList_) {
+    makePlot(dqm_store, par);
   }
   plotList_.clear();
 }
 //
 // -- Draw Histograms 
 //
-void SiStripHistoPlotter::makePlot(DQMStore* dqm_store, const PlotParameter& par) {
+void SiStripHistoPlotter::makePlot(DQMStore const* dqm_store, const PlotParameter& par) {
   TCanvas * canvas = new TCanvas("TKCanvas", "TKCanvas", par.CWidth, par.CHeight);
 
   MonitorElement * me = dqm_store->get(par.Path);
@@ -283,7 +279,7 @@ void SiStripHistoPlotter::getProjection(MonitorElement* me, TH1F* tp) {
 // 
 void SiStripHistoPlotter::createStaticPlot(MonitorElement* me, const std::string& file_name) {
   TH1* hist1 = me->getTH1();
-  TCanvas* canvas  = new TCanvas("TKCanvas", "TKCanvas", 600, 400);
+  auto canvas  = new TCanvas("TKCanvas", "TKCanvas", 600, 400);
   if (hist1) {
     TText tTitle;
     tTitle.SetTextFont(64);
@@ -312,18 +308,19 @@ void SiStripHistoPlotter::createStaticPlot(MonitorElement* me, const std::string
 //
 // -- Set New CondDB Plot
 //
-void SiStripHistoPlotter::setNewCondDBPlot(std::string& path, std::string& option, int width, int height) {
-  PlotParameter local_par;
-  local_par.Path    = path;
-  local_par.Option  = option;
-  local_par.CWidth  = width;
-  local_par.CHeight = height;
-  condDBPlotList_.push_back(local_par);  
+void SiStripHistoPlotter::setNewCondDBPlot(std::string const& path,
+                                           std::string const& option,
+                                           int const width,
+                                           int const height)
+{
+  PlotParameter local_par{path, option, width, height};
+  condDBPlotList_.push_back(std::move(local_par));
 }
 //
 // -- Create CondDB Plots 
 //
-void SiStripHistoPlotter::createCondDBPlots(DQMStore* dqm_store) {
+void SiStripHistoPlotter::createCondDBPlots(DQMStore* dqm_store)
+{
   if (condDBPlotList_.empty()) return;
   std::string name = "Dummy";
   if (!hasNamedImage(name)) createDummyImage(name);

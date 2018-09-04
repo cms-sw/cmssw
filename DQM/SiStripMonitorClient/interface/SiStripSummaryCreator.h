@@ -12,34 +12,28 @@ class SiStripConfigWriter;
 class DQMStore;
 
 class SiStripSummaryCreator {
-
  public:
 
   SiStripSummaryCreator();
   virtual ~SiStripSummaryCreator();
-  bool readConfiguration(std::string & file_path);
+  bool readConfiguration(std::string const& file_path);
 
-  void createSummary(DQMStore* dqm_store);
+  void createSummary(DQMStore& dqm_store);
 
-  void fillLayout(DQMStore * dqm_store);
+  void fillLayout(DQMStore& dqm_store);
   void setSummaryMENames( std::map<std::string, std::string>& me_names);
-  int getFrequency() { return summaryFrequency_;}
+  int getFrequency() const { return summaryFrequency_;}
 
  private:
- MonitorElement* getSummaryME(DQMStore* dqm_store,
+  MonitorElement* getSummaryME(DQMStore& dqm_store,
                               std::string& name, std::string htype);
 
-
-  void fillGrandSummaryHistos(DQMStore* dqm_store);
-  void fillSummaryHistos(DQMStore* dqm_store);
+  void fillGrandSummaryHistos(DQMStore& dqm_store);
+  void fillSummaryHistos(DQMStore& dqm_store);
   void fillHistos(int ival, int istep, std::string htype, 
 		  MonitorElement* me_src, MonitorElement* me);
 
-
-  std::map<std::string, std::string> summaryMEMap;
- 
-  int summaryFrequency_;
-
-
+  std::map<std::string, std::string> summaryMEs_;
+  int summaryFrequency_{-1};
 };
 #endif
