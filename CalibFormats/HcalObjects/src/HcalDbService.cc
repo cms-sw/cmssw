@@ -13,7 +13,7 @@
 
 #include <cmath>
 
-HcalDbService::HcalDbService (const edm::ParameterSet& cfg):
+HcalDbService::HcalDbService() :
   mPedestals (nullptr), mPedestalWidths (nullptr),
   mEffectivePedestals (nullptr), mEffectivePedestalWidths (nullptr),
   mGains (nullptr), mGainWidths (nullptr),
