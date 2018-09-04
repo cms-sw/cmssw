@@ -26,7 +26,7 @@ class HcalTopology;
 
 class HcalDbService {
  public:
-  HcalDbService (const edm::ParameterSet&);
+  HcalDbService();
   ~HcalDbService();
 
   const HcalTopology* getTopologyUsed() const;
