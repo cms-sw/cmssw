@@ -24,8 +24,8 @@
 
 
 #include "CondFormats/Serialization/interface/Serializable.h"
-#include "Utilities/General/interface/tinyxml2.h"
 
+#include <tinyxml2.h>
 #include <vector>
 #include <map>
 
