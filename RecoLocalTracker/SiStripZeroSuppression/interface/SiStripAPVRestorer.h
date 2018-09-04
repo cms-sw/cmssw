@@ -49,7 +49,7 @@ public:
   const std::vector<bool>& getAPVFlags() const { return apvFlagsBool_; }
 
 private:
-  using cmMap = std::map<uint32_t, std::vector<float>>;  //detId, Vector of MeanCM per detId
+  using CMMap = std::map<uint32_t, std::vector<float>>;  //detId, Vector of MeanCM per detId
 
   uint16_t nullInspect(uint16_t firstAPV, const digivector_t& digis);
   uint16_t abnormalBaselineInspect(uint16_t firstAPV, const digivector_t& digis);
@@ -82,7 +82,7 @@ private: // members
   uint32_t quality_cache_id, noise_cache_id, pedestal_cache_id;
 
   // event state
-  cmMap meanCMmap_;
+  CMMap meanCMmap_;
   // state
   uint32_t detId_;
   std::vector<std::string> apvFlags_;
