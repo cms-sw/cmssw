@@ -38,7 +38,7 @@ class Alignment(object):
             raise AllInOneError("section %s not found. Please define the "
                                   "alignment!"%section)
         config.checkInput(section,
-                          knownSimpleOptions = ['globaltag', 'style', 'color', 'title', 'mp', 'mp_alignments', 'mp_deformations', 'hp', 'hp_alignments', 'hp_deformations', 'sm', 'sm_alignments', 'sm_deformations'],
+                          knownSimpleOptions = ['globaltag', 'style', 'color', 'title', 'mp', 'mp_alignments', 'mp_deformations', 'mp_APEs', 'hp', 'hp_alignments', 'hp_deformations', 'sm', 'sm_alignments', 'sm_deformations'],
                           knownKeywords = ['condition'])
         self.name = clean_name(name)
         if config.exists(section,"title"):
@@ -79,22 +79,30 @@ class Alignment(object):
     def __getConditions( self, theConfig, theSection ):
         conditions = []
         for option in theConfig.options( theSection ):
-            if option in ("mp", "mp_alignments", "mp_deformations", "hp", "hp_alignments", "hp_deformations", "sm", "sm_alignments", "sm_deformations"):
-                matches = [re.match(_, option) for _ in ("^(..)$", "^(..)_alignments$", "^(..)_deformations$")]
+            if option in ("mp", "mp_alignments", "mp_deformations", "mp_APEs", "hp", "hp_alignments", "hp_deformations", "sm", "sm_alignments", "sm_deformations"):
+                matches = [re.match(_, option) for _ in ("^(..)$", "^(..)_alignments$", "^(..)_deformations$", "^(..)_APEs$")]
                 assert sum(bool(_) for _ in matches) == 1, option
                 condPars = theConfig.get(theSection, option).split(",")
                 condPars = [_.strip() for _ in condPars]
                 if matches[0]:
                     alignments = True
                     deformations = True
+                    APEs = {"hp": False, "mp": True}[option]
                 elif matches[1]:
                     alignments = True
                     deformations = False
+                    APEs = False
                     option = matches[1].group(1)
                 elif matches[2]:
                     alignments = False
                     deformations = True
+                    APEs = False
                     option = matches[2].group(1)
+                elif matches[3]:
+                    alignments = False
+                    deformations = False
+                    APEs = True
+                    option = matches[3].group(1)
                 else:
                     assert False
 
@@ -177,6 +185,11 @@ class Alignment(object):
                     conditions.append({"rcdName": "TrackerSurfaceDeformationRcd",
                                        "connectString": "sqlite_file:"+dbfile,
                                        "tagName": "Deformations",
+                                       "labelName": ""})
+                if APEs:
+                    conditions.append({"rcdName": "TrackerAlignmentErrorExtendedRcd",
+                                       "connectString": "sqlite_file:"+dbfile,
+                                       "tagName": "AlignmentErrorsExtended",
                                        "labelName": ""})
 
             elif option.startswith( "condition " ):
