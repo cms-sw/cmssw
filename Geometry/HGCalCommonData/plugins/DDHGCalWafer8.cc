@@ -99,12 +99,12 @@ void DDHGCalWafer8::execute(DDCompactView& cpv) {
 	else if ((u == 2*nCells_-1) && (v == 2*nCells_-1)) cell = 10;
 	else if ((u == 2*nCells_-1) && (v == nCells_-1))   cell = 11;
 	else if ((u == nCells_)     && (v == 0))           cell = 12;
-	else if ((u == 0))                                 cell = 1;
-	else if (((v-u) == (nCells_-1)))                   cell = 4;
-	else if ((v == (2*nCells_-1)))                     cell = 2;
-	else if ((u == (2*nCells_-1)))                     cell = 5;
-	else if (((u-v) == nCells_))                       cell = 3;
-	else if ((v == 0))                                 cell = 6;
+	else if (u == 0)                                   cell = 1;
+	else if ((v-u) == (nCells_-1))                     cell = 4;
+	else if (v == (2*nCells_-1))                       cell = 2;
+	else if (u == (2*nCells_-1))                       cell = 5;
+	else if ((u-v) == nCells_)                         cell = 3;
+	else if (v == 0)                                   cell = 6;
 	DDTranslation tran(xp,yp,0);
 	int copy = (cellType_*100 + v)*100 + u;
 	cpv.position(DDName(cellNames_[cell]), glog, copy, tran, rot);
