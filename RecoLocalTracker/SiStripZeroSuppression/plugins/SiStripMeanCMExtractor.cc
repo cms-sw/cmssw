@@ -48,7 +48,7 @@
 #include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
 
 
-typedef std::map<uint32_t, std::vector<float> > cmMap;
+typedef std::map<uint32_t, std::vector<float> > CMMap;
 
 class SiStripMeanCMExtractor : public edm::one::EDProducer<> {
    public:
@@ -73,7 +73,7 @@ class SiStripMeanCMExtractor : public edm::one::EDProducer<> {
 	  uint16_t _nEventsToUse;
 	  uint16_t _actualEvent;
       
-	  cmMap _cmMap; //it contains the sum of the CM calculated before. The normalization for the number of events it is done at the end when it is written in the DetSetVector.
+	  CMMap _cmMap; //it contains the sum of the CM calculated before. The normalization for the number of events it is done at the end when it is written in the DetSetVector.
 };
 
 
@@ -166,7 +166,7 @@ void SiStripMeanCMExtractor::CMExtractorFromPedestals(const edm::DetSetVector<Si
 void SiStripMeanCMExtractor::StoreMean(const edm::DetSetVector<SiStripProcessedRawDigi>& Input){
 	
 	uint32_t detId;
-	cmMap::iterator itMap;
+	CMMap::iterator itMap;
 	edm::DetSetVector<SiStripProcessedRawDigi>::const_iterator itInput;
 	
 	for(itInput = Input.begin(); itInput != Input.end(); ++itInput){
@@ -193,7 +193,7 @@ void SiStripMeanCMExtractor::StoreMean(const edm::DetSetVector<SiStripProcessedR
 
 void 
 SiStripMeanCMExtractor::ConvertMeanMapToDetSetVector(std::vector<edm::DetSet<SiStripProcessedRawDigi> >& meancm){
-	cmMap::iterator itMap;
+	CMMap::iterator itMap;
 	std::vector<float>::const_iterator itMapVector;
 	
 	meancm.clear();
