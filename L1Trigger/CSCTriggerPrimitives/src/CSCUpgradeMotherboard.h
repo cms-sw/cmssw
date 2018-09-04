@@ -123,12 +123,6 @@ public:
   /** SLHC: special configuration parameters for ME11 treatment. */
   bool disableME1a, gangedME1a;
 
-  /* Parameters for the TMB */
-  edm::ParameterSet tmbParams_;
-
-  /* Parameters common to TMB and processors */
-  edm::ParameterSet commonParams_;
-
   const CSCChamber* cscChamber;
 
   std::unique_ptr<CSCUpgradeMotherboardLUTGenerator> generator_;

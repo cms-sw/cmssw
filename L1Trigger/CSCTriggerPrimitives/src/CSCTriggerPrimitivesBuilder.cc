@@ -93,9 +93,9 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCMotherboardME11(endc, stat, sect, subs, cham, conf) );
             else if (stat==1 && ring==1 && isSLHC_ && runME11ILT_)
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCGEMMotherboardME11(endc, stat, sect, subs, cham, conf) );
-            else if (stat==2 && ring==1 && runME21ILT_)
+            else if (stat==2 && ring==1 && isSLHC_ && runME21ILT_)
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCGEMMotherboardME21(endc, stat, sect, subs, cham, conf) );
-            else if ((stat==3 || stat==4) && ring==1 && runME3141ILT_)
+            else if ((stat==3 || stat==4) && ring==1 && isSLHC_ && runME3141ILT_)
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCMotherboardME3141(endc, stat, sect, subs, cham, conf) );
             else
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCMotherboard(endc, stat, sect, subs, cham, conf) );
@@ -313,7 +313,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             }
 
             // running upgraded ME2/1 TMBs
-            else if (stat==2 && ring==1 && runME21ILT_)
+            else if (stat==2 && ring==1 && isSLHC_ && runME21ILT_)
             {
               // run the TMB
               CSCGEMMotherboardME21* tmb21GEM = static_cast<CSCGEMMotherboardME21*>(tmb);
@@ -346,7 +346,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               put(copads, oc_gemcopad, gemId, " GEM coincidence pad");
             }
             // running upgraded ME3/1-ME4/1 TMBs
-            else if ((stat==3 or stat==4) && ring==1 && runME3141ILT_)
+            else if ((stat==3 or stat==4) && ring==1 && isSLHC_ && runME3141ILT_)
             {
               // run the TMB
               CSCMotherboardME3141* tmb3141 = static_cast<CSCMotherboardME3141*>(tmb);
