@@ -357,8 +357,8 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   iEvent.getByToken( bsToken_,  beamSpot);
   if ( !beamSpot.isValid() ) {
     if (!warningPrinted4token_[0]) {
-      edm::LogWarning("BPHMonitor") << "skipping events because the collection " << bsInputTag_.label().c_str() << " is not available";
       warningPrinted4token_[0] = true;
+      edm::LogWarning("BPHMonitor") << "skipping events because the collection " << bsInputTag_.label().c_str() << " is not available";
     }
     return;
   }
@@ -367,8 +367,8 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   iEvent.getByToken( muoToken_, muoHandle );
   if ( !muoHandle.isValid() ) {
     if (!warningPrinted4token_[1]) {
-      edm::LogWarning("BPHMonitor") << "skipping events because the collection " << muoInputTag_.label().c_str() << " is not available";
       warningPrinted4token_[1] = true;
+      edm::LogWarning("BPHMonitor") << "skipping events because the collection " << muoInputTag_.label().c_str() << " is not available";
     }
     return;
   }
@@ -377,8 +377,8 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   iEvent.getByToken( trToken_, trHandle );
   if ( !trHandle.isValid() ) {
     if (!warningPrinted4token_[2]) {
-      edm::LogWarning("BPHMonitor") << "skipping events because the collection " << trInputTag_.label().c_str() << " is not available";
       warningPrinted4token_[2] = true;
+      edm::LogWarning("BPHMonitor") << "skipping events because the collection " << trInputTag_.label().c_str() << " is not available";
     }
     return;
   }
@@ -722,11 +722,15 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 	}
       } else {
 	if (!warningPrinted4token_[3]) {
-	  edm::LogWarning("BPHMonitor") << "skipping events because the collection " << phInputTag_.label().c_str() << " is not available";
 	  warningPrinted4token_[3] = true;
+	  if ( phInputTag_.label().empty() )
+	    edm::LogWarning("BPHMonitor") << "PhotonCollection not set";
+	  else
+	    edm::LogWarning("BPHMonitor") << "skipping events because the collection " << phInputTag_.label().c_str() << " is not available";
 	}
+	// if Handle is not valid, because the InputTag has been mis-configured, then skip the event
+	if ( !phInputTag_.label().empty() ) return;
       }
-
     } 
     //
     /////////
