@@ -69,15 +69,10 @@ void SiStripMergeZeroSuppression::produce(edm::Event& event, const edm::EventSet
 
         if ( ! suppressedDigis.empty() ) {
           LogTrace("SiStripMergeZeroSuppression::produce") << "Looking for the detId with the new ZS in the collection of the zero suppressed data" << "\n"; 
-          bool isModuleInZscollection = false;
-          uint32_t zsDetId{0};
           auto zsModule = std::lower_bound(std::begin(outputdigi), std::end(outputdigi), rawDetId,
               [] ( const edm::DetSet<SiStripDigi>& elem, uint32_t testDetId ) { return elem.id < testDetId; });
-          if ( ( std::end(outputdigi) != zsModule ) && ( zsModule->id == rawDetId ) ) {
-            isModuleInZscollection = true;
-            zsDetId = zsModule->id;
-          }
-          LogTrace("SiStripMergeZeroSuppression::produce") << "After the look " << rawDetId << " ==== " <<  zsDetId << "\n"; 
+          const bool isModuleInZscollection = ( ( std::end(outputdigi) != zsModule ) && ( zsModule->id == rawDetId ) );
+          LogTrace("SiStripMergeZeroSuppression::produce") << "After the look " << rawDetId << " ==== " <<  ( isModuleInZscollection ? zsModule->id : 0 ) << "\n";
           LogTrace("SiStripMergeZeroSuppression::produce") << "Exiting looking for the detId with the new ZS in the collection of the zero suppressed data" << "\n";
 
           //creating the map containing the digis (in rawdigi format) merged
