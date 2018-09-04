@@ -220,13 +220,15 @@ class SiStripClusterizerFromRaw final : public edm::stream::EDProducer<>  {
     ev.getByToken( productToken_, rawData); 
     
     
-    std::unique_ptr< edmNew::DetSetVector<SiStripCluster> > 
-      output( onDemand ?
-	      new edmNew::DetSetVector<SiStripCluster>(std::shared_ptr<edmNew::DetSetVector<SiStripCluster>::Getter>(std::make_shared<ClusterFiller>(*rawData, *clusterizer_, 
-																	 *rawAlgos_, doAPVEmulatorCheck_, hybridZeroSuppressed_)
-														       ), 
-						       clusterizer_->allDetIds())
-	      : new edmNew::DetSetVector<SiStripCluster>());
+    std::unique_ptr< edmNew::DetSetVector<SiStripCluster> > output(
+      onDemand ?
+        new edmNew::DetSetVector<SiStripCluster>(
+          std::shared_ptr<edmNew::DetSetVector<SiStripCluster>::Getter>(
+              std::make_shared<ClusterFiller>(*rawData, *clusterizer_, *rawAlgos_,
+                                              doAPVEmulatorCheck_, hybridZeroSuppressed_)),
+          clusterizer_->allDetIds())
+      : new edmNew::DetSetVector<SiStripCluster>()
+      );
     
     if(onDemand) assert(output->onDemand());
 
