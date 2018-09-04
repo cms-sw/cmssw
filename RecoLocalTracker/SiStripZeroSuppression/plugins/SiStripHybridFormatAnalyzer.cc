@@ -158,8 +158,8 @@ SiStripHybridFormatAnalyzer::fillDescriptions(edm::ConfigurationDescriptions & d
   desc.add<edm::InputTag>("srcDigis",edm::InputTag("siStripZeroSuppression","VirginRaw"));
   desc.add<edm::InputTag>("srcAPVCM",edm::InputTag("siStripZeroSuppression","APVCMVirginRaw"));
   desc.add<uint32_t>("nModuletoDisplay",10000);
-  desc.add<bool>("plotAPVCM",false);
-  descriptions.addDefault(desc);
+  desc.add<bool>("plotAPVCM",true);
+  descriptions.add("siStripHybridFormatAnalyzer", desc);
 }
 
 void
