@@ -471,8 +471,7 @@ CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* wiredc) {
       if (numWireGroups > CSCConstants::MAX_NUM_WIRES) {
         if (infoV >= 0) edm::LogError("L1CSCTPEmulatorSetupError")
           << "+++ Number of wire groups, " << numWireGroups
-          << " found in ME" << ((theEndcap == 1) ? "+" : "-")
-          << theStation << "/" << theRing << "/" << theChamber
+          << " found in " << detid.chamberName()
           << " (sector " << theSector << " subsector " << theSubsector
           << " trig id. " << theTrigChamber << ")"
           << " exceeds max expected, " << CSCConstants::MAX_NUM_WIRES
@@ -483,8 +482,7 @@ CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* wiredc) {
     }
     else {
       if (infoV >= 0) edm::LogError("L1CSCTPEmulatorSetupError")
-        << "+++ ME" << ((theEndcap == 1) ? "+" : "-")
-        << theStation << "/" << theRing << "/" << theChamber
+        << "+++ " << detid.chamberName()
         << " (sector " << theSector << " subsector " << theSubsector
         << " trig id. " << theTrigChamber << ")"
         << " is not defined in current geometry! +++\n"
@@ -495,8 +493,7 @@ CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* wiredc) {
 
   if (numWireGroups < 0) {
     if (infoV >= 0) edm::LogError("L1CSCTPEmulatorSetupError")
-      << "+++ ME" << ((theEndcap == 1) ? "+" : "-")
-      << theStation << "/" << theRing << "/" << theChamber
+      << "+++ " << CSCDetId::chamberName(theEndcap, theStation, theRing, theChamber)
       << " (sector " << theSector << " subsector " << theSubsector
       << " trig id. " << theTrigChamber << "):"
       << " numWireGroups = " << numWireGroups
@@ -609,9 +606,8 @@ bool CSCAnodeLCTProcessor::getDigis(const CSCWireDigiCollection* wiredc) {
       if (infoV > 1) {
         LogTrace("CSCAnodeLCTProcessor")
           << "found " << digiV[i_layer].size()
-          << " wire digi(s) in layer " << i_layer << " of ME"
-          << ((theEndcap == 1) ? "+" : "-") << theStation << "/" << theRing
-          << "/" << theChamber << " (trig. sector " << theSector
+          << " wire digi(s) in layer " << i_layer << " of " << detid.chamberName()
+          << " (trig. sector " << theSector
           << " subsector " << theSubsector << " id " << theTrigChamber << ")";
         for (std::vector<CSCWireDigi>::iterator pld = digiV[i_layer].begin();
              pld != digiV[i_layer].end(); pld++) {
@@ -1255,9 +1251,7 @@ void CSCAnodeLCTProcessor::lctSearch() {
       if (infoV > 0) {
         LogDebug("CSCAnodeLCTProcessor")
           << "\n" << bestALCT[bx] << " fullBX = "<<bestALCT[bx].getFullBX()
-          << " found in ME"
-          << ((theEndcap == 1) ? "+" : "-")
-          << theStation << "/" << theRing << "/" << theChamber
+          << " found in " << CSCDetId::chamberName(theEndcap, theStation, theRing, theChamber)
           << " (sector " << theSector << " subsector " << theSubsector
           << " trig id. " << theTrigChamber << ")" << "\n";
       }
@@ -1266,9 +1260,7 @@ void CSCAnodeLCTProcessor::lctSearch() {
         if (infoV > 0) {
           LogDebug("CSCAnodeLCTProcessor")
             << secondALCT[bx] << " fullBX = "<<secondALCT[bx].getFullBX()
-            << " found in ME"
-            << ((theEndcap == 1) ? "+" : "-")
-            << theStation << "/" << theRing << "/" << theChamber
+            << " found in " << CSCDetId::chamberName(theEndcap, theStation, theRing, theChamber)
             << " (sector " << theSector << " subsector " << theSubsector
             << " trig id. " << theTrigChamber << ")" << "\n";
         }
@@ -1525,8 +1517,7 @@ void CSCAnodeLCTProcessor::dumpConfigParams() const {
 // Dump of digis on wire groups.
 void CSCAnodeLCTProcessor::dumpDigis(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) const {
   LogDebug("CSCAnodeLCTProcessor")
-    << "ME" << ((theEndcap == 1) ? "+" : "-")
-    << theStation << "/" << theRing << "/" << theChamber
+    << CSCDetId::chamberName(theEndcap, theStation, theRing, theChamber)
     << " nWiregroups " << numWireGroups;
 
   std::ostringstream strstrm;
