@@ -18,7 +18,8 @@ SiStripDigiToZS10Raw = SiStripDigiToZSRaw.clone(
     )
 
 SiStripRawDigiToVirginRaw = SiStripDigiToZSRaw.clone(
-	FedReadoutMode = cms.string('VIRGIN_RAW')
+    FedReadoutMode = cms.string('VIRGIN_RAW'),
+    PacketCode = cms.string('VIRGIN_RAW')
 )
 
 ##
