@@ -4,13 +4,14 @@
 //
 // Package:     SiStripMonitorClient
 // Class  :     SiStripDcsInfo
-// 
-/**\class SiStripDcsInfo SiStripDcsInfo.h DQM/SiStripMonitorCluster/interface/SiStripDcsInfo.h
+//
+/**\class SiStripDcsInfo SiStripDcsInfo.h
+   DQM/SiStripMonitorCluster/interface/SiStripDcsInfo.h
 
- Description: 
-      Checks the # of SiStrip FEDs from DAQ
- Usage:
-    <usage>
+   Description:
+   Checks the # of SiStrip FEDs from DAQ
+   Usage:
+   <usage>
 
 */
 //
@@ -37,15 +38,13 @@
 class DQMStore;
 class MonitorElement;
 class SiStripDetVOff;
-class SiStripDetCabling; 
+class SiStripDetCabling;
 
 class SiStripDcsInfo: public edm::EDAnalyzer {
- public:
-
+public:
   SiStripDcsInfo(const edm::ParameterSet& ps);
-  
- private:
 
+private:
   void beginJob() override;
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override ;
@@ -85,6 +84,6 @@ class SiStripDcsInfo: public edm::EDAnalyzer {
   static constexpr float MinAcceptableDcsDetFrac_{0.90};
   static constexpr float MaxAcceptableBadDcsLumi_{2};
 
-  edm::ESHandle< SiStripDetCabling > detCabling_{};
+  edm::ESHandle<SiStripDetCabling> detCabling_{};
 };
 #endif

@@ -5,7 +5,8 @@
 // Package:     SiStripMonitorClient
 // Class  :     SiStripBadComponentInfo
 //
-/**\class SiStripBadComponentInfo SiStripBadComponentInfo.h DQM/SiStripMonitorCluster/interface/SiStripBadComponentInfo.h
+/**\class SiStripBadComponentInfo SiStripBadComponentInfo.h
+ DQM/SiStripMonitorCluster/interface/SiStripBadComponentInfo.h
 
  Description:
       Checks the # of SiStrip FEDs from DAQ
@@ -20,55 +21,58 @@
 
 #include <string>
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DQMServices/Core/interface/DQMEDHarvester.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
 
 class DQMStore;
 class MonitorElement;
 
-class SiStripBadComponentInfo: public DQMEDHarvester {
+class SiStripBadComponentInfo : public DQMEDHarvester {
 
- public:
-
+public:
   /// Constructor
-  SiStripBadComponentInfo(const edm::ParameterSet& ps);
+  SiStripBadComponentInfo(edm::ParameterSet const& ps);
   ~SiStripBadComponentInfo() override;
 
 protected:
-
   void endRun(edm::Run const&, edm::EventSetup const&) override;
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
+  void dqmEndJob(DQMStore::IBooker&,
+                 DQMStore::IGetter&) override; // performed in the endJob
 
 private:
   void checkBadComponents(edm::EventSetup const& eSetup);
-  void bookBadComponentHistos(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
-  void fillBadComponentMaps(int xbin, int component,SiStripQuality::BadComponent& BC);
-  void createSummary(MonitorElement* me,const std::map<std::pair<int,int>,float >& map);
+  void bookBadComponentHistos(DQMStore::IBooker& ibooker,
+                              DQMStore::IGetter& igetter);
+  void fillBadComponentMaps(int xbin,
+                            int component,
+                            SiStripQuality::BadComponent& BC);
+  void createSummary(MonitorElement* me,
+                     const std::map<std::pair<int, int>, float>& map);
 
-  MonitorElement * badAPVME_;
-  MonitorElement * badFiberME_;
-  MonitorElement * badStripME_;
+  MonitorElement* badAPVME_;
+  MonitorElement* badFiberME_;
+  MonitorElement* badStripME_;
 
-  std::map<std::pair<int,int>,float > mapBadAPV;
-  std::map<std::pair<int,int>,float > mapBadFiber;
-  std::map<std::pair<int,int>,float > mapBadStrip;
+  std::map<std::pair<int, int>, float> mapBadAPV;
+  std::map<std::pair<int, int>, float> mapBadFiber;
+  std::map<std::pair<int, int>, float> mapBadStrip;
 
-  unsigned long long m_cacheID_;
-  bool bookedStatus_;
-  int nSubSystem_;
+  unsigned long long m_cacheID_{};
+  bool bookedStatus_{false};
+  int nSubSystem_{6};
   std::string qualityLabel_;
 
   edm::ESHandle<SiStripQuality> siStripQuality_;

@@ -4,13 +4,14 @@
 //
 // Package:     SiStripMonitorClient
 // Class  :     SiStripCertificationInfo
-// 
-/**\class SiStripCertificationInfo SiStripCertificationInfo.h DQM/SiStripMonitorCluster/interface/SiStripCertificationInfo.h
+//
+/**\class SiStripCertificationInfo SiStripCertificationInfo.h
+   DQM/SiStripMonitorCluster/interface/SiStripCertificationInfo.h
 
- Description: 
-      Checks the # of SiStrip FEDs from DAQ
- Usage:
-    <usage>
+   Description:
+   Checks the # of SiStrip FEDs from DAQ
+   Usage:
+   <usage>
 
 */
 //
@@ -38,12 +39,10 @@ class MonitorElement;
 class SiStripDetCabling;
 
 class SiStripCertificationInfo: public edm::EDAnalyzer {
- public:
-
+public:
   SiStripCertificationInfo(const edm::ParameterSet& ps);
-  
- private:
 
+private:
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) override;
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
