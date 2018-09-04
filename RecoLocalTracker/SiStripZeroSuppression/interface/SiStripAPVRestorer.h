@@ -50,6 +50,7 @@ public:
 
 private:
   using CMMap = std::map<uint32_t, std::vector<float>>;  //detId, Vector of MeanCM per detId
+  constexpr static uint16_t nTotStripsPerAPV = 128;
 
   uint16_t nullInspect(uint16_t firstAPV, const digivector_t& digis);
   uint16_t abnormalBaselineInspect(uint16_t firstAPV, const digivector_t& digis);
