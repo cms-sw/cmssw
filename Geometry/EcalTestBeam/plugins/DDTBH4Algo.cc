@@ -87,8 +87,7 @@ void DDTBH4Algo::initialize(const DDNumericArguments&      nArgs,
 			    const DDStringArguments&       sArgs,
 			    const DDStringVectorArguments& vsArgs )
 {
-  DDCurrentNamespace ns;
-  m_idNameSpace = *ns;
+   m_idNameSpace = DDCurrentNamespace::ns();
    m_BLZBeg      = nArgs["BLZBeg"];	
    m_BLZEnd      = nArgs["BLZEnd"];	
    m_BLZPiv      = nArgs["BLZPiv"];	

@@ -7,6 +7,8 @@
 #include <utility>
 #include <vector>
 
+class DDCurrentNamespace;
+
 //! DDName is used to identify DDD entities uniquely.
 /** A DDName consists of a \a name and a \a namespace. Both are represented as std::string.
 */

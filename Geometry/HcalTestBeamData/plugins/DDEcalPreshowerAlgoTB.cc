@@ -70,8 +70,7 @@ void DDEcalPreshowerAlgoTB::initialize(const DDNumericArguments & nArgs,
   LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB Dummy Material = "
 		       << dummyMaterial;
 
-  DDCurrentNamespace ns;
-  idNameSpace = *ns;
+  idNameSpace = DDCurrentNamespace::ns();
 
   LogDebug("HCalGeom") << "DDEcalPreshowerAlgoTB info: end initialize" ;
 }
