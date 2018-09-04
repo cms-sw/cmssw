@@ -85,6 +85,15 @@ def customisePostEra_Run2_2018_harvesting_trackingOnly(process):
     customisePostEra_Run2_2017_harvesting_trackingOnly(process)
     return process
 
+def customise_HI_PostEra_Run2_2018(process):
+    customisePostEra_Run2_2018(process)
+    return process
+
+def customisePostEra_Run2_2018_pp_on_AA(process):
+    customisePostEra_Run2_2018(process)
+    return process
+
+
 
 ##############################################################################
 def customisePPData(process):
