@@ -19,21 +19,22 @@ class TkDetMap;
 class SiStripDetCabling;
 
 class SiStripQualityChecker {
- public:
-
+public:
   SiStripQualityChecker(edm::ParameterSet const& ps);
   ~SiStripQualityChecker();
 
   void bookStatus(DQMStore& dqm_store);
   void resetStatus();
   void fillDummyStatus();
-  void fillStatus(DQMStore& dqm_store, const edm::ESHandle< SiStripDetCabling >& cabling, const edm::EventSetup& eSetup);
+  void fillStatus(DQMStore& dqm_store,
+                  const edm::ESHandle<SiStripDetCabling>& cabling,
+                  const edm::EventSetup& eSetup);
   void fillStatusAtLumi(DQMStore& dqm_store);
   void printStatusReport();
-  void fillFaultyModuleStatus(DQMStore& dqm_store, const edm::EventSetup& eSetup);
-  
- private:
+  void fillFaultyModuleStatus(DQMStore& dqm_store,
+                              const edm::EventSetup& eSetup);
 
+private:
   struct SubDetMEs{
     MonitorElement* DetFraction;
     MonitorElement* SToNFlag;
@@ -41,18 +42,31 @@ class SiStripQualityChecker {
     std::string     detectorTag;
   };
 
-  void fillDetectorStatus(DQMStore& dqm_store, const edm::ESHandle< SiStripDetCabling >& cabling);
-  void fillSubDetStatus(DQMStore& dqm_store,const edm::ESHandle< SiStripDetCabling >& cabling, SubDetMEs& mes, unsigned int xbin,float& gflag);
-  void getModuleStatus(DQMStore& dqm_store, std::vector<MonitorElement*>& layer_mes, int& errdet, int& errdet_hasBadChan, int& errdet_hasTooManyDigis, int& errdet_hasTooManyClu, int& errdet_hasExclFed, int& errdet_hasDcsErr);
+  void fillDetectorStatus(DQMStore& dqm_store,
+                          const edm::ESHandle<SiStripDetCabling>& cabling);
+  void fillSubDetStatus(DQMStore& dqm_store,
+                        const edm::ESHandle<SiStripDetCabling>& cabling,
+                        SubDetMEs& mes,
+                        unsigned int xbin,
+                        float& gflag);
+  void getModuleStatus(DQMStore& dqm_store,
+                       std::vector<MonitorElement*>& layer_mes,
+                       int& errdet,
+                       int& errdet_hasBadChan,
+                       int& errdet_hasTooManyDigis,
+                       int& errdet_hasTooManyClu,
+                       int& errdet_hasExclFed,
+                       int& errdet_hasDcsErr);
 
-  void fillStatusHistogram(MonitorElement const*, int xbin, int ybin, float val);
-  void initialiseBadModuleList();  
+  void
+  fillStatusHistogram(MonitorElement const*, int xbin, int ybin, float val);
+  void initialiseBadModuleList();
 
   void fillDetectorStatusAtLumi(DQMStore& dqm_store);
-  
+
   std::map<std::string, SubDetMEs> SubDetMEsMap;
   std::map<std::string, std::string> SubDetFolderMap;
-  
+
   MonitorElement* DetFractionReportMap{nullptr};
   MonitorElement* DetFractionReportMap_hasBadChan{nullptr};
   MonitorElement* DetFractionReportMap_hasTooManyDigis{nullptr};
@@ -66,7 +80,7 @@ class SiStripQualityChecker {
   MonitorElement* TrackSummaryReportGlobal{nullptr};
 
   std::map<uint32_t,uint16_t> badModuleList;
- 
+
   edm::ParameterSet const pSet_;
 
   bool bookedStripStatus_{false};
