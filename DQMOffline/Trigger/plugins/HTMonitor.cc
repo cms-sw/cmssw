@@ -240,9 +240,13 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
     if ( electrons.size() < nelectrons_ ) return;
   } else {
     if (!warningPrinted4token_[2]) {
-      edm::LogWarning("HTMonitor") << "skipping events because the collection " << jetInputTag_.label().c_str() << " is not available";
       warningPrinted4token_[2] = true;
+      if ( eleInputTag_.label().empty() ) 
+	edm::LogWarning("HTMonitor") << "GsfElectronCollection not set";
+      else
+	edm::LogWarning("HTMonitor") << "skipping events because the collection " << eleInputTag_.label().c_str() << " is not available";
     }
+    if ( !eleInputTag_.label().empty() ) return;
   }
   
 
@@ -260,9 +264,13 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
     }
   } else {
     if (!warningPrinted4token_[3]) {
-      edm::LogWarning("HTMonitor") << "skipping events because the collection " << vtxInputTag_.label().c_str() << " is not available";
       warningPrinted4token_[3] = true;
+      if ( vtxInputTag_.label().empty() )
+	edm::LogWarning("HTMonitor") << "VertexCollection not set";
+      else
+	edm::LogWarning("HTMonitor") << "skipping events because the collection " << vtxInputTag_.label().c_str() << " is not available";
     }
+    if ( !vtxInputTag_.label().empty() ) return;
   }
 
   std::vector<reco::Muon> muons;
@@ -276,9 +284,13 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
     if ( muons.size() < nmuons_ ) return;
   } else {
     if (!warningPrinted4token_[4]) {
-      edm::LogWarning("HTMonitor") << "skipping events because the collection " << muoInputTag_.label().c_str() << " is not available";
       warningPrinted4token_[4] = true;
+      if ( muoInputTag_.label().empty() )
+	edm::LogWarning("HTMonitor") << "MuonCollection not set";
+      else
+	edm::LogWarning("HTMonitor") << "skipping events because the collection " << muoInputTag_.label().c_str() << " is not available";
     }
+    if ( !muoInputTag_.label().empty() ) return;
   }
 
   // fill histograms
