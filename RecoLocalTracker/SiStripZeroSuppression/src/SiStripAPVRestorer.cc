@@ -131,8 +131,6 @@ uint16_t SiStripAPVRestorer::inspect(uint32_t detId, uint16_t firstAPV, const di
 void SiStripAPVRestorer::restore(uint16_t firstAPV, digivector_t& digis)
 {
   if ( forceNoRestore_ ) return;
-  
-  const uint16_t nTotStripsPerAPV = 128;
 
   for ( uint16_t iAPV=firstAPV; iAPV < digis.size()/nTotStripsPerAPV + firstAPV; ++iAPV ) {
     auto algoToUse = apvFlags_[iAPV];
@@ -154,7 +152,6 @@ void SiStripAPVRestorer::restore(uint16_t firstAPV, digivector_t& digis)
 
 inline uint16_t SiStripAPVRestorer::hybridFormatInspect(uint16_t firstAPV, const digivector_t& digis)
 {
-  const uint16_t nTotStripsPerAPV = 128;
   digivector_t singleAPVdigi; singleAPVdigi.reserve(nTotStripsPerAPV);
   uint16_t nAPVflagged = 0;
   for ( uint16_t iAPV = firstAPV; iAPV < digis.size()/nTotStripsPerAPV + firstAPV; ++iAPV ) {
@@ -181,7 +178,6 @@ inline uint16_t SiStripAPVRestorer::hybridFormatInspect(uint16_t firstAPV, const
 
 inline uint16_t SiStripAPVRestorer::baselineFollowerInspect(uint16_t firstAPV, const digivector_t& digis)
 {
-  const uint16_t nTotStripsPerAPV = 128;
   digivector_t singleAPVdigi; singleAPVdigi.reserve(nTotStripsPerAPV);
   uint16_t nAPVflagged = 0;
 
@@ -213,7 +209,6 @@ inline uint16_t SiStripAPVRestorer::baselineFollowerInspect(uint16_t firstAPV, c
 
 inline uint16_t SiStripAPVRestorer::forceRestoreInspect(uint16_t firstAPV, const digivector_t& digis)
 {
-  const uint16_t nTotStripsPerAPV = 128;
   uint16_t nAPVflagged = 0;
   for ( uint16_t iAPV = firstAPV; iAPV < firstAPV + digis.size()/nTotStripsPerAPV; ++iAPV ) {
     if ( ! badAPVs_[iAPV] ) {
@@ -226,7 +221,6 @@ inline uint16_t SiStripAPVRestorer::forceRestoreInspect(uint16_t firstAPV, const
 
 inline uint16_t SiStripAPVRestorer::baselineAndSaturationInspect(uint16_t firstAPV, const digivector_t& digis)
 {
-  const uint16_t nTotStripsPerAPV = 128;
   digivector_t singleAPVdigi; singleAPVdigi.reserve(nTotStripsPerAPV);
   uint16_t nAPVflagged = 0;
 
@@ -259,8 +253,6 @@ inline uint16_t SiStripAPVRestorer::baselineAndSaturationInspect(uint16_t firstA
 
 inline uint16_t SiStripAPVRestorer::abnormalBaselineInspect(uint16_t firstAPV, const digivector_t& digis)
 {
-  const uint16_t nTotStripsPerAPV = 128; 
-  
   SiStripQuality::Range detQualityRange = qualityHandle->getRange(detId_);
 
   uint16_t nAPVflagged = 0;
@@ -296,8 +288,6 @@ inline uint16_t SiStripAPVRestorer::abnormalBaselineInspect(uint16_t firstAPV, c
 
 inline uint16_t SiStripAPVRestorer::nullInspect(uint16_t firstAPV, const digivector_t& digis)
 {
-  const uint16_t nTotStripsPerAPV = 128;
-
   SiStripQuality::Range detQualityRange = qualityHandle->getRange(detId_);
 
   uint16_t nAPVflagged = 0;
@@ -322,8 +312,6 @@ inline uint16_t SiStripAPVRestorer::nullInspect(uint16_t firstAPV, const digivec
 
 inline uint16_t SiStripAPVRestorer::hybridEmulationInspect(uint16_t firstAPV, const digivector_t& digis)
 {
-  const uint16_t nTotStripsPerAPV = 128;
-
   uint16_t nAPVflagged = 0;
 
   auto itCMMap = std::end(meanCMmap_);
@@ -349,8 +337,6 @@ inline uint16_t SiStripAPVRestorer::hybridEmulationInspect(uint16_t firstAPV, co
 
 inline void SiStripAPVRestorer::baselineFollowerRestore(uint16_t apvN, uint16_t firstAPV, float median, digivector_t& digis)
 {
-  const uint16_t nTotStripsPerAPV = 128;
-
   digivector_t baseline(size_t(nTotStripsPerAPV), 0);
 
   //============================= Find Flat Regions & Interpolating the baseline & subtracting the baseline  =================
@@ -381,8 +367,6 @@ inline void SiStripAPVRestorer::baselineFollowerRestore(uint16_t apvN, uint16_t 
 
 inline void SiStripAPVRestorer::flatRestore(uint16_t apvN, uint16_t firstAPV, digivector_t& digis)
 {
-  const uint16_t nTotStripsPerAPV = 128;
-
   digivector_t baseline(size_t(nTotStripsPerAPV), 150);
   baseline[0] = 0; baseline[nTotStripsPerAPV-1] = 0;
 
@@ -395,8 +379,6 @@ inline void SiStripAPVRestorer::flatRestore(uint16_t apvN, uint16_t firstAPV, di
 // Baseline calculation implementation =========================================
 bool inline SiStripAPVRestorer::flatRegionsFinder(const digivector_t& adcs, digimap_t& smoothedpoints, uint16_t apvN)
 {
-  const uint16_t nTotStripsPerAPV = 128;
-
   smoothedpoints.clear();
 
   SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detId_);
@@ -531,8 +513,6 @@ void inline SiStripAPVRestorer::cleaner_LocalMinimumAdder(const digivector_t& ad
   //--------------------------------------------------------------------------------------------------
   // these should be reset now for the point-insertion that follows
 
-  const uint16_t nTotStripsPerAPV = 128;
-
   if ( smoothedpoints.size() >= 2 ) {
     for ( auto it = smoothedpoints.begin(); it != --smoothedpoints.end(); ++it ) {
       auto itNext = it; ++itNext;
@@ -623,8 +603,6 @@ void inline SiStripAPVRestorer::cleaner_HighSlopeChecker(digimap_t& smoothedpoin
 
 void inline SiStripAPVRestorer::baselineFollower(const digimap_t& smoothedpoints, digivector_t& baseline, float median)
 {
-  const uint16_t nTotStripsPerAPV = 128;
-
   //if not enough points
   if ( smoothedpoints.size() < minStripsToFit_ ) {
      baseline.insert(baseline.begin(),nTotStripsPerAPV, median);
@@ -873,7 +851,6 @@ bool SiStripAPVRestorer::checkBaseline(const digivector_t &baseline) const
   	  0.325077, 0.422085 }
   };
 
-  const uint16_t nTotStripsPerAPV = 128; 
   float filtered_baseline[nTotStripsPerAPV];
   float filtered_baseline_derivative[nTotStripsPerAPV-1];
   
@@ -977,7 +954,6 @@ void SiStripAPVRestorer::loadMeanCMMap(const edm::Event& iEvent)
 }
 void SiStripAPVRestorer::createCMMapRealPed(const edm::DetSetVector<SiStripRawDigi>& input)
 {
-  const uint16_t nTotStripsPerAPV = 128;
   meanCMmap_.clear();
   for ( const auto& rawDigis : input ) {
     const auto detPedestalRange = pedestalHandle->getRange(rawDigis.id);
@@ -1010,8 +986,6 @@ void SiStripAPVRestorer::createCMMapCMstored(const edm::DetSetVector<SiStripProc
 //============================================================================
 void SiStripAPVRestorer::derivativeFollowerRestore(uint16_t apvN, uint16_t firstAPV, digivector_t& digis)
 {
-
-  const uint16_t nTotStripsPerAPV = 128;
   digivector_t singleAPVdigi;
   singleAPVdigi.clear();
   for(int16_t strip = (apvN-firstAPV)*nTotStripsPerAPV; strip < (apvN-firstAPV+1)*nTotStripsPerAPV; ++strip) singleAPVdigi.push_back(digis[strip]+1024);
