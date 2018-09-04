@@ -73,9 +73,6 @@ private:
 
   int verbosity_;
 
-  std::string fileListCmd_;
-
-  std::string curDir_;
 };
 
 #endif
