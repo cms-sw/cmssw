@@ -90,7 +90,7 @@ namespace edmtest {
     }
 
     host->ifRecordChanges<ESTestRecordC>(record,
-                                         [this, h=host.get()](auto const& rec) {
+                                         [h=host.get()](auto const& rec) {
       ++h->value();
     });
 
