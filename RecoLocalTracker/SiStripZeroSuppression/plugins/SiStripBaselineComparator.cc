@@ -126,38 +126,27 @@ SiStripBaselineComparator::analyze(const edm::Event& e, const edm::EventSetup& e
   e.getByToken(srcClusters2_,clusters2);
 
   for (auto const& set : *clusters){
-    for (auto const& clus : set){ 
+    for (auto const& clus : set){
       h1_nOldClusters_->Fill(clus.amplitudes().size(),1);
-      int nMatched = 0; 
-      int charge1 = 0;
-      for( auto itAmpl = clus.amplitudes().begin(); itAmpl != clus.amplitudes().end(); ++itAmpl) charge1 += *itAmpl;
-      std::vector< int > matchedWidths;      
-      std::vector< int > matchedCharges;      
+      int nMatched = 0;
+      const int charge1 = std::accumulate(clus.amplitudes().begin(), clus.amplitudes().end(), 0);
+      std::vector< int > matchedWidths;
+      std::vector< int > matchedCharges;
 
       //scan other set of clusters
-      for (auto const& set2 : *clusters2){
+      for (auto const& set2 : *clusters2) {
         if(set.id() != set2.id()) continue;
-        for (auto const& clus2 : set2){ 
-          int charge2 = 0;
-          for( auto itAmpl = clus2.amplitudes().begin(); itAmpl != clus2.amplitudes().end(); ++itAmpl) charge2 += *itAmpl;
-          int strip=clus.firstStrip();
-          for( auto itAmpl = clus.amplitudes().begin(); itAmpl != clus.amplitudes().end(); ++itAmpl){
-            if(clus2.firstStrip() == strip){
-              if(nMatched>0){
-                if(nMatched==1) h1_nSplitClusters_->Fill(clus.amplitudes().size(),1);  
-                matchedWidths.push_back(clus2.amplitudes().size());
-                matchedCharges.push_back(charge2);
-                nMatched++;
-              }
-              if(nMatched==0){
-                matchedWidths.push_back(clus2.amplitudes().size());
-                matchedCharges.push_back(charge2);
-                nMatched++;
-                h1_nMatchedClusters_->Fill(clus.amplitudes().size(),1);  
-              }
-              break;
+        for (auto const& clus2 : set2) {
+          const int charge2 = std::accumulate(clus2.amplitudes().begin(), clus2.amplitudes().end(), 0);
+          if ( ( clus.firstStrip() <= clus2.firstStrip() ) && ( clus2.firstStrip() < clus.firstStrip()+clus.amplitudes().size() ) ) {
+            matchedWidths.push_back(clus2.amplitudes().size());
+            matchedCharges.push_back(charge2);
+            if ( nMatched == 0 ) {
+              h1_nMatchedClusters_->Fill(clus.amplitudes().size(),1);
+            } else if ( nMatched == 1 ) {
+              h1_nSplitClusters_->Fill(clus.amplitudes().size(),1);
             }
-            ++strip;
+            ++nMatched;
           }
         }
       }
