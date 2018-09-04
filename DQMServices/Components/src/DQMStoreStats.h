@@ -132,11 +132,11 @@ public:
   Folder * getFather() {return father_;}
   const std::string & name()  {return folderName_;}
 
-  Folder * cd(const std::string &name) {
+  Folder * cd(std::string_view const name) {
     for(auto & subfolder : subfolders_)
       if ( subfolder->name()==name )
         return subfolder;
-    auto * tmp = new Folder(name);
+    auto * tmp = new Folder(std::string{name});
     this->add(tmp);
     return tmp;
   }
@@ -363,4 +363,3 @@ private:
 };
 
 #endif
-

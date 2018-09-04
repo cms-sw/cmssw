@@ -302,7 +302,7 @@ DQMNet::reinstateObject(DQMStore *store, Object &o)
 
   // Reconstruct the main object
   MonitorElement *obj = 0;
-  store->setCurrentFolder(*o.dirname);
+  store->setCurrentFolder(o.dirname);
   switch (o.flags & DQM_PROP_TYPE_MASK)
   {
   case DQM_PROP_TYPE_INT:
@@ -367,7 +367,7 @@ DQMNet::reinstateObject(DQMStore *store, Object &o)
     logme()
       << "ERROR: unexpected monitor element of type "
       << (o.flags & DQM_PROP_TYPE_MASK) << " called '"
-      << *o.dirname << '/' << o.objname << "'\n";
+      << o.dirname << '/' << o.objname << "'\n";
     return false;
   }
 
@@ -430,11 +430,11 @@ DQMNet::sendObjectToPeer(Bucket *msg, Object &o, bool data)
 		   &o.rawdata[0] + o.rawdata.size());
 
   uint32_t words [9];
-  uint32_t namelen = o.dirname->size() + o.objname.size() + 1;
+  uint32_t namelen = o.dirname.size() + o.objname.size() + 1;
   uint32_t datalen = objdata.size();
   uint32_t qlen = o.qdata.size();
 
-  if (o.dirname->empty())
+  if (o.dirname.empty())
     --namelen;
 
   words[0] = 9*sizeof(uint32_t) + namelen + datalen + qlen;
@@ -451,8 +451,8 @@ DQMNet::sendObjectToPeer(Bucket *msg, Object &o, bool data)
   copydata(msg, &words[0], 9*sizeof(uint32_t));
   if (namelen)
   {
-    copydata(msg, &(*o.dirname)[0], o.dirname->size());
-    if (! o.dirname->empty())
+    copydata(msg, &o.dirname[0], o.dirname.size());
+    if (! o.dirname.empty())
       copydata(msg, "/", 1);
     copydata(msg, &o.objname[0], o.objname.size());
   }
@@ -1457,7 +1457,7 @@ DQMBasicNet::reserveLocalSpace(uint32_t size)
 void
 DQMBasicNet::updateLocalObject(Object &o)
 {
-  o.dirname = &*local_->dirs.insert(*o.dirname).first;
+  o.dirname = *local_->dirs.emplace(o.dirname).first;
   std::pair<ObjectMap::iterator, bool> info(local_->objs.insert(o));
   if (! info.second)
   {
@@ -1487,8 +1487,8 @@ DQMBasicNet::removeLocalExcept(const std::set<std::string> &known)
   for (i = local_->objs.begin(), e = local_->objs.end(); i != e; )
   {
     path.clear();
-    path.reserve(i->dirname->size() + i->objname.size() + 2);
-    path += *i->dirname;
+    path.reserve(i->dirname.size() + i->objname.size() + 2);
+    path += i->dirname;
     if (! path.empty())
       path += '/';
     path += i->objname;

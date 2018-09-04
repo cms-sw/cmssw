@@ -187,7 +187,7 @@ int DQMStoreStats::calcstats( int mode = DQMStoreStats::considerAllME ) {
         !( it->getLumiFlag() ) ) continue;
     
     // figure out subsystem/subfolder names
-    const std::string& path = it->getPathname();
+    std::string_view const path = it->getPathname();
 
     subfolderStringBegin = 0;
     Folder * curr = &dbeFolder;
