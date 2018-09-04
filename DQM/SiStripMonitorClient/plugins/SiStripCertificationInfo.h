@@ -38,47 +38,24 @@ class MonitorElement;
 class SiStripDetCabling;
 
 class SiStripCertificationInfo: public edm::EDAnalyzer {
-
  public:
 
-  /// Constructor
   SiStripCertificationInfo(const edm::ParameterSet& ps);
   
-  /// Destructor
-  ~SiStripCertificationInfo() override;
-
  private:
 
-  /// BeginJob
-  void beginJob() override;
-
-  /// Begin Run
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
-
-  /// End Of Luminosity
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) override;
-  
-  /// EndRun
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
-
-  /// Analyze
   void analyze(edm::Event const&, edm::EventSetup const&) override;
 
+  void bookSiStripCertificationMEs(DQMStore& dqm_store);
+  void resetSiStripCertificationMEs(DQMStore& dqm_store);
+  void fillSiStripCertificationMEs(DQMStore& dqm_store,
+                                   edm::EventSetup const& eSetup);
 
-
-private:
-
-  void bookSiStripCertificationMEs();
-  void resetSiStripCertificationMEs();
-  void fillSiStripCertificationMEs(edm::EventSetup const& eSetup);
-
-  void fillDummySiStripCertification();
-
-  void fillSiStripCertificationMEsAtLumi();
-
-  DQMStore* dqmStore_;
-
-
+  void fillDummySiStripCertification(DQMStore& dqm_store);
+  void fillSiStripCertificationMEsAtLumi(DQMStore& dqm_store);
 
   struct SubDetMEs{
     MonitorElement* det_fractionME;
@@ -87,16 +64,16 @@ private:
     int n_layer;
   };
 
-  MonitorElement * SiStripCertification;
-  MonitorElement * SiStripCertificationMap; 
-  std::map<std::string, SubDetMEs> SubDetMEsMap;
-  MonitorElement * SiStripCertificationSummaryMap;
+  MonitorElement* SiStripCertification{nullptr};
+  MonitorElement* SiStripCertificationMap{nullptr};
+  std::map<std::string, SubDetMEs> SubDetMEsMap{};
+  MonitorElement* SiStripCertificationSummaryMap{nullptr};
 
-  bool sistripCertificationBooked_;
-  unsigned long long m_cacheID_;
+  bool sistripCertificationBooked_{false};
+  unsigned long long m_cacheID_{};
 
-  edm::ESHandle< SiStripDetCabling > detCabling_;
+  edm::ESHandle<SiStripDetCabling> detCabling_{};
 
-  int nFEDConnected_;
+  int nFEDConnected_{};
 };
 #endif

@@ -4,10 +4,10 @@
 //
 // Package:     SiStripMonitorClient
 // Class  :     SiStripBadComponentInfo
-// 
+//
 /**\class SiStripBadComponentInfo SiStripBadComponentInfo.h DQM/SiStripMonitorCluster/interface/SiStripBadComponentInfo.h
 
- Description: 
+ Description:
       Checks the # of SiStrip FEDs from DAQ
  Usage:
     <usage>
@@ -44,12 +44,11 @@ class SiStripBadComponentInfo: public DQMEDHarvester {
  public:
 
   /// Constructor
-  SiStripBadComponentInfo(const edm::ParameterSet& ps);  
+  SiStripBadComponentInfo(const edm::ParameterSet& ps);
   ~SiStripBadComponentInfo() override;
 
 protected:
 
-  void beginRun(edm::Run const&, edm::EventSetup const&) override;
   void endRun(edm::Run const&, edm::EventSetup const&) override;
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
 

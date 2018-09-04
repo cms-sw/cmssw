@@ -5,28 +5,21 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include <iostream>
-//
-// -- Constructor
-// 
-SiStripSummaryCreator::SiStripSummaryCreator() {
+
+SiStripSummaryCreator::SiStripSummaryCreator()
+{
   edm::LogInfo("SiStripSummaryCreator") << 
     " Creating SiStripSummaryCreator " << "\n" ;
-  summaryMEMap.clear();
-  summaryFrequency_ = -1;
 }
-//
-// --  Destructor
-// 
+
 SiStripSummaryCreator::~SiStripSummaryCreator() {
   edm::LogInfo("SiStripSummaryCreator") << 
     " Deleting SiStripSummaryCreator " << "\n" ;
-  summaryMEMap.clear();
 }
-//
-// -- Read Configuration
-//
-bool SiStripSummaryCreator::readConfiguration(std::string& file_path) {
-    summaryMEMap.clear();
+
+bool SiStripSummaryCreator::readConfiguration(std::string const& file_path)
+{
+  summaryMEs_.clear();
   SiStripConfigParser config_parser;
   config_parser.getDocument(edm::FileInPath(file_path).fullPath());
   if (!config_parser.getFrequencyForSummary(summaryFrequency_)){
@@ -34,30 +27,30 @@ bool SiStripSummaryCreator::readConfiguration(std::string& file_path) {
     summaryFrequency_ = -1;
     return false;
   }  
-  if (!config_parser.getMENamesForSummary(summaryMEMap)) {
+  if (!config_parser.getMENamesForSummary(summaryMEs_)) {
     std::cout << "SiStripSummaryCreator::readConfiguration: Failed to read Summary configuration parameters!! ";
     return false;
   }
   return true;
 }
-//
-// -- Set Summary ME names
-//
-void SiStripSummaryCreator::setSummaryMENames(std::map<std::string, std::string>& me_names) {
 
-  summaryMEMap.clear();
+void SiStripSummaryCreator::setSummaryMENames(std::map<std::string, std::string>& me_names)
+{
+  summaryMEs_.clear();
   for (std::map<std::string,std::string>::const_iterator isum = me_names.begin();
        isum != me_names.end(); isum++) {    
-    summaryMEMap.insert(std::pair<std::string,std::string>(isum->first, isum->second));
+    summaryMEs_.insert(std::pair<std::string,std::string>(isum->first, isum->second));
   }
 }
+
 //
 // -- Browse through the Folder Structure
 //
-void SiStripSummaryCreator::createSummary(DQMStore* dqm_store) {
-  if (summaryMEMap.empty()) return;
-  std::string currDir = dqm_store->pwd();
-  std::vector<std::string> subdirs = dqm_store->getSubdirs();
+void SiStripSummaryCreator::createSummary(DQMStore& dqm_store)
+{
+  if (summaryMEs_.empty()) return;
+  std::string currDir = dqm_store.pwd();
+  std::vector<std::string> subdirs = dqm_store.getSubdirs();
   int nmod = 0;
   for (std::vector<std::string>::const_iterator it = subdirs.begin();
        it != subdirs.end(); it++) {
@@ -69,9 +62,9 @@ void SiStripSummaryCreator::createSummary(DQMStore* dqm_store) {
   } else {  
     for (std::vector<std::string>::const_iterator it = subdirs.begin();
        it != subdirs.end(); it++) {
-      dqm_store->cd(*it);
+      dqm_store.cd(*it);
       createSummary(dqm_store);
-      dqm_store->goUp();
+      dqm_store.goUp();
     }
     fillGrandSummaryHistos(dqm_store);
   }
@@ -79,15 +72,15 @@ void SiStripSummaryCreator::createSummary(DQMStore* dqm_store) {
 //
 // -- Create and Fill Summary Histograms at the lowest level of the structure
 //
-void SiStripSummaryCreator::fillSummaryHistos(DQMStore* dqm_store) {
-  std::string currDir = dqm_store->pwd();
+void SiStripSummaryCreator::fillSummaryHistos(DQMStore& dqm_store)
+{
+  std::string currDir = dqm_store.pwd();
   std::map<std::string, MonitorElement*> MEMap;
-  std::vector<std::string> subdirs = dqm_store->getSubdirs();
+  std::vector<std::string> subdirs = dqm_store.getSubdirs();
   if (subdirs.empty()) return;
   
-
-  for (std::map<std::string,std::string>::const_iterator isum = summaryMEMap.begin();
-       isum != summaryMEMap.end(); isum++) {    
+  for (std::map<std::string,std::string>::const_iterator isum = summaryMEs_.begin();
+       isum != summaryMEs_.end(); isum++) {
     std::string name = isum->first;
     int iBinStep = 0;
     int ndet = 0;
@@ -95,10 +88,10 @@ void SiStripSummaryCreator::fillSummaryHistos(DQMStore* dqm_store) {
     for (std::vector<std::string>::const_iterator it = subdirs.begin();
 	 it != subdirs.end(); it++) {
       if ( (*it).find("module_") == std::string::npos) continue;
-      dqm_store->cd(*it);
+      dqm_store.cd(*it);
       ndet++;
-      std::vector<MonitorElement*> contents = dqm_store->getContents(dqm_store->pwd());
-      dqm_store->goUp();
+      std::vector<MonitorElement*> contents = dqm_store.getContents(dqm_store.pwd());
+      dqm_store.goUp();
       for (std::vector<MonitorElement *>::const_iterator im = contents.begin();
                 im != contents.end(); im++) {
         MonitorElement * me_i = (*im);
@@ -120,21 +113,23 @@ void SiStripSummaryCreator::fillSummaryHistos(DQMStore* dqm_store) {
     }
   }
 }
+
 //
 //  -- Fill Summary Histogram at higher level
 //
-void SiStripSummaryCreator::fillGrandSummaryHistos(DQMStore* dqm_store) {
+void SiStripSummaryCreator::fillGrandSummaryHistos(DQMStore& dqm_store)
+{
   std::map<std::string, MonitorElement*> MEMap;
-  std::string currDir = dqm_store->pwd();
+  std::string currDir = dqm_store.pwd();
   std::string dir_name =  currDir.substr(currDir.find_last_of("/")+1);
   if ((dir_name.find("SiStrip") == 0) ||
       (dir_name.find("Collector") == 0) ||
       (dir_name.find("MechanicalView") == 0) ||
       (dir_name.find("FU") == 0) ) return;
-  std::vector<std::string> subdirs = dqm_store->getSubdirs();
+  std::vector<std::string> subdirs = dqm_store.getSubdirs();
   if (subdirs.empty()) return;;
-  for (std::map<std::string,std::string>::const_iterator isum = summaryMEMap.begin();
-       isum != summaryMEMap.end(); isum++) {
+  for (std::map<std::string,std::string>::const_iterator isum = summaryMEs_.begin();
+       isum != summaryMEs_.end(); isum++) {
     std::string name, summary_name;
     name = isum->first;
     if (isum->second == "sum" || isum->second == "sum")    
@@ -145,9 +140,9 @@ void SiStripSummaryCreator::fillGrandSummaryHistos(DQMStore* dqm_store) {
     int ibinStep =0;
     for (std::vector<std::string>::const_iterator it = subdirs.begin();
 	 it != subdirs.end(); it++) {
-      dqm_store->cd(*it);
-      std::vector<MonitorElement*> contents = dqm_store->getContents(dqm_store->pwd());
-      dqm_store->goUp();
+      dqm_store.cd(*it);
+      std::vector<MonitorElement*> contents = dqm_store.getContents(dqm_store.pwd());
+      dqm_store.goUp();
       for (std::vector<MonitorElement *>::const_iterator im = contents.begin();
                 im != contents.end(); im++) {
         MonitorElement * me_i = (*im);
@@ -177,13 +172,13 @@ void SiStripSummaryCreator::fillGrandSummaryHistos(DQMStore* dqm_store) {
     }
   }
 }
-//
-// -- Get Summary ME
-//
-MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore* dqm_store, 
-                         std::string& name, std::string htype) {
+
+MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore& dqm_store,
+                                                    std::string& name,
+                                                    std::string htype)
+{
   MonitorElement* me = nullptr;
-  std::string currDir = dqm_store->pwd();
+  std::string currDir = dqm_store.pwd();
   std::string sum_name, tag_name;
  
   std::string dname = currDir.substr(currDir.find_last_of("/")+1);
@@ -196,7 +191,7 @@ MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore* dqm_store,
     tag_name = "Summary_Mean" + name;
   }
   // If already booked
-  std::vector<MonitorElement*> contents = dqm_store->getContents(currDir);
+  std::vector<MonitorElement*> contents = dqm_store.getContents(currDir);
   for (std::vector<MonitorElement *>::const_iterator im = contents.begin();
                 im != contents.end(); im++) {
     MonitorElement * me = (*im);
@@ -217,48 +212,41 @@ MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore* dqm_store,
   std::map<int, std::string> tags;
   if (!me) {
     int nBins = 0;
-    std::vector<std::string> subdirs = dqm_store->getSubdirs();
+    std::vector<std::string> subdirs = dqm_store.getSubdirs();
     // set # of bins of the histogram
     if (htype == "mean" || htype == "Mean" ) {
        nBins = subdirs.size();
-       me = dqm_store->book1D(sum_name,sum_name,nBins,0.5,nBins+0.5);
+       me = dqm_store.book1D(sum_name,sum_name,nBins,0.5,nBins+0.5);
        int ibin = 0;
-       for (std::vector<std::string>::const_iterator it = subdirs.begin();
-          it != subdirs.end(); it++) {
-	 std::string subdir_name = (*it).substr((*it).find_last_of("/")+1);
-	 ibin++;
-	 tags.insert(std::pair<int,std::string>(ibin, (subdir_name)));        
+       for (auto const& subdir : subdirs) {
+         std::string subdir_name = subdir.substr(subdir.find_last_of("/")+1);
+         ++ibin;
+         tags.emplace(ibin, subdir_name);
        }
     } else if (htype == "bin-by-bin" || htype == "Bin-by-Bin") {
-      for (std::vector<std::string>::const_iterator it = subdirs.begin();
-	   it != subdirs.end(); it++) {
-	dqm_store->cd(*it);
-        std::string subdir_name = (*it).substr((*it).find_last_of("/")+1);
-	std::vector<MonitorElement*> s_contents = dqm_store->getContents(dqm_store->pwd());
-	for (std::vector<MonitorElement *>::const_iterator iv = s_contents.begin();
-                iv != s_contents.end(); iv++) {
-          MonitorElement* s_me = (*iv);
+      for (auto const& subdir : subdirs) {
+        dqm_store.cd(subdir);
+        std::string subdir_name = subdir.substr(subdir.find_last_of("/")+1);
+        auto const& s_contents = dqm_store.getContents(dqm_store.pwd());
+        for (auto const* s_me : s_contents) {
           if (!s_me) continue;
           std::string s_me_name = s_me->getName();
 	  if (s_me_name.find(name) == 0 || s_me_name.find(tag_name) == 0) {
 	    int ibin = s_me->getNbinsX();
 	    nBins += ibin;
-	    tags.insert(std::pair<int,std::string>(nBins-ibin/2, (subdir_name)));        
+            tags.emplace(nBins-ibin/2, subdir_name);
 	    break;
           }
 	}
-	dqm_store->goUp();
+        dqm_store.goUp();
       }
-      me = dqm_store->book1D(sum_name,sum_name,nBins,0.5,nBins+0.5);
+      me = dqm_store.book1D(sum_name,sum_name,nBins,0.5,nBins+0.5);
     } else if (htype == "sum" || htype == "Sum") {
-      for (std::vector<std::string>::const_iterator it = subdirs.begin();
-	   it != subdirs.end(); it++) {
-	dqm_store->cd(*it);
-	std::vector<MonitorElement*> s_contents = dqm_store->getContents(dqm_store->pwd());
-	dqm_store->goUp();        
-	for (std::vector<MonitorElement *>::const_iterator iv = s_contents.begin();
-                iv != s_contents.end(); iv++) {
-          MonitorElement* s_me = (*iv);
+      for (auto const& subdir : subdirs) {
+        dqm_store.cd(subdir);
+        auto const& s_contents = dqm_store.getContents(dqm_store.pwd());
+        dqm_store.goUp();
+        for (auto* s_me : s_contents) {
           if (!s_me) continue;
           std::string s_me_name = s_me->getName();
           if (s_me_name.find(name) == std::string::npos) continue;
@@ -266,7 +254,7 @@ MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore* dqm_store,
             TH1F* hist1 = s_me->getTH1F();
             if (hist1) {
 	      nBins = s_me->getNbinsX();
-	      me = dqm_store->book1D(sum_name,sum_name,nBins,
+              me = dqm_store.book1D(sum_name,sum_name,nBins,
 		 hist1->GetXaxis()->GetXmin(),hist1->GetXaxis()->GetXmax());
               break;
             }
@@ -283,28 +271,23 @@ MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore* dqm_store,
       if (name.find("NoisyStrips") != std::string::npos) hist->GetYaxis()->SetTitle("Noisy Strips (%)");
       else hist->GetYaxis()->SetTitle(name.c_str());
 
-      for (std::map<int,std::string>::const_iterator ic = tags.begin();
-	   ic != tags.end(); ic++) {
-	hist->GetXaxis()->SetBinLabel(ic->first, (ic->second).c_str());
+      for (auto const& [bin, label] : tags) {
+        hist->GetXaxis()->SetBinLabel(bin, label.c_str());
       }
       hist->LabelsOption("uv");
     }
   }
   return me;
 }
-//
-//
-//
-void SiStripSummaryCreator::fillHistos(int ival, int istep, std::string htype, 
-                       MonitorElement* me_src, MonitorElement* me) {
   
+void SiStripSummaryCreator::fillHistos(int const ival, int const istep, std::string const htype,
+                                       MonitorElement* me_src, MonitorElement* me)
+{
   if (me->getTH1()) {
-    //    TProfile* prof = 0;
     TH1F* hist1 = nullptr;
     TH2F* hist2 = nullptr;
     if (me->kind() == MonitorElement::DQM_KIND_TH1F)    hist1 = me->getTH1F();
     if (me->kind() == MonitorElement::DQM_KIND_TH2F)    hist2 = me->getTH2F();
-    //    if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) prof = me->getTProfile();
     
     int nbins = me_src->getNbinsX();
     const std::string& name = me_src->getName();
@@ -317,7 +300,6 @@ void SiStripSummaryCreator::fillHistos(int ival, int istep, std::string htype,
 	  for (int k=1; k<nbins+1; k++) {
 	    float noisy = me_src->getBinContent(k,3)+me_src->getBinContent(k,5);
 	    float dead = me_src->getBinContent(k,2)+me_src->getBinContent(k,4);
-// 	    float good = me_src->getBinContent(k,1);
 	    if (noisy >= binEntry*0.5 || dead >= binEntry*0.5) bad++;
 	  }
 	  bad = bad*100.0/nbins;    
