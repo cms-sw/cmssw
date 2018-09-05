@@ -29,9 +29,9 @@ class SiStripDetVOffPrinter : public edm::one::EDAnalyzer<> {
 public:
 
   explicit SiStripDetVOffPrinter(const edm::ParameterSet& iConfig );
-  virtual ~SiStripDetVOffPrinter();
-  virtual void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup);
-  virtual void endJob();
+  ~SiStripDetVOffPrinter() override;
+  void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup) override;
+  void endJob() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
@@ -196,7 +196,7 @@ void SiStripDetVOffPrinter::analyze(const edm::Event& evt, const edm::EventSetup
 
   condDbSession.transaction().commit();
  
-  if (m_output!="") {
+  if (!m_output.empty()) {
     std::ofstream fout;
     fout.open(m_output);
     fout << ss.str();
