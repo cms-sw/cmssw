@@ -54,6 +54,7 @@ class SiStripMeanCMExtractor : public edm::one::EDProducer<> {
    public:
       explicit SiStripMeanCMExtractor( const edm::ParameterSet&);
       ~SiStripMeanCMExtractor() override;
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
       void beginJob() override ;
@@ -92,6 +93,15 @@ SiStripMeanCMExtractor::SiStripMeanCMExtractor(const edm::ParameterSet& conf) :
 SiStripMeanCMExtractor::~SiStripMeanCMExtractor()
 {
  
+}
+
+void SiStripMeanCMExtractor::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("CMCollection", edm::InputTag("siStripZeroSuppression", "APVCM"));
+  desc.add<std::string>("Algorithm", "Pedestals");
+  desc.add<uint32_t>("NEvents", 100);
+  descriptions.add("SiStripMeanCMExtractor", desc);
 }
 
 void SiStripMeanCMExtractor::init(const edm::EventSetup& es){
