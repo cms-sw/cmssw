@@ -13,7 +13,7 @@ SiStripDigiToZSRaw = EventFilter.SiStripRawToDigi.SiStripDigiToRaw_cfi.SiStripDi
     RawDataTag = cms.InputTag('rawDataCollector')
     )
 
-SiStripDigiToZS10Raw = SiStripDigiToZSRaw.clone(
+SiStripDigiToHybridRaw = SiStripDigiToZSRaw.clone(
     PacketCode = cms.string('ZERO_SUPPRESSED10'),
     )
 
@@ -34,6 +34,11 @@ rawDataRepacker = rawDataCollector.clone(
                                        cms.InputTag('source'),
                                        cms.InputTag('rawDataCollector'))
     )
+hybridRawDataRepacker = rawDataRepacker.clone(
+    RawCollectionList = cms.VInputTag( cms.InputTag('SiStripDigiToHybridRaw'),
+                                       cms.InputTag('source'),
+                                       cms.InputTag('rawDataCollector'))
+    )
 
 virginRawDataRepacker = rawDataRepacker.clone(
 	RawCollectionList = cms.VInputTag( cms.InputTag('SiStripRawDigiToVirginRaw'))
@@ -44,6 +49,6 @@ virginRawDataRepacker = rawDataRepacker.clone(
 ##
 
 DigiToRawRepack = cms.Sequence( SiStripDigiToZSRaw * rawDataRepacker )
-DigiToZS10RawRepack = cms.Sequence( SiStripDigiToZS10Raw * rawDataRepacker )
+DigiToHybridRawRepack = cms.Sequence( SiStripDigiToHybridRaw * hybridRawDataRepacker )
 DigiToVirginRawRepack = cms.Sequence( SiStripRawDigiToVirginRaw * virginRawDataRepacker )
 DigiToSplitRawRepack = cms.Sequence( DigiToRawRepack + DigiToVirginRawRepack )
