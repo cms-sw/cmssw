@@ -13,7 +13,7 @@ using HitsOnCPU = siPixelRecHitsHeterogeneousProduct::HitsOnCPU;
 __global__ void
 kernel_checkOverflows(GPU::SimpleVector<Quadruplet> *foundNtuplets,
                GPUCACell *cells, uint32_t const * nCells,
-               GPU::VecArray< unsigned int, 2048> *isOuterHitOfCell,
+               GPU::VecArray< unsigned int, 256> *isOuterHitOfCell,
                uint32_t nHits) {
 
  auto idx = threadIdx.x + blockIdx.x * blockDim.x;
@@ -37,7 +37,7 @@ kernel_checkOverflows(GPU::SimpleVector<Quadruplet> *foundNtuplets,
 __global__ void
 kernel_connect(GPU::SimpleVector<Quadruplet> *foundNtuplets,
                GPUCACell *cells, uint32_t const * nCells,
-               GPU::VecArray< unsigned int, 2048> *isOuterHitOfCell,
+               GPU::VecArray< unsigned int, 256> *isOuterHitOfCell,
                float ptmin, 
                float region_origin_radius, const float thetaCut,
                const float phiCut, const float hardPtCut,

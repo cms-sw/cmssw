@@ -151,13 +151,12 @@ private:
     const float caHardPtCut = 0.f;
 
     static constexpr int maxNumberOfQuadruplets_ = 10000;
-    static constexpr int maxCellsPerHit_ = 2048; // 512;
+    static constexpr int maxCellsPerHit_ = 256; // 2048; // 512;
     static constexpr int maxNumberOfLayerPairs_ = 13;
     static constexpr int maxNumberOfLayers_ = 10;
     static constexpr int maxNumberOfDoublets_ = 262144;
     static constexpr int maxNumberOfHits_ = 20000;
     static constexpr int maxNumberOfRegions_ = 2;
-
 
     std::vector<GPU::SimpleVector<Quadruplet>*> h_foundNtupletsVec_;
     std::vector<Quadruplet*> h_foundNtupletsData_;
