@@ -5,7 +5,7 @@ def modify_hltL3TrajSeedOIHit(_hltL3TrajSeedOIHit):
     _iterativeTSG.ComponentName = cms.string('FastTSGFromPropagation')
     _iterativeTSG.HitProducer = cms.InputTag("fastMatchedTrackerRecHitCombinations")
     _iterativeTSG.MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent")
-    _iterativeTSG.SimTrackCollectionLabel = cms.InputTag("famosSimHits")
+    _iterativeTSG.SimTrackCollectionLabel = cms.InputTag("fastSimProducer")
     _iterativeTSG.beamSpot = cms.InputTag("offlineBeamSpot")
     _hltL3TrajSeedOIHit.TrackerSeedCleaner = cms.PSet()
 
@@ -18,7 +18,7 @@ def modify_hltL3TrajSeedIOHit(_hltL3TrajSeedIOHit):
         cms.InputTag("detachedTripletStepSeeds"), 
         cms.InputTag("lowPtTripletStepSeeds"), 
         cms.InputTag("pixelPairStepSeeds"))
-    _iterativeTSG.SimTrackCollectionLabel = cms.InputTag("famosSimHits")
+    _iterativeTSG.SimTrackCollectionLabel = cms.InputTag("fastSimProducer")
     _hltL3TrajSeedIOHit.TkSeedGenerator.iterativeTSG = _iterativeTSG
     _hltL3TrajSeedIOHit.TrackerSeedCleaner = cms.PSet()
     

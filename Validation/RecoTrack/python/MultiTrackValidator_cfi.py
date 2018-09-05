@@ -101,6 +101,4 @@ multiTrackValidator = cms.EDAnalyzer(
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen():
-    multiTrackValidator.sim = [cms.InputTag('famosSimHits','TrackerHits')]
-    
+fastSim.toModify(multiTrackValidator, sim = ['fastSimProducer:TrackerHits'])
