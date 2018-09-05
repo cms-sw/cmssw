@@ -15,7 +15,6 @@ process.load('FastSimulation.Configuration.Geometries_MC_cff')
 process.load("Configuration.StandardSequences.MagneticField_0T_cff")
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
-process.load('FastSimulation.Configuration.FamosSequences_cff')
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 process.load('FastSimulation.Configuration.HLT_GRun_cff')
 process.load('FastSimulation.Configuration.Validation_cff')
@@ -33,7 +32,7 @@ process.source = cms.Source("PoolSource",
                             )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(10)
     )
 
 process.options = cms.untracked.PSet(
@@ -66,16 +65,13 @@ Workflow = '/HcalValidation/'+'Harvesting/'+str(cmssw_version)
 process.dqmSaver.workflow = Workflow
 
 
-# Make the tracker transparent (unuseful?)
-process.famosSimHits.MaterialEffects.PairProduction = False
-process.famosSimHits.MaterialEffects.Bremsstrahlung = False
-process.famosSimHits.MaterialEffects.EnergyLoss = False
-process.famosSimHits.MaterialEffects.MultipleScattering = False
-process.famosSimHits.MaterialEffects.NuclearInteraction = False
+# Make the tracker transparent, also no SimHits
+for layer in process.fastSimProducer.detectorDefinition.BarrelLayers: 
+    layer.interactionModels = cms.untracked.vstring()
+for layer in process.fastSimProducer.detectorDefinition.ForwardLayers: 
+    layer.interactionModels = cms.untracked.vstring()
 
 # Other statements
-process.famosSimHits.SimulateCalorimetry = True
-process.famosSimHits.SimulateTracking = False
 process.simulation = cms.Sequence(process.simulationWithFamos)
 process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)
 

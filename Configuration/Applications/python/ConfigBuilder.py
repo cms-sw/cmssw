@@ -1410,7 +1410,7 @@ class ConfigBuilder(object):
 			self.executeAndRemember("process.g4SimHits.UseMagneticField = cms.bool(False)")
 	else:
 		if self._options.magField=='0T':
-			self.executeAndRemember("process.famosSimHits.UseMagneticField = cms.bool(False)")
+			self.executeAndRemember("process.fastSimProducer.detectorDefinition.magneticFieldZ = cms.untracked.double(0.)")
 
 	self.scheduleSequence(sequence.split('.')[-1],'simulation_step')
         return
