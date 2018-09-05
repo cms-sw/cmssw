@@ -47,6 +47,9 @@ HFNoseSD::HFNoseSD(const std::string& name, const DDCompactView & cpv,
   waferRot_        = m_HFN.getParameter<bool>("RotatedWafer");
   angles_          = m_HFN.getUntrackedParameter<std::vector<double>>("WaferAngles");
 
+  nameX_ = ((name.find("HFNoseHits")!=std::string::npos) ? 
+	    "HGCalHFNoseSensitive" : "HFNoseSensitive");
+
   if(storeAllG4Hits_) {
     setUseMap(false);
     setNumberCheckedHits(0);

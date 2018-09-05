@@ -67,7 +67,7 @@ double DDI::Cons::volume() const
    double rInPlusZ=p_[3]; 
    double rOutPlusZ=p_[4];
    //double phiFrom=p_[5]/rad;
-   double deltaPhi=fabs( CONVERT_TO( p_[6], rad )); 
+   double deltaPhi=std::abs( CONVERT_TO( p_[6], rad )); 
    double z=2*zhalf;
 
   double volume1=1_pi*(rInPlusZ*rInPlusZ+rInMinusZ*rInMinusZ+rInMinusZ*rInPlusZ)*z/3;

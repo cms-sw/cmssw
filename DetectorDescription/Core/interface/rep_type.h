@@ -1,13 +1,14 @@
 #ifndef DETECTOR_DESCRIPTION_CORE_DDI_REP_TYPE_H
 #define DETECTOR_DESCRIPTION_CORE_DDI_REP_TYPE_H
 
+#include <memory>
+
 namespace DDI {
   
   template< class N, class I > 
     struct rep_traits
     {
       using name_type = N;
-      using value_type = typename I::value_type;
       using pointer = typename I::pointer;
       using reference = typename I::reference;
     };
@@ -16,7 +17,14 @@ namespace DDI {
     struct rep_traits< N, I* >
     {
       using name_type = N;
-      using vlue_type = I;
+      using pointer = I*;
+      using reference = I&;
+    };
+
+  template <class N, class I> 
+    struct rep_traits< N, std::unique_ptr<I>>
+    {
+      using name_type = N;
       using pointer = I*;
       using reference = I&;
     };
@@ -24,8 +32,8 @@ namespace DDI {
   template< class N, class I >
     struct rep_type
     {
-      rep_type() : second( nullptr ), init_(false) {}
-      rep_type( const N & n, I i ) : first( n ), second( i ), init_( false ) 
+      rep_type() : second( nullptr ), init_( false ) {}
+      rep_type( const N & n, I i ) : first( n ), second( std::move( i )), init_( false ) 
       { if( i ) init_ = true; }
       N first;
       I second;

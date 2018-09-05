@@ -315,7 +315,7 @@ bool DDCompareDDRot::operator() ( const DDRotation& lhs, const DDRotation& rhs )
     std::cout << "DDRotation names do not match " 
 	      << lhs.name().fullname() << " and " 
 	      << rhs.name().fullname() << std::endl;
-  } else if ( ! DDCompareDDRotMat()(*lhs.rotation(), *rhs.rotation()) ) {
+  } else if ( ! DDCompareDDRotMat()( lhs.rotation(), rhs.rotation()) ) {
     ret = false;
     std::cout << "DDRotationMatrix values do not match " 
 	      << lhs.name().fullname() << " and " 

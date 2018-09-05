@@ -14,6 +14,7 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
 #include <cmath>
+#include <memory>
 
 using namespace dd::operators;
 
@@ -75,7 +76,7 @@ DDAngular::initialize( const DDNumericArguments & nArgs,
 
   m_solidRot   = DDRotationMatrix();
   
-  if( fabs( m_rangeAngle - 360.0_deg ) < 0.001_deg )
+  if( std::abs( m_rangeAngle - 360.0_deg ) < 0.001_deg )
   { 
     m_delta = m_rangeAngle / double( m_n );
   }
@@ -119,11 +120,11 @@ DDAngular::initialize( const DDNumericArguments & nArgs,
     LogDebug( "DDAlgorithm" ) << "  rotsolid[" << i <<  "] axis=" << temp.Axis() << " rot.angle=" << CONVERT_TO( temp.Angle(), deg );
     m_solidRot = temp * m_solidRot;			  
   }
-
-  m_idNameSpace = DDCurrentNamespace::ns();
+  DDCurrentNamespace ns;
+  m_idNameSpace = *ns;
   m_childNmNs 	= DDSplit( sArgs["ChildName"] );
   if( m_childNmNs.second.empty())
-    m_childNmNs.second = DDCurrentNamespace::ns();
+    m_childNmNs.second = *ns;
 
   DDName parentName = parent().name();
   LogDebug( "DDAlgorithm" ) << "DDAngular: Parent " << parentName 
@@ -155,8 +156,9 @@ DDAngular::execute( DDCompactView& cpv )
 				<< CONVERT_TO( phix, deg ) << ", 90.," 
 				<< CONVERT_TO( phiy, deg ) << ", 0, 0";
 	
-      rotation = DDrot( DDName( rotstr, m_idNameSpace ), new DDRotationMatrix(( *DDcreateRotationMatrix( theta, phix, theta, phiy,
-													 0., 0. ) * m_solidRot ))); 
+      rotation = DDrot( DDName( rotstr, m_idNameSpace ),
+			std::make_unique<DDRotationMatrix>( *DDcreateRotationMatrix( theta, phix, theta, phiy,
+										     0., 0. ) * m_solidRot )); 
     }
       
     double xpos = m_radius * cos( phi ) + m_center[0];

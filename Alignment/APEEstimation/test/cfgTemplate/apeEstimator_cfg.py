@@ -56,6 +56,7 @@ process.MessageLogger.categories.append('CalculateAPE')
 process.MessageLogger.categories.append('ApeEstimator')
 process.MessageLogger.categories.append('TrackRefitter')
 process.MessageLogger.categories.append('AlignmentTrackSelector')
+process.MessageLogger.cerr.threshold = 'WARNING'
 process.MessageLogger.cerr.INFO.limit = 0
 process.MessageLogger.cerr.default.limit = -1
 process.MessageLogger.cerr.SectorBuilder = cms.untracked.PSet(limit = cms.untracked.int32(-1))
@@ -64,7 +65,6 @@ process.MessageLogger.cerr.CalculateAPE = cms.untracked.PSet(limit = cms.untrack
 process.MessageLogger.cerr.ApeEstimator = cms.untracked.PSet(limit = cms.untracked.int32(-1))
 process.MessageLogger.cerr.AlignmentTrackSelector = cms.untracked.PSet(limit = cms.untracked.int32(-1))
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000 ## really show only every 1000th
-
 
 
 ##

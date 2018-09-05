@@ -48,21 +48,13 @@ kt4PFJetsForRho = cms.EDProducer(
     jetAlgorithm = cms.string("Kt"),
     rParam       = cms.double(0.4)
 )
+
 kt4PFJetsForRho.src = cms.InputTag('particleFlow')
 kt4PFJetsForRho.doAreaFastjet = cms.bool(True)
 kt4PFJetsForRho.jetPtMin      = cms.double(0.0)
 kt4PFJetsForRho.GhostArea     = cms.double(0.005)
 
-hiFJRhoProducer = cms.EDProducer('HiFJRhoProducer',
-                                 jetSource = cms.InputTag('kt4PFJetsForRho'),
-                                 nExcl = cms.int32(2),
-                                 etaMaxExcl = cms.double(2.),
-                                 ptMinExcl = cms.double(20.),
-                                 nExcl2 = cms.int32(1),
-                                 etaMaxExcl2 = cms.double(3.),
-                                 ptMinExcl2 = cms.double(20.),
-                                 etaRanges = cms.vdouble(-5., -3., -2.1, -1.3, 1.3, 2.1, 3., 5.)
-)
+from RecoHI.HiJetAlgos.hiFJRhoProducer import hiFJRhoProducer
 
 akCs4PFJets = cms.EDProducer(
     "CSJetProducer",

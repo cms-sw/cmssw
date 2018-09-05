@@ -73,7 +73,7 @@ process.out_step        = cms.EndPath(process.output)
 
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/FTFP_BERT_EMM'
 process.g4SimHits.Physics.DefaultCutValue   = 0.1
-process.hgcalGeometryTest.DetectorNames     = ['HFNoseSensitive']
+process.hgcalGeometryTest.DetectorNames     = ['HGCalHFNoseSensitive']
 process.hgcalGeometryTest.CaloHitSources    = ['HFNoseHits']
 process.hgcalGeometryTest.RMax              = 1500.0
 process.hgcalGeometryTest.ZMin              = 10400.0

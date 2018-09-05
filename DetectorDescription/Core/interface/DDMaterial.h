@@ -2,6 +2,7 @@
 #define DDMaterial_h
 
 #include <iostream>
+#include <memory>
 #include <vector>
 #include <utility>
 #include "DetectorDescription/Core/interface/DDName.h"
@@ -39,12 +40,12 @@ namespace DDI { class Material; }
     to specify the units of the quantities
     making up a material.
 */
-class DDMaterial : public DDBase<DDName,DDI::Material*>
+class DDMaterial : public DDBase<DDName,std::unique_ptr<DDI::Material>>
 {
   friend std::ostream & operator<<(std::ostream &, const DDMaterial &);
   
 public:
-  typedef std::vector<std::pair<DDMaterial,double> > FractionV;
+  using FractionV = std::vector<std::pair<DDMaterial, double>>;
   
   //! Creates a uninitialized reference-object (see DDLogicalPart documentation for details on reference objects)
   DDMaterial();

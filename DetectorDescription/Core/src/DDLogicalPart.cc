@@ -101,7 +101,7 @@ operator<<( std::ostream & os, const DDLogicalPart & part )
        \endcode 
 */        
 DDLogicalPart::DDLogicalPart( const DDName & name )
-  : DDBase< DDName, DDI::LogicalPart* >()
+  : DDBase< DDName, std::unique_ptr<DDI::LogicalPart> >()
 { 
   create( name );
   DD_NC( name );
@@ -123,9 +123,9 @@ DDLogicalPart::DDLogicalPart(const DDName & ddname,
                              const DDMaterial & material,
                              const DDSolid & solid,
 		             DDEnums::Category cat) 
- : DDBase< DDName, DDI::LogicalPart* >() 
+  : DDBase< DDName, std::unique_ptr<DDI::LogicalPart> >() 
 { 
-   create( ddname, new DDI::LogicalPart( material, solid, cat ));
+  create( ddname, std::make_unique<DDI::LogicalPart>( material, solid, cat ));
    DD_NC(ddname);
 }
 

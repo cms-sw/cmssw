@@ -46,9 +46,17 @@ l1tMuonDQMEfficiency = DQMEDHarvester("DQMGenericClient",
     verbose = cms.untracked.uint32(0)
 )
 
+# emulator efficiency
+l1tMuonDQMEmuEfficiency = l1tMuonDQMEfficiency.clone(
+    subDirs = cms.untracked.vstring("L1TEMU/L1TObjects/L1TMuon/L1TriggerVsReco/")
+)
+
 # modifications for the pp reference run
 from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
 ppRef_2017.toModify(l1tMuonDQMEfficiency,
+    efficiencyProfile = cms.untracked.vstring(generateEfficiencyStrings(ptQualCuts_HI))
+)
+ppRef_2017.toModify(l1tMuonDQMEmuEfficiency,
     efficiencyProfile = cms.untracked.vstring(generateEfficiencyStrings(ptQualCuts_HI))
 )
 

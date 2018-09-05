@@ -20,6 +20,8 @@
 
 #include "Calibration/Tools/interface/DetIdAssociator.h"
 
+#include <memory>
+
 
 // surfaces is a vector of GlobalPoint representing outermost point on a cylinder
 std::vector<GlobalPoint> HDetIdAssociator::getTrajectory( const FreeTrajectoryState& ftsStart,
@@ -32,13 +34,13 @@ std::vector<GlobalPoint> HDetIdAssociator::getTrajectory( const FreeTrajectorySt
 
    for(std::vector<GlobalPoint>::const_iterator surface_iter = surfaces.begin(); 
        surface_iter != surfaces.end(); surface_iter++) {
-      // this stuff is some weird pointer, which destroy itself
-      Cylinder *cylinder = new Cylinder(surface_iter->perp(), 
+       // this stuff is some weird pointer, which destroy itself
+       std::unique_ptr<Cylinder> cylinder = std::make_unique<Cylinder>(surface_iter->perp(), 
                                         Surface::PositionType(0,0,0),
 					Surface::RotationType() ); 
-      Plane *forwardEndcap = new Plane(Surface::PositionType(0,0,surface_iter->z()),
+       std::unique_ptr<Plane> forwardEndcap = std::make_unique<Plane>(Surface::PositionType(0,0,surface_iter->z()),
 				       Surface::RotationType());
-      Plane *backwardEndcap = new Plane(Surface::PositionType(0,0,-surface_iter->z()),
+       std::unique_ptr<Plane> backwardEndcap = std::make_unique<Plane>(Surface::PositionType(0,0,-surface_iter->z()),
 					Surface::RotationType());
 
       

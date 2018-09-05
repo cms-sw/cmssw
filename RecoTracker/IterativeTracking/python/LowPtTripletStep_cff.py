@@ -63,7 +63,7 @@ from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import g
 (pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(lowPtTripletStepTrackingRegions, 
                 _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
                     useFixedError = False,
-                    ptMin = 0.3,
+                    ptMin = 0.49,
                     originRadius = 0.02
                 )
                                                                       )
@@ -171,7 +171,7 @@ trackingLowPU.toReplaceWith(lowPtTripletStepStandardTrajectoryFilter, _lowPtTrip
 trackingPhase2PU140.toReplaceWith(lowPtTripletStepStandardTrajectoryFilter, _lowPtTripletStepStandardTrajectoryFilterBase)
 
 for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
-    e.toModify(lowPtTripletStepStandardTrajectoryFilter, minPt=0.3)
+    e.toModify(lowPtTripletStepStandardTrajectoryFilter, minPt=0.49)
 
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeTrajectoryFilter_cfi import *
 # Composite filter

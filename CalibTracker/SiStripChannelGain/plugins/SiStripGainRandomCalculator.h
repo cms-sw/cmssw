@@ -21,7 +21,9 @@
 
 #include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
+
 #include <vector>
+#include <memory>
 
 class SiStripGainRandomCalculator : public ConditionDBWriter<SiStripApvGain> {
 
@@ -34,7 +36,7 @@ private:
 
   void algoAnalyze(const edm::Event &, const edm::EventSetup &) override;
 
-  SiStripApvGain * getNewObject() override;
+  std::unique_ptr<SiStripApvGain> getNewObject() override;
 
 private:
 

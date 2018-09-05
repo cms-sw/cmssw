@@ -14,6 +14,7 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
 #include <cmath>
+#include <memory>
 
 using namespace dd::operators;
 
@@ -75,7 +76,7 @@ DDLinear::initialize( const DDNumericArguments & nArgs,
   
   m_childNmNs 	= DDSplit( sArgs["ChildName"] );
   if( m_childNmNs.second.empty())
-    m_childNmNs.second = DDCurrentNamespace::ns();
+    m_childNmNs.second = *DDCurrentNamespace();
   
   DDName parentName = parent().name();
   LogDebug( "DDAlgorithm" ) << "DDLinear: Parent " << parentName 
@@ -104,7 +105,7 @@ DDLinear::execute( DDCompactView& cpv )
     LogDebug( "DDAlgorithm" ) << "DDLinear: Creating a new "
 			      << "rotation: IdentityRotation for " << ddname;
 	
-    rotation = DDrot( "IdentityRotation", new DDRotationMatrix());
+    rotation = DDrot( "IdentityRotation", std::make_unique< DDRotationMatrix >());
   }
   
   for( int i = 0; i < m_n; ++i )
