@@ -75,12 +75,16 @@ void RivetAnalyzer::beginJob(){
   if ( !getenv("RIVET_REF_PATH") )
   {
     const std::string rivetref = "RIVET_REF_PATH=" + string(cmsswbase) + "/src/GeneratorInterface/RivetInterface/data:" + string(cmsswrelease) + "/src/GeneratorInterface/RivetInterface/data";
-    putenv(strdup(rivetref.c_str()));
+    char *rivetrefCstr = strdup(rivetref.c_str());
+    putenv(rivetrefCstr);
+    free(rivetrefCstr);
   }
   if ( !getenv("RIVET_INFO_PATH") )
   {
     const std::string rivetinfo = "RIVET_INFO_PATH=" + string(cmsswbase) + "/src/GeneratorInterface/RivetInterface/data:" + string(cmsswrelease) + "/src/GeneratorInterface/RivetInterface/data";
-    putenv(strdup(rivetinfo.c_str()));
+    char *rivetinfoCstr = strdup(rivetinfo.c_str());
+    putenv(rivetinfoCstr);
+    free(rivetinfoCstr);
   }
 }
 

@@ -16,6 +16,7 @@ PFEGammaFilters::PFEGammaFilters(float ph_Et,
 				 float ph_sietaieta_eb,
 				 float ph_sietaieta_ee,
 				 const edm::ParameterSet& ph_protectionsForJetMET,
+				 const edm::ParameterSet& ph_protectionsForBadHcal,
 				 float ele_iso_pt,
 				 float ele_iso_mva_eb,
 				 float ele_iso_mva_ee,
@@ -24,7 +25,8 @@ PFEGammaFilters::PFEGammaFilters(float ph_Et,
 				 float ele_noniso_mva,
 				 unsigned int ele_missinghits,
 				 const string& ele_iso_path_mvaWeightFile,
-				 const edm::ParameterSet& ele_protectionsForJetMET
+				 const edm::ParameterSet& ele_protectionsForJetMET,
+		                 const edm::ParameterSet& ele_protectionsForBadHcal
 				 ):
   ph_Et_(ph_Et),
   ph_combIso_(ph_combIso),
@@ -52,9 +54,26 @@ PFEGammaFilters::PFEGammaFilters(float ph_Et,
   ele_maxEcalEOverP_1(ele_protectionsForJetMET.getParameter<double>("maxEcalEOverP_1")),
   ele_maxEcalEOverP_2(ele_protectionsForJetMET.getParameter<double>("maxEcalEOverP_2")), 
   ele_maxEeleOverPout(ele_protectionsForJetMET.getParameter<double>("maxEeleOverPout")), 
-  ele_maxDPhiIN(ele_protectionsForJetMET.getParameter<double>("maxDPhiIN"))
+  ele_maxDPhiIN(ele_protectionsForJetMET.getParameter<double>("maxDPhiIN")),
+  badHcal_eleEnable_(ele_protectionsForBadHcal.getParameter<bool>("enableProtections")),
+  badHcal_phoTrkSolidConeIso_offs_(ph_protectionsForBadHcal.getParameter<double>("solidConeTrkIsoOffset")),
+  badHcal_phoTrkSolidConeIso_slope_(ph_protectionsForBadHcal.getParameter<double>("solidConeTrkIsoSlope")),
+  badHcal_phoEnable_(ph_protectionsForBadHcal.getParameter<bool>("enableProtections")),
+  debug_(false)
 {
+    readEBEEParams_(ele_protectionsForBadHcal, "full5x5_sigmaIetaIeta", badHcal_full5x5_sigmaIetaIeta_);
+    readEBEEParams_(ele_protectionsForBadHcal, "eInvPInv", badHcal_eInvPInv_);
+    readEBEEParams_(ele_protectionsForBadHcal, "dEta", badHcal_dEta_);
+    readEBEEParams_(ele_protectionsForBadHcal, "dPhi", badHcal_dPhi_);
 }
+
+void PFEGammaFilters::readEBEEParams_(const edm::ParameterSet &pset, const std::string &name, std::array<float,2> & out) {
+    const auto & vals = pset.getParameter<std::vector<double>>(name);
+    if (vals.size() != 2) throw cms::Exception("Configuration") << "Parameter " << name << " does not contain exactly 2 values (EB, EE)\n";
+    out[0] = vals[0]; 
+    out[1] = vals[1]; 
+}
+ 
 
 bool PFEGammaFilters::passPhotonSelection(const reco::Photon & photon) {
   // First simple selection, same as the Run1 to be improved in CMSSW_710
@@ -62,14 +81,27 @@ bool PFEGammaFilters::passPhotonSelection(const reco::Photon & photon) {
 
   // Photon ET
   if(photon.pt()  < ph_Et_ ) return false;
-//   std::cout<< "Cuts " << ph_combIso_ << " H/E " << ph_loose_hoe_ 
-// 	   << " SigmaiEtaiEta_EB " << ph_sietaieta_eb_  
-// 	   << " SigmaiEtaiEta_EE " << ph_sietaieta_ee_ << std::endl;
+  bool validHoverE = photon.hadTowOverEmValid();
+  if (debug_) std::cout<< "PFEGammaFilters:: photon pt " << photon.pt()
+		     << "   eta, phi " << photon.eta() << ", " << photon.phi() 
+		     << "   isoDr03 " << (photon.trkSumPtHollowConeDR03()+photon.ecalRecHitSumEtConeDR03()+photon.hcalTowerSumEtConeDR03())  << " (cut: " << ph_combIso_ << ")"
+		     << "   H/E " << photon.hadTowOverEm() << " (valid? " << validHoverE << ", cut: " << ph_loose_hoe_ << ")"
+		     << "   s(ieie) " << photon.sigmaIetaIeta()  << " (cut: " << (photon.isEB() ? ph_sietaieta_eb_ : ph_sietaieta_ee_) << ")"
+		     << "   isoTrkDr03Solid " << (photon.trkSumPtSolidConeDR03())  << " (cut: " << (
+		                    validHoverE || !badHcal_phoEnable_ ? 
+		                    -1 : 
+		                    badHcal_phoTrkSolidConeIso_offs_ + badHcal_phoTrkSolidConeIso_slope_*photon.pt()) << ")"
+ << std::endl;
 
   if (photon.hadTowOverEm() >ph_loose_hoe_ ) return false;
   //Isolation variables in 0.3 cone combined
   if(photon.trkSumPtHollowConeDR03()+photon.ecalRecHitSumEtConeDR03()+photon.hcalTowerSumEtConeDR03() > ph_combIso_)
-    return false;		
+    return false;
+
+  //patch for bad hcal
+  if (!validHoverE && badHcal_phoEnable_ && photon.trkSumPtSolidConeDR03() > badHcal_phoTrkSolidConeIso_offs_ + badHcal_phoTrkSolidConeIso_slope_*photon.pt()) {
+    return false;
+  }
   
   if(photon.isEB()) {
     if(photon.sigmaIetaIeta() > ph_sietaieta_eb_) 
@@ -88,7 +120,22 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron & electron,
 					    const reco::PFCandidate & pfcand, 
 					    const int & nVtx) {
   // First simple selection, same as the Run1 to be improved in CMSSW_710
-  
+ 
+  bool validHoverE = electron.hcalOverEcalValid();
+  if (debug_) std::cout << "PFEGammaFilters:: Electron pt " << electron.pt()
+		     << " eta, phi " << electron.eta() << ", " << electron.phi() 
+		     << " charge " << electron.charge() 
+		     << " isoDr03 " << (electron.dr03TkSumPt() + electron.dr03EcalRecHitSumEt() + electron.dr03HcalTowerSumEt()) 
+		     << " mva_isolated " << electron.mva_Isolated() 
+		     << " mva_e_pi " << electron.mva_e_pi() 
+		     << " H/E_valid " << validHoverE 
+		     << " s(ieie) " << electron.full5x5_sigmaIetaIeta()
+		     << " H/E " << electron.hcalOverEcal()
+		     << " 1/e-1/p " << (1.0-electron.eSuperClusterOverP())/electron.ecalEnergy()
+		     << " deta " << std::abs(electron.deltaEtaSeedClusterTrackAtVtx())
+		     << " dphi " << std::abs(electron.deltaPhiSuperClusterTrackAtVtx()) 
+		     << endl;
+
   bool passEleSelection = false;
   
   // Electron ET
@@ -111,7 +158,17 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron & electron,
 
   //  cout << " My OLD MVA " << pfcand.mva_e_pi() << " MyNEW MVA " << electron.mva() << endl;
   if(electron.mva_e_pi() > ele_noniso_mva_) {
-    passEleSelection = true; 
+    if (validHoverE || !badHcal_eleEnable_) {
+        passEleSelection = true; 
+    } else {
+        bool EE = (std::abs(electron.eta()) > 1.485); // for prefer consistency with above than with E/gamma for now
+        if ((electron.full5x5_sigmaIetaIeta() < badHcal_full5x5_sigmaIetaIeta_[EE]) &&
+            (std::abs(1.0-electron.eSuperClusterOverP())/electron.ecalEnergy()  < badHcal_eInvPInv_[EE]) && 
+            (std::abs(electron.deltaEtaSeedClusterTrackAtVtx())  < badHcal_dEta_[EE]) && // looser in case of misalignment
+            (std::abs(electron.deltaPhiSuperClusterTrackAtVtx())  < badHcal_dPhi_[EE])) {
+            passEleSelection = true; 
+        } 
+    }
   }
   
   return passEleSelection;

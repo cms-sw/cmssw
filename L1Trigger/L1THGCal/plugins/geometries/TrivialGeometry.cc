@@ -26,6 +26,9 @@ public:
                                                           map_empty) );
     }
   }
+  void initialize(const edm::ESHandle<HGCalGeometry>&,
+          const edm::ESHandle<HGCalGeometry>&,
+          const edm::ESHandle<HGCalGeometry>&) final {}
 };
 
 DEFINE_EDM_PLUGIN(HGCalTriggerGeometryFactory, 

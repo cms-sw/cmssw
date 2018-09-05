@@ -154,7 +154,7 @@
       materials:StainlessSteel, hgcal:WCu, materials:Air</Vector>
     <Vector name="VolumeNames" type="string" nEntries="9">
       HFNoseModerator, HFNoseAbsorberCover, HFNoseAbsorber1, HFNoseHeatShield,
-      HFNosePCB, HFNoseSensitive, HFNoseAbsorber2, HFNoseBasePlate,
+      HFNosePCB, HGCalHFNoseSensitive, HFNoseAbsorber2, HFNoseBasePlate,
       HFNoseAirGap</Vector>
     <Vector name="Thickness" type="numeric" nEntries="9">
       [HFNoseDz1], 1.0*mm, 21.0*mm,  6.0*mm,  1.6*mm,  0.3*mm, [HFNoseDz3],

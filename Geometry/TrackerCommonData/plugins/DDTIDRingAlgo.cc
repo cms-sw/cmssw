@@ -27,8 +27,8 @@ void DDTIDRingAlgo::initialize(const DDNumericArguments & nArgs,
 			       const DDMapArguments & ,
 			       const DDStringArguments & sArgs,
 			       const DDStringVectorArguments & vsArgs) {
-
-  idNameSpace        = DDCurrentNamespace::ns();
+  DDCurrentNamespace ns;
+  idNameSpace        = *ns;
   moduleName         = vsArgs["ModuleName"]; 
   iccName            = sArgs["ICCName"]; 
   DDName parentName = parent().name();

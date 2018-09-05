@@ -23,7 +23,6 @@ class DDPixPhase1FwdDiskAlgo : public DDAlgorithm {
 
 private:
 
-  std::string              idNameSpace; //Namespace of this and ALL sub-parts
   std::string              childName;   //Child name
   std::string              rotName;     //Name of the base rotation matrix
   std::string              flagString;  //Flag if a blade is present

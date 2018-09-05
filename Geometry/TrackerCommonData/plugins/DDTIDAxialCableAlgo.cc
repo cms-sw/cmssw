@@ -58,7 +58,8 @@ void DDTIDAxialCableAlgo::initialize(const DDNumericArguments & nArgs,
   for (int i=0; i<(int)(zposRing.size()); i++)
     LogDebug("TIDGeom") << "\tzposRing[" << i <<"] = " << zposRing[i];
 
-  idNameSpace = DDCurrentNamespace::ns();
+  DDCurrentNamespace ns;
+  idNameSpace = *ns;
   childName   = sArgs["ChildName"]; 
   matIn       = sArgs["MaterialIn"]; 
   matOut      = sArgs["MaterialOut"]; 
@@ -164,8 +165,7 @@ void DDTIDAxialCableAlgo::execute(DDCompactView& cpv) {
 			<< "\tRmin = "<< pconRmin[i] << "\tRmax = " 
 			<< pconRmax[i];
 
-  DDName mat(DDSplit(matIn).first, DDSplit(matIn).second); 
-  DDMaterial matter(mat);
+  DDMaterial matter(DDName(DDSplit(matIn).first, DDSplit(matIn).second));
   DDLogicalPart genlogic(DDName(name, idNameSpace), matter, solid);
   logs.emplace_back(DDName(name, idNameSpace));
 
@@ -179,8 +179,7 @@ void DDTIDAxialCableAlgo::execute(DDCompactView& cpv) {
 		      << matOut << " from " << -0.5*width/CLHEP::deg << " to " 
 		      << 0.5*width/CLHEP::deg << " with Rin " << r << " Rout " 
 		      << rTop << " ZHalf " << 0.5*(zEnd-zBend);
-  mat    = DDName(DDSplit(matOut).first, DDSplit(matOut).second);
-  matter = DDMaterial(mat);
+  matter = DDMaterial(DDName(DDSplit(matOut).first, DDSplit(matOut).second));
   genlogic = DDLogicalPart(DDName(name, idNameSpace), matter, solid);
   logs.emplace_back(DDName(name, idNameSpace));
 

@@ -41,7 +41,8 @@ void DDHCalAngular::initialize(const DDNumericArguments & nArgs,
 		       << ", " << incrCopyNo;
 
   rotns       = sArgs["RotNameSpace"];
-  idNameSpace = DDCurrentNamespace::ns();
+  DDCurrentNamespace ns;
+  idNameSpace = *ns;
   childName   = sArgs["ChildName"]; 
   DDName parentName = parent().name(); 
   LogDebug("HCalGeom") << "DDHCalAngular debug: Parent " << parentName 

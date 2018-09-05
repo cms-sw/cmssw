@@ -15,6 +15,8 @@ streamParkingBPH1_datasetParkingBPH1_selector.triggerConditions = cms.vstring(
     'HLT_Mu8_IP3_part0_v3', 
     'HLT_Mu8_IP5_part0_v2', 
     'HLT_Mu8_IP6_part0_v2', 
+    'HLT_Mu9_IP0_part0_v2', 
+    'HLT_Mu9_IP3_part0_v2', 
     'HLT_Mu9_IP4_part0_v2', 
     'HLT_Mu9_IP5_part0_v2', 
     'HLT_Mu9_IP6_part0_v3'
@@ -343,6 +345,27 @@ streamPhysicsEndOfFill_datasetEmptyBX_selector.triggerConditions = cms.vstring(
     'HLT_L1UnpairedBunchBptxPlus_v2'
 )
 
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsEndOfFill_datasetFSQJet1_selector
+streamPhysicsEndOfFill_datasetFSQJet1_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsEndOfFill_datasetFSQJet1_selector.l1tResults = cms.InputTag('')
+streamPhysicsEndOfFill_datasetFSQJet1_selector.throw      = cms.bool(False)
+streamPhysicsEndOfFill_datasetFSQJet1_selector.triggerConditions = cms.vstring(
+    'HLT_DiPFJet15_NoCaloMatched_v16', 
+    'HLT_DiPFJet25_NoCaloMatched_v16'
+)
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsEndOfFill_datasetFSQJet2_selector
+streamPhysicsEndOfFill_datasetFSQJet2_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsEndOfFill_datasetFSQJet2_selector.l1tResults = cms.InputTag('')
+streamPhysicsEndOfFill_datasetFSQJet2_selector.throw      = cms.bool(False)
+streamPhysicsEndOfFill_datasetFSQJet2_selector.triggerConditions = cms.vstring(
+    'HLT_DiPFJet15_FBEta3_NoCaloMatched_v17', 
+    'HLT_DiPFJet25_FBEta3_NoCaloMatched_v17', 
+    'HLT_DiPFJetAve15_HFJEC_v17', 
+    'HLT_DiPFJetAve25_HFJEC_v17', 
+    'HLT_DiPFJetAve35_HFJEC_v17'
+)
+
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsEndOfFill_datasetHINCaloJets_selector
 streamPhysicsEndOfFill_datasetHINCaloJets_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsEndOfFill_datasetHINCaloJets_selector.l1tResults = cms.InputTag('')
@@ -551,6 +574,9 @@ streamPhysicsHadronsTaus_datasetJetHT_selector.triggerConditions = cms.vstring(
     'HLT_PFHT350MinPFJet15_v9', 
     'HLT_PFHT350_v19', 
     'HLT_PFHT370_v17', 
+    'HLT_PFHT400_FivePFJet_100_100_60_30_30_DoublePFBTagDeepCSV_4p5_v8', 
+    'HLT_PFHT400_FivePFJet_100_100_60_30_30_v8', 
+    'HLT_PFHT400_FivePFJet_120_120_60_30_30_DoublePFBTagDeepCSV_4p5_v8', 
     'HLT_PFHT400_SixPFJet32_DoublePFBTagDeepCSV_2p94_v8', 
     'HLT_PFHT400_SixPFJet32_v8', 
     'HLT_PFHT430_v17', 

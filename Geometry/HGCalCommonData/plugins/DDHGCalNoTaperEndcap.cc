@@ -35,7 +35,8 @@ void DDHGCalNoTaperEndcap::initialize(const DDNumericArguments & nArgs,
   m_startCopyNo = int( nArgs["startCopyNo"] );
   m_incrCopyNo  = int( nArgs["incrCopyNo"] );
   m_childName   = sArgs["ChildName"];
-  m_idNameSpace = DDCurrentNamespace::ns();
+  DDCurrentNamespace ns;
+  m_idNameSpace = *ns;
   edm::LogInfo("HGCalGeom") << "DDHGCalNoTaperEndcap: NameSpace " << m_idNameSpace 
 			    << "\tParent " << parent().name();
 }
@@ -101,7 +102,7 @@ DDHGCalNoTaperEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int yQua
 	rotation = DDRotation(DDName(rotstr));
 	if (!rotation) {
 	  rotation = DDrot(DDName(rotstr, m_idNameSpace),
-			   new DDRotationMatrix( *DDcreateRotationMatrix( theta, phiX, theta + yphi, phiY, -yphi, phiZ )
+			   std::make_unique<DDRotationMatrix>( *DDcreateRotationMatrix( theta, phiX, theta + yphi, phiY, -yphi, phiZ )
 						 * ( *DDcreateRotationMatrix( theta + xphi, phiX, 90.*CLHEP::deg, 90.*CLHEP::deg, xphi, 0.0 ))));
 	}
       

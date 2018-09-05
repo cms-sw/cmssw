@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+from DQMOffline.L1Trigger.L1TMonitorClientOffline_cff import *
+from DQMOffline.L1Trigger.L1TEmulatorMonitorClientOffline_cff import *
+
 from DQMOffline.L1Trigger.L1TEtSumEfficiency_cfi import *
 from DQMOffline.L1Trigger.L1TEtSumDiff_cfi import *
 
@@ -16,12 +19,14 @@ from DQMOffline.L1Trigger.L1TMuonDQMEfficiency_cff import *
 
 # harvesting sequence for all datasets
 DQMHarvestL1TMon = cms.Sequence(
+    l1tStage2MonitorClientOffline
+    * l1tStage2EmulatorMonitorClientOffline
 )
 
 # harvesting sequence for electron dataset
 DQMHarvestL1TEg = cms.Sequence(
     l1tEGammaEfficiency
-    #* l1tEGammaEmuEfficiency
+    * l1tEGammaEmuEfficiency
     #* l1tEGammaEmuDiff
 )
 
@@ -34,12 +39,14 @@ DQMHarvestL1TEg = cms.Sequence(
 DQMHarvestL1TMuon = cms.Sequence(
     l1tEtSumEfficiency
     * l1tJetEfficiency
-    #* l1tEtSumEmuEfficiency
-    #* l1tJetEmuEfficiency
+    * l1tEtSumEmuEfficiency
+    * l1tJetEmuEfficiency
     #* l1tEtSumEmuDiff
     #* l1tJetEmuDiff
     * l1tTauEfficiency
+    * l1tTauEmuEfficiency
     #* l1tTauEmuDiff
     * l1tMuonDQMEfficiency
+    * l1tMuonDQMEmuEfficiency
 )
 

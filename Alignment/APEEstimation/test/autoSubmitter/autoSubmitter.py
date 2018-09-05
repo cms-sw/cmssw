@@ -10,7 +10,8 @@ import time
 
 
 pickle_name = "dump.pkl" # contains all the measurement objects in a list
-clock_interval = 10 # in seconds
+history_file = "history.log"
+clock_interval = 20 # in seconds
 STATE_NONE = -1
 STATE_ITERATION_START=0
 STATE_BJOBS_WAITING=1
@@ -66,15 +67,34 @@ class Dataset:
     nFiles = 0
     maxEvents = -1
     baseDirectory = ""
-    baseFileName = ""
     sampleType = "data1"
     fileList = []
     def __init__(self, config, name):
         dsDict = dict(config.items("dataset:%s"%(name)))
         self.name = name
-        self.nFiles = int(dsDict["nFiles"])
         self.baseDirectory = dsDict["baseDirectory"]
-        self.baseFileName = dsDict["baseFileName"]
+        
+        self.fileList = []
+        names = dsDict["fileNames"].split(" ")
+        for name in names:
+            if "[" in name and "]" in name:
+                posS = name.find("[")
+                posE = name.find("]")
+                nums = name[posS+1:posE].split(",")
+                expression = name[posS:posE+1]
+                for interval in nums:
+                    interval = interval.strip()
+                    if "-" in interval:
+                        lowNum = int(interval.split("-")[0])
+                        upNum = int(interval.split("-")[1])
+                        for i in range(lowNum, upNum+1):
+                            self.fileList.append("%s/%s"%(self.baseDirectory, name.replace(expression, str(i))))
+                    else:
+                        self.fileList.append("%s/%s"%(self.baseDirectory, name.replace(expression, interval)))
+            else:
+                self.fileList.append("%s/%s"%(self.baseDirectory, name))
+        self.nFiles = len(self.fileList)
+        
         if dsDict.has_key("maxEvents"):
             self.maxEvents = dsDict["maxEvents"]
         if dsDict.has_key("isMC"):
@@ -82,10 +102,6 @@ class Dataset:
                 self.sampleType = "MC"
             else:
                 self.sampleType ="data1"
-        self.fileList = []
-        for i in range(self.nFiles):
-            self.fileList.append("%s/%s_%d.root"%(self.baseDirectory, self.baseFileName, i+1))
-        
 
 class Alignment:
     name = ""
@@ -93,7 +109,6 @@ class Alignment:
     baselineDir = "Design"
     globalTag = "None"
     isDesign = False
-    maxIterations = 15
     
     def __init__(self, config, name):
         alDict = dict(config.items("alignment:%s"%(name)))
@@ -105,26 +120,21 @@ class Alignment:
             self.baselineDir= alDict["baselineDir"]
         if alDict.has_key("isDesign"):
             self.isDesign= (alDict["isDesign"] == "True")
-        if alDict.has_key("maxIterations"):
-            self.maxIterations = int(alDict["maxIterations"])
-        if self.isDesign:
-            self.maxIterations = 0 # stop immediately after finishing first iteration
             
 class ApeMeasurement:
     name = "workingArea"
     curIteration = 0
-    maxIteration = 15
+    firstIteration = 0
+    maxIterations = 15
     status = STATE_NONE
     dataset = None
     alignment = None
     runningJobs  = None
     failedJobs      = None
-    error = False
-    done = False
     startTime = ""
     finishTime = ""
     
-    def __init__(self, name, dataset, alignment):
+    def __init__(self, name, dataset, alignment, additionalOptions={}):
         self.name = name
         self.alignment = alignment
         self.dataset = dataset
@@ -133,7 +143,16 @@ class ApeMeasurement:
         self.runningJobs = []
         self.failedJobs = []
         self.startTime = subprocess.check_output(["date"]).strip()
-        self.maxIteration = self.alignment.maxIterations
+        
+        for key, value in additionalOptions.items():
+            setattr(self, key, value)
+            print(key, value)
+        self.firstIteration=int(self.firstIteration)
+        self.maxIterations=int(self.maxIterations)
+        self.curIteration = self.firstIteration
+        if self.alignment.isDesign:
+            self.maxIterations = 0
+            
         if self.alignment.isDesign and self.dataset.sampleType != "MC":
             # For now, this won't immediately shut down the program
             print("APE Measurement %s is scheduled to to an APE baseline measurement with a dataset that is not marked as isMC=True. Is this intended?"%(self.name))
@@ -151,24 +170,24 @@ class ApeMeasurement:
         toSubmit = []
         for i in range(self.dataset.nFiles):
             inputFile = self.dataset.fileList[i]
-            lastIter = (self.curIteration==self.maxIteration)
+            lastIter = (self.curIteration==self.maxIterations) and not self.alignment.isDesign
             inputCommands = "sample=%s fileNumber=%s iterNumber=%d lastIter=%r alignRcd=%s maxEvents=%s globalTag=%s measurementName=%s"%(self.dataset.sampleType,i+1,self.curIteration,lastIter,self.alignment.alignmentName, self.dataset.maxEvents, self.alignment.globalTag, self.name)
             fiName = "%s/test/autoSubmitter/workingArea/batchscript_%s_iter%d_%d"%(base, self.name,self.curIteration,i+1)
             with open(fiName+".tcsh", "w") as jobFile:
                 from autoSubmitterTemplates import bjobTemplate
                 jobFile.write(bjobTemplate.format(inputFile = inputFile, inputCommands=inputCommands))
-            toSubmit.append(fiName)
+            toSubmit.append((fiName,i+1))
             
         submitName = "%s/test/autoSubmitter/workingArea/submit_%s_jobs_iter%d.sh"%(base, self.name, self.curIteration)
         with open(submitName,"w") as submitFile:
-            for sub in toSubmit:
+            for sub,number in toSubmit:
                 from autoSubmitterTemplates import submitJobTemplate
                 errorFile = sub+"_error.txt"
                 outputFile = sub+"_output.txt"
                 jobFile = sub+".tcsh"
                 date = subprocess.check_output(["date", "+%m_%d_%H_%M_%S"]).strip()
                 jobName = sub.split("/")[-1]+"_"+date
-                self.runningJobs.append(jobName)
+                self.runningJobs.append((jobName, number))
                 submitFile.write(submitJobTemplate.format(errorFile=errorFile, outputFile=outputFile, jobFile=jobFile, jobName=jobName))
             submitFile.write("rm -- $0")
         
@@ -182,17 +201,29 @@ class ApeMeasurement:
     def check_jobs(self):
         lastStatus = self.status
         stillRunningJobs = []
-        for job in self.runningJobs:
+        for job, number in self.runningJobs:
             from autoSubmitterTemplates import checkJobTemplate
             checkString = checkJobTemplate.format(jobName=job)
             jobState = subprocess.check_output(checkString, shell=True).rstrip()
             if "DONE" in jobState:
-                print("Job %s in iteration %d of APE measurement %s has just finished"%(job, self.curIteration, self.name))
+                # Catch Exceptions that do not influence the job state
+                errFile = "%s/test/autoSubmitter/workingArea/batchscript_%s_iter%d_%d_error.txt"%(base, self.name,self.curIteration,number)
+                foundErr = False
+                with open(errFile, "r") as err:
+                    for line in err:
+                        if "Fatal Exception" in line.strip():
+                            foundErr = True
+                            break
+                if foundErr:
+                    print("Job %s in iteration %d of APE measurement %s has failed"%(job, self.curIteration, self.name))
+                    self.failedJobs.append(job)               
+                else:
+                    print("Job %s in iteration %d of APE measurement %s has just finished"%(job, self.curIteration, self.name))
             elif "EXIT" in jobState:
                 print("Job %s in iteration %d of APE measurement %s has failed"%(job, self.curIteration, self.name))
                 self.failedJobs.append(job)
             elif "RUN" in jobState or "PEND" in jobState:
-                stillRunningJobs.append(job)
+                stillRunningJobs.append((job, number))
             elif "Job <%s> is not found" in jobState:
                 print("Job %s of APE measurement was not found in queue, so it is assumed that it successfully finished long ago."%(job, self.name))
             elif len(jobState) == 0:
@@ -205,6 +236,7 @@ class ApeMeasurement:
         
         if len(self.failedJobs) > 0:
             self.status = STATE_BJOBS_FAILED
+            self.finishTime = subprocess.check_output(["date"]).strip()
         elif len(self.runningJobs) == 0:
             self.status = STATE_BJOBS_DONE
             print("All batch jobs of APE measurement %s in iteration %d are done"%(self.name, self.curIteration))
@@ -237,6 +269,7 @@ class ApeMeasurement:
             self.status = STATE_MERGE_DONE
         else:
             self.status = STATE_MERGE_FAILED
+            self.finishTime = subprocess.check_output(["date"]).strip()
         self.print_status()
     
     def do_summary(self):
@@ -252,6 +285,7 @@ class ApeMeasurement:
             self.status = STATE_SUMMARY_DONE
         else:
             self.status = STATE_SUMMARY_FAILED
+            self.finishTime = subprocess.check_output(["date"]).strip()
         self.print_status()
     def do_local_setting(self):
         self.status = STATE_LOCAL_WAITING       
@@ -263,7 +297,17 @@ class ApeMeasurement:
             self.status = STATE_LOCAL_DONE
         else:
             self.status = STATE_LOCAL_FAILED
+            self.finishTime = subprocess.check_output(["date"]).strip()
         self.print_status()
+    def finish_iteration(self):
+        print("APE Measurement %s just finished iteration %d"%(self.name, self.curIteration))
+        if self.curIteration < self.maxIterations:
+            self.curIteration += 1
+            self.status = STATE_ITERATION_START
+        else:
+            self.status = STATE_FINISHED
+            self.finishTime = subprocess.check_output(["date"]).strip()
+            print("APE Measurement %s, which was started at %s was finished after %d iterations, at %s"%(self.name, self.startTime, self.curIteration, self.finishTime))
     def kill(self):
         from autoSubmitterTemplates import killJobTemplate
         for job in self.runningJobs:
@@ -284,14 +328,22 @@ def main():
                           help="List of measurement names to kill (=remove from list and kill all bjobs)")
     parser.add_argument("-p", "--purge", action="append", dest="purge", default=[],
                           help="List of measurement names to purge (=kill and remove folder)")
-    parser.add_argument("-r", "--resume", action="store_true", dest="resume", default=False,
-                          help="Resume interrupted APE measurements which are stored in pickle")
+    parser.add_argument("-r", "--resume", action="append", dest="resume", default=[],
+                          help="Resume interrupted APE measurements which are stored in pickle files")
     parser.add_argument("-o", "--one", action="store_true", dest="one_iteration", default=False,
                           help="Do only one loop iteration and then quit")
+    parser.add_argument("-d", "--dump", action="append", dest="dump", default=[],
+                          help='Specify in which .pkl file to store the measurements')
+
     args = parser.parse_args()
     
     global base
     global clock_interval
+    global pickle_name
+    
+    if args.dump != []: # choose different file than default
+        pickle_name = args.dump[0]
+    
     try:
         base = os.environ['CMSSW_BASE']+"/src/Alignment/APEEstimation"
     except KeyError:
@@ -301,24 +353,25 @@ def main():
     
     measurements = []
     
-    if args.resume:
-        try:
-            with open(pickle_name, "r") as saveFile: 
-                resumed = pickle.load(saveFile)
-                for res in resumed:
-                    measurements.append(res)
-                    print("Measurement %s in state %s in iteration %d was resumed"%(res.name, res.get_status(), res.curIteration))
-                    # Killing and purging is done here, because it doesn't make 
-                    # sense to kill or purge a measurement that was just started
-                    for to_kill in args.kill:
-                        if res.name == to_kill:
-                            res.kill()
-                    for to_purge in args.purge:
-                        if res.name == to_purge:
-                            res.purge()
-        except IOError:
-            print("Could not resume because %s could not be opened, exiting"%(pickle_name))
-            sys.exit()
+    if args.resume != []:
+        for resumeFile in args.resume:
+            try:
+                with open(resumeFile, "r") as saveFile: 
+                    resumed = pickle.load(saveFile)
+                    for res in resumed:
+                        measurements.append(res)
+                        print("Measurement %s in state %s in iteration %d was resumed"%(res.name, res.get_status(), res.curIteration))
+                        # Killing and purging is done here, because it doesn't make 
+                        # sense to kill or purge a measurement that was just started
+                        for to_kill in args.kill:
+                            if res.name == to_kill:
+                                res.kill()
+                        for to_purge in args.purge:
+                            if res.name == to_purge:
+                                res.purge()
+            except IOError:
+                print("Could not resume because %s could not be opened, exiting"%(pickle_name))
+                sys.exit()
             
     # read out from config file
     if args.configs != []:
@@ -330,13 +383,24 @@ def main():
             if name in map(lambda x: x.name ,measurements):
                 print("Error: APE Measurement with name %s already exists, skipping"%(name))
                 continue
-                
-            datasetID, alignmentID = opts.split(" ")
+            
+            settings = opts.split(" ")
+            if len(settings) < 2:
+                print("Error: number of arguments for APE Measurement %s is insufficient"%(name))
+            datasetID = settings[0].strip()
+            alignmentID = settings[1].strip()
 
             dataset = Dataset(config, datasetID)
             alignment = Alignment(config, alignmentID)
+            additionalOptions = {}
             
-            measurement = ApeMeasurement(name, dataset, alignment)
+            for i in range(2, len(settings)):
+                setting = settings[i].strip()
+                key = setting.split("=")[0]
+                value = setting.split("=")[1]
+                additionalOptions[key] = value
+                
+            measurement = ApeMeasurement(name, dataset, alignment, additionalOptions)
             
             measurements.append(measurement)
             
@@ -356,10 +420,13 @@ def main():
                 print("APE Measurement %s just started iteration %d"%(measurement.name, measurement.curIteration))
                 measurement.submit_jobs()
                 save(measurements)
+                continue # no reason to immediately check jobs
             if measurement.status == STATE_BJOBS_WAITING:
                 # check if bjobs are finished
                 measurement.check_jobs()
                 save(measurements)
+                #~ if measurement.status == STATE_BJOBS_DONE:
+                    #~ continue # give time for files to be closed and delivered back from the batch jobs
             if measurement.status == STATE_BJOBS_DONE:
                 # merge files
                 measurement.do_merge()
@@ -376,14 +443,7 @@ def main():
                     measurement.do_local_setting()
                 save(measurements)
             if measurement.status == STATE_LOCAL_DONE:
-                print("APE Measurement %s just finished iteration %d"%(measurement.name, measurement.curIteration))
-                if measurement.curIteration < measurement.maxIteration:
-                    measurement.curIteration += 1
-                    measurement.status = STATE_ITERATION_START
-                else:
-                    measurement.status = STATE_FINISHED
-                    measurement.finishTime = subprocess.check_output(["date"]).strip()
-                    print("APE Measurement %s, which was started at %s was finished after %d iterations, at %s"%(measurement.name, measurement.startTime, measurement.curIteration, measurement.finishTime))
+                measurement.finish_iteration()
                 save(measurements)
                 # go to next iteration or finish measurement
             if measurement.status == STATE_BJOBS_FAILED or \
@@ -392,8 +452,15 @@ def main():
                 measurement.status == STATE_LOCAL_FAILED or \
                 measurement.status == STATE_FINISHED:
                     # might want to do something different. for now, this is the solution
+                    with open(history_file, "a") as fi:
+                        fi.write("APE measurement {name} which was started at {start} finished at {end} with state {state} in iteration {iteration}\n".format(name=measurement.name, start=measurement.startTime, end=measurement.finishTime, state=measurement.get_status(), iteration=measurement.curIteration))
                     measurement.status = STATE_NONE
                     save(measurements)
+            if measurement.status == STATE_ITERATION_START: # this ensures that jobs do not go into idle if many measurements are done simultaneously
+                # start bjobs
+                print("APE Measurement %s just started iteration %d"%(measurement.name, measurement.curIteration))
+                measurement.submit_jobs()
+                save(measurements)
         if args.one_iteration:
             break
             
@@ -406,6 +473,9 @@ def main():
             time_remaining -= 1
             sys.stdout.write("\033[F")
             sys.stdout.write("\033[K")
+        print("")
+        sys.stdout.write("\033[F")
+        sys.stdout.write("\033[K")
             
 if __name__ == "__main__":
     main()

@@ -5,5 +5,5 @@ import FWCore.ParameterSet.Config as cms
 #
 
 HFNoseGeometryESProducer = cms.ESProducer("HGCalGeometryESProducer",
-                                          Name = cms.untracked.string("HFNoseSensitive")
+                                          Name = cms.untracked.string("HGCalHFNoseSensitive")
                                           )

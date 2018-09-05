@@ -52,7 +52,26 @@ produce(const CaloGeometryRecord& iRecord)
     geometry->reset();
     edm::ESHandle<CaloGeometry> calo_geometry;
     iRecord.get(calo_geometry);
-    geometry->initialize(calo_geometry);
+    // Initialize trigger geometry for V7/V8 HGCAL geometry
+    if(calo_geometry.isValid() &&
+       calo_geometry->getSubdetectorGeometry(DetId::Forward,HGCEE) &&
+       calo_geometry->getSubdetectorGeometry(DetId::Forward,HGCHEF) &&
+       calo_geometry->getSubdetectorGeometry(DetId::Hcal,HcalEndcap)
+            )
+    {
+        geometry->initialize(calo_geometry);
+    }
+    // Initialize trigger geometry for V9 HGCAL geometry
+    else
+    {
+        edm::ESHandle<HGCalGeometry> ee_geometry;
+        edm::ESHandle<HGCalGeometry> hsi_geometry;
+        edm::ESHandle<HGCalGeometry> hsc_geometry;
+        iRecord.getRecord<IdealGeometryRecord>().get("HGCalEESensitive",ee_geometry);
+        iRecord.getRecord<IdealGeometryRecord>().get("HGCalHESiliconSensitive",hsi_geometry);
+        iRecord.getRecord<IdealGeometryRecord>().get("HGCalHEScintillatorSensitive",hsc_geometry);
+        geometry->initialize(ee_geometry, hsi_geometry, hsc_geometry);
+    }
     return geometry;
 
 }

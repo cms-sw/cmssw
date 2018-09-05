@@ -38,8 +38,8 @@ void DDHCalTestBeamAlgo::initialize(const DDNumericArguments & nArgs,
 		       << phi/CLHEP::deg << "\tTheta " << theta/CLHEP::deg 
 		       << "\tDistance " << distance << "/" << distanceZ << "/"
 		       << dist <<"\tDz " << dz <<"\tcopyNumber " << copyNumber;
-
-  idNameSpace = DDCurrentNamespace::ns();
+  DDCurrentNamespace ns;
+  idNameSpace = *ns;
   childName   = sArgs["ChildName"]; 
   DDName parentName = parent().name(); 
   LogDebug("HCalGeom") << "DDHCalTestBeamAlgo debug: Parent " << parentName

@@ -12,7 +12,7 @@
 using DDI::Material;
 using namespace dd::operators;
 
-DDMaterial::DDMaterial() : DDBase< DDName, Material* >() { }
+DDMaterial::DDMaterial() : DDBase< DDName, std::unique_ptr<Material>>() { }
 
 /**
    If a DDMaterial with \a name was already defined, this constructor creates a
@@ -23,7 +23,7 @@ DDMaterial::DDMaterial() : DDBase< DDName, Material* >() { }
    to the documentation of DDLogicalPart.
 */
 DDMaterial::DDMaterial( const DDName & name )
-  : DDBase< DDName, Material* >()
+  : DDBase< DDName, std::unique_ptr<Material>>()
 { 
   create( name );
 }
@@ -42,9 +42,9 @@ DDMaterial::DDMaterial( const DDName & name )
    \endcode  
 */
 DDMaterial::DDMaterial( const DDName & name, double z, double a, double d )
- : DDBase< DDName, Material* >()
+  : DDBase< DDName, std::unique_ptr<Material>>()
 { 
-  create( name, new Material( z, a, d ));
+  create( name, std::make_unique<Material>( z, a, d ));
 }
 
 /** 
@@ -60,9 +60,9 @@ DDMaterial::DDMaterial( const DDName & name, double z, double a, double d )
    to the documentation of DDLogicalPart.      
 */
 DDMaterial::DDMaterial( const DDName & name, double density )
- : DDBase< DDName, Material* >()
+  : DDBase< DDName, std::unique_ptr<Material>>()
 { 
-  create( name, new Material( 0, 0, density ));
+  create( name, std::make_unique<Material>( 0, 0, density ));
 }
 
 /** 

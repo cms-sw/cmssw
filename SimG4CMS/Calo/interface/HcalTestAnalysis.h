@@ -62,36 +62,36 @@ private:
 private:
 
   //Keep parameters to instantiate HcalTestHistoClass later
-  std::string               fileName;
+  std::string                              fileName_;
 
   // Qie Analysis
-  HcalQie *                 myqie;
-  int                       addTower;
+  std::unique_ptr<HcalQie>                 myqie_;
+  int                                      addTower_;
 
   // Private Tuples
-  std::unique_ptr<HcalTestHistoManager>    tuplesManager;
-  HcalTestHistoClass        *tuples;
+  std::unique_ptr<HcalTestHistoManager>    tuplesManager_;
+  HcalTestHistoClass*                      tuples_;
 
   // Numbering scheme
-  HcalNumberingFromDDD      *numberingFromDDD;
-  HcalDDDSimConstants       *hcons;
-  HcalTestNumberingScheme   *org;
+  std::unique_ptr<HcalNumberingFromDDD>    numberingFromDDD_;
+  const HcalDDDSimConstants*               hcons_;
+  HcalTestNumberingScheme*                 org_;
 
   // Hits for qie analysis
-  std::vector<CaloHit>      caloHitCache; 
-  std::vector<int>          group_, tower_;
-  int                       nGroup, nTower;
+  std::vector<CaloHit>                     caloHitCache_; 
+  std::vector<int>                         group_, tower_;
+  int                                      nGroup_, nTower_;
   
   // to read from ParameterSet
-  std::vector<std::string>  names;
-  double                    eta0, phi0;
-  int                       centralTower;
+  std::vector<std::string>                 names_;
+  double                                   eta0_, phi0_;
+  int                                      centralTower_;
 
   // some private members for ananlysis 
-  unsigned int              count;                  
-  double                    edepEB, edepEE, edepHB, edepHE, edepHO;
-  double                    edepl[20];
-  double                    mudist[20];   // Distance of muon from central part
+  unsigned int                             count_;                  
+  double                                   edepEB_, edepEE_, edepHB_, edepHE_;
+  double                                   edepHO_, edepl_[20];
+  double                                   mudist_[20];   // Distance of muon from central part
 };
 
 #endif

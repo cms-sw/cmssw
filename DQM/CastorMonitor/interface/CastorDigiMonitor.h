@@ -12,6 +12,11 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+
+//#include "FWCore/Framework/interface/Run.h"
+
 
 class CastorDigiMonitor {
 
@@ -20,14 +25,22 @@ public:
   ~CastorDigiMonitor(); 
 
  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
- void processEvent(const CastorDigiCollection& cast,const CastorDbService& cond);
+ void processEvent(edm::Event const& event, const CastorDigiCollection& cast, 
+       const edm::TriggerResults& trig, const CastorDbService& cond);
+ void endRun();
+ void getDbData(const edm::EventSetup& iSetup);
  int ModSecToIndex(int module, int sector);
+ void fillTrigRes(edm::Event const& event,const edm::TriggerResults& TrigResults,
+	 double Etot);
+
 private:
   std::string subsystemname_;
   int fVerbosity;
   int ievt_;
   float Qrms_DEAD;
 
+  MonitorElement *hBX, *hpBXtrig;
+  MonitorElement* hpTrigRes;
   MonitorElement* h2QrmsTSvsCh;
   MonitorElement* hQIErms[10];
   MonitorElement* hTSratio;
@@ -37,13 +50,13 @@ private:
   MonitorElement* h2repsum;
   MonitorElement* h2qualityMap;
   MonitorElement* hReport;
-  MonitorElement* h2QtsvsCh;
   MonitorElement *h2QmeantsvsCh;
   MonitorElement *h2QmeanMap;
   MonitorElement *hModule;
   MonitorElement *hSector;
   MonitorElement* hdigisize;
-//  MonitorElement* hBunchOcc;
+  MonitorElement *h2towEMvsHAD;
+  MonitorElement *htowE;
 
   int TS_MAX = 10;
   float RatioThresh1 = 0.;

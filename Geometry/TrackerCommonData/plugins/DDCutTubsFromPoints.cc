@@ -22,10 +22,10 @@ DDCutTubsFromPoints::DDCutTubsFromPoints() {
 DDCutTubsFromPoints::~DDCutTubsFromPoints() {}
 
 void DDCutTubsFromPoints::initialize(const DDNumericArguments & nArgs,
-                                   const DDVectorArguments & vArgs,
-                                   const DDMapArguments & ,
-                                   const DDStringArguments & sArgs,
-                                   const DDStringVectorArguments &) {
+				     const DDVectorArguments & vArgs,
+				     const DDMapArguments & ,
+				     const DDStringArguments & sArgs,
+				     const DDStringVectorArguments &) {
 
   r_min = nArgs["rMin"];
   r_max = nArgs["rMax"];
@@ -50,11 +50,10 @@ void DDCutTubsFromPoints::initialize(const DDNumericArguments & nArgs,
 
   solidOutput = DDName(sArgs["SolidName"]);
   
-  std::string idNameSpace = DDCurrentNamespace::ns();
   DDName parentName = parent().name();
   LogDebug("TrackerGeom") << "DDCutTubsFromPoints debug: Parent " << parentName
                           << "\tSolid " << solidOutput << " NameSpace " 
-                          << idNameSpace 
+                          << DDCurrentNamespace()
                           << "\tnumber of sections " << sections.size();
 }
 
