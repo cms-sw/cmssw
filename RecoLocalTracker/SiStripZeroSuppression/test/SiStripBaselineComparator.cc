@@ -112,8 +112,8 @@ void
 SiStripBaselineComparator::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
 
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("srcClusters",  edm::InputTag("siStripClusters", "siStripClusters"));
-  desc.add<edm::InputTag>("srcClusters2", edm::InputTag("moddedsiStripClusters", "siStripClusters"));
+  desc.add<edm::InputTag>("srcClusters",  edm::InputTag("siStripClusters"));
+  desc.add<edm::InputTag>("srcClusters2", edm::InputTag("moddedsiStripClusters"));
   descriptions.add("siStripBaselineComparator", desc);
 }
 
