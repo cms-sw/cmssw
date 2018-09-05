@@ -541,8 +541,8 @@ void inline SiStripAPVRestorer::cleaner_LocalMinimumAdder(const digivector_t& ad
   }
 
   const uint16_t firstStripFlat = smoothedpoints.begin()->first;
-  const uint16_t lastStripFlat = smoothedpoints.begin()->first;
-  const int16_t firstStripFlatADC = (--smoothedpoints.end())->second;
+  const uint16_t lastStripFlat = (--smoothedpoints.end())->first;
+  const int16_t firstStripFlatADC = smoothedpoints.begin()->second;
   const int16_t lastStripFlatADC = (--smoothedpoints.end())->second;
   if ( firstStripFlat > 3 ) {
     auto it = smoothedpoints.begin();
