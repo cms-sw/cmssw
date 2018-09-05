@@ -138,5 +138,4 @@ tkConversionValidation = cms.EDAnalyzer("TkConvValidator",
 
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen():
-    tkConversionValidation.simTracks = cms.InputTag("famosSimHits")
+fastSim.toModify(tkConversionValidation, simTracks = "fastSimProducer")

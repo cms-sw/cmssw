@@ -13,5 +13,4 @@ ecalRecHitsValidation = cms.EDAnalyzer("EcalRecHitsValidation",
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen():
-    ecalRecHitsValidation.hitsProducer = "famosSimHits"
+fastSim.toModify(ecalRecHitsValidation, hitsProducer = "fastSimProducer")
