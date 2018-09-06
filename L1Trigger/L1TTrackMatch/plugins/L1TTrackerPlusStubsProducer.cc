@@ -28,6 +28,7 @@ class L1TTrackerPlusStubsProducer : public edm::stream::EDProducer<> {
       void beginStream(edm::StreamID) override;
       void produce(edm::Event&, const edm::EventSetup&) override;
       void endStream() override;
+
   edm::EDGetTokenT<std::vector<L1MuKBMTCombinedStub> > srcStubs_;
   edm::EDGetTokenT<l1t::L1TkMuonParticle::L1TTTrackCollection> srcTracks_;
   std::unique_ptr<L1TTrackerPlusBarrelStubsMatcher> matcher_;
@@ -68,7 +69,7 @@ L1TTrackerPlusStubsProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 {
    using namespace edm;
    Handle<std::vector<L1MuKBMTCombinedStub> >stubHandle;
-   Handle<l1t::L1TkMuonParticle::L1TTTrackCollection>trackHandle;
+   Handle<l1t::L1TkMuonParticle::L1TTTrackCollection> trackHandle;
 
 
 
@@ -87,9 +88,11 @@ L1TTrackerPlusStubsProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
      edm::Ptr< l1t::L1TkMuonParticle::L1TTTrackType > track(trackHandle, i);
 	tracks.push_back(track);
    }
-
+   printf("Created References\n");
 
    std::vector<l1t::L1TkMuonParticle> out = matcher_->process(tracks,stubs);
+   printf("Made tracks\n");
+
  std::unique_ptr<std::vector<l1t::L1TkMuonParticle> > out1 = std::make_unique<std::vector<l1t::L1TkMuonParticle> >(out); 
    iEvent.put(std::move(out1));
 

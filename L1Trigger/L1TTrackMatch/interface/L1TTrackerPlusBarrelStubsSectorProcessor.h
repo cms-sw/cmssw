@@ -18,15 +18,34 @@ class L1TTrackerPlusBarrelStubsSectorProcessor {
  private:
   int verbose_;
   int sector_;
+  std::vector<int> station_;
+  int tol_;
 
   //here is an example configurable that is read from cfg file
+  std::vector<double> phi1_;
+  std::vector<double> phi2_;
   std::vector<double> propagation_;
+  std::vector<double> etaHighm2_;
+  std::vector<double> etaHighm1_;
+  std::vector<double> etaHigh0_;
+  std::vector<double> etaHigh1_;
+  std::vector<double> etaHigh2_;
+  std::vector<double> etaLowm2_;
+  std::vector<double> etaLowm1_;
+  std::vector<double> etaLow0_;
+  std::vector<double> etaLow1_;
+  std::vector<double> etaLow2_;
+  std::vector<double> alpha_;
+  std::vector<double> beta_;
 
   int previousSector_;
   int nextSector_;
 
+  int deltaPhi_(double p1,double p2);
+  int phiProp_(int muPhi,int k,int sc,int st);
+  double pull_(int k,int dphi,int st);
+  int stubPhi_(L1MuKBMTCombinedStubRef stub);
+  L1MuKBMTCombinedStubRefVector select_(const L1MuKBMTCombinedStubRefVector& stubsPass, l1t::L1TkMuonParticle muon,int k);
 };
-
-
 
 #endif
