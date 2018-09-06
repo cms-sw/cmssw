@@ -10,9 +10,11 @@ Sep. 2017
 
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/L1TMuon/interface/L1MuKBMTCombinedStub.h"
+#include "DataFormats/L1Trigger/interface/BXVector.h"
 
 class L1MuKBMTrack;
 typedef std::vector<L1MuKBMTrack> L1MuKBMTrackCollection;
+typedef BXVector<L1MuKBMTrack> L1MuKBMTrackBxCollection;
 
 class L1MuKBMTrack : public reco::LeafCandidate
 {
