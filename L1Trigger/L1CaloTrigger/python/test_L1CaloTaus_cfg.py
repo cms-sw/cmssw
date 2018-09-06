@@ -99,12 +99,9 @@ process.L1EGammaCrystalsProducer = cms.EDProducer("L1EGCrystalClusterProducer",
 )
 
 process.L1CaloTauProducer = cms.EDProducer("L1CaloTauProducer",
-    EtminForStore = cms.double(0.),
-    EcalTpEtMin = cms.untracked.double(0.5), # 500 MeV default per each Ecal TP
-    EtMinForSeedHit = cms.untracked.double(1.0), # 1 GeV decault for seed hit
     debug = cms.untracked.bool(False),
     hcalTP = cms.InputTag("simHcalTriggerPrimitiveDigis","","HLT"),
-    L1CrystalClustersInputTag = cms.InputTag("L1EGammaCrystalsProducer", "L1EGammaCollectionBXVWithCuts", "L1AlgoTest")
+    L1CrystalClustersInputTag = cms.InputTag("L1EGammaCrystalsProducer", "L1EGXtalClusterWithCuts", "L1AlgoTest")
 )
 
 process.pL1EG = cms.Path( process.L1EGammaCrystalsProducer * process.L1CaloTauProducer )

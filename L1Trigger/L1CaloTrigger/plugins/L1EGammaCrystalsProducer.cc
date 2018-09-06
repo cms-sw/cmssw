@@ -342,7 +342,10 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
          hhit.energy = et / sin(hhit.position.theta());
          hcalhits.push_back(hhit);
 
-         //if ( debug ) std::cout << "HCAL TP Position (x,y,z): " << hcal_tp_position << ", TP ET : " << hhit.energy << std::endl;
+         if ( debug ) {
+            std::cout << "HCAL TP Position (x,y,z): " << hcal_tp_position << ", TP ET : " << hhit.energy << std::endl;
+            std::cout << " - iEta, iPhi : " << hhit.id.ieta() << ":" << hhit.id.iphi() << std::endl;
+         }
       }
    }
 
@@ -475,6 +478,10 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
                ", eta=" << hit.position.eta() <<
                ", phi=" << hit.position.phi() << "\x1B[0m" << std::endl;
          }
+
+         // Save central hit's iEta/iPhi positions
+         params["seed_iEta"] = centerhit.id.ieta();
+         params["seed_iPhi"] = centerhit.id.iphi();
 
          if ( abs(hit.dieta(centerhit)) == 0 && abs(hit.diphi(centerhit)) <= 7 )
          {
