@@ -205,28 +205,6 @@ def customiseFor24212(process):
             pf.goodPixelTrackDeadHcal_dz  = cms.double(0.05)     # [cm] abs(trackRef->dz(primaryVertex_.position())) < X
     return process
 
-
-def customizeHLTForL3OIPR24267(process):
-   for seedproducer in producers_by_type(process, "TSGForOI"):
-       if "hltIterL3OISeedsFromL2Muons" == seedproducer.label():
-           process.hltIterL3OISeedsFromL2Muons = cms.EDProducer("TSGForOIFromL2")
-       if "hltIterL3OISeedsFromL2MuonsOpenMu" == seedproducer.label():
-           process.hltIterL3OISeedsFromL2MuonsOpenMu = cms.EDProducer("TSGForOIFromL2")
-       if "hltIterL3OISeedsFromL2MuonsNoVtx" == seedproducer.label():
-           process.hltIterL3OISeedsFromL2MuonsNoVtx = cms.EDProducer("TSGForOIFromL2")
-           process.hltIterL3OISeedsFromL2MuonsNoVtx.src = cms.InputTag( 'hltL2Muons' )
-
-
-   for trackproducer in producers_by_type(process, "CkfTrackCandidateMaker"):
-       if "hltIterL3OITrackCandidates" in trackproducer.label():
-           trackproducer.reverseTrajectories  =cms.bool(True)
-
-
-   return process
-
-
-
-
 ###For parameter changes in SiStripClusterizerFromRaw for PbPb 2018 data-taking
 def customiseForPR24339HybridFormatSiStripZS(process):
     for producer in producers_by_type(process, "SiStripClusterizerFromRaw"): 
@@ -242,6 +220,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
     process = customiseFor24212(process)
 
-    customizeHLTForL3OIPR24267(process)
     process = customiseForPR24339HybridFormatSiStripZS(process)
     return process
