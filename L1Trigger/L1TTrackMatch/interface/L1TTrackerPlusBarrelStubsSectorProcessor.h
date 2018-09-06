@@ -42,10 +42,10 @@ class L1TTrackerPlusBarrelStubsSectorProcessor {
   int nextSector_;
 
   int deltaPhi_(double p1,double p2);
-  int phiProp_(int muPhi,int k,int sc,int st);
+  int phiProp_(double muPhi,int k,int sc,int st);
   double pull_(int k,int dphi,int st);
-  int stubPhi_(L1MuKBMTCombinedStubRef stub);
-  L1MuKBMTCombinedStubRefVector select_(const L1MuKBMTCombinedStubRefVector& stubsPass, l1t::L1TkMuonParticle muon,int k);
+  int stubPhi_(const L1MuKBMTCombinedStubRef& stub);
+  L1MuKBMTCombinedStubRefVector select_(const L1MuKBMTCombinedStubRefVector& stubsPass,const l1t::L1TkMuonParticle& muon,int k);
 };
 
 #endif
