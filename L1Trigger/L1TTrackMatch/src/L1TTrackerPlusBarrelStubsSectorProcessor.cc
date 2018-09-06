@@ -40,8 +40,6 @@ L1TTrackerPlusBarrelStubsSectorProcessor::L1TTrackerPlusBarrelStubsSectorProcess
 L1TTrackerPlusBarrelStubsSectorProcessor::~L1TTrackerPlusBarrelStubsSectorProcessor() {}
 
 std::vector<l1t::L1TkMuonParticle> L1TTrackerPlusBarrelStubsSectorProcessor::process(const TrackPtrVector& tracks,const L1MuKBMTCombinedStubRefVector& stubsAll) {
-  //Print statement
-
   //Output collection
   std::vector<l1t::L1TkMuonParticle> out;
   //First thing first. Keep only the stubs on this processor
@@ -79,44 +77,42 @@ std::vector<l1t::L1TkMuonParticle> L1TTrackerPlusBarrelStubsSectorProcessor::pro
     L1MuKBMTCombinedStubRefVector stubsPass; 
     for (const auto& stub : stubs) {
       //Do the matching (propagate the muon)
-      int phi=stubPhi_(stub);
+      int phi=stubPhi(stub);
       int st=stub->stNum();
       int wh=stub->whNum();
       double deltaPhiTPull=-1;
 
       //Check if eta value of track matches the station and wheel that the stub is in
       if (wh==-2 && muon.eta()>=etaLowm2_[st-1] && muon.eta()<=etaHighm2_[st-1]) {
-        deltaPhiTPull=pull_(k,phiProp_(muon.phi(),k,sector_,st)-phi,st);
+        deltaPhiTPull=pull(k,phiProp(muon.phi(),k,sector_,st)-phi,st);
       }
       else if (wh==-1 && muon.eta()>=etaLowm1_[st-1] && muon.eta()<=etaHighm1_[st-1]) {
-        deltaPhiTPull=pull_(k,phiProp_(muon.phi(),k,sector_,st)-phi,st);
+        deltaPhiTPull=pull(k,phiProp(muon.phi(),k,sector_,st)-phi,st);
       }
       else if (wh==0 && muon.eta()>=etaLow0_[st-1] && muon.eta()<=etaHigh0_[st-1]) {
-        deltaPhiTPull=pull_(k,phiProp_(muon.phi(),k,sector_,st)-phi,st);
+        deltaPhiTPull=pull(k,phiProp(muon.phi(),k,sector_,st)-phi,st);
       }
       else if (wh==1 && muon.eta()>=etaLow1_[st-1] && muon.eta()<=etaHigh1_[st-1]) {
-        deltaPhiTPull=pull_(k,phiProp_(muon.phi(),k,sector_,st)-phi,st);
+        deltaPhiTPull=pull(k,phiProp(muon.phi(),k,sector_,st)-phi,st);
       }
       else if (wh==2 && muon.eta()>=etaLow2_[st-1] && muon.eta()<=etaHigh2_[st-1]) {
-        deltaPhiTPull=pull_(k,phiProp_(muon.phi(),k,sector_,st)-phi,st);
+        deltaPhiTPull=pull(k,phiProp(muon.phi(),k,sector_,st)-phi,st);
       }
 
       if (deltaPhiTPull>=0 && deltaPhiTPull<tol_) {
         stubsPass.push_back(stub);
-	//printf("Propagated phi=%d, Stub phi=%d, Pull=%f (stub passed)\n",phiProp_(muon.phi(),k,sector_,st),phi,deltaPhiTPull);
       }
     }
 
     //pt phi and eta can be accesed by vec.phi(),vec.eta(),vec.pt()
     //propagate and match here 
-    L1MuKBMTCombinedStubRefVector stubsFilter=select_(stubsPass,muon,k);
+    L1MuKBMTCombinedStubRefVector stubsFilter=select(stubsPass,muon,k);
 
     //You only need to add stubs to the muons  at this stage
     //To do that just do:
     if (stubsFilter.size()>0) {
       for (const auto& stub : stubsFilter) {
         muon.addBarrelStub(stub);
-        //printf("muon pt=%f, muon eta=%f, stub phi=%d, stub st=%d, stub sc=%d\n",muon.pt(),muon.eta(),stub->phi(),stub->stNum(),stub->scNum());
       }
     }
 
@@ -128,7 +124,7 @@ std::vector<l1t::L1TkMuonParticle> L1TTrackerPlusBarrelStubsSectorProcessor::pro
 }
 
 //Define delta phi function
-int L1TTrackerPlusBarrelStubsSectorProcessor::deltaPhi_(double p1,double p2) {
+int L1TTrackerPlusBarrelStubsSectorProcessor::deltaPhi(double p1,double p2) {
   double res=p1-p2;
   while (res>pi) {
     res-=2*pi;
@@ -141,7 +137,7 @@ int L1TTrackerPlusBarrelStubsSectorProcessor::deltaPhi_(double p1,double p2) {
 }
 
 //Define phi propagation
-int L1TTrackerPlusBarrelStubsSectorProcessor::phiProp_(double muPhi,int k,int sc,int st) {
+int L1TTrackerPlusBarrelStubsSectorProcessor::phiProp(double muPhi,int k,int sc,int st) {
   //Shift phi of the track to be with respect to the sector
   double phi=muPhi-(-pi+sc*pi/6.0);
   if (phi>pi) {
@@ -159,14 +155,14 @@ int L1TTrackerPlusBarrelStubsSectorProcessor::phiProp_(double muPhi,int k,int sc
 }
 
 //Define pull function
-double L1TTrackerPlusBarrelStubsSectorProcessor::pull_(int k,int dphi,int st) {
+double L1TTrackerPlusBarrelStubsSectorProcessor::pull(int k,int dphi,int st) {
   double pullfunc=abs(dphi/sqrt(alpha_[st-1]*pow(k,2)+beta_[st-1]));
   
   return pullfunc;
 }
 
 //Get integer value for phi of the stub
-int L1TTrackerPlusBarrelStubsSectorProcessor::stubPhi_(const L1MuKBMTCombinedStubRef& stub) {
+int L1TTrackerPlusBarrelStubsSectorProcessor::stubPhi(const L1MuKBMTCombinedStubRef& stub) {
   int phi=stub->phi();
   if (stub->scNum()==previousSector_) {
     phi-=2047;
@@ -179,7 +175,7 @@ int L1TTrackerPlusBarrelStubsSectorProcessor::stubPhi_(const L1MuKBMTCombinedStu
 }
 
 //Select best stubs
-L1MuKBMTCombinedStubRefVector L1TTrackerPlusBarrelStubsSectorProcessor::select_(const L1MuKBMTCombinedStubRefVector& stubsPass, const l1t::L1TkMuonParticle& muon,int k) {
+L1MuKBMTCombinedStubRefVector L1TTrackerPlusBarrelStubsSectorProcessor::select(const L1MuKBMTCombinedStubRefVector& stubsPass, const l1t::L1TkMuonParticle& muon,int k) {
   //Create vectors for sorting stubs
   L1MuKBMTCombinedStubRefVector stubsSelectSt1;
   L1MuKBMTCombinedStubRefVector stubsSelectSt2;
@@ -207,10 +203,10 @@ L1MuKBMTCombinedStubRefVector L1TTrackerPlusBarrelStubsSectorProcessor::select_(
 
   //Select stub with the lowest pull value at each station
   if (stubsSelectSt1.size()>0) {
-    double pullSt1=pull_(k,phiProp_(muon.phi(),k,sector_,1)-stubsSelectSt1[0]->phi(),1);
+    double pullSt1=pull(k,phiProp(muon.phi(),k,sector_,1)-stubsSelectSt1[0]->phi(),1);
     int bestStub=-1;
     for (uint i=0;i<stubsSelectSt1.size();i++) {
-      double pullStub=pull_(k,phiProp_(muon.phi(),k,sector_,1)-stubsSelectSt1[i]->phi(),1);
+      double pullStub=pull(k,phiProp(muon.phi(),k,sector_,1)-stubsSelectSt1[i]->phi(),1);
       if (pullStub<pullSt1) {
         bestStub=i;
 	pullSt1=pullStub;
@@ -222,10 +218,10 @@ L1MuKBMTCombinedStubRefVector L1TTrackerPlusBarrelStubsSectorProcessor::select_(
       stubsSelect.push_back(stubsSelectSt1[0]);
   }
   if (stubsSelectSt2.size()>0) {
-    double pullSt2=pull_(k,phiProp_(muon.phi(),k,sector_,2)-stubsSelectSt2[0]->phi(),2);
+    double pullSt2=pull(k,phiProp(muon.phi(),k,sector_,2)-stubsSelectSt2[0]->phi(),2);
     int bestStub=-1;
     for (uint i=0;i<stubsSelectSt2.size();i++) {
-      double pullStub=pull_(k,phiProp_(muon.phi(),k,sector_,2)-stubsSelectSt2[i]->phi(),2);
+      double pullStub=pull(k,phiProp(muon.phi(),k,sector_,2)-stubsSelectSt2[i]->phi(),2);
       if (pullStub<pullSt2) {
         bestStub=i;
 	pullSt2=pullStub;
@@ -237,10 +233,10 @@ L1MuKBMTCombinedStubRefVector L1TTrackerPlusBarrelStubsSectorProcessor::select_(
       stubsSelect.push_back(stubsSelectSt2[0]);
   }
   if (stubsSelectSt3.size()>0) {
-    double pullSt3=pull_(k,phiProp_(muon.phi(),k,sector_,3)-stubsSelectSt3[0]->phi(),3);
+    double pullSt3=pull(k,phiProp(muon.phi(),k,sector_,3)-stubsSelectSt3[0]->phi(),3);
     int bestStub=-1;
     for (uint i=0;i<stubsSelectSt3.size();i++) {
-      double pullStub=pull_(k,phiProp_(muon.phi(),k,sector_,3)-stubsSelectSt3[i]->phi(),3);
+      double pullStub=pull(k,phiProp(muon.phi(),k,sector_,3)-stubsSelectSt3[i]->phi(),3);
       if (pullStub<pullSt3) {
         bestStub=i;
 	pullSt3=pullStub;
@@ -252,10 +248,10 @@ L1MuKBMTCombinedStubRefVector L1TTrackerPlusBarrelStubsSectorProcessor::select_(
       stubsSelect.push_back(stubsSelectSt3[0]);
   }
   if (stubsSelectSt4.size()>0) {
-    double pullSt4=pull_(k,phiProp_(muon.phi(),k,sector_,4)-stubsSelectSt4[0]->phi(),4);
+    double pullSt4=pull(k,phiProp(muon.phi(),k,sector_,4)-stubsSelectSt4[0]->phi(),4);
     int bestStub=-1;
     for (uint i=0;i<stubsSelectSt4.size();i++) {
-      double pullStub=pull_(k,phiProp_(muon.phi(),k,sector_,4)-stubsSelectSt4[i]->phi(),4);
+      double pullStub=pull(k,phiProp(muon.phi(),k,sector_,4)-stubsSelectSt4[i]->phi(),4);
       if (pullStub<pullSt4) {
 	bestStub=i;
 	pullSt4=pullStub;

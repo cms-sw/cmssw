@@ -88,10 +88,8 @@ L1TTrackerPlusStubsProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
      edm::Ptr< l1t::L1TkMuonParticle::L1TTTrackType > track(trackHandle, i);
 	tracks.push_back(track);
    }
-   printf("Created References\n");
 
    std::vector<l1t::L1TkMuonParticle> out = matcher_->process(tracks,stubs);
-   printf("Made tracks\n");
 
  std::unique_ptr<std::vector<l1t::L1TkMuonParticle> > out1 = std::make_unique<std::vector<l1t::L1TkMuonParticle> >(out); 
    iEvent.put(std::move(out1));

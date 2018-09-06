@@ -6,7 +6,6 @@ L1TTrackerPlusBarrelStubsMatcher::L1TTrackerPlusBarrelStubsMatcher(const edm::Pa
   //Create sector processors
   std::vector<int> sectors = iConfig.getParameter<std::vector<int> >("sectorsToProcess");
     for (const auto sector : sectors) {
-      //printf("Creating sector processor %d\n",sector);
       sectors_.push_back(L1TTrackerPlusBarrelStubsSectorProcessor(iConfig.getParameter<edm::ParameterSet>("sectorSettings"),sector));
     }
 }
@@ -44,7 +43,7 @@ std::vector<l1t::L1TkMuonParticle> L1TTrackerPlusBarrelStubsMatcher::overlapClea
         //Make intersection of muons
 	const L1MuKBMTCombinedStubRefVector& muon1Stubs=muon1.getBarrelStubs();
 	const L1MuKBMTCombinedStubRefVector& muon2Stubs=muon2.getBarrelStubs();
-	bool muoneq=muonCheck_(muon1,muon2);
+	bool muoneq=muonCheck(muon1,muon2);
 	if (muoneq==false && muon1Stubs.size()>0 && muon2Stubs.size()>0) {
           L1MuKBMTCombinedStubRefVector muonInter;
 	  for (const auto& stub1 : muon1.getBarrelStubs()) {
@@ -71,13 +70,13 @@ std::vector<l1t::L1TkMuonParticle> L1TTrackerPlusBarrelStubsMatcher::overlapClea
 	      double dPhi2=0;
 	      for (const auto& stub1 : muon1Stubs) {
 	        double phi1=(Geom::pi()/(2048*6))*stub1->phi();
-	        double phi1T=(Geom::pi()/(2048*6))*phiProp_(muon1.phi(),8192*muon1.charge()/muon1.pt(),stub1->scNum(),stub1->stNum());
-	        dPhi1+=abs(deltaPhi_(phi1,phi1T));
+	        double phi1T=(Geom::pi()/(2048*6))*phiProp(muon1.phi(),8192*muon1.charge()/muon1.pt(),stub1->scNum(),stub1->stNum());
+	        dPhi1+=abs(deltaPhi(phi1,phi1T));
 	      }
 	      for (const auto& stub2 : muon2Stubs) {
 		double phi2=(Geom::pi()/(2048*6))*stub2->phi();
-	        double phi2T=(Geom::pi()/(2048*6))*phiProp_(muon2.phi(),8192*muon2.charge()/muon2.pt(),stub2->scNum(),stub2->stNum());
-	        dPhi2+=abs(deltaPhi_(phi2,phi2T));
+	        double phi2T=(Geom::pi()/(2048*6))*phiProp(muon2.phi(),8192*muon2.charge()/muon2.pt(),stub2->scNum(),stub2->stNum());
+	        dPhi2+=abs(deltaPhi(phi2,phi2T));
 	      }
 	      if (dPhi1<dPhi2 && std::find(muonsOut.begin(),muonsOut.end(),muon1)==muonsOut.end()) {
 	        muonsOut.push_back(muon1);
@@ -100,7 +99,7 @@ std::vector<l1t::L1TkMuonParticle> L1TTrackerPlusBarrelStubsMatcher::overlapClea
 }
 
 //Define delta phi function
-int L1TTrackerPlusBarrelStubsMatcher::deltaPhi_(double p1,double p2) {
+int L1TTrackerPlusBarrelStubsMatcher::deltaPhi(double p1,double p2) {
   double res=p1-p2;
   while (res>Geom::pi()) {
     res-=2*Geom::pi();
@@ -113,7 +112,7 @@ int L1TTrackerPlusBarrelStubsMatcher::deltaPhi_(double p1,double p2) {
 }
 
 //Define phi propagation
-int L1TTrackerPlusBarrelStubsMatcher::phiProp_(int muPhi,int k,int sc,int st) {
+int L1TTrackerPlusBarrelStubsMatcher::phiProp(int muPhi,int k,int sc,int st) {
   //Propagation constant
   double propagation_[]={1.14441,1.24939,1.31598,1.34792};
   
@@ -134,7 +133,7 @@ int L1TTrackerPlusBarrelStubsMatcher::phiProp_(int muPhi,int k,int sc,int st) {
 }
 
 //Define muon check
-bool L1TTrackerPlusBarrelStubsMatcher::muonCheck_(const l1t::L1TkMuonParticle& muon1,const l1t::L1TkMuonParticle& muon2) {
+bool L1TTrackerPlusBarrelStubsMatcher::muonCheck(const l1t::L1TkMuonParticle& muon1,const l1t::L1TkMuonParticle& muon2) {
   bool muoneq=false;
   if (muon1.eta()==muon2.eta() && muon1.phi()==muon2.phi() && muon1.pt()==muon2.pt() && muon1.charge()==muon2.charge()) {
     muoneq=true;
