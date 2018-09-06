@@ -1004,7 +1004,7 @@ int Phase2TrackerDigitizerAlgorithm::convertSignalToAdc(uint32_t detID, float si
   else { 
     
     if (thePhase2ReadoutMode == -1) {
-      temp_signal = std::floor(signal_in_elec / theElectronPerADC) + 1;
+      temp_signal = std::min( int(signal_in_elec / theElectronPerADC), theAdcFullScale );
     } else {
       // calculate the kink point and the slope
       const int dualslope_param = std::min(abs(thePhase2ReadoutMode), max_limit);
