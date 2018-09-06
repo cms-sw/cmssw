@@ -132,7 +132,7 @@ bool TotemTransport::transportProton( const HepMC::GenParticle* in_trk)
     "position: " << out_pos << " momentum: " << out_mom << std::endl;
     //int Direction = (in_mom.z()>0)?1:-1;
      double px = -out_momentum[0];
-     double py = -out_momentum[1];  // this need to be checked again, since it seems an invertion is occuring in  the prop.
+     double py =  out_momentum[1];  // this need to be checked again, since it seems an invertion is occuring in  the prop.
      double pz = out_momentum[2];
      double e = sqrt(px*px+py*py+pz*pz+pow(CLHEP::proton_mass_c2/GeV,2));
      CLHEP::HepLorentzVector* p_out = new CLHEP::HepLorentzVector(px,py,pz,e);
