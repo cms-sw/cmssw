@@ -79,17 +79,8 @@ phase2_hgcal.toModify( RecoLocalCaloRECO, outputCommands = RecoLocalCaloRECO.out
 phase2_hgcal.toModify( RecoLocalCaloAOD, outputCommands = RecoLocalCaloAOD.outputCommands + ['keep *_HGCalRecHit_*_*','keep *_hgcalLayerClusters_*_*'] )
 
 from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
-pA_2016.toModify( RecoLocalCaloAOD.outputCommands,
-                  func=lambda outputCommands: outputCommands.extend(['keep *_zdcreco_*_*',
-                                                                     'keep ZDCDataFramesSorted_hcalDigis_*_*',
-                                                                     'keep ZDCDataFramesSorted_castorDigis_*_*',
-                                                                     'keep QIE10DataFrameHcalDataFrameContainer_hcalDigis_ZDC_*'
-                                                                     ])
-                  )
-
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-for ec in [RecoLocalCaloAOD.outputCommands, RecoLocalCaloRECO.outputCommands, RecoLocalCaloFEVT.outputCommands]:
-	pp_on_AA_2018.toModify( ec,
+(pA_2016|pp_on_AA_2018).toModify( RecoLocalCaloAOD.outputCommands,
                   func=lambda outputCommands: outputCommands.extend(['keep *_zdcreco_*_*',
                                                                      'keep ZDCDataFramesSorted_hcalDigis_*_*',
                                                                      'keep ZDCDataFramesSorted_castorDigis_*_*',
