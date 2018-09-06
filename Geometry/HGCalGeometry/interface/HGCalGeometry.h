@@ -78,6 +78,7 @@ public:
       
   /// Returns the corner points of this cell's volume.
   CornersVec getCorners( const DetId& id ) const; 
+  CornersVec get8Corners( const DetId& id ) const; 
 
   // avoid sorting set in base class  
   const std::vector<DetId>& getValidDetIds( DetId::Detector det = DetId::Detector(0), int subdet = 0) const override { return m_validIds; }
