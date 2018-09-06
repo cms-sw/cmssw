@@ -93,6 +93,9 @@ steps['RunHI2010']={'INPUT':InputInfo(dataSet='/HIAllPhysics/HIRun2010-v1/RAW',l
 steps['RunHI2011']={'INPUT':InputInfo(dataSet='/HIMinBiasUPC/HIRun2011-v1/RAW',label='hi2011',run=[182124],events=10000,location='STD')}
 steps['RunPA2013']={'INPUT':InputInfo(dataSet='/PAMinBiasUPC/HIRun2013-v1/RAW',label='pa2013',run=[211313],events=10000,location='STD')}
 
+Run2015HI={263400: [[65,904]]}
+steps['RunHI2015VR']={'INPUT':InputInfo(dataSet='/HITrackerVirginRaw/HIRun2015-v1/RAW',label='hi2015vr',events=10000,location='STD',ls=Run2015HI)}
+
 Run2012A=[191226]
 Run2012ASk=Run2012A+[]
 steps['RunMinBias2012A']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2012A-v1/RAW',label='mb2012A',run=Run2012A, events=100000,location='STD')}
@@ -1544,6 +1547,30 @@ steps['RECOHID10']['-s']+=',REPACK'
 steps['RECOHID10']['--datatier']+=',RAW'
 steps['RECOHID10']['--eventcontent']+=',REPACKRAW'
 
+steps['HYBRIDRepackHI2015VR']={'--eventcontent':'RAW',
+                               '--datatier':'RAW',
+                               '--conditions':'auto:run2_data',
+                               '--step':'RAW2DIGI,REPACK:DigiToHybridRawRepack',
+                               '--scenario':'HeavyIons',                     
+                               '--data':'',
+                               '--era':'Run2_HI',
+                               '--customise':'RecoLocalTracker/SiStripZeroSuppression/customiseHybrid.addHybridEmulationBeforeRepack',
+                               '--processName':'EMULATEHYBRID',    
+                               #'--customise_commands':'\'process.RAWoutput.outputCommands.append(\"drop *_*_*_HLT*\")\'',
+                               '-n':100
+                               }
+
+steps['HYBRIDZSHI2015']=merge([{'--step': 'RAW2DIGI,REPACK:DigiToRawRepack',
+                                '--processName':'REHLT',
+                                '--customise': 'RecoLocalTracker/SiStripZeroSuppression/customiseHybrid.runOnHybridZS,RecoLocalTracker/SiStripZeroSuppression/customiseHybrid.repackZSHybrid',
+                                '--customise_commands':'\'from Configuration.Applications.ConfigBuilder import MassReplaceInputTag; MassReplaceInputTag(process, new="hybridRawDataRepacker")\'' ,
+                                },steps['HYBRIDRepackHI2015VR']])
+
+steps['RECOHID15']=merge([{ '--runUnscheduled':'',
+                            '--conditions':'auto:run2_data',
+                            '--era':'Run2_HI'
+                            },steps['RECOHID11']])
+                           
 steps['TIER0']=merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customisePrompt',
                        '-s':'RAW2DIGI,L1Reco,RECO,EI,ALCAPRODUCER:@allForPrompt,DQM:@allForPrompt,ENDJOB',
                        '--datatier':'RECO,AOD,ALCARECO,DQMIO',
@@ -2232,6 +2259,9 @@ steps['HARVESTDHI']={'-s':'HARVESTING:dqmHarvesting',
                    '--data':'',
                    '--scenario':'HeavyIons'}
 
+steps['HARVESTDHI15']=merge([{ '--conditions':'auto:run2_data',
+                               '--era':'Run2_HI',
+                               '-n':-1},steps['HARVESTDHI']])
 
 #MC
 steps['HARVEST']={'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
