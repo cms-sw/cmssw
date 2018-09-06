@@ -23,6 +23,8 @@ class HGCalBackendLayer1Processor2DClustering : public HGCalBackendLayer1Process
         clusteringAlgorithmType_ = NNC2d;
       }else if(typeCluster=="dRNNC2d"){
         clusteringAlgorithmType_ = dRNNC2d;
+      }else if(typeCluster=="dummyC2d"){
+        clusteringAlgorithmType_ = dummyC2d;
       }else {
         throw cms::Exception("HGCTriggerParameterError")
                            << "Unknown clustering type '" << typeCluster;
@@ -62,6 +64,9 @@ class HGCalBackendLayer1Processor2DClustering : public HGCalBackendLayer1Process
         case dRNNC2d:
           clustering_.clusterizeDRNN( triggerCellsPtrs, collCluster2D, *triggerGeometry_ );
           break;
+	case dummyC2d:
+          clustering_.clusterizeDummy( triggerCellsPtrs, collCluster2D );
+          break;
         default:
           // Should not happen, clustering type checked in constructor
           break;
@@ -72,7 +77,8 @@ class HGCalBackendLayer1Processor2DClustering : public HGCalBackendLayer1Process
     enum ClusterType{
       dRC2d,
       NNC2d,
-      dRNNC2d
+      dRNNC2d,
+      dummyC2d
     };
 
     edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;

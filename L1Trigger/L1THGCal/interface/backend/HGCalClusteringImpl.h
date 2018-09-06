@@ -55,6 +55,10 @@ public:
                          const HGCalTriggerGeometryBase & triggerGeometry
         );
 
+    void clusterizeDummy( const std::vector<edm::Ptr<l1t::HGCalTriggerCell>> & triggerCellsPtrs,
+                          l1t::HGCalClusterBxCollection & clusters
+        );
+
     
 
 private:

@@ -21,6 +21,10 @@ class HGCalBackendLayer2Processor3DClustering : public HGCalBackendLayer2Process
         multiclusteringAlgoType_ = dRC3d;
       }else if(typeMulticluster=="DBSCANC3d"){
         multiclusteringAlgoType_ = DBSCANC3d;
+      }else if(typeMulticluster=="HistoMaxC3d"){
+        multiclusteringAlgoType_ = HistoMaxC3d;
+      }else if(typeMulticluster=="HistoThresholdC3d"){
+        multiclusteringAlgoType_ = HistoThresholdC3d;
       }else {
         throw cms::Exception("HGCTriggerParameterError")
           << "Unknown Multiclustering type '" << typeMulticluster;
@@ -49,6 +53,12 @@ class HGCalBackendLayer2Processor3DClustering : public HGCalBackendLayer2Process
         case DBSCANC3d:
           multiclustering_.clusterizeDBSCAN( clustersPtrs, collCluster3D, *triggerGeometry_);
           break;
+        case HistoMaxC3d :
+          multiclustering_.clusterizeHistoMax( clustersPtrs, collCluster3D, *triggerGeometry_);
+          break;
+        case HistoThresholdC3d :
+          multiclustering_.clusterizeHistoThreshold( clustersPtrs, collCluster3D, *triggerGeometry_);
+          break;
         default:
           // Should not happen, clustering type checked in constructor
           break;
@@ -58,7 +68,9 @@ class HGCalBackendLayer2Processor3DClustering : public HGCalBackendLayer2Process
   private:
     enum MulticlusterType{
       dRC3d,
-      DBSCANC3d
+      DBSCANC3d,
+      HistoMaxC3d,
+      HistoThresholdC3d
     };
         
     edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
