@@ -8,7 +8,7 @@
       <PARAM name="ymax">0.0</PARAM>
       <PARAM name="useEmptyBins">0</PARAM>
   </QTEST>
-  <LINK name="*Hcal/DigiTask/LED/LEDEventCount*">
+  <LINK name="*Hcal/DigiTask/LED_CUCountvsLS/Subdet/*">
       <TestName activate="true">LEDMisfireThreshold</TestName>
   </LINK>
 
