@@ -86,6 +86,8 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const & p, const OscarMTMaste
   produces<edm::PSimHitContainer>("TotemHitsT1");
   produces<edm::PSimHitContainer>("TotemHitsT2Gem");
   produces<edm::PSimHitContainer>("TotemHitsRP");
+  produces<edm::PSimHitContainer>("CTPPSPixelHits");
+  produces<edm::PSimHitContainer>("CTPPSTimingHits");
   produces<edm::PSimHitContainer>("FP420SI");
   produces<edm::PSimHitContainer>("BSCHits");
   produces<edm::PSimHitContainer>("PLTHits");
@@ -118,7 +120,6 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const & p, const OscarMTMaste
   produces<edm::PCaloHitContainer>("ChamberHits");
   produces<edm::PCaloHitContainer>("FibreHits");
   produces<edm::PCaloHitContainer>("WedgeHits");
-  produces<edm::PCaloHitContainer>("HFNoseHits");
 
   //register any products
   m_producers = m_runManagerWorker->producers();

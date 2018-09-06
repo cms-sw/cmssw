@@ -62,6 +62,8 @@ namespace edm
 
     bool             fFireForward;
     bool             fFireBackward;
+    bool             fLog_t;
+
     
   };
 } 
