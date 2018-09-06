@@ -459,3 +459,9 @@ l1t::EtSum l1t::CaloTools::etSumP4MP(l1t::EtSum& etsum) {
 		     etsum.hwQual() );
   
 }
+
+double l1t::CaloTools::intDivide(int x, unsigned nHigh, unsigned nLow) {
+ 
+  return 1.0;
+
+}

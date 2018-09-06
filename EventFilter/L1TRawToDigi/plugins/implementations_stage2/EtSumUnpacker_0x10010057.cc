@@ -223,7 +223,7 @@ namespace stage2 {
        uint32_t centUN = ((raw_data >> 28) & 0xF);
 
        l1t::EtSum cent = l1t::EtSum();
-       cent.setHwPt(centUN & centLN); 
+       cent.setHwPt( (centUN << 4) | centLN); 
        cent.setType( l1t::EtSum::kCentrality );
        
        res_->push_back(bx, cent);

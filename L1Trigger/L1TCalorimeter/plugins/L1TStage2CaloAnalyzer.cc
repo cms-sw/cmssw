@@ -651,8 +651,10 @@ namespace l1t {
 
           switch(itr->getType()){
           case l1t::EtSum::EtSumType::kTotalEt:     het_.at(SumET)       ->Fill( itr->hwPt() ); break;
+          case l1t::EtSum::EtSumType::kTotalEtHF:   break;
           case l1t::EtSum::EtSumType::kTotalEtEm:   het_.at(SumETEm)     ->Fill( itr->hwPt() ); break;
           case l1t::EtSum::EtSumType::kTotalHt:     het_.at(SumHT)       ->Fill( itr->hwPt() ); break;
+          case l1t::EtSum::EtSumType::kTotalHtHF:   break;
           case l1t::EtSum::EtSumType::kMissingEt:   het_.at(SumMET)      ->Fill( itr->hwPt() ); hphi_.at(SumMET)  ->Fill( itr->hwPhi() ); break;
           case l1t::EtSum::EtSumType::kMissingEtHF:  het_.at(SumMETHF)     ->Fill( itr->hwPt() ); hphi_.at(SumMETHF) ->Fill( itr->hwPhi() ); break;
           case l1t::EtSum::EtSumType::kMissingHt:   het_.at(SumMHT)      ->Fill( itr->hwPt() ); hphi_.at(SumMHT)  ->Fill( itr->hwPhi() ); break;
@@ -662,13 +664,13 @@ namespace l1t {
           case l1t::EtSum::EtSumType::kMinBiasHFP1: het_.at(MinBiasHFP1) ->Fill( itr->hwPt() ); break;
           case l1t::EtSum::EtSumType::kMinBiasHFM1: het_.at(MinBiasHFM1) ->Fill( itr->hwPt() ); break;
 	  case l1t::EtSum::EtSumType::kTowerCount:  het_.at(SumHITowCount) ->Fill( itr->hwPt() ); break;
-	  case l1t::EtSum::EtSumType::kCentrality:  het_.at(SumCentrality) ->Fill( itr->hwPt() ); break;  
+	  case l1t::EtSum::EtSumType::kCentrality:  het_.at(SumCentrality) ->Fill( itr->hwPt() ); std::cout << "Cent = " << itr->hwPt() << std::endl; break;  
 	  case l1t::EtSum::EtSumType::kAsymEt:      het_.at(SumAsymEt)     ->Fill( itr->hwPt() ); break;
 	  case l1t::EtSum::EtSumType::kAsymHt:      het_.at(SumAsymHt)     ->Fill( itr->hwPt() ); break;
-	  case l1t::EtSum::EtSumType::kAsymEtHF:    het_.at(SumAsymEtHF)   ->Fill( itr->hwPt() ); break;
+	  case l1t::EtSum::EtSumType::kAsymEtHF:    het_.at(SumAsymEtHF)   ->Fill( itr->hwPt() ); std::cout << "Asym = " << itr->hwPt() << std::endl; break;
 	  case l1t::EtSum::EtSumType::kAsymHtHF:    het_.at(SumAsymHtHF)   ->Fill( itr->hwPt() ); break;
 
-          default: std::cout<<"wrong type of demux sum"<<std::endl;
+          default: std::cout<<"wrong type of demux sum: "<< itr->getType() << std::endl;
           }
 
           text << "Sum : " << " type=" << itr->getType() << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
