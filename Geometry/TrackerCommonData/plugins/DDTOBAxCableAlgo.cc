@@ -29,8 +29,8 @@ void DDTOBAxCableAlgo::initialize(const DDNumericArguments & nArgs,
 				  const DDMapArguments &,
 				  const DDStringArguments & sArgs,
 				  const DDStringVectorArguments & vsArgs) {
-  DDCurrentNamespace ns;
-  idNameSpace  = *ns;
+  
+  idNameSpace  = DDCurrentNamespace::ns();
   LogDebug("TOBGeom") << "DDTOBAxCableAlgo debug: Parent " << parent().name()
 		      << " NameSpace " << idNameSpace;
   

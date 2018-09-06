@@ -96,8 +96,7 @@ void DDHGCalTBModule::initialize(const DDNumericArguments & nArgs,
     std::cout << "Block [" << i << "] Zmin " << zFront_[i] << " Rmax "
 	      << rMaxFront_[i] << " Slope " << slopeT_[i] << std::endl;
 #endif
-  DDCurrentNamespace ns;
-  idNameSpace_  = *ns;
+  idNameSpace_  = DDCurrentNamespace::ns();
 #ifdef EDM_ML_DEBUG
   std::cout << "DDHGCalTBModule: NameSpace " << idNameSpace_ << std::endl;
 #endif

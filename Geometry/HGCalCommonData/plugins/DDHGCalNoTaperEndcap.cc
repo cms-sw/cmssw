@@ -35,8 +35,7 @@ void DDHGCalNoTaperEndcap::initialize(const DDNumericArguments & nArgs,
   m_startCopyNo = int( nArgs["startCopyNo"] );
   m_incrCopyNo  = int( nArgs["incrCopyNo"] );
   m_childName   = sArgs["ChildName"];
-  DDCurrentNamespace ns;
-  m_idNameSpace = *ns;
+  m_idNameSpace = DDCurrentNamespace::ns();
   edm::LogInfo("HGCalGeom") << "DDHGCalNoTaperEndcap: NameSpace " << m_idNameSpace 
 			    << "\tParent " << parent().name();
 }

@@ -31,8 +31,8 @@ void DDTECModuleAlgo::initialize(const DDNumericArguments & nArgs,
 				 const DDMapArguments & ,
 				 const DDStringArguments & sArgs,
 				 const DDStringVectorArguments & vsArgs) {
-  DDCurrentNamespace ns;
-  idNameSpace  = *ns;
+
+  idNameSpace  = DDCurrentNamespace::ns();
   genMat       = sArgs["GeneralMaterial"];
 
   DDName parentName = parent().name(); 

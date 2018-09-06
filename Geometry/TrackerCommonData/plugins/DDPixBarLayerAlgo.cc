@@ -28,8 +28,8 @@ void DDPixBarLayerAlgo::initialize(const DDNumericArguments & nArgs,
 				   const DDMapArguments & ,
 				   const DDStringArguments & sArgs,
 				   const DDStringVectorArguments & vsArgs) {
-  DDCurrentNamespace ns;
-  idNameSpace = *ns;
+
+  idNameSpace = DDCurrentNamespace::ns();
   DDName parentName = parent().name();
 
   genMat    = sArgs["GeneralMaterial"];
