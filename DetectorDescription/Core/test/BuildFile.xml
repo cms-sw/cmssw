@@ -14,8 +14,6 @@
 </bin>
 <bin   name="testUnits" file="testRunner.cpp,DDUnits.cppunit.cc">
 </bin>
-<bin   name="testDDCurrentNamespace" file="testRunner.cpp,DDCurrentNamespace.cppunit.cc">
-</bin>
 <bin   file="clhepToROOTMath.cpp">
 </bin>
 <bin   file="test_DDRotation.cpp">

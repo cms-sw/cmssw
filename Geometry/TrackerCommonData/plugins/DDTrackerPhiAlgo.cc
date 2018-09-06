@@ -63,8 +63,8 @@ void DDTrackerPhiAlgo::initialize(const DDNumericArguments & nArgs,
   for (int i=0; i<(int)(phi.size()); i++)
     LogDebug("TrackerGeom") << "\t[" << i << "] phi = " << phi[i]/CLHEP::deg 
 			    << " z = " << zpos[i];
-  DDCurrentNamespace ns;
-  idNameSpace = *ns;
+
+  idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
   DDName parentName = parent().name();
   LogDebug("TrackerGeom") <<  "DDTrackerPhiAlgo debug: Parent " << parentName
