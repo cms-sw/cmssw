@@ -369,6 +369,27 @@ void compHwEmu (
    // HI Tower count
   TH1D* hwHITowerCount = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/sumhitowercount/et");
   TH1D* emHITowerCount = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/sumhitowercount/et");
+  
+  // HI centrality
+  TH1D* hwHICentrality = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/sumcentrality/et");
+  TH1D* emHICentrality = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/sumcentrality/et");
+
+  // ET Asym
+  TH1D* hwEtAsymSum = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/sumasymet/et");
+  TH1D* emEtAsymSum = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/sumasymet/et");
+
+  // HT Asym
+  TH1D* hwHtAsymSum = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/sumasymht/et");
+  TH1D* emHtAsymSum = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/sumasymht/et");
+
+  // ET HF Asym
+  TH1D* hwEtAsymSumHF = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/sumasymethf/et");
+  TH1D* emEtAsymSumHF = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/sumasymethf/et");
+
+  // HT HF Asym
+  TH1D* hwHtAsymSumHF = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/sumasymhthf/et");
+  TH1D* emHtAsymSumHF = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/sumasymhthf/et");
+
 
   // Sorts
   TH1D* hwSortMP = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/sortMP");
@@ -987,6 +1008,46 @@ void compHwEmu (
       emMhtHFPhi,
       runNo, dataset, "MHT i#phi", "DemuxSums/DemMhtHFPhi.pdf", 1, 13, 0, 143
       );
+
+    // plot demux sum Centrality
+    create_plot(
+      hwHICentrality,
+      emHICentrality,
+      runNo, dataset, "Centrality", "DemuxSums/DemSumCentrality.pdf", 1, 13, 0, 300
+      );
+
+    // plot demux sum Et Asym
+    create_plot(
+      hwEtAsymSum,
+      emEtAsymSum,
+      runNo, dataset, "iE_{T} Asym", "DemuxSums/DemSumEtAsym.pdf", 1, 13, 0, 300
+      );
+
+    // plot demux sum Ht Asym
+    create_plot(
+      hwHtAsymSum,
+      emHtAsymSum,
+      runNo, dataset, "iH_{T} Asym", "DemuxSums/DemSumHtAsym.pdf", 1, 13, 0, 300
+      );
+
+    // plot demux sum Et Asym HF
+    create_plot(
+      hwEtAsymSumHF,
+      emEtAsymSumHF,
+      runNo, dataset, "iE_{T} Asym", "DemuxSums/DemSumEtAsymHF.pdf", 1, 13, 0, 300
+      );
+
+    // plot demux sum Ht Asym HF
+    create_plot(
+      hwHtAsymSumHF,
+      emHtAsymSumHF,
+      runNo, dataset, "iH_{T} Asym", "DemuxSums/DemSumHtAsymHF.pdf", 1, 13, 0, 300
+      );
+
+    
+
+
+
   }
 // ========================= demux sums end ========================
 

@@ -315,6 +315,19 @@ L1TCaloStage2ParamsESProducer::L1TCaloStage2ParamsESProducer(const edm::Paramete
   m_params_helper.setEtSumEcalSumCalibrationLUT(*etSumEcalSumCalibrationLUT);
 
   // HI centrality trigger
+  std::vector<double> etSumCentLower = conf.getParameter<std::vector<double>>("etSumCentralityLower");
+  std::vector<double> etSumCentUpper = conf.getParameter<std::vector<double>>("etSumCentralityUpper");
+  if (etSumCentLower.size() == etSumCentUpper.size()){
+    for (unsigned i=0; i<etSumCentLower.size(); ++i) {
+      m_params_helper.setEtSumCentLower(i, etSumCentLower.at(i));
+      m_params_helper.setEtSumCentUpper(i, etSumCentUpper.at(i));
+    }
+  }
+  else {
+    edm::LogError("l1t|calo") << "Inconsistent number of Centrality boundaries" << std::endl;
+  }
+
+  // HI centrality trigger
   edm::FileInPath centralityLUTFile = conf.getParameter<edm::FileInPath>("centralityLUTFile");
   std::ifstream centralityLUTStream(centralityLUTFile.fullPath());
   std::shared_ptr<LUT> centralityLUT( new LUT(centralityLUTStream) );
