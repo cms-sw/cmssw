@@ -1,10 +1,9 @@
+#ifndef CalibFormats_HcalObjects_HcalDbService_h
+#define CalibFormats_HcalObjects_HcalDbService_h
 
 //
 // F.Ratnikov (UMd), Aug. 9, 2005
 //
-
-#ifndef HcalDbService_h
-#define HcalDbService_h
 
 #include <memory>
 #include <map>
@@ -133,3 +132,4 @@ class HcalDbService {
 };
 
 #endif
+
