@@ -320,7 +320,7 @@ HGCalGeometry::CornersVec HGCalGeometry::getCorners(const DetId& id) const {
       static const int signx[] = {-1,-1,1,1,-1,-1,1,1};
       static const int signy[] = {-1,1,1,-1,-1,1,1,-1};
       static const int signz[] = {-1,-1,-1,-1,1,1,1,1};
-      for (unsigned int i = 0; i != ncorner; ++i) {
+      for (unsigned int i = 0; i < ncorner; ++i) {
 	const HepGeom::Point3D<float> lcoord(xy.first+signx[i]*dx,xy.second+signy[i]*dx,signz[i]*dz);
 	co[i] = m_cellVec2[cellIndex].getPosition(lcoord);
       }
@@ -331,10 +331,47 @@ HGCalGeometry::CornersVec HGCalGeometry::getCorners(const DetId& id) const {
       static const int signx[] = {0,-1,-1,0,1,1,0,-1,-1,0,1,1};
       static const int signy[] = {-2,-1,1,2,1,-1,-2,-1,1,2,1,-1};
       static const int signz[] = {-1,-1,-1,-1,-1,-1,1,1,1,1,1,1};
-      for (unsigned int i = 0; i != ncorner; ++i) {
+      for (unsigned int i = 0; i < ncorner; ++i) {
 	const HepGeom::Point3D<float> lcoord(xy.first+signx[i]*dx,xy.second+signy[i]*dy,signz[i]*dz);
 	co[i] = m_cellVec[cellIndex].getPosition(lcoord);
       }
+    }
+  }
+  return co;
+}
+
+HGCalGeometry::CornersVec HGCalGeometry::get8Corners(const DetId& id) const {
+  
+  unsigned int ncorner = FlatTrd::ncorner_;
+  HGCalGeometry::CornersVec co (ncorner, GlobalPoint(0,0,0));
+  unsigned int cellIndex =  indexFor(id);
+  if ((cellIndex <  m_cellVec.size() && m_det != DetId::HGCalHSc) ||
+      (cellIndex <  m_cellVec2.size() && m_det == DetId::HGCalHSc)) {
+    HGCalTopology::DecodedDetId id_ = m_topology.decode(id);
+    std::pair<float,float> xy;
+    if ((mode_ == HGCalGeometryMode::Hexagon) ||
+	(mode_ == HGCalGeometryMode::HexagonFull)) {
+      xy = m_topology.dddConstants().locateCellHex(id_.iCell1,id_.iSec1,true);
+    } else if (mode_ == HGCalGeometryMode::Trapezoid) {
+      xy = m_topology.dddConstants().locateCellTrap(id_.iLay,id_.iSec1,
+						    id_.iCell1,true);
+    } else {
+      xy = m_topology.dddConstants().locateCell(id_.iLay,id_.iSec1,id_.iSec2,
+						id_.iCell1,id_.iCell2,true,false);
+    }
+    float dx = ((m_det == DetId::HGCalHSc) ? 0.5*m_cellVec2[cellIndex].param()[11] :
+		m_cellVec[cellIndex].param()[1]);
+    float dz = ((m_det == DetId::HGCalHSc) ? m_cellVec2[cellIndex].param()[0] :
+		m_cellVec[cellIndex].param()[0]);
+    static const int signx[] = {-1,-1,1,1,-1,-1,1,1};
+    static const int signy[] = {-1,1,1,-1,-1,1,1,-1};
+    static const int signz[] = {-1,-1,-1,-1,1,1,1,1};
+    for (unsigned int i = 0; i < ncorner; ++i) {
+      const HepGeom::Point3D<float> lcoord(xy.first+signx[i]*dx,
+					   xy.second+signy[i]*dx,signz[i]*dz);
+      co[i] = ((m_det == DetId::HGCalHSc) ? 
+	       (m_cellVec2[cellIndex].getPosition(lcoord)) :
+	       (m_cellVec[cellIndex].getPosition(lcoord)));
     }
   }
   return co;
