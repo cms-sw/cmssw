@@ -591,14 +591,14 @@ void  L1TMuonBarrelKalmanStubProcessor::makeInputPattern(const L1MuDTChambPhCont
     }
     const L1MuDTChambPhDigi* seg23 = phiContainer->chPhiSegm2(wheel,3,nextSector,-1);
     if (seg23 && seg23->phi()<-112) {
-      os<<seg23->phi()+2144<<" "<<seg23->phiB()<<" "<<seg23->code()<<" 1 2 "  ;
+      os<<seg23->phi()+2144<<" "<<seg23->phiB()<<" "<<seg23->code()<<" 1 3 "  ;
     }
     else {
       os<<"-2048 0 0 0 15 "; 
     }
      const L1MuDTChambPhDigi* seg24 = phiContainer->chPhiSegm2(wheel,4,nextSector,-1);
     if (seg24 && seg24->phi()<-112) {
-      os<<seg24->phi()+2144<<" "<<seg24->phiB()<<" "<<seg24->code()<<" 1 2 "  ;
+      os<<seg24->phi()+2144<<" "<<seg24->phiB()<<" "<<seg24->code()<<" 1 3 "  ;
     }
     else {
       os<<"-2048 0 0 0 15 "; 
