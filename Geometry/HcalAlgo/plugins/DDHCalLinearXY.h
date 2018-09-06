@@ -24,6 +24,7 @@ public:
 
 private:
 
+  std::string              idNameSpace; //Namespace of this and ALL sub-parts
   std::vector<std::string> childName;   //Child name
   int                      numberX;     //Number of positioning along X-axis
   double                   deltaX;      //Increment               .........

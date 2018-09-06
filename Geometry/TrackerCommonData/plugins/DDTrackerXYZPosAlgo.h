@@ -28,6 +28,7 @@ private:
   std::vector<double>      zvec;   //Z positions
   std::vector<std::string> rotMat; //Names of rotation matrices
 
+  std::string              idNameSpace; //Namespace of this and ALL sub-parts
   std::string              childName;   //Child name
   int                      startCopyNo; //Start Copy number
   int                      incrCopyNo;  //Increment in Copy number

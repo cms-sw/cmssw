@@ -47,8 +47,7 @@ void DDGEMAngular::initialize(const DDNumericArguments & nArgs,
 #endif
 
   rotns       = sArgs["RotNameSpace"];
-  DDCurrentNamespace ns;
-  idNameSpace = *ns;
+  idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
 #ifdef EDM_ML_DEBUG
   DDName parentName = parent().name(); 
