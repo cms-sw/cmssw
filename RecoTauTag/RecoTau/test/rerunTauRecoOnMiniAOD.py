@@ -34,7 +34,7 @@ print '\t Output mode:', outMode
 
 #####
 from Configuration.StandardSequences.Eras import eras
-era = eras.Run2_2017
+era = eras.Run2_2018
 if phase2:
     era = eras.Phase2_timing
 process = cms.Process("TAURECO", era)
@@ -59,7 +59,8 @@ print '\t Max events:', process.maxEvents.input.value()
 if runSignal:
     readFiles.extend([
         #'file:patMiniAOD_standard.root'
-        '/store/relval/CMSSW_10_1_0_pre3/RelValZTT_13UP18/MINIAODSIM/PUpmx25ns_101X_upgrade2018_realistic_v3_cc7-v1/10000/2808A251-DE31-E811-BFBC-0242AC130002.root'
+        '/store/relval/CMSSW_10_3_0_pre2/RelValZTT_13/MINIAODSIM/PU25ns_103X_upgrade2018_realistic_v2-v1/20000/75AAA50B-3DD0-2B41-AB02-85428238CF7C.root'
+        #'/store/relval/CMSSW_10_1_0_pre3/RelValZTT_13UP18/MINIAODSIM/PUpmx25ns_101X_upgrade2018_realistic_v3_cc7-v1/10000/2808A251-DE31-E811-BFBC-0242AC130002.root'
         #'root://cms-xrd-global.cern.ch///store/relval/CMSSW_10_0_0_pre2/RelValZTT_13/MINIAODSIM/PUpmx25ns_100X_mc2017_realistic_v1-v1/20000/B01F0774-17E1-E711-9826-0CC47A4D7654.root',
     ])
 else:
@@ -81,7 +82,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 if not phase2:
     process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
-    process.GlobalTag.globaltag = '94X_mc2017_realistic_v1'
+    process.GlobalTag.globaltag = '103X_upgrade2018_realistic_v2'
 else:
     process.GlobalTag = GlobalTag(
         process.GlobalTag, 'auto:phase2_realistic', '')
