@@ -14,6 +14,7 @@ class TH1;
 class TH1F;
 class TProfile;
 class TFile;
+class DDCompactView;
 
 class MaterialAccountingGroup {
 private:

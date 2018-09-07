@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os,sys
 import coral,datetime,time
 from RecoLuminosity.LumiDB import lumiQueryAPI,lumiTime,csvReporter
@@ -39,10 +40,10 @@ def main(*args):
             report.writeRow([cmslsnum,orbittime,orbittimestamp,instlumi])
 
     except IndexError:
-        print 'runnumber should be provided'
+        print('runnumber should be provided')
         return 1
     except Exception as er:
-        print str(er)
+        print(str(er))
         return 2
     else:
         return 0

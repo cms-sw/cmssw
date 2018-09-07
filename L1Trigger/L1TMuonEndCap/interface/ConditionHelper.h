@@ -20,7 +20,7 @@ public:
   ConditionHelper();
   ~ConditionHelper();
 
-  bool checkAndUpdateConditions(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void checkAndUpdateConditions(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
   const L1TMuonEndCapParams& getParams() const { return *params_; }
   const L1TMuonEndCapForest& getForest() const { return *forest_; }

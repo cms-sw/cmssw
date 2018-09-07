@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 
+from __future__ import print_function
 import shutil
 import glob
 import json
@@ -175,8 +176,8 @@ def discover():
 
 def output(description, param):
     if args.verbose:
-        print ''
-        print description, param
+        print('')
+        print(description, param)
 
 if __name__ == '__main__':
 
@@ -250,9 +251,9 @@ if __name__ == '__main__':
             
             try:
                 filename = json.loads( result )['file']
-            except ValueError, e:
+            except ValueError as e:
                 os.write( 2, 'Value error when getting image name: %s\n' % str( e ))
-            except KeyError, e:
+            except KeyError as e:
                 os.write( 2, 'Key error when getting image name: %s\n' % str( e ))
 
             if not filename or not os.path.isfile( filename ):
@@ -261,7 +262,7 @@ if __name__ == '__main__':
             try:
                 with open( filename, 'r' ) as f:
                     shutil.copyfileobj( f, sys.stdout )
-            except IOError, e:
+            except IOError as e:
                 os.write( 2, 'IO error when streaming image: %s' % str( e ))
             finally:
                 os.remove( filename )

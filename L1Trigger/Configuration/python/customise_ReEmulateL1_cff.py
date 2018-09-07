@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
@@ -218,10 +219,10 @@ def customise_ReEmulateL1(process, subsys=[]):
 
 
 def test():
-    print "Testing"
+    print("Testing")
     test = ['ECAL', 'DTTF']
-    print "Subsys in : ", test
-    print "Subsys out : ", getSubsystemsToEmulate(test, 'legacy')
+    print("Subsys in : ", test)
+    print("Subsys out : ", getSubsystemsToEmulate(test, 'legacy'))
     test = ['ECAL', 'BMTF']
-    print "Subsys in : ", test
-    print "Subsys out : ", getSubsystemsToEmulate(test, 'stage2')
+    print("Subsys in : ", test)
+    print("Subsys out : ", getSubsystemsToEmulate(test, 'stage2'))

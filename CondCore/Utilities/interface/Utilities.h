@@ -11,7 +11,9 @@ namespace edm {
 }
 
 namespace cond {
-  //class DbConnection;
+
+  std::string getpass(const std::string& prompt, bool show_asterisk=true);
+  std::string getpassForUser( const std::string& userName );
 
   class UtilitiesError : public Exception {
     public:

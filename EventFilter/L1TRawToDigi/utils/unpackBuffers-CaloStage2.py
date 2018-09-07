@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Auto generated configuration file
 # using: 
 # Revision: 1.19 
@@ -202,18 +203,18 @@ boardOffset = options.skipEvents % options.nMP
 gtOffset = options.gtOffset + (options.skipEvents * options.gtFramesPerEvent)
 
 # print some debug info
-print "Job config :"
-print "maxEvents     = ", options.maxEvents
-print "skipEvents    = ", options.skipEvents
-print " "
+print("Job config :")
+print("maxEvents     = ", options.maxEvents)
+print("skipEvents    = ", options.skipEvents)
+print(" ")
 
 # MP config
 if (options.doMP):
-    print "MP config :"
-    print "nBoards       = ", options.nMP
-    print "mpBoardOffset = ", boardOffset
-    print "mpOffset      = ", mpOffsets
-    print " "
+    print("MP config :")
+    print("nBoards       = ", options.nMP)
+    print("mpBoardOffset = ", boardOffset)
+    print("mpOffset      = ", mpOffsets)
+    print(" ")
 
 mpBlock = cms.untracked.PSet(
     rxBlockLength    = cms.untracked.vint32(40,40,40,40, # q0 0-3
@@ -275,10 +276,10 @@ process.stage2MPRaw.fwVersion = cms.untracked.int32(options.fwVersion)
 
 # Demux config
 if (options.doDemux):
-    print "Demux config :"
-    print "dmOffset      = ", dmOffset
-    print "dmLatency     = ", options.dmLatency
-    print " "
+    print("Demux config :")
+    print("dmOffset      = ", dmOffset)
+    print("dmLatency     = ", options.dmLatency)
+    print(" ")
 
 process.stage2DemuxRaw.nFramesPerEvent    = cms.untracked.int32(options.dmFramesPerEvent)
 process.stage2DemuxRaw.nFramesOffset    = cms.untracked.vuint32(dmOffset)
@@ -288,9 +289,9 @@ process.stage2DemuxRaw.txFile = cms.untracked.string("demux_tx_summary.txt")
 
 # GT config
 if (options.doGT):
-    print "GT config :"
-    print "gtOffset      = ", gtOffset
-    print "gtLatency     = ", options.gtLatency
+    print("GT config :")
+    print("gtOffset      = ", gtOffset)
+    print("gtLatency     = ", options.gtLatency)
 
 process.stage2GTRaw.nFramesPerEvent    = cms.untracked.int32(options.gtFramesPerEvent)
 process.stage2GTRaw.nFramesOffset    = cms.untracked.vuint32(gtOffset)

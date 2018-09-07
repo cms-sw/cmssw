@@ -21,9 +21,10 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFramePlaybackInfoNew.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+#include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
-#include "PreMixingWorker.h"
-#include "PreMixingWorkerFactory.h"
+#include "SimGeneral/PreMixingModule/interface/PreMixingWorker.h"
+#include "SimGeneral/PreMixingModule/interface/PreMixingWorkerFactory.h"
 #include "PreMixingPileupCopy.h"
 
 #include <functional>
@@ -110,6 +111,9 @@ namespace edm {
   }
 
   void PreMixingModule::endRun(edm::Run const& run, const edm::EventSetup& ES) { 
+    for(auto& w: workers_) {
+      w->endRun();
+    }
     BMixingModule::endRun( run, ES);
   }
 
@@ -131,6 +135,8 @@ namespace edm {
     ModuleCallingContext moduleCallingContext(&moduleDescription());
     ModuleContextSentry moduleContextSentry(&moduleCallingContext, parentContext);
 
+    PileUpEventPrincipal pep(ep, &moduleCallingContext, bcr);
+
     LogDebug("PreMixingModule") <<"\n===============> adding pileups from event  "<<ep.id()<<" for bunchcrossing "<<bcr;
 
     // Note:  setupPileUpEvent may modify the run and lumi numbers of the EventPrincipal to match that of the primary event.
@@ -140,14 +146,14 @@ namespace edm {
     // secondary stream to the output stream  
     // We only have the pileup event here, so pick the first time and store the info
     if(!addedPileup_) {
-      puWorker_.addPileupInfo(ep, eventNr, &moduleCallingContext);
+      puWorker_.addPileupInfo(pep);
       addedPileup_ = true;
     }
 
     // fill in maps of hits; same code as addSignals, except now applied to the pileup events
 
     for(auto& w: workers_) {
-      w->addPileups(bcr, ep, eventNr, ES, &moduleCallingContext);
+      w->addPileups(pep, ES);
     }
   }
   

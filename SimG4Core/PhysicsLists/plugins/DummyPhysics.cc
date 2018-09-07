@@ -4,10 +4,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "G4DecayPhysics.hh"
 
-DummyPhysics::DummyPhysics(G4LogicalVolumeToDDLogicalPartMap& map, 
-			   const HepPDT::ParticleDataTable * table_,
-			   sim::ChordFinderSetter *chordFinderSetter_, 
-			   const edm::ParameterSet & p) : PhysicsList(map, table_, chordFinderSetter_, p) {
+DummyPhysics::DummyPhysics(const edm::ParameterSet & p) 
+  : PhysicsList(p) {
 
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
   int  ver     = p.getUntrackedParameter<int>("Verbosity",0);

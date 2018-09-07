@@ -156,8 +156,8 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
    int col_offset = theClusterParam.theCluster->minPixelCol();
    
    // Store the coordinates of the center of the (0,0) pixel of the array that
-   // gets passed to PixelTempReco2D
-   // Will add these values to the output of  PixelTempReco2D
+   // gets passed to PixelTempReco1D
+   // Will add these values to the output of  PixelTempReco1D
    float tmp_x = float(row_offset) + 0.5f;
    float tmp_y = float(col_offset) + 0.5f;
    
@@ -243,7 +243,7 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
    float locBx = theDetParam.bx;
    
    theClusterParam.ierr =
-   PixelTempReco2D( ID, theClusterParam.cotalpha, theClusterParam.cotbeta,
+   PixelTempReco1D( ID, theClusterParam.cotalpha, theClusterParam.cotbeta,
                    locBz, locBx,
                    clusterPayload,
                    templ,
@@ -257,14 +257,14 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
    // ******************************************************************
    
    // Check exit status
-   if unlikely( theClusterParam.ierr != 0 )
+   if UNLIKELY( theClusterParam.ierr != 0 )
    {
       LogDebug("PixelCPETemplateReco::localPosition") <<
       "reconstruction failed with error " << theClusterParam.ierr << "\n";
       
       // Gavril: what do we do in this case ? For now, just return the cluster center of gravity in microns
       // In the x case, apply a rough Lorentz drift average correction
-      // To do: call PixelCPEGeneric whenever PixelTempReco2D fails
+      // To do: call PixelCPEGeneric whenever PixelTempReco1D fails
       float lorentz_drift = -999.9;
       if ( !fpix )
          lorentz_drift = 60.0f; // in microns
@@ -286,7 +286,7 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
          theClusterParam.templYrec_ = theDetParam.theTopol->localY( theClusterParam.theCluster->y() );
       }
    }
-   else if unlikely( UseClusterSplitter_ && theClusterParam.templQbin_ == 0 )
+   else if UNLIKELY( UseClusterSplitter_ && theClusterParam.templQbin_ == 0 )
    {
       cout << " PixelCPETemplateReco : We should never be here !!!!!!!!!!!!!!!!!!!!!!" << endl;
       cout << "                 (int)UseClusterSplitter_ = " << (int)UseClusterSplitter_ << endl;
@@ -329,7 +329,7 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
          
          // Gavril: what do we do in this case ? For now, just return the cluster center of gravity in microns
          // In the x case, apply a rough Lorentz drift average correction
-         // To do: call PixelCPEGeneric whenever PixelTempReco2D fails
+         // To do: call PixelCPEGeneric whenever PixelTempReco1D fails
          float lorentz_drift = -999.9f;
          if ( !fpix )
             lorentz_drift = 60.0f; // in microns

@@ -72,11 +72,15 @@ class CSCGEMMotherboardME11 : public CSCGEMMotherboard
 
   /* correlate a pair of ALCTs and a pair of CLCTs with matched pads or copads
      the output is up to two LCTs in a sector of ME11 */
-  void correlateLCTsGEM(CSCALCTDigi& bestALCT, CSCALCTDigi& secondALCT,
-			CSCCLCTDigi& bestCLCT, CSCCLCTDigi& secondCLCT,
-			const GEMPadDigiIds& pads, const GEMCoPadDigiIds& copads,
-			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2,
-			enum CSCPart p) const;
+  void correlateLCTsGEM(const CSCALCTDigi& bestALCT,
+                        const CSCALCTDigi& secondALCT,
+                        const CSCCLCTDigi& bestCLCT,
+                        const CSCCLCTDigi& secondCLCT,
+                        const GEMPadDigiIds& pads,
+                        const GEMCoPadDigiIds& copads,
+                        CSCCorrelatedLCTDigi& lct1,
+                        CSCCorrelatedLCTDigi& lct2,
+                        enum CSCPart p) const;
 
   /* store the LCTs found separately in ME1a and ME1b */
   LCTContainer allLCTs1b;

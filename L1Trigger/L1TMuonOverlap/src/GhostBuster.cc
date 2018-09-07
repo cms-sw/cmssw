@@ -9,7 +9,7 @@ namespace {
   int phiGMT(int phiAlgo) { return phiAlgo*437/pow(2,12); }
 }
 
-void OMTFGhostBuster::select(std::vector<AlgoMuon> & refHitCands, int charge){
+std::vector<AlgoMuon> GhostBuster::select(std::vector<AlgoMuon> refHitCands, int charge){
 
   std::vector<AlgoMuon> refHitCleanCands;
   // Sort candidates with decreased goodness,
@@ -28,12 +28,16 @@ void OMTFGhostBuster::select(std::vector<AlgoMuon> & refHitCands, int charge){
 //      if(std::abs(it1->getPhi() - it2->getPhi())<5/360.0*nPhiBins){
         isGhost=true;
         break;
+        //which one candidate is killed depends only on the order in the refHitCands (the one with smaller index is taken), and this order is assured by the sort above
+        //TODO here the candidate that is killed does not kill other candidates - check if the firmware does the same (KB)
       }
     }
     if(it1->getQ()>0 && !isGhost) refHitCleanCands.push_back(*it1);
   }
 
-  refHitCleanCands.resize( 3, AlgoMuon(0,999,9999,0,0,0,0,0) );
+  refHitCleanCands.resize( 3, AlgoMuon(0,999,9999,0,0,0,0,0) ); //FIXME
+  //refHitCleanCands.resize( 3, AlgoMuon() );
+
 
   std::stringstream myStr;
   bool hasCandidates = false;
@@ -54,5 +58,5 @@ void OMTFGhostBuster::select(std::vector<AlgoMuon> & refHitCands, int charge){
   if(hasCandidates) edm::LogInfo("OMTF Sorter")<<myStr.str();
 
   // update refHitCands with refHitCleanCands 
-  refHitCands = refHitCleanCands;
+  return refHitCleanCands;
 }

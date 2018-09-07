@@ -1,12 +1,13 @@
+from __future__ import print_function
 from Cheetah.Template import Template
 from getopt import getopt
 from sys import argv, exit
 
 def usage():
-  print "Usage: " + argv[0] + " -d histo_map_file -t template_file"
-  print "  Arguments:"
-  print "    -d, --data=    : file of histogram map"
-  print "    -t, --tmpl=    : template file"
+  print("Usage: " + argv[0] + " -d histo_map_file -t template_file")
+  print("  Arguments:")
+  print("    -d, --data=    : file of histogram map")
+  print("    -t, --tmpl=    : template file")
 
 
 def main():
@@ -17,7 +18,7 @@ def main():
   try:
     opts, args = getopt(argv[1:], "d:t:", ["data=","tmpl="])
   except getopt.GetoptError as err:
-    print str(err)
+    print(str(err))
     usage()
     exit(1)
 
@@ -30,7 +31,7 @@ def main():
     elif o in ("-t", "--tmpl"):
       tmpl = a
     else:
-      print "unhandled option: " + o
+      print("unhandled option: " + o)
       usage()
       exit(2)
 
@@ -52,7 +53,7 @@ def main():
   # Process stuff
   t = Template(file=tmpl)  
   t.datamap = map
-  print t
+  print(t)
 
 if __name__ == "__main__":
   main()

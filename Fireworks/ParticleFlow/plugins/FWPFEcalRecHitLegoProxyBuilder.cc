@@ -30,8 +30,7 @@ FWPFEcalRecHitLegoProxyBuilder::localModelChanges( const FWModelId &iId, TEveEle
          TEveStraightLineSet* line = dynamic_cast<TEveStraightLineSet*>(*i);
          if (line)
          {
-            const FWDisplayProperties &p = item()->modelInfo( iId.index() ).displayProperties();
-            line->SetMarkerColor( p.color() );
+            line->SetMarkerColor( item()->modelInfo( iId.index() ).displayProperties().color() );
          }
       }
    }

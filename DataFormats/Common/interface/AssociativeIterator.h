@@ -40,6 +40,7 @@
 
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
+#include "FWCore/Framework/interface/Event.h"
 
 namespace edm {
     class Event;

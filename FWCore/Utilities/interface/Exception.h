@@ -147,34 +147,19 @@ namespace cms {
 
     template <typename E, typename T>
     friend
-    typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type &
-    operator<<(E& e, T const& stuff);
-
-    template <typename E, typename T>
-    friend
-    typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type const&
-    operator<<(E const& e, T const& stuff);
+    typename detail::Desired<E, detail::is_derived_or_same<Exception,std::remove_reference_t<E>>::value>::type &
+    operator<<(E&& e, T const& stuff);
 
     template <typename E>
     friend
-    typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type &
-    operator<<(E& e, std::ostream&(*f)(std::ostream&));
-
-    template <typename E>
-    friend
-    typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type const&
-    operator<<(E const& e, std::ostream&(*f)(std::ostream&));
+    typename detail::Desired<E, detail::is_derived_or_same<Exception,std::remove_reference_t<E>>::value>::type &
+    operator<<(E&& e, std::ostream&(*f)(std::ostream&));
 
   
     template <typename E>
     friend
-    typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type &
-    operator<<(E& e, std::ios_base&(*f)(std::ios_base&));
-
-    template <typename E>
-    friend
-    typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type const&
-    operator<<(E const& e, std::ios_base&(*f)(std::ios_base&));
+    typename detail::Desired<E, detail::is_derived_or_same<Exception,std::remove_reference_t<E>>::value>::type &
+    operator<<(E&& e, std::ios_base&(*f)(std::ios_base&));
 
     // The following two function templates should be included, to help
     // reduce the number of function templates instantiated. However,
@@ -224,61 +209,31 @@ namespace cms {
 
   template <typename E, typename T>
   inline
-  typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type &
-  operator<<(E& e, T const& stuff)
+  typename detail::Desired<E, detail::is_derived_or_same<Exception,std::remove_reference_t<E>>::value>::type &
+  operator<<(E&& e, T const& stuff)
   {
     e.ost_ << stuff;
     return e;
   }
 
-  template <typename E, typename T>
-  inline
-  typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type const&
-  operator<<(E const& e, T const& stuff)
-  {
-    E& ref = const_cast<E&>(e);
-    ref.ost_ << stuff;
-    return e;
-  }
-
   template <typename E>
   inline 
-  typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type &
-  operator<<(E& e, std::ostream&(*f)(std::ostream&))
+  typename detail::Desired<E, detail::is_derived_or_same<Exception,std::remove_reference_t<E>>::value>::type &
+  operator<<(E&& e, std::ostream&(*f)(std::ostream&))
   {
     f(e.ost_);
     return e;
   }
 
   template <typename E>
-  inline 
-  typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type const&
-  operator<<(E const& e, std::ostream&(*f)(std::ostream&))
-  {
-    E& ref = const_cast<E&>(e);
-    f(ref.ost_);
-    return e;
-  }
-  
-  template <typename E>
   inline
-  typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type & 
-  operator<<(E& e, std::ios_base&(*f)(std::ios_base&))
+  typename detail::Desired<E, detail::is_derived_or_same<Exception,std::remove_reference_t<E>>::value>::type &
+  operator<<(E&& e, std::ios_base&(*f)(std::ios_base&))
   {
     f(e.ost_);
     return e;
   }
 
-
-  template <typename E>
-  inline
-  typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type const& 
-  operator<<(E const& e, std::ios_base&(*f)(std::ios_base&))
-  {
-    E& ref = const_cast<E&>(e);
-    f(ref.ost_);
-    return e;
-  }
 
   // The following four function templates should be included, to help
   // reduce the number of function templates instantiated. However,

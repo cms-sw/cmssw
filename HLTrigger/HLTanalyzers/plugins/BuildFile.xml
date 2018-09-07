@@ -16,7 +16,6 @@
 <use name="DataFormats/L1TGlobal"/>
 <use name="DataFormats/Luminosity"/>
 <use name="DataFormats/METReco"/>
-<use name="DataFormats/MuonData"/>
 <use name="DataFormats/RPCDigi"/>
 <use name="DataFormats/SiPixelDigi"/>
 <use name="DataFormats/SiStripDigi"/>

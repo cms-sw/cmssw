@@ -45,8 +45,6 @@ class L1TdeStage2uGT : public DQMEDAnalyzer {
     void analyze(const edm::Event& e, const edm::EventSetup& c) override;
     void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
     void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-    void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-    void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   
   private:
     // Input and config info 

@@ -23,6 +23,8 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo()
 
    theHcalThreshold(-1000.),
    theHBthreshold(-1000.),
+   theHBthreshold1(-1000.),
+   theHBthreshold2(-1000.),
    theHESthreshold(-1000.),
    theHESthreshold1(-1000.),
    theHEDthreshold(-1000.),
@@ -79,6 +81,7 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo()
    theHcalAcceptSeverityLevelForRejectedHit(0),
    useRejectedRecoveredHcalHits(0),
    useRejectedRecoveredEcalHits(0),
+   missingHcalRescaleFactorForEcal(0.),
    theHOIsUsed(true),
    // (for momentum reconstruction algorithm)
    theMomConstrMethod(0),
@@ -98,7 +101,7 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
 					       bool useSymEETreshold,				    
 
 					       double HcalThreshold,
-					       double HBthreshold, 
+					       double HBthreshold, double HBthreshold1, double HBthreshold2,
                                                double HESthreshold, double HESthreshold1, 
                                                double HEDthreshold, double HEDthreshold1,
 					       double HOthreshold0, double HOthresholdPlus1, double HOthresholdMinus1,  
@@ -127,6 +130,8 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
 
     theHcalThreshold(HcalThreshold),
     theHBthreshold(HBthreshold),
+    theHBthreshold1(HBthreshold1),
+    theHBthreshold2(HBthreshold2),
     theHESthreshold(HESthreshold),
     theHESthreshold1(HESthreshold1),
     theHEDthreshold(HEDthreshold),
@@ -183,6 +188,7 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
     theHcalAcceptSeverityLevelForRejectedHit(0),
     useRejectedRecoveredHcalHits(0),
     useRejectedRecoveredEcalHits(0),
+    missingHcalRescaleFactorForEcal(0.),
     theHOIsUsed(useHO),
     // (momentum reconstruction algorithm)
     theMomConstrMethod(momConstrMethod),
@@ -201,7 +207,7 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
        bool useSymEETreshold,
 
        double HcalThreshold,
-       double HBthreshold, 
+       double HBthreshold, double HBthreshold1, double HBthreshold2,
        double HESthreshold, double HESthreshold1, 
        double HEDthreshold, double HEDthreshold1,
        double HOthreshold0, double HOthresholdPlus1, double HOthresholdMinus1,  
@@ -238,6 +244,8 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
 
     theHcalThreshold(HcalThreshold),
     theHBthreshold(HBthreshold),
+    theHBthreshold1(HBthreshold1),
+    theHBthreshold2(HBthreshold2),
     theHESthreshold(HESthreshold),
     theHESthreshold1(HESthreshold1),
     theHEDthreshold(HEDthreshold),
@@ -294,6 +302,7 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
     theHcalAcceptSeverityLevelForRejectedHit(0),
     useRejectedRecoveredHcalHits(0),
     useRejectedRecoveredEcalHits(0),
+    missingHcalRescaleFactorForEcal(0.),
     theHOIsUsed(useHO),
     // (momentum reconstruction algorithm)
     theMomConstrMethod(momConstrMethod),
@@ -933,6 +942,14 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
 
     if(metaContains.empty()) return;
 
+    if (missingHcalRescaleFactorForEcal > 0 && E_had == 0 && E_em > 0) {
+        auto match = hcalDropChMap.find(id);
+        if (match != hcalDropChMap.end() && match->second.second) {
+            E_had = missingHcalRescaleFactorForEcal * E_em;
+            E += E_had;
+        }
+    }
+
     double E_had_tot = (theHOIsUsed && id.ietaAbs()<=theTowerTopology->lastHORing())? E_had+E_outer : E_had;
 
 
@@ -1060,7 +1077,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
     
     
     // insert in collection (remove and return if below threshold)
-    if unlikely ( (towerP4[3]==0) & (E_outer>0)  ) {
+    if UNLIKELY ( (towerP4[3]==0) & (E_outer>0)  ) {
         float val = theHOIsUsed ? 0 : 1E-9; // to keep backwards compatibility for theHOIsUsed == true
         collection.emplace_back(id, E_em, E_had, E_outer, -1, -1, CaloTower::PolarLorentzVector(val,hadPoint.eta(), hadPoint.phi(),0),  emPoint, hadPoint); 
     } else {
@@ -1101,7 +1118,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
 
     // now add dead/off/... channels not used in RecHit reconstruction for HCAL 
     HcalDropChMap::iterator dropChItr = hcalDropChMap.find(id);
-    if (dropChItr != hcalDropChMap.end()) numBadHcalChan += dropChItr->second;
+    if (dropChItr != hcalDropChMap.end()) numBadHcalChan += dropChItr->second.first;
     
 
     // for ECAL the number of all bad channels is obtained here -----------------------
@@ -1231,7 +1248,7 @@ void CaloTowersCreationAlgo::getThresholdAndWeight(const DetId & detId, double &
     int depth =  hcalDetId.depth();   
 
     if(subdet == HcalBarrel) {
-      threshold = theHBthreshold;
+      threshold = (depth == 1) ? theHBthreshold1 : (depth == 2) ? theHBthreshold2 : theHBthreshold;
       weight = theHBweight;
       if (weight <= 0.) {
         ROOT::Math::Interpolator my(theHBGrid,theHBWeights,ROOT::Math::Interpolation::kAKIMA);
@@ -1612,7 +1629,7 @@ void CaloTowersCreationAlgo::makeHcalDropChMap() {
       
       CaloTowerDetId twrId = theTowerConstituentsMap->towerOf(id);
       
-      hcalDropChMap[twrId] +=1;
+      hcalDropChMap[twrId].first +=1;
       
       HcalDetId hid(*it);
 	  
@@ -1623,11 +1640,34 @@ void CaloTowersCreationAlgo::makeHcalDropChMap() {
 	bool merge = theHcalTopology->mergedDepth29(hid);
 	if (merge) {
           CaloTowerDetId twrId29(twrId.ieta()+twrId.zside(), twrId.iphi());
-          hcalDropChMap[twrId29] +=1;
+          hcalDropChMap[twrId29].first +=1;
 	}
       }
     }
-
+  }
+  // now I know how many bad channels, but I also need to know if there's any good ones
+  if (missingHcalRescaleFactorForEcal > 0) {
+      for (auto & pair : hcalDropChMap) {
+          if (pair.second.first == 0) continue; // unexpected, but just in case
+          int ngood = 0, nbad = 0;
+          for (DetId id : theTowerConstituentsMap->constituentsOf(pair.first)) {
+              if (id.det() != DetId::Hcal) continue;
+              HcalDetId hid(id);
+              if (hid.subdet() != HcalBarrel && hid.subdet() != HcalEndcap) continue;
+              const uint32_t dbStatusFlag = theHcalChStatus->getValues(id)->getValue();
+              if (dbStatusFlag == 0 || ! theHcalSevLvlComputer->dropChannel(dbStatusFlag)) {
+                  ngood += 1;
+              } else {
+                  nbad += 1; // recount, since pair.second.first may include HO
+              }
+          }
+          if (nbad > 0 && nbad >= ngood) {
+              //uncomment for debug (may be useful to tune the criteria above)
+              //CaloTowerDetId id(pair.first);
+              //std::cout << "CaloTower at ieta = " << id.ieta() << ", iphi " << id.iphi() << ": set Hcal as not efficient (ngood =" << ngood << ", nbad = " << nbad << ")" << std::endl;
+              pair.second.second = true;
+          }
+      }
   }
 }
 

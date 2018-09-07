@@ -891,7 +891,7 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 			// TEC+
 		      case 2:
 			{
-			  phiRad = phiRad;
+                          //do not change phiRad
 			  break;
 			}
 			// TEC-

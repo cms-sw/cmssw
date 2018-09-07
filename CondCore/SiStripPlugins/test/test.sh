@@ -57,3 +57,14 @@ getPayloadData.py \
     --iovs '{"start_iov": "1", "end_iov": "1"}' \
     --db Prod \
     --test;
+
+######################
+# Test Conf Object
+######################
+getPayloadData.py \
+    --plugin pluginSiStripConfObject_PayloadInspector \
+    --plot plot_SiStripConfObjectDisplay \
+    --tag SiStripShiftAndCrosstalk_GR10_v1_express \
+    --time_type Run --iovs '{"start_iov": "1", "end_iov": "1"}' \
+    --db Prod \
+    --test;

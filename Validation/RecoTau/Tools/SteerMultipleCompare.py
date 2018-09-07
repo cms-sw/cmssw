@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import sys
 import os
 import re
@@ -24,13 +25,13 @@ def StripPath(name):
 
 def CreateDirectory(dir,addToExisting=False):
   if os.path.exists(dir) and not addToExisting:
-    print "Output directory %s already exists!  OK to overwrite?" % dir
+    print("Output directory %s already exists!  OK to overwrite?" % dir)
     while True:
       input = raw_input("Please enter [y/n] ")
       if (input == 'y'):
         break
       elif (input == 'n'):
-        print " ...exiting."
+        print(" ...exiting.")
         sys.exit()
   if not os.path.exists(dir):
     os.makedirs(dir)
@@ -134,8 +135,8 @@ def main(argv=None):
   MultipleCompare.MapDirStructure( testFile,'',plotList)
 
   if len(plotList)<1:
-    print '\tError: Please specify at least one histogram. The following ones are available in the root file.'
-    print plotList
+    print('\tError: Please specify at least one histogram. The following ones are available in the root file.')
+    print(plotList)
     sys.exit()
 
   histoList = []
@@ -161,10 +162,10 @@ def main(argv=None):
   outputDir = CreateBaseDirectory(options)
 
   if massiveMode:
-    print "Massive mode: scan all subdirs and make plots comparing each histogram one by one."
+    print("Massive mode: scan all subdirs and make plots comparing each histogram one by one.")
     plotOneByOne(argv, outputDir, histoList, histoSubNames, paths)          
   else:
-    print "Default mode: Make default plot combinations."
+    print("Default mode: Make default plot combinations.")
     plotDefaults(argv, options, outputDir)
 
 
@@ -174,5 +175,5 @@ if __name__ == '__main__':
   # the calls to sys.exit(n) inside main() all become return n.
   sys.exit(main())
 else:
-  print "This is ",__name__
+  print("This is ",__name__)
 

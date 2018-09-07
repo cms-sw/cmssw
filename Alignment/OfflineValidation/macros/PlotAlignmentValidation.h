@@ -99,6 +99,7 @@ public:
   void plotHitMaps();
   void setOutputDir( std::string dir );
   void setTreeBaseDir( std::string dir = "TrackerOfflineValidationStandalone");
+  void residual_by_moduleID(unsigned int moduleid);
   int numberOfLayers(int phase, int subdetector);
   int maxNumberOfLayers(int subdetector);
   
@@ -175,6 +176,8 @@ private :
   void plotDMRHistogram(DMRPlotInfo& plotinfo, int direction = 0, int layer = 0);
   void modifySSHistAndLegend(THStack* hs, TLegend* legend);
   void openSummaryFile();
+  vector <TH1*> findmodule (TFile* f, unsigned int moduleid);
+
 };
 
 #endif // PLOTALIGNNMENTVALIDATION_H_

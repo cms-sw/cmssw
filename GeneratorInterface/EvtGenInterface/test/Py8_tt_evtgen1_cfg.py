@@ -16,15 +16,15 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     pythiaPylistVerbosity = cms.untracked.int32(0),
     filterEfficiency = cms.untracked.double(1.0),
     pythiaHepMCVerbosityParticles = cms.untracked.bool(True),
-    comEnergy = cms.double(8000.),
+    comEnergy = cms.double(13000.),
 
     ExternalDecays = cms.PSet(
         EvtGen1 = cms.untracked.PSet(
-            decay_table = cms.string('GeneratorInterface/EvtGenInterface/data/DECAY_2010.DEC'),
-            particle_property_file = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/evt.pdl'),
-#            user_decay_files = cms.vstring('DECAY_2010.DEC'),
+            decay_table = cms.string('GeneratorInterface/EvtGenInterface/data/DECAY_2014_NOLONGLIFE.DEC'),
+            particle_property_file = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/evt_2014.pdl'),
+            convertPythiaCodes = cms.untracked.bool(False), # this is needed for evt_2014.pdl
             list_forced_decays = cms.vstring(),
-            operates_on_particles = cms.vint32(0)
+            operates_on_particles = cms.vint32(0) #will decay all particles coded in interface
         ),
         parameterSets = cms.vstring('EvtGen1')
     ),

@@ -9,6 +9,7 @@ RootTree.h // used by ROOT input sources
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
+#include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/InputType.h"
@@ -16,11 +17,11 @@ RootTree.h // used by ROOT input sources
 #include "Rtypes.h"
 #include "TBranch.h"
 
-#include <map>
 #include <memory>
 #include <string>
 #include <vector>
 #include <unordered_set>
+#include <unordered_map>
 
 class TBranch;
 class TClass;
@@ -60,7 +61,34 @@ namespace edm {
       mutable TClass* classCache_;
       mutable Int_t offsetToWrapperBase_;
     };
-    typedef std::map<BranchKey const, BranchInfo> BranchMap;
+    
+    class BranchMap {
+      enum {
+        kKeys,
+        kInfos,
+      };
+    public:
+      void reserve(size_t iSize) {
+        map_.reserve(iSize);
+      }
+      void insert(edm::BranchID const& iKey, BranchInfo const& iInfo) {
+        map_.emplace(iKey.id(),iInfo);
+      }
+      BranchInfo const* find(BranchID const& iKey) const {
+        auto itFound = map_.find(iKey.id());
+        if(itFound == map_.end()) {return nullptr;}
+        return &itFound->second;
+      }
+      BranchInfo* find(BranchID const& iKey) {
+        auto itFound = map_.find(iKey.id());
+        if(itFound == map_.end()) {return nullptr;}
+        return &itFound->second;
+      }
+
+    private:
+      std::unordered_map<unsigned int,BranchInfo> map_;
+    };
+
     Int_t getEntry(TBranch* branch, EntryNumber entryNumber);
     Int_t getEntry(TTree* tree, EntryNumber entryNumber);
     std::unique_ptr<TTreeCache> trainCache(TTree* tree, InputFile& file, unsigned int cacheSize, char const* branchNames);
@@ -84,8 +112,8 @@ namespace edm {
     RootTree& operator=(RootTree const&) = delete; // Disallow copying and moving
 
     bool isValid() const;
-    void addBranch(BranchKey const& key,
-                   BranchDescription const& prod,
+    void numberOfBranchesToAdd(size_t iSize) { branches_.reserve(iSize);}
+    void addBranch(BranchDescription const& prod,
                    std::string const& oldBranchName);
     void dropBranch(std::string const& oldBranchName);
     void getEntry(TBranch *branch, EntryNumber entry) const;
@@ -193,7 +221,7 @@ namespace edm {
     EntryNumber entryNumber_;
     std::unique_ptr<std::vector<EntryNumber> > entryNumberForIndex_;
     std::vector<std::string> branchNames_;
-    std::shared_ptr<BranchMap> branches_;
+    BranchMap branches_;
     bool trainNow_;
     EntryNumber switchOverEntry_;
     mutable EntryNumber rawTriggerSwitchOverEntry_;

@@ -89,13 +89,13 @@ void TransientTrackFromFTS::setBeamSpot(const BeamSpot& beamSpot)
 
 TrajectoryStateOnSurface TransientTrackFromFTS::impactPointState() const
 {
-  if unlikely(!initialTSOSAvailable) calculateTSOSAtVertex();
+  if UNLIKELY(!initialTSOSAvailable) calculateTSOSAtVertex();
   return initialTSOS;
 }
 
 TrajectoryStateClosestToPoint TransientTrackFromFTS::impactPointTSCP() const
 {
-  if unlikely(!initialTSCPAvailable) {
+  if UNLIKELY(!initialTSCPAvailable) {
     initialTSCP = builder(initialFTS, initialFTS.position());
     initialTSCPAvailable = true;
   }
@@ -131,7 +131,7 @@ TransientTrackFromFTS::stateOnSurface(const GlobalPoint & point) const
 
 const Track & TransientTrackFromFTS::track() const
 {
-  if unlikely(!trackAvailable) {
+  if UNLIKELY(!trackAvailable) {
     GlobalPoint v = initialFTS.position();
     math::XYZPoint  pos( v.x(), v.y(), v.z() );
     GlobalVector p = initialFTS.momentum();
@@ -146,7 +146,7 @@ const Track & TransientTrackFromFTS::track() const
 
 TrajectoryStateClosestToBeamLine TransientTrackFromFTS::stateAtBeamLine() const
 {
-  if unlikely(!blStateAvailable) {
+  if UNLIKELY(!blStateAvailable) {
     TSCBLBuilderNoMaterial blsBuilder;
     trajectoryStateClosestToBeamLine = blsBuilder(initialFTS, theBeamSpot);
     blStateAvailable = true;

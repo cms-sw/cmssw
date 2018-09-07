@@ -33,9 +33,9 @@ dummySiStripDigiToRaw = SiStripDigiToRaw.clone()
 # Old DigiToRaw and RawToDigi
 oldSiStripDigiToRaw = cms.EDProducer(
     "OldSiStripDigiToRawModule",
-    InputModuleLabel = cms.string('DigiSource'),
-    InputDigiLabel = cms.string(''),
+    InputDigis = cms.InputTag("DigiSource", ""),
     FedReadoutMode = cms.untracked.string('ZERO_SUPPRESSED'),
+    PacketCode = cms.untracked.string('ZERO_SUPPRESSED'),
     UseFedKey = cms.untracked.bool(False)
     )
 oldSiStripDigis = cms.EDProducer(
@@ -52,7 +52,7 @@ oldSiStripDigis = cms.EDProducer(
 
 # New DigiToRaw and RawToDigi
 from EventFilter.SiStripRawToDigi.SiStripDigiToRaw_cfi import *
-SiStripDigiToRaw.InputModuleLabel = 'DigiSource'
+SiStripDigiToRaw.InputDigis = cms.InputTag("DigiSource", "ZeroSuppressed")
 from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import *
 siStripDigis.ProductLabel = 'SiStripDigiToRaw'
 

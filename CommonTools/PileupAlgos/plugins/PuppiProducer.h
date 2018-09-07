@@ -12,7 +12,10 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Math/interface/PtEtaPhiMass.h"
-
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "CommonTools/PileupAlgos/interface/PuppiContainer.h"
 
 // ------------------------------------------------------------------------------------------

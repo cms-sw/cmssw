@@ -21,7 +21,7 @@ namespace omtf {
   typedef std::map<EleIndex, LinkBoardElectronicIndex> MapEleIndex2LBIndex;
   MapEleIndex2LBIndex translateOmtf2Pact(const RpcLinkMap & omtfLnks, const RPCReadOutMapping* pactCabling); 
 
-  struct lessLinkBoardElectronicIndex { bool operator() (const LinkBoardElectronicIndex & o1, const LinkBoardElectronicIndex & o2); };
+  struct lessLinkBoardElectronicIndex { bool operator() (const LinkBoardElectronicIndex & o1, const LinkBoardElectronicIndex & o2) const; };
   typedef std::map<LinkBoardElectronicIndex, std::pair<EleIndex,EleIndex>, lessLinkBoardElectronicIndex > MapLBIndex2EleIndex;
   MapLBIndex2EleIndex  translatePact2Omtf(const RpcLinkMap & omtfLnks, const RPCReadOutMapping* pactCabling); 
 

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import csv,os,sys,coral,array
 from RecoLuminosity.LumiDB import CommonUtil,idDealer,dbUtil
 ilsfilename='Run152474-ls.txt'
@@ -60,8 +61,8 @@ def insertLumiSummarydata(dbsession,perlsrawdata):
         perlsiData.append([('LUMISUMMARY_ID',lumisummary_id),('RUNNUM',runnum),('CMSLSNUM',cmslsnum),('LUMILSNUM',cmslsnum),('LUMIVERSION',lumiversion),('DTNORM',dtnorm),('LHCNORM',lhcnorm),('INSTLUMI',instlumi),('INSTLUMIERROR',0.0),('CMSALIVE',cmsalive),('STARTORBIT',mystartorbit),('NUMORBIT',numorbit),('LUMISECTIONQUALITY',1),('BEAMENERGY',beamenergy),('BEAMSTATUS',beamstatus)])
     db.bulkInsert('LUMISUMMARY',dataDef,perlsiData)
     dbsession.transaction().commit()
-    print 'lumisummary to insert : ',perlsiData
-    print 'summaryidlsmap ',summaryidlsmap
+    print('lumisummary to insert : ',perlsiData)
+    print('summaryidlsmap ',summaryidlsmap)
     return summaryidlsmap
     
 def insertLumiDetaildata(dbsession,perlsrawdata,perbunchrawdata,summaryidlsmap):
@@ -76,12 +77,12 @@ def insertLumiDetaildata(dbsession,perlsrawdata,perbunchrawdata,summaryidlsmap):
     dbsession.transaction().start(False)
     iddealer=idDealer.idDealer(dbsession.nominalSchema())
     db=dbUtil.dbUtil(dbsession.nominalSchema())
-    print 'to insert lumidetail '
+    print('to insert lumidetail ')
     for algoname in ['OCC1','OCC2','ET']:
         for cmslsnum,instlumi in perlsrawdata.items():
             lumisummary_id=summaryidlsmap[cmslsnum]
             lumidetail_id=iddealer.generateNextIDForTable('LUMIDETAIL')
-            print 'cmslsnum ',lumidetail_id,lumisummary_id
+            print('cmslsnum ',lumidetail_id,lumisummary_id)
             bxdataocc1=array.array('f')
             bxdataocc2=array.array('f')
             bxdataet=array.array('f')
@@ -101,12 +102,12 @@ def insertLumiDetaildata(dbsession,perlsrawdata,perbunchrawdata,summaryidlsmap):
             bxqualityBlob=CommonUtil.packArraytoBlob(bxquality)
             perbunchiData.append([('LUMISUMMARY_ID',lumisummary_id),('LUMIDETAIL_ID',lumidetail_id),('BXLUMIVALUE',bxdataocc1Blob),('BXLUMIERROR',bxdataocc2Blob),('BXLUMIQUALITY',bxqualityBlob),('ALGONAME',algoname)])
     db.bulkInsert('LUMIDETAIL',dataDef,perbunchiData)
-    print perbunchiData
+    print(perbunchiData)
     dbsession.transaction().commit()
     return 
 
 def parsebunchFile(ifilename):
-    print 0
+    print(0)
     perbunchdata={}
     result=[]
     try:

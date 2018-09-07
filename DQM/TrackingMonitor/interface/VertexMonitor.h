@@ -41,9 +41,6 @@ class VertexMonitor
        virtual void initHisto(DQMStore::IBooker & ibooker);
        virtual void analyze(const edm::Event&, const edm::EventSetup&);
        
-       virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-       virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-       
        // ----------member data ---------------------------
        
        edm::ParameterSet conf_;

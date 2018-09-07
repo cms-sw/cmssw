@@ -1,16 +1,12 @@
-// 
-//#include "Utilities/Configuration/interface/Architecture.h"
-
 #include "MagneticField/VolumeGeometry/interface/MagCylinder.h"
 #include "MagneticField/VolumeGeometry/interface/MagExceptions.h"
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 
 MagCylinder::MagCylinder( const PositionType& pos,
 			  const RotationType& rot, 
-			  DDSolidShape shape,
 			  const std::vector<VolumeSide>& faces,
 			  const MagneticFieldProvider<float> * mfp)
-  : MagVolume(pos,rot,shape,mfp), theFaces(faces), theZmin(0.), theZmax(0.), theInnerR(0.), theOuterR(0.)
+  : MagVolume(pos,rot,mfp), theFaces(faces), theZmin(0.), theZmax(0.), theInnerR(0.), theOuterR(0.)
 {
   using SurfaceOrientation::GlobalFace;
 

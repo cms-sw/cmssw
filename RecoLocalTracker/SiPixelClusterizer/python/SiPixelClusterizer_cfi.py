@@ -48,3 +48,7 @@ phase2_tracker.toModify(siPixelClusters, # FIXME
   MissCalibrate = False,
   ElectronPerADCGain = cms.double(600.) # it can be changed to something else (e.g. 135e) if needed
 )
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+(premix_stage2 & phase2_tracker).toModify(siPixelClusters,
+    src = "mixData:Pixel"
+)

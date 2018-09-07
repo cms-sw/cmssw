@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 VERSION='1.02'
 import os,sys
 import re
@@ -52,7 +53,7 @@ def fillnumForRun(dbsession,c,runnum):
         #print result
         return result
     except Exception as e:
-        print str(e)
+        print(str(e))
         dbsession.transaction().rollback()
         del dbsession
         
@@ -97,7 +98,7 @@ def hltkeyForRun(dbsession,c,runnum):
         #print result
         return result
     except Exception as e:
-        print str(e)
+        print(str(e))
         dbsession.transaction().rollback()
         del dbsession
         
@@ -142,7 +143,7 @@ def l1keyForRun(dbsession,c,runnum):
         #print result
         return result
     except Exception as e:
-        print str(e)
+        print(str(e))
         dbsession.transaction().rollback()
         del dbsession
         
@@ -171,33 +172,33 @@ def main():
     if args.action == 'hltkey':
         p=re.compile(r'^/cdaq/physics/.+')
         result=hltkeyForRun(session,c,runnumber)
-        print 'runnumber hltkey'
+        print('runnumber hltkey')
         for runnum,hltkey in result.items():
             if not args.collisiononly:
-                print runnum,hltkey
+                print(runnum,hltkey)
             if args.collisiononly and re.match(p,hltkey):
                 fillnum=fillnumForRun(session,c,runnumber)
                 if len(fillnum)!=0:
-                    print runnum,hltkey
+                    print(runnum,hltkey)
     if args.action == 'l1key':
         p=re.compile(r'^TSC_.+_collisions_.+')
         result=l1keyForRun(session,c,runnumber)
-        print 'runnumber tsc_key'
+        print('runnumber tsc_key')
         for runnum,l1key in result.items():
             if not args.collisiononly:
-                print runnum,l1key
+                print(runnum,l1key)
             if args.collisiononly and re.match(p,l1key):
                 fillnum=fillnumForRun(session,c,runnumber)
                 if len(fillnum)!=0:
-                    print runnum,l1key
+                    print(runnum,l1key)
     if args.action == 'fill':
         result=fillnumForRun(session,c,runnumber)
-        print 'runnumber fill'
+        print('runnumber fill')
         if not args.collisiononly:
-            print runnumber,result
+            print(runnumber,result)
         else:
             if len(result)!=0:
-                print runnumber,result
+                print(runnumber,result)
     del session
     del svc
         

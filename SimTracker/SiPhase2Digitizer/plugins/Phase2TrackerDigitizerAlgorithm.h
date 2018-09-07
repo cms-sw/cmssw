@@ -61,6 +61,8 @@ class Phase2TrackerDigitizerAlgorithm  {
 		       std::map<int, DigitizerUtility::DigiSimInfo>& digi_map,
 		       const TrackerTopology* tTopo);
 
+  // For premixing
+  void loadAccumulator(unsigned int detId, const std::map<int, float>& accumulator);
  protected:
   // Accessing Lorentz angle from DB:
   edm::ESHandle<SiPixelLorentzAngle> SiPixelLorentzAngle_;

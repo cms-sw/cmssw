@@ -44,6 +44,7 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
 #include "CondFormats/DataRecord/interface/SiPixelCalibConfigurationRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 
 #include <map>
 #include <vector>

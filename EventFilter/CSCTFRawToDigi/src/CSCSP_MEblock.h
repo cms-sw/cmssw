@@ -1,6 +1,8 @@
 #ifndef CSCSP_MEblock_h
 #define CSCSP_MEblock_h
 
+#include <cstring>
+
 class CSCSP_MEblock {
 private:
 	/////// word 1 ///////
@@ -84,7 +86,7 @@ public:
 	unsigned int af  (void) const throw() { return alignment_fifo;}
 	unsigned int timingError(void) const throw() { return bxBit; }
 
-	bool unpack(const unsigned short *&buf) throw() { memcpy((void*)this,buf,4*sizeof(short)); buf+=4; return check(); }
+	bool unpack(const unsigned short *&buf) throw() { std::memcpy((void*)this,buf,4*sizeof(short)); buf+=4; return check(); }
 
 	CSCSP_MEblock(void){}
 };

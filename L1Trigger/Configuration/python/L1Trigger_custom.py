@@ -1,8 +1,10 @@
+from __future__ import print_function
 # customization fragments to be used with cmsDriver and hltGetConfiguration
 #
 # V.M. Ghete 2010-06-09 initial version
 
 import FWCore.ParameterSet.Config as cms
+import six
 
 def customiseUnprescaleAlgoTriggers(process):
 
@@ -128,7 +130,7 @@ def customiseL1Menu(process):
             process.es_prefer_l1conddb = cms.ESPrefer("PoolDBESSource", "l1conddb")
 
         else :
-            print '   Error: no SQL file is given; please provide a valid SQL file for option sqlFile'
+            print('   Error: no SQL file is given; please provide a valid SQL file for option sqlFile')
 
     return process
 
@@ -162,7 +164,7 @@ def customiseL1EmulatorFromRaw(process):
         process.CaloTriggerPrimitives +
         process.SimL1Emulator )
 
-    for path in process._Process__paths.itervalues():
+    for path in six.itervalues(process._Process__paths):
         path.replace(process.SimL1Emulator, process.CaloTPG_SimL1Emulator)
 
     # set the new input tags after RawToDigi
@@ -235,11 +237,11 @@ def customiseL1GtEmulatorFromRaw(process):
         process.simGtDigis )
 
     # replace the SimL1Emulator in all paths and sequences
-    for iterable in process.sequences.itervalues():
+    for iterable in six.itervalues(process.sequences):
         iterable.replace( process.SimL1Emulator, SimL1Emulator)
-    for iterable in process.paths.itervalues():
+    for iterable in six.itervalues(process.paths):
         iterable.replace( process.SimL1Emulator, SimL1Emulator)
-    for iterable in process.endpaths.itervalues():
+    for iterable in six.itervalues(process.endpaths):
         iterable.replace( process.SimL1Emulator, SimL1Emulator)
     process.SimL1Emulator = SimL1Emulator
 
@@ -274,11 +276,11 @@ def customiseL1CaloAndGtEmulatorsFromRaw(process):
         process.simGtDigis )
 
     # replace the SimL1Emulator in all paths and sequences
-    for iterable in process.sequences.itervalues():
+    for iterable in six.itervalues(process.sequences):
         iterable.replace( process.SimL1Emulator, SimL1Emulator)
-    for iterable in process.paths.itervalues():
+    for iterable in six.itervalues(process.paths):
         iterable.replace( process.SimL1Emulator, SimL1Emulator)
-    for iterable in process.endpaths.itervalues():
+    for iterable in six.itervalues(process.endpaths):
         iterable.replace( process.SimL1Emulator, SimL1Emulator)
     process.SimL1Emulator = SimL1Emulator
 

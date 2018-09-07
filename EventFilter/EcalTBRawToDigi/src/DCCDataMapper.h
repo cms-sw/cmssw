@@ -64,7 +64,7 @@ public :
   /** 
       Overloads operator() returning true if DCCDataField 1 comes first then DCCDataField 2 in the DCC data block
   */ 
-  bool operator()(DCCTBDataField *d1, DCCTBDataField * d2){
+  bool operator()(DCCTBDataField *d1, DCCTBDataField * d2) const{
     bool value(false);
     
     if (d1->wordPosition() < d2->wordPosition()){ 

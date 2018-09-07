@@ -29,8 +29,9 @@ namespace edm {
     onDemand_(false),
     dropped_(false),
     transient_(false),
-    availableOnlyAtEndTransition_(false){
-   }
+    availableOnlyAtEndTransition_(false),
+    isMergeable_(false) {
+  }
 
   void
   BranchDescription::Transients::reset() {

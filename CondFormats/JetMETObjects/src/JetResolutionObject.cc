@@ -177,8 +177,11 @@ namespace JME {
 
     void JetResolutionObject::Definition::init() {
         if (!m_formula_str.empty())
+#ifndef STANDALONE
+            m_formula = std::make_shared<reco::FormulaEvaluator>(m_formula_str);
+#else
             m_formula = std::make_shared<TFormula>("jet_resolution_formula", m_formula_str.c_str());
-
+#endif
         for (const auto& bin: m_bins_name) {
             const auto& b = JetParameters::binning_to_string.right.find(bin);
             if (b == JetParameters::binning_to_string.right.cend()) {
@@ -384,25 +387,38 @@ namespace JME {
         if (! m_valid)
             return 1;
 
+#ifndef STANDALONE
+        const auto* formula = m_definition.getFormula();
+#else
         // Set parameters
         auto const* pFormula = m_definition.getFormula();
         if (! pFormula)
             return 1;
-	auto formula = *pFormula;
+        auto formula = *pFormula;
+#endif
         // Create vector of variables value. Throw if some values are missing
         std::vector<float> variables = variables_parameters.createVector(m_definition.getVariables());
-
-        const std::vector<float>& parameters = record.getParametersValues();
-        for (size_t index = 0; index < parameters.size(); index++) {
-            formula.SetParameter(index, parameters[index]);
-        }
 
         double variables_[4] = {0};
         for (size_t index = 0; index < m_definition.nVariables(); index++) {
             variables_[index] = clip(variables[index], record.getVariablesRange()[index].min, record.getVariablesRange()[index].max);
         }
+        const std::vector<float>& parameters = record.getParametersValues();
+
+#ifndef STANDALONE
+        //ArrayAdaptor only takes doubles
+        std::vector<double> parametersD(parameters.begin(),parameters.end());
+        return formula->evaluate(
+            reco::formula::ArrayAdaptor(variables_,m_definition.nVariables()),
+            reco::formula::ArrayAdaptor(parametersD.data(),parametersD.size())
+        );
+#else
+        for (size_t index = 0; index < parameters.size(); index++) {
+            formula.SetParameter(index, parameters[index]);
+        }
 
         return formula.EvalPar(variables_);
+#endif
     }
 }
 

@@ -3,13 +3,16 @@
 // Usage:
 // .L CalibRho.C+g
 //
-//  EHcalVsRho c1(inpFilName, dupFileName);
-//  c1.LoopFill(maxEta, outFile1, logFile);
-//  FitEvsRho(logFile, parameterFile, outFile2);
-//  c1.LoopTest(maxEta, parameterFile, rootFile);
-//  FitEovPwithRho(maxEta, rootFile, outFile3);
+//  EHcalVsRho c1(inpFilName, dupFileName);     
+//  c1.LoopFill(maxEta, outFile1, logFile);       Fills E vs rho plots
+//  FitEvsRho(logFile, parameterFile, outFile2);  Fits the area vs iEta
+//  c1.LoopTest(maxEta, parameterFile, rootFile); Makes the corrected histos
+//  FitEovPwithRho(maxEta, rootFile, outFile3);   Fits E/p plots
+//  PlotEvsRho(inFile, eta, type, save);          Make the plots
 //
 //  inpFileName   (const char*)  File name of the input ROOT tree
+//                               or name of the file containing a list of
+//                               file names of input ROOT trees
 //  dupFileName   (const char*)  Name of the file containing list of entries 
 //                               of duplicate events
 //  maxEta        (int)          Maximum value of |iEta|
@@ -26,6 +29,10 @@
 //                               uncorrected histograms of E/p
 //  outFile3      (const char*)  Name of the ROOT file containing the E/p
 //                               histograms and the fit results
+//  eta           (int)          Plot the histograms for the given iEta value
+//                               (if it is 0; plots for all iEta's)
+//  type          (int)          Plot E vs Rho (type=0) or E/p fits (type=1)
+//  save          (bool)         Save the plots as pdf file
 //////////////////////////////////////////////////////////////////////////////
 
 #include <TCanvas.h>
@@ -50,9 +57,11 @@
 #include <fstream>
 #include <vector>
 
+#include "CalibCorr.C"
+
 class EHcalVsRho {
 public :
-  TTree                    *fChain;   //!pointer to the analyzed TTree or TChain
+  TChain                   *fChain;   //!pointer to the analyzed TTree or TChain
   Int_t                     fCurrent; //!current Tree number in a TChain
   
   EHcalVsRho(const char *inFile, const char *dupFile);
@@ -60,7 +69,7 @@ public :
   virtual Int_t    Cut(Long64_t entry);
   virtual Int_t    GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
-  virtual void     Init(TTree *tree, const char* dupFile);
+  virtual void     Init(TChain *tree, const char* dupFile);
   virtual Bool_t   Notify();
   virtual void     Show(Long64_t entry = -1);
   void    LoopFill(int maxEta, const char *outFile, const char *logFile);
@@ -154,10 +163,18 @@ private:
 };
 
 EHcalVsRho::EHcalVsRho(const char *inFile, const char *dupFile) : fChain(0) {
-  TFile *infile = TFile::Open(inFile);
-  TDirectory *dir = (TDirectory*)infile->FindObjectAny("HcalIsoTrkAnalyzer");
-  TTree *tree = (TTree*)dir->FindObjectAny("CalibTree");
-  Init(tree, dupFile);
+  char treeName[400];
+  sprintf (treeName, "HcalIsoTrkAnalyzer/CalibTree");
+  TChain    *chain = new TChain(treeName);
+  std::cout << "Create a chain for " << treeName << " from " << inFile
+	    << std::endl;
+  if (!fillChain(chain,inFile)) {
+    std::cout << "*****No valid tree chain can be obtained*****" << std::endl;
+  } else {
+    std::cout << "Proceed with a tree chain with " << chain->GetEntries()
+	      << " entries" << std::endl;
+    Init(chain, dupFile);
+  }
 }
 
 EHcalVsRho::~EHcalVsRho() {
@@ -183,7 +200,7 @@ Long64_t EHcalVsRho::LoadTree(Long64_t entry) {
   return centry;
 }
 
-void EHcalVsRho::Init(TTree *tree, const char* dupFile) {
+void EHcalVsRho::Init(TChain *tree, const char* dupFile) {
   // The Init() function is called when the selector needs to initialize
   // a new tree or chain. Typically here the branch addresses and branch
   // pointers of the tree will be set.
@@ -569,7 +586,7 @@ void FitEvsRho(const char *inFile, const char *outFile, const char *rootFile) {
   ofstream params;
   params.open(outFile);
   for (int i=0; i<6; i++) {
-    params << par[i] << endl;
+    params << par[i] << std::endl;
     std::cout << "Parameter[" << i << "] = " << par[i] << std::endl;
   }
   params.close();
@@ -590,7 +607,7 @@ void FitEovPwithRho(int maxEta, const char *inFile, const char *outFile) {
   }
   
 //TFile *f1 = 
-    new TFile(outFile,"RECREATE");
+  new TFile(outFile,"RECREATE");
   double xlim = maxEta + 0.5;
   TH1D* EovPvsieta = new TH1D("Corrected","Corrected",2*maxEta+1,-xlim,xlim);
   TH1D* EovPvsieta_uncorr = new TH1D("Uncorrect","Uncorrect",2*maxEta+1,-xlim,xlim);
@@ -666,21 +683,65 @@ void FitEovPwithRho(int maxEta, const char *inFile, const char *outFile) {
   EovPvsieta_uncorr->Write();
 }
 
-void PlotEvsRho(const char* inFile, int type=-1, bool save=false) {
+void PlotEvsRho(const char* inFile, int eta=0, int type=0, bool save=false) {
 
   gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
   gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
   gStyle->SetOptTitle(0);
-  gStyle->SetOptStat(10);         gStyle->SetOptFit(1);
+  gStyle->SetOptStat(1110);       gStyle->SetOptFit(10);
  
   TFile *file = new TFile(inFile);
-  int itmin = (type > 0) ? type : 1;
-  int itmax = (type > 0) ? type : 25;
-  for (int it = itmin; it <= itmax; ++it) {
+  int etamin = (eta == 0) ? ((type == 0) ? 1 : 25) : eta;
+  int etamax = (eta == 0) ? 25 : eta;
+  for (int it = etamin; it <= etamax; ++it) {
     char name[50];
     sprintf (name, "IsovsRho%d", it);
-    TCanvas* pad = (TCanvas*)file->FindObjectAny(name);
-    pad->Draw();
+    TCanvas* pad;
+    if (type == 0) {
+      pad = (TCanvas*)(file->FindObjectAny(name));
+      pad->Draw();
+    } else {
+      sprintf (name, "MPV%d", it);
+      pad = new TCanvas(name,name,0,10,800,500);
+      pad->SetRightMargin(0.10);
+      pad->SetTopMargin(0.10);
+      TH1D* h1 = (TH1D*)(file->FindObjectAny(name));
+      sprintf (name, "MPVUn%d", it);
+      TH1D* h2 = (TH1D*)(file->FindObjectAny(name));
+      double ymx1 = h1->GetMaximum();
+      double ymx2 = h2->GetMaximum();
+      double ymax = (ymx1 > ymx2) ? ymx1 : ymx2;
+      h1->GetXaxis()->SetRangeUser(0.5,2.0);
+      h2->GetXaxis()->SetRangeUser(0.5,2.0);
+      h1->GetYaxis()->SetRangeUser(0,1.25*ymax);
+      h2->GetYaxis()->SetRangeUser(0,1.25*ymax);
+      h1->GetXaxis()->SetTitleSize(0.048); h1->GetXaxis()->SetTitleOffset(0.8);
+      h1->GetXaxis()->SetTitle("E_{Hcal}/(p-E_{Ecal})");
+      h1->GetYaxis()->SetTitleSize(0.048); h1->GetYaxis()->SetTitleOffset(0.8);
+      h1->GetYaxis()->SetTitle("Tracks");
+      h1->SetLineColor(2); h1->Draw(); 
+      pad->Modified(); pad->Update();
+      TPaveStats* st1 = (TPaveStats*)h1->GetListOfFunctions()->FindObject("stats");
+      if (st1 != nullptr) {
+	st1->SetLineColor(2); st1->SetTextColor(2);
+	st1->SetY1NDC(0.75);  st1->SetY2NDC(0.90);
+	st1->SetX1NDC(0.65);  st1->SetX2NDC(0.90);
+      }
+      h2->SetLineColor(4); h2->Draw("sames"); 
+      pad->Modified(); pad->Update();
+      TPaveStats* st2 = (TPaveStats*)h2->GetListOfFunctions()->FindObject("stats");
+      if (st2 != nullptr) {
+	st2->SetLineColor(4); st2->SetTextColor(4);
+	st2->SetY1NDC(0.60);  st2->SetY2NDC(0.75);
+	st2->SetX1NDC(0.65);  st2->SetX2NDC(0.90);
+      }
+      pad->Modified(); pad->Update();
+      TF1* f1 = (TF1*)h1->GetListOfFunctions()->FindObject("fnc");
+      if (f1  != nullptr) f1->SetLineColor(2);
+      TF1* f2 = (TF1*)h2->GetListOfFunctions()->FindObject("fnc");
+      if (f2  != nullptr) f2->SetLineColor(4);
+      pad->Modified(); pad->Update();
+    }
     if (save) {
       sprintf (name, "%s.pdf", pad->GetName());
       pad->Print(name);

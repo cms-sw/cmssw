@@ -1,4 +1,4 @@
-#include "../interface/RawDataTask.h"
+#include "DQM/EcalMonitorTasks/interface/RawDataTask.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"

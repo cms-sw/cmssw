@@ -1,3 +1,4 @@
+from __future__ import print_function
 from readProv import *
 from diffProv import *
 import unittest
@@ -36,8 +37,7 @@ if __name__=="__main__":
             moduleblock2={}
             moduleblock1=self._r.readfile('newfile')
             moduleblock2=self._r.readfile('newfile2')
-            keys1=moduleblock1.keys()
-            keys1.sort()
+            keys1=sorted(moduleblock1.keys())
             keys2=moduleblock2.keys()
             keys2.sort()
             self.assertEqual(keys1,['HLT2','Processing'])
@@ -54,11 +54,11 @@ if __name__=="__main__":
             try:
                 moduleblock[key]
             except KeyError:
-                print "No process "+key + "run "   
+                print("No process "+key + "run ")   
             try:
                 label=moduleblock[key][0][0]
             except ValueError:
-                print "No module "+label +" in the process "+ key + ' in the file '+ file
+                print("No module "+label +" in the process "+ key + ' in the file '+ file)
 
             value=moduleblock[key][0][1]
             block=('Module: genCandidatesForMET HLT2', ' parameters: {', '  excludeResonances: bool tracked  = false', '  partonicFinalState: bool tracked  = false','}{', '}{', '}', '')

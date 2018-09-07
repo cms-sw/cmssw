@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import os
 import sys
 import re
@@ -10,7 +11,7 @@ import datetime
 import subprocess
 
 if "CMSSW_BASE" not in os.environ:
-    print "You need to source the CMSSW environment first."
+    print("You need to source the CMSSW environment first.")
     sys.exit(1)
 
 from Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.helper \
@@ -18,7 +19,7 @@ from Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.helper \
 
 required_version = (2,7)
 if sys.version_info < required_version:
-    print "Your Python interpreter is too old. Need version 2.7 or higher."
+    print("Your Python interpreter is too old. Need version 2.7 or higher.")
     sys.exit(1)
 
 import argparse
@@ -48,12 +49,12 @@ def main(argv = None):
 
 
     if os.path.basename(os.path.normpath(os.getcwd())) != "MPproduction":
-        print ">>> Cannot create a campaign outside of the 'MPproduction' area."
-        print ">>> Please change to the 'MPproduction' directory first."
+        print(">>> Cannot create a campaign outside of the 'MPproduction' area.")
+        print(">>> Please change to the 'MPproduction' directory first.")
         sys.exit(1)
 
     if len(args.description.strip()) == 0:
-        print ">>> Please provide a non-empty description of the campaign"
+        print(">>> Please provide a non-empty description of the campaign")
         sys.exit(1)
 
     MPS_dir = os.path.join("src", "Alignment", "MillePedeAlignmentAlgorithm")
@@ -78,7 +79,7 @@ def main(argv = None):
             next_campaign = "mp{{0:0{0}d}}".format(number_of_digits)
             next_campaign = next_campaign.format(next_number)
             os.makedirs(next_campaign)
-            print ">>> Created new campaign:", next_campaign
+            print(">>> Created new campaign:", next_campaign)
 
             campaign_list = "MP_ali_list.txt"
             with open(campaign_list, "a") as f:
@@ -95,7 +96,7 @@ def main(argv = None):
                 fcntl.flock(f, fcntl.LOCK_EX)
                 f.write(campaign_info)
                 fcntl.flock(f, fcntl.LOCK_UN)
-            print "    - updated campaign list '"+campaign_list+"'"
+            print("    - updated campaign list '"+campaign_list+"'")
 
             if args.copy is None:
                 copy_default_templates(args, next_campaign)
@@ -106,7 +107,7 @@ def main(argv = None):
                         copied_files.append(os.path.basename(config_file))
                         shutil.copy(config_file, next_campaign)
                 if len(copied_files) == 0:
-                    print "    - no configuration files for '"+args.copy+"'"
+                    print("    - no configuration files for '"+args.copy+"'")
                     copy_default_templates(args, next_campaign)
                 else:
                     alignment_config_ini = os.path.join(next_campaign,
@@ -117,8 +118,8 @@ def main(argv = None):
                     if os.path.isfile(alignment_config_ini):
                         customize_default_template(alignment_config_ini,
                                                    regex_input)
-                    print "    - copied configuration files from",
-                    print "'"+args.copy+"':", ", ".join(copied_files)
+                    print("    - copied configuration files from", end=' ')
+                    print("'"+args.copy+"':", ", ".join(copied_files))
 
         except OSError as e:
             if e.args == (17, 'File exists'):
@@ -217,10 +218,10 @@ def copy_default_templates(args, next_campaign):
                                (r"(globaltag\s*[=:])(.*)",
                                 r"\1 auto:"+auto_gt))
 
-    print "    - copied default configuration templates from",
-    print "'"+default_conf_dir+"'"
-    print "    - please modify these template files according to your needs:",
-    print ", ".join(template_files)
+    print("    - copied default configuration templates from", end=' ')
+    print("'"+default_conf_dir+"'")
+    print("    - please modify these template files according to your needs:", end=' ')
+    print(", ".join(template_files))
 
 
 def customize_default_template(file_name, *regex_replace_pairs):

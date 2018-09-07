@@ -1,3 +1,4 @@
+from __future__ import print_function
 # cfg file to test the online producer of L1GtTriggerMenuRcd
 
 import FWCore.ParameterSet.Config as cms
@@ -62,7 +63,7 @@ elif (useKey == 'TscKey') :
     process.l1GtTscObjectKeysOnline.systemLabel = cms.string('')
 
 else :
-    print 'Error: no such key type ', useKey  
+    print('Error: no such key type ', useKey)  
     sys.exit()
 
 

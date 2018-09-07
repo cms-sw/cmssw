@@ -181,6 +181,8 @@ namespace edm {
             std::vector<std::string> subdets=pset.getParameter<std::vector<std::string> >("subdets");
             std::vector<std::string> crossingFrames=pset.getUntrackedParameter<std::vector<std::string> >("crossingFrames", std::vector<std::string>());
             sort_all(crossingFrames);
+            std::vector<std::string> pcrossingFrames=pset.getUntrackedParameter<std::vector<std::string> >("pcrossingFrames", std::vector<std::string>());
+            sort_all(pcrossingFrames);
             for (unsigned int ii=0;ii<subdets.size();++ii) {
               InputTag tag;
               if (tags.size()==1) tag=tags[0];
@@ -190,8 +192,12 @@ namespace edm {
               branchesActivate(TypeID(typeid(std::vector<PSimHit>)).friendlyClassName(),subdets[ii],tag,label);
               adjustersObjects_.push_back(new Adjuster<std::vector<PSimHit> >(tag, consumesCollector(),wrapLongTimes_));
               if(binary_search_all(crossingFrames, tag.instance())) {
-                workersObjects_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF));
+                bool makePCrossingFrame = binary_search_all(pcrossingFrames, tag.instance());
+                workersObjects_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF, makePCrossingFrame));
                 produces<CrossingFrame<PSimHit> >(label);
+                if(makePCrossingFrame) {
+                  produces<PCrossingFrame<PSimHit> >(label);
+                }
                 consumes<std::vector<PSimHit> >(tag);
               }
 

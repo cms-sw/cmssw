@@ -103,13 +103,6 @@ void EgammaHLTRegionalPixelSeedGeneratorProducers::fillDescriptions(edm::Configu
   descriptions.add(("hltEgammaHLTRegionalPixelSeedGeneratorProducers"), desc);  
 }
 
-void EgammaHLTRegionalPixelSeedGeneratorProducers::endRun(edm::Run const&run, const edm::EventSetup& es) {}
-
-
-void EgammaHLTRegionalPixelSeedGeneratorProducers::beginRun(edm::Run const&run, const edm::EventSetup& es)
-{
-}
-
 // Functions that gets called by framework every event
 void EgammaHLTRegionalPixelSeedGeneratorProducers::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {

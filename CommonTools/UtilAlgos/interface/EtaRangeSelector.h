@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 #include "CommonTools/Utils/interface/EtaRangeSelector.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace reco {
   namespace modules {

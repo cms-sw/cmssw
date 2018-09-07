@@ -43,7 +43,7 @@ CastorHardcodeGeometryLoader::load( DetId::Detector /*det*/,
       fill( HcalCastorDetId::EM,  hg.get() ) ;
       fill( HcalCastorDetId::HAD, hg.get() ) ;
    }
-   return std::move(hg);
+   return hg;
 }
 
 std::unique_ptr<CaloSubdetectorGeometry> 
@@ -53,7 +53,7 @@ CastorHardcodeGeometryLoader::load()
       ( new CastorGeometry( extTopology ) ) ;
    fill( HcalCastorDetId::EM,  hg.get() ) ;
    fill( HcalCastorDetId::HAD, hg.get() ) ;
-   return std::move(hg);
+   return hg;
 }
 
 void 

@@ -237,7 +237,11 @@ OMTFinput OMTFinputMaker::processDT(const L1MuDTChambPhContainer *dtPhDigis,
     // FIXME (MK): at least Ts2Tag selection is not correct! Check it
 //    if (digiIt.bxNum()!= 0 || digiIt.BxCnt()!= 0 || digiIt.Ts2Tag()!= 0 || digiIt.code()<4) continue;
     if (digiIt.bxNum()!= 0) continue;
-    if (digiIt.code() != 4 && digiIt.code() != 5 && digiIt.code() != 6) continue;
+    if (myOmtfConfig->fwVersion() <= 4) {
+      if (digiIt.code() != 4 && digiIt.code() != 5 && digiIt.code() != 6) continue;
+    } else {
+      if (digiIt.code() != 2 && digiIt.code() != 3 && digiIt.code() != 4 && digiIt.code() != 5 && digiIt.code() != 6) continue;
+    }
 
     unsigned int hwNumber = myOmtfConfig->getLayerNumber(detid.rawId());
     if(myOmtfConfig->getHwToLogicLayer().find(hwNumber)==myOmtfConfig->getHwToLogicLayer().end()) continue;
@@ -275,7 +279,7 @@ OMTFinput OMTFinputMaker::processCSC(const CSCCorrelatedLCTDigiCollection *cscDi
     for( ; digi != dend; ++digi ) {
 
       ///Check if LCT trigger primitive has the right BX.
-      if (abs(digi->getBX()- CSCConstants::LCT_CENTRAL_BX)>0) continue;
+      if (abs(digi->getBX()-CSCConstants::LCT_CENTRAL_BX)>0) continue;
 
       unsigned int hwNumber = myOmtfConfig->getLayerNumber(rawid);
       if(myOmtfConfig->getHwToLogicLayer().find(hwNumber)==myOmtfConfig->getHwToLogicLayer().end()) continue;

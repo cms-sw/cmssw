@@ -1,3 +1,4 @@
+from __future__ import print_function
 # idea stolen from:
 # http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/
 #        PhysicsTools/PatAlgos/python/tools/cmsswVersionTools.py
@@ -55,8 +56,8 @@ class Dataset(object):
                    "you need to run 'scram b' first."
                    %( self.__name, searchPath2 ))
             if self.__official:
-                print msg
-                print "Getting the data from DAS again.  To go faster next time, run scram b."
+                print(msg)
+                print("Getting the data from DAS again.  To go faster next time, run scram b.")
             else:
                 raise AllInOneError( msg )
         elif os.path.exists( searchPath3 ):
@@ -163,7 +164,7 @@ class Dataset(object):
                                 msg += ("\n  (after applying firstRun and/or lastRun)")
                             msg += ".\nPlease note that, depending on the format of this file, it may not work as expected."
                             msg += "\nCheck your config file to make sure that it worked properly."
-                            print msg
+                            print(msg)
 
                             runlist = self.__getRunList()
                             if firstRun or lastRun:
@@ -351,7 +352,7 @@ class Dataset(object):
         return forcerunrangefunction
 
     def __getData( self, dasQuery, dasLimit = 0 ):
-	dasData = das_client.get_data(dasQuery, dasLimit)
+        dasData = das_client.get_data(dasQuery, dasLimit)
         if isinstance(dasData, str):
             jsondict = json.loads( dasData )
         else:
@@ -454,8 +455,8 @@ class Dataset(object):
                     if Bfield in Bfieldlist or Bfield == "unknown":
                         return Bfield
                     else:
-                        print "Your dataset has magnetic field '%s', which does not exist in your CMSSW version!" % Bfield
-                        print "Using Bfield='unknown' - this will revert to the default"
+                        print("Your dataset has magnetic field '%s', which does not exist in your CMSSW version!" % Bfield)
+                        print("Using Bfield='unknown' - this will revert to the default")
                         return "unknown"
                 elif datatype == "data":
                     return "MagneticField"           #this should be in the "#magnetic field" line, but for safety in case it got messed up
@@ -481,8 +482,8 @@ class Dataset(object):
             elif Bfield == "":
                 pass
             else:
-                print "Your dataset has magnetic field '%s', which does not exist in your CMSSW version!" % Bfield
-                print "Using Bfield='unknown' - this will revert to the default magnetic field"
+                print("Your dataset has magnetic field '%s', which does not exist in your CMSSW version!" % Bfield)
+                print("Using Bfield='unknown' - this will revert to the default magnetic field")
                 return "unknown"
         except KeyError:
             pass
@@ -540,7 +541,7 @@ class Dataset(object):
         try:
             if abs(firstrunB - lastrunB) <= tolerance:
                 return .5*(firstrunB + lastrunB)
-            print firstrunB, lastrunB, tolerance
+            print(firstrunB, lastrunB, tolerance)
             return ("unknown The beginning and end of your run range for %s\n"
                     "have different magnetic fields (%s, %s)!\n"
                     "Try limiting the run range using firstRun, lastRun, begin, end, or JSON,\n"
@@ -580,10 +581,10 @@ class Dataset(object):
         dasQuery_files = ( 'file dataset=%s instance=%s detail=true | grep file.name, file.nevents, '
                            'file.creation_time, '
                            'file.modification_time'%( searchdataset, self.__dasinstance ) )
-        print "Requesting file information for '%s' from DAS..."%( searchdataset ),
+        print("Requesting file information for '%s' from DAS..."%( searchdataset ), end=' ')
         sys.stdout.flush()
         data = self.__getData( dasQuery_files, dasLimit )
-        print "Done."
+        print("Done.")
         data = [ self.__findInJson(entry,"file") for entry in data ]
         if len( data ) == 0:
             msg = ("No files are available for the dataset '%s'. This can be "
@@ -599,8 +600,8 @@ class Dataset(object):
                 fileCreationTime = self.__findInJson(file, "creation_time")
                 fileNEvents = self.__findInJson(file, "nevents")
             except KeyError:
-                print ("DAS query gives bad output for file '%s'.  Skipping it.\n"
-                       "It may work if you try again later.") % fileName
+                print(("DAS query gives bad output for file '%s'.  Skipping it.\n"
+                       "It may work if you try again later.") % fileName)
                 fileNEvents = 0
             # select only non-empty files
             if fileNEvents == 0:
@@ -617,10 +618,10 @@ class Dataset(object):
     def __getRunList( self ):
         dasQuery_runs = ( 'run dataset=%s instance=%s | grep run.run_number,'
                           'run.creation_time'%( self.__name, self.__dasinstance ) )
-        print "Requesting run information for '%s' from DAS..."%( self.__name ),
+        print("Requesting run information for '%s' from DAS..."%( self.__name ), end=' ')
         sys.stdout.flush()
         data = self.__getData( dasQuery_runs )
-        print "Done."
+        print("Done.")
         data = [ self.__findInJson(entry,"run") for entry in data ]
         data.sort( key = lambda run: self.__findInJson(run, "run_number") )
         return data
@@ -733,19 +734,19 @@ class Dataset(object):
                     "only work for official datasets, not predefined _cff.py files" )
             raise AllInOneError( msg )
         if self.__predefined and parent:
-                with open(self.__filename) as f:
-                    if "secFiles.extend" not in f.read():
-                        msg = ("The predefined dataset '%s' does not contain secondary files, "
-                               "which your validation requires!") % self.__name
-                        if self.__official:
-                            self.__name = self.__origName
-                            self.__predefined = False
-                            print msg
-                            print ("Retreiving the files from DAS.  You will be asked if you want "
-                                   "to overwrite the old dataset.\n"
-                                   "It will still be compatible with validations that don't need secondary files.")
-                        else:
-                            raise AllInOneError(msg)
+            with open(self.__filename) as f:
+                if "secFiles.extend" not in f.read():
+                    msg = ("The predefined dataset '%s' does not contain secondary files, "
+                           "which your validation requires!") % self.__name
+                    if self.__official:
+                        self.__name = self.__origName
+                        self.__predefined = False
+                        print(msg)
+                        print ("Retreiving the files from DAS.  You will be asked if you want "
+                               "to overwrite the old dataset.\n"
+                               "It will still be compatible with validations that don't need secondary files.")
+                    else:
+                        raise AllInOneError(msg)
 
         if self.__predefined:
             snippet = ("process.load(\"Alignment.OfflineValidation.%s_cff\")\n"
@@ -778,9 +779,9 @@ class Dataset(object):
             try:
                 self.dump_cff(parent = parent)
             except AllInOneError as e:
-                print "Can't store the dataset as a cff:"
-                print e
-                print "This may be inconvenient in the future, but will not cause a problem for this validation."
+                print("Can't store the dataset as a cff:")
+                print(e)
+                print("This may be inconvenient in the future, but will not cause a problem for this validation.")
         return datasetSnippet
 
     @cache
@@ -840,7 +841,7 @@ class Dataset(object):
                 %( outName )
                 + filePath +
                 "\nFor future use you have to do 'scram b'." )
-        print
+        print()
         theFile = open( filePath, "w" )
         theFile.write( dataset_cff )
         theFile.close()
@@ -859,8 +860,8 @@ class Dataset(object):
             error = "does not start with /store"
         elif parts[2] in ["mc", "relval"]:
             result = 1
-        elif parts[-2] != "00000" or not parts[-1].endswith(".root"):
-            error = "does not end with 00000/something.root"
+        elif not parts[-1].endswith(".root"):
+            error = "does not end with something.root"
         elif len(parts) != 12:
             error = "should be exactly 11 slashes counting the first one"
         else:
@@ -897,15 +898,15 @@ class Dataset(object):
                     reasons         .add   (e.message.split("\n")[2])
             if reasons:
                 if len(unknownfilenames) == len(fileList):
-                    print "Could not figure out the run numbers of any of the filenames for the following reason(s):"
+                    print("Could not figure out the run numbers of any of the filenames for the following reason(s):")
                 else:
-                    print "Could not figure out the run numbers of the following filenames:"
+                    print("Could not figure out the run numbers of the following filenames:")
                     for filename in unknownfilenames:
-                        print "    "+filename
-                    print "for the following reason(s):"
+                        print("    "+filename)
+                    print("for the following reason(s):")
                 for reason in reasons:
-                    print "    "+reason
-                print "Using the files anyway.  The runs will be filtered at the CMSSW level."
+                    print("    "+reason)
+                print("Using the files anyway.  The runs will be filtered at the CMSSW level.")
         return fileList
 
     def fileInfoList( self, parent = False ):
@@ -923,15 +924,15 @@ class Dataset(object):
 
 
 if __name__ == '__main__':
-    print "Start testing..."
+    print("Start testing...")
     datasetName = '/MinimumBias/Run2012D-TkAlMinBias-v1/ALCARECO'
     jsonFile = ( '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/'
                  'Collisions12/8TeV/Prompt/'
                  'Cert_190456-207898_8TeV_PromptReco_Collisions12_JSON.txt' )
     dataset = Dataset( datasetName )
-    print dataset.datasetSnippet( jsonPath = jsonFile,
+    print(dataset.datasetSnippet( jsonPath = jsonFile,
                                   firstRun = "207800",
-                                  end = "20121128")
+                                  end = "20121128"))
     dataset.dump_cff( outName = "Dataset_Test_TkAlMinBias_Run2012D",
                       jsonPath = jsonFile,
                       firstRun = "207800",

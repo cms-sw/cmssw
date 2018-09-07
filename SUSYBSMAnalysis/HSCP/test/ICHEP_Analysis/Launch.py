@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import urllib
 import string
 import os
@@ -170,15 +171,15 @@ def ComputeLimits(InputPattern, syst):
                                                                                                         
 
 if len(sys.argv)==1:
-	print "Please pass in argument a number between 0 and 2"
-        print "  0 - Submit the Core of the (TkOnly+TkTOF) Analysis     --> submitting 2x 3 jobs"
-        print "  1 - Run the control plot macro                         --> submitting    0 jobs"
-        print "  2 - Run the Optimization macro based on best Exp Limit --> submitting 2xSignalPoints jobs"
-        print "  3 - Run the exclusion plot macro                       --> submitting    0 jobs"
+	print("Please pass in argument a number between 0 and 2")
+        print("  0 - Submit the Core of the (TkOnly+TkTOF) Analysis     --> submitting 2x 3 jobs")
+        print("  1 - Run the control plot macro                         --> submitting    0 jobs")
+        print("  2 - Run the Optimization macro based on best Exp Limit --> submitting 2xSignalPoints jobs")
+        print("  3 - Run the exclusion plot macro                       --> submitting    0 jobs")
 	sys.exit()
 
 elif sys.argv[1]=='0':	
-        print 'ANALYSIS'
+        print('ANALYSIS')
         FarmDirectory = "FARM"
         JobName = "HscpAnalysis"
 	LaunchOnCondor.Jobs_RunHere = 1
@@ -192,12 +193,12 @@ elif sys.argv[1]=='0':
 	LaunchOnCondor.SendCluster_Submit()
 
 elif sys.argv[1]=='1':
-        print 'PLOTTING'
+        print('PLOTTING')
 	os.system('root Analysis_Step5.C++ -l -b -q')
 
 
 elif sys.argv[1]=='2':
-        print 'OPTIMIZATION'
+        print('OPTIMIZATION')
         FarmDirectory = "FARM"
         JobName = "HscpLimits"
         LaunchOnCondor.Jobs_RunHere = 1
@@ -221,11 +222,11 @@ elif sys.argv[1]=='2':
 
 
 elif sys.argv[1]=='3':
-        print 'EXCLUSION'
+        print('EXCLUSION')
 #        os.system('root Analysis_Step6.C++\'(\"tmp\")\' -l -b -q')
         os.system('sh Analysis_Step6.sh')
 else:
-	print 'Unknwon case: use an other argument or no argument to get help'
+	print('Unknwon case: use an other argument or no argument to get help')
 
 
 

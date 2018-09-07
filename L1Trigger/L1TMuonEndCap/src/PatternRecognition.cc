@@ -203,7 +203,7 @@ void PatternRecognition::process(
     for (const auto& conv_hits : extended_conv_hits) {
       for (const auto& conv_hit : conv_hits) {
         if (conv_hit.Subsystem() == TriggerPrimitive::kCSC) {
-          std::cout << "st: " << conv_hit.PC_station() << " ch: " << conv_hit.PC_chamber()
+          std::cout << "CSC hit st: " << conv_hit.PC_station() << " ch: " << conv_hit.PC_chamber()
               << " ph: " << conv_hit.Phi_fp() << " th: " << conv_hit.Theta_fp()
               << " ph_hit: " << (1ul<<conv_hit.Ph_hit()) << " phzvl: " << conv_hit.Phzvl()
               << " strip: " << conv_hit.Strip() << " wire: " << conv_hit.Wire() << " cpat: " << conv_hit.Pattern()
@@ -416,8 +416,17 @@ void PatternRecognition::process_single_zone(
           int bx1 = bool(bx_shifter & (1<<1));
           int bx0 = bool(bx_shifter & (1<<0));
 
-          if (bx2 == 0 && bx1 == 1) {  // is lifetime up? (note: drift_time is not being used)
+          // is lifetime up?
+          if (drift_time == 2 && bx2 == 0 && bx1 == 1) {
             is_lifetime_up = true;
+          } else if (drift_time == 1 && bx1 == 0 && bx0 == 1) {
+            is_lifetime_up = true;
+          } else if (drift_time == 0) {
+            is_lifetime_up = true;
+          } else {
+            // The bx_shifter keeps track of a number of booleans from BX 0, 1, ..., drift_time.
+	    if (not(drift_time == 2 || drift_time == 1 || drift_time == 0))
+	      { edm::LogError("L1T") << "drift_time = " << drift_time << ", not 0 or 1 or 2"; return; }
           }
 
           bx2 = bx1;

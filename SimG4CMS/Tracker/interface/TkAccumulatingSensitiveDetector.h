@@ -23,7 +23,6 @@ class TrackingSlaveSD;
 class FrameRotation;
 class UpdatablePSimHit;
 class G4ProcessTypeEnumerator;
-class G4TrackToParticleID;
 class TrackerG4SimHitNumberingScheme;
 
 class TkAccumulatingSensitiveDetector : 
@@ -52,12 +51,12 @@ private:
     bool newHit   (const G4Step *);
     bool closeHit (const G4Step *);
 
+protected:
     void update(const BeginOfEvent *) override;
     void update(const BeginOfTrack *) override;
     void update(const BeginOfJob *) override;
 
-    Local3DPoint RotateAndScale(const Local3DPoint&);
-    TrackInformation* getTrackInformation(const G4Track *);
+private:
 
     // data members initialised before run
     const SimTrackManager* theManager;
@@ -65,7 +64,6 @@ private:
     std::unique_ptr<TrackingSlaveSD> slaveHighTof;
     std::unique_ptr<FrameRotation>   theRotation;
     std::unique_ptr<const G4ProcessTypeEnumerator> theG4ProcTypeEnumerator;
-    std::unique_ptr<const G4TrackToParticleID> theG4TrackToParticleID;
     std::unique_ptr<TrackerG4SimHitNumberingScheme> theNumberingScheme;
     bool allowZeroEnergyLoss;
     bool printHits;

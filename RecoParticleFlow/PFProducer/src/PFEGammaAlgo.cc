@@ -843,6 +843,8 @@ void PFEGammaAlgo::buildAndRefineEGObjects(const pfEGHelpers::HeavyObjectCache* 
   //unwrap the PF block into a fast access map
   for( const auto& pfelement : _currentblock->elements() ) {
     if( isAMuon(pfelement) ) continue; // don't allow muons in our element list
+    if (pfelement.type() == PFBlockElement::HCAL && 
+        pfelement.clusterRef()->flags() & reco::CaloCluster::badHcalMarker) continue; // skip also dead area markers for now
     const size_t itype = (size_t)pfelement.type();    
     if( itype >= _splayedblock.size() ) _splayedblock.resize(itype+1);    
     _splayedblock[itype].push_back(std::make_pair(&pfelement,true));    
@@ -1527,7 +1529,7 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 	   thefront.lateBrem = roToMerge->lateBrem;
 	 } else if ( thefront.electronSeed.isNonnull() && 
 		     roToMerge->electronSeed.isNonnull()) {
-	   LOGWARN("PFEGammaAlgo::mergeROsByAnyLink")
+	   LOGDRESSED("PFEGammaAlgo::mergeROsByAnyLink")
 	     << "Need to implement proper merging of two gsf candidates!"
 	     << std::endl;
 	 }

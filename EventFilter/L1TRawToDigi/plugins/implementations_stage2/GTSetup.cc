@@ -5,6 +5,10 @@
 #include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
 
 #include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/MuonUnpacker.h"
+#include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/EGammaUnpacker.h"
+#include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/EtSumUnpacker.h"
+#include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/JetUnpacker.h"
+#include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/TauUnpacker.h"
 
 #include "GTSetup.h"
 
@@ -62,6 +66,13 @@ namespace l1t {
          prod.produces<TauBxCollection>("Tau");
          prod.produces<GlobalAlgBlkBxCollection>();
          prod.produces<GlobalExtBlkBxCollection>();
+         for (int i=2; i<7; ++i) { // Collections from boards 2-6
+            prod.produces<MuonBxCollection>(  "Muon"   + std::to_string(i));
+            prod.produces<EGammaBxCollection>("EGamma" + std::to_string(i));
+            prod.produces<EtSumBxCollection>( "EtSum"  + std::to_string(i));
+            prod.produces<JetBxCollection>(   "Jet"    + std::to_string(i));
+            prod.produces<TauBxCollection>(   "Tau"    + std::to_string(i));
+         }
 
       }
 
@@ -75,40 +86,47 @@ namespace l1t {
       GTSetup::getUnpackers(int fed, int board, int amc, unsigned int fw)
       {
 
-         auto muon_unp = static_pointer_cast<l1t::stage2::MuonUnpacker>(UnpackerFactory::get()->make("stage2::MuonUnpacker"));
-         auto egamma_unp = UnpackerFactory::get()->make("stage2::EGammaUnpacker");
-         auto etsum_unp = UnpackerFactory::get()->make("stage2::EtSumUnpacker");
-         auto jet_unp = UnpackerFactory::get()->make("stage2::JetUnpacker");
-         auto tau_unp = UnpackerFactory::get()->make("stage2::TauUnpacker");
+         auto muon_unp =   static_pointer_cast<l1t::stage2::MuonUnpacker>(UnpackerFactory::get()->make("stage2::MuonUnpacker"));
+         auto egamma_unp = static_pointer_cast<l1t::stage2::EGammaUnpacker>(UnpackerFactory::get()->make("stage2::EGammaUnpacker"));
+         auto etsum_unp =  static_pointer_cast<l1t::stage2::EtSumUnpacker>(UnpackerFactory::get()->make("stage2::EtSumUnpacker"));
+         auto jet_unp =    static_pointer_cast<l1t::stage2::JetUnpacker>(UnpackerFactory::get()->make("stage2::JetUnpacker"));
+         auto tau_unp =    static_pointer_cast<l1t::stage2::TauUnpacker>(UnpackerFactory::get()->make("stage2::TauUnpacker"));
+
          auto alg_unp = UnpackerFactory::get()->make("stage2::GlobalAlgBlkUnpacker");
          auto ext_unp = UnpackerFactory::get()->make("stage2::GlobalExtBlkUnpacker");
 
          muon_unp->setAlgoVersion(fw);
          muon_unp->setFedNumber(fed);
+         
+         muon_unp->setMuonCopy(amc-1);
+         egamma_unp->setEGammaCopy(amc-1);
+         etsum_unp->setEtSumCopy(amc-1);
+         jet_unp->setJetCopy(amc-1);
+         tau_unp->setTauCopy(amc-1);
 
          UnpackerMap res;
 
          if (fed == 1404) {
 
-            //only unpack first uGT board for the inputs (single copy)
-            if(amc == 1) { 
-               // From the rx buffers         
-               res[0]  = muon_unp;
-               res[2]  = muon_unp;
-               res[4]  = muon_unp;
-               res[6]  = muon_unp;
-               res[8]  = egamma_unp;
-               res[10] = egamma_unp;
-               res[12] = jet_unp;
-               res[14] = jet_unp;
-               res[16] = tau_unp;
-               res[18] = tau_unp;
-               res[20] = etsum_unp;
-               res[24] = ext_unp;
-               //res[22] = empty link no data
-               res[26] = ext_unp;
-               res[28] = ext_unp;
-               res[30] = ext_unp;
+            // From the rx buffers         
+            res[0]  = muon_unp;
+            res[2]  = muon_unp;
+            res[4]  = muon_unp;
+            res[6]  = muon_unp;
+            res[8]  = egamma_unp;
+            res[10] = egamma_unp;
+            res[12] = jet_unp;
+            res[14] = jet_unp;
+            res[16] = tau_unp;
+            res[18] = tau_unp;
+            res[20] = etsum_unp;
+
+            if(amc == 1) { // only unpack first uGT board for the external signal inputs (single copy)
+                res[24] = ext_unp;
+                //res[22] = empty link no data
+                res[26] = ext_unp;
+                res[28] = ext_unp;
+                res[30] = ext_unp;
             }
 
             //From tx buffers

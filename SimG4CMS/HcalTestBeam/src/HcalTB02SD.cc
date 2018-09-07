@@ -84,13 +84,13 @@ HcalTB02SD::~HcalTB02SD() {
 // member functions
 //
  
-double HcalTB02SD::getEnergyDeposit(G4Step * aStep) {
+double HcalTB02SD::getEnergyDeposit(const G4Step * aStep) {
   
   if (aStep == nullptr) {
     return 0;
   } else {
-    preStepPoint        = aStep->GetPreStepPoint();
-    G4String nameVolume = preStepPoint->GetPhysicalVolume()->GetName();
+    auto const preStepPoint = aStep->GetPreStepPoint();
+    auto const & nameVolume = preStepPoint->GetPhysicalVolume()->GetName();
 
     // take into account light collection curve for crystals
     double weight = 1.;
@@ -132,7 +132,7 @@ void HcalTB02SD::initMap(const std::string& sd, const DDCompactView & cpv) {
     LogDebug("HcalTBSim") << "HcalTB02SD::initMap (for " << sd << "): Solid " 
 			  << name << " Shape " << sol.shape() 
 			  << " Parameter 0 = " << paras[0];
-    if (sol.shape() == ddtrap) {
+    if (sol.shape() == DDSolidShape::ddtrap) {
       double dz = 2*paras[0];
       lengthMap.insert(std::pair<G4String,double>(name,dz));
     }
@@ -148,7 +148,7 @@ void HcalTB02SD::initMap(const std::string& sd, const DDCompactView & cpv) {
   }
 }
 
-double HcalTB02SD::curve_LY(G4String& nameVolume, G4StepPoint* stepPoint) {
+double HcalTB02SD::curve_LY(const G4String& nameVolume, const G4StepPoint* stepPoint) {
 
   double weight = 1.;
   G4ThreeVector  localPoint = setToLocal(stepPoint->GetPosition(),
@@ -173,7 +173,7 @@ double HcalTB02SD::curve_LY(G4String& nameVolume, G4StepPoint* stepPoint) {
   return weight;
 }
 
-double HcalTB02SD::crystalLength(G4String name) {
+double HcalTB02SD::crystalLength(const G4String& name) {
 
   double length = 230.;
   std::map<G4String,double>::const_iterator it = lengthMap.find(name);

@@ -87,7 +87,7 @@ File::write (const void *from, IOSize n, IOOffset pos)
   while (s == -1 && errno == EINTR);
 
   if (s == -1)
-    throwStorageError("FileWriteError", "Calling File::write()", "pwrite()", errno);
+    throwStorageError(edm::errors::FileWriteError, "Calling File::write()", "pwrite()", errno);
 
   if (m_flags & OpenUnbuffered)
     // FIXME: Exception handling?

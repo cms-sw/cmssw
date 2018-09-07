@@ -3,7 +3,7 @@
 
 #include "TH2.h"
 #include "PhysicsTools/UtilAlgos/interface/BasicAnalyzer.h"
-
+#include "PhysicsTools/Heppy/interface/JetUtils.h"
 /**
    \class AnalysisTasksAnalyzerJEC AnalysisTasksAnalyzerJEC.h "PhysicsTools/UtilAlgos/interface/AnalysisTasksAnalyzerJEC.h"
    \brief Example class that can be used both within FWLite and within the full framework

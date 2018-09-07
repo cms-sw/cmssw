@@ -57,37 +57,34 @@ namespace edmtest
   void
   PathAnalyzer::dumpTriggerNamesServiceInfo(char const* where)
   {
-    typedef edm::Service<edm::service::TriggerNamesService>  TNS;
-    typedef std::vector<std::string> stringvec;
 
-    TNS tns;
-    std::ostringstream message;
-
-    stringvec const& trigpaths = tns->getTrigPaths();
-    message << "dumpTriggernamesServiceInfo called from PathAnalyzer::"
-	    << where << '\n';
-    message << "trigger paths are: ";
-
-    edm::copy_all(trigpaths, std::ostream_iterator<std::string>(message, " "));
-    message << '\n';
-
-    for (stringvec::const_iterator i = trigpaths.begin(), e = trigpaths.end();
-	 i != e;
-	 ++i)
-      {
-	message << "path name: " << *i << " contains: ";
-	edm::copy_all(tns->getTrigPathModules(*i), std::ostream_iterator<std::string>(message, " "));
-	message << '\n';
+    edm::LogInfo("PathAnalyzer").log([&](auto& message) {
+      
+      edm::Service<edm::service::TriggerNamesService> tns;
+      message << "TNS size: " << tns->size()<< "\n";
+      
+      auto const& trigpaths = tns->getTrigPaths();
+      message << "dumpTriggernamesServiceInfo called from PathAnalyzer::"
+      << where << '\n';
+      message << "trigger paths are:";
+      for(auto const& p: trigpaths) {
+        message<<" "<<p;
       }
-
-    message << "trigger ParameterSet:\n"
-	    << tns->getTriggerPSet()
-	    << '\n';
-
-    edm::LogInfo("PathAnalyzer") << "TNS size: " << tns->size() 
-				 << "\n"
-				 << message.str()
-				 << std::endl;
+      message << '\n';
+      
+      for (auto const p: trigpaths)
+      {
+        message << "path name: " << p << " contains:";
+        for(auto const&m: tns->getTrigPathModules(p)) {
+          message<<" "<<m;
+        }
+        message << '\n';
+      }
+      
+      message << "trigger ParameterSet:\n"
+      << tns->getTriggerPSet()
+      << '\n';
+    });
   }
 
 } // namespace edmtest

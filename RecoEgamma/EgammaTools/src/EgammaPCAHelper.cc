@@ -108,14 +108,9 @@ void EGammaPCAHelper::storeRecHits(const std::vector<std::pair<DetId, float>> &h
         }
         float fraction = hf[j].second;
 
-        double thickness = (DetId::Forward == DetId(rh_detid).det()) ? recHitTools_->getSiThickness(rh_detid) : -1;
+        int thickIndex = recHitTools_->getSiThickIndex(rh_detid);
         double mip = dEdXWeights_[layer] * 0.001;  // convert in GeV
-        if (thickness > 99. && thickness < 101)
-            mip *= invThicknessCorrection_[0];
-        else if (thickness > 199 && thickness < 201)
-            mip *= invThicknessCorrection_[1];
-        else if (thickness > 299 && thickness < 301)
-            mip *= invThicknessCorrection_[2];
+        if(thickIndex>-1 and thickIndex<3) mip *= invThicknessCorrection_[thickIndex];
 
         pcavars[0] = recHitTools_->getPosition(rh_detid).x();
         pcavars[1] = recHitTools_->getPosition(rh_detid).y();
@@ -281,9 +276,9 @@ LongDeps  EGammaPCAHelper::energyPerLayer(float radius, bool withHalo) {
         if (local.Perp2() > radius2) continue;
         energyPerLayer[spot.layer()] += spot.energy();
         layers.insert(spot.layer());
-        if (spot.subdet() == HGCEE) { energyEE += spot.energy();}
-        else if (spot.subdet() == HGCHEF) { energyFH += spot.energy();}
-        else if (spot.subdet() == HGCHEB) { energyBH += spot.energy();}
+        if (spot.detId().det() == DetId::HGCalEE or spot.subdet() == HGCEE) { energyEE += spot.energy();}
+        else if (spot.detId().det() == DetId::HGCalHSi or spot.subdet() == HGCHEF) { energyFH += spot.energy();}
+        else if (spot.detId().det() == DetId::HGCalHSc or spot.subdet() == HGCHEB) { energyBH += spot.energy();}
 
     }
     return LongDeps(radius,energyPerLayer,energyEE,energyFH,energyBH,layers);
@@ -311,11 +306,7 @@ float EGammaPCAHelper::findZFirstLayer(const LongDeps & ld) const {
         }
     }
     // Make dummy DetId to get abs(z) for layer
-    DetId id;
-    if (firstLayer <= recHitTools_->lastLayerEE()) id = HGCalDetId(ForwardSubdetector::HGCEE, 1, firstLayer, 1, 50, 1);
-    else if (firstLayer <= recHitTools_->lastLayerFH()) id = HGCalDetId(ForwardSubdetector::HGCHEF, 1, firstLayer - recHitTools_->lastLayerEE(), 1, 50, 1);
-    else  id = HcalDetId(HcalSubdetector::HcalEndcap, 50, 100, firstLayer - recHitTools_->lastLayerFH());
-    return recHitTools_->getPosition(id).z();
+    return recHitTools_->getPositionLayer(firstLayer).z();
 }
 
 float EGammaPCAHelper::clusterDepthCompatibility(const LongDeps & ld, float & measuredDepth, float& expectedDepth, float&expectedSigma) {

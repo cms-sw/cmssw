@@ -212,7 +212,7 @@ void TrackClassifier::reconstructionInformation(reco::TrackBaseRef const & track
         flags_[Bad] = (dxyPull > badPull_ || dzPull > badPull_);
 
     }
-    catch (cms::Exception exception)
+    catch (cms::Exception const&)
     {
         flags_[Bad] = true;
     }

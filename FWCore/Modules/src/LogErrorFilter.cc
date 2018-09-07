@@ -111,70 +111,71 @@ LogErrorFilter::filter(edm::Event& iEvent, edm::EventSetup const&) {
       unsigned int errorsBelowThreshold = 0;
       unsigned int warningsBelowThreshold = 0;
       // update counters here
-      for(unsigned int iE = 0; iE != errorsAndWarnings->size(); ++iE) {
-	const edm::ErrorSummaryEntry& iSummary = (*errorsAndWarnings)[iE];
-	if (std::find(avoidCategories_.begin(),avoidCategories_.end(), iSummary.category) != avoidCategories_.end() )
-	  continue;
-	std::string kind= iSummary.category + ":" + iSummary.module;
-	int iSeverity = iSummary.severity.getLevel();
-	if (iSeverity == edm::ELseverityLevel::ELsev_error){
-	  unsigned int& iCount = errorCounts_[kind];
-	  iCount++;
-	  if (iCount <= maxErrorKindsPerLumi_) errorsBelowThreshold++;
-	}
-	if (iSeverity == edm::ELseverityLevel::ELsev_warning){
-	  unsigned int& iCount = warningCounts_[kind];
-	  iCount++;
-	  if (iCount <= maxWarningKindsPerLumi_) warningsBelowThreshold++;
-	}
+      for(auto const& summary : *errorsAndWarnings) {
+        if (std::find(avoidCategories_.begin(),avoidCategories_.end(), summary.category) != avoidCategories_.end() )
+          continue;
+        std::string kind= summary.category + ":" + summary.module;
+        int iSeverity = summary.severity.getLevel();
+        if (iSeverity == edm::ELseverityLevel::ELsev_error){
+          unsigned int& iCount = errorCounts_[kind];
+          iCount++;
+          if (iCount <= maxErrorKindsPerLumi_) errorsBelowThreshold++;
+        } else if (iSeverity == edm::ELseverityLevel::ELsev_warning){
+          unsigned int& iCount = warningCounts_[kind];
+          iCount++;
+          if (iCount <= maxWarningKindsPerLumi_) warningsBelowThreshold++;
+        }
+
       }
       return ( (atLeastOneEntry_ && (errorsBelowThreshold > 0 || warningsBelowThreshold > 0))
-	       || (atLeastOneError_ && errorsBelowThreshold > 0)
-	       || (atLeastOneWarning_ && warningsBelowThreshold > 0));
+              || (atLeastOneError_ && errorsBelowThreshold > 0)
+              || (atLeastOneWarning_ && warningsBelowThreshold > 0));
     } else {
       //no separation by kind, just count any errors/warnings
       if(atLeastOneEntry_) {
-	if(!avoidCategories_.empty()) {
-	  for(unsigned int iE = 0; iE != errorsAndWarnings->size(); ++iE) {
-	    //veto categories from user input.
-	    if(std::find(avoidCategories_.begin(),avoidCategories_.end(), ((*errorsAndWarnings)[iE]).category) != avoidCategories_.end()) {
-	      continue;
-	    } else {
-	      return true;
-	    }
-	  }
-	  return false;
-	} else {
-	  return (!errorsAndWarnings->empty());
-	}
+        for(auto const& summary: *errorsAndWarnings) {
+          edm::ELseverityLevel const& severity = summary.severity;
+          if(severity.getLevel() != edm::ELseverityLevel::ELsev_error and
+             severity.getLevel() != edm::ELseverityLevel::ELsev_warning) {
+            continue;
+          }
+          if(!avoidCategories_.empty()) {
+            //veto categories from user input.
+            if(std::find(avoidCategories_.begin(),avoidCategories_.end(),summary.category) != avoidCategories_.end()) {
+              continue;
+            }
+          }
+          return true;
+        }
+        return false;
       } else {
-	if(atLeastOneError_ || atLeastOneWarning_) {
-	  unsigned int nError = 0;
-	  unsigned int nWarning = 0;
-	  for(unsigned int iE = 0; iE != errorsAndWarnings->size(); ++iE) {
-	    //veto categories from user input.
-	    if(!avoidCategories_.empty()) {
-	      if(std::find(avoidCategories_.begin(),avoidCategories_.end(), ((*errorsAndWarnings)[iE]).category) != avoidCategories_.end()) {
-		continue;
-	      }
-	    }
-	    edm::ELseverityLevel const& severity = ((*errorsAndWarnings)[iE]).severity;
-	    //count errors
-	    if(severity.getLevel() == edm::ELseverityLevel::ELsev_error) {
-	      ++nError;
-	    }
-	    //count warnings
-	    if(severity.getLevel() == edm::ELseverityLevel::ELsev_warning) {
-	      ++nWarning;
-	    }
-	  }
-	  if(atLeastOneError_ && nError != 0) {
-	    return (true);
-	  }
-	  if(atLeastOneWarning_ && nWarning != 0) {
-	    return (true);
-	  }
-	}
+        if(atLeastOneError_ || atLeastOneWarning_) {
+          unsigned int nError = 0;
+          unsigned int nWarning = 0;
+          for(auto const& summary: *errorsAndWarnings) {
+            //veto categories from user input.
+            if(!avoidCategories_.empty()) {
+              if(std::find(avoidCategories_.begin(),avoidCategories_.end(), summary.category) != avoidCategories_.end()) {
+                continue;
+              }
+            }
+            edm::ELseverityLevel const& severity = summary.severity;
+            //count errors
+            if(severity.getLevel() == edm::ELseverityLevel::ELsev_error) {
+              ++nError;
+            }
+            //count warnings
+            if(severity.getLevel() == edm::ELseverityLevel::ELsev_warning) {
+              ++nWarning;
+            }
+          }
+          if(atLeastOneError_ && nError != 0) {
+            return (true);
+          }
+          if(atLeastOneWarning_ && nWarning != 0) {
+            return (true);
+          }
+        }
       }
     }
   }
@@ -182,14 +183,13 @@ LogErrorFilter::filter(edm::Event& iEvent, edm::EventSetup const&) {
 }
 
 void LogErrorFilter::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&){
-  if (useThresholdsPerKind_){
-    typedef std::map<std::string, unsigned int>::iterator msIter;
-    msIter errorMI = errorCounts_.begin();
-    msIter errorMIEnd = errorCounts_.end();
-    for (;errorMI != errorMIEnd; ++errorMI) errorMI->second = 0;
-    msIter warningMI = warningCounts_.begin();
-    msIter warningMIEnd = warningCounts_.end();
-    for (;warningMI != warningMIEnd; ++warningMI) warningMI->second = 0;
+  if (useThresholdsPerKind_) {
+    for(auto& err: errorCounts_) {
+      err.second = 0;
+    }
+    for(auto& err: warningCounts_) {
+      err.second = 0;
+    }
   }
 
   return;

@@ -8,8 +8,6 @@
 
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 
-#include "G4String.hh"
-
 #include <string>
 
 class DDCompactView;
@@ -23,12 +21,15 @@ public:
   HGCalTB16SD01(const std::string& , const DDCompactView &, 
 		const SensitiveDetectorCatalog &, edm::ParameterSet const &, 
 		const SimTrackManager*);
-  ~HGCalTB16SD01() override;
-  double   getEnergyDeposit(G4Step* ) override;
+  ~HGCalTB16SD01() override = default;
   uint32_t setDetUnitId(const G4Step* step) override;
   static uint32_t  packIndex(int det, int lay, int x, int y);
   static void      unpackIndex(const uint32_t & idx, int& det, int& lay,
 			       int& x, int& y);
+
+protected:
+
+  double           getEnergyDeposit(const G4Step*) override;
 
 private:    
   void             initialize(const G4StepPoint* point);

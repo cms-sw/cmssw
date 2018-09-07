@@ -14,7 +14,6 @@
 #include "FWCore/Framework/test/DepRecord.h"
 #include "FWCore/Framework/test/DepOn2Record.h"
 #include "FWCore/Framework/test/DummyFinder.h"
-#include "FWCore/Framework/interface/EventSetupRecordProviderFactoryManager.h"
 #include "FWCore/Framework/interface/DependentRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/DataProxyProvider.h"
@@ -189,11 +188,10 @@ private:
 using namespace edm::eventsetup;
 void testdependentrecord::dependentConstructorTest()
 {
-   std::unique_ptr<EventSetupRecordProvider> depProvider =
-   EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(DepRecord::keyForClass());
+   EventSetupRecordProvider depProvider(DepRecord::keyForClass());
    
-   CPPUNIT_ASSERT(1 == depProvider->dependentRecords().size());
-   CPPUNIT_ASSERT(*(depProvider->dependentRecords().begin()) == DummyRecord::keyForClass());
+   CPPUNIT_ASSERT(1 == depProvider.dependentRecords().size());
+   CPPUNIT_ASSERT(*(depProvider.dependentRecords().begin()) == DummyRecord::keyForClass());
    
    edm::print_eventsetup_record_dependencies<DepRecord>(std::cout);
 }
@@ -201,9 +199,7 @@ void testdependentrecord::dependentConstructorTest()
 
 void testdependentrecord::dependentFinder1Test()
 {
-   std::shared_ptr<EventSetupRecordProvider> dummyProvider(
-                                                          EventSetupRecordProviderFactoryManager::instance()
-                                                              .makeRecordProvider(DummyRecord::keyForClass()).release());
+   auto dummyProvider = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass());
    const edm::EventID eID_1(1, 1, 1);
    const edm::IOVSyncValue sync_1(eID_1);
    const edm::EventID eID_3(1, 1, 3);
@@ -235,8 +231,7 @@ void testdependentrecord::dependentFinder1Test()
 
 void testdependentrecord::dependentFinder2Test()
 {
-   std::shared_ptr<EventSetupRecordProvider> dummyProvider1(EventSetupRecordProviderFactoryManager::instance()
-                                                              .makeRecordProvider(DummyRecord::keyForClass()).release());
+   auto dummyProvider1 = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass());
    
    const edm::EventID eID_1(1, 1, 1);
    const edm::IOVSyncValue sync_1(eID_1);
@@ -244,8 +239,7 @@ void testdependentrecord::dependentFinder2Test()
                                                  edm::IOVSyncValue(edm::EventID(1, 1, 5)));
    dummyProvider1->setValidityInterval(definedInterval1);
    
-   std::shared_ptr<EventSetupRecordProvider> dummyProvider2(EventSetupRecordProviderFactoryManager::instance()
-                                                              .makeRecordProvider(DummyRecord::keyForClass()).release());
+   auto dummyProvider2 = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass());
    
    const edm::EventID eID_2(1, 1, 2);
    const edm::IOVSyncValue sync_2(eID_2);
@@ -270,8 +264,7 @@ void testdependentrecord::dependentFinder2Test()
 void testdependentrecord::timeAndRunTest()
 {
   //test case where we have two providers, one synching on time the other on run/lumi/event
-   std::shared_ptr<EventSetupRecordProvider> dummyProvider1(EventSetupRecordProviderFactoryManager::instance()
-                                                              .makeRecordProvider(DummyRecord::keyForClass()).release());
+   auto dummyProvider1 = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass());
    
    const edm::EventID eID_1(1, 1, 1);
    const edm::IOVSyncValue sync_1(eID_1);
@@ -279,8 +272,8 @@ void testdependentrecord::timeAndRunTest()
                                                  edm::IOVSyncValue(edm::EventID(1, 1, 5)));
    dummyProvider1->setValidityInterval(definedInterval1);
    
-   std::shared_ptr<EventSetupRecordProvider> dummyProvider2(EventSetupRecordProviderFactoryManager::instance()
-                                                              .makeRecordProvider(DummyRecord::keyForClass()).release());
+   auto dummyProvider2 = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass());
+
    
    const edm::Timestamp time_1(1);
    const edm::IOVSyncValue sync_2(time_1);
@@ -427,8 +420,7 @@ void testdependentrecord::timeAndRunTest()
    {
       //check for bug which only happens the first time we synchronize
       // have the second one invalid
-      std::shared_ptr<EventSetupRecordProvider> dummyProvider1(EventSetupRecordProviderFactoryManager::instance()
-                                                                 .makeRecordProvider(DummyRecord::keyForClass()).release());
+      auto dummyProvider1 = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass());
 
       const edm::EventID eID_1(1, 1, 1);
       const edm::IOVSyncValue sync_1(eID_1);
@@ -436,8 +428,7 @@ void testdependentrecord::timeAndRunTest()
                                                     edm::IOVSyncValue(edm::EventID(1, 1, 6)));
       dummyProvider1->setValidityInterval(definedInterval1);
 
-      std::shared_ptr<EventSetupRecordProvider> dummyProvider2(EventSetupRecordProviderFactoryManager::instance()
-                                                                 .makeRecordProvider(DummyRecord::keyForClass()).release());
+      auto dummyProvider2 = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass());
 
       dummyProvider2->setValidityInterval(invalid);
 
@@ -470,13 +461,11 @@ void testdependentrecord::timeAndRunTest()
       //check for bug which only happens the first time we synchronize
       // have the  first one invalid
       
-      std::shared_ptr<EventSetupRecordProvider> dummyProvider1(EventSetupRecordProviderFactoryManager::instance()
-                                                                 .makeRecordProvider(DummyRecord::keyForClass()).release());
+      auto dummyProvider1 = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass());
 
       dummyProvider1->setValidityInterval(invalid);
 
-      std::shared_ptr<EventSetupRecordProvider> dummyProvider2(EventSetupRecordProviderFactoryManager::instance()
-                                                                 .makeRecordProvider(DummyRecord::keyForClass()).release());
+      auto dummyProvider2 = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass());
 
       const edm::Timestamp time_1(1);
       const edm::IOVSyncValue sync_2(time_1);
@@ -610,11 +599,9 @@ void testdependentrecord::timeAndRunTest()
 
 void testdependentrecord::dependentSetproviderTest()
 {
-   std::unique_ptr<EventSetupRecordProvider> depProvider =
-   EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(DepRecord::keyForClass());
+   auto depProvider = std::make_unique<EventSetupRecordProvider>(DepRecord::keyForClass());
    
-   std::shared_ptr<EventSetupRecordProvider> dummyProvider(
-       EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(DummyRecord::keyForClass()).release());
+   auto dummyProvider = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass());
 
    std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
    dummyFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)),
@@ -711,9 +698,8 @@ void testdependentrecord::resetTest()
 }
 void testdependentrecord::alternateFinderTest()
 {
-  std::shared_ptr<EventSetupRecordProvider> dummyProvider(
-                                                            EventSetupRecordProviderFactoryManager::instance()
-                                                            .makeRecordProvider(DummyRecord::keyForClass()).release());
+   auto dummyProvider = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass());
+   
   const edm::EventID eID_1(1, 1, 1);
   const edm::IOVSyncValue sync_1(eID_1);
   const edm::EventID eID_3(1, 1, 3);
@@ -775,16 +761,14 @@ void testdependentrecord::alternateFinderTest()
 
 void testdependentrecord::invalidRecordTest()
 {
-   std::shared_ptr<EventSetupRecordProvider> dummyProvider1(EventSetupRecordProviderFactoryManager::instance()
-                                                              .makeRecordProvider(DummyRecord::keyForClass()).release());
+   auto dummyProvider1 = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass());
 
    const edm::ValidityInterval invalid( edm::IOVSyncValue::invalidIOVSyncValue(),
 					edm::IOVSyncValue::invalidIOVSyncValue());
 
    dummyProvider1->setValidityInterval(invalid);
    
-   std::shared_ptr<EventSetupRecordProvider> dummyProvider2(EventSetupRecordProviderFactoryManager::instance()
-                                                              .makeRecordProvider(DummyRecord::keyForClass()).release());
+   auto dummyProvider2 = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass());
    dummyProvider2->setValidityInterval(invalid);
 
    const EventSetupRecordKey depRecordKey = DepRecord::keyForClass();

@@ -102,9 +102,8 @@ L1TMuonEndCapForestESProducer::produce(const L1TMuonEndCapForestRcd& iRecord)
   if (ptLUTVersion <= 5) pt_assign_engine_ = pt_assign_engine_2016_.get();
   else                   pt_assign_engine_ = pt_assign_engine_2017_.get();
 
-  pt_assign_engine_->configure( true, ptLUTVersion, false, false, false, false, false );
-  pt_assign_engine_->read(bdtXMLDir);
-  
+  pt_assign_engine_->read(ptLUTVersion, bdtXMLDir);
+
   // get a hold on the forests; copy to non-const locals
   std::array<emtf::Forest, 16> forests = pt_assign_engine_->getForests();
   std::vector<int> allowedModes = pt_assign_engine_->getAllowedModes();

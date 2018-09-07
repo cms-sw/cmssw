@@ -87,7 +87,7 @@ namespace ftl_digitizer {
     }
     
     // implementations
-    SensorPhysics deviceSim_; // processes a given simhit into an entry in a FTLSimHitDataAccumulator
+    SensorPhysics deviceSim_;       // processes a given simhit into an entry in a FTLSimHitDataAccumulator
     ElectronicsSim electronicsSim_; // processes a FTLSimHitDataAccumulator into a FTLDigiCollection
         
     //handle sim hits
@@ -176,10 +176,6 @@ namespace ftl_digitizer {
       const float tof = toa-dist2center/refSpeed_+tofDelay_ ;
       const int itime= std::floor( tof/bxTime_ ) + 9;
       
-      //no need to add bx crossing - tof comes already corrected from the mixing module
-      //itime += bxCrossing;
-      //itime += 9;
-      
       if(itime<0 || itime>14) continue;     
       
       //check if time index is ok and store energy
@@ -203,7 +199,6 @@ namespace ftl_digitizer {
 		    {
 		      float prev_toa    = std::get<2>(hitRefs[i-1]);
 		      float prev_tof(prev_toa-dist2center/refSpeed_+tofDelay_);
-		      //float prev_charge = std::get<3>(hitRefs[i-1]);
 		      float deltaQ2TDCOnset = tdcOnset-((simHitIt->second).hit_info[0][itime]-charge);
 		      float deltaQ          = charge;
 		      float deltaT          = (tof-prev_tof);

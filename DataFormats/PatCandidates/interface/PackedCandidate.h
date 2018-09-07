@@ -710,7 +710,7 @@ namespace pat {
     void packBoth() { pack(false); packVtx(false); delete p4_.exchange(nullptr); delete p4c_.exchange(nullptr); delete vertex_.exchange(nullptr); unpack(); unpackVtx(); } // do it this way, so that we don't loose precision on the angles before computing dxy,dz
     void unpackTrk() const ;
 
-    int8_t packedPuppiweight_;
+    uint8_t packedPuppiweight_;
     int8_t packedPuppiweightNoLepDiff_; // storing the DIFFERENCE of (all - "no lep") for compression optimization
     uint8_t rawCaloFraction_;
     int8_t hcalFraction_;

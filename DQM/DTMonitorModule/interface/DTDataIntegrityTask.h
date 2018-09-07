@@ -80,6 +80,7 @@ private:
   void bookHistos(DQMStore::IBooker &, std::string folder, const int fed);
   void bookHistosROS25(DQMStore::IBooker &, DTROChainCoding code);
   void bookHistosuROS(DQMStore::IBooker &,const int fed, const int uRos);
+  void bookHistosROS(DQMStore::IBooker &,const int wheel, const int ros);
 
   void channelsInCEROS(int cerosId, int chMask, std::vector<int>& channels);
   void channelsInROS(int cerosMask, std::vector<int>& channels);
@@ -91,6 +92,10 @@ private:
 
   edm::ParameterSet parameters;
 
+  //conversions
+  int theDDU(int crate, int slot, int link, bool tenDDU);
+  int theROS(int slot, int link);
+  
   //If you want info VS time histos
   bool doTimeHisto;
   // Plot quantities about SC
@@ -117,7 +122,7 @@ private:
 
   //enum histoTypes for reduced map of MEs urosHistos
   // key = stringEnum*1000 + (fed-minFED)#*100 + (uROS-minuROS)#
-  enum histoTypes {uROSEventLenght=0, uROSError=1, TDCError=4, TTSValues=7}; 
+  enum histoTypes {uROSEventLength=0, uROSError=1, TDCError=4, TTSValues=7}; 
 
   // standard ME for monitoring of FED integrity
   MonitorElement* hFEDEntry;

@@ -22,10 +22,11 @@ ElectronSeedMerger::ElectronSeedMerger(const ParameterSet& iConfig):
  conf_(iConfig)
 {
   LogInfo("ElectronSeedMerger")<<"Electron SeedMerger  started  ";
-  
 
   ecalSeedToken_ = consumes<ElectronSeedCollection>(iConfig.getParameter<InputTag>("EcalBasedSeeds"));
-  tkSeedToken_ = consumes<ElectronSeedCollection>(iConfig.getParameter<InputTag>("TkBasedSeeds"));
+  edm::InputTag tkSeedLabel_ = iConfig.getParameter<InputTag>("TkBasedSeeds");
+  if (!tkSeedLabel_.label().empty())
+    tkSeedToken_ = consumes<ElectronSeedCollection>(tkSeedLabel_);
    
   produces<ElectronSeedCollection>();
 
@@ -58,8 +59,11 @@ ElectronSeedMerger::produce(Event& iEvent, const EventSetup& iSetup)
   ElectronSeedCollection ESeed = *(EcalBasedSeeds.product());
 
   Handle<ElectronSeedCollection> TkBasedSeeds;
-  iEvent.getByToken(tkSeedToken_,TkBasedSeeds);
-  ElectronSeedCollection TSeed = *(TkBasedSeeds.product());
+  ElectronSeedCollection TSeed;
+  if (!tkSeedToken_.isUninitialized()) {
+    iEvent.getByToken(tkSeedToken_,TkBasedSeeds);
+    TSeed = *(TkBasedSeeds.product());
+  }
 
 
   //VECTOR FOR MATCHED SEEDS

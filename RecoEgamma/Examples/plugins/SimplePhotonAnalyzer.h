@@ -18,7 +18,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -35,7 +35,7 @@
 class TFile;
 
 
-class SimplePhotonAnalyzer : public edm::EDAnalyzer {
+class SimplePhotonAnalyzer : public edm::one::EDAnalyzer<> {
    public:
       explicit SimplePhotonAnalyzer( const edm::ParameterSet& );
       ~SimplePhotonAnalyzer() override;

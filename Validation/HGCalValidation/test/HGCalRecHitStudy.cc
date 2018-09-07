@@ -22,6 +22,9 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -63,7 +66,7 @@ private:
       layer=0;
     }
     float x, y, z, time, energy, phi, eta ;
-    float layer;
+    int   layer;
   };
 
   virtual void beginJob() override {}
@@ -84,6 +87,7 @@ private:
   bool                  ifHCAL_;
   int                   verbosity_;
   unsigned int          layers_;
+  int                   firstLayer_;
   std::map<int, int>    OccupancyMap_plus;
   std::map<int, int>    OccupancyMap_minus;
 
@@ -99,11 +103,11 @@ private:
 HGCalRecHitStudy::HGCalRecHitStudy(const edm::ParameterSet& iConfig) :
   nameDetector_(iConfig.getParameter<std::string>("DetectorName")), 
   ifHCAL_(iConfig.getParameter<bool>("ifHCAL")),
-  verbosity_(iConfig.getUntrackedParameter<int>("Verbosity",0)) {
+  verbosity_(iConfig.getUntrackedParameter<int>("Verbosity",0)),
+  layers_(0), firstLayer_(1) {
 
   usesResource(TFileService::kSharedResource);
 
-  layers_       = 0;
   auto temp     = iConfig.getParameter<edm::InputTag>("RecHitSource");
   if (nameDetector_ == "HGCalEESensitive" || 
       nameDetector_ == "HGCalHESiliconSensitive" ||
@@ -201,7 +205,10 @@ void HGCalRecHitStudy::analyze(const edm::Event& iEvent,
       for (const auto & it : *(theRecHitContainers.product())) {
 	ntot++; nused++;
 	DetId detId = it.id();
-	int layer   = HGCalDetId(detId).layer();
+	int layer   = ((detId.det() == DetId::Forward) ? HGCalDetId(detId).layer() :
+		       ((detId.det() == DetId::HGCalHSc) ? 
+			HGCScintillatorDetId(detId).layer() : 
+			HGCSiliconDetId(detId).layer()));
 	recHitValidation(detId, layer, geom0, &it);
       }
     } else {
@@ -210,9 +217,9 @@ void HGCalRecHitStudy::analyze(const edm::Event& iEvent,
     }
   }
   if (ok) fillHitsInfo();
-  edm::LogWarning("HGCalValidation") << "Event " << iEvent.id().event()
-				     << " with " << ntot << " total and "
-				     << nused << " used recHits";
+  edm::LogVerbatim("HGCalValidation") << "Event " << iEvent.id().event()
+				      << " with " << ntot << " total and "
+				      << nused << " used recHits";
 }
 
 template<class T1, class T2>
@@ -231,7 +238,7 @@ void HGCalRecHitStudy::recHitValidation(DetId & detId, int layer,
   hinfo.x      = globalx;
   hinfo.y      = globaly;
   hinfo.z      = globalz;
-  hinfo.layer  = layer;
+  hinfo.layer  = layer-firstLayer_;
   hinfo.phi    = global.phi();
   hinfo.eta    = global.eta();
       
@@ -243,8 +250,8 @@ void HGCalRecHitStudy::recHitValidation(DetId & detId, int layer,
       
   fillHitsInfo(hinfo);
       
-  if (hinfo.eta > 0)  fillOccupancyMap(OccupancyMap_plus, layer -1);
-  else                fillOccupancyMap(OccupancyMap_minus, layer -1);
+  if (hinfo.eta > 0)  fillOccupancyMap(OccupancyMap_plus,  hinfo.layer);
+  else                fillOccupancyMap(OccupancyMap_minus, hinfo.layer);
       
 }      
 
@@ -255,15 +262,15 @@ void HGCalRecHitStudy::fillOccupancyMap(std::map<int, int>& OccupancyMap, int la
 
 void HGCalRecHitStudy::fillHitsInfo() { 
 
-  for (auto itr = OccupancyMap_plus.begin() ; itr != OccupancyMap_plus.end(); ++itr) {
-    int layer      = (*itr).first;
-    int occupancy  = (*itr).second;
+  for (auto const & itr : OccupancyMap_plus) {
+    int layer      = itr.first;
+    int occupancy  = itr.second;
     HitOccupancy_Plus_.at(layer)->Fill(occupancy);
   }
 
-  for (auto itr = OccupancyMap_minus.begin() ; itr != OccupancyMap_minus.end(); ++itr) {
-    int layer      = (*itr).first;
-    int occupancy  = (*itr).second;
+  for (auto const & itr : OccupancyMap_minus) {
+    int layer      = itr.first;
+    int occupancy  = itr.second;
     HitOccupancy_Minus_.at(layer)->Fill(occupancy);
   }
   
@@ -271,7 +278,7 @@ void HGCalRecHitStudy::fillHitsInfo() {
 
 void HGCalRecHitStudy::fillHitsInfo(HitsInfo& hits) {
 
-  unsigned int ilayer = hits.layer -1;
+  unsigned int ilayer = hits.layer;
   energy_.at(ilayer)->Fill(hits.energy);
 
   EtaPhi_Plus_.at(ilayer)->Fill(hits.eta , hits.phi);
@@ -286,12 +293,13 @@ void HGCalRecHitStudy::beginRun(edm::Run const&,
     edm::ESHandle<HcalDDDRecConstants> pHRNDC;
     iSetup.get<HcalRecNumberingRecord>().get( pHRNDC );
     const HcalDDDRecConstants *hcons   = &(*pHRNDC);
-    layers_ = hcons->getMaxDepth(1);
+    layers_     = hcons->getMaxDepth(1);
   } else {
     edm::ESHandle<HGCalDDDConstants>  pHGDC;
     iSetup.get<IdealGeometryRecord>().get(nameDetector_, pHGDC);
     const HGCalDDDConstants & hgcons_ = (*pHGDC);
-    layers_ = hgcons_.layers(true);
+    layers_     = hgcons_.layers(true);
+    firstLayer_ = hgcons_.firstLayer();
   }
 
   edm::LogVerbatim("HGCalValidation") << "Finds " << layers_ << " layers for " 
@@ -299,7 +307,8 @@ void HGCalRecHitStudy::beginRun(edm::Run const&,
 
   edm::Service<TFileService> fs;
   char histoname[100];
-  for (unsigned int ilayer = 0; ilayer < layers_; ilayer++ ) {
+  for (unsigned int il = 0; il < layers_; il++ ) {
+    int ilayer = firstLayer_ + (int)(il);
     sprintf (histoname,"HitOccupancy_Plus_layer_%d", ilayer);
     HitOccupancy_Plus_.push_back(fs->make<TH1D>(histoname, "RecHitOccupancy_Plus", 100, 0, 10000));
     sprintf (histoname, "HitOccupancy_Minus_layer_%d", ilayer);
@@ -325,4 +334,3 @@ void HGCalRecHitStudy::beginRun(edm::Run const&,
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(HGCalRecHitStudy);
-

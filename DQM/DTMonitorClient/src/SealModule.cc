@@ -40,6 +40,9 @@ DEFINE_FWK_MODULE(DTLocalTriggerTPTest);
 #include "DQM/DTMonitorClient/src/DTOccupancyTest.h"
 DEFINE_FWK_MODULE(DTOccupancyTest);
 
+#include "DQM/DTMonitorClient/src/DTOccupancyTestML.h"
+DEFINE_FWK_MODULE(DTOccupancyTestML);
+
 #include "DQM/DTMonitorClient/src/DTSummaryClients.h"
 DEFINE_FWK_MODULE(DTSummaryClients);
 

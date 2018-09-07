@@ -12,7 +12,6 @@
 #include "SiStripFakeAPVParameters.h"
 
 SiStripApvGainBuilderFromTag::SiStripApvGainBuilderFromTag( const edm::ParameterSet& iConfig ):
-  fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))),
   printdebug_(iConfig.getUntrackedParameter<uint32_t>("printDebug",1)),
   pset_(iConfig)
 {}
@@ -47,10 +46,9 @@ void SiStripApvGainBuilderFromTag::analyze(const edm::Event& evt, const edm::Eve
   // Prepare the new object
   SiStripApvGain* obj = new SiStripApvGain();
 
-  SiStripDetInfoFileReader reader(fp_.fullPath());
-
+  const edm::Service<SiStripDetInfoFileReader> reader;
   uint32_t count = 0;
-  const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >& DetInfos = reader.getAllData();
+  const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >& DetInfos = reader->getAllData();
   for(std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >::const_iterator it = DetInfos.begin(); it != DetInfos.end(); it++) {
 
     // Find if this DetId is in the input tag and if so how many are the Apvs for which it contains information

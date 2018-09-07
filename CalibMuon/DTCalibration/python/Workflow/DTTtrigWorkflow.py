@@ -54,7 +54,7 @@ class DTttrigWorkflow( DTWorkflow ):
 
     def get_output_db(self, workflow_mode, command):
         output_db_file = self.output_db_dict[workflow_mode]
-        if type(output_db_file) == dict:
+        if isinstance(output_db_file, dict):
             return output_db_file[command]
         return output_db_file
     ####################################################################
@@ -81,7 +81,7 @@ class DTttrigWorkflow( DTWorkflow ):
 
     def prepare_timeboxes_write(self):
         self.output_db_file = self.output_db_dict[self.options.workflow_mode]
-        if type(self.output_db_dict[self.options.workflow_mode]) == dict:
+        if isinstance(self.output_db_dict[self.options.workflow_mode], dict):
             self.output_db_file = self.output_db_file[self.options.command]
         self.prepare_common_write()
         merged_file = os.path.join(self.result_path, self.output_file)

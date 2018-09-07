@@ -177,6 +177,13 @@ ecalTrigPrimTask = cms.untracked.PSet(
             btype = cms.untracked.string('TriggerTower'),
             description = cms.untracked.string('Occupancy for TP digis with TTF=4.')
         ),
+        TTFlags4ByLumi = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sTriggerTowerTask/%(prefix)sTTT TTF4 Occupancy%(suffix)s by lumi'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal3P'),
+            btype = cms.untracked.string('TriggerTower'),
+            description = cms.untracked.string('Occupancy for TP digis with TTF=4, by lumisection.')
+        ),
         TTMaskMap = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sTriggerTowerTask/TTStatus/%(prefix)sTTT TT Masking Status%(sm)s'),
             kind = cms.untracked.string('TProfile2D'),

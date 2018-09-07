@@ -48,11 +48,12 @@ public:
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-private:
+protected:
   // observer classes
   void update(const BeginOfEvent * evt) override;
   void update(const EndOfEvent * evt) override;
 
+private:
   void clear();
   void fillEvent(TotemTestHistoClass&);
 

@@ -250,7 +250,7 @@ TrackerGeometry::isThere(GeomDetEnumerators::SubDetector subdet) const {
 
 void TrackerGeometry::fillTestMap(const GeometricDet* gd) {
     
-  std::string temp = gd->name();
+  const std::string temp = gd->name().fullname();
   std::string name = temp.substr(temp.find(":")+1); 
   DetId detid = gd->geographicalId();
   float thickness = gd->bounds()->thickness();

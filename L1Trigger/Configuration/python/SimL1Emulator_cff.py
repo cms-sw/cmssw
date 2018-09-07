@@ -62,9 +62,11 @@ _phase2_siml1emulator = SimL1Emulator.copy()
 _phase2_siml1emulator += hgcalTriggerPrimitives
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-phase2_hgcal.toReplaceWith( SimL1Emulator , _phase2_siml1emulator )
+from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
+(phase2_hgcal & ~phase2_hgcalV9).toReplaceWith( SimL1Emulator , _phase2_siml1emulator )
 
 # If PreMixing, don't run these modules during first step
+# TODO: Do we actually need anything from here run in stage1?
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
 premix_stage1.toReplaceWith(SimL1Emulator, SimL1Emulator.copyAndExclude([
     SimL1TCalorimeter,

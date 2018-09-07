@@ -1,3 +1,4 @@
+from __future__ import print_function
 #Basic example configration file to run the b-tagging validation sequence.
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("validation")
@@ -39,8 +40,8 @@ end customization
 """
 
 ###prints###
-print "is it MC ? : ", runOnMC
-print "Global Tag : ", tag.globaltag
+print("is it MC ? : ", runOnMC)
+print("Global Tag : ", tag.globaltag)
 ############
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")

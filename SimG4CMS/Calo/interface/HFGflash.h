@@ -42,7 +42,7 @@ public:
     double              pez = 0.;
   };
 
-  std::vector<Hit> gfParameterization(G4Step * aStep, bool & ok, bool onlyLong=false);
+  std::vector<Hit> gfParameterization(const G4Step * aStep, bool onlyLong=false);
 
 private:    
 

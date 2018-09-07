@@ -84,7 +84,7 @@ MakePtLUT::MakePtLUT(const edm::ParameterSet& iConfig) :
 
   pt_assign_engine_->configure(
     verbose_,
-    ptLUTVersion, readPtLUTFile, fixMode15HighPt,
+    readPtLUTFile, fixMode15HighPt,
     bug9BitDPhi, bugMode7CLCT, bugNegPt
   );
 
@@ -111,7 +111,7 @@ void MakePtLUT::makeLUT() {
 
   // Load XMLs inside function
   std::cout << "Inside makeLUT() - loading XMLs" << std::endl;
-  pt_assign_engine_->read(xml_dir_);
+  pt_assign_engine_->read(config_.getParameter<int>("PtLUTVersion"), xml_dir_);
 
   std::cout << "Calculating pT for " << PTLUT_SIZE / denom_ << " addresses, please sit tight..." << std::endl;
 

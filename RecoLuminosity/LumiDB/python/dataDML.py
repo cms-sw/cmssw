@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os,coral,fnmatch,time
 from RecoLuminosity.LumiDB import nameDealer,dbUtil,revisionDML,lumiTime,CommonUtil,lumiCorrections
 from datetime import datetime
@@ -2122,7 +2123,7 @@ def insertTrgHltMap(schema,hltkey,trghltmap):
             nrows=len(bulkvalues)
         return nrows
     except :
-        print 'error in insertTrgHltMap '
+        print('error in insertTrgHltMap ')
         raise
 def bulkInsertTrgLSData(session,runnumber,data_id,trglsdata,bulksize=500):
     '''
@@ -2132,7 +2133,7 @@ def bulkInsertTrgLSData(session,runnumber,data_id,trglsdata,bulksize=500):
     result nrows inserted
     if nrows==0, then this insertion failed
     '''
-    print 'total number of trg rows ',len(trglsdata)
+    print('total number of trg rows ',len(trglsdata))
     lstrgDefDict=[('DATA_ID','unsigned long long'),('RUNNUM','unsigned int'),('CMSLSNUM','unsigned int'),('DEADTIMECOUNT','unsigned long long'),('BITZEROCOUNT','unsigned int'),('BITZEROPRESCALE','unsigned int'),('PRESCALEBLOB','blob'),('TRGCOUNTBLOB','blob')]
     committedrows=0
     nrows=0
@@ -2148,7 +2149,7 @@ def bulkInsertTrgLSData(session,runnumber,data_id,trglsdata,bulksize=500):
             nrows+=1
             committedrows+=1
             if nrows==bulksize:
-                print 'committing trg in LS chunck ',nrows
+                print('committing trg in LS chunck ',nrows)
                 db=dbUtil.dbUtil(session.nominalSchema())
                 session.transaction().start(False)
                 db.bulkInsert(nameDealer.lstrgTableName(),lstrgDefDict,bulkvalues)
@@ -2156,20 +2157,20 @@ def bulkInsertTrgLSData(session,runnumber,data_id,trglsdata,bulksize=500):
                 nrows=0
                 bulkvalues=[]
             elif committedrows==len(trglsdata):
-                print 'committing trg at the end '
+                print('committing trg at the end ')
                 db=dbUtil.dbUtil(session.nominalSchema())
                 session.transaction().start(False)
                 db.bulkInsert(nameDealer.lstrgTableName(),lstrgDefDict,bulkvalues)
                 session.transaction().commit()
     except :
-        print 'error in bulkInsertTrgLSData'
+        print('error in bulkInsertTrgLSData')
         raise 
 def bulkInsertHltLSData(session,runnumber,data_id,hltlsdata,bulksize=500):
     '''
     input:
     hltlsdata {cmslsnum:[inputcountBlob,acceptcountBlob,prescaleBlob]}
     '''
-    print 'total number of hlt rows ',len(hltlsdata)
+    print('total number of hlt rows ',len(hltlsdata))
     lshltDefDict=[('DATA_ID','unsigned long long'),('RUNNUM','unsigned int'),('CMSLSNUM','unsigned int'),('PRESCALEBLOB','blob'),('HLTCOUNTBLOB','blob'),('HLTACCEPTBLOB','blob')]
     committedrows=0
     nrows=0
@@ -2184,7 +2185,7 @@ def bulkInsertHltLSData(session,runnumber,data_id,hltlsdata,bulksize=500):
             nrows+=1
             committedrows+=1
             if nrows==bulksize:
-                print 'committing hlt in LS chunck ',nrows
+                print('committing hlt in LS chunck ',nrows)
                 db=dbUtil.dbUtil(session.nominalSchema())
                 session.transaction().start(False)
                 db.bulkInsert(nameDealer.lshltTableName(),lshltDefDict,bulkvalues)
@@ -2192,13 +2193,13 @@ def bulkInsertHltLSData(session,runnumber,data_id,hltlsdata,bulksize=500):
                 nrows=0
                 bulkvalues=[]
             elif committedrows==len(hltlsdata):
-                print 'committing hlt at the end '
+                print('committing hlt at the end ')
                 db=dbUtil.dbUtil(session.nominalSchema())
                 session.transaction().start(False)
                 db.bulkInsert(nameDealer.lshltTableName(),lshltDefDict,bulkvalues)
                 session.transaction().commit()
     except  :
-        print 'error in bulkInsertHltLSData'
+        print('error in bulkInsertHltLSData')
         raise 
     
 def bulkInsertLumiLSSummary(session,runnumber,data_id,lumilsdata,tableName,bulksize=500,withDetails=True):
@@ -2211,7 +2212,7 @@ def bulkInsertLumiLSSummary(session,runnumber,data_id,lumilsdata,tableName,bulks
         lslumiDefDict=[('DATA_ID','unsigned long long'),('RUNNUM','unsigned int'),('LUMILSNUM','unsigned int'),('CMSLSNUM','unsigned int'),('INSTLUMI','float'),('INSTLUMIERROR','float'),('INSTLUMIQUALITY','short'),('BEAMSTATUS','string'),('BEAMENERGY','float'),('NUMORBIT','unsigned int'),('STARTORBIT','unsigned int'),('CMSBXINDEXBLOB','blob'),('BEAMINTENSITYBLOB_1','blob'),('BEAMINTENSITYBLOB_2','blob'),('BXLUMIVALUE_OCC1','blob'),('BXLUMIERROR_OCC1','blob'),('BXLUMIQUALITY_OCC1','blob'),('BXLUMIVALUE_OCC2','blob'),('BXLUMIERROR_OCC2','blob'),('BXLUMIQUALITY_OCC2','blob'),('BXLUMIVALUE_ET','blob'),('BXLUMIERROR_ET','blob'),('BXLUMIQUALITY_ET','blob')]
     else:
         lslumiDefDict=[('DATA_ID','unsigned long long'),('RUNNUM','unsigned int'),('LUMILSNUM','unsigned int'),('CMSLSNUM','unsigned int'),('INSTLUMI','float'),('INSTLUMIERROR','float'),('INSTLUMIQUALITY','short'),('BEAMSTATUS','string'),('BEAMENERGY','float'),('NUMORBIT','unsigned int'),('STARTORBIT','unsigned int')]
-    print 'total number of lumi rows ',len(lumilsdata)
+    print('total number of lumi rows ',len(lumilsdata))
     try:
         committedrows=0
         nrows=0
@@ -2244,7 +2245,7 @@ def bulkInsertLumiLSSummary(session,runnumber,data_id,lumilsdata,tableName,bulks
             nrows+=1
             committedrows+=1
             if nrows==bulksize:
-                print 'committing lumi in LS chunck ',nrows
+                print('committing lumi in LS chunck ',nrows)
                 db=dbUtil.dbUtil(session.nominalSchema())
                 session.transaction().start(False)
                 db.bulkInsert(tableName,lslumiDefDict,bulkvalues)
@@ -2252,7 +2253,7 @@ def bulkInsertLumiLSSummary(session,runnumber,data_id,lumilsdata,tableName,bulks
                 nrows=0
                 bulkvalues=[]
             elif committedrows==len(lumilsdata):
-                print 'committing lumi at the end '
+                print('committing lumi at the end ')
                 db=dbUtil.dbUtil(session.nominalSchema())
                 session.transaction().start(False)
                 db.bulkInsert(tableName,lslumiDefDict,bulkvalues)
@@ -2339,11 +2340,11 @@ if __name__ == "__main__":
     try:
     #    #lumidbDDL.createUniqueConstraints(schema)
         trunkinfo=revisionDML.createBranch(schema,'TRUNK',None,comment='main')
-        print trunkinfo
+        print(trunkinfo)
         datainfo=revisionDML.createBranch(schema,'DATA','TRUNK',comment='hold data')
-        print datainfo
+        print(datainfo)
         norminfo=revisionDML.createBranch(schema,'NORM','TRUNK',comment='hold normalization factor')
-        print norminfo
+        print(norminfo)
     except:
         raise
         #print 'branch already exists, do nothing'
@@ -2374,51 +2375,51 @@ if __name__ == "__main__":
         (hltrevid,hltentryid,hltdataid)=addHLTRunDataToBranch(schema,runnum,hltrundata,branchinfo)
         insertHltLSData(schema,runnum,hltdataid,hltlsdata)
     session.transaction().commit()
-    print 'test reading'
+    print('test reading')
     session.transaction().start(True)
-    print '===inspecting NORM by name==='
+    print('===inspecting NORM by name===')
     normrevlist=revisionDML.revisionsInBranchName(schema,'NORM')
     luminormentry_id=revisionDML.entryInBranch(schema,nameDealer.luminormTableName(),'pp7TeV','NORM')
     latestNorms=revisionDML.latestDataRevisionOfEntry(schema,nameDealer.luminormTableName(),luminormentry_id,normrevlist)
-    print 'latest norm data_id for pp7TeV ',latestNorms
+    print('latest norm data_id for pp7TeV ',latestNorms)
     
-    print '===inspecting DATA branch==='
-    print revisionDML.branchType(schema,'DATA')
+    print('===inspecting DATA branch===')
+    print(revisionDML.branchType(schema,'DATA'))
     revlist=revisionDML.revisionsInBranchName(schema,'DATA')
-    print revlist
+    print(revlist)
     lumientry_id=revisionDML.entryInBranch(schema,nameDealer.lumidataTableName(),'1211','DATA')
     latestrevision=revisionDML.latestDataRevisionOfEntry(schema,nameDealer.lumidataTableName(),lumientry_id,revlist)
-    print 'latest lumi data_id for run 1211 ',latestrevision
+    print('latest lumi data_id for run 1211 ',latestrevision)
     lumientry_id=revisionDML.entryInBranch(schema,nameDealer.lumidataTableName(),'1222','DATA')
     latestrevision=revisionDML.latestDataRevisionOfEntry(schema,nameDealer.lumidataTableName(),lumientry_id,revlist)
-    print 'latest lumi data_id for run 1222 ',latestrevision
+    print('latest lumi data_id for run 1222 ',latestrevision)
     trgentry_id=revisionDML.entryInBranch(schema,nameDealer.trgdataTableName(),'1222','DATA')
     latestrevision=revisionDML.latestDataRevisionOfEntry(schema,nameDealer.trgdataTableName(),trgentry_id,revlist)
-    print 'latest trg data_id for run 1222 ',latestrevision
+    print('latest trg data_id for run 1222 ',latestrevision)
     session.transaction().commit()
-    print 'tagging data so far as data_orig'
+    print('tagging data so far as data_orig')
     session.transaction().start(False)
     (revisionid,parentid,parentname)=revisionDML.createBranch(schema,'data_orig','DATA',comment='tag of 2010data')
     session.transaction().commit()
     session.transaction().start(True)
-    print revisionDML.branchType(schema,'data_orig')
+    print(revisionDML.branchType(schema,'data_orig'))
     revlist=revisionDML.revisionsInTag(schema,revisionid,branchinfo[0])
-    print revlist
+    print(revlist)
     session.transaction().commit()
     session.transaction().start(False)
     for runnum in [1200,1222]:
-        print 'revising lumidata for run ',runnum
+        print('revising lumidata for run ',runnum)
         lumidummydata=generateDummyData.lumiSummary(schema,20)
         lumirundata=[lumidummydata[0]]
         lumilsdata=lumidummydata[1]
         (lumirevid,lumientryid,lumidataid)=addLumiRunDataToBranch(schema,runnum,lumirundata,branchinfo)
         insertLumiLSSummary(schema,runnum,lumidataid,lumilsdata)
     revlist=revisionDML.revisionsInTag(schema,revisionid,branchinfo[0])
-    print 'revisions in branch DATA',revisionDML.revisionsInBranch(schema,branchinfo[0])
+    print('revisions in branch DATA',revisionDML.revisionsInBranch(schema,branchinfo[0]))
     session.transaction().commit()
     #print 'revisions in tag data_orig ',revlist
     
-    print '===test reading==='
+    print('===test reading===')
     session.transaction().start(True)
     #print 'guess norm by name'
     #normid1=guessnormIdByName(schema,'pp7TeV')
@@ -2441,8 +2442,8 @@ if __name__ == "__main__":
     #print beamInfoById(schema,lumidataid)
     #print 'lumibx by algo OCC1'
     #print lumiBXByAlgo(schema,lumidataid,'OCC1')
-    print 'trg run, trgdataid ',trgdataid
-    print trgRunById(schema,trgdataid,withblobdata=True)  
+    print('trg run, trgdataid ',trgdataid)
+    print(trgRunById(schema,trgdataid,withblobdata=True))  
     #print 'trg ls'
     #print trgLSById(schema,trgdataid)
     #print 'hlt run'

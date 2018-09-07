@@ -57,36 +57,61 @@ trap clean_up HUP INT TERM SEGV USR2 XCPU XFSZ IO
 
 # a helper function to repeatedly try failing copy commands
 untilSuccess () {
-# trying "${1} ${2} ${3} > /dev/null" until success,
-# break after ${4} tries (with three arguments do up to 5 tries).
-    if  [[ ${#} -lt 3 || ${#} -gt 4 ]]
+# trying "${1} ${2} ${3} > /dev/null" until success, if ${4} is a
+# positive number run {1} with -f flag,
+# break after ${5} tries (with four arguments do up to 5 tries).
+    if  [[ ${#} -lt 4 || ${#} -gt 5 ]]
     then
-        echo ${0} needs 3 or 4 arguments
+        echo ${0} needs 4 or 5 arguments
         return 1
     fi
 
     TRIES=0
     MAX_TRIES=5
-    if [[ ${#} -eq 4 ]]
+    if [[ ${#} -eq 5 ]]
     then
-        MAX_TRIES=${4}
+        MAX_TRIES=${5}
     fi
 
-    ${1} ${2} ${3} > /dev/null
+
+    if [[ ${4} -gt 0 ]]
+    then 
+        ${1} -f ${2} ${3} > /dev/null
+    else 
+        ${1} ${2} ${3} > /dev/null
+    fi
     while [[ ${?} -ne 0 ]]
     do # if not successfull, retry...
         if [[ ${TRIES} -ge ${MAX_TRIES} ]]
         then # ... but not until infinity!
-            echo ${0}: Give up doing \"${1} ${2} ${3} \> /dev/null\".
-            return 1
+            if [[ ${4} -gt 0 ]]
+            then
+                echo ${0}: Give up doing \"${1} -f ${2} ${3} \> /dev/null\".
+                return 1
+            else
+                echo ${0}: Give up doing \"${1} ${2} ${3} \> /dev/null\".
+                return 1
+            fi
         fi
         TRIES=$((${TRIES}+1))
-        echo ${0}: WARNING, problems with \"${1} ${2} ${3} \> /dev/null\", try again.
-        sleep $((${TRIES}*5)) # for before each wait a litte longer...
-        ${1} ${2} ${3} > /dev/null
+        if [[ ${4} -gt 0 ]]
+        then
+            echo ${0}: WARNING, problems with \"${1} -f ${2} ${3} \> /dev/null\", try again.
+            sleep $((${TRIES}*5)) # for before each wait a litte longer...
+            ${1} -f ${2} ${3} > /dev/null
+        else
+            echo ${0}: WARNING, problems with \"${1} ${2} ${3} \> /dev/null\", try again.
+            sleep $((${TRIES}*5)) # for before each wait a litte longer...
+            ${1} ${2} ${3} > /dev/null
+        fi
     done
 
-    echo successsfully executed \"${1} ${2} ${3} \> /dev/null\"
+    if [[ ${4} -gt 0 ]]
+    then
+        echo successfully executed \"${1} -f ${2} ${3} \> /dev/null\"
+    else
+        echo successfully executed \"${1} ${2} ${3} \> /dev/null\"
+    fi
     return 0
 }
 
@@ -94,11 +119,11 @@ copytreefile () {
     CHECKFILE=`echo ${TREEFILELIST} | grep -i ${2}`
     if [[ -z "${TREEFILELIST}" ]]
     then
-        untilSuccess ${1} ${2} ${3}
+        untilSuccess ${1} ${2} ${3} ${4}
     else
         if [[ -n "${CHECKFILE}" ]]
         then
-            untilSuccess ${1} ${2} ${3}
+            untilSuccess ${1} ${2} ${3} ${4}
         fi
     fi
 }
@@ -113,13 +138,13 @@ if [ "${MSSDIRPOOL}" != "cmscafuser" ]; then
   export STAGE_SVCCLASS=${MSSDIRPOOL}
   export STAGER_TRACE=
   echo stager_get -M ${MSSDIR}/milleBinaryISN.dat.gz >> stager_get-commands.txt
-  echo untilSuccess rfcp ${MSSDIR}/milleBinaryISN.dat.gz ${BATCH_DIR} >> parallel-copy-commands.txt
+  echo untilSuccess rfcp ${MSSDIR}/milleBinaryISN.dat.gz ${BATCH_DIR} 0 >> parallel-copy-commands.txt
   echo stager_get -M ${MSSDIR}/treeFileISN.root >> stager_get-commands.txt
-  echo copytreefile rfcp ${MSSDIR}/treeFileISN.root ${BATCH_DIR} >> parallel-copy-commands.txt
+  echo copytreefile rfcp ${MSSDIR}/treeFileISN.root ${BATCH_DIR} 0 >> parallel-copy-commands.txt
 else
   MSSCAFDIR=`echo ${MSSDIR} | perl -pe 's/\/castor\/cern.ch\/cms//gi'`
-  echo untilSuccess xrdcp ${MSSCAFDIR}/binaries/milleBinaryISN.dat.gz milleBinaryISN.dat.gz >> parallel-copy-commands.txt
-  echo copytreefile xrdcp ${MSSCAFDIR}/tree_files/treeFileISN.root treeFileISN.root >> parallel-copy-commands.txt
+  echo untilSuccess xrdcp ${MSSCAFDIR}/binaries/milleBinaryISN.dat.gz milleBinaryISN.dat.gz 1 >> parallel-copy-commands.txt
+  echo copytreefile xrdcp ${MSSCAFDIR}/tree_files/treeFileISN.root treeFileISN.root 1 >> parallel-copy-commands.txt
 fi
 xargs -a stager_get-commands.txt -n 1 -P 10 -I {} bash -c '$@' _ {}
 xargs -a parallel-copy-commands.txt -n 1 -P 10 -I {} bash -c '$@' _ {}

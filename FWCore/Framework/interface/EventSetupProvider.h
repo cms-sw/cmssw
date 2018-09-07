@@ -42,7 +42,7 @@ namespace edm {
       struct ComponentDescription;
       class DataKey;
       class DataProxyProvider;
-      class EventSetupRecord;
+      class EventSetupRecordImpl;
       class EventSetupRecordKey;
       class EventSetupRecordProvider;
       class EventSetupsController;
@@ -73,7 +73,7 @@ class EventSetupProvider {
       EventSetup const& eventSetup() const {return eventSetup_;}
 
       //called by specializations of EventSetupRecordProviders
-      void addRecordToEventSetup(EventSetupRecord& iRecord);
+      void addRecordToEventSetup(EventSetupRecordImpl& iRecord);
 
       void add(std::shared_ptr<DataProxyProvider>);
       void replaceExisting(std::shared_ptr<DataProxyProvider>);
@@ -109,14 +109,7 @@ class EventSetupProvider {
 
    protected:
 
-      template <typename T>
-         void insert(std::unique_ptr<T> iRecordProvider) {
-            std::unique_ptr<EventSetupRecordProvider> temp(iRecordProvider.release());
-            insert(eventsetup::heterocontainer::makeKey<
-                    typename T::RecordType,
-                       eventsetup::EventSetupRecordKey>(),
-                    std::move(temp));
-         }
+      void insert(std::unique_ptr<EventSetupRecordProvider> iRecordProvider);
 
    private:
       EventSetupProvider(EventSetupProvider const&) = delete; // stop default

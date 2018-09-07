@@ -22,6 +22,5 @@ def setCondition(process,
         args["label"] = cms.untracked.string(label)
 
     process.GlobalTag.toGet \
-        = cms.VPSet(filter(lambda x: x.record.value() != record,
-                           process.GlobalTag.toGet.value()))
+        = cms.VPSet([x for x in process.GlobalTag.toGet.value() if x.record.value() != record])
     process.GlobalTag.toGet.append(cms.PSet(**args))

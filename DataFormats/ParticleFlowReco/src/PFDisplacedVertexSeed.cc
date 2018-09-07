@@ -14,7 +14,13 @@ PFDisplacedVertexSeed::PFDisplacedVertexSeed() :
 
 
 void PFDisplacedVertexSeed::addElement(TrackBaseRef element) {
-  elements_.insert( element ); 
+  if(std::find(elements_.begin(),elements_.end(), element) == elements_.end()) {
+    elements_.emplace_back(std::move(element));
+  }
+}
+
+void PFDisplacedVertexSeed::reserveElements(size_t newSize) {
+  elements_.reserve(newSize);
 }
 
     
@@ -37,6 +43,7 @@ void PFDisplacedVertexSeed::updateSeedPoint(const GlobalPoint& dcaPoint, TrackBa
 
   }
 
+  reserveElements(elements_.size()+2);
   addElement(r1); 
   addElement(r2);
 
@@ -47,7 +54,6 @@ void PFDisplacedVertexSeed::mergeWith(const PFDisplacedVertexSeed& displacedVert
 
   
   double weight = displacedVertex.totalWeight();
-  const set<TrackBaseRef, Compare>& newElements= displacedVertex.elements();
   const GlobalPoint& dcaPoint = displacedVertex.seedPoint();
 
   Basic3DVector<double>vertexSeedVector(seedPoint_);
@@ -58,13 +64,14 @@ void PFDisplacedVertexSeed::mergeWith(const PFDisplacedVertexSeed& displacedVert
   totalWeight_ += weight;
   seedPoint_ = P;
 
-
-
-  for (  set<TrackBaseRef, Compare>::const_iterator il = newElements.begin(); il != newElements.end(); il++)
-    addElement(*il);
-
-
-
+  reserveElements(elements_.size()+displacedVertex.elements().size());
+  auto const oldSize=elements_.size();
+  //avoid checking elements we just added from displacedVertex.elements()
+  for(auto const& e: displacedVertex.elements()) {
+    if(std::find(elements_.begin(), elements_.begin()+oldSize,e) == elements_.begin()+oldSize) {
+      elements_.emplace_back(e);
+    }
+  }
 }
 
 
@@ -80,25 +87,25 @@ void PFDisplacedVertexSeed::Dump( ostream& out ) const {
 
   // Build element label (string) : elid from type, layer and occurence number
   // use stringstream instead of sprintf to concatenate string and integer into string
-  for(IEset ie = elements_.begin(); ie !=  elements_.end(); ie++){
+  for(auto const& ie : elements_) {
 
-    math::XYZPoint Pi((*ie).get()->innerPosition());
-    math::XYZPoint Po((*ie).get()->outerPosition());
+    math::XYZPoint Pi(ie.get()->innerPosition());
+    math::XYZPoint Po(ie.get()->outerPosition());
 
     float innermost_radius = sqrt(Pi.x()*Pi.x() + Pi.y()*Pi.y() + Pi.z()*Pi.z());
     float outermost_radius = sqrt(Po.x()*Po.x() + Po.y()*Po.y() + Po.z()*Po.z());
     float innermost_rho = sqrt(Pi.x()*Pi.x() + Pi.y()*Pi.y());
     float outermost_rho = sqrt(Po.x()*Po.x() + Po.y()*Po.y());
     
-    double pt = (*ie)->pt();
+    double pt = ie->pt();
 
 
-    out<<"ie = " << (*ie).key() << " pt = " << pt
+    out<<"ie = " << ie.key() << " pt = " << pt
        <<" innermost hit radius = " << innermost_radius << " rho = " << innermost_rho
        <<" outermost hit radius = " << outermost_radius << " rho = " << outermost_rho
        <<endl;
 
-    out<<"ie = " << (*ie).key() << " pt = " << pt
+    out<<"ie = " << ie.key() << " pt = " << pt
       //       <<" inn hit pos x = " << Pi.x() << " y = " << Pi.y() << " z = " << Pi.z() 
        <<" out hit pos x = " << Po.x() << " y = " << Po.y() << " z = " << Po.z() 
        <<endl;

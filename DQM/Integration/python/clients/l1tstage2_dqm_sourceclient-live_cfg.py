@@ -85,24 +85,17 @@ process.l1tMonitorPath = cms.Path(
 )
 
 # Remove DQM Modules
-#process.l1tStage2online.remove(process.l1tStage2CaloLayer1)
-#process.l1tStage2online.remove(process.l1tStage2CaloLayer2)
-#process.l1tStage2online.remove(process.l1tStage2Bmtf)
-#process.l1tStage2online.remove(process.l1tStage2Emtf)
-#process.l1tStage2online.remove(process.l1tStage2uGMT)
-#process.l1tStage2online.remove(process.l1tStage2uGt)
+#process.l1tStage2OnlineDQM.remove(process.l1tStage2CaloLayer1)
+#process.l1tStage2OnlineDQM.remove(process.l1tStage2CaloLayer2)
+#process.l1tStage2OnlineDQM.remove(process.l1tStage2Bmtf)
+#process.l1tStage2OnlineDQM.remove(process.l1tStage2Emtf)
+#process.l1tStage2OnlineDQM.remove(process.l1tStage2uGMT)
+#process.l1tStage2OnlineDQM.remove(process.l1tStage2uGt)
 
 #--------------------------------------------------
 # Stage2 Quality Tests
 process.load("DQM.L1TMonitorClient.L1TStage2MonitorClient_cff")
 process.l1tStage2MonitorClientPath = cms.Path(process.l1tStage2MonitorClient)
-
-#--------------------------------------------------
-# Legacy DQM EndPath
-# TODO: Is lumi scalers still relevant?
-
-#process.load("DQM.L1TMonitor.L1TMonitor_cff")
-#process.l1tMonitorEndPath = cms.EndPath(process.l1tMonitorEndPathSeq)
 
 #--------------------------------------------------
 # Customize for other type of runs
@@ -113,7 +106,9 @@ if (process.runType.getRunType() == process.runType.cosmic_run):
     # Remove Quality Tests for L1T Muon Subsystems since they are not optimized yet for cosmics
     process.l1tStage2MonitorClient.remove(process.l1TStage2uGMTQualityTests)
     process.l1tStage2MonitorClient.remove(process.l1TStage2EMTFQualityTests)
+    #process.l1tStage2MonitorClient.remove(process.l1TStage2OMTFQualityTests)
     process.l1tStage2MonitorClient.remove(process.l1TStage2BMTFQualityTests)
+    process.l1tStage2MonitorClient.remove(process.l1TStage2MuonQualityTestsCollisions)
     process.l1tStage2EventInfoClient.DisableL1Systems = cms.vstring("EMTF", "OMTF", "BMTF", "uGMT")
 
 # Heavy-Ion run

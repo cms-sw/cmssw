@@ -295,7 +295,7 @@ namespace edm {
 
     void resetAll();
 
-    void finishedPaths(std::exception_ptr, WaitingTaskHolder,
+    void finishedPaths(std::atomic<std::exception_ptr*>&, WaitingTaskHolder,
                        EventPrincipal& ep, EventSetup const& es);
     std::exception_ptr finishProcessOneEvent(std::exception_ptr);
     

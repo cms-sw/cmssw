@@ -42,6 +42,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h" 
 #include "RecoEcal/EgammaCoreTools/plugins/EcalClusterCrackCorrection.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHadTower.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 
 namespace {
   inline double ptFast( const double energy, 
@@ -223,6 +224,9 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config) :
     thePhotonIsolationCalculator_=nullptr;
     thePhotonMIPHaloTagger_=nullptr;
   }
+
+  checkHcalStatus_ = conf_.getParameter<bool>("checkHcalStatus");
+
   // Register the product
   produces< reco::PhotonCollection >(photonCollection_);
   if (not pfEgammaCandidates_.isUninitialized())
@@ -510,7 +514,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     //    const reco::SuperCluster* pClus=&(*scRef);
     iSC++;
     
-    int thedet = scRef->seed()->hitsAndFractions()[0].first.det();
+    DetId::Detector thedet = scRef->seed()->hitsAndFractions()[0].first.det();
     int subdet = scRef->seed()->hitsAndFractions()[0].first.subdetId();
     if (subdet==EcalBarrel) { 
       preselCutValues = preselCutValuesBarrel_;
@@ -522,13 +526,13 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
       hits = ecalEndcapHits;
       flags_ = flagsexclEE_;
       severitiesexcl_ = severitiesexclEE_;
-    } else if ( thedet == DetId::Forward || thedet == DetId::Hcal)  {
+    } else if ( EcalTools::isHGCalDet(thedet) ) {
       preselCutValues = preselCutValuesEndcap_;
       hits = nullptr;
       flags_ = flagsexclEE_;
       severitiesexcl_ = severitiesexclEE_;
     } else {
-      edm::LogWarning("")<<"GEDPhotonProducer: do not know if it is a barrel or endcap SuperCluster" << thedet << ' ' << subdet; 
+      edm::LogWarning("")<<"GEDPhotonProducer: do not know if it is a barrel or endcap SuperCluster: " << thedet << ' ' << subdet; 
     }
 
     
@@ -545,6 +549,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     std::vector<CaloTowerDetId> TowersBehindClus;
     float hcalDepth1OverEcalBc,hcalDepth2OverEcalBc;
     hcalDepth1OverEcalBc=hcalDepth2OverEcalBc=0.f;
+    bool invalidHcal = false;
 
     if (not hcalTowers_.isUninitialized()) {
       const CaloTowerCollection* hcalTowersColl = hcalTowersHandle.product();
@@ -558,6 +563,10 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
       TowersBehindClus = towerIsoBehindClus.towersOf(*scRef);
       hcalDepth1OverEcalBc = towerIsoBehindClus.getDepth1HcalESum(TowersBehindClus)/scRef->energy();
       hcalDepth2OverEcalBc = towerIsoBehindClus.getDepth2HcalESum(TowersBehindClus)/scRef->energy();
+
+      if (checkHcalStatus_ && hcalDepth1OverEcalBc == 0 && hcalDepth2OverEcalBc == 0) {
+          invalidHcal = !towerIsoBehindClus.hasActiveHcal(TowersBehindClus);
+      }
     }
 
     //    std::cout << " GEDPhotonProducer calculation of HoE with towers in a cone " << HoE1  << "  " << HoE2 << std::endl;
@@ -612,7 +621,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     // Calculate fiducial flags and isolation variable. Blocked are filled from the isolationCalculator
     reco::Photon::FiducialFlags fiducialFlags;
     reco::Photon::IsolationVariables isolVarR03, isolVarR04;
-    if( thedet != DetId::Forward && thedet != DetId::Hcal) {
+    if( !EcalTools::isHGCalDet(thedet) ) {
       thePhotonIsolationCalculator_->calculate( &newCandidate,evt,es,fiducialFlags,isolVarR04, isolVarR03);
     }
     newCandidate.setFiducialVolumeFlags( fiducialFlags );
@@ -633,6 +642,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     showerShape.hcalDepth1OverEcalBc = hcalDepth1OverEcalBc;
     showerShape.hcalDepth2OverEcalBc = hcalDepth2OverEcalBc;
     showerShape.hcalTowersBehindClusters =  TowersBehindClus;
+    showerShape.invalidHcal = invalidHcal;
     /// fill extra shower shapes
     const float spp = (!edm::isFinite(locCov[2]) ? 0. : sqrt(locCov[2]));
     const float sep = locCov[1];
@@ -713,7 +723,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     /// plus values from regressions     and store them in the Photon
     // Photon candidate takes by default (set in photons_cfi.py) 
     // a 4-momentum derived from the ecal photon-specific corrections. 
-    if( thedet != DetId::Forward && thedet != DetId::Hcal) {
+    if( !EcalTools::isHGCalDet(thedet) ) {
       thePhotonEnergyCorrector_->calculate(evt, newCandidate, subdet, vertexCollection, es);
       if ( candidateP4type_ == "fromEcalEnergy") {
 	newCandidate.setP4( newCandidate.p4(reco::Photon::ecal_photons) );
@@ -808,13 +818,13 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     reco::PhotonRef phoRef(reco::PhotonRef(photonHandle, lSC));
     reco::SuperClusterRef parentSCRef = phoRef->parentSuperCluster();
     reco::SuperClusterRef scRef=phoRef->superCluster();
-    int thedet = scRef->seed()->hitsAndFractions()[0].first.det();
+    DetId::Detector thedet = scRef->seed()->hitsAndFractions()[0].first.det();
     int subdet = scRef->seed()->hitsAndFractions()[0].first.subdetId();
     if (subdet==EcalBarrel) { 
       preselCutValues = preselCutValuesBarrel_;
     } else if (subdet==EcalEndcap)  { 
       preselCutValues = preselCutValuesEndcap_;
-    } else if ( thedet == DetId::Forward || thedet == DetId::Hcal) {
+    } else if (EcalTools::isHGCalDet(thedet)) {
       preselCutValues = preselCutValuesEndcap_;
     } else {
       edm::LogWarning("")<<"GEDPhotonProducer: do not know if it is a barrel or endcap SuperCluster" << thedet << ' ' << subdet; 

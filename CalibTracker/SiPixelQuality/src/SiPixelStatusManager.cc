@@ -53,8 +53,9 @@ void SiPixelStatusManager::reset(){
 bool SiPixelStatusManager::rankByLumi(SiPixelDetectorStatus status1,SiPixelDetectorStatus status2) 
 { return (status1.getLSRange().first < status2.getLSRange().first); }
 
-
 void SiPixelStatusManager::createPayloads(){
+  if(!siPixelStatusVtr_.empty()){ //only create std::map payloads when the number of non-zero DIGI lumi sections is greater than ZERO otherwise segmentation fault
+
    // sort the vector according to lumi
    std::sort(siPixelStatusVtr_.begin(), siPixelStatusVtr_.end(), SiPixelStatusManager::rankByLumi);
    
@@ -64,6 +65,9 @@ void SiPixelStatusManager::createPayloads(){
      
    // realse the cost of siPixelStatusVtr_ since it is not needed anymore
    siPixelStatusVtr_.clear();
+
+  }
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -116,7 +120,7 @@ void SiPixelStatusManager::createBadComponents(){
         }
 
         siPixelStatusVtr_iterator currentIt = it;
-        siPixelStatusVtr_iterator nextIt = (++currentIt);
+        siPixelStatusVtr_iterator nextIt = std::next(currentIt);
         // wirte out if current lumi is the last lumi-section in the IOV
         if(iterationLumi%nLumi_==nLumi_-1 || nextIt==lastStatus) 
         {
@@ -174,7 +178,7 @@ void SiPixelStatusManager::createBadComponents(){
 
          // if reaching the end of data, write the last IOV to the map whatsoevec
          siPixelStatusVtr_iterator currentIt = it;
-         siPixelStatusVtr_iterator nextIt = (++currentIt);
+         siPixelStatusVtr_iterator nextIt = std::next(currentIt);
          if(tmpSiPixelStatus.perRocDigiOcc()<aveDigiOcc && nextIt!=lastStatus){
             isNewIOV = false; // if digi occ is not enough, next data will not belong to new IOV
          }
@@ -248,7 +252,7 @@ void SiPixelStatusManager::createFEDerror25(){
     bool sameAsLastIOV = true;
     edm::LuminosityBlockNumber_t previousLumi = firstLumi;
 
-    siPixelStatusVtr_iterator secondStatus = ++siPixelStatusVtr_.begin();
+    siPixelStatusVtr_iterator secondStatus = std::next(siPixelStatusVtr_.begin());
     for (siPixelStatusVtr_iterator it = secondStatus; it != lastStatus; it++) {
         // init for each lumi section (iterator)
         edm::LuminosityBlockNumber_t tmpLumi = edm::LuminosityBlockNumber_t(it->getLSRange().first);

@@ -1,6 +1,5 @@
 #include "QGSPCMS_BERT_EML.h"
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
-#include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4DecayPhysics.hh"
@@ -14,10 +13,8 @@
 #include "G4DataQuestionaire.hh"
 #include "G4HadronPhysicsQGSP_BERT.hh"
 
-QGSPCMS_BERT_EML::QGSPCMS_BERT_EML(G4LogicalVolumeToDDLogicalPartMap& map, 
-			   const HepPDT::ParticleDataTable * table_,
-			   sim::ChordFinderSetter *chordFinderSetter_, 
-			   const edm::ParameterSet & p) : PhysicsList(map, table_, chordFinderSetter_, p) {
+QGSPCMS_BERT_EML::QGSPCMS_BERT_EML(const edm::ParameterSet & p) 
+  : PhysicsList(p) {
 
   G4DataQuestionaire it(photon);
   
@@ -62,8 +59,5 @@ QGSPCMS_BERT_EML::QGSPCMS_BERT_EML(G4LogicalVolumeToDDLogicalPartMap& map,
       RegisterPhysics( new G4NeutronTrackingCut(ver));
     }
   }
-
-  // Monopoles
-  RegisterPhysics( new CMSMonopolePhysics(table_,chordFinderSetter_,p));
 }
 

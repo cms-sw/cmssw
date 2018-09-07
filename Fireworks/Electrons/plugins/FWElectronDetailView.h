@@ -21,6 +21,8 @@ class TEveCaloDataVec;
 class TEveCaloLego;
 class TLegend;
 class FWECALDetailViewBuilder;
+class TEveCaloData;
+class TGSlider;
 
 namespace reco {
   class GsfElectron;

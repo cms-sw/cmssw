@@ -172,14 +172,6 @@ void ZCounting::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run const &, e
   h_ee_yield_Z_ebee       = ibooker_.book1D("h_ee_yield_Z_ebee", "h_ee_yield_Z_ebee", LumiBin_, LumiMin_, LumiMax_);
   h_ee_yield_Z_eeee       = ibooker_.book1D("h_ee_yield_Z_eeee", "h_ee_yield_Z_eeee", LumiBin_, LumiMin_, LumiMax_);
 }
-//
-// -------------------------------------- beginLuminosityBlock --------------------------------------------
-//
-void ZCounting::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) 
-{
-  edm::LogInfo("ZCounting") <<  "ZCounting::beginLuminosityBlock" << std::endl;
-}
-
 
 //
 // -------------------------------------- Analyze --------------------------------------------
@@ -656,14 +648,6 @@ bool ZCounting::ele_tag_selection(double pt, double abseta){
   if( (abseta > ELE_ETA_CRACK_LOW) and (abseta < ELE_ETA_CRACK_HIGH) ) return false;
   return true;
 }
-//
-// -------------------------------------- endLuminosityBlock --------------------------------------------
-//
-void ZCounting::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
-{
-  edm::LogInfo("ZCounting") <<  "ZCounting::endLuminosityBlock" << std::endl;
-}
-
 //
 // -------------------------------------- functions --------------------------------------------
 //

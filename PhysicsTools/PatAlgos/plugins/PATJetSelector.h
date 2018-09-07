@@ -5,6 +5,7 @@
 #define PhysicsTools_PatAlgos_PATJetSelector_h
 
 #include "FWCore/Framework/interface/stream/EDFilter.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DataFormats/Common/interface/RefVector.h"
 

@@ -29,7 +29,7 @@ class TGeoManager;
 class FWGeometryTableViewManager : public FWViewManagerBase
 {
 public:
-   FWGeometryTableViewManager(FWGUIManager*, std::string fileName);
+  FWGeometryTableViewManager(FWGUIManager*, std::string fileName, std::string geoName);
    ~FWGeometryTableViewManager() override;
 
    // dummy functions of FWViewManagerBase
@@ -59,6 +59,7 @@ private:
 
    static TGeoManager *s_geoManager;
    std::string m_fileName;
+   std::string m_TGeoName;
    void setGeoManagerFromFile();
 };
 

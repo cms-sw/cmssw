@@ -1,3 +1,4 @@
+from __future__ import print_function
 import coral
 import os,binascii
 import array
@@ -15,7 +16,7 @@ def beamintensityForRun(dbsession,c,runnum):
         dbsession.transaction().start(True)
         schema=dbsession.schema(c.lumischema)
         if not schema:
-            raise 'cannot connect to schema ',c.lumischema
+            raise RuntimeError('cannot connect to schema '+c.lumischema)
         myOutput=coral.AttributeList()
         myOutput.extend('cmslsnum','unsigned int')
         myOutput.extend('bxindexBlob','blob')
@@ -43,17 +44,17 @@ def beamintensityForRun(dbsession,c,runnum):
             beam1intensity=cursor.currentRow()['beam1intensityBlob'].data()
             beam2intensity=cursor.currentRow()['beam2intensityBlob'].data()
             if bxindex is None:
-                print 'bxindex is None',cmslsnum
+                print('bxindex is None',cmslsnum)
             if bxindex.size() ==0:
-                print 'bxindex is 0',cmslsnum
+                print('bxindex is 0',cmslsnum)
             if beam1intensity is None:
-                print 'beam1intensity is None',cmslsnum
+                print('beam1intensity is None',cmslsnum)
             if beam1intensity.size() ==0:
-                print 'beam1intensity is 0',cmslsnum
+                print('beam1intensity is 0',cmslsnum)
             if beam2intensity is None:
-                print 'beam2intensity is None',cmslsnum
+                print('beam2intensity is None',cmslsnum)
             if beam2intensity.size() ==0:
-                print 'beam2intensity is 0',cmslsnum
+                print('beam2intensity is 0',cmslsnum)
             if cmslsnum!=0 and bxindex.size()!=0 and beam1intensity.size()!=0 and beam2intensity.size()!=0:                
                 bxidxarray=array.array('h')
                 if bxindex.readline!='':
@@ -62,13 +63,13 @@ def beamintensityForRun(dbsession,c,runnum):
                     beam1intensityarray.fromstring(beam1intensity.readline())
                     beam2intensityarray=array.array('f')
                     beam2intensityarray.fromstring(beam2intensity.readline())
-                    print 'cmslsnum,arraypos,bxidx,beam1intensity,beam2intensity'
+                    print('cmslsnum,arraypos,bxidx,beam1intensity,beam2intensity')
                     for pos,bxidx in  enumerate(bxidxarray):
-                        print '%4d,%4d,%4d,%.3e,%.3e'%(cmslsnum,pos,bxidx,beam1intensityarray[pos],beam2intensityarray[pos])
+                        print('%4d,%4d,%4d,%.3e,%.3e'%(cmslsnum,pos,bxidx,beam1intensityarray[pos],beam2intensityarray[pos]))
         del query
         dbsession.transaction().commit()
     except Exception as e:
-        print str(e)
+        print(str(e))
         dbsession.transaction().rollback()
         del dbsession    
 def detailForRun(dbsession,c,runnum,algos=['OCC1']):
@@ -79,7 +80,7 @@ def detailForRun(dbsession,c,runnum,algos=['OCC1']):
         dbsession.transaction().start(True)
         schema=dbsession.schema(c.lumischema)
         if not schema:
-            raise 'cannot connect to schema ',c.lumischema
+            raise RuntimeError('cannot connect to schema '+c.lumischema)
         detailOutput=coral.AttributeList()
         detailOutput.extend('cmslsnum','unsigned int')
         detailOutput.extend('bxlumivalue','blob')
@@ -110,9 +111,9 @@ def detailForRun(dbsession,c,runnum,algos=['OCC1']):
             cmslsnum=cursor.currentRow()['cmslsnum'].data()
             algoname=cursor.currentRow()['algoname'].data()
             bxlumivalue=cursor.currentRow()['bxlumivalue'].data()
-            print 'cmslsnum , algoname'
-            print cmslsnum,algoname
-            print '===='
+            print('cmslsnum , algoname')
+            print(cmslsnum,algoname)
+            print('====')
             #print 'bxlumivalue starting address ',bxlumivalue.startingAddress()
             #bxlumivalue float[3564]
             #print 'bxlumivalue size ',bxlumivalue.size()
@@ -122,11 +123,11 @@ def detailForRun(dbsession,c,runnum,algos=['OCC1']):
             #
             a=array.array('f')
             a.fromstring(bxlumivalue.readline())
-            print '   bxindex, bxlumivalue'
+            print('   bxindex, bxlumivalue')
             if cmslsnum!=95:
                 continue
             for index,lum in enumerate(a):
-                print "  %4d,%.3e"%(index,lum)
+                print("  %4d,%.3e"%(index,lum))
             #realvalue=a.tolist()
             #print len(realvalue)
             #print realvalue
@@ -134,7 +135,7 @@ def detailForRun(dbsession,c,runnum,algos=['OCC1']):
         dbsession.transaction().commit()
         
     except Exception as e:
-        print str(e)
+        print(str(e))
         dbsession.transaction().rollback()
         del dbsession
         
@@ -146,7 +147,7 @@ def detailForRunLumisummaryV2(dbsession,c,runnum):
         dbsession.transaction().start(True)
         schema=dbsession.schema(c.lumischema)
         if not schema:
-            raise 'cannot connect to schema ',c.lumischema
+            raise RuntimeError('cannot connect to schema '+c.lumischema)
         detailOutput=coral.AttributeList()
         detailOutput.extend('cmslsnum','unsigned int')
         detailOutput.extend('bxlumivalue','blob')
@@ -167,15 +168,15 @@ def detailForRunLumisummaryV2(dbsession,c,runnum):
             a=array.array('f')
             a.fromstring(bxlumivalue.readline())
             if cmslsnum==1:
-                print '   bxindex, bxlumivalue,calibbxlumivalue'
+                print('   bxindex, bxlumivalue,calibbxlumivalue')
                 for index,lum in enumerate(a):
                     if lum*6.37>0.001:
-                        print "  %4d,%.3e,%.3e"%(index,lum,lum*6.37)
+                        print("  %4d,%.3e,%.3e"%(index,lum,lum*6.37))
         del query
         dbsession.transaction().commit()
         
     except Exception as e:
-        print str(e)
+        print(str(e))
         dbsession.transaction().rollback()
         del dbsession
         

@@ -267,6 +267,9 @@ void TestIndexIntoFile3::testIterEndWithEvent() {
     if (i == 12) CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 6);
 
     if (i == 0) CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
+    if (i == 1) CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
+    if (i == 2) CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
+    if (i == 3) CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
     if (i == 10) CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 4);
     if (i == 12) CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
   }
@@ -370,6 +373,9 @@ void TestIndexIntoFile3::testIterEndWithEvent() {
     if (i == 12) CPPUNIT_ASSERT(iterNum.firstEventEntryThisRun() == 6);
 
     if (i == 0) CPPUNIT_ASSERT(iterNum.firstEventEntryThisLumi() == 3);
+    if (i == 1) CPPUNIT_ASSERT(iterNum.firstEventEntryThisLumi() == 3);
+    if (i == 2) CPPUNIT_ASSERT(iterNum.firstEventEntryThisLumi() == 3);
+    if (i == 3) CPPUNIT_ASSERT(iterNum.firstEventEntryThisLumi() == 3);
     if (i == 10) CPPUNIT_ASSERT(iterNum.firstEventEntryThisLumi() == 5);
     if (i == 12) CPPUNIT_ASSERT(iterNum.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
   }
@@ -877,6 +883,8 @@ void TestIndexIntoFile3::testOverlappingLumis() {
   eventEntries.emplace_back(4, 6);
   indexIntoFile.sortEventEntries();
 
+  std::vector<LuminosityBlockNumber_t> lumis;
+
   edm::IndexIntoFile::IndexIntoFileItr iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
   edm::IndexIntoFile::IndexIntoFileItr iterFirstEnd = indexIntoFile.end(IndexIntoFile::firstAppearanceOrder);
   int i = 0;
@@ -920,7 +928,13 @@ void TestIndexIntoFile3::testOverlappingLumis() {
     int i = 0;
     for (i = 0; iterFirst != iterFirstEnd; ++iterFirst, ++i) {
       //values are 'IndexIntoFile::EntryType' 'indexToRun' 'indexToLumi' 'indexToEventRange' 'indexToEvent' 'nEvents'
-      if (i == 0)       check(iterFirst, kRun,   0, 2,  1, 0, 2);
+      if (i == 0) {
+        check(iterFirst, kRun,   0, 2,  1, 0, 2);
+
+        iterFirst.getLumisInRun(lumis);
+        std::vector<LuminosityBlockNumber_t> expected { 102, 103, 104 };
+        CPPUNIT_ASSERT(lumis == expected);
+      }
       else if (i == 1)  check(iterFirst, kLumi,  0, 2,  1, 0, 2);
       else if (i == 2)  check(iterFirst, kEvent, 0, 2,  1, 0, 2);
       else if (i == 3)  check(iterFirst, kEvent, 0, 2,  1, 1, 2);
@@ -994,6 +1008,10 @@ void TestIndexIntoFile3::testOverlappingLumis() {
         check(iterFirst, kRun, 0, 2, 1, 0, 3);
         CPPUNIT_ASSERT(iterFirst.indexIntoFile() == &indexIntoFile);
         CPPUNIT_ASSERT(iterFirst.size() == 10);
+
+        iterFirst.getLumisInRun(lumis);
+        std::vector<LuminosityBlockNumber_t> expected { 101, 102 };
+        CPPUNIT_ASSERT(lumis == expected);
       }
       //values are 'IndexIntoFile::EntryType' 'indexToRun' 'indexToLumi' 'indexToEventRange' 'indexToEvent' 'nEvents'
       else if (i == 1)  check(iterFirst, kLumi,  0, 2,  1, 0, 3);
@@ -1004,7 +1022,13 @@ void TestIndexIntoFile3::testOverlappingLumis() {
       else if (i == 6)  check(iterFirst, kLumi,  0, 4,  3, 0, 1);
       else if (i == 7)  check(iterFirst, kEvent, 0, 4,  3, 0, 1);
       else if (i == 8) check(iterFirst, kEvent, 0, 4,  4, 0, 1);
-      else if (i == 9) check(iterFirst, kRun,   5, 7, -1, 0, 0);
+      else if (i == 9) {
+        check(iterFirst, kRun,   5, 7, -1, 0, 0);
+
+        iterFirst.getLumisInRun(lumis);
+        std::vector<LuminosityBlockNumber_t> expected { 101, 102 };
+        CPPUNIT_ASSERT(lumis == expected);
+      }
       else if (i == 10) check(iterFirst, kRun,   6, 7, -1, 0, 0);
       else if (i == 11) check(iterFirst, kLumi,  6, 7, -1, 0, 0);
       else if (i == 12) check(iterFirst, kLumi,  6, 8,  9, 0, 1);

@@ -22,6 +22,8 @@
 
 #include <limits>
 
+#include "tbb/task_arena.h"
+
 namespace edm {
 
     /**
@@ -319,7 +321,9 @@ namespace edm {
       fillTTree(producedBranches_);
       fillTTree(unclonedReadBranches_);
     } else {
-      tree_->Fill();
+      // Isolate the fill operation so that IMT doesn't grab other large tasks
+      // that could lead to PoolOutputModule stalling
+      tbb::this_task_arena::isolate( [&]{ tree_->Fill(); } );
     }
   }
 

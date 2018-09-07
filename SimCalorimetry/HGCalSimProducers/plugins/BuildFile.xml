@@ -11,6 +11,7 @@
 <use name="DataFormats/Candidate"/>
 <use name="DataFormats/HepMCCandidate"/>
 <use name="SimGeneral/MixingModule"/>
+<use name="SimGeneral/PreMixingModule"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="SimCalorimetry/HGCalSimProducers"/>
 <use name="geant4core"/>

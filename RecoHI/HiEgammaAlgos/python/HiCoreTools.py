@@ -1,3 +1,4 @@
+from __future__ import print_function
 from FWCore.GuiBrowsers.ConfigToolBase import *
 
 from RecoHI.HiEgammaAlgos.HiHelperTools import *
@@ -28,22 +29,22 @@ class RestrictInputToAOD(ConfigToolBase):
     def toolCode(self, process):        
         names=self._parameters['names'].value
         for obj in range(len(names)):
-            print "---------------------------------------------------------------------"
-            print "WARNING: the following additional information can only be used on "
-            print "         RECO format:"
+            print("---------------------------------------------------------------------")
+            print("WARNING: the following additional information can only be used on ")
+            print("         RECO format:")
             if( names[obj] == 'Photons' or names[obj] == 'All' ):
-                print "          * nothing needs to be done for Photons"
+                print("          * nothing needs to be done for Photons")
             if( names[obj] == 'Electrons' or names[obj] == 'All' ):
-                print "          * nothing needs to be done for Electrons"            
+                print("          * nothing needs to be done for Electrons")            
             if( names[obj] == 'Muons' or names[obj] == 'All' ):
-                print "          * nothing needs to be done for Muons"            
+                print("          * nothing needs to be done for Muons")            
             if( names[obj] == 'Taus' or names[obj] == 'All' ):
-                print "          * nothing needs to be done for Taus"            
+                print("          * nothing needs to be done for Taus")            
             if( names[obj] == 'Jets' or names[obj] == 'All' ):
-                print "          * nothing needs to be done for Jets"            
+                print("          * nothing needs to be done for Jets")            
             if( names[obj] == 'METs' or names[obj] == 'All' ):
-                print "          * nothing needs to be done for METs"            
-        print "---------------------------------------------------------------------"
+                print("          * nothing needs to be done for METs")            
+        print("---------------------------------------------------------------------")
        
 restrictInputToAOD=RestrictInputToAOD()
 
@@ -80,16 +81,16 @@ class RemoveMCMatching(ConfigToolBase):
         names=self._parameters['names'].value
         postfix=self._parameters['postfix'].value
 
-        print "************** MC dependence removal ************"
+        print("************** MC dependence removal ************")
         for obj in range(len(names)):    
             if( names[obj] == 'Photons'   or names[obj] == 'All' ):
-                print "removing MC dependencies for photons"
+                print("removing MC dependencies for photons")
                 _removeMCMatchingForPATObject(process, 'photonMatch', 'patPhotons', postfix) 
             if( names[obj] == 'Muons'     or names[obj] == 'All' ):
-                print "removing MC dependencies for muons"
+                print("removing MC dependencies for muons")
                 _removeMCMatchingForPATObject(process, 'muonMatch', 'patMuons', postfix) 
             if( names[obj] == 'Taus'      or names[obj] == 'All' ):
-                print "removing MC dependencies for taus"
+                print("removing MC dependencies for taus")
                 _removeMCMatchingForPATObject(process, 'tauMatch', 'patTaus', postfix)
                 ## remove mc extra modules for taus
                 getattr(process,"patHeavyIonDefaultSequence"+postfix).remove(
@@ -104,7 +105,7 @@ class RemoveMCMatching(ConfigToolBase):
                 tauProducer.embedGenJetMatch    = False
                 tauProducer.genJetMatch         = ''         
             if( names[obj] == 'Jets'  ):#    or names[obj] == 'All' ):
-                print "removing MC dependencies for jets"
+                print("removing MC dependencies for jets")
                 ## remove mc extra modules for jets
                 getattr(process,"patHeavyIonDefaultSequence"+postfix).remove(
                     applyPostfix(process, "patJetPartonMatch", postfix))
@@ -267,13 +268,13 @@ class RemoveSpecificPATObjects(ConfigToolBase):
                         getattr(process, 'countPat'+names[obj]+postfix) )
             ## in the case of leptons, the lepton counter must be modified as well
             if( names[obj] == 'Electrons' ):
-                print 'removed from lepton counter: electrons'
+                print('removed from lepton counter: electrons')
                 applyPostfix(process,"countPatLeptons",postfix).countElectrons = False
             elif( names[obj] == 'Muons' ):
-                print 'removed from lepton counter: muons'
+                print('removed from lepton counter: muons')
                 applyPostfix(process,"countPatLeptons",postfix).countMuons = False
             elif( names[obj] == 'Taus' ):
-                print 'removed from lepton counter: taus'
+                print('removed from lepton counter: taus')
                 applyPostfix(process,"countPatLeptons",postfix).countTaus = False
             ## remove from summary
             if( names[obj] == 'METs' ):
@@ -297,11 +298,11 @@ class RemoveSpecificPATObjects(ConfigToolBase):
         ## remove cleaning for the moment; in principle only the removed object
         ## could be taken out of the checkOverlaps PSet
         if ( outputInProcess ):
-            print "---------------------------------------------------------------------"
-            print "INFO   : some objects have been removed from the sequence. Switching "
-            print "         off PAT cross collection cleaning, as it might be of limited"
-            print "         sense now. If you still want to keep object collection cross"
-            print "         cleaning within PAT you need to run and configure it by hand"
+            print("---------------------------------------------------------------------")
+            print("INFO   : some objects have been removed from the sequence. Switching ")
+            print("         off PAT cross collection cleaning, as it might be of limited")
+            print("         sense now. If you still want to keep object collection cross")
+            print("         cleaning within PAT you need to run and configure it by hand")
             removeCleaning(process)
     
                
@@ -354,9 +355,9 @@ class RemoveCleaning(ConfigToolBase):
             applyPostfix(process,"cleanPatCandidates",postfix)
             )
         if ( outputInProcess ):
-            print "---------------------------------------------------------------------"
-            print "INFO   : cleaning has been removed. Switch output from clean PAT     "
-            print "         candidates to selected PAT candidates."
+            print("---------------------------------------------------------------------")
+            print("INFO   : cleaning has been removed. Switch output from clean PAT     ")
+            print("         candidates to selected PAT candidates.")
             ## add selected layer1 objects to the pat output
             from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoCleaning
             process.out.outputCommands = patEventContentNoCleaning
@@ -401,9 +402,9 @@ class AddCleaning(ConfigToolBase):
         countLept.muonSource = countLept.muonSource.value().replace('selectedPat','cleanPat')
         countLept.tauSource = countLept.tauSource.value().replace('selectedPat','cleanPat')
         if ( outputInProcess ):
-            print "---------------------------------------------------------------------"
-            print "INFO   : cleaning has been added. Switch output from selected PAT    "
-            print "         candidates to clean PAT candidates."
+            print("---------------------------------------------------------------------")
+            print("INFO   : cleaning has been added. Switch output from selected PAT    ")
+            print("         candidates to clean PAT candidates.")
             ## add clean layer1 objects to the pat output
             from PhysicsTools.PatAlgos.patEventContent_cff import patEventContent
             process.out.outputCommands = patEventContent               

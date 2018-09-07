@@ -632,7 +632,7 @@ bool HLTTauDQMPath::offlineMatching(size_t i, const std::vector<Object>& trigger
     offlineMask.resize(offlineObjects.met.size());
     std::fill(offlineMask.begin(), offlineMask.end(), true);
     for(const Object& trgObj: triggerObjects) {
-      if(! ((isL1 && trgObj.id == trigger::TriggerL1ETM)
+      if(! ((isL1 && (trgObj.id == trigger::TriggerL1ETM || trgObj.id == trigger::TriggerL1ETMHF))
             || trgObj.id == trigger::TriggerMET) )
         continue;
       ++matchedObjects;

@@ -9,6 +9,7 @@
 
 #include "RecoJets/JetAssociationAlgorithms/interface/JetSignalVertexCompatibilityAlgo.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 
 class JetSignalVertexCompatibility : public edm::EDProducer {
     public:

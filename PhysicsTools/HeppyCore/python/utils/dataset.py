@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import os
 import pprint
 import re
@@ -9,6 +10,7 @@ import sys
 from castorBaseDir import castorBaseDir
 import eostools as castortools
 import fnmatch
+import six
 
 class IntegrityCheckError(Exception):
     def __init__(self, value):
@@ -47,8 +49,8 @@ class BaseDataset( object ):
         self.bad_files = {}
 
     def printInfo(self):
-        print 'sample      :  ' + self.name
-        print 'user        :  ' + self.user
+        print('sample      :  ' + self.name)
+        print('user        :  ' + self.user)
 
     def getPrimaryDatasetEntries(self):
         return self.primaryDatasetEntries
@@ -70,11 +72,11 @@ class BaseDataset( object ):
                 size=self.filesAndSizes.get(file,'UNKNOWN').rjust(10)
                 # if size is not None:
                 #     size = size.rjust(10)
-                print status.ljust(10), size, \
-                      '\t', fileNameToPrint
+                print(status.ljust(10), size, \
+                      '\t', fileNameToPrint)
             else:
-                print fileNameToPrint
-        print 'PrimaryDatasetEntries: %d' % self.primaryDatasetEntries
+                print(fileNameToPrint)
+        print('PrimaryDatasetEntries: %d' % self.primaryDatasetEntries)
                 
     def listOfFiles(self):
         '''Returns all files, even the bad ones.'''
@@ -129,7 +131,7 @@ class CMSDataset( BaseDataset ):
         super(CMSDataset, self).__init__( name, 'CMS', run_range=run_range)
 
     def buildListOfFilesDBS(self, pattern, begin=-1, end=-1):
-        print 'buildListOfFilesDBS',begin,end
+        print('buildListOfFilesDBS',begin,end)
         sampleName = self.name.rstrip('/')
         query, qwhat = sampleName, "dataset"
         if "#" in sampleName: qwhat = "block"
@@ -137,7 +139,7 @@ class CMSDataset( BaseDataset ):
             if self.run_range[0] == self.run_range[1]:
                 query += "   run=%s" % self.run_range[0]
             else:
-                print "WARNING: queries with run ranges are slow in DAS"
+                print("WARNING: queries with run ranges are slow in DAS")
                 query += "   run between [%s,%s]" % ( self.run_range[0],self.run_range[1] )
         dbs='das_client.py --query="file %s=%s"'%(qwhat,query)
         if begin >= 0:
@@ -146,7 +148,7 @@ class CMSDataset( BaseDataset ):
             dbs += ' --limit %d' % (end-begin+1)
         else:
             dbs += ' --limit 0' 
-        print 'dbs\t: %s' % dbs
+        print('dbs\t: %s' % dbs)
         dbsOut = os.popen(dbs)
         files = []
         for line in dbsOut:
@@ -184,7 +186,7 @@ class CMSDataset( BaseDataset ):
             if runmin == runmax:
                 query = "%s run=%d" % (query,runmin)
             else:
-                print "WARNING: queries with run ranges are slow in DAS"
+                print("WARNING: queries with run ranges are slow in DAS")
                 query = "%s run between [%d, %d]" % (query,runmin if runmin > 0 else 1, runmax if runmax > 0 else 999999)
         dbs='das_client.py --query="summary %s=%s"'%(qwhat,query)
         dbsOut = os.popen(dbs).readlines()
@@ -207,7 +209,7 @@ class CMSDataset( BaseDataset ):
             if runmin == runmax:
                 query = "%s run=%d" % (query,runmin)
             else:
-                print "WARNING: queries with run ranges are slow in DAS"
+                print("WARNING: queries with run ranges are slow in DAS")
                 query = "%s run between [%d, %d]" % (query,runmin if runmin > 0 else 1, runmax if runmax > 0 else 999999)
         dbs='das_client.py --query="summary %s=%s"'%(qwhat,query)
         dbsOut = os.popen(dbs).readlines()
@@ -292,7 +294,7 @@ class Dataset( BaseDataset ):
                 self.maskExists = True
                 self.report = report
                 dup = report.get('ValidDuplicates',{})
-                for name, status in report['Files'].iteritems():
+                for name, status in six.iteritems(report['Files']):
                     # print name, status
                     if not status[0]:
                         self.bad_files[name] = 'MarkedBad'
@@ -319,9 +321,9 @@ class Dataset( BaseDataset ):
             self.filesAndSizes[file] = size 
          
     def printInfo(self):
-        print 'sample      :  ' + self.name
-        print 'LFN         :  ' + self.lfnDir
-        print 'Castor path :  ' + self.castorDir
+        print('sample      :  ' + self.name)
+        print('LFN         :  ' + self.lfnDir)
+        print('Castor path :  ' + self.castorDir)
 
     def getPrimaryDatasetEntries(self):
         if self.report is not None and self.report:
@@ -362,7 +364,7 @@ class PrivateDataset ( BaseDataset ):
             if runmin == runmax:
                 query = "%s run=%d" % (query,runmin)
             else:
-                print "WARNING: queries with run ranges are slow in DAS"
+                print("WARNING: queries with run ranges are slow in DAS")
                 query = "%s run between [%d, %d]" % (query,runmin if runmin > 0 else 1, runmax if runmax > 0 else 999999)
         dbs='das_client.py --query="summary %s=%s instance=prod/%s"'%(qwhat, query, dbsInstance)
         dbsOut = os.popen(dbs).readlines()
@@ -386,7 +388,7 @@ class PrivateDataset ( BaseDataset ):
             if runmin == runmax:
                 query = "%s run=%d" % (query,runmin)
             else:
-                print "WARNING: queries with run ranges are slow in DAS"
+                print("WARNING: queries with run ranges are slow in DAS")
                 query = "%s run between [%d, %d]" % (query,runmin if runmin > 0 else 1, runmax if runmax > 0 else 999999)
         dbs='das_client.py --query="summary %s=%s instance=prod/%s"'%(qwhat, query, dbsInstance)
         dbsOut = os.popen(dbs).readlines()

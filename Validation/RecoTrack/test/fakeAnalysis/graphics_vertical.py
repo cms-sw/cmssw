@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import ROOT
 from array import array
 
@@ -231,7 +232,7 @@ class EventPlotter(object):
 		Y.append(hit.y())
 		Z.append(hit.z())	
 	if(not X):
-	    print "Track has no valid points"
+	    print("Track has no valid points")
 	    return
 	plot = ROOT.TPolyLine3D(len(X),array("f",X),array("f",Y),array("f",Z))
 	plot.SetLineColor(color)
@@ -252,7 +253,7 @@ class EventPlotter(object):
 
     def TrackHelix(self, track, color = 1, style = 0):
 	'''Creates a THelix object which can be plotted with Draw() method.'''
-	if type(track) is TrackingParticle:
+	if isinstance(track, TrackingParticle):
 	    phi = track.pca_phi()
 	    dxy = track.pca_dxy()
 	    dz = track.pca_dz()
@@ -526,7 +527,7 @@ class EventPlotter(object):
 		elif hit.isValid() and hit.z() < 0: self.PlotDetectorRange("n",4)
 		else: self.PlotDetectorRange("b",4)
 
-                print "****************************\n"
+                print("****************************\n")
 	        self.Draw()
             return
 
@@ -560,15 +561,15 @@ class EventPlotter(object):
 
     def ParticleTest(self, particles, draw=False):
 	for particle in particles:
-	    print "\nPARTICLE " + str(particle.index())
+	    print("\nPARTICLE " + str(particle.index()))
 	    for hit in particle.hits():
 		tof = -1
 		for info in hit.matchedTrackingParticleInfos():
 		    if info.trackingParticle().index() == particle.index():
 			#if len(info.tof()): 
 			tof = info.tof()
-		print "Index: " + str(hit.index()) + ", Layer: " + str(hit.layerStr()) + ", TOF: " + str(tof) +\
-	        "     XY distance: " + str(sqrt(hit.x()**2 + hit.y()**2)) + ", Z: " + str(hit.z())
+		print("Index: " + str(hit.index()) + ", Layer: " + str(hit.layerStr()) + ", TOF: " + str(tof) +\
+	        "     XY distance: " + str(sqrt(hit.x()**2 + hit.y()**2)) + ", Z: " + str(hit.z()))
 	    self.DrawTrackTest(particle)
 	    if draw:
 		self.Draw()

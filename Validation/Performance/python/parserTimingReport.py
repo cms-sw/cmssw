@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys
 import math
 import re
@@ -255,15 +256,15 @@ def manual_run():
 			 ## "CMSSW_3_1_0_pre10": 
 			 }
 	for release, files in release_files.items():
-		print "Processing release: %s" % release
+		print("Processing release: %s" % release)
 		for timelog_f in files:
-			print "Processing file: %s" % timelog_f
+			print("Processing file: %s" % timelog_f)
 			
 			# TODO: automaticaly detect type of report file!!!
 			(mod_timelog, evt_timelog, rss_data, vsize_data) =loadTimeLog(timelog_f)
 			
 			mod_timelog= processModuleTimeLogData(mod_timelog, groupBy = "module_label")
-			print "Number of modules grouped by (module_label): %s" % len(mod_timelog)
+			print("Number of modules grouped by (module_label): %s" % len(mod_timelog))
 
 			(candle, step, pileup_type, conditions, event_content) = getJobID_fromTimeReportLogName(timelog_f)
 			

@@ -98,7 +98,7 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
       
   //perform the fit: the result's size is 1 if it succeded, 0 if fails
   Trajectory && trajTmp = theFitter->fitOne(seed, hits, theTSOS,(nLoops>0) ? TrajectoryFitter::looper : TrajectoryFitter::standard);
-  if unlikely(!trajTmp.isValid()) {
+  if UNLIKELY(!trajTmp.isValid()) {
      DPRINT("TrackFitters") << "fit failed " << algo_ << ": " <<  hits.size() <<'|' << int(nLoops) << ' ' << std::endl; 
      return false;
   }
@@ -124,7 +124,7 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
   }
   
   ndof -= 5.f;
-  if unlikely(std::abs(theTSOS.magneticField()->nominalValue())<DBL_MIN) ++ndof;  // same as -4
+  if UNLIKELY(std::abs(theTSOS.magneticField()->nominalValue())<DBL_MIN) ++ndof;  // same as -4
  
 
 #if defined(VI_DEBUG) || defined(EDM_ML_DEBUG)
@@ -173,7 +173,7 @@ for (auto const & tm : theTraj->measurements()) {
     }
   }
 
-  if unlikely(!stateForProjectionToBeamLineOnSurface.isValid()){
+  if UNLIKELY(!stateForProjectionToBeamLineOnSurface.isValid()){
     edm::LogError("CannotPropagateToBeamLine")<<"the state on the closest measurement isnot valid. skipping track.";
     delete theTraj;
     return false;
@@ -196,7 +196,7 @@ for (auto const & tm : theTraj->measurements()) {
   }
 
   
-  if unlikely(!tscbl.isValid()) {
+  if UNLIKELY(!tscbl.isValid()) {
     delete theTraj;
     return false;
   }
@@ -248,7 +248,7 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
   PropagationDirection seedDir = seed.direction();
   
   Trajectory && trajTmp = theFitter->fitOne(seed, hits, theTSOS,(nLoops>0) ? TrajectoryFitter::looper: TrajectoryFitter::standard);
-  if unlikely(!trajTmp.isValid()) return false;
+  if UNLIKELY(!trajTmp.isValid()) return false;
   
   
   auto theTraj = new Trajectory( std::move(trajTmp) );
@@ -290,7 +290,7 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
   }
   
   ndof = ndof - 5;
-  if unlikely(std::abs(theTSOS.magneticField()->nominalValue())<DBL_MIN) ++ndof;  // same as -4
+  if UNLIKELY(std::abs(theTSOS.magneticField()->nominalValue())<DBL_MIN) ++ndof;  // same as -4
   
   
   //if geometricInnerState_ is false the state for projection to beam line is the state attached to the first hit: to be used for loopers
@@ -307,7 +307,7 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
     }
   }
 
-  if unlikely(!stateForProjectionToBeamLineOnSurface.isValid()){
+  if UNLIKELY(!stateForProjectionToBeamLineOnSurface.isValid()){
       edm::LogError("CannotPropagateToBeamLine")<<"the state on the closest measurement isnot valid. skipping track.";
       delete theTraj;
       return false;
@@ -330,7 +330,7 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
   }  
 
   
-  if unlikely(tscbl.isValid()==false) {
+  if UNLIKELY(tscbl.isValid()==false) {
       delete theTraj;
       return false;
     }

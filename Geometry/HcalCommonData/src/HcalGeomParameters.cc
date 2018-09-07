@@ -98,12 +98,12 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv,
 #ifdef EDM_ML_DEBUG
     double alp(0);
 #endif
-    if (sol.shape() == 1) {
+    if (sol.shape() == DDSolidShape::ddbox) {
       const DDBox & box = static_cast<DDBox>(fv.logicalPart().solid());
       dx = box.halfX();
       dy = box.halfY();
       dz = box.halfZ();
-    } else if (sol.shape() == 3) {
+    } else if (sol.shape() == DDSolidShape::ddtrap) {
       const DDTrap & trp = static_cast<DDTrap>(fv.logicalPart().solid());
       dx1= trp.x1();
       dx2= trp.x2();
@@ -113,7 +113,7 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv,
 #ifdef EDM_ML_DEBUG
       alp= 0.5*(trp.alpha1()+trp.alpha2());
 #endif
-    } else if (sol.shape() == 2) {
+    } else if (sol.shape() == DDSolidShape::ddtubs) {
       const DDTubs & tub = static_cast<DDTubs>(fv.logicalPart().solid());
       dx = tub.rIn();
       dy = tub.rOut();
@@ -251,11 +251,11 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv,
 	for (unsigned j=0; j<paras.size(); j++)
 	  std::cout << "HF Parameter[" << j << "] = " << paras[j] << std::endl;
 #endif
-	if (sol.shape() == ddpolycone_rrz) {
+	if (sol.shape() == DDSolidShape::ddpolycone_rrz) {
 	  int nz  = (int)(paras.size())-3;
 	  dzVcal  = 0.5*(paras[nz]-paras[3]);
 	  hf      = true;
-	} else if (sol.shape() == ddtubs || sol.shape() == ddcons) {
+	} else if (sol.shape() == DDSolidShape::ddtubs || sol.shape() == DDSolidShape::ddcons) {
 	  dzVcal  = paras[0];
 	  hf      = true;
 	}

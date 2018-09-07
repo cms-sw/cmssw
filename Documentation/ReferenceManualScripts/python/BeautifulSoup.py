@@ -77,6 +77,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE, DAMMIT.
 
 """
 from __future__ import generators
+from __future__ import print_function
 
 __author__ = "Leonard Richardson (leonardr@segfault.org)"
 __version__ = "3.2.1"
@@ -202,7 +203,7 @@ class PageElement(object):
         return lastChild
 
     def insert(self, position, newChild):
-        if isinstance(newChild, basestring) \
+        if isinstance(newChild, str) \
             and not isinstance(newChild, NavigableString):
             newChild = NavigableString(newChild)
 
@@ -357,7 +358,7 @@ class PageElement(object):
                 return [element for element in generator()
                         if isinstance(element, Tag)]
             # findAll*('tag-name')
-            elif isinstance(name, basestring):
+            elif isinstance(name, str):
                 return [element for element in generator()
                         if isinstance(element, Tag) and
                         element.name == name]
@@ -708,7 +709,7 @@ class Tag(PageElement):
         if self.attrs:
             for key, val in self.attrs:
                 fmt = '%s="%s"'
-                if isinstance(val, basestring):
+                if isinstance(val, str):
                     if self.containsSubstitutions and '%SOUP-ENCODING%' in val:
                         val = self.substituteEncoding(val, encoding)
 
@@ -892,7 +893,7 @@ class SoupStrainer:
 
     def __init__(self, name=None, attrs={}, text=None, **kwargs):
         self.name = name
-        if isinstance(attrs, basestring):
+        if isinstance(attrs, str):
             kwargs['class'] = _match_css_class(attrs)
             attrs = None
         if kwargs:
@@ -966,7 +967,7 @@ class SoupStrainer:
                 found = self.searchTag(markup)
         # If it's text, make sure the text matches.
         elif isinstance(markup, NavigableString) or \
-                 isinstance(markup, basestring):
+                 isinstance(markup, str):
             if self._matches(markup, self.text):
                 found = markup
         else:
@@ -986,7 +987,7 @@ class SoupStrainer:
             #other ways of matching match the tag name as a string.
             if isinstance(markup, Tag):
                 markup = markup.name
-            if markup and not isinstance(markup, basestring):
+            if markup and not isinstance(markup, str):
                 markup = unicode(markup)
             #Now we know that chunk is either a string, or None.
             if hasattr(matchAgainst, 'match'):
@@ -996,7 +997,7 @@ class SoupStrainer:
                 result = markup in matchAgainst
             elif hasattr(matchAgainst, 'items'):
                 result = matchAgainst in markup
-            elif matchAgainst and isinstance(markup, basestring):
+            elif matchAgainst and isinstance(markup, str):
                 if isinstance(markup, unicode):
                     matchAgainst = unicode(matchAgainst)
                 else:
@@ -2014,4 +2015,4 @@ class UnicodeDammit:
 if __name__ == '__main__':
     import sys
     soup = BeautifulSoup(sys.stdin)
-    print soup.prettify()
+    print(soup.prettify())

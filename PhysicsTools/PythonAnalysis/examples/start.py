@@ -4,5 +4,5 @@ from ROOT import *
 from PhysicsTools.PythonAnalysis import *
 
 gSystem.Load("libFWCoreFWLite.so")
-FWLiteEnabler::enable()
+ROOT.FWLiteEnabler.enable()
 

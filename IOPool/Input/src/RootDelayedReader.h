@@ -7,7 +7,7 @@ RootDelayedReader.h // used by ROOT input sources
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Provenance/interface/BranchKey.h"
+#include "DataFormats/Provenance/interface/BranchID.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Utilities/interface/InputType.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
@@ -33,7 +33,6 @@ namespace edm {
   public:
     typedef roottree::BranchInfo BranchInfo;
     typedef roottree::BranchMap BranchMap;
-    typedef roottree::BranchMap::const_iterator iterator;
     typedef roottree::EntryNumber EntryNumber;
     RootDelayedReader(
       RootTree const& tree,
@@ -59,15 +58,13 @@ namespace edm {
     }
 
   private:
-    std::unique_ptr<WrapperBase> getProduct_(BranchKey const& k, EDProductGetter const* ep) override;
+    std::unique_ptr<WrapperBase> getProduct_(BranchID const& k, EDProductGetter const* ep) override;
     void mergeReaders_(DelayedReader* other) override {nextReader_ = other;}
     void reset_() override {nextReader_ = nullptr;}
     std::pair<SharedResourcesAcquirer*, std::recursive_mutex*> sharedResources_() const override;
 
     BranchMap const& branches() const {return tree_.branches();}
-    iterator branchIter(BranchKey const& k) const {return branches().find(k);}
-    bool found(iterator const& iter) const {return iter != branches().end();}
-    BranchInfo const& getBranchInfo(iterator const& iter) const {return iter->second; }
+    BranchInfo const* getBranchInfo(BranchID const& k) const {return branches().find(k);}
     // NOTE: filePtr_ appears to be unused, but is needed to prevent
     // the file containing the branch from being reclaimed.
     RootTree const& tree_;

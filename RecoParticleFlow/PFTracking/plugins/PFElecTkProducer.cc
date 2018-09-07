@@ -199,7 +199,7 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	bool isEcalDriven = true;
 	bool isTrackerDriven = true;
 	
-	if (&(*trackRef->seedRef())==nullptr) {
+	if (trackRef->seedRef().get()==nullptr) {
 	  isEcalDriven = false;
 	  isTrackerDriven = false;
 	}
@@ -401,7 +401,7 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
 			    bool otherColl){
 
 
-  if (&(*gsftk.seedRef())==nullptr) return -1;
+  if (gsftk.seedRef().get()==nullptr) return -1;
   auto const &  ElSeedFromRef=static_cast<ElectronSeed const&>( *(gsftk.extra()->seedRef()) );
   //CASE 1 ELECTRONSEED DOES NOT HAVE A REF TO THE CKFTRACK
   if (ElSeedFromRef.ctfTrack().isNull()){
@@ -482,7 +482,7 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
 // -- method to apply gsf electron selection to EcalDriven seeds
 bool 
 PFElecTkProducer::applySelection(const reco::GsfTrack& gsftk) {
-  if (&(*gsftk.seedRef())==nullptr) return false;
+  if (gsftk.seedRef().get()==nullptr) return false;
   auto const& ElSeedFromRef=static_cast<ElectronSeed const&>( *(gsftk.extra()->seedRef()) );
 
   bool passCut = false;
@@ -515,7 +515,7 @@ PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>  & GsfPFVec
 
   const reco::GsfTrackRef& nGsfTrack = GsfPFVec[ngsf].gsfTrackRef();
   
-  if (&(*nGsfTrack->seedRef())==nullptr) return false;    
+  if (nGsfTrack->seedRef().get()==nullptr) return false;    
   auto const& nElSeedFromRef=static_cast<ElectronSeed const&>( *(nGsfTrack->extra()->seedRef()) );
   
   /* // now gotten from cache below
@@ -571,7 +571,7 @@ PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>  & GsfPFVec
         */
         float iPin = gsfInnerMomentumCache_[iGsfTrack.key()];
 
-	if (&(*iGsfTrack->seedRef())==nullptr) continue;   
+	if (iGsfTrack->seedRef().get()==nullptr) continue;   
 	auto const& iElSeedFromRef=static_cast<ElectronSeed const&>( *(iGsfTrack->extra()->seedRef()) );
 
 	float SCEnergy = -1.;

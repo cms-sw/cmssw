@@ -23,23 +23,16 @@ PixelROCMaskBits::PixelROCMaskBits(){
 void PixelROCMaskBits::setROCMaskBits(PixelROCName& rocid ,std::string bits)
 {
   std::string mthn = "[PixelROCMaskBits::setROCMaskBits()]\t\t\t    " ;
-try
-  {
-    rocid_=rocid;
-    char cpt[520] ;
-    bits.copy( cpt , 520);
-    for(unsigned int i = 0 ; i < bits.size(); i++)
-      {
-	bits_[i] = (unsigned char)cpt[i];
-	//      std::cout<< "bits_[" << i << "]\t" << bits_[i] <<std::endl;
-	//      std::cout<<rocid_<<std::endl;
-	//      std::cout.flags(std::ios::hex)
-      }
-  }
- catch(std::bad_cast)
-   {
-     std::cout << __LINE__ << "]\t" << mthn << "Error casting variable." << std::endl;
-   }
+  rocid_=rocid;
+  char cpt[520] ;
+  bits.copy( cpt , 520);
+  for(unsigned int i = 0 ; i < bits.size(); i++)
+    {
+      bits_[i] = static_cast<unsigned char>(cpt[i]);
+      //      std::cout<< "bits_[" << i << "]\t" << bits_[i] <<std::endl;
+      //      std::cout<<rocid_<<std::endl;
+      //      std::cout.flags(std::ios::hex)
+    }
 }
 /**********************End Modification******************************/
 

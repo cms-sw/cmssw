@@ -2,6 +2,7 @@
 
 # A Pyrelval Wrapper
 
+from __future__ import print_function
 import optparse
 import sys
 import os
@@ -60,7 +61,7 @@ def OptionsFromItems(items):
 
     # check in case of ALCAOUTPUT case for alca splitting
     if options.triggerResultsProcess == None and "ALCAOUTPUT" in options.step:
-        print "ERROR: If ALCA splitting is requested, the name of the process in which the alca producers ran needs to be specified. E.g. via --triggerResultsProcess RECO"
+        print("ERROR: If ALCA splitting is requested, the name of the process in which the alca producers ran needs to be specified. E.g. via --triggerResultsProcess RECO")
         sys.exit(1)
             
     if not options.evt_type:            
@@ -142,7 +143,7 @@ def OptionsFromItems(items):
         if options.filein.lower().endswith(".lhe") or options.filein.lower().endswith(".lhef") or options.filein.startswith("lhe:"):
             options.filetype="LHE"
         elif options.filein.startswith("mcdb:"):
-            print "This is a deprecated way of selecting lhe files from article number. Please use lhe:article argument to --filein"
+            print("This is a deprecated way of selecting lhe files from article number. Please use lhe:article argument to --filein")
             options.filein=options.filein.replace('mcdb:','lhe:')
             options.filetype="LHE"
         else:
@@ -172,7 +173,7 @@ def OptionsFromItems(items):
     if not options.python_filename:
         options.python_filename = standardFileName+'.py'
 
-    print options.step
+    print(options.step)
 
 
     # Setting name of process
@@ -215,9 +216,9 @@ def OptionsFromItems(items):
         if 'SIM' in options.datatier:
             options.isMC=True
         if options.isMC:
-            print 'We have determined that this is simulation (if not, rerun cmsDriver.py with --data)'
+            print('We have determined that this is simulation (if not, rerun cmsDriver.py with --data)')
         else:
-            print 'We have determined that this is real data (if not, rerun cmsDriver.py with --mc)'
+            print('We have determined that this is real data (if not, rerun cmsDriver.py with --mc)')
 
     if options.profile:
         if options.profile and options.prefix:

@@ -70,35 +70,35 @@ CSCALCTHeader::CSCALCTHeader(const unsigned short * buf) {
   switch (firmwareVersion.load()) {
 #endif 
   case 2006:
-    memcpy(&header2006, buf, header2006.sizeInWords()*2);///the header part
+    header2006.setFromBuffer(buf);///the header part
     buf +=header2006.sizeInWords();
-    memcpy(&alcts2006, buf, alcts2006.sizeInWords()*2);///the alct0 and alct1
+    alcts2006.setFromBuffer(buf);///the alct0 and alct1
     buf +=alcts2006.sizeInWords();
     break;
 
   case 2007:
-    memcpy(&header2007, buf, header2007.sizeInWords()*2); ///the fixed sized header part
+    header2007.setFromBuffer(buf); ///the fixed sized header part
     buf +=header2007.sizeInWords();
     sizeInWords2007_ = header2007.sizeInWords();
     ///now come the variable parts
     if (header2007.configPresent==1) {
-      memcpy(&virtexID, buf, virtexID.sizeInWords()*2);
+      virtexID.setFromBuffer(buf);
       buf +=virtexID.sizeInWords();
       sizeInWords2007_ = virtexID.sizeInWords();
-      memcpy(&configRegister, buf, configRegister.sizeInWords()*2);
+      configRegister.setFromBuffer(buf);
       buf +=configRegister.sizeInWords();
       sizeInWords2007_ += configRegister.sizeInWords();
 
       collisionMasks.resize(collisionMaskWordcount[header2007.boardType]);
       for (unsigned int i=0; i<collisionMaskWordcount[header2007.boardType]; ++i){
-	memcpy(&collisionMasks[i], buf, collisionMasks[i].sizeInWords()*2);
+	collisionMasks[i].setFromBuffer(buf);
 	buf += collisionMasks[i].sizeInWords();
 	sizeInWords2007_ += collisionMasks[i].sizeInWords();
       }
 
       hotChannelMasks.resize(hotChannelMaskWordcount[header2007.boardType]);
       for (unsigned int i=0; i<hotChannelMaskWordcount[header2007.boardType]; ++i) {
-	memcpy(&hotChannelMasks[i], buf, hotChannelMasks[i].sizeInWords()*2);
+	hotChannelMasks[i].setFromBuffer(buf);
 	buf += hotChannelMasks[i].sizeInWords();
 	sizeInWords2007_ += hotChannelMasks[i].sizeInWords();
       }
@@ -106,7 +106,7 @@ CSCALCTHeader::CSCALCTHeader(const unsigned short * buf) {
 
     theALCTs.resize(header2007.lctBins*2); ///2007 has LCTbins * 2 alct words
     for (int i=0; i<header2007.lctBins*2; ++i) {
-      memcpy(&theALCTs[i], buf, theALCTs[i].sizeInWords()*2);
+      theALCTs[i].setFromBuffer(buf);
       buf += theALCTs[i].sizeInWords(); 
       sizeInWords2007_ += theALCTs[i].sizeInWords();
     }

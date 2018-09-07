@@ -3,6 +3,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include <CLHEP/Random/RandGaussQ.h>
 
 const EnergyScaleCorrection::ScaleCorrection ElectronEnergyCalibrator::defaultScaleCorr_;
@@ -42,7 +43,7 @@ calibrate(reco::GsfElectron &ele, unsigned int runNumber,
   const float scEtaAbs = std::abs(ele.superCluster()->eta());
   const float et = ele.ecalEnergy() / cosh(scEtaAbs);
 
-  if (et < minEt_) {
+  if (et < minEt_ || edm::isNotFinite(et) ) {
     std::array<float,EGEnergySysIndex::kNrSysErrs> retVal;
     retVal.fill(ele.energy());
     retVal[EGEnergySysIndex::kScaleValue]  = 1.0;
@@ -148,8 +149,8 @@ setEnergyAndSystVarations(const float scale,const float smearNrSigma,const float
   energyData[EGEnergySysIndex::kSmearUp]   = calCombinedMom(ele,corrUp,smearUp).first;
   energyData[EGEnergySysIndex::kSmearDown] = calCombinedMom(ele,corrDn,smearDn).first;
   
+  const std::pair<float, float> combinedMomentum = calCombinedMom(ele,corr,smear);
   setEcalEnergy(ele,corr,smear);
-  const std::pair<float, float> combinedMomentum = epCombinationTool_->combine(ele);
   const float energyCorr =  combinedMomentum.first / oldP4.t();
 
   const math::XYZTLorentzVector newP4(oldP4.x() * energyCorr,
@@ -183,10 +184,18 @@ std::pair<float,float> ElectronEnergyCalibrator::calCombinedMom(reco::GsfElectro
 { 
   const float oldEcalEnergy = ele.ecalEnergy();
   const float oldEcalEnergyErr = ele.ecalEnergyError();
+
+  const auto oldP4 = ele.p4();
+  const float oldP4Err = ele.p4Error(reco::GsfElectron::P4_COMBINATION);
+  const float oldTrkMomErr = ele.trackMomentumError();
+ 
   setEcalEnergy(ele,scale,smear);
-  const auto& combinedMomentum = epCombinationTool_->combine(ele);
+  const auto& combinedMomentum = epCombinationTool_->combine(ele,oldEcalEnergyErr*scale);
+  
   ele.setCorrectedEcalEnergy(oldEcalEnergy);
   ele.setCorrectedEcalEnergyError(oldEcalEnergyErr);
+  ele.correctMomentum(oldP4,oldTrkMomErr,oldP4Err);
+  
   return combinedMomentum;
 }
 						      

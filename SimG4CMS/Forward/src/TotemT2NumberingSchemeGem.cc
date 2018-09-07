@@ -25,5 +25,4 @@ TotemT2NumberingSchemeGem::TotemT2NumberingSchemeGem(int i) {
 }
 
 TotemT2NumberingSchemeGem::~TotemT2NumberingSchemeGem() {
-  edm::LogInfo("ForwardSim") << " Deleting TotemT2NumberingSchemeGem";
 }

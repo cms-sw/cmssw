@@ -6,6 +6,7 @@ File       : cms.py
 Author     : Valentin Kuznetsov <vkuznet@gmail.com>
 Description: CMS-related utils
 """
+from __future__ import print_function
 
 # system modules
 import os
@@ -17,11 +18,12 @@ from FWCore.Skeletons.utils import code_generator
 def config(tmpl, pkg_help, tmpl_dir):
     "Parse input arguments to mk-script"
     kwds  = {'author': '', 'tmpl': tmpl,
-             'args': {}, 'debug': False, 'tmpl_dir': tmpl_dir}
+             'args': {}, 'debug': False,
+             'tmpl_dir': tmpl_dir, 'working_dir': ''}
     etags = []
     if  len(sys.argv) >= 2: # user give us arguments
         if  sys.argv[1] in ['-h', '--help', '-help']:
-            print pkg_help
+            print(pkg_help)
             sys.exit(0)
         kwds['pname'] = sys.argv[1]
         for idx in xrange(2, len(sys.argv)):
@@ -33,7 +35,7 @@ def config(tmpl, pkg_help, tmpl_dir):
                 etags.append('@%s' % opt)
                 continue
             if  opt in ['-h', '--help', '-help']:
-                print pkg_help
+                print(pkg_help)
                 sys.exit(0)
             if  opt == '-debug':
                 kwds['debug'] = True
@@ -43,7 +45,7 @@ def config(tmpl, pkg_help, tmpl_dir):
         msg = 'Please enter %s name: ' % tmpl.lower()
         kwds['pname'] = raw_input(msg)
     else:
-        print pkg_help
+        print(pkg_help)
         sys.exit(0)
     kwds['tmpl_etags'] = etags
     return kwds
@@ -124,17 +126,22 @@ def generate(kwds):
         whereami, ldir = test_cms_environment(tmpl)
         dirs = ldir.split('/')
         if  not dirs or not whereami:
-            print cms_error()
+            print(cms_error())
             sys.exit(1)
         config.update({'subsystem': dirs[1]})
         config.update({'pkgname': kwds.get('pname')})
         if  whereami in ['src', 'plugins']:
+            config.update({'working_dir': whereami})
             config.update({'tmpl_files': '.cc'})
+            config.update({'pkgname': dirs[2]})
+        elif whereami == 'test':
+            config.update({'working_dir': whereami})
+            config.update({'tmpl_files':'.cc'})
             config.update({'pkgname': dirs[2]})
         elif whereami == 'subsystem':
             config.update({'tmpl_files': 'all'})
         else:
-            print cms_error()
+            print(cms_error())
             sys.exit(1)
     obj = code_generator(config)
     obj.generate()

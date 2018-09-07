@@ -1,5 +1,5 @@
-#include "../interface/DBWriterWorkers.h"
-#include "../interface/LogicIDTranslation.h"
+#include "DQM/EcalMonitorDbModule/interface/DBWriterWorkers.h"
+#include "DQM/EcalMonitorDbModule/interface/LogicIDTranslation.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 

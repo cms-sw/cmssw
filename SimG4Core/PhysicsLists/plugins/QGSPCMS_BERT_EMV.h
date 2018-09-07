@@ -7,7 +7,7 @@
 class QGSPCMS_BERT_EMV: public PhysicsList {
 
 public:
-  QGSPCMS_BERT_EMV(G4LogicalVolumeToDDLogicalPartMap& map, const HepPDT::ParticleDataTable * table_, sim::ChordFinderSetter *chordFinderSetter_, const edm::ParameterSet & p);
+  QGSPCMS_BERT_EMV(const edm::ParameterSet & p);
 };
 
 #endif

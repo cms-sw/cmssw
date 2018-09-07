@@ -101,7 +101,7 @@ EcalDccWeightBuilder::analyze(const edm::Event& event,
 
   
   //computes the weights:
-  computeAllWeights(dccWeightsWithIntercalib_);
+  computeAllWeights(dccWeightsWithIntercalib_, es);
 
   //Writing out weights.
   if(writeToAsciiFile_) writeWeightToAsciiFile();
@@ -109,7 +109,7 @@ EcalDccWeightBuilder::analyze(const edm::Event& event,
   if(writeToDB_)        writeWeightToDB();
 }
 
-void EcalDccWeightBuilder::computeAllWeights(bool withIntercalib){
+void EcalDccWeightBuilder::computeAllWeights(bool withIntercalib, const edm::EventSetup& es){
   const int nw = nDccWeights_;
   int iSkip0_ = sampleToSkip_>=0?(sampleToSkip_-dcc1stSample_):-1;
 
@@ -169,8 +169,9 @@ void EcalDccWeightBuilder::computeAllWeights(bool withIntercalib){
 #endif
     
     try{
-      EBShape ebShape;
-      EEShape eeShape;
+      bool useDBShape = false;
+      EBShape ebShape(useDBShape);  
+      EEShape eeShape(useDBShape); 
       EcalShapeBase* pShape;      
 
       if(it->subdetId()==EcalBarrel){

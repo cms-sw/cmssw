@@ -60,8 +60,8 @@ std::pair<std::vector<reco::TransientTrack>,GlobalPoint> TracksClusteringFromDis
 
                  float w = distanceFromPV*distanceFromPV/(pvDistance*distance);
           	 bool selected = (m.significance() < clusterMaxSignificance && 
-				  dotprodSeed > clusterMinAngleCosine && //Angles between PV-PCAonSeed vectors and seed directions
-				  dotprodTrack > clusterMinAngleCosine && //Angles between PV-PCAonTrack vectors and track directions
+				  ((clusterMinAngleCosine > 0) ? (dotprodSeed > clusterMinAngleCosine) : (dotprodSeed < clusterMinAngleCosine)) && //Angles between PV-PCAonSeed vectors and seed directions
+				  ((clusterMinAngleCosine > 0) ? (dotprodTrack > clusterMinAngleCosine) : (dotprodTrack < clusterMinAngleCosine)) && //Angles between PV-PCAonTrack vectors and track directions
 				  //dotprodTrackSeed2D > clusterMinAngleCosine && //Angle between track and seed
 				  //distance*clusterScale*tracks.size() < (distanceFromPV+pvDistance)*(distanceFromPV+pvDistance)/pvDistance && // cut scaling with track density
 				  distance*distanceRatio < distanceFromPV && // cut scaling with track density

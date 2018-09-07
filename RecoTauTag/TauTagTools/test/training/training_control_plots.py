@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import sys
 import re
 import os
+import six
 
 input_file = sys.argv[1]
 output_dir = sys.argv[2]
@@ -49,7 +51,7 @@ colors = {
 if __name__ == "__main__":
     # Exit gracefully
     if not os.path.exists(input_file):
-        print "WARNING: no training control plot .root file found!"
+        print("WARNING: no training control plot .root file found!")
         sys.exit(0)
     file = ROOT.TFile(input_file)
 
@@ -78,7 +80,7 @@ if __name__ == "__main__":
         method_canvas.SetLogy(False)
         # Strip prefix
         method_type = method_dir.GetName().replace('Method_', '')
-        print method_type
+        print(method_type)
         result_dir = method_dir.Get(method_type)
         signal_mva_out = result_dir.Get("MVA_%s_S" % method_type)
         background_mva_out = result_dir.Get("MVA_%s_B" % method_type)
@@ -116,7 +118,7 @@ if __name__ == "__main__":
         histo_info[type] = histo
 
     variable_canvas = ROOT.TCanvas("var", "var", 1000, 1000)
-    for variable, histograms in input_distributions.iteritems():
+    for variable, histograms in six.iteritems(input_distributions):
         maximum = max(histograms[type].GetMaximum()
                       for type in ['Signal', 'Background'])
         for type in ['Signal', 'Background']:

@@ -1,7 +1,12 @@
 <export>
   <lib   name="1"/>
 </export>
+<use   name="SimDataFormats/Forward"/>
+<use   name="SimDataFormats/Track"/>
+<use   name="SimDataFormats/Vertex"/>
+<use   name="DataFormats/Math"/>
 <use   name="geant4core"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="rootmath"/>
 <use   name="expat"/>
+<use   name="hepmc"/>

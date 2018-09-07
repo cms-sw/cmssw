@@ -61,11 +61,6 @@ void SUSY_HLT_Muon_BJet::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run c
     bookHistos(ibooker_);
 }
 
-void SUSY_HLT_Muon_BJet::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-                                                        edm::EventSetup const& context)
-{
-    edm::LogInfo("SUSY_HLT_Muon_BJet") << "SUSY_HLT_Muon_BJet::beginLuminosityBlock" << std::endl;
-}
 
 
 
@@ -122,10 +117,6 @@ void SUSY_HLT_Muon_BJet::analyze(edm::Event const& e, edm::EventSetup const& eSe
 }
 
 
-void SUSY_HLT_Muon_BJet::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
-{
-    edm::LogInfo("SUSY_HLT_Muon_BJet") << "SUSY_HLT_Muon_BJet::endLuminosityBlock" << std::endl;
-}
 
 
 void SUSY_HLT_Muon_BJet::endRun(edm::Run const& run, edm::EventSetup const& eSetup)

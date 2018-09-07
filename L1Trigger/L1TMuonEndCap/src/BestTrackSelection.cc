@@ -108,7 +108,7 @@ void BestTrackSelection::cancel_one_bx(
 	  { edm::LogError("L1T") << "conv_hit.Valid() = " << conv_hit.Valid(); return; }
 
         // A segment identifier (chamber, strip, bx)
-        const segment_ref_t segment = {{conv_hit.PC_station()*9 + conv_hit.PC_chamber(), conv_hit.Strip(), 0}};  // FW doesn't check whether a segment is CSC or RPC
+        const segment_ref_t segment = {{conv_hit.PC_station()*9 + conv_hit.PC_chamber(), (conv_hit.PC_segment() % 2), 0}};  // FW doesn't check whether a segment is CSC or RPC
         //int chamber_index  = int(conv_hit.Subsystem() == TriggerPrimitive::kRPC)*9*5;
         //chamber_index     += conv_hit.PC_station()*9;
         //chamber_index     += conv_hit.PC_chamber();
@@ -318,7 +318,7 @@ void BestTrackSelection::cancel_multi_bx(
           // sector, then RPC hit may "trump" a CSC hit, or vice versa.
 
           // A segment identifier (chamber, strip, bx)
-          const segment_ref_t segment = {{conv_hit.PC_station()*9 + conv_hit.PC_chamber(), conv_hit.Strip(), conv_hit.BX()}};  // FW doesn't check whether a segment is CSC or RPC
+          const segment_ref_t segment = {{conv_hit.PC_station()*9 + conv_hit.PC_chamber(), (conv_hit.PC_segment() % 2), conv_hit.BX()}};  // FW doesn't check whether a segment is CSC or RPC
           //int chamber_index  = int(conv_hit.Subsystem() == TriggerPrimitive::kRPC)*9*5;
           //chamber_index     += conv_hit.PC_station()*9;
           //chamber_index     += conv_hit.PC_chamber();

@@ -594,6 +594,34 @@ Realistic5TeVppCollision2017VtxSmearingParameters = cms.PSet(
     Z0 = cms.double(0.619)
 )
 
+# From 2018B 3.8T data
+# BS parameters extracted from run 316199, fill 6675 (from StreamExpressAlignment, HP BS):
+# X0         =  0.09676  [cm]
+# Y0         = -0.06245  [cm]
+# Z0         = -0.292    [cm]
+# sigmaZ0    =  3.5      [cm] => mean sigmaZ0 in this run is 3.2676
+# BeamWidthX 0.0008050
+# BeamWidthY 0.0006238
+#
+# From LHC calculator, emittance is 1.634e-8 cm
+# https://lpc.web.cern.ch/lpc/lumi2.html
+#
+# BPIX absolute position (from https://cms-conddb.cern.ch/cmsDbBrowser/payload_inspector/Prod):
+# X = 0.0859918 cm
+# Y = -0.104172 cm
+# Z = -0.327748 cm
+Realistic25ns13TeVEarly2018CollisionVtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(30.0),
+    Emittance = cms.double(1.634e-8),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(3.5),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.0107682),
+    Y0 = cms.double(0.041722 ),
+    Z0 = cms.double(0.035748 )
+)
+
 # Test HF offset
 ShiftedCollision2015VtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),

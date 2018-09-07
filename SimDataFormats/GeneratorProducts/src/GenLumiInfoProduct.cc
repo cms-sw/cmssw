@@ -1,6 +1,8 @@
 #include <iostream>
 #include <algorithm> 
 #include <map>
+#include <utility>
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoProduct.h"
@@ -132,6 +134,11 @@ bool GenLumiInfoProduct::mergeProduct(GenLumiInfoProduct const &other)
       iter != processes.end(); ++iter, i++) 
 	internalProcesses_[i]=iter->second;
   return true;
+}
+
+void GenLumiInfoProduct::swap(GenLumiInfoProduct& other) {
+  std::swap(hepidwtup_, other.hepidwtup_);
+  internalProcesses_.swap(other.internalProcesses_);
 }
 
 bool GenLumiInfoProduct::isProductEqual(GenLumiInfoProduct const &other) const

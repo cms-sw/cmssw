@@ -105,7 +105,7 @@ namespace edm {
         logFileAction("  Closed file ", fileName_.c_str());
         Service<JobReport> reportSvc;
         reportSvc->inputFileClosed(inputType_, reportToken_);
-      } catch(std::exception) {
+      } catch(std::exception const&) {
         // If Close() called in a destructor after an exception throw, the services may no longer be active.
         // Therefore, we catch any reasonable new exception.
       }

@@ -13,13 +13,16 @@ HcalRealisticZS::HcalRealisticZS(edm::ParameterSet const& conf):
   inputLabel_(conf.getParameter<std::string>("digiLabel")) {
 
   bool markAndPass=conf.getParameter<bool>("markAndPass");
+  bool useInstanceLabels=conf.getParameter<bool>("useInstanceLabels");
 
   // register for data access
   tok_hbhe_ = consumes<HBHEDigiCollection>(edm::InputTag(inputLabel_));
   tok_ho_ = consumes<HODigiCollection>(edm::InputTag(inputLabel_));
   tok_hf_ = consumes<HFDigiCollection>(edm::InputTag(inputLabel_));
-  tok_hfQIE10_ = consumes<QIE10DigiCollection>(edm::InputTag(inputLabel_, "HFQIE10DigiCollection"));
-  tok_hbheQIE11_ = consumes<QIE11DigiCollection>(edm::InputTag(inputLabel_, "HBHEQIE11DigiCollection"));
+  tok_hfQIE10_ = consumes<QIE10DigiCollection>(edm::InputTag(inputLabel_,
+							     useInstanceLabels ? "HFQIE10DigiCollection" : "" ));
+  tok_hbheQIE11_ = consumes<QIE11DigiCollection>(edm::InputTag(inputLabel_,
+							       useInstanceLabels ? "HBHEQIE11DigiCollection" : ""));
 
 
   std::vector<int> tmp = conf.getParameter<std::vector<int> >("HBregion");

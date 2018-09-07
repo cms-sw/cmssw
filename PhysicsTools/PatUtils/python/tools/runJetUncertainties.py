@@ -9,7 +9,7 @@ from PhysicsTools.PatUtils.tools.jmeUncertaintyTools import JetMEtUncertaintyToo
 from PhysicsTools.PatUtils.patPFMETCorrections_cff import *
 import RecoMET.METProducers.METSigParams_cfi as jetResolutions
 from PhysicsTools.PatAlgos.producersLayer1.metProducer_cfi import patMETs
- 
+
 class RunJetUncertainties(JetMEtUncertaintyTools):
 
     """ Produce collection of pat::Jets with jet energy and resolution shifted up/down,
@@ -19,7 +19,7 @@ class RunJetUncertainties(JetMEtUncertaintyTools):
     _defaultParameters = dicttypes.SortedKeysDict()
     def __init__(self):
         JetMEtUncertaintyTools.__init__(self)
-	self.addParameter(self._defaultParameters, 'dRjetCleaning', 0.5, 
+        self.addParameter(self._defaultParameters, 'dRjetCleaning', 0.5, 
                           "Eta-phi distance for extra jet cleaning", Type=float)
         self._parameters = copy.deepcopy(self._defaultParameters)
         self._comment = ""
@@ -68,9 +68,9 @@ class RunJetUncertainties(JetMEtUncertaintyTools):
             dRjetCleaning = self._defaultParameters['dRjetCleaning'].value
 
         self.setParameter('dRjetCleaning', dRjetCleaning)
-  
+
         self.apply(process) 
-        
+
     def toolCode(self, process):        
         electronCollection = self._parameters['electronCollection'].value
         photonCollection = self._parameters['photonCollection'].value
@@ -105,7 +105,7 @@ class RunJetUncertainties(JetMEtUncertaintyTools):
             self._addCleanedJets(process, jetCollection,
                                  electronCollection, photonCollection, muonCollection, tauCollection,
                                  jetUncertaintySequence, postfix)
-        
+
         # smear jet energies to account for difference in jet resolutions between MC and Data
         # (cf. JME-10-014 PAS)        
         jetCollectionResUp = None
@@ -148,18 +148,18 @@ class RunJetUncertainties(JetMEtUncertaintyTools):
         setattr(process, "shiftedParticlesForJetUncertainties" + postfix, shiftedParticleSequence)        
         jetUncertaintySequence += getattr(process, "shiftedParticlesForJetUncertainties" + postfix)
         collectionsToKeep.extend(addCollectionsToKeep)
-        
+
         # insert metUncertaintySequence into patDefaultSequence
         if addToPatDefaultSequence:
             if not hasattr(process, "patDefaultSequence"):
                 raise ValueError("PAT default sequence is not defined !!")
             process.patDefaultSequence += jetUncertaintySequence        
-       
+
         # add shifted + unshifted collections pf pat::Electrons/Photons,
         # Muons, Taus, Jets and MET to PAT-tuple event content
         if outputModule is not None and hasattr(process, outputModule):
             getattr(process, outputModule).outputCommands = _addEventContent(
                 getattr(process, outputModule).outputCommands,
                 [ 'keep *_%s_*_%s' % (collectionToKeep, process.name_()) for collectionToKeep in collectionsToKeep ])
-       
+
 runJetUncertainties = RunJetUncertainties()

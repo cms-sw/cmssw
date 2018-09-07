@@ -104,7 +104,7 @@ XrdAdaptor::ClientRequest::HandleResponse(XrdCl::XRootDStatus *stat, XrdCl::AnyO
             m_promise.set_exception(std::current_exception());
             edm::LogWarning("XrdAdaptorInternal") << "Caught a CMSSW exception when running connection recovery.";
         }
-        catch (std::exception)
+        catch (std::exception const&)
         {
             edm::Exception ex(edm::errors::FileReadError);
             ex << "XrdRequestManager::handle(name='" << m_manager.getFilename()

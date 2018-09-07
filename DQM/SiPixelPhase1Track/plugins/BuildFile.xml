@@ -1,0 +1,9 @@
+<use   name="DQM/SiPixelPhase1Common"/>
+<use   name="DataFormats/TrackerRecHit2D"/>
+<use   name="TrackingTools/TrackFitters"/>
+<use   name="RecoPixelVertexing/PixelLowPtUtilities"/>
+<use   name="Alignment/OfflineValidation"/>
+
+
+<flags EDM_PLUGIN="1"/>
+

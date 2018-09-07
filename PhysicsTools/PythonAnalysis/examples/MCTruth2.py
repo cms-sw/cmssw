@@ -1,9 +1,10 @@
+from __future__ import print_function
 from PhysicsTools.PythonAnalysis import *
 from ROOT import *
 
 # prepare the FWLite autoloading mechanism
 gSystem.Load("libFWCoreFWLite.so")
-FWLiteEnabler::enable()
+ROOT.FWLiteEnabler.enable()
 
 # access the event tree
 events = EventTree("generatorOutput.root")
@@ -11,4 +12,4 @@ events = EventTree("generatorOutput.root")
 # event loop
 for event in events:
     genEvent = event.VtxSmeared.GetEvent()
-    print genEvent
+    print(genEvent)

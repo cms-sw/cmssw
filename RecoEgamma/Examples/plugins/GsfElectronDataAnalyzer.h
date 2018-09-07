@@ -13,7 +13,7 @@
 //
 
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -33,7 +33,7 @@ class TH1I;
 class TProfile;
 class TTree;
 
-class GsfElectronDataAnalyzer : public edm::EDAnalyzer
+class GsfElectronDataAnalyzer : public edm::one::EDAnalyzer<>
 {
  public:
 

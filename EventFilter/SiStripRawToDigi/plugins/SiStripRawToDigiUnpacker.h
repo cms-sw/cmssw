@@ -65,6 +65,8 @@ namespace sistrip {
 
     inline void legacy( bool );
 
+    void printWarningSummary() const { warnings_.printSummary(); }
+
   private:
     
     /// fill DetSetVectors using registries
@@ -146,8 +148,26 @@ namespace sistrip {
     std::vector<SiStripRawDigi> scope_work_digis_; 
     std::vector<SiStripRawDigi> proc_work_digis_;
     std::vector<SiStripRawDigi> cm_work_digis_;
+
+    class WarningSummary {
+    public:
+      WarningSummary(const std::string& category, const std::string& name, bool debug=false)
+        : m_debug(debug)
+        , m_category(category)
+        , m_name(name)
+      {}
+
+      void add(const std::string& message, const std::string& details="");
+      void printSummary() const;
+
+    private:
+      bool m_debug;
+      std::string m_category;
+      std::string m_name;
+      std::vector<std::pair<std::string,std::size_t>> m_warnings;
+    };
+    WarningSummary warnings_;
   };
-  
 }
 
 void sistrip::RawToDigiUnpacker::readoutOrder( uint16_t& physical_order, uint16_t& readout_order ) 

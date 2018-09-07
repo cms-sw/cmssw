@@ -257,6 +257,10 @@ public:
   void postModuleStreamEndLumi(edm::StreamContext const&, edm::ModuleCallingContext const&);
 
   // these signal pair are guaranteed to be called by the same thread
+  void preModuleEventAcquire(edm::StreamContext const&, edm::ModuleCallingContext const&);
+  void postModuleEventAcquire(edm::StreamContext const&, edm::ModuleCallingContext const&);
+
+  // these signal pair are guaranteed to be called by the same thread
   void preModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const&);
   void postModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const&);
 
@@ -459,6 +463,10 @@ NVProfilerService::NVProfilerService(edm::ParameterSet const & config, edm::Acti
   // these signal pair are guaranteed to be called by the same thread
   registry.watchPreModuleStreamEndLumi(this, &NVProfilerService::preModuleStreamEndLumi);
   registry.watchPostModuleStreamEndLumi(this, &NVProfilerService::postModuleStreamEndLumi);
+
+  // these signal pair are guaranteed to be called by the same thread
+  registry.watchPreModuleEventAcquire(this, &NVProfilerService::preModuleEventAcquire);
+  registry.watchPostModuleEventAcquire(this, &NVProfilerService::postModuleEventAcquire);
 
   // these signal pair are guaranteed to be called by the same thread
   registry.watchPreModuleEvent(this, &NVProfilerService::preModuleEvent);
@@ -807,6 +815,25 @@ void
 NVProfilerService::postModuleEndJob(edm::ModuleDescription const& desc) {
   auto mid = desc.id();
   nvtxDomainRangeEnd(global_domain(), global_modules_[mid]);
+}
+
+void
+NVProfilerService::preModuleEventAcquire(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
+  auto sid = sc.streamID();
+  auto mid = mcc.moduleDescription()->id();
+  auto const & label = mcc.moduleDescription()->moduleLabel();
+  auto const & msg = label + " acquire";
+  if (highlight(label))
+    stream_modules_[sid][mid] = nvtxDomainRangeStartColor(stream_domain(sid), msg.c_str(), nvtxAmber);
+  else
+    stream_modules_[sid][mid] = nvtxDomainRangeStartColor(stream_domain(sid), msg.c_str(), nvtxGreen);;
+}
+
+void
+NVProfilerService::postModuleEventAcquire(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
+  auto sid = sc.streamID();
+  auto mid = mcc.moduleDescription()->id();
+  nvtxDomainRangeEnd(stream_domain(sid), stream_modules_[sid][mid]);
 }
 
 void

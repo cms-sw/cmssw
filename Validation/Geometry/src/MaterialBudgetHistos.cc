@@ -2,13 +2,14 @@
 #include "Validation/Geometry/interface/MaterialBudgetData.h"
 
 
-MaterialBudgetHistos::MaterialBudgetHistos(MaterialBudgetData* data,
-					   TestHistoMgr* mgr,
-					   const std::string& fileName ): MaterialBudgetFormat( data ), hmgr(mgr)
+MaterialBudgetHistos::MaterialBudgetHistos(std::shared_ptr<MaterialBudgetData> data,
+					   std::shared_ptr<TestHistoMgr> mgr,
+					   const std::string& fileName )
+  : MaterialBudgetFormat( data ), 
+    hmgr(mgr)
 {
   theFileName = fileName;
   book();
-
 }
 
 

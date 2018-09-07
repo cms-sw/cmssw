@@ -21,5 +21,9 @@ namespace reco {
     double ConstantEvaluator::evaluate(double const* /*iVariables*/, double const* /*iParameters*/) const {
       return m_value;
     }
+
+    std::vector<std::string> ConstantEvaluator::abstractSyntaxTree() const {
+      return std::vector<std::string>{1, std::to_string(m_value) };
+    }
   }
 }

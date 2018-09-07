@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import os,sys, DLFCN,getopt
 sys.setdlopenflags(DLFCN.RTLD_GLOBAL+DLFCN.RTLD_LAZY)
 
@@ -23,7 +24,7 @@ def unhashEBDetId(i):
 def setWhat(w,ret) :
        for key in ret.keys():
               _val = ret[key]
-              if (type(_val)==type([])) :
+              if (isinstance(_val, type([]))) :
                      _vi = CondDB.VInt()
                      for i in _val :
                             _vi.append(i)
@@ -35,15 +36,15 @@ def setWhat(w,ret) :
 
 
 def usage():
-    print "inspectEcal -c [connectstring] -P [authpath] -t [tag] -f [outfile] -l -h"
-    print "   dump records in xml" 
-    print "               -l: list tags and exit"
-    print "               -f [file] : dump to file"
-    print "               -p plot distribution   "
-    print "               -q compare [tag]       "
-    print "               -r reference [tag]     "
-    print "               -m draw map"
-    print "               -h : help"
+    print("inspectEcal -c [connectstring] -P [authpath] -t [tag] -f [outfile] -l -h")
+    print("   dump records in xml") 
+    print("               -l: list tags and exit")
+    print("               -f [file] : dump to file")
+    print("               -p plot distribution   ")
+    print("               -q compare [tag]       ")
+    print("               -r reference [tag]     ")
+    print("               -m draw map")
+    print("               -h : help")
       
 try:
     opts, args = getopt.getopt(sys.argv[1:], "c:P:t:f:lhpq:r:m", ["connect=","authpath=","tag","file","listtags","help","plot","compare","reference","map"])
@@ -76,13 +77,13 @@ for opt,arg in opts:
         try: 
             dbname=arg
         except Exception as er :
-            print er
+            print(er)
     
     if opt in ("-P","--authpath"):
         try: 
             rdbms=RDBMS(arg)
         except Exception as er :
-            print er
+            print(er)
     if opt in ("-t","--tag"):
         tag=arg
 
@@ -118,25 +119,25 @@ db = rdbms.getDB(dbName)
 if do_list_tags :
     tags=db.allTags()
     for tag in tags.split():
-        print tag
+        print(tag)
     sys.exit(0)    
 
 
 try :
     iov = inspect.Iov(db,tag)
-    print "===iov list ==="
+    print("===iov list ===")
     iovlist=iov.list()
-    print iovlist
-    print "===iov summaries ==="
-    print iov.summaries()
-    print "===payload dump ==="
+    print(iovlist)
+    print("===iov summaries ===")
+    print(iov.summaries())
+    print("===payload dump ===")
     for p in iovlist:
         payload=inspect.PayLoad(db,p[0])
         #print payload.summary()
         if dump_to_file:
-            print "Dumping to file:", outfile 
+            print("Dumping to file:", outfile) 
             out = open(outfile,"w")
-            print >> out, payload
+            print(payload, file=out)
         else:
              #print payload
              if  drawmap:
@@ -195,6 +196,6 @@ try :
        can2.SaveAs("h2.svg")
               
 except Exception as er :
-    print er
+    print(er)
 
 

@@ -1,4 +1,5 @@
 # helper classes for sorted and fixed dicts
+import six
 class SortedKeysDict(dict):
     """a dict preserving order of keys"""
     # specialised __repr__ missing.
@@ -19,7 +20,7 @@ class SortedKeysDict(dict):
         self.list = list(super(SortedKeysDict,self).iterkeys())
 
     def __repr__(self):
-        meat = ', '.join([ '%s: %s' % (repr(key), repr(val)) for key,val in self.iteritems() ])
+        meat = ', '.join([ '%s: %s' % (repr(key), repr(val)) for key,val in six.iteritems(self) ])
         return '{' + meat + '}'
     def __iter__(self):
         for key in self.list:

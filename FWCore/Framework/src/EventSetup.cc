@@ -64,7 +64,7 @@ EventSetup::~EventSetup()
 //
 void
 EventSetup::insert(const eventsetup::EventSetupRecordKey& iKey,
-                const eventsetup::EventSetupRecord* iRecord)
+                const eventsetup::EventSetupRecordImpl* iRecord)
 {
    recordMap_[iKey]= iRecord;
 }
@@ -76,7 +76,7 @@ EventSetup::clear()
 }
    
 void 
-EventSetup::add(const eventsetup::EventSetupRecord& iRecord) 
+EventSetup::add(const eventsetup::EventSetupRecordImpl& iRecord)
 {
    insert(iRecord.key(), &iRecord);
 }
@@ -84,15 +84,24 @@ EventSetup::add(const eventsetup::EventSetupRecord& iRecord)
 //
 // const member functions
 //
-const eventsetup::EventSetupRecord* 
+boost::optional<eventsetup::EventSetupRecordGeneric>
 EventSetup::find(const eventsetup::EventSetupRecordKey& iKey) const
 {
-   std::map<eventsetup::EventSetupRecordKey, eventsetup::EventSetupRecord const *>::const_iterator itFind
-   = recordMap_.find(iKey);
+   auto itFind = recordMap_.find(iKey);
    if(itFind == recordMap_.end()) {
-      return nullptr;
+      return boost::none;
    }
-   return itFind->second;
+  return eventsetup::EventSetupRecordGeneric(itFind->second);
+}
+  
+eventsetup::EventSetupRecordImpl const*
+EventSetup::findImpl(const eventsetup::EventSetupRecordKey& iKey) const
+{
+  auto itFind = recordMap_.find(iKey);
+  if(itFind == recordMap_.end()) {
+    return nullptr;
+  }
+  return itFind->second;
 }
 
 void 
@@ -101,8 +110,7 @@ EventSetup::fillAvailableRecordKeys(std::vector<eventsetup::EventSetupRecordKey>
   oToFill.clear();
   oToFill.reserve(recordMap_.size());
   
-  typedef std::map<eventsetup::EventSetupRecordKey, eventsetup::EventSetupRecord const *> KeyToRecordMap;
-  for(KeyToRecordMap::const_iterator it = recordMap_.begin(), itEnd=recordMap_.end();
+  for(auto it = recordMap_.begin(), itEnd=recordMap_.end();
       it != itEnd;
       ++it) {
     oToFill.push_back(it->first);

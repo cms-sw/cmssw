@@ -1,6 +1,7 @@
 #!/usr/bin/python
 #
 
+from __future__ import print_function
 import sys,string,time,os
 
 ### parameters ###
@@ -24,7 +25,7 @@ def OpenFile(file_in,iodir):
         ifile=open(file_in, iodir)
         # print "Opened file: ",file_in," iodir ",iodir
     except:
-        print "Could not open file: ",file_in
+        print("Could not open file: ",file_in)
         sys.exit(1)
     return ifile
 
@@ -54,7 +55,7 @@ def ReadFile(file):
 def createCFG(i,filelist):
 
     CFGFILE=CFGBASE + str(i) +".py"
-    print i, CFGFILE
+    print(i, CFGFILE)
     file = open(CFGFILE,'w')
     file.write("import FWCore.ParameterSet.Config as cms \n")
     file.write("\n")
@@ -83,7 +84,7 @@ if __name__ == '__main__':
 
     narg=len(sys.argv)
     if narg < 3 :
-        print usage.__doc__
+        print(usage.__doc__)
         sys.exit(1)
 
 
@@ -94,7 +95,7 @@ if __name__ == '__main__':
         os.mkdir(OutputDir)
     
     filelist = ReadFile(InputFile)
-    print "Number of files in input filelist: ", len(filelist)
+    print("Number of files in input filelist: ", len(filelist))
 
     os.chdir(OutputDir)
 

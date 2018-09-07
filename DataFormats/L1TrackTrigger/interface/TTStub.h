@@ -190,7 +190,6 @@ std::string TTStub< T >::print( unsigned int i ) const
   output << padding << "DetId: " << theDetId.rawId() << ", position: " << this->getTriggerPosition();
   output << ", bend: " << this->getTriggerBend() << '\n';
   output << ", hardware bend: " << this->getHardwareBend() << '\n';
-  unsigned int iClu = 0;
   output << padding << "cluster 0: address: " << theClusterRef0.get();
   output << ", cluster size: " << theClusterRef0->getHits().size() << '\n';
   output << padding << "cluster 1: address: " << theClusterRef1.get();

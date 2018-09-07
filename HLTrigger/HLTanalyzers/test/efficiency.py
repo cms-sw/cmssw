@@ -1,13 +1,14 @@
+from __future__ import print_function
 ### assumes QCD_Pt-.../res/ folders are in current directory ###
 
 import glob, os, string
 
 folderList = glob.glob('QCD*')
 
-print '------------------------------------------------------------'
-print 'directory'
-print '    total,', 'passed,', 'efficiency'
-print '------------------------------------------------------------'
+print('------------------------------------------------------------')
+print('directory')
+print('    total,', 'passed,', 'efficiency')
+print('------------------------------------------------------------')
 
 for folder in folderList:
 	eventsTotalList = []
@@ -25,11 +26,11 @@ for folder in folderList:
 				eventsPassedList.append(int(line.split()[4]))
 	sumTotal = sum(eventsTotalList)
 	sumPassed = sum(eventsPassedList)
-	if (type(sumTotal) is int) & (sumTotal > 0):
-		print os.path.basename(folder)
-		print '    {0}, {1}, {2}'.format(sumTotal, sumPassed, sumPassed/float(sumTotal))
+	if (isinstance(sumTotal, int)) & (sumTotal > 0):
+		print(os.path.basename(folder))
+		print('    {0}, {1}, {2}'.format(sumTotal, sumPassed, sumPassed/float(sumTotal)))
 	else:
-		print os.path.basename(folder)
-		print '    no logs found'
+		print(os.path.basename(folder))
+		print('    no logs found')
 
-print '------------------------------------------------------------'
+print('------------------------------------------------------------')

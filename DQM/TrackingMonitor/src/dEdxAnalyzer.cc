@@ -210,18 +210,6 @@ void dEdxAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 }
 
  
-
-void 
-dEdxAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void 
-dEdxAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 dEdxAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

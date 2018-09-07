@@ -21,9 +21,6 @@ namespace spr{
   
     edm::SimTrackContainer::const_iterator itr = SimTk->end();;
     
-    edm::SimTrackContainer::const_iterator simTrkItr;
-    edm::SimVertexContainer::const_iterator simVtxItr;
- 
     //Get the vector of PsimHits associated to TrackerRecHits and select the 
     //matching SimTrack on the basis of maximum occurance of trackIds
     std::vector<unsigned int> trkId, trkOcc;
@@ -63,7 +60,7 @@ namespace spr{
 	if(trkOcc[j] > maxTrkOcc ) { maxTrkOcc = trkOcc[j]; idxMax = j; }
       }
       matchSimTrk = trkId[idxMax];
-      for (simTrkItr = SimTk->begin(); simTrkItr!= SimTk->end(); simTrkItr++) {
+      for (auto simTrkItr = SimTk->begin(); simTrkItr!= SimTk->end(); simTrkItr++) {
 	if ( simTrkItr->trackId() == matchSimTrk ) {
 #ifdef EDM_ML_DEBUG
 	  matchedId = simTrkItr->type();
@@ -94,8 +91,7 @@ namespace spr{
 #endif  
     std::vector<int> matchTkid;
     if( trkInfo->type() != 0) {
-      edm::SimTrackContainer::const_iterator simTrkItr;
-      for(simTrkItr = SimTk->begin(); simTrkItr!= SimTk->end(); simTrkItr++){
+      for(auto simTrkItr = SimTk->begin(); simTrkItr!= SimTk->end(); simTrkItr++){
 	if (validSimTrack(matchSimTrk, simTrkItr, SimTk, SimVtx, false))
 	  matchTkid.push_back((int)simTrkItr->trackId());
       }

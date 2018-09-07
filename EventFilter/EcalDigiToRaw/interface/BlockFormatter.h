@@ -12,17 +12,30 @@
 
 
 
- class EcalDigiToRaw;
-
-
 class BlockFormatter {
  public :
         typedef uint64_t Word64;
         typedef uint16_t Word16;
+        
+        struct Config {
+          const std::vector<int32_t> * plistDCCId_;
+          bool debug_;
+          
+          bool doBarrel_;
+          bool doEndCap_;
+          bool doTCC_;
+          bool doSR_;
+          bool doTower_;
+        };
+        struct Params {
+          int counter_;
+          int orbit_number_;
+          int bx_;
+          int lv1_;
+          int runnumber_;
+        };
 
-	BlockFormatter();
-	~BlockFormatter();
-	void SetParam(EcalDigiToRaw* base);
+	explicit BlockFormatter(Config const& iC, Params const& iP);
         static const int kCardsPerTower = 5;     // Number of VFE cards per trigger tower
 	void DigiToRaw(FEDRawDataCollection* productRawData);
 	void print(FEDRawData& rawdata);
@@ -32,22 +45,22 @@ class BlockFormatter {
 	void PrintSizes(FEDRawDataCollection* productRawData);
 
  protected :
-        bool debug_;
 
-	bool doBarrel_;
-	bool doEndCap_;
-	bool doTCC_;
-        bool doSR_;
-        bool doTower_;
+        const std::vector<int32_t> * plistDCCId_;
 
-        std::vector<int32_t> * plistDCCId_;
+        int counter_;
+	int orbit_number_;
+	int bx_;
+	int lv1_;
+	int  runnumber_;
 
-        int* pcounter_;
-	int* porbit_number_;
-	int* pbx_;
-	int* plv1_;
-	int* prunnumber_;
+        const bool debug_;
 
+	const bool doBarrel_;
+	const bool doEndCap_;
+	const bool doTCC_;
+        const bool doSR_;
+        const bool doTower_;
 
 };
 

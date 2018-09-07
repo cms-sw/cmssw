@@ -1959,7 +1959,7 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
   double curP = sv.p3.mag();
 
   if (debug_){
-    LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Trying volume "<<DDSolidShapesName::name(cVol->shapeType())
+    LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Trying volume "
 		     <<" with "<<cVolFaces.size()<<" faces"<<std::endl;
   }
 

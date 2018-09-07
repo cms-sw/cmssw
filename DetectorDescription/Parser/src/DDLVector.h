@@ -12,8 +12,6 @@
 
 class DDCompactView;
 class DDLElementRegistry;
-class VectorMakeDouble;
-class VectorMakeString;
 
 ///  DDLVector handles Rotation and ReflectionRotation elements.
 /** @class DDLVector
@@ -30,9 +28,6 @@ class VectorMakeString;
  */
 class DDLVector final : public DDXMLElement
 {
-
-  friend class VectorMakeDouble;
-  friend class VectorMakeString;
 
  public:
 
@@ -54,8 +49,8 @@ class DDLVector final : public DDXMLElement
   void errorOut(const char* str) const;
   void do_makeDouble(char const* str, char const* end);
   void do_makeString(char const* str, char const* end);
-  bool parse_numbers(char const* str) const;
-  bool parse_strings(char const* str) const;
+  bool parse_numbers(char const* str);
+  bool parse_strings(char const* str);
 };
 
 #endif

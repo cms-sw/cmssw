@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import os
 import re
 import sys
@@ -16,6 +17,7 @@ import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.trackerTree as mpsv_tra
 from Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.helper import checked_out_MPS
 from functools import reduce
 
+import six
 
 ################################################################################
 def main(argv = None):
@@ -83,10 +85,10 @@ class SetupAlignment(object):
             msg = ("Overriding global tag with single-IOV tags extracted from "
                    "'{}' for run number '{}'.".format(self._global_tag,
                                                       self._first_run))
-            print msg
-            print "-"*75
-            print self._override_gt
-            print "="*75
+            print(msg)
+            print("-"*75)
+            print(self._override_gt)
+            print("="*75)
 
 
     def _create_config(self):
@@ -134,15 +136,15 @@ class SetupAlignment(object):
         if match:
             self._mps_dir_name = 'mp'+match.group(1)
         else:
-            print "Current location does not seem to be a MillePede campaign directory:",
-            print currentDir
+            print("Current location does not seem to be a MillePede campaign directory:", end=' ')
+            print(currentDir)
             sys.exit(1)
 
 
     def _fill_general_options(self):
         """Create and fill `general_options` dictionary."""
 
-        print "="*75
+        print("="*75)
         self._fetch_dataset_directory()
         self._fetch_external_datasets()
         self._fetch_essentials()
@@ -156,7 +158,7 @@ class SetupAlignment(object):
             datasets = map(lambda x: x.strip(),
                            self._config.get("general",
                                             "externalDatasets").split(","))
-            datasets = filter(lambda x: len(x.strip()) > 0, datasets)
+            datasets = [x for x in datasets if len(x.strip()) > 0]
             for item in datasets:
                 splitted = item.split("|")
                 dataset = splitted[0].strip()
@@ -180,9 +182,8 @@ class SetupAlignment(object):
 
         # set directory on eos
         self._mss_dir = self._general_options.get("massStorageDir",
-                                                  "/eos/cms/store/caf/user/"
-                                                  +os.environ["USER"])
-        self._mss_dir = os.path.join(self._mss_dir, "MPproduction",
+                                                  "/eos/cms/store/group/alca_millepede/")
+        self._mss_dir = os.path.join(self._mss_dir, "MPproductionFiles",
                                      self._mps_dir_name)
 
         cmd = ["mkdir", "-p", self._mss_dir]
@@ -193,7 +194,7 @@ class SetupAlignment(object):
                 with open(os.devnull, "w") as dump:
                     subprocess.check_call(cmd, stdout = dump, stderr = dump)
             except subprocess.CalledProcessError:
-                print "Failed to create mass storage directory:", self._mss_dir
+                print("Failed to create mass storage directory:", self._mss_dir)
                 sys.exit(1)
 
 
@@ -258,15 +259,15 @@ class SetupAlignment(object):
         json_regex = re.compile('setupJson\s*\=\s*.*$', re.M)
 
         first_dataset = True
-        for name, dataset in self._datasets.iteritems():
-            print "="*75
+        for name, dataset in six.iteritems(self._datasets):
+            print("="*75)
             # Build config from template/Fill in variables
             try:
                 with open(dataset["configTemplate"],"r") as f:
                     tmpFile = f.read()
             except IOError:
-                print "The config-template called",
-                print dataset["configTemplate"], "cannot be found."
+                print("The config-template called", end=' ')
+                print(dataset["configTemplate"], "cannot be found.")
                 sys.exit(1)
 
             tmpFile = re.sub(gt_regex,
@@ -328,24 +329,24 @@ class SetupAlignment(object):
                        "cmscafuser:"+self._mss_dir]
             if dataset["numberOfEvents"] > 0:
                 command.extend(["--max-events", str(dataset["numberOfEvents"])])
-            command = filter(lambda x: len(x.strip()) > 0, command)
+            command = [x for x in command if len(x.strip()) > 0]
 
             # Some output:
-            print "Creating jobs for dataset:", name
-            print "-"*75
-            print "Baseconfig:        ", dataset["configTemplate"]
-            print "Collection:        ", dataset["collection"]
+            print("Creating jobs for dataset:", name)
+            print("-"*75)
+            print("Baseconfig:        ", dataset["configTemplate"])
+            print("Collection:        ", dataset["collection"])
             if dataset["collection"] in ("ALCARECOTkAlCosmicsCTF0T",
                                          "ALCARECOTkAlCosmicsInCollisions"):
-                print "cosmicsDecoMode:   ", dataset["cosmicsDecoMode"]
-                print "cosmicsZeroTesla:  ", dataset["cosmicsZeroTesla"]
-            print "Globaltag:         ", dataset["globaltag"]
-            print "Number of jobs:    ", dataset["njobs"]
-            print "Inputfilelist:     ", dataset["inputFileList"]
+                print("cosmicsDecoMode:   ", dataset["cosmicsDecoMode"])
+                print("cosmicsZeroTesla:  ", dataset["cosmicsZeroTesla"])
+            print("Globaltag:         ", dataset["globaltag"])
+            print("Number of jobs:    ", dataset["njobs"])
+            print("Inputfilelist:     ", dataset["inputFileList"])
             if dataset["json"] != "":
-                print "Jsonfile:          ", dataset["json"]
+                print("Jsonfile:          ", dataset["json"])
             if self._args.verbose:
-                print "Pass to mps_setup: ", " ".join(command)
+                print("Pass to mps_setup: ", " ".join(command))
 
             # call the command and toggle verbose output
             self._handle_process_call(command, self._args.verbose)
@@ -358,14 +359,14 @@ class SetupAlignment(object):
         """Create pede jobs from the given input."""
 
         for setting in self._pede_settings:
-            print
-            print "="*75
+            print()
+            print("="*75)
             if setting is None:
-                print "Creating pede job{}.".format(
-                    "s" if len(self._pede_settings)*len(self._weight_configs) > 1 else "")
-                print "-"*75
+                print("Creating pede job{}.".format(
+                    "s" if len(self._pede_settings)*len(self._weight_configs) > 1 else ""))
+                print("-"*75)
             else:
-                print "Creating pede jobs using settings from '{0}'.".format(setting)
+                print("Creating pede jobs using settings from '{0}'.".format(setting))
             for weight_conf in self._weight_configs:
                 # blank weights
                 self._handle_process_call(["mps_weight.pl", "-c"])
@@ -404,8 +405,8 @@ class SetupAlignment(object):
                     str(lib.nJobs),
                 ]
                 if setting is not None: command.extend(["-a", setting])
-                print "-"*75
-                print " ".join(command)
+                print("-"*75)
+                print(" ".join(command))
                 self._handle_process_call(command, self._args.verbose)
                 self._create_tracker_tree()
                 if self._first_pede_config:
@@ -417,7 +418,7 @@ class SetupAlignment(object):
                 # store weights configuration
                 with open(os.path.join(jobm_path, ".weights.pkl"), "wb") as f:
                     cPickle.dump(weight_conf, f, 2)
-                print "="*75
+                print("="*75)
 
         # remove temporary file
         self._handle_process_call(["rm", thisCfgTemplate])
@@ -431,15 +432,15 @@ class SetupAlignment(object):
 
         # do some basic checks
         if not os.path.isdir("jobData"):
-            print "No jobData-folder found.",
-            print "Properly set up the alignment before using the -w option."
+            print("No jobData-folder found.", end=' ')
+            print("Properly set up the alignment before using the -w option.")
             sys.exit(1)
         if not os.path.exists("mps.db"):
-            print "No mps.db found.",
-            print "Properly set up the alignment before using the -w option."
+            print("No mps.db found.", end=' ')
+            print("Properly set up the alignment before using the -w option.")
             sys.exit(1)
 
-        firstDataset = next(self._datasets.itervalues())
+        firstDataset = next(six.itervalues(self._datasets))
         config_template = firstDataset["configTemplate"]
         collection = firstDataset["collection"]
 
@@ -447,7 +448,7 @@ class SetupAlignment(object):
             with open(config_template,"r") as f:
                 tmpFile = f.read()
         except IOError:
-            print "The config-template '"+config_template+"' cannot be found."
+            print("The config-template '"+config_template+"' cannot be found.")
             sys.exit(1)
 
         tmpFile = re.sub('setupGlobaltag\s*\=\s*[\"\'](.*?)[\"\']',
@@ -480,8 +481,8 @@ class SetupAlignment(object):
         try:
             call_method(command, stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as e:
-            print "" if verbose else e.output
-            print "Failed to execute command:", " ".join(command)
+            print("" if verbose else e.output)
+            print("Failed to execute command:", " ".join(command))
             sys.exit(1)
 
 
@@ -495,7 +496,7 @@ class SetupAlignment(object):
 
         run_number = int(self._first_run)
         if not run_number > 0:
-            print "'FirstRunForStartGeometry' must be positive, but is", run_number
+            print("'FirstRunForStartGeometry' must be positive, but is", run_number)
             sys.exit(1)
 
         input_db_name = os.path.abspath("alignment_input.db")
@@ -503,7 +504,7 @@ class SetupAlignment(object):
                                               run_number, input_db_name)
 
         self._override_gt = ""
-        for record,tag in tags.iteritems():
+        for record,tag in six.iteritems(tags):
             if self._override_gt == "":
                 self._override_gt \
                     += ("\nimport "
@@ -522,7 +523,7 @@ class SetupAlignment(object):
         problematic input taken from the global tag.
         """
 
-        print "Checking consistency of IOV definition..."
+        print("Checking consistency of IOV definition...")
         iovs = mps_tools.make_unique_runranges(self._cms_process.AlignmentProducer)
 
         inputs = {
@@ -547,82 +548,82 @@ class SetupAlignment(object):
 
         if int(self._first_run) != iovs[0]:     # simple consistency check
             if iovs[0] == 1 and len(iovs) == 1:
-                print "Single IOV output detected in configuration and",
-                print "'FirstRunForStartGeometry' is not 1."
-                print "Creating single IOV output from input conditions in run",
-                print self._first_run+"."
+                print("Single IOV output detected in configuration and", end=' ')
+                print("'FirstRunForStartGeometry' is not 1.")
+                print("Creating single IOV output from input conditions in run", end=' ')
+                print(self._first_run+".")
                 for inp in inputs: inputs[inp]["problematic"] = True
             else:
-                print "Value of 'FirstRunForStartGeometry' has to match first",
-                print "defined output IOV:",
-                print self._first_run, "!=", iovs[0]
+                print("Value of 'FirstRunForStartGeometry' has to match first", end=' ')
+                print("defined output IOV:", end=' ')
+                print(self._first_run, "!=", iovs[0])
                 sys.exit(1)
 
-        for inp in inputs.itervalues():
+        for inp in six.itervalues(inputs):
             inp["iovs"] = mps_tools.get_iovs(inp["connect"], inp["tag"])
 
         # check consistency of input with output
         problematic_gt_inputs = {}
         input_indices = {key: len(value["iovs"]) -1
-                         for key,value in inputs.iteritems()}
+                         for key,value in six.iteritems(inputs)}
         for iov in reversed(iovs):
             for inp in inputs:
                 if inputs[inp].pop("problematic", False):
                     problematic_gt_inputs[inp] = inputs[inp]
                 if inp in problematic_gt_inputs: continue
                 if input_indices[inp] < 0:
-                    print "First output IOV boundary at run", iov,
-                    print "is before the first input IOV boundary at",
-                    print inputs[inp]["iovs"][0], "for '"+inp+"'."
-                    print "Please check your run range selection."
+                    print("First output IOV boundary at run", iov, end=' ')
+                    print("is before the first input IOV boundary at", end=' ')
+                    print(inputs[inp]["iovs"][0], "for '"+inp+"'.")
+                    print("Please check your run range selection.")
                     sys.exit(1)
                 input_iov = inputs[inp]["iovs"][input_indices[inp]]
                 if iov < input_iov:
                     if inp in inputs_from_gt:
                         problematic_gt_inputs[inp] = inputs[inp]
-                        print "Found problematic input taken from global tag."
-                        print "Input IOV boundary at run",input_iov,
-                        print "for '"+inp+"' is within output IOV starting",
-                        print "with run", str(iov)+"."
-                        print "Deriving an alignment with coarse IOV",
-                        print "granularity starting from finer granularity",
-                        print "leads to wrong results."
-                        print "A single IOV input using the IOV of",
-                        print "'FirstRunForStartGeometry' ("+self._first_run+")",
-                        print "is automatically created and used."
+                        print("Found problematic input taken from global tag.")
+                        print("Input IOV boundary at run",input_iov, end=' ')
+                        print("for '"+inp+"' is within output IOV starting", end=' ')
+                        print("with run", str(iov)+".")
+                        print("Deriving an alignment with coarse IOV", end=' ')
+                        print("granularity starting from finer granularity", end=' ')
+                        print("leads to wrong results.")
+                        print("A single IOV input using the IOV of", end=' ')
+                        print("'FirstRunForStartGeometry' ("+self._first_run+")", end=' ')
+                        print("is automatically created and used.")
                         continue
-                    print "Found input IOV boundary at run",input_iov,
-                    print "for '"+inp+"' which is within output IOV starting",
-                    print "with run", str(iov)+"."
-                    print "Deriving an alignment with coarse IOV granularity",
-                    print "starting from finer granularity leads to wrong",
-                    print "results."
-                    print "Please check your run range selection."
+                    print("Found input IOV boundary at run",input_iov, end=' ')
+                    print("for '"+inp+"' which is within output IOV starting", end=' ')
+                    print("with run", str(iov)+".")
+                    print("Deriving an alignment with coarse IOV granularity", end=' ')
+                    print("starting from finer granularity leads to wrong", end=' ')
+                    print("results.")
+                    print("Please check your run range selection.")
                     sys.exit(1)
                 elif iov == input_iov:
                     input_indices[inp] -= 1
 
         # check consistency of 'TrackerAlignmentRcd' with other inputs
         input_indices = {key: len(value["iovs"]) -1
-                         for key,value in inputs.iteritems()
+                         for key,value in six.iteritems(inputs)
                          if (key != "TrackerAlignmentRcd")
                          and (inp not in problematic_gt_inputs)}
         for iov in reversed(inputs["TrackerAlignmentRcd"]["iovs"]):
             for inp in input_indices:
                 input_iov = inputs[inp]["iovs"][input_indices[inp]]
                 if iov < input_iov:
-                    print "Found input IOV boundary at run",input_iov,
-                    print "for '"+inp+"' which is within 'TrackerAlignmentRcd'",
-                    print "IOV starting with run", str(iov)+"."
-                    print "Deriving an alignment with inconsistent IOV boundaries",
-                    print "leads to wrong results."
-                    print "Please check your input IOVs."
+                    print("Found input IOV boundary at run",input_iov, end=' ')
+                    print("for '"+inp+"' which is within 'TrackerAlignmentRcd'", end=' ')
+                    print("IOV starting with run", str(iov)+".")
+                    print("Deriving an alignment with inconsistent IOV boundaries", end=' ')
+                    print("leads to wrong results.")
+                    print("Please check your input IOVs.")
                     sys.exit(1)
                 elif iov == input_iov:
                     input_indices[inp] -= 1
 
-        print " -> IOV consistency check successful."
-        print "="*75
+        print(" -> IOV consistency check successful.")
+        print("="*75)
 
         return problematic_gt_inputs
 
@@ -631,8 +632,8 @@ class SetupAlignment(object):
         """Method to create hidden 'TrackerTree.root'."""
 
         if self._global_tag is None or self._first_run is None:
-            print "Trying to create the tracker tree before setting the global",
-            print "tag or the run to determine the geometry IOV."
+            print("Trying to create the tracker tree before setting the global", end=' ')
+            print("tag or the run to determine the geometry IOV.")
             sys.exit(1)
 
         config = mpsv_iniparser.ConfigData()
@@ -649,8 +650,8 @@ class SetupAlignment(object):
             try:
                 self._general_options[var] = self._config.get('general',var)
             except ConfigParser.NoOptionError:
-                print "No", var, "found in [general] section.",
-                print "Please check ini-file."
+                print("No", var, "found in [general] section.", end=' ')
+                print("Please check ini-file.")
                 sys.exit(1)
         self._first_run = self._general_options["FirstRunForStartGeometry"]
 
@@ -664,9 +665,9 @@ class SetupAlignment(object):
                 self._general_options[var] = self._config.get("general", var)
             except ConfigParser.NoOptionError:
                 if var == "testMode": continue
-                print "No '" + var + "' given in [general] section."
+                print("No '" + var + "' given in [general] section.")
 
-        for dataset in self._external_datasets.itervalues():
+        for dataset in six.itervalues(self._external_datasets):
             dataset["general"] = {}
             for var in ("globaltag", "configTemplate", "json"):
                 try:
@@ -687,8 +688,8 @@ class SetupAlignment(object):
             os.environ["datasetdir"] = dataset_directory
             self._general_options["datasetdir"] = dataset_directory
         else:
-            print "No datasetdir given in [general] section.",
-            print "Be sure to give a full path in inputFileList."
+            print("No datasetdir given in [general] section.", end=' ')
+            print("Be sure to give a full path in inputFileList.")
             self._general_options["datasetdir"] = ""
 
 
@@ -701,7 +702,7 @@ class SetupAlignment(object):
                                "weight": None}
         all_configs.update(self._external_datasets)
 
-        for config in all_configs.itervalues():
+        for config in six.itervalues(all_configs):
             global_weight = "1" if config["weight"] is None else config["weight"]
             if global_weight+self._config.config_path in self._common_weights:
                 global_weight = self._common_weights[global_weight+
@@ -723,16 +724,16 @@ class SetupAlignment(object):
                             = [x.strip() for x in
                                config["config"].get(section, option).split(",")]
                 elif section.startswith("dataset:"):
-                    print "-"*75
+                    print("-"*75)
                     # set name from section-name
                     name = section[8:]
                     if name in self._datasets:
-                        print "WARNING: Duplicate definition of dataset '{}'".format(name)
-                        print " -> Using defintion in '{}':\n".format(config["config"].config_path)
-                        print "    [{}]".format(section)
+                        print("WARNING: Duplicate definition of dataset '{}'".format(name))
+                        print(" -> Using defintion in '{}':\n".format(config["config"].config_path))
+                        print("    [{}]".format(section))
                         for k,v in config["config"].items(section):
-                            print "   ", k, "=", v
-                        print
+                            print("   ", k, "=", v)
+                        print()
                     self._datasets[name] = {}
 
                     # extract weight for the dataset
@@ -752,7 +753,7 @@ class SetupAlignment(object):
                         try:
                             self._datasets[name][var] = config["config"].get(section, var)
                         except ConfigParser.NoOptionError:
-                            print "No", var, "found in", section+". Please check ini-file."
+                            print("No", var, "found in", section+". Please check ini-file.")
                             sys.exit(1)
 
                     # get globaltag and configTemplate. If none in section, try to get
@@ -768,8 +769,8 @@ class SetupAlignment(object):
                                     self._datasets[name][var] \
                                         = all_configs["main"]["general"][var]
                                 except KeyError:
-                                    print "No",var,"found in ["+section+"]",
-                                    print "and no default in [general] section."
+                                    print("No",var,"found in ["+section+"]", end=' ')
+                                    print("and no default in [general] section.")
                                     sys.exit(1)
 
                     # extract non-essential options
@@ -804,9 +805,9 @@ class SetupAlignment(object):
                                 self._datasets[name]["json"] \
                                     = all_configs["main"]["general"]["json"]
                             except KeyError:
-                                print "No json given in either [general] or",
-                                print "["+section+"] sections."
-                                print " -> Proceeding without json-file."
+                                print("No json given in either [general] or", end=' ')
+                                print("["+section+"] sections.")
+                                print(" -> Proceeding without json-file.")
 
 
                     #replace ${datasetdir} and other variables, e.g. $CMSSW_BASE
@@ -826,12 +827,12 @@ class SetupAlignment(object):
                                 if not line.strip()=="":
                                     self._datasets[name]["njobs"] += 1
                     except IOError:
-                        print "Inputfilelist", self._datasets[name]["inputFileList"],
-                        print "does not exist."
+                        print("Inputfilelist", self._datasets[name]["inputFileList"], end=' ')
+                        print("does not exist.")
                         sys.exit(1)
                     if self._datasets[name]["njobs"] == 0:
-                        print "Number of jobs is 0. There may be a problem with the inputfilelist:"
-                        print self._datasets[name]["inputFileList"]
+                        print("Number of jobs is 0. There may be a problem with the inputfilelist:")
+                        print(self._datasets[name]["inputFileList"])
                         sys.exit(1)
 
                     # Check if njobs gets overwritten in .ini-file
@@ -839,16 +840,16 @@ class SetupAlignment(object):
                         if config["config"].getint(section, "njobs") <= self._datasets[name]["njobs"]:
                             self._datasets[name]["njobs"] = config["config"].getint(section, "njobs")
                         else:
-                            print "'njobs' is bigger than the number of files for this",
-                            print "dataset:", self._datasets[name]["njobs"]
-                            print "Using default."
+                            print("'njobs' is bigger than the number of files for this", end=' ')
+                            print("dataset:", self._datasets[name]["njobs"])
+                            print("Using default.")
                     else:
-                        print "No number of jobs specified. Using number of files in",
-                        print "inputfilelist as the number of jobs."
+                        print("No number of jobs specified. Using number of files in", end=' ')
+                        print("inputfilelist as the number of jobs.")
 
             # check if local weights override global weights and resolve name clashes
-            for weight_name, weight_values in common_weights.iteritems():
-                for key, weight in weight_dict.iteritems():
+            for weight_name, weight_values in six.iteritems(common_weights):
+                for key, weight in six.iteritems(weight_dict):
                     if any([weight_name in w for w in weight]):
                         self._common_weights[weight_name+config["config"].config_path] = weight_values
                         self._weight_dict[key] = [mps_tools.replace_factors(w,
@@ -862,9 +863,9 @@ class SetupAlignment(object):
             os.environ["datasetdir"] = cache_datasetdir
 
         if len(self._datasets) == 0:
-            print "No dataset section defined in '{0}'".format(
-                ", ".join([self._args.aligmentConfig]+self._external_datasets.keys()))
-            print "At least one section '[dataset:<name>]' is required."
+            print("No dataset section defined in '{0}'".format(
+                ", ".join([self._args.aligmentConfig]+self._external_datasets.keys())))
+            print("At least one section '[dataset:<name>]' is required.")
             sys.exit(1)
 
         self._global_tag = self._datasets[name]["globaltag"]

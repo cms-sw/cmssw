@@ -42,7 +42,7 @@ public:
   HGCSiliconDetId& operator=(const DetId& id);
   
   /** Converter for a geometry cell id */
-  HGCSiliconDetId geometryCell () const {return HGCSiliconDetId (det(), zside(), type(), layer(), waferU(), waferV(), 0, 0);}
+  HGCSiliconDetId geometryCell () const {return HGCSiliconDetId (det(), zside(), 0, layer(), waferU(), waferV(), 0, 0);}
 
   /// get the subdetector
   DetId::Detector subdet() const { return det(); }
@@ -106,7 +106,7 @@ public:
   
   static const HGCSiliconDetId Undefined;
 
-private:
+public:
 
   static const int kHGCalCellUOffset      = 0;
   static const int kHGCalCellUMask        = 0x1F;

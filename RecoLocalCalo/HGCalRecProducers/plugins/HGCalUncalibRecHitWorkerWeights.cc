@@ -6,9 +6,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-template< typename DET >
 void configureIt(const edm::ParameterSet& conf, 
-                 HGCalUncalibRecHitRecWeightsAlgo<HGCDataFrame<DET,HGCSample>>& maker) {
+                 HGCalUncalibRecHitRecWeightsAlgo<HGCalDataFrame>& maker) {
   constexpr char isSiFE[]           = "isSiFE";
   constexpr char adcNbits[]         = "adcNbits";
   constexpr char adcSaturation[]    = "adcSaturation";
@@ -89,7 +88,7 @@ HGCalUncalibRecHitWorkerWeights::set(const edm::EventSetup& es)
 
 bool
 HGCalUncalibRecHitWorkerWeights::run1( const edm::Event & evt,
-                                       const HGCEEDigiCollection::const_iterator & itdg,
+                                       const HGCalDigiCollection::const_iterator & itdg,
                                        HGCeeUncalibratedRecHitCollection & result )
 {
   result.push_back(uncalibMaker_ee_.makeRecHit(*itdg));  
@@ -98,7 +97,7 @@ HGCalUncalibRecHitWorkerWeights::run1( const edm::Event & evt,
 
 bool
 HGCalUncalibRecHitWorkerWeights::run2( const edm::Event & evt,
-				       const HGCHEDigiCollection::const_iterator & itdg,
+				       const HGCalDigiCollection::const_iterator & itdg,
 				       HGChefUncalibratedRecHitCollection & result )
 {
   result.push_back(uncalibMaker_hef_.makeRecHit(*itdg));
@@ -107,7 +106,7 @@ HGCalUncalibRecHitWorkerWeights::run2( const edm::Event & evt,
 
 bool
 HGCalUncalibRecHitWorkerWeights::run3( const edm::Event & evt,
-				       const HGCBHDigiCollection::const_iterator & itdg,
+				       const HGCalDigiCollection::const_iterator & itdg,
 				       HGChebUncalibratedRecHitCollection & result )
 {
   result.push_back(uncalibMaker_heb_.makeRecHit(*itdg));

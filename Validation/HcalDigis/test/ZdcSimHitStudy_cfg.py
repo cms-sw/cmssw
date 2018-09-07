@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import os 
 
@@ -43,7 +44,7 @@ process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.dqmsave_step = cms.Path(process.DQMSaver)
 
-print process.ZDCDigiStudy.Verbose
+print(process.ZDCDigiStudy.Verbose)
 process.p1 = cms.Path(
                      process.ZDCDigiStudy
                      *process.zdcSimHitStudy)

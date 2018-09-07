@@ -1,4 +1,5 @@
 #!/usr/bin/env python 
+from __future__ import print_function
 from sys import stderr, exit
 import commands, os
 
@@ -47,7 +48,7 @@ if len(args) != 1:
 csv_output_file = args[0]
 
 if os.path.exists(csv_output_file) and not options.overwrite:
-   print >> stderr,"cowardly refusing to overwrite existing output file '" + csv_output_file + "'. Run this script without argument to see options for overriding this check."
+   print("cowardly refusing to overwrite existing output file '" + csv_output_file + "'. Run this script without argument to see options for overriding this check.", file=stderr)
    exit(1)
 
 #----------------------------------------------------------------------
@@ -92,7 +93,7 @@ from queryRR import queryRR
 
 # check whether we have a CMSSW environment initalized
 if os.system("which edmConfigFromDB") != 0:
-   print >> stderr,"could not find the command edmConfigFromDB. Did you initialize your CMSSW runtime environment ?"
+   print("could not find the command edmConfigFromDB. Did you initialize your CMSSW runtime environment ?", file=stderr)
    exit(1)
 
 runKeys = queryRR(options.firstRun,options.lastRun,options.groupName)
@@ -113,17 +114,17 @@ runs = sorted(runKeys.keys())
 
 all_hlt_keys_seen = set(runKeys.values())
 
-print >> stderr,"found %d runs and %d HLT menus" % ( len(runKeys), len(all_hlt_keys_seen))
+print("found %d runs and %d HLT menus" % ( len(runKeys), len(all_hlt_keys_seen)), file=stderr)
 
 index = 1
 
 for hlt_key in all_hlt_keys_seen:
 
-   print >> stderr,"(%3d/%3d) Querying ConfDB for HLT menu %s" % (index, len(all_hlt_keys_seen) , hlt_key)
+   print("(%3d/%3d) Querying ConfDB for HLT menu %s" % (index, len(all_hlt_keys_seen) , hlt_key), file=stderr)
    process = getProcessObjectFromConfDB(hlt_key)
 
    if process == None:
-       print >> stderr,"WARNING: unable to retrieve hlt_key '" + hlt_key + "'"
+       print("WARNING: unable to retrieve hlt_key '" + hlt_key + "'", file=stderr)
        continue
 
    prescaleTable[hlt_key] = getPrescaleTableFromProcessObject(process)
@@ -165,7 +166,7 @@ if len(options.pathPatterns) > 0:
 # sanity check
 
 if len(all_hlt_path_names_seen) == 0:
-   print >> stderr,"no HLT paths found, exiting"
+   print("no HLT paths found, exiting", file=stderr)
    exit(1)
 
 #--------------------
@@ -267,5 +268,5 @@ for run in runs:
 
 fout.close()
 
-print >> stderr,"created CSV file",csv_output_file,". Field delimiter is semicolon."
+print("created CSV file",csv_output_file,". Field delimiter is semicolon.", file=stderr)
 

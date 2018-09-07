@@ -32,34 +32,29 @@ SteppingAction::SteppingAction(EventAction* e, const edm::ParameterSet & p,
   ekinNames       = p.getParameter<std::vector<std::string> >("EkinNames");
   ekinParticles   = p.getParameter<std::vector<std::string> >("EkinParticles");
 
-  edm::LogInfo("SimG4CoreApplication") << "SteppingAction:: KillBeamPipe = "
-				       << killBeamPipe << " CriticalDensity = "
-				       << theCriticalDensity*CLHEP::cm3/CLHEP::g 
-				       << " g/cm3;"
-				       << " CriticalEnergyForVacuum = "
-				       << theCriticalEnergyForVacuum/CLHEP::MeV 
-				       << " Mev;"
-				       << " MaxTrackTime = " 
-				       << maxTrackTime/CLHEP::ns 
-				       << " ns";
+  edm::LogVerbatim("SimG4CoreApplication") 
+    << "SteppingAction:: KillBeamPipe = " << killBeamPipe << " CriticalDensity = "
+    << theCriticalDensity*CLHEP::cm3/CLHEP::g << " g/cm3;"
+    << " CriticalEnergyForVacuum = " << theCriticalEnergyForVacuum/CLHEP::MeV 
+    << " Mev;" << " MaxTrackTime = " << maxTrackTime/CLHEP::ns << " ns";
 
   numberTimes = maxTrackTimes.size();
   if(numberTimes > 0) {
     for (unsigned int i=0; i<numberTimes; i++) {
-      edm::LogInfo("SimG4CoreApplication") << "SteppingAction::MaxTrackTime for "
-					   << maxTimeNames[i] << " is " 
-					   << maxTrackTimes[i] << " ns ";
+      edm::LogVerbatim("SimG4CoreApplication") 
+	<< "SteppingAction::MaxTrackTime for " << maxTimeNames[i] << " is " 
+	<< maxTrackTimes[i] << " ns ";
       maxTrackTimes[i] *= ns;
     }
   }
 
   ndeadRegions =  deadRegionNames.size();
   if(ndeadRegions > 0) {
-    edm::LogInfo("SimG4CoreApplication") 
+    edm::LogVerbatim("SimG4CoreApplication") 
       << "SteppingAction: Number of DeadRegions where all trackes are killed "
       << ndeadRegions;
     for(unsigned int i=0; i<ndeadRegions; ++i) {
-      edm::LogInfo("SimG4CoreApplication") 
+      edm::LogVerbatim("SimG4CoreApplication") 
 	<< "SteppingAction: DeadRegion " << i << ".  " << deadRegionNames[i];
     }
   }
@@ -69,20 +64,18 @@ SteppingAction::SteppingAction(EventAction* e, const edm::ParameterSet & p,
 
   if(numberEkins > 0) {
 
-    edm::LogInfo("SimG4CoreApplication") << "SteppingAction::Kill following "
-					 << numberPart 
-					 << " particles in " << numberEkins
-					 << " volumes";
+    edm::LogVerbatim("SimG4CoreApplication") 
+      << "SteppingAction::Kill following " << numberPart 
+      << " particles in " << numberEkins << " volumes";
     for (unsigned int i=0; i<numberPart; ++i) {
-      edm::LogInfo("SimG4CoreApplication") << "SteppingAction::Particle " << i
-					   << " " << ekinParticles[i]
-					   << "  Threshold = " << ekinMins[i]
-					   << " MeV";
+      edm::LogVerbatim("SimG4CoreApplication") 
+	<< "SteppingAction::Particle " << i << " " << ekinParticles[i]
+	<< "  Threshold = " << ekinMins[i] << " MeV";
       ekinMins[i] *= CLHEP::MeV;
     }
     for (unsigned int i=0; i<numberEkins; ++i) {
-      edm::LogInfo("SimG4CoreApplication") << "SteppingAction::LogVolume[" << i
-					   << "] = " << ekinNames[i];
+      edm::LogVerbatim("SimG4CoreApplication") 
+	<< "SteppingAction::LogVolume[" << i << "] = " << ekinNames[i];
     }
   }
 }
@@ -190,8 +183,8 @@ bool SteppingAction::initPointer()
       if (tracker && calo) break;
     }
     if (tracker || calo) {
-      edm::LogInfo("SimG4CoreApplication") << "Pointer for Tracker " << tracker
-					   << " and for Calo " << calo;
+      edm::LogVerbatim("SimG4CoreApplication") 
+	<< "Pointer for Tracker " << tracker << " and for Calo " << calo;
       if (tracker) LogDebug("SimG4CoreApplication") << "Tracker vol name "
 						    << tracker->GetName();
       if (calo)    LogDebug("SimG4CoreApplication") << "Calorimeter vol name "
@@ -214,8 +207,8 @@ bool SteppingAction::initPointer()
       }
     }
     for (unsigned int i=0; i<numberEkins; ++i) {
-      edm::LogInfo("SimG4CoreApplication") << ekinVolumes[i]->GetName()
-					   <<" with pointer " << ekinVolumes[i];
+      edm::LogVerbatim("SimG4CoreApplication") 
+	<< ekinVolumes[i]->GetName() <<" with pointer " << ekinVolumes[i];
     }
   }
 
@@ -226,10 +219,9 @@ bool SteppingAction::initPointer()
     for (unsigned int i=0; i<numberPart; ++i) {
       ekinPDG[i] = 
 	theParticleTable->FindParticle(partName=ekinParticles[i])->GetPDGEncoding();
-      edm::LogInfo("SimG4CoreApplication") << "Particle " << ekinParticles[i]
-					   << " with PDG code " << ekinPDG[i]
-					   << " and KE cut off " 
-					   << ekinMins[i]/MeV << " MeV";
+      edm::LogVerbatim("SimG4CoreApplication") 
+	<< "Particle " << ekinParticles[i] << " with PDG code " << ekinPDG[i]
+	<< " and KE cut off " << ekinMins[i]/MeV << " MeV";
     }
   }
 
@@ -292,7 +284,7 @@ void SteppingAction::PrintKilledTrack(const G4Track* aTrack,
     rname = pv->GetLogicalVolume()->GetRegion()->GetName(); 
   }
 
-  edm::LogInfo("SimG4CoreApplication") 
+  edm::LogVerbatim("SimG4CoreApplication") 
     << "Track #" << aTrack->GetTrackID()
     << " " << aTrack->GetDefinition()->GetParticleName()
     << " E(MeV)= " << aTrack->GetKineticEnergy()/MeV 

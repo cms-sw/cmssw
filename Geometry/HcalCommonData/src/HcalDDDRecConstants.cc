@@ -5,6 +5,7 @@
 
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <cmath>
 
 //#define EDM_ML_DEBUG
 
