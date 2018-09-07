@@ -45,20 +45,26 @@ ________________________________________________________________**/
 #include "TGraphErrors.h"
 #include "TFile.h"
 
-class CorrPCCProducer : public edm::one::EDProducer<edm::EndRunProducer,edm::one::WatchRuns,edm::EndLuminosityBlockProducer,edm::one::WatchLuminosityBlocks> {
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+
+class DQMStore;
+class MonitorElement;
+
+class CorrPCCProducer : public DQMEDAnalyzer {
     public:
         explicit CorrPCCProducer(const edm::ParameterSet&);
         ~CorrPCCProducer() override;
 
     private:
-        void beginRun(edm::Run const& runSeg, const edm::EventSetup& iSetup) final;
         void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) final;
         void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) final;
         void endRun(edm::Run const& runSeg, const edm::EventSetup& iSetup) final;
-        void endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) final;
         void endRunProduce(edm::Run& runSeg, const edm::EventSetup& iSetup) final;
         void endJob()  final;
-        void produce                  (edm::Event& iEvent, const edm::EventSetup& iSetup) final;
+
+        void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 
         void makeCorrectionTemplate ();
@@ -96,6 +102,12 @@ class CorrPCCProducer : public edm::one::EDProducer<edm::EndRunProducer,edm::one
         TH1F *type1FracHist;
         TH1F *type1resHist;
         TH1F *type2resHist;
+
+        unsigned int maxLS=3500;
+        MonitorElement* Type1FracMon;
+        MonitorElement* Type1ResMon;
+        MonitorElement* Type2ResMon;
+
         TGraphErrors *type1FracGraph;
         TGraphErrors *type1resGraph;
         TGraphErrors *type2resGraph;
@@ -342,12 +354,6 @@ void CorrPCCProducer::calculateCorrections (std::vector<float> uncorrected, std:
 }
 
 //--------------------------------------------------------------------------------------------------
-void CorrPCCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
-}
-//--------------------------------------------------------------------------------------------------
-void CorrPCCProducer::beginRun(edm::Run const& runSeg, const edm::EventSetup& iSetup){
-}
-//--------------------------------------------------------------------------------------------------
 void CorrPCCProducer::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup){
     countLumi_++;
 }
@@ -389,10 +395,6 @@ void CorrPCCProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, co
 
 //--------------------------------------------------------------------------------------------------
 void CorrPCCProducer::endRun(edm::Run const& runSeg, const edm::EventSetup& iSetup){
-}
-
-//--------------------------------------------------------------------------------------------------
-void CorrPCCProducer::endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup){
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -562,6 +564,19 @@ void CorrPCCProducer::endRunProduce(edm::Run& runSeg, const edm::EventSetup& iSe
         type1resHist->Fill(mean_type1_residual);
         type2resHist->Fill(mean_type2_residual);
 
+        for(unsigned int ils=lumiInfoMapIterator->first.first;ils<lumiInfoMapIterator->first.second+1;ils++){
+            if(ils>maxLS){
+            std::cout<<"ils out of maxLS range!!"<<std::endl;
+            break;
+            } 
+            Type1FracMon->setBinContent(ils,type1Frac);
+            Type1FracMon->setBinError(ils,mean_type1_residual_unc);
+            Type1ResMon->setBinContent(ils,mean_type1_residual);
+            Type1ResMon->setBinError(ils,mean_type1_residual_unc);
+            Type2ResMon->setBinContent(ils,mean_type2_residual);
+            Type2ResMon->setBinError(ils,mean_type2_residual_unc);
+        }
+
 
         type1FracGraph->SetPoint(iBlock,thisIOV+approxLumiBlockSize_/2.0,type1Frac);
         type1resGraph->SetPoint(iBlock,thisIOV+approxLumiBlockSize_/2.0,mean_type1_residual);
@@ -616,6 +631,13 @@ void CorrPCCProducer::resetBlock(){
         events_[bx]=0;
         correctionScaleFactors_[bx]=1.0;
     }
+}
+//--------------------------------------------------------------------------------------------------
+void CorrPCCProducer::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, edm::EventSetup const & context){
+        ibooker.setCurrentFolder("AlCaReco/LumiPCC/") ;
+        Type1FracMon = ibooker.book1D("type1Fraction","Type1Fraction;Lumisection;Type 1 Fraction",maxLS,0,maxLS);
+        Type1ResMon = ibooker.book1D("type1Residual","Type1Residual;Lumisection;Type 1 Residual",maxLS,0,maxLS);
+        Type2ResMon = ibooker.book1D("type2Residual","Type2Residual;Lumisection;Type 2 Residual",maxLS,0,maxLS);
 }
 //--------------------------------------------------------------------------------------------------
 void CorrPCCProducer::endJob(){

@@ -116,11 +116,6 @@ void DTTriggerEfficiencyTask::bookHistograms(DQMStore::IBooker & ibooker,
   }
 }
 
-void DTTriggerEfficiencyTask::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
-
-  LogTrace ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask") <<"[DTTriggerEfficiencyTask]: Begin of LS transition"<<endl;
-
-}
 
 void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 

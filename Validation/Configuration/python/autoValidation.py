@@ -10,10 +10,11 @@ autoValidation = { 'liteTracking' : ['prevalidationLiteTracking','validationLite
                    'miniAODValidation' : ['prevalidationMiniAOD','validationMiniAOD','validationHarvestingMiniAOD'],
                    'standardValidation' : ['prevalidation','validation','validationHarvesting'],
                    'standardValidationNoHLT' : ['prevalidationNoHLT','validationNoHLT','validationHarvestingNoHLT'],
-                   'HGCalValidation' : ['', 'globalValidationHGCal', '']
+                   'HGCalValidation' : ['', 'globalValidationHGCal', ''],
+                   'OuterTrackerValidation' : ['', 'globalValidationOuterTracker', 'postValidationOuterTracker'],
                  }
 
-_phase2_allowed = ['baseValidation','trackingValidation','muonOnlyValidation','JetMETOnlyValidation','bTagOnlyValidation','hcalOnlyValidation', 'HGCalValidation']
+_phase2_allowed = ['baseValidation','trackingValidation','muonOnlyValidation','JetMETOnlyValidation','bTagOnlyValidation','hcalOnlyValidation', 'HGCalValidation', 'OuterTrackerValidation']
 autoValidation['phase2Validation'] = ['','','']
 for i in range(0,3):
-    autoValidation['phase2Validation'][i] = '+'.join(filter(None,[autoValidation[m][i] for m in _phase2_allowed]))
+    autoValidation['phase2Validation'][i] = '+'.join([_f for _f in [autoValidation[m][i] for m in _phase2_allowed] if _f])

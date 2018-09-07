@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os,coral,re
 from RecoLuminosity.LumiDB import nameDealer
 
@@ -75,7 +76,7 @@ def driftcorrectionsForRange(schema,inputRange,correctionTerm,startrun=160403):
             raise
         del qHandle
         if not lint:
-            print '[WARNING] null intglumi for run ',r,' '
+            print('[WARNING] null intglumi for run ',r,' ')
         result[r]=defaultresult+correctionTerm.drift*lint
     #print 'lint ',lint,' result ',result
     return result
@@ -405,7 +406,7 @@ if __name__ == "__main__":
     schema=session.nominalSchema()
     session.transaction().start(True)
     driftresult=driftcorrectionsForRange(schema,[160467,152611])
-    print driftresult
+    print(driftresult)
     #result=correctionsForRange(schema,runrange)
     session.transaction().commit()
     del session

@@ -25,10 +25,14 @@
 using namespace std;
 using namespace edm;
 
+namespace dtsegment2dsl {
 struct Histograms {
-  HRes2DHit *h2DHitSuperPhi;
-  HEff2DHit *h2DHitEff_SuperPhi;
+  std::unique_ptr<HRes2DHit> h2DHitSuperPhi;
+  std::unique_ptr<HEff2DHit> h2DHitEff_SuperPhi;
 };
+}
+
+using namespace dtsegment2dsl;
 
 // Constructor
 DTSegment2DSLPhiQuality::DTSegment2DSLPhiQuality(const ParameterSet& pset)  {
@@ -53,8 +57,8 @@ DTSegment2DSLPhiQuality::DTSegment2DSLPhiQuality(const ParameterSet& pset)  {
 
 void DTSegment2DSLPhiQuality::bookHistograms(DQMStore::ConcurrentBooker & booker, edm::Run const& run, edm::EventSetup const& setup, Histograms & histograms) const {
   // Book the histos
-  histograms.h2DHitSuperPhi = new HRes2DHit ("SuperPhi", booker, doall_, local_);
-  if (doall_) { histograms.h2DHitEff_SuperPhi = new HEff2DHit ("SuperPhi", booker);
+  histograms.h2DHitSuperPhi = std::make_unique<HRes2DHit> ("SuperPhi", booker, doall_, local_);
+  if (doall_) { histograms.h2DHitEff_SuperPhi = std::make_unique<HEff2DHit> ("SuperPhi", booker);
 }
 }
 

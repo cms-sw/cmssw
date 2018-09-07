@@ -41,7 +41,7 @@ GlobalTrackingRegion::checkRZ(const DetLayer* layer,
   bool isBarrel = layer->isBarrel();
   bool isPixel = (layer->subDetector() == PixelBarrel || layer->subDetector() == PixelEndcap);
   
-  if unlikely(!outerlayer) {
+  if UNLIKELY(!outerlayer) {
         GlobalPoint ohit =  outerHit->globalPosition();
         lr = std::sqrt( sqr(ohit.x()-origin().x())+sqr(ohit.y()-origin().y()) );
 	gz = ohit.z();
@@ -60,7 +60,7 @@ GlobalTrackingRegion::checkRZ(const DetLayer* layer,
       PixelRecoPointRZ(-originRBound(), origin().z()-originZBound())
     : PixelRecoPointRZ( originRBound(), origin().z()-originZBound()); 
 
-  if unlikely((!thePrecise) &&(isPixel )) {
+  if UNLIKELY((!thePrecise) &&(isPixel )) {
     auto VcotMin = PixelRecoLineRZ( vtxR, outerred).cotLine();
     auto VcotMax = PixelRecoLineRZ( vtxL, outerred).cotLine();
     return new HitEtaCheck(isBarrel, outerred, VcotMax, VcotMin);
@@ -92,7 +92,7 @@ GlobalTrackingRegion::checkRZ(const DetLayer* layer,
   HitRZConstraint rzConstraint(leftLine, rightLine);
 
 
-  if unlikely(theUseMS) {
+  if UNLIKELY(theUseMS) {
     MultipleScatteringParametrisation iSigma(layer,iSetup);
     PixelRecoPointRZ vtxMean(0.,origin().z());
 

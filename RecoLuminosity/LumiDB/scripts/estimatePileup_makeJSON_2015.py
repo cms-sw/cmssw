@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import os, sys
 import coral
 import array
@@ -9,6 +10,7 @@ import re
 from math import sqrt
 
 from pprint import pprint
+import six
 
 selBXs=[]
 def CalcPileup (deadTable, parameters, luminometer, mode='deadtable'):
@@ -18,12 +20,12 @@ def CalcPileup (deadTable, parameters, luminometer, mode='deadtable'):
     LumiString = ""
     LumiArray = []
 
-    for lumiSection, deadArray in sorted (deadTable.iteritems()):
+    for lumiSection, deadArray in sorted (six.iteritems(deadTable)):
         numerator = 0
-	if luminometer == "HFOC":
-		threshold = 8.
-	else:
-		threshold = 1.2
+        if luminometer == "HFOC":
+            threshold = 8.
+        else:
+            threshold = 1.2
         if mode == 'csv':
             numerator     = float (deadArray[1])
             denominator   = float (deadArray[0])
@@ -33,56 +35,56 @@ def CalcPileup (deadTable, parameters, luminometer, mode='deadtable'):
                 numerator = 0
             if denominator:
                 livetime = numerator / denominator
-        
-	
+
+
 
             #print "params", parameters.lumiSectionLen, parameters.rotationTime
 
         else:
-            print "no csv input! Doh!"
+            print("no csv input! Doh!")
             return
         # totalInstLumi = reduce(lambda x, y: x+y, instLumiArray) # not needed
         if lumiSection > 0:
-             TotalLumi = 0 
-             TotalInt = 0
-             TotalInt2 = 0
-             TotalWeight = 0
-             TotalWeight2 = 0
-             FilledXings = 0
-             for xing, xingInstLumi, xingDelvLumi in instLumiArray:
-                 if selBXs and xing not in selBXs:
+            TotalLumi = 0 
+            TotalInt = 0
+            TotalInt2 = 0
+            TotalWeight = 0
+            TotalWeight2 = 0
+            FilledXings = 0
+            for xing, xingInstLumi, xingDelvLumi in instLumiArray:
+                if selBXs and xing not in selBXs:
                     continue
-                 xingIntLumi = xingInstLumi * livetime  # * parameters.lumiSectionLen
-                 mean = xingInstLumi * parameters.rotationTime / parameters.lumiSectionLen
-                 if mean > 100:
+                xingIntLumi = xingInstLumi * livetime  # * parameters.lumiSectionLen
+                mean = xingInstLumi * parameters.rotationTime / parameters.lumiSectionLen
+                if mean > 100:
                     if runNumber:
-                        print "mean number of pileup events > 100 for run %d, lum %d : m %f l %f" % \
-                          (runNumber, lumiSection, mean, xingInstLumi)
+                        print("mean number of pileup events > 100 for run %d, lum %d : m %f l %f" % \
+                          (runNumber, lumiSection, mean, xingInstLumi))
                     else:
-                        print "mean number of pileup events > 100 for lum %d: m %f l %f" % \
-                          (lumiSection, mean, xingInstLumi)
-                 #print "mean number of pileup events for lum %d: m %f idx %d l %f" % (lumiSection, mean, xing, xingIntLumi)
+                        print("mean number of pileup events > 100 for lum %d: m %f l %f" % \
+                          (lumiSection, mean, xingInstLumi))
+                #print "mean number of pileup events for lum %d: m %f idx %d l %f" % (lumiSection, mean, xing, xingIntLumi)
 
-                 if xingInstLumi > threshold:
+                if xingInstLumi > threshold:
 
                     TotalLumi = TotalLumi+xingIntLumi
                     TotalInt+= mean*xingIntLumi
                     FilledXings = FilledXings+1
                     #print "xing inst lumi %f %f %d" % (xingIntLumi,TotalLumi,FilledXings)
 
-             #compute weighted mean, then loop again to get weighted RMS       
-             MeanInt = 0
-             if TotalLumi >0:
-                 MeanInt = TotalInt/TotalLumi
-             for xing, xingInstLumi, xingDelvlumi in instLumiArray:
-                 if selBXs and xing not in selBXs:
+            #compute weighted mean, then loop again to get weighted RMS       
+            MeanInt = 0
+            if TotalLumi >0:
+                MeanInt = TotalInt/TotalLumi
+            for xing, xingInstLumi, xingDelvlumi in instLumiArray:
+                if selBXs and xing not in selBXs:
                     continue
-                 if xingInstLumi > threshold:
-                     xingIntLumi = xingInstLumi * livetime # * parameters.lumiSectionLen
-                     mean = xingInstLumi * parameters.rotationTime / parameters.lumiSectionLen
-                     TotalInt2+= xingIntLumi*(mean-MeanInt)*(mean-MeanInt)
-                     TotalWeight+= xingIntLumi
-                     TotalWeight2+= xingIntLumi*xingIntLumi
+                if xingInstLumi > threshold:
+                    xingIntLumi = xingInstLumi * livetime # * parameters.lumiSectionLen
+                    mean = xingInstLumi * parameters.rotationTime / parameters.lumiSectionLen
+                    TotalInt2+= xingIntLumi*(mean-MeanInt)*(mean-MeanInt)
+                    TotalWeight+= xingIntLumi
+                    TotalWeight2+= xingIntLumi*xingIntLumi
 
 
 
@@ -102,7 +104,7 @@ def CalcPileup (deadTable, parameters, luminometer, mode='deadtable'):
             LumiArray.append(RMSLumi)
             LumiArray.append(MeanInt)
             lumiX=MeanInt*parameters.lumiSectionLen*FilledXings*(1./parameters.rotationTime)
-    
+
     #print lumiX
    # if TotalLumi<(lumiX*0.8):
 #	print lumiSection
@@ -114,7 +116,7 @@ def CalcPileup (deadTable, parameters, luminometer, mode='deadtable'):
 
     #print FilledXings
     return LumiArray
-    
+
 
 
 ##############################
@@ -164,9 +166,9 @@ if __name__ == '__main__':
                 if BX not in selBXs:
                     selBXs.append(BX)
             except:
-                print iBX,"is not an int"
+                print(iBX,"is not an int")
         selBXs.sort()
-    print "selBXs",selBXs
+    print("selBXs",selBXs)
 
     OUTPUTLINE = ""
     if options.csvInput:
@@ -187,14 +189,14 @@ if __name__ == '__main__':
         for line in events:
             runLumiDict = {}    
             csvDict = {}
-            
+
             if re.search( '^#', line):
                 continue
 
             pieces = sepRE.split (line.strip())
 
             ipiece = 0
-            
+
             if len (pieces) < 15: # means we are missing data; keep track of LS, lumi
                 InGap = 1
                 try:
@@ -202,7 +204,7 @@ if __name__ == '__main__':
                     delivered, recorded = float( pieces[11] ), float( pieces[12] )
                 except:
                     if pieces[0] != 'run':
-                        print " cannot parse csv file "
+                        print(" cannot parse csv file ")
                     InGap = 0
                     continue
                 GapDict[lumi] = [delivered, recorded]
@@ -213,14 +215,14 @@ if __name__ == '__main__':
             try:
                 run,       lumi     = int  ( pieces[0] ), int  ( pieces[2] )
                 delivered, recorded = float( pieces[11] ), float( pieces[12] )
-		luminometer = str( pieces[14] )
+                luminometer = str( pieces[14] )
                 xingInstLumiArray = [( int(orbit), float(lum), float(lumdelv) ) \
                                      for orbit, lum, lumdelv in zip( pieces[15::3],
                                                                      pieces[16::3],
                                                                      pieces[17::3]) ]
             except:
-                print " Bad Parsing: Check if the input format has changed"
-                print pieces[0],pieces[1],pieces[2],pieces[3],pieces[4],pieces[5],pieces[6],pieces[7],pieces[8],pieces[9]
+                print(" Bad Parsing: Check if the input format has changed")
+                print(pieces[0],pieces[1],pieces[2],pieces[3],pieces[4],pieces[5],pieces[6],pieces[7],pieces[8],pieces[9])
                 continue
 
             csvDict.setdefault (run, {})[lumi] = \
@@ -230,7 +232,7 @@ if __name__ == '__main__':
                 if OldRun>0:
                     if InGap == 1:  # We have some LS's at the end with no data
                         lastLumiS = 0
-                        for lumiS, lumiInfo in sorted ( GapDict.iteritems() ):
+                        for lumiS, lumiInfo in sorted ( six.iteritems(GapDict) ):
                             record = lumiInfo[1]
                             lastLumiS = lumiS
                             if record > 0.01:
@@ -267,8 +269,8 @@ if __name__ == '__main__':
                 if lumi == 2:  # there is a missing LS=1 for this run
                     OUTPUTLINE+= '[1,0.0,0.0,0.0],'
 
-            for runNumber, lumiDict in sorted( csvDict.iteritems() ):
-	#	print runNumber
+            for runNumber, lumiDict in sorted( six.iteritems(csvDict) ):
+        #	print runNumber
                 LumiArray = CalcPileup (lumiDict, parameters, luminometer,
                                      mode='csv')
 
@@ -276,7 +278,7 @@ if __name__ == '__main__':
                 LastDelivered = lumiDict[LumiArray[0]][0] 
 
                 if InGap == 1:  # We have some gap before this in entry in this run
-                    for lumiS, lumiInfo in sorted ( GapDict.iteritems() ):
+                    for lumiS, lumiInfo in sorted ( six.iteritems(GapDict) ):
                         peakratio = lumiInfo[0]/LastDelivered # roughly, ratio of inst lumi
                         pileup = LumiArray[3]*peakratio     # scale for this LS
                         aveLumi = 0
@@ -298,10 +300,10 @@ if __name__ == '__main__':
         outputfile = open(output,'w')
         if not outputfile:
             raise RuntimeError("Could not open '%s' as an output JSON file" % output)
-                    
+
         outputfile.write(OUTPUTLINE)
         outputfile.close()
 
         sys.exit()
 
-        
+

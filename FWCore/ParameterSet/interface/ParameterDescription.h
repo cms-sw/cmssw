@@ -20,6 +20,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterDescriptionBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescriptionTraits.h"
 #include "FWCore/Utilities/interface/value_ptr.h"
 
 #include <string>

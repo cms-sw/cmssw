@@ -1,10 +1,11 @@
+from __future__ import print_function
 Mixing = {}
 
 
 def addMixingScenario(label,dict):
     global Mixing
     if label in Mixing:
-        print 'duplicated definition of',label
+        print('duplicated definition of',label)
     else:
         #try:
         #    m=__import__(dict['file'])
@@ -115,6 +116,7 @@ addMixingScenario("2016_25ns_Moriond17MC_PoissonOOTPU",{'file': 'SimGeneral.Mixi
 addMixingScenario("mix_2016_PoissonOOTPU_HighPUTrains_Fill5412",{'file': 'SimGeneral.MixingModule.mix_2016_PoissonOOTPU_HighPUTrains_Fill5412_cfi'})
 addMixingScenario("2017_25ns_WinterMC_PUScenarioV1_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2017_25ns_WinterMC_PUScenarioV1_PoissonOOTPU_cfi'})
 addMixingScenario("2018_25ns_ProjectedPileup_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2018_25ns_ProjectedPileup_PoissonOOTPU_cfi'})
+addMixingScenario("2018_25ns_JuneProjectionFull18_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2018_25ns_JuneProjectionFull18_PoissonOOTPU_cfi'})
 addMixingScenario("ProdStep2",{'file': 'SimGeneral.MixingModule.mixProdStep2_cfi'})
 addMixingScenario("fromDB",{'file': 'SimGeneral.MixingModule.mix_fromDB_cfi'})
 
@@ -170,11 +172,10 @@ MixingDefaultKey = '2012_Summer_50ns_PoissonOOTPU'
 
 def printMe():
     global Mixing
-    keys = Mixing.keys()
-    keys.sort()
+    keys = sorted(Mixing.keys())
     fskeys=[]
     for key in keys:
-        print 'addMixingScenario("%s",%s)'%(key,repr(Mixing[key]))
+        print('addMixingScenario("%s",%s)'%(key,repr(Mixing[key])))
 
 def defineMixing(dict):
     commands=[]

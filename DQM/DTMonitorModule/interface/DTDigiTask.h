@@ -74,7 +74,6 @@ protected:
 
   /// To reset the MEs
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context)  override;
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& setup) override;
 
   /// To map real channels
   void channelsMap(const DTChamberId& dtCh, std::string histoTag);

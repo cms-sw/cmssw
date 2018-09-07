@@ -1,4 +1,4 @@
-#include "../interface/EcalFEDMonitor.h"
+#include "DQM/EcalMonitorTasks/interface/EcalFEDMonitor.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 

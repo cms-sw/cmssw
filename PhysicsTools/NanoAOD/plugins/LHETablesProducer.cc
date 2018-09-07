@@ -15,8 +15,8 @@ class LHETablesProducer : public edm::global::EDProducer<> {
     public:
         LHETablesProducer( edm::ParameterSet const & params ) :
             lheTag_(consumes<LHEEventProduct>(params.getParameter<edm::InputTag>("lheInfo"))),
-            precision_(params.existsAs<int>("precision") ? params.getParameter<int>("precision") : -1),
-            storeLHEParticles_(params.existsAs<bool>("storeLHEParticles") ? params.getParameter<bool>("storeLHEParticles") : -1)
+            precision_( params.getParameter<int>("precision") ),
+            storeLHEParticles_( params.getParameter<bool>("storeLHEParticles") )
         {
             produces<nanoaod::FlatTable>("LHE");
             if (storeLHEParticles_)

@@ -55,7 +55,7 @@ namespace {
 
     for ( auto const & ds : compatDets) {
       MeasurementDetWithData mdet = theDetSystem->idToDet(ds.first->geographicalId(), *theData);
-      if unlikely(mdet.isNull()) {
+      if UNLIKELY(mdet.isNull()) {
 	throw MeasurementDetException( "MeasurementDet not found");
       }
       

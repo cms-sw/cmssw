@@ -104,6 +104,8 @@ process.emulTPDigisNoTDCCut.parameters = cms.untracked.PSet(
 	TDCMaskHF = cms.uint64(0xFFFFFFFFFFFFFFFF)
 )
 
+# For sent-received comparison
+process.load("L1Trigger.Configuration.L1TRawToDigi_cff")
 
 # Exclude the laser FEDs. They contaminate the QIE10/11 digi collections. 
 #from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
@@ -120,6 +122,7 @@ process.load('DQM.HcalTasks.NoCQTask')
 #process.load('DQM.HcalTasks.ZDCTask')
 #process.load('DQM.HcalTasks.QIE11Task') # 2018: integrate QIE11Task into DigiTask
 process.load('DQM.HcalTasks.HcalOnlineHarvesting')
+process.load('DQM.HcalTasks.HcalQualityTests')
 
 #-------------------------------------
 #	To force using uTCA
@@ -183,6 +186,7 @@ process.preRecoPath = cms.Path(
 		*process.castorDigis
 		*process.emulTPDigis
 		*process.emulTPDigisNoTDCCut
+		*process.L1TRawToDigi
 )
 
 process.dqmPath = cms.EndPath(
@@ -190,10 +194,12 @@ process.dqmPath = cms.EndPath(
 process.dqmPath1 = cms.EndPath(
 		process.dqmSaver
 )
+process.qtPath = cms.Path(process.hcalQualityTests)
 
 process.schedule = cms.Schedule(
 	process.preRecoPath,
 	process.tasksPath,
+	process.qtPath,
 	process.harvestingPath,
 	process.dqmPath,
 	process.dqmPath1

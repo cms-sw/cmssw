@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import copy
 
@@ -54,7 +55,7 @@ cut = [0.4,0.6,0.8,1.0,1.2]
 
 for i in range(len(cut)):
     ptThreshold = cut[i]
-    print i, ") cut = ",  ptThreshold 
+    print(i, ") cut = ",  ptThreshold) 
     
     plotModuleLabel = "isoPlots_ptTkr_" + str(i);
     module = copy.deepcopy(process.zmumuNewIsolation)
@@ -70,7 +71,7 @@ ecal_cut = [0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.]
 
 for i in range(len(ecal_cut)):
     etEcalThreshold = ecal_cut[i]
-    print i, ") cut = ",  etEcalThreshold 
+    print(i, ") cut = ",  etEcalThreshold) 
     
     plotModuleLabel = "isoPlots_etEcal_" + str(i);
     module = copy.deepcopy(process.zmumuNewIsolation)
@@ -86,7 +87,7 @@ hcal_cut = [0.5,0.6,0.7,0.8,0.9,1.]
 
 for i in range(len(hcal_cut)):
     etHcalThreshold = hcal_cut[i]
-    print i, ") cut = ",  etHcalThreshold 
+    print(i, ") cut = ",  etHcalThreshold) 
     
     plotModuleLabel = "isoPlots_etHcal_" + str(i);
     module = copy.deepcopy(process.zmumuNewIsolation)
@@ -105,7 +106,7 @@ for i in range(len(deltaR_)):
     deltaREcal = deltaR_[i]
     deltaRHcal = deltaR_[i]  
     
-    print i, ") deltaR = ",  deltaRTrk 
+    print(i, ") deltaR = ",  deltaRTrk) 
 
     plotModuleLabel = "isoPlots_DR_" + str(i);
     module = copy.deepcopy(process.zmumuNewIsolation)
@@ -124,11 +125,11 @@ beta_array = [-1.0,-0.75,-0.5,-0.25,0,0.25,0.5,0.75,1.0]
 
 for i in range(len(alpha_array)):
     alpha = alpha_array[i]
-    print i, ") alpha = ",  alpha 
+    print(i, ") alpha = ",  alpha) 
 
     for j in range(len(beta_array)):
         beta = beta_array[j]
-        print i,".", j, ") beta = ",  beta
+        print(i,".", j, ") beta = ",  beta)
         
         plotModuleLabel = "isoPlots_LinearComb_" + str(i)+"_" + str(j);
         module = copy.deepcopy(process.zmumuNewIsolation) 

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 # Parameters for runType
@@ -54,18 +55,18 @@ options.parseArguments()
 try:
   # fixed dataset, DAS 'py' snippet
   from dataset_cfi import readFiles, secFiles
-  print "Using filenames from dataset_cfi.py."
+  print("Using filenames from dataset_cfi.py.")
 except:
   if options.dataset == 'auto':
-    print "Querying DAS for a dataset..."
+    print("Querying DAS for a dataset...")
     import subprocess
-    out = subprocess.check_output("das_client --query 'dataset run=%d dataset=/*Express*/*/*FEVT*'" % options.runNumber, shell=True)
+    out = subprocess.check_output("dasgoclient --query 'dataset run=%d dataset=/*Express*/*/*FEVT*'" % options.runNumber, shell=True)
     dataset = out.splitlines()[-1]
-    print "Using dataset=%s." % dataset
+    print("Using dataset=%s." % dataset)
   else:
     dataset = options.dataset
 
-  print "Querying DAS for files..."
+  print("Querying DAS for files...")
   readFiles = cms.untracked.vstring()
   secFiles = cms.untracked.vstring()
   # this outputs all results, which can be a lot...
@@ -73,7 +74,7 @@ except:
   readFiles.extend(read)
   secFiles.extend(sec)
 
-print "Got %d files." % len(readFiles)
+print("Got %d files." % len(readFiles))
 
 runstr = str(options.runNumber)
 runpattern = "*" + runstr[0:3] + "/" + runstr[3:] + "*"
@@ -86,7 +87,7 @@ lumirange =  cms.untracked.VLuminosityBlockRange(
   ]
 )
 
-print "Selected %d files and %d LS." % (len(readFiles), len(lumirange))
+print("Selected %d files and %d LS." % (len(readFiles), len(lumirange)))
 
 source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles, lumisToProcess = lumirange)
 maxEvents = cms.untracked.PSet(

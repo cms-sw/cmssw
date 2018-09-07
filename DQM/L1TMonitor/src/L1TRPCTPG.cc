@@ -41,9 +41,6 @@ void L1TRPCTPG::dqmBeginRun(edm::Run const& r, edm::EventSetup const& c){
   //
 }
 
-void L1TRPCTPG::beginLuminosityBlock(edm::LuminosityBlock const& l, edm::EventSetup const& c){
-  //
-}
 
 
 void L1TRPCTPG::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) 

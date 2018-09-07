@@ -24,6 +24,7 @@
 ## index.html to an apropriate place.
 ## (This can be autmated too, if needed.)
 
+from __future__ import print_function
 import sys
 import os
 import re
@@ -52,7 +53,7 @@ page.write('<h1> Track based conversions: '+sys.argv[3]+' vs '+sys.argv[2]+' Val
 # add all the plots in the directory
 for i in range(len(list)):
     if(re.search(r'gif',list[i])!=None):
-        print list[i]
+        print(list[i])
         page.write('<a href=" '+list[i])
         page.write('" onMouseOver="ThumbnailPlot(')
         page.write("'"+list[i]+"'), ClearNotes(),  ThumbnailNote() ")

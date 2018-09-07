@@ -1,3 +1,4 @@
+from __future__ import print_function
 from optparse import OptionParser
 from random import gauss
 from math import sqrt
@@ -59,31 +60,31 @@ for component in components:
 
 ### Print out user's choices as diagnostics
 
-print "Spread in each parameter: x %g mm" % (sqrt(xx)*10.)
-print "                          y %g mm" % (sqrt(yy)*10.)
-print "                          z %g mm" % (sqrt(zz)*10.)
-print "                          phix %g mrad" % (sqrt(phixphix)*1000.)
-print "                          phiy %g mrad" % (sqrt(phiyphiy)*1000.)
-print "                          phiz %g mrad" % (sqrt(phizphiz)*1000.)
-print
+print("Spread in each parameter: x %g mm" % (sqrt(xx)*10.))
+print("                          y %g mm" % (sqrt(yy)*10.))
+print("                          z %g mm" % (sqrt(zz)*10.))
+print("                          phix %g mrad" % (sqrt(phixphix)*1000.))
+print("                          phiy %g mrad" % (sqrt(phiyphiy)*1000.))
+print("                          phiz %g mrad" % (sqrt(phizphiz)*1000.))
+print()
 
-print "Covariance matrix (x, y, z, phix, phiy, phiz):"
-print "%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (xx, xy, xz, xphix, xphiy, xphiz)
-print "%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (xy, yy, yz, yphix, yphiy, yphiz)
-print "%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (xz, yz, zz, zphix, zphiy, zphiz)
-print "%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (xphix, yphix, zphix, phixphix, phixphiy, phixphiz)
-print "%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (xphiy, yphiy, zphiy, phixphiy, phiyphiy, phiyphiz)
-print "%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (xphiz, yphiz, zphiz, phixphiz, phiyphiz, phizphiz)
-print
+print("Covariance matrix (x, y, z, phix, phiy, phiz):")
+print("%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (xx, xy, xz, xphix, xphiy, xphiz))
+print("%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (xy, yy, yz, yphix, yphiy, yphiz))
+print("%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (xz, yz, zz, zphix, zphiy, zphiz))
+print("%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (xphix, yphix, zphix, phixphix, phixphiy, phixphiz))
+print("%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (xphiy, yphiy, zphiy, phixphiy, phiyphiy, phiyphiz))
+print("%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (xphiz, yphiz, zphiz, phixphiz, phiyphiz, phizphiz))
+print()
 
-print "Correlation (x, y, z, phix, phiy, phiz):"
-print "%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (xx/sqrt(xx)/sqrt(xx), xy/sqrt(xx)/sqrt(yy), xz/sqrt(xx)/sqrt(zz), xphix/sqrt(xx)/sqrt(phixphix), xphiy/sqrt(xx)/sqrt(phiyphiy), xphiz/sqrt(xx)/sqrt(phizphiz))
-print "%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (xy/sqrt(yy)/sqrt(xx), yy/sqrt(yy)/sqrt(yy), yz/sqrt(yy)/sqrt(zz), yphix/sqrt(yy)/sqrt(phixphix), yphiy/sqrt(yy)/sqrt(phiyphiy), yphiz/sqrt(yy)/sqrt(phizphiz))
-print "%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (xz/sqrt(zz)/sqrt(xx), yz/sqrt(zz)/sqrt(yy), zz/sqrt(zz)/sqrt(zz), zphix/sqrt(zz)/sqrt(phixphix), zphiy/sqrt(zz)/sqrt(phiyphiy), zphiz/sqrt(zz)/sqrt(phizphiz))
-print "%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (xphix/sqrt(phixphix)/sqrt(xx), yphix/sqrt(phixphix)/sqrt(yy), zphix/sqrt(phixphix)/sqrt(zz), phixphix/sqrt(phixphix)/sqrt(phixphix), phixphiy/sqrt(phixphix)/sqrt(phiyphiy), phixphiz/sqrt(phixphix)/sqrt(phizphiz))
-print "%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (xphiy/sqrt(phiyphiy)/sqrt(xx), yphiy/sqrt(phiyphiy)/sqrt(yy), zphiy/sqrt(phiyphiy)/sqrt(zz), phixphiy/sqrt(phiyphiy)/sqrt(phixphix), phiyphiy/sqrt(phiyphiy)/sqrt(phiyphiy), phiyphiz/sqrt(phiyphiy)/sqrt(phizphiz))
-print "%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (xphiz/sqrt(phizphiz)/sqrt(xx), yphiz/sqrt(phizphiz)/sqrt(yy), zphiz/sqrt(phizphiz)/sqrt(zz), phixphiz/sqrt(phizphiz)/sqrt(phixphix), phiyphiz/sqrt(phizphiz)/sqrt(phiyphiy), phizphiz/sqrt(phizphiz)/sqrt(phizphiz))
-print
+print("Correlation (x, y, z, phix, phiy, phiz):")
+print("%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (xx/sqrt(xx)/sqrt(xx), xy/sqrt(xx)/sqrt(yy), xz/sqrt(xx)/sqrt(zz), xphix/sqrt(xx)/sqrt(phixphix), xphiy/sqrt(xx)/sqrt(phiyphiy), xphiz/sqrt(xx)/sqrt(phizphiz)))
+print("%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (xy/sqrt(yy)/sqrt(xx), yy/sqrt(yy)/sqrt(yy), yz/sqrt(yy)/sqrt(zz), yphix/sqrt(yy)/sqrt(phixphix), yphiy/sqrt(yy)/sqrt(phiyphiy), yphiz/sqrt(yy)/sqrt(phizphiz)))
+print("%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (xz/sqrt(zz)/sqrt(xx), yz/sqrt(zz)/sqrt(yy), zz/sqrt(zz)/sqrt(zz), zphix/sqrt(zz)/sqrt(phixphix), zphiy/sqrt(zz)/sqrt(phiyphiy), zphiz/sqrt(zz)/sqrt(phizphiz)))
+print("%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (xphix/sqrt(phixphix)/sqrt(xx), yphix/sqrt(phixphix)/sqrt(yy), zphix/sqrt(phixphix)/sqrt(zz), phixphix/sqrt(phixphix)/sqrt(phixphix), phixphiy/sqrt(phixphix)/sqrt(phiyphiy), phixphiz/sqrt(phixphix)/sqrt(phizphiz)))
+print("%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (xphiy/sqrt(phiyphiy)/sqrt(xx), yphiy/sqrt(phiyphiy)/sqrt(yy), zphiy/sqrt(phiyphiy)/sqrt(zz), phixphiy/sqrt(phiyphiy)/sqrt(phixphix), phiyphiy/sqrt(phiyphiy)/sqrt(phiyphiy), phiyphiz/sqrt(phiyphiy)/sqrt(phizphiz)))
+print("%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (xphiz/sqrt(phizphiz)/sqrt(xx), yphiz/sqrt(phizphiz)/sqrt(yy), zphiz/sqrt(phizphiz)/sqrt(zz), phixphiz/sqrt(phizphiz)/sqrt(phixphix), phiyphiz/sqrt(phizphiz)/sqrt(phiyphiy), phizphiz/sqrt(phizphiz)/sqrt(phizphiz)))
+print()
 
 for correlation_coefficient in [abs(xy/sqrt(xx)/sqrt(yy)), abs(xz/sqrt(xx)/sqrt(zz)), abs(xphix/sqrt(xx)/sqrt(phixphix)), abs(xphiy/sqrt(xx)/sqrt(phiyphiy)), abs(xphiz/sqrt(xx)/sqrt(phizphiz)), \
                                 abs(yz/sqrt(yy)/sqrt(zz)), abs(yphix/sqrt(yy)/sqrt(phixphix)), abs(yphiy/sqrt(yy)/sqrt(phiyphiy)), abs(yphiz/sqrt(yy)/sqrt(phizphiz)),
@@ -259,23 +260,23 @@ ave_phiyphiy = sum_phiyphiy/float(len(misal))
 ave_phiyphiz = sum_phiyphiz/float(len(misal))
 ave_phizphiz = sum_phizphiz/float(len(misal))
 
-print "Estimated covariance matrix from %d chambers (x, y, z, phix, phiy, phiz):" % len(misal)
-print "%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (ave_xx, ave_xy, ave_xz, ave_xphix, ave_xphiy, ave_xphiz)
-print "%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (ave_xy, ave_yy, ave_yz, ave_yphix, ave_yphiy, ave_yphiz)
-print "%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (ave_xz, ave_yz, ave_zz, ave_zphix, ave_zphiy, ave_zphiz)
-print "%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (ave_xphix, ave_yphix, ave_zphix, ave_phixphix, ave_phixphiy, ave_phixphiz)
-print "%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (ave_xphiy, ave_yphiy, ave_zphiy, ave_phixphiy, ave_phiyphiy, ave_phiyphiz)
-print "%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (ave_xphiz, ave_yphiz, ave_zphiz, ave_phixphiz, ave_phiyphiz, ave_phizphiz)
-print
+print("Estimated covariance matrix from %d chambers (x, y, z, phix, phiy, phiz):" % len(misal))
+print("%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (ave_xx, ave_xy, ave_xz, ave_xphix, ave_xphiy, ave_xphiz))
+print("%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (ave_xy, ave_yy, ave_yz, ave_yphix, ave_yphiy, ave_yphiz))
+print("%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (ave_xz, ave_yz, ave_zz, ave_zphix, ave_zphiy, ave_zphiz))
+print("%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (ave_xphix, ave_yphix, ave_zphix, ave_phixphix, ave_phixphiy, ave_phixphiz))
+print("%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (ave_xphiy, ave_yphiy, ave_zphiy, ave_phixphiy, ave_phiyphiy, ave_phiyphiz))
+print("%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (ave_xphiz, ave_yphiz, ave_zphiz, ave_phixphiz, ave_phiyphiz, ave_phizphiz))
+print()
 
-print "Estimated correlation from %d chambers (x, y, z, phix, phiy, phiz):" % len(misal)
-print "%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (ave_xx/sqrt(ave_xx)/sqrt(ave_xx), ave_xy/sqrt(ave_xx)/sqrt(ave_yy), ave_xz/sqrt(ave_xx)/sqrt(ave_zz), ave_xphix/sqrt(ave_xx)/sqrt(ave_phixphix), ave_xphiy/sqrt(ave_xx)/sqrt(ave_phiyphiy), ave_xphiz/sqrt(ave_xx)/sqrt(ave_phizphiz))
-print "%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (ave_xy/sqrt(ave_yy)/sqrt(ave_xx), ave_yy/sqrt(ave_yy)/sqrt(ave_yy), ave_yz/sqrt(ave_yy)/sqrt(ave_zz), ave_yphix/sqrt(ave_yy)/sqrt(ave_phixphix), ave_yphiy/sqrt(ave_yy)/sqrt(ave_phiyphiy), ave_yphiz/sqrt(ave_yy)/sqrt(ave_phizphiz))
-print "%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (ave_xz/sqrt(ave_zz)/sqrt(ave_xx), ave_yz/sqrt(ave_zz)/sqrt(ave_yy), ave_zz/sqrt(ave_zz)/sqrt(ave_zz), ave_zphix/sqrt(ave_zz)/sqrt(ave_phixphix), ave_zphiy/sqrt(ave_zz)/sqrt(ave_phiyphiy), ave_zphiz/sqrt(ave_zz)/sqrt(ave_phizphiz))
-print "%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (ave_xphix/sqrt(ave_phixphix)/sqrt(ave_xx), ave_yphix/sqrt(ave_phixphix)/sqrt(ave_yy), ave_zphix/sqrt(ave_phixphix)/sqrt(ave_zz), ave_phixphix/sqrt(ave_phixphix)/sqrt(ave_phixphix), ave_phixphiy/sqrt(ave_phixphix)/sqrt(ave_phiyphiy), ave_phixphiz/sqrt(ave_phixphix)/sqrt(ave_phizphiz))
-print "%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (ave_xphiy/sqrt(ave_phiyphiy)/sqrt(ave_xx), ave_yphiy/sqrt(ave_phiyphiy)/sqrt(ave_yy), ave_zphiy/sqrt(ave_phiyphiy)/sqrt(ave_zz), ave_phixphiy/sqrt(ave_phiyphiy)/sqrt(ave_phixphix), ave_phiyphiy/sqrt(ave_phiyphiy)/sqrt(ave_phiyphiy), ave_phiyphiz/sqrt(ave_phiyphiy)/sqrt(ave_phizphiz))
-print "%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (ave_xphiz/sqrt(ave_phizphiz)/sqrt(ave_xx), ave_yphiz/sqrt(ave_phizphiz)/sqrt(ave_yy), ave_zphiz/sqrt(ave_phizphiz)/sqrt(ave_zz), ave_phixphiz/sqrt(ave_phizphiz)/sqrt(ave_phixphix), ave_phiyphiz/sqrt(ave_phizphiz)/sqrt(ave_phiyphiy), ave_phizphiz/sqrt(ave_phizphiz)/sqrt(ave_phizphiz))
-print
+print("Estimated correlation from %d chambers (x, y, z, phix, phiy, phiz):" % len(misal))
+print("%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (ave_xx/sqrt(ave_xx)/sqrt(ave_xx), ave_xy/sqrt(ave_xx)/sqrt(ave_yy), ave_xz/sqrt(ave_xx)/sqrt(ave_zz), ave_xphix/sqrt(ave_xx)/sqrt(ave_phixphix), ave_xphiy/sqrt(ave_xx)/sqrt(ave_phiyphiy), ave_xphiz/sqrt(ave_xx)/sqrt(ave_phizphiz)))
+print("%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (ave_xy/sqrt(ave_yy)/sqrt(ave_xx), ave_yy/sqrt(ave_yy)/sqrt(ave_yy), ave_yz/sqrt(ave_yy)/sqrt(ave_zz), ave_yphix/sqrt(ave_yy)/sqrt(ave_phixphix), ave_yphiy/sqrt(ave_yy)/sqrt(ave_phiyphiy), ave_yphiz/sqrt(ave_yy)/sqrt(ave_phizphiz)))
+print("%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (ave_xz/sqrt(ave_zz)/sqrt(ave_xx), ave_yz/sqrt(ave_zz)/sqrt(ave_yy), ave_zz/sqrt(ave_zz)/sqrt(ave_zz), ave_zphix/sqrt(ave_zz)/sqrt(ave_phixphix), ave_zphiy/sqrt(ave_zz)/sqrt(ave_phiyphiy), ave_zphiz/sqrt(ave_zz)/sqrt(ave_phizphiz)))
+print("%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (ave_xphix/sqrt(ave_phixphix)/sqrt(ave_xx), ave_yphix/sqrt(ave_phixphix)/sqrt(ave_yy), ave_zphix/sqrt(ave_phixphix)/sqrt(ave_zz), ave_phixphix/sqrt(ave_phixphix)/sqrt(ave_phixphix), ave_phixphiy/sqrt(ave_phixphix)/sqrt(ave_phiyphiy), ave_phixphiz/sqrt(ave_phixphix)/sqrt(ave_phizphiz)))
+print("%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (ave_xphiy/sqrt(ave_phiyphiy)/sqrt(ave_xx), ave_yphiy/sqrt(ave_phiyphiy)/sqrt(ave_yy), ave_zphiy/sqrt(ave_phiyphiy)/sqrt(ave_zz), ave_phixphiy/sqrt(ave_phiyphiy)/sqrt(ave_phixphix), ave_phiyphiy/sqrt(ave_phiyphiy)/sqrt(ave_phiyphiy), ave_phiyphiz/sqrt(ave_phiyphiy)/sqrt(ave_phizphiz)))
+print("%11.8f %11.8f %11.8f %11.8f %11.8f %11.8f" % (ave_xphiz/sqrt(ave_phizphiz)/sqrt(ave_xx), ave_yphiz/sqrt(ave_phizphiz)/sqrt(ave_yy), ave_zphiz/sqrt(ave_phizphiz)/sqrt(ave_zz), ave_phixphiz/sqrt(ave_phizphiz)/sqrt(ave_phixphix), ave_phiyphiz/sqrt(ave_phizphiz)/sqrt(ave_phiyphiy), ave_phizphiz/sqrt(ave_phizphiz)/sqrt(ave_phizphiz)))
+print()
 
 ### Delete all three files at once to make sure the user never sees
 ### stale data (e.g. from a stopped process due to failed conversion)
@@ -379,7 +380,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 process.Path = cms.Path(process.MuonGeometryDBConverter)
 """ % vars())
 
-print "To create an SQLite file for this geometry (%(outputName)s.db), run the following:" % vars()
-print
+print("To create an SQLite file for this geometry (%(outputName)s.db), run the following:" % vars())
+print()
 os.system("echo cmsRun %s_convert_cfg.py" % outputName)
 

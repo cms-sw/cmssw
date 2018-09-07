@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from functools import reduce
+import six
 
 # whether to use the old or newer (automatically adapting
 # to the MC menu) method of configuring the monitoring
@@ -203,7 +204,7 @@ else:
     #----------------------------------------
     egammaSelectors = []
 
-    for hltPathCategory, thisCategoryData in configData.iteritems():
+    for hltPathCategory, thisCategoryData in six.iteritems(configData):
         # all paths in the current category share the same
         # generator level requirement
         #
@@ -252,7 +253,7 @@ else:
 
         pathsByCategory = EgammaHLTValidationUtils.findEgammaPaths(refProcess)
 
-        for hltPathCategory, thisCategoryData in configData.iteritems():
+        for hltPathCategory, thisCategoryData in six.iteritems(configData):
 
             # get the HLT path objects for this category
             paths = pathsByCategory[hltPathCategory]

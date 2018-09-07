@@ -7,6 +7,7 @@ dtTriggerSynchMonitor = DQMEDAnalyzer('DTLocalTriggerSynchTask',
     TMInputTag    = cms.InputTag('dttfDigis'),
     DDUInputTag    = cms.InputTag('muonDTDigis'),
     SEGInputTag    = cms.InputTag('dt4DSegments'),
+    processDDU     = cms.untracked.bool(True),
     bxTimeInterval = cms.double(25),
     rangeWithinBX  = cms.bool(True),
     nBXHigh        = cms.int32(0),
@@ -26,5 +27,9 @@ dtTriggerSynchMonitor = DQMEDAnalyzer('DTLocalTriggerSynchTask',
     ),
     tTrigMode = cms.string('DTTTrigSyncFromDB')
 )
+
+from Configuration.Eras.Modifier_run2_DT_2018_cff import run2_DT_2018
+run2_DT_2018.toModify(dtTriggerSynchMonitor,processDDU = False)
+
 
 

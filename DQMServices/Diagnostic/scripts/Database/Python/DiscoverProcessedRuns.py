@@ -1,8 +1,9 @@
+from __future__ import print_function
 import os
 
 class DiscoverProcessedRuns:
     def runsList(self):
-        print "cd "+self.CMSSW_Version+"; eval `scramv1 r -sh`; cd -; cmscond_list_iov -c "+self.Database+" -P "+self.AuthenticationPath+" -t "+self.TagName
+        print("cd "+self.CMSSW_Version+"; eval `scramv1 r -sh`; cd -; cmscond_list_iov -c "+self.Database+" -P "+self.AuthenticationPath+" -t "+self.TagName)
         fullList = os.popen("source /afs/cern.ch/cms/sw/cmsset_default.sh; cd "+self.CMSSW_Version+"/src; eval `scramv1 r -sh`; cd -; cmscond_list_iov -c "+self.Database+" -P "+self.AuthenticationPath+" -t "+self.TagName).read()
         runsListInTag = list()
         # print fullList

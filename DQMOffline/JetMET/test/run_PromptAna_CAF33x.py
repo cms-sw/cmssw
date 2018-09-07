@@ -1,25 +1,26 @@
+from __future__ import print_function
 import os
 import FWCore.ParameterSet.Config as cms
 
 #
 # --- [cosmic sequence (default=True)?]
 iscosmics = 'True'
-print 'iscosmics (default=True) = '+str(iscosmics)
+print('iscosmics (default=True) = '+str(iscosmics))
 # --- [name of job & output file (default=test)?]
 jobname = 'test'
-print 'jobname (default=test) = '+str(jobname)
+print('jobname (default=test) = '+str(jobname))
 #
 # --- [number of events (default=1000)]
 nevents = 1000
-print 'nevents (default=1000)  = '+str(nevents)
+print('nevents (default=1000)  = '+str(nevents))
 #
 # --- [turn on all histograms (default=True)?]
 allhist = 'True'
-print 'allhist (default=True) = '+str(allhist)
+print('allhist (default=True) = '+str(allhist))
 #
 #--- [trigger set (default=HLT)]
 trigger_set = 'HLT'
-print 'trigger set name (default=HLT) = '+str(trigger_set)
+print('trigger set name (default=HLT) = '+str(trigger_set))
 
 #-----
 process = cms.Process("test")

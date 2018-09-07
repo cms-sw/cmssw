@@ -5,6 +5,7 @@
 
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <cmath>
 
 //#define EDM_ML_DEBUG
 
@@ -206,7 +207,7 @@ int HcalDDDSimConstants::getDepthEta29M(const int& i,
 }
 
 std::pair<int,double> HcalDDDSimConstants::getDetEta(const double& eta, 
-						     const int& depth) {
+						     const int& depth) const {
 
   int    hsubdet(0), ieta(0);
   double etaR(0);
@@ -231,7 +232,7 @@ std::pair<int,double> HcalDDDSimConstants::getDetEta(const double& eta,
 }
 
 int HcalDDDSimConstants::getEta(const int& det, const int& lay, 
-				const double& hetaR) {
+				const double& hetaR) const {
 
   int    ieta(0);
   if (det == static_cast<int>(HcalForward)) { // Forward HCal
@@ -255,8 +256,10 @@ int HcalDDDSimConstants::getEta(const int& det, const int& lay,
 }
 
 std::pair<int,int> HcalDDDSimConstants::getEtaDepth(const int& det, int etaR, 
-						    const int& phi, const int& zside, 
-						    int depth, const int& lay) {
+						    const int& phi, 
+						    const int& zside, 
+						    int depth, 
+						    const int& lay) const {
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalGeom") << "HcalDDDEsimConstants:getEtaDepth: I/P " 
@@ -895,7 +898,7 @@ void HcalDDDSimConstants::initialize( void ) {
   int noffk(noffsize+5);
   if ((int)(hpar->noff.size()) > (noffsize+5)) {
     noffk += (2*hpar->noff[noffsize+4]);
-    if ((int)(hpar->noff.size()) > noffk+5) {
+    if ((int)(hpar->noff.size()) >= noffk+7) {
       int dtype = hpar->noff[noffk+1];
       int nphi  = hpar->noff[noffk+2];
       int ndeps = hpar->noff[noffk+3];

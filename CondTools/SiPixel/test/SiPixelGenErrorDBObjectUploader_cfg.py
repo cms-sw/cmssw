@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
 
@@ -13,7 +14,7 @@ process.GlobalTag.globaltag = "MC_70_V4::All"
 
 MagFieldValue = float(sys.argv[2])
 
-print '\nMagField = %f \n' % (MagFieldValue)
+print('\nMagField = %f \n' % (MagFieldValue))
 #version = 'v2'
 version = sys.argv[3]
 
@@ -66,7 +67,7 @@ elif( MagFieldValue==3.5 or MagFieldValue==35 ):
 generror_base = 'SiPixelGenErrorDBObject' + MagFieldString + version
 #theGenErrorBaseString = cms.string(generic_base)
 
-print '\nUploading %s with record SiPixelGenErrorDBObjectRcd in file siPixelGenErrors%s%s.db\n' % (generror_base,MagFieldString,version)
+print('\nUploading %s with record SiPixelGenErrorDBObjectRcd in file siPixelGenErrors%s%s.db\n' % (generror_base,MagFieldString,version))
 
 process.source = cms.Source("EmptyIOVSource",
                             timetype = cms.string('runnumber'),

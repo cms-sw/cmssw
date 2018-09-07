@@ -48,10 +48,11 @@ namespace edm {
     entryNumber_(-1),
     entryNumberForIndex_(new std::vector<EntryNumber>(nIndexes, IndexIntoFile::invalidEntry)),
     branchNames_(),
-    branches_(new BranchMap),
+    branches_{},
     trainNow_(false),
     switchOverEntry_(-1),
     rawTriggerSwitchOverEntry_(-1),
+    performedSwitchOver_{false},
     learningEntries_(learningEntries),
     cacheSize_(cacheSize),
     treeAutoFlush_(0),
@@ -133,13 +134,12 @@ namespace edm {
   }
 
   void
-  RootTree::addBranch(BranchKey const& key,
-                      BranchDescription const& prod,
+  RootTree::addBranch(BranchDescription const& prod,
                       std::string const& oldBranchName) {
       assert(isValid());
       //use the translated branch name
       TBranch* branch = tree_->GetBranch(oldBranchName.c_str());
-      roottree::BranchInfo info = roottree::BranchInfo(BranchDescription(prod));
+      roottree::BranchInfo info = roottree::BranchInfo(prod);
       info.productBranch_ = nullptr;
       if (prod.present()) {
         info.productBranch_ = branch;
@@ -148,7 +148,7 @@ namespace edm {
       }
       TTree* provTree = (metaTree_ != nullptr ? metaTree_ : tree_);
       info.provenanceBranch_ = provTree->GetBranch(oldBranchName.c_str());
-      branches_->insert(std::make_pair(key, info));
+      branches_.insert(prod.branchID(), info);
   }
 
   void
@@ -175,7 +175,7 @@ namespace edm {
   }
 
   roottree::BranchMap const&
-  RootTree::branches() const {return *branches_;}
+  RootTree::branches() const {return branches_;}
 
   void
   RootTree::setCacheSize(unsigned int cacheSize) {
@@ -218,6 +218,19 @@ namespace edm {
           rawTreeCache_->SetEntryRange(theEntryNumber, switchOverEntry_);
           rawTreeCache_->FillBuffer();
         }
+      }
+      if(performedSwitchOver_ and triggerTreeCache_) {
+        //We are using the triggerTreeCache_ not the rawTriggerTreeCache_.
+        //The triggerTreeCache was originally told to start from an entry further in the file.
+        triggerTreeCache_->SetEntryRange(theEntryNumber, tree_->GetEntries());
+      } else if(rawTriggerTreeCache_) {
+        //move the switch point to the end of the cluster holding theEntryNumber
+        rawTriggerSwitchOverEntry_ = -1;
+        TTree::TClusterIterator clusterIter = tree_->GetClusterIterator(theEntryNumber);
+        while ((rawTriggerSwitchOverEntry_ < theEntryNumber) || (rawTriggerSwitchOverEntry_ <= 0)) {
+          rawTriggerSwitchOverEntry_ = clusterIter();
+        }
+        rawTriggerTreeCache_->SetEntryRange(theEntryNumber, rawTriggerSwitchOverEntry_);
       }
     }
     if ((theEntryNumber < static_cast<EntryNumber>(entryNumber_-treeAutoFlush_)) &&
@@ -301,7 +314,7 @@ namespace edm {
       filePtr_->SetCacheRead(nullptr);
 
       return rawTriggerTreeCache_.get();
-    } else if (entryNumber_ < rawTriggerSwitchOverEntry_) {
+    } else if (!performedSwitchOver_ and entryNumber_ < rawTriggerSwitchOverEntry_) {
       // The raw trigger has fired and it contents are valid.
       return rawTriggerTreeCache_.get();
     } else if (rawTriggerSwitchOverEntry_ > 0) {

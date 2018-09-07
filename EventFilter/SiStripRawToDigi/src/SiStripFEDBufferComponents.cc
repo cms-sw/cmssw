@@ -395,27 +395,25 @@ namespace sistrip {
          (readoutModeString == "Zero suppressed") ) {
       return READOUT_MODE_ZERO_SUPPRESSED;
     }
-    if ( (readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_LITE") ||
-         (readoutModeString == "ZERO_SUPPRESSED_LITE") ||
-         (readoutModeString == "Zero suppressed lite") ) {
-      return READOUT_MODE_ZERO_SUPPRESSED_LITE10;
-    }
-    if ( (readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE") ||
-         (readoutModeString == "ZERO_SUPPRESSED_CMOVERRIDE") ||
-         (readoutModeString == "ZERO_SUPPRESSED_CMO") ||
-         (readoutModeString == "Zero suppressed CM Override") ) {
-      return READOUT_MODE_ZERO_SUPPRESSED;
-    }
-    if ( (readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_LITE_CMOVERRIDE") ||
-         (readoutModeString == "ZERO_SUPPRESSED_LITE_CMO") ||
-         (readoutModeString == "ZERO_SUPPRESSED_LITE_CMOVERRIDE") ||
-         (readoutModeString == "Zero suppressed lite CM Override") ) {
-      return READOUT_MODE_ZERO_SUPPRESSED_LITE10;
+    if ( (readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_LITE8") ||
+         (readoutModeString == "ZERO_SUPPRESSED_LITE8") ||
+         (readoutModeString == "Zero suppressed lite8") ){
+      return READOUT_MODE_ZERO_SUPPRESSED_LITE8;
     }
     if ( (readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT") ||
          (readoutModeString == "ZERO_SUPPRESSED_LITE8_TOPBOT") ||
-         (readoutModeString == "Zero suppressed lite8 TobBot") ){
+         (readoutModeString == "Zero suppressed lite8 TopBot") ){
       return READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT;
+    }
+    if ( (readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT") ||
+         (readoutModeString == "ZERO_SUPPRESSED_LITE8_BOTBOT") ||
+         (readoutModeString == "Zero suppressed lite8 BotBot") ){
+      return READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT;
+    }
+    if ( (readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_LITE10") ||
+         (readoutModeString == "ZERO_SUPPRESSED_LITE10") ||
+         (readoutModeString == "Zero suppressed lite10") ) {
+      return READOUT_MODE_ZERO_SUPPRESSED_LITE10;
     }
     if ( (readoutModeString == "READOUT_MODE_PREMIX_RAW") ||
          (readoutModeString == "PREMIX_RAW") ||
@@ -430,7 +428,60 @@ namespace sistrip {
     //if it was none of the above then return invalid
     return READOUT_MODE_INVALID;
   }
-  
+  uint8_t packetCodeFromString(const std::string& packetCode, FEDReadoutMode mode)
+  {
+    if ( mode == READOUT_MODE_ZERO_SUPPRESSED ) {
+      if        ( packetCode == "ZERO_SUPPRESSED" || packetCode == "Zero suppressed" ) {
+        return PACKET_CODE_ZERO_SUPPRESSED;
+      } else if ( packetCode == "ZERO_SUPPRESSED10" || packetCode == "Zero suppressed 10" ) {
+        return PACKET_CODE_ZERO_SUPPRESSED10;
+      } else if ( packetCode == "ZERO_SUPPRESSED8_BOTBOT" || packetCode == "Zero suppressed 8 BOTBOT" ) {
+        return PACKET_CODE_ZERO_SUPPRESSED8_BOTBOT;
+      } else if ( packetCode == "ZERO_SUPPRESSED8_TOPBOT" || packetCode == "Zero suppressed 8 TOPBOT" ) {
+        return PACKET_CODE_ZERO_SUPPRESSED8_TOPBOT;
+      } else {
+        throw cms::Exception("FEDBuffer") << "'" << packetCode << "' cannot be converted into a valid packet code for FEDReadoutMode ZERO_SUPPRESSED";
+
+      }
+    } else if ( mode == READOUT_MODE_VIRGIN_RAW ) {
+      if        ( packetCode == "VIRGIN_RAW" || packetCode == "Virgin raw" ) {
+        return PACKET_CODE_VIRGIN_RAW;
+      } else if ( packetCode == "VIRGIN_RAW10" || packetCode == "Virgin raw 10" ) {
+        return PACKET_CODE_VIRGIN_RAW10;
+      } else if ( packetCode == "VIRGIN_RAW8_BOTBOT" || packetCode == "Virgin raw 8 BOTBOT" ) {
+        return PACKET_CODE_VIRGIN_RAW8_BOTBOT;
+      } else if ( packetCode == "VIRGIN_RAW8_TOPBOT" || packetCode == "Virgin raw 8 TOPBOT" ) {
+        return PACKET_CODE_VIRGIN_RAW8_TOPBOT;
+      } else {
+        throw cms::Exception("FEDBuffer") << "'" << packetCode << "' cannot be converted into a valid packet code for FEDReadoutMode VIRGIN_RAW";
+      }
+    } else if ( mode == READOUT_MODE_PROC_RAW ) {
+      if        ( packetCode == "PROC_RAW" || packetCode == "Processed raw" ) {
+        return PACKET_CODE_PROC_RAW;
+      } else if ( packetCode == "PROC_RAW10" || packetCode == "Processed raw 10" ) {
+        return PACKET_CODE_PROC_RAW10;
+      } else if ( packetCode == "PROC_RAW8_BOTBOT" || packetCode == "Processed raw 8 BOTBOT" ) {
+        return PACKET_CODE_PROC_RAW8_BOTBOT;
+      } else if ( packetCode == "PROC_RAW8_TOPBOT" || packetCode == "Processed raw 8 TOPBOT" ) {
+        return PACKET_CODE_PROC_RAW8_TOPBOT;
+      } else {
+        throw cms::Exception("FEDBuffer") << "'" << packetCode << "' cannot be converted into a valid packet code for FEDReadoutMode PROC_RAW";
+      }
+    } else if ( mode == READOUT_MODE_SCOPE ) {
+      if ( packetCode == "SCOPE" || packetCode == "Scope"
+          || packetCode.empty() ) { // default
+        return PACKET_CODE_SCOPE;
+      } else {
+        throw cms::Exception("FEDBuffer") << "'" << packetCode << "' cannot be converted into a valid packet code for FEDReadoutMode SCOPE";
+      }
+    } else {
+      if ( !packetCode.empty() ) {
+        throw cms::Exception("FEDBuffer") << "Packet codes are only needed for zero-suppressed (non-lite), virgin raw, processed raw and spy data. FEDReadoutMode=" << mode << " and packetCode='" << packetCode << "'";
+      }
+      return 0;
+    }
+  }
+
   FEDDAQEventType fedDAQEventTypeFromString(const std::string& daqEventTypeString)
   {
     if ( (daqEventTypeString == "PHYSICS") ||

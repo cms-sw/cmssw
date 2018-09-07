@@ -1,22 +1,22 @@
 import FWCore.ParameterSet.Config as cms
 
 # Raw data
-from DQM.SiPixelPhase1RawData.SiPixelPhase1RawData_cfi import *
+from DQM.SiPixelPhase1Common.SiPixelPhase1RawData_cfi import *
 # Pixel Digi Monitoring
-from DQM.SiPixelPhase1Digis.SiPixelPhase1Digis_cfi import *
+from DQM.SiPixelPhase1Common.SiPixelPhase1Digis_cfi import *
+from DQM.SiPixelPhase1Common.SiPixelPhase1DeadFEDChannels_cfi import *
 # Cluster (track-independent) monitoring
-from DQM.SiPixelPhase1Clusters.SiPixelPhase1Clusters_cfi import *
+from DQM.SiPixelPhase1Common.SiPixelPhase1Clusters_cfi import *
 # RecHit (clusters)
-from DQM.SiPixelPhase1RecHits.SiPixelPhase1RecHits_cfi import *
+from DQM.SiPixelPhase1Track.SiPixelPhase1RecHits_cfi import *
 # Residuals
-from DQM.SiPixelPhase1TrackResiduals.SiPixelPhase1TrackResiduals_cfi import *
-from DQM.SiPixelPhase1DeadFEDChannels.SiPixelPhase1DeadFEDChannels_cfi import *
+from DQM.SiPixelPhase1Track.SiPixelPhase1TrackResiduals_cfi import *
 # Clusters ontrack/offtrack (also general tracks)
-from DQM.SiPixelPhase1TrackClusters.SiPixelPhase1TrackClusters_cfi import *
+from DQM.SiPixelPhase1Track.SiPixelPhase1TrackClusters_cfi import *
 # Hit Efficiencies
-from DQM.SiPixelPhase1TrackEfficiency.SiPixelPhase1TrackEfficiency_cfi import *
+from DQM.SiPixelPhase1Track.SiPixelPhase1TrackEfficiency_cfi import *
 # FED/RAW Data
-from DQM.SiPixelPhase1RawData.SiPixelPhase1RawData_cfi import *
+from DQM.SiPixelPhase1Common.SiPixelPhase1RawData_cfi import *
 #Summary maps
 from DQM.SiPixelPhase1Summary.SiPixelPhase1Summary_cfi import *
 

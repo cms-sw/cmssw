@@ -9,7 +9,7 @@
 //    The output is up to two Correlated LCTs.
 //
 //    It can be run in either a test mode, where the arguments are a collection
-//    of wire times and arrays of halfstrip and distrip times, or
+//    of wire times and arrays of halfstrip times, or
 //    for general use, with with wire digi and comparator digi collections as
 //    arguments.  In the latter mode, the wire & strip info is passed on the
 //    LCTProcessors, where it is decoded and converted into a convenient form.
@@ -60,37 +60,15 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
   // Pass ALCT, CLCT, and common parameters on to ALCT and CLCT processors.
   static std::atomic<bool> config_dumped{false};
 
-  // Some configuration parameters and some details of the emulator
-  // algorithms depend on whether we want to emulate the trigger logic
-  // used in TB/MTCC or its idealized version (the latter was used in MC
-  // studies since early ORCA days until (and including) CMSSW_2_1_X).
-  edm::ParameterSet commonParams =
-    conf.getParameter<edm::ParameterSet>("commonParam");
-  isMTCC = commonParams.getParameter<bool>("isMTCC");
-
-  // Switch for a new (2007) version of the TMB firmware.
-  isTMB07 = commonParams.getParameter<bool>("isTMB07");
+  // Parameters common for all boards
+  edm::ParameterSet commonParams = conf.getParameter<edm::ParameterSet>("commonParam");
 
   // is it (non-upgrade algorithm) run along with upgrade one?
   isSLHC = commonParams.getParameter<bool>("isSLHC");
 
-  // Choose the appropriate set of configuration parameters depending on
-  // isTMB07 and isMTCC flags.
-  // Starting with CMSSW_3_1_X, these settings are overwritten by the
-  // ones delivered by the EventSetup mechanism.
-  edm::ParameterSet alctParams, clctParams;
-  if (isTMB07) {
-    alctParams = conf.getParameter<edm::ParameterSet>("alctParam07");
-    clctParams = conf.getParameter<edm::ParameterSet>("clctParam07");
-  }
-  else if (isMTCC) {
-    alctParams = conf.getParameter<edm::ParameterSet>("alctParamMTCC");
-    clctParams = conf.getParameter<edm::ParameterSet>("clctParamMTCC");
-  }
-  else {
-    alctParams = conf.getParameter<edm::ParameterSet>("alctParamOldMC");
-    clctParams = conf.getParameter<edm::ParameterSet>("clctParamOldMC");
-  }
+  // ALCT and CLCT configs
+  edm::ParameterSet alctParams = conf.getParameter<edm::ParameterSet>("alctParam07");
+  edm::ParameterSet clctParams = conf.getParameter<edm::ParameterSet>("clctParam07");
 
   // Motherboard parameters:
   edm::ParameterSet tmbParams  =  conf.getParameter<edm::ParameterSet>("tmbParam");
@@ -145,6 +123,9 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
 
   clct_to_alct = tmbParams.getParameter<bool>("clctToAlct");
 
+  //add alct clct offset in matching
+  alctClctOffset = commonParams.getParameter<unsigned int>("alctClctOffset");
+
   // whether to readout only the earliest two LCTs in readout window
   readout_earliest_2 = tmbParams.getParameter<bool>("tmbReadoutEarliest2");
 
@@ -170,9 +151,6 @@ CSCMotherboard::CSCMotherboard() :
                    theSubsector(1), theTrigChamber(1) {
   // Constructor used only for testing.  -JM
   static std::atomic<bool> config_dumped{false};
-
-  isMTCC  = false;
-  isTMB07 = true;
 
   early_tbins = 4;
 
@@ -290,64 +268,6 @@ void CSCMotherboard::checkConfigParameters() {
   }
 }
 
-void CSCMotherboard::run(
-			 const std::vector<int> w_times[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES],
-			 const std::vector<int> hs_times[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
-			 const std::vector<int> ds_times[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]) {
-  // Debug version.  -JM
-  clear();
-
-  // set geometry
-  alct->setCSCGeometry(csc_g);
-  clct->setCSCGeometry(csc_g);
-
-  alct->run(w_times);            // run anode LCT
-  clct->run(hs_times, ds_times); // run cathodeLCT
-
-  int bx_alct_matched = 0;
-  for (int bx_clct = 0; bx_clct < CSCConstants::MAX_CLCT_TBINS;
-       bx_clct++) {
-    if (clct->bestCLCT[bx_clct].isValid()) {
-      bool is_matched = false;
-      int bx_alct_start = bx_clct - match_trig_window_size/2;
-      int bx_alct_stop  = bx_clct + match_trig_window_size/2;
-      // Empirical correction to match 2009 collision data (firmware change?)
-      if (!isSLHC) bx_alct_stop += match_trig_window_size%2;
-
-      for (int bx_alct = bx_alct_start; bx_alct <= bx_alct_stop; bx_alct++) {
-        if (bx_alct < 0 || bx_alct >= CSCConstants::MAX_ALCT_TBINS)
-          continue;
-        if (alct->bestALCT[bx_alct].isValid()) {
-          correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
-                        clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct],
-                        CSCCorrelatedLCTDigi::CLCTALCT);
-          is_matched = true;
-          bx_alct_matched = bx_alct;
-          break;
-        }
-      }
-      // No ALCT within the match time interval found: report CLCT-only LCT
-      // (use dummy ALCTs).
-      if (!is_matched) {
-        correlateLCTs(alct->bestALCT[bx_clct], alct->secondALCT[bx_clct],
-                      clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct],
-                      CSCCorrelatedLCTDigi::CLCTONLY);
-      }
-    }
-    // No valid CLCTs; attempt to make ALCT-only LCT (use dummy CLCTs).
-    else {
-      int bx_alct = bx_clct - match_trig_window_size/2;
-      if (bx_alct >= 0 && bx_alct > bx_alct_matched) {
-        if (alct->bestALCT[bx_alct].isValid()) {
-          correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
-                        clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct],
-                        CSCCorrelatedLCTDigi::ALCTONLY);
-        }
-      }
-    }
-  }
-}
-
 void
 CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
                     const CSCComparatorDigiCollection* compdc) {
@@ -387,11 +307,8 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
           // need to access "full BX" words, which are not readily
           // available.
           bool is_matched = false;
-          int bx_alct_start = bx_clct - match_trig_window_size/2;
-          int bx_alct_stop  = bx_clct + match_trig_window_size/2;
-          // Empirical correction to match 2009 collision data (firmware change?)
-          // (but don't do it for SLHC case, assume it would not be there)
-          if (!isSLHC) bx_alct_stop += match_trig_window_size%2;
+          const int bx_alct_start = bx_clct - match_trig_window_size/2 + alctClctOffset;
+          const int bx_alct_stop  = bx_clct + match_trig_window_size/2 + alctClctOffset;
 
           for (int bx_alct = bx_alct_start; bx_alct <= bx_alct_stop; bx_alct++) {
             if (bx_alct < 0 || bx_alct >= CSCConstants::MAX_ALCT_TBINS)
@@ -414,7 +331,7 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
           }
           // No ALCT within the match time interval found: report CLCT-only LCT
           // (use dummy ALCTs).
-          if (!is_matched) {
+          if (!is_matched and clct_trig_enable) {
             if (infoV > 1) LogTrace("CSCMotherboard")
                              << "Unsuccessful ALCT-CLCT match (CLCT only): bx_clct = "
                              << bx_clct << "; match window: [" << bx_alct_start
@@ -431,7 +348,7 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
         else {
           int bx_alct = bx_clct - match_trig_window_size/2;
           if (bx_alct >= 0 && bx_alct > bx_alct_matched) {
-            if (alct->bestALCT[bx_alct].isValid()) {
+            if (alct->bestALCT[bx_alct].isValid() and alct_trig_enable) {
               if (infoV > 1) LogTrace("CSCMotherboard")
                                << "Unsuccessful ALCT-CLCT match (ALCT only): bx_alct = "
                                << bx_alct;
@@ -465,11 +382,8 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
           // need to access "full BX" words, which are not readily
           // available.
           bool is_matched = false;
-          int bx_clct_start = bx_alct - match_trig_window_size/2;
-          int bx_clct_stop  = bx_alct + match_trig_window_size/2;
-          // Empirical correction to match 2009 collision data (firmware change?)
-          // (but don't do it for SLHC case, assume it would not be there)
-          if (!isSLHC) bx_clct_stop += match_trig_window_size%2;
+          const int bx_clct_start = bx_alct - match_trig_window_size/2 - alctClctOffset;
+          const int bx_clct_stop  = bx_alct + match_trig_window_size/2 - alctClctOffset;
 
           for (int bx_clct = bx_clct_start; bx_clct <= bx_clct_stop; bx_clct++) {
             if (bx_clct < 0 || bx_clct >= CSCConstants::MAX_CLCT_TBINS)
@@ -492,7 +406,7 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
           }
           // No CLCT within the match time interval found: report ALCT-only LCT
           // (use dummy CLCTs).
-          if (!is_matched) {
+          if (!is_matched and alct_trig_enable) {
             if (infoV > 1) LogTrace("CSCMotherboard")
                              << "Unsuccessful CLCT-ALCT match (ALCT only): bx_alct = "
                              << bx_alct << "; match window: [" << bx_clct_start
@@ -509,7 +423,7 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
         else {
           int bx_clct = bx_alct - match_trig_window_size/2;
           if (bx_clct >= 0 && bx_clct > bx_clct_matched) {
-            if (clct->bestCLCT[bx_clct].isValid()) {
+            if (clct->bestCLCT[bx_clct].isValid() and clct_trig_enable) {
               if (infoV > 1) LogTrace("CSCMotherboard")
                                << "Unsuccessful CLCT-ALCT match (CLCT only): bx_clct = "
                                << bx_clct;
@@ -724,136 +638,51 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
 unsigned int CSCMotherboard::encodePattern(const int ptn,
                                            const int stripType) const {
   const int kPatternBitWidth = 4;
-  unsigned int pattern;
 
-  if (!isTMB07) {
-    // Cathode pattern number is a kPatternBitWidth-1 bit word.
-    pattern = (abs(ptn) & ((1<<(kPatternBitWidth-1))-1));
-
-    // The pattern has the MSB (4th bit in the default version) set if it
-    // consists of half-strips.
-    if (stripType) {
-      pattern = pattern | (1<<(kPatternBitWidth-1));
-    }
-  }
-  else {
-    // In the TMB07 firmware, LCT pattern is just a 4-bit CLCT pattern.
-    pattern = (abs(ptn) & ((1<<kPatternBitWidth)-1));
-  }
+  // In the TMB07 firmware, LCT pattern is just a 4-bit CLCT pattern.
+  unsigned int pattern = (abs(ptn) & ((1<<kPatternBitWidth)-1));
 
   return pattern;
 }
 
-// 4-bit LCT quality number.  Definition can be found in
-// http://www.phys.ufl.edu/~acosta/tb/tmb_quality.txt.  Made by TMB lookup
-// tables and used for MPC sorting.
+// 4-bit LCT quality number.
 unsigned int CSCMotherboard::findQuality(const CSCALCTDigi& aLCT,
-                                         const CSCCLCTDigi& cLCT) const {
+                                         const CSCCLCTDigi& cLCT) const
+{
   unsigned int quality = 0;
 
-  if (!isTMB07) {
-    bool isDistrip = (cLCT.getStripType() == 0);
-
-    if (aLCT.isValid() && !(cLCT.isValid())) {    // no CLCT
-      if (aLCT.getAccelerator()) {quality =  1;}
-      else                       {quality =  3;}
-    }
-    else if (!(aLCT.isValid()) && cLCT.isValid()) { // no ALCT
-      if (isDistrip)             {quality =  4;}
-      else                       {quality =  5;}
-    }
-    else if (aLCT.isValid() && cLCT.isValid()) { // both ALCT and CLCT
-      if (aLCT.getAccelerator()) {quality =  2;} // accelerator muon
-      else {                                     // collision muon
-        // CLCT quality is, in fact, the number of layers hit, so subtract 3
-        // to get quality analogous to ALCT one.
-        int sumQual = aLCT.getQuality() + (cLCT.getQuality()-3);
-        if (sumQual < 1 || sumQual > 6) {
-          if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongValues")
-            << "+++ findQuality: sumQual = " << sumQual << "+++ \n";
-        }
-        if (isDistrip) { // distrip pattern
-          if (sumQual == 2)      {quality =  6;}
-          else if (sumQual == 3) {quality =  7;}
-          else if (sumQual == 4) {quality =  8;}
-          else if (sumQual == 5) {quality =  9;}
-          else if (sumQual == 6) {quality = 10;}
-        }
-        else {            // halfstrip pattern
-          if (sumQual == 2)      {quality = 11;}
-          else if (sumQual == 3) {quality = 12;}
-          else if (sumQual == 4) {quality = 13;}
-          else if (sumQual == 5) {quality = 14;}
-          else if (sumQual == 6) {quality = 15;}
-        }
-      }
-    }
+  // 2008 definition.
+  if (!(aLCT.isValid()) || !(cLCT.isValid())) {
+    if (aLCT.isValid() && !(cLCT.isValid()))      quality = 1; // no CLCT
+    else if (!(aLCT.isValid()) && cLCT.isValid()) quality = 2; // no ALCT
+    else quality = 0; // both absent; should never happen.
   }
-#ifdef OLD
   else {
-    // Temporary definition, used until July 2008.
-    // First if statement is fictitious, just to help the CSC TF emulator
-    // handle such cases (one needs to make sure they will be accounted for
-    // in the new quality definition.
-    if (!(aLCT.isValid()) || !(cLCT.isValid())) {
-      if (aLCT.isValid() && !(cLCT.isValid()))      quality = 1; // no CLCT
-      else if (!(aLCT.isValid()) && cLCT.isValid()) quality = 2; // no ALCT
-      else quality = 0; // both absent; should never happen.
-    }
+    int pattern = cLCT.getPattern();
+    if (pattern == 1) quality = 3; // layer-trigger in CLCT
     else {
-      // Sum of ALCT and CLCT quality bits.  CLCT quality is, in fact, the
-      // number of layers hit, so subtract 3 to put it to the same footing as
-      // the ALCT quality.
-      int sumQual = aLCT.getQuality() + (cLCT.getQuality()-3);
-      if (sumQual < 1 || sumQual > 6) {
-        if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongValues")
-          << "+++ findQuality: Unexpected sumQual = " << sumQual << "+++\n";
-      }
-
-      // LCT quality is basically the sum of ALCT and CLCT qualities, but split
-      // in two groups depending on the CLCT pattern id (higher quality for
-      // straighter patterns).
-      int offset = 0;
-      if (cLCT.getPattern() <= 7) offset = 4;
-      else                        offset = 9;
-      quality = offset + sumQual;
-    }
-  }
-#endif
-  else {
-    // 2008 definition.
-    if (!(aLCT.isValid()) || !(cLCT.isValid())) {
-      if (aLCT.isValid() && !(cLCT.isValid()))      quality = 1; // no CLCT
-      else if (!(aLCT.isValid()) && cLCT.isValid()) quality = 2; // no ALCT
-      else quality = 0; // both absent; should never happen.
-    }
-    else {
-      int pattern = cLCT.getPattern();
-      if (pattern == 1) quality = 3; // layer-trigger in CLCT
-      else {
-        // CLCT quality is the number of layers hit minus 3.
-        // CLCT quality is the number of layers hit.
-        bool a4 = (aLCT.getQuality() >= 1);
-        bool c4 = (cLCT.getQuality() >= 4);
-        //              quality = 4; "reserved for low-quality muons in future"
-        if      (!a4 && !c4) quality = 5; // marginal anode and cathode
-        else if ( a4 && !c4) quality = 6; // HQ anode, but marginal cathode
-        else if (!a4 &&  c4) quality = 7; // HQ cathode, but marginal anode
-        else if ( a4 &&  c4) {
-          if (aLCT.getAccelerator()) quality = 8; // HQ muon, but accel ALCT
+      // CLCT quality is the number of layers hit minus 3.
+      // CLCT quality is the number of layers hit.
+      bool a4 = (aLCT.getQuality() >= 1);
+      bool c4 = (cLCT.getQuality() >= 4);
+      //              quality = 4; "reserved for low-quality muons in future"
+      if      (!a4 && !c4) quality = 5; // marginal anode and cathode
+      else if ( a4 && !c4) quality = 6; // HQ anode, but marginal cathode
+      else if (!a4 &&  c4) quality = 7; // HQ cathode, but marginal anode
+      else if ( a4 &&  c4) {
+        if (aLCT.getAccelerator()) quality = 8; // HQ muon, but accel ALCT
+        else {
+          // quality =  9; "reserved for HQ muons with future patterns
+          // quality = 10; "reserved for HQ muons with future patterns
+          if (pattern == 2 || pattern == 3)      quality = 11;
+          else if (pattern == 4 || pattern == 5) quality = 12;
+          else if (pattern == 6 || pattern == 7) quality = 13;
+          else if (pattern == 8 || pattern == 9) quality = 14;
+          else if (pattern == 10)                quality = 15;
           else {
-            // quality =  9; "reserved for HQ muons with future patterns
-            // quality = 10; "reserved for HQ muons with future patterns
-            if (pattern == 2 || pattern == 3)      quality = 11;
-            else if (pattern == 4 || pattern == 5) quality = 12;
-            else if (pattern == 6 || pattern == 7) quality = 13;
-            else if (pattern == 8 || pattern == 9) quality = 14;
-            else if (pattern == 10)                quality = 15;
-            else {
-              if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongValues")
-                << "+++ findQuality: Unexpected CLCT pattern id = "
-                << pattern << "+++\n";
-            }
+            if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongValues")
+                              << "+++ findQuality: Unexpected CLCT pattern id = "
+                              << pattern << "+++\n";
           }
         }
       }

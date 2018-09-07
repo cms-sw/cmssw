@@ -25,7 +25,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/RZLine.h"
-#include "CircleFromThreePoints.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/CircleFromThreePoints.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackBuilder.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackErrorParam.h"
 #include "DataFormats/GeometryVector/interface/Pi.h"
@@ -136,7 +136,7 @@ std::unique_ptr<reco::Track> PixelFitterByHelixProjections::run(
   float curvature = circle.curvature();
 
   if ((curvature > 1.e-4)&&
-	(likely(PixelRecoUtilities::fieldInInvGev(*theES)>0.01))) {
+	(LIKELY(PixelRecoUtilities::fieldInInvGev(*theES)>0.01))) {
     float invPt = PixelRecoUtilities::inversePt( circle.curvature(), *theES);
     valPt = (invPt > 1.e-4f) ? 1.f/invPt : 1.e4f;
     CircleFromThreePoints::Vector2D center = circle.center();

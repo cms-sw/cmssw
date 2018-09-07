@@ -69,7 +69,7 @@ private:
 		 int iFirst0, int nWeights, int iSkip0,
                  std::vector<double>& result);
 
-  void computeAllWeights(bool withIntercalib);
+  void computeAllWeights(bool withIntercalib, const edm::EventSetup& es);
   
   int encodeWeight(double w);
 

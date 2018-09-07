@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('CALIB')
@@ -56,8 +57,8 @@ process.SiStripMonitorClusterNew = process.SiStripMonitorCluster.clone()
 process.SiStripMonitorClusterNew.TopFolderName = "ClusterToDigi"
 process.SiStripMonitorClusterNew.ClusterProducerStrip = 'siStripClustersNew'
 
-print process.SiStripMonitorClusterNew.ClusterProducerStrip
-print process.SiStripMonitorCluster.ClusterProducerStrip
+print(process.SiStripMonitorClusterNew.ClusterProducerStrip)
+print(process.SiStripMonitorCluster.ClusterProducerStrip)
 
 process.SiStripMonitorCluster.TH1ClusterWidth.Nbinx          = cms.int32(129)
 process.SiStripMonitorCluster.TH1ClusterWidth.xmax           = cms.double(128.5)

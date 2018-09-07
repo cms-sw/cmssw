@@ -9,3 +9,9 @@ hgcalRecHitStudyFH = hgcalRecHitStudyEE.clone(
 hgcalRecHitStudyBH = hgcalRecHitStudyEE.clone(
     DetectorName  = cms.string("HCal"),
     RecHitSource  = cms.InputTag("HGCalRecHit", "HGCHEBRecHits"))
+
+from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
+
+phase2_hgcalV9.toModify(hgcalRecHitStudyBH,
+    DetectorName  = cms.string("HGCalHEScintillatorSensitive"),
+)

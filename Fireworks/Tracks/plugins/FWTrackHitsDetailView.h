@@ -4,12 +4,13 @@
 // Class  :     FWTrackHitsDetailView
 
 #include "Rtypes.h"
-
+#include "TVector3.h"
 #include "Fireworks/Core/interface/FWDetailViewGL.h"
 #include "Fireworks/Core/interface/CSGActionSupervisor.h"
 
 class TGLEmbeddedViewer;
 class FWIntValueListener;
+class TGSlider;
 namespace reco {
    class Track;
 }

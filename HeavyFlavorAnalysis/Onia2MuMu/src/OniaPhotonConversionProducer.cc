@@ -6,7 +6,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 
-#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
@@ -77,9 +76,10 @@ OniaPhotonConversionProducer:: OniaPhotonConversionProducer(const edm::Parameter
   convAlgo_ = StringToEnumValue<reco::Conversion::ConversionAlgorithm>(algo);
 
   std::vector<std::string> qual = ps.getParameter<std::vector<std::string> >("convQuality"); 
-  if( qual[0] != "" ) convQuality_ =StringToEnumValue<reco::Conversion::ConversionQuality>(qual);
+  if( !qual[0].empty() ) convQuality_ =StringToEnumValue<reco::Conversion::ConversionQuality>(qual);
 
   convSelectionCuts_ = ps.getParameter<std::string>("convSelection");
+  convSelection_ = std::make_unique<StringCutObjectSelector<reco::Conversion>>(convSelectionCuts_);
   produces<pat::CompositeCandidateCollection>("conversions");
 }
 
@@ -98,8 +98,6 @@ void OniaPhotonConversionProducer::produce(edm::Event& event, const edm::EventSe
   event.getByToken(pfCandidateCollectionToken_,pfcandidates);
 
   const reco::PFCandidateCollection pfphotons = selectPFPhotons(*pfcandidates);  
-
-  StringCutObjectSelector<reco::Conversion> *convSelection_ = new StringCutObjectSelector<reco::Conversion>(convSelectionCuts_);
 
   for(reco::ConversionCollection::const_iterator conv = pConv->begin(); conv != pConv->end(); ++conv){
 
@@ -175,8 +173,6 @@ void OniaPhotonConversionProducer::produce(edm::Event& event, const edm::EventSe
      }
   }
   event.put(std::move(patoutCollection),"conversions");
-
-  delete convSelection_;
 }
 
 int OniaPhotonConversionProducer::PackFlags(const reco::Conversion& conv, bool flagTkVtxCompatibility, 

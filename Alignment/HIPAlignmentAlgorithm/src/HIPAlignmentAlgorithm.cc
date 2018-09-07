@@ -491,6 +491,7 @@ bool HIPAlignmentAlgorithm::processHit1D(
   double hitwt
   ){
   static const unsigned int hitDim = 1;
+  if (hitwt==0.) return false;
 
   // get trajectory impact point
   LocalPoint alvec = tsos.localPosition();
@@ -590,6 +591,7 @@ bool HIPAlignmentAlgorithm::processHit2D(
   double hitwt
   ){
   static const unsigned int hitDim = 2;
+  if (hitwt==0.) return false;
 
   // get trajectory impact point
   LocalPoint alvec = tsos.localPosition();
@@ -699,12 +701,6 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 
   TrajectoryStateCombiner tsoscomb;
 
-  m_Ntracks=0;
-  // hit info  
-  m_sinTheta =0;
-  m_angle = 0;
-  m_detId =0;
-  m_hitwt=1;
   m_datatype=theDataGroup;
 
   // loop over tracks  
@@ -752,22 +748,21 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 
     // fill track parameters in root tree
     {
-      m_Nhits.push_back(nhit);
-      m_Pt.push_back(pt);
-      m_P.push_back(p);
-      m_Eta.push_back(eta);
-      m_Phi.push_back(phi);
-      m_Chi2n.push_back(chi2n);
-      m_nhPXB.push_back(nhpxb);
-      m_nhPXF.push_back(nhpxf);
-      m_nhTIB.push_back(nhtib);
-      m_nhTOB.push_back(nhtob);
-      m_nhTID.push_back(nhtid);
-      m_nhTEC.push_back(nhtec);
-      m_d0.push_back(d0);
-      m_dz.push_back(dz);
-      m_wt.push_back(ihitwt);
-      m_Ntracks++;
+      theMonitorConfig.trackmonitorvars.m_Nhits.push_back(nhit);
+      theMonitorConfig.trackmonitorvars.m_Pt.push_back(pt);
+      theMonitorConfig.trackmonitorvars.m_P.push_back(p);
+      theMonitorConfig.trackmonitorvars.m_Eta.push_back(eta);
+      theMonitorConfig.trackmonitorvars.m_Phi.push_back(phi);
+      theMonitorConfig.trackmonitorvars.m_Chi2n.push_back(chi2n);
+      theMonitorConfig.trackmonitorvars.m_nhPXB.push_back(nhpxb);
+      theMonitorConfig.trackmonitorvars.m_nhPXF.push_back(nhpxf);
+      theMonitorConfig.trackmonitorvars.m_nhTIB.push_back(nhtib);
+      theMonitorConfig.trackmonitorvars.m_nhTOB.push_back(nhtob);
+      theMonitorConfig.trackmonitorvars.m_nhTID.push_back(nhtid);
+      theMonitorConfig.trackmonitorvars.m_nhTEC.push_back(nhtec);
+      theMonitorConfig.trackmonitorvars.m_d0.push_back(d0);
+      theMonitorConfig.trackmonitorvars.m_dz.push_back(dz);
+      theMonitorConfig.trackmonitorvars.m_wt.push_back(ihitwt);
     }
 
     std::vector<const TransientTrackingRecHit*> hitvec;
@@ -889,59 +884,56 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
         double mom_z = tsos.localDirection().z();
         double sin_theta = TMath::Abs(mom_z) / sqrt(pow(mom_x, 2)+pow(mom_y, 2)+pow(mom_z, 2));
         double angle = TMath::ASin(sin_theta);
+        double alihitwt=ihitwt;
 
         //Make cut on hit impact angle, reduce collision hits perpendicular to modules
-        if (IsCollision){ if (angle>col_cut)ihitwt=0; }
-        else{ if (angle<cos_cut)ihitwt=0; }
-        m_angle = angle;
-        m_sinTheta = sin_theta;
-        m_detId = ali->id();
+        if (IsCollision){ if (angle>col_cut)alihitwt=0; }
+        else{ if (angle<cos_cut)alihitwt=0; }
+
+        // Fill hit monitor variables
+        theMonitorConfig.hitmonitorvars.m_angle = angle;
+        theMonitorConfig.hitmonitorvars.m_sinTheta = sin_theta;
+        theMonitorConfig.hitmonitorvars.m_detId = ali->id();
 
         // Check pixel XY and Q probabilities
-        m_hasHitProb = false;
-        m_probXY=-1;
-        m_probQ=-1;
-        m_rawQualityWord=9999;
         if ((*ihit)->hit()!=nullptr){
           const SiPixelRecHit* pixhit = dynamic_cast<const SiPixelRecHit*>((*ihit)->hit());
           if (pixhit!=nullptr){
-            m_hasHitProb = pixhit->hasFilledProb();
-            if (m_hasHitProb){
+            theMonitorConfig.hitmonitorvars.m_hasHitProb = pixhit->hasFilledProb();
+            if (theMonitorConfig.hitmonitorvars.m_hasHitProb){
               // Prob X, Y are deprecated
-              m_probXY=pixhit->probabilityXY();
-              m_probQ=pixhit->probabilityQ();
-              m_rawQualityWord=pixhit->rawQualityWord();
+              theMonitorConfig.hitmonitorvars.m_probXY=pixhit->probabilityXY();
+              theMonitorConfig.hitmonitorvars.m_probQ=pixhit->probabilityQ();
+              theMonitorConfig.hitmonitorvars.m_rawQualityWord=pixhit->rawQualityWord();
               if (alispecifics->applyPixelProbCut){
-                bool probXYgood = (m_probXY>=alispecifics->minPixelProbXY && m_probXY<=alispecifics->maxPixelProbXY);
-                bool probQgood = (m_probQ>=alispecifics->minPixelProbQ && m_probQ<=alispecifics->maxPixelProbQ);
+                bool probXYgood = (theMonitorConfig.hitmonitorvars.m_probXY>=alispecifics->minPixelProbXY && theMonitorConfig.hitmonitorvars.m_probXY<=alispecifics->maxPixelProbXY);
+                bool probQgood = (theMonitorConfig.hitmonitorvars.m_probQ>=alispecifics->minPixelProbQ && theMonitorConfig.hitmonitorvars.m_probQ<=alispecifics->maxPixelProbQ);
                 bool probXYQgood;
                 if (alispecifics->usePixelProbXYOrProbQ) probXYQgood = (probXYgood || probQgood);
                 else probXYQgood = (probXYgood && probQgood);
-                if (!probXYQgood) ihitwt=0;
+                if (!probXYQgood) alihitwt=0;
               }
             }
           }
         }
 
-        m_hitwt = ihitwt;
-        if (ihitwt!=0.){
-          bool hitProcessed=false;
-          switch (nhitDim){
-          case 1:
-            hitProcessed=processHit1D(alidet, ali, alispecifics, tsos, *ihit, ihitwt);
-            break;
-          case 2:
-            hitProcessed=processHit2D(alidet, ali, alispecifics, tsos, *ihit, ihitwt);
-            break;
-          default:
-            edm::LogError("HIPAlignmentAlgorithm")
-              << "ERROR in <HIPAlignmentAlgorithm::run>: Number of hit dimensions = "
-              << nhitDim << " is not supported!"
-              << std::endl;
-            break;
-          }
-          if (theMonitorConfig.fillTrackHitMonitoring && theMonitorConfig.checkNhits() && theHitMonitorTree!=nullptr && hitProcessed) theHitMonitorTree->Fill();
+        theMonitorConfig.hitmonitorvars.m_hitwt = alihitwt;
+        bool hitProcessed=false;
+        switch (nhitDim){
+        case 1:
+          hitProcessed=processHit1D(alidet, ali, alispecifics, tsos, *ihit, alihitwt);
+          break;
+        case 2:
+          hitProcessed=processHit2D(alidet, ali, alispecifics, tsos, *ihit, alihitwt);
+          break;
+        default:
+          edm::LogError("HIPAlignmentAlgorithm")
+            << "ERROR in <HIPAlignmentAlgorithm::run>: Number of hit dimensions = "
+            << nhitDim << " is not supported!"
+            << std::endl;
+          break;
         }
+        if (theMonitorConfig.fillTrackHitMonitoring && theMonitorConfig.checkNhits() && hitProcessed) theMonitorConfig.hitmonitorvars.fill();
       }
 
       itsos++;
@@ -950,7 +942,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
   } // end of track loop
 
   // fill eventwise root tree (with prescale defined in pset)
-  if (theMonitorConfig.fillTrackMonitoring && theMonitorConfig.checkNevents() && theTrackMonitorTree!=nullptr) theTrackMonitorTree->Fill();
+  if (theMonitorConfig.fillTrackMonitoring && theMonitorConfig.checkNevents()) theMonitorConfig.trackmonitorvars.fill();
 }
 
 // ----------------------------------------------------------------------------
@@ -1058,37 +1050,17 @@ void HIPAlignmentAlgorithm::bookRoot(void){
       theTrackMonitorTree = new TTree(tname, "Eventwise tree");
       //theTrackMonitorTree->Branch("Run",     &m_Run,     "Run/I");
       //theTrackMonitorTree->Branch("Event",   &m_Event,   "Event/I");
-      theTrackMonitorTree->Branch("Ntracks", &m_Ntracks);
-      theTrackMonitorTree->Branch("Nhits", &m_Nhits);
       theTrackMonitorTree->Branch("DataType", &m_datatype);
-      theTrackMonitorTree->Branch("nhPXB", &m_nhPXB);
-      theTrackMonitorTree->Branch("nhPXF", &m_nhPXF);
-      theTrackMonitorTree->Branch("nhTIB", &m_nhTIB);
-      theTrackMonitorTree->Branch("nhTOB", &m_nhTOB);
-      theTrackMonitorTree->Branch("nhTID", &m_nhTID);
-      theTrackMonitorTree->Branch("nhTEC", &m_nhTEC);
-      theTrackMonitorTree->Branch("Pt", &m_Pt);
-      theTrackMonitorTree->Branch("P", &m_P);
-      theTrackMonitorTree->Branch("Eta", &m_Eta);
-      theTrackMonitorTree->Branch("Phi", &m_Phi);
-      theTrackMonitorTree->Branch("Chi2n", &m_Chi2n);
-      theTrackMonitorTree->Branch("d0", &m_d0);
-      theTrackMonitorTree->Branch("dz", &m_dz);
-      theTrackMonitorTree->Branch("wt", &m_wt);
+      theMonitorConfig.trackmonitorvars.setTree(theTrackMonitorTree);
+      theMonitorConfig.trackmonitorvars.bookBranches();
     }
     // book hit-wise ROOT Tree
     if (theMonitorConfig.fillTrackHitMonitoring){
       TString tname_hit=Form("T1_hit_%i", theIteration);
       theHitMonitorTree = new TTree(tname_hit, "Hitwise tree");
-      theHitMonitorTree->Branch("Id", &m_detId, "Id/i");
       theHitMonitorTree->Branch("DataType", &m_datatype);
-      theHitMonitorTree->Branch("sinTheta", &m_sinTheta);
-      theHitMonitorTree->Branch("impactAngle", &m_angle);
-      theHitMonitorTree->Branch("wt", &m_hitwt);
-      theHitMonitorTree->Branch("probPresent", &m_hasHitProb);
-      theHitMonitorTree->Branch("probXY", &m_probXY);
-      theHitMonitorTree->Branch("probQ", &m_probQ);
-      theHitMonitorTree->Branch("qualityWord", &m_rawQualityWord);
+      theMonitorConfig.hitmonitorvars.setTree(theHitMonitorTree);
+      theMonitorConfig.hitmonitorvars.bookBranches();
     }
   }
 

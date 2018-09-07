@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 
-#include "../interface/CocoaAnalyzer.h"
+#include "Alignment/CocoaApplication/interface/CocoaAnalyzer.h"
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurementInfo.h" 
 #include "CondFormats/DataRecord/interface/OpticalAlignmentsRcd.h" 
 #include "DetectorDescription/Core/interface/DDFilteredView.h"

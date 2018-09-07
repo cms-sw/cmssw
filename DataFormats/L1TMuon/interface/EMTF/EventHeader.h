@@ -15,7 +15,8 @@ namespace l1t {
     EventHeader() : 
       l1a(-99), l1a_BXN(-99), sp_TS(-99), endcap(-99), sector(-99), sp_ersv(-99), sp_addr(-99), 
 	tbin(-99), ddm(-99), spa(-99), rpca(-99), skip(-99), rdy(-99), bsy(-99), osy(-99), 
-	wof(-99), me1a(-99), me1b(-99), me2(-99), me3(-99), me4(-99), format_errors(0), dataword(-99) 
+	wof(-99), me1a(-99), me1b(-99), me2(-99), me3(-99), me4(-99),
+	cppf(-99), cppf_crc(-99), format_errors(0), dataword(-99)
 	{};
       
       virtual ~EventHeader() {};
@@ -41,6 +42,8 @@ namespace l1t {
       void set_me2(int bits)           { me2 = bits;         }
       void set_me3(int bits)           { me3 = bits;         }
       void set_me4(int bits)           { me4 = bits;         }
+      void set_cppf(int bits)          { cppf = bits;        }
+      void set_cppf_crc(int bits)      { cppf_crc = bits;    }
       void add_format_error()          { format_errors += 1; }
       void set_dataword(uint64_t bits) { dataword = bits;    }
       
@@ -65,6 +68,8 @@ namespace l1t {
       int ME2()           const { return me2;           }
       int ME3()           const { return me3;           }
       int ME4()           const { return me4;           }
+      int CPPF()          const { return cppf;          }
+      int CPPF_CRC()      const { return cppf_crc;      }
       int Format_errors() const { return format_errors; }
       uint64_t Dataword() const { return dataword;      }      
       
@@ -90,6 +95,8 @@ namespace l1t {
       int me2; 
       int me3; 
       int me4; 
+      int cppf;
+      int cppf_crc;
       int format_errors;
       uint64_t dataword;
       

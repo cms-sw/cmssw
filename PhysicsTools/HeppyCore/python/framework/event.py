@@ -1,5 +1,6 @@
 import collections
 from ROOT import TChain
+import six
 
 class Event(object):
     '''Event class.
@@ -27,7 +28,7 @@ class Event(object):
         header = '{type}: {iEv}'.format( type=self.__class__.__name__,
                                          iEv = self.iEv)
         varlines = []
-        for var,value in sorted(vars(self).iteritems()):
+        for var,value in sorted(vars(six.iteritems(self))):
             tmp = value
             # check for recursivity
             recursive = False

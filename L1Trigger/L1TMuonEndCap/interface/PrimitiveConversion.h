@@ -41,7 +41,7 @@ public:
       EMTFHit& conv_hit
   ) const;
 
-  void convert_rpc_details(EMTFHit& conv_hit) const;
+  void convert_rpc_details(EMTFHit& conv_hit, const bool use_cppf_lut) const;
 
   // GEM functions
   void convert_gem(
@@ -64,6 +64,8 @@ public:
   int get_bt_station(const EMTFHit& conv_hit, int fw_station, int fw_cscid, int pc_segment) const;
 
   int get_bt_segment(const EMTFHit& conv_hit, int fw_station, int fw_cscid, int pc_segment) const;
+
+  bool is_valid_for_run2(const EMTFHit& conv_hit) const;
 
 
 private:

@@ -104,7 +104,7 @@ namespace cond {
 
     bool drop( const std::string& connectionString, const std::string& userName, const std::string& password );
 
-    bool installAdmin( const std::string& userName, const std::string& password );
+    bool resetAdmin( const std::string& userName, const std::string& password );
 
     bool updatePrincipal( const std::string& principal, const std::string& principalKey, bool setAdmin=false);
 
@@ -152,24 +152,19 @@ namespace cond {
     
     void closeSession( bool commit=true );
 
-    int addUser( const std::string& principalName, const std::string& authenticationKey, const std::string& principalKey, const std::string& adminKey );
-
-    bool setPermission( int principalId, const std::string& principalKey, const std::string& role, const std::string& connectionString, int connectionId, const std::string& connectionKey );
-
-    std::pair<int,std::string> updateConnection( const std::string& connectionLabel, const std::string& userName, const std::string& password, bool forceUpdate );
-
     private:
 
-      std::shared_ptr<coral::IConnection> m_connection;
-      std::shared_ptr<coral::ISession> m_session;
-
-      int m_principalId;
-      std::string m_principalKey;
-
-      std::string m_serviceName;
-      const auth::ServiceCredentials* m_serviceData;
-
-      auth::DecodingKey m_key;
+    std::shared_ptr<coral::IConnection> m_connection;
+    std::shared_ptr<coral::ISession> m_session;
+    
+    int m_principalId;
+    // the key used to encrypt the db credentials accessibles by the owner of the authenticated key.
+    std::string m_principalKey;
+    
+    std::string m_serviceName;
+    const auth::ServiceCredentials* m_serviceData;
+    
+    auth::DecodingKey m_key;
 
   };
 

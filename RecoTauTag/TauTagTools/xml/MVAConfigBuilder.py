@@ -14,6 +14,7 @@ This is total kludge and will be deprecated when
         a. I figure out how you use <xi:include... success full (xml sucks)
         b. Proposed changes to the MVA objects allow classification steering in a single xml file
 """
+from __future__ import print_function
 
 import os
 import glob
@@ -29,7 +30,7 @@ for aFile in filesToConvert:
       os.system("cp %s %s.bak" % (xmlFileName, xmlFileName))
       os.remove(xmlFileName)
 
-   print "Building %s..." % xmlFileName
+   print("Building %s..." % xmlFileName)
    os.system("cat Preamble.xml.fragment >  %s" %         xmlFileName)  
    os.system("cat Inputs.xml.fragment   >> %s" %         xmlFileName)  
    os.system("cat Helpers.xml.fragment  >> %s" %         xmlFileName)  

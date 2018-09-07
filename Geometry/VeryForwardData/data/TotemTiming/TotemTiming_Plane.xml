@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+  <SolidSection label="TotemTiming_Plane.xml">
+    <Box name="Plane" dx="[TotemTiming_Parameters:Plane_dx]/2" dy="[TotemTiming_Parameters:Plane_dy]/2" dz="[TotemTiming_Parameters:Plane_dz]/2"/>
+  </SolidSection>
+
+  <LogicalPartSection label="TotemTiming_Plane.xml">
+    <LogicalPart name="TotemTiming_Plane" category="unspecified">
+      <rSolid name="Plane"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+  </LogicalPartSection>
+
+  <PosPartSection label="TotemTiming_Plane.xml">
+
+    <PosPart copyNumber="0">
+      <rParent name="TotemTiming_Plane"/>
+      <rChild name="TotemTiming_Parameters:UFSD_ch0"/>
+      <Translation x="[TotemTiming_Parameters:ch0_x]" y="[TotemTiming_Parameters:ch0_y]" z="0*mm"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+
+    <PosPart copyNumber="1">
+      <rParent name="TotemTiming_Plane"/>
+      <rChild name="TotemTiming_Parameters:UFSD_ch1"/>
+      <Translation x="[TotemTiming_Parameters:ch1_x]" y="[TotemTiming_Parameters:ch1_y]" z="0*mm"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+
+    <PosPart copyNumber="2">
+      <rParent name="TotemTiming_Plane"/>
+      <rChild name="TotemTiming_Parameters:UFSD_ch2"/>
+      <Translation x="[TotemTiming_Parameters:ch2_x]" y="[TotemTiming_Parameters:ch2_y]" z="0*mm"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+
+    <PosPart copyNumber="3">
+      <rParent name="TotemTiming_Plane"/>
+      <rChild name="TotemTiming_Parameters:UFSD_ch3"/>
+      <Translation x="[TotemTiming_Parameters:ch3_x]" y="[TotemTiming_Parameters:ch3_y]" z="0*mm"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+
+    <PosPart copyNumber="4">
+      <rParent name="TotemTiming_Plane"/>
+      <rChild name="TotemTiming_Parameters:UFSD_ch4"/>
+      <Translation x="[TotemTiming_Parameters:ch4_x]" y="[TotemTiming_Parameters:ch4_y]" z="0*mm"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+
+    <PosPart copyNumber="5">
+      <rParent name="TotemTiming_Plane"/>
+      <rChild name="TotemTiming_Parameters:UFSD_ch5"/>
+      <Translation x="[TotemTiming_Parameters:ch5_x]" y="[TotemTiming_Parameters:ch5_y]" z="0*mm"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+
+    <PosPart copyNumber="6">
+      <rParent name="TotemTiming_Plane"/>
+      <rChild name="TotemTiming_Parameters:UFSD_ch6"/>
+      <Translation x="[TotemTiming_Parameters:ch6_x]" y="[TotemTiming_Parameters:ch6_y]" z="0*mm"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+
+    <PosPart copyNumber="7">
+      <rParent name="TotemTiming_Plane"/>
+      <rChild name="TotemTiming_Parameters:UFSD_ch7"/>
+      <Translation x="[TotemTiming_Parameters:ch7_x]" y="[TotemTiming_Parameters:ch7_y]" z="0*mm"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+
+    <PosPart copyNumber="8">
+      <rParent name="TotemTiming_Plane"/>
+      <rChild name="TotemTiming_Parameters:UFSD_ch8"/>
+      <Translation x="[TotemTiming_Parameters:ch8_x]" y="[TotemTiming_Parameters:ch8_y]" z="0*mm"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+
+    <PosPart copyNumber="9">
+      <rParent name="TotemTiming_Plane"/>
+      <rChild name="TotemTiming_Parameters:UFSD_ch9"/>
+      <Translation x="[TotemTiming_Parameters:ch9_x]" y="[TotemTiming_Parameters:ch9_y]" z="0*mm"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+
+    <PosPart copyNumber="10">
+      <rParent name="TotemTiming_Plane"/>
+      <rChild name="TotemTiming_Parameters:UFSD_ch10"/>
+      <Translation x="[TotemTiming_Parameters:ch10_x]" y="[TotemTiming_Parameters:ch10_y]" z="0*mm"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+
+    <PosPart copyNumber="11">
+      <rParent name="TotemTiming_Plane"/>
+      <rChild name="TotemTiming_Parameters:UFSD_ch11"/>
+      <Translation x="[TotemTiming_Parameters:ch11_x]" y="[TotemTiming_Parameters:ch11_y]" z="0*mm"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+
+  </PosPartSection>
+
+</DDDefinition>

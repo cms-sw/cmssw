@@ -66,8 +66,8 @@ enum {Unknown=0, Plug, Wall, Air, Clay, Rock};
 //Parameters for upward muons from neutrinos
 const double N_A = 6.022e23; //mol^-1
 const double alpha = 2.; //MeV/(g/cm^2)
-const double beta = 3.9e-6; //(g/cm^2)^-1
-const double epsilon = alpha/beta;
+const double beta_const = 3.9e-6; //(g/cm^2)^-1
+const double epsilon = alpha/beta_const;
 const double Rearth = 6370.e6; //mm
 
 //Multi Muon relevant parameters

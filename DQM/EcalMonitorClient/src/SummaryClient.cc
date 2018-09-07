@@ -1,4 +1,4 @@
-#include "../interface/SummaryClient.h"
+#include "DQM/EcalMonitorClient/interface/SummaryClient.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 

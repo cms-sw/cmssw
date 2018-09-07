@@ -56,11 +56,6 @@ void SUSY_HLT_ElecFakes::dqmBeginRun(edm::Run const &run, edm::EventSetup const 
   bookHistos(ibooker_);
 }
 
-void SUSY_HLT_ElecFakes::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-  edm::EventSetup const& context)
-{
-   edm::LogInfo("SUSY_HLT_ElecFakes") << "SUSY_HLT_ElecFakes::beginLuminosityBlock" << std::endl;
-}
 
 
 
@@ -115,10 +110,6 @@ void SUSY_HLT_ElecFakes::analyze(edm::Event const& e, edm::EventSetup const& eSe
 }
 
 
-void SUSY_HLT_ElecFakes::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
-{
-  edm::LogInfo("SUSY_HLT_ElecFakes") << "SUSY_HLT_ElecFakes::endLuminosityBlock" << std::endl;
-}
 
 
 void SUSY_HLT_ElecFakes::endRun(edm::Run const& run, edm::EventSetup const& eSetup)

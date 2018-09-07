@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #curl http://www.gutenberg.org/cache/epub/2701/pg2701.txt > corpus.txt
 
+from __future__ import print_function
 import numpy as np, re, theanets
 
 chars = re.sub(r'\s+', ' ', open('corpus.txt').read().lower())

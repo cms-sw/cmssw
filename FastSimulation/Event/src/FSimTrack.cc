@@ -33,8 +33,8 @@ FSimTrack::FSimTrack(int ipart, const math::XYZTLorentzVector& p, int iv, int ig
   SimTrack(ipart, p, iv, ig, math::XYZVectorD(tkp.X(), tkp.Y(), tkp.Z()),  tkm), vertex_(tkv),
   mom_(nullptr), id_(id), charge_(charge), endv_(-1),
   layer1(0), layer2(0), ecal(0), hcal(0), vfcal(0), hcalexit(0), hoentr(0), prop(false),
-  closestDaughterId_(-1), info_(nullptr), momentum_(tkm),
-  properDecayTime(-1)
+  closestDaughterId_(-1), info_(nullptr), momentum_(p),
+  properDecayTime(-1), isGlobal_(false)
   {
     setTrackId(id);
   }

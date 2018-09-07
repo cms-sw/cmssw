@@ -1,6 +1,8 @@
 #ifndef CONDCORE_ALIGNMENTPLUGINS_ALIGNMENTPAYLOADINSPECTORHELPER_H
 #define CONDCORE_ALIGNMENTPLUGINS_ALIGNMENTPAYLOADINSPECTORHELPER_H
 
+#include <iostream>
+#include <algorithm>
 #include <vector>
 #include <numeric>
 #include <string>
@@ -10,6 +12,7 @@
 #include "TStyle.h"
 #include "TList.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace AlignmentPI {
 

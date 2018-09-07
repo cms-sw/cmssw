@@ -1,3 +1,4 @@
+//#define DO_THROW_UNINITIALIZED
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/KfComponentsHolder.h"
 #include "DataFormats/Math/interface/ProjectMatrix.h"
@@ -6,6 +7,7 @@
 
 
 namespace {
+#if defined(DO_THROW_UNINITIALIZED) || defined(DO_INTERNAL_CHECKS_BTR)
   inline void
   throwExceptionUninitialized(const char *where)
   {
@@ -14,13 +16,13 @@ namespace {
       "If you want to get coarse position/error estimation from disk, please set: ComputeCoarseLocalPositionFromDisk = True \n " <<
       " to the TransientTrackingRecHitBuilder you are using from RecoTracker/TransientTrackingRecHit/python/TTRHBuilders_cff.py";
   }
-  
+#endif
   void obsolete() {
     throw cms::Exception("BaseTrackerRecHit") << "CLHEP is obsolete for Tracker Hits";
   }
 }
 
-#ifdef EDM_LM_DEBUG
+#if !defined(VI_DEBUG) && defined(DO_INTERNAL_CHECKS_BTR)
 void BaseTrackerRecHit::check() const {
   if (!hasPositionAndError()) throwExceptionUninitialized("localPosition or Error");
 }
@@ -38,7 +40,9 @@ bool BaseTrackerRecHit::hasPositionAndError() const {
 void
 BaseTrackerRecHit::getKfComponents1D( KfComponentsHolder & holder ) const 
 {
-  // if (!hasPositionAndError()) throwExceptionUninitialized("getKfComponents");
+#if defined(DO_THROW_UNINITIALIZED)
+  if (!hasPositionAndError()) throwExceptionUninitialized("getKfComponents");
+#endif
   AlgebraicVector1 & pars = holder.params<1>();
   pars[0] = pos_.x(); 
   
@@ -55,7 +59,9 @@ BaseTrackerRecHit::getKfComponents1D( KfComponentsHolder & holder ) const
 void
 BaseTrackerRecHit::getKfComponents2D( KfComponentsHolder & holder ) const 
 {
-  //if (!hasPositionAndError()) throwExceptionUninitialized("getKfComponents");
+#if defined(DO_THROW_UNINITIALIZED)
+  if (!hasPositionAndError()) throwExceptionUninitialized("getKfComponents");
+#endif
    AlgebraicVector2 & pars = holder.params<2>();
    pars[0] = pos_.x(); 
    pars[1] = pos_.y();

@@ -26,40 +26,40 @@ namespace l1t {
 
   class Stage1Layer2JetAlgorithmImpHI : public Stage1Layer2JetAlgorithm {
   public:
-    Stage1Layer2JetAlgorithmImpHI(CaloParamsHelper* params);
-    ~Stage1Layer2JetAlgorithmImpHI() override;
+    Stage1Layer2JetAlgorithmImpHI(CaloParamsHelper const* params);
+    ~Stage1Layer2JetAlgorithmImpHI() override = default;
     void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::CaloEmCand> & EMCands,
 			      std::vector<l1t::Jet> * jets,
 			      std::vector<l1t::Jet> * preGtJets) override;
   private:
-    CaloParamsHelper* const params_;
+    CaloParamsHelper const* const params_;
     //double regionLSB_;
   };
 
   class Stage1Layer2JetAlgorithmImpPP : public Stage1Layer2JetAlgorithm {
   public:
-    Stage1Layer2JetAlgorithmImpPP(CaloParamsHelper* params);
-    ~Stage1Layer2JetAlgorithmImpPP() override;
+    Stage1Layer2JetAlgorithmImpPP(CaloParamsHelper const* params);
+    ~Stage1Layer2JetAlgorithmImpPP() override =default;
     void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::CaloEmCand> & EMCands,
 			      std::vector<l1t::Jet> * jets,
 			      std::vector<l1t::Jet> * preGtJets) override;
   private:
-    CaloParamsHelper* const params_;
+    CaloParamsHelper const* const params_;
     //double regionLSB_;
   };
 
   class Stage1Layer2JetAlgorithmImpSimpleHW : public Stage1Layer2JetAlgorithm {
   public:
-    Stage1Layer2JetAlgorithmImpSimpleHW(CaloParamsHelper* params);
-    ~Stage1Layer2JetAlgorithmImpSimpleHW() override;
+    Stage1Layer2JetAlgorithmImpSimpleHW(CaloParamsHelper const* params);
+    ~Stage1Layer2JetAlgorithmImpSimpleHW() override =default;
     void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::CaloEmCand> & EMCands,
 			      std::vector<l1t::Jet> * jets,
 			      std::vector<l1t::Jet> * preGtJets) override;
   private:
-    CaloParamsHelper* const params_;
+    CaloParamsHelper const* const params_;
     //double regionLSB_;
   };
 }

@@ -23,10 +23,10 @@ namespace l1t {
 
   class Stage1Layer2FirmwareFactory {
   public:
-    typedef std::shared_ptr<Stage1Layer2MainProcessor> ReturnType;
+    typedef std::unique_ptr<Stage1Layer2MainProcessor> ReturnType;
 
     // ReturnType create(const FirmwareVersion & fwv /*,const CaloParamsHelper & dbPars*/);
-    ReturnType create(const int fwv ,CaloParamsHelper* dbPars);
+    ReturnType create(const int fwv ,CaloParamsHelper const* dbPars);
 
     // (Why not make "create" a static member function? You could...
     // But this way allows you to add additional customizations to the

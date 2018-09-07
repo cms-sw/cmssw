@@ -163,5 +163,9 @@ namespace sistrip {
     }
   }
 
+  void RawToDigiModule::endStream()
+  {
+    rawToDigi_->printWarningSummary();
+  }
 }
 

@@ -21,7 +21,7 @@
 
 float EgammaHLTEcalIsolation::isolPtSum(const reco::RecoCandidate* recocandidate, 
 					const std::vector<const reco::SuperCluster*>& sclusters,
-					const std::vector<const reco::BasicCluster*>& bclusters){
+					const std::vector<const reco::BasicCluster*>& bclusters) const {
 
   float ecalIsol=0.;
   

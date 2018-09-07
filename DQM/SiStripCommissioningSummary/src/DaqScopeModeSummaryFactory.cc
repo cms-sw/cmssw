@@ -1,5 +1,5 @@
 #include "DQM/SiStripCommissioningSummary/interface/DaqScopeModeSummaryFactory.h"
-#include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
+#include "CondFormats/SiStripObjects/interface/DaqScopeModeAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
@@ -9,123 +9,152 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
-SummaryHistogramFactory<DaqScopeModeAnalysis>::SummaryHistogramFactory() :
-  mon_(sistrip::UNKNOWN_MONITORABLE),
-  pres_(sistrip::UNKNOWN_PRESENTATION),
-  view_(sistrip::UNKNOWN_VIEW),
-  level_(sistrip::root_),
-  gran_(sistrip::UNKNOWN_GRAN),
-  generator_(nullptr) 
-{;} 
-
-
-// -----------------------------------------------------------------------------
-//
-SummaryHistogramFactory<DaqScopeModeAnalysis>::~SummaryHistogramFactory() {
-  if ( generator_ ) { delete generator_; }
-}
-
-// -----------------------------------------------------------------------------
-//
-void SummaryHistogramFactory<DaqScopeModeAnalysis>::init( const sistrip::Monitorable& mon, 
-							  const sistrip::Presentation& pres,
-							  const sistrip::View& view, 
-							  const std::string& top_level_dir, 
-							  const sistrip::Granularity& gran ) {
-  mon_ = mon;
-  pres_ = pres;
-  view_ = view;
-  level_ = top_level_dir;
-  gran_ = gran;
-
-  // Retrieve utility class used to generate summary histograms
-  if ( generator_ ) { delete generator_; generator_ = nullptr; }
-  generator_ = SummaryGenerator::instance( view );
+void DaqScopeModeSummaryFactory::extract( Iterator iter ) {
   
-}
+  DaqScopeModeAnalysis* anal = dynamic_cast<DaqScopeModeAnalysis*>( iter->second );
+  if ( !anal ) { return; }
+    
+  std::vector<float> temp(128, 1. * sistrip::invalid_ );
+  std::vector< std::vector<float> > value( 2, temp );
+  std::vector< std::vector<float> > peds ( 2, temp );
+  std::vector< std::vector<float> > noise( 2, temp );
+  peds[0]  = anal->peds()[0];
+  peds[1]  = anal->peds()[1];
+  noise[0] = anal->noise()[0];
+  noise[1] = anal->noise()[1];
+  float valueAlt = 1. * sistrip::invalid_;
 
-//------------------------------------------------------------------------------
-//
-uint32_t SummaryHistogramFactory<DaqScopeModeAnalysis>::extract( const std::map<uint32_t,DaqScopeModeAnalysis>& data ) {
-  
-  // Check if data are present
-  if ( data.empty() ) { 
-    edm::LogWarning(mlSummaryPlots_)
-      << "[SummaryHistogramFactory::" << __func__ << "]" 
-      << " No data in monitorables std::map!";
-    return 0; 
+  bool all_strips = false;
+  if ( mon_ == sistrip::PEDESTALS_ALL_STRIPS ) {
+    all_strips = true;
+    uint16_t bins = peds[0].size();
+    if ( peds[0].size() < peds[1].size() ) { bins = peds[1].size(); }
+    for ( uint16_t iped = 0; iped < bins; iped++ ) {
+      value[0][iped] = peds[0][iped]; 
+      value[1][iped] = peds[1][iped];  
+    }
+  } else if ( mon_ == sistrip::PEDESTALS_MEAN ) {
+    value[0][0] = anal->pedsMean()[0];
+    value[1][0] = anal->pedsMean()[1];
+  } else if ( mon_ == sistrip::PEDESTALS_SPREAD ) { 
+    value[0][0] = anal->pedsSpread()[0]; 
+    value[1][0] = anal->pedsSpread()[1]; 
+  } else if ( mon_ == sistrip::PEDESTALS_MAX ) { 
+    value[0][0] = anal->pedsMax()[0]; 
+    value[1][0] = anal->pedsMax()[1];
+  } else if ( mon_ == sistrip::PEDESTALS_MIN ) { 
+    value[0][0] = anal->pedsMin()[0]; 
+    value[1][0] = anal->pedsMin()[1]; 
+  } else if ( mon_ == sistrip::NOISE_ALL_STRIPS ) {
+    all_strips = true;
+    uint16_t bins = noise[0].size();
+    if ( noise[0].size() < noise[1].size() ) { bins = noise[1].size(); }
+    for ( uint16_t inoise = 0; inoise < bins; inoise++ ) {
+      value[0][inoise] = noise[0][inoise]; 
+      value[1][inoise] = noise[1][inoise]; 
+    }
+  } else if ( mon_ == sistrip::NOISE_MEAN ) {
+    value[0][0] = anal->noiseMean()[0];
+    value[1][0] = anal->noiseMean()[1];
+  } else if ( mon_ == sistrip::NOISE_SPREAD ) { 
+    value[0][0] = anal->noiseSpread()[0]; 
+    value[1][0] = anal->noiseSpread()[1]; 
+  } else if ( mon_ == sistrip::NOISE_MAX ) { 
+    value[0][0] = anal->noiseMax()[0]; 
+    value[1][0] = anal->noiseMax()[1]; 
+  } else if ( mon_ == sistrip::NOISE_MIN ) { 
+    value[0][0] = anal->noiseMin()[0]; 
+    value[1][0] = anal->noiseMin()[1]; 
+  } else if ( mon_ == sistrip::NUM_OF_DEAD ) { 
+    value[0][0] = 1. * anal->dead()[0].size(); 
+    value[1][0] = 1. * anal->dead()[1].size();
+  } else if ( mon_ == sistrip::NUM_OF_NOISY ) { 
+    value[0][0] = 1. * anal->noisy()[0].size(); 
+    value[1][0] = 1. * anal->noisy()[1].size();
+  } else if ( mon_ == sistrip::APV_TIMING_BASE ) { 
+    valueAlt = anal->base(); 
+  } else if ( mon_ == sistrip::APV_TIMING_PEAK ) { 
+    valueAlt = anal->peak(); 
+  } else if ( mon_ == sistrip::APV_TIMING_HEIGHT ) { 
+    valueAlt = anal->height(); 
   }
-  
-  // Check if instance of generator class exists
-  if ( !generator_ ) { 
+  else { 
     edm::LogWarning(mlSummaryPlots_)
-      << "[SummaryHistogramFactory::" << __func__ << "]" 
-      << " NULL pointer to SummaryGenerator object!";
-    return 0;
-  }
-  
-  // Transfer appropriate monitorables info to generator object
-  generator_->clearMap();
-  std::map<uint32_t,DaqScopeModeAnalysis>::const_iterator iter = data.begin();
-  for ( ; iter != data.end(); iter++ ) {
-    if ( mon_ == sistrip::DAQ_SCOPE_MODE_MEAN_SIGNAL ) { 
-      generator_->fillMap( level_, gran_, iter->first, iter->second.mean() ); 
-    } else { continue; }
-  }
-  return generator_->size();
-}
-
-//------------------------------------------------------------------------------
-//
-void SummaryHistogramFactory<DaqScopeModeAnalysis>::fill( TH1& summary_histo ) {
-
-  // Check if instance of generator class exists
-  if ( !generator_ ) { 
-    edm::LogWarning(mlSummaryPlots_)
-      << "[SummaryHistogramFactory::" << __func__ << "]" 
-      << " NULL pointer to SummaryGenerator object!";
-    return;
-  }
-
-  // Check if std::map is filled
-  if ( !generator_->size() ) { 
-    edm::LogWarning(mlSummaryPlots_)
-      << "[SummaryHistogramFactory::" << __func__ << "]" 
-      << " No data in the monitorables std::map!";
-    return; 
-  } 
-
-  // Generate appropriate summary histogram 
-  if ( pres_ == sistrip::HISTO_1D ) {
-    generator_->histo1D( summary_histo );
-  } else if ( pres_ == sistrip::HISTO_2D_SUM ) {
-    generator_->histo2DSum( summary_histo );
-  } else if ( pres_ == sistrip::HISTO_2D_SCATTER ) {
-    generator_->histo2DScatter( summary_histo );
-  } else if ( pres_ == sistrip::PROFILE_1D ) {
-    generator_->profile1D( summary_histo );
-  } else { 
-    edm::LogWarning(mlSummaryPlots_)
-      << "[SummaryHistogramFactory::" << __func__ << "]" 
-      << " Unexpected SummaryType value:"
-      << SiStripEnumsAndStrings::presentation( pres_ );
+      << "[SummaryPlotFactory::" << __func__ << "]" 
+      << " Unexpected monitorable: "
+      << SiStripEnumsAndStrings::monitorable( SummaryPlotFactoryBase::mon_ );
     return; 
   }
   
-  // Histogram formatting
-  if ( mon_ == sistrip::DAQ_SCOPE_MODE_MEAN_SIGNAL ) { 
-    generator_->axisLabel( "Mean signal [adc]" );
+  if ( !all_strips ) {
+
+    SummaryPlotFactoryBase::generator_->fillMap( SummaryPlotFactoryBase::level_, 
+						 SummaryPlotFactoryBase::gran_, 
+						 iter->first, 
+						 value[0][0] );
+    
+    SummaryPlotFactoryBase::generator_->fillMap( SummaryPlotFactoryBase::level_, 
+						 SummaryPlotFactoryBase::gran_, 
+						 iter->first, 
+						 value[1][0] );
+
+    SummaryPlotFactoryBase::generator_->fillMap( SummaryPlotFactoryBase::level_, 
+						 SummaryPlotFactoryBase::gran_, 
+						 iter->first, 
+						 valueAlt );
+    
+  } else {
+
+    for ( uint16_t istr = 0; istr < value[0].size(); istr++ ) {
+      SummaryPlotFactoryBase::generator_->fillMap( SummaryPlotFactoryBase::level_, 
+						   SummaryPlotFactoryBase::gran_, 
+						   iter->first, 
+						   value[0][istr] );
+    }
+    
+    for ( uint16_t istr = 0; istr < value[1].size(); istr++ ) {
+      SummaryPlotFactoryBase::generator_->fillMap( SummaryPlotFactoryBase::level_, 
+						   SummaryPlotFactoryBase::gran_, 
+						   iter->first, 
+						   value[1][istr] );
+    }
+
+  }
+
+}
+
+// -----------------------------------------------------------------------------
+//
+void DaqScopeModeSummaryFactory::format() {
+  
+  if ( mon_ == sistrip::PEDESTALS_ALL_STRIPS ) {
+    generator_->axisLabel( "Pedestal value [adc]" );
+  } else if ( mon_ == sistrip::PEDESTALS_MEAN ) {
+  } else if ( mon_ == sistrip::PEDESTALS_SPREAD ) { 
+  } else if ( mon_ == sistrip::PEDESTALS_MAX ) { 
+  } else if ( mon_ == sistrip::PEDESTALS_MIN ) { 
+  } else if ( mon_ == sistrip::NOISE_ALL_STRIPS ) {
+    generator_->axisLabel( "Noise [adc]" );
+  } else if ( mon_ == sistrip::NOISE_MEAN ) {
+  } else if ( mon_ == sistrip::NOISE_SPREAD ) { 
+  } else if ( mon_ == sistrip::NOISE_MAX ) { 
+  } else if ( mon_ == sistrip::NOISE_MIN ) { 
+  } else if ( mon_ == sistrip::NUM_OF_DEAD ) { 
+  } else if ( mon_ == sistrip::NUM_OF_NOISY ) { 
+  }
+  else if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_TIME ) {
+    SummaryPlotFactoryBase::generator_->axisLabel( "Timing delay [ns]" );
+  } else if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_MAX_TIME ) { 
+  } else if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_DELAY ) { 
+  } else if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_ERROR ) { 
+  } else if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_BASE ) { 
+  } else if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_PEAK ) { 
+  } else if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_HEIGHT ) {
   } else { 
     edm::LogWarning(mlSummaryPlots_)
-      << "[SummaryHistogramFactory::" << __func__ << "]" 
+      << "[SummaryPlotFactory::" << __func__ << "]" 
       << " Unexpected SummaryHisto value:"
-      << SiStripEnumsAndStrings::monitorable( mon_ );
+      << SiStripEnumsAndStrings::monitorable( SummaryPlotFactoryBase::mon_ );
   } 
-  generator_->format( sistrip::APV_TIMING, mon_, pres_, view_, level_, gran_, summary_histo );
-  
+
 }
-
-// -----------------------------------------------------------------------------
-//
-template class SummaryHistogramFactory<DaqScopeModeAnalysis>;
-

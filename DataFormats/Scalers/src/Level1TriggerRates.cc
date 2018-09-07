@@ -164,7 +164,8 @@ void Level1TriggerRates::computeRates(Level1TriggerScalers const& t1,
 /// Pretty-print operator for Level1TriggerRates
 std::ostream& operator<<(std::ostream& s, const Level1TriggerRates& c) 
 {
-  char line[128];
+  constexpr size_t kLineBufferSize = 164;
+  char line[kLineBufferSize];
   char zeitHeaven[128];
   struct tm * horaHeaven;
 
@@ -183,82 +184,99 @@ std::ostream& operator<<(std::ostream& s, const Level1TriggerRates& c)
   struct timespec secondsToHeaven = c.collectionTime();
   horaHeaven = gmtime(&secondsToHeaven.tv_sec);
   strftime(zeitHeaven, sizeof(zeitHeaven), "%Y.%m.%d %H:%M:%S", horaHeaven);
-  sprintf(line, " CollectionTime:        %s.%9.9d" , 
-	  zeitHeaven, (int)secondsToHeaven.tv_nsec);
+  snprintf(line, kLineBufferSize, " CollectionTime:        %s.%9.9d" , 
+           zeitHeaven, (int)secondsToHeaven.tv_nsec);
   s << line << std::endl;
   
-  sprintf(line, " GtTriggersRate:                              %22.3f Hz",
-	  c.gtTriggersRate());
+  snprintf(line, kLineBufferSize, 
+           " GtTriggersRate:                              %22.3f Hz",
+           c.gtTriggersRate());
   s << line << std::endl;
   
-  sprintf(line, " GtEventsRate:                                %22.3f Hz",
-	  c.gtEventsRate());
+  snprintf(line, kLineBufferSize,
+           " GtEventsRate:                                %22.3f Hz",
+           c.gtEventsRate());
   s << line << std::endl;
 
   secondsToHeaven = c.collectionTimeLumiSeg();
   horaHeaven = gmtime(&secondsToHeaven.tv_sec);
   strftime(zeitHeaven, sizeof(zeitHeaven), "%Y.%m.%d %H:%M:%S", horaHeaven);
-  sprintf(line, " CollectionTimeLumiSeg: %s.%9.9d" , 
+  snprintf(line, kLineBufferSize, " CollectionTimeLumiSeg: %s.%9.9d" , 
 	  zeitHeaven, (int)secondsToHeaven.tv_nsec);
   s << line << std::endl;
   
-  sprintf(line, " TriggersPhysicsGeneratedFDLRate:             %22.3f Hz",
-	  c.triggersPhysicsGeneratedFDLRate());
+  snprintf(line, kLineBufferSize,
+           " TriggersPhysicsGeneratedFDLRate:             %22.3f Hz",
+           c.triggersPhysicsGeneratedFDLRate());
   s << line << std::endl;
 
-  sprintf(line, " TriggersPhysicsLostRate:                     %22.3f Hz",
-	  c.triggersPhysicsLostRate());
+  snprintf(line, kLineBufferSize,
+           " TriggersPhysicsLostRate:                     %22.3f Hz",
+           c.triggersPhysicsLostRate());
   s << line << std::endl;
 
-  sprintf(line, " TriggersPhysicsLostBeamActiveRate:           %22.3f Hz",
-	  c.triggersPhysicsLostBeamActiveRate());
+  snprintf(line, kLineBufferSize,
+           " TriggersPhysicsLostBeamActiveRate:           %22.3f Hz",
+           c.triggersPhysicsLostBeamActiveRate());
   s << line << std::endl;
 
-  sprintf(line, " TriggersPhysicsLostBeamInactiveRate:         %22.3f Hz",
+  snprintf(line, kLineBufferSize,
+          " TriggersPhysicsLostBeamInactiveRate:         %22.3f Hz",
 	  c.triggersPhysicsLostBeamInactiveRate());
   s << line << std::endl;
 
-  sprintf(line, " L1AsPhysicsRate:                             %22.3f Hz",
+  snprintf(line, kLineBufferSize,
+          " L1AsPhysicsRate:                             %22.3f Hz",
 	  c.l1AsPhysicsRate());
   s << line << std::endl;
 
-  sprintf(line, " L1AsRandomRate:                              %22.3f Hz",
-	  c.l1AsRandomRate());
+  snprintf(line, kLineBufferSize, 
+           " L1AsRandomRate:                              %22.3f Hz",
+           c.l1AsRandomRate());
   s << line << std::endl;
 
-  sprintf(line, " L1AsTestRate:                                %22.3f Hz",
-	  c.l1AsTestRate());
+  snprintf(line, kLineBufferSize,
+           " L1AsTestRate:                                %22.3f Hz",
+           c.l1AsTestRate());
   s << line << std::endl;
 
-  sprintf(line, " L1AsCalibrationRate:                         %22.3f Hz",
-	  c.l1AsCalibrationRate());
+  snprintf(line, kLineBufferSize,
+           " L1AsCalibrationRate:                         %22.3f Hz",
+           c.l1AsCalibrationRate());
   s << line << std::endl;
 
-  sprintf(line, " DeadtimePercent:                             %22.3f %%",
-	  c.deadtimePercent());
+  snprintf(line, kLineBufferSize,
+           " DeadtimePercent:                             %22.3f %%",
+           c.deadtimePercent());
   s << line << std::endl;
 
-  sprintf(line, " DeadtimeBeamActivePercent:                   %22.3f %%",
-	  c.deadtimeBeamActivePercent());
+  snprintf(line, kLineBufferSize,
+           " DeadtimeBeamActivePercent:                   %22.3f %%",
+           c.deadtimeBeamActivePercent());
   s << line << std::endl;
 
-  sprintf(line, " DeadtimeBeamActiveTriggerRulesPercent:       %22.3f %%",
-	  c.deadtimeBeamActiveTriggerRulesPercent());
+  snprintf(line, kLineBufferSize,
+           " DeadtimeBeamActiveTriggerRulesPercent:       %22.3f %%",
+           c.deadtimeBeamActiveTriggerRulesPercent());
   s << line << std::endl;
 
-  sprintf(line, " DeadtimeBeamActiveCalibrationPercent:        %22.3f %%",
-	  c.deadtimeBeamActiveCalibrationPercent());
+  snprintf(line, kLineBufferSize,
+           " DeadtimeBeamActiveCalibrationPercent:        %22.3f %%",
+           c.deadtimeBeamActiveCalibrationPercent());
   s << line << std::endl;
 
-  sprintf(line, " DeadtimeBeamActivePrivateOrbitPercent:       %22.3f %%",
-	  c.deadtimeBeamActivePrivateOrbitPercent());
+  snprintf(line, kLineBufferSize,
+           " DeadtimeBeamActivePrivateOrbitPercent:       %22.3f %%",
+           c.deadtimeBeamActivePrivateOrbitPercent());
   s << line << std::endl;
 
-  sprintf(line, " DeadtimeBeamActivePartitionControllerPercent:%22.3f %%",
-	  c.deadtimeBeamActivePartitionControllerPercent());
+  snprintf(line, kLineBufferSize,
+           " DeadtimeBeamActivePartitionControllerPercent:%22.3f %%",
+           c.deadtimeBeamActivePartitionControllerPercent());
   s << line << std::endl;
 
-  sprintf(line, " DeadtimeBeamActiveTimeSlotPercent:           %22.3f %%",
+  snprintf(line, kLineBufferSize, 
+          " DeadtimeBeamActiveTimeSlotPercent:           %22.3f %%",
 	  c.deadtimeBeamActiveTimeSlotPercent());
   s << line << std::endl;
 
@@ -267,12 +285,12 @@ std::ostream& operator<<(std::ostream& s, const Level1TriggerRates& c)
   int length = gtAlgoCountsRate.size() / 4;
   for ( int i=0; i<length; i++)
   {
-    sprintf(line,
-	    " %3.3d: %12.3f  %3.3d: %12.3f  %3.3d: %12.3f  %3.3d: %12.3f",
-	    i,              gtAlgoCountsRate[i], 
-	    (i+length),     gtAlgoCountsRate[i+length], 
-	    (i+(length*2)), gtAlgoCountsRate[i+(length*2)], 
-	    (i+(length*3)), gtAlgoCountsRate[i+(length*3)]);
+    snprintf(line, kLineBufferSize,
+             " %3.3d: %12.3f  %3.3d: %12.3f  %3.3d: %12.3f  %3.3d: %12.3f",
+             i,              gtAlgoCountsRate[i], 
+             (i+length),     gtAlgoCountsRate[i+length], 
+             (i+(length*2)), gtAlgoCountsRate[i+(length*2)], 
+             (i+(length*3)), gtAlgoCountsRate[i+(length*3)]);
     s << line << std::endl;
   }
 
@@ -281,12 +299,12 @@ std::ostream& operator<<(std::ostream& s, const Level1TriggerRates& c)
   length = gtTechCountsRate.size() / 4;
   for ( int i=0; i<length; i++)
   {
-    sprintf(line,
-	    " %3.3d: %12.3f  %3.3d: %12.3f  %3.3d: %12.3f  %3.3d: %12.3f",
-	    i,              gtTechCountsRate[i], 
-	    (i+length),     gtTechCountsRate[i+length], 
-	    (i+(length*2)), gtTechCountsRate[i+(length*2)], 
-	    (i+(length*3)), gtTechCountsRate[i+(length*3)]);
+    snprintf(line, kLineBufferSize,
+             " %3.3d: %12.3f  %3.3d: %12.3f  %3.3d: %12.3f  %3.3d: %12.3f",
+             i,              gtTechCountsRate[i], 
+             (i+length),     gtTechCountsRate[i+length], 
+             (i+(length*2)), gtTechCountsRate[i+(length*2)], 
+             (i+(length*3)), gtTechCountsRate[i+(length*3)]);
     s << line << std::endl;
   }
   return s;

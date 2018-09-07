@@ -32,7 +32,6 @@ protected:
 
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   //virtual std::vector<int> SortMinBiasBit(std::vector<int>, std::vector<int>);
   virtual std::vector<int> SortMinBiasBit(uint16_t, uint16_t);
   

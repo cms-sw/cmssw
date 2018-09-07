@@ -8,6 +8,7 @@
 #######
 
 #import all what is needed
+from __future__ import print_function
 from histoStyle import *
 #parser options
 from optparse import OptionParser
@@ -40,10 +41,10 @@ parser.add_option("-B", "--Banner", dest="Banner", default=Banner,
 parser.add_option("-n", "--noRatio", dest="doRatio", default=doRatio,
                   action="store_false", help="if True, ratios plots will be created")
 (options, args) = parser.parse_args()
-print "file for validation", options.valPath, "file for reference", options.refPath
-print "Validation release:", options.ValRel, "Reference release:", options.RefRel
-print "Validation sample:", options.ValSample, "Reference sample:", options.RefSample
-print "Options : batch mode ?", options.batch, "draw legend ?", options.drawLegend, "print banner ?", options.printBanner, "banner is ", options.Banner, "make ratio plots ?", options.doRatio
+print("file for validation", options.valPath, "file for reference", options.refPath)
+print("Validation release:", options.ValRel, "Reference release:", options.RefRel)
+print("Validation sample:", options.ValSample, "Reference sample:", options.RefSample)
+print("Options : batch mode ?", options.batch, "draw legend ?", options.drawLegend, "print banner ?", options.printBanner, "banner is ", options.Banner, "make ratio plots ?", options.doRatio)
 #define the input root files                                                                                                                                                                              
 if options.valPath and options.refPath :
     fileVal = TFile(options.valPath,"READ")
@@ -88,12 +89,12 @@ for b in EtaPtBin :
                 if "_B_" in path : 
                     path=path.replace("_B_","_"+f+"_")
                     path=path.replace(b+f,b)
-                print path
+                print(path)
                 #get histos
                 h_Val[f] = fileVal.Get(path)
                 h_Ref[f] = fileRef.Get(path)
                 if not h_Val[f] :
-                    print "ERROR :", path, "not found in the roofiles, please check the spelling or check if this histogram is present in the rootdile"
+                    print("ERROR :", path, "not found in the roofiles, please check the spelling or check if this histogram is present in the rootdile")
                     passH = True
             if passH : continue
             #stop if FlavEffVsBEff_?_discr plot for all the taggers
@@ -111,7 +112,7 @@ for b in EtaPtBin :
                 valHistos[keyHisto]=histoProducer(plot=h,histos=h_Val,keys=listFlavors,isVal=True)
                 refHistos[keyHisto]=histoProducer(plot=h,histos=h_Ref,keys=listFlavors,isVal=False)
             if valHistos[keyHisto] is None or refHistos[keyHisto] is None : continue
-            if len(valHistos[keyHisto])!=len(refHistos[keyHisto]) : print "ERROR"
+            if len(valHistos[keyHisto])!=len(refHistos[keyHisto]) : print("ERROR")
             #compute ratios 
             if options.doRatio :
                 if h.doPerformance:

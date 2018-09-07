@@ -270,10 +270,11 @@ void EfficiencyAnalyzer::analyze(const edm::Event & iEvent,const edm::EventSetup
       h_allProbes_pt->Fill(muon2->pt());
       h_allProbes_eta->Fill(muon2->eta());
       h_allProbes_phi->Fill(muon2->phi());
-      h_allProbes_inner_pt->Fill(muon2->innerTrack()->innerMomentum().Rho());
-      h_allProbes_inner_eta->Fill(muon2->innerTrack()->innerPosition().Eta());
-      h_allProbes_inner_phi->Fill(muon2->innerTrack()->innerPosition().Phi());
-      
+      if(muon2->innerTrack()->extra().isAvailable()) {
+          h_allProbes_inner_pt->Fill(muon2->innerTrack()->innerMomentum().Rho());
+          h_allProbes_inner_eta->Fill(muon2->innerTrack()->innerPosition().Eta());
+          h_allProbes_inner_phi->Fill(muon2->innerTrack()->innerPosition().Phi());
+      }
       if (isMB)               h_allProbes_EB_pt->Fill(muon2->pt());
       if (isME)               h_allProbes_EE_pt->Fill(muon2->pt());
       if(muon2->pt() > 20 ) h_allProbes_hp_eta->Fill(muon2->eta());
@@ -288,9 +289,11 @@ void EfficiencyAnalyzer::analyze(const edm::Event & iEvent,const edm::EventSetup
       h_passProbes_ID_pt->Fill(muon2->pt());
       h_passProbes_ID_eta->Fill(muon2->eta());
       h_passProbes_ID_phi->Fill(muon2->phi());
-      h_passProbes_ID_inner_pt->Fill(muon2->innerTrack()->innerMomentum().Rho());
-      h_passProbes_ID_inner_eta->Fill(muon2->innerTrack()->innerPosition().Eta());
-      h_passProbes_ID_inner_phi->Fill(muon2->innerTrack()->innerPosition().Phi());
+      if(muon2->innerTrack()->extra().isAvailable()) {
+          h_passProbes_ID_inner_pt->Fill(muon2->innerTrack()->innerMomentum().Rho());
+          h_passProbes_ID_inner_eta->Fill(muon2->innerTrack()->innerPosition().Eta());
+          h_passProbes_ID_inner_phi->Fill(muon2->innerTrack()->innerPosition().Phi());
+      } 
       
       if (isMB) h_passProbes_ID_EB_pt->Fill(muon2->pt());
       if (isME) h_passProbes_ID_EE_pt->Fill(muon2->pt());

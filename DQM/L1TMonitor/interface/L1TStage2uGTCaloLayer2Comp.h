@@ -23,7 +23,7 @@
  * collections of jets, e/g, tau and sum objects as they come out of CaloLayer2
  * and are unpacked by uGT. The purpose of the comparisions is to identify
  * issues with the data transmission links or the unpacking process in the uGT
- * FPGA firmare.
+ * FPGA firmare. The module is also used to compare the inputs of all uGT boards.
  *
  * Summary differentiates between different types of errors and errors with
  * different objects in attempt to identify issues with specific links. In the
@@ -100,15 +100,15 @@ class L1TStage2uGTCaloLayer2Comp : public DQMEDAnalyzer {
    * the same positions within the calol2/ugt collections. The number and type
    * of discrepancies are accumulated in different bins of a summary histogram.
    *
-   * @param edm::Handle<l1t::JetBXCollection>& calol2Col Reference to jet
-   *    collection from CaloLayer2
-   * @param edm::Handle<l1t::JetBXCollection>& uGTCol Reference to jet
-   *    collection from uGT
+   * @param edm::Handle<l1t::JetBXCollection>& col1 Reference to jet
+   *    collection 1
+   * @param edm::Handle<l1t::JetBXCollection>& col2 Reference to jet
+   *    collection 2
    *
    * @return bool Flag of whether the agreement was perfect
    */
-  bool compareJets(const edm::Handle<l1t::JetBxCollection> & calol2Col,
-                   const edm::Handle<l1t::JetBxCollection> & uGTCol);
+  bool compareJets(const edm::Handle<l1t::JetBxCollection> & col1,
+                   const edm::Handle<l1t::JetBxCollection> & col2);
 
   /**
    * Encapsulates the code required for performing a comparison of
@@ -120,15 +120,15 @@ class L1TStage2uGTCaloLayer2Comp : public DQMEDAnalyzer {
    * the same positions within the calol2/ugt collections. The number and type
    * of discrepancies are accumulated in different bins of a summary histogram.
    *
-   * @param edm::Handle<l1t::EGammaBXCollection>& calol2Col Reference to e/gamma
-   *    collection from CaloLayer2
-   * @param edm::Handle<l1t::EGammaBXCollection>& uGTCol Reference to e/gamma
-   *    collection from uGT
+   * @param edm::Handle<l1t::EGammaBXCollection>& col1 Reference to e/gamma
+   *    collection 1
+   * @param edm::Handle<l1t::EGammaBXCollection>& col2 Reference to e/gamma
+   *    collection 2
    *
    * @return bool Flag of whether the agreement was perfect
    */
-  bool compareEGs(const edm::Handle<l1t::EGammaBxCollection> & calol2Col,
-                  const edm::Handle<l1t::EGammaBxCollection> & uGTCol);
+  bool compareEGs(const edm::Handle<l1t::EGammaBxCollection> & col1,
+                  const edm::Handle<l1t::EGammaBxCollection> & col2);
 
   /**
    * Encapsulates the code required for performing a comparison of
@@ -139,15 +139,15 @@ class L1TStage2uGTCaloLayer2Comp : public DQMEDAnalyzer {
    * if the size of collections is the same and when so, compares the taus in
    * the same positions within the calol2/ugt collections. The number and type
    *
-   * @param edm::Handle<l1t::TauBXCollection>& calol2Col Reference to tau
-   *    collection from CaloLayer2
-   * @param edm::Handle<l1t::TauBXCollection>& uGTCol Reference to tau
-   *    collection from uGT
+   * @param edm::Handle<l1t::TauBXCollection>& col1 Reference to tau
+   *    collection 1
+   * @param edm::Handle<l1t::TauBXCollection>& col2 Reference to tau
+   *    collection 2
    *
    * @return bool Flag of whether the agreement was perfect
    */
-  bool compareTaus(const edm::Handle<l1t::TauBxCollection> & calol2Col,
-                   const edm::Handle<l1t::TauBxCollection> & uGTCol);
+  bool compareTaus(const edm::Handle<l1t::TauBxCollection> & col1,
+                   const edm::Handle<l1t::TauBxCollection> & col2);
 
   /**
    * Encapsulates the code required for performing a comparison of
@@ -158,29 +158,33 @@ class L1TStage2uGTCaloLayer2Comp : public DQMEDAnalyzer {
    * over the collection and depending of the their type
    * sums are compared separately but all sum errors are accumulated together.
    *
-   * @param edm::Handle<l1t::TauBXCollection>& calol2Col Reference to sum
-   *    collection from CaloLayer2
-   * @param edm::Handle<l1t::TauBXCollection>& uGTCol Reference to sum
-   *    collection from uGT
+   * @param edm::Handle<l1t::TauBXCollection>& col1 Reference to sum
+   *    collection 1
+   * @param edm::Handle<l1t::TauBXCollection>& col2 Reference to sum
+   *    collection 2
    *
    * @return bool Flag of whether the agreement was perfect
    */
-  bool compareSums(const edm::Handle<l1t::EtSumBxCollection> & calol2Col,
-                   const edm::Handle<l1t::EtSumBxCollection> & uGTCol);
+  bool compareSums(const edm::Handle<l1t::EtSumBxCollection> & col1,
+                   const edm::Handle<l1t::EtSumBxCollection> & col2);
 
   // Holds the name of directory in DQM where module hostograms will be shown.
   // Value is taken from python configuration file (passed in class constructor)
   std::string monitorDir;
 
-  // collections to hold entities reconstructed from calol2 and ugt
-  edm::EDGetTokenT<l1t::JetBxCollection> calol2JetCollection;
-  edm::EDGetTokenT<l1t::JetBxCollection> uGTJetCollection;
-  edm::EDGetTokenT<l1t::EGammaBxCollection> calol2EGammaCollection;
-  edm::EDGetTokenT<l1t::EGammaBxCollection> uGTEGammaCollection;
-  edm::EDGetTokenT<l1t::TauBxCollection> calol2TauCollection;
-  edm::EDGetTokenT<l1t::TauBxCollection> uGTTauCollection;
-  edm::EDGetTokenT<l1t::EtSumBxCollection> calol2EtSumCollection;
-  edm::EDGetTokenT<l1t::EtSumBxCollection> uGTEtSumCollection;
+  // names of calol2 or ugt collections that are being compared
+  std::string collection1Title;
+  std::string collection2Title;
+
+  // collections to hold entities reconstructed from calol2 or ugt
+  edm::EDGetTokenT<l1t::JetBxCollection> JetCollection1;
+  edm::EDGetTokenT<l1t::JetBxCollection> JetCollection2;
+  edm::EDGetTokenT<l1t::EGammaBxCollection> EGammaCollection1;
+  edm::EDGetTokenT<l1t::EGammaBxCollection> EGammaCollection2;
+  edm::EDGetTokenT<l1t::TauBxCollection> TauCollection1;
+  edm::EDGetTokenT<l1t::TauBxCollection> TauCollection2;
+  edm::EDGetTokenT<l1t::EtSumBxCollection> EtSumCollection1;
+  edm::EDGetTokenT<l1t::EtSumBxCollection> EtSumCollection2;
 
   enum numeratorBins {
     EVENTBAD = 1,   // number of (no.) bad events (where an error was found)

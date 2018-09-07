@@ -1,0 +1,5 @@
+<use   name="FWCore/PluginManager"/>
+<use   name="vecgeom_interface"/>
+<export>
+  <lib   name="1"/>
+</export>

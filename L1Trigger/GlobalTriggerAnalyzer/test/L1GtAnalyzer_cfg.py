@@ -1,3 +1,4 @@
+from __future__ import print_function
 #
 # cfg file to run the L1 GT test analyzer according to 
 #   the options set in "user choices"
@@ -8,10 +9,10 @@ import sys
 
 process = cms.Process("L1GtAnalyzer")
 
-print '\n'
+print('\n')
 from L1Trigger.GlobalTriggerAnalyzer.UserOptions_cff import *
 if errorUserOptions == True :
-    print '\nError returned by UserOptions_cff. Script stops here.\n'
+    print('\nError returned by UserOptions_cff. Script stops here.\n')
     sys.exit()
 
 

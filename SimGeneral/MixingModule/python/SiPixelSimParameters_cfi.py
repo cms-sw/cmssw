@@ -35,9 +35,13 @@ def _modifyPixelDigitizerForPhase1Pixel( digitizer ) :
     digitizer.ElectronsPerVcal_L1        = cms.double(50)   # L1:   49.6 +- 2.6
     digitizer.ElectronsPerVcal_Offset    = cms.double(-60)  # L2-4: -60 +- 130
     digitizer.ElectronsPerVcal_L1_Offset = cms.double(-670) # L1:   -670 +- 220
+    digitizer.UseReweighting = cms.bool(True)
 
 
 SiPixelSimBlock = cms.PSet(
+    UseReweighting = cms.bool(False),
+    PrintClusters = cms.bool(False),
+    PrintTemplates = cms.bool(False),
     DoPixelAging = cms.bool(False),
     ReadoutNoiseInElec = cms.double(350.0),
     deltaProductionCut = cms.double(0.03),

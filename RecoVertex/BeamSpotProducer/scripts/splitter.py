@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys,os,commands
 from CommonMethods import *
 
@@ -38,8 +39,7 @@ def main():
         fileObjList[runNumber].size += int(output[1].split(' ')[4])
         totalSize += int(output[1].split(' ')[4]) 
 
-    sortedKeys = fileObjList.keys()
-    sortedKeys.sort()
+    sortedKeys = sorted(fileObjList.keys())
 
     split=13
 
@@ -52,7 +52,7 @@ def main():
             newDir = sourceDir + "Run" + str(tmpList[0].run) + "_" + str(tmpList[len(tmpList)-1].run) + "/"
             aCommand  = 'mkdir '+ newDir
             output = commands.getstatusoutput( aCommand )
-            print str(100.*dirSize/totalSize) + "% " + "Run" + str(tmpList[0].run) + "_" + str(tmpList[len(tmpList)-1].run) 
+            print(str(100.*dirSize/totalSize) + "% " + "Run" + str(tmpList[0].run) + "_" + str(tmpList[len(tmpList)-1].run)) 
             for runs in tmpList:
                 #print 'cp '+ sourceDir + runs.fileNames[0] + " " + newDir
                 cp(sourceDir,newDir,runs.fileNames) 
@@ -62,8 +62,8 @@ def main():
 
 
     
-    print totalSize
-    print sortedKeys 
+    print(totalSize)
+    print(sortedKeys) 
     exit("ok")    
 
 
@@ -73,7 +73,7 @@ def main():
 
     if not os.path.isdir(destDir):
         error = "WARNING: destination directory doesn't exist! Creating it..."
-        print error
+        print(error)
         os.mkdir(destDir)
     copiedFiles = cp(sourceDir,destDir,fileList)
 
@@ -96,12 +96,12 @@ def main():
         newFileName = fileName.replace("None",str(runNumber))
         if fileName != newFileName:
             aCmd = "mv " + destDir + fileName + " " + destDir + newFileName
-            print aCmd
+            print(aCmd)
             output =  commands.getstatusoutput(aCmd)
             if output[0] != 0:
-                print output[1]
+                print(output[1])
         else:
-            print "WARNING couldn't find keyword None in file " + fileName
+            print("WARNING couldn't find keyword None in file " + fileName)
 
 
 

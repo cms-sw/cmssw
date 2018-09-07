@@ -70,7 +70,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
   
   auto gemROMap = runCache(iEvent.getRun().index());
   
-  for (unsigned int id=FEDNumbering::MINGEMFEDID; id<=FEDNumbering::MINGEMFEDID; ++id){ 
+  for (unsigned int id=FEDNumbering::MINGEMFEDID; id<=FEDNumbering::MAXGEMFEDID; ++id){ 
     const FEDRawData& fedData = fed_buffers->FEDData(id);
     
     int nWords = fedData.size()/sizeof(uint64_t);
@@ -177,7 +177,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
 	
 	gebData->setChamberTrailer(*(++word));
         if (unPackStatusDigis_){
-          GEMGEBStatusDigi gebStatus(gebData->zeroSup(),
+          GEMGEBStatusDigi gebStatus(gebData->zeroSupWordsCnt(),
                                      gebData->vwh(),
                                      gebData->errorC(),
                                      gebData->ohCRC(),

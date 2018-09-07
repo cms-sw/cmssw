@@ -12,6 +12,8 @@
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalRecHitAbsAlgo.h"
 #include "DataFormats/HGCDigi/interface/HGCDataFrame.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include <iostream>
 
@@ -51,15 +53,18 @@ class HGCalRecHitSimpleAlgo : public HGCalRecHitAbsAlgo {
       layer =  HcalDetId(baseid).depth() + 40;
     } else if ( DetId::Forward == baseid.det() && HGCEE == baseid.subdetId() ) {
       layer = HGCalDetId(baseid).layer();
-    }else if ( DetId::Forward == baseid.det() && HGCHEF == baseid.subdetId() ) {
+    } else if ( DetId::Forward == baseid.det() && HGCHEF == baseid.subdetId() ) {
       layer = HGCalDetId(baseid).layer() + 28;
+    } else if ( DetId::HGCalEE == baseid.det() ) {
+      layer = HGCSiliconDetId(baseid).layer();
+    } else if ( DetId::HGCalHSi == baseid.det() ) {
+      layer = HGCSiliconDetId(baseid).layer() + 28;
+    } else if ( DetId::HGCalHSc == baseid.det() ) {
+      layer = HGCScintillatorDetId(baseid).layer() + 28;
     } else {
       throw cms::Exception("InvalidRecHit")
 	<< "HGCalRecHitSimpleAlgo encountered a non-HGCal det id: " << baseid.det() << ' ' << baseid.subdetId() << ' ' << baseid.rawId();
     }
-
-    HGCalDetId hid(uncalibRH.id());
-
 
     //    float clockToNsConstant = 25;    
     float energy = uncalibRH.amplitude() * weights_[layer] * 0.001f;

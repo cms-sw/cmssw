@@ -59,7 +59,7 @@ class HLTHcalMETNoiseCleaner : public edm::EDFilter {
 
   // helper function to compare noise data energies
   struct noisedatacomp {
-    inline bool operator() ( const CommonHcalNoiseRBXData& t1, const CommonHcalNoiseRBXData& t2) {
+    inline bool operator() ( const CommonHcalNoiseRBXData& t1, const CommonHcalNoiseRBXData& t2) const{
       return t1.energy()>t2.energy();
     }
   };

@@ -60,7 +60,7 @@ HelixArbitraryPlaneCrossing2Order::pathLength(const Plane& plane) {
   //   curvature, forward plane or direction perp. to plane)
   //
   double dS1,dS2;
-  if likely( std::abs(ceq1)>FLT_MIN ) {
+  if LIKELY( std::abs(ceq1)>FLT_MIN ) {
     double deq1 = ceq2*ceq2;
     double deq2 = ceq1*ceq3;
     if ( std::abs(deq1)<FLT_MIN || std::abs(deq2/deq1)>1.e-6 ) {
@@ -68,7 +68,7 @@ HelixArbitraryPlaneCrossing2Order::pathLength(const Plane& plane) {
       // Standard solution for quadratic equations
       //
       double deq = deq1+2*deq2;
-      if unlikely( deq<0. )  return std::pair<bool,double>(false,0);
+      if UNLIKELY( deq<0. )  return std::pair<bool,double>(false,0);
       double ceq =  ceq2+std::copysign(std::sqrt(deq),ceq2);
       dS1 = (ceq/ceq1)*theSinThetaI;
       dS2 = -2.*(ceq3/ceq)*theSinThetaI;

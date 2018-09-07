@@ -21,7 +21,7 @@ if len(options.runList) :
     runlist = LumiList(runs = options.runList)
     lumilist = lumilist & runlist
     if not len(lumilist) :
-        raise RuntimeError, "The resulting LumiList is empty"
+        raise RuntimeError("The resulting LumiList is empty")
 
 process = cms.Process("testRPCCPPF")
 

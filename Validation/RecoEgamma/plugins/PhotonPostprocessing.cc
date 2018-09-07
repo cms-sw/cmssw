@@ -297,11 +297,6 @@ void PhotonPostprocessing::runPostprocessing()
 }
 
 
-void PhotonPostprocessing::endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup)
-{
-
-
-}
 
 
 

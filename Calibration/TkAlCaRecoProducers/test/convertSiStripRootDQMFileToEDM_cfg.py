@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 """ This python cfg converts a plain DQM root file in a EDM file that can be used to run the SiStrip bad channel calibration as done @ Tier0"""
@@ -24,7 +25,7 @@ process.maxEvents = cms.untracked.PSet(
 
 
 runNumber = int(process.fileReader.RootFileName.value().split('/')[-1].split('_')[2].lstrip("R"))
-print "Run number extracted from file name:",runNumber
+print("Run number extracted from file name:",runNumber)
 
 process.source = cms.Source("EmptySource",
                             firstRun = cms.untracked.uint32(runNumber),

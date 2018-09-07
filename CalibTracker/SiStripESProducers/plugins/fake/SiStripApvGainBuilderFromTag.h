@@ -50,7 +50,6 @@ class SiStripApvGainBuilderFromTag : public edm::EDAnalyzer
    */
   void fillSubDetParameter(std::map<int, std::vector<double> > & mapToFill, const std::vector<double> & v, const int subDet, const unsigned short layers) const;
 
-  edm::FileInPath fp_;
   bool printdebug_;
   edm::ParameterSet pset_;
 };

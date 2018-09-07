@@ -15,7 +15,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 
 /*****************************************************************/
-l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::Stage2Layer2ClusterAlgorithmFirmwareImp1(CaloParamsHelper* params, ClusterInput clusterInput) :
+l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::Stage2Layer2ClusterAlgorithmFirmwareImp1(CaloParamsHelper const* params, ClusterInput clusterInput) :
   clusterInput_(clusterInput),
   seedThreshold_(1),
   clusterThreshold_(1),
@@ -209,7 +209,7 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::filtering(const std::vector<
 
   // adapted from jet overlap filtering
 
-  int mask[9][3] = {
+  constexpr int mask[9][3] = {
     { 2,2,2 },
     { 2,2,2 },
     { 2,2,2 },

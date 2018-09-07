@@ -60,7 +60,7 @@ void MuonIDFilterProducerForHLT::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<int>("minPixHits",0);
   desc.add<double>("minPt",0.);           
   desc.add<double>("maxNormalizedChi2",9999.); 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 void MuonIDFilterProducerForHLT::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {

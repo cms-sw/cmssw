@@ -223,9 +223,9 @@ void SiStripBadComponentInfo::fillBadComponentMaps(int xbin,int component,SiStri
   }
   if (BC.BadFibers){ 
     int ntot = std::bitset<16>(BC.BadFibers&0x7).count();
-    float val = (mapBadStrip.find(index)!=mapBadStrip.end()) ? mapBadStrip.at(index) : 0.; 
+    float val = (mapBadFiber.find(index)!=mapBadFiber.end()) ? mapBadFiber.at(index) : 0.; 
     val+= ntot;
-    mapBadStrip[index]=val;
+    mapBadFiber[index]=val;
   }   
 }
 void SiStripBadComponentInfo::createSummary(MonitorElement* me,const std::map<std::pair<int,int>,float >& map) {

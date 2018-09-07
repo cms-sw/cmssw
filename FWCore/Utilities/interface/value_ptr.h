@@ -51,6 +51,7 @@ namespace edm {
   template <typename T>
   struct value_ptr_traits {
     static T* clone(T const* p) { return new T(*p); }
+    static void destroy(T* p) { delete p; }
   };
 
   // --------------------------------------------------------------------
@@ -71,7 +72,7 @@ namespace edm {
 
     value_ptr() : myP(nullptr) { }
     explicit value_ptr(T* p) : myP(p) { }
-    ~value_ptr() { delete myP.get(); }
+    ~value_ptr() { value_ptr_traits<T>::destroy(myP.get()); }
 
     // --------------------------------------------------
     // Copy constructor/copy assignment:

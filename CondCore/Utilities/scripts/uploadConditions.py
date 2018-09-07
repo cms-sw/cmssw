@@ -2,6 +2,7 @@
 '''Script that uploads to the new CMS conditions uploader.
 Adapted to the new infrastructure from v6 of the upload.py script for the DropBox from Miguel Ojeda.
 '''
+from __future__ import print_function
 
 __author__ = 'Andreas Pfeiffer'
 __copyright__ = 'Copyright 2015, CERN CMS'
@@ -101,9 +102,9 @@ def getInputRepeat(prompt = ''):
 
 def runWizard(basename, dataFilename, metadataFilename):
     while True:
-        print '''\nWizard for metadata for %s
+        print('''\nWizard for metadata for %s
 
-I will ask you some questions to fill the metadata file. For some of the questions there are defaults between square brackets (i.e. []), leave empty (i.e. hit Enter) to use them.''' % basename
+I will ask you some questions to fill the metadata file. For some of the questions there are defaults between square brackets (i.e. []), leave empty (i.e. hit Enter) to use them.''' % basename)
 
         # Try to get the available inputTags
         try:
@@ -128,15 +129,15 @@ I will ask you some questions to fill the metadata file. For some of the questio
             inputTags = []
 
         if len(inputTags) == 0:
-            print '\nI could not find any input tag in your data file, but you can still specify one manually.'
+            print('\nI could not find any input tag in your data file, but you can still specify one manually.')
 
             inputTag = getInputRepeat(
                 '\nWhich is the input tag (i.e. the tag to be read from the SQLite data file)?\ne.g. BeamSpotObject_ByRun\ninputTag: ')
 
         else:
-            print '\nI found the following input tags in your SQLite data file:'
+            print('\nI found the following input tags in your SQLite data file:')
             for (index, inputTag) in enumerate(inputTags):
-                print '   %s) %s' % (index, inputTag)
+                print('   %s) %s' % (index, inputTag))
 
             inputTag = getInputChoose(inputTags, '0',
                                       '\nWhich is the input tag (i.e. the tag to be read from the SQLite data file)?\ne.g. 0 (you select the first in the list)\ninputTag [0]: ')
@@ -198,7 +199,7 @@ I will ask you some questions to fill the metadata file. For some of the questio
         }
 
         metadata = json.dumps(metadata, sort_keys=True, indent=4)
-        print '\nThis is the generated metadata:\n%s' % metadata
+        print('\nThis is the generated metadata:\n%s' % metadata)
 
         if getInput('n',
                     '\nIs it fine (i.e. save in %s and *upload* the conditions if this is the latest file)?\nAnswer [n]: ' % metadataFilename).lower() == 'y':
@@ -817,7 +818,7 @@ def re_upload( options ):
         netrcPath = os.path.join( options.authPath,'.netrc' )
     try:
         netrcKey = '%s/%s' %(logDbSrv,logDbSchema)
-        print '#netrc key=%s' %netrcKey
+        print('#netrc key=%s' %netrcKey)
         # Try to find the netrc entry
         (username, account, password) = netrc.netrc( netrcPath ).authenticators( netrcKey )
     except IOError as e:
@@ -886,11 +887,11 @@ def upload(options, arguments):
     results = uploadAllFiles(options, arguments)
 
     if 'status' not in results:
-        print 'Unexpected error.'
+        print('Unexpected error.')
         return -1
     ret = results['status']
-    print results
-    print "upload ended with code: %s" %ret
+    print(results)
+    print("upload ended with code: %s" %ret)
     return ret    
 
 def main():
@@ -967,7 +968,7 @@ def main():
         else:
             return re_upload(options)
     if options.reUpload is not None:
-        print "ERROR: options -r can't be specified on a new file upload."
+        print("ERROR: options -r can't be specified on a new file upload.")
         return -2
 
     return upload(options, arguments)

@@ -11,6 +11,7 @@
 #include "DQM/SiStripCommissioningDbClients/interface/PedsOnlyHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/NoiseHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/PedsFullNoiseHistosUsingDb.h"
+#include "DQM/SiStripCommissioningDbClients/interface/DaqScopeModeHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/LatencyHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/FineDelayHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/CalibrationHistosUsingDb.h"
@@ -109,6 +110,7 @@ void SiStripCommissioningOfflineDbClient::createHistos( const edm::ParameterSet&
             runType_ == sistrip::CALIBRATION_SCAN ||
             runType_ == sistrip::CALIBRATION_SCAN_DECO)
                                                 { histos_ = new CalibrationHistosUsingDb( pset, bei_, db, runType_ ); }
+  else if ( runType_ == sistrip::DAQ_SCOPE_MODE) {histos_ = new DaqScopeModeHistosUsingDb( pset, bei_, db);}
   else if ( runType_ == sistrip::UNDEFINED_RUN_TYPE ) { 
     histos_ = nullptr; 
     edm::LogError(mlDqmClient_)

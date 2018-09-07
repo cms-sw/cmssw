@@ -5,6 +5,8 @@
 #ifndef CSCDCCHeader_h
 #define CSCDCCHeader_h
 
+#include <cstdint>
+#include <cstring>
 #include <string> //for bzero
 #include "DataFormats/CSCDigi/interface/CSCDCCStatusDigi.h"
 
@@ -14,6 +16,10 @@ class CSCDCCHeader {
   CSCDCCHeader(int bx, int l1a, int sourceId, int version=0);
   CSCDCCHeader();
   CSCDCCHeader(const CSCDCCStatusDigi & digi);
+
+  void setFromBuffer(uint16_t const* buf) {
+    memcpy(this, buf, sizeInWords()*2);
+  }
 
   int getCDFEventNumber() const; 
   int getCDFSourceId() const; 

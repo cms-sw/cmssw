@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DTDQM")
@@ -56,7 +57,7 @@ process.dtunpacker.inputLabel = cms.InputTag("rawDataCollector")
 process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataCollector")
 process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
 
-print "Running with run type = ", process.runType.getRunType()
+print("Running with run type = ", process.runType.getRunType())
 
 #----------------------------
 #### pp run settings 
@@ -79,7 +80,6 @@ if (process.runType.getRunType() == process.runType.cosmic_run):
 #----------------------------
 
 if (process.runType.getRunType() == process.runType.hi_run):
-    process.dtunpacker.fedbyType = cms.bool(False)
     process.twinMuxStage2Digis.DTTM7_FED_Source = cms.InputTag("rawDataRepacker")
     process.dtunpacker.inputLabel = cms.InputTag("rawDataRepacker")
     process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataRepacker")

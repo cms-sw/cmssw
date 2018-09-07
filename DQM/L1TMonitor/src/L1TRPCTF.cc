@@ -358,10 +358,6 @@ void L1TRPCTF::beginLuminosityBlock(const edm::LuminosityBlock& l,
 }
 
 
-void L1TRPCTF::endLuminosityBlock(const edm::LuminosityBlock& l, 
-                        const edm::EventSetup& c){
-
-}
 
 void L1TRPCTF::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c){
   

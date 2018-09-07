@@ -90,6 +90,7 @@ private:
   std::vector<std::string>              geometrySource_;
   std::vector<int>                      ietaExcludeBH_;
   bool                                  ifHCAL_;
+  bool                                  ifHCALsim_;
 
   edm::InputTag eeSimHitSource, fhSimHitSource, bhSimHitSource;
   edm::EDGetTokenT<std::vector<PCaloHit>> eeSimHitToken_;
@@ -127,6 +128,7 @@ HGCalHitValidation::HGCalHitValidation(const edm::ParameterSet &cfg) {
   fhRecHitToken_  = consumes<HGChefRecHitCollection>(cfg.getParameter<edm::InputTag>("fhRecHitSource"));
   ietaExcludeBH_  = cfg.getParameter<std::vector<int> >("ietaExcludeBH");
   ifHCAL_         = cfg.getParameter<bool>("ifHCAL");
+  ifHCALsim_      = cfg.getParameter<bool>("ifHCALsim");
   if (ifHCAL_) 
     bhRecHitTokenh_ = consumes<HBHERecHitCollection>(cfg.getParameter<edm::InputTag>("bhRecHitSource"));
   else
@@ -156,7 +158,7 @@ void HGCalHitValidation::bookHistograms(DQMStore::IBooker& iB,
 					edm::Run const&, 
 					edm::EventSetup const&) {
 
-  iB.setCurrentFolder("HGCalSimHitsV/HitValidation");
+  iB.setCurrentFolder("HGCAL/HGCalSimHitsV/HitValidation");
 
   //initiating histograms
   heedzVsZ     = iB.book2D("heedzVsZ","",7200,-360,360,100,-0.1,0.1);
@@ -265,11 +267,11 @@ void HGCalHitValidation::analyze( const edm::Event &iEvent, const edm::EventSetu
 				 << std::get<0>(itr->second) 
 				 << "; Position (" << std::get<1>(itr->second) 
 				 << ", " << std::get<2>(itr->second) <<", " 
-				 << std::get<3>(itr->second) << ")" <<std::endl;
+				 << std::get<3>(itr->second) << ")";
     }
 #endif
   } else {   
-    edm::LogWarning("HGCalValid") << "No EE SimHit Found " << std::endl;
+    edm::LogVerbatim("HGCalValid") << "No EE SimHit Found ";
   }
 
   //Accesing fh simhits
@@ -286,17 +288,18 @@ void HGCalHitValidation::analyze( const edm::Event &iEvent, const edm::EventSetu
 				 << std::get<0>(itr->second) << "; Position (" 
 				 << std::get<1>(itr->second) << ", "
 				 << std::get<2>(itr->second) <<", " 
-				 << std::get<3>(itr->second) << ")" <<std::endl;
+				 << std::get<3>(itr->second) << ")";
     }
 #endif
   } else {
-    edm::LogWarning("HGCalValid") << "No FH SimHit Found " << std::endl;
+    edm::LogVerbatim("HGCalValid") << "No FH SimHit Found ";
   }
 	
   //Accessing bh simhits
   edm::Handle<std::vector<PCaloHit>> bhSimHits;
   iEvent.getByToken(bhSimHitToken_, bhSimHits);
   if (bhSimHits.isValid()) {
+   if(ifHCALsim_){
     for (std::vector<PCaloHit>::const_iterator simHit = bhSimHits->begin();
 	 simHit != bhSimHits->end(); ++simHit) {
       int subdet, z, depth, eta, phi, lay;
@@ -326,6 +329,10 @@ void HGCalHitValidation::analyze( const edm::Event &iEvent, const edm::EventSetu
 	}
       }
     }
+   }
+   else {
+    analyzeHGCalSimHit(bhSimHits, 2, hebEnSim, bhHitRefs);
+   }
 #ifdef EDM_ML_DEBUG
     for (std::map<unsigned int,HGCHitTuple>::iterator itr=bhHitRefs.begin();
 	 itr != bhHitRefs.end(); ++itr) {
@@ -335,11 +342,11 @@ void HGCalHitValidation::analyze( const edm::Event &iEvent, const edm::EventSetu
 				 << std::get<0>(itr->second) << "; Position (" 
 				 << std::get<1>(itr->second) << ", "
 				 << std::get<2>(itr->second) <<", " 
-				 << std::get<3>(itr->second) << ")" <<std::endl;
+				 << std::get<3>(itr->second) << ")";
     }
 #endif
   } else {
-    edm::LogWarning("HGCalValid") << "No BH SimHit Found " << std::endl;
+    edm::LogVerbatim("HGCalValid") << "No BH SimHit Found ";
   }
 
   //accessing EE Rechit information
@@ -368,12 +375,12 @@ void HGCalHitValidation::analyze( const edm::Event &iEvent, const edm::EventSetu
 				   << std::get<2>(itr->second) << ", " 
 				   << std::get<3>(itr->second) << ") Rec (" 
 				   << energy << ", "  << xyz.x() << ", " 
-				   << xyz.y() << ", " << xyz.z() << ")\n";
+				   << xyz.y() << ", " << xyz.z() << ")";
 #endif
       }
     }
   } else {
-    edm::LogWarning("HGCalValid") << "No EE RecHit Found " << std::endl;
+    edm::LogVerbatim("HGCalValid") << "No EE RecHit Found ";
   }
 
   //accessing FH Rechit information
@@ -403,12 +410,12 @@ void HGCalHitValidation::analyze( const edm::Event &iEvent, const edm::EventSetu
 				   << std::get<2>(itr->second) << ", " 
 				   << std::get<3>(itr->second) << ") Rec (" 
 				   << energy << "," << xyz.x() << ", " 
-				   << xyz.y() << ", " << xyz.z() << ")\n";
+				   << xyz.y() << ", " << xyz.z() << ")";
 #endif
       }
     }
   } else {
-    edm::LogWarning("HGCalValid") << "No FH RecHit Found " << std::endl;
+    edm::LogVerbatim("HGCalValid") << "No FH RecHit Found ";
   }
 
 
@@ -420,7 +427,7 @@ void HGCalHitValidation::analyze( const edm::Event &iEvent, const edm::EventSetu
       const HBHERecHitCollection* theHits = (bhRecHit.product());
       analyzeHGCalRecHit(theHits, bhHitRefs);
     } else {
-      edm::LogWarning("HGCalValid") << "No BH RecHit Found " << std::endl;
+      edm::LogVerbatim("HGCalValid") << "No BH RecHit Found ";
     }
   } else {
     edm::Handle<HGChebRecHitCollection> bhRecHit;
@@ -429,7 +436,7 @@ void HGCalHitValidation::analyze( const edm::Event &iEvent, const edm::EventSetu
       const HGChebRecHitCollection* theHits = (bhRecHit.product());
       analyzeHGCalRecHit(theHits, bhHitRefs);
     } else {
-      edm::LogWarning("HGCalValid") << "No BH RecHit Found " << std::endl;
+      edm::LogVerbatim("HGCalValid") << "No BH RecHit Found ";
     }
   }
 }
@@ -473,7 +480,7 @@ void HGCalHitValidation::analyzeHGCalRecHit(T1 const & theHits,
 					    std::map<unsigned int, HGCHitTuple> const& hitRefs) {
   for (auto it = theHits->begin(); it!=theHits->end(); ++it) {
     DetId id = it->id();
-    if (id.subdetId() == (int)(HcalEndcap)) {
+    if (id.det() == DetId::Hcal and id.subdetId() == (int)(HcalEndcap)) {
       double energy = it->energy();
       hebEnRec->Fill(energy);
       GlobalPoint xyz = hcGeometry_->getGeometry(id)->getPosition();

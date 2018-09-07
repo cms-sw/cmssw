@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include "TLorentzVector.h"
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -41,7 +42,7 @@
 #include "DQMOffline/Trigger/plugins/METDQM.h"
 #include "DQMOffline/Trigger/plugins/JetDQM.h"
 #include "DQMOffline/Trigger/plugins/HTDQM.h"
-
+#include "DQMOffline/Trigger/plugins/HMesonGammaDQM.h"
 
 
 class GenericTriggerEventFlag;
@@ -88,6 +89,7 @@ private:
   edm::EDGetTokenT<reco::GsfElectronCollection> eleToken_;
   edm::EDGetTokenT<reco::MuonCollection>        muoToken_;
   edm::EDGetTokenT<reco::PhotonCollection>      phoToken_;
+  edm::EDGetTokenT<reco::TrackCollection>       trkToken_;
 
   //objects to plot
   //add your own with corresponding switch
@@ -97,6 +99,8 @@ private:
   JetDQM jetDQM_;
   bool do_ht_;
   HTDQM htDQM_;
+  bool do_hmg_;
+  HMesonGammaDQM hmgDQM_;
 
 
   std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
@@ -109,10 +113,13 @@ private:
   StringCutObjectSelector<reco::GsfElectron,true> eleSelection_;
   StringCutObjectSelector<reco::Muon,true>        muoSelection_;
   StringCutObjectSelector<reco::Photon,true>      phoSelection_;
+  StringCutObjectSelector<reco::Track,true>       trkSelection_;
+
   unsigned njets_;
   unsigned nelectrons_;
   unsigned nmuons_;
   unsigned nphotons_;
+  unsigned nmesons_;
 
 };
 

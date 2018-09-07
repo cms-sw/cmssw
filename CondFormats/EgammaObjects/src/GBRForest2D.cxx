@@ -1,4 +1,4 @@
-#include "../interface/GBRForest2D.h"
+#include "CondFormats/EgammaObjects/interface/GBRForest2D.h"
 //#include <iostream>
 #include "TMVA/DecisionTree.h"
 #include "TMVA/MethodBDT.h"

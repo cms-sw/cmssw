@@ -186,7 +186,7 @@ class JoinCaloTowerRefVectorsWithoutDuplicates
 
   // helper function to compare calotower references
   struct twrrefcomp {
-    inline bool operator() ( const edm::Ref<CaloTowerCollection> & t1, const edm::Ref<CaloTowerCollection> & t2 ) {
+    inline bool operator() ( const edm::Ref<CaloTowerCollection> & t1, const edm::Ref<CaloTowerCollection> & t2 ) const{
       return t1->id() < t2->id();
     }
   };

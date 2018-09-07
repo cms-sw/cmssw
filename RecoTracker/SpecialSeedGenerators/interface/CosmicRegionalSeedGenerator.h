@@ -19,7 +19,7 @@
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
-#include "../interface/CosmicTrackingRegion.h"
+#include "RecoTracker/SpecialSeedGenerators/interface/CosmicTrackingRegion.h"
 
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "FWCore/Common/interface/TriggerNames.h"

@@ -1,8 +1,10 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import optparse
 import re
 from pprint import pprint
+import six
 
 commentRE = re.compile (r'#.*$')
 
@@ -68,12 +70,12 @@ if __name__ == "__main__":
         else:
             countDict[num] += 1
 
-    print "total", int(total), "\ncounts:"
+    print("total", int(total), "\ncounts:")
     pprint (countDict, width=1)
-    print "normalized:"
+    print("normalized:")
 
     renormDict = {}
-    for key, count in countDict.iteritems():
+    for key, count in six.iteritems(countDict):
         renormDict[key] = count / total
     pprint (renormDict)
     

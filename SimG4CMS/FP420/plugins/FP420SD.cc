@@ -24,6 +24,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimG4Core/Notification/interface/TrackInformation.h"
+#include "SimG4Core/Notification/interface/SimTrackManager.h"
 
 #include "G4Track.hh"
 #include "G4SDManager.hh"

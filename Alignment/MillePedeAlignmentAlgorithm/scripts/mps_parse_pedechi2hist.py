@@ -15,6 +15,7 @@
 #
 # Use createChi2ndfplot.C to plot the output of this script.
 
+from __future__ import print_function
 import os
 import sys
 import re
@@ -51,7 +52,7 @@ def main(argv = None):
 
     for input_file in (args.mps_db, args.his_file, args.cfg):
         if not os.path.exists(input_file):
-            print "Could not find input file:", input_file
+            print("Could not find input file:", input_file)
             sys.exit(1)
 
     ids, names = get_all_ids_names(args.mps_db)
@@ -59,10 +60,10 @@ def main(argv = None):
     his_data = get_his_data(args.his_file)
 
     if len(his_data) != len(used_binaries):
-        print "The number of used binaries is", len(used_binaries),
-        print "whereas in contrast, however, the <chi2/ndf> histogram in Pede has",
-        print len(his_data), "bins (Pede version >= rev92 might help if #bins < #binaries).",
-        print "Exiting."
+        print("The number of used binaries is", len(used_binaries), end=' ')
+        print("whereas in contrast, however, the <chi2/ndf> histogram in Pede has", end=' ')
+        print(len(his_data), "bins (Pede version >= rev92 might help if #bins < #binaries).", end=' ')
+        print("Exiting.")
         sys.exit(1)
 
     with open("chi2pedehis.txt", "w") as f:

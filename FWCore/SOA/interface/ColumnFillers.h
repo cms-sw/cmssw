@@ -36,6 +36,7 @@
 // user include files
 
 // forward declarations
+#include <tuple>
 
 namespace edm {
 namespace soa {
@@ -45,44 +46,26 @@ namespace soa {
     using Layout = std::tuple<Args...>;
     Layout m_fillers;
     
-    template<int I, typename ELEMENT, typename RET>
-    auto callFiller(ELEMENT&& iEl, RET*, std::true_type) -> decltype(std::get<I>(m_fillers).m_f(iEl)) {
+    template<int I, typename ELEMENT>
+    decltype(auto) callFiller(ELEMENT&& iEl) {
       return std::get<I>(m_fillers).m_f(iEl);
     }
     
-    template<int I, typename ELEMENT, typename RET>
-    RET callFiller(ELEMENT&& iEl, RET*, std::false_type) {
-      return RET{};
-    }
-    
-    template<int I, typename ELEMENT, typename COLUMN>
-    typename COLUMN::type tryValue(ELEMENT&& iEl, COLUMN*, std::true_type, std::true_type) {
-      using Pair = typename std::tuple_element<I,Layout>::type;
-      using COL = typename Pair::Column_type;
-      if(std::is_same<COL,COLUMN>::value) {
-        return callFiller<I>(iEl,
-                             static_cast<typename COLUMN::type*>(nullptr),
-                             std::conditional_t<std::is_same<COL,COLUMN>::value,
-                             std::true_type, std::false_type>{});
+    template<int I, typename COLUMN, typename ELEMENT>
+    typename COLUMN::type tryValue(ELEMENT&& iEl) {
+      if constexpr( I < sizeof...(Args)) {
+        using Pair = typename std::tuple_element<I,Layout>::type;
+        using COL = typename Pair::Column_type;
+        if constexpr(std::is_same<COL,COLUMN>::value) {
+          return callFiller<I>(iEl);
+        } else {
+          //try another filler to see if it matches
+          return tryValue<I+1,COLUMN>(iEl);
+        }
+      } else {
+        //no matches so call overload function
+        return value_for_column(iEl,static_cast<COLUMN*>(nullptr));
       }
-      return tryValue<I+1>(iEl, static_cast<COLUMN*>(nullptr),
-                           std::conditional_t<I+1 == sizeof...(Args),
-                           std::false_type, std::true_type>{},
-                           std::conditional_t<std::is_same<COL,COLUMN>::value,
-                           std::false_type, std::true_type>{});
-    }
-    
-    template<int I, typename ELEMENT, typename COLUMN>
-    typename COLUMN::type tryValue(ELEMENT&& iEl, COLUMN*, std::false_type, std::true_type) {
-      return value_for_column(iEl,static_cast<COLUMN*>(nullptr));
-    }
-    template<int I, typename ELEMENT, typename COLUMN>
-    typename COLUMN::type tryValue(ELEMENT&& iEl, COLUMN*, std::true_type, std::false_type) {
-      return typename COLUMN::type{};
-    }
-    template<int I, typename ELEMENT, typename COLUMN>
-    typename COLUMN::type tryValue(ELEMENT&& iEl, COLUMN*, std::false_type, std::false_type) {
-      return typename COLUMN::type{};
     }
     
   public:
@@ -90,7 +73,7 @@ namespace soa {
     
     template<typename ELEMENT, typename COLUMN>
     typename COLUMN::type value(ELEMENT&& iEl, COLUMN*) {
-      return tryValue<0>(iEl, static_cast<COLUMN*>(nullptr), std::true_type{},std::true_type{});
+      return tryValue<0,COLUMN>(iEl);
     }
   };
 

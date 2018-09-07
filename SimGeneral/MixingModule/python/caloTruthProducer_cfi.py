@@ -8,6 +8,7 @@ caloParticles = cms.PSet(
 #	alwaysAddAncestors = cms.bool(True),
         MinEnergy = cms.double(0.5),
         MaxPseudoRapidity = cms.double(5.0),
+        premixStage1 = cms.bool(False),
 	maximumPreviousBunchCrossing = cms.uint32(0),
 	maximumSubsequentBunchCrossing = cms.uint32(0),
 	simHitCollections = cms.PSet(
@@ -27,8 +28,18 @@ caloParticles = cms.PSet(
 	simVertexCollection = cms.InputTag('g4SimHits'),
 	genParticleCollection = cms.InputTag('genParticles'),
 	allowDifferentSimHitProcesses = cms.bool(False), # should be True for FastSim, False for FullSim
-	HepMCProductLabel = cms.InputTag('generatorSmeared')
+	HepMCProductLabel = cms.InputTag('generatorSmeared'),
+)
+
+from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
+premix_stage1.toModify(caloParticles, premixStage1 = True)
+
+from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
+phase2_hgcalV9.toModify(
+    caloParticles,
+    simHitCollections = dict(hgc = {2 : cms.InputTag('g4SimHits','HGCHitsHEback')} ),
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(caloParticles, cms.PSet()) # don't allow this to run in fastsim
+

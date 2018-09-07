@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import os, sys, optparse, math
 
 copyargs = sys.argv[:]
@@ -258,7 +259,7 @@ if options.inputInBlocks: inputInBlocks = "--inputInBlocks"
 json_file = options.json
 
 if validationLabel == '':
-  print "\nOne or more of REQUIRED options is missing!\n"
+  print("\nOne or more of REQUIRED options is missing!\n")
   parser.print_help()
   sys.exit()
 
@@ -269,12 +270,12 @@ njobs = options.subjobs
 if (options.inputInBlocks):
   njobs = len(fileNamesBlocks)
   if njobs==0:
-    print "while --inputInBlocks is specified, the INPUTFILES has no blocks!"
+    print("while --inputInBlocks is specified, the INPUTFILES has no blocks!")
     sys.exit()
 
 stepsize = int(math.ceil(1.*len(fileNames)/njobs))
 
-pwd = str(os.getcwdu())
+pwd = str(os.getcwd())
 
 bsubfile = ["#!/bin/sh", ""]
 bsubnames = []
@@ -285,10 +286,10 @@ last_align = None
 INITIALXML = INITIALGEOM + '.xml'
 if INITIALGEOM[-3:]=='.db':
   INITIALXML = INITIALGEOM[:-3] + '.xml'
-print "Converting",INITIALGEOM,"to",INITIALXML," ...will be done in several seconds..."
+print("Converting",INITIALGEOM,"to",INITIALXML," ...will be done in several seconds...")
 exit_code = os.system("./Alignment/MuonAlignmentAlgorithms/scripts/convertSQLiteXML.py  %s %s" % (INITIALGEOM,INITIALXML))
 if exit_code>0:
-  print "problem: conversion exited with code:", exit_code
+  print("problem: conversion exited with code:", exit_code)
   sys.exit()
 
 

@@ -13,6 +13,7 @@
 #
 ################################################################################
 
+from __future__ import print_function
 htaccess_content="""
 RewriteEngine on
 
@@ -38,7 +39,7 @@ from sys import argv,exit
 argc=len(argv)
 
 if argc!=2:
-  print "Usage: %prog directoryname"
+  print("Usage: %prog directoryname")
   exit(-1)
 
 directory =  argv[1]
@@ -46,25 +47,25 @@ directory =  argv[1]
 while directory[-1]=="/": directory= directory[:-1]
 
 if not exists(directory):
-  print "Directory %s does not exist: aborting!"%directory
+  print("Directory %s does not exist: aborting!"%directory)
   exit(-1)  
 
-print "Moving pkls away..."
+print("Moving pkls away...")
 pkl_dir="%s_pkls" %directory
 system("mkdir %s" %pkl_dir)
 system("mv %s/*pkl %s" %(directory,pkl_dir))
-print "All pkls moved in directory %s" %pkl_dir
+print("All pkls moved in directory %s" %pkl_dir)
 
-print "Backupping directory %s" %directory
+print("Backupping directory %s" %directory)
 system("cp -r %s %s_back"%(directory,directory)) # i know, it should be better..
-print "Backupped!"
+print("Backupped!")
 
-print "Gzipping content of %s" %directory
+print("Gzipping content of %s" %directory)
 system("time gzip -r -S gz %s"%directory) # i know, it should be better..
-print "Content of %s zipped!" %directory
+print("Content of %s zipped!" %directory)
 
-print "Adding .htaccess file..."
+print("Adding .htaccess file...")
 htaccess=open("%s/.htaccess"%directory,"w")
 htaccess.write(htaccess_content)
 htaccess.close()
-print "Apache .htaccess file successfully added!"
+print("Apache .htaccess file successfully added!")

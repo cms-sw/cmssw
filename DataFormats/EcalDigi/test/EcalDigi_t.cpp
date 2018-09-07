@@ -47,18 +47,6 @@ TestEcalDigi<DigiCollection>::TestEcalDigi() : sv(10){
   std::copy(v,v+10,sv.begin());
 } 
 
-namespace {
-
-  inline void check_ctor(EBDigiCollection const& digis) {
-    CPPUNIT_ASSERT(digis.subdetId()==EcalBarrel);
-  }
-  inline void check_ctor(EEDigiCollection const& digis) {
-    CPPUNIT_ASSERT(digis.subdetId()==EcalEndcap);
-  }
-
-
-}
-
 
 template<typename DigiCollection>
 void TestEcalDigi<DigiCollection>::default_ctor() {
@@ -142,7 +130,7 @@ namespace {
 
   void verifyBarrelId(edm::DataFrame::id_type id) {
     try {
-      EBDetId detid(DetId(id));
+      EBDetId detid{DetId(id)};
     } catch(...) {
       bool NotBarrelID=false;
       CPPUNIT_ASSERT(NotBarrelID);

@@ -20,7 +20,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -34,25 +34,25 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class EgammaHLTHcalIsolationDoubleConeProducers : public edm::EDProducer {
+class EgammaHLTHcalIsolationDoubleConeProducers : public edm::global::EDProducer<> {
 public:
   explicit EgammaHLTHcalIsolationDoubleConeProducers(const edm::ParameterSet&);
   ~EgammaHLTHcalIsolationDoubleConeProducers() override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
 
-  edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
-  edm::EDGetTokenT<HBHERecHitCollection> hbRecHitProducer_;
-  edm::EDGetTokenT<HFRecHitCollection> hfRecHitProducer_;
+  const edm::ParameterSet conf_;
 
-  double egHcalIsoPtMin_;
-  double egHcalIsoConeSize_;
-  double egHcalExclusion_;
+  const edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
+  const edm::EDGetTokenT<HBHERecHitCollection> hbRecHitProducer_;
+  const edm::EDGetTokenT<HFRecHitCollection> hfRecHitProducer_;
 
-  edm::ParameterSet conf_;
+  const double egHcalIsoPtMin_;
+  const double egHcalIsoConeSize_;
+  const double egHcalExclusion_;
   
-  EgammaHLTHcalIsolationDoubleCone* test_;
+  EgammaHLTHcalIsolationDoubleCone const * const test_;
 };
 

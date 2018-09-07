@@ -12,6 +12,7 @@
   <use name="Geometry/RPCGeometry"/>
   <use name="Geometry/Records"/>
   <use name="CondFormats/DataRecord"/>
+  <use name="SimGeneral/PreMixingModule"/>
 
   <flags EDM_PLUGIN="1"/>
 </library>

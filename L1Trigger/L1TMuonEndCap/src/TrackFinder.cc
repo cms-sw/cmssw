@@ -1,6 +1,4 @@
 #include "L1Trigger/L1TMuonEndCap/interface/TrackFinder.h"
-#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine2016.h"
-#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine2017.h"
 
 #include <iostream>
 #include <sstream>
@@ -17,12 +15,25 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
     config_(iConfig),
     tokenCSC_(iConsumes.consumes<CSCTag::digi_collection>(iConfig.getParameter<edm::InputTag>("CSCInput"))),
     tokenRPC_(iConsumes.consumes<RPCTag::digi_collection>(iConfig.getParameter<edm::InputTag>("RPCInput"))),
+    tokenCPPF_(iConsumes.consumes<CPPFTag::digi_collection>(iConfig.getParameter<edm::InputTag>("CPPFInput"))),
     tokenGEM_(iConsumes.consumes<GEMTag::digi_collection>(iConfig.getParameter<edm::InputTag>("GEMInput"))),
     verbose_(iConfig.getUntrackedParameter<int>("verbosity")),
+    primConvLUT_(iConfig.getParameter<edm::ParameterSet>("spPCParams16").getParameter<int>("PrimConvLUT")),
+    fwConfig_(iConfig.getParameter<bool>("FWConfig")),
     useCSC_(iConfig.getParameter<bool>("CSCEnable")),
     useRPC_(iConfig.getParameter<bool>("RPCEnable")),
-    useGEM_(iConfig.getParameter<bool>("GEMEnable"))
+    useCPPF_(iConfig.getParameter<bool>("CPPFEnable")),
+    useGEM_(iConfig.getParameter<bool>("GEMEnable")),
+    era_(iConfig.getParameter<std::string>("Era"))
 {
+
+  if (era_ == "Run2_2016") {
+    pt_assign_engine_.reset(new PtAssignmentEngine2016());
+  } else if (era_ == "Run2_2017" || era_ == "Run2_2018") {
+    pt_assign_engine_.reset(new PtAssignmentEngine2017());
+  } else {
+    edm::LogError("L1T") << "era_ = " << era_; return;
+  }
 
   auto minBX       = iConfig.getParameter<int>("MinBX");
   auto maxBX       = iConfig.getParameter<int>("MaxBX");
@@ -47,10 +58,12 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
 
   const auto& spTBParams16 = config_.getParameter<edm::ParameterSet>("spTBParams16");
   auto thetaWindow        = spTBParams16.getParameter<int>("ThetaWindow");
-  auto thetaWindowRPC     = spTBParams16.getParameter<int>("ThetaWindowRPC");
+  auto thetaWindowZone0   = spTBParams16.getParameter<int>("ThetaWindowZone0");
   auto useSingleHits      = spTBParams16.getParameter<bool>("UseSingleHits");
   auto bugSt2PhDiff       = spTBParams16.getParameter<bool>("BugSt2PhDiff");
   auto bugME11Dupes       = spTBParams16.getParameter<bool>("BugME11Dupes");
+  auto bugAmbigThetaWin   = spTBParams16.getParameter<bool>("BugAmbigThetaWin");
+  auto twoStationSameBX   = spTBParams16.getParameter<bool>("TwoStationSameBX");
 
   const auto& spGCParams16 = config_.getParameter<edm::ParameterSet>("spGCParams16");
   auto maxRoadsPerZone    = spGCParams16.getParameter<int>("MaxRoadsPerZone");
@@ -59,7 +72,6 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
   auto bugSameSectorPt0   = spGCParams16.getParameter<bool>("BugSameSectorPt0");
 
   const auto& spPAParams16 = config_.getParameter<edm::ParameterSet>("spPAParams16");
-  auto ptLUTVersion       = spPAParams16.getParameter<int>("PtLUTVersion");
   auto readPtLUTFile      = spPAParams16.getParameter<bool>("ReadPtLUTFile");
   auto fixMode15HighPt    = spPAParams16.getParameter<bool>("FixMode15HighPt");
   auto bug9BitDPhi        = spPAParams16.getParameter<bool>("Bug9BitDPhi");
@@ -67,13 +79,7 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
   auto bugNegPt           = spPAParams16.getParameter<bool>("BugNegPt");
   auto bugGMTPhi          = spPAParams16.getParameter<bool>("BugGMTPhi");
   auto promoteMode7       = spPAParams16.getParameter<bool>("PromoteMode7");
-
-  pt_assign_engine_2016_.reset(new PtAssignmentEngine2016());
-  pt_assign_engine_2017_.reset(new PtAssignmentEngine2017());
-
-  fw_version_     = 999999;
-  pt_lut_version_ = 888888;
-  pc_lut_version_ = 777777;
+  auto modeQualVer        = spPAParams16.getParameter<int>("ModeQualVer");
 
   // Configure sector processors
   for (int endcap = emtf::MIN_ENDCAP; endcap <= emtf::MAX_ENDCAP; ++endcap) {
@@ -84,15 +90,16 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
           &geometry_translator_,
           &condition_helper_,
           &sector_processor_lut_,
-          &pt_assign_engine_,
+          pt_assign_engine_.get(),
           verbose_, endcap, sector,
           minBX, maxBX, bxWindow, bxShiftCSC, bxShiftRPC, bxShiftGEM,
+          era_,
           zoneBoundaries, zoneOverlap,
           includeNeighbor, duplicateTheta, fixZonePhi, useNewZones, fixME11Edges,
           pattDefinitions, symPattDefinitions, useSymPatterns,
-          thetaWindow, thetaWindowRPC, useSingleHits, bugSt2PhDiff, bugME11Dupes,
+          thetaWindow, thetaWindowZone0, useRPC_, useSingleHits, bugSt2PhDiff, bugME11Dupes, bugAmbigThetaWin, twoStationSameBX,
           maxRoadsPerZone, maxTracks, useSecondEarliest, bugSameSectorPt0,
-          ptLUTVersion, readPtLUTFile, fixMode15HighPt, bug9BitDPhi, bugMode7CLCT, bugNegPt, bugGMTPhi, promoteMode7
+          readPtLUTFile, fixMode15HighPt, bug9BitDPhi, bugMode7CLCT, bugNegPt, bugGMTPhi, promoteMode7, modeQualVer
       );
     }
   }
@@ -116,41 +123,8 @@ void TrackFinder::process(
   // Get the geometry for TP conversions
   geometry_translator_.checkAndUpdateGeometry(iSetup);
 
-  // ___________________________________________________________________________
-  // Get the conditions: firmware version, PC LUT version, pT BDT forests
-  bool new_conditions = condition_helper_.checkAndUpdateConditions(iEvent, iSetup);
-  // std::cout << "\nDo we have new conditions? Yes (1) or no (0)? -- " << new_conditions << std::endl;
-  // std::cout << "  * Before updating conditions, fw_version_ = " << fw_version_ << ", pt_lut_version_ = " << pt_lut_version_ << ", pc_lut_version_ = " << pc_lut_version_ << std::endl;
-
-  if (new_conditions) {
-
-    fw_version_ = condition_helper_.get_fw_version();
-    // No RPC or GEM hits in 2016
-    if (fw_version_ != 0 && fw_version_ < 50000) {
-      useRPC_ = false;
-      useGEM_ = false;
-    }
-
-    pt_lut_version_ = condition_helper_.get_pt_lut_version();
-    pc_lut_version_ = condition_helper_.get_pc_lut_version();
-
-    // Reload primitive conversion LUTs if necessary
-    // std::cout << "Configured with pc_lut_version_ = " << pc_lut_version_ << std::endl;
-    sector_processor_lut_.read( pc_lut_version_ );
-
-    // std::cout << "Configured with pt_lut_version_ = " << pt_lut_version_ << std::endl;
-    if ( pt_lut_version_ <= 5 ) {
-      pt_assign_engine_ = pt_assign_engine_2016_.get();
-      pt_assign_engine_->set_ptLUTVersion( pt_lut_version_ );
-    } else {
-      pt_assign_engine_ = pt_assign_engine_2017_.get();
-      pt_assign_engine_->set_ptLUTVersion( pt_lut_version_ );
-    }
-    // Reload pT LUT if necessary
-    pt_assign_engine_->load( &(condition_helper_.getForest()) );
-  }
-
-  // std::cout << "  * After changes, fw_version_ = " << fw_version_ << ", pt_lut_version_ = " << pt_lut_version_ << ", pc_lut_version_ = " << pc_lut_version_ << std::endl;
+  // Get the conditions, primarily the firmware version and the BDT forests
+  condition_helper_.checkAndUpdateConditions(iEvent, iSetup);
 
   // ___________________________________________________________________________
   // Extract all trigger primitives
@@ -160,7 +134,9 @@ void TrackFinder::process(
   EMTFSubsystemCollector collector;
   if (useCSC_)
     collector.extractPrimitives(CSCTag(), iEvent, tokenCSC_, muon_primitives);
-  if (useRPC_)
+  if (useRPC_ && useCPPF_)
+    collector.extractPrimitives(CPPFTag(), iEvent, tokenCPPF_, muon_primitives);
+  else if (useRPC_)
     collector.extractPrimitives(RPCTag(), iEvent, tokenRPC_, muon_primitives);
   if (useGEM_)
     collector.extractPrimitives(GEMTag(), iEvent, tokenGEM_, muon_primitives);
@@ -176,17 +152,20 @@ void TrackFinder::process(
   // ___________________________________________________________________________
   // Run each sector processor
 
+  // Reload primitive conversion LUTs if necessary
+  sector_processor_lut_.read(fwConfig_ ? condition_helper_.get_pc_lut_version() : primConvLUT_);
+
+  // Reload pT LUT if necessary
+  pt_assign_engine_->load(condition_helper_.get_pt_lut_version(), &(condition_helper_.getForest()));
+
   // MIN/MAX ENDCAP and TRIGSECTOR set in interface/Common.h
   for (int endcap = emtf::MIN_ENDCAP; endcap <= emtf::MAX_ENDCAP; ++endcap) {
     for (int sector = emtf::MIN_TRIGSECTOR; sector <= emtf::MAX_TRIGSECTOR; ++sector) {
       const int es = (endcap - emtf::MIN_ENDCAP) * (emtf::MAX_TRIGSECTOR - emtf::MIN_TRIGSECTOR + 1) + (sector - emtf::MIN_TRIGSECTOR);
 
       // Run-dependent configure. This overwrites many of the configurables passed by the python config file.
-      if (new_conditions) {
-	if (iEvent.isRealData()) {
-	  sector_processors_.at(es).configure_by_fw_version( fw_version_ );
-	}
-	sector_processors_.at(es).set_pt_lut_version( pt_lut_version_ );
+      if (iEvent.isRealData() && fwConfig_) {
+        sector_processors_.at(es).configure_by_fw_version(condition_helper_.get_fw_version());
       }
 
       // Process
@@ -205,6 +184,10 @@ void TrackFinder::process(
   // for comparison with the firmware simulator.
 
   if (verbose_ > 0) {  // debug
+    std::cout << "Run number: " << iEvent.id().run() << " pc_lut_ver: " << condition_helper_.get_pc_lut_version()
+        << " pt_lut_ver: " << condition_helper_.get_pt_lut_version() << ", " << pt_assign_engine_->get_pt_lut_version()
+        << " fw_ver: " << condition_helper_.get_fw_version()
+        << std::endl;
 
     for (int endcap = emtf::MIN_ENDCAP; endcap <= emtf::MAX_ENDCAP; ++endcap) {
       for (int sector = emtf::MIN_TRIGSECTOR; sector <= emtf::MAX_TRIGSECTOR; ++sector) {
@@ -244,7 +227,7 @@ void TrackFinder::process(
 
             } else if (h.Subsystem() == TriggerPrimitive::kRPC) {
               if (h.Sector_idx() != es)  continue;
-              if (h.BX()+5 != ibx)  continue;  // RPC hits should be supplied 5 BX later relative to CSC hits
+              if (h.BX()+6 != ibx)  continue;  // RPC hits should be supplied 6 BX later relative to CSC hits
 
               // Assign RPC link index. Code taken from src/PrimitiveSelection.cc
               int rpc_sub = -1;

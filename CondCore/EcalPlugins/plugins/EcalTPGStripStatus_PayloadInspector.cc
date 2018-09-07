@@ -49,20 +49,20 @@ namespace {
 	  for(int ST = 0; ST < NStrip; ST++)
 	    NbrawEE[TCC][TT][ST] = 0;
       while ( ! f.eof()) {
-	int ix, iy, iz, CL;
-	int dccid, towerid, pseudostrip_in_SC, xtal_in_pseudostrip;
-	int tccid, tower, pseudostrip_in_TCC, pseudostrip_in_TT;
-	f >> ix >> iy >> iz >> CL >> dccid >> towerid >> pseudostrip_in_SC >> xtal_in_pseudostrip 
-	  >> tccid >> tower >> pseudostrip_in_TCC >> pseudostrip_in_TT ;
-	EEDetId detid(ix,iy,iz,EEDetId::XYMODE);
-	uint32_t rawId = detid.denseIndex();
-	if(tccid > NTCC || tower > NTower || pseudostrip_in_TT > NStrip || xtal_in_pseudostrip > NXtal)
-	  std::cout << " tccid " << tccid <<  " tower " << tower << " pseudostrip_in_TT "<< pseudostrip_in_TT
-		    <<" xtal_in_pseudostrip " << xtal_in_pseudostrip << std::endl;
-	else {
-	  rawEE[tccid - 1][tower - 1][pseudostrip_in_TT - 1][xtal_in_pseudostrip - 1] = rawId;
-	  NbrawEE[tccid - 1][tower - 1][pseudostrip_in_TT - 1]++;
-	}
+		int ix, iy, iz, CL;
+		int dccid, towerid, pseudostrip_in_SC, xtal_in_pseudostrip;
+		int tccid, tower, pseudostrip_in_TCC, pseudostrip_in_TT;
+		f >> ix >> iy >> iz >> CL >> dccid >> towerid >> pseudostrip_in_SC >> xtal_in_pseudostrip 
+		  >> tccid >> tower >> pseudostrip_in_TCC >> pseudostrip_in_TT ;
+		EEDetId detid(ix,iy,iz,EEDetId::XYMODE);
+		uint32_t rawId = detid.denseIndex();
+		if(tccid > NTCC || tower > NTower || pseudostrip_in_TT > NStrip || xtal_in_pseudostrip > NXtal)
+		  std::cout << " tccid " << tccid <<  " tower " << tower << " pseudostrip_in_TT "<< pseudostrip_in_TT
+			    <<" xtal_in_pseudostrip " << xtal_in_pseudostrip << std::endl;
+		else {
+		  rawEE[tccid - 1][tower - 1][pseudostrip_in_TT - 1][xtal_in_pseudostrip - 1] = rawId;
+		  NbrawEE[tccid - 1][tower - 1][pseudostrip_in_TT - 1]++;
+		}
       }   // read EEMap file
       f.close();
       double wei[2] = {0., 0.};
@@ -98,12 +98,12 @@ namespace {
 	      if(iz == -1) iz++;
 	      if(Xtal == 0) wei[iz] += 1.;
 	      if(iz == 0) {
-		endc_m->Fill(x + 0.5, y + 0.5, wei[iz]);
-		EEstat[0]++;
+			endc_m->Fill(x + 0.5, y + 0.5, wei[iz]);
+			EEstat[0]++;
 	      }
 	      else {
-		endc_p->Fill(x + 0.5, y + 0.5, wei[iz]);
-		EEstat[1]++;
+			endc_p->Fill(x + 0.5, y + 0.5, wei[iz]);
+			EEstat[1]++;
 	      }
 	      //	      std::cout << " x " << x << " y " << y << " z " << iz << std::endl;
 	    }
@@ -353,10 +353,86 @@ namespace {
     }// fill method
   };
 
+
+
+/*****************************************
+ 2d plot of EcalTPGStripStatus Error Summary of 1 IOV
+ ******************************************/
+class EcalTPGStripStatusSummaryPlot: public cond::payloadInspector::PlotImage<EcalTPGStripStatus> {
+public:
+  EcalTPGStripStatusSummaryPlot() :
+      cond::payloadInspector::PlotImage<EcalTPGStripStatus>("Ecal TPGStrip Status Summary - map ") {
+    setSingleIov(true);
+  }
+
+  bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs)override {
+
+    auto iov = iovs.front(); //get reference to 1st element in the vector iovs
+    std::shared_ptr < EcalTPGStripStatus > payload = fetchPayload(std::get < 1 > (iov)); //std::get<1>(iov) refers to the Hash in the tuple iov
+    unsigned int run = std::get < 0 > (iov);  //referes to Time_t in iov.
+    TH2F* align;  //pointer to align which is a 2D histogram
+
+    int NbRows=1;
+    int NbColumns=2;
+
+    if (payload.get()) { //payload is an iov retrieved from payload using hash.
+    const EcalTPGStripStatusMap &stripMap=(*payload).getMap();
+	
+
+     align =new TH2F("Ecal TPGStrip Status Summary","Total                NumberOfMasked",
+     	NbColumns, 0, NbColumns, NbRows, 0, NbRows);
+	
+	int NbMaskedTT = 0;
+
+     
+    for(EcalTPGStripStatusMapIterator it = stripMap.begin(); it != stripMap.end(); ++it)
+    	if((*it).second>0)
+    		NbMaskedTT++;
+
+    align->Fill(0.5, 0.5, stripMap.size());
+    align->Fill(1.5, 0.5, NbMaskedTT);
+      
+    }   // if payload.get()
+    else
+      return false;
+
+    gStyle->SetPalette(1);
+    gStyle->SetOptStat(0);
+    TCanvas canvas("CC map", "CC map", 1000, 1000);
+    TLatex t1;
+    t1.SetNDC();
+    t1.SetTextAlign(26);
+    t1.SetTextSize(0.04);
+    t1.SetTextColor(2);
+    t1.DrawLatex(0.5, 0.96,Form("Endcap:Number of masked Trigger Strips, IOV %i", run));
+
+
+    TPad* pad = new TPad("pad", "pad", 0.0, 0.0, 1.0, 0.94);
+    pad->Draw();
+    pad->cd();
+    align->Draw("TEXT");
+
+    drawTable(NbRows, NbColumns);
+
+    align->GetXaxis()->SetTickLength(0.);
+    align->GetXaxis()->SetLabelSize(0.);
+    align->GetYaxis()->SetTickLength(0.);
+    align->GetYaxis()->SetLabelSize(0.);
+
+    std::string ImageName(m_imageFileName);
+    canvas.SaveAs(ImageName.c_str());
+    return true;
+  }      // fill method
+
+};
+
+
+
 } // close namespace
 
 // Register the classes as boost python plugin
 PAYLOAD_INSPECTOR_MODULE(EcalTPGStripStatus){
   PAYLOAD_INSPECTOR_CLASS(EcalTPGStripStatusPlot);
   PAYLOAD_INSPECTOR_CLASS(EcalTPGStripStatusDiff);
+  PAYLOAD_INSPECTOR_CLASS(EcalTPGStripStatusSummaryPlot);
 }

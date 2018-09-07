@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys
 
 from Configuration.PyReleaseValidation.MatrixReader import MatrixReader
@@ -24,14 +25,14 @@ def runSelected(opt):
     ret = 0
     if opt.show:
         mrd.show(opt.testList, opt.extended, opt.cafVeto)
-        if opt.testList : print 'testListected items:', opt.testList
+        if opt.testList : print('testListected items:', opt.testList)
     else:
         mRunnerHi = MatrixRunner(mrd.workFlows, opt.nProcs, opt.nThreads)
         ret = mRunnerHi.runTests(opt)
 
     if opt.wmcontrol:
         if ret!=0:
-            print 'Cannot go on with wmagent injection with failing workflows'
+            print('Cannot go on with wmagent injection with failing workflows')
         else:
             wfInjector = MatrixInjector(opt,mode=opt.wmcontrol,options=opt.wmoptions)
             ret= wfInjector.prepare(mrd,
@@ -53,24 +54,32 @@ if __name__ == '__main__':
                      25, #MC ttbar
                      4.22, #cosmic data
                      4.53, #run1 data + miniAOD
+                     9.0, #Higgs200 charged taus
                      1000, #data+prompt
                      1001, #data+express
+                     101.0, #SingleElectron120E120EHCAL
                      136.731, #2016B Photon data
                      136.7611, #2016E JetHT reMINIAOD from 80X legacy
                      136.8311, #2017F JetHT reMINIAOD from 94X reprocessing
                      136.788, #2017B Photon data
+                     136.85, #2018A Egamma data
                      140.53, #2011 HI data
                      150.0, #2018 HI MC
+                     158.0, #2018 HI MC with pp-like reco
+                     1306.0, #SingleMu Pt1 UP15
                      1325.7, #test NanoAOD from existing MINI
                      1330, #Run2 MC Zmm
                      135.4, #Run 2 Zee ttbar
                      10042.0, #2017 ZMM
                      10024.0, #2017 ttbar
+                     10224.0, #2017 ttbar PU
                      10824.0, #2018 ttbar
                      11624.0, #2019 ttbar
                      20034.0, #2023D17 ttbar (TDR baseline Muon/Barrel)
                      20434.0, #2023D19 to exercise timing layer
                      21234.0, #2023D21 ttbar (Inner Tracker with lower radii than in TDR)
+                     25202.0, #2016 ttbar UP15 PU
+                     250202.181, #2018 ttbar stage1 + stage2 premix
                      ],
         'jetmc': [5.1, 13, 15, 25, 38, 39], #MC
         'metmc' : [5.1, 15, 25, 37, 38, 39], #MC
@@ -261,8 +270,8 @@ if __name__ == '__main__':
         err, out = run_cmd("curl -L -s -o %s https://raw.githubusercontent.com/cms-sw/cms-sw.github.io/master/das_queries/ibeos.txt" % ibeos_cache)
         if err:
           run_cmd("rm -f %s" % ibeos_cache)
-          print "Error: Unable to download ibeos cache information"
-          print out
+          print("Error: Unable to download ibeos cache information")
+          print(out)
           sys.exit(err)
 
       for cmssw_env in [ "CMSSW_BASE", "CMSSW_RELEASE_BASE" ]:
@@ -273,10 +282,10 @@ if __name__ == '__main__':
           os.environ["PATH"]=cmssw_base+":"+os.getenv("PATH")
           os.environ["CMS_PATH"]="/cvmfs/cms-ib.cern.ch"
           os.environ["CMSSW_USE_IBEOS"]="true"
-          print ">> WARNING: You are using SITECONF from /cvmfs/cms-ib.cern.ch"
+          print(">> WARNING: You are using SITECONF from /cvmfs/cms-ib.cern.ch")
           break
     if opt.restricted:
-        print 'Deprecated, please use -l limited'
+        print('Deprecated, please use -l limited')
         if opt.testList:            opt.testList+=',limited'
         else:            opt.testList='limited'
 
@@ -306,7 +315,7 @@ if __name__ == '__main__':
                 try:
                     testList.append(float(entry))
                 except:
-                    print entry,'is not a possible selected entry'
+                    print(entry,'is not a possible selected entry')
             
         opt.testList = list(set(testList))
 

@@ -148,8 +148,9 @@ class RegionalMuonCand {
         return m_trackAddress.at(subAddress);
     }
 
-    bool operator==(const RegionalMuonCand& rhs) const;
-    inline bool operator!=(const RegionalMuonCand& rhs) const { return !(operator==(rhs)); };
+  bool operator==(const RegionalMuonCand& rhs) const;
+  inline bool operator!=(const RegionalMuonCand& rhs) const { return !(operator==(rhs)); };
+
 
   private:
     int m_hwPt;

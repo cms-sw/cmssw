@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import itertools
 import unittest
 import sys
 import dataLoader
 import ROOT
 
+import six
 
 data = None
 check_flavor = True
@@ -16,7 +18,7 @@ verbose = False
 
 def _eta_pt_discr_entries_generator(filter_keyfunc, op):
     assert data
-    entries = filter(filter_keyfunc, data.entries)
+    entries = list(filter(filter_keyfunc, data.entries))
 
     # use full or half eta range?
     if any(e.params.etaMin < 0. for e in entries):
@@ -26,19 +28,11 @@ def _eta_pt_discr_entries_generator(filter_keyfunc, op):
 
     for eta in eta_test_points:
         for pt in data.pt_test_points:
-            ens_pt_eta = filter(
-                lambda e:
-                e.params.etaMin < eta < e.params.etaMax and
-                e.params.ptMin < pt < e.params.ptMax,
-                entries
-            )
+            ens_pt_eta = [e for e in entries if e.params.etaMin < eta < e.params.etaMax and
+                e.params.ptMin < pt < e.params.ptMax]
             if op == 3:
                 for discr in data.discr_test_points:
-                    ens_pt_eta_discr = filter(
-                        lambda e:
-                        e.params.discrMin < discr < e.params.discrMax,
-                        ens_pt_eta
-                    )
+                    ens_pt_eta_discr = [e for e in ens_pt_eta if e.params.discrMin < discr < e.params.discrMax]
                     yield eta, pt, discr, ens_pt_eta_discr
             else:
                 yield eta, pt, None, ens_pt_eta
@@ -124,7 +118,7 @@ class BtagCalibConsistencyChecker(unittest.TestCase):
     def _check_sys_side(self, op, flav):
         region = "op=%d, flav=%d" % (op, flav)
         if verbose:
-            print "Checking sys side correctness for", region
+            print("Checking sys side correctness for", region)
 
         res = []
         for eta, pt, discr, entries in _eta_pt_discr_entries_generator(
@@ -144,7 +138,7 @@ class BtagCalibConsistencyChecker(unittest.TestCase):
             assert len(sys_dict) == len(entries)
             sys_cent = sys_dict.pop('central', None)
             x = discr if op == 3 else pt
-            for syst, e in sys_dict.iteritems():
+            for syst, e in six.iteritems(sys_dict):
                 sys_val = e.tf1_func.Eval(x)
                 cent_val = sys_cent.tf1_func.Eval(x)
                 if syst.startswith('up') and not sys_val > cent_val:
@@ -191,7 +185,7 @@ class BtagCalibConsistencyChecker(unittest.TestCase):
     def _check_coverage(self, op, syst, flav):
         region = "op=%d, %s, flav=%d" % (op, syst, flav)
         if verbose:
-            print "Checking coverage for", region
+            print("Checking coverage for", region)
 
         # walk over all testpoints
         res = []
@@ -236,10 +230,10 @@ def run_check_data(data_loaders,
     all_res = []
     for dat in data_loaders:
         data = dat
-        print '\n\n'
-        print '# Checking csv data for type / op / flavour:', \
-            data.meas_type, data.op, data.flav
-        print '='*60 + '\n'
+        print('\n\n')
+        print('# Checking csv data for type / op / flavour:', \
+            data.meas_type, data.op, data.flav)
+        print('='*60 + '\n')
         if verbose:
             data.print_data()
         testsuite = unittest.TestLoader().loadTestsFromTestCase(
@@ -251,13 +245,13 @@ def run_check_data(data_loaders,
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print 'Need csv data file as first argument.'
-        print 'Options:'
-        print '    --light (do not check op, sys, flav)'
-        print '    --separate-by-op'
-        print '    --separate-by-flav'
-        print '    --separate-all (both of the above)'
-        print 'Exit.'
+        print('Need csv data file as first argument.')
+        print('Options:')
+        print('    --light (do not check op, sys, flav)')
+        print('    --separate-by-op')
+        print('    --separate-by-flav')
+        print('    --separate-all (both of the above)')
+        print('Exit.')
         exit(-1)
 
     ck_op = ck_sy = ck_fl = not '--light' in sys.argv

@@ -166,9 +166,9 @@ l1tStage2EmulatorEventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                         SystemDisable  = cms.uint32(0),
                         QualityTests = cms.VPSet(
                             cms.PSet(
-                                QualityTestName = cms.string(""),
-                                QualityTestHist = cms.string(""),
-                                QualityTestSummaryEnabled = cms.uint32(0)
+                                QualityTestName = cms.string("uGTDE_CentralBxMismatchRatio"),
+                                QualityTestHist = cms.string("L1TEMU/L1TdeStage2uGT/dataEmulMismatchRatio_CentralBX"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             )
                         ),

@@ -7,7 +7,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 class ZtoEEEventSelector : public edm::stream::EDFilter<> {
 public:

@@ -10,6 +10,7 @@ OutALCARECOHcalCalHBHEMuon_noDrop = cms.PSet(
         ),
     outputCommands = cms.untracked.vstring( 
         'keep edmTriggerResults_*_*_*',
+        'keep HcalNoiseSummary_hcalnoise_*_*',
         'keep recoTracks_globalMuons_*_*',
         'keep recoTrackExtras_globalMuons_*_*',
         'keep recoTracks_standAloneMuons_*_*',

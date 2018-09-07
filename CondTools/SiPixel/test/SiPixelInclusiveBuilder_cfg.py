@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import shlex, subprocess
 import shutil, getpass
@@ -46,7 +47,7 @@ except KeyError:
 #file = "/tmp/" + user + "/prova.db"
 file = "prova.db"
 sqlfile = "sqlite_file:" + file
-print '\n-> Uploading as user %s into file %s, i.e. %s\n' % (user, file, sqlfile)
+print('\n-> Uploading as user %s into file %s, i.e. %s\n' % (user, file, sqlfile))
 
 #subprocess.call(["/bin/cp", "prova.db", file])
 #subprocess.call(["/bin/mv", "prova.db", "prova_old.db"])
@@ -164,7 +165,7 @@ elif(MagFieldValue==3.5 or MagFieldValue==35):
 
 version = "v2"
 template_base = 'SiPixelTemplateDBObject' + MagFieldString + 'T'
-print '\nUploading %s%s with record SiPixelTemplateDBObjectRcd in file siPixelTemplates%sT.db\n' % (template_base,version,MagFieldString)
+print('\nUploading %s%s with record SiPixelTemplateDBObjectRcd in file siPixelTemplates%sT.db\n' % (template_base,version,MagFieldString))
 
 process.TemplateUploader = cms.EDAnalyzer("SiPixelTemplateDBObjectUploader",
                                           siPixelTemplateCalibrations = files_to_upload,

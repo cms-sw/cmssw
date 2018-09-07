@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os,sys
 import glob
 import logging
@@ -45,7 +46,7 @@ class DTWorkflow(CLIHelper, CrabHelper):
             for option in requirements_dict[self.options.command]:
                 if not (hasattr(self.options, option)
                     and ( (getattr(self.options,option))
-                          or type(getattr(self.options,option)) == bool )):
+                          or isinstance(getattr(self.options,option), bool) )):
                     missing_options.append(option)
         if len(missing_options) > 0:
             err = "The following CLI options are missing"
@@ -231,7 +232,7 @@ class DTWorkflow(CLIHelper, CrabHelper):
             path = self.result_path
         except:
             path = os.getcwd()
-        print "path", path
+        print("path", path)
         out_path = os.path.abspath(os.path.join(path,
                                                 os.path.splitext(db_path)[0] + ".txt"))
 

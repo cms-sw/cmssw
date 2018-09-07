@@ -171,3 +171,13 @@ HepMCProduct::operator=(HepMCProduct const& other) {
   swap(temp);
   return *this;
 } 
+
+// move, needed explicitly as we have raw pointer...
+HepMCProduct::HepMCProduct(HepMCProduct&& other):
+  evt_(nullptr) {
+  swap(other);
+}
+HepMCProduct& HepMCProduct::operator=(HepMCProduct&& other) {
+  swap(other);
+  return *this;
+}

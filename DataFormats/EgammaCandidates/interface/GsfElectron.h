@@ -396,6 +396,7 @@ class GsfElectron : public RecoCandidate
       std::vector<CaloTowerDetId> hcalTowersBehindClusters ; //
       float hcalDepth1OverEcalBc ; // hcal over ecal seed cluster energy using 1st hcal depth (using hcal towers behind clusters)
       float hcalDepth2OverEcalBc ; // hcal over ecal seed cluster energy using 2nd hcal depth (using hcal towers behind clusters)
+      bool  invalidHcal ;          // set to true if the hcal energy estimate is not valid (e.g. the corresponding tower was off or masked)
       float sigmaIetaIphi;
       float eMax;
       float e2nd;
@@ -415,6 +416,7 @@ class GsfElectron : public RecoCandidate
 	     r9(-std::numeric_limits<float>::max()),
        hcalDepth1OverEcal(0.), hcalDepth2OverEcal(0.),
        hcalDepth1OverEcalBc(0.), hcalDepth2OverEcalBc(0.),
+       invalidHcal(false),
        sigmaIetaIphi(0.f),
        eMax(0.f),
        e2nd(0.f),
@@ -444,6 +446,7 @@ class GsfElectron : public RecoCandidate
     float hcalDepth1OverEcalBc() const { return showerShape_.hcalDepth1OverEcalBc ; }
     float hcalDepth2OverEcalBc() const { return showerShape_.hcalDepth2OverEcalBc ; }
     float hcalOverEcalBc() const { return hcalDepth1OverEcalBc() + hcalDepth2OverEcalBc() ; } 
+    float hcalOverEcalValid() const { return !showerShape_.invalidHcal; } 
     float eLeft() const { return showerShape_.eLeft; }
     float eRight() const { return showerShape_.eRight; }
     float eTop() const { return showerShape_.eTop; }
@@ -464,6 +467,7 @@ class GsfElectron : public RecoCandidate
     float full5x5_hcalDepth1OverEcalBc() const { return full5x5_showerShape_.hcalDepth1OverEcalBc ; }
     float full5x5_hcalDepth2OverEcalBc() const { return full5x5_showerShape_.hcalDepth2OverEcalBc ; }
     float full5x5_hcalOverEcalBc() const { return full5x5_hcalDepth1OverEcalBc() + full5x5_hcalDepth2OverEcalBc() ; }
+    float full5x5_hcalOverEcalValid() const { return !full5x5_showerShape_.invalidHcal; } 
     float full5x5_e2x5Left() const { return full5x5_showerShape_.e2x5Left; }
     float full5x5_e2x5Right() const { return full5x5_showerShape_.e2x5Right; }
     float full5x5_e2x5Top() const { return full5x5_showerShape_.e2x5Top; }

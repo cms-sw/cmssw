@@ -3,6 +3,8 @@
 
 namespace hcaldqm
 {
+	using namespace constants;
+
 	DQHarvester::DQHarvester(edm::ParameterSet const& ps) :
 		DQModule(ps)
 	{}

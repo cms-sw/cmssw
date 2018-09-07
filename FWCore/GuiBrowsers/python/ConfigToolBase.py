@@ -7,7 +7,7 @@ from os import path
 #### patches needed for deepcopy of sorted dicts ####
 
 import FWCore.ParameterSet.DictTypes as dicttypes
-    
+
 def new_SortedKeysDict__copy__(self):
     return self.__class__(self)
 dicttypes.SortedKeysDict.__copy__ = new_SortedKeysDict__copy__
@@ -29,7 +29,7 @@ class parameter:
     pass
 
 ### Base class for object oriented designed tools
-        
+
 class ConfigToolBase(object) :
 
     """ Base class for PAT tools
@@ -55,30 +55,30 @@ class ConfigToolBase(object) :
         """ Call the instance 
         """
         raise NotImplementedError
-    
+
     def apply(self,process):
-        
+
         if hasattr(process, "addAction"):
             process.disableRecording()
-            
+
         try:
             comment=inspect.stack(2)[2][4][0].rstrip("\n")
             if comment.startswith("#"):
                 self.setComment(comment.lstrip("#"))
         except:
             pass
-            
+
         self.toolCode(process)
-        
+
         if hasattr(process, "addAction"):
             process.enableRecording()
             action=self.__copy__()
             process.addAction(action)
-            
+
     def toolCode(self, process):
         raise NotImplementedError
 
-            
+
     ### __copy__(self) returns a copy of the tool
     def __copy__(self):
         c=type(self)()
@@ -95,7 +95,7 @@ class ConfigToolBase(object) :
         """ Return a string with a detailed description of the action.
         """
         return self._description
-    
+
     ### use addParameter method in the redefinition of tool constructor in order to add parameters to the tools
     ### each tool is defined by its label, default value, description, type and allowedValues (the last two attribute can be ignored
     ### if the user gives a valid default values and if there is not a list of allowed values)
@@ -140,16 +140,16 @@ class ConfigToolBase(object) :
             dumpPython = '#'+self._comment
         dumpPython += "\n"+self._label+"(process "
         for key in self._parameters.keys():
-	  if repr(self._parameters[key].value)!=repr(self._defaultParameters[key].value):
-            dumpPython+= ", "+str(key)+" = "
-            if self._parameters[key].type is str:
-                string = "'"+str(self.getvalue(key))+"'"
-            else:
-                string = str(self.getvalue(key))
-            dumpPython+= string
+            if repr(self._parameters[key].value)!=repr(self._defaultParameters[key].value):
+                dumpPython+= ", "+str(key)+" = "
+                if self._parameters[key].type is str:
+                    string = "'"+str(self.getvalue(key))+"'"
+                else:
+                    string = str(self.getvalue(key))
+                dumpPython+= string
         dumpPython+=")"+'\n'
         return (dumpPythonImport,dumpPython)
-    
+
     def setComment(self, comment):
         """ Write a comment in the configuration file
         """

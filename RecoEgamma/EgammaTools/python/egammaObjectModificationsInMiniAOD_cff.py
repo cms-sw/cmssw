@@ -38,40 +38,28 @@ egamma_modifications = cms.VPSet(
 )
 
 #setup the mva value maps to embed
-setup_mva(egamma_modifications[0].electron_config,
-          egamma_modifications[1].electron_config,
-          ele_mva_prod_name,
-          ele_spring16_gp_v1.mvaSpring16ClassName+ele_spring16_gp_v1.mvaTag)
+for ele_mva_cff in [
+          ele_spring16_gp_v1,
+          ele_spring16_hzz_v1,
+          ele_fall17_iso_v1,
+          ele_fall17_noIso_v1,
+        ]:
 
-setup_mva(egamma_modifications[0].electron_config,
-          egamma_modifications[1].electron_config,
-          ele_mva_prod_name,
-          ele_spring16_hzz_v1.mvaSpring16ClassName+ele_spring16_hzz_v1.mvaTag)
+    setup_mva(egamma_modifications[0].electron_config,
+              egamma_modifications[1].electron_config,
+              ele_mva_prod_name,
+              ele_mva_cff.mvaClassName + ele_mva_cff.mvaTag)
 
-setup_mva(egamma_modifications[0].electron_config,
-          egamma_modifications[1].electron_config,
-          ele_mva_prod_name,
-          ele_fall17_iso_v1.mvaFall17ClassName+ele_fall17_iso_v1.mvaTag)
+for pho_mva_cff in [
+          pho_spring16_nt_v1,
+          pho_fall17_94X_v1,
+          pho_fall17_94X_v1p1,
+        ]:
 
-setup_mva(egamma_modifications[0].electron_config,
-          egamma_modifications[1].electron_config,
-          ele_mva_prod_name,
-          ele_fall17_noIso_v1.mvaFall17ClassName+ele_fall17_noIso_v1.mvaTag)
-
-setup_mva(egamma_modifications[0].photon_config,
-          egamma_modifications[1].photon_config,
-          pho_mva_prod_name,
-          pho_spring16_nt_v1.mvaSpring16NonTrigClassName+pho_spring16_nt_v1.mvaTag)
-
-setup_mva(egamma_modifications[0].photon_config,
-          egamma_modifications[1].photon_config,
-          pho_mva_prod_name,
-          pho_fall17_94X_v1.mvaFall17v1ClassName+pho_fall17_94X_v1.mvaTag)
-
-setup_mva(egamma_modifications[0].photon_config,
-          egamma_modifications[1].photon_config,
-          pho_mva_prod_name,
-          pho_fall17_94X_v1p1.mvaFall17v1p1ClassName+pho_fall17_94X_v1p1.mvaTag)
+    setup_mva(egamma_modifications[0].photon_config,
+              egamma_modifications[1].photon_config,
+              pho_mva_prod_name,
+              pho_mva_cff.mvaClassName + pho_mva_cff.mvaTag)
 
 #############################################################
 # REGRESSION MODIFIERS
@@ -98,10 +86,46 @@ import RecoEgamma.EgammaTools.calibratedPhotonProducer_cfi
 for valueMapName in RecoEgamma.EgammaTools.calibratedPhotonProducer_cfi.calibratedPhotonProducer.valueMapsStored:
     setattr(reducedEgammaEnergyScaleAndSmearingModifier.photon_config,valueMapName,cms.InputTag("reducedEgamma",prefixName("calibPho",valueMapName)))
 
+#############################################################
+# 8X to 9X modifiers (fills in variables new to 9X w.r.t 8X)
+#############################################################
+egamma8XObjectUpdateModifier = cms.PSet(
+    modifierName  = cms.string('EG8XObjectUpdateModifier'),
+    ecalRecHitsEB = cms.InputTag("reducedEgamma","reducedEBRecHits"),
+    ecalRecHitsEE = cms.InputTag("reducedEgamma","reducedEERecHits"),
+)
+
+#############################################################
+# 8X legacy needs an extra Et scale systematic
+# due to an inflection around 45 GeV which is handled as a
+# patch on top of the standard scale and smearing systematics
+#############################################################
+from RecoEgamma.EgammaTools.calibratedEgammas_cff import ecalTrkCombinationRegression
+egamma8XLegacyEtScaleSysModifier = cms.PSet(
+    modifierName = cms.string('EGEtScaleSysModifier'),
+    epCombConfig = ecalTrkCombinationRegression,
+    uncertFunc = cms.PSet(
+        name = cms.string("UncertFuncV1"),
+        lowEt = cms.double(43.5),
+        highEt = cms.double(46.5),
+        lowEtUncert = cms.double(0.002),
+        highEtUncert = cms.double(-0.002)
+        )
+    )
 
 def appendReducedEgammaEnergyScaleAndSmearingModifier(modifiers):
     modifiers.append(reducedEgammaEnergyScaleAndSmearingModifier)
 
+def prependEgamma8XObjectUpdateModifier(modifiers):
+    modifiers.insert(0,egamma8XObjectUpdateModifier)
+
+def appendEgamma8XLegacyAppendableModifiers (modifiers):
+    modifiers.append(reducedEgammaEnergyScaleAndSmearingModifier)
+    modifiers.append(egamma8XLegacyEtScaleSysModifier)
+
 from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
 run2_miniAOD_94XFall17.toModify(egamma_modifications,appendReducedEgammaEnergyScaleAndSmearingModifier)
    
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+run2_miniAOD_80XLegacy.toModify(egamma_modifications,appendEgamma8XLegacyAppendableModifiers)
+run2_miniAOD_80XLegacy.toModify(egamma_modifications,prependEgamma8XObjectUpdateModifier)

@@ -1,11 +1,12 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import sys
 import material
 import ROOT
 
 def usage():
-  print "Usage..."
+  print("Usage...")
 
 def plot():
   if (len(sys.argv) < 2) or (sys.argv[1] not in ("r", "z", "eta")):
@@ -25,8 +26,7 @@ def plot():
   positions = set()
   for element in elements:
     positions.add(element.position[direction])
-  positions = list(positions)
-  positions.sort()
+  positions = sorted(positions)
 
   data   = ROOT.TFile("TrackerRecMaterial.root")
   canvas = ROOT.TCanvas("material", "", 800, 600)

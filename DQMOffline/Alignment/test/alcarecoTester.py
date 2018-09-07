@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import os
 import sys
 import ConfigParser
@@ -172,7 +173,7 @@ def getCommandOutput2(command):
  
 def runJob(jobName, script, config):
    jobMode = config.get("general","jobMode")
-   print "> Testing "+jobName
+   print("> Testing "+jobName)
    if jobMode == "interactive":
        getCommandOutput2( script )
    if jobMode.split(",")[0] == "lxBatch":

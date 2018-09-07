@@ -1,3 +1,4 @@
+from __future__ import print_function
 from  xml.dom.minidom import parse,parseString,getDOMImplementation,Node
         
 class cacheconfigParser(object):
@@ -44,17 +45,17 @@ if __name__ == '__main__':
     mydocstr="""<frontier-connect><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier1.cern.ch:3128"/><proxy url="http://cmst0frontier2.cern.ch:3128"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier1.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier2.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier3.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier4.cern.ch:8000/FrontierInt"/></frontier-connect>"""
     p=cacheconfigParser()
     p.parseString(mydocstr)
-    print 'proxies'
-    print p.proxylist()
-    print 'servers'
-    print p.serverlist()
-    print 'parameterdict'
-    print p.parameterdict()
+    print('proxies')
+    print(p.proxylist())
+    print('servers')
+    print(p.serverlist())
+    print('parameterdict')
+    print(p.parameterdict())
 
     p.parse('/afs/cern.ch/user/x/xiezhen/w1/site-local-config.xml')
-    print 'proxies'
-    print p.proxylist()
-    print 'servers'
-    print p.serverlist()
-    print 'parameterdict'
-    print p.parameterdict()
+    print('proxies')
+    print(p.proxylist())
+    print('servers')
+    print(p.serverlist())
+    print('parameterdict')
+    print(p.parameterdict())

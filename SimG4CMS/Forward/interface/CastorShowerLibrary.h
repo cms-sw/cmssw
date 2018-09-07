@@ -18,16 +18,12 @@
 #include "G4ParticleTable.hh"
 #include "G4ThreeVector.hh"
  
-//ROOT
-#include "TROOT.h"
-#include "TFile.h"
-#include "TTree.h"
-#include "TBranchObject.h"
-
 #include <string>
 #include <memory>
 
 class G4Step;
+class TFile;
+class TBranchObject;
 
 class CastorShowerLibrary {
   
@@ -39,8 +35,7 @@ public:
 
 public:
 
-  void                initParticleTable(G4ParticleTable *);
-  CastorShowerEvent   getShowerHits(G4Step*, bool&);
+  CastorShowerEvent   getShowerHits(const G4Step*, bool&);
   int                 FindEnergyBin(double);
   int                 FindEtaBin(double);
   int                 FindPhiBin(double);
@@ -50,10 +45,8 @@ protected:
   void                initFile(edm::ParameterSet const & );
   void                getRecord(int, int);
   void                loadEventInfo(TBranchObject *);
-// if eta or phi is not given, take into account only the binning in energy
-  void                select(int, double,double =0,double=9);  // Replaces interpolate / extrapolate
-  // void                interpolate(int, double);
-  // void                extrapolate(int, double);
+  // if eta or phi is not given, take into account only the binning in energy
+  void                select(int, double,double =0,double=9); 
 
 private:
 
@@ -70,11 +63,7 @@ private:
   
   std::vector<double> pmom;
 
-  int                 emPDG, epPDG, gammaPDG;
-  int                 pi0PDG, etaPDG, nuePDG, numuPDG, nutauPDG;
-  int                 anuePDG, anumuPDG, anutauPDG, geantinoPDG;
-  int                 mumPDG, mupPDG;
-// new variables (bins in eta and phi)
+  // new variables (bins in eta and phi)
   unsigned int        nBinsE, nBinsEta, nBinsPhi;
   unsigned int        nEvtPerBinE, nEvtPerBinEta, nEvtPerBinPhi;
   std::vector<double> SLenergies;

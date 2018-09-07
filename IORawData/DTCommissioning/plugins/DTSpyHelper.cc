@@ -174,26 +174,6 @@ DTCtcp::Connect(const char *host,int toport)
 }
 
 int
-DTCtcp::WaitData(int timeout)
-{
-//    return  read (sock, buffer,size) ;
-     fd_set rfds;
-     struct timeval tv;
-   
-    FD_ZERO(&rfds);
-    FD_SET(sock,&rfds);
-
-    tv.tv_sec = timeout;
-    tv.tv_usec = 0;
- 
-     int retva = select (1,&rfds,nullptr,&rfds,&tv);
-     if (retva)
-         if (FD_ISSET(0,&rfds)) return 1;
-         else return -1;
-     else return 0; 
-}
-
-int
 DTCtcp::Receive(char *buffer,int size)
 {
 //    return  read (sock, buffer,size) ;

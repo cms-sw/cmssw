@@ -160,7 +160,11 @@ namespace edm {
     Entry(std::string const& name, std::string const& type,
           std::vector<std::string> const& value, bool is_tracked);
 
-    ~Entry();
+    ~Entry() = default;
+    Entry(Entry const&) = default;
+    Entry(Entry&&) = default;
+    Entry& operator=(Entry const&) = default;
+    Entry& operator=(Entry&&) = default;
     // encode
 
     std::string toString() const;

@@ -1,4 +1,4 @@
-#include "../interface/TestPulseClient.h"
+#include "DQM/EcalMonitorClient/interface/TestPulseClient.h"
 
 #include "DQM/EcalCommon/interface/MESetMulti.h"
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"

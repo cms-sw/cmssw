@@ -46,10 +46,10 @@ DefaultHistoTrack.perLumiHarvesting = True
 
 
 # Pixel Digi Monitoring
-from DQM.SiPixelPhase1Digis.SiPixelPhase1Digis_cfi import *
+from DQM.SiPixelPhase1Common.SiPixelPhase1Digis_cfi import *
 
 # Cluster (track-independent) monitoring
-from DQM.SiPixelPhase1Clusters.SiPixelPhase1Clusters_cfi import *
+from DQM.SiPixelPhase1Common.SiPixelPhase1Clusters_cfi import *
 
 # We could overwrite the Harvesters like this, and use the custom() steps to
 # perform resetting of histograms.
@@ -60,8 +60,8 @@ from DQM.SiPixelPhase1Clusters.SiPixelPhase1Clusters_cfi import *
 
 
 # Raw data errors
-from DQM.SiPixelPhase1RawData.SiPixelPhase1RawData_cfi import *
-from DQM.SiPixelPhase1DeadFEDChannels.SiPixelPhase1DeadFEDChannels_cfi import *
+from DQM.SiPixelPhase1Common.SiPixelPhase1RawData_cfi import *
+from DQM.SiPixelPhase1Common.SiPixelPhase1DeadFEDChannels_cfi import *
 
 from DQM.SiPixelPhase1Common.SiPixelPhase1GeometryDebug_cfi import *
 
@@ -69,8 +69,8 @@ from DQM.SiPixelPhase1Common.SiPixelPhase1GeometryDebug_cfi import *
 from DQM.SiPixelPhase1Summary.SiPixelPhase1Summary_cfi import *
 
 # Track cluster                                                                                                                                                                            
-from DQM.SiPixelPhase1TrackClusters.SiPixelPhase1TrackClusters_cfi import *
-from DQM.SiPixelPhase1TrackResiduals.SiPixelPhase1TrackResiduals_cfi import *
+from DQM.SiPixelPhase1Track.SiPixelPhase1TrackClusters_cfi import *
+from DQM.SiPixelPhase1Track.SiPixelPhase1TrackResiduals_cfi import *
 
 siPixelPhase1OnlineDQM_source = cms.Sequence(
    SiPixelPhase1DigisAnalyzer

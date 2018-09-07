@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import os
 import re
 import sys
@@ -593,8 +594,7 @@ class FileListCreator(object):
                       "'{}'.".format(track_collections[0]))
             return track_collections[0]
         else:
-            alcareco_tracks = filter(lambda x: x.startswith("ALCARECO"),
-                                     track_collections)
+            alcareco_tracks = [x for x in track_collections if x.startswith("ALCARECO")]
             if len(alcareco_tracks) == 0 and "generalTracks" in track_collections:
                 print_msg("\tDetermined track collection as 'generalTracks'.")
                 return "generalTracks"
@@ -892,7 +892,7 @@ def das_client(query, check_key = None):
     if das_data["status"] == "error":
         print_msg("DAS query '{}' failed 5 times. "
                   "The last time for the the following reason:".format(query))
-        print das_data["reason"]
+        print(das_data["reason"])
         sys.exit(1)
     return das_data["data"]
 
@@ -932,9 +932,9 @@ def print_msg(text, line_break = True, log_file = None):
 
     msg = "  >>> " + str(text)
     if line_break:
-        print msg
+        print(msg)
     else:
-        print msg,
+        print(msg, end=' ')
         sys.stdout.flush()
     if log_file:
         with open(log_file, "a") as f: f.write(msg+"\n")
@@ -1074,7 +1074,7 @@ def merge_strings(strings):
     - `strings`: list of strings
     """
 
-    if type(strings) == str:
+    if isinstance(strings, str):
         return strings
     elif len(strings) == 0:
         return ""

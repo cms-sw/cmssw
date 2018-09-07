@@ -1,4 +1,4 @@
-#include "../interface/LaserTask.h"
+#include "DQM/EcalMonitorTasks/interface/LaserTask.h"
 
 #include "DQM/EcalCommon/interface/MESetMulti.h"
 

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
 import RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi as recoparam
-import RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi as recocalibparam 
+import RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi as recocalibparam
 import hgcalLayersCalibrationCoefficients_cfi as layercalibparam
 
 
@@ -44,9 +44,9 @@ ntuple_genjet = cms.PSet(
 
 ntuple_digis = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleHGCDigis'),
-    HGCDigisEE = cms.InputTag('mix:HGCDigisEE'),
-    HGCDigisFH = cms.InputTag('mix:HGCDigisHEfront'),
-    HGCDigisBH = cms.InputTag('mix:HGCDigisHEback'),
+    HGCDigisEE = cms.InputTag('simHGCalUnsuppressedDigis:EE'),
+    HGCDigisFH = cms.InputTag('simHGCalUnsuppressedDigis:HEfront'),
+    HGCDigisBH = cms.InputTag('simHGCalUnsuppressedDigis:HEback'),
     eeSimHits = cms.InputTag('g4SimHits:HGCHitsEE'),
     fhSimHits = cms.InputTag('g4SimHits:HGCHitsHEfront'),
     bhSimHits = cms.InputTag('g4SimHits:HcalHits'),
@@ -65,19 +65,21 @@ ntuple_triggercells = cms.PSet(
     keV2fC = keV2fC,
     layerWeights = layerWeights,
     thicknessCorrections = thicknessCorrections,
-    FilterCellsInMulticlusters = cms.bool(True)
+    FilterCellsInMulticlusters = cms.bool(False)
 )
 
 ntuple_clusters = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleHGCClusters'),
     Clusters = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:cluster2D'),
     Multiclusters = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:cluster3D'),
-    FilterClustersInMulticlusters = cms.bool(True)
+    FilterClustersInMulticlusters = cms.bool(False)
 )
 
+from L1Trigger.L1THGCal.egammaIdentification import egamma_identification_drnn_cone
 ntuple_multicluster = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleHGCMulticlusters'),
-    Multiclusters = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:cluster3D')
+    Multiclusters = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:cluster3D'),
+    EGIdentification = egamma_identification_drnn_cone.clone()
 )
 
 ntuple_panels = cms.PSet(

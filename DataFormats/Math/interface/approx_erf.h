@@ -2,7 +2,7 @@
 #define APPROX_ERF_H
 #include "DataFormats/Math/interface/approx_exp.h"
 
-inline
+constexpr
 float approx_erf(float x) {
   auto xx = std::min(std::abs(x),5.f);
   xx*=xx;

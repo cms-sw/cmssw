@@ -69,7 +69,7 @@ getCalibration(const std::string &file, const std::vector<std::string> &names)
 		size += iter->size() + 1;
 	size += (size / 32) + 128;
 
-	char *buffer = 0;
+	char *buffer = nullptr;
 	try {
 		buffer = new char[size];
 		ext::omemstream os(buffer, size);
@@ -128,7 +128,7 @@ int main(int argc, char **argv)
 		mva.output = names.size();
 
 		MVAComputer::writeCalibration(argv[2], &mva);
-	} catch(cms::Exception e) {
+	} catch(cms::Exception const& e) {
 		std::cerr << e.what() << std::endl;
 	}
 

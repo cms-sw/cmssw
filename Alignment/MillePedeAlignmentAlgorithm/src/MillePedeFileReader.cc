@@ -35,7 +35,7 @@ void MillePedeFileReader
 
 bool MillePedeFileReader
 ::storeAlignments() {
-  return updateDB_;
+  return (updateDB_&&!vetoUpdateDB_);
 }
 
 
@@ -96,6 +96,7 @@ void MillePedeFileReader
   }
 
   updateDB_ = false;
+  vetoUpdateDB_ = false;
   std::ifstream resFile;
   resFile.open(millePedeResFile_.c_str());
 
@@ -175,16 +176,16 @@ void MillePedeFileReader
         if (std::abs(ObsMove) > thresholds_[detLabel][alignableIndex]) {
 	  edm::LogWarning("MillePedeFileReader")<<"Aborting payload creation."
 						<<" Exceeding maximum thresholds for movement: "<<std::abs(ObsMove)<<" for"<< detLabel <<"("<<coord<<")" ;	  
-          updateDB_    = false;
-          break;
+	  vetoUpdateDB_ = true;
+          continue;
 
         } else if (std::abs(ObsMove) > cutoffs_[detLabel][alignableIndex]) {
 
           if (std::abs(ObsErr) > errors_[detLabel][alignableIndex]) {
 	    edm::LogWarning("MillePedeFileReader")<<"Aborting payload creation." 
-						  <<" Exceeding maximum thresholds for error: "<<std::abs(ObsErr)<<" for"<< detLabel <<"("<<coord<<")" ;	  	  
-            updateDB_    = false;
-            break;
+						  <<" Exceeding maximum thresholds for error: "<<std::abs(ObsErr)<<" for"<< detLabel <<"("<<coord<<")" ;	  	 
+	    vetoUpdateDB_ = true;
+            continue;
           } else {
             if (std::abs(ObsMove/ObsErr) < significances_[detLabel][alignableIndex]) {
               continue;

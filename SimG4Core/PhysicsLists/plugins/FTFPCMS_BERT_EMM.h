@@ -7,7 +7,7 @@
 class FTFPCMS_BERT_EMM: public PhysicsList {
 
 public:
-  FTFPCMS_BERT_EMM(G4LogicalVolumeToDDLogicalPartMap& map, const HepPDT::ParticleDataTable * table_, sim::ChordFinderSetter *chordFinderSetter_, const edm::ParameterSet & p);
+  FTFPCMS_BERT_EMM(const edm::ParameterSet & p);
 };
 
 #endif

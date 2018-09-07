@@ -42,13 +42,13 @@ void ddstats(std::ostream & os)
   int noSolidP(0); // accumulative number of solid-parameters
  
   // fetch the acyclic multigraph 
-  const DDCompactView::graph_type & g = cpv.graph();
+  const auto & g = cpv.graph();
   
   DDExpandedView exv(cpv);
   while (exv.next()) ++noExpNodes;
 
   // iterate over the adjacency-list
-  DDCompactView::graph_type::const_adj_iterator it = g.begin();
+  auto it = g.begin();
   for(; it != g.end(); ++it) {
     ++noNodes;
     noEdges += it->size();

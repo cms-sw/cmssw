@@ -1,3 +1,4 @@
+from __future__ import print_function
 from PhysicsTools.Heppy.physicsobjects.PhysicsObject import *
 from math import exp
 import re
@@ -68,7 +69,7 @@ class Photon(PhysicsObject ):
                 sigmaThresh  = 0.0266
                 hovereThresh = 0.069
         else :
-          print "WARNING! Unkown photon ID! Will return true!" 
+          print("WARNING! Unkown photon ID! Will return true!") 
           return True
 
         if sidebands:

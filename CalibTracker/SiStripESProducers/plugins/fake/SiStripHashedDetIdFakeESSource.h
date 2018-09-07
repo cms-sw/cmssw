@@ -32,9 +32,6 @@ class SiStripHashedDetIdFakeESSource : public SiStripHashedDetIdESProducer, publ
   /** Builds hashed DetId map based on ascii file. */
   SiStripHashedDetId* make( const SiStripHashedDetIdRcd& ) override; 
   
-  /** Location of ascii file containing DetIds. */
-  edm::FileInPath detIds_;
-  
 };
 
 #endif // CalibTracker_SiStripESProducers_SiStripHashedDetIdFakeESSource_H

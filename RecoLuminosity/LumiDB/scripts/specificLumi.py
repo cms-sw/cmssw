@@ -11,6 +11,7 @@
 # dumpFill -o outputdir
 # dumpFill -f fillnum generate runlist for the given fill
 #
+from __future__ import print_function
 import os,os.path,sys,math,array,datetime,time,calendar,re
 import coral
 
@@ -124,14 +125,14 @@ def filltofiles(allfills,runsperfill,runtimes,dirname):
     '''
     f=open(os.path.join(dirname,allfillname),'w')
     for fill in allfills:
-        print >>f,'%d'%(fill)
+        print('%d'%(fill), file=f)
     f.close()
     for fill,runs in runsperfill.items():
         filename='fill_'+str(fill)+'.txt'
         if len(runs)!=0:
             f=open(os.path.join(dirname,filename),'w')
             for run in runs:
-                print >>f,'%d,%s'%(run,runtimes[run])
+                print('%d,%s'%(run,runtimes[run]), file=f)
             f.close()
             
 def specificlumiTofile(fillnum,filldata,outdir):
@@ -142,7 +143,7 @@ def specificlumiTofile(fillnum,filldata,outdir):
     #check outdir/fillnum subdir exists; if not, create it; else outdir=outdir/fillnum
     #
     if not filldata:
-        print 'empty input data, do nothing for fill ',fillnum
+        print('empty input data, do nothing for fill ',fillnum)
         return
     timedict={}#{lstime:[[stablebeamfrac,lumi,lumierr,speclumi,speclumierr]]}
     filloutdir=os.path.join(outdir,str(fillnum))
@@ -172,13 +173,12 @@ def specificlumiTofile(fillnum,filldata,outdir):
         if len(linedata)>10:#at least 10 good ls
             f=open(os.path.join(filloutdir,filename),'w')
             for line in linedata:
-                print >>f, '%d\t%e\t%e\t%e\t%e\t%e'%(line[0],line[1],line[2],line[3],line[4],line[5])
+                print('%d\t%e\t%e\t%e\t%e\t%e'%(line[0],line[1],line[2],line[3],line[4],line[5]), file=f)
             f.close()
     #print 'writing avg file'
     summaryfilename=str(fillnum)+'_lumi_CMS.txt'
     f=None
-    lstimes=timedict.keys()
-    lstimes.sort()
+    lstimes=sorted(timedict.keys())
     fillseg=[]
     lscounter=0
     for lstime in lstimes:
@@ -199,14 +199,14 @@ def specificlumiTofile(fillnum,filldata,outdir):
         if lscounter==0:
             f=open(os.path.join(filloutdir,summaryfilename),'w')
         lscounter+=1
-        print >>f,'%d\t%e\t%e\t%e\t%e\t%e'%(lstime,bstatfrac,lumitot,lumierrortot,specificavg,specificerravg)
+        print('%d\t%e\t%e\t%e\t%e\t%e'%(lstime,bstatfrac,lumitot,lumierrortot,specificavg,specificerravg), file=f)
     if f is not None:
         f.close()
     #print 'writing summary file'
     fillsummaryfilename=str(fillnum)+'_bxsum_CMS.txt'
     f=open(os.path.join(filloutdir,fillsummaryfilename),'w')    
     if len(fillseg)==0:
-        print >>f,'%s'%('#no stable beams')
+        print('%s'%('#no stable beams'), file=f)
         f.close()
         return
     previoustime=fillseg[0][0]
@@ -234,7 +234,7 @@ def specificlumiTofile(fillnum,filldata,outdir):
         stopts=tsdatainseg[-1][0]
         plu=max(CommonUtil.transposed(tsdatainseg,0.0)[1])
         lui=sum(CommonUtil.transposed(tsdatainseg,0.0)[1])*lumip.lslengthsec()
-        print >>f,'%d\t%d\t%e\t%e'%(startts,stopts,plu,lui)
+        print('%d\t%d\t%e\t%e'%(startts,stopts,plu,lui), file=f)
     f.close()
 
 def getSpecificLumi(schema,fillnum,inputdir,dataidmap,normmap,xingMinLum=0.0,amodetag='PROTPHYS',bxAlgo='OCC1'):
@@ -268,7 +268,7 @@ def getSpecificLumi(schema,fillnum,inputdir,dataidmap,normmap,xingMinLum=0.0,amo
                 totalstablebeamls+=1
     #print 'totalstablebeamls in fill ',totalstablebeamls
     if totalstablebeamls<10:#less than 10 LS in a fill has 'stable beam', it's no a good fill
-        print 'fill ',fillnum,' , having less than 10 stable beam lS, is not good, skip'
+        print('fill ',fillnum,' , having less than 10 stable beam lS, is not good, skip')
         return fillbypos
     lumiparam=lumiParameters.ParametersObject()
     for run in orderedrunlist:
@@ -419,7 +419,7 @@ if __name__ == '__main__':
         lastcompletedFill=lastcompleteFill(os.path.join(options.inputdir,'runtofill_dqm.txt'))
         for pf in processedfills:
             if pf>lastcompletedFill:
-                print '\tremove unfinished fill from processed list ',pf
+                print('\tremove unfinished fill from processed list ',pf)
                 processedfills.remove(pf)
         for fill in allfillsFromDB:
             if fill not in processedfills :
@@ -427,16 +427,16 @@ if __name__ == '__main__':
                     if int(fill)>minfillnum and int(fill)<maxfillnum:
                         fillstoprocess.append(fill)
                 else:
-                    print 'ongoing fill...',fill
+                    print('ongoing fill...',fill)
         session.transaction().commit()
-    print 'fills to process : ',fillstoprocess
+    print('fills to process : ',fillstoprocess)
     if len(fillstoprocess)==0:
-        print 'no fill to process, exit '
+        print('no fill to process, exit ')
         exit(0)
 
     
-    print '===== Start Processing Fills',fillstoprocess
-    print '====='
+    print('===== Start Processing Fills',fillstoprocess)
+    print('=====')
     filldata={}
     #
     # check datatag

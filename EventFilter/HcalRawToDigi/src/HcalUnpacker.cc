@@ -939,10 +939,10 @@ void HcalUnpacker::printInvalidDataMessage( const std::string &coll_type, int de
 
   nPrinted_++;
 
-  int limit = 20;
+  constexpr int limit = 2;//print up to limit-1 messages
   if( nPrinted_ >= limit ) {
 
-      if( nPrinted_ == limit ) edm::LogWarning("Invalid Data") << "Suppressing further error messages" << std::endl;
+      if( nPrinted_ == limit ) edm::LogInfo("Invalid Data") << "Suppressing further error messages";
       
       return;
   }
@@ -963,6 +963,6 @@ void HcalUnpacker::printInvalidDataMessage( const std::string &coll_type, int de
               << conflict_ns << ") \nprocess.hcalDigis.save" << coll_type << "DataTags = cms.untracked.vstring( \"MYDATA\" )" ;
   }
 
-  edm::LogWarning("Invalid Data") << message.str() << std::endl;
+  edm::LogWarning("Invalid Data") << message.str();
 }
 

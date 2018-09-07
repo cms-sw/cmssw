@@ -1,6 +1,5 @@
 #include "SimG4Core/Application/interface/RunManagerMTWorker.h"
 #include "SimG4Core/Application/interface/RunManagerMT.h"
-#include "SimG4Core/Application/interface/G4SimEvent.h"
 #include "SimG4Core/Application/interface/SimRunInterface.h"
 #include "SimG4Core/Application/interface/RunAction.h"
 #include "SimG4Core/Application/interface/EventAction.h"
@@ -20,6 +19,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "SimG4Core/Notification/interface/G4SimEvent.h"
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
@@ -79,30 +79,23 @@ namespace {
                       int thisThreadID
                       )
   {
-    using namespace std;
-    using namespace edm;
     if(!iP.exists("Watchers")) { return; }
 
-    vector<ParameterSet> watchers = iP.getParameter<vector<ParameterSet> >("Watchers");
-    
-    if(thisThreadID > 0) {
-      throw edm::Exception(edm::errors::Configuration) << "SimWatchers are not supported for more than 1 thread. If this use case is needed, RunManagerMTWorker has to be updated, and SimWatchers and SimProducers have to be made thread safe.";
-    }
+    std::vector<edm::ParameterSet> watchers = 
+      iP.getParameter<std::vector<edm::ParameterSet> >("Watchers");
 
-    for(vector<ParameterSet>::iterator itWatcher = watchers.begin();
-        itWatcher != watchers.end();
-        ++itWatcher) {
+    for(auto & watcher : watchers) {
       std::unique_ptr<SimWatcherMakerBase> maker(
-        SimWatcherFactory::get()->create(itWatcher->getParameter<std::string>("type"))
+        SimWatcherFactory::get()->create(watcher.getParameter<std::string>("type"))
       );
       if(maker.get()==nullptr) {
         throw edm::Exception(edm::errors::Configuration)
-	  << "Unable to find the requested Watcher";
+	  << "Unable to find the requested Watcher <"
+	  << watcher.getParameter<std::string>("type");
       }
-
       std::shared_ptr<SimWatcher> watcherTemp;
       std::shared_ptr<SimProducer> producerTemp;
-      maker->make(*itWatcher,iReg,watcherTemp,producerTemp);
+      maker->make(watcher,iReg,watcherTemp,producerTemp);
       oWatchers.push_back(watcherTemp);
       if(producerTemp) {
         oProds.push_back(producerTemp);
@@ -188,7 +181,7 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
 
   int thisID = getThreadIndex();
 
-  edm::LogInfo("SimG4CoreApplication")
+  edm::LogVerbatim("SimG4CoreApplication")
     << "RunManagerMTWorker::initializeThread " << thisID;
 
   // Initialize per-thread output
@@ -261,19 +254,16 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
   m_tls->sensTkDets.swap(sensDets.first);
   m_tls->sensCaloDets.swap(sensDets.second);
 
-  edm::LogInfo("SimG4CoreApplication")
-    << " RunManagerMTWorker: Sensitive Detector "
-    << "building finished; found "
-    << m_tls->sensTkDets.size()
-    << " Tk type Producers, and "
-    << m_tls->sensCaloDets.size()
-    << " Calo type producers ";
+  edm::LogVerbatim("SimG4CoreApplication")
+    << " RunManagerMTWorker: Sensitive Detector building finished; found "
+    << m_tls->sensTkDets.size() << " Tk type Producers, and "
+    << m_tls->sensCaloDets.size() << " Calo type producers ";
 
   // Set the physics list for the worker, share from master
   PhysicsList *physicsList = runManagerMaster.physicsListForWorker();
 
-  edm::LogInfo("SimG4CoreApplication") 
-    << "RunManagerMTWorker: start initialisation of PhysicsList for a thread";
+  edm::LogVerbatim("SimG4CoreApplication") 
+    << "RunManagerMTWorker: start initialisation of PhysicsList for the thread";
 
   physicsList->InitializeWorker();
   m_tls->kernel->SetPhysics(physicsList);
@@ -281,7 +271,8 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
 
   const bool kernelInit = m_tls->kernel->RunInitialization();
   if(!kernelInit) {
-    throw SimG4Exception("G4WorkerRunManagerKernel initialization failed");
+    throw edm::Exception(edm::errors::Configuration)
+      << "RunManagerMTWorker: Geant4 kernel initialization failed";
   }
   //tell all interesting parties that we are beginning the job
   BeginOfJob aBeginOfJob(&es);
@@ -298,11 +289,11 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
   }
   initializeUserActions();
 
-  edm::LogInfo("SimG4CoreApplication")
+  edm::LogVerbatim("SimG4CoreApplication")
     << "RunManagerMTWorker::initializeThread done for the thread " << thisID;
 
   for(const std::string& command: runManagerMaster.G4Commands()) {
-    edm::LogInfo("SimG4CoreApplication") << "RunManagerMTWorker:: Requests UI: "
+    edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker:: Requests UI: "
                                          << command;
     G4UImanager::GetUIpointer()->ApplyCommand(command);
   }
@@ -459,7 +450,7 @@ void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup
       throw SimG4Exception(ss.str());
     }
 
-    edm::LogInfo("SimG4CoreApplication")
+    edm::LogVerbatim("SimG4CoreApplication")
       << " RunManagerMTWorker::produce: start Event " << inpevt.id().event() 
       << " stream id " << inpevt.streamID()
       << " thread index " << getThreadIndex()
@@ -470,7 +461,7 @@ void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup
 
     m_tls->kernel->GetEventManager()->ProcessOneEvent(m_tls->currentEvent.get());
 
-    edm::LogInfo("SimG4CoreApplication")
+    edm::LogVerbatim("SimG4CoreApplication")
       << " RunManagerMTWorker::produce: ended Event " << inpevt.id().event(); 
   } 
 }

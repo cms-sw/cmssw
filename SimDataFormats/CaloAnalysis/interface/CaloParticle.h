@@ -74,7 +74,9 @@ public:
     const SimClusterRefVector& simClusters() const { return simClusters_; }
     // Only for clusters from the signal vertex
     const std::vector<SimTrack>& g4Tracks() const { return g4Tracks_; }
-    
+
+    void clearSimClusters() { simClusters_.clear(); }
+
     /// @brief Electric charge. Note this is taken from the first SimTrack only.
     float charge() const { return g4Tracks_[0].charge(); }
     /// Gives charge in unit of quark charge (should be 3 times "charge()")

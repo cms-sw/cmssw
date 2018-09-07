@@ -1,3 +1,4 @@
+from __future__ import print_function
 import coral
 from RecoLuminosity.LumiDB import sessionManager,dbUtil,nameDealer,dataDML
 '''
@@ -35,7 +36,7 @@ def updatedb(schema,runkeymap,keymaskmap):
     db=dbUtil.dbUtil(schema)
     for runnum in runkeymap.keys():
         gt_rs_key=runkeymap[runnum]
-        print runnum,gt_rs_key
+        print(runnum,gt_rs_key)
         [algo_h,algo_l,tech]=keymaskmap[gt_rs_key]
         inputData['algomask_h'].setData(algo_h)
         inputData['algomask_l'].setData(algo_l)
@@ -43,7 +44,7 @@ def updatedb(schema,runkeymap,keymaskmap):
         inputData['runnum'].setData(runnum)
         r=db.singleUpdate(nameDealer.trgdataTableName(),setClause,updateCondition,inputData)
         if r>0:
-            print 'updated'
+            print('updated')
 if __name__ == '__main__':
     #pth='/afs/cern.ch/user/l/lumipro/'
     pth='/nfshome0/xiezhen/authwriter'
@@ -86,7 +87,7 @@ if __name__ == '__main__':
         raise
     uniquegtkeys=set(runkeymap.values())
     testkey=runkeymap[minrun]
-    print 'testkey ',testkey
+    print('testkey ',testkey)
     keymaskmap={}#{gtkey:[algomask_hi,algomask_lo,ttmask]}
     ttTab='GT_PARTITION_FINOR_TT'
     algoTab='GT_PARTITION_FINOR_ALGO'
@@ -145,16 +146,16 @@ if __name__ == '__main__':
                             keymaskmap[k][1]=algodefaultval|1<<algoidx
                         else:
                             if k==testkey:
-                                print algoidx,(algoidx-64),kvalue
+                                print(algoidx,(algoidx-64),kvalue)
                             algodefaultval=keymaskmap[k][0]#high 127-64
                             keymaskmap[k][0]=algodefaultval|1<<(algoidx-64)
             del algoquery
         
         ahi=keymaskmap[testkey][0]
-        print 'algo 84 ',ahi>>(84-64)&1
-        print 'algo 126 ',ahi>>(126-64)&1
+        print('algo 84 ',ahi>>(84-64)&1)
+        print('algo 126 ',ahi>>(126-64)&1)
         alo=keymaskmap[testkey][1]
-        print 'algo 0 ',alo>>0&1
+        print('algo 0 ',alo>>0&1)
     except:
         raise
     sourcesession.transaction().commit()
@@ -166,11 +167,11 @@ if __name__ == '__main__':
     destsession.transaction().start(True)
     gt_rsKey=runkeymap[minrun]
     trgrundata=dataDML.trgRunById(destsession.nominalSchema(),2379)
-    print trgrundata
+    print(trgrundata)
     algomask_h=trgrundata[4]
     algomask_l=trgrundata[5]
-    print 'dest algo 84 ',algomask_h>>(84-64)&1
-    print 'dest algo 126 ',algomask_h>>(126-64)&1
-    print 'dest algo 0 ',algomask_l>>0&1
+    print('dest algo 84 ',algomask_h>>(84-64)&1)
+    print('dest algo 126 ',algomask_h>>(126-64)&1)
+    print('dest algo 0 ',algomask_l>>0&1)
     destsession.transaction().commit()
     

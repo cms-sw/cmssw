@@ -51,13 +51,8 @@ bool Py8GunBase::initializeForInternalPartons()
   
   if (useEvtGen) {
     edm::LogInfo("Pythia8Interface") << "Creating and initializing pythia8 EvtGen plugin";
-
     evtgenDecays.reset(new EvtGenDecays(fMasterGen.get(), evtgenDecFile, evtgenPdlFile));
-
-    for (unsigned int i=0; i<evtgenUserFiles.size(); i++) {
-      edm::FileInPath evtgenUserFile(evtgenUserFiles.at(i));
-      evtgenDecays->readDecayFile(evtgenUserFile.fullPath());
-    }
+    for (unsigned int i=0; i<evtgenUserFiles.size(); i++) evtgenDecays->readDecayFile(evtgenUserFiles.at(i));
   }
 
   return true;
@@ -159,6 +154,11 @@ void Py8GunBase::statistics()
   runInfo().setInternalXSec(xsec);
   return;
 
+}
+
+void Py8GunBase::evtGenDecay()
+{
+  if (evtgenDecays.get()) evtgenDecays->decay();
 }
 
 }

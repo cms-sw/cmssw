@@ -37,9 +37,11 @@ class TPTask : public hcaldqm::DQTask
 		void _resetMonitors(hcaldqm::UpdateFreq) override;
 
 		edm::InputTag		_tagData;
+		edm::InputTag		_tagDataL1Rec;
 		edm::InputTag		_tagEmul;
 		edm::InputTag		_tagEmulNoTDCCut;
 		edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tokData;
+		edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tokDataL1Rec;
 		edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tokEmul;
 		edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tokEmulNoTDCCut;
 
@@ -51,7 +53,8 @@ class TPTask : public hcaldqm::DQTask
 			fDataMsn=1,
 			fEmulMsn=2,
 			fUnknownIds=3,
-			nTPFlag=4
+			fSentRecL1Msm=4,
+			nTPFlag=5
 		};
 
 		//	switches/cuts/etc...
@@ -135,6 +138,10 @@ class TPTask : public hcaldqm::DQTask
 		hcaldqm::ContainerProf1D _cEtMsmvsBX_TTSubdet;	// online only
 		hcaldqm::ContainerProf1D _cEtMsmRatiovsBX_TTSubdet; // online only
 
+		// Mismatches: data sent vs received
+		hcaldqm::ContainerSingle2D _cEtMsm_uHTR_L1T_depthlike;
+		hcaldqm::ContainerSingle1D _cEtMsm_uHTR_L1T_LS;
+
 		//	Missing Data w.r.t. Emulator
 		hcaldqm::Container2D _cMsnData_ElectronicsVME;
 		hcaldqm::Container2D _cMsnData_ElectronicsuTCA;
@@ -170,11 +177,15 @@ class TPTask : public hcaldqm::DQTask
 		hcaldqm::Container2D _cSummaryvsLS_FED; // online only
 		hcaldqm::ContainerSingle2D _cSummaryvsLS; // online only
 		hcaldqm::ContainerXXX<uint32_t> _xEtMsm, _xFGMsm, _xNumCorr,
-			_xDataMsn, _xDataTotal, _xEmulMsn, _xEmulTotal;
+			_xDataMsn, _xDataTotal, _xEmulMsn, _xEmulTotal, _xSentRecL1Msm;
 
 		// Temporary storage for occupancy with and without HF TDC cut
 		hcaldqm::ContainerSingle2D _cOccupancy_HF_depth, _cOccupancyNoTDC_HF_depth;
 		hcaldqm::ContainerSingle1D _cOccupancy_HF_ieta, _cOccupancyNoTDC_HF_ieta;
+
+		// Container storing matched sent-received TPs
+		std::vector<std::pair<HcalTriggerPrimitiveDigi, HcalTriggerPrimitiveDigi> > _vTPDigis_SentRec;
+
 };
 
 #endif

@@ -49,7 +49,7 @@ HLTHFRecoEcalCandidateProducer::HLTHFRecoEcalCandidateProducer(edm::ParameterSet
 
 } 
 
-void HLTHFRecoEcalCandidateProducer::produce(edm::Event & e, edm::EventSetup const& iSetup) {  
+void HLTHFRecoEcalCandidateProducer::produce(edm::StreamID sid, edm::Event & e, edm::EventSetup const& iSetup) const {  
   
   
   edm::Handle<reco::SuperClusterCollection> super_clus;

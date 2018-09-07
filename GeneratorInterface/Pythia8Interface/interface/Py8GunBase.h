@@ -51,6 +51,7 @@ namespace gen {
     
     void setRandomEngine(CLHEP::HepRandomEngine* v) { p8SetRandomEngine(v); }
     std::vector<std::string> const& sharedResources() const { return p8SharedResources; }
+	void evtGenDecay();
 
   protected:        
     // (some of) PGun parameters

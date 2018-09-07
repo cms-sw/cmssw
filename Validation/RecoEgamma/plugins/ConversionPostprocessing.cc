@@ -164,11 +164,6 @@ void ConversionPostprocessing::runPostprocessing()
 }
 
 
-void ConversionPostprocessing::endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup)
-{
-
-
-}
 
 
 

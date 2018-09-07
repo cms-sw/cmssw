@@ -50,6 +50,11 @@ public:
 			    int chStatusThreshold, 
 			    int dx, int dy); 
 
+  /// identify HGCal cells
+  static inline bool isHGCalDet(DetId::Detector thedet){
+    return (thedet == DetId::Forward || thedet == DetId::Hcal || thedet == DetId::HGCalEE || thedet == DetId::HGCalHSi || thedet == DetId::HGCalHSc);
+  }
+
 private:
 
   static float recHitE( const DetId id, const EcalRecHitCollection &recHits );

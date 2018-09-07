@@ -21,10 +21,6 @@
  <use   name="cppunit"/>
 </bin>
 
-<bin  file="Ellipsoid_.cpp">
- <use   name="cppunit"/>
-</bin>
-
 <bin  file="EllipticalTube_.cpp">
  <use   name="cppunit"/>
 </bin>
@@ -33,23 +29,11 @@
  <use   name="cppunit"/>
 </bin>
 
-<bin  file="Para_.cpp">
- <use   name="cppunit"/>
-</bin>
-
 <bin  file="Trap_.cpp">
  <use   name="cppunit"/>
 </bin>
 
 <bin  file="Sphere_.cpp">
- <use   name="cppunit"/>
-</bin>
-
-<bin  file="Orb_.cpp">
- <use   name="cppunit"/>
-</bin>
-
-<bin  file="Parallelepiped_.cpp">
  <use   name="cppunit"/>
 </bin>
 

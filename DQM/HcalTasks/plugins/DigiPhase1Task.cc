@@ -333,10 +333,14 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 		if (rawid==0) 
 		{meUnknownIds1LS->Fill(1); _unknownIdsPresent=true;continue;}
 		HcalElectronicsId const& eid(rawid);
-		if (did.subdet()==HcalBarrel)
+		if (did.subdet()==HcalBarrel) {
 			rawidHBValid = did.rawId();
-		else if (did.subdet()==HcalEndcap) 
+		} else if (did.subdet()==HcalEndcap) {
 			rawidHEValid = did.rawId();
+		} else {
+			// Skip non-HB or HE detids
+			continue;
+		}
 
 		//  filter out channels that are masked out
 		if (_xQuality.exists(did)) 
@@ -556,8 +560,12 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 		if (rawid==0) 
 		{meUnknownIds1LS->Fill(1); _unknownIdsPresent=true;continue;}
 		HcalElectronicsId const& eid(rawid);
-		if (did.subdet()==HcalForward)
+		if (did.subdet()==HcalForward) {
 			rawidValid = did.rawId();
+		} else {
+			// Skip non-HF detids
+			continue;
+		}
 
 		//  filter out channels that are masked out
 		if (_xQuality.exists(did)) 

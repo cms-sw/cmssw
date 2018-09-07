@@ -46,20 +46,19 @@ namespace edm {
   }
 
   std::unique_ptr<WrapperBase>
-  RootDelayedReader::getProduct_(BranchKey const& k, EDProductGetter const* ep) {
+  RootDelayedReader::getProduct_(BranchID const& k, EDProductGetter const* ep) {
     if (lastException_) {
       std::rethrow_exception(lastException_);
     }
-    iterator iter = branchIter(k);
-    if (!found(iter)) {
+    auto branchInfo = getBranchInfo(k);
+    if (not branchInfo) {
       if (nextReader_) {
         return nextReader_->getProduct(k, ep);
       } else {
         return std::unique_ptr<WrapperBase>();
       }
     }
-    roottree::BranchInfo const& branchInfo = getBranchInfo(iter);
-    TBranch* br = branchInfo.productBranch_;
+    TBranch* br = branchInfo->productBranch_;
     if (br == nullptr) {
       if (nextReader_) {
         return nextReader_->getProduct(k, ep);
@@ -72,14 +71,14 @@ namespace edm {
     //make code exception safe
     std::shared_ptr<void> refCoreStreamerGuard(nullptr,[](void*){    setRefCoreStreamer(false);
       ;});
-    TClass* cp = branchInfo.classCache_;
+    TClass* cp = branchInfo->classCache_;
     if(nullptr == cp) {
-      branchInfo.classCache_ = TClass::GetClass(branchInfo.branchDescription_.wrappedName().c_str());
-      cp = branchInfo.classCache_;
-      branchInfo.offsetToWrapperBase_ = cp->GetBaseClassOffset(wrapperBaseTClass_);
+      branchInfo->classCache_ = TClass::GetClass(branchInfo->branchDescription_.wrappedName().c_str());
+      cp = branchInfo->classCache_;
+      branchInfo->offsetToWrapperBase_ = cp->GetBaseClassOffset(wrapperBaseTClass_);
     }
     void* p = cp->New();
-    std::unique_ptr<WrapperBase> edp = getWrapperBasePtr(p, branchInfo.offsetToWrapperBase_); 
+    std::unique_ptr<WrapperBase> edp = getWrapperBasePtr(p, branchInfo->offsetToWrapperBase_);
     br->SetAddress(&p);
     try{
       //Run and Lumi only have 1 entry number, which is index 0

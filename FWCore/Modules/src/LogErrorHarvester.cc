@@ -26,6 +26,7 @@
 #include "DataFormats/Common/interface/EndPathStatus.h"
 #include "DataFormats/Common/interface/PathStatus.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Utilities/interface/EDPutToken.h"
 
 // system include files
 #include <memory>
@@ -46,12 +47,13 @@ namespace edm {
     void beginJob() override;
     void produce(StreamID, Event&, EventSetup const&) const override;
     void endJob() override;
-    
+    EDPutTokenT<std::vector<ErrorSummaryEntry>> token_;
   };
 
-  LogErrorHarvester::LogErrorHarvester(ParameterSet const& iPSet) {
+  LogErrorHarvester::LogErrorHarvester(ParameterSet const& iPSet):
+  token_{produces<std::vector<ErrorSummaryEntry>>()}
+  {
     
-    produces<std::vector<ErrorSummaryEntry>>();
 
     const edm::TypeID endPathStatusType{typeid(edm::EndPathStatus)};
     const edm::TypeID pathStatusType{typeid(edm::PathStatus)};
@@ -88,9 +90,10 @@ namespace edm {
   LogErrorHarvester::produce(StreamID const sid, Event& iEvent, EventSetup const&) const {
     const auto index = sid.value();
     if(!FreshErrorsExist(index)) {
-      iEvent.put(std::make_unique<std::vector<ErrorSummaryEntry>>());
+      //puts a default constructed product in the event
+      iEvent.emplace(token_);
     } else {
-      iEvent.put(std::make_unique<std::vector<ErrorSummaryEntry>>(LoggedErrorsSummary(index)));
+      iEvent.emplace(token_,LoggedErrorsSummary(index));
     }
   }
 

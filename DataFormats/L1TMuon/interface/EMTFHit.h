@@ -16,6 +16,7 @@
 #include "DataFormats/RPCDigi/interface/RPCDigi.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigi.h"
 #include "DataFormats/GEMDigi/interface/ME0PadDigi.h"
+#include "DataFormats/L1TMuon/interface/CPPFDigi.h"
 #include "DataFormats/L1TMuon/interface/EMTF/ME.h"
 
 namespace l1t {
@@ -34,6 +35,7 @@ namespace l1t {
       fs_segment(-99), fs_zone_code(-99), bt_station(-99), bt_segment(-99),
       phi_loc(-99), phi_glob(-999), theta(-99), eta(-99), time(-99),
       phi_sim(-999), theta_sim(-99), eta_sim(-99), rho_sim(-99), z_sim(-99),
+      alct_quality(-99), clct_quality(-99),
       is_CSC(-99), is_RPC(-99), is_GEM(-99), subsystem(-99)
       {};
 
@@ -43,12 +45,14 @@ namespace l1t {
     CSCDetId CreateCSCDetId() const;
     // void ImportRPCDetId (const RPCDetId& _detId);
     // void ImportGEMDetId (const GEMDetId& _detId);
-    // RPCDetId CreateRPCDetId() const;
+    RPCDetId CreateRPCDetId() const;
     // GEMDetId CreateGEMDetId() const;
     // void ImportCSCCorrelatedLCTDigi (const CSCCorrelatedLCTDigi& _digi);
     CSCCorrelatedLCTDigi CreateCSCCorrelatedLCTDigi() const;
     // void ImportRPCDigi (const RPCDigi& _digi);
     // RPCDigi CreateRPCDigi() const;
+    // void ImportCPPFDigi (const CPPFDigi& _digi);
+    CPPFDigi CreateCPPFDigi() const;
     // void ImportGEMPadDigi (const GEMPadDigi& _digi);
     // GEMPadDigi CreateGEMPadDigi() const;
 
@@ -60,6 +64,7 @@ namespace l1t {
     //void SetGEMDetId   (const GEMDetId& id)                 { gem_DetId         = id;        }
     //void SetCSCLCTDigi (const CSCCorrelatedLCTDigi& digi)   { csc_LCTDigi       = digi;      }
     //void SetRPCDigi    (const RPCDigi& digi)                { rpc_Digi          = digi;      }
+    //void SetCPPFDigi   (const CPPFDigi& digi)               { cppf_Digi         = digi;      }
     //void SetGEMPadDigi (const GEMPadDigi& digi)             { gem_PadDigi       = digi;      }
     void SetCSCDetId   (const CSCDetId& id)                 { rawDetId = id.rawId(); }
     void SetRPCDetId   (const RPCDetId& id)                 { rawDetId = id.rawId(); }
@@ -71,6 +76,7 @@ namespace l1t {
     //GEMDetId GEM_DetId                          () const { return gem_DetId;    }
     //CSCCorrelatedLCTDigi CSC_LCTDigi            () const { return csc_LCTDigi;  }
     //RPCDigi RPC_Digi                            () const { return rpc_Digi;     }
+    //CPPFDigi CPPF_Digi                          () const { return cppf_Digi;    }
     //GEMPadDigi GEM_PadDigi                      () const { return gem_PadDigi;  }
     CSCDetId CSC_DetId                          () const { return CSCDetId(rawDetId); }
     RPCDetId RPC_DetId                          () const { return RPCDetId(rawDetId); }
@@ -128,6 +134,8 @@ namespace l1t {
     void set_eta_sim      (float val) { eta_sim      = val;  }
     void set_rho_sim      (float val) { rho_sim      = val;  }
     void set_z_sim        (float val) { z_sim        = val;  }
+    void set_alct_quality (int  bits) { alct_quality = bits; }
+    void set_clct_quality (int  bits) { clct_quality = bits; }
     void set_is_CSC       (int  bits) { is_CSC       = bits; }
     void set_is_RPC       (int  bits) { is_RPC       = bits; }
     void set_is_GEM       (int  bits) { is_GEM       = bits; }
@@ -184,6 +192,8 @@ namespace l1t {
     float Eta_sim      ()  const { return eta_sim     ; }
     float Rho_sim      ()  const { return rho_sim     ; }
     float Z_sim        ()  const { return z_sim       ; }
+    int   ALCT_quality ()  const { return alct_quality; }
+    int   CLCT_quality ()  const { return clct_quality; }
     int   Is_CSC       ()  const { return is_CSC      ; }
     int   Is_RPC       ()  const { return is_RPC      ; }
     int   Is_GEM       ()  const { return is_GEM      ; }
@@ -197,6 +207,7 @@ namespace l1t {
     //GEMDetId gem_DetId;
     //CSCCorrelatedLCTDigi csc_LCTDigi;
     //RPCDigi rpc_Digi;
+    //CPPFDigi cppf_Digi;
     //GEMPadDigi gem_PadDigi;
 
     uint32_t rawDetId;  // raw CMSSW DetId
@@ -252,6 +263,8 @@ namespace l1t {
     float eta_sim     ; // +/-2.5.
     float rho_sim     ; //  ? -  ?.
     float z_sim       ; //  ? -  ?.
+    int   alct_quality; //  1 -  3.  For emulated CSC LCTs only, maps to number of ALCT layers (4 - 6).
+    int   clct_quality; //  4 -  6.  For emulated CSC LCTs only, maps to number of CLCT layers (4 - 6).
     int   is_CSC      ; //  0 or 1.
     int   is_RPC      ; //  0 or 1.
     int   is_GEM      ; //  0 or 1.

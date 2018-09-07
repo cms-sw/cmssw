@@ -5,6 +5,7 @@ _AlCa_
 Scenario supporting proton collisions
 
 """
+from __future__ import print_function
 
 import os
 import sys
@@ -60,7 +61,7 @@ class AlCa(Scenario):
         """
         step = ""
         pclWflws = [x for x in skims if "PromptCalibProd" in x]
-        skims = filter(lambda x: x not in pclWflws, skims)
+        skims = [x for x in skims if x not in pclWflws]
 
         if len(pclWflws):
             step += 'ALCA:'+('+'.join(pclWflws))
@@ -198,7 +199,7 @@ class AlCa(Scenario):
             outputs_Raw = [x for x in args['outputs'] if x['dataTier'] == 'RAW']
             outputs_noRaw = [x for x in args['outputs'] if x['dataTier'] != 'RAW']
             if len(outputs_Raw) == 1:
-                print 'RAW data-tier requested'
+                print('RAW data-tier requested')
             options.outputDefinition = outputs_noRaw.__str__()
 
         # dictIO(options,args)
@@ -219,7 +220,7 @@ class AlCa(Scenario):
         addMonitoring(process)
 
         for output in outputs_Raw:
-            print output
+            print(output)
             moduleLabel = output['moduleLabel']
             selectEvents = output.get('selectEvents', None)
             maxSize = output.get('maxSize', None)

@@ -27,8 +27,10 @@ existence.
 */
 
 namespace edm {
+  class MergeableRunProductMetadataBase;
   class ProductProvenance;
   class ProductProvenanceRetriever;
+
   class Provenance {
   public:
     Provenance();
@@ -44,6 +46,7 @@ namespace edm {
     std::shared_ptr<BranchDescription const> const& constBranchDescriptionPtr() const {return stable().constBranchDescriptionPtr();}
 
     ProductProvenance const* productProvenance() const;
+    bool knownImproperlyMerged() const;
     BranchID const& branchID() const {return stable().branchID();}
     std::string const& branchName() const {return stable().branchName();}
     std::string const& className() const {return stable().className();}
@@ -81,6 +84,10 @@ namespace edm {
 
     void setProductID(ProductID const& pid) {stable().setProductID(pid);}
 
+    void setMergeableRunProductMetadata(MergeableRunProductMetadataBase const* mrpm) {
+      mergeableRunProductMetadata_ = mrpm;
+    }
+
     void setBranchDescription(std::shared_ptr<BranchDescription const> const& p) {stable().setBranchDescription(p);}
 
     void swap(Provenance&);
@@ -88,6 +95,7 @@ namespace edm {
   private:
     StableProvenance stableProvenance_;
     ProductProvenanceRetriever const* store_;
+    MergeableRunProductMetadataBase const* mergeableRunProductMetadata_;
   };
 
   inline

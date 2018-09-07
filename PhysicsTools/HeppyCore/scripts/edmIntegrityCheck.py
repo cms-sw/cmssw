@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 from PhysicsTools.HeppyCore.utils.edmIntegrityCheck import PublishToFileSystem, IntegrityCheck
 import das
 
@@ -31,9 +32,9 @@ e.g.: %prog -u wreece -p -w 'PFAOD_*.root' /MultiJet/Run2011A-05Aug2011-v1/AOD/V
     (opts, datasets) = das.get_opt()
 
     if len(datasets)==0:
-        print das.parser.print_help()
-        print
-        print 'need to provide a dataset in argument'
+        print(das.parser.print_help())
+        print()
+        print('need to provide a dataset in argument')
 
     def work(d,op):
         tokens = d.split('%')
@@ -57,7 +58,7 @@ e.g.: %prog -u wreece -p -w 'PFAOD_*.root' /MultiJet/Run2011A-05Aug2011-v1/AOD/V
         return d
 
     def callback(result):
-        print 'Checking thread done: ',str(result)
+        print('Checking thread done: ',str(result))
     
     #submit the main work in a multi-threaded way
 

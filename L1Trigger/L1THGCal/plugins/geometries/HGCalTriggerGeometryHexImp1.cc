@@ -15,6 +15,9 @@ class HGCalTriggerGeometryHexImp1 : public HGCalTriggerGeometryGenericMapping
         HGCalTriggerGeometryHexImp1(const edm::ParameterSet& conf);
 
         void initialize(const edm::ESHandle<CaloGeometry>& ) final;
+        void initialize(const edm::ESHandle<HGCalGeometry>&,
+                const edm::ESHandle<HGCalGeometry>&,
+                const edm::ESHandle<HGCalGeometry>&) final;
 
     private:
         edm::FileInPath l1tCellsMapping_;
@@ -34,7 +37,6 @@ HGCalTriggerGeometryHexImp1::HGCalTriggerGeometryHexImp1(const edm::ParameterSet
 {
 }
 
-
 /*****************************************************************/
 void HGCalTriggerGeometryHexImp1::initialize(const edm::ESHandle<CaloGeometry>& calo_geometry)
 /*****************************************************************/
@@ -46,6 +48,17 @@ void HGCalTriggerGeometryHexImp1::initialize(const edm::ESHandle<CaloGeometry>& 
     fillMaps();
     buildTriggerCellsAndModules();
 
+}
+
+/*****************************************************************/
+ void HGCalTriggerGeometryHexImp1::initialize(const edm::ESHandle<HGCalGeometry>& hgc_ee_geometry,
+        const edm::ESHandle<HGCalGeometry>& hgc_hsi_geometry,
+        const edm::ESHandle<HGCalGeometry>& hgc_hsc_geometry
+        )
+/*****************************************************************/
+{
+    throw cms::Exception("BadGeometry")
+        << "HGCalTriggerGeometryHexImp1 geometry cannot be initialized with the V9 HGCAL geometry";
 }
 
 

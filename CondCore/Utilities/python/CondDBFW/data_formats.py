@@ -29,7 +29,7 @@ def to_datatables(script):
 	def new_script(self, connection):
 		try:
 			data = script(self, connection)
-			if(type(data) == list):
+			if(isinstance(data, list)):
 				data = _json_data_node.make(data)
 			return to_datatables(data)
 		except (KeyError, TypeError) as e:
@@ -63,7 +63,7 @@ def _to_array_of_dicts(data):
 	headers = data.get("headers").data()
 	data_list = data.get("data").data()
 	def unicode_to_str(string):
-		return str(string) if type(string) == unicode else string
+		return str(string) if isinstance(string, unicode) else string
 	headers = map(unicode_to_str, headers)
 	def row_to_dict(row):
 		row = map(unicode_to_str, row)
@@ -75,7 +75,7 @@ def _to_datatables(data):
 	headers = map(str, data.get(0).data().keys())
 	new_data = []
 	for n in range(0, len(data.data())):
-		new_data.append(map(lambda entry : str(entry) if type(entry) == unicode else entry, data.get(n).data().values()))
+		new_data.append(map(lambda entry : str(entry) if isinstance(entry, unicode) else entry, data.get(n).data().values()))
 	return json_data_node.make({
 		"headers" : headers,
 		"data" : new_data

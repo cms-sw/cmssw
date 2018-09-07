@@ -1,4 +1,4 @@
-#include "../interface/LaserClient.h"
+#include "DQM/EcalMonitorClient/interface/LaserClient.h"
 
 #include "DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h"
 

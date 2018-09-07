@@ -201,7 +201,7 @@ RAWSIMEventContent = cms.PSet(
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize=cms.untracked.int32(20*1024*1024),
     compressionAlgorithm=cms.untracked.string("LZMA"),
-    compressionLevel=cms.untracked.int32(9)
+    compressionLevel=cms.untracked.int32(1)
 )
 #
 #
@@ -552,6 +552,7 @@ from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify(PREMIXEventContent, outputCommands = PREMIXEventContent.outputCommands+[
         # Tracker
         'keep Phase2TrackerDigiedmDetSetVector_mix_*_*',
+        'keep *_*_Phase2OTDigiSimLink_*',
         'keep *_simSiPixelDigis_*_*', # covers digis and digiSimLinks
         # MTD
         # ???
@@ -562,9 +563,9 @@ phase2_common.toModify(PREMIXEventContent, outputCommands = PREMIXEventContent.o
         'keep *_simHcalDigis_*_*',
         'keep ZDCDataFramesSorted_simHcalUnsuppressedDigis_*_*',
         # HGCAL
-        'keep *_mix_HGCDigisEE_*',
-        'keep *_mix_HGCDigisHEfront_*',
-        'keep *_mix_HGCDigisHEback_*',
+        'keep *_simHGCalUnsuppressedDigis_EE_*',
+        'keep *_simHGCalUnsuppressedDigis_HEfront_*',
+        'keep *_simHGCalUnsuppressedDigis_HEback_*',
         # DT
         'keep *_simMuonDTDigis_*_*',
         # CSC
@@ -574,8 +575,13 @@ phase2_common.toModify(PREMIXEventContent, outputCommands = PREMIXEventContent.o
         'keep *_simMuonRPCDigis_*_*',
         # GEM
         'keep *_simMuonGEMDigis_*_*',
+        'keep *_*_GEMDigiSimLink_*',
+        'keep *_*_GEMStripDigiSimLink_*',
         # ME0
         'keep *_simMuonME0Digis_*_*',
+        'keep *_mix_g4SimHitsMuonME0Hits_*',
+        'keep *_*_ME0DigiSimLink_*',
+        'keep *_*_ME0StripDigiSimLink_*',
         # CaloParticles
         'keep *_mix_MergedCaloTruth_*',
 ])
@@ -745,13 +751,22 @@ FEVTDEBUGHLTEventContent.outputCommands.extend(HLTDebugFEVT.outputCommands)
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_MergedTrackTruth_*')
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_StripDigiSimLink_*')
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_PixelDigiSimLink_*')
-FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_MuonCSCStripDigiSimLinks_*')
-FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_MuonCSCWireDigiSimLinks_*')
-FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_RPCDigiSimLink_*')
-FEVTDEBUGHLTEventContent.outputCommands.append('keep DTLayerIdDTDigiSimLinkMuonDigiCollection_*_*_*')
 RECODEBUGEventContent.outputCommands.extend(RECOSIMEventContent.outputCommands)
 RECODEBUGEventContent.outputCommands.extend(SimGeneralFEVTDEBUG.outputCommands)
 RECODEBUGEventContent.outputCommands.extend(SimTrackerDEBUG.outputCommands)
+
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+(premix_stage2 & phase2_tracker).toModify(FEVTDEBUGHLTEventContent, outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
+    'keep *_*_Phase2OTDigiSimLink_*'
+])
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+(premix_stage2 & phase2_muon).toModify(FEVTDEBUGHLTEventContent, outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
+    'keep *_*_GEMDigiSimLink_*',
+    'keep *_*_GEMStripDigiSimLink_*',
+    'keep *_*_ME0DigiSimLink_*',
+    'keep *_*_ME0StripDigiSimLink_*',
+])
 
 REPACKRAWSIMEventContent.outputCommands.extend(['drop FEDRawDataCollection_source_*_*',
                                                 'drop FEDRawDataCollection_rawDataCollector_*_*'])
@@ -900,7 +915,6 @@ for _entry in [MINIAODEventContent, MINIAODSIMEventContent]:
     fastSim.toModify(_entry, outputCommands = _entry.outputCommands + fastSimEC.dropPatTrigger)
 
 
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 for _entry in [FEVTDEBUGEventContent,FEVTDEBUGHLTEventContent,FEVTEventContent]:
     phase2_tracker.toModify(_entry, outputCommands = _entry.outputCommands + [
         'keep Phase2TrackerDigiedmDetSetVector_mix_*_*',

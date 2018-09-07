@@ -26,19 +26,22 @@
 using namespace std;
 using namespace edm;
 
+namespace dtsegment4d {
 struct Histograms {
-  HRes4DHit *h4DHit;
-  HRes4DHit *h4DHit_W0;
-  HRes4DHit *h4DHit_W1;
-  HRes4DHit *h4DHit_W2;
-  HRes4DHit *h4DHitWS[3][4];
+  std::unique_ptr<HRes4DHit> h4DHit;
+  std::unique_ptr<HRes4DHit> h4DHit_W0;
+  std::unique_ptr<HRes4DHit> h4DHit_W1;
+  std::unique_ptr<HRes4DHit> h4DHit_W2;
+  std::unique_ptr<HRes4DHit> h4DHitWS[3][4];
 
-  HEff4DHit *hEff_All;
-  HEff4DHit *hEff_W0;
-  HEff4DHit *hEff_W1;
-  HEff4DHit *hEff_W2;
-  HEff4DHit *hEffWS[3][4];
+  std::unique_ptr<HEff4DHit> hEff_All;
+  std::unique_ptr<HEff4DHit> hEff_W0;
+  std::unique_ptr<HEff4DHit> hEff_W1;
+  std::unique_ptr<HEff4DHit> hEff_W2;
+  std::unique_ptr<HEff4DHit> hEffWS[3][4];
 };
+}
+using namespace dtsegment4d;
 
 // In phi SLs, The dependency on X and angle is specular in positive
 // and negative wheels. Since positive and negative wheels are filled
@@ -47,7 +50,7 @@ struct Histograms {
 // simmetrized one.
 // Set mirrorMinusWheels to avoid this.
 namespace {
-  bool mirrorMinusWheels = true;
+  constexpr bool mirrorMinusWheels = true;
 }
 
 // Constructor
@@ -74,16 +77,16 @@ DTSegment4DQuality::DTSegment4DQuality(const ParameterSet& pset)  {
 }
 
 void DTSegment4DQuality::bookHistograms(DQMStore::ConcurrentBooker & booker, edm::Run const& run, edm::EventSetup const& setup, Histograms & histograms) const {
-  histograms.h4DHit     = new HRes4DHit("All", booker, doall_, local_);
-  histograms.h4DHit_W0  = new HRes4DHit("W0", booker, doall_, local_);
-  histograms.h4DHit_W1  = new HRes4DHit("W1", booker, doall_, local_);
-  histograms.h4DHit_W2  = new HRes4DHit("W2", booker, doall_, local_);
+  histograms.h4DHit     = std::make_unique<HRes4DHit>("All", booker, doall_, local_);
+  histograms.h4DHit_W0  = std::make_unique<HRes4DHit>("W0", booker, doall_, local_);
+  histograms.h4DHit_W1  = std::make_unique<HRes4DHit>("W1", booker, doall_, local_);
+  histograms.h4DHit_W2  = std::make_unique<HRes4DHit>("W2", booker, doall_, local_);
 
   if (doall_) {
-    histograms.hEff_All = new HEff4DHit("All", booker);
-    histograms.hEff_W0  = new HEff4DHit("W0", booker);
-    histograms.hEff_W1  = new HEff4DHit("W1", booker);
-    histograms.hEff_W2  = new HEff4DHit("W2", booker);
+    histograms.hEff_All = std::make_unique<HEff4DHit>("All", booker);
+    histograms.hEff_W0  = std::make_unique<HEff4DHit>("W0", booker);
+    histograms.hEff_W1  = std::make_unique<HEff4DHit>("W1", booker);
+    histograms.hEff_W2  = std::make_unique<HEff4DHit>("W2", booker);
   }
 
   if (local_) {
@@ -93,8 +96,8 @@ void DTSegment4DQuality::bookHistograms(DQMStore::ConcurrentBooker & booker, edm
       for (long s = 1;s<= 4;++s) {
 	// FIXME station 4 is not filled
 	TString nameWS =(name+w+"_St"+s);
-	histograms.h4DHitWS[w][s-1] = new HRes4DHit(nameWS.Data(), booker, doall_, local_);
-	histograms.hEffWS[w][s-1]   = new HEff4DHit(nameWS.Data(), booker);
+	histograms.h4DHitWS[w][s-1] = std::make_unique<HRes4DHit>(nameWS.Data(), booker, doall_, local_);
+	histograms.hEffWS[w][s-1]   = std::make_unique<HEff4DHit>(nameWS.Data(), booker);
       }
     }
   }
@@ -357,11 +360,11 @@ void DTSegment4DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup con
         HRes4DHit *histo = nullptr;
 
         if (wheel == 0) {
-          histo = histograms.h4DHit_W0;
+          histo = histograms.h4DHit_W0.get();
         } else if (abs(wheel) == 1) {
-          histo = histograms.h4DHit_W1;
+          histo = histograms.h4DHit_W1.get();
         } else if (abs(wheel) == 2) {
-          histo = histograms.h4DHit_W2;
+          histo = histograms.h4DHit_W2.get();
 }
 
         float sigmaAlphaBestRhit = sqrt(DTHitQualityUtils::sigmaAngle(alphaBestRHit, bestRecHitLocalDirErr.xx()));
@@ -444,11 +447,11 @@ void DTSegment4DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup con
       HEff4DHit *heff = nullptr;
 
       if (wheel == 0) {
-        heff = histograms.hEff_W0;
+        heff = histograms.hEff_W0.get();
       } else if (abs(wheel) == 1) {
-        heff = histograms.hEff_W1;
+        heff = histograms.hEff_W1.get();
       } else if (abs(wheel) == 2) {
-        heff = histograms.hEff_W2;
+        heff = histograms.hEff_W2.get();
 }
       heff->fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound, count_seg);
       histograms.hEff_All->fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound, count_seg);

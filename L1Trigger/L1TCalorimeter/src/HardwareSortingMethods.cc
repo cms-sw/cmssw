@@ -10,10 +10,12 @@
 #include "L1Trigger/L1TCalorimeter/interface/HardwareSortingMethods.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-bool verbose = false;
+namespace {
+constexpr bool verbose = false;
 
-int fw_to_gt_phi_map[] = {4, 3, 2, 1, 0, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5};
-int gt_to_fw_phi_map[] = {4, 3, 2, 1, 0, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5};
+constexpr int fw_to_gt_phi_map[] = {4, 3, 2, 1, 0, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5};
+constexpr int gt_to_fw_phi_map[] = {4, 3, 2, 1, 0, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5};
+}
 
 namespace l1t{
   unsigned int pack15bits(int pt, int eta, int phi)

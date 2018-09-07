@@ -32,3 +32,7 @@ patCandidatesTask = cms.Task(
     makePatMETsTask
 )
 patCandidates = cms.Sequence(patCandidateSummary, patCandidatesTask)
+
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toReplaceWith(patCandidatesTask, patCandidatesTask.copyAndExclude([makePatOOTPhotonsTask]))
+pp_on_AA_2018.toModify(patCandidateSummary.candidates, func = lambda list: list.remove(cms.InputTag("patOOTPhotons")) )

@@ -1,3 +1,4 @@
+from __future__ import print_function
 from FWCore.GuiBrowsers.ConfigToolBase import *
 
 from PhysicsTools.PatAlgos.tools.helpers import *
@@ -126,27 +127,27 @@ class SwitchOnTrigger( ConfigToolBase ):
             from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import patTrigger
             addToProcessAndTask(triggerProducer, patTrigger.clone(), process, task)
         else:
-            print '%s():'%( self._label )
-            print '    PATTriggerProducer module \'%s\' exists already in process'%( triggerProducer )
-            print '    ==> entry re-used'
-            print _longLine
+            print('%s():'%( self._label ))
+            print('    PATTriggerProducer module \'%s\' exists already in process'%( triggerProducer ))
+            print('    ==> entry re-used')
+            print(_longLine)
         if not hasattr( process, triggerEventProducer ):
             from PhysicsTools.PatAlgos.triggerLayer1.triggerEventProducer_cfi import patTriggerEvent
             addToProcessAndTask(triggerEventProducer, patTriggerEvent.clone(), process, task)
         else:
-            print '%s():'%( self._label )
-            print '    PATTriggerEventProducer module \'%s\' exists already in process'%( triggerEventProducer )
-            print '    ==> entry re-used'
-            print _longLine
+            print('%s():'%( self._label ))
+            print('    PATTriggerEventProducer module \'%s\' exists already in process'%( triggerEventProducer ))
+            print('    ==> entry re-used')
+            print(_longLine)
 
         # Maintain configurations
         trigProdMod             = getattr( process, triggerProducer )
         trigProdMod.processName = hltProcess
         if trigProdMod.onlyStandAlone.value() is True:
             trigProdMod.onlyStandAlone = False
-            print '    configuration parameter automatically changed'
-            print '    PATTriggerProducer %s.onlyStandAlone --> %s'%( triggerProducer, trigProdMod.onlyStandAlone )
-            print _longLine
+            print('    configuration parameter automatically changed')
+            print('    PATTriggerProducer %s.onlyStandAlone --> %s'%( triggerProducer, trigProdMod.onlyStandAlone ))
+            print(_longLine)
         trigEvtProdMod                    = getattr( process, triggerEventProducer )
         trigEvtProdMod.processName        = hltProcess
         trigEvtProdMod.patTriggerProducer = cms.InputTag( triggerProducer )
@@ -154,10 +155,10 @@ class SwitchOnTrigger( ConfigToolBase ):
             if not hasattr( process, path ):
                 prodPath = cms.Path( trigProdMod + trigEvtProdMod )
                 setattr( process, path, prodPath )
-                print '%s():'%( self._label )
-                print '    Path \'%s\' does not exist in process'%( path )
-                print '    ==> created'
-                print _longLine
+                print('%s():'%( self._label ))
+                print('    Path \'%s\' does not exist in process'%( path ))
+                print('    ==> created')
+                print(_longLine)
             # Try to get the order right, but cannot deal with all possible cases.
             # Simply rely on the exclusive usage of these tools without manual intervention.
             else:
@@ -250,10 +251,10 @@ class SwitchOnTriggerStandAlone( ConfigToolBase ):
             from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import patTrigger
             addToProcessAndTask(triggerProducer, patTrigger.clone( onlyStandAlone = True ), process, task)
         else:
-            print '%s():'%( self._label )
-            print '    PATTriggerProducer module \'%s\' exists already in process'%( triggerProducer )
-            print '    ==> entry re-used'
-            print _longLine
+            print('%s():'%( self._label ))
+            print('    PATTriggerProducer module \'%s\' exists already in process'%( triggerProducer ))
+            print('    ==> entry re-used')
+            print(_longLine)
 
         # Maintain configuration
         trigProdMod             = getattr( process, triggerProducer )
@@ -262,10 +263,10 @@ class SwitchOnTriggerStandAlone( ConfigToolBase ):
             if not hasattr( process, path ):
                 prodPath = cms.Path( trigProdMod )
                 setattr( process, path, prodPath )
-                print '%s():'%( self._label )
-                print '    Path \'%s\' does not exist in process'%( path )
-                print '    ==> created'
-                print _longLine
+                print('%s():'%( self._label ))
+                print('    Path \'%s\' does not exist in process'%( path ))
+                print('    ==> created')
+                print(_longLine)
             elif not triggerProducer in _modulesInPath( process, path ):
                 prodPath = getattr( process, path )
                 prodPath += trigProdMod
@@ -372,10 +373,10 @@ class SwitchOnTriggerMatching( ConfigToolBase ):
             task.add(process.triggerMatcherExamplesTask)
         # Switch on PAT trigger information if needed
         if not hasattr( process, triggerEventProducer ):
-            print '%s():'%( self._label )
-            print '    PAT trigger production switched on automatically using'
-            print '    switchOnTrigger( process, \'%s\', \'%s\', \'%s\', \'%s\', \'%s\' )'%( hltProcess, triggerProducer, triggerEventProducer, path, outputModule )
-            print _longLine
+            print('%s():'%( self._label ))
+            print('    PAT trigger production switched on automatically using')
+            print('    switchOnTrigger( process, \'%s\', \'%s\', \'%s\', \'%s\', \'%s\' )'%( hltProcess, triggerProducer, triggerEventProducer, path, outputModule ))
+            print(_longLine)
             switchOnTrigger( process, triggerProducer, triggerEventProducer, path, hltProcess, outputModule )
 
         # Maintain configurations
@@ -383,10 +384,10 @@ class SwitchOnTriggerMatching( ConfigToolBase ):
         triggerMatchersKnown = []
         for matcher in triggerMatchers:
             if not hasattr( process, matcher ):
-                print '%s():'%( self._label )
-                print '    Matcher \'%s\' not known to process'%( matcher )
-                print '    ==> skipped'
-                print _longLine
+                print('%s():'%( self._label ))
+                print('    Matcher \'%s\' not known to process'%( matcher ))
+                print('    ==> skipped')
+                print(_longLine)
                 continue
             triggerMatchersKnown.append( matcher )
             trigMchMod         = getattr( process, matcher )
@@ -394,15 +395,15 @@ class SwitchOnTriggerMatching( ConfigToolBase ):
             trigMchMod.matched = triggerProducer
         matchers = getattr( trigEvtProdMod, 'patTriggerMatches' )
         if len( matchers ) > 0:
-            print '%s():'%( self._label )
-            print '    PAT trigger matchers already attached to existing PATTriggerEventProducer \'%s\''%( triggerEventProducer )
-            print '    configuration parameters automatically changed'
+            print('%s():'%( self._label ))
+            print('    PAT trigger matchers already attached to existing PATTriggerEventProducer \'%s\''%( triggerEventProducer ))
+            print('    configuration parameters automatically changed')
             for matcher in matchers:
                 trigMchMod = getattr( process, matcher )
                 if trigMchMod.matched.value() is not triggerProducer:
                     trigMchMod.matched = triggerProducer
-                    print '    PAT trigger matcher %s.matched --> %s'%( matcher, trigMchMod.matched )
-            print _longLine
+                    print('    PAT trigger matcher %s.matched --> %s'%( matcher, trigMchMod.matched ))
+            print(_longLine)
         else:
             trigEvtProdMod.patTriggerMatches = cms.VInputTag()
         for matcher in triggerMatchersKnown:
@@ -504,20 +505,20 @@ class SwitchOnTriggerMatchingStandAlone( ConfigToolBase ):
 
         # Switch on PAT trigger information if needed
         if not hasattr( process, triggerProducer ):
-            print '%s():'%( self._label )
-            print '    PAT trigger production switched on automatically using'
-            print '    switchOnTriggerStandAlone( process, \'%s\', \'%s\', \'%s\', \'%s\' )'%( hltProcess, triggerProducer, path, outputModule )
-            print _longLine
+            print('%s():'%( self._label ))
+            print('    PAT trigger production switched on automatically using')
+            print('    switchOnTriggerStandAlone( process, \'%s\', \'%s\', \'%s\', \'%s\' )'%( hltProcess, triggerProducer, path, outputModule ))
+            print(_longLine)
             switchOnTriggerStandAlone( process, triggerProducer, path, hltProcess, outputModule )
 
         # Maintain configurations
         triggerMatchersKnown = []
         for matcher in triggerMatchers:
             if not hasattr( process, matcher ):
-                print '%s():'%( self._label )
-                print '    Matcher \'%s\' not known to process'%( matcher )
-                print '    ==> skipped'
-                print _longLine
+                print('%s():'%( self._label ))
+                print('    Matcher \'%s\' not known to process'%( matcher ))
+                print('    ==> skipped')
+                print(_longLine)
                 continue
             triggerMatchersKnown.append( matcher )
             trigMchMod         = getattr( process, matcher )
@@ -661,16 +662,16 @@ class SwitchOnTriggerMatchEmbedding( ConfigToolBase ):
         dictConfig = {}
         if not hasattr( process, triggerProducer ):
             if exampleMatchers:
-                print '%s():'%( self._label )
-                print '    PAT trigger matching switched on automatically using'
-                print '    switchOnTriggerMatchingStandAlone( process, \'%s\', None, \'%s\', \'%s\', \'%s\', \'%s\' )'%( hltProcess, triggerProducer, path, outputModule, postfix )
-                print _longLine
+                print('%s():'%( self._label ))
+                print('    PAT trigger matching switched on automatically using')
+                print('    switchOnTriggerMatchingStandAlone( process, \'%s\', None, \'%s\', \'%s\', \'%s\', \'%s\' )'%( hltProcess, triggerProducer, path, outputModule, postfix ))
+                print(_longLine)
                 switchOnTriggerMatchingStandAlone( process, None, triggerProducer, path, hltProcess, '', postfix ) # Do not store intermediate output collections.
             else:
-                print '%s():'%( self._label )
-                print '    PAT trigger matching switched on automatically using'
-                print '    switchOnTriggerMatchingStandAlone( process, \'%s\', %s, \'%s\', \'%s\', \'%s\', \'%s\' )'%( hltProcess, triggerMatchers, triggerProducer, path, outputModule, postfix )
-                print _longLine
+                print('%s():'%( self._label ))
+                print('    PAT trigger matching switched on automatically using')
+                print('    switchOnTriggerMatchingStandAlone( process, \'%s\', %s, \'%s\', \'%s\', \'%s\', \'%s\' )'%( hltProcess, triggerMatchers, triggerProducer, path, outputModule, postfix ))
+                print(_longLine)
                 switchOnTriggerMatchingStandAlone( process, triggerMatchers, triggerProducer, path, hltProcess, '', postfix ) # Do not store intermediate output collections.
         elif exampleMatchers:
             process.load( "PhysicsTools.PatAlgos.triggerLayer1.triggerMatcherExamples_cfi" )
@@ -679,10 +680,10 @@ class SwitchOnTriggerMatchEmbedding( ConfigToolBase ):
         # Build dictionary of matchers
         for matcher in triggerMatchers:
             if not hasattr( process, matcher ):
-                print '%s():'%( self._label )
-                print '    PAT trigger matcher \'%s\' not known to process'%( matcher )
-                print '    ==> skipped'
-                print _longLine
+                print('%s():'%( self._label ))
+                print('    PAT trigger matcher \'%s\' not known to process'%( matcher ))
+                print('    ==> skipped')
+                print(_longLine)
                 continue
             trigMchMod = getattr( process, matcher )
             patObjProd = getattr( process, trigMchMod.src.value() + postfix )
@@ -701,26 +702,26 @@ class SwitchOnTriggerMatchEmbedding( ConfigToolBase ):
                     # Configure embedder module
                     label = patObjProd.label_() + 'TriggerMatch' # hardcoded default
                     if hasattr( process, label ):
-                        print '%s():'%( self._label )
-                        print '    PAT trigger match embedder \'%s\' exists already in process'%( label )
-                        print '    ==> entry re-used'
-                        print _longLine
+                        print('%s():'%( self._label ))
+                        print('    PAT trigger match embedder \'%s\' exists already in process'%( label ))
+                        print('    ==> entry re-used')
+                        print(_longLine)
                         module = getattr( process, label )
                         if not module.type_() is dictPatProducers[ patObjProdType ]:
-                            print '%s():'%( self._label )
-                            print '    Configuration conflict for PAT trigger match embedder \'%s\''%( label )
-                            print '    - exists as %s'%( module.type_() )
-                            print '    - requested as %s by \'%s\''%( dictPatProducers[ patObjProdType ], matcher )
-                            print '    ==> skipped'
-                            print _longLine
+                            print('%s():'%( self._label ))
+                            print('    Configuration conflict for PAT trigger match embedder \'%s\''%( label ))
+                            print('    - exists as %s'%( module.type_() ))
+                            print('    - requested as %s by \'%s\''%( dictPatProducers[ patObjProdType ], matcher ))
+                            print('    ==> skipped')
+                            print(_longLine)
                             continue
                         if not module.src.value() is trigMchMod.src.value() + postfix:
-                            print '%s():'%( self._label )
-                            print '    Configuration conflict for PAT trigger match embedder \'%s\''%( label )
-                            print '    - exists for input %s'%( module.src.value() )
-                            print '    - requested for input %s by \'%s\''%( trigMchMod.src.value() + postfix, matcher )
-                            print '    ==> skipped'
-                            print _longLine
+                            print('%s():'%( self._label ))
+                            print('    Configuration conflict for PAT trigger match embedder \'%s\''%( label ))
+                            print('    - exists for input %s'%( module.src.value() ))
+                            print('    - requested for input %s by \'%s\''%( trigMchMod.src.value() + postfix, matcher ))
+                            print('    ==> skipped')
+                            print(_longLine)
                             continue
                         module.matches.append( cms.InputTag( matcher ) )
                     else:
@@ -733,10 +734,10 @@ class SwitchOnTriggerMatchEmbedding( ConfigToolBase ):
                                               , 'keep *_%s_*_%s'%( label, process.name_() )
                                               ]
             else:
-                print '%s():'%( self._label )
-                print '    Invalid input source for trigger match embedding'
-                print '    ==> %s with matchers \'%s\' is skipped'%( patObjProdType, dictConfig[ patObjProdType ] )
-                print _longLine
+                print('%s():'%( self._label ))
+                print('    Invalid input source for trigger match embedding')
+                print('    ==> %s with matchers \'%s\' is skipped'%( patObjProdType, dictConfig[ patObjProdType ] ))
+                print(_longLine)
         if outputModule is not '':
             getattr( process, outputModule ).outputCommands = _addEventContent( getattr( process, outputModule ).outputCommands, patTriggerEventContent )
 

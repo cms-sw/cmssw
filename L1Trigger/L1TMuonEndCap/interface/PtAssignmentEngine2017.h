@@ -18,7 +18,6 @@ public:
   float calculate_pt_xml(const EMTFTrack& track) const override;
 
 private:
-  int version_;
 };
 
 #endif

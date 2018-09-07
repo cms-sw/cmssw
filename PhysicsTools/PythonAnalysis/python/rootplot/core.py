@@ -2,6 +2,7 @@
 An API and a CLI for quickly building complex figures.
 """
 from __future__ import absolute_import
+from __future__ import print_function
 
 __license__ = '''\
 Copyright (c) 2009-2010 Jeff Klukas <klukas@wisc.edu>
@@ -135,7 +136,7 @@ class Options(dict):
         rc_name = use_mpl and 'rootplotmplrc' or 'rootplotrc'
         rc_path = os.path.expanduser('~/.%s' % rc_name)
         if os.path.exists(rc_path):
-            print "Using styles and options from ~/.%s" % rc_name
+            print("Using styles and options from ~/.%s" % rc_name)
             shutil.copy(rc_path, joined(configdir, '%s.py' % rc_name))
             configs.insert(1, '%s.py' % rc_name)
         for f in configs:
@@ -549,8 +550,8 @@ def cli_rootplot():
         try:
             rootplot(*options.arguments(), **optdiff)
         except Exception as e:
-            print "Error:", e
-            print "For usage details, call '%s --help'" % prog
+            print("Error:", e)
+            print("For usage details, call '%s --help'" % prog)
             sys.exit(1)
 
 ##############################################################################
@@ -696,7 +697,7 @@ def rootplot(*args, **kwargs):
         for key, value in reduced_kwargs.items():
             if key in global_opts:
                 del reduced_kwargs[key]
-            elif type(value) is str:
+            elif isinstance(value, str):
                 reduced_kwargs[key] = "'%s'" % value
         if 'numbering' in kwargs:
             reduced_kwargs['numbering'] = i + 1
@@ -750,14 +751,14 @@ def rootplot(*args, **kwargs):
             report_progress(i + 1, len(plotargs), options.output, options.ext)
         report_progress(len(plotargs), len(plotargs),
                         options.output, options.ext)
-        print ''
+        print('')
     ## clean out empty directories
     for root, dirs, files in os.walk(options.output):
         if not os.listdir(root):
             os.rmdir(root)
     ## add index.html files to all directories
     if options.ext in ['png', 'gif', 'svg']:
-        print "Writing html index files..."
+        print("Writing html index files...")
         width, height = options.size
         if use_mpl:
             width, height = [x * options.dpi for x in options.size]
@@ -813,7 +814,7 @@ def write_config():
     f = open(filename, 'w')
     f.write(config_string())
     f.close()
-    print "Wrote %s to the current directory" % filename
+    print("Wrote %s to the current directory" % filename)
     sys.exit(0)
 
 def add_from_config_files(options, configs):
@@ -836,7 +837,7 @@ def add_from_config_files(options, configs):
         rc_name = 'rootplotrc'
     rc_path = os.path.expanduser('~/.%s' % rc_name)
     if os.path.exists(rc_path):
-        print "Using styles and options from ~/.%s" % rc_name
+        print("Using styles and options from ~/.%s" % rc_name)
         shutil.copy(rc_path, joined(configdir, '%s.py' % rc_name))
         configs.insert(0, '%s.py' % rc_name)
     for f in configs:
@@ -936,7 +937,7 @@ def plot_hists_root(hists, options):
         name = "%s_%i" % (options.plotpath, i)
         if isTGraph:
             roothist = hist.TGraph(name=name)
-        elif type(hist) is Hist:
+        elif isinstance(hist, Hist):
             roothist = hist.TH1F(name=name.replace('/', '__'))
         else:
             roothist = hist.TH2F(name=name)
@@ -948,7 +949,7 @@ def plot_hists_root(hists, options):
         roothist.SetMarkerStyle(options.marker_styles[i])
         roothist.SetMarkerSize(options.marker_sizes[i])
         roothists.append(roothist)
-        if (type(hist) is Hist and not isTGraph and 
+        if (isinstance(hist, Hist) and not isTGraph and 
             'stack' in options.draw_commands[i]):
             objects['stack'].Add(roothist)
     if 'stack' in objects and objects['stack'].GetHists():
@@ -956,7 +957,7 @@ def plot_hists_root(hists, options):
     for roothist in roothists:
         histmax = max(histmax, roothist.GetMaximum())
     dimension = 1
-    if type(hist) == Hist2D:
+    if isinstance(hist, Hist2D):
         dimension = 2
     if options.gridx or options.grid:
         for pad in objects['pads']:
@@ -1041,7 +1042,7 @@ def plot_hists_mpl(hists, options):
     for i, hist in enumerate(hists):
         if hist and hist.entries:
             allempty = False
-        if type(hist) is Hist:
+        if isinstance(hist, Hist):
             # Avoid errors due to zero bins with log y axis
             if options.logy and options.plot_styles[i] != 'errorbar':
                 for j in range(hist.nbins):
@@ -1061,7 +1062,7 @@ def plot_hists_mpl(hists, options):
         histmax = max(histmax, max(hist))
     if allempty:
         fig.text(0.5, 0.5, "No Entries", ha='center', va='center')
-    elif type(refhist) is Hist:
+    elif isinstance(refhist, Hist):
         for i, hist in enumerate(hists):
             if hist:
                 if options.plot_styles[i] == "errorbar":
@@ -1170,7 +1171,7 @@ def plot_hists_mpl(hists, options):
             if options.legend_ncols:
                 kwargs['ncol'] = int(options.legend_ncols)
             objects['legend'] = axes.legend(numpoints=1, **kwargs)
-    elif type(refhist) is Hist2D:
+    elif isinstance(refhist, Hist2D):
         drawfunc = getattr(hist, options.draw2D)
         if 'col' in options.draw2D:
             if options.cmap:
@@ -1353,8 +1354,8 @@ def get_labels(hist, options):
 def report_progress(counter, nplots, output, ext, divisor=1):
     #### Print the current number of finished plots.
     if counter % divisor == 0:
-        print("\r%i plots of %i written to %s/ in %s format" %
-              (counter, nplots, output, ext)),
+        print(("\r%i plots of %i written to %s/ in %s format" %
+              (counter, nplots, output, ext)), end=' ')
         sys.stdout.flush()
 
 def merge_pdf(options):
@@ -1364,9 +1365,9 @@ def merge_pdf(options):
     for path, dirs, files in os.walk(options.output):
         paths += [joined(path, x) for x in files if x.endswith('.pdf')]
     if not paths:
-        print "No output files, so no merged pdf was made"
+        print("No output files, so no merged pdf was made")
         return
-    print "Writing %s..." % destination
+    print("Writing %s..." % destination)
     os.system('gs -q -dBATCH -dNOPAUSE -sDEVICE=pdfwrite '
               '-dAutoRotatePages=/All '
               '-sOutputFile=%s %s' % (destination, ' '.join(paths)))
@@ -1599,7 +1600,7 @@ def parse_legend_root(options):
     #### Return the corners to use for the legend based on options.
     legend_height = min(options.legend_entry_height * options.nhists + 0.02,
                         options.max_legend_height)
-    if type(options.legend_location) is int:
+    if isinstance(options.legend_location, int):
         options.legend_location = options.legend_codes[options.legend_location]
     elif options.legend_location.lower() == 'none':
         options.legend_location = None
@@ -1631,7 +1632,7 @@ def load_matplotlib(ext):
         try:
             import matplotlib as mpl
         except ImportError:
-            print "Unable to access matplotlib"
+            print("Unable to access matplotlib")
             sys.exit(1)
         import numpy as np
         mpldict = {'png' : 'AGG',
@@ -1687,9 +1688,9 @@ def process_options(options):
     #### Refine options for this specific plot, based on plotname
     def comma_separator(obj, objtype, nhists):
         #### Split a comma-separated string into a list.
-        if type(obj) is list:
+        if isinstance(obj, list):
             return obj
-        if type(obj) is str and ',' in obj:
+        if isinstance(obj, str) and ',' in obj:
             try:
                 return [objtype(x) for x in obj.split(',')]
             except TypeError:

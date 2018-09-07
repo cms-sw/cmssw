@@ -846,9 +846,8 @@ bool muon::isLooseTriggerMuon(const reco::Muon& muon){
   if ( not tk_id ) return false;
   bool layer_requirements = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
     muon.innerTrack()->hitPattern().pixelLayersWithMeasurement() > 0;
-  bool global_requirements = (not muon.isGlobalMuon()) or muon.globalTrack()->normalizedChi2()<20;
-  bool match_requirements = (muon.expectedNnumberOfMatchedStations()<2) or (muon.numberOfMatchedStations()>1);
-  return layer_requirements and global_requirements and match_requirements;
+  bool match_requirements = (muon.expectedNnumberOfMatchedStations()<2) or (muon.numberOfMatchedStations()>1) or (muon.pt()<8);
+  return layer_requirements and match_requirements;
 }
 
 bool muon::isTightMuon(const reco::Muon& muon, const reco::Vertex& vtx){

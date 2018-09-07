@@ -3,6 +3,7 @@
 This file contains the base DataSource class, and all sub classes that implement their own methods for parsing data.
 
 """
+from __future__ import print_function
 
 import json
 
@@ -127,9 +128,9 @@ class json_data_node(object):
 	# be created in code that shouldn't be doing it.
 	@staticmethod
 	def make(data):
-		if type(data) == list:
+		if isinstance(data, list):
 			return json_list(data)
-		elif type(data) == dict:
+		elif isinstance(data, dict):
 			return json_dict(data)
 		else:
 			return json_basic(data)
@@ -157,12 +158,12 @@ class json_data_node(object):
 		# traverse json_data_node structure, and find all lists
 		# if this node in the structure is a list, return all sub lists
 		lists = []
-		if type(self._data) == type_name:
+		if isinstance(self._data, type_name):
 			lists.append(self._data)
-		if type(self._data) == list:
+		if isinstance(self._data, list):
 			for item in self._data:
 				lists += json_data_node.make(item).find(type_name)
-		elif type(self._data) == dict:
+		elif isinstance(self._data, dict):
 			for key in self._data:
 				lists += json_data_node.make(self._data[key]).find(type_name)
 		return lists
@@ -365,7 +366,7 @@ class json_list(json_data_node):
 		#ascii_string += "\n"
 		ascii_string += horizontal_border
 		ascii_string += "Showing %d rows\n\n" % len(data)
-		print ascii_string
+		print(ascii_string)
 
 class json_dict(json_data_node):
 

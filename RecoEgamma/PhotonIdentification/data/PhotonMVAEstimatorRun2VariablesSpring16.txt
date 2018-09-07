@@ -1,0 +1,30 @@
+#
+# File: PhotonMVAEstimatorRun2VariablesSpring16.txt
+#
+# This file is to be read by the MVAVariableManager class. Lists all the
+# variables which appear in the xml files for the MVA based Photon IDs for Run2.
+# Variables are given line by line. The columns of each entry correspond to:
+#
+#     1. The name under which the variable appears in the weight files.
+#     2. How to get this variable from the photon with the cut parser (NO SPACES!)
+#        or if not available, how to get the variables elsewhere.
+#     3. The lower clip value for the variable to avoid crazy values. "None" if no clip.
+#     4. The upper clip value.
+#
+
+r9                        r9                                                                  None None
+rho                       fixedGridRhoAll                                                     None None
+scPhi                     superCluster.phi                                                    None None
+sigmaIetaIeta             full5x5_showerShapeVariables.sigmaIetaIeta                          None None
+covIEtaIPhi               full5x5_showerShapeVariables.sigmaIetaIphi                          None None
+s4                        full5x5_showerShapeVariables.e2x2/full5x5_showerShapeVariables.e5x5 None None
+scEta                     superCluster.eta                                                    None None
+SCRawE                    superCluster.rawEnergy                                              None None
+etaWidth                  superCluster.etaWidth                                               None None
+phiWidth                  superCluster.phiWidth                                               None None
+CITK_isoPhotons           egmPhotonIsolation:gamma-DR030-                                     None None
+CITK_isoPhoCorrMax2p5     egmPhotonIsolation:gamma-DR030-                                     None None
+CITK_isoChargedHad        egmPhotonIsolation:h+-DR030-                                        None None
+chgIsoWrtWorstVtx         photonIDValueMapProducer:phoWorstChargedIsolationConeVeto           None None
+esEffSigmaRR              full5x5_showerShapeVariables.effSigmaRR                             None None
+esEnergy/SCRawE           superCluster.preshowerEnergy/superCluster.rawEnergy                 None None

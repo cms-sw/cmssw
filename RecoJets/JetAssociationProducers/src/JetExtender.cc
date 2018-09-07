@@ -47,11 +47,11 @@ void JetExtender::produce(edm::Event& fEvent, const edm::EventSetup& fSetup) {
 	extendedData.mTracksAtVertexNumber = reco::JetTracksAssociation::tracksNumber (*j2tVX_h, jet);
 	extendedData.mTracksAtVertexP4 = reco::JetTracksAssociation::tracksP4 (*j2tVX_h, jet);
       }
-      catch (cms::Exception e) {
+      catch (cms::Exception const&) {
 	edm::LogError ("MismatchedJets") << "Jets in original collection " << mJets 
 				    << " mismatch jets in j2t VX association " << mJet2TracksAtVX
 				    << ". Wrong collections?";
-	throw e;
+	throw;
       }
     }
     if (j2tCALO_h.isValid ()) { // fill tracks@CALO  summary
@@ -59,11 +59,11 @@ void JetExtender::produce(edm::Event& fEvent, const edm::EventSetup& fSetup) {
 	extendedData.mTracksAtCaloNumber = reco::JetTracksAssociation::tracksNumber (*j2tCALO_h, jet);
 	extendedData.mTracksAtCaloP4 = reco::JetTracksAssociation::tracksP4 (*j2tCALO_h, jet);
       }
-      catch (cms::Exception e) {
+      catch (cms::Exception const&) {
 	edm::LogError ("MismatchedJets") << "Jets in original collection " << mJets 
 				    << " mismatch jets in j2t CALO association " << mJet2TracksAtCALO
 				    << ". Wrong collections?";
-	throw e;
+	throw;
       }
     }
     reco::JetExtendedAssociation::setValue (&*jetExtender, jet, extendedData);

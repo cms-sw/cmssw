@@ -1,11 +1,10 @@
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/TrackWithHistory.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
-
+#include "SimG4Core/Notification/interface/SimTrackManager.h"
 
 #include "SimG4CMS/Calo/interface/CaloTrkProcessing.h"
 
-#include "SimG4Core/Application/interface/SimTrackManager.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"

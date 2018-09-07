@@ -77,6 +77,7 @@ private:
   bool                  ifHCAL_;
   int                   verbosity_;
   unsigned int          layers_;
+  int                   firstLayer_;
   std::map<int, int>    OccupancyMap_plus;
   std::map<int, int>    OccupancyMap_minus;
 
@@ -92,7 +93,8 @@ private:
 HGCalRecHitValidation::HGCalRecHitValidation(const edm::ParameterSet& iConfig):
   nameDetector_(iConfig.getParameter<std::string>("DetectorName")),
   ifHCAL_(iConfig.getParameter<bool>("ifHCAL")),
-  verbosity_(iConfig.getUntrackedParameter<int>("Verbosity",0)) {
+  verbosity_(iConfig.getUntrackedParameter<int>("Verbosity",0)),
+  firstLayer_(1) {
 
   auto temp = iConfig.getParameter<edm::InputTag>("RecHitSource");
   if (nameDetector_ == "HGCalEESensitive" || 
@@ -130,73 +132,87 @@ void HGCalRecHitValidation::analyze(const edm::Event& iEvent,
   if (nameDetector_ == "HCal") {
     edm::ESHandle<CaloGeometry> geom;
     iSetup.get<CaloGeometryRecord>().get(geom);
-    if (!geom.isValid()) 
-      edm::LogWarning("HGCalValidation") << "Cannot get valid HGCalGeometry "
-					 << "Object for " << nameDetector_;
-    const CaloGeometry* geom0 = geom.product();
-
-    if (ifHCAL_) {
-      edm::Handle<HBHERecHitCollection> hbhecoll;
-      iEvent.getByToken(recHitSource_, hbhecoll);
-      if (hbhecoll.isValid()) {
-	if (verbosity_>0) 
-	  edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " 
-					      << hbhecoll->size() 
-					      << " element(s)";
-	for (const auto & it : *(hbhecoll.product())) {
-	  DetId detId = it.id();
-	  ntot++;
-	  if (detId.subdetId() == HcalEndcap) {
-	    nused++;
+    if (!geom.isValid()) {
+      edm::LogVerbatim("HGCalValidation") << "Cannot get valid HGCalGeometry "
+					  << "Object for " << nameDetector_;
+    } else {
+      const CaloGeometry* geom0 = geom.product();
+      if (ifHCAL_) {
+	edm::Handle<HBHERecHitCollection> hbhecoll;
+	iEvent.getByToken(recHitSource_, hbhecoll);
+	if (hbhecoll.isValid()) {
+	  if (verbosity_>0) 
+	    edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " 
+						<< hbhecoll->size() 
+						<< " element(s)";
+	  for (const auto & it : *(hbhecoll.product())) {
+	    DetId detId = it.id();
+	    ntot++;
+	    if (detId.subdetId() == HcalEndcap) {
+	      nused++;
+	      int   layer = HcalDetId(detId).depth();
+	      recHitValidation(detId, layer, geom0, &it);
+	    }
+	  }
+	} else {
+	  ok = false;
+	  edm::LogVerbatim("HGCalValidation") << "HBHERecHitCollection Handle "
+					      << "does not exist !!!";
+	}
+      } else {
+	edm::Handle<HGChebRecHitCollection> hbhecoll;
+	iEvent.getByToken(recHitSource_, hbhecoll);
+	if (hbhecoll.isValid()) {
+	  if (verbosity_>0) 
+	    edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with "
+						<< hbhecoll->size() 
+						<< " element(s)";
+	  for (const auto & it : *(hbhecoll.product())) {
+	    DetId detId = it.id();
+	    ntot++; nused++;
 	    int   layer = HcalDetId(detId).depth();
 	    recHitValidation(detId, layer, geom0, &it);
 	  }
+	} else {
+	  ok = false;
+	  edm::LogVerbatim("HGCalValidation") << "HGChebRecHitCollection "
+					      << "Handle does not exist !!!";
 	}
-      } else {
-	ok = false;
-	edm::LogWarning("HGCalValidation") << "HBHERecHitCollection Handle does not exist !!!";
-      }
-    } else {
-      edm::Handle<HGChebRecHitCollection> hbhecoll;
-      iEvent.getByToken(recHitSource_, hbhecoll);
-      if (hbhecoll.isValid()) {
-	if (verbosity_>0) 
-	  edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " 
-					      << hbhecoll->size() 
-					      << " element(s)";
-	for (const auto & it : *(hbhecoll.product())) {
-	  DetId detId = it.id();
-	  ntot++; nused++;
-	  int   layer = HcalDetId(detId).depth();
-	  recHitValidation(detId, layer, geom0, &it);
-	}
-      } else {
-	ok = false;
-	edm::LogWarning("HGCalValidation") << "HGChebRecHitCollection Handle does not exist !!!";
       }
     }
   } else {
     edm::ESHandle<HGCalGeometry> geom;
     iSetup.get<IdealGeometryRecord>().get(nameDetector_, geom);
-    if (!geom.isValid()) edm::LogWarning("HGCalValidation") << "Cannot get valid HGCalGeometry Object for " << nameDetector_;
-    const HGCalGeometry* geom0 = geom.product();
-
-    edm::Handle<HGCRecHitCollection> theRecHitContainers;
-    iEvent.getByToken(recHitSource_, theRecHitContainers);
-    if (theRecHitContainers.isValid()) {
-      if (verbosity_>0) 
-	edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " 
-					    << theRecHitContainers->size()
-					    << " element(s)";
-      for (const auto &  it : *(theRecHitContainers.product())) {
-	ntot++; nused++;
-	DetId detId = it.id();
-	int layer   = HGCalDetId(detId).layer();
-	recHitValidation(detId, layer, geom0, &it);
-      }
+    if (!geom.isValid()) {
+      edm::LogVerbatim("HGCalValidation") << "Cannot get valid HGCalGeometry "
+					  << "Object for " << nameDetector_;
     } else {
-      ok = false;
-      edm::LogWarning("HGCalValidation") << "HGCRecHitCollection Handle does not exist !!!";
+      const HGCalGeometry* geom0 = geom.product();
+      HGCalGeometryMode::GeometryMode mode = geom0->topology().geomMode();
+      int geomType = (((mode == HGCalGeometryMode::Hexagon8) ||
+		       (mode == HGCalGeometryMode::Hexagon8Full)) ? 1 :
+		      ((mode == HGCalGeometryMode::Trapezoid) ? 2 : 0));
+      
+      edm::Handle<HGCRecHitCollection> theRecHitContainers;
+      iEvent.getByToken(recHitSource_, theRecHitContainers);
+      if (theRecHitContainers.isValid()) {
+	if (verbosity_>0) 
+	  edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " 
+					      << theRecHitContainers->size()
+					      << " element(s)";
+	for (const auto &  it : *(theRecHitContainers.product())) {
+	  ntot++; nused++;
+	  DetId detId = it.id();
+	  int layer   = ((geomType == 0) ? HGCalDetId(detId).layer() :
+			 ((geomType == 1) ? HGCSiliconDetId(detId).layer() :
+			  HGCScintillatorDetId(detId).layer()));
+	  recHitValidation(detId, layer, geom0, &it);
+	}
+      } else {
+	ok = false;
+	edm::LogVerbatim("HGCalValidation") << "HGCRecHitCollection Handle "
+					    << "does not exist !!!";
+      }
     }
   }
   if (ok) fillHitsInfo();
@@ -221,7 +237,7 @@ void HGCalRecHitValidation::recHitValidation(DetId & detId, int layer,
   hinfo.x      = globalx;
   hinfo.y      = globaly;
   hinfo.z      = globalz;
-  hinfo.layer  = layer;
+  hinfo.layer  = layer-firstLayer_;
   hinfo.phi    = global.phi();
   hinfo.eta    = global.eta();
       
@@ -229,31 +245,33 @@ void HGCalRecHitValidation::recHitValidation(DetId & detId, int layer,
     edm::LogVerbatim("HGCalValidation") << "--------------------------   gx = "
 					<< globalx << " gy = "  << globaly   
 					<< " gz = " << globalz << " phi = " 
-					<< hinfo.phi << " eta = " << hinfo.eta;
+					<< hinfo.phi << " eta = " << hinfo.eta
+					<< " lay = " << hinfo.layer;
       
   fillHitsInfo(hinfo);
       
-  if (hinfo.eta > 0)  fillOccupancyMap(OccupancyMap_plus, layer -1);
-  else                fillOccupancyMap(OccupancyMap_minus, layer -1);
+  if (hinfo.eta > 0)  fillOccupancyMap(OccupancyMap_plus,  hinfo.layer);
+  else                fillOccupancyMap(OccupancyMap_minus, hinfo.layer);
       
 }      
 
-void HGCalRecHitValidation::fillOccupancyMap(std::map<int, int>& OccupancyMap, int layer){
+void HGCalRecHitValidation::fillOccupancyMap(std::map<int, int>& OccupancyMap,
+					     int layer) {
   if (OccupancyMap.find(layer) != OccupancyMap.end()) OccupancyMap[layer]++;
   else                                                OccupancyMap[layer] = 1;
 }
 
 void HGCalRecHitValidation::fillHitsInfo() { 
 
-  for (auto itr = OccupancyMap_plus.begin() ; itr != OccupancyMap_plus.end(); ++itr) {
-    int layer      = (*itr).first;
-    int occupancy  = (*itr).second;
+  for (auto const& itr : OccupancyMap_plus) { 
+    int layer      = itr.first;
+    int occupancy  = itr.second;
     HitOccupancy_Plus_.at(layer)->Fill(occupancy);
   }
 
-  for (auto itr = OccupancyMap_minus.begin() ; itr != OccupancyMap_minus.end(); ++itr) {
-    int layer      = (*itr).first;
-    int occupancy  = (*itr).second;
+  for (auto const & itr : OccupancyMap_minus) {
+    int layer      = itr.first;
+    int occupancy  = itr.second;
     HitOccupancy_Minus_.at(layer)->Fill(occupancy);
   }
   
@@ -261,7 +279,7 @@ void HGCalRecHitValidation::fillHitsInfo() {
 
 void HGCalRecHitValidation::fillHitsInfo(HitsInfo& hits) {
 
-  unsigned int ilayer = hits.layer -1;
+  unsigned int ilayer = hits.layer;
   energy_.at(ilayer)->Fill(hits.energy);
 
   EtaPhi_Plus_.at(ilayer)->Fill(hits.eta , hits.phi);
@@ -270,7 +288,7 @@ void HGCalRecHitValidation::fillHitsInfo(HitsInfo& hits) {
 }
 
 void HGCalRecHitValidation::dqmBeginRun(const edm::Run&, 
-				      const edm::EventSetup& iSetup) {
+					const edm::EventSetup& iSetup) {
 
   if (nameDetector_ == "HCal") {
     edm::ESHandle<HcalDDDRecConstants> pHRNDC;
@@ -281,7 +299,8 @@ void HGCalRecHitValidation::dqmBeginRun(const edm::Run&,
     edm::ESHandle<HGCalDDDConstants>  pHGDC;
     iSetup.get<IdealGeometryRecord>().get(nameDetector_, pHGDC);
     const HGCalDDDConstants & hgcons_ = (*pHGDC);
-    layers_ = hgcons_.layers(true);
+    layers_     = hgcons_.layers(true);
+    firstLayer_ = hgcons_.firstLayer();
   }
 }
 
@@ -289,9 +308,10 @@ void HGCalRecHitValidation::bookHistograms(DQMStore::IBooker& iB,
 					   edm::Run const&, 
 					   edm::EventSetup const&) {
 
-  iB.setCurrentFolder("HGCalRecHitsV/"+nameDetector_);
+  iB.setCurrentFolder("HGCAL/HGCalRecHitsV/"+nameDetector_);
   std::ostringstream histoname;
-  for (unsigned int ilayer = 0; ilayer < layers_; ilayer++ ) {
+  for (unsigned int il=0; il<layers_; ++il) {
+    int ilayer = firstLayer_ + (int)(il);
     histoname.str(""); histoname << "HitOccupancy_Plus_layer_" << ilayer;
     HitOccupancy_Plus_.push_back(iB.book1D( histoname.str().c_str(), "RecHitOccupancy_Plus", 100, 0, 10000));
     histoname.str(""); histoname << "HitOccupancy_Minus_layer_" << ilayer;

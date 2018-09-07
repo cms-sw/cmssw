@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 import DQMServices.Components.test.checkBooking as booking
@@ -42,7 +43,7 @@ process.add_(cms.Service("DQMStore"))
 
 if len(sys.argv) > 2:
     if sys.argv[2] == "Collate": 
-        print "Collating option for multirunH"
+        print("Collating option for multirunH")
         process.DQMStore.collateHistograms = cms.untracked.bool(True)
         process.dqmSaver.saveAtJobEnd = cms.untracked.bool(True)
         process.dqmSaver.forceRunNumber = cms.untracked.int32(999999)

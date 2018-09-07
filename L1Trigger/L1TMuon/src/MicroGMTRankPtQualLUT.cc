@@ -1,4 +1,4 @@
-#include "../interface/MicroGMTRankPtQualLUT.h"
+#include "L1Trigger/L1TMuon/interface/MicroGMTRankPtQualLUT.h"
 
 l1t::MicroGMTRankPtQualLUT::MicroGMTRankPtQualLUT (const std::string& fname, const unsigned ptFactor, const unsigned qualFactor) : MicroGMTLUT(), m_ptMask(0), m_qualMask(0), m_ptInWidth(9), m_qualInWidth(4), m_ptFactor(ptFactor), m_qualFactor(qualFactor)
 {

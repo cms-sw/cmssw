@@ -93,7 +93,7 @@ void SiPixelModuleStatus::setNrocs(int iroc) {
 // ----------------------------------------------------------------------
 double SiPixelModuleStatus::perRocDigiOcc() {
 
-  unsigned int ave(0), sig(0);
+  unsigned int ave(0);
   for (int iroc = 0; iroc < fNrocs; ++iroc) {
     unsigned int inc = digiOccROC(iroc);
     ave += inc;

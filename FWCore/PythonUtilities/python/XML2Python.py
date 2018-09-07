@@ -1,3 +1,4 @@
+from __future__ import print_function
 ## Original version of code heavily based on recipe written by Wai Yip
 ## Tung, released under PSF license.
 ## http://code.activestate.com/recipes/534109/
@@ -6,6 +7,7 @@ import re
 import os
 import xml.sax.handler
 import pprint
+import six
 
 class DataNode (object):
 
@@ -23,7 +25,7 @@ class DataNode (object):
 
 
     def __getitem__ (self, key):
-        if isinstance (key, basestring):
+        if isinstance (key, str):
             return self._attrs.get(key,None)
         else:
             return [self][key]
@@ -89,7 +91,7 @@ class DataNode (object):
         if isinstance (obj, list):
             first = True
             for value in obj:
-                print "value", value, value.__class__.__name__
+                print("value", value, value.__class__.__name__)
                 if first:
                     tempoffset = offset
                     first = False
@@ -99,7 +101,7 @@ class DataNode (object):
                     tempoffset = offset
                 if isinstance (value, DataNode):
                     retval += value.stringify (offset=tempoffset)
-                    print "  calling stringify for %s" % value
+                    print("  calling stringify for %s" % value)
                 elif DataNode.isiterable (value):
                     retval += DataNode._outputValues (value, '', offset)
                 else:
@@ -134,7 +136,7 @@ class DataNode (object):
             retval += '\n' + ' ' * offset
             retval += '%s: ' % name
         first = True
-        for key, value in sorted (self._attrs.iteritems()):
+        for key, value in sorted (six.iteritems(self._attrs)):
             if first:
                 retval += '{ \n'
                 tempspace = offset + 3

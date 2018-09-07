@@ -340,6 +340,7 @@ PFEGammaProducer::produce(edm::Event& iEvent,
       case reco::PFBlockElement::HFEM:
       case reco::PFBlockElement::HFHAD:
       case reco::PFBlockElement::HCAL:
+        if (elements[0].clusterRef()->flags() & reco::CaloCluster::badHcalMarker) continue;
         hcalBlockRefs.push_back( blockref );
         singleEcalOrHcal = true;
 	break;

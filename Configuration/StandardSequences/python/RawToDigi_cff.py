@@ -114,3 +114,9 @@ run2_GEM_2017.toReplaceWith(RawToDigi, _gem_RawToDigi)
 
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toReplaceWith(RawToDigi, _gem_RawToDigi)
+
+from EventFilter.HGCalRawToDigi.HGCalRawToDigi_cfi import *
+_hgcal_RawToDigi = RawToDigi.copy()
+_hgcal_RawToDigi += hgcalDigis
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toReplaceWith(RawToDigi,_hgcal_RawToDigi)

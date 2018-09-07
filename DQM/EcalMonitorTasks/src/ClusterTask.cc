@@ -1,4 +1,4 @@
-#include "../interface/ClusterTask.h"
+#include "DQM/EcalMonitorTasks/interface/ClusterTask.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 #include "DQM/EcalCommon/interface/MESetMulti.h"

@@ -1,8 +1,4 @@
 <use name="py2-histogrammar"/>
-<use name="py2-matplotlib"/>
-<use name="py2-root_numpy"/>
-<use name="py2-pandas"/>
-<use name="py2-pippkgs"/>
 <use name="rootpy"/>
 
 <test name="testHistogrammar" command="testHistogrammar.py"/>
@@ -25,3 +21,7 @@
 <test name="testUncertainties" command="testUncertainties.py"/>
 <test name="testImports" command="imports.sh"/>
 <test name="testTheano" command="testTheano.sh"/>
+
+<bin name="test_PyMVA" file="test_PyMVA.cpp">
+  <use name="rootpymva"/>
+</bin>

@@ -119,7 +119,7 @@ const l1extra::L1EmParticleRef TriggerObject::origL1EmRef() const
   l1extra::L1EmParticleRef l1Ref;
   try {
     l1Ref = origObjRef().castTo< l1extra::L1EmParticleRef >();
-  } catch ( edm::Exception X ) {
+  } catch ( edm::Exception const& X ) {
     if ( X.categoryCode() != edm::errors::InvalidReference ) throw X;
   }
   return l1Ref;
@@ -131,7 +131,7 @@ const l1extra::L1EtMissParticleRef TriggerObject::origL1EtMissRef() const
   l1extra::L1EtMissParticleRef l1Ref;
   try {
     l1Ref = origObjRef().castTo< l1extra::L1EtMissParticleRef >();
-  } catch ( edm::Exception X ) {
+  } catch ( edm::Exception const & X ) {
     if ( X.categoryCode() != edm::errors::InvalidReference ) throw X;
   }
   return l1Ref;
@@ -143,7 +143,7 @@ const l1extra::L1JetParticleRef TriggerObject::origL1JetRef() const
   l1extra::L1JetParticleRef l1Ref;
   try {
     l1Ref = origObjRef().castTo< l1extra::L1JetParticleRef >();
-  } catch ( edm::Exception X ) {
+  } catch ( edm::Exception const & X ) {
     if ( X.categoryCode() != edm::errors::InvalidReference ) throw X;
   }
   return l1Ref;
@@ -155,7 +155,7 @@ const l1extra::L1MuonParticleRef TriggerObject::origL1MuonRef() const
   l1extra::L1MuonParticleRef l1Ref;
   try {
     l1Ref = origObjRef().castTo< l1extra::L1MuonParticleRef >();
-  } catch ( edm::Exception X ) {
+  } catch ( edm::Exception const& X ) {
     if ( X.categoryCode() != edm::errors::InvalidReference ) throw X;
   }
   return l1Ref;

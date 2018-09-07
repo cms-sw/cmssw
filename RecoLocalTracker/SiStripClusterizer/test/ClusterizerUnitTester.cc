@@ -52,10 +52,10 @@ runTheTest(const PSet& test) {
     assertIdentical(expected, result);
     if(test.getParameter<bool>("InvalidCharge")) throw cms::Exception("Failed") << "Charges are valid, contrary to expectation.\n";
   }
-  catch(StripClusterizerAlgorithm::InvalidChargeException e) {
-    if(!test.getParameter<bool>("InvalidCharge")) throw e;
+  catch(StripClusterizerAlgorithm::InvalidChargeException const&) {
+    if(!test.getParameter<bool>("InvalidCharge")) throw;
   }
-  catch(cms::Exception e) {
+  catch(cms::Exception& e) {
     std::cout << ( e << "Input:\n" << printDigis(digiset));
   }
 }

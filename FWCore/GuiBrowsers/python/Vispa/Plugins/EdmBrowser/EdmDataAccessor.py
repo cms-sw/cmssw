@@ -176,7 +176,7 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
                     value="ERROR: "+self.getType(object)+" object is not available"
                 else:    
                     value=object.get()
-                    if type(value)==type(None):
+                    if isinstance(value, type(None)):
                         value="ERROR: Could not get "+self.getType(object)
                     else:
                         ref=True
@@ -361,7 +361,7 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
                         properties+=[(objectproperties[property][1],property,objectproperties[property][0])]
                         del objectproperties[property]
             
-        if len(objectproperties.keys())>0:
+        if len(objectproperties)>0:
             properties+=[("Category","Errors","")]
             for property in objectproperties_sorted:
                 if property in objectproperties.keys():

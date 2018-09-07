@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import re
 import sys
@@ -361,7 +362,7 @@ def _getGlobalTag(sample, release):
     release -- CMSSW release string
     """
     if not release in _globalTags:
-        print "Release %s not found from globaltag map in validation.py" % release
+        print("Release %s not found from globaltag map in validation.py" % release)
         sys.exit(1)
     gtmap = _globalTags[release]
     selectedGT = None
@@ -453,7 +454,7 @@ def _getRelValUrl(release):
         raise Exception("Regex %s does not match to release version %s" % (version_re.pattern, release))
     version = "%s_%s_X" % (m.group("X"), m.group("Y"))
     if not version in _relvalUrls:
-        print "No RelVal URL for version %s, please update _relvalUrls" % version
+        print("No RelVal URL for version %s, please update _relvalUrls" % version)
         sys.exit(1)
     return _relvalUrls[version]
 
@@ -694,8 +695,8 @@ class Validation:
         try:
             self._newRelease = os.environ["CMSSW_VERSION"]
         except KeyError:
-            print >>sys.stderr, 'Error: CMSSW environment variables are not available.'
-            print >>sys.stderr, '       Please run cmsenv'
+            print('Error: CMSSW environment variables are not available.', file=sys.stderr)
+            print('       Please run cmsenv', file=sys.stderr)
             sys.exit()
 
         self._fullsimSamples = fullsimSamples
@@ -718,32 +719,32 @@ class Validation:
         filenames = [s.filename(self._newRelease) for s in self._fullsimSamples+self._fastsimSamples]
         if self._newFileModifier is not None:
             filenames = map(self._newFileModifier, filenames)
-        filenames = filter(lambda f: not os.path.exists(f), filenames)
+        filenames = [f for f in filenames if not os.path.exists(f)]
         if len(filenames) == 0:
-            print "All files already downloaded"
+            print("All files already downloaded")
             return
 
         relvalUrl = _getRelValUrl(self._newRelease)
         urls = [relvalUrl+f for f in filenames]
         certfile = os.path.join(os.environ["HOME"], ".globus", "usercert.pem")
         if not os.path.exists(certfile):
-            print "Certificate file {certfile} does not exist, unable to download RelVal files from {url}".format(certfile=certfile, url=relvalUrl)
+            print("Certificate file {certfile} does not exist, unable to download RelVal files from {url}".format(certfile=certfile, url=relvalUrl))
             sys.exit(1)
         keyfile = os.path.join(os.environ["HOME"], ".globus", "userkey.pem")
         if not os.path.exists(certfile):
-            print "Private key file {keyfile} does not exist, unable to download RelVal files from {url}".format(keyfile=keyfile, url=relvalUrl)
+            print("Private key file {keyfile} does not exist, unable to download RelVal files from {url}".format(keyfile=keyfile, url=relvalUrl))
             sys.exit(1)
         
         # curl --cert-type PEM --cert $HOME/.globus/usercert.pem --key $HOME/.globus/userkey.pem -k -O <url> -O <url>
         cmd = ["curl", "--cert-type", "PEM", "--cert", certfile, "--key", keyfile, "-k"]
         for u in urls:
             cmd.extend(["-O", u])
-        print "Downloading %d files from RelVal URL %s:" % (len(filenames), relvalUrl)
-        print " "+"\n ".join(filenames)
-        print "Please provide your private key pass phrase when curl asks it"
+        print("Downloading %d files from RelVal URL %s:" % (len(filenames), relvalUrl))
+        print(" "+"\n ".join(filenames))
+        print("Please provide your private key pass phrase when curl asks it")
         ret = subprocess.call(cmd)
         if ret != 0:
-            print "Downloading failed with exit code %d" % ret
+            print("Downloading failed with exit code %d" % ret)
             sys.exit(1)
 
         # verify
@@ -752,10 +753,10 @@ class Validation:
             p = subprocess.Popen(["file", f], stdout=subprocess.PIPE)
             stdout = p.communicate()[0]
             if p.returncode != 0:
-                print "file command failed with exit code %d" % p.returncode
+                print("file command failed with exit code %d" % p.returncode)
                 sys.exit(1)
             if not "ROOT" in stdout:
-                print "File {f} is not ROOT, please check the correct version, GlobalTag etc. from {url}".format(f=f, url=relvalUrl)
+                print("File {f} is not ROOT, please check the correct version, GlobalTag etc. from {url}".format(f=f, url=relvalUrl))
                 allFine = False
                 if os.path.exists(f):
                     os.remove(f)
@@ -786,7 +787,7 @@ class Validation:
             # Check that the new DQM file exists
             harvestedFile = sample.filename(self._newRelease)
             if not os.path.exists(harvestedFile):
-                print "Harvested file %s does not exist!" % harvestedFile
+                print("Harvested file %s does not exist!" % harvestedFile)
                 sys.exit(1)
 
             plotterInstance = plotter.readDirs(harvestedFile)
@@ -825,7 +826,7 @@ class Validation:
                 else:
                     raise Exception("Got multiple compatible FullSim samples for FastSim sample %s %s" % (fast.name(), fast.pileup()))
             if correspondingFull is None:
-                print "WARNING: Did not find compatible FullSim sample for FastSim sample %s %s, omitting FastSim vs. FullSim comparison" % (fast.name(), fast.pileup())
+                print("WARNING: Did not find compatible FullSim sample for FastSim sample %s %s, omitting FastSim vs. FullSim comparison" % (fast.name(), fast.pileup()))
                 continue
 
             # If we reach here, the harvestedFile must exist
@@ -908,10 +909,10 @@ class Validation:
         if refValFile is None:
             if len(triedRefValFiles) == 1:
                 if plotting.verbose:
-                    print "Reference file %s not found" % triedRefValFiles[0]
+                    print("Reference file %s not found" % triedRefValFiles[0])
             else:
                 if plotting.verbose:
-                    print "None of the possible reference files %s not found" % ",".join(triedRefValFiles)
+                    print("None of the possible reference files %s not found" % ",".join(triedRefValFiles))
 
         return (refValFile, refSelection)
 
@@ -951,9 +952,9 @@ class Validation:
 
         # Do the plots
         if plotting.verbose:
-            print "Comparing ref and new {sim} {sample} {translatedFolder}".format(
+            print("Comparing ref and new {sim} {sample} {translatedFolder}".format(
             sim="FullSim" if not sample.fastsim() else "FastSim",
-            sample=sample.name(), translatedFolder=str(dqmSubFolder.translated) if dqmSubFolder is not None else "")
+            sample=sample.name(), translatedFolder=str(dqmSubFolder.translated) if dqmSubFolder is not None else ""))
         rootFiles = [refValFile, newValFile]
         legendLabels = [
             "%s, %s %s" % (sample.name(), _stripRelease(self._refRelease), refSelection) if self._refRelease is not None else "dummy",
@@ -978,12 +979,12 @@ class Validation:
 
         dups = _findDuplicates(fileList)
         if len(dups) > 0:
-            print "Plotter produced multiple files with names", ", ".join(dups)
-            print "Typically this is a naming problem in the plotter configuration"
+            print("Plotter produced multiple files with names", ", ".join(dups))
+            print("Typically this is a naming problem in the plotter configuration")
             sys.exit(1)
 
         # Move plots to new directory
-        print "Created plots and %s in %s" % (valname, newdir)
+        print("Created plots and %s in %s" % (valname, newdir))
         return map(lambda n: n.replace(newdir, newsubdir), fileList)
 
     def _doPlotsFastFull(self, fastSample, fullSample, plotterFolder, dqmSubFolder, htmlReport):
@@ -1012,18 +1013,18 @@ class Validation:
         valname = "val.{sample}.root".format(sample=fastSample.name())
         fastValFilePath = os.path.join(fastdir, valname)
         if not os.path.exists(fastValFilePath) and plotting.verbose:
-            print "FastSim file %s not found" % fastValFilePath
+            print("FastSim file %s not found" % fastValFilePath)
         fullValFilePath = os.path.join(fulldir, valname)
         if not os.path.exists(fullValFilePath) and plotting.verbose:
-            print "FullSim file %s not found" % fullValFilePath
+            print("FullSim file %s not found" % fullValFilePath)
 
         fastValFile = ROOT.TFile.Open(fastValFilePath)
         fullValFile = ROOT.TFile.Open(fullValFilePath)
 
         # Do plots
         if plotting.verbose:
-            print "Comparing FullSim and FastSim {sample} {translatedFolder}".format(
-            sample=fastSample.name(), translatedFolder=str(dqmSubFolder.translated) if dqmSubFolder is not None else "")
+            print("Comparing FullSim and FastSim {sample} {translatedFolder}".format(
+            sample=fastSample.name(), translatedFolder=str(dqmSubFolder.translated) if dqmSubFolder is not None else ""))
         rootFiles = [fullValFile, fastValFile]
         legendLabels = [
             "FullSim %s, %s %s" % (fullSample.name(), _stripRelease(self._newRelease), fullSelection),
@@ -1044,12 +1045,12 @@ class Validation:
 
         dups = _findDuplicates(fileList)
         if len(dups) > 0:
-            print "Plotter produced multiple files with names", ", ".join(dups)
-            print "Typically this is a naming problem in the plotter configuration"
+            print("Plotter produced multiple files with names", ", ".join(dups))
+            print("Typically this is a naming problem in the plotter configuration")
             sys.exit(1)
 
         # Move plots to new directory
-        print "Created plots in %s" % (newdir)
+        print("Created plots in %s" % (newdir))
         return map(lambda n: n.replace(newdir, newsubdir), fileList)
 
     def _doPlotsPileup(self, pu140Sample, pu200Sample, plotterFolder, dqmSubFolder, htmlReport):
@@ -1076,12 +1077,12 @@ class Validation:
         pu140ValFilePath = os.path.join(pu140dir, valname)
         if not os.path.exists(pu140ValFilePath):
             if plotting.verbose:
-                print "PU140 file %s not found" % pu140ValFilePath
+                print("PU140 file %s not found" % pu140ValFilePath)
             return []
         pu200ValFilePath = os.path.join(pu200dir, valname)
         if not os.path.exists(pu200ValFilePath):
             if plotting.verbose:
-                print "PU200 file %s not found" % pu200ValFilePath
+                print("PU200 file %s not found" % pu200ValFilePath)
             return []
 
         pu140ValFile = ROOT.TFile.Open(pu140ValFilePath)
@@ -1089,8 +1090,8 @@ class Validation:
 
         # Do plots
         if plotting.verbose:
-            print "Comparing PU140 and PU200 {sample} {translatedFolder}".format(
-            sample=pu200Sample.name(), translatedFolder=str(dqmSubFolder.translated) if dqmSubFolder is not None else "")
+            print("Comparing PU140 and PU200 {sample} {translatedFolder}".format(
+            sample=pu200Sample.name(), translatedFolder=str(dqmSubFolder.translated) if dqmSubFolder is not None else ""))
         rootFiles = [pu140ValFile, pu200ValFile]
         legendLabels = [
             "%s, %s %s" % (pu140Sample.name(), _stripRelease(self._newRelease), pu140Selection),
@@ -1111,12 +1112,12 @@ class Validation:
 
         dups = _findDuplicates(fileList)
         if len(dups) > 0:
-            print "Plotter produced multiple files with names", ", ".join(dups)
-            print "Typically this is a naming problem in the plotter configuration"
+            print("Plotter produced multiple files with names", ", ".join(dups))
+            print("Typically this is a naming problem in the plotter configuration")
             sys.exit(1)
 
         # Move plots to new directory
-        print "Created plots in %s" % (newdir)
+        print("Created plots in %s" % (newdir))
         return map(lambda n: n.replace(newdir, newsubdir), fileList)
 
 
@@ -1250,7 +1251,7 @@ class SimpleValidation:
                 if os.path.exists(f):
                     self._openFiles.append(ROOT.TFile.Open(f))
                 else:
-                    print "File %s not found (from sample %s), ignoring it" % (f, sample.name())
+                    print("File %s not found (from sample %s), ignoring it" % (f, sample.name()))
                     self._openFiles.append(None)
 
             for plotter in plotters:
@@ -1287,9 +1288,9 @@ class SimpleValidation:
 
         dups = _findDuplicates(fileList)
         if len(dups) > 0:
-            print "Plotter produced multiple files with names", ", ".join(dups)
-            print "Typically this is a naming problem in the plotter configuration"
+            print("Plotter produced multiple files with names", ", ".join(dups))
+            print("Typically this is a naming problem in the plotter configuration")
             sys.exit(1)
 
-        print "Created plots in %s" % newdir
+        print("Created plots in %s" % newdir)
         return map(lambda n: n.replace(newdir, newsubdir), fileList)

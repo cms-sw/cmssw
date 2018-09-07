@@ -69,20 +69,20 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
 
   referencePlane(fv);
 
-  if (solid.shape() == ddbox) {
+  if (solid.shape() == DDSolidShape::ddbox) {
     buildBox(fv);
-  } else if (solid.shape() == ddtrap) {
+  } else if (solid.shape() == DDSolidShape::ddtrap) {
     buildTrap(fv);
-  } else if (solid.shape() == ddcons) {
+  } else if (solid.shape() == DDSolidShape::ddcons) {
     buildCons(fv);
-  } else if (solid.shape() == ddtubs) {   
+  } else if (solid.shape() == DDSolidShape::ddtubs) {   
     buildTubs(fv);
-  } else if (solid.shape() == ddpseudotrap) {   
+  } else if (solid.shape() == DDSolidShape::ddpseudotrap) {   
     buildPseudoTrap(fv);
-  } else if (solid.shape() == ddtrunctubs) {   
+  } else if (solid.shape() == DDSolidShape::ddtrunctubs) {   
     buildTruncTubs(fv);
   } else {
-    cout << "volumeHandle ctor: Unexpected solid: " << (int) solid.shape() << endl;
+    cout << "volumeHandle ctor: Unexpected solid: " << DDSolidShapesName::name(solid.shape()) << endl;
   }
 
 
@@ -146,10 +146,10 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
     cout << " RMax =  " << theRMax <<endl;
       
     if (theRMin < 0 || theRN < theRMin || theRMax < theRN) 
-      cout << "*** WARNING: wrong RMin/RN/RMax , shape: " << (int) shape() << endl;
+      cout << "*** WARNING: wrong RMin/RN/RMax , shape: " << DDSolidShapesName::name(shape()) << endl;
 
     cout << "Summary: " << name << " " << copyno
-	 << " Shape= " << (int) shape()
+	 << " Shape= " << DDSolidShapesName::name(shape())
 	 << " trasl " << center()
 	 << " R " << center().perp()
 	 << " phi " << center().phi()
@@ -228,7 +228,7 @@ void MagGeoBuilderFromDDD::volumeHandle::referencePlane(const DDExpandedView &fv
 
     // See comments above for the conventions for orientation.
     LocalVector globalZdir(0.,0.,1.); // Local direction of the axis along global Z 
-    if (solid.shape() == ddpseudotrap) {
+    if (solid.shape() == DDSolidShape::ddpseudotrap) {
       globalZdir = LocalVector(0.,1.,0.);    
     }
     if (refPlane->toGlobal(globalZdir).z()<0.) {
@@ -452,7 +452,7 @@ MagGeoBuilderFromDDD::volumeHandle::sides() const{
     if (expand && (i==phiplus || i==phiminus)) continue;
 
     // FIXME: Skip null inner degenerate cylindrical surface
-    if (solid.shape() == ddtubs && i == SurfaceOrientation::inner && theRMin < 0.001) continue;
+    if (solid.shape() == DDSolidShape::ddtubs && i == SurfaceOrientation::inner && theRMin < 0.001) continue;
 
     ReferenceCountingPointer<Surface> s = const_cast<Surface*> (surfaces[i].get());
     result.push_back(VolumeSide(s, GlobalFace(i),
