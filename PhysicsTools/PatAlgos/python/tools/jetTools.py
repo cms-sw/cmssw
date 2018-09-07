@@ -633,19 +633,27 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
 
             if btagInfo == 'pfDeepBoostedJetTagInfos':
                 if pfCandidates.value() == 'packedPFCandidates':
+                    # case 1: running over jets whose daughters are PackedCandidates (only via updateJetCollection for now)
                     jetSrcName = jetSource.value().lower()
-                    if 'slimmed' in jetSrcName or 'updated' in jetSrcName:
-                        # case 1: update jets whose daughters are PackedCandidates, e.g., slimmedJetsAK8, etc.
-                        # daughters are links to original PackedCandidates, so NOT scaled by their puppi weights yet
-                        has_puppi_weighted_daughters = False
+                    if 'updated' in jetSrcName:
                         puppi_value_map = ""
                         vertex_associator = ""
+                        if 'withpuppidaughter' in jetSrcName:
+                            # special case for Puppi jets reclustered from MiniAOD by analyzers
+                            # need to specify 'WithPuppiDaughters' in the postfix when calling updateJetCollection
+                            # daughters of these jets are already scaled by their puppi weights
+                            has_puppi_weighted_daughters = True
+                        else:
+                            # default case for updating jet collection stored in MiniAOD, e.g., slimmedJetsAK8
+                            # daughters are links to the original PackedCandidates, so NOT scaled by their puppi weights yet
+                            has_puppi_weighted_daughters = False
                     else:
-                        raise ValueError("Cannot run pfDeepBoostedJetTagInfos on jet collection: %s." % jetSource.value())
+                        raise ValueError("Invalid jet collection: %s. pfDeepBoostedJetTagInfos only supports running via updateJetCollection." % jetSource.value())
                 elif pfCandidates.value() == 'particleFlow':
                     raise ValueError("Running pfDeepBoostedJetTagInfos with reco::PFCandidates is currently not supported.")
                     # case 2: running on new jet collection whose daughters are PFCandidates (e.g., cluster jets in RECO/AOD)
                     # daughters are the particles used in jet clustering, so already scaled by their puppi weights
+                    # Uncomment the lines below after running pfDeepBoostedJetTagInfos with reco::PFCandidates becomes supported
 #                     has_puppi_weighted_daughters = True
 #                     puppi_value_map = "puppi"
 #                     vertex_associator = "primaryVertexAssociation:original"
