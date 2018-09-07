@@ -54,6 +54,7 @@ class SiStripMeanCMExtractor : public edm::one::EDProducer<> {
    public:
       explicit SiStripMeanCMExtractor( const edm::ParameterSet&);
       ~SiStripMeanCMExtractor() override;
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
       void beginJob() override ;
@@ -73,7 +74,7 @@ class SiStripMeanCMExtractor : public edm::one::EDProducer<> {
 	  uint16_t _nEventsToUse;
 	  uint16_t _actualEvent;
       
-	  CMMap _CMMap; //it contains the sum of the CM calculated before. The normalization for the number of events it is done at the end when it is written in the DetSetVector.
+	  CMMap _cmMap; //it contains the sum of the CM calculated before. The normalization for the number of events it is done at the end when it is written in the DetSetVector.
 };
 
 
@@ -92,6 +93,15 @@ SiStripMeanCMExtractor::SiStripMeanCMExtractor(const edm::ParameterSet& conf) :
 SiStripMeanCMExtractor::~SiStripMeanCMExtractor()
 {
  
+}
+
+void SiStripMeanCMExtractor::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("CMCollection", edm::InputTag("siStripZeroSuppression", "APVCM"));
+  desc.add<std::string>("Algorithm", "Pedestals");
+  desc.add<uint32_t>("NEvents", 100);
+  descriptions.add("SiStripMeanCMExtractor", desc);
 }
 
 void SiStripMeanCMExtractor::init(const edm::EventSetup& es){
@@ -136,7 +146,7 @@ SiStripMeanCMExtractor::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     
 	
 	
-    iEvent.put(std::make_unique<edm::DetSetVector<SiStripProcessedRawDigi>>(meancm),"MEANAPVCM");
+   iEvent.put(std::make_unique<edm::DetSetVector<SiStripProcessedRawDigi>>(meancm),"MEANAPVCM");
    
 }
 
@@ -171,21 +181,21 @@ void SiStripMeanCMExtractor::StoreMean(const edm::DetSetVector<SiStripProcessedR
 	
 	for(itInput = Input.begin(); itInput != Input.end(); ++itInput){
 		detId = itInput->id;
-		itMap = _CMMap.find(detId);
+		itMap = _cmMap.find(detId);
 		edm::DetSet<SiStripProcessedRawDigi>::const_iterator itCM;
 		std::vector<float> MeanCMNValue;
 		MeanCMNValue.clear();
-		if(itMap!=_CMMap.end()){   //the detId was already found
+		if(itMap!=_cmMap.end()){   //the detId was already found
 		    std::vector< float >& MapContent = itMap->second;
 			std::vector<float>::iterator itMapVector = MapContent.begin();
 			for(itCM = itInput->begin(); itCM != itInput->end(); ++itCM, ++itMapVector){
 				MeanCMNValue.push_back(itCM->adc() + *itMapVector); 
             }
-			_CMMap.erase(itMap);
-            _CMMap.insert(itMap, std::pair<uint32_t, std::vector<float> >(detId,MeanCMNValue));			
+			_cmMap.erase(itMap);
+            _cmMap.insert(itMap, std::pair<uint32_t, std::vector<float> >(detId,MeanCMNValue));			
 		} else {                 //no detId found
 			for(itCM = itInput->begin(); itCM != itInput->end(); ++itCM) MeanCMNValue.push_back(itCM->adc()); 			
-			_CMMap.insert(std::pair<uint32_t, std::vector<float> >(detId,MeanCMNValue));
+			_cmMap.insert(std::pair<uint32_t, std::vector<float> >(detId,MeanCMNValue));
 		}
 	}
   
@@ -199,7 +209,7 @@ SiStripMeanCMExtractor::ConvertMeanMapToDetSetVector(std::vector<edm::DetSet<SiS
 	meancm.clear();
 	meancm.reserve(15000);    
 	
-    for(itMap = _CMMap.begin(); itMap != _CMMap.end(); ++itMap){
+    for(itMap = _cmMap.begin(); itMap != _cmMap.end(); ++itMap){
        edm::DetSet<SiStripProcessedRawDigi> MeanCMDetSet(itMap->first);
 	   for(itMapVector = (itMap->second).begin(); itMapVector != (itMap->second).end(); ++itMapVector) MeanCMDetSet.push_back(*itMapVector/(float)_actualEvent);
 	   meancm.push_back(MeanCMDetSet);	
@@ -211,7 +221,7 @@ SiStripMeanCMExtractor::beginJob()
 {
 	_actualEvent =1;
 		
-	_CMMap.clear();
+	_cmMap.clear();
 	
 }
 
