@@ -21,9 +21,9 @@ void HcalPulseContainmentManager::beginRun(edm::EventSetup const & es)
   shapes_.beginRun(es);
 }
 
-void HcalPulseContainmentManager::beginRun(const HcalDbService* conditions, const edm::ESHandle<HcalTimeSlew>& delay)
+void HcalPulseContainmentManager::beginRun(const HcalDbService* conditions, const HcalTimeSlew* delay)
 {
-  hcalTimeSlew_delay_ = &*delay;
+  hcalTimeSlew_delay_ = delay;
 
   shapes_.beginRun(conditions);
 }
