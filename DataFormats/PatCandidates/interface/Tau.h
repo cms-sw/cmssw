@@ -23,6 +23,7 @@
 #include "DataFormats/PatCandidates/interface/Lepton.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 #include "DataFormats/PatCandidates/interface/TauPFSpecific.h"
 #include "DataFormats/PatCandidates/interface/TauCaloSpecific.h"
@@ -160,7 +161,7 @@ namespace pat {
       const pat::tau::TauPFEssential & pfEssential() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const reco::PFJetRef & pfJetRef() const { return pfSpecific().pfJetRef_; }
+      const reco::JetBaseRef & pfJetRef() const { return pfSpecific().pfJetRef_; }
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
       reco::PFRecoTauChargedHadronRef leadTauChargedHadronCandidate() const;
@@ -452,6 +453,8 @@ namespace pat {
 
 
   private:
+      /// helper to avoid code duplication in constructors
+      void initFromBaseTau(const reco::BaseTau& aTau);
       // ---- for content embedding ----
       bool embeddedIsolationTracks_;
       std::vector<reco::Track> isolationTracks_;

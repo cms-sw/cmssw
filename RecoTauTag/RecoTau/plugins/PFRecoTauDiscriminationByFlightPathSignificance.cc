@@ -82,17 +82,14 @@ double PFRecoTauDiscriminationByFlightPathSignificance::threeProngFlightPathSig(
   }
 
   //Secondary vertex
-  const vector<PFCandidatePtr>& pfSignalCandidates = tau->signalPFChargedHadrCands();
   vector<TransientTrack> transientTracks;
-  vector<PFCandidatePtr>::const_iterator iTrack;
-  for(iTrack = pfSignalCandidates.begin(); iTrack!= pfSignalCandidates.end(); iTrack++){
-    const PFCandidate& pfCand = *(iTrack->get());
-    if(pfCand.trackRef().isNonnull()){
-      const TransientTrack transientTrack = transientTrackBuilder->build(pfCand.trackRef());
+  for(const auto& pfSignalCand : tau->signalPFChargedHadrCands()){
+    if(pfSignalCand->trackRef().isNonnull()){
+      const TransientTrack transientTrack = transientTrackBuilder->build(pfSignalCand->trackRef());
       transientTracks.push_back(transientTrack);
     }
-    else if(pfCand.gsfTrackRef().isNonnull()){
-      const TransientTrack transientTrack = transientTrackBuilder->build(pfCand.gsfTrackRef());
+    else if(pfSignalCand->gsfTrackRef().isNonnull()){
+      const TransientTrack transientTrack = transientTrackBuilder->build(pfSignalCand->gsfTrackRef());
       transientTracks.push_back(transientTrack);
     }
   }

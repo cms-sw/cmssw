@@ -1,0 +1,8 @@
+<use   name="RecoMTD/DetLayers"/>
+<use   name="RecoMTD/Navigation"/>
+<use   name="RecoMTD/Records"/>
+<use   name="TrackingTools/DetLayers"/>
+<use   name="FWCore/Framework"/>
+<flags   EDM_PLUGIN="1"/>
+<library   file="MTDNavigationTest.cc" name="testRecoMTDNavigation">
+</library>

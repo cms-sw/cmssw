@@ -11,14 +11,14 @@ class SiStripCommonModeNoiseSubtractor {
   friend class SiStripRawProcessingFactory;
 
  public:
-  
+
   virtual ~SiStripCommonModeNoiseSubtractor() {};
   virtual void init(const edm::EventSetup& es) {};
-  virtual void subtract(const uint32_t&, const uint16_t&, std::vector<int16_t>&) = 0;
-  virtual void subtract(const uint32_t&, const uint16_t&, std::vector<float>&) = 0;
-  
-  const std::vector< std::pair<short,float> >& getAPVsCM(){return _vmedians;}
-  
+  virtual void subtract(uint32_t detId, uint16_t firstStrip, std::vector<int16_t>& digis) = 0;
+  virtual void subtract(uint32_t detId, uint16_t firstStrip, std::vector<float>& digis) = 0;
+
+  const std::vector< std::pair<short,float> >& getAPVsCM() const { return _vmedians; }
+
  protected:
 
   SiStripCommonModeNoiseSubtractor(){};
@@ -26,9 +26,6 @@ class SiStripCommonModeNoiseSubtractor {
 
   std::vector< std::pair<short,float> > _vmedians;
 };
-
-
-
 
 template<typename T>
 inline
@@ -40,5 +37,4 @@ median( std::vector<T>& sample) {
     return *mid;
   return ( *std::max_element(sample.begin(), mid) + *mid ) / 2.;
 }
-  
 #endif

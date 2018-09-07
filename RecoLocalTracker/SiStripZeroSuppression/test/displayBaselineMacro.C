@@ -9,29 +9,40 @@
 #include "TF1.h"
 #include "TLegend.h"
 #include "TKey.h"
+#include "TClass.h"
 
 #include "iostream"
 #include "vector"
 #include "math.h"
 #include "map"
 
-class displayBaselineMacro {
+    
+   
 
-public:
-  TFile *f, *fo;
+void  displayBaselineMacro(TString file, int limit){
+  TFile *f;//, *fo;
   TString BaseDir;
-  TString dir[3];
+  TString dir[4];
   TString fullPath, title, subDet, genSubDet;
   TCanvas *C;
-  void loop(int limit){
-    
+    C = new TCanvas();
+    f = new TFile(file);
+//    fo = new TFile(ofile, "RECREATE");
+    //BaseDir="DQMData/Results/SpyChannel/";
+    dir[0]="baselineAna/ProcessedRawDigis";
+    dir[1]="baselineAna/Baseline";
+    dir[2]="baselineAna/Clusters";
+    dir[3]="baselineAna/RawDigis";
+    f->cd();
+//	fo->Write();
+//	fo->Close();
     f->cd(dir[0]);
     
     TIter nextkey(gDirectory->GetListOfKeys());
     TKey *key;
 	int objcounter=1;
 	int histolimit =0;
-    while (key = (TKey*)nextkey()) {
+    while ((key = (TKey*)nextkey())) {
       	if(histolimit< limit){
 		histolimit++;
 	  TObject *obj = key->ReadObj();
@@ -53,7 +64,7 @@ public:
 	h->SetLineWidth(2);
 	h->SetXTitle("StripNumber");
 	h->SetYTitle("Charge (ADC counts)");
-	h->Draw();
+	h->Draw("hist p l");
 	f->cd();
 	//f->cd(dir[1]);
 	TH1F* hb = (TH1F*) f->Get(dir[1]+"/"+obj->GetName());
@@ -63,7 +74,7 @@ public:
 	  hb->SetLineStyle(2);
 	  hb->SetLineColor(2);
 	  //leg.AddEntry(hb,"clusters","lep");
-	  hb->Draw("same");
+	  hb->Draw("hist p l same");
 	}
 	
 	f->cd();
@@ -75,7 +86,16 @@ public:
 	  hc->SetLineStyle(2);
 	  hc->SetLineColor(3);
 	  //leg.AddEntry(hb,"clusters","lep");
-	  hc->Draw("same");
+	  hc->Draw("hist p l same");
+	}
+	TH1F* hd = (TH1F*) f->Get(dir[3]+"/"+obj->GetName());
+	
+	if(hd!=0){
+	  hd->SetLineWidth(2);
+	  hd->SetLineStyle(2);
+	  hd->SetLineColor(6);
+	  //leg.AddEntry(hb,"clusters","lep");
+	  hd->Draw("hist p l same");
 	}
 	
 	else
@@ -84,31 +104,13 @@ public:
     
 	
 	C->Update();
-	fo->cd();
-	C->Write();
+//	fo->cd();
+//	C->Write();
 	
-	//C->SaveAs(TString("img_newPed/")+obj->GetName()+TString(".png"));
+	C->SaveAs(TString("img/")+obj->GetName()+TString(".png"));
 	
 	
       }
-    }
-   }
-  };
-
-  displayBaselineMacro(TString file, TString ofile, int limit){
-    C = new TCanvas();
-  
-    f = new TFile(file);
-    fo = new TFile(ofile, "RECREATE");
-    //BaseDir="DQMData/Results/SpyChannel/";
-    dir[0]="ProcessedRawDigis";
-    dir[1]="Baseline";
-    dir[2]="Clusters";
-    //f->cd();
-    loop(limit);
-	fo->Write();
-	fo->Close();
+    }  
   }
-  
-  ~displayHipMacro(){};
-};
+}
