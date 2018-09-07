@@ -20,7 +20,7 @@
 
 class MTDDetId : public DetId {
   
- protected:
+ public:
 
   /** Enumerated type for Forward sub-deteector systems. */
   enum SubDetector { subUNKNOWN=0, FastTime=1 };
@@ -34,8 +34,6 @@ class MTDDetId : public DetId {
   static const uint32_t kZsideMask                 = 0x1;
   static const uint32_t kRodRingOffset             = 16;
   static const uint32_t kRodRingMask               = 0x3F;  
-
- public:
   
   // ---------- Constructors, enumerated types ----------
   
