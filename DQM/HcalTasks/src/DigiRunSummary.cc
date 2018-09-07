@@ -118,8 +118,6 @@ namespace hcaldqm
 		int numEvents = meNumEvents->getBinContent(1);
 		bool unknownIdsPresent = ig.get(_subsystem+"/"
 			+_taskname+"/UnknownIds")->getBinContent(1)>0;
-		bool ledSignalPresent = ig.get(_subsystem+"/"
-			+_taskname+"/LED/LEDEventCount")->getBinContent(1)>0;
 
 		//	book the Numer of Events - set axis extendable
 		if (!_booked)
@@ -193,6 +191,18 @@ namespace hcaldqm
 				vtmpflags[fUnknownIds]._state = flag::fBAD;
 			else
 				vtmpflags[fUnknownIds]._state = flag::fGOOD;
+
+			std::string ledHistName = _subsystem + "/" + _taskname + "/LED_CUCountvsLS/Subdet/";
+			if (did.subdet() == HcalBarrel) {
+				ledHistName += "HB";
+			} else if (did.subdet() == HcalEndcap) {
+				ledHistName += "HE";
+			} else if (did.subdet() == HcalOuter) {
+				ledHistName += "HO";
+			} else if (did.subdet() == HcalForward) {
+				ledHistName += "HF";
+			}
+			bool ledSignalPresent = (ig.get(ledHistName)->getEntries() > 0);
 
 			if (ledSignalPresent)
 				vtmpflags[fLED]._state = flag::fBAD;
