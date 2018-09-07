@@ -190,8 +190,7 @@ void DDTIBLayerAlgo_MTCC::execute(DDCompactView& cpv) {
 		      << genMat << " from 0 to " << CLHEP::twopi/CLHEP::deg 
 		      << " with Rin " << rmin << " Rout " << rmax << " ZHalf "
 		      << 0.5*layerL;
-  DDName matname(DDSplit(genMat).first, DDSplit(genMat).second);
-  DDMaterial matter(matname);
+  DDMaterial matter( DDName( DDSplit(genMat).first, DDSplit(genMat).second ));
   DDLogicalPart layer(solid.ddname(), matter, solid);
   
   //Lower part first
@@ -387,10 +386,9 @@ void DDTIBLayerAlgo_MTCC::execute(DDCompactView& cpv) {
 		      << cylinderMat << " from " << phiMin/CLHEP::deg << " to "
 		      << (phiMin+phidiff)/CLHEP::deg << " with Rin " << rin 
 		      << " Rout " << rout << " ZHalf " << 0.25*layerL;
-  matname = DDName(DDSplit(cylinderMat).first, DDSplit(cylinderMat).second);
-  DDMaterial matcyl(matname);
+  DDMaterial matcyl( DDName( DDSplit(cylinderMat).first, DDSplit(cylinderMat).second ));
   DDLogicalPart cylinder(solid.ddname(), matcyl, solid);
- cpv.position(cylinder, layer, 1, DDTranslation(0.0,0.0,0.25*layerL), DDRotation());
+  cpv.position(cylinder, layer, 1, DDTranslation(0.0,0.0,0.25*layerL), DDRotation());
   LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: " << cylinder.name() 
 		      << " number 1 positioned in " << layer.name()
 		      << " at (0,0," << 0.25*layerL << ") with no rotation";
@@ -406,7 +404,7 @@ void DDTIBLayerAlgo_MTCC::execute(DDCompactView& cpv) {
 		      << " with Rin " << rin << " Rout " << rout << " ZHalf " 
 		      << 0.5*layerL;
   DDLogicalPart cylinderIn(solid.ddname(), matter, solid);
- cpv.position(cylinderIn, cylinder, 1, DDTranslation(0.0, 0.0, -0.25*layerL), DDRotation());
+  cpv.position(cylinderIn, cylinder, 1, DDTranslation(0.0, 0.0, -0.25*layerL), DDRotation());
   LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: " << cylinderIn.name() 
 		      << " number 1 positioned in " << cylinder.name()
 		      << " at (0,0," << -0.25*layerL << ") with no rotation";
@@ -418,15 +416,13 @@ void DDTIBLayerAlgo_MTCC::execute(DDCompactView& cpv) {
 		      << genMat << " from " << phiMin/CLHEP::deg << " to " 
 		      << (phiMin+phidiff)/CLHEP::deg << " with Rin " << rin 
 		      << " Rout " << rout << " ZHalf " << 0.5*supportW;
-  matname = DDName(DDSplit(supportMat).first, DDSplit(supportMat).second);
-  DDMaterial matsup(matname);
+  DDMaterial matsup( DDName( DDSplit(supportMat).first, DDSplit(supportMat).second ));
   DDLogicalPart cylinderSup(solid.ddname(), matsup, solid);
- cpv.position(cylinderSup, cylinderIn, 1, DDTranslation(0., 0., 0.), DDRotation());
+  cpv.position(cylinderSup, cylinderIn, 1, DDTranslation(0., 0., 0.), DDRotation());
   LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: " << cylinderSup.name() 
 		      << " number 1 positioned in " << cylinderIn.name()
 		      << " at (0,0,0) with no rotation";
-  matname = DDName(DDSplit(ribMat).first, DDSplit(ribMat).second);
-  DDMaterial matrib(matname);
+  DDMaterial matrib( DDName( DDSplit(ribMat).first, DDSplit(ribMat).second ));
   for (unsigned int i = 0; i < ribW.size(); i++) {
     name = idName + "Rib" + std::to_string(i);
     double width = 2.*ribW[i]/(rin+rout);

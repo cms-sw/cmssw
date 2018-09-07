@@ -10,7 +10,6 @@
  ************************************************************/
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
@@ -26,6 +25,7 @@
 namespace reco {
   class GenParticle; 
 }
+class PileUpEventPrincipal;
 
 namespace edm {
   class ModuleCallingContext;
@@ -35,7 +35,7 @@ namespace edm {
     PreMixingPileupCopy(const edm::ParameterSet& ps, edm::ProducerBase& producer, edm::ConsumesCollector && iC);
     ~PreMixingPileupCopy() = default;
 
-    void addPileupInfo(edm::EventPrincipal const& ep, unsigned int EventId, ModuleCallingContext const* mcc);
+    void addPileupInfo(PileUpEventPrincipal const& pep);
     const std::vector<PileupSummaryInfo>& getPileupSummaryInfo() const { return pileupSummaryStorage_; }
     int getBunchSpacing() const { return bsStorage_; }
     void putPileupInfo(edm::Event &e) ;

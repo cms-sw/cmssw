@@ -162,9 +162,9 @@ void SiStripMonitorTrack::book(DQMStore::IBooker& ibooker, const TrackerTopology
     tkhisto_NumOnTrack           = std::make_unique<TkHistoMap>(tkDetMap, topFolderName_, "TkHMap_NumberOfOnTrackCluster",  0.0,true);
     tkhisto_NumOffTrack          = std::make_unique<TkHistoMap>(tkDetMap, topFolderName_, "TkHMap_NumberOfOfffTrackCluster",0.0,true);
     tkhisto_ClChPerCMfromTrack   = std::make_unique<TkHistoMap>(tkDetMap, topFolderName_, "TkHMap_ChargePerCMfromTrack",0.0,true);
-    tkhisto_NumMissingHits       = std::make_unique<TkHistoMap>(tkDetMap, topFolderName_, "TkHMap_NumberMissingHits",0.0,true);
-    tkhisto_NumberInactiveHits   = std::make_unique<TkHistoMap>(tkDetMap, topFolderName_, "TkHMap_NumberInactiveHits",0.0,true);
-    tkhisto_NumberValidHits      = std::make_unique<TkHistoMap>(tkDetMap, topFolderName_, "TkHMap_NumberValidHits",0.0,true);
+    tkhisto_NumMissingHits       = std::make_unique<TkHistoMap>(tkDetMap, topFolderName_, "TkHMap_NumberMissingHits",0.0,true,true);
+    tkhisto_NumberInactiveHits   = std::make_unique<TkHistoMap>(tkDetMap, topFolderName_, "TkHMap_NumberInactiveHits",0.0,true,true);
+    tkhisto_NumberValidHits      = std::make_unique<TkHistoMap>(tkDetMap, topFolderName_, "TkHMap_NumberValidHits",0.0,true,true);
     tkhisto_NoiseOnTrack         = std::make_unique<TkHistoMap>(tkDetMap, topFolderName_, "TkHMap_NoiseOnTrack",0.0,true);
     tkhisto_NoiseOffTrack        = std::make_unique<TkHistoMap>(tkDetMap, topFolderName_, "TkHMap_NoiseOffTrack",0.0,true);
     tkhisto_ClusterWidthOnTrack  = std::make_unique<TkHistoMap>(tkDetMap, topFolderName_, "TkHMap_ClusterWidthOnTrack",0.0,true);
@@ -820,11 +820,11 @@ void SiStripMonitorTrack::trajectoryStudy(
       uint32_t thedetid=ttrh->rawId();
       if ( SiStripDetId(thedetid).subDetector() >=3 &&  SiStripDetId(thedetid).subDetector() <=6) { //TIB/TID + TOB + TEC only
         if ( (ttrh->getType()==1) )
-          tkhisto_NumMissingHits->add(thedetid,1.);
+          tkhisto_NumMissingHits->fill(thedetid,1.);
         if ( (ttrh->getType()==2) )
-          tkhisto_NumberInactiveHits->add(thedetid,1.);
+          tkhisto_NumberInactiveHits->fill(thedetid,1.);
         if ( (ttrh->getType()==0) )
-          tkhisto_NumberValidHits->add(thedetid,1.);
+          tkhisto_NumberValidHits->fill(thedetid,1.);
       }
     }
 

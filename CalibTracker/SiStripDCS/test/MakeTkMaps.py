@@ -11,6 +11,7 @@
 #TODO:
 #In the future can put it in scripts/ and take dir to run from and write to as options.
 
+from __future__ import print_function
 import os, subprocess
 
 def ProduceTkMapVoltageInputFiles(workdir=os.getcwd()): #Setting the dir by default to the current working directory...
@@ -21,12 +22,12 @@ def ProduceTkMapVoltageInputFiles(workdir=os.getcwd()): #Setting the dir by defa
 	The function returns the 2 lists of HV and LV files.
 	"""
 	#Get all the files in the directory workdir (1 file per IOV):
-	print "Analysing %s directory"%workdir
-	logfilenames=filter(lambda x: x.startswith("DetVOffReaderDebug"), os.listdir(workdir))
+	print("Analysing %s directory"%workdir)
+	logfilenames=[x for x in os.listdir(workdir) if x.startswith("DetVOffReaderDebug")]
 	if logfilenames:
-		print "Processing %s logfiles..."%len(logfilenames)
+		print("Processing %s logfiles..."%len(logfilenames))
 	else:
-		print "No DetVIfReaderDebug files found!\nPlease run this script in the same dir you have run CheckAllIOVS.py, or in the dir where you store the output logfiles."
+		print("No DetVIfReaderDebug files found!\nPlease run this script in the same dir you have run CheckAllIOVS.py, or in the dir where you store the output logfiles.")
 	
 	#Let's dump for each IOV a TkVoltageMapCreator ready input file, i.e. with 1 entry per detID...
 	#Need to read in our usual pkl to get all the strip detids
@@ -46,7 +47,7 @@ def ProduceTkMapVoltageInputFiles(workdir=os.getcwd()): #Setting the dir by defa
 	LVFilenames=[]
 	HVFilenames=[]
 	for logfilename in logfilenames:
-		print logfilename
+		print(logfilename)
 		#Create LV/HV filenames for the input files we will write
 		#TODO:
 		#Could add here the possibility of writing in a different dir, by adding an extra outdir argument to the function
@@ -106,10 +107,10 @@ def runcmd(command):
 	    cmdout   = process.stdout.read()
 	    exitstat = process.returncode
 	except OSError as detail:
-	    print "Race condition in subprocess.Popen has robbed us of the exit code of the %s process (PID %s).Assume it failed!\n %s\n"%(command,pid,detail)
+	    print("Race condition in subprocess.Popen has robbed us of the exit code of the %s process (PID %s).Assume it failed!\n %s\n"%(command,pid,detail))
 	    exitstat=999
 	if exitstat == None:
-	    print "Something strange is going on! Exit code was None for command %s: check if it really ran!"%command
+	    print("Something strange is going on! Exit code was None for command %s: check if it really ran!"%command)
 	    exitstat=0
 	return exitstat
 
@@ -119,7 +120,7 @@ def CreateTkVoltageMapsCfgs(workdir=os.getcwd()): #Default to current working di
 	It returns the list of cfgs ready to be cmsRun to produce the maps 
 	"""
 	#Use HV log files to loop... could use also LV logs...
-	HVLogs=filter(lambda x: x.startswith("HV") and "FROM" in x and x.endswith(".log"),os.listdir(workdir))
+	HVLogs=[x for x in os.listdir(workdir) if x.startswith("HV") and "FROM" in x and x.endswith(".log")]
 	
 	#Open the file to use as template
 	TkMapCreatorTemplateFile=open(os.path.join(os.getenv("CMSSW_BASE"),"src/CalibTracker/SiStripDCS/test","TkVoltageMapCreator_cfg.py"),"r")
@@ -132,8 +133,8 @@ def CreateTkVoltageMapsCfgs(workdir=os.getcwd()): #Default to current working di
 	        #Check if the corresponding LV log is there!
 		LVlog=os.path.join(workdir,HVlog.replace("HV","LV"))
 		if not os.path.exists(LVlog):
-			print "ARGH! Missing LV file for file %s"%HVlog
-			print "Will not process the HV file either!"
+			print("ARGH! Missing LV file for file %s"%HVlog)
+			print("Will not process the HV file either!")
 		TkMapCfgFilename=os.path.join(workdir,HVlog.replace("HV","TkVoltageMap").replace(".log","_cfg.py"))
 		TkMapCfgFilenames.append(TkMapCfgFilename)
 		TkMapCfg=open(TkMapCfgFilename,"w")
@@ -157,16 +158,16 @@ def CreateTkVoltageMaps(workdir=os.getcwd()): #Default to current working direct
 	Function that looks for TkVoltageMap*cfg.py in the workdir directory and launches each of them
 	creating 2 TkVoltageMaps per IOV, one for LV and one of HV status (each as a png file). 
 	"""
-	TkMapCfgs=filter(lambda x: x.startswith("TkVoltageMap") and "FROM" in x and x.endswith("cfg.py"),os.listdir(workdir))
+	TkMapCfgs=[x for x in os.listdir(workdir) if x.startswith("TkVoltageMap") and "FROM" in x and x.endswith("cfg.py")]
 	for TkMapCfg in TkMapCfgs:
 		#Make sure we run the cfg in the workdir and also the logfile is saved there...
 		TkMapCfg=os.path.join(workdir,TkMapCfg)
 		cmsRunCmd="cmsRun %s >& %s"%(TkMapCfg,TkMapCfg.replace(".py",".log"))
-		print cmsRunCmd
+		print(cmsRunCmd)
 		exitstat=runcmd(cmsRunCmd)
 		if exitstat != 0:
-			print "Uh-Oh!"
-			print "Command %s FAILED!"%cmsRunCmd
+			print("Uh-Oh!")
+			print("Command %s FAILED!"%cmsRunCmd)
 			
 #Could put in a def main...
 
@@ -177,7 +178,7 @@ def CreateTkVoltageMaps(workdir=os.getcwd()): #Default to current working direct
 
 #Create the actual TkVoltageMaps!
 TkMapCfgFilenames=CreateTkVoltageMapsCfgs()
-print TkMapCfgFilenames
+print(TkMapCfgFilenames)
 CreateTkVoltageMaps()
 
 #Finish this up, so that it can be committed, but above all use it!

@@ -21,6 +21,7 @@
 #include "Alignment/SurveyAnalysis/interface/SurveyDataReader.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Alignment/TrackerAlignment/interface/TrackerAlignment.h"
 
 class SurveyDataConverter : public edm::EDAnalyzer
 {

@@ -2,6 +2,7 @@
 rootmath description
 """
 from __future__ import absolute_import
+from __future__ import print_function
 
 __license__ = '''\
 Copyright (c) 2009-2010 Jeff Klukas <klukas@wisc.edu>
@@ -117,7 +118,7 @@ def newadd(outfile, targets, dest_path=""):
                 dest = joined(destdir, histname)
                 add(outfile, dest, hists, scales, dest_path)
         else:
-            print "Code not written yet to add histograms from multiple files"
+            print("Code not written yet to add histograms from multiple files")
             return
         return
 

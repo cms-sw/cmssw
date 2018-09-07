@@ -328,10 +328,10 @@ IOSize
 XrdFile::readv (IOPosBuffer *into, IOSize n)
 {
   // A trivial vector read - unlikely, considering ROOT data format.
-  if (unlikely(n == 0)) {
+  if (UNLIKELY(n == 0)) {
     return 0;
   }
-  if (unlikely(n == 1)) {
+  if (UNLIKELY(n == 1)) {
     return read(into[0].data(), into[0].size(), into[0].offset());
   }
 
@@ -475,7 +475,7 @@ IOSize
 XrdFile::write (const void *from, IOSize n)
 {
   if (n > 0x7fffffff) {
-    cms::Exception ex("FileWriteError");
+    edm::Exception ex(edm::errors::FileWriteError);
     ex << "XrdFile::write(name='" << m_name << "', n=" << n
        << ") too many bytes, limit is 0x7fffffff";
     ex.addContext("Calling XrdFile::write()");
@@ -486,7 +486,7 @@ XrdFile::write (const void *from, IOSize n)
 
   XrdCl::XRootDStatus s = file->Write(m_offset, n, from);
   if (!s.IsOK()) {
-    cms::Exception ex("FileWriteError");
+    edm::Exception ex(edm::errors::FileWriteError);
     ex << "XrdFile::write(name='" << m_name << "', n=" << n
        << ") failed with error '" << s.ToStr()
        << "' (errno=" << s.errNo << ", code=" << s.code << ")";
@@ -506,7 +506,7 @@ IOSize
 XrdFile::write (const void *from, IOSize n, IOOffset pos)
 {
   if (n > 0x7fffffff) {
-    cms::Exception ex("FileWriteError");
+    edm::Exception ex(edm::errors::FileWriteError);
     ex << "XrdFile::write(name='" << m_name << "', n=" << n
        << ") too many bytes, limit is 0x7fffffff";
     ex.addContext("Calling XrdFile::write()");
@@ -517,7 +517,7 @@ XrdFile::write (const void *from, IOSize n, IOOffset pos)
 
   XrdCl::XRootDStatus s = file->Write(pos, n, from);
   if (!s.IsOK()) {
-    cms::Exception ex("FileWriteError");
+    edm::Exception ex(edm::errors::FileWriteError);
     ex << "XrdFile::write(name='" << m_name << "', n=" << n
        << ") failed with error '" << s.ToStr()
        << "' (errno=" << s.errNo << ", code=" << s.code << ")";

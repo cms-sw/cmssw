@@ -14,59 +14,42 @@
 #include <cstdint>
 #include <iomanip>
 #include <bitset>
+#include <iostream>
 
 #include "EventFilter/CTPPSRawToDigi/interface/VFATFrame.h"
 
 enum TotemSampicConstant
 {
-  hwId_Position = 0,
-  hwId_Size = 1,
+ hwId_Position = 0, // hwId_Size = 1,
   controlBits0_Position = 1,
   controlBits1_Position = 2,
   controlBits2_Position = 3,
   controlBits3_Position = 4,
   controlBits4_Position = 5,
   controlBits5_Position = 6,
-  fpgaTime_Position = 7,
-  fpgaTime_Size = 5,
-  timestampA_Position = 12,
-  timestampA_Size = 2,
-  timestampB_Position = 14,
-  timestampB_Size = 2,
-  cellInfo_Position = 16,
-  cellInfo_Size = 2,
-  planeChannelId_Position = 18,
-  planeChannelId_Size = 1,
-  reserved_Position = 19,
-  reserved_Size = 5,
-  
-  boardId_Position = 0,
-  boardId_Size = 1,
-  l1ATimestamp_Position = 1,
-  l1ATimestamp_Size = 5,
-  bunchNumber_Position = 6,
-  bunchNumber_Size = 2,
-  orbitNumber_Position = 8,
-  orbitNumber_Size = 4,
-  eventNumber_Position = 12,
-  eventNumber_Size = 4,
-  channelMap_Position = 16,
-  channelMap_Size = 2,
-  l1ALatency_Position = 18,
-  l1ALatency_Size = 2,
-  numberOfSamples_Position = 20,
-  numberOfSamples_Size = 1,
-  offsetOfSamples_Position = 21,
-  offsetOfSamples_Size = 1,
-  fwVersion_Position = 22,
-  fwVersion_Size = 1,
-  pllInfo_Position = 23,
-  pllInfo_Size = 1,
-  
+  fpgaTime_Position = 7, // fpgaTime_Size = 5,
+  timestampA_Position = 12, // timestampA_Size = 2,
+  timestampB_Position = 14, // timestampB_Size = 2,
+  cellInfo_Position = 16, // cellInfo_Size = 2,
+  planeChannelId_Position = 18, // planeChannelId_Size = 1,
+  reserved_Position = 19, // reserved_Size = 5,
+
+  boardId_Position = 0, // boardId_Size = 1,
+  l1ATimestamp_Position = 1, // l1ATimestamp_Size = 5,
+  bunchNumber_Position = 6, // bunchNumber_Size = 2,
+  orbitNumber_Position = 8, // orbitNumber_Size = 4,
+  eventNumber_Position = 12, // eventNumber_Size = 4,
+  channelMap_Position = 16, // channelMap_Size = 2,
+  l1ALatency_Position = 18, // l1ALatency_Size = 2,
+  numberOfSamples_Position = 20, // numberOfSamples_Size = 1,
+  offsetOfSamples_Position = 21, // offsetOfSamples_Size = 1,
+  fwVersion_Position = 22, // fwVersion_Size = 1,
+  pllInfo_Position = 23, // pllInfo_Size = 1,
+
   numberOfSamples = 24,
   controlBits3 = 0x69,
   cellInfo_Mask = 0x3F,
-  
+
 };
 
 template <typename T>
@@ -78,7 +61,7 @@ T grayToBinary( const T& gcode_data )
   //b[i] = g[i] xor b[i-1]
   for (unsigned short int i = 1; i < 8*sizeof(T); ++i)
     binary |= ( gcode_data ^ ( binary >> 1 ) ) & (0x0001 << ( 8*sizeof(T) - i - 1 ) );
-  
+
   return binary;
 }
 
@@ -144,8 +127,7 @@ class TotemSampicFrame
     inline uint64_t getFPGATimestamp() const {
       uint64_t tmp = 0;
       if ( status_ ) {
-        for ( unsigned short i = 0; i < TotemSampicConstant::fpgaTime_Size; ++i )
-          tmp += totemSampicInfoPtr_[ TotemSampicConstant::fpgaTime_Position + i ] << 8*i;
+        tmp = *( ( const uint64_t* ) ( totemSampicInfoPtr_ + TotemSampicConstant::fpgaTime_Position ) ) & 0xFFFFFFFFFF;
       }
       return tmp;
     }
@@ -153,24 +135,23 @@ class TotemSampicFrame
     inline uint16_t getTimestampA() const {
       uint16_t tmp = 0;
       if ( status_ ) {
-        for ( unsigned short i = 0; i < TotemSampicConstant::timestampA_Size; ++i )
-          tmp |= ( totemSampicInfoPtr_[ TotemSampicConstant::timestampA_Position + i ] ) << 8*i;
+        tmp = *( ( const uint16_t* ) ( totemSampicInfoPtr_ + TotemSampicConstant::timestampA_Position ) );
       }
+      tmp = 0xFFF - tmp;
       return grayToBinary<uint16_t> ( tmp );
     }
 
     inline uint16_t getTimestampB() const {
       uint16_t tmp = 0;
       if ( status_ ) {
-        for ( unsigned short i = 0; i < TotemSampicConstant::timestampB_Size; ++i )
-          tmp |= ( totemSampicInfoPtr_[ TotemSampicConstant::timestampB_Position + i ] ) << 8*i;
+        tmp = *( ( const uint16_t* ) ( totemSampicInfoPtr_ + TotemSampicConstant::timestampB_Position ) );
       }
       return grayToBinary<uint16_t> ( tmp );
     }
 
     inline uint16_t getCellInfo() const {
       uint16_t tmp = 0;
-      if ( status_ ) 
+      if ( status_ )
         tmp = *( ( const uint16_t* ) ( totemSampicInfoPtr_ + TotemSampicConstant::cellInfo_Position ) );
       return tmp & TotemSampicConstant::cellInfo_Mask;
     }
@@ -185,7 +166,7 @@ class TotemSampicFrame
     inline int getDetChannel() const {
       int tmp = 0;
       if ( status_ )
-        tmp = totemSampicInfoPtr_[ planeChannelId_Position ] & 0x0F; 
+        tmp = totemSampicInfoPtr_[ planeChannelId_Position ] & 0x0F;
       return tmp;
     }
 
@@ -214,8 +195,7 @@ class TotemSampicFrame
     inline uint64_t getL1ATimestamp() const {
       uint64_t tmp = 0;
       if ( status_ ) {
-        for ( unsigned short i = 0; i < TotemSampicConstant::l1ATimestamp_Size; ++i )
-          tmp += totemSampicEventInfoPtr_[ TotemSampicConstant::l1ATimestamp_Position + i ] << 8*i;
+        tmp = *( ( const uint64_t* ) ( totemSampicEventInfoPtr_ + TotemSampicConstant::l1ATimestamp_Position ) ) & 0xFFFFFFFFFF;
       }
       return tmp;
     }
@@ -223,7 +203,7 @@ class TotemSampicFrame
     inline uint16_t getBunchNumber() const
     {
       uint16_t tmp = 0;
-      if ( status_ ) 
+      if ( status_ )
         tmp = *( ( const uint16_t* ) ( totemSampicEventInfoPtr_ + TotemSampicConstant::bunchNumber_Position ) );
       return tmp;
     }
@@ -231,7 +211,7 @@ class TotemSampicFrame
     inline uint32_t getOrbitNumber() const
     {
       uint32_t tmp = 0;
-      if ( status_ ) 
+      if ( status_ )
         tmp = *( ( const uint32_t* ) ( totemSampicEventInfoPtr_ + TotemSampicConstant::orbitNumber_Position ) );
       return tmp;
     }
@@ -239,7 +219,7 @@ class TotemSampicFrame
     inline uint32_t getEventNumber() const
     {
       uint32_t tmp = 0;
-      if ( status_ ) 
+      if ( status_ )
         tmp = *( ( const uint32_t* ) ( totemSampicEventInfoPtr_ + TotemSampicConstant::eventNumber_Position ) );
       return tmp;
     }
@@ -247,7 +227,7 @@ class TotemSampicFrame
     inline uint16_t getChannelMap() const
     {
       uint16_t tmp = 0;
-      if ( status_ ) 
+      if ( status_ )
         tmp = *( ( const uint16_t* ) ( totemSampicEventInfoPtr_ + TotemSampicConstant::channelMap_Position ) );
       return tmp;
     }
@@ -255,11 +235,11 @@ class TotemSampicFrame
     inline uint16_t getL1ALatency() const
     {
       uint16_t tmp = 0;
-      if ( status_ ) 
+      if ( status_ )
         tmp = *( ( const uint16_t* ) ( totemSampicEventInfoPtr_ + TotemSampicConstant::l1ALatency_Position ) );
       return tmp;
     }
-    
+
     inline uint8_t getNumberOfSentSamples() const
     {
       uint8_t tmp = 0;
@@ -273,7 +253,7 @@ class TotemSampicFrame
       if ( status_ ) tmp = totemSampicEventInfoPtr_[ TotemSampicConstant::offsetOfSamples_Position ];
       return tmp;
     }
-    
+
     inline uint8_t getPLLInfo() const {
       uint8_t tmp = 0;
       if ( status_ ) tmp = totemSampicEventInfoPtr_[ pllInfo_Position ];
@@ -308,7 +288,7 @@ class TotemSampicFrame
       }
       std::cout << std::endl;
     }
-    
+
 };
 
 

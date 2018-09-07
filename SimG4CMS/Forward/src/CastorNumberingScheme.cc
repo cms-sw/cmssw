@@ -62,7 +62,6 @@ CastorNumberingScheme::CastorNumberingScheme(): lvCASTFar(nullptr),lvCASTNear(nu
 }
 
 CastorNumberingScheme::~CastorNumberingScheme() {
-  edm::LogInfo("ForwardSim") << "Deleting CastorNumberingScheme";
 }
 
 uint32_t CastorNumberingScheme::getUnitID(const G4Step* aStep) const {
@@ -168,8 +167,6 @@ uint32_t CastorNumberingScheme::getUnitID(const G4Step* aStep) const {
 
 }
 
-//uint32_t CastorNumberingScheme::packIndex(int section, int z, int sector,  int module ) {
-
 uint32_t CastorNumberingScheme::packIndex(int z, int sector, int module) {
   /*
     uint32_t idx=(section&31)<<28;     //bits 28-31   (21-27 are free for now)
@@ -185,8 +182,6 @@ uint32_t CastorNumberingScheme::packIndex(int z, int sector, int module) {
   return idx;
 
 }
-
-//void CastorNumberingScheme::unpackIndex(const uint32_t& idx, int& section, int& z, int& sector, int& module) {
 
 void CastorNumberingScheme::unpackIndex(const uint32_t& idx, int& z, int& sector, int& module) {
   /*

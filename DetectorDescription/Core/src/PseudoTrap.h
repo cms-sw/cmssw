@@ -13,7 +13,7 @@ namespace DDI {
   {
   public:
     PseudoTrap(double x1, double x2, double y1, double y2, double z, double radius, bool minusZ)
-     : Solid(ddpseudotrap)
+     : Solid(DDSolidShape::ddpseudotrap)
      {
        p_.emplace_back(x1);
        p_.emplace_back(x2);

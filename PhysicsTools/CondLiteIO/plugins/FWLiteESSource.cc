@@ -75,7 +75,7 @@ namespace  {
       m_type(iTypeID),
       m_record(iRecord){}
       
-      const void* getImpl(const edm::eventsetup::EventSetupRecord&, const edm::eventsetup::DataKey& iKey) override {
+      const void* getImpl(const edm::eventsetup::EventSetupRecordImpl&, const edm::eventsetup::DataKey& iKey) override {
          assert(iKey.type() == m_type);
          
          FWLiteESGenericHandle h(m_type);

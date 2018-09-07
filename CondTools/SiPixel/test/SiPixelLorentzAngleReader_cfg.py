@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Test")
@@ -32,7 +33,7 @@ process.GlobalTag.globaltag = autoCond['run2_design']
 #In case you of conditions missing, or if you want to test a specific GT
 #process.GlobalTag.globaltag = 'PRE_DES72_V6'
 
-print process.GlobalTag.globaltag
+print(process.GlobalTag.globaltag)
 process.load("Configuration.StandardSequences.GeometryDB_cff")
 
 #process.load("Configuration.StandardSequences.GeometryIdeal_cff")

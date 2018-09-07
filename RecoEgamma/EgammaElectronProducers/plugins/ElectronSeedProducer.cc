@@ -51,6 +51,7 @@
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 
 #include <string>
 
@@ -275,7 +276,7 @@ void ElectronSeedProducer::filterClusters
          int detector = scl.seed()->hitsAndFractions()[0].first.subdetId() ;
          if ( detector==EcalBarrel && (had<maxHBarrel_ || had/scle<maxHOverEBarrel_)) HoeVeto=true;
          else if( !allowHGCal_ && detector==EcalEndcap && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_) ) HoeVeto=true;
-         else if( allowHGCal_ && (detector==HcalEndcap || det_group == DetId::Forward) ) {
+         else if( allowHGCal_ && EcalTools::isHGCalDet((DetId::Detector)det_group) ) {
            float had_fraction = hgcClusterTools_->getClusterHadronFraction(*(scl.seed()));
            had1 = had_fraction*scl.seed()->energy();
            had2 = 0.;

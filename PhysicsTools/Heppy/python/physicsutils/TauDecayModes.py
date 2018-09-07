@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 class TauDecayModes( object ): 
 
@@ -7,6 +8,7 @@ class TauDecayModes( object ):
     def _decayModes(self):
         '''Builds the internal dictionaries from the enum defined in 
         http://cmslxr.fnal.gov/lxr/source/DataFormats/TauReco/interface/PFTau.h'''
+        import six
         tmp = [
             'kNull',
             'kOneProng0PiZero',
@@ -28,7 +30,7 @@ class TauDecayModes( object ):
             ]
         self.decayModes = dict( (index-1, name) for index, name in enumerate( tmp ) )
         self.decayModeNames = dict( (value, key) for key, value \
-                                    in self.decayModes.iteritems() )
+                                    in six.iteritems(self.decayModes) )
 
     def intToName( self, anInt ):
         '''Returns the decay mode name corresponding to an int.'''
@@ -139,7 +141,8 @@ tauDecayModes = TauDecayModes()
 if __name__ == '__main__':
 
     dec = TauDecayModes()
-    print dec
+    print(dec)
 
-    print 0, dec.intToName(0)
-    print 'kThreeProng0PiZero', dec.nameToInt('kThreeProng0PiZero')
+    print(0, dec.intToName(0))
+    print('kThreeProng0PiZero', dec.nameToInt('kThreeProng0PiZero'))
+

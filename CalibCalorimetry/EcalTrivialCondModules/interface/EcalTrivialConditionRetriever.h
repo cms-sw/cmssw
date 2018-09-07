@@ -106,6 +106,9 @@
 #include "CondFormats/EcalObjects/interface/EcalSamplesCorrelation.h"
 #include "CondFormats/DataRecord/interface/EcalSamplesCorrelationRcd.h"
 
+#include "CondFormats/EcalObjects/interface/EcalSimPulseShape.h"
+#include "CondFormats/DataRecord/interface/EcalSimPulseShapeRcd.h"
+
 #include "SimG4CMS/Calo/interface/EnergyResolutionVsLumi.h"
 #include "SimG4CMS/Calo/interface/EvolutionECAL.h"
 
@@ -137,6 +140,7 @@ public:
   virtual std::unique_ptr<EcalTBWeights> produceEcalTBWeights( const EcalTBWeightsRcd& );
   virtual std::unique_ptr<EcalIntercalibConstants>  getIntercalibConstantsFromConfiguration ( const EcalIntercalibConstantsRcd& ) ;
   virtual std::unique_ptr<EcalIntercalibConstantsMC>  getIntercalibConstantsMCFromConfiguration ( const EcalIntercalibConstantsMCRcd& ) ;
+  virtual std::unique_ptr<EcalSimPulseShape>  getEcalSimPulseShapeFromConfiguration ( const EcalSimPulseShapeRcd& ) ;
   virtual std::unique_ptr<EcalIntercalibErrors>  getIntercalibErrorsFromConfiguration ( const EcalIntercalibErrorsRcd& ) ;
   virtual std::unique_ptr<EcalTimeCalibConstants>  getTimeCalibConstantsFromConfiguration ( const EcalTimeCalibConstantsRcd& ) ;
   virtual std::unique_ptr<EcalTimeCalibErrors>  getTimeCalibErrorsFromConfiguration ( const EcalTimeCalibErrorsRcd& ) ;
@@ -152,6 +156,7 @@ public:
   virtual std::unique_ptr<EcalClusterEnergyCorrectionParameters> produceEcalClusterEnergyCorrectionParameters( const EcalClusterEnergyCorrectionParametersRcd& );
   virtual std::unique_ptr<EcalClusterEnergyUncertaintyParameters> produceEcalClusterEnergyUncertaintyParameters( const EcalClusterEnergyUncertaintyParametersRcd& );
   virtual std::unique_ptr<EcalClusterEnergyCorrectionObjectSpecificParameters> produceEcalClusterEnergyCorrectionObjectSpecificParameters( const EcalClusterEnergyCorrectionObjectSpecificParametersRcd& );
+
 
   virtual std::unique_ptr<EcalChannelStatus> produceEcalChannelStatus( const EcalChannelStatusRcd& );
   virtual std::unique_ptr<EcalChannelStatus> getChannelStatusFromConfiguration( const EcalChannelStatusRcd& );
@@ -218,6 +223,12 @@ private:
   std::vector<double> energyCorrectionParameters_;
   std::vector<double> energyUncertaintyParameters_;
   std::vector<double> energyCorrectionObjectSpecificParameters_;
+
+  double sim_pulse_shape_EB_thresh_;
+  double sim_pulse_shape_EE_thresh_;
+  double sim_pulse_shape_APD_thresh_;
+  float sim_pulse_shape_TI_;
+
 
   // ageing parameters 
   double totLumi_;
@@ -311,6 +322,10 @@ private:
   std::vector<double> EEG6samplesCorrelation_;
   std::vector<double> EEG1samplesCorrelation_;
   std::string SamplesCorrelationFile_;
+  std::string EBSimPulseShapeFile_;
+  std::string EESimPulseShapeFile_;
+  std::string APDSimPulseShapeFile_;
+
 
   int nTDCbins_;
 
@@ -343,9 +358,12 @@ private:
   bool producedEcalAlignmentEB_;
   bool producedEcalAlignmentEE_;
   bool producedEcalAlignmentES_;
+  bool producedEcalSimPulseShape_;
   bool getEBAlignmentFromFile_;
   bool getEEAlignmentFromFile_;
   bool getESAlignmentFromFile_;
+
+  bool getSimPulseShapeFromFile_;
 
   bool getLaserAlphaFromFileEB_;
   bool getLaserAlphaFromFileEE_;

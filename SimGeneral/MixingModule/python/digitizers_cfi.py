@@ -51,13 +51,20 @@ from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 )
 
 
-from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchebackDigitizer, hgchefrontDigitizer 
-    
+from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchebackDigitizer, hgchefrontDigitizer, HGCAL_noise_fC, HGCAL_noise_MIP, HGCAL_chargeCollectionEfficiencies, HGCAL_noises
+
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify( theDigitizers,
-                            hgceeDigitizer = cms.PSet(hgceeDigitizer),
-                            hgchebackDigitizer = cms.PSet(hgchebackDigitizer),
-                            hgchefrontDigitizer = cms.PSet(hgchefrontDigitizer),
+                       hgceeDigitizer = cms.PSet(hgceeDigitizer),
+                       hgchebackDigitizer = cms.PSet(hgchebackDigitizer),
+                       hgchefrontDigitizer = cms.PSet(hgchefrontDigitizer),
+)
+
+from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hfnoseDigitizer
+
+from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
+phase2_hfnose.toModify( theDigitizers,
+                        hfnoseDigitizer = cms.PSet(hfnoseDigitizer),
 )
 
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
@@ -68,23 +75,35 @@ from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
 phase2_timing.toModify( theDigitizers,
                         ecalTime = ecalTimeDigitizer.clone() )
-    
+
 from SimFastTiming.Configuration.SimFastTiming_cff import fastTimeDigitizer
 phase2_timing_layer.toModify( theDigitizers,
                         fastTimingLayer = fastTimeDigitizer.clone() )
 
+from SimFastTiming.Configuration.SimFastTiming_cff import mtdDigitizer
+from Configuration.Eras.Modifier_phase2_timing_layer_new_cff import phase2_timing_layer_new
+phase2_timing_layer_new.toModify( theDigitizers,
+                        fastTimingLayer = mtdDigitizer.clone() )
+
 premix_stage2.toModify(theDigitizers,
     ecal = None,
     hcal = None,
-    # TODO: what to do with hgcal?
 )
-
+(premix_stage2 & phase2_hgcal).toModify(theDigitizers,
+    hgceeDigitizer = dict(premixStage1 = True),
+    hgchebackDigitizer = dict(premixStage1 = True),
+    hgchefrontDigitizer = dict(premixStage1 = True),
+)
+(premix_stage2 & phase2_hfnose).toModify(theDigitizers,
+    hfnoseDigitizer = dict(premixStage1 = True),
+)
 
 theDigitizersValid = cms.PSet(theDigitizers)
 theDigitizers.mergedtruth.select.signalOnlyTP = True
 
 phase2_hgcal.toModify( theDigitizersValid,
-                       calotruth = cms.PSet( caloParticles ) )
+                       calotruth = cms.PSet( caloParticles ) ) # Doesn't HGCal need these also without validation?
+(premix_stage2 & phase2_hgcal).toModify(theDigitizersValid, calotruth = dict(premixStage1 = True))
 
 
 phase2_timing.toModify( theDigitizersValid.mergedtruth,
@@ -96,11 +115,8 @@ def _customizePremixStage1(mod):
     # To avoid this if-else structure we'd need an "_InverseModifier"
     # to customize pixel/strip for everything else than fastSim.
     if hasattr(mod, "pixel"):
-        if hasattr(mod.pixel, "PixelDigitizerAlgorithm"):
-            mod.pixel.PixelDigitizerAlgorithm.makeDigiSimLinks = True
-            mod.pixel.PSPDigitizerAlgorithm.makeDigiSimLinks = True
-            mod.pixel.PSSDigitizerAlgorithm.makeDigiSimLinks = True
-            mod.pixel.SSDigitizerAlgorithm.makeDigiSimLinks = True
+        if hasattr(mod.pixel, "AlgorithmCommon"):
+            mod.pixel.AlgorithmCommon.makeDigiSimLinks = True
         else:
             mod.pixel.makeDigiSimLinks = True
     if hasattr(mod, "strip"):

@@ -16,13 +16,6 @@
 //
 //
 
-
-
-#include "DataFormats/PatCandidates/interface/Muon.h"
-#include "DataFormats/PatCandidates/interface/Electron.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
-
-
 #include "PhysicsTools/PatAlgos/plugins/BaseMVAValueMapProducer.h"
 
 typedef BaseMVAValueMapProducer<pat::Jet> JetBaseMVAValueMapProducer;

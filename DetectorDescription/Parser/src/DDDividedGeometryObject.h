@@ -41,7 +41,7 @@ public:
   
 protected:
   
-  DDRotationMatrix* changeRotMatrix( double rotZ = 0. ) const;
+  std::unique_ptr<DDRotationMatrix> changeRotMatrix( double rotZ = 0. ) const;
   int calculateNDiv( double motherDim, double width,
 		     double offset ) const;
   double calculateWidth( double motherDim, int nDiv,

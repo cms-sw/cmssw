@@ -20,35 +20,37 @@ class SiStripFedZeroSuppression {
   
  public:
   
-  SiStripFedZeroSuppression(uint16_t fedalgo, bool trunc=true):  
+  SiStripFedZeroSuppression(uint16_t fedalgo, bool trunc=true, bool trunc10bits=false):  
     noise_cache_id(0), 
     threshold_cache_id(0),
     theFEDalgorithm(fedalgo),
-    doTruncate(trunc) {}
+    doTruncate(trunc),
+    doTruncate10bits(trunc10bits){}
   ~SiStripFedZeroSuppression() {};
   void init(const edm::EventSetup& es);
-  void suppress(const std::vector<SiStripDigi>&,std::vector<SiStripDigi>&,const uint32_t&,
+  void suppress(const std::vector<SiStripDigi>& in, std::vector<SiStripDigi>& selectedSignal, uint32_t detId,
 		edm::ESHandle<SiStripNoises> &,edm::ESHandle<SiStripThreshold> &);
-  void suppress(const std::vector<SiStripDigi>&,std::vector<SiStripDigi>&,const uint32_t&);
-  void suppress(const edm::DetSet<SiStripRawDigi>&,edm::DetSet<SiStripDigi>&);
-  void suppress(const std::vector<int16_t>&,const uint16_t&, edm::DetSet<SiStripDigi>&);
+  void suppress(const std::vector<SiStripDigi>& in, std::vector<SiStripDigi>& selectedSignal, uint32_t detId);
+  void suppress(const edm::DetSet<SiStripRawDigi>& in ,edm::DetSet<SiStripDigi>& out);
+  void suppress(const std::vector<int16_t>& in, uint16_t firstAPV, edm::DetSet<SiStripDigi>& out);
   
-  bool IsAValidDigi();
+  uint16_t truncate(int16_t adc) const{
+    if(adc>253 && doTruncate && !doTruncate10bits ) return ((adc==1023) ? 255 : 254);
+    return adc;
+  };   
   
  private:
   
-  inline uint16_t truncate(int16_t adc) const{
-    if(adc>253 && doTruncate) return ((adc==1023) ? 255 : 254);
-    return adc;
-  };
   
   edm::ESHandle<SiStripNoises> noiseHandle;
   edm::ESHandle<SiStripThreshold> thresholdHandle;
   uint32_t noise_cache_id, threshold_cache_id;
   
   uint16_t theFEDalgorithm;
+  bool isAValidDigi();
+ 
   bool doTruncate;
-
+  bool doTruncate10bits;
   int16_t  theFEDlowThresh;
   int16_t  theFEDhighThresh;
   

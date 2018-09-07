@@ -3,6 +3,7 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerNtupleBase.h"
+#include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalTriggerClusterIdentificationBase.h"
 
 
 
@@ -19,6 +20,8 @@ class HGCalTriggerNtupleHGCMulticlusters : public HGCalTriggerNtupleBase
     void clear() final;
 
     edm::EDGetToken multiclusters_token_;
+
+    std::unique_ptr<HGCalTriggerClusterIdentificationBase> id_;
 
     int cl3d_n_ ;
     std::vector<uint32_t> cl3d_id_;
@@ -42,6 +45,8 @@ class HGCalTriggerNtupleHGCMulticlusters : public HGCalTriggerNtupleBase
     std::vector<float> cl3d_srrmax_;
     std::vector<float> cl3d_srrmean_;
     std::vector<float> cl3d_emaxe_;
+    std::vector<float> cl3d_bdteg_;
+    std::vector<int> cl3d_quality_;
 };
 
 DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory,
@@ -59,6 +64,8 @@ HGCalTriggerNtupleHGCMulticlusters::
 initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& collector)
 {
   multiclusters_token_ = collector.consumes<l1t::HGCalMulticlusterBxCollection>(conf.getParameter<edm::InputTag>("Multiclusters"));
+  id_.reset( HGCalTriggerClusterIdentificationFactory::get()->create("HGCalTriggerClusterIdentificationBDT") );
+  id_->initialize(conf.getParameter<edm::ParameterSet>("EGIdentification")); 
 
   tree.Branch("cl3d_n", &cl3d_n_, "cl3d_n/I");
   tree.Branch("cl3d_id", &cl3d_id_);
@@ -81,6 +88,8 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
   tree.Branch("cl3d_srrmax", &cl3d_srrmax_);
   tree.Branch("cl3d_srrmean", &cl3d_srrmean_);
   tree.Branch("cl3d_emaxe", &cl3d_emaxe_);
+  tree.Branch("cl3d_bdteg", &cl3d_bdteg_);
+  tree.Branch("cl3d_quality", &cl3d_quality_);
 
 }
 
@@ -122,6 +131,8 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     cl3d_srrmax_.emplace_back(cl3d_itr->sigmaRRMax());
     cl3d_srrmean_.emplace_back(cl3d_itr->sigmaRRMean());
     cl3d_emaxe_.emplace_back(cl3d_itr->eMax()/cl3d_itr->energy());
+    cl3d_bdteg_.emplace_back(id_->value(*cl3d_itr));
+    cl3d_quality_.emplace_back(cl3d_itr->hwQual());
 
     // Retrieve indices of trigger cells inside cluster
     cl3d_clusters_id_.emplace_back(cl3d_itr->constituents().size());
@@ -157,6 +168,8 @@ clear()
   cl3d_srrmax_.clear();
   cl3d_srrmean_.clear();
   cl3d_emaxe_.clear();
+  cl3d_bdteg_.clear();
+  cl3d_quality_.clear();
 }
 
 

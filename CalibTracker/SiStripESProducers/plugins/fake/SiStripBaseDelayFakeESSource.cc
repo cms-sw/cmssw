@@ -35,7 +35,6 @@ public:
 private:
   uint16_t m_coarseDelay;
   uint16_t m_fineDelay;
-  edm::FileInPath m_file;
 };
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -48,7 +47,6 @@ SiStripBaseDelayFakeESSource::SiStripBaseDelayFakeESSource(const edm::ParameterS
 
   m_coarseDelay = iConfig.getParameter<uint32_t>("CoarseDelay");
   m_fineDelay = iConfig.getParameter<uint32_t>("FineDelay");
-  m_file = iConfig.getParameter<edm::FileInPath>("file");
 }
 
 SiStripBaseDelayFakeESSource::~SiStripBaseDelayFakeESSource() {}
@@ -66,13 +64,12 @@ SiStripBaseDelayFakeESSource::produce(const SiStripBaseDelayRcd& iRecord)
 
   auto baseDelay = std::make_unique<SiStripBaseDelay>();
 
-  SiStripDetInfoFileReader reader{m_file.fullPath()};
-
-  const auto& detInfos = reader.getAllData();
+  const edm::Service<SiStripDetInfoFileReader> reader;
+  const auto& detInfos = reader->getAllData();
   if ( detInfos.empty() ) {
     edm::LogError("SiStripBaseDelayGenerator") << "Error: detInfo map is empty.";
   }
-  for ( const auto& elm : reader.getAllData() ) {
+  for ( const auto& elm : reader->getAllData() ) {
     baseDelay->put(elm.first, m_coarseDelay, m_fineDelay);
   }
 

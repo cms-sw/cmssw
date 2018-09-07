@@ -87,7 +87,7 @@ void EgammaHLTEcalRecIsolationProducer::fillDescriptions(edm::ConfigurationDescr
   descriptions.add(("hltEgammaHLTEcalRecIsolationProducer"), desc);  
 }
 
-void EgammaHLTEcalRecIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void EgammaHLTEcalRecIsolationProducer::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   
   // Get the RecoEcalCandidate Collection
   edm::Handle<reco::RecoEcalCandidateCollection> recoecalcandHandle;

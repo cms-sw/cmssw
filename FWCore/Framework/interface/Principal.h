@@ -41,6 +41,7 @@ pointer to a ProductResolver, when queried.
 namespace edm {
 
   class HistoryAppender;
+  class MergeableRunProductMetadata;
   class ModuleCallingContext;
   class ProcessHistoryRegistry;
   class ProductResolverIndexHelper;
@@ -185,7 +186,7 @@ namespace edm {
 
     ProductData const* findProductByTag(TypeID const& typeID, InputTag const& tag, ModuleCallingContext const* mcc) const;
 
-    void readAllFromSourceAndMergeImmediately();
+    void readAllFromSourceAndMergeImmediately(MergeableRunProductMetadata const* mergeableRunProductMetadata = nullptr);
     
     std::vector<unsigned int> const& lookupProcessOrder() const { return lookupProcessOrder_; }
 

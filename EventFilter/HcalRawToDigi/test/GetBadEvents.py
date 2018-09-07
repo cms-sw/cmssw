@@ -5,6 +5,7 @@ v1.0
 Jeff Temple
 Oct. 19, 2012
 '''
+from __future__ import print_function
 
 import sys,os,string
 from optparse import OptionParser
@@ -14,15 +15,14 @@ def GetBadCrabEvents(crabdir=None,prefix=None,verbose=False):
 
     badlist=[]
     if not os.path.isdir(crabdir):
-        print "<GetBadEvents> Sorry, directory '%s' does not exist!"%crabdir
+        print("<GetBadEvents> Sorry, directory '%s' does not exist!"%crabdir)
         return badlist
     newdir=os.path.join(crabdir,'res')
     if not os.path.isdir(newdir):
-        print "<GetBadEvents> Sorry, subdirectory '%s' does not exist!"%newdir
+        print("<GetBadEvents> Sorry, subdirectory '%s' does not exist!"%newdir)
         return badlist
     # Search stdout files
-    allfiles=os.listdir(newdir)
-    allfiles.sort()
+    allfiles=sorted(os.listdir(newdir))
     for f in allfiles:
         if not f.endswith(".stdout"):
             continue
@@ -45,13 +45,13 @@ def GetBadCrabEvents(crabdir=None,prefix=None,verbose=False):
                     ##print "<GetBadEvents> Error!  Run:LS:Event value less than 0 for '%s'!"%thisline
                     ##continue
             except:
-                print "<GetBadEvents>  Error!  Cannot understand string '%s'"%thisline
+                print("<GetBadEvents>  Error!  Cannot understand string '%s'"%thisline)
                 continue
             if thisline not in badlist:
                 badlist.append(thisline)
             else:
                 if verbose:
-                    print "<GetBadEvents> Warning!  Event %s already in list!"%thisline
+                    print("<GetBadEvents> Warning!  Event %s already in list!"%thisline)
         
     return badlist
 
@@ -86,7 +86,7 @@ if __name__=="__main__":
             badlist=GetBadCrabEvents(crabdir=dir,
                                      prefix=opts.prefix,
                                      verbose=opts.verbose)
-            print "Total bad events with prefix '%s' in directory '%s' is %i"%(opts.prefix,dir,len(badlist))
+            print("Total bad events with prefix '%s' in directory '%s' is %i"%(opts.prefix,dir,len(badlist)))
             # We could just all bad events, without first checking to see if already present, which would lead to double-counting, but wouldn't affect the actual filtering
             for b in badlist:
                 if b not in allbadevents:
@@ -95,18 +95,18 @@ if __name__=="__main__":
     else:
         for infile in args:
             if not os.path.isfile(infile):
-                print "Sorry, input file '%s' does not exist"%infile
+                print("Sorry, input file '%s' does not exist"%infile)
                 continue
-            print "Reading input file '%s'"%infile
+            print("Reading input file '%s'"%infile)
             events=open(infile,'r').readlines()
             for e in events:
                 temp=string.strip(e)
                 if temp not in allbadevents:
                     allbadevents.append(temp)
 
-    print "Total bad events found = ",len(allbadevents)
+    print("Total bad events found = ",len(allbadevents))
     outfile=open(opts.outfile,'w')
-    print "Sorting list of %i bad events"%len(allbadevents)
+    print("Sorting list of %i bad events"%len(allbadevents))
     allbadevents.sort()
     for b in allbadevents:
         outfile.write("%s\n"%b)

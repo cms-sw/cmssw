@@ -29,6 +29,7 @@ GEMDigiModel(config)
 , instLumi_(config.getParameter<double>("instLumi"))
 , rateFact_(config.getParameter<double>("rateFact"))
 , referenceInstLumi_(config.getParameter<double>("referenceInstLumi"))
+, resolutionX_(config.getParameter<double>("resolutionX"))
 , GE11ElecBkgParam0_(config.getParameter<double>("GE11ElecBkgParam0"))
 , GE11ElecBkgParam1_(config.getParameter<double>("GE11ElecBkgParam1"))
 , GE11ElecBkgParam2_(config.getParameter<double>("GE11ElecBkgParam2"))
@@ -266,41 +267,39 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
   return;
 }
 
-std::vector<std::pair<int, int> > GEMSimpleModel::simulateClustering(const GEMEtaPartition* roll,
-								     const PSimHit* simHit, const int bx, 
-								     CLHEP::HepRandomEngine* engine)
-{
-  const StripTopology& topology = roll->specificTopology(); // const LocalPoint& entry(simHit->entryPoint());
-  const LocalPoint& hit_position(simHit->localPosition());
-  const int nstrips(roll->nstrips());
-  int centralStrip = 0;
-  if (!(topology.channel(hit_position) + 1 > nstrips))
-    centralStrip = topology.channel(hit_position) + 1;
-  else
-    centralStrip = topology.channel(hit_position);
-  const GlobalPoint& pointSimHit = roll->toGlobal(hit_position);
-  const GlobalPoint& pointDigiHit = roll->toGlobal(roll->centreOfStrip(centralStrip));
-  double deltaX = pointSimHit.x() - pointDigiHit.x();
 
-  // Add central digi to cluster vector
-  std::vector < std::pair<int, int> > cluster_;
-  cluster_.clear();
-  cluster_.emplace_back(centralStrip, bx);
+std::vector<std::pair<int, int> > GEMSimpleModel::simulateClustering(
+    const GEMEtaPartition* roll,
+    const PSimHit* simHit,
+    const int bx,
+    CLHEP::HepRandomEngine* engine) {
 
-  //simulate cross talk
-  int clusterSize((CLHEP::RandFlat::shoot(engine)) <= 0.53 ? 1 : 2);
-  if (clusterSize == 2)
-  {
-    if (deltaX <= 0)
-    {
-      if (CLHEP::RandFlat::shoot(engine) < averageEfficiency_ && (centralStrip - 1 > 0))
-        cluster_.emplace_back(centralStrip - 1, bx);
-    }
-    else
-    {
-      if (CLHEP::RandFlat::shoot(engine) < averageEfficiency_ && (centralStrip + 1 <= nstrips))
-        cluster_.emplace_back(centralStrip + 1, bx);
-    }
+  const LocalPoint & hit_entry(simHit->entryPoint());
+  const LocalPoint & hit_exit(simHit->exitPoint());
+
+  LocalPoint start_point, end_point;
+  if(hit_entry.x() < hit_exit.x()) {
+    start_point = hit_entry;
+    end_point = hit_exit;
+  } else {
+    start_point = hit_exit;
+    end_point = hit_entry;
   }
-  return cluster_;
+
+  // Add Gaussian noise to the points towards outside. 
+  float smeared_start_x = start_point.x() - std::abs(CLHEP::RandGaussQ::shoot(engine, 0, resolutionX_));
+  float smeared_end_x = end_point.x() + std::abs(CLHEP::RandGaussQ::shoot(engine, 0, resolutionX_));
+
+  LocalPoint smeared_start_point(smeared_start_x, start_point.y(), start_point.z());
+  LocalPoint smeared_end_point(smeared_end_x, end_point.y(), end_point.z());
+
+  int cluster_start = roll->strip(smeared_start_point);
+  int cluster_end = roll->strip(smeared_end_point);
+
+  std::vector< std::pair<int, int> > cluster;
+  for (int strip = cluster_start; strip <= cluster_end; strip++) {
+    cluster.emplace_back(strip, bx);
+  }
+
+  return cluster;
 }

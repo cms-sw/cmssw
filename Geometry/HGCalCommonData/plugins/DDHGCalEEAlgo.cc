@@ -10,6 +10,7 @@
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "Geometry/HGCalCommonData/plugins/DDHGCalEEAlgo.h"
+#include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
@@ -90,7 +91,9 @@ void DDHGCalEEAlgo::initialize(const DDNumericArguments & nArgs,
   rad100to200_  = vArgs["rad100to200"];
   rad200to300_  = vArgs["rad200to300"];
   zMinRadPar_   = nArgs["zMinForRadPar"];
+  choiceType_   = (int)(nArgs["choiceType"]);
   nCutRadPar_   = (int)(nArgs["nCornerCut"]);
+  fracAreaMin_  = nArgs["fracAreaMin"];
   waferSize_    = nArgs["waferSize"];
   waferSepar_   = nArgs["SensorSeparation"];
   sectors_      = (int)(nArgs["Sectors"]);
@@ -98,7 +101,8 @@ void DDHGCalEEAlgo::initialize(const DDNumericArguments & nArgs,
   edm::LogVerbatim("HGCalGeom") << "zStart " << zMinBlock_ 
 				<< " radius for wafer type separation uses "
 				<< rad100to200_.size() << " parameters; zmin "
-				<< zMinRadPar_ << " cutoff " << nCutRadPar_
+				<< zMinRadPar_ << " cutoff " << choiceType_
+				<< ":" << nCutRadPar_ << ":" << fracAreaMin_
 				<< " wafer width " << waferSize_ 
 				<< " separations " << waferSepar_
 				<< " sectors " << sectors_;
@@ -107,15 +111,18 @@ void DDHGCalEEAlgo::initialize(const DDNumericArguments & nArgs,
 				  << " 200-300 " << rad200to300_[k];
 #endif
   slopeB_       = vArgs["SlopeBottom"];
+  zFrontB_      = vArgs["ZFrontBottom"];
+  rMinFront_    = vArgs["RMinFront"];
   slopeT_       = vArgs["SlopeTop"];
-  zFront_       = vArgs["ZFront"];
+  zFrontT_      = vArgs["ZFrontTop"];
   rMaxFront_    = vArgs["RMaxFront"];
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "Bottom slopes " << slopeB_[0] << ":" 
-				<< slopeB_[1] << " and " << slopeT_.size() 
-				<< " slopes for top" ;
+  for (unsigned int i=0; i<slopeB_.size(); ++i)
+    edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] Zmin " << zFrontB_[i]
+				  << " Rmin " << rMinFront_[i] << " Slope " 
+				  << slopeB_[i];
   for (unsigned int i=0; i<slopeT_.size(); ++i)
-    edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] Zmin " << zFront_[i]
+    edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] Zmin " << zFrontT_[i]
 				  << " Rmax " << rMaxFront_[i] << " Slope " 
 				  << slopeT_[i];
 #endif
@@ -126,7 +133,8 @@ void DDHGCalEEAlgo::initialize(const DDNumericArguments & nArgs,
 
   waferType_ = std::make_unique<HGCalWaferType>(rad100to200_, rad200to300_,
 						(waferSize_+waferSepar_), 
-						zMinRadPar_, nCutRadPar_);
+						zMinRadPar_, choiceType_,
+						nCutRadPar_, fracAreaMin_);
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -164,7 +172,7 @@ void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module,
   const double tol(0.01);
   for (unsigned int i=0; i<layers_.size(); i++) {
     double  zo     = zi + layerThick_[i];
-    double  routF  = rMax(zi);
+    double  routF  = HGCalGeomTools::radius(zi,zFrontT_,rMaxFront_,slopeT_);
     int     laymax = laymin+layers_[i];
     double  zz     = zi;
     double  thickTot(0);
@@ -173,12 +181,11 @@ void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module,
       int     ii     = layerType_[ly];
       int     copy   = copyNumber_[ii];
       double  hthick = 0.5*thick_[ii];
-      double  rinB   = (layerSense_[ly] == 0) ? (zo*slopeB_[0]) :
-	(zo*slopeB_[1]);
+      double  rinB   = HGCalGeomTools::radius(zo,zFrontB_,rMinFront_,slopeB_);
       zz            += hthick;
       thickTot      += thick_[ii];
 
-      std::string name = "HGCal"+names_[ii]+std::to_string(copy);
+      std::string name = names_[ii]+std::to_string(copy);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: Layer " << ly << ":" 
 				    << ii << " Front " << zi << ", " << routF
@@ -256,25 +263,6 @@ void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module,
 				   << thickTot << " of the components";
     }
   }   // End of loop over blocks
-}
-
-double DDHGCalEEAlgo::rMax(double z) {
-  double r(0);
-#ifdef EDM_ML_DEBUG
-  unsigned int ik(0);
-#endif
-  for (unsigned int k=0; k<slopeT_.size(); ++k) {
-    if (z < zFront_[k]) break;
-    r  = rMaxFront_[k] + (z - zFront_[k]) * slopeT_[k];
-#ifdef EDM_ML_DEBUG
-    ik = k;
-#endif
-  }
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo:rMax : " << z << ":" << ik 
-				<< ":" << r;
-#endif
-  return r;
 }
 
 void DDHGCalEEAlgo::positionSensitive(const DDLogicalPart& glog, double rin,

@@ -1,6 +1,5 @@
 #include "FTFPCMS_BERT_XS_EML.h"
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsXS.h"
-#include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "SimG4Core/PhysicsLists/interface/CMSThermalNeutrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -16,10 +15,8 @@
 #include "G4DataQuestionaire.hh"
 #include "G4HadronPhysicsFTFP_BERT.hh"
 
-FTFPCMS_BERT_XS_EML::FTFPCMS_BERT_XS_EML(G4LogicalVolumeToDDLogicalPartMap& map, 
-			   const HepPDT::ParticleDataTable * table_,
-			   sim::ChordFinderSetter *chordFinderSetter_, 
-			   const edm::ParameterSet & p) : PhysicsList(map, table_, chordFinderSetter_, p) {
+FTFPCMS_BERT_XS_EML::FTFPCMS_BERT_XS_EML(const edm::ParameterSet & p) 
+  : PhysicsList(p) {
 
   G4DataQuestionaire it(photon);
   
@@ -28,12 +25,12 @@ FTFPCMS_BERT_XS_EML::FTFPCMS_BERT_XS_EML(G4LogicalVolumeToDDLogicalPartMap& map,
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
   bool tracking= p.getParameter<bool>("TrackingCut");
   bool thermal = p.getUntrackedParameter<bool>("ThermalNeutrons");
-  double timeLimit = p.getParameter<double>("MaxTrackTime")*ns;
+  double timeLimit = p.getParameter<double>("MaxTrackTime")*CLHEP::ns;
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
 			      << "FTFP_BERT_XS_EML \n Flags for EM Physics "
 			      << emPhys << ", for Hadronic Physics "
 			      << hadPhys << " and tracking cut " << tracking
-			      << "   t(ns)= " << timeLimit/ns
+			      << "   t(ns)= " << timeLimit/CLHEP::ns
 			      << " ThermalNeutrons: " << thermal;
 
   if (emPhys) {
@@ -73,8 +70,5 @@ FTFPCMS_BERT_XS_EML::FTFPCMS_BERT_XS_EML(G4LogicalVolumeToDDLogicalPartMap& map,
       RegisterPhysics(new CMSThermalNeutrons(ver));
     }
   }
-
-  // Monopoles
-  RegisterPhysics( new CMSMonopolePhysics(table_,chordFinderSetter_,p));
 }
 

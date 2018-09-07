@@ -15,14 +15,15 @@ class PrimaryVertexValidation(GenericValidationData_CTSR, ValidationWithPlots):
         # N.B.: the reference needs to be updated each time the format of the output is changed
         "pvvalidationreference": ("/store/group/alca_trackeralign/validation/PVValidation/Reference/PrimaryVertexValidation_phaseIMC92X_upgrade2017_Ideal.root"),
         "doBPix":"True",
-        "doFPix":"True"
+        "doFPix":"True",
+        "forceBeamSpot":"False",
         }
     mandatories = {"isda","ismc","runboundary","trackcollection","vertexcollection","lumilist","ptCut","etaCut","runControl","numberOfBins"}
     valType = "primaryvertex"
     def __init__(self, valName, alignment, config):
         super(PrimaryVertexValidation, self).__init__(valName, alignment, config)
 
-        for name in "doBPix", "doFPix":
+        for name in "doBPix", "doFPix", "forceBeamSpot":
             self.general[name] = pythonboolstring(self.general[name], name)
 
         if self.general["pvvalidationreference"].startswith("/store"):

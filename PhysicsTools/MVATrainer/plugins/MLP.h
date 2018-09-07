@@ -1,6 +1,6 @@
 #ifndef __private_MLP_h
 #define __private_MLP_h
-
+#include <string>
 namespace PhysicsTools {
 
 class MLP {

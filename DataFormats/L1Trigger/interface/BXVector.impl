@@ -104,7 +104,7 @@ template < class T >
 typename BXVector<T>::const_iterator
 BXVector<T>::begin( int bx ) const
 {
-  assert(itrs_.size() > 0);
+  assert(!itrs_.empty());
   return data_.begin()+itrs_[indexFromBX(bx)];
 }
 
@@ -171,7 +171,7 @@ void BXVector<T>::clear()
 template < class T >
 void BXVector<T>::insert(int bx, unsigned i,T object)
 {
-  if(i >= size(bx)){	
+  if(i > size(bx)){	
      //cout<<"ERROR: bx "<<bx<<" is only "<<size(bx)<<" long"<<endl;
   }
   else{

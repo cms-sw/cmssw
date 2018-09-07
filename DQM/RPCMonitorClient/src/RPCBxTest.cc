@@ -161,11 +161,9 @@ void RPCBxTest::getMonitorElements(std::vector<MonitorElement *> & meVector, std
 
 }
 
-void RPCBxTest::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context){} 
 
 void RPCBxTest::analyze(const edm::Event& iEvent, const edm::EventSetup& c) {}
 
-void RPCBxTest::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) { }
 
 void  RPCBxTest::endJob(void) {
   edm::LogVerbatim ("rpcbxtest") << "[RPCBxTest]: end job ";

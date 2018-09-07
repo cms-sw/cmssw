@@ -27,7 +27,7 @@ public:
   HcalTriggerPrimitiveAlgo(bool pf, const std::vector<double>& w, int latency,
                            uint32_t FG_threshold, uint32_t FG_HF_threshold, uint32_t ZS_threshold,
                            int numberOfSamples,   int numberOfPresamples,
-                           int numberOfSamplesHF, int numberOfPresamplesHF,
+                           int numberOfSamplesHF, int numberOfPresamplesHF, bool useTDCInMinBiasBits,
                            uint32_t minSignalThreshold=0, uint32_t PMT_NoiseThreshold=0);
   ~HcalTriggerPrimitiveAlgo();
 
@@ -83,14 +83,15 @@ public:
   void addFG(const HcalTrigTowerDetId& id, std::vector<bool>& msb);
   void addUpgradeFG(const HcalTrigTowerDetId& id, int depth, const std::vector<std::bitset<2>>& bits);
 
+  bool passTDC(const QIE10DataFrame& digi, int ts) const;
   bool validUpgradeFG(const HcalTrigTowerDetId& id, int depth) const;
   bool validChannel(const QIE10DataFrame& digi, int ts) const;
   bool needLegacyFG(const HcalTrigTowerDetId& id) const;
 
-  /// adds the actual RecHits
+  /// adds the actual digis
   void analyze(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result);
-  // 2017: QIE11
-  void analyze2017(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result, const HcalFinegrainBit& fg_algo);
+  // 2017 and later: QIE11
+  void analyzeQIE11(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result, const HcalFinegrainBit& fg_algo);
   // Version 0: RCT
   void analyzeHF(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result, const int hf_lumi_shift);
   // Version 1: 1x1
@@ -101,7 +102,7 @@ public:
           const HcalFeatureBit* HCALFEM
           );
   // With dual anode readout
-  void analyzeHF2017(
+  void analyzeHFQIE10(
           const IntegerCaloSamples& SAMPLES,
           HcalTriggerPrimitiveDigi& result,
           const int HF_LUMI_SHIFT,
@@ -124,6 +125,7 @@ public:
   int numberOfPresamples_;
   int numberOfSamplesHF_;
   int numberOfPresamplesHF_;
+  bool useTDCInMinBiasBits_;
   uint32_t minSignalThreshold_;
   uint32_t PMT_NoiseThreshold_; 
   int NCTScaleShift;
@@ -157,6 +159,7 @@ public:
      QIE10DataFrame digi;
      std::vector<bool> validity;
      std::vector<bool> fgbit;
+     std::vector<bool> passTDC;
   };
   typedef std::map<HcalTrigTowerDetId, std::map<uint32_t, std::array<HFUpgradeDetails, 4>>> HFUpgradeDetailMap;
   HFUpgradeDetailMap theHFUpgradeDetailMap;
@@ -255,7 +258,7 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
             analyzeHF(item.second, result.back(), RCTScaleShift);
          } else if (detId.version() == 1) {
             if (upgrade_hf_)
-               analyzeHF2017(item.second, result.back(), NCTScaleShift, LongvrsShortCut);
+               analyzeHFQIE10(item.second, result.back(), NCTScaleShift, LongvrsShortCut);
             else
                analyzeHF2016(item.second, result.back(), NCTScaleShift, LongvrsShortCut);
          } else {
@@ -271,7 +274,7 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
          if (fgMap_.find(item.first) != fgMap_.end()) {
             analyze(item.second, result.back());
          } else if (fgUpgradeMap_.find(item.first) != fgUpgradeMap_.end()) {
-            analyze2017(item.second, result.back(), fg_algo);
+            analyzeQIE11(item.second, result.back(), fg_algo);
          }
       }
    }

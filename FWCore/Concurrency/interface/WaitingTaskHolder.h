@@ -65,6 +65,18 @@ namespace edm {
     // ---------- static member functions --------------------
     
     // ---------- member functions ---------------------------
+    
+    /** Use in the case where you need to inform the parent task of a
+     failure before some other child task which may be run later reports
+     a different, but related failure. You must later call doneWaiting
+     in the same thread passing the same exceptoin.
+     */
+    void presetTaskAsFailed(std::exception_ptr iExcept) {
+      if(iExcept) {
+        m_task->dependentTaskFailed(iExcept);
+      }
+    }
+    
     void doneWaiting(std::exception_ptr iExcept) {
       if(iExcept) {
         m_task->dependentTaskFailed(iExcept);

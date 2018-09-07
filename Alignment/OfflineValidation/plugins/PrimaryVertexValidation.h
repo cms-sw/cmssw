@@ -153,6 +153,9 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
 
   bool debug_;
   bool runControl_;
+  
+  // force to use beamspot in the vertex fit
+  bool forceBeamSpotContraint_;
 
   edm::EDGetTokenT<reco::TrackCollection>  theTrackCollectionToken; 
   edm::EDGetTokenT<reco::VertexCollection> theVertexCollectionToken; 

@@ -55,13 +55,13 @@ namespace l1t {
 	_hit.set_is_RPC    ( true  );
 	_hit.set_subsystem ( 2 );
 	
+        _hit.SetRPCDetId ( _hit.CreateRPCDetId() );
         // // Not yet implemented - AWB 15.03.17
-        // _hit.SetRPCDetId ( _hit.CreateRPCDetId() );
         // _hit.SetRPCDigi  ( _hit.CreateRPCDigi() );
 
 	// Convert integer values to degrees
         _hit.set_phi_loc  ( L1TMuonEndCap::calc_phi_loc_deg        ( _hit.Phi_fp() ) );
-        _hit.set_phi_glob ( L1TMuonEndCap::calc_phi_glob_deg       ( _hit.Phi_loc(), _hit.Sector() ) );
+        _hit.set_phi_glob ( L1TMuonEndCap::calc_phi_glob_deg       ( _hit.Phi_loc(), _evt_sector ) );
         _hit.set_theta    ( L1TMuonEndCap::calc_theta_deg_from_int ( _hit.Theta_fp() ) );
         _hit.set_eta      ( L1TMuonEndCap::calc_eta_from_theta_deg ( _hit.Theta(), _hit.Endcap() ) );
 	

@@ -2,13 +2,16 @@
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/ParameterSet"/>
+<use   name="CondFormats/Alignment"/>
 <use   name="TrackingTools/PatternTools"/>
 <use   name="TrackingTools/TrackFitters"/>
 <use   name="TrackingTools/TrajectoryState"/>
+<use   name="TrackingTools/TransientTrack"/>
+<use   name="RecoVertex/PrimaryVertexProducer"/>
 <use   name="DataFormats/Alignment"/>
-<use   name="rootcore"/>
 <use   name="Alignment/CommonAlignment"/>
 <use   name="Alignment/CommonAlignmentAlgorithm"/>
 <use   name="Alignment/TrackerAlignment"/>
 <use   name="Utilities/General"/>
+<use   name="rootcore"/>
 <flags   EDM_PLUGIN="1"/>

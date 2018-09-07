@@ -1,4 +1,4 @@
-#include "../interface/EcalClusterLocal.h"
+#include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"

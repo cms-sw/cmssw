@@ -3,16 +3,16 @@ import FWCore.ParameterSet.Config as cms
 from DQM.EcalMonitorTasks.TimingTask_cfi import ecalTimingTask
 from DQM.EcalMonitorClient.IntegrityClient_cfi import ecalIntegrityClient
 
-minChannelEntries = 5
-minTowerEntries = 15
+minChannelEntries = 1
+minTowerEntries = 3
 toleranceMean = 2.
 toleranceRMS = 6.
-minChannelEntriesFwd = 40
-minTowerEntriesFwd = 160
+minChannelEntriesFwd = 8
+minTowerEntriesFwd = 24
 toleranceMeanFwd = 6.
 toleranceRMSFwd = 12.
 tailPopulThreshold = 0.4
-timeWindow = 25. 
+timeWindow = 25.
 
 ecalTimingClient = cms.untracked.PSet(
     params = cms.untracked.PSet(

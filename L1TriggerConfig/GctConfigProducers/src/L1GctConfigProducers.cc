@@ -11,6 +11,7 @@
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
 #include "CondFormats/L1TObjects/interface/L1GctChannelMask.h"
 
+#include <cmath>
 //
 // constants, enums and typedefs
 //

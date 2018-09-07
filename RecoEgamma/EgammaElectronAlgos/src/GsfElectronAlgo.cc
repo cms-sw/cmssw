@@ -9,6 +9,7 @@
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 
 #include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
@@ -608,6 +609,9 @@ void GsfElectronAlgo::calculateShowerShape( const reco::SuperClusterRef & theClu
     showerShape.hcalTowersBehindClusters = generalData_->hcalHelperPflow->hcalTowersBehindClusters(*theClus) ;
     showerShape.hcalDepth1OverEcalBc = generalData_->hcalHelperPflow->hcalESumDepth1BehindClusters(showerShape.hcalTowersBehindClusters)/theClus->energy() ;
     showerShape.hcalDepth2OverEcalBc = generalData_->hcalHelperPflow->hcalESumDepth2BehindClusters(showerShape.hcalTowersBehindClusters)/theClus->energy() ;
+    showerShape.invalidHcal = (showerShape.hcalDepth1OverEcalBc == 0 && 
+                               showerShape.hcalDepth2OverEcalBc == 0 &&
+                               !generalData_->hcalHelperPflow->hasActiveHcal(*theClus));
    }
   else
    {
@@ -616,6 +620,9 @@ void GsfElectronAlgo::calculateShowerShape( const reco::SuperClusterRef & theClu
     showerShape.hcalTowersBehindClusters = generalData_->hcalHelper->hcalTowersBehindClusters(*theClus) ;
     showerShape.hcalDepth1OverEcalBc = generalData_->hcalHelper->hcalESumDepth1BehindClusters(showerShape.hcalTowersBehindClusters)/theClus->energy() ;
     showerShape.hcalDepth2OverEcalBc = generalData_->hcalHelper->hcalESumDepth2BehindClusters(showerShape.hcalTowersBehindClusters)/theClus->energy() ;
+    showerShape.invalidHcal = (showerShape.hcalDepth1OverEcalBc == 0 && 
+                               showerShape.hcalDepth2OverEcalBc == 0 &&
+                               !generalData_->hcalHelper->hasActiveHcal(*theClus));
    }
   
   // extra shower shapes
@@ -683,6 +690,9 @@ void GsfElectronAlgo::calculateShowerShape_full5x5( const reco::SuperClusterRef 
     showerShape.hcalTowersBehindClusters = generalData_->hcalHelperPflow->hcalTowersBehindClusters(*theClus) ;
     showerShape.hcalDepth1OverEcalBc = generalData_->hcalHelperPflow->hcalESumDepth1BehindClusters(showerShape.hcalTowersBehindClusters)/showerShape.e5x5 ;
     showerShape.hcalDepth2OverEcalBc = generalData_->hcalHelperPflow->hcalESumDepth2BehindClusters(showerShape.hcalTowersBehindClusters)/showerShape.e5x5 ;
+    showerShape.invalidHcal = (showerShape.hcalDepth1OverEcalBc == 0 && 
+                               showerShape.hcalDepth2OverEcalBc == 0 &&
+                               !generalData_->hcalHelperPflow->hasActiveHcal(*theClus));
    }
   else
    {
@@ -691,6 +701,9 @@ void GsfElectronAlgo::calculateShowerShape_full5x5( const reco::SuperClusterRef 
     showerShape.hcalTowersBehindClusters = generalData_->hcalHelper->hcalTowersBehindClusters(*theClus) ;
     showerShape.hcalDepth1OverEcalBc = generalData_->hcalHelper->hcalESumDepth1BehindClusters(showerShape.hcalTowersBehindClusters)/showerShape.e5x5 ;
     showerShape.hcalDepth2OverEcalBc = generalData_->hcalHelper->hcalESumDepth2BehindClusters(showerShape.hcalTowersBehindClusters)/showerShape.e5x5 ;
+    showerShape.invalidHcal = (showerShape.hcalDepth1OverEcalBc == 0 && 
+                               showerShape.hcalDepth2OverEcalBc == 0 &&
+                               !generalData_->hcalHelper->hasActiveHcal(*theClus));
    }
   
   // extra shower shapes
@@ -1389,7 +1402,7 @@ void GsfElectronAlgo::createElectron(const gsfAlgoHelpers::HeavyObjectCache* hoc
     if (EEDetId::isNextToDBoundary(eedetid))
      { fiducialFlags.isEEDeeGap = true ; }
    }
-  else if ( region==DetId::Forward || region == DetId::Hcal )
+  else if ( EcalTools::isHGCalDet((DetId::Detector)region) )
    {
     fiducialFlags.isEE = true ;
     //HGCalDetId eeDetid(seedXtalId);    
@@ -1412,7 +1425,7 @@ void GsfElectronAlgo::createElectron(const gsfAlgoHelpers::HeavyObjectCache* hoc
 
   reco::GsfElectron::ShowerShape showerShape;
   reco::GsfElectron::ShowerShape full5x5_showerShape;
-  if( !(region==DetId::Forward || region == DetId::Hcal) ) {    
+  if( !EcalTools::isHGCalDet((DetId::Detector)region) ) {
     calculateShowerShape(electronData_->superClusterRef,!(electronData_->coreRef->ecalDrivenSeed()),showerShape) ;    
     calculateShowerShape_full5x5(electronData_->superClusterRef,!(electronData_->coreRef->ecalDrivenSeed()),full5x5_showerShape) ;
   }
@@ -1504,7 +1517,7 @@ void GsfElectronAlgo::createElectron(const gsfAlgoHelpers::HeavyObjectCache* hoc
     }
   else  // original implementation
     {
-      if( region!=DetId::Forward && region != DetId::Hcal ) {
+      if( !EcalTools::isHGCalDet((DetId::Detector)region) ) {
 	if (ele->core()->ecalDrivenSeed())
 	  {
 	    if (generalData_->strategyCfg.ecalDrivenEcalEnergyFromClassBasedParameterization)
@@ -1540,7 +1553,7 @@ void GsfElectronAlgo::createElectron(const gsfAlgoHelpers::HeavyObjectCache* hoc
   dr03.tkSumPt = tkIsol03Calc_.calIsolPt(*ele->gsfTrack(),*eventData_->currentCtfTracks);
   dr04.tkSumPt = tkIsol04Calc_.calIsolPt(*ele->gsfTrack(),*eventData_->currentCtfTracks);
  
-  if( !(region==DetId::Forward || region == DetId::Hcal) ) {  
+  if( !EcalTools::isHGCalDet((DetId::Detector)region) ) {
     dr03.hcalDepth1TowerSumEt = eventData_->hadDepth1Isolation03->getTowerEtSum(ele) ;
     dr03.hcalDepth2TowerSumEt = eventData_->hadDepth2Isolation03->getTowerEtSum(ele) ;
     dr03.hcalDepth1TowerSumEtBc = eventData_->hadDepth1Isolation03Bc->getTowerEtSum(ele,&(showerShape.hcalTowersBehindClusters)) ;

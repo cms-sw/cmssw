@@ -28,7 +28,8 @@ namespace l1t {
 // just a square for now
 // for 1 do greater than, for 2 do greater than equal to
 
-int mask_[9][9] = {
+namespace {
+constexpr int mask_[9][9] = {
   { 1,2,2,2,2,2,2,2,2 },
   { 1,1,2,2,2,2,2,2,2 },
   { 1,1,1,2,2,2,2,2,2 },
@@ -40,14 +41,12 @@ int mask_[9][9] = {
   { 1,1,1,1,1,1,1,1,2 },
 };
 
+}
 
-std::vector<l1t::Jet>::iterator start_, end_;
 
-l1t::Stage2Layer2JetAlgorithmFirmwareImp1::Stage2Layer2JetAlgorithmFirmwareImp1(CaloParamsHelper* params) :
+l1t::Stage2Layer2JetAlgorithmFirmwareImp1::Stage2Layer2JetAlgorithmFirmwareImp1(CaloParamsHelper const* params) :
   params_(params){}
 
-
-l1t::Stage2Layer2JetAlgorithmFirmwareImp1::~Stage2Layer2JetAlgorithmFirmwareImp1() {}
 
 void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::processEvent(const std::vector<l1t::CaloTower> & towers,
 							     std::vector<l1t::Jet> & jets,
@@ -193,8 +192,8 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
 	calibrate(jetsRing, 0, false); // pass the jet collection and the hw threshold above which to calibrate
 
 	// sort these jets and keep top 6
-	start_ = jetsRing.begin();  
-	end_   = jetsRing.end();
+	auto start_ = jetsRing.begin();  
+	auto end_   = jetsRing.end();
 	BitonicSort<l1t::Jet>(down, start_, end_);
 	if (jetsRing.size()>6) jetsRing.resize(6);
 	

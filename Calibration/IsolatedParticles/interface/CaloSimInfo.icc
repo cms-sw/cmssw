@@ -227,9 +227,6 @@ namespace spr{
       unsigned int matchSimTrk = trkInfo->trackId();
       matchedId                = trkInfo->type();         //pdgid
 
-      edm::SimTrackContainer::const_iterator simTrkItr;
-      edm::SimVertexContainer::const_iterator simVtxItr;
-    
       for (unsigned int ihit=0; ihit<hit.size(); ihit++) {
 
 	DetId id_ = (DetId)(hit[ihit]->id());
@@ -245,7 +242,7 @@ namespace spr{
           } else { 
          // trace back the history and check the pdgId of origin SimTrack of SimHit
 	    bool found = false;
-	    for (simTrkItr = SimTk->begin(); simTrkItr!= SimTk->end(); simTrkItr++) {
+	    for (auto simTrkItr = SimTk->begin(); simTrkItr!= SimTk->end(); simTrkItr++) {
 	      if (hit[ihit]->geantTrackId() == (int)simTrkItr->trackId()) {
   	        found = true;
 	        bool match = spr::validSimTrack(matchSimTrk, simTrkItr, SimTk, SimVtx, debug);
@@ -429,9 +426,6 @@ namespace spr{
       unsigned int matchSimTrk = trkInfo->trackId();
       matchedId                = trkInfo->type();         //pdgid
 
-      edm::SimTrackContainer::const_iterator simTrkItr;
-      edm::SimVertexContainer::const_iterator simVtxItr;
-    
       // Loop over hits
       for (unsigned int ihit=0; ihit<hit.size(); ihit++) {
       
@@ -452,7 +446,7 @@ namespace spr{
 	  nMatched++;
 	} else {
 	  bool found = false;
-	  for (simTrkItr = SimTk->begin(); simTrkItr!= SimTk->end(); simTrkItr++) {
+	  for (auto simTrkItr = SimTk->begin(); simTrkItr!= SimTk->end(); simTrkItr++) {
 	    if (hit[ihit]->geantTrackId() == (int)simTrkItr->trackId()) {
 	      found = true;
 	      bool match = spr::validSimTrack(matchSimTrk, simTrkItr, SimTk, SimVtx, debug);

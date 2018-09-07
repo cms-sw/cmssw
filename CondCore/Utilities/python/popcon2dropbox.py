@@ -1,3 +1,4 @@
+from __future__ import print_function
 import subprocess
 import json
 import netrc
@@ -108,7 +109,7 @@ def upload( args, dbName ):
     try:
        pipe = subprocess.Popen( uploadCommand, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
        stdout = pipe.communicate()[0]
-       print stdout
+       print(stdout)
        retCode = pipe.returncode
        if retCode != 0:
            saveFileForImportErrors( datef, dbName, True )
@@ -142,7 +143,7 @@ def copy( args, dbName ):
     try:
         pipe = subprocess.Popen( copyCommand, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
         stdout = pipe.communicate()[0]
-        print stdout
+        print(stdout)
         retCode = pipe.returncode
         if retCode != 0:
             saveFileForImportErrors( datef, dbName )
@@ -176,7 +177,7 @@ def run( args ):
     pipe = subprocess.Popen( command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
     stdout = pipe.communicate()[0]
     retCode = pipe.returncode
-    print stdout
+    print(stdout)
     logger.info('PopCon Analyzer return code is: %s' %retCode )
     if retCode!=0:
        logger.error( 'O2O job failed. Skipping upload.' )

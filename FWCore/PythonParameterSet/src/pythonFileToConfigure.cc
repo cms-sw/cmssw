@@ -31,7 +31,7 @@ std::string edm::pythonFileToConfigure(const std::string& iPythonFileName)
                                                           Py_file_input,
                                                           main_namespace.ptr(),
                                                           main_namespace.ptr()))));
-    } catch(error_already_set) {
+    } catch(error_already_set const&) {
       edm::pythonToCppException("Configuration");
     }
     try {
@@ -42,7 +42,7 @@ std::string edm::pythonFileToConfigure(const std::string& iPythonFileName)
                                            main_namespace.ptr()))));
       returnValue= extract<std::string>(result);
       
-    }catch( error_already_set ) {
+    }catch( error_already_set const& ) {
       edm::pythonToCppException("Configuration");
     }
   }catch(...) {

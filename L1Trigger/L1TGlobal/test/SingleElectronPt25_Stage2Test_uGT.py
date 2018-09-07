@@ -31,9 +31,9 @@ for arg in argv:
     (k, v) = map(str.strip, arg.split('='))
     if k not in globals():
         raise "Unknown argument '%s'!" % (k,)
-    if type(globals()[k]) == bool:
+    if isinstance(globals()[k], bool):
         globals()[k] = v.lower() in ('y', 'yes', 'true', 't', '1')
-    elif type(globals()[k]) == int:
+    elif isinstance(globals()[k], int):
         globals()[k] = int(v)
     else:
         globals()[k] = v

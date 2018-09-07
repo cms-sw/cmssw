@@ -4,6 +4,8 @@ AlCaRecoMatrix = {"AlCaLumiPixels" : "AlCaPCCZeroBias+AlCaPCCRandom",
                   "Cosmics"        : "TkAlCosmics0T+MuAlGlobalCosmics+DtCalibCosmics",
                   "DoubleEG"       : "EcalCalZElectron+EcalUncalZElectron+HcalCalIterativePhiSym+HcalCalIsoTrkFilter",
                   "DoubleMuon"     : "TkAlZMuMu+MuAlCalIsolatedMu+MuAlOverlaps+MuAlZMuMu+DtCalib",
+                  # New PD in 2018 to replace SinglePhoton SingleElectron and DoubleEG in 2017
+                  "EGamma"         : "EcalESAlign+EcalUncalWElectron+EcalUncalZElectron+HcalCalIsoTrkFilter+HcalCalIterativePhiSym",
                   "HLTPhysics"     : "TkAlMinBias",
                   "JetHT"          : "HcalCalIsoTrkFilter+HcalCalIsolatedBunchFilter",
                   "MinimumBias"    : "SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias",
@@ -14,10 +16,13 @@ AlCaRecoMatrix = {"AlCaLumiPixels" : "AlCaPCCZeroBias+AlCaPCCRandom",
                   "SinglePhoton"   : "HcalCalGammaJet",
                   "ZeroBias"       : "SiStripCalZeroBias+TkAlMinBias+LumiPixelsMinBias+SiStripCalMinBias+AlCaPCCZeroBiasFromRECO", 
 
-                  "Express"  : "SiStripCalZeroBias+TkAlMinBias+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+DtCalib+Hotline+LumiPixelsMinBias+SiPixelCalZeroBias",
+                  "Express"        : "SiStripCalZeroBias+TkAlMinBias+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+DtCalib+Hotline+LumiPixelsMinBias+SiPixelCalZeroBias",
                   "ExpressCosmics" : "SiStripPCLHistos+SiStripCalZeroBias+TkAlCosmics0T+DtCalibCosmics+SiPixelCalZeroBias",
                   "ExpressAlignment":"TkAlMinBias",
+                  # Used for new PCC PCL introduced in 2018
+                  "AlcaLumiPixelsExpress":"AlCaPCCRandom",
                   # These two cannot run on RAW, they are just meant to run on the dedicated AlcaRAW so they do not enter the allForPrompt list
+                  "AlCaPhiSym"     : "",
                   "AlCaP0"         : "",
                   # ---------------------------------------------------------------------------------------------------------------------------
                   "HcalNZS"        : "HcalCalMinBias",
@@ -33,6 +38,44 @@ AlCaRecoMatrix = {"AlCaLumiPixels" : "AlCaPCCZeroBias+AlCaPCCRandom",
                   "StreamExpress" : "SiStripCalZeroBias+TkAlMinBias+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+DtCalib+Hotline+LumiPixelsMinBias+SiPixelCalZeroBias",
                   "StreamExpressHI" : "SiStripCalZeroBias+TkAlMinBiasHI+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+DtCalibHI+SiPixelCalZeroBias"
                   }
+
+# AlCaReco matrix used in CMSSW releases in 2017
+AlCaRecoMatrix2017 = {"AlCaLumiPixels" : "AlCaPCCZeroBias+AlCaPCCRandom",
+                      "Charmonium"     : "TkAlJpsiMuMu",
+                      "Commissioning"  : "HcalCalIsoTrk+HcalCalIsolatedBunchSelector+TkAlMinBias+SiStripCalMinBias",
+                      "Cosmics"        : "TkAlCosmics0T+MuAlGlobalCosmics+DtCalibCosmics",
+                      "DoubleEG"       : "EcalCalZElectron+EcalUncalZElectron+HcalCalIterativePhiSym+HcalCalIsoTrkFilter",
+                      "DoubleMuon"     : "TkAlZMuMu+MuAlCalIsolatedMu+MuAlOverlaps+MuAlZMuMu+DtCalib",
+                      "HLTPhysics"     : "TkAlMinBias",
+                      "JetHT"          : "HcalCalIsoTrkFilter+HcalCalIsolatedBunchFilter",
+                      "MinimumBias"    : "SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias",
+                      "MuOnia"         : "TkAlUpsilonMuMu",
+                      "NoBPTX"         : "TkAlCosmicsInCollisions",
+                      "SingleElectron" : "EcalUncalWElectron+EcalUncalZElectron+HcalCalIterativePhiSym+EcalESAlign",
+                      "SingleMuon"     : "TkAlMuonIsolated+DtCalib+MuAlCalIsolatedMu+MuAlOverlaps+MuAlZMuMu+HcalCalHO+HcalCalIterativePhiSym+HcalCalHBHEMuonFilter",
+                      "SinglePhoton"   : "HcalCalGammaJet",
+                      "ZeroBias"       : "SiStripCalZeroBias+TkAlMinBias+LumiPixelsMinBias+SiStripCalMinBias+AlCaPCCZeroBiasFromRECO", 
+
+                      "Express"  : "SiStripCalZeroBias+TkAlMinBias+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+DtCalib+Hotline+LumiPixelsMinBias+SiPixelCalZeroBias",
+                      "ExpressCosmics" : "SiStripPCLHistos+SiStripCalZeroBias+TkAlCosmics0T+DtCalibCosmics+SiPixelCalZeroBias",
+                      "ExpressAlignment":"TkAlMinBias",
+                      # These two cannot run on RAW, they are just meant to run on the dedicated AlcaRAW so they do not enter the allForPrompt list
+                      "AlCaPhiSym"     : "",
+                      "AlCaP0"         : "",
+                      # ---------------------------------------------------------------------------------------------------------------------------
+                      "HcalNZS"        : "HcalCalMinBias",
+                      # This is in the AlCaRecoMatrix, but no RelVals are produced
+                      # 'TestEnablesTracker'  : 'TkAlLAS'
+                      # 'TestEnablesEcalHcal' : 'HcalCalPedestal'
+                      "MET" : "HcalCalNoise",
+                      "SingleMu" : "MuAlCalIsolatedMu+MuAlOverlaps+TkAlMuonIsolated+DtCalib+MuAlZMuMu+HcalCalHO",
+                      "DoubleMu" : "MuAlCalIsolatedMu+MuAlOverlaps+DtCalib+TkAlZMuMu",
+                      "DoubleMuParked" : "MuAlCalIsolatedMu+MuAlOverlaps+DtCalib+TkAlZMuMu",
+                      "MuOniaParked" : "TkAlJpsiMuMu+TkAlUpsilonMuMu",
+                      "DoubleElectron" : "EcalCalZElectron+EcalUncalZElectron+HcalCalIsoTrkFilter",
+                      "StreamExpress" : "SiStripCalZeroBias+TkAlMinBias+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+DtCalib+Hotline+LumiPixelsMinBias+SiPixelCalZeroBias",
+                      "StreamExpressHI" : "SiStripCalZeroBias+TkAlMinBiasHI+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+DtCalibHI+SiPixelCalZeroBias"
+}
 
 # this matrix will be used for the legacy reprocessing of the 2016 2016B-H dataset;
 # with the exception of ZeroBias, it was also used for the 23Sept16 reprocessing of 2016B-G 

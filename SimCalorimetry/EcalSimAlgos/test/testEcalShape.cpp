@@ -20,12 +20,13 @@ int main()
 
    const EcalSimParameterMap parameterMap ;
 
-   const APDShape theAPDShape( 74.5, 40.5 ) ;
-   const EBShape theEBShape ;
-   const EEShape theEEShape ;
+   bool useDBShape = false; // this unit test is supposing the phase I hardcoded ECAL shapes
+   const APDShape theAPDShape(useDBShape) ;
+   const EBShape theEBShape(useDBShape) ;
+   const EEShape theEEShape(useDBShape) ;
 
-   const int nsamp = EcalShapeBase::k1NSecBinsTotal;
-   const int tconv = EcalShapeBase::kNBinsPerNSec;
+   const int nsamp = 500; // phase I hardcoded ECAL shapes arrays
+   const int tconv = 10;  // kNBinsPerNSec = 10
 
    const unsigned int histsiz = nsamp*tconv;
 
@@ -48,7 +49,7 @@ int main()
 
 
       // standard display of the implemented shape function
-      const int csize = EcalShapeBase::k1NSecBinsTotal;
+      const int csize = 500;
       TCanvas * showShape = new TCanvas("showShape","showShape",2*csize,csize);
 /*
 

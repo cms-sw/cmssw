@@ -1,3 +1,4 @@
+from __future__ import print_function
 #
 # cfg file to run online L1 Trigger emulator DQM
 #     the user can choose the environment (live, playback, file-P5, file)
@@ -32,8 +33,8 @@ if l1DqmEnv == 'file' :
     elif globalTagType == 'R' :
         globalTagValue = 'GR_R_52_V4'
     else :
-        print 'No valid global tag type', globalTagType
-        print 'Valid types: HLT, P, E, R'
+        print('No valid global tag type', globalTagType)
+        print('Valid types: HLT, P, E, R')
         sys.exit()
 
 
@@ -42,9 +43,9 @@ process = cms.Process("L1TEmuDQM")
 # check that a valid choice for environment exists
 
 if not ((l1DqmEnv == 'live') or l1DqmEnv == 'playback' or l1DqmEnv == 'file-P5' or l1DqmEnv == 'file' ) : 
-    print 'No valid input source was chosen. Your value for l1DqmEnv input parameter is:'  
-    print 'l1DqmEnv = ', l1DqmEnv
-    print 'Available options: "live", "playback", "file-P5", "file" '
+    print('No valid input source was chosen. Your value for l1DqmEnv input parameter is:')  
+    print('l1DqmEnv = ', l1DqmEnv)
+    print('Available options: "live", "playback", "file-P5", "file" ')
     sys.exit()
 
 #----------------------------
@@ -60,7 +61,7 @@ if l1DqmEnv == 'live' :
     process.EventStreamHttpReader.maxEventRequestRate = cms.untracked.double(25.0)
  
 elif l1DqmEnv == 'playback' :
-    print 'FIXME'
+    print('FIXME')
     sys.exit()
     
 else : 
@@ -88,7 +89,7 @@ if l1DqmEnv == 'live' :
     process.GlobalTag.RefreshEachRun = cms.untracked.bool(True)
 
 elif l1DqmEnv == 'playback' :
-    print 'FIXME'
+    print('FIXME')
     
 elif l1DqmEnv == 'file-P5' :
     process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
@@ -238,7 +239,7 @@ process.L1HardwareValidation.remove(process.deDt)
 # process.l1EmulatorEventInfoClient.verbose = cms.untracked.bool(True)
 
 
-print "Running with run type = ", process.runType.getRunType()
+print("Running with run type = ", process.runType.getRunType())
 process.castorDigis.InputLabel = cms.InputTag("rawDataCollector")
 process.csctfDigis.producer = cms.InputTag("rawDataCollector")
 process.dttfDigis.DTTF_FED_Source = cms.InputTag("rawDataCollector")

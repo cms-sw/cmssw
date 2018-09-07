@@ -17,7 +17,6 @@ using namespace sistrip;
 //
 SiStripFedCablingFakeESSource::SiStripFedCablingFakeESSource( const edm::ParameterSet& pset )
   : SiStripFedCablingESProducer( pset ),
-    detIds_( pset.getParameter<edm::FileInPath>("DetIdsFile") ),
     fedIds_( pset.getParameter<edm::FileInPath>("FedIdsFile") ),
     pset_(pset)
 {
@@ -47,10 +46,10 @@ SiStripFedCabling* SiStripFedCablingFakeESSource::make( const SiStripFedCablingR
   SiStripFecCabling* fec_cabling = new SiStripFecCabling();
   
   // Read DetId list from file
-  SiStripDetInfoFileReader Detreader( detIds_.fullPath() );
+  const edm::Service<SiStripDetInfoFileReader> Detreader;
   typedef std::vector<uint32_t>  Dets;
   
-  Dets dets = Detreader.getAllDetIds();
+  Dets dets = Detreader->getAllDetIds();
   
   // Read FedId list from file
   typedef std::vector<uint16_t> Feds;
@@ -63,7 +62,7 @@ SiStripFedCabling* SiStripFedCablingFakeESSource::make( const SiStripFedCablingR
   Dets::const_iterator idet = dets.begin();
   Dets::const_iterator jdet = dets.end();
   for ( ; idet != jdet; ++idet ) {
-    uint16_t npairs =  Detreader.getNumberOfApvsAndStripLength(*idet).first / 2;
+    uint16_t npairs =  Detreader->getNumberOfApvsAndStripLength(*idet).first / 2;
     for ( uint16_t ipair = 0; ipair < npairs; ++ipair ) {
       uint16_t addr = 0;
       if      ( npairs == 2 && ipair == 0 ) { addr = 32; }

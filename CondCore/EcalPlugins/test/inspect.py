@@ -1,3 +1,4 @@
+from __future__ import print_function
 #
 # I should write a decent test of the python binding...
 #
@@ -11,10 +12,10 @@ def dumpSummaries(dbname):
             #        print log.getState()
             iov = inspect.Iov(db,tag)
             for x in  iov.summaries():
-                print x[1],x[2],x[3]
+                print(x[1],x[2],x[3])
             #        print iov.trend("",[0,2,12])
         except RuntimeError :
-            print " no iov? in", tag
+            print(" no iov? in", tag)
     
     iov=0
 
@@ -26,10 +27,10 @@ def dumpContents(dbname):
         try :
             iov = inspect.Iov(db,tag)
             for x in  iov.list():
-                print x[1],x[2]
-                print inspect.PayLoad(db,x[0])
+                print(x[1],x[2])
+                print(inspect.PayLoad(db,x[0]))
         except RuntimeError :
-            print " no iov? in", tag
+            print(" no iov? in", tag)
     
     iov=0
 

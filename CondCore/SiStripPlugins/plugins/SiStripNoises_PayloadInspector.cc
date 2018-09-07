@@ -42,6 +42,7 @@
 #include "TLatex.h"
 #include "TPave.h"
 #include "TPaveStats.h"
+#include "TGaxis.h"
 
 namespace {
 
@@ -129,7 +130,299 @@ namespace {
       return true;
     }// fill
   };
-  
+
+
+  /************************************************
+    templated 1d histogram of SiStripNoises of 1 IOV
+  *************************************************/
+
+  // inherit from one of the predefined plot class: PlotImage
+  template<SiStripPI::OpMode op_mode_> class SiStripNoiseDistribution : public cond::payloadInspector::PlotImage<SiStripNoises> {
+
+  public:
+    SiStripNoiseDistribution() : cond::payloadInspector::PlotImage<SiStripNoises>("SiStrip Noise values"){
+      setSingleIov( true );
+    }
+
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+      auto iov = iovs.front();
+
+      TGaxis::SetMaxDigits(3);
+      gStyle->SetOptStat("emr");
+
+      std::shared_ptr<SiStripNoises> payload = fetchPayload( std::get<1>(iov) );
+
+      auto mon1D = std::unique_ptr<SiStripPI::Monitor1D>(new SiStripPI::Monitor1D(op_mode_,
+										  "Noise",
+										  Form("#LT Strip Noise #GT per %s for IOV [%s];#LTStrip Noise per %s#GT [ADC counts];n. %ss",
+										       opType(op_mode_).c_str(),std::to_string(std::get<0>(iov)).c_str(),opType(op_mode_).c_str(),opType(op_mode_).c_str())
+										  ,100,0.1,10.));
+
+      unsigned int prev_det=0, prev_apv=0;
+      SiStripPI::Entry enoise;
+
+      std::vector<uint32_t> detids;
+      payload->getDetIds(detids);
+
+      // loop on payload
+      for (const auto & d : detids) {
+	SiStripNoises::Range range=payload->getRange(d);
+
+	unsigned int istrip=0;
+
+	for( int it=0; it < (range.second-range.first)*8/9; ++it ){
+	  auto noise = payload->getNoise(it,range);
+	  bool flush = false;
+	  switch(op_mode_) {
+	  case (SiStripPI::APV_BASED):
+	    flush = (prev_det != 0 && prev_apv != istrip/128);
+	    break;
+	  case (SiStripPI::MODULE_BASED):
+	    flush = (prev_det != 0 && prev_det != d);
+	    break;
+	  case (SiStripPI::STRIP_BASED):
+	    flush = (istrip != 0);
+	    break;
+	  }
+
+	  if(flush){
+	    mon1D->Fill(prev_apv,prev_det,enoise.mean());
+	    enoise.reset();
+	  }
+
+	  enoise.add(std::min<float>(noise, 30.5));
+	  prev_apv = istrip/128;
+	  istrip++;
+	}
+	prev_det = d;
+      }
+
+      //=========================
+      TCanvas canvas("Partion summary","partition summary",1200,1000);
+      canvas.cd();
+      canvas.SetBottomMargin(0.11);
+      canvas.SetTopMargin(0.07);
+      canvas.SetLeftMargin(0.13);
+      canvas.SetRightMargin(0.05);
+      canvas.Modified();
+
+      auto hist = mon1D->getHist();
+      SiStripPI::makeNicePlotStyle(&hist);
+      hist.SetStats(kTRUE);
+      hist.SetFillColorAlpha(kRed,0.35);
+      hist.Draw();
+
+      canvas.Update();
+
+      TPaveStats *st = (TPaveStats*)hist.GetListOfFunctions()->FindObject("stats");
+      st->SetLineColor(kRed);
+      st->SetTextColor(kRed);
+      st->SetX1NDC(.75); st->SetX2NDC(.95);
+      st->SetY1NDC(.83); st->SetY2NDC(.93);
+
+      TLegend legend = TLegend(0.13,0.83,0.43,0.93);
+      legend.SetHeader(Form("SiStrip Noise values per %s",opType(op_mode_).c_str()),"C"); // option "C" allows to center the header
+      legend.AddEntry(&hist,("IOV: "+std::to_string(std::get<0>(iov))).c_str(),"F");
+      legend.SetTextSize(0.025);
+      legend.Draw("same");
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+
+    }
+
+    std::string opType(SiStripPI::OpMode mode) {
+      std::string types[3] = {"Strip","APV","Module"};
+      return types[mode];
+    }
+
+  };
+
+  typedef SiStripNoiseDistribution<SiStripPI::STRIP_BASED>  SiStripNoiseValuePerStrip;
+  typedef SiStripNoiseDistribution<SiStripPI::APV_BASED>    SiStripNoiseValuePerAPV;
+  typedef SiStripNoiseDistribution<SiStripPI::MODULE_BASED> SiStripNoiseValuePerModule;
+
+  /************************************************
+  template 1d histogram comparison of SiStripNoises of 1 IOV
+  *************************************************/
+
+  // inherit from one of the predefined plot class: PlotImage
+  template<SiStripPI::OpMode op_mode_> class SiStripNoiseDistributionComparison : public cond::payloadInspector::PlotImage<SiStripNoises> {
+
+  public:
+    SiStripNoiseDistributionComparison() : cond::payloadInspector::PlotImage<SiStripNoises>("SiStrip Noise values comparison"){
+      setSingleIov( false );
+    }
+
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+
+      std::vector<std::tuple<cond::Time_t,cond::Hash> > sorted_iovs = iovs;
+
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
+	  return std::get<0>(t1) < std::get<0>(t2);
+	});
+
+      auto firstiov  = sorted_iovs.front();
+      auto lastiov   = sorted_iovs.back();
+
+      std::shared_ptr<SiStripNoises> f_payload = fetchPayload( std::get<1>(firstiov) );
+      std::shared_ptr<SiStripNoises> l_payload = fetchPayload( std::get<1>(lastiov) );
+
+      auto f_mon = std::unique_ptr<SiStripPI::Monitor1D>(new SiStripPI::Monitor1D(op_mode_,
+										  "f_Noise",
+										  Form("#LT Strip Noise #GT per %s for IOV [%s,%s];#LTStrip Noise per %s#GT [ADC counts];n. %ss",
+										       opType(op_mode_).c_str(),std::to_string(std::get<0>(firstiov)).c_str(),std::to_string(std::get<0>(lastiov)).c_str(),opType(op_mode_).c_str(),opType(op_mode_).c_str())
+										  ,100,0.1,10.));
+
+      auto l_mon = std::unique_ptr<SiStripPI::Monitor1D>(new SiStripPI::Monitor1D(op_mode_,
+										  "l_Noise",
+										  Form("#LT Strip Noise #GT per %s for IOV [%s,%s];#LTStrip Noise per %s#GT [ADC counts];n. %ss",
+										       opType(op_mode_).c_str(),std::to_string(std::get<0>(lastiov)).c_str(),std::to_string(std::get<0>(lastiov)).c_str(),opType(op_mode_).c_str(),opType(op_mode_).c_str())
+										  ,100,0.1,10.));
+
+      unsigned int prev_det=0, prev_apv=0;
+      SiStripPI::Entry enoise;
+
+      std::vector<uint32_t> f_detid;
+      f_payload->getDetIds(f_detid);
+
+      // loop on first payload
+      for (const auto & d : f_detid) {
+	SiStripNoises::Range range=f_payload->getRange(d);
+
+	unsigned int istrip=0;
+	for( int it=0; it < (range.second-range.first)*8/9; ++it ){
+	  float noise = f_payload->getNoise(it,range);
+	  //to be used to fill the histogram
+
+	  bool flush = false;
+	  switch(op_mode_) {
+	  case (SiStripPI::APV_BASED):
+	    flush = (prev_det != 0 && prev_apv != istrip/128);
+	    break;
+	  case (SiStripPI::MODULE_BASED):
+	    flush = (prev_det != 0 && prev_det != d);
+	    break;
+	  case (SiStripPI::STRIP_BASED):
+	    flush = (istrip != 0);
+	    break;
+	  }
+
+	  if(flush){
+	    f_mon->Fill(prev_apv,prev_det,enoise.mean());
+	    enoise.reset();
+	  }
+	  enoise.add(std::min<float>(noise, 30.5));
+	  prev_apv = istrip/128;
+	  istrip++;
+	}
+	prev_det = d;
+      }
+
+      prev_det=0, prev_apv=0;
+      enoise.reset();
+
+      std::vector<uint32_t> l_detid;
+      l_payload->getDetIds(l_detid);
+
+      // loop on first payload
+      for (const auto & d : l_detid) {
+	SiStripNoises::Range range=l_payload->getRange(d);
+
+	unsigned int istrip=0;
+	for( int it=0; it < (range.second-range.first)*8/9; ++it ){
+	  float noise = l_payload->getNoise(it,range);
+
+	  bool flush = false;
+	  switch(op_mode_) {
+	  case (SiStripPI::APV_BASED):
+	    flush = (prev_det != 0 && prev_apv != istrip/128);
+	    break;
+	  case (SiStripPI::MODULE_BASED):
+	    flush = (prev_det != 0 && prev_det != d);
+	    break;
+	  case (SiStripPI::STRIP_BASED):
+	    flush = (istrip != 0);
+	    break;
+	  }
+
+	  if(flush){
+	    l_mon->Fill(prev_apv,prev_det,enoise.mean());
+	    enoise.reset();
+	  }
+
+	  enoise.add(std::min<float>(noise, 30.5));
+	  prev_apv = istrip/128;
+	  istrip++;
+	}
+	prev_det = d;
+      }
+
+      auto h_first = f_mon->getHist();
+      h_first.SetStats(kFALSE);
+      auto h_last  = l_mon->getHist();
+      h_last.SetStats(kFALSE);
+
+      SiStripPI::makeNicePlotStyle(&h_first);
+      SiStripPI::makeNicePlotStyle(&h_last);
+
+      h_first.GetYaxis()->CenterTitle(true);
+      h_last.GetYaxis()->CenterTitle(true);
+
+      h_first.GetXaxis()->CenterTitle(true);
+      h_last.GetXaxis()->CenterTitle(true);
+
+      h_first.SetLineWidth(2);
+      h_last.SetLineWidth(2);
+
+      h_first.SetLineColor(kBlack);
+      h_last.SetLineColor(kBlue);
+
+      //=========================
+      TCanvas canvas("Partion summary","partition summary",1200,1000);
+      canvas.cd();
+      canvas.SetBottomMargin(0.11);
+      canvas.SetLeftMargin(0.13);
+      canvas.SetRightMargin(0.05);
+      canvas.Modified();
+
+      float theMax = (h_first.GetMaximum() > h_last.GetMaximum()) ? h_first.GetMaximum() : h_last.GetMaximum();
+
+      h_first.SetMaximum(theMax*1.30);
+      h_last.SetMaximum(theMax*1.30);
+
+      h_first.Draw();
+      h_last.Draw("same");
+
+      TLegend legend = TLegend(0.52,0.82,0.95,0.9);
+      legend.SetHeader("SiStrip Noise comparison","C"); // option "C" allows to center the header
+      legend.AddEntry(&h_first,("IOV: "+std::to_string(std::get<0>(firstiov))).c_str(),"F");
+      legend.AddEntry(&h_last, ("IOV: "+std::to_string(std::get<0>(lastiov))).c_str(),"F");
+      legend.SetTextSize(0.025);
+      legend.Draw("same");
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+
+    }
+
+    std::string opType(SiStripPI::OpMode mode) {
+      std::string types[3] = {"Strip","APV","Module"};
+      return types[mode];
+    }
+
+  };
+
+  typedef SiStripNoiseDistributionComparison<SiStripPI::STRIP_BASED>  SiStripNoiseValueComparisonPerStrip;
+  typedef SiStripNoiseDistributionComparison<SiStripPI::APV_BASED>    SiStripNoiseValueComparisonPerAPV;
+  typedef SiStripNoiseDistributionComparison<SiStripPI::MODULE_BASED> SiStripNoiseValueComparisonPerModule;
+
+
   /************************************************
     1d histogram comparison of SiStripNoises of 1 IOV 
   *************************************************/
@@ -303,11 +596,12 @@ namespace {
 	}	
       }
 
+
       // loop on the map
       for (const auto &item : info_per_detid){
 	tmap->fill(item.first,item.second);
       }
-
+      
       auto range = SiStripPI::getTheRange(info_per_detid,2);
       
       //=========================
@@ -318,7 +612,7 @@ namespace {
       } else {
 	tmap->save(true,range.first,range.second,fileName);
       }
-
+      
       return true;
     }
   };
@@ -327,6 +621,136 @@ namespace {
   typedef SiStripNoiseTrackerMap<SiStripPI::max>  SiStripNoiseMax_TrackerMap;
   typedef SiStripNoiseTrackerMap<SiStripPI::mean> SiStripNoiseMean_TrackerMap;
   typedef SiStripNoiseTrackerMap<SiStripPI::rms>  SiStripNoiseRMS_TrackerMap;
+
+
+
+  /************************************************
+    SiStrip Noise Tracker Map  (ratio with previous gain per detid)
+  *************************************************/
+  template<SiStripPI::estimator est,int nsigma> class SiStripNoiseRatioWithPreviousIOVTrackerMap : public cond::payloadInspector::PlotImage<SiStripNoises> {
+  public:
+    SiStripNoiseRatioWithPreviousIOVTrackerMap() : cond::payloadInspector::PlotImage<SiStripNoises>( "Tracker Map of ratio of SiStripNoises "+estimatorType(est)+ "with previous IOV"){
+      setSingleIov( false );
+    }
+
+    std::map<unsigned int,float>computeEstimator(std::shared_ptr<SiStripNoises>  payload){
+
+      std::map<unsigned int,float> info_per_detid;
+      SiStripNoises::RegistryIterator rit=payload->getRegistryVectorBegin(), erit=payload->getRegistryVectorEnd();
+      uint16_t Nstrips;
+      std::vector<float> vstripnoise;
+      double mean,rms,min, max;
+      for(;rit!=erit;++rit){
+	Nstrips = (rit->iend-rit->ibegin)*8/9; //number of strips = number of chars * char size / strip noise size
+	vstripnoise.resize(Nstrips);
+	payload->allNoises(vstripnoise,make_pair(payload->getDataVectorBegin()+rit->ibegin,payload->getDataVectorBegin()+rit->iend));
+	mean=0; rms=0; min=10000; max=0;  
+      
+	DetId detId(rit->detid);
+      
+	for(size_t i=0;i<Nstrips;++i){
+	  mean+=vstripnoise[i];
+	  rms+=vstripnoise[i]*vstripnoise[i];
+	  if(vstripnoise[i]<min) min=vstripnoise[i];
+	  if(vstripnoise[i]>max) max=vstripnoise[i];
+	}
+      
+	mean/=Nstrips;
+	if((rms/Nstrips-mean*mean)>0.){
+	  rms = sqrt(rms/Nstrips-mean*mean);
+	} else {
+	  rms=0.;
+	}       
+	switch(est){
+	case SiStripPI::min:
+	  info_per_detid[rit->detid]=min;
+	  break;
+	case SiStripPI::max:
+	  info_per_detid[rit->detid]=max;
+	  break;
+	case SiStripPI::mean:
+	  info_per_detid[rit->detid]=mean;
+	  break;
+	case SiStripPI::rms:
+	  info_per_detid[rit->detid]=rms;
+	  break;
+	default:
+	  edm::LogWarning("LogicError") << "Unknown estimator: " <<  est; 
+	  break;
+	}
+      }
+      return info_per_detid;
+    }
+      
+
+
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+      
+      std::vector<std::tuple<cond::Time_t,cond::Hash> > sorted_iovs = iovs;
+
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
+	  return std::get<0>(t1) < std::get<0>(t2);  //J: ???????
+	});
+      
+      auto firstiov  = sorted_iovs.front();
+      auto lastiov   = sorted_iovs.back();
+      
+      std::shared_ptr<SiStripNoises> last_payload  = fetchPayload( std::get<1>(lastiov) );
+      std::shared_ptr<SiStripNoises> first_payload = fetchPayload( std::get<1>(firstiov) );
+      
+      std::string titleMap = "SiStripNoise " +estimatorType(est)+ " ratio per module average (IOV: ";
+
+      titleMap+=std::to_string(std::get<0>(firstiov));
+      titleMap+="/ IOV:";
+      titleMap+=std::to_string(std::get<0>(lastiov));
+      titleMap+=")";
+
+      titleMap+=+" "+std::to_string(nsigma)+" std. dev. saturation";
+
+
+      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripNoises"));
+      tmap->setTitle(titleMap);
+      tmap->setPalette(1);
+
+
+      std::map<unsigned int,float> map_first,map_second;
+
+      map_first = computeEstimator(first_payload);
+      map_second = computeEstimator(last_payload);
+      std::map<unsigned int,float> cachedRatio;
+
+      for (auto entry : map_first){
+	auto it2 = map_second.find(entry.first);
+	if (it2==map_second.end() || it2->second==0) continue;
+	tmap->fill(entry.first,entry.second/it2->second);
+	cachedRatio[entry.first]=(entry.second/it2->second);
+	}      
+
+      auto range = SiStripPI::getTheRange(cachedRatio,nsigma);
+      std::string fileName(m_imageFileName);
+      if(est==SiStripPI::rms && (range.first<0.)){
+	tmap->save(true,0.,range.second,fileName);
+      } else {
+	tmap->save(true,range.first,range.second,fileName);
+      }
+
+      return true;
+
+    }
+  };
+
+    typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::min,1>  SiStripNoiseMin_RatioWithPreviousIOV1sigmaTrackerMap;
+    typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::max,1>  SiStripNoiseMax_RatioWithPreviousIOV1sigmaTrackerMap;
+    typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::mean,1> SiStripNoiseMean_RatioWithPreviousIOV1sigmaTrackerMap;
+    typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::rms,1>  SiStripNoiseRms_RatioWithPreviousIOV1sigmaTrackerMap;
+    typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::min,2>  SiStripNoiseMin_RatioWithPreviousIOV2sigmaTrackerMap;
+    typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::max,2>  SiStripNoiseMax_RatioWithPreviousIOV2sigmaTrackerMap;
+    typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::mean,2> SiStripNoiseMean_RatioWithPreviousIOV2sigmaTrackerMap;
+    typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::rms,2>  SiStripNoiseRms_RatioWithPreviousIOV2sigmaTrackerMap;
+    typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::min,3>  SiStripNoiseMin_RatioWithPreviousIOV3sigmaTrackerMap;
+    typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::max,3>  SiStripNoiseMax_RatioWithPreviousIOV3sigmaTrackerMap;
+    typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::mean,3> SiStripNoiseMean_RatioWithPreviousIOV3sigmaTrackerMap;
+    typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::rms,3>  SiStripNoiseRms_RatioWithPreviousIOV3sigmaTrackerMap;
 
   /************************************************
   SiStrip Noise Tracker Summaries 
@@ -862,7 +1286,13 @@ namespace {
 PAYLOAD_INSPECTOR_MODULE(SiStripNoises){
   PAYLOAD_INSPECTOR_CLASS(SiStripNoisesTest);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValue);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValuePerStrip);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValuePerAPV);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValuePerModule);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValueComparison);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValueComparisonPerStrip);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValueComparisonPerAPV);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValueComparisonPerModule);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMin_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMax_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMean_TrackerMap);
@@ -875,6 +1305,18 @@ PAYLOAD_INSPECTOR_MODULE(SiStripNoises){
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseComparatorMinByRegion);  
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseComparatorMaxByRegion);  
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseComparatorRMSByRegion);  
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMin_RatioWithPreviousIOV1sigmaTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMax_RatioWithPreviousIOV1sigmaTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMean_RatioWithPreviousIOV1sigmaTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseRms_RatioWithPreviousIOV1sigmaTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMin_RatioWithPreviousIOV2sigmaTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMax_RatioWithPreviousIOV2sigmaTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMean_RatioWithPreviousIOV2sigmaTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseRms_RatioWithPreviousIOV2sigmaTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMin_RatioWithPreviousIOV3sigmaTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMax_RatioWithPreviousIOV3sigmaTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMean_RatioWithPreviousIOV3sigmaTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseRms_RatioWithPreviousIOV3sigmaTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseLinearity);
   PAYLOAD_INSPECTOR_CLASS(TIBNoiseHistory);
   PAYLOAD_INSPECTOR_CLASS(TOBNoiseHistory);

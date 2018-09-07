@@ -156,7 +156,8 @@ namespace sistrip {
       const DetSetRawDigis::const_iterator payloadBegin = iDigi+aHeaderBitVec[lCh]+24;
       const DetSetRawDigis::const_iterator payloadEnd = payloadBegin + STRIPS_PER_FEDCH;
               
-              
+      if(payloadEnd-iDigi >= endOfChannel-iDigi) continue; // few-cases where this is possible, i.e. nothing above frame-threhsold                                                                
+
       // Copy data into output collection
       // Create new detSet with same key (in this case it is the fedKey, not detId)
       outputData.push_back( DetSetRawDigis((*lIter)->detId()) );
@@ -227,7 +228,7 @@ namespace sistrip {
 	if (iConn->detId() == sistrip::invalid32_) continue;
                 
 	// Find the data from the input collection
-	const uint32_t fedIndex = SiStripFedKey::fedIndex(iConn->fedId(),iConn->fedCh());
+	const uint32_t fedIndex = ( ( iConn->detId()  & sistrip::invalid_ ) << 16 ) | ( iConn->fedCh() & sistrip::invalid_ ) ;
 	const DSVRawDigis::const_iterator iDetSet = inputPhysicalOrderChannelDigis->find(fedIndex);
 	if (iDetSet == inputPhysicalOrderChannelDigis->end()) {
 	  // NOTE: It will display this warning if channel hasn't been unpacked...

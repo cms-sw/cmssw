@@ -1,3 +1,4 @@
+from __future__ import print_function
 import urllib, re, json, socket
 
 """
@@ -15,7 +16,7 @@ class RRApiError(Exception):
         """
         Construct exception by providing response object.
         """
-        if type(resp) == str:
+        if isinstance(resp, str):
             self.message = resp
         else:
             self.url = resp.geturl()
@@ -64,10 +65,10 @@ class RRApi:
         Print debug information
         """
         if self.debug: 
-            print "RRAPI:",
+            print("RRAPI:", end=' ')
             for arg in args:
-                print arg, 
-            print
+                print(arg, end=' ') 
+            print()
 
     def get(self, parts, data = None):
         """
@@ -186,7 +187,7 @@ class RRApi:
         # Check req parameters
         #
 
-        if type(workspace) != str:
+        if not isinstance(workspace, str):
             raise RRApiError("workspace parameter must be str")
 
         #
@@ -240,4 +241,4 @@ class RRApi:
 
 if __name__ == '__main__':
 
-    print "RR API library."
+    print("RR API library.")

@@ -149,6 +149,12 @@ class FSimTrack : public SimTrack {
   /// The particle at HCAL exir
   inline const RawParticle& hoEntrance() const { return HO_Entrance; }
 
+  /// particle did not decay before more detectors (useful for newProducer)
+  inline bool isGlobal() const { return isGlobal_; }
+
+  /// particle did not decay before more detectors (useful for newProducer)
+  inline void setGlobal() { isGlobal_ = true; }
+
   /// Set origin vertex
   inline void setOriginVertex(const SimVertex& v) { vertex_ = v; } 
 
@@ -246,6 +252,8 @@ class FSimTrack : public SimTrack {
   XYZTLorentzVector momentum_;
 
   double properDecayTime; // The proper decay time  (default is -1)
+
+  bool isGlobal_; // needed for interfacing the new particle propagator with the old muon sim hit code
 
 };
 

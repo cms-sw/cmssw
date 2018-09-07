@@ -10,26 +10,27 @@
  */
 
 #include "DataFormats/Common/interface/AtomicPtrCache.h"
-#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
+#include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/FlatHexagon.h"
 #include "Geometry/CaloGeometry/interface/FlatTrd.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
 #include "Geometry/Records/interface/HGCalGeometryRecord.h"
 #include <vector>
-
-class FlatTrd;
 
 class HGCalGeometry final: public CaloSubdetectorGeometry {
 
 public:
   
-  typedef std::vector<FlatTrd> CellVec ;
-  
+  typedef std::vector<FlatHexagon>   CellVec;
+  typedef std::vector<FlatTrd>       CellVec2;
   typedef CaloCellGeometry::CCGFloat CCGFloat ;
   typedef CaloCellGeometry::Pt3D     Pt3D     ;
   typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
@@ -40,8 +41,11 @@ public:
   typedef HGCalGeometryRecord        AlignedRecord   ; // NOTE: not aligned yet
   typedef PHGCalRcd                  PGeometryRecord ;
 
-  enum { k_NumberOfParametersPerShape = 12 } ; // FlatTrd
-  enum { k_NumberOfShapes = 50 } ; 
+  static constexpr unsigned int k_NumberOfParametersPerTrd   = 12; // FlatTrd
+  static constexpr unsigned int k_NumberOfParametersPerHex   = 3 ; // FlatHexagon
+  static constexpr unsigned int k_NumberOfParametersPerShape = 3; // FlatHexagon
+  static constexpr unsigned int k_NumberOfShapes    = 100; 
+  static constexpr unsigned int k_NumberOfShapesTrd = 1000; 
 
   static std::string dbString() { return "PHGCalRcd" ; }
  
@@ -74,6 +78,7 @@ public:
       
   /// Returns the corner points of this cell's volume.
   CornersVec getCorners( const DetId& id ) const; 
+  CornersVec get8Corners( const DetId& id ) const; 
 
   // avoid sorting set in base class  
   const std::vector<DetId>& getValidDetIds( DetId::Detector det = DetId::Detector(0), int subdet = 0) const override { return m_validIds; }
@@ -115,14 +120,18 @@ protected:
 
 private:
 
+  template<class T>
+  unsigned int getClosestCellIndex(const GlobalPoint&r, const std::vector<T>& vec) const;
   std::shared_ptr<const CaloCellGeometry> cellGeomPtr( uint32_t index, const GlobalPoint& p) const;
 
-  const HGCalTopology&    m_topology;
-  
-  CellVec                 m_cellVec ; 
-  std::vector<DetId>      m_validGeomIds;
-  bool                    m_halfType;
-  ForwardSubdetector      m_subdet;
+  const HGCalTopology&            m_topology;
+  CellVec                         m_cellVec; 
+  CellVec2                        m_cellVec2; 
+  std::vector<DetId>              m_validGeomIds;
+  HGCalGeometryMode::GeometryMode mode_;
+  DetId::Detector                 m_det;
+  ForwardSubdetector              m_subdet;
+  const double                    twoBysqrt3_;
 };
 
 #endif

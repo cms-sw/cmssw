@@ -55,6 +55,7 @@ BadGlobalMuonTagger::BadGlobalMuonTagger(const edm::ParameterSet & iConfig) :
     verbose_(iConfig.getUntrackedParameter<bool> ("verbose",false))
 {
     produces<edm::PtrVector<reco::Muon>>("bad");
+    produces<bool>("notBadEvent");
 }
 
 
@@ -121,6 +122,7 @@ BadGlobalMuonTagger::filter(edm::StreamID iID, edm::Event & iEvent, const edm::E
     }
 
     iEvent.put(std::move(out), "bad");
+    iEvent.put(std::unique_ptr<bool>(new bool(!found)), "notBadEvent");
     return taggingMode_ || found;
 }
 

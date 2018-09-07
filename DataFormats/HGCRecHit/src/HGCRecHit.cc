@@ -1,7 +1,8 @@
 #include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
-#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include <cassert>
 #include <cmath>
 
@@ -121,8 +122,12 @@ std::ostream& operator<<(std::ostream& s, const HGCRecHit& hit) {
     return s << HGCalDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
   else if (hit.detid().det() == DetId::Forward && hit.detid().subdetId() == HGCHEF) 
     return s << HGCalDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
-  else if (hit.detid().det() == DetId::Forward && hit.detid().subdetId() == HGCHEB) 
-    return s << HGCHEDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
+  else if (hit.detid().det() == DetId::Hcal && hit.detid().subdetId() == HcalEndcap) 
+    return s << HcalDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
+  else if (hit.detid().det() == DetId::HGCalEE || hit.detid().det() == DetId::HGCalHSi) 
+    return s << HGCSiliconDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
+  else if (hit.detid().det() == DetId::HGCalHSc) 
+    return s << HGCScintillatorDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
   else
     return s << "HGCRecHit undefined subdetector" ;
 }

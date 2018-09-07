@@ -5,6 +5,7 @@ _RunRepack_
 Test/Debugging harness for the repack configuration builder
 
 """
+from __future__ import print_function
 
 import sys
 import getopt
@@ -47,7 +48,7 @@ class RunRepack:
         psetFile.write(process.dumpPython())
         psetFile.close()
         cmsRun = "cmsRun -e RunRepackCfg.py"
-        print "Now do:\n%s" % cmsRun
+        print("Now do:\n%s" % cmsRun)
         
                 
 
@@ -70,8 +71,8 @@ python RunRepack.py --select-events HLT:path1,HLT:path2 --lfn /store/whatever
     try:
         opts, args = getopt.getopt(sys.argv[1:], "", valid)
     except getopt.GetoptError as ex:
-        print usage
-        print str(ex)
+        print(usage)
+        print(str(ex))
         sys.exit(1)
 
 

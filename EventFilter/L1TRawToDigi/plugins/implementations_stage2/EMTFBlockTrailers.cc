@@ -61,14 +61,8 @@ namespace l1t {
 	//Check Format                                                                                                                                                        
 	if(GetHexBits(TR1a, 12, 15) != 15) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in TR1a are incorrect"; }
 	if(GetHexBits(TR1b, 12, 15) != 15) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in TR1b are incorrect"; }
-	if(GetHexBits(TR1b, 0, 3)   != 15) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in TR1b are incorrect"; }
-	if(GetHexBits(TR1b, 4, 6)   != 7) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in TR1b are incorrect"; }
-	if(GetHexBits(TR1c, 9, 11)  != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in TR1c are incorrect"; }
-	// FIXME: we are consistently reading GetHexBits(TR1c, 12, 15) == 14 - AWB 10.02.16
-	// if(GetHexBits(TR1c, 12, 15) != 15) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in TR1c are incorrect"; }
+	if(GetHexBits(TR1c, 12, 15) != 15) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in TR1c are incorrect"; }
 	if(GetHexBits(TR1d, 12, 15) != 15) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in TR1d are incorrect"; }
-	// FIXME: we are consistently reading GetHexBits(TR2a, 5, 11) == 18 - AWB 10.02.16
-	// if(GetHexBits(TR2a, 5, 11)  != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in TR2a are incorrect"; }
 	if(GetHexBits(TR2a, 12, 15) != 14) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in TR2a are incorrect"; }
 	if(GetHexBits(TR2b, 12, 15) != 14) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in TR2b are incorrect"; }
 	if(GetHexBits(TR2c, 12, 15) != 14) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in TR2c are incorrect"; }

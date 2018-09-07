@@ -3,7 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from DQMOffline.Trigger.topMonitoring_cfi import topMonitoring
 
 mssmHbbMonitoring = topMonitoring.clone()
-mssmHbbMonitoring.FolderName = cms.string('HLT/Higgs/default/')
+#mssmHbbMonitoring.FolderName = cms.string('HLT/Higgs/default/')
+mssmHbbMonitoring.FolderName = cms.string('HLT/HIG/default/')
 mssmHbbMonitoring.histoPSet.lsPSet = cms.PSet(
   nbins = cms.uint32 ( 250 ),
   xmin  = cms.double(    0.),
@@ -105,8 +106,9 @@ mssmHbbMonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI ar
 mssmHbbMonitoring.vertices  = cms.InputTag("offlinePrimaryVertices")
 
 # Marina
-mssmHbbMonitoring.btagalgo  = cms.InputTag("pfCombinedSecondaryVertexV2BJetTags")
+mssmHbbMonitoring.btagalgo         = cms.InputTag("pfCombinedSecondaryVertexV2BJetTags")
 mssmHbbMonitoring.workingpoint     = cms.double(0.92) # tight
+
 
 mssmHbbMonitoring.HTdefinition = cms.string('pt>30 & abs(eta)<2.5')
 #mssmHbbMonitoring.leptJetDeltaRmin = cms.double(0.4) # MuonJet dRcone

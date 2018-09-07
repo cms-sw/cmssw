@@ -13,7 +13,8 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
 class AlignableSurface;
 class Alignments;

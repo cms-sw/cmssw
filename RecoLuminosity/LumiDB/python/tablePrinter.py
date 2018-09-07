@@ -1,3 +1,4 @@
+from __future__ import print_function
 #
 # pretty table printer
 # written by George Sakkis
@@ -39,11 +40,11 @@ def indent(rows,hasHeader=False,headerChar='-',delim=' | ',justify='center',
     # select the appropriate justify method
     justify = {'center':str.center,'right':str.rjust,'left':str.ljust}[justify.lower()]
     output=cStringIO.StringIO()
-    if separateRows: print >> output,rowSeparator
+    if separateRows: print(rowSeparator, file=output)
     for physicalRows in logicalRows:
         for row in physicalRows:
-            print >> output, prefix+delim.join([justify(str(item),width) for (item,width) in zip(row,maxWidths)])+postfix
-        if separateRows or hasHeader: print >> output, rowSeparator; hasHeader=False
+            print(prefix+delim.join([justify(str(item),width) for (item,width) in zip(row,maxWidths)])+postfix, file=output)
+        if separateRows or hasHeader: print(rowSeparator, file=output); hasHeader=False
     return output.getvalue()
    
 if __name__ == '__main__':
@@ -53,14 +54,14 @@ if __name__ == '__main__':
     Mary,Brohowski,23,Sales Manager
     Aristidis,Papageorgopoulos,28,Senior Reseacher"""
     rows=[row.strip().split(',') for row in data.splitlines()]
-    print rows
-    print 'without wrapping function\n'
-    print 'raw input: ',[labels]+rows
-    print indent([labels]+rows,hasHeader=True)
+    print(rows)
+    print('without wrapping function\n')
+    print('raw input: ',[labels]+rows)
+    print(indent([labels]+rows,hasHeader=True))
     width=10
     for wrapper in (wrap_always,wrap_onspace,wrap_onspace_strict):
-        print 'Wrapping function: %s(x,width=%d)\n'%(wrapper.__name__,width)
-        print indent([labels]+rows,hasHeader=True,separateRows=True,prefix='| ',postfix=' |',wrapfunc=lambda x: wrapper(x,width))
+        print('Wrapping function: %s(x,width=%d)\n'%(wrapper.__name__,width))
+        print(indent([labels]+rows,hasHeader=True,separateRows=True,prefix='| ',postfix=' |',wrapfunc=lambda x: wrapper(x,width)))
 
     lumidata=[\
         ('%-*s'%(8,'run'),'%-*s'%(8,'first'),'%-*s'%(8,'last'),'%-*s'%(10,'delivered'),'%-*s'%(10,'recorded'),'%-*s'%(20,'recorded\nmypathdfdafddafd')),\
@@ -70,9 +71,9 @@ if __name__ == '__main__':
         ]
     lumiheader=[('%-*s'%(30,'Lumi Sections'),'%-*s'%(46,'Luminosity'))]
     headerwidth=46
-    print indent(lumiheader,hasHeader=True,separateRows=False,prefix='| ',postfix='',wrapfunc=lambda x: wrap_always(x,headerwidth))
+    print(indent(lumiheader,hasHeader=True,separateRows=False,prefix='| ',postfix='',wrapfunc=lambda x: wrap_always(x,headerwidth)))
     lumifooter=[('%-*s'%(24,'189'),'%-*s'%(10,'17.89'),'%-*s'%(10,'16.1'),'%-*s'%(20,'3.47'))]
     width=20
-    print indent(lumidata,hasHeader=True,separateRows=False,prefix='| ',postfix='',wrapfunc=lambda x: wrap_onspace_strict(x,width))
-    print
-    print indent(lumifooter,hasHeader=False,separateRows=True,prefix=' total: ',postfix='',delim=' | ',wrapfunc=lambda x: wrap_always(x,25))
+    print(indent(lumidata,hasHeader=True,separateRows=False,prefix='| ',postfix='',wrapfunc=lambda x: wrap_onspace_strict(x,width)))
+    print()
+    print(indent(lumifooter,hasHeader=False,separateRows=True,prefix=' total: ',postfix='',delim=' | ',wrapfunc=lambda x: wrap_always(x,25)))

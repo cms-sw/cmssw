@@ -32,9 +32,6 @@ class SiStripFedCablingFakeESSource : public SiStripFedCablingESProducer, public
   /** Builds cabling map based on ascii files. */
   SiStripFedCabling* make( const SiStripFedCablingRcd& ) override; 
 
-  /** Location of ascii file containing DetIds. */
-  edm::FileInPath detIds_;
-
   /** Location of ascii file containing FedIds. */
   edm::FileInPath fedIds_;
   edm::ParameterSet pset_;

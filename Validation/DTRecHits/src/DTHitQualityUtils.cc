@@ -17,17 +17,7 @@
 using namespace std;
 using namespace edm;
 
-bool DTHitQualityUtils::debug;
-
-// Constructor
-DTHitQualityUtils::DTHitQualityUtils(){
-  //DTHitQualityUtils::setDebug(debug);
-}
-
-// Destructor
-DTHitQualityUtils::~DTHitQualityUtils(){
-}
-
+std::atomic<bool> DTHitQualityUtils::debug{false};
 
 // Return a map between simhits of a layer,superlayer or chamber and the wireId of their cell
 map<DTWireId, PSimHitContainer >

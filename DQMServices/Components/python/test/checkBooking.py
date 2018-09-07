@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import sys
 
 class BookingParams(object):
@@ -14,11 +15,11 @@ class BookingParams(object):
 
     def doCheck(self, testOnly=True):
         if len(self.params_) < 3:
-            print '\n\nMaybe a missing booking directive? (CTOR/Constructor - BJ - BR)?\n\n'
+            print('\n\nMaybe a missing booking directive? (CTOR/Constructor - BJ - BR)?\n\n')
             sys.exit(1)
         if not self.params_[2] in BookingParams.bookTransitions:
-            print '\n\nUnknown booking logic.\n'
-            print 'Valid values are: [%s, %s, %s]\n\n' % BookingParams.bookTransitions
+            print('\n\nUnknown booking logic.\n')
+            print('Valid values are: [%s, %s, %s]\n\n' % BookingParams.bookTransitions)
             sys.exit(1)
         if not testOnly:
             self.bookLogic_[self.params_[2]] = 1
@@ -35,7 +36,7 @@ class BookingParams(object):
             elif self.params_[num] == "ForceReset":
                 self.forceReset_ = True
             else:
-                print "Expecting MultiThread|ForceReset, got %s" % self.params_[num]
+                print("Expecting MultiThread|ForceReset, got %s" % self.params_[num])
                 sys.exit(1)
 
     def multithread(self):

@@ -113,7 +113,7 @@ sDETS["TEC"] = kPink
 # mat*root files produced. The numbering of the plots is identical
 # across all files.
 hist_label_to_num = OrderedDict()
-hist_label_to_num['SUP'] = [100, 13, 'Support'] # Index first, color second, legend label third
+hist_label_to_num['SUP'] = [100, 13, 'Support'] # [Index , color, legend label]
 hist_label_to_num['SEN'] = [200, 27, 'Sensitive']
 hist_label_to_num['CAB'] = [300, 46, 'Cables']
 hist_label_to_num['COL'] = [400, 38, 'Cooling']
@@ -131,7 +131,7 @@ def setTDRStyle():
     tdrStyle.SetCanvasColor(kWhite)
     tdrStyle.SetCanvasDefH(600) #Height of canvas
     tdrStyle.SetCanvasDefW(600) #Width of canvas
-    tdrStyle.SetCanvasDefX(0)   #POsition on screen
+    tdrStyle.SetCanvasDefX(0)   #Position on screen
     tdrStyle.SetCanvasDefY(0)
 
     # For the Pad:

@@ -39,8 +39,6 @@ namespace edm {
     }
   }
 
-  VParameterSetEntry::~VParameterSetEntry() {}
-
   void
   VParameterSetEntry::toString(std::string& result) const {
     assert(theIDs_);
@@ -112,6 +110,10 @@ namespace edm {
   ParameterSet& VParameterSetEntry::psetInVector(int i) {
     assert(theVPSet_);
     return theVPSet_->at(i);
+  }
+
+  std::vector<ParameterSet>::size_type VParameterSetEntry::size() const {
+    return vpset().size();
   }
 
   void VParameterSetEntry::registerPsetsAndUpdateIDs() {

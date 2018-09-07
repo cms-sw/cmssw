@@ -1,4 +1,4 @@
-#include "../interface/SelectiveReadoutClient.h"
+#include "DQM/EcalMonitorClient/interface/SelectiveReadoutClient.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 

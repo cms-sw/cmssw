@@ -98,7 +98,7 @@ class BPHTrackReference {
       const reco::TrackRef& tkr = rc.get<reco::TrackRef>();
       if ( tkr.isNonnull() && tkr.isAvailable() ) return tkr.get();
     }
-    catch ( edm::Exception e ) {
+    catch ( edm::Exception const& ) {
     }
     return nullptr;
   }
@@ -111,7 +111,7 @@ class BPHTrackReference {
       const reco::TrackRef& tkr = pf->trackRef();
       if ( tkr.isNonnull() && tkr.isAvailable() ) return tkr.get();
     }
-    catch ( edm::Exception e ) {
+    catch ( edm::Exception const& ) {
     }
     return nullptr;
   }
@@ -124,7 +124,7 @@ class BPHTrackReference {
       const reco::TrackRef& tkr = gp->track();
       if ( tkr.isNonnull() && tkr.isAvailable() ) return tkr.get();
     }
-    catch ( edm::Exception e ) {
+    catch ( edm::Exception const& ) {
     }
     return nullptr;
   }
@@ -134,7 +134,7 @@ class BPHTrackReference {
       const reco::Track* trk = rc.bestTrack();
       return trk;
     }
-    catch ( edm::Exception e ) {
+    catch ( edm::Exception const& ) {
     }
     return nullptr;
   }
@@ -147,7 +147,7 @@ class BPHTrackReference {
       const reco::Track* trk = &pp->pseudoTrack();
       return trk;
     }
-    catch ( edm::Exception e ) {
+    catch ( edm::Exception const& ) {
     }
     return nullptr;
   }
@@ -165,7 +165,7 @@ class BPHTrackReference {
         if ( tkr.isNonnull() && tkr.isAvailable() ) return tkr.get();
       }
     }
-    catch ( edm::Exception e ) {
+    catch ( edm::Exception const& ) {
     }
     return nullptr;
   }
@@ -180,7 +180,7 @@ class BPHTrackReference {
       const reco::TrackRef& tkr = mu->muonBestTrack();
       if ( tkr.isNonnull() && tkr.isAvailable() ) return tkr.get();
     }
-    catch ( edm::Exception e ) {
+    catch ( edm::Exception const& ) {
     }
     return nullptr;
   }
@@ -196,7 +196,7 @@ class BPHTrackReference {
       const reco::TrackRef& mit = mu->innerTrack();
       if ( mit.isNonnull() && mit.isAvailable() ) return mit.get();
     }
-    catch ( edm::Exception e ) {
+    catch ( edm::Exception const& ) {
     }
     return nullptr;
   }
@@ -212,7 +212,7 @@ class BPHTrackReference {
       const reco::TrackRef& mgt = mu->globalTrack();
       if ( mgt.isNonnull() && mgt.isAvailable() ) return mgt.get();
     }
-    catch ( edm::Exception e ) {
+    catch ( edm::Exception const& ) {
     }
     return nullptr;
   }
@@ -228,7 +228,7 @@ class BPHTrackReference {
       const reco::TrackRef& msa = mu->standAloneMuon();
       if ( msa.isNonnull() && msa.isAvailable() ) return msa.get();
     }
-    catch ( edm::Exception e ) {
+    catch ( edm::Exception const& ) {
     }
     return nullptr;
   }
@@ -246,7 +246,7 @@ class BPHTrackReference {
         if ( tkr.isNonnull() && tkr.isAvailable() ) return tkr.get();
       }
     }
-    catch ( edm::Exception e ) {
+    catch ( edm::Exception const& ) {
     }
     return nullptr;
   }

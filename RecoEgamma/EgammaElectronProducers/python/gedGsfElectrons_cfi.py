@@ -15,6 +15,7 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
     barrelRecHitCollectionTag = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     endcapRecHitCollectionTag = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     hcalTowers = cms.InputTag("towerMaker"),
+    checkHcalStatus = cms.bool(True),
     pfMvaTag =  cms.InputTag(""),
     seedsTag = cms.InputTag("ecalDrivenElectronSeeds"),
     beamSpotTag = cms.InputTag("offlineBeamSpot"),
@@ -168,5 +169,6 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
                                  ),
 )
 
-
-
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toModify(gedGsfElectronsTmp, minSCEtBarrel = 15.0)
+pp_on_AA_2018.toModify(gedGsfElectronsTmp, minSCEtEndcaps = 15.0)

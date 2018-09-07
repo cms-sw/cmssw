@@ -71,6 +71,17 @@ from DQM.TrackingMonitorClient.TrackingEffFromHitPatternClientConfig_cff import 
 from DQM.TrackingMonitorClient.V0MonitoringClient_cff import *
 from DQM.TrackingMonitorClient.primaryVertexResolutionClient_cfi import *
 # Sequence
-TrackingOfflineDQMClient = cms.Sequence(trackingQTester*trackingOfflineAnalyser*trackingEffFromHitPattern*voMonitoringClientSequence*primaryVertexResolutionClient)
+
+#import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
+#TrackEffMon_ckf = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.clone()
+#TrackEffMon_ckf.TKTrackCollection                  = 'ctfWithMaterialTracksP5'
+#TrackEffMon_ckf.AlgoName                           = 'CKFTk'
+#TrackEffMon_ckf.FolderName                         = 'Tracking/TrackParameters/TrackEfficiency'
+
+from DQM.TrackingMonitor.TrackEfficiencyClient_cfi import *
+TrackEffClient.FolderName = 'Tracking/TrackParameters/TrackEfficiency'
+TrackEffClient.AlgoName   = 'CKFTk'
+
+TrackingOfflineDQMClient = cms.Sequence(trackingQTester*trackingOfflineAnalyser*trackingEffFromHitPattern*voMonitoringClientSequence*primaryVertexResolutionClient*TrackEffClient)
 
 

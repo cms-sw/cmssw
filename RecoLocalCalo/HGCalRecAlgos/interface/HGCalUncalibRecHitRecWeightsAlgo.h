@@ -15,8 +15,6 @@
 #include <cmath>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
-
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 
 template<class C> class HGCalUncalibRecHitRecWeightsAlgo 
@@ -89,11 +87,7 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
 						 << ' ' << adcLSB_ << ' ' << std::endl;
     }
     
-    int thickness = 1;
-    if( ddd_ != nullptr ) {
-      HGCalDetId hid(dataFrame.id());
-      thickness = ddd_->waferTypeL(hid.wafer());
-    }    
+    int thickness = (ddd_ != nullptr) ? ddd_->waferType(dataFrame.id()) : 1;
     amplitude_ = amplitude_/fCPerMIP_[thickness-1];
 
     LogDebug("HGCUncalibratedRecHit") << "Final uncalibrated amplitude : " << amplitude_ << std::endl;

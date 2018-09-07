@@ -4,6 +4,7 @@
 #
 # This module provides common functions for tasks with crab3.
 # You need no create a CrabController object in order to use the functions
+from __future__ import print_function
 import os,sys,glob
 import tarfile
 import xml.etree.ElementTree as ET
@@ -177,7 +178,7 @@ class CrabController():
                 else:
                      return res['status'],{},None
             except Exception as e:
-                print e
+                print(e)
                 self.logger.error("Can not run crab status request")
                 return "NOSTATE",{},None
 
@@ -321,17 +322,17 @@ def crabCommandProcess(q,crabCommandArgs):
             res = crabCommand(*crabCommandArgs)
             break
         except HTTPException as e:
-            print "crab error ---------------"
-            print e
-            print "end error ---------------"
-            print "will try again!"
+            print("crab error ---------------")
+            print(e)
+            print("end error ---------------")
+            print("will try again!")
             import time
             time.sleep(5)
         except CachefileNotFoundException as e:
-            print "crab error ---------------"
-            print e
-            print "end error ---------------"
-            print crabCommandArgs
+            print("crab error ---------------")
+            print(e)
+            print("end error ---------------")
+            print(crabCommandArgs)
             res={ 'status':"CachefileNotFound",'jobs':{}}
             break
         if i>5:
@@ -346,7 +347,7 @@ class CertInfo:
                               stderr = subprocess.PIPE,
                               shell=True)
         stdout, stderr = p.communicate()
-        print stdout
+        print(stdout)
         if p.returncode != 0:
             self.vo = ""
             self.voGroup = ""
@@ -524,7 +525,7 @@ class CrabTask:
             #try it once more
             time.sleep(2)
             self.state , self.jobs,self.failureReason = controller.status(self.crab_folder)
-        self.nJobs = len(self.jobs.keys())
+        self.nJobs = len(self.jobs)
         self.updateJobStats()
         if self.state == "NOSTATE":
             self.log.debug( "Trying to resubmit because of NOSTATE" )
@@ -565,7 +566,7 @@ class CrabTask:
         try:
             intJobkeys = [int(x) for x in jobKeys]
         except:
-            print "error parsing job numers to int"
+            print("error parsing job numers to int")
 
         #maxjobnumber = max(intJobkeys)
 
@@ -611,7 +612,7 @@ class CrabTask:
                                 break
                         break
             except:
-                print "Can not parse / read %s" % logArchName
+                print("Can not parse / read %s" % logArchName)
         return log
 
 ## Class holds job statistics for several Crab tasks

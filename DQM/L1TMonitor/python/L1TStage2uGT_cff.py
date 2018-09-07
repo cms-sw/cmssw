@@ -1,7 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-# the uGT DQM module
+# the uGT DQM modules
 from DQM.L1TMonitor.L1TStage2uGT_cfi import *
+from DQM.L1TMonitor.L1TStage2uGTTiming_cfi import *
+
+# Calo L2 output to uGT input comparison
+from DQM.L1TMonitor.L1TStage2uGTCaloLayer2Comp_cfi import *
+
+# uGT Board Comparison
+from DQM.L1TMonitor.L1TStage2uGTBoardComp_cff import *
 
 # compares the unpacked uGMT muon collection to the unpacked uGT muon collection
 # only muons that do not match are filled in the histograms
@@ -21,5 +28,12 @@ l1tStage2uGMTOutVsuGTIn = DQMEDAnalyzer(
 # sequences
 l1tStage2uGTOnlineDQMSeq = cms.Sequence(
     l1tStage2uGT +
+    l1tStage2uGTTiming +
+    l1tStage2uGTCaloLayer2Comp +
     l1tStage2uGMTOutVsuGTIn
+)
+
+# validation sequence
+l1tStage2uGTValidationEventOnlineDQMSeq = cms.Sequence(
+    l1tStage2uGTBoardCompSeq
 )

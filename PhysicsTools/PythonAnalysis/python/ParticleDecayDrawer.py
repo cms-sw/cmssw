@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Benedikt Hegner, DESY
 # benedikt.hegner@cern.ch
 #
@@ -8,7 +9,7 @@ class ParticleDecayDrawer(object):
     """Draws particle decay tree """
     
     def __init__(self):
-        print "Init particleDecayDrawer"
+        print("Init particleDecayDrawer")
         #  booleans: printP4 printPtEtaPhi printVertex   
         
     def _accept(self, candidate, skipList):
@@ -71,28 +72,28 @@ class ParticleDecayDrawer(object):
                         if self._select(mom):
                             momsList.append(mom)
 
-        print "-- decay --"  
+        print("-- decay --")  
         if len(momsList) > 0:
             if len(momsList) > 1:
                 for m in xrange(len(momsList)):
                     decString = self._decay( momsList[m], skipList)
                     if len(decString) > 0:
-                       print "{ %s } " %decString
+                       print("{ %s } " %decString)
             else:
-                print self._decay(momsList[0], skipList)   
+                print(self._decay(momsList[0], skipList))   
   
         if len(nodesList) > 0:
-            print "-> "
+            print("-> ")
             if len(nodesList) > 1:
                 for node in nodesList:
                    skipList.remove(node)
                    decString = self._decay(node, skipList)
                    if len(decString) > 0:
-                       if "->" in decString:  print " ( %s ) " %decString
-                       else:  print " " + decString
+                       if "->" in decString:  print(" ( %s ) " %decString)
+                       else:  print(" " + decString)
             else:
                 skipList.remove(nodesList[0])
-                print self._decay(nodesList[0], skipList)
+                print(self._decay(nodesList[0], skipList))
           
-        print
+        print()
     

@@ -37,7 +37,6 @@ private:
   double m_meanGain;
   double m_sigmaGain;
   double m_minimumPosValue;
-  edm::FileInPath m_file;
   uint32_t m_printDebug;
 };
 
@@ -54,7 +53,6 @@ SiStripApvGainFakeESSource::SiStripApvGainFakeESSource(const edm::ParameterSet& 
   m_meanGain = iConfig.getParameter<double>("MeanGain");
   m_sigmaGain = iConfig.getParameter<double>("SigmaGain");
   m_minimumPosValue = iConfig.getParameter<double>("MinPositiveGain");
-  m_file = iConfig.getParameter<edm::FileInPath>("file");
   m_printDebug = iConfig.getUntrackedParameter<uint32_t>("printDebug", 5);
 }
 
@@ -73,10 +71,9 @@ SiStripApvGainFakeESSource::produce(const SiStripApvGainRcd& iRecord)
 
   auto apvGain = std::make_unique<SiStripApvGain>();
 
-  SiStripDetInfoFileReader reader{m_file.fullPath()};
-
+  const edm::Service<SiStripDetInfoFileReader> reader;
   uint32_t count{0};
-  for ( const auto& elm : reader.getAllData() ) {
+  for ( const auto& elm : reader->getAllData() ) {
     std::vector<float> theSiStripVector;
     for ( unsigned short j=0; j < elm.second.nApvs; ++j ){
       float gainValue;

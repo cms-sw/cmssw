@@ -1,4 +1,4 @@
-#include "../interface/PNIntegrityClient.h"
+#include "DQM/EcalMonitorClient/interface/PNIntegrityClient.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 

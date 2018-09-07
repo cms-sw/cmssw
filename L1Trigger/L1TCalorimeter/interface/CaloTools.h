@@ -117,6 +117,9 @@ namespace l1t {
     static const int64_t cos_coeff[72];
     static const int64_t sin_coeff[72];
 
+    // mapping between sums in emulator and data
+    static const int emul_to_data_sum_index_map[31];
+
   private:
     // trigger tower eta boundaries
     static std::pair<float,float> towerEtaBounds(int ieta);

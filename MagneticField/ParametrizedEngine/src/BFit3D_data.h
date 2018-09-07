@@ -1,6 +1,7 @@
 #ifndef BFit3D_data_h
 #define BFit3D_data_h
 
+#include "BFit3D.h"
 namespace magfieldparam {
 //_______________________________________________________________________________
 //Nominal field values (the same as for 2D fit

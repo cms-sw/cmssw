@@ -44,12 +44,19 @@ void EpCombinationTool::setEventContent(const edm::EventSetup& iSetup)
 
 std::pair<float, float> EpCombinationTool::combine(const reco::GsfElectron& ele)const
 {
+  return combine(ele,ele.correctedEcalEnergyError());
+}
+
+//when doing the E/p combination, its very important to ensure the ecalEnergyErr
+//that the regression is trained on is used, not the actual ecalEnergyErr of the electron
+//these differ when you correct the ecalEnergyErr by smearing value needed to get data/MC to agree 
+std::pair<float, float> EpCombinationTool::combine(const reco::GsfElectron& ele,const float corrEcalEnergyErr)const
+{
   const float scRawEnergy = ele.superCluster()->rawEnergy(); 
   const float esEnergy = ele.superCluster()->preshowerEnergy();
   
 
   const float corrEcalEnergy = ele.correctedEcalEnergy();
-  const float corrEcalEnergyErr = ele.correctedEcalEnergyError();
   const float ecalMean = ele.correctedEcalEnergy() / (scRawEnergy+esEnergy);
   const float ecalSigma =  corrEcalEnergyErr / corrEcalEnergy;
 

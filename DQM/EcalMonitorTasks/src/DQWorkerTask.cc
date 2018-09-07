@@ -1,4 +1,4 @@
-#include "../interface/DQWorkerTask.h"
+#include "DQM/EcalMonitorTasks/interface/DQWorkerTask.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

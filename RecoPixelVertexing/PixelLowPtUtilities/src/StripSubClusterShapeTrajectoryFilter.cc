@@ -369,7 +369,9 @@ bool StripSubClusterShapeSeedFilter::compatible
 { 
    if (!filterAtHelixStage_) return true;
 
-   if (!helix.isValid()) edm::LogWarning("InvalidHelix") << "PixelClusterShapeSeedComparitor helix is not valid, result is bad";
+   if (!helix.isValid() //check still if it's a straight line, which are OK
+       && !helix.circle().isLine())//complain if it's not even a straight line
+     edm::LogWarning("InvalidHelix") << "StripSubClusterShapeSeedFilter helix is not valid, result is bad";
 
     float xc = helix.circle().x0(), yc = helix.circle().y0();
 

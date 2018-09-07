@@ -141,7 +141,7 @@ decode(const std::vector<bool>& data, const uint32_t module, const HGCalTriggerG
 
 void
 HGCalTriggerCellThresholdCodecImpl::
-linearize(const std::vector<HGCDataFrame<DetId,HGCSample>>& dataframes,
+linearize(const std::vector<HGCalDataFrame>& dataframes,
         std::vector<std::pair<DetId, uint32_t > >& linearized_dataframes)
 {
     double amplitude = 0.; 

@@ -87,6 +87,9 @@ namespace fastsim {
         //! Returns the position of a given SimVertex. Needed for interfacing the code with the old calorimetry.
         const SimVertex getSimVertex(unsigned i) { return simVertices_->at(i); }
 
+        //! Returns a given SimTrack. Needed for interfacing the code with the old calorimetry.
+        const SimTrack getSimTrack(unsigned i) { return simTracks_->at(i); }
+
         //! Necessary to add an end vertex to a particle.
         /*!
             Needed if particle is no longer propagated for some reason (e.g. remaining energy below threshold) and no

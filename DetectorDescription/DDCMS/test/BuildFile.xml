@@ -1,0 +1,8 @@
+<use   name="cppunit"/>
+<bin   name="testDDUnits" file="DDUnits.cppunit.cc,testRunner.cpp"/>
+<bin   name="testDDSingleton" file="DDSingleton.cppunit.cc,testRunner.cpp"/>
+<bin   name="testSingleton" file="testDDSingleton.cpp"/>
+<bin   name="testSingletonInit" file="testDDSingletonInit.cpp"/>
+<bin   name="testSingletonBenchmark" file="testDDSingletonBenchmark.cpp">
+  <flags CXXFLAGS="-DBENCHMARK_ON"/>
+</bin>

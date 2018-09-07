@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -56,17 +56,14 @@ using namespace l1tcalo;
 // class declaration
 //
 
-class L1TCaloLayer1 : public edm::EDProducer {
+class L1TCaloLayer1 : public edm::stream::EDProducer<> {
 public:
   explicit L1TCaloLayer1(const edm::ParameterSet&);
-  ~L1TCaloLayer1() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
       
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
 
@@ -77,9 +74,10 @@ private:
   // ----------member data ---------------------------
 
   edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPSource;
-  std::string ecalTPSourceLabel;
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalTPSource;
-  std::string hcalTPSourceLabel;
+  edm::EDPutTokenT<CaloTowerBxCollection> towerPutToken;
+  edm::EDPutTokenT<L1CaloRegionCollection> regionPutToken;
+
   
   std::vector< std::array< std::array< std::array<uint32_t, nEtBins>, nCalSideBins >, nCalEtaBins> > ecalLUT;
   std::vector< std::array< std::array< std::array<uint32_t, nEtBins>, nCalSideBins >, nCalEtaBins> > hcalLUT;
@@ -101,7 +99,7 @@ private:
   bool unpackEcalMask;
   int  fwVersion;
 
-  UCTLayer1 *layer1;
+  std::unique_ptr<UCTLayer1> layer1;
 
 };
 
@@ -119,9 +117,9 @@ private:
 //
 L1TCaloLayer1::L1TCaloLayer1(const edm::ParameterSet& iConfig) :
   ecalTPSource(consumes<EcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("ecalToken"))),
-  ecalTPSourceLabel(iConfig.getParameter<edm::InputTag>("ecalToken").label()),
   hcalTPSource(consumes<HcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("hcalToken"))),
-  hcalTPSourceLabel(iConfig.getParameter<edm::InputTag>("hcalToken").label()),
+  towerPutToken{produces<CaloTowerBxCollection>()},
+  regionPutToken{produces<L1CaloRegionCollection>()},
   ePhiMap(72*2, 0),
   hPhiMap(72*2, 0),
   hfPhiMap(72*2, 0),
@@ -135,11 +133,9 @@ L1TCaloLayer1::L1TCaloLayer1(const edm::ParameterSet& iConfig) :
   unpackEcalMask(iConfig.getParameter<bool>("unpackEcalMask")),
   fwVersion(iConfig.getParameter<int>("firmwareVersion"))
 {
-  produces<CaloTowerBxCollection>();
-  produces<L1CaloRegionCollection>();
 
   // See UCTLayer1.hh for firmware version definitions
-  layer1 = new UCTLayer1(fwVersion);
+  layer1 = std::make_unique<UCTLayer1>(fwVersion);
 
   vector<UCTCrate*> crates = layer1->getCrates();
   for(uint32_t crt = 0; crt < crates.size(); crt++) {
@@ -162,10 +158,6 @@ L1TCaloLayer1::L1TCaloLayer1(const edm::ParameterSet& iConfig) :
       });
 }
 
-L1TCaloLayer1::~L1TCaloLayer1() {
-  if(layer1 != nullptr) delete layer1;
-}
-
 //
 // member functions
 //
@@ -181,8 +173,8 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<HcalTrigPrimDigiCollection> hcalTPs;
   iEvent.getByToken(hcalTPSource, hcalTPs);
 
-  std::unique_ptr<CaloTowerBxCollection> towersColl (new CaloTowerBxCollection);
-  std::unique_ptr<L1CaloRegionCollection> rgnCollection (new L1CaloRegionCollection);
+  CaloTowerBxCollection towersColl;
+  L1CaloRegionCollection rgnCollection;
 
   uint32_t expectedTotalET = 0;
   if(!layer1->clearEvent()) {
@@ -262,10 +254,10 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     caloTower.setHwPhi(twrList[twr]->caloPhi());         // caloPhi = 1-72
     caloTower.setHwEtEm(twrList[twr]->getEcalET());      // This is provided as a courtesy - not available to hardware
     caloTower.setHwEtHad(twrList[twr]->getHcalET());     // This is provided as a courtesy - not available to hardware
-    towersColl->push_back(theBX, caloTower);
+    towersColl.push_back(theBX, caloTower);
   }
 
-  iEvent.put(std::move(towersColl));
+  iEvent.emplace(towerPutToken,std::move(towersColl));
 
   UCTGeometry g;
   vector<UCTCrate*> crates = layer1->getCrates();
@@ -284,27 +276,16 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if(region < NRegionsInCard) { // We only store the Barrel and Endcap - HF has changed in the upgrade
 	  uint32_t rEta = 10 - region; // UCT region is 0-6 for B/E but GCT eta goes 0-21, 0-3 -HF, 4-10 -B/E, 11-17 +B/E, 18-21 +HF
 	  if(!negativeEta) rEta = 11 + region; // Positive eta portion is offset by 11
-	  rgnCollection->push_back(L1CaloRegion((uint16_t) regionData, (unsigned) rEta, (unsigned) rPhi, (int16_t) 0));
+	  rgnCollection.push_back(L1CaloRegion((uint16_t) regionData, (unsigned) rEta, (unsigned) rPhi, (int16_t) 0));
 	}
       }
     }
   }  
-  iEvent.put(std::move(rgnCollection));
+  iEvent.emplace(regionPutToken,std::move(rgnCollection));
 
 }
 
 
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-L1TCaloLayer1::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-L1TCaloLayer1::endJob() {
-}
 
 // ------------ method called when starting to processes a run  ------------
 void

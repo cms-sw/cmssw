@@ -1,13 +1,14 @@
+from __future__ import print_function
 
 import FWCore.ParameterSet.Config as cms
 
 from datetime import date
 
 processName = "writeMVAs"
-print "<%s>:" % processName
+print("<%s>:" % processName)
 today = date.today()
 today_string = "%s%s%s" % (today.strftime("%Y"), today.strftime("%B")[0:3], today.strftime("%d"))
-print " date = %s" % today_string
+print(" date = %s" % today_string)
 
 process = cms.Process(processName)
 

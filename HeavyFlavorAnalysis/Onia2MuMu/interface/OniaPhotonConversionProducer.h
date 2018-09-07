@@ -25,6 +25,7 @@
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include <vector>
 
@@ -74,7 +75,7 @@ class OniaPhotonConversionProducer : public edm::stream::EDProducer<> {
   std::vector<int>   convQuality_;
   
   std::string convSelectionCuts_;
-
+  std::unique_ptr<StringCutObjectSelector<reco::Conversion>> convSelection_;
 };
 
 #endif

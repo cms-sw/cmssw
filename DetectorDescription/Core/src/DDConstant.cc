@@ -4,23 +4,22 @@
 #include <utility>
 #include <vector>
 
-#include "DetectorDescription/Core/interface/Store.h"
 #include "DetectorDescription/Core/interface/ClhepEvaluator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 DDConstant::DDConstant()
-  : DDBase<DDName,double*>()
+  : DDBase< DDName, std::unique_ptr<double> >()
 { }
 
-DDConstant::DDConstant(const DDName & name)
-  : DDBase<DDName, double*>() 
+DDConstant::DDConstant( const DDName & name )
+  : DDBase< DDName, std::unique_ptr<double> >() 
 {
-  prep_ = StoreT::instance().create(name);
+  create( name );
 }
 
-DDConstant::DDConstant(const DDName & name,double* vals)
+DDConstant::DDConstant( const DDName & name, std::unique_ptr<double> vals )
 {
-  prep_ = StoreT::instance().create(name,vals);
+  create( name, std::move( vals ));
 }  
 
 std::ostream & operator<<(std::ostream & os, const DDConstant & cons)
@@ -37,9 +36,8 @@ std::ostream & operator<<(std::ostream & os, const DDConstant & cons)
 }
 
 void
-DDConstant::createConstantsFromEvaluator( void )
+DDConstant::createConstantsFromEvaluator( ClhepEvaluator& eval )
 {
-  auto& eval = DDI::Singleton<ClhepEvaluator>::instance();
   const auto& vars = eval.variables();
   const auto& vals = eval.values();
   if( vars.size() != vals.size()) {
@@ -49,8 +47,6 @@ DDConstant::createConstantsFromEvaluator( void )
   for( const auto& it : vars ) {
     auto found = it.find( "___" );
     DDName name( std::string( it, found + 3, it.size() - 1 ), std::string( it, 0, found ));       
-    double* dv = new double;
-    *dv = eval.eval( it.c_str());
-    DDConstant cst( name, dv );
+    DDConstant cst( name, std::make_unique<double>( eval.eval( it.c_str())));
   }
 }

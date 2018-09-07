@@ -13,6 +13,7 @@ class ChargedCandidateFeatures {
 
     float btagPf_trackEtaRel;
     float btagPf_trackPtRel;
+    float btagPf_trackPtRatio;
     float btagPf_trackPPar;
     float btagPf_trackDeltaR;
     float btagPf_trackPParRatio;

@@ -24,4 +24,16 @@
    <version ClassVersion="14" checksum="692755117"/>
    <version ClassVersion="13" checksum="2752729489"/>
   </class>
+  <class name="MTDDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="1210976889"/>
+  </class>
+  <class name="BTLDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="1515591716"/>
+  </class>
+  <class name="ETLDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="1644731879"/>
+  </class>
+  <class name="HFNoseDetId" ClassVersion="0">
+   <version ClassVersion="0" checksum="1469396081"/>
+  </class>
 </lcgdict>

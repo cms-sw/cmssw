@@ -1,4 +1,4 @@
-#include "../interface/PNDiodeTask.h"
+#include "DQM/EcalMonitorTasks/interface/PNDiodeTask.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

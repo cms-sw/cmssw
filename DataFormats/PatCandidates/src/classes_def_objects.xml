@@ -238,6 +238,7 @@
   </ioread>
 
   <class name="pat::Jet"  ClassVersion="16">
+   <field name="daughtersTemp_" transient="true"/>
    <version ClassVersion="16" checksum="4069285947"/>
    <version ClassVersion="15" checksum="727883729"/>
    <version ClassVersion="14" checksum="1304049301"/>
@@ -250,6 +251,15 @@
   </class>
   <ioread sourceClass = "pat::Jet" version="[1-11]" targetClass="pat::Jet" source="int partonFlavour_" target="jetFlavourInfo_">
     <![CDATA[jetFlavourInfo_ = reco::JetFlavourInfo(0,onfile.partonFlavour_);]]>
+  </ioread>
+  <ioread sourceClass = "pat::Jet" version="[1-]" targetClass="pat::Jet" source="" target="caloTowersTemp_">
+    <![CDATA[caloTowersTemp_.reset();]]>
+  </ioread>
+  <ioread sourceClass = "pat::Jet" version="[1-]" targetClass="pat::Jet" source="" target="pfCandidatesTemp_">
+    <![CDATA[pfCandidatesTemp_.reset();]]>
+  </ioread>
+  <ioread sourceClass = "pat::Jet" version="[1-]" targetClass="pat::Jet" source="" target="daughtersTemp_">
+    <![CDATA[daughtersTemp_.reset();]]>
   </ioread>
   <class name="pat::MET"  ClassVersion="15">
     <version ClassVersion="15" checksum="428901429"/>
@@ -314,7 +324,8 @@
   <class name="pat::PackedCandidate::PackedCovariance" ClassVersion="3">
    <version ClassVersion="3" checksum="3320406063"/>
   </class>
-  <class name="pat::PackedCandidate" ClassVersion="32">
+  <class name="pat::PackedCandidate" ClassVersion="33">
+   <version ClassVersion="33" checksum="1092680546"/>
    <version ClassVersion="32" checksum="926869123"/>
    <version ClassVersion="31" checksum="1248040002"/>
    <version ClassVersion="30" checksum="3338823671"/>
@@ -384,7 +395,18 @@
             packedCovariance_.dphidphi = onfile.packedCovarianceDphiDphi_;
    ]]>
    </ioread>
-
+  <ioread sourceClass="pat::PackedCandidate" source="int8_t packedPuppiweight_" version="[-32]" targetClass="pat::PackedCandidate"
+   target="packedPuppiweight_" include="DataFormats/Math/interface/liblogintpack.h">
+   <![CDATA[
+            packedPuppiweight_ = std::numeric_limits<uint8_t>::max()*(logintpack::unpack8logClosed(onfile.packedPuppiweight_,-2,0,64)/2. + 0.5);
+   ]]>
+   </ioread>
+  <ioread sourceClass="pat::PackedCandidate" source="int8_t packedPuppiweightNoLepDiff_; int8_t packedPuppiweight_" version="[-32]" targetClass="pat::PackedCandidate"
+   target="packedPuppiweightNoLepDiff_" include="DataFormats/Math/interface/liblogintpack.h">
+   <![CDATA[
+            packedPuppiweightNoLepDiff_ = std::numeric_limits<int8_t>::max()*(logintpack::unpack8logClosed(onfile.packedPuppiweightNoLepDiff_+onfile.packedPuppiweight_,-2,0,64)/2. - logintpack::unpack8logClosed(onfile.packedPuppiweight_,-2,0,64)/2.);
+   ]]>
+   </ioread>
 
 
   <class name="pat::PackedGenParticle" ClassVersion="12">

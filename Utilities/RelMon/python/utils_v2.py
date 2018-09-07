@@ -5,6 +5,7 @@ Help functions for ValidationMatrix_v2.py.
 Author:  Albertas Gimbutas,  Vilnius University (LT)
 e-mail:  albertasgim@gmail.com
 '''
+from __future__ import print_function
 import sys
 import re
 import time
@@ -103,7 +104,7 @@ def is_relvaldata(files):
     return any([is_relvaldata_re.search(filename) for filename in files])
 
 def make_file_pairs(files1, files2):
-    print '\n#################       Analyzing files       ###################'
+    print('\n#################       Analyzing files       ###################')
     ## Select functions to use
     if is_relvaldata(files1):
         is_relval_data = True
@@ -128,20 +129,20 @@ def make_file_pairs(files1, files2):
                     versions[version] = [file]
 
     ## Print the division into groups
-    print 'For RELEASE1 found file groups:'
+    print('For RELEASE1 found file groups:')
     for version in versions1:
-        print '   %s: %d files' % (str(version),  len(versions1[version]))
+        print('   %s: %d files' % (str(version),  len(versions1[version])))
     if not versions1:
-        print 'None.'
+        print('None.')
 
-    print '\nFor RELEASE2 found file groups:'
+    print('\nFor RELEASE2 found file groups:')
     for version in versions2:
-        print '   %s: %d files' % (str(version),  len(versions2[version]))
+        print('   %s: %d files' % (str(version),  len(versions2[version])))
     if not versions2:
-        print 'None.'
+        print('None.')
 
     if not len(versions1) or not len(versions2):
-        print '\nNot enough file groups. Exiting...\n'
+        print('\nNot enough file groups. Exiting...\n')
         exit()
 
     ## Pair till you find pairs.
@@ -151,9 +152,9 @@ def make_file_pairs(files1, files2):
             if v1 == v2:
                 continue
             ## Print the groups.
-            print '\n#################     Pairing the files     ###################'
-            print '%s (%d files)   VS   %s (%d files):\n' % (str(v1),
-                    len(versions1[v1]), str(v2), len(versions2[v2]))
+            print('\n#################     Pairing the files     ###################')
+            print('%s (%d files)   VS   %s (%d files):\n' % (str(v1),
+                    len(versions1[v1]), str(v2), len(versions2[v2])))
 
             ## Pairing two versions
             for unique_id in set([get_id(file) for file in versions1[v1]]):
@@ -170,13 +171,13 @@ def make_file_pairs(files1, files2):
                 if len(c1_files) > 0 and len(c2_files) > 0:
                     first_file = get_max_version(c1_files)
                     second_file = get_max_version(c2_files)
-                    print '%s\n%s\n' % (first_file, second_file)
+                    print('%s\n%s\n' % (first_file, second_file))
                     pairs.append((first_file, second_file))
 
-            print "Got %d pairs." % (len(pairs))
+            print("Got %d pairs." % (len(pairs)))
             if pairs:
                 return pairs
-    print 'Found no file pairs. Exiting..\n'
+    print('Found no file pairs. Exiting..\n')
     exit()
 
 ## --------------------   Recursife file downloader -----------------------
@@ -185,12 +186,12 @@ def auth_wget(url):
         opener = build_opener(X509CertOpen())
         return opener.open(Request(url)).read()
     except HTTPError as e:
-        print '\nError: DQM GUI is temporarily unavailable. Probably maintainance hours. '+\
-                'Please try again later. Original error message: ``%s``. \nExiting...\n' % (e,)
+        print('\nError: DQM GUI is temporarily unavailable. Probably maintainance hours. '+\
+                'Please try again later. Original error message: ``%s``. \nExiting...\n' % (e,))
         exit()
     except BadStatusLine as e:
-        print '\nYou do not have permissions to access DQM GUI. Please check if your certificates '+\
-            'in ``~/.globus`` directory are configured correctly. Exitting...' 
+        print('\nYou do not have permissions to access DQM GUI. Please check if your certificates '+\
+            'in ``~/.globus`` directory are configured correctly. Exitting...') 
         exit()
 
 
@@ -206,7 +207,7 @@ def auth_download_file(url, chunk_size=1048576):
         file.write(chunk)
         auth_download_file.q.put((1,))   # reports, that downloaded 1MB
         chunk = url_file.read(chunk_size)
-    print '\rDownloaded: %s  ' % (filename,)
+    print('\rDownloaded: %s  ' % (filename,))
     file.close()
 
 
@@ -245,15 +246,15 @@ def recursive_search_online(url, rel1, frags1, rel2, frags2):
             if all([r.search(name) for r in res2]):
                 files_with_urls2[name] = domain + path
         else:
-            print domain + path
+            print(domain + path)
             new_hrefs = href_re.findall(auth_wget(domain + path))[1:]
             hrefs.extend([(name, path) for path, name in new_hrefs])
     return files_with_urls1, files_with_urls2
 
 def search_on_disk(work_path, rel1, frags1, rel2, frags2):
     if not work_path:
-        print 'No working directory specified. Use "--dir DIR" option to ' +\
-              'specify working directory. Exiting...'
+        print('No working directory specified. Use "--dir DIR" option to ' +\
+              'specify working directory. Exiting...')
         exit()
     ## Compile regular expressions
     def compile_res(rel, frags):
@@ -316,7 +317,7 @@ class StatisticalTest(object):
     def do_test(self, h1, h2):
         if not h1 or not h2:
             raise ComparisonError('Missing histogram')
-        if type(h1) != type(h2):
+        if not isinstance(h1, type(h2)):
             return -104     # raise ComparisonError('Histograms have different types')
         if not h1.InheritsFrom('TH1'):
             return -105     # raise ComparisonError('Object is not a histogram')
@@ -386,7 +387,7 @@ tests = {KolmogorovTest.name: KolmogorovTest, Chi2Test.name: Chi2Test}
 
 ## Utils
 def init_database(db_path):
-    print 'Initialising DB: %s...' % basename(db_path),
+    print('Initialising DB: %s...' % basename(db_path), end=' ')
     conn = sqlite3.connect(db_path)
 
     ## Creates tables
@@ -425,7 +426,7 @@ def init_database(db_path):
                         FOREIGN KEY (directory_id) REFERENCES Directory(id)
                     )""")
 
-    print 'Done.'
+    print('Done.')
     return db_path
 
 
@@ -450,7 +451,7 @@ def get_size_to_download(work_path, files_with_urls):
         size = int(url_file.headers["Content-Length"])
         file_path = join(work_path, filename)
         if exists(file_path) and getsize(file_path) / 1024 == size / 1024:
-            print "Exists on disk %s." % filename
+            print("Exists on disk %s." % filename)
         else:
             size_to_download += size
             files_to_download.append(url)
@@ -483,7 +484,7 @@ def show_status_bar(total_size):
         try:
             o = q.get(timeout=20)
             downloaded += 1
-            print '\r      %d/%d MB     %d%%     ' % (downloaded, total_size, 100*downloaded/total_size),
+            print('\r      %d/%d MB     %d%%     ' % (downloaded, total_size, 100*downloaded/total_size), end=' ')
             sys.stdout.flush()
         except Empty:
             time.sleep(1)

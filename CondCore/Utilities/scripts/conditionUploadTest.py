@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import cx_Oracle
 import subprocess
 import json
@@ -107,7 +108,7 @@ class UploadTest:
         self.logFileName = 'conditionUploadTest.log'
 
     def log( self, msg ):
-        print msg
+        print(msg)
         with open(self.logFileName,'a') as logFile:
             logFile.write(msg)
             logFile.write('\n')
@@ -162,7 +163,7 @@ class UploadTest:
 
 
 def main():
-    print 'Testing...'
+    print('Testing...')
     serviceName = 'cms_orcoff_prep'
     schemaName = 'CMS_CONDITIONS'
     db = DB(serviceName,schemaName)
@@ -262,7 +263,7 @@ def main():
     db.removeTag( tag )
     os.remove( bfile0 )
     os.remove( bfile1 )
-    print 'Done. Errors: %s' %test.errors
+    print('Done. Errors: %s' %test.errors)
     
 if __name__ == '__main__':
     main()

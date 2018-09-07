@@ -29,7 +29,6 @@ public:
 protected:
 
   void          constructLayers (const DDLogicalPart&, DDCompactView& cpv);
-  double        rMax(double z);
   void          positionSensitive(const DDLogicalPart& glog, double rin, 
 				  double rout, double zpos, int layertype, 
 				  DDCompactView& cpv);
@@ -52,13 +51,17 @@ private:
   std::vector<double>      rad100to200_;  //Parameters for 120-200mum trans.
   std::vector<double>      rad200to300_;  //Parameters for 200-300mum trans.
   double                   zMinRadPar_;   //Minimum z for radius parametriz.
+  int                      choiceType_;   //Type of parametrization to be used
   int                      nCutRadPar_;   //Cut off threshold for corners
+  double                   fracAreaMin_;  //Minimum fractional conatined area 
   double                   waferSize_;    //Width of the wafer
   double                   waferSepar_;   //Sensor separation
   int                      sectors_;      //Sectors   
   std::vector<double>      slopeB_;       //Slope at the lower R
+  std::vector<double>      zFrontB_;      //Starting Z values for the slopes
+  std::vector<double>      rMinFront_;    //Corresponding rMin's
   std::vector<double>      slopeT_;       //Slopes at the larger R
-  std::vector<double>      zFront_;       //Starting Z values for the slopes
+  std::vector<double>      zFrontT_;      //Starting Z values for the slopes
   std::vector<double>      rMaxFront_;    //Corresponding rMax's
   std::string              nameSpace_;    //Namespace of this and ALL sub-parts
   std::unordered_set<int>  copies_;       //List of copy #'s

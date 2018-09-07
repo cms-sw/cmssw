@@ -47,6 +47,7 @@ mixSimHits = cms.PSet(
     #    'TotemHitsRP',
     #    'TotemHitsT1',
     #    'TotemHitsT2Gem')
+    pcrossingFrames = cms.untracked.vstring()
 )
 
 # fastsim customs
@@ -98,6 +99,7 @@ fastSim.toModify(mixCaloHits,
                'EcalHitsES',
                'HcalHits']
 )
+
 
 mixSimTracks = cms.PSet(
     makeCrossingFrame = cms.untracked.bool(False),
@@ -211,7 +213,7 @@ mixPCFHepMCProducts = cms.PSet(
     type = cms.string('HepMCProductPCrossingFrame')
 )
 
-from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchefrontDigitizer
+from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchefrontDigitizer, hfnoseDigitizer
 
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
 run2_GEM_2017.toModify( theMixObjects,
@@ -237,13 +239,26 @@ phase2_muon.toModify( theMixObjects,
         crossingFrames = theMixObjects.mixSH.crossingFrames + [ 'MuonME0Hits' ]
     )
 )
+from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
+(premix_stage1 & phase2_muon).toModify(theMixObjects,
+    mixSH = dict(
+        pcrossingFrames = theMixObjects.mixSH.pcrossingFrames + [ 'MuonME0Hits' ]
+    )
+)
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify( theMixObjects,
     mixCH = dict(
         input = theMixObjects.mixCH.input + [ cms.InputTag("g4SimHits",hgceeDigitizer.hitCollection.value()),
                                               cms.InputTag("g4SimHits",hgchefrontDigitizer.hitCollection.value()) ],
         subdets = theMixObjects.mixCH.subdets + [ hgceeDigitizer.hitCollection.value(),
-                                                  hgchefrontDigitizer.hitCollection.value() ]
+                                                  hgchefrontDigitizer.hitCollection.value() ],
+    )
+)
+from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
+phase2_hfnose.toModify( theMixObjects,
+    mixCH = dict(
+        input = theMixObjects.mixCH.input + [ cms.InputTag("g4SimHits",hfnoseDigitizer.hitCollection.value()) ],
+        subdets = theMixObjects.mixCH.subdets + [ hfnoseDigitizer.hitCollection.value() ],
     )
 )
 

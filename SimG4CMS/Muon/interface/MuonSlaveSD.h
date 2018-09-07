@@ -14,15 +14,14 @@
 
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-
-class EndOfEvent;
-class EventAction;
+#include "SimDataFormats/SimHitMaker/interface/TrackingSlaveSD.h"
 
 #include <string>
 
+class EndOfEvent;
+class EventAction;
 class MuonSubDetector;
 class SimTrackManager;
-#include "SimDataFormats/SimHitMaker/interface/TrackingSlaveSD.h"
 
 class MuonSlaveSD : 
 public TrackingSlaveSD

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import logging
 import sys
 import os.path
@@ -313,7 +314,7 @@ class PropertyView(QTableWidget, AbstractView):
                 if result==True:
                     self.emit(SIGNAL('valueChanged'),property.name(), newvalue, oldValue, property.categoryName())
                 else:
-                    print "valueChanged() result = ", result, type(result)
+                    print("valueChanged() result = ", result, type(result))
                     property.setToolTip(result)
                     QMessageBox.critical(self.parent(), 'Error', result)
                     bad=True
@@ -987,7 +988,7 @@ class FileVectorProperty(TextEditWithButtonProperty):
         
     def buttonClicked(self, checked=False):
         """ Shows the file selection dialog. """
-        if type(self._originalValue)==type(()) and len(self._originalValue)>0:
+        if isinstance(self._originalValue, type(())) and len(self._originalValue)>0:
             dir=os.path.dirname(self._originalValue[0])
         elif self._relativePath:
             dir=self._relativePath

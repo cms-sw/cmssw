@@ -2,7 +2,7 @@
 #define BTauReco_BJetTagTrackProbability_h
 
 #include "DataFormats/BTauReco/interface/RefMacros.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 

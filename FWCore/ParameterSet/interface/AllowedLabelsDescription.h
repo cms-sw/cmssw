@@ -5,6 +5,7 @@
 #include "FWCore/ParameterSet/interface/AllowedLabelsDescriptionBase.h"
 #include "FWCore/ParameterSet/interface/ParameterDescriptionNode.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescriptionTraits.h"
 #include "FWCore/Utilities/interface/value_ptr.h"
 
 #include <string>
@@ -31,6 +32,10 @@ namespace edm {
     AllowedLabelsDescription(char const* label,
                              bool isTracked) :
       AllowedLabelsDescriptionBase(label, ParameterTypeToEnum::toEnum<T>(), isTracked)
+    {
+    }
+
+    ~AllowedLabelsDescription() override
     {
     }
 
@@ -67,6 +72,8 @@ namespace edm {
                              ParameterSetDescription const& value,
                              bool isTracked);
 
+    ~AllowedLabelsDescription() override;
+
     ParameterDescriptionNode* clone() const override;
 
   private:
@@ -99,6 +106,8 @@ namespace edm {
     AllowedLabelsDescription(char const* label,
                              ParameterSetDescription const& value,
                              bool isTracked);
+
+    ~AllowedLabelsDescription() override;
 
     ParameterDescriptionNode* clone() const override;
 

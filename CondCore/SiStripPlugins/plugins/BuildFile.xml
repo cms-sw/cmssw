@@ -68,3 +68,41 @@
   <use   name="CalibTracker/StandaloneTrackerTopology"/>
   <use   name="boost_python"/>
 </library>
+
+<library  file="SiStripConfObject_PayloadInspector.cc" name="SiStripConfObject_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="CalibTracker/StandaloneTrackerTopology"/>
+  <use   name="CalibTracker/SiStripCommon"/>
+  <use   name="boost_python"/>
+</library>
+
+<library  file="SiStripThreshold_PayloadInspector.cc" name="SiStripThreshold_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="CommonTools/TrackerMap"/>
+  <use   name="CalibTracker/StandaloneTrackerTopology"/>
+  <use   name="boost_python"/>
+</library>
+
+<library  file="SiStripLatency_PayloadInspector.cc" name="SiStripLatency_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="CommonTools/TrackerMap"/>
+  <use   name="CalibTracker/StandaloneTrackerTopology"/>
+  <use   name="boost_python"/>
+</library>
+
+<library  file="plugin.cc" name="CondCoreSiStripPluginsOthers">
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/PluginManager"/>
+  <use   name="CondCore/ESSources"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="CondFormats/DataRecord"/>
+</library>

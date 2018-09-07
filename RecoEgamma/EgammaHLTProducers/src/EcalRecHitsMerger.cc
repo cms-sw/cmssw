@@ -79,7 +79,7 @@ void EcalRecHitsMerger::beginJob(){
 void EcalRecHitsMerger::endJob(){
 }
 
-void EcalRecHitsMerger::produce(edm::Event & e, const edm::EventSetup& iSetup){
+void EcalRecHitsMerger::produce(edm::StreamID, edm::Event & e, const edm::EventSetup& iSetup) const {
 
  if (debug_) std::cout << " EcalRecHitMerger : Run " << e.id().run() << " Event " << e.id().event() << std::endl;
 

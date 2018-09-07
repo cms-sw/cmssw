@@ -1,3 +1,4 @@
+from __future__ import print_function
 import coral
 from RecoLuminosity.LumiDB import nameDealer        
 class dbUtil(object):
@@ -11,13 +12,13 @@ class dbUtil(object):
         
     def listIndex(self,tablename):
         mytable=self.__schema.tableHandle(tablename)
-        print 'numberofindices ', mytable.description().numberOfIndices()
+        print('numberofindices ', mytable.description().numberOfIndices())
         for i in range(0,mytable.description().numberOfIndices()):
             index=mytable.description().index(i)
-            print ' ', index.name(),' -> '
+            print(' ', index.name(),' -> ')
             for iColumn in index.columnNames():
-                print iColumn
-            print ' (tablespace : ',index.tableSpaceName(),')'
+                print(iColumn)
+            print(' (tablespace : ',index.tableSpaceName(),')')
     def describeSchema(self):
         """
         Print out the overview of the schema
@@ -26,24 +27,24 @@ class dbUtil(object):
             tablelist=self.__schema.listTables()
             for t in tablelist:
                 table = self.__schema.tableHandle(t)
-                print 'table ===',t,'==='
+                print('table ===',t,'===')
                 n=table.description().numberOfColumns()
                 for i in range(0,n):
                   columndesp=table.description().columnDescription(i)
-                  print '\t',columndesp.name(),columndesp.type()
+                  print('\t',columndesp.name(),columndesp.type())
                 if table.description().hasPrimaryKey():
-                  print 'Primary Key : '
-                  print '\t',table.description().primaryKey().columnNames()
-                print 'Indices : '
+                  print('Primary Key : ')
+                  print('\t',table.description().primaryKey().columnNames())
+                print('Indices : ')
                 self.listIndex(t)
             viewlist=self.__schema.listViews()
             for v in viewlist:
                 myview = self.__schema.viewHandle('V0')
-                print 'definition : ',myview.definition()
+                print('definition : ',myview.definition())
                 n=myview.numberOfColumns()
                 for i in range(0,n):
                   columndesp=view.column(i)
-                  print '\t',columndesp.name(),columndesp.type()
+                  print('\t',columndesp.name(),columndesp.type())
         except Exception as e:
             raise Exception(str(e))
     def existRow( self, tableName, condition, conditionDefDict,conditionDict):
@@ -210,7 +211,7 @@ class dbUtil(object):
             self.__schema.dropIfExistsTable(idtableName)
           else:
             if self.__schema.existsTable(idtableName):
-               print 'table '+idtableName+' exists, do nothing'
+               print('table '+idtableName+' exists, do nothing')
                return
           description = coral.TableDescription()
           description.setName( idtableName )
@@ -238,7 +239,7 @@ class dbUtil(object):
             self.__schema.dropIfExistsTable(entrytableName)
           else:
             if self.__schema.existsTable(entrytableName):
-               print 'table '+entrytableName+' exists, do nothing'
+               print('table '+entrytableName+' exists, do nothing')
                return
           description = coral.TableDescription()
           description.setName( entrytableName )
@@ -262,7 +263,7 @@ class dbUtil(object):
             self.__schema.dropIfExistsTable(revmaptableName)
           else:
             if self.__schema.existsTable(revmaptableName):
-               print 'table '+revmaptableName+' exists, do nothing'
+               print('table '+revmaptableName+' exists, do nothing')
                return
           description = coral.TableDescription()
           description.setName( revmaptableName )

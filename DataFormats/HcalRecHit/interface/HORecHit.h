@@ -13,10 +13,12 @@ class HORecHit : public CaloRecHit {
 public:
   typedef HcalDetId key_type;
 
-  HORecHit();
-  HORecHit(const HcalDetId& id, float energy, float time);
+  constexpr HORecHit() : CaloRecHit() {}
+
+  constexpr HORecHit(const HcalDetId& id, float energy, float time) 
+      : CaloRecHit(id,energy,time) {}
   /// get the id
-  HcalDetId id() const { return HcalDetId(detid()); }
+  constexpr HcalDetId id() const { return HcalDetId(detid()); }
 };
 
 std::ostream& operator<<(std::ostream& s, const HORecHit& hit);

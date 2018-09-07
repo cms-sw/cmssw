@@ -39,11 +39,6 @@ void SUSY_HLT_InclusiveHT::dqmBeginRun(edm::Run const &, edm::EventSetup const &
   bookHistos(ibooker_);
 }
 
-void SUSY_HLT_InclusiveHT::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-  edm::EventSetup const& context)
-{
-   edm::LogInfo("SUSY_HLT_InclusiveHT") << "SUSY_HLT_InclusiveHT::beginLuminosityBlock" << std::endl;
-}
 
 void SUSY_HLT_InclusiveHT::analyze(edm::Event const& e, edm::EventSetup const& eSetup){
   edm::LogInfo("SUSY_HLT_InclusiveHT") << "SUSY_HLT_InclusiveHT::analyze" << std::endl;
@@ -162,10 +157,6 @@ void SUSY_HLT_InclusiveHT::analyze(edm::Event const& e, edm::EventSetup const& e
 }
 
 
-void SUSY_HLT_InclusiveHT::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
-{
-  edm::LogInfo("SUSY_HLT_InclusiveHT") << "SUSY_HLT_InclusiveHT::endLuminosityBlock" << std::endl;
-}
 
 
 void SUSY_HLT_InclusiveHT::endRun(edm::Run const& run, edm::EventSetup const& eSetup)

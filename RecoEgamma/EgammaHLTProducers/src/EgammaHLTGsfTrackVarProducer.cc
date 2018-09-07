@@ -1,4 +1,4 @@
-/** \class EgammaHLTElectronDetaDphiProducer
+/** \class EgammaHLTGsfTrackVarProducer
  *
  *  \author Roberto Covarelli (CERN)
  * 
@@ -134,10 +134,13 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::Event& iEvent, const edm::EventS
     float oneOverESuperMinusOneOverPValue=999999;
     float oneOverESeedMinusOneOverPValue=999999;
     
-    if(static_cast<int>(gsfTracks.size())>=upperTrackNrToRemoveCut_ || 
-       static_cast<int>(gsfTracks.size())<=lowerTrackNrToRemoveCut_ ||
-       (isBarrel && useDefaultValuesForBarrel_) ||
-       (!isBarrel && useDefaultValuesForEndcap_)){
+    const int nrTracks = gsfTracks.size();
+    const bool rmCutsDueToNrTracks = nrTracks <= lowerTrackNrToRemoveCut_ ||
+                                     nrTracks >= upperTrackNrToRemoveCut_;
+    //to use the default values, we require at least one track...
+    const bool useDefaultValues = isBarrel ? useDefaultValuesForBarrel_ && nrTracks>=1 : useDefaultValuesForEndcap_ && nrTracks>=1;
+
+    if(rmCutsDueToNrTracks || useDefaultValues){
       dEtaInValue=0;
       dEtaSeedInValue=0;
       dPhiInValue=0;

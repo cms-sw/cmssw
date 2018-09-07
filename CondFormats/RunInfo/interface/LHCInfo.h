@@ -15,15 +15,17 @@ class LHCInfo {
   enum ParticleType { NONE = 0, PROTON = 1, PB82 = 2, AR18 = 3, D = 4, XE54 = 5 };
 
   enum IntParamIndex { LHC_FILL = 0, BUNCHES_1 = 1, BUNCHES_2 = 2, COLLIDING_BUNCHES = 3, TARGET_BUNCHES = 4, FILL_TYPE = 5, PARTICLES_1 = 6, PARTICLES_2 = 7, LUMI_SECTION = 8, ISIZE = 9 };
-  enum FloatParamIndex { CROSSING_ANGLE = 0, BETA_STAR = 1, INTENSITY_1 = 2, INTENSITY_2 = 3, ENERGY = 4, DELIV_LUMI = 5, REC_LUMI = 7, LUMI_PER_B = 8, BEAM1_VC = 9, BEAM2_VC = 10, BEAM1_RF = 11, BEAM2_RF = 12, FSIZE = 13};
-  enum TimeParamIndex { CREATE_TIME = 0, BEGIN_TIME = 1, END_TIME = 2, DIP_TIME = 3, TSIZE =4};
+  enum FloatParamIndex { CROSSING_ANGLE = 0, BETA_STAR = 1, INTENSITY_1 = 2, INTENSITY_2 = 3, ENERGY = 4, DELIV_LUMI = 5, REC_LUMI = 7, LUMI_PER_B = 8, BEAM1_VC = 9, BEAM2_VC = 10, BEAM1_RF = 11, BEAM2_RF = 12, INST_LUMI = 13, INST_LUMI_ERR = 14, FSIZE = 15};
+  enum TimeParamIndex { CREATE_TIME = 0, BEGIN_TIME = 1, END_TIME = 2, TSIZE =3};
   enum StringParamIndex { INJECTION_SCHEME = 0, LHC_STATE = 1, LHC_COMMENT = 2, CTPPS_STATUS = 3, SSIZE =4};
 
   typedef FillType FillTypeId;
   typedef ParticleType ParticleTypeId;
   LHCInfo();
-  LHCInfo( unsigned short const & lhcFill, bool const & fromData = true );
+  LHCInfo( const LHCInfo& rhs );
   ~LHCInfo();
+
+  LHCInfo* cloneFill() const;
   
   //constant static unsigned integer hosting the maximum number of LHC bunch slots
   static size_t const bunchSlots = 3564;
@@ -31,13 +33,10 @@ class LHCInfo {
   //constant static unsigned integer hosting the available number of LHC bunch slots
   static size_t const availableBunchSlots = 2808;
   
-  //reset instance
-  void setFill( unsigned short const & lhcFill, bool const & fromData );
+  void setFillNumber( unsigned short lhcFill );
   
   //getters
   unsigned short const fillNumber() const;
-  
-  bool const isData() const;
   
   unsigned short const bunchesInBeam1() const;
   
@@ -66,6 +65,10 @@ class LHCInfo {
   float const delivLumi() const;
   
   float const recLumi() const;
+
+  float const instLumi() const;
+
+  float const instLumiError() const;
   
   cond::Time_t const createTime() const;
   
@@ -92,6 +95,14 @@ class LHCInfo {
   std::vector<float> const & beam1RF() const;
 
   std::vector<float> const & beam2RF() const;
+
+  std::vector<float>& beam1VC();
+
+  std::vector<float>& beam2VC();
+
+  std::vector<float>& beam1RF();
+
+  std::vector<float>& beam2RF();
 
   //returns a boolean, true if the injection scheme has a leading 25ns
   //TODO: parse the circulating bunch configuration, instead of the string.
@@ -136,6 +147,10 @@ class LHCInfo {
 
   void setRecLumi( float const & recLumi );
 
+  void setInstLumi( float const& instLumi );
+
+  void setInstLumiError( float const& instLumiError );
+
   void setCreationTime( cond::Time_t const & createTime );
   
   void setBeginTime( cond::Time_t const & beginTime );
@@ -177,6 +192,8 @@ class LHCInfo {
 	,float const & energy
 	,float const & delivLumi
 	,float const & recLumi
+	,float const & instLumi
+	,float const & instLumiError
 	,cond::Time_t const & createTime
 	,cond::Time_t const & beginTime
 	,cond::Time_t const & endTime
@@ -192,11 +209,14 @@ class LHCInfo {
 	,std::vector<float> const & beam2RF
 	,std::bitset<bunchSlots+1> const & bunchConf1 
 	,std::bitset<bunchSlots+1> const & bunchConf2 );
-  
+
+  bool equals( const LHCInfo& rhs ) const;
+
+  bool empty() const;
+
   //dumping values on output stream
   void print(std::stringstream & ss) const;
   
- protected:
   std::bitset<bunchSlots+1> const & bunchBitsetForBeam1() const;
   
   std::bitset<bunchSlots+1> const & bunchBitsetForBeam2() const;
@@ -206,7 +226,7 @@ class LHCInfo {
   void setBunchBitsetForBeam2( std::bitset<bunchSlots+1> const & bunchConfiguration );
   
  private:
-  bool m_isData;
+  bool m_isData = false;
   std::vector<std::vector<unsigned int> > m_intParams;
   std::vector<std::vector<float> > m_floatParams;
   std::vector<std::vector<unsigned long long> > m_timeParams;

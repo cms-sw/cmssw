@@ -11,7 +11,6 @@ Simulation details: <br>
  - 50k events
  - no field <br>
  - no vertex smearing <br>
- - no material in front of Calorimetry <br>
  - no Triggers <br>
 <br>
 <hr>
@@ -97,8 +96,26 @@ Plots ====>>> Em component >>> Had component (no HO) >>> Total energy (Em+Had) >
 
 <hr>
 
-Plotted in the row below is the same quantities as above, <br>
-but for ONE single CaloTower in the event, which is closest to the MC direction of the pion
+Plotted in this row is log_10(Chi2)  <br> 
+Plots ====>>> HB/HE  log_10(Chi2) 1D inclusive >>>  HB/HE  log_10(Chi2) vs energy profile
+<p>
+
+<A HREF= "RecHits_Chi2_HB.gif">
+<img src="RecHits_Chi2_HB.gif" width=24%> </A>
+<A HREF= "RecHitsTask_Chi2_vs_energy_HB.gif">
+<img src="RecHitsTask_Chi2_vs_energy_HB.gif" width=24%> </A>
+
+<A HREF= "RecHits_Chi2_HE.gif">
+<img src="RecHits_Chi2_HE.gif" width=24%> </A>
+<A HREF= "RecHitsTask_Chi2_vs_energy_HE.gif">
+<img src="RecHitsTask_Chi2_vs_energy_HE.gif" width=24%> </A>
+
+
+
+<hr>
+
+Plotted in the row below is EM, HAD, EM+HAD for <br>
+ONE single CaloTower in the event, which is closest to the MC direction of the pion
 <br>
 Also added is a plot of the single CaloTower scale ratio (new / previous).
 The idea is to avoid any clustering (which masks transition) and to pinpoint each ieta ring in the most simplified and clear way.  
@@ -120,29 +137,7 @@ Plots ====>>> Em component >>> Had component (no HO) >>> Total energy (Em+Had) >
 <hr>
 
 
-
-Plotted in the row below is the same quantities as above, <br>
-but for all CaloTowers in the cone R=0.3 around MC direction of the pion
-<br>
-Also added is a plot of the HAD cmponent ratio (new / previous).
-<p>
-<pre>
-Plots ====>>> Em component >>> Had component (no HO) >>> Total energy (Em+Had) >>> Ratio of Had component
-</pre>
-<p> 
-<p>
-<A HREF= "CaloTowersTask_emean_vs_ieta_E.gif">
-<img src="CaloTowersTask_emean_vs_ieta_E.gif" width=24%> </A>
-<A HREF= "CaloTowersTask_emean_vs_ieta_H.gif">
-<img src="CaloTowersTask_emean_vs_ieta_H.gif" width=24%> </A>
-<A HREF= "CaloTowersTask_emean_vs_ieta_EH.gif">
-<img src="CaloTowersTask_emean_vs_ieta_EH.gif" width=24%> </A>
-<A HREF= "Ratio_CaloTowers_Hcone.gif">
-<img src="Ratio_CaloTowers_Hcone.gif"width=24%> </A>
-<hr>
-
-
-Finally: number of CaloTowers in HB, HE and HF (separately) <br>
+Number of CaloTowers in HB, HE and HF (separately) <br>
 
 <p>
 <A HREF= "N_calotowers_HB.gif">
@@ -152,3 +147,5 @@ Finally: number of CaloTowers in HB, HE and HF (separately) <br>
 <A HREF= "N_calotowers_HF.gif">
 <img src="N_calotowers_HF.gif" width=32%> </A>
 <hr>
+
+

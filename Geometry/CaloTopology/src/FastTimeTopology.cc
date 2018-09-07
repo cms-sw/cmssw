@@ -1,7 +1,7 @@
 #include "Geometry/CaloTopology/interface/FastTimeTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 FastTimeTopology::FastTimeTopology(const FastTimeDDDConstants& hdcons,
 				   ForwardSubdetector sub,

@@ -1,3 +1,4 @@
+from __future__ import print_function
 ##########################################################################
 # Creates the TrackerTree.root file.
 # Configuration file from TrackerAlignment/test/trackerTreeGenerator_cfg.py
@@ -52,7 +53,7 @@ process.load("Configuration.Geometry.GeometryRecoDB_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag)
-print "Using global tag:", process.GlobalTag.globaltag.value()
+print("Using global tag:", process.GlobalTag.globaltag.value())
 
 # Analyzer
 process.load("Alignment.TrackerAlignment.TrackerTreeGenerator_cfi")

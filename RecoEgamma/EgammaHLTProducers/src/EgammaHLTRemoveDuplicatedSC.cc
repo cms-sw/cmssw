@@ -39,7 +39,7 @@ void EgammaHLTRemoveDuplicatedSC::fillDescriptions(edm::ConfigurationDescription
 
 
 void
-EgammaHLTRemoveDuplicatedSC::produce(edm::Event& evt, const edm::EventSetup& es) {
+EgammaHLTRemoveDuplicatedSC::produce(edm::StreamID sid, edm::Event& evt, const edm::EventSetup& es) const {
  
   using namespace edm;
   

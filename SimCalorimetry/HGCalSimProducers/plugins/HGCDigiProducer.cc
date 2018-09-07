@@ -12,12 +12,12 @@ HGCDigiProducer::HGCDigiProducer(edm::ParameterSet const& pset, edm::ProducerBas
                                  edm::ConsumesCollector& iC) :
   HGCDigiProducer(pset, iC)
 {
-  if( theDigitizer_.producesEEDigis()     )
-    mixMod.produces<HGCEEDigiCollection>(theDigitizer_.digiCollection());
-  if( theDigitizer_.producesHEfrontDigis() )
-    mixMod.produces<HGCHEDigiCollection>(theDigitizer_.digiCollection());
-  if( theDigitizer_.producesHEbackDigis() )
-    mixMod.produces<HGCBHDigiCollection>(theDigitizer_.digiCollection());
+  if(pset.getParameter<bool>("premixStage1")) {
+    mixMod.produces<PHGCSimAccumulator>(theDigitizer_.digiCollection());
+  }
+  else {
+    mixMod.produces<HGCalDigiCollection>(theDigitizer_.digiCollection());
+  }
 }
 
 HGCDigiProducer::HGCDigiProducer(edm::ParameterSet const& pset, edm::ConsumesCollector& iC) :

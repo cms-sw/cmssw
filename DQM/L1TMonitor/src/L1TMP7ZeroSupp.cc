@@ -16,14 +16,15 @@ L1TMP7ZeroSupp::L1TMP7ZeroSupp(const edm::ParameterSet& ps)
       zsFlagMask_(ps.getUntrackedParameter<int>("zsFlagMask")),
       dataInvFlagMask_(ps.getUntrackedParameter<int>("dataInvFlagMask")),
       maxFedReadoutSize_(ps.getUntrackedParameter<int>("maxFEDReadoutSize")),
+      checkOnlyCapIdsWithMasks_(ps.getUntrackedParameter<bool>("checkOnlyCapIdsWithMasks")),
       monitorDir_(ps.getUntrackedParameter<std::string>("monitorDir")),
       verbose_(ps.getUntrackedParameter<bool>("verbose"))
 {
-  std::vector<int> zeroMask(6, 0);
+  std::vector<int> onesMask(6, 0xffffffff);
   masks_.reserve(maxMasks_);
   for (unsigned int i = 0; i < maxMasks_; ++i) {
     std::string maskCapIdStr{"maskCapId"+std::to_string(i)};
-    masks_.push_back(ps.getUntrackedParameter<std::vector<int>>(maskCapIdStr, zeroMask));
+    masks_.push_back(ps.getUntrackedParameter<std::vector<int>>(maskCapIdStr, onesMask));
     // which masks are defined?
     if (ps.exists(maskCapIdStr)) {
       definedMaskCapIds_.push_back(i);
@@ -62,6 +63,7 @@ void L1TMP7ZeroSupp::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   for (unsigned int i = 0; i < maxMasks_; ++i) {
     desc.addOptionalUntracked<std::vector<int>>("maskCapId"+std::to_string(i))->setComment("ZS mask for caption id "+std::to_string(i)+".");
   }
+  desc.addUntracked<bool>("checkOnlyCapIdsWithMasks", true)->setComment("Check only blocks that have a CapId for which a mask is defined.");
   desc.addUntracked<std::string>("monitorDir", "")->setComment("Target directory in the DQM file. Will be created if not existing.");
   desc.addUntracked<bool>("verbose", false);
   descriptions.add("l1tMP7ZeroSupp", desc);
@@ -69,7 +71,6 @@ void L1TMP7ZeroSupp::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 
 void L1TMP7ZeroSupp::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
 
-void L1TMP7ZeroSupp::beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) {}
 
 void L1TMP7ZeroSupp::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) {
   // overall summary
@@ -258,14 +259,22 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
         capIds_->Fill(blockCapId);
 
-        // fill the denominator histograms
         bool capIdDefined = false;
+        if (zeroSuppValMap_.find(blockCapId) != zeroSuppValMap_.end()) {
+          capIdDefined = true;
+        }
+
+        // Only check blocks with a CapId that has a defined ZS mask.
+        if (checkOnlyCapIdsWithMasks_ and not capIdDefined) {
+          continue;
+        }
+
+        // fill the denominator histograms
         zeroSuppValMap_[maxMasks_]->Fill(BLOCKS);
         errorSummaryDenMap_[maxMasks_]->Fill(RBLKS);
         errorSummaryDenMap_[maxMasks_]->Fill(RBLKSFALSEPOS);
         errorSummaryDenMap_[maxMasks_]->Fill(RBLKSFALSENEG);
-        if (zeroSuppValMap_.find(blockCapId) != zeroSuppValMap_.end()) {
-          capIdDefined = true;
+        if (capIdDefined) {
           zeroSuppValMap_[blockCapId]->Fill(BLOCKS);
           errorSummaryDenMap_[blockCapId]->Fill(RBLKS);
           errorSummaryDenMap_[blockCapId]->Fill(RBLKSFALSEPOS);

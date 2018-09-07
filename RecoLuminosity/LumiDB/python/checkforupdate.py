@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os,commands,re,urllib2
 class checkforupdate:
     def __init__(self,statusfilename='tagstatus.txt'):
@@ -21,22 +22,22 @@ class checkforupdate:
         cleanresult=re.sub(r'\s+|\t+',' ',cleanresult)
         allfields=cleanresult.split(' ')
         workingversion = "n/a"
-        for line in filter(lambda line: "Sticky Tag" in line, result.split('\n')):
+        for line in [line for line in result.split('\n') if "Sticky Tag" in line]:
             workingversion = line.split()[2]
         if workingversion=='(none)':
             workingversion='HEAD'
         if isverbose:
-            print 'checking current version......'
-            print '  project base : '+cmsswWorkingBase
-            print '  script : '+scriptname
-            print '  version : '+workingversion
+            print('checking current version......')
+            print('  project base : '+cmsswWorkingBase)
+            print('  script : '+scriptname)
+            print('  version : '+workingversion)
         return workingversion
     def checkforupdate(self,workingtag,isverbose=True):
         newtags=self.fetchTagsHTTP()
         if workingtag=='(none)':#means HEAD
             if isverbose:
-                print 'checking update for HEAD'
-                print '  no update'
+                print('checking update for HEAD')
+                print('  no update')
             return []
         w=workingtag.lstrip('V').split('-')
         if len(w)!=3:
@@ -58,15 +59,15 @@ class checkforupdate:
                         continue
             updatetags.append([tagstr,ismajor,desc])
         if isverbose:
-            print 'checking update for '+workingtag
+            print('checking update for '+workingtag)
             if not updatetags:
-                print '  no update'
+                print('  no update')
                 return []
             for [tag,ismajor,description] in updatetags:
                 if ismajor=='1':
-                    print '  major update, tag ',tag+' , '+description
+                    print('  major update, tag ',tag+' , '+description)
                 else:
-                    print '  minor update, tag ',tag+' , '+description
+                    print('  minor update, tag ',tag+' , '+description)
         return updatetags
         
 if __name__=='__main__':

@@ -1,6 +1,6 @@
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine2017.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngineAux2017.h"
-#include "L1Trigger/L1TMuonEndCap/interface/PtLutVarCalc.h"
+#include "L1Trigger/L1TMuonEndCap/interface/PtLUTVarCalc.h"
 
 #include <cassert>
 #include <iostream>
@@ -318,7 +318,7 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) const {
     { edm::LogError("L1T") << "mode = " << mode; return 0; }
 
   // Un-compress words from address
-  // For most variables (e.g. theta, dTheta, CLCT) don't need to unpack, since compressed version was used in training 
+  // For most variables (e.g. theta, dTheta, CLCT) don't need to unpack, since compressed version was used in training
   int St1_ring2 = -1;
   if        (nHits == 4) {
     dPhiAB    = aux().getdPhiFromBin ( dPhiAB, 7, 512 );

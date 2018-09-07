@@ -2,7 +2,6 @@
 
 #include <ostream>
 
-#include "DetectorDescription/Core/interface/Store.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/src/LogicalPart.h"
@@ -29,7 +28,7 @@ DD_NC( const DDName & n )
     ns.emplace_back( n );
   }  
 }
-  
+
 std::ostream & 
 operator<<( std::ostream & os, const DDLogicalPart & part )
 {
@@ -102,9 +101,9 @@ operator<<( std::ostream & os, const DDLogicalPart & part )
        \endcode 
 */        
 DDLogicalPart::DDLogicalPart( const DDName & name )
-  : DDBase<DDName, DDI::LogicalPart*>()
+  : DDBase< DDName, std::unique_ptr<DDI::LogicalPart> >()
 { 
-  prep_ = StoreT::instance().create( name );
+  create( name );
   DD_NC( name );
 }
 
@@ -124,54 +123,26 @@ DDLogicalPart::DDLogicalPart(const DDName & ddname,
                              const DDMaterial & material,
                              const DDSolid & solid,
 		             DDEnums::Category cat) 
- : DDBase<DDName,DDI::LogicalPart*>() 
+  : DDBase< DDName, std::unique_ptr<DDI::LogicalPart> >() 
 { 
-   prep_ = StoreT::instance().create(ddname, new DDI::LogicalPart(material,solid,cat));
+  create( ddname, std::make_unique<DDI::LogicalPart>( material, solid, cat ));
    DD_NC(ddname);
 }
-
-
-// private!
-/*
-DDLogicalPart::DDLogicalPart(DDRedirect<DDLogicalPartImpl>* p, bool dummy)
- : DDMultiRegistered<DDLogicalPartImpl>(p,true)
-{ }
-*/
 
 DDEnums::Category DDLogicalPart::category() const
 { 
   return rep().category(); 
 }
 
-
 const DDMaterial & DDLogicalPart::material() const 
 {
   return rep().material();
 }  
 
-
 const DDSolid & DDLogicalPart::solid() const
 {
   return rep().solid();
 }
-
-
-/* 
-   The weight must be calculated by using the method DDCompactView::weight().
-   For the weight calculation the full subtree of children is expanded. As a 
-   usefull side-effect the weight of all LogicalParts of the children is calculated
-   as well.
-   This method will return 0, if the weight has not yet been calculated 
-   using the DDCompactView, otherwise the weight of the component and all
-   its sub-components.
-   \todo In future DDLogicalPart::weight() will be sufficient for weight calculations
-   \todo make the method 'const'
-*/  
-double & DDLogicalPart::weight() 
-{
-  return rep().weight();
-}    
-
 
 /**
  The method will only return specific data attached to a DDLogicalPart. 
@@ -233,7 +204,6 @@ std::vector<const DDsvalues_type *> DDLogicalPart::specifics() const
   return result;
 }
 
-
 DDsvalues_type DDLogicalPart::mergedSpecifics() const
 {
   DDsvalues_type  result;
@@ -242,15 +212,20 @@ DDsvalues_type DDLogicalPart::mergedSpecifics() const
 }  
 
 // for internal use only
-void DDLogicalPart::addSpecifics(const std::pair<const DDPartSelection*, const DDsvalues_type*> & s)
+void
+DDLogicalPart::addSpecifics(const std::pair<const DDPartSelection*, const DDsvalues_type*> & s)
 {
    rep().addSpecifics(s);
 }
-void DDLogicalPart::removeSpecifics(const std::pair<DDPartSelection*,DDsvalues_type*> & s)
+
+void
+DDLogicalPart::removeSpecifics(const std::pair<DDPartSelection*,DDsvalues_type*> & s)
 {
    rep().removeSpecifics(s);
 }
-bool DDLogicalPart::hasDDValue(const DDValue & v) const
+
+bool
+DDLogicalPart::hasDDValue(const DDValue & v) const
 {
   return rep().hasDDValue(v);
 }

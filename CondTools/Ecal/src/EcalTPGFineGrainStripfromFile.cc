@@ -26,7 +26,6 @@ void popcon::EcalTPGFineGrainStripfromFile::getNewObjects() {
   std::cout << "------- Ecal -> getNewObjects\n";
 	edm::LogInfo("EcalTPGFineGrainStripfromFile") << "Started GetNewObjects!!!";
   
-  EcalTPGFineGrainStripEE * fgrStripEE = new EcalTPGFineGrainStripEE;
   int fileIOV;
   std::cout << "LinPed which input IOV do you want " << std::endl;
   std::cin >> fileIOV; 
@@ -44,6 +43,9 @@ void popcon::EcalTPGFineGrainStripfromFile::getNewObjects() {
   for(int i = 0; i < 304517; i++) getline (fLin, line);
   char strip[8];
   unsigned int stripId, Threshold, LUTFgr;
+
+  EcalTPGFineGrainStripEE * fgrStripEE = new EcalTPGFineGrainStripEE;
+
   for (int istrip = 0; istrip < 15176; istrip++) {
     getline (fLin, line);
     sscanf(line.c_str(), "%s %u", strip, &stripId);
@@ -63,7 +65,7 @@ void popcon::EcalTPGFineGrainStripfromFile::getNewObjects() {
   }   // end loop over EB + EE strips
   fLin.close();
 
-  m_to_transfer.push_back(std::make_pair((EcalTPGFineGrainStripEE*)fgrStripEE, fileIOV));
+  m_to_transfer.push_back(std::make_pair(fgrStripEE, fileIOV));
 
   std::cout << "Ecal -> end of getNewObjects -----------\n";	
 }

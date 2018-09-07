@@ -70,13 +70,13 @@ GeomDetCompatibilityChecker::isCompatible(const GeomDet* theDet,
     bool isIn = false;
     float sagitta=99999999;
     bool close = false;
-  if likely(sagCut>0) {
+  if LIKELY(sagCut>0) {
     // linear approximation
     auto const & plane = theDet->specificSurface();
     StraightLinePlaneCrossing crossing(tsos.globalPosition().basicVector(),tsos.globalMomentum().basicVector(), prop.propagationDirection());
     auto path = crossing.pathLength(plane);
     isIn = path.first;
-    if  unlikely(!path.first) stat.ns1++;
+    if  UNLIKELY(!path.first) stat.ns1++;
     else {
       auto gpos =  GlobalPoint(crossing.position(path.second));
       auto tpath2 = (gpos-tsos.globalPosition()).perp2();
@@ -100,7 +100,7 @@ GeomDetCompatibilityChecker::isCompatible(const GeomDet* theDet,
 
   // precise propagation
   TrajectoryStateOnSurface && propSt = prop.propagate( tsos, theDet->specificSurface());
-  if unlikely ( !propSt.isValid()) { stat.nf1++; return std::make_pair( false, std::move(propSt));}
+  if UNLIKELY ( !propSt.isValid()) { stat.nf1++; return std::make_pair( false, std::move(propSt));}
 
 
   auto es = est.estimate( propSt, theDet->specificSurface());

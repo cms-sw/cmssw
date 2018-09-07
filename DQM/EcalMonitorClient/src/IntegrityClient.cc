@@ -1,4 +1,4 @@
-#include "../interface/IntegrityClient.h"
+#include "DQM/EcalMonitorClient/interface/IntegrityClient.h"
 
 #include "CondFormats/EcalObjects/interface/EcalDQMStatusHelper.h"
 

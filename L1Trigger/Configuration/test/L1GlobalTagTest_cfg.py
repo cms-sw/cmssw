@@ -1,3 +1,4 @@
+from __future__ import print_function
 #
 # cfg file to print the content of 
 # L1 trigger records from a global tag 
@@ -129,69 +130,69 @@ process.printGTagL1Gt = cms.Path(process.printGlobalTagL1Gt)
 # Schedule definition
 process.schedule = cms.Schedule()
 
-print ''
+print('')
 
 if printL1Rct == True :
     process.schedule.extend([process.printGTagL1Rct])
-    print "Printing L1 RCT content of global tag ", useGlobalTag
+    print("Printing L1 RCT content of global tag ", useGlobalTag)
 else :
-    print "L1 RCT content of global tag ", useGlobalTag, " not requested to be printed"
+    print("L1 RCT content of global tag ", useGlobalTag, " not requested to be printed")
 
 #
 if printL1Gct == True :
     process.schedule.extend([process.printGTagL1Gct])
-    print "Printing L1 GCT content of global tag ", useGlobalTag
+    print("Printing L1 GCT content of global tag ", useGlobalTag)
 else :
-    print "L1 GCT content of global tag ", useGlobalTag, " not requested to be printed"
+    print("L1 GCT content of global tag ", useGlobalTag, " not requested to be printed")
 
 #
 
 if printL1DtTPG == True :
     #process.schedule.extend([process.printGTagL1DtTPG])
-    print "Printing L1 DtTPG content of global tag ", useGlobalTag, ": MISSING"
+    print("Printing L1 DtTPG content of global tag ", useGlobalTag, ": MISSING")
 else :
-    print "L1 DtTPG content of global tag ", useGlobalTag, " not requested to be printed"
+    print("L1 DtTPG content of global tag ", useGlobalTag, " not requested to be printed")
 
 
 if printL1DtTF == True :
     process.schedule.extend([process.printGTagL1DtTF])
-    print "Printing L1 DtTF content of global tag ", useGlobalTag
+    print("Printing L1 DtTF content of global tag ", useGlobalTag)
 else :
-    print "L1 DtTF content of global tag ", useGlobalTag, " not requested to be printed"
+    print("L1 DtTF content of global tag ", useGlobalTag, " not requested to be printed")
 
 #
 
 if printL1CscTF == True :
     process.schedule.extend([process.printGTagL1CscTF])
-    print "Printing L1 CscTF content of global tag ", useGlobalTag
+    print("Printing L1 CscTF content of global tag ", useGlobalTag)
 else :
-    print "L1 CscTF content of global tag ", useGlobalTag, " not requested to be printed"
+    print("L1 CscTF content of global tag ", useGlobalTag, " not requested to be printed")
 
 #
 
 if printL1Rpc == True :
     process.schedule.extend([process.printGTagL1Rpc])
-    print "Printing L1 RPC content of global tag ", useGlobalTag
+    print("Printing L1 RPC content of global tag ", useGlobalTag)
 else :
-    print "L1 RPC content of global tag ", useGlobalTag, " not requested to be printed"
+    print("L1 RPC content of global tag ", useGlobalTag, " not requested to be printed")
 
 #
 
 if printL1Gmt == True :
     process.schedule.extend([process.printGTagL1Gmt])
-    print "Printing L1 GMT content of global tag ", useGlobalTag
+    print("Printing L1 GMT content of global tag ", useGlobalTag)
 else :
-    print "L1 GMT content of global tag ", useGlobalTag, " not requested to be printed"
+    print("L1 GMT content of global tag ", useGlobalTag, " not requested to be printed")
 
 #
 
 if printL1Gt == True :
     process.schedule.extend([process.printGTagL1Gt])
-    print "Printing L1 GT content of global tag ", useGlobalTag
+    print("Printing L1 GT content of global tag ", useGlobalTag)
 else :
-    print "L1 GT content of global tag ", useGlobalTag, " not requested to be printed"
+    print("L1 GT content of global tag ", useGlobalTag, " not requested to be printed")
  
-print ''
+print('')
 
 
 # Message Logger

@@ -22,7 +22,7 @@ public:
   ReturnType produce( const IdealGeometryRecord&);
 
 private:
-  std::string        name_, namew_, namec_;
+  std::string        name_, namew_, namec_, namet_;
 };
 
 HGCalParametersESModule::HGCalParametersESModule(const edm::ParameterSet& iC) {
@@ -30,11 +30,12 @@ HGCalParametersESModule::HGCalParametersESModule(const edm::ParameterSet& iC) {
   name_  = iC.getUntrackedParameter<std::string>("Name");
   namew_ = iC.getUntrackedParameter<std::string>("NameW");
   namec_ = iC.getUntrackedParameter<std::string>("NameC");
+  namet_ = iC.getUntrackedParameter<std::string>("NameT");
   edm::LogInfo("HGCalGeom") << "HGCalParametersESModule for " << name_ << ":"
-			    << namew_ << ":" << namec_;
+			    << namew_ << ":" << namec_ << ":" << namet_;
 #ifdef EDM_ML_DEBUG
   std::cout << "HGCalParametersESModule for " << name_ << ":" << namew_ << ":" 
-	    << namec_ << std::endl;
+	    << namec_ << ":" << namet_ << std::endl;
 #endif
   setWhatProduced(this, name_);
 }
@@ -50,7 +51,7 @@ HGCalParametersESModule::produce(const IdealGeometryRecord& iRecord) {
   
   HGCalParameters* ptp = new HGCalParameters(name_);
   HGCalParametersFromDD builder;
-  builder.build(&(*cpv), *ptp, name_, namew_, namec_);
+  builder.build(&(*cpv), *ptp, name_, namew_, namec_, namet_);
   
   return ReturnType(ptp) ;
 }

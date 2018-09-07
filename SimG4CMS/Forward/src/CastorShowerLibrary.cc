@@ -8,6 +8,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SimG4CMS/Forward/interface/CastorShowerLibrary.h"
+#include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "G4VPhysicalVolume.hh"
@@ -15,8 +16,14 @@
 #include "G4Track.hh"
 #include "G4ParticleTable.hh"
 #include "Randomize.hh"
-#include "G4PhysicalConstants.hh"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/PhysicalConstants.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+
+//ROOT
+#include "TROOT.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TBranchObject.h"
 
 //#define DebugLog
 
@@ -27,12 +34,10 @@ CastorShowerLibrary::CastorShowerLibrary(const std::string & name, edm::Paramete
     nEvtPerBinE(0),nEvtPerBinEta(0),nEvtPerBinPhi(0),
     SLenergies(),SLetas(),SLphis() {
   
-  initFile(p);
-  
+  initFile(p);  
 }
 
 //=============================================================================================
-
 
 CastorShowerLibrary::~CastorShowerLibrary() {
   if (hf)     hf->Close();
@@ -122,9 +127,6 @@ void CastorShowerLibrary::loadEventInfo(TBranchObject* branch) {
   // Initialize shower library general parameters
 
   totEvents   = eventInfo->Energy.getNEvts();
-//  nMomBin     = eventInfo->Energy.getNBins();
-//  evtPerBin   = eventInfo->Energy.getNEvtPerBin();
-//  pmom        = eventInfo->Energy.getBin();
   nBinsE        = eventInfo->Energy.getNBins();
   nEvtPerBinE   = eventInfo->Energy.getNEvtPerBin();
   SLenergies    = eventInfo->Energy.getBin();
@@ -136,7 +138,7 @@ void CastorShowerLibrary::loadEventInfo(TBranchObject* branch) {
   SLphis        = eventInfo->Phi.getBin();
   
   // Convert from GeV to MeV
-  for (unsigned int i=0; i<SLenergies.size(); i++) SLenergies[i] *= GeV;
+  for (unsigned int i=0; i<SLenergies.size(); i++) { SLenergies[i] *= CLHEP::GeV; }
   
   edm::LogInfo("CastorShower") << " CastorShowerLibrary::loadEventInfo : " 
 			       << "\n \n Total number of events     :  " << totEvents 
@@ -149,7 +151,7 @@ void CastorShowerLibrary::loadEventInfo(TBranchObject* branch) {
   
   for (unsigned int i=0; i<nBinsE; i++)
      edm::LogInfo("CastorShower") << "CastorShowerLibrary: SLenergies[" << i << "] = "
-			          << SLenergies[i]/GeV << " GeV";
+			          << SLenergies[i]/CLHEP::GeV << " GeV";
   for (unsigned int i=0; i<nBinsEta; i++)
      edm::LogInfo("CastorShower") << "CastorShowerLibrary: SLetas[" << i << "] = "
 			          << SLetas[i];
@@ -160,72 +162,21 @@ void CastorShowerLibrary::loadEventInfo(TBranchObject* branch) {
 
 //=============================================================================================
 
-void CastorShowerLibrary::initParticleTable(G4ParticleTable * theParticleTable) {
-////////////////////////////////////////////////////////
-//
-//  Set particle codes according to PDG encoding 
-//
-//  Based on HFShowerLibrary::initRun
-//
-////////////////////////////////////////////////////////
-
-  G4String particleName;
-
-  edm::LogInfo("CastorShower") << "CastorShowerLibrary::initParticleTable"
-                               << " ***  Accessing PDGEncoding  ***" ;
-
-  emPDG       = theParticleTable->FindParticle(particleName="e-")->GetPDGEncoding();
-  epPDG       = theParticleTable->FindParticle(particleName="e+")->GetPDGEncoding();
-  gammaPDG    = theParticleTable->FindParticle(particleName="gamma")->GetPDGEncoding();
-  pi0PDG      = theParticleTable->FindParticle(particleName="pi0")->GetPDGEncoding();
-  etaPDG      = theParticleTable->FindParticle(particleName="eta")->GetPDGEncoding();
-  nuePDG      = theParticleTable->FindParticle(particleName="nu_e")->GetPDGEncoding();
-  numuPDG     = theParticleTable->FindParticle(particleName="nu_mu")->GetPDGEncoding();
-  nutauPDG    = theParticleTable->FindParticle(particleName="nu_tau")->GetPDGEncoding();
-  anuePDG     = theParticleTable->FindParticle(particleName="anti_nu_e")->GetPDGEncoding();
-  anumuPDG    = theParticleTable->FindParticle(particleName="anti_nu_mu")->GetPDGEncoding();
-  anutauPDG   = theParticleTable->FindParticle(particleName="anti_nu_tau")->GetPDGEncoding();
-  geantinoPDG = theParticleTable->FindParticle(particleName="geantino")->GetPDGEncoding();
-  mumPDG      = theParticleTable->FindParticle(particleName="mu-")->GetPDGEncoding();
-  mupPDG      = theParticleTable->FindParticle(particleName="mu+")->GetPDGEncoding();
-  
-//#ifdef DebugLog
-  LogDebug("CastorShower") << "CastorShowerLibrary: Particle codes for e- = " << emPDG
-		           << ", e+ = " << epPDG << ", gamma = " << gammaPDG 
-		           << ", pi0 = " << pi0PDG << ", eta = " << etaPDG
-		           << ", geantino = " << geantinoPDG << "\n        nu_e = "
-		           << nuePDG << ", nu_mu = " << numuPDG << ", nu_tau = "
-		           << nutauPDG << ", anti_nu_e = " << anuePDG
-		           << ", anti_nu_mu = " << anumuPDG << ", anti_nu_tau = "
-		           << anutauPDG << ", mu- = " << mumPDG << ", mu+ = "
-		           << mupPDG;
-//#endif
-
-    edm::LogInfo("CastorShower") << "  *****   Successfully called:  " 
-                                 << "CastorShowerLibrary::initParticleTable()   ***** " ;
-
-}
-
-
-//=============================================================================================
-
-CastorShowerEvent CastorShowerLibrary::getShowerHits(G4Step * aStep, bool & ok) {
+CastorShowerEvent CastorShowerLibrary::getShowerHits(const G4Step * aStep, bool & ok) {
 
   G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
   G4Track *     track         = aStep->GetTrack();
 
   const G4ThreeVector& hitPoint = preStepPoint->GetPosition();   
-  G4String      partType = track->GetDefinition()->GetParticleName();
-  int           parCode  = track->GetDefinition()->GetPDGEncoding();
 
   CastorShowerEvent hit;
   hit.Clear();
   
   ok = false;
-  if (parCode == pi0PDG   || parCode == etaPDG    || parCode == nuePDG  ||
-      parCode == numuPDG  || parCode == nutauPDG  || parCode == anuePDG ||
-      parCode == anumuPDG || parCode == anutauPDG || parCode == geantinoPDG) 
+  bool isEM = G4TrackToParticleID::isGammaElectronPositron(track);
+  if (!isEM && !G4TrackToParticleID::isStableHadronIon(track)) { 
     return hit;
+  }
   ok = true;
 
   double pin  = preStepPoint->GetTotalEnergy();
@@ -233,31 +184,20 @@ CastorShowerEvent CastorShowerLibrary::getShowerHits(G4Step * aStep, bool & ok) 
   double R=sqrt(hitPoint.x()*hitPoint.x() + hitPoint.y()*hitPoint.y());
   double theta = atan2(R,std::abs(zint));
   double phiin = atan2(hitPoint.y(),hitPoint.x());
-  double etain = -std::log(std::tan((pi-theta)*0.5));
+  double etain = -std::log(std::tan((CLHEP::pi-theta)*0.5));
 
   // Replace "interpolation/extrapolation" by new method "select" that just randomly 
   // selects a record from the appropriate energy bin and fills its content to  
   // "showerEvent" instance of class CastorShowerEvent
   
-  if (parCode == emPDG || parCode == epPDG || parCode == gammaPDG ) {
+  if (isEM) {
     select(0, pin, etain, phiin);
-    // if (pin<SLenergies[nBinsE-1]) {
-    //   interpolate(0, pin);
-    // } else {
-    //   extrapolate(0, pin);
-    // }
   } else {
     select(1, pin, etain, phiin);
-    // if (pin<SLenergies[nBinsE-1]) {
-    //   interpolate(1, pin);
-    // } else {
-    //   extrapolate(1, pin);
-    // }
   }
     
   hit = (*showerEvent);
   return hit;
-
 }
 
 //=============================================================================================
@@ -320,39 +260,6 @@ void CastorShowerLibrary::select(int type, double pin, double etain, double phii
   // Randomly select a record from the right energy bin in the library, 
   // based on track momentum (pin) 
    
-  //   pin < SLenergies[MIN]
-/*
-  if (pin<SLenergies[0]) {
-     edm::LogWarning("CastorShower") << "CastorShowerLibrary: Warning, pin = " << pin 
-                                     << " less than minimum SLenergies " << SLenergies[0] << " in library." 
-                                     << " For the moment, selecting hit from the first bin" ;
-     irec = int(nEvtPerBinE*r) + 1;
-  //   pin > SLenergies[MAX]
-  } else if (pin>SLenergies[nBinsE]) {
-
-// This part needs rethinking because the last element of SLenergies is no longer the upper limit of the bins
-    edm::LogWarning("CastorShower") << "CastorShowerLibrary: Warning, pin = " << pin 
-                                    << " greater than maximum SLenergies " << SLenergies[nBinsE] << " in library." 
-                                    << " For the moment, selecting hit from the last bin";
-    irec = (nBinsE-1)*nEvtPerBinE + int(evtPerBin*r) + 1;
-  //   SLenergies[MIN] < pin < SLenergies[MAX]
-  } else {
-     for (unsigned int j=0; j<nBinsE; j++) {
-        if (pin >= SLenergies[j] && pin < SLenergies[j+1]) {
-	   irec = j*evtPerBin + int(evtPerBin*r) + 1 ;
-	   if (irec<0) {
-	      edm::LogWarning("CastorShower") << "CastorShowerLibrary:: Illegal irec = "
-				              << irec << " now set to 0";
-	      irec = 0;
-	   } else if (irec > totEvents) {
-	      edm::LogWarning("CastorShower") << "CastorShowerLibrary:: Illegal irec = "
-				              << irec << " now set to "<< totEvents;
-	      irec = totEvents;
-	   }
-        }
-     }
-  }
-*/
   int ienergy = FindEnergyBin(pin);
   int ieta    = FindEtaBin(etain);
 #ifdef DebugLog
@@ -361,13 +268,13 @@ void CastorShowerLibrary::select(int type, double pin, double etain, double phii
 #endif
 
   int iphi;
-  double phiMin = 0. ;
-  double phiMax = M_PI/4 ;     // 45 * (pi/180)  rad 
+  const double phiMin = 0.;
+  const double phiMax = M_PI/4.;     // 45 * (pi/180)  rad 
   if(phiin < phiMin) phiin = phiin + M_PI ;
   if(phiin >= phiMin && phiin < phiMax) {
      iphi = FindPhiBin(phiin) ;
   } else {
-     double remainder = fmod(phiin , M_PI/4) ;
+     double remainder = fmod(phiin, phiMax) ;
      phiin = phiMin + remainder ;
      iphi = FindPhiBin(phiin) ;
   }
@@ -388,6 +295,9 @@ void CastorShowerLibrary::select(int type, double pin, double etain, double phii
   getRecord (type, irec);
   
 }
+
+//=======================================================================================
+
 int CastorShowerLibrary::FindEnergyBin(double energy) {
   //
   // returns the integer index of the energy bin, taken from SLenergies vector
@@ -404,6 +314,9 @@ int CastorShowerLibrary::FindEnergyBin(double energy) {
   // energy outside bin range
   return -1;
 }
+
+//=======================================================================================
+
 int CastorShowerLibrary::FindEtaBin(double eta) {
   //
   // returns the integer index of the eta bin, taken from SLetas vector
@@ -418,6 +331,9 @@ int CastorShowerLibrary::FindEtaBin(double eta) {
   // eta outside bin range
   return -1;
 }
+
+//=======================================================================================
+
 int CastorShowerLibrary::FindPhiBin(double phi) {
   //
   // returns the integer index of the phi bin, taken from SLphis vector
@@ -434,3 +350,5 @@ int CastorShowerLibrary::FindPhiBin(double phi) {
   // phi outside bin range
   return -1;
 }
+
+//=======================================================================================

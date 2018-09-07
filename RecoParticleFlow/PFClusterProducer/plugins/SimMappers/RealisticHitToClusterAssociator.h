@@ -6,6 +6,7 @@
 // Email: felice@cern.ch
 /////////////////////////
 #include <vector>
+#include <cmath>
 #include <unordered_map>
 #include "RealisticCluster.h"
 

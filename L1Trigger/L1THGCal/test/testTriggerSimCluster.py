@@ -1,3 +1,4 @@
+from __future__ import print_function
 # import ROOT in batch mode
 import sys
 oldargv = sys.argv[:]
@@ -55,32 +56,32 @@ def deltaR(eta1,phi1,eta2,phi2):
 
 for iev,event in enumerate(events):
 	if verbose: 
-	   print "\nEvent %d: run %6d, lumi %4d, event %12d" % (iev,event.eventAuxiliary().run(), event.eventAuxiliary().luminosityBlock(),event.eventAuxiliary().event())
+	   print("\nEvent %d: run %6d, lumi %4d, event %12d" % (iev,event.eventAuxiliary().run(), event.eventAuxiliary().luminosityBlock(),event.eventAuxiliary().event()))
 
 	event.getByLabel(clusterLabel, clusters)
 	event.getByLabel(genParticlesLabel,genParticles)
 
 	## check that handle is valid
-	if not clusters.isValid(): print "Cluster handle is invalid"
-	if not genParticles.isValid(): print "GP handle not valid"
+	if not clusters.isValid(): print("Cluster handle is invalid")
+	if not genParticles.isValid(): print("GP handle not valid")
 
 	## --
-	if verbose: print "-> BX=0"
-	if verbose: print "-> clusters=",clusters,"\n","product=",clusters.product()
+	if verbose: print("-> BX=0")
+	if verbose: print("-> clusters=",clusters,"\n","product=",clusters.product())
 
-	print "--------------------------------" 
-	print "GP SIZE=",genParticles.product().size()
+	print("--------------------------------") 
+	print("GP SIZE=",genParticles.product().size())
 	for gp in genParticles.product():
 		if gp.status() == 1:
-			print "-> Found GP",gp.pt(),gp.eta(),gp.phi(),gp.pdgId()
-	print "--------------------------------" 
+			print("-> Found GP",gp.pt(),gp.eta(),gp.phi(),gp.pdgId())
+	print("--------------------------------") 
 
 	## get 0 bunch crossing vector
 	ptsum = [ROOT.TLorentzVector(),ROOT.TLorentzVector() ]
 	for bx,vector in enumerate(clusters.product()):	
-		if verbose: print "-> 0 pos",clusters.product()[0]
+		if verbose: print("-> 0 pos",clusters.product()[0])
 		if vector == None: 
-			print "   cluster product is none"
+			print("   cluster product is none")
 			continue
 		hEta.Fill(vector.eta() ) 
 		if vector.eta() <8:

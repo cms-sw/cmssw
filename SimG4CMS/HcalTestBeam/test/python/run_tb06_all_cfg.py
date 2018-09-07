@@ -1,17 +1,18 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import os, sys
 
 #====================== check input ==========================
 
 VERSION = os.environ.get('CMSSW_VERSION')
 if VERSION is None:
-	print '''No environment CMSSW_VERSION'''
+	print('''No environment CMSSW_VERSION''')
         sys.exit()
 
 if len(sys.argv) < 5:
-	print 'Usage: python run.py PhysList Particle Fhcal VAR'
-	print 'Example: python run.py FTFP_BERT pi- 106.5 RR'
+	print('Usage: python run.py PhysList Particle Fhcal VAR')
+	print('Example: python run.py FTFP_BERT pi- 106.5 RR')
 	sys.exit()
 else:	
 	phys = sys.argv[1]
@@ -20,7 +21,7 @@ else:
 	var  = sys.argv[4]
 
 text = 'Start RUN for ' + phys + ' ' + part + ' ' + hcal + ' ' + var
-print text
+print(text)
 
 cmd = 'mkdir -p ' + VERSION
 os.system(cmd)
@@ -98,7 +99,7 @@ outf = fname + '.log'
 cmd4 = 'rm -f ' + outf
 os.system(cmd4)
 cmd1 = 'echo "Start loop" > ' + outf
-print cmd1
+print(cmd1)
 os.system(cmd1)
 
 for i in range( nE) :

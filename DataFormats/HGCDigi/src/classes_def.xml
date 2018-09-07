@@ -2,29 +2,28 @@
    <class name="HGCSample"/>
    <class name="std::vector<HGCSample>"/>
 
+   <!-- Not specific -->
+   <class name="HGCDataFrame<DetId,HGCSample>"/>
+   <class name="std::vector<HGCDataFrame<DetId,HGCSample> >"/>
+   <class name="edm::SortedCollection<HGCDataFrame<DetId,HGCSample>, edm::StrictWeakOrdering<HGCDataFrame<DetId,HGCSample> > >"/>
+   <class name="edm::Wrapper<edm::SortedCollection<HGCDataFrame<DetId,HGCSample>,edm::StrictWeakOrdering<HGCDataFrame<DetId,HGCSample> > > >" />
+
    <!-- HEX specific -->
    <class name="HGCDataFrame<HGCalDetId,HGCSample>"/>
    <class name="std::vector<HGCDataFrame<HGCalDetId,HGCSample> >"/>
    <class name="edm::SortedCollection<HGCDataFrame<HGCalDetId,HGCSample>, edm::StrictWeakOrdering<HGCDataFrame<HGCalDetId,HGCSample> > >"/>
    <class name="edm::Wrapper<edm::SortedCollection<HGCDataFrame<HGCalDetId,HGCSample>,edm::StrictWeakOrdering<HGCDataFrame<HGCalDetId,HGCSample> > > >" />
-
+   
    <!-- BH specific -->
    <class name="HGCDataFrame<HcalDetId,HGCSample>"/>
    <class name="std::vector<HGCDataFrame<HcalDetId,HGCSample> >"/>
    <class name="edm::SortedCollection<HGCDataFrame<HcalDetId,HGCSample>, edm::StrictWeakOrdering<HGCDataFrame<HcalDetId,HGCSample> > >"/>
    <class name="edm::Wrapper<edm::SortedCollection<HGCDataFrame<HcalDetId,HGCSample>,edm::StrictWeakOrdering<HGCDataFrame<HcalDetId,HGCSample> > > >" />
 
-   <!-- EE specific -->
-   <class name="HGCDataFrame<HGCEEDetId,HGCSample>"/>
-   <class name="std::vector<HGCDataFrame<HGCEEDetId,HGCSample> >"/>
-   <class name="edm::SortedCollection<HGCDataFrame<HGCEEDetId,HGCSample>, edm::StrictWeakOrdering<HGCDataFrame<HGCEEDetId,HGCSample> > >"/>
-   <class name="edm::Wrapper<edm::SortedCollection<HGCDataFrame<HGCEEDetId,HGCSample>,edm::StrictWeakOrdering<HGCDataFrame<HGCEEDetId,HGCSample> > > >" />
-   <class name="edm::Wrapper<HGCEEDigiCollection>"/>
-
-   <!-- HE specific -->
-   <class name="HGCDataFrame<HGCHEDetId,HGCSample>"/>
-   <class name="std::vector<HGCDataFrame<HGCHEDetId,HGCSample> >"/>
-   <class name="edm::SortedCollection<HGCDataFrame<HGCHEDetId,HGCSample>, edm::StrictWeakOrdering<HGCDataFrame<HGCHEDetId,HGCSample> > >"/>
-   <class name="edm::Wrapper<edm::SortedCollection<HGCDataFrame<HGCHEDetId,HGCSample>,edm::StrictWeakOrdering<HGCDataFrame<HGCHEDetId,HGCSample> > > >" />
-   <class name="edm::Wrapper<HGCHEDigiCollection>"/>
+   <class name="PHGCSimAccumulator"/>
+   <class name="PHGCSimAccumulator::Data"/>
+   <class name="PHGCSimAccumulator::DetIdSize"/>
+   <class name="std::vector<PHGCSimAccumulator::Data>"/>
+   <class name="std::vector<PHGCSimAccumulator::DetIdSize>"/>
+   <class name="edm::Wrapper<PHGCSimAccumulator>"/>
 </lcgdict>

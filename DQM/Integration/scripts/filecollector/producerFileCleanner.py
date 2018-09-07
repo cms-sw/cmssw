@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import os, time, sys, glob, re, smtplib, socket
 from email.MIMEText import MIMEText
 from traceback import print_exc, format_exc
@@ -27,7 +28,7 @@ lastEmailSent = 0
 # --------------------------------------------------------------------
 def logme(msg, *args):
   procid = "[%s/%d]" % (__file__.rsplit("/", 1)[-1], os.getpid())
-  print datetime.now(), procid, msg % args
+  print(datetime.now(), procid, msg % args)
   
 def getDiskUsage(path):
   fsStats=os.statvfs(path)

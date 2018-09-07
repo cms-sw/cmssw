@@ -23,9 +23,7 @@
 //
 // constructors and destructor
 //
-TotemRPOrganization :: TotemRPOrganization() :
-  _needUpdateUnitID(false), _needUpdateData(false), _currentUnitID(-1),
-  _currentPlane(-1), _currentCSC(-1), _currentLayer(-1) {
+TotemRPOrganization :: TotemRPOrganization() {
 
   edm::LogInfo("ForwardSim") << "Creating TotemRPOrganization";
 }
@@ -37,11 +35,7 @@ TotemRPOrganization :: ~TotemRPOrganization() {
 // member functions
 //
 
-uint32_t TotemRPOrganization :: GetUnitID(const G4Step* aStep) const {
-  return const_cast<TotemRPOrganization *>(this)->GetUnitID(aStep);
-}
-
-uint32_t TotemRPOrganization :: GetUnitID(const G4Step* aStep) {
+uint32_t TotemRPOrganization :: getUnitID(const G4Step* aStep) const {
 
   G4VPhysicalVolume* physVol;
   int32_t UNITA=0;
@@ -55,8 +49,6 @@ uint32_t TotemRPOrganization :: GetUnitID(const G4Step* aStep) {
 			   << ii  << ", physVol->GetCopyNo()=" 
 			   << physVol->GetCopyNo();
 #endif
-    if (physVol->GetName() == "myRP") _currentDetectorPosition = 3;
-      
   }
   physVol= touch->GetVolume(0);//aStep->GetPreStepPoint()->GetPhysicalVolume();
   

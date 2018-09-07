@@ -8,7 +8,8 @@
 
 #include <algorithm>
 
-DDG4ProductionCuts::DDG4ProductionCuts(const G4LogicalVolumeToDDLogicalPartMap& map, int verb, const edm::ParameterSet & p) 
+DDG4ProductionCuts::DDG4ProductionCuts(const G4LogicalVolumeToDDLogicalPartMap& map, int verb, 
+                                       const edm::ParameterSet & p) 
   : map_(map), m_Verbosity(verb) {
   m_KeywordRegion =  "CMSCutsRegion";
   m_protonCut = p.getUntrackedParameter<bool>("CutsOnProton",true);  
@@ -152,7 +153,7 @@ G4Region * DDG4ProductionCuts::getRegion(const std::string & regName) {
   return reg;
 }
 
- G4ProductionCuts * DDG4ProductionCuts::getProductionCuts( G4Region* reg ) {
+G4ProductionCuts * DDG4ProductionCuts::getProductionCuts( G4Region* reg ) {
 
   G4ProductionCuts * prodCuts = reg->GetProductionCuts();
   if( !prodCuts ) {

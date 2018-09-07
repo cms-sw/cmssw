@@ -3,6 +3,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/ProductResolverBase.h"
+#include "FWCore/Framework/interface/MergeableRunProductMetadata.h"
 
 namespace edm {
   RunPrincipal::RunPrincipal(
@@ -11,10 +12,17 @@ namespace edm {
     ProcessConfiguration const& pc,
     HistoryAppender* historyAppender,
     unsigned int iRunIndex,
-    bool isForPrimaryProcess) :
+    bool isForPrimaryProcess,
+    MergeableRunProductProcesses const* mergeableRunProductProcesses) :
     Base(reg, reg->productLookup(InRun), pc, InRun, historyAppender, isForPrimaryProcess),
-      aux_(aux), index_(iRunIndex) {
+    aux_(aux), index_(iRunIndex) {
+
+    if (mergeableRunProductProcesses) { // primary RunPrincipals of EventProcessor
+      mergeableRunProductMetadataPtr_ = (std::make_unique<MergeableRunProductMetadata>(*mergeableRunProductProcesses));
+    }
   }
+
+  RunPrincipal::~RunPrincipal() {}
 
   void
   RunPrincipal::fillRunPrincipal(ProcessHistoryRegistry const& processHistoryRegistry, DelayedReader* reader) {
@@ -23,6 +31,7 @@ namespace edm {
 
     for(auto& prod : *this) {
       prod->setProcessHistory(processHistory());
+      prod->setMergeableRunProductMetadata(mergeableRunProductMetadataPtr_.get());
     }
   }
 
@@ -43,6 +52,13 @@ namespace edm {
   unsigned int
   RunPrincipal::transitionIndex_() const {
     return index().value();
+  }
+
+  void
+  RunPrincipal::preReadFile() {
+    if (mergeableRunProductMetadataPtr_) {
+      mergeableRunProductMetadataPtr_->preReadFile();
+    }
   }
 
 }

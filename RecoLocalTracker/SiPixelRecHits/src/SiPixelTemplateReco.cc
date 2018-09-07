@@ -131,7 +131,7 @@ using namespace SiPixelTemplateReco;
 //! \param      nypix - (output) the projected y-size of the cluster
 //! \param      nxpix - (output) the projected x-size of the cluster
 // *************************************************************************************************************************************
-int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, float locBx, ClusMatrix & cluster,
+int SiPixelTemplateReco::PixelTempReco1D(int id, float cotalpha, float cotbeta, float locBz, float locBx, ClusMatrix & cluster,
                                          SiPixelTemplate& templ,
                                          float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed, bool deadpix, std::vector<std::pair<int, int> >& zeropix,
                                          float& probQ, int& nypix, int& nxpix)
@@ -555,7 +555,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
    
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
    if(speed < 0 || speed > 3) {
-      throw cms::Exception("DataCorrupt") << "SiPixelTemplateReco::PixelTempReco2D called with illegal speed = " << speed << std::endl;
+      throw cms::Exception("DataCorrupt") << "SiPixelTemplateReco::PixelTempReco1D called with illegal speed = " << speed << std::endl;
    }
 #else
    assert(speed >= 0 && speed < 4);
@@ -989,7 +989,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
    }
    
    return 0;
-} // PixelTempReco2D
+} // PixelTempReco1D
 
 // *************************************************************************************************************************************
 //  Overload parameter list for compatibility with older versions
@@ -1025,7 +1025,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 //!                      4       fastest w/ Q prob, searches same range as 1 but at 1/4 density (no big pix) and 1/2 density (big pix in cluster), calculates Q probability
 //! \param      probQ - (output) the Vavilov-distribution-based cluster charge probability
 // *************************************************************************************************************************************
-int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, float locBx, ClusMatrix & cluster,
+int SiPixelTemplateReco::PixelTempReco1D(int id, float cotalpha, float cotbeta, float locBz, float locBx, ClusMatrix & cluster,
                                          SiPixelTemplate& templ,
                                          float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed,
                                          float& probQ)
@@ -1036,10 +1036,10 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
    std::vector<std::pair<int, int> > zeropix;
    int nypix, nxpix;
    
-   return SiPixelTemplateReco::PixelTempReco2D(id, cotalpha, cotbeta, locBz, locBx, cluster, templ,
+   return SiPixelTemplateReco::PixelTempReco1D(id, cotalpha, cotbeta, locBz, locBx, cluster, templ,
                                                yrec, sigmay, proby, xrec, sigmax, probx, qbin, speed, deadpix, zeropix, probQ, nypix, nxpix);
    
-} // PixelTempReco2D
+} // PixelTempReco1D
 
 
 // *************************************************************************************************************************************
@@ -1070,7 +1070,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 //!                      4       fastest w/ Q prob, searches same range as 1 but at 1/4 density (no big pix) and 1/2 density (big pix in cluster), calculates Q probability
 //! \param      probQ - (output) the Vavilov-distribution-based cluster charge probability
 // *************************************************************************************************************************************
-int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, ClusMatrix& cluster,
+int SiPixelTemplateReco::PixelTempReco1D(int id, float cotalpha, float cotbeta, ClusMatrix& cluster,
                                          SiPixelTemplate& templ,
                                          float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed,
                                          float& probQ)
@@ -1086,10 +1086,10 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
    locBz = locBx;
    if(cotalpha < 0.f) {locBz = -locBx;}
    
-   return SiPixelTemplateReco::PixelTempReco2D(id, cotalpha, cotbeta, locBz, locBx, cluster, templ,
+   return SiPixelTemplateReco::PixelTempReco1D(id, cotalpha, cotbeta, locBz, locBx, cluster, templ,
                                                yrec, sigmay, proby, xrec, sigmax, probx, qbin, speed, deadpix, zeropix, probQ, nypix, nxpix);
    
-} // PixelTempReco2D
+} // PixelTempReco1D
 
 
 // *************************************************************************************************************************************
@@ -1117,7 +1117,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 //!                      2       faster yet, searches same range as 1 but at 1/2 density
 //!                      3       fastest, searches same range as 1 but at 1/4 density (no big pix) and 1/2 density (big pix in cluster)
 // *************************************************************************************************************************************
-int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, ClusMatrix & cluster, 
+int SiPixelTemplateReco::PixelTempReco1D(int id, float cotalpha, float cotbeta, ClusMatrix & cluster, 
                                          SiPixelTemplate& templ, 
                                          float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed)
 
@@ -1135,7 +1135,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
    if(speed < 0) speed = 0;
    if(speed > 3) speed = 3;
    
-   return SiPixelTemplateReco::PixelTempReco2D(id, cotalpha, cotbeta, locBz, locBx, cluster, templ, 
+   return SiPixelTemplateReco::PixelTempReco1D(id, cotalpha, cotbeta, locBz, locBx, cluster, templ, 
                                                yrec, sigmay, proby, xrec, sigmax, probx, qbin, speed, deadpix, zeropix, probQ, nypix, nxpix);
    
-} // PixelTempReco2D
+} // PixelTempReco1D

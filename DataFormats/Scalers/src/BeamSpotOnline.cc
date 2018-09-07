@@ -75,7 +75,8 @@ BeamSpotOnline::~BeamSpotOnline() { }
 std::ostream& operator<<(std::ostream& s, const BeamSpotOnline& c) 
 {
   char zeit[128];
-  char line[128];
+  constexpr size_t kLineBufferSize = 157;
+  char line[kLineBufferSize];
   struct tm * hora;
 
   s << "BeamSpotOnline    Version: " << c.version() << 
@@ -84,28 +85,34 @@ std::ostream& operator<<(std::ostream& s, const BeamSpotOnline& c)
   timespec ts = c.collectionTime();
   hora = gmtime(&ts.tv_sec);
   strftime(zeit, sizeof(zeit), "%Y.%m.%d %H:%M:%S", hora);
-  sprintf(line, " CollectionTime: %s.%9.9d", zeit, 
-	  (int)ts.tv_nsec);
+  snprintf(line, kLineBufferSize,
+           " CollectionTime: %s.%9.9d", zeit, 
+           (int)ts.tv_nsec);
   s << line << std::endl;
 
-  sprintf(line, " TrigType: %d   EventID: %d    BunchNumber: %d", 
-	  c.trigType(), c.eventID(), c.bunchNumber());
+  snprintf(line, kLineBufferSize,
+           " TrigType: %d   EventID: %d    BunchNumber: %d", 
+           c.trigType(), c.eventID(), c.bunchNumber());
   s << line << std::endl;
 
-  sprintf(line,"    x: %e +/- %e   width: %e +/- %e",
-	  c.x(), c.err_x(), c.width_x(), c.err_width_x());
+  snprintf(line, kLineBufferSize,
+           "    x: %e +/- %e   width: %e +/- %e",
+           c.x(), c.err_x(), c.width_x(), c.err_width_x());
   s << line << std::endl;
 
-  sprintf(line,"    y: %e +/- %e   width: %e +/- %e",
-	  c.y(), c.err_y(), c.width_y(), c.err_width_y());
+  snprintf(line, kLineBufferSize,
+           "    y: %e +/- %e   width: %e +/- %e",
+           c.y(), c.err_y(), c.width_y(), c.err_width_y());
   s << line << std::endl;
 
-  sprintf(line,"    z: %e +/- %e   sigma: %e +/- %e",
-	  c.z(), c.err_z(), c.sigma_z(), c.err_sigma_z());
+  snprintf(line, kLineBufferSize,
+           "    z: %e +/- %e   sigma: %e +/- %e",
+           c.z(), c.err_z(), c.sigma_z(), c.err_sigma_z());
   s << line << std::endl;
 
-  sprintf(line," dxdy: %e +/- %e    dydz: %e +/- %e",
-	  c.dxdz(), c.err_dxdz(), c.dydz(), c.err_dydz());
+  snprintf(line, kLineBufferSize,
+           " dxdy: %e +/- %e    dydz: %e +/- %e",
+           c.dxdz(), c.err_dxdz(), c.dydz(), c.err_dydz());
   s << line << std::endl;
   return s;
 }

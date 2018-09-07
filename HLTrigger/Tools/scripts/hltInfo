@@ -17,7 +17,7 @@ if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
   exit 0
 fi
 
-edmProvDump "$1" | awk 'BEGIN {keep=0} /Producers with data in file/ {keep=0} // { if (keep) print $1, gensub(/["'\'']/,"", "g", $3), gensub(/[()]/, "", "g", $4) } /^Processing History:/ {keep=1}' | while read P R H; do
+edmProvDump "$1" | awk 'BEGIN {keep=0} /Producers with data in file/ {keep=0} // { if (keep) print $1, gensub(/["'\'']/,"", "g", $3), gensub(/[()]/, "", "g", $5) } /^Processing History:/ {keep=1}' | while read P R H; do
   echo "process $P (release $R)"
   edmProvDump "$1" -i $H | grep 'tableName\|globaltag' | sed -e's/string \(un\)\?tracked  = //' -e's/tableName:/HLT menu:  /' -e's/globaltag:/global tag:/'
   echo

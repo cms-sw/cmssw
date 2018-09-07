@@ -10,7 +10,7 @@
 #include "CondFormats/Serialization/interface/Equal.h"
 #include "CondFormats/Serialization/interface/Test.h"
 
-#include "../src/headers.h"
+#include "CondFormats/RunInfo/src/headers.h"
 
 // The compiler knows our default-constructed objects' members
 // may not be initialized when we serialize them.

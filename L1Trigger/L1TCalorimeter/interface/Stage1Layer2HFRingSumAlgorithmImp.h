@@ -26,43 +26,42 @@ namespace l1t {
 
   class Stage1Layer2FlowAlgorithm : public Stage1Layer2HFRingSumAlgorithm {
   public:
-    Stage1Layer2FlowAlgorithm(CaloParamsHelper* params);
-    ~Stage1Layer2FlowAlgorithm() override;
+    Stage1Layer2FlowAlgorithm(CaloParamsHelper const* params);
+    ~Stage1Layer2FlowAlgorithm() override = default;
     void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::CaloEmCand> & EMCands,
 			      const std::vector<l1t::Tau> * taus,
 			      l1t::CaloSpare * spare) override;
 
   private:
-    CaloParamsHelper* params_;
     std::vector<double> cosPhi;
     std::vector<double> sinPhi;
   };
 
   class Stage1Layer2CentralityAlgorithm : public Stage1Layer2HFRingSumAlgorithm {
   public:
-    Stage1Layer2CentralityAlgorithm(CaloParamsHelper* params);
-    ~Stage1Layer2CentralityAlgorithm() override;
+    Stage1Layer2CentralityAlgorithm(CaloParamsHelper const* params);
+    ~Stage1Layer2CentralityAlgorithm() override = default;
     void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::CaloEmCand> & EMCands,
 			      const std::vector<l1t::Tau> * taus,
 			      l1t::CaloSpare * spare) override;
 
   private:
-    CaloParamsHelper *params_;
+    CaloParamsHelper const *params_;
   };
 
 
   class Stage1Layer2DiTauAlgorithm : public Stage1Layer2HFRingSumAlgorithm {
   public:
-    Stage1Layer2DiTauAlgorithm(CaloParamsHelper* params);
-    ~Stage1Layer2DiTauAlgorithm() override;
+    Stage1Layer2DiTauAlgorithm(CaloParamsHelper const* params);
+    ~Stage1Layer2DiTauAlgorithm() override = default;
     void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::CaloEmCand> & EMCands,
 			      const std::vector<l1t::Tau> * taus,
 			      l1t::CaloSpare * spare) override;
   private:
-    CaloParamsHelper* params_;
+    CaloParamsHelper const* params_;
   };
 }
 

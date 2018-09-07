@@ -3,29 +3,23 @@
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "G4StepPoint.hh"
-#include "G4TouchableHistory.hh"
+#include "G4Step.hh"
 
-//#define LOCAL_DEBUG
-
-MuonME0FrameRotation::MuonME0FrameRotation(const MuonDDDConstants& muonConstants) : MuonFrameRotation::MuonFrameRotation() {
+MuonME0FrameRotation::MuonME0FrameRotation(const MuonDDDConstants& muonConstants) 
+  : MuonFrameRotation::MuonFrameRotation() {
   g4numbering     = new MuonG4Numbering(muonConstants);
   int theLevelPart= muonConstants.getValue("level");
   theSectorLevel  = muonConstants.getValue("mg_sector")/theLevelPart;
-#ifdef LOCAL_DEBUG
-  std::cout << "MuonME0FrameRotation: theSectorLevel " << theSectorLevel 
-	    << std::endl;
-#endif
-  edm::LogVerbatim("MuonME0FrameRotation")<<"MuonME0FrameRotation: theSectorLevel " << theSectorLevel;
+  edm::LogVerbatim("MuonME0FrameRotation")
+    <<"MuonME0FrameRotation: theSectorLevel " << theSectorLevel;
 }
 
 MuonME0FrameRotation::~MuonME0FrameRotation() {
   delete g4numbering;
 }
 
-Local3DPoint MuonME0FrameRotation::transformPoint(const Local3DPoint & point,const G4Step * aStep=nullptr) const {
-  if (!aStep) return Local3DPoint(0.,0.,0.);  
-
-  edm::LogVerbatim("MuonME0FrameRotation")<<"MuonME0FrameRotation transformPoint :: Local3DPoint (" <<point.x()<<","<<point.z()<<","<<-point.y()<<")" ;
+Local3DPoint 
+MuonME0FrameRotation::transformPoint(const Local3DPoint& point,const G4Step *) const {
+  //---VI: sector level and g4numbering are not used
   return Local3DPoint(point.x(),point.z(),-point.y());
 }

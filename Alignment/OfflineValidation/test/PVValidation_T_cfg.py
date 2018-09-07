@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
  
@@ -62,10 +63,10 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(MAXEVENTSTEM
 # JSON Filtering
 ###################################################################
 if isMC:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is Simulation!"
+     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is Simulation!")
      runboundary = 1
 else:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is DATA!"
+     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is DATA!")
      import FWCore.PythonUtilities.LumiList as LumiList
      process.source.lumisToProcess = LumiList.LumiList(filename ='LUMILISTTEMPLATE').getVLuminosityBlockRange()
 
@@ -104,7 +105,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'GLOBALTAGTEMPLATE', '')
 
 if allFromGT:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: All is taken from GT"
+     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: All is taken from GT")
 else:
      ####################################################################
      # Get Alignment constants and APE
@@ -115,10 +116,10 @@ else:
      # Kinks and Bows (optional)
      ####################################################################
      if applyBows:
-          print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Applying TrackerSurfaceDeformations!"
+          print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Applying TrackerSurfaceDeformations!")
           process=customiseKinksAndBows(process)
      else:
-          print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: MultiPVValidation: Not applying TrackerSurfaceDeformations!"
+          print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: MultiPVValidation: Not applying TrackerSurfaceDeformations!")
 
      ####################################################################
      # Extra corrections not included in the GT
@@ -129,7 +130,7 @@ else:
           ##### END OF EXTRA CONDITIONS
  
      else:
-          print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Not applying extra calibration constants!"
+          print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Not applying extra calibration constants!")
      
 ####################################################################
 # Load and Configure event selection
@@ -210,7 +211,7 @@ process.TFileService = cms.Service("TFileService",
 # Deterministic annealing clustering
 ####################################################################
 if isDA:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running DA Algorithm!"
+     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running DA Algorithm!")
      process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
                                            TrackCollectionTag = cms.InputTag("FinalTrackRefitter"),
                                            VertexCollectionTag = cms.InputTag("VERTEXTYPETEMPLATE"),  
@@ -219,6 +220,7 @@ if isDA:
                                            useTracksFromRecoVtx = cms.bool(False),
                                            isLightNtuple = cms.bool(True),
                                            askFirstLayerHit = cms.bool(False),
+                                           forceBeamSpot = cms.untracked.bool(False),
                                            probePt = cms.untracked.double(PTCUTTEMPLATE),
                                            runControl = cms.untracked.bool(RUNCONTROLTEMPLATE),
                                            runControlNumber = cms.untracked.vuint32(int(runboundary)),
@@ -252,7 +254,7 @@ if isDA:
 # GAP clustering
 ####################################################################
 else:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running GAP Algorithm!"
+     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running GAP Algorithm!")
      process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
                                            TrackCollectionTag = cms.InputTag("FinalTrackRefitter"),
                                            VertexCollectionTag = cms.InputTag("VERTEXTYPETEMPLATE"), 
@@ -261,6 +263,7 @@ else:
                                            storeNtuple = cms.bool(False),
                                            useTracksFromRecoVtx = cms.bool(False),
                                            askFirstLayerHit = cms.bool(False),
+                                           forceBeamSpot = cms.untracked.bool(False),
                                            probePt = cms.untracked.double(PTCUTTEMPLATE),
                                            runControl = cms.untracked.bool(RUNCONTROLTEMPLATE),
                                            runControlNumber = cms.untracked.vuint32(int(runboundary)),

@@ -518,7 +518,7 @@ void SiStripMonitorDigi::createMEs(DQMStore::IBooker & ibooker , const edm::Even
                                        FEDDigi.getParameter<double>("xmax"),
                                        FEDDigi.getParameter<int32_t>("Nbinsy"),
                                        FEDDigi.getParameter<double>("ymin"),
-                                       FEDDigi.getParameter<double>("ymax"));
+                                       FEDDigi.getParameter<double>("ymax"),"");
       NumberOfFEDDigis->setAxisTitle("FED ID",1);
       NumberOfFEDDigis->setAxisTitle("Mean # of Digis in FED",2);
     }

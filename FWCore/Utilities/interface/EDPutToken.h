@@ -30,6 +30,9 @@ The templated form, EDPutTokenT<T>, is the same as EDPutToken except when used t
 namespace edm {
   class ProductRegistryHelper;
   template <typename T> class EDPutTokenT;
+  namespace test {
+    class TestProcessorConfig;
+  }
   
   class EDPutToken
   {
@@ -64,6 +67,7 @@ namespace edm {
   {
     friend class ProductRegistryHelper;
     friend class EDPutToken;
+    friend class edm::test::TestProcessorConfig;
 
   public:
     using value_type = EDPutToken::value_type;

@@ -1,8 +1,10 @@
+from __future__ import print_function
 import ROOT
 
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.analyzers.core.AutoFillTreeProducer  import NTupleVariable
+import six
 import PhysicsTools.HeppyCore.framework.config as cfg
         
 class TriggerBitAnalyzer( Analyzer ):
@@ -18,7 +20,7 @@ class TriggerBitAnalyzer( Analyzer ):
         self.checkL1prescale = getattr(self.cfg_ana,"checkL1prescale",False)
         self.force1prescale = False
         if self.cfg_comp.isMC and self.saveIsUnprescaled:
-            print 'Cannot save prescale information in MC: will put everything to unprescaled'
+            print('Cannot save prescale information in MC: will put everything to unprescaled')
             self.saveIsUnprescaled = False
             self.checkL1prescale = False
             self.force1prescale = True
@@ -41,7 +43,7 @@ class TriggerBitAnalyzer( Analyzer ):
             self.allPaths = set()
             self.triggerBitCheckersSingleBits = []
 
-        for T, TL in self.cfg_ana.triggerBits.iteritems():
+        for T, TL in six.iteritems(self.cfg_ana.triggerBits):
                 trigVec = ROOT.vector(ROOT.string)()
                 for TP in TL:
                     trigVec.push_back(TP)

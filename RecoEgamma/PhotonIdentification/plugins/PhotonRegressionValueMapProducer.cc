@@ -16,6 +16,9 @@
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 
+#include "RecoEgamma/EgammaTools/interface/Utils.h"
+#include "RecoEgamma/EgammaTools/interface/MultiToken.h"
+
 #include <memory>
 #include <vector>
 #include <unordered_map>
@@ -40,7 +43,7 @@ namespace {
   }
 
   template<typename T>
-  inline void check_map(const std::unordered_map<std::string,T>& map, unsigned exp_size) {
+  inline void check_map(const std::unordered_map<std::string,T>& map, unsigned int exp_size) {
     if( map.size() != exp_size ) {
       throw cms::Exception("PhotonRegressionWeirdConfig")
         << "variable map size: " << map.size() 
@@ -70,55 +73,23 @@ class PhotonRegressionValueMapProducer : public edm::stream::EDProducer<> {
   
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-  template<typename T>
-  void writeValueMap(edm::Event &iEvent,
-		     const edm::Handle<edm::View<reco::Photon> > & handle,
-		     const std::vector<T> & values,
-		     const std::string    & label) const ;
-  
-  // The object that will compute 5x5 quantities  
-  std::unique_ptr<EcalClusterLazyToolsBase> lazyTools;
-
-  // for AOD case
-  edm::EDGetTokenT<EcalRecHitCollection> ebReducedRecHitCollection_;
-  edm::EDGetTokenT<EcalRecHitCollection> eeReducedRecHitCollection_;
-  edm::EDGetTokenT<EcalRecHitCollection> esReducedRecHitCollection_;
-  edm::EDGetToken src_;
-
-  // for miniAOD case
-  edm::EDGetTokenT<EcalRecHitCollection> ebReducedRecHitCollectionMiniAOD_;
-  edm::EDGetTokenT<EcalRecHitCollection> eeReducedRecHitCollectionMiniAOD_;
-  edm::EDGetTokenT<EcalRecHitCollection> esReducedRecHitCollectionMiniAOD_;
-  edm::EDGetToken srcMiniAOD_;
-  
   const bool use_full5x5_;
+
+  // for AOD and MiniAOD case
+  MultiTokenT<edm::View<reco::Photon>> src_;
+  MultiTokenT<EcalRecHitCollection>    ebRecHits_;
+  MultiTokenT<EcalRecHitCollection>    eeRecHits_;
+  MultiTokenT<EcalRecHitCollection>    esRecHits_;
 };
 
-PhotonRegressionValueMapProducer::PhotonRegressionValueMapProducer(const edm::ParameterSet& iConfig) :
-  use_full5x5_(iConfig.getParameter<bool>("useFull5x5")) {
-
-  //
+PhotonRegressionValueMapProducer::PhotonRegressionValueMapProducer(const edm::ParameterSet& iConfig)
+  : use_full5x5_(iConfig.getParameter<bool>("useFull5x5"))
   // Declare consummables, handle both AOD and miniAOD case
-  //
-  ebReducedRecHitCollection_        = mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
-								       ("ebReducedRecHitCollection"));
-  ebReducedRecHitCollectionMiniAOD_ = mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
-								       ("ebReducedRecHitCollectionMiniAOD"));
-  
-  eeReducedRecHitCollection_        = mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
-								       ("eeReducedRecHitCollection"));
-  eeReducedRecHitCollectionMiniAOD_ = mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
-								       ("eeReducedRecHitCollectionMiniAOD"));
-  
-  esReducedRecHitCollection_        = mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
-								       ("esReducedRecHitCollection"));
-  esReducedRecHitCollectionMiniAOD_ = mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
-								       ("esReducedRecHitCollectionMiniAOD"));
-  
-  // reco photons are castable into pat photons, so no need to handle reco/pat seprately
-  src_        = mayConsume<edm::View<reco::Photon> >(iConfig.getParameter<edm::InputTag>("src"));
-  srcMiniAOD_ = mayConsume<edm::View<reco::Photon> >(iConfig.getParameter<edm::InputTag>("srcMiniAOD"));
-
+  , src_(            consumesCollector(), iConfig, "src", "srcMiniAOD")
+  , ebRecHits_(src_, consumesCollector(), iConfig, "ebReducedRecHitCollection", "ebReducedRecHitCollectionMiniAOD")
+  , eeRecHits_(src_, consumesCollector(), iConfig, "eeReducedRecHitCollection", "eeReducedRecHitCollectionMiniAOD")
+  , esRecHits_(src_, consumesCollector(), iConfig, "esReducedRecHitCollection", "esReducedRecHitCollectionMiniAOD")
+{
   //
   // Declare producibles
   //
@@ -137,48 +108,25 @@ PhotonRegressionValueMapProducer::~PhotonRegressionValueMapProducer()
 
 void PhotonRegressionValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-  using namespace edm;
+  // Get handle on photons
+  auto src = src_.getValidHandle(iEvent);
+  bool isAOD = src_.getGoodTokenIndex() == 0;
 
-  edm::Handle<edm::View<reco::Photon> > src;
-
-  bool isAOD = true; 
-  iEvent.getByToken(src_, src);
-  if(!src.isValid() ){
-    isAOD = false;
-    iEvent.getByToken(srcMiniAOD_, src);
-  }
+  // Configure lazy tools, which will compute 5x5 quantities  
+  edm::EDGetTokenT<EcalRecHitCollection> ebrh = ebRecHits_.get(iEvent);
+  edm::EDGetTokenT<EcalRecHitCollection> eerh = eeRecHits_.get(iEvent);
+  edm::EDGetTokenT<EcalRecHitCollection> esrh = esRecHits_.get(iEvent);
   
-  if( !src.isValid() ) {
-    throw cms::Exception("IllDefinedDataTier")
-      << "DataFormat does not contain a photon source!";
-  }
+  std::unique_ptr<EcalClusterLazyToolsBase> lazyTools;
+  if( use_full5x5_ ) lazyTools =
+      std::make_unique<noZS::EcalClusterLazyTools>( iEvent, iSetup, ebrh, eerh, esrh );
+  else lazyTools = std::make_unique<EcalClusterLazyTools>( iEvent, iSetup, ebrh, eerh, esrh );
 
-  // configure lazy tools
-  edm::EDGetTokenT<EcalRecHitCollection> ebrh, eerh, esrh;
-
-  if( isAOD ) {
-    ebrh = ebReducedRecHitCollection_;
-    eerh = eeReducedRecHitCollection_;
-    esrh = esReducedRecHitCollection_;
-  } else {
-    ebrh = ebReducedRecHitCollectionMiniAOD_;
-    eerh = eeReducedRecHitCollectionMiniAOD_;
-    esrh = esReducedRecHitCollectionMiniAOD_;
-  }
-  
-  if( use_full5x5_ ) {
-    lazyTools = std::make_unique<noZS::EcalClusterLazyTools>( iEvent, iSetup, 
-                                                              ebrh, eerh, esrh );
-  } else {
-    lazyTools = std::make_unique<EcalClusterLazyTools>( iEvent, iSetup, 
-                                                        ebrh, eerh, esrh );
-  }
-  
   if( !isAOD && !src->empty() ) {
     edm::Ptr<pat::Photon> test(src->ptrAt(0));
     if( test.isNull() || !test.isAvailable() ) {
       throw cms::Exception("InvalidConfiguration")
-	<<"DataFormat is detected as miniAOD but cannot cast to pat::Photon!";
+        <<"DataFormat is detected as miniAOD but cannot cast to pat::Photon!";
     }
   }
   
@@ -189,7 +137,7 @@ void PhotonRegressionValueMapProducer::produce(edm::Event& iEvent, const edm::Ev
   std::unordered_map<std::string,int> int_vars_map;
   
   // reco::Photon::superCluster() is virtual so we can exploit polymorphism
-  for (unsigned idxpho = 0; idxpho < src->size(); ++idxpho) {
+  for (unsigned int idxpho = 0; idxpho < src->size(); ++idxpho) {
     const auto& iPho = src->ptrAt(idxpho);
 
     //    
@@ -212,43 +160,26 @@ void PhotonRegressionValueMapProducer::produce(edm::Event& iEvent, const edm::Ev
     check_map(float_vars_map, k_NFloatVars);
     check_map(int_vars_map, k_NIntVars);
     
-    for( unsigned i = 0; i < float_vars.size(); ++i ) {
+    for( unsigned int i = 0; i < float_vars.size(); ++i ) {
       float_vars[i].emplace_back(float_vars_map.at(float_var_names[i]));
     }
 
     
-    for( unsigned i = 0; i < int_vars.size(); ++i ) {
+    for( unsigned int i = 0; i < int_vars.size(); ++i ) {
       int_vars[i].emplace_back(int_vars_map.at(integer_var_names[i]));
     }
     
   }
   
-  for( unsigned i = 0; i < float_vars.size(); ++i ) {
+  for( unsigned int i = 0; i < float_vars.size(); ++i ) {
     writeValueMap(iEvent, src, float_vars[i], float_var_names[i]);
   }  
   
-  for( unsigned i = 0; i < int_vars.size(); ++i ) {
+  for( unsigned int i = 0; i < int_vars.size(); ++i ) {
     writeValueMap(iEvent, src, int_vars[i], integer_var_names[i]);
   }
   
   lazyTools.reset(nullptr);
-}
-
-template<typename T>
-void PhotonRegressionValueMapProducer::writeValueMap(edm::Event &iEvent,
-					     const edm::Handle<edm::View<reco::Photon> > & handle,
-					     const std::vector<T> & values,
-					     const std::string    & label) const 
-{
-  using namespace edm; 
-  using namespace std;
-  typedef ValueMap<T> TValueMap;
-  
-  auto valMap = std::make_unique<TValueMap>();
-  typename TValueMap::Filler filler(*valMap);
-  filler.insert(handle, values.begin(), values.end());
-  filler.fill();
-  iEvent.put(std::move(valMap), label);
 }
 
 void PhotonRegressionValueMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

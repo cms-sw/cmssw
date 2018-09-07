@@ -58,14 +58,16 @@ namespace pos{
     //---------------------------------------------------------------------------------
     static std::string getTime(void) 
     {
-      char theDate[20] ;
+      constexpr size_t kBufferLength = 72;
+      char theDate[kBufferLength] ;
       struct tm *thisTime;
       time_t aclock;
       std::string date ;
       time( &aclock );		  
       thisTime = localtime( &aclock ); 
        
-      sprintf(theDate,
+      snprintf(theDate,
+               kBufferLength,
 	      "%d-%02d-%02d %02d:%02d:%02d", thisTime->tm_year+1900,
 	      thisTime->tm_mon+1,
 	      thisTime->tm_mday,
@@ -90,11 +92,13 @@ namespace pos{
     //---------------------------------------------------------------------------------
     static std::string getmSecTime(void) 
     {
-      char theDate[20] ;
+      constexpr size_t kBufferSize = 20;
+      char theDate[kBufferSize] ;
       struct timeval msecTime;
       gettimeofday(&msecTime, (struct timezone *)nullptr) ;
       
-      sprintf(theDate,
+      snprintf(theDate,
+               kBufferSize,
 	      "%d-%d", 
 	      (unsigned int)msecTime.tv_sec,
 	      (unsigned int)msecTime.tv_usec ); 

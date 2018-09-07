@@ -40,14 +40,14 @@ namespace sistrip {
   
   private:
 
-    std::string inputModuleLabel_;
-    std::string inputDigiLabel_;
     //CAMM can we do without this bool based on the mode ?
     bool copyBufferHeader_;
     FEDReadoutMode mode_;
+    uint8_t packetCode_;
     bool rawdigi_;
     DigiToRaw* digiToRaw_;
     uint32_t eventCounter_;
+    edm::InputTag inputDigiTag_;
     edm::EDGetTokenT< edm::DetSetVector<SiStripRawDigi> > tokenRawDigi;
     edm::EDGetTokenT< edm::DetSetVector<SiStripDigi> > tokenDigi;
     edm::InputTag rawDataTag_;

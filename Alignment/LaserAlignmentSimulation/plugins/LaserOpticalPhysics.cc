@@ -22,11 +22,8 @@
 #include "G4HadronicProcessStore.hh"
 #include "G4DataQuestionaire.hh"
 
-LaserOpticalPhysics::LaserOpticalPhysics(G4LogicalVolumeToDDLogicalPartMap& map,
-					 const HepPDT::ParticleDataTable * table_,
-					 sim::ChordFinderSetter *chordFinderSetter_,
-					 const edm::ParameterSet & p) 
-: PhysicsList(map, table_, chordFinderSetter_, p)
+LaserOpticalPhysics::LaserOpticalPhysics(const edm::ParameterSet & p) 
+: PhysicsList(p)
 {
   int  ver     = p.getUntrackedParameter<int>("Verbosity",0);
   G4DataQuestionaire it(photon);

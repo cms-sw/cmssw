@@ -18,7 +18,7 @@ class SimpleDraggableTreeWidget(QTreeWidget):
         #lightBlueBackgroundColor = QColor(Qt.red)
         self.palette().setColor(QPalette.Base, lightBlueBackgroundColor)       # OS X
         self.palette().setColor(QPalette.Window, lightBlueBackgroundColor)
-        
+
         self.setColumnCount(1)
         self.setHeaderLabels([headerLabel])
         if dragEnabled:
@@ -34,44 +34,44 @@ class SimpleDraggableTreeWidget(QTreeWidget):
         """
         QTreeWidget.setDragEnabled(dragEnabled)
         self.setMimeType(mimeType)
-        
+
     def mimeType(self):
         """ Returns mime type which will be used to encode list entries while dragging.
         """
         return self._mimeType
-    
+
     def setMimeType(self, mimeType):
         """ Sets mime type of this widget to type if type is not None.
-        
+
         If type is None the default mime type MIME_TYPE will be used.
         """
         if mimeType:
             self._mimeType = mimeType
         else:
             self._mimeType = self.MIME_TYPE
-        
+
     def mimeTypes(self):
         """ Returns self.mimeType() as single element of QStringList.
         """
         list = QStringList()
         list << self.mimeType()
         return list
-    
+
     def mimeData(self, items):
         """ Returns QMimeData for drag and drop.
         """
         logging.debug(self.__class__.__name__ + ": mimeData()")
         mime = QMimeData()
         encodedData = QByteArray()
-        
+
         for item in items:
             encodedData.append(item.text(0))
         mime.setData(self.mimeType(), encodedData)
         return mime
-    
+
     def startDrag(self, supportedActions):
         """ Overwritten function of QTreeWidget.
-        
+
         This function creates a QDrag object representing the selected element of this TreeWidget.
         """
         logging.debug(self.__class__.__name__ +": startDrag()")
@@ -83,7 +83,7 @@ class SimpleDraggableTreeWidget(QTreeWidget):
             drag = QDrag(self)
             drag.setMimeData(data)
             if self.model().data(indexes[0], Qt.DecorationRole).type() == QVariant.Icon:
-            	icon = QIcon(self.model().data(indexes[0], Qt.DecorationRole))
+                icon = QIcon(self.model().data(indexes[0], Qt.DecorationRole))
                 drag.setPixmap(icon.pixmap(QSize(50, 50)))
                 drag.setHotSpot(QPoint(drag.pixmap().width()/2, drag.pixmap().height()/2))  # center icon in respect to cursor
             defaultDropAction = Qt.IgnoreAction
@@ -93,4 +93,4 @@ class SimpleDraggableTreeWidget(QTreeWidget):
         QTreeWidget.mousePressEvent(self,event)
         if event.button()==Qt.RightButton:
             self.emit(SIGNAL("mouseRightPressed"), event.globalPos())
-    
+

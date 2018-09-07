@@ -17,8 +17,7 @@ def readPicFiles(directory, toSplit = False):
 
     ruleResult = {}
     rulesResults = {}
-    picFiles = glob.glob(join(directory, "cmsCodeRule*.dat"))
-    picFiles.sort()
+    picFiles = sorted(glob.glob(join(directory, "cmsCodeRule*.dat")))
 
     for file in picFiles:
         head, fileName = split(file)
@@ -42,8 +41,7 @@ def splitToPackages(ruleResult):
 
     if not ruleResult: return info
 
-    ruleResult = ruleResult.items()
-    ruleResult.sort()
+    ruleResult = sorted(ruleResult.items())
     file, lines = ruleResult.pop(0)
     pathList = pathToList(file)
     package = slash.join(pathList[:2])

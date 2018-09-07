@@ -63,7 +63,9 @@ class DigiTask : public hcaldqm::DQTask
 			fUni = 1,
 			fNChsHF = 2,
 			fUnknownIds = 3,
-			nDigiFlag = 4
+			fLED=4,
+			fCapId=5,
+			nDigiFlag=6
 		};
 
 		//	hashes/FED vectors
@@ -159,12 +161,14 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::ContainerXXX<uint32_t> _xUniHF,_xUni; // online only
 		hcaldqm::ContainerXXX<uint32_t> _xNChs; // online only
 		hcaldqm::ContainerXXX<uint32_t> _xNChsNominal; // online only
+		hcaldqm::ContainerXXX<uint32_t> _xBadCapid; // online only
 
 		// QIE10 TDC histograms
 		hcaldqm::Container2D _cLETDCTimevsADC_SubdetPM;
 		hcaldqm::Container2D _cLETDCvsADC_SubdetPM;
 		hcaldqm::Container2D _cLETDCvsTS_SubdetPM;
 		hcaldqm::Container1D _cLETDCTime_SubdetPM;
+		hcaldqm::ContainerProf2D _cLETDCTime_depth;
 
 		// Bad TDC histograms
 		hcaldqm::Container1D _cBadTDCValues_SubdetPM;
@@ -176,15 +180,28 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::Container1D _cBadTDCvsBX;
 		hcaldqm::Container1D _cBadTDCvsLS;
 
+		// (Capid - BX) % 4		
+		hcaldqm::Container1D _cCapidMinusBXmod4_SubdetPM;
+		hcaldqm::ContainerSingle2D _cCapidMinusBXmod4_CrateSlotuTCA[4]; // CrateSlot 2D histograms for each (capid-BX)%4
+		hcaldqm::ContainerSingle2D _cCapidMinusBXmod4_CrateSlotVME[4]; // CrateSlot 2D histograms for each (capid-BX)%4
+
+		// For monitoring LED misfires: ADC vs BX
+		MonitorElement* _meLEDMon;
+
 		//	#events counters
 		MonitorElement *meNumEvents1LS; // to transfer the #events to harvesting
 		MonitorElement *meUnknownIds1LS;
 		bool _unknownIdsPresent;
+		MonitorElement *_meLEDEventCount; // Count events with LED pin diode signal > threshold
+		double _thresh_led;
+		bool _ledSignalPresent;
 
 		hcaldqm::Container2D _cSummaryvsLS_FED; // online only
 		hcaldqm::ContainerSingle2D _cSummaryvsLS; // online only
 
 		bool _qie10InConditions; // Flag to protect against QIE10 digis not in conditions in 2016.
+
+		std::map<HcalSubdetector, short> _capidmbx; // Expected (capid - BX) % 4 for each subdet
 };
 
 #endif

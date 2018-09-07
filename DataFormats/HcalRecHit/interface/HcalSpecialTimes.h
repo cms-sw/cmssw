@@ -51,12 +51,12 @@ namespace HcalSpecialTimes
     constexpr float UNKNOWN_T_50TO57 = -130.f;
 
     // Check if the given time represents one of the special values
-    inline bool isSpecial(const float t)
+    constexpr inline bool isSpecial(const float t)
     {
         return t <= UNKNOWN_T_UNDERSHOOT;
     }
 
-    inline float getTDCTime(const int tdc)
+    constexpr inline float getTDCTime(const int tdc)
     {
         constexpr float tdc_to_ns = 0.5f;
 

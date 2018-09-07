@@ -62,7 +62,7 @@ DDRotation
 DDTBH4Algo::myrot( const std::string&      s,
 		   const CLHEP::HepRotation& r ) const 
 {
-   return DDrot( ddname( idNameSpace() + ":" + s ), new DDRotationMatrix( r.xx(), r.xy(), r.xz(), r.yx(), r.yy(), r.yz(), r.zx(), r.zy(), r.zz() ) ) ; 
+  return DDrot( ddname( idNameSpace() + ":" + s ), std::make_unique<DDRotationMatrix>( r.xx(), r.xy(), r.xz(), r.yx(), r.yy(), r.yz(), r.zx(), r.zy(), r.zz() ) ) ; 
 }
 
  

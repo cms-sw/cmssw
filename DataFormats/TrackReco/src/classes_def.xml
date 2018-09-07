@@ -40,7 +40,7 @@
             const unsigned short PatternSize = 25;
             const int MaxHits = (PatternSize * sizeof(uint32_t) * 8) / HitSize;
 
-            auto getHitFromOldHitPattern = [HitSize](const uint32_t hitPattern[], const int position) {
+            auto getHitFromOldHitPattern = [](const uint32_t hitPattern[], const int position) {
                 uint16_t bitEndOffset = (position + 1) * HitSize;
                 uint8_t secondWord   = (bitEndOffset >> 5);
                 uint8_t secondWordBits = bitEndOffset & (32 - 1); // that is, bitEndOffset % 32

@@ -1,4 +1,4 @@
-#include "../interface/EnergyScaleCorrection_class.h"
+#include "EgammaAnalysis/ElectronTools/interface/EnergyScaleCorrection_class.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <RooDataSet.h>
 #include <RooArgSet.h>

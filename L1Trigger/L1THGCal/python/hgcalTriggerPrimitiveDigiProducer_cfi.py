@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
 import RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi as recoparam
-import RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi as recocalibparam 
+import RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi as recocalibparam
 import hgcalLayersCalibrationCoefficients_cfi as layercalibparam
+import math
 
 # Digitization parameters
 adcSaturation_fC = digiparam.hgceeDigitizer.digiCfg.feCfg.adcSaturation_fC
@@ -62,20 +63,25 @@ C2d_parValues = cms.PSet( seeding_threshold_silicon = cms.double(5), # MipT
                           clustering_threshold_silicon = cms.double(2), # MipT
                           clustering_threshold_scintillator = cms.double(2), # MipT
                           dR_cluster=cms.double(6.),
-                          clusterType = cms.string('dRNNC2d'), 
+                          clusterType = cms.string('dRNNC2d'),
                           applyLayerCalibration = cms.bool(True),
                           layerWeights = layercalibparam.TrgLayer_weights,
                           # Parameters not used by this clustering
                           calibSF_cluster=cms.double(0.)
                           )
 
+
+from L1Trigger.L1THGCal.egammaIdentification import egamma_identification_drnn_cone
 C3d_parValues = cms.PSet( dR_multicluster = cms.double(0.01), # dR in normalized plane used to clusterize C2d
                           minPt_multicluster = cms.double(0.5), # minimum pt of the multicluster (GeV)
                           type_multicluster = cms.string('dRC3d'),
                           # Parameters not used by this clustering
                           dist_dbscan_multicluster=cms.double(0.),
-                          minN_dbscan_multicluster=cms.uint32(0)
+                          minN_dbscan_multicluster=cms.uint32(0),
+                          EGIdentification=egamma_identification_drnn_cone.clone()
 )
+
+
 
 cluster_algo =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoThreshold'),
                           FECodec = fe_codec.clone(),
@@ -86,13 +92,37 @@ cluster_algo =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoThreshold'),
                           C3d_parameters = C3d_parValues.clone()
                           )
 
-towerMap2D_parValues = cms.PSet( nEtaBins = cms.int32(18),
-                                 nPhiBins = cms.int32(72),
-                                 etaBins = cms.vdouble(),
-                                 phiBins = cms.vdouble(),
-                                 useLayerWeights = cms.bool(False),
-                                 layerWeights = cms.vdouble()
+L1TTriggerTowerConfig_etaphi = cms.PSet(readMappingFile=cms.bool(False),
+                                        minEta=cms.double(1.479),
+                                        maxEta=cms.double(3.0),
+                                        minPhi=cms.double(-1*math.pi),
+                                        maxPhi=cms.double(math.pi),
+                                        nBinsEta=cms.int32(18),
+                                        nBinsPhi=cms.int32(72),
+                                        binsEta=cms.vdouble(),
+                                        binsPhi=cms.vdouble())
+
+
+L1TTriggerTowerConfig_hgcroc_etaphi = cms.PSet(readMappingFile=cms.bool(True),
+                                               L1TTriggerTowerMapping=cms.FileInPath("L1Trigger/L1THGCal/data/tower_mapping_hgcroc_eta-phi_v0.txt"),
+                                               minEta=cms.double(1.41),
+                                               maxEta=cms.double(3.1),
+                                               minPhi=cms.double(-1*math.pi),
+                                               maxPhi=cms.double(math.pi),
+                                               nBinsEta=cms.int32(18),
+                                               nBinsPhi=cms.int32(72),
+                                               binsEta=cms.vdouble(),
+                                               binsPhi=cms.vdouble())
+
+
+
+towerMap2D_parValues = cms.PSet( useLayerWeights = cms.bool(False),
+                                 layerWeights = cms.vdouble(),
+                                 L1TTriggerTowerConfig = L1TTriggerTowerConfig_etaphi
                                  )
+
+
+
 
 tower_algo =  cms.PSet( AlgorithmName = cms.string('HGCTowerAlgoThreshold'),
                         FECodec = fe_codec.clone(),
@@ -102,11 +132,11 @@ tower_algo =  cms.PSet( AlgorithmName = cms.string('HGCTowerAlgoThreshold'),
 
 hgcalTriggerPrimitiveDigiProducer = cms.EDProducer(
     "HGCalTriggerDigiProducer",
-    eeDigis = cms.InputTag('mix:HGCDigisEE'),
-    fhDigis = cms.InputTag('mix:HGCDigisHEfront'),
-    bhDigis = cms.InputTag('mix:HGCDigisHEback'),
+    eeDigis = cms.InputTag('simHGCalUnsuppressedDigis:EE'),
+    fhDigis = cms.InputTag('simHGCalUnsuppressedDigis:HEfront'),
+    bhDigis = cms.InputTag('simHGCalUnsuppressedDigis:HEback'),
     FECodec = fe_codec.clone(),
-    BEConfiguration = cms.PSet( 
+    BEConfiguration = cms.PSet(
         algorithms = cms.VPSet( cluster_algo,
                                 tower_algo )
         )
@@ -116,7 +146,7 @@ hgcalTriggerPrimitiveDigiFEReproducer = cms.EDProducer(
     "HGCalTriggerDigiFEReproducer",
     feDigis = cms.InputTag('hgcalTriggerPrimitiveDigiProducer'),
     FECodec = fe_codec.clone(),
-    BEConfiguration = cms.PSet( 
+    BEConfiguration = cms.PSet(
         algorithms = cms.VPSet( cluster_algo,
                                 tower_algo)
         )

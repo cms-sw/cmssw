@@ -1,3 +1,4 @@
+from __future__ import print_function
 __author__ = 'Giacomo Govi'
 
 import sqlalchemy
@@ -85,13 +86,13 @@ def print_table( headers, table ):
             if ind<len(ws):
                 line += (fmt.format( row[ind] )+' ') 
             ind += 1
-        print line
+        print(line)
     printf( headers )
     hsep = ''
     for w in ws:
         fmt = '{:-<%s}' %w
         hsep += (fmt.format('')+' ')
-    print hsep
+    print(hsep)
     for row in table:
         printf( row )
 
@@ -284,10 +285,10 @@ class O2OJobMgr(O2OMgr):
             configs.append((str(r[0]),r[1]))
         ind = len(configs)
         if ind:
-            print "Configurations for job '%s'" %jname
+            print("Configurations for job '%s'" %jname)
             for cf in reversed(configs):
-                print '#%2d  since: %s' %(ind,cf[1])
-                print cf[0]
+                print('#%2d  since: %s' %(ind,cf[1]))
+                print(cf[0])
                 ind -= 1
         else:
             O2OMgr.logger( self ).info("No configuration found for job '%s'" %jname )
@@ -309,10 +310,10 @@ class O2OJobMgr(O2OMgr):
         if versionIndex>ind or versionIndex==0:
             O2OMgr.logger( self ).error("Configuration for job %s with index %s has not been found." %(jname,versionIndex))
             return
-        print "Configuration #%2d for job '%s'" %(versionIndex,jname)
+        print("Configuration #%2d for job '%s'" %(versionIndex,jname))
         config = configs[versionIndex-1]
-        print '#%2d  since %s' %(versionIndex,config[1])
-        print config[0]
+        print('#%2d  since %s' %(versionIndex,config[1]))
+        print(config[0])
         if configFile is None or configFile == '':
             configFile = '%s_%s.json' %(jname,versionIndex)
         with open(configFile,'w') as json_file:

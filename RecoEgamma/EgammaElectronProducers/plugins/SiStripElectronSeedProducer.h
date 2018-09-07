@@ -2,7 +2,7 @@
 #define SiStripElectronSeedProducer_h
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -12,7 +12,7 @@
 
 class SiStripElectronSeedGenerator;
 
-class SiStripElectronSeedProducer : public edm::EDProducer
+class SiStripElectronSeedProducer : public edm::stream::EDProducer<>
 {
  public:
 

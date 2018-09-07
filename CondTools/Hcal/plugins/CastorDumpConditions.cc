@@ -56,7 +56,10 @@ class CastorDumpConditions : public edm::EDAnalyzer {
       explicit CastorDumpConditions(const edm::ParameterSet&);
       ~CastorDumpConditions() override;
 
-       template<class S, class SRcd> void dumpIt(S* myS, SRcd* mySRcd, const edm::Event& e, const edm::EventSetup& context, std::string name);
+       template<class S, class SRcd> void dumpIt(const std::vector<std::string>& mDumpRequest,
+                                                 const edm::Event& e,
+                                                 const edm::EventSetup& context,
+                                                 const std::string name);
 
    private:
       std::string file_prefix;
@@ -130,45 +133,16 @@ CastorDumpConditions::analyze(const edm::Event& iEvent, const edm::EventSetup& i
    for(std::vector<std::string>::const_iterator it=mDumpRequest.begin();it!=mDumpRequest.end();it++)
       std::cout << *it << std::endl;
 
-    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ElectronicsMap")) != mDumpRequest.end())
-      dumpIt(new CastorElectronicsMap(), new CastorElectronicsMapRcd(), iEvent,iSetup,"ElectronicsMap");
-
-    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("QIEData")) != mDumpRequest.end())
-      dumpIt(new CastorQIEData(), new CastorQIEDataRcd(), iEvent,iSetup,"QIEData"); 
-
-    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("Pedestals")) != mDumpRequest.end()) 
-      dumpIt(new CastorPedestals(), new CastorPedestalsRcd(), iEvent,iSetup,"Pedestals");
-
-    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("PedestalWidths")) != mDumpRequest.end())
-      dumpIt(new CastorPedestalWidths(), new CastorPedestalWidthsRcd(), iEvent,iSetup,"PedestalWidths");
-
-    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("Gains")) != mDumpRequest.end())
-      dumpIt(new CastorGains(), new CastorGainsRcd(), iEvent,iSetup,"Gains");
-
-    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("GainWidths")) != mDumpRequest.end())
-      dumpIt(new CastorGainWidths(), new CastorGainWidthsRcd(), iEvent,iSetup,"GainWidths");
-
-    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ChannelQuality")) != mDumpRequest.end())
-      dumpIt(new CastorChannelQuality(), new CastorChannelQualityRcd(), iEvent,iSetup,"ChannelQuality");
-
-    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("RecoParams")) != mDumpRequest.end())
-      dumpIt(new CastorRecoParams(), new CastorRecoParamsRcd(), iEvent,iSetup,"RecoParams");
-      
-    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("SaturationCorrs")) != mDumpRequest.end())
-      dumpIt(new CastorSaturationCorrs(), new CastorSaturationCorrsRcd(), iEvent,iSetup,"SaturationCorrs");
-
-/*
-   ESHandle<CastorPedestals> p;
-   iSetup.get<CastorPedestalsRcd>().get(p);
-   CastorPedestals* mypeds = new CastorPedestals(*p.product());
-   std::ostringstream file;
-   std::string name = "CastorPedestal";
-   file << file_prefix << name.c_str() << "_Run" << iEvent.id().run()<< ".txt";
-   std::ofstream outStream(file.str().c_str() );
-   std::cout << "CastorDumpConditions: ---- Dumping " << name.c_str() << " ----" << std::endl;
-   CastorDbASCIIIO::dumpObject (outStream, (*mypeds) );
-
-*/   
+   // dumpIt called for all possible ValueMaps. The function checks if the dump is actually requested.
+   dumpIt<CastorElectronicsMap , CastorElectronicsMapRcd> (mDumpRequest, iEvent,iSetup,"ElectronicsMap" );
+   dumpIt<CastorQIEData        , CastorQIEDataRcd>        (mDumpRequest, iEvent,iSetup,"ElectronicsMap" );
+   dumpIt<CastorPedestals      , CastorPedestalsRcd>      (mDumpRequest, iEvent,iSetup,"Pedestals"      );
+   dumpIt<CastorPedestalWidths , CastorPedestalWidthsRcd> (mDumpRequest, iEvent,iSetup,"PedestalWidths" );
+   dumpIt<CastorGains          , CastorGainsRcd>          (mDumpRequest, iEvent,iSetup,"Gains"          );
+   dumpIt<CastorGainWidths     , CastorGainWidthsRcd>     (mDumpRequest, iEvent,iSetup,"GainWidths"     );
+   dumpIt<CastorChannelQuality , CastorChannelQualityRcd> (mDumpRequest, iEvent,iSetup,"ChannelQuality" );
+   dumpIt<CastorRecoParams     , CastorRecoParamsRcd>     (mDumpRequest, iEvent,iSetup,"RecoParams"     );
+   dumpIt<CastorSaturationCorrs, CastorSaturationCorrsRcd>(mDumpRequest, iEvent,iSetup,"SaturationCorrs");
 }
 
 
@@ -184,17 +158,23 @@ CastorDumpConditions::endJob() {
 }
 
 template<class S, class SRcd>
-  void CastorDumpConditions::dumpIt(S* myS, SRcd* mySRcd, const edm::Event& e, const edm::EventSetup& context, std::string name) {
-    int myrun = e.id().run();
-    edm::ESHandle<S> p;
-    context.get<SRcd>().get(p);
-    S* myobject = new S(*p.product());
+void CastorDumpConditions::dumpIt(const std::vector<std::string>& mDumpRequest,
+                                  const edm::Event& e,
+                                  const edm::EventSetup& context,
+                                  const std::string name) {
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), name) != mDumpRequest.end())
+    {
+        int myrun = e.id().run();
+        edm::ESHandle<S> p;
+        context.get<SRcd>().get(p);
+        S myobject(*p.product());
 
-    std::ostringstream file;
-    file << file_prefix << name.c_str() << "_Run" << myrun << ".txt";
-    std::ofstream outStream(file.str().c_str() );
-    CastorDbASCIIIO::dumpObject (outStream, (*myobject) );
-  }
+        std::ostringstream file;
+        file << file_prefix << name.c_str() << "_Run" << myrun << ".txt";
+        std::ofstream outStream(file.str().c_str() );
+        CastorDbASCIIIO::dumpObject (outStream, myobject );
+    }
+}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(CastorDumpConditions);

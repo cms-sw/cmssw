@@ -1,3 +1,4 @@
+from __future__ import print_function
 # cfg file to test L1 GT records
 #
 # V M Ghete  2008 - 2010 - 2012
@@ -90,37 +91,37 @@ process.pathL1GtPrescaleFactorsAndMasks = cms.Path(process.seqL1GtPrescaleFactor
 # Schedule definition
 process.schedule = cms.Schedule()
 
-print ''
+print('')
 
 if printStableParameters == True :
     process.schedule.extend([process.pathL1GtStableParameters])
-    print "Printing L1 GT stable parameters from global tag ", useGlobalTag
+    print("Printing L1 GT stable parameters from global tag ", useGlobalTag)
 else :
-    print "L1 GT stable parameters from ", useGlobalTag, " not requested to be printed"
+    print("L1 GT stable parameters from ", useGlobalTag, " not requested to be printed")
 
 if printParameters == True :
     process.schedule.extend([process.pathL1GtParameters])
-    print "Printing L1 GT parameters from global tag ", useGlobalTag
+    print("Printing L1 GT parameters from global tag ", useGlobalTag)
 else :
-    print "L1 GT parameters from ", useGlobalTag, " not requested to be printed"
+    print("L1 GT parameters from ", useGlobalTag, " not requested to be printed")
 
 if printBoardMaps == True :
     process.schedule.extend([process.pathL1GtBoardMaps])
-    print "Printing L1 GT board maps from global tag ", useGlobalTag
+    print("Printing L1 GT board maps from global tag ", useGlobalTag)
 else :
-    print "L1 GT board maps from ", useGlobalTag, " not requested to be printed"
+    print("L1 GT board maps from ", useGlobalTag, " not requested to be printed")
 
 if printPsbSetup == True :
     process.schedule.extend([process.pathL1GtPsbSetup])
-    print "Printing L1 GT PSB setup from global tag ", useGlobalTag
+    print("Printing L1 GT PSB setup from global tag ", useGlobalTag)
 else :
-    print "L1 GT PSB setup from ", useGlobalTag, " not requested to be printed"
+    print("L1 GT PSB setup from ", useGlobalTag, " not requested to be printed")
 
 if printPrescaleFactorsAndMasks == True :
     process.schedule.extend([process.pathL1GtPrescaleFactorsAndMasks])
-    print "Printing L1 GT prescale factors and masks from global tag ", useGlobalTag
+    print("Printing L1 GT prescale factors and masks from global tag ", useGlobalTag)
 else :
-    print "L1 GT prescale factors and masks from ", useGlobalTag, " not requested to be printed"
+    print("L1 GT prescale factors and masks from ", useGlobalTag, " not requested to be printed")
     
 
 

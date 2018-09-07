@@ -75,9 +75,6 @@ void ESDataCertificationTask::beginLuminosityBlock(const edm::LuminosityBlock& l
 
 }
 
-void ESDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup) {
-
-}
 
 void ESDataCertificationTask::reset(void) {
 

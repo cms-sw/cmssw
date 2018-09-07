@@ -1,4 +1,4 @@
-<top>   
+<top>
   <arm id="0">  <!-- 45 -->
     <station id="2">        <!-- 220 m -->
       <rp_detector_set id="0">       <!-- Near Top -->
@@ -57,7 +57,7 @@
           <timing_channel id="9" hwId="0x2D"/>
           <timing_channel id="10" hwId="0x2E"/>
           <timing_channel id="11" hwId="0x2F"/>
-        </timing_plane>     
+        </timing_plane>
         <rp_sampic_board id="0">
           <rp_sampic_channel       id="0"        FEDId="587"     GOHId="0"       IdxInFiber="0"/>
           <rp_sampic_channel       id="1"        FEDId="587"     GOHId="0"       IdxInFiber="1"/>
@@ -73,7 +73,7 @@
           <rp_sampic_channel       id="11"       FEDId="587"     GOHId="0"       IdxInFiber="11"/>
           <rp_sampic_channel       id="12"       FEDId="587"     GOHId="0"       IdxInFiber="12"/>
           <rp_sampic_channel       id="13"       FEDId="587"     GOHId="0"       IdxInFiber="13"/>
-          <rp_sampic_channel       id="14"       FEDId="587"     GOHId="0"       IdxInFiber="14"/>          
+          <rp_sampic_channel       id="14"       FEDId="587"     GOHId="0"       IdxInFiber="14"/>
         </rp_sampic_board>
         <rp_sampic_board id="1">
           <rp_sampic_channel       id="0"        FEDId="587"     GOHId="1"       IdxInFiber="0"/>
@@ -90,7 +90,7 @@
           <rp_sampic_channel       id="11"       FEDId="587"     GOHId="1"       IdxInFiber="11"/>
           <rp_sampic_channel       id="12"       FEDId="587"     GOHId="1"       IdxInFiber="12"/>
           <rp_sampic_channel       id="13"       FEDId="587"     GOHId="1"       IdxInFiber="13"/>
-          <rp_sampic_channel       id="14"       FEDId="587"     GOHId="1"       IdxInFiber="14"/>          
+          <rp_sampic_channel       id="14"       FEDId="587"     GOHId="1"       IdxInFiber="14"/>
         </rp_sampic_board>
         <rp_sampic_board id="2">
           <rp_sampic_channel       id="0"        FEDId="587"     GOHId="2"       IdxInFiber="0"/>
@@ -107,7 +107,7 @@
           <rp_sampic_channel       id="11"       FEDId="587"     GOHId="2"       IdxInFiber="11"/>
           <rp_sampic_channel       id="12"       FEDId="587"     GOHId="2"       IdxInFiber="12"/>
           <rp_sampic_channel       id="13"       FEDId="587"     GOHId="2"       IdxInFiber="13"/>
-          <rp_sampic_channel       id="14"       FEDId="587"     GOHId="2"       IdxInFiber="14"/> 
+          <rp_sampic_channel       id="14"       FEDId="587"     GOHId="2"       IdxInFiber="14"/>
         </rp_sampic_board>
       </rp_detector_set>
     </station>
@@ -184,7 +184,7 @@
           <rp_sampic_channel       id="11"       FEDId="587"     GOHId="3"       IdxInFiber="11"/>
           <rp_sampic_channel       id="12"       FEDId="587"     GOHId="3"       IdxInFiber="12"/>
           <rp_sampic_channel       id="13"       FEDId="587"     GOHId="3"       IdxInFiber="13"/>
-          <rp_sampic_channel       id="14"       FEDId="587"     GOHId="3"       IdxInFiber="14"/>          
+          <rp_sampic_channel       id="14"       FEDId="587"     GOHId="3"       IdxInFiber="14"/>
         </rp_sampic_board>
         <rp_sampic_board id="4">
           <rp_sampic_channel       id="0"        FEDId="587"     GOHId="4"       IdxInFiber="0"/>
@@ -201,7 +201,7 @@
           <rp_sampic_channel       id="11"       FEDId="587"     GOHId="4"       IdxInFiber="11"/>
           <rp_sampic_channel       id="12"       FEDId="587"     GOHId="4"       IdxInFiber="12"/>
           <rp_sampic_channel       id="13"       FEDId="587"     GOHId="4"       IdxInFiber="13"/>
-          <rp_sampic_channel       id="14"       FEDId="587"     GOHId="4"       IdxInFiber="14"/>          
+          <rp_sampic_channel       id="14"       FEDId="587"     GOHId="4"       IdxInFiber="14"/>
         </rp_sampic_board>
         <rp_sampic_board id="5">
           <rp_sampic_channel       id="0"        FEDId="587"     GOHId="5"       IdxInFiber="0"/>
@@ -218,7 +218,7 @@
           <rp_sampic_channel       id="11"       FEDId="587"     GOHId="5"       IdxInFiber="11"/>
           <rp_sampic_channel       id="12"       FEDId="587"     GOHId="5"       IdxInFiber="12"/>
           <rp_sampic_channel       id="13"       FEDId="587"     GOHId="5"       IdxInFiber="13"/>
-          <rp_sampic_channel       id="14"       FEDId="587"     GOHId="5"       IdxInFiber="14"/>          
+          <rp_sampic_channel       id="14"       FEDId="587"     GOHId="5"       IdxInFiber="14"/>
         </rp_sampic_board>
       </rp_detector_set>
     </station>
@@ -281,7 +281,7 @@
           <timing_channel id="9" hwId="0x8D"/>
           <timing_channel id="10" hwId="0x8E"/>
           <timing_channel id="11" hwId="0x8F"/>
-        </timing_plane>     
+        </timing_plane>
         <rp_sampic_board id="0">
           <rp_sampic_channel       id="0"        FEDId="586"     GOHId="0"       IdxInFiber="0"/>
           <rp_sampic_channel       id="1"        FEDId="586"     GOHId="0"       IdxInFiber="1"/>
@@ -297,7 +297,7 @@
           <rp_sampic_channel       id="11"       FEDId="586"     GOHId="0"       IdxInFiber="11"/>
           <rp_sampic_channel       id="12"       FEDId="586"     GOHId="0"       IdxInFiber="12"/>
           <rp_sampic_channel       id="13"       FEDId="586"     GOHId="0"       IdxInFiber="13"/>
-          <rp_sampic_channel       id="14"       FEDId="586"     GOHId="0"       IdxInFiber="14"/>          
+          <rp_sampic_channel       id="14"       FEDId="586"     GOHId="0"       IdxInFiber="14"/>
         </rp_sampic_board>
         <rp_sampic_board id="1">
           <rp_sampic_channel       id="0"        FEDId="586"     GOHId="1"       IdxInFiber="0"/>
@@ -314,7 +314,7 @@
           <rp_sampic_channel       id="11"       FEDId="586"     GOHId="1"       IdxInFiber="11"/>
           <rp_sampic_channel       id="12"       FEDId="586"     GOHId="1"       IdxInFiber="12"/>
           <rp_sampic_channel       id="13"       FEDId="586"     GOHId="1"       IdxInFiber="13"/>
-          <rp_sampic_channel       id="14"       FEDId="586"     GOHId="1"       IdxInFiber="14"/>          
+          <rp_sampic_channel       id="14"       FEDId="586"     GOHId="1"       IdxInFiber="14"/>
         </rp_sampic_board>
         <rp_sampic_board id="2">
           <rp_sampic_channel       id="0"        FEDId="586"     GOHId="2"       IdxInFiber="0"/>
@@ -331,68 +331,68 @@
           <rp_sampic_channel       id="11"       FEDId="586"     GOHId="2"       IdxInFiber="11"/>
           <rp_sampic_channel       id="12"       FEDId="586"     GOHId="2"       IdxInFiber="12"/>
           <rp_sampic_channel       id="13"       FEDId="586"     GOHId="2"       IdxInFiber="13"/>
-          <rp_sampic_channel       id="14"       FEDId="586"     GOHId="2"       IdxInFiber="14"/> 
+          <rp_sampic_channel       id="14"       FEDId="586"     GOHId="2"       IdxInFiber="14"/>
         </rp_sampic_board>
       </rp_detector_set>
     </station>
     <station id="2">        <!-- 220 m -->
       <rp_detector_set id="1">       <!-- Near Bottom -->
         <timing_plane id="4">
-          <timing_channel id="0" hwId="0x90"/>
-          <timing_channel id="1" hwId="0x91"/>
-          <timing_channel id="2" hwId="0x92"/>
-          <timing_channel id="3" hwId="0x93"/>
-          <timing_channel id="4" hwId="0x94"/>
-          <timing_channel id="5" hwId="0x95"/>
-          <timing_channel id="6" hwId="0x96"/>
-          <timing_channel id="7" hwId="0x97"/>
-          <timing_channel id="8" hwId="0x98"/>
-          <timing_channel id="9" hwId="0x99"/>
-          <timing_channel id="10" hwId="0x9A"/>
-          <timing_channel id="11" hwId="0x9B"/>
+          <timing_channel id="11" hwId="0x90"/>
+          <timing_channel id="10" hwId="0x91"/>
+          <timing_channel id="9" hwId="0x92"/>
+          <timing_channel id="8" hwId="0x93"/>
+          <timing_channel id="7" hwId="0x94"/>
+          <timing_channel id="6" hwId="0x95"/>
+          <timing_channel id="0" hwId="0x96"/>
+          <timing_channel id="1" hwId="0x97"/>
+          <timing_channel id="2" hwId="0x98"/>
+          <timing_channel id="3" hwId="0x99"/>
+          <timing_channel id="4" hwId="0x9A"/>
+          <timing_channel id="5" hwId="0x9B"/>
         </timing_plane>
         <timing_plane id="5">
-          <timing_channel id="0" hwId="0x9C"/>
-          <timing_channel id="1" hwId="0x9D"/>
-          <timing_channel id="2" hwId="0x9E"/>
-          <timing_channel id="3" hwId="0x9F"/>
-          <timing_channel id="4" hwId="0xA0"/>
-          <timing_channel id="5" hwId="0xA1"/>
-          <timing_channel id="6" hwId="0xA2"/>
-          <timing_channel id="7" hwId="0xA3"/>
-          <timing_channel id="8" hwId="0xA4"/>
-          <timing_channel id="9" hwId="0xA5"/>
-          <timing_channel id="10" hwId="0xA6"/>
-          <timing_channel id="11" hwId="0xA7"/>
+          <timing_channel id="11" hwId="0x9C"/>
+          <timing_channel id="10" hwId="0x9D"/>
+          <timing_channel id="9" hwId="0x9E"/>
+          <timing_channel id="8" hwId="0x9F"/>
+          <timing_channel id="7" hwId="0xA0"/>
+          <timing_channel id="6" hwId="0xA1"/>
+          <timing_channel id="5" hwId="0xA2"/>
+          <timing_channel id="4" hwId="0xA3"/>
+          <timing_channel id="3" hwId="0xA4"/>
+          <timing_channel id="2" hwId="0xA5"/>
+          <timing_channel id="1" hwId="0xA6"/>
+          <timing_channel id="0" hwId="0xA7"/>
         </timing_plane>
         <timing_plane id="6">
-          <timing_channel id="0" hwId="0xA8"/>
-          <timing_channel id="1" hwId="0xA9"/>
-          <timing_channel id="2" hwId="0xAA"/>
-          <timing_channel id="3" hwId="0xAB"/>
-          <timing_channel id="4" hwId="0xAC"/>
-          <timing_channel id="5" hwId="0xAD"/>
-          <timing_channel id="6" hwId="0xAE"/>
-          <timing_channel id="7" hwId="0xAF"/>
-          <timing_channel id="8" hwId="0xB0"/>
-          <timing_channel id="9" hwId="0xB1"/>
-          <timing_channel id="10" hwId="0xB2"/>
-          <timing_channel id="11" hwId="0xB3"/>
+          <timing_channel id="11" hwId="0xA8"/>
+          <timing_channel id="10" hwId="0xA9"/>
+          <timing_channel id="9" hwId="0xAA"/>
+          <timing_channel id="8" hwId="0xAB"/>
+          <timing_channel id="7" hwId="0xAC"/>
+          <timing_channel id="6" hwId="0xAD"/>
+          <timing_channel id="5" hwId="0xAE"/>
+          <timing_channel id="4" hwId="0xAF"/>
+          <timing_channel id="3" hwId="0xB0"/>
+          <timing_channel id="2" hwId="0xB1"/>
+          <timing_channel id="1" hwId="0xB2"/>
+          <timing_channel id="0" hwId="0xB3"/>
         </timing_plane>
         <timing_plane id="7">
-          <timing_channel id="0" hwId="0xB4"/>
-          <timing_channel id="1" hwId="0xB5"/>
-          <timing_channel id="2" hwId="0xB6"/>
-          <timing_channel id="3" hwId="0xB7"/>
-          <timing_channel id="4" hwId="0xB8"/>
-          <timing_channel id="5" hwId="0xB9"/>
-          <timing_channel id="6" hwId="0xBA"/>
-          <timing_channel id="7" hwId="0xBB"/>
-          <timing_channel id="8" hwId="0xBC"/>
-          <timing_channel id="9" hwId="0xBD"/>
-          <timing_channel id="10" hwId="0xBE"/>
-          <timing_channel id="11" hwId="0xBF"/>
-        </timing_plane> 
+          <timing_channel id="11" hwId="0xB4"/>
+          <timing_channel id="10" hwId="0xB5"/>
+          <timing_channel id="9" hwId="0xB6"/>
+          <timing_channel id="8" hwId="0xB7"/>
+          <timing_channel id="7" hwId="0xB8"/>
+          <timing_channel id="6" hwId="0xB9"/>
+          <timing_channel id="5" hwId="0xBA"/>
+          <timing_channel id="4" hwId="0xBB"/>
+          <timing_channel id="3" hwId="0xBC"/>
+          <timing_channel id="2" hwId="0xBD"/>
+          <timing_channel id="1" hwId="0xBE"/>
+          <timing_channel id="0" hwId="0xBF"/>
+        </timing_plane>
         <rp_sampic_board id="3">
           <rp_sampic_channel       id="0"        FEDId="586"     GOHId="3"       IdxInFiber="0"/>
           <rp_sampic_channel       id="1"        FEDId="586"     GOHId="3"       IdxInFiber="1"/>
@@ -408,7 +408,7 @@
           <rp_sampic_channel       id="11"       FEDId="586"     GOHId="3"       IdxInFiber="11"/>
           <rp_sampic_channel       id="12"       FEDId="586"     GOHId="3"       IdxInFiber="12"/>
           <rp_sampic_channel       id="13"       FEDId="586"     GOHId="3"       IdxInFiber="13"/>
-          <rp_sampic_channel       id="14"       FEDId="586"     GOHId="3"       IdxInFiber="14"/>          
+          <rp_sampic_channel       id="14"       FEDId="586"     GOHId="3"       IdxInFiber="14"/>
         </rp_sampic_board>
         <rp_sampic_board id="4">
           <rp_sampic_channel       id="0"        FEDId="586"     GOHId="4"       IdxInFiber="0"/>
@@ -425,7 +425,7 @@
           <rp_sampic_channel       id="11"       FEDId="586"     GOHId="4"       IdxInFiber="11"/>
           <rp_sampic_channel       id="12"       FEDId="586"     GOHId="4"       IdxInFiber="12"/>
           <rp_sampic_channel       id="13"       FEDId="586"     GOHId="4"       IdxInFiber="13"/>
-          <rp_sampic_channel       id="14"       FEDId="586"     GOHId="4"       IdxInFiber="14"/>          
+          <rp_sampic_channel       id="14"       FEDId="586"     GOHId="4"       IdxInFiber="14"/>
         </rp_sampic_board>
         <rp_sampic_board id="5">
           <rp_sampic_channel       id="0"        FEDId="586"     GOHId="5"       IdxInFiber="0"/>
@@ -442,10 +442,9 @@
           <rp_sampic_channel       id="11"       FEDId="586"     GOHId="5"       IdxInFiber="11"/>
           <rp_sampic_channel       id="12"       FEDId="586"     GOHId="5"       IdxInFiber="12"/>
           <rp_sampic_channel       id="13"       FEDId="586"     GOHId="5"       IdxInFiber="13"/>
-          <rp_sampic_channel       id="14"       FEDId="586"     GOHId="5"       IdxInFiber="14"/>          
+          <rp_sampic_channel       id="14"       FEDId="586"     GOHId="5"       IdxInFiber="14"/>
         </rp_sampic_board>
       </rp_detector_set>
     </station>
   </arm>
 </top>
-

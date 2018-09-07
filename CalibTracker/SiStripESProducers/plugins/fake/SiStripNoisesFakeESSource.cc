@@ -41,7 +41,6 @@ private:
   double m_noisePar0;
   SiStripFakeAPVParameters m_noisePar1;
   SiStripFakeAPVParameters m_noisePar2;
-  edm::FileInPath m_file;
   uint32_t m_printDebug;
 };
 
@@ -78,7 +77,6 @@ SiStripNoisesFakeESSource::SiStripNoisesFakeESSource(const edm::ParameterSet& iC
     m_noisePar2 = SiStripFakeAPVParameters(iConfig, "NoiseStripLengthQuote");
   }
 
-  m_file = iConfig.getParameter<edm::FileInPath>("file");
   m_printDebug = iConfig.getUntrackedParameter<uint32_t>("printDebug", 5);
 }
 
@@ -100,10 +98,9 @@ SiStripNoisesFakeESSource::produce(const SiStripNoisesRcd& iRecord)
 
   auto noises = std::make_unique<SiStripNoises>();
 
-  SiStripDetInfoFileReader reader{m_file.fullPath()};
-
+  const edm::Service<SiStripDetInfoFileReader> reader;
   uint32_t count{0};
-  for ( const auto& elm : reader.getAllData() ) {
+  for ( const auto& elm : reader->getAllData() ) {
     //Generate Noises for det detid
     SiStripNoises::InputVector theSiStripVector;
     SiStripFakeAPVParameters::index sl = SiStripFakeAPVParameters::getIndex(tTopo.product(), elm.first);

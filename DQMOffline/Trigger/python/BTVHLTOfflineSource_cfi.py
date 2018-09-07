@@ -24,6 +24,14 @@ BTVHLTOfflineSource = DQMEDAnalyzer(
     #
     pathPairs = cms.VPSet(
         cms.PSet(
+            pathname = cms.string("HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5_v"),
+            pathtype = cms.string("PF"),
+        ),
+        cms.PSet(
+            pathname = cms.string("HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_CaloDiJet30_CaloBtagDeepCSV_1p5_v"),
+            pathtype = cms.string("Calo"),
+        ),
+        cms.PSet(
             pathname = cms.string("HLT_PFHT380_SixPFJet32_DoublePFBTagDeepCSV_"),
             pathtype = cms.string("PF"),
         ),
@@ -34,5 +42,3 @@ BTVHLTOfflineSource = DQMEDAnalyzer(
     )
 )
 
-btvHLTDQMSourceExtra = cms.Sequence(
-)

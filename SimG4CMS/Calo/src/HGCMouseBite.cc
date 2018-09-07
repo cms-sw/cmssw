@@ -10,21 +10,28 @@ HGCMouseBite::HGCMouseBite(const HGCalDDDConstants& hgc,
 			   const std::vector<double>& angle, double maxL, 
 			   bool rot) : hgcons_(hgc), cut_(maxL), rot_(rot) {
 
+  modeUV_ = ((hgcons_.geomMode() == HGCalGeometryMode::Hexagon8) ||
+	     (hgcons_.geomMode() == HGCalGeometryMode::Hexagon8Full));
   for (auto ang : angle) {
     projXY_.push_back(std::pair<double,double>(cos(ang*CLHEP::deg),sin(ang*CLHEP::deg)));
   }
 #ifdef EDM_ML_DEBUG
-  std::cout << "Creating HGCMosueBite with cut at " << cut_ << " along " 
-	    << angle.size() << " axes" << std::endl;
+  edm::LogVerbatim("HGCSim") << "Creating HGCMosueBite with cut at " << cut_ 
+			     << " with mode " << modeUV_ << " along " 
+			     << angle.size() << " axes";
   for (unsigned int k=0; k<angle.size(); ++k) 
-    std::cout << "Axis[" << k << "] " << angle[k] << " with projections "
-	      << projXY_[k].first << ":" << projXY_[k].second << std::endl;
+    edm::LogVerbatim("HGCSim") << "Axis[" << k << "] " << angle[k] 
+			       << " with projections " << projXY_[k].first
+			       << ":" << projXY_[k].second;
 #endif
 }
 
-bool HGCMouseBite::exclude(G4ThreeVector& point, int zside, int wafer) {
+bool HGCMouseBite::exclude(G4ThreeVector& point, int zside, int waferU, 
+			   int waferV) {
   bool check(false);
-  std::pair<double,double> xy = hgcons_.waferPosition(wafer,false);
+  std::pair<double,double> xy = (modeUV_ ? 
+				 hgcons_.waferPosition(waferU,waferV,false) :
+				 hgcons_.waferPosition(waferU,false));
   double xx = (zside > 0) ? xy.first : -xy.first;
   double dx(0), dy(0);
   if (rot_) {
@@ -39,10 +46,11 @@ bool HGCMouseBite::exclude(G4ThreeVector& point, int zside, int wafer) {
     if (dist > cut_) {check = true; break;}
   }
 #ifdef EDM_ML_DEBUG
-  std::cout << "HGCMouseBite:: Point " << point << " zside " << zside
-	    << " wafer " << wafer << " position " << xy.first << ":" << xx
-	    << ":" << xy.second << " dxy " << dx << ":" << dy << " check "
-	    << check << std::endl;
+  edm::LogVerbatim("HGCSim") << "HGCMouseBite:: Point " << point << " zside "
+			     << zside << " wafer " << waferU << ":" << waferV 
+			     << " position " << xy.first << ":" << xx << ":" 
+			     << xy.second << " dxy " << dx << ":" << dy 
+			     << " check " << check;
 #endif
   return check;
 }

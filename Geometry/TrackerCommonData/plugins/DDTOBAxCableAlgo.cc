@@ -31,8 +31,7 @@ void DDTOBAxCableAlgo::initialize(const DDNumericArguments & nArgs,
 				  const DDStringVectorArguments & vsArgs) {
   
   idNameSpace  = DDCurrentNamespace::ns();
-  DDName parentName = parent().name();
-  LogDebug("TOBGeom") << "DDTOBAxCableAlgo debug: Parent " << parentName
+  LogDebug("TOBGeom") << "DDTOBAxCableAlgo debug: Parent " << parent().name()
 		      << " NameSpace " << idNameSpace;
   
   sectorNumber     = vsArgs["SectorNumber"];      
@@ -73,7 +72,7 @@ void DDTOBAxCableAlgo::initialize(const DDNumericArguments & nArgs,
 void DDTOBAxCableAlgo::execute(DDCompactView& cpv) {
   
   LogDebug("TOBGeom") << "==>> Constructing DDTOBAxCableAlgo...";
-  DDName tubsName = parent().name();
+  DDName tubsName(parent().name());
   
   // Loop over sectors (sectorNumber vector)
   for (int i=0; i<(int)(sectorNumber.size()); i++) {

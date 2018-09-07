@@ -31,13 +31,13 @@ macro EVENTSETUP_RECORD_REG is used to create that code.
 #include "FWCore/Framework/interface/HCMethods.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "FWCore/Framework/interface/EventSetupRecordProviderFactoryTemplate.h"
+#include "FWCore/Framework/interface/RecordDependencyRegister.h"
 
 #define EVENTSETUP_RECORD_NAME2(_a_, _b_) EVENTSETUP_RECORD_NAME2_HIDDEN(_a_,_b_)
 #define EVENTSETUP_RECORD_NAME2_HIDDEN(_a_,_b_) _a_ ## _b_
 
 #define EVENTSETUP_RECORD_REG(_recordclassname_) \
 TYPELOOKUP_DATA_REG(_recordclassname_); \
-static const edm::eventsetup::EventSetupRecordProviderFactoryTemplate<_recordclassname_> EVENTSETUP_RECORD_NAME2(s_factory,__LINE__)
+static const edm::eventsetup::RecordDependencyRegister<_recordclassname_> EVENTSETUP_RECORD_NAME2(s_factory,__LINE__)
 
 #endif

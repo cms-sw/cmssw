@@ -3,13 +3,13 @@
 
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
-
-//#include "L1Trigger/L1TMuonEndCap/interface/EMTFGEMDetId.h"
+#include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitive.h"
+#include "L1Trigger/L1TMuonEndCap/interface/EMTFGEMDetId.h"
 
 namespace emtf {
 
   template<typename T=void>
-  EMTFGEMDetId construct_EMTFGEMDetId(const TriggerPrimitive& tp) {
+  EMTFGEMDetId construct_EMTFGEMDetId(const L1TMuon::TriggerPrimitive& tp) {
     if (!tp.getGEMData().isME0) {
       GEMDetId id(tp.detId<GEMDetId>());
       return EMTFGEMDetId(id);

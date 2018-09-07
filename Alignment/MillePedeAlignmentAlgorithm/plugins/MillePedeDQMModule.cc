@@ -181,9 +181,9 @@ void MillePedeDQMModule
     maxErrortYcut_[detIndex] = myMap[alignable].getErrorThetaYcut() ;
  
     tZcut_[detIndex]         = myMap[alignable].getThetaZcut() ;
-    sigtZcut_[detIndex]      = myMap[alignable].getSigThetaYcut() ;
-    maxMovetZcut_[detIndex]  = myMap[alignable].getMaxMoveThetaYcut() ;
-    maxErrortZcut_[detIndex] = myMap[alignable].getErrorThetaYcut() ;
+    sigtZcut_[detIndex]      = myMap[alignable].getSigThetaZcut() ;
+    maxMovetZcut_[detIndex]  = myMap[alignable].getMaxMoveThetaZcut() ;
+    maxErrortZcut_[detIndex] = myMap[alignable].getErrorThetaZcut() ;
 
   }
 

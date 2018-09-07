@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import os
 import sys
 import fileinput
@@ -104,7 +105,7 @@ elif (Sequence=='only_validation_and_TP'):
 
 def replace(map, filein, fileout):
     replace_items = map.items()
-    while 1:
+    while True:
         line = filein.readline()
         if not line: break
         for old, new in replace_items:
@@ -119,8 +120,8 @@ def replace(map, filein, fileout):
 def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
     global Sequence, RefSelection, RefRepository, NewSelection, NewRepository, defaultNevents, Events, GlobalTagUse
     global cfg, macro, Tracksname
-    print 'Search Tag: ' + GlobalTag
-    print 'Tag to use: ' + GlobalTagUse
+    print('Search Tag: ' + GlobalTag)
+    print('Tag to use: ' + GlobalTagUse)
 
     #build the New Selection name
     NewSelection=GlobalTag +'_noPU'
@@ -142,7 +143,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
 
     #loop on all the requested samples
     for sample in samples :
-        print 'Get information from DBS for sample', sample
+        print('Get information from DBS for sample', sample)
 
         newdir=NewRepository+'/'+NewRelease+'/'+NewSelection+'/'+sample 
 
@@ -167,13 +168,13 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                 cmd+=sample+'/'+NewRelease+'-'+GlobalTagUse+'*GEN-SIM-RECO* AND site like *cern* "'
 #                cmd+='|grep '+sample+'|grep '+VersionTag+'|grep -v '+UnwantedTag+'|grep -v FastSim |sort| tail -1 | cut -d "," -f2 '
                 cmd+='|grep '+sample+'|grep '+VersionTag+'|grep -v FastSim |sort| tail -1 | cut -d "," -f2 '
-            print cmd
+            print(cmd)
             dataset= os.popen(cmd).readline()
-            print 'DataSet:  ', dataset, '\n'
+            print('DataSet:  ', dataset, '\n')
             
             #Check if a dataset is found
             if(dataset!="" or DBS==False):
-                print 'dataset found ', dataset[:-1]
+                print('dataset found ', dataset[:-1])
                 #Find and format the list of files
                 cmd2='python $DBSCMD_HOME/dbsCommandLine.py "find file where dataset like '+ dataset[:-1] +'"|grep ' + sample 
 
@@ -197,13 +198,13 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                 
                 # if not harvesting find secondary file names
                     if(dataset!="" and Sequence!="harvesting"):
-                        print 'Getting secondary files'
+                        print('Getting secondary files')
                         if (FastSimUse=="True"):
                             cmd3=cmd
                         else:
                             cmd3='python $DBSCMD_HOME/dbsCommandLine.py "find dataset.parent where dataset like '+ dataset[:-1] +'"|grep ' + sample
                         parentdataset=os.popen(cmd3).readline()
-                        print 'Parent DataSet:  ', parentdataset, '\n'
+                        print('Parent DataSet:  ', parentdataset, '\n')
                     
                         #Check if a dataset is found
                         if parentdataset!="":
@@ -214,13 +215,13 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                                 filenames+='"'+line[:-1]+'",'
                             filenames+=']);\n'
                         else :
-                            print "No primary dataset found skipping sample: ", sample
+                            print("No primary dataset found skipping sample: ", sample)
                             continue
                     else :
                         filenames+='secFiles.extend( (               ) )\n'
 
                     cfgFileName=('%s_%d') % (sample,thisFile)
-                    print 'cfgFileName ' + cfgFileName
+                    print('cfgFileName ' + cfgFileName)
                     cfgFile = open(cfgFileName+'.py' , 'w' )
                     cfgFile.write(filenames)
 
@@ -228,7 +229,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                         Nevents=defaultNevents
                     else:
                         Nevents=Events[sample]
-                    print 'line 199'
+                    print('line 199')
                     symbol_map = { 'PROCESSNAME':ProcessName, 'NEVENT':Nevents, 'GLOBALTAG':GlobalTagUse, 'SEQUENCE':Sequence, 'SAMPLE': sample, 'ALGORITHM':trackalgorithm, 'QUALITY':trackquality, 'TRACKS':Tracks, 'FASTSIM':FastSimUse, 'ONLYRECOMUONS':onlyRecoMuons}
 
 
@@ -237,7 +238,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
 
                     cmdrun='cmsRun ' + WorkDir +'/'+cfgFileName+ '.py >&  ' + cfgFileName + '.log < /dev/zero '
 
-                    print cmdrun
+                    print(cmdrun)
 
                     lancialines='#!/usr/local/bin/bash \n'
                     lancialines+='cd '+ProjectBase+'/src \n'
@@ -251,11 +252,11 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                     lanciaFile.write(lancialines)
                     lanciaFile.close()
                     
-                    print ("copying py file for sample: %s %s") % (sample,lanciaName)
+                    print(("copying py file for sample: %s %s") % (sample,lanciaName))
                     iii = os.system('mv '+lanciaName+' '+WorkDir+'/.')
-                    print iii
+                    print(iii)
                     iii = os.system('mv '+cfgFileName+'.py '+WorkDir)
-                    print iii
+                    print(iii)
                     if(OneAtATime==False):
                         break
 
@@ -269,7 +270,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                     continue
 
                 if (retcode!=0):
-                    print 'Job for sample '+ sample + ' failed. \n'
+                    print('Job for sample '+ sample + ' failed. \n')
                 else:
                     if Sequence=="harvesting":
                         os.system('mv  DQM_V0001_R000000001__' + GlobalTag+ '__' + sample + '__Validation.root' + ' ' + WorkDir+'/val.' +sample+'.root')
@@ -279,9 +280,9 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                         os.system('mv output.'+sample+'.root ' + WorkDir)
                         
             else:
-                print 'No dataset found skipping sample: '+ sample, '\n'
+                print('No dataset found skipping sample: '+ sample, '\n')
         else:
-            print 'Validation for sample ' + sample + ' already done. Skipping this sample. \n'
+            print('Validation for sample ' + sample + ' already done. Skipping this sample. \n')
 
 
 
@@ -293,7 +294,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
 try:
      #Get some environment variables to use
      if Submit:
-         print 'Will Submit job'
+         print('Will Submit job')
          #NewRelease     = os.environ["CMSSW_VERSION"]
      ProjectBase    = os.environ["CMSSW_BASE"]
      #else:
@@ -302,15 +303,15 @@ try:
 
       
 except KeyError:
-     print >>sys.stderr, 'Error: The environment variable CMSSW_VERSION is not available.'
-     print >>sys.stderr, '       Please run eval `scramv1 runtime -csh` to set your environment variables'
+     print('Error: The environment variable CMSSW_VERSION is not available.', file=sys.stderr)
+     print('       Please run eval `scramv1 runtime -csh` to set your environment variables', file=sys.stderr)
      sys.exit()
 
 
 #print 'Running validation on the following samples: ', samples
 
 if os.path.isfile( 'dbsCommandLine.py')!=True:
-    print >>sys.stderr, "Failed to find the file ($DBSCMD_HOME/dbsCommandLine.py)"
+    print("Failed to find the file ($DBSCMD_HOME/dbsCommandLine.py)", file=sys.stderr)
 #if os.path.isfile( 'DDSearchCLI.py')!=True:
 #    e =os.system("wget --no-check-certificate https://cmsweb.cern.ch/dbs_discovery/aSearchCLI -O DDSearchCLI.py")
 #    if  e != 0:
@@ -324,29 +325,29 @@ if os.path.isfile( 'dbsCommandLine.py')!=True:
 NewSelection=''
 
 for algo in Algos:
-    print 'algo ' + algo
+    print('algo ' + algo)
     for quality in Qualities:
-        print 'quality ' + quality
+        print('quality ' + quality)
         RefSelection=ReferenceSelection
-        print 'Before RefSelection: ' + RefSelection
+        print('Before RefSelection: ' + RefSelection)
         if( quality !=''):
             RefSelection+='_'+quality
         if(algo!=''):
             RefSelection+='_'+algo
         if(quality =='') and (algo==''):
             RefSelection+='_ootb'
-        print 'After RefSelection: ' + RefSelection
+        print('After RefSelection: ' + RefSelection)
         GlobalTagUse=IdealTagUse
         do_validation(idealsamples, IdealTag, quality , algo)
         RefSelection=StartupReferenceSelection
-        print 'Before StartupRefSelection: ' + RefSelection
+        print('Before StartupRefSelection: ' + RefSelection)
         if( quality !=''):
             RefSelection+='_'+quality
         if(algo!=''):
             RefSelection+='_'+algo
         if(quality =='') and (algo==''):
             RefSelection+='_ootb'
-        print 'After StartupRefSelection: ' + RefSelection
+        print('After StartupRefSelection: ' + RefSelection)
         GlobalTagUse=StartupTagUse
         do_validation(startupsamples, StartupTag, quality , algo)
 
