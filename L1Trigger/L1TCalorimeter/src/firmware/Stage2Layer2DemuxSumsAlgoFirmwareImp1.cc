@@ -24,7 +24,9 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
                                                               std::vector<l1t::EtSum> & outputSums) {
 
   int et(0), etHF(0), etHFOnly(0), etem(0), metx(0), mety(0), metxHF(0), metyHF(0), ht(0), htHF(0), mhtx(0), mhty(0), mhtxHF(0), mhtyHF(0), metPhi(0), metPhiHF(0), mhtPhi(0), mhtPhiHF(0);
-  int etPos(0), etNeg(0), etHFPos(0), etHFNeg(0), htPos(0), htNeg(0), htHFPos(0), htHFNeg(0), asymEt(0), asymEtHF(0), asymHt(0), asymHtHF(0), cent(0);
+  double etPos(0), etNeg(0), etHFPos(0), etHFNeg(0), htPos(0), htNeg(0), htHFPos(0), htHFNeg(0);
+  int cent(0);
+  unsigned int asymEt(0), asymEtHF(0), asymHt(0), asymHtHF(0);
   bool posEt(0), posEtHF(0), posHt(0), posHtHF(0);
   unsigned int met(0), metHF(0), mht(0), mhtHF(0);
   unsigned int mbp0(0), mbm0(0), mbp1(0), mbm1(0);
@@ -144,21 +146,19 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
 
   // calculate centrality
   etHFOnly = abs(etHF - et);
-  std::cout << "et HF = " << etHFOnly << std::endl;
   for(uint i=0; i<8; ++i){
     if(etHFOnly >= (params_->etSumCentLower(i)/params_->towerLsbSum())
        && etHFOnly <= (params_->etSumCentUpper(i)/params_->towerLsbSum())){
       cent |= 1 << i;
-      std::cout << "cent = " << cent << std::endl;
     }
   }
   
   // calculate HI imbalance
-  asymEt   = abs(etPos   - etNeg  ) ; //* l1t::CaloTools::intDivide(et);
-  asymEtHF = abs(etHFPos - etHFNeg) ; //* l1t::CaloTools::intDivide(etHF);
-  asymHt   = abs(htPos   - htNeg  ) ; //* l1t::CaloTools::intDivide(ht);
-  asymHtHF = abs(htHFPos - htHFNeg) ; //* l1t::CaloTools::intDivide(htHF);
-  
+  asymEt   = l1t::CaloTools::gloriousDivision(abs(etPos-etNeg), et);
+  asymEtHF = l1t::CaloTools::gloriousDivision(abs(etHFPos-etHFNeg), etHF);
+  asymHt   = l1t::CaloTools::gloriousDivision(abs(htPos-htNeg), ht);
+  asymHtHF = l1t::CaloTools::gloriousDivision(abs(htHFPos-htHFNeg), htHF);
+
   if (et>0xFFF)   et   = 0xFFF;
   if (etHF>0xFFF) etHF = 0xFFF;
   if (etem>0xFFF) etem = 0xFFF;
@@ -226,9 +226,6 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
   l1t::EtSum htAsym(p4,l1t::EtSum::EtSumType::kAsymHt,asymHt,0,0,0);
   l1t::EtSum htHFAsym(p4,l1t::EtSum::EtSumType::kAsymHtHF,asymHtHF,0,0,0);
   l1t::EtSum centrality(p4,l1t::EtSum::EtSumType::kCentrality,cent,0,0,0);
-
-  std::cout << "Emu cent = " << cent << std::endl;
-  std::cout << "Emu etAsymHF = " << asymEtHF << std::endl;
 
   outputSums.push_back(etSumTotalEt);
   outputSums.push_back(etSumTotalEtHF);
