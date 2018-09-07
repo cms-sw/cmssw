@@ -192,22 +192,28 @@ namespace hcaldqm
 			else
 				vtmpflags[fUnknownIds]._state = flag::fGOOD;
 
-			std::string ledHistName = _subsystem + "/" + _taskname + "/LED_CUCountvsLS/Subdet/";
-			if (did.subdet() == HcalBarrel) {
-				ledHistName += "HB";
-			} else if (did.subdet() == HcalEndcap) {
-				ledHistName += "HE";
-			} else if (did.subdet() == HcalOuter) {
-				ledHistName += "HO";
-			} else if (did.subdet() == HcalForward) {
-				ledHistName += "HF";
-			}
-			bool ledSignalPresent = (ig.get(ledHistName)->getEntries() > 0);
+			if ((did.subdet() == HcalBarrel) || (did.subdet() == HcalBarrel) || (did.subdet() == HcalBarrel) || (did.subdet() == HcalBarrel)) {
+				std::string ledHistName = _subsystem + "/" + _taskname + "/LED_CUCountvsLS/Subdet/";
+				if (did.subdet() == HcalBarrel) {
+					ledHistName += "HB";
+				} else if (did.subdet() == HcalEndcap) {
+					ledHistName += "HE";
+				} else if (did.subdet() == HcalOuter) {
+					ledHistName += "HO";
+				} else if (did.subdet() == HcalForward) {
+					ledHistName += "HF";
+				}
+				std::cout << "[debug] ledHistName = " << ledHistName << std::endl;
+				bool ledSignalPresent = (ig.get(ledHistName)->getEntries() > 0);
 
-			if (ledSignalPresent)
-				vtmpflags[fLED]._state = flag::fBAD;
-			else
-				vtmpflags[fLED]._state = flag::fGOOD;
+				if (ledSignalPresent)
+					vtmpflags[fLED]._state = flag::fBAD;
+				else
+					vtmpflags[fLED]._state = flag::fGOOD;
+			} else {
+					vtmpflags[fLED]._state = flag::fNA;
+			}
+
 
 			// push all the flags for this crate
 			lssum._vflags.push_back(vtmpflags);
