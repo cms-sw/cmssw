@@ -118,6 +118,9 @@ L1TCaloStage2ParamsESProducer::L1TCaloStage2ParamsESProducer(const edm::Paramete
   m_params_helper.setEgMaxPtHOverEIsolation(conf.getParameter<int>("egMaxPtHOverEIsolation"));
   m_params_helper.setEgBypassEGVetos(conf.getParameter<unsigned>("egBypassEGVetos"));
   m_params_helper.setEgBypassExtHOverE(conf.getParameter<unsigned>("egBypassExtHOverE"));
+  m_params_helper.setEgBypassShape(conf.getParameter<unsigned>("egBypassShape"));
+  m_params_helper.setEgBypassECALFG(conf.getParameter<unsigned>("egBypassECALFG"));
+  m_params_helper.setEgBypassHoE(conf.getParameter<unsigned>("egBypassHoE"));
 
 
   edm::FileInPath egMaxHOverELUTFile = conf.getParameter<edm::FileInPath>("egMaxHOverELUTFile");
