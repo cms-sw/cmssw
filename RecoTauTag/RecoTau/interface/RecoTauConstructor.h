@@ -27,7 +27,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/JetReco/interface/JetCollection.h"
 #include "DataFormats/TauReco/interface/PFRecoTauChargedHadron.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
@@ -52,8 +52,8 @@ class RecoTauConstructor {
     };
 
     /// Constructor with PFCandidate Handle
-    RecoTauConstructor(const PFJetRef& jetRef,
-        const edm::Handle<PFCandidateCollection>& pfCands,
+    RecoTauConstructor(const JetBaseRef& jetRef,
+        const edm::Handle<edm::View<reco::Candidate> >& pfCands,
 	bool copyGammasFromPiZeros = false,
 	const StringObjectFunction<reco::PFTau>* signalConeSize = nullptr,
 	double minAbsPhotonSumPt_insideSignalCone = 2.5, double minRelPhotonSumPt_insideSignalCone = 0.,
@@ -66,23 +66,22 @@ class RecoTauConstructor {
      */
 
     /// Set leading PFChargedHadron candidate
-    template<typename T> void setleadPFChargedHadrCand(const T& cand) {
-      tau_->setleadPFChargedHadrCand(convertToPtr(cand));
+    template<typename T> void setleadChargedHadrCand(const T& cand) {
+      tau_->setleadChargedHadrCand(convertToPtr(cand));
     }
 
     /// Set leading PFGamma candidate
-    template<typename T> void setleadPFNeutralCand(const T& cand) {
-      tau_->setleadPFNeutralCand(convertToPtr(cand));
+    template<typename T> void setleadNeutralCand(const T& cand) {
+      tau_->setleadNeutralCand(convertToPtr(cand));
     }
 
     /// Set leading PF candidate
-    template<typename T> void setleadPFCand(const T& cand) {
-      tau_->setleadPFCand(convertToPtr(cand));
+    template<typename T> void setleadCand(const T& cand) {
+      tau_->setleadCand(convertToPtr(cand));
     }
 
     /// Append a PFCandidateRef/Ptr to a given collection
-    void addPFCand(Region region, ParticleType type, const PFCandidateRef& ref, bool skipAddToP4 = false);
-    void addPFCand(Region region, ParticleType type, const PFCandidatePtr& ptr, bool skipAddToP4 = false);
+    void addPFCand(Region region, ParticleType type, const CandidatePtr& ptr, bool skipAddToP4 = false);
 
     /// Reserve a set amount of space for a given RefVector
     void reserve(Region region, ParticleType type, size_t size);
@@ -132,8 +131,8 @@ class RecoTauConstructor {
 
   private:
     typedef std::pair<Region, ParticleType> CollectionKey;
-    typedef std::map<CollectionKey, std::vector<PFCandidatePtr>*> CollectionMap;
-    typedef boost::shared_ptr<std::vector<PFCandidatePtr> > SortedListPtr;
+    typedef std::map<CollectionKey, std::vector<CandidatePtr>*> CollectionMap;
+    typedef boost::shared_ptr<std::vector<CandidatePtr> > SortedListPtr;
     typedef std::map<CollectionKey, SortedListPtr> SortedCollectionMap;
 
     bool copyGammas_;
@@ -145,18 +144,17 @@ class RecoTauConstructor {
     double minRelPhotonSumPt_outsideSignalCone_;
 
     // Retrieve collection associated to signal/iso and type
-    std::vector<PFCandidatePtr>* getCollection(Region region, ParticleType type);
+    std::vector<CandidatePtr>* getCollection(Region region, ParticleType type);
     SortedListPtr getSortedCollection(Region region, ParticleType type);
 
     // Sort all our collections by PT and copy them into the tau
     void sortAndCopyIntoTau();
 
     // Helper functions for dealing with refs
-    PFCandidatePtr convertToPtr(const PFCandidatePtr& pfPtr) const;
-    PFCandidatePtr convertToPtr(const CandidatePtr& candPtr) const;
-    PFCandidatePtr convertToPtr(const PFCandidateRef& pfRef) const;
+    CandidatePtr convertToPtr(const PFCandidatePtr& pfPtr) const;
+    CandidatePtr convertToPtr(const CandidatePtr& candPtr) const;
 
-    const edm::Handle<PFCandidateCollection>& pfCands_;
+    const edm::Handle<edm::View<reco::Candidate> >& pfCands_;
     std::auto_ptr<reco::PFTau> tau_;
     CollectionMap collections_;
 

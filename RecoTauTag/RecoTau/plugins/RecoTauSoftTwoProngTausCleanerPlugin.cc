@@ -8,6 +8,7 @@
 
 #include "RecoTauTag/RecoTau/interface/RecoTauBuilderPlugins.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
+#include "RecoTauTag/RecoTau/interface/pfRecoTauChargedHadronAuxFunctions.h"
 
 namespace reco { namespace tau {
 
@@ -35,7 +36,8 @@ double RecoTauSoftTwoProngTausCleanerPlugin::operator()(const reco::PFTauRef& ta
   if ( chargedHadrons.size() == 2 ) {
     for ( std::vector<PFRecoTauChargedHadron>::const_iterator chargedHadron = chargedHadrons.begin();
 	  chargedHadron != chargedHadrons.end(); ++chargedHadron ) {
-      if ( !(chargedHadron->getTrack().get() && chargedHadron->getTrack()->pt() > minTrackPt_) ) result += 1.e+3;
+      const reco::Track* track = getTrackFromChargedHadron(*chargedHadron);
+      if ( !(track != nullptr && track->pt() > minTrackPt_) ) result += 1.e+3;
     }
   }
   return result;

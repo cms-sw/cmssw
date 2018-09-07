@@ -17,6 +17,7 @@
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
@@ -42,6 +43,7 @@ private:
   void analyzeDT(const GlobalTrackingGeometry* geo, const DTGeometry* dtGeometry);
   void analyzeRPC(const GlobalTrackingGeometry* geo, const RPCGeometry* rpcGeometry);
   void analyzeGEM(const GlobalTrackingGeometry* geo, const GEMGeometry* gemGeometry);
+  void analyzeMTD(const GlobalTrackingGeometry* geo, const MTDGeometry* mtdGeometry);
   void analyzeTracker(const GlobalTrackingGeometry* geo, const TrackerGeometry* tkGeometry);
   const std::string& myName() { return my_name; }
   std::string my_name;    
@@ -144,6 +146,29 @@ void GlobalTrackingGeometryTest::analyzeGEM(const GlobalTrackingGeometry* geo, c
   std::cout << "GEM det: GlobalTrackingGeometry succesfully tested." << std::endl;
 }
 
+void GlobalTrackingGeometryTest::analyzeMTD(const GlobalTrackingGeometry* geo, const MTDGeometry* mtdGeometry) 
+{
+  for(auto& detUnit : mtdGeometry->detUnits()) 
+  {
+    const DetId detId(detUnit->geographicalId());
+        
+    // Check idToDetUnit
+    const GeomDetUnit* gdu(geo->idToDetUnit(detId));
+    assert(gdu == detUnit);
+  }
+  std::cout << "MTD detUnit: GlobalTrackingGeometry succesfully tested." << std::endl;
+    
+  for(auto& det : mtdGeometry->dets()) 
+  {
+    const DetId detId(det->geographicalId());
+        
+    // Check idToDet
+    const GeomDet* gd(geo->idToDet(detId));
+    assert(gd == det);
+  }
+  std::cout << "MTD det: GlobalTrackingGeometry succesfully tested." << std::endl;
+}
+
 void GlobalTrackingGeometryTest::analyzeTracker(const GlobalTrackingGeometry* geo, const TrackerGeometry* tkGeometry) 
 {
   for(auto& detUnit : tkGeometry->detUnits()) 
@@ -180,6 +205,16 @@ void GlobalTrackingGeometryTest::analyze( const edm::Event& /*iEvent*/, const ed
   try {
     trackerGeometry = (const TrackerGeometry*) geo->slaveGeometry(detId1);
     std::cout << trackerGeometry << std::endl;
+  } catch (...) {
+    std::cout << "N/A" << std::endl;
+  }
+
+  DetId detId6(DetId::Forward, 1);
+  const MTDGeometry* mtdGeometry = nullptr;
+  std::cout << "Pointer to MTD Geometry: ";
+  try {
+    mtdGeometry = (const MTDGeometry*) geo->slaveGeometry(detId6);
+    std::cout << mtdGeometry << std::endl;
   } catch (...) {
     std::cout << "N/A" << std::endl;
   }
@@ -228,6 +263,7 @@ void GlobalTrackingGeometryTest::analyze( const edm::Event& /*iEvent*/, const ed
   if (dtGeometry) analyzeDT(geo.product(), dtGeometry);
   if (rpcGeometry) analyzeRPC(geo.product(), rpcGeometry);
   if (gemGeometry) analyzeGEM(geo.product(), gemGeometry);
+  if (mtdGeometry) analyzeMTD(geo.product(), mtdGeometry);
   if (trackerGeometry) analyzeTracker(geo.product(), trackerGeometry);
 }
 

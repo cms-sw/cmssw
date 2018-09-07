@@ -49,6 +49,10 @@ typedef DeltaRPtrFilter<PFCandidatePtr> PFCandPtrDRFilter;
 typedef boost::filter_iterator< PFCandPtrDRFilter,
         std::vector<PFCandidatePtr>::const_iterator> PFCandPtrDRFilterIter;
 
+typedef DeltaRPtrFilter<CandidatePtr> CandPtrDRFilter;
+typedef boost::filter_iterator< CandPtrDRFilter,
+        std::vector<CandidatePtr>::const_iterator> CandPtrDRFilterIter;
+
 typedef DeltaRFilter<PFRecoTauChargedHadron> ChargedHadronDRFilter;
 typedef boost::filter_iterator< ChargedHadronDRFilter,
         std::vector<PFRecoTauChargedHadron>::const_iterator> ChargedHadronDRFilterIter;

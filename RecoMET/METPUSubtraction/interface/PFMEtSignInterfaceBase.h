@@ -100,11 +100,9 @@ class PFMEtSignInterfaceBase
       //    (until PFTau specific resolutions are available)
       if ( dynamic_cast<const pat::Tau*>(particle) != nullptr ) {
 	const pat::Tau* pfTau = dynamic_cast<const pat::Tau*>(particle);
-	//std::cout << "tau: pt = " << pt << ", eta = " << eta << ", phi = " << phi << std::endl;
 	return pfMEtResolution_->evalPFJet(pfTau->pfJetRef().get());
       } else if ( dynamic_cast<const reco::PFTau*>(particle) != nullptr  ) {
 	const reco::PFTau* pfTau = dynamic_cast<const reco::PFTau*>(particle);
-	//std::cout << "tau: pt = " << pt << ", eta = " << eta << ", phi = " << phi << std::endl;
 	return pfMEtResolution_->evalPFJet(pfTau->jetRef().get());
       } else assert(0);
     } else if ( dynamic_cast<const reco::PFJet*>(particle) != nullptr ||

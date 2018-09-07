@@ -20,7 +20,7 @@ unitCharge = cms.PSet(
     name = cms.string("UnitCharge"),
     plugin = cms.string("RecoTauStringCleanerPlugin"),
     # Only effects three prongs
-    selection = cms.string("signalPFChargedHadrCands().size() = 3"),
+    selection = cms.string("signalChargedHadrCands().size() = 3"),
     # As 1 is lower than 3, this will always prefer those with unit charge
     selectionPassFunction = cms.string("abs(charge())-1"),
     # If it is a one prong, consider it just as good as a
@@ -66,7 +66,7 @@ pt = cms.PSet(
     name = cms.string("Pt"),
     plugin = cms.string("RecoTauStringCleanerPlugin"),
     # Require that cones were built by ensuring the a leadCand exits
-    selection = cms.string("leadPFCand().isNonnull()"),
+    selection = cms.string("leadCand().isNonnull()"),
     selectionPassFunction = cms.string("-pt()"), # CV: negative sign means that we prefer candidates of high pT
     selectionFailValue = cms.double(1e3),
     tolerance = cms.double(1.e-2) # CV: consider candidates with almost equal pT to be of the same rank (to avoid sensitivity to rounding errors)
@@ -81,7 +81,7 @@ stripMultiplicity = cms.PSet(
     name = cms.string("StripMultiplicity"),
     plugin = cms.string("RecoTauStringCleanerPlugin"),
     # Require that cones were built by ensuring the a leadCand exits
-    selection = cms.string("leadPFCand().isNonnull()"),
+    selection = cms.string("leadCand().isNonnull()"),
     selectionPassFunction = cms.string("-signalPiZeroCandidates().size()"),
     selectionFailValue = cms.double(1e3)
 )
@@ -90,7 +90,7 @@ combinedIsolation = cms.PSet(
     name = cms.string("CombinedIsolation"),
     plugin = cms.string("RecoTauStringCleanerPlugin"),
     # Require that cones were built by ensuring the a leadCand exits
-    selection = cms.string("leadPFCand().isNonnull()"),
+    selection = cms.string("leadCand().isNonnull()"),
     selectionPassFunction = cms.string("isolationPFChargedHadrCandsPtSum() + isolationPFGammaCandsEtSum()"),
     selectionFailValue = cms.double(1e3)
 )
@@ -99,7 +99,7 @@ chargeIsolation = cms.PSet(
     name = cms.string("ChargeIsolation"),
     plugin = cms.string("RecoTauStringCleanerPlugin"),
     # Require that cones were built by ensuring the a leadCand exits
-    selection = cms.string("leadPFCand().isNonnull()"),
+    selection = cms.string("leadCand().isNonnull()"),
     # Prefer lower isolation activity
     selectionPassFunction = cms.string("isolationPFChargedHadrCandsPtSum()"),
     selectionFailValue = cms.double(1e3)
@@ -109,7 +109,7 @@ ecalIsolation = cms.PSet(
     name = cms.string("GammaIsolation"),
     plugin = cms.string("RecoTauStringCleanerPlugin"),
     # Require that cones were built by ensuring the a leadCand exits
-    selection = cms.string("leadPFCand().isNonnull()"),
+    selection = cms.string("leadCand().isNonnull()"),
     # Prefer lower isolation activity
     selectionPassFunction = cms.string("isolationPFGammaCandsEtSum()"),
     selectionFailValue = cms.double(1e3)

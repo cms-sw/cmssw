@@ -36,6 +36,7 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
@@ -124,6 +125,23 @@ PFTau3ProngReco::~PFTau3ProngReco(){
 
 }
 
+namespace {
+  inline const reco::Track* getTrack(const reco::Candidate& cand)
+  {
+    const reco::PFCandidate* pfCandPtr = dynamic_cast<const reco::PFCandidate*>(&cand);
+    if (pfCandPtr) {
+      if      ( pfCandPtr->trackRef().isNonnull()    ) return pfCandPtr->trackRef().get();
+      else if ( pfCandPtr->gsfTrackRef().isNonnull() ) return pfCandPtr->gsfTrackRef().get();
+      else return nullptr;
+    }
+    const pat::PackedCandidate* packedCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
+    if (packedCand != nullptr)
+      return packedCand->bestTrack();
+
+    return nullptr;
+  }
+}
+
 void PFTau3ProngReco::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
   // Obtain Collections
   edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
@@ -209,16 +227,14 @@ void PFTau3ProngReco::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
 	    // use Track Helix
 	    std::vector<TrackParticle> pions;
 	    GlobalPoint pvpoint(primaryVertex->position().x(),primaryVertex->position().y(),primaryVertex->position().z());
-	    const std::vector<edm::Ptr<reco::PFCandidate> > cands = tau->signalPFChargedHadrCands();
-	    for (std::vector<edm::Ptr<reco::PFCandidate> >::const_iterator iter = cands.begin(); iter!=cands.end(); ++iter) {
-	      if(iter->get()->trackRef().isNonnull()){
-		reco::TransientTrack transTrk=transTrackBuilder->build(iter->get()->trackRef());
+	    const std::vector<edm::Ptr<reco::Candidate> > cands = tau->signalChargedHadrCands();
+	    for (std::vector<edm::Ptr<reco::Candidate> >::const_iterator iter = cands.begin(); iter!=cands.end(); ++iter) {
+	      const reco::Track* track = getTrack(**iter);
+	      if (track != nullptr) {
+		reco::TransientTrack transTrk=transTrackBuilder->build(*track);
 		pions.push_back(ParticleBuilder::createTrackParticle(transTrk,pvpoint,true,true));
 	      }
-	      else if(iter->get()->gsfTrackRef().isNonnull()){
-		//reco::TransientTrack transTrk=transTrackBuilder->build(iter->get()->gsfTrackRef());
-		//pions.push_back(ParticleBuilder::CreateTrackParticle(transTrk,pvpoint,true,true));
-	      }
+
 	    }
 	    TVector3 pv(secVtx->position().x(),secVtx->position().y(),secVtx->position().z());
 	    Chi2VertexFitter chi2v(pions,pv);

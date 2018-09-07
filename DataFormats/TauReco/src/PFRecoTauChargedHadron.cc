@@ -39,7 +39,7 @@ PFRecoTauChargedHadron::PFRecoTauChargedHadron(const Candidate& c, PFRecoTauChar
 PFRecoTauChargedHadron::~PFRecoTauChargedHadron()
 {}
 
-const PFCandidatePtr& PFRecoTauChargedHadron::getChargedPFCandidate() const
+const CandidatePtr& PFRecoTauChargedHadron::getChargedPFCandidate() const
 {
   return chargedPFCandidate_;
 }
@@ -49,7 +49,12 @@ const PFRecoTauChargedHadron::TrackPtr& PFRecoTauChargedHadron::getTrack() const
   return track_;
 }
 
-const std::vector<PFCandidatePtr>& PFRecoTauChargedHadron::getNeutralPFCandidates() const
+const CandidatePtr& PFRecoTauChargedHadron::getLostTrackCandidate() const
+{
+  return lostTrackCandidate_;
+}
+
+const std::vector<CandidatePtr>& PFRecoTauChargedHadron::getNeutralPFCandidates() const
 {
   return neutralPFCandidates_;
 }
@@ -69,22 +74,6 @@ bool PFRecoTauChargedHadron::algoIs(PFRecoTauChargedHadron::PFRecoTauChargedHadr
   return (algo_ == algo);
 }
 
-namespace
-{
-  std::string getPFCandidateType(reco::PFCandidate::ParticleType pfCandidateType)
-  {
-    if      ( pfCandidateType == reco::PFCandidate::X         ) return "undefined";
-    else if ( pfCandidateType == reco::PFCandidate::h         ) return "PFChargedHadron";
-    else if ( pfCandidateType == reco::PFCandidate::e         ) return "PFElectron";
-    else if ( pfCandidateType == reco::PFCandidate::mu        ) return "PFMuon";
-    else if ( pfCandidateType == reco::PFCandidate::gamma     ) return "PFGamma";
-    else if ( pfCandidateType == reco::PFCandidate::h0        ) return "PFNeutralHadron";
-    else if ( pfCandidateType == reco::PFCandidate::h_HF      ) return "HF_had";
-    else if ( pfCandidateType == reco::PFCandidate::egamma_HF ) return "HF_em";
-    else assert(0);
-  }
-}
-
 void PFRecoTauChargedHadron::print(std::ostream& stream) const 
 {
   stream << " Pt = " << this->pt() << ", eta = " << this->eta() << ", phi = " << this->phi() << " (mass = " << this->mass() << ")" << std::endl;
@@ -93,13 +82,16 @@ void PFRecoTauChargedHadron::print(std::ostream& stream) const
   if ( chargedPFCandidate_.isNonnull() ) {
     stream << " (" << chargedPFCandidate_.id() << ":" << chargedPFCandidate_.key() << "):"
 	   << " Pt = " << chargedPFCandidate_->pt() << ", eta = " << chargedPFCandidate_->eta() << ", phi = " << chargedPFCandidate_->phi() 
-	   << " (type = " << getPFCandidateType(chargedPFCandidate_->particleId()) << ")" << std::endl;
+	   << " (pdgId = " << chargedPFCandidate_->pdgId() << ")" << std::endl;
   } else {
     stream << ": N/A" << std::endl;
   }
   stream << "reco::Track: ";
   if ( track_.isNonnull() ) {
     stream << "Pt = " << track_->pt() << " +/- " << track_->ptError() << ", eta = " << track_->eta() << ", phi = " << track_->phi() << std::endl;
+  } else if ( lostTrackCandidate_.isNonnull() ) {
+    stream << "(lostTrackCandidate: " << lostTrackCandidate_.id() << ":" << lostTrackCandidate_.key() << "):"
+	   << " Pt = " << lostTrackCandidate_->pt() << ", eta = " << lostTrackCandidate_->eta() << ", phi = " << lostTrackCandidate_->phi() << std::endl;
   } else {
     stream << "N/A" << std::endl;
   }
@@ -107,11 +99,11 @@ void PFRecoTauChargedHadron::print(std::ostream& stream) const
   if ( !neutralPFCandidates_.empty() ) {
     stream << std::endl;
     int idx = 0;
-    for ( std::vector<PFCandidatePtr>::const_iterator neutralPFCandidate = neutralPFCandidates_.begin();
+    for ( std::vector<CandidatePtr>::const_iterator neutralPFCandidate = neutralPFCandidates_.begin();
 	  neutralPFCandidate != neutralPFCandidates_.end(); ++neutralPFCandidate ) {
       stream << " #" << idx << " (" << neutralPFCandidate->id() << ":" << neutralPFCandidate->key() << "):"
 	     << " Pt = " << (*neutralPFCandidate)->pt() << ", eta = " << (*neutralPFCandidate)->eta() << ", phi = " << (*neutralPFCandidate)->phi() 
-	     << " (type = " << getPFCandidateType((*neutralPFCandidate)->particleId()) << ")" << std::endl;
+	     << " (pdgId = " << (*neutralPFCandidate)->pdgId() << ")" << std::endl;
       ++idx;
     }
   } else {

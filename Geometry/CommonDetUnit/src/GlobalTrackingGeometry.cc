@@ -6,6 +6,8 @@
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+
 #include <memory>
 
 GlobalTrackingGeometry::GlobalTrackingGeometry(std::vector<const TrackingGeometry*>& geos)
@@ -55,7 +57,11 @@ const TrackingGeometry* GlobalTrackingGeometry::slaveGeometry(DetId id) const {
     int idx = id.det()-1;
     if (id.det() == DetId::Muon) {
         
-        idx+=id.subdetId()-1;
+      idx+=id.subdetId(); //-1; // remove the -1 from before since MTD is there
+    }
+    if( id.det() == DetId::Forward && 
+	id.subdetId() == ForwardSubdetector::FastTime ) {
+      idx = 1;
     }
 
     if (theGeometries[idx]==nullptr) throw cms::Exception("NoGeometry") << "No Tracking Geometry is available for DetId " << id.rawId() << std::endl;
