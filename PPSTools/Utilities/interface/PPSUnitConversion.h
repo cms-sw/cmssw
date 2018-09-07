@@ -1,5 +1,5 @@
-#ifndef CTPPSHectorParameters_H
-#define CTPPSHectorParameters_H
+#ifndef PPS_UNITS
+#define PPS_UNITS
 #include <cmath>
 
 const double   ProtonMass = 0.93827;

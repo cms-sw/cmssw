@@ -1,0 +1,15 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="CommonTools/Utils"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="SimGeneral/HepPDTRecord"/>
+<use   name="PPSTools/Utilities"/>
+<use   name="SimTransport/TotemRPProtonTransportParametrization"/>
+<use   name="hector"/>
+<use   name="hepmc"/>
+<use   name="clhep"/>
+<use   name="root"/>
+<export>
+  <lib name="1"/>
+</export>
+

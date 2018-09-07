@@ -45,7 +45,7 @@ Implementation:
 
 #include "FastSimDataFormats/CTPPSFastSim/interface/CTPPSFastRecHitContainer.h"
 #include "FastSimulation/CTPPSFastGeometry/interface/CTPPSToFDetector.h"
-#include "SimTransport/HectorProducer/interface/CTPPSHectorParameters.h"
+#include "PPSTools/Utilities/interface/PPSUnitConversion.h"
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"

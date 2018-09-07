@@ -35,6 +35,7 @@ RandomtXiGunProducer::RandomtXiGunProducer(const edm::ParameterSet& pset) :
    fMaxt = pgun_params.getParameter<double>("Maxt");
    fMinXi= pgun_params.getParameter<double>("MinXi");
    fMaxXi= pgun_params.getParameter<double>("MaxXi");
+   fLog_t= pgun_params.getUntrackedParameter<bool>("Log_t",false);
   
   produces<HepMCProduct>("unsmeared");
   produces<GenEventInfoProduct>();
@@ -92,7 +93,8 @@ void RandomtXiGunProducer::produce(edm::Event &e, const edm::EventSetup& es)
                   std::cout << "WARNING: t limits redefined (unphysical values for given xi)." << endl;
                   max_t = min_t;
                }
-               t      = CLHEP::RandFlat::shoot(engine,min_t,max_t);
+               t      = (fLog_t)?pow(CLHEP::RandFlat::shoot(engine,log10(min_t),log10(max_t)),10):
+                                     CLHEP::RandFlat::shoot(engine,min_t,max_t);
                break;
           }
           phi    = CLHEP::RandFlat::shoot(engine,fMinPhi, fMaxPhi) ;
@@ -111,7 +113,8 @@ void RandomtXiGunProducer::produce(edm::Event &e, const edm::EventSetup& es)
                   std::cout << "WARNING: t limits redefined (unphysical values for given xi)." << endl;
                   max_t = min_t;
                }
-               t      = CLHEP::RandFlat::shoot(engine,min_t,max_t);
+               t      = (fLog_t)?pow(CLHEP::RandFlat::shoot(engine,log10(min_t),log10(max_t)),10):
+                                     CLHEP::RandFlat::shoot(engine,min_t,max_t);
                break;
           }
           phi    = CLHEP::RandFlat::shoot(engine,fMinPhi, fMaxPhi) ;
@@ -158,7 +161,7 @@ HepMC::FourVector RandomtXiGunProducer::make_particle(double t,double Xi,double 
 
        if (direction<1) theta = acos(-1.) - theta;
 
-       double px     = sMom*cos(phi)*sin(theta)*direction;
+       double px     = sMom*cos(phi)*sin(theta);
        double py     = sMom*sin(phi)*sin(theta);
        double pz     = sMom*cos(theta) ;  // the direction is already set by the theta angle
        if (fVerbosity > 0) 
