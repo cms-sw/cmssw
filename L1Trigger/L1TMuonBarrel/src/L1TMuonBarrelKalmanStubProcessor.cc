@@ -196,6 +196,8 @@ L1TMuonBarrelKalmanStubProcessor::makeStubs(const L1MuDTChambPhContainer* phiCon
 	    hasEta=true;
 	  }
 
+
+	  //	  printf("Wheel=%d LWheel=%d,%d sector=%d station=%d phiMask=%d etaMask=%d\n",wheel,lwheel1,lwheel2,sector,station,phiMask,etaMask);
 	  //	  if (abs(wheel)==2 && station==1)
 	  //	    continue;
 	    
