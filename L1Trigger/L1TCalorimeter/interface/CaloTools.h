@@ -102,7 +102,7 @@ namespace l1t {
     static int gtPhi(int ieta, int iphi);      // GT phi scale
 
     // integer divide for HI asymmetry 
-    static double intDivide(int x, unsigned nHigh = 9, unsigned nLow = 9);
+    static unsigned int gloriousDivision(uint32_t aNumerator, uint32_t aDenominator);
 
     // conversion methods
     static math::PtEtaPhiMLorentzVector p4Demux(l1t::L1Candidate*);
