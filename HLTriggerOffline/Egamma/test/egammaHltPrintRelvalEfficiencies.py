@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import sys, os
 
 try:
     import ROOT
 except ImportError:
-    print >> sys.stderr
-    print >> sys.stderr,"  Error importing the ROOT python module"
-    print >> sys.stderr,"  Try e.g. initializing a CMSSW environment"
-    print >> sys.stderr,"  prior to starting this script"
-    print >> sys.stderr
+    print(file=sys.stderr)
+    print("  Error importing the ROOT python module", file=sys.stderr)
+    print("  Try e.g. initializing a CMSSW environment", file=sys.stderr)
+    print("  prior to starting this script", file=sys.stderr)
+    print(file=sys.stderr)
     sys.exit(1)
 
 #----------------------------------------------------------------------
@@ -67,7 +68,7 @@ def findTopDir(fin):
         if re.match("Run \d+$", subdirName):
             if runSubdirName != None:
                 # more than one run found
-                print >> sys.stderr,"more than one run found in the DQM file, this is currently not supported"
+                print("more than one run found in the DQM file, this is currently not supported", file=sys.stderr)
                 sys.exit(1)
 
             runSubdirName = subdirName
@@ -149,10 +150,10 @@ fin = ROOT.TFile.Open(ARGV[0])
 top_dir = findTopDir(fin)
 
 if top_dir == None:
-    print >> sys.stderr,"could not find a top directory inside root file"
-    print >> sys.stderr,"A typical top directory for MC is 'DQMData/Run 1/HLT/Run summary/HLTEgammaValidation'"
-    print >> sys.stderr
-    print >> sys.stderr,"Exiting"
+    print("could not find a top directory inside root file", file=sys.stderr)
+    print("A typical top directory for MC is 'DQMData/Run 1/HLT/Run summary/HLTEgammaValidation'", file=sys.stderr)
+    print(file=sys.stderr)
+    print("Exiting", file=sys.stderr)
     sys.exit(1)
 
 
@@ -227,29 +228,29 @@ for path_name in allPathNames:
     #--------------------
 
     if not options.summary_mode:
-        print "----------------------------------------"
+        print("----------------------------------------")
 
-    print ("PATH: %-" + str(maxPathNameLen) + "s") % path_name,
+    print(("PATH: %-" + str(maxPathNameLen) + "s") % path_name, end=' ')
 
     if num_gen_events > 0:
-        print "(%5.1f%% eff.)" % (100 * total / float(num_gen_events)),
+        print("(%5.1f%% eff.)" % (100 * total / float(num_gen_events)), end=' ')
 
     elif options.summary_mode:
-        print "(no entries)",
+        print("(no entries)", end=' ')
 
-    print
+    print()
 
     if not options.summary_mode:
-        print "----------------------------------------"
+        print("----------------------------------------")
 
-        print "  %-80s: %5d events" % ('generated', num_gen_events)
+        print("  %-80s: %5d events" % ('generated', num_gen_events))
 
     if options.summary_mode:
         continue
 
     previous_module_output = num_gen_events
 
-    print
+    print()
 
     for i in range(num_modules):
 
@@ -263,24 +264,24 @@ for path_name in allPathNames:
         
 
 
-        print "  %-90s: %5d events" % (module_name, events),
+        print("  %-90s: %5d events" % (module_name, events), end=' ')
 
         if previous_module_output > 0:
             eff = 100 * events / float(previous_module_output)
-            print "(%5.1f%% eff.)" % (eff),
+            print("(%5.1f%% eff.)" % (eff), end=' ')
             if eff > 100.:
                 if module_name.find("Unseeded") >= 0:
-                    print ">100% Unseeded Filter",
+                    print(">100% Unseeded Filter", end=' ')
                 else:
-                    print "ERROR",
+                    print("ERROR", end=' ')
 
-        print
+        print()
                                      
 
         previous_module_output = events
 
 
-    print 
+    print() 
     
 
     

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys
 import os
 import readline
@@ -37,6 +38,6 @@ if __name__ == '__main__':
         readline.set_history_length(-1)
 
     if not interactive_inspect_mode():
-        print "python -i `which interactivePythonTest.py` "
+        print("python -i `which interactivePythonTest.py` ")
 
 

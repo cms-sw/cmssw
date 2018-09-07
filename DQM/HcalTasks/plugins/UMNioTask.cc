@@ -28,8 +28,10 @@ UMNioTask::UMNioTask(edm::ParameterSet const& ps):
 		20);
 
 	//	push all the event types to monitor - whole range basically
-	for (uint32_t type=constants::tNull; type<constants::nOrbitGapType; type++)
+	//	This corresponds to all enum values in hcaldqm::constants::OrbitGapType
+	for (uint32_t type=constants::tNull; type<constants::nOrbitGapType; type++) {
 		_eventtypes.push_back(type);
+	}
 }
 	
 /* virtual */ void UMNioTask::bookHistograms(DQMStore::IBooker &ib,
@@ -62,6 +64,35 @@ UMNioTask::UMNioTask(edm::ParameterSet const& ps):
 	_cTotalChargeProfile.book(ib, _subsystem);
 }
 
+int UMNioTask::getOrbitGapIndex(uint8_t eventType, uint32_t laserType) {
+	constants::OrbitGapType orbitGapType;
+	if (eventType == constants::EVENTTYPE_PEDESTAL) {
+		orbitGapType = tPedestal;
+	} else if (eventType == constants::EVENTTYPE_LED) {
+		orbitGapType = tLED;
+	} else if (eventType == constants::EVENTTYPE_LASER) {
+		switch (laserType)
+		{
+			//case tNull : return "Null";
+			//case tHFRaddam : return "HFRaddam";
+			case 3 : return tHBHEHPD;
+			case 4 : return tHO;
+			case 5 : return tHF;
+			//case tZDC : return "ZDC";
+			case 7 : return tHEPMega;
+			case 8 : return tHEMMega;
+			case 9 : return tHBPMega;
+			case 10 : return tHBMMega;
+			//case tCRF : return "CRF";
+			//case tCalib : return "Calib";
+			//case tSafe : return "Safe";
+			default : return tUnknown;
+		}
+	}
+	return (int)(std::find(_eventtypes.begin(), _eventtypes.end(), orbitGapType) - _eventtypes.begin());
+}
+
+
 /* virtual */ void UMNioTask::_process(edm::Event const& e,
 	edm::EventSetup const& es)
 {
@@ -71,8 +102,7 @@ UMNioTask::UMNioTask(edm::ParameterSet const& ps):
 
 	uint8_t eventType = cumn->eventType();
 	uint32_t laserType = cumn->valueUserWord(0);
-	_cEventType.fill(_currentLS, eventType==constants::EVENTTYPE_PEDESTAL ?
-		(int)eventType : (int)laserType);
+	_cEventType.fill(_currentLS, getOrbitGapIndex(eventType, laserType));
 
 	//	Compute the Total Charge in the Detector...
 	edm::Handle<HBHEDigiCollection>     chbhe;

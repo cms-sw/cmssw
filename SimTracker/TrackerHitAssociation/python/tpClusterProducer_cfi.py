@@ -16,4 +16,5 @@ premix_stage2.toModify(tpClusterProducer,
     trackingParticleSrc = "mixData:MergedTrackTruth",
     pixelSimLinkSrc = "mixData:PixelDigiSimLink",
     stripSimLinkSrc = "mixData:StripDigiSimLink",
+    phase2OTSimLinkSrc = "mixData:Phase2OTDigiSimLink",
 )

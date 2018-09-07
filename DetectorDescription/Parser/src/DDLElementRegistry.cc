@@ -1,4 +1,3 @@
-#include "DetectorDescription/Core/interface/Singleton.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDLAlgorithm.h"
 #include "DetectorDescription/Parser/src/DDLBooleanSolid.h"
@@ -7,19 +6,14 @@
 #include "DetectorDescription/Parser/src/DDLCone.h"
 #include "DetectorDescription/Parser/src/DDLDivision.h"
 #include "DetectorDescription/Parser/src/DDLElementaryMaterial.h"
-#include "DetectorDescription/Parser/src/DDLEllipsoid.h"
 #include "DetectorDescription/Parser/src/DDLEllipticalTube.h"
 #include "DetectorDescription/Parser/src/DDLLogicalPart.h"
 #include "DetectorDescription/Parser/src/DDLMap.h"
-#include "DetectorDescription/Parser/src/DDLMultiUnionSolid.h"
 #include "DetectorDescription/Parser/src/DDLNumeric.h"
-#include "DetectorDescription/Parser/src/DDLOrb.h"
-#include "DetectorDescription/Parser/src/DDLParallelepiped.h"
 #include "DetectorDescription/Parser/src/DDLPolyGenerator.h"
 #include "DetectorDescription/Parser/src/DDLPgonGenerator.h"
 #include "DetectorDescription/Parser/src/DDLPosPart.h"
 #include "DetectorDescription/Parser/src/DDLPseudoTrap.h"
-#include "DetectorDescription/Parser/src/DDLReflectionSolid.h"
 #include "DetectorDescription/Parser/src/DDLRotationAndReflection.h"
 #include "DetectorDescription/Parser/src/DDLRotationByAxis.h"
 #include "DetectorDescription/Parser/src/DDLRotationSequence.h"
@@ -87,18 +81,10 @@ DDLElementRegistry::getElement( const std::string& name )
     {
       myret = std::make_shared<DDLTorus>(this);
     }
-    else if (name == "ReflectionSolid")
-    {
-      myret = std::make_shared<DDLReflectionSolid>(this);
-    }
     else if (name == "UnionSolid" || name == "SubtractionSolid"
 	     || name == "IntersectionSolid")
     {
       myret = std::make_shared<DDLBooleanSolid>(this);
-    }
-    else if (name == "MultiUnionSolid" )
-    {
-      myret = std::make_shared<DDLMultiUnionSolid>(this);
     }
     else if (name == "ShapelessSolid")
     {
@@ -108,21 +94,9 @@ DDLElementRegistry::getElement( const std::string& name )
     {
       myret = std::make_shared<DDLSphere>(this);
     }
-    else if (name == "Orb")
-    {
-      myret = std::make_shared<DDLOrb>(this);
-    }
     else if (name == "EllipticalTube")
     {
       myret = std::make_shared<DDLEllipticalTube>(this);
-    }
-    else if (name == "Ellipsoid")
-    {
-      myret = std::make_shared<DDLEllipsoid>(this);
-    }
-    else if (name == "Parallelepiped")
-    {
-      myret = std::make_shared<DDLParallelepiped>(this);
     }
     else if (name == "ExtrudedPolygon")
       myret = std::make_shared<DDLPgonGenerator>(this);
@@ -216,4 +190,3 @@ DDLElementRegistry::getElement( const std::string& name )
   return myret;
 }
 
-template class DDI::Singleton<DDLElementRegistry>;

@@ -1,4 +1,4 @@
-#include "../interface/TrigPrimTask.h"
+#include "DQM/EcalMonitorTasks/interface/TrigPrimTask.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -65,6 +65,7 @@ namespace ecaldqm
   {
     // Reset by LS plots at beginning of every LS
     MEs_.at("EtSummaryByLumi").reset();
+    MEs_.at("TTFlags4ByLumi").reset();
     MEs_.at("LHCStatusByLumi").reset(-1);
 
     // Reset lhcStatusSet_ to false at the beginning of each LS; when LHC status is set in some event this variable will be set to true
@@ -215,6 +216,7 @@ namespace ecaldqm
     MESet& meTTFlags(MEs_.at("TTFlags"));
     MESet& meTTFlagsVsEt(MEs_.at("TTFlagsVsEt"));
     MESet& meTTFlags4( MEs_.at("TTFlags4") );
+    MESet& meTTFlags4ByLumi( MEs_.at("TTFlags4ByLumi") );
     MESet& meTTFMismatch(MEs_.at("TTFMismatch"));
     MESet& meOccVsBx(MEs_.at("OccVsBx"));
 
@@ -258,15 +260,16 @@ namespace ecaldqm
       }
 
       // Fill TT Flag MEs
-      float ttF( tpItr->ttFlag() );
-      meTTFlags.fill( ttid, ttF );
-      meTTFlagsVsEt.fill(ttid, et, ttF);
+      int ttF( tpItr->ttFlag() );
+      meTTFlags.fill( ttid, 1.0*ttF );
+      meTTFlagsVsEt.fill(ttid, et, 1.0*ttF);
       // Monitor occupancy of TTF=4
       // which contains info about TT auto-masking
-      if ( ttF == 4. )
+      if ( ttF >= 4 ) {
         meTTFlags4.fill( ttid );
-
-      if((interest == 1 || interest == 3) && towerReadouts_[ttid.rawId()] != getTrigTowerMap()->constituentsOf(ttid).size())
+        meTTFlags4ByLumi.fill( ttid );
+      }
+      if((ttF == 1 || ttF == 3) && towerReadouts_[ttid.rawId()] != getTrigTowerMap()->constituentsOf(ttid).size())
         meTTFMismatch.fill(ttid);
     }
 
@@ -345,8 +348,8 @@ namespace ecaldqm
 
         if(realEt > 0){
 
-          int interest(realItr->ttFlag() & 0x3);
-          if((interest == 1 || interest == 3) && towerReadouts_[ttid.rawId()] == getTrigTowerMap()->constituentsOf(ttid).size()){
+          int ttF(realItr->ttFlag());
+          if((ttF == 1 || ttF == 3) && towerReadouts_[ttid.rawId()] == getTrigTowerMap()->constituentsOf(ttid).size()){
 
             if(et != realEt) match = false;
             if(tpItr->fineGrain() != realItr->fineGrain()) matchFG = false;

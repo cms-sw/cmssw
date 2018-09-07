@@ -30,8 +30,8 @@ namespace defaultRKPropagator {
   class RKMagVolume final : public MagVolume {
   public:
     RKMagVolume( const PositionType& pos, const RotationType& rot, 
-		 DDSolidShape shape, const MagneticFieldProvider<float> * mfp) :
-      MagVolume( pos, rot, shape, mfp) {}
+		 const MagneticFieldProvider<float> * mfp) :
+      MagVolume( pos, rot, mfp) {}
     
     bool inside( const GlobalPoint& gp, double tolerance=0.) const override {return true;}
     
@@ -45,7 +45,7 @@ namespace defaultRKPropagator {
   struct Product {
     explicit Product(const MagneticField* field,PropagationDirection dir = alongMomentum, double tolerance = 5.e-5) : 
       mpf(field), 
-      volume(MagVolume::PositionType(0,0,0), MagVolume::RotationType(),ddshapeless, &mpf),
+      volume(MagVolume::PositionType(0,0,0), MagVolume::RotationType(), &mpf),
       propagator(volume, dir, tolerance){}
     TrivialFieldProvider mpf;
     RKMagVolume volume;

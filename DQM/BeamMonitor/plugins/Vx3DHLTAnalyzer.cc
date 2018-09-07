@@ -1224,7 +1224,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
 	    }
 	}
       myGaussFit->SetRange(minXfit - (maxXfit-minXfit)/2.,maxXfit + (maxXfit-minXfit)/2.);
-      Vx_X_Fit->getTH1()->Fit(myGaussFit,"QR");
+      Vx_X_Fit->getTH1()->Fit(myGaussFit,"QRL");
 
       myGaussFit->SetParameter(0, Vx_Y_Fit->getTH1()->GetMaximum());
       myGaussFit->SetParameter(1, Vx_Y_Fit->getTH1()->GetMean());
@@ -1248,7 +1248,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
 	    }
 	}
       myGaussFit->SetRange(minXfit - (maxXfit-minXfit)/2.,maxXfit + (maxXfit-minXfit)/2.);
-      Vx_Y_Fit->getTH1()->Fit(myGaussFit,"QR");
+      Vx_Y_Fit->getTH1()->Fit(myGaussFit,"QRL");
 
       myGaussFit->SetParameter(0, Vx_Z_Fit->getTH1()->GetMaximum());
       myGaussFit->SetParameter(1, Vx_Z_Fit->getTH1()->GetMean());
@@ -1272,7 +1272,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
 	    }
 	}
       myGaussFit->SetRange(minXfit - (maxXfit-minXfit)/2.,maxXfit + (maxXfit-minXfit)/2.);
-      Vx_Z_Fit->getTH1()->Fit(myGaussFit,"QR");
+      Vx_Z_Fit->getTH1()->Fit(myGaussFit,"QRL");
 
       delete myGaussFit;
     }

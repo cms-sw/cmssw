@@ -1,3 +1,4 @@
+from __future__ import print_function
 import json
 class selectionParser(object):
     def __init__(self,selectStr):
@@ -33,13 +34,13 @@ class selectionParser(object):
         '''
         return self.__strresult
     def numruns(self):
-        return len(self.__result.keys())
+        return len(self.__result)
     def numls(self,run):
         return len(self.__result[run])
 if __name__ == "__main__":
     s=selectionParser('{"1":[[3,45]],"2":[[4,8],[10,10]],"3":[[]]}')
-    print 'runs : ',s.runs()
-    print 'full result : ',s.runsandls()
-    print 'str result : ',s.runsandlsStr()
-    print 'num runs : ',s.numruns()
-    print 'numls in run : ',s.numls(1)
+    print('runs : ',s.runs())
+    print('full result : ',s.runsandls())
+    print('str result : ',s.runsandlsStr())
+    print('num runs : ',s.numruns())
+    print('numls in run : ',s.numls(1))

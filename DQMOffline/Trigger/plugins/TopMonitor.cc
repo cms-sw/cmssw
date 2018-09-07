@@ -583,7 +583,7 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   //ATHER                                                                                                                                                                                                                       
   edm::Handle<edm::ValueMap<bool> > eleIDHandle;
   iEvent.getByToken(elecIDToken_,  eleIDHandle);
-  if (!eleIDHandle.isValid()){
+  if (!eleIDHandle.isValid() && nelectrons_>0){
     edm::LogWarning("TopMonitor") << "Electron ID handle not valid \n";
     return;
   }
@@ -1051,14 +1051,14 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<edm::InputTag>( "jets",     edm::InputTag("ak4PFJetsCHS") );
   desc.add<edm::InputTag>( "electrons",edm::InputTag("gedGsfElectrons") );
   //ATHER
-  desc.add<edm::InputTag>( "elecID"    ,edm::InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Summer16-80X-V1-medium") );
+  desc.add<edm::InputTag>( "elecID"    ,edm::InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Fall17-94X-V1-medium") );
   desc.add<edm::InputTag>( "muons",    edm::InputTag("muons") );
   //Menglei
   desc.add<edm::InputTag>( "photons",  edm::InputTag("photons") );
   //Suvankar
   desc.add<edm::InputTag>( "vertices", edm::InputTag("offlinePrimaryVertices") );
-  // Marina
-  desc.add<edm::InputTag>( "btagalgo", edm::InputTag("pfCombinedSecondaryVertexV2BJetTags") );
+
+  desc.add<edm::InputTag>( "btagalgo", edm::InputTag("pfDeepCSVDiscriminatorsJetTags:BvsAll") );
   desc.add<std::string>("metSelection", "pt > 0");
   desc.add<std::string>("jetSelection", "pt > 0");
   desc.add<std::string>("eleSelection", "pt > 0");
@@ -1077,9 +1077,9 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<double>("bJetMuDeltaRmax" , 9999.);
   desc.add<double>("bJetDeltaEtaMax" , 9999.);
   desc.add<double>("HTcut", 0);
-  // Marina
+
   desc.add<unsigned int>("nbjets",     0);
-  desc.add<double>("workingpoint",     0.8484); // medium CSV
+  desc.add<double>("workingpoint",     0.4941); // medium DeepCSV
   //Suvankar
   desc.add<bool>("applyleptonPVcuts", false);
   //george

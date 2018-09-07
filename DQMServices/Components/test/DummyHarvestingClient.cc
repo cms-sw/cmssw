@@ -199,8 +199,6 @@ class DummyHarvestingClient : public edm::EDAnalyzer {
 
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
   void endRun(edm::Run const&, edm::EventSetup const&) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const&,
-                                    edm::EventSetup const&) override;
   void endLuminosityBlock(edm::LuminosityBlock const&,
                                   edm::EventSetup const&) override;
 
@@ -305,13 +303,6 @@ DummyHarvestingClient::endRun(edm::Run const&, edm::EventSetup const&) {
     (*it)->finalizeCumulate();
 }
 
-// ------------ method called when starting to processes a luminosity block  ------------
-void
-DummyHarvestingClient::beginLuminosityBlock(edm::LuminosityBlock const&,
-                                            edm::EventSetup const&) {
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
 void
 DummyHarvestingClient::endLuminosityBlock(edm::LuminosityBlock const& iLumi,
                                           edm::EventSetup const&) {

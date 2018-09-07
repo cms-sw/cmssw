@@ -10,8 +10,16 @@ namespace l1t {
 
    class Unpacker {
       public:
-         virtual bool unpack(const Block& block, UnpackerCollections *coll) = 0;
+         Unpacker() : algoVersion_(0) {};
          virtual ~Unpacker() = default;
+         virtual bool unpack(const Block& block, UnpackerCollections *coll) = 0;
+
+         // Modeled on plugins/implementations_stage2/MuonUnpacker.h
+         inline unsigned int getAlgoVersion() { return algoVersion_; };
+         inline void setAlgoVersion(const unsigned int version) { algoVersion_ = version; };
+
+      private:
+         unsigned int algoVersion_;
    };
 }
 

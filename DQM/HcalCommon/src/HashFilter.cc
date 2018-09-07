@@ -2,6 +2,8 @@
 
 namespace hcaldqm
 {
+	using namespace mapper;
+	using namespace hashfunctions;
 	namespace filter
 	{
 		HashFilter::HashFilter(FilterType ftype, HashType htype) : 

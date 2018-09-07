@@ -53,7 +53,7 @@ namespace cscdqm {
 
   static const TPRegexp REGEXP_ONDEMAND("^.*%d.*$");
 
-  #include "CSCDQM_HistoNames.h"
+  #include "CSCDQM_HistoNames.icc"
 
   /**
    * @class HistoDef

@@ -6,13 +6,13 @@
 #include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
 
-#include "L1Trigger/L1TMuonOverlap/plugins/L1TMuonOverlapTrackProducer.h"
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFProcessor.h"
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFinput.h"
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFReconstruction.h"
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFConfiguration.h"
 #include "L1Trigger/L1TMuonOverlap/interface/XMLConfigWriter.h"
 #include "L1Trigger/L1TMuonOverlap/interface/OmtfName.h"
+#include "L1Trigger/L1TMuonOverlap/interface/GhostBusterPreferRefDt.h"
 
 #include "L1Trigger/RPCTrigger/interface/RPCConst.h"
 
@@ -71,7 +71,18 @@ void OMTFReconstruction::beginRun(edm::Run const& run, edm::EventSetup const& iS
 
   m_OMTFConfig->configure(omtfParams);
   m_OMTF->configure(m_OMTFConfig, omtfParams);
-  m_GhostBuster.setNphiBins(m_OMTFConfig->nPhiBins());
+  //m_GhostBuster.setNphiBins(m_OMTFConfig->nPhiBins());
+
+  if (m_OMTFConfig->fwVersion() >= 5) {
+//  if(m_Config.exists("ghostBusterType") ) {
+//    if(m_Config.getParameter<std::string>("ghostBusterType") == "GhostBusterPreferRefDt")
+    	m_GhostBuster.reset(new GhostBusterPreferRefDt(m_OMTFConfig) );
+  }
+  else {
+	  m_GhostBuster.reset(new GhostBuster() );
+  }
+
+  m_Sorter.initialize(m_OMTFConfig);
   m_Sorter.setNphiBins(m_OMTFConfig->nPhiBins());
 
   m_InputMaker.initialize(iSetup, m_OMTFConfig);
@@ -139,10 +150,10 @@ void OMTFReconstruction::getProcessorCandidates(unsigned int iProcessor, l1t::tf
   m_Sorter.sortRefHitResults(results, algoCandidates);  
 
   // perform GB 
-  m_GhostBuster.select(algoCandidates); 
-
+  std::vector<AlgoMuon> gbCandidates =  m_GhostBuster->select(algoCandidates);
+  
   // fill RegionalMuonCand colleciton
-  std::vector<l1t::RegionalMuonCand> candMuons = m_Sorter.candidates(iProcessor, mtfType, algoCandidates);
+  std::vector<l1t::RegionalMuonCand> candMuons = m_Sorter.candidates(iProcessor, mtfType, gbCandidates);
 
   //fill outgoing collection
   for (auto & candMuon :  candMuons) {

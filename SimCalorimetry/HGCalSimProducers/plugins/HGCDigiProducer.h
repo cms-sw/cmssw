@@ -3,6 +3,7 @@
 
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizer.h"
+#include "FWCore/Framework/interface/ProducerBase.h"
 
 #include <vector>
 

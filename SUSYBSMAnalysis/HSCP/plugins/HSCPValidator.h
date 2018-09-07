@@ -31,6 +31,9 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/DeDxData.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
 

@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <SolidSection>
+    <TruncTubs name="ChildVolume" rMin="6.9551*m" rMax="9*m" cutAtStart="6.9551*m" cutAtDelta="7.20045*m" cutInside="true"
+	       startPhi="0*deg" deltaPhi="15*deg" zHalf="6.57005*m"/>
+  </SolidSection>
+  <LogicalPartSection>
+    <LogicalPart name="ChildVolume" category="unspecified">
+      <rSolid name="ChildVolume"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+  </LogicalPartSection>
+  <Algorithm name="global:DDLinear">
+    <rParent name="world:MotherOfAllBoxes"/>
+    <String name="ChildName" value="ChildVolume"/>
+    <Numeric name="N" value="12"/>
+    <Numeric name="StartCopyNo" value="14"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="0.5*m"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> 0.*mm, 0.*mm, 0.*mm </Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="world:MotherOfAllBoxes"/>
+    <String name="ChildName" value="ChildVolume"/>
+    <Numeric name="N" value="12"/>
+    <Numeric name="StartCopyNo" value="1"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="Delta" value="0.5*m"/>
+    <Vector  name="Base" type="numeric" nEntries="3"> 0.*mm, 0.*mm, 0.*mm </Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  <PosPartSection label="">
+    <PosPart copyNumber="13">
+      <rParent name="world:MotherOfAllBoxes"/>
+      <rChild name="ChildVolume"/>
+      <Translation z="17.4299*m" y="0.*m" x="0."/>
+    </PosPart>
+  </PosPartSection>
+</DDDefinition>

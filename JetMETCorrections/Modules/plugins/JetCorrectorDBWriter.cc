@@ -76,7 +76,7 @@ void JetCorrectorDBWriter::beginJob()
       }
       std::cout << "Added record " << i << std::endl;
     }
-    catch(edm::Exception ex) {
+    catch(edm::Exception const&) {
       std::cout << "Did not find JEC file " << inputTxtFile << std::endl;
     }
     

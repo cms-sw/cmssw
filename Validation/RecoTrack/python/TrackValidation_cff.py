@@ -21,6 +21,7 @@ from CommonTools.RecoAlgos.recoChargedRefCandidateToTrackRefProducer_cfi import 
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 import RecoTracker.IterativeTracking.iterativeTkUtils as _utils
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
+import six
 
 ### First define the stuff for the standard validation sequence
 ## Track selectors
@@ -174,7 +175,7 @@ def _sequenceForEachEra(function, args, names, sequence, modDict, plainArgs=[], 
         _era.toReplaceWith(defaultSequence, modDict[sequence+_postfix])
 def _setForEra(module, eraName, era, **kwargs):
     if eraName == "":
-        for key, value in kwargs.iteritems():
+        for key, value in six.iteritems(kwargs):
             setattr(module, key, value)
     else:
         era.toModify(module, **kwargs)
@@ -234,7 +235,7 @@ def _getMVASelectors(postfix):
     mvaSel = _utils.getMVASelectors(postfix)
 
     pset = cms.untracked.PSet()
-    for iteration, (trackProducer, classifiers) in mvaSel.iteritems():
+    for iteration, (trackProducer, classifiers) in six.iteritems(mvaSel):
         setattr(pset, trackProducer, cms.untracked.vstring(classifiers))
     return pset
 for _eraName, _postfix, _era in _relevantEras:
@@ -250,9 +251,9 @@ _sequenceForEachEra(_addSelectorsByHp, args=["_algos"], names="_selectorsByAlgoH
 for _eraName, _postfix, _era in _relevantEras:
     locals()["_selectorsByAlgoAndHp"+_postfix] = locals()["_selectorsByAlgo"+_postfix] + locals()["_selectorsByAlgoHp"+_postfix]
     # For ByAlgoMask
-    locals()["_selectorsByAlgoAndHpNoGenTk"+_postfix] = filter(lambda n: n not in ["generalTracks", "cutsRecoTracksHp"], locals()["_selectorsByAlgoAndHp"+_postfix])
+    locals()["_selectorsByAlgoAndHpNoGenTk"+_postfix] = [n for n in locals()["_selectorsByAlgoAndHp"+_postfix] if n not in ["generalTracks", "cutsRecoTracksHp"]]
     # For ByOriginalAlgo
-    locals()["_selectorsByAlgoAndHpNoGenTkDupMerge"+_postfix] = filter(lambda n: n not in ["cutsRecoTracksDuplicateMerge", "cutsRecoTracksDuplicateMergeHp"], locals()["_selectorsByAlgoAndHpNoGenTk"+_postfix])
+    locals()["_selectorsByAlgoAndHpNoGenTkDupMerge"+_postfix] = [n for n in locals()["_selectorsByAlgoAndHpNoGenTk"+_postfix] if n not in ["cutsRecoTracksDuplicateMerge", "cutsRecoTracksDuplicateMergeHp"]]
 _sequenceForEachEra(_addSelectorsByOriginalAlgoMask, modDict = globals(),
                     args = ["_selectorsByAlgoAndHpNoGenTkDupMerge"], plainArgs = ["ByOriginalAlgo", "originalAlgorithm"],
                     names = "_selectorsByOriginalAlgo", sequence = "_tracksValidationSelectorsByOriginalAlgo")

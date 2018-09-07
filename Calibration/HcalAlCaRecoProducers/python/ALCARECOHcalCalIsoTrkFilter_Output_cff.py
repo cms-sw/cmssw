@@ -10,7 +10,7 @@ OutALCARECOHcalCalIsoTrkFilter_noDrop = cms.PSet(
     ),
     outputCommands = cms.untracked.vstring( 
         'keep *_gtStage2Digis_*_*',
-        'keep *_hbheprereco_*_*',
+        'keep HcalNoiseSummary_hcalnoise_*_*',
         'keep *_hbhereco_*_*',
         'keep *_ecalRecHit_*_*',
         'keep *_towerMaker_*_*',

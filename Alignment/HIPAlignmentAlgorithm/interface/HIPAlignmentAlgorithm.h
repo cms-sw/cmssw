@@ -150,17 +150,8 @@ private:
   TFile* theSurveyIORootFile;
   TTree* theSurveyTree; // survey tree
 
-  // variables for event-wise tree
-  int m_Ntracks;
-  std::vector<int> m_Nhits, m_nhPXB, m_nhPXF, m_nhTIB, m_nhTOB, m_nhTID, m_nhTEC;
-  std::vector<float> m_Pt, m_Eta, m_Phi, m_Chi2n, m_P, m_d0, m_dz, m_wt;
-
-  // variables for hit-wise tree
-  bool m_hasHitProb;
-  float m_sinTheta, m_hitwt, m_angle, m_probXY, m_probQ;
-  unsigned int m_rawQualityWord;
+  // common variables for monitor trees
   int m_datatype;
-  align::ID m_detId;
 
   // variables for alignable-wise tree
   align::ID m2_Id;

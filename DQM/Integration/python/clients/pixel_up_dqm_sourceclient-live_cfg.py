@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PIXELDQMLIVE")
@@ -357,4 +358,4 @@ process.p = cms.Path(
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
 
-print "Running with run type = ", process.runType.getRunType()
+print("Running with run type = ", process.runType.getRunType())

@@ -72,8 +72,7 @@ namespace sistrip {
         const bool allowIncompleteEvents_;  //!< Allow inconsistent (by event count, APV address) event storage.
         const bool storeCounters_;          //!< True = store L1ID and TotalEventCount by FED key.
         const bool storeScopeRawDigis_;           //!< True = store the scope mode raw digis.
-
-        // Unpacking
+      // Unpacking
         SpyUnpacker* unpacker_;      //!<
     
       //utilities for cabling etc...

@@ -13,7 +13,7 @@
 //
 //
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -21,19 +21,18 @@
 #include "HFRecoEcalCandidateAlgo.h"
 #include "HFValueStruct.h"
 
-class HLTHFRecoEcalCandidateProducer : public edm::EDProducer {
+class HLTHFRecoEcalCandidateProducer : public edm::global::EDProducer<> {
  public:
   explicit HLTHFRecoEcalCandidateProducer(edm::ParameterSet const& conf);
-  void produce(edm::Event& e, edm::EventSetup const& iSetup) override;
+  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
  private:
-  edm::InputTag hfclusters_,vertices_;
-  int HFDBversion_;
-  std::vector<double> HFDBvector_;
-  bool doPU_; 
-  double Cut2D_;
-  double defaultSlope2D_;
-  reco::HFValueStruct hfvars_;
-  HFRecoEcalCandidateAlgo algo_;
+  const edm::InputTag hfclusters_,vertices_;
+  const int HFDBversion_;
+  const std::vector<double> HFDBvector_;
+  const double Cut2D_;
+  const double defaultSlope2D_;
+  const reco::HFValueStruct hfvars_;
+  const HFRecoEcalCandidateAlgo algo_;
 };
 
 #endif

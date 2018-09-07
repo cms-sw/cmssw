@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-#from L1TriggerConfig.L1CSCTPConfigProducers.L1CSCTriggerPrimitivesConfig_cfi import *
-
 from CondCore.DBCommon.CondDBSetup_cfi import *
 
 # Read constants from DB.

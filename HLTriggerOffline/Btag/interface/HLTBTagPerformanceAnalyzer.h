@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/BTauReco/interface/ShallowTagInfo.h"
 
 // Trigger
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -67,6 +68,10 @@ class HLTBTagPerformanceAnalyzer : public DQMEDAnalyzer {
 		HLTConfigProvider hltConfigProvider_;
 		bool triggerConfChanged_;
 		std::vector<edm::EDGetTokenT<reco::JetTagCollection> > JetTagCollection_;
+                edm::EDGetTokenT<std::vector<reco::ShallowTagInfo> > shallowTagInfosTokenCalo_;
+                edm::EDGetTokenT<std::vector<reco::ShallowTagInfo> > shallowTagInfosTokenPf_;
+                edm::Handle<std::vector<reco::ShallowTagInfo> > shallowTagInfosCalo;
+                edm::Handle<std::vector<reco::ShallowTagInfo> > shallowTagInfosPf;
 
 		/// other class variable
 		std::vector<bool> _isfoundHLTs;
@@ -91,6 +96,8 @@ class HLTBTagPerformanceAnalyzer : public DQMEDAnalyzer {
 		std::vector< std::map<std::string, MonitorElement *> > H2_;
 		std::vector< std::map<std::string, std::map<HCALSpecials, MonitorElement *> > > H2mod_;
 		std::vector< std::map<std::string, MonitorElement *> > H2Eta_;
+		std::vector< std::map<std::string, MonitorElement *> > H2EtaPhi_;
+		std::vector< std::map<std::string, MonitorElement *> > H2EtaPhi_threshold_;
 		std::vector< std::map<std::string, MonitorElement *> > H2Phi_;
 
 		// Other variables

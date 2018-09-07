@@ -63,7 +63,7 @@ class PFAlgo {
   void setAlgo( int algo ) {algo_ = algo;}
   void setPFMuonAlgo(PFMuonAlgo* algo) {pfmu_ =algo;}
   void setMuonHandle(const edm::Handle<reco::MuonCollection>&);
-  void setDebug( bool debug ) {debug_ = debug; connector_.setDebug(debug_);}
+  void setDebug( bool debug ) {debug_ = debug; connector_.setDebug(debug_); if (pfegamma_) pfegamma_->setDebug(debug); }
 
   void setParameters(double nSigmaECAL,
                      double nSigmaHCAL, 
@@ -85,7 +85,9 @@ class PFAlgo {
 
 
   void setPFMuonAndFakeParameters(const edm::ParameterSet& pset);
-  
+
+  void setBadHcalTrackParams(const edm::ParameterSet& pset);
+   
   PFMuonAlgo*  getPFMuonAlgo();
   
   void setPFEleParameters(double mvaEleCut,
@@ -125,12 +127,14 @@ class PFAlgo {
 			   unsigned int ele_missinghits,
 			   bool useProtectionsForJetMET,
 			   const edm::ParameterSet& ele_protectionsForJetMET,
+			   const edm::ParameterSet& ele_protectionsForBadHcal,
 			   double ph_MinEt,
 			   double ph_combIso,
 			   double ph_HoE,
 			   double ph_sietaieta_eb,
 			   double ph_sietaieta_ee,
-			   const edm::ParameterSet& ph_protectionsForJetMET);
+			   const edm::ParameterSet& ph_protectionsForJetMET,
+			   const edm::ParameterSet& ph_protectionsForBadHcal);
 
   
   void setEGammaCollections(const edm::View<reco::PFCandidate> & pfEgammaCandidates,
@@ -395,6 +399,23 @@ class PFAlgo {
   double nSigmaTRACK_;
   double ptError_;
   std::vector<double> factors45_;
+
+  /// Variables for track cleaning in bad HCal areas
+  float goodTrackDeadHcal_ptErrRel_;
+  float goodTrackDeadHcal_chi2n_;
+  int   goodTrackDeadHcal_layers_;
+  float goodTrackDeadHcal_validFr_;
+  float goodTrackDeadHcal_dxy_;
+
+  float goodPixelTrackDeadHcal_minEta_;
+  float goodPixelTrackDeadHcal_maxPt_;
+  float goodPixelTrackDeadHcal_ptErrRel_;
+  float goodPixelTrackDeadHcal_chi2n_;
+  int   goodPixelTrackDeadHcal_maxLost3Hit_;
+  int   goodPixelTrackDeadHcal_maxLost4Hit_;
+  float goodPixelTrackDeadHcal_dxy_;
+  float goodPixelTrackDeadHcal_dz_;
+
 
   // Parameters for post HF cleaning
   bool postHFCleaning_;

@@ -18,8 +18,49 @@
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCFEElectronics.h"
 
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 namespace hgc = hgc_digi;
+
+namespace hgc_digi_utils {
+  using hgc::HGCCellInfo;
+
+  inline void addCellMetadata(HGCCellInfo& info,
+		       const HcalGeometry* geom,
+		       const DetId& detid ) {
+    //base time samples for each DetId, initialized to 0
+    info.size = 1.0;
+    info.thickness = 1.0;
+  }
+
+  inline void addCellMetadata(HGCCellInfo& info,
+		       const HGCalGeometry* geom,
+		       const DetId& detid ) {
+    const auto& dddConst = geom->topology().dddConstants();
+    bool isHalf = (((dddConst.geomMode() == HGCalGeometryMode::Hexagon) ||
+		    (dddConst.geomMode() == HGCalGeometryMode::HexagonFull)) ?
+		   dddConst.isHalfCell(HGCalDetId(detid).wafer(),HGCalDetId(detid).cell()) :
+		   false);
+    //base time samples for each DetId, initialized to 0
+    info.size = (isHalf ? 0.5 : 1.0);
+    info.thickness = dddConst.waferType(detid);
+  }
+
+  inline void addCellMetadata(HGCCellInfo& info,
+		       const CaloSubdetectorGeometry* geom,
+		       const DetId& detid ) {
+    if( DetId::Hcal == detid.det() ) {
+      const HcalGeometry* hc = static_cast<const HcalGeometry*>(geom);
+      addCellMetadata(info,hc,detid);
+    } else {
+      const HGCalGeometry* hg = static_cast<const HGCalGeometry*>(geom);
+      addCellMetadata(info,hg,detid);
+    }
+  }
+
+}
+
 
 template <class DFr>
 class HGCDigitizerBase {

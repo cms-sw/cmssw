@@ -126,7 +126,7 @@ CmsShowMainBase::setupViewManagers()
    triggerTableViewManager->setContext(m_contextPtr);
    viewManager()->add(triggerTableViewManager);
 
-   auto geoTableViewManager = std::make_shared<FWGeometryTableViewManager>(guiManager(),  m_simGeometryFilename);
+   auto geoTableViewManager = std::make_shared<FWGeometryTableViewManager>(guiManager(),  m_simGeometryFilename, m_TGeoName);
    geoTableViewManager->setContext(m_contextPtr);
    viewManager()->add(geoTableViewManager);
 

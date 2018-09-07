@@ -1,6 +1,6 @@
-#include "../interface/EcalDQMonitorTask.h"
+#include "DQM/EcalMonitorTasks/interface/EcalDQMonitorTask.h"
 
-#include "../interface/DQWorkerTask.h"
+#include "DQM/EcalMonitorTasks/interface/DQWorkerTask.h"
 
 #include "DQM/EcalCommon/interface/MESet.h"
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"

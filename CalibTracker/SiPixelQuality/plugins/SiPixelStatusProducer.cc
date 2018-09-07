@@ -152,6 +152,7 @@ void SiPixelStatusProducer::beginLuminosityBlock(edm::LuminosityBlock const& lum
 
   } // init when countLumi = 0
 
+  FEDerror25_.clear();
   countLumi_++;
 
 }
@@ -228,7 +229,7 @@ void SiPixelStatusProducer::accumulate(edm::Event const& iEvent, const edm::Even
 
         // collection has to exist
         if (!iEvent.getByToken(tk, pixelFEDChannelCollectionHandle)) {
-           edm::LogWarning("SiPixelStatusProducer") << " PixelFEDChannelCollection with index "<<tk.index()<<" does NOT exist!"<<endl;
+           edm::LogWarning("SiPixelStatusProducer") << " PixelFEDChannelCollection with index "<<tk.index()<<" does NOT exist!"<<std::endl;
            continue;
         }
         iEvent.getByToken(tk, pixelFEDChannelCollectionHandle);
@@ -237,17 +238,66 @@ void SiPixelStatusProducer::accumulate(edm::Event const& iEvent, const edm::Even
            edm::LogWarning("SiPixelStatusProducer") << " PixelFEDChannelCollection with index "<<tk.index()<<" is NOT valid!"<<endl;
            continue;
         }
+        // FEDerror channels for the current events
+        std::map<int, std::vector<PixelFEDChannel> > tmpFEDerror25;
         for (const auto& disabledChannels: *pixelFEDChannelCollectionHandle) {
             //loop over different PixelFED in a PixelFED vector (module)
             for(const auto& ch: disabledChannels) {
 
                 DetId detId = disabledChannels.detId();
                 int detid = detId.rawId();
-                fDet.fillFEDerror25(detid,ch);
+
+                if(ftotalevents==1){
+                  // FEDerror25 channels for the first event in the lumi section
+                  FEDerror25_[detid].push_back(ch);
+                }
+                else tmpFEDerror25[detid].push_back(ch);
 
             } // loop over different PixelFED in a PixelFED vector (different channel for a given module)
 
         }// loop over different (different DetId) PixelFED vectors in PixelFEDChannelCollection
+
+        // Compare the current FEDerror list with the first event's FEDerror list
+        // and save the common channels
+        if(!tmpFEDerror25.empty() && !FEDerror25_.empty()){ // non-empty FEDerror lists
+
+           std::map<int, std::vector<PixelFEDChannel> >::iterator itFEDerror25;
+           for (itFEDerror25 = FEDerror25_.begin(); itFEDerror25 != FEDerror25_.end(); itFEDerror25++) {
+
+                int detid = itFEDerror25->first;
+                if(tmpFEDerror25.find(detid)!=tmpFEDerror25.end()){
+
+                   std::vector<PixelFEDChannel> chs = itFEDerror25->second;
+                   std::vector<PixelFEDChannel> chs_tmp = tmpFEDerror25[detid];
+
+                   std::vector<PixelFEDChannel> chs_common;
+                   for(unsigned int ich = 0; ich<chs.size(); ich++){
+
+                      PixelFEDChannel ch = chs[ich];
+                      // look over the current FEDerror25 channels, save the common FED channels
+                      for(unsigned int ich_tmp = 0; ich_tmp<chs_tmp.size(); ich_tmp++){
+
+                          PixelFEDChannel ch_tmp = chs_tmp[ich_tmp];
+                          if((ch.fed == ch_tmp.fed)&&(ch.link==ch_tmp.link)) {// the same FED channel
+                            chs_common.push_back(ch); break;
+                          }
+                      }
+
+                   }
+                   // remove the full module from FEDerror25 list if no common channels are left
+                   if(chs_common.empty()) FEDerror25_.erase(itFEDerror25);
+                   // otherwise replace with the common channels
+                   else {  FEDerror25_[detid].clear();
+                           FEDerror25_[detid] = chs_common;
+                   }
+                }
+                else{ // remove the full module from FEDerror25 list if the module doesn't appear in the current event's FEDerror25 list
+                      FEDerror25_.erase(itFEDerror25);
+                }
+
+           }// loop over modules that have FEDerror25 in the first event in the lumi section
+
+        }// non-empty FEDerror lists
 
    }   // look over different resouces of takens
 
@@ -276,6 +326,18 @@ void SiPixelStatusProducer::endLuminosityBlockProduce(edm::LuminosityBlock& lumi
   if ( resetNLumi_ == -1 ) return;
   if ( countLumi_ < resetNLumi_ ) return;
 
+  // set the FEDerror25 flag to be true for ROCs send out FEDerror25 for all events in the lumi section
+  if(!FEDerror25_.empty()){
+       std::map<int, std::vector<PixelFEDChannel> >::iterator itFEDerror25;
+       for (itFEDerror25 = FEDerror25_.begin(); itFEDerror25 != FEDerror25_.end(); itFEDerror25++) {
+           int detid = itFEDerror25->first;
+           std::vector<PixelFEDChannel> chs = itFEDerror25->second;
+           for(unsigned int ich = 0; ich<chs.size(); ich++){
+            fDet.fillFEDerror25(detid,chs[ich]);
+           }
+       }
+  }
+
   fDet.setRunRange(beginRun_,endRun_);
   fDet.setLSRange(beginLumi_,endLumi_);
   fDet.setNevents(ftotalevents);
@@ -293,7 +355,7 @@ void SiPixelStatusProducer::endLuminosityBlockProduce(edm::LuminosityBlock& lumi
   fDet.resetDetectorStatus();
   countLumi_=0;
   ftotalevents=0;
-
+  FEDerror25_.clear();
 }
 
 //--------------------------------------------------------------------------------------------------

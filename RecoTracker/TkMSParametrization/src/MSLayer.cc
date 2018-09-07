@@ -136,7 +136,7 @@ float MSLayer::distance2(const PixelRecoPointRZ & point) const
 //----------------------------------------------------------------------
 float MSLayer::x0(float cotTheta) const
 {
-  if likely(theX0Data.hasX0) {
+  if LIKELY(theX0Data.hasX0) {
     float OverSinTheta = std::sqrt(1.f+cotTheta*cotTheta);
     return (theFace==barrel) ? theX0Data.x0*OverSinTheta :
                                theX0Data.x0*OverSinTheta/std::abs(cotTheta);
@@ -151,7 +151,7 @@ float MSLayer::x0(float cotTheta) const
 //----------------------------------------------------------------------
 float MSLayer::sumX0D(float cotTheta) const
 {
-if likely(theX0Data.hasX0) {
+if LIKELY(theX0Data.hasX0) {
     switch(theFace) {
     case barrel:  
       return theX0Data.sumX0D

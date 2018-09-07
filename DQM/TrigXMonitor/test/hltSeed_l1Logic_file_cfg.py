@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
 
@@ -86,7 +87,7 @@ if dataType == 'RAW' :
 
     elif runNumber == 116035 :
         dataset = '/Cosmics/Commissioning09-v3/RAW'
-        print '   Running on set: '+ dataset + ' with global tag ' +  useGlobalTag 
+        print('   Running on set: '+ dataset + ' with global tag ' +  useGlobalTag) 
 
         readFiles.extend( [                        
             '/store/data/Commissioning09/Cosmics/RAW/v3/000/116/035/34A8317D-76AF-DE11-91DB-000423D98DC4.root'
@@ -97,7 +98,7 @@ if dataType == 'RAW' :
     
     elif runNumber == 121560 :
         dataset = '/Cosmics/Commissioning09-v3/RAW'
-        print '   Running on set: '+ dataset + ' with global tag ' +  useGlobalTag 
+        print('   Running on set: '+ dataset + ' with global tag ' +  useGlobalTag) 
 
         readFiles.extend( [                        
             '/store/data/BeamCommissioning09/Cosmics/RAW/v1/000/121/560/DC089E4B-5ED4-DE11-A179-000423D98FBC.root'
@@ -107,7 +108,7 @@ if dataType == 'RAW' :
             ])
 
     else :
-        print 'Error: run ', runNumber, ' not defined.'    
+        print('Error: run ', runNumber, ' not defined.')    
         sys.exit()
 
 

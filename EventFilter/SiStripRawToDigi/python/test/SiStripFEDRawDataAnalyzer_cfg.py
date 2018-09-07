@@ -15,6 +15,6 @@ process.load("EventFilter.SiStripRawToDigi.test.SiStripFEDRawDataAnalyzer_cfi")
 
 process.p = cms.Path(process.ClusterSource*process.SiStripDigiToRaw*process.FEDRawDataAnalyzer)
 process.maxEvents.input = 2
-process.SiStripDigiToRaw.InputModuleLabel = 'ClusterSource'
+process.SiStripDigiToRaw.InputDigis = cms.InputTag('ClusterSource', "ZeroSuppressed")
 process.FEDRawDataAnalyzer.InputLabel = 'SiStripDigiToRaw'
 

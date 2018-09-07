@@ -1401,7 +1401,7 @@ class PerfSuite:
                activePerfTestThreads={}
                #Flag for waiting messages:
                Waiting=False
-               while 1:
+               while True:
                   #Check if there are tests to run:
                   if TestsToDo:
                      #Using the Waiting flag to avoid writing this message every 5 seconds in the case

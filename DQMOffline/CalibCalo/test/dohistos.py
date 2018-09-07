@@ -1,12 +1,13 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import os
 import sys
 import errno
 
 #print error/help message and exit
 def help_message():
-    print "Usage:\n\
+    print("Usage:\n\
 dohistos [folder_name] [options] -v versions_to_compare -f files_to_compare\n\
 Versions and files must be whitespace separated.\n\
 If no folder is specified the pwd will be used.\n\
@@ -21,7 +22,7 @@ Options:\n\
 -n [1000]   specify the number of events\n\
 --like   additional like statement in the dbs query to narrow the number of dataset returned\n\
 Example:\n\
-./dohistos.py Folder01 -v CMSSW_X_Y_Z CMSSW_J_K_W -f file:/file1.root file:/file2.root"
+./dohistos.py Folder01 -v CMSSW_X_Y_Z CMSSW_J_K_W -f file:/file1.root file:/file2.root")
     sys.exit()
 #custom query is at the moment not useful:
 #--query    with --dbs option specify the query passed to dbs cli (with quotes)\n\
@@ -45,7 +46,7 @@ if len(sys.argv)>1:
             os.mkdir(name)
         except OSError as inst:
             if inst.errno==errno.EEXIST:
-                print "Warning: the specified working folder already exist"
+                print("Warning: the specified working folder already exist")
         os.chdir(name)
 else: help_message()
 
@@ -110,7 +111,7 @@ for arg in sys.argv:
 
 #check consistency of -f and --dbs
 if len(fil)>0 and dbs:
-    print "when using --dbs option, -f option is not needed"
+    print("when using --dbs option, -f option is not needed")
     help_message()
 
 ###dbs query to retrieve the data with option --dbs
@@ -134,7 +135,7 @@ for nv,v in enumerate(ver):
             variable,value=l[7:len(l)-3].strip().split("=",1)
             environment[variable]=value[1:]
         except ValueError:
-            print "Warning: environment variable problem"
+            print("Warning: environment variable problem")
     env.close()
     if cvs:
         if anon:#only for debug purposes, works only in cmsfarm
@@ -151,7 +152,7 @@ for nv,v in enumerate(ver):
         inifil=False
         ris=os.popen(dbsstr+v+'"')
         for lnris in ris.readlines():
-            print lnris
+            print(lnris)
             if inifil:
                 dbsdataset.append(lnris)
             else:
@@ -162,10 +163,10 @@ for nv,v in enumerate(ver):
         dbsdataset=dbsdataset[2:]
         dbsdataset[0]=dbsdataset[0][0:-1]
         for lnris2 in dbsdataset:        
-            print lnris2
+            print(lnris2)
         if len(dbsdataset)>1 or len(dbsdataset)==0:
             #print dbsdataset
-            print "dbs search returned ",len(dbsdataset)," records, please modify the query so only one dataset is returned"
+            print("dbs search returned ",len(dbsdataset)," records, please modify the query so only one dataset is returned")
             sys.exit()
         else:
             #extracting the file names relative to the selected dataset

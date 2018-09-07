@@ -25,6 +25,7 @@ process.source = cms.Source("EmptySource",
 
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
+process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 process.load("CalibTracker.SiStripESProducers.fake.SiStripLorentzAngleFakeESSource_cfi")
 process.load("CalibTracker.SiStripESProducers.DBWriter.SiStripLorentzAngleDummyDBWriter_cfi")
 

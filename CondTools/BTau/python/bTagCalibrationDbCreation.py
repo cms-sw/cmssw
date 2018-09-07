@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import sys
 import FWCore.ParameterSet.Config as cms
@@ -7,9 +8,9 @@ if len(sys.argv) < 3:
 csv_file = sys.argv[2]
 db_file = csv_file.replace('.csv', '.db')
 tagger = os.path.basename(csv_file).split('.')[0]
-print "Using file:", csv_file
-print "DBout into:", db_file
-print "taggername:", tagger
+print("Using file:", csv_file)
+print("DBout into:", db_file)
+print("taggername:", tagger)
 
 process = cms.Process("BTagCalibCreator")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")

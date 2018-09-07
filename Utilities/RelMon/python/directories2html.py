@@ -1,3 +1,4 @@
+from __future__ import print_function
 ################################################################################
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
@@ -285,7 +286,7 @@ def get_comparisons(category,directory):
   tot_counter=1
   
   # get the right ones
-  comparisons= filter (lambda comp: comp.status == cat_states[category] , directory.comparisons) 
+  comparisons= [comp for comp in directory.comparisons if comp.status == cat_states[category]] 
   n_comparisons=len(comparisons)    
 
   is_reverse=True
@@ -549,7 +550,7 @@ def get_aggr_pairs_info(dir_dict,the_aggr_pairs=[]):
             present_subdirs[subdirname]={"nsucc":nsucc,"weight":weight}
         # Make it usable also for subdirectories
         for subsubdirname,subsubdir in subdir.get_subdirs_dict().items():          
-          for pathname in filter(lambda name:"/" in name,subdir_list):           
+          for pathname in [name for name in subdir_list if "/" in name]:           
             selected_subdirname,selected_subsubdirname = pathname.split("/")
             if selected_subdirname == subdirname and selected_subsubdirname==subsubdirname:
               #print "Studying directory ",subsubdirname," in directory ",subdirname
@@ -568,7 +569,7 @@ def get_aggr_pairs_info(dir_dict,the_aggr_pairs=[]):
                 present_subdirs[subsubdirname]={"nsucc":nsucc,"weight":weight}      
 
     if total_ndirs == 0:
-      print "No directory of the category %s is present in the samples: skipping." %cat_name
+      print("No directory of the category %s is present in the samples: skipping." %cat_name)
       continue
     
     average_success_rate=total_directory_successes/(total_ndirs)
@@ -710,7 +711,7 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
   
   
   # Get the list of pickles
-  sample_pkls=filter(lambda name: name.endswith(".pkl"),listdir("./"))
+  sample_pkls=[name for name in listdir("./") if name.endswith(".pkl")]
   
   # Load directories, build a list of all first level subdirs  
   dir_unpicklers=[]

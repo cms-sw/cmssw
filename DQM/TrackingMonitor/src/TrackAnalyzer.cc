@@ -124,6 +124,11 @@ void TrackAnalyzer::initHistos()
   NumberOfValidRecHitsPerTrackVsEta = nullptr;
 
   DistanceOfClosestApproach = nullptr;
+  DistanceOfClosestApproachError = nullptr;
+  DistanceOfClosestApproachErrorVsPt = nullptr;
+  DistanceOfClosestApproachErrorVsEta = nullptr;
+  DistanceOfClosestApproachErrorVsPhi = nullptr;
+  DistanceOfClosestApproachErrorVsDxy = nullptr;
   DistanceOfClosestApproachToBS = nullptr;
   AbsDistanceOfClosestApproachToBS = nullptr;
   DistanceOfClosestApproachToPV = nullptr;
@@ -315,7 +320,7 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
     std::string MEBSFolderName = conf_->getParameter<std::string>("BSFolderName"); 
 
     // use the AlgoName and Quality Name 
-    std::string CategoryName = QualName != "" ? AlgoName + "_" + QualName : AlgoName;
+    std::string CategoryName = !QualName.empty() ? AlgoName + "_" + QualName : AlgoName;
 
     // get binning from the configuration
     int    TKHitBin     = conf_->getParameter<int>(   "RecHitBin");
@@ -338,9 +343,13 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
     double EtaMin       = conf_->getParameter<double>("EtaMin");
     double EtaMax       = conf_->getParameter<double>("EtaMax");
 
-    int    PtBin = conf_->getParameter<int>(   "TrackPtBin");
-    double PtMin = conf_->getParameter<double>("TrackPtMin");
-    double PtMax = conf_->getParameter<double>("TrackPtMax");
+    int    PtBin        = conf_->getParameter<int>(   "TrackPtBin");
+    double PtMin        = conf_->getParameter<double>("TrackPtMin");
+    double PtMax        = conf_->getParameter<double>("TrackPtMax");
+
+    int    Phi2DBin     = conf_->getParameter<int>(   "Phi2DBin");
+    int    Eta2DBin     = conf_->getParameter<int>(   "Eta2DBin");
+    int    Pt2DBin      = conf_->getParameter<int>(   "TrackPt2DBin");
 
     int    VXBin        = conf_->getParameter<int>(   "VXBin");
     double VXMin        = conf_->getParameter<double>("VXMin");
@@ -401,32 +410,32 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
 	
 	histname = "NumberOfValidRecHitVsPhiVsEtaPerTrack_";
 	NumberOfValidRecHitVsPhiVsEtaPerTrack = ibooker.bookProfile2D(histname+CategoryName, histname+CategoryName, 
-								    EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax, 0, 40., "");
+								    Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax, 0, 40., "");
 	NumberOfValidRecHitVsPhiVsEtaPerTrack->setAxisTitle("Track #eta ", 1);
 	NumberOfValidRecHitVsPhiVsEtaPerTrack->setAxisTitle("Track #phi ", 2);
 
         histname = "NumberOfLostRecHitVsPhiVsEtaPerTrack_";
         NumberOfLostRecHitVsPhiVsEtaPerTrack = ibooker.bookProfile2D(histname+CategoryName, histname+CategoryName,
-                                                                    EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax, 0, 5., "");
+                                                                    Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax, 0, 5., "");
         NumberOfLostRecHitVsPhiVsEtaPerTrack->setAxisTitle("Track #eta ", 1);
         NumberOfLostRecHitVsPhiVsEtaPerTrack->setAxisTitle("Track #phi ", 2);
 
 
         histname = "NumberMIRecHitVsPhiVsEtaPerTrack_";
         NumberOfMIRecHitVsPhiVsEtaPerTrack = ibooker.bookProfile2D(histname+CategoryName, histname+CategoryName,
-                                                                    EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax, 0, 15., "");
+                                                                    Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax, 0, 15., "");
         NumberOfMIRecHitVsPhiVsEtaPerTrack->setAxisTitle("Track #eta ", 1);
         NumberOfMIRecHitVsPhiVsEtaPerTrack->setAxisTitle("Track #phi ", 2);
 
         histname = "NumberMORecHitVsPhiVsEtaPerTrack_";
         NumberOfMORecHitVsPhiVsEtaPerTrack = ibooker.bookProfile2D(histname+CategoryName, histname+CategoryName,
-                                                                    EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax, 0, 15., "");
+                                                                    Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax, 0, 15., "");
         NumberOfMORecHitVsPhiVsEtaPerTrack->setAxisTitle("Track #eta ", 1);
         NumberOfMORecHitVsPhiVsEtaPerTrack->setAxisTitle("Track #phi ", 2);
 
         histname = "ValidFractionVsPhiVsEtaPerTrack_";
         ValidFractionVsPhiVsEtaPerTrack = ibooker.bookProfile2D(histname+CategoryName, histname+CategoryName,
-                                                                    EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax, 0, 2., "");
+                                                                    Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax, 0, 2., "");
         ValidFractionVsPhiVsEtaPerTrack->setAxisTitle("Track #eta ", 1);
         ValidFractionVsPhiVsEtaPerTrack->setAxisTitle("Track #phi ", 2);
 
@@ -436,26 +445,26 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
 	
 	histname = "NumberOfValidRecHitVsPtVsEtaPerTrack_";
 	NumberOfValidRecHitVsPtVsEtaPerTrack = ibooker.bookProfile2D(histname+CategoryName, histname+CategoryName, 
-								    EtaBin, EtaMin, EtaMax, PtBin, PtMin, PtMax, 0, 40., "");
+								    Eta2DBin, EtaMin, EtaMax, Pt2DBin, PtMin, PtMax, 0, 40., "");
 	NumberOfValidRecHitVsPtVsEtaPerTrack->setAxisTitle("Track #eta ", 1);
 	NumberOfValidRecHitVsPtVsEtaPerTrack->setAxisTitle("Track p_{T} [GeV] ", 2);
 
         histname = "NumberOfLostRecHitVsPtVsEtaPerTrack_";
         NumberOfLostRecHitVsPtVsEtaPerTrack = ibooker.bookProfile2D(histname+CategoryName, histname+CategoryName,
-                                                                    EtaBin, EtaMin, EtaMax, PtBin, PtMin, PtMax, 0, 5., "");
+                                                                    Eta2DBin, EtaMin, EtaMax, Pt2DBin, PtMin, PtMax, 0, 5., "");
         NumberOfLostRecHitVsPtVsEtaPerTrack->setAxisTitle("Track #eta ", 1);
         NumberOfLostRecHitVsPtVsEtaPerTrack->setAxisTitle("Track p_{T} [GeV] ", 2);
 
 
         histname = "NumberMIRecHitVsPtVsEtaPerTrack_";
         NumberOfMIRecHitVsPtVsEtaPerTrack = ibooker.bookProfile2D(histname+CategoryName, histname+CategoryName,
-                                                                    EtaBin, EtaMin, EtaMax, PtBin, PtMin, PtMax, 0, 15., "");
+                                                                    Eta2DBin, EtaMin, EtaMax, Pt2DBin, PtMin, PtMax, 0, 15., "");
         NumberOfMIRecHitVsPtVsEtaPerTrack->setAxisTitle("Track #eta ", 1);
         NumberOfMIRecHitVsPtVsEtaPerTrack->setAxisTitle("Track p_{T} [GeV] ", 2);
 
         histname = "NumberMORecHitVsPtVsEtaPerTrack_";
         NumberOfMORecHitVsPtVsEtaPerTrack = ibooker.bookProfile2D(histname+CategoryName, histname+CategoryName,
-                                                                    EtaBin, EtaMin, EtaMax, PtBin, PtMin, PtMax, 0, 15., "");
+                                                                    Eta2DBin, EtaMin, EtaMax, Pt2DBin, PtMin, PtMax, 0, 15., "");
         NumberOfMORecHitVsPtVsEtaPerTrack->setAxisTitle("Track #eta ", 1);
         NumberOfMORecHitVsPtVsEtaPerTrack->setAxisTitle("Track p_{T} [GeV] ", 2);
 
@@ -493,7 +502,7 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
 	for (int i=0; i<5; ++i) {
           histname = "NumberOf"+ layerTypeName[i] + "LayersVsPhiVsEtaPerTrack_";
 	  NumberOfLayersVsPhiVsEtaPerTrack[i] = ibooker.bookProfile2D(histname+CategoryName, histname+CategoryName, 
-								    EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax, 0, 40., "");
+								    Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax, 0, 40., "");
 	  NumberOfLayersVsPhiVsEtaPerTrack[i]->setAxisTitle("Track #eta ", 1);
 	  NumberOfLayersVsPhiVsEtaPerTrack[i]->setAxisTitle("Track #phi ", 2);
       }
@@ -677,7 +686,7 @@ void TrackAnalyzer::bookHistosForLScertification(DQMStore::IBooker & ibooker) {
     std::string AlgoName       = conf_->getParameter<std::string>("AlgoName");
 
     // use the AlgoName and Quality Name 
-    std::string CategoryName = QualName != "" ? AlgoName + "_" + QualName : AlgoName;
+    std::string CategoryName = !QualName.empty() ? AlgoName + "_" + QualName : AlgoName;
 
 
     // book LS analysis related histograms
@@ -716,13 +725,16 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker & ibooker) {
     std::string AlgoName       = conf_->getParameter<std::string>("AlgoName");
 
     // use the AlgoName and Quality Name 
-    std::string CategoryName = QualName != "" ? AlgoName + "_" + QualName : AlgoName;
+    std::string CategoryName = !QualName.empty() ? AlgoName + "_" + QualName : AlgoName;
 
     // book the Beam Spot related histograms
     // ---------------------------------------------------------------------------------//
     
     if(doDCAPlots_ || doBSPlots_ || doAllPlots_) {
 	
+      int    DxyErrBin    = conf_->getParameter<int>(   "DxyErrBin");
+      double DxyErrMax    = conf_->getParameter<double>("DxyErrMax");
+      
       int    DxyBin       = conf_->getParameter<int>(   "DxyBin");
       double DxyMin       = conf_->getParameter<double>("DxyMin");
       double DxyMax       = conf_->getParameter<double>("DxyMax");
@@ -735,6 +747,14 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker & ibooker) {
       double PhiMin     = conf_->getParameter<double>("PhiMin");
       double PhiMax     = conf_->getParameter<double>("PhiMax");
       
+      int    EtaBin     = conf_->getParameter<int>(   "EtaBin");
+      double EtaMin     = conf_->getParameter<double>("EtaMin");
+      double EtaMax     = conf_->getParameter<double>("EtaMax");
+
+      int    PtBin      = conf_->getParameter<int>(   "TrackPtBin");
+      double PtMin      = conf_->getParameter<double>("TrackPtMin");
+      double PtMax      = conf_->getParameter<double>("TrackPtMax");
+
       int    X0Bin        = conf_->getParameter<int>(   "X0Bin");
       double X0Min        = conf_->getParameter<double>("X0Min");
       double X0Max        = conf_->getParameter<double>("X0Max");
@@ -754,6 +774,31 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker & ibooker) {
       
       ibooker.setCurrentFolder(TopFolder_+"/GeneralProperties");
       
+      histname = "DistanceOfClosestApproachError_";
+      DistanceOfClosestApproachError = ibooker.book1D(histname+CategoryName,histname+CategoryName,DxyErrBin,0.,DxyErrMax);
+      DistanceOfClosestApproachError->setAxisTitle("Track d_{xy} error (cm)",1);
+      DistanceOfClosestApproachError->setAxisTitle("Number of Tracks",2);
+      
+      histname = "DistanceOfClosestApproachErrorVsPt_";
+      DistanceOfClosestApproachErrorVsPt = ibooker.bookProfile(histname+CategoryName,histname+CategoryName,PtBin,PtMin,PtMax,0.,DxyErrMax);
+      DistanceOfClosestApproachErrorVsPt->setAxisTitle("Track p_{T} (GeV)",1);
+      DistanceOfClosestApproachErrorVsPt->setAxisTitle("Track d_{xy} error (cm)",2);
+      
+      histname = "DistanceOfClosestApproachErrorVsEta_";
+      DistanceOfClosestApproachErrorVsEta = ibooker.bookProfile(histname+CategoryName,histname+CategoryName,EtaBin,EtaMin,EtaMax,0.,DxyErrMax);
+      DistanceOfClosestApproachErrorVsEta->setAxisTitle("Track #eta",1);
+      DistanceOfClosestApproachErrorVsEta->setAxisTitle("Track d_{xy} error (cm)",2);
+      
+      histname = "DistanceOfClosestApproachErrorVsPhi_";
+      DistanceOfClosestApproachErrorVsPhi = ibooker.bookProfile(histname+CategoryName,histname+CategoryName,PhiBin,PhiMin,PhiMax,0.,DxyErrMax);
+      DistanceOfClosestApproachErrorVsPhi->setAxisTitle("Track #phi",1);
+      DistanceOfClosestApproachErrorVsPhi->setAxisTitle("Track d_{xy} error (cm)",2);
+      
+      histname = "DistanceOfClosestApproachErrorVsDxy_";
+      DistanceOfClosestApproachErrorVsDxy = ibooker.bookProfile(histname+CategoryName,histname+CategoryName,DxyBin,DxyMin,DxyMax,0.,DxyErrMax);
+      DistanceOfClosestApproachErrorVsDxy->setAxisTitle("Track d_{xy}",1);
+      DistanceOfClosestApproachErrorVsDxy->setAxisTitle("Track d_{xy} error (cm)",2);
+
       histname = "DistanceOfClosestApproachToBS_";
       DistanceOfClosestApproachToBS = ibooker.book1D(histname+CategoryName,histname+CategoryName,DxyBin,DxyMin,DxyMax);
       DistanceOfClosestApproachToBS->setAxisTitle("Track d_{xy} wrt beam spot (cm)",1);
@@ -1163,6 +1208,12 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     iEvent.getByToken(beamSpotToken_,recoBeamSpotHandle);
     const reco::BeamSpot& bs = *recoBeamSpotHandle;
 
+    DistanceOfClosestApproachError      -> Fill(track.dxyError());
+    DistanceOfClosestApproachErrorVsPt  -> Fill(track.pt(),track.dxyError());
+    DistanceOfClosestApproachErrorVsEta -> Fill(track.eta(),track.dxyError());
+    DistanceOfClosestApproachErrorVsPhi -> Fill(track.phi(),track.dxyError());
+    DistanceOfClosestApproachErrorVsDxy -> Fill(track.dxy(bs.position()),track.dxyError());
+
     DistanceOfClosestApproachToBS      -> Fill(track.dxy(bs.position()));
     AbsDistanceOfClosestApproachToBS   -> Fill(std::abs(track.dxy(bs.position())));
     DistanceOfClosestApproachToBSVsPhi -> Fill(track.phi(), track.dxy(bs.position()));
@@ -1347,7 +1398,7 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore::IBooker & ib
     std::string AlgoName       = conf_->getParameter<std::string>("AlgoName");
 
     // use the AlgoName and Quality Name 
-    std::string CategoryName = QualName != "" ? AlgoName + "_" + QualName : AlgoName;
+    std::string CategoryName = !QualName.empty() ? AlgoName + "_" + QualName : AlgoName;
 
     // get binning from the configuration
     double Chi2NDFMin = conf_->getParameter<double>("Chi2NDFMin");
@@ -1369,6 +1420,9 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore::IBooker & ib
     int    EtaBin     = conf_->getParameter<int>(   "EtaBin");
     double EtaMin     = conf_->getParameter<double>("EtaMin");
     double EtaMax     = conf_->getParameter<double>("EtaMax");
+
+    int    Phi2DBin     = conf_->getParameter<int>(   "Phi2DBin");
+    int    Eta2DBin     = conf_->getParameter<int>(   "Eta2DBin");
 
     int    ThetaBin   = conf_->getParameter<int>(   "ThetaBin");
     double ThetaMin   = conf_->getParameter<double>("ThetaMin");
@@ -1520,17 +1574,17 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore::IBooker & ib
     tkmes.TrackEta->setAxisTitle("Number of Tracks",2);
 
     histname = "TrackEtaPhi_" + histTag;
-    tkmes.TrackEtaPhi = ibooker.book2D(histname, histname, EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax);
+    tkmes.TrackEtaPhi = ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
     tkmes.TrackEtaPhi->setAxisTitle("Track #eta", 1);
     tkmes.TrackEtaPhi->setAxisTitle("Track #phi", 2);
 
     histname = "TrackEtaPhiInner_" + histTag;
-    tkmes.TrackEtaPhiInner = ibooker.book2D(histname, histname, EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax);
+    tkmes.TrackEtaPhiInner = ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
     tkmes.TrackEtaPhiInner->setAxisTitle("Track #eta", 1);
     tkmes.TrackEtaPhiInner->setAxisTitle("Track #phi", 2);
 
     histname = "TrackEtaPhiOuter_" + histTag;
-    tkmes.TrackEtaPhiOuter = ibooker.book2D(histname, histname, EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax);
+    tkmes.TrackEtaPhiOuter = ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
     tkmes.TrackEtaPhiOuter->setAxisTitle("Track #eta", 1);
     tkmes.TrackEtaPhiOuter->setAxisTitle("Track #phi", 2);
 
@@ -1831,7 +1885,7 @@ void TrackAnalyzer::bookHistosForTrackerSpecific(DQMStore::IBooker & ibooker)
     std::string AlgoName     = conf_->getParameter<std::string>("AlgoName");
 
     // use the AlgoName and Quality Name 
-    std::string CategoryName = QualName != "" ? AlgoName + "_" + QualName : AlgoName;
+    std::string CategoryName = !QualName.empty() ? AlgoName + "_" + QualName : AlgoName;
 
     int    PhiBin     = conf_->getParameter<int>(   "PhiBin");
     double PhiMin     = conf_->getParameter<double>("PhiMin");

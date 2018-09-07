@@ -9,7 +9,8 @@ L1TStage2MuonComp::L1TStage2MuonComp(const edm::ParameterSet& ps)
       muonColl2Title(ps.getUntrackedParameter<std::string>("muonCollection2Title")),
       summaryTitle(ps.getUntrackedParameter<std::string>("summaryTitle")),
       ignoreBin(ps.getUntrackedParameter<std::vector<int>>("ignoreBin")),
-      verbose(ps.getUntrackedParameter<bool>("verbose"))
+      verbose(ps.getUntrackedParameter<bool>("verbose")),  
+      enable2DComp(ps.getUntrackedParameter<bool>("enable2DComp"))  // When true eta-phi comparison plots are also produced 
 {
   // First include all bins
   for (unsigned int i = 1; i <= RIDX; i++) {
@@ -35,12 +36,12 @@ void L1TStage2MuonComp::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.addUntracked<std::string>("summaryTitle", "Summary")->setComment("Title of summary histogram.");
   desc.addUntracked<std::vector<int>>("ignoreBin", std::vector<int>())->setComment("List of bins to ignore");
   desc.addUntracked<bool>("verbose", false);
+  desc.addUntracked<bool>("enable2DComp", false);
   descriptions.add("l1tStage2MuonComp", desc);
 }
 
 void L1TStage2MuonComp::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
 
-void L1TStage2MuonComp::beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) {}
 
 void L1TStage2MuonComp::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) {
 
@@ -124,6 +125,13 @@ void L1TStage2MuonComp::bookHistograms(DQMStore::IBooker& ibooker, const edm::Ru
   muColl1hwIso->setAxisTitle("Hardware isolation", 1);
   muColl1Index = ibooker.book1D("muIndexColl1", (muonColl1Title+" mismatching Input muon index").c_str(), 108, -0.5, 107.5);
   muColl1Index->setAxisTitle("Index", 1);
+  
+  // if enable2DComp variable is True, book also the eta-phi map
+  if(enable2DComp){
+    muColl1EtaPhimap = ibooker.book2D("muEtaPhimapColl1", (muonColl1Title+" mismatching muon #eta-#phi map").c_str(),25,-2.5,2.5,25,-3.2,3.2);
+    muColl1EtaPhimap->setAxisTitle("#eta", 1);
+    muColl1EtaPhimap->setAxisTitle("#phi", 2);
+  }
 
   muColl2BxRange = ibooker.book1D("muBxRangeColl2", (muonColl2Title+" mismatching BX range").c_str(), 5, -2.5, 2.5);
   muColl2BxRange->setAxisTitle("BX range", 1);
@@ -149,6 +157,13 @@ void L1TStage2MuonComp::bookHistograms(DQMStore::IBooker& ibooker, const edm::Ru
   muColl2hwIso->setAxisTitle("Hardware isolation", 1);
   muColl2Index = ibooker.book1D("muIndexColl2", (muonColl2Title+" mismatching Input muon index").c_str(), 108, -0.5, 107.5);
   muColl2Index->setAxisTitle("Index", 1);
+ 
+  // if enable2DdeMu variable is True, book also the eta-phi map
+  if(enable2DComp){
+    muColl2EtaPhimap = ibooker.book2D("muEtaPhimapColl2", (muonColl2Title+" mismatching muon #eta-#phi map").c_str(),25,-2.5,2.5,25,-3.2,3.2);
+    muColl2EtaPhimap->setAxisTitle("#eta", 1);
+    muColl2EtaPhimap->setAxisTitle("#phi", 2);
+  }
 }
 
 void L1TStage2MuonComp::analyze(const edm::Event& e, const edm::EventSetup& c) {
@@ -205,6 +220,7 @@ void L1TStage2MuonComp::analyze(const edm::Event& e, const edm::EventSetup& c) {
           muColl1hwQual->Fill(muonIt1->hwQual());
           muColl1hwIso->Fill(muonIt1->hwIso());
           muColl1Index->Fill(muonIt1->tfMuonIndex());
+          if(enable2DComp) muColl1EtaPhimap->Fill(muonIt1->eta(),muonIt1->phi());
         }
       } else {
         muonIt2 = muonBxColl2->begin(iBx) + muonBxColl1->size(iBx);
@@ -218,7 +234,8 @@ void L1TStage2MuonComp::analyze(const edm::Event& e, const edm::EventSetup& c) {
           muColl2hwChargeValid->Fill(muonIt2->hwChargeValid());
           muColl2hwQual->Fill(muonIt2->hwQual());
           muColl2hwIso->Fill(muonIt2->hwIso());
-          muColl2Index->Fill(muonIt2->tfMuonIndex());
+          muColl2Index->Fill(muonIt2->tfMuonIndex()); 
+          if(enable2DComp) muColl2EtaPhimap->Fill(muonIt2->eta(), muonIt2->phi()); 
         }
       }
     } else {
@@ -332,6 +349,7 @@ void L1TStage2MuonComp::analyze(const edm::Event& e, const edm::EventSetup& c) {
         muColl1hwQual->Fill(muonIt1->hwQual());
         muColl1hwIso->Fill(muonIt1->hwIso());
         muColl1Index->Fill(muonIt1->tfMuonIndex());
+        if(enable2DComp) muColl1EtaPhimap->Fill(muonIt1->eta(),muonIt1->phi());
 
         muColl2hwPt->Fill(muonIt2->hwPt());
         muColl2hwEta->Fill(muonIt2->hwEta());
@@ -343,7 +361,10 @@ void L1TStage2MuonComp::analyze(const edm::Event& e, const edm::EventSetup& c) {
         muColl2hwQual->Fill(muonIt2->hwQual());
         muColl2hwIso->Fill(muonIt2->hwIso());
         muColl2Index->Fill(muonIt2->tfMuonIndex());
-      } else {
+        if(enable2DComp) muColl2EtaPhimap->Fill(muonIt2->eta(),muonIt2->phi());
+      
+      }
+      else {
         summary->Fill(MUONGOOD);
       }
 

@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import sys
 import re
 import optparse
@@ -7,6 +8,7 @@ from pprint import pprint
 import array
 import ROOT
 import math
+import six
 
 sepRE      = re.compile (r'[\s,;:]+')
 nonSpaceRE = re.compile (r'\S')
@@ -104,7 +106,7 @@ class LumiInfo (object):
 class LumiInfoCont (dict):
 
     def __init__ (self, filename, **kwargs):
-        print "loading luminosity information from '%s'." % filename
+        print("loading luminosity information from '%s'." % filename)
         source = open (filename, 'r')
         self.minMaxKeys = ['totInstLum', 'aveInstLum', 'numXings',
                      'delivered', 'recorded']
@@ -134,7 +136,7 @@ class LumiInfoCont (dict):
             if lumi.xingInfo:
                 #print "yes", lumi.keyString
                 if not self.xingInfo:
-                    print "huh?"
+                    print("huh?")
             for key in self.minMaxKeys:
                 val = getattr (lumi, key)
                 if val < self._min[key] or self._min[key] < 0:
@@ -169,7 +171,7 @@ class LumiInfoCont (dict):
 
     def __str__ (self):
         retval = 'run,     lum     del ( dt  ) inst (#xng)\n'
-        for key, value in sorted (self.iteritems()):
+        for key, value in sorted (six.iteritems(self)):
             retval += "%s\n" % value
         return retval
 
@@ -193,7 +195,7 @@ class LumiInfoCont (dict):
     def _integrateContainer (self):
         # calculate numbers for recorded integrated luminosity
         total = 0.
-        for key, lumi in self.iteritems():
+        for key, lumi in six.iteritems(self):
             total += lumi.recorded
             lumi.totalRecorded = total
             lumi.fracRecorded  = total / self.totalRecLum
@@ -203,12 +205,12 @@ class LumiInfoCont (dict):
             return
         xingKeyList = []
         maxAveInstLum = 0.
-        for key, lumi in self.iteritems():
+        for key, lumi in six.iteritems(self):
             if not lumi.xingInfo and not lumi.fixXingInfo():
                 if not self.noWarnings:
-                    print "Do not have lumi xing info for %s" % lumi.keyString
+                    print("Do not have lumi xing info for %s" % lumi.keyString)
                 if not self.allowNoXing:
-                    print "Setting no Xing info flag"
+                    print("Setting no Xing info flag")
                     self.xingInfo = False
                     return
                 continue
@@ -233,7 +235,7 @@ class LumiInfoCont (dict):
 
 def loadEvents (filename, cont, options):
     eventsDict = {}
-    print "loading events from '%s'" % filename
+    print("loading events from '%s'" % filename)
     events = open (filename, 'r')
     runIndex, lumiIndex, eventIndex, weightIndex = 0, 1, 2, 3
     if options.relOrder:
@@ -246,7 +248,7 @@ def loadEvents (filename, cont, options):
         pieces = sepRE.split (line.strip())
         if len (pieces) < minPieces:
             if nonSpaceRE.search (line):
-                print "skipping", line
+                print("skipping", line)
             continue
         try:
             run, lumi, event = int( pieces[runIndex]   ), \
@@ -257,16 +259,16 @@ def loadEvents (filename, cont, options):
         key = (run, lumi)
         if key not in cont:
             if options.ignore:
-                print "Warning, %s is not found in the lumi information" \
-                      % key.__str__()
+                print("Warning, %s is not found in the lumi information" \
+                      % key.__str__())
                 continue
             else:
                 raise RuntimeError("%s is not found in lumi information.  Use '--ignoreNoLumiEvents' option to ignore these events and continue." \
                       % key.__str__())
         if options.edfMode != 'time' and not cont[key].xingInfo:
             if options.ignore:
-                print "Warning, %s does not have Xing information" \
-                      % key.__str__()
+                print("Warning, %s does not have Xing information" \
+                      % key.__str__())
                 continue
             else:
                 raise RuntimeError("%s  does not have Xing information.  Use '--ignoreNoLumiEvents' option to ignore these events and continue." \
@@ -300,7 +302,7 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
             expectedVals = []
             predVals   = []
         # loop over events
-        for key, eventList in sorted( eventsDict.iteritems() ):
+        for key, eventList in sorted( six.iteritems(eventsDict) ):
             usePoints = True
             # should we add this point?
             if lumiCont.minRun and lumiCont.minRun > key[0] or \
@@ -335,7 +337,7 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
         ####################
         if options.resetExpected:
             slope = (yVals[-1] - yVals[0]) / (xVals[-1] - xVals[0])
-            print "slope", slope
+            print("slope", slope)
             for index, old in enumerate (expectedVals):
                 expectedVals[index] = yVals[0] + \
                                     slope * (xVals[index] - xVals[0])
@@ -387,7 +389,7 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
                 lower = thisRange[0]
                 slope = (yVals[upper] - yVals[lower]) / \
                         (xVals[upper] - xVals[lower])
-                print "slope", slope
+                print("slope", slope)
                 # now go over the range inclusively
                 pairList = []
                 for index in range (lower, upper + 1):
@@ -403,7 +405,7 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
         eventTupList = []
         if not lumiCont.xingInfo:
             raise RuntimeError("Luminosity Xing information missing.")
-        for key, eventList in sorted( eventsDict.iteritems() ):
+        for key, eventList in sorted( six.iteritems(eventsDict) ):
             try:
                 lumi =  lumiCont[key]
                 instLum   = lumi.aveInstLum
@@ -433,17 +435,17 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
     step = int (math.sqrt(size) / 2 + 1)
     if options.printValues:
         for index in range (size):
-            print "%8f %8f %8f" % (xVals[index], yVals[index], expectedVals[index]),
+            print("%8f %8f %8f" % (xVals[index], yVals[index], expectedVals[index]), end=' ')
             if index > step:
                 denom = xVals[index] - xVals[index - step]
                 numer = yVals[index] - yVals[index - step]
                 if denom:
-                    print " %8f" % (numer / denom),
+                    print(" %8f" % (numer / denom), end=' ')
             if 0 == index % step:
-                print " **", ## indicates statistically independent
+                print(" **", end=' ') ## indicates statistically independent
                              ## slope measurement
-            print
-        print
+            print()
+        print()
 
     xArray = array.array ('d', xVals)
     yArray = array.array ('d', yVals)
@@ -459,7 +461,7 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
 
     # run statistical tests
     if options.weights:
-        print "average weight per event:", weight / ( size - 1)
+        print("average weight per event:", weight / ( size - 1))
     maxDistance = ROOT.TMath.KolmogorovTest (size, yArray,
                                              size, expected,
                                              "M")
@@ -649,11 +651,11 @@ if __name__ == '__main__':
         recLumValue = recLumis [recLumIndex]
         prevRecLumi = 0.
         done = False
-        for key, lumi in cont.iteritems():
+        for key, lumi in six.iteritems(cont):
             if prevRecLumi >= recLumValue and recLumValue < lumi.totalRecorded:
                 # found it
-                print "%s contains total recorded lumi %f" % \
-                      (key.__str__(), recLumValue)
+                print("%s contains total recorded lumi %f" % \
+                      (key.__str__(), recLumValue))
                 while True:
                     recLumIndex += 1
                     if recLumIndex == len (recLumis):
@@ -662,15 +664,15 @@ if __name__ == '__main__':
                     recLumValue = recLumis [recLumIndex]
                     if prevRecLumi >= recLumValue and recLumValue < lumi.totalRecorded:
                         # found it
-                        print "%s contains total recorded lumi %f" % \
-                              (key.__str__(), recLumValue)
+                        print("%s contains total recorded lumi %f" % \
+                              (key.__str__(), recLumValue))
                     else:
                         break
                 if done:
                     break
             prevRecLumi = lumi.totalRecorded
         if recLumIndex < len (recLumis):
-            print "Theses lumis not found: %s" % recLumis[recLumIndex:]
+            print("Theses lumis not found: %s" % recLumis[recLumIndex:])
         sys.exit()
 
     ####################

@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import os
 import sys
 import fileinput
@@ -88,7 +89,7 @@ macro = 'macros/V0ValHistoPublisher.C'
 # Does replacement of strings in files
 def replace(map, filein, fileout):
     replace_items = map.items()
-    while 1:
+    while True:
         line = filein.readline()
         if not line: break
         for old, new in replace_items:
@@ -119,10 +120,10 @@ def do_validation(samples, GlobalTag):
 		cmd = 'dbsql "find dataset where dataset like *'
                 cmd += sample + '/' + NewRelease + '_' + GlobalTag + '*GEN-SIM-RECO*" '
                 cmd += '| grep ' + sample + ' | grep -v test | sort | tail -1 | cut -f2 '
-                print cmd
-                print 'Finding data set...\n'
+                print(cmd)
+                print('Finding data set...\n')
                 dataset = os.popen(cmd).readline().strip()
-                print 'DataSet: ', dataset, '\n'
+                print('DataSet: ', dataset, '\n')
                 if dataset != "":
                     cmd2 = 'dbsql "find file where dataset like ' + dataset + '" | grep ' + sample
                     filenames = 'import FWCore.ParameterSet.Config as cms\n'
@@ -132,7 +133,7 @@ def do_validation(samples, GlobalTag):
                     filenames += 'readFiles.extend([\n'
                     first = True
                     #print cmd2
-                    print 'Getting file names for dataset ', dataset, '\n'
+                    print('Getting file names for dataset ', dataset, '\n')
                     for line in os.popen(cmd2).readlines():
                         filename = line.strip()
                         if first == True:
@@ -149,9 +150,9 @@ def do_validation(samples, GlobalTag):
                     if(Sequence != 'harvesting'):
                         cmd3 = 'dbsql "find dataset.parent where dataset like ' + dataset + '" | grep ' + sample
 			#print cmd3
-                        print 'Getting parent dataset...\n'
+                        print('Getting parent dataset...\n')
                         parentdataset = os.popen(cmd3).readline()
-                        print 'Parent dataset: ', parentdataset, '\n'
+                        print('Parent dataset: ', parentdataset, '\n')
                         if parentdataset != "":
                             cmd4 = 'dbsql "find file where dataset like ' + parentdataset + '" | grep ' + sample
                             #print 'cmd4', cmd4
@@ -170,7 +171,7 @@ def do_validation(samples, GlobalTag):
                                     filenames += "'"
                             filenames += ']);\n\n'
                         else:
-                            print "No primary dataset found, skipping sample ", sample
+                            print("No primary dataset found, skipping sample ", sample)
                             continue
                     else:
                         filenames += 'secFiles.extend((     ))'
@@ -188,26 +189,26 @@ def do_validation(samples, GlobalTag):
                     replace(symbol_map, templateCfgFile, cfgFile)
 
                     cmdrun = 'cmsRun ' + cfgFileName + '.py >& ' + cfgFileName + '.log < /dev/zero'
-                    print 'Running validation on sample ' + sample + '...\n'
+                    print('Running validation on sample ' + sample + '...\n')
                     #print cmdrun
                     retcode = os.system(cmdrun)
                 else:
-                    print 'No dataset found, skipping sample ', sample, '\n'
+                    print('No dataset found, skipping sample ', sample, '\n')
                     continue
             else:
                 retcode = 0
             if(retcode):
-                print 'Job for sample ' + sample + ' failed.\n'
-                print 'Check log file ' + sample + '.log for details.\n'
+                print('Job for sample ' + sample + ' failed.\n')
+                print('Check log file ' + sample + '.log for details.\n')
             else:
                 if Sequence == 'harvesting':
                     rootcommand = 'root -b -q -l CopySubdir.C\\('+'\\\"DQM_V0001_R000000001__'+GlobalTag+'__'+sample+'__Validation.root\\\", \\\"val.'+sample+'.root\\\"\\) >& /dev/null'
                     os.system(rootcommand)
                 referenceSample = RefRepository + '/' + RefRelease + '/' + RefSelection + '/' + sample + '/' + 'val.'+sample+'.root'
-                print 'Reference sample: ' + referenceSample
+                print('Reference sample: ' + referenceSample)
             
                 if os.path.isfile(referenceSample):
-                    print 'Found reference.'
+                    print('Found reference.')
                     replace_map = {'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefSelection+'/'+'val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL':sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefSelection, 'NEWSELECTION':NewSelection, 'V0ValHistoPublisher':cfgFileName }
                 
                     if not os.path.exists(RefRelease + '/' + RefSelection):
@@ -215,7 +216,7 @@ def do_validation(samples, GlobalTag):
                         os.system('cp ' + referenceSample + ' ' + RefRelease+'/'+RefSelection)
                 
                 else:
-                    print "No reference file found at ", RefRepository+'/'+RefRelease+'/'+RefSelection
+                    print("No reference file found at ", RefRepository+'/'+RefRelease+'/'+RefSelection)
                     replace_map = {'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':'val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL':sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewSelection, 'NEWSELECTION':NewSelection, 'V0ValHistoPublisher':cfgFileName }
 
                 macroFile = open(cfgFileName+'.C', 'w')
@@ -226,16 +227,16 @@ def do_validation(samples, GlobalTag):
                 if not os.path.exists(newdir):
                     os.makedirs(newdir)
 
-                print "Moving PDF and PNG files for sample: ", sample
+                print("Moving PDF and PNG files for sample: ", sample)
                 os.system('mv *pdf *png ' + newdir)
 
-                print "Moving ROOT file for sample: ", sample
+                print("Moving ROOT file for sample: ", sample)
                 os.system('mv val.'+sample+'.root ' + newdir)
 
-                print "Copying .py file for sample: ", sample
+                print("Copying .py file for sample: ", sample)
                 os.system('cp '+cfgFileName+'.py ' + newdir)
         else:
-            print 'Validation for sample '+sample+' already done, skipping.\n'
+            print('Validation for sample '+sample+' already done, skipping.\n')
 
 ##############################################################################
 ### Main part of script, this runs do_validation for all specified samples ###
@@ -244,14 +245,14 @@ if(NewRelease == ''):
     try:
         NewRelease = os.environ["CMSSW_VERSION"]
     except KeyError:
-        print >>sys.stderr, 'Error: The environment variable CMSSW_VERSION is not set.'
-        print >>sys.stderr, '       Please run cmsenv in the appropriate release area.'
+        print('Error: The environment variable CMSSW_VERSION is not set.', file=sys.stderr)
+        print('       Please run cmsenv in the appropriate release area.', file=sys.stderr)
 else:
     try:
         os.environ["CMSSW_VERSION"]
     except KeyError:
-        print >>sys.stderr, 'Error: CMSSW environment variables are not set.'
-        print >>sys.stderr, '       Please run cmsenv in the appropriate release area.'
+        print('Error: CMSSW environment variables are not set.', file=sys.stderr)
+        print('       Please run cmsenv in the appropriate release area.', file=sys.stderr)
 
 NewSelection = ''
 RefSelection = MCReferenceSelection
@@ -265,4 +266,4 @@ NewSelection = ''
 RefSelection = ReferenceSelection
 do_validation(idealsamples, IdealTag)
 
-print 'Finished running validation.'
+print('Finished running validation.')

@@ -77,7 +77,7 @@ namespace edm {
   template<typename F>
   class FunctorWaitingTask : public WaitingTask {
   public:
-    explicit FunctorWaitingTask( F f): func_(f) {}
+    explicit FunctorWaitingTask( F f): func_(std::move(f)) {}
     
     task* execute() override {
       func_(exceptionPtr());
@@ -90,7 +90,7 @@ namespace edm {
   
   template< typename ALLOC, typename F>
   FunctorWaitingTask<F>* make_waiting_task( ALLOC&& iAlloc, F f) {
-    return new (iAlloc) FunctorWaitingTask<F>(f);
+    return new (iAlloc) FunctorWaitingTask<F>(std::move(f));
   }
   
 }

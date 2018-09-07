@@ -49,6 +49,15 @@ MonitorTrackMuonsInnerTrack.PVBin = 40
 MonitorTrackMuonsInnerTrack.PVMin = -0.5
 MonitorTrackMuonsInnerTrack.PVMax = 79.5 ## it might need to be adjust if CMS asks to have lumi levelling at lower values
 
+MonitorTrackMuonsInnerTrack.doRecHitVsPhiVsEtaPerTrack           = True
+MonitorTrackMuonsInnerTrack.doRecHitVsPtVsEtaPerTrack            = True
+#MonitorTrackMuonsInnerTrack.doGoodTrackRecHitVsPhiVsEtaPerTrack  = True
+MonitorTrackMuonsInnerTrack.doLayersVsPhiVsEtaPerTrack           = True
+#MonitorTrackMuonsInnerTrack.doGoodTrackLayersVsPhiVsEtaPerTrack  = True
+
+MonitorTrackMuonsInnerTrack.Eta2DBin   = 16
+MonitorTrackMuonsInnerTrack.Phi2DBin   = 16
+MonitorTrackMuonsInnerTrack.TrackPtBin = 50
 
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker

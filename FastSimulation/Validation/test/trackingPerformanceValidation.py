@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import os
 import sys
 import fileinput
@@ -128,7 +129,7 @@ macro='macro/TrackValHistoPublisher.C'
 
 def replace(map, filein, fileout):
     replace_items = map.items()
-    while 1:
+    while True:
         line = filein.readline()
         if not line: break
         for old, new in replace_items:
@@ -143,7 +144,7 @@ def replace(map, filein, fileout):
 def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
     global Sequence, RefSelection, RefRepository, NewSelection, NewRepository, defaultNevents, Events, castorHarvestedFilesDirectory
     global cfg, macro, Tracksname
-    print 'Tag: ' + GlobalTag
+    print('Tag: ' + GlobalTag)
     tracks_map = { 'ootb':'general_AssociatorByHitsRecoDenom','initialStep':'cutsRecoZero_AssociatorByHitsRecoDenom','lowPtTripletStep':'cutsRecoFirst_AssociatorByHitsRecoDenom','pixelPairStep':'cutsRecoSecond_AssociatorByHitsRecoDenom','detachedTripletStep':'cutsRecoThird_AssociatorByHitsRecoDenom','mixedTripletStep':'cutsRecoFourth_AssociatorByHitsRecoDenom','pixelLessStep':'cutsRecoFifth_AssociatorByHitsRecoDenom'}
     tracks_map_hp = { 'ootb':'cutsRecoHp_AssociatorByHitsRecoDenom','initialStep':'cutsRecoZeroHp_AssociatorByHitsRecoDenom','lowPtTripletStep':'cutsRecoFirstHp_AssociatorByHitsRecoDenom','pixelPairStep':'cutsRecoSecondHp_AssociatorByHitsRecoDenom','detachedTripletStep':'cutsRecoThirdHp_AssociatorByHitsRecoDenom','mixedTripletStep':'cutsRecoFourthHp_AssociatorByHitsRecoDenom','pixelLessStep':'cutsRecoFifthHp_AssociatorByHitsRecoDenom'}
     if(trackalgorithm=='initialStep' or trackalgorithm=='ootb'):
@@ -194,8 +195,8 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                     cpcmd='rfcp '+ castorHarvestedFilesDirectory+ NewRelease +'/' + harvestedfile + ' .'
                     returncode=os.system(cpcmd)
                     if (returncode!=0):
-                        print 'copy of harvested file from castor for sample ' + sample + ' failed'
-                        print 'try backup repository...'
+                        print('copy of harvested file from castor for sample ' + sample + ' failed')
+                        print('try backup repository...')
                         NewCondition='MC'
                         if (NewFastSim):
                             NewCondition=NewCondition+'_FSIM'
@@ -204,18 +205,18 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                         if (returncode!=0):
                             continue
 
-            print ' Harvested file : '+harvestedfile
+            print(' Harvested file : '+harvestedfile)
             
             #search the primary dataset
             if( Sequence!="comparison_only"):
-                print 'Get information from DBS for sample', sample
+                print('Get information from DBS for sample', sample)
                 cmd='dbsql "find  dataset where dataset like *'
                 #            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RAW-HLTDEBUG-RECO* "'
                 cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*'+NewFormat+'* order by dataset.createdate "'
                 cmd+='|grep '+sample+'|grep -v test|tail -1'
-                print cmd
+                print(cmd)
                 dataset= os.popen(cmd).readline().strip()
-                print 'DataSet:  ', dataset, '\n'
+                print('DataSet:  ', dataset, '\n')
                 
                 #Check if a dataset is found
                 if dataset!="":
@@ -228,7 +229,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                     filenames+='source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)\n'
                     filenames+='readFiles.extend( [\n'
                     first=True
-                    print cmd2
+                    print(cmd2)
                     for line in os.popen(cmd2).readlines():
                         filename=line.strip()
                         if first==True:
@@ -246,7 +247,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                     if(Sequence!="preproduction"):
                             cmd3='dbsql  "find dataset.parent where dataset like '+ dataset +'"|grep ' + sample
                             parentdataset=os.popen(cmd3).readline()
-                            print 'Parent DataSet:  ', parentdataset, '\n'
+                            print('Parent DataSet:  ', parentdataset, '\n')
 
                     #Check if a dataset is found
                             if parentdataset!="":
@@ -267,7 +268,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                                             filenames+="'"
                                     filenames+='\n ]);\n'
                             else :
-                                    print "No primary dataset found skipping sample: ", sample
+                                    print("No primary dataset found skipping sample: ", sample)
                                     continue
                     else :
                             filenames+='secFiles.extend( (               ) )'
@@ -300,14 +301,14 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                         retcode=0
 
                 else:      
-                    print 'No dataset found skipping sample: '+ sample, '\n'  
+                    print('No dataset found skipping sample: '+ sample, '\n')  
                     continue
             else:
-                print ' Used sequence : '+Sequence
+                print(' Used sequence : '+Sequence)
                 retcode = 0
                 
             if (retcode!=0):
-                print 'Job for sample '+ sample + ' failed. \n'
+                print('Job for sample '+ sample + ' failed. \n')
             else:
                 if (Sequence=="harvesting" or Sequence=="preproduction" or Sequence=="comparison_only"):
                     #copy only the needed histograms
@@ -328,7 +329,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                         os.system('cp ' + referenceSample+ ' '+RefRelease+'/'+RefSelection)  
                 else:
 #                    print "No reference file found at: ", RefRelease+'/'+RefSelection
-                    print "No reference file found at: ", referenceSample
+                    print("No reference file found at: ", referenceSample)
                     replace_map = { 'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':'val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': cfgFileName, 'MINEFF':mineff, 'MAXEFF':maxeff, 'MAXFAKE':maxfake}
 
 
@@ -342,18 +343,18 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                 if(os.path.exists(newdir)==False):
                     os.makedirs(newdir)
 
-                print "moving pdf files for sample: " , sample
+                print("moving pdf files for sample: " , sample)
                 os.system('mv  *.pdf ' + newdir)
 
-                print "moving root file for sample: " , sample
+                print("moving root file for sample: " , sample)
                 os.system('mv val.'+ sample+ '.root ' + newdir)
 
-                print "copy py file for sample: " , sample
+                print("copy py file for sample: " , sample)
                 os.system('cp '+cfgFileName+'.py ' + newdir)
 	
 	
         else:
-            print 'Validation for sample ' + sample + ' already done. Skipping this sample. \n'
+            print('Validation for sample ' + sample + ' already done. Skipping this sample. \n')
 
 
 
@@ -367,8 +368,8 @@ if(NewRelease==''):
         NewRelease     = os.environ["CMSSW_VERSION"]
         
     except KeyError:
-        print >>sys.stderr, 'Error: The environment variable CMSSW_VERSION is not available.'
-        print >>sys.stderr, '       Please run cmsenv'
+        print('Error: The environment variable CMSSW_VERSION is not available.', file=sys.stderr)
+        print('       Please run cmsenv', file=sys.stderr)
         sys.exit()
 else:
     try:
@@ -376,8 +377,8 @@ else:
         os.environ["CMSSW_VERSION"]
         
     except KeyError:
-        print >>sys.stderr, 'Error: CMSSW environment variables are not available.'
-        print >>sys.stderr, '       Please run cmsenv'
+        print('Error: CMSSW environment variables are not available.', file=sys.stderr)
+        print('       Please run cmsenv', file=sys.stderr)
         sys.exit()
 
 

@@ -2,6 +2,7 @@
 #define AnalyticalErrorPropagation_H
 
 #include "FWCore/Utilities/interface/Visibility.h"
+#include "FWCore/Utilities/interface/Likely.h"
 #include "TrackingTools/AnalyticalJacobians/interface/AnalyticalCurvilinearJacobian.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
@@ -16,7 +17,7 @@ analyticalErrorPropagation( const FreeTrajectoryState& startingState,
 		const Surface& surface, SurfaceSideDefinition::SurfaceSide side,
 		const GlobalTrajectoryParameters& destParameters, 
 		const double& s) {
-    if unlikely(!startingState.hasError()) 
+    if UNLIKELY(!startingState.hasError()) 
        // return state without errors
       return std::pair<TrajectoryStateOnSurface,double>(TrajectoryStateOnSurface(destParameters,surface,side),s);
 

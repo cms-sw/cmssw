@@ -67,9 +67,9 @@ private:
 AlCaIsoTracksProducerFilter::AlCaIsoTracksProducerFilter(const edm::ParameterSet& iConfig, const AlCaIsoTracksProdFilter::Counters* count) :
   nRun_(0), nAll_(0), nGood_(0) {
   //now do what ever initialization is needed
-  trigNames_             = iConfig.getParameter<std::vector<std::string> >("Triggers");
-  processName_           = iConfig.getParameter<std::string>("ProcessName");
-  triggerResultsLabel_   = iConfig.getParameter<edm::InputTag>("TriggerResultLabel");
+  trigNames_             = iConfig.getParameter<std::vector<std::string> >("triggers");
+  processName_           = iConfig.getParameter<std::string>("processName");
+  triggerResultsLabel_   = iConfig.getParameter<edm::InputTag>("triggerResultLabel");
 
   // define tokens for access
   tok_trigRes_  = consumes<edm::TriggerResults>(triggerResultsLabel_);
@@ -156,8 +156,11 @@ void AlCaIsoTracksProducerFilter::fillDescriptions(edm::ConfigurationDescription
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<edm::InputTag>("triggerResultLabel",edm::InputTag("TriggerResults","","HLT"));
+  std::vector<std::string> trigger = {"HLT_IsoTrackHB","HLT_IsoTrackHE"};
+  desc.add<std::vector<std::string> >("triggers",trigger);
+  desc.add<std::string>("processName","HLT");
+  descriptions.add("alcaIsoTracksProducerFilter",desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

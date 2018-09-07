@@ -36,10 +36,10 @@ void HGCalImagingAlgo::populate(const HGCRecHitCollection &hits) {
         thickness = rhtools_.getSiThickness(detid);
       double storedThreshold =
           thresholds[layer - 1]
-                    [layer <= lastLayerFH ? rhtools_.getWafer(detid) : 0];
+                    [layer <= lastLayerFH ? rhtools_.getSiThickIndex(detid) : 0];
       sigmaNoise =
           v_sigmaNoise[layer - 1]
-                      [layer <= lastLayerFH ? rhtools_.getWafer(detid) : 0];
+                      [layer <= lastLayerFH ? rhtools_.getSiThickIndex(detid) : 0];
 
       if (hgrh.energy() < storedThreshold)
         continue; // this sets the ZS threshold at ecut times the sigma noise
@@ -615,45 +615,20 @@ void HGCalImagingAlgo::computeThreshold() {
 
   if (initialized)
     return; // only need to calculate thresholds once
-  const std::vector<DetId> &listee(rhtools_.getGeometry()->getValidDetIds(
-      DetId::Forward, ForwardSubdetector::HGCEE));
-  const std::vector<DetId> &listfh(rhtools_.getGeometry()->getValidDetIds(
-      DetId::Forward, ForwardSubdetector::HGCHEF));
 
   std::vector<double> dummy;
-  dummy.resize(maxNumberOfWafersPerLayer, 0);
+  const unsigned maxNumberOfThickIndices = 3;
+  dummy.resize(maxNumberOfThickIndices, 0);
   thresholds.resize(maxlayer, dummy);
   v_sigmaNoise.resize(maxlayer, dummy);
-  int previouswafer = -999;
 
-  for (unsigned icalo = 0; icalo < 2; ++icalo) {
-    const std::vector<DetId> &listDetId(icalo == 0 ? listee : listfh);
-
-    for (auto &detid : listDetId) {
-      int wafer = rhtools_.getWafer(detid);
-      if (wafer == previouswafer)
-        continue;
-      previouswafer = wafer;
-      // no need to do it twice
-      if (rhtools_.zside(detid) < 0)
-        continue;
-      int layer = rhtools_.getLayerWithOffset(detid);
-      float thickness = rhtools_.getSiThickness(detid);
-      int thickIndex = -1;
-      if (thickness > 99. && thickness < 101.)
-        thickIndex = 0;
-      else if (thickness > 199. && thickness < 201.)
-        thickIndex = 1;
-      else if (thickness > 299. && thickness < 301.)
-        thickIndex = 2;
-      else
-        assert(thickIndex > 0 &&
-               "ERROR - silicon thickness has a nonsensical value");
+  for (unsigned ilayer = 1; ilayer <= maxlayer; ++ilayer) {
+    for (unsigned ithick = 0; ithick < maxNumberOfThickIndices; ++ithick) {
       float sigmaNoise =
-          0.001f * fcPerEle * nonAgedNoises[thickIndex] * dEdXweights[layer] /
-          (fcPerMip[thickIndex] * thicknessCorrection[thickIndex]);
-      thresholds[layer - 1][wafer] = sigmaNoise * ecut;
-      v_sigmaNoise[layer - 1][wafer] = sigmaNoise;
+          0.001f * fcPerEle * nonAgedNoises[ithick] * dEdXweights[ilayer] /
+          (fcPerMip[ithick] * thicknessCorrection[ithick]);
+      thresholds[ilayer - 1][ithick] = sigmaNoise * ecut;
+      v_sigmaNoise[ilayer - 1][ithick] = sigmaNoise;
     }
   }
 

@@ -140,25 +140,25 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
     const edm::InputTag getTag()                 const  {return edm::InputTag(filterName_,"",processName_);}
     const bool operator== (const std::string& v) const  {return v==pathName_;}
 
-    MonitorElement*  Discr;
-    MonitorElement*  Pt;
-    MonitorElement*  Eta;
-    MonitorElement*  Discr_HLTvsRECO;
-    MonitorElement*  Discr_HLTMinusRECO;
+    MonitorElement*  Discr = nullptr;
+    MonitorElement*  Pt = nullptr;
+    MonitorElement*  Eta = nullptr;
+    MonitorElement*  Discr_HLTvsRECO = nullptr;
+    MonitorElement*  Discr_HLTMinusRECO = nullptr;
     ObjME            Discr_turnon_loose;
     ObjME            Discr_turnon_medium;
     ObjME            Discr_turnon_tight;
-    MonitorElement*  PVz;
-    MonitorElement*  fastPVz;
-    MonitorElement*  PVz_HLTMinusRECO;
-    MonitorElement*  fastPVz_HLTMinusRECO;
-    MonitorElement*  n_vtx;
-    MonitorElement*  vtx_mass;
-    MonitorElement*  n_vtx_trks;
-    MonitorElement*  n_sel_tracks;
-    MonitorElement*  h_3d_ip_distance;
-    MonitorElement*  h_3d_ip_error;
-    MonitorElement*  h_3d_ip_sig;
+    MonitorElement*  PVz = nullptr;
+    MonitorElement*  fastPVz = nullptr;
+    MonitorElement*  PVz_HLTMinusRECO = nullptr;
+    MonitorElement*  fastPVz_HLTMinusRECO = nullptr;
+    MonitorElement*  n_vtx = nullptr;
+    MonitorElement*  vtx_mass = nullptr;
+    MonitorElement*  n_vtx_trks = nullptr;
+    MonitorElement*  n_sel_tracks = nullptr;
+    MonitorElement*  h_3d_ip_distance = nullptr;
+    MonitorElement*  h_3d_ip_error = nullptr;
+    MonitorElement*  h_3d_ip_sig = nullptr;
     // MonitorElement*  n_pixel_hits_;
     // MonitorElement*  n_total_hits_;
 

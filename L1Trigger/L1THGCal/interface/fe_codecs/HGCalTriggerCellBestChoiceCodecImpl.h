@@ -34,7 +34,7 @@ class HGCalTriggerCellBestChoiceCodecImpl
         std::vector<bool> encode(const data_type&, const HGCalTriggerGeometryBase&) const ;
         data_type         decode(const std::vector<bool>&, const uint32_t, const HGCalTriggerGeometryBase&) const;  
 
-        void linearize(const std::vector<HGCDataFrame<DetId,HGCSample>>&,
+        void linearize(const std::vector<HGCalDataFrame>&,
                 std::vector<std::pair<DetId, uint32_t > >&);
 
         void triggerCellSums(const HGCalTriggerGeometryBase& ,

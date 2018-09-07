@@ -40,19 +40,21 @@ class DTWireId;
 class DTGeometry;
 class HRes1DHit;
 class HEff1DHit;
-struct Histograms;
+namespace dtrechit {
+  struct Histograms;
+}
 
-class DTRecHitQuality : public DQMGlobalEDAnalyzer<Histograms> {
+class DTRecHitQuality : public DQMGlobalEDAnalyzer<dtrechit::Histograms> {
 public:
   /// Constructor
   DTRecHitQuality(const edm::ParameterSet& pset);
 
 private:
   /// Book the DQM plots
-  void bookHistograms(DQMStore::ConcurrentBooker &, edm::Run const&, edm::EventSetup const&, Histograms &) const override;
+  void bookHistograms(DQMStore::ConcurrentBooker &, edm::Run const&, edm::EventSetup const&, dtrechit::Histograms &) const override;
 
   /// Perform the real analysis
-  void dqmAnalyze(edm::Event const&, edm::EventSetup const&, Histograms const&) const override;
+  void dqmAnalyze(edm::Event const&, edm::EventSetup const&, dtrechit::Histograms const&) const override;
 
 
 private:
@@ -131,7 +133,7 @@ private:
   void compute(const DTGeometry *dtGeom,
                const std::map<DTWireId, std::vector<PSimHit>>& simHitsPerWire,
                const std::map<DTWireId, std::vector<type>>& recHitsPerWire,
-               Histograms const& histograms, int step) const;
+               dtrechit::Histograms const& histograms, int step) const;
 
 };
 

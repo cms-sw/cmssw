@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
@@ -68,7 +69,7 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 if (process.runType.getRunType() == process.runType.pp_run or process.runType.getRunType() == process.runType.pp_run_stage1 or 
     process.runType.getRunType() == process.runType.cosmic_run or process.runType.getRunType() == process.runType.cosmic_run_stage1 or 
     process.runType.getRunType() == process.runType.hpu_run):
-    print "[beampixel_dqm_sourceclient-live_cfg]::running pp"
+    print("[beampixel_dqm_sourceclient-live_cfg]::running pp")
 
     process.castorDigis.InputLabel           = cms.InputTag("rawDataCollector")
     process.csctfDigis.producer              = cms.InputTag("rawDataCollector")
@@ -119,7 +120,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
         process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmpro/BeamMonitorDQM/BeamPixelResults.txt")
     else:
         process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt")
-    print "[beampixel_dqm_sourceclient-live_cfg]::saving DIP file into " + str(process.pixelVertexDQM.fileName)
+    print("[beampixel_dqm_sourceclient-live_cfg]::saving DIP file into " + str(process.pixelVertexDQM.fileName))
 
 
     #----------------------------
@@ -162,7 +163,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
 # Heavy Ion Specific Part
 #----------------------------
 if (process.runType.getRunType() == process.runType.hi_run):
-    print "[beampixel_dqm_sourceclient-live_cfg]::running HI"
+    print("[beampixel_dqm_sourceclient-live_cfg]::running HI")
 
     process.castorDigis.InputLabel           = cms.InputTag("rawDataRepacker")
     process.csctfDigis.producer              = cms.InputTag("rawDataRepacker")
@@ -213,7 +214,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
         process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmpro/BeamMonitorDQM/BeamPixelResults.txt")
     else:
         process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt")
-    print "[beampixel_dqm_sourceclient-live_cfg]::saving DIP file into " + str(process.pixelVertexDQM.fileName)
+    print("[beampixel_dqm_sourceclient-live_cfg]::saving DIP file into " + str(process.pixelVertexDQM.fileName))
 
 
     #----------------------------

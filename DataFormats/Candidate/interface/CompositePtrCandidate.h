@@ -50,9 +50,9 @@ namespace reco {
     /// clear daughter references
     void clearDaughters() { dau.clear(); }
     /// reference to daughter at given position
-    CandidatePtr daughterPtr( size_type i ) const { return dau[ i ]; }
+    virtual CandidatePtr daughterPtr( size_type i ) const { return dau[ i ]; }
     /// references to daughtes
-    const daughters & daughterPtrVector() const { return dau; }
+    virtual const daughters & daughterPtrVector() const { return dau; }
     /// return pointer to mother
     const Candidate * mother( size_t i = 0 ) const override;
     /// number of source candidates 

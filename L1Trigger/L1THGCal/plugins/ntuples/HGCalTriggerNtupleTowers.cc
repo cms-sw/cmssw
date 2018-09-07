@@ -20,16 +20,16 @@ class HGCalTriggerNtupleHGCTowers : public HGCalTriggerNtupleBase
 
     edm::EDGetToken towers_token_;
 
-    int tower_n_ ;    
+    int tower_n_ ;
     std::vector<float> tower_pt_;
     std::vector<float> tower_energy_;
     std::vector<float> tower_eta_;
     std::vector<float> tower_phi_;
     std::vector<float> tower_etEm_;
     std::vector<float> tower_etHad_;
-    std::vector<int> tower_hwEta_;
-    std::vector<int> tower_hwPhi_;
-  
+    std::vector<int> tower_iEta_;
+    std::vector<int> tower_iPhi_;
+
 };
 
 DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory,
@@ -48,15 +48,15 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
 {
   towers_token_ = collector.consumes<l1t::HGCalTowerBxCollection>(conf.getParameter<edm::InputTag>("Towers"));
 
-  tree.Branch("tower_n", &tower_n_, "tower_n/I"); 
+  tree.Branch("tower_n", &tower_n_, "tower_n/I");
   tree.Branch("tower_pt", &tower_pt_);
   tree.Branch("tower_energy", &tower_energy_);
   tree.Branch("tower_eta", &tower_eta_);
   tree.Branch("tower_phi", &tower_phi_);
   tree.Branch("tower_etEm", &tower_etEm_);
   tree.Branch("tower_etHad", &tower_etHad_);
-  tree.Branch("tower_hwEta", &tower_hwEta_);
-  tree.Branch("tower_hwPhi", &tower_hwPhi_);
+  tree.Branch("tower_iEta", &tower_iEta_);
+  tree.Branch("tower_iPhi", &tower_iPhi_);
 
 }
 
@@ -80,16 +80,16 @@ fill(const edm::Event& e, const edm::EventSetup& es)
   for(auto tower_itr=towers.begin(0); tower_itr!=towers.end(0); tower_itr++)
   {
     tower_n_++;
-    // physical values 
+    // physical values
     tower_pt_.emplace_back(tower_itr->pt());
     tower_energy_.emplace_back(tower_itr->energy());
     tower_eta_.emplace_back(tower_itr->eta());
     tower_phi_.emplace_back(tower_itr->phi());
     tower_etEm_.emplace_back(tower_itr->etEm());
     tower_etHad_.emplace_back(tower_itr->etHad());
-    
-    tower_hwEta_.emplace_back(tower_itr->hwEta());
-    tower_hwPhi_.emplace_back(tower_itr->hwPhi());
+
+    tower_iEta_.emplace_back(tower_itr->id().iEta());
+    tower_iPhi_.emplace_back(tower_itr->id().iPhi());
   }
 }
 
@@ -105,10 +105,6 @@ clear()
   tower_phi_.clear();
   tower_etEm_.clear();
   tower_etHad_.clear();
-  tower_hwEta_.clear();
-  tower_hwPhi_.clear();
+  tower_iEta_.clear();
+  tower_iPhi_.clear();
 }
-
-
-
-

@@ -6,6 +6,8 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <TROOT.h>
+#include <TChain.h>
 
 void unpackDetId(unsigned int detId, int& subdet, int& zside, int& ieta, 
 		 int& iphi, int& depth) {
@@ -51,20 +53,69 @@ unsigned int truncateId(unsigned int detId, int truncateFlag, bool debug=false){
   return id;
 }
 
-double puFactor(int ieta, double pmom, double eHcal, double ediff) {
+double puFactor(int type, int ieta, double pmom, double eHcal, double ediff) {
 
   double fac(1.0);
-  static const double frac(0.02);
+  double frac = (type == 1) ? 0.02 : 0.03;
   if (pmom > 0 && ediff >  frac*pmom) {
-    double a1(-0.35), a2(-0.65);
-    if (std::abs(ieta) == 25) {
-      a2 = -0.30;
-    } else if (std::abs(ieta) > 25) {
-      a1 = -0.45; a2 = -0.10;
+    double a1(0), a2(0);
+    if (type == 1) {
+      a1 = -0.35; a2 = -0.65;
+      if (std::abs(ieta) == 25) {
+	a2 = -0.30;
+      } else if (std::abs(ieta) > 25) {
+	a1 = -0.45; a2 = -0.10;
+      }
+    } else {
+      a1 = -0.39; a2 = -0.59;
+      if (std::abs(ieta) >= 25) {
+	a1 = -0.283; a2 = -0.272;
+      } else if (std::abs(ieta) > 22) {
+	a1 = -0.238; a2 = -0.241;
+      }
     }
     fac = (1.0+a1*(eHcal/pmom)*(ediff/pmom)*(1+a2*(ediff/pmom)));
   }
   return fac;
+}
+
+double puFactorRho(int type, int ieta, double rho, double eHcal) {
+  // type = 1: 2017 Data;  2: 2017 MC; 3: 2018 MC;
+  double par[18] = {0.0205395,-43.0914,2.67115,0.239674,-0.0228009,0.000476963,
+		    0.129097,-105.831,9.58076,0.156392,-0.034671,0.000809736,
+		    0.202391,-145.962,12.1489,0.329384,-0.0511365,0.00113219};
+  double energy(eHcal);
+  if (type >= 1 && type <= 3) {
+    int    eta = std::abs(ieta);
+    int    it  = 6*(type-1);
+    double ea  = (eta < 20) ? par[it] : ((((par[it+5]*eta+par[it+4])*eta+par[it+3])*eta+par[it+2])*eta+par[it+1]);
+    energy -= (rho*ea);
+  }
+  return energy;
+}
+
+bool fillChain(TChain *chain, const char* inputFileList) {
+
+  std::string fname(inputFileList);
+  if (fname.substr(fname.size()-5,5) == ".root") {
+    chain->Add(fname.c_str());
+  } else {
+    ifstream infile(inputFileList);
+    if (!infile.is_open()) {
+      std::cout << "** ERROR: Can't open '" << inputFileList << "' for input" 
+		<< std::endl;
+      return false;
+    }
+    while (1) {
+      infile >> fname;
+      if (!infile.good()) break;
+      chain->Add(fname.c_str());
+    }
+    infile.close();
+  }
+  std::cout << "No. of Entries in this tree : " << chain->GetEntries()
+	    << std::endl;
+  return true;
 }
 
 class CalibCorr {

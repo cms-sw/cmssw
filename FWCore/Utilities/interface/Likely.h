@@ -5,20 +5,20 @@
 #if GCC_PREREQUISITE(3,0,0)
 
 #if defined(NO_LIKELY)
-#define likely(x) (x)
-#define unlikely(x) (x)   
+#define LIKELY(x) (x)
+#define UNLIKELY(x) (x)   
 #elif defined(REVERSE_LIKELY)
-#define unlikely(x) (__builtin_expect(x, true))
-#define likely(x) (__builtin_expect(x, false))
+#define UNLIKELY(x) (__builtin_expect(x, true))
+#define LIKELY(x) (__builtin_expect(x, false))
 #else
-#define likely(x) (__builtin_expect(x, true))
-#define unlikely(x) (__builtin_expect(x, false))
+#define LIKELY(x) (__builtin_expect(x, true))
+#define UNLIKELY(x) (__builtin_expect(x, false))
 #endif
 
 #else
 #define NO_LIKELY
-#define likely(x) (x)  
-#define unlikely(x) (x)
+#define LIKELY(x) (x)  
+#define UNLIKELY(x) (x)
 #endif
 
 #endif

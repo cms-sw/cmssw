@@ -7,9 +7,11 @@ template <class T> const T& max ( const T& a, const T& b ) {
 
 
 
-MaterialBudgetTrackerHistos::MaterialBudgetTrackerHistos(MaterialBudgetData* data,
-							 TestHistoMgr* mgr,
-							 const std::string& fileName ): MaterialBudgetFormat( data ), hmgr(mgr)
+MaterialBudgetTrackerHistos::MaterialBudgetTrackerHistos(std::shared_ptr<MaterialBudgetData> data,
+							 std::shared_ptr<TestHistoMgr> mgr,
+							 const std::string& fileName )
+  : MaterialBudgetFormat( data ), 
+    hmgr(mgr)
 {
   theFileName = fileName;
   book();

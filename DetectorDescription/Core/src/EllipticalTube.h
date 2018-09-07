@@ -14,7 +14,7 @@ namespace DDI {
   {
   public:
     EllipticalTube(double xSemiAxis, double ySemiAxis, double zHeight)
-     : Solid(ddellipticaltube)
+     : Solid(DDSolidShape::ddellipticaltube)
     { 
       p_.emplace_back(xSemiAxis);
       p_.emplace_back(ySemiAxis);

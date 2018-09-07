@@ -34,7 +34,6 @@ public:
 
 private:
   std::vector<edm::ParameterSet> m_parameters;
-  edm::FileInPath m_file;
 };
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -45,7 +44,6 @@ SiStripConfObjectFakeESSource::SiStripConfObjectFakeESSource(const edm::Paramete
   findingRecord<SiStripConfObjectRcd>();
 
   m_parameters = iConfig.getParameter<std::vector<edm::ParameterSet>>("Parameters");
-  m_file = iConfig.getParameter<edm::FileInPath>("file");
 }
 
 SiStripConfObjectFakeESSource::~SiStripConfObjectFakeESSource() {}

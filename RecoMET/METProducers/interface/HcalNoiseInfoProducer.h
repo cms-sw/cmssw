@@ -142,6 +142,7 @@ namespace reco {
 
     int laserMonitorTSStart_;
     int laserMonitorTSEnd_;
+    unsigned laserMonitorSamples_;
     
     std::vector<float> adc2fC;
     std::vector<float> adc2fCHF;

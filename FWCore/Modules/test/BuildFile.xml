@@ -3,4 +3,8 @@
     <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Modules/test FWCoreModulesTest.sh"/>
     <use   name="FWCore/Utilities"/>
   </bin>
+  <bin file="test_catch2_*.cc" name="TestFWCoreModulesTP">
+    <use name="FWCore/TestProcessor"/>
+    <use name="catch2"/>
+  </bin>
 </environment>

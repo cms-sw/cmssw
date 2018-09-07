@@ -11,6 +11,7 @@
  */
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Alignment/SurveyAnalysis/interface/SurveyInputBase.h"
+#include "CondFormats/Alignment/interface/Definitions.h"
 
 class SurveyInputCSCfromPins:
   public SurveyInputBase
@@ -24,7 +25,7 @@ public:
 
 private:
 
-  void orient(LocalVector LC1, LocalVector LC2, double a, double b, double &T, double &dx, double &dy, double &dz, double &PhX, double &PhZ);
+  void orient(align::LocalVector LC1, align::LocalVector LC2, double a, double b, double &T, double &dx, double &dy, double &dz, double &PhX, double &PhZ);
   void errors(double a, double b, bool missing1, bool missing2, double &dx_dx, double &dy_dy, double &dz_dz, double &phix_phix, double &phiz_phiz, double &dy_phix);
 
   void fillAllRecords(Alignable *ali);

@@ -15,13 +15,13 @@ class Phase2TrackerRecHit1D;
 class TkCloner {
 public:
   TrackingRecHit * operator() CMS_THREAD_SAFE (TrackingRecHit const & hit, TrajectoryStateOnSurface const& tsos) const {
-    return hit.clone(*this, tsos);
+    return hit.clone_(*this, tsos);
   }
 
  virtual ~TkCloner() {}
 #ifndef __GCCXML__
   TrackingRecHit::ConstRecHitPointer makeShared(TrackingRecHit::ConstRecHitPointer const & hit, TrajectoryStateOnSurface const& tsos) const {
-    return hit->canImproveWithTrack() ?  hit->cloneSH(*this, tsos) : hit;
+    return hit->canImproveWithTrack() ?  hit->cloneSH_(*this, tsos) : hit;
     // return  hit->cloneSH(*this, tsos);
   }
 #endif

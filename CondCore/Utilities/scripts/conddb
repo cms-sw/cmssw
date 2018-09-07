@@ -1390,7 +1390,7 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
     logfun = logging.info 
     if len(iovs)==0:
         logfun = logging.warning
-    logfun('Found %s iovs and %s referenced payloads to copy.',len(iovs.keys()), len(hashes))
+    logfun('Found %s iovs and %s referenced payloads to copy.',len(iovs), len(hashes))
     # Copy the payloads referenced in the selected iovs
     np = 0
     for h in hashes:

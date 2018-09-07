@@ -2,13 +2,16 @@ import FWCore.ParameterSet.Config as cms
 
 # define binning for efficiency plots
 # pt
-effVsPtBins = range(0, 50, 2)
+effVsPtBins = range(0, 30, 1)
+effVsPtBins += range(30, 50, 2)
 effVsPtBins += range(50, 70, 5)
 effVsPtBins += range(70, 100, 10)
 effVsPtBins += range(100, 200, 25)
 effVsPtBins += range(200, 300, 50)
 effVsPtBins += range(300, 500, 100)
-effVsPtBins.append(500)
+effVsPtBins += range(500, 700, 200)
+effVsPtBins += range(700, 1000, 300)
+effVsPtBins.append(1000)
 
 # phi
 nPhiBins = 34
@@ -61,6 +64,12 @@ l1tMuonDQMOffline = DQMEDAnalyzer('L1TMuonDQMOffline',
     verbose   = cms.untracked.bool(False)
 )
 
+# emulator module
+l1tMuonDQMOfflineEmu = l1tMuonDQMOffline.clone(
+    gmtInputTag  = cms.untracked.InputTag("simGmtStage2Digis"),
+    histFolder = cms.untracked.string('L1TEMU/L1TObjects/L1TMuon/L1TriggerVsReco')
+)
+
 # modifications for the pp reference run
 # A list of pt cut + quality cut pairs for which efficiency plots should be made
 ptQualCuts_HI = [[12, 12], [7, 8], [5, 4]]
@@ -76,4 +85,12 @@ ppRef_2017.toModify(l1tMuonDQMOffline,
         "HLT_HIL3Mu12_v*",
     )
 )
+ppRef_2017.toModify(l1tMuonDQMOfflineEmu,
+    tagPtCut = cms.untracked.double(14.),
+    cuts = cms.untracked.VPSet(cutsPSets_HI),
+    triggerNames = cms.untracked.vstring(
+        "HLT_HIL3Mu12_v*",
+    )
+)
+
 

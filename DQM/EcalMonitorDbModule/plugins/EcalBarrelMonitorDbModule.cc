@@ -5,7 +5,7 @@
  *
 */
 
-#include "../interface/EcalBarrelMonitorDbModule.h"
+#include "DQM/EcalMonitorDbModule/interface/EcalBarrelMonitorDbModule.h"
 
 #include <unistd.h>
 
@@ -21,7 +21,7 @@
 #include "CoralBase/Attribute.h"
 #include "CoralKernel/Context.h"
 
-#include "../interface/MonitorElementsDb.h"
+#include "DQM/EcalMonitorDbModule/interface/MonitorElementsDb.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys,commands,os,calendar
 from ROOT import gDirectory,TFile
 
@@ -39,10 +40,10 @@ class bsmeas(object):
 def timeof(run,lumisection):
     # first check if this run is already in the list, otherwise read it
     if run not in runlstime.keys():
-        print "Reading lumi time from lumireg localcopy files"
+        print("Reading lumi time from lumireg localcopy files")
         filename="localcopy/BeamFitResults_Run"+run+".txt"
         if not os.path.exists(filename):
-            print "WARNING: file ",filename," does not exist. Returning null."
+            print("WARNING: file ",filename," does not exist. Returning null.")
             return -1
 
         # reading file
@@ -55,11 +56,9 @@ def timeof(run,lumisection):
             try:
                 tmp = BeamspotMeasurement(piece)
             except Exception as err:
-                print >> sys.stderr, \
-                      "    ERROR Found corrupt " \
-                      "beamspot measurement entry!"
-                print >> sys.stderr, \
-                      "    !!! %s !!!" % str(err)
+                print("    ERROR Found corrupt " \
+                      "beamspot measurement entry!", file=sys.stderr)
+                print("    !!! %s !!!" % str(err), file=sys.stderr)
                 continue
             # Argh!
             runfromfile=tmp.run_number
@@ -72,8 +71,7 @@ def timeof(run,lumisection):
             lstime[lumimax]=time_end
             
         # order lumisections and make a list
-        lslist=lstime.keys()
-        lslist.sort()
+        lslist=sorted(lstime.keys())
         lstimesorted=[]
         for ls in lslist:
             lstimesorted.append((ls,lstime[ls]))
@@ -160,7 +158,7 @@ def readroot():
                         #                            print label
                         #                        else:
                         if label not in rls:
-                            print "New range:",label," found in ",histoname
+                            print("New range:",label," found in ",histoname)
                             rls.append(label)
                                 
                         if label in thisbx.keys():
@@ -217,7 +215,7 @@ def readroot():
 
 if __name__ == '__main__':
     if len(sys.argv)!=2:
-        print "Usage: :",sys.argv[0]," <fillnr>"
+        print("Usage: :",sys.argv[0]," <fillnr>")
         sys.exit(1)
     FILL=sys.argv[1]
 
@@ -225,7 +223,7 @@ if __name__ == '__main__':
     # now write it
     
     for bx in allmeas.keys():
-        print "writing bx=",bx
+        print("writing bx=",bx)
         bxmeas=allmeas[bx]
         lines={}
         for meas in bxmeas.keys():
@@ -239,7 +237,7 @@ if __name__ == '__main__':
             lumimax=lumimax.strip()
             lumimid=int((int(lumimin)+int(lumimax))/2.)
             meastime=timeof(runno,lumimid)
-            print runno,str(lumimid),meastime
+            print(runno,str(lumimid),meastime)
             
             thismeas=bxmeas[meas]
 #            print thismeas.x,thismeas.ex,thismeas.y,thismeas.ey,thismeas.z,thismeas.ez
@@ -269,8 +267,7 @@ if __name__ == '__main__':
         rfbucket=(int(bx)-1)*10+1
         filename=WORKDIR+"/"+FILL+"_lumireg_"+str(rfbucket)+"_CMS.txt"
         file=open(filename,'w')
-        sortedtimes=lines.keys()
-        sortedtimes.sort()
+        sortedtimes=sorted(lines.keys())
         for meastime in sortedtimes:
             file.write(lines[meastime])
         file.close()

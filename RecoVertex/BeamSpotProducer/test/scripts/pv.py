@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 #import ROOT
+from __future__ import print_function
 from ROOT import *
 #gROOT, TFile, TCanvas, TH1F, TH1I, TLegend, TH2F, gPad
 
@@ -14,7 +15,7 @@ try:
     from RooAlias import *
     SetStyle()
 except:
-    print "I cannot find RooAlias.py, ignore it and use plain style"
+    print("I cannot find RooAlias.py, ignore it and use plain style")
     gROOT.SetStyle('Plain')
 
 gROOT.Reset()
@@ -105,7 +106,7 @@ def Fit3D( pvStore ):
     minuitx.CreateMinimizer()
     ierr = minuitx.Minimize()
     if ierr == 1:
-	print "3D beam spot fit failed in 1st iteration"
+	print("3D beam spot fit failed in 1st iteration")
 	return (False, fbeamspot)
     
     # refit with harder selection on vertices
@@ -118,7 +119,7 @@ def Fit3D( pvStore ):
 		   minuitx.GetParameter(2)+sigmaCut_*minuitx.GetParameter(8));
     ierr = minuitx.Minimize();
     if ierr == 1:
-	print "3D beam spot fit failed in 2nd iteration"
+	print("3D beam spot fit failed in 2nd iteration")
 	return (False, fbeamspot)
     
     # refit with correlations
@@ -128,7 +129,7 @@ def Fit3D( pvStore ):
     minuitx.ReleaseParameter(7);
     ierr = minuitx.Minimize();
     if ierr == 1:
-	print "3D beam spot fit failed in 3rd iteration"
+	print("3D beam spot fit failed in 3rd iteration")
 	return (False, fbeamspot)
     # store results
 
@@ -194,7 +195,7 @@ def main():
 	if ientry == 0 :
 	    therun = run
 	if run != therun:
-	    print "FILES WITH DIFFERENT RUNS?? "+str(runt) + " and "+str(therun)
+	    print("FILES WITH DIFFERENT RUNS?? "+str(runt) + " and "+str(therun))
 	    break
 
 	pvdata = aData.getPvData()
@@ -209,7 +210,7 @@ def main():
 	pvz = pvdata.position[2]
 
 	if (bx in histox) == False:
-	    print "bx: "+str(bx)
+	    print("bx: "+str(bx))
 	    histox[bx] = TH2F("x_"+str(bx),"x_"+str(bx),100,0,0.2,300,0,1500)#TH1F("x_"+str(bx),"x_"+str(bx),100,0,0.2)
 	    histoy[bx] = TH1F("y_"+str(bx),"y_"+str(bx),100,0,0.2)
 	    histoz[bx] = TH1F("z_"+str(bx),"z_"+str(bx),100,0,0.2)
@@ -226,9 +227,9 @@ def main():
     results = Fit3D( pvStore )
 
     if results[0]:
-        print "Results:"
-        print " X = " +str(results[1].X)
-        print "width X = " +str(results[1].beamWidthX)
+        print("Results:")
+        print(" X = " +str(results[1].X))
+        print("width X = " +str(results[1].beamWidthX))
 
     # plots
     cvbx = TCanvas("bx","bx",700,700)

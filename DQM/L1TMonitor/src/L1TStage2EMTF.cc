@@ -17,7 +17,6 @@ L1TStage2EMTF::~L1TStage2EMTF() {}
 
 void L1TStage2EMTF::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
 
-void L1TStage2EMTF::beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) {}
 
 void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) {
   
@@ -152,9 +151,6 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   emtfTrackPhi = ibooker.book1D("emtfTrackPhi", "EMTF Track #phi", 126, -3.15, 3.15);
   emtfTrackPhi->setAxisTitle("Track #phi", 1);
 
-  emtfTrackPhiHighQuality = ibooker.book1D("emtfTrackPhiHighQuality", "EMTF High Quality #phi", 126, -3.15, 3.15);
-  emtfTrackPhiHighQuality->setAxisTitle("Track #phi (Quality #geq 12)", 1);
-
   emtfTrackOccupancy = ibooker.book2D("emtfTrackOccupancy", "EMTF Track Occupancy", 100, -2.5, 2.5, 126, -3.15, 3.15);
   emtfTrackOccupancy->setAxisTitle("#eta", 1);
   emtfTrackOccupancy->setAxisTitle("#phi", 2);
@@ -169,12 +165,50 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   emtfTrackQualityVsMode->setAxisTitle("Mode", 1);
   emtfTrackQualityVsMode->setAxisTitle("Quality", 2);
 
+  RPCvsEMTFTrackMode = ibooker.book2D("RPCvsEMTFTrackMode", "RPC Mode vs EMTF TrackMode", 16, 0, 16, 16, 0, 16);
+  RPCvsEMTFTrackMode->setAxisTitle("EMTF Mode", 1);
+  RPCvsEMTFTrackMode->setAxisTitle("RPC Mode", 2);
+
   for (int bin = 1; bin <= 16; ++bin) {
     emtfTrackMode->setBinLabel(bin, std::to_string(bin - 1), 1);
     emtfTrackQuality->setBinLabel(bin, std::to_string(bin - 1), 1);
     emtfTrackQualityVsMode->setBinLabel(bin, std::to_string(bin - 1), 1);
     emtfTrackQualityVsMode->setBinLabel(bin, std::to_string(bin - 1), 2);
+    RPCvsEMTFTrackMode->setBinLabel(bin, std::to_string(bin - 1), 1);
+    RPCvsEMTFTrackMode->setBinLabel(bin, std::to_string(bin - 1), 2);
   }
+
+  //Chad Freer May 8 2018 (Selected Tracks)
+  ibooker.setCurrentFolder(monitorDir + "/SelectedTracks");
+
+  //Chad Freer May 8 2018 (High Quality Track Plots)
+  emtfTrackPtHighQuality = ibooker.book1D("emtfTrackPtHighQuality", "EMTF High Quality Track p_{T}", 256, 1, 257);
+  emtfTrackPtHighQuality->setAxisTitle("Track p_{T} [GeV] (Quality #geq 12)", 1);
+
+  emtfTrackEtaHighQuality = ibooker.book1D("emtfTrackEtaHighQuality", "EMTF High Quality Track #eta", 100, -2.5, 2.5);
+  emtfTrackEtaHighQuality->setAxisTitle("Track #eta (Quality #geq 12)", 1);
+
+  emtfTrackPhiHighQuality = ibooker.book1D("emtfTrackPhiHighQuality", "EMTF High Quality #phi", 126, -3.15, 3.15);
+  emtfTrackPhiHighQuality->setAxisTitle("Track #phi (Quality #geq 12)", 1);
+
+  emtfTrackOccupancyHighQuality = ibooker.book2D("emtfTrackOccupancyHighQuality", "EMTF High Quality Track Occupancy", 100, -2.5, 2.5, 126, -3.15, 3.15);
+  emtfTrackOccupancyHighQuality->setAxisTitle("#eta", 1);
+  emtfTrackOccupancyHighQuality->setAxisTitle("#phi", 2);
+
+  //Chad Freer may 8 2018 (High Quality and High PT [22 GeV] Track Plots)
+  emtfTrackPtHighQualityHighPT = ibooker.book1D("emtfTrackPtHighQualityHighPT", "EMTF High Quality High PT Track p_{T}", 256, 1, 257);
+  emtfTrackPtHighQualityHighPT->setAxisTitle("Track p_{T} [GeV] (Quality #geq 12 and pT>22)", 1);
+
+  emtfTrackEtaHighQualityHighPT = ibooker.book1D("emtfTrackEtaHighQualityHighPT", "EMTF High Quality High PT Track #eta", 100, -2.5, 2.5);
+  emtfTrackEtaHighQualityHighPT->setAxisTitle("Track #eta (Quality #geq 12 and pT>22)", 1);
+
+  emtfTrackPhiHighQualityHighPT = ibooker.book1D("emtfTrackPhiHighQualityHighPT", "EMTF High Quality High PT #phi", 126, -3.15, 3.15);
+  emtfTrackPhiHighQualityHighPT->setAxisTitle("Track #phi (Quality #geq 12 and pT>22)", 1);
+
+  emtfTrackOccupancyHighQualityHighPT = ibooker.book2D("emtfTrackOccupancyHighQualityHighPT", "EMTF High Quality High PT Track Occupancy", 100, -2.5, 2.5, 126, -3.15, 3.15);
+  emtfTrackOccupancyHighQualityHighPT->setAxisTitle("#eta", 1);
+  emtfTrackOccupancyHighQualityHighPT->setAxisTitle("#phi", 2);
+  //Chad Freer May 8 2018 (END new plots)
 
   // CSC Input
   ibooker.setCurrentFolder(monitorDir + "/CSCInput");
@@ -559,7 +593,13 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     int quality = Track->GMT_quality();
     int numHits = Track->NumHits();
     int modeNeighbor = Track->Mode_neighbor();
-    
+    int modeRPC = Track->Mode_RPC();
+    int singleMuQuality = 12;
+    int singleMuPT = 22;
+
+    // Only plot if there are <= 1 neighbor hits in the track to avoid spikes at sector boundaries
+    if (modeNeighbor >= 2 && modeNeighbor != 4 && modeNeighbor != 8) continue;
+
     emtfTracknHits->Fill(numHits);
     emtfTrackBX->Fill(endcap * (sector - 0.5), Track->BX());
     emtfTrackPt->Fill(Track->Pt());
@@ -569,15 +609,22 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     emtfTrackMode->Fill(mode);
     emtfTrackQuality->Fill(quality);
     emtfTrackQualityVsMode->Fill(mode, quality);
-    
-    // Only plot if there are <= 1 neighbor hits in the track to avoid spikes at sector boundaries
-    if (modeNeighbor < 2 || modeNeighbor == 4 || modeNeighbor == 8) {
-      emtfTrackPhi->Fill(phi_glob_rad);
-      if (quality >= 12) {
+    RPCvsEMTFTrackMode->Fill(mode, modeRPC);
+    emtfTrackPhi->Fill(phi_glob_rad);
+
+    if (quality >= singleMuQuality) {
+        emtfTrackPtHighQuality->Fill(Track->Pt());
+        emtfTrackEtaHighQuality->Fill(eta);
         emtfTrackPhiHighQuality->Fill(phi_glob_rad);
-      }
+        emtfTrackOccupancyHighQuality->Fill(eta, phi_glob_rad);
+        if (Track->Pt()>= singleMuPT) {
+           emtfTrackPtHighQualityHighPT->Fill(Track->Pt());
+           emtfTrackEtaHighQualityHighPT->Fill(eta);
+           emtfTrackPhiHighQualityHighPT->Fill(phi_glob_rad);
+           emtfTrackOccupancyHighQualityHighPT->Fill(eta, phi_glob_rad);
+        }
     }
-    
+        
     ////////////////////////////////////////////////////
     ///  Begin block for CSC LCT and RPC hit timing  ///
     ////////////////////////////////////////////////////

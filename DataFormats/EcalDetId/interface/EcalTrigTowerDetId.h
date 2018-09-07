@@ -66,23 +66,23 @@ class EcalTrigTowerDetId : public DetId {
   int iquadrant() const ; 
 
 
-/*   /// get the tower ix (Endcap case) */
-/*   int ix() const  */
-/*     {  */
-/*       if ( subDet() == EcalEndcap) */
-/* 	return (id_>>7)&0x7f;  */
-/*       else */
-/* 	throw(std::runtime_error("EcalTrigTowerDetId: ix not applicable for this subDetector.")); */
-/*     }  */
+   /// get the tower ix (Endcap case) */
+   int ix() const  
+     {  
+       if ( subDet() == EcalEndcap) 
+ 	return (id_>>7)&0x7f;  
+       else 
+ 	throw(std::runtime_error("EcalTrigTowerDetId: ix not applicable for this subDetector."));
+     }  
   
-/*   /// get the tower iy (Endcap case) */
-/*   int iy() const throw(std::runtime_error) */
-/*     {  */
-/*       if ( subDet() == EcalEndcap) */
-/* 	return id_&0x7F;  */
-/*       else */
-/* 	throw(std::runtime_error("EcalTrigTowerDetId: ix not applicable for this subDetector.")); */
-/*     }  */
+   /// get the tower iy (Endcap case) */
+   int iy() const
+     { 
+      if ( subDet() == EcalEndcap)
+        return id_&0x7F; 
+      else 
+        throw(std::runtime_error("EcalTrigTowerDetId: ix not applicable for this subDetector.")); 
+     }  
   
 
   /// get a compact index for arrays [TODO: NEEDS WORK]

@@ -22,6 +22,7 @@
 #===================================================================
 
 
+from __future__ import print_function
 import httplib, urllib, urllib2, types, string, os, sys
 
 if 'DBS_RELEASE' not in os.environ:
@@ -75,8 +76,8 @@ def common_search(dbs_tier):
       data = response.read()
     except urllib2.HTTPError as e:
       if e.code==201:
-        print e.headers       
-        print e.msg
+        print(e.headers)       
+        print(e.msg)
         pass
       else:
         raise e
@@ -99,12 +100,12 @@ if __name__ == "__main__":
     os.environ['DBS_TIER_SECONDARY'] = ""
   if os.environ['DBS_TIER_SECONDARY'] == "":
     for file in search():
-      print file
+      print(file)
   else:
     for file in search():
-      print "primary:"+file
+      print("primary:"+file)
     for file in search2():
-      print "secondary:"+file
+      print("secondary:"+file)
 
 	
 	

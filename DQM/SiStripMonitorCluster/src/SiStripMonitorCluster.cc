@@ -709,7 +709,7 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es,
             FEDCluster.getParameter<double>("xmax"),
             FEDCluster.getParameter<int32_t>("Nbinsy"),
             FEDCluster.getParameter<double>("ymin"),
-            FEDCluster.getParameter<double>("ymax"));
+            FEDCluster.getParameter<double>("ymax"),"");
         NumberOfFEDClus->setAxisTitle("FED ID", 1);
         NumberOfFEDClus->setAxisTitle("Mean # of Cluster in FED", 2);
       }

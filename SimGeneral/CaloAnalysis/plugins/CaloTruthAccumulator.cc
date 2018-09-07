@@ -177,6 +177,7 @@ class CaloTruthAccumulator : public DigiAccumulatorMixMod {
   edm::InputTag hepMCproductLabel_;
 
   const double minEnergy_, maxPseudoRapidity_;
+  const bool premixStage1_;
 
  public:
   struct OutputCollections {
@@ -200,11 +201,13 @@ class CaloTruthAccumulator : public DigiAccumulatorMixMod {
   };
 
  private:
-  const HGCalTopology* hgtopo_[2];
-  const HGCalDDDConstants* hgddd_[2];
-  const HcalDDDRecConstants* hcddd_;
+  const HGCalTopology* hgtopo_[3] = {nullptr,nullptr,nullptr};
+  const HGCalDDDConstants* hgddd_[3] = {nullptr,nullptr,nullptr};
+  const HcalDDDRecConstants* hcddd_ = nullptr;
   OutputCollections output_;
   calo_particles m_caloParticles;
+  //geometry type (0 pre-TDR; 1 TDR)
+  int geometryType_;
 };
 
 /* Graph utility functions */
@@ -374,9 +377,15 @@ CaloTruthAccumulator::CaloTruthAccumulator(const edm::ParameterSet& config,
       genParticleLabel_(config.getParameter<edm::InputTag>("genParticleCollection")),
       hepMCproductLabel_(config.getParameter<edm::InputTag>("HepMCProductLabel")),
       minEnergy_(config.getParameter<double>("MinEnergy")),
-      maxPseudoRapidity_(config.getParameter<double>("MaxPseudoRapidity")) {
+      maxPseudoRapidity_(config.getParameter<double>("MaxPseudoRapidity")),
+      premixStage1_(config.getParameter<bool>("premixStage1")),
+      geometryType_(-1)
+{
   mixMod.produces<SimClusterCollection>("MergedCaloTruth");
   mixMod.produces<CaloParticleCollection>("MergedCaloTruth");
+  if(premixStage1_) {
+    mixMod.produces<std::vector<std::pair<unsigned int, float> > >("MergedCaloTruth");
+  }
 
   iC.consumes<std::vector<SimTrack> >(simTrackLabel_);
   iC.consumes<std::vector<SimVertex> >(simVertexLabel_);
@@ -403,21 +412,31 @@ void CaloTruthAccumulator::beginLuminosityBlock(edm::LuminosityBlock const& iLum
                                                          const edm::EventSetup& iSetup) {
   edm::ESHandle<CaloGeometry> geom;
   iSetup.get<CaloGeometryRecord>().get(geom);
-  const HGCalGeometry *eegeom, *fhgeom;
-  const HcalGeometry* bhgeom;
+  const HGCalGeometry *eegeom = nullptr, *fhgeom = nullptr, *bhgeomnew = nullptr;
+  const HcalGeometry* bhgeom = nullptr;
 
-  eegeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::Forward, HGCEE));
-  fhgeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::Forward, HGCHEF));
-  bhgeom = static_cast<const HcalGeometry*>(geom->getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
-
+  eegeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::HGCalEE,ForwardSubdetector::ForwardEmpty));
+  //check if it's the new geometry
+  if(eegeom){
+    geometryType_ = 1;
+    fhgeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::HGCalHSi,ForwardSubdetector::ForwardEmpty));
+    bhgeomnew = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::HGCalHSc,ForwardSubdetector::ForwardEmpty));
+  }
+  else {
+    geometryType_ = 0;
+    eegeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::Forward, HGCEE));
+    fhgeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::Forward, HGCHEF));
+    bhgeom = static_cast<const HcalGeometry*>(geom->getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
+  }
   hgtopo_[0] = &(eegeom->topology());
   hgtopo_[1] = &(fhgeom->topology());
+  if(bhgeomnew) hgtopo_[2] = &(bhgeomnew->topology());
 
-  for (unsigned i = 0; i < 2; ++i) {
-    hgddd_[i] = &(hgtopo_[i]->dddConstants());
+  for (unsigned i = 0; i < 3; ++i) {
+    if(hgtopo_[i]) hgddd_[i] = &(hgtopo_[i]->dddConstants());
   }
 
-  hcddd_ = bhgeom->topology().dddConstants();
+  if(bhgeom) hcddd_ = bhgeom->topology().dddConstants();
 }
 
 void CaloTruthAccumulator::initializeEvent(edm::Event const& event,
@@ -467,19 +486,29 @@ void CaloTruthAccumulator::finalizeEvent(edm::Event& event, edm::EventSetup cons
 
   // We need to normalize the hits and energies into hits and fractions (since
   // we have looped over all pileup events)
+  // For premixing stage1 we keep the energies, they will be normalized to fractions in stage2
 
-  for (auto& sc : *(output_.pSimClusters)) {
-    auto hitsAndEnergies = sc.hits_and_fractions();
-    sc.clearHitsAndFractions();
-    for (auto& hAndE : hitsAndEnergies) {
-      const float totalenergy = m_detIdToTotalSimEnergy[hAndE.first];
-      float fraction = 0.;
-      if (totalenergy > 0)
-        fraction = hAndE.second / totalenergy;
-      else
-        edm::LogWarning(messageCategory_) << "TotalSimEnergy for hit " << hAndE.first
-                                          << " is 0! The fraction for this hit cannot be computed.";
-      sc.addRecHitAndFraction(hAndE.first, fraction);
+  if(premixStage1_) {
+    auto totalEnergies = std::make_unique<std::vector<std::pair<unsigned int, float> > >();
+    totalEnergies->reserve(m_detIdToTotalSimEnergy.size());
+    std::copy(m_detIdToTotalSimEnergy.begin(), m_detIdToTotalSimEnergy.end(), std::back_inserter(*totalEnergies));
+    std::sort(totalEnergies->begin(), totalEnergies->end());
+    event.put(std::move(totalEnergies), "MergedCaloTruth");
+  }
+  else {
+    for (auto& sc : *(output_.pSimClusters)) {
+      auto hitsAndEnergies = sc.hits_and_fractions();
+      sc.clearHitsAndFractions();
+      for (auto& hAndE : hitsAndEnergies) {
+        const float totalenergy = m_detIdToTotalSimEnergy[hAndE.first];
+        float fraction = 0.;
+        if (totalenergy > 0)
+          fraction = hAndE.second / totalenergy;
+        else
+          edm::LogWarning(messageCategory_) << "TotalSimEnergy for hit " << hAndE.first
+                                            << " is 0! The fraction for this hit cannot be computed.";
+        sc.addRecHitAndFraction(hAndE.first, fraction);
+      }
     }
   }
 
@@ -653,7 +682,11 @@ void CaloTruthAccumulator::fillSimHits(
     for (auto const& simHit : *hSimHits) {
       DetId id(0);
       const uint32_t simId = simHit.id();
-      if (isHcal) {
+      if (geometryType_==1) {
+        //no test numbering in new geometry
+        id = simId;
+      }
+      else if (isHcal) {
         HcalDetId hid = HcalHitRelabeller::relabel(simId, hcddd_);
         if (hid.subdet() == HcalEndcap) id = hid;
       } else {

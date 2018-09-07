@@ -1,8 +1,3 @@
-// Two modules of CLHEP are partly used in DDD
-// . unit definitions (such as m, cm, GeV, ...) of module CLHEP/Units
-// . rotation matrices and translation std::vectors of module CLHEP/Vector
-//   (they are typedef'd to DDRotationMatrix and DDTranslation in
-//   DDD/DDCore/interface/DDTransform.h
 #include <cstdlib>
 #include <chrono>
 #include <fstream>
@@ -12,8 +7,6 @@
 #include <utility>
 #include <vector>
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
@@ -26,7 +19,6 @@
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDNodes.h"
-#include "DetectorDescription/Core/interface/DDNumberingScheme.h"
 #include "DetectorDescription/Core/interface/DDPartSelection.h"
 #include "DetectorDescription/Core/interface/DDPosData.h"
 #include "DetectorDescription/Core/interface/DDScope.h"
@@ -34,12 +26,12 @@
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
+#include "DetectorDescription/Core/interface/DDUnits.h"
 #include "DataFormats/Math/interface/Graph.h"
 #include "DetectorDescription/Core/interface/ClhepEvaluator.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "Math/GenVector/Cartesian3D.h"
-#include "Math/GenVector/DisplacementVector3D.h"
-#include "Math/GenVector/Rotation3D.h"
+
+using namespace dd::operators;
 
 namespace {
   class GroupFilter : public DDFilter {
@@ -75,7 +67,7 @@ DDTranslation calc(const DDGeoHistory & aHist)
     vt.emplace_back(h[1].posdata()->translation());
     unsigned int i = 1;
     for (; i <= sz-2; ++i) {
-      vr.emplace_back( vr.back() * *(h[i].posdata()->ddrot().rotation()) );
+      vr.emplace_back( vr.back() * h[i].posdata()->ddrot().rotation());
       vt.emplace_back(h[i+1].posdata()->translation());
     }
   }
@@ -101,20 +93,19 @@ void debugHistory(const DDGeoHistory & h)
 
 void goPersistent(const DDCompactView & cv, const std::string& file) {
   std::ofstream f(file.c_str());
-  typedef DDCompactView::graph_type graph_t;
-  const graph_t & g = cv.graph();
+  const auto & g = cv.graph();
   unsigned int node = 0;
-  graph_t::const_adj_iterator it = g.begin();
+  auto it = g.begin();
   for (; it != g.end(); ++it) {
-    graph_t::const_edge_iterator eit = it->begin();
+    auto eit = it->begin();
     for (; eit != it->end(); ++eit) {
       unsigned int eindex = eit->first;
       int copyno = g.edgeData(eit->second)->copyno();
       double x,y,z;
       
-      x = g.edgeData(eit->second)->trans().x()/mm;
-      y = g.edgeData(eit->second)->trans().y()/mm;
-      z = g.edgeData(eit->second)->trans().z()/mm;
+      x = CONVERT_TO( g.edgeData(eit->second)->trans().x(), mm );
+      y = CONVERT_TO( g.edgeData(eit->second)->trans().y(), mm );
+      z = CONVERT_TO( g.edgeData(eit->second)->trans().z(), mm );
       f << node << " " << eindex << " " << copyno 
         << " " << x << " " << y << " " << z 
 	<< " " << g.edgeData(eit->second)->ddrot().ddname().ns()
@@ -158,7 +149,7 @@ void dumpHistory(const DDGeoHistory & h, bool short_dump=false)
     if (!short_dump) { 
       DDAxisAngle ra(h[i].absRotation());
       std::cout  << h[i].absTranslation() 
-		 << ra.Axis() << ra.Angle()/deg;
+		 << ra.Axis() << CONVERT_TO( ra.Angle(), deg );
     }	  
   }
 }
@@ -254,7 +245,7 @@ void tutorial()
   // DDD/DDCore/interface/graph.h
  
   // First one takes the graph representation of CompactView
-  const DDCompactView::graph_type & cpvGraph = cpv.graph();
+  const auto & cpvGraph = cpv.graph();
  
   // Using the Graph.h interface, some basic information is available:
   std::cout << "CompactView, basic information: " << std::endl
@@ -369,7 +360,7 @@ void tutorial()
       
 	double dv = 0.;
 	try {
-	  dv = DDI::Singleton<ClhepEvaluator>::instance().eval("",v);
+	  dv = ClhepEvaluator().eval("",v);
 	}
 	catch (const cms::Exception & e) {
 	  dv = 0;
@@ -396,7 +387,6 @@ void tutorial()
       std::cout << "creating the default numbering scheme ..." << std::endl;
   
       DDExpandedView eeeee(aaaaa);
-      DDDefaultNumberingScheme nums(eeeee);
   
       std::cout << "do sibling-stack navigation?";
       std::cin >> ans;
@@ -419,7 +409,6 @@ void tutorial()
 	  std::cout << "input=" << n << std::endl;
 	  if (e.goTo(n)) {
 	    std::cout << "node=" << e.geoHistory() << std::endl;
-	    std::cout << "  id=" << nums.id(e) << std::endl;  
 	  }
 	  else {
 	    std::cout << "no match!" << std::endl;
@@ -439,12 +428,6 @@ void tutorial()
 	  int s;
 	  std::cin >> s;
 	  go = (bool)s;
-	  if (nums.node(s,e)) {
-	    std::cout << "node=" << e.geoHistory() << std::endl;
-	  }
-	  else {
-	    std::cout << "no match!" << std::endl;
-	  }    
 	}
       }  
     }
@@ -456,21 +439,13 @@ void tutorial()
       GroupFilter gf(vecF);
       DDFilteredView fv(compactview,gf);
     
-      //bool looop = true;
       int count =0;
-      /*
-	while(looop) {
-	looop = fv.next();
-	++count;
-	}
-      */
       std::cout << "The filtered-view contained " << count << " nodes." << std::endl;
       fv.reset();
       std::cout << "Now entering interactive navigation: f = (f)irstChild," << std::endl
 		<< "                                     n = (n)extSibling," << std::endl 
 		<< "                                     p = (p)arent," << std::endl
 		<< "                                     s = (s)tatus," << std::endl
-		<< "                                     w = (w)eigth[kg]," << std::endl
 		<< "                                     h = (h)istory debugging," << std::endl
 		<< "                                     e = (e)nd" << std::endl;
       std::string nav="";
@@ -485,7 +460,6 @@ void tutorial()
 	std::vector<const DDsvalues_type *> only = fv.logicalPart().specifics();
 	DDsvalues_type merged = fv.mergedSpecifics();
 	DDLogicalPart curlp = fv.logicalPart();
-	double curweight=0;
 	bool result = false;
 	switch (c) {
 	case 'f':
@@ -523,21 +497,13 @@ void tutorial()
 	  {	 
 	    DDAxisAngle   aa(fv.rotation());
 	    std::cout << "rotation: axis=" << aa.Axis() 
-		      << " angle=" << aa.Angle()/deg << std::endl << std::endl;
+		      << " angle=" << CONVERT_TO( aa.Angle(), deg ) << std::endl << std::endl;
 	  }
 	  std::cout << "sibling-stack=" << fv.navPos() << std::endl << std::endl;
 	  std::cout << "material=" << fv.logicalPart().material().ddname() << std::endl;
 	  std::cout << "solid=" << fv.logicalPart().solid().ddname() <<
-	    " volume[m3]=" << fv.logicalPart().solid().volume()/m3 << std::endl;	      
-	 
-	  //std::cout << "id from default numbering-scheme=" << nums.id(fv) << std::endl;
+	    " volume[m3]=" << CONVERT_TO( fv.logicalPart().solid().volume(), m3 ) << std::endl;	      
 	  break;
-	case 'w':
-	  curweight = wcpv.weight(curlp);
-	  std::cout << " The weight of " << curlp.ddname() << " is " 
-		    << curweight/kg << "kg" << std::endl;
-	  std::cout << " The average density is " << curweight/curlp.solid().volume()/g*cm3 << "g/cm3" << std::endl;
-	  break;     
 	case 'e':
 	  break;	 
 	default:
@@ -559,7 +525,7 @@ void tutorial()
     Start = clock();
     //while (NEXT(fv,fv_count)) ;
     int cc=0;
-    walker_type  g = walker_type(DDCompactView().graph(),DDCompactView().root());
+    auto g = math::GraphWalker<DDLogicalPart, DDPosData*>( DDCompactView().graph(), DDCompactView().root());
     while(g.next()) ++cc;
     End = clock();
     std::cout << "Time : " << ((double) (End-Start)) / double(CLOCKS_PER_SEC) << " sec" << std::endl;

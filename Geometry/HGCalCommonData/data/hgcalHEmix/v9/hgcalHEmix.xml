@@ -12,8 +12,8 @@
       materials:StainlessSteel, materials:StainlessSteel, materials:Air,
       materials:Copper, materials:Air, materials:Copper</Vector>
     <Vector name="VolumeNames" type="string" nEntries="6">
-      HEAbsorber1, HEAbsorber2, HEAirGap1, HECopperCover, HEMix, 
-      HEHeatShield</Vector>
+      HGCalHEAbsorber1, HGCalHEAbsorber2, HGCalHEAirGap1, HGCalHECopperCover, 
+      HGCalHEMix, HGCalHEHeatShield</Vector>
     <Vector name="Thickness" type="numeric" nEntries="6">
       35.0*mm, 68.0*mm,  1.0*mm,  1.0*mm, 7.9*mm, 6.0*mm</Vector>
     <Vector name="Layers" type="numeric" nEntries="16"> 
@@ -43,21 +43,22 @@
       0, 0, 0, 1, 0,  0, 0, 0, 1, 0,  0, 0, 0, 1, 0,
       0, 0, 0, 1, 0,  0, 0, 0, 1, 0,  0, 0, 0, 1, 0,
       0, 0, 0, 1, 0 </Vector>
-    <Numeric name="FirstLayer"       value="9"/>
+    <Numeric name="FirstLayer"       value="[hgcal:FirstMixedLayer]"/>
     <Vector name="TopMaterialNames" type="string" nEntries="3">
       materials:Cables, materials:H_Scintillator, 
       materials:M_NEMA FR4 plate</Vector>
     <Vector name="TopVolumeNames" type="string" nEntries="3">
-      CableConnector, HEScintillatorSensitive, TopPCB</Vector>
+      HGCalCableConnector, HGCalHEScintillatorSensitive, HGCalTopPCB</Vector>
     <Vector name="TopLayerThickness" type="numeric" nEntries="3">
-      3.3*mm, 3.0*mm,  1.6*mm</Vector>
+      3.3*mm, [hgcal:ScintillatorThickness],  1.6*mm</Vector>
     <Vector name="TopLayerType" type="numeric" nEntries="3"> 
       0, 1, 2</Vector>
     <Vector name="BottomMaterialNames" type="string" nEntries="5">
       materials:Air, materials:M_NEMA FR4 plate, materials:Air, 
-      materials:Silicon, hgcal:WCu</Vector>
+      materials:Silicon, materials:M_NEMA FR4 plate</Vector>
     <Vector name="BottomVolumeNames" type="string" nEntries="5">
-      AirGap1, BottomPCB, AirGap2, HESiliconSensitive, Baseplate</Vector>
+      HGCalAirGap1, HGCalBottomPCB, HGCalAirGap2, HGCalHESiliconSensitive, 
+      HGCalBaseplate</Vector>
     <Vector name="BottomLayerThickness" type="numeric" nEntries="5">
       1.9*mm, 1.6*mm,  1.5*mm, 0.3*mm, 1.0*mm</Vector>
     <Vector name="BottomLayerType" type="numeric" nEntries="6"> 
@@ -72,15 +73,21 @@
       [hgcal:rad200300P0], [hgcal:rad200300P1], [hgcal:rad200300P2],
       [hgcal:rad200300P3], [hgcal:rad200300P4]</Vector>
     <Numeric name="zMinForRadPar"    value="[hgcal:zMinForRadPar]"/>
+    <Numeric name="choiceType"       value="[hgcal:ChoiceType]"/>
     <Numeric name="nCornerCut"       value="[hgcal:NCornerCut]"/>
+    <Numeric name="fracAreaMin"      value="[hgcal:FracAreaMin]"/>
     <Numeric name="waferSize"        value="[hgcal:WaferSize]"/>
     <Numeric name="SensorSeparation" value="[hgcal:SensorSeparation]"/>
     <Numeric name="Sectors"          value="36"/>
     <Vector name="SlopeBottom" type="numeric" nEntries="2">
-      [etaMax:slope], [etaMax:slope]</Vector>
-    <Vector name="SlopeTop" type="numeric" nEntries="4">
+      [hgcal:slope1], [hgcal:slope1]</Vector> 
+    <Vector name="ZFrontBottom" type="numeric" nEntries="2">
+      [hgcal:zHGCal1], [hgcal:zHGCal4]</Vector>
+    <Vector name="RMinFront" type="numeric" nEntries="2">
+      [hgcal:zHGCal1]*[hgcal:slope1], [hgcal:zHGCal4]*[hgcal:slope1]</Vector>
+   <Vector name="SlopeTop" type="numeric" nEntries="4">
       [hgcal:slope2], [hgcal:slope3], 0, 0</Vector>
-    <Vector name="ZFront" type="numeric" nEntries="4">
+    <Vector name="ZFrontTop" type="numeric" nEntries="4">
       [hgcal:zHGCal1], [hgcal:zHGCal2], [hgcal:zHGCal3], 
       [hgcal:zHGCal4]</Vector>
     <Vector name="RMaxFront" type="numeric" nEntries="4">

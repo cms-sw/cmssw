@@ -164,12 +164,20 @@ jetDQMAnalyzerAk4PFCHSCleanedMiniAOD=jetDQMAnalyzerAk4PFCleaned.clone(
 
 jetDQMAnalyzerAk8PFPUPPICleanedMiniAOD=jetDQMAnalyzerAk4PFCHSCleanedMiniAOD.clone(
     jetsrc = cms.InputTag("slimmedJetsAK8"),
+    #for PUPPI jets: TIGHT
+    JetIDQuality               = cms.string("TIGHT"),
+    #for PUPPI jets: WINTER17PUPPI from 9_4_X onwards
+    JetIDVersion               = cms.string("WINTER17PUPPI"),
     fillsubstructure =cms.bool(True),
 )
 
 jetDQMAnalyzerAk4PFCHSPuppiCleanedMiniAOD=jetDQMAnalyzerAk4PFCHSCleanedMiniAOD.clone(
     JetType = cms.string('miniaod'),#pf, calo or jpt
     jetsrc = cms.InputTag("slimmedJetsPuppi"),
+    #for PUPPI jets: TIGHT
+    JetIDQuality               = cms.string("TIGHT"),
+    #for PUPPI jets: WINTER17PUPPI from 9_4_X onwards
+    JetIDVersion               = cms.string("WINTER17PUPPI"),
 )
 
 jetDQMAnalyzerIC5CaloHIUncleaned=jetDQMAnalyzerAk4CaloUncleaned.clone(

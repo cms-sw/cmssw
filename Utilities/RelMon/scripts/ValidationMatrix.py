@@ -9,6 +9,7 @@
 #                                                                              
 ################################################################################
 
+from __future__ import print_function
 from optparse import OptionParser
 
 import os
@@ -67,7 +68,7 @@ def name2globaltag(filename):
 def guess_params(ref_filenames,test_filenames):
   
   if len(ref_filenames)*len(test_filenames)==0:
-    print "Empty reference and test filenames lists!"
+    print("Empty reference and test filenames lists!")
     return [],"",""
   
   samples=[]
@@ -81,10 +82,10 @@ def guess_params(ref_filenames,test_filenames):
     test_sample=name2sample(test)
     test_version=name2version(test)
 
-    print "  ## sample 1: %s vs sample 2: %s"%(ref_sample, test_sample)
+    print("  ## sample 1: %s vs sample 2: %s"%(ref_sample, test_sample))
           
     if ref_sample!=test_sample:
-      print "Files %s and %s do not seem to be relative to the same sample." %(ref, test)
+      print("Files %s and %s do not seem to be relative to the same sample." %(ref, test))
     #  exit(2)
 
     # Slightly modify for data
@@ -116,7 +117,7 @@ def guess_params(ref_filenames,test_filenames):
 def check_root_files(names_list):
   for name in names_list:
     if not name.endswith(".root"):
-      print "File %s does not seem to be a rootfile. Please check."
+      print("File %s does not seem to be a rootfile. Please check.")
       return False
   return True
 
@@ -156,17 +157,17 @@ def guess_blacklists(samples,ver1,ver2,hlt):
     if hlt: #HLT
       blacklists[sample]+=",AlCaEcalPi0@2"
       if not search("2010+|2011+|2012+|2015+",ver1):
-        print "We are treating MC files for the HLT"
+        print("We are treating MC files for the HLT")
         for pattern,blist in definitions.hlt_mc_pattern_blist_pairs:
           blacklists[sample]=add_to_blacklist(blacklists[sample],pattern,sample,blist)
       else:
-        print "We are treating Data files for the HLT"    
+        print("We are treating Data files for the HLT")    
         # at the moment it does not make sense since hlt is ran already
     
     else: #RECO
       #Monte Carlo
       if not search("2010+|2011+|2012+",ver1):
-        print "We are treating MC files"        
+        print("We are treating MC files")        
         
         for pattern,blist in definitions.mc_pattern_blist_pairs:
           blacklists[sample]=add_to_blacklist(blacklists[sample],pattern,sample,blist)
@@ -175,7 +176,7 @@ def guess_blacklists(samples,ver1,ver2,hlt):
           
       # Data
       else:
-        print "We are treating Data files:"      
+        print("We are treating Data files:")      
         blacklists[sample]+=",By__Lumi__Section@-1,AlCaReco@1"                                         
         for pattern,blist in definitions.data_pattern_blist_pairs:
           blacklists[sample]=add_to_blacklist(blacklists[sample],pattern,ver1,blist)
@@ -187,8 +188,8 @@ def guess_blacklists(samples,ver1,ver2,hlt):
 #-------------------------------------------------------------------------------  
 
 def get_roofiles_in_dir(directory):  
-  print directory
-  files_list = filter(lambda s: s.endswith(".root"), os.listdir(directory))
+  print(directory)
+  files_list = [s for s in os.listdir(directory) if s.endswith(".root")]
   files_list_path=map(lambda s: os.path.join(directory,s), files_list)
   
   return files_list_path
@@ -201,14 +202,14 @@ def get_filenames_from_pool(all_samples):
   files_list=get_roofiles_in_dir(all_samples)
   
   if len(files_list)==0:
-    print "Zero files found in directory %s!" %all_samples
+    print("Zero files found in directory %s!" %all_samples)
     return [],[]
   
   # Are they an even number?
   for name in files_list:
-    print "* ",name  
+    print("* ",name)  
   if len(files_list)%2!=0:
-    print "The numbuer of file is not even... Trying to recover a catastrophe."
+    print("The numbuer of file is not even... Trying to recover a catastrophe.")
     
   files_list=make_files_pairs(files_list)
   
@@ -225,18 +226,18 @@ def get_filenames_from_pool(all_samples):
     else:
       test_filenames.append(filename)
       
-  print "The guess would be the following:"
+  print("The guess would be the following:")
   for ref,test in zip(ref_filenames,test_filenames):
     refbasedir=os.path.dirname(ref)
     testbasedir=os.path.dirname(test)
     dir_to_print=refbasedir
     if refbasedir!=testbasedir:
       dir_to_print="%s and %s" %(refbasedir,testbasedir)
-    print "* Directory: %s " %dir_to_print
+    print("* Directory: %s " %dir_to_print)
     refname=os.path.basename(ref)
     testname=os.path.basename(test)
-    print "  o %s" %refname
-    print "  o %s" %testname
+    print("  o %s" %refname)
+    print("  o %s" %testname)
   
   #is_ok=ask_ok("Is that ok?")
   #if not is_ok:
@@ -255,7 +256,7 @@ def get_clean_fileanames(ref_samples,test_samples):
   test_filenames=map(lambda s:s.strip(),test_samples.split(","))
 
   if len(ref_filenames)!=len(test_filenames):
-    print "The numebr of reference and test files does not seem to be the same. Please check."
+    print("The numebr of reference and test files does not seem to be the same. Please check.")
     exit(2)
 
   if not (check_root_files(ref_filenames) and check_root_files(test_filenames)):
@@ -265,7 +266,7 @@ def get_clean_fileanames(ref_samples,test_samples):
 #-------------------------------------------------------------------------------
 
 def count_alive_processes(p_list):
-  return len(filter(lambda p: p.returncode==None,p_list))
+  return len([p for p in p_list if p.returncode==None])
 
 #-------------------------------------------------------------------------------
 
@@ -302,9 +303,9 @@ def call_compare_using_files(args):
     command += " --standalone "
   if len(blacklists[sample]) >0:
     command+= '-B %s ' %blacklists[sample]
-  print "\nExecuting --  %s" %command
+  print("\nExecuting --  %s" %command)
 
-  process=call(filter(lambda x: len(x)>0,command.split(" ")))
+  process=call([x for x in command.split(" ") if len(x)>0])
   return process
   
 
@@ -329,7 +330,7 @@ def do_comparisons_threaded(options):
   samples,cmssw_version1,cmssw_version2=guess_params(ref_filenames,test_filenames)
   
   if len(samples)==0:
-    print "No Samples found... Quitting"
+    print("No Samples found... Quitting")
     return 0
   
 #  blacklists=guess_blacklists(samples,cmssw_version1,cmssw_version2,options.hlt)
@@ -339,13 +340,13 @@ def do_comparisons_threaded(options):
 
   outdir=options.out_dir
   if len(outdir)==0:
-    print "Creating automatic outdir:",
+    print("Creating automatic outdir:", end=' ')
     outdir="%sVS%s" %(cmssw_version1,cmssw_version2)
-    print outdir
+    print(outdir)
   if len(options.input_dir)==0:
-    print "Creating automatic indir:",
+    print("Creating automatic indir:", end=' ')
     options.input_dir=outdir
-    print options.input_dir
+    print(options.input_dir)
   
   if not os.path.exists(outdir):
     os.mkdir(outdir)
@@ -354,7 +355,7 @@ def do_comparisons_threaded(options):
   # adjust the number of threads
   n_comparisons=len(ref_filenames)
   if n_comparisons < n_processes:
-    print "Less comparisons than possible processes: reducing n processes to",
+    print("Less comparisons than possible processes: reducing n processes to", end=' ')
     n_processes=n_comparisons
   #elif n_processes/n_comparisons == 0:
     #print "More comparisons than possible processes, can be done in N rounds: reducing n processes to",    
@@ -391,7 +392,7 @@ def do_comparisons_threaded(options):
 def do_reports(indir):
   #print indir
   os.chdir(indir)
-  pkl_list=filter(lambda x:".pkl" in x, os.listdir("./"))
+  pkl_list=[x for x in os.listdir("./") if ".pkl" in x]
   running_subprocesses=[]
   n_processes=int(options.n_processes)
   process_counter=0
@@ -402,8 +403,8 @@ def do_reports(indir):
       command+= " -p "
     command+= "-P %s " %pklfilename
     command+= "-o %s " %pklfilename[:-4]
-    print "Executing %s" %command
-    process=call(filter(lambda x: len(x)>0,command.split(" ")))
+    print("Executing %s" %command)
+    process=call([x for x in command.split(" ") if len(x)>0])
     process_counter+=1
     # add it to the list
     running_subprocesses.append(process)   
@@ -419,14 +420,14 @@ def do_reports(indir):
 def do_html(options, hashing_flag, standalone):
 
   if options.reports:
-    print "Preparing reports for the single files..."
+    print("Preparing reports for the single files...")
     do_reports(options.input_dir)
   # Do the summary page
   aggregation_rules={}
   aggregation_rules_twiki={}
   # check which aggregation rules are to be used
   if options.hlt:
-    print "Aggregating directories according to HLT rules"
+    print("Aggregating directories according to HLT rules")
     aggregation_rules=definitions.aggr_pairs_dict['HLT']
     aggregation_rules_twiki=definitions.aggr_pairs_twiki_dict['HLT']
   else:
@@ -553,7 +554,7 @@ if __name__ == "__main__":
   (options, args) = parser.parse_args()
 
   if len(options.test_samples)*len(options.ref_samples)+len(options.all_samples)==0 and len(options.input_dir)==0:
-    print "No samples given as input."
+    print("No samples given as input.")
     parser.print_help()
     exit(2)
 

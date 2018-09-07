@@ -92,7 +92,7 @@ HGCalBestChoiceCodecImpl::data_type HGCalBestChoiceCodecImpl::decode(const std::
 
 
 /*****************************************************************/
-void HGCalBestChoiceCodecImpl::linearize(const std::vector<HGCDataFrame<DetId,HGCSample>>& dataframes,
+void HGCalBestChoiceCodecImpl::linearize(const std::vector<HGCalDataFrame>& dataframes,
         std::vector<std::pair<DetId, uint32_t > >& linearized_dataframes)
 /*****************************************************************/
 {

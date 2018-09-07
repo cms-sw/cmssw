@@ -1,4 +1,4 @@
-#include "../interface/CertificationClient.h"
+#include "DQM/EcalMonitorClient/interface/CertificationClient.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 

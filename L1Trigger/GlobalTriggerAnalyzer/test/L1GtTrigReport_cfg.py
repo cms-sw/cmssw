@@ -1,3 +1,4 @@
+from __future__ import print_function
 #
 # cfg file to run L1GtTrigReport on GT output file containing 
 #    the readout record L1GlobalTriggerReadoutRecord
@@ -13,10 +14,10 @@ import sys
 # process
 process = cms.Process('L1GtTrigReport')
 
-print '\n'
+print('\n')
 from L1Trigger.GlobalTriggerAnalyzer.UserOptions_cff import *
 if errorUserOptions == True :
-    print '\nError returned by UserOptions_cff\n'
+    print('\nError returned by UserOptions_cff\n')
     sys.exit()
 
 

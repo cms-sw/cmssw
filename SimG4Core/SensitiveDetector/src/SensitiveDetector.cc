@@ -6,10 +6,12 @@
 
 #include "G4SDManager.hh"
 #include "G4Step.hh"
+#include "G4Track.hh"
 #include "G4StepPoint.hh"
 #include "G4Transform3D.hh"
 #include "G4LogicalVolumeStore.hh"
 #include "G4TouchableHistory.hh"
+#include "G4VUserTrackInformation.hh"
 
 #include <sstream>
 
@@ -35,9 +37,8 @@ SensitiveDetector::SensitiveDetector(const std::string & iname,
     this->AssignSD(lvname);
     ss << " " << lvname;
   }
-  edm::LogInfo("SensitiveDetector") << " <" << iname <<"> : Assigns SD to LVs " 
-				    << ss.str();
-
+  edm::LogVerbatim("SensitiveDetector") 
+    << " <" << iname <<"> : Assigns SD to LVs " << ss.str();
 }
 
 SensitiveDetector::~SensitiveDetector() {}
@@ -74,8 +75,7 @@ Local3DPoint SensitiveDetector::FinalStepPosition(const G4Step * step, coordinat
   const G4ThreeVector& globalCoordinates = postStepPoint->GetPosition();
   if (cd == WorldCoordinates) { return ConvertToLocal3DPoint(globalCoordinates); }
   const G4StepPoint * preStepPoint  = step->GetPreStepPoint();
-  G4TouchableHistory * theTouchable = (G4TouchableHistory *)(preStepPoint->GetTouchable());
-  const G4ThreeVector localCoordinates = theTouchable->GetHistory()
+  const G4ThreeVector localCoordinates = preStepPoint->GetTouchable()->GetHistory()
                   ->GetTopTransform().TransformPoint(globalCoordinates);
   return ConvertToLocal3DPoint(localCoordinates); 
 }
@@ -83,8 +83,7 @@ Local3DPoint SensitiveDetector::FinalStepPosition(const G4Step * step, coordinat
 Local3DPoint SensitiveDetector::LocalPreStepPosition(const G4Step * step) const
 {
   const G4StepPoint * preStepPoint = step->GetPreStepPoint();
-  G4TouchableHistory * theTouchable=(G4TouchableHistory *)(preStepPoint->GetTouchable());
-  G4ThreeVector localCoordinates = theTouchable->GetHistory()
+  G4ThreeVector localCoordinates = preStepPoint->GetTouchable()->GetHistory()
     ->GetTopTransform().TransformPoint(preStepPoint->GetPosition());
   return ConvertToLocal3DPoint(localCoordinates); 
 }
@@ -92,10 +91,22 @@ Local3DPoint SensitiveDetector::LocalPreStepPosition(const G4Step * step) const
 Local3DPoint SensitiveDetector::LocalPostStepPosition(const G4Step * step) const
 {
   const G4ThreeVector& globalCoordinates = step->GetPostStepPoint()->GetPosition();
-  G4TouchableHistory * theTouchable = (G4TouchableHistory *)(step->GetPreStepPoint()->GetTouchable());
-  G4ThreeVector localCoordinates = theTouchable->GetHistory()
+  G4ThreeVector localCoordinates = step->GetPreStepPoint()->GetTouchable()->GetHistory()
     ->GetTopTransform().TransformPoint(globalCoordinates);
-  return ConvertToLocal3DPoint(localCoordinates); 
+  return ConvertToLocal3DPoint(localCoordinates);
+}
+
+TrackInformation* SensitiveDetector::cmsTrackInformation(const G4Track* aTrack)
+{
+  TrackInformation* info = (TrackInformation*)(aTrack->GetUserInformation());
+  if (!info) { 
+    edm::LogWarning("SensitiveDetector") 
+      << " no TrackInformation available for trackID= " 
+      << aTrack->GetTrackID();
+    throw SimG4Exception("SimG4CoreSensitiveDetector: cannot handle hits for "
+			 + GetName());
+  }
+  return info;
 }
 
 void SensitiveDetector::setNames(const std::vector<std::string>& hnames)
@@ -116,7 +127,7 @@ void SensitiveDetector::NaNTrap(const G4Step* aStep) const
 
     const G4VPhysicalVolume* pCurrentVol = aStep->GetPreStepPoint()->GetPhysicalVolume();
     const G4String& NameOfVol = pCurrentVol->GetName();
-    throw SimG4Exception( "SimG4CoreSensitiveDetector: Corrupted Event - NaN detected in volume "
+    throw SimG4Exception("SimG4CoreSensitiveDetector: Corrupted Event - NaN detected in volume "
 			  + NameOfVol);
   }
 }

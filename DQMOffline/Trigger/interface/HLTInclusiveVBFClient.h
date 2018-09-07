@@ -60,7 +60,6 @@ class HLTInclusiveVBFClient : public edm::EDAnalyzer {
   void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
   void endRun(const edm::Run& run, const edm::EventSetup& c) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) override;
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) override;
   virtual void runClient_();   
 

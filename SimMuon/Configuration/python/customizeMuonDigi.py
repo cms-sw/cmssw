@@ -18,7 +18,7 @@ you may have forgotten to specify the correct era!
 #  - drop unnecessary mixObjects
 def customize_mix_muon_only(process):
     process.mix.digitizers = digitizers = cms.PSet()
-    digi_aliases = filter(lambda n: 'Digi' in n, process.aliases.keys())
+    digi_aliases = [n for n in process.aliases.keys() if 'Digi' in n]
     for a in digi_aliases: process.__delattr__(a)
     from SimGeneral.MixingModule.mixObjects_cfi import theMixObjects
     process.mix.mixObjects = theMixObjects

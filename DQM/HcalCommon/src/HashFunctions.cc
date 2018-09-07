@@ -250,8 +250,8 @@ namespace hcaldqm
 
 		std::string name_HFPMiphi(HcalDetId const& did)
 		{
-			char name[10];
-			sprintf(name, "HF%siphi%d", did.ieta()>0 ? "P" : "M", did.iphi());
+			char name[12];
+			snprintf(name, sizeof(name), "HF%ciphi%d", did.ieta()>0 ? 'P' : 'M', did.iphi());
 			return std::string(name);
 		}
 

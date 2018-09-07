@@ -16,6 +16,11 @@ SiStripSimBlock = cms.PSet(
     ChargeDistributionRMS   = cms.double(6.5e-10),
     noDiffusion             = cms.bool(False),
     #---SiTrivialInduceChargeOnStrips
+    #switch to use different coupling constants set
+    #if True RunII cross talk will be used
+    #if False RunI cross talk will be used
+    CouplingConstantsRunIIDecB   = cms.bool(False), #for TIB and TOB
+    CouplingConstantsRunIIDecW   = cms.bool(False), #for TID and TEC
     #TIB
     CouplingConstantDecIB1  = cms.vdouble(0.7748, 0.0962,0.0165),                    
     CouplingConstantDecIB2  = cms.vdouble(0.8300, 0.0756,0.0094),                    
@@ -48,6 +53,27 @@ SiStripSimBlock = cms.PSet(
     CouplingConstantPeakW5  = cms.vdouble(0.968, 0.016),
     CouplingConstantPeakW6  = cms.vdouble(0.972, 0.014),
     CouplingConstantPeakW7  = cms.vdouble(0.964, 0.018),
+
+    #RunII (2018) deconvolution parameters 
+    #TIB
+    CouplingConstantRunIIDecIB1 = cms.vdouble(0.8361, 0.0703, 0.0117),
+    CouplingConstantRunIIDecIB2 = cms.vdouble(0.8616, 0.0588, 0.0104),
+    #TOB
+    CouplingConstantRunIIDecOB2 = cms.vdouble(0.7925, 0.0834, 0.0203),
+    CouplingConstantRunIIDecOB1 = cms.vdouble(0.7461, 0.0996, 0.0273),
+    #TID
+    CouplingConstantRunIIDecW1a = cms.vdouble(0.8571, 0.0608, 0.0106),
+    CouplingConstantRunIIDecW2a = cms.vdouble(0.8861, 0.049, 0.008),
+    CouplingConstantRunIIDecW3a = cms.vdouble(0.8984, 0.0494, 0.0014),
+    #TEC
+    CouplingConstantRunIIDecW1b = cms.vdouble(0.8827, 0.0518, 0.0068),
+    CouplingConstantRunIIDecW2b = cms.vdouble(0.8943, 0.0483, 0.0046),
+    CouplingConstantRunIIDecW3b = cms.vdouble(0.8611, 0.0573, 0.0121),
+    CouplingConstantRunIIDecW4  = cms.vdouble(0.8881, 0.0544, 0.0015),
+    CouplingConstantRunIIDecW5  = cms.vdouble(0.7997, 0.077, 0.0231),
+    CouplingConstantRunIIDecW6  = cms.vdouble(0.8067, 0.0769, 0.0198),
+    CouplingConstantRunIIDecW7  = cms.vdouble(0.7883, 0.0888, 0.0171),
+
     #-----SiStripDigitizer
     DigiModeList = cms.PSet(SCDigi = cms.string('ScopeMode'),
                             ZSDigi = cms.string('ZeroSuppressed'),
@@ -95,3 +121,9 @@ premix_stage1.toModify(SiStripSimBlock,
     PreMixingMode = True,
     FedAlgorithm = 5, # special ZS mode: accept adc>0
 )
+
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+run2_common.toModify(SiStripSimBlock,
+                     CouplingConstantsRunIIDecB = True, #for TIB and TOB
+                     CouplingConstantsRunIIDecW = True  #for TID and TEC
+                     )

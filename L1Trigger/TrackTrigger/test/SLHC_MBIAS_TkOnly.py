@@ -1,3 +1,4 @@
+from __future__ import print_function
 #########################
 #
 # Configuration file for simple MBias events
@@ -42,10 +43,10 @@ from Configuration.Generator.Pythia8CommonSettings_cfi import *
 from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
 
 if flat:
-	print 'You choose the flat geometry'
+	print('You choose the flat geometry')
 	process.load('L1Trigger.TrackTrigger.TkOnlyFlatGeom_cff') # Special config file for TkOnly geometry
 else:
-	print 'You choose the tilted geometry'
+	print('You choose the tilted geometry')
 	process.load('L1Trigger.TrackTrigger.TkOnlyTiltedGeom_cff') # Special config file for TkOnly geometry
 
 process.maxEvents = cms.untracked.PSet(

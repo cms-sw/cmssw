@@ -1,3 +1,4 @@
+from __future__ import print_function
 #!/usr/bin/env cmsRun
 
 import FWCore.ParameterSet.Config as cms
@@ -33,17 +34,17 @@ options.register ('to',
 
 options.parseArguments()
 
-print "***************************************************"
-print "******  Upload Tau Conditions to DB          ******"
-print "***************************************************"
-print "*  DB in:        %s                               " % options.source
-print "*  tag in:       %s                               " % options.sourcetag
-print "*  DB out:       %s                               " % options.to
-print "*  tag out:      %s                               " % options.totag
-print "* ----------------------------------------------- "
+print("***************************************************")
+print("******  Upload Tau Conditions to DB          ******")
+print("***************************************************")
+print("*  DB in:        %s                               " % options.source)
+print("*  tag in:       %s                               " % options.sourcetag)
+print("*  DB out:       %s                               " % options.to)
+print("*  tag out:      %s                               " % options.totag)
+print("* ----------------------------------------------- ")
 
 if not options.totag:
-    print "You must specify an output tag! [totag]"
+    print("You must specify an output tag! [totag]")
     sys.exit(1)
 
 process = cms.Process("DBupload")

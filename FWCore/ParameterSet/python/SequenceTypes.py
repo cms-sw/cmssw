@@ -439,7 +439,7 @@ class _UnarySequenceOperator(_BooleanLogicSequenceable):
            raise RuntimeError("This operator cannot accept a non sequenceable type")
     def __eq__(self, other):
         # allows replace(~a, b)
-        return type(self) == type(other) and self._operand==other._operand
+        return isinstance(self, type(other)) and self._operand==other._operand
     def __ne__(self, other):
         return not self.__eq__(other)
     def _findDependencies(self,knownDeps, presentDeps):

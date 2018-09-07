@@ -69,6 +69,11 @@ class CommissioningTask {
   /** Fills HistoSet cache. */
   void fillHistograms( const SiStripEventSummary&, 
 		       const edm::DetSet<SiStripRawDigi>& );
+
+  /** Fills HistoSet cache. */
+  void fillHistograms( const SiStripEventSummary&,
+                       const edm::DetSet<SiStripRawDigi>&,
+                       const edm::DetSet<SiStripRawDigi>&);
   
   /** Fill HistoSet cache for FED cabling (special case). */
   void fillHistograms( const SiStripEventSummary&, 
@@ -137,6 +142,10 @@ class CommissioningTask {
 
   virtual void fill( const SiStripEventSummary&,
 		     const edm::DetSet<SiStripRawDigi>& );
+
+  virtual void fill( const SiStripEventSummary&,
+		     const edm::DetSet<SiStripRawDigi>&,
+                     const edm::DetSet<SiStripRawDigi>&);
 
   virtual void fill( const SiStripEventSummary&, 
 		     const uint16_t& fed_id,

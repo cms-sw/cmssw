@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 import FWCore.ParameterSet.Config as cms
 
@@ -55,8 +56,8 @@ def getSequence(process, collection,
     if usePixelQualityFlag is None:
         if "Template" not in TTRHBuilder:
             usePixelQualityFlag = False # not defined without templates
-            print "Using 'TTRHBuilder' without templates:", TTRHBuilder
-            print " --> Turning off pixel quality flag in hit filter."
+            print("Using 'TTRHBuilder' without templates:", TTRHBuilder)
+            print(" --> Turning off pixel quality flag in hit filter.")
         else:
             usePixelQualityFlag = True # default for usage with templates
 
@@ -337,7 +338,7 @@ def getSequence(process, collection,
     else:
         if mods[-1][-1]["method"] is "load" and \
                 not mods[-1][-1].get("clone", False):
-            print "Name of the last module needs to be modifiable."
+            print("Name of the last module needs to be modifiable.")
             sys.exit(1)
         src = _getModule(process, src, mods[-1][0], "FinalTrackRefitter",
                          options[mods[-1][0]][mods[-1][1]],
@@ -351,11 +352,23 @@ def getSequence(process, collection,
            strSrcConstr = module.srcConstr.getModuleLabel()
            if strSrcConstr:
                procsrcconstr = getattr(process,strSrcConstr)
-               if procsrcconstr.src != module.src:
-                  module.srcConstr=''
-                  module.constraint=''
-               else:
-                  moduleSum += procsrcconstr
+               if hasattr(procsrcconstr,"src"): # Momentum or track parameter constraints
+                  if procsrcconstr.src != module.src:
+                     module.srcConstr=''
+                     module.constraint=''
+                  else:
+                     moduleSum += procsrcconstr # Add constraint
+               elif hasattr(procsrcconstr,"srcTrk"): # Vertex constraint
+                  if procsrcconstr.srcTrk != module.src:
+                     module.srcConstr=''
+                     module.constraint=''
+                  else:
+                     procsrcconstrsrcvtx = getattr(process,procsrcconstr.srcVtx.getModuleLabel())
+                     if type(procsrcconstrsrcvtx) is cms.EDFilter: # If source of vertices is itself a filter (e.g. good PVs)
+                        procsrcconstrsrcvtxprefilter = getattr(process,procsrcconstrsrcvtx.src.getModuleLabel())
+                        moduleSum += procsrcconstrsrcvtxprefilter # Add vertex source to constraint before filter
+                     moduleSum += procsrcconstrsrcvtx # Add vertex source to constraint
+                     moduleSum += procsrcconstr # Add constraint
 
         moduleSum += module # append the other modules
 
@@ -400,7 +413,7 @@ def _getModule(process, src, modType, moduleName, options, **kwargs):
             obj = getattr(process, objTuple[1])
             moduleName = objTuple[1]
     else:
-        print "Unknown method:", method
+        print("Unknown method:", method)
         sys.exit(1)
 
     if modType == "TrackSplitting":
@@ -488,9 +501,9 @@ def _customSetattr(obj, attr, val):
     - `val`: value of the attribute.
     """
 
-    if type(attr) is tuple and len(attr) > 1:
+    if isinstance(attr, tuple) and len(attr) > 1:
         _customSetattr(getattr(obj, attr[0]), attr[1:], val)
     else:
-        if type(attr) is tuple: attr = attr[0]
+        if isinstance(attr, tuple): attr = attr[0]
         setattr(obj, attr, val)
 

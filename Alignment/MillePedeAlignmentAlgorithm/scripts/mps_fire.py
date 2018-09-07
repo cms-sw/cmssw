@@ -12,6 +12,7 @@
 #  mps_fire.py [-a] [-m [-f]] [maxjobs]
 #  mps_fire.py -h
 
+from __future__ import print_function
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.tools as mps_tools
 import os
@@ -31,7 +32,7 @@ def forward_proxy(rundir):
     """
 
     if not mps_tools.check_proxy():
-        print "Please create proxy via 'voms-proxy-init -voms cms -rfc'."
+        print("Please create proxy via 'voms-proxy-init -voms cms -rfc'.")
         sys.exit(1)
 
     local_proxy = subprocess.check_output(["voms-proxy-info", "--path"]).strip()
@@ -79,7 +80,7 @@ periodic_remove       = !regexp("group_u_CMS.e_cms_caf_bigmem", AccountingGroup)
 """
     job_submit_template += "\nqueue\n"
 
-    print "Determine number of pede threads..."
+    print("Determine number of pede threads...")
     cms_process = mps_tools.get_process_object(os.path.join(Path, mergeCfg))
     pede_options = cms_process.AlignmentProducer.algoConfig.pedeSteerer.options.value()
     n_threads = 1
@@ -92,7 +93,7 @@ periodic_remove       = !regexp("group_u_CMS.e_cms_caf_bigmem", AccountingGroup)
                                       # cores, i.e. we ensure here that the job
                                       # would fit core-wise on one machine
 
-    print "Determine required disk space on remote host..."
+    print("Determine required disk space on remote host...")
     # determine usage by each file instead of whole directory as this is what
     # matters for the specified disk usage:
     spco = subprocess.check_output # to make code below more less verbose
@@ -140,6 +141,13 @@ parser.add_argument("-f", "--force-merge", dest="forceMerge", default=False,
                     action="store_true",
                     help=("force the submission of the Pede job in case some "+
                           "Mille jobs are not in the OK state"))
+parser.add_argument("--force-merge-manual", dest="forceMergeManual", default=False,
+                    action="store_true",
+                    help=("force the submission of the Pede job in case some "+
+                          "Mille jobs are not in the OK state. Unlike --forceMerge "+
+                          "this option assumes the user has edited theScript.sh and "+
+                          "alignment_merge.py to consistently pick up only the mille "+
+                          "output files that exist"))
 parser.add_argument("-p", "--forward-proxy", dest="forwardProxy", default=False,
                     action="store_true",
                     help="forward VOMS proxy to batch system")
@@ -168,17 +176,17 @@ else:
             except ValueError:
                 invalid_id = True
             except IndexError:
-                print "ID provided to '-j/--job-id' is out of range:", job_id
+                print("ID provided to '-j/--job-id' is out of range:", job_id)
                 sys.exit(1)
 
         if invalid_id or job_mask[-1] not in lib.JOBDIR:
-            print "ID provided to '-j/--job-id' is invalid:", job_id
-            print "'-j/--job-id' requires the IDs to exist and to be of either",
-            print "of the following formats:"
-            print " - job042"
-            print " - 042"
-            print " - jobm1"
-            print " - m1"
+            print("ID provided to '-j/--job-id' is invalid:", job_id)
+            print("'-j/--job-id' requires the IDs to exist and to be of either", end=' ')
+            print("of the following formats:")
+            print(" - job042")
+            print(" - 042")
+            print(" - jobm1")
+            print(" - m1")
             sys.exit(1)
 
 # build the absolute job directory path (needed by mps_script)
@@ -198,7 +206,7 @@ if not args.fireMerge:
 
     # "cmscafspec" found in $resources: special cmscaf resources
     if 'cmscafspec' in resources:
-        print '\nWARNING:\n  Running mille jobs on cmscafspec, intended for pede only!\n\n'
+        print('\nWARNING:\n  Running mille jobs on cmscafspec, intended for pede only!\n\n')
         resources = '-q cmscafalcamille'
     # "cmscaf" found in $resources
     elif 'cmscaf' in resources:
@@ -221,14 +229,14 @@ if not args.fireMerge:
                 # for some reasons LSF wants script with full path
                 submission = 'bsub -J %s %s %s/%s/theScript.sh' % \
                       (theJobName, resources, theJobData, lib.JOBDIR[i])
-                print submission
+                print(submission)
                 try:
                     result = subprocess.check_output(submission,
                                                      stderr=subprocess.STDOUT,
                                                      shell=True)
                 except subprocess.CalledProcessError as e:
                     result = "" # -> check for successful job submission will fail
-                print '      '+result,
+                print('      '+result, end=' ')
                 result = result.strip()
 
                 # check if job was submitted and updating jobdatabase
@@ -238,12 +246,12 @@ if not args.fireMerge:
                     lib.JOBSTATUS[i] = 'SUBTD'
                     lib.JOBID[i] = match.group(1)
                 else:
-                    print 'Submission of %03d seems to have failed: %s' % (lib.JOBNUMBER[i],result),
+                    print('Submission of %03d seems to have failed: %s' % (lib.JOBNUMBER[i],result), end=' ')
                 nSub +=1
 
 # fire the merge job
 else:
-    print 'fire merge'
+    print('fire merge')
     # set the resources string coming from mps.db
     resources = lib.get_class('pede')
     if 'cmscafspec' in resources:
@@ -275,10 +283,10 @@ else:
 
         # check if current job in SETUP mode or if forced
         if lib.JOBSTATUS[i] != 'SETUP':
-            print 'Merge job %d status %s not submitted.' % \
-                  (jobNumFrom1, lib.JOBSTATUS[i])
-        elif not (mergeOK or args.forceMerge):
-            print 'Merge job',jobNumFrom1,'not submitted since Mille jobs error/unfinished (Use -m -f to force).'
+            print('Merge job %d status %s not submitted.' % \
+                  (jobNumFrom1, lib.JOBSTATUS[i]))
+        elif not (mergeOK or args.forceMerge or args.forceMergeManual):
+            print('Merge job',jobNumFrom1,'not submitted since Mille jobs error/unfinished (Use -m -f to force).')
         else:
             # some paths for clarity
             Path = os.path.join(theJobData,lib.JOBDIR[i])
@@ -315,7 +323,7 @@ else:
 
                 # apply weights
                 for name,weight in weight_conf:
-                    print " ".join(["mps_weight.pl", "-N", name, weight])
+                    print(" ".join(["mps_weight.pl", "-N", name, weight]))
                     mps_tools.run_checked(["mps_weight.pl", "-N", name, weight])
 
                 # rewrite the mergeCfg using only 'OK' jobs (uses first mille-job as baseconfig)
@@ -367,7 +375,7 @@ else:
                 except subprocess.CalledProcessError as e:
                     result = e.output
 
-            print '     '+result,
+            print('     '+result, end=' ')
             result = result.strip()
 
             # check if merge job was submitted and updating jobdatabase
@@ -380,9 +388,9 @@ else:
                 lib.JOBID[i] = match.group(1)
                 # need standard format for job number
                 if fire_htcondor: lib.JOBID[i] += ".0"
-                print "jobid is", lib.JOBID[i]
+                print("jobid is", lib.JOBID[i])
             else:
-                print 'Submission of merge job seems to have failed:',result,
+                print('Submission of merge job seems to have failed:',result, end=' ')
 
         i +=1
         # end of while on merge jobs

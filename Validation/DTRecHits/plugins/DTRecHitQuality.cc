@@ -21,55 +21,58 @@
 using namespace std;
 using namespace edm;
 
+namespace dtrechit {
 struct Histograms{
-  HRes1DHit *hRes_S1RPhi;           // RecHits, 1. step, RPh
-  HRes1DHit *hRes_S2RPhi;           // RecHits, 2. step, RPhi
-  HRes1DHit *hRes_S3RPhi;           // RecHits, 3. step, RPhi
-  HRes1DHit *hRes_S1RZ;             // RecHits, 1. step, RZ
-  HRes1DHit *hRes_S2RZ;             // RecHits, 2. step, RZ
-  HRes1DHit *hRes_S3RZ;             // RecHits, 3. step, RZ
-  HRes1DHit *hRes_S1RZ_W0;          // RecHits, 1. step, RZ, wheel 0
-  HRes1DHit *hRes_S2RZ_W0;          // RecHits, 2. step, RZ, wheel 0
-  HRes1DHit *hRes_S3RZ_W0;          // RecHits, 3. step, RZ, wheel 0
-  HRes1DHit *hRes_S1RZ_W1;          // RecHits, 1. step, RZ, wheel +-1
-  HRes1DHit *hRes_S2RZ_W1;          // RecHits, 2. step, RZ, wheel +-1
-  HRes1DHit *hRes_S3RZ_W1;          // RecHits, 3. step, RZ, wheel +-1
-  HRes1DHit *hRes_S1RZ_W2;          // RecHits, 1. step, RZ, wheel +-2
-  HRes1DHit *hRes_S2RZ_W2;          // RecHits, 2. step, RZ, wheel +-2
-  HRes1DHit *hRes_S3RZ_W2;          // RecHits, 3. step, RZ, wheel +-2
-  HRes1DHit *hRes_S1RPhi_W0;        // RecHits, 1. step, RPhi, wheel 0
-  HRes1DHit *hRes_S2RPhi_W0;        // RecHits, 2. step, RPhi, wheel 0
-  HRes1DHit *hRes_S3RPhi_W0;        // RecHits, 3. step, RPhi, wheel 0
-  HRes1DHit *hRes_S1RPhi_W1;        // RecHits, 1. step, RPhi, wheel +-1
-  HRes1DHit *hRes_S2RPhi_W1;        // RecHits, 2. step, RPhi, wheel +-1
-  HRes1DHit *hRes_S3RPhi_W1;        // RecHits, 3. step, RPhi, wheel +-1
-  HRes1DHit *hRes_S1RPhi_W2;        // RecHits, 1. step, RPhi, wheel +-2
-  HRes1DHit *hRes_S2RPhi_W2;        // RecHits, 2. step, RPhi, wheel +-2
-  HRes1DHit *hRes_S3RPhi_W2;        // RecHits, 3. step, RPhi, wheel +-2
-  HRes1DHit* hRes_S3RPhiWS[3][4];   // RecHits, 3. step, by wheel/station
-  HRes1DHit* hRes_S3RZWS[3][4];     // RecHits, 3. step, by wheel/station
+  std::unique_ptr<HRes1DHit> hRes_S1RPhi;           // RecHits, 1. step, RPh
+  std::unique_ptr<HRes1DHit> hRes_S2RPhi;           // RecHits, 2. step, RPhi
+  std::unique_ptr<HRes1DHit> hRes_S3RPhi;           // RecHits, 3. step, RPhi
+  std::unique_ptr<HRes1DHit> hRes_S1RZ;             // RecHits, 1. step, RZ
+  std::unique_ptr<HRes1DHit> hRes_S2RZ;             // RecHits, 2. step, RZ
+  std::unique_ptr<HRes1DHit> hRes_S3RZ;             // RecHits, 3. step, RZ
+  std::unique_ptr<HRes1DHit> hRes_S1RZ_W0;          // RecHits, 1. step, RZ, wheel 0
+  std::unique_ptr<HRes1DHit> hRes_S2RZ_W0;          // RecHits, 2. step, RZ, wheel 0
+  std::unique_ptr<HRes1DHit> hRes_S3RZ_W0;          // RecHits, 3. step, RZ, wheel 0
+  std::unique_ptr<HRes1DHit> hRes_S1RZ_W1;          // RecHits, 1. step, RZ, wheel +-1
+  std::unique_ptr<HRes1DHit> hRes_S2RZ_W1;          // RecHits, 2. step, RZ, wheel +-1
+  std::unique_ptr<HRes1DHit> hRes_S3RZ_W1;          // RecHits, 3. step, RZ, wheel +-1
+  std::unique_ptr<HRes1DHit> hRes_S1RZ_W2;          // RecHits, 1. step, RZ, wheel +-2
+  std::unique_ptr<HRes1DHit> hRes_S2RZ_W2;          // RecHits, 2. step, RZ, wheel +-2
+  std::unique_ptr<HRes1DHit> hRes_S3RZ_W2;          // RecHits, 3. step, RZ, wheel +-2
+  std::unique_ptr<HRes1DHit> hRes_S1RPhi_W0;        // RecHits, 1. step, RPhi, wheel 0
+  std::unique_ptr<HRes1DHit> hRes_S2RPhi_W0;        // RecHits, 2. step, RPhi, wheel 0
+  std::unique_ptr<HRes1DHit> hRes_S3RPhi_W0;        // RecHits, 3. step, RPhi, wheel 0
+  std::unique_ptr<HRes1DHit> hRes_S1RPhi_W1;        // RecHits, 1. step, RPhi, wheel +-1
+  std::unique_ptr<HRes1DHit> hRes_S2RPhi_W1;        // RecHits, 2. step, RPhi, wheel +-1
+  std::unique_ptr<HRes1DHit> hRes_S3RPhi_W1;        // RecHits, 3. step, RPhi, wheel +-1
+  std::unique_ptr<HRes1DHit> hRes_S1RPhi_W2;        // RecHits, 1. step, RPhi, wheel +-2
+  std::unique_ptr<HRes1DHit> hRes_S2RPhi_W2;        // RecHits, 2. step, RPhi, wheel +-2
+  std::unique_ptr<HRes1DHit> hRes_S3RPhi_W2;        // RecHits, 3. step, RPhi, wheel +-2
+  std::unique_ptr<HRes1DHit> hRes_S3RPhiWS[3][4];   // RecHits, 3. step, by wheel/station
+  std::unique_ptr<HRes1DHit> hRes_S3RZWS[3][4];     // RecHits, 3. step, by wheel/station
   
-  HEff1DHit *hEff_S1RPhi;           // RecHits, 1. step, RPhi
-  HEff1DHit *hEff_S2RPhi;           // RecHits, 2. step, RPhi
-  HEff1DHit *hEff_S3RPhi;           // RecHits, 3. step, RPhi
-  HEff1DHit *hEff_S1RZ;             // RecHits, 1. step, RZ
-  HEff1DHit *hEff_S2RZ;             // RecHits, 2. step, RZ
-  HEff1DHit *hEff_S3RZ;             // RecHits, 3. step, RZ
-  HEff1DHit *hEff_S1RZ_W0;          // RecHits, 1. step, RZ, wheel 0
-  HEff1DHit *hEff_S2RZ_W0;          // RecHits, 2. step, RZ, wheel 0
-  HEff1DHit *hEff_S3RZ_W0;          // RecHits, 3. step, RZ, wheel 0
-  HEff1DHit *hEff_S1RZ_W1;          // RecHits, 1. step, RZ, wheel +-1
-  HEff1DHit *hEff_S2RZ_W1;          // RecHits, 2. step, RZ, wheel +-1
-  HEff1DHit *hEff_S3RZ_W1;          // RecHits, 3. step, RZ, wheel +-1
-  HEff1DHit *hEff_S1RZ_W2;          // RecHits, 1. step, RZ, wheel +-2
-  HEff1DHit *hEff_S2RZ_W2;          // RecHits, 2. step, RZ, wheel +-2
-  HEff1DHit *hEff_S3RZ_W2;          // RecHits, 3. step, RZ, wheel +-2
-  HEff1DHit* hEff_S1RPhiWS[3][4];   // RecHits, 3. step, by wheel/station
-  HEff1DHit* hEff_S3RPhiWS[3][4];   // RecHits, 3. step, by wheel/station
-  HEff1DHit* hEff_S1RZWS[3][4];     // RecHits, 3. step, by wheel/station
-  HEff1DHit* hEff_S3RZWS[3][4];     // RecHits, 3. step, by wheel/station
+  std::unique_ptr<HEff1DHit> hEff_S1RPhi;           // RecHits, 1. step, RPhi
+  std::unique_ptr<HEff1DHit> hEff_S2RPhi;           // RecHits, 2. step, RPhi
+  std::unique_ptr<HEff1DHit> hEff_S3RPhi;           // RecHits, 3. step, RPhi
+  std::unique_ptr<HEff1DHit> hEff_S1RZ;             // RecHits, 1. step, RZ
+  std::unique_ptr<HEff1DHit> hEff_S2RZ;             // RecHits, 2. step, RZ
+  std::unique_ptr<HEff1DHit> hEff_S3RZ;             // RecHits, 3. step, RZ
+  std::unique_ptr<HEff1DHit> hEff_S1RZ_W0;          // RecHits, 1. step, RZ, wheel 0
+  std::unique_ptr<HEff1DHit> hEff_S2RZ_W0;          // RecHits, 2. step, RZ, wheel 0
+  std::unique_ptr<HEff1DHit> hEff_S3RZ_W0;          // RecHits, 3. step, RZ, wheel 0
+  std::unique_ptr<HEff1DHit> hEff_S1RZ_W1;          // RecHits, 1. step, RZ, wheel +-1
+  std::unique_ptr<HEff1DHit> hEff_S2RZ_W1;          // RecHits, 2. step, RZ, wheel +-1
+  std::unique_ptr<HEff1DHit> hEff_S3RZ_W1;          // RecHits, 3. step, RZ, wheel +-1
+  std::unique_ptr<HEff1DHit> hEff_S1RZ_W2;          // RecHits, 1. step, RZ, wheel +-2
+  std::unique_ptr<HEff1DHit> hEff_S2RZ_W2;          // RecHits, 2. step, RZ, wheel +-2
+  std::unique_ptr<HEff1DHit> hEff_S3RZ_W2;          // RecHits, 3. step, RZ, wheel +-2
+  std::unique_ptr<HEff1DHit> hEff_S1RPhiWS[3][4];   // RecHits, 3. step, by wheel/station
+  std::unique_ptr<HEff1DHit> hEff_S3RPhiWS[3][4];   // RecHits, 3. step, by wheel/station
+  std::unique_ptr<HEff1DHit> hEff_S1RZWS[3][4];     // RecHits, 3. step, by wheel/station
+  std::unique_ptr<HEff1DHit> hEff_S3RZWS[3][4];     // RecHits, 3. step, by wheel/station
 };
+}
 
+using namespace dtrechit;
 
 // In phi SLs, The dependency on X and angle is specular in positive
 // and negative wheels. Since positive and negative wheels are filled
@@ -78,7 +81,7 @@ struct Histograms{
 // simmetrized one.
 // Set mirrorMinusWheels to avoid this.
 namespace {
-  bool mirrorMinusWheels = true;
+  constexpr bool mirrorMinusWheels = true;
 }
 
 // Constructor
@@ -107,44 +110,44 @@ DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset) {
 
 void DTRecHitQuality::bookHistograms(DQMStore::ConcurrentBooker & booker, edm::Run const& run, edm::EventSetup const& setup, Histograms & histograms) const {
   if (doall_ && doStep1_) {
-    histograms.hRes_S1RPhi    = new HRes1DHit("S1RPhi", booker, true, local_);      // RecHits, 1. step, RPhi
-    histograms.hRes_S1RPhi_W0 = new HRes1DHit("S1RPhi_W0", booker, true, local_);   // RecHits, 1. step, RZ, wheel 0
-    histograms.hRes_S1RPhi_W1 = new HRes1DHit("S1RPhi_W1", booker, true, local_);   // RecHits, 1. step, RZ, wheel +-1
-    histograms.hRes_S1RPhi_W2 = new HRes1DHit("S1RPhi_W2", booker, true, local_);   // RecHits, 1. step, RZ, wheel +-2
-    histograms.hRes_S1RZ      = new HRes1DHit("S1RZ", booker, true, local_);        // RecHits, 1. step, RZ
-    histograms.hRes_S1RZ_W0   = new HRes1DHit("S1RZ_W0", booker, true, local_);     // RecHits, 1. step, RZ, wheel 0
-    histograms.hRes_S1RZ_W1   = new HRes1DHit("S1RZ_W1", booker, true, local_);     // RecHits, 1. step, RZ, wheel +-1
-    histograms.hRes_S1RZ_W2   = new HRes1DHit("S1RZ_W2", booker, true, local_);     // RecHits, 1. step, RZ, wheel +-2
-    histograms.hEff_S1RPhi    = new HEff1DHit("S1RPhi", booker);                    // RecHits, 1. step, RPhi
-    histograms.hEff_S1RZ      = new HEff1DHit("S1RZ", booker);                      // RecHits, 1. step, RZ
-    histograms.hEff_S1RZ_W0   = new HEff1DHit("S1RZ_W0", booker);                   // RecHits, 1. step, RZ, wheel 0
-    histograms.hEff_S1RZ_W1   = new HEff1DHit("S1RZ_W1", booker);                   // RecHits, 1. step, RZ, wheel +-1
-    histograms.hEff_S1RZ_W2   = new HEff1DHit("S1RZ_W2", booker);                   // RecHits, 1. step, RZ, wheel +-2
+    histograms.hRes_S1RPhi    = std::make_unique<HRes1DHit>("S1RPhi", booker, true, local_);      // RecHits, 1. step, RPhi
+    histograms.hRes_S1RPhi_W0 = std::make_unique<HRes1DHit>("S1RPhi_W0", booker, true, local_);   // RecHits, 1. step, RZ, wheel 0
+    histograms.hRes_S1RPhi_W1 = std::make_unique<HRes1DHit>("S1RPhi_W1", booker, true, local_);   // RecHits, 1. step, RZ, wheel +-1
+    histograms.hRes_S1RPhi_W2 = std::make_unique<HRes1DHit>("S1RPhi_W2", booker, true, local_);   // RecHits, 1. step, RZ, wheel +-2
+    histograms.hRes_S1RZ      = std::make_unique<HRes1DHit>("S1RZ", booker, true, local_);        // RecHits, 1. step, RZ
+    histograms.hRes_S1RZ_W0   = std::make_unique<HRes1DHit>("S1RZ_W0", booker, true, local_);     // RecHits, 1. step, RZ, wheel 0
+    histograms.hRes_S1RZ_W1   = std::make_unique<HRes1DHit>("S1RZ_W1", booker, true, local_);     // RecHits, 1. step, RZ, wheel +-1
+    histograms.hRes_S1RZ_W2   = std::make_unique<HRes1DHit>("S1RZ_W2", booker, true, local_);     // RecHits, 1. step, RZ, wheel +-2
+    histograms.hEff_S1RPhi    = std::make_unique<HEff1DHit>("S1RPhi", booker);                    // RecHits, 1. step, RPhi
+    histograms.hEff_S1RZ      = std::make_unique<HEff1DHit>("S1RZ", booker);                      // RecHits, 1. step, RZ
+    histograms.hEff_S1RZ_W0   = std::make_unique<HEff1DHit>("S1RZ_W0", booker);                   // RecHits, 1. step, RZ, wheel 0
+    histograms.hEff_S1RZ_W1   = std::make_unique<HEff1DHit>("S1RZ_W1", booker);                   // RecHits, 1. step, RZ, wheel +-1
+    histograms.hEff_S1RZ_W2   = std::make_unique<HEff1DHit>("S1RZ_W2", booker);                   // RecHits, 1. step, RZ, wheel +-2
   }
   if (doall_ && doStep2_) {
-    histograms.hRes_S2RPhi    = new HRes1DHit("S2RPhi", booker, true, local_);      // RecHits, 2. step, RPhi
-    histograms.hRes_S2RPhi_W0 = new HRes1DHit("S2RPhi_W0", booker, true, local_);   // RecHits, 2. step, RPhi, wheel 0
-    histograms.hRes_S2RPhi_W1 = new HRes1DHit("S2RPhi_W1", booker, true, local_);   // RecHits, 2. step, RPhi, wheel +-1
-    histograms.hRes_S2RPhi_W2 = new HRes1DHit("S2RPhi_W2", booker, true, local_);   // RecHits, 2. step, RPhi, wheel +-2
-    histograms.hRes_S2RZ      = new HRes1DHit("S2RZ", booker, true, local_);        // RecHits, 2. step, RZ
-    histograms.hRes_S2RZ_W0   = new HRes1DHit("S2RZ_W0", booker, true, local_);     // RecHits, 2. step, RZ, wheel 0
-    histograms.hRes_S2RZ_W1   = new HRes1DHit("S2RZ_W1", booker, true, local_);     // RecHits, 2. step, RZ, wheel +-1
-    histograms.hRes_S2RZ_W2   = new HRes1DHit("S2RZ_W2", booker, true, local_);     // RecHits, 2. step, RZ, wheel +-2
-    histograms.hEff_S2RPhi    = new HEff1DHit("S2RPhi", booker);                    // RecHits, 2. step, RPhi
-    histograms.hEff_S2RZ_W0   = new HEff1DHit("S2RZ_W0", booker);                   // RecHits, 2. step, RZ, wheel 0
-    histograms.hEff_S2RZ_W1   = new HEff1DHit("S2RZ_W1", booker);                   // RecHits, 2. step, RZ, wheel +-1
-    histograms.hEff_S2RZ_W2   = new HEff1DHit("S2RZ_W2", booker);                   // RecHits, 2. step, RZ, wheel +-2
-    histograms.hEff_S2RZ      = new HEff1DHit("S2RZ", booker);                      // RecHits, 2. step, RZ
+    histograms.hRes_S2RPhi    = std::make_unique<HRes1DHit>("S2RPhi", booker, true, local_);      // RecHits, 2. step, RPhi
+    histograms.hRes_S2RPhi_W0 = std::make_unique<HRes1DHit>("S2RPhi_W0", booker, true, local_);   // RecHits, 2. step, RPhi, wheel 0
+    histograms.hRes_S2RPhi_W1 = std::make_unique<HRes1DHit>("S2RPhi_W1", booker, true, local_);   // RecHits, 2. step, RPhi, wheel +-1
+    histograms.hRes_S2RPhi_W2 = std::make_unique<HRes1DHit>("S2RPhi_W2", booker, true, local_);   // RecHits, 2. step, RPhi, wheel +-2
+    histograms.hRes_S2RZ      = std::make_unique<HRes1DHit>("S2RZ", booker, true, local_);        // RecHits, 2. step, RZ
+    histograms.hRes_S2RZ_W0   = std::make_unique<HRes1DHit>("S2RZ_W0", booker, true, local_);     // RecHits, 2. step, RZ, wheel 0
+    histograms.hRes_S2RZ_W1   = std::make_unique<HRes1DHit>("S2RZ_W1", booker, true, local_);     // RecHits, 2. step, RZ, wheel +-1
+    histograms.hRes_S2RZ_W2   = std::make_unique<HRes1DHit>("S2RZ_W2", booker, true, local_);     // RecHits, 2. step, RZ, wheel +-2
+    histograms.hEff_S2RPhi    = std::make_unique<HEff1DHit>("S2RPhi", booker);                    // RecHits, 2. step, RPhi
+    histograms.hEff_S2RZ_W0   = std::make_unique<HEff1DHit>("S2RZ_W0", booker);                   // RecHits, 2. step, RZ, wheel 0
+    histograms.hEff_S2RZ_W1   = std::make_unique<HEff1DHit>("S2RZ_W1", booker);                   // RecHits, 2. step, RZ, wheel +-1
+    histograms.hEff_S2RZ_W2   = std::make_unique<HEff1DHit>("S2RZ_W2", booker);                   // RecHits, 2. step, RZ, wheel +-2
+    histograms.hEff_S2RZ      = std::make_unique<HEff1DHit>("S2RZ", booker);                      // RecHits, 2. step, RZ
   }
   if (doStep3_) {
-    histograms.hRes_S3RPhi    = new HRes1DHit("S3RPhi", booker, doall_, local_);    // RecHits, 3. step, RPhi
-    histograms.hRes_S3RPhi_W0 = new HRes1DHit("S3RPhi_W0", booker, doall_, local_); // RecHits, 3. step, RPhi, wheel 0
-    histograms.hRes_S3RPhi_W1 = new HRes1DHit("S3RPhi_W1", booker, doall_, local_); // RecHits, 3. step, RPhi, wheel +-1
-    histograms.hRes_S3RPhi_W2 = new HRes1DHit("S3RPhi_W2", booker, doall_, local_); // RecHits, 3. step, RPhi, wheel +-2
-    histograms.hRes_S3RZ      = new HRes1DHit("S3RZ", booker, doall_, local_);      // RecHits, 3. step, RZ
-    histograms.hRes_S3RZ_W0   = new HRes1DHit("S3RZ_W0", booker, doall_, local_);   // RecHits, 3. step, RZ, wheel 0
-    histograms.hRes_S3RZ_W1   = new HRes1DHit("S3RZ_W1", booker, doall_, local_);   // RecHits, 3. step, RZ, wheel +-1
-    histograms.hRes_S3RZ_W2   = new HRes1DHit("S3RZ_W2", booker, doall_, local_);   // RecHits, 3. step, RZ, wheel +-2
+    histograms.hRes_S3RPhi    = std::make_unique<HRes1DHit>("S3RPhi", booker, doall_, local_);    // RecHits, 3. step, RPhi
+    histograms.hRes_S3RPhi_W0 = std::make_unique<HRes1DHit>("S3RPhi_W0", booker, doall_, local_); // RecHits, 3. step, RPhi, wheel 0
+    histograms.hRes_S3RPhi_W1 = std::make_unique<HRes1DHit>("S3RPhi_W1", booker, doall_, local_); // RecHits, 3. step, RPhi, wheel +-1
+    histograms.hRes_S3RPhi_W2 = std::make_unique<HRes1DHit>("S3RPhi_W2", booker, doall_, local_); // RecHits, 3. step, RPhi, wheel +-2
+    histograms.hRes_S3RZ      = std::make_unique<HRes1DHit>("S3RZ", booker, doall_, local_);      // RecHits, 3. step, RZ
+    histograms.hRes_S3RZ_W0   = std::make_unique<HRes1DHit>("S3RZ_W0", booker, doall_, local_);   // RecHits, 3. step, RZ, wheel 0
+    histograms.hRes_S3RZ_W1   = std::make_unique<HRes1DHit>("S3RZ_W1", booker, doall_, local_);   // RecHits, 3. step, RZ, wheel +-1
+    histograms.hRes_S3RZ_W2   = std::make_unique<HRes1DHit>("S3RZ_W2", booker, doall_, local_);   // RecHits, 3. step, RZ, wheel +-2
 
     if (local_) {
       // Plots with finer granularity, not to be included in DQM
@@ -152,24 +155,24 @@ void DTRecHitQuality::bookHistograms(DQMStore::ConcurrentBooker & booker, edm::R
       TString name2 = "RZ_W";
       for (long w = 0; w <= 2; ++w) {
         for (long s = 1;s <= 4; ++s) {
-          histograms.hRes_S3RPhiWS[w][s-1] = new HRes1DHit(("S3"+name1+w+"_St"+s).Data(), booker, doall_, local_);
-          histograms.hEff_S1RPhiWS[w][s-1] = new HEff1DHit(("S1"+name1+w+"_St"+s).Data(), booker);
-          histograms.hEff_S3RPhiWS[w][s-1] = new HEff1DHit(("S3"+name1+w+"_St"+s).Data(), booker);
+          histograms.hRes_S3RPhiWS[w][s-1] = std::make_unique<HRes1DHit>(("S3"+name1+w+"_St"+s).Data(), booker, doall_, local_);
+          histograms.hEff_S1RPhiWS[w][s-1] = std::make_unique<HEff1DHit>(("S1"+name1+w+"_St"+s).Data(), booker);
+          histograms.hEff_S3RPhiWS[w][s-1] = std::make_unique<HEff1DHit>(("S3"+name1+w+"_St"+s).Data(), booker);
           if (s != 4) {
-            histograms.hRes_S3RZWS[w][s-1] = new HRes1DHit(("S3"+name2+w+"_St"+s).Data(), booker, doall_, local_);
-            histograms.hEff_S1RZWS[w][s-1] = new HEff1DHit(("S1"+name2+w+"_St"+s).Data(), booker);
-            histograms.hEff_S3RZWS[w][s-1] = new HEff1DHit(("S3"+name2+w+"_St"+s).Data(), booker);
+            histograms.hRes_S3RZWS[w][s-1] = std::make_unique<HRes1DHit>(("S3"+name2+w+"_St"+s).Data(), booker, doall_, local_);
+            histograms.hEff_S1RZWS[w][s-1] = std::make_unique<HEff1DHit>(("S1"+name2+w+"_St"+s).Data(), booker);
+            histograms.hEff_S3RZWS[w][s-1] = std::make_unique<HEff1DHit>(("S3"+name2+w+"_St"+s).Data(), booker);
           }
         }
       }
     }
 
     if (doall_) {
-      histograms.hEff_S3RPhi  = new HEff1DHit("S3RPhi", booker);                    // RecHits, 3. step, RPhi
-      histograms.hEff_S3RZ    = new HEff1DHit("S3RZ", booker);                      // RecHits, 3. step, RZ
-      histograms.hEff_S3RZ_W0 = new HEff1DHit("S3RZ_W0", booker);                   // RecHits, 3. step, RZ, wheel 0
-      histograms.hEff_S3RZ_W1 = new HEff1DHit("S3RZ_W1", booker);                   // RecHits, 3. step, RZ, wheel +-1
-      histograms.hEff_S3RZ_W2 = new HEff1DHit("S3RZ_W2", booker);                   // RecHits, 3. step, RZ, wheel +-2
+      histograms.hEff_S3RPhi  = std::make_unique<HEff1DHit>("S3RPhi", booker);                    // RecHits, 3. step, RPhi
+      histograms.hEff_S3RZ    = std::make_unique<HEff1DHit>("S3RZ", booker);                      // RecHits, 3. step, RZ
+      histograms.hEff_S3RZ_W0 = std::make_unique<HEff1DHit>("S3RZ_W0", booker);                   // RecHits, 3. step, RZ, wheel 0
+      histograms.hEff_S3RZ_W1 = std::make_unique<HEff1DHit>("S3RZ_W1", booker);                   // RecHits, 3. step, RZ, wheel +-1
+      histograms.hEff_S3RZ_W2 = std::make_unique<HEff1DHit>("S3RZ_W2", booker);                   // RecHits, 3. step, RZ, wheel +-2
     }
   }
 }
@@ -477,81 +480,81 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
       if (step == 1) {
         // Step 1
         if (sl != 2) {
-          hResTot = histograms.hRes_S1RPhi;
+          hResTot = histograms.hRes_S1RPhi.get();
           if (wheel == 0) {
-            hRes = histograms.hRes_S1RPhi_W0;
+            hRes = histograms.hRes_S1RPhi_W0.get();
 }
           if (abs(wheel) == 1) {
-            hRes = histograms.hRes_S1RPhi_W1;
+            hRes = histograms.hRes_S1RPhi_W1.get();
 }
           if (abs(wheel) == 2) {
-            hRes = histograms.hRes_S1RPhi_W2;
+            hRes = histograms.hRes_S1RPhi_W2.get();
 }
         } else {
-          hResTot = histograms.hRes_S1RZ;
+          hResTot = histograms.hRes_S1RZ.get();
           if (wheel == 0) {
-            hRes = histograms.hRes_S1RZ_W0;
+            hRes = histograms.hRes_S1RZ_W0.get();
 }
           if (abs(wheel) == 1) {
-            hRes = histograms.hRes_S1RZ_W1;
+            hRes = histograms.hRes_S1RZ_W1.get();
 }
           if (abs(wheel) == 2) {
-            hRes = histograms.hRes_S1RZ_W2;
+            hRes = histograms.hRes_S1RZ_W2.get();
 }
         }
 
       } else if (step == 2) {
         // Step 2
         if (sl != 2) {
-          hRes = histograms.hRes_S2RPhi;
+          hRes = histograms.hRes_S2RPhi.get();
           if (wheel == 0) {
-            hRes = histograms.hRes_S2RPhi_W0;
+            hRes = histograms.hRes_S2RPhi_W0.get();
 }
           if (abs(wheel) == 1) {
-            hRes = histograms.hRes_S2RPhi_W1;
+            hRes = histograms.hRes_S2RPhi_W1.get();
 }
           if (abs(wheel) == 2) {
-            hRes = histograms.hRes_S2RPhi_W2;
+            hRes = histograms.hRes_S2RPhi_W2.get();
 }
         } else {
-          hResTot = histograms.hRes_S2RZ;
+          hResTot = histograms.hRes_S2RZ.get();
           if (wheel == 0) {
-            hRes = histograms.hRes_S2RZ_W0;
+            hRes = histograms.hRes_S2RZ_W0.get();
 }
           if (abs(wheel) == 1) {
-            hRes = histograms.hRes_S2RZ_W1;
+            hRes = histograms.hRes_S2RZ_W1.get();
 }
           if (abs(wheel) == 2) {
-            hRes = histograms.hRes_S2RZ_W2;
+            hRes = histograms.hRes_S2RZ_W2.get();
 }
         }
 
       } else if (step == 3) {
         // Step 3
         if (sl != 2) {
-          hResTot = histograms.hRes_S3RPhi;
+          hResTot = histograms.hRes_S3RPhi.get();
           if (wheel == 0) {
-            hRes = histograms.hRes_S3RPhi_W0;
+            hRes = histograms.hRes_S3RPhi_W0.get();
 }
           if (abs(wheel) == 1) {
-            hRes = histograms.hRes_S3RPhi_W1;
+            hRes = histograms.hRes_S3RPhi_W1.get();
 }
           if (abs(wheel) == 2) {
-            hRes = histograms.hRes_S3RPhi_W2;
+            hRes = histograms.hRes_S3RPhi_W2.get();
 }
           if (local_) {
             histograms.hRes_S3RPhiWS[abs(wheel)][wireId.station()-1]->fill(simHitWireDist, simHitTheta, simHitFEDist, recHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitErr, wireId.station());
 }
         } else {
-          hResTot = histograms.hRes_S3RZ;
+          hResTot = histograms.hRes_S3RZ.get();
           if (wheel == 0) {
-            hRes = histograms.hRes_S3RZ_W0;
+            hRes = histograms.hRes_S3RZ_W0.get();
 }
           if (abs(wheel) == 1) {
-            hRes = histograms.hRes_S3RZ_W1;
+            hRes = histograms.hRes_S3RZ_W1.get();
 }
           if (abs(wheel) == 2) {
-            hRes = histograms.hRes_S3RZ_W2;
+            hRes = histograms.hRes_S3RZ_W2.get();
 }
           if (local_) {
             histograms.hRes_S3RZWS[abs(wheel)][wireId.station()-1]->fill(simHitWireDist, simHitTheta, simHitFEDist, recHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitErr, wireId.station());
@@ -575,19 +578,19 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
       if (step == 1) {
         // Step 1
         if (sl != 2) {
-          hEff = histograms.hEff_S1RPhi;
+          hEff = histograms.hEff_S1RPhi.get();
           if (local_) { histograms.hEff_S1RPhiWS[abs(wheel)][wireId.station()-1]->fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
 }
         } else {
-          hEffTot = histograms.hEff_S1RZ;
+          hEffTot = histograms.hEff_S1RZ.get();
           if (wheel == 0) {
-            hEff = histograms.hEff_S1RZ_W0;
+            hEff = histograms.hEff_S1RZ_W0.get();
 }
           if (abs(wheel) == 1) {
-            hEff = histograms.hEff_S1RZ_W1;
+            hEff = histograms.hEff_S1RZ_W1.get();
 }
           if (abs(wheel) == 2) {
-            hEff = histograms.hEff_S1RZ_W2;
+            hEff = histograms.hEff_S1RZ_W2.get();
 }
           if (local_) { histograms.hEff_S1RZWS[abs(wheel)][wireId.station()-1]->fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
 }
@@ -596,36 +599,36 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
       } else if (step == 2) {
         // Step 2
         if (sl != 2) {
-          hEff = histograms.hEff_S2RPhi;
+          hEff = histograms.hEff_S2RPhi.get();
         } else {
-          hEffTot = histograms.hEff_S2RZ;
+          hEffTot = histograms.hEff_S2RZ.get();
           if (wheel == 0) {
-            hEff = histograms.hEff_S2RZ_W0;
+            hEff = histograms.hEff_S2RZ_W0.get();
 }
           if (abs(wheel) == 1) {
-            hEff = histograms.hEff_S2RZ_W1;
+            hEff = histograms.hEff_S2RZ_W1.get();
 }
           if (abs(wheel) == 2) {
-            hEff = histograms.hEff_S2RZ_W2;
+            hEff = histograms.hEff_S2RZ_W2.get();
 }
         }
 
       } else if (step == 3) {
         // Step 3
         if (sl != 2) {
-          hEff = histograms.hEff_S3RPhi;
+          hEff = histograms.hEff_S3RPhi.get();
           if (local_) { histograms.hEff_S3RPhiWS[abs(wheel)][wireId.station()-1]->fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
 }
         } else {
-          hEffTot = histograms.hEff_S3RZ;
+          hEffTot = histograms.hEff_S3RZ.get();
           if (wheel == 0) {
-            hEff = histograms.hEff_S3RZ_W0;
+            hEff = histograms.hEff_S3RZ_W0.get();
 }
           if (abs(wheel) == 1) {
-            hEff = histograms.hEff_S3RZ_W1;
+            hEff = histograms.hEff_S3RZ_W1.get();
 }
           if (abs(wheel) == 2) {
-            hEff = histograms.hEff_S3RZ_W2;
+            hEff = histograms.hEff_S3RZ_W2.get();
 }
           if (local_) { histograms.hEff_S3RZWS[abs(wheel)][wireId.station()-1]->fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
 }

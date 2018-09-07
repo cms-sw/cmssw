@@ -1,6 +1,9 @@
 #ifndef CartesianStateAdaptor_H
 #define CartesianStateAdaptor_H
 
+#include "RKSmallVector.h"
+#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
+
 class dso_internal CartesianStateAdaptor {
 public:
 

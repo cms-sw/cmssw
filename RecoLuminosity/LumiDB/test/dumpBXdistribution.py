@@ -5,6 +5,7 @@
 # Author:      Zhen Xie                                           #
 ###################################################################
 
+from __future__ import print_function
 import os,sys,time,json
 from RecoLuminosity.LumiDB import sessionManager,argparse,nameDealer,revisionDML,CommonUtil,dataDML,lumiCalcAPI,lumiParameters
 
@@ -84,7 +85,7 @@ if __name__ == "__main__":
             cmslsnum=perlsdata[1]
             bxinfo=perlsdata[9]
             bxdistro=getdistribution(cmslsnum,bxinfo[0],bxinfo[1])
-            print lumilsnum,cmslsnum,CommonUtil.flatten(bxdistro)
+            print(lumilsnum,cmslsnum,CommonUtil.flatten(bxdistro))
         session.transaction().commit()
 
     del session

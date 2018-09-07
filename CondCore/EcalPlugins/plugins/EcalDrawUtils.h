@@ -67,3 +67,50 @@ void DrawEB(TH2F* ebmap, float min, float max) {
       }
     }
   }   //   DrawEE method
+
+  void DrawEE_Tower(TH2F* endc, TLine* l, double minScale, double maxScale){
+    endc->SetStats(false);
+    endc->SetMinimum(minScale);
+    endc->SetMaximum(maxScale);
+    endc->Draw("colz");
+
+    int ixSectorsEE[136] = {
+      8,14,14,17,17,18,18,19,19,20,20,21,21,20,20,19,19,18,18,17,
+      17,14,14, 8, 8, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1, 2, 2, 3, 3, 4,
+      4, 5, 5, 8, 8, 8, 9, 9,10,10,12,12,13,13,12,12,10,10, 9, 9,
+      10,10, 0,11,11, 0,10, 9, 9, 8, 8, 7, 7, 6, 6, 5, 5, 0,12,13,
+      13,14,14,15,15,16,16,17,17, 0, 9, 8, 8, 3, 3, 1, 0,13,14,14,
+      19,19,21, 0, 9, 8, 8, 7, 7, 5, 5, 3, 3, 2, 0,13,14,14,15,15,
+      17,17,19,19,20, 0,14,14,13,13,12,12,0};
+
+    int iySectorsEE[136] = {
+      1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 8, 8,14,14,17,17,18,18,19,19,
+      20,20,21,21,20,20,19,19,18,18,17,17,14,14, 8, 8, 5, 5, 4, 4,
+      3, 3, 2, 2, 1, 4, 4, 7, 7, 9, 9,10,10,12,12,13,13,12,12,10,
+      10, 9, 0,13,21, 0,13,13,14,14,15,15,16,16,18,18,19, 0,13,13,
+      14,14,15,15,16,16,18,18,19, 0,11,11,12,12,13,13, 0,11,11,12,
+      12,13,13, 0,10,10, 9, 9, 8, 8, 7, 7, 6, 6, 0,10,10, 9, 9, 8,
+      8, 7, 7, 6, 6, 0, 2, 4, 4, 7, 7, 9, 0} ;
+
+    for ( int i = 0; i < 136; i=i+1)
+      if ( (ixSectorsEE[i]!=0 || iySectorsEE[i]!=0) && (ixSectorsEE[i+1]!=0 || iySectorsEE[i+1]!=0) )
+       l->DrawLine(ixSectorsEE[i], iySectorsEE[i], ixSectorsEE[i+1], iySectorsEE[i+1]);
+
+  }//draw EE in case of a tower
+
+  void drawTable(int nbRows, int nbColumns){
+        TLine* l = new TLine;
+        l->SetLineWidth(1);
+        for (int i = 1; i < nbRows; i++) {
+          double y = (double) i;
+          l = new TLine(0., y, nbColumns, y);
+          l->Draw();
+        }
+
+        for (int i = 1; i < nbColumns; i++) {
+          double x = (double) i;
+          double y = (double) nbRows;
+          l = new TLine(x, 0., x, y);
+          l->Draw();
+        }
+  }

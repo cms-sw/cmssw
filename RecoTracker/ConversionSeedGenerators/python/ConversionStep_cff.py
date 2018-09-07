@@ -18,6 +18,7 @@ convClusters = _convClustersBase.clone(
   trackClassifier       = cms.InputTag('tobTecStep',"QualityMasks"),
 )
 
+
 #Phase2 : configuring the phase2 track Cluster Remover
 from RecoLocalTracker.SubCollectionProducers.phase2trackClusterRemover_cfi import phase2trackClusterRemover as _phase2trackClusterRemover
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
@@ -249,16 +250,8 @@ photonConvTrajSeedFromSingleLeg.primaryVerticesTag = cms.InputTag('firstStepPrim
 #photonConvTrajSeedFromQuadruplets.primaryVerticesTag = cms.InputTag('pixelVertices')
 from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
 trackingLowPU.toModify(photonConvTrajSeedFromSingleLeg, primaryVerticesTag   = "pixelVertices")
-
-from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
-    e.toModify(photonConvTrajSeedFromSingleLeg,
-               RegionFactoryPSet = dict(RegionPSet = dict(ptMin = 999999.0,
-                                                          originRadius = 0,
-                                                          originHalfLength = 0)
-                                        )
-               )
+pp_on_AA_2018.toModify(photonConvTrajSeedFromSingleLeg, vtxMinDoF = 999999.)
     
 # TRACKER DATA CONTROL
 

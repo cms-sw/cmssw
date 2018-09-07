@@ -1,4 +1,4 @@
-#include "../interface/MicroGMTRelativeIsolationCheckLUT.h"
+#include "L1Trigger/L1TMuon/interface/MicroGMTRelativeIsolationCheckLUT.h"
 
 l1t::MicroGMTRelativeIsolationCheckLUT::MicroGMTRelativeIsolationCheckLUT(const std::string& fname) : MicroGMTLUT(), m_energySumInWidth(5), m_ptInWidth(9)
 {

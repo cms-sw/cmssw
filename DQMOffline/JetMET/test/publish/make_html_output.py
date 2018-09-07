@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import ROOT
 import sys,os,string,errno,shutil
 import code
@@ -15,11 +16,11 @@ ROOT.gStyle.SetOptStat(0)
 inputdir=sys.argv[1]
 outputdir=sys.argv[2]
 
-print str(inputdir)
-print str(outputdir)
+print(str(inputdir))
+print(str(outputdir))
 
 files = os.listdir(inputdir)
-print files
+print(files)
 
 ROOT.gROOT.ProcessLine(".L ./plot_METDQM.C")
 ROOT.gROOT.ProcessLine(".L ./plot_jets_data_vs_MC.C")
@@ -76,10 +77,10 @@ for file in files:
                 destination = os.path.join(outputdir)
                 try: shutil.copy2(source,destination)
                 except IOError as err:
-                    print "cannot copy:\n%s\n to\n%s"%(source,destination)
-                    print "I/O error(%d): %s"%(err.errno,err.strerror)
+                    print("cannot copy:\n%s\n to\n%s"%(source,destination))
+                    print("I/O error(%d): %s"%(err.errno,err.strerror))
             else:
-                print "will not copy refernce root files to afs due to space restrictions"
+                print("will not copy refernce root files to afs due to space restrictions")
             files.remove(file)
 
                 
@@ -161,10 +162,10 @@ for index,file in enumerate(files):
                 plotdirectory = "DQMData/Run %s/JetMET/Run summary/MET/%s"%(run,test)
                 if (rootfile.GetDirectory(plotdirectory)):
                     metcmd = "plot_METDQM(\"%s\",\"%s\",%d,\"%s\",\"%s\")"%(infilename,reference,int(float(run)),outputdir,test)
-                    print metcmd
+                    print(metcmd)
                     ROOT.gROOT.ProcessLine(metcmd)
                 else :
-                    print "Directory "+plotdirectory+" does not exist, not running creating plots."
+                    print("Directory "+plotdirectory+" does not exist, not running creating plots.")
                     
             # run the jet comparison plots
             try: os.makedirs(os.path.join(outputdir,run,"JetDQM","CaloJetAntiKt"))
@@ -172,14 +173,14 @@ for index,file in enumerate(files):
                 if err.errno != errno.EEXIST: raise
 
             jetcmd = "plot_jets_data_vs_MC(\"%s\",\"%s\",%d,\"%s\")"%(infilename,reference,int(float(run)),outputdir)
-            print jetcmd
+            print(jetcmd)
             ROOT.gROOT.ProcessLine(jetcmd)
             source = os.path.join(os.getcwd(),"result.root")
             destination = os.path.join(outputdir,run,"JetDQM")
             try: shutil.copy2(source,destination)
             except IOError as err:
-                print "cannot copy:\n%s\n to\n%s"%(source,destination)
-                print "I/O error(%d): %s"%(err.errno,err.strerror)
+                print("cannot copy:\n%s\n to\n%s"%(source,destination))
+                print("I/O error(%d): %s"%(err.errno,err.strerror))
             
 
             if (outputdir.find("afs")!=1):
@@ -187,17 +188,17 @@ for index,file in enumerate(files):
                 destination = os.path.join(outputdir,run)
                 try: shutil.copy2(source,destination)
                 except IOError as err:
-                    print "cannot copy:\n%s\n to\n%s"%(source,destination)
-                    print "I/O error(%d): %s"%(err.errno,err.strerror)
+                    print("cannot copy:\n%s\n to\n%s"%(source,destination))
+                    print("I/O error(%d): %s"%(err.errno,err.strerror))
             else:
-                print "will not copy source root files to afs due to space restrictions"
+                print("will not copy source root files to afs due to space restrictions")
             
             source = os.path.join(os.getcwd(),"UFAV.html")
             destination = os.path.join(outputdir,run)
             try: shutil.copy2(source,destination)
             except IOError as err:
-                print "cannot copy:\n%s\n to\n%s"%(source,destination)
-                print "I/O error(%d): %s"%(err.errno,err.strerror)
+                print("cannot copy:\n%s\n to\n%s"%(source,destination))
+                print("I/O error(%d): %s"%(err.errno,err.strerror))
             
 rmscanvas.cd(1)
 h_SumEt_rms.Draw("p")

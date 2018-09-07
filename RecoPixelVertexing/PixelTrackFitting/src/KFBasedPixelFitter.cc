@@ -24,7 +24,7 @@
 
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
-#include "CircleFromThreePoints.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/CircleFromThreePoints.h"
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "FWCore/Utilities/interface/InputTag.h"

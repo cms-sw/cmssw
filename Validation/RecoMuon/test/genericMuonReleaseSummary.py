@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import os
 import sys
 import fileinput
@@ -60,7 +61,7 @@ macroIsol='macro/IsoValHistoPublisher.C'
 
 def replace(map, filein, fileout):
     replace_items = map.items()
-    while 1:
+    while True:
         line = filein.readline()
         if not line: break
         for old, new in replace_items:
@@ -88,30 +89,30 @@ for sample in samples :
     if (RefFastSim):
         checkFile = NewRelease+'/'+sample+'/general_tpToTkmuAssociationFS.pdf'
     if (os.path.isfile(checkFile)==True):
-        print "Files of type "+checkFile+' exist alredy: delete them first, if you really want to overwrite them'
+        print("Files of type "+checkFile+' exist alredy: delete them first, if you really want to overwrite them')
     else:
         newSample=NewRepository+'/'+NewRelease+'/'+sample+'/'+'val.'+sample+'.root'
         refSample=RefRepository+'/'+RefRelease+'/'+sample+'/'+'val.'+sample+'.root'
 
         if (os.path.isfile(NewRelease+'/'+sample+'/val'+sample+'.root')==True):
             # FOR SOME REASON THIS DOES NOT WORK: to be checked...
-            print "New file found at: ",NewRelease+'/'+sample+'/val'+sample+'.root'+' -> Use that one'
+            print("New file found at: ",NewRelease+'/'+sample+'/val'+sample+'.root'+' -> Use that one')
 
         elif (GetFilesFromCastor):
-            print '*** Getting file from '+NewRelease
+            print('*** Getting file from '+NewRelease)
             os.system('rfcp '+CastorRepository+'/DQM_CMSSW_3_6_1_patch3-seedFix_'+sample+'.list.root '+NewRelease+'/'+sample+'/'+'val.'+sample+'.root')
         elif (os.path.isfile(newSample)) :
             os.system('cp '+newSample+' '+NewRelease+'/'+sample)
 
              
         if (os.path.isfile(RefRelease+'/'+sample+'/val'+sample+'.root')!=True and os.path.isfile(refSample)):
-            print '*** Getting reference file from '+RefRelease
+            print('*** Getting reference file from '+RefRelease)
             os.system('cp '+refSample+' '+RefRelease+'/'+sample)
         elif (GetRefsFromCastor):
-            print '*** Getting reference file from castor'
+            print('*** Getting reference file from castor')
             os.system('rfcp '+CastorRefRepository+'/DQM_CMSSW_3_6_1_patch3-orig_'+sample+'.list.root '+RefRelease+'/'+sample+'/'+'val.'+sample+'.root')
         else:
-            print '*** WARNING: no reference file was found'
+            print('*** WARNING: no reference file was found')
 
         cfgFileName=sample+'_'+NewRelease+'_'+RefRelease
         hltcfgFileName='HLT'+sample+'_'+NewRelease+'_'+RefRelease
@@ -129,7 +130,7 @@ for sample in samples :
             if (ValidateISO):
                 replace_map_ISOL = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefTag, 'NEWSELECTION':NewTag, 'IsoValHistoPublisher': isolcfgFileName}
         else:
-            print "No reference file found at: ", RefRelease+'/'+sample
+            print("No reference file found at: ", RefRelease+'/'+sample)
             replace_map_RECO = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': cfgFileName}
             if (ValidateHLT):
                 replace_map_HLT = { 'DATATYPE': 'HLT', 'NEW_FILE':NewRelease+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': hltcfgFileName}

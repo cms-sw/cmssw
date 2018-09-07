@@ -1,6 +1,6 @@
 #include "CondFormats/Serialization/interface/Test.h"
 
-#include "../src/headers.h"
+#include "CondFormats/EcalObjects/src/headers.h"
 
 int main()
 {
@@ -87,6 +87,7 @@ int main()
     testSerialization<EcalPedestal>();
     testSerialization<EcalPedestals>();
     testSerialization<EcalSRSettings>();
+    testSerialization<EcalSimPulseShape>();
     testSerialization<EcalSampleMask>();
     testSerialization<EcalTBWeights>();
     testSerialization<EcalTPGCrystalStatus>();

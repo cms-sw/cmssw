@@ -3,7 +3,6 @@
 #define M_PI 3.1415926535897932385
 #endif
 
-#include "BFit3D.h"
 #include "BFit3D_data.h"
 
 using namespace magfieldparam;

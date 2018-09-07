@@ -1,4 +1,4 @@
-#include "../interface/IntegrityTask.h"
+#include "DQM/EcalMonitorTasks/interface/IntegrityTask.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"

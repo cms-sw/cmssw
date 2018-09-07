@@ -91,10 +91,10 @@ class CrossingFrame
   std::string getSubDet() const { return subdet_;}
   unsigned int getPileupFileNr() const {return pileupFileNr_;}
   edm::EventID getIdFirstPileup() const {return idFirstPileup_;}
-  std::vector<unsigned int> getPileupOffsetsBcr() const {return pileupOffsetsBcr_;}   
-  std::vector< std::vector<unsigned int> > getPileupOffsetsSource() const {return pileupOffsetsSource_;} //one per source
-  std::vector<const T *> getPileups() const {return pileups_;}
-  std::vector<const T *> getSignal() const {return signals_;}
+  const std::vector<unsigned int>& getPileupOffsetsBcr() const {return pileupOffsetsBcr_;}
+  const std::vector< std::vector<unsigned int> >& getPileupOffsetsSource() const {return pileupOffsetsSource_;} //one per source
+  const std::vector<const T *>& getPileups() const {return pileups_;}
+  const std::vector<const T *>& getSignal() const {return signals_;}
   
   
   void getSignal(typename std::vector<const T *>::const_iterator &first,typename std::vector<const T*>::const_iterator &last) const {

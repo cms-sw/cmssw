@@ -828,11 +828,15 @@ TH1* PlotRatiosHistograms(TH1* h1, TH1* h2){
   ++ratioCounter;
 
   Int_t nbinsx = h1->GetNbinsX();
+  Double_t xbins[nbinsx+1];
 
-  Double_t xmin = h1->GetBinLowEdge(0);
-  Double_t xmax = h1->GetBinLowEdge(nbinsx+1);
+  //Loop necessary since some histograms are TH1 while some are TProfile and do not allow us to use the clone function (SetBinContent do not exists for TProfiles)                                             
+  for (Int_t ibin=1; ibin<=nbinsx+1; ibin++) {
+    Float_t xmin = h1->GetBinLowEdge(ibin);
+    xbins[ibin-1] = xmin;
+  }
 
-  TH1F* h_ratio = new TH1F(Form("h_ratio_%d", ratioCounter), "", nbinsx, xmin, xmax);
+  TH1F* h_ratio = new TH1F(Form("h_ratio_%d", ratioCounter), "", nbinsx, xbins);
 
   for (Int_t ibin=1; ibin<=nbinsx; ibin++) {
 
@@ -845,7 +849,7 @@ TH1* PlotRatiosHistograms(TH1* h1, TH1* h2){
     Float_t ratioVal = 999;
     Float_t ratioErr = 999;
 
-    if (h2Value > 0) {
+    if (h2Value > 0 || h2Value < 0) {
       ratioVal = h1Value / h2Value;
       ratioErr = h1Error / h2Value;
     }

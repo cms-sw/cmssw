@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import subprocess
 import shutil
 import sys
@@ -27,15 +28,15 @@ def find_all_module_classes():
 def print_lines(lines):
   for l in lines:
     if len(l)>0:
-      print "  ",l
+      print("  ",l)
 
 def find_file_for_module(name,all_modules):
   if name in all_modules:
     info = all_modules[name]
     if len(info) != 1:
-      print "ERROR: more than one declaration for '"+name+"'\n"
+      print("ERROR: more than one declaration for '"+name+"'\n")
       for inherits,file in info:
-        print "  ",file, inherits
+        print("  ",file, inherits)
       return (None,None)
     inherits,file = info[0]
     if -1 != inherits.find("edm::EDProducer"):
@@ -43,10 +44,10 @@ def find_file_for_module(name,all_modules):
     elif -1 != inherits.find("edm::EDFilter"):
       type = kFilter
     else:
-      print "ERROR: class '"+name+"' does not directly inherit from EDProducer or EDFilter\n  "+inherits
+      print("ERROR: class '"+name+"' does not directly inherit from EDProducer or EDFilter\n  "+inherits)
       return (None,None)
     return (file,type)
-  print "ERROR: did not find a standard class declaration for '"+name+"'"
+  print("ERROR: did not find a standard class declaration for '"+name+"'")
   try:
     found = subprocess.check_output(["git","grep", "class *"+name+" *:"])
     print_lines( found.split("\n") )
@@ -60,7 +61,7 @@ def find_file_for_module(name,all_modules):
   
 def checkout_package(fileName):
   c = fileName.split("/")
-  print "checking out "+c[0]+"/"+c[1]
+  print("checking out "+c[0]+"/"+c[1])
   sparce_checkout = ".git/info/sparse-checkout"
   f = open(sparce_checkout,"r")
   linesInSparse = set(f.readlines())
@@ -77,7 +78,7 @@ def checkout_package(fileName):
   subprocess.call(["git","read-tree","-mu","HEAD"])
 
 def edit_file(fileName,moduleType,moduleName):
-  print " editting "+fileName
+  print(" editting "+fileName)
   fOld = open(fileName)
   fNew = open(fileName+"_NEW","w")
   
@@ -105,13 +106,13 @@ def edit_file(fileName,moduleType,moduleName):
               l=l.replace("edm::EDFilter","edm::stream::EDFilter<>")
     fNew.write(l)
     if -1 != l.find(" beginJob("):
-      print " WARNING: beginJob found but not supported by stream"
-      print "  ",l
+      print(" WARNING: beginJob found but not supported by stream")
+      print("  ",l)
     if -1 != l.find(" endJob("):
-      print " WARNING: endJob found but not supported by stream"
-      print "  ",l
+      print(" WARNING: endJob found but not supported by stream")
+      print("  ",l)
   if not addedInclude:
-    print " WARNING: did not write include into "+fileName
+    print(" WARNING: did not write include into "+fileName)
   fNew.close()
   fOld.close()
   shutil.move(fileName,fileName+"_OLD")
@@ -119,7 +120,7 @@ def edit_file(fileName,moduleType,moduleName):
 
 modules = sys.argv[1:]
 
-print "getting info"
+print("getting info")
 all_mods_info= find_all_module_classes()
 
 

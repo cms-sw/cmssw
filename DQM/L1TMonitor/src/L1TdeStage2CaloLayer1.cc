@@ -22,6 +22,7 @@ L1TdeStage2CaloLayer1::L1TdeStage2CaloLayer1(const edm::ParameterSet & ps) :
   emulLabel_(ps.getParameter<edm::InputTag>("emulSource")),
   emulSource_(consumes<CaloTowerBxCollection>(emulLabel_)),
   hcalTowers_(consumes<HcalTrigPrimDigiCollection>(edm::InputTag("l1tCaloLayer1Digis"))),
+  fedRawData_(consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("fedRawDataLabel"))),
   histFolder_(ps.getParameter<std::string>("histFolder")),
   tpFillThreshold_(ps.getUntrackedParameter<int>("etDistributionsFillThreshold", 0))
 {
@@ -47,6 +48,32 @@ void L1TdeStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSe
   event.getByToken(emulSource_, emulTowers);
   edm::Handle<HcalTrigPrimDigiCollection> hcalTowers;
   event.getByToken(hcalTowers_, hcalTowers);
+
+  // Best way I know to check if FED in a run
+  edm::Handle<FEDRawDataCollection> fedRawDataCollection;
+  event.getByToken(fedRawData_, fedRawDataCollection);
+  bool caloLayer1OutOfRun{true};
+  bool caloLayer2OutOfRun{true};
+  if (fedRawDataCollection.isValid()) {
+    caloLayer1OutOfRun = false;
+    caloLayer2OutOfRun = false;
+    for(int iFed=1354; iFed<1360; iFed+=2) {
+      const FEDRawData& fedRawData = fedRawDataCollection->FEDData(iFed);
+      if ( fedRawData.size() == 0 ) {
+        caloLayer1OutOfRun = true;
+        continue;  // In case one of 3 layer 1 FEDs not in
+      }
+    }
+    const FEDRawData& fedRawData = fedRawDataCollection->FEDData(1360);
+    if ( fedRawData.size() == 0 ) {
+      caloLayer2OutOfRun = true;
+    }
+  }
+
+  if ( caloLayer1OutOfRun or caloLayer2OutOfRun ) {
+    // No point in comparing
+    return;
+  }
 
   // We'll fill sets, compare, and then dissect comparison failures after.
   SimpleTowerSet dataTowerSet;
@@ -78,7 +105,7 @@ void L1TdeStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSe
   bool towerCountMsmThisEvent{false};
 
   if ( dataTowerSet.size() != emulTowerSet.size() ) {
-    // This will happen if either CaloLayer1 or CaloLayer2 are out of run
+    // This will happen if either CaloLayer1 or CaloLayer2 are out of run (in which case we exit early)
     // The problematic situation that we are monitoring is when we see both in, but one MP7 card is not sending fat events when it should
     towerCountMismatchesPerBx_->Fill(event.bunchCrossing());
     towerCountMsmThisEvent = true;

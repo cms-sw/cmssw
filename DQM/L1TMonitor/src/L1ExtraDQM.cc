@@ -389,9 +389,6 @@ void L1ExtraDQM::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& evSetu
 
 }
 
-void L1ExtraDQM::beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup& evSetup){
-
-}
 
 void L1ExtraDQM::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const& evSetup) {
 

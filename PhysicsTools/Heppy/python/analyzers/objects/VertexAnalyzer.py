@@ -1,3 +1,4 @@
+from __future__ import print_function
 import itertools
 
 from PhysicsTools.Heppy.analyzers.core.VertexHistograms import VertexHistograms
@@ -103,7 +104,7 @@ class VertexAnalyzer( Analyzer ):
         event.rhoCN = self.handles['rhoCN'].product()[0]
         event.sigma = self.handles['sigma'].product()[0] if self.handles['sigma'].isValid() else -999
         event.vertices = self.handles['vertices'].product()
-        event.goodVertices = filter(self.testGoodVertex,event.vertices)
+        event.goodVertices = list(filter(self.testGoodVertex,event.vertices))
 
 
         self.count.inc('All Events')
@@ -121,8 +122,8 @@ class VertexAnalyzer( Analyzer ):
             
         self.averages['vertexWeight'].add( event.vertexWeight )
         if self.verbose:
-            print 'VertexAnalyzer: #vert = ', len(event.vertices), \
-                  ', weight = ', event.vertexWeight
+            print('VertexAnalyzer: #vert = ', len(event.vertices), \
+                  ', weight = ', event.vertexWeight)
 
         # Check if events needs to be skipped if no good vertex is found (useful for generator level studies)
         keepFailingEvents = False

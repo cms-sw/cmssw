@@ -10,6 +10,8 @@
 
 #include "Fireworks/Core/interface/FWDetailViewGL.h"
 #include "Fireworks/Core/interface/CSGActionSupervisor.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "TVector3.h"
 
 class TGLEmbeddedViewer;
 class TGTextButton;

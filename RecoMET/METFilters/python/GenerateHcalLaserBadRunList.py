@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import sys, os, string
 import time
 
@@ -41,16 +42,16 @@ def ReadNewList(newlist):
                 run=string.atoi(temp[0])
                 evt=string.atoi(temp[2])
             except:
-                print "Could not parse line '%s'"%i
+                print("Could not parse line '%s'"%i)
         # Case 2:  new input presented as "run event" list
         elif len(temp)==2:
             try:
                 run=string.atoi(temp[0])
                 evt=string.atoi(temp[1])
             except:
-                print "Could not parse line '%s'"%i
+                print("Could not parse line '%s'"%i)
         else:
-            print "Cannot parse line! ('%s')"%i
+            print("Cannot parse line! ('%s')"%i)
             continue
         outlist.append(run)
         outlist.append(evt)
@@ -63,18 +64,17 @@ def ReadNewList(newlist):
 if __name__=="__main__":
     defaultList=hcalLaserEventFilter.BadRunEventNumbers
     defaultDict=MakePair(defaultList)
-    keys=defaultDict.keys()
-    keys.sort()
+    keys=sorted(defaultDict.keys())
     if len(sys.argv)==1:
-        print "Default bad (run,events) are:"
+        print("Default bad (run,events) are:")
         for i in keys:
-            print i
-        print "\nA total of %i bad events"%len(keys)
+            print(i)
+        print("\nA total of %i bad events"%len(keys))
         sys.exit()
     newlines=[]
     for i in sys.argv[1:]:
         if not os.path.isfile(i):
-            print "Error, file '%s' does not exist"%i
+            print("Error, file '%s' does not exist"%i)
             continue
         lines=open(i,'r').readlines()
         for i in lines:
@@ -110,16 +110,16 @@ if __name__=="__main__":
             notInNew[i]=defaultDict[i]
 
 
-    print "Total bad events in new file = ",len(newkeys)
+    print("Total bad events in new file = ",len(newkeys))
 
-    if len(notInOld.keys())>0:
-        print
-        print "A total of %i bad events found"%len(notInOld.keys())
+    if len(notInOld)>0:
+        print()
+        print("A total of %i bad events found"%len(notInOld))
         for k in notInOld.keys():
-            print k
+            print(k)
 
-    if len(notInNew.keys())>0:
-        print
-        print "A total of %i events aren't in NEW list!"%len(notInNew.keys())
+    if len(notInNew)>0:
+        print()
+        print("A total of %i events aren't in NEW list!"%len(notInNew))
         for k in notInNew.keys():
-            print k
+            print(k)

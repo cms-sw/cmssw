@@ -1,4 +1,4 @@
-#include "../interface/DQWorkerClient.h"
+#include "DQM/EcalMonitorClient/interface/DQWorkerClient.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 #include "DQM/EcalCommon/interface/StatusManager.h"

@@ -2,6 +2,7 @@
 #include "GeneratorInterface/Core/interface/GenericDauHepMCFilter.h"
 #include "GeneratorInterface/Core/interface/PartonShowerBsHepMCFilter.h"
 #include "GeneratorInterface/Core/interface/EmbeddingHepMCFilter.h"
+#include "GeneratorInterface/Core/interface/PythiaHepMCFilterGammaGamma.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -29,8 +30,11 @@ HepMCFilterDriver::HepMCFilterDriver(const edm::ParameterSet& pset) :
   else if (filterName=="EmbeddingHepMCFilter") {
     filter_ = new EmbeddingHepMCFilter(filterParameters);
   }
+  else if (filterName=="PythiaHepMCFilterGammaGamma") {
+    filter_ = new PythiaHepMCFilterGammaGamma(filterParameters);
+  }
   else {
-    edm::LogError("HepMCFilterDriver")<< "Invalid HepMCFilter name:" << filterName;
+    throw edm::Exception(edm::errors::Configuration,"HepMCFilterDriver") << "Invalid HepMCFilter name:" << filterName;
   }
   
 }

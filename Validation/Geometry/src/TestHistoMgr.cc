@@ -246,13 +246,15 @@ TProfile2D* TestHistoMgr::getHistoProf2( int ih )
  
 TH1F* TestHistoMgr::getHisto1FromSecondFile( const char* hnam )
 {
+  TH1F* his = new TH1F();
   if( !theFileRef ){
     std::cerr << "!!!! FATAL ERROR Second file not yet opened " << std::endl;
     std::exception();
+  } else{
+    his = (TH1F*)(*theFileRef).Get(hnam);
   }
 
 
-  TH1F* his = (TH1F*)(*theFileRef).Get(hnam);
   if( !his ) {
     std::cerr << "!!!! FATAL ERROR Histogram does not exist in second file " << hnam << std::endl;
     theFileRef->ls();

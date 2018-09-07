@@ -19,16 +19,10 @@ class DaqScopeModeAlgorithm : public CommissioningAlgorithm {
   
   DaqScopeModeAlgorithm( const edm::ParameterSet & pset, DaqScopeModeAnalysis* const );
 
-  ~DaqScopeModeAlgorithm() override {;}
+  ~DaqScopeModeAlgorithm() override {;} 
   
-  inline const float& entries() const;
-  inline const float& mean() const; 
-  inline const float& median() const; 
-  inline const float& mode() const; 
-  inline const float& rms() const; 
-  inline const float& min() const; 
-  inline const float& max() const; 
-  
+  inline const Histo& hPeds() const;
+  inline const Histo& hNoise() const;
   inline const Histo& histo() const;
   
  private:
@@ -43,9 +37,20 @@ class DaqScopeModeAlgorithm : public CommissioningAlgorithm {
   
   /** Histogram of scope mode data. */
   Histo histo_;
+  /** Pedestals and raw noise */
+  Histo hPeds_;
+  /** Residuals and noise */
+  Histo hNoise_;
+  
+  /** Analysis parameters */
+  float deadStripMax_;
+  float noisyStripMin_;
   
 };
+
 const DaqScopeModeAlgorithm::Histo& DaqScopeModeAlgorithm::histo() const { return histo_; }
+const DaqScopeModeAlgorithm::Histo& DaqScopeModeAlgorithm::hPeds() const { return hPeds_; }
+const DaqScopeModeAlgorithm::Histo& DaqScopeModeAlgorithm::hNoise() const { return hNoise_; }
 
 #endif // DQM_SiStripCommissioningAnalysis_DaqScopeModeAlgorithm_H
 

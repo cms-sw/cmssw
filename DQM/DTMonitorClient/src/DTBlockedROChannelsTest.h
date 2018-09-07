@@ -48,9 +48,11 @@ class DTBlockedROChannelsTest: public DQMEDHarvester {
     void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
 private:
-    int readOutToGeometry(int dduId, int rosNumber, int& wheel, int& sector);
+    int readOutToGeometry(int dduId, int rosNumber, int robNumber, int& wheel, int &station, int& sector);
 
-  private:
+    int theDDU(int crate, int slot, int link, bool tenDDU);
+    int theROS(int slot, int link);
+    int theROB(int slot, int link);
 
     //Number of onUpdates
     int nupdates;
@@ -58,6 +60,7 @@ private:
     // prescale on the # of LS to update the test
     int prescaleFactor;
     bool offlineMode;
+    bool checkUros;
     int nevents;
     int neventsPrev;
     unsigned int nLumiSegs;
@@ -70,7 +73,7 @@ private:
 
 
     // Monitor Elements
-    std::map<int, MonitorElement*> wheelHitos;
+    std::map<int, MonitorElement*> wheelHistos;
     MonitorElement *summaryHisto;
 
     std::map<int, double> resultsPerLumi;
@@ -114,6 +117,41 @@ private:
     };
 
     std::map<DTChamberId, DTRobBinsMap> chamberMap;
+
+   // For uROS starting in Year 2018
+    class DTLinkBinsMap{
+      public:
+        DTLinkBinsMap(DQMStore::IGetter & igetter,const int fed, const int mapSlot);
+
+        DTLinkBinsMap();
+
+        ~DTLinkBinsMap();
+
+        // add a rob to the set of robs
+        void addLinkBin(int linkBin);
+        void init(bool v) {init_ = v;}
+
+        bool linkChanged(int linkBin);
+
+        double getChamberPercentage(DQMStore::IGetter &);
+
+        void readNewValues(DQMStore::IGetter & igetter);
+
+      private:
+        int getValueLinkBin(int linkBin) const;
+
+        bool init_;
+
+        std::map<int, int> linksAndValues;
+
+        const MonitorElement* meuROS;
+
+        std::string urosHName;
+    };
+
+    std::map<DTChamberId, DTLinkBinsMap> chamberMapUros;
+
+
 
 };
 

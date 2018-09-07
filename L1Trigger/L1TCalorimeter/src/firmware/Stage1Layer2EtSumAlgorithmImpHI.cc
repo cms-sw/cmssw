@@ -16,7 +16,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/HardwareSortingMethods.h"
 #include <cassert>
 
-l1t::Stage1Layer2EtSumAlgorithmImpHI::Stage1Layer2EtSumAlgorithmImpHI(CaloParamsHelper* params) : params_(params)
+l1t::Stage1Layer2EtSumAlgorithmImpHI::Stage1Layer2EtSumAlgorithmImpHI(CaloParamsHelper const* params) : params_(params)
 {
   //now do what ever initialization is needed
   for(size_t i=0; i<cordicPhiValues.size(); ++i) {
@@ -29,17 +29,10 @@ l1t::Stage1Layer2EtSumAlgorithmImpHI::Stage1Layer2EtSumAlgorithmImpHI(CaloParams
 }
 
 
-l1t::Stage1Layer2EtSumAlgorithmImpHI::~Stage1Layer2EtSumAlgorithmImpHI() {
-
-
-}
-
 void l1t::Stage1Layer2EtSumAlgorithmImpHI::processEvent(const std::vector<l1t::CaloRegion> & regions,
 							const std::vector<l1t::CaloEmCand> & EMCands,
 							const std::vector<l1t::Jet> * jets,
 							      std::vector<l1t::EtSum> * etsums) {
-
-  std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
 
 
   //Region Correction will return uncorrected subregions if
@@ -153,17 +146,16 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHI::processEvent(const std::vector<l1t::C
   l1t::EtSum etTot (*&etLorentz,EtSum::EtSumType::kTotalEt,sumET&0xfff,0,0,ETTqual);
   l1t::EtSum htTot (*&etLorentz,EtSum::EtSumType::kTotalHt,sumHT&0xfff,0,0,HTTqual);
 
-  std::vector<l1t::EtSum> *preGtEtSums = new std::vector<l1t::EtSum>();
+  std::vector<l1t::EtSum> preGtEtSums;
+  preGtEtSums.reserve(4);
+  
+  preGtEtSums.push_back(etMiss);
+  preGtEtSums.push_back(htMiss);
+  preGtEtSums.push_back(etTot);
+  preGtEtSums.push_back(htTot);
 
-  preGtEtSums->push_back(etMiss);
-  preGtEtSums->push_back(htMiss);
-  preGtEtSums->push_back(etTot);
-  preGtEtSums->push_back(htTot);
+  EtSumToGtScales(params_, &preGtEtSums, etsums);
 
-  EtSumToGtScales(params_, preGtEtSums, etsums);
-
-  delete subRegions;
-  delete preGtEtSums;
 }
 
 std::tuple<int, int, int>

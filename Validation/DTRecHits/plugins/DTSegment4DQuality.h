@@ -38,19 +38,21 @@ namespace edm {
 
 class HRes4DHit;
 class HEff4DHit;
-struct Histograms;
+namespace dtsegment4d {
+  struct Histograms;
+}
 
-class DTSegment4DQuality : public DQMGlobalEDAnalyzer<Histograms> {
+class DTSegment4DQuality : public DQMGlobalEDAnalyzer<dtsegment4d::Histograms> {
 public:
   /// Constructor
   DTSegment4DQuality(const edm::ParameterSet& pset);
 
 private:
   /// Book the DQM plots
-  void bookHistograms(DQMStore::ConcurrentBooker &, edm::Run const&, edm::EventSetup const&, Histograms &) const override;
+  void bookHistograms(DQMStore::ConcurrentBooker &, edm::Run const&, edm::EventSetup const&, dtsegment4d::Histograms &) const override;
 
   /// Perform the real analysis
-  void dqmAnalyze(edm::Event const&, edm::EventSetup const&, Histograms const&) const override;
+  void dqmAnalyze(edm::Event const&, edm::EventSetup const&, dtsegment4d::Histograms const&) const override;
 
 private:
   // Labels to read from event

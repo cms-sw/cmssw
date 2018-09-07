@@ -41,6 +41,7 @@ private:
 private:
   cond::persistency::ConnectionPool m_connectionPool;
   std::string m_configMapDb;
+  std::string m_cfgMapSchemaName;
   std::string m_cfgMapTableName;
   std::string m_condDb;
   std::string m_cfgMapDbFile;
@@ -57,6 +58,7 @@ private:
 template<typename SiStripPayload>
 SiStripPayloadHandler<SiStripPayload>::SiStripPayloadHandler(const edm::ParameterSet& iConfig):
   m_connectionPool(),
+  m_cfgMapSchemaName( iConfig.getUntrackedParameter< std::string >("cfgMapSchemaName", "CMS_COND_O2O") ),
   m_cfgMapTableName( iConfig.getUntrackedParameter< std::string >("cfgMapTableName", "STRIP_CONFIG_TO_PAYLOAD_MAP") ),
   m_condDb( iConfig.getParameter< std::string >("conditionDatabase") ),
   m_localCondDbFile( iConfig.getParameter< std::string >("condDbFile") ),
@@ -203,7 +205,7 @@ std::string SiStripPayloadHandler<SiStripPayload>::queryConfigMap(std::string co
   auto cmDbSession = m_connectionPool.createCoralSession( m_configMapDb );
   // query the STRIP_CONFIG_TO_PAYLOAD_MAP table
   cmDbSession->transaction().start( true );
-  coral::ITable& cmTable = cmDbSession->nominalSchema().tableHandle( m_cfgMapTableName );
+  coral::ITable& cmTable = cmDbSession->schema( m_cfgMapSchemaName ).tableHandle( m_cfgMapTableName );
   std::unique_ptr<coral::IQuery> query( cmTable.newQuery() );
   query->addToOutputList( "PAYLOAD_HASH" );
   query->defineOutputType( "PAYLOAD_HASH", coral::AttributeSpecification::typeNameForType<std::string>() );

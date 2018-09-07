@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import cx_Oracle
 import datetime
 import calendar
@@ -40,13 +41,13 @@ def print_table( headers, table ):
             if ind<len(ws):
                 line += (fmt.format( row[ind] )+' ') 
             ind += 1
-        print line
+        print(line)
     printf( headers )
     hsep = ''
     for w in ws:
         fmt = '{:-<%s}' %w
         hsep += (fmt.format('')+' ')
-    print hsep
+    print(hsep)
     for row in table:
         printf( row )
 
@@ -420,11 +421,11 @@ class conddb_tool(object):
             timeCut = None
             logging.info('Calculating minimum boost version for the available iovs...')
             r_tagBoostVersion, r_minIov = self.process_tag_boost_version( tag, timeType, tagBoostVersion, minIov, timeCut )
-        print '# Currently stored: %s (min iov:%s)' %(tagBoostVersion,minIov)
-        print '# Last update: %s' %mt
-        print '# Last update on the iovs: %s' %str(t_modificationTime)
+        print('# Currently stored: %s (min iov:%s)' %(tagBoostVersion,minIov))
+        print('# Last update: %s' %mt)
+        print('# Last update on the iovs: %s' %str(t_modificationTime))
         if self.args.rebuild or self.args.full:
-            print '# Based on the %s available IOVs: %s (min iov:%s)' %(len(self.iovs),r_tagBoostVersion,r_minIov)
+            print('# Based on the %s available IOVs: %s (min iov:%s)' %(len(self.iovs),r_tagBoostVersion,r_minIov))
             if self.args.full:
                 headers = ['Run','Boost Version']
                 print_table( headers, self.versionIovs ) 

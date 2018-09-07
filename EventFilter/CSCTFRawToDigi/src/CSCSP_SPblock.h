@@ -1,7 +1,7 @@
 #ifndef CSCSP_SPblock_h
 #define CSCSP_SPblock_h
 #include <vector>
-
+#include <cstring>
 #include "EventFilter/CSCTFRawToDigi/src/CSCSP_MEblock.h"
 #include "EventFilter/CSCTFRawToDigi/src/CSCSP_MBblock.h"
 
@@ -105,7 +105,7 @@ public:
 	unsigned int ptLUTaddress(void) const throw() { return (sign_<<20) | (mode_<<16) | ((eta_&0x1E)<<11) | (deltaPhi23_<<8) | deltaPhi12_; }
 	unsigned int mode        (void) const throw() { return mode_; }
 
-	bool unpack(const unsigned short *&buf) throw() { memcpy((void*)this,buf,4*sizeof(short)); buf+=4; return check(); }
+	bool unpack(const unsigned short *&buf) throw() { std::memcpy((void*)this,buf,4*sizeof(short)); buf+=4; return check(); }
 
 	CSCSP_SPblock(void){}
 };

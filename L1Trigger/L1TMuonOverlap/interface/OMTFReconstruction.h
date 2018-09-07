@@ -74,7 +74,7 @@ class OMTFReconstruction {
     OMTFConfiguration   *m_OMTFConfig;
     OMTFinputMaker       m_InputMaker;
     OMTFSorter           m_Sorter;
-    OMTFGhostBuster      m_GhostBuster;
+    std::unique_ptr<IGhostBuster> m_GhostBuster;
     OMTFProcessor       *m_OMTF;    
   ///
     xercesc::DOMElement *aTopElement;

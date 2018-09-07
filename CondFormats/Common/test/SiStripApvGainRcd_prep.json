@@ -6,5 +6,5 @@
     }, 
     "inputTag": "SiStripApvGain_pcl", 
     "since": null, 
-    "userText": "PCL MultiRun Upload for SiStrip Gains calib. (prep)"
+    "userText": "Single run harvesting Upload for SiStrip Gains calib. (prep)"
 }

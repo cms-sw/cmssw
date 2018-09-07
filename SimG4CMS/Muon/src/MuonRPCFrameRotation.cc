@@ -3,8 +3,7 @@
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 
-#include "G4StepPoint.hh"
-#include "G4TouchableHistory.hh"
+#include "G4Step.hh"
 
 MuonRPCFrameRotation::MuonRPCFrameRotation(const MuonDDDConstants& muonConstants) : 
 MuonFrameRotation::MuonFrameRotation() {
@@ -17,16 +16,11 @@ MuonRPCFrameRotation::~MuonRPCFrameRotation(){
   delete g4numbering;
 }
 
-Local3DPoint MuonRPCFrameRotation::transformPoint(const Local3DPoint & point,const G4Step * aStep=nullptr) const {
-  if (!aStep)
-    return Local3DPoint(0.,0.,0.);  
-
+Local3DPoint 
+MuonRPCFrameRotation::transformPoint(const Local3DPoint& point,const G4Step* aStep) const {
   //check if endcap
   MuonBaseNumber num = g4numbering->PhysicalVolumeToBaseNumber(aStep);
   bool endcap_muon = (num.getSuperNo(theRegion)!=1);
-  if (endcap_muon){
-    return Local3DPoint(point.x(),point.z(),-point.y());
-  } else {
-    return point; 
-  }
+  return (endcap_muon) ? Local3DPoint(point.x(),point.z(),-point.y())
+    : Local3DPoint(point.x(),point.y(),point.z());
 }

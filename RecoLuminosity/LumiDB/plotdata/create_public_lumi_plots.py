@@ -4,6 +4,7 @@
 ## File: create_public_lumi_plots.py
 ######################################################################
 
+from __future__ import print_function
 import sys
 import os
 import commands
@@ -18,6 +19,7 @@ import cjson
 
 import numpy as np
 
+import six
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
@@ -26,10 +28,9 @@ from matplotlib import pyplot as plt
 # Matplotlib.
 from RecoLuminosity.LumiDB.mpl_axes_hist_fix import hist
 if matplotlib.__version__ != '1.0.1':
-    print >> sys.stderr, \
-          "ERROR The %s script contains a hard-coded bug-fix " \
+    print("ERROR The %s script contains a hard-coded bug-fix " \
           "for Matplotlib 1.0.1. The Matplotlib version loaded " \
-          "is %s" % (__file__, matplotlib.__version__)
+          "is %s" % (__file__, matplotlib.__version__), file=sys.stderr)
     sys.exit(1)
 matplotlib.axes.Axes.hist = hist
 # FIX FIX FIX end
@@ -509,8 +510,7 @@ if __name__ == "__main__":
                           "(Rebuilds the cache as well.)")
     (options, args) = arg_parser.parse_args()
     if len(args) != 1:
-        print >> sys.stderr, \
-              "ERROR Need exactly one argument: a config file name"
+        print("ERROR Need exactly one argument: a config file name", file=sys.stderr)
         sys.exit(1)
     config_file_name = args[0]
     ignore_cache = options.ignore_cache
@@ -527,8 +527,7 @@ if __name__ == "__main__":
         }
     cfg_parser = ConfigParser.SafeConfigParser(cfg_defaults)
     if not os.path.exists(config_file_name):
-        print >> sys.stderr, \
-              "ERROR Config file '%s' does not exist" % config_file_name
+        print("ERROR Config file '%s' does not exist" % config_file_name, file=sys.stderr)
         sys.exit(1)
     cfg_parser.read(config_file_name)
 
@@ -546,9 +545,8 @@ if __name__ == "__main__":
     accel_mode = cfg_parser.get("general", "accel_mode")
     # Check if we know about this accelerator mode.
     if not accel_mode in KNOWN_ACCEL_MODES:
-        print >> sys.stderr, \
-              "ERROR Unknown accelerator mode '%s'" % \
-              accel_mode
+        print("ERROR Unknown accelerator mode '%s'" % \
+              accel_mode, file=sys.stderr)
 
     # WORKAROUND WORKAROUND WORKAROUND
     amodetag_bug_workaround = False
@@ -563,8 +561,8 @@ if __name__ == "__main__":
     beam_energy = None
     beam_energy_from_cfg = None
     if not beam_energy_tmp:
-        print "No beam energy specified --> using defaults for '%s'" % \
-              accel_mode
+        print("No beam energy specified --> using defaults for '%s'" % \
+              accel_mode)
         beam_energy_from_cfg = False
     else:
         beam_energy_from_cfg = True
@@ -576,8 +574,8 @@ if __name__ == "__main__":
     beam_fluctuation = None
     beam_fluctuation_from_cfg = None
     if not beam_fluctuation_tmp:
-        print "No beam energy fluctuation specified --> using the defaults to '%s'" % \
-              accel_mode
+        print("No beam energy fluctuation specified --> using the defaults to '%s'" % \
+              accel_mode)
         beam_fluctuation_from_cfg = False
     else:
         beam_fluctuation_from_cfg = True
@@ -593,17 +591,16 @@ if __name__ == "__main__":
     # If no end date is given, use today.
     today = datetime.datetime.utcnow().date()
     if not date_end:
-        print "No end date given --> using today"
+        print("No end date given --> using today")
         date_end = today
     # If end date lies in the future, truncate at today.
     if date_end > today:
-        print "End date lies in the future --> using today instead"
+        print("End date lies in the future --> using today instead")
         date_end = today
     # If end date is before start date, give up.
     if date_end < date_begin:
-        print >> sys.stderr, \
-              "ERROR End date before begin date (%s < %s)" % \
-              (date_end.isoformat(), date_begin.isoformat())
+        print("ERROR End date before begin date (%s < %s)" % \
+              (date_end.isoformat(), date_begin.isoformat()), file=sys.stderr)
         sys.exit(1)
 
     # If an Oracle connection string is specified, use direct Oracle
@@ -619,13 +616,12 @@ if __name__ == "__main__":
         json_file_name = None
     if json_file_name:
         if not os.path.exists(json_file_name):
-            print >> sys.stderr, \
-                "ERROR Requested JSON file '%s' is not available" % json_file_name
+            print("ERROR Requested JSON file '%s' is not available" % json_file_name, file=sys.stderr)
             sys.exit(1)
-        print "Using JSON file '%s' for certified data" % json_file_name
+        print("Using JSON file '%s' for certified data" % json_file_name)
     else:
         if verbose:
-            print "No JSON file specified, filling only standard lumi plot."
+            print("No JSON file specified, filling only standard lumi plot.")
 
     ##########
 
@@ -672,34 +668,34 @@ if __name__ == "__main__":
     ##########
 
     # Tell the user what's going to happen.
-    print "Using configuration from file '%s'" % config_file_name
+    print("Using configuration from file '%s'" % config_file_name)
     if ignore_cache:
-        print "Ignoring all cached lumiCalc results (and rebuilding the cache)"
+        print("Ignoring all cached lumiCalc results (and rebuilding the cache)")
     else:
-        print "Using cached lumiCalc results from %s" % \
-              CacheFilePath(cache_file_dir)
-    print "Using color schemes '%s'" % ", ".join(color_scheme_names)
-    print "Using lumiCalc script '%s'" % lumicalc_script
-    print "Using additional lumiCalc flags from configuration: '%s'" % \
-          lumicalc_flags_from_cfg
-    print "Selecting data for accelerator mode '%s'" % accel_mode
+        print("Using cached lumiCalc results from %s" % \
+              CacheFilePath(cache_file_dir))
+    print("Using color schemes '%s'" % ", ".join(color_scheme_names))
+    print("Using lumiCalc script '%s'" % lumicalc_script)
+    print("Using additional lumiCalc flags from configuration: '%s'" % \
+          lumicalc_flags_from_cfg)
+    print("Selecting data for accelerator mode '%s'" % accel_mode)
     if beam_energy_from_cfg:
-        print "Selecting data for beam energy %.0f GeV" % beam_energy
+        print("Selecting data for beam energy %.0f GeV" % beam_energy)
     else:
-        print "Selecting data for default beam energy for '%s' from:" % accel_mode
-        for (key, val) in beam_energy_defaults[accel_mode].iteritems():
-            print "  %d : %.1f GeV" % (key, val)
+        print("Selecting data for default beam energy for '%s' from:" % accel_mode)
+        for (key, val) in six.iteritems(beam_energy_defaults[accel_mode]):
+            print("  %d : %.1f GeV" % (key, val))
     if beam_fluctuation_from_cfg:
-        print "Using beam energy fluctuation of +/- %.0f%%" % \
-              (100. * beam_fluctuation)
+        print("Using beam energy fluctuation of +/- %.0f%%" % \
+              (100. * beam_fluctuation))
     else:
-        print "Using default beam energy fluctuation for '%s' from:" % accel_mode
-        for (key, val) in beam_fluctuation_defaults[accel_mode].iteritems():
-            print "  %d : +/- %.0f%%" % (key, 100. * val)
+        print("Using default beam energy fluctuation for '%s' from:" % accel_mode)
+        for (key, val) in six.iteritems(beam_fluctuation_defaults[accel_mode]):
+            print("  %d : +/- %.0f%%" % (key, 100. * val))
     if use_oracle:
-        print "Using direct access to the Oracle luminosity database"
+        print("Using direct access to the Oracle luminosity database")
     else:
-        print "Using access to the luminosity database through the Frontier cache"
+        print("Using access to the luminosity database through the Frontier cache")
 
     ##########
 
@@ -707,12 +703,11 @@ if __name__ == "__main__":
     path_name = CacheFilePath(cache_file_dir)
     if not os.path.exists(path_name):
         if verbose:
-            print "Cache file path does not exist: creating it"
+            print("Cache file path does not exist: creating it")
         try:
             os.makedirs(path_name)
         except Exception as err:
-            print >> sys.stderr, \
-                  "ERROR Could not create cache dir: %s" % path_name
+            print("ERROR Could not create cache dir: %s" % path_name, file=sys.stderr)
             sys.exit(1)
 
     ##########
@@ -728,11 +723,11 @@ if __name__ == "__main__":
     # DEBUG DEBUG DEBUG
     assert year_end >= year_begin
     # DEBUG DEBUG DEBUG end
-    print "Building a list of days to include in the plots"
-    print "  first day to consider: %s (%d, week %d)" % \
-          (date_begin.isoformat(), year_begin, week_begin)
-    print "  last day to consider:  %s (%d, week %d)" % \
-          (date_end.isoformat(), year_end, week_end)
+    print("Building a list of days to include in the plots")
+    print("  first day to consider: %s (%d, week %d)" % \
+          (date_begin.isoformat(), year_begin, week_begin))
+    print("  last day to consider:  %s (%d, week %d)" % \
+          (date_end.isoformat(), year_end, week_end))
     num_days = (date_end - date_begin).days + 1
     days = [date_begin + datetime.timedelta(days=i) for i in xrange(num_days)]
     years = range(year_begin, year_end + 1)
@@ -756,14 +751,14 @@ if __name__ == "__main__":
     # behind on our luminosity numbers.
     last_day_from_cache = min(today - datetime.timedelta(days=2), date_end)
     if verbose:
-        print "Last day for which the cache will be used: %s" % \
-              last_day_from_cache.isoformat()
+        print("Last day for which the cache will be used: %s" % \
+              last_day_from_cache.isoformat())
 
     # First run lumiCalc. Once for each day to be included in the
     # plots.
-    print "Running lumiCalc for all requested days"
+    print("Running lumiCalc for all requested days")
     for day in days:
-        print "  %s" % day.isoformat()
+        print("  %s" % day.isoformat())
         use_cache = (not ignore_cache) and (day <= last_day_from_cache)
         cache_file_path = CacheFilePath(cache_file_dir, day)
         cache_file_tmp = cache_file_path.replace(".csv", "_tmp.csv")
@@ -810,7 +805,7 @@ if __name__ == "__main__":
             cmd = "%s --begin '%s' --end '%s' -o %s" % \
                   (lumicalc_cmd, date_previous_str, date_end_str, cache_file_tmp)
             if verbose:
-                print "    running lumicalc as '%s'" % cmd
+                print("    running lumicalc as '%s'" % cmd)
             (status, output) = commands.getstatusoutput(cmd)
             # BUG BUG BUG
             # Trying to track down the bad-cache problem.
@@ -825,15 +820,14 @@ if __name__ == "__main__":
                     # script runs. To avoid this we just write a dummy
                     # cache file for such days.
                     if verbose:
-                        print "No lumi data for %s, " \
+                        print("No lumi data for %s, " \
                               "writing dummy cache file to avoid re-querying the DB" % \
-                              day.isoformat()
+                              day.isoformat())
                     dummy_file = open(cache_file_tmp, "w")
                     dummy_file.write("Run:Fill,LS,UTCTime,Beam Status,E(GeV),Delivered(/ub),Recorded(/ub),avgPU\r\n")
                     dummy_file.close()
                 else:
-                    print >> sys.stderr, \
-                          "ERROR Problem running lumiCalc: %s" % output
+                    print("ERROR Problem running lumiCalc: %s" % output, file=sys.stderr)
                     sys.exit(1)
 
             # BUG BUG BUG
@@ -852,17 +846,17 @@ if __name__ == "__main__":
             # BUG BUG BUG end
 
             if verbose:
-                print "    CSV file for the day written to %s" % \
-                      cache_file_path
+                print("    CSV file for the day written to %s" % \
+                      cache_file_path)
         else:
             if verbose:
-                print "    cache file for %s exists" % day.isoformat()
+                print("    cache file for %s exists" % day.isoformat())
 
     # Now read back all lumiCalc results.
-    print "Reading back lumiCalc results"
+    print("Reading back lumiCalc results")
     lumi_data_by_day = {}
     for day in days:
-        print "  %s" % day.isoformat()
+        print("  %s" % day.isoformat())
         cache_file_path = CacheFilePath(cache_file_dir, day)
         lumi_data_day = LumiDataBlock()
         try:
@@ -870,7 +864,7 @@ if __name__ == "__main__":
             lines = in_file.readlines()
             if not len(lines):
                 if verbose:
-                    print "    skipping empty file for %s" % day.isoformat()
+                    print("    skipping empty file for %s" % day.isoformat())
             else:
                 # DEBUG DEBUG DEBUG
                 assert lines[0] == "Run:Fill,LS,UTCTime,Beam Status,E(GeV),Delivered(/ub),Recorded(/ub),avgPU\r\n"
@@ -879,9 +873,8 @@ if __name__ == "__main__":
                     lumi_data_day.add(LumiDataPoint(line, json_file_name))
             in_file.close()
         except IOError as err:
-            print >> sys.stderr, \
-                  "ERROR Could not read lumiCalc results from file '%s': %s" % \
-                  (cache_file_path, str(err))
+            print("ERROR Could not read lumiCalc results from file '%s': %s" % \
+                  (cache_file_path, str(err)), file=sys.stderr)
             sys.exit(1)
         # Only store data if there actually is something to store.
         if not lumi_data_day.is_empty():
@@ -890,9 +883,9 @@ if __name__ == "__main__":
     ##########
 
     # Bunch lumiCalc data together into weeks.
-    print "Combining lumiCalc data week-by-week"
+    print("Combining lumiCalc data week-by-week")
     lumi_data_by_week = {}
-    for (day, lumi) in lumi_data_by_day.iteritems():
+    for (day, lumi) in six.iteritems(lumi_data_by_day):
         year = day.isocalendar()[0]
         week = day.isocalendar()[1]
         try:
@@ -904,17 +897,17 @@ if __name__ == "__main__":
                 lumi_data_by_week[year] = {week: lumi.copy()}
 
     lumi_data_by_week_per_year = {}
-    for (year, tmp_lumi) in lumi_data_by_week.iteritems():
-        for (week, lumi) in tmp_lumi.iteritems():
+    for (year, tmp_lumi) in six.iteritems(lumi_data_by_week):
+        for (week, lumi) in six.iteritems(tmp_lumi):
             try:
                 lumi_data_by_week_per_year[year].add(lumi)
             except KeyError:
                 lumi_data_by_week_per_year[year] = LumiDataBlockCollection(lumi)
 
     # Bunch lumiCalc data together into years.
-    print "Combining lumiCalc data year-by-year"
+    print("Combining lumiCalc data year-by-year")
     lumi_data_by_year = {}
-    for (day, lumi) in lumi_data_by_day.iteritems():
+    for (day, lumi) in six.iteritems(lumi_data_by_day):
         year = day.isocalendar()[0]
         try:
             lumi_data_by_year[year] += lumi
@@ -922,7 +915,7 @@ if __name__ == "__main__":
             lumi_data_by_year[year] = lumi.copy()
 
     lumi_data_by_day_per_year = {}
-    for (day, lumi) in lumi_data_by_day.iteritems():
+    for (day, lumi) in six.iteritems(lumi_data_by_day):
         year = day.isocalendar()[0]
         try:
             lumi_data_by_day_per_year[year].add(lumi)
@@ -933,10 +926,10 @@ if __name__ == "__main__":
 
     # Now dump a lot of info to the user.
     sep_line = 50 * "-"
-    print sep_line
+    print(sep_line)
     units = GetUnits(years[-1], accel_mode, "cum_day")
-    print "Delivered lumi day-by-day (%s):" % units
-    print sep_line
+    print("Delivered lumi day-by-day (%s):" % units)
+    print(sep_line)
     for day in days:
         tmp_str = "    - (no data, presumably no lumi either)"
         try:
@@ -947,11 +940,11 @@ if __name__ == "__main__":
             tmp_str = "%6.1f%s" % (tmp, helper_str)
         except KeyError:
             pass
-        print "  %s: %s" % (day.isoformat(), tmp_str)
-    print sep_line
+        print("  %s: %s" % (day.isoformat(), tmp_str))
+    print(sep_line)
     units = GetUnits(years[-1], accel_mode, "cum_week")
-    print "Delivered lumi week-by-week (%s):" % units
-    print sep_line
+    print("Delivered lumi week-by-week (%s):" % units)
+    print(sep_line)
     for (year, week) in weeks:
         tmp_str = "     - (no data, presumably no lumi either)"
         try:
@@ -962,11 +955,11 @@ if __name__ == "__main__":
             tmp_str = "%6.1f%s" % (tmp, helper_str)
         except KeyError:
             pass
-        print "  %d-%2d: %s" % (year, week, tmp_str)
-    print sep_line
+        print("  %d-%2d: %s" % (year, week, tmp_str))
+    print(sep_line)
     units = GetUnits(years[-1], accel_mode, "cum_year")
-    print "Delivered lumi year-by-year (%s):" % units
-    print sep_line
+    print("Delivered lumi year-by-year (%s):" % units)
+    print(sep_line)
     for year in years:
         tmp_str = "    - (no data, presumably no lumi either)"
         try:
@@ -977,20 +970,20 @@ if __name__ == "__main__":
             tmp_str = "%5.2f%s" % (tmp, helper_str)
         except KeyError:
             pass
-        print "  %4d: %s" % \
-              (year, tmp_str)
-    print sep_line
+        print("  %4d: %s" % \
+              (year, tmp_str))
+    print(sep_line)
 
     ##########
 
     if not len(lumi_data_by_day_per_year):
-        print >> sys.stderr, "ERROR No lumi found?"
+        print("ERROR No lumi found?", file=sys.stderr)
         sys.exit(1)
 
     ##########
 
     # And this is where the plotting starts.
-    print "Drawing things..."
+    print("Drawing things...")
     ColorScheme.InitColors()
 
     #------------------------------
@@ -999,7 +992,7 @@ if __name__ == "__main__":
 
     for year in years:
 
-        print "  daily lumi plots for %d" % year
+        print("  daily lumi plots for %d" % year)
 
         if not beam_energy_from_cfg:
             beam_energy = beam_energy_defaults[accel_mode][year]
@@ -1014,8 +1007,7 @@ if __name__ == "__main__":
             cms_energy_str = "%.2f TeV/nucleon" % \
                              (1.e-3 * GetEnergyPerNucleonScaleFactor(accel_mode) * cms_energy)
 
-        lumi_data = lumi_data_by_day_per_year[year]
-        lumi_data.sort()
+        lumi_data = sorted(lumi_data_by_day_per_year[year])
 
         # NOTE: Tweak the time range a bit to force the bins to be
         # drawn from midday to midday.
@@ -1284,7 +1276,7 @@ if __name__ == "__main__":
 
     for year in years:
 
-        print "  weekly lumi plots for %d" % year
+        print("  weekly lumi plots for %d" % year)
 
         if not beam_energy_from_cfg:
             beam_energy = beam_energy_defaults[accel_mode][year]
@@ -1299,8 +1291,7 @@ if __name__ == "__main__":
             cms_energy_str = "%.2f TeV/nucleon" % \
                              (1.e-3 * GetEnergyPerNucleonScaleFactor(accel_mode) * cms_energy)
 
-        lumi_data = lumi_data_by_week_per_year[year]
-        lumi_data.sort()
+        lumi_data = sorted(lumi_data_by_week_per_year[year])
 
         # NOTE: Tweak the time range a bit to force the bins to be
         # split at the middle of the weeks.
@@ -1343,7 +1334,7 @@ if __name__ == "__main__":
         # Loop over all color schemes.
         for color_scheme_name in color_scheme_names:
 
-            print "    color scheme '%s'" % color_scheme_name
+            print("    color scheme '%s'" % color_scheme_name)
 
             color_scheme = ColorScheme(color_scheme_name)
             color_fill_del = color_scheme.color_fill_del
@@ -1550,7 +1541,7 @@ if __name__ == "__main__":
 
     # Now the cumulative plot showing all years together.
     if len(years) > 1:
-        print "  cumulative luminosity for %s together" % ", ".join([str(i) for i in years])
+        print("  cumulative luminosity for %s together" % ", ".join([str(i) for i in years]))
 
         def PlotAllYears(lumi_data_by_day_per_year, mode):
             """Mode 1: years side-by-side, mode 2: years overlaid."""
@@ -1562,7 +1553,7 @@ if __name__ == "__main__":
             # Loop over all color schemes and plot.
             for color_scheme_name in color_scheme_names:
 
-                print "      color scheme '%s'" % color_scheme_name
+                print("      color scheme '%s'" % color_scheme_name)
 
                 color_scheme = ColorScheme(color_scheme_name)
                 color_by_year = color_scheme.color_by_year
@@ -1583,8 +1574,7 @@ if __name__ == "__main__":
                     str_begin_ultimate = time_begin_ultimate.strftime(DATE_FMT_STR_OUT)
                     for (year_index, year) in enumerate(years):
 
-                        lumi_data = lumi_data_by_day_per_year[year]
-                        lumi_data.sort()
+                        lumi_data = sorted(lumi_data_by_day_per_year[year])
                         times_tmp = [AtMidnight(i) for i in lumi_data.times()]
                         # For the plots showing all years overlaid, shift
                         # all but the first year forward.
@@ -1718,7 +1708,7 @@ if __name__ == "__main__":
                               log_suffix, file_suffix))
 
         for mode in [1, 2]:
-            print "    mode %d" % mode
+            print("    mode %d" % mode)
             PlotAllYears(lumi_data_by_day_per_year, mode)
 
     plt.close()
@@ -1727,7 +1717,7 @@ if __name__ == "__main__":
 
     # Now the peak lumi plot showing all years together.
     if len(years) > 1:
-        print "  peak luminosity for %s together" % ", ".join([str(i) for i in years])
+        print("  peak luminosity for %s together" % ", ".join([str(i) for i in years]))
 
         units = GetUnits(years[-1], accel_mode, "max_inst")
 
@@ -1736,7 +1726,7 @@ if __name__ == "__main__":
         # Loop over all color schemes and plot.
         for color_scheme_name in color_scheme_names:
 
-            print "      color scheme '%s'" % color_scheme_name
+            print("      color scheme '%s'" % color_scheme_name)
 
             color_scheme = ColorScheme(color_scheme_name)
             color_by_year = color_scheme.color_by_year
@@ -1754,8 +1744,7 @@ if __name__ == "__main__":
                 str_begin_ultimate = time_begin_ultimate.strftime(DATE_FMT_STR_OUT)
                 for (year_index, year) in enumerate(years):
 
-                    lumi_data = lumi_data_by_day_per_year[year]
-                    lumi_data.sort()
+                    lumi_data = sorted(lumi_data_by_day_per_year[year])
                     times_tmp = [AtMidnight(i) for i in lumi_data.times()]
                     times = [matplotlib.dates.date2num(i) for i in times_tmp]
                     # DEBUG DEBUG DEBUG
@@ -1869,6 +1858,6 @@ if __name__ == "__main__":
 
     ##########
 
-    print "Done"
+    print("Done")
 
 ######################################################################

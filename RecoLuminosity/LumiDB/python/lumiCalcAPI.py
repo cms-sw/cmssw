@@ -399,8 +399,7 @@ def deliveredLumiForIds(schema,irunlsdict,dataidmap,runsummaryMap,beamstatusfilt
         intglumimap=dataDML.intglumiForRange(schema,irunlsdict.keys())#some runs need drift correction
     allsince=[]
     if normmap:
-        allsince=normmap.keys()
-        allsince.sort()        
+        allsince=sorted(normmap.keys())
     correctorname='fPoly' #HF default
     correctionparams={'a0':1.0}
     runfillschemeMap={}

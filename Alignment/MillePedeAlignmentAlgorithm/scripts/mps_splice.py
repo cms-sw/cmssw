@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import re
 import argparse
 import math
@@ -71,9 +72,9 @@ for j in xrange(numberOfExtends):
         i+=1
 
     for line in fileinput.input(outCfg, inplace=1):
-        print line,
+        print(line,end='')
         if re.match('readFiles\s*=\s*cms.untracked.vstring()',line):
-            print insertBlock,
+            print(insertBlock,end='')
 
 if args.skip_events is not None:
     with open(outCfg, "a") as f:

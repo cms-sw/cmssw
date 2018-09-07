@@ -206,10 +206,10 @@ DTLayer* DTGeometryBuilderFromDDD::buildLayer(DDFilteredView& fv,
 vector<double> 
 DTGeometryBuilderFromDDD::extractParameters(DDFilteredView& fv) const {
   vector<double> par;
-  if (fv.logicalPart().solid().shape() != ddbox) {
+  if (fv.logicalPart().solid().shape() != DDSolidShape::ddbox) {
     DDBooleanSolid bs(fv.logicalPart().solid());
     DDSolid A = bs.solidA();
-    while (A.shape() != ddbox) {
+    while (A.shape() != DDSolidShape::ddbox) {
       DDBooleanSolid bs(A);
       A = bs.solidA();
     }

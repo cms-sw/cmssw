@@ -6,6 +6,7 @@
 
 # include XML-RPC client library
 # RR API uses XML-RPC webservices interface for data access
+from __future__ import print_function
 import xmlrpclib,sys,ConfigParser,os,string,commands,time,re
 # for json support
 try: # FUTURE: Python 2.6, prior to 2.6 requires simplejson
@@ -14,7 +15,7 @@ except:
     try:
         import simplejson as json
     except:
-        print "Please use lxplus or set an environment (for example crab) with json lib available"
+        print("Please use lxplus or set an environment (for example crab) with json lib available")
         sys.exit(1)
 
 global QF_Req,ls_temp_data,QF_ALL_SYS,EXCEPTION,EXRUN
@@ -134,7 +135,7 @@ DCS_ALL=['Bpix','Fpix','Tibtid','TecM','TecP','Tob','Ebminus','Ebplus','EeMinus'
 # reading config file
 CONFIGFILE='runreg.cfg'
 CONFIG = ConfigParser.ConfigParser()
-print 'Reading configuration file from ',CONFIGFILE
+print('Reading configuration file from ',CONFIGFILE)
 CONFIG.read(CONFIGFILE)
 
 DATASET=CONFIG.get('Common','Dataset')
@@ -157,7 +158,7 @@ if "TRUE" in LSPARSE.upper() or "1" in LSPARSE.upper() or "YES" in LSPARSE.upper
 elif "FALSE" in LSPARSE.upper() or "0" in LSPARSE.upper() or "NO" in LSPARSE.upper():
     LSCOMMENT=False
 else:
-    print "Error in parsing LSCOMMENT cfg parameter: LSPARSE"
+    print("Error in parsing LSCOMMENT cfg parameter: LSPARSE")
     sys.exit(1)
 
 QFlist=string.split(QFLAGS,',')
@@ -165,13 +166,13 @@ for QF in QFlist:
     syst=string.split(QF,":")[0]
     value=string.split(QF,":")[1]
     if syst not in QF_ALL_SYS or value not in QF_ALL_STAT:
-        print "QFLAG not valid:",syst,value 
+        print("QFLAG not valid:",syst,value) 
         sys.exit(1)
     QF_Req[syst]=value
 
 for dcs in DCSLIST:
     if dcs not in DCS_ALL:
-        print "DCS not valid:",dcs
+        print("DCS not valid:",dcs)
         sys.exit(1)
 
 
@@ -181,25 +182,25 @@ JSONFILE=CONFIG.get('Common','JSONFILE')
 try:
     BFIELD_float=float(BFIELD)
 except:
-    print "BFIELD threshold value not understood:",BFIELD
+    print("BFIELD threshold value not understood:",BFIELD)
     sys.exit(1)
 
 # report the request
 
-print "You asked for the runreg info in the run range:"+RUNMIN+"-"+RUNMAX
-print "for dataset: "+DATASET
-print "with the following quality flags:"
+print("You asked for the runreg info in the run range:"+RUNMIN+"-"+RUNMAX)
+print("for dataset: "+DATASET)
+print("with the following quality flags:")
 for SS in QF_Req.keys():
-    print SS, QF_Req[SS]
-print "and with the following DCS status:"
+    print(SS, QF_Req[SS])
+print("and with the following DCS status:")
 for dcs in DCSLIST:
-    print dcs
-print "Manual bad LS in comment column:",LSCOMMENT
+    print(dcs)
+print("Manual bad LS in comment column:",LSCOMMENT)
 #sys.exit(1)
  
 # get handler to RR XML-RPC server
 FULLADDRESS=ADDRESS+"/xmlrpc"
-print "RunRegistry from: ",FULLADDRESS
+print("RunRegistry from: ",FULLADDRESS)
 server = xmlrpclib.ServerProxy(FULLADDRESS)
 
 # build up selection in RUN table
@@ -223,20 +224,20 @@ for dcs in DCSLIST:
 # print sel_dcstable
 
 Tries=0
-print " " 
+print(" ") 
 while Tries<10:
     try:
-        print "Accessing run registry...."
+        print("Accessing run registry....")
         dcs_data = server.DataExporter.export('RUNLUMISECTION', 'GLOBAL', 'json', sel_dcstable)
         run_data = server.DataExporter.export('RUN', 'GLOBAL', 'csv_runs', sel_runtable)
         ls_temp_data = server.DataExporter.export('RUN', 'GLOBAL', 'csv_datasets', sel_dstable)
         break
     except:
-        print "Something wrong in accessing runregistry, retrying in 3s...."
+        print("Something wrong in accessing runregistry, retrying in 3s....")
         Tries=Tries+1
         time.sleep(3)
 if Tries==10:
-    print "Run registry unaccessible.....exiting now"
+    print("Run registry unaccessible.....exiting now")
     sys.exit(1)
     
 #print dcs_data
@@ -248,12 +249,12 @@ if Tries==10:
 
 LISTOFRUN=[]
 selectedRuns = open(OUTPUTFILENAME, 'w')
-print "Saving selected runs to file OUTPUTFILENAME"
+print("Saving selected runs to file OUTPUTFILENAME")
 for line in run_data.split("\n"):
     run=line.split(',')[0]
     if run.isdigit():
         hlt=line.split(',')[9]
-        print "for run", run, "hlt is", hlt
+        print("for run", run, "hlt is", hlt)
         if HLTNAMEFILTER == "" or hlt.find(HLTNAMEFILTER):
             LISTOFRUN.append(run)
             selectedRuns.write(run+"\n")
@@ -290,23 +291,21 @@ if JSONFILE != "NONE":
     lumiSummary = open(JSONFILE, 'w')
     json.dump(selected_dcs, lumiSummary)
     lumiSummary.close() 
-    print " "
-    print "-------------------------------------------"
-    print "Json file: ",JSONFILE," written."
+    print(" ")
+    print("-------------------------------------------")
+    print("Json file: ",JSONFILE," written.")
 
 
 # buildup cms snippet
 selectlumi="process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange(\n"
 ranges = []
-runs_to_print = selected_dcs.keys()
-runs_to_print.sort()
+runs_to_print = sorted(selected_dcs.keys())
 for run in runs_to_print:
-   blocks = selected_dcs[run]
-   blocks.sort()
+   blocks = sorted(selected_dcs[run])
    prevblock = [-2,-2]
    for lsrange in blocks:
        if lsrange[0] == prevblock[1]+1:
-           print "Run: ",run,"- This lumi starts at ", lsrange[0], " previous ended at ", prevblock[1]+1, " so I should merge"
+           print("Run: ",run,"- This lumi starts at ", lsrange[0], " previous ended at ", prevblock[1]+1, " so I should merge")
            prevblock[1] = lsrange[1]
            ranges[-1] = "\t'%s:%d-%s:%d',\n" % (run, prevblock[0],
 run, prevblock[1])
@@ -318,10 +317,10 @@ selectlumi += "".join(ranges)
 selectlumi += ")"
 
 
-print "-------------------------------------------"
-print " "
-print "CFG snippet to select:"
-print selectlumi
+print("-------------------------------------------")
+print(" ")
+print("CFG snippet to select:")
+print(selectlumi)
 
 if EXCEPTION:
-    print "WARNING: Something wrong in manual lumisection selection tag for run: "+str(EXRUN)
+    print("WARNING: Something wrong in manual lumisection selection tag for run: "+str(EXRUN))

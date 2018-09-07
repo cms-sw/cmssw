@@ -18,6 +18,7 @@ class SimTrackManager;
 class BeginOfEvent;
 class G4LogicalVolume;
 class G4Step;
+class SimTrackManager;
 
 class CaloTrkProcessing : public SensitiveCaloDetector, 
 			  public Observer<const BeginOfEvent *>,

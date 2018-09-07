@@ -23,6 +23,7 @@
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 #include "DataFormats/CTPPSDigi/interface/CTPPSPixelDigi.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelCluster.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSPixelLocalTrack.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelIndices.h"
 
 #include <string>
@@ -46,6 +47,7 @@ class CTPPSPixelDQMSource: public DQMEDAnalyzer
    long int nEvents = 0;
   edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelDigi>> tokenDigi;
   edm::EDGetTokenT< edm::DetSetVector<CTPPSPixelCluster> > tokenCluster;
+  edm::EDGetTokenT< edm::DetSetVector<CTPPSPixelLocalTrack> > tokenTrack;
 
  static constexpr int NArms=2;
  static constexpr int NStationMAX=3;  // in an arm
@@ -56,8 +58,10 @@ class CTPPSPixelDQMSource: public DQMEDAnalyzer
  static constexpr int ADCMax = 256;
  static constexpr int StationIDMAX=4;  // possible range of ID
  static constexpr int RPotsIDMAX=8;    // possible range of ID
- const int hitMultMAX = 300; // tuned
- const int ClusMultMAX = 10; // tuned
+ static constexpr int NLocalTracksMAX=20;
+ static constexpr int hitMultMAX = 50; // tuned
+ static constexpr int ClusMultMAX = 10; // tuned
+ static constexpr int ClusterSizeMax = 9;
 
  CTPPSPixelIndices thePixIndices;
  int pixRowMAX = 160;  // defaultDetSizeInX, CMS Y-axis
@@ -65,26 +69,28 @@ class CTPPSPixelDQMSource: public DQMEDAnalyzer
  int ROCSizeInX = pixRowMAX/2;  // ROC row size in pixels = 80
  int ROCSizeInY = pixColMAX/3;  // ROC col size in pixels = 52
 
+ int TrackFitDimension = 4;
+
  static constexpr int NRPotBinsInStation = RPn_last-RPn_first;
  static constexpr int NPlaneBins = NplaneMAX*NRPotBinsInStation;
 
-  MonitorElement *hBX, *hBXshort, *h2AllPlanesActive;
+  MonitorElement *hBX, *hBXshort, *h2AllPlanesActive, *hpixLTrack;
+  MonitorElement *hpRPactive;
 
-  MonitorElement *hp2HitsOcc[NArms][NStationMAX];
   MonitorElement *h2HitsMultipl[NArms][NStationMAX];
-  MonitorElement *h2PlaneActive[NArms][NStationMAX];
-  MonitorElement *h2ClusMultipl[NArms][NStationMAX];
   MonitorElement *h2CluSize[NArms][NStationMAX];
 
   static constexpr int RPotsTotalNumber=NArms*NStationMAX*NRPotsMAX;
 
   int	          RPindexValid[RPotsTotalNumber];
+  MonitorElement *h2trackXY0[RPotsTotalNumber];
+  MonitorElement *htrackMult[RPotsTotalNumber];
+  MonitorElement *htrackHits[RPotsTotalNumber];
   MonitorElement *hRPotActivPlanes[RPotsTotalNumber];
   MonitorElement *hRPotActivBX[RPotsTotalNumber];
   MonitorElement *hRPotActivBXroc[RPotsTotalNumber];
   MonitorElement *h2HitsMultROC[RPotsTotalNumber];
   MonitorElement *hp2HitsMultROC_LS[RPotsTotalNumber];
-  MonitorElement *hRPotActivROCs[RPotsTotalNumber];
   MonitorElement   *hHitsMult[RPotsTotalNumber][NplaneMAX];
   MonitorElement    *h2xyHits[RPotsTotalNumber][NplaneMAX];
   MonitorElement    *hp2xyADC[RPotsTotalNumber][NplaneMAX];
@@ -133,7 +139,7 @@ class CTPPSPixelDQMSource: public DQMEDAnalyzer
 //  int getSubdet(int id) { return ((id>>kSubdetOffset)&0x7); }
 
  int multHitsMax, cluSizeMax; // for tuning
-
+ float x0_MIN, x0_MAX, y0_MIN, y0_MAX;
 };
 
 //----------------------------------------------------------------------------------
@@ -149,7 +155,7 @@ CTPPSPixelDQMSource::CTPPSPixelDQMSource(const edm::ParameterSet& ps) :
 {
  tokenDigi = consumes<DetSetVector<CTPPSPixelDigi> >(ps.getParameter<edm::InputTag>("tagRPixDigi"));
  tokenCluster=consumes<DetSetVector<CTPPSPixelCluster>>(ps.getParameter<edm::InputTag>("tagRPixCluster"));
-
+tokenTrack=consumes<DetSetVector<CTPPSPixelLocalTrack>>(ps.getParameter<edm::InputTag>("tagRPixLTrack"));
 }
 
 //----------------------------------------------------------------------------------
@@ -164,6 +170,9 @@ void CTPPSPixelDQMSource::dqmBeginRun(edm::Run const &run, edm::EventSetup const
 {
   if(verbosity) LogPrint("CTPPSPixelDQMSource") <<"RPstatusWord= "<<rpStatusWord;
   nEvents = 0;
+
+  CTPPSPixelLocalTrack thePixelLocalTrack;
+  TrackFitDimension = thePixelLocalTrack.dimension;
 
   pixRowMAX = thePixIndices.getDefaultRowDetSize();
   pixColMAX = thePixIndices.getDefaultColDetSize();
@@ -188,6 +197,8 @@ void CTPPSPixelDQMSource::dqmBeginRun(edm::Run const &run, edm::EventSetup const
  for(int ind=0; ind<2*3*NRPotsMAX; ind++) RPindexValid[ind] = 0;
 
  multHitsMax = cluSizeMax = -1;
+ x0_MIN = y0_MIN =  1.0e06;
+ x0_MAX = y0_MAX = -1.0e06;
 }
 
 //-------------------------------------------------------------------------------------
@@ -203,11 +214,27 @@ edm::EventSetup const &)
   hBXshort = ibooker.book1D("events per BX(short)", "ctpps_pixel;Event.BX", 102, -1.5, 100. + 0.5);
 
   string str1st = "Pixel planes activity";
-  h2AllPlanesActive = ibooker.book2DD(str1st,str1st+";Plane #",
+  h2AllPlanesActive = ibooker.book2DD(str1st,str1st+"(digi task);Plane #",
                 NplaneMAX,0,NplaneMAX, NRPglobalBins, 0.5, NRPglobalBins+0.5);
   TH2D *h1st = h2AllPlanesActive->getTH2D();
   h1st->SetOption("colz");
   TAxis *yah1st = h1st->GetYaxis();
+
+  string str2 = "Pixel RP active";
+  hpRPactive = ibooker.bookProfile(str2,str2+" per event(digi task)",
+        NRPglobalBins, 0.5,NRPglobalBins+0.5, -0.1, 1.1,"" );
+  TAxis *xaRPact = hpRPactive->getTProfile()->GetXaxis();
+  hpRPactive->getTProfile()->SetOption("hist");
+  hpRPactive->getTProfile()->SetMinimum(0.);
+  hpRPactive->getTProfile()->SetMaximum(1.1);
+
+  str2 = "Pixel Local Tracks";
+  hpixLTrack = ibooker.bookProfile(str2,str2+" per event",
+        NRPglobalBins, 0.5, NRPglobalBins+0.5,-0.1,NLocalTracksMAX,"");
+
+  TAxis *xah1trk = hpixLTrack->getTProfile()->GetXaxis();
+  hpixLTrack->getTProfile()->GetYaxis()->SetTitle("average number of tracks per event");
+  hpixLTrack->getTProfile()->SetOption("hist");
 
  for(int arm=0; arm<2; arm++) {
    CTPPSDetId ID(CTPPSDetId::sdTrackingPixel,arm,0);
@@ -228,59 +255,16 @@ edm::EventSetup const &)
    CTPPSDetId(ID.getStationId()).stationName(stnTitleShort, CTPPSDetId::nShort);
 
    ibooker.setCurrentFolder(stnd);
-
-   string st = "planes activity";
-   string st2 = ": " + stnTitle;
-
-   h2PlaneActive[arm][stn] = ibooker.book2DD(st,st+st2+";Plane #",
-		NplaneMAX,0,NplaneMAX, NRPotBinsInStation, 0.5, NRPotBinsInStation+0.5);
-   TH2D *h = h2PlaneActive[arm][stn]->getTH2D();
-   h->SetOption("colz");
-   TAxis *yah = h->GetYaxis();
-   
-   st = "hit average multiplicity in planes";
-   int PlaneMultCut = 20;
-   hp2HitsOcc[arm][stn]= ibooker.bookProfile2D(st,st+st2+";Plane #",
-     NplaneMAX, 0, NplaneMAX, NRPotBinsInStation, RPn_first,RPn_last,-1,PlaneMultCut,"");
-   TProfile2D *h2 = hp2HitsOcc[arm][stn]->getTProfile2D();
-   h2->SetOption("textcolz");
-   TAxis *yah2 = h2->GetYaxis();
-
-   st = "hit multiplicity in planes";
-   string st3 = ";PlaneIndex(=pixelPot*PlaneMAX + plane)";
-   h2HitsMultipl[arm][stn]= ibooker.book2DD(st,st+st2+st3+";multiplicity",
-	NPlaneBins,0,NPlaneBins,hitMultMAX,0,hitMultMAX);
-   h2HitsMultipl[arm][stn]->getTH2D()->SetOption("colz");
-
-   st = "cluster multiplicity in planes";
-   h2ClusMultipl[arm][stn] = ibooker.book2DD(st,st+st2+st3+";multiplicity",
-	NPlaneBins,0,NPlaneBins, ClusMultMAX,0,ClusMultMAX);
-   h2ClusMultipl[arm][stn]->getTH2D()->SetOption("colz");
-
-   st = "cluster span in planes";
-  const int nyClus = 9; //18;
-  float xCh[NPlaneBins+1];
-  float yClus[nyClus+1];
-  for(int i=0; i<=NPlaneBins; i++) xCh[i]=i;
-  double n0 = 1; //1./CluSizeMAX;
-  double lnA = log(2.);
-  yClus[0] = n0; //yClus[1] = n0;
-  for(int j=0; j<nyClus; j++) yClus[j+1] = n0*exp(j*lnA);
-
-  h2CluSize[arm][stn] = ibooker.book2D(st,st+st2+st3+";Cluster size",
-	NPlaneBins,xCh,nyClus,yClus);
-   h2CluSize[arm][stn]->getTH2F()->SetOption("colz");
-
 //--------- RPots ---
    int pixBinW = 4;
      for(int rp=RPn_first; rp<RPn_last; rp++) { // only installed pixel pots
        ID.setRP(rp);
        string rpd, rpTitle;
        CTPPSDetId(ID.getRPId()).rpName(rpTitle, CTPPSDetId::nShort);
-	yah->SetBinLabel(getRPInStationBin(rp), rpTitle.c_str()); // h
-       yah2->SetBinLabel(getRPInStationBin(rp), rpTitle.c_str()); //h2
        string rpBinName = armTitleShort + "_" + stnTitleShort+"_"+rpTitle;
        yah1st->SetBinLabel(getRPglobalBin(arm,stn), rpBinName.c_str());
+       xah1trk->SetBinLabel(getRPglobalBin(arm,stn), rpBinName.c_str());
+       xaRPact->SetBinLabel(getRPglobalBin(arm,stn), rpBinName.c_str());
 
        if(RPstatus[stn][rp]==0) continue;
        int indexP = getRPindex(arm,stn,rp);
@@ -291,11 +275,40 @@ edm::EventSetup const &)
 
        ibooker.setCurrentFolder(rpd);
 
+   string st2 = ": " + stnTitle;
+
+   string st = "hit multiplicity in planes";
+   string st3 = ";PlaneIndex(=pixelPot*PlaneMAX + plane)";
+   h2HitsMultipl[arm][stn]= ibooker.book2DD(st,st+st2+st3+";multiplicity",
+	NPlaneBins,0,NPlaneBins,hitMultMAX,0,hitMultMAX);
+   h2HitsMultipl[arm][stn]->getTH2D()->SetOption("colz");
+
+   st = "cluster size in planes";
+  h2CluSize[arm][stn] = ibooker.book2D(st,st+st2+st3+";Cluster size",
+	NPlaneBins,0,NPlaneBins, ClusterSizeMax+1,0,ClusterSizeMax+1);  
+   h2CluSize[arm][stn]->getTH2F()->SetOption("colz");
+
+   const float x0Maximum = 70.;
+   const float y0Maximum =  15.;
+   st = "track intercept point";
+   h2trackXY0[indexP] = ibooker.book2D(st,st+st2+";x0;y0",
+    int(x0Maximum)*2, 0.,x0Maximum,int(y0Maximum)*4,-y0Maximum,y0Maximum);
+   h2trackXY0[indexP]->getTH2F()->SetOption("colz");
+
+       st = "number of tracks per event";
+       htrackMult[indexP] = ibooker.bookProfile(st,rpTitle+";number of tracks",
+	 NLocalTracksMAX+1, -0.5,NLocalTracksMAX+0.5, -0.5,NLocalTracksMAX+0.5,"");
+       htrackMult[indexP]->getTProfile()->SetOption("hist");
+
+       st = "number of hits per track";
+       htrackHits[indexP] = ibooker.bookProfile(st,rpTitle+";number of hits",
+	 5,1.5,6.5, -0.1,1.1, "");
+       htrackHits[indexP]->getTProfile()->SetOption("hist");
+
        hRPotActivPlanes[indexP] = 
         ibooker.bookProfile("number of fired planes per event", rpTitle+";nPlanes;Probability",
 	 NplaneMAX+1, -0.5, NplaneMAX+0.5, -0.5,NplaneMAX+0.5,"");
-       hRPotActivBX[indexP] = 
-        ibooker.book1D("5 fired planes per BX", rpTitle+";Event.BX", 4002, -1.5, 4000.+0.5);
+       hRPotActivPlanes[indexP]->getTProfile()->SetOption("hist");
 
        h2HitsMultROC[indexP] = ibooker.bookProfile2D("ROCs hits multiplicity per event",
        rpTitle+";plane # ;ROC #", NplaneMAX,-0.5,NplaneMAX-0.5, NROCsMAX,-0.5,NROCsMAX-0.5,
@@ -320,12 +333,9 @@ edm::EventSetup const &)
 	 }
        }
 
-       hRPotActivROCs[indexP] = ibooker.bookProfile2D("number of fired aligned_ROCs per event",
- 	 rpTitle+";ROC ID;number of fired aligned ROCs", NROCsMAX,-0.5,NROCsMAX-0.5, 
-	 7,-0.5,6.5, 0,NROCsMAX,"");
-       hRPotActivROCs[indexP]->getTProfile2D()->SetOption("colz");
-
        ibooker.setCurrentFolder(rpd+"/latency");
+       hRPotActivBX[indexP] = 
+       ibooker.book1D("5 fired planes per BX", rpTitle+";Event.BX",4002,-1.5, 4000.+0.5);
 
        hRPotActivBXroc[indexP] = 
         ibooker.book1D("4 fired ROCs per BX", rpTitle+";Event.BX", 4002, -1.5, 4000.+0.5);
@@ -340,10 +350,11 @@ edm::EventSetup const &)
          string pd = rpd+"/"+string(s);
          ibooker.setCurrentFolder(pd);
          string st1 = ": "+rpTitle+"_"+string(s);
+
          st = "hits position";
-         h2xyHits[indexP][p]=ibooker.book2DD(st,st1+";pix col;pix row", 
-	   nbins,0,pixRowMAX,nbins,0,pixRowMAX);
-	 h2xyHits[indexP][p]->getTH2D()->SetOption("colz");
+         h2xyHits[indexP][p]=ibooker.book2DD(st,st1+";pix col;pix row",
+           pixRowMAX,0,pixRowMAX, pixRowMAX,0,pixRowMAX);
+         h2xyHits[indexP][p]->getTH2D()->SetOption("colz");
 
  	 st = "adc average value";
 	 hp2xyADC[indexP][p]=ibooker.bookProfile2D(st,st1+";pix col;pix row",
@@ -352,22 +363,7 @@ edm::EventSetup const &)
 
          st = "hits multiplicity";
          hHitsMult[indexP][p]=ibooker.book1DD(st,st1+";number of hits;N / 1 hit",
-	   hitMultMAX,-0.5,hitMultMAX-0.5);
-
-         ibooker.setCurrentFolder(pd + "/ROCs");
-         int index = getPlaneIndex(arm,stn,rp,p);
-
-         for(int roc=0; roc<NROCsMAX; roc++) {
-	   sprintf(s,"ROC_%d",roc);
-	   string st2 = st1 + "_" + string(s);
-           ibooker.setCurrentFolder(pd + "/ROCs/" + string(s));
-
-           h2xyROCHits[index][roc]=ibooker.book2DD("hits",st2+";pix col;pix row",
-		ROCSizeInY,0,ROCSizeInY, ROCSizeInX,0,ROCSizeInX);
-           h2xyROCHits[index][roc]->getTH2D()->SetOption("colz");
-           hROCadc[index][roc]=ibooker.book1D("adc value",st2+";ADC;number of ROCs",
-		ADCMax, 0.,float(ADCMax));
-         }
+	   hitMultMAX+1,-0.5,hitMultMAX+0.5);
        } // end of for(int p=0; p<NplaneMAX;..
 
      } // end for(int rp=0; rp<NRPotsMAX;...
@@ -386,9 +382,10 @@ void CTPPSPixelDQMSource::analyze(edm::Event const& event, edm::EventSetup const
   if(lumiId<0) lumiId=0;
 
   int RPactivity[RPotsTotalNumber], RPdigiSize[RPotsTotalNumber];
+  int pixRPTracks[RPotsTotalNumber];
 
   for(int rp=0; rp<RPotsTotalNumber; rp++)
-    { RPactivity[rp] = RPdigiSize[rp] = 0;}
+    { RPactivity[rp] = RPdigiSize[rp] = pixRPTracks[rp] = 0;}
 
   for(int ind=0; ind<RPotsTotalNumber; ind++) { 
     for(int p=0; p<NplaneMAX; p++) {
@@ -407,8 +404,45 @@ void CTPPSPixelDQMSource::analyze(edm::Event const& event, edm::EventSetup const
   Handle< DetSetVector<CTPPSPixelCluster> > pixClus;
   event.getByToken(tokenCluster, pixClus);
 
+  Handle< DetSetVector<CTPPSPixelLocalTrack> > pixTrack;
+  event.getByToken(tokenTrack, pixTrack);
+
   hBX->Fill(event.bunchCrossing());
   hBXshort->Fill(event.bunchCrossing());
+
+  if(pixTrack.isValid()) {
+   for(const auto &ds_tr : *pixTrack)
+   {
+     int idet = getDet(ds_tr.id);
+     if(idet != DetId::VeryForward) {
+      if(verbosity>1) LogPrint("CTPPSPixelDQMSource") <<"not CTPPS: ds_tr.id"<<ds_tr.id;
+      continue;
+     }
+     CTPPSDetId theId(ds_tr.id);
+     int arm = theId.arm()&0x1;
+     int station = theId.station()&0x3;
+     int rpot = theId.rp()&0x7;  
+     int rpInd = getRPindex(arm,station,rpot);
+
+     for(DetSet<CTPPSPixelLocalTrack>::const_iterator dit = ds_tr.begin();
+            dit != ds_tr.end(); ++dit) {
+       ++pixRPTracks[rpInd];
+       int nh_tr = (dit->getNDF() + TrackFitDimension)/2;
+       for(int i=0; i<=NplaneMAX; i++) {
+         if(i==nh_tr) htrackHits[rpInd]->Fill(nh_tr,1.);
+         else htrackHits[rpInd]->Fill(i,0.);
+       }
+       float x0 = dit->getX0();
+       float y0 = dit->getY0();
+       h2trackXY0[rpInd]->Fill(x0,y0);
+       if(x0_MAX < x0) x0_MAX = x0;
+       if(y0_MAX < y0) y0_MAX = y0;
+       if(x0_MIN > x0) x0_MIN = x0;
+       if(y0_MIN > y0) y0_MIN = y0;
+     }
+   }
+  } // end  if(pixTrack.isValid())
+
 
   bool valid = false;
   valid |= pixDigi.isValid();
@@ -438,15 +472,15 @@ void CTPPSPixelDQMSource::analyze(edm::Event const& event, edm::EventSetup const
 
       if(StationStatus[station] && RPstatus[station][rpot]) {
 
-        hp2HitsOcc[arm][station]->Fill(plane,rpot,(int)ds_digi.data.size());
         h2HitsMultipl[arm][station]->Fill(prIndex(rpot,plane),ds_digi.data.size());
-        h2PlaneActive[arm][station]->Fill(plane,getRPInStationBin(rpot));
         h2AllPlanesActive->Fill(plane,getRPglobalBin(arm,station));
 
         int index = getRPindex(arm,station,rpot);
         HitsMultPlane[index][plane] += ds_digi.data.size();
         if(RPindexValid[index]) {
-          hHitsMult[index][plane]->Fill(ds_digi.data.size());
+	  int nh = ds_digi.data.size();
+          if(nh > hitMultMAX) nh = hitMultMAX;
+          hHitsMult[index][plane]->Fill(nh);
         }
         int rocHistIndex = getPlaneIndex(arm,station,rpot,plane);
 
@@ -463,8 +497,6 @@ void CTPPSPixelDQMSource::analyze(edm::Event const& event, edm::EventSetup const
             int trocId;
             if(!thePixIndices.transformToROC(col,row, trocId, colROC, rowROC)) {
               if(trocId>=0 && trocId<NROCsMAX) {
-                h2xyROCHits[rocHistIndex][trocId]->Fill(colROC,rowROC);
-                hROCadc[rocHistIndex][trocId]->Fill(adc);
                 ++HitsMultROC[rocHistIndex][trocId];
               }
             }
@@ -495,37 +527,34 @@ void CTPPSPixelDQMSource::analyze(edm::Event const& event, edm::EventSetup const
 
       if((StationStatus[station]==0) || (RPstatus[station][rpot]==0)) continue;
 
-        int index = getRPindex(arm,station,rpot);
-        ++ClusMultPlane[index][plane];
+      int index = getRPindex(arm,station,rpot);
+      ++ClusMultPlane[index][plane];
 
-      unsigned int minRow=pixRowMAX, maxRow=0;
-      unsigned int minCol=pixColMAX, maxCol=0;
       for (const auto &p : ds) {
-        unsigned int max= p.minPixelRow() + p.rowSpan()+1;
-        if(minRow > p.minPixelRow()) minRow = p.minPixelRow();
-        if(maxRow < max) maxRow = max;
-        max= p.minPixelCol() + p.colSpan()+1;
-        if(minCol > p.minPixelCol()) minCol = p.minPixelCol();
-        if(maxCol < max) maxCol = max;
-
+	int clusize = p.size(); 
+	h2CluSize[arm][station]->Fill(prIndex(rpot,plane),clusize);
+        if(cluSizeMax < clusize) cluSizeMax = clusize;
+        if(clusize > ClusterSizeMax) clusize = ClusterSizeMax;
       }
-      int drow = maxRow - minRow;
-      int dcol = maxCol - minCol;
-      float clusize= sqrt(drow*drow + dcol*dcol);
-      if(cluSizeMax < int(clusize)) cluSizeMax = clusize;
-      h2CluSize[arm][station]->Fill(prIndex(rpot,plane),clusize);
-
    } // end if(pixClus.isValid()) for(const auto &ds : *pixClus)
 
+  bool allRPactivity = false;
+  for(int rp=0; rp<RPotsTotalNumber; rp++) if(RPactivity[rp]>0) allRPactivity=true; 
   for(int arm=0; arm<2; arm++) {
     for(int stn=0; stn<NStationMAX; stn++) {
       for(int rp=0; rp<NRPotsMAX; rp++) {
         int index = getRPindex(arm,stn,rp);
         if(RPindexValid[index]==0) continue;
-        if(RPactivity[index]==0) continue;
-
-        for(int p=0; p<NplaneMAX; p++)
-          h2ClusMultipl[arm][stn]->Fill(prIndex(rp,p),ClusMultPlane[index][p]);
+        hpRPactive->Fill(getRPglobalBin(arm,stn),RPactivity[index]);
+//        if(RPactivity[index]==0) continue;
+          if(!allRPactivity) continue;
+        hpixLTrack->Fill(getRPglobalBin(arm,stn),pixRPTracks[index]);
+        int ntr = pixRPTracks[index];
+        if(ntr > NLocalTracksMAX) ntr = NLocalTracksMAX;
+	for(int i=0; i<=NLocalTracksMAX; i++) {
+	 if(i==ntr) htrackMult[index]->Fill(ntr,1.);
+	 else htrackMult[index]->Fill(i,0.);
+	}
 
         int np = 0; 
         for(int p=0; p<NplaneMAX; p++) if(HitsMultPlane[index][p]>0) np++;
@@ -533,7 +562,7 @@ void CTPPSPixelDQMSource::analyze(edm::Event const& event, edm::EventSetup const
 	  if(p == np) hRPotActivPlanes[index]->Fill(p,1.);
 	  else hRPotActivPlanes[index]->Fill(p,0.);
 	}
-        if(np>5) hRPotActivBX[index]->Fill(event.bunchCrossing());
+        if(np>=5) hRPotActivBX[index]->Fill(event.bunchCrossing());
         hRPotActivBXall[index]->Fill(event.bunchCrossing(),float(RPdigiSize[index]));
 
         int rocf[NplaneMAX];
@@ -549,14 +578,7 @@ void CTPPSPixelDQMSource::analyze(edm::Event const& event, edm::EventSetup const
         int max = 0;
         for(int r=0; r<NROCsMAX; r++) 
           if(max < rocf[r]) { max = rocf[r]; }
-
-        for(int r=0; r<NROCsMAX; r++) {
-	  for(int p=0; p<=NplaneMAX; p++)
-	    if(p==rocf[r]) hRPotActivROCs[index]->Fill(r,rocf[r],1.);
-	    else hRPotActivROCs[index]->Fill(r,p,0);
-	}
-
-        if(max > 4) hRPotActivBXroc[index]->Fill(event.bunchCrossing());
+        if(max >= 4) hRPotActivBXroc[index]->Fill(event.bunchCrossing());
       } //end for(int rp=0; rp<NRPotsMAX; rp++) {
     }
   } //end for(int arm=0; arm<2; arm++) {
@@ -571,7 +593,8 @@ void CTPPSPixelDQMSource::endRun(edm::Run const& run, edm::EventSetup const& eSe
  if(!verbosity) return; 
  LogPrint("CTPPSPixelDQMSource") 
   <<"end of Run "<<run.run()<<": "<<nEvents<<" events\n"
-  <<"multHitsMax= "<<multHitsMax <<"   cluSizeMax= "<<cluSizeMax;
+  <<"multHitsMax= "<<multHitsMax <<"   cluSizeMax= "<<cluSizeMax
+  <<"\nx0: "<< x0_MIN<<"/" << x0_MAX<<"y0: "<<y0_MIN<<"/"<<y0_MAX<<"\n";
 }
 
 //---------------------------------------------------------------------------

@@ -104,7 +104,7 @@ TkGluedMeasurementDet::recHits( const TrajectoryStateOnSurface& ts, const Measur
 bool TkGluedMeasurementDet::recHits(SimpleHitContainer & result,  
 				    const TrajectoryStateOnSurface& stateOnThisDet, 
 				    const MeasurementEstimator& est, const MeasurementTrackerEvent & data) const {
-  if unlikely((!theMonoDet->isActive(data)) && (!theStereoDet->isActive(data))) return false;
+  if UNLIKELY((!theMonoDet->isActive(data)) && (!theStereoDet->isActive(data))) return false;
   auto oldSize = result.size();
   HitCollectorForSimpleHits collector( &fastGeomDet(), theMatcher, theCPE, stateOnThisDet, est, result);
   collectRecHits(stateOnThisDet, data, collector);
@@ -121,7 +121,7 @@ bool TkGluedMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
                                           const MeasurementTrackerEvent & data,
 					  TempMeasurements & result) const {
   
-  if unlikely((!theMonoDet->isActive(data)) && (!theStereoDet->isActive(data))) {
+  if UNLIKELY((!theMonoDet->isActive(data)) && (!theStereoDet->isActive(data))) {
        //     LogDebug("TkStripMeasurementDet") << " DetID " << geomDet().geographicalId().rawId() << " (glued) fully inactive";
        result.add(theInactiveHit, 0.F);
        return true;

@@ -604,7 +604,7 @@ void FullModelHadronicProcess::CalculateMomenta(
 							   targetHasChanged, leadFlag,
 							   leadingStrangeParticle );
 	}
-      catch(G4HadReentrentException aC)
+      catch(G4HadReentrentException &aC)
 	{
 	  aC.Report(G4cout);
 	  throw G4HadReentrentException(__FILE__, __LINE__, "Failing to calculate momenta");

@@ -5,6 +5,7 @@
 # fill_num.txt all the runs in the fill
 # dumpResult lumibyday --begin --end 
 #
+from __future__ import print_function
 import os,os.path,sys
 import coral,datetime
 from RecoLuminosity.LumiDB import argparse,sessionManager,lumiTime,RegexValidator
@@ -52,7 +53,7 @@ if __name__ == '__main__':
     lute=lumiTime.lumiTime()
     begtimeStr='01/01/12 00:00:00'
     reqtimemaxT=datetime.datetime.now()
-    print options.begin,options.end
+    print(options.begin,options.end)
     if options.begin:
         begtimeStr=options.begin
     reqtimeminT=lute.StrToDatetime(options.begin,customfm='%m/%d/%y %H:%M:%S')
@@ -75,9 +76,8 @@ if __name__ == '__main__':
     del lumiquery
     del session
     del svc
-    alldays=result.keys()
-    alldays.sort()
+    alldays=sorted(result.keys())
     for ordi in alldays:
-        print datetime.datetime.fromordinal(ordi).date(),',',result[ordi]
-    print '#total running days: ',len(alldays)
-    print '#total delivered: ',sum(result.values())
+        print(datetime.datetime.fromordinal(ordi).date(),',',result[ordi])
+    print('#total running days: ',len(alldays))
+    print('#total delivered: ',sum(result.values()))

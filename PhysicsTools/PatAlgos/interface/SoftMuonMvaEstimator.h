@@ -1,43 +1,50 @@
 #ifndef __PhysicsTools_PatAlgos_SoftMuonMvaEstimator__
 #define __PhysicsTools_PatAlgos_SoftMuonMvaEstimator__
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
-#include "TMVA/Reader.h"
+
+#include <memory>
+#include <string>
+
+class GBRForest;
 
 namespace pat {
-class SoftMuonMvaEstimator{
-public:
-  SoftMuonMvaEstimator();
-  void initialize(std::string weightsfile);
-  void computeMva(const pat::Muon& imuon);
-  float mva() const {return mva_;}
+  class Muon;
+}
+
+namespace pat {
+  class SoftMuonMvaEstimator{
+  public:
+
+    SoftMuonMvaEstimator(const std::string& weightsfile);
+
+    ~SoftMuonMvaEstimator();
+
+    float computeMva(const pat::Muon& imuon) const;
+
   private:
-  TMVA::Reader tmvaReader_;
-  bool initialized_;
-  float mva_;
 
-  // MVA Spectator
-  float pID_;
-  float pt_;
-  float eta_;
-  float momID_;
-  float dummy_;
+    std::unique_ptr<const GBRForest> gbrForest_;
 
-  // MVA VAriables
-  float segmentCompatibility_;
-  float chi2LocalMomentum_;
-  float chi2LocalPosition_;
-  float glbTrackProbability_;
-  float iValidFraction_;
-  float layersWithMeasurement_;
-  float trkKink_;
-  float log2PlusGlbKink_;
-  float timeAtIpInOutErr_;
-  float outerChi2_;
-  float innerChi2_;
-  float trkRelChi2_;
-  float vMuonHitComb_;
-  float qProd_;
+    // MVA VAriables
+    float segmentCompatibility_ = 0.0;
+    float chi2LocalMomentum_ = 0.0;
+    float chi2LocalPosition_ = 0.0;
+    float glbTrackProbability_ = 0.0;
+    float iValidFraction_ = 0.0;
+    float layersWithMeasurement_ = 0.0;
+    float trkKink_ = 0.0;
+    float log2PlusGlbKink_ = 0.0;
+    float timeAtIpInOutErr_ = 0.0;
+    float outerChi2_ = 0.0;
+    float innerChi2_ = 0.0;
+    float trkRelChi2_ = 0.0;
+    float vMuonHitComb_ = 0.0;
+    float qProd_ = 0.0;
+
+    // MVA Spectator
+    float pID_ = 0.0;
+    float pt_ = 0.0;
+    float eta_ = 0.0;
+    float momID_ = 0.0;
 
   };
 }

@@ -13,6 +13,13 @@
 #include "SimTracker/Common/interface/SimHitInfoForLinks.h"
 #include "DataFormats/Math/interface/approx_exp.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "CondFormats/SiPixelTransient/interface/SiPixelTemplate2D.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixel2DTemplateDBObject.h"
+#include "boost/multi_array.hpp"
+
+typedef boost::multi_array<float, 2> array_2d;
 
 // forward declarations
 
@@ -70,6 +77,10 @@ class SiPixelDigitizerAlgorithm  {
   void calculateInstlumiFactor(PileupMixingContent* puInfo);
   void init_DynIneffDB(const edm::EventSetup&, const unsigned int&);
 
+  // for premixing
+  void calculateInstlumiFactor(const std::vector<PileupSummaryInfo> &ps, int bunchSpacing); // TODO: try to remove the duplication of logic...
+  void setSimAccumulator(const std::map<uint32_t, std::map<int, int> >& signalMap);
+  
  private:
   
   //Accessing Lorentz angle from DB:
@@ -280,6 +291,7 @@ class SiPixelDigitizerAlgorithm  {
     typedef std::map<uint32_t, signal_map_type> signalMaps;
     typedef GloballyPositioned<double>      Frame;
     typedef std::vector<edm::ParameterSet> Parameters;
+    typedef boost::multi_array<float, 2> array_2d;
 
     // Contains the accumulated hit info.
     signalMaps _signal;
@@ -292,6 +304,21 @@ class SiPixelDigitizerAlgorithm  {
     const bool use_LorentzAngle_DB_; // if we want to get Lorentz angle from the DataBase.
 
     const Parameters DeadModules;
+
+    // Variables and objects for the charge reweighting using 2D templates
+    SiPixelTemplate2D templ2D;
+    std::vector<bool> xdouble;
+    std::vector<bool> ydouble;
+    std::vector<float> track;
+    int IDnum, IDden;
+
+    std::vector<SiPixelTemplateStore2D> templateStores_;
+
+    const SiPixel2DTemplateDBObject * dbobject_den;
+    const SiPixel2DTemplateDBObject * dbobject_num;
+
+ private:
+
 
     // Variables 
     //external parameters 
@@ -366,6 +393,9 @@ class SiPixelDigitizerAlgorithm  {
     
     // pixel aging
     const bool AddPixelAging;
+    const bool UseReweighting;
+    const bool PrintClusters;
+    const bool PrintTemplates;
 
     // The PDTable
     //HepPDTable *particleTable;
@@ -393,7 +423,9 @@ class SiPixelDigitizerAlgorithm  {
 	       const TrackerTopology *tTopo,
                const std::vector<EnergyDepositUnit>& ionization_points,
                std::vector<SignalPoint>& collection_points) const;
-    void induce_signal(const PSimHit& hit,
+    void induce_signal(std::vector<PSimHit>::const_iterator inputBegin,
+		       std::vector<PSimHit>::const_iterator inputEnd,
+		       const PSimHit& hit,
 		       const size_t hitIndex,
 		       const unsigned int tofBin,
                        const PixelGeomDetUnit *pixdet,
@@ -431,6 +463,22 @@ class SiPixelDigitizerAlgorithm  {
 
     void module_killing_conf(uint32_t detID); // remove dead modules using the list in the configuration file PixelDigi_cfi.py
     void module_killing_DB(uint32_t detID);  // remove dead modules uisng the list in the DB
+
+    // methods for charge reweighting in irradiated sensors
+    int PixelTempRewgt2D( int id_gen, int id_rewgt,
+			  array_2d& cluster);
+    bool hitSignalReweight(const PSimHit& hit,
+			   std::map< int, float, std::less<int> >& hit_signal,
+			   const size_t hitIndex,
+			   const unsigned int tofBin,
+			   const PixelTopology* topol,
+			   uint32_t detID,
+			   signal_map_type& theSignal,
+			   unsigned short int processType);
+    void printCluster(array_2d& cluster);
+    void printCluster(float arr[BXM2][BYM2]);
+    void printCluster(float arr[TXSIZE][TYSIZE]);
+    
 
     PixelEfficiencies pixelEfficiencies_;
     const PixelAging pixelAging_;

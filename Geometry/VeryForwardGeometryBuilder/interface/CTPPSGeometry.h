@@ -60,9 +60,11 @@ class CTPPSGeometry
     ///\brief returns geometry of a detector
     /// performs necessary checks, returns NULL if fails
     const DetGeomDesc* getSensor( unsigned int id ) const;
+    const DetGeomDesc* getSensorNoThrow( unsigned int id ) const noexcept;
 
     /// returns geometry of a RP box
     const DetGeomDesc* getRP( unsigned int id ) const;
+    const DetGeomDesc* getRPNoThrow( unsigned int id ) const noexcept;
 
     //----- objects iterators
 

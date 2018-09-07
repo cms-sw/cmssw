@@ -259,7 +259,6 @@ void TestDetSet::fillPar() {
   
   std::atomic<int> lock(0);
   std::atomic<int> idet(0);
-  std::atomic<int> trial(0);
 
   std::atomic<int> count(0);
   

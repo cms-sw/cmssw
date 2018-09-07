@@ -182,7 +182,7 @@ void DTChamberEfficiencyClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore:
 	else if(eff_result < 0.7 && eff_result > 0.5) globalEffSummary->Fill(sector,wheel,0.6);
 	else if(eff_result < 0.5 && eff_result > 0.3) globalEffSummary->Fill(sector,wheel,0.4);
 	else if(eff_result < 0.3 && eff_result > 0.) globalEffSummary->Fill(sector,wheel,0.15);
-
+	else  globalEffSummary->Fill(sector,wheel,0.01);
       }
     }
   }

@@ -2,7 +2,7 @@
 from RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cfi import *
 from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 
-# Load the producer module to build full 5x5 cluster shapes and whatever 
+# Load the producer module to build full 5x5 cluster shapes and whatever
 # else is needed for IDs
 # NOTE: Presently this producer is not needed because all variables
 # that it produces are already available as standard electron variables.
@@ -17,6 +17,7 @@ from RecoEgamma.ElectronIdentification.ElectronMVAValueMapProducer_cfi import *
 from RecoEgamma.ElectronIdentification.ElectronRegressionValueMapProducer_cfi import *
 
 egmGsfElectronIDTask = cms.Task(
+    electronMVAVariableHelper,
     electronMVAValueMapProducer,
     egmGsfElectronIDs,
     electronRegressionValueMapProducer

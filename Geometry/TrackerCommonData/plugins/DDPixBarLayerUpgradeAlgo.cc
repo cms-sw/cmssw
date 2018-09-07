@@ -72,7 +72,7 @@ void DDPixBarLayerUpgradeAlgo::initialize(const DDNumericArguments & nArgs,
 void DDPixBarLayerUpgradeAlgo::execute(DDCompactView& cpv) {
 
   DDName      mother = parent().name();
-  std::string idName = DDSplit(mother).first;
+  const std::string & idName = mother.name();
   
   double dphi = CLHEP::twopi/number;
   double x2   = coolDist*sin(0.5*dphi);

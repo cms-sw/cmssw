@@ -57,7 +57,9 @@ TrackEfficiencyMonitor::TrackEfficiencyMonitor(const edm::ParameterSet& iConfig)
   trackEfficiency_     = iConfig.getParameter<bool>("trackEfficiency");
   theTKTracksLabel_    = iConfig.getParameter<edm::InputTag>("TKTrackCollection");
   theSTATracksLabel_   = iConfig.getParameter<edm::InputTag>("STATrackCollection");
-  
+  muonToken_     =  consumes<edm::View<reco::Muon> >(iConfig.getParameter<edm::InputTag>("muoncoll"));
+
+ 
   theTKTracksToken_  = consumes<reco::TrackCollection>(theTKTracksLabel_);
   theSTATracksToken_ = consumes<reco::TrackCollection>(theSTATracksLabel_);
 
@@ -249,6 +251,26 @@ void TrackEfficiencyMonitor::bookHistograms(DQMStore::IBooker & ibooker,
   signDeltaY = ibooker.book1D(histname+AlgoName, histname+AlgoName, signDeltaYBin, signDeltaYMin, signDeltaYMax);
   signDeltaY->setAxisTitle("");
 
+
+  histname = "GlobalMuonPtEtaPhi_LowPt_";
+  GlobalMuonPtEtaPhiLowPt = ibooker.book2D(histname+AlgoName, histname+AlgoName, 20,-2.4,2.4,20,-3.25,3.25);
+  GlobalMuonPtEtaPhiLowPt->setAxisTitle("");
+
+
+  histname = "StandaloneMuonPtEtaPhi_LowPt_";
+  StandaloneMuonPtEtaPhiLowPt = ibooker.book2D(histname+AlgoName, histname+AlgoName, 20,-2.4,2.4,20,-3.25,3.25);
+  StandaloneMuonPtEtaPhiLowPt->setAxisTitle("");
+
+  histname = "GlobalMuonPtEtaPhi_HighPt_";
+  GlobalMuonPtEtaPhiHighPt = ibooker.book2D(histname+AlgoName, histname+AlgoName, 20,-2.4,2.4,20,-3.25,3.25);
+  GlobalMuonPtEtaPhiHighPt->setAxisTitle("");
+
+
+  histname = "StandaloneMuonPtEtaPhi_HighPt_";
+  StandaloneMuonPtEtaPhiHighPt = ibooker.book2D(histname+AlgoName, histname+AlgoName, 20,-2.4,2.4,20,-3.25,3.25);
+  StandaloneMuonPtEtaPhiHighPt->setAxisTitle("");
+
+
 }
 
 
@@ -256,7 +278,7 @@ void TrackEfficiencyMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 void TrackEfficiencyMonitor::beginJob(void) 
 //-----------------------------------------------------------------------------------
 {
-  
+ 
 }
 
 
@@ -265,7 +287,6 @@ void TrackEfficiencyMonitor::beginJob(void)
 void TrackEfficiencyMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 //-----------------------------------------------------------------------------------
 {
-   
 
   edm::Handle<reco::TrackCollection> tkTracks;
   iEvent.getByToken(theTKTracksToken_, tkTracks);
@@ -282,8 +303,23 @@ void TrackEfficiencyMonitor::analyze(const edm::Event& iEvent, const edm::EventS
   iSetup.get<IdealMagneticFieldRecord>().get(bField); 
   iSetup.get<TrackerRecoGeometryRecord>().get(theTracker);
   theNavigation = new DirectTrackerNavigation(theTracker);
-  
-  
+
+  edm::Handle<edm::View<reco::Muon> > muons; 
+  iEvent.getByToken(muonToken_,muons);
+  if (!muons.isValid()) return;
+  for (edm::View<reco::Muon>::const_iterator muon = muons->begin(); muon != muons->end(); ++muon){
+    if( (*muon).pt() < 5) continue;
+    if( fabs((*muon).eta()) > 2.4) continue;
+    if( (*muon).vertexNormalizedChi2() > 10) continue;
+    if ( (*muon).isStandAloneMuon() and (*muon).isGlobalMuon()){
+      if ( (*muon).pt() < 20) GlobalMuonPtEtaPhiLowPt->Fill((*muon).eta(),(*muon).phi());
+      else GlobalMuonPtEtaPhiHighPt->Fill((*muon).eta(),(*muon).phi());
+    }
+    if ( (*muon).isStandAloneMuon()){
+      if ( (*muon).pt() < 20) StandaloneMuonPtEtaPhiLowPt->Fill((*muon).eta(),(*muon).phi());
+      else StandaloneMuonPtEtaPhiHighPt->Fill((*muon).eta(),(*muon).phi());
+    }
+  } 
   if(trackEfficiency_){
   //---------------------------------------------------
   // Select muons with good quality
@@ -339,7 +375,7 @@ void TrackEfficiencyMonitor::endJob(void)
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
   if(outputMEsInRootFile){
-    dqmStore_->showDirStructure(); 
+    //dqmStore_->showDirStructure(); 
     dqmStore_->save(outputFileName); 
     }
 
@@ -353,7 +389,6 @@ void TrackEfficiencyMonitor::endJob(void)
 void TrackEfficiencyMonitor::testTrackerTracks(edm::Handle<reco::TrackCollection> tkTracks, edm::Handle<reco::TrackCollection> staTracks, const NavigationSchool& navigationSchool)
 //-----------------------------------------------------------------------------------
 {
-  
   const std::string metname = "testStandAloneMuonTracks";
 
   //---------------------------------------------------
@@ -493,8 +528,6 @@ void TrackEfficiencyMonitor::testTrackerTracks(edm::Handle<reco::TrackCollection
 void TrackEfficiencyMonitor::testSTATracks(edm::Handle<reco::TrackCollection> tkTracks, edm::Handle<reco::TrackCollection> staTracks)
 //-----------------------------------------------------------------------------------
 {
-
-   
    reco::TransientTrack tkTT = theTTrackBuilder->build(tkTracks->front());
    double ipX   = tkTT.impactPointState().globalPosition().x();
    double ipY   = tkTT.impactPointState().globalPosition().y();
@@ -593,7 +626,6 @@ TrackEfficiencyMonitor::SemiCylinder TrackEfficiencyMonitor::checkSemiCylinder(c
 bool TrackEfficiencyMonitor::trackerAcceptance( TrajectoryStateOnSurface theTSOS, double theRadius, double theMaxZ)
 //-----------------------------------------------------------------------------------
 {
-
   //---------------------------------------------------  
   // check if the muon is in the tracker acceptance    
   // check the compatibility with a cylinder of radius "theRadius"
@@ -645,7 +677,7 @@ int TrackEfficiencyMonitor::compatibleLayers(const NavigationSchool& navigationS
   //---------------------------------------------------   
   // check the number of compatible layers
   //---------------------------------------------------   
-  
+
   std::vector< const BarrelDetLayer*> barrelTOBLayers = measurementTrackerHandle->geometricSearchTracker()->tobLayers() ;
   
   unsigned int layers = 0;
@@ -721,8 +753,7 @@ std::pair<TrajectoryStateOnSurface,  const DetLayer*>  TrackEfficiencyMonitor::f
 {
   
   //Propagator*  theTmpPropagator = new SteppingHelixPropagator(&*bField,anyDirection);
-  
-  
+ 
   Propagator* theTmpPropagator = &*thePropagator->clone();
   theTmpPropagator->setPropagationDirection(alongMomentum); 
   

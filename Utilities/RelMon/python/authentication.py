@@ -1,3 +1,4 @@
+from __future__ import print_function
 ################################################################################
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
@@ -48,11 +49,11 @@ class X509CertAuth(HTTPSConnection):
         cert_file = x509_path
 
     if not key_file or not exists(key_file):
-      print >>stderr, "No certificate private key file found"
+      print("No certificate private key file found", file=stderr)
       exit(1)
 
     if not cert_file or not exists(cert_file):
-      print >>stderr, "No certificate public key file found"
+      print("No certificate public key file found", file=stderr)
       exit(1)
 
     #print "Using SSL private key", key_file

@@ -298,10 +298,6 @@ void DQMHcalPhiSymAlCaReco::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
 //}
 
 //--------------------------------------------------------
-void DQMHcalPhiSymAlCaReco::beginLuminosityBlock(const LuminosityBlock& lumiSeg, 
-     const EventSetup& context) {
-  
-}
 
 //-------------------------------------------------------------
 
@@ -490,9 +486,6 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
 
 
 //--------------------------------------------------------
-void DQMHcalPhiSymAlCaReco::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
-                                          const EventSetup& context) {
-}
 //--------------------------------------------------------
 void DQMHcalPhiSymAlCaReco::endRun(const Run& r, const EventSetup& context){
 // Keep Variances

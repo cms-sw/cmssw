@@ -242,7 +242,7 @@ DCacheFile::write (const void *from, IOSize n)
     dc_errno = 0;
     ssize_t s = dc_write (m_fd, (const char *) from + done, n - done);
     if (s == -1) {
-      cms::Exception ex("FileWriteError");
+      edm::Exception ex(edm::errors::FileWriteError);
       ex << "dc_write(name='" << m_name << "', n=" << (n-done)
          << ") failed with error '" << dc_strerror(dc_errno)
          << "' (dc_errno=" << dc_errno << ")";

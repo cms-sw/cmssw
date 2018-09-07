@@ -146,6 +146,10 @@ public:
     me_->getTH1()->GetXaxis()->SetNoAlphanumeric(false);
     me_->getTH1()->GetYaxis()->SetNoAlphanumeric(false);
   }
+
+  void setOption(const char* option) {
+    me_->getTH1()->SetOption(option);
+  }
 };
 
 #endif // DQMServices_Core_ConcurrentMonitorElement_h

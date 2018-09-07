@@ -66,16 +66,6 @@ DTNoiseTask::DTNoiseTask(const ParameterSet& ps) : evtNumber(0) {
 
 DTNoiseTask::~DTNoiseTask(){}
 
-/// To reset the MEs
-void DTNoiseTask::beginLuminosityBlock(const edm::LuminosityBlock&  lumiSeg,
-				       const edm::EventSetup& context) {
-
-   LogVerbatim("DTNoiseTask") <<"[DTNoiseTask]: Begin of LS transition"<<endl;
-
-}
-
-
-
 /// Analyze
 void DTNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
 

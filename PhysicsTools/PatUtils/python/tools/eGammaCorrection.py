@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 from FWCore.GuiBrowsers.ConfigToolBase import *
@@ -104,7 +105,7 @@ def eGammaCorrection(process,
             addToProcessAndTask(metCollection+postfix, corMETModule, process, task) #corMETModuleName
             sequence+=getattr(process,metCollection+postfix) #corMETModuleName
         else:
-            print metCollection
+            print(metCollection)
             getattr(process,metCollection).srcCorrections.append(cms.InputTag(correctionPhoton))
             getattr(process,metCollection).srcCorrections.append(cms.InputTag(correctionElectron))
             

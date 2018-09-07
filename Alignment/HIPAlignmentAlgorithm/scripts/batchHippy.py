@@ -1,5 +1,6 @@
 #!/bin/env python
 
+from __future__ import print_function
 import sys
 import imp
 import copy
@@ -11,7 +12,6 @@ import pprint
 import subprocess
 from datetime import date
 from optparse import OptionParser
-
 
 
 class MyBatchManager:
@@ -53,39 +53,50 @@ class MyBatchManager:
       self.parser.add_option("--resubmit", action="store_true",
                                 dest="resubmit", default=False,
                                 help="Resubmit a job from the last iteration")
+      self.parser.add_option("--redirectproxy", action="store_true",
+                                dest="redirectproxy", default=False,
+                                help="Redirect the proxy to a path visible in batch")
       self.parser.add_option("--dry", dest="dryRun", type="int",
                                 default=0,
                                 help="Do not submit jobs, just set up the cfg files")
       (self.opt,self.args) = self.parser.parse_args()
 
+      self.checkProxy() # Check if Grid proxy initialized
+
       self.mkdir(self.opt.outputdir)
 
       if self.opt.lstfile is None:
-         print "Unspecified lst file."
+         print("Unspecified lst file.")
          sys.exit(1)
       if self.opt.iovfile is None:
-         print "Unspecified IOV list."
+         print("Unspecified IOV list.")
          sys.exit(1)
 
       self.jobname = self.opt.outputdir.split('/')[-1]
 
+      if self.opt.redirectproxy:
+         print("Job {} is configured to redirect its Grid proxy.".format(self.jobname))
+         self.redirectProxy()
+
       if self.opt.sendto is not None:
          self.opt.sendto.strip()
          self.opt.sendto.replace(","," ")
-         print "Job {} is configured to notify {}.".format(self.jobname, self.opt.sendto)
+         print("Job {} is configured to notify {}.".format(self.jobname, self.opt.sendto))
 
+      # Set numerical flags for iterator_py
       self.SDflag = 1 if self.opt.useSD else 0
+      self.redirectproxyflag = 1 if self.opt.redirectproxy else 0
 
 
-   def mkdir( self, dirname ):
+   def mkdir(self, dirname):
       mkdir = 'mkdir -p %s' % dirname
       ret = os.system( mkdir )
       if( ret != 0 ):
-         print 'Please remove or rename directory: ', dirname
+         print('Please remove or rename directory: ', dirname)
          sys.exit(4)
 
    def notify(self, desc):
-      print desc
+      print(desc)
       if self.opt.sendto is not None:
          strcmd = "mail -s {1} {0} <<< \"{2}\"".format(self.opt.sendto, self.jobname, desc)
          os.system(strcmd)
@@ -132,8 +143,8 @@ class MyBatchManager:
          )
       else:
          if self.opt.dryRun > 0:
-            print 'Dry run option is enabled. Will not submit jobs to the queue'
-         jobcmd = 'scripts/iterator_py {} {} {} {} {} {} {} {} {}'.format(
+            print('Dry run option is enabled. Will not submit jobs to the queue')
+         jobcmd = 'scripts/iterator_py {} {} {} {} {} {} {} {} {} {}'.format(
          self.opt.niter,
          self.opt.outputdir,
          self.opt.lstfile,
@@ -142,17 +153,27 @@ class MyBatchManager:
          self.opt.aligncfg,
          self.opt.trkselcfg,
          self.SDflag,
+         self.redirectproxyflag,
          self.opt.dryRun
          )
       ret = os.system( jobcmd )
       self.finalize(ret)
 
+   def checkProxy(self):
+      try:
+         subprocess.check_call(["voms-proxy-info", "--exists"])
+      except subprocess.CalledProcessError:
+         print("Please initialize your proxy before submitting.")
+         sys.exit(1)
 
-
+   def redirectProxy(self):
+      local_proxy = subprocess.check_output(["voms-proxy-info", "--path"]).strip()
+      new_proxy_path = os.path.join(self.opt.outputdir,".user_proxy")
+      print("Copying local proxy {} to the job directory as {}.".format(local_proxy,new_proxy_path))
+      shutil.copyfile(local_proxy, new_proxy_path)
 
 
 
 if __name__ == '__main__':
    batchManager = MyBatchManager()
    batchManager.submitJobs()
-

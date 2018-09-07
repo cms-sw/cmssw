@@ -17,6 +17,7 @@ from DQM.Physics.B2GDQM_cfi import *
 from DQM.Physics.CentralityDQM_cfi import *
 from DQM.Physics.CentralitypADQM_cfi import *
 from DQM.Physics.topJetCorrectionHelper_cfi import *
+from DQM.Physics.FSQDQM_cfi import *
 
 dqmPhysics = cms.Sequence( bphysicsOniaDQM 
                            *ewkMuDQM
@@ -33,6 +34,7 @@ dqmPhysics = cms.Sequence( bphysicsOniaDQM
                            *HiggsDQM
                            *ExoticaDQM
                            *B2GDQM
+                           *FSQDQM
                            )
 
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel

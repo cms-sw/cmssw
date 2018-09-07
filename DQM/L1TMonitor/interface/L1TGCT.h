@@ -137,7 +137,6 @@ protected:
 
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
 
 private:
   // ----------member data ---------------------------

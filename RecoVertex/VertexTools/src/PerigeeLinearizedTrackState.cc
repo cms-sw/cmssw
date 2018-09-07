@@ -12,7 +12,7 @@ void PerigeeLinearizedTrackState::computeJacobians() const
   GlobalPoint paramPt(theLinPoint);
   
   thePredState = builder(theTSOS, paramPt); 
-  if unlikely(!thePredState.isValid()) return;
+  if UNLIKELY(!thePredState.isValid()) return;
   
   double field =  theTrack.field()->inInverseGeV(thePredState.theState().position()).z();
   

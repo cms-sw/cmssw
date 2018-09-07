@@ -1,4 +1,4 @@
-#include "../interface/RecoSummaryTask.h"
+#include "DQM/EcalMonitorTasks/interface/RecoSummaryTask.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 #include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"

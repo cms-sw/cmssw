@@ -18,6 +18,7 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronEcalDrivenProducer",
     barrelRecHitCollectionTag = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     endcapRecHitCollectionTag = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     hcalTowers = cms.InputTag("towerMaker"),
+    checkHcalStatus = cms.bool(True),
     pfMvaTag =  cms.InputTag(""),
     seedsTag = cms.InputTag("ecalDrivenElectronSeeds"),
     beamSpotTag = cms.InputTag("offlineBeamSpot"),
@@ -166,6 +167,9 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronEcalDrivenProducer",
 
 )
 
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toModify(ecalDrivenGsfElectrons, minSCEtBarrel = 15.0)
+pp_on_AA_2018.toModify(ecalDrivenGsfElectrons, minSCEtEndcaps = 15.0)
 
 #==============================================================================
 # Final producer of persistent gsf electrons
@@ -178,6 +182,7 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     pflowGsfElectronsTag = cms.InputTag("pfElectronTranslator:pf"),
     gsfElectronCoresTag = cms.InputTag("gsfElectronCores"),
     hcalTowers = cms.InputTag("towerMaker"),
+    checkHcalStatus = cms.bool(True),
     barrelRecHitCollectionTag = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     endcapRecHitCollectionTag = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     pfMvaTag =  cms.InputTag("pfElectronTranslator:pf"),

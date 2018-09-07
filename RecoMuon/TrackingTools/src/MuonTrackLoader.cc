@@ -304,12 +304,12 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
       auto const & hit = (*recHitCollection)[ih];
       auto hits = MuonTrackLoader::unpackHit(hit);
       for (auto hh : hits) {
-          if unlikely(!track.appendHitPattern(*hh, ttopo)) break;
+          if UNLIKELY(!track.appendHitPattern(*hh, ttopo)) break;
       }
  
       if(theUpdatingAtVtx && updateResult.first){
         for (auto hh : hits) {
-              if unlikely(!updateResult.second.appendHitPattern(*hh, ttopo)) break;
+              if UNLIKELY(!updateResult.second.appendHitPattern(*hh, ttopo)) break;
         }
       }
     }
@@ -630,12 +630,12 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
       auto const & hit = (*recHitCollection)[ih];
       auto hits = MuonTrackLoader::unpackHit(hit);
       for (auto hh : hits) {
-          if unlikely(!track.appendHitPattern(*hh, ttopo)) break;
+          if UNLIKELY(!track.appendHitPattern(*hh, ttopo)) break;
       }
  
       if(theUpdatingAtVtx && updateResult.first){
         for (auto hh : hits) {
-              if unlikely(!updateResult.second.appendHitPattern(*hh, ttopo)) break;
+              if UNLIKELY(!updateResult.second.appendHitPattern(*hh, ttopo)) break;
         }
       }
     }

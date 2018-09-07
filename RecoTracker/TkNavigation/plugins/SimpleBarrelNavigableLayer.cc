@@ -125,7 +125,7 @@ SimpleBarrelNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
 			      (!(momentum.z() > 0) &&  (dir == alongMomentum) )   );
 
 
-  if likely( dirOppositeXORisInOutTrackBarrel &&  dirOppositeXORisInOutTrackFWD) {
+  if LIKELY( dirOppositeXORisInOutTrackBarrel &&  dirOppositeXORisInOutTrackFWD) {
       if ( signZmomentumXORdir   ) {
 	wellInside( ftsWithoutErrors, dir, theNegOuterLayers, result);
       }
@@ -163,7 +163,7 @@ SimpleBarrelNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
   LogDebug("SimpleBarrelNavigableLayer") << "goingIntoTheBarrel: " << goingIntoTheBarrel;
 
 
-  if unlikely(theSelfSearch && result.empty()){
+  if UNLIKELY(theSelfSearch && result.empty()){
     if (!goingIntoTheBarrel){     
       LogDebug("SimpleBarrelNavigableLayer")<<" state is not going toward the center of the barrel. not adding self search.";}
     else{

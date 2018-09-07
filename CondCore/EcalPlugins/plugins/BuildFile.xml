@@ -1,3 +1,283 @@
+<library   file="EcalTPGWeightGroup_PayloadInspector.cc" name="EcalTPGWeightGroup_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalTPGLutGroup_PayloadInspector.cc" name="EcalTPGLutGroup_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalDQMTowerStatus_PayloadInspector.cc" name="EcalDQMTowerStatus_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalWeightXtalGroups_PayloadInspector.cc" name="EcalWeightXtalGroups_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalTPGFineGrainStripEE_PayloadInspector.cc" name="EcalTPGFineGrainStripEE_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalTPGFineGrainEBGroup_PayloadInspector.cc" name="EcalTPGFineGrainEBGroup_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalTPGFineGrainEBIdMap_PayloadInspector.cc" name="EcalTPGFineGrainEBIdMap_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalTPGFineGrainTowerEE_PayloadInspector.cc" name="EcalTPGFineGrainTowerEE_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalDCSTowerStatus_PayloadInspector.cc" name="EcalDCSTowerStatus_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalDAQTowerStatus_PayloadInspector.cc" name="EcalDAQTowerStatus_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalSRSettings_PayloadInspector.cc" name="EcalSRSettings_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalDCUTemperatures_PayloadInspector.cc" name="EcalDCUTemperatures_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalPTMTemperatures_PayloadInspector.cc" name="EcalPTMTemperatures_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalTimeCalibErrors_PayloadInspector.cc" name="EcalTimeCalibErrors_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalTimeCalibConstants_PayloadInspector.cc" name="EcalTimeCalibConstants_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalLaserAlphas_PayloadInspector.cc" name="EcalLaserAlphas_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalLaserAPDPNRatiosRef_PayloadInspector.cc" name="EcalLaserAPDPNRatiosRef_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalIntercalibErrors_PayloadInspector.cc" name="EcalIntercalibErrors_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalPFRecHitThresholds_PayloadInspector.cc" name="EcalPFRecHitThresholds_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalIntercalibConstantsMC_PayloadInspector.cc" name="EcalIntercalibConstantsMC_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalTPGWeightIdMap_PayloadInspector.cc" name="EcalTPGWeightIdMap_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalClusterLocalContCorrParameters_PayloadInspector.cc" name="EcalClusterLocalContCorrParameters_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalClusterEnergyUncertaintyParameters_PayloadInspector.cc" name="EcalClusterEnergyUncertaintyParameters_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalClusterEnergyCorrectionParameters_PayloadInspector.cc" name="EcalClusterEnergyCorrectionParameters_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalClusterEnergyCorrectionObjectSpecificParameters_PayloadInspector.cc" name="EcalClusterEnergyCorrectionObjectSpecificParameters_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalClusterCrackCorrParameters_PayloadInspector.cc" name="EcalClusterCrackCorrParameters_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalWeightSet_PayloadInspector.cc" name="EcalWeightSet_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalSampleMask_PayloadInspector.cc" name="EcalSampleMask_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalTimeOffsetConstant_PayloadInspector.cc" name="EcalTimeOffsetConstant_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalSamplesCorrelation_PayloadInspector.cc" name="EcalSamplesCorrelation_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalTimeBiasCorrections_PayloadInspector.cc" name="EcalTimeBiasCorrections_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalTPGLutIdMap_PayloadInspector.cc" name="EcalTPGLutIdMap_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalTPGPhysicsConst_PayloadInspector.cc" name="EcalTPGPhysicsConst_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalADCToGeVConstant_PayloadInspector.cc" name="EcalADCToGeVConstant_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalDQMChannelStatus_PayloadInspector.cc" name="EcalDQMChannelStatus_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
 <library   file="EcalPyUtils.cc" name="EcalPyUtils">
   <use   name="CondCore/Utilities"/>
   <use   name="CondFormats/EcalObjects"/>

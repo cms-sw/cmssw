@@ -2,6 +2,7 @@
 Print information about objects in a ROOT file.
 """
 from __future__ import absolute_import
+from __future__ import print_function
 
 from .version import __version__
 
@@ -34,44 +35,44 @@ def recurse_thru_file(in_tfile, options, full_path='/'):
             if not obj:
                 continue
             simple_name = full_name[2:]
-            print "%s" % simple_name,
+            print("%s" % simple_name, end=' ')
             for arg in [x[2:] for x in sys.argv if x.startswith("--")]:
                 if "classname" == arg:
-                    print "%s" % classname,
+                    print("%s" % classname, end=' ')
                 if obj.InheritsFrom('TH1'):
                     if "entries" == arg:
-                        print " %i" % obj.GetEntries(),
+                        print(" %i" % obj.GetEntries(), end=' ')
                     if "contents" == arg:
                         if obj.InheritsFrom('TH2'):
                             # Print contents as they would look on the 2D graph
                             # Left to right, top to bottom.  Start in upper left corner.
                             for j in reversed(range(obj.GetNbinsY())):
-                                print
-                                print " %s" % ' '.join(
-                                    [str(obj.GetBinContent(i+1, j+1)) for i in range(obj.GetNbinsX())]),
+                                print()
+                                print(" %s" % ' '.join(
+                                    [str(obj.GetBinContent(i+1, j+1)) for i in range(obj.GetNbinsX())]), end=' ')
                         else:
-                            print " %s" % ' '.join(
-                                [str(obj.GetBinContent(i+1)) for i in range(obj.GetNbinsX())]),
+                            print(" %s" % ' '.join(
+                                [str(obj.GetBinContent(i+1)) for i in range(obj.GetNbinsX())]), end=' ')
                     if "errors" == arg:
                         if obj.InheritsFrom('TH2'):
                             for j in reversed(range(obj.GetNbinsY())):
-                                print
-                                print " %s" % ' '.join(
-                                    [str(obj.GetBinError(i+1, j+1)) for i in range(obj.GetNbinsX())]),
+                                print()
+                                print(" %s" % ' '.join(
+                                    [str(obj.GetBinError(i+1, j+1)) for i in range(obj.GetNbinsX())]), end=' ')
                         else:
-                            print " %s" % ' '.join(
-                                [str(obj.GetBinError(i+1)) for i in range(obj.GetNbinsX())]),
+                            print(" %s" % ' '.join(
+                                [str(obj.GetBinError(i+1)) for i in range(obj.GetNbinsX())]), end=' ')
                     if "bincenter" == arg:
-                        print " %s" % ' '.join(
-                            [str(obj.GetBinCenter(i+1)) for i in range(obj.GetNbinsX())]),
+                        print(" %s" % ' '.join(
+                            [str(obj.GetBinCenter(i+1)) for i in range(obj.GetNbinsX())]), end=' ')
                     if "max" == arg:
-                        print " %i" % obj.GetMaximum(),
+                        print(" %i" % obj.GetMaximum(), end=' ')
                     if "min" == arg:
-                        print " %i" % obj.GetMinimum(),
+                        print(" %i" % obj.GetMinimum(), end=' ')
                     if "overflow" == arg:
-                        print " %i" % obj.GetBinContent(obj.GetNbinsX()),
+                        print(" %i" % obj.GetBinContent(obj.GetNbinsX()), end=' ')
                     if "underflow" == arg:
-                        print " %i" % obj.GetBinContent(0),
+                        print(" %i" % obj.GetBinContent(0), end=' ')
                 if obj.InheritsFrom('TGraph'):
                     if "contents" == arg:
                         x, y = Double(0), Double(0)
@@ -82,8 +83,8 @@ def recurse_thru_file(in_tfile, options, full_path='/'):
                             xvals.append(copy.copy(x))
                             yvals.append(copy.copy(y))
                         for point in zip(xvals,yvals):
-                            print " (%d, %d)" % point,
-            print ""
+                            print(" (%d, %d)" % point, end=' ')
+            print("")
 
 def main():
     parser = argparse.ArgumentParser(description='Print information from an SC2 replay file.')
@@ -119,7 +120,7 @@ def main():
         sys.exit(0)
     for filename in filenames_from_interface:
         if not os.path.exists(filename):
-            print "%s does not exist." % filename
+            print("%s does not exist." % filename)
             sys.exit(0)
         tfile = TFile(filename, "read")
         try:

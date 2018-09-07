@@ -191,7 +191,7 @@ private:
 inline
 const AlgebraicVector5 & PerigeeLinearizedTrackState::constantTerm() const
 {
-  if unlikely(!jacobiansAvailable) computeJacobians();
+  if UNLIKELY(!jacobiansAvailable) computeJacobians();
   return theConstantTerm;
 }
 
@@ -201,7 +201,7 @@ const AlgebraicVector5 & PerigeeLinearizedTrackState::constantTerm() const
 inline
 const AlgebraicMatrix53 & PerigeeLinearizedTrackState::positionJacobian() const
 {
-  if unlikely(!jacobiansAvailable) computeJacobians();
+  if UNLIKELY(!jacobiansAvailable) computeJacobians();
   return thePositionJacobian;
 }
 
@@ -211,7 +211,7 @@ const AlgebraicMatrix53 & PerigeeLinearizedTrackState::positionJacobian() const
 inline
 const AlgebraicMatrix53 & PerigeeLinearizedTrackState::momentumJacobian() const
 {
-  if unlikely(!jacobiansAvailable) computeJacobians();
+  if UNLIKELY(!jacobiansAvailable) computeJacobians();
   return theMomentumJacobian;
 }
 
@@ -220,7 +220,7 @@ const AlgebraicMatrix53 & PerigeeLinearizedTrackState::momentumJacobian() const
 inline
 const AlgebraicVector5 & PerigeeLinearizedTrackState::parametersFromExpansion() const
 {
-  if unlikely(!jacobiansAvailable) computeJacobians();
+  if UNLIKELY(!jacobiansAvailable) computeJacobians();
   return theExpandedParams;
 }
 
@@ -231,7 +231,7 @@ const AlgebraicVector5 & PerigeeLinearizedTrackState::parametersFromExpansion() 
 inline
 const TrajectoryStateClosestToPoint & PerigeeLinearizedTrackState::predictedState() const
 {
-  if unlikely(!jacobiansAvailable) computeJacobians();
+  if UNLIKELY(!jacobiansAvailable) computeJacobians();
   return thePredState;
 }
 
@@ -239,7 +239,7 @@ const TrajectoryStateClosestToPoint & PerigeeLinearizedTrackState::predictedStat
 inline
 bool PerigeeLinearizedTrackState::hasError() const
 {
-  if unlikely(!jacobiansAvailable) computeJacobians();
+  if UNLIKELY(!jacobiansAvailable) computeJacobians();
   return thePredState.hasError();
 }
 
@@ -253,7 +253,7 @@ AlgebraicVector5 PerigeeLinearizedTrackState::predictedStateParameters() const
 inline
 AlgebraicVector3 PerigeeLinearizedTrackState::predictedStateMomentumParameters() const
 {
-  if unlikely(!jacobiansAvailable) computeJacobians();
+  if UNLIKELY(!jacobiansAvailable) computeJacobians();
   auto v= thePredState.perigeeParameters().vector();
   return AlgebraicVector3(v[0],v[1],v[2]);
 
@@ -262,7 +262,7 @@ AlgebraicVector3 PerigeeLinearizedTrackState::predictedStateMomentumParameters()
 inline
 AlgebraicSymMatrix55 PerigeeLinearizedTrackState::predictedStateWeight(int & error) const
 {
-  if unlikely(!jacobiansAvailable) computeJacobians();
+  if UNLIKELY(!jacobiansAvailable) computeJacobians();
   if (!thePredState.isValid()) {
     error = 1;
     return AlgebraicSymMatrix55();
@@ -273,22 +273,22 @@ AlgebraicSymMatrix55 PerigeeLinearizedTrackState::predictedStateWeight(int & err
 inline
 AlgebraicSymMatrix55 PerigeeLinearizedTrackState::predictedStateError() const
 {
-  if unlikely(!jacobiansAvailable) computeJacobians();
+  if UNLIKELY(!jacobiansAvailable) computeJacobians();
   return thePredState.perigeeError().covarianceMatrix();
 } 
 
 inline
 AlgebraicSymMatrix33 PerigeeLinearizedTrackState::predictedStateMomentumError() const
 {
-  if unlikely(!jacobiansAvailable) computeJacobians();
+  if UNLIKELY(!jacobiansAvailable) computeJacobians();
   return thePredState.perigeeError().covarianceMatrix().Sub<AlgebraicSymMatrix33>(0,2);
 } 
 
 inline
 bool PerigeeLinearizedTrackState::isValid() const
 {
-  if unlikely(!theTSOS.isValid()) return false;
-  if unlikely(!jacobiansAvailable) computeJacobians();
+  if UNLIKELY(!theTSOS.isValid()) return false;
+  if UNLIKELY(!jacobiansAvailable) computeJacobians();
   return jacobiansAvailable;
 }
 

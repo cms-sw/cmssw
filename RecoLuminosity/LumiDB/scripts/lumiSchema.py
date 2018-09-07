@@ -1,11 +1,12 @@
 #!/usr/bin/env python
+from __future__ import print_function
 VERSION='2.00'
 import os,sys
 import coral
 from RecoLuminosity.LumiDB import argparse,dbUtil,nameDealer
 
 def createLumi(dbsession):
-    print 'creating lumi db schema...'
+    print('creating lumi db schema...')
     dbsession.transaction().start(False)
     schema=dbsession.nominalSchema()
     db=dbUtil.dbUtil(schema)
@@ -192,7 +193,7 @@ def createValidation(dbsession):
     dbsession.transaction().commit()
     
 def dropLumi(dbsession):
-    print 'droping lumi db schema...'
+    print('droping lumi db schema...')
     dbsession.transaction().start(False)
     schema=dbsession.nominalSchema()
     db=dbUtil.dbUtil(schema)
@@ -208,7 +209,7 @@ def dropLumi(dbsession):
     dbsession.transaction().commit()
     
 def describeLumi(dbsession):
-    print 'lumi db schema dump...'
+    print('lumi db schema dump...')
     dbsession.transaction().start(True)
     schema=dbsession.nominalSchema()
     db=dbUtil.dbUtil(schema)
@@ -264,7 +265,7 @@ def main():
     if args.action == 'dropindex':
        dropIndex(session)
     if args.verbose :
-        print 'verbose mode'
+        print('verbose mode')
 if __name__=='__main__':
     main()
     

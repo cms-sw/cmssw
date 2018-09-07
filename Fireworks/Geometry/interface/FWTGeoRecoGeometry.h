@@ -19,7 +19,7 @@ public:
   struct Info
   {
     std::string name;
-    float points[24]; // x1,y1,z1...x8,y8,z8
+    float points[36]; // x1,y1,z1...x8,y8,z8,...,x12,y12,z12
     float topology[9]; 
     Info( const std::string& iname )
       : name( iname )
@@ -33,7 +33,7 @@ public:
     void
     init( void )
       {
-	for( unsigned int i = 0; i < 24; ++i ) points[i] = 0;
+	for( unsigned int i = 0; i < 36; ++i ) points[i] = 0;
 	for( unsigned int i = 0; i < 9; ++i ) topology[i] = 0;
       }
     void
@@ -42,7 +42,7 @@ public:
 	 unsigned int index( 0 );
 	 for( std::vector<GlobalPoint>::const_iterator i = begin; i != end; ++i )
 	 {
-	    assert( index < 8 );
+	    assert( index < 12 );
 	    points[index*3] = i->x();
 	    points[index*3+1] = i->y();
 	    points[index*3+2] = i->z();

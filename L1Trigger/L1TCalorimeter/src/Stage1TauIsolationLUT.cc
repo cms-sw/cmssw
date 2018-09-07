@@ -12,7 +12,7 @@ const unsigned int Stage1TauIsolationLUT::nbitsTau=NBITS_TAU_ET_LUT;
 const unsigned int Stage1TauIsolationLUT::nbits_data=NBITS_DATA;
 const unsigned int Stage1TauIsolationLUT::lut_version=LUT_VERSION;
 
-Stage1TauIsolationLUT::Stage1TauIsolationLUT(CaloParamsHelper* params): params_(params) 
+Stage1TauIsolationLUT::Stage1TauIsolationLUT(CaloParamsHelper const* params): params_(params) 
 {};
 
 unsigned Stage1TauIsolationLUT::lutAddress(unsigned int tauPt, unsigned int jetPt) const

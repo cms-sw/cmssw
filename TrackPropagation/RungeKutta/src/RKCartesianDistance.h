@@ -2,6 +2,7 @@
 #define RKCartesianDistance_H
 
 #include "FWCore/Utilities/interface/Visibility.h"
+#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 #include "RKDistance.h"
 #include "RKSmallVector.h"
 #include "CartesianStateAdaptor.h"

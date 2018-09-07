@@ -2,7 +2,7 @@
 #define Geometry_CaloTopology_HGCalTopology_h 1
 
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
@@ -13,7 +13,7 @@ class HGCalTopology : public CaloSubdetectorTopology {
 
 public:
   /// create a new Topology
-  HGCalTopology(const HGCalDDDConstants& hdcons, ForwardSubdetector subdet, bool halfChamber);
+  HGCalTopology(const HGCalDDDConstants& hdcons, int subdet);
 
   /// virtual destructor
   ~HGCalTopology() override { }  
@@ -109,17 +109,22 @@ public:
   static const int subSectors_ = 2;
 
   struct DecodedDetId {
-    DecodedDetId() : iCell(0), iLay(0), iSec(0), iSubSec(0), zside(0), 
-		     subdet(0) {}
-    int                       iCell, iLay, iSec, iSubSec, zside, subdet;
+    DecodedDetId() : iCell1(0), iCell2(0), iLay(0), iSec1(0), iSec2(0),
+                     iType(0), zSide(0), det(0) {}
+    int              iCell1, iCell2, iLay, iSec1, iSec2, iType, zSide, det;
   };
 
   DecodedDetId geomDenseId2decId(const uint32_t& hi) const;
   DecodedDetId decode(const DetId& id)  const ;
   DetId encode(const DecodedDetId& id_) const ;
 
-  ForwardSubdetector subDetector()  const { return subdet_;}
-  bool               detectorType() const { return half_;}
+  DetId::Detector    detector()  const { return det_;}
+  ForwardSubdetector subDetector()  const {return subdet_;}
+  bool               detectorType() const { return false;}
+  bool               isHFNose() const { 
+    return (((det_ == DetId::Forward) && 
+	     (subdet_ == ForwardSubdetector::HFNose)) ?  true : false);
+  }
 private:
 
   /// move the nagivator along x, y
@@ -131,11 +136,11 @@ private:
   const HGCalDDDConstants&        hdcons_;
   HGCalGeometryMode::GeometryMode mode_;
 
+  DetId::Detector                 det_;
   ForwardSubdetector              subdet_;
-  bool                            half_;
-  int                             sectors_, layers_, cells_;
+  int                             sectors_, layers_, cells_, types_;
+  int                             firstLay_, cellMax_, waferOff_, waferMax_;
   int                             kHGhalf_, kHGeomHalf_;
-  std::vector<int>                maxcells_;
   unsigned int                    kSizeForDenseIndexing;
 };
 

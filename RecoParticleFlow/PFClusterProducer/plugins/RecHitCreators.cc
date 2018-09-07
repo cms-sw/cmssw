@@ -27,4 +27,7 @@ DEFINE_EDM_PLUGIN(PFRecHitFactory, PFPSRecHitCreator, "PFPSRecHitCreator");
 DEFINE_EDM_PLUGIN(PFRecHitFactory, PFHGCEERecHitCreator, "PFHGCEERecHitCreator");
 DEFINE_EDM_PLUGIN(PFRecHitFactory, PFHGCHEFRecHitCreator, "PFHGCHEFRecHitCreator");
 DEFINE_EDM_PLUGIN(PFRecHitFactory, PFHGCHEBRecHitCreator, "PFHGCHEBRecHitCreator");
+DEFINE_EDM_PLUGIN(PFRecHitFactory, PFHGCalEERecHitCreator, "PFHGCalEERecHitCreator");
+DEFINE_EDM_PLUGIN(PFRecHitFactory, PFHGCalHSiRecHitCreator, "PFHGCalHSiRecHitCreator");
+DEFINE_EDM_PLUGIN(PFRecHitFactory, PFHGCalHScRecHitCreator, "PFHGCalHScRecHitCreator");
 

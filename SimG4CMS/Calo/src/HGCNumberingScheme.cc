@@ -39,9 +39,11 @@ uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector subdet, int layer,
     } else {
       hgcons_.waferFromPosition(pos.x(),pos.y(),wafer,icell,celltyp);
     }
-    if (celltyp != 1) celltyp = 0;    
-    index   = HGCalTestNumbering::packHexagonIndex((int)subdet,iz,layer,wafer, 
-						   celltyp,icell);    
+    if (wafer >= 0) {
+      if (celltyp != 1) celltyp = 0;    
+      index   = HGCalTestNumbering::packHexagonIndex((int)subdet,iz,layer,wafer, 
+						     celltyp,icell);    
+    }
   } else if (hgcons_.geomMode() == HGCalGeometryMode::Hexagon) {
     wafer =  hgcons_.waferFromCopy(module);
     celltyp = cell/1000;
@@ -51,7 +53,7 @@ uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector subdet, int layer,
     index   = HGCalTestNumbering::packHexagonIndex((int)subdet,iz,layer,wafer, 
 						   celltyp,icell);    
     //check if it fits
-    if (!hgcons_.isValid(layer,wafer,icell,false)) {
+    if (!hgcons_.isValidHex(layer,wafer,icell,false)) {
       index = 0;
       edm::LogError("HGCSim") << "[HGCNumberingScheme] ID out of bounds :"
                               << " Subdet= " << subdet << " Zside= " << iz
@@ -61,9 +63,10 @@ uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector subdet, int layer,
     }
   }
 #ifdef EDM_ML_DEBUG
-  std::cout << "HGCNumberingScheme::i/p " << subdet << ":" << layer << ":" 
-	    << module << ":" << iz << ":" << wafer << ":" << celltyp << ":" 
-	    << icell << ":" << std::hex << index << std::dec  << std::endl;
+  edm::LogVerbatim("HGCSim") << "HGCNumberingScheme::i/p " << subdet << ":"
+			     << layer << ":" << module << ":" << iz << ":" 
+			     << wafer << ":" << celltyp << ":" << icell << ":"
+			     << std::hex << index << std::dec;
 #endif
   return index;
 }

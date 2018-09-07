@@ -77,7 +77,7 @@ ResultSet *RunDCSHVDat::getBarrelRset(const Tm& timeStart) {
 
     rset = m_readStmt->executeQuery();
   }
-  catch (SQLException e) {
+  catch (SQLException &e) {
 #if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
     throw(std::runtime_error(std::string("RunDCSHVDat::getBarrelRset():  ") + getOraMessage(&e) + " " + query));
 #else
@@ -105,7 +105,7 @@ ResultSet *RunDCSHVDat::getEndcapAnodeRset(const Tm& timeStart) {
 
     rset = m_readStmt->executeQuery();
   }
-  catch (SQLException e) {
+  catch (SQLException &e) {
 #if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
     throw(std::runtime_error(std::string("RunDCSHVDat::getBarrelRset():  ") + getOraMessage(&e) + " " + query));
 #else
@@ -133,7 +133,7 @@ ResultSet *RunDCSHVDat::getEndcapDynodeRset(const Tm& timeStart) {
 
     rset = m_readStmt->executeQuery();
   }
-  catch (SQLException e) {
+  catch (SQLException &e) {
 #if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
     throw(std::runtime_error(std::string("RunDCSHVDat::getBarrelRset():  ") + getOraMessage(&e) + " " + query));
 #else
@@ -156,7 +156,7 @@ ResultSet *RunDCSHVDat::getBarrelRset() {
     m_readStmt->setSQL(query);
     rset = m_readStmt->executeQuery();
   }
-  catch (SQLException e) {
+  catch (SQLException &e) {
     throw(std::runtime_error(std::string("RunDCSHVDat::getBarrelRset():  ") + getOraMessage(&e) + " " + query));
   }
   return rset;
@@ -174,7 +174,7 @@ ResultSet *RunDCSHVDat::getBarrelRset() {
     m_readStmt->setSQL(query);
     rset = m_readStmt->executeQuery();
   }
-  catch (SQLException e) {
+  catch (SQLException &e) {
 #if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
     throw(std::runtime_error(std::string("RunDCSHVDat::getBarrelRset():  ") + getOraMessage(&e) + " " + query));
 #else
@@ -195,7 +195,7 @@ ResultSet *RunDCSHVDat::getEndcapAnodeRset() {
     m_readStmt->setSQL(query);
     rset = m_readStmt->executeQuery();
   }
-  catch (SQLException e) {
+  catch (SQLException &e) {
 #if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
     throw(std::runtime_error(std::string("RunDCSHVDat::getEndcapAnodeRset():  ") + getOraMessage(&e) + " " + query));
 #else
@@ -216,7 +216,7 @@ ResultSet *RunDCSHVDat::getEndcapDynodeRset() {
     m_readStmt->setSQL(query);
     rset = m_readStmt->executeQuery();
   } 
-  catch (SQLException e) {
+  catch (SQLException &e) {
 #if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
     throw(std::runtime_error(std::string("RunDCSHVDat::getEndcapDynodeRset():  ") + getOraMessage(&e) + " " + query));
 #else

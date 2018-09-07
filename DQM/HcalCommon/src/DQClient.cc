@@ -2,6 +2,7 @@
 
 namespace hcaldqm
 {
+	using namespace constants;
 	DQClient::DQClient(std::string const& name, std::string const& taskname,
 		edm::ParameterSet const& ps) :
 		DQModule(ps),_taskname(taskname), _maxProcessedLS(0)

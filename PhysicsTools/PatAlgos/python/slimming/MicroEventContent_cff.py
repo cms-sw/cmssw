@@ -14,6 +14,8 @@ MicroEventContent = cms.PSet(
         # drop content created by MINIAOD DeepFlavour production
         'drop recoBaseTagInfosOwned_slimmedJets_*_*',
         'keep *_slimmedJetsAK8_*_*',
+        # drop content created by MINIAOD DeepDoubleB production
+        'drop recoBaseTagInfosOwned_slimmedJetsAK8_*_*',
         'keep *_slimmedJetsPuppi_*_*',
         'keep *_slimmedMETs_*_*',
         'keep *_slimmedMETsNoHF_*_*',
@@ -30,7 +32,7 @@ MicroEventContent = cms.PSet(
         'keep recoCaloClusters_reducedEgamma_*_*',
         'keep EcalRecHitsSorted_reducedEgamma_*_*',
         'keep recoGsfTracks_reducedEgamma_*_*',
-        
+        'keep HBHERecHitsSorted_reducedEgamma_*_*',
         'drop *_*_caloTowers_*',
         'drop *_*_pfCandidates_*',
         'drop *_*_genJets_*',
@@ -76,7 +78,9 @@ MicroEventContent = cms.PSet(
         # Lumi
         'keep LumiScalerss_scalersRawToDigi_*_*',
         # CTPPS
-        'keep CTPPSLocalTrackLites_ctppsLocalTrackLiteProducer_*_*'
+        'keep CTPPSLocalTrackLites_ctppsLocalTrackLiteProducer_*_*',
+	# displacedStandAlone muon collection for EXO
+	'keep recoTracks_displacedStandAloneMuons__*',
     )
 )
 

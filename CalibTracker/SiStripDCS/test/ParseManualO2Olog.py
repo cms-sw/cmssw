@@ -2,6 +2,7 @@
 #Script to parse the output of ManualO2O.py for various debugging tasks
 #First use case is to debug issue with HV1/HV2 channels handling
 
+from __future__ import print_function
 import os,datetime, pickle
 def GetLogTimestamps(ManualO2Ologfilename):
     """
@@ -23,12 +24,12 @@ def GetLogTimestamps(ManualO2Ologfilename):
             #Assume that when Tmax is read Tmin was read too since we are parsing lines like this:
             #     Tmin: 2010 8 27 10 0 0 0
             #     Tmax: 2010 8 29 9 0 0 0
-            print "%s- Tmin: %s and Tmax: %s (number log lines %s)"%(IOVCounter,Tmin,Tmax,LinesCounter)
+            print("%s- Tmin: %s and Tmax: %s (number log lines %s)"%(IOVCounter,Tmin,Tmax,LinesCounter))
             #Actually Tmin is not necessary... since they all will be set to the first one in the dcs_o2O_template.py used by the ManualO2O.py that created the log we're parsing.
             if Tmax not in ListOfTmax.keys():
                 TmaxDict.update({Tmax:LinesCounter})
             else:
-                print "This Tmax (%s) seems to be duplicated!!!"%Tmax
+                print("This Tmax (%s) seems to be duplicated!!!"%Tmax)
             LinesCounter=0
             IOVCounter+=1
     ManualO2Olog.close()
@@ -53,7 +54,7 @@ def GetLogInfoByTimeStamp(ManualO2Ologfilename,StartTime,StopTime):
             if 'Tmin:' in line:
                 break
             else:
-                print line.strip()
+                print(line.strip())
                 WantedLines.append(line)
     ManualO2Olog.close()
     return WantedLines
@@ -130,7 +131,7 @@ def GetQueryResults(ManualO2Ologfilename):
     }
     The idea is that any massaging of this information is done later, while this function returns the query results in bulk.
     """
-    print "Parsing file %s to extract query results"%ManualO2Ologfilename
+    print("Parsing file %s to extract query results"%ManualO2Ologfilename)
     #Open the log:
     ManualO2Olog=open(ManualO2Ologfilename,'r')
     #Loop to extract the start and stop times
@@ -153,7 +154,7 @@ def GetQueryResults(ManualO2Ologfilename):
             if (Tmin,Tmax) not in QueryResultsDict.keys():
                 QueryResultsDict.update({(Tmin,Tmax):[]})
             else:
-                print "This Tmax (%s) seems to be duplicated!!!"%Tmax
+                print("This Tmax (%s) seems to be duplicated!!!"%Tmax)
         if "Dumping all query results" in line:
             ReadRows=True
         if "Finished dumping query results" in line:
@@ -183,8 +184,8 @@ def GetQueryResults(ManualO2Ologfilename):
                         deltaTimezone=datetime.timedelta(seconds=7200) #DST+GMT+1 (not valid in non DST times but ok for Run144086...
                         Row.update({'change_date':changeDate+deltaTimezone})
                     except:
-                        print "WEIRD!\n Timestamp had a format YYYY/MM/DD HH:MM:0SS.millisecond (extra 0 tabbing for seconds!)"
-                        print line
+                        print("WEIRD!\n Timestamp had a format YYYY/MM/DD HH:MM:0SS.millisecond (extra 0 tabbing for seconds!)")
+                        print(line)
                         #Approximate time to the second, millisecond seems just to be too much information anyway
                         #(one can uncomment following line to do detailed tests if needed for a short time interval)
                         #Row.update({'change_date':datetime.datetime.strptime(token[token.index(":")+2:-5],"%Y/%m/%d %H:%M:0%S")})
@@ -239,7 +240,7 @@ class TrkVoltageStatus:
             #FIXME PIXEL:
             #Add a flag for pixels (name of the map?) to implement the check for either detector
             if len(list(set(self.detIDs)))!=15148:
-                print "There is an issue with the map provided: not reporting 15148 unique detIDs!"
+                print("There is an issue with the map provided: not reporting 15148 unique detIDs!")
             #Parse the PSU channel part of the map
             #This one does not list all channels, but follows this convention:
             #-detids that are HV mapped list channel002 or channel003
@@ -250,7 +251,7 @@ class TrkVoltageStatus:
             self.PSUs=list(set([PSUChannel[:-10] for PSUChannel in self.PSUChannelListed]))
             #Check number of PSUs:
             if len(self.PSUs)!=1944:
-                print "There is an issue with the map provided: not reporting 1944 unique Power Supplies!"
+                print("There is an issue with the map provided: not reporting 1944 unique Power Supplies!")
             #Building now a list of all PSUChannels
             #(since queries to the DB will report results in DPNAMEs, i.e. PSU channels
             self.PSUChannels=[]
@@ -267,7 +268,7 @@ class TrkVoltageStatus:
                 maskfile.close()
             except:
                 self.masked_detIDs=[] #empty list of detIDs to be "masked"
-                print "No mask map was provided, assuming to start from a complete Tracker OFF state"
+                print("No mask map was provided, assuming to start from a complete Tracker OFF state")
             try:
                 DetIDAlias=open(DetIDAliasFile,"rb")
                 DetIDAliasDict=pickle.load(DetIDAlias)
@@ -275,13 +276,13 @@ class TrkVoltageStatus:
                 self.DetIDAliasDict=DetIDAliasDict
             except:
                 self.DetIDAliasDict={}
-                print "No valid detID-Alias map pickle file was provided!"
-                print "The TkrVoltageStatus object could not be initialized properly!"
-                print "Please use an existing detIDPSUChannel mapfilename as argument!"
+                print("No valid detID-Alias map pickle file was provided!")
+                print("The TkrVoltageStatus object could not be initialized properly!")
+                print("Please use an existing detIDPSUChannel mapfilename as argument!")
                 sys.exit()
         except:
-            print "Could not find detID-PSUchannel map to initialize the detIDs"
-            print "The TkrVoltageStatus object could not be initialized properly! Please use an existing detIDPSUChannel mapfilename as argument!"
+            print("Could not find detID-PSUchannel map to initialize the detIDs")
+            print("The TkrVoltageStatus object could not be initialized properly! Please use an existing detIDPSUChannel mapfilename as argument!")
             sys.exit()
         #With the information from the map build the 2 map dictionaries of interest:
         #DetID->PSUChannelListed (same convention as the map)
@@ -372,7 +373,7 @@ class TrkVoltageStatus:
         #First check if we care about this channel (could be a Pixel channel while we want only Strip channels or viceversa):
         if row['dpname'] not in self.PSUChannels:
             if self.debug:
-                print "Discarding results row since it is not in the currently considered map:\n%s"%row['dpname']
+                print("Discarding results row since it is not in the currently considered map:\n%s"%row['dpname'])
             return        
         
         #NOTE:
@@ -382,13 +383,13 @@ class TrkVoltageStatus:
         if self.debug:
             if row['change_date'] not in self.PSUChannelHistory.keys():
                 if nextTimeStamp!="Infinity":
-                    print "WARNING! Asynchronous updating of the Tracker Voltage Status"
-                    print "WARNING! Inserting an IOV between %s, and %s existing timestamps!"%(lastTimeStamp,nextTimeStamp)
-                    print "The state will be correctly updated (if necessary) starting from the state at %s"%lastTimeStamp
+                    print("WARNING! Asynchronous updating of the Tracker Voltage Status")
+                    print("WARNING! Inserting an IOV between %s, and %s existing timestamps!"%(lastTimeStamp,nextTimeStamp))
+                    print("The state will be correctly updated (if necessary) starting from the state at %s"%lastTimeStamp)
                 else:
-                    print "Appending one more IOV to the PSUChannelHistory dictionary"
+                    print("Appending one more IOV to the PSUChannelHistory dictionary")
             else:
-                print "Updating already present IOV with timestamp %s"%row['change_date']
+                print("Updating already present IOV with timestamp %s"%row['change_date'])
         #The fact that we edit the lasttimestamp takes care of updating existing IOVs the same way as for new ones...
         #Update the internal dictionary modifying the last time stamp state...
         #Case of channel being ON (it's only ON if CAEN reports 1)
@@ -399,8 +400,8 @@ class TrkVoltageStatus:
                 self.PSUChannelHistory.update({row['change_date']:PSUChannelOFFList})
             except:
                 if self.debug:
-                    print "Found a channel that turned ON but as already ON apparently!"
-                    print row
+                    print("Found a channel that turned ON but as already ON apparently!")
+                    print(row)
         else: #Case of channel being OFF (it's considered OFF in any non 1 state, ramping, error, off)
             PSUChannelOFFList.append(self.PSUChannels.index(row['dpname']))
             self.PSUChannelHistory.update({row['change_date']:list(set(PSUChannelOFFList))})
@@ -649,7 +650,7 @@ class TrkVoltageStatus:
         graph.SetTitle(GraphTitle)
         graph.Draw("APL")
         canvas.SaveAs(GraphFilename)
-        print "Saved graph as %s"%GraphFilename
+        print("Saved graph as %s"%GraphFilename)
         return
     def plotPSUChannelvsTime(self,TimeArray,ValuesArray,GraphTitle="PSUChannelGraph",YTitle="Channel HV Status",GraphFilename="PSUChannel.gif"):
         """
@@ -674,7 +675,7 @@ class TrkVoltageStatus:
         graph.SetTitle(GraphTitle)
         graph.Draw("APL")
         canvas.SaveAs(GraphFilename)
-        print "Saved graph as %s"%GraphFilename
+        print("Saved graph as %s"%GraphFilename)
         return
     
     def plotHVOFFvsTime(self):
@@ -723,23 +724,21 @@ class TrkVoltageStatus:
         else:
             TimeStampStop="Infinity"
         if self.debug:
-            print "TimeStamp %s falls into IOV starting at %s and ending at %s"%(timeStamp,TimeStampStart,TimeStampStop)
+            print("TimeStamp %s falls into IOV starting at %s and ending at %s"%(timeStamp,TimeStampStart,TimeStampStop))
         return (TimeStampStart,TimeStampStop)
 
     def getIOVsInTimeInterval(self,StartTime,StopTime,HistoryDict):
         """
         Function that returns the IOV timestamps (ordered) contained in a given interval.
         """
-        #Copy the timestamps in a list
-        TimeStamps=HistoryDict.keys()[:]
-        #Sort them:
-        TimeStamps.sort()
+        #Copy and sort the timestamps in a list
+        TimeStamps=sorted(HistoryDict.keys()[:])
         IOVsInTimeInterval=[]
         #loop over them:
         for timestamp in TimeStamps:
             if timestamp>=StartTime and timestamp<=StopTime: #Pick only the timestamps inside the time interval specified
                 if self.debug:
-                    print "Found timestamp %s in the wanted interval [%s,%s]"%(timestamp,StartTime,StopTime)
+                    print("Found timestamp %s in the wanted interval [%s,%s]"%(timestamp,StartTime,StopTime))
                 IOVsInTimeInterval.append(timestamp)
         return IOVsInTimeInterval
 
@@ -749,10 +748,8 @@ class TrkVoltageStatus:
         """
         deltaTime=datetime.timedelta(seconds=deltaT)
         maxSequenceLength=datetime.timedelta(seconds=maxIOVLength)
-        #Copy the timestamps in a list:
-        TimeStamps=HistoryDict.keys()[:]
-        #Sort them:
-        TimeStamps.sort()
+        #Copy and sort the timestamps in a list:
+        TimeStamps=sorted(HistoryDict.keys()[:])
         ReducedIOVs=TimeStamps[:]
         PreviousTimestamp=TimeStamps[0] 
         SequenceStart=TimeStamps[0]  #Initialization irrelevant see loop
@@ -769,11 +766,11 @@ class TrkVoltageStatus:
                         #Check that this timestamp is not farther away than the maximum IOV sequence
                         if (timestamp-SequenceStart)<=maxSequenceLength and timestamp!=TimeStamps[-1]:#need to handle the last time stamp differently!
                             if self.debug:
-                                print "Eliminating timestamp %s since it is %s (<=%s)seconds from previous timestamp %s and %s (<=%s) seconds from the IOV sequence start %s!"%(timestamp,timestamp-PreviousTimestamp,deltaTime,PreviousTimestamp,timestamp-SequenceStart,maxSequenceLength,SequenceStart)
+                                print("Eliminating timestamp %s since it is %s (<=%s)seconds from previous timestamp %s and %s (<=%s) seconds from the IOV sequence start %s!"%(timestamp,timestamp-PreviousTimestamp,deltaTime,PreviousTimestamp,timestamp-SequenceStart,maxSequenceLength,SequenceStart))
                             ReducedIOVs.remove(timestamp)
                         elif timestamp==TimeStamps[-1]: #special case of last timestamp in the list of input timestamps!
                             if self.debug:
-                                print "###Terminating the IOV sequence started with %s, since current timestamp %s is the last one in the input list of timestamps to REDUCE!"%(SequenceStart,timestamp)
+                                print("###Terminating the IOV sequence started with %s, since current timestamp %s is the last one in the input list of timestamps to REDUCE!"%(SequenceStart,timestamp))
                         else:
                             #Terminate the sequence (keep the timestamp):
                             SequenceOn=False
@@ -782,13 +779,13 @@ class TrkVoltageStatus:
                             #Re-order the list via sort():
                             ReducedIOVs.sort()
                             if self.debug:
-                                print "###Terminating the IOV sequence started with %s, since current timestamp %s is %s seconds (>%s) away from the IOV sequence starting timestamp (%s). Re-appending the last timestamp in the sequence %s."%(SequenceStart,timestamp,timestamp-SequenceStart,maxIOVLength,PreviousTimestamp,PreviousTimestamp)
+                                print("###Terminating the IOV sequence started with %s, since current timestamp %s is %s seconds (>%s) away from the IOV sequence starting timestamp (%s). Re-appending the last timestamp in the sequence %s."%(SequenceStart,timestamp,timestamp-SequenceStart,maxIOVLength,PreviousTimestamp,PreviousTimestamp))
                     else:
                         #Start the sequence
                         SequenceOn=True
                         #Save the first timestamp of the sequence (it will be used to check sequence length)
                         if self.debug:
-                            print "@@@Starting a new IOV sequence with previous timestamp %s (current being %s)"%(PreviousTimestamp,timestamp)
+                            print("@@@Starting a new IOV sequence with previous timestamp %s (current being %s)"%(PreviousTimestamp,timestamp))
                         #Still get rid of the current (second in the sequence) IOV:
                         ReducedIOVs.remove(timestamp)
                         SequenceStart=PreviousTimestamp
@@ -802,7 +799,7 @@ class TrkVoltageStatus:
                         #Re-order the list via sort():
                         ReducedIOVs.sort()
                         if self.debug:
-                            print "$$$Terminating the IOV sequence started with %s, since current timestamp %s is %s seconds (>%s) away from the previous timestamp (%s) in the sequence. Re-appending the last timestamp in the sequence %s."%(SequenceStart,timestamp,timestamp-PreviousTimestamp,deltaT,PreviousTimestamp,PreviousTimestamp)
+                            print("$$$Terminating the IOV sequence started with %s, since current timestamp %s is %s seconds (>%s) away from the previous timestamp (%s) in the sequence. Re-appending the last timestamp in the sequence %s."%(SequenceStart,timestamp,timestamp-PreviousTimestamp,deltaT,PreviousTimestamp,PreviousTimestamp))
                                                             
             else:
                 #The following is conventional of course:
@@ -818,7 +815,7 @@ class TrkVoltageStatus:
                     #Re-order the list via sort():
                     ReducedIOVs.sort()
                     if self.debug:
-                        print "^^^ Terminating the IOV sequence started with %s, since current timestamp %s is no more in the wanted time interval under investigation ([%s,%s]). Sequence might have been continuing beyond the StopTime %s limit! Re-appending the last timestamp in the sequence %s."%(SequenceStart,timestamp,StartTime,StopTime,StopTime,PreviousTimestamp)
+                        print("^^^ Terminating the IOV sequence started with %s, since current timestamp %s is no more in the wanted time interval under investigation ([%s,%s]). Sequence might have been continuing beyond the StopTime %s limit! Re-appending the last timestamp in the sequence %s."%(SequenceStart,timestamp,StartTime,StopTime,StopTime,PreviousTimestamp))
             PreviousTimestamp=timestamp
         return ReducedIOVs
 
@@ -937,12 +934,12 @@ hours=72 #introduced to test only a few hours, setting it to 1000 to process ALL
 for interval in sorted(QueryResults.keys()):
     counter+=1
     if counter<hours: #Hours
-        print "Updating TkStatus with query results for time interval %s to %s"%interval
+        print("Updating TkStatus with query results for time interval %s to %s"%interval)
         for row in QueryResults[interval]:
             TkStatus.updateO2OQuery(row)
-            print len(TkStatus.PSUChannelHistory)
+            print(len(TkStatus.PSUChannelHistory))
 if counter-hours>0:
-    print "Number of intervals skipped %s"%(counter-hours)
+    print("Number of intervals skipped %s"%(counter-hours))
 #Dump the PSUChannelHistory dictionary!
 #TkHistoryPickle=open("TkPSUChannelHistory.pkl","wb")
 #pickle.dump(TkStatus.PSUChannelHistory,TkHistoryPickle)
@@ -1084,10 +1081,10 @@ if counter-hours>0:
 #Get the ReducedIOVsTimestamps (using the TkVoltage.getReducedIOVs() using the same deltaT=15s, and maxIOVSequenceLength=120s):
 ReducedIOVsTimestamps=TkStatus.getReducedIOVs(datetime.datetime(2010, 8, 27, 12, 0),datetime.datetime(2010, 8, 29, 17, 45),TkStatus.PSUChannelHistory,15,120)
 #Print out for debugging the reduced timestamps with their index (to see when a sequence is present) and the number of LV/HV channels OFF for the given timestamp in the TkStatus object!
-print "Dumping ReducedIOVsTimestamps and the corresponding timestamp index and number of HV/LV channels off:"
+print("Dumping ReducedIOVsTimestamps and the corresponding timestamp index and number of HV/LV channels off:")
 for timestamp in ReducedIOVsTimestamps:
     TkStatus.debug=False
-    print timestamp,sorted(TkStatus.PSUChannelHistory.keys()).index(timestamp),len(TkStatus.getDetIDsHVOff(timestamp)[0]), len(TkStatus.getDetIDsLVOff(timestamp)[0])
+    print(timestamp,sorted(TkStatus.PSUChannelHistory.keys()).index(timestamp),len(TkStatus.getDetIDsHVOff(timestamp)[0]), len(TkStatus.getDetIDsLVOff(timestamp)[0]))
 
 #Following function will be moved inside the TkVoltageStatus class once it's perfected:
 def ReducedIOVsHistory(ReducedIOVsTimestamps):
@@ -1130,9 +1127,9 @@ ValidationReducedIOVsHistory=ReducedIOVsHistory(ReducedIOVsTimestamps)
 
 #Print out for debugging the timestamp, the number of HV/LV channels OFF from the ValidationReducedIOVsHistory object directly!
 #i=0
-print "Dumping ValidationReducedIOVsHistory contents:"
+print("Dumping ValidationReducedIOVsHistory contents:")
 for timestamp in sorted(ValidationReducedIOVsHistory.keys()):
-    print timestamp, len(ValidationReducedIOVsHistory[timestamp][0]),len(ValidationReducedIOVsHistory[timestamp][1])#,sorted(O2OReducedIOVs.keys())[i],len(O2OReducedIOVs[sorted(O2OReducedIOVs.keys())[i]][0]),len(O2OReducedIOVs[sorted(O2OReducedIOVs.keys())[i]][1])
+    print(timestamp, len(ValidationReducedIOVsHistory[timestamp][0]),len(ValidationReducedIOVsHistory[timestamp][1]))#,sorted(O2OReducedIOVs.keys())[i],len(O2OReducedIOVs[sorted(O2OReducedIOVs.keys())[i]][0]),len(O2OReducedIOVs[sorted(O2OReducedIOVs.keys())[i]][1])
 #    i=i+1
     
 #for i in range(42):
@@ -1178,9 +1175,9 @@ def ExtractDetVOffInfo(directory=os.getcwd()):
 #Extract the O2O Reduced IOVs data from the logfiles in the current directory 
 O2OReducedIOVs=ExtractDetVOffInfo()
 #Print out for debugging the timestamp, the number of HV/LV  channels OFF reported by the O2O
-print "Dumping the O2OReducedIOVs contents:"
+print("Dumping the O2OReducedIOVs contents:")
 for timestamp in sorted(O2OReducedIOVs.keys()):
-    print timestamp, len(O2OReducedIOVs[timestamp][0]),len(O2OReducedIOVs[timestamp][1])#,len(TkStatus.getDetIDsHVOff(TkStatus.getIOV(timestamp,TkStatus.PSUChannelHistory)[0])[0]), len(TkStatus.getDetIDsLVOff(TkStatus.getIOV(timestamp,TkStatus.PSUChannelHistory)[0])[0])
+    print(timestamp, len(O2OReducedIOVs[timestamp][0]),len(O2OReducedIOVs[timestamp][1]))#,len(TkStatus.getDetIDsHVOff(TkStatus.getIOV(timestamp,TkStatus.PSUChannelHistory)[0])[0]), len(TkStatus.getDetIDsLVOff(TkStatus.getIOV(timestamp,TkStatus.PSUChannelHistory)[0])[0])
     #Compare the actual detids after doing the reduction the way we want to do it!
     
 # len(TkStatus.getDetIDsHVOff(sorted(TkStatus.PSUChannelHistory.keys())[-1])[0])
@@ -1195,7 +1192,7 @@ def CompareReducedDetIDs(FirstDict,SecondDict):
     for timestamp in sorted(FirstDict.keys()):
         if timestamp.replace(microsecond=0) in SecondDict.keys():
             secondtimestamp=timestamp.replace(microsecond=0)
-            print "Timestamp %s is present in both Dictionaries!"%timestamp
+            print("Timestamp %s is present in both Dictionaries!"%timestamp)
         else:
             secondtimestamps=sorted(SecondDict.keys())
             secondtimestamps.append(timestamp)
@@ -1204,7 +1201,7 @@ def CompareReducedDetIDs(FirstDict,SecondDict):
                 secondtimestamp=secondtimestamps[secondtimestamps.index(timestamp)-1]
             else:#Default to the earliest timestamp in the second dictionary...
                 secondtimestamp=secondtimestamps[secondtimestamps.index(timestamp)+1]
-            print "Comparing the IOV with timestamp %s (1st dict) with IOV with timestamp %s (2nd dict)"%(timestamp,secondtimestamp) 
+            print("Comparing the IOV with timestamp %s (1st dict) with IOV with timestamp %s (2nd dict)"%(timestamp,secondtimestamp)) 
         if set(map(lambda x:int(x),FirstDict[timestamp][0]))!=set(map(lambda x:int(x),SecondDict[secondtimestamp][0])) or set(map(lambda x:int(x),FirstDict[timestamp][1]))!=set(map(lambda x:int(x),SecondDict[secondtimestamp][1])): #Change!
             if len(set(FirstDict[timestamp][0]))<=len(set(SecondDict[secondtimestamp][0])):
                 differenceHV=set(map(lambda x:int(x),SecondDict[secondtimestamp][0]))-set(map(lambda x:int(x),FirstDict[timestamp][0]))
@@ -1225,7 +1222,7 @@ def CompareReducedDetIDs(FirstDict,SecondDict):
             #    differenceLV=set([])
             #    differenceHV=set([])
             DifferenceDict.update({(timestamp,secondtimestamp):(differenceHV,differenceLV)})
-            print "Difference in timestamp %s (corresponding to %s):"%(timestamp,secondtimestamp)
+            print("Difference in timestamp %s (corresponding to %s):"%(timestamp,secondtimestamp))
             #print "LV OFF:"
             #for LVChannel in differenceLV:
             #    print LVChannel
@@ -1233,28 +1230,28 @@ def CompareReducedDetIDs(FirstDict,SecondDict):
             #for HVChannel in differenceHV:
             #    print HVChannel
         else:
-            print "Timestamp %s is identical in both dictionaries"%timestamp
+            print("Timestamp %s is identical in both dictionaries"%timestamp)
     return DifferenceDict
 Comparison=CompareReducedDetIDs(ValidationReducedIOVsHistory,O2OReducedIOVs)
-print "Dumping the results of the comparisons of the two dictionaries:"
+print("Dumping the results of the comparisons of the two dictionaries:")
 for timestamps in sorted(Comparison.keys()):
-    print timestamps, Comparison[timestamps]
+    print(timestamps, Comparison[timestamps])
     if Comparison[timestamps][0]:
-        print "HV:"
+        print("HV:")
         if Comparison[timestamps][0].issubset(set(O2OReducedIOVs[timestamps[1]][0])):
-            print "Only in O2O Dict!"
+            print("Only in O2O Dict!")
         else:
-            print "Only in Validation Dict!"
+            print("Only in Validation Dict!")
         for detid in Comparison[timestamps][0]:
-            print detid,TkStatus.DetIDAliasDict[detid]
+            print(detid,TkStatus.DetIDAliasDict[detid])
     if Comparison[timestamps][1]:
-        print "LV:"
+        print("LV:")
         if Comparison[timestamps][1].issubset(set(O2OReducedIOVs[timestamps[1]][1])):
-            print "Only in O2O Dict!"
+            print("Only in O2O Dict!")
         else:
-            print "Only in Validation Dict!"
+            print("Only in Validation Dict!")
         for detid in Comparison[timestamps][1]:
-            print detid,TkStatus.DetIDAliasDict[detid]
+            print(detid,TkStatus.DetIDAliasDict[detid])
 
 
 #Add a check with the query using sqlalchemy
@@ -1271,18 +1268,18 @@ DBQueryResults=pickle.load(DBQueryPickle)
 DBQueryPickle.close()
 for row in DBQueryResults:
     TkStatusFromQuery.updateO2OQuery(row)
-    print len(TkStatusFromQuery.PSUChannelHistory)
+    print(len(TkStatusFromQuery.PSUChannelHistory))
 
 delta=datetime.timedelta(seconds=7200)
 counter=0
 DifferingTimestamps=[]
 for timestamp in sorted(TkStatus.PSUChannelHistory.keys()):
     if timestamp-delta!=sorted(TkStatusFromQuery.PSUChannelHistory.keys())[counter]:
-        print timestamp, sorted(TkStatusFromQuery.PSUChannelHistory.keys())[counter]
+        print(timestamp, sorted(TkStatusFromQuery.PSUChannelHistory.keys())[counter])
         DifferingTimestamps.append(timestamp,sorted(TkStatusFromQuery.PSUChannelHistory.keys())[counter])
     counter=counter+1
 if DifferingTimestamps:
-    print "There are %s timestamps that are different in the 2 TkVoltageStatus objects!"%len(DifferingTimestamps)
+    print("There are %s timestamps that are different in the 2 TkVoltageStatus objects!"%len(DifferingTimestamps))
 
 #Test issue with channel000 and channel001 lagging:
 #LVChannelsHistory={}
@@ -1309,15 +1306,15 @@ for interval in QueryResults.keys():
         #if row['change_date']==datetime.datetime(2010, 8, 28, 22, 51, 8, 994000):
         #    print row
         if row['change_date']>datetime.datetime(2010, 8, 28, 22, 44) and row['change_date']<datetime.datetime(2010, 8, 28, 23, 5,37):
-            print row    
+            print(row)    
             
         
 
 for row in sorted(HVChannelHistory['cms_trk_dcs_04:CAEN/CMS_TRACKER_SY1527_6/branchController02/easyCrate3/easyBoard15/channel002']):
-    print row[0],row[1]
+    print(row[0],row[1])
 for row in sorted(HVChannelHistory['cms_trk_dcs_04:CAEN/CMS_TRACKER_SY1527_6/branchController02/easyCrate3/easyBoard15/channel003']):
-    print row[0],row[1]
-print TkStatus.PSUChannelHistory[sorted(TkStatus.PSUChannelHistory.keys())[sorted(TkStatus.PSUChannelHistory.keys()).index(datetime.datetime(2010, 8, 28, 22, 52, 8, 994000))-1]]
+    print(row[0],row[1])
+print(TkStatus.PSUChannelHistory[sorted(TkStatus.PSUChannelHistory.keys())[sorted(TkStatus.PSUChannelHistory.keys()).index(datetime.datetime(2010, 8, 28, 22, 52, 8, 994000))-1]])
 a=TkStatus.getIOV(datetime.datetime(2010, 8, 28, 22, 51, 16),TkStatus.PSUChannelHistory)
 
 #PLOTTTING!
@@ -1415,17 +1412,17 @@ def plotPSUChannelvsTime(self,TimeArray,ValuesArray,GraphTitle="PSUChannelGraph"
     graph.SetTitle(GraphTitle)
     graph.Draw("APL")
     canvas.SaveAs(GraphFilename)
-    print "Saved graph as %s"%GraphFilename
+    print("Saved graph as %s"%GraphFilename)
     return
 
 
 ReducedIOVsTimestampsTEST=TkStatus.getReducedIOVs(datetime.datetime(2010, 8, 27, 12, 0),datetime.datetime(2010, 8, 29, 17, 45),TkStatus.PSUChannelHistory,2,90)
 #Print out for debugging the reduced timestamps with their index (to see when a sequence is present) and the number of LV/HV channels OFF for the given timestamp in the TkStatus object!
-print "Dumping ReducedIOVsTimestamps and the corresponding timestamp index and number of HV/LV channels off:"
+print("Dumping ReducedIOVsTimestamps and the corresponding timestamp index and number of HV/LV channels off:")
 for timestamp in ReducedIOVsTimestampsTEST:
     TkStatus.debug=False
-    print timestamp,sorted(TkStatus.PSUChannelHistory.keys()).index(timestamp),len(TkStatus.getDetIDsHVOff(timestamp)[0]), len(TkStatus.getDetIDsLVOff(timestamp)[0])
+    print(timestamp,sorted(TkStatus.PSUChannelHistory.keys()).index(timestamp),len(TkStatus.getDetIDsHVOff(timestamp)[0]), len(TkStatus.getDetIDsLVOff(timestamp)[0]))
 ValidationReducedIOVsHistoryTEST=ReducedIOVsHistory(ReducedIOVsTimestampsTEST)
-print "Dumping ValidationReducedIOVsHistory contents:"
+print("Dumping ValidationReducedIOVsHistory contents:")
 for timestamp in sorted(ValidationReducedIOVsHistoryTEST.keys()):
-    print timestamp, len(ValidationReducedIOVsHistoryTEST[timestamp][0]),len(ValidationReducedIOVsHistoryTEST[timestamp][1])#,sorted(O2OReducedIOVs.keys())[i],len(O2OReducedIOVs[sorted(O2OReducedIOVs.keys())[i]][0]),len(O2OR
+    print(timestamp, len(ValidationReducedIOVsHistoryTEST[timestamp][0]),len(ValidationReducedIOVsHistoryTEST[timestamp][1]))#,sorted(O2OReducedIOVs.keys())[i],len(O2OReducedIOVs[sorted(O2OReducedIOVs.keys())[i]][0]),len(O2OR

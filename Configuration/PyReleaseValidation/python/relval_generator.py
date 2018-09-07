@@ -25,7 +25,6 @@ workflows[511]=['',['QCD_Pt-30_13TeV_aMCatNLO_herwig7','HARVESTGEN']]
 
 # Matrix Element Generations & Hadronization (LHE Generation + Hadronization)
 workflows[512]=['DYTollJets_LO_Mad_13TeV_py8',['DYToll01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV','Hadronizer_TuneCUETP8M1_13TeV_MLM_5f_max4j_LHE_pythia8','HARVESTGEN2']]
-
 # Matrix Element Generations & Hadronization (Sherpa)
 
 # External Decays

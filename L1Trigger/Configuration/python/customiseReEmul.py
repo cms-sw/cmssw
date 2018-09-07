@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
@@ -26,8 +27,8 @@ def L1TAddBitwiseLayer1(process):
         process.l1UpgradeBitwiseTree
     )
     process.schedule.append(process.l1ntuplebitwise)
-    print "# modified L1TReEmul:  "
-    print "# {0}".format(process.L1TReEmul)
+    print("# modified L1TReEmul:  ")
+    print("# {0}".format(process.L1TReEmul))
     return process
 
 # As of 80X, this ES configuration is needed for *data* GTs (mc tags work w/o)
@@ -92,9 +93,9 @@ def L1TReEmulFromRAW2015(process):
         process.L1TReEmulPath = cms.Path(process.L1TReEmul)    
         process.schedule.append(process.L1TReEmulPath)
 
-    print "# L1TReEmul sequence:  "
-    print "# {0}".format(process.L1TReEmul)
-    print "# {0}".format(process.schedule)
+    print("# L1TReEmul sequence:  ")
+    print("# {0}".format(process.L1TReEmul))
+    print("# {0}".format(process.schedule))
     return process
 
 def L1TReEmulMCFromRAW2015(process):
@@ -167,9 +168,9 @@ def L1TReEmulFromRAW(process):
         process.simOmtfDigis.srcDTPh               = cms.InputTag('omtfStage2Digis')
         process.simOmtfDigis.srcDTTh               = cms.InputTag('omtfStage2Digis')
 
-    print "# L1TReEmul sequence:  "
-    print "# {0}".format(process.L1TReEmul)
-    print "# {0}".format(process.schedule)
+    print("# L1TReEmul sequence:  ")
+    print("# {0}".format(process.L1TReEmul))
+    print("# {0}".format(process.schedule))
     return process
 
 def L1TReEmulFromRAWCalouGT(process):
@@ -177,6 +178,38 @@ def L1TReEmulFromRAWCalouGT(process):
     process.simGtStage2Digis.MuonInputTag   = cms.InputTag("gtStage2Digis","Muon")
     return process 
 
+def L1TReEmulFromNANO(process):
+
+    process.load('L1Trigger.Configuration.SimL1Emulator_cff')
+    process.L1TReEmul = cms.Sequence(process.SimL1TGlobal)
+    if stage2L1Trigger_2017.isChosen():
+        process.simGtStage2Digis.ExtInputTag = cms.InputTag("hltGtStage2Digis")
+        process.simGtStage2Digis.MuonInputTag = cms.InputTag("hltGtStage2Digis", "Muon")
+        process.simGtStage2Digis.EtSumInputTag = cms.InputTag("hltGtStage2Digis", "EtSum")
+        process.simGtStage2Digis.EGammaInputTag = cms.InputTag("hltGtStage2Digis", "EGamma")
+        process.simGtStage2Digis.TauInputTag = cms.InputTag("hltGtStage2Digis", "Tau")
+        process.simGtStage2Digis.JetInputTag = cms.InputTag("hltGtStage2Digis", "Jet")
+        
+    process.L1TReEmulPath = cms.Path(process.L1TReEmul)    
+    process.schedule.append(process.L1TReEmulPath)
+
+    print ("# L1TReEmul sequence:  ")
+    print ("# {0}".format(process.L1TReEmul))
+    print ("# {0}".format(process.schedule))
+    return process 
+
+def L1TReEmulFromRAWCalo(process):
+    process.load('L1Trigger.Configuration.SimL1CaloEmulator_cff')
+    process.L1TReEmul = cms.Sequence(process.SimL1CaloEmulator)
+    process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag('ecalDigis:EcalTriggerPrimitives')
+    process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag('hcalDigis:')
+    process.L1TReEmulPath = cms.Path(process.L1TReEmul)
+    process.schedule.append(process.L1TReEmulPath)
+
+    print ("# L1TReEmul sequence:  ")
+    print ("# {0}".format(process.L1TReEmul))
+    print ("# {0}".format(process.schedule))
+    return process
 
 def L1TReEmulMCFromRAW(process):
     L1TReEmulFromRAW(process)
@@ -358,8 +391,8 @@ def L1TReEmulFromRAWLegacyMuon(process):
 
     process.L1TReEmulPath = cms.Path(process.L1TReEmul)    
     process.schedule.append(process.L1TReEmulPath)
-    print "# L1TReEmul sequence:  "
-    print "# {0}".format(process.L1TReEmul)
-    print "# {0}".format(process.schedule)
+    print("# L1TReEmul sequence:  ")
+    print("# {0}".format(process.L1TReEmul))
+    print("# {0}".format(process.schedule))
     return process
 

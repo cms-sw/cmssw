@@ -1,3 +1,4 @@
+from __future__ import print_function
 from FWCore.GuiBrowsers.ConfigToolBase import *
 from FWCore.ParameterSet.Mixins import PrintOptions,_ParameterTypeBase,_SimpleParameterTypeBase, _Parameterizable, _ConfigureComponent, _TypedParameterizable, _Labelable,  _Unlabelable,  _ValidatingListBase
 from FWCore.ParameterSet.SequenceTypes import _ModuleSequenceType, _Sequenceable
@@ -16,7 +17,7 @@ supportedJetAlgos = {
 
 def checkJetCorrectionsFormat(jetCorrections):
     ## check for the correct format
-    if type(jetCorrections) != type(('PAYLOAD-LABEL',['CORRECTION-LEVEL-A','CORRECTION-LEVEL-B'], 'MET-LABEL')):
+    if not isinstance(jetCorrections, type(('PAYLOAD-LABEL',['CORRECTION-LEVEL-A','CORRECTION-LEVEL-B'], 'MET-LABEL'))):
         raise ValueError("In addJetCollection: 'jetCorrections' must be 'None' (as a python value w/o quotation marks), or of type ('PAYLOAD-LABEL', ['CORRECTION-LEVEL-A', \
         'CORRECTION-LEVEL-B', ...], 'MET-LABEL'). Note that 'MET-LABEL' can be set to 'None' (as a string in quotation marks) in case you do not want to apply MET(Type1) \
         corrections.")
@@ -63,8 +64,8 @@ def setupJetCorrections(process, knownModules, jetCorrections, jetSource, pvSour
                 ## otherwise levels is miss configured
                 error=True
             else:
-                raise ValueError, "In addJetCollection: Correction levels for jet energy corrections are miss configured. An L1 correction type should appear not more than \
-                once. Check the list of correction levels you requested to be applied: ", jetCorrections[1]
+                raise ValueError("In addJetCollection: Correction levels for jet energy corrections are miss configured. An L1 correction type should appear not more than \
+                once. Check the list of correction levels you requested to be applied: "+ jetCorrections[1])
         if x == 'L1FastJet' :
             if not error :
                 if _type == "JPT" :
@@ -79,14 +80,14 @@ def setupJetCorrections(process, knownModules, jetCorrections, jetSource, pvSour
                 ## otherwise levels is miss configured
                 error=True
             else:
-                raise ValueError, "In addJetCollection: Correction levels for jet energy corrections are miss configured. An L1 correction type should appear not more than \
-                once. Check the list of correction levels you requested to be applied: ", jetCorrections[1]
+                raise ValueError("In addJetCollection: Correction levels for jet energy corrections are miss configured. An L1 correction type should appear not more than \
+                once. Check the list of correction levels you requested to be applied: "+ jetCorrections[1])
     patJets.jetCorrFactorsSource=cms.VInputTag(cms.InputTag('patJetCorrFactors'+labelName+postfix))
     ## configure MET(Type1) corrections
     if jetCorrections[2].lower() != 'none' and jetCorrections[2] != '':
         if not jetCorrections[2].lower() == 'type-1' and not jetCorrections[2].lower() == 'type-2':
-            raise valueError, "In addJetCollection: Wrong choice of MET corrections for new jet collection. Possible choices are None (or empty string), Type-1, Type-2 (i.e.\
-            Type-1 and Type-2 corrections applied). This choice is not case sensitive. Your choice was: ", jetCorrections[2]
+            raise ValueError("In addJetCollection: Wrong choice of MET corrections for new jet collection. Possible choices are None (or empty string), Type-1, Type-2 (i.e.\
+            Type-1 and Type-2 corrections applied). This choice is not case sensitive. Your choice was: "+ jetCorrections[2])
         if _type == "JPT":
             raise ValueError("In addJecCollection: MET(type1) corrections are not supported for JPTJets. Please set the MET-LABEL to \"None\" (as string in quatiation \
             marks) and use raw tcMET together with JPTJets.")
@@ -322,6 +323,51 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
     ## setup all required btagInfos : we give a dedicated treatment for different
     ## types of tagInfos here. A common treatment is possible but might require a more
     ## general approach anyway in coordination with the btagging POG.
+
+    runNegativeVertexing = False
+    runNegativeCvsLVertexing = False
+    for btagInfo in requiredTagInfos:
+        if btagInfo == 'pfInclusiveSecondaryVertexFinderNegativeTagInfos' or btagInfo == 'pfNegativeDeepFlavourTagInfos':
+            runNegativeVertexing = True
+        if btagInfo == 'pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos':
+            runNegativeCvsLVertexing = True
+            
+    if runNegativeVertexing or runNegativeCvsLVertexing:
+        import RecoVertex.AdaptiveVertexFinder.inclusiveNegativeVertexing_cff as NegVertex
+
+    if runNegativeVertexing:                
+        addToProcessAndTask(btagPrefix+'inclusiveCandidateNegativeVertexFinder'+labelName+postfix,
+                            NegVertex.inclusiveCandidateNegativeVertexFinder.clone(primaryVertices = pvSource,tracks=pfCandidates),
+                            process, task)
+        addToProcessAndTask(btagPrefix+'candidateNegativeVertexMerger'+labelName+postfix,
+                            NegVertex.candidateNegativeVertexMerger.clone(secondaryVertices = cms.InputTag(btagPrefix+'inclusiveCandidateNegativeVertexFinder'+labelName+postfix)),
+                            process, task)
+        addToProcessAndTask(btagPrefix+'candidateNegativeVertexArbitrator'+labelName+postfix,
+                            NegVertex.candidateNegativeVertexArbitrator.clone( secondaryVertices = cms.InputTag(btagPrefix+'candidateNegativeVertexMerger'+labelName+postfix)
+                                                                               ,primaryVertices = pvSource
+                                                                               ,tracks=pfCandidates),
+                            process, task)
+        addToProcessAndTask(btagPrefix+'inclusiveCandidateNegativeSecondaryVertices'+labelName+postfix,
+                            NegVertex.inclusiveCandidateNegativeSecondaryVertices.clone(secondaryVertices = cms.InputTag(btagPrefix+'candidateNegativeVertexArbitrator'+labelName+postfix)),
+                            process, task)
+
+    if runNegativeCvsLVertexing:
+        addToProcessAndTask(btagPrefix+'inclusiveCandidateNegativeVertexFinderCvsL'+labelName+postfix,
+                            NegVertex.inclusiveCandidateNegativeVertexFinderCvsL.clone(primaryVertices = pvSource,tracks=pfCandidates),
+                            process, task)
+        addToProcessAndTask(btagPrefix+'candidateNegativeVertexMergerCvsL'+labelName+postfix,
+                            NegVertex.candidateNegativeVertexMergerCvsL.clone(secondaryVertices = cms.InputTag(btagPrefix+'inclusiveCandidateNegativeVertexFinderCvsL'+labelName+postfix)),
+                            process, task)
+        addToProcessAndTask(btagPrefix+'candidateNegativeVertexArbitratorCvsL'+labelName+postfix,
+                            NegVertex.candidateNegativeVertexArbitratorCvsL.clone( secondaryVertices = cms.InputTag(btagPrefix+'candidateNegativeVertexMergerCvsL'+labelName+postfix)
+                                                                               ,primaryVertices = pvSource
+                                                                               ,tracks=pfCandidates),
+                            process, task)
+        addToProcessAndTask(btagPrefix+'inclusiveCandidateNegativeSecondaryVerticesCvsL'+labelName+postfix,
+                            NegVertex.inclusiveCandidateNegativeSecondaryVerticesCvsL.clone(secondaryVertices = cms.InputTag(btagPrefix+'candidateNegativeVertexArbitratorCvsL'+labelName+postfix)),
+                            process, task)
+
+
     acceptedTagInfos = list()
     for btagInfo in requiredTagInfos:
         if hasattr(btag,btagInfo):
@@ -464,7 +510,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                 addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
                                     btag.pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos.clone(
                                         trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterTagInfos'+labelName+postfix),
-                                        extSVCollection=svSourceCvsL),
+                                        extSVCollection = btagPrefix+'inclusiveCandidateNegativeSecondaryVerticesCvsL'+labelName+postfix),
                                     process, task)
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
@@ -486,7 +532,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                 addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
                                     btag.pfInclusiveSecondaryVertexFinderNegativeTagInfos.clone(
                                         trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterTagInfos'+labelName+postfix),
-                                        extSVCollection=svSource),
+                                        extSVCollection=cms.InputTag(btagPrefix+'inclusiveCandidateNegativeSecondaryVertices'+labelName+postfix)),
                                     process, task)
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
@@ -548,12 +594,14 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                     process, task)
 
             if 'DeepFlavourTagInfos' in btagInfo:
-
+                svUsed = svSource
                 if btagInfo == 'pfNegativeDeepFlavourTagInfos':
-                    deep_csv_tag_infos = 'pfDeepCSVNegativeTagInfos' 
+                    deep_csv_tag_infos = 'pfDeepCSVNegativeTagInfos'
+                    svUsed = cms.InputTag(btagPrefix+'inclusiveCandidateNegativeSecondaryVertices'+labelName+postfix)
+                    flip = True 
                 else:
                     deep_csv_tag_infos = 'pfDeepCSVTagInfos' 
-
+                    flip = False
                 # use right input tags when running with RECO PF candidates, which actually
                 # depens of wether jets were slimmed or not (check for s/S-limmed in name)
                 if not ('limmed' in jetSource.value()):
@@ -566,10 +614,20 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                     btag.pfDeepFlavourTagInfos.clone(
                                       jets = jetSource,
                                       vertices=pvSource,
-                                      secondary_vertices=svSource,
+                                      secondary_vertices=svUsed,
                                       shallow_tag_infos = cms.InputTag(btagPrefix+deep_csv_tag_infos+labelName+postfix),
                                       puppi_value_map = puppi_value_map,
                                       vertex_associator = vertex_associator,
+                                      flip = flip),
+                                    process, task)
+                
+            if btagInfo == 'pfDeepDoubleBTagInfos':
+                addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                    btag.pfDeepDoubleBTagInfos.clone(
+                                      jets = jetSource,
+                                      vertices=pvSource,
+                                      secondary_vertices=svSource,
+                                      shallow_tag_infos = cms.InputTag(btagPrefix+'pfBoostedDoubleSVAK8TagInfos'+labelName+postfix),
                                       ),
                                     process, task)
 
@@ -577,7 +635,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
         elif hasattr(toptag, btagInfo) :
             acceptedTagInfos.append(btagInfo)
         else:
-            print '  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagInfo)
+            print('  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagInfo))
     ## setup all required btagDiscriminators
     acceptedBtagDiscriminators = list()
     for discriminator_name in btagDiscriminators :			
@@ -612,7 +670,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                 raise ValueError('I do not know how to update %s it does not have neither "tagInfos" nor "src" attributes' % btagDiscr)
             acceptedBtagDiscriminators.append(discriminator_name)
         else:
-            print '  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagDiscr)
+            print('  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagDiscr))
     #update meta-taggers, if any
     for meta_tagger in present_meta:
         btagDiscr = meta_tagger.split(':')[0] #split input tag to get the producer label
@@ -637,7 +695,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     replace.doIt(getattr(process, newDiscr), newDiscr)
             acceptedBtagDiscriminators.append(meta_tagger)            
         else:
-            print '  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagDiscr)
+            print('  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagDiscr))
         
     ## replace corresponding tags for pat jet production
     patJets.tagInfoSources = cms.VInputTag( *[ cms.InputTag(btagPrefix+x+labelName+postfix) for x in acceptedTagInfos ] )

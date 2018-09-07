@@ -35,11 +35,16 @@ public:
 			   const std::string&, const DDCompactView*,
 			   const std::string&, const std::string&, 
 			   HGCalGeometryMode::WaferMode);
+  void loadGeometryHexagon8(const DDFilteredView&, HGCalParameters&, int);
   void loadSpecParsHexagon(const DDFilteredView&, HGCalParameters&,
 			   const DDCompactView*, const std::string&, 
 			   const std::string&);
+  void loadSpecParsHexagon8(const DDFilteredView&, HGCalParameters&);
+  void loadSpecParsTrapezoid(const DDFilteredView&, HGCalParameters&);
   void loadWaferHexagon(HGCalParameters& php);
+  void loadWaferHexagon8(HGCalParameters& php);
   void loadCellParsHexagon(const DDCompactView* cpv, HGCalParameters& php);
+  void loadCellTrapezoid(HGCalParameters& php);
 
 private:
 
@@ -58,11 +63,12 @@ private:
   };
 
   std::vector<double> getDDDArray(const std::string&, const DDsvalues_type&,
-				  int&);
+				  const int);
   std::pair<double,double> cellPosition(const std::vector<cellParameters>& wafers,
 					std::vector<cellParameters>::const_iterator& itrf,
 					int wafer, double xx, double yy);
 
+  const double          sqrt3_;
   double                waferSize_;
 };
 

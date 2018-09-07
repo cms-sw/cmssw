@@ -30,6 +30,7 @@
 <use   name="PhysicsTools/UtilAlgos"/>
 <use   name="SimDataFormats/TrackingHit"/>
 <use   name="FastSimulation/TrackingRecHitProducer"/>
+<use   name="CondFormats/SiPixelTransient"/>
 <use   name="boost"/>
 <use   name="clhep"/>
 <use   name="gsl"/>

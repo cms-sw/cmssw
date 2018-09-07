@@ -1,4 +1,7 @@
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 math::XYZTLorentzVector DetectorVector(const reco::SuperClusterRef& sc)
 {

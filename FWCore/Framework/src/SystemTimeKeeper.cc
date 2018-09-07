@@ -129,7 +129,7 @@ SystemTimeKeeper::pathTiming(StreamContext const& iStream,
 // is for the SubProcess but the module is is for the parent process.
 inline bool
 SystemTimeKeeper::checkBounds(unsigned int id) const {
-  return id >= m_minModuleID and id <m_modules.size()+ m_minModuleID;
+  return id >= m_minModuleID and id <m_streamModuleTiming.front().size()+ m_minModuleID;
 }
 
 
