@@ -13,20 +13,13 @@ jetDQMAnalyzerSequenceCosmics = cms.Sequence(jetDQMAnalyzerAk4CaloUncleaned)
 
 jetDQMAnalyzerSequenceMiniAOD = cms.Sequence(jetDQMAnalyzerAk4PFCHSUncleanedMiniAOD*jetDQMAnalyzerAk4PFCHSCleanedMiniAOD*jetDQMAnalyzerAk8PFPUPPICleanedMiniAOD*jetDQMAnalyzerAk4PFCHSPuppiCleanedMiniAOD)
 
-jetDQMAnalyzerSequenceHI = cms.Sequence(jetDQMAnalyzerIC5CaloHIUncleaned
-                                        * jetDQMMatchAkPu3CaloAkPu3PF
-                                        * jetDQMMatchAkPu4CaloAkPu4PF
-                                        * jetDQMMatchAkPu5CaloAkPu5PF
+jetDQMAnalyzerSequenceHI = cms.Sequence(jetDQMMatchAkPu4CaloAkPu4PF
 
-                                        * jetDQMAnalyzerAkPU3Calo
                                         * jetDQMAnalyzerAkPU4Calo
-                                        * jetDQMAnalyzerAkPU5Calo
                                         
                                         * jetDQMAnalyzerAkPU3PF
                                         * jetDQMAnalyzerAkPU4PF
-                                        * jetDQMAnalyzerAkPU5PF
                                      
-                                        * jetDQMAnalyzerAkCs3PF
                                         * jetDQMAnalyzerAkCs4PF
 )
 
