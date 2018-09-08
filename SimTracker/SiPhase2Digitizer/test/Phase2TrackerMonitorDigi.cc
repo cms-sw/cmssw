@@ -131,6 +131,7 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
     int nclus = 0;
     int width = 1;
     int position = 0; 
+    std::vector<int> charges;
     for (typename edm::DetSet< PixelDigi >::const_iterator di = DSViter->begin(); di != DSViter->end(); di++) {
       int col = di->column(); // column
       int row = di->row();    // row
@@ -149,14 +150,19 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
       if (row_last == -1 ) {
         position = row+1;
         nclus++; 
+        charges.push_back(adc);
       } else {
 	if (abs(row - row_last) == 1 && col == col_last) {
 	  position += row+1;
 	  width++;
+	  charges.push_back(adc);
 	} else {
           position /= width;  
           local_mes.ClusterWidth->Fill(width);
           local_mes.ClusterPosition->Fill(position);
+	  for (auto v: charges) local_mes.ChargeOfDigisVsWidth->Fill(v, width);
+	  charges.clear();
+          charges.push_back(adc);
 	  width  = 1;
 	  position = row+1;
           nclus++;
@@ -407,7 +413,6 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker & ibooker, unsi
 					     Parameters.getParameter<int32_t>("Nbins"),
 					     Parameters.getParameter<double>("xmin"),
 					     Parameters.getParameter<double>("xmax"));
-
     Parameters =  config_.getParameter<edm::ParameterSet>("DigiOccupancyPH");
     HistoName.str("");
     HistoName << "DigiOccupancyP_" << fname2.str();
@@ -440,7 +445,6 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker & ibooker, unsi
 					     Parameters.getParameter<double>("xmin"),
 					     Parameters.getParameter<double>("xmax"));
 
-
     Parameters =  config_.getParameter<edm::ParameterSet>("NumberOfHitDetsPerLayerH");
     HistoName.str("");
     HistoName << "NumberOfHitDetectorsPerLayer_" << fname2.str();
@@ -456,7 +460,6 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker & ibooker, unsi
 					     Parameters.getParameter<int32_t>("Nbins"),
 					     Parameters.getParameter<double>("xmin"),
 					     Parameters.getParameter<double>("xmax"));
-
     Parameters =  config_.getParameter<edm::ParameterSet>("ClusterWidthH");
     HistoName.str("");
     HistoName << "ClusterWidth_" << fname2.str();
@@ -497,7 +500,7 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker & ibooker, unsi
       HistoName << "FractionOfOverThresholdDigisVaEta_" << fname2.str();
       local_mes.FractionOfOvTBitsVsEta= ibooker.bookProfile(HistoName.str(), HistoName.str(), 	
 							    EtaParameters.getParameter<int32_t>("Nbins"),EtaParameters.getParameter<double>("xmin"),EtaParameters.getParameter<double>("xmax"),
-             Parameters.getParameter<double>("xmin"),Parameters.getParameter<double>("xmax"),"");
+							    Parameters.getParameter<double>("xmin"),Parameters.getParameter<double>("xmax"),"");
     } else {
 
       Parameters =  config_.getParameter<edm::ParameterSet>("DigiChargeH");
@@ -507,10 +510,25 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker & ibooker, unsi
 					       Parameters.getParameter<int32_t>("Nbins"),
 					       Parameters.getParameter<double>("xmin"),
 					       Parameters.getParameter<double>("xmax"));
+
+      edm::ParameterSet WidthParameters =   config_.getParameter<edm::ParameterSet>("ClusterWidthH");
+      HistoName.str("");
+      HistoName << "ChargeOfDigisVsWidth_" << fname2.str();   
+      local_mes.ChargeOfDigisVsWidth = ibooker.book2D(HistoName.str(),HistoName.str(),
+					       Parameters.getParameter<int32_t>("Nbins"),
+					       Parameters.getParameter<double>("xmin"),
+					       Parameters.getParameter<double>("xmax"),
+					       WidthParameters.getParameter<int32_t>("Nbins"),
+					       WidthParameters.getParameter<double>("xmin"),
+					       WidthParameters.getParameter<double>("xmax"));
+
+
     }
 
     layerMEs.insert(std::make_pair(layer, local_mes)); 
   }  
+}
+void Phase2TrackerMonitorDigi::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& eSetup){
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(Phase2TrackerMonitorDigi);
