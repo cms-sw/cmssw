@@ -9,9 +9,9 @@
  */
 // C++
 #include <string>
+#include <memory>
 // CMS
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -20,8 +20,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSTrkParameters.h"
 #include "RecoVertex/BeamSpotProducer/interface/BeamFitter.h"
 #include <fstream>
@@ -30,19 +30,15 @@
 // class declaration
 //
 
-class BeamMonitor : public edm::EDAnalyzer {
+class BeamMonitor : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
   public:
 
     BeamMonitor( const edm::ParameterSet& );
-    ~BeamMonitor() override;
 
   protected:
 
-    // BeginJob
-    void beginJob() override;
-
     // BeginRun
-    void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
+    void bookHistograms(DQMStore::IBooker &i, const edm::Run& r, const edm::EventSetup& c) override;
 
     void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
@@ -53,8 +49,6 @@ class BeamMonitor : public edm::EDAnalyzer {
         const edm::EventSetup& c) override;
     // EndRun
     void endRun(const edm::Run& r, const edm::EventSetup& c) override;
-    // Endjob
-    void endJob(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
 
   private:
 
@@ -63,7 +57,21 @@ class BeamMonitor : public edm::EDAnalyzer {
     void scrollTH1(TH1 *, std::time_t);
     bool testScroll(std::time_t &, std::time_t &);
     void formatFitTime(char *, const std::time_t&);
-    edm::ParameterSet parameters_;
+    const int    dxBin_;
+    const double dxMin_;
+    const double dxMax_;
+
+    const int    vxBin_;
+    const double vxMin_;
+    const double vxMax_;
+
+    const int    phiBin_;
+    const double phiMin_;
+    const double phiMax_;
+
+    const int    dzBin_;
+    const double dzMin_;
+    const double dzMax_;
     std::string monitorName_;
     edm::EDGetTokenT<reco::BeamSpot> bsSrc_; // beam spot
     edm::EDGetTokenT<reco::TrackCollection> tracksLabel_;
@@ -79,8 +87,7 @@ class BeamMonitor : public edm::EDAnalyzer {
     bool onlineMode_;
     std::vector<std::string> jetTrigger_;
 
-    DQMStore* dbe_;
-    BeamFitter * theBeamFitter;
+    std::unique_ptr<BeamFitter> theBeamFitter;
 
     int countEvt_;       //counter
     int countLumi_;      //counter
@@ -141,7 +148,7 @@ class BeamMonitor : public edm::EDAnalyzer {
     MonitorElement * h_PVxz;
     MonitorElement * h_PVyz;
     MonitorElement * pvResults;
-    std::map<TString, MonitorElement*> hs;
+    std::vector<MonitorElement*> hs;
 
     // The histo of the primary vertex for  DQM gui
     std::map<int, std::vector<float> > mapPVx,mapPVy,mapPVz;
