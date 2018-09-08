@@ -1,3 +1,4 @@
+<use name="CalibFormats/HcalObjects"/>
 <use name="CondFormats/GeometryObjects"/>
 <use name="DataFormats/ForwardDetId"/>
 <use name="DataFormats/HcalDetId"/>
@@ -7,6 +8,7 @@
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/PluginManager"/>
 <use name="Geometry/HcalCommonData"/>
+<use name="Geometry/HcalTowerAlgo"/>
 <use name="Geometry/HGCalCommonData"/>
 <use name="Geometry/HGCalGeometry"/>
 <use name="Geometry/Records"/>
