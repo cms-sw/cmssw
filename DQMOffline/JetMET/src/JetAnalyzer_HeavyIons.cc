@@ -53,7 +53,7 @@ JetAnalyzer_HeavyIons::JetAnalyzer_HeavyIons(const edm::ParameterSet& iConfig) :
 
   centralityBinToken = mayConsume<int>(iConfig.exists("centralitybincollection") ? iConfig.getParameter<edm::InputTag> ("centralitybincollection"): edm::InputTag());
 
-  hiVertexToken_ = consumes<std::vector<reco::Vertex> >(edm::InputTag("hiSelectedVertex"));
+  hiVertexToken_ = consumes<std::vector<reco::Vertex> >(edm::InputTag("offlinePrimaryVertices"));
 
   etaToken_ = mayConsume<std::vector<double>>(iConfig.exists("etaMap") ? iConfig.getParameter<edm::InputTag>( "etaMap" ) : edm::InputTag());
   rhoToken_ = mayConsume<std::vector<double>>(iConfig.exists("rho") ? iConfig.getParameter<edm::InputTag>( "rho" ) : edm::InputTag());
