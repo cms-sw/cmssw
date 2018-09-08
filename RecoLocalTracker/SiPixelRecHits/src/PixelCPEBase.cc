@@ -178,14 +178,6 @@ void PixelCPEBase::fillDetParams()
          p.detTemplateId = templateDBobject_->getTemplateID(p.theDet->geographicalId());
       }
       
-      // &&& PM: I'm not sure what this does. Ask around.
-      // just for testing
-      //int i1 = 0;
-      //if(theFlag_==0) i1 = genErrorDBObject_->getGenErrorID(p.theDet->geographicalId().rawId());
-      //int i2= templateDBobject_->getTemplateID(p.theDet->geographicalId().rawId());
-      //int i3= templateDBobject_->getTemplateID(p.theDet->geographicalId());
-      //if(i2!=i3) cout<<i2<<" != "<<i3<<endl;
-      //cout<<i<<" "<<p.detTemplateId<<" "<<i1<<" "<<i2<<" "<<i3<<endl;
       
       auto topol = &(p.theDet->specificTopology());
       p.theTopol=topol;
