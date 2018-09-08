@@ -1,20 +1,22 @@
-#ifndef RECOPIXELVERTEXING_PIXELTRIPLETS_PLUGINS_CELLULARAUTOMATON_H_
-#define RECOPIXELVERTEXING_PIXELTRIPLETS_PLUGINS_CELLULARAUTOMATON_H_
+#ifndef RecoPixelVertexing_PixelTriplets_src_CellularAutomaton_h
+#define RecoPixelVertexing_PixelTriplets_src_CellularAutomaton_h
+
 #include <array>
-#include "CACell.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
+
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
+
+#include "CACell.h"
 #include "CAGraph.h"
+
 class CellularAutomaton
 {
 public:
   CellularAutomaton(CAGraph& graph)
     : theLayerGraph(graph)
-  {
-    
-  }
+  { }
   
-  std::vector<CACell> & getAllCells() { return allCells;}
+  std::vector<CACell> & getAllCells() { return allCells; }
   
   void createAndConnectCells(const std::vector<const HitDoublets *>&,
 			     const TrackingRegion&, const float, const float, const float);
@@ -35,4 +37,4 @@ private:
   
 };
 
-#endif 
+#endif // RecoPixelVertexing_PixelTriplets_src_CellularAutomaton_h
