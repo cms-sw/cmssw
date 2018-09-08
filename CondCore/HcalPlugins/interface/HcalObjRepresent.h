@@ -409,7 +409,7 @@ namespace HcalObjRepresent{
 
            std::string GetUnit(std::string type) { 
              std::string unit =  units_[type];
-             if(unit=="") return "";
+             if(unit.empty()) return "";
              else return "("+unit+")";
            }
            
