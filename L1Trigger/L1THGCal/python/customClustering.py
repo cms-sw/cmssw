@@ -43,7 +43,7 @@ def custom_2dclustering_constrainedtopological(process,
 
 def custom_2dclustering_dummy(process):
     parameters_c2d = process.hgcalBackEndLayer1Producer.ProcessorParameters.C2d_parameters
-    parameters_c2d.clusterType = cms.string('dummyC2d')di
+    parameters_c2d.clusterType = cms.string('dummyC2d')
     return process
 
 
