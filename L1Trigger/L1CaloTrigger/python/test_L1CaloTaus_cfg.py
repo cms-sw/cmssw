@@ -101,7 +101,7 @@ process.L1EGammaCrystalsProducer = cms.EDProducer("L1EGCrystalClusterProducer",
 process.L1CaloTauProducer = cms.EDProducer("L1CaloTauProducer",
     debug = cms.untracked.bool(False),
     hcalTP = cms.InputTag("simHcalTriggerPrimitiveDigis","","HLT"),
-    L1CrystalClustersInputTag = cms.InputTag("L1EGammaCrystalsProducer", "L1EGXtalClusterWithCuts", "L1AlgoTest")
+    L1CrystalClustersInputTag = cms.InputTag("L1EGammaCrystalsProducer", "L1EGXtalClusterNoCuts", "L1AlgoTest")
 )
 
 process.pL1EG = cms.Path( process.L1EGammaCrystalsProducer * process.L1CaloTauProducer )
