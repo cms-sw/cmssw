@@ -10,7 +10,6 @@ C3d_parValues = cms.PSet( type_multicluster = cms.string('dRC3d'),
                           minPt_multicluster = cms.double(0.5), # minimum pt of the multicluster (GeV)
                           dist_dbscan_multicluster=cms.double(0.),
                           minN_dbscan_multicluster=cms.uint32(0),
-
                           nBins_R_histo_multicluster = cms.uint32(36),
                           nBins_Phi_histo_multicluster = cms.uint32(216),
                           binSumsHisto = cms.vuint32(13,               #0
