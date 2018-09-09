@@ -35,17 +35,18 @@ public:
 
 private:
 
+    typedef std::map<std::array<int,3>,float> Histogram;
 
-    std::map<std::vector<int>,float> fillHistoClusters( const std::vector<edm::Ptr<l1t::HGCalCluster>> & clustersPtrs );
+    Histogram fillHistoClusters( const std::vector<edm::Ptr<l1t::HGCalCluster>> & clustersPtrs );
 
-    std::map<std::vector<int>,float> fillSmoothPhiHistoClusters( std::map<std::vector<int>,float> histoClusters,
-								 const vector<unsigned> binSums );
+    Histogram fillSmoothPhiHistoClusters( Histogram histoClusters,
+					  const vector<unsigned> binSums );
 
-    std::map<std::vector<int>,float> fillSmoothRPhiHistoClusters( std::map<std::vector<int>,float> histoClusters );
+    Histogram fillSmoothRPhiHistoClusters( Histogram histoClusters );
 
-    std::vector<GlobalPoint> computeMaxSeeds( std::map<std::vector<int>,float> histoClusters );
+    std::vector<GlobalPoint> computeMaxSeeds( Histogram histoClusters );
 
-    std::vector<GlobalPoint> computeThresholdSeeds( std::map<std::vector<int>,float> histoClusters );
+    std::vector<GlobalPoint> computeThresholdSeeds( Histogram histoClusters );
 
     std::vector<l1t::HGCalMulticluster> clusterSeedMulticluster(const std::vector<edm::Ptr<l1t::HGCalCluster>> & clustersPtrs,
 								const std::vector<GlobalPoint> seeds);
