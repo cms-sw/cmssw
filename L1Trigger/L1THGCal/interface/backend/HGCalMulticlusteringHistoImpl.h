@@ -39,17 +39,17 @@ private:
 
     Histogram fillHistoClusters( const std::vector<edm::Ptr<l1t::HGCalCluster>> & clustersPtrs );
 
-    Histogram fillSmoothPhiHistoClusters( Histogram histoClusters,
-					  const vector<unsigned> binSums );
+    Histogram fillSmoothPhiHistoClusters( const Histogram & histoClusters,
+					  const vector<unsigned> & binSums );
 
-    Histogram fillSmoothRPhiHistoClusters( Histogram histoClusters );
+    Histogram fillSmoothRPhiHistoClusters( const Histogram & histoClusters );
 
-    std::vector<GlobalPoint> computeMaxSeeds( Histogram histoClusters );
+    std::vector<GlobalPoint> computeMaxSeeds( const Histogram & histoClusters );
 
-    std::vector<GlobalPoint> computeThresholdSeeds( Histogram histoClusters );
+    std::vector<GlobalPoint> computeThresholdSeeds( const Histogram & histoClusters );
 
     std::vector<l1t::HGCalMulticluster> clusterSeedMulticluster(const std::vector<edm::Ptr<l1t::HGCalCluster>> & clustersPtrs,
-								const std::vector<GlobalPoint> seeds);
+								const std::vector<GlobalPoint> & seeds);
 
     void finalizeClusters(std::vector<l1t::HGCalMulticluster>&,
             l1t::HGCalMulticlusterBxCollection&,
