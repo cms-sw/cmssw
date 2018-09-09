@@ -41,7 +41,13 @@ namespace l1slhc
       };
       void SetExperimentalParams(const std::map<std::string, float> &params) { experimentalParams_ = params; };
       const std::map<std::string, float> GetExperimentalParams() const { return experimentalParams_; };
-      inline float GetExperimentalParam(std::string name) const { return experimentalParams_.at(name); };
+      inline float GetExperimentalParam(std::string name) const {
+         try { return experimentalParams_.at(name); }
+         catch (...) { 
+            std::cout << "Error: no mapping for ExperimentalParam: " << name << std::endl;
+            return -99.; 
+         }
+      };
 
       inline float e2x2() const { return e2x2_; };
       inline float e2x5() const { return e2x5_; };
