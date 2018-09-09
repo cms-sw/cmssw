@@ -52,13 +52,13 @@ PixelThresholdClusterizer::PixelThresholdClusterizer
     theConversionFactor_L1( conf.getParameter<int>("VCaltoElectronGain_L1") ),
     theOffset( conf.getParameter<int>("VCaltoElectronOffset") ),
     theOffset_L1( conf.getParameter<int>("VCaltoElectronOffset_L1") ),
-    theStackADC_( conf.exists("AdcFullScaleStack") ? conf.getParameter<int>("AdcFullScaleStack") : 255 ),
-    theFirstStack_( conf.exists("FirstStackLayer") ? conf.getParameter<int>("FirstStackLayer") : 5 ),
-    theElectronPerADCGain_( conf.exists("ElectronPerADCGain") ? conf.getParameter<double>("ElectronPerADCGain") : 135. ),
-    doPhase2Calibration( conf.exists("Phase2Calibration") ? conf.getParameter<bool>("Phase2Calibration") : false),
-    phase2ReadoutMode( conf.exists("Phase2ReadoutMode") ? conf.getParameter<int>("Phase2ReadoutMode") : -1),
-    phase2DigiBaseline( conf.exists("Phase2DigiBaseline") ? conf.getParameter<double>("Phase2DigiBaseline") : 0.),
-    phase2KinkADC( conf.exists("Phase2KinkADC") ? conf.getParameter<int>("Phase2KinkADC") : 8),
+    theStackADC_( conf.getParameter<int>("AdcFullScaleStack") ),
+    theFirstStack_( conf.getParameter<int>("FirstStackLayer") ),
+    theElectronPerADCGain_( conf.getParameter<double>("ElectronPerADCGain") ),
+    doPhase2Calibration( conf.getParameter<bool>("Phase2Calibration") ),
+    phase2ReadoutMode( conf.getParameter<int>("Phase2ReadoutMode") ),
+    phase2DigiBaseline( conf.getParameter<double>("Phase2DigiBaseline") ),
+    phase2KinkADC( conf.getParameter<int>("Phase2KinkADC") ),
     theNumOfRows(0), theNumOfCols(0), detid_(0),
     // Get the constants for the miss-calibration studies
     doMissCalibrate( conf.getUntrackedParameter<bool>("MissCalibrate",true) ),
@@ -88,6 +88,9 @@ PixelThresholdClusterizer::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<int>("ClusterThreshold_L1", 4000);
   desc.add<int>("ClusterThreshold", 4000);
   desc.add<int>("maxNumberOfClusters", -1);
+  desc.add<bool>("Phase2Calibration", false);
+  desc.add<int>("Phase2ReadoutMode", -1);
+  desc.add<double>("Phase2DigiBaseline", 0.);
   descriptions.add("siPixelClusters", desc);
 }
 
@@ -255,19 +258,19 @@ void PixelThresholdClusterizer::copy_to_buffer( DigiIterator begin, DigiIterator
       }
     } else {
       int i=0;
+      const float gain = theElectronPerADCGain_; // default: 1 ADC = 135 electrons
+      const int maxADC8bitVal_ = 255;
       for(DigiIterator di = begin; di != end; ++di) {
         auto adc = di->adc();
-        const float gain = theElectronPerADCGain_; // default: 1 ADC = 135 electrons
         const float pedestal = 0.; //
         electron[i] = int(adc * gain + pedestal);
         if (layer_>=theFirstStack_) {
-        if (theStackADC_==1&&adc==1) {
-          electron[i] = int(255*135); // Arbitrarily use overflow value.
-        }
-        if (theStackADC_>1&&theStackADC_!=255&&adc>=1){
-          const float gain = theElectronPerADCGain_; // default: 1 ADC = 135 electrons
-          electron[i] = int((adc-1) * gain * 255/float(theStackADC_-1));
-        }
+          if (theStackADC_==1&&adc==1) {
+            electron[i] = int(maxADC8bitVal_*gain); // Arbitrarily use overflow value.
+          }
+          if (theStackADC_>1&&theStackADC_!=maxADC8bitVal_&&adc>=1){
+            electron[i] = int((adc-1) * gain * maxADC8bitVal_/float(theStackADC_-1));
+          }
         }
         ++i;
       }
@@ -338,15 +341,19 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row)
     const int dualslopeparam = abs(p2rm);
     const int dualslope = int(dualslopeparam <= 1 ? 1. : pow(2, dualslopeparam-1));
 
-    if (adc < phase2KinkADC) electrons = int(adc * gain - gain * 0.5);
-    else {
-        adc -= (phase2KinkADC-1);
-        adc *= dualslope;
-        adc += (phase2KinkADC-1);
-        electrons = int(adc * gain - 0.5 * gain * dualslope);
+    if (p2rm == -1) {
+        electrons = int(adc * gain);
     }
-
-    if (phase2ReadoutMode > 0) electrons += int(phase2DigiBaseline);
+    else {
+        if (adc < phase2KinkADC) electrons = int((adc - 0.5) * gain);
+        else {
+            adc -= (phase2KinkADC-1);
+            adc *= dualslope;
+            adc += (phase2KinkADC-1);
+            electrons = int((adc - 0.5 * dualslope) * gain);
+        } 
+        electrons += int(phase2DigiBaseline);
+    }
 
     return electrons;
 
@@ -404,17 +411,17 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row)
       // Simple (default) linear gain 
       const float gain = theElectronPerADCGain_; // default: 1 ADC = 135 electrons
       const float pedestal = 0.; //
+      const int maxADC8bitVal_ = 255; 
       electrons = int(adc * gain + pedestal);
       if (layer_>=theFirstStack_) {
-	if (theStackADC_==1&&adc==1)
-	  {
-	    electrons = int(255*135); // Arbitrarily use overflow value.
-	  }
-	if (theStackADC_>1&&theStackADC_!=255&&adc>=1)
-	  {
-	    const float gain = theElectronPerADCGain_; // default: 1 ADC = 135 electrons
-	    electrons = int((adc-1) * gain * 255/float(theStackADC_-1));
-	  }
+	    if (theStackADC_==1&&adc==1)
+	    {
+	      electrons = int(maxADC8bitVal_*gain); // Arbitrarily use overflow value.
+	    }
+	    if (theStackADC_>1&&theStackADC_!=maxADC8bitVal_&&adc>=1)
+	    {
+	      electrons = int((adc-1) * gain * maxADC8bitVal_/float(theStackADC_-1));
+	    }
       }
     }
   
