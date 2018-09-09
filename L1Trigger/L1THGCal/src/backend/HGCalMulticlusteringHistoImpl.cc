@@ -32,7 +32,7 @@ float HGCalMulticlusteringHistoImpl::dR( const l1t::HGCalCluster & clu,
 {
 
     Basic3DVector<float> seed_3dv( seed );
-    GlobalPoint seed_proj = GlobalPoint( seed_3dv / seed.z() );
+    GlobalPoint seed_proj( seed_3dv / seed.z() );
     return (seed_proj - clu.centreProj() ).mag();
 
 }
@@ -46,14 +46,14 @@ HGCalMulticlusteringHistoImpl::Histogram HGCalMulticlusteringHistoImpl::fillHist
 
     Histogram histoClusters; //key[0] = z.side(), key[1] = bin_R, key[2] = bin_phi
 
-    for(std::vector<edm::Ptr<l1t::HGCalCluster>>::const_iterator clu = clustersPtrs.begin(); clu != clustersPtrs.end(); ++clu){
+    for(auto & clu : clustersPtrs){
 
-        float ROverZ = sqrt( pow((**clu).centreProj().x(),2) + pow((**clu).centreProj().y(),2) );
+        float ROverZ = sqrt( pow(clu->centreProj().x(),2) + pow(clu->centreProj().y(),2) );
         int bin_R = int( (ROverZ-kROverZMin_) * nBinsRHisto_ / (kROverZMax_-kROverZMin_) );
-        int bin_phi = int( (reco::reduceRange((**clu).phi())+M_PI) * nBinsPhiHisto_ / (2*M_PI) );
+        int bin_phi = int( (reco::reduceRange(clu->phi())+M_PI) * nBinsPhiHisto_ / (2*M_PI) );
 
-        std::array<int,3> key = { { (**clu).zside(), bin_R, bin_phi } };
-        histoClusters[key]+=(**clu).mipPt();
+        std::array<int,3> key = { { clu->zside(), bin_R, bin_phi } };
+        histoClusters[key]+=clu->mipPt();
 
     }
 
@@ -69,8 +69,7 @@ HGCalMulticlusteringHistoImpl::Histogram HGCalMulticlusteringHistoImpl::fillSmoo
 
     Histogram histoSumPhiClusters; //key[0] = z.side(), key[1] = bin_R, key[2] = bin_phi
 
-    for(int z_side = -1; z_side<2; z_side++){
-        if(z_side==0) continue;
+    for(int z_side : {-1,1}){
 
         for(int bin_R = 0; bin_R<int(nBinsRHisto_); bin_R++){
 
@@ -116,8 +115,7 @@ HGCalMulticlusteringHistoImpl::Histogram HGCalMulticlusteringHistoImpl::fillSmoo
 
     Histogram histoSumRPhiClusters; //key[0] = z.side(), key[1] = bin_R, key[2] = bin_phi
 
-    for(int z_side = -1; z_side<2; z_side++){
-        if(z_side==0) continue;
+    for(int z_side : {-1,1}){
 
         for(int bin_R = 0; bin_R<int(nBinsRHisto_); bin_R++){
 
@@ -149,8 +147,7 @@ std::vector<GlobalPoint> HGCalMulticlusteringHistoImpl::computeMaxSeeds( const H
 
     std::vector<GlobalPoint> seedPositions;
 
-    for(int z_side = -1; z_side<2; z_side++){
-        if(z_side==0) continue;
+    for(int z_side : {-1,1}){
 
         for(int bin_R = 0; bin_R<int(nBinsRHisto_); bin_R++){
 
@@ -209,8 +206,7 @@ std::vector<GlobalPoint> HGCalMulticlusteringHistoImpl::computeThresholdSeeds( c
 
     std::vector<GlobalPoint> seedPositions;
 
-    for(int z_side = -1; z_side<2; z_side++){
-        if(z_side==0) continue;
+    for(int z_side : {-1,1}){
 
         for(int bin_R = 0; bin_R<int(nBinsRHisto_); bin_R++){
 
@@ -246,9 +242,10 @@ std::vector<l1t::HGCalMulticluster> HGCalMulticlusteringHistoImpl::clusterSeedMu
     std::map<int,l1t::HGCalMulticluster> mapSeedMulticluster;
     std::vector<l1t::HGCalMulticluster> multiclustersTmp;
 
-    for(std::vector<edm::Ptr<l1t::HGCalCluster>>::const_iterator clu = clustersPtrs.begin(); clu != clustersPtrs.end(); ++clu){
+    for(auto & clu : clustersPtrs){
 
-        HGCalDetId cluDetId( (**clu).detId() );
+
+        HGCalDetId cluDetId( clu->detId() );
         int z_side = cluDetId.zside();
 
         double minDist = dr_;
@@ -258,7 +255,7 @@ std::vector<l1t::HGCalMulticluster> HGCalMulticlusteringHistoImpl::clusterSeedMu
 
             if( z_side*seeds[iseed].z()<0) continue;
 
-            double d = this->dR(**clu, seeds[iseed]);
+            double d = this->dR(*clu, seeds[iseed]);
 
             if(d<minDist){
                 minDist = d;
@@ -270,10 +267,10 @@ std::vector<l1t::HGCalMulticluster> HGCalMulticlusteringHistoImpl::clusterSeedMu
         if(targetSeed<0) continue;
 
         if(mapSeedMulticluster[targetSeed].size()==0){
-            l1t::HGCalMulticluster newMclu(*clu);
+            l1t::HGCalMulticluster newMclu(clu);
             mapSeedMulticluster[targetSeed] = newMclu;
         }
-        else mapSeedMulticluster[targetSeed].addConstituent(*clu);
+        else mapSeedMulticluster[targetSeed].addConstituent(clu);
 
     }
 
