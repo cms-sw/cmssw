@@ -135,7 +135,7 @@ CastorDumpConditions::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
    // dumpIt called for all possible ValueMaps. The function checks if the dump is actually requested.
    dumpIt<CastorElectronicsMap , CastorElectronicsMapRcd> (mDumpRequest, iEvent,iSetup,"ElectronicsMap" );
-   dumpIt<CastorQIEData        , CastorQIEDataRcd>        (mDumpRequest, iEvent,iSetup,"ElectronicsMap" );
+   dumpIt<CastorQIEData        , CastorQIEDataRcd>        (mDumpRequest, iEvent,iSetup,"QIEData"        );
    dumpIt<CastorPedestals      , CastorPedestalsRcd>      (mDumpRequest, iEvent,iSetup,"Pedestals"      );
    dumpIt<CastorPedestalWidths , CastorPedestalWidthsRcd> (mDumpRequest, iEvent,iSetup,"PedestalWidths" );
    dumpIt<CastorGains          , CastorGainsRcd>          (mDumpRequest, iEvent,iSetup,"Gains"          );
