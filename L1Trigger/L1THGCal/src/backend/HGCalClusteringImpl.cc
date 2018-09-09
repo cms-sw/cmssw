@@ -429,31 +429,6 @@ void HGCalClusteringImpl::removeUnconnectedTCinCluster( l1t::HGCalCluster & clus
 
 
 
-
-
-//Create one cluster per TC for direct TC->3D clustering
-void HGCalClusteringImpl::clusterizeDummy( const std::vector<edm::Ptr<l1t::HGCalTriggerCell>> & triggerCellsPtrs,
-					   l1t::HGCalClusterBxCollection & clusters
-					   ){
-
-  std::vector<l1t::HGCalCluster> clustersTmp;
-  for( std::vector<edm::Ptr<l1t::HGCalTriggerCell>>::const_iterator tc = triggerCellsPtrs.begin(); tc != triggerCellsPtrs.end(); ++tc ){
-    clustersTmp.emplace_back( *tc );
-  }
-
-  /* store clusters in the persistent collection */
-  clusters.resize(0, clustersTmp.size());
-  for( unsigned i(0); i<clustersTmp.size(); ++i ){
-    calibratePt(clustersTmp.at(i));
-    clusters.set( 0, i, clustersTmp.at(i) );
-  }
-
-}
-
-
-
-
-
 void HGCalClusteringImpl::calibratePt( l1t::HGCalCluster & cluster ){
 
     double calibPt=0.;

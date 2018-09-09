@@ -1,30 +1,22 @@
 #include "L1Trigger/L1THGCal/interface/backend/HGCalMulticlusteringImpl.h"
 #include "L1Trigger/L1THGCal/interface/backend/HGCalShowerShape.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
+
 
 HGCalMulticlusteringImpl::HGCalMulticlusteringImpl( const edm::ParameterSet& conf ) :
     dr_(conf.getParameter<double>("dR_multicluster")),
     ptC3dThreshold_(conf.getParameter<double>("minPt_multicluster")),
     multiclusterAlgoType_(conf.getParameter<string>("type_multicluster")),
     distDbscan_(conf.getParameter<double>("dist_dbscan_multicluster")),
-    minNDbscan_(conf.getParameter<unsigned>("minN_dbscan_multicluster")),
-    nBinsRHisto_(conf.getParameter<unsigned>("nBins_R_histo_multicluster")),
-    nBinsPhiHisto_(conf.getParameter<unsigned>("nBins_Phi_histo_multicluster")),
-    binsSumsHisto_(conf.getParameter< std::vector<unsigned> >("binSumsHisto")),
-    histoThreshold_(conf.getParameter<double>("threshold_histo_multicluster"))
+    minNDbscan_(conf.getParameter<unsigned>("minN_dbscan_multicluster"))
 {    
     edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster dR for Near Neighbour search: " << dr_;  
     edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster minimum transverse-momentum: " << ptC3dThreshold_;
     edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster DBSCAN Clustering distance: " << distDbscan_;
     edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster clustering min number of subclusters: " << minNDbscan_;
-    edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster number of R-bins for the histo algorithm: " << nBinsRHisto_<<endl;
-    edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster number of Phi-bins for the histo algorithm: " << nBinsPhiHisto_<<endl;
-    edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster MIPT threshold for histo threshold algorithm: " << histoThreshold_<<endl;
     edm::LogInfo("HGCalMulticlusterParameters") << "Multicluster type of multiclustering algortihm: " << multiclusterAlgoType_;
     id_.reset( HGCalTriggerClusterIdentificationFactory::get()->create("HGCalTriggerClusterIdentificationBDT") );
-    id_->initialize(conf.getParameter<edm::ParameterSet>("EGIdentification"));
-    if(multiclusterAlgoType_.find("Histo")!=std::string::npos && nBinsRHisto_!=binsSumsHisto_.size()) throw cms::Exception("Inconsistent nBins_R_histo_multicluster and binSumsHisto size in HGCalMulticlustering");
+    id_->initialize(conf.getParameter<edm::ParameterSet>("EGIdentification")); 
 }
 
 
@@ -44,20 +36,6 @@ bool HGCalMulticlusteringImpl::isPertinent( const l1t::HGCalCluster & clu,
     return false;
 
 }
-
-
-
-
-float HGCalMulticlusteringImpl::dR( const l1t::HGCalCluster & clu,
-				   const GlobalPoint & seed) const
-{
-
-    Basic3DVector<float> seed_3dv( seed );
-    GlobalPoint seed_proj = GlobalPoint( seed_3dv / seed.z() );
-    return (seed_proj - clu.centreProj() ).mag();
-
-}
-
 
 
 void HGCalMulticlusteringImpl::findNeighbor( const std::vector<std::pair<unsigned int,double>>&  rankedList,
@@ -190,314 +168,6 @@ void HGCalMulticlusteringImpl::clusterizeDBSCAN( const std::vector<edm::Ptr<l1t:
     /* making the collection of multiclusters */
     finalizeClusters(multiclustersTmp, multiclusters, triggerGeometry);
 }
-
-
-
-
-
-std::map<std::vector<int>,float> HGCalMulticlusteringImpl::fillHistoClusters( const std::vector<edm::Ptr<l1t::HGCalCluster>> & clustersPtrs ){
-
-
-    std::map<std::vector<int>,float> histoClusters; //key[0] = z.side(), key[1] = bin_R, key[2] = bin_phi
-
-    for(std::vector<edm::Ptr<l1t::HGCalCluster>>::const_iterator clu = clustersPtrs.begin(); clu != clustersPtrs.end(); ++clu){
-
-        float ROverZ = sqrt( pow((**clu).centreProj().x(),2) + pow((**clu).centreProj().y(),2) );
-        int bin_R = int( (ROverZ-kROverZMin_) * nBinsRHisto_ / (kROverZMax_-kROverZMin_) );
-        int bin_phi = int( (reco::reduceRange((**clu).phi())+M_PI) * nBinsPhiHisto_ / (2*M_PI) );
-
-        std::vector<int> key = { (**clu).zside(), bin_R, bin_phi };
-        histoClusters[key]+=(**clu).mipPt();
-
-    }
-
-    return histoClusters;
-
-}
-
-
-
-
-std::map<std::vector<int>,float> HGCalMulticlusteringImpl::fillSmoothPhiHistoClusters( std::map<std::vector<int>,float> histoClusters,
-										       const vector<unsigned> binSums){
-
-    std::map<std::vector<int>,float> histoSumPhiClusters; //key[0] = z.side(), key[1] = bin_R, key[2] = bin_phi
-
-    for(int z_side = -1; z_side<2; z_side++){
-        if(z_side==0) continue;
-
-        for(int bin_R = 0; bin_R<int(nBinsRHisto_); bin_R++){
-
-            int nBinsSide = (binSums[bin_R]-1)/2;
-
-            for(int bin_phi = 0; bin_phi<int(nBinsPhiHisto_); bin_phi++){
-
-                float content = histoClusters[{z_side,bin_R,bin_phi}];
-
-                for(int bin_phi2=1; bin_phi2<=nBinsSide; bin_phi2++ ){
-
-                    int binToSumLeft = bin_phi - bin_phi2;
-                    if( binToSumLeft<0 ) binToSumLeft += nBinsPhiHisto_;
-                    int binToSumRight = bin_phi + bin_phi2;
-                    if( binToSumRight>=int(nBinsPhiHisto_) ) binToSumRight -= nBinsPhiHisto_;
-
-                    content += histoClusters[{z_side,bin_R,binToSumLeft}] / pow(2,bin_phi2); // quadratic kernel
-                    content += histoClusters[{z_side,bin_R,binToSumRight}] / pow(2,bin_phi2); // quadratic kernel
-
-                }
-
-                float R1 = kROverZMin_ + bin_R*(kROverZMax_-kROverZMin_);
-                float R2 = R1 + (kROverZMax_-kROverZMin_);
-                double area = 0.5 * (pow(R2,2)-pow(R1,2)) * (1+0.5*(1-pow(0.5,nBinsSide))); // Takes into account different area of bins in different R-rings + sum of quadratic weights used
-                histoSumPhiClusters[{z_side,bin_R,bin_phi}] = content/area;
-
-            }
-
-        }
-
-    }
-
-    return histoSumPhiClusters;
-
-}
-
-
-
-
-
-
-std::map<std::vector<int>,float> HGCalMulticlusteringImpl::fillSmoothRPhiHistoClusters( std::map<std::vector<int>,float> histoClusters){
-
-    std::map<std::vector<int>,float> histoSumRPhiClusters; //key[0] = z.side(), key[1] = bin_R, key[2] = bin_phi
-
-    for(int z_side = -1; z_side<2; z_side++){
-        if(z_side==0) continue;
-
-        for(int bin_R = 0; bin_R<int(nBinsRHisto_); bin_R++){
-
-            float weight = (bin_R==0 || bin_R==int(nBinsRHisto_)-1) ? 1.5 : 2.; //Take into account edges with only one side up or down
-
-	    for(int bin_phi = 0; bin_phi<int(nBinsPhiHisto_); bin_phi++){
-
-                float content = histoClusters[{z_side,bin_R,bin_phi}];
-                float contentDown = histoClusters[{z_side,bin_R-1,bin_phi}]; //Non-allocated elements in maps return default 0 value
-                float contentUp = histoClusters[{z_side,bin_R+1,bin_phi}];
-
-                histoSumRPhiClusters[{z_side,bin_R,bin_phi}] = (content + 0.5*contentDown + 0.5*contentUp)/weight;
-
-            }
-
-        }
-
-    }
-
-    return histoSumRPhiClusters;
-
-}
-
-
-
-
-
-std::vector<GlobalPoint> HGCalMulticlusteringImpl::computeMaxSeeds( std::map<std::vector<int>,float> histoClusters ){
-
-    std::vector<GlobalPoint> seedPositions;
-
-    for(int z_side = -1; z_side<2; z_side++){
-        if(z_side==0) continue;
-
-        for(int bin_R = 0; bin_R<int(nBinsRHisto_); bin_R++){
-
-            for(int bin_phi = 0; bin_phi<int(nBinsPhiHisto_); bin_phi++){
-
-                float MIPT_seed = histoClusters[{z_side,bin_R,bin_phi}];
-                bool isMax = MIPT_seed>0;
-
-                float MIPT_S = histoClusters[{z_side,bin_R+1,bin_phi}];
-                float MIPT_N = histoClusters[{z_side,bin_R-1,bin_phi}];
-
-                int binLeft = bin_phi - 1;
-                if( binLeft<0 ) binLeft += nBinsPhiHisto_;
-                int binRight = bin_phi + 1;
-                if( binRight>=int(nBinsPhiHisto_) ) binRight -= nBinsPhiHisto_;
-
-                float MIPT_W = histoClusters[{z_side,bin_R,binLeft}];
-                float MIPT_E = histoClusters[{z_side,bin_R,binRight}];
-                float MIPT_SW = histoClusters[{z_side,bin_R-1,binLeft}];
-                float MIPT_SE = histoClusters[{z_side,bin_R-1,binRight}];
-                float MIPT_NW = histoClusters[{z_side,bin_R+1,binLeft}];
-                float MIPT_NE = histoClusters[{z_side,bin_R+1,binRight}];
-
-                isMax &= MIPT_seed>=MIPT_S;
-                isMax &= MIPT_seed>MIPT_N;
-                isMax &= MIPT_seed>=MIPT_E;
-                isMax &= MIPT_seed>=MIPT_SE;
-                isMax &= MIPT_seed>=MIPT_NE;
-                isMax &= MIPT_seed>MIPT_W;
-                isMax &= MIPT_seed>MIPT_SW;
-                isMax &= MIPT_seed>MIPT_NW;
-
-                if(isMax){
-                    float ROverZ_seed = kROverZMin_ + (bin_R+0.5) * (kROverZMax_-kROverZMin_)/nBinsRHisto_;
-                    float phi_seed = -M_PI + (bin_phi+0.5) * 2*M_PI/nBinsPhiHisto_;
-                    float x_seed = ROverZ_seed*cos(phi_seed);
-                    float y_seed = ROverZ_seed*sin(phi_seed);
-                    seedPositions.emplace_back(x_seed,y_seed,z_side);
-                }
-
-            }
-
-        }
-
-    }
-
-    return seedPositions;
-
-}
-
-
-
-
-
-std::vector<GlobalPoint> HGCalMulticlusteringImpl::computeThresholdSeeds( std::map<std::vector<int>,float> histoClusters ){
-
-    std::vector<GlobalPoint> seedPositions;
-
-    for(int z_side = -1; z_side<2; z_side++){
-        if(z_side==0) continue;
-
-        for(int bin_R = 0; bin_R<int(nBinsRHisto_); bin_R++){
-
-            for(int bin_phi = 0; bin_phi<int(nBinsPhiHisto_); bin_phi++){
-
-                float MIPT_seed = histoClusters[{z_side,bin_R,bin_phi}];
-                bool isSeed = MIPT_seed > histoThreshold_;
-
-                if(isSeed){
-                    float ROverZ_seed = kROverZMin_ + (bin_R+0.5) * (kROverZMax_-kROverZMin_)/nBinsRHisto_;
-                    float phi_seed = -M_PI + (bin_phi+0.5) * 2*M_PI/nBinsPhiHisto_;
-                    float x_seed = ROverZ_seed*cos(phi_seed);
-                    float y_seed = ROverZ_seed*sin(phi_seed);
-                    seedPositions.emplace_back(x_seed,y_seed,z_side);
-                }
-
-            }
-
-        }
-
-    }
-
-    return seedPositions;
-
-}
-
-
-
-std::vector<l1t::HGCalMulticluster> HGCalMulticlusteringImpl::clusterSeedMulticluster(const std::vector<edm::Ptr<l1t::HGCalCluster>> & clustersPtrs,
-										      const std::vector<GlobalPoint> seeds){
-
-
-    std::map<int,l1t::HGCalMulticluster> mapSeedMulticluster;
-    std::vector<l1t::HGCalMulticluster> multiclustersTmp;
-
-    for(std::vector<edm::Ptr<l1t::HGCalCluster>>::const_iterator clu = clustersPtrs.begin(); clu != clustersPtrs.end(); ++clu){
-
-        HGCalDetId cluDetId( (**clu).detId() );
-        int z_side = cluDetId.zside();
-
-        double minDist = dr_;
-        int targetSeed = -1;
-
-        for( unsigned int iseed=0; iseed<seeds.size(); iseed++ ){
-
-            if( z_side*seeds[iseed].z()<0) continue;
-
-            double d = this->dR(**clu, seeds[iseed]);
-
-            if(d<minDist){
-                minDist = d;
-                targetSeed = iseed;
-            }
-
-        }
-
-        if(targetSeed<0) continue;
-
-        if(mapSeedMulticluster[targetSeed].size()==0){
-            l1t::HGCalMulticluster newMclu(*clu);
-            mapSeedMulticluster[targetSeed] = newMclu;
-        }
-        else mapSeedMulticluster[targetSeed].addConstituent(*clu);
-
-    }
-
-    for(auto mclu : mapSeedMulticluster) multiclustersTmp.emplace_back(mclu.second);
-
-    return multiclustersTmp;
-
-}
-
-
-
-
-void HGCalMulticlusteringImpl::clusterizeHistoMax( const std::vector<edm::Ptr<l1t::HGCalCluster>> & clustersPtrs,
-						   l1t::HGCalMulticlusterBxCollection & multiclusters,
-						   const HGCalTriggerGeometryBase & triggerGeometry)
-{
-
-    /* put clusters into an r/z x phi histogram */
-    std::map<std::vector<int>,float> histoCluster = fillHistoClusters(clustersPtrs); //key[0] = z.side(), key[1] = bin_R, key[2] = bin_phi, content = MIPTs summed along depth
-
-    /* smoothen along the phi direction + normalize each bin to same area */
-    std::map<std::vector<int>,float> smoothPhiHistoCluster = fillSmoothPhiHistoClusters(histoCluster,binsSumsHisto_);
-
-    /* smoothen along the r/z direction */
-    std::map<std::vector<int>,float> smoothRPhiHistoCluster = fillSmoothRPhiHistoClusters(histoCluster);
-
-    /* seeds determined with local maximum criteria */
-    std::vector<GlobalPoint> seedPositions = computeMaxSeeds(smoothRPhiHistoCluster);
-
-    /* clusterize clusters around seeds */
-    std::vector<l1t::HGCalMulticluster> multiclustersTmp = clusterSeedMulticluster(clustersPtrs,seedPositions);
-
-    /* making the collection of multiclusters */
-    finalizeClusters(multiclustersTmp, multiclusters, triggerGeometry);
-
-}
-
-
-
-
-
-void HGCalMulticlusteringImpl::clusterizeHistoThreshold( const std::vector<edm::Ptr<l1t::HGCalCluster>> & clustersPtrs,
-							 l1t::HGCalMulticlusterBxCollection & multiclusters,
-							 const HGCalTriggerGeometryBase & triggerGeometry)
-{
-
-    /* put clusters into an r/z x phi histogram */
-    std::map<std::vector<int>,float> histoCluster = fillHistoClusters(clustersPtrs); //key[0] = z.side(), key[1] = bin_R, key[2] = bin_phi, content = MIPTs summed along depth
-
-    /* smoothen along the phi direction + normalize each bin to same area */
-    std::map<std::vector<int>,float> smoothPhiHistoCluster = fillSmoothPhiHistoClusters(histoCluster,binsSumsHisto_);
-
-    /* smoothen along the r/z direction */
-    std::map<std::vector<int>,float> smoothRPhiHistoCluster = fillSmoothRPhiHistoClusters(histoCluster);
-
-    /* seeds determined with threshold criteria */
-    std::vector<GlobalPoint> seedPositions = computeThresholdSeeds(smoothRPhiHistoCluster);
-
-    /* clusterize clusters around seeds */
-    std::vector<l1t::HGCalMulticluster> multiclustersTmp = clusterSeedMulticluster(clustersPtrs,seedPositions);
-
-    /* making the collection of multiclusters */
-    finalizeClusters(multiclustersTmp, multiclusters, triggerGeometry);
-
-}
-
-
-
-
-
 
 
 void

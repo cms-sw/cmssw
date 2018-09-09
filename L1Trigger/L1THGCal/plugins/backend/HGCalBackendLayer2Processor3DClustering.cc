@@ -7,14 +7,15 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/backend/HGCalMulticlusteringImpl.h"    
-
+#include "L1Trigger/L1THGCal/interface/backend/HGCalMulticlusteringHistoImpl.h"
 
 class HGCalBackendLayer2Processor3DClustering : public HGCalBackendLayer2ProcessorBase 
 {
   public:
     HGCalBackendLayer2Processor3DClustering(const edm::ParameterSet& conf)  : 
       HGCalBackendLayer2ProcessorBase(conf),
-      multiclustering_( conf.getParameterSet("C3d_parameters") )
+      multiclustering_( conf.getParameterSet("C3d_parameters") ),
+      multiclusteringHisto_( conf.getParameterSet("C3d_parameters") )
     {
       std::string typeMulticluster(conf.getParameterSet("C3d_parameters").getParameter<std::string>("type_multicluster"));
       if(typeMulticluster=="dRC3d"){
@@ -37,6 +38,7 @@ class HGCalBackendLayer2Processor3DClustering : public HGCalBackendLayer2Process
     {
       es.get<CaloGeometryRecord>().get("", triggerGeometry_);
       multiclustering_.eventSetup(es);
+      multiclusteringHisto_.eventSetup(es);
 
       /* create a persistent vector of pointers to the trigger-cells */
       std::vector<edm::Ptr<l1t::HGCalCluster>> clustersPtrs;
@@ -54,10 +56,7 @@ class HGCalBackendLayer2Processor3DClustering : public HGCalBackendLayer2Process
           multiclustering_.clusterizeDBSCAN( clustersPtrs, collCluster3D, *triggerGeometry_);
           break;
         case HistoMaxC3d :
-          multiclustering_.clusterizeHistoMax( clustersPtrs, collCluster3D, *triggerGeometry_);
-          break;
-        case HistoThresholdC3d :
-          multiclustering_.clusterizeHistoThreshold( clustersPtrs, collCluster3D, *triggerGeometry_);
+          multiclusteringHisto_.clusterizeHisto( clustersPtrs, collCluster3D, *triggerGeometry_);
           break;
         default:
           // Should not happen, clustering type checked in constructor
@@ -77,6 +76,7 @@ class HGCalBackendLayer2Processor3DClustering : public HGCalBackendLayer2Process
 
     /* algorithms instances */
     HGCalMulticlusteringImpl multiclustering_;
+    HGCalMulticlusteringHistoImpl multiclusteringHisto_;
 
     /* algorithm type */
     MulticlusterType multiclusteringAlgoType_;

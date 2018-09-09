@@ -3,18 +3,18 @@
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
-#include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/backend/HGCalClusteringImpl.h"
-
+#include "L1Trigger/L1THGCal/interface/backend/HGCalClusteringDummyImpl.h"
 
 class HGCalBackendLayer1Processor2DClustering : public HGCalBackendLayer1ProcessorBase 
 {    
   public:
     HGCalBackendLayer1Processor2DClustering(const edm::ParameterSet& conf) :
       HGCalBackendLayer1ProcessorBase(conf),
-      clustering_( conf.getParameterSet("C2d_parameters") )
+      clustering_( conf.getParameterSet("C2d_parameters") ),
+      clusteringDummy_( conf.getParameterSet("C2d_parameters") )
     {
       std::string typeCluster(conf.getParameterSet("C2d_parameters").getParameter<std::string>("clusterType"));
       if(typeCluster=="dRC2d"){
@@ -37,6 +37,7 @@ class HGCalBackendLayer1Processor2DClustering : public HGCalBackendLayer1Process
     { //std::cout << " HGCalBackendLayer1Processor2DClustering::run" << " collHandle->size = " << collHandle->size() << std::endl;
       es.get<CaloGeometryRecord>().get("", triggerGeometry_);
       clustering_.eventSetup(es);
+      clusteringDummy_.eventSetup(es);
 
       /* create a persistent vector of pointers to the trigger-cells */
       std::vector<edm::Ptr<l1t::HGCalTriggerCell>> triggerCellsPtrs;
@@ -65,7 +66,7 @@ class HGCalBackendLayer1Processor2DClustering : public HGCalBackendLayer1Process
           clustering_.clusterizeDRNN( triggerCellsPtrs, collCluster2D, *triggerGeometry_ );
           break;
 	case dummyC2d:
-          clustering_.clusterizeDummy( triggerCellsPtrs, collCluster2D );
+          clusteringDummy_.clusterizeDummy( triggerCellsPtrs, collCluster2D );
           break;
         default:
           // Should not happen, clustering type checked in constructor
@@ -85,6 +86,7 @@ class HGCalBackendLayer1Processor2DClustering : public HGCalBackendLayer1Process
 
     /* algorithms instances */
     HGCalClusteringImpl clustering_;
+    HGCalClusteringDummyImpl clusteringDummy_;
 
     /* algorithm type */
     ClusterType clusteringAlgorithmType_;
