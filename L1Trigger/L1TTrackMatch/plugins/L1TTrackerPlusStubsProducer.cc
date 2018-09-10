@@ -32,8 +32,8 @@ class L1TTrackerPlusStubsProducer : public edm::stream::EDProducer<> {
   edm::EDGetTokenT<std::vector<L1MuKBMTCombinedStub> > srcStubs_;
   edm::EDGetTokenT<l1t::L1TkMuonParticle::L1TTTrackCollection> srcTracks_;
   std::unique_ptr<L1TTrackerPlusBarrelStubsMatcher> matcher_;
-
-
+  
+  double maxchi2_;
   
   
   
@@ -42,7 +42,8 @@ class L1TTrackerPlusStubsProducer : public edm::stream::EDProducer<> {
 L1TTrackerPlusStubsProducer::L1TTrackerPlusStubsProducer(const edm::ParameterSet& iConfig):
   srcStubs_(consumes<std::vector<L1MuKBMTCombinedStub> >(iConfig.getParameter<edm::InputTag>("srcStubs"))),
   srcTracks_(consumes<l1t::L1TkMuonParticle::L1TTTrackCollection>(iConfig.getParameter<edm::InputTag>("srcTracks"))),
-  matcher_(new L1TTrackerPlusBarrelStubsMatcher(iConfig.getParameter<edm::ParameterSet>("trackMatcherSettings")))
+  matcher_(new L1TTrackerPlusBarrelStubsMatcher(iConfig.getParameter<edm::ParameterSet>("trackMatcherSettings"))),
+  maxchi2_(iConfig.getParameter<double>("maxChi2"))
 {
   produces <std::vector<l1t::L1TkMuonParticle> >();
 }
@@ -86,6 +87,9 @@ L1TTrackerPlusStubsProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
    std::vector<edm::Ptr< l1t::L1TkMuonParticle::L1TTTrackType > > tracks;
    for (uint i=0;i<trackHandle->size();++i) {
      edm::Ptr< l1t::L1TkMuonParticle::L1TTTrackType > track(trackHandle, i);
+     double chi2dof=track->getChi2()/(2*track->getStubRefs().size()-4);
+     if (chi2dof>maxchi2_) 
+	continue;
 	tracks.push_back(track);
    }
 
