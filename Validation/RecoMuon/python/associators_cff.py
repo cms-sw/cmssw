@@ -128,24 +128,35 @@ tpToGEMMuonMuonAssociation.UseTracker = True
 tpToGEMMuonMuonAssociation.UseMuon = False
 
 tpToL3TkMuonAssociation = MABHhlt.clone()
-tpToL3TkMuonAssociation.tracksTag = 'hltL3TkTracksFromL2'
+tpToL3TkMuonAssociation.tracksTag = 'hltIterL3MuonMerged'
 tpToL3TkMuonAssociation.UseTracker = True
 tpToL3TkMuonAssociation.UseMuon = False
 
-tpToL2MuonAssociation = MABHhlt.clone()
-tpToL2MuonAssociation.tracksTag = 'hltL2Muons'
-tpToL2MuonAssociation.UseTracker = False
-tpToL2MuonAssociation.UseMuon = True
+tpToL3OITkMuonAssociation = MABHhlt.clone()
+tpToL3OITkMuonAssociation.tracksTag = 'hltIterL3OIMuonTrackSelectionHighPurity'
+tpToL3OITkMuonAssociation.UseTracker = True
+tpToL3OITkMuonAssociation.UseMuon = False
 
-tpToL2UpdMuonAssociation = MABHhlt.clone()
-tpToL2UpdMuonAssociation.tracksTag = 'hltL2Muons:UpdatedAtVtx'
-tpToL2UpdMuonAssociation.UseTracker = False
-tpToL2UpdMuonAssociation.UseMuon = True
+tpToL3FromL1TkMuonAssociation = MABHhlt.clone()
+tpToL3FromL1TkMuonAssociation.tracksTag = 'hltIterL3MuonAndMuonFromL1Merged'
+tpToL3FromL1TkMuonAssociation.UseTracker = True
+tpToL3FromL1TkMuonAssociation.UseMuon = False
 
 tpToL3MuonAssociation = MABHhlt.clone()
-tpToL3MuonAssociation.tracksTag = 'hltL3Muons'
+tpToL3MuonAssociation.tracksTag = 'hltIterL3Muons'
 tpToL3MuonAssociation.UseTracker = True
 tpToL3MuonAssociation.UseMuon = True
+
+tpToL3GlbMuonAssociation = MABHhlt.clone()
+tpToL3GlbMuonAssociation.tracksTag = 'hltIterL3GlbMuon'
+tpToL3GlbMuonAssociation.UseTracker = True
+tpToL3GlbMuonAssociation.UseMuon = True
+
+tpToL3NoIDMuonAssociation = MABHhlt.clone()
+tpToL3NoIDMuonAssociation.tracksTag = 'hltIterL3MuonsNoID'
+tpToL3NoIDMuonAssociation.UseTracker = True
+tpToL3NoIDMuonAssociation.UseMuon = True
+
 
 #
 # COSMICS reco
@@ -220,7 +231,8 @@ muonAssociationCosmic_seq = cms.Sequence(
     )
 
 muonAssociationHLT_seq = cms.Sequence(
-    tpToL2MuonAssociation+tpToL2UpdMuonAssociation+tpToL3TkMuonAssociation+tpToL3MuonAssociation
+    tpToL3TkMuonAssociation+tpToL3OITkMuonAssociation+tpToL3FromL1TkMuonAssociation+
+    tpToL3MuonAssociation+tpToL3GlbMuonAssociation+tpToL3NoIDMuonAssociation
     )
 
 
@@ -228,6 +240,6 @@ muonAssociationHLT_seq = cms.Sequence(
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 _DTrechitTag = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.DTrechitTag
 fastSim.toModify(tpToL3TkMuonAssociation, DTrechitTag = _DTrechitTag)
-fastSim.toModify(tpToL2MuonAssociation, DTrechitTag = _DTrechitTag)
-fastSim.toModify(tpToL2UpdMuonAssociation, DTrechitTag = _DTrechitTag)
+fastSim.toModify(tpToL3NoIDMuonAssociation, DTrechitTag = _DTrechitTag)
+fastSim.toModify(tpToL3GlbMuonAssociation, DTrechitTag = _DTrechitTag)
 fastSim.toModify(tpToL3MuonAssociation, DTrechitTag = _DTrechitTag)
