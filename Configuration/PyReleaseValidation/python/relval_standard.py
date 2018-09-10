@@ -356,6 +356,9 @@ workflows[136.870] = ['',['RunNoBPTX2018B','HLTDR2_2018','RECODR2_2018reHLTAlCaT
 workflows[136.871] = ['',['RunDisplacedJet2018B','HLTDR2_2018','RECODR2_2018reHLT_skimDisplacedJet_Prompt','HARVEST2018']]
 workflows[136.872] = ['',['RunCharmonium2018B','HLTDR2_2018','RECODR2_2018reHLT_skimCharmonium_Prompt','HARVEST2018']]
 
+workflows[136.8642] = ['',['RunJetHT2018BHEfail','HLTDR2_2018','RECODR2_2018reHLT_skimJetHT_Prompt_HEfail','HARVEST2018_HEfail']]
+workflows[136.8643] = ['',['RunJetHT2018BBadHcalMitig','HLTDR2_2018_BadHcalMitig','RECODR2_2018reHLT_skimJetHT_Prompt_BadHcalMitig','HARVEST2018_BadHcalMitig']]
+
 ### run 2018C ###
 workflows[136.873] = ['',['RunHLTPhy2018C','HLTDR2_2018','RECODR2_2018reHLT_Prompt','HARVEST2018']]
 workflows[136.874] = ['',['RunEGamma2018C','HLTDR2_2018','RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM','HARVEST2018_L1TEgDQM']]
