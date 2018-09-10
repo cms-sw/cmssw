@@ -313,8 +313,7 @@ void DDHCalEndcapAlgo::initialize(const DDNumericArguments & nArgs,
 #endif
 
   idName      = sArgs["MotherName"];
-  DDCurrentNamespace ns;
-  idNameSpace = *ns;
+  idNameSpace = DDCurrentNamespace::ns();
   idOffset = int (nArgs["IdOffset"]); 
 
 #ifdef EDM_ML_DEBUG

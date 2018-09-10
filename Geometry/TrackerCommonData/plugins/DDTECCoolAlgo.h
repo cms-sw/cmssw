@@ -22,6 +22,7 @@ class DDTECCoolAlgo : public DDAlgorithm {
   void execute(DDCompactView& cpv) override;
 
 private:
+  std::string              idNameSpace;    //Namespace of this and ALL parts
   int                      startCopyNo;    //Start copy number
   double                   rPosition;      // Position of the Inserts in R
   std::vector<double>      phiPosition;    // Position of the Inserts in Phi

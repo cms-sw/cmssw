@@ -173,9 +173,9 @@ void DDHCalBarrelAlgo::initialize(const DDNumericArguments & nArgs,
 			 << detWidth2[i] << "\t" << detPosY[i];
   }
 
+  //  idName = parentName.name();
   idName      = sArgs["MotherName"];
-  DDCurrentNamespace ns;
-  idNameSpace = *ns;
+  idNameSpace = DDCurrentNamespace::ns();
   idOffset = int (nArgs["IdOffset"]); 
   DDName parentName = parent().name(); 
   LogDebug("HCalGeom") << "DDHCalBarrelAlgo debug: Parent " << parentName

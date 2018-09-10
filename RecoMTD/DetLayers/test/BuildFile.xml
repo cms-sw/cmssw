@@ -1,0 +1,12 @@
+<use   name="RecoMTD/DetLayers"/>
+<use   name="RecoMTD/Records"/>
+<use   name="FWCore/Framework"/>
+<flags   EDM_PLUGIN="1"/>
+<library   file="MTDRecoGeometryAnalyzer.cc" name="testMTDRecoGeometry">
+  <use   name="clhep"/>
+  <use   name="TrackingTools/TrajectoryState"/>
+  <use   name="TrackingTools/KalmanUpdators"/>
+  <use   name="TrackPropagation/SteppingHelixPropagator"/>
+  <use   name="MagneticField/Records"/>
+  <use   name="MagneticField/Engine"/>
+</library>

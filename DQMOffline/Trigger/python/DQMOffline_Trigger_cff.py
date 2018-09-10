@@ -123,6 +123,7 @@ offlineHLTSourceWithRECO = cms.Sequence(
     * egHLTOffDQMSource       ## NEEDED in VALIDATION, not really in MONITORING
     * egHLTOffDQMSource_HEP17 ## NEEDED in VALIDATION, not really in MONITORING
     * jetMETHLTOfflineAnalyzer
+    * b2gHLTDQMSourceWithRECO ## ak8PFJetsPuppiSoftDrop collection is not available in AOD, actually it is produced by the miniAOD step
 )
 ####################################################################################################
 # offline DQM to be run on AOD (w/o the need of the RECO step on-the-fly) only in the VALIDATION of the HLT menu based on data

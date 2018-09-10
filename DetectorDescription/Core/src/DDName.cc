@@ -22,7 +22,7 @@ DDName::DDName( const std::string & name )
 { 
   std::pair<std::string, std::string> result = DDSplit( name );
   if( result.second.empty()) {
-    id_ = registerName( std::make_pair( result.first, DDCurrentNamespace()->c_str()))->second;
+    id_ = registerName( std::make_pair( result.first, DDCurrentNamespace::ns()))->second;
   }  
   else {
     id_ = registerName( result )->second;
@@ -34,7 +34,7 @@ DDName::DDName( const char* name )
 { 
   std::pair< std::string, std::string > result = DDSplit( name );
   if( result.second.empty()) {
-    id_ = registerName( std::make_pair( result.first, DDCurrentNamespace()->c_str()))->second;
+    id_ = registerName( std::make_pair( result.first, DDCurrentNamespace::ns()))->second;
   }  
   else {
     id_ = registerName( result )->second;

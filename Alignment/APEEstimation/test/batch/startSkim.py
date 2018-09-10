@@ -19,7 +19,7 @@ def doSkim(sample):
     outFilePath = None
     
     # start cmsRun
-    proc = subprocess.Popen(toExec, stdout=subprocess.PIPE)
+    proc = subprocess.Popen(toExec, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     
     def get_output(proc):
         while True:
@@ -27,6 +27,7 @@ def doSkim(sample):
             if not line:
                 break
             yield line
+
     
     # print output in shell while program runs, also extract output filename
     try:
@@ -35,7 +36,7 @@ def doSkim(sample):
                 outFileName = line.split("output name ")[1].split(".root")[0]
             if "Using output path" in line:
                 outFilePath = line.split("output path ")[1]
-            print(line)
+            print(sample+": "+line)
     except KeyboardInterrupt:
         #this way, the current file is closed and the skimming is finished in a way that the last opened file is actually usable
         
@@ -61,7 +62,7 @@ def doSkim(sample):
                     try:
                         fileNo = int(fileNoString)
                         # For (most) weird naming conventions to not mess up renaming
-                        if len(fileNoString) != 3 or fileNo == 1:
+                        if len(fileNoString) != 3:
                             continue
                         
                         newFileName = "%s_%d.root"%(outFileName, fileNo+1)
@@ -80,7 +81,8 @@ def doSkim(sample):
         if not os.path.isdir(outFilePath):
             os.makedirs(outFilePath)
         for fi in targetFiles:
-            subprocess.call("xrdcp %s %s/"%(fi, outFilePath), shell=True)
+            if not subprocess.call("xrdcp %s %s/"%(fi, outFilePath), shell=True):
+                os.remove(fi)    
 
 def main(argv):
     if not 'CMSSW_BASE' in os.environ:
@@ -99,6 +101,30 @@ def main(argv):
         print("Usage: python startSkim.py -s <sample>")
         sys.exit()
     
+    finalSamples = []
+    for sample in args.samples:
+        if "[" in sample and "]" in sample:
+            posS = sample.find("[")
+            posE = sample.find("]")
+            nums = sample[posS+1:posE].split(",")
+            expression = sample[posS:posE+1]
+            
+            nums = sample[sample.find("[")+1:sample.find("]")]
+            for interval in nums.split(","):
+                interval = interval.strip()
+                if "-" in interval:
+                    lowNum = int(interval.split("-")[0])
+                    upNum = int(interval.split("-")[1])
+                    for i in range(lowNum, upNum+1):
+                        finalSamples.append("%s"%(sample.replace(expression,str(i))))
+                else:
+                    finalSamples.append("%s"%(sample.replace(expression,interval)))
+        else:
+            finalSamples.append(sample)
+    
+    args.samples = finalSamples
+    print(args.samples)
+
     if len(args.samples) == 1 or args.consecutive:
         for sample in args.samples:
             doSkim(sample) 
