@@ -457,7 +457,7 @@ try { // edmNew::CapacityExaustedException
           rawAlgos.suppressHybridData(id, ipair*2, workRawDigis, suppDigis);
           std::copy(std::begin(suppDigis), std::end(suppDigis), perStripAdder);
         }
-      } catch (edmNew::CapacityExaustedException) {
+      } catch (edmNew::CapacityExaustedException const&) {
         throw;
       } catch (const cms::Exception& e) {
         if (edm::isDebugEnabled()) {
