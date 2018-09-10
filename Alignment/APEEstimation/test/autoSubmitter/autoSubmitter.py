@@ -386,7 +386,7 @@ class ApeMeasurement:
             
     def kill(self):
         from autoSubmitterTemplates import killJobTemplate
-        for job in self.runningJobs:
+        for job, number in self.runningJobs:
             subprocess.call(killJobTemplate.format(jobName=job), shell=True)
         self.runningJobs = []
         self.status = STATE_NONE
