@@ -30,7 +30,7 @@ EcalTBHodoscopeGeometryLoaderFromDDD::load( const DDCompactView* cpv )
 
    std::cout << "[EcalTBHodoscopeGeometryLoaderFromDDD]:: Returning EcalTBHodoscopeGeometry" << std::endl;
 
-   return std::move(ebg);
+   return ebg;
 }
 
 void 

@@ -41,8 +41,7 @@ void DDHCalXtalAlgo::initialize(const DDNumericArguments & nArgs,
   for (unsigned int i = 0; i < names.size(); i++)
     LogDebug("HCalGeom") << "\tnames[" << i << "] = " << names[i];
 
-  DDCurrentNamespace ns;
-  idNameSpace = *ns;
+  idNameSpace = DDCurrentNamespace::ns();
   idName      = sArgs["ChildName"]; 
   DDName parentName = parent().name(); 
   LogDebug("HCalGeom") << "DDHCalXtalAlgo debug: Parent " << parentName 

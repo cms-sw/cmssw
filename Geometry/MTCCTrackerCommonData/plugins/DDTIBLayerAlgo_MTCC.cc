@@ -27,8 +27,8 @@ void DDTIBLayerAlgo_MTCC::initialize(const DDNumericArguments & nArgs,
 				     const DDMapArguments & ,
 				     const DDStringArguments & sArgs,
 				     const DDStringVectorArguments & ) {
-  DDCurrentNamespace ns;
-  idNameSpace  = *ns;
+  
+  idNameSpace  = DDCurrentNamespace::ns();
   genMat       = sArgs["GeneralMaterial"];
   DDName parentName = parent().name(); 
   LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC debug: Parent " << parentName 

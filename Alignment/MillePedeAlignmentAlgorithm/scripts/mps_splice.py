@@ -72,9 +72,9 @@ for j in xrange(numberOfExtends):
         i+=1
 
     for line in fileinput.input(outCfg, inplace=1):
-        print(line, end=' ')
+        print(line,end='')
         if re.match('readFiles\s*=\s*cms.untracked.vstring()',line):
-            print(insertBlock, end=' ')
+            print(insertBlock,end='')
 
 if args.skip_events is not None:
     with open(outCfg, "a") as f:

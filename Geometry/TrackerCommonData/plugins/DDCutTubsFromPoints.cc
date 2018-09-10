@@ -50,10 +50,11 @@ void DDCutTubsFromPoints::initialize(const DDNumericArguments & nArgs,
 
   solidOutput = DDName(sArgs["SolidName"]);
   
+  std::string idNameSpace = DDCurrentNamespace::ns();
   DDName parentName = parent().name();
   LogDebug("TrackerGeom") << "DDCutTubsFromPoints debug: Parent " << parentName
                           << "\tSolid " << solidOutput << " NameSpace " 
-                          << DDCurrentNamespace()
+                          << idNameSpace 
                           << "\tnumber of sections " << sections.size();
 }
 

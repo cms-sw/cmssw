@@ -66,9 +66,8 @@ struct Column
 {
   using type = T;
   
-  static const char* const& label() {
-    static char const* const s_label(INHERIT::kLabel);
-    return s_label;
+  static constexpr const char* const& label() {
+    return INHERIT::kLabel;
   }
   
   template <typename F>

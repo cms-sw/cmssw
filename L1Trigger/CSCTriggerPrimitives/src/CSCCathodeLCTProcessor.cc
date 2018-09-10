@@ -480,8 +480,7 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
       if (numStrips > CSCConstants::MAX_NUM_STRIPS_7CFEBS) {
 	if (infoV >= 0) edm::LogError("L1CSCTPEmulatorSetupError")
 	  << "+++ Number of strips, " << numStrips
-	  << " found in ME" << ((theEndcap == 1) ? "+" : "-")
-	  << theStation << "/" << theRing << "/" << theChamber
+    << " found in " << detid.chamberName()
 	  << " (sector " << theSector << " subsector " << theSubsector
 	  << " trig id. " << theTrigChamber << ")"
 	  << " exceeds max expected, " << CSCConstants::MAX_NUM_STRIPS_7CFEBS
@@ -509,23 +508,21 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
     }
     else {
       if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
-	<< " ME" << ((theEndcap == 1) ? "+" : "-")
-        << theStation << "/" << theRing << "/" << theChamber
-	<< " (sector " << theSector << " subsector " << theSubsector
-	<< " trig id. " << theTrigChamber << ")"
-	<< " is not defined in current geometry! +++\n"
-	<< "+++ CSC geometry looks garbled; no emulation possible +++\n";
+                        << " " << CSCDetId::chamberName(theEndcap, theStation, theRing, theChamber)
+                        << " (sector " << theSector << " subsector " << theSubsector
+                        << " trig id. " << theTrigChamber << ")"
+                        << " is not defined in current geometry! +++\n"
+                        << "+++ CSC geometry looks garbled; no emulation possible +++\n";
       numStrips = -1;
     }
   }
 
   if (numStrips < 0) {
     if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
-      << " ME" << ((theEndcap == 1) ? "+" : "-")
-      << theStation << "/" << theRing << "/" << theChamber
-      << " (sector " << theSector << " subsector " << theSubsector
-      << " trig id. " << theTrigChamber << "):"
-      << " numStrips = " << numStrips << "; CLCT emulation skipped! +++";
+                        << " " << CSCDetId::chamberName(theEndcap, theStation, theRing, theChamber)
+                        << " (sector " << theSector << " subsector " << theSubsector
+                        << " trig id. " << theTrigChamber << "):"
+                        << " numStrips = " << numStrips << "; CLCT emulation skipped! +++";
     std::vector<CSCCLCTDigi> emptyV;
     return emptyV;
   }
@@ -614,16 +611,16 @@ void CSCCathodeLCTProcessor::run(const std::vector<int> halfstrip[CSCConstants::
     if (bestCLCT[bx].isValid()) {
       bestCLCT[bx].setTrknmb(1);
       if (infoV > 0) LogDebug("CSCCathodeLCTProcessor")
-                       << bestCLCT[bx] << " found in ME" << ((theEndcap == 1) ? "+" : "-")
-                       << theStation << "/" << theRing << "/" << theChamber
+                       << bestCLCT[bx] << " found in " <<
+                       CSCDetId::chamberName(theEndcap, theStation, theRing, theChamber)
                        << " (sector " << theSector << " subsector " << theSubsector
                        << " trig id. " << theTrigChamber << ")" << "\n";
     }
     if (secondCLCT[bx].isValid()) {
       secondCLCT[bx].setTrknmb(2);
       if (infoV > 0) LogDebug("CSCCathodeLCTProcessor")
-                       << secondCLCT[bx] << " found in ME" << ((theEndcap == 1) ? "+" : "-")
-                       << theStation << "/" << theRing << "/" << theChamber
+                       << secondCLCT[bx] << " found in " <<
+                       CSCDetId::chamberName(theEndcap, theStation, theRing, theChamber)
                        << " (sector " << theSector << " subsector " << theSubsector
                        << " trig id. " << theTrigChamber << ")" << "\n";
     }
@@ -661,9 +658,8 @@ bool CSCCathodeLCTProcessor::getDigis(const CSCComparatorDigiCollection* compdc)
       if (infoV > 1) {
 	LogTrace("CSCCathodeLCTProcessor")
 	  << "found " << digiV[i_layer].size()
-	  << " comparator digi(s) in layer " << i_layer << " of ME"
-	  << ((theEndcap == 1) ? "+" : "-") << theStation << "/" << theRing
-	  << "/" << theChamber << " (trig. sector " << theSector
+	  << " comparator digi(s) in layer " << i_layer << " of " <<
+    detid.chamberName() << " (trig. sector " << theSector
 	  << " subsector " << theSubsector << " id " << theTrigChamber << ")";
       }
     }
@@ -1560,8 +1556,7 @@ void CSCCathodeLCTProcessor::dumpConfigParams() const {
 void CSCCathodeLCTProcessor::dumpDigis(const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS], const int stripType, const int nStrips) const
 {
   LogDebug("CSCCathodeLCTProcessor")
-    << "ME" << ((theEndcap == 1) ? "+" : "-")
-    << theStation << "/" << theRing << "/" << theChamber
+    << CSCDetId::chamberName(theEndcap, theStation, theRing, theChamber)
     << " strip type " << stripType << " nStrips " << nStrips;
 
   std::ostringstream strstrm;
