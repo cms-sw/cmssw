@@ -29,6 +29,8 @@ autoCond = {
     'run2_data'         :   '103X_dataRun2_v2',
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
     'run2_data_relval'  :   '103X_dataRun2_relval_v5',
+    # GlobalTag for Run2 data 2018B relvals only: HEM-15-16 fail
+    'run2_data_promptlike_HEfail' : '103X_dataRun2_PromptLike_HEfail_v3',
     # GlobalTag for Run2 data 2016H relvals only: Prompt Conditions + fixed L1 menu (to be removed)
     'run2_data_promptlike' : '103X_dataRun2_PromptLike_v5',
     # GlobalTag for Run1 HLT: it points to the online GT
@@ -51,6 +53,8 @@ autoCond = {
     'phase1_2018_design'       : '103X_upgrade2018_design_v2',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector
     'phase1_2018_realistic'    : '103X_upgrade2018_realistic_v4',
+    # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector: HEM-15-16 fail
+    'phase1_2018_realistic_HEfail'    : '103X_upgrade2018_realistic_HEfail_v1',
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in DECO mode
     'phase1_2018_cosmics'      :   '103X_upgrade2018cosmics_realistic_deco_v4',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
