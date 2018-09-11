@@ -132,6 +132,9 @@ nanoSequence = cms.Sequence(
 
 nanoSequenceMC = cms.Sequence(genParticleSequence + particleLevelSequence + nanoSequence + jetMC + muonMC + electronMC + photonMC + tauMC + metMC + ttbarCatMCProducers +  globalTablesMC + btagWeightTable + genWeightsTable + genParticleTables + particleLevelTables + lheInfoTable  + ttbarCategoryTable )
 
+nanoSequenceFS = nanoSequenceMC.copy()
+nanoSequenceFS.remove(triggerObjectTables)
+nanoSequenceFS.remove(l1bits)
 
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
@@ -262,6 +265,13 @@ _80x_sequence.insert(_80x_sequence.index(jetSequence), extraFlagsProducers)
 _80x_sequence.insert(_80x_sequence.index(l1bits)+1, extraFlagsTable)
 
 run2_miniAOD_80XLegacy.toReplaceWith( nanoSequence, _80x_sequence)
+
+_80x_sequenceFS = nanoSequenceFS.copy()
+_80x_sequenceFS.remove(isoTrackTable)
+_80x_sequenceFS.remove(isoTrackSequence)
+_80x_sequenceFS.insert(_80x_sequenceFS.index(jetSequence), extraFlagsProducers)
+_80x_sequenceFS.insert(_80x_sequenceFS.index(simpleCleanerTable)+1, extraFlagsTable)
+run2_miniAOD_80XLegacy.toReplaceWith( nanoSequenceFS, _80x_sequenceFS)
 
 	
 
