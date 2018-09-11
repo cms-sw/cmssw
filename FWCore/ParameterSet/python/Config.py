@@ -1278,17 +1278,22 @@ class _ParameterModifier(object):
   def _raiseUnknownKey(key):
     raise KeyError("Unknown parameter name "+key+" specified while calling Modifier")
 
-class _AndModifier(object):
-  """A modifier which only applies if multiple Modifiers are chosen"""
-  def __init__(self, lhs, rhs):
-    self.__lhs = lhs
-    self.__rhs = rhs
-  def isChosen(self):
-    return self.__lhs.isChosen() and self.__rhs.isChosen()
+class _BoolModifierBase(object):
+  """A helper base class for _AndModifier, _InvertModifier, and _OrModifier to contain the common code"""
+  def __init__(self, lhs, rhs=None):
+    self._lhs = lhs
+    if rhs is not None:
+      self._rhs = rhs
   def toModify(self,obj, func=None,**kw):
+    Modifier._toModifyCheck(obj,func,**kw)
     if not self.isChosen():
       return
-    self.__lhs.toModify(obj,func, **kw)
+    Modifier._toModify(obj,func,**kw)
+  def toReplaceWith(self,toObj,fromObj):
+    Modifier._toReplaceWithCheck(toObj,fromObj)
+    if not self.isChosen():
+      return
+    Modifier._toReplaceWith(toObj,fromObj)
   def makeProcessModifier(self,func):
     """This is used to create a ProcessModifer that can perform actions on the process as a whole.
         This takes as argument a callable object (e.g. function) that takes as its sole argument an instance of Process.
@@ -1296,7 +1301,31 @@ class _AndModifier(object):
     return ProcessModifier(self,func)
   def __and__(self, other):
     return _AndModifier(self,other)
+  def __invert__(self):
+    return _InvertModifier(self)
+  def __or__(self, other):
+    return _OrModifier(self,other)
 
+class _AndModifier(_BoolModifierBase):
+  """A modifier which only applies if multiple Modifiers are chosen"""
+  def __init__(self, lhs, rhs):
+    super(_AndModifier,self).__init__(lhs, rhs)
+  def isChosen(self):
+    return self._lhs.isChosen() and self._rhs.isChosen()
+
+class _InvertModifier(_BoolModifierBase):
+  """A modifier which only applies if a Modifier is not chosen"""
+  def __init__(self, lhs):
+    super(_InvertModifier,self).__init__(lhs)
+  def isChosen(self):
+    return not self._lhs.isChosen()
+
+class _OrModifier(_BoolModifierBase):
+  """A modifier which only applies if at least one of multiple Modifiers is chosen"""
+  def __init__(self, lhs, rhs):
+    super(_OrModifier,self).__init__(lhs, rhs)
+  def isChosen(self):
+    return self._lhs.isChosen() or self._rhs.isChosen()
 
 
 class Modifier(object):
@@ -1317,6 +1346,10 @@ class Modifier(object):
        In order to work, the value returned from this function must be assigned to a uniquely named variable.
     """
     return ProcessModifier(self,func)
+  @staticmethod
+  def _toModifyCheck(obj,func,**kw):
+    if func is not None and len(kw) != 0:
+      raise TypeError("toModify takes either two arguments or one argument and key/value pairs")
   def toModify(self,obj, func=None,**kw):
     """This is used to register an action to be performed on the specific object. Two different forms are allowed
     Form 1: A callable object (e.g. function) can be passed as the second. This callable object is expected to take one argument
@@ -1330,22 +1363,30 @@ class Modifier(object):
         #change foo.fred.pebbles to 3 and foo.fred.friend to "barney"
         mod.toModify(foo, fred = dict(pebbles = 3, friend = "barney)) )
     """
-    if func is not None and len(kw) != 0:
-      raise TypeError("toModify takes either two arguments or one argument and key/value pairs")
+    Modifier._toModifyCheck(obj,func,**kw)
     if not self.isChosen():
         return
+    Modifier._toModify(obj,func,**kw)
+  @staticmethod
+  def _toModify(obj,func,**kw):
     if func is not None:
       func(obj)
     else:
       temp =_ParameterModifier(kw)
       temp(obj)
+  @staticmethod
+  def _toReplaceWithCheck(toObj,fromObj):
+    if type(fromObj) != type(toObj):
+        raise TypeError("toReplaceWith requires both arguments to be the same class type")
   def toReplaceWith(self,toObj,fromObj):
     """If the Modifier is chosen the internals of toObj will be associated with the internals of fromObj
     """
-    if type(fromObj) != type(toObj):
-        raise TypeError("toReplaceWith requires both arguments to be the same class type")
+    Modifier._toReplaceWithCheck(toObj,fromObj)
     if not self.isChosen():
         return
+    Modifier._toReplaceWith(toObj,fromObj)
+  @staticmethod
+  def _toReplaceWith(toObj,fromObj):
     if isinstance(fromObj,_ModuleSequenceType):
         toObj._seq = fromObj._seq
         toObj._tasks = fromObj._tasks
@@ -1370,6 +1411,10 @@ class Modifier(object):
     return self.__chosen
   def __and__(self, other):
     return _AndModifier(self,other)
+  def __invert__(self):
+    return _InvertModifier(self)
+  def __or__(self, other):
+    return _OrModifier(self,other)
   def _isOrContains(self, other):
     return self == other
 
@@ -2965,6 +3010,7 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             p = Process("test",m1)
             p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
             (m1 & m2).toModify(p.a, fred = int32(2))
+            self.assertRaises(TypeError, lambda: (m1 & m2).toModify(p.a, 1, wilma=2))
             self.assertEqual(p.a.fred, 1)
             m1 = Modifier()
             m2 = Modifier()
@@ -2979,11 +3025,66 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
             (m1 & m2 & m3).toModify(p.a, fred = int32(2))
             self.assertEqual(p.a.fred, 2)
+            (m1 & (m2 & m3)).toModify(p.a, fred = int32(3))
+            self.assertEqual(p.a.fred, 3)
+            ((m1 & m2) & m3).toModify(p.a, fred = int32(4))
+            self.assertEqual(p.a.fred, 4)
+            #check inverse
+            m1 = Modifier()
+            m2 = Modifier()
+            p = Process("test", m1)
+            p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
+            (~m1).toModify(p.a, fred=2)
+            self.assertEqual(p.a.fred, 1)
+            (~m2).toModify(p.a, wilma=2)
+            self.assertEqual(p.a.wilma, 2)
+            self.assertRaises(TypeError, lambda: (~m1).toModify(p.a, 1, wilma=2))
+            self.assertRaises(TypeError, lambda: (~m2).toModify(p.a, 1, wilma=2))
+            # check or
+            m1 = Modifier()
+            m2 = Modifier()
+            m3 = Modifier()
+            p = Process("test", m1)
+            p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
+            (m1 | m2).toModify(p.a, fred=2)
+            self.assertEqual(p.a.fred, 2)
+            (m1 | m2 | m3).toModify(p.a, fred=3)
+            self.assertEqual(p.a.fred, 3)
+            (m3 | m2 | m1).toModify(p.a, fred=4)
+            self.assertEqual(p.a.fred, 4)
+            ((m1 | m2) | m3).toModify(p.a, fred=5)
+            self.assertEqual(p.a.fred, 5)
+            (m1 | (m2 | m3)).toModify(p.a, fred=6)
+            self.assertEqual(p.a.fred, 6)
+            (m2 | m3).toModify(p.a, fred=7)
+            self.assertEqual(p.a.fred, 6)
+            self.assertRaises(TypeError, lambda: (m1 | m2).toModify(p.a, 1, wilma=2))
+            self.assertRaises(TypeError, lambda: (m2 | m3).toModify(p.a, 1, wilma=2))
+            # check combinations
+            m1 = Modifier()
+            m2 = Modifier()
+            m3 = Modifier()
+            m4 = Modifier()
+            p = Process("test", m1, m2)
+            p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
+            (m1 & ~m2).toModify(p.a, fred=2)
+            self.assertEqual(p.a.fred, 1)
+            (m1 & ~m3).toModify(p.a, fred=2)
+            self.assertEqual(p.a.fred, 2)
+            (m1 | ~m2).toModify(p.a, fred=3)
+            self.assertEqual(p.a.fred, 3)
+            (~m1 | ~m2).toModify(p.a, fred=4)
+            self.assertEqual(p.a.fred, 3)
+            (~m3 & ~m4).toModify(p.a, fred=4)
+            self.assertEqual(p.a.fred, 4)
+            ((m1 & m3) | ~m4).toModify(p.a, fred=5)
+            self.assertEqual(p.a.fred, 5)
             #check toReplaceWith
             m1 = Modifier()
             p = Process("test",m1)
             p.a =EDAnalyzer("MyAnalyzer", fred = int32(1))
             m1.toReplaceWith(p.a, EDAnalyzer("YourAnalyzer", wilma = int32(3)))
+            self.assertRaises(TypeError, lambda: m1.toReplaceWith(p.a, EDProducer("YourProducer")))
             p.b =EDAnalyzer("BAn")
             p.c =EDProducer("c")
             p.d =EDProducer("d")
@@ -3004,4 +3105,29 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             p.a =EDAnalyzer("MyAnalyzer", fred = int32(1))
             m1.toReplaceWith(p.a, EDAnalyzer("YourAnalyzer", wilma = int32(3)))
             self.assertEqual(p.a.type_(),"MyAnalyzer")
+            #check toReplaceWith and and/not/or combinations
+            m1 = Modifier()
+            m2 = Modifier()
+            m3 = Modifier()
+            m4 = Modifier()
+            p = Process("test", m1, m2)
+            p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
+            self.assertRaises(TypeError, lambda: (m1 & m2).toReplaceWith(p.a, EDProducer("YourProducer")))
+            self.assertRaises(TypeError, lambda: (m3 & m4).toReplaceWith(p.a, EDProducer("YourProducer")))
+            self.assertRaises(TypeError, lambda: (~m3).toReplaceWith(p.a, EDProducer("YourProducer")))
+            self.assertRaises(TypeError, lambda: (~m1).toReplaceWith(p.a, EDProducer("YourProducer")))
+            self.assertRaises(TypeError, lambda: (m1 | m3).toReplaceWith(p.a, EDProducer("YourProducer")))
+            self.assertRaises(TypeError, lambda: (m3 | m4).toReplaceWith(p.a, EDProducer("YourProducer")))
+            (m1 & m2).toReplaceWith(p.a, EDAnalyzer("YourAnalyzer1"))
+            self.assertEqual(p.a.type_(), "YourAnalyzer1")
+            (m1 & m3).toReplaceWith(p.a, EDAnalyzer("YourAnalyzer2"))
+            self.assertEqual(p.a.type_(), "YourAnalyzer1")
+            (~m1).toReplaceWith(p.a, EDAnalyzer("YourAnalyzer2"))
+            self.assertEqual(p.a.type_(), "YourAnalyzer1")
+            (~m3).toReplaceWith(p.a, EDAnalyzer("YourAnalyzer2"))
+            self.assertEqual(p.a.type_(), "YourAnalyzer2")
+            (m1 | m3).toReplaceWith(p.a, EDAnalyzer("YourAnalyzer3"))
+            self.assertEqual(p.a.type_(), "YourAnalyzer3")
+            (m3 | m4).toReplaceWith(p.a, EDAnalyzer("YourAnalyzer4"))
+            self.assertEqual(p.a.type_(), "YourAnalyzer3")
     unittest.main()
