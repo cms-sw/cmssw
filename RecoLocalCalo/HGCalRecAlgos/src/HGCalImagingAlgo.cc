@@ -32,14 +32,12 @@ void HGCalImagingAlgo::populate(const HGCRecHitCollection &hits) {
     // sensor-independent thresholds
     float sigmaNoise = 1.f;
     if (dependSensor) {
-      if (layer <= lastLayerFH) // only EE and FH have silicon sensors
-        thickness = rhtools_.getSiThickness(detid);
-      double storedThreshold =
-          thresholds[layer - 1]
-                    [layer <= lastLayerFH ? rhtools_.getSiThickIndex(detid) : 0];
-      sigmaNoise =
-          v_sigmaNoise[layer - 1]
-                      [layer <= lastLayerFH ? rhtools_.getSiThickIndex(detid) : 0];
+      thickness = rhtools_.getSiThickness(detid);
+      int thickness_index = rhtools_.getSiThickIndex(detid);
+      if (thickness_index == -1)
+        thickness_index = 3;
+      double storedThreshold = thresholds[layer - 1][thickness_index];
+      sigmaNoise = v_sigmaNoise[layer - 1][thickness_index];
 
       if (hgrh.energy() < storedThreshold)
         continue; // this sets the ZS threshold at ecut times the sigma noise
@@ -612,13 +610,21 @@ void HGCalImagingAlgo::shareEnergy(
 }
 
 void HGCalImagingAlgo::computeThreshold() {
+  // To support the TDR geometry and also the post-TDR one (v9 onwards), we
+  // need to change the logic of the vectors containing signal to noise and
+  // thresholds. The first 3 indices will keep on addressing the different
+  // thicknesses of the Silicon detectors, while the last one, number 3 (the
+  // fourth) will address the Scintillators. This change will support both
+  // geometries at the same time.
 
   if (initialized)
     return; // only need to calculate thresholds once
 
+  initialized = true;
+
   std::vector<double> dummy;
   const unsigned maxNumberOfThickIndices = 3;
-  dummy.resize(maxNumberOfThickIndices, 0);
+  dummy.resize(maxNumberOfThickIndices + 1, 0); // +1 to accomodate for the Scintillators
   thresholds.resize(maxlayer, dummy);
   v_sigmaNoise.resize(maxlayer, dummy);
 
@@ -630,17 +636,9 @@ void HGCalImagingAlgo::computeThreshold() {
       thresholds[ilayer - 1][ithick] = sigmaNoise * ecut;
       v_sigmaNoise[ilayer - 1][ithick] = sigmaNoise;
     }
+    float scintillators_sigmaNoise = 0.001f * noiseMip * dEdXweights[ilayer];
+    thresholds[ilayer - 1][maxNumberOfThickIndices] = ecut * scintillators_sigmaNoise;
+    v_sigmaNoise[ilayer -1][maxNumberOfThickIndices] = scintillators_sigmaNoise;
   }
 
-  // now BH, much faster
-  for (unsigned ilayer = lastLayerFH + 1; ilayer <= maxlayer; ++ilayer) {
-    float sigmaNoise = 0.001f * noiseMip * dEdXweights[ilayer];
-    std::vector<double> bhDummy_thresholds;
-    std::vector<double> bhDummy_sigmaNoise;
-    bhDummy_thresholds.push_back(sigmaNoise * ecut);
-    bhDummy_sigmaNoise.push_back(sigmaNoise);
-    thresholds[ilayer - 1] = bhDummy_thresholds;
-    v_sigmaNoise[ilayer - 1] = bhDummy_sigmaNoise;
-  }
-  initialized = true;
 }
