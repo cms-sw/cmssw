@@ -998,6 +998,8 @@ class ConfigBuilder(object):
                 self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineMC_cff"
                 self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreamsMC_cff"
 	        self.NANODefaultSeq='nanoSequenceMC'
+        if self._options.fast == True:
+            self.NANODefaultSeq='nanoSequenceFS'
 	else:
 		self._options.beamspot = None
 	
