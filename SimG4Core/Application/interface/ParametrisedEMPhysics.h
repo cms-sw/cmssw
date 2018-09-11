@@ -14,6 +14,7 @@
 class GFlashEMShowerModel;
 class GFlashHadronShowerModel;
 class ElectronLimiter;
+class G4FastSimulationManagerProcess;
 
 class ParametrisedEMPhysics : public G4VPhysicsConstructor
 {
@@ -29,13 +30,15 @@ private:
 
   edm::ParameterSet theParSet;
 
-  GFlashEMShowerModel *theEcalEMShowerModel;
-  GFlashEMShowerModel *theHcalEMShowerModel;
-  GFlashHadronShowerModel *theEcalHadShowerModel;
-  GFlashHadronShowerModel *theHcalHadShowerModel;
+  static G4ThreadLocal std::unique_ptr<GFlashEMShowerModel> theEcalEMShowerModel;
+  static G4ThreadLocal std::unique_ptr<GFlashEMShowerModel> theHcalEMShowerModel;
+  static G4ThreadLocal std::unique_ptr<GFlashHadronShowerModel> theEcalHadShowerModel;
+  static G4ThreadLocal std::unique_ptr<GFlashHadronShowerModel> theHcalHadShowerModel;
 
-  ElectronLimiter *theElectronLimiter;
-  ElectronLimiter *thePositronLimiter;
+  static G4ThreadLocal std::unique_ptr<ElectronLimiter> theElectronLimiter;
+  static G4ThreadLocal std::unique_ptr<ElectronLimiter> thePositronLimiter;
+
+  static G4ThreadLocal std::unique_ptr<G4FastSimulationManagerProcess> theFastSimulationManagerProcess; 
 
 };
 
