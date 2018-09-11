@@ -236,8 +236,18 @@ def customiseForPR24339HybridFormatSiStripZS(process):
     return process  
 
 
+# Adding some parameters to the pixel clusterizer
+def customiseFor24329(process):
+    for producer in producers_by_type(process, "SiPixelClusterProducer"):
+        producer.AdcFullScaleStack = cms.int32(255)
+        producer.FirstStackLayer = cms.int32(5)
+        producer.ElectronPerADCGain = cms.double(135.)
+        producer.Phase2Calibration = cms.bool(False)
+        producer.Phase2ReadoutMode = cms.int32(-1)
+        producer.Phase2DigiBaseline = cms.double(1200.)
+        producer.Phase2KinkADC = cms.int32(8)
 
-
+    return process
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -248,5 +258,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     process = customiseForPR24339HybridFormatSiStripZS(process)
     # process = customizeHLTForL3OIPR24267(process)
+
+    process = customiseFor24329(process)
 
     return process
