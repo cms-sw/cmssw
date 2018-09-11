@@ -33,7 +33,7 @@ unsigned int truncateId(unsigned int detId, int truncateFlag, bool debug=false){
   unsigned int id(detId);
   if (debug) {
     std::cout << "Truncate 1 " << std::hex << detId << " " << id 
-	      << std::dec << std::endl;
+	      << std::dec << " Flag " << truncateFlag << std::endl;
   }
   int subdet, depth, zside, ieta, iphi;
   unpackDetId(detId, subdet, zside, ieta, iphi, depth);
@@ -43,6 +43,17 @@ unsigned int truncateId(unsigned int detId, int truncateFlag, bool debug=false){
   } else if (truncateFlag == 2) {
     //Ignore depth index of all ieta values
     depth = 1;
+  } else if (truncateFlag == 3) {
+    //Ignore depth index for depth > 1 in HE
+    if ((subdet == 2) && (depth > 1)) depth = 2;
+    else                              depth = 1;
+  } else if (truncateFlag == 4) {
+    //Ignore depth index for depth > 1 in HB
+    if ((subdet == 1) && (depth > 1)) depth = 2;
+    else                              depth = 1;
+  } else if (truncateFlag == 5) {
+    //Ignore depth index for depth > 1 in HB and HE
+    if (depth > 1) depth = 2;
   }
   id = (subdet<<25) | (0x1000000) | ((depth&0xF)<<20) | ((zside>0)?(0x80000|(ieta<<10)):(ieta<<10));
   if (debug) {

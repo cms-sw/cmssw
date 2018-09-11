@@ -1,15 +1,18 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-//  HBHEMuonOfflineAnalyzer h1(tree,outfile,flag,mode,maxDHB,maxDHE,runLo,
-//                             runHi,etaMin,etaMax);
-//  HBHEMuonOfflineAnalyzer h1(infile,outfile,flag,mode,maxDHB,maxDHE,runLo,
-//                             runHi,etaMin,etaMax);
+//  HBHEMuonOfflineAnalyzer h1(tree,outfile,rcorFile,flag,mode,maxDHB,maxDHE,
+//                             runLo,runHi,etaMin,etaMax,debug);
+//  HBHEMuonOfflineAnalyzer h1(infile,outfile,rcorFile,flag,mode,maxDHB,maxDHE,
+//                             runLo,runHi,etaMin,etaMax,debug);
 //   h1.Loop()
 //
 //   tree       TTree*       Pointer to the tree chain
 //   infile     const char*  Name of the input file
 //   outfile    const char*  Name of the output file 
 //                           (dyll_PU20_25_output_10.root)
+//   rcorFile   consr char*  name of the text file having the correction factors
+//                           as a function of run numbers to be used for raddam
+//                           correction (default="", no corr.)
 //   flag       int          Flag of 2 digits: to where o decides if corrected
 //                           (1) or default (0) energy to be used; t decides
 //                           if all depths to be merged (1) or not (0)
@@ -29,7 +32,9 @@
 
 #include <algorithm>
 #include <cmath>
+#include <fstream>
 #include <iostream>
+#include <sstream>
 #include <vector>
 #include <string>
 #include <TCanvas.h>
@@ -46,9 +51,9 @@
 #include <TTree.h>
 
 class HBHEMuonOfflineAnalyzer {
-
+  
 public :
-  TTree                     *fChain;   //!pointer to the analyzed TTree/TChain
+  TChain                    *fChain;   //!pointer to the analyzed TTree/TChain
   Int_t                      fCurrent; //!current Tree number in a TChain
 
   // Fixed size dimensions of array or collections stored in the TTree if any.
@@ -324,54 +329,83 @@ public :
   TBranch                   *b_all_triggers;                        //!
 
   
-  HBHEMuonOfflineAnalyzer(TTree *tree=0, const char *outfile="dyll_PU20_25_output_10.root", int flag=0, int mode=4, int maxDHB=4, int maxDHE=7, int runLo=1, int runHi=99999999, int etaMin=1, int etaMax=29);
-  HBHEMuonOfflineAnalyzer(const char *infile, const char *outfile="dyll_PU20_25_output_10.root", int flag=0, int mode=4, int maxDHB=4, int maxDHE=7, int runLo=1, int runHi=99999999, int etaMin=1, int etaMax=29);
+  HBHEMuonOfflineAnalyzer(TChain *tree=0, 
+			  const char* outfile="dyll_PU20_25_output_10.root", 
+			  const char* rcorFileName="", int flag=0, int mode=4,
+			  int maxDHB=4, int maxDHE=7, int runLo=1,
+			  int runHi=99999999, int etaMin=1, int etaMax=29,
+			  bool debug=false);
+  HBHEMuonOfflineAnalyzer(const char* infile, 
+			  const char* outfile="dyll_PU20_25_output_10.root", 
+			  const char* rcorFileName="", int flag=0, int mode=4, 
+			  int maxDHB=4, int maxDHE=7, int runLo=1, 
+			  int runHi=99999999, int etaMin=1, int etaMax=29,
+			  bool debug=false);
   // mode of LHC is kept 1 for 2017 scenario as no change in depth segmentation
   // mode of LHC is 0 for 2019
   virtual ~HBHEMuonOfflineAnalyzer();
-  virtual Int_t    Cut(Long64_t entry);
-  virtual Int_t    GetEntry(Long64_t entry);
-  virtual Long64_t LoadTree(Long64_t entry);
-  virtual void     Init(TTree *tree, int flag, int mode, int maxDHB, int maxDHE,
-			int runLo, int runHi, int etaMin, int etaMax);
-  virtual void     Loop();
-  virtual Bool_t   Notify();
-  virtual void     Show(Long64_t entry = -1);
-  
-  std::vector<std::string> firedTriggers;
-  void BookHistograms(const char* );
-  void WriteHistograms();
-  bool LooseMuon(unsigned int ml);
-  bool tightMuon(unsigned int ml);
-  bool SoftMuon(unsigned int ml);
-  bool mediumMuon2016(unsigned int ml);
-  void etaPhiHcal(unsigned int detId, int &eta, int &phi, int &depth);
-  void etaPhiEcal(unsigned int detId, int& type, int& zside,
-		  int& etaX, int& phiY, int& plane, int& strip);
-  void calculateP(double pt, double eta, double& pM);
-  void close();
-  int  NDepthBins(int ieta, int iphi);
-  int  NPhiBins(int ieta);
-  
-private:
-  static const bool debug_=false;
-  static const int maxDep=7;
-  static const int maxEta=29;
-  static const int maxPhi=72;
-  //3x16x72x2 + 5x4x72x2 + 5x9x36x2
-  static const int maxHist=20000;//13032;
-  static const int nCut_ = 1;
-  int    modeLHC_, maxDepthHB_, maxDepthHE_, maxDepth_, runLo_, runHi_;
-  int    etaMin_, etaMax_;
-  bool   useCorrect_, mergeDepth_;
-  int    nHist, nDepths[maxEta], nDepthsPhi[maxEta],indxEta[maxEta][maxDep][maxPhi];
-  TFile *output_file;
 
-  TTree              *outtree_;
-  int                 t_ieta, t_iphi, t_nvtx;
-  double              t_p;
-  std::vector<double> t_ene, t_enec, t_actln, t_charge;
-  std::vector<int>    t_depth;
+  virtual Int_t            Cut(Long64_t entry);
+  virtual Int_t            GetEntry(Long64_t entry);
+  virtual Long64_t         LoadTree(Long64_t entry);
+  virtual void             Init(TChain *tree, const char* rcorFileName, 
+				int flag, int mode, int maxDHB, int maxDHE,
+				int runLo, int runHi, int etaMin, int etaMax);
+  virtual void             Loop();
+  virtual Bool_t           Notify();
+  virtual void             Show(Long64_t entry = -1);
+  
+  bool                     fillChain(TChain *chain, const char* inputFileList);
+  bool                     readCorr(const char* rcorFileName);
+  void                     bookHistograms(const char* );
+  bool                     getEnergy(unsigned int ml, int dep, double& enb,
+				     double& enu, double& enh, double& enc,
+				     double& chgS, double& chgB, double& actL);
+  void                     writeHistograms();
+  bool                     looseMuon(unsigned int ml);
+  bool                     tightMuon(unsigned int ml);
+  bool                     softMuon(unsigned int ml);
+  bool                     mediumMuon2016(unsigned int ml);
+  void                     etaPhiHcal(unsigned int detId, int &eta, 
+				      int &phi, int &depth);
+  void                     etaPhiEcal(unsigned int detId, int& type, int& zside,
+				      int& etaX, int& phiY, int& plane, 
+				      int& strip);
+  void                     calculateP(double pt, double eta, double& pM);
+  void                     close();
+  int                      nDepthBins(int ieta, int iphi);
+  int                      nPhiBins(int ieta);
+  float                    getCorr(int run, unsigned int id);
+  std::vector<std::string> splitString(const std::string&);
+  unsigned int             getDetIdHBHE(int ieta, int iphi, int depth);
+  unsigned int             getDetId(int subdet, int ieta, int iphi, int depth);
+  unsigned int             correctDetId(const unsigned int& detId);
+  void                     unpackDetId(unsigned int detId, int& subdet,
+				       int& zside, int& ieta, int& iphi,
+				       int& depth);
+private:
+  static const int              maxDep=7;
+  static const int              maxEta=29;
+  static const int              maxPhi=72;
+  //3x16x72x2 + 5x4x72x2 + 5x9x36x2
+  static const int              maxHist=20000;//13032;
+  static const int              nCut_=1;
+  static const unsigned int     nmax_=10;
+  const bool                    debug_;
+  int                           modeLHC_, maxDepthHB_, maxDepthHE_, maxDepth_;
+  int                           runLo_, runHi_, etaMin_, etaMax_;
+  bool                          cFactor_, useCorrect_, mergeDepth_;
+  int                           nHist, nDepths[maxEta], nDepthsPhi[maxEta];
+  int                           indxEta[maxEta][maxDep][maxPhi];
+  TFile                        *output_file;
+  std::map<unsigned int,float>  corrFac_[nmax_];
+  std::vector<int>              runlow_;
+
+  TTree                        *outtree_;
+  int                           t_ieta, t_iphi, t_nvtx;
+  double                        t_p;
+  std::vector<double>           t_ene, t_enec, t_actln, t_charge;
+  std::vector<int>              t_depth;
   
   TH1D  *h_evtype, *h_Pt_Muon[3], *h_Eta_Muon[3], *h_Phi_Muon[3], *h_P_Muon[3];
   TH1D  *h_PF_Muon[3], *h_GlobTrack_Chi[3], *h_Global_Muon_Hits[3];
@@ -396,35 +430,47 @@ private:
   TProfile *h_HotWithoutIso_MuonEnergy_eta[3][maxDep], *h_HotWithoutIso_MuonEnergy_phi[3][maxDep], *h_HotWithoutIso_MuonEnergy_muon_eta[3][maxDep];
   
 };
-HBHEMuonOfflineAnalyzer::HBHEMuonOfflineAnalyzer(TTree *tree,
+
+
+HBHEMuonOfflineAnalyzer::HBHEMuonOfflineAnalyzer(TChain *tree,
 						 const char* outFileName, 
-						 int flag, int mode, 
+						 const char* rcorFileName,
+						 int flag, int mode,
 						 int maxDHB, int maxDHE,
 						 int runLo, int runHi,
-						 int etaMin, int etaMax) {
+						 int etaMin, int etaMax,
+						 bool deb) : debug_(deb),
+							     cFactor_(false) {
   
-  Init(tree, flag, mode, maxDHB, maxDHE, runLo, runHi, etaMin, etaMax);
+  Init(tree, rcorFileName, flag, mode, maxDHB, maxDHE, runLo, runHi, 
+       etaMin, etaMax);
   
   //Now book histograms
-  BookHistograms(outFileName);
+  bookHistograms(outFileName);
 }
 
 HBHEMuonOfflineAnalyzer::HBHEMuonOfflineAnalyzer(const char* infile,
 						 const char* outFileName, 
-						 int flag, int mode, 
+						 const char* rcorFileName,
+						 int flag, int mode,
 						 int maxDHB, int maxDHE,
-						 int runLo, int runHi,
-						 int etaMin, int etaMax) {
+						 int runLo,  int runHi,
+						 int etaMin, int etaMax,
+						 bool deb) : debug_(deb),
+							     cFactor_(false) {
   
-  TFile      *f   = new TFile(infile);
-  TDirectory *dir = (TDirectory*)f->Get("hcalHBHEMuon");
-  TTree *tree(0);
-  dir->GetObject("TREE",tree);
-
-  Init(tree, flag, mode, maxDHB, maxDHE, runLo, runHi, etaMin, etaMax);
+  TChain *chain = new TChain("hcalHBHEMuon/TREE");
+  if (!fillChain(chain,infile)) {
+    std::cout << "*****No valid tree chain can be obtained*****" << std::endl;
+  } else {
+    std::cout << "Proceed with a tree chain with " << chain->GetEntries()
+	      << " entries" << std::endl;
+    Init(chain, rcorFileName, flag, mode, maxDHB, maxDHE, runLo, runHi, 
+	 etaMin, etaMax);
   
-  //Now book histograms
-  BookHistograms(outFileName);
+    //Now book histograms
+    bookHistograms(outFileName);
+  }
 }
 
 HBHEMuonOfflineAnalyzer::~HBHEMuonOfflineAnalyzer() {
@@ -457,8 +503,9 @@ Long64_t HBHEMuonOfflineAnalyzer::LoadTree(Long64_t entry) {
   return centry;
 }
 
-void HBHEMuonOfflineAnalyzer::Init(TTree *tree, int flag, int mode, int maxDHB,
-				   int maxDHE, int runLo, int runHi, int etaMin,
+void HBHEMuonOfflineAnalyzer::Init(TChain *tree, const char* rcorFileName,
+				   int flag, int mode, int maxDHB, int maxDHE,
+				   int runLo, int runHi, int etaMin,
 				   int etaMax) {
   
   modeLHC_    = mode;
@@ -475,6 +522,7 @@ void HBHEMuonOfflineAnalyzer::Init(TTree *tree, int flag, int mode, int maxDHB,
   }
   useCorrect_ = ((flag%10) > 0);
   mergeDepth_ = (((flag/10)%10) > 0);
+  if (std::string(rcorFileName) != "") cFactor_ = readCorr(rcorFileName);
   
   // The Init() function is called when the selector needs to initialize
   // a new tree or chain. Typically here the branch addresses and branch
@@ -792,8 +840,8 @@ void HBHEMuonOfflineAnalyzer::Loop() {
       
       int    eta      = (etaHcal > 0) ? etaHcal-1 : -(1+etaHcal);
       double etaXHcal = (etaHcal > 0) ? etaHcal-0.5 : etaHcal+0.5;
-      int    nDepth   = NDepthBins(eta+1,phiHcal);
-      int    nPhi     = NPhiBins(eta+1);
+      int    nDepth   = nDepthBins(eta+1,phiHcal);
+      int    nPhi     = nPhiBins(eta+1);
       int    PHI      = (nPhi > 36) ? (phiHcal-1) : (phiHcal-1)/2;
       double phiYHcal = (phiHcal-0.5);
       t_ieta          = etaHcal;
@@ -802,8 +850,8 @@ void HBHEMuonOfflineAnalyzer::Loop() {
       t_nvtx          = GoodVertex;
       if (p_of_muon->at(ml) > 20)  pcut = true;
       if (pt_of_muon->at(ml) > 20) ptcut = true;
-      if (LooseMuon(ml))           loose = true;
-      if (SoftMuon(ml))            soft  = true;
+      if (looseMuon(ml))           loose = true;
+      if (softMuon(ml))            soft  = true;
       if (tightMuon(ml))           tight = true;
       
       if (debug_) 
@@ -815,8 +863,8 @@ void HBHEMuonOfflineAnalyzer::Loop() {
       for (int cut=0; cut<nCut_; ++cut) {
 	bool select(false);
 	if      (cut == 0) select = tightMuon(ml);
-	else if (cut == 1) select = SoftMuon(ml);
-	else               select = LooseMuon(ml);
+	else if (cut == 1) select = softMuon(ml);
+	else               select = looseMuon(ml);
 	
 	
 	if (select && ((eta+1) >= etaMin_) && ((eta+1) <= etaMax_)) {
@@ -870,76 +918,15 @@ void HBHEMuonOfflineAnalyzer::Loop() {
 	    double en1(0), en2(0), energyFill(0), chargeS(0), chargeBG(0);
 	    double enh(0), enc(0);
 	    for (int dep=0; dep<nDepth; ++dep) {
-	      if (dep == 0) {
-		en1 += ((useCorrect_) ? hcal_edepthCorrect1->at(ml) : hcal_edepth1->at(ml));
-		en2 += ((useCorrect_) ? hcal_edepthHotCorrect1->at(ml) : hcal_edepthHot1->at(ml));
-		enh += (hcal_edepthHot1->at(ml));
-		enc += (hcal_edepthHotCorrect1->at(ml));
-		energyFill += (hcal_activeHotL1->at(ml));
-		chargeS += (hcal_cdepthHot1->at(ml));
-		chargeBG += (hcal_cdepthHotBG1->at(ml));
-		
-	      } else if (dep == 1) {
-		en1 += ((useCorrect_) ? hcal_edepthCorrect2->at(ml) : hcal_edepth2->at(ml));
-		en2 += ((useCorrect_) ? hcal_edepthHotCorrect2->at(ml) : hcal_edepthHot2->at(ml));
-		enh += (hcal_edepthHot2->at(ml));
-		enc += (hcal_edepthHotCorrect2->at(ml));
-		energyFill += (hcal_activeHotL2->at(ml));
-		chargeS += (hcal_cdepthHot2->at(ml));    
-		chargeBG += (hcal_cdepthHotBG2->at(ml)); 
-		
-	      } else if (dep == 2) {
-		en1 += ((useCorrect_) ? hcal_edepthCorrect3->at(ml) : hcal_edepth3->at(ml));
-		en2 += ((useCorrect_) ? hcal_edepthHotCorrect3->at(ml) : hcal_edepthHot3->at(ml));
-		enh += (hcal_edepthHot3->at(ml));
-		enc += (hcal_edepthHotCorrect3->at(ml));
-		energyFill += (hcal_activeHotL3->at(ml));
-		chargeS += (hcal_cdepthHot3->at(ml));    
-		chargeBG += (hcal_cdepthHotBG3->at(ml)); 
-		
-	      } else if (dep == 3) {
-		en1 += ((useCorrect_) ? hcal_edepthCorrect4->at(ml) : hcal_edepth4->at(ml));
-		en2 += ((useCorrect_) ? hcal_edepthHotCorrect4->at(ml) : hcal_edepthHot4->at(ml));
-		enh += (hcal_edepthHot4->at(ml));
-		enc += (hcal_edepthHotCorrect4->at(ml));
-		energyFill = hcal_activeHotL4->at(ml);  		
-		chargeS += (hcal_cdepthHot4->at(ml));    
-		chargeBG += (hcal_cdepthHotBG4->at(ml)); 
-		
-	      } else if (dep == 4) {
-		if (hcal_edepthCorrect5->size() > ml) {
-		  en1 += ((useCorrect_) ? hcal_edepthCorrect5->at(ml) : hcal_edepth5->at(ml));
-		  en2 += ((useCorrect_) ? hcal_edepthHotCorrect5->at(ml) : hcal_edepthHot5->at(ml));
-		  enh += (hcal_edepthHot5->at(ml));
-		  enc += (hcal_edepthHotCorrect5->at(ml));
-		  energyFill += (hcal_activeHotL5->at(ml));
-		  chargeS += (hcal_cdepthHot5->at(ml));    
-		  chargeBG += (hcal_cdepthHotBG5->at(ml)); 
-		  
-		}
-	      } else if (dep == 5) {
-		if (hcal_edepthCorrect6->size() > ml) {
-		  en1 += ((useCorrect_) ? hcal_edepthCorrect6->at(ml) : hcal_edepth6->at(ml));
-		  en2 += ((useCorrect_) ? hcal_edepthHotCorrect6->at(ml) : hcal_edepthHot6->at(ml));
-		  enh += (hcal_edepthHot6->at(ml));
-		  enc += (hcal_edepthHotCorrect6->at(ml));
-		  energyFill += (hcal_activeHotL6->at(ml));
-		  chargeS += (hcal_cdepthHot6->at(ml));    
-		  chargeBG += (hcal_cdepthHotBG6->at(ml)); 
-		  
-		}
-	      } else if (dep == 6) {
-		if (hcal_edepthCorrect7->size() > ml) {
-		  en1 += ((useCorrect_) ? hcal_edepthCorrect7->at(ml) : hcal_edepth7->at(ml));
-		  en2 += ((useCorrect_) ? hcal_edepthHotCorrect7->at(ml) : hcal_edepthHot7->at(ml));
-		  enh += (hcal_edepthHot7->at(ml));
-		  enc += (hcal_edepthHotCorrect7->at(ml));
-		  energyFill += (hcal_activeHotL7->at(ml));  		
-		  chargeS += (hcal_cdepthHot7->at(ml));    
-		  chargeBG += (hcal_cdepthHotBG7->at(ml)); 
-		  
-		}
-	      }
+	      double enb(0), enu(0), eh0(0), ec0(0), chgS(0), chgB(0), actL(0);
+	      getEnergy(ml, dep, enb, enu, eh0, ec0, chgS, chgB, actL);
+	      en1        += ((useCorrect_) ? enu : enb);
+	      en2        += ((useCorrect_) ? ec0 : eh0);
+	      enh        += (eh0);
+	      enc        += (ec0);
+	      energyFill += (actL);
+	      chargeS    += (chgS);
+	      chargeBG   += (chgB);
 	    }
 	    int ind = (etaHcal > 0) ? indxEta[eta][0][PHI] : 1+indxEta[eta][0][PHI];
 	    if (debug_)// || eta==15 || eta==17)
@@ -971,80 +958,20 @@ void HBHEMuonOfflineAnalyzer::Loop() {
 	  } else {
 	    bool fillTree(false);
 	    for (int dep=0; dep<nDepth; ++dep) {
-	      
+   
 	      if(debug_) std::cout<<"dep:"<<dep<<std::endl;
 	      
-	      double en1(-9999), en2(-9999), energyFill(0), chargeS(-9999);
-	      double enh(-9999), enc(-9999), chargeBG(-9999);
-	      if (dep == 0) {
-		en1 = (useCorrect_) ? hcal_edepthCorrect1->at(ml) : hcal_edepth1->at(ml);
-		en2 = (useCorrect_) ? hcal_edepthHotCorrect1->at(ml) : hcal_edepthHot1->at(ml);
-		enh = (hcal_edepthHot1->at(ml));
-		enc = (hcal_edepthHotCorrect1->at(ml));
-		energyFill = hcal_activeHotL1->at(ml);  	
-		chargeS = (hcal_cdepthHot1->at(ml));                       
-		chargeBG = (hcal_cdepthHotBG1->at(ml));    	
-	      } else if (dep == 1) {
-		en1 = (useCorrect_) ? hcal_edepthCorrect2->at(ml) : hcal_edepth2->at(ml);
-		en2 = (useCorrect_) ? hcal_edepthHotCorrect2->at(ml) : hcal_edepthHot2->at(ml);
-		enh = (hcal_edepthHot2->at(ml));
-		enc = (hcal_edepthHotCorrect2->at(ml));
-		energyFill = hcal_activeHotL2->at(ml);  	
-		chargeS = (hcal_cdepthHot2->at(ml));                       
-		chargeBG = (hcal_cdepthHotBG2->at(ml));    	
-	      } else if (dep == 2) {
-		en1 = (useCorrect_) ? hcal_edepthCorrect3->at(ml) : hcal_edepth3->at(ml);
-		en2 = (useCorrect_) ? hcal_edepthHotCorrect3->at(ml) : hcal_edepthHot3->at(ml);
-		enh = (hcal_edepthHot3->at(ml));
-		enc = (hcal_edepthHotCorrect3->at(ml));
-		energyFill = hcal_activeHotL3->at(ml);  		
-		chargeS = (hcal_cdepthHot3->at(ml));                       
-		chargeBG = (hcal_cdepthHotBG3->at(ml));    
-	      } else if (dep == 3) {
-		en1 = (useCorrect_) ? hcal_edepthCorrect4->at(ml) : hcal_edepth4->at(ml);
-		en2 = (useCorrect_) ? hcal_edepthHotCorrect4->at(ml) : hcal_edepthHot4->at(ml);
-		enh = (hcal_edepthHot4->at(ml));
-		enc = (hcal_edepthHotCorrect4->at(ml));
-		energyFill = hcal_activeHotL4->at(ml);  		
-		chargeS = (hcal_cdepthHot4->at(ml));                       
-		chargeBG = (hcal_cdepthHotBG4->at(ml));    
-	      } else if (dep == 4) {
-		if (hcal_edepthCorrect5->size() > ml) {
-		  en1 = (useCorrect_) ? hcal_edepthCorrect5->at(ml) : hcal_edepth5->at(ml);
-		  en2 = (useCorrect_) ? hcal_edepthHotCorrect5->at(ml) : hcal_edepthHot5->at(ml);
-		  enh = (hcal_edepthHot5->at(ml));
-		  enc = (hcal_edepthHotCorrect5->at(ml));
-		  energyFill = hcal_activeHotL5->at(ml);  		
-		  chargeS = (hcal_cdepthHot5->at(ml));                       
-		  chargeBG = (hcal_cdepthHotBG5->at(ml));    
-		}
-	      } else if (dep == 5) {
-		if (hcal_edepthCorrect6->size() > ml) {
-		  en1 = (useCorrect_) ? hcal_edepthCorrect6->at(ml) : hcal_edepth6->at(ml);
-		  en2 = (useCorrect_) ? hcal_edepthHotCorrect6->at(ml) : hcal_edepthHot6->at(ml);
-		  enh = (hcal_edepthHot6->at(ml));
-		  enc = (hcal_edepthHotCorrect6->at(ml));
-		  energyFill = hcal_activeHotL6->at(ml);  		
-		  chargeS = (hcal_cdepthHot6->at(ml));                       
-		  chargeBG = (hcal_cdepthHotBG6->at(ml));    
-		}
-	      } else if (dep == 6) {
-		if (hcal_edepthCorrect7->size() > ml) {
-		  en1 = (useCorrect_) ? hcal_edepthCorrect7->at(ml) : hcal_edepth7->at(ml);
-		  en2 = (useCorrect_) ? hcal_edepthHotCorrect7->at(ml) : hcal_edepthHot7->at(ml);
-		  enh = (hcal_edepthHot7->at(ml));
-		  enc = (hcal_edepthHotCorrect7->at(ml));
-		  energyFill = hcal_activeHotL7->at(ml);  		
-		  chargeS = (hcal_cdepthHot7->at(ml));                       
-		  chargeBG = (hcal_cdepthHotBG7->at(ml));    
-		}
-	      }
+	      double energyFill(0), chargeS(-9999), chargeBG(-9999);
+	      double enh(-9999), enc(-9999), enb(0), enu(0);
+	      bool ok1 = getEnergy(ml, dep, enb, enu, enh, enc, chargeS,
+				   chargeBG, energyFill);
+	      double en1 = ((useCorrect_) ? enu : enb);
+	      double en2 = ((useCorrect_) ? enc : enh);
 	      if (debug_)
-		std::cout<<"Hello in " << dep+1 << " " << en1 << ":" << en2 
-			 << ":" << energyFill << std::endl;
+		std::cout <<"Hello in " << dep+1 << " " << en1 << ":" << en2 
+			  << ":" << energyFill << std::endl;
 	      
-	      bool ok1 = (en1 > -9999);
-	      bool ok2 = (en2 > -9999);
+	      bool ok2 = ok1;
 	      
 	      if (debug_) 
 		std::cout << "Before Index " << ok1 << ":" << ok2 << std::endl; 
@@ -1129,9 +1056,91 @@ void HBHEMuonOfflineAnalyzer::Show(Long64_t entry) {
   fChain->Show(entry);
 }
 
-void HBHEMuonOfflineAnalyzer::BookHistograms(const char* fname) { 
+bool HBHEMuonOfflineAnalyzer::fillChain(TChain *chain, 
+					const char* inputFileList) {
 
-  std::cout<<"BookHistograms"<<std::endl;
+  std::string fname(inputFileList);
+  if (fname.substr(fname.size()-5,5) == ".root") {
+    chain->Add(fname.c_str());
+  } else {
+    ifstream infile(inputFileList);
+    if (!infile.is_open()) {
+      std::cout << "** ERROR: Can't open '" << inputFileList << "' for input" 
+		<< std::endl;
+      return false;
+    }
+    while (1) {
+      infile >> fname;
+      if (!infile.good()) break;
+      chain->Add(fname.c_str());
+    }
+    infile.close();
+  }
+  std::cout << "No. of Entries in this tree : " << chain->GetEntries()
+	    << std::endl;
+  return true;
+}
+
+bool HBHEMuonOfflineAnalyzer::readCorr(const char* infile) {
+
+  std::ifstream fInput(infile);
+  unsigned int ncorr(0), all(0), good(0);
+  if (!fInput.good()) {
+    std::cout << "Cannot open file " << infile << std::endl;
+  } else {
+    char buffer [1024];
+    while (fInput.getline(buffer, 1024)) {
+      ++all;
+      std::string bufferString(buffer);
+      if (bufferString.substr(0,5) == "#IOVs") {
+	std::vector<std::string> items = splitString(bufferString.substr(6));
+	ncorr = items.size() - 1;
+	for (unsigned int n=0; n<ncorr; ++n) {
+	  int run  = std::atoi (items[n].c_str());
+	  runlow_.push_back(run);
+	}
+	std::cout << ncorr << ":" << runlow_.size() << " Run ranges" 
+		  << std::endl;
+	for (unsigned int n=0; n<runlow_.size(); ++n) 
+	  std::cout << " [" << n << "] " << runlow_[n];
+	std::cout << std::endl;
+      } else if (buffer [0] == '#') {
+	continue; //ignore other comments
+      } else {
+	std::vector<std::string> items = splitString(bufferString);
+	if (items.size () != ncorr+3) {
+	  std::cout << "Ignore  line: " << buffer << std::endl;
+	} else {
+	  ++good;
+	  int   ieta  = std::atoi (items[0].c_str());
+	  int   iphi  = std::atoi (items[1].c_str());
+	  int   depth = std::atoi (items[2].c_str());
+	  unsigned int id = getDetIdHBHE(ieta,iphi,depth);
+	  for (unsigned int n=0; n<ncorr; ++n) {
+	    float corrf = std::atof (items[n+3].c_str());
+	    if (n<nmax_) corrFac_[n][id] = corrf;
+	  }
+	  if (debug_) {
+	    std::cout << "ID " << std::hex << id << std::dec << ":" << id
+		      << " (eta " << ieta << " phi " << iphi << " depth " 
+		      << depth << ")";
+	    for (unsigned int n=0; n<ncorr; ++n) 
+	      std::cout << " " << corrFac_[n][id];
+	    std::cout << std::endl;
+	  }
+	}
+      }
+    }
+    fInput.close();
+    std::cout << "Reads total of " << all << " and " << good << " good records"
+	      << std::endl;
+  }
+  return (good > 0);
+}
+
+void HBHEMuonOfflineAnalyzer::bookHistograms(const char* fname) { 
+
+  std::cout << "BookHistograms" << std::endl;
   output_file = TFile::Open(fname,"RECREATE");
   output_file->cd();
   outtree_ = new TTree("Lep_Tree","Lep_Tree");
@@ -1151,8 +1160,8 @@ void HBHEMuonOfflineAnalyzer::BookHistograms(const char* fname) {
   nHist = 0;
   for (int eta=etaMin_; eta<=etaMax_; ++eta) {
    
-    int nDepth = NDepthBins(eta,-1);
-    int nPhi   = NPhiBins(eta);
+    int nDepth = nDepthBins(eta,-1);
+    int nPhi   = nPhiBins(eta);
     //std::cout<<"problem 2"<<std::endl;
     //std::cout<<"Eta: "<<eta<<" nDepth "<<nDepth<<" nPhi "<<nPhi<<std::endl;
     for (int depth=0; depth<nDepth; depth++) {
@@ -1310,8 +1319,8 @@ void HBHEMuonOfflineAnalyzer::BookHistograms(const char* fname) {
 
     //		output_file->cd();
     for (int eta=etaMin_; eta<=etaMax_; ++eta) {
-      int nDepth = NDepthBins(eta,-1);
-      int nPhi   = NPhiBins(eta);
+      int nDepth = nDepthBins(eta,-1);
+      int nPhi   = nPhiBins(eta);
       //sprintf(name, "Dir_muon_type_%s_ieta%d",type[i].c_str(), eta);
       //d_output_file[i][eta]= output_file->mkdir(name);
       //output_file->cd(name);
@@ -1392,7 +1401,97 @@ void HBHEMuonOfflineAnalyzer::BookHistograms(const char* fname) {
   //output_file->cd();
 }
 
-bool HBHEMuonOfflineAnalyzer::LooseMuon(unsigned int ml) {
+bool HBHEMuonOfflineAnalyzer::getEnergy(unsigned int ml, int dep, double& enb,
+					double& enu, double& enh, double& enc,
+					double& chgS, double& chgB, 
+					double& actL) {
+  double cfac(1.0);
+  bool   flag(true);
+  if (cFactor_) {
+    int          ieta  = hcal_ieta->at(ml);
+    int          iphi  = hcal_iphi->at(ml);
+    unsigned int detId = getDetIdHBHE(ieta, iphi, dep+1);
+    cfac               = getCorr(Run_No, detId);
+  }
+  if (dep == 0) {
+    enb  = cfac * hcal_edepth1->at(ml);
+    enu  = cfac * hcal_edepthCorrect1->at(ml);
+    enh  = cfac * hcal_edepthHot1->at(ml);
+    enc  = cfac * hcal_edepthHotCorrect1->at(ml);
+    chgS = hcal_cdepthHot1->at(ml);
+    actL = hcal_activeHotL1->at(ml);
+    chgB = hcal_cdepthHotBG1->at(ml);
+  } else if (dep == 1) {
+    enb  = cfac * hcal_edepth2->at(ml);
+    enu  = cfac * hcal_edepthCorrect2->at(ml);
+    enh  = cfac * hcal_edepthHot2->at(ml);
+    enc  = cfac * hcal_edepthHotCorrect2->at(ml);
+    chgS = hcal_cdepthHot2->at(ml);
+    actL = hcal_activeHotL2->at(ml);
+    chgB = hcal_cdepthHotBG2->at(ml);
+  } else if (dep == 2) {
+    enb  = cfac * hcal_edepth3->at(ml);
+    enu  = cfac * hcal_edepthCorrect3->at(ml);
+    enh  = cfac * hcal_edepthHot3->at(ml);
+    enc  = cfac * hcal_edepthHotCorrect3->at(ml);
+    chgS = hcal_cdepthHot3->at(ml);
+    actL = hcal_activeHotL3->at(ml);
+    chgB = hcal_cdepthHotBG3->at(ml);
+  } else if (dep == 3) {
+    enb  = cfac * hcal_edepth4->at(ml);
+    enu  = cfac * hcal_edepthCorrect4->at(ml);
+    enh  = cfac * hcal_edepthHot4->at(ml);
+    enc  = cfac * hcal_edepthHotCorrect4->at(ml);
+    chgS = hcal_cdepthHot4->at(ml);
+    actL = hcal_activeHotL4->at(ml);
+    chgB = hcal_cdepthHotBG4->at(ml);
+  } else if (dep == 4) {
+    if (hcal_edepthCorrect5->size() > ml) {
+      enb  = cfac * hcal_edepth5->at(ml);
+      enu  = cfac * hcal_edepthCorrect5->at(ml);
+      enh  = cfac * hcal_edepthHot5->at(ml);
+      enc  = cfac * hcal_edepthHotCorrect5->at(ml);
+      chgS = hcal_cdepthHot5->at(ml);
+      actL = hcal_activeHotL5->at(ml);
+      chgB = hcal_cdepthHotBG5->at(ml);
+    } else {
+      enb  = enu = enh = enc = chgS = actL = chgB = 0;
+      flag = false;
+    }
+  } else if (dep == 5) {
+    if (hcal_edepthCorrect6->size() > ml) {
+      enb  = cfac * hcal_edepth6->at(ml);
+      enu  = cfac * hcal_edepthCorrect6->at(ml);
+      enh  = cfac * hcal_edepthHot6->at(ml);
+      enc  = cfac * hcal_edepthHotCorrect6->at(ml);
+      chgS = hcal_cdepthHot6->at(ml);
+      actL = hcal_activeHotL6->at(ml);
+      chgB = hcal_cdepthHotBG6->at(ml);
+    } else {
+      enb  = enu = enh = enc = chgS = actL = chgB = 0;
+      flag = false;
+    }
+  } else if (dep == 6) {
+    if (hcal_edepthCorrect7->size() > ml) {
+      enb  = cfac * hcal_edepth7->at(ml);
+      enu  = cfac * hcal_edepthCorrect7->at(ml);
+      enh  = cfac * hcal_edepthHot7->at(ml);
+      enc  = cfac * hcal_edepthHotCorrect7->at(ml);
+      chgS = hcal_cdepthHot7->at(ml);
+      actL = hcal_activeHotL7->at(ml);
+      chgB = hcal_cdepthHotBG7->at(ml);
+    } else {
+      enb  = enu = enh = enc = chgS = actL = chgB = 0;
+      flag = false;
+    }
+  } else {
+    enb  = enu = enh = enc = chgS = actL = chgB = 0;
+    flag = false;
+  }
+  return flag;
+}
+
+bool HBHEMuonOfflineAnalyzer::looseMuon(unsigned int ml) {
   if (pt_of_muon->at(ml) > 20.) {
     if (mediumMuon2016(ml)) {
       if (IsolationR04->at(ml) < 0.25) { 
@@ -1403,7 +1502,7 @@ bool HBHEMuonOfflineAnalyzer::LooseMuon(unsigned int ml) {
   return false;   
 } 
 
-bool HBHEMuonOfflineAnalyzer::SoftMuon(unsigned int ml) {
+bool HBHEMuonOfflineAnalyzer::softMuon(unsigned int ml) {
   if (pt_of_muon->at(ml) > 20.) {
     if (mediumMuon2016(ml)) {
       if (IsolationR03->at(ml) < 0.10) { 
@@ -1439,7 +1538,8 @@ bool HBHEMuonOfflineAnalyzer::mediumMuon2016(unsigned int ml) {
   return medium16;
 }
 
-void HBHEMuonOfflineAnalyzer::etaPhiHcal(unsigned int detId, int &eta, int &phi, int &depth) {
+void HBHEMuonOfflineAnalyzer::etaPhiHcal(unsigned int detId, int &eta,
+					 int &phi, int &depth) {
   int zside, etaAbs;
   if ((detId&0x1000000)==0) {
     zside  = (detId&0x2000)?(1):(-1);
@@ -1484,7 +1584,6 @@ void HBHEMuonOfflineAnalyzer::etaPhiEcal(unsigned int detId, int& type,
   }
 }
 
-
 void HBHEMuonOfflineAnalyzer::calculateP(double pt, double eta, double& pM) {
   pM = (pt*cos(2*(1/atan(exp(eta)))));
 }
@@ -1493,14 +1592,13 @@ void HBHEMuonOfflineAnalyzer::close() {
   output_file->cd();
   std::cout << "file yet to be Written" << std::endl;
   outtree_->Write();
-  WriteHistograms();
+  writeHistograms();
   std::cout << "file Written" << std::endl;
   output_file->Close();
   std::cout << "now doing return" << std::endl;
 }
 
-
-void HBHEMuonOfflineAnalyzer::WriteHistograms() {
+void HBHEMuonOfflineAnalyzer::writeHistograms() {
 
   //output_file->cd();
   std::string type[]={"tight"};//,"soft","loose"};
@@ -1510,8 +1608,8 @@ void HBHEMuonOfflineAnalyzer::WriteHistograms() {
   nHist = 0;
   for (int eta=etaMin_; eta<=etaMax_; ++eta) {
     
-    int nDepth = NDepthBins(eta,-1);
-    int nPhi   = NPhiBins(eta);
+    int nDepth = nDepthBins(eta,-1);
+    int nPhi   = nPhiBins(eta);
     if (debug_)
       std::cout<<"Eta:"<<eta<<" nDepths "<<nDepth<<" nPhis "<<nPhi<<std::endl;
     for (int depth=0; depth<nDepth; ++depth) {
@@ -1571,8 +1669,8 @@ void HBHEMuonOfflineAnalyzer::WriteHistograms() {
 
     output_file->cd();
     for (int eta=etaMin_; eta<=etaMax_; ++eta) {
-      int nDepth = NDepthBins(eta,-1);
-      int nPhi   = NPhiBins(eta);
+      int nDepth = nDepthBins(eta,-1);
+      int nPhi   = nPhiBins(eta);
       sprintf(name, "Dir_muon_type_%s_ieta%d",type[i].c_str(), eta);
       d_output_file[i][eta-1]= output_file->mkdir(name);
       //output_file->cd(name);
@@ -1605,7 +1703,7 @@ void HBHEMuonOfflineAnalyzer::WriteHistograms() {
   output_file->cd();
 }
 
-int HBHEMuonOfflineAnalyzer::NDepthBins(int eta, int phi) {
+int HBHEMuonOfflineAnalyzer::nDepthBins(int eta, int phi) {
   // Run 1 scenario
   int  nDepthR1[29]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,3,1,2,2,2,2,2,2,2,2,2,3,3,2};
   // Run 2 scenario from 2018
@@ -1661,8 +1759,112 @@ int HBHEMuonOfflineAnalyzer::NDepthBins(int eta, int phi) {
   return nbin;
 }
 
-int HBHEMuonOfflineAnalyzer::NPhiBins(int eta) {
+int HBHEMuonOfflineAnalyzer::nPhiBins(int eta) {
   int nphi = (eta <= 20) ? 72 : 36;
   if (modeLHC_ == 5 && eta > 16) nphi = 360;
   return nphi;
+}
+
+float HBHEMuonOfflineAnalyzer::getCorr(int run, unsigned int id) {
+  float cfac(1.0);
+  int ip(-1);
+  for (unsigned int k=0; k<runlow_.size(); ++k) {
+    unsigned int i = runlow_.size()-k-1;
+    if (run >= runlow_[i]) {
+      ip = (int)(i); break;
+    }
+  }
+  if (debug_) {
+    std::cout << "Run " << run << " Perdiod " << ip << std::endl;
+  }
+  unsigned idx = correctDetId(id);
+  if (ip >= 0) {
+    std::map<unsigned int,float>::iterator itr = corrFac_[ip].find(idx);
+    if (itr != corrFac_[ip].end()) cfac = itr->second;
+  }
+  if (debug_) {
+    int  subdet, zside, ieta, iphi, depth;
+    unpackDetId(idx, subdet, zside, ieta, iphi, depth);
+    std::cout << "ID " << std::hex << id << std::dec << " (Sub " << subdet 
+	      << " eta " << zside*ieta << " phi " << iphi << " depth " << depth
+	      << ")  Factor " << cfac << std::endl;
+  }
+  return cfac;
+}
+
+std::vector<std::string> HBHEMuonOfflineAnalyzer::splitString(const std::string& fLine) {
+  std::vector <std::string> result;
+  int start = 0;
+  bool empty = true;
+  for (unsigned i = 0; i <= fLine.size (); i++) {
+    if (fLine [i] == ' ' || i == fLine.size ()) {
+      if (!empty) {
+	std::string item (fLine, start, i-start);
+	result.push_back (item);
+	empty = true;
+      }
+      start = i+1;
+    } else {
+      if (empty) empty = false;
+    }
+  }
+  return result;
+}
+
+unsigned int HBHEMuonOfflineAnalyzer::getDetIdHBHE(int ieta, int iphi,
+						   int depth) {
+  int eta    = std::abs(ieta);
+  int subdet(0);
+  if (eta > 16)                    subdet = 2;
+  else if (eta == 16 && depth > 2) subdet = 2;
+  else                             subdet = 1;
+  return getDetId(subdet,ieta,iphi,depth);
+}
+
+unsigned int HBHEMuonOfflineAnalyzer::getDetId(int subdet, int ieta, int iphi,
+					       int depth) {
+  // All numbers used here are described as masks/offsets in 
+  // DataFormats/HcalDetId/interface/HcalDetId.h
+  unsigned int id = ((4<<28)|((subdet&0x7)<<25));
+  id |= ((0x1000000) | ((depth&0xF)<<20) |
+	  ((ieta>0)?(0x80000|(ieta<<10)):((-ieta)<<10)) |
+	  (iphi&0x3FF));
+  return id;
+}
+
+unsigned int HBHEMuonOfflineAnalyzer::correctDetId(const unsigned int & detId) {
+  int subdet, ieta, zside, depth, iphi;
+  unpackDetId(detId, subdet, zside, ieta, iphi, depth);
+  if (subdet == 0) {
+    if (ieta > 16)                    subdet = 2;
+    else if (ieta == 16 && depth > 2) subdet = 2;
+    else                              subdet = 1;
+  }
+  unsigned int id = getDetId(subdet,ieta*zside,iphi,depth);
+  if ((id != detId) && debug_) {
+    std::cout << "Correct Id " << std::hex << detId << " to " << id << std::dec
+	      << "(Sub " << subdet << " eta " << ieta*zside << " phi " << iphi
+	      << " depth " << depth << ")" << std::endl;
+  }
+  return id;
+}
+
+void HBHEMuonOfflineAnalyzer::unpackDetId(unsigned int detId, int& subdet,
+					  int& zside, int& ieta, int& iphi,
+					  int& depth) {
+  // The maskings are defined in DataFormats/DetId/interface/DetId.h
+  //                      and in DataFormats/HcalDetId/interface/HcalDetId.h
+  // The macro does not invoke the classes there and use them
+  subdet = ((detId >> 25) & (0x7));
+  if ((detId&0x1000000) == 0) {
+    ieta   = ((detId >> 7) & 0x3F);
+    zside  = (detId&0x2000)?(1):(-1);
+    depth  = ((detId >> 14) & 0x1F);
+    iphi   = (detId & 0x3F);
+  } else {
+    ieta   = ((detId >> 10) & 0x1FF);
+    zside  = (detId&0x80000)?(1):(-1);
+    depth  = ((detId >> 20) & 0xF);
+    iphi   = (detId & 0x3FF);
+  }
 }
