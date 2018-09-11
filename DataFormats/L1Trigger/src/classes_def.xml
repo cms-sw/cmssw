@@ -1,4 +1,10 @@
 <lcgdict>
+  <class name="l1t::L1PFTau" ClassVersion="0">
+   <version ClassVersion="1" checksum="1146444428"/>
+  </class>
+  <class name="l1t::L1PFTauCollection"/>
+  <class name="edm::Wrapper<l1t::L1PFTauCollection>"/>
+  <class name="std::vector<l1t::L1PFTau>"/>
   <class name="l1t::L1Candidate" ClassVersion="12">
    <version ClassVersion="12" checksum="939575486"/>
    <version ClassVersion="11" checksum="2395983446"/>

@@ -33,7 +33,7 @@
 #include "DataFormats/L1Trigger/interface/L1DataEmulResult.h"
 #include "DataFormats/L1Trigger/interface/HOTwinMuxDigiCollection.h"
 #include "DataFormats/L1Trigger/interface/HOTPDigiTwinMux.h"
-
+#include "DataFormats/L1Trigger/interface/L1PFTau.h"
 
 namespace DataFormats_L1Trigger {
   struct dictionary {
@@ -227,6 +227,11 @@ namespace DataFormats_L1Trigger {
     edm::Ptr<l1t::L1Candidate>  l1candptr;
     edm::Ptr<l1t::Muon> l1muptr;
     std::vector<std::pair<edm::Ptr<l1t::L1Candidate>, float>> l1candptrfloatpair;
-     
+    
+    l1t::L1PFTau l1pftau;
+    edm::Wrapper<l1t::L1PFTauCollection> w_l1pftau;
+    std::vector<l1t::L1PFTau> vecRefPFTau_;
+    edm::Wrapper<l1t::L1PFTauCollection> w_vecRefPFTau_;
+    
   };
 }
