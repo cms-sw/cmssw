@@ -19,7 +19,7 @@ namespace edm {
 namespace hgcal {
   class RecHitTools {
   public:
-    RecHitTools() : geom_(nullptr), fhOffset_(0), bhOffset_(0), geometryType_(0) {}
+    RecHitTools() : geom_(nullptr), fhOffset_(0), bhOffset_(0), fhLastLayer_(0), geometryType_(0) {}
     ~RecHitTools() {}
 
     void getEvent(const edm::Event&);
@@ -27,7 +27,7 @@ namespace hgcal {
     const CaloSubdetectorGeometry* getSubdetectorGeometry( const DetId& id ) const;
 
     GlobalPoint getPosition(const DetId& id) const;
-    GlobalPoint getPositionLayer(unsigned layer) const;
+    GlobalPoint getPositionLayer(int layer) const;
     // zside returns +/- 1
     int zside(const DetId& id) const;
 
@@ -39,8 +39,8 @@ namespace hgcal {
     unsigned int getLayer(ForwardSubdetector type) const;
     unsigned int getLayer(const DetId&) const;
     unsigned int getLayerWithOffset(const DetId&) const;
-    unsigned int getWafer(const DetId&) const;
-    unsigned int getCell(const DetId&) const;
+    std::pair<int,int> getWafer(const DetId&) const;
+    std::pair<int,int> getCell(const DetId&) const;
 
     bool isHalfCell(const DetId&) const;
 
@@ -56,13 +56,13 @@ namespace hgcal {
 
     inline const CaloGeometry * getGeometry() const {return geom_;};
     unsigned int lastLayerEE() const {return fhOffset_;}
-    unsigned int lastLayerFH() const {return bhOffset_;}
+    unsigned int lastLayerFH() const {return fhLastLayer_;}
     unsigned int maxNumberOfWafersPerLayer() const {return maxNumberOfWafersPerLayer_;}
     inline int getGeometryType() const {return geometryType_;}
   private:
     const CaloGeometry* geom_;
-    unsigned int        fhOffset_, bhOffset_, maxNumberOfWafersPerLayer_;
-    int geometryType_;
+    unsigned int        fhOffset_, bhOffset_, fhLastLayer_, maxNumberOfWafersPerLayer_;
+    int                 geometryType_;
   };
 }
 
