@@ -776,7 +776,6 @@ void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
      
    }
    // Fill in the words in appropriate order
-   for(int i=0; i<6; i++) myOutFile << " " << std::hex << std::setw(8) << std::setfill('X') << empty; //ccla temp for debugging
    myOutFile << " " << std::hex << std::setw(8) << std::setfill('0') << ETTpackWd;
    myOutFile << " " << std::hex << std::setw(8) << std::setfill('0') << HTTpackWd;
    myOutFile << " " << std::hex << std::setw(8) << std::setfill('0') << ETMpackWd;
