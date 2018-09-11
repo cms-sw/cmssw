@@ -1,3 +1,4 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQMOffline/Trigger/plugins/HTMonitor.h"
 
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
@@ -10,11 +11,16 @@
 
 HTMonitor::HTMonitor( const edm::ParameterSet& iConfig ) : 
   folderName_             ( iConfig.getParameter<std::string>("FolderName") )
-  , metToken_             ( consumes<reco::PFMETCollection>      (iConfig.getParameter<edm::InputTag>("met")         ) )
-  , jetToken_             ( mayConsume<reco::JetView>      (iConfig.getParameter<edm::InputTag>("jets")      ) )
-  , eleToken_             ( mayConsume<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons") ) )
-  , muoToken_             ( mayConsume<reco::MuonCollection>       (iConfig.getParameter<edm::InputTag>("muons")     ) )
-  , vtxToken_             ( mayConsume<reco::VertexCollection>      (iConfig.getParameter<edm::InputTag>("vertices")      ) )
+  , metInputTag_          ( iConfig.getParameter<edm::InputTag>    ("met")          )
+  , jetInputTag_          ( iConfig.getParameter<edm::InputTag>    ("jets")         )
+  , eleInputTag_          ( iConfig.getParameter<edm::InputTag>    ("electrons")    ) 
+  , muoInputTag_          ( iConfig.getParameter<edm::InputTag>    ("muons")        ) 
+  , vtxInputTag_          ( iConfig.getParameter<edm::InputTag>    ("vertices")     ) 
+  , metToken_             ( consumes<reco::PFMETCollection>        ( metInputTag_ ) )
+  , jetToken_             ( mayConsume<reco::JetView>              ( jetInputTag_ ) )
+  , eleToken_             ( mayConsume<reco::GsfElectronCollection>( eleInputTag_ ) )
+  , muoToken_             ( mayConsume<reco::MuonCollection>       ( muoInputTag_ ) )
+  , vtxToken_             ( mayConsume<reco::VertexCollection>     ( vtxInputTag_ ) )
   , ht_variable_binning_  ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("htBinning") )
   , ht_binning_           ( getHistoPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("htPSet")    ) )
   , ls_binning_           ( getHistoPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("lsPSet")     ) )
@@ -30,6 +36,7 @@ HTMonitor::HTMonitor( const edm::ParameterSet& iConfig ) :
   , nmuons_     ( iConfig.getParameter<unsigned>("nmuons" )     )
   , dEtaCut_    ( iConfig.getParameter<double>("dEtaCut")       )
 {
+  /* mia: THIS CODE SHOULD BE DELETED !!!! */
     string quantity = iConfig.getParameter<std::string>("quantity");
     if(quantity == "HT")
     {
@@ -47,6 +54,13 @@ HTMonitor::HTMonitor( const edm::ParameterSet& iConfig ) :
     {
         throw cms::Exception("quantity not defined") << "the quantity '" << quantity << "' is undefined. Please check your config!" << std::endl;
     }
+
+    // this vector has to be alligned to the the number of Tokens accessed by this module
+    warningPrinted4token_.push_back(false); // PFMETCollection
+    warningPrinted4token_.push_back(false); // JetCollection
+    warningPrinted4token_.push_back(false); // GsfElectronCollection
+    warningPrinted4token_.push_back(false); // MuonCollection
+    warningPrinted4token_.push_back(false); // VertexCollection
 }
 
 HTMonitor::~HTMonitor() = default;
@@ -180,11 +194,25 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
 
   edm::Handle<reco::PFMETCollection> metHandle;
   iEvent.getByToken( metToken_, metHandle );
+  if ( !metHandle.isValid() ) {
+    if (!warningPrinted4token_[0]) {
+      edm::LogWarning("HTMonitor") << "skipping events because the collection " << metInputTag_.label().c_str() << " is not available";
+      warningPrinted4token_[0] = true;
+    }
+    return;
+  }
   reco::PFMET pfmet = metHandle->front();
   if ( ! metSelection_( pfmet ) ) return;
 
   edm::Handle<reco::JetView> jetHandle; //add a configurable jet collection & jet pt selection
   iEvent.getByToken( jetToken_, jetHandle );
+  if ( !jetHandle.isValid() ) {
+    if (!warningPrinted4token_[1]) {
+      edm::LogWarning("HTMonitor") << "skipping events because the collection " << jetInputTag_.label().c_str() << " is not available";
+      warningPrinted4token_[1] = true;
+    }
+    return;
+  }
   std::vector<reco::Jet> jets;
   if ( jetHandle->size() < njets_ ) return;
   for ( auto const & j : *jetHandle ) {
@@ -201,36 +229,69 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
   if (!jets.empty()) deltaPhi_met_j1 = fabs( deltaPhi( pfmet.phi(),  jets[0].phi() ));
   if (jets.size() >= 2) deltaPhi_j1_j2 = fabs( deltaPhi( jets[0].phi(),  jets[1].phi() ));
 
+  std::vector<reco::GsfElectron> electrons;
   edm::Handle<reco::GsfElectronCollection> eleHandle;
   iEvent.getByToken( eleToken_, eleHandle );
-  std::vector<reco::GsfElectron> electrons;
-  if ( eleHandle->size() < nelectrons_ ) return;
-  for ( auto const & e : *eleHandle ) {
-    if ( eleSelection_( e ) ) electrons.push_back(e);
+  if ( eleHandle.isValid() ) {
+    if ( eleHandle->size() < nelectrons_ ) return;
+    for ( auto const & e : *eleHandle ) {
+      if ( eleSelection_( e ) ) electrons.push_back(e);
+    }
+    if ( electrons.size() < nelectrons_ ) return;
+  } else {
+    if (!warningPrinted4token_[2]) {
+      warningPrinted4token_[2] = true;
+      if ( eleInputTag_.label().empty() ) 
+	edm::LogWarning("HTMonitor") << "GsfElectronCollection not set";
+      else
+	edm::LogWarning("HTMonitor") << "skipping events because the collection " << eleInputTag_.label().c_str() << " is not available";
+    }
+    if ( !eleInputTag_.label().empty() ) return;
   }
-  if ( electrons.size() < nelectrons_ ) return;
   
-  edm::Handle<reco::VertexCollection> vtxHandle;
-  iEvent.getByToken(vtxToken_, vtxHandle);
 
   reco::Vertex vtx;
-  for (auto const & v : *vtxHandle) {
-    bool isFake =  v.isFake() ;
-    
-    if (!isFake) {
-      vtx = v;
-      break;
+  edm::Handle<reco::VertexCollection> vtxHandle;
+  iEvent.getByToken(vtxToken_, vtxHandle);
+  if ( vtxHandle.isValid() ) {
+    for (auto const & v : *vtxHandle) {
+      bool isFake =  v.isFake() ;
+      
+      if (!isFake) {
+	vtx = v;
+	break;
+      }
     }
+  } else {
+    if (!warningPrinted4token_[3]) {
+      warningPrinted4token_[3] = true;
+      if ( vtxInputTag_.label().empty() )
+	edm::LogWarning("HTMonitor") << "VertexCollection not set";
+      else
+	edm::LogWarning("HTMonitor") << "skipping events because the collection " << vtxInputTag_.label().c_str() << " is not available";
+    }
+    if ( !vtxInputTag_.label().empty() ) return;
   }
 
+  std::vector<reco::Muon> muons;
   edm::Handle<reco::MuonCollection> muoHandle;
   iEvent.getByToken( muoToken_, muoHandle );
-  if ( muoHandle->size() < nmuons_ ) return;
-  std::vector<reco::Muon> muons;
-  for ( auto const & m : *muoHandle ) {
-    if ( muoSelection_( m ) && m.isGlobalMuon() && m.isPFMuon() && m.globalTrack()->normalizedChi2() < 10. && m.globalTrack()->hitPattern().numberOfValidMuonHits() > 0 && m.numberOfMatchedStations() > 1 && fabs(m.muonBestTrack()->dxy(vtx.position())) < 0.2 && fabs(m.muonBestTrack()->dz(vtx.position())) < 0.5 && m.innerTrack()->hitPattern().numberOfValidPixelHits() > 0 && m.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 )  muons.push_back(m);
+  if ( muoHandle.isValid() ) {
+    if ( muoHandle->size() < nmuons_ ) return;
+    for ( auto const & m : *muoHandle ) {
+      if ( muoSelection_( m ) && m.isGlobalMuon() && m.isPFMuon() && m.globalTrack()->normalizedChi2() < 10. && m.globalTrack()->hitPattern().numberOfValidMuonHits() > 0 && m.numberOfMatchedStations() > 1 && fabs(m.muonBestTrack()->dxy(vtx.position())) < 0.2 && fabs(m.muonBestTrack()->dz(vtx.position())) < 0.5 && m.innerTrack()->hitPattern().numberOfValidPixelHits() > 0 && m.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 )  muons.push_back(m);
+    }
+    if ( muons.size() < nmuons_ ) return;
+  } else {
+    if (!warningPrinted4token_[4]) {
+      warningPrinted4token_[4] = true;
+      if ( muoInputTag_.label().empty() )
+	edm::LogWarning("HTMonitor") << "MuonCollection not set";
+      else
+	edm::LogWarning("HTMonitor") << "skipping events because the collection " << muoInputTag_.label().c_str() << " is not available";
+    }
+    if ( !muoInputTag_.label().empty() ) return;
   }
-  if ( muons.size() < nmuons_ ) return;
 
   // fill histograms
   switch(quantity_)
