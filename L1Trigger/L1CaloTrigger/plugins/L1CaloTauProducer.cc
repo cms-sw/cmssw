@@ -112,6 +112,8 @@ class L1CaloTauProducer : public edm::EDProducer {
         {
             public:
                 bool stale=false; // Hits become stale once used in clustering algorithm to prevent overlap in clusters
+                bool passesStandaloneWP = false; // Store whether any of the WPs are passed
+                bool passesTrkMatchWP = false; // Store whether any of the WPs are passed
                 reco::Candidate::PolarLorentzVector p4;
                 int iEta;
                 int iPhi;
@@ -376,6 +378,19 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                 hcal_seed_iPhi = hcalHit.hcal_iPhi;
                 //std::cout << " ----- input p4 " << l1eg.pt() << " : " << l1eg.eta() << " : " << l1eg.phi() << " : " << l1eg.M() << std::endl;
                 //std::cout << " ----- jet seed p4 " << hcalJet.pt() << " : " << hcalJet.eta() << " : " << hcalJet.phi() << " : " << hcalJet.M()<< std::endl;
+
+                // Need to add the seed energy to the dR rings
+                hcal_dR1T += hcalHit.energy;
+                hcal_dR2T += hcalHit.energy;
+                hcal_dR3T += hcalHit.energy;
+                hcal_dR4T += hcalHit.energy;
+                hcal_dR5T += hcalHit.energy;
+
+                // Some discrimination vars, 2x2s including central seed
+                hcal_2x2_1 += hcalHit.energy;
+                hcal_2x2_2 += hcalHit.energy;
+                hcal_2x2_3 += hcalHit.energy;
+                hcal_2x2_4 += hcalHit.energy;
                 continue;
             }
 
@@ -462,6 +477,8 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         l1egObj.SetP4(EGammaCand.pt(), EGammaCand.eta(), EGammaCand.phi(), 0.);
         l1egObj.iEta = EGammaCand.GetExperimentalParam("seed_iEta");
         l1egObj.iPhi = EGammaCand.GetExperimentalParam("seed_iPhi");
+        l1egObj.passesStandaloneWP = EGammaCand.standaloneWP();
+        l1egObj.passesTrkMatchWP = EGammaCand.looseL1TkMatchWP();
         crystalClustersVect.push_back( l1egObj );
     }
 
@@ -498,6 +515,8 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         float ecal_dR0p4 = 0.;
         float ecal_dR0p5 = 0.;
         float ecal_nL1EGs = 0.;
+        float ecal_nL1EGs_standalone = 0.;
+        float ecal_nL1EGs_trkMatch = 0.;
 
 
         reco::Candidate::PolarLorentzVector ecalJet( 0., 0., 0., 0.);
@@ -529,8 +548,8 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                 ecal_leading_phi = l1eg.phi();
                 leadingL1EG = l1eg;
                 //std::cout << " --- initial jet seed " << cnt << std::endl;
-                std::cout << " ----- input cal jet p4 " << jetCand.pt() << " : " << jetCand.eta() << " : " << jetCand.phi() << std::endl;
-                std::cout << " ----- ecal jet seed p4 " << ecalJet.pt() << " : " << ecalJet.eta() << " : " << ecalJet.phi() <<  std::endl;
+                //std::cout << " ----- input cal jet p4 " << jetCand.pt() << " : " << jetCand.eta() << " : " << jetCand.phi() << std::endl;
+                //std::cout << " ----- ecal jet seed p4 " << ecalJet.pt() << " : " << ecalJet.eta() << " : " << ecalJet.phi() <<  std::endl;
             }
             else // subsequent L1EGs
             {
@@ -541,6 +560,8 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
             // For all including the seed and subsequent L1EGs
             ecal_nL1EGs++;
+            if (l1eg.passesStandaloneWP ) ecal_nL1EGs_standalone++;
+            if (l1eg.passesTrkMatchWP ) ecal_nL1EGs_trkMatch++;
             l1eg.stale = true;
 
             // Unused L1EGs which are not the initial ecal jet seed
@@ -631,6 +652,8 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         params["ecal_dR0p4"] =          ecal_dR0p4;
         params["ecal_dR0p5"] =          ecal_dR0p5;
         params["ecal_nL1EGs"] =         ecal_nL1EGs;
+        params["ecal_nL1EGs_standalone"] =  ecal_nL1EGs_standalone;
+        params["ecal_nL1EGs_trkMatch"] =    ecal_nL1EGs_trkMatch;
 
         params["ecal_pt"] = ecalJet.pt();
         params["ecal_eta"] = ecalJet.eta();
