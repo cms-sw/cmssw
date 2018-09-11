@@ -205,6 +205,12 @@ def customiseFor24212(process):
             pf.goodPixelTrackDeadHcal_dz  = cms.double(0.05)     # [cm] abs(trackRef->dz(primaryVertex_.position())) < X
     return process
 
+###For parameter changes in SiStripClusterizerFromRaw for PbPb 2018 data-taking
+def customiseForPR24339HybridFormatSiStripZS(process):
+    for producer in producers_by_type(process, "SiStripClusterizerFromRaw"): 
+        producer.Algorithms.Use10bitsTruncation  = cms.bool( False )
+        producer.HybridZeroSuppressed = cms.bool( False )
+    return process  
 
 
 # CMSSW version specific customizations
@@ -214,4 +220,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
     process = customiseFor24212(process)
 
+    process = customiseForPR24339HybridFormatSiStripZS(process)
     return process
