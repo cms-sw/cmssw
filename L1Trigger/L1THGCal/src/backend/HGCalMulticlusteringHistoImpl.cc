@@ -52,8 +52,7 @@ HGCalMulticlusteringHistoImpl::Histogram HGCalMulticlusteringHistoImpl::fillHist
         int bin_R = int( (ROverZ-kROverZMin_) * nBinsRHisto_ / (kROverZMax_-kROverZMin_) );
         int bin_phi = int( (reco::reduceRange(clu->phi())+M_PI) * nBinsPhiHisto_ / (2*M_PI) );
 
-        std::array<int,3> key = { { clu->zside(), bin_R, bin_phi } };
-        histoClusters[key]+=clu->mipPt();
+        histoClusters[{{clu->zside(), bin_R, bin_phi}}]+=clu->mipPt();
 
     }
 
@@ -74,6 +73,9 @@ HGCalMulticlusteringHistoImpl::Histogram HGCalMulticlusteringHistoImpl::fillSmoo
         for(int bin_R = 0; bin_R<int(nBinsRHisto_); bin_R++){
 
             int nBinsSide = (binSums[bin_R]-1)/2;
+            float R1 = kROverZMin_ + bin_R*(kROverZMax_-kROverZMin_);
+            float R2 = R1 + (kROverZMax_-kROverZMin_);
+            double area = 0.5 * (pow(R2,2)-pow(R1,2)) * (1+0.5*(1-pow(0.5,nBinsSide))); // Takes into account different area of bins in different R-rings + sum of quadratic weights used
 
             for(int bin_phi = 0; bin_phi<int(nBinsPhiHisto_); bin_phi++){
 
@@ -91,9 +93,6 @@ HGCalMulticlusteringHistoImpl::Histogram HGCalMulticlusteringHistoImpl::fillSmoo
 
                 }
 
-                float R1 = kROverZMin_ + bin_R*(kROverZMax_-kROverZMin_);
-                float R2 = R1 + (kROverZMax_-kROverZMin_);
-                double area = 0.5 * (pow(R2,2)-pow(R1,2)) * (1+0.5*(1-pow(0.5,nBinsSide))); // Takes into account different area of bins in different R-rings + sum of quadratic weights used
                 histoSumPhiClusters[{{z_side,bin_R,bin_phi}}] = content/area;
 
             }
@@ -121,7 +120,7 @@ HGCalMulticlusteringHistoImpl::Histogram HGCalMulticlusteringHistoImpl::fillSmoo
 
             float weight = (bin_R==0 || bin_R==int(nBinsRHisto_)-1) ? 1.5 : 2.; //Take into account edges with only one side up or down
 
-	    for(int bin_phi = 0; bin_phi<int(nBinsPhiHisto_); bin_phi++){
+            for(int bin_phi = 0; bin_phi<int(nBinsPhiHisto_); bin_phi++){
 
                 float content = histoClusters.at({{z_side,bin_R,bin_phi}});
                 float contentDown = histoClusters.at({{z_side,bin_R-1,bin_phi}}); //Non-allocated elements in maps return default 0 value
@@ -266,10 +265,7 @@ std::vector<l1t::HGCalMulticluster> HGCalMulticlusteringHistoImpl::clusterSeedMu
 
         if(targetSeed<0) continue;
 
-        if(mapSeedMulticluster[targetSeed].size()==0){
-            l1t::HGCalMulticluster newMclu(clu);
-            mapSeedMulticluster[targetSeed] = newMclu;
-        }
+        if(mapSeedMulticluster[targetSeed].size()==0) mapSeedMulticluster[targetSeed] = l1t::HGCalMulticluster(clu);
         else mapSeedMulticluster[targetSeed].addConstituent(clu);
 
     }
