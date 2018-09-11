@@ -56,6 +56,7 @@ phase2_tracker.toModify(siPixelClusters, # FIXME
   Phase2Calibration = cms.bool(True),
   Phase2ReadoutMode = cms.int32(-1), # Flag to decide Readout Mode : linear TDR (-1), dual slope with slope parameters (+1,+2,+3,+4 ...) with threshold subtraction
   Phase2DigiBaseline = cms.double(1200.), 
+  Phase2KinkADC = cms.int32(8),
   ElectronPerADCGain = cms.double(600.) # it can be changed to something else (e.g. 135e) if needed
 )
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2

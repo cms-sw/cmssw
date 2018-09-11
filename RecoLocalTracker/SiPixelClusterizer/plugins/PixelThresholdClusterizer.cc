@@ -88,10 +88,14 @@ PixelThresholdClusterizer::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<int>("ClusterThreshold_L1", 4000);
   desc.add<int>("ClusterThreshold", 4000);
   desc.add<int>("maxNumberOfClusters", -1);
+  desc.add<int>("AdcFullScaleStack", 255);
+  desc.add<int>("FirstStackLayer", 5);
+  desc.add<double>("ElectronPerADCGain", 135.);
   desc.add<bool>("Phase2Calibration", false);
   desc.add<int>("Phase2ReadoutMode", -1);
-  desc.add<double>("Phase2DigiBaseline", 0.);
-  descriptions.add("siPixelClusters", desc);
+  desc.add<double>("Phase2DigiBaseline", 1200.);
+  desc.add<int>("Phase2KinkADC", 8);
+  descriptions.add("siPixClusters", desc);
 }
 
 //----------------------------------------------------------------------------
