@@ -266,9 +266,15 @@ std::vector<float> DeepBoostedJetTagsProducer::center_norm_pad(
 
   assert(min<=pad_value && pad_value<=max);
 
+  auto clip = [](float value, float low, float high){
+    if (value < low) return low;
+    if (value > high) return high;
+    return value;
+  };
+
   std::vector<float> out(target_length, pad_value);
   for (unsigned i=0; i<input.size() && i<target_length; ++i){
-    out[i] = std::clamp((input[i] - center) * norm_factor, min, max);
+    out[i] = clip((input[i] - center) * norm_factor, min, max);
   }
   return out;
 
