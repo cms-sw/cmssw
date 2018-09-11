@@ -14,7 +14,7 @@
 #include<iostream>
 
 CastorAmplifier::CastorAmplifier(const CastorSimParameterMap * parameters, bool addNoise) :
-  theDbService(0),
+  theDbService(nullptr),
   theParameterMap(parameters),
   theStartingCapId(0),
   addNoise_(addNoise)
@@ -23,7 +23,7 @@ CastorAmplifier::CastorAmplifier(const CastorSimParameterMap * parameters, bool 
 
 void CastorAmplifier::amplify(CaloSamples & frame, CLHEP::HepRandomEngine* engine) const {
   const CastorSimParameters & parameters = theParameterMap->castorParameters();
-  assert(theDbService != 0);
+  assert(theDbService != nullptr);
   HcalGenericDetId hcalGenDetId(frame.id());
   const CastorPedestal* peds = theDbService->getPedestal(hcalGenDetId);
   const CastorPedestalWidth* pwidths = theDbService->getPedestalWidth(hcalGenDetId);
@@ -31,22 +31,29 @@ void CastorAmplifier::amplify(CaloSamples & frame, CLHEP::HepRandomEngine* engin
   {
     edm::LogError("CastorAmplifier") << "Could not fetch HCAL/CASTOR conditions for channel " << hcalGenDetId;
   }
+  else 
+  {
+    double gauss [32]; //big enough
+    double noise [32]; //big enough
+    double fCperPE = parameters.photoelectronsToAnalog(frame.id());
 
-  double gauss [32]; //big enough
-  double noise [32]; //big enough
-  double fCperPE = parameters.photoelectronsToAnalog(frame.id());
-
-  for (int i = 0; i < frame.size(); i++) gauss[i] = CLHEP::RandGaussQ::shoot(engine, 0., 1.);
-  pwidths->makeNoise (frame.size(), gauss, noise);
-  for(int tbin = 0; tbin < frame.size(); ++tbin) {
-    int capId = (theStartingCapId + tbin)%4;
-    double pedestal = peds->getValue (capId);
+    for (int i = 0; i < frame.size(); i++) { gauss[i] = CLHEP::RandGaussQ::shoot(engine, 0., 1.); }
     if(addNoise_) {
-      pedestal += noise [tbin];
+      pwidths->makeNoise (frame.size(), gauss, noise);
     }
-    frame[tbin] *= fCperPE;
-    frame[tbin] += pedestal;
+    for(int tbin = 0; tbin < frame.size(); ++tbin) {
+      int capId = (theStartingCapId + tbin)%4;
+      double pedestal = peds->getValue(capId);
+      if(addNoise_) {
+	if (parameters.doDynamicNoise()) {
+		pedestal += noise [tbin]*(fCperPE/parameters.getNominalfCperPE());
+	} else {
+		pedestal += noise [tbin];
+	}
+      }
+      frame[tbin] *= fCperPE;
+      frame[tbin] += pedestal;
+    }
   }
   LogDebug("CastorAmplifier") << frame;
 }
-
