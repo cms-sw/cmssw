@@ -73,8 +73,19 @@ constexpr entry<l1t::GtConditionType> l1GtConditionTypeStringToEnumMap[] = {
 	{"l1t::TypeMinBiasHFM1", l1t::TypeMinBiasHFM1},
         {"l1t::TypeExternal", l1t::TypeExternal},
         {nullptr, (l1t::GtConditionType) - 1},
-        {"l1t::Type2corWithOverlapRemoval", l1t::Type2corWithOverlapRemoval}
-
+        {"l1t::Type2corWithOverlapRemoval", l1t::Type2corWithOverlapRemoval},
+	{"l1t::TypeCent0", l1t::TypeCent0},
+	{"l1t::TypeCent1", l1t::TypeCent1},
+	{"l1t::TypeCent2", l1t::TypeCent2},
+	{"l1t::TypeCent3", l1t::TypeCent3},
+	{"l1t::TypeCent4", l1t::TypeCent4},
+	{"l1t::TypeCent5", l1t::TypeCent5},
+	{"l1t::TypeCent6", l1t::TypeCent6},
+	{"l1t::TypeCent7", l1t::TypeCent7},
+	{"l1t::TypeAsymEt", l1t::TypeAsymEt},
+	{"l1t::TypeAsymHt", l1t::TypeAsymHt},
+	{"l1t::TypeAsymEtHF", l1t::TypeAsymEtHF},
+	{"l1t::TypeAsymHtHF", l1t::TypeAsymHtHF}
 };
 
 // l1t::GtConditionCategory

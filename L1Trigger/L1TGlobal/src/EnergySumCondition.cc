@@ -145,6 +145,7 @@ const bool l1t::EnergySumCondition::evaluateCondition(const int bxEval) const {
 
     l1t::EtSum::EtSumType type;
     bool MissingEnergy = false;
+    int centbit=0;
     switch( (m_gtEnergySumTemplate->objectType())[0] ){
     case gtETM:
       type = l1t::EtSum::EtSumType::kMissingEt;
@@ -189,6 +190,62 @@ const bool l1t::EnergySumCondition::evaluateCondition(const int bxEval) const {
     case gtMinBiasHFM1:
       type = l1t::EtSum::EtSumType::kMinBiasHFM1;
       MissingEnergy = false;
+      break;
+    case gtAsymmetryEt:
+      type = l1t::EtSum::EtSumType::kAsymEt;
+      MissingEnergy = false;
+      break;
+    case gtAsymmetryHt:
+      type = l1t::EtSum::EtSumType::kAsymHt;
+      MissingEnergy = false;
+      break;
+    case gtAsymmetryEtHF:
+      type = l1t::EtSum::EtSumType::kAsymEtHF;
+      MissingEnergy = false;
+      break;
+    case gtAsymmetryHtHF:
+      type = l1t::EtSum::EtSumType::kAsymHtHF;
+      MissingEnergy = false;
+      break;
+    case gtCentrality0:
+      centbit=0;
+      type = l1t::EtSum::EtSumType::kCentrality;
+      MissingEnergy = false;
+      break;                             
+    case gtCentrality1:
+      centbit=1;
+      type = l1t::EtSum::EtSumType::kCentrality;
+      MissingEnergy = false;
+      break;                             
+    case gtCentrality2:
+      centbit=2;
+      type = l1t::EtSum::EtSumType::kCentrality;
+      MissingEnergy = false;
+      break;                             
+    case gtCentrality3:
+      centbit=3;
+      type = l1t::EtSum::EtSumType::kCentrality;
+      MissingEnergy = false;
+      break;                             
+    case gtCentrality4:
+      centbit=0;
+      type = l1t::EtSum::EtSumType::kCentrality;
+      MissingEnergy = false;
+      break;                             
+    case gtCentrality5:
+      centbit=1;
+      type = l1t::EtSum::EtSumType::kCentrality;
+      MissingEnergy = false;
+      break;                             
+    case gtCentrality6:
+      centbit=2;
+      type = l1t::EtSum::EtSumType::kCentrality;
+      MissingEnergy = false;
+      break;                             
+    case gtCentrality7:
+      centbit=3;
+      type = l1t::EtSum::EtSumType::kCentrality;
+      MissingEnergy = false;
       break;                             
     default:
       edm::LogError("L1TGlobal")
@@ -208,6 +265,13 @@ const bool l1t::EnergySumCondition::evaluateCondition(const int bxEval) const {
     for( int iEtSum = 0; iEtSum < numberObjects; ++iEtSum ){
       l1t::EtSum cand = *(candVec->at(useBx,iEtSum));
       if( cand.getType() != type ) continue;
+      if ( (m_gtEnergySumTemplate->objectType())[0] == gtCentrality0 || (m_gtEnergySumTemplate->objectType())[0] == gtCentrality1 || (m_gtEnergySumTemplate->objectType())[0] == gtCentrality2 || (m_gtEnergySumTemplate->objectType())[0] == gtCentrality3){
+	// std::cout << "CCLA CENT30  Type: \thwPt: "<< cand.hwPt() <<"\thwQual: "<< cand.hwQual() << std::endl;
+	if (cand.hwQual() != 0) continue;
+      }else if ( (m_gtEnergySumTemplate->objectType())[0] == gtCentrality4 || (m_gtEnergySumTemplate->objectType())[0] == gtCentrality5 || (m_gtEnergySumTemplate->objectType())[0] == gtCentrality6 || (m_gtEnergySumTemplate->objectType())[0] == gtCentrality7){
+	// std::cout << "CCLA CENT74  Type: \thwPt: "<< cand.hwPt() <<"\thwQual: "<< cand.hwQual() << std::endl;
+	if (cand.hwQual() != 1) continue;
+      }
       candEt  = cand.hwPt();
       candPhi = cand.hwPhi();
     }
@@ -228,24 +292,32 @@ const bool l1t::EnergySumCondition::evaluateCondition(const int bxEval) const {
 
     bool condGEqVal = m_gtEnergySumTemplate->condGEq();
 
-    // check energy threshold
-    if ( !checkThreshold(objPar.etLowThreshold, objPar.etHighThreshold, candEt, condGEqVal) ) {
-      LogDebug("L1TGlobal") << "\t\t l1t::EtSum failed checkThreshold" << std::endl;
+    if (type == l1t::EtSum::EtSumType::kCentrality){
+      bool myres=checkBit(candEt,centbit);
+      //std::cout << "CCLC:  Checking bit " << centbit << "\tResult is: " << myres << std::endl;
+      if (!myres){
+	LogDebug("L1TGlobal") << "\t\t l1t::EtSum failed Centrality bit" << std::endl;
+        return false;	
+      }
+    }else{
+      // check energy threshold
+      if ( !checkThreshold(objPar.etLowThreshold, objPar.etHighThreshold, candEt, condGEqVal) ) {
+	LogDebug("L1TGlobal") << "\t\t l1t::EtSum failed checkThreshold" << std::endl;
         return false;
-    }
+      }
 
-    if( !condGEqVal && candOverflow ) return false;
+      if( !condGEqVal && candOverflow ) return false;
 
-    // for ETM and HTM check phi also
-    // for overflow, the phi requirements are ignored
-    if( MissingEnergy ){
-      // check phi
-      if( !checkRangePhi(candPhi, objPar.phiWindow1Lower, objPar.phiWindow1Upper, objPar.phiWindow2Lower, objPar.phiWindow2Upper) ){
-	LogDebug("L1TGlobal") << "\t\t l1t::EtSum failed checkRange(phi)" << std::endl;
-	return false;
+      // for ETM and HTM check phi also
+      // for overflow, the phi requirements are ignored
+      if( MissingEnergy ){
+	// check phi
+	if( !checkRangePhi(candPhi, objPar.phiWindow1Lower, objPar.phiWindow1Upper, objPar.phiWindow2Lower, objPar.phiWindow2Upper) ){
+	  LogDebug("L1TGlobal") << "\t\t l1t::EtSum failed checkRange(phi)" << std::endl;
+	  return false;
+	}
       }
     }
-
 
     // index is always zero, as they are global quantities (there is only one object)
     int indexObj = 0;
