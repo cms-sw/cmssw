@@ -154,7 +154,11 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         ElectronStepLimit         = cms.bool(False),
         ElectronRangeTest         = cms.bool(False),
         PositronStepLimit         = cms.bool(False),
-        MinStepLimit              = cms.double(1.0)
+        MinStepLimit              = cms.double(1.0),
+        ModifyTransportation      = cms.bool(False),
+        ThresholdWarningEnergy    = cms.untracked.double(100.0),
+        ThresholdImportantEnergy  = cms.untracked.double(250.0),
+        ThresholdTrials           = cms.untracked.int32(10)
     ),
     Generator = cms.PSet(
         HectorEtaCut,
