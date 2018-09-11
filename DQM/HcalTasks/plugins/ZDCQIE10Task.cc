@@ -123,11 +123,11 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps)
 
 		for ( int i = 0; i < digi.samples(); i++ ) {
 			// iter over all samples
-			if ( _cADC_EChannel.find( histoname.c_str() ) != _cADC_EChannel.end() ) {
-				_cADC_EChannel[histoname.c_str()]->Fill(digi[i].adc());
+			if ( _cADC_EChannel.find( histoname ) != _cADC_EChannel.end() ) {
+				_cADC_EChannel[histoname ]->Fill(digi[i].adc());
 			}
-			if ( _cADC_vs_TS_EChannel.find( histoname.c_str() ) != _cADC_vs_TS_EChannel.end() ) {
-				_cADC_vs_TS_EChannel[histoname.c_str()]->Fill(i, digi[i].adc());
+			if ( _cADC_vs_TS_EChannel.find( histoname ) != _cADC_vs_TS_EChannel.end() ) {
+				_cADC_vs_TS_EChannel[histoname ]->Fill(i, digi[i].adc());
 			}
 
 		}
