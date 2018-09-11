@@ -556,7 +556,7 @@ namespace edm {
       skipped->SetAttribute("Lfn", lfn.c_str());
       {
         std::lock_guard<std::mutex> lock(write_mutex);
-	skipped->Accept(&printer);
+        skipped->Accept(&printer);
         msg << printer.CStr() ;
         msg << std::flush;
       }
@@ -574,7 +574,7 @@ namespace edm {
       fallback->SetAttribute("Lfn", lfn.c_str());
       {
         std::lock_guard<std::mutex> lock(write_mutex);
-	fallback->Accept(&printer);
+        fallback->Accept(&printer);
         msg << printer.CStr() ;
         msg << "<![CDATA[\n" << err << "\n]]>\n";
         msg << std::flush;
@@ -621,32 +621,33 @@ namespace edm {
       std::ostream& ost = *(impl_->ost_);
       ost << "<ReadBranches>\n";
       tinyxml2::XMLDocument doc;
+      tinyxml2::XMLPrinter printer;
       for(auto const& iBranch : impl_->readBranches_) {
-	tinyxml2::XMLPrinter printer;
-	tinyxml2::XMLElement * branch = doc.NewElement("Branch");
+        tinyxml2::XMLElement * branch = doc.NewElement("Branch");
         branch->SetAttribute("Name", iBranch.first.c_str());
         branch->SetAttribute("ReadCount", int64_t(iBranch.second));
-	branch->Accept(&printer);
+        branch->Accept(&printer);
         ost << printer.CStr();
+        printer.ClearBuffer();
       }
       for(auto const& iBranch : impl_->readBranchesSecFile_) {
-	tinyxml2::XMLPrinter printer;
-	tinyxml2::XMLElement * branch = doc.NewElement("Branch");
+        tinyxml2::XMLElement * branch = doc.NewElement("Branch");
         branch->SetAttribute("Name", iBranch.first.c_str());
         branch->SetAttribute("ReadCount", int64_t(iBranch.second));
-	branch->Accept(&printer);
+        branch->Accept(&printer);
         ost << printer.CStr();
+        printer.ClearBuffer();
       }
       ost << "</ReadBranches>\n";
       if(!impl_->readBranchesSecSource_.empty()) {
         ost << "<SecondarySourceReadBranches>\n";
         for(auto const& iBranch : impl_->readBranchesSecSource_) {
-	  tinyxml2::XMLPrinter printer;
-	  tinyxml2::XMLElement * branch = doc.NewElement("Branch");
+          tinyxml2::XMLElement * branch = doc.NewElement("Branch");
           branch->SetAttribute("Name", iBranch.first.c_str());
           branch->SetAttribute("ReadCount", int64_t(iBranch.second.value().load()));
-	  branch->Accept(&printer);
-	  ost << printer.CStr();
+          branch->Accept(&printer);
+          ost << printer.CStr();
+          printer.ClearBuffer();
         }
         ost << "</SecondarySourceReadBranches>\n";
       }
