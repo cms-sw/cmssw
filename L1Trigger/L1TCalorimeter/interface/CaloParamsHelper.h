@@ -56,7 +56,8 @@ namespace l1t {
 	   egBypassHoEFlag=44,
 	   etSumCentralityLower=45,
 	   etSumCentralityUpper=46,
-	   NUM_CALOPARAMNODES=47
+           jetPUSUseChunkySandwichFlag=47,
+	   NUM_CALOPARAMNODES=48
     };
 
     CaloParamsHelper() { pnode_.resize(NUM_CALOPARAMNODES); }
@@ -335,6 +336,7 @@ namespace l1t {
     }
 
     unsigned jetBypassPUS() const { return pnode_[jetBypassPUSFlag].uparams_[0]; }
+    unsigned jetPUSUseChunkySandwich() const { return pnode_[jetPUSUseChunkySandwichFlag].uparams_[0]; }
 
     std::string jetPUSType() const { return pnode_[jetPUS].type_; }
     std::vector<double> const& jetPUSParams() const { return pnode_[jetPUS].dparams_; }
@@ -365,6 +367,10 @@ namespace l1t {
     void setJetBypassPUS(unsigned flag) { 
       pnode_[jetBypassPUSFlag].uparams_.resize(1);
       pnode_[jetBypassPUSFlag].uparams_[0] = flag; 
+    }
+    void setJetPUSUseChunkySandwich(unsigned flag) { 
+      pnode_[jetPUSUseChunkySandwichFlag].uparams_.resize(1);
+      pnode_[jetPUSUseChunkySandwichFlag].uparams_[0] = flag; 
     }
     
     // sums
