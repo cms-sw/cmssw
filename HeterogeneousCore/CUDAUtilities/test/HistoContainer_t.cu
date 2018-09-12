@@ -63,7 +63,7 @@ void go() {
     for (long long j = 0; j < N; j++) v[j]=rgen(eng);
 
     if (it==2) { // spill 
-       for (long long j = 1000; j < 2000; j++) v[j]=3456;
+       for (long long j = 1000; j < 2000; j++) v[j]= sizeof(T)==1 ? 22 : 3456;
     }
 
 
@@ -123,6 +123,7 @@ void go() {
 
 int main() {
   go<int16_t>();
+  go<int8_t>();
 
   return 0;
 }

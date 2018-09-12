@@ -9,11 +9,16 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/CUDAHostAllocator.h"
 
+namespace pixelCPEforGPU {
+  struct ParamsOnGPU;
+}
+
 namespace siPixelRecHitsHeterogeneousProduct {
 
   using CPUProduct = int; // dummy
 
   struct HitsOnGPU{
+     pixelCPEforGPU::ParamsOnGPU const * cpeParams = nullptr;    // forwarded from setup, NOT owned
      float * bs_d;
      const uint32_t * hitsModuleStart_d; // forwarded from clusters
      uint32_t * hitsLayerStart_d;

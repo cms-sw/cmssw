@@ -18,10 +18,10 @@ namespace gpuCalibPixel {
 
 
  __global__ void calibDigis(uint16_t * id,
-                           uint16_t const * x,
-                           uint16_t const * y,
+                           uint16_t const * __restrict__ x,
+                           uint16_t const * __restrict__ y,
                            uint16_t * adc,
-                           SiPixelGainForHLTonGPU const * ped,
+                           SiPixelGainForHLTonGPU const * __restrict__ ped,
                            int numElements
                          )
 {
@@ -55,11 +55,11 @@ namespace gpuCalibPixel {
 }
 
  __global__ void calibADCByModule(uint16_t * id,
-			   uint16_t const * x,
-			   uint16_t const * y,
+			   uint16_t const * __restrict__ x,
+			   uint16_t const * __restrict__ y,
 			   uint16_t * adc,
 			   uint32_t * moduleStart,
-                           SiPixelGainForHLTonGPU const * ped,
+                           SiPixelGainForHLTonGPU const * __restrict__ ped,
                            int numElements
                          )
 {

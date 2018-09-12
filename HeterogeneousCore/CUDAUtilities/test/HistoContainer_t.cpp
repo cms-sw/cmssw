@@ -22,7 +22,7 @@ void go() {
   for (int it=0; it<5; ++it) {
     for (long long j = 0; j < N; j++) v[j]=rgen(eng);
     h.zero();
-    for (long long j = 0; j < N; j++) h.fill(v,j);
+    for (long long j = 0; j < N; j++) h.fill(v[j],j);
     
     std::cout << "nspills " << h.nspills << std::endl;    
 
@@ -42,6 +42,34 @@ void go() {
       for (auto j=h.begin(kl); j<h.end(kl); ++j) verify(i,k,k,(*j));
       for (auto	j=h.begin(kh); j<h.end(kh); ++j) verify(i,k,(*j),k);
     }
+  }
+
+  for (long long j = 0; j < N; j++) {
+    auto b0 = h.bin(v[j]);
+    auto stot = h.endSpill()-h.beginSpill();
+    int w=0;
+    int tot=0;
+    auto ftest = [&](int k) {
+       assert(k>=0 && k<N);
+       tot++;
+    };
+    forEachInBins(h,v[j],w,ftest);
+    int rtot = h.end(b0)-h.begin(b0) + stot;
+    assert(tot==rtot);
+    w=1; tot=0;
+    forEachInBins(h,v[j],w,ftest);
+    int bp = b0+1;
+    int bm = b0-1;
+    if (bp<int(h.nbins())) rtot += h.end(bp)-h.begin(bp);
+    if (bm>=0) rtot += h.end(bm)-h.begin(bm);
+    assert(tot==rtot);
+    w=2; tot=0;
+    forEachInBins(h,v[j],w,ftest);
+    bp++;
+    bm--;
+    if (bp<int(h.nbins())) rtot += h.end(bp)-h.begin(bp);
+    if (bm>=0) rtot += h.end(bm)-h.begin(bm);
+    assert(tot==rtot);
   }
 
 }

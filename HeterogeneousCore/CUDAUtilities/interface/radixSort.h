@@ -5,16 +5,86 @@
 #include<cassert>
 
 template<typename T>
+__device__
+inline void dummyReorder(T const * a, uint16_t * ind, uint16_t * ind2, uint32_t size) {
+}
+
+template<typename T>
+__device__
+inline void reorderSigned(T const * a, uint16_t * ind, uint16_t * ind2, uint32_t size) {
+
+  //move negative first...
+
+  int32_t first = threadIdx.x;
+  __shared__ uint32_t firstNeg;
+  firstNeg = a[ind[0]]<0 ? 0 : size;
+  __syncthreads();
+
+  // find first negative
+  for (auto i=first; i<size-1; i+=blockDim.x) {
+   if ( (a[ind[i]]^a[ind[i+1]]) < 0 ) firstNeg=i+1;
+  }
+
+  __syncthreads();
+
+  auto ii=first;
+  for (auto i=firstNeg+threadIdx.x; i<size; i+=blockDim.x)  { ind2[ii] = ind[i]; ii+=blockDim.x; }
+  __syncthreads();
+  ii= size-firstNeg +threadIdx.x;
+  assert(ii>=0);
+  for (auto i=first;i<firstNeg;i+=blockDim.x)  { ind2[ii] = ind[i]; ii+=blockDim.x; }
+  __syncthreads();
+  for (auto i=first; i<size; i+=blockDim.x) ind[i]=ind2[i];
+
+}
+
+
+template<typename T>
+__device__
+inline void reorderFloat(T const * a, uint16_t * ind, uint16_t * ind2, uint32_t size) {
+
+  //move negative first...
+
+  int32_t first = threadIdx.x;
+  __shared__ uint32_t firstNeg;
+  firstNeg = a[ind[0]]<0 ? 0 : size;
+  __syncthreads();
+
+  // find first negative
+  for (auto i=first; i<size-1; i+=blockDim.x) {
+   if ( (a[ind[i]]^a[ind[i+1]]) < 0 ) firstNeg=i+1;
+  }
+
+  __syncthreads();
+
+  int ii=size-firstNeg-threadIdx.x-1;
+  for (auto i=firstNeg+threadIdx.x; i<size; i+=blockDim.x)  { ind2[ii] = ind[i]; ii-=blockDim.x; }
+  __syncthreads();
+  ii= size-firstNeg +threadIdx.x;
+  assert(ii>=0);
+  for (auto i=first;i<firstNeg;i+=blockDim.x)  { ind2[ii] = ind[i]; ii+=blockDim.x; }
+  __syncthreads();
+  for (auto i=first; i<size; i+=blockDim.x) ind[i]=ind2[i];
+
+}
+
+
+
+template<
+  typename T, // shall be interger
+  int NS, // number of significant bytes to use in sorting
+  typename RF
+>
 __device__  
-void radixSort(T * a, uint16_t * ind, uint32_t size) {
+void radixSortImpl(T const * a, uint16_t * ind, uint32_t size, RF reorder) {
     
   constexpr int d = 8, w = 8*sizeof(T);
   constexpr int sb = 1<<d;
+  constexpr int ps = int(sizeof(T)) - NS; 
 
   constexpr int MaxSize = 256*32;
   __shared__ uint16_t ind2[MaxSize];
   __shared__ int32_t c[sb], ct[sb], cu[sb];
-  __shared__ uint32_t firstNeg;    
 
   __shared__ int ibs;
   __shared__ int p;
@@ -25,9 +95,7 @@ void radixSort(T * a, uint16_t * ind, uint32_t size) {
 
   // bool debug = false; // threadIdx.x==0 && blockIdx.x==5;
 
-  firstNeg=0;
-
-  p = 0;  
+  p = ps;  
 
   auto j = ind;
   auto k = ind2;
@@ -118,36 +186,51 @@ void radixSort(T * a, uint16_t * ind, uint32_t size) {
  
   }
 
-  // w/d is even so ind is correct
-  assert(j==ind);
-  __syncthreads();
+  if( (w!=8) && (0==(NS&1)) )  assert(j==ind);   // w/d is even so ind is correct
 
-  
+  if (j!=ind) // odd...
+     for (auto i=first; i<size; i+=blockDim.x) ind[i]=ind2[i];
 
-  // now move negative first...
-  // find first negative  (for float ^ will not work...)
-  for (auto i=first; i<size-1; i+=blockDim.x) {
-    // if ( (int(a[ind[i]])*int(a[ind[i+1]])) <0 ) firstNeg=i+1;
-   if ( (a[ind[i]]^a[ind[i+1]]) < 0 ) firstNeg=i+1; 
-  }
-  
-  __syncthreads();
-  // assert(firstNeg>0); not necessary true if all positive !
+  // now move negative first... (if signed)
+  reorder(a,ind,ind2,size);
 
-  auto ii=first;
-  for (auto i=firstNeg+threadIdx.x; i<size; i+=blockDim.x)  { ind2[ii] = ind[i]; ii+=blockDim.x; }
-  __syncthreads();
-  ii= size-firstNeg +threadIdx.x;
-  assert(ii>=0);
-  for (auto i=first;i<firstNeg;i+=blockDim.x)  { ind2[ii] = ind[i]; ii+=blockDim.x; }
-  __syncthreads();
-  for (auto i=first; i<size; i+=blockDim.x) ind[i]=ind2[i];
-
-  
 }
 
 
-template<typename T>
+template<
+  typename T,
+  int NS=sizeof(T), // number of significant bytes to use in sorting
+  typename std::enable_if<std::is_unsigned<T>::value,T>::type* = nullptr
+>
+__device__
+void radixSort(T const * a, uint16_t * ind, uint32_t size) {
+  radixSortImpl<T,NS>(a,ind,size,dummyReorder<T>);
+}
+
+template<
+  typename T,
+  int NS=sizeof(T), // number of significant bytes to use in sorting
+  typename std::enable_if<std::is_integral<T>::value&&std::is_signed<T>::value,T>::type* = nullptr
+>
+__device__
+void radixSort(T const * a, uint16_t * ind, uint32_t size) {
+  radixSortImpl<T,NS>(a,ind,size,reorderSigned<T>);
+}
+
+template<
+  typename T,
+  int NS=sizeof(T), // number of significant bytes to use in sorting
+  typename std::enable_if<std::is_floating_point<T>::value,T>::type* = nullptr
+>
+__device__
+void radixSort(T const * a, uint16_t * ind, uint32_t size) {
+  using I = int;
+  radixSortImpl<I,NS>((I const *)(a),ind,size,reorderFloat<I>);
+}
+
+
+
+template<typename T, int NS=sizeof(T)>
 __device__
 void radixSortMulti(T * v, uint16_t * index, uint32_t * offsets) {
 
@@ -155,14 +238,14 @@ void radixSortMulti(T * v, uint16_t * index, uint32_t * offsets) {
   auto ind = index+offsets[blockIdx.x];;
   auto size = offsets[blockIdx.x+1]-offsets[blockIdx.x];
   assert(offsets[blockIdx.x+1]>=offsets[blockIdx.x]);
-  if (size>0) radixSort(a,ind,size);
+  if (size>0) radixSort<T,NS>(a,ind,size);
 
 }
 
-template<typename T>
+template<typename T, int NS=sizeof(T)>
 __global__
 void radixSortMultiWrapper(T * v, uint16_t * index, uint32_t * offsets) {
-  radixSortMulti(v,index,offsets);
+  radixSortMulti<T,NS>(v,index,offsets);
 }
 
 #endif // HeterogeneousCoreCUDAUtilities_radixSort_H

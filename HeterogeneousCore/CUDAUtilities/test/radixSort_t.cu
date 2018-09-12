@@ -13,13 +13,29 @@
 #include<iostream>
 #include<limits>
 
-
 template<typename T>
+struct RS { 
+  using type = std::uniform_int_distribution<T>;
+  static auto ud() { return type(std::numeric_limits<T>::min(),std::numeric_limits<T>::max());}
+  static constexpr T imax = std::numeric_limits<T>::max();
+};
+
+template<>
+struct RS<float> {
+  using T = float;
+  using type = std::uniform_real_distribution<float>;
+  static auto ud() { return type(-std::numeric_limits<T>::max()/2,std::numeric_limits<T>::max()/2);}
+//  static auto ud() { return type(0,std::numeric_limits<T>::max()/2);}
+  static constexpr int imax = std::numeric_limits<int>::max(); 
+};
+
+template<typename T, int NS=sizeof(T), 
+         typename U=T, typename LL=long long>
 void go() {
 
-std::mt19937 eng;
+  std::mt19937 eng;
 // std::mt19937 eng2;
-std::uniform_int_distribution<T> rgen(std::numeric_limits<T>::min(),std::numeric_limits<T>::max());
+  auto rgen = RS<T>::ud();
 
 
   auto start = std::chrono::high_resolution_clock::now();
@@ -40,8 +56,10 @@ std::uniform_int_distribution<T> rgen(std::numeric_limits<T>::min(),std::numeric
 
 
 
-
-  std::cout << "Will sort " << N << " 'ints' of size " << sizeof(T) << std::endl;
+  constexpr bool sgn = T(-1) < T(0);
+  std::cout << "Will sort " << N << (sgn ? " signed" : " unsigned")
+            << (std::numeric_limits<T>::is_integer ? " 'ints'"  : " 'float'") << " of size " << sizeof(T) 
+            << " using " << NS << " significant bytes" << std::endl;
 
   for (int i=0; i<50; ++i) {
 
@@ -50,8 +68,8 @@ std::uniform_int_distribution<T> rgen(std::numeric_limits<T>::min(),std::numeric
     } else if (i>30) {
     for (long long j = 0; j < N; j++) v[j]=rgen(eng);
     } else {
-      long long imax = (i<15) ? std::numeric_limits<T>::max() +1LL : 255;
-      for (long long j = 0; j < N; j++) {
+      uint64_t imax = (i<15) ? uint64_t(RS<T>::imax) +1LL : 255;
+      for (uint64_t j = 0; j < N; j++) {
         v[j]=(j%imax); if(j%2 && i%2) v[j]=-v[j];
       }
     }
@@ -68,7 +86,8 @@ std::uniform_int_distribution<T> rgen(std::numeric_limits<T>::min(),std::numeric
   }
 
   std::random_shuffle(v,v+N);
-  auto v_d = cuda::memory::device::make_unique<T[]>(current_device, N);
+
+  auto v_d = cuda::memory::device::make_unique<U[]>(current_device, N);
   auto ind_d = cuda::memory::device::make_unique<uint16_t[]>(current_device, N);
   auto off_d = cuda::memory::device::make_unique<uint32_t[]>(current_device, blocks+1);
 
@@ -79,7 +98,7 @@ std::uniform_int_distribution<T> rgen(std::numeric_limits<T>::min(),std::numeric
 
    delta -= (std::chrono::high_resolution_clock::now()-start);
    cuda::launch(
-                radixSortMultiWrapper<T>,
+                radixSortMultiWrapper<U,NS>,
                 { blocks, 256 },
                 v_d.get(),ind_d.get(),off_d.get()
         );
@@ -94,15 +113,21 @@ std::uniform_int_distribution<T> rgen(std::numeric_limits<T>::min(),std::numeric
   if (i==0) std::cout << "done for " << offsets[blocks] << std::endl;
 
   if (32==i) {
-    std::cout << v[ind[0]] << ' ' << v[ind[1]] << ' ' << v[ind[2]] << std::endl;
-    std::cout << v[ind[3]] << ' ' << v[ind[10]] << ' ' << v[ind[blockSize-1000]] << std::endl;
-    std::cout << v[ind[blockSize/2-1]] << ' ' << v[ind[blockSize/2]] << ' ' << v[ind[blockSize/2+1]] << std::endl;
+    std::cout << LL(v[ind[0]]) << ' ' << LL(v[ind[1]]) << ' ' << LL(v[ind[2]]) << std::endl;
+    std::cout << LL(v[ind[3]]) << ' ' << LL(v[ind[10]]) << ' ' << LL(v[ind[blockSize-1000]]) << std::endl;
+    std::cout << LL(v[ind[blockSize/2-1]]) << ' ' << LL(v[ind[blockSize/2]]) << ' ' << LL(v[ind[blockSize/2+1]]) << std::endl;
   }
   for (int ib=0; ib<blocks; ++ib)
   for (auto i = offsets[ib]+1; i < offsets[ib+1]; i++) {
-      auto a = v+offsets[ib];
-   // assert(!(a[ind[i]]<a[ind[i-1]]));
-     if (a[ind[i]]<a[ind[i-1]])
+     auto a = v+offsets[ib];
+     auto k1=a[ind[i]]; auto k2=a[ind[i-1]];
+     auto sh = sizeof(uint64_t)-NS; sh*=8;
+     auto shorten = [sh](T& t) {
+       auto k = (uint64_t *)(&t);
+       *k = (*k >> sh)<<sh;
+     };
+    shorten(k1);shorten(k2);
+     if (k1<k2)
       std::cout << ib << " not ordered at " << ind[i] << " : "
   		<< a[ind[i]] <<' '<< a[ind[i-1]] << std::endl;
   }
@@ -115,7 +140,17 @@ std::uniform_int_distribution<T> rgen(std::numeric_limits<T>::min(),std::numeric
 
 int main() {
 
+  go<int8_t>();
   go<int16_t>();
   go<int32_t>();
+  go<int32_t,3>();
+  go<int64_t>();
+  go<float,4,float,double>();
+  go<float,2,float,double>();
+
+  go<uint8_t>();
+  go<uint16_t>();
+  go<uint32_t>();
+  // go<uint64_t>();
   return 0;
 }

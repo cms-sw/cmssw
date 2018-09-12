@@ -5,6 +5,7 @@
 
 #include "HeterogeneousCore/CUDAUtilities/interface/cudastdAlgorithm.h"
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/SiPixelRawToClusterGPUKernel.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
 
 #include "ClusterSLOnGPU.h"
 
@@ -94,6 +95,13 @@ void dumpLink(int first, int ev, clusterSLOnGPU::HitsOnGPU const * hhp, uint32_t
 
   auto const & hh = *hhp;
   auto const & sl = *slp;
+
+  /* just an example of use of global error....
+  assert(hh.cpeParams);
+  float ge[6];
+  hh.cpeParams->detParams(hh.detInd_d[i]).frame.toGlobal(hh.xerr_d[i], 0, hh.yerr_d[i],ge);
+  printf("Error: %d: %f,%f,%f,%f,%f,%f\n",hh.detInd_d[i],ge[0],ge[1],ge[2],ge[3],ge[4],ge[5]);
+  */
 
   auto const & tk1 = sl.links_d[sl.tkId_d[i]];
   auto const & tk2 = sl.links_d[sl.tkId2_d[i]];

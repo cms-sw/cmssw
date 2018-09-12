@@ -4,12 +4,14 @@
 #include <cassert>
 #include <cstdint>
 #include <algorithm>
+#include <type_traits>
 #ifndef __CUDA_ARCH__
 #include <atomic>
 #endif // __CUDA_ARCH__
 
 #include "HeterogeneousCore/CUDAUtilities/interface/cudastdAlgorithm.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+
 
 #ifdef __CUDACC__
 namespace cudautils {
@@ -37,14 +39,14 @@ namespace cudautils {
      int32_t ih = off - offsets - 1;
      assert(ih >= 0);
      assert(ih < nh); 
-     h[ih].fill(v, i);
+     h[ih].fill(v[i], i);
   }
 
   template<typename Histo, typename T>
   __global__
   void fillFromVector(Histo * h, T const * v, uint32_t size) {
      auto i = blockIdx.x * blockDim.x + threadIdx.x;
-     if(i < size) h->fill(v, i);
+     if(i < size) h->fill(v[i], i);
   }
 
   template<typename Histo>
@@ -73,7 +75,32 @@ namespace cudautils {
 } // namespace cudautils
 #endif
 
-template<typename T, uint32_t N, uint32_t M>
+
+// iteratate over N bins left and right of the one containing "v"
+// including spillBin
+template<typename Hist, typename V, typename Func>
+__host__ __device__
+void forEachInBins(Hist const & hist, V value, int n, Func func) {
+   int bs = hist.bin(value);
+   int be = std::min(int(hist.nbins()),bs+n+1);
+   bs = std::max(0,bs-n);
+   assert(be>bs);
+   for (auto b=bs; b<be; ++b){
+   for (auto pj=hist.begin(b);pj<hist.end(b);++pj) {
+      func(*pj);
+   }}
+   for (auto pj=hist.beginSpill();pj<hist.endSpill();++pj)
+     func(*pj);
+}
+
+
+template<
+  typename T, // the type of the discretized input values
+  uint32_t N, // number of bins (in bits)
+  uint32_t M, // max number of element a bin can contain
+  uint32_t S=sizeof(T) * 8, // number of significant bits in T
+  typename I=uint32_t  // type stored in the container (usually an index in a vector of the input values)
+>
 class HistoContainer {
 public:
 #ifdef __CUDACC__
@@ -82,14 +109,16 @@ public:
   using Counter = std::atomic<uint32_t>;
 #endif
 
-  static constexpr uint32_t sizeT()     { return sizeof(T) * 8; }
+  using index_type = I;
+  using UT = typename std::make_unsigned<T>::type;
+  static constexpr uint32_t sizeT()     { return S; }
   static constexpr uint32_t nbins()     { return 1 << N; }
   static constexpr uint32_t shift()     { return sizeT() - N; }
   static constexpr uint32_t mask()      { return nbins() - 1; }
   static constexpr uint32_t binSize()   { return 1 << M; }
-  static constexpr uint32_t spillSize() { return 4 * binSize(); }
+  static constexpr uint32_t spillSize() { return 16 * binSize(); }
 
-  static constexpr uint32_t bin(T t) {
+  static constexpr UT bin(T t) {
     return (t >> shift()) & mask();
   }
 
@@ -109,8 +138,9 @@ public:
   }
 
   __host__ __device__
-  void fill(T const * t, uint32_t j) {
-    auto b = bin(t[j]);
+  void fill(T t, index_type j) {
+    UT b = bin(t);
+    assert(b<nbins());
     auto w = atomicIncrement(n[b]);
     if (w < binSize()) {
       bins[b * binSize() + w] = j;
@@ -118,7 +148,7 @@ public:
       auto w = atomicIncrement(nspills);
       if (w < spillSize())
         spillBin[w] = j;
-    }     
+    }
   }
 
   constexpr bool fullSpill() const {
@@ -141,10 +171,18 @@ public:
      return n[b];
   }
 
-  uint32_t bins[nbins()*binSize()];
+  constexpr auto const * beginSpill() const {
+     return spillBin;
+  }
+    
+  constexpr auto const * endSpill() const {
+     return beginSpill() + std::min(spillSize(), uint32_t(nspills));
+  }
+
   Counter  n[nbins()];
-  uint32_t spillBin[spillSize()];
   Counter  nspills;
+  index_type bins[nbins()*binSize()];
+  index_type spillBin[spillSize()];
 };
 
 #endif // HeterogeneousCore_CUDAUtilities_HistoContainer_h

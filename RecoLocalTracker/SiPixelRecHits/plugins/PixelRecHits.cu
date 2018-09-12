@@ -125,9 +125,10 @@ namespace pixelgpudetails {
                                            pixelCPEforGPU::ParamsOnGPU const * cpeParams,
                                            bool transferToCPU,
                                            cuda::stream_t<>& stream) {
-    cudaCheck(cudaMemcpyAsync(gpu_.bs_d, bs, 3 * sizeof(float), cudaMemcpyDefault, stream.id()));
-    gpu_.hitsModuleStart_d = input.clusModuleStart_d;
-    cudaCheck(cudaMemcpyAsync(gpu_d, &gpu_, sizeof(HitsOnGPU), cudaMemcpyDefault, stream.id()));
+   cudaCheck(cudaMemcpyAsync(gpu_.bs_d, bs, 3 * sizeof(float), cudaMemcpyDefault, stream.id()));
+   gpu_.hitsModuleStart_d = input.clusModuleStart_d;
+   gpu_.cpeParams = cpeParams; // copy it for use in clients
+   cudaCheck(cudaMemcpyAsync(gpu_d, &gpu_, sizeof(HitsOnGPU), cudaMemcpyDefault, stream.id()));
 
     int threadsPerBlock = 256;
     int blocks = input.nModules; // active modules (with digis)
