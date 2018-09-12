@@ -1,0 +1,9 @@
+<bin   file="PPSOpticsCalibration.cc" name="PPSOpticsCalibration">
+<use name="PPSTools/Utilities"/>
+<use name="hector"/>
+<use name="hepmc"/>
+<use name="boost_program_options"/>
+<use name="clhep"/>
+<use name="root"/>
+<use name="rootgraphics"/>
+</bin>
