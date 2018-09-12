@@ -1,0 +1,12 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Utilities"/>
+<use   name="DataFormats/L1Trigger"/>
+<use   name="DataFormats/L1CaloTrigger"/>
+<use   name="DataFormats/Phase2L1CaloTrig"/>
+<use   name="DataFormats/EcalDigi"/>
+<use   name="DataFormats/L1TrackTrigger"/>
+<use   name="Geometry/HcalTowerAlgo"/>
+<export>
+  <lib name="1"/>
+</export>

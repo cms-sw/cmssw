@@ -1,0 +1,27 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Utilities"/>
+<use   name="DataFormats/L1Trigger"/>
+<use   name="DataFormats/L1CaloTrigger"/>
+<use   name="DataFormats/Phase2L1CaloTrig"/>
+<use   name="DataFormats/EcalDigi"/>
+<use   name="SimDataFormats/TrackingHit"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="TrackingTools/Records"/>
+<use   name="TrackingTools/PatternTools"/>
+<use   name="TrackingTools/TrajectoryState"/>
+<use   name="TrackingTools/GeomPropagators"/>
+<use   name="TrackingTools/TransientTrack"/>
+<use   name="TrackingTools/TrajectoryParametrization"/>
+<use   name="RecoTracker/TrackProducer"/>
+<use   name="clhep"/>
+<use   name="xerces-c"/>
+<use   name="boost"/>
+<use   name="root"/>
+<use   name="rootrflx"/>
+<use   name="DataFormats/L1TrackTrigger"/>
+<use   name="Geometry/HcalTowerAlgo"/>
+<export>
+  <lib name="1"/>
+</export>
