@@ -56,6 +56,7 @@ class HGCalBackendLayer2Processor3DClustering : public HGCalBackendLayer2Process
           multiclustering_.clusterizeDBSCAN( clustersPtrs, collCluster3D, *triggerGeometry_);
           break;
         case HistoMaxC3d :
+        case HistoThresholdC3d :
           multiclusteringHisto_.clusterizeHisto( clustersPtrs, collCluster3D, *triggerGeometry_);
           break;
         default:
