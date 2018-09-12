@@ -9,6 +9,14 @@
 
 #include "RecoLocalFastTime/FTLCommonAlgos/interface/MTDRecHitAlgoBase.h"
 
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
+#include "Geometry/CommonTopologies/interface/Topology.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
+#include "DataFormats/TrackerRecHit2D/interface/MTDTrackingRecHit.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class MTDRecHitProducer : public edm::stream::EDProducer<> {
@@ -27,6 +35,8 @@ class MTDRecHitProducer : public edm::stream::EDProducer<> {
   const std::string ftleInstance_; // instance name of endcap hits
 
   std::unique_ptr<MTDRecHitAlgoBase> barrel_,endcap_;
+
+  const MTDGeometry* geom_;
 };
 
 MTDRecHitProducer::MTDRecHitProducer(const edm::ParameterSet& ps) :
@@ -57,6 +67,9 @@ MTDRecHitProducer::~MTDRecHitProducer() {
 void
 MTDRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   
+  edm::ESHandle<MTDGeometry> geom;
+  es.get<MTDDigiGeometryRecord>().get(geom);
+  geom_ = geom.product();
  
   // tranparently get things from event setup
   barrel_->getEventSetup(es);
@@ -74,7 +87,7 @@ MTDRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   barrelRechits->reserve(hBarrel->size()/2);
   for(const auto& uhit : *hBarrel) {
     uint32_t flags = FTLRecHit::kGood;
-    auto rechit = std::move( barrel_->makeRecHit(uhit, flags) );
+    auto rechit = barrel_->makeRecHit(uhit, flags);
     if( flags == FTLRecHit::kGood ) barrelRechits->push_back( std::move(rechit) );
   }
 
@@ -83,13 +96,14 @@ MTDRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   endcapRechits->reserve(hEndcap->size()/2);
   for(const auto& uhit : *hEndcap) {
     uint32_t flags = FTLRecHit::kGood;
-    auto rechit = std::move( endcap_->makeRecHit(uhit, flags) );
+    auto rechit = endcap_->makeRecHit(uhit, flags);
     if( flags == FTLRecHit::kGood ) endcapRechits->push_back( std::move(rechit) );
-  }
-      
+  }  
+
   // put the collection of recunstructed hits in the event
-  evt.put(std::move(barrelRechits), ftlbInstance_);
-  evt.put(std::move(endcapRechits), ftleInstance_);
+  // get the orphan handles so we can make refs for the tracking rechits
+  auto barrelHandle = evt.put(std::move(barrelRechits), ftlbInstance_);
+  auto endcapHandle = evt.put(std::move(endcapRechits), ftleInstance_);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
