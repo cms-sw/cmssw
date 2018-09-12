@@ -733,6 +733,12 @@ PixelVertexAssociatorByPositionAndTracks = VertexAssociatorByPositionAndTracks.c
     trackAssociation = "trackingParticlePixelTrackAsssociation"
 )
 
+pixelTracksFromPV = generalTracksFromPV.clone(
+    src = "pixelTracks",
+    vertexTag = "pixelVertices",
+    quality = "undefQuality",
+)
+
 trackValidatorPixelTrackingOnly = trackValidator.clone(
     dirName = "Tracking/PixelTrack/",
     label = ["pixelTracks"],
@@ -743,6 +749,28 @@ trackValidatorPixelTrackingOnly = trackValidator.clone(
     vertexAssociator = "PixelVertexAssociatorByPositionAndTracks",
     dodEdxPlots = False,
 )
+trackValidatorFromPVPixelTrackingOnly = trackValidatorPixelTrackingOnly.clone(
+    dirName = "Tracking/PixelTrackFromPV/",
+    label = ["pixelTracksFromPV"],
+    label_tp_effic = "trackingParticlesSignal",
+    label_tp_fake = "trackingParticlesSignal",
+    label_tp_effic_refvector = True,
+    label_tp_fake_refvector = True,
+    trackCollectionForDrCalculation = "pixelTracksFromPV",
+    doPlotsOnlyForTruePV = True,
+    doPVAssociationPlots = False,
+    doResolutionPlotsForLabels = ["disabled"],
+)
+trackValidatorFromPVAllTPPixelTrackingOnly = trackValidatorFromPVPixelTrackingOnly.clone(
+    dirName = "Tracking/PixelTrackFromPVAllTP/",
+    label_tp_effic = trackValidatorPixelTrackingOnly.label_tp_effic.value(),
+    label_tp_fake = trackValidatorPixelTrackingOnly.label_tp_fake.value(),
+    label_tp_effic_refvector = False,
+    label_tp_fake_refvector = False,
+    doSimPlots = False,
+    doSimTrackPlots = False,
+)
+
 
 tracksValidationTruthPixelTrackingOnly = tracksValidationTruth.copy()
 tracksValidationTruthPixelTrackingOnly.replace(tpClusterProducer, tpClusterProducerPixelTrackingOnly)
@@ -756,7 +784,11 @@ gpu.toReplaceWith(tracksValidationTruthPixelTrackingOnly, _tracksValidationTruth
 
 tracksValidationPixelTrackingOnly = cms.Sequence(
     tracksValidationTruthPixelTrackingOnly +
-    trackValidatorPixelTrackingOnly
+    cms.ignore(trackingParticlesSignal) +
+    pixelTracksFromPV +
+    trackValidatorPixelTrackingOnly +
+    trackValidatorFromPVPixelTrackingOnly +
+    trackValidatorFromPVAllTPPixelTrackingOnly
 )
 
 
