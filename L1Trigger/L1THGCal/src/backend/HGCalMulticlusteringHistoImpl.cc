@@ -46,6 +46,21 @@ HGCalMulticlusteringHistoImpl::Histogram HGCalMulticlusteringHistoImpl::fillHist
 
     Histogram histoClusters; //key[0] = z.side(), key[1] = bin_R, key[2] = bin_phi
 
+    for(int z_side : {-1,1}){
+
+        for(int bin_R = 0; bin_R<int(nBinsRHisto_); bin_R++){
+
+	  for(int bin_phi = 0; bin_phi<int(nBinsPhiHisto_); bin_phi++){
+
+	    histoClusters[{{z_side, bin_R, bin_phi}}] = 0;
+
+	  }
+
+	}
+
+    }
+
+
     for(auto & clu : clustersPtrs){
 
         float ROverZ = sqrt( pow(clu->centreProj().x(),2) + pow(clu->centreProj().y(),2) );
@@ -123,8 +138,8 @@ HGCalMulticlusteringHistoImpl::Histogram HGCalMulticlusteringHistoImpl::fillSmoo
             for(int bin_phi = 0; bin_phi<int(nBinsPhiHisto_); bin_phi++){
 
                 float content = histoClusters.at({{z_side,bin_R,bin_phi}});
-                float contentDown = histoClusters.at({{z_side,bin_R-1,bin_phi}}); //Non-allocated elements in maps return default 0 value
-                float contentUp = histoClusters.at({{z_side,bin_R+1,bin_phi}});
+                float contentDown = bin_R>0 ? histoClusters.at({{z_side,bin_R-1,bin_phi}}) : 0 ;
+                float contentUp = bin_R<(int(nBinsRHisto_)-1) ? histoClusters.at({{z_side,bin_R+1,bin_phi}}) : 0;
 
                 histoSumRPhiClusters[{{z_side,bin_R,bin_phi}}] = (content + 0.5*contentDown + 0.5*contentUp)/weight;
 
@@ -155,8 +170,8 @@ std::vector<GlobalPoint> HGCalMulticlusteringHistoImpl::computeMaxSeeds( const H
                 float MIPT_seed = histoClusters.at({{z_side,bin_R,bin_phi}});
                 bool isMax = MIPT_seed>0;
 
-                float MIPT_S = histoClusters.at({{z_side,bin_R+1,bin_phi}});
-                float MIPT_N = histoClusters.at({{z_side,bin_R-1,bin_phi}});
+                float MIPT_S = bin_R<(int(nBinsRHisto_)-1) ? histoClusters.at({{z_side,bin_R+1,bin_phi}}) : 0;
+                float MIPT_N = bin_R>0 ? histoClusters.at({{z_side,bin_R-1,bin_phi}}) : 0;
 
                 int binLeft = bin_phi - 1;
                 if( binLeft<0 ) binLeft += nBinsPhiHisto_;
@@ -165,10 +180,10 @@ std::vector<GlobalPoint> HGCalMulticlusteringHistoImpl::computeMaxSeeds( const H
 
                 float MIPT_W = histoClusters.at({{z_side,bin_R,binLeft}});
                 float MIPT_E = histoClusters.at({{z_side,bin_R,binRight}});
-                float MIPT_SW = histoClusters.at({{z_side,bin_R-1,binLeft}});
-                float MIPT_SE = histoClusters.at({{z_side,bin_R-1,binRight}});
-                float MIPT_NW = histoClusters.at({{z_side,bin_R+1,binLeft}});
-                float MIPT_NE = histoClusters.at({{z_side,bin_R+1,binRight}});
+                float MIPT_NW = bin_R>0 ? histoClusters.at({{z_side,bin_R-1,binLeft}}) : 0;
+                float MIPT_NE = bin_R>0 ?histoClusters.at({{z_side,bin_R-1,binRight}}) : 0;
+                float MIPT_SW = bin_R<(int(nBinsRHisto_)-1) ? histoClusters.at({{z_side,bin_R+1,binLeft}}) : 0;
+                float MIPT_SE = bin_R<(int(nBinsRHisto_)-1) ? histoClusters.at({{z_side,bin_R+1,binRight}}) : 0;
 
                 isMax &= MIPT_seed>=MIPT_S;
                 isMax &= MIPT_seed>MIPT_N;
