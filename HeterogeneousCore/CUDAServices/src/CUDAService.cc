@@ -161,7 +161,7 @@ CUDAService::CUDAService(edm::ParameterSet const& config, edm::ActivityRegistry&
     log << "  " << (properties.managedMemory ? "supports" : "does not support") << " allocating managed memory on this system\n";
     log << "  " << (properties.concurrentManagedAccess ? "can" : "cannot") << " coherently access managed memory concurrently with the host\n";
     log << "  " << "the host " << (properties.directManagedMemAccessFromHost ? "can" : "cannot") << " directly access managed memory on the device without migration\n";
-    log << "  " << (properties.cooperativeLaunch ? "support" : "does not support") << " launching cooperative kernels via cudaLaunchCooperativeKernel()\n";
+    log << "  " << (properties.cooperativeLaunch ? "supports" : "does not support") << " launching cooperative kernels via cudaLaunchCooperativeKernel()\n";
     log << "  " << (properties.cooperativeMultiDeviceLaunch ? "supports" : "does not support") << " launching cooperative kernels via cudaLaunchCooperativeKernelMultiDevice()\n";
     log << '\n';
 
