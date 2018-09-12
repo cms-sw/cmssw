@@ -101,7 +101,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cSignalRMS_Subdet.initialize(_name, "SignalRMS",
 		hcaldqm::hashfunctions::fSubdet, 
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_1000),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_3000),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cTimingMean_Subdet.initialize(_name, "TimingMean",
 		hcaldqm::hashfunctions::fSubdet, 
