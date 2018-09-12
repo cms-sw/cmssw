@@ -48,7 +48,6 @@ _allTPEfficName = _allName+" (all TPs)"
 _fromPVName = "Tracks from PV"
 _fromPVAllTPName = "Tracks from PV (all TPs)"
 _tpPtLess09Name = "All tracks (TP pT &lt; 0.9 GeV)"
-_tpEtaGreater2p7Name = "All tracks (TP |eta| &gt; 2.7)"
 _conversionName = "Tracks for conversions"
 _gsfName = "Electron GSF tracks"
 _bhadronName = "All tracks (B-hadron TPs)"
@@ -64,6 +63,8 @@ def _allToBTV(s):
     return s.replace("All", "BTV-like")
 def _ptCut(s):
     return s.replace("Tracks", "Tracks pT &gt; 0.9 GeV").replace("tracks", "tracks pT &gt; 0.9 GeV")
+def _toPixel(s):
+    return s.replace("Tracks", "Pixel tracks")
 _trackQualityNameOrder = collections.OrderedDict([
     ("seeding_seeds", "Seeds"),
     ("seeding_seedsa", "Seeds A"),
@@ -86,8 +87,6 @@ _trackQualityNameOrder = collections.OrderedDict([
     ("tpPtLess09_highPurityByOriginalAlgo", _toOriAlgo(_allToHP(_tpPtLess09Name))),
     ("tpPtLess09_ByAlgoMask", _toAlgoMask(_tpPtLess09Name)),
     ("tpPtLess09_highPurityByAlgoMask", _toAlgoMask(_allToHP(_tpPtLess09Name))),
-    ("tpEtaGreater2p7_", _tpEtaGreater2p7Name),
-    ("tpEtaGreater2p7_highPurity", _allToHP(_tpEtaGreater2p7Name)),
     ("btvLike", _allToBTV(_allName)),
     ("ak4PFJets", "AK4 PF jets"),
     ("allTPEffic_", _allTPEfficName),
@@ -171,7 +170,6 @@ _pageNameMap = {
     "timing": "Timing",
     "hlt": "HLT",
     "pixel": "Pixel tracks",
-    "pf": "PF",
 }
 
 _sectionNameMapOrder = collections.OrderedDict([
@@ -184,8 +182,6 @@ _sectionNameMapOrder = collections.OrderedDict([
     ("highPurityPt09", "High purity tracks (pT&gt;0.9 GeV)"),
     ("tpPtLess09", _tpPtLess09Name),
     ("tpPtLess09_highPurity", _allToHP(_tpPtLess09Name)),
-    ("tpEtaGreater2p7", _tpEtaGreater2p7Name),
-    ("tpEtaGreater2p7_highPurity", _allToHP(_tpEtaGreater2p7Name)),
     ("btvLike", "BTV-like"),
     ("ak4PFJets", "AK4 PF jets"),
     ("allTPEffic", _allTPEfficName),
@@ -200,6 +196,8 @@ _sectionNameMapOrder = collections.OrderedDict([
     ("bhadron_highPurity", _allToHP(_bhadronName)),
     # Pixel tracks
     ("pixel", "Pixel tracks"),
+    ("pixelFromPV", _toPixel(_fromPVName)),
+    ("pixelFromPVAllTP", _toPixel(_fromPVAllTPName)),
     # These are for vertices
     ("genvertex", "Gen vertices"),
     ("pixelVertices", "Pixel vertices"),
@@ -248,6 +246,8 @@ def _sectionNameLegend():
         "bhadron_": _bhadronLegend,
         "bhadron_highPurity": _allToHP(_bhadronLegend),
         "bhadron_btvLike": _bhadronLegend.replace("All tracks", _btvLegend),
+        "pixelFromPV": _fromPVLegend,
+        "pixelFromPVAllTP": _fromPVAllTPLegend,
     }
 
 class Table:
@@ -305,7 +305,6 @@ class PlotPurpose:
     class Timing: pass
     class HLT: pass
     class Pixel: pass
-    class PF: pass
 
 class Page(object):
     def __init__(self, title, sampleName):
@@ -424,12 +423,6 @@ class Page(object):
         self._content.extend([
             '  </table>',
         ])
-
-        if len(fileTable):
-            first_row = fileTable[0]
-            self._content.extend([
-              '  <a href="%s">Browse Folder</a>' % (first_row[1][0:first_row[1].rfind('/')])
-            ])
 
     def _appendColumnHeader(self, header):
         leg = ""
@@ -689,7 +682,6 @@ class IndexSection:
         self._vertexPage = PageSet(*params)
         self._miniaodPage = PageSet(*params)
         self._timingPage = PageSet(*params)
-        self._pfPages = PageSet(*params)
         self._hltPages = PageSet(*params, dqmSubFolderTranslatedToSectionName=lambda algoQuality: algoQuality[0])
         self._pixelPages = PageSet(*params, dqmSubFolderTranslatedToSectionName=lambda algoQuality: algoQuality[0])
         self._otherPages = PageSet(*params)
@@ -700,7 +692,6 @@ class IndexSection:
             PlotPurpose.Vertexing: self._vertexPage,
             PlotPurpose.MiniAOD: self._miniaodPage,
             PlotPurpose.Timing: self._timingPage,
-            PlotPurpose.PF: self._pfPages,
             PlotPurpose.HLT: self._hltPages,
             PlotPurpose.Pixel: self._pixelPages,
         }
@@ -724,7 +715,7 @@ class IndexSection:
             "  <ul>",
             ]
 
-        for pages in [self._summaryPage, self._iterationPages, self._pixelPages, self._vertexPage, self._miniaodPage, self._timingPage, self._hltPages, self._pfPages, self._otherPages]:
+        for pages in [self._summaryPage, self._iterationPages, self._pixelPages, self._vertexPage, self._miniaodPage, self._timingPage, self._hltPages, self._otherPages]:
             labelFiles = pages.write(baseDir)
             for label, fname in labelFiles:
                 ret.append('   <li><a href="%s">%s</a></li>' % (fname, label))

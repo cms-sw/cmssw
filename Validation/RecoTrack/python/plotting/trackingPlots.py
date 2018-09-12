@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-from builtins import range
 import os
 import copy
 import collections
@@ -9,11 +7,11 @@ import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
-from .plotting import Subtract, FakeDuplicate, CutEfficiency, Transform, AggregateBins, ROC, Plot, PlotEmpty, PlotGroup, PlotOnSideGroup, PlotFolder, Plotter
-from .html import PlotPurpose
-from . import plotting
-from . import validation
-from . import html
+from plotting import Subtract, FakeDuplicate, CutEfficiency, Transform, AggregateBins, ROC, Plot, PlotEmpty, PlotGroup, PlotOnSideGroup, PlotFolder, Plotter
+from html import PlotPurpose
+import plotting
+import validation
+import html
 
 ########################################
 #
@@ -41,7 +39,6 @@ _minPU = [0, 10, 20, 50, 100, 150]
 _maxPU = [20, 50, 65, 80, 100, 150, 200, 250]
 _minMaxTracks = [0, 200, 500, 1000, 1500, 2000]
 _minMaxMVA = [-1.025, -0.5, 0, 0.5, 1.025]
-_maxDRJ = 0.1
 
 def _minMaxResidual(ma):
     return ([-x for x in ma], ma)
@@ -217,9 +214,8 @@ _effandfakePos = PlotGroup("effandfakePos",
 )
 _effandfakeDeltaRPU = PlotGroup("effandfakeDeltaRPU",
                                 _makeEffFakeDupPlots("dr"     , "#DeltaR", effopts=dict(xtitle="TP min #DeltaR"), fakeopts=dict(xtitle="track min #DeltaR"), common=dict(xlog=True)) +
-                                _makeEffFakeDupPlots("drj" , "#DeltaR(track, jet)", effopts=dict(xtitle="#DeltaR(TP, jet)", ytitle="efficiency vs #DeltaR(TP, jet"), fakeopts=dict(xtitle="#DeltaR(track, jet)"), common=dict(xlog=True, xmax=_maxDRJ))+
                                 _makeEffFakeDupPlots("pu"     , "PU"     , common=dict(xtitle="Pileup", xmin=_minPU, xmax=_maxPU)),
-                                legendDy=_legendDy_4rows
+                                legendDy=_legendDy_2rows
 )
 
 
@@ -263,9 +259,8 @@ _dupandfakePos = PlotGroup("dupandfakePos",
 )
 _dupandfakeDeltaRPU = PlotGroup("dupandfakeDeltaRPU",
                                 _makeFakeDupPileupPlots("dr"     , "#DeltaR", xquantity="min #DeltaR", common=dict(xlog=True)) +
-                                _makeFakeDupPileupPlots("drj"     , "#DeltaR(track, jet)", xtitle="#DeltaR(track, jet)", common=dict(xlog=True, xmax=_maxDRJ)) +
                                 _makeFakeDupPileupPlots("pu"     , "PU"     , xtitle="Pileup", common=dict(xmin=_minPU, xmax=_maxPU)),
-                                ncols=3
+                                ncols=3, legendDy=_legendDy_2rows_3cols
 )
 _seedingLayerSet_common = dict(removeEmptyBins=True, xbinlabelsize=8, xbinlabeloption="d", adjustMarginRight=0.1)
 _dupandfakeSeedingPlots = _makeFakeDupPileupPlots("seedingLayerSet", "seeding layers", xtitle="", common=_seedingLayerSet_common)
@@ -372,10 +367,7 @@ _tuning = PlotGroup("tuning", [
     Plot("chi2_prob", stat=True, normalizeToUnitArea=True, drawStyle="hist", xtitle="Prob(#chi^{2})"),
     Plot("chi2mean", title="", xtitle="#eta", ytitle="< #chi^{2} / ndf >", ymin=[0, 0.5], ymax=[2, 2.5, 3, 5],
          fallback={"name": "chi2_vs_eta", "profileX": True}),
-    Plot("ptres_vs_eta_Mean", scale=100, title="", xtitle="TP #eta (PCA to beamline)", ytitle="< #delta p_{T} / p_{T} > (%)", ymin=_minResidualPt, ymax=_maxResidualPt),
-    Plot("chi2mean_vs_pt", title="", xtitle="p_{T}", ytitle="< #chi^{2} / ndf >", ymin=[0, 0.5], ymax=[2, 2.5, 3, 5], xlog=True, fallback={"name": "chi2_vs_pt", "profileX": True}),
-    Plot("chi2mean_vs_drj", title="", xtitle="#DeltaR(track, jet)", ytitle="< #chi^{2} / ndf >", ymin=[0, 0.5], ymax=[2, 2.5, 3, 5], xlog=True, xmax=_maxDRJ, fallback={"name": "chi2_vs_drj", "profileX": True}),
-    Plot("ptres_vs_pt_Mean", title="", xtitle="p_{T}", ytitle="< #delta p_{T}/p_{T} > (%)", scale=100, ymin=_minResidualPt, ymax=_maxResidualPt,xlog=True)
+    Plot("ptres_vs_eta_Mean", scale=100, title="", xtitle="TP #eta (PCA to beamline)", ytitle="< #delta p_{T} / p_{T} > (%)", ymin=_minResidualPt, ymax=_maxResidualPt)
 ])
 _common = {"stat": True, "fit": True, "normalizeToUnitArea": True, "drawStyle": "hist", "drawCommand": "", "xmin": -10, "xmax": 10, "ylog": True, "ymin": 5e-5, "ymax": [0.01, 0.05, 0.1, 0.2, 0.5, 0.8, 1.025], "ratioUncertainty": False}
 _pulls = PlotGroup("pulls", [
@@ -404,13 +396,6 @@ _resolutionsPt = PlotGroup("resolutionsPt", [
     Plot("dzres_vs_pt_Sigma", ytitle="#sigma(#delta d_{z}) (cm)", **_common),
     Plot("ptres_vs_pt_Sigma", ytitle="#sigma(#delta p_{T}/p_{T})", **_common),
 ])
-_common = {"title": "", "ylog": True, "xtitle": "TP #Phi (PCA to beamline)", "ymin": _minMaxResol, "ymax": _minMaxResol}
-_resolutionsPhi = PlotGroup("resolutionsPhi", [
-    Plot("dxyres_vs_phi_Sigma", ytitle="#sigma(#delta d_{xy}) (cm)", **_common),
-    Plot("dzres_vs_phi_Sigma", ytitle="#sigma(#delta d_{z}) (cm)", **_common),
-    Plot("phires_vs_phi_Sigma", ytitle="#sigma(#delta #phi) (rad)", **_common),
-    Plot("ptres_vs_phi_Sigma", ytitle="#sigma(#delta p_{T}/p_{T})", **_common),
-])
 
 ## Extended set of plots
 _extDistPtEtaPhi = PlotGroup("distPtEtaPhi",
@@ -435,16 +420,12 @@ _extDistHitsLayers = PlotGroup("distHitsLayers",
                                _makeDistPlots("3Dlayer"   , "3D layers"   , common=dict(xmin=_min3DLayers, xmax=_max3DLayers)),
                                ncols=4, legendDy=_legendDy_4rows,
 )
-_extDistPos = PlotGroup("distPos",
+_extDistPosDeltaR = PlotGroup("distPosDeltaR",
                               _makeDistPlots("vertpos", "ref. point r (cm)", common=dict(xlog=True)) +
                               _makeDistPlots("zpos"   , "ref. point z (cm)") +
-                              _makeDistPlots("simpvz" , "Sim. PV z (cm)", common=dict(xmin=_minZ, xmax=_maxZ)),
-                              ncols=3,
-)
-_extDistDeltaR = PlotGroup("distDeltaR",
-                              _makeDistPlots("dr"     , "min #DeltaR", common=dict(xlog=True)) +
-                              _makeDistPlots("drj"     , "#DeltaR(track, jet)", common=dict(xlog=True, xmax=_maxDRJ)),
-                              ncols=2, legendDy=_legendDy_2rows,
+                              _makeDistPlots("simpvz" , "Sim. PV z (cm)", common=dict(xmin=_minZ, xmax=_maxZ)) +
+                              _makeDistPlots("dr"     , "min #DeltaR", common=dict(xlog=True)),
+                              ncols=4, legendDy=_legendDy_4rows,
 )
 _extDistSeedingPlots = _makeDistPlots("seedingLayerSet", "seeding layers", common=dict(xtitle="", **_seedingLayerSet_common))
 _extDistChi2Seeding = PlotGroup("distChi2Seeding",
@@ -506,16 +487,12 @@ _extDistSimHitsLayers = PlotGroup("distsimHitsLayers",
                                   _makeDistSimPlots("3Dlayer"   , "3D layers"   , common=dict(xmin=_min3DLayers, xmax=_max3DLayers)),
                                   ncols=2, legendDy=_legendDy_4rows,
 )
-_extDistSimPos = PlotGroup("distsimPos",
+_extDistSimPosDeltaR = PlotGroup("distsimPosDeltaR",
                                  _makeDistSimPlots("vertpos", "vert r (cm)", common=dict(xlog=True)) +
                                  _makeDistSimPlots("zpos"   , "vert z (cm)") +
-                                 _makeDistSimPlots("simpvz" , "Sim. PV z (cm)", common=dict(xmin=_minZ, xmax=_maxZ)),
-                                 ncols=3,
-)
-_extDistSimDeltaR = PlotGroup("distsimDeltaR",
-                                 _makeDistSimPlots("dr"     , "min #DeltaR", common=dict(xlog=True)) +
-                                 _makeDistSimPlots("drj" , "#DeltaR(TP, jet)", common=dict(xlog=True, xmax=_maxDRJ)),
-                                 ncols=2, legendDy=_legendDy_2rows,
+                                 _makeDistSimPlots("simpvz" , "Sim. PV z (cm)", common=dict(xmin=_minZ, xmax=_maxZ)) +
+                                 _makeDistSimPlots("dr"     , "min #DeltaR", common=dict(xlog=True)),
+                                 ncols=2, legendDy=_legendDy_4rows,
 )
 
 ########################################
@@ -595,8 +572,6 @@ def _trackingSubFoldersFallbackFromPV(subfolder):
     return subfolder.replace("trackingParticleRecoAsssociation", "trackingParticleRecoAsssociationSignal")
 def _trackingSubFoldersFallbackConversion(subfolder):
     return subfolder.replace("quickAssociatorByHits", "quickAssociatorByHitsConversion")
-def _trackingSubFoldersFallbackPreSplitting(subfolder):
-    return subfolder.replace("quickAssociatorByHits", "quickAssociatorByHitsPreSplitting")
 
 # Additional "quality" flags than highPurity. In a separate list to
 # allow customization.
@@ -634,8 +609,8 @@ def _mapCollectionToAlgoQuality(collName):
         collNameLow = collNameLow[:i_seeds]
 
     algo = None
-    prefixes = ["cutsreco", "cutsrecofrompv", "cutsrecofrompv2", "cutsrecofrompvalltp", "cutsrecoetagreater2p7"]
-    if collNameLow in ["general", "generalfrompv", "generaletagreater2p7"]+prefixes:
+    prefixes = ["cutsreco", "cutsrecofrompv", "cutsrecofrompv2", "cutsrecofrompvalltp"]
+    if collNameLow in ["general", "generalfrompv"]+prefixes:
         algo = "ootb"
     else:
         def testColl(coll):
@@ -1088,7 +1063,7 @@ class TrackingSeedingLayerTable:
         legendLabels = legendLabels[:]
         if max(map(len, legendLabels)) > 20:
             haveShortLabels = True
-            labels_short = [str(chr(ord('A')+i)) for i in range(len(legendLabels))]
+            labels_short = [str(chr(ord('A')+i)) for i in xrange(len(legendLabels))]
             for i, ls in enumerate(labels_short):
                 legendLabels[i] = "%s: %s" % (ls, legendLabels[i])
         else:
@@ -1142,7 +1117,7 @@ class TrackingSeedingLayerTable:
         if len(histos_linear) == 0:
             return []
 
-        data = [ [h.GetBinContent(i) for i in range(1, h.GetNbinsX()+1)] for h in histos_linear]
+        data = [ [h.GetBinContent(i) for i in xrange(1, h.GetNbinsX()+1)] for h in histos_linear]
         table = html.Table(["dummy"]*len(histos_linear), xbinlabels, data, None, None, None)
         data = table.tableAsRowColumn()
 
@@ -1229,7 +1204,6 @@ _recoBasedPlots = [
     _hitsAndPt,
     _pulls,
     _resolutionsEta,
-    _resolutionsPhi,
     _resolutionsPt,
     _tuning,
 ]
@@ -1249,20 +1223,12 @@ _seedingBuildingPlots = _simBasedPlots + [
   + _makeMVAPlots(3) \
   + _makeMVAPlots(3, hp=True)
 # add more if needed
-_buildingExtendedPlots = [
-    _pulls,
-    _resolutionsEta,
-    _resolutionsPhi,
-    _resolutionsPt,
-    _tuning,
-]
 _extendedPlots = [
     _extDistPtEtaPhi,
     _extDistDxyDzBS,
     _extDistDxyDzPV,
     _extDistHitsLayers,
-    _extDistPos,
-    _extDistDeltaR,
+    _extDistPosDeltaR,
     _extDistChi2Seeding,
     _extDistSeedingTable,
     _extResidualEta,
@@ -1273,8 +1239,7 @@ _extendedPlots = [
     _extDistSimDxyDzBS,
     _extDistSimDxyDzPV,
     _extDistSimHitsLayers,
-    _extDistSimPos,
-    _extDistSimDeltaR,
+    _extDistSimPosDeltaR,
 ]
 _summaryPlots = [
     _summary,
@@ -1314,7 +1279,7 @@ _packedCandidatePlots = [
 ]
 plotter = Plotter()
 plotterExt = Plotter()
-def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False, onlyForElectron=False, onlyForConversion=False, onlyForBHadron=False, seeding=False, building=False, rawSummary=False, highPuritySummary=True):
+def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False, onlyForElectron=False, onlyForConversion=False, onlyForBHadron=False, seeding=False, rawSummary=False, highPuritySummary=True):
     folders = _trackingFolders(lastDirName)
     # to keep backward compatibility, this set of plots has empty name
     limiters = dict(onlyForPileup=onlyForPileup, onlyForElectron=onlyForElectron, onlyForConversion=onlyForConversion, onlyForBHadron=onlyForBHadron)
@@ -1323,14 +1288,9 @@ def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False, only
     ], **limiters)
     common = dict(fallbackDqmSubFolders=[
         _trackingSubFoldersFallbackSLHC_Phase1PU140,
-        _trackingSubFoldersFallbackFromPV, _trackingSubFoldersFallbackConversion,
-        _trackingSubFoldersFallbackPreSplitting])
+        _trackingSubFoldersFallbackFromPV, _trackingSubFoldersFallbackConversion])
     plotter.append(name, folders, TrackingPlotFolder(*algoPlots, **commonForTPF), **common)
-    extendedPlots = []
-    if building:
-        extendedPlots.extend(_buildingExtendedPlots)
-    extendedPlots.extend(_extendedPlots)
-    plotterExt.append(name, folders, TrackingPlotFolder(*extendedPlots, **commonForTPF), **common)
+    plotterExt.append(name, folders, TrackingPlotFolder(*_extendedPlots, **commonForTPF), **common)
 
     summaryName = ""
     if name != "":
@@ -1365,22 +1325,28 @@ def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False, only
         plotter.appendTable(summaryName, folders, TrackingSummaryTable(section="ak4PFJets", collection=TrackingSummaryTable.AK4PFJets))
 _appendTrackingPlots("Track", "", _simBasedPlots+_recoBasedPlots)
 _appendTrackingPlots("TrackTPPtLess09", "tpPtLess09", _simBasedPlots)
-_appendTrackingPlots("TrackTPEtaGreater2p7", "tpEtaGreater2p7", _simBasedPlots+_recoBasedPlots)
 _appendTrackingPlots("TrackAllTPEffic", "allTPEffic", _simBasedPlots, onlyForPileup=True)
 _appendTrackingPlots("TrackFromPV", "fromPV", _simBasedPlots+_recoBasedPlots, onlyForPileup=True)
 _appendTrackingPlots("TrackFromPVAllTP", "fromPVAllTP", _simBasedPlots+_recoBasedPlots, onlyForPileup=True)
 _appendTrackingPlots("TrackFromPVAllTP2", "fromPVAllTP2", _simBasedPlots+_recoBasedPlots, onlyForPileup=True)
 _appendTrackingPlots("TrackSeeding", "seeding", _seedingBuildingPlots, seeding=True)
-_appendTrackingPlots("TrackBuilding", "building", _seedingBuildingPlots, building=True)
+_appendTrackingPlots("TrackBuilding", "building", _seedingBuildingPlots)
 _appendTrackingPlots("TrackConversion", "conversion", _simBasedPlots+_recoBasedPlots, onlyForConversion=True, rawSummary=True, highPuritySummary=False)
 _appendTrackingPlots("TrackGsf", "gsf", _simBasedPlots+_recoBasedPlots, onlyForElectron=True, rawSummary=True, highPuritySummary=False)
 _appendTrackingPlots("TrackBHadron", "bhadron", _simBasedPlots+_recoBasedPlots, onlyForBHadron=True)
 # Pixel tracks
-_common = dict(purpose=PlotPurpose.Pixel, page="pixel")
-plotter.append("pixelTrack", _trackingFolders("PixelTrack"), TrackingPlotFolder(*(_simBasedPlots+_recoBasedPlots), **_common))
-plotterExt.append("pixelTrack", _trackingFolders("PixelTrack"), TrackingPlotFolder(*_extendedPlots, **_common))
-plotter.append("pixelTrack_summary",  _trackingFolders("PixelTrack"), PlotFolder(_summaryRaw, _summaryRawN, loopSubFolders=False, purpose=PlotPurpose.TrackingSummary, page="summary", section="pixel"))
-plotter.appendTable("pixelTrack_summary", _trackingFolders("PixelTrack"), TrackingSummaryTable(section="pixel", collection=TrackingSummaryTable.Pixel))
+def _appendPixelTrackingPlots(lastDirName, name):
+    _common = dict(section=name, purpose=PlotPurpose.Pixel, page="pixel")
+    _folders = _trackingFolders(lastDirName)
+
+    plotter.append(name, _folders, TrackingPlotFolder(*(_simBasedPlots+_recoBasedPlots), **_common))
+    plotterExt.append(name, _folders, TrackingPlotFolder(*_extendedPlots, **_common))
+
+    plotter.append(name+"_summary",  _folders, PlotFolder(_summaryRaw, _summaryRawN, loopSubFolders=False, purpose=PlotPurpose.TrackingSummary, page="summary", section=name))
+    plotter.appendTable(name+"_summary", _folders, TrackingSummaryTable(section=name, collection=TrackingSummaryTable.Pixel))
+_appendPixelTrackingPlots("PixelTrack", "pixel")
+_appendPixelTrackingPlots("PixelTrackFromPV", "pixelFromPV")
+_appendPixelTrackingPlots("PixelTrackFromPVAllTP", "pixelFromPVAllTP")
 
 
 # MiniAOD
@@ -1479,9 +1445,6 @@ _iterations = [
                          "initialStepClassifier3",
                          "initialStep",
                          "initialStepSelector"],
-              building=["initialStepTrackCandidatesMkFitInput",
-                        "initialStepTrackCandidatesMkFit",
-                        "initialStepTrackCandidates"],
               other=["firstStepPrimaryVerticesUnsorted",
                      "initialStepTrackRefsForJets",
                      "caloTowerForTrk",
@@ -1655,7 +1618,7 @@ class TimePerEventPlot:
 
         ret = timeTh1.Clone(self._name)
         xaxis = ret.GetXaxis()
-        for i in range(1, ret.GetNbinsX()+1):
+        for i in xrange(1, ret.GetNbinsX()+1):
             ret.SetBinContent(i, ret.GetBinContent(i)/nevents)
             ret.SetBinError(i, ret.GetBinError(i)/nevents)
             xaxis.SetBinLabel(i, xaxis.GetBinLabel(i).replace(" (unscheduled)", ""))
@@ -1696,7 +1659,7 @@ class TimePerTrackPlot:
             return None
 
         iterMap = copy.copy(_collLabelMapHp)
-        del iterMap["generalTracks"]
+        del iterMap["generalTracks"] 
         del iterMap["jetCoreRegionalStep"] # this is expensive per track on purpose
         if self._selectedTracks:
             renameBin = lambda bl: _summaryBinRename(bl, highPurity=True, byOriginalAlgo=False, byAlgoMask=True, ptCut=False, seeds=False)
@@ -1707,12 +1670,12 @@ class TimePerTrackPlot:
         if h_reco_per_iter is None:
             return None
         values = {}
-        for i in range(1, h_reco_per_iter.GetNbinsX()+1):
+        for i in xrange(1, h_reco_per_iter.GetNbinsX()+1):
             values[h_reco_per_iter.GetXaxis().GetBinLabel(i)] = h_reco_per_iter.GetBinContent(i)
 
 
         result = []
-        for i in range(1, timeTh1.GetNbinsX()+1):
+        for i in xrange(1, timeTh1.GetNbinsX()+1):
             iterName = timeTh1.GetXaxis().GetBinLabel(i)
             if iterName in values:
                 ntrk = values[iterName]
@@ -1744,10 +1707,10 @@ class TrackingIterationOrder:
             # remove "Tracks" from the track producer name to get the iteration name
             # muonSeeded iterations do not have "Step" in the producer name, so add it here
             return s.replace("Tracks", "").replace("muonSeeded", "muonSeededStep")
-        return [_edit(xaxis.GetBinLabel(i)) for i in range(1, h.GetNbinsX()+1)]
+        return [_edit(xaxis.GetBinLabel(i)) for i in xrange(1, h.GetNbinsX()+1)]
 
     def __call__(self, tdirectory, labels):
-        ret = list(range(0, len(labels)))
+        ret = range(0, len(labels))
         f = tdirectory.GetFile()
         if not f:
             return ret
@@ -1933,3 +1896,5 @@ tpPlotter.append("tp", [
 ], PlotFolder(
     _tplifetime,
 ))
+
+
