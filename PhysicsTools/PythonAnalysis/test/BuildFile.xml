@@ -25,3 +25,6 @@
 <bin name="test_PyMVA" file="test_PyMVA.cpp">
   <use name="rootpymva"/>
 </bin>
+<test name="test_root_PyMVA" command="rm -f tmp/test_PyMVA; mkdir tmp/test_PyMVA; cd tmp/test_PyMVA; cp $(LOCALTOP)/src/PhysicsTools/PythonAnalysis/test/test_PyMVA.cpp .;  root -n -b -l -q test_PyMVA.cpp+">
+  <use name="rootpymva"/>
+</test>
