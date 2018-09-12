@@ -334,6 +334,11 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		std::vector<int> vFEDs = hcaldqm::utilities::getFEDList(_emap);
 		std::vector<int> vFEDsVME = hcaldqm::utilities::getFEDVMEList(_emap);
 		std::vector<int> vFEDsuTCA = hcaldqm::utilities::getFEDuTCAList(_emap);
+
+		_cCapid_BadvsFEDvsLS.initialize(_name, "CapID", 
+			new hcaldqm::quantity::LumiSectionCoarse(_maxLS, 10),
+			new hcaldqm::quantity::FEDQuantity(vFEDs),		
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	
 		std::vector<uint32_t> vFEDHF;
 		vFEDHF.push_back(HcalElectronicsId(22, SLOT_uTCA_MIN,
@@ -535,6 +540,9 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_cBadTDCCount_depth.book(ib, _emap, _subsystem);
 
 	_cCapidMinusBXmod4_SubdetPM.book(ib, _emap, _subsystem);
+	if (_ptype != fOffline) {
+		_cCapid_BadvsFEDvsLS.book(ib, _subsystem, "BadvsLS");
+	}
 	for (int i = 0; i < 4; ++i) {
 		char aux[10];
 		sprintf(aux, "%d_uTCA", i);
@@ -728,6 +736,9 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			bool good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
 			if (!good_capidmbx) {
 				_xBadCapid.get(eid)++;
+				if (_ptype != fOffline) {
+					_cCapid_BadvsFEDvsLS.fill(eid, _currentLS);
+				}
 			}
 			if (eid.isVMEid()) {
 				_cCapidMinusBXmod4_CrateSlotVME[this_capidmbx].fill(eid);
@@ -906,6 +917,9 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			bool good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
 			if (!good_capidmbx) {
 				_xBadCapid.get(eid)++;
+				if (_ptype != fOffline) {
+					_cCapid_BadvsFEDvsLS.fill(eid, _currentLS);
+				}
 			}
 			if (eid.isVMEid()) {
 				_cCapidMinusBXmod4_CrateSlotVME[this_capidmbx].fill(eid);
@@ -1087,6 +1101,9 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			bool good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
 			if (!good_capidmbx) {
 				_xBadCapid.get(eid)++;
+				if (_ptype != fOffline) {
+					_cCapid_BadvsFEDvsLS.fill(eid, _currentLS);
+				}
 			}
 			if (eid.isVMEid()) {
 				_cCapidMinusBXmod4_CrateSlotVME[this_capidmbx].fill(eid);
@@ -1274,6 +1291,9 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				bool good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
 				if (!good_capidmbx) {
 					_xBadCapid.get(eid)++;
+					if (_ptype != fOffline) {
+						_cCapid_BadvsFEDvsLS.fill(eid, _currentLS);
+					}
 				}
 				if (eid.isVMEid()) {
 					_cCapidMinusBXmod4_CrateSlotVME[this_capidmbx].fill(eid);

@@ -184,7 +184,7 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::Container1D _cCapidMinusBXmod4_SubdetPM;
 		hcaldqm::ContainerSingle2D _cCapidMinusBXmod4_CrateSlotuTCA[4]; // CrateSlot 2D histograms for each (capid-BX)%4
 		hcaldqm::ContainerSingle2D _cCapidMinusBXmod4_CrateSlotVME[4]; // CrateSlot 2D histograms for each (capid-BX)%4
-
+		hcaldqm::ContainerSingle2D _cCapid_BadvsFEDvsLS;
 
 		//	#events counters
 		MonitorElement *meNumEvents1LS; // to transfer the #events to harvesting
