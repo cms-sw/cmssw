@@ -360,7 +360,7 @@ fullyhadronic_DoubleBTag_all.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4
 fullyhadronic_DoubleBTag_all.HTcut            = cms.double(500)
 fullyhadronic_DoubleBTag_all.nbjets           = cms.uint32(2)
 fullyhadronic_DoubleBTag_all.bjetSelection    = cms.string('pt>40 & abs(eta)<2.4')
-fullyhadronic_DoubleBTag_all.btagalgo         = cms.InputTag("pfDeepCSVDiscriminatorsJetTags:BvsAll")
+fullyhadronic_DoubleBTag_all.btagalgo         = cms.InputTag("pfDeepCSVJetTags:probb")
 fullyhadronic_DoubleBTag_all.workingpoint     = cms.double(0.4941) #  Medium (According to: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X)
 
 # Binning
@@ -381,7 +381,7 @@ fullyhadronic_DoubleBTag_jet.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4
 fullyhadronic_DoubleBTag_jet.HTcut            = cms.double(500)
 fullyhadronic_DoubleBTag_jet.nbjets           = cms.uint32(2)
 fullyhadronic_DoubleBTag_jet.bjetSelection    = cms.string('pt>30 & abs(eta)<2.4')
-fullyhadronic_DoubleBTag_jet.btagalgo         = cms.InputTag("pfDeepCSVDiscriminatorsJetTags:BvsAll")
+fullyhadronic_DoubleBTag_jet.btagalgo         = cms.InputTag("pfDeepCSVJetTags:probb")
 fullyhadronic_DoubleBTag_jet.workingpoint     = cms.double(0.4941) #  Medium (According to: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X)
 
 # Binning 
@@ -402,7 +402,7 @@ fullyhadronic_DoubleBTag_bjet.HTdefinition     = cms.string('pt>30 & abs(eta)<2.
 fullyhadronic_DoubleBTag_bjet.HTcut            = cms.double(500)
 fullyhadronic_DoubleBTag_bjet.nbjets           = cms.uint32(2)
 fullyhadronic_DoubleBTag_bjet.bjetSelection    = cms.string('pt>40 & abs(eta)<2.4')
-fullyhadronic_DoubleBTag_bjet.btagalgo         = cms.InputTag("pfDeepCSVDiscriminatorsJetTags:BvsAll")
+fullyhadronic_DoubleBTag_bjet.btagalgo         = cms.InputTag("pfDeepCSVJetTags:probb")
 fullyhadronic_DoubleBTag_bjet.workingpoint     = cms.double(0.1522) # Loose (According to: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X)
 # Binning
 fullyhadronic_DoubleBTag_bjet.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
@@ -422,7 +422,7 @@ fullyhadronic_DoubleBTag_ref.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4
 fullyhadronic_DoubleBTag_ref.HTcut            = cms.double(500)
 fullyhadronic_DoubleBTag_ref.nbjets           = cms.uint32(0)
 fullyhadronic_DoubleBTag_ref.bjetSelection    = cms.string('pt>40 & abs(eta)<2.4')
-fullyhadronic_DoubleBTag_ref.btagalgo         = cms.InputTag("pfDeepCSVDiscriminatorsJetTags:BvsAll")
+fullyhadronic_DoubleBTag_ref.btagalgo         = cms.InputTag("pfDeepCSVJetTags:probb")
 fullyhadronic_DoubleBTag_ref.workingpoint     = cms.double(0.4941) # Medium (According to: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X)
 # Binning
 fullyhadronic_DoubleBTag_ref.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
@@ -442,7 +442,7 @@ fullyhadronic_SingleBTag_all.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4
 fullyhadronic_SingleBTag_all.HTcut            = cms.double(500)
 fullyhadronic_SingleBTag_all.nbjets           = cms.uint32(2)
 fullyhadronic_SingleBTag_all.bjetSelection    = cms.string('pt>40 & abs(eta)<2.4')
-fullyhadronic_SingleBTag_all.btagalgo         = cms.InputTag("pfDeepCSVDiscriminatorsJetTags:BvsAll")
+fullyhadronic_SingleBTag_all.btagalgo         = cms.InputTag("pfDeepCSVJetTags:probb")
 fullyhadronic_SingleBTag_all.workingpoint     = cms.double(0.4941) # Medium (According to: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X)
 # Binning
 fullyhadronic_SingleBTag_all.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
@@ -462,7 +462,7 @@ fullyhadronic_SingleBTag_jet.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4
 fullyhadronic_SingleBTag_jet.HTcut            = cms.double(500)
 fullyhadronic_SingleBTag_jet.nbjets           = cms.uint32(2)
 fullyhadronic_SingleBTag_jet.bjetSelection    = cms.string('pt>30 & abs(eta)<2.4')
-fullyhadronic_SingleBTag_jet.btagalgo         = cms.InputTag("pfDeepCSVDiscriminatorsJetTags:BvsAll")
+fullyhadronic_SingleBTag_jet.btagalgo         = cms.InputTag("pfDeepCSVJetTags:probb")
 fullyhadronic_SingleBTag_jet.workingpoint     = cms.double(0.4941) # Medium (According to: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X)
 # Binning
 fullyhadronic_SingleBTag_jet.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
@@ -482,7 +482,7 @@ fullyhadronic_SingleBTag_bjet.HTdefinition     = cms.string('pt>30 & abs(eta)<2.
 fullyhadronic_SingleBTag_bjet.HTcut            = cms.double(500)
 fullyhadronic_SingleBTag_bjet.nbjets           = cms.uint32(2)
 fullyhadronic_SingleBTag_bjet.bjetSelection    = cms.string('pt>40 & abs(eta)<2.4')
-fullyhadronic_SingleBTag_bjet.btagalgo         = cms.InputTag("pfDeepCSVDiscriminatorsJetTags:BvsAll")
+fullyhadronic_SingleBTag_bjet.btagalgo         = cms.InputTag("pfDeepCSVJetTags:probb")
 fullyhadronic_SingleBTag_bjet.workingpoint     = cms.double(0.1522) # Loose (According to: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X)
 # Binning
 fullyhadronic_SingleBTag_bjet.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
@@ -502,7 +502,7 @@ fullyhadronic_SingleBTag_ref.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4
 fullyhadronic_SingleBTag_ref.HTcut            = cms.double(500)
 fullyhadronic_SingleBTag_ref.nbjets           = cms.uint32(0)
 fullyhadronic_SingleBTag_ref.bjetSelection    = cms.string('pt>40 & abs(eta)<2.4')
-fullyhadronic_SingleBTag_ref.btagalgo         = cms.InputTag("pfDeepCSVDiscriminatorsJetTags:BvsAll")
+fullyhadronic_SingleBTag_ref.btagalgo         = cms.InputTag("pfDeepCSVJetTags:probb")
 fullyhadronic_SingleBTag_ref.workingpoint     = cms.double(0.4941) # Medium (According to: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X)
 # Binning
 fullyhadronic_SingleBTag_ref.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
@@ -523,7 +523,7 @@ fullyhadronic_TripleBTag_all.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4
 fullyhadronic_TripleBTag_all.HTcut            = cms.double(500)
 fullyhadronic_TripleBTag_all.nbjets           = cms.uint32(4)
 fullyhadronic_TripleBTag_all.bjetSelection    = cms.string('pt>45 & abs(eta)<2.4')
-fullyhadronic_TripleBTag_all.btagalgo         = cms.InputTag("pfDeepCSVDiscriminatorsJetTags:BvsAll")
+fullyhadronic_TripleBTag_all.btagalgo         = cms.InputTag("pfDeepCSVJetTags:probb")
 fullyhadronic_TripleBTag_all.workingpoint     = cms.double(0.4941) # Medium (According to: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X)
 # Binning
 fullyhadronic_TripleBTag_all.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
@@ -543,7 +543,7 @@ fullyhadronic_TripleBTag_jet.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4
 fullyhadronic_TripleBTag_jet.HTcut            = cms.double(500)
 fullyhadronic_TripleBTag_jet.nbjets           = cms.uint32(4)
 fullyhadronic_TripleBTag_jet.bjetSelection    = cms.string('pt>45 & abs(eta)<2.4')
-fullyhadronic_TripleBTag_jet.btagalgo         = cms.InputTag("pfDeepCSVDiscriminatorsJetTags:BvsAll")
+fullyhadronic_TripleBTag_jet.btagalgo         = cms.InputTag("pfDeepCSVJetTags:probb")
 fullyhadronic_TripleBTag_jet.workingpoint     = cms.double(0.4941) # Medium (According to: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X)
 # Binning
 fullyhadronic_TripleBTag_jet.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
@@ -563,7 +563,7 @@ fullyhadronic_TripleBTag_bjet.HTdefinition     = cms.string('pt>30 & abs(eta)<2.
 fullyhadronic_TripleBTag_bjet.HTcut            = cms.double(500)
 fullyhadronic_TripleBTag_bjet.nbjets           = cms.uint32(4)
 fullyhadronic_TripleBTag_bjet.bjetSelection    = cms.string('pt>45 & abs(eta)<2.4')
-fullyhadronic_TripleBTag_bjet.btagalgo         = cms.InputTag("pfDeepCSVDiscriminatorsJetTags:BvsAll")
+fullyhadronic_TripleBTag_bjet.btagalgo         = cms.InputTag("pfDeepCSVJetTags:probb")
 fullyhadronic_TripleBTag_bjet.workingpoint     = cms.double(0.1522) # Loose (According to: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X)
 # Binning
 fullyhadronic_TripleBTag_bjet.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
