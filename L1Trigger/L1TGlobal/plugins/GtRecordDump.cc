@@ -100,7 +100,7 @@ namespace l1t {
     unsigned int formatTowerCounts(std::vector<l1t::EtSum>::const_iterator etSum);
     unsigned int formatAsym(std::vector<l1t::EtSum>::const_iterator etSum);
     unsigned int formatHMB(std::vector<l1t::EtSum>::const_iterator etSum);
-    unsigned int formatCentrality(std::vector<l1t::EtSum>::const_iterator etSum);
+    std::pair<unsigned int, unsigned int> formatCentrality(std::vector<l1t::EtSum>::const_iterator etSum);
     std::map<std::string, std::vector<int> > m_algoSummary;
 
 
@@ -684,9 +684,7 @@ void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
    unsigned int AsymHtHFpackWd  = 0;
    unsigned int CENT30packWd  = 0;  // centrality bits 3:0 in ETMHF word
    unsigned int CENT74packWd  = 0;  // centrality bits 7:4 in HTMHF word
-
-
-   bool gotCENT30(false);
+   std::pair<unsigned int, unsigned int> centrality(0,0);
 
    if(etsums.isValid()){
      for(std::vector<l1t::EtSum>::const_iterator etsum = etsums->begin(bx); etsum != etsums->end(bx); ++etsum) {
@@ -729,12 +727,9 @@ void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
 	     HFM1packWd = formatHMB(etsum);
 	     break;
 	   case l1t::EtSum::EtSumType::kCentrality:
-	     if (not gotCENT30){ // assumes etsum vector is filled with cent30 first, then cent74
-	       gotCENT30=true;
-	       CENT30packWd = formatCentrality(etsum);
-	     }else{
-	       CENT74packWd = formatCentrality(etsum);
-	     }
+	     centrality = formatCentrality(etsum);
+	     CENT30packWd = centrality.first;
+	     CENT74packWd = centrality.second;
 	     break;
 	   case l1t::EtSum::EtSumType::kAsymEt:
 	     AsymEtpackWd = formatAsym(etsum);
@@ -957,16 +952,26 @@ unsigned int GtRecordDump::formatHMB(std::vector<l1t::EtSum>::const_iterator etS
   return packedVal;
 }
 
-unsigned int GtRecordDump::formatCentrality(std::vector<l1t::EtSum>::const_iterator etSum){
+std::pair<unsigned int, unsigned int> GtRecordDump::formatCentrality(std::vector<l1t::EtSum>::const_iterator etSum){
+
+
+  unsigned int centword = etSum->hwPt();
+
+  // unpack word into 2 4 bit words
+  int firstfour = (centword & 0xF);
+  int lastfour = (centword >> 4) & 0xF;
 
   // 4 bits, occupying bits 28-31.
-  unsigned int packedVal = 0;
+  unsigned int packedValLN = 0;
+  unsigned int packedValUN = 0;
   unsigned int shift = 28;
 
 // Pack Bits
-  packedVal |= ((etSum->hwPt()     & 0xf)   << shift);
+  packedValLN |= ((firstfour    & 0xf)   << shift);
+  packedValUN |= ((lastfour     & 0xf)   << shift);
 
-  return packedVal;
+  std::pair<unsigned int, unsigned int> centrality(packedValLN, packedValUN);
+  return centrality;
 }
 
 

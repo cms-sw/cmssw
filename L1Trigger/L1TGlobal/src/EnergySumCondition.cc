@@ -228,22 +228,22 @@ const bool l1t::EnergySumCondition::evaluateCondition(const int bxEval) const {
       MissingEnergy = false;
       break;                             
     case gtCentrality4:
-      centbit=0;
+      centbit=4;
       type = l1t::EtSum::EtSumType::kCentrality;
       MissingEnergy = false;
       break;                             
     case gtCentrality5:
-      centbit=1;
+      centbit=5;
       type = l1t::EtSum::EtSumType::kCentrality;
       MissingEnergy = false;
       break;                             
     case gtCentrality6:
-      centbit=2;
+      centbit=6;
       type = l1t::EtSum::EtSumType::kCentrality;
       MissingEnergy = false;
       break;                             
     case gtCentrality7:
-      centbit=3;
+      centbit=7;
       type = l1t::EtSum::EtSumType::kCentrality;
       MissingEnergy = false;
       break;                             
@@ -265,13 +265,6 @@ const bool l1t::EnergySumCondition::evaluateCondition(const int bxEval) const {
     for( int iEtSum = 0; iEtSum < numberObjects; ++iEtSum ){
       l1t::EtSum cand = *(candVec->at(useBx,iEtSum));
       if( cand.getType() != type ) continue;
-      if ( (m_gtEnergySumTemplate->objectType())[0] == gtCentrality0 || (m_gtEnergySumTemplate->objectType())[0] == gtCentrality1 || (m_gtEnergySumTemplate->objectType())[0] == gtCentrality2 || (m_gtEnergySumTemplate->objectType())[0] == gtCentrality3){
-	// std::cout << "CCLA CENT30  Type: \thwPt: "<< cand.hwPt() <<"\thwQual: "<< cand.hwQual() << std::endl;
-	if (cand.hwQual() != 0) continue;
-      }else if ( (m_gtEnergySumTemplate->objectType())[0] == gtCentrality4 || (m_gtEnergySumTemplate->objectType())[0] == gtCentrality5 || (m_gtEnergySumTemplate->objectType())[0] == gtCentrality6 || (m_gtEnergySumTemplate->objectType())[0] == gtCentrality7){
-	// std::cout << "CCLA CENT74  Type: \thwPt: "<< cand.hwPt() <<"\thwQual: "<< cand.hwQual() << std::endl;
-	if (cand.hwQual() != 1) continue;
-      }
       candEt  = cand.hwPt();
       candPhi = cand.hwPhi();
     }

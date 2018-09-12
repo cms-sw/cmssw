@@ -506,10 +506,14 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
    }
 
    if(cent30val>15) cent30val = 15;
-   l1t::EtSum cent30(*p4, l1t::EtSum::EtSumType::kCentrality,cent30val, 0, 0, 0); 
-
    if(cent74val>15) cent74val = 15;
-   l1t::EtSum cent74(*p4, l1t::EtSum::EtSumType::kCentrality,cent74val, 0, 0, 1); 
+
+   int shift = 4;
+   int centralval=0;
+   centralval |= cent30val & 0xF;
+   centralval |= (cent74val & 0xF ) << shift;
+
+   l1t::EtSum centrality(*p4, l1t::EtSum::EtSumType::kCentrality,centralval, 0, 0, 0); 
 
    int mpt = 0;
    int mphi= 0;
@@ -566,13 +570,11 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
    etsumVec.push_back(hfM1); //Frame3
 
    etsumVec.push_back(etmissHF);
-   etsumVec.push_back(AsymEtHF);
-   etsumVec.push_back(cent30); //Frame4
+   etsumVec.push_back(AsymEtHF); // Frame4
 
    etsumVec.push_back(htmissHF); 
    etsumVec.push_back(AsymHtHF);
-   etsumVec.push_back(cent74); // Frame5
-   // etsumVec.push_back(0); // Frame5
+   etsumVec.push_back(centrality); // Frame5
  
 // Fill in some external conditions for testing
    if((iEvent.id().event())%2 == 0 ) {
