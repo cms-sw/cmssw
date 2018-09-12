@@ -339,16 +339,17 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row)
 
     const float gain = theElectronPerADCGain;
     int p2rm = (thePhase2ReadoutMode < -1 ? -1 : thePhase2ReadoutMode);
-    if (p2rm > 10) p2rm = 10;
-    const int dualslopeparam = abs(p2rm);
-    const int dualslope = int(dualslopeparam <= 1 ? 1. : pow(2, dualslopeparam-1));
 
     if (p2rm == -1) {
         electrons = int(adc * gain);
     }
     else {
-        if (adc < thePhase2KinkADC) electrons = int((adc - 0.5) * gain);
+        if (adc < thePhase2KinkADC) {
+            electrons = int((adc - 0.5) * gain);
+        }
         else {
+            const int dualslopeparam = (thePhase2ReadoutMode < 10 ? thePhase2ReadoutMode : 10);
+            const int dualslope = int(dualslopeparam <= 1 ? 1. : pow(2, dualslopeparam-1));
             adc -= (thePhase2KinkADC-1);
             adc *= dualslope;
             adc += (thePhase2KinkADC-1);
