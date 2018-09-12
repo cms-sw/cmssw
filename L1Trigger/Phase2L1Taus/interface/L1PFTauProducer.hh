@@ -83,11 +83,11 @@ typedef L1PFTau pftau_t;
 using std::vector;
 using namespace l1t;
 
-class L1PFTauProducer_grow_l1t : public edm::EDProducer {
+class L1PFTauProducer : public edm::EDProducer {
    public:
-  explicit L1PFTauProducer_grow_l1t(const edm::ParameterSet&);
+  explicit L1PFTauProducer(const edm::ParameterSet&);
 
-  ~L1PFTauProducer_grow_l1t();
+  ~L1PFTauProducer();
 
    private:
   //virtual void produce(edm::Event&, const edm::EventSetup&) override;

@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    L1PFTauProducer_grow_l1t
-// Class:      L1PFTauProducer_grow_l1t
+// Package:    L1PFTauProducer
+// Class:      L1PFTauProducer
 // 
-/**\class L1PFTauProducer_grow_l1t L1PFTauProducer_grow_l1t.cc L1Trigger/Phase2L1Taus/plugins/L1PFTauProducer_grow_l1t.cc
+/**\class L1PFTauProducer L1PFTauProducer.cc L1Trigger/Phase2L1Taus/plugins/L1PFTauProducer.cc
 
  Description: Level 1 L1PFTaus for the Demonstrator
 
@@ -25,9 +25,9 @@
  * Finish the isolation variable calculation for type of object
  */
 
-#include "L1Trigger/Phase2L1Taus/interface/L1PFTauProducer_grow_l1t.hh"
+#include "L1Trigger/Phase2L1Taus/interface/L1PFTauProducer.hh"
 
-L1PFTauProducer_grow_l1t::L1PFTauProducer_grow_l1t(const edm::ParameterSet& cfg) :
+L1PFTauProducer::L1PFTauProducer(const edm::ParameterSet& cfg) :
   debug(                cfg.getUntrackedParameter<bool>("debug", false)),
   //three_prong_max_delta_Z_( cfg.getUntrackedParameter<double>("three_prong_max_dZ", 0.3)), // LSB is 0.1 so 8 corresonds to 0.8
   //isolation_delta_r_(   cfg.getUntrackedParameter<double>("iso_dr", 0.5)), // LSB is 0.1 so 8 corresonds to 0.8
@@ -39,7 +39,7 @@ L1PFTauProducer_grow_l1t::L1PFTauProducer_grow_l1t(const edm::ParameterSet& cfg)
   
 }
 
-void L1PFTauProducer_grow_l1t::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void L1PFTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   std::unique_ptr<L1PFTauCollection> newL1PFTauCollection(new L1PFTauCollection);
 
@@ -70,12 +70,6 @@ void L1PFTauProducer_grow_l1t::produce(edm::Event& iEvent, const edm::EventSetup
       if(l1PFCand.pt()>0)
 	std::cout<<"PF EG Cand "<<l1PFCand.pt()<<" eta: "<< l1PFCand.eta()<<" phi: "<<l1PFCand.phi()<<std::endl;
     }
-    //ChargedHadron=0, Electron=1, NeutralHadron=2, Photon=3, Muon=4
-    if(l1PFCand.id() == l1t::PFCandidate::Muon)
-      std::cout<<"Muon PF Cand "<<l1PFCand.pt()<<" eta: "<< l1PFCand.eta()<<" phi: "<<l1PFCand.phi()<<std::endl;
-
-    if(l1PFCand.id() == l1t::PFCandidate::NeutralHadron)
-      std::cout<<"NeutralHadron PF Cand "<<l1PFCand.pt()<<" eta: "<< l1PFCand.eta()<<" phi: "<<l1PFCand.phi()<<std::endl;
   }
   
   // create all Tau Candidates based on detector region
@@ -119,7 +113,7 @@ void L1PFTauProducer_grow_l1t::produce(edm::Event& iEvent, const edm::EventSetup
 }
   
 // create taus based on grid structure
-void L1PFTauProducer_grow_l1t::createTaus(tauMapperCollection &inputCollection){
+void L1PFTauProducer::createTaus(tauMapperCollection &inputCollection){
   inputCollection.clear();
   float left_edge_center_eta = (-1)*tracker_eta + tau_size_eta/2 ;
  
@@ -137,7 +131,7 @@ void L1PFTauProducer_grow_l1t::createTaus(tauMapperCollection &inputCollection){
 }
 
 
-void L1PFTauProducer_grow_l1t::tau_cand_sort(tauMapperCollection tauCandidates, std::unique_ptr<L1PFTauCollection> &newL1PFTauCollection, unsigned int nCands){
+void L1PFTauProducer::tau_cand_sort(tauMapperCollection tauCandidates, std::unique_ptr<L1PFTauCollection> &newL1PFTauCollection, unsigned int nCands){
   std::sort(tauCandidates.begin(), tauCandidates.end(), [](TauMapper i,TauMapper j){return(i.l1PFTau.pt() > j.l1PFTau.pt());});   
   
   for(unsigned int i = 0; i < nCands && i < tauCandidates.size(); i++){
@@ -149,25 +143,25 @@ void L1PFTauProducer_grow_l1t::tau_cand_sort(tauMapperCollection tauCandidates, 
 
 /////////////
 // DESTRUCTOR
-L1PFTauProducer_grow_l1t::~L1PFTauProducer_grow_l1t()
+L1PFTauProducer::~L1PFTauProducer()
 {
 }  
 
 
 //////////
 // END JOB
-void L1PFTauProducer_grow_l1t::endRun(const edm::Run& run, const edm::EventSetup& iSetup)
+void L1PFTauProducer::endRun(const edm::Run& run, const edm::EventSetup& iSetup)
 {
 }
 
 ////////////
 // BEGIN JOB
-void L1PFTauProducer_grow_l1t::beginRun(const edm::Run& run, const edm::EventSetup& iSetup )
+void L1PFTauProducer::beginRun(const edm::Run& run, const edm::EventSetup& iSetup )
 {
 }
 
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(L1PFTauProducer_grow_l1t);
+DEFINE_FWK_MODULE(L1PFTauProducer);
 
 //  LocalWords:  PFChargedCandidates

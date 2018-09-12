@@ -159,10 +159,10 @@ void TauMapper::process(){
 
   process_strip();
 
-  std::cout<<"seedCH pt: "<< seedCH.pt()<<" eta: "<< seedCH.eta() <<" phi: "<<seedCH.phi()<<std::endl;
-  std::cout<<"   prong2 pt: "<< prong2.pt()<<" eta: "<< prong2.eta() <<" phi: "<<prong2.phi()<<std::endl;
-  std::cout<<"   prong3 pt: "<< prong3.pt()<<" eta: "<< prong3.eta() <<" phi: "<<prong3.phi()<<std::endl;
-  std::cout<<"   strip  pt: "<< strip_pt <<" eta: "<< strip_eta <<std::endl;
+  //std::cout<<"seedCH pt: "<< seedCH.pt()<<" eta: "<< seedCH.eta() <<" phi: "<<seedCH.phi()<<std::endl;
+  //std::cout<<"   prong2 pt: "<< prong2.pt()<<" eta: "<< prong2.eta() <<" phi: "<<prong2.phi()<<std::endl;
+  //std::cout<<"   prong3 pt: "<< prong3.pt()<<" eta: "<< prong3.eta() <<" phi: "<<prong3.phi()<<std::endl;
+  //std::cout<<"   strip  pt: "<< strip_pt <<" eta: "<< strip_eta <<std::endl;
   // 3 prong
   if(prong2.pt() > 0 && prong3.pt() > 0){
     float pt = prong2.pt()+prong3.pt()+seedCH.pt();
