@@ -203,15 +203,19 @@ namespace hcaldqm
 				} else if (did.subdet() == HcalForward) {
 					ledHistName += "HF";
 				}
-				std::cout << "[debug] ledHistName = " << ledHistName << std::endl;
-				bool ledSignalPresent = (ig.get(ledHistName)->getEntries() > 0);
+				MonitorElement* ledHist = ig.get(ledHistName);
+				if (ledHist) {
+					bool ledSignalPresent = (ig.get(ledHistName)->getEntries() > 0);
 
-				if (ledSignalPresent)
-					vtmpflags[fLED]._state = flag::fBAD;
-				else
-					vtmpflags[fLED]._state = flag::fGOOD;
-			} else {
+					if (ledSignalPresent)
+						vtmpflags[fLED]._state = flag::fBAD;
+					else
+						vtmpflags[fLED]._state = flag::fGOOD;
+				} else {
 					vtmpflags[fLED]._state = flag::fNA;
+				}
+			} else {
+				vtmpflags[fLED]._state = flag::fNA;
 			}
 
 
