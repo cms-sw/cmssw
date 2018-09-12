@@ -101,7 +101,7 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
       LogDebug("TrackFitters")
       // std::cout 
                 << "tsos not valid " << currTsos.globalMomentum().perp() << ' ' 
-		<< hitSize << ' ' << hitCounter << ' ' << hit->geographicalId() << ' '  
+               << hitSize << ' ' << hitCounter << ' ' << hit->geographicalId().rawId() << ' '
                 << hit->surface()->position().perp() << ' ' << hit->surface()->eta() << ' ' << hit->surface()->phi() << std::endl;
       start++;
       retry = true;        
