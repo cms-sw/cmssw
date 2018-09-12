@@ -34,7 +34,8 @@ TrackTransformer::TrackTransformer(const ParameterSet& parameterSet):
     theSmootherName(parameterSet.getParameter<string>("Smoother")),  
     thePropagatorName(parameterSet.getParameter<string>("Propagator")),
     theTrackerRecHitBuilderName(parameterSet.getParameter<string>("TrackerRecHitBuilder")),
-    theMuonRecHitBuilderName(parameterSet.getParameter<string>("MuonRecHitBuilder"))
+    theMuonRecHitBuilderName(parameterSet.getParameter<string>("MuonRecHitBuilder")),
+    theMTDRecHitBuilderName(parameterSet.getParameter<string>("MTDRecHitBuilder"))
     {}
 
 /// Destructor
@@ -83,6 +84,8 @@ void TrackTransformer::setServices(const EventSetup& setup){
     LogTrace(metname) << "TransientRecHitRecord changed!";
     setup.get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
     setup.get<TransientRecHitRecord>().get(theMuonRecHitBuilderName,theMuonRecHitBuilder);
+    setup.get<TransientRecHitRecord>().get(theMTDRecHitBuilderName,theMTDRecHitBuilder);
+    mtdAvailable = theMTDRecHitBuilder.isValid();
     hitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(theTrackerRecHitBuilder.product())->cloner();
   }
   theFitter->setHitCloner(&hitCloner);
@@ -113,6 +116,10 @@ TrackTransformer::getTransientRecHits(const reco::TransientTrack& track) const {
 	  continue;
 	}
 	result.push_back(theMuonRecHitBuilder->build(&**hit));
+      } else if ( (*hit)->geographicalId().det() == DetId::Forward && 
+		  (*hit)->geographicalId().subdetId() == FastTime  ) {
+	if (  mtdAvailable ) result.push_back(theMTDRecHitBuilder->build(&**hit));
+	else throw cms::Exception("TrackTransformer") << "MTD hit encountered but MTD not available!";
       }
     }
   }

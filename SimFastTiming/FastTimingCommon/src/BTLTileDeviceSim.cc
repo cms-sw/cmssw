@@ -73,8 +73,7 @@ void BTLTileDeviceSim::getHitsResponse(const std::vector<std::tuple<int,uint32_t
       row = btlid.row(topo.nrows());
       col = btlid.column(topo.nrows());	
     }
-
-
+    
     // --- Store the detector element ID as a key of the MTDSimHitDataAccumulator map
     auto simHitIt = simHitAccumulator->emplace(mtd_digitizer::MTDCellId(id,row,col),
 					       mtd_digitizer::MTDCellInfo()).first;

@@ -21,6 +21,8 @@ public:
   typedef OmniClusterRef::ClusterPixelRef ClusterPixelRef;
   typedef OmniClusterRef::ClusterStripRef ClusterStripRef;
   typedef OmniClusterRef::Phase2Cluster1DRef ClusterPhase2Ref;
+  typedef OmniClusterRef::ClusterMTDRef ClusterMTDRef;
+
 
   // no position (as in persistent)
   TrackerSingleRecHit(DetId id,
@@ -32,7 +34,7 @@ public:
 		      GeomDet const & idet,
 		      CluRef const&  clus) : Base(p,e,idet, trackerHitRTTI::single), cluster_(clus){}
 
-  // for projected...
+  // for projected or timing...
   template<typename CluRef>
   TrackerSingleRecHit(const LocalPoint& p, const LocalError& e,
 		      GeomDet const & idet, trackerHitRTTI::RTTI rt,
@@ -64,6 +66,10 @@ public:
     return cluster_.cluster_phase2OT();
   }
 
+  ClusterMTDRef cluster_mtd() const {
+    return cluster_.cluster_mtd();
+  }
+
   SiStripCluster const & stripCluster() const { 
     return cluster_.stripCluster();
   }  
@@ -76,10 +82,15 @@ public:
     return cluster_.phase2OTCluster();
   }
 
+  FTLRecHit const & mtdCluster() const {
+    return cluster_.mtdCluster();
+  }
+
   // void setClusterRef(const &  OmniClusterRef ref) {  cluster_ =ref;}
   void setClusterPixelRef(ClusterPixelRef const & ref) {  cluster_ = OmniClusterRef(ref); }
   void setClusterStripRef(ClusterStripRef const & ref) {  cluster_ = OmniClusterRef(ref); }
   void setClusterPhase2Ref(ClusterPhase2Ref const & ref) { cluster_ = OmniClusterRef(ref); }
+  void setClusterMTDRef(ClusterMTDRef const & ref) { cluster_ = OmniClusterRef(ref); }
 
   bool sharesInput( const TrackingRecHit* other, SharedInputType what) const  final;
 
