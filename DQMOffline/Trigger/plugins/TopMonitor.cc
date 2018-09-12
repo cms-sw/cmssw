@@ -1050,15 +1050,14 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<edm::InputTag>( "met",      edm::InputTag("pfMet") );
   desc.add<edm::InputTag>( "jets",     edm::InputTag("ak4PFJetsCHS") );
   desc.add<edm::InputTag>( "electrons",edm::InputTag("gedGsfElectrons") );
-  //ATHER
-  desc.add<edm::InputTag>( "elecID"    ,edm::InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Fall17-94X-V1-medium") );
+  desc.add<edm::InputTag>( "elecID"    ,edm::InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Fall17-94X-V1-tight") );
   desc.add<edm::InputTag>( "muons",    edm::InputTag("muons") );
   //Menglei
   desc.add<edm::InputTag>( "photons",  edm::InputTag("photons") );
   //Suvankar
   desc.add<edm::InputTag>( "vertices", edm::InputTag("offlinePrimaryVertices") );
 
-  desc.add<edm::InputTag>( "btagalgo", edm::InputTag("pfDeepCSVDiscriminatorsJetTags:BvsAll") );
+  desc.add<edm::InputTag>( "btagalgo", edm::InputTag("pfCombinedSecondaryVertexV2BJetTags") );
   desc.add<std::string>("metSelection", "pt > 0");
   desc.add<std::string>("jetSelection", "pt > 0");
   desc.add<std::string>("eleSelection", "pt > 0");
