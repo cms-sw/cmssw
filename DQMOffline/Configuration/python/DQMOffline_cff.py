@@ -187,16 +187,8 @@ phase2_hcal.toReplaceWith( PostDQMOfflineMiniAOD, PostDQMOfflineMiniAOD.copyAndE
     pfMetDQMAnalyzerMiniAOD, pfPuppiMetDQMAnalyzerMiniAOD # No hcalnoise yet
 ]))
 
-# Import the heavy ion JetMET sequence
-from DQMOffline.JetMET.jetMETDQMOfflineSourceHI_cff import jetMETDQMOfflineSource as jetMETDQMOfflineSourceHI
-
-# Define a new offline sequence for heavy ions
-DQMOfflineHI = cms.Sequence(DQMOffline.copyAndExclude([pfTauRunDQMValidation,jetMETDQMOfflineSource]) * jetMETDQMOfflineSourceHI)
-
-# For pp_on_AA_2018 era, replace the pp sequence with PbPb sequence
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-pp_on_AA_2018.toReplaceWith(DQMOffline, DQMOfflineHI)
-
+pp_on_AA_2018.toReplaceWith(DQMOffline, DQMOffline.copyAndExclude([pfTauRunDQMValidation]))
 
 from PhysicsTools.NanoAOD.nanoDQM_cff import nanoDQM
 DQMOfflineNanoAOD = cms.Sequence(nanoDQM)
