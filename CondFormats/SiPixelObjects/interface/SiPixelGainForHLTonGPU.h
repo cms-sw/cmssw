@@ -41,7 +41,8 @@ class SiPixelGainForHLTonGPU {
     assert(offset<3088384);
     assert(0==offset%2);
 
-    auto s = v_pedestals[offset/2];
+    DecodingStructure const * __restrict__ lp = v_pedestals;
+    auto s = lp[offset/2];
 
     isDeadColumn = (s.ped & 0xFF) == deadFlag_;
     isNoisyColumn = (s.ped & 0xFF) == noisyFlag_;

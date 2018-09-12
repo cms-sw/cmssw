@@ -46,9 +46,15 @@ namespace pixelCPEforGPU {
     DetParams * m_detParams;
 
     constexpr
-    CommonParams const & commonParams() const {return *m_commonParams;}
+    CommonParams const & __restrict__ commonParams() const {
+      CommonParams const * __restrict__ l = m_commonParams;
+       return *l;
+    }
     constexpr
-    DetParams const &  detParams(int i) const {return m_detParams[i];}
+    DetParams const &  __restrict__ detParams(int i) const {
+      DetParams const * __restrict__ l = m_detParams;
+       return l[i];
+    }
   };
 
   // SOA (on device)
@@ -78,7 +84,7 @@ namespace pixelCPEforGPU {
   using ClusParams = ClusParamsT<256>;
 
   constexpr inline
-  void computeAnglesFromDet(DetParams const & detParams, float const x, float const y, float & cotalpha, float & cotbeta) {
+  void computeAnglesFromDet(DetParams const & __restrict__ detParams, float const x, float const y, float & cotalpha, float & cotbeta) {
     // x,y local position on det
     auto gvx = x - detParams.x0;
     auto gvy = y - detParams.y0;
@@ -147,7 +153,7 @@ namespace pixelCPEforGPU {
   }
 
   constexpr inline
-  void position(CommonParams const & comParams, DetParams const & detParams, ClusParams & cp, uint32_t ic) {
+  void position(CommonParams const & __restrict__ comParams, DetParams const & __restrict__ detParams, ClusParams & cp, uint32_t ic) {
 
     //--- Upper Right corner of Lower Left pixel -- in measurement frame
     uint16_t llx = cp.minRow[ic]+1;
@@ -202,7 +208,7 @@ namespace pixelCPEforGPU {
   }
 
   constexpr inline
-  void error(CommonParams const & comParams, DetParams const & detParams, ClusParams & cp, uint32_t ic) {
+  void error(CommonParams const & __restrict__ comParams, DetParams const & __restrict__ detParams, ClusParams & cp, uint32_t ic) {
     // Edge cluster errors
     cp.xerr[ic]= 0.0050;
     cp.yerr[ic]= 0.0085;
