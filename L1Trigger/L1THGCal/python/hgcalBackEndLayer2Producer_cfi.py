@@ -10,6 +10,16 @@ C3d_parValues = cms.PSet( type_multicluster = cms.string('dRC3d'),
                           minPt_multicluster = cms.double(0.5), # minimum pt of the multicluster (GeV)
                           dist_dbscan_multicluster=cms.double(0.),
                           minN_dbscan_multicluster=cms.uint32(0),
+                          nBins_R_histo_multicluster = cms.uint32(36),
+                          nBins_Phi_histo_multicluster = cms.uint32(216),
+                          binSumsHisto = cms.vuint32(13,               #0
+                                                     11, 11, 11,       # 1 - 3
+                                                     9, 9, 9,          # 4 - 6
+                                                     7, 7, 7, 7, 7, 7, # 7 - 12
+                                                     5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,  # 13 - 27
+                                                     3, 3, 3, 3, 3, 3, 3, 3  # 28 - 35
+                                                     ),
+                          threshold_histo_multicluster = cms.double(20.),
                           EGIdentification=egamma_identification_drnn_cone.clone()
  )
 
