@@ -17,3 +17,9 @@
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="RecoVertex/KalmanVertexFit"/>
 <use   name="SimDataFormats/Track"/>
+
+<bin file="gpuVertexFinder_t.cu" name="gpuVertexFinder_t">
+  <use name="cuda"/>
+  <use name="cuda-api-wrappers"/>
+  <flags CXXFLAGS="-g"/>
+</bin>
