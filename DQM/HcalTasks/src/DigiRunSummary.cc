@@ -205,8 +205,7 @@ namespace hcaldqm
 				}
 				MonitorElement* ledHist = ig.get(ledHistName);
 				if (ledHist) {
-					bool ledSignalPresent = (ig.get(ledHistName)->getEntries() > 0);
-
+					bool ledSignalPresent = (ledHist->getEntries() > 0);
 					if (ledSignalPresent)
 						vtmpflags[fLED]._state = flag::fBAD;
 					else
