@@ -852,7 +852,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 								_LED_ADCvsBX_Subdet.fill(HcalDetId(HcalEndcap, 16, 1, 1), bx, digi[i].adc());
 
 								if (digi[i].adc() > _thresh_led) {
-									//std::cout << "[debug] Found LED misfire! did = " << did << " / " << did.ieta() << " / " << did.iphi() << " / " << did.depth() << " / ADC = " << digi[i].adc() << std::endl;
 									channelLEDSignalPresent = true;
 								}
 							}
@@ -1220,13 +1219,11 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 						if (hodid.subdet() == HcalCalibration) {
 							// New method: use configurable list of channels
 							if (std::find(_ledCalibrationChannels[HcalForward].begin(), _ledCalibrationChannels[HcalForward].end(), did) != _ledCalibrationChannels[HcalForward].end()) {
-								//std::cout << "[debug] Found HF calibration did with new method: " << did << " / depth = " << did.depth() << " / ieta = " << did.ieta() << " / iphi = " << did.iphi() << std::endl;
 								bool channelLEDSignalPresent = false;
 								for (int i=0; i<digi.samples(); i++) {
 									_LED_ADCvsBX_Subdet.fill(HcalDetId(HcalForward, 16, 1, 1), bx, digi[i].adc());
 
 									if (digi[i].adc() > _thresh_led) {
-										//std::cout << "[debug] Found LED signal in did " << did << std::endl;
 										channelLEDSignalPresent = true;
 									}
 								}
