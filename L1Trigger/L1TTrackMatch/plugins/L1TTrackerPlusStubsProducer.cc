@@ -81,7 +81,8 @@ L1TTrackerPlusStubsProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
    L1MuKBMTCombinedStubRefVector stubs;
    for (uint i=0;i<stubHandle->size();++i) {
      L1MuKBMTCombinedStubRef r(stubHandle,i);
-     stubs.push_back(r);
+     if (r->bxNum()==0)
+       stubs.push_back(r);
    }
 
    std::vector<edm::Ptr< l1t::L1TkMuonParticle::L1TTTrackType > > tracks;
