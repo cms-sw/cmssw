@@ -65,11 +65,17 @@ void L1PFTauProducer_grow_l1t::produce(edm::Event& iEvent, const edm::EventSetup
       continue;
     }
   // get all PF EM candidates
-    if((l1PFCand.id() == l1t::PFCandidate::Electron) || (l1PFCand.id() != l1t::PFCandidate::Photon)){
+    if((l1PFCand.id() == l1t::PFCandidate::Electron) || (l1PFCand.id() == l1t::PFCandidate::Photon)){
       pfEGammas.push_back(l1PFCand);
       if(l1PFCand.pt()>0)
 	std::cout<<"PF EG Cand "<<l1PFCand.pt()<<" eta: "<< l1PFCand.eta()<<" phi: "<<l1PFCand.phi()<<std::endl;
     }
+    //ChargedHadron=0, Electron=1, NeutralHadron=2, Photon=3, Muon=4
+    if(l1PFCand.id() == l1t::PFCandidate::Muon)
+      std::cout<<"Muon PF Cand "<<l1PFCand.pt()<<" eta: "<< l1PFCand.eta()<<" phi: "<<l1PFCand.phi()<<std::endl;
+
+    if(l1PFCand.id() == l1t::PFCandidate::NeutralHadron)
+      std::cout<<"NeutralHadron PF Cand "<<l1PFCand.pt()<<" eta: "<< l1PFCand.eta()<<" phi: "<<l1PFCand.phi()<<std::endl;
   }
   
   // create all Tau Candidates based on detector region
