@@ -270,9 +270,9 @@ postProcessorTrackSequence = cms.Sequence(
 )
 
 postProcessorTrackTrackingOnly = postProcessorTrack.clone()
-postProcessorTrackTrackingOnly.subDirs.extend(["Tracking/TrackSeeding/*", "Tracking/PixelTrack/*"])
+postProcessorTrackTrackingOnly.subDirs.extend(["Tracking/TrackSeeding/*", "Tracking/PixelTrack/*", "Tracking/PixelTrackFromPV/*", "Tracking/PixelTrackFromPVAllTP/*"])
 postProcessorTrackSummaryTrackingOnly = postProcessorTrackSummary.clone()
-postProcessorTrackSummaryTrackingOnly.subDirs.extend(["Tracking/TrackSeeding", "Tracking/PixelTrack"])
+postProcessorTrackSummaryTrackingOnly.subDirs.extend(["Tracking/TrackSeeding", "Tracking/PixelTrack", "Tracking/PixelTrackFromPV/*", "Tracking/PixelTrackFromPVAllTP/*"])
 
 postProcessorTrackSequenceTrackingOnly = cms.Sequence(
     postProcessorTrackTrackingOnly+
