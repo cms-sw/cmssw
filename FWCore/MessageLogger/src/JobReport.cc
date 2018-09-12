@@ -52,6 +52,7 @@ namespace edm {
     os << "\n<Branches>";
     for(auto const& branch : f.branchNames) {
       os << "\n  <Branch>" << doc.NewText(branch.c_str())->Value() << "</Branch>";
+      doc.DeleteChildren();
     }
     os << "\n</Branches>";
     return os;
@@ -242,6 +243,7 @@ namespace edm {
         *ost_ << "\n  <PFN>" << doc.NewText(inpFile.physicalFileName.c_str())->Value() << "</PFN>";
         *ost_ << "\n  <FastCopying>" << findOrDefault(f.fastCopyingInputs, inpFile.physicalFileName) << "</FastCopying>";
         *ost_ << "\n</Input>";
+	doc.DeleteChildren();
       }
       for(auto token : f.contributingInputsSecSource) {
         JobReport::InputFile inpFile = inputFilesSecSource_.at(token);
@@ -250,6 +252,7 @@ namespace edm {
         *ost_ << "\n  <PFN>" << doc.NewText(inpFile.physicalFileName.c_str())->Value() << "</PFN>";
         *ost_ << "\n  <FastCopying>" << findOrDefault(f.fastCopyingInputs, inpFile.physicalFileName) << "</FastCopying>";
         *ost_ << "\n</Input>";
+	doc.DeleteChildren();
       }
       *ost_ << "\n</Inputs>";
       *ost_ << "\n</File>\n";
@@ -759,6 +762,7 @@ namespace edm {
         msg << "\n  <PFN>" << doc.NewText(inpFile.physicalFileName.c_str())->Value() << "</PFN>";
         msg << "\n  <FastCopying>" << findOrDefault(f.fastCopyingInputs, inpFile.physicalFileName) << "</FastCopying>";
         msg << "\n</Input>";
+	doc.DeleteChildren();
       }
       msg << "\n</Inputs>";
       msg << "\n</File>";
