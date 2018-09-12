@@ -452,12 +452,6 @@ namespace pat {
       ///    Else return the reco Jet number of constituents
       size_t numberOfDaughters() const override;
 
-      /// clear daughter references
-      void clearDaughters() override {
-        PATObject<reco::Jet>::clearDaughters();
-        daughtersTemp_.reset(); // need to reset daughtersTemp_ as well
-      }
-
       /// accessing Jet ID information
       reco::JetID const & jetID () const { return jetID_;}
 
@@ -516,10 +510,10 @@ namespace pat {
 
       /// Check to see if the subjet collection exists
       bool hasSubjets( std::string const & label ) const { return find( subjetLabels_.begin(), subjetLabels_.end(), label) != subjetLabels_.end(); }
-
+      
       /// Number of subjet collections
       unsigned int nSubjetCollections(  ) const { return  subjetCollections_.size(); }
-
+      
       /// Subjet collection names
       std::vector<std::string> const & subjetCollectionNames() const { return subjetLabels_; }
 

@@ -7,6 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
+#include "DataFormats/Common/interface/RefToPtr.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -55,10 +56,12 @@ private:
 
   bool use_puppi_value_map_;
   bool use_pvasq_value_map_;
+  bool fix_daughters_;
 
   edm::EDGetTokenT<edm::ValueMap<float>> puppi_value_map_token_;
   edm::EDGetTokenT<edm::ValueMap<int>> pvasq_value_map_token_;
   edm::EDGetTokenT<edm::Association<VertexCollection>> pvas_token_;
+  edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> pf2pc_token_;
 
   edm::Handle<VertexCollection> vtxs_;
   edm::Handle<SVCollection> svs_;
@@ -66,6 +69,7 @@ private:
   edm::Handle<edm::ValueMap<float>> puppi_value_map_;
   edm::Handle<edm::ValueMap<int>> pvasq_value_map_;
   edm::Handle<edm::Association<VertexCollection>> pvas_;
+  edm::Handle<edm::Association<pat::PackedCandidateCollection>> pf2pc_;
 
   const static std::vector<std::string> particle_features_;
   const static std::vector<std::string> sv_features_;
@@ -145,6 +149,7 @@ DeepBoostedJetTagInfoProducer::DeepBoostedJetTagInfoProducer(const edm::Paramete
 , sv_token_(consumes<SVCollection>(iConfig.getParameter<edm::InputTag>("secondary_vertices")))
 , use_puppi_value_map_(false)
 , use_pvasq_value_map_(false)
+, fix_daughters_(iConfig.getParameter<bool>("fix_daughters"))
 {
 
   const auto & puppi_value_map_tag = iConfig.getParameter<edm::InputTag>("puppi_value_map");
@@ -158,6 +163,10 @@ DeepBoostedJetTagInfoProducer::DeepBoostedJetTagInfoProducer(const edm::Paramete
     pvasq_value_map_token_ = consumes<edm::ValueMap<int>>(pvas_tag);
     pvas_token_ = consumes<edm::Association<VertexCollection>>(pvas_tag);
     use_pvasq_value_map_ = true;
+  }
+
+  if (fix_daughters_) {
+    pf2pc_token_ = consumes<edm::Association<pat::PackedCandidateCollection> >(iConfig.getParameter<edm::InputTag>("packed_candidates"));
   }
 
   produces<DeepBoostedJetTagInfoCollection>();
@@ -176,11 +185,13 @@ void DeepBoostedJetTagInfoProducer::fillDescriptions(edm::ConfigurationDescripti
   desc.add<double>("jet_radius", 0.8);
   desc.add<double>("min_jet_pt", 150);
   desc.add<double>("min_pt_for_track_properties", -1);
+  desc.add<bool>("fix_daughters", false);
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
   desc.add<edm::InputTag>("secondary_vertices", edm::InputTag("inclusiveCandidateSecondaryVertices"));
   desc.add<edm::InputTag>("jets", edm::InputTag("ak8PFJetsPuppi"));
   desc.add<edm::InputTag>("puppi_value_map", edm::InputTag("puppi"));
   desc.add<edm::InputTag>("vertex_associator", edm::InputTag("primaryVertexAssociation","original"));
+  desc.add<edm::InputTag>("packed_candidates", edm::InputTag("packedPFCandidates"));
   descriptions.add("pfDeepBoostedJetTagInfos", desc);
 }
 
@@ -213,6 +224,11 @@ void DeepBoostedJetTagInfoProducer::produce(edm::Event& iEvent, const edm::Event
     iEvent.getByToken(pvasq_value_map_token_, pvasq_value_map_);
     iEvent.getByToken(pvas_token_, pvas_);
   }
+
+  if (fix_daughters_) {
+    iEvent.getByToken(pf2pc_token_, pf2pc_);
+  }
+
 
   for (std::size_t jet_n = 0; jet_n < jets->size(); jet_n++){
 
@@ -279,7 +295,8 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
   };
 
   std::vector<reco::CandidatePtr> daughters;
-  for (const auto& cand : jet.daughterPtrVector()){
+  for (const auto &dau : jet.daughterPtrVector()){
+    auto cand = fix_daughters_ ? edm::refToPtr((*pf2pc_)[dau]) : dau;
     // remove particles w/ extremely low puppi weights
     if ((puppiWgt(cand)) < 0.01) continue;
     daughters.push_back(cand);
