@@ -20,11 +20,11 @@ namespace gpuPixelDoublets {
 
   template<typename Hist>
   __device__
-  void doubletsFromHisto(uint8_t const * layerPairs, uint32_t nPairs, GPUCACell * cells, uint32_t * nCells,
-                         int16_t const * iphi, Hist const * hist, uint32_t const * offsets,
-                         siPixelRecHitsHeterogeneousProduct::HitsOnGPU const & hh,
+  void doubletsFromHisto(uint8_t const * __restrict__ layerPairs, uint32_t nPairs, GPUCACell * cells, uint32_t * nCells,
+                         int16_t const * __restrict__ iphi, Hist const * __restrict__ hist, uint32_t const * __restrict__ offsets,
+                         siPixelRecHitsHeterogeneousProduct::HitsOnGPU const &  __restrict__ hh,
                          GPU::VecArray< unsigned int, 256>  * isOuterHitOfCell,
-                         int16_t const * phicuts, float const * minz, float const * maxz, float const * maxr) {
+                        int16_t const * phicuts, float const * minz, float const * maxz, float const * maxr) {
 
     auto layerSize = [=](uint8_t li) { return offsets[li+1]-offsets[li]; };
 
@@ -41,7 +41,6 @@ namespace gpuPixelDoublets {
 
     auto idx = blockIdx.x*blockDim.x + threadIdx.x;
   for(auto j=idx;j<ntot;j+=blockDim.x*gridDim.x) {
-    auto j = idx; 
 
     uint32_t pairLayerId=0;
     while(j>=innerLayerCumulativeSize[pairLayerId++]);  --pairLayerId; // move to lower_bound ??
@@ -68,18 +67,28 @@ namespace gpuPixelDoublets {
     auto mep = iphi[i];
     auto mez = hh.zg_d[i];
     auto mer = hh.rg_d[i];
-    auto cutoff = [&](int j) { return 
+    auto cutoff = [&](int j) { return
         abs(hh.zg_d[j]-mez) > maxz[pairLayerId] ||
       	abs(hh.zg_d[j]-mez) < minz[pairLayerId] ||
         hh.rg_d[j]-mer > maxr[pairLayerId];
     };
 
     constexpr float z0cut = 12.f;
+    constexpr float hardPtCut = 0.5f;
+    constexpr float minRadius = hardPtCut * 87.f;
+    constexpr float minRadius2T4 = 4.f*minRadius*minRadius;
+    auto ptcut = [&](int j) {
+      auto r2t4 = minRadius2T4;
+      auto ri = mer;
+      auto ro = hh.rg_d[j];
+      auto dphi = short2phi( min( abs(int16_t(mep-iphi[j])),abs(int16_t(iphi[j]-mep)) ) );
+      return dphi*dphi*(r2t4 -ri*ro) > (ro-ri)*(ro-ri);
+    };
     auto z0cutoff = [&](int j) {
       auto zo =	hh.zg_d[j];
-      auto ro = hh.rg_d[j]; 
+      auto ro = hh.rg_d[j];
       auto dr = ro-mer;
-      return dr > maxr[pairLayerId] || 
+      return dr > maxr[pairLayerId] ||
              dr<0 || std::abs((mez*ro - mer*zo)) > z0cut*dr;
     };
 
@@ -92,7 +101,7 @@ namespace gpuPixelDoublets {
     int nmin = 0;
     auto khh = kh;
     incr(khh);
-    
+
     int tooMany=0;
     for (auto kk=kl; kk!=khh; incr(kk)) {
       if (kk!=kl && kk!=kh) nmin+=hist[outer].size(kk);
@@ -103,7 +112,7 @@ namespace gpuPixelDoublets {
 
         if (std::min(std::abs(int16_t(iphi[oi]-mep)), std::abs(int16_t(mep-iphi[oi]))) > iphicut)
           continue;
-        if (z0cutoff(oi)) continue;
+        if (z0cutoff(oi) || ptcut(oi)) continue;
         auto ind = atomicInc(nCells,MaxNumOfDoublets);
         // int layerPairId, int doubletId, int innerHitId,int outerHitId)
         cells[ind].init(hh,pairLayerId,ind,i,oi);
@@ -123,12 +132,13 @@ namespace gpuPixelDoublets {
 
   }  // loop in block...
   }
+
   __global__
-  void getDoubletsFromHisto(GPUCACell * cells, uint32_t * nCells, siPixelRecHitsHeterogeneousProduct::HitsOnGPU const * hhp,                
+  void getDoubletsFromHisto(GPUCACell * cells, uint32_t * nCells, siPixelRecHitsHeterogeneousProduct::HitsOnGPU const *  __restrict__ hhp,
                             GPU::VecArray< unsigned int, 256> *isOuterHitOfCell) {
 
-    uint8_t const layerPairs[2*13] = {0,1 ,1,2 ,2,3 
-                                     // ,0,4 ,1,4 ,2,4 ,4,5 ,5,6  
+    uint8_t const layerPairs[2*13] = {0,1 ,1,2 ,2,3
+                                     // ,0,4 ,1,4 ,2,4 ,4,5 ,5,6
                                      ,0,7 ,1,7 ,2,7 ,7,8 ,8,9
                                      ,0,4 ,1,4 ,2,4 ,4,5 ,5,6
                                      };
@@ -158,8 +168,8 @@ namespace gpuPixelDoublets {
                            };
 
 
-    auto const & hh = *hhp;
-    doubletsFromHisto(layerPairs, 13, cells, nCells, 
+    auto const &  __restrict__ hh = *hhp;
+    doubletsFromHisto(layerPairs, 13, cells, nCells,
                       hh.iphi_d,hh.hist_d,hh.hitsLayerStart_d,
                       hh, isOuterHitOfCell,
                       phicuts, minz, maxz, maxr);
