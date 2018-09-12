@@ -4,6 +4,7 @@
 <use   name="TrackingTools/TrackFitters"/>
 <use   name="RecoTracker/TransientTrackingRecHit"/>
 <use   name="RecoMuon/TransientTrackingRecHit"/>
+<use   name="RecoMTD/TransientTrackingRecHit"/>
 <use   name="MagneticField/Engine"/>
 <use   name="DataFormats/TrackerCommon"/>
 <use   name="Geometry/Records"/>

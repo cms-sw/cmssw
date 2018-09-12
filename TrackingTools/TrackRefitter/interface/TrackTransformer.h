@@ -110,6 +110,10 @@ public:
   
   const std::string theMuonRecHitBuilderName;
   edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
+
+  const std::string theMTDRecHitBuilderName;
+  bool mtdAvailable;
+  edm::ESHandle<TransientTrackingRecHitBuilder> theMTDRecHitBuilder;
 };
 #endif
 

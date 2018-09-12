@@ -54,10 +54,10 @@ GlobalTrackingGeometryESProducer::produce(const GlobalTrackingGeometryRecord& re
     if(mtdH.isValid()) {
       mtd = mtdH.product();
     } else {
-      LogWarning("GeometryGlobalTrackingGeometryBuilder") << "No MTD geometry is available.";
+      LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No MTD geometry is available.";
     }
   } catch (edm::eventsetup::NoRecordException<MTDDigiGeometryRecord>& e){
-    LogWarning("GeometryGlobalTrackingGeometryBuilder") << "No MTDDigiGeometryRecord is available.";    
+    LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No MTDDigiGeometryRecord is available.";    
   }
 
 
