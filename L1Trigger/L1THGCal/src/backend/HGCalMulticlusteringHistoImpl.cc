@@ -296,7 +296,7 @@ void HGCalMulticlusteringHistoImpl::clusterizeHisto( const std::vector<edm::Ptr<
     /* seeds determined with local maximum criteria */
     std::vector<GlobalPoint> seedPositions;
     if(multiclusterAlgoType_ == "HistoMaxC3d") seedPositions = computeMaxSeeds(smoothRPhiHistoCluster);
-    else if(multiclusterAlgoType_ == "HistoMaxThreshold") seedPositions = computeThresholdSeeds(smoothRPhiHistoCluster);
+    else if(multiclusterAlgoType_ == "HistoThresholdC3d") seedPositions = computeThresholdSeeds(smoothRPhiHistoCluster);
 
     /* clusterize clusters around seeds */
     std::vector<l1t::HGCalMulticluster> multiclustersTmp = clusterSeedMulticluster(clustersPtrs,seedPositions);
