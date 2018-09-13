@@ -14,7 +14,7 @@ __global__ void
 kernel_checkOverflows(GPU::SimpleVector<Quadruplet> *foundNtuplets,
                GPUCACell *cells, uint32_t const * nCells,
                GPU::VecArray< unsigned int, 256> *isOuterHitOfCell,
-               uint32_t nHits) {
+               uint32_t nHits, uint32_t maxNumberOfDoublets) {
 
  auto idx = threadIdx.x + blockIdx.x * blockDim.x;
  #ifdef GPU_DEBUG
@@ -28,9 +28,8 @@ kernel_checkOverflows(GPU::SimpleVector<Quadruplet> *foundNtuplets,
  }
  if (idx < nHits) {
    if (isOuterHitOfCell[idx].full()) // ++tooManyOuterHitOfCell;
-     printf("OuterHitOfCell overflow %d\n", idx); 
+     printf("OuterHitOfCell overflow %d\n", idx);
  }
-
 }
 
 
@@ -38,7 +37,7 @@ __global__ void
 kernel_connect(GPU::SimpleVector<Quadruplet> *foundNtuplets,
                GPUCACell *cells, uint32_t const * nCells,
                GPU::VecArray< unsigned int, 256> *isOuterHitOfCell,
-               float ptmin, 
+               float ptmin,
                float region_origin_radius, const float thetaCut,
                const float phiCut, const float hardPtCut,
                unsigned int maxNumberOfDoublets_, unsigned int maxNumberOfHits_) {
@@ -93,7 +92,7 @@ kernel_print_found_ntuplets(GPU::SimpleVector<Quadruplet> *foundNtuplets, int ma
            (*foundNtuplets)[i].hitId[2],
            (*foundNtuplets)[i].hitId[3]
           );
-         
+
   }
 }
 
@@ -124,9 +123,9 @@ void CAHitQuadrupletGeneratorGPU::allocateOnGPU()
   cudaCheck(cudaMemset(device_nCells_, 0, sizeof(uint32_t)));
 
   cudaCheck(cudaMalloc(&device_isOuterHitOfCell_,
-             maxNumberOfLayers_ * maxNumberOfHits_ * sizeof(GPU::VecArray<unsigned int, maxCellsPerHit_>)));
+             PixelGPUConstants::maxNumberOfHits * sizeof(GPU::VecArray<unsigned int, maxCellsPerHit_>)));
   cudaCheck(cudaMemset(device_isOuterHitOfCell_, 0,
-             maxNumberOfLayers_ * maxNumberOfHits_ * sizeof(GPU::VecArray<unsigned int, maxCellsPerHit_>)));
+             PixelGPUConstants::maxNumberOfHits * sizeof(GPU::VecArray<unsigned int, maxCellsPerHit_>)));
 
   h_foundNtupletsVec_.resize(maxNumberOfRegions_);
   h_foundNtupletsData_.resize(maxNumberOfRegions_);
@@ -158,15 +157,15 @@ void CAHitQuadrupletGeneratorGPU::launchKernels(const TrackingRegion &region,
   h_foundNtupletsVec_[regionIndex]->reset();
 
   auto nhits = hh.nHits;
-
+  assert(nhits <= PixelGPUConstants::maxNumberOfHits);
   auto numberOfBlocks = (maxNumberOfDoublets_ + 512 - 1)/512;
   kernel_connect<<<numberOfBlocks, 512, 0, cudaStream>>>(
       d_foundNtupletsVec_[regionIndex], // needed only to be reset, ready for next kernel
       device_theCells_, device_nCells_,
       device_isOuterHitOfCell_,
-      region.ptMin(), 
+      region.ptMin(),
       region.originRBound(), caThetaCut, caPhiCut, caHardPtCut,
-      maxNumberOfDoublets_, maxNumberOfHits_
+      maxNumberOfDoublets_, PixelGPUConstants::maxNumberOfHits
   );
   cudaCheck(cudaGetLastError());
 
@@ -181,7 +180,8 @@ void CAHitQuadrupletGeneratorGPU::launchKernels(const TrackingRegion &region,
   kernel_checkOverflows<<<numberOfBlocks, 512, 0, cudaStream>>>(
                         d_foundNtupletsVec_[regionIndex],
                         device_theCells_, device_nCells_,
-                        device_isOuterHitOfCell_, nhits
+                        device_isOuterHitOfCell_, nhits,
+                        maxNumberOfDoublets_
                        );
 
 
@@ -201,7 +201,7 @@ void CAHitQuadrupletGeneratorGPU::launchKernels(const TrackingRegion &region,
 void CAHitQuadrupletGeneratorGPU::cleanup(cudaStream_t cudaStream) {
   // this lazily resets temporary memory for the next event, and is not needed for reading the output
   cudaCheck(cudaMemsetAsync(device_isOuterHitOfCell_, 0,
-                            maxNumberOfLayers_ * maxNumberOfHits_ * sizeof(GPU::VecArray<unsigned int, maxCellsPerHit_>),
+                            PixelGPUConstants::maxNumberOfHits * sizeof(GPU::VecArray<unsigned int, maxCellsPerHit_>),
                             cudaStream));
   cudaCheck(cudaMemsetAsync(device_nCells_, 0, sizeof(uint32_t), cudaStream));
 }
