@@ -519,6 +519,84 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject, std:
 #endif
 
 
+bool SiPixelTemplate2D::getid(int id)
+{
+   if(id != id_current_) {
+      
+      // Find the index corresponding to id
+      
+      index_id_ = -1;
+      for(int i=0; i<(int)thePixelTemp_.size(); ++i) {
+         
+         if(id == thePixelTemp_[i].head.ID) {
+            
+            index_id_ = i;
+            id_current_ = id;
+            
+            // Copy the charge scaling factor to the private variable
+            
+            Dtype_ = thePixelTemp_[index_id_].head.Dtype;
+            
+            // Copy the charge scaling factor to the private variable
+            
+            qscale_ = thePixelTemp_[index_id_].head.qscale;
+            
+            // Copy the pseudopixel signal size to the private variable
+            
+            s50_ = thePixelTemp_[index_id_].head.s50;
+            
+            // Copy Qbinning info to private variables
+            
+            for(int j=0; j<3; ++j) {fbin_[j] = thePixelTemp_[index_id_].head.fbin[j];}
+            
+            // Copy the Lorentz widths to private variables
+            
+            lorywidth_ = thePixelTemp_[index_id_].head.lorywidth;
+            lorxwidth_ = thePixelTemp_[index_id_].head.lorxwidth;
+            
+            // Copy the pixel sizes private variables
+            
+            xsize_ = thePixelTemp_[index_id_].head.xsize;
+            ysize_ = thePixelTemp_[index_id_].head.ysize;
+            zsize_ = thePixelTemp_[index_id_].head.zsize;
+            
+            // Determine the size of this template
+            
+            Nyx_ = thePixelTemp_[index_id_].head.NTyx;
+            Nxx_ = thePixelTemp_[index_id_].head.NTxx;
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+            if(Nyx_ < 2 || Nxx_ < 2) {
+               throw cms::Exception("DataCorrupt") << "template ID = " << id_current_ << "has too few entries: Nyx/Nxx = " << Nyx_ << "/" << Nxx_ << std::endl;
+            }
+#else
+            assert(Nyx_ > 1 && Nxx_ > 1);
+#endif
+            int imidx = Nxx_/2;
+            
+            cotalpha0_ =  thePixelTemp_[index_id_].entry[0][0].cotalpha;
+            cotalpha1_ =  thePixelTemp_[index_id_].entry[0][Nxx_-1].cotalpha;
+            deltacota_ = (cotalpha1_-cotalpha0_)/(float)(Nxx_-1);
+            
+            cotbeta0_ =  thePixelTemp_[index_id_].entry[0][imidx].cotbeta;
+            cotbeta1_ =  thePixelTemp_[index_id_].entry[Nyx_-1][imidx].cotbeta;
+            deltacotb_ = (cotbeta1_-cotbeta0_)/(float)(Nyx_-1);
+            
+            break;
+         }
+      }
+   }
+
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+   if(index_id_ < 0 || index_id_ >= (int)thePixelTemp_.size()) {
+      throw cms::Exception("DataCorrupt") << "SiPixelTemplate2D::interpolate can't find needed template ID = " << id
+      << ", Are you using the correct global tag?" << std::endl;
+   }
+#else
+   assert(index_id_ >= 0 && index_id_ < (int)thePixelTemp_.size());
+#endif
+   return true;
+}
+
 // *************************************************************************************************************************************
 //! Interpolate stored 2-D information for input angles
 //! \param         id - (input) the id of the template
@@ -545,73 +623,8 @@ bool SiPixelTemplate2D::interpolate(int id, float cotalpha, float cotbeta, float
    // Check to see if interpolation is valid
    
    if(id != id_current_ || cotalpha != cota_current_ || cotbeta != cotb_current_) {
-      
-      cota_current_ = cotalpha; cotb_current_ = cotbeta; success_ = true;
-      
-      if(id != id_current_) {
-         
-         // Find the index corresponding to id
-         
-         index_id_ = -1;
-         for(int i=0; i<(int)thePixelTemp_.size(); ++i) {
-            
-            if(id == thePixelTemp_[i].head.ID) {
-               
-               index_id_ = i;
-               id_current_ = id;
-               
-               // Copy the charge scaling factor to the private variable
-               
-               Dtype_ = thePixelTemp_[index_id_].head.Dtype;
-               
-               // Copy the charge scaling factor to the private variable
-               
-               qscale_ = thePixelTemp_[index_id_].head.qscale;
-               
-               // Copy the pseudopixel signal size to the private variable
-               
-               s50_ = thePixelTemp_[index_id_].head.s50;
-               
-               // Copy Qbinning info to private variables
-               
-               for(int j=0; j<3; ++j) {fbin_[j] = thePixelTemp_[index_id_].head.fbin[j];}
-               
-               // Copy the Lorentz widths to private variables
-               
-               lorywidth_ = thePixelTemp_[index_id_].head.lorywidth;
-               lorxwidth_ = thePixelTemp_[index_id_].head.lorxwidth;
-               
-               // Copy the pixel sizes private variables
-               
-               xsize_ = thePixelTemp_[index_id_].head.xsize;
-               ysize_ = thePixelTemp_[index_id_].head.ysize;
-               zsize_ = thePixelTemp_[index_id_].head.zsize;
-               
-               // Determine the size of this template
-               
-               Nyx_ = thePixelTemp_[index_id_].head.NTyx;
-               Nxx_ = thePixelTemp_[index_id_].head.NTxx;
-#ifndef SI_PIXEL_TEMPLATE_STANDALONE
-               if(Nyx_ < 2 || Nxx_ < 2) {
-                  throw cms::Exception("DataCorrupt") << "template ID = " << id_current_ << "has too few entries: Nyx/Nxx = " << Nyx_ << "/" << Nxx_ << std::endl;
-               }
-#else
-               assert(Nyx_ > 1 && Nxx_ > 1);
-#endif
-               int imidx = Nxx_/2;
-               
-               cotalpha0_ =  thePixelTemp_[index_id_].entry[0][0].cotalpha;
-               cotalpha1_ =  thePixelTemp_[index_id_].entry[0][Nxx_-1].cotalpha;
-               deltacota_ = (cotalpha1_-cotalpha0_)/(float)(Nxx_-1);
-               
-               cotbeta0_ =  thePixelTemp_[index_id_].entry[0][imidx].cotbeta;
-               cotbeta1_ =  thePixelTemp_[index_id_].entry[Nyx_-1][imidx].cotbeta;
-               deltacotb_ = (cotbeta1_-cotbeta0_)/(float)(Nyx_-1);
-               
-               break;
-            }
-         }
-      }
+      cota_current_ = cotalpha; cotb_current_ = cotbeta;
+      success_ = getid(id);
    }
    
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
