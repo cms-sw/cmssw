@@ -67,10 +67,9 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params, edm::Produc
 // version for Pre-Mixing, for use outside of MixingModule
 EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params,  edm::ConsumesCollector& iC) :
    DigiAccumulatorMixMod(),
-   useDBShape         ( true) ,
-   m_APDShape         ( useDBShape ) ,
-   m_EBShape          ( useDBShape ) ,
-   m_EEShape          ( useDBShape ) ,
+   m_APDShape         ( true ) ,
+   m_EBShape          ( true ) ,
+   m_EEShape          ( true ) ,
    m_ESShape          (   ) ,
    m_EBdigiCollection ( params.getParameter<std::string>("EBdigiCollection") ) ,
    m_EEdigiCollection ( params.getParameter<std::string>("EEdigiCollection") ) ,
