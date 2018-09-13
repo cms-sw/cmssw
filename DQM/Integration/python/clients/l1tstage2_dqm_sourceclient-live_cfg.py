@@ -114,9 +114,11 @@ if (process.runType.getRunType() == process.runType.cosmic_run):
 # Heavy-Ion run
 if (process.runType.getRunType() == process.runType.hi_run):
     process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1t_reference_hi.root"
+    process.onlineMetaDataDigis.onlineMetaDataInputLabel = cms.InputTag("rawDataRepacker")
+    process.onlineMetaDataRawToDigi.onlineMetaDataInputLabel = cms.InputTag("rawDataRepacker")
     process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.ctppsDiamondRawToDigi.rawDataTag = cms.InputTag("rawDataRepacker")
-    process.ctppsPixelDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.ctppsPixelDigis.inputLabel = cms.InputTag("rawDataRepacker")
     process.ecalDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataRepacker")
     process.hcalDigis.InputLabel = cms.InputTag("rawDataRepacker")
@@ -142,12 +144,15 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.omtfStage2Digis.inputLabel = cms.InputTag("rawDataRepacker")
     process.emtfStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
     process.gmtStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.caloLayer1Digis.InputLabel = cms.InputTag("rawDataRepacker")
     process.caloStage1Digis.InputLabel = cms.InputTag("rawDataRepacker")
     process.caloStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
     process.gtStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
     process.l1tStage2CaloLayer1.fedRawDataLabel = cms.InputTag("rawDataRepacker")
     process.l1tStage2uGMTZeroSupp.rawData = cms.InputTag("rawDataRepacker")
     process.l1tStage2uGMTZeroSuppFatEvts.rawData = cms.InputTag("rawDataRepacker")
+    process.l1tStage2BmtfZeroSupp.rawData = cms.InputTag("rawDataRepacker")
+    process.l1tStage2BmtfZeroSuppFatEvts.rawData = cms.InputTag("rawDataRepacker")
     process.selfFatEventFilter.rawInput = cms.InputTag("rawDataRepacker")
 
 #--------------------------------------------------
