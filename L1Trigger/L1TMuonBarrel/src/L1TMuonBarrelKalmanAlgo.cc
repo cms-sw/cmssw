@@ -817,6 +817,9 @@ void L1TMuonBarrelKalmanAlgo::setFloatingPointValues(L1MuKBMTrack& track,bool ve
   
 
   if (vertex) {
+    int charge=1;
+    if (track.curvatureAtVertex()<0)
+      charge=-1;
     double pt = double(ptLUT(track.curvatureAtVertex()))/2.0;
 
 
@@ -824,6 +827,7 @@ void L1TMuonBarrelKalmanAlgo::setFloatingPointValues(L1MuKBMTrack& track,bool ve
 
     double eta = etaINT*lsbEta;
     track.setPtEtaPhi(pt,eta,phi);
+    track.setCharge(charge);
   }
   else {
     K=track.curvatureAtMuon();
