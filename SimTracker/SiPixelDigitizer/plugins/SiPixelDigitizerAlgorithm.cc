@@ -1312,12 +1312,10 @@ void SiPixelDigitizerAlgorithm::induce_signal(std::vector<PSimHit>::const_iterat
           hit_signal[chan] += ChargeFraction;
 	} // endif
 
-
+#ifdef TP_DEBUG
 	mp = MeasurementPoint( float(ix), float(iy) );
 	LocalPoint lp = topol->localPosition(mp);
 	chan = topol->channel(lp);
-
-#ifdef TP_DEBUG
 	LogDebug ("Pixel Digitizer")
 	  << " pixel " << ix << " " << iy << " - "<<" "
 	  << chan << " " << ChargeFraction<<" "
