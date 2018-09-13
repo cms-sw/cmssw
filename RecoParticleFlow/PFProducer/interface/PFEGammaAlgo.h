@@ -278,10 +278,10 @@ private:
 
   const ESChannelStatus* channelStatus_;
   
-  float EvaluateSingleLegMVA(const pfEGHelpers::HeavyObjectCache* hoc,
+  float evaluateSingleLegMVA(const pfEGHelpers::HeavyObjectCache* hoc,
                              const reco::PFBlockRef& blockref, 
-                             const reco::Vertex& primaryvtx, 
-                             unsigned int track_index);
+                             const reco::Vertex& primaryVtx,
+                             unsigned int trackIndex);
 };
 
 #endif
