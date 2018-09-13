@@ -56,7 +56,6 @@ private:
 #include "SimpleBarrelNavigableLayer.h"
 #include "SimpleForwardNavigableLayer.h"
 #include "SimpleNavigableLayer.h"
-#include "DiskLessInnerRadius.h"
 #include "SymmetricLayerFinder.h"
 
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"

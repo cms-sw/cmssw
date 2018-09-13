@@ -46,8 +46,8 @@ void CmsTrackerWheelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
 	}
       }    
       
-      TrackerStablePhiSort(compfw.begin(), compfw.end(), ExtractPhiModule());
-      TrackerStablePhiSort(compbw.begin(), compbw.end(), ExtractPhiModule());
+      TrackerStablePhiSort(compfw.begin(), compfw.end(), std::function<double(const GeometricDet*)>(extractPhiModule));
+      TrackerStablePhiSort(compbw.begin(), compbw.end(), std::function<double(const GeometricDet*)>(extractPhiModule));
       
       //
       // TEC
@@ -70,7 +70,7 @@ void CmsTrackerWheelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
       det->addComponents(compbw);
       
     }else{
-      std::stable_sort(comp.begin(),comp.end(),LessR_module());
+      std::stable_sort(comp.begin(),comp.end(),LessR_module);
 
       // TID
       // Disk Number: 2 bits [1,2,3]

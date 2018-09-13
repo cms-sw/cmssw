@@ -30,6 +30,7 @@
 #include <TVector2.h>
 #include <iomanip>
 #include <algorithm>
+#include <functional>
 #include <numeric>
 #include <TMath.h>
 #include "TMVA/MethodBDT.h"
@@ -56,6 +57,7 @@
 
 using namespace std;
 using namespace reco;
+using namespace std::placeholders;  // for _1, _2, _3...
 
 namespace {
   typedef PFEGammaAlgo::PFSCElement SCElement;
@@ -68,119 +70,31 @@ namespace {
   typedef PFEGammaAlgo::PFGSFFlaggedElement GSFFlaggedElement;
   typedef PFEGammaAlgo::PFClusterFlaggedElement ClusterFlaggedElement;
 
-  typedef std::unary_function<const ClusterFlaggedElement&,
-			      bool> ClusterMatcher;  
-  
-  typedef std::unary_function<const PFFlaggedElement&,
-			      bool> PFFlaggedElementMatcher; 
-  typedef std::binary_function<const PFFlaggedElement&,
-			       const PFFlaggedElement&,
-			       bool> PFFlaggedElementSorter; 
-  
-  typedef std::unary_function<const reco::PFBlockElement&,
-			      bool> PFElementMatcher; 
-
-  typedef std::unary_function<const PFEGammaAlgo::ProtoEGObject&,
-			      bool> POMatcher; 
-  
-  typedef std::unary_function<PFFlaggedElement&, 
-			      ClusterFlaggedElement> ClusterElementConverter;
-
-  struct SumPSEnergy : public std::binary_function<double,
-						 const ClusterFlaggedElement&,
-						 double> {
-    reco::PFBlockElement::Type _thetype;
-    SumPSEnergy(reco::PFBlockElement::Type type) : _thetype(type) {}
-    double operator()(double a,
-		      const ClusterFlaggedElement& b) {
-
-      return a + (_thetype == b.first->type())*b.first->clusterRef()->energy();
-    }
-  };
-
-  bool comparePSMapByKey(const EEtoPSElement& a,
-			 const EEtoPSElement& b) {
-    return a.first < b.first;
-  }
-  
-  struct UsableElementToPSCluster : public ClusterElementConverter {
-    ClusterFlaggedElement operator () (PFFlaggedElement& elem) {      
-      const ClusterElement* pselemascluster = 
-	docast(const ClusterElement*,elem.first);  
-      if( reco::PFBlockElement::PS1 != pselemascluster->type() &&
-	  reco::PFBlockElement::PS2 != pselemascluster->type()    ) {
-	std::stringstream ps_err;
-	pselemascluster->Dump(ps_err,"\t");
-	throw cms::Exception("UseableElementToPSCluster()")
-	  << "This element is not a PS cluster!" << std::endl
-	  << ps_err.str() << std::endl;
+  class SeedMatchesToProtoObject {
+    public:
+      SeedMatchesToProtoObject(const reco::ElectronSeedRef& s)
+        : scfromseed_(s->caloCluster().castTo<reco::SuperClusterRef>())
+      {
+        ispfsc_ = false;
+        if( scfromseed_.isNonnull() )
+        {
+        const edm::Ptr<reco::PFCluster> testCast(scfromseed_->seed());
+        ispfsc_ = testCast.isNonnull();
+        }      
       }
-      if( elem.second == false ) {
-	std::stringstream ps_err;
-	pselemascluster->Dump(ps_err,"\t");
-	throw cms::Exception("UsableElementToPSCluster()")
-	  << "PS Cluster matched to EE is already used! "
-	  << "This should be impossible!" << std::endl
-	  << ps_err.str() << std::endl;
-      }
-      elem.second = false; // flag as used!   
-      return std::make_pair(pselemascluster,true);         
+      bool operator()(const PFEGammaAlgo::ProtoEGObject& po)
+      {
+        if( scfromseed_.isNull() || !po.parentSC ) return false;      
+        if( ispfsc_ )
+        {
+          return ( scfromseed_->seed() == po.parentSC->superClusterRef()->seed() ); 
+        }      
+        return ( scfromseed_->seed()->seed() == po.parentSC->superClusterRef()->seed()->seed() );
     }
-  };
-  
-  struct SeedMatchesToSCElement : public PFFlaggedElementMatcher {
-    reco::SuperClusterRef _scfromseed;
-    SeedMatchesToSCElement(const reco::ElectronSeedRef& s) {
-      _scfromseed = s->caloCluster().castTo<reco::SuperClusterRef>();
-    }
-    bool operator() (const PFFlaggedElement& elem) {
-      const SCElement* scelem = docast(const SCElement*,elem.first);
-      if( _scfromseed.isNull() || !elem.second || !scelem) return false;     
-      return ( _scfromseed->seed()->seed() == 
-	       scelem->superClusterRef()->seed()->seed() );
-    }
-  };
 
-  struct SCSubClusterMatchesToElement : public PFFlaggedElementMatcher {
-    const reco::CaloCluster_iterator begin, end;
-    SCSubClusterMatchesToElement(const reco::CaloCluster_iterator& b,
-				 const reco::CaloCluster_iterator& e) : 
-      begin(b),
-      end(e) { }
-    bool operator() (const PFFlaggedElement& elem) {
-      const ClusterElement* cluselem = 
-	docast(const ClusterElement*,elem.first);
-      if( !elem.second || !cluselem) return false;
-      reco::CaloCluster_iterator cl = begin;
-      for( ; cl != end; ++cl ) {
-	if((*cl)->seed() == cluselem->clusterRef()->seed()) {
-	  return true;
-	}
-      }
-      return false;
-    }
-  }; 
-
-  struct SeedMatchesToProtoObject : public POMatcher {
-    reco::SuperClusterRef _scfromseed;
-    bool _ispfsc;
-    SeedMatchesToProtoObject(const reco::ElectronSeedRef& s) {
-      _scfromseed = s->caloCluster().castTo<reco::SuperClusterRef>();
-      _ispfsc = false;
-      if( _scfromseed.isNonnull() ) {
-	const edm::Ptr<reco::PFCluster> testCast(_scfromseed->seed());
-	_ispfsc = testCast.isNonnull();
-      }      
-    }
-    bool operator() (const PFEGammaAlgo::ProtoEGObject& po) {
-      if( _scfromseed.isNull() || !po.parentSC ) return false;      
-      if( _ispfsc ) {
-	return ( _scfromseed->seed() == 
-		 po.parentSC->superClusterRef()->seed() ); 
-      }      
-      return ( _scfromseed->seed()->seed() == 
-	       po.parentSC->superClusterRef()->seed()->seed() );
-    }
+    private:
+      const reco::SuperClusterRef scfromseed_;
+      bool ispfsc_;
   }; 
   
   template<bool useConvs=false>
@@ -291,35 +205,32 @@ namespace {
     return true;
   }
 
-  struct CompatibleEoPOut : public PFFlaggedElementMatcher {
-    const reco::PFBlockElementGsfTrack* comp;
-    CompatibleEoPOut(const reco::PFBlockElementGsfTrack* c) : comp(c) {}
-    bool operator()(const PFFlaggedElement& e) const {
-      if( PFBlockElement::ECAL != e.first->type() ) return false;
-      const ClusterElement* elemascluster = 
-	docast(const ClusterElement*,e.first);
-      const float gsf_eta_diff = std::abs(comp->positionAtECALEntrance().eta()-
-					  comp->Pout().eta());
-      const reco::PFClusterRef& cRef = elemascluster->clusterRef();
-      return ( gsf_eta_diff <= 0.3 && cRef->energy()/comp->Pout().t() <= 5 );
+  bool compatibleEoPOut(const PFFlaggedElement& e, const reco::PFBlockElementGsfTrack* comp)
+  {
+    if( PFBlockElement::ECAL != e.first->type() )
+    {
+        return false;
     }
-  };
+    const ClusterElement* elemascluster = docast(const ClusterElement*,e.first);
+    const float gsf_eta_diff = std::abs(comp->positionAtECALEntrance().eta() - comp->Pout().eta());
+    const reco::PFClusterRef& cRef = elemascluster->clusterRef();
+    return ( gsf_eta_diff <= 0.3 && cRef->energy()/comp->Pout().t() <= 5 );
+  }
 
   template<class TrackElementType>
-  struct IsConversionTrack : PFFlaggedElementMatcher {
-    bool operator()(const PFFlaggedElement& e) {
-      constexpr reco::PFBlockElement::TrackType ConvType =
-	reco::PFBlockElement::T_FROM_GAMMACONV;
-      const TrackElementType* elemastrk = 
-	docast(const TrackElementType*,e.first);
-      return elemastrk->trackType(ConvType);
-    }
-  };
+  bool isConversionTrack(const PFFlaggedElement& e)
+  {
+    constexpr reco::PFBlockElement::TrackType ConvType = reco::PFBlockElement::T_FROM_GAMMACONV;
+    const TrackElementType* elemastrk = docast(const TrackElementType*,e.first);
+    return elemastrk->trackType(ConvType);
+  }
+
 
   template<PFBlockElement::Type keytype, 
 	   PFBlockElement::Type valtype,
 	   bool useConv=false>
-  struct NotCloserToOther : public PFFlaggedElementMatcher {
+
+  struct NotCloserToOther {
     const reco::PFBlockElement* comp;
     const reco::PFBlockRef& block;
     const reco::PFBlock::LinkData& links;   
@@ -349,7 +260,7 @@ namespace {
     }
   };
 
-  struct LesserByDistance : public PFFlaggedElementSorter {
+  struct LesserByDistance {
     const reco::PFBlockElement* comp;
     const reco::PFBlockRef& block;
     const reco::PFBlock::LinkData& links; 
@@ -508,18 +419,13 @@ namespace {
     }    
     return false;
   }
-  
-  struct TestIfROMergableByLink : public POMatcher {
-    const PFEGammaAlgo::ProtoEGObject& comp;
-    TestIfROMergableByLink(const PFEGammaAlgo::ProtoEGObject& RO) :
-      comp(RO) {}
-    bool operator() (const PFEGammaAlgo::ProtoEGObject& ro) {      
-      const bool result = ( isROLinkedByClusterOrTrack(comp,ro) || 
-			    isROLinkedByClusterOrTrack(ro,comp)   );      
-      return result;      
-    }
-  }; 
 
+  bool testIfROMergableByLink(const PFEGammaAlgo::ProtoEGObject& ro, PFEGammaAlgo::ProtoEGObject& comp)
+  {
+    const bool result = ( isROLinkedByClusterOrTrack(comp,ro) || isROLinkedByClusterOrTrack(ro,comp)   );
+    return result;      
+  }
+  
   std::vector<const ClusterElement*> 
   getSCAssociatedECALsSafe(const reco::SuperClusterRef& scref,
 			   std::vector<PFFlaggedElement>& ecals) {
@@ -1256,7 +1162,6 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
  }
 
 
-
  int PFEGammaAlgo::attachPSClusters(const ClusterElement* ecalclus,
 				    ClusterMap::mapped_type& eslist) {  
    if( ecalclus->clusterRef()->layer() == PFLayer::ECAL_BARREL ) return 0;
@@ -1265,7 +1170,7 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
    auto assc_ps = std::equal_range(eetops_->cbegin(),
 				   eetops_->cend(),
 				   ecalkey,
-				   comparePSMapByKey);
+				   [](const EEtoPSElement& a, const EEtoPSElement& b){return a.first < b.first;});
    for( const auto& ps1 : _splayedblock[reco::PFBlockElement::PS1] ) {
      edm::Ptr<reco::PFCluster> temp = refToPtr(ps1.first->clusterRef());
      for( auto pscl = assc_ps.first; pscl != assc_ps.second; ++pscl ) {
@@ -1466,18 +1371,18 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
      // if one has a merge shuffle it to the front of the list
      // if there are no merges left to do we can terminate
      for( auto it1 = ROs.begin(); it1 != ROs.end(); ++it1 ) {
-       TestIfROMergableByLink mergeTest(*it1);
        auto find_start = it1; ++find_start;
-       auto has_merge = std::find_if(find_start,ROs.end(),mergeTest);
+       auto has_merge = std::find_if(find_start,ROs.end(),
+               std::bind(testIfROMergableByLink, _1, *it1));
        if( has_merge != ROs.end() && it1 != ROs.begin() ) {
 	 std::swap(*(ROs.begin()),*it1);
 	 break;
        }
      }// ensure mergables are shuffled to the front
      ProtoEGObject& thefront = ROs.front();
-     TestIfROMergableByLink mergeTest(thefront);
      auto mergestart = ROs.begin(); ++mergestart;    
-     auto nomerge = std::partition(mergestart,ROs.end(),mergeTest);
+     auto nomerge = std::partition(mergestart,ROs.end(),
+             std::bind(testIfROMergableByLink, _1, thefront));
      if( nomerge != mergestart ) {
        LOGDRESSED("PFEGammaAlgo::mergeROsByAnyLink()")       
 	 << "Found objects " << std::distance(mergestart,nomerge)
@@ -1635,7 +1540,7 @@ linkRefinableObjectPrimaryGSFTrackToECAL(ProtoEGObject& RO) {
   for( auto& primgsf : RO.primaryGSFs ) {    
     NotCloserToOther<reco::PFBlockElement::GSF,reco::PFBlockElement::ECAL>
       gsfTracksToECALs(_currentblock,_currentlinks,primgsf.first);
-    CompatibleEoPOut eoverp_test(primgsf.first);
+    auto eoverp_test = std::bind(compatibleEoPOut, _1, primgsf.first);
     // get set of matching ecals not already in SC
     auto notmatched_blk = std::partition(ECALbegin,ECALend,gsfTracksToECALs);
     notmatched_blk = std::partition(ECALbegin,notmatched_blk,eoverp_test);
@@ -1686,7 +1591,6 @@ linkRefinableObjectPrimaryGSFTrackToHCAL(ProtoEGObject& RO) {
   for( auto& primgsf : RO.primaryGSFs ) {
     NotCloserToOther<reco::PFBlockElement::GSF,reco::PFBlockElement::HCAL>
       gsfTracksToHCALs(_currentblock,_currentlinks,primgsf.first);
-    CompatibleEoPOut eoverp_test(primgsf.first);
     auto notmatched = std::partition(HCALbegin,HCALend,gsfTracksToHCALs);    
     for( auto hcal = HCALbegin; hcal != notmatched; ++hcal ) { 
       const PFClusterElement* elemascluster = 
@@ -1844,12 +1748,11 @@ linkRefinableObjectBremTangentsToECAL(ProtoEGObject& RO) {
 
 void PFEGammaAlgo::
 linkRefinableObjectConvSecondaryKFsToSecondaryKFs(ProtoEGObject& RO) {
-  IsConversionTrack<reco::PFBlockElementTrack> isConvKf; 
   auto KFbegin = _splayedblock[reco::PFBlockElement::TRACK].begin();
   auto KFend   = _splayedblock[reco::PFBlockElement::TRACK].end();
   auto BeginROskfs = RO.secondaryKFs.begin();
   auto EndROskfs   = RO.secondaryKFs.end();  
-  auto ronotconv = std::partition(BeginROskfs,EndROskfs,isConvKf); 
+  auto ronotconv = std::partition(BeginROskfs,EndROskfs,isConversionTrack<reco::PFBlockElementTrack>);
   size_t convkfs_end = std::distance(BeginROskfs,ronotconv);  
   for( size_t idx = 0; idx < convkfs_end; ++idx ) { 
     const std::vector<PFKFFlaggedElement>& secKFs = RO.secondaryKFs; //we want the entry at the index but we allocate to secondaryKFs in loop which invalidates all iterators, references and pointers, hence we need to get the entry fresh each time
@@ -1858,7 +1761,7 @@ linkRefinableObjectConvSecondaryKFsToSecondaryKFs(ProtoEGObject& RO) {
                      true> 
       TracksToTracks(_currentblock,_currentlinks, secKFs[idx].first); 
     auto notmatched = std::partition(KFbegin,KFend,TracksToTracks);    
-    notmatched = std::partition(KFbegin,notmatched,isConvKf);    
+    notmatched = std::partition(KFbegin,notmatched,isConversionTrack<reco::PFBlockElementTrack>);    
     for( auto kf = KFbegin; kf != notmatched; ++kf ) {
       const reco::PFBlockElementTrack* elemaskf =
 	docast(const reco::PFBlockElementTrack*,kf->first);      
@@ -1873,7 +1776,6 @@ linkRefinableObjectConvSecondaryKFsToSecondaryKFs(ProtoEGObject& RO) {
 void PFEGammaAlgo::
 linkRefinableObjectECALToSingleLegConv(const pfEGHelpers::HeavyObjectCache* hoc,
                                        ProtoEGObject& RO) { 
-  IsConversionTrack<reco::PFBlockElementTrack> isConvKf;
   auto KFbegin = _splayedblock[reco::PFBlockElement::TRACK].begin();
   auto KFend = _splayedblock[reco::PFBlockElement::TRACK].end();  
   for( auto& ecal : RO.ecalclusters ) {
@@ -1882,7 +1784,7 @@ linkRefinableObjectECALToSingleLegConv(const pfEGHelpers::HeavyObjectCache* hoc,
                      true>
       ECALToTracks(_currentblock,_currentlinks,ecal.first);           
     auto notmatchedkf  = std::partition(KFbegin,KFend,ECALToTracks);
-    auto notconvkf     = std::partition(KFbegin,notmatchedkf,isConvKf);    
+    auto notconvkf     = std::partition(KFbegin,notmatchedkf,isConversionTrack<reco::PFBlockElementTrack>);
     // add identified KF conversion tracks
     for( auto kf = KFbegin; kf != notconvkf; ++kf ) {
       const reco::PFBlockElementTrack* elemaskf =
@@ -2254,7 +2156,6 @@ void PFEGammaAlgo::fill_extra_info( const ProtoEGObject& RO,
 				    reco::PFCandidateEGammaExtra& xtra ) {
   // add tracks associated to clusters that are not T_FROM_GAMMACONV
   // info about single-leg convs is already save, so just veto in loops
-  IsConversionTrack<reco::PFBlockElementTrack> isConvKf;
   auto KFbegin = _splayedblock[reco::PFBlockElement::TRACK].begin();
   auto KFend = _splayedblock[reco::PFBlockElement::TRACK].end();  
   for( auto& ecal : RO.ecalclusters ) {
@@ -2263,7 +2164,7 @@ void PFEGammaAlgo::fill_extra_info( const ProtoEGObject& RO,
                      true>
       ECALToTracks(_currentblock,_currentlinks,ecal.first);           
     auto notmatchedkf  = std::partition(KFbegin,KFend,ECALToTracks);
-    auto notconvkf     = std::partition(KFbegin,notmatchedkf,isConvKf);
+    auto notconvkf     = std::partition(KFbegin,notmatchedkf,isConversionTrack<reco::PFBlockElementTrack>);
     // go through non-conv-identified kfs and check MVA to add conversions
     for( auto kf = notconvkf; kf != notmatchedkf; ++kf ) {      
       const reco::PFBlockElementTrack* elemaskf =
@@ -2281,10 +2182,7 @@ buildRefinedSuperCluster(const PFEGammaAlgo::ProtoEGObject& RO) {
   if( RO.ecalclusters.empty() ) { 
     return reco::SuperCluster(0.0,math::XYZPoint(0,0,0));
   }
-	
-  SumPSEnergy sumps1(reco::PFBlockElement::PS1), 
-    sumps2(reco::PFBlockElement::PS2);  
-						  
+
   bool isEE = false;
   edm::Ptr<reco::PFCluster> clusptr;
   // need the vector of raw pointers for a PF width class
@@ -2348,11 +2246,13 @@ buildRefinedSuperCluster(const PFEGammaAlgo::ProtoEGObject& RO) {
 	}
       }
       
-      
+      auto sumPSEnergy = [](double a, const ClusterFlaggedElement& b, const reco::PFBlockElement::Type type)
+          { return a + (type == b.first->type())*b.first->clusterRef()->energy(); };
+
       PS1_clus_sum = std::accumulate(psclusters.begin(),psclusters.end(),
-				     0.0,sumps1);
+				     0.0,std::bind(sumPSEnergy, _1, _2, reco::PFBlockElement::PS1));
       PS2_clus_sum = std::accumulate(psclusters.begin(),psclusters.end(),
-				     0.0,sumps2);
+				     0.0,std::bind(sumPSEnergy, _1, _2, reco::PFBlockElement::PS2));
             
       if(condP1 == 1) ePS1 = -1.;
       if(condP2 == 1) ePS2 = -1.;

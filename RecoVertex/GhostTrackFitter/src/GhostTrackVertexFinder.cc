@@ -66,8 +66,7 @@ namespace {
 	typedef ReferenceCountingPointer<LinearizedTrackState<5> >
 					RefCountedLinearizedTrackState;
 
-	struct VtxTrackIs : public std::unary_function<
-					RefCountedVertexTrack, bool> {
+	struct VtxTrackIs {
 		VtxTrackIs(const TransientTrack &track) : track(track) {}
 		bool operator()(const RefCountedVertexTrack &vtxTrack) const
 		{ return vtxTrack->linearizedTrack()->track() == track; }
