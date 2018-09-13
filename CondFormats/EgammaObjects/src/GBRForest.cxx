@@ -1,13 +1,13 @@
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
-
 #include "FWCore/Utilities/interface/Exception.h"
-#include <cstdio>
-#include <cstdlib>
-#include <cstdio>
-#include <cstdlib>
-#include "zlib.h"
 
-#define ROOT_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
+#include <cstdio>
+#include <cstdlib>
+#include <cstdio>
+#include <cstdlib>
+#include <RVersion.h>
+#include <zlib.h>
+
 
 namespace {
 

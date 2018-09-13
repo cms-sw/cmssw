@@ -169,7 +169,7 @@ private:
   std::vector<std::vector<PFFlaggedElement> > _splayedblock; 
 
   // pre-cleaning for the splayed block
-  bool isAMuon(const reco::PFBlockElement&);
+  bool isMuon(const reco::PFBlockElement&);
   // pre-processing of ECAL clusters near non-primary KF tracks
   void removeOrLinkECALClustersToKFTracks();
 
@@ -250,10 +250,10 @@ private:
   
   // helper functions for that
 
-  float calculate_ele_mva(const pfEGHelpers::HeavyObjectCache* hoc,
-                          const ProtoEGObject&,
-			  reco::PFCandidateEGammaExtra&);
-  void fill_extra_info(const ProtoEGObject&,
+  float calculateEleMVA(const pfEGHelpers::HeavyObjectCache* hoc,
+                        const ProtoEGObject&,
+                        reco::PFCandidateEGammaExtra&) const;
+  void fillExtraInfo(const ProtoEGObject&,
 		       reco::PFCandidateEGammaExtra&);
   
   // ------ end of new stuff 

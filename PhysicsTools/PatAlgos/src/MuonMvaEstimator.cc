@@ -1,5 +1,6 @@
 #include "PhysicsTools/PatAlgos/interface/MuonMvaEstimator.h"
 
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -12,7 +13,7 @@
 
 using namespace pat;
 
-MuonMvaEstimator::MuonMvaEstimator(const std::string& weightsfile, float dRmax):
+MuonMvaEstimator::MuonMvaEstimator(const edm::FileInPath& weightsfile, float dRmax):
   dRmax_(dRmax)
 {
   gbrForest_ = std::make_unique<GBRForest>( weightsfile );

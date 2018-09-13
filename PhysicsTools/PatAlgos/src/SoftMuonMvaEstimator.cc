@@ -1,5 +1,6 @@
 #include "PhysicsTools/PatAlgos/interface/SoftMuonMvaEstimator.h"
 
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -8,7 +9,7 @@
 
 using namespace pat;
 
-SoftMuonMvaEstimator::SoftMuonMvaEstimator(const std::string& weightsfile)
+SoftMuonMvaEstimator::SoftMuonMvaEstimator(const edm::FileInPath& weightsfile)
 {
   gbrForest_ = std::make_unique<GBRForest>( weightsfile );
 }
@@ -85,9 +86,9 @@ float SoftMuonMvaEstimator::computeMva(const pat::Muon& muon) const
 
 	const reco::HitPattern &gMpattern = gTrack->hitPattern();
 
-	std::vector<int> fvDThits = {0,0,0,0};
-	std::vector<int> fvRPChits = {0,0,0,0};
-	std::vector<int> fvCSChits = {0,0,0,0};
+	std::vector<int> fvDThits {0,0,0,0};
+	std::vector<int> fvRPChits {0,0,0,0};
+	std::vector<int> fvCSChits {0,0,0,0};
 
 	var[kVMuonHitComb] = 0;
 
