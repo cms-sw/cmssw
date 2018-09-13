@@ -27,8 +27,8 @@ class ZDCQIE10Task : public DQMEDAnalyzer
 		edm::EDGetTokenT<QIE10DigiCollection> _tokQIE10;
 
 		//	hcaldqm::Containers
-		std::map<std::string,MonitorElement*>   _cADC_EChannel;
-		std::map<std::string,MonitorElement*>   _cADC_vs_TS_EChannel;
+		std::map<uint32_t,MonitorElement*>   _cADC_EChannel;
+		std::map<uint32_t,MonitorElement*>   _cADC_vs_TS_EChannel;
 
 };
 
