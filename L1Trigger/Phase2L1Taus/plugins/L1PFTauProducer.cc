@@ -12,31 +12,14 @@
 */
 
 
-/*Implement Position Diff for Crystals
- *Position Diff for iEta from RECO
- *Position Diff for iPhi from RECO
- *Put new methods in header file
- *Make the couts for the number of taus per event
- *Make the couts for the content of the tau
- *Merge the electron Grid and the Photon Grid
- * --> Need a way to add electrons which are in the same grid position
- * IMPLEMENT THE PHOTON AND E/G FINDING IN CLUSTERS
- *
- * Finish the isolation variable calculation for type of object
- */
-
 #include "L1Trigger/Phase2L1Taus/interface/L1PFTauProducer.hh"
 
 L1PFTauProducer::L1PFTauProducer(const edm::ParameterSet& cfg) :
   debug(                cfg.getUntrackedParameter<bool>("debug", false)),
-  //three_prong_max_delta_Z_( cfg.getUntrackedParameter<double>("three_prong_max_dZ", 0.3)), // LSB is 0.1 so 8 corresonds to 0.8
-  //isolation_delta_r_(   cfg.getUntrackedParameter<double>("iso_dr", 0.5)), // LSB is 0.1 so 8 corresonds to 0.8
   L1PFToken_(           consumes< vector<l1t::PFCandidate> >(cfg.getParameter<edm::InputTag>("L1PFObjects"))),
   L1NeutralToken_(      consumes< vector<l1t::PFCandidate> >(cfg.getParameter<edm::InputTag>("L1Neutrals")) )
 {
-  //produces three collections of taus, one that uses full FW, one that uses only L1 objects and one that uses only reco objects
   produces< L1PFTauCollection >( "L1PFTaus" ).setBranchAlias("L1PFTaus");
-  
 }
 
 void L1PFTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -57,25 +40,20 @@ void L1PFTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // get all PF Charged Hadrons
   for(auto l1PFCand : l1PFCandidates_sort){
-  //for(unsigned i = 0; i < l1PFCandidates->size(); i++)
+    // this saves some low pt 3 prong taus, but should be optimized with respect to 1 prong pi0
     if(l1PFCand.id() == l1t::PFCandidate::ChargedHadron || (l1PFCand.pt()<5 && l1PFCand.id() == l1t::PFCandidate::Electron)){
       pfChargedHadrons.push_back(l1PFCand);
-      if(l1PFCand.pt()>0)
-	std::cout<<"PF Hadron Cand "<<l1PFCand.pt()<<" eta: "<< l1PFCand.eta()<<" phi: "<<l1PFCand.phi()<<std::endl;
       continue;
     }
-  // get all PF EM candidates
+    // get all PF EM candidates
     if((l1PFCand.id() == l1t::PFCandidate::Electron) || (l1PFCand.id() == l1t::PFCandidate::Photon)){
       pfEGammas.push_back(l1PFCand);
-      if(l1PFCand.pt()>0)
-	std::cout<<"PF EG Cand "<<l1PFCand.pt()<<" eta: "<< l1PFCand.eta()<<" phi: "<<l1PFCand.phi()<<std::endl;
     }
   }
   
   // create all Tau Candidates based on detector region
   // 12 in phi x 10 taus 
   // nTaus in phi, nTaus in Eta
-  //tauMapperCollection tauCandidates;
   tauCandidates.clear();
   createTaus(tauCandidates);
   
@@ -123,7 +101,6 @@ void L1PFTauProducer::createTaus(tauMapperCollection &inputCollection){
       tempTau.l1PFTau.setHWEta(iTau_eta);
       tempTau.l1PFTau.setHWPhi(iTau_phi);
       tempTau.ClearSeedHadron();
-      //std::cout<<"tempTau.l1PFTau.HWEta() "<<tempTau.l1PFTau.hwEta()<< " HWPhi: "<<tempTau.l1PFTau.hwPhi()<<std::endl;
       inputCollection.push_back(tempTau);
     }
   }
