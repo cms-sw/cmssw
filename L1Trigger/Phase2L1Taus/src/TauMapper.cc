@@ -5,9 +5,6 @@ bool TauMapper::addPFChargedHadron( l1t::PFCandidate in ){
   bool ChargedHadronAdded = false;
   if(!seedHadronSet && contains(in)){
     setSeedChargedHadron(in);
-    //std::cout<<"Set Seed Charged Hadron"<<std::endl;
-    //std::cout<<"pt: "<<in.pt()<<" eta: "<<in.eta()<<" phi: "<<in.phi()<<std::endl;
-    
     return true;
   }
 
@@ -15,12 +12,12 @@ bool TauMapper::addPFChargedHadron( l1t::PFCandidate in ){
   if(seedHadronSet && seedCHConeContains(in)){
     if(in.pt() > prong3.pt() && in.pt() < prong2.pt()){
       prong3 = in;
+      ChargedHadronAdded = true;
     }
     else if(in.pt() > prong2.pt()){
       prong2 = in;
+      ChargedHadronAdded = true;
     }
-
-    ChargedHadronAdded = true;
   }
   else if(seedHadronSet && isolationConeContains(in)){
 
@@ -76,8 +73,6 @@ bool TauMapper::contains(l1t::PFCandidate in){
 
   float pfCharged_eta = in.eta();
   float pfCharged_phi = in.phi();
-  //std::cout<<"cand pt: "<<in.pt();
-  //std::cout<<" HWEta: "<<  l1PFTau.hwEta()<<" HWPhi: "<< l1PFTau.hwPhi()<<" difference eta: "<<fabs(pfCharged_eta - l1PFTau.hwEta())<<" difference phi: "<< (fabs(pfCharged_phi - l1PFTau.hwPhi()))<<std::endl;
 
   //must be within defined Tau Seed HW area
   if((fabs(pfCharged_eta - l1PFTau.hwEta()) < tau_size_eta/2) && (fabs(pfCharged_phi - l1PFTau.hwPhi()) < tau_size_phi/2) )
@@ -163,6 +158,7 @@ void TauMapper::process(){
   //std::cout<<"   prong2 pt: "<< prong2.pt()<<" eta: "<< prong2.eta() <<" phi: "<<prong2.phi()<<std::endl;
   //std::cout<<"   prong3 pt: "<< prong3.pt()<<" eta: "<< prong3.eta() <<" phi: "<<prong3.phi()<<std::endl;
   //std::cout<<"   strip  pt: "<< strip_pt <<" eta: "<< strip_eta <<std::endl;
+
   // 3 prong
   if(prong2.pt() > 0 && prong3.pt() > 0){
     float pt = prong2.pt()+prong3.pt()+seedCH.pt();
