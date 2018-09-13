@@ -298,7 +298,7 @@ trackingPhase1.toReplaceWith(initialStep, initialStepClassifier1.clone(
 
 pp_on_AA_2018.toModify(initialStep, 
         mva = dict(GBRForestLabel = 'HIMVASelectorInitialStep_Phase1'),
-        qualityCuts = [-0.9, -0.5, 0.0],
+        qualityCuts = [-0.9, -0.5, 0.2],
 )
 
 # For LowPU and Phase2PU140
