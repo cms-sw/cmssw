@@ -364,6 +364,7 @@ trackingPhase1.toReplaceWith(tobTecStep, tobTecStepClassifier1.clone(
      mva = dict(GBRForestLabel = 'MVASelectorTobTecStep_Phase1'),
      qualityCuts = [-0.6,-0.45,-0.3],
 ))
+pp_on_AA_2018.toModify(tobTecStep, qualityCuts = [-0.6,-0.3,0.7])
 
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 trackingLowPU.toReplaceWith(tobTecStep, RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
