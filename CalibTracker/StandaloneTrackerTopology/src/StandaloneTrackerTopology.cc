@@ -22,7 +22,7 @@ namespace {
     public:
     bool VisitEnter(const tinyxml2::XMLElement& elem, const tinyxml2::XMLAttribute*) override
       {
-        if ( elem.Value() == std::string("Vector").c_str() ) {
+        if ( std::strcmp(elem.Value(), "Vector") == 0 ) {
           const std::string att_type{elem.Attribute("type")};
           if ( att_type == "numeric" ) {
             const std::string att_name{elem.Attribute("name")};
@@ -169,7 +169,8 @@ namespace {
 namespace StandaloneTrackerTopology {
 TrackerTopology fromTrackerParametersXMLFile( const std::string& xmlFileName ) {
   tinyxml2::XMLDocument xmlDoc;
-  if ( xmlDoc.LoadFile(xmlFileName.c_str()) ) {
+  xmlDoc.LoadFile(xmlFileName.c_str());
+  if ( ! xmlDoc.Error() ) {
     TrackerTopologyExtractor extr{};
     xmlDoc.Accept(&extr);
     return extr.getTrackerTopology();
