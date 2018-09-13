@@ -17,11 +17,15 @@ namespace reco {
   class Vertex;
 }
 
+namespace edm {
+  class FileInPath;
+}
+
 namespace pat {
   class MuonMvaEstimator{
   public:
 
-    MuonMvaEstimator(const std::string& weightsfile, float dRmax);
+    MuonMvaEstimator(const edm::FileInPath& weightsfile, float dRmax);
 
     ~MuonMvaEstimator();
 

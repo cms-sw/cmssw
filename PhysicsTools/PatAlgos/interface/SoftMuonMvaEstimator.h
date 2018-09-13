@@ -10,11 +10,15 @@ namespace pat {
   class Muon;
 }
 
+namespace edm {
+  class FileInPath;
+}
+
 namespace pat {
   class SoftMuonMvaEstimator{
   public:
 
-    SoftMuonMvaEstimator(const std::string& weightsfile);
+    SoftMuonMvaEstimator(const edm::FileInPath& weightsfile);
 
     ~SoftMuonMvaEstimator();
 

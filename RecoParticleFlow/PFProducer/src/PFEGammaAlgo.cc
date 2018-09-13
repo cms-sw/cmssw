@@ -622,9 +622,9 @@ EvaluateSingleLegMVA(const pfEGHelpers::HeavyObjectCache* hoc,
   //calculate MVA Variables  
   const float chi2     = elements[track_index].trackRef()->chi2()/elements[track_index].trackRef()->ndof(); 
   const float nlost    = elements[track_index].trackRef()->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS); 
-  const float nlayers  = elements[track_index].trackRef()->hitPattern().trackerLayersWithMeasurement(); 
-  const float track_pt = elements[track_index].trackRef()->pt();  
-  const float STIP     = elements[track_index].trackRefPF()->STIP();  
+  const float nLayers  = elements[track_index].trackRef()->hitPattern().trackerLayersWithMeasurement(); 
+  const float trackPt  = elements[track_index].trackRef()->pt();  
+  const float stip     = elements[track_index].trackRefPF()->STIP();  
    
   float linked_e=0;  
   float linked_h=0;  
@@ -650,22 +650,22 @@ EvaluateSingleLegMVA(const pfEGHelpers::HeavyObjectCache* hoc,
       linked_h=linked_h+elements[ithcal->second].clusterRef()->energy();  
     }  
   }  
-  const float EoverPt = linked_e/elements[track_index].trackRef()->pt();  
-  const float HoverPt = linked_h/elements[track_index].trackRef()->pt();  
+  const float eOverPt = linked_e/elements[track_index].trackRef()->pt();  
+  const float hOverPt = linked_h/elements[track_index].trackRef()->pt();  
   GlobalVector rvtx(elements[track_index].trackRef()->innerPosition().X()-primaryvtx.x(),  
 		    elements[track_index].trackRef()->innerPosition().Y()-primaryvtx.y(),  
 		    elements[track_index].trackRef()->innerPosition().Z()-primaryvtx.z());  
-  double vtx_phi=rvtx.phi();  
+  double vtxPhi=rvtx.phi();  
   //delta Phi between conversion vertex and track  
-  float del_phi=fabs(deltaPhi(vtx_phi, elements[track_index].trackRef()->innerMomentum().Phi()));  
+  float delPhi=fabs(deltaPhi(vtxPhi, elements[track_index].trackRef()->innerMomentum().Phi()));  
   
-  float vars[] = { del_phi, nlayers, chi2, EoverPt,
-                   HoverPt, track_pt, STIP, nlost };
+  float vars[] = { delPhi, nLayers, chi2, eOverPt,
+                   hOverPt, trackPt, stip, nlost };
 
   return hoc->gbrSingleLeg_->GetAdaBoostClassifier(vars);
 }
 
-bool PFEGammaAlgo::isAMuon(const reco::PFBlockElement& pfbe) {
+bool PFEGammaAlgo::isMuon(const reco::PFBlockElement& pfbe) {
   switch( pfbe.type() ) {
   case reco::PFBlockElement::GSF:    
     {
@@ -706,7 +706,7 @@ void PFEGammaAlgo::buildAndRefineEGObjects(const pfEGHelpers::HeavyObjectCache* 
   LOGVERB("PFEGammaAlgo") << "Splaying block" << std::endl;  
   //unwrap the PF block into a fast access map
   for( const auto& pfelement : _currentblock->elements() ) {
-    if( isAMuon(pfelement) ) continue; // don't allow muons in our element list
+    if( isMuon(pfelement) ) continue; // don't allow muons in our element list
     if (pfelement.type() == PFBlockElement::HCAL && 
         pfelement.clusterRef()->flags() & reco::CaloCluster::badHcalMarker) continue; // skip also dead area markers for now
     const size_t itype = (size_t)pfelement.type();    
@@ -1919,20 +1919,20 @@ fillPFCandidates(const pfEGHelpers::HeavyObjectCache* hoc,
       cand.setP4(p4);   
       cand.setPositionAtECALEntrance(kf->positionAtECALEntrance());
     }    
-    const float ele_mva_value = calculate_ele_mva(hoc,RO,xtra);
-    fill_extra_info(RO,xtra);
-    //std::cout << "PFEG ele_mva: " << ele_mva_value << std::endl;
-    xtra.setMVA(ele_mva_value);    
-    cand.set_mva_e_pi(ele_mva_value);
+    const float eleMVAValue = calculateEleMVA(hoc,RO,xtra);
+    fillExtraInfo(RO,xtra);
+    //std::cout << "PFEG eleMVA: " << eleMVAValue << std::endl;
+    xtra.setMVA(eleMVAValue);    
+    cand.set_mva_e_pi(eleMVAValue);
     egcands.push_back(cand);
     egxs.push_back(xtra);    
   }
 }
 
 float PFEGammaAlgo::
-calculate_ele_mva(const pfEGHelpers::HeavyObjectCache* hoc,
-                  const PFEGammaAlgo::ProtoEGObject& RO,
-		  reco::PFCandidateEGammaExtra& xtra) {
+calculateEleMVA(const pfEGHelpers::HeavyObjectCache* hoc,
+                const PFEGammaAlgo::ProtoEGObject& RO,
+                reco::PFCandidateEGammaExtra& xtra) const {
   if( RO.primaryGSFs.empty() ) return -2.0f;
   const PFGSFElement* gsfElement = RO.primaryGSFs.front().first;
   const PFKFElement* kfElement = nullptr;
@@ -1997,9 +1997,9 @@ calculate_ele_mva(const pfEGHelpers::HeavyObjectCache* hoc,
   } 
 
   // brem sequence information
-  float lateBrem  = -1.0f;
-  float firstBrem = -1.0f;
-  float earlyBrem = -1.0f;
+  float lateBrem  {-1.0f};
+  float firstBrem {-1.0f};
+  float earlyBrem {-1.0f};
   if(RO.nBremsWithClusters > 0) {
     if (RO.lateBrem == 1) lateBrem = 1.0f;
     else lateBrem = 0.0f;
@@ -2013,86 +2013,85 @@ calculate_ele_mva(const pfEGHelpers::HeavyObjectCache* hoc,
     if( RefGSF.isNonnull() ) {
       xtra.setGsfTrackPout(gsfElement->Pout());
       // normalization observables
-      const float Pt_gsf = RefGSF->ptMode();
-      const float lnPt_gsf = std::log(Pt_gsf);
-      const float Eta_gsf = RefGSF->etaMode();
+      const float ptGsf = RefGSF->ptMode();
+      const float lnPtGsf = std::log(ptGsf);
+      const float etaGsf = RefGSF->etaMode();
       // tracking observables
       const double ptModeErrorGsf = RefGSF->ptModeError();
-      float dPtOverPt_gsf = (ptModeErrorGsf > 0. ? ptModeErrorGsf/Pt_gsf : 1.0);
-      //const float nhit_gsf = RefGSF->hitPattern().trackerLayersWithMeasurement();
-      float chi2_gsf = RefGSF->normalizedChi2();
-      float DPtOverPt_gsf =  (Pt_gsf - gsfElement->Pout().pt())/Pt_gsf;
+      float ptModeErrOverPtGsf = (ptModeErrorGsf > 0. ? ptModeErrorGsf/ptGsf : 1.0);
+      float chi2Gsf = RefGSF->normalizedChi2();
+      float dPtOverPtGsf =  (ptGsf - gsfElement->Pout().pt())/ptGsf;
       // kalman filter vars
-      float nhit_kf = 0;
-      float chi2_kf = -0.01;
+      float nHitKf = 0;
+      float chi2Kf = -0.01;
       float DPtOverPt_kf = -0.01;
       if( RefKF.isNonnull() ) {
-	nhit_kf = RefKF->hitPattern().trackerLayersWithMeasurement();
-	chi2_kf = RefKF->normalizedChi2();
+	nHitKf = RefKF->hitPattern().trackerLayersWithMeasurement();
+	chi2Kf = RefKF->normalizedChi2();
 	// not used for moment, weird behavior of variable
 	// DPtOverPt_kf = (RefKF->pt() - RefKF->outerPt())/RefKF->pt();
       }	
       //tracker + calorimetry observables
       const double EcalETot = (FirstEcalGsfEnergy+OtherEcalGsfEnergy+EcalBremEnergy);
-      float EtotPinMode  = EcalETot / Ein_gsf;
-      float EGsfPoutMode = FirstEcalGsfEnergy / Eout_gsf;
-      float EtotBremPinPoutMode = ( (EcalBremEnergy + OtherEcalGsfEnergy) / 
+      float eTotPinMode  = EcalETot / Ein_gsf;
+      float eGsfPoutMode = FirstEcalGsfEnergy / Eout_gsf;
+      float eTotBremPinPoutMode = ( (EcalBremEnergy + OtherEcalGsfEnergy) / 
 			      (Ein_gsf - Eout_gsf) );
-      float DEtaGsfEcalClust = std::abs(deta_gsfecal);
-      float SigmaEtaEta = std::log(sigmaEtaEta);
-      xtra.setDeltaEta(DEtaGsfEcalClust);
+      float dEtaGsfEcalClust = std::abs(deta_gsfecal);
+      float logSigmaEtaEta = std::log(sigmaEtaEta);
+      xtra.setDeltaEta(dEtaGsfEcalClust);
       xtra.setSigmaEtaEta(sigmaEtaEta);      
       
-      float HOverHE = Ene_hcalgsf/(Ene_hcalgsf + FirstEcalGsfEnergy);
+      float hOverHe = Ene_hcalgsf/(Ene_hcalgsf + FirstEcalGsfEnergy);
       float HOverPin = Ene_hcalgsf / Ein_gsf;
       xtra.setHadEnergy(Ene_hcalgsf);
 
       // Apply bounds to variables and calculate MVA
-      DPtOverPt_gsf = std::max(DPtOverPt_gsf,-0.2f);
-      DPtOverPt_gsf =  std::min(DPtOverPt_gsf,1.0f);  
-      dPtOverPt_gsf = std::min(dPtOverPt_gsf,0.3f);  
-      chi2_gsf = std::min(chi2_gsf,10.0f);  
+      dPtOverPtGsf = std::max(dPtOverPtGsf,-0.2f);
+      dPtOverPtGsf =  std::min(dPtOverPtGsf,1.0f);  
+      ptModeErrOverPtGsf = std::min(ptModeErrOverPtGsf,0.3f);  
+      chi2Gsf = std::min(chi2Gsf,10.0f);  
       DPtOverPt_kf = std::max(DPtOverPt_kf,-0.2f);
       DPtOverPt_kf = std::min(DPtOverPt_kf,1.0f);  
-      chi2_kf = std::min(chi2_kf,10.0f);  
-      EtotPinMode = std::max(EtotPinMode,0.0f);
-      EtotPinMode = std::min(EtotPinMode,5.0f);  
-      EGsfPoutMode = std::max(EGsfPoutMode,0.0f);
-      EGsfPoutMode = std::min(EGsfPoutMode,5.0f);  
-      EtotBremPinPoutMode = std::max(EtotBremPinPoutMode,0.0f);
-      EtotBremPinPoutMode = std::min(EtotBremPinPoutMode,5.0f);  
-      DEtaGsfEcalClust = std::min(DEtaGsfEcalClust,0.1f);  
-      SigmaEtaEta = std::max(SigmaEtaEta,-14.0f);  
+      chi2Kf = std::min(chi2Kf,10.0f);  
+      eTotPinMode = std::max(eTotPinMode,0.0f);
+      eTotPinMode = std::min(eTotPinMode,5.0f);  
+      eGsfPoutMode = std::max(eGsfPoutMode,0.0f);
+      eGsfPoutMode = std::min(eGsfPoutMode,5.0f);  
+      eTotBremPinPoutMode = std::max(eTotBremPinPoutMode,0.0f);
+      eTotBremPinPoutMode = std::min(eTotBremPinPoutMode,5.0f);  
+      dEtaGsfEcalClust = std::min(dEtaGsfEcalClust,0.1f);  
+      logSigmaEtaEta = std::max(logSigmaEtaEta,-14.0f);  
       HOverPin = std::max(HOverPin,0.0f);
       HOverPin = std::min(HOverPin,5.0f);
       /*
       std::cout << " **** PFEG BDT observables ****" << endl;
       std::cout << " < Normalization > " << endl;
-      std::cout << " Pt_gsf " << Pt_gsf << " Pin " << Ein_gsf  
-		<< " Pout " << Eout_gsf << " Eta_gsf " << Eta_gsf << endl;
+      std::cout << " ptGsf " << ptGsf << " Pin " << Ein_gsf  
+		<< " Pout " << Eout_gsf << " etaGsf " << etaGsf << endl;
       std::cout << " < PureTracking > " << endl;
-      std::cout << " dPtOverPt_gsf " << dPtOverPt_gsf 
-		<< " DPtOverPt_gsf " << DPtOverPt_gsf
-		<< " chi2_gsf " << chi2_gsf
+      std::cout << " ptModeErrOverPtGsf " << ptModeErrOverPtGsf 
+		<< " dPtOverPtGsf " << dPtOverPtGsf
+		<< " chi2Gsf " << chi2Gsf
 		<< " nhit_gsf " << nhit_gsf
 		<< " DPtOverPt_kf " << DPtOverPt_kf
-		<< " chi2_kf " << chi2_kf 
-		<< " nhit_kf " << nhit_kf <<  endl;
+		<< " chi2Kf " << chi2Kf 
+		<< " nHitKf " << nHitKf <<  endl;
       std::cout << " < track-ecal-hcal-ps " << endl;
-      std::cout << " EtotPinMode " << EtotPinMode 
-		<< " EGsfPoutMode " << EGsfPoutMode
-		<< " EtotBremPinPoutMode " << EtotBremPinPoutMode
-		<< " DEtaGsfEcalClust " << DEtaGsfEcalClust 
-		<< " SigmaEtaEta " << SigmaEtaEta
-		<< " HOverHE " << HOverHE << " Hcal energy " << Ene_hcalgsf
+      std::cout << " eTotPinMode " << eTotPinMode 
+		<< " eGsfPoutMode " << eGsfPoutMode
+		<< " eTotBremPinPoutMode " << eTotBremPinPoutMode
+		<< " dEtaGsfEcalClust " << dEtaGsfEcalClust 
+		<< " logSigmaEtaEta " << logSigmaEtaEta
+		<< " hOverHe " << hOverHe << " Hcal energy " << Ene_hcalgsf
 		<< " HOverPin " << HOverPin 
 		<< " lateBrem " << lateBrem
 		<< " firstBrem " << firstBrem << endl;
       */
       
-      float vars[] = { lnPt_gsf, Eta_gsf, dPtOverPt_gsf, DPtOverPt_gsf, chi2_gsf,
-                       nhit_kf, chi2_kf, EtotPinMode, EGsfPoutMode, EtotBremPinPoutMode,
-                       DEtaGsfEcalClust, SigmaEtaEta, HOverHE, lateBrem, firstBrem };
+      float vars[] = { lnPtGsf, etaGsf, ptModeErrOverPtGsf, dPtOverPtGsf, chi2Gsf,
+                       nHitKf, chi2Kf, eTotPinMode, eGsfPoutMode, eTotBremPinPoutMode,
+                       dEtaGsfEcalClust, logSigmaEtaEta, hOverHe, lateBrem, firstBrem };
 
       return hoc->gbrEle_->GetAdaBoostClassifier(vars);
     }
@@ -2100,8 +2099,8 @@ calculate_ele_mva(const pfEGHelpers::HeavyObjectCache* hoc,
   return -2.0f;
 }
 
-void PFEGammaAlgo::fill_extra_info( const ProtoEGObject& RO,
-				    reco::PFCandidateEGammaExtra& xtra ) {
+void PFEGammaAlgo::fillExtraInfo(const ProtoEGObject& RO,
+                                 reco::PFCandidateEGammaExtra& xtra ) {
   // add tracks associated to clusters that are not T_FROM_GAMMACONV
   // info about single-leg convs is already save, so just veto in loops
   auto KFbegin = _splayedblock[reco::PFBlockElement::TRACK].begin();
