@@ -39,7 +39,7 @@ zttModifier = ApplyFunctionToSequence(zttLabeler)
 proc.TauValNumeratorAndDenominatorZMM.visit(zttModifier)
 
 #Set discriminators
-discs_to_retain = ['ByDecayModeFinding', 'MuonRejection3']
+discs_to_retain = ['ByDecayModeFinding', 'MuonRejection']
 proc.RunHPSValidationZMM.discriminators = cms.VPSet([p for p in proc.RunHPSValidationZMM.discriminators if any(disc in p.discriminator.value() for disc in discs_to_retain) ])
 
 #Sets the correct naming to efficiency histograms

@@ -103,7 +103,7 @@ proc.TauValNumeratorAndDenominatorRealMuonsData.visit(zttModifier)
 #-----------------------------------------
 
 #Set discriminators
-discs_to_retain = ['ByDecayModeFinding', 'MuonRejection3']
+discs_to_retain = ['ByDecayModeFinding', 'MuonRejection']
 proc.RunHPSValidationRealMuonsData.discriminators = cms.VPSet([p for p in proc.RunHPSValidationRealMuonsData.discriminators if any(disc in p.discriminator.value() for disc in discs_to_retain) ])
 
 #Sets the correct naming to efficiency histograms

@@ -121,7 +121,7 @@ proc.TauValNumeratorAndDenominatorRealElectronsData.visit(zttModifier)
 #-----------------------------------------
 
 #Set discriminators
-discs_to_retain = ['ByDecayModeFinding', 'MVA6']
+discs_to_retain = ['ByDecayModeFinding', 'ElectronRejection']
 proc.RunHPSValidationRealElectronsData.discriminators = cms.VPSet([p for p in proc.RunHPSValidationRealElectronsData.discriminators if any(disc in p.discriminator.value() for disc in discs_to_retain) ])
 
 #Sets the correct naming to efficiency histograms
