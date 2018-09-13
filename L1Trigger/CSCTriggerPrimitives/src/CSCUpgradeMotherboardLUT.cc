@@ -44,14 +44,16 @@ CSCMotherboardLUTME11::CSCMotherboardLUTME11()
     {0, 93},{0, 78},{0, 63}
   };
 }
- bool
- CSCMotherboardLUTME11::doesALCTCrossCLCT(const CSCALCTDigi &a, const CSCCLCTDigi &c,
-                                          int theEndcap, bool gangedME1a) const
+
+bool
+CSCMotherboardLUTME11::doesALCTCrossCLCT(const CSCALCTDigi &a, const CSCCLCTDigi &c,
+                                         int theEndcap, bool gangedME1a) const
  {
    if ( !c.isValid() || !a.isValid() ) return false;
    int key_hs = c.getKeyStrip();
    int key_wg = a.getKeyWG();
-   if ( key_hs >= CSCConstants::MAX_HALF_STRIP_ME1B )
+   // ME1/a half-strip starts at 128
+   if ( key_hs > CSCConstants::MAX_HALF_STRIP_ME1B )
      {
        if ( !gangedME1a )
          {
@@ -69,7 +71,8 @@ CSCMotherboardLUTME11::CSCMotherboardLUTME11()
            return false;
          }
      }
-   if ( key_hs < CSCConstants::MAX_HALF_STRIP_ME1B )
+   // ME1/b half-strip ends at 127
+   if ( key_hs <= CSCConstants::MAX_HALF_STRIP_ME1B )
      {
        if (theEndcap==2) key_hs = CSCConstants::MAX_HALF_STRIP_ME1B - key_hs;
        if ( key_hs >= lut_wg_vs_hs_me1b[key_wg][0] &&
