@@ -18,10 +18,13 @@ CSCUpgradeMotherboard::LCTContainer::getTimeMatched(const int bx,
 {
   for (unsigned int mbx = 0; mbx < match_trig_window_size_; mbx++) {
     for (int i=0;i<2;i++) {
-      //remove duplicated LCTs
-      if (data[bx][mbx][i].isValid() and std::find(lcts.begin(), lcts.end(), data[bx][mbx][i]) == lcts.end()) {
-        lcts.push_back(data[bx][mbx][i]);
-      }
+      // consider only valid LCTs
+      if (not data[bx][mbx][i].isValid()) continue;
+
+      // remove duplicated LCTs
+      if (std::find(lcts.begin(), lcts.end(), data[bx][mbx][i]) != lcts.end()) continue;
+
+      lcts.push_back(data[bx][mbx][i]);
     }
   }
 }

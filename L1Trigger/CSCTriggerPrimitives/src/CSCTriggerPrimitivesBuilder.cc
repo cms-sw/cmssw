@@ -275,7 +275,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               // get the collections
               const std::vector<CSCCorrelatedLCTDigi>& lctV = tmb11GEM->readoutLCTs1b();
               const std::vector<CSCCorrelatedLCTDigi>& lctV1a = tmb11GEM->readoutLCTs1a();
-              const std::vector<CSCALCTDigi> alctV = tmb11GEM->alctProc->readoutALCTs();
+              const std::vector<CSCALCTDigi>& alctV = tmb11GEM->alctProc->readoutALCTs();
               const std::vector<CSCCLCTDigi>& clctV = tmb11GEM->clctProc->readoutCLCTsME1b();
               const std::vector<int>& preTriggerBXs = tmb11GEM->clctProc->preTriggerBXs();
               const std::vector<CSCCLCTPreTriggerDigi>& pretriggerV = tmb11GEM->clctProc->preTriggerDigisME1b();
