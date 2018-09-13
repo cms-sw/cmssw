@@ -350,7 +350,7 @@ L1TkMuonProducer::runOnMTFCollection_v2(const edm::Handle<EMTFTrackCollection>& 
     float p4e = sqrt(0.105658369*0.105658369 + p3.mag2() );
     math::XYZTLorentzVector l1tkp4(p3.x(), p3.y(), p3.z(), p4e);
 
-    edm::Ref< RegionalMuonCandBxCollection > l1muRef(nullptr, 0); // FIXME! The reference to the muon is null
+    edm::Ref< RegionalMuonCandBxCollection > l1muRef; // FIXME! The reference to the muon is null 
     edm::Ptr< L1TTTrackType > l1tkPtr(l1tksH, il1ttrack);
     float trkisol = -999; // FIXME: now doing as in the TP algo
     L1TkMuonParticle l1tkmu(l1tkp4, l1muRef, l1tkPtr, trkisol);
