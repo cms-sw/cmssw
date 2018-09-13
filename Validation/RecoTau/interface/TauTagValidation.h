@@ -139,7 +139,7 @@ private:
   std::map<std::string,  MonitorElement *> plotMap_;
   std::map<std::string,  MonitorElement *> summaryMap;
 
-  std::map<std::string,  int> tauDeacyCountMap_;
+  std::map<std::string,  int> tauDecayCountMap_;
 
   MonitorElement* nTaus_;
 
