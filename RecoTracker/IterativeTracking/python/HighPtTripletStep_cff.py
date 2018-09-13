@@ -254,7 +254,7 @@ fastSim.toModify(highPtTripletStep,vertices = "firstStepPrimaryVerticesBeforeMix
 highBetaStar_2018.toModify(highPtTripletStep,qualityCuts = [-0.2,0.3,0.4])
 pp_on_AA_2018.toModify(highPtTripletStep, 
         mva = dict(GBRForestLabel = 'HIMVASelectorHighPtTripletStep_Phase1'),
-        qualityCuts = [-0.9, -0.3, 0.8],
+        qualityCuts = [-0.9, -0.3, 0.85],
 )
 
 # For Phase2PU140
