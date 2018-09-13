@@ -466,8 +466,8 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc)
               << "+++ CSC geometry looks garbled; no emulation possible +++\n";
           }
         }
-        if (!disableME1a && theRing == 1 && !gangedME1a) numStrips = 112;
-        if (!disableME1a && theRing == 1 && gangedME1a) numStrips = 80;
+        if (!disableME1a && theRing == 1 && !gangedME1a) numStrips = CSCConstants::MAX_NUM_STRIPS_7CFEBS;
+        if (!disableME1a && theRing == 1 && gangedME1a) numStrips = CSCConstants::MAX_NUM_STRIPS;
         if (disableME1a && theRing == 1 ) numStrips = 64;
       }
 

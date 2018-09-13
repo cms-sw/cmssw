@@ -269,7 +269,12 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         # True: allow construction of unphysical LCTs
         # in ME11 for which WG and HS do not intersect
         # False: do not build unphysical LCTs
-        ignoreAlctCrossClct = cms.bool(True)
+        ignoreAlctCrossClct = cms.bool(True),
+
+        ## run in debug mode
+        debugLUTs = cms.bool(False),
+        debugMatching = cms.bool(False),
+
     ),
 
     # MPC sorter config for Run2 and beyond
@@ -428,7 +433,8 @@ from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toModify( cscTriggerPrimitiveDigis,
                    GEMPadDigiProducer = cms.InputTag("simMuonGEMPadDigis"),
                    GEMPadDigiClusterProducer = cms.InputTag("simMuonGEMPadDigiClusters"),
-                   commonParam = dict(runME11ILT = cms.bool(True),
+                   commonParam = dict(isSLHC = True,
+                                      runME11ILT = cms.bool(True),
                                       useClusters = cms.bool(False)),
                    clctSLHC = dict(clctNplanesHitPattern = 3),
                    me11tmbSLHCGEM = me11tmbSLHCGEM,
