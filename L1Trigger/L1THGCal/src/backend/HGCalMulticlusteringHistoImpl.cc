@@ -50,13 +50,13 @@ HGCalMulticlusteringHistoImpl::Histogram HGCalMulticlusteringHistoImpl::fillHist
 
         for(int bin_R = 0; bin_R<int(nBinsRHisto_); bin_R++){
 
-	  for(int bin_phi = 0; bin_phi<int(nBinsPhiHisto_); bin_phi++){
+            for(int bin_phi = 0; bin_phi<int(nBinsPhiHisto_); bin_phi++){
 
-	    histoClusters[{{z_side, bin_R, bin_phi}}] = 0;
+                histoClusters[{{z_side, bin_R, bin_phi}}] = 0;
 
-	  }
+            }
 
-	}
+        }
 
     }
 
