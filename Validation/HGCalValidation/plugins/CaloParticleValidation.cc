@@ -47,6 +47,7 @@ struct Histogram_CaloParticleSingle {
   ConcurrentMonitorElement pfcandidateEta_;
   ConcurrentMonitorElement pfcandidatePhi_;
   ConcurrentMonitorElement pfcandidateElementsInBlocks_;
+  ConcurrentMonitorElement pfcandidate_vect_sum_pt_; // This is indeed a cumulative istogram
 };
 
 
@@ -206,8 +207,12 @@ CaloParticleValidation::dqmAnalyze(edm::Event const& iEvent, edm::EventSetup con
 
   // simPFCandidates
   int offset = 100000;
+  double ptx_tot = 0.;
+  double pty_tot = 0.;
   for (auto const pfc : simPFCandidates) {
     size_t type = offset + pfc.particleId();
+    ptx_tot += pfc.px();
+    pty_tot += pfc.py();
     histos.at(offset).pfcandidateType_.fill(type - offset);
     auto & histo = histos.at(type);
     histo.pfcandidateEnergy_.fill(pfc.energy());
@@ -216,6 +221,8 @@ CaloParticleValidation::dqmAnalyze(edm::Event const& iEvent, edm::EventSetup con
     histo.pfcandidatePhi_.fill(pfc.phi());
     histo.pfcandidateElementsInBlocks_.fill(pfc.elementsInBlocks().size());
   }
+  auto & histo = histos.at(offset);
+  histo.pfcandidate_vect_sum_pt_.fill(std::sqrt(ptx_tot*ptx_tot+pty_tot*pty_tot));
 }
 
 
@@ -240,6 +247,7 @@ CaloParticleValidation::bookHistograms(DQMStore::ConcurrentBooker & ibook,
   int offset = 100000;
   ibook.setCurrentFolder(folder_ + "PFCandidates");
   histos[offset].pfcandidateType_ = ibook.book1D("PFCandidateType", "PFCandidateType", 10, 0, 10);
+  histos[offset].pfcandidate_vect_sum_pt_ = ibook.book1D("PFCandidatePtVectSum", "PFCandidatePtVectSum", 200, 0., 200.);
   for (size_t type = reco::PFCandidate::h; type <= reco::PFCandidate::egamma_HF; type++) {
     ibook.setCurrentFolder(folder_ + "PFCandidates/" + std::to_string(type));
     auto & histo = histos[offset + type];
