@@ -78,9 +78,7 @@ namespace {
 	};
 	
 	template<typename T>
-	struct RefToBaseLess : public std::binary_function<edm::RefToBase<T>,
-							   edm::RefToBase<T>,
-							   bool> {
+	struct RefToBaseLess {
 		inline bool operator()(const edm::RefToBase<T> &r1,
 				       const edm::RefToBase<T> &r2) const
 		{
@@ -177,8 +175,7 @@ class TemplatedSecondaryVertexProducer : public edm::stream::EDProducer<> {
 
 	void markUsedTracks(TrackDataVector & trackData, const input_container & trackRefs, const SecondaryVertex & sv,size_t idx);
 
-	struct SVBuilder :
-		public std::unary_function<const VTX&, SecondaryVertex> {
+	struct SVBuilder {
 
 		SVBuilder(const reco::Vertex &pv,
 		          const GlobalVector &direction,
@@ -199,8 +196,7 @@ class TemplatedSecondaryVertexProducer : public edm::stream::EDProducer<> {
 		double 			minTrackWeight;
 	};
 
-	struct SVFilter :
-		public std::unary_function<const SecondaryVertex&, bool> {
+	struct SVFilter {
 
 		SVFilter(const VertexFilter &filter, const Vertex &pv,
 		         const GlobalVector &direction) :

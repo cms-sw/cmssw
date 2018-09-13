@@ -56,7 +56,7 @@ void TrackerStablePhiSort(RandomAccessIterator begin,
   
   std::vector<Element> tmpvec(end-begin);
   std::transform(begin,end,tmpvec.begin(),
-		 boost::bind(Element::template build<Extractor>,_1, boost::cref(extr))
+		 std::bind(Element::template build<Extractor>,std::placeholders::_1, boost::cref(extr))
 		 );
   
   std::vector<Element> tmpcop(end-begin);

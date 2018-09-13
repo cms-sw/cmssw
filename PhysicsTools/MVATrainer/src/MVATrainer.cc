@@ -143,7 +143,7 @@ namespace { // anonymous
 	// useful litte helpers
 
  	template<typename T>
-	struct deleter : public std::unary_function<T*, void> {
+	struct deleter {
 		inline void operator() (T *ptr) const { delete ptr; }
 	};
 

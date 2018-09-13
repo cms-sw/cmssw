@@ -23,9 +23,9 @@ TIBLayer::TIBLayer(vector<const TIBRing*>& innerRings,
   theComps.assign(theInnerComps.begin(),theInnerComps.end());
   theComps.insert(theComps.end(),theOuterComps.begin(),theOuterComps.end());
   
-  sort(theComps.begin(),theComps.end(),DetLessZ());
-  sort(theInnerComps.begin(),theInnerComps.end(),DetLessZ());
-  sort(theOuterComps.begin(),theOuterComps.end(),DetLessZ());
+  std::sort(theComps.begin(),theComps.end(),isDetLessZ);
+  std::sort(theInnerComps.begin(),theInnerComps.end(),isDetLessZ);
+  std::sort(theOuterComps.begin(),theOuterComps.end(),isDetLessZ);
   
   for(vector<const GeometricSearchDet*>::const_iterator it=theComps.begin();
       it!=theComps.end();it++){  
