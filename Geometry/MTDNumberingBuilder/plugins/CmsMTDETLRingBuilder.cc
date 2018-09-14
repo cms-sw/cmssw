@@ -24,6 +24,6 @@ void CmsMTDETLRingBuilder::sortNS(DDFilteredView& fv, GeometricTimingDet* det){
   GeometricTimingDet::ConstGeometricTimingDetContainer & comp = det->components();
 
   //increasing phi taking into account the sub-modules
-  MTDStablePhiSort(comp.begin(), comp.end(), std::function<double(const GeometricTimingDet*)>(extractPhiGluedModule));
+  MTDStablePhiSort(comp.begin(), comp.end(), std::function<double(const GeometricTimingDet*)>(getPhiGluedModule));
   
 }

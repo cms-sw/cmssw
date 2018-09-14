@@ -52,12 +52,12 @@ class MuonSeedDetLayer {
     double z() const { return thePoint.z(); }
 
     /// sort
-    static bool HigherR( const MuonSeedDetLayer first, const MuonSeedDetLayer second ) {
+    static bool getHigherR( const MuonSeedDetLayer first, const MuonSeedDetLayer second ) {
       return first.radius() < second.radius();
     }
 
     /// sort
-    static bool LowerR( const MuonSeedDetLayer first, const MuonSeedDetLayer second ) {
+    static bool getLowerR( const MuonSeedDetLayer first, const MuonSeedDetLayer second ) {
       return first.radius() > second.radius();
     }
 

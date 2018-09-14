@@ -4,7 +4,6 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
 #include "DataFormats/GeometryVector/interface/VectorUtil.h"
 

@@ -47,7 +47,7 @@ void CmsMTDTrayBuilder::sortNS(DDFilteredView& fv, GeometricTimingDet* det){
   
   // rods 
   if(!rods.empty()){
-    MTDStablePhiSort(rods.begin(), rods.end(), std::function<double(const GeometricTimingDet*)>(extractPhi));
+    MTDStablePhiSort(rods.begin(), rods.end(), std::function<double(const GeometricTimingDet*)>(getPhi));
     uint32_t  totalrods = rods.size();
   
     LogTrace("DetConstruction") << " Rods ordered by phi: ";

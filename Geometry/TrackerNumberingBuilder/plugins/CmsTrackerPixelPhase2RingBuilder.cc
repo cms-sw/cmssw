@@ -22,7 +22,7 @@ void CmsTrackerPixelPhase2RingBuilder::sortNS(DDFilteredView& fv, GeometricDet* 
 
    //increasing phi taking into account the sub-modules
 
-  TrackerStablePhiSort(comp.begin(), comp.end(), std::function<double(const GeometricDet*)>(extractPhi));
+  TrackerStablePhiSort(comp.begin(), comp.end(), std::function<double(const GeometricDet*)>(getPhi));
 
 
   for(uint32_t i=0; i<comp.size();i++){
