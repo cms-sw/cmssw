@@ -170,8 +170,12 @@ std::float_t RecHitTools::getSiThickness(const DetId& id) const {
     thick    = ddd->cellThickness(hid.layer(),hid.waferU(),hid.waferV());
   } else {
     LogDebug("getSiThickness::InvalidSiliconDetid")
-      << "det id: " << std::hex << id.rawId() << std::dec << ":" 
+      << "det id: " << std::hex << id.rawId() << std::dec << ":"
       << id.det() << " is not HGCal silicon!";
+    // It does not make any sense to return 0.37 as thickness for a detector
+    // that is not Silicon(does it?). Mark it as 0. to be able to distinguish
+    // the case.
+    thick = 0.f;
   }
   return thick;
 }
@@ -207,7 +211,7 @@ std::float_t RecHitTools::getRadiusToSide(const DetId& id) const {
     size     = ddd->cellSizeHex(hid.type());
   } else {
     edm::LogError("getRadiusToSide::InvalidSiliconDetid")
-      << "det id: " << std::hex << id.rawId() << std::dec << ":" 
+      << "det id: " << std::hex << id.rawId() << std::dec << ":"
       << id.det() << " is not HGCal silicon!";
   }
   return size;
@@ -310,7 +314,7 @@ unsigned int RecHitTools::getWafer(const DetId& id) const {
   }
   else {
     edm::LogError("getWafer::InvalidSiliconDetid")
-      << "det id: " << std::hex << id.rawId() << std::dec << ":" 
+      << "det id: " << std::hex << id.rawId() << std::dec << ":"
       << id.det() << " is not HGCal silicon!";
   }
   return wafer;
@@ -323,7 +327,7 @@ unsigned int RecHitTools::getCell(const DetId& id) const {
   }
   else {
     edm::LogError("getCell::InvalidSiliconDetid")
-      << "det id: " << std::hex << id.rawId() << std::dec << ":" 
+      << "det id: " << std::hex << id.rawId() << std::dec << ":"
       << id.det() << " is not HGCal silicon!";
   }
   return cell;
