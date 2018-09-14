@@ -17,6 +17,10 @@ process.load("EventFilter.GEMRawToDigi.muonGEMDigis_cfi")
 process.load('RecoLocalMuon.GEMRecHit.gemRecHits_cfi')
 process.load("DQM.GEM.GEMDQM_cff")
 
+
+if (process.runType.getRunType() == process.runType.hi_run):
+  process.muonGEMDigis.InputLabel = cms.InputTag("rawDataRepacker")                                                                                                                                          
+
 process.muonGEMDigis.useDBEMap = True
 process.muonGEMDigis.unPackStatusDigis = True
 
