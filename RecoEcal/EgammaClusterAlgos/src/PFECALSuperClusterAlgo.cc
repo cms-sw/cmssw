@@ -305,8 +305,8 @@ void PFECALSuperClusterAlgo::buildSuperCluster(CalibClusterPtr& seed, CalibClust
     break;
   case PFLayer::ECAL_ENDCAP:  
   
-    phiwidthSuperCluster_ = phiwidthSuperClusterEndcap_; 
-    etawidthSuperCluster_ = etawidthSuperClusterEndcap_;
+    phiwidthSuperCluster = phiwidthSuperClusterEndcap_; 
+    etawidthSuperCluster = etawidthSuperClusterEndcap_;
     edm::LogInfo("PFClustering") << "Building SC number "  
 				 << superClustersEE_->size() + 1
 				 << " in the ECAL endcap!" << std::endl;
