@@ -866,7 +866,11 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getHEFineGrainLUTs(std
   RooGKCounter _counter;
   //loop over all EMap channels
   for( std::vector<EMap::EMapRow>::const_iterator row=_map.begin(); row!=_map.end(); row++ ){
-    if( row->subdet.find("HE")!=string::npos && row->subdet.size()==2 ){
+    if( row->subdet.find("HT")!=string::npos && row->subdet.size()==2 ){
+      int abseta = abs(row->ieta);
+      const HcalTopology* topo = cq->topo();
+      if(abseta<=topo->lastHBRing() or abseta>topo->lastHERing()) continue;
+      if(abseta>=topo->firstHEDoublePhiRing() and row->fiberchan%2==1) continue; //do only actual physical towers
       LutXml::Config _cfg;
 
       if ( _xml.count(row->crate) == 0 && split_by_crate ){
