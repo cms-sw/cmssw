@@ -333,7 +333,7 @@ void CTPPSFastTrackingProducer::FastReco(int Direction,H_RecRPObject* station)
                 double px = partP*sin(theta)*cos(phi);
                 double py = partP*sin(theta)*sin(phi);
                 double pz = partP*cos(theta);
-                double  e = sqrt(partP*partP+CTPPSTools::ProtonMassSQ);
+                double  e = sqrt(partP*partP+PPSTools::ProtonMassSQ);
                 LorentzVector p(px,py,pz,e);
                 // Invert the Lorentz boost made to take into account the crossing angle during simulation
                 if (fCrossAngleCorr) PPSTools::LorentzBoost(p,"MC");
