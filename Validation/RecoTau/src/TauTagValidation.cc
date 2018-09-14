@@ -75,10 +75,8 @@ TauTagValidation::TauTagValidation(const edm::ParameterSet& iConfig):
   refCollectionInputTagToken_ = consumes<edm::View<reco::Candidate> >(iConfig.getParameter<InputTag>("RefCollection"));
   primaryVertexCollectionToken_ = consumes<VertexCollection>(PrimaryVertexCollection_); //TO-DO
   tauProducerInputTagToken_ = consumes<reco::PFTauCollection>(iConfig.getParameter<InputTag>("TauProducer"));
-  int j = 0;
-  for(auto&& it : discriminators_){
+  for(const auto& it : discriminators_){
     currentDiscriminatorToken_.push_back( consumes<reco::PFTauDiscriminator>(edm::InputTag(it.getParameter<string>("discriminator"))) );
-    j++;
   }
 
   tversion = edm::getReleaseVersion();
@@ -163,7 +161,7 @@ void TauTagValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
   pileupTauVisibleMap.insert( std::make_pair(TauProducer_+"Matched" ,pileupTemp));
 
   int j = 0;
-  for(auto&& it : discriminators_)
+  for(const auto& it : discriminators_)
   {
     string DiscriminatorLabel = it.getParameter<string>("discriminator");
     std::string histogramName;
@@ -373,7 +371,7 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   double matching_criteria = -1.0;
 
   //Initialize the Tau Multiplicity Counter
-  for(auto&& it : discriminators_){
+  for(const auto& it : discriminators_){
     string DiscriminatorLabel = it.getParameter<string>("discriminator");
     tauDecayCountMap_.insert(std::make_pair("allHadronic" + DiscriminatorLabel, 0));
     tauDecayCountMap_.insert(std::make_pair("oneProng0Pi0" + DiscriminatorLabel, 0));
@@ -483,7 +481,7 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       if( !pass ) continue;
 
       int j = 0;
-      for(auto&& it : discriminators_){
+      for(const auto& it : discriminators_){
         string currentDiscriminatorLabel = it.getParameter<string>("discriminator");
         iEvent.getByToken( currentDiscriminatorToken_[j], currentDiscriminator );
 	summaryMap.find(refCollection_+"Den")->second->Fill(j);
@@ -612,7 +610,7 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }//End of Reference Collection Loop
 
     //Fill the Tau Multiplicity Histograms
-    for(auto&& it : discriminators_){
+    for(const auto& it : discriminators_){
       string currentDiscriminatorLabel = it.getParameter<string>("discriminator");
       plotMap_.find(currentDiscriminatorLabel + "_nTaus_allHadronic")->second->Fill(tauDecayCountMap_.find( "allHadronic" + currentDiscriminatorLabel)->second);      
       plotMap_.find(currentDiscriminatorLabel + "_nTaus_oneProng0Pi0")->second->Fill(tauDecayCountMap_.find( "oneProng0Pi0" + currentDiscriminatorLabel)->second);      
