@@ -9,7 +9,6 @@
 
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
-#include "CondFormats/Alignment/interface/AlignmentSorter.h"
 
 
 

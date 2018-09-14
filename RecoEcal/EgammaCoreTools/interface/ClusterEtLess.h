@@ -6,7 +6,7 @@ namespace reco {
 }
 
 // Less than operator for sorting EcalRecHits according to energy.
-bool isClusterEtLess(reco::CaloCluster x, reco::CaloCluster y);
+bool isClusterEtLess(const reco::CaloCluster& x, const reco::CaloCluster& y);
 
 #endif
 
