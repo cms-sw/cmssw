@@ -77,9 +77,9 @@ void MatchJet::matchCollections(
                           //        return VectorUtil::DeltaR2(v1, v2) / this->sigmaDeltaR +
                           //               sqr(2. * (v1.R() - v2.R()) /
                           //                        (v1.R() + v2.R())) / this->sigmaDeltaE;
-                                  double x = VectorUtil::DeltaR2(v1, v2) / this->sigmaDeltaR +
+                                  double x = VectorUtil::DeltaR2(v1, v2) / sqr(this->sigmaDeltaR) +
                                          sqr(2. * (v1.R() - v2.R()) /
-                                                  (v1.R() + v2.R())) / this->sigmaDeltaE;
+                                                  (v1.R() + v2.R())) / sqr(this->sigmaDeltaE);
                           // std::cout << "xxx " << VectorUtil::DeltaPhi(v1, v2) << " " << (v1.Eta() - v2.Eta()) << " " << (v1.R() - v2.R()) / (v1.R() + v2.R()) << " " << x << std::endl;
                                   return x;
                               });
