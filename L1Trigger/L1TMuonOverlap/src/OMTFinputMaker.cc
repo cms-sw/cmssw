@@ -253,8 +253,9 @@ OMTFinput OMTFinputMaker::processDT(const L1MuDTChambPhContainer *dtPhDigis,
     int iPhi =  myAngleConverter.getProcessorPhi(iProcessor, type, digiIt);
     int iEta =  myAngleConverter.getGlobalEta(detid.rawId(), digiIt, dtThDigis);
     unsigned int iInput= getInputNumber(detid.rawId(), iProcessor, type);    
-    result.addLayerHit(iLayer,iInput,iPhi,iEta);
-    result.addLayerHit(iLayer+1,iInput,digiIt.phiB(),iEta);    
+    bool allowOverwrite = false;
+    result.addLayerHit(iLayer,iInput,iPhi,iEta, allowOverwrite);
+    result.addLayerHit(iLayer+1,iInput,digiIt.phiB(),iEta, allowOverwrite);    
   }
 
   return result;
@@ -296,7 +297,8 @@ OMTFinput OMTFinputMaker::processCSC(const CSCCorrelatedLCTDigiCollection *cscDi
       //if (abs(iEta) > 115) continue;
       unsigned int iInput= getInputNumber(rawid, iProcessor, type);      
 //    std::cout <<" ADDING CSC hit, proc: "<<iProcessor<<" iPhi : " << iPhi <<" iEta: "<< iEta << std::endl; 
-      result.addLayerHit(iLayer,iInput,iPhi,iEta);     
+      bool allowOverwrite = false;
+      result.addLayerHit(iLayer,iInput,iPhi,iEta,allowOverwrite);     
     }
   }      
   return result;
