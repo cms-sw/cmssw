@@ -102,6 +102,7 @@ class JetAnalyzer_HeavyIons : public DQMEDAnalyzer {
   static constexpr int nedge_pseudorapidity = etaBins_ + 1; 
  
   edm::InputTag   mInputCollection;
+  edm::InputTag   mInputVtxCollection;
   edm::InputTag   mInputPFCandCollection;
   edm::InputTag   mInputCsCandCollection; 
  
