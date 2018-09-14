@@ -25,6 +25,13 @@ siPixelClusters = cms.EDProducer("SiPixelClusterProducer",
     ClusterThreshold_L1 = cms.int32(4000),
     # **************************************
     maxNumberOfClusters = cms.int32(-1), # -1 means no limit.
+    ElectronPerADCGain = cms.double(135.0),
+    AdcFullScaleStack = cms.int32(255),
+    FirstStackLayer = cms.int32(5),
+    Phase2Calibration = cms.bool(False),
+    Phase2ReadoutMode = cms.int32(-1),
+    Phase2DigiBaseline = cms.double(1200.),
+    Phase2KinkADC = cms.int32(8),
 )
 
 # phase1 pixel
@@ -46,6 +53,10 @@ from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(siPixelClusters, # FIXME
   src = cms.InputTag('simSiPixelDigis', "Pixel"),
   MissCalibrate = False,
+  Phase2Calibration = cms.bool(True),
+  Phase2ReadoutMode = cms.int32(-1), # Flag to decide Readout Mode : linear TDR (-1), dual slope with slope parameters (+1,+2,+3,+4 ...) with threshold subtraction
+  Phase2DigiBaseline = cms.double(1200.), 
+  Phase2KinkADC = cms.int32(8),
   ElectronPerADCGain = cms.double(600.) # it can be changed to something else (e.g. 135e) if needed
 )
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2

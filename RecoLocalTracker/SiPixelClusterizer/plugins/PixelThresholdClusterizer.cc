@@ -42,7 +42,6 @@ using namespace std;
 //----------------------------------------------------------------------------
 PixelThresholdClusterizer::PixelThresholdClusterizer
   (edm::ParameterSet const& conf) :
-    bufferAlreadySet(false),
     // Get thresholds in electrons
     thePixelThreshold( conf.getParameter<int>("ChannelThreshold") ),
     theSeedThreshold( conf.getParameter<int>("SeedThreshold") ),
@@ -52,10 +51,14 @@ PixelThresholdClusterizer::PixelThresholdClusterizer
     theConversionFactor_L1( conf.getParameter<int>("VCaltoElectronGain_L1") ),
     theOffset( conf.getParameter<int>("VCaltoElectronOffset") ),
     theOffset_L1( conf.getParameter<int>("VCaltoElectronOffset_L1") ),
-    theStackADC_( conf.exists("AdcFullScaleStack") ? conf.getParameter<int>("AdcFullScaleStack") : 255 ),
-    theFirstStack_( conf.exists("FirstStackLayer") ? conf.getParameter<int>("FirstStackLayer") : 5 ),
-    theElectronPerADCGain_( conf.exists("ElectronPerADCGain") ? conf.getParameter<double>("ElectronPerADCGain") : 135. ),
-    theNumOfRows(0), theNumOfCols(0), detid_(0),
+    theStackADC( conf.getParameter<int>("AdcFullScaleStack") ),
+    theFirstStack( conf.getParameter<int>("FirstStackLayer") ),
+    theElectronPerADCGain( conf.getParameter<double>("ElectronPerADCGain") ),
+    doPhase2Calibration( conf.getParameter<bool>("Phase2Calibration") ),
+    thePhase2ReadoutMode( conf.getParameter<int>("Phase2ReadoutMode") ),
+    thePhase2DigiBaseline( conf.getParameter<double>("Phase2DigiBaseline") ),
+    thePhase2KinkADC( conf.getParameter<int>("Phase2KinkADC") ),
+    theNumOfRows(0), theNumOfCols(0), theDetid(0),
     // Get the constants for the miss-calibration studies
     doMissCalibrate( conf.getUntrackedParameter<bool>("MissCalibrate",true) ),
     doSplitClusters( conf.getParameter<bool>("SplitClusters") )
@@ -84,7 +87,14 @@ PixelThresholdClusterizer::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<int>("ClusterThreshold_L1", 4000);
   desc.add<int>("ClusterThreshold", 4000);
   desc.add<int>("maxNumberOfClusters", -1);
-  descriptions.add("siPixelClusters", desc);
+  desc.add<int>("AdcFullScaleStack", 255);
+  desc.add<int>("FirstStackLayer", 5);
+  desc.add<double>("ElectronPerADCGain", 135.);
+  desc.add<bool>("Phase2Calibration", false);
+  desc.add<int>("Phase2ReadoutMode", -1);
+  desc.add<double>("Phase2DigiBaseline", 1200.);
+  desc.add<int>("Phase2KinkADC", 8);
+  descriptions.add("siClustersFromPixelThresholdClusterizer", desc);
 }
 
 //----------------------------------------------------------------------------
@@ -113,7 +123,6 @@ bool PixelThresholdClusterizer::setup(const PixelGeomDetUnit * pixDet)
       //theNumOfCols = ncols;
       // Resize the buffer
       theBuffer.setSize(nrows,ncols);  // Modify
-      bufferAlreadySet = true;
     }
   
   return true;   
@@ -142,12 +151,12 @@ void PixelThresholdClusterizer::clusterizeDetUnitT( const T & input,
   if ( !setup(pixDet) ) 
     return;
   
-  detid_ = input.detId();
+  theDetid = input.detId();
   
   // Set separate cluster threshold for L1 (needed for phase1)
   auto clusterThreshold = theClusterThreshold;
-  layer_ = (DetId(detid_).subdetId()==1) ? tTopo->pxbLayer(detid_) : 0;
-  if (layer_==1) clusterThreshold = theClusterThreshold_L1;
+  theLayer = (DetId(theDetid).subdetId()==1) ? tTopo->pxbLayer(theDetid) : 0;
+  if (theLayer==1) clusterThreshold = theClusterThreshold_L1;
   
   //  Copy PixelDigis to the buffer array; select the seed pixels
   //  on the way, and store them in theSeeds.
@@ -232,31 +241,43 @@ void PixelThresholdClusterizer::copy_to_buffer( DigiIterator begin, DigiIterator
 #endif
   int electron[end-begin]; // pixel charge in electrons 
   memset(electron, 0, sizeof(electron));
-  if ( doMissCalibrate ) {
-    if (layer_==1) {
-      (*theSiPixelGainCalibrationService_).calibrate(detid_,begin,end,theConversionFactor_L1, theOffset_L1,electron);
-    } else {
-      (*theSiPixelGainCalibrationService_).calibrate(detid_,begin,end,theConversionFactor,    theOffset,  electron);
-    }
-  } else {
-    int i=0;
+
+  if (doPhase2Calibration) {
+    int i = 0;
     for(DigiIterator di = begin; di != end; ++di) {
-      auto adc = di->adc();
-      const float gain = theElectronPerADCGain_; // default: 1 ADC = 135 electrons
-      const float pedestal = 0.; //
-      electron[i] = int(adc * gain + pedestal);
-      if (layer_>=theFirstStack_) {
-	if (theStackADC_==1&&adc==1) {
-	  electron[i] = int(255*135); // Arbitrarily use overflow value.
-	}
-	if (theStackADC_>1&&theStackADC_!=255&&adc>=1){
-	  const float gain = theElectronPerADCGain_; // default: 1 ADC = 135 electrons
-	  electron[i] = int((adc-1) * gain * 255/float(theStackADC_-1));
-	}
-      }
-      ++i;
+      electron[i] = calibrate(di->adc(), di->column(), di->row());
+      i++;
     }
     assert(i==(end-begin));
+  }
+
+  else {
+    if ( doMissCalibrate ) {
+      if (theLayer==1) {
+        (*theSiPixelGainCalibrationService_).calibrate(theDetid,begin,end,theConversionFactor_L1, theOffset_L1,electron);
+      } else {
+        (*theSiPixelGainCalibrationService_).calibrate(theDetid,begin,end,theConversionFactor,    theOffset,  electron);
+      }
+    } else {
+      int i=0;
+      const float gain = theElectronPerADCGain; // default: 1 ADC = 135 electrons
+      const int maxADC8bitVal_ = 255;
+      for(DigiIterator di = begin; di != end; ++di) {
+        auto adc = di->adc();
+        const float pedestal = 0.; //
+        electron[i] = int(adc * gain + pedestal);
+        if (theLayer>=theFirstStack) {
+          if (theStackADC==1&&adc==1) {
+            electron[i] = int(maxADC8bitVal_*gain); // Arbitrarily use overflow value.
+          }
+          if (theStackADC>1&&theStackADC!=maxADC8bitVal_&&adc>=1){
+            electron[i] = int((adc-1) * gain * maxADC8bitVal_/float(theStackADC-1));
+          }
+        }
+        ++i;
+      }
+      assert(i==(end-begin));
+    }
   }
 
   int i=0;
@@ -314,12 +335,39 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row)
 {
   int electrons = 0;
 
+  if (doPhase2Calibration) {
+
+    const float gain = theElectronPerADCGain;
+    int p2rm = (thePhase2ReadoutMode < -1 ? -1 : thePhase2ReadoutMode);
+
+    if (p2rm == -1) {
+        electrons = int(adc * gain);
+    }
+    else {
+        if (adc < thePhase2KinkADC) {
+            electrons = int((adc - 0.5) * gain);
+        }
+        else {
+            const int dualslopeparam = (thePhase2ReadoutMode < 10 ? thePhase2ReadoutMode : 10);
+            const int dualslope = int(dualslopeparam <= 1 ? 1. : pow(2, dualslopeparam-1));
+            adc -= (thePhase2KinkADC-1);
+            adc *= dualslope;
+            adc += (thePhase2KinkADC-1);
+            electrons = int((adc - 0.5 * dualslope) * gain);
+        } 
+        electrons += int(thePhase2DigiBaseline);
+    }
+
+    return electrons;
+
+  }
+
   if ( doMissCalibrate ) 
     {
       // do not perform calibration if pixel is dead!
       
-      if ( !theSiPixelGainCalibrationService_->isDead(detid_,col,row) && 
-	   !theSiPixelGainCalibrationService_->isNoisy(detid_,col,row) )
+      if ( !theSiPixelGainCalibrationService_->isDead(theDetid,col,row) && 
+	   !theSiPixelGainCalibrationService_->isNoisy(theDetid,col,row) )
 	{
 	  
 	  // Linear approximation of the TANH response
@@ -330,8 +378,8 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row)
 	  //const float gain = 1./0.357; // 1 ADC = 2.80 VCALs 
 	  //const float pedestal = -28.2 * gain; // -79.
 	  
-	  float DBgain     = theSiPixelGainCalibrationService_->getGain(detid_, col, row);
-	  float pedestal   = theSiPixelGainCalibrationService_->getPedestal(detid_, col, row);
+	  float DBgain     = theSiPixelGainCalibrationService_->getGain(theDetid, col, row);
+	  float pedestal   = theSiPixelGainCalibrationService_->getPedestal(theDetid, col, row);
 	  float DBpedestal = pedestal * DBgain;
 	  
 	  // Roc-6 average
@@ -353,7 +401,7 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row)
 	  //const float p3 = 113.0; 
 	  //float vcal = ( atanh( (adc-p3)/p2) + p1)/p0;
 	  
-	  if (layer_==1) {
+	  if (theLayer==1) {
 	    electrons = int( vcal * theConversionFactor_L1 + theOffset_L1); 
 	  } else {
 	    electrons = int( vcal * theConversionFactor + theOffset); 
@@ -364,19 +412,19 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row)
   else 
     { // No misscalibration in the digitizer
       // Simple (default) linear gain 
-      const float gain = theElectronPerADCGain_; // default: 1 ADC = 135 electrons
+      const float gain = theElectronPerADCGain; // default: 1 ADC = 135 electrons
       const float pedestal = 0.; //
+      const int maxADC8bitVal_ = 255; 
       electrons = int(adc * gain + pedestal);
-      if (layer_>=theFirstStack_) {
-	if (theStackADC_==1&&adc==1)
-	  {
-	    electrons = int(255*135); // Arbitrarily use overflow value.
-	  }
-	if (theStackADC_>1&&theStackADC_!=255&&adc>=1)
-	  {
-	    const float gain = theElectronPerADCGain_; // default: 1 ADC = 135 electrons
-	    electrons = int((adc-1) * gain * 255/float(theStackADC_-1));
-	  }
+      if (theLayer>=theFirstStack) {
+	    if (theStackADC==1&&adc==1)
+	    {
+	      electrons = int(maxADC8bitVal_*gain); // Arbitrarily use overflow value.
+	    }
+	    if (theStackADC>1&&theStackADC!=maxADC8bitVal_&&adc>=1)
+	    {
+	      electrons = int((adc-1) * gain * maxADC8bitVal_/float(theStackADC-1));
+	    }
       }
     }
   
@@ -403,8 +451,8 @@ PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix,
 
   /*  this is not possible as dead and noisy pixel cannot make it into a seed...
   if ( doMissCalibrate &&
-       (theSiPixelGainCalibrationService_->isDead(detid_,pix.col(),pix.row()) || 
-	theSiPixelGainCalibrationService_->isNoisy(detid_,pix.col(),pix.row())) )
+       (theSiPixelGainCalibrationService_->isDead(theDetid,pix.col(),pix.row()) || 
+	theSiPixelGainCalibrationService_->isNoisy(theDetid,pix.col(),pix.row())) )
     {
       std::cout << "IMPOSSIBLE" << std::endl;
       seed_adc = 0;
@@ -438,7 +486,7 @@ PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix,
 	      //Check on the bounds of the module; this is to keep the isDead and isNoisy modules from returning errors 
 	      else if(r>= 0 && c >= 0 && (r <= (theNumOfRows-1.)) && (c <= (theNumOfCols-1.))){ 
 	      //Check for dead/noisy pixels check that the buffer is not -1 (already considered).  Check whether we want to split clusters separated by dead pixels or not.
-	      if((theSiPixelGainCalibrationService_->isDead(detid_,c,r) || theSiPixelGainCalibrationService_->isNoisy(detid_,c,r)) && theBuffer(r,c) != 1){
+	      if((theSiPixelGainCalibrationService_->isDead(theDetid,c,r) || theSiPixelGainCalibrationService_->isNoisy(theDetid,c,r)) && theBuffer(r,c) != 1){
 	      
 	      //If a pixel is dead or noisy, check to see if we want to split the clusters or not.  
 	      //Push it into a dead pixel stack in case we want to split the clusters.  Otherwise add it to the cluster.
@@ -472,7 +520,7 @@ PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix,
     {
       // Set separate cluster threshold for L1 (needed for phase1)
       auto clusterThreshold = theClusterThreshold;
-      if (layer_==1) clusterThreshold = theClusterThreshold_L1;
+      if (theLayer==1) clusterThreshold = theClusterThreshold_L1;
       
       //Set the first cluster equal to the existing cluster.
       SiPixelCluster first_cluster = cluster;

@@ -87,7 +87,6 @@ class dso_hidden PixelThresholdClusterizer final : public PixelClusterizerBase {
 
   //! Data storage
   SiPixelArrayBuffer               theBuffer;         // internal nrow * ncol matrix
-  bool                             bufferAlreadySet;  // status of the buffer array
   std::vector<SiPixelCluster::PixelPos>  theSeeds;          // cached seed pixels
   std::vector<SiPixelCluster>            theClusters;       // resulting clusters  
   
@@ -105,16 +104,20 @@ class dso_hidden PixelThresholdClusterizer final : public PixelClusterizerBase {
   const int theOffset;              // adc to electron conversion offset
   const int theOffset_L1;           // adc to electron conversion offset for Layer 1
 
-  const int   theStackADC_;          // The maximum ADC count for the stack layers
-  const int   theFirstStack_;        // The index of the first stack layer
-  const double theElectronPerADCGain_;  //  ADC to electrons conversion
+  const int   theStackADC;          // The maximum ADC count for the stack layers
+  const int   theFirstStack;        // The index of the first stack layer
+  const double theElectronPerADCGain;  //  ADC to electrons conversion
+
+  const bool doPhase2Calibration;    // The ADC --> electrons calibration is for phase-2 tracker
+  const int  thePhase2ReadoutMode;   // Readout mode of the phase-2 IT digitizer
+  const double thePhase2DigiBaseline;// Threshold above which digis are measured in the phase-2 IT
+  const int  thePhase2KinkADC;       // ADC count at which the kink in the dual slop kicks in
 
   //! Geometry-related information
   int  theNumOfRows;
   int  theNumOfCols;
-  uint32_t detid_;
-  int layer_;
-  bool dead_flag;
+  uint32_t theDetid;
+  int theLayer;
   const bool doMissCalibrate; // Use calibration or not
   const bool doSplitClusters;
   //! Private helper methods:
