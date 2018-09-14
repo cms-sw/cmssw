@@ -1,0 +1,28 @@
+<use   name="DataFormats/CTPPSDetId"/>
+<use   name="rootrflx"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="SimG4Core/Watcher"/>
+<use   name="SimG4Core/SensitiveDetector"/>
+<use   name="SimG4Core/Notification"/>
+<use   name="SimG4Core/Application"/>
+<use   name="SimG4CMS/Calo"/>
+<use   name="DataFormats/Math"/>
+<use   name="SimDataFormats/SimHitMaker"/>
+<use   name="SimDataFormats/CaloHit"/>
+<use   name="SimDataFormats/Forward"/>
+<use   name="DetectorDescription/Core"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="boost"/>
+<use   name="geant4core"/>
+<use   name="root"/>
+<use   name="rootmath"/>
+<use   name="geant4"/>
+
+<export>
+  <lib   name="1"/>
+</export>
+
+
+<!-- <flags   EDM_PLUGIN="1"/> -->
