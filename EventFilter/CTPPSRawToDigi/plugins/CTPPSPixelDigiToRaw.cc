@@ -63,14 +63,24 @@
 class CTPPSPixelDigiToRaw : public edm::stream::EDProducer<> {
    public:
       explicit CTPPSPixelDigiToRaw(const edm::ParameterSet&);
+<<<<<<< HEAD
       ~CTPPSPixelDigiToRaw() override;
+=======
+      ~CTPPSPixelDigiToRaw();
+>>>>>>> PPS Full Simulation branch to PR
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
+<<<<<<< HEAD
       void beginStream(edm::StreamID) override;
       void produce(edm::Event&, const edm::EventSetup&) override;
       void endStream() override;
+=======
+      virtual void beginStream(edm::StreamID) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void endStream() override;
+>>>>>>> PPS Full Simulation branch to PR
 
       // ----------member data ---------------------------
   unsigned long eventCounter_;
@@ -207,6 +217,41 @@ void
 CTPPSPixelDigiToRaw::endStream() {
 }
 
+<<<<<<< HEAD
+=======
+// ------------ method called when starting to processes a run  ------------
+/*
+void
+CTPPSPixelDigiToRaw::beginRun(edm::Run const&, edm::EventSetup const&)
+{
+}
+*/
+ 
+// ------------ method called when ending the processing of a run  ------------
+/*
+void
+CTPPSPixelDigiToRaw::endRun(edm::Run const&, edm::EventSetup const&)
+{
+}
+*/
+ 
+// ------------ method called when starting to processes a luminosity block  ------------
+/*
+void
+CTPPSPixelDigiToRaw::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+{
+}
+*/
+ 
+// ------------ method called when ending the processing of a luminosity block  ------------
+/*
+void
+CTPPSPixelDigiToRaw::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+{
+}
+*/
+ 
+>>>>>>> PPS Full Simulation branch to PR
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 CTPPSPixelDigiToRaw::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

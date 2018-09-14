@@ -68,14 +68,24 @@
 class CTPPSTotemDigiToRaw : public edm::stream::EDProducer<> {
    public:
       explicit CTPPSTotemDigiToRaw(const edm::ParameterSet&);
+<<<<<<< HEAD
       ~CTPPSTotemDigiToRaw() override;
+=======
+      ~CTPPSTotemDigiToRaw();
+>>>>>>> PPS Full Simulation branch to PR
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
+<<<<<<< HEAD
       void beginStream(edm::StreamID) override;
       void produce(edm::Event&, const edm::EventSetup&) override;
       void endStream() override;
+=======
+      virtual void beginStream(edm::StreamID) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void endStream() override;
+>>>>>>> PPS Full Simulation branch to PR
 
   unsigned long eventCounter_;
   std::set<unsigned int> fedIds_;
