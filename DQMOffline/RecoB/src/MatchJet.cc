@@ -14,7 +14,7 @@
 using namespace btag;
 
 namespace {
-    static inline double sqr(double val) { return val * val; }
+    inline double sqr(double val) { return val * val; }
 }
 
 MatchJet::MatchJet(const edm::ParameterSet& pSet) :
