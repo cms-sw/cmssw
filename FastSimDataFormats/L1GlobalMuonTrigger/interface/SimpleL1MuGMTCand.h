@@ -132,7 +132,7 @@ class SimpleL1MuGMTCand : public L1MuGMTExtendedCand {
     friend std::ostream& operator<<(std::ostream&, const SimpleL1MuGMTCand&);
 
     /// define a rank for muon candidates
-    bool Rank( const SimpleL1MuGMTCand* first, const SimpleL1MuGMTCand* second ) const {
+    bool getRank( const SimpleL1MuGMTCand* first, const SimpleL1MuGMTCand* second ) const {
       unsigned int rank_f = (first) ? first->rank(): 0;
       unsigned int rank_s = (second) ? second->rank() : 0;
       return rank_f > rank_s;

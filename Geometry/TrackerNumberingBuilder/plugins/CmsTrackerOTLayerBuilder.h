@@ -1,7 +1,7 @@
 #ifndef Geometry_TrackerNumberingBuilder_CmsTrackerOTLayerBuilder_H
 #define Geometry_TrackerNumberingBuilder_CmsTrackerOTLayerBuilder_H
 
-#include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerLevelBuilder.h"
+#include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerLevelBuilder.h"
 #include "FWCore/ParameterSet/interface/types.h"
 #include <string>
 /**
