@@ -104,8 +104,6 @@ class dso_hidden PixelThresholdClusterizer final : public PixelClusterizerBase {
   const int theOffset;              // adc to electron conversion offset
   const int theOffset_L1;           // adc to electron conversion offset for Layer 1
 
-  const int   theStackADC;          // The maximum ADC count for the stack layers
-  const int   theFirstStack;        // The index of the first stack layer
   const double theElectronPerADCGain;  //  ADC to electrons conversion
 
   const bool doPhase2Calibration;    // The ADC --> electrons calibration is for phase-2 tracker
