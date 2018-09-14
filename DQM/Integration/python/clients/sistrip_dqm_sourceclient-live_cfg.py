@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("SiStrpDQMLive", eras.Run2_2017)
+process = cms.Process("SiStrpDQMLive", eras.Run2_2018_pp_on_AA)
 
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('siStripDigis',
@@ -185,7 +185,13 @@ process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('NOT (36 OR 37 OR 
 # HLT trigger selection (HLT_ZeroBias)
 # modified for 0 Tesla HLT menu (no ZeroBias_*)
 process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
-process.hltHighLevel.HLTPaths = cms.vstring( 'HLT_ZeroBias_*' , 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*', 'HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*')
+if (process.runType.getRunType() == process.runType.hi_run):
+    #--------------------------
+    # HI Runs HLT path
+    #--------------------------
+    process.hltHighLevel.HLTPaths = cms.vstring( 'HLT_ZeroBias_*' , 'HLT_HIZeroBias*' , 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*', 'HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*' , 'HLT_HICentralityVeto*','HLT_HIMinBias*')
+else:
+    process.hltHighLevel.HLTPaths = cms.vstring( 'HLT_ZeroBias_*' , 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*', 'HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*')
 process.hltHighLevel.andOr = cms.bool(True)
 process.hltHighLevel.throw =  cms.bool(False)
 
@@ -194,8 +200,10 @@ process.hltHighLevel.throw =  cms.bool(False)
 #--------------------------
 process.SiStripSources_LocalReco = cms.Sequence(process.siStripFEDMonitor*process.SiStripMonitorDigi*process.SiStripMonitorClusterReal)
 process.DQMCommon                = cms.Sequence(process.stripQTester*process.trackingQTester*process.dqmEnv*process.dqmEnvTr*process.dqmSaver)
-process.RecoForDQM_LocalReco     = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.gtDigis*process.trackerlocalreco)
-
+if (process.runType.getRunType() == process.runType.hi_run):
+    process.RecoForDQM_LocalReco     = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco)
+else :
+    process.RecoForDQM_LocalReco     = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.gtDigis*process.trackerlocalreco)
 #------------------------------------------------------
 # Switch for channel errors per FED ID trend plots.
 #------------------------------------------------------
@@ -387,7 +395,7 @@ if (process.runType.getRunType() == process.runType.hpu_run):
     # it should already be ok, but the name could be changed
     process.hltHighLevel.HLTPaths = cms.vstring( 'HLT_ZeroBias*' )
 
-#    process.DQMEventStreamerReader.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('HLT_600Tower*','HLT_L1*','HLT_Jet*','HLT_HT*','HLT_MinBias_*','HLT_Physics*', 'HLT_ZeroBias*'))
+ #        process.DQMEventStreamerReader.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('HLT_600Tower*','HLT_L1*','HLT_Jet*','HLT_HT*','HLT_MinBias_*','HLT_Physics*', 'HLT_ZeroBias*'))
 #
     process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/sistrip_reference_pp.root'
 
@@ -492,7 +500,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.ecalDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataRepacker")
     process.gctDigis.inputLabel = cms.InputTag("rawDataRepacker")
-    process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataRepacker")
     process.hcalDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.muonCSCDigis.InputObjects = cms.InputTag("rawDataRepacker")
     process.muonDTDigis.inputLabel = cms.InputTag("rawDataRepacker")
@@ -502,6 +509,77 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
     process.siStripFEDMonitor.RawDataTag = cms.untracked.InputTag("rawDataRepacker")
 
+    if ((process.runType.getRunType() == process.runType.hi_run) and live):
+        process.source.SelectEvents = cms.untracked.vstring(
+            'HLT_HICentralityVeto*',
+            'HLT_HIMinBias*',
+            'HLT_HIZeroBias*'
+            )
+
+    process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/sistrip_reference_pp.root'
+
+
+    process.SiStripMonitorDigi.UseDCSFiltering = cms.bool(False)
+    process.SiStripMonitorClusterReal.UseDCSFiltering = cms.bool(False)
+
+    process.MonitorTrackResiduals_gentk.Tracks                 = 'initialStepTracksPreSplitting'
+    process.MonitorTrackResiduals_gentk.trajectoryInput        = 'initialStepTracksPreSplitting'
+    process.MonitorTrackResiduals_gentk.TrackProducer          = cms.string('initialStepTracksPreSplitting')
+    process.TrackMon_gentk.TrackProducer    = cms.InputTag('initialStepTracksPreSplitting')
+    process.TrackMon_gentk.allTrackProducer = cms.InputTag('initialStepTracksPreSplitting')
+    process.SiStripMonitorTrack_gentk.TrackProducer = 'initialStepTracksPreSplitting'
+
+    process.SiStripSources_TrkReco   = cms.Sequence(process.SiStripMonitorTrack_gentk*process.MonitorTrackResiduals_gentk*process.TrackMon_gentk)
+
+    ### STRIP
+    process.load("DQM.SiStripMonitorClient.SiStripClientConfigP5_cff")
+    process.SiStripAnalyser.UseGoodTracks  = cms.untracked.bool(True)
+    process.SiStripAnalyser.TkMapCreationFrequency  = -1
+    process.SiStripAnalyser.ShiftReportFrequency = -1
+    process.SiStripAnalyser.StaticUpdateFrequency = 5
+    process.SiStripAnalyser.RawDataTag = cms.untracked.InputTag("rawDataRepacker")
+    process.SiStripAnalyser.MonitorSiStripBackPlaneCorrection = cms.bool(False)
+    process.SiStripClients           = cms.Sequence(process.SiStripAnalyser)
+
+    process.SiStripMonitorDigi.TotalNumberOfDigisFailure.integrateNLumisections = cms.int32(25)
+    ### TRACKING
+    process.load("DQM.TrackingMonitorClient.TrackingClientConfigP5_cff")
+    process.TrackingAnalyser.ShiftReportFrequency = -1
+    process.TrackingAnalyser.StaticUpdateFrequency = 5
+    process.TrackingAnalyser.RawDataTag = cms.untracked.InputTag("rawDataRepacker")
+    if offlineTesting :
+        process.TrackingAnalyser.verbose = cms.untracked.bool(True)
+    process.TrackingClient = cms.Sequence( process.TrackingAnalyser )
+
+    process.trackingQTester.qtList                  = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config.xml')
+    process.trackingQTester.prescaleFactor          = cms.untracked.int32(1)
+    process.trackingQTester.getQualityTestsFromFile = cms.untracked.bool(True)
+    process.trackingQTester.qtestOnEndLumi          = cms.untracked.bool(True)
+    process.trackingQTester.qtestOnEndRun           = cms.untracked.bool(True)
+
+    # Reco for pp collisions
+
+    process.load('RecoTracker.IterativeTracking.InitialStepPreSplitting_cff')
+    '''process.InitialStepPreSplitting.remove(process.initialStepTrackRefsForJetsPreSplitting)
+    process.InitialStepPreSplitting.remove(process.caloTowerForTrkPreSplitting)
+    process.InitialStepPreSplitting.remove(process.ak4CaloJetsForTrkPreSplitting)
+    process.InitialStepPreSplitting.remove(process.jetsForCoreTrackingPreSplitting)
+    process.InitialStepPreSplitting.remove(process.siPixelClusters)
+    process.InitialStepPreSplitting.remove(process.siPixelRecHits)
+    process.InitialStepPreSplitting.remove(process.MeasurementTrackerEvent)
+    process.InitialStepPreSplitting.remove(process.siPixelClusterShapeCache)'''
+
+    process.InitialStepPreSplittingTask.remove(process.initialStepTrackRefsForJetsPreSplitting)
+    process.InitialStepPreSplittingTask.remove(process.caloTowerForTrkPreSplitting)
+    process.InitialStepPreSplittingTask.remove(process.ak4CaloJetsForTrkPreSplitting)
+    process.InitialStepPreSplittingTask.remove(process.jetsForCoreTrackingPreSplitting)
+    process.InitialStepPreSplittingTask.remove(process.siPixelClusters)
+    process.InitialStepPreSplittingTask.remove(process.siPixelRecHits)
+    process.InitialStepPreSplittingTask.remove(process.MeasurementTrackerEvent)
+
+    # Redefinition of siPixelClusters: has to be after RecoTracker.IterativeTracking.InitialStepPreSplitting_cff
+    process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
+
     # Select events based on the pixel cluster multiplicity
     import  HLTrigger.special.hltPixelActivityFilter_cfi
     process.multFilter = HLTrigger.special.hltPixelActivityFilter_cfi.hltPixelActivityFilter.clone(
@@ -509,82 +587,33 @@ if (process.runType.getRunType() == process.runType.hi_run):
         minClusters = cms.uint32(10000),
         maxClusters = cms.uint32(50000)
         )
-    # Trigger selection
-#    process.DQMEventStreamerReader.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('HLT_HIJet*','HLT_HICentralityVeto*','HLT_HIFullTrack*','HLT_HIMinBias*'))
-#
-    process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/sistrip_reference_hi.root'
-    # Quality test for HI
-    process.stripQTester = cms.EDAnalyzer("QualityTester",
-                                     qtList = cms.untracked.FileInPath('DQM/SiStripMonitorClient/data/sistrip_qualitytest_config_heavyion.xml'),
-                                     prescaleFactor = cms.untracked.int32(3),
-                                     getQualityTestsFromFile = cms.untracked.bool(True),
-                                     qtestOnEndLumi = cms.untracked.bool(True),
-                                     qtestOnEndRun = cms.untracked.bool(True)
-                                     )
 
-    process.trackingQTester.qtList                  = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config_heavyion.xml')
-    process.trackingQTester.prescaleFactor          = cms.untracked.int32(2)
-    process.trackingQTester.getQualityTestsFromFile = cms.untracked.bool(True)
-    process.trackingQTester.qtestOnEndLumi          = cms.untracked.bool(True)
-    process.trackingQTester.qtestOnEndRun           = cms.untracked.bool(True)
-
-    # Sources for HI
-    process.load("Configuration.StandardSequences.RawToDigi_Repacked_cff")
-    process.SiStripBaselineValidator.srcProcessedRawDigi =  cms.InputTag('siStripVRDigis','VirginRaw')
-    process.SiStripMonitorTrack_hi.TrackProducer = "hiSelectedTracks"
-    process.TrackMon_hi.TrackProducer = "hiSelectedTracks"
-
-    process.SiStripSources_TrkReco   = cms.Sequence(process.SiStripMonitorTrack_hi*process.TrackMon_hi)
-
-    ### STRIP
-    process.load("DQM.SiStripMonitorClient.SiStripClientConfigP5_HeavyIons_cff")
-    process.SiStripAnalyserHI.RawDataTag = cms.untracked.InputTag("rawDataRepacker")
-    process.SiStripAnalyserHI.TkMapCreationFrequency  = -1
-    process.SiStripAnalyserHI.ShiftReportFrequency = -1
-    process.SiStripAnalyserHI.StaticUpdateFrequency = 5
-    process.SiStripAnalyserHI.MonitorSiStripBackPlaneCorrection = cms.bool(False)
-    process.SiStripClients  = cms.Sequence(process.SiStripAnalyserHI)
-    ### TRACKING
-    process.load("DQM.TrackingMonitorClient.TrackingClientConfigP5_HeavyIons_cff")
-    process.TrackingAnalyserHI.ShiftReportFrequency = -1
-    process.TrackingAnalyserHI.StaticUpdateFrequency = 5
-    process.TrackingAnalyserHI.RawDataTag            = cms.untracked.InputTag("rawDataCollector")
-    process.TrackingClient = cms.Sequence( process.TrackingAnalyserHI )
-
-    process.load("RecoLocalTracker.Configuration.RecoLocalTrackerHeavyIons_cff")
-
-    # Reco for HI collisions
-    process.load("RecoHI.HiTracking.LowPtTracking_PbPb_cff")
+    from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
     process.PixelLayerTriplets.BPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
     process.PixelLayerTriplets.FPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
+    from RecoPixelVertexing.PixelTrackFitting.PixelTracks_cff import *
+    process.pixelTracksHitTriplets.SeedComparitorPSet.clusterShapeCacheSrc = 'siPixelClusterShapeCachePreSplitting'
 
-    process.hiProtoTrackFilter.siPixelRecHits = "siPixelRecHitsPreSplitting"
-    process.hiPixel3ProtoTracks.RegionFactoryPSet.RegionPSet.siPixelRecHits = cms.InputTag("siPixelRecHitsPreSplitting")
+    process.RecoForDQM_TrkReco = cms.Sequence(process.offlineBeamSpot*process.MeasurementTrackerEventPreSplitting*process.siPixelClusterShapeCachePreSplitting*process.recopixelvertexing*process.InitialStepPreSplitting)
 
-    process.hiFilter.clusterShapeCacheSrc = "siPixelClusterShapeCachePreSplitting"
-
-    process.hiPrimTrackCandidates.MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEventPreSplitting")
-    process.hiGlobalPrimTracks.MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEventPreSplitting")
-    process.multFilter.inputTag = cms.InputTag("siPixelClustersPreSplitting")
-    process.SiStripMonitorTrack_hi.TrackProducer = cms.string('hiSelectedTracks')
-    process.RecoForDQM_LocalReco = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.siStripVRDigis*process.gtDigis*process.trackerlocalreco*process.pixeltrackerlocalreco)
-    process.RecoForDQM_TrkReco = cms.Sequence(process.offlineBeamSpot*process.MeasurementTrackerEventPreSplitting*process.siPixelClusterShapeCachePreSplitting*process.hiBasicTracking*process.hiSelectedTracks)
-
-    process.p = cms.Path(process.scalersRawToDigi*
-                         process.APVPhases*
-                         process.consecutiveHEs*
-                         process.hltTriggerTypeFilter*
-                         process.siStripFEDCheck *
-                         process.RecoForDQM_LocalReco*
-                         process.DQMCommon*
-                         process.SiStripClients*
-                         process.SiStripSources_LocalReco*
-                         process.RecoForDQM_TrkReco*
-                         process.SiStripSources_TrkReco*
-                         process.multFilter*
-                         process.SiStripBaselineValidator*
-                         process.TrackingClient
-                         )
+    process.p = cms.Path(
+        process.scalersRawToDigi*
+        process.APVPhases*
+        process.consecutiveHEs*
+        process.hltTriggerTypeFilter*
+        process.siStripFEDCheck *
+        process.RecoForDQM_LocalReco*
+        process.siPixelClusters*
+        process.multFilter*
+        process.DQMCommon*
+        process.SiStripClients*
+        process.SiStripSources_LocalReco*
+        ##### TRIGGER SELECTION #####
+        process.hltHighLevel*
+        process.RecoForDQM_TrkReco*
+        process.SiStripSources_TrkReco*
+        process.TrackingClient
+    )
 
 
 ### process customizations included here
