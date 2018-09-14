@@ -244,13 +244,14 @@ void DummyEvelyser::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
          trk->MakeTrack();
          
          trk->SetAttLineAttMarker(m_trackList);
-         m_trackList->AddElement(trk);
-   
-         // The display() function runs the GUI event-loop and shows
-         // whatever has been registered so far to eve.
-         // It returns when user presses the "Step" button (or "Continue" or
-         // "Next Event").
-         //m_eve->display(std::string("DummyEvelyser::analyze done for:\n") + trk->GetName());
+         m_trackList->AddElement(trk);   
       }
+
+      
+      // The display() function runs the GUI event-loop and shows
+      // whatever has been registered so far to eve.
+      // It returns when user presses the "Step" button (or "Continue" or
+      // "Next Event").
+      m_eve->display(Form("DummyEvelyser::analyze done for %d tracks\n", m_trackList->NumChildren()) );
    }
 }
