@@ -7,7 +7,7 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "PPSTools/Utilities/interface/PPSUnitConversion.h"
+#include "Utilities/PPS/interface/PPSUnitConversion.h"
 
 #include "SimDataFormats/Forward/interface/LHCTransportLink.h"
 #include <vector>

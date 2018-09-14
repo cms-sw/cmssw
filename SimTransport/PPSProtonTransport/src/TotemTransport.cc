@@ -36,12 +36,7 @@ TotemTransport::TotemTransport(const edm::ParameterSet & iConfig, bool verbosity
         MODE = TOTEM;
 
         fBeamMomentum        = sqrt(fBeamEnergy*fBeamEnergy - pow(proton_mass_c2/GeV,2));
-/*
-        PPSTools::fBeamMomentum=fBeamMomentum;
-        PPSTools::fBeamEnergy=fBeamEnergy;
-        PPSTools::fCrossingAngleBeam1=fCrossingAngle_56;
-        PPSTools::fCrossingAngleBeam2=fCrossingAngle_45;
-*/
+
         fPPSRegionStart_56=model_ip_150_r_zmax;
         fPPSRegionStart_45=model_ip_150_l_zmax;
         
@@ -72,14 +67,11 @@ void TotemTransport::process(const HepMC::GenEvent * evt , const edm::EventSetup
 
          transportProton(gpart);
  
-         //transportProtonTrack( part, *pRecHits, out_vtx );
-         //vtx->set_position( out_vtx );
      }
      addPartToHepMC(const_cast<HepMC::GenEvent*>(evt));
 }
 bool TotemTransport::transportProton( const HepMC::GenParticle* in_trk)
 {
-     //PPSTools::LorentzBoost(*(const_cast<HepMC::GenParticle*>(in_trk)),"LAB");
      ApplyBeamCorrection(const_cast<HepMC::GenParticle*>(in_trk));
 
      const HepMC::GenVertex* in_pos = in_trk->production_vertex();

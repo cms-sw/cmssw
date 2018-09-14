@@ -24,14 +24,14 @@
 #include "FastSimulation/CTPPSFastGeometry/interface/CTPPSToFDetector.h"
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "PPSTools/Utilities/interface/PPSUnitConversion.h"
+#include "Utilities/PPS/interface/PPSUnitConversion.h"
 //#include "FastSimulation/CTPPSSimHitProducer/plugins/FastCTPPSParameters.h"
 
 //CLHEP
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include <CLHEP/Vector/LorentzVector.h>
-#include "PPSTools/Utilities/interface/PPSUtilities.h"
+#include "Utilities/PPS/interface/PPSUtilities.h"
 
 //C++ library
 #include <iostream>
