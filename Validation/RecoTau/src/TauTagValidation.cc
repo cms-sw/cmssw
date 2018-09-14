@@ -373,24 +373,15 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   //Initialize the Tau Multiplicity Counter
   for(const auto& it : discriminators_){
     string DiscriminatorLabel = it.getParameter<string>("discriminator");
-    tauDecayCountMap_.insert(std::make_pair("allHadronic" + DiscriminatorLabel, 0));
-    tauDecayCountMap_.insert(std::make_pair("oneProng0Pi0" + DiscriminatorLabel, 0));
-    tauDecayCountMap_.insert(std::make_pair("oneProng1Pi0" + DiscriminatorLabel, 0));
-    tauDecayCountMap_.insert(std::make_pair("oneProng2Pi0" + DiscriminatorLabel, 0));
-    tauDecayCountMap_.insert(std::make_pair("twoProng0Pi0" + DiscriminatorLabel, 0));
-    tauDecayCountMap_.insert(std::make_pair("twoProng1Pi0" + DiscriminatorLabel, 0));
-    tauDecayCountMap_.insert(std::make_pair("twoProng2Pi0" + DiscriminatorLabel, 0));
-    tauDecayCountMap_.insert(std::make_pair("threeProng0Pi0" + DiscriminatorLabel, 0));
-    tauDecayCountMap_.insert(std::make_pair("threeProng1Pi0" + DiscriminatorLabel, 0));
-    tauDecayCountMap_.find( "allHadronic"   + DiscriminatorLabel)->second = 0;
-    tauDecayCountMap_.find( "oneProng0Pi0"  + DiscriminatorLabel)->second = 0;
-    tauDecayCountMap_.find( "oneProng1Pi0"  + DiscriminatorLabel)->second = 0;
-    tauDecayCountMap_.find( "oneProng2Pi0"  + DiscriminatorLabel)->second = 0;
-    tauDecayCountMap_.find( "twoProng0Pi0"  + DiscriminatorLabel)->second = 0;
-    tauDecayCountMap_.find( "twoProng1Pi0"  + DiscriminatorLabel)->second = 0;
-    tauDecayCountMap_.find( "twoProng2Pi0"  + DiscriminatorLabel)->second = 0;
-    tauDecayCountMap_.find( "threeProng0Pi0"+ DiscriminatorLabel)->second = 0;
-    tauDecayCountMap_.find( "threeProng1Pi0"+ DiscriminatorLabel)->second = 0;
+    tauDecayCountMap_["allHadronic"    + DiscriminatorLabel] = 0;
+    tauDecayCountMap_["oneProng0Pi0"   + DiscriminatorLabel] = 0;
+    tauDecayCountMap_["oneProng1Pi0"   + DiscriminatorLabel] = 0;
+    tauDecayCountMap_["oneProng2Pi0"   + DiscriminatorLabel] = 0;
+    tauDecayCountMap_["twoProng0Pi0"   + DiscriminatorLabel] = 0;
+    tauDecayCountMap_["twoProng1Pi0"   + DiscriminatorLabel] = 0;
+    tauDecayCountMap_["twoProng2Pi0"   + DiscriminatorLabel] = 0;
+    tauDecayCountMap_["threeProng0Pi0" + DiscriminatorLabel] = 0;
+    tauDecayCountMap_["threeProng1Pi0" + DiscriminatorLabel] = 0;
   }
 
   typedef edm::View<reco::Candidate> genCandidateCollection;
