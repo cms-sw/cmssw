@@ -43,7 +43,7 @@ CTPPSFastTrackingProducer::CTPPSFastTrackingProducer(const edm::ParameterSet& iC
     beam1filename   = iConfig.getParameter<string>("Beam1");
     beam2filename = iConfig.getParameter<string>("Beam2"); 
     fBeamEnergy = iConfig.getParameter<double>("BeamEnergy"); // beam energy in GeV
-    fBeamMomentum = sqrt(fBeamEnergy*fBeamEnergy - pow(CLHEP::proton_mass_c2/GeV,2)); 
+    fBeamMomentum = sqrt(fBeamEnergy*fBeamEnergy - pow(CLHEP::proton_mass_c2/GeV,2));
     fCrossingAngleBeam1 = iConfig.getParameter<double>("CrossingAngleBeam1");
     fCrossingAngleBeam2 = iConfig.getParameter<double>("CrossingAngleBeam2");
   
@@ -229,15 +229,12 @@ bool CTPPSFastTrackingProducer::SearchTrack(int i,int j,int Direction,double& xi
     //thx and thy are returned in microrad
     ReconstructArm(station,Direction*x1,y1,Direction*x2,y2,thx,thy,eloss); // Pass the hits in the LHC ref. frame
     thx*=-Direction;//  invert to the CMS ref frame
-    //thy*=-1;
 
     // Protect for unphysical results
     if (std::isnan(eloss)||std::isinf(eloss)||
             std::isnan(thx)  || std::isinf(thx) ||
             std::isnan(thy)  || std::isinf(thy)) return false;
     //
-    //if (-thx<-100||-thx>300) return false;
-    //if (thy<-200||thy>200) return false;
     
     if ( m_verbosity ) LogDebug("CTPPSFastTrackingProducer::SearchTrack:") << "thx " << thx << " thy " << thy << " eloss " << eloss;
 

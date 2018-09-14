@@ -55,11 +55,6 @@ class PPSSimTrackProducer : public edm::stream::EDProducer<> {
       void produce(edm::Event&, const edm::EventSetup&) override;
       void endStream() override;
 
-      //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-      //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-
       // ----------member data ---------------------------
              bool m_verbosity;
              ProtonTransport* theTransporter = nullptr;
@@ -85,16 +80,6 @@ class PPSSimTrackProducer : public edm::stream::EDProducer<> {
 //
 PPSSimTrackProducer::PPSSimTrackProducer(const edm::ParameterSet& iConfig)
 {
-   //register your products
-/* Examples
-   produces<ExampleData2>();
-
-   //if do put with a label
-   produces<ExampleData2>("label");
- 
-   //if you want to put into the Run
-   produces<ExampleData2,InRun>();
-*/
    //now do what ever other initialization is needed
     // TransportHector
     m_InTag          = iConfig.getParameter<std::string>("HepMCProductLabel") ;
@@ -145,24 +130,8 @@ PPSSimTrackProducer::~PPSSimTrackProducer()
 void
 PPSSimTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
-/* This is an event example
-   //Read 'ExampleData' from the Event
-   Handle<ExampleData> pIn;
-   iEvent.getByLabel("example",pIn);
-
-   //Use the ExampleData to create an ExampleData2 which 
-   // is put into the Event
-   iEvent.put(std::make_unique<ExampleData2>(*pIn));
-*/
-
-/* this is an EventSetup example
-   //Read SetupData from the SetupRecord in the EventSetup
-   ESHandle<SetupData> pSetup;
-   iSetup.get<SetupRecord>().get(pSetup);
-*/
+    using namespace edm;
     using namespace std;
-    //hector_ctpps->SetBeamLine();
     HepMC::GenEvent * evt_;
     edm::Service<edm::RandomNumberGenerator> rng;
     CLHEP::HepRandomEngine* engine = &rng->getEngine(iEvent.streamID());
@@ -170,7 +139,6 @@ PPSSimTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         throw cms::Exception("Configuration")
             << "The TRandom3 engine type must be used with ProtonTransport, Random Number Generator Service not correctly configured!";
     }
-    //TRandom3* rootEngine = ( (edm::TRandomAdaptor*) engine )->getRootEngine();
 
     eventsAnalysed++;
     Handle<HepMCProduct>  HepMCEvt;   
@@ -209,50 +177,14 @@ PPSSimTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     iEvent.put(std::move(NewCorrespondenceMap));
 }
-
+// The methods below are pure virtual, so it needs to be implemented even if not used
+//
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
-void
-PPSSimTrackProducer::beginStream(edm::StreamID)
-{
-}
+void PPSSimTrackProducer::beginStream(edm::StreamID) { }
 
 // ------------ method called once each stream after processing all runs, lumis and events  ------------
-void
-PPSSimTrackProducer::endStream() {
-}
+void PPSSimTrackProducer::endStream() { } 
 
-// ------------ method called when starting to processes a run  ------------
-/*
-void
-PPSSimTrackProducer::beginRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
- 
-// ------------ method called when ending the processing of a run  ------------
-/*
-void
-PPSSimTrackProducer::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
- 
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void
-PPSSimTrackProducer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
- 
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void
-PPSSimTrackProducer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
- 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 PPSSimTrackProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
