@@ -30,3 +30,16 @@ jetDQMAnalyzerSequenceHI = cms.Sequence(jetDQMAnalyzerIC5CaloHIUncleaned
                                         * jetDQMAnalyzerAkCs4PF
 )
 
+_jetDQMAnalyzerSequenceHI = cms.Sequence(jetDQMMatchAkPu4CaloAkPu4PF
+        * jetDQMAnalyzerAkPU4Calo
+        * jetDQMAnalyzerAkPU3PF
+        * jetDQMAnalyzerAkPU4PF
+        * jetDQMAnalyzerAkCs4PF
+)
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toReplaceWith( jetDQMAnalyzerSequence, _jetDQMAnalyzerSequenceHI )
+pp_on_AA_2018.toModify( jetDQMAnalyzerAkPU4Calo, srcVtx = cms.untracked.InputTag("offlinePrimaryVertices") )
+pp_on_AA_2018.toModify( jetDQMAnalyzerAkPU3PF, srcVtx = cms.untracked.InputTag("offlinePrimaryVertices") )
+pp_on_AA_2018.toModify( jetDQMAnalyzerAkPU4PF, srcVtx = cms.untracked.InputTag("offlinePrimaryVertices") )
+pp_on_AA_2018.toModify( jetDQMAnalyzerAkCs4PF, srcVtx = cms.untracked.InputTag("offlinePrimaryVertices") )
+
