@@ -339,7 +339,7 @@ void CTPPSFastTrackingProducer::FastReco(int Direction,H_RecRPObject* station)
                 if (fCrossAngleCorr) PPSTools::LorentzBoost(p,"MC");
                 //Getting the Xi and t (squared four momentum transferred) of the reconstructed track
                 PPSTools::Get_t_and_xi(const_cast<CLHEP::HepLorentzVector*>(&p),t,xi);
-                double pxx = p.px(); double pyy = p.py(); double pzz = p.pz(); //double ee = p.E();	
+                double pxx = p.px(); double pyy = p.py(); double pzz = p.pz(); 
                 math::XYZVector momentum (pxx,pyy,pzz);
                 math::XYZPoint vertex (x0,y0,0);
 
@@ -385,8 +385,8 @@ bool CTPPSFastTrackingProducer::SetBeamLine()
     m_beamlineCTPPS1->fill( b2.fullPath(), 1, "IP5");
     m_beamlineCTPPS2 = std::unique_ptr<H_BeamLine>(new H_BeamLine( 1, lengthctpps + 0.1 )); //
     m_beamlineCTPPS2->fill( b1.fullPath(), 1, "IP5");
-    //m_beamlineCTPPS1->offsetElements( 120, 0.097 );
-    //m_beamlineCTPPS2->offsetElements( 120,-0.097 );
+    m_beamlineCTPPS1->offsetElements( 120, 0.097 );
+    m_beamlineCTPPS2->offsetElements( 120,-0.097 );
     pps_stationF = std::unique_ptr<H_RecRPObject>(new H_RecRPObject(fz_tracker1,fz_tracker2,*m_beamlineCTPPS1));
     pps_stationB = std::unique_ptr<H_RecRPObject>(new H_RecRPObject(fz_tracker1,fz_tracker2,*m_beamlineCTPPS2));
     return true;
