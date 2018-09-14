@@ -54,9 +54,9 @@ vfe_proc = cms.PSet( ProcessorName = cms.string('HGCalVFEProcessorSums'),
 
 hgcalVFEProducer = cms.EDProducer(
         "HGCalVFEProducer",
-        eeDigis = cms.InputTag('mix:HGCDigisEE'),
-        fhDigis = cms.InputTag('mix:HGCDigisHEfront'),
-        bhDigis = cms.InputTag('mix:HGCDigisHEback'),
+        eeDigis = cms.InputTag('simHGCalUnsuppressedDigis:EE'),
+        fhDigis = cms.InputTag('simHGCalUnsuppressedDigis:HEfront'),
+        bhDigis = cms.InputTag('simHGCalUnsuppressedDigis:HEback'),
         ProcessorParameters = vfe_proc.clone()
        )
 
