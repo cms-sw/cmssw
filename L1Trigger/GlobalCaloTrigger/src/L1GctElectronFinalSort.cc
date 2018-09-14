@@ -82,7 +82,7 @@ void L1GctElectronFinalSort::process(){
     }
 
     //Then sort it
-    sort(data.begin(),data.end(),L1GctElectronSorter::rank_gt);
+    sort(data.begin(),data.end(),L1GctElectronSorter::rankByGt);
   
     //Copy data to output buffer
     std::vector<L1GctEmCand> temp(4);

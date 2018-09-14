@@ -40,7 +40,7 @@ CmsTrackerDiskBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
   switch( det->components().front()->type())
   {
   case GeometricDet::panel:
-    TrackerStablePhiSort( comp.begin(), comp.end(), std::function<double(const GeometricDet*)>(extractPhi));
+    TrackerStablePhiSort( comp.begin(), comp.end(), std::function<double(const GeometricDet*)>(getPhi));
     break;
   default:
     edm::LogError( "CmsTrackerDiskBuilder" ) << "ERROR - wrong SubDet to sort..... " << det->components().front()->type();

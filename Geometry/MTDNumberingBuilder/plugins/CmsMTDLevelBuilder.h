@@ -22,7 +22,7 @@ public:
   }
   
   // NP** Phase2 BarrelEndcap
-  bool PhiSortNP(const GeometricTimingDet* a,const GeometricTimingDet* b) const {
+  bool phiSortNP(const GeometricTimingDet* a,const GeometricTimingDet* b) const {
     if ( fabs(a->translation().rho() - b->translation().rho()) < 0.01 &&
          (fabs(a->translation().phi() - b->translation().phi()) < 0.01 ||
           fabs(a->translation().phi() - b->translation().phi()) > 6.27 ) &&
@@ -34,7 +34,7 @@ public:
   }
 
 
-  static bool LessZ(const GeometricTimingDet* a, const GeometricTimingDet* b)
+  static bool isLessZ(const GeometricTimingDet* a, const GeometricTimingDet* b)
   {
     // NP** change for Phase 2 Tracker
     if (a->translation().z() == b->translation().z())
@@ -44,19 +44,19 @@ public:
     return a->translation().z() < b->translation().z();}   
   }
   
-  static bool LessModZ(const GeometricTimingDet* a, const GeometricTimingDet* b)
+  static bool isLessModZ(const GeometricTimingDet* a, const GeometricTimingDet* b)
   {
     return fabs(a->translation().z()) < fabs(b->translation().z());   
   }
   
 
-  static double extractPhi(const GeometricTimingDet* a) {
+  static double getPhi(const GeometricTimingDet* a) {
     const double pi = 3.141592653592;
     double phi = a->phi();
     return( phi>= 0 ? phi:phi+2*pi);   
   }
   
-  static double extractPhiModule(const GeometricTimingDet* a) {
+  static double getPhiModule(const GeometricTimingDet* a) {
     const double pi = 3.141592653592;
     std::vector<const GeometricTimingDet*> const & comp = a->components().back()->components();
     float phi = 0.;
@@ -96,7 +96,7 @@ public:
     }
   }
   
-  static double extractPhiGluedModule(const GeometricTimingDet* a) {
+  static double getPhiGluedModule(const GeometricTimingDet* a) {
     const double pi = 3.141592653592;
     std::vector<const GeometricTimingDet*> comp;
     a->deepComponents(comp);
@@ -138,33 +138,33 @@ public:
   }
 
   
-  static double extractPhiMirror(const GeometricTimingDet* a) {
+  static double getPhiMirror(const GeometricTimingDet* a) {
     const double pi = 3.141592653592;
     double phi = a->phi();
     phi = (phi>= 0 ? phi : phi+2*pi); // (-pi,pi] --> [0,2pi)
     return ( (pi-phi) >= 0 ? (pi-phi) : (pi-phi)+2*pi ); // (-pi,pi] --> [0,2pi)
   }
   
-  static double extractPhiModuleMirror(const GeometricTimingDet* a) {
+  static double getPhiModuleMirror(const GeometricTimingDet* a) {
     const double pi = 3.141592653592;
-    double phi = extractPhiModule(a); // [0,2pi)
+    double phi = getPhiModule(a); // [0,2pi)
     phi = ( phi <= pi ? phi : phi-2*pi );   // (-pi,pi]   
     return (pi-phi);
   }
   
-  static double extractPhiGluedModuleMirror(const GeometricTimingDet* a) {
+  static double getPhiGluedModuleMirror(const GeometricTimingDet* a) {
     const double pi = 3.141592653592;
-    double phi = extractPhiGluedModule(a); // [0,2pi)
+    double phi = getPhiGluedModule(a); // [0,2pi)
     phi = ( phi <= pi ? phi : phi-2*pi );   // (-pi,pi]   
     return (pi-phi);
   }
   
-  static bool LessR_module(const GeometricTimingDet* a, const GeometricTimingDet* b)
+  static bool isLessRModule(const GeometricTimingDet* a, const GeometricTimingDet* b)
   {
     return a->deepComponents().front()->rho() < b->deepComponents().front()->rho();      
   }
   
-  static bool LessR(const GeometricTimingDet* a, const GeometricTimingDet* b)
+  static bool isLessR(const GeometricTimingDet* a, const GeometricTimingDet* b)
   {
     return a->rho() < b->rho(); 
   }

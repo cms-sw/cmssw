@@ -49,7 +49,7 @@ class L1GctElectronSorter : public L1GctProcessor
   
   /// comparison operator for sort, used here and in the ElectronFinalSort
   /// Candidates of equal rank are sorted by priority, with the lower value given precedence
-  static bool rank_gt(const prioritisedEmCand& x, const prioritisedEmCand& y) {
+  static bool rankByGt(const prioritisedEmCand& x, const prioritisedEmCand& y) {
     return ( x.rank() > y.rank() || ( (x.rank() == y.rank()) && (x.priority < y.priority) ) ) ;
   }
 
