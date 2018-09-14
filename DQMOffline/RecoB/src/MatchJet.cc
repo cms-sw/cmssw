@@ -19,8 +19,8 @@ namespace {
 
 MatchJet::MatchJet(const edm::ParameterSet& pSet) :
   maxChi2(pSet.getParameter<double>("maxChi2")),
-  sigmaDeltaR(pSet.getParameter<double>("sigmaDeltaR")),
-  sigmaDeltaE(pSet.getParameter<double>("sigmaDeltaE")),
+  sigmaDeltaR2(sqr(pSet.getParameter<double>("sigmaDeltaR"))),
+  sigmaDeltaE2(sqr(pSet.getParameter<double>("sigmaDeltaE"))),
   threshold(1.0)
 {
 }
@@ -74,12 +74,12 @@ void MatchJet::matchCollections(
                               [this](auto& v1, auto& v2)
                               {
                                   using namespace ROOT::Math;
-                          //        return VectorUtil::DeltaR2(v1, v2) / this->sigmaDeltaR +
+                          //        return VectorUtil::DeltaR2(v1, v2) / this->sigmaDeltaR2 +
                           //               sqr(2. * (v1.R() - v2.R()) /
-                          //                        (v1.R() + v2.R())) / this->sigmaDeltaE;
-                                  double x = VectorUtil::DeltaR2(v1, v2) / sqr(this->sigmaDeltaR) +
+                          //                        (v1.R() + v2.R())) / this->sigmaDeltaE2;
+                                  double x = VectorUtil::DeltaR2(v1, v2) / this->sigmaDeltaR2 +
                                          sqr(2. * (v1.R() - v2.R()) /
-                                                  (v1.R() + v2.R())) / sqr(this->sigmaDeltaE);
+                                                  (v1.R() + v2.R())) / this->sigmaDeltaE2;
                           // std::cout << "xxx " << VectorUtil::DeltaPhi(v1, v2) << " " << (v1.Eta() - v2.Eta()) << " " << (v1.R() - v2.R()) / (v1.R() + v2.R()) << " " << x << std::endl;
                                   return x;
                               });
