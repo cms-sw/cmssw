@@ -18,15 +18,15 @@ HGCalVFEProcessorSums(const edm::ParameterSet& conf) : HGCalVFEProcessorBase(con
 }
 
 void
-HGCalVFEProcessorSums::run(const HGCEEDigiCollection& ee,
-                           const HGCHEDigiCollection& fh, 
-                           const HGCBHDigiCollection& bh, 
+HGCalVFEProcessorSums::run(const HGCalDigiCollection& ee,
+                           const HGCalDigiCollection& fh, 
+                           const HGCalDigiCollection& bh, 
                            l1t::HGCalTriggerCellBxCollection& triggerCellColl, 
                            const edm::EventSetup& es) 
 { 
   calibration_.eventSetup(es);
 
-  std::vector<HGCDataFrame<DetId,HGCSample>> dataframes;
+  std::vector<HGCalDataFrame> dataframes;
   std::vector<std::pair<DetId, uint32_t >> linearized_dataframes;
   std::map<HGCalDetId, uint32_t> payload;
 
