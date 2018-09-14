@@ -43,7 +43,7 @@ CTPPSFastTrackingProducer::CTPPSFastTrackingProducer(const edm::ParameterSet& iC
     beam1filename   = iConfig.getParameter<string>("Beam1");
     beam2filename = iConfig.getParameter<string>("Beam2"); 
     fBeamEnergy = iConfig.getParameter<double>("BeamEnergy"); // beam energy in GeV
-    fBeamMomentum = sqrt(fBeamEnergy*fBeamEnergy - pow(CLHEP::proton_mass_c2/GeV,2));
+    fBeamMomentum = sqrt(fBeamEnergy*fBeamEnergy - PPSTools::ProtonMassSQ);
     fCrossingAngleBeam1 = iConfig.getParameter<double>("CrossingAngleBeam1");
     fCrossingAngleBeam2 = iConfig.getParameter<double>("CrossingAngleBeam2");
   
@@ -249,8 +249,8 @@ bool CTPPSFastTrackingProducer::SearchTrack(int i,int j,int Direction,double& xi
     theta = sqrt(thx*thx+thy*thy)*urad;
     xi    = eloss/fBeamEnergy;
     double energy= fBeamEnergy*(1.-xi);
-    partP = sqrt(energy*energy-pow(CLHEP::proton_mass_c2/GeV,2));
-    t     = -2.*(pow(CLHEP::proton_mass_c2/GeV,2) - fBeamEnergy*energy + fBeamMomentum*partP*cos(theta));
+    partP = sqrt(energy*energy-PPSTools::ProtonMassSQ);
+    t     = -2.*(PPSTools::ProtonMassSQ- fBeamEnergy*energy + fBeamMomentum*partP*cos(theta));
     pt    = sqrt(pow(partP*thx*urad,2)+pow(partP*thy*urad,2));
     if (xi<0.||xi>1.||t<0.||t>10.||pt<=0.) {
         xi = 0.; t=0.; partP=0.; pt=0.; theta=0.; x0=0.;y0=0.;
@@ -328,13 +328,12 @@ void CTPPSFastTrackingProducer::FastReco(int Direction,H_RecRPObject* station)
                     theta = CLHEP::pi - sqrt(thx*thx+thy*thy)*urad;
                     MatchCellId(cellId, recCellId_B, recTof_B, matchCellId, recTof); 
                 }
-                //phi   = (Direction>0)?-atan2(thy,thx):atan2(thy,thx); // defined according to the positive direction
-                phi = atan2(thy,thx); // defined according to the positive direction
+                phi = atan2(thy,thx); // at this point, thx is already in the cms ref. frame
 
                 double px = partP*sin(theta)*cos(phi);
                 double py = partP*sin(theta)*sin(phi);
                 double pz = partP*cos(theta);
-                double  e = sqrt(partP*partP+pow(CLHEP::proton_mass_c2/GeV,2));
+                double  e = sqrt(partP*partP+CTPPSTools::ProtonMassSQ);
                 LorentzVector p(px,py,pz,e);
                 // Invert the Lorentz boost made to take into account the crossing angle during simulation
                 if (fCrossAngleCorr) PPSTools::LorentzBoost(p,"MC");

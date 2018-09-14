@@ -12,8 +12,8 @@ def customise(process):
 		VertexZ = process.VtxSmeared.MeanZ
 
 	
-	#process.load('SimTransport.PPSProtonTransport.HectorTransport_cfi')
-	process.load('SimTransport.PPSProtonTransport.TotemTransport_cfi')
+	process.load('SimTransport.PPSProtonTransport.HectorTransport_cfi')
+	#process.load('SimTransport.PPSProtonTransport.TotemTransport_cfi')
 	process.LHCTransport.VtxMeanX  = VertexX
 	process.LHCTransport.VtxMeanY  = VertexY
 	process.LHCTransport.VtxMeanZ = VertexZ
