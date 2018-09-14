@@ -6,7 +6,7 @@
 <use   name="FastSimulation/CTPPSFastGeometry"/>
 <use   name="FastSimDataFormats/CTPPSFastSim"/>
 <use   name="DataFormats/Common"/>
-<use   name="PPSTools/Utilities"/>
+<use   name="Utilities/PPS"/>
 <use   name="clhep"/>
 <use   name="hector"/>
 <use   name="root"/>

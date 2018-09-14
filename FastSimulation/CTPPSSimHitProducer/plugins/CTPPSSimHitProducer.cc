@@ -48,7 +48,7 @@ Implementation:
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 
-#include "PPSTools/Utilities/interface/PPSUnitConversion.h"
+#include "Utilities/PPS/interface/PPSUnitConversion.h"
 #include <CLHEP/Vector/LorentzVector.h>
 
 //

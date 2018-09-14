@@ -1,5 +1,5 @@
 #include "SimTransport/PPSProtonTransport/interface/HectorTransport.h"
-#include "PPSTools/Utilities/interface/PPSUtilities.h"
+#include "Utilities/PPS/interface/PPSUtilities.h"
 
 HectorTransport::HectorTransport(){};
 

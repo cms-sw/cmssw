@@ -1,4 +1,4 @@
-#include "PPSTools/Utilities/interface/PPSUtilities.h"
+#include "Utilities/PPS/interface/PPSUtilities.h"
 
 CLHEP::HepLorentzVector PPSTools::HectorParticle2LorentzVector(H_BeamParticle hp,int direction)
 {

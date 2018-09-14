@@ -3,7 +3,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="FWCore/Utilities"/>
-<use   name="PPSTools/Utilities"/>
+<use   name="Utilities/PPS"/>
 <use   name="FastSimulation/CTPPSFastGeometry"/>
 <use   name="FastSimDataFormats/CTPPSFastSim"/>
 <use   name="DataFormats/Common"/>

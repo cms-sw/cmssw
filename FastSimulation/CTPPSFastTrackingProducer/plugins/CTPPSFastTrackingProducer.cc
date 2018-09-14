@@ -23,7 +23,7 @@ Implementation:
 // user include files
 #include "FastSimulation/CTPPSFastTrackingProducer/interface/CTPPSFastTrackingProducer.h"
 //using namespace edm;
-#include "PPSTools/Utilities/interface/PPSUtilities.h"
+#include "Utilities/PPS/interface/PPSUtilities.h"
 
 //////////////////////
 // constructors and destructor

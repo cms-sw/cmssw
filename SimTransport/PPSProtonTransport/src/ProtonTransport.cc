@@ -1,5 +1,5 @@
 #include "SimTransport/PPSProtonTransport/interface/ProtonTransport.h"
-#include "PPSTools/Utilities/interface/PPSUnitConversion.h"
+#include "Utilities/PPS/interface/PPSUnitConversion.h"
 
 ProtonTransport::ProtonTransport() {};
 ProtonTransport::~ProtonTransport() {};

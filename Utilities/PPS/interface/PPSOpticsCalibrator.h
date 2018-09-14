@@ -1,6 +1,6 @@
 #ifndef PPS_OPTICS_CALIBRATION
 #define PPS_OPTICS_CALIBRATION
-#include "PPSTools/Utilities/interface/PPSUtilities.h"
+#include "Utilities/PPS/interface/PPSUtilities.h"
 #include <boost/program_options.hpp>
 #include "TROOT.h"
 #include "Rtypes.h"
@@ -9,9 +9,6 @@
 #include "TDirectory.h"
 #include "TSystem.h"
 #include "TRandom3.h"
-#include "TMath.h"
-#include "TLorentzVector.h"
-#include "TString.h"
 #include "TFile.h"
 #include <string>
 #include <iostream>
@@ -24,13 +21,6 @@
 #include <string>       // std::string
 #include <iostream>     // std::cout
 #include <sstream>      // std::stringstream, std::stringbuf
-
-static const double cm_to_m=0.1;
-static const double cm_to_mm=10.;
-static const double mm_to_um=1000.;
-static const double um_to_mm=1./1000.;
-static const double m_to_um=1000000.;
-static const double m_to_mm=1000.;
 
 class PPSOpticsCalibrator {
 public:
