@@ -352,16 +352,16 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
     /**************************************************************************
- * Begin with making HCAL-based CaloJets in 11x11 grid.
- * For reference, Run-I used 12x12 grid, 11x11 allows us to conveniently have a
- * central seed tower.
+ * Begin with making HCAL-based CaloJets in 9x9 grid.
+ * For reference, Run-I used 12x12 grid and Stage-2/Phase-I used 9x9 grid.
+ * We plan to further study this choice and possibly move towards a more circular shape
  ******************************************************************************/
 
     // Experimental parameters, don't want to bother with hardcoding them in data format
     std::map<std::string, float> params;
 
-    // Create hcalJetCluster within 11x11 of highest ET seed HCAL TT.
-    // 11 trigger towers gives diameter 0.957
+    // Create hcalJetCluster within 9x9 of highest ET seed HCAL TT.
+    // 9 trigger towers contains all of an ak-0.4 jets, but overshoots on the corners.
     std::vector< reco::Candidate::PolarLorentzVector > jetClusters;
     std::vector< reco::Candidate::PolarLorentzVector > hcalJetClusters;
     std::vector< std::vector< float > > jetClustersHcalInfo;
@@ -385,14 +385,13 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         float hcal_dR2T = 0.;
         float hcal_dR3T = 0.;
         float hcal_dR4T = 0.;
-        float hcal_dR5T = 0.;
         float hcal_2x2_1 = 0.;
         float hcal_2x2_2 = 0.;
         float hcal_2x2_3 = 0.;
         float hcal_2x2_4 = 0.;
         float hcal_nHits = 0.;
 
-        // First find highest ET HCAL TP and use to seed the 11x11 HCAL Jet
+        // First find highest ET HCAL TP and use to seed the 9x9 HCAL Jet
         for (auto &hcalHit : hcalhits)
         {
 
@@ -432,7 +431,6 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                 hcal_dR2T += hcalHit.energy;
                 hcal_dR3T += hcalHit.energy;
                 hcal_dR4T += hcalHit.energy;
-                hcal_dR5T += hcalHit.energy;
 
                 // Some discrimination vars, 2x2s including central seed
                 hcal_2x2_1 += hcalHit.energy;
@@ -446,7 +444,7 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
             int hit_iPhi = hcalHit.hcal_iPhi;
             int d_iEta = caloJetObj.hcal_seed_iEta - hcalHit.hcal_iEta;
             int d_iPhi = hcalTower_diPhi( caloJetObj.hcal_seed_iPhi, hit_iPhi );
-            if ( abs( d_iEta ) <= 5 && abs( d_iPhi ) <= 5 ) // 11x11 HCAL Trigger Towers
+            if ( abs( d_iEta ) <= 4 && abs( d_iPhi ) <= 4 ) // 9x9 HCAL Trigger Towers
             {
                 num_unused_hits--;
                 hcal_nHits++;
@@ -460,7 +458,6 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                 if ( abs( d_iEta ) <= 2    && abs( d_iPhi ) <= 2)   hcal_dR2T += hcalP4.energy();
                 if ( abs( d_iEta ) <= 3    && abs( d_iPhi ) <= 3)   hcal_dR3T += hcalP4.energy();
                 if ( abs( d_iEta ) <= 4    && abs( d_iPhi ) <= 4)   hcal_dR4T += hcalP4.energy();
-                if ( abs( d_iEta ) <= 5    && abs( d_iPhi ) <= 5)   hcal_dR5T += hcalP4.energy();
 
                 // Some discrimination vars, 2x2s including central seed
                 if ( ( d_iEta == 0 || d_iEta == 1 )  &&  ( d_iPhi == 0 || d_iPhi == 1 ) )    hcal_2x2_1 += hcalP4.energy();
@@ -472,7 +469,7 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
         caloJetObj.SetJetClusterP4( caloJetObj.hcalJetCluster.pt(), caloJetObj.hcalJetCluster.eta(), caloJetObj.hcalJetCluster.phi(), caloJetObj.hcalJetCluster.M() );
         caloJetObj.jetClusterHcalInfo = { hcal_dR1T, hcal_dR2T, hcal_dR3T, hcal_dR4T, 
-                hcal_dR5T, hcal_2x2_1, hcal_2x2_2, hcal_2x2_3, hcal_2x2_4, hcal_nHits};
+                hcal_2x2_1, hcal_2x2_2, hcal_2x2_3, hcal_2x2_4, hcal_nHits};
         l1CaloJetObjs.push_back( caloJetObj );
 
     } // end while loop of HCAL TP clustering
@@ -491,8 +488,8 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
     /**************************************************************************
- * Progress to adding L1EGs built from ECAL TPs  11x11 grid.
- * Recall, for 11x11 trigger towers gives diameter 0.957
+ * Progress to adding L1EGs built from ECAL TPs  9x9 grid.
+ * Recall, for 9x9 trigger towers gives diameter 0.78
  ******************************************************************************/
 
 
@@ -520,7 +517,7 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
     // Cluster together the L1EGs around existing HCAL Jet
-    // Cluster within dEta/dPhi 0.5 which is very close to 0.4785 = 0.957/2
+    // Cluster within dEta/dPhi 0.4 which is very close to 0.39 = 9x9/2
     //std::cout << " - Input L1EGs: " << crystalClustersVect.size() << std::endl;
     for (auto &caloJetObj : l1CaloJetObjs)
     {
@@ -539,7 +536,6 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         float ecal_dR0p2 = 0.;
         float ecal_dR0p3 = 0.;
         float ecal_dR0p4 = 0.;
-        float ecal_dR0p5 = 0.;
         float ecal_nL1EGs = 0.;
         float ecal_nL1EGs_standalone = 0.;
         float ecal_nL1EGs_trkMatch = 0.;
@@ -552,13 +548,13 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
             if (l1eg.stale) continue; // skip L1EGs which are already used
 
-            // skip L1EGs outside the dEta/dPhi 0.5 range
+            // skip L1EGs outside the dEta/dPhi 0.4 range
             // cluster w.r.t. HCAL seed so the position doesn't change for every L1EG
             float d_eta = caloJetObj.hcalSeed.eta() - l1eg.eta(); // See mapping of hcalInfo
             float d_phi = reco::deltaPhi( caloJetObj.hcalSeed.phi(), l1eg.phi() ); // See mapping of hcalInfo
             float d_eta_to_leading = -99;
             float d_phi_to_leading = -99;
-            if ( fabs( d_eta ) > 0.5 || fabs( d_phi ) > 0.5 ) continue;
+            if ( fabs( d_eta ) > 0.4 || fabs( d_phi ) > 0.4 ) continue;
 
             if (caloJetObj.ecalJetCluster.pt() == 0.0) // this is the first L1EG to seed the ecal jet
             {
@@ -606,7 +602,6 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
             if ( fabs( d_eta ) < 0.2   && fabs( d_phi ) < 0.2  )  ecal_dR0p2   += l1eg.GetP4().energy();
             if ( fabs( d_eta ) < 0.3   && fabs( d_phi ) < 0.3  )  ecal_dR0p3   += l1eg.GetP4().energy();
             if ( fabs( d_eta ) < 0.4   && fabs( d_phi ) < 0.4  )  ecal_dR0p4   += l1eg.GetP4().energy();
-            if ( fabs( d_eta ) < 0.5   && fabs( d_phi ) < 0.5  )  ecal_dR0p5   += l1eg.GetP4().energy();
         }
 
         // For total p4()
@@ -628,12 +623,11 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         params["hcal_dR2T"] = caloJetObj.jetClusterHcalInfo.at(1);
         params["hcal_dR3T"] = caloJetObj.jetClusterHcalInfo.at(2);
         params["hcal_dR4T"] = caloJetObj.jetClusterHcalInfo.at(3);
-        params["hcal_dR5T"] = caloJetObj.jetClusterHcalInfo.at(4);
-        params["hcal_2x2_1"] = caloJetObj.jetClusterHcalInfo.at(5);
-        params["hcal_2x2_2"] = caloJetObj.jetClusterHcalInfo.at(6);
-        params["hcal_2x2_3"] = caloJetObj.jetClusterHcalInfo.at(7);
-        params["hcal_2x2_4"] = caloJetObj.jetClusterHcalInfo.at(8);
-        params["hcal_nHits"] = caloJetObj.jetClusterHcalInfo.at(9);
+        params["hcal_2x2_1"] = caloJetObj.jetClusterHcalInfo.at(4);
+        params["hcal_2x2_2"] = caloJetObj.jetClusterHcalInfo.at(5);
+        params["hcal_2x2_3"] = caloJetObj.jetClusterHcalInfo.at(6);
+        params["hcal_2x2_4"] = caloJetObj.jetClusterHcalInfo.at(7);
+        params["hcal_nHits"] = caloJetObj.jetClusterHcalInfo.at(8);
 
 
         // return -9 for energy and dR values for ecalJet as defaults
@@ -669,7 +663,6 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         params["ecal_dR0p2"] =          ecal_dR0p2;
         params["ecal_dR0p3"] =          ecal_dR0p3;
         params["ecal_dR0p4"] =          ecal_dR0p4;
-        params["ecal_dR0p5"] =          ecal_dR0p5;
         params["ecal_nL1EGs"] =         ecal_nL1EGs;
         params["ecal_nL1EGs_standalone"] =  ecal_nL1EGs_standalone;
         params["ecal_nL1EGs_trkMatch"] =    ecal_nL1EGs_trkMatch;
