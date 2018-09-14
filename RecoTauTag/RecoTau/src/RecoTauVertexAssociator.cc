@@ -151,7 +151,7 @@ RecoTauVertexAssociator::RecoTauVertexAssociator(const edm::ParameterSet& pset, 
   }
   if ( pset.exists("vertexSelection") ) {
     std::string vertexSelection = pset.getParameter<std::string>("vertexSelection");
-    if ( vertexSelection != "" ) {
+    if ( !vertexSelection.empty() ) {
       vertexSelector_ = new StringCutObjectSelector<reco::Vertex>(vertexSelection);
     }
   }
