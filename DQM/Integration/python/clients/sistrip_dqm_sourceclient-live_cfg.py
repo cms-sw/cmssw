@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("SiStrpDQMLive", eras.Run2_2018_pp_on_AA)
+process = cms.Process("SiStrpDQMLive", eras.Run2_2018)
 
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('siStripDigis',
