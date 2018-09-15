@@ -66,13 +66,5 @@ def _modifyEnableHcalHardcode( theProcess ):
 from Configuration.Eras.Modifier_hcalHardcodeConditions_cff import hcalHardcodeConditions
 modifyEnableHcalHardcode_ = hcalHardcodeConditions.makeProcessModifier( _modifyEnableHcalHardcode )
 
-# add PPS 2016 digi modules
-from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
-_ctpps_2016_Digi = ppsDigi.copy()
-_ctpps_2016_Digi = cms.Sequence(RPixDetDigitizer+RPSiDetDigitizer)
-ctpps_2016.toReplaceWith(ppsDigi,_ctpps_2016_Digi)
-
-from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toReplaceWith(doAllDigi,doAllDigi.copyAndExclude([RPixDetDigitizer,RPSiDetDigitizer]))
 
 
