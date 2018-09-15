@@ -23,10 +23,10 @@ namespace l1t
 	bxBlocks = block.getBxBlocks((unsigned int)6, false);//it returnes 6-32bit bxBlocks originated from the amc13 Block
 			
       RegionalMuonCandBxCollection *res;
-      if (isKalman)
-	res = static_cast<BMTFCollections*>(coll)->getkBMTFMuons();
-      else
+      if (isTriggeringAlgo)
 	res = static_cast<BMTFCollections*>(coll)->getBMTFMuons();
+      else
+	res = static_cast<BMTFCollections*>(coll)->getBMTF2Muons();
 
       //BxBlocks changed the format of the blocks
       int firstBX = 0, lastBX = 0;
