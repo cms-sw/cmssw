@@ -20,6 +20,12 @@ from SimCalorimetry.Configuration.SimCalorimetry_cff import *
 #
 from SimMuon.Configuration.SimMuon_cff import *
 #
+# PPS Digis 
+# returns sequence "ppsDigi"
+#
+from SimPPS.Configuration.SimPPS_cff import *
+# 
+#
 # TrackingParticle Producer is now part of the mixing module, so
 # it is no longer run here.
 #
@@ -30,7 +36,7 @@ from Configuration.StandardSequences.Generator_cff import *
 from GeneratorInterface.Core.generatorSmeared_cfi import *
 from SimGeneral.PileupInformation.genPUProtons_cfi import *
 
-doAllDigi = cms.Sequence(generatorSmeared*calDigi+muonDigi)
+doAllDigi = cms.Sequence(generatorSmeared*calDigi+muonDigi+ppsDigi)
 pdigi = cms.Sequence(generatorSmeared*fixGenInfo*cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("mix")*doAllDigi*addPileupInfo*genPUProtons)
 pdigi_valid = cms.Sequence(pdigi)
 pdigi_nogen=cms.Sequence(generatorSmeared*cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("mix")*doAllDigi*addPileupInfo*genPUProtons)
@@ -48,7 +54,6 @@ def _fastSimDigis(process):
     # use an alias to make the mixed track collection available under the usual label
     from FastSimulation.Configuration.DigiAliases_cff import loadDigiAliases
     loadDigiAliases(process)
-# no need for the aliases for premixing stage1
 modifyDigi_fastSimDigis = (fastSim & ~premix_stage1).makeProcessModifier(_fastSimDigis)
 
 #phase 2 common mods
@@ -60,5 +65,14 @@ def _modifyEnableHcalHardcode( theProcess ):
 
 from Configuration.Eras.Modifier_hcalHardcodeConditions_cff import hcalHardcodeConditions
 modifyEnableHcalHardcode_ = hcalHardcodeConditions.makeProcessModifier( _modifyEnableHcalHardcode )
+
+# add PPS 2016 digi modules
+from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
+_ctpps_2016_Digi = ppsDigi.copy()
+_ctpps_2016_Digi = cms.Sequence(RPixDetDigitizer+RPSiDetDigitizer)
+ctpps_2016.toReplaceWith(ppsDigi,_ctpps_2016_Digi)
+
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toReplaceWith(doAllDigi,doAllDigi.copyAndExclude([RPixDetDigitizer,RPSiDetDigitizer]))
 
 

@@ -448,20 +448,13 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         DistanceFromEdge = cms.double(1.0),
         StoreAllG4Hits   = cms.bool(False),
     ),
-    HFNoseSD = cms.PSet(
-        Verbosity        = cms.untracked.int32(0),
-        TimeSliceUnit    = cms.double(0.001), #stepping = 1 ps (for timing)
-        IgnoreTrackID    = cms.bool(False),
-        EminHit          = cms.double(0.0),
-        FiducialCut      = cms.bool(False),
-        DistanceFromEdge = cms.double(1.0),
-        StoreAllG4Hits   = cms.bool(False),
-        RejectMouseBite  = cms.bool(False),
-        RotatedWafer     = cms.bool(False),
-        WaferAngles      = cms.untracked.vdouble(90.0,30.0),
-        CheckID          = cms.untracked.bool(True),
+    Totem_RP_SD = cms.PSet(
+        Verbosity = cms.int32(0)
     ),
-    TotemSD = cms.PSet(
+    CTPPS_Diamond_SD = cms.PSet(
+        Verbosity = cms.int32(0)
+    ),
+    PPSPixelSD = cms.PSet(
         Verbosity = cms.untracked.int32(0)
     ),
     ZdcSD = cms.PSet(

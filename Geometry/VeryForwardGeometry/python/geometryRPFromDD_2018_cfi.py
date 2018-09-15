@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 totemGeomXMLFiles = cms.vstring(
     'Geometry/CMSCommonData/data/materials.xml',
     'Geometry/CMSCommonData/data/rotations.xml',
-    'Geometry/CMSCommonData/data/extend/cmsextent.xml',
+    'Geometry/CMSCommonData/data/cmsextent/2018/v1/cmsextent.xml',
     'Geometry/CMSCommonData/data/cms/2017/v1/cms.xml',
     'Geometry/CMSCommonData/data/beampipe/2017/v1/beampipe.xml',
     'Geometry/CMSCommonData/data/cmsBeam.xml',

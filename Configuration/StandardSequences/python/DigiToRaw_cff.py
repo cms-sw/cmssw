@@ -51,5 +51,13 @@ run3_GEM.toReplaceWith(DigiToRaw, _gem_DigiToRaw)
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([rpcpacker]))
 
+# add CTPPS 2016 raw-to-digi modules
+from EventFilter.CTPPSRawToDigi.ctppsDigiToRaw_cff import *
+from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
+_ctpps_2016_DigiToRaw = DigiToRaw.copy()
+_ctpps_2016_DigiToRaw.insert(-3,ctppsRawData)
+ctpps_2016.toReplaceWith(DigiToRaw, _ctpps_2016_DigiToRaw)
+
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([siPixelRawData,SiStripDigiToRaw,castorRawData]))
+fastSim.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([siPixelRawData,SiStripDigiToRaw,castorRawData,ctppsRawData]))
+
