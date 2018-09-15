@@ -37,6 +37,36 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 		20);
 	_lowHF = ps.getUntrackedParameter<double>("lowHF",
 		20);
+
+	// LED calibration channels
+	std::vector<edm::ParameterSet> vLedCalibChannels = ps.getParameter<std::vector<edm::ParameterSet>>("ledCalibrationChannels");
+	for (int i = 0; i <= 3; ++i) {
+		HcalSubdetector this_subdet = HcalEmpty;
+		switch (i) {
+			case 0:
+				this_subdet = HcalBarrel;
+				break;
+			case 1:
+				this_subdet = HcalEndcap;
+				break;
+			case 2:
+				this_subdet = HcalOuter;
+				break;
+			case 3:
+				this_subdet = HcalForward;
+				break;
+			default:
+				this_subdet = HcalEmpty;
+				break;
+		}
+		std::vector<int32_t> subdet_calib_ietas = vLedCalibChannels[i].getUntrackedParameter<std::vector<int32_t>>("ieta");
+		std::vector<int32_t> subdet_calib_iphis = vLedCalibChannels[i].getUntrackedParameter<std::vector<int32_t>>("iphi");
+		std::vector<int32_t> subdet_calib_depths = vLedCalibChannels[i].getUntrackedParameter<std::vector<int32_t>>("depth");
+		for (unsigned int ichannel = 0; ichannel < subdet_calib_ietas.size(); ++ichannel) {
+			_ledCalibrationChannels[this_subdet].push_back(HcalDetId(HcalOther, subdet_calib_ietas[ichannel], subdet_calib_iphis[ichannel], subdet_calib_depths[ichannel]));
+		}
+	}
+
 }
 	
 /* virtual */ void LEDTask::bookHistograms(DQMStore::IBooker &ib,
@@ -71,7 +101,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cSignalRMS_Subdet.initialize(_name, "SignalRMS",
 		hcaldqm::hashfunctions::fSubdet, 
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_1000),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_3000),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cTimingMean_Subdet.initialize(_name, "TimingMean",
 		hcaldqm::hashfunctions::fSubdet, 
@@ -193,17 +223,17 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 			new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 			new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),			
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),0);
-		// Manually book LED monitoring histogram, to get custom axis
-		ib.setCurrentFolder(_subsystem+"/"+_name);
-		_meLEDMon = ib.book2D("LED_ADCvsBX", "Pin diode ADC vs BX", 99, -0.5, 3564-0.5, 64, -0.5, 255.5);
-		_meLEDMon->setAxisTitle("BX", 1);
-		_meLEDMon->setAxisTitle("ADC", 2);
+		_LED_ADCvsBX_Subdet.initialize(_name, "LED_ADCvsBX", 
+			hcaldqm::hashfunctions::fSubdet, 
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBX_36),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_256_4),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);		
 	} else if (_ptype == fLocal) {
-		// Manually book LED monitoring histogram, to get custom axis
-		ib.setCurrentFolder(_subsystem+"/"+_name);
-		_meLEDMon = ib.book2D("LED_ADCvsEvN", "Pin diode ADC vs EvN", _nevents, -0.5, _nevents-0.5, 64, -0.5, 255.5);
-		_meLEDMon->setAxisTitle("Event Number", 1);
-		_meLEDMon->setAxisTitle("ADC", 2);
+		_LED_ADCvsEvn_Subdet.initialize(_name, "LED_ADCvsEvn", 
+			hcaldqm::hashfunctions::fSubdet, 
+			new hcaldqm::quantity::EventNumber(_nevents),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_256_4),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	}
 	
 	//	initialize compact containers
@@ -244,6 +274,12 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 		_cSumQ_SubdetPM.book(ib, _emap, _subsystem);
 		_cTDCTime_SubdetPM.book(ib, _emap, _subsystem);
 		_cTDCTime_depth.book(ib, _emap, _subsystem);
+	}
+
+	if (_ptype == fOnline) {
+		_LED_ADCvsBX_Subdet.book(ib, _emap, _subsystem);
+	} else if (_ptype == fLocal) {
+		_LED_ADCvsEvn_Subdet.book(ib, _emap, _subsystem);
 	}
 
 	_xSignalSum.book(_emap);
@@ -405,12 +441,12 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 			if (did.subdet() == HcalOther) {
 				HcalOtherDetId hodid(digi.detid());
 				if (hodid.subdet() == HcalCalibration) {
-					if (did.depth() == 10) {
+					if (std::find(_ledCalibrationChannels[HcalEndcap].begin(), _ledCalibrationChannels[HcalEndcap].end(), did) != _ledCalibrationChannels[HcalEndcap].end()) {
 						for (int i=0; i<digi.samples(); i++) {
 							if (_ptype == fOnline) {
-								_meLEDMon->Fill(e.bunchCrossing(), digi[i].adc());
+								_LED_ADCvsBX_Subdet.fill(HcalDetId(HcalEndcap, 16, 1, 1), e.bunchCrossing(), digi[i].adc());
 							} else if (_ptype == fLocal) {
-								_meLEDMon->Fill(e.eventAuxiliary().id().event(), digi[i].adc());
+								_LED_ADCvsEvn_Subdet.fill(HcalDetId(HcalEndcap, 16, 1, 1), e.eventAuxiliary().id().event(), digi[i].adc());
 							}
 						}
 					}
@@ -513,6 +549,21 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 		const QIE10DataFrame digi = static_cast<const QIE10DataFrame>(*it);
 		HcalDetId did = digi.detid();
 		if (did.subdet() != HcalForward) {
+			// LED monitoring from calibration channels
+			if (did.subdet() == HcalOther) {
+				HcalOtherDetId hodid(digi.detid());
+				if (hodid.subdet() == HcalCalibration) {
+					if (std::find(_ledCalibrationChannels[HcalForward].begin(), _ledCalibrationChannels[HcalForward].end(), did) != _ledCalibrationChannels[HcalForward].end()) {
+						for (int i=0; i<digi.samples(); i++) {
+							if (_ptype == fOnline) {
+								_LED_ADCvsBX_Subdet.fill(HcalDetId(HcalForward, 29, 1, 1), e.bunchCrossing(), digi[i].adc());
+							} else if (_ptype == fLocal) {
+								_LED_ADCvsEvn_Subdet.fill(HcalDetId(HcalForward, 29, 1, 1), e.eventAuxiliary().id().event(), digi[i].adc());
+							}
+						}
+					}
+				}
+			}
 			continue;
 		}
 		HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(did));
