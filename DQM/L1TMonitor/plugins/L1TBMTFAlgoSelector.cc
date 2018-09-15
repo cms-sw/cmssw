@@ -107,8 +107,5 @@ void dqmBmtfAlgoSelector::L1TBMTFAlgoSelector::produce(edm::Event & eve, const e
   return;
 }
 
-//void L1TBMTFAlgoSelector::beginStream(edm::StreamID) {}
-//void L1TBMTFAlgoSelector::endStream() {}
-
 using namespace dqmBmtfAlgoSelector;
 DEFINE_FWK_MODULE(L1TBMTFAlgoSelector);
