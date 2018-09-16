@@ -1,4 +1,5 @@
 #include "RecoParticleFlow/PFTracking/interface/ConvBremHeavyObjectCache.h"
+#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
 
 namespace convbremhelpers {
   HeavyObjectCache::HeavyObjectCache(const edm::ParameterSet& conf) {
@@ -9,10 +10,10 @@ namespace convbremhelpers {
 
     if(useConvBremFinder_) {
 
-      gbrBarrelLowPt_   = std::make_unique<const GBRForest>(conf.getParameter<std::string>("pf_convBremFinderID_mvaWeightFileBarrelLowPt"));
-      gbrBarrelHighPt_  = std::make_unique<const GBRForest>(conf.getParameter<std::string>("pf_convBremFinderID_mvaWeightFileBarrelHighPt"));
-      gbrEndcapsLowPt_  = std::make_unique<const GBRForest>(conf.getParameter<std::string>("pf_convBremFinderID_mvaWeightFileEndcapsLowPt"));
-      gbrEndcapsHighPt_ = std::make_unique<const GBRForest>(conf.getParameter<std::string>("pf_convBremFinderID_mvaWeightFileEndcapsHighPt"));
+      gbrBarrelLowPt_   = createGBRForest(conf.getParameter<std::string>("pf_convBremFinderID_mvaWeightFileBarrelLowPt"));
+      gbrBarrelHighPt_  = createGBRForest(conf.getParameter<std::string>("pf_convBremFinderID_mvaWeightFileBarrelHighPt"));
+      gbrEndcapsLowPt_  = createGBRForest(conf.getParameter<std::string>("pf_convBremFinderID_mvaWeightFileEndcapsLowPt"));
+      gbrEndcapsHighPt_ = createGBRForest(conf.getParameter<std::string>("pf_convBremFinderID_mvaWeightFileEndcapsHighPt"));
 
     }
   }

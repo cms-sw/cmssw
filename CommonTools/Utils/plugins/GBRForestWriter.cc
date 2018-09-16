@@ -5,7 +5,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
 
 #include <TFile.h>
 
@@ -38,7 +38,7 @@ void GBRForestWriter::analyze(const edm::Event&, const edm::EventSetup&)
 	  category != (*job)->categories_.end(); ++category ) {
       const GBRForest* gbrForest = nullptr;
       if ( (*category)->inputFileType_ == categoryEntryType::kXML ) {
-	gbrForest = new GBRForest((*category)->inputFileName_);
+    gbrForest = createGBRForest((*category)->inputFileName_).release();
       } else if ( (*category)->inputFileType_ == categoryEntryType::kGBRForest ) {
 	TFile* inputFile = new TFile((*category)->inputFileName_.data());
 	//gbrForest = dynamic_cast<GBRForest*>(inputFile->Get((*category)->gbrForestName_.data())); // CV: dynamic_cast<GBRForest*> fails for some reason ?!

@@ -3,6 +3,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
 
 ElectronMVAEstimator::ElectronMVAEstimator():
   cfg_{}
@@ -14,13 +15,13 @@ ElectronMVAEstimator::ElectronMVAEstimator(const std::string& fileName):
   // Taken from Daniele (his mail from the 30/11)
   //  tmvaReader.BookMVA("BDTSimpleCat","../Training/weights_Root527b_3Depth_DanVarConvRej_2PtBins_10Pt_800TPrune5_Min100Events_NoBjets_half/TMVA_BDTSimpleCat.weights.xm");
   // training of the 7/12 with Nvtx added
-  gbr_.push_back( std::make_unique<GBRForest>(fileName) );
+  gbr_.push_back( createGBRForest(fileName) );
 }
 
 ElectronMVAEstimator::ElectronMVAEstimator(const Configuration & cfg):cfg_(cfg)
 {
   for(const auto& weightsfile : cfg_.vweightsfiles) {
-    gbr_.push_back( std::make_unique<GBRForest>(weightsfile) );
+    gbr_.push_back( createGBRForest(weightsfile) );
   }
 }
 

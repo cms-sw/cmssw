@@ -4,6 +4,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
 
 
 TMVAEvaluator::TMVAEvaluator() :
@@ -38,7 +39,7 @@ void TMVAEvaluator::initialize(const std::string & options, const std::string & 
 
   if (useGBRForest)
   {
-    mGBRForest.reset( new GBRForest(weightFile) );
+    mGBRForest = createGBRForest(weightFile);
 
     // now can free some memory
     mReader.reset(nullptr);

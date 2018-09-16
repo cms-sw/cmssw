@@ -17,26 +17,16 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "CondFormats/Serialization/interface/Serializable.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "CondFormats/EgammaObjects/interface/GBRTree.h"
 
 #include <vector>
-#include "GBRTree.h"
-#include <cmath>
-#include <cstdio>
 
   class GBRForest {
 
     public:
 
        GBRForest();
-       // Regular constructors
-       explicit GBRForest(const std::string& weightsFile);
-       explicit GBRForest(const edm::FileInPath& weightsFile);
-       // Constructor if one wants the get the variables names
        explicit GBRForest(const std::string& weightsFile, std::vector<std::string>& varNames);
-       explicit GBRForest(const edm::FileInPath& weightsFile, std::vector<std::string>& varNames);
-
-       virtual ~GBRForest();
        
        double GetResponse(const float* vector) const;
        double GetGradBoostClassifier(const float* vector) const;
@@ -49,11 +39,8 @@
        
        std::vector<GBRTree> &Trees() { return fTrees; }
        const std::vector<GBRTree> &Trees() const { return fTrees; }
-       
-    protected:
-       void init(const std::string& weightsFileFullPath, std::vector<std::string>& varNames);
 
-       size_t readVariables(tinyxml2::XMLElement* root, const char * key, std::vector<std::string>& names);
+    protected:
 
        double               fInitialResponse;
        std::vector<GBRTree> fTrees;  

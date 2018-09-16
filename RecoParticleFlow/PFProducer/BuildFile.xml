@@ -1,5 +1,6 @@
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/EgammaObjects"/>
+<use   name="CommonTools/Utils"/>
 <use   name="DataFormats/CaloRecHit"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/EgammaCandidates"/>

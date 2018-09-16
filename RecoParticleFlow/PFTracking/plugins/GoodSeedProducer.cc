@@ -26,6 +26,7 @@
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
 
@@ -500,7 +501,7 @@ namespace goodseedhelpers {
                                                            edm::FileInPath(conf.getParameter<string>("Weights9")) }};
             
       for(UInt_t j = 0; j < gbr.size(); ++j){
-        gbr[j] = std::make_unique<GBRForest>( weights[j] );
+        gbr[j] = createGBRForest( weights[j] );
       }    
     }
   }
