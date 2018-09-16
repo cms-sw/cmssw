@@ -1,15 +1,12 @@
 #include "CommonTools/MVAUtils/interface/GBRForestTools.h"
+#include "CommonTools/MVAUtils/interface/TMVAZipReader.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "CommonTools/Utils/interface/TMVAZipReader.h"
 
-//#include <cstdio>
-//#include <cstdlib>
-//#include <cstdio>
-//#include <cstdlib>
-//#include <RVersion.h>
-//#include <zlib.h>
-//#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <RVersion.h>
+#include <cmath>
 #include <tinyxml2.h>
 
 
@@ -83,9 +80,11 @@ void addNode(GBRTree& tree, tinyxml2::XMLElement* node, double scale, bool isreg
       }
     }
     response *= scale;
-    tree.addTerminalNode(response);
+    tree.Responses().push_back(response);
   }
   else {    
+
+    int thisidx = tree.CutIndices().size(); 
     
     int selector; 
     float cutval; 
@@ -95,11 +94,16 @@ void addNode(GBRTree& tree, tinyxml2::XMLElement* node, double scale, bool isreg
     node->QueryFloatAttribute("Cut", &cutval);
     node->QueryBoolAttribute("cType", &ctype);
 
+    tree.CutIndices().push_back(static_cast<unsigned char>(selector)); 
+
     //newer tmva versions use >= instead of > in decision tree splits, so adjust cut value
     //to reproduce the correct behaviour
     if (adjustboundary) {
       cutval = std::nextafter(cutval,std::numeric_limits<float>::lowest());
     }
+    tree.CutVals().push_back(cutval);
+    tree.LeftIndices().push_back(0);   
+    tree.RightIndices().push_back(0);
     
     tinyxml2::XMLElement* left = nullptr;
     tinyxml2::XMLElement* right = nullptr;
@@ -111,18 +115,18 @@ void addNode(GBRTree& tree, tinyxml2::XMLElement* node, double scale, bool isreg
     if (!ctype) {
       std::swap(left, right);
     }
-    
-    addNode(tree, left, scale, isregression, useyesnoleaf, adjustboundary,isadaclassifier);
-    addNode(tree, right, scale, isregression, useyesnoleaf, adjustboundary,isadaclassifier);
 
-    tree.addIntermediateNode(static_cast<unsigned char>(selector), cutval, isTerminal(left), isTerminal(right));
+    tree.LeftIndices()[thisidx] = isTerminal(left) ? -tree.Responses().size() : tree.CutIndices().size() ;
+    addNode(tree, left, scale, isregression, useyesnoleaf, adjustboundary,isadaclassifier);
+    
+    tree.RightIndices()[thisidx] = isTerminal(right) ? -tree.Responses().size() : tree.CutIndices().size() ;
+    addNode(tree, right, scale, isregression, useyesnoleaf, adjustboundary,isadaclassifier);
     
   }
   
 }
 
-
-void init(GBRForest & forest, const std::string& weightsFileFullPath, std::vector<std::string>& varNames) {
+std::unique_ptr<GBRForest> init(const std::string& weightsFileFullPath, std::vector<std::string>& varNames) {
 
   std::string method;
   //
@@ -214,7 +218,8 @@ void init(GBRForest & forest, const std::string& weightsFileFullPath, std::vecto
   //to reproduce the correct behaviour  
   bool adjustboundaries = (rootTrainingVersion>=ROOT_VERSION(5,34,20) && rootTrainingVersion<ROOT_VERSION(6,0,0)) || rootTrainingVersion>=ROOT_VERSION(6,2,0);
     
-  forest.SetInitialResponse(isregression ? boostWeights[0] : 0.);
+  auto forest = std::make_unique<GBRForest>();
+  forest->SetInitialResponse(isregression ? boostWeights[0] : 0.);
   
   double norm = 0;
   if (isadaclassifier) {
@@ -223,7 +228,7 @@ void init(GBRForest & forest, const std::string& weightsFileFullPath, std::vecto
     }
   }
 
-  forest.Trees().reserve(boostWeights.size());
+  forest->Trees().reserve(boostWeights.size());
   size_t itree = 0;
   // Loop over tree estimators
   for(tinyxml2::XMLElement* e = weightsElem->FirstChildElement("BinaryTree");
@@ -231,11 +236,55 @@ void init(GBRForest & forest, const std::string& weightsFileFullPath, std::vecto
     double scale = isadaclassifier ? boostWeights[itree]/norm : 1.0;
 
     tinyxml2::XMLElement* root = e->FirstChildElement("Node");
-    forest.Trees().push_back(GBRTree(countIntermediateNodes(root), countTerminalNodes(root)));
-    addNode(forest.Trees().back(), root, scale, isregression, useyesnoleaf, adjustboundaries, isadaclassifier);
+    forest->Trees().push_back(GBRTree(countIntermediateNodes(root), countTerminalNodes(root)));
+    auto & tree = forest->Trees().back();
+
+    addNode(tree, root, scale, isregression, useyesnoleaf, adjustboundaries, isadaclassifier);
+
+    //special case, root node is terminal, create fake intermediate node at root
+    if (tree.CutIndices().empty()) {
+      tree.CutIndices().push_back(0);
+      tree.CutVals().push_back(0);
+      tree.LeftIndices().push_back(0);
+      tree.RightIndices().push_back(0);
+    }
 
     ++itree;
   }
+
+  // Print out the first decision tree for debugging
+  auto & tree = forest->Trees()[0];
+
+  std::cout << "CutIndices:" << std::endl;
+  for (auto x : tree.CutIndices()) {
+      std::cout << x << " ";
+  }
+  std::cout << std::endl << std::endl;
+
+  std::cout << "CutVaues:" << std::endl;
+  for (auto x : tree.CutVals()) {
+      std::cout << x << " ";
+  }
+  std::cout << std::endl << std::endl;
+
+  std::cout << "LeftIndices:" << std::endl;
+  for (auto x : tree.LeftIndices()) {
+      std::cout << x << " ";
+  }
+  std::cout << std::endl << std::endl;
+
+  std::cout << "RightIndices:" << std::endl;
+  for (auto x : tree.RightIndices()) {
+      std::cout << x << " ";
+  }
+  std::cout << std::endl << std::endl;
+
+  std::cout << "Responses:" << std::endl;
+  for (auto x : tree.Responses()) {
+      std::cout << x << " ";
+  }
+
+  return forest;
 }
 
 // Create a GBRForest from an XML weight file
@@ -243,28 +292,28 @@ std::unique_ptr<const GBRForest>
 createGBRForest(const std::string     &weightFile)
 {
     std::vector<std::string> varNames;
-    return std::make_unique<GBRForest>(weightFile, varNames);
+    return createGBRForest(weightFile, varNames);
 }
 
 std::unique_ptr<const GBRForest>
 createGBRForest(const edm::FileInPath &weightFile)
 {
     std::vector<std::string> varNames;
-    return std::make_unique<GBRForest>(weightFile.fullPath(), varNames);
+    return createGBRForest(weightFile.fullPath(), varNames);
 }
 
 // Overloaded versions which are taking string vectors by reference to strore the variable names in
 std::unique_ptr<const GBRForest>
 createGBRForest(const std::string     &weightFile, std::vector<std::string> &varNames)
 {
-    auto gbrForest = std::make_unique<GBRForest>();
+    std::unique_ptr<GBRForest> gbrForest;
 
     if(weightFile[0] == '/') {
-        init(*gbrForest.get(), weightFile, varNames);
+        gbrForest = init(weightFile, varNames);
     }
     else {
         edm::FileInPath weightFileEdm(weightFile);
-        init(*gbrForest.get(), weightFileEdm.fullPath(), varNames);
+        gbrForest = init( weightFileEdm.fullPath(), varNames);
     }
     return gbrForest;
 }
@@ -272,5 +321,5 @@ createGBRForest(const std::string     &weightFile, std::vector<std::string> &var
 std::unique_ptr<const GBRForest>
 createGBRForest(const edm::FileInPath &weightFile, std::vector<std::string> &varNames)
 {
-    return std::make_unique<GBRForest>(weightFile.fullPath(), varNames);
+    return createGBRForest(weightFile.fullPath(), varNames);
 }

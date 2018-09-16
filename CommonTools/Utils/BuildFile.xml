@@ -1,10 +1,10 @@
 <use   name="FWCore/Utilities"/>
+<use   name="CommonTools/MVAUtils"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/EgammaObjects"/>
 <use   name="boost"/>
 <use   name="roothistmatrix"/>
-<use   name="roottmva"/>
 <export>
   <lib   name="1"/>
 </export>

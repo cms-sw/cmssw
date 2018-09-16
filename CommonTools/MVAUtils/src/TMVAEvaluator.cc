@@ -1,10 +1,10 @@
-#include "CommonTools/Utils/interface/TMVAEvaluator.h"
+#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
+#include "CommonTools/MVAUtils/interface/TMVAEvaluator.h"
+#include "CommonTools/MVAUtils/interface/TMVAZipReader.h"
 
-#include "CommonTools/Utils/interface/TMVAZipReader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
 
 
 TMVAEvaluator::TMVAEvaluator() :

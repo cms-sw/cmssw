@@ -6,7 +6,7 @@
 #define RecoBTag_SoftLepton_MuonTagger_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CommonTools/Utils/interface/TMVAEvaluator.h"
+#include "CommonTools/MVAUtils/interface/TMVAEvaluator.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 #include "RecoBTag/SoftLepton/interface/LeptonSelector.h"
 #include <memory>

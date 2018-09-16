@@ -26,7 +26,6 @@
     public:
 
        GBRForest();
-       explicit GBRForest(const std::string& weightsFile, std::vector<std::string>& varNames);
        
        double GetResponse(const float* vector) const;
        double GetGradBoostClassifier(const float* vector) const;

@@ -50,9 +50,6 @@
        
        std::vector<int> &RightIndices() { return fRightIndices; }
        const std::vector<int> &RightIndices() const { return fRightIndices; }
-       
-       void addIntermediateNode(unsigned char cutIndex, float cutVal, bool leftIsTerminal, bool rightIsTerminal);
-       void addTerminalNode(float response);
 
     protected:      
 
