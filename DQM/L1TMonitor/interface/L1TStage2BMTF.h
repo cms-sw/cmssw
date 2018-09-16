@@ -99,9 +99,10 @@ private:
   MonitorElement* bmtf_hwPt_bx;   
   MonitorElement* bmtf_hwQual_bx; 
 
+  MonitorElement* bmtf_hwDXY;
+  MonitorElement* bmtf_hwPt2;
 
-  MonitorElement* kbmtf_hwDXY;
-  MonitorElement* kbmtf_hwPt2;
+
   /* MonitorElement* bmtf_twinmuxInput_PhiBX; */
   /* MonitorElement* bmtf_twinmuxInput_PhiPhi; */
   /* MonitorElement* bmtf_twinmuxInput_PhiPhiB; */
@@ -110,7 +111,7 @@ private:
   /* MonitorElement* bmtf_twinmuxInput_PhiSector; */
   /* MonitorElement* bmtf_twinmuxInput_PhiWheel; */
   /* MonitorElement* bmtf_twinmuxInput_PhiTrSeg; */
-  /* MonitorElement*  bmtf_twinmuxInput_PhiWheel_PhiSector; */
+  /* MonitorElement* bmtf_twinmuxInput_PhiWheel_PhiSector; */
 
   /* MonitorElement* bmtf_twinmuxInput_TheBX; */
   /* MonitorElement* bmtf_twinmuxInput_ThePhi; */
