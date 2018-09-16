@@ -252,38 +252,6 @@ std::unique_ptr<GBRForest> init(const std::string& weightsFileFullPath, std::vec
     ++itree;
   }
 
-  // Print out the first decision tree for debugging
-  auto & tree = forest->Trees()[0];
-
-  std::cout << "CutIndices:" << std::endl;
-  for (auto x : tree.CutIndices()) {
-      std::cout << x << " ";
-  }
-  std::cout << std::endl << std::endl;
-
-  std::cout << "CutVaues:" << std::endl;
-  for (auto x : tree.CutVals()) {
-      std::cout << x << " ";
-  }
-  std::cout << std::endl << std::endl;
-
-  std::cout << "LeftIndices:" << std::endl;
-  for (auto x : tree.LeftIndices()) {
-      std::cout << x << " ";
-  }
-  std::cout << std::endl << std::endl;
-
-  std::cout << "RightIndices:" << std::endl;
-  for (auto x : tree.RightIndices()) {
-      std::cout << x << " ";
-  }
-  std::cout << std::endl << std::endl;
-
-  std::cout << "Responses:" << std::endl;
-  for (auto x : tree.Responses()) {
-      std::cout << x << " ";
-  }
-
   return forest;
 }
 
