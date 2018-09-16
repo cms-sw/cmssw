@@ -1,7 +1,7 @@
 #include "PhysicsTools/PatAlgos/interface/SoftMuonMvaEstimator.h"
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
@@ -11,7 +11,7 @@ using namespace pat;
 
 SoftMuonMvaEstimator::SoftMuonMvaEstimator(const edm::FileInPath& weightsfile)
 {
-  gbrForest_ = std::make_unique<GBRForest>( weightsfile );
+  gbrForest_ = createGBRForest( weightsfile );
 }
 
 SoftMuonMvaEstimator::~SoftMuonMvaEstimator() { }

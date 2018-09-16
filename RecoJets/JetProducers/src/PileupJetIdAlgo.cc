@@ -6,6 +6,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
 
 #include "TMatrixDSym.h"
 #include "TMatrixDSymEigen.h"
@@ -98,10 +99,10 @@ PileupJetIdAlgo::AlgoGBRForestsAndConstants::AlgoGBRForestsAndConstants(edm::Par
   if (( ! cutBased_ ) && (runMvas_)) {
     if (etaBinnedWeights_) {
       for (int v = 0; v < nEtaBins_; v++) {
-        etaReader_.push_back(std::make_unique<GBRForest>(tmvaEtaWeights.at(v)));
+        etaReader_.push_back(createGBRForest(tmvaEtaWeights.at(v)));
       }
     } else {
-      reader_ = std::make_unique<GBRForest>(ps.getParameter<std::string>("tmvaWeights"));
+      reader_ = createGBRForest(ps.getParameter<std::string>("tmvaWeights"));
     }
   }
 }

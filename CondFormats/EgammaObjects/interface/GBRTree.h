@@ -25,20 +25,16 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-#include <tinyxml2.h>
 #include <vector>
-#include <map>
 
   class GBRTree {
 
     public:
 
        GBRTree();
-       explicit GBRTree(tinyxml2::XMLElement* binaryTree, double scale, bool isregression, bool useyesnoleaf, bool adjustboundary, bool isadaclassifier);
-       virtual ~GBRTree();
+       explicit GBRTree(int nIntermediate, int nTerminal);
        
        double GetResponse(const float* vector) const;
-       int TerminalIndex(const float *vector) const;
        
        std::vector<float> &Responses() { return fResponses; }       
        const std::vector<float> &Responses() const { return fResponses; }
@@ -55,40 +51,31 @@
        std::vector<int> &RightIndices() { return fRightIndices; }
        const std::vector<int> &RightIndices() const { return fRightIndices; }
        
+       void addIntermediateNode(unsigned char cutIndex, float cutVal, bool leftIsTerminal, bool rightIsTerminal);
+       void addTerminalNode(float response);
 
-       
     protected:      
-        unsigned int CountIntermediateNodes(tinyxml2::XMLElement* node);
-        unsigned int CountTerminalNodes(tinyxml2::XMLElement* node);
 
-        void AddNode(tinyxml2::XMLElement* node, double scale, bool isregression, bool useyesnoleaf, bool adjustboundary, bool isadaclassifier);
-
-        bool isTerminal(tinyxml2::XMLElement* node);
-        
-	std::vector<unsigned char> fCutIndices;
-	std::vector<float> fCutVals;
-	std::vector<int> fLeftIndices;
-	std::vector<int> fRightIndices;
-	std::vector<float> fResponses;  
+        std::vector<unsigned char> fCutIndices;
+        std::vector<float> fCutVals;
+        std::vector<int> fLeftIndices;
+        std::vector<int> fRightIndices;
+        std::vector<float> fResponses;  
         
   
   COND_SERIALIZABLE;
 };
 
 //_______________________________________________________________________
-inline double GBRTree::GetResponse(const float* vector) const {
-  return fResponses[TerminalIndex(vector)];
-}
-
-//_______________________________________________________________________
-inline int GBRTree::TerminalIndex(const float* vector) const {
+inline double GBRTree::GetResponse(const float* vector) const
+{
    int index = 0;
-  do {
-     auto r = fRightIndices[index];
-     auto l = fLeftIndices[index];  
-    index =  vector[fCutIndices[index]] > fCutVals[index] ? r : l;
-  } while (index>0);
-  return -index;
+   do {
+      auto r = fRightIndices[index];
+      auto l = fLeftIndices[index];  
+     index =  vector[fCutIndices[index]] > fCutVals[index] ? r : l;
+   } while (index>0);
+   return fResponses[-index];
 }
 
 #endif
