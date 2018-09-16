@@ -69,8 +69,8 @@ namespace l1t
 	  RegionalMuonCand muCand;
 	  RegionalMuonRawDigiTranslator::fillRegionalMuonCand(muCand, raw_first, raw_secnd, processor, tftype::bmtf);
 
-	  if (muCand.hwQual() == 0 && !isKalman)
-	    continue;//though away muons with Zero-Quality (ONLY BMTF)
+	  if (muCand.hwQual() == 0)
+	    continue;
 
 	  muCand.setLink(48 + processor);	//the link corresponds to the uGMT input
 	  if (isKalman) {
