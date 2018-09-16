@@ -136,7 +136,7 @@ int main(int argc, char ** argv){
 	std::string _file_list = parser.stringValue("outputFile");
 	std::string _tag     = parser.stringValue("tag");
 	std::string _comment = parser.stringValue("storePrepend");
-	std::string _prefix  = _tag;
+	const std::string& _prefix  = _tag;
 	std::string _version = "1";
 	int _subversion      = 0;
 	HcalLutManager manager;
