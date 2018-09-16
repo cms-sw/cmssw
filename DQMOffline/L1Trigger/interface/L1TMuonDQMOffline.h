@@ -173,7 +173,7 @@ class L1TMuonDQMOffline : public DQMEDAnalyzer {
 //
 class MuonGmtPair {
     public :
-        MuonGmtPair(const reco::Muon *muon, const l1t::Muon *regMu, bool useAtVtxCoord);
+        MuonGmtPair(const reco::Muon *muon, const l1t::Muon *regMu, const PropagateToMuon& propagator, bool useAtVtxCoord);
         MuonGmtPair(const MuonGmtPair& muonGmtPair);
         ~MuonGmtPair() { };
 
@@ -191,8 +191,6 @@ class MuonGmtPair {
         L1TMuonDQMOffline::EtaRegion etaRegion() const;
         double getDeltaVar(const L1TMuonDQMOffline::ResType) const;
         double getVar(const L1TMuonDQMOffline::EffType) const;
-
-        void propagate(const PropagateToMuon& propagator, bool useAtVtxCoord);
 
     private :
         const reco::Muon *m_muon;

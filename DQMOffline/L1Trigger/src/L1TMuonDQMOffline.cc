@@ -20,8 +20,8 @@ using namespace l1t;
 
 //__________RECO-GMT Muon Pair Helper Class____________________________
 
-MuonGmtPair::MuonGmtPair(const reco::Muon *muon, const l1t::Muon *regMu, bool useAtVtxCoord) :
-        m_muon(muon), m_regMu(regMu), m_eta(999.), m_phi(999.)
+MuonGmtPair::MuonGmtPair(const reco::Muon *muon, const l1t::Muon *regMu, const PropagateToMuon& propagator, bool useAtVtxCoord) :
+        m_muon(muon), m_regMu(regMu)
 {
     if (m_regMu) {
         if (useAtVtxCoord) {
@@ -34,6 +34,16 @@ MuonGmtPair::MuonGmtPair(const reco::Muon *muon, const l1t::Muon *regMu, bool us
     } else {
         m_gmtEta = -5.;
         m_gmtPhi = -5.;
+    }
+    if (m_muon) {
+        TrajectoryStateOnSurface trajectory = propagator.extrapolate(*m_muon);
+        if (trajectory.isValid()) {
+            m_eta = trajectory.globalPosition().eta();
+            m_phi = trajectory.globalPosition().phi();
+        }
+    } else {
+        m_eta = 999.;
+        m_phi = 999.;
     }
 };
 
@@ -54,23 +64,10 @@ double MuonGmtPair::dR() {
     return sqrt(dEta*dEta + dPhi*dPhi);
 }
 
-void MuonGmtPair::propagate(const PropagateToMuon& propagator, bool useAtVtxCoord) {
-    if (useAtVtxCoord) {
-        m_eta = eta();
-        m_phi = phi();
-    } else {
-        TrajectoryStateOnSurface trajectory = propagator.extrapolate(*m_muon);
-        if (trajectory.isValid()) {
-            m_eta = trajectory.globalPosition().eta();
-            m_phi = trajectory.globalPosition().phi();
-        }
-    }
-}
-
 L1TMuonDQMOffline::EtaRegion MuonGmtPair::etaRegion() const {
-    if (std::abs(eta()) < 0.83) return L1TMuonDQMOffline::kEtaRegionBmtf;
-    if (std::abs(eta()) < 1.24) return L1TMuonDQMOffline::kEtaRegionOmtf;
-    if (std::abs(eta()) < 2.4)  return L1TMuonDQMOffline::kEtaRegionEmtf;
+    if (std::abs(m_eta) < 0.83) return L1TMuonDQMOffline::kEtaRegionBmtf;
+    if (std::abs(m_eta) < 1.24) return L1TMuonDQMOffline::kEtaRegionOmtf;
+    if (std::abs(m_eta) < 2.4)  return L1TMuonDQMOffline::kEtaRegionEmtf;
     return L1TMuonDQMOffline::kEtaRegionOut;
 }
 
@@ -78,16 +75,16 @@ double MuonGmtPair::getDeltaVar(const L1TMuonDQMOffline::ResType type) const {
     if (type == L1TMuonDQMOffline::kResPt)      return (gmtPt() - pt()) / pt();
     if (type == L1TMuonDQMOffline::kRes1OverPt) return (pt() - gmtPt()) / gmtPt(); // (1/gmtPt - 1/pt) / (1/pt)
     if (type == L1TMuonDQMOffline::kResQOverPt) return (gmtCharge()*charge()*pt() - gmtPt()) / gmtPt(); // (gmtCharge/gmtPt - charge/pt) / (charge/pt) with gmtCharge/charge = gmtCharge*charge
-    if (type == L1TMuonDQMOffline::kResPhi)     return reco::deltaPhi(gmtPhi(), phi());
-    if (type == L1TMuonDQMOffline::kResEta)     return gmtEta() - eta();
+    if (type == L1TMuonDQMOffline::kResPhi)     return reco::deltaPhi(gmtPhi(), m_phi);
+    if (type == L1TMuonDQMOffline::kResEta)     return gmtEta() - m_eta;
     if (type == L1TMuonDQMOffline::kResCh)      return gmtCharge() - charge();
     return -999.;
 }
 
 double MuonGmtPair::getVar(const L1TMuonDQMOffline::EffType type) const {
     if (type == L1TMuonDQMOffline::kEffPt)  return pt();
-    if (type == L1TMuonDQMOffline::kEffPhi) return phi();
-    if (type == L1TMuonDQMOffline::kEffEta) return eta();
+    if (type == L1TMuonDQMOffline::kEffPhi) return m_phi;
+    if (type == L1TMuonDQMOffline::kEffEta) return m_eta;
     return -999.;
 }
 
@@ -524,17 +521,17 @@ void L1TMuonDQMOffline::getMuonGmtPairs(edm::Handle<l1t::MuonBxCollection> & gmt
     l1t::MuonBxCollection::const_iterator gmtEnd = gmtCands->end(0);
 
     for (; probeMuIt!=probeMuEnd; ++probeMuIt) {
-        m_ControlHistos[kCtrlProbeEta]->Fill((*probeMuIt)->eta());
-        m_ControlHistos[kCtrlProbePhi]->Fill((*probeMuIt)->phi());
-        m_ControlHistos[kCtrlProbePt]->Fill((*probeMuIt)->pt());
+        MuonGmtPair pairBestCand((*probeMuIt), nullptr, m_propagator, m_useAtVtxCoord);
 
-        MuonGmtPair pairBestCand((*probeMuIt), nullptr, m_useAtVtxCoord);
-        pairBestCand.propagate(m_propagator, m_useAtVtxCoord);
+        // Fill the control histograms with the probe muon kinematic variables used
+        m_ControlHistos[kCtrlProbeEta]->Fill(pairBestCand.getVar(L1TMuonDQMOffline::kEffEta));
+        m_ControlHistos[kCtrlProbePhi]->Fill(pairBestCand.getVar(L1TMuonDQMOffline::kEffPhi));
+        m_ControlHistos[kCtrlProbePt]->Fill(pairBestCand.getVar(L1TMuonDQMOffline::kEffPt));
+
         gmtIt = gmtCands->begin(0); // use only on L1T muons from BX 0
 
         for(; gmtIt!=gmtEnd; ++gmtIt) {
-            MuonGmtPair pairTmpCand((*probeMuIt),&(*gmtIt), m_useAtVtxCoord);
-            pairTmpCand.propagate(m_propagator, m_useAtVtxCoord);
+            MuonGmtPair pairTmpCand((*probeMuIt), &(*gmtIt), m_propagator, m_useAtVtxCoord);
 
             if ( (pairTmpCand.dR() < m_maxGmtMuonDR) && (pairTmpCand.dR() < pairBestCand.dR() ) ) {
                 pairBestCand = pairTmpCand;
