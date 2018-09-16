@@ -1,8 +1,9 @@
 <use   name="CondFormats/EgammaObjects"/>
-<use   name="CommonTools/Utils"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Utilities"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="roottmva"/>
 <use   name="tinyxml2"/>
-<use   name="FWCore/ParameterSet/interface/FileInPath.h"/>
-<use   name="FWCore/Utilities/interface/Exception.h"/>
 
 <export>
   <lib   name="1"/>

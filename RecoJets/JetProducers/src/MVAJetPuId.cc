@@ -6,7 +6,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "CommonTools/Utils/interface/TMVAZipReader.h"
+#include "CommonTools/MVAUtils/interface/TMVAZipReader.h"
 #include "TMatrixDSym.h"
 #include "TMatrixDSymEigen.h"
 #include "DataFormats/JetReco/interface/PileupJetIdentifier.h"

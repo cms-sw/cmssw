@@ -17,6 +17,7 @@
 </library>
 
 <library   name="L1TriggerL1THGCalPlugins_fe_be" file="fe_codecs/*.cc,be_algorithms/*.cc">
+  <use   name="CommonTools/MVAUtils"/>
   <use   name="Geometry/HGCalGeometry"/>
   <use   name="Geometry/HcalTowerAlgo"/>
   <use   name="Geometry/CaloTopology"/>
