@@ -44,7 +44,7 @@ namespace dqmBmtfAlgoSelector{
     // class constructor
     explicit L1TBMTFAlgoSelector(const edm::ParameterSet & ps);
     // class destructor
-    ~L1TBMTFAlgoSelector();
+    ~L1TBMTFAlgoSelector() override;
 
     // member functions
   private:
