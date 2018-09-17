@@ -64,7 +64,7 @@ namespace l1t {
     };
     ~CaloParamsHelperO2O() {}
 
-    bool isValidForStage1() {return 1; } 
+    bool isValidForStage1() {return true; } 
     bool isValidForStage2() {return (version_ >= 2); }
 
     L1CaloEtScale emScale() { return emScale_; }
