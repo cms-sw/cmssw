@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "make_shared_noexcept_false.h"
 
 
 
@@ -108,12 +109,7 @@ void
 EventSetupRecordProvider::setDependentProviders(const std::vector< std::shared_ptr<EventSetupRecordProvider> >& iProviders)
 {
    using std::placeholders::_1;
-#ifdef __APPLE__
-// libc++ for Apple Clang does not allow make_shared for a class with a non standard destructor
-   std::shared_ptr<DependentRecordIntervalFinder> newFinder = std::shared_ptr<DependentRecordIntervalFinder>(new DependentRecordIntervalFinder(key()));
-#else
-   std::shared_ptr<DependentRecordIntervalFinder> newFinder = std::make_shared<DependentRecordIntervalFinder>(key());
-#endif
+   std::shared_ptr<DependentRecordIntervalFinder> newFinder = make_shared_noexcept_false<DependentRecordIntervalFinder>(key());
 
    std::shared_ptr<EventSetupRecordIntervalFinder> old = swapFinder(newFinder);
 
@@ -130,12 +126,7 @@ EventSetupRecordProvider::usePreferred(const DataToPreferredProviderMap& iMap)
   using std::placeholders::_1;
   for_all(providers_, std::bind(&EventSetupRecordProvider::addProxiesToRecordHelper,this,_1,iMap));
   if (1 < multipleFinders_->size()) {
-#ifdef __APPLE__
-// libc++ for Apple Clang does not allow make_shared for a class with a non standard destructor
-     std::shared_ptr<IntersectingIOVRecordIntervalFinder> intFinder = std::shared_ptr<IntersectingIOVRecordIntervalFinder>(new IntersectingIOVRecordIntervalFinder(key_));
-#else
-     std::shared_ptr<IntersectingIOVRecordIntervalFinder> intFinder = std::make_shared<IntersectingIOVRecordIntervalFinder>(key_);
-#endif
+     std::shared_ptr<IntersectingIOVRecordIntervalFinder> intFinder = make_shared_noexcept_false<IntersectingIOVRecordIntervalFinder>(key_);
      intFinder->swapFinders(*multipleFinders_);
      finder_ = intFinder;
   }
