@@ -108,10 +108,21 @@ void
 EventSetupRecordProvider::setDependentProviders(const std::vector< std::shared_ptr<EventSetupRecordProvider> >& iProviders)
 {
    using std::placeholders::_1;
+#ifdef __APPLE__
+// libc++ for Apple Clang does not allow make_shared for a class with a non standard destructor
+   std::shared_ptr<DependentRecordIntervalFinder> newFinder = std::shared_ptr<DependentRecordIntervalFinder>(new DependentRecordIntervalFinder(key()));
+#else
    std::shared_ptr<DependentRecordIntervalFinder> newFinder = std::make_shared<DependentRecordIntervalFinder>(key());
-   
+#endif
+
    std::shared_ptr<EventSetupRecordIntervalFinder> old = swapFinder(newFinder);
+
+#ifdef __APPLE
+// Apple Clang strictly enforces c++17 std removal of deprecated function mem_fun
+   for(auto const& p: iProviders) { newFinder->addProviderWeAreDependentOn(p); };
+#else
    for_all(iProviders, std::bind(std::mem_fun(&DependentRecordIntervalFinder::addProviderWeAreDependentOn), &(*newFinder), _1));
+#endif
    //if a finder was already set, add it as a depedency.  This is done to ensure that the IOVs properly change even if the
    // old finder does not update each time a dependent record does change
    if(old.get() != nullptr) {
@@ -124,8 +135,12 @@ EventSetupRecordProvider::usePreferred(const DataToPreferredProviderMap& iMap)
   using std::placeholders::_1;
   for_all(providers_, std::bind(&EventSetupRecordProvider::addProxiesToRecordHelper,this,_1,iMap));
   if (1 < multipleFinders_->size()) {
-     
+#ifdef __APPLE__
+// libc++ for Apple Clang does not allow make_shared for a class with a non standard destructor
+     std::shared_ptr<IntersectingIOVRecordIntervalFinder> intFinder = std::shared_ptr<IntersectingIOVRecordIntervalFinder>(new IntersectingIOVRecordIntervalFinder(key_));
+#else
      std::shared_ptr<IntersectingIOVRecordIntervalFinder> intFinder = std::make_shared<IntersectingIOVRecordIntervalFinder>(key_);
+#endif
      intFinder->swapFinders(*multipleFinders_);
      finder_ = intFinder;
   }
