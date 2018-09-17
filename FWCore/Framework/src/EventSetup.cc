@@ -2,7 +2,7 @@
 //
 // Package:     Framework
 // Module:      EventSetup
-// 
+//
 // Description: <one line class summary>
 //
 // Implementation:
@@ -74,13 +74,13 @@ EventSetup::clear()
 {
    recordMap_.clear();
 }
-   
-void 
+
+void
 EventSetup::add(const eventsetup::EventSetupRecordImpl& iRecord)
 {
    insert(iRecord.key(), &iRecord);
 }
-   
+
 //
 // const member functions
 //
@@ -93,7 +93,7 @@ EventSetup::find(const eventsetup::EventSetupRecordKey& iKey) const
    }
   return eventsetup::EventSetupRecordGeneric(itFind->second);
 }
-  
+
 eventsetup::EventSetupRecordImpl const*
 EventSetup::findImpl(const eventsetup::EventSetupRecordKey& iKey) const
 {
@@ -104,12 +104,12 @@ EventSetup::findImpl(const eventsetup::EventSetupRecordKey& iKey) const
   return itFind->second;
 }
 
-void 
+void
 EventSetup::fillAvailableRecordKeys(std::vector<eventsetup::EventSetupRecordKey>& oToFill) const
 {
   oToFill.clear();
   oToFill.reserve(recordMap_.size());
-  
+
   for(auto it = recordMap_.begin(), itEnd=recordMap_.end();
       it != itEnd;
       ++it) {
