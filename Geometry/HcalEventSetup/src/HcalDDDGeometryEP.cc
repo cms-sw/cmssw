@@ -33,21 +33,17 @@
 //
 
 HcalDDDGeometryEP::HcalDDDGeometryEP(const edm::ParameterSet& ps ) :
-  m_loader ( nullptr ) ,
   m_applyAlignment(ps.getUntrackedParameter<bool>("applyAlignment", false) ) {
 
   //the following line is needed to tell the framework what
   // data is being produced
   setWhatProduced( this,
 		   &HcalDDDGeometryEP::produceAligned,
-		   dependsOn( &HcalDDDGeometryEP::idealRecordCallBack ),
-		   "HCAL");
+		   edm::es::Label("HCAL"));
 }
 
 HcalDDDGeometryEP::~HcalDDDGeometryEP() { 
-  if (m_loader) delete m_loader ;
 }
-
 
 //
 // member functions
@@ -64,14 +60,9 @@ HcalDDDGeometryEP::produceIdeal(const HcalRecNumberingRecord& iRecord) {
   edm::ESHandle<HcalTopology> topology ;
   iRecord.get( topology ) ;
 
-  assert( nullptr == m_loader ) ;
-  m_loader = new HcalDDDGeometryLoader(&(*hcons)); 
-#ifdef DebugLog
-  LogDebug("HCalGeom")<<"HcalDDDGeometryEP:Initialize HcalDDDGeometryLoader";
-#endif
-  ReturnType pC ( m_loader->load(*topology) ) ;
+  HcalDDDGeometryLoader loader(&(*hcons));
 
-  return pC;
+  return ReturnType(loader.load(*topology));
 }
 
 HcalDDDGeometryEP::ReturnType

@@ -28,18 +28,15 @@ public:
   HcalTopologyIdealEP(const edm::ParameterSet&);
   ~HcalTopologyIdealEP() override;
 
-  typedef std::shared_ptr<HcalTopology> ReturnType;
+  typedef std::unique_ptr<HcalTopology> ReturnType;
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
     
   ReturnType produce(const HcalRecNumberingRecord&);
 
-  void       hcalRecordCallBack( const IdealGeometryRecord& ) {}
-
 private:
   // ----------member data ---------------------------
   std::string m_restrictions;
   bool        m_mergePosition;
-  const edm::ParameterSet m_pSet;
 };
 #endif

@@ -39,8 +39,7 @@
 //
 HcalTopologyIdealEP::HcalTopologyIdealEP(const edm::ParameterSet& conf)
   : m_restrictions(conf.getUntrackedParameter<std::string>("Exclude")),
-    m_mergePosition(conf.getUntrackedParameter<bool>("MergePosition")),
-    m_pSet(conf) {
+    m_mergePosition(conf.getUntrackedParameter<bool>("MergePosition")) {
 #ifdef DebugLog
   std::cout << "HcalTopologyIdealEP::HcalTopologyIdealEP with Exclude: " 
 	    << m_restrictions << " MergePosition: " << m_mergePosition
@@ -48,8 +47,7 @@ HcalTopologyIdealEP::HcalTopologyIdealEP(const edm::ParameterSet& conf)
   edm::LogInfo("HCAL") << "HcalTopologyIdealEP::HcalTopologyIdealEP";
 #endif
   setWhatProduced(this,
-                  &HcalTopologyIdealEP::produce,
-                  dependsOn( &HcalTopologyIdealEP::hcalRecordCallBack ));
+                  &HcalTopologyIdealEP::produce);
 }
 
 

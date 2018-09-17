@@ -39,8 +39,7 @@ CaloTowerHardcodeGeometryEP::CaloTowerHardcodeGeometryEP(const edm::ParameterSet
    // data is being produced
    setWhatProduced(this,
                    &CaloTowerHardcodeGeometryEP::produce,
-                   dependsOn( &CaloTowerHardcodeGeometryEP::idealRecordCallBack ),
-		   "TOWER");
+		   edm::es::Label("TOWER"));
 
   //now do what ever other initialization is needed
   loader_=new CaloTowerHardcodeGeometryLoader(); /// TODO : allow override of Topology.

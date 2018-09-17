@@ -29,8 +29,6 @@ public:
 
   ReturnType produce(const CaloTowerGeometryRecord&);
 
-  void       idealRecordCallBack( const HcalRecNumberingRecord& ) {}
-
 private:
       // ----------member data ---------------------------
   CaloTowerHardcodeGeometryLoader* loader_;
