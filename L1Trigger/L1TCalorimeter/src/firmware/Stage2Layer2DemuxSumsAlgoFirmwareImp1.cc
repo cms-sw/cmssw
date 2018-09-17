@@ -27,7 +27,7 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
   double etPos(0), etNeg(0), etHFPos(0), etHFNeg(0), htPos(0), htNeg(0), htHFPos(0), htHFNeg(0);
   int cent(0);
   unsigned int asymEt(0), asymEtHF(0), asymHt(0), asymHtHF(0);
-  bool posEt(0), posEtHF(0), posHt(0), posHtHF(0);
+  bool posEt(false), posEtHF(false), posHt(false), posHtHF(false);
   unsigned int met(0), metHF(0), mht(0), mhtHF(0);
   unsigned int mbp0(0), mbm0(0), mbp1(0), mbm1(0);
   unsigned int ntow(0);
