@@ -31,6 +31,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/PatCandidates/interface/Photon.h"
 
 #include "RecoEgamma/EgammaTools/interface/MVAVariableManager.h"
 #include "RecoEgamma/EgammaTools/interface/MultiToken.h"
@@ -70,6 +71,8 @@ class PhotonMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources
       // method called once each job just after ending the event loop
       void endJob() override {};
 
+      int matchToTruth(const reco::Photon& ph, const edm::View<reco::GenParticle> &genParticles) const;
+
       // ----------member data ---------------------------
 
       // other
@@ -82,6 +85,11 @@ class PhotonMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources
       int nEvent_, nRun_, nLumi_;
       int genNpu_;
       int vtxN_;
+      double pT_, eta_;
+      
+      // photon genMatch variable
+      int matchedToGenPh_;
+      int matchedGenIdx_;
 
       // to hold ID decisions and categories
       std::vector<int> mvaPasses_;
@@ -108,17 +116,25 @@ class PhotonMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources
       // config
       const bool isMC_;
       const double ptThreshold_;
+      const double deltaR_;
 
       // for AOD or MiniAOD case
       MultiTokenT<edm::View<reco::Photon>>        src_;
       MultiTokenT<std::vector<reco::Vertex>>      vertices_;
       MultiTokenT<std::vector<PileupSummaryInfo>> pileup_;
+      MultiTokenT<edm::View<reco::GenParticle>> genParticles_;
 
 };
 
 //
 // constants, enums and typedefs
 //
+
+enum PhotonMatchType {
+  FAKE_PHOTON,
+  TRUE_PROMPT_PHOTON,
+  TRUE_NON_PROMPT_PHOTON,
+}; 
 
 //
 // static data member definitions
@@ -139,72 +155,79 @@ PhotonMVANtuplizer::PhotonMVANtuplizer(const edm::ParameterSet& iConfig)
  , nCats_                 (mvaCatBranchNames_.size())
  , isMC_                  (iConfig.getParameter<bool>("isMC"))
  , ptThreshold_           (iConfig.getParameter<double>("ptThreshold"))
+ , deltaR_                (iConfig.getParameter<double>("deltaR"))
  , src_                   (consumesCollector(), iConfig, "src"     , "srcMiniAOD")
  , vertices_        (src_, consumesCollector(), iConfig, "vertices", "verticesMiniAOD")
  , pileup_          (src_, consumesCollector(), iConfig, "pileup"  , "pileupMiniAOD")
+ , genParticles_    (src_, consumesCollector(), iConfig, "genParticles", "genParticlesMiniAOD")
 {
-    // phoMaps
-    for (size_t k = 0; k < nPhoMaps_; ++k) {
+  // phoMaps
+  for (size_t k = 0; k < nPhoMaps_; ++k) {
 
-        phoMapTokens_.push_back(consumes<edm::ValueMap<bool> >(edm::InputTag(phoMapTags_[k])));
+    phoMapTokens_.push_back(consumes<edm::ValueMap<bool> >(edm::InputTag(phoMapTags_[k])));
+    
+    // Initialize vectors for holding ID decisions
+    mvaPasses_.push_back(0);
+  }
+  
+  // valMaps
+  for (size_t k = 0; k < nValMaps_; ++k) {
+    valMapTokens_.push_back(consumes<edm::ValueMap<float> >(edm::InputTag(valMapTags_[k])));
+    
+    // Initialize vectors for holding MVA values
+    mvaValues_.push_back(0.0);
+  }
+  
+  // categories
+  for (size_t k = 0; k < nCats_; ++k) {
+    mvaCatTokens_.push_back(consumes<edm::ValueMap<int> >(edm::InputTag(mvaCatTags_[k])));
+    
+    // Initialize vectors for holding MVA values
+    mvaCats_.push_back(0);
+  }
+  
+  // Book tree
+  usesResource(TFileService::kSharedResource);
+  edm::Service<TFileService> fs ;
+  tree_  = fs->make<TTree>("tree","tree");
+  
+  tree_->Branch("nEvent", &nEvent_);
+  tree_->Branch("nRun", &nRun_);
+  tree_->Branch("nLumi", &nLumi_);
+  if (isMC_) {
+    tree_->Branch("genNpu", &genNpu_);
+    tree_->Branch("matchedToGenPh", &matchedToGenPh_);
+  }
+  tree_->Branch("vtxN", &vtxN_);
+  tree_->Branch("pT", &pT_);
+  tree_->Branch("eta", &eta_);
 
-        // Initialize vectors for holding ID decisions
-        mvaPasses_.push_back(0);
-    }
-
-    // valMaps
-    for (size_t k = 0; k < nValMaps_; ++k) {
-        valMapTokens_.push_back(consumes<edm::ValueMap<float> >(edm::InputTag(valMapTags_[k])));
-
-        // Initialize vectors for holding MVA values
-        mvaValues_.push_back(0.0);
-    }
-
-    // categories
-    for (size_t k = 0; k < nCats_; ++k) {
-        mvaCatTokens_.push_back(consumes<edm::ValueMap<int> >(edm::InputTag(mvaCatTags_[k])));
-
-        // Initialize vectors for holding MVA values
-        mvaCats_.push_back(0);
-    }
-
-   // Book tree
-   usesResource(TFileService::kSharedResource);
-   edm::Service<TFileService> fs ;
-   tree_  = fs->make<TTree>("tree","tree");
-
-   tree_->Branch("nEvent",  &nEvent_);
-   tree_->Branch("nRun",    &nRun_);
-   tree_->Branch("nLumi",   &nLumi_);
-   if (isMC_) tree_->Branch("genNpu", &genNpu_);
-   tree_->Branch("vtxN",   &vtxN_);
-
-   // Has to be in two different loops
-   for (int i = 0; i < nVars_; ++i) {
-       vars_.push_back(0.0);
-   }
-
-   // IDs
-   for (size_t k = 0; k < nValMaps_; ++k) {
-       tree_->Branch(valMapBranchNames_[k].c_str() ,  &mvaValues_[k]);
-   }
-
-   for (size_t k = 0; k < nPhoMaps_; ++k) {
-       tree_->Branch(phoMapBranchNames_[k].c_str() ,  &mvaPasses_[k]);
-   }
-
-   for (size_t k = 0; k < nCats_; ++k) {
-       tree_->Branch(mvaCatBranchNames_[k].c_str() ,  &mvaCats_[k]);
-   }
+  // Has to be in two different loops
+  for (int i = 0; i < nVars_; ++i) {
+    vars_.push_back(0.0);
+  }
+  
+  // IDs
+  for (size_t k = 0; k < nValMaps_; ++k) {
+    tree_->Branch(valMapBranchNames_[k].c_str() ,  &mvaValues_[k]);
+  }
+  
+  for (size_t k = 0; k < nPhoMaps_; ++k) {
+    tree_->Branch(phoMapBranchNames_[k].c_str() ,  &mvaPasses_[k]);
+  }
+  
+  for (size_t k = 0; k < nCats_; ++k) {
+    tree_->Branch(mvaCatBranchNames_[k].c_str() ,  &mvaCats_[k]);
+  }
 }
 
 
 PhotonMVANtuplizer::~PhotonMVANtuplizer()
 {
-
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+  
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
+  
 }
 
 
@@ -222,9 +245,10 @@ PhotonMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     nLumi_  = iEvent.luminosityBlock();
 
     // Get Handles
-    auto src      = src_.getValidHandle(iEvent);
-    auto vertices = vertices_.getValidHandle(iEvent);
-    auto pileup   = pileup_.getValidHandle(iEvent);
+    auto src            = src_.getValidHandle(iEvent);
+    auto vertices       = vertices_.getValidHandle(iEvent);
+    auto pileup         = pileup_.getValidHandle(iEvent);
+    auto genParticles   = genParticles_.getValidHandle(iEvent);
 
     vtxN_ = vertices->size();
 
@@ -240,77 +264,124 @@ PhotonMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
            }
        }
     }
-
+  
     // Get MVA decisions
     edm::Handle<edm::ValueMap<bool> > decisions[nPhoMaps_];
     for (size_t k = 0; k < nPhoMaps_; ++k) {
-        iEvent.getByToken(phoMapTokens_[k],decisions[k]);
+      iEvent.getByToken(phoMapTokens_[k],decisions[k]);
     }
-
+  
     // Get MVA values
     edm::Handle<edm::ValueMap<float> > values[nValMaps_];
     for (size_t k = 0; k < nValMaps_; ++k) {
-        iEvent.getByToken(valMapTokens_[k],values[k]);
+      iEvent.getByToken(valMapTokens_[k],values[k]);
     }
-
+  
     // Get MVA categories
     edm::Handle<edm::ValueMap<int> > mvaCats[nCats_];
     for (size_t k = 0; k < nCats_; ++k) {
-        iEvent.getByToken(mvaCatTokens_[k],mvaCats[k]);
+      iEvent.getByToken(mvaCatTokens_[k],mvaCats[k]);
     }
-
+    
     int nPho = src->size();
+    
+    for(int iPho = 0; iPho < nPho; ++iPho)
+    {
+      
+      const auto pho =  src->ptrAt(iPho);
+      
+      if (pho->pt() < ptThreshold_) {
+        continue;
+      }
+      pT_ = pho->pt();
+      eta_ = pho->eta();
 
-    for(int iPho = 0; iPho < nPho; ++iPho) {
+      if (isMC_) {
+        matchedToGenPh_ = matchToTruth( *pho, *genParticles);
+      }
+      
+      //
+      // Look up and save the ID decisions
+      //
+      for (size_t k = 0; k < nPhoMaps_; ++k) {
+        mvaPasses_[k] = (int)(*decisions[k])[pho];
+      }
+      
+      for (size_t k = 0; k < nValMaps_; ++k) {
+        mvaValues_[k] = (*values[k])[pho];
+      }
+      
+      for (size_t k = 0; k < nCats_; ++k) {
+        mvaCats_[k] = (*mvaCats[k])[pho];
+      }
+      
+      tree_->Fill();
+    }
+  
+}
 
-        const auto pho =  src->ptrAt(iPho);
-
-        if (pho->pt() < ptThreshold_) {
-            continue;
-        }
-
-        //
-        // Look up and save the ID decisions
-        //
-        for (size_t k = 0; k < nPhoMaps_; ++k) {
-          mvaPasses_[k] = (int)(*decisions[k])[pho];
-        }
-
-        for (size_t k = 0; k < nValMaps_; ++k) {
-          mvaValues_[k] = (*values[k])[pho];
-        }
-
-        for (size_t k = 0; k < nCats_; ++k) {
-          mvaCats_[k] = (*mvaCats[k])[pho];
-        }
-
-
-        tree_->Fill();
+int PhotonMVANtuplizer::matchToTruth(
+        const reco::Photon& ph,
+        const edm::View<reco::GenParticle>& genParticles) const
+{
+  
+  // Find the closest status 1 gen photon to the reco photon
+  double dR = 999;
+  reco::GenParticle const * closestPhoton;
+  for (auto & particle : genParticles)
+  {
+    // Drop everything that is not photon or not status 1
+    if( abs(particle.pdgId()) != 22 || particle.status() != 1 )
+    {
+      continue;
     }
 
+    double dRtmp = ROOT::Math::VectorUtil::DeltaR( ph.p4(), particle.p4() );
+    if( dRtmp < dR )
+    {
+      dR = dRtmp;
+      closestPhoton = &particle;
+    }
+  }
+  // See if the closest photon (if it exists) is close enough.
+  // If not, no match found.
+  if(dR < deltaR_)
+  {
+      if( closestPhoton->isPromptFinalState() )
+      {
+          return TRUE_PROMPT_PHOTON;
+      }
+      else
+      {
+          return TRUE_NON_PROMPT_PHOTON;
+      }
+  }
+  return FAKE_PHOTON;
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 PhotonMVANtuplizer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-
-    edm::ParameterSetDescription desc;
-    desc.add<edm::InputTag>("src");
-    desc.add<edm::InputTag>("vertices");
-    desc.add<edm::InputTag>("pileup");
-    desc.add<edm::InputTag>("srcMiniAOD");
-    desc.add<edm::InputTag>("verticesMiniAOD");
-    desc.add<edm::InputTag>("pileupMiniAOD");
-    desc.addUntracked<std::vector<std::string>>("phoMVAs");
-    desc.addUntracked<std::vector<std::string>>("phoMVALabels");
-    desc.addUntracked<std::vector<std::string>>("phoMVAValMaps");
-    desc.addUntracked<std::vector<std::string>>("phoMVAValMapLabels");
-    desc.addUntracked<std::vector<std::string>>("phoMVACats");
-    desc.addUntracked<std::vector<std::string>>("phoMVACatLabels");
-    desc.add<bool>("isMC");
-    desc.add<double>("ptThreshold", 5.0);
-    descriptions.addDefault(desc);
-
+  
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("src");
+  desc.add<edm::InputTag>("vertices");
+  desc.add<edm::InputTag>("pileup");
+  desc.add<edm::InputTag>("genParticles");
+  desc.add<edm::InputTag>("srcMiniAOD");
+  desc.add<edm::InputTag>("verticesMiniAOD");
+  desc.add<edm::InputTag>("pileupMiniAOD");
+  desc.add<edm::InputTag>("genParticlesMiniAOD");
+  desc.addUntracked<std::vector<std::string>>("phoMVAs");
+  desc.addUntracked<std::vector<std::string>>("phoMVALabels");
+  desc.addUntracked<std::vector<std::string>>("phoMVAValMaps");
+  desc.addUntracked<std::vector<std::string>>("phoMVAValMapLabels");
+  desc.addUntracked<std::vector<std::string>>("phoMVACats");
+  desc.addUntracked<std::vector<std::string>>("phoMVACatLabels");
+  desc.add<bool>("isMC");
+  desc.add<double>("ptThreshold", 5.0);
+  desc.add<double>("deltaR", 0.1);
+  descriptions.addDefault(desc);
 }
 
 //define this as a plug-in
