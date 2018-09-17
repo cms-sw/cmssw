@@ -50,6 +50,7 @@ pA_2016.toReplaceWith(dqmPhysics, dqmPhysicspA)
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 _dqmPhysics  =  dqmPhysics.copy()
 _dqmPhysics += CentralityDQM
+pp_on_AA_2018.toModify(CentralityDQM, vertexcollection=cms.InputTag("offlinePrimaryVertices"))
 pp_on_AA_2018.toReplaceWith(dqmPhysics, _dqmPhysics)
 
 bphysicsOniaDQMHI = bphysicsOniaDQM.clone(vertex=cms.InputTag("hiSelectedVertex"))
