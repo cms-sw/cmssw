@@ -19,12 +19,10 @@ public:
   HcalHardcodeGeometryEP(const edm::ParameterSet&);
   ~HcalHardcodeGeometryEP() override;
 
-  typedef std::shared_ptr<CaloSubdetectorGeometry> ReturnType;
+  typedef std::unique_ptr<CaloSubdetectorGeometry> ReturnType;
 
   ReturnType produceIdeal(const HcalRecNumberingRecord&);
   ReturnType produceAligned(const HcalGeometryRecord& );
-
-  void       idealRecordCallBack(const HcalRecNumberingRecord&) {}
 
 private:
   edm::ParameterSet ps0;

@@ -27,10 +27,8 @@ public:
   HcalDDDGeometryEP(const edm::ParameterSet&);
   ~HcalDDDGeometryEP() override;
 
-  typedef std::shared_ptr<CaloSubdetectorGeometry> ReturnType;
+  typedef std::unique_ptr<CaloSubdetectorGeometry> ReturnType;
  
-  void idealRecordCallBack(const HcalRecNumberingRecord&) {}
-
   ReturnType produceIdeal(const HcalRecNumberingRecord&);
   ReturnType produceAligned(const HcalGeometryRecord&);
 
@@ -38,7 +36,6 @@ private:
 
   // ----------member data ---------------------------
 
-  HcalDDDGeometryLoader* m_loader ;
   bool m_applyAlignment ;
 };
 #endif

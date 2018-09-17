@@ -48,8 +48,7 @@ HcalHardcodeGeometryEP::HcalHardcodeGeometryEP( const edm::ParameterSet& ps ) : 
   // data is being produced
   setWhatProduced( this,
 		   &HcalHardcodeGeometryEP::produceAligned,
-		   dependsOn( &HcalHardcodeGeometryEP::idealRecordCallBack ),
-		   HcalGeometry::producerTag() );
+		   edm::es::Label(HcalGeometry::producerTag()));
 
 // disable
 //   setWhatProduced( this,
