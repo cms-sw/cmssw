@@ -117,12 +117,7 @@ EventSetupRecordProvider::setDependentProviders(const std::vector< std::shared_p
 
    std::shared_ptr<EventSetupRecordIntervalFinder> old = swapFinder(newFinder);
 
-#ifdef __APPLE
-// Apple Clang strictly enforces c++17 std removal of deprecated function mem_fun
    for(auto const& p: iProviders) { newFinder->addProviderWeAreDependentOn(p); };
-#else
-   for_all(iProviders, std::bind(std::mem_fun(&DependentRecordIntervalFinder::addProviderWeAreDependentOn), &(*newFinder), _1));
-#endif
    //if a finder was already set, add it as a depedency.  This is done to ensure that the IOVs properly change even if the
    // old finder does not update each time a dependent record does change
    if(old.get() != nullptr) {
