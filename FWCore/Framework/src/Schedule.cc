@@ -81,7 +81,12 @@ namespace edm {
       bool postCalled = false;
       std::shared_ptr<TriggerResultInserter> returnValue;
       try {
+#ifdef __APPLE__
+// libc++ for Apple Clang does not allow make_shared for a class with a non standard destructor
+        maker::ModuleHolderT<TriggerResultInserter> holder(std::shared_ptr<TriggerResultInserter>(new TriggerResultInserter(*trig_pset, iPrealloc.numberOfStreams())),static_cast<Maker const*>(nullptr));
+#else
         maker::ModuleHolderT<TriggerResultInserter> holder(std::make_shared<TriggerResultInserter>(*trig_pset, iPrealloc.numberOfStreams()),static_cast<Maker const*>(nullptr));
+#endif
         holder.setModuleDescription(md);
         holder.registerProductsAndCallbacks(&preg);
         returnValue =holder.module();
@@ -132,8 +137,14 @@ namespace edm {
         bool postCalled = false;
 
         try {
+#ifdef __APPLE__
+// libc++ for Apple Clang does not allow make_shared for a class with a non standard destructor
+          maker::ModuleHolderT<T> holder(std::shared_ptr<T>(new T(iPrealloc.numberOfStreams())),
+                                         static_cast<Maker const*>(nullptr));
+#else
           maker::ModuleHolderT<T> holder(std::make_shared<T>(iPrealloc.numberOfStreams()),
                                          static_cast<Maker const*>(nullptr));
+#endif
           holder.setModuleDescription(md);
           holder.registerProductsAndCallbacks(&preg);
           pathStatusInserters.emplace_back(holder.module());
@@ -473,6 +484,20 @@ namespace edm {
     assert(0<prealloc.numberOfStreams());
     streamSchedules_.reserve(prealloc.numberOfStreams());
     for(unsigned int i=0; i<prealloc.numberOfStreams();++i) {
+#ifdef __APPLE__
+// libc++ for Apple Clang does not allow make_shared for a class with a non standard destructor
+      streamSchedules_.emplace_back(std::shared_ptr<StreamSchedule>( new StreamSchedule(
+        resultsInserter(),
+        pathStatusInserters_,
+        endPathStatusInserters_,
+        moduleRegistry(),
+        proc_pset,tns,prealloc,preg,
+        branchIDListHelper,actions,
+        areg,processConfiguration,
+        !hasSubprocesses,
+        StreamID{i},
+        processContext)));
+#else
       streamSchedules_.emplace_back(std::make_shared<StreamSchedule>(
         resultsInserter(),
         pathStatusInserters_,
@@ -484,6 +509,7 @@ namespace edm {
         !hasSubprocesses,
         StreamID{i},
         processContext));
+#endif
     }
 
     //TriggerResults are injected automatically by StreamSchedules and are
