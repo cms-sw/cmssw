@@ -51,22 +51,22 @@ def applyDeepBtagging( process, postfix="" ) :
         addToProcessAndTask('slimmedJetsAK8NoDeepTags', process.slimmedJetsAK8.clone(), process, task)
         updateJetCollection(
            process,
-           jetSource=cms.InputTag('slimmedJetsAK8NoDeepTags'),
+           jetSource = cms.InputTag('slimmedJetsAK8NoDeepTags'),
            # updateJetCollection defaults to MiniAOD inputs but
            # here it is made explicit (as in training or MINIAOD redoing)
-           pvSource=cms.InputTag('offlineSlimmedPrimaryVertices'),
-           pfCandidates=cms.InputTag('packedPFCandidates'),
-           svSource=cms.InputTag('slimmedSecondaryVertices'),
-           muSource=cms.InputTag('slimmedMuons'),
-           elSource=cms.InputTag('slimmedElectrons'),
-           rParam=0.8,
-           jetCorrections=('AK8PFPuppi', cms.vstring(['L2Relative', 'L3Absolute']), 'None'),
-           btagDiscriminators=[
+           pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+           pfCandidates = cms.InputTag('packedPFCandidates'),
+           svSource = cms.InputTag('slimmedSecondaryVertices'),
+           muSource = cms.InputTag('slimmedMuons'),
+           elSource = cms.InputTag('slimmedElectrons'),
+           rParam = 0.8,
+           jetCorrections = ('AK8PFPuppi', cms.vstring(['L2Relative', 'L3Absolute']), 'None'),
+           btagDiscriminators = [
               'pfDeepDoubleBJetTags:probQ',
               'pfDeepDoubleBJetTags:probH',
               ] + pfDeepBoostedJetTagsAll,
-           postfix='SlimmedAK8DeepTags' + postfix,
-           printWarning=False
+           postfix = 'SlimmedAK8DeepTags' + postfix,
+           printWarning = False
         )
 
         # slimmedJetsAK8 with DeepTags (remove DeepTags-less)
