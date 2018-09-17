@@ -55,7 +55,7 @@ void dqmBmtfAlgoSelector::L1TBMTFAlgoSelector::produce(edm::Event & eve, const e
 
   edm::LogInfo("L1TDQM") << "AMC13-packet-payload size = " << packet.payload().size();
   unsigned algo_ver;
-  if (packet.payload().size() > 0) {
+  if (!packet.payload().empty()) {
     auto payload64 = ( packet.payload().at(0) ).data();
     const uint32_t *start = (const uint32_t*) payload64.get();
     const uint32_t *end = start + (packet.payload().at(0).size() * 2);
