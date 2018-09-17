@@ -10,7 +10,7 @@ using std::dec;
 typedef std::vector<l1t::L1PFTau> L1PFTauCollection;
 
 // default constructor
-l1t::L1PFTau::L1PFTau() : m_data(0), m_tauType(12), m_relativeIsolation(100){ }
+l1t::L1PFTau::L1PFTau() : m_data(0), m_relativeIsolation(100), m_tauType(12){ }
 
 
 // destructor

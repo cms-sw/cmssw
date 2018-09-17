@@ -70,7 +70,7 @@ namespace l1t {
     float rawIso() const{return m_rawIsolation;}
     float chargedIso() const{return m_chargedIsolation;}
     float neutralIso() const{return m_neutralIsolation;}
-    int tauType()const{return m_tauType;}
+    short int tauType()const{return m_tauType;}
 
     //void setp4(LorentzVector input) {m_p4 = input;};
     //void setPtEtaPhiE(float pt, float eta, float phi, float et){m_p4.SetPtEtaPhiE(pt,eta,phi,et);};
@@ -80,7 +80,7 @@ namespace l1t {
     void setTrackRef(TTTrack< Ref_Phase2TrackerDigi_ > trackRef){m_trackRef = trackRef;};
     void setRelIso(float inputIso){m_relativeIsolation = inputIso;};
 
-    void setTauType(float input){ m_tauType = input;};
+    void setTauType(short int input){ m_tauType = input;};
     void setRawIso(float inputIso){m_rawIsolation = inputIso;};
     void setChargedIso(float inputIso){m_chargedIsolation = inputIso;};
     void setNeutralIso(float inputIso){m_neutralIsolation = inputIso;};
@@ -123,7 +123,7 @@ namespace l1t {
     unsigned m_EoH;
     unsigned m_HoE;
 
-    unsigned m_tauType;
+    short int m_tauType;
     float m_rawIsolation;
     float m_chargedIsolation;
     float m_neutralIsolation;
