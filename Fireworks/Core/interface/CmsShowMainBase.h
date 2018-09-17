@@ -149,18 +149,18 @@ protected:
 private:
    // The base class is responsible for the destruction of fwlite / FF
    // agnostic managers.
-   std::auto_ptr<FWModelChangeManager>   m_changeManager;
-   std::auto_ptr<FWColorManager>         m_colorManager;
-   std::auto_ptr<FWConfigurationManager> m_configurationManager;
-   std::auto_ptr<FWEventItemsManager>    m_eiManager;
-   std::auto_ptr<FWGUIManager>           m_guiManager;
-   std::auto_ptr<FWSelectionManager>     m_selectionManager;
-   std::auto_ptr<CmsShowTaskExecutor>    m_startupTasks;
-   std::auto_ptr<FWViewManagerManager>   m_viewManager;
+   std::unique_ptr<FWModelChangeManager>   m_changeManager;
+   std::unique_ptr<FWColorManager>         m_colorManager;
+   std::unique_ptr<FWConfigurationManager> m_configurationManager;
+   std::unique_ptr<FWEventItemsManager>    m_eiManager;
+   std::unique_ptr<FWGUIManager>           m_guiManager;
+   std::unique_ptr<FWSelectionManager>     m_selectionManager;
+   std::unique_ptr<CmsShowTaskExecutor>    m_startupTasks;
+   std::unique_ptr<FWViewManagerManager>   m_viewManager;
 
   
 
-   std::auto_ptr<SignalTimer>                 m_autoLoadTimer;
+   std::unique_ptr<SignalTimer>                 m_autoLoadTimer;
    
    // These are actually set by the concrete implementation via the setup 
    // method.
