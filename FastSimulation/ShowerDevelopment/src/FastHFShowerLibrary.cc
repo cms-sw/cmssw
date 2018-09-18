@@ -123,6 +123,7 @@ void FastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack) {
       int lay = 1;
       uint32_t id = 0;
       HcalNumberingFromDDD::HcalID tmp = numberingFromDDD->unitID(det, pos, depth, lay);
+      modifyDepth(tmp);
       id = numberingScheme.getUnitID(tmp);
 
       CaloHitID current_id(id,time,myTrack.id());
@@ -138,16 +139,12 @@ void FastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack) {
 
 }
 
-void FastHFShowerLibrary::modifyDepth(uint32_t &id) {
-
-  HcalDetId hid(id);
-  if (hid.subdet() == HcalForward) {
-    int eta = hid.ieta();
-    int phi = hid.iphi();
-    if (hcalConstants->maxHFDepth(eta,phi) > 2) {
-      if (hid.depth() <= 2) {
-	int dep = (G4UniformRand() > 0.5) ? (2+hid.depth()) : hid.depth();
-	id = HcalDetId(HcalForward,eta,phi,dep).rawId();
+void FastHFShowerLibrary::modifyDepth(HcalNumberingFromDDD::HcalID& id) {
+  if (id.subdet == HcalForward) {
+    int ieta = (id.zside == 0) ? -id.etaR : id.etaR;
+    if (hcalConstants->maxHFDepth(ieta,id.phis) > 2) {
+      if (id.depth <= 2) {
+        if (G4UniformRand() > 0.5) id.depth += 2;
       }
     }
   }
