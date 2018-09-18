@@ -6,46 +6,59 @@ import FWCore.ParameterSet.Config as cms
 # tracker-driven electron seeds, KF track candidates, GSF tracks.
 #==============================================================================
 
-# Imports
-from RecoParticleFlow.PFTracking.trackerDrivenElectronSeeds_cfi import *
-from TrackingTools.GsfTracking.CkfElectronCandidateMaker_cff import *
-from TrackingTools.GsfTracking.GsfElectronGsfFit_cff import * 
-from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronCores_cfi import *
-from RecoEgamma.EgammaElectronProducers.lowPtGsfElectrons_cfi import *
-
 # Tracker-driven seeds
+from RecoParticleFlow.PFTracking.trackerDrivenElectronSeeds_cfi import *
 trackerDrivenElectronSeedsOpen = trackerDrivenElectronSeeds.copy()
 trackerDrivenElectronSeedsOpen.PassThrough = True
 trackerDrivenElectronSeedsOpen.PtThresholdSavePreId = 0.
 trackerDrivenElectronSeedsOpen.MinPt = 0.5
 
-# Trajectories for KF track candidates
-TrajectoryFilterForElectronsOpen = TrajectoryFilterForElectrons.copy()
-TrajectoryFilterForElectronsOpen.minPt = 0.5
-
 # Electron (KF) track candidates
+from TrackingTools.GsfTracking.CkfElectronCandidateMaker_cff import *
 TrajectoryFilterForElectronsOpen = TrajectoryFilterForElectrons.clone()
 TrajectoryFilterForElectronsOpen.minPt = 0.5
 TrajectoryBuilderForElectronsOpen = TrajectoryBuilderForElectrons.clone()
-TrajectoryBuilderForElectronsOpen.trajectoryFilter.refToPSet_ = 'TrajectoryFilterForElectronsOpen'
+TrajectoryBuilderForElectronsOpen.trajectoryFilter.refToPSet_ = "TrajectoryFilterForElectronsOpen"
 electronCkfTrackCandidatesOpen = electronCkfTrackCandidates.copy()
-electronCkfTrackCandidatesOpen.TrajectoryBuilderPSet.refToPSet_ = 'TrajectoryBuilderForElectronsOpen'
-electronCkfTrackCandidatesOpen.src = cms.InputTag('trackerDrivenElectronSeedsOpen','SeedsForGsf')
+electronCkfTrackCandidatesOpen.TrajectoryBuilderPSet.refToPSet_ = "TrajectoryBuilderForElectronsOpen"
+electronCkfTrackCandidatesOpen.src = cms.InputTag("trackerDrivenElectronSeedsOpen","SeedsForGsf")
 
 # GSF tracks
+from TrackingTools.GsfTracking.GsfElectronGsfFit_cff import * 
 electronGsfTracksOpen = electronGsfTracks.copy()
-electronGsfTracksOpen.src = 'electronCkfTrackCandidatesOpen'
+electronGsfTracksOpen.src = "electronCkfTrackCandidatesOpen"
+
+# PFTracks
+from RecoParticleFlow.PFTracking.pfTrack_cfi import *
+pfTrackOpen = pfTrack.copy()
+pfTrackOpen.GsfTrackModuleLabel = "electronGsfTracksOpen"
+
+# PFGSFTracks
+from RecoParticleFlow.PFTracking.pfTrackElec_cfi import *
+pfTrackElecOpen = pfTrackElec.copy()
+pfTrackElecOpen.applyGsfTrackCleaning = False
+pfTrackElecOpen.GsfTrackModuleLabel = "electronGsfTracksOpen"
+pfTrackElecOpen.PFRecTrackLabel = "pfTrackOpen"
+#pfTrackElecOpen.PFEcalClusters  = "particleFlowClusterECAL"
+
+# Low pT electron cores
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronCores_cfi import *
+lowPtGsfElectronCores.gsfPfRecTracks = "pfTrackElecOpen"
+lowPtGsfElectronCores.gsfTracks = "electronGsfTracksOpen"
+lowPtGsfElectronCores.useGsfPfRecTracks = True
 
 # Low pT electrons
-lowPtGsfElectronCoresOpen = lowPtGsfElectronCores.copy()
-lowPtGsfElectronCoresOpen.gsfTracks = "electronGsfTracksOpen"
-lowPtGsfElectronsOpen = lowPtGsfElectrons.copy()
-lowPtGsfElectronsOpen.gsfElectronCoresTag = "lowPtGsfElectronCoresOpen"
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectrons_cfi import *
+lowPtGsfElectrons.gsfElectronCoresTag = "lowPtGsfElectronCores"
+lowPtGsfElectrons.seedsTag = "trackerDrivenElectronSeedsOpen:SeedsForGsf"
+lowPtGsfElectrons.gsfPfRecTracksTag = "pfTrackElecOpen"
 
 # Full Open sequence 
 lowPtGsfElectronSequence = cms.Sequence(trackerDrivenElectronSeedsOpen+
                                         electronCkfTrackCandidatesOpen+
                                         electronGsfTracksOpen+
-                                        lowPtGsfElectronCoresOpen+
-                                        lowPtGsfElectronsOpen
+                                        pfTrackOpen+
+                                        pfTrackElecOpen+
+                                        lowPtGsfElectronCores+
+                                        lowPtGsfElectrons
                                         )
