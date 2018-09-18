@@ -67,7 +67,12 @@ void DDGEMAngular::execute(DDCompactView& cpv) {
 
   for (int ii=0; ii<n; ii++) {
 
-    double phitmp = phi;
+    double phitmp = CONVERT_TO( phi, deg );
+    int factor = 1;
+    if (phitmp < 0.0) factor = -1;
+    // Round angle to nearest degree
+    phitmp = (double) factor * int(std::abs(phitmp) + 0.1);
+    phitmp *= _pi / 180.0;
     if (phitmp >= 2._pi) phitmp -= 2._pi;
     DDRotation rotation;
     std::string rotstr("RG");
