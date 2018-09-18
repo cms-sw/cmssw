@@ -717,8 +717,7 @@ void testEventsetup::introspectionTest()
     eventSetup.fillAvailableRecordKeys(recordKeys);
     CPPUNIT_ASSERT(1==recordKeys.size());
     auto record = eventSetup.find(recordKeys[0]);
-    CPPUNIT_ASSERT(0!=record);
-    
+    CPPUNIT_ASSERT(record.has_value());
   } catch (const cms::Exception& iException) {
     std::cout <<"caught "<<iException.explainSelf()<<std::endl;
     throw;

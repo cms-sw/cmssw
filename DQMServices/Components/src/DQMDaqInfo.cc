@@ -11,7 +11,7 @@ void DQMDaqInfo::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, con
   
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
   
-  if( nullptr != iSetup.find( recordKey ) ) {
+  if( std::nullopt != iSetup.find( recordKey ) ) {
     
     edm::ESHandle<RunInfo> sumFED;
     iSetup.get<RunInfoRcd>().get(sumFED);    
@@ -155,4 +155,3 @@ DQMDaqInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
  
 
 }
-

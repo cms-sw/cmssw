@@ -197,7 +197,7 @@ private:
          if(not pRecord) {
            edm::LogWarning("RecordNotInIOV") <<"The EventSetup Record '"<<itRecord->first.name()<<"' is not available for this IOV.";
          }
-         if(nullptr != pRecord && pRecord->cacheIdentifier() != recordToCacheIdentifier_[itRecord->first]) {
+         if(pRecord.has_value() && pRecord->cacheIdentifier() != recordToCacheIdentifier_[itRecord->first]) {
             recordToCacheIdentifier_[itRecord->first] = pRecord->cacheIdentifier();
             typedef std::vector<DataKey> Keys;
             Keys const& keys = itRecord->second;
