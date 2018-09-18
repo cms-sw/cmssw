@@ -12,6 +12,10 @@ gsfEcalDrivenElectronSequence = cms.Sequence(ecalDrivenGsfElectronCores*ecalDriv
 _gsfEcalDrivenElectronSequenceFromMultiCl = gsfEcalDrivenElectronSequence.copy()
 _gsfEcalDrivenElectronSequenceFromMultiCl += cms.Sequence(ecalDrivenGsfElectronCoresFromMultiCl*ecalDrivenGsfElectronsFromMultiCl)
 
+# Low Pt Electrons
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronSequence_cff import *
+gsfEcalDrivenElectronSequence *= lowPtGsfElectronSequence
+
 #gsfElectronMergingSequence = cms.Sequence(gsfElectronCores*gsfElectrons)
 
 from RecoEgamma.EgammaElectronProducers.edBasedElectronIso_cff import *
