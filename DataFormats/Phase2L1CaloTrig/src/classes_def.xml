@@ -1,5 +1,5 @@
 <!-- *********************************** -->
-<!--Stacked Tracker Simulations          -->
+<!-- Phase-2 Calo data dictionaries      -->
 <!-- *********************************** -->
 
 <lcgdict>
@@ -9,5 +9,9 @@
   <class name="l1slhc::L1EGCrystalClusterCollection" />
   <class name="edm::Wrapper<l1slhc::L1EGCrystalClusterCollection>" />
 
+  <class name="L1CaloTower" />
+  <class name="std::vector<L1CaloTower>" />
+  <class name="L1CaloTowerCollection" />
+  <class name="edm::Wrapper<L1CaloTowerCollection>" />
 </lcgdict>
 
