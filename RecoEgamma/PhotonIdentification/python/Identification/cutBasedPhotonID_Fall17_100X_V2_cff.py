@@ -25,28 +25,28 @@ from RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_tools \
 idName = "cutBasedPhotonID-Fall17-100X-V2-loose"
 WP_Loose_EB = WorkingPoint_V2(
     idName    ,  # idName
-    0.0313    ,  # hOverECut
-    0.0108   ,  # full5x5_SigmaIEtaIEtaCut
+    0.04596    ,  # hOverECut
+    0.0106   ,  # full5x5_SigmaIEtaIEtaCut
 # Isolation cuts are generally absIso < C1 + pt*C2, except for NeuHad is < C1 + pt*C2 + pt*pt*C3
-    1.272     ,  # absPFChaHadIsoWithEACut_C1
+    1.694     ,  # absPFChaHadIsoWithEACut_C1
     0         ,  # absPFChaHadIsoWithEACut_C2
-    8.3828    ,  # absPFNeuHadIsoWithEACut_C1
+    24.032    ,  # absPFNeuHadIsoWithEACut_C1
     0.01512   ,  # absPFNeuHadIsoWithEACut_C2
     0.00002259 ,  # absPFNeuHadIsoWithEACut_C3
-    4.2891     ,  # absPFPhoIsoWithEACut_C1
+    2.876      ,  # absPFPhoIsoWithEACut_C1
     0.004017      # absPFPhoIsoWithEACut_C2
     )
 WP_Loose_EE = WorkingPoint_V2(
     idName    ,  #idName
-    0.0431    ,  # hOverECut
-    0.0281   ,  # full5x5_SigmaIEtaIEtaCut
+    0.0590    ,  # hOverECut
+    0.0272   ,  # full5x5_SigmaIEtaIEtaCut
 # Isolation cuts are generally absIso < C1 + pt*C2, except for NeuHad is < C1 + pt*C2 + pt*pt*C3
-    1.4449    ,  # absPFChaHadIsoWithEACut_C1
+    2.089    ,  # absPFChaHadIsoWithEACut_C1
     0.00      ,  # absPFChaHadIsoWithEACut_C2
-    13.6894   ,  # absPFNeuHadIsoWithEACut_C1
+    19.722   ,  # absPFNeuHadIsoWithEACut_C1
     0.0117    ,  # absPFNeuHadIsoWithEACut_C2
     0.000023  ,  # absPFNeuHadIsoWithEACut_C3
-    4.2969     ,  # absPFPhoIsoWithEACut_C1
+    4.162     ,  # absPFPhoIsoWithEACut_C1
     0.0037       # absPFPhoIsoWithEACut_C2
     )
 
@@ -54,29 +54,29 @@ WP_Loose_EE = WorkingPoint_V2(
 idName = "cutBasedPhotonID-Fall17-100X-V2-medium"
 WP_Medium_EB = WorkingPoint_V2(
     idName    ,  # idName
-    0.02      ,  # hOverECut
-    0.01      ,  # full5x5_SigmaIEtaIEtaCut
+    0.02197      ,  # hOverECut
+    0.01015      ,  # full5x5_SigmaIEtaIEtaCut
 # Isolation cuts are generally absIso < C1 + pt*C2, except for NeuHad is < C1 + pt*C2 + pt*pt*C3
-    0.6127    ,  # absPFChaHadIsoWithEACut_C1
+    1.141    ,  # absPFChaHadIsoWithEACut_C1
     0.00      ,  # absPFChaHadIsoWithEACut_C2
-    3.6265    ,  # absPFNeuHadIsoWithEACut_C1
+    1.189    ,  # absPFNeuHadIsoWithEACut_C1
     0.01512   ,  # absPFNeuHadIsoWithEACut_C2
     0.00002259 ,  # absPFNeuHadIsowithEACut_C3 
-    2.3692     ,  # absPFPhoIsoWithEACut_C1
+    2.08     ,  # absPFPhoIsoWithEACut_C1
     0.004017      # absPFPhoIsoWithEACut_C2
     )
 
 WP_Medium_EE = WorkingPoint_V2(
     idName    ,  #idName
-    0.0248    ,  # hOverECut
-    0.0271    ,  # full5x5_SigmaIEtaIEtaCut
+    0.0326    ,  # hOverECut
+    0.0272    ,  # full5x5_SigmaIEtaIEtaCut
 # Isolation cuts are generally absIso < C1 + pt*C2, except for NeuHad is < C1 + pt*C2 + pt*pt*C3
-    0.7981    ,  # absPFChaHadIsoWithEACut_C1
+    1.051    ,  # absPFChaHadIsoWithEACut_C1
     0.00      ,  # absPFChaHadIsoWithEACut_C2
-    2.3737    ,  # absPFNeuHadIsoWithEACut_C1
+    2.718    ,  # absPFNeuHadIsoWithEACut_C1
     0.0117    ,  # absPFNeuHadIsoWithEACut_C2
     0.000023  ,  # absPFNeuHadIsowithEACut_C3 
-    3.1760    ,  # absPFPhoIsoWithEACut_C1
+    3.867    ,  # absPFPhoIsoWithEACut_C1
     0.0037       # absPFPhoIsoWithEACut_C2
     )
 
@@ -84,29 +84,29 @@ WP_Medium_EE = WorkingPoint_V2(
 idName = "cutBasedPhotonID-Fall17-100X-V2-tight"
 WP_Tight_EB = WorkingPoint_V2(
     idName    ,  # idName
-    0.02      ,  # hOverECut
-    0.01      ,  # full5x5_SigmaIEtaIEtaCut
+    0.02148      ,  # hOverECut
+    0.00996      ,  # full5x5_SigmaIEtaIEtaCut
 # Isolation cuts are generally absIso < C1 + pt*C2, except for NeuHad is < C1 + pt*C2 + pt*pt*C3
-    0.0939    ,  # absPFChaHadIsoWithEACut_C1
+    0.65    ,  # absPFChaHadIsoWithEACut_C1
     0.00      ,  # absPFChaHadIsoWithEACut_C2
-    3.6195     ,  # absPFNeuHadIsoWithEACut_C1
+    0.317     ,  # absPFNeuHadIsoWithEACut_C1
     0.01512    ,  # absPFNeuHadIsoWithEACut_C2
     0.00002259 ,  # absPFNeuHadIsowithEACut_C3
-    2.0018     ,  # absPFPhoIsoWithEACut_C1
+    2.044     ,  # absPFPhoIsoWithEACut_C1
     0.004017      # absPFPhoIsoWithEACut_C2
     )
 
 WP_Tight_EE = WorkingPoint_V2(
     idName    ,  #idName
-    0.0219    ,  # hOverECut
-    0.0268   ,  # full5x5_SigmaIEtaIEtaCut
+    0.0321    ,  # hOverECut
+    0.0271   ,  # full5x5_SigmaIEtaIEtaCut
 # Isolation cuts are generally absIso < C1 + pt*C2, except for NeuHad is < C1 + pt*C2 + pt*pt*C3
-    0.2629    ,  # absPFChaHadIsoWithEACut_C1
+    0.517    ,  # absPFChaHadIsoWithEACut_C1
     0.00      ,  # absPFChaHadIsoWithEACut_C2
-    2.1436    ,  # absPFNeuHadIsoWithEACut_C1
+    2.716    ,  # absPFNeuHadIsoWithEACut_C1
     0.0117    ,  # absPFNeuHadIsoWithEACut_C2
     0.000023  ,  # absPFNeuHadIsowithEACut_C3    
-    3.0133     ,  # absPFPhoIsoWithEACut_C1
+    3.032     ,  # absPFPhoIsoWithEACut_C1
     0.0037       # absPFPhoIsoWithEACut_C2
     )
 
