@@ -84,12 +84,12 @@ EventSetup::add(const eventsetup::EventSetupRecordImpl& iRecord)
 //
 // const member functions
 //
-boost::optional<eventsetup::EventSetupRecordGeneric>
+std::optional<eventsetup::EventSetupRecordGeneric>
 EventSetup::find(const eventsetup::EventSetupRecordKey& iKey) const
 {
    auto itFind = recordMap_.find(iKey);
    if(itFind == recordMap_.end()) {
-      return boost::none;
+     return std::nullopt;
    }
   return eventsetup::EventSetupRecordGeneric(itFind->second);
 }

@@ -21,11 +21,10 @@
 // system include files
 #include <cassert>
 #include <map>
+#include <optional>
 #include <string>
 #include <type_traits>
 #include <vector>
-
-#include <boost/optional.hpp>
 
 // user include files
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -78,7 +77,7 @@ namespace edm {
       /** returns the Record of type T.  If no such record available
        a null pointer is returned */
       template< typename T>
-        boost::optional<T> tryToGet() const {
+        std::optional<T> tryToGet() const {
            using namespace eventsetup;
            using namespace eventsetup::heterocontainer;
 
@@ -90,7 +89,7 @@ namespace edm {
               rec.setImpl(temp);
               return rec;
            }
-           return boost::none;
+           return std::nullopt;
         }
 
       /** can directly access data if data_default_record_trait<> is defined for this data type **/
@@ -116,8 +115,8 @@ namespace edm {
            const RecordT& rec = this->get<RecordT>();
            rec.get(iTag,iHolder);
         }
-   
-      boost::optional<eventsetup::EventSetupRecordGeneric> find(const eventsetup::EventSetupRecordKey&) const;
+
+      std::optional<eventsetup::EventSetupRecordGeneric> find(const eventsetup::EventSetupRecordKey&) const;
 
       ///clears the oToFill vector and then fills it with the keys for all available records
       void fillAvailableRecordKeys(std::vector<eventsetup::EventSetupRecordKey>& oToFill) const;

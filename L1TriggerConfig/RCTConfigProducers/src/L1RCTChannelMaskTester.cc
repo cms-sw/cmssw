@@ -63,7 +63,7 @@ void L1RCTChannelMaskTester::analyze(const edm::Event& iEvent,
             edm::eventsetup::EventSetupRecordKey::TypeTag::findType(
                     "L1RCTNoisyChannelMaskRcd"));
 
-    if (evSetup.find(recordKey) == nullptr) {
+    if (evSetup.find(recordKey) == std::nullopt) {
         //record not found
         std::cout << "\nRecord \"" << "L1RCTNoisyChannelMaskRcd"
                 << "\" does not exist.\n" << std::endl;
