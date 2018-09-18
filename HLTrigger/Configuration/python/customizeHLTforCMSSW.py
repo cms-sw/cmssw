@@ -186,7 +186,31 @@ def customiseForEcalTestPR22254thresholdC(process):
     return process
 
 
+def customiseFor24212(process):
+    for pfName in "hltParticleFlow", "hltParticleFlowForTaus", "hltParticleFlowReg":
+        pf = getattr(process,pfName,None)
+        if pf: # Treatment of tracks in region of bad HCal
+            pf.goodTrackDeadHcal_ptErrRel = cms.double(0.2) # trackRef->ptError()/trackRef->pt() < X
+            pf.goodTrackDeadHcal_chi2n = cms.double(5)      # trackRef->normalizedChi2() < X
+            pf.goodTrackDeadHcal_layers = cms.uint32(4)     # trackRef->hitPattern().trackerLayersWithMeasurement() >= X
+            pf.goodTrackDeadHcal_validFr = cms.double(0.5)  # trackRef->validFraction() > X
+            pf.goodTrackDeadHcal_dxy = cms.double(0.5)      # [cm] abs(trackRef->dxy(primaryVertex_.position())) < X
+            pf.goodPixelTrackDeadHcal_minEta = cms.double(2.3)   # abs(trackRef->eta()) > X
+            pf.goodPixelTrackDeadHcal_maxPt  = cms.double(50.)   # trackRef->ptError()/trackRef->pt() < X
+            pf.goodPixelTrackDeadHcal_ptErrRel = cms.double(1.0) # trackRef->ptError()/trackRef->pt() < X
+            pf.goodPixelTrackDeadHcal_chi2n = cms.double(2)      # trackRef->normalizedChi2() < X
+            pf.goodPixelTrackDeadHcal_maxLost3Hit = cms.int32(0) # max missing outer hits for a track with 3 valid pixel layers (can set to -1 to reject all these tracks)
+            pf.goodPixelTrackDeadHcal_maxLost4Hit = cms.int32(1) # max missing outer hits for a track with >= 4 valid pixel layers
+            pf.goodPixelTrackDeadHcal_dxy = cms.double(0.02)     # [cm] abs(trackRef->dxy(primaryVertex_.position())) < X
+            pf.goodPixelTrackDeadHcal_dz  = cms.double(0.05)     # [cm] abs(trackRef->dz(primaryVertex_.position())) < X
+    return process
 
+###For parameter changes in SiStripClusterizerFromRaw for PbPb 2018 data-taking
+def customiseForPR24339HybridFormatSiStripZS(process):
+    for producer in producers_by_type(process, "SiStripClusterizerFromRaw"): 
+        producer.Algorithms.Use10bitsTruncation  = cms.bool( False )
+        producer.HybridZeroSuppressed = cms.bool( False )
+    return process  
 
 
 # CMSSW version specific customizations
@@ -194,5 +218,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
+    process = customiseFor24212(process)
 
+    process = customiseForPR24339HybridFormatSiStripZS(process)
     return process

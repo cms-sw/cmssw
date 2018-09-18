@@ -81,6 +81,7 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo()
    theHcalAcceptSeverityLevelForRejectedHit(0),
    useRejectedRecoveredHcalHits(0),
    useRejectedRecoveredEcalHits(0),
+   missingHcalRescaleFactorForEcal(0.),
    theHOIsUsed(true),
    // (for momentum reconstruction algorithm)
    theMomConstrMethod(0),
@@ -187,6 +188,7 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
     theHcalAcceptSeverityLevelForRejectedHit(0),
     useRejectedRecoveredHcalHits(0),
     useRejectedRecoveredEcalHits(0),
+    missingHcalRescaleFactorForEcal(0.),
     theHOIsUsed(useHO),
     // (momentum reconstruction algorithm)
     theMomConstrMethod(momConstrMethod),
@@ -300,6 +302,7 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
     theHcalAcceptSeverityLevelForRejectedHit(0),
     useRejectedRecoveredHcalHits(0),
     useRejectedRecoveredEcalHits(0),
+    missingHcalRescaleFactorForEcal(0.),
     theHOIsUsed(useHO),
     // (momentum reconstruction algorithm)
     theMomConstrMethod(momConstrMethod),
@@ -939,6 +942,14 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
 
     if(metaContains.empty()) return;
 
+    if (missingHcalRescaleFactorForEcal > 0 && E_had == 0 && E_em > 0) {
+        auto match = hcalDropChMap.find(id);
+        if (match != hcalDropChMap.end() && match->second.second) {
+            E_had = missingHcalRescaleFactorForEcal * E_em;
+            E += E_had;
+        }
+    }
+
     double E_had_tot = (theHOIsUsed && id.ietaAbs()<=theTowerTopology->lastHORing())? E_had+E_outer : E_had;
 
 
@@ -1107,7 +1118,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
 
     // now add dead/off/... channels not used in RecHit reconstruction for HCAL 
     HcalDropChMap::iterator dropChItr = hcalDropChMap.find(id);
-    if (dropChItr != hcalDropChMap.end()) numBadHcalChan += dropChItr->second;
+    if (dropChItr != hcalDropChMap.end()) numBadHcalChan += dropChItr->second.first;
     
 
     // for ECAL the number of all bad channels is obtained here -----------------------
@@ -1618,7 +1629,7 @@ void CaloTowersCreationAlgo::makeHcalDropChMap() {
       
       CaloTowerDetId twrId = theTowerConstituentsMap->towerOf(id);
       
-      hcalDropChMap[twrId] +=1;
+      hcalDropChMap[twrId].first +=1;
       
       HcalDetId hid(*it);
 	  
@@ -1629,11 +1640,34 @@ void CaloTowersCreationAlgo::makeHcalDropChMap() {
 	bool merge = theHcalTopology->mergedDepth29(hid);
 	if (merge) {
           CaloTowerDetId twrId29(twrId.ieta()+twrId.zside(), twrId.iphi());
-          hcalDropChMap[twrId29] +=1;
+          hcalDropChMap[twrId29].first +=1;
 	}
       }
     }
-
+  }
+  // now I know how many bad channels, but I also need to know if there's any good ones
+  if (missingHcalRescaleFactorForEcal > 0) {
+      for (auto & pair : hcalDropChMap) {
+          if (pair.second.first == 0) continue; // unexpected, but just in case
+          int ngood = 0, nbad = 0;
+          for (DetId id : theTowerConstituentsMap->constituentsOf(pair.first)) {
+              if (id.det() != DetId::Hcal) continue;
+              HcalDetId hid(id);
+              if (hid.subdet() != HcalBarrel && hid.subdet() != HcalEndcap) continue;
+              const uint32_t dbStatusFlag = theHcalChStatus->getValues(id)->getValue();
+              if (dbStatusFlag == 0 || ! theHcalSevLvlComputer->dropChannel(dbStatusFlag)) {
+                  ngood += 1;
+              } else {
+                  nbad += 1; // recount, since pair.second.first may include HO
+              }
+          }
+          if (nbad > 0 && nbad >= ngood) {
+              //uncomment for debug (may be useful to tune the criteria above)
+              //CaloTowerDetId id(pair.first);
+              //std::cout << "CaloTower at ieta = " << id.ieta() << ", iphi " << id.iphi() << ": set Hcal as not efficient (ngood =" << ngood << ", nbad = " << nbad << ")" << std::endl;
+              pair.second.second = true;
+          }
+      }
   }
 }
 

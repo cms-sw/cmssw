@@ -207,8 +207,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   double ph_MinEt(0.0), ph_combIso(0.0), ph_HoE(0.0), 
     ph_sietaieta_eb(0.0),ph_sietaieta_ee(0.0);
   string ele_iso_mvaWeightFile(""), ele_iso_path_mvaWeightFile("");
-  edm::ParameterSet ele_protectionsForJetMET,ph_protectionsForJetMET;
-
+  edm::ParameterSet ele_protectionsForJetMET,ele_protectionsForBadHcal,ph_protectionsForJetMET,ph_protectionsForBadHcal;
  // Reading new EGamma ubiased collections and value maps
  if(use_EGammaFilters_) {
    ele_iso_mvaWeightFile = iConfig.getParameter<string>("isolatedElectronID_mvaWeightFile");
@@ -232,8 +231,12 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
      iConfig.getParameter<bool>("useProtectionsForJetMET");
    ele_protectionsForJetMET = 
      iConfig.getParameter<edm::ParameterSet>("electron_protectionsForJetMET");
+   ele_protectionsForBadHcal = 
+     iConfig.getParameter<edm::ParameterSet>("electron_protectionsForBadHcal");
    ph_protectionsForJetMET = 
      iConfig.getParameter<edm::ParameterSet>("photon_protectionsForJetMET");
+   ph_protectionsForBadHcal = 
+     iConfig.getParameter<edm::ParameterSet>("photon_protectionsForBadHcal");
  }
 
   //Secondary tracks and displaced vertices parameters
@@ -330,12 +333,14 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 				ele_missinghits,
 				useProtectionsForJetMET,
 				ele_protectionsForJetMET,
+				ele_protectionsForBadHcal,
 				ph_MinEt,
 				ph_combIso,
 				ph_HoE,
 				ph_sietaieta_eb,
 				ph_sietaieta_ee,
-				ph_protectionsForJetMET);
+				ph_protectionsForJetMET,
+				ph_protectionsForBadHcal);
 
   //Secondary tracks and displaced vertices parameters
   
@@ -353,6 +358,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 
   // Set muon and fake track parameters
   pfAlgo_->setPFMuonAndFakeParameters(iConfig);
+  pfAlgo_->setBadHcalTrackParams(iConfig);
   
   //Post cleaning of the HF
   postHFCleaning_

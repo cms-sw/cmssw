@@ -414,6 +414,14 @@ LongDCAMax = cms.double(8.0),
 )
 
 # Overcoming the 255 arguments limit
+# binning for 2D plots (identical to 1D, but in muon tracks)
+# track eta 2D histo
+TrackMon.Eta2DBin = cms.int32(26)
+# track phi 2D histo
+TrackMon.Phi2DBin = cms.int32(32)
+# track pt 2D histo
+TrackMon.TrackPt2DBin = cms.int32(100)
+
 # TrackingRegion monitoring
 TrackMon.PVBin = cms.int32 ( 40 )
 TrackMon.PVMin = cms.double( -0.5)

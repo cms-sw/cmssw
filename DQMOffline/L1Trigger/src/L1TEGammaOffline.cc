@@ -52,6 +52,7 @@ L1TEGammaOffline::L1TEGammaOffline(const edm::ParameterSet& ps) :
         photonEfficiencyBins_(ps.getParameter < std::vector<double> > ("photonEfficiencyBins")),
         maxDeltaRForL1Matching_(ps.getParameter <double> ("maxDeltaRForL1Matching")),
         maxDeltaRForHLTMatching_(ps.getParameter <double> ("maxDeltaRForHLTMatching")),
+        recoToL1TThresholdFactor_(ps.getParameter <double> ("recoToL1TThresholdFactor")),
         tagElectron_(),
         probeElectron_(),
         tagAndProbleInvariantMass_(-1.),
@@ -227,7 +228,6 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
       minDeltaR = currentDeltaR;
       closestL1EGamma = *egamma;
       foundMatch = true;
-      break;
     }
 
   }
@@ -258,24 +258,26 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
 
   // plots for deeper inspection
   for (auto threshold : deepInspectionElectronThresholds_) {
-    fillWithinLimits(h_efficiencyElectronEta_total_[threshold], recoEta);
-    fillWithinLimits(h_efficiencyElectronPhi_total_[threshold], recoPhi);
-    fillWithinLimits(h_efficiencyElectronNVertex_total_[threshold], nVertex);
-    if(recoEt > threshold){
-      fillWithinLimits(h_efficiencyElectronEta_pass_[threshold], recoEta);
-      fillWithinLimits(h_efficiencyElectronPhi_pass_[threshold], recoPhi);
-      fillWithinLimits(h_efficiencyElectronNVertex_pass_[threshold], nVertex);
+    if (recoEt > threshold * recoToL1TThresholdFactor_) {
+        fillWithinLimits(h_efficiencyElectronEta_total_[threshold], recoEta);
+        fillWithinLimits(h_efficiencyElectronPhi_total_[threshold], recoPhi);
+        fillWithinLimits(h_efficiencyElectronNVertex_total_[threshold], nVertex);
+        if (l1Et > threshold + probeToL1Offset_) {
+            fillWithinLimits(h_efficiencyElectronEta_pass_[threshold], recoEta);
+            fillWithinLimits(h_efficiencyElectronPhi_pass_[threshold], recoPhi);
+            fillWithinLimits(h_efficiencyElectronNVertex_pass_[threshold], nVertex);
+        }
     }
-  }
+}
 
   for (auto threshold : electronEfficiencyThresholds_) {
-    fill2DWithinLimits(h_efficiencyElectronPhi_vs_Eta_total_[threshold],
-      recoEta, recoPhi);
-    if(l1Et > threshold + probeToL1Offset_){
-      fill2DWithinLimits(h_efficiencyElectronPhi_vs_Eta_pass_[threshold],
-        recoEta, recoPhi);
+    if (recoEt > threshold * recoToL1TThresholdFactor_) {
+        fill2DWithinLimits(h_efficiencyElectronPhi_vs_Eta_total_[threshold], recoEta, recoPhi);
+        if (l1Et > threshold + probeToL1Offset_) {
+            fill2DWithinLimits(h_efficiencyElectronPhi_vs_Eta_pass_[threshold], recoEta, recoPhi);
+        }
     }
-  }
+}
 
   if (std::abs(recoEta) <= 1.479) { // barrel
     // et

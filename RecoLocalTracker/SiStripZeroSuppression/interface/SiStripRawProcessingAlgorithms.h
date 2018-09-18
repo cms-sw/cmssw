@@ -6,42 +6,58 @@
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripFedZeroSuppression.h"
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripAPVRestorer.h"
 
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 
-class SiStripRawProcessingAlgorithms {
+class SiStripRawProcessingAlgorithms
+{
   friend class SiStripRawProcessingFactory;
 
- public: 
+public:
+  using digivector_t = SiStripAPVRestorer::digivector_t;
+
   void initialize(const edm::EventSetup&);
   void initialize(const edm::EventSetup&, const edm::Event&);
-  int16_t SuppressVirginRawData(const uint32_t&, const uint16_t&, std::vector<int16_t>&, edm::DetSet<SiStripDigi>&);
-  int16_t SuppressVirginRawData(const edm::DetSet<SiStripRawDigi>&, edm::DetSet<SiStripDigi>& );
-  
-  int16_t SuppressProcessedRawData(const uint32_t&, const uint16_t&, std::vector<int16_t>&, edm::DetSet<SiStripDigi>&);
-  int16_t SuppressProcessedRawData(const edm::DetSet<SiStripRawDigi>&, edm::DetSet<SiStripDigi>&  );
 
-  inline std::vector<bool>& GetAPVFlags(){return restorer->GetAPVFlags();}
-  inline std::map<uint16_t, std::vector < int16_t> >& GetBaselineMap(){return restorer->GetBaselineMap();}
-  inline std::map< uint16_t, std::map< uint16_t, int16_t> >& GetSmoothedPoints(){return restorer->GetSmoothedPoints();}
-  inline const std::vector< std::pair<short,float> >& getAPVsCM(){return subtractorCMN->getAPVsCM();}
+  uint16_t suppressHybridData(const edm::DetSet<SiStripDigi>& inDigis, edm::DetSet<SiStripDigi>& suppressedDigis, digivector_t& rawDigis);
+  uint16_t suppressHybridData(uint32_t detId, uint16_t firstAPV, digivector_t& processedRawDigis, edm::DetSet<SiStripDigi>& suppressedDigis);
 
-  const std::auto_ptr<SiStripPedestalsSubtractor> subtractorPed;
-  const std::auto_ptr<SiStripCommonModeNoiseSubtractor> subtractorCMN;
-  const std::auto_ptr<SiStripFedZeroSuppression> suppressor;
-  const std::auto_ptr<SiStripAPVRestorer> restorer;
+  uint16_t suppressVirginRawData(uint32_t detId, uint16_t firstAPV, digivector_t& procRawDigis, edm::DetSet<SiStripDigi>& output);
+  uint16_t suppressVirginRawData(const edm::DetSet<SiStripRawDigi>& rawDigis, edm::DetSet<SiStripDigi>& output);
+
+  uint16_t suppressProcessedRawData(uint32_t detId, uint16_t firstAPV, digivector_t& procRawDigis, edm::DetSet<SiStripDigi>& output);
+  uint16_t suppressProcessedRawData(const edm::DetSet<SiStripRawDigi>& rawDigis, edm::DetSet<SiStripDigi>& output);
+
+
+  uint16_t convertVirginRawToHybrid(uint32_t detId, uint16_t firstAPV, digivector_t& inDigis, edm::DetSet<SiStripDigi>& rawDigis);
+  uint16_t convertVirginRawToHybrid(const edm::DetSet<SiStripRawDigi>& rawDigis, edm::DetSet<SiStripDigi>& suppressedDigis);
+
+  void convertHybridDigiToRawDigiVector(const edm::DetSet<SiStripDigi>& inDigis, digivector_t& rawDigis);
+
+  inline const std::vector<bool>& getAPVFlags() const { return restorer->getAPVFlags(); }
+  inline const SiStripAPVRestorer::baselinemap_t& getBaselineMap() const { return restorer->getBaselineMap(); }
+  inline const std::map<uint16_t, SiStripAPVRestorer::digimap_t>& getSmoothedPoints() const { return restorer->getSmoothedPoints(); }
+  inline const SiStripAPVRestorer::medians_t& getAPVsCM() const { return subtractorCMN->getAPVsCM(); }
+
+  const std::unique_ptr<SiStripPedestalsSubtractor> subtractorPed;
+  const std::unique_ptr<SiStripCommonModeNoiseSubtractor> subtractorCMN;
+  const std::unique_ptr<SiStripFedZeroSuppression> suppressor;
+  const std::unique_ptr<SiStripAPVRestorer> restorer;
 
  private:
   const bool doAPVRestore;
   const bool useCMMeanMap;
 
-  SiStripRawProcessingAlgorithms(std::auto_ptr<SiStripPedestalsSubtractor> ped,
-				 std::auto_ptr<SiStripCommonModeNoiseSubtractor> cmn,
-				 std::auto_ptr<SiStripFedZeroSuppression> zs,
-                                 std::auto_ptr<SiStripAPVRestorer> res,
+  const TrackerGeometry* trGeo;
+
+  SiStripRawProcessingAlgorithms(std::unique_ptr<SiStripPedestalsSubtractor> ped,
+				 std::unique_ptr<SiStripCommonModeNoiseSubtractor> cmn,
+				 std::unique_ptr<SiStripFedZeroSuppression> zs,
+                                 std::unique_ptr<SiStripAPVRestorer> res,
 				 bool doAPVRest,
-				 bool useCMMap); 
-   
+				 bool useCMMap);
 };
 #endif
-

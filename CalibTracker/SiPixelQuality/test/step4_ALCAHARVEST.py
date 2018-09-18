@@ -1,21 +1,25 @@
 # Auto generated configuration file
 # using: 
-# Revision: 1.381.2.28 
-# Source: /local/reps/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: step4 --data --conditions auto:com10 --scenario pp -s ALCAHARVEST:SiStripGains --filein file:PromptCalibProdSiStripGains.root -n -1 --no_exec
+# Revision: 1.19 
+# Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
+# with command line options: step4 --conditions 100X_dataRun2_Express_v2 -s ALCAHARVEST:SiPixelQuality --data --era Run2_2017 --filein file:PromptCalibProdSiPixel.root --scenario pp -n 1 --fileout file:step4.root
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('ALCAHARVEST')
+from Configuration.StandardSequences.Eras import eras
+
+process = cms.Process('ALCAHARVEST',eras.Run2_2018)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration.StandardSequences.AlCaHarvesting_cff')
-process.load('Configuration.Geometry.GeometryRecoDB_cff')
-process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+
+process.MessageLogger.cerr.FwkReport.reportEvery = 50000
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -35,68 +39,44 @@ process.options = cms.untracked.PSet(
     fileMode = cms.untracked.string('FULLMERGE')
 )
 
-process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    DBParameters = cms.PSet(
-        authenticationPath = cms.untracked.string(''),
-        authenticationSystem = cms.untracked.int32(0),
-        messageLevel = cms.untracked.int32(0),
-        security = cms.untracked.string('')
-    ),
-    connect = cms.string('sqlite_file:promptCalibConditions.db'),
-    toPut = cms.VPSet(
-        cms.PSet(
-            record = cms.string('SiPixelQualityFromDbRcd_PCL'),
-            tag = cms.string('SiPixelQualityFromDbRcd_PCL'),
-            timetype = cms.untracked.string('runnumber')
-        ),
-        cms.PSet(
-            record = cms.string('SiPixelQualityFromDbRcd_prompt'),
-            tag = cms.string('SiPixelQualityFromDbRcd_prompt'),
-            timetype = cms.untracked.string('lumiid')
-        ),
-        cms.PSet(
-            record = cms.string('SiPixelQualityFromDbRcd_stuckTBM'),
-            tag = cms.string('SiPixelQualityFromDbRcd_stuckTBM'),
-            timetype = cms.untracked.string('lumiid'),
-        ),
-        cms.PSet(
-            record = cms.string('SiPixelQualityFromDbRcd_other'),
-            tag = cms.string('SiPixelQualityFromDbRcd_other'),
-            timetype = cms.untracked.string('lumiid')
-        )
-
-     )
-
+# Production Info
+process.configurationMetadata = cms.untracked.PSet(
+    annotation = cms.untracked.string('step4 nevts:1'),
+    name = cms.untracked.string('Applications'),
+    version = cms.untracked.string('$Revision: 1.19 $')
 )
 
+# Output definition
 
+# Other statements
+process.PoolDBOutputService.toPut.extend(process.ALCAHARVESTSiPixelQuality_dbOutput)
+process.pclMetadataWriter.recordsToMap.extend(process.ALCAHARVESTSiPixelQuality_metadata)
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '100X_dataRun2_Express_v2', '')
-
-#This tag is already in the GT
-#process.GlobalTag.toGet.append(
-#  cms.PSet(
-#    record = cms.string("SiPixelQualityFromDbRcd"),
-#    tag = cms.string("SiPixelQuality_v03_dup_hlt"),
-#    connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
-#  )
-#)
+process.GlobalTag = GlobalTag(process.GlobalTag, '102X_dataRun2_Express_v1', '')
 
 # Path and EndPath definitions
-process.ALCAHARVESTSiPixelQuality = cms.EDAnalyzer("SiPixelStatusHarvester",
-
-    SiPixelStatusManagerParameters = cms.PSet(
-        outputBase = cms.untracked.string("dynamicLumibased"), #nLumibased #runbased #dynamicLumibased
-        aveDigiOcc = cms.untracked.int32(20000),
-        resetEveryNLumi = cms.untracked.int32(10),
-        moduleName = cms.untracked.string("siPixelStatusProducer"),
-        label      = cms.untracked.string("siPixelStatus"),
-    ),
-    debug = cms.untracked.bool(True),
-    recordName   = cms.untracked.string("SiPixelQualityFromDbRcd"),
-)
-
-process.SiPixelQuality = cms.Path(process.ALCAHARVESTSiPixelQuality)
+process.ALCAHARVESTDQMSaveAndMetadataWriter = cms.Path(process.dqmSaver+process.pclMetadataWriter)
+process.EcalPedestals = cms.Path(process.ALCAHARVESTEcalPedestals)
+process.LumiPCC = cms.Path(process.ALCAHARVESTLumiPCC)
+process.BeamSpotByRun = cms.Path(process.ALCAHARVESTBeamSpotByRun)
+process.SiPixelQuality = cms.Path(process.ALCAHARVESTSiPixelQuality)#+process.siPixelPhase1DQMHarvester)
+process.SiStripGains = cms.Path(process.ALCAHARVESTSiStripGains)
+process.BeamSpotHPByRun = cms.Path(process.ALCAHARVESTBeamSpotHPByRun)
+process.SiPixelAli = cms.Path(process.ALCAHARVESTSiPixelAli)
+process.BeamSpotByLumi = cms.Path(process.ALCAHARVESTBeamSpotByLumi)
+process.BeamSpotHPByLumi = cms.Path(process.ALCAHARVESTBeamSpotHPByLumi)
+process.SiStripGainsAAG = cms.Path(process.ALCAHARVESTSiStripGainsAAG)
+process.SiStripQuality = cms.Path(process.ALCAHARVESTSiStripQuality)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.SiPixelQuality)
+process.schedule = cms.Schedule(process.SiPixelQuality,process.ALCAHARVESTDQMSaveAndMetadataWriter)
+from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
+associatePatAlgosToolsTask(process)
+
+
+# Customisation from command line
+
+# Add early deletion of temporary data products to reduce peak memory need
+from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
+process = customiseEarlyDelete(process)
+# End adding early deletion
