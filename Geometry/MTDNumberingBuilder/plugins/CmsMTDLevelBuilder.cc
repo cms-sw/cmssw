@@ -1,7 +1,7 @@
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/MTDNumberingBuilder/interface/GeometricTimingDet.h"
-#include "Geometry/MTDNumberingBuilder/interface/CmsMTDLevelBuilder.h"
+#include "Geometry/MTDNumberingBuilder/plugins/CmsMTDLevelBuilder.h"
 #include "Geometry/MTDNumberingBuilder/plugins/ExtractStringFromDDD.h"
 
 bool subDetByType(const GeometricTimingDet* a, const GeometricTimingDet* b)

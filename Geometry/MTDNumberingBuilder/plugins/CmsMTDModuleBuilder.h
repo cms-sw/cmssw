@@ -1,7 +1,7 @@
 #ifndef Geometry_MTDNumberingBuilder_CmsMTDModuleBuilder_H
 #define Geometry_MTDNumberingBuilder_CmsMTDModuleBuilder_H
 
-#include "Geometry/MTDNumberingBuilder/interface/CmsMTDLevelBuilder.h"
+#include "Geometry/MTDNumberingBuilder/plugins/CmsMTDLevelBuilder.h"
 #include "FWCore/ParameterSet/interface/types.h"
 #include <string>
 

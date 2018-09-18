@@ -1,7 +1,7 @@
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-#include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerLevelBuilder.h"
+#include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerLevelBuilder.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 
 bool subDetByType(const GeometricDet* a, const GeometricDet* b)
