@@ -280,6 +280,16 @@ from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 #from L1Trigger.L1TCalorimeter.hackConditions_cff import *
 from L1Trigger.L1TGlobal.GlobalParameters_cff import *
 
+# L1T emulator sequences
+from L1Trigger.Configuration.SimL1Emulator_cff import *
+simTwinMuxDigis.RPC_Source = cms.InputTag("muonRPCDigis")
+simOmtfDigis.srcRPC = cms.InputTag("muonRPCDigis")
+simEmtfDigis.CSCInput = cms.InputTag("emtfStage2Digis")
+simEmtfDigis.RPCInput = cms.InputTag("muonRPCDigis")
+# use unpacker calo TPs
+simCaloStage2Layer1Digis.ecalToken = cms.InputTag("ecalDigis","EcalTriggerPrimitives")
+simCaloStage2Layer1Digis.hcalToken = cms.InputTag("hcalDigis")
+
 from DQMOffline.L1Trigger.L1TEtSumJetOffline_cfi import *
 l1tEtSumJetOfflineDQMEmu.stage2CaloLayer2JetSource=cms.InputTag("valCaloStage2Layer2Digis")
 l1tEtSumJetOfflineDQMEmu.stage2CaloLayer2EtSumSource=cms.InputTag("valCaloStage2Layer2Digis")
@@ -362,13 +372,17 @@ Stage2l1TriggerEmulatorOffline = cms.Sequence(
 
 # sequence to run only for modules requiring an electron dataset
 Stage2l1tEgEmulatorOffline = cms.Sequence(
-                                #l1tEGammaOfflineDQMEmu
+                                SimL1TCalorimeter +
+                                l1tEGammaOfflineDQMEmu
                                 )
 
 # sequence to run only for modules requiring a muon dataset
 Stage2l1tMuonEmulatorOffline = cms.Sequence(
-                                #l1tEtSumJetOfflineDQMEmuSeq +
-                                #l1tTauOfflineDQMEmu
+                                SimL1TCalorimeter +
+                                SimL1TMuon +
+                                l1tEtSumJetOfflineDQMEmuSeq +
+                                l1tTauOfflineDQMEmu +
+                                l1tMuonDQMOfflineEmu
                                 )
 
 ##############################################################################
