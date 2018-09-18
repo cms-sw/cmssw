@@ -80,6 +80,12 @@ def customisePostEra_Run2_2018_express_trackingOnly(process):
     customisePostEra_Run2_2017_express_trackingOnly(process)
     return process
 
+def customisePostEra_Run2_2018_pp_on_AA_express_trackingOnly(process):
+    customisePostEra_Run2_2018_pp_on_AA(process)
+    from Calibration.TkAlCaRecoProducers.PCLHPbeamspot_custom import customise_HPbeamspot as _customise_HPbeamspot
+    _customise_HPbeamspot(process)
+    return process
+
 def customisePostEra_Run2_2018_harvesting_trackingOnly(process):
     #start with a repeat of 2017
     customisePostEra_Run2_2017_harvesting_trackingOnly(process)

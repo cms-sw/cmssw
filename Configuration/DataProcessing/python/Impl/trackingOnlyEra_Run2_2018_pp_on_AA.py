@@ -24,7 +24,7 @@ class trackingOnlyEra_Run2_2018_pp_on_AA(trackingOnly):
         self.eras=Run2_2018_pp_on_AA
         #keep post-era parts the same as in the default 2018 era
         self.promptCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018_2018_pp_on_AA' ]
-        self.expressCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018_express_trackingOnly' ]
+        self.expressCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018_pp_on_AA_express_trackingOnly' ]
         self.visCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018_2018_pp_on_AA' ]
 
     """
