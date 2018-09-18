@@ -21,7 +21,7 @@ void LowPtGsfElectronCoreProducer::produce( edm::Event& event, const edm::EventS
   GsfElectronCoreBaseProducer::initEvent(event,setup) ;
   auto electrons = std::make_unique<GsfElectronCoreCollection>();
   if (useGsfPfRecTracks_) {
-    const GsfPFRecTrackCollection * gsfPfRecTrackCollection = gsfPfRecTracksH_.product() ;
+    const GsfPFRecTrackCollection* gsfPfRecTrackCollection = gsfPfRecTracksH_.product() ;
     GsfPFRecTrackCollection::const_iterator gsfPfRecTrack ;
     for ( gsfPfRecTrack=gsfPfRecTrackCollection->begin() ;
 	  gsfPfRecTrack!=gsfPfRecTrackCollection->end() ;
@@ -30,13 +30,13 @@ void LowPtGsfElectronCoreProducer::produce( edm::Event& event, const edm::EventS
       produceTrackerDrivenCore(gsfTrackRef,electrons.get()) ;
     }
   } else {
-    const GsfTrackCollection * gsfTrackCollection = gsfTracksH_.product() ;
+    const GsfTrackCollection* gsfTrackCollection = gsfTracksH_.product() ;
     for ( unsigned int i=0 ; i<gsfTrackCollection->size() ; ++i ) {
       const GsfTrackRef gsfTrackRef = edm::Ref<GsfTrackCollection>(gsfTracksH_,i) ;
       produceTrackerDrivenCore(gsfTrackRef,electrons.get()) ;
     }
   }
-  std::cout << "[LowPtGsfElectronCoreProducer::produce]" << electrons->size() << std::endl; //@@
+  //std::cout << "[LowPtGsfElectronCoreProducer::produce] " << electrons->size() << std::endl; //@@
   event.put(std::move(electrons));
 }
 
