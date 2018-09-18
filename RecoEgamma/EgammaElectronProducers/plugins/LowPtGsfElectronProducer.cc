@@ -26,9 +26,11 @@ LowPtGsfElectronProducer::~LowPtGsfElectronProducer()
 
 void LowPtGsfElectronProducer::produce( edm::Event& event, const edm::EventSetup& setup )
 {
+  std::cout << "[LowPtGsfElectronProducer::produce]" << std::endl; // @@
   auto electrons = std::make_unique<GsfElectronCollection>();
   edm::Handle<reco::GsfElectronCoreCollection> coreElectrons;
   event.getByToken(inputCfg_.gsfElectronCores,coreElectrons);
+  std::cout << "[LowPtGsfElectronProducer::produce]" << coreElectrons->size() << std::endl; //@@
   for ( unsigned int ii=0; ii < coreElectrons->size(); ++ii ) {
     const GsfElectronCoreRef ref = edm::Ref<GsfElectronCoreCollection>(coreElectrons,ii);
     GsfElectron* ele = new GsfElectron(ref);
@@ -37,7 +39,7 @@ void LowPtGsfElectronProducer::produce( edm::Event& event, const edm::EventSetup
     LogTrace("GsfElectronAlgo")<<"Constructed new electron with energy  "<< ele->p4().e() ;
     electrons->push_back(*ele) ;
   }
-  //std::cout << "[LowPtGsfElectronProducer::produce] " << electrons->size() << std::endl; //@@
+  std::cout << "[LowPtGsfElectronCoreProducer::produce]" << electrons->size() << std::endl; //@@
   event.put(std::move(electrons));
 //  beginEvent(event,setup);
 //  algo_->completeElectrons(globalCache());
