@@ -29,7 +29,7 @@ effVsEtaBins = [i*(etaMax-etaMin)/nEtaBins + etaMin for i in range(nEtaBins+1)]
 effVsVtxBins = range(0, 101)
 
 # A list of pt cut + quality cut pairs for which efficiency plots should be made
-ptQualCuts = [[25, 12], [15, 8], [7, 8], [3, 4]]
+ptQualCuts = [[22, 12], [15, 8], [7, 8], [3, 4]]
 cutsPSets = []
 for ptQualCut in ptQualCuts:
     cutsPSets.append(cms.untracked.PSet(ptCut = cms.untracked.int32(ptQualCut[0]),
@@ -38,8 +38,8 @@ for ptQualCut in ptQualCuts:
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 l1tMuonDQMOffline = DQMEDAnalyzer('L1TMuonDQMOffline',
     histFolder = cms.untracked.string('L1T/L1TObjects/L1TMuon/L1TriggerVsReco'),
-    tagPtCut = cms.untracked.double(30.),
-    recoToL1PtCutFactor = cms.untracked.double(1.25),
+    tagPtCut = cms.untracked.double(26.),
+    recoToL1PtCutFactor = cms.untracked.double(1.2),
     cuts = cms.untracked.VPSet(cutsPSets),
     useL1AtVtxCoord = cms.untracked.bool(True),
 
@@ -60,6 +60,15 @@ l1tMuonDQMOffline = DQMEDAnalyzer('L1TMuonDQMOffline',
     efficiencyVsPhiBins = cms.untracked.vdouble(effVsPhiBins),
     efficiencyVsEtaBins = cms.untracked.vdouble(effVsEtaBins),
     efficiencyVsVtxBins = cms.untracked.vdouble(effVsVtxBins),
+
+    # muon track extrapolation to 2nd station
+    muProp = cms.PSet(
+        useTrack = cms.string("tracker"),  # 'none' to use Candidate P4; or 'tracker', 'muon', 'global'
+        useState = cms.string("atVertex"), # 'innermost' and 'outermost' require the TrackExtra
+        useSimpleGeometry = cms.bool(True),
+        useStation2 = cms.bool(True),
+        fallbackToME1 = cms.bool(False),
+    ),
 
     verbose   = cms.untracked.bool(False)
 )
