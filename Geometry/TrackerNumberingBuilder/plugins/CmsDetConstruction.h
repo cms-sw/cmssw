@@ -2,7 +2,7 @@
 #define Geometry_TrackerNumberingBuilder_CmsDetConstruction_H
 #include<string>
 #include<vector>
-#include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerLevelBuilder.h"
+#include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerLevelBuilder.h"
 /**
  * Adds GeometricDets representing final modules to the previous level
  */
