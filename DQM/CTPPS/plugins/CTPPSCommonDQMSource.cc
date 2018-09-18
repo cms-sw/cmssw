@@ -1,15 +1,16 @@
 /****************************************************************************
-*
-* This is a part of TotemDQM and TOTEM offline software.
-* Authors:
-*   Jan Kašpar (jan.kaspar@gmail.com)
-*
-****************************************************************************/
+ *
+ * This is a part of TotemDQM and TOTEM offline software.
+ * Authors:
+ *   Jan Kašpar (jan.kaspar@gmail.com)
+ *
+ ****************************************************************************/
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -18,8 +19,8 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
-
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
+#include "DataFormats/OnlineMetaData/interface/CTPPSRecord.h"
 
 #include <string>
 
@@ -36,17 +37,27 @@ class CTPPSCommonDQMSource: public DQMEDAnalyzer
   protected:
 
     void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-
     void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
+    void beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& c) override;
+    void endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& c) override;
 
   private:
     unsigned int verbosity;
+    const static int MAX_LUMIS = 6000;
+    const static int MAX_VBINS = 18;
 
     edm::EDGetTokenT< std::vector<CTPPSLocalTrackLite> > tokenLocalTrackLite;
+    edm::EDGetTokenT<CTPPSRecord> ctppsRecordToken;
+
+    int currentLS;
+    int endLS;
+
+    std::vector<int> rpstate;
 
     /// plots related to the whole system
     struct GlobalPlots
     {
+      MonitorElement *RPState = nullptr;
       MonitorElement *events_per_bx = nullptr, *events_per_bx_short = nullptr;
       MonitorElement *h_trackCorr_hor = nullptr, *h_trackCorr_vert = nullptr;
 
@@ -77,6 +88,9 @@ class CTPPSCommonDQMSource: public DQMEDAnalyzer
 using namespace std;
 using namespace edm;
 
+const int CTPPSCommonDQMSource::MAX_LUMIS;
+const int CTPPSCommonDQMSource::MAX_VBINS;
+
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSCommonDQMSource::GlobalPlots::Init(DQMStore::IBooker &ibooker)
@@ -85,6 +99,31 @@ void CTPPSCommonDQMSource::GlobalPlots::Init(DQMStore::IBooker &ibooker)
 
   events_per_bx = ibooker.book1D("events per BX", "rp;Event.BX", 4002, -1.5, 4000. + 0.5);
   events_per_bx_short = ibooker.book1D("events per BX (short)", "rp;Event.BX", 102, -1.5, 100. + 0.5);
+
+  RPState = ibooker.book2D("rpstate per LS","RP State per Lumisection;Luminosity Section;",MAX_LUMIS, 0, MAX_LUMIS, MAX_VBINS, 0., MAX_VBINS);
+  {
+    TH2F* hist = RPState->getTH2F();
+    hist->SetCanExtend(TH1::kAllAxes);
+    TAxis* ya = hist->GetYaxis();
+    ya->SetBinLabel(1, "45, 210, FR-BT");
+    ya->SetBinLabel(2, "45, 210, FR-HR");
+    ya->SetBinLabel(3, "45, 210, FR-TP");
+    ya->SetBinLabel(4, "45, 220, C1");
+    ya->SetBinLabel(5, "45, 220, FR-BT");
+    ya->SetBinLabel(6, "45, 220, FR-HR");
+    ya->SetBinLabel(7, "45, 220, FR-TP");
+    ya->SetBinLabel(8, "45, 220, NR-BP");
+    ya->SetBinLabel(9, "45, 220, NR-TP");
+    ya->SetBinLabel(10, "56, 210, FR-BT");
+    ya->SetBinLabel(11, "56, 210, FR-HR");
+    ya->SetBinLabel(12, "56, 210, FR-TP");
+    ya->SetBinLabel(13, "56, 220, C1");
+    ya->SetBinLabel(14, "56, 220, FR-BT");
+    ya->SetBinLabel(15, "56, 220, FR-HR");
+    ya->SetBinLabel(16, "56, 220, FR-TP");
+    ya->SetBinLabel(17, "56, 220, NR-BP");
+    ya->SetBinLabel(18, "56, 220, NR-TP");
+  }
 
   h_trackCorr_hor = ibooker.book2D("track correlation hor", "ctpps_common_rp_hor", 6, -0.5, 5.5, 6, -0.5, 5.5);
   {
@@ -158,6 +197,12 @@ CTPPSCommonDQMSource::CTPPSCommonDQMSource(const edm::ParameterSet& ps) :
   verbosity(ps.getUntrackedParameter<unsigned int>("verbosity", 0))
 {
   tokenLocalTrackLite = consumes< vector<CTPPSLocalTrackLite> >(ps.getParameter<edm::InputTag>("tagLocalTrackLite"));
+  ctppsRecordToken = consumes<CTPPSRecord>(ps.getUntrackedParameter<edm::InputTag>("ctppsmetadata"));
+
+  currentLS = 0;
+  endLS = 0;
+  rpstate.clear();
+
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -184,6 +229,47 @@ void CTPPSCommonDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run c
 
 void CTPPSCommonDQMSource::analyze(edm::Event const& event, edm::EventSetup const& eventSetup)
 {
+
+  // get CTPPS Event Record
+  Handle<CTPPSRecord> rp;
+  event.getByToken(ctppsRecordToken, rp);
+
+  /*
+     RP State (HV & LV & Insertion):
+     0 -> not used
+     1 -> bad
+     2 -> warning
+     3 -> ok
+
+     CTPPSRecord Order:
+     RP name: RP_45_210_FR_BT
+     RP name: RP_45_210_FR_HR
+     RP name: RP_45_210_FR_TP
+     RP name: RP_45_220_C1
+     RP name: RP_45_220_FR_BT
+     RP name: RP_45_220_FR_HR
+     RP name: RP_45_220_FR_TP
+     RP name: RP_45_220_NR_BT
+     RP name: RP_45_220_NR_TP
+     RP name: RP_56_210_FR_BT
+     RP name: RP_56_210_FR_HR
+     RP name: RP_56_210_FR_TP
+     RP name: RP_56_220_C1
+     RP name: RP_56_220_FR_BT
+     RP name: RP_56_220_FR_HR
+     RP name: RP_56_220_FR_TP
+     RP name: RP_56_220_NR_BT
+     RP name: RP_56_220_NR_TP
+     */
+
+  if(currentLS > endLS){
+    rpstate.clear();
+    for (uint8_t i = 0; i < CTPPSRecord::RomanPot::Last; ++i) {
+      rpstate.push_back(rp->status(i));
+    }
+    endLS=currentLS;
+  }  
+
   // get event data
   Handle< vector<CTPPSLocalTrackLite> > tracks;
   event.getByToken(tokenLocalTrackLite, tracks);
@@ -197,7 +283,7 @@ void CTPPSCommonDQMSource::analyze(edm::Event const& event, edm::EventSetup cons
     if (verbosity)
     {
       LogProblem("CTPPSCommonDQMSource")
-        << "    trackLites.isValid = " << tracks.isValid();
+	<< "    trackLites.isValid = " << tracks.isValid();
     }
 
     return;
@@ -223,7 +309,7 @@ void CTPPSCommonDQMSource::analyze(edm::Event const& event, edm::EventSetup cons
       if (stRPNum == 16) idx = 2;
 
       if (idx >= 0)
-        s_rp_idx_global_hor.insert(3*arm + idx);
+	s_rp_idx_global_hor.insert(3*arm + idx);
     }
 
     {
@@ -234,7 +320,7 @@ void CTPPSCommonDQMSource::analyze(edm::Event const& event, edm::EventSetup cons
       if (stRPNum == 25) idx = 3;
 
       if (idx >= 0)
-        s_rp_idx_global_vert.insert(4*arm + idx);
+	s_rp_idx_global_vert.insert(4*arm + idx);
     }
 
     {
@@ -250,7 +336,7 @@ void CTPPSCommonDQMSource::analyze(edm::Event const& event, edm::EventSetup cons
       const signed int hor = ((rpNum == 2) || (rpNum == 3) || (rpNum == 6)) ? 1 : 0;
 
       if (idx >= 0)
-        ms_rp_idx_arm[arm].insert(idx * 10 + hor);
+	ms_rp_idx_arm[arm].insert(idx * 10 + hor);
     }
   }
 
@@ -303,15 +389,35 @@ void CTPPSCommonDQMSource::analyze(edm::Event const& event, edm::EventSetup cons
     {
       for (const auto &idx2 : ap.second)
       {
-        plots.h_trackCorr->Fill(idx1/10, idx2/10);
+	plots.h_trackCorr->Fill(idx1/10, idx2/10);
 
-        if ((idx1 % 10) != (idx2 % 10))
-          plots.h_trackCorr_overlap->Fill(idx1/10, idx2/10);
+	if ((idx1 % 10) != (idx2 % 10))
+	  plots.h_trackCorr_overlap->Fill(idx1/10, idx2/10);
       }
     }
   }
+
+}
+//----------------------------------------------------------------------------------------------------
+
+void CTPPSCommonDQMSource::beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& c) {
+
+  currentLS = iLumi.id().luminosityBlock();
+
 }
 
+//----------------------------------------------------------------------------------------------------
+
+void CTPPSCommonDQMSource::endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& c) {
+
+  for(std::vector<int>::size_type i=0; i<rpstate.size();i++){
+    globalPlots.RPState->setBinContent(currentLS, i+1, rpstate[i]);
+  }
+
+  endLS = iLumi.luminosityBlock();
+  rpstate.clear();
+
+}
 //----------------------------------------------------------------------------------------------------
 
 DEFINE_FWK_MODULE(CTPPSCommonDQMSource);
