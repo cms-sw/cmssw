@@ -38,6 +38,12 @@ void SectorProcessorLUT::read(int pc_lut_version) {
 
   std::string coord_lut_path = "L1Trigger/L1TMuon/data/emtf_luts/" + coord_lut_dir + "/";
 
+  // Updated LUTs from Kun Shi, found in /afs/cern.ch/user/k/kshi/public/ForAndrew/emtf_luts/
+  // coord_lut_path = "L1Trigger/L1TMuonEndCap/data/emtf_luts/101X_datarun2_prompt_v11/";
+  // coord_lut_path = "L1Trigger/L1TMuonEndCap/data/emtf_luts/run2_data/";
+  // coord_lut_path = "L1Trigger/L1TMuonEndCap/data/emtf_luts/90X_datarun2_promt_v1/";
+  coord_lut_path = "L1Trigger/L1TMuonEndCap/data/emtf_luts/102X_datarun2_Sep2018Rereco_v1/";
+
   read_file(coord_lut_path+"ph_init_neighbor.txt",     ph_init_neighbor_);
   read_file(coord_lut_path+"ph_disp_neighbor.txt",     ph_disp_neighbor_);
   read_file(coord_lut_path+"th_init_neighbor.txt",     th_init_neighbor_);
