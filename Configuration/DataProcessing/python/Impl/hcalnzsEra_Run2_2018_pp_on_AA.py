@@ -14,6 +14,7 @@ from Configuration.Eras.Era_Run2_2018_pp_on_AA_cff import Run2_2018_pp_on_AA
 
 class hcalnzsEra_Run2_2018_pp_on_AA(hcalnzs):
     def __init__(self):
+        hcalnzs.__init__(self)
         self.isRepacked=True
         self.eras=Run2_2018_pp_on_AA
         #keep post-era parts the same as in the default 2018 era
