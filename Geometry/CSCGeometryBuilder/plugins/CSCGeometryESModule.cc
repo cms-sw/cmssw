@@ -7,9 +7,6 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
 
-// #include "CondFormats/DataRecord/interface/RecoIdealGeometryRcd.h"
-// #include "CondFormats/DataRecord/interface/CSCRecoDigiParametersRcd.h"
-//#include "Geometry/Records/interface/RecoIdealGeometryRcd.h"
 #include "Geometry/Records/interface/CSCRecoGeometryRcd.h"
 #include "Geometry/Records/interface/CSCRecoDigiParametersRcd.h"
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
@@ -33,8 +30,7 @@
 using namespace edm;
 
 CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet & p)
-  : recreateGeometry_(true),
-    alignmentsLabel_(p.getParameter<std::string>("alignmentsLabel")),
+  : alignmentsLabel_(p.getParameter<std::string>("alignmentsLabel")),
     myLabel_(p.getParameter<std::string>("appendToDataLabel"))
 {
 
@@ -77,11 +73,7 @@ CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet & p)
 			   << "Label '" << myLabel_ << "' "
 			   << (applyAlignment_ ? "looking for" : "IGNORING")
 			   << " alignment labels '" << alignmentsLabel_ << "'.";
-  if(useDDD_) {
-    setWhatProduced(this, dependsOn(&CSCGeometryESModule::muonNumberingChanged_) );
-  } else {
-    setWhatProduced(this, dependsOn(&CSCGeometryESModule::cscRecoGeometryChanged_) & (&CSCGeometryESModule::cscRecoDigiParametersChanged_) );
-  }
+  setWhatProduced(this);
 }
 
 
@@ -90,7 +82,15 @@ CSCGeometryESModule::~CSCGeometryESModule(){}
 
 std::shared_ptr<CSCGeometry> CSCGeometryESModule::produce(const MuonGeometryRecord& record) {
 
-  initCSCGeometry_(record);
+  auto host = holder_.makeOrGet([this]() {
+    return new HostType(debugV,
+                        useGangedStripsInME1a,
+                        useOnlyWiresInME1a,
+                        useRealWireGeometry,
+                        useCentreTIOffsets);
+  });
+
+  initCSCGeometry_(record, host);
 
   // Called whenever the alignments or alignment errors change
 
@@ -102,13 +102,6 @@ std::shared_ptr<CSCGeometry> CSCGeometryESModule::produce(const MuonGeometryReco
     edm::ESHandle<Alignments> alignments;
     record.getRecord<CSCAlignmentRcd>().get(alignmentsLabel_, alignments);
     edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
-// <<<<<<< CSCGeometryESModule.cc
-//     record.getRecord<CSCAlignmentErrorExtendedRcd>().get( alignmentErrors );
-//     GeometryAligner aligner;
-//     aligner.applyAlignments<CSCGeometry>( &(*_cscGeometry),
-// 					  &(*alignments), &(*alignmentErrors),
-// 	 align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
-// =======
     record.getRecord<CSCAlignmentErrorExtendedRcd>().get(alignmentsLabel_,  alignmentErrors);
     // Only apply alignment if values exist
     if (alignments->empty() && alignmentErrors->empty() && globalPosition->empty()) {
@@ -118,64 +111,51 @@ std::shared_ptr<CSCGeometry> CSCGeometryESModule::produce(const MuonGeometryReco
 			     << "'" << myLabel_ << "') assumes fake and does not apply.";
     } else {
       GeometryAligner aligner;
-      aligner.applyAlignments<CSCGeometry>( &(*cscGeometry), &(*alignments), &(*alignmentErrors),
+      aligner.applyAlignments<CSCGeometry>( &(*host), &(*alignments), &(*alignmentErrors),
 	                    align::DetectorGlobalPosition(*globalPosition, DetId(DetId::Muon)) );
     }
-// >>>>>>> 1.8
   }
-
-  return cscGeometry;
+  return host; // automatically converts to std::shared_ptr<CSCGeometry>
 }
 
 
-void CSCGeometryESModule::initCSCGeometry_( const MuonGeometryRecord& record )
+void CSCGeometryESModule::initCSCGeometry_( const MuonGeometryRecord& record, std::shared_ptr<HostType>& host)
 {
-  if(not recreateGeometry_) return;
-
-  // Updates whenever a dependent Record was changed
-
-  cscGeometry = std::make_shared<CSCGeometry>( debugV, useGangedStripsInME1a, useOnlyWiresInME1a, useRealWireGeometry,
-								 useCentreTIOffsets );
-
-  //  cscGeometry->setUseRealWireGeometry( useRealWireGeometry );
-  //  cscGeometry->setOnlyWiresInME1a( useOnlyWiresInME1a );
-  //  cscGeometry->setGangedStripsInME1a( useGangedStripsInME1a );
-  //  cscGeometry->setUseCentreTIOffsets( useCentreTIOffsets );
-  //  cscGeometry->setDebugV( debugV );
-
-  //  if ( debugV ) cscGeometry->queryModelling();
-
-  // Called whenever the muon numbering (or ideal geometry) changes
-  //
   if ( useDDD_ ) {
-    edm::ESTransientHandle<DDCompactView> cpv;
-    edm::ESHandle<MuonDDDConstants> mdc;
-    record.getRecord<IdealGeometryRecord>().get(cpv);
-    record.getRecord<MuonNumberingRecord>().get( mdc );
-    CSCGeometryBuilderFromDDD builder;
-    //    _cscGeometry = std::shared_ptr<CSCGeometry>(builder.build(_cscGeometry, &(*cpv), *mdc));
-    builder.build(cscGeometry, &(*cpv), *mdc);
+
+    host->ifRecordChanges<MuonNumberingRecord>(record,
+                                               [this, &host, &record](auto const& rec) {
+      host->clear();
+      edm::ESTransientHandle<DDCompactView> cpv;
+      edm::ESHandle<MuonDDDConstants> mdc;
+      record.getRecord<IdealGeometryRecord>().get(cpv);
+      rec.get(mdc);
+      CSCGeometryBuilderFromDDD builder;
+      builder.build(host, &(*cpv), *mdc);
+    });
   } else {
-    edm::ESHandle<RecoIdealGeometry> rig;
-    edm::ESHandle<CSCRecoDigiParameters> rdp;
-    record.getRecord<CSCRecoGeometryRcd>().get(rig);
-    record.getRecord<CSCRecoDigiParametersRcd>().get(rdp);
-    CSCGeometryBuilder cscgb;
-    //    _cscGeometry = std::shared_ptr<CSCGeometry>(cscgb.build(_cscGeometry, *rig, *rdp));
-    cscgb.build(cscGeometry, *rig, *rdp);
+    bool recreateGeometry = false;
+
+    host->ifRecordChanges<CSCRecoGeometryRcd>(record,
+                                               [&recreateGeometry](auto const& rec) {
+      recreateGeometry = true;
+    });
+
+    host->ifRecordChanges<CSCRecoDigiParametersRcd>(record,
+                                               [&recreateGeometry](auto const& rec) {
+      recreateGeometry = true;
+    });
+
+    if (recreateGeometry) {
+      host->clear();
+      edm::ESHandle<RecoIdealGeometry> rig;
+      edm::ESHandle<CSCRecoDigiParameters> rdp;
+      record.getRecord<CSCRecoGeometryRcd>().get(rig);
+      record.getRecord<CSCRecoDigiParametersRcd>().get(rdp);
+      CSCGeometryBuilder cscgb;
+      cscgb.build(host, *rig, *rdp);
+    }
   }
-  recreateGeometry_=false;
 }
-
-void CSCGeometryESModule::muonNumberingChanged_( const MuonNumberingRecord& ) {
-  recreateGeometry_=true;
-}
-void CSCGeometryESModule::cscRecoGeometryChanged_( const CSCRecoGeometryRcd& ) {
-  recreateGeometry_=true;
-}
-void CSCGeometryESModule::cscRecoDigiParametersChanged_( const CSCRecoDigiParametersRcd& ) {
-  recreateGeometry_=true;
-}
-
 
 DEFINE_FWK_EVENTSETUP_MODULE(CSCGeometryESModule);
