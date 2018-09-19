@@ -34,12 +34,15 @@ for wheel in [-2,-1,0,1,2]:
         #wite HLS LUT    
         HLSINFO={}
         #first the singles
-        for k in range(0,6):
+    
+
+        for k in range(0,7):
             tag=pow(2,k) 
-            HLSINFO[tag]={'e1':lut[k],'e2':0,'q':1}
+            HLSINFO[tag]={'e1':lut[k],'e2':lut[k],'q':1}
+        for k in range(0,6):
             for l in range(k+1,7):
                 tag=pow(2,k)+pow(2,l)
-                HLSINFO[tag]={'e1':lut[k],'e2':lut[l],'q':3}
+                HLSINFO[tag]={'e1':lut[k],'e2':lut[l],'q':1}
         keys=sorted(HLSINFO.keys())
         d1=[]
         d2=[]
@@ -65,7 +68,7 @@ for wheel in [-2,-1,0,1,2]:
     
         print 'const ap_int<8> etaLUT0_'+etaTag+"_"+str(station)+'[128]={'+','.join(d1)+'};\n'
         print 'const ap_int<8> etaLUT1_'+etaTag+"_"+str(station)+'[128]={'+','.join(d2)+'};\n'
-        print 'const ap_int<8> etaLUTQ_'+etaTag+"_"+str(station)+'[128]={'+','.join(d3)+'};\n'
+        print 'const ap_uint<1> etaLUTQ_'+etaTag+"_"+str(station)+'[128]={'+','.join(d3)+'};\n'
         
 
             

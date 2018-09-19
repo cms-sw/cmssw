@@ -43,7 +43,7 @@ class L1TStage2RegionalMuonCandComp : public DQMEDAnalyzer {
   bool ignoreBadTrkAddr;
   std::vector<int> ignoreBin;
   bool verbose;
-  bool isBmtf;
+  bool kalman;
   
   MonitorElement* summary;
   MonitorElement* errorSummaryNum;

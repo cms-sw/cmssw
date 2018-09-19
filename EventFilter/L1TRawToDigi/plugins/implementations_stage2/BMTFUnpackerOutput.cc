@@ -23,10 +23,10 @@ namespace l1t
 	bxBlocks = block.getBxBlocks((unsigned int)6, false);//it returnes 6-32bit bxBlocks originated from the amc13 Block
 			
       RegionalMuonCandBxCollection *res;
-      if (isTriggeringAlgo)
-	res = static_cast<BMTFCollections*>(coll)->getBMTFMuons();
+      if (isKalman)
+	res = static_cast<BMTFCollections*>(coll)->getkBMTFMuons();
       else
-	res = static_cast<BMTFCollections*>(coll)->getBMTF2Muons();
+	res = static_cast<BMTFCollections*>(coll)->getBMTFMuons();
 
       //BxBlocks changed the format of the blocks
       int firstBX = 0, lastBX = 0;
@@ -69,8 +69,8 @@ namespace l1t
 	  RegionalMuonCand muCand;
 	  RegionalMuonRawDigiTranslator::fillRegionalMuonCand(muCand, raw_first, raw_secnd, processor, tftype::bmtf);
 
-	  if (muCand.hwQual() == 0)
-	    continue;
+	  if (muCand.hwQual() == 0 && !isKalman)
+	    continue;//though away muons with Zero-Quality (ONLY BMTF)
 
 	  muCand.setLink(48 + processor);	//the link corresponds to the uGMT input
 	  if (isKalman) {

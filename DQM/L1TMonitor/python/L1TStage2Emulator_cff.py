@@ -18,13 +18,13 @@ from L1Trigger.L1TCalorimeter.simCaloStage2Digis_cfi import simCaloStage2Digis
 valCaloStage2Layer2Digis = simCaloStage2Digis.clone()
 valCaloStage2Layer2Digis.towerToken = cms.InputTag("caloStage2Digis", "CaloTower")
 
-# BMTF-Legacy
+# BMTF
 from L1Trigger.L1TMuonBarrel.simBmtfDigis_cfi import *
 valBmtfDigis = simBmtfDigis.clone()
 valBmtfDigis.DTDigi_Source = cms.InputTag("bmtfDigis")
 valBmtfDigis.DTDigi_Theta_Source = cms.InputTag("bmtfDigis")
 
-# BMTF-Kalman
+# KBMTF
 from L1Trigger.L1TMuonBarrel.simKBmtfDigis_cfi import *
 from L1Trigger.L1TMuonBarrel.simKBmtfStubs_cfi import *
 valKBmtfStubs = simKBmtfStubs.clone()
@@ -32,12 +32,6 @@ valKBmtfStubs.srcPhi = cms.InputTag("bmtfDigis")
 valKBmtfStubs.srcTheta = cms.InputTag("bmtfDigis")
 valKBmtfDigis = simKBmtfDigis.clone()
 valKBmtfDigis.src = cms.InputTag("valKBmtfStubs")
-
-# BMTF-AlgoTriggerSelector
-from DQM.L1TMonitor.L1TBMTFAlgoSelector_cfi import *
-valBmtfAlgoSel = l1tBmtfAlgoSelector.clone()
-valBmtfAlgoSel.bmtfKalman = cms.InputTag("valKBmtfDigis:BMTF")
-valBmtfAlgoSel.bmtfLegacy = cms.InputTag("valBmtfDigis:BMTF")
 
 # OMTF
 from L1Trigger.L1TMuonOverlap.simOmtfDigis_cfi import *
@@ -49,7 +43,7 @@ valOmtfDigis.srcRPC = cms.InputTag('omtfStage2Digis')
 
 # EMTF
 from L1Trigger.L1TMuonEndCap.simEmtfDigis_cfi import *
-valEmtfStage2Digis = simEmtfDigis.clone()
+valEmtfStage2Digis = simEmtfDigisData.clone()
 valEmtfStage2Digis.CSCInput = "emtfStage2Digis"
 valEmtfStage2Digis.RPCInput = "muonRPCDigis"
 
@@ -86,7 +80,6 @@ Stage2L1HardwareValidation = cms.Sequence(
     valBmtfDigis +
     valKBmtfStubs +
     valKBmtfDigis +
-    valBmtfAlgoSel +
     valOmtfDigis +
     valEmtfStage2Digis +
     valGmtCaloSumDigis +
@@ -110,7 +103,9 @@ from DQM.L1TMonitor.L1TStage2CaloLayer2Emul_cfi import *
 
 # BMTF
 from DQM.L1TMonitor.L1TdeStage2BMTF_cfi import *
-from DQM.L1TMonitor.L1TdeStage2BMTFSecond_cff import *
+
+# kBMTF
+from DQM.L1TMonitor.L1TdeStage2kBMTF_cff import *
 
 # OMTF
 from DQM.L1TMonitor.L1TdeStage2OMTF_cfi import *
@@ -131,7 +126,7 @@ from DQM.L1TMonitor.L1TdeStage2uGT_cfi import *
 # sequence to run for every event
 l1tStage2EmulatorOnlineDQM = cms.Sequence(
     l1tdeStage2Bmtf +
-    l1tdeStage2BmtfSecond +
+    l1tdeStage2KalmanBmtf +
     l1tdeStage2Omtf +
     l1tdeStage2EmtfOnlineDQMSeq +
     l1tStage2uGMTEmulatorOnlineDQMSeq +
@@ -145,3 +140,4 @@ l1tStage2EmulatorOnlineDQMValidationEvents = cms.Sequence(
     l1tdeStage2CaloLayer2 +
     l1tStage2CaloLayer2Emul
 )
+
