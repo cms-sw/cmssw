@@ -67,9 +67,15 @@ for wheel in [-2,-1,0,1,2]:
         else:
             etaTag='0'
     
+<<<<<<< HEAD
         print('const ap_int<8> etaLUT0_'+etaTag+"_"+str(station)+'[128]={'+','.join(d1)+'};\n')
         print('const ap_int<8> etaLUT1_'+etaTag+"_"+str(station)+'[128]={'+','.join(d2)+'};\n')
         print('const ap_int<8> etaLUTQ_'+etaTag+"_"+str(station)+'[128]={'+','.join(d3)+'};\n')
+=======
+        print 'const ap_int<8> etaLUT0_'+etaTag+"_"+str(station)+'[128]={'+','.join(d1)+'};\n'
+        print 'const ap_int<8> etaLUT1_'+etaTag+"_"+str(station)+'[128]={'+','.join(d2)+'};\n'
+        print 'const ap_uint<1> etaLUTQ_'+etaTag+"_"+str(station)+'[128]={'+','.join(d3)+'};\n'
+>>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
         
 
             

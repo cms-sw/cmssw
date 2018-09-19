@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
+=======
+import FWCore.ParameterSet.Config as cms
+
+
+>>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
 from L1Trigger.L1TMuonBarrel.simKBmtfDigis_cfi import bmtfKalmanTrackingSettings as settings
 
 initialK = settings.initialK
@@ -56,12 +62,20 @@ for i in range(0,4):
             K=-8191
         arr[address]=str(K)    
 #    import pdb;pdb.set_trace()    
+<<<<<<< HEAD
     print('\n\n\n')
+=======
+    print '\n\n\n'    
+>>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
     if i in [0,1]:
         lut = 'ap_int<14> initialK_'+str(i+1)+'[1024] = {'+','.join(arr)+'};'
     if i in [2,3]:
         lut = 'ap_int<14> initialK_'+str(i+1)+'[1024] = {'+','.join(arr)+'};'
+<<<<<<< HEAD
     print(lut)
+=======
+    print lut
+>>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
 
         
 
