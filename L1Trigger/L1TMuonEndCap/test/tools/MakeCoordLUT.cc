@@ -541,6 +541,15 @@ void MakeCoordLUT::validateLUTs() {
   int es          = 0;
   int st          = 0;
   int ch          = 0;
+
+  int endcap      = 0;
+  int station     = 0;
+  int sector      = 0;
+  int subsector   = 0;
+  int ring        = 0;
+  int chamber     = 0;
+  int CSC_ID      = 0;
+
   int strip       = 0;  // it is half-strip, despite the name
   int wire        = 0;  // it is wiregroup, despite the name
   int fph_int     = 0;
@@ -555,6 +564,15 @@ void MakeCoordLUT::validateLUTs() {
   ttree->Branch("es"     , &es     );
   ttree->Branch("st"     , &st     );
   ttree->Branch("ch"     , &ch     );
+
+  ttree->Branch("endcap"   , &endcap    );
+  ttree->Branch("station"  , &station   );
+  ttree->Branch("sector"   , &sector    );
+  ttree->Branch("subsector", &subsector );
+  ttree->Branch("ring"     , &ring      );
+  ttree->Branch("chamber"  , &chamber   );
+  ttree->Branch("CSC_ID"   , &CSC_ID    );
+
   ttree->Branch("strip"  , &strip  );
   ttree->Branch("wire"   , &wire   );
   ttree->Branch("fph_int", &fph_int);
@@ -563,6 +581,8 @@ void MakeCoordLUT::validateLUTs() {
   ttree->Branch("fth_emu", &fth_emu);
   ttree->Branch("fph_sim", &fph_sim);
   ttree->Branch("fth_sim", &fth_sim);
+
+
 
 
   for (es = 0; es < 12; ++es) {
@@ -588,11 +608,11 @@ void MakeCoordLUT::validateLUTs() {
       assert(es < 12 && st < 5 && ch < 16);
 
       // Retrieve endcap, sector, subsector, station, chamber
-      int endcap      = (es/6) + 1;
-      int sector      = (es%6) + 1;
-      int subsector   = (st <= 1) ? st + 1 : 0;
-      int station     = (st <= 1) ? 1 : st;
-      int chamber     = ch + 1;
+      endcap      = (es/6) + 1;
+      sector      = (es%6) + 1;
+      subsector   = (st <= 1) ? st + 1 : 0;
+      station     = (st <= 1) ? 1 : st;
+      chamber     = ch + 1;
 
       bool is_me11a = false;
       bool is_neighbor = false;
@@ -638,12 +658,14 @@ void MakeCoordLUT::validateLUTs() {
         }
       }
 
+      CSC_ID = rcscid;
+
       // Set maxWire, maxStrip
       const CSCDetId cscDetId = getCSCDetId(endcap, rsector, rsubsector, station, rcscid, is_me11a);
       const CSCChamber* chamb = theCSCGeometry_->chamber(cscDetId);
       const CSCLayerGeometry* layerGeom = chamb->layer(CSCConstants::KEY_CLCT_LAYER)->geometry();
 
-      const int ring     = cscDetId.ring();
+      ring               = cscDetId.ring();
       const int maxWire  = layerGeom->numberOfWireGroups();
       const int maxStrip = layerGeom->numberOfStrips();
 
