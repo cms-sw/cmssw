@@ -323,7 +323,7 @@ inline uint16_t SiStripAPVRestorer::hybridEmulationInspect(uint16_t firstAPV, co
       if ( useRealMeanCM_ && ( std::end(meanCMmap_) != itCMMap ) )
         MeanAPVCM = itCMMap->second[iAPV];
 
-      const float DeltaCM = median_[iAPV] - MeanAPVCM;
+      const float DeltaCM = median_[iAPV] - (MeanAPVCM+1024)/2;
       if ( ( DeltaCM < 0 ) && ( std::abs(DeltaCM) > deltaCMThreshold_ ) ) {
         apvFlags_[iAPV] = "HybridEmulation";
         ++nAPVflagged;
