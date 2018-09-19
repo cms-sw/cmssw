@@ -683,7 +683,8 @@ bool L1TMuonBarrelKalmanAlgo::updateLUT(L1MuKBMTrack& track,const L1MuKBMTCombin
     int k_0 = fp_product(GAIN[0],residualPhi,3);
     int k_1 = fp_product(GAIN[1],residualPhiB,5);
     int KNew  = wrapAround(trackK+k_0+k_1,8192);
-
+    if (fabs(trackK+k_0+k_1)>8192)
+      return false;
     if (verbose_) {
       printf("Kpure=%d,wrapped=%d\n",trackK+k_0+k_1,KNew);
       printf("Kupdate: %d %d\n",k_0,k_1);
@@ -699,11 +700,17 @@ bool L1TMuonBarrelKalmanAlgo::updateLUT(L1MuKBMTrack& track,const L1MuKBMTCombin
       printf("phiupdate: %d %d\n",pb_0,pb_1);
 
     int phiBNew;
-    if (!(mask==3 || mask ==5 || mask==9 ||mask==6|| mask==10 ||mask==12))  
+    if (!(mask==3 || mask ==5 || mask==9 ||mask==6|| mask==10 ||mask==12))  {
       phiBNew = wrapAround(trackPhiB+pb_0,4096);
-    else
+      if (fabs(trackPhiB+pb_0)>4095)
+	return false;
+    }
+    else {
       phiBNew = wrapAround(trackPhiB+pb_1-pbdouble_0,4096);
+      if (fabs(trackPhiB+pb_1-pbdouble_0)>4095)
+	return false;
 
+    }
     track.setCoordinates(track.step(),KNew,phiNew,phiBNew);
     track.addStub(stub);
     track.setHitPattern(hitPattern(track));
@@ -880,8 +887,11 @@ std::pair<bool,L1MuKBMTrack> L1TMuonBarrelKalmanAlgo::chain(const L1MuKBMTCombin
       charge=phiB/fabs(phiB);
 
     int address=phiB;
-    if (track.step()>=3 && (fabs(seed->phiB())>63))
-      address=charge*63*8;
+    if (track.step()==4 && (fabs(seed->phiB())>15))
+      address=charge*15*8;
+
+    if (track.step()>=3 && (fabs(seed->phiB())>30))
+      address=charge*30*8;
     if (track.step()==2 && (fabs(seed->phiB())>127))
       address=charge*127*8;         
     int initialK = int(initK_[seed->stNum()-1]*address/(1+initK2_[seed->stNum()-1]*charge*address));
@@ -1013,6 +1023,11 @@ bool L1TMuonBarrelKalmanAlgo::estimateChiSquare(L1MuKBMTrack& track) {
   int K = track.curvatureAtMuon();
 
   uint chi=0;
+
+  const double PHI[4]={0.0,0.249,0.543,0.786};
+  const double DROR[4]={0.0,0.182,0.430,0.677};
+
+  if (track.stubs().size()==2) {
   //   printf("Starting Chi calculation\n");
   int coords = (track.phiAtMuon()+track.phiBAtMuon())>>3;
   for (const auto& stub: track.stubs()) {   
@@ -1026,13 +1041,23 @@ bool L1TMuonBarrelKalmanAlgo::estimateChiSquare(L1MuKBMTrack& track) {
    }
   //  chi=chi/2;
 
+  }
+  else {
+    for (const auto& stub: track.stubs()) {   
+      int deltaPhi = (correctedPhi(stub,track.sector())-track.phiAtMuon())>>3;
+      int AK =  fp_product(PHI[stub->stNum()-1],K>>3,8);
+      int BPB = fp_product(DROR[stub->stNum()-1],track.phiBAtMuon()>>3,8);
+      chi=chi+abs(deltaPhi-AK-BPB);
+    }
+  }
+
+
 
   if (chi>127)
     chi=127;
    
   
    track.setApproxChi2(chi);
-   //   printf("Chi square for track %d = %d %d %d\n",int(track.hitPattern()),chi,globalChi2Cut_,int(fabs(K)));
    return ((chi<=globalChi2Cut_) || (fabs(K)>globalChi2CutLimit_));
 
 }
