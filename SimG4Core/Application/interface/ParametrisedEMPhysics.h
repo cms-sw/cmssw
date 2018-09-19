@@ -8,13 +8,9 @@
 //              to SimG4Core/Application - 2012/08/14
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "G4VPhysicsConstructor.hh"
-
-class GFlashEMShowerModel;
-class GFlashHadronShowerModel;
-class ElectronLimiter;
-class G4FastSimulationManagerProcess;
+//#include "globals.hh"
+//#include <memory>
 
 class ParametrisedEMPhysics : public G4VPhysicsConstructor
 {
@@ -30,15 +26,8 @@ private:
 
   edm::ParameterSet theParSet;
 
-  static G4ThreadLocal std::unique_ptr<GFlashEMShowerModel> theEcalEMShowerModel;
-  static G4ThreadLocal std::unique_ptr<GFlashEMShowerModel> theHcalEMShowerModel;
-  static G4ThreadLocal std::unique_ptr<GFlashHadronShowerModel> theEcalHadShowerModel;
-  static G4ThreadLocal std::unique_ptr<GFlashHadronShowerModel> theHcalHadShowerModel;
-
-  static G4ThreadLocal std::unique_ptr<ElectronLimiter> theElectronLimiter;
-  static G4ThreadLocal std::unique_ptr<ElectronLimiter> thePositronLimiter;
-
-  static G4ThreadLocal std::unique_ptr<G4FastSimulationManagerProcess> theFastSimulationManagerProcess; 
+  struct TLSmod; 
+  static G4ThreadLocal TLSmod* m_tpmod;
 
 };
 
