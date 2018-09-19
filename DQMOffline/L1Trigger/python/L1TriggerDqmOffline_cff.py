@@ -282,6 +282,7 @@ from L1Trigger.L1TGlobal.GlobalParameters_cff import *
 
 # L1T emulator sequences
 from L1Trigger.Configuration.SimL1Emulator_cff import *
+from L1Trigger.L1TTwinMux.simTwinMuxDigis_cfi import *
 simTwinMuxDigis.RPC_Source = cms.InputTag("muonRPCDigis")
 simOmtfDigis.srcRPC = cms.InputTag("muonRPCDigis")
 simEmtfDigis.CSCInput = cms.InputTag("emtfStage2Digis")
