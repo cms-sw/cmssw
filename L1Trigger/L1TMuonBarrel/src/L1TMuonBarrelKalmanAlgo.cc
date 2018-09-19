@@ -647,8 +647,8 @@ bool L1TMuonBarrelKalmanAlgo::updateLUT(L1MuKBMTrack& track,const L1MuKBMTCombin
     int phi  = correctedPhi(stub,track.sector());
     int phiB = correctedPhiB(stub);
 
-    //    if (stub->quality()<4)
-    //      phiB=trackPhiB;
+    if (stub->quality()<4)
+      phiB=trackPhiB;
 
     Vector2 residual;
     int residualPhi = wrapAround(phi-trackPhi,2048);
@@ -889,6 +889,7 @@ std::pair<bool,L1MuKBMTrack> L1TMuonBarrelKalmanAlgo::chain(const L1MuKBMTCombin
       initialK=8191;
     if (initialK<-8191)
       initialK=-8191;
+
     track.setCoordinates(seed->stNum(),initialK,correctedPhi(seed,seed->scNum()),phiB);
     if (seed->quality()<4) {
       track.setCoordinates(seed->stNum(),0,correctedPhi(seed,seed->scNum()),0);     
