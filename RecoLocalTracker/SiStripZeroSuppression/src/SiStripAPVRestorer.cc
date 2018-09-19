@@ -46,8 +46,8 @@ SiStripAPVRestorer::SiStripAPVRestorer(const edm::ParameterSet& conf):
   size_window_(conf.getParameter<int>("sizeWindow")),
   width_cluster_(conf.getParameter<int>("widthCluster"))
 {
-  if ( restoreAlgo_ == "BaselineFollower" && inspectAlgo_ != "BaselineFollower" )
-    throw cms::Exception("Incompatible Algorithm") << "The BaselineFollower restore method requires the BaselineFollower inspect method";
+  if ( restoreAlgo_ == "BaselineFollower" && inspectAlgo_ != "BaselineFollower" && inspectAlgo_ != "Hybrid" )
+    throw cms::Exception("Incompatible Algorithm") << "The BaselineFollower restore method requires the BaselineFollower (or Hybrid) inspect method";
 }
 
 

@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 def runOnHybridZS(process):
     process.load("RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi")
     process.load("RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi")
+    process.siStripZeroSuppression.Algorithms.APVInspectMode = "Hybrid"
     zsInputs = process.siStripZeroSuppression.RawDigiProducersList
     clusInputs = process.siStripClusters.DigiProducersList
     unpackedZS = cms.InputTag("siStripDigis", "ZeroSuppressed")
