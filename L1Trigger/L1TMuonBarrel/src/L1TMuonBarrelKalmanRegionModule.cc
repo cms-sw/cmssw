@@ -109,14 +109,9 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanRegionModule::process(L1TMuonBarrelKal
   //  printf("SEED=4 Kalman Track charge=%d pt=%f eta=%f phi=%f curvature=%d curvature STA =%d stubs=%d chi2=%d pts=%f %f pattern=%d\n",track1.charge(),track1.pt(),track1.eta(),track1.phi(),track1.curvatureAtVertex(),track1.curvatureAtMuon(),int(track1.stubs().size()),track1.approxChi2(),track1.pt(),track1.ptUnconstrained(),track1.hitPattern()); 
 
 
-<<<<<<< HEAD
-  //  trackMaker->resolveEtaUnit(pretracks);
-  L1MuKBMTrackCollection out =trackMaker->cleanAndSort(pretracks,2);
-=======
 
   //  trackMaker->resolveEtaUnit(pretracks);
   L1MuKBMTrackCollection out =cleanRegion(pretracks2,pretracks3,pretracks4);
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
   if (verbose_) {
     printf(" -----Sector Processor Kalman Tracks-----\n");
     for (const auto& track1 :out)
@@ -197,8 +192,6 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanRegionModule::cleanLower(const L1MuKBM
 }
 
 
-<<<<<<< HEAD
-=======
 L1MuKBMTrackCollection L1TMuonBarrelKalmanRegionModule::sort4(const L1MuKBMTrackCollection&in ) {
 
   L1MuKBMTrackCollection out;
@@ -350,4 +343,3 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanRegionModule::cleanRegion(const L1MuKB
 
 }
 
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3

@@ -27,14 +27,6 @@ class L1TMuonBarrelKalmanAlgo {
   std::pair<bool,L1MuKBMTrack> chain(const L1MuKBMTCombinedStubRef&, const L1MuKBMTCombinedStubRefVector&);
 
   L1MuKBMTrackCollection clean(const L1MuKBMTrackCollection&,uint);
-<<<<<<< HEAD
-
-
-  L1MuKBMTrackCollection cleanAndSort(const L1MuKBMTrackCollection&,uint);
-  void addBMTFMuon(int,const L1MuKBMTrack&,std::unique_ptr<l1t::RegionalMuonCandBxCollection>&);
-  l1t::RegionalMuonCand  convertToBMTF(const L1MuKBMTrack& track); 
-=======
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
 
 
 
@@ -64,11 +56,7 @@ class L1TMuonBarrelKalmanAlgo {
   bool getBit(int,int);
   void setFloatingPointValues(L1MuKBMTrack&,bool);
   int phiAt2(const L1MuKBMTrack& track);
-<<<<<<< HEAD
-  void estimateChiSquare(L1MuKBMTrack&);
-=======
   bool estimateChiSquare(L1MuKBMTrack&);
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
   int rank(const L1MuKBMTrack&);
   int wrapAround(int,int);
   std::pair<bool,uint> getByCode(const L1MuKBMTrackCollection& tracks,int mask);
@@ -80,10 +68,7 @@ class L1TMuonBarrelKalmanAlgo {
   uint etaStubRank(const L1MuKBMTCombinedStubRef&);
 
   void calculateEta(L1MuKBMTrack& track);
-<<<<<<< HEAD
-=======
   uint matchAbs(std::map<uint,uint>&, uint, uint);
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
 
 
   //LUT service
@@ -103,11 +88,7 @@ class L1TMuonBarrelKalmanAlgo {
   std::vector<double> aPhiBNLO_;
   std::vector<double> bPhi_;
   std::vector<double> bPhiB_;
-<<<<<<< HEAD
-  std::vector<double> phiAt2_;
-=======
   double phiAt2_;
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
   std::vector<double> etaLUT0_;
   std::vector<double> etaLUT1_;
 
@@ -170,20 +151,6 @@ class L1TMuonBarrelKalmanAlgo {
 
   };
 
-<<<<<<< HEAD
-  class TrackSorter {
-  public:
-    TrackSorter() {
-    }
-
-    bool operator() (const L1MuKBMTrack& a ,const L1MuKBMTrack& b) {
-      if (abs(a.curvatureAtVertex())<=abs(b.curvatureAtVertex()))
-	return true;
-      return false;
-    }
-  };
-=======
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
   
 
 

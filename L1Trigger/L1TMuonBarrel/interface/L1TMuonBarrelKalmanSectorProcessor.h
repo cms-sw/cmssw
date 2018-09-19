@@ -97,9 +97,6 @@ class L1TMuonBarrelKalmanSectorProcessor {
   } bmtf_out;
 
 
-<<<<<<< HEAD
-  bmtf_out makeWord(L1TMuonBarrelKalmanAlgo*,const L1MuKBMTrackCollection&);
-=======
 
 
   bmtf_out makeWord(L1TMuonBarrelKalmanAlgo*,const L1MuKBMTrackCollection&);
@@ -109,7 +106,6 @@ class L1TMuonBarrelKalmanSectorProcessor {
   L1MuKBMTrackCollection cleanNeighbors(const L1MuKBMTrackCollection&,const L1MuKBMTrackCollection&,const L1MuKBMTrackCollection&);
   L1MuKBMTrackCollection wedgeSort(const L1MuKBMTrackCollection&,const L1MuKBMTrackCollection&,const L1MuKBMTrackCollection&,const L1MuKBMTrackCollection&,const L1MuKBMTrackCollection&);
 
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
 
 
 

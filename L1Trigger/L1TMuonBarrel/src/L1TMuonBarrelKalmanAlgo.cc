@@ -13,11 +13,7 @@ L1TMuonBarrelKalmanAlgo::L1TMuonBarrelKalmanAlgo(const edm::ParameterSet& settin
   aPhiBNLO_(settings.getParameter<std::vector<double> >("aPhiBNLO")),
   bPhi_(settings.getParameter<std::vector<double> >("bPhi")),
   bPhiB_(settings.getParameter<std::vector<double> >("bPhiB")),
-<<<<<<< HEAD
-  phiAt2_(settings.getParameter<std::vector<double> >("phiAt2")),
-=======
   phiAt2_(settings.getParameter<double>("phiAt2")),
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
   globalChi2Cut_(settings.getParameter<unsigned int>("globalChi2Cut")),
   globalChi2CutLimit_(settings.getParameter<unsigned int>("globalChi2CutLimit")),
   chiSquare_(settings.getParameter<std::vector<double> >("chiSquare")),
@@ -56,10 +52,7 @@ std::pair<bool,uint> L1TMuonBarrelKalmanAlgo::getByCode(const L1MuKBMTrackCollec
 l1t::RegionalMuonCand  
 L1TMuonBarrelKalmanAlgo::convertToBMTF(const L1MuKBMTrack& track) {
   int  K = fabs(track.curvatureAtVertex());
-<<<<<<< HEAD
-=======
 
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
   //calibration
   int sign,signValid;
 
@@ -82,11 +75,7 @@ L1TMuonBarrelKalmanAlgo::convertToBMTF(const L1MuKBMTrack& track) {
   if (K>4095)
     K=4095;
 
-<<<<<<< HEAD
-  int pt = ptLUT(K);
-=======
   int pt = ptLUT(track.curvatureAtVertex());
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
 
 
   int  K2 = fabs(track.curvatureAtMuon());
@@ -95,22 +84,6 @@ L1TMuonBarrelKalmanAlgo::convertToBMTF(const L1MuKBMTrack& track) {
 
   if (K2>4095)
     K2=4095;
-<<<<<<< HEAD
-  int pt2 = ptLUT(K2)/2;
-  int eta  = track.hasFineEta() ? track.fineEta() : track.coarseEta();
-  
-  int phi=track.phiAtMuon()+1024;
-  int signPhi=1;
-  if (phi>=0) {
-    phi = phi>>1;
-    signPhi=1;
-  }
-  else {
-     phi = (-phi)>>1;
-     signPhi=-1;
-  }
-  phi =signPhi*int((phi*2*M_PI/(6.0*2048.0))/(0.625*M_PI/180.0));
-=======
   int pt2 = ptLUT(track.curvatureAtMuon())/2;
   int eta  = track.hasFineEta() ? track.fineEta() : track.coarseEta();
   
@@ -134,7 +107,6 @@ L1TMuonBarrelKalmanAlgo::convertToBMTF(const L1MuKBMTrack& track) {
   int phi = 24+int(floor(kPhi*phi_f));
   if (phi >  69) phi =  69;
   if (phi < -8) phi = -8;
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
 
   int processor=track.sector();
   int HF = track.hasFineEta();
@@ -142,11 +114,8 @@ L1TMuonBarrelKalmanAlgo::convertToBMTF(const L1MuKBMTrack& track) {
   int quality=12|(rank(track)>>6);
 
   int dxy=abs(track.dxy())>>9;
-<<<<<<< HEAD
-=======
   if (dxy>3)
     dxy=3;
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
 
   int trackAddr;
   std::map<int,int> addr = trackAddress(track,trackAddr);
@@ -180,8 +149,6 @@ void L1TMuonBarrelKalmanAlgo::addBMTFMuon(int bx,const L1MuKBMTrack& track,  std
 
 
 
-<<<<<<< HEAD
-=======
 // std::pair<bool,uint> L1TMuonBarrelKalmanAlgo::match(const L1MuKBMTCombinedStubRef& seed, const L1MuKBMTCombinedStubRefVector& stubs,int step) {
 //   L1MuKBMTCombinedStubRefVector selected;
 
@@ -214,7 +181,6 @@ uint L1TMuonBarrelKalmanAlgo::matchAbs(std::map<uint,uint>& info, uint i, uint j
 }
 
 
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
 std::pair<bool,uint> L1TMuonBarrelKalmanAlgo::match(const L1MuKBMTCombinedStubRef& seed, const L1MuKBMTCombinedStubRefVector& stubs,int step) {
   L1MuKBMTCombinedStubRefVector selected;
 
@@ -253,16 +219,6 @@ std::pair<bool,uint> L1TMuonBarrelKalmanAlgo::match(const L1MuKBMTCombinedStubRe
   uint N=0;
   for (const auto& stub :stubs)  {
     N=N+1;
-<<<<<<< HEAD
-    if (stub->stNum()!=step) 
-      continue;
-
-    int d = fabs(wrapAround(((correctedPhi(seed,seed->scNum())-correctedPhi(stub,seed->scNum()))>>3),1024));
-    if (d<distance) {
-      distance = d;
-      best=N-1;
-      found=true;
-=======
 
     if (stub->stNum()!=step) 
       continue;
@@ -334,7 +290,6 @@ std::pair<bool,uint> L1TMuonBarrelKalmanAlgo::match(const L1MuKBMTCombinedStubRe
 	  stubInfo[11]=N-1;
 	}
       }
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
     }
 
   }
@@ -422,17 +377,10 @@ void L1TMuonBarrelKalmanAlgo::propagate(L1MuKBMTrack& track) {
   int charge=1;
   if (K!=0) 
     charge = K/fabs(K);
-<<<<<<< HEAD
 
 
 
 
-=======
-
-
-
-
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
   int KBound=K;
   if (KBound>4095)
     KBound=4095;
@@ -463,19 +411,11 @@ void L1TMuonBarrelKalmanAlgo::propagate(L1MuKBMTrack& track) {
   if (verbose_) {
     printf("phi prop = %d* %f = %d, %d* %f =%d\n",K,aPhi_[step-1],phi11,phiB,-bPhi_[step-1],phi12);
   }
-<<<<<<< HEAD
-  int phiNew =wrapAround(phi+phi11+phi12,8192);
-  //phiB propagation
-  int phiB11 = fp_product(aPhiB_[step-1],K,10);
-  int phiB12 = fp_product(bPhiB_[step-1],phiB,11);
-  int phiBNew = wrapAround(phiB11+phiB12,2048);
-=======
   int phiNew =wrapAround(phi+phi11+phi12,2048);
   //phiB propagation
   int phiB11 = fp_product(aPhiB_[step-1],K,10);
   int phiB12 = fp_product(bPhiB_[step-1],phiB,11);
   int phiBNew = wrapAround(phiB11+phiB12,4096);
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
   if (verbose_) {
     printf("phiB prop = %d* %f = %d, %d* %f =%d\n",K,aPhiB_[step-1],phiB11,phiB,bPhiB_[step-1],phiB12);
   }
@@ -484,11 +424,7 @@ void L1TMuonBarrelKalmanAlgo::propagate(L1MuKBMTrack& track) {
   //Only for the propagation to vertex we use the LUT for better precision and the full function
   if (step==1) {
     int addr = KBound/2;
-<<<<<<< HEAD
-    phiBNew = wrapAround(int(aPhiB_[step-1]*addr/(1+charge*aPhiBNLO_[step-1]*addr))+int(bPhiB_[step-1]*phiB),2048);
-=======
     phiBNew = wrapAround(int(aPhiB_[step-1]*addr/(1+charge*aPhiBNLO_[step-1]*addr))+int(bPhiB_[step-1]*phiB),4096);
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
   }
   ///////////////////////////////////////////////////////
   //Rest of the stuff  is for the offline version only 
@@ -715,16 +651,6 @@ bool L1TMuonBarrelKalmanAlgo::updateLUT(L1MuKBMTrack& track,const L1MuKBMTCombin
     //      phiB=trackPhiB;
 
     Vector2 residual;
-<<<<<<< HEAD
-    int residualPhi = wrapAround(phi-trackPhi,8192);
-    int residualPhiB = wrapAround(phiB-trackPhiB,2048);
-
-
-    if (verbose_)
-      printf("residuals %d %d\n",int(residualPhi),int(residualPhiB));
-
-
-=======
     int residualPhi = wrapAround(phi-trackPhi,2048);
     int residualPhiB = wrapAround(phiB-trackPhiB,4096);
 
@@ -733,7 +659,6 @@ bool L1TMuonBarrelKalmanAlgo::updateLUT(L1MuKBMTrack& track,const L1MuKBMTCombin
       printf("residuals %d %d\n",int(residualPhi),int(residualPhiB));
 
 
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
     uint absK = fabs(trackK);
     if (absK>4095)
       absK = 4095;
@@ -759,16 +684,10 @@ bool L1TMuonBarrelKalmanAlgo::updateLUT(L1MuKBMTrack& track,const L1MuKBMTCombin
     int k_1 = fp_product(GAIN[1],residualPhiB,5);
     int KNew  = wrapAround(trackK+k_0+k_1,8192);
 
-<<<<<<< HEAD
-    if (verbose_)
-      printf("Kupdate: %d %d\n",k_0,k_1);
-
-=======
     if (verbose_) {
       printf("Kpure=%d,wrapped=%d\n",trackK+k_0+k_1,KNew);
       printf("Kupdate: %d %d\n",k_0,k_1);
     }
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
     int phiNew  = phi;
 
     //different products for different firmware logic
@@ -781,15 +700,9 @@ bool L1TMuonBarrelKalmanAlgo::updateLUT(L1MuKBMTrack& track,const L1MuKBMTCombin
 
     int phiBNew;
     if (!(mask==3 || mask ==5 || mask==9 ||mask==6|| mask==10 ||mask==12))  
-<<<<<<< HEAD
-      phiBNew = wrapAround(trackPhiB+pb_0,2048);
-    else
-      phiBNew = wrapAround(trackPhiB+pb_1-pbdouble_0,2048);
-=======
       phiBNew = wrapAround(trackPhiB+pb_0,4096);
     else
       phiBNew = wrapAround(trackPhiB+pb_1-pbdouble_0,4096);
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
 
     track.setCoordinates(track.step(),KNew,phiNew,phiBNew);
     track.addStub(stub);
@@ -904,46 +817,24 @@ void L1TMuonBarrelKalmanAlgo::setFloatingPointValues(L1MuKBMTrack& track,bool ve
   
 
   if (vertex) {
-<<<<<<< HEAD
-    K  = track.curvatureAtVertex();
-    if (K==0)
-      track.setCharge(1);
-    else
-      track.setCharge(K/fabs(K));
-=======
     double pt = double(ptLUT(track.curvatureAtVertex()))/2.0;
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
 
 
     double phi= track.sector()*M_PI/6.0+track.phiAtVertex()*M_PI/(6*2048.)-2*M_PI;
 
-<<<<<<< HEAD
-    float FK=fabs(K);
-    if (FK<51)
-      FK=51;   
-    double pt = 1.0/(lsb*(FK));
-
-=======
     double eta = etaINT*lsbEta;
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
     track.setPtEtaPhi(pt,eta,phi);
   }
   else {
     K=track.curvatureAtMuon();
     if (K==0)
       K=1;
-<<<<<<< HEAD
-    if (fabs(K)<46)
-      K=46*K/fabs(K);
-    double pt = 1.0/(lsb*fabs(K));
-=======
 
     if (fabs(K)<46)
       K=46*K/fabs(K);
     double pt = 1.0/(lsb*fabs(K));
     if (pt<1.6)
       pt=1.6;
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
     track.setPtUnconstrained(pt);
   }
 }
@@ -1042,13 +933,9 @@ std::pair<bool,L1MuKBMTrack> L1TMuonBarrelKalmanAlgo::chain(const L1MuKBMTCombin
       if (track.step()==1) {
 	track.setCoordinatesAtMuon(track.curvature(),track.positionAngle(),track.bendingAngle());
 	phiAtStation2=phiAt2(track);
-<<<<<<< HEAD
-	estimateChiSquare(track);
-=======
 	bool passed = estimateChiSquare(track);
 	if (!passed)
 	  break;
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
 	calculateEta(track);
 	setFloatingPointValues(track,false);
 	//calculate coarse eta
@@ -1081,11 +968,6 @@ std::pair<bool,L1MuKBMTrack> L1TMuonBarrelKalmanAlgo::chain(const L1MuKBMTCombin
 	if (verbose_)
 	  printf("Chi Square = %d\n",track.approxChi2());
 
-<<<<<<< HEAD
-	if (fabs(track.approxChi2())>globalChi2Cut_)
-	  break;
-=======
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
 	vertexConstraint(track);
 	if (verbose_) {
 	  printf(" Coordinates after vertex constraint step:%d,phi=%d,dxy=%d,K=%d  maximum local chi2=%d\n",track.step(),track.phiAtVertex(),track.dxy(),track.curvatureAtVertex(),track.approxChi2());
@@ -1125,22 +1007,6 @@ bool L1TMuonBarrelKalmanAlgo::estimateChiSquare(L1MuKBMTrack& track) {
   // we apply cuts on the firmware as |u -u'|^2 < a+b *K^2 
   int K = track.curvatureAtMuon();
 
-<<<<<<< HEAD
-  int chi=0;
-  //  printf("Starting Chi calculation\n");
-  int coords = (track.phiAtMuon()+track.phiBAtMuon())>>3;
-  for (const auto& stub: track.stubs()) {   
-    int AK = fp_product(-chiSquare_[stub->stNum()-1],K>>3,8);
-    int stubCoords =   (correctedPhi(stub,track.sector())>>3)+stub->phiB();
-    uint delta = fabs(stubCoords-coords+AK);
-    // printf("station=%d AK=%d delta=%d\n",stub->stNum(),AK,delta);
-
-    chi=chi+fabs(delta);    
-   }
-  //  chi=chi/2;
-  if (chi>127)
-    chi=127;
-=======
   uint chi=0;
   //   printf("Starting Chi calculation\n");
   int coords = (track.phiAtMuon()+track.phiBAtMuon())>>3;
@@ -1160,7 +1026,6 @@ bool L1TMuonBarrelKalmanAlgo::estimateChiSquare(L1MuKBMTrack& track) {
     chi=127;
    
   
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
    track.setApproxChi2(chi);
    //   printf("Chi square for track %d = %d %d %d\n",int(track.hitPattern()),chi,globalChi2Cut_,int(fabs(K)));
    return ((chi<=globalChi2Cut_) || (fabs(K)>globalChi2CutLimit_));
@@ -1189,7 +1054,6 @@ int L1TMuonBarrelKalmanAlgo::wrapAround(int value,int maximum) {
 
 }
 
-<<<<<<< HEAD
 
 bool L1TMuonBarrelKalmanAlgo::punchThroughVeto(const L1MuKBMTrack& track) {
   for (uint i=0;i<chiSquareCutPattern_.size();++i)  {
@@ -1198,60 +1062,6 @@ bool L1TMuonBarrelKalmanAlgo::punchThroughVeto(const L1MuKBMTrack& track) {
   }
    
    return false;
-}
-
-L1MuKBMTrackCollection L1TMuonBarrelKalmanAlgo::cleanAndSort(const L1MuKBMTrackCollection& pretracks,uint keep) {
-  L1MuKBMTrackCollection out;
-
-  if (verbose_) 
-    printf(" -----Preselected Kalman Tracks-----\n");
-
-
-  for(const auto& track1 : pretracks) {
-    if (verbose_)
-      printf("Pre Track charge=%d pt=%f eta=%f phi=%f curvature=%d curvature STA =%d stubs=%d bitmask=%d rank=%d chi=%d pts=%f %f\n",track1.charge(),track1.pt(),track1.eta(),track1.phi(),track1.curvatureAtVertex(),track1.curvatureAtMuon(),int(track1.stubs().size()),track1.hitPattern(),rank(track1),track1.approxChi2(),track1.pt(),track1.ptUnconstrained()); 
-
-    bool keep=true;
-    for(const auto& track2 : pretracks) {
-      if (track1==track2)
-	continue;
-      if (!track1.overlapTrack(track2))
-	continue;
-      if (track1.rank()<track2.rank())
-	keep=false;
-    }
-    if (keep) 
-      out.push_back(track1);
-  }
-
-  if (verbose_) {
-  printf(" -----Algo Result Kalman Tracks-----\n");
-  for (const auto& track1 :out)
-    printf("Final Kalman Track charge=%d pt=%f eta=%f phi=%f curvature=%d curvature STA =%d stubs=%d chi2=%d pts=%f %f\n",track1.charge(),track1.pt(),track1.eta(),track1.phi(),track1.curvatureAtVertex(),track1.curvatureAtMuon(),int(track1.stubs().size()),track1.approxChi2(),track1.pt(),track1.ptUnconstrained()); 
-  }
-
-
-
-  TrackSorter sorter;
-  if (!out.empty())
-    std::sort(out.begin(),out.end(),sorter);
-
-
-  L1MuKBMTrackCollection exported;
-  for (uint i=0;i<out.size();++i)
-    if (i<=keep)
-      exported.push_back(out[i]);
-  return exported;
-=======
-
-bool L1TMuonBarrelKalmanAlgo::punchThroughVeto(const L1MuKBMTrack& track) {
-  for (uint i=0;i<chiSquareCutPattern_.size();++i)  {
-   if (track.hitPattern()==chiSquareCutPattern_[i] && fabs(track.curvatureAtVertex())<chiSquareCutCurv_[i] && track.approxChi2()>chiSquareCut_[i] && track.curvature()*track.dxy()<0) 
-     return true;
-  }
-   
-   return false;
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
 }
 
 
@@ -1308,15 +1118,7 @@ int L1TMuonBarrelKalmanAlgo::encode(bool ownwheel,int sector,bool tag) {
 
 std::map<int,int> L1TMuonBarrelKalmanAlgo::trackAddress(const L1MuKBMTrack& track,int& word) {
   std::map<int,int> out;
-<<<<<<< HEAD
-  if (track.wheel()>=0)
-    out[l1t::RegionalMuonCand::kWheelSide] = 0;
-  else
-    out[l1t::RegionalMuonCand::kWheelSide] = 1;
-
-=======
   out[l1t::RegionalMuonCand::kWheelSide] = track.wheel()<0;
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
   out[l1t::RegionalMuonCand::kWheelNum] = fabs(track.wheel());
   out[l1t::RegionalMuonCand::kStat1]=3;
   out[l1t::RegionalMuonCand::kStat2]=15;
@@ -1384,20 +1186,6 @@ int L1TMuonBarrelKalmanAlgo::fp_product(float a,int b, uint bits) {
 
 
 int L1TMuonBarrelKalmanAlgo::ptLUT(int K) {
-<<<<<<< HEAD
-  float lsb=1.25/float(1<<13);
-  float ptF = (2*(1.0/(lsb*float(K))));
-  float KF = 1.0/ptF;
-  int pt=0;
-  KF = 0.797*KF+0.454*KF*KF-5.679e-4;
-  if (KF!=0)
-    pt=int(1.0/KF);
-  else
-    pt=511;
-
-  if (pt>511)
-    pt=511;
-=======
   int charge = (K>=0) ? +1 : -1;
   float lsb=1.25/float(1<<13);
   float FK = fabs(K);
@@ -1430,7 +1218,6 @@ int L1TMuonBarrelKalmanAlgo::ptLUT(int K) {
   if (pt<6)
     pt=6;
 
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
   return pt;
 }
 
@@ -1460,11 +1247,7 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanAlgo::clean(const L1MuKBMTrackCollecti
   int selected=15;
   if (seed==4) //station 4 seeded 
     {
-<<<<<<< HEAD
-      int sel6 = infoRank[12]>= infoRank[10] ? 12 : 10;
-=======
       int sel6 = infoRank[10]>= infoRank[12] ? 10 : 12;
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
       int sel5 = infoRank[14]>= infoRank[9] ? 14 : 9;
       int sel4 = infoRank[11]>= infoRank[13] ? 11 : 13;
       int sel3 = infoRank[sel6]>= infoRank[sel5] ? sel6 : sel5;
@@ -1488,13 +1271,10 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanAlgo::clean(const L1MuKBMTrackCollecti
 
 }
 
-<<<<<<< HEAD
-=======
 
 
 
 
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
 uint L1TMuonBarrelKalmanAlgo::etaStubRank(const L1MuKBMTCombinedStubRef& stub) {
 
   if (stub->qeta1()!=0 && stub->qeta2()!=0) {
@@ -1573,27 +1353,11 @@ void L1TMuonBarrelKalmanAlgo::calculateEta(L1MuKBMTrack& track) {
 
 
 int L1TMuonBarrelKalmanAlgo::phiAt2(const L1MuKBMTrack& track) {
-<<<<<<< HEAD
-
-=======
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
   //If there is stub at station 2 use this else propagate from 1
   for (const auto& stub:track.stubs())
     if (stub->stNum()==2)
       return correctedPhi(stub,track.sector());
 
-<<<<<<< HEAD
-
-  int K = track.curvature();
-  int phi = track.positionAngle();
-  int phiB = track.bendingAngle();
-
-  //phi propagation
-  int phi11 = fp_product(phiAt2_[0],K,10);
-  int phi12 = fp_product(phiAt2_[1],phiB,10);
-  
-  int phiNew =phi+phi11+phi12;
-=======
   int phi = track.phiAtMuon();
   int phiB = track.phiBAtMuon();
 
@@ -1601,20 +1365,10 @@ int L1TMuonBarrelKalmanAlgo::phiAt2(const L1MuKBMTrack& track) {
   int phiNew=phi+fp_product(phiAt2_,phiB,12);
   if (verbose_)
     printf("Phi at second station=%d\n",phiNew);
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
   if (phiNew>2047)
     phiNew=2047;
   if (phiNew<-2048)
     phiNew=-2048;
-<<<<<<< HEAD
-
-
-  if (verbose_) {
-    printf("phi at station 2  = %d* %f = %d, %d* %f =%d , final=%d\n",K,phiAt2_[0],phi11,phiB,phiAt2_[1],phi12,phiNew);
-  }
-
-=======
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
   return phiNew;
 
 }

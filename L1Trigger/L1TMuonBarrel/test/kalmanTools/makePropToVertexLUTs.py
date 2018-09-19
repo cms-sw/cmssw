@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-from __future__ import print_function
-=======
 
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
 import FWCore.ParameterSet.Config as cms
 
 
@@ -29,13 +25,8 @@ for addr in range(0,2048):
 
 
 
-<<<<<<< HEAD
-print('ap_ufixed<12,12> eLossVertex[2048] = {'+','.join(deltaK)+'};')
-print('ap_ufixed<12,12> dxyVertex[2048] = {'+','.join(dxy)+'};')
-=======
 print 'ap_ufixed<12,12> eLossVertex[2048] = {'+','.join(deltaK)+'};'
 print 'ap_ufixed<12,12> dxyVertex[2048] = {'+','.join(dxy)+'};'
->>>>>>> ad4437d91bc... branch for 10_2_X including only the Kalman Emulator v2.3
 
 
 
