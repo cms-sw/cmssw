@@ -146,7 +146,7 @@ void ParametrisedEMPhysics::ConstructProcess() {
   G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
   if(gem || ghad || gemHad || ghadHad) {
     if(!m_tpmod) { m_tpmod = new TLSmod; }
-    edm::LogInfo("SimG4CoreApplication") 
+    edm::LogVerbatim("SimG4CoreApplication") 
       << "ParametrisedEMPhysics: GFlash Construct for e+-: " 
       << gem << "  " << ghad << " for hadrons: " << gemHad << "  " << ghadHad;
 
