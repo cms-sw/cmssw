@@ -38,7 +38,6 @@ siStripQualityESProducerUnbiased.ListOfRecordToMerge = cms.VPSet(
 # Clusterizer #
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi import *
 
-
 calZeroBiasClusters = siStripClusters.clone()
 calZeroBiasClusters.Clusterizer.QualityLabel = 'unbiased'
 
@@ -61,7 +60,6 @@ from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 (pp_on_XeXe_2017 | pp_on_AA_2018).toModify(ALCARECOSiStripCalZeroBiasHLT,
                                            eventSetupPathsKey='SiStripCalZeroBiasHI'
-
                                            )
 
 # Select pp-like events based on the pixel cluster multiplicity
@@ -76,8 +74,3 @@ seqALCARECOSiStripCalZeroBiasHI = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*HLT
 (pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(seqALCARECOSiStripCalZeroBias,
                                                 seqALCARECOSiStripCalZeroBiasHI
                                                 )
-
-
-
-
-
