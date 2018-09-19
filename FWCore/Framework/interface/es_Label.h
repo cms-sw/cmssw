@@ -53,8 +53,9 @@ namespace edm::es {
 
   struct Label {
     Label() = default;
-    Label(std::string_view const iString) : default_{iString} {}
-    Label(std::string_view const iString, unsigned int const iIndex) :
+    Label(const char* iLabel) : default_{iLabel} {}
+    Label(const std::string& iString) : default_{iString} {}
+    Label(const std::string& iString, unsigned int const iIndex) :
       labels_(iIndex+1, def())
     {
       labels_[iIndex] = iString;
