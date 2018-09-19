@@ -52,7 +52,7 @@ void EventAction::EndOfEventAction(const G4Event * anEvent)
 	<< " EndOfEvent " << anEvent->GetEventID()
 	<< " Random number: " << G4UniformRand();  
     }
-  if (m_stopFile != "" && std::ifstream(m_stopFile.c_str()))
+  if (!m_stopFile.empty() && std::ifstream(m_stopFile.c_str()))
     {
       edm::LogWarning("SimG4CoreApplication")
         << "EndOfEventAction: termination signal received at event "

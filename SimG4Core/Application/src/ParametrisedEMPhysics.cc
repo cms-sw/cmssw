@@ -51,7 +51,7 @@ struct ParametrisedEMPhysics::TLSmod {
 
 G4ThreadLocal ParametrisedEMPhysics::TLSmod* ParametrisedEMPhysics::m_tpmod = nullptr;
 
-ParametrisedEMPhysics::ParametrisedEMPhysics(std::string name, 
+ParametrisedEMPhysics::ParametrisedEMPhysics(const std::string& name, 
 					     const edm::ParameterSet & p) 
   : G4VPhysicsConstructor(name), theParSet(p) 
 {

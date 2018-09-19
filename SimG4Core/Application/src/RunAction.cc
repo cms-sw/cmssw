@@ -18,7 +18,7 @@ RunAction::~RunAction()
 
 void RunAction::BeginOfRunAction(const G4Run * aRun)
 {
-  if (m_stopFile != "" && std::ifstream(m_stopFile.c_str()))
+  if (!m_stopFile.empty() && std::ifstream(m_stopFile.c_str()))
     {
       edm::LogWarning("SimG4CoreApplication")
         << "RunAction::BeginOfRunAction: termination signal received";

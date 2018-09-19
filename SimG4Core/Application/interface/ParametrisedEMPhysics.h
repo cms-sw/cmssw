@@ -14,7 +14,7 @@ class ParametrisedEMPhysics : public G4VPhysicsConstructor
 {
 public:
 
-  ParametrisedEMPhysics(std::string name, const edm::ParameterSet & p);
+  ParametrisedEMPhysics(const std::string& name, const edm::ParameterSet & p);
   ~ParametrisedEMPhysics() override;
 	
   void ConstructParticle() override;
