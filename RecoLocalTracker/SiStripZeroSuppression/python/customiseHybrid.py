@@ -34,7 +34,7 @@ def addHybridEmulationBeforeRepack(process):
     zs.Algorithms.APVInspectMode = "HybridEmulation"
     zs.Algorithms.APVRestoreMode = ""
     zs.Algorithms.CommonModeNoiseSubtractionMode = 'Median'
-    zs.Algorithms.MeanCM = 512
+    zs.Algorithms.MeanCM = 0
     zs.Algorithms.DeltaCMThreshold = 20
     zs.Algorithms.Use10bitsTruncation = True
     zs.RawDigiProducersList = cms.VInputTag(cms.InputTag("siStripDigis", "VirginRaw"))
