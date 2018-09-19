@@ -543,7 +543,12 @@ FWRecoGeometryESProducer::addCaloGeometry( void )
       const CaloCellGeometry::CornersVec& cor = m_caloGeom->getGeometry( *it )->getCorners();      
       fillPoints( id, cor.begin(), cor.end());
     } else {
-      const HGCalGeometry* geom = dynamic_cast<const HGCalGeometry*>(m_caloGeom->getSubdetectorGeometry( *it ) );
+      DetId::Detector det = it->det();
+      int          subdet = (((DetId::HGCalEE == det) || 
+			     (DetId::HGCalHSi == det) ||
+			     (DetId::HGCalHSc == det)) ? ForwardEmpty :
+			     it->subdetId());
+      const HGCalGeometry* geom = dynamic_cast<const HGCalGeometry*>(m_caloGeom->getSubdetectorGeometry(det,subdet));
       const auto cor = geom->get8Corners( *it );
       fillPoints( id, cor.begin(), cor.end() );
     }
