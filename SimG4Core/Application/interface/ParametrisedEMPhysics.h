@@ -9,8 +9,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "G4VPhysicsConstructor.hh"
-//#include "globals.hh"
-//#include <memory>
 
 class ParametrisedEMPhysics : public G4VPhysicsConstructor
 {
