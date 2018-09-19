@@ -92,6 +92,11 @@ def customisePostEra_Run2_2018_pp_on_AA(process):
     customisePostEra_Run2_2018(process)
     return process
 
+def customisePostEra_Run2_2018_pp_on_AA_express_trackingOnly(process):
+    customisePostEra_Run2_2018_pp_on_AA(process)
+    from Calibration.TkAlCaRecoProducers.PCLHPbeamspot_custom import customise_HPbeamspot as _customise_HPbeamspot
+    _customise_HPbeamspot(process)
+    return process
 
 
 ##############################################################################
