@@ -17,3 +17,8 @@ zdcTask = DQMEDAnalyzer(
 	cut = cms.untracked.double(20),
 	ped = cms.untracked.int32(4)
 )
+
+zdcQIE10Task = DQMEDAnalyzer(
+	"ZDCQIE10Task",
+	tagQIE10 = cms.untracked.InputTag('hcalDigis', 'ZDC')
+)
