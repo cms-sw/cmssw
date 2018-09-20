@@ -39,16 +39,12 @@ FCDTask::FCDTask(edm::ParameterSet const& ps)
 	std::vector<HcalGenericDetId> gids = _emap->allPrecisionId();
 	for (auto& it_gid : gids) {
 		if (it_gid.genericSubdet() != HcalGenericDetId::HcalGenZDC) {
-			std::cout << "[debug] \tSkipping non-ZDC channel " << it_gid << std::endl;
 			continue;
 		}
 		HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(it_gid));
 		for (auto& it_channel : _channels) {
 			if ((eid.crateId() == it_channel.crate) && (eid.slot() == it_channel.slot) && (eid.fiberIndex() == it_channel.fiber) && (eid.fiberChanId() == it_channel.fiberChannel)) {
-				std::cout << "[debug] Using FCD channel " << eid << std::endl;
 				_fcd_eids.push_back(eid);
-			} else {
-				std::cout << "[debug] \tSkipping non-FCD channel " << eid << std::endl;
 			}
 		}
 	}
@@ -72,7 +68,7 @@ FCDTask::FCDTask(edm::ParameterSet const& ps)
 
 		ib.setCurrentFolder("Hcal/FCDTask/TDC");
 		_cTDC[it_eid] = ib.book1D( histoname.c_str(), histoname.c_str(), 64, -0.5, 63.5);
-		_cTDC[it_eid]->setAxisTitle("TDC time [ns]", 1);
+		_cTDC[it_eid]->setAxisTitle("TDC", 1);
 
 	}
 }
