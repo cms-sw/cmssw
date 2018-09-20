@@ -13,7 +13,7 @@ full_81x_chs = cms.PSet(
             cms.PSet(
                 jEtaMin = cms.double(0.),
                 jEtaMax = cms.double(2.5),
-                tmvaWeights  = cms.string("RecoJets/JetProducers/data/pileupJetId_80XvarFix_Eta0to2p5_BDT.weights.xml.gz"),
+                tmvaWeights  = cms.FileInPath("RecoJets/JetProducers/data/pileupJetId_80XvarFix_Eta0to2p5_BDT.weights.xml.gz"),
                 tmvaVariables = cms.vstring(
                     "nvtx",
                     "dR2Mean"     ,
@@ -35,7 +35,7 @@ full_81x_chs = cms.PSet(
             cms.PSet(
                 jEtaMin = cms.double(2.5),
                 jEtaMax = cms.double(2.75),
-                tmvaWeights   = cms.string("RecoJets/JetProducers/data/pileupJetId_80XvarFix_Eta2p5to2p75_BDT.weights.xml.gz"),
+                tmvaWeights   = cms.FileInPath("RecoJets/JetProducers/data/pileupJetId_80XvarFix_Eta2p5to2p75_BDT.weights.xml.gz"),
                 tmvaVariables = cms.vstring(
                     "nvtx",
                     "dR2Mean"     ,
@@ -57,7 +57,7 @@ full_81x_chs = cms.PSet(
             cms.PSet(
                 jEtaMin = cms.double(2.75),
                 jEtaMax = cms.double(3.),
-                tmvaWeights   = cms.string("RecoJets/JetProducers/data/pileupJetId_80XvarFix_Eta2p75to3_BDT.weights.xml.gz"),
+                tmvaWeights   = cms.FileInPath("RecoJets/JetProducers/data/pileupJetId_80XvarFix_Eta2p75to3_BDT.weights.xml.gz"),
                 tmvaVariables = cms.vstring(
                     "nvtx",
                     "dR2Mean"     ,
@@ -79,7 +79,7 @@ full_81x_chs = cms.PSet(
             cms.PSet(
                 jEtaMin = cms.double(3.),
                 jEtaMax = cms.double(5.),
-                tmvaWeights   = cms.string("RecoJets/JetProducers/data/pileupJetId_80XvarFix_Eta3to5_BDT.weights.xml.gz"),
+                tmvaWeights   = cms.FileInPath("RecoJets/JetProducers/data/pileupJetId_80XvarFix_Eta3to5_BDT.weights.xml.gz"),
                 tmvaVariables = cms.vstring(
                     "nvtx",
                     "dR2Mean"     ,
@@ -117,7 +117,7 @@ full_80x_chs = cms.PSet(
             cms.PSet(
                 jEtaMin = cms.double(0.),
                 jEtaMax = cms.double(2.5),
-                tmvaWeights  = cms.string("RecoJets/JetProducers/data/pileupJetId_80X_Eta0to2p5_BDT.weights.xml.gz"),
+                tmvaWeights  = cms.FileInPath("RecoJets/JetProducers/data/pileupJetId_80X_Eta0to2p5_BDT.weights.xml.gz"),
                 tmvaVariables = cms.vstring(
                     "nvtx",
                     "dR2Mean"     ,
@@ -139,7 +139,7 @@ full_80x_chs = cms.PSet(
             cms.PSet(
                 jEtaMin = cms.double(2.5),
                 jEtaMax = cms.double(2.75),
-                tmvaWeights   = cms.string("RecoJets/JetProducers/data/pileupJetId_80X_Eta2p5to2p75_BDT.weights.xml.gz"),
+                tmvaWeights   = cms.FileInPath("RecoJets/JetProducers/data/pileupJetId_80X_Eta2p5to2p75_BDT.weights.xml.gz"),
                 tmvaVariables = cms.vstring(
                     "nvtx",
                     "dR2Mean"     ,
@@ -161,7 +161,7 @@ full_80x_chs = cms.PSet(
             cms.PSet(
                 jEtaMin = cms.double(2.75),
                 jEtaMax = cms.double(3.),
-                tmvaWeights   = cms.string("RecoJets/JetProducers/data/pileupJetId_80X_Eta2p75to3_BDT.weights.xml.gz"),
+                tmvaWeights   = cms.FileInPath("RecoJets/JetProducers/data/pileupJetId_80X_Eta2p75to3_BDT.weights.xml.gz"),
                 tmvaVariables = cms.vstring(
                     "nvtx",
                     "dR2Mean"     ,
@@ -183,7 +183,7 @@ full_80x_chs = cms.PSet(
             cms.PSet(
                 jEtaMin = cms.double(3.),
                 jEtaMax = cms.double(5.),
-                tmvaWeights   = cms.string("RecoJets/JetProducers/data/pileupJetId_80X_Eta3to5_BDT.weights.xml.gz"),
+                tmvaWeights   = cms.FileInPath("RecoJets/JetProducers/data/pileupJetId_80X_Eta3to5_BDT.weights.xml.gz"),
                 tmvaVariables = cms.vstring(
                     "nvtx",
                     "dR2Mean"     ,
@@ -218,7 +218,7 @@ full_76x_chs = cms.PSet(
         cms.PSet(
             jEtaMin = cms.double(0.),
             jEtaMax = cms.double(2.5),
-            tmvaWeights  = cms.string("RecoJets/JetProducers/data/pileupJetId_76x_Eta0to2p5_BDT.weights.xml.gz"),
+            tmvaWeights  = cms.FileInPath("RecoJets/JetProducers/data/pileupJetId_76x_Eta0to2p5_BDT.weights.xml.gz"),
             tmvaVariables = cms.vstring(
                 "nvtx",
                 "dR2Mean"     ,
@@ -240,7 +240,7 @@ full_76x_chs = cms.PSet(
         cms.PSet(
             jEtaMin = cms.double(2.5),
             jEtaMax = cms.double(2.75),
-            tmvaWeights   = cms.string("RecoJets/JetProducers/data/pileupJetId_76x_Eta2p5to2p75_BDT.weights.xml.gz"),
+            tmvaWeights   = cms.FileInPath("RecoJets/JetProducers/data/pileupJetId_76x_Eta2p5to2p75_BDT.weights.xml.gz"),
             tmvaVariables = cms.vstring(
                 "nvtx",
                 "dR2Mean"     ,
@@ -262,7 +262,7 @@ full_76x_chs = cms.PSet(
         cms.PSet(
             jEtaMin = cms.double(2.75),
             jEtaMax = cms.double(3.),
-            tmvaWeights   = cms.string("RecoJets/JetProducers/data/pileupJetId_76x_Eta2p75to3_BDT.weights.xml.gz"),
+            tmvaWeights   = cms.FileInPath("RecoJets/JetProducers/data/pileupJetId_76x_Eta2p75to3_BDT.weights.xml.gz"),
             tmvaVariables = cms.vstring(
                 "nvtx",
                 "dR2Mean"     ,
@@ -284,7 +284,7 @@ full_76x_chs = cms.PSet(
         cms.PSet(
             jEtaMin = cms.double(3.),
             jEtaMax = cms.double(5.),
-            tmvaWeights   = cms.string("RecoJets/JetProducers/data/pileupJetId_76x_Eta3to5_BDT.weights.xml.gz"),
+            tmvaWeights   = cms.FileInPath("RecoJets/JetProducers/data/pileupJetId_76x_Eta3to5_BDT.weights.xml.gz"),
             tmvaVariables = cms.vstring(
                 "nvtx",
                 "dR2Mean"     ,
@@ -320,7 +320,7 @@ full_74x_chs = cms.PSet(
         cms.PSet(
             jEtaMin = cms.double(0.),
             jEtaMax = cms.double(2.),
-            tmvaWeights  = cms.string("RecoJets/JetProducers/data/TMVAClassificationCategory_BDTG.weights_jteta_0_2_newNames.xml.gz"),
+            tmvaWeights  = cms.FileInPath("RecoJets/JetProducers/data/TMVAClassificationCategory_BDTG.weights_jteta_0_2_newNames.xml.gz"),
             tmvaVariables = cms.vstring(
                 "dR2Mean"     ,
                 "rho"       ,
@@ -343,7 +343,7 @@ full_74x_chs = cms.PSet(
         cms.PSet(
             jEtaMin = cms.double(2.),
             jEtaMax = cms.double(2.5),
-            tmvaWeights   = cms.string("RecoJets/JetProducers/data/TMVAClassificationCategory_BDTG.weights_jteta_2_2p5_newNames.xml.gz"),
+            tmvaWeights   = cms.FileInPath("RecoJets/JetProducers/data/TMVAClassificationCategory_BDTG.weights_jteta_2_2p5_newNames.xml.gz"),
             tmvaVariables = cms.vstring(
                 "dR2Mean"     ,
                 "rho"       ,
@@ -366,7 +366,7 @@ full_74x_chs = cms.PSet(
         cms.PSet(
             jEtaMin = cms.double(2.5),
             jEtaMax = cms.double(3.),
-            tmvaWeights   = cms.string("RecoJets/JetProducers/data/TMVAClassificationCategory_BDTG.weights_jteta_2p5_3_newNames.xml.gz"),
+            tmvaWeights   = cms.FileInPath("RecoJets/JetProducers/data/TMVAClassificationCategory_BDTG.weights_jteta_2p5_3_newNames.xml.gz"),
             tmvaVariables = cms.vstring(
                 "dR2Mean"     ,
                 "rho"       ,
@@ -389,7 +389,7 @@ full_74x_chs = cms.PSet(
         cms.PSet(
             jEtaMin = cms.double(3.),
             jEtaMax = cms.double(5.),
-            tmvaWeights   = cms.string("RecoJets/JetProducers/data/TMVAClassificationCategory_BDTG.weights_jteta_3_5_newNames.xml.gz"),
+            tmvaWeights   = cms.FileInPath("RecoJets/JetProducers/data/TMVAClassificationCategory_BDTG.weights_jteta_3_5_newNames.xml.gz"),
             tmvaVariables = cms.vstring(
                 "dR2Mean"     ,
                 "rho"       ,
@@ -421,7 +421,7 @@ full_53x = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),
  etaBinnedWeights = cms.bool(False),
- tmvaWeights = cms.string("CondFormats/JetMETObjects/data/TMVAClassificationCategory_JetID_53X_Dec2012.weights.xml"),
+ tmvaWeights = cms.FileInPath("CondFormats/JetMETObjects/data/TMVAClassificationCategory_JetID_53X_Dec2012.weights.xml"),
  tmvaMethod  = cms.string("JetIDMVAHighPt"),
  version = cms.int32(-1),
  tmvaVariables = cms.vstring(
@@ -452,8 +452,8 @@ full_53x_chs = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),
  etaBinnedWeights = cms.bool(False),
- tmvaWeights = cms.string("CondFormats/JetMETObjects/data/TMVAClassificationCategory_JetID_53X_chs_Dec2012.weights.xml"),
- #tmvaWeights = cms.string("RecoJets/JetProducers/data/TMVAClassificationCategory_JetID_53X_chs_Dec2012.weights.xml"),
+ tmvaWeights = cms.FileInPath("CondFormats/JetMETObjects/data/TMVAClassificationCategory_JetID_53X_chs_Dec2012.weights.xml"),
+ #tmvaWeights = cms.FileInPath("RecoJets/JetProducers/data/TMVAClassificationCategory_JetID_53X_chs_Dec2012.weights.xml"),
  tmvaMethod  = cms.string("JetIDMVAHighPt"),
  version = cms.int32(-1),
  tmvaVariables = cms.vstring(
@@ -484,7 +484,7 @@ met_53x = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),
  etaBinnedWeights = cms.bool(False),
- tmvaWeights = cms.string("RecoJets/JetProducers/data/TMVAClassificationCategory_JetID_MET_53X_Dec2012.weights.xml.gz"),
+ tmvaWeights = cms.FileInPath("RecoJets/JetProducers/data/TMVAClassificationCategory_JetID_MET_53X_Dec2012.weights.xml.gz"),
  tmvaMethod  = cms.string("JetIDMVAMET"),
  version = cms.int32(-1),
  tmvaVariables = cms.vstring(
@@ -514,7 +514,7 @@ full_5x = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),
  etaBinnedWeights = cms.bool(False),
- tmvaWeights = cms.string("RecoJets/JetProducers/data/TMVAClassificationCategory_JetID_MET_53X_Dec2012.weights.xml.gz"),
+ tmvaWeights = cms.FileInPath("RecoJets/JetProducers/data/TMVAClassificationCategory_JetID_MET_53X_Dec2012.weights.xml.gz"),
  tmvaMethod  = cms.string("BDT_fullPlusRMS"),
  version = cms.int32(-1),
  tmvaVariables = cms.vstring(
@@ -543,7 +543,7 @@ full_5x = cms.PSet(
 simple_5x = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),
- tmvaWeights = cms.string("RecoJets/JetProducers/data/TMVAClassification_5x_BDT_simpleNoVtxCat.weights.xml.gz"),
+ tmvaWeights = cms.FileInPath("RecoJets/JetProducers/data/TMVAClassification_5x_BDT_simpleNoVtxCat.weights.xml.gz"),
  tmvaMethod  = cms.string("BDT_simpleNoVtxCat"),
  version = cms.int32(-1),
  tmvaVariables = cms.vstring(
@@ -569,7 +569,7 @@ full_5x_chs = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),
  etaBinnedWeights = cms.bool(False),
- tmvaWeights = cms.string("RecoJets/JetProducers/data/TMVAClassification_5x_BDT_chsFullPlusRMS.weights.xml.gz"),
+ tmvaWeights = cms.FileInPath("RecoJets/JetProducers/data/TMVAClassification_5x_BDT_chsFullPlusRMS.weights.xml.gz"),
  tmvaMethod  = cms.string("BDT_chsFullPlusRMS"),
  version = cms.int32(-1),
  tmvaVariables = cms.vstring(
@@ -599,7 +599,7 @@ simple_5x_chs = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),
  etaBinnedWeights = cms.bool(False),
- tmvaWeights = cms.string("RecoJets/JetProducers/data/TMVAClassification_5x_BDT_chsSimpleNoVtxCat.weights.xml.gz"),
+ tmvaWeights = cms.FileInPath("RecoJets/JetProducers/data/TMVAClassification_5x_BDT_chsSimpleNoVtxCat.weights.xml.gz"),
  tmvaMethod  = cms.string("BDT_chsSimpleNoVtxCat"),
  version = cms.int32(-1),
  tmvaVariables = cms.vstring(
@@ -625,7 +625,7 @@ full = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),
  etaBinnedWeights = cms.bool(False),
- tmvaWeights = cms.string("RecoJets/JetProducers/data/TMVAClassification_PuJetIdOptMVA.weights.xml.gz"),
+ tmvaWeights = cms.FileInPath("RecoJets/JetProducers/data/TMVAClassification_PuJetIdOptMVA.weights.xml.gz"),
  tmvaMethod  = cms.string("PuJetIdOptMVA"),
  version = cms.int32(-1),
  tmvaVariables = cms.vstring(
@@ -654,7 +654,7 @@ simple = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),
  etaBinnedWeights = cms.bool(False),
- tmvaWeights = cms.string("RecoJets/JetProducers/data/TMVAClassification_PuJetIdMinMVA.weights.xml.gz"),
+ tmvaWeights = cms.FileInPath("RecoJets/JetProducers/data/TMVAClassification_PuJetIdMinMVA.weights.xml.gz"),
  tmvaMethod  = cms.string("PuJetIdMinMVA"),
  version = cms.int32(-1),
  tmvaVariables = cms.vstring(
@@ -687,7 +687,7 @@ cutbased = cms.PSet(
 PhilV0 = cms.PSet( 
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),
- tmvaWeights = cms.string("RecoJets/JetProducers/data/mva_JetID.weights.xml.gz"),
+ tmvaWeights = cms.FileInPath("RecoJets/JetProducers/data/mva_JetID.weights.xml.gz"),
  tmvaMethod  = cms.string("JetID"),
  version = cms.int32(0),
  JetIdParams = EmptyJetIdParams
@@ -698,7 +698,7 @@ PhilV1 = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),
  etaBinnedWeights = cms.bool(False),
- tmvaWeights = cms.string("RecoJets/JetProducers/data/mva_JetID_v1.weights.xml.gz"),
+ tmvaWeights = cms.FileInPath("RecoJets/JetProducers/data/mva_JetID_v1.weights.xml.gz"),
  tmvaMethod  = cms.string("JetID"),
  version = cms.int32(-1),
  tmvaVariables = cms.vstring(

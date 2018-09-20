@@ -2035,8 +2035,6 @@ float PFEGammaAlgo::calculateEleMVA(const pfEGHelpers::HeavyObjectCache* hoc,
       // kalman filter vars
       float nHitKf      = refKf.isNonnull() ? refKf->hitPattern().trackerLayersWithMeasurement() : 0;
       float chi2Kf      = refKf.isNonnull() ? refKf->normalizedChi2() : -0.01;
-      //float dPtOverPtKf = refKf.isNonnull() ? (refKf->pt() - refKf->outerPt())/refKf->pt() : -0.01;
-      // not used for moment, weird behavior of variable
 
       //tracker + calorimetry observables
       float eTotPinMode         = (firstEcalGsfEnergy+otherEcalGsfEnergy+ecalBremEnergy)/ eInGsf;
@@ -2051,23 +2049,24 @@ float PFEGammaAlgo::calculateEleMVA(const pfEGHelpers::HeavyObjectCache* hoc,
       xtra.setHadEnergy(eneHcalGsf);
 
       // Apply bounds to variables and calculate MVA
-      dPtOverPtGsf        = std::max(dPtOverPtGsf,-0.2f);
-      dPtOverPtGsf        = std::min(dPtOverPtGsf,1.0f);  
+      dPtOverPtGsf        = std::clamp(dPtOverPtGsf, -0.2f, 1.0f);
       ptModeErrOverPtGsf  = std::min(ptModeErrOverPtGsf,0.3f);  
       chi2Gsf             = std::min(chi2Gsf,10.0f);  
-      //dPtOverPtKf         = std::max(dPtOverPtKf,-0.2f);
-      //dPtOverPtKf         = std::min(dPtOverPtKf,1.0f);  
       chi2Kf              = std::min(chi2Kf,10.0f);  
-      eTotPinMode         = std::max(eTotPinMode,0.0f);
-      eTotPinMode         = std::min(eTotPinMode,5.0f);  
-      eGsfPoutMode        = std::max(eGsfPoutMode,0.0f);
-      eGsfPoutMode        = std::min(eGsfPoutMode,5.0f);  
-      eTotBremPinPoutMode = std::max(eTotBremPinPoutMode,0.0f);
-      eTotBremPinPoutMode = std::min(eTotBremPinPoutMode,5.0f);  
+      eTotPinMode         = std::clamp(eTotPinMode,0.0f, 5.0f);  
+      eGsfPoutMode        = std::clamp(eGsfPoutMode,0.0f, 5.0f);  
+      eTotBremPinPoutMode = std::clamp(eTotBremPinPoutMode,0.0f, 5.0f);  
       dEtaGsfEcalClust    = std::min(dEtaGsfEcalClust,0.1f);  
       logSigmaEtaEta      = std::max(logSigmaEtaEta,-14.0f);  
 
+      // not used for moment, weird behavior of variable
+      //float dPtOverPtKf = refKf.isNonnull() ? (refKf->pt() - refKf->outerPt())/refKf->pt() : -0.01;
+      //dPtOverPtKf       = std::clamp(dPtOverPtKf,-0.2f, 1.0f);
+
 /*
+ *      To be used for debugging:
+ *      pretty-print the PFEgamma electron MVA input variables
+ *
  *      std::cout << " **** PFEG BDT observables ****" << endl;
  *      std::cout << " < Normalization > " << endl;
  *      std::cout << " ptGsf " << ptGsf << " Pin " << eInGsf

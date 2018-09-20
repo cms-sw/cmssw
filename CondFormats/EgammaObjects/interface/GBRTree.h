@@ -53,11 +53,11 @@
 
     protected:      
 
-        std::vector<unsigned char> fCutIndices;
-        std::vector<float> fCutVals;
-        std::vector<int> fLeftIndices;
-        std::vector<int> fRightIndices;
-        std::vector<float> fResponses;  
+       std::vector<unsigned char> fCutIndices;
+       std::vector<float> fCutVals;
+       std::vector<int> fLeftIndices;
+       std::vector<int> fRightIndices;
+       std::vector<float> fResponses;  
         
   
   COND_SERIALIZABLE;
