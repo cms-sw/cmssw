@@ -4,6 +4,8 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerLevelBuilder.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 
+#include <cmath>
+
 bool subDetByType(const GeometricDet* a, const GeometricDet* b)
 {
     // it relies on the fact that the GeometricDet::GDEnumType enumerators used
@@ -42,20 +44,18 @@ bool isLessModZ(const GeometricDet* a, const GeometricDet* b)
 
 double getPhi(const GeometricDet* a)
 {
-    const double pi = 3.141592653592;
     double phi = a->phi();
-    return (phi >= 0 ? phi : phi + 2 * pi);
+    return (phi >= 0 ? phi : phi + 2 * M_PI);
 }
 
 double getPhiModule(const GeometricDet* a)
 {
-    const double pi = 3.141592653592;
     std::vector<const GeometricDet*> const& comp = a->components().back()->components();
     float phi = 0.;
     bool sum = true;
 
     for (auto i : comp) {
-        if (fabs(i->phi()) > pi / 2.) {
+        if (fabs(i->phi()) > M_PI / 2.) {
             sum = false;
             break;
         }
@@ -66,33 +66,32 @@ double getPhiModule(const GeometricDet* a)
             phi += i->phi();
         }
 
-        double temp = phi / float(comp.size()) < 0. ? 2 * pi + phi / float(comp.size()) : phi / float(comp.size());
+        double temp = phi / float(comp.size()) < 0. ? 2 * M_PI + phi / float(comp.size()) : phi / float(comp.size());
         return temp;
 
     } else {
         for (auto i : comp) {
-            double phi1 = i->phi() >= 0 ? i->phi() : i->phi() + 2 * pi;
+            double phi1 = i->phi() >= 0 ? i->phi() : i->phi() + 2 * M_PI;
             phi += phi1;
         }
 
-        double com = comp.front()->phi() >= 0 ? comp.front()->phi() : 2 * pi + comp.front()->phi();
+        double com = comp.front()->phi() >= 0 ? comp.front()->phi() : 2 * M_PI + comp.front()->phi();
         double temp
-            = fabs(phi / float(comp.size()) - com) > 2. ? pi - phi / float(comp.size()) : phi / float(comp.size());
-        temp = temp >= 0 ? temp : 2 * pi + temp;
+            = fabs(phi / float(comp.size()) - com) > 2. ? M_PI - phi / float(comp.size()) : phi / float(comp.size());
+        temp = temp >= 0 ? temp : 2 * M_PI + temp;
         return temp;
     }
 }
 
 double getPhiGluedModule(const GeometricDet* a)
 {
-    const double pi = 3.141592653592;
     std::vector<const GeometricDet*> comp;
     a->deepComponents(comp);
     float phi = 0.;
     bool sum = true;
 
     for (auto& i : comp) {
-        if (fabs(i->phi()) > pi / 2.) {
+        if (fabs(i->phi()) > M_PI / 2.) {
             sum = false;
             break;
         }
@@ -103,45 +102,42 @@ double getPhiGluedModule(const GeometricDet* a)
             phi += i->phi();
         }
 
-        double temp = phi / float(comp.size()) < 0. ? 2 * pi + phi / float(comp.size()) : phi / float(comp.size());
+        double temp = phi / float(comp.size()) < 0. ? 2 * M_PI + phi / float(comp.size()) : phi / float(comp.size());
         return temp;
 
     } else {
         for (auto& i : comp) {
-            double phi1 = i->phi() >= 0 ? i->phi() : i->translation().phi() + 2 * pi;
+            double phi1 = i->phi() >= 0 ? i->phi() : i->translation().phi() + 2 * M_PI;
             phi += phi1;
         }
 
-        double com = comp.front()->phi() >= 0 ? comp.front()->phi() : 2 * pi + comp.front()->phi();
+        double com = comp.front()->phi() >= 0 ? comp.front()->phi() : 2 * M_PI + comp.front()->phi();
         double temp
-            = fabs(phi / float(comp.size()) - com) > 2. ? pi - phi / float(comp.size()) : phi / float(comp.size());
-        temp = temp >= 0 ? temp : 2 * pi + temp;
+            = fabs(phi / float(comp.size()) - com) > 2. ? M_PI - phi / float(comp.size()) : phi / float(comp.size());
+        temp = temp >= 0 ? temp : 2 * M_PI + temp;
         return temp;
     }
 }
 
 double getPhiMirror(const GeometricDet* a)
 {
-    const double pi = 3.141592653592;
     double phi = a->phi();
-    phi = (phi >= 0 ? phi : phi + 2 * pi); // (-pi,pi] --> [0,2pi)
-    return ((pi - phi) >= 0 ? (pi - phi) : (pi - phi) + 2 * pi); // (-pi,pi] --> [0,2pi)
+    phi = (phi >= 0 ? phi : phi + 2 * M_PI); // (-pi,pi] --> [0,2pi)
+    return ((M_PI - phi) >= 0 ? (M_PI - phi) : (M_PI - phi) + 2 * M_PI); // (-pi,pi] --> [0,2pi)
 }
 
 double getPhiModuleMirror(const GeometricDet* a)
 {
-    const double pi = 3.141592653592;
     double phi = getPhiModule(a); // [0,2pi)
-    phi = (phi <= pi ? phi : phi - 2 * pi); // (-pi,pi]
-    return (pi - phi);
+    phi = (phi <= M_PI ? phi : phi - 2 * M_PI); // (-pi,pi]
+    return (M_PI - phi);
 }
 
 double getPhiGluedModuleMirror(const GeometricDet* a)
 {
-    const double pi = 3.141592653592;
     double phi = getPhiGluedModule(a); // [0,2pi)
-    phi = (phi <= pi ? phi : phi - 2 * pi); // (-pi,pi]
-    return (pi - phi);
+    phi = (phi <= M_PI ? phi : phi - 2 * M_PI); // (-pi,pi]
+    return (M_PI - phi);
 };
 
 bool isLessRModule(const GeometricDet* a, const GeometricDet* b)
