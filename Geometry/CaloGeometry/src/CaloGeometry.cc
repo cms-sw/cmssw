@@ -1,3 +1,4 @@
+#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -50,9 +51,12 @@ CaloGeometry::getSubdetectorGeometry( const DetId& id ) const
 {
    bool ok ;
 
-   const unsigned int index ( makeIndex( id.det(),
-					 id.subdetId(),
-					 ok             ) ) ;
+   DetId::Detector det = id.det();
+   int          subdet = (((DetId::HGCalEE == det) || 
+			   (DetId::HGCalHSi == det) ||
+			   (DetId::HGCalHSc == det)) ? ForwardEmpty :
+			  id.subdetId());
+   const unsigned int index ( makeIndex( det, subdet, ok ) ) ;
    return ( ok ? m_geos[ index ] : nullptr ) ;
 }
 
