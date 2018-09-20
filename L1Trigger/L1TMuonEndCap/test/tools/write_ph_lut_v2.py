@@ -2,8 +2,8 @@
 
 import os
 
-path = 'L1Trigger/L1TMuonEndCap/data/emtf_luts/vl_lut_me11_edges/'
-
+path = 'L1Trigger/L1TMuonEndCap/test/tools/pc_luts/firmware_data/'
+# path = 'L1Trigger/L1TMuonEndCap/test/tools/pc_luts/firmware_MC/'
 
 def main():
   full_path = os.environ['CMSSW_BASE'] + '/src/' + path + '%s'

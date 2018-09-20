@@ -21,10 +21,10 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
     #   * 'simCscTriggerPrimitiveDigis','MPCSORTED' : simulated trigger primitives (LCTs) from re-emulating CSC digis
     #   * 'csctfDigis' : real trigger primitives as received by CSCTF (legacy trigger), available only in 2016 data
     #   * 'emtfStage2Digis' : real trigger primitives as received by EMTF, unpacked in EventFilter/L1TRawToDigi/
-    CSCInput = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED'),
-    RPCInput = cms.InputTag('simMuonRPCDigis'),
+    CSCInput  = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED'),
+    RPCInput  = cms.InputTag('simMuonRPCDigis'),
     CPPFInput = cms.InputTag('simCPPFDigis'),  ## Cannot use in MC workflow, does not exist yet.  CPPFEnable set to False - AWB 01.06.18
-    GEMInput = cms.InputTag('simMuonGEMPadDigis'),
+    GEMInput  = cms.InputTag('simMuonGEMPadDigis'),
 
     # Run with CSC, RPC, GEM
     CSCEnable = cms.bool(True),   # Use CSC LCTs from the MPCs in track-building
@@ -48,6 +48,7 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
     # Sector processor primitive-conversion parameters
     spPCParams16 = cms.PSet(
         PrimConvLUT     = cms.int32(1),    # v0 and v1 LUTs used at different times, "-1" for local CPPF files (only works if FWConfig = False)
+        PrimConvData    = cms.bool(False), # LUTs in data use real CMS geometry alignment; MC uses ideal geometry
         ZoneBoundaries  = cms.vint32(0,41,49,87,127), # Vertical boundaries of track-building zones, in integer theta (5 for 4 zones)
         # ZoneBoundaries  = cms.vint32(0,36,54,96,127), # New proposed zone boundaries
         ZoneOverlap     = cms.int32(2),    # Overlap between zones
@@ -125,6 +126,9 @@ simEmtfDigisData = simEmtfDigisMC.clone(
     GEMInput  = cms.InputTag('muonGEMPadDigis'),
 
     CPPFEnable = cms.bool(True), # Use CPPF-emulated clustered RPC hits from CPPF as the RPC hits
+
+    spPCParams16.PrimConvData = cms.bool(True), # LUTs in data use real CMS geometry alignment; MC uses ideal geometry
+
 )
 
 simEmtfDigis = simEmtfDigisMC.clone()

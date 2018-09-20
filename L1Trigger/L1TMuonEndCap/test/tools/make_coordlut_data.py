@@ -2,22 +2,14 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Whatever")
 
-#process.load('Configuration.Geometry.GeometryExtended2016Reco_cff')
 process.load("Configuration.StandardSequences.GeometryDB_cff")  # load from DB
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-# process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 process.GlobalTag = GlobalTag(process.GlobalTag, '102X_dataRun2_Sep2018Rereco_v1')
 print "Using GlobalTag: %s" % process.GlobalTag.globaltag.value()
 
-# # Fake alignment is/should be ideal geometry
-# # ==========================================
-# process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
-# process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource")
-
-# process.source = cms.Source("EmptySource")
 process.source = cms.Source("EmptyIOVSource",
     timetype = cms.string('runnumber'),
     firstValue = cms.uint64(321988),

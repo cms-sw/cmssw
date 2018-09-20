@@ -19,31 +19,31 @@ SectorProcessorLUT::~SectorProcessorLUT() {
 
 }
 
-void SectorProcessorLUT::read(int pc_lut_version) {
+void SectorProcessorLUT::read(bool pc_lut_data, int pc_lut_version) {
   if (version_ == pc_lut_version)  return;
 
-  edm::LogInfo("L1T") << "EMTF using pc_lut_ver: " << pc_lut_version;
+  edm::LogInfo("L1T") << "EMTF using pc_lut_ver: " << pc_lut_version
+		      << ", configured for " << (pc_lut_data ? "data" : "MC");
 
   std::string coord_lut_dir = "";
   if      (pc_lut_version == 0)
-    coord_lut_dir = "ph_lut_v1";  // All year 2016
+    coord_lut_dir = "ph_lut_v1";       // All year 2016
   else if (pc_lut_version == 1)
-    coord_lut_dir = "ph_lut_v2";  // Beginning of 2017
+    coord_lut_dir = "ph_lut_v2";       // Beginning of 2017, improved alignment from ideal CMS geometry (MC)
+  else if (pc_lut_version == 2 && pc_lut_data)
+    coord_lut_dir = "ph_lut_v3_data";  // Update in September 2017 from ReReco alignment, data only
+  else if (pc_lut_version == 2)
+    coord_lut_dir = "ph_lut_v3_MC";    // Same alignment as ph_lut_v2, iterate version number for consistency
+  else if (pc_lut_version == -1 && pc_lut_data)
+    coord_lut_dir = "ph_lut_v3_data";  // Latest CSC LCT alignment, but use local CPPF LUTs for RPC
   else if (pc_lut_version == -1)
-    coord_lut_dir = "ph_lut_v2";  // Beginning of 2017, use local CPPF LUTs
+    coord_lut_dir = "ph_lut_v3_MC";    // Latest CSC LCT alignment, but use local CPPF LUTs for RPC
   else
     throw cms::Exception("SectorProcessorLUT")
       << "Trying to use EMTF pc_lut_version = " << pc_lut_version << ", does not exist!";
   // Will catch user trying to run with Global Tag settings on 2016 data, rather than fakeEmtfParams. - AWB 08.06.17
 
   std::string coord_lut_path = "L1Trigger/L1TMuon/data/emtf_luts/" + coord_lut_dir + "/";
-
-  // Updated LUTs from Kun Shi, found in /afs/cern.ch/user/k/kshi/public/ForAndrew/emtf_luts/
-  // coord_lut_path = "L1Trigger/L1TMuonEndCap/data/emtf_luts/101X_datarun2_prompt_v11/";
-  // coord_lut_path = "L1Trigger/L1TMuonEndCap/data/emtf_luts/run2_data/";
-  // coord_lut_path = "L1Trigger/L1TMuonEndCap/data/emtf_luts/90X_datarun2_promt_v1/";
-  // coord_lut_path = "L1Trigger/L1TMuonEndCap/data/emtf_luts/102X_datarun2_Sep2018Rereco_v1/";
-  coord_lut_path = "L1Trigger/L1TMuonEndCap/data/emtf_luts/102X_datarun2_Sep2018Rereco_v1_run321988/";
 
   read_file(coord_lut_path+"ph_init_neighbor.txt",     ph_init_neighbor_);
   read_file(coord_lut_path+"ph_disp_neighbor.txt",     ph_disp_neighbor_);

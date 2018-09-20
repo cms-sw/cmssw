@@ -19,6 +19,7 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
     tokenGEM_(iConsumes.consumes<GEMTag::digi_collection>(iConfig.getParameter<edm::InputTag>("GEMInput"))),
     verbose_(iConfig.getUntrackedParameter<int>("verbosity")),
     primConvLUT_(iConfig.getParameter<edm::ParameterSet>("spPCParams16").getParameter<int>("PrimConvLUT")),
+    primConvData_(iConfig.getParameter<edm::ParameterSet>("spPCParams16").getParameter<bool>("PrimConvData")),
     fwConfig_(iConfig.getParameter<bool>("FWConfig")),
     useCSC_(iConfig.getParameter<bool>("CSCEnable")),
     useRPC_(iConfig.getParameter<bool>("RPCEnable")),
@@ -153,7 +154,7 @@ void TrackFinder::process(
   // Run each sector processor
 
   // Reload primitive conversion LUTs if necessary
-  sector_processor_lut_.read(fwConfig_ ? condition_helper_.get_pc_lut_version() : primConvLUT_);
+  sector_processor_lut_.read(primConvData_, fwConfig_ ? condition_helper_.get_pc_lut_version() : primConvLUT_);
 
   // Reload pT LUT if necessary
   pt_assign_engine_->load(condition_helper_.get_pt_lut_version(), &(condition_helper_.getForest()));
