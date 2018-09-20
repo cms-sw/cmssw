@@ -324,39 +324,6 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   //  edm::LogInfo("TopInfo") << "INFO: DONE reading timing files for EB and EE" << "\n";
   ss << "INFO: DONE reading timing files for EB and EE\n";
   edm::LogInfo("TopInfo") << ss.str();
-
-  //modif-alex-30/01/2012
-  ss.str("");
-  if(useTransparencyCorr_){
-    //    edm::LogInfo("TopInfo") << "INFO: READING transparency correction files" << "\n";
-    ss << "INFO: READING transparency correction files\n";
-    std::ifstream transparency(Transparency_Corr_.c_str());
-    if(!transparency) edm::LogError("TopInfo") << "ERROR: File " << Transparency_Corr_.c_str() << " could not be opened" << "\n";
-    
-    transparency.getline(buf,sizeof(buf),'\n');
-    int xtalcounter = 0;
-    while( transparency ) {
-      std::stringstream sin(buf);
-      
-      int raw_xtal_id;
-      sin >> raw_xtal_id;
-      
-      double xtal_trans_corr;
-      sin >> xtal_trans_corr; 
-      
-      //      edm::LogInfo("TopInfo") << raw_xtal_id << " " << xtal_trans_corr << "\n";
-      ss << raw_xtal_id << " " << xtal_trans_corr << "\n";
-      
-      Transparency_Correction_.insert(make_pair(raw_xtal_id,xtal_trans_corr));
-      
-      xtalcounter++;
-      transparency.getline(buf,sizeof(buf),'\n');
-    }//loop transparency
-    transparency.close();
-    ss << "INFO: DONE transparency correction files " << xtalcounter << "\n";
-    edm::LogInfo("TopInfo") << ss.str();
-    ss.str("");
-  }//if transparency
 }
 
 EcalTPGParamBuilder::~EcalTPGParamBuilder()
@@ -451,6 +418,69 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   ss.str("");
   //modif-alex-27-july-2015 +-Jean june 2016-end
   
+  //modif-alex-30/01/2012   displaced in analyze Jean 2018
+  ss.str("");
+  if(useTransparencyCorr_){
+    if(Transparency_Corr_ != "tag") {       // Jean 2018
+      edm::LogInfo("TopInfo") << "INFO: READING transparency correction files" << "\n";
+      ss << "INFO: READING transparency correction files\n";
+      std::ifstream transparency(Transparency_Corr_.c_str());
+      if(!transparency) edm::LogError("TopInfo") << "ERROR: File " << Transparency_Corr_.c_str() << " could not be opened" << "\n";
+    
+      char buf[1024];
+      transparency.getline(buf,sizeof(buf),'\n');
+      int xtalcounter = 0;
+      while( transparency ) {
+	std::stringstream sin(buf);
+      
+	int raw_xtal_id;
+	sin >> raw_xtal_id;
+      
+	double xtal_trans_corr;
+	sin >> xtal_trans_corr; 
+      
+	//      edm::LogInfo("TopInfo") << raw_xtal_id << " " << xtal_trans_corr << "\n";
+	ss << raw_xtal_id << " " << xtal_trans_corr << "\n";
+      
+	Transparency_Correction_.insert(make_pair(raw_xtal_id,xtal_trans_corr));
+      
+	xtalcounter++;
+	transparency.getline(buf,sizeof(buf),'\n');
+      }//loop transparency
+      transparency.close();
+      ss << "INFO: DONE transparency correction files " << xtalcounter << "\n";
+      edm::LogInfo("TopInfo") << ss.str();
+      ss.str("");
+    }   // file
+    else {       // Jean 2018
+      edm::LogInfo("TopInfo") << "INFO: READING transparency correction tag" << "\n";
+      //      std::cout << "new feature, read a tag" << std::endl;
+      ESHandle<EcalLaserAPDPNRatios> pAPDPNRatios;          
+      evtSetup.get<EcalLaserAPDPNRatiosRcd>().get(pAPDPNRatios);  
+      const EcalLaserAPDPNRatios* lratio = pAPDPNRatios.product();
+      //      std::cout << " laser map size " << lratio->getLaserMap().size() << std::endl;
+
+      EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap::const_iterator itratio; 
+      // Barrel loop
+      for(int ib = 0; ib < 61200; ib++) {
+	EBDetId ebdetid = EBDetId::unhashIndex(ib);
+	itratio = lratio->getLaserMap().find(ebdetid.rawId());
+	//	std::cout  << ib << " " << ebdetid.rawId() << " Barrel APDPNRatios = " << (*itratio).p1 << " " << (*itratio).p2 << " " << (*itratio).p3 << std::endl;
+	Transparency_Correction_.insert(make_pair(ebdetid.rawId(), (*itratio).p2));
+      }
+      // Endcap loop
+      for(int ie = 0; ie < 14648; ie++) {
+	EEDetId eedetid = EEDetId::unhashIndex(ie);
+	itratio = lratio->getLaserMap().find(eedetid.rawId());
+	//	std::cout  << ie << " " << eedetid.rawId() << " Endcap APDPNRatios = " << (*itratio).p1 << " " << (*itratio).p2 << " " << (*itratio).p3 << std::endl;
+	Transparency_Correction_.insert(make_pair(eedetid.rawId(), (*itratio).p2));
+      }
+      ss << "INFO: DONE transparency correction tag\n";
+      edm::LogInfo("TopInfo") << ss.str();
+      ss.str("");
+    }       // Jean 2018
+  }//if transparency
+
   // histo
   TFile saving ("EcalTPGParam.root","recreate") ;
   saving.cd () ;
