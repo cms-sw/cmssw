@@ -53,11 +53,11 @@ l1TStage2EmulatorClients = cms.Sequence(
                       + l1tStage2OMTFEmulatorClient
                       + l1tStage2EMTFEmulatorClient
                       + l1tStage2EmulatorEventInfoClient
-                      + l1tStage2uGTEmulatorClient
+                      #+ l1tStage2uGTEmulatorClient
                         )
 
 l1tStage2EmulatorMonitorClient = cms.Sequence(
-                        l1TStage2EmulatorQualityTests +
-                        l1TStage2EmulatorClients
+                        l1TStage2EmulatorQualityTests #+
+                      #  l1TStage2EmulatorClients
                         )
 

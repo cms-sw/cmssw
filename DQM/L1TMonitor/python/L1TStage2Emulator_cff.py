@@ -83,8 +83,8 @@ Stage2L1HardwareValidation = cms.Sequence(
     valOmtfDigis +
     valEmtfStage2Digis +
     valGmtCaloSumDigis +
-    valGmtStage2Digis +
-    valGtStage2Digis
+    valGmtStage2Digis #+
+    #valGtStage2Digis
 )
 
 Stage2L1HardwareValidationForValidationEvents = cms.Sequence(
@@ -136,8 +136,8 @@ l1tStage2EmulatorOnlineDQM = cms.Sequence(
 
 # sequence to run only for validation events
 l1tStage2EmulatorOnlineDQMValidationEvents = cms.Sequence(
-    l1tdeStage2CaloLayer1 +
-    l1tdeStage2CaloLayer2 +
-    l1tStage2CaloLayer2Emul
+    l1tdeStage2CaloLayer1 #+
+    #l1tdeStage2CaloLayer2 +
+    #l1tStage2CaloLayer2Emul
 )
 
