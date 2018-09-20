@@ -4,6 +4,8 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ESProductHost.h"
+#include "FWCore/Utilities/interface/ReusableObjectHolder.h"
 
 #include "CondFormats/RPCObjects/interface/RPCInverseAMCLinkMap.h"
 
@@ -23,12 +25,17 @@ public:
 
     static void fillDescriptions(edm::ConfigurationDescriptions & _descs);
 
-    void RPCTwinMuxLinkMapCallback(RPCTwinMuxLinkMapRcd const & _rcd);
-
     std::shared_ptr<RPCInverseAMCLinkMap> produce(RPCInverseTwinMuxLinkMapRcd const & _rcd);
 
-protected:
-    std::shared_ptr<RPCInverseAMCLinkMap> inverse_linkmap_;
+private:
+
+    using HostType = edm::ESProductHost<RPCInverseAMCLinkMap,
+                                        RPCTwinMuxLinkMapRcd>;
+
+    void setupRPCTwinMuxLinkMap(RPCTwinMuxLinkMapRcd const&,
+                                RPCInverseAMCLinkMap*);
+
+    edm::ReusableObjectHolder<HostType> holder_;
 };
 
 #endif // CondTools_RPC_RPCInverseTwinMuxLinkMapESProducer_h
