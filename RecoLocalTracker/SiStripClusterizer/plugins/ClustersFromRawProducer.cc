@@ -109,11 +109,13 @@ namespace {
                   StripClusterizerAlgorithm & iclusterizer, 
                   SiStripRawProcessingAlgorithms & irawAlgos, 
                   bool idoAPVEmulatorCheck, 
+                  bool legacy,
                   bool hybridZeroSuppressed):
       rawColl(irawColl),
       clusterizer(iclusterizer),
       rawAlgos(irawAlgos),
       doAPVEmulatorCheck(idoAPVEmulatorCheck),
+      legacy_(legacy),
       hybridZeroSuppressed_(hybridZeroSuppressed){
         incTot(clusterizer.allDetIds().size());
         for (auto & d : done) d=nullptr;
@@ -140,6 +142,7 @@ namespace {
     // March 2012: add flag for disabling APVe check in configuration
     bool doAPVEmulatorCheck; 
 
+    bool legacy_;
     bool hybridZeroSuppressed_;
     
     
@@ -203,6 +206,7 @@ class SiStripClusterizerFromRaw final : public edm::stream::EDProducer<>  {
     clusterizer_(StripClusterizerAlgorithmFactory::create(conf.getParameter<edm::ParameterSet>("Clusterizer"))),
     rawAlgos_(SiStripRawProcessingFactory::create(conf.getParameter<edm::ParameterSet>("Algorithms"))),
     doAPVEmulatorCheck_(conf.existsAs<bool>("DoAPVEmulatorCheck") ? conf.getParameter<bool>("DoAPVEmulatorCheck") : true),
+    legacy_(conf.existsAs<bool>("LegacyUnpacker") ? conf.getParameter<bool>("LegacyUnpacker") : false),
     hybridZeroSuppressed_(conf.getParameter<bool>("HybridZeroSuppressed"))
       {
 	productToken_ = consumes<FEDRawDataCollection>(conf.getParameter<edm::InputTag>("ProductLabel"));
@@ -231,7 +235,7 @@ class SiStripClusterizerFromRaw final : public edm::stream::EDProducer<>  {
         new edmNew::DetSetVector<SiStripCluster>(
           std::shared_ptr<edmNew::DetSetVector<SiStripCluster>::Getter>(
               std::make_shared<ClusterFiller>(*rawData, *clusterizer_, *rawAlgos_,
-                                              doAPVEmulatorCheck_, hybridZeroSuppressed_)),
+                                              doAPVEmulatorCheck_, legacy_, hybridZeroSuppressed_)),
           clusterizer_->allDetIds())
       : new edmNew::DetSetVector<SiStripCluster>()
       );
@@ -275,6 +279,7 @@ private:
   // March 2012: add flag for disabling APVe check in configuration
   bool doAPVEmulatorCheck_; 
 
+  bool legacy_;
   bool hybridZeroSuppressed_;
 };
 
@@ -295,7 +300,7 @@ void SiStripClusterizerFromRaw::initialize(const edm::EventSetup& es) {
 void SiStripClusterizerFromRaw::run(const FEDRawDataCollection& rawColl,
 				     edmNew::DetSetVector<SiStripCluster> & output) {
   
-  ClusterFiller filler(rawColl, *clusterizer_, *rawAlgos_, doAPVEmulatorCheck_, hybridZeroSuppressed_);
+  ClusterFiller filler(rawColl, *clusterizer_, *rawAlgos_, doAPVEmulatorCheck_, legacy_, hybridZeroSuppressed_);
   
   // loop over good det in cabling
   for ( auto idet : clusterizer_->allDetIds()) {
@@ -429,6 +434,8 @@ try { // edmNew::CapacityExaustedException
     }
     assert(buffer);
 
+    buffer->setLegacyMode(legacy_);
+
     // check channel
     const uint8_t fedCh = conn->fedCh();
     
@@ -446,8 +453,9 @@ try { // edmNew::CapacityExaustedException
     
     
     const sistrip::FEDReadoutMode mode = buffer->readoutMode();
+    const sistrip::FEDLegacyReadoutMode lmode = legacy_ ? buffer->legacyReadoutMode() : sistrip::READOUT_MODE_LEGACY_INVALID;
 
-    if LIKELY( ( mode > sistrip::READOUT_MODE_VIRGIN_RAW ) && ( mode < sistrip::READOUT_MODE_SPY ) && ( mode != sistrip::READOUT_MODE_PROC_RAW ) ) {
+    if LIKELY( (!legacy_) && ( mode > sistrip::READOUT_MODE_VIRGIN_RAW ) && ( mode < sistrip::READOUT_MODE_SPY ) && ( mode != sistrip::READOUT_MODE_PROC_RAW ) ) {
       // ZS modes
       try {
         auto perStripAdder = StripByStripAdder(clusterizer, state, record);
@@ -471,8 +479,16 @@ try { // edmNew::CapacityExaustedException
         }
         continue;
       }
-
-    } else if ( mode == sistrip::READOUT_MODE_VIRGIN_RAW ) {
+    } else if ( legacy_ && ( lmode == sistrip::READOUT_MODE_LEGACY_ZERO_SUPPRESSED_REAL || lmode == sistrip::READOUT_MODE_LEGACY_ZERO_SUPPRESSED_FAKE ) ) {
+      auto unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(buffer->channel(fedCh));
+      clusterizer.addFed(state, unpacker, ipair, record);
+    } else if ( legacy_ && ( lmode == sistrip::READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_REAL || lmode == sistrip::READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_FAKE ) ) {
+      auto unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(fedCh));
+      while (unpacker.hasData()) {
+        clusterizer.stripByStripAdd(state, ipair*256+unpacker.sampleNumber(), unpacker.adc(), record);
+        unpacker++;
+      }
+    } else if ( !legacy_ ? ( mode == sistrip::READOUT_MODE_VIRGIN_RAW ) : ( lmode == sistrip::READOUT_MODE_LEGACY_VIRGIN_RAW_REAL || lmode == sistrip::READOUT_MODE_LEGACY_VIRGIN_RAW_FAKE ) ) {
 
       std::vector<int16_t> samples;
       switch ( buffer->channel(fedCh).packetCode() ) {
@@ -514,7 +530,7 @@ try { // edmNew::CapacityExaustedException
         clusterizer.stripByStripAdd(state, digi.strip(), digi.adc(), record);
       }
 
-    } else if ( mode == sistrip::READOUT_MODE_PROC_RAW ) {
+    } else if ( !legacy_ ? ( mode == sistrip::READOUT_MODE_PROC_RAW ) : ( lmode == sistrip::READOUT_MODE_LEGACY_PROC_RAW_REAL || lmode == sistrip::READOUT_MODE_LEGACY_PROC_RAW_FAKE ) ) {
 
       // create unpacker
       sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::procRawModeUnpacker(buffer->channel(fedCh));
