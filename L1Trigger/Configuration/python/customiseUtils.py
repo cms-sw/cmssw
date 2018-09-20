@@ -193,7 +193,7 @@ def L1TrackTriggerTracklet(process):
 
 def L1TrackTriggerTMTT(process):
     print "L1T INFO:  run the L1TrackStep with TMTT."
-    process.load('TMTrackTrigger.TMTrackFinder.TMTrackProducer_Ultimate_cff')
+    process.load('L1Trigger.TrackFindingTMTT.TMTrackProducer_Ultimate_cff')
     process.TMTrackProducer.EnableMCtruth = cms.bool(False)
     process.TMTrackProducer.EnableHistos    = cms.bool(False)
     process.L1TrackTriggerTMTT_step = cms.Path(process.TMTrackProducer)
