@@ -47,7 +47,7 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
 
     # Sector processor primitive-conversion parameters
     spPCParams16 = cms.PSet(
-        PrimConvLUT     = cms.int32(1),    # v0 and v1 LUTs used at different times, "-1" for local CPPF files (only works if FWConfig = False)
+        PrimConvLUT     = cms.int32(2),    # v0, v1, and v2 LUTs used at different times, "-1" for local CPPF files (only works if FWConfig = False)
         PrimConvData    = cms.bool(False), # LUTs in data use real CMS geometry alignment; MC uses ideal geometry
         ZoneBoundaries  = cms.vint32(0,41,49,87,127), # Vertical boundaries of track-building zones, in integer theta (5 for 4 zones)
         # ZoneBoundaries  = cms.vint32(0,36,54,96,127), # New proposed zone boundaries
@@ -127,7 +127,7 @@ simEmtfDigisData = simEmtfDigisMC.clone(
 
     CPPFEnable = cms.bool(True), # Use CPPF-emulated clustered RPC hits from CPPF as the RPC hits
 
-    spPCParams16.PrimConvData = cms.bool(True), # LUTs in data use real CMS geometry alignment; MC uses ideal geometry
+    spPCParams16 = dict(PrimConvData = cms.bool(True)), # LUTs in data use real CMS geometry alignment; MC uses ideal geometry
 
 )
 
