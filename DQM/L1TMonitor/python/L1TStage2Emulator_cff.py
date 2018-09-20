@@ -129,15 +129,15 @@ l1tStage2EmulatorOnlineDQM = cms.Sequence(
     l1tdeStage2KalmanBmtf +
     l1tdeStage2Omtf +
     l1tdeStage2EmtfOnlineDQMSeq +
-    l1tStage2uGMTEmulatorOnlineDQMSeq +
-    l1tdeStage2uGT +
-    l1tStage2uGtEmul
+    l1tStage2uGMTEmulatorOnlineDQMSeq #+
+    #l1tdeStage2uGT +
+    #l1tStage2uGtEmul
 )
 
 # sequence to run only for validation events
 l1tStage2EmulatorOnlineDQMValidationEvents = cms.Sequence(
-    l1tdeStage2CaloLayer1 #+
-    #l1tdeStage2CaloLayer2 +
-    #l1tStage2CaloLayer2Emul
+    l1tdeStage2CaloLayer1 +
+    l1tdeStage2CaloLayer2 +
+    l1tStage2CaloLayer2Emul
 )
 
