@@ -20,22 +20,21 @@
  * =====================================================================================
  */
 
-#ifndef TMVAZIPREADER_7RXIGO70
-#define TMVAZIPREADER_7RXIGO70
+#ifndef CommonTools_MVAUtils_TMVAZipReader_h
+#define CommonTools_MVAUtils_TMVAZipReader_h
 
-#include "TMVA/Reader.h"
 #include "TMVA/IMethod.h"
+#include "TMVA/Reader.h"
 #include <string>
 
-namespace reco {
-  namespace details {
-  
-    bool hasEnding(std::string const &fullString, std::string const &ending);
+namespace reco::details {
+
+    bool hasEnding(std::string const& fullString, std::string const& ending);
     char* readGzipFile(const std::string& weightFile);
 
-    TMVA::IMethod* loadTMVAWeights(TMVA::Reader* reader, const std::string& method,
-      const std::string& weightFile, bool verbose=false);
+    TMVA::IMethod* loadTMVAWeights(
+        TMVA::Reader* reader, const std::string& method, const std::string& weightFile, bool verbose = false);
 
+}
 
-}}
-#endif /* end of include guard: TMVAZIPREADER_7RXIGO70 */
+#endif
