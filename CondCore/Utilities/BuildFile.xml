@@ -33,6 +33,7 @@
 <use   name="CondFormats/MFObjects"/>
 <use   name="CondFormats/PCLConfig"/>
 <use   name="CondFormats/CTPPSReadoutObjects"/>
+<use   name="rootgraphics"/>
 <export>
   <lib   name="1"/>
 </export>

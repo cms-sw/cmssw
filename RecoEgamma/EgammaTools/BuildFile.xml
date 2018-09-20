@@ -7,8 +7,7 @@
 <use   name="RecoLocalCalo/HGCalRecAlgos"/>
 <use   name="clhep"/>
 <use   name="root"/>
-<use   name="PhysicsTools/MVAComputer"/>
-<use   name="PhysicsTools/MVATrainer"/>
+<use   name="roottmva"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/EgammaObjects"/>
 <use   name="RecoEcal/EgammaCoreTools"/>

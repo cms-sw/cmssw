@@ -1,4 +1,4 @@
-#include "CommonTools/Utils/plugins/GBRForestWriter.h"
+#include "CommonTools/MVAUtils/plugins/GBRForestWriter.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
