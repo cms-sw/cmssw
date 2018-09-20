@@ -306,6 +306,7 @@ doStopSource                        ['highPurityPV0p1'] = cms.bool(True)
 #pixel tracks
 hiConformalPixelTracksQA = trackSelector.clone()
 hiConformalPixelTracksQA.src = cms.InputTag('hiConformalPixelTracks')
+hiConformalPixelTracksQA.cut = cms.string("chi2/ndof/hitPattern.trackerLayersWithMeasurement < 200")
 
 sequenceName    ['hiConformalPixelTracksQA'] = hiConformalPixelTracksQA
 allTrackProducer['hiConformalPixelTracksQA'] = 'generalTracks'
