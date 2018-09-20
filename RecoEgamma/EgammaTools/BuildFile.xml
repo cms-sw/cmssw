@@ -15,8 +15,6 @@
 <use   name="CondCore/DBOutputService"/>
 <use   name="DataFormats/ParticleFlowReco"/>
 <use   name="CommonTools/Utils"/>
-<use   name="Utilities/General"/>
-<use name="roottmva"/>
 <export>
   <lib   name="1"/>
 </export>

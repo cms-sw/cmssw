@@ -29,7 +29,7 @@ PileupJetIdAlgo::AlgoGBRForestsAndConstants::AlgoGBRForestsAndConstants(edm::Par
   betaStarCut_{}
  {
 
-  std::vector<std::string> tmvaEtaWeights;
+  std::vector<edm::FileInPath> tmvaEtaWeights;
   std::vector<std::string> tmvaSpectators;
   int version;
 
@@ -39,7 +39,7 @@ PileupJetIdAlgo::AlgoGBRForestsAndConstants::AlgoGBRForestsAndConstants(edm::Par
       const std::vector<edm::ParameterSet>& trainings = ps.getParameter<std::vector <edm::ParameterSet> >("trainings");
       nEtaBins_ = ps.getParameter<int>("nEtaBins");
       for (int v = 0; v < nEtaBins_; v++) {
-        tmvaEtaWeights.push_back(trainings.at(v).getParameter<std::string>("tmvaWeights"));
+        tmvaEtaWeights.push_back(trainings.at(v).getParameter<edm::FileInPath>("tmvaWeights"));
         jEtaMin_.push_back( trainings.at(v).getParameter<double>("jEtaMin") );
         jEtaMax_.push_back( trainings.at(v).getParameter<double>("jEtaMax") );
       }
