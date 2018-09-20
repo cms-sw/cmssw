@@ -71,18 +71,16 @@ void MatchJet::matchCollections(
 	recToRef.resize(recJets.size(), -1);
 
 	Matching<double> matching(corrRefJets, corrRecJets,
-                              [this](auto& v1, auto& v2)
-                              {
-                                  using namespace ROOT::Math;
-                          //        return VectorUtil::DeltaR2(v1, v2) / this->sigmaDeltaR2 +
-                          //               sqr(2. * (v1.R() - v2.R()) /
-                          //                        (v1.R() + v2.R())) / this->sigmaDeltaE2;
-                                  double x = VectorUtil::DeltaR2(v1, v2) / this->sigmaDeltaR2 +
-                                         sqr(2. * (v1.R() - v2.R()) /
-                                                  (v1.R() + v2.R())) / this->sigmaDeltaE2;
-                          // std::cout << "xxx " << VectorUtil::DeltaPhi(v1, v2) << " " << (v1.Eta() - v2.Eta()) << " " << (v1.R() - v2.R()) / (v1.R() + v2.R()) << " " << x << std::endl;
-                                  return x;
-                              });
+        [this](auto& v1, auto& v2)
+        {
+            double x = ROOT::Math::VectorUtil::DeltaR2(v1, v2) / this->sigmaDeltaR2 +
+                       sqr(2. * (v1.R() - v2.R()) / (v1.R() + v2.R())) / this->sigmaDeltaE2;
+            // Possible debug output
+            // std::cout << "xxx " << ROOT::Math::VectorUtil::DeltaPhi(v1, v2) << " " << (v1.Eta() - v2.Eta())
+            // << " " << (v1.R() - v2.R()) / (v1.R() + v2.R()) << " " << x << std::endl;
+            return x;
+        });
+
 	typedef Matching<double>::Match Match;
 
 	const std::vector<Match>& matches =
