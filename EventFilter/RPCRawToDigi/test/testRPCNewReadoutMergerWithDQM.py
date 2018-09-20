@@ -16,12 +16,10 @@ options.register("lumiList"
                  , "JSON file")
 options.parseArguments()
  
-
 process = cms.Process("testRPCNewReadoutDQM")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-
 
 # process.MessageLogger.cerr.FwkReport.reportEvery = 10
 
@@ -29,9 +27,8 @@ process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 # process.GlobalTag.globaltag = "80X_dataRun2_Express_v15"
 # process.GlobalTag.globaltag = "101X_dataRun2_Prompt_v10"
-process.GlobalTag.globaltag = "102X_dataRun2_Prompt_v1"
-
-
+# process.GlobalTag.globaltag = "102X_dataRun2_Prompt_v1"
+process.GlobalTag.globaltag = "102X_dataRun2_Sep2018Rereco_test_v1"
 
 #######################################################
 ### RPC RawToDigi
@@ -54,7 +51,6 @@ process.omtfStage2Digis = cms.EDProducer("OmtfUnpacker",
 ### RPC Digi Merger
 process.load("EventFilter.RPCRawToDigi.RPCDigiMerger_cff")
 
-
 #######################################################
 ### RPCRecHit - from legacy
 process.load('RecoLocalMuon.RPCRecHit.rpcRecHits_cfi')
@@ -74,11 +70,8 @@ process.rpcOMTFRecHits.rpcDigiLabel = cms.InputTag('omtfStage2Digis')
 process.rpcMergerRecHits = process.rpcRecHits.clone()
 process.rpcMergerRecHits.rpcDigiLabel = cms.InputTag('RPCDigiMerger')
 
-
-
 ### Print Summary
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
-
 
 #######################################################
 ### DQM - from legacy
@@ -104,15 +97,10 @@ process.rpcMergerdigidqm = process.rpcdigidqm.clone()
 process.rpcMergerdigidqm.NoiseFolder = cms.untracked.string("AllHitsMerger")
 process.rpcMergerdigidqm.RecHitLabel = cms.InputTag("rpcMergerRecHits")
 
-
-
 #######################################################
 ### DQM Saver
 process.load("Configuration.StandardSequences.DQMSaverAtJobEnd_cff")
 process.dqmEnv.subSystemFolder = 'RPC'
-
-
-
 
 # Source
 process.source = cms.Source("PoolSource"
@@ -122,10 +110,8 @@ process.source = cms.Source("PoolSource"
                             # , lumisToProcess = lumilist.getVLuminosityBlockRange()
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(3000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 # process.maxLuminosityBlocks = cms.untracked.PSet(input = cms.untracked.int32(10))
-
-
 
 process.p = cms.Path( 
                       (process.rpcUnpackingModule + process.RPCTwinMuxRawToDigi + process.rpcCPPFRawToDigi + process.omtfStage2Digis) 
@@ -139,11 +125,10 @@ process.p = cms.Path(
 # Output
 process.out = cms.OutputModule("PoolOutputModule"
                                , outputCommands = cms.untracked.vstring("drop *"
-                                                                        , "keep *_*_*_testRPCTwinMux"
-                                                                        , "keep *_rpcRecHits_*_*")
+                                                                        , "keep *_rpc*RecHits_*_*")
                                # , fileName = cms.untracked.string(options.outputFile)
                                , fileName = cms.untracked.string("testRPCNewReadoutDQM.root")
                                , SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("p"))
 )
 
-# process.e = cms.EndPath(process.out)
+process.e = cms.EndPath(process.out)

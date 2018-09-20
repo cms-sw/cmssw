@@ -29,7 +29,8 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "102X_dataRun2_Prompt_v1"
+# process.GlobalTag.globaltag = "102X_dataRun2_Prompt_v1"
+process.GlobalTag.globaltag = "102X_dataRun2_Sep2018Rereco_test_v1"
 
 #######################################################
 ### RPC RawToDigi

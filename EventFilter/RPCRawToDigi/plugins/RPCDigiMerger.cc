@@ -14,7 +14,6 @@
 
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 
-
 using namespace edm;
 using namespace std;
 
@@ -31,7 +30,6 @@ RPCDigiMerger::RPCDigiMerger(edm::ParameterSet const & config)
 
 RPCDigiMerger::~RPCDigiMerger()
 {}
-
 
 void RPCDigiMerger::fillDescriptions(edm::ConfigurationDescriptions & descs)
 {
@@ -91,7 +89,7 @@ void RPCDigiMerger::produce(edm::Event & event, edm::EventSetup const & setup)
         const RPCDigiCollection::Range& range = (*rpcdgIt).second;
 
         if ( ((rpcId.region() == -1 || rpcId.region() == 1) && (rpcId.ring() == 3) && (rpcId.station() == 1 || rpcId.station() == 2)) )  {
-            // continue; // accepts only rings: RE-2_R3 ; RE-1_R3 ; RE+1_R3 ; RE+2_R3 ; 
+            // accepts only rings: RE-2_R3 ; RE-1_R3 ; RE+1_R3 ; RE+2_R3 ; 
             rpc_digi_collection->put(range, rpcId);
         }
     }
