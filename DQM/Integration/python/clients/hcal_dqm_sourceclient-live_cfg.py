@@ -119,6 +119,7 @@ process.load("DQM.HcalTasks.DigiTask")
 process.load('DQM.HcalTasks.TPTask')
 process.load('DQM.HcalTasks.RawTask')
 process.load('DQM.HcalTasks.NoCQTask')
+process.load('DQM.HcalTasks.FCDTask')
 #process.load('DQM.HcalTasks.ZDCTask')
 #process.load('DQM.HcalTasks.QIE11Task') # 2018: integrate QIE11Task into DigiTask
 process.load('DQM.HcalTasks.HcalOnlineHarvesting')
@@ -133,7 +134,7 @@ if useMap:
 		record = cms.string("HcalElectronicsMapRcd"),
         tag = cms.string("HcalElectronicsMap_v7.05_hlt"),
         )
-    )
+    )    
 
 #-------------------------------------
 #	For Debugginb
@@ -160,6 +161,8 @@ process.tpTask.runkeyName = runTypeName
 #process.qie11Task.runkeyVal = runType
 #process.qie11Task.runkeyName = runTypeName
 #process.qie11Task.tagQIE11 = cms.untracked.InputTag("hcalDigis")
+process.fcdTask.runkeyVal = runType
+process.fcdTask.runkeyName = runTypeName
 
 #-------------------------------------
 #	Hcal DQM Tasks/Clients Sequences Definition
@@ -169,6 +172,7 @@ process.tasksPath = cms.Path(
 		+process.digiTask
 		+process.tpTask
 		+process.nocqTask
+		+process.fcdTask
 		#+process.qie11Task
 		#ZDC to be removed for 2017 pp running
 		#+process.zdcTask

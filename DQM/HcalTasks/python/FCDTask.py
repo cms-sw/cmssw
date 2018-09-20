@@ -72,6 +72,17 @@ for channel in fcd_channels_tuple:
 
 fcdTask = DQMEDAnalyzer(
 	"FCDTask",
+	#	standard parameters
+	name = cms.untracked.string("FDCTask"),
+	debug = cms.untracked.int32(0),
+	runkeyVal = cms.untracked.int32(0),
+	runkeyName = cms.untracked.string("pp_run"),
+	ptype = cms.untracked.int32(0),
+	mtype = cms.untracked.bool(True),
+	subsystem = cms.untracked.string("Hcal"),
+
+	#	tags
 	tagFCDDigis = cms.untracked.InputTag('hcalDigis', 'ZDC'),
+
 	fcdChannels = fcd_channels,
 )
