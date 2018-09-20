@@ -5,7 +5,7 @@
 <use   name="FWCore/Utilities"/>
 <use   name="DataFormats/Candidate"/>
 <use   name="DataFormats/PatCandidates"/>
-<use   name="CommonTools/Utils"/>
+<use   name="CommonTools/MVAUtils"/>
 <use   name="RecoEgamma/EgammaTools"/>
 <use   name="PhysicsTools/JetMCUtils"/>
 <use   name="DataFormats/NanoAOD"/>

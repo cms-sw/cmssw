@@ -7,7 +7,7 @@
   <use   name="CondCore/CondDB"/>
   <use   name="CondFormats/Common"/>
   <use   name="boost_python"/>
-  <use   name="root"/>
+  <use   name="rootgraphics"/>
 </library>
 <library   file="Module_PayloadInspector.cc" name="Module_PayloadInspector">
   <use   name="CondCore/Utilities"/>
