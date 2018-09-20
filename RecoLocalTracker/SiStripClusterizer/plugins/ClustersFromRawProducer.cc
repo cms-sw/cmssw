@@ -181,8 +181,14 @@ namespace {
 #endif
     
   };
-  
-  
+
+  uint16_t physicalToReadoutOrder( uint16_t physical_order )
+  {
+    auto phys_float = static_cast<float>(physical_order);
+    return ( 4*(static_cast<uint16_t>(phys_float/ 8.0)%4)
+           +    static_cast<uint16_t>(phys_float/32.0)
+           + 16*(physical_order%8) );
+  }
 } // namespace
 
 
@@ -468,27 +474,33 @@ try { // edmNew::CapacityExaustedException
 
     } else if ( mode == sistrip::READOUT_MODE_VIRGIN_RAW ) {
 
-      std::vector<int16_t> digis;
+      std::vector<int16_t> samples;
       switch ( buffer->channel(fedCh).packetCode() ) {
         case sistrip::PACKET_CODE_VIRGIN_RAW:
         { auto unpacker = sistrip::FEDRawChannelUnpacker::virginRawModeUnpacker(buffer->channel(fedCh));
-          while (unpacker.hasData()) { digis.push_back(unpacker.adc()); unpacker++; }
+          while (unpacker.hasData()) { samples.push_back(unpacker.adc()); unpacker++; }
         } break;
         case sistrip::PACKET_CODE_VIRGIN_RAW10:
         { auto unpacker = sistrip::FEDBSChannelUnpacker::virginRawModeUnpacker(buffer->channel(fedCh), 10);
-          while (unpacker.hasData()) { digis.push_back(unpacker.adc()); unpacker++; }
+          while (unpacker.hasData()) { samples.push_back(unpacker.adc()); unpacker++; }
         } break;
         case sistrip::PACKET_CODE_VIRGIN_RAW8_BOTBOT:
         { auto unpacker = sistrip::FEDBSChannelUnpacker::virginRawModeUnpacker(buffer->channel(fedCh), 8);
-          while (unpacker.hasData()) { digis.push_back(unpacker.adc()<<2); unpacker++; }
+          while (unpacker.hasData()) { samples.push_back(unpacker.adc()<<2); unpacker++; }
         } break;
         case sistrip::PACKET_CODE_VIRGIN_RAW8_TOPBOT:
         { auto unpacker = sistrip::FEDBSChannelUnpacker::virginRawModeUnpacker(buffer->channel(fedCh), 8);
-          while (unpacker.hasData()) { digis.push_back(unpacker.adc()<<1); unpacker++; }
+          while (unpacker.hasData()) { samples.push_back(unpacker.adc()<<1); unpacker++; }
         } break;
         default:
           edm::LogWarning(sistrip::mlRawToCluster_) << "[ClustersFromRawProducer::" << __func__ << "]"
             << " invalid packet code " << buffer->channel(fedCh).packetCode() << " for virgin raw.";
+      }
+      // un-multiplex the digis (from readout to physical order)
+      std::vector<int16_t> digis;
+      for ( uint16_t i = 0; i != samples.size(); ++i ) {
+        const auto readout = physicalToReadoutOrder(i%128)*2 + ( (i/128) ? 1 : 0);
+        digis.push_back(samples[readout]);
       }
       //process raw
       uint32_t id = conn->detId();
