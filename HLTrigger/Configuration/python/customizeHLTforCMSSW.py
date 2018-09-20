@@ -239,8 +239,6 @@ def customiseForPR24339HybridFormatSiStripZS(process):
 # Adding some parameters to the pixel clusterizer
 def customiseFor24329(process):
     for producer in producers_by_type(process, "SiPixelClusterProducer"):
-        producer.AdcFullScaleStack = cms.int32(255)
-        producer.FirstStackLayer = cms.int32(5)
         producer.ElectronPerADCGain = cms.double(135.)
         producer.Phase2Calibration = cms.bool(False)
         producer.Phase2ReadoutMode = cms.int32(-1)
