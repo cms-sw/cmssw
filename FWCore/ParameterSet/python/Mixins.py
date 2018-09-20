@@ -638,11 +638,15 @@ def _modifyParametersFromDict(params, newParams, errorRaiser, keyDepth=""):
                     if isinstance(params[key],_Parameterizable):
                         pset = params[key]
                         p =pset.parameters_()
+                        oldkeys = set(p.keys())
                         _modifyParametersFromDict(p,
                                                   value,errorRaiser,
                                                   ("%s.%s" if type(key)==str else "%s[%s]")%(keyDepth,key))
                         for k,v in p.iteritems():
                             setattr(pset,k,v)
+                            oldkeys.discard(k)
+                        for k in oldkeys:
+                            delattr(pset,k)
                     elif isinstance(params[key],_ValidatingParameterListBase):
                         if any(type(k) != int for k in value.keys()):
                             raise TypeError("Attempted to change a list using a dict whose keys are not integers")
@@ -752,6 +756,7 @@ if __name__ == "__main__":
                         x = dict(a = 7,
                                  c = dict(gamma = 8),
                                  d = __TestType(9)))
+            c = a.clone(x = dict(a=None, c=None))
             self.assertEqual(a.t.value(),1)
             self.assertEqual(a.u.value(),2)
             self.assertEqual(b.t.value(),3)
@@ -762,6 +767,8 @@ if __name__ == "__main__":
             self.assertEqual(b.x.c.gamma.value(),8)
             self.assertEqual(b.x.d.value(),9)
             self.assertEqual(hasattr(b,"w"), False)
+            self.assertEqual(hasattr(c.x,"a"), False)
+            self.assertEqual(hasattr(c.x,"c"), False)
             self.assertRaises(TypeError,a.clone,None,**{"v":1})
         def testModified(self):
             class __TestType(_SimpleParameterTypeBase):

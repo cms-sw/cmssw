@@ -2904,9 +2904,10 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             #test removal of parameter
             m1 = Modifier()
             p = Process("test",m1)
-            p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
-            m1.toModify(p.a, fred = None)
+            p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1), fintstones = PSet(fred = int32(1)))
+            m1.toModify(p.a, fred = None, fintstones = dict(fred = None))
             self.assertEqual(hasattr(p.a, "fred"), False)
+            self.assertEqual(hasattr(p.a.fintstones, "fred"), False)
             self.assertEqual(p.a.wilma.value(),1)
             #test adding a parameter
             m1 = Modifier()
