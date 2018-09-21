@@ -3,9 +3,11 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("PIXELDQMLIVE", eras.Run2_2018)
+process = cms.Process("PIXELDQMLIVE", eras.Run2_2018_pp_on_AA)
 
-live=True  #set to false for lxplus offline testing
+live=True
+#set to false for lxplus offline testing
+#live=False
 offlineTesting=not live
 
 TAG ="PixelPhase1" 
@@ -48,8 +50,8 @@ process.dqmSaver.tag = TAG
 
 
 process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_pp.root'
-if (process.runType.getRunType() == process.runType.hi_run):
-    process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_hi.root'
+#if (process.runType.getRunType() == process.runType.hi_run):
+#    process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_hi.root'
 
 if (process.runType.getRunType() == process.runType.cosmic_run):
     process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_cosmic.root'
@@ -96,17 +98,17 @@ process.load("DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1tsDB_cfi")
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
 process.siPixelDigis.IncludeErrors = True
 
-process.siPixelDigis.InputLabel   = cms.InputTag("rawDataCollector")
-process.siStripDigis.InputLabel   = cms.InputTag("rawDataCollector")
+if (process.runType.getRunType() == process.runType.hi_run):    
+    #--------------------------------
+    # Heavy Ion Configuration Changes
+    #--------------------------------
+    process.siPixelDigis.InputLabel   = cms.InputTag("rawDataRepacker")
+    process.siStripDigis.ProductLabel   = cms.InputTag("rawDataRepacker")
+    process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
+else :
+    process.siPixelDigis.InputLabel   = cms.InputTag("rawDataCollector")
+    process.siStripDigis.InputLabel   = cms.InputTag("rawDataCollector")
 
-#--------------------------------
-# Heavy Ion Configuration Changes
-#--------------------------------
-#
-#if (process.runType.getRunType() == process.runType.hi_run):    
-#    process.load('Configuration.StandardSequences.ReconstructionHeavyIons_cff')
-#    process.load('Configuration.StandardSequences.RawToDigi_Repacked_cff')
-#    process.siPixelDigis.InputLabel   = cms.InputTag("rawDataRepacker")
 
 ## Collision Reconstruction
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
@@ -145,7 +147,10 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 )
 
 process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
-process.hltHighLevel.HLTPaths = cms.vstring( 'HLT_ZeroBias_*' , 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*', 'HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*','HLT*SingleMu*')
+if (process.runType.getRunType() == process.runType.hi_run):
+    process.hltHighLevel.HLTPaths = cms.vstring( 'HLT_ZeroBias_*' , 'HLT_HIZeroBias_*' , 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*', 'HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*','HLT*SingleMu*' , 'HLT_HICentralityVeto*' , 'HLT_HIMinBias*')
+else:
+    process.hltHighLevel.HLTPaths = cms.vstring( 'HLT_ZeroBias_*' , 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*', 'HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*','HLT*SingleMu*')
 process.hltHighLevel.andOr = cms.bool(True)
 process.hltHighLevel.throw =  cms.bool(False)
 
@@ -183,9 +188,9 @@ if (process.runType.getRunType() == process.runType.cosmic_run or process.runTyp
                          process.siPixelPhase1OnlineDQM_harvesting
                          )
    
-### pp COLLISION SETTING
+### pp/hi COLLISION SETTING
 
-if (process.runType.getRunType() == process.runType.pp_run or process.runType.getRunType() == process.runType.pp_run_stage1):
+if (process.runType.getRunType() == process.runType.pp_run or process.runType.getRunType() == process.runType.pp_run_stage1 or process.runType.getRunType() == process.runType.hi_run):
     # Reco for pp collisions
     process.load('RecoTracker.IterativeTracking.InitialStepPreSplitting_cff')
     process.InitialStepPreSplittingTask.remove(process.initialStepTrackRefsForJetsPreSplitting)
@@ -208,9 +213,9 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.RecoForDQM_TrkReco = cms.Sequence(process.offlineBeamSpot*process.MeasurementTrackerEventPreSplitting*process.siPixelClusterShapeCachePreSplitting*process.recopixelvertexing*process.InitialStepPreSplitting)
 
     if (process.runType.getRunType() == process.runType.hi_run):
-        process.SiPixelClusterSource.src = cms.InputTag("siPixelClustersPreSplitting")
-        process.Reco = cms.Sequence(process.siPixelDigis*process.pixeltrackerlocalreco)
-
+        #        process.SiPixelClusterSource.src = cms.InputTag("siPixelClustersPreSplitting")
+        #        process.Reco = cms.Sequence(process.siPixelDigis*process.pixeltrackerlocalreco)
+        process.Reco = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco)
     else:
         process.Reco = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco)
                           
