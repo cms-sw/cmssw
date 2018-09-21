@@ -541,6 +541,7 @@ class L1EGCrystalClusterEmulatorProducer : public edm::EDProducer {
       {
          public:
             EBDetId id;
+            HcalDetId id_hcal;
             GlobalVector position; // As opposed to GlobalPoint, so we can add them (for weighted average)
             float energy=0.;
 	    bool used=false;
@@ -672,6 +673,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
          }
          SimpleCaloHit hhit;
          hhit.id = hit.id();
+         hhit.id_hcal = hit.id();
          hhit.position = hcal_tp_position;
          float et = hit.SOI_compressedEt() / 2.;
          hhit.energy = et / sin(hhit.position.theta());
@@ -1204,8 +1206,18 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
                  l1CaloTower.tower_iPhi = getToweriPhi_fromAbsoluteID(iPhi_tower_L2Card[ii][jj][ll]);
                  l1CaloTower.tower_eta = getTowerEta_fromAbsoluteID(iEta_tower_L2Card[ii][jj][ll]);
                  l1CaloTower.tower_phi = getTowerPhi_fromAbsoluteID(iPhi_tower_L2Card[ii][jj][ll]);
-                 std::cout << "Tower TP Position eta,iEta: " << l1CaloTower.tower_eta << "," << l1CaloTower.tower_iEta << std::endl;
-                 std::cout << "Tower TP Position phi,iPhi: " << l1CaloTower.tower_phi << "," << l1CaloTower.tower_iPhi << std::endl;
+                 //std::cout << "Tower TP Position eta,iEta: " << l1CaloTower.tower_eta << "," << l1CaloTower.tower_iEta << std::endl;
+                 //std::cout << "Tower TP Position phi,iPhi: " << l1CaloTower.tower_phi << "," << l1CaloTower.tower_iPhi << std::endl;
+                 
+                 for(const auto& hit : hcalhits)
+                 {
+                    if (l1CaloTower.tower_iPhi == hit.id_hcal.iphi() && l1CaloTower.tower_iEta == hit.id_hcal.ieta() )
+                    {
+                        printf("\nMatching Towers iEta:iPhi %i %i - eta1:eta2 %f %f - phi1:phi2 %f %f", l1CaloTower.tower_iEta,l1CaloTower.tower_iPhi,l1CaloTower.tower_eta,hit.position.eta(),l1CaloTower.tower_phi,(float)hit.position.phi());
+                        if (l1CaloTower.hcal_tower_et == hit.energy) std::cout << ".";
+                        else printf("\n - Mismatch in HCAL energy, l1CaloTower ET: %f hit direct ET: %f", l1CaloTower.hcal_tower_et, hit.energy);
+                    }
+                 }
                  l1CaloTowerCollection->push_back( l1CaloTower );
 	      }
        	   }
