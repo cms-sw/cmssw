@@ -13,7 +13,7 @@ Test of the EventProcessor class.
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
-#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
+#include "FWCore/ParameterSetReader/interface/ProcessDescImpl.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -409,7 +409,7 @@ testeventprocessor::activityRegistryTest() {
       "   ivalue = cms.int32(-3))\n"
       "process.p1 = cms.Path(process.m1)\n");
 
-  std::shared_ptr<edm::ParameterSet> parameterSet = PythonProcessDesc(configuration).parameterSet();
+  std::shared_ptr<edm::ParameterSet> parameterSet = ProcessDescImpl(configuration).parameterSet();
   auto processDesc = std::make_shared<edm::ProcessDesc>(parameterSet);
 
   //We don't want any services, we just want an ActivityRegistry to be created
