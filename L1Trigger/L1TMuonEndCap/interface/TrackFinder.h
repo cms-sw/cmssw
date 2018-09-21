@@ -44,7 +44,7 @@ private:
 
   int verbose_, primConvLUT_;
 
-  bool primConvData_, fwConfig_, useCSC_, useRPC_, useCPPF_, useGEM_;
+  bool fwConfig_, useCSC_, useRPC_, useCPPF_, useGEM_;
 
   std::string era_;
 };

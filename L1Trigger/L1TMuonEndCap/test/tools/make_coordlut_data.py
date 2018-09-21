@@ -1,9 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("Whatever")
+from Configuration.StandardSequences.Eras import eras
 
-process.load("Configuration.StandardSequences.GeometryDB_cff")  # load from DB
-process.load('Configuration.StandardSequences.MagneticField_cff')
+process = cms.Process("Whatever",eras.Run2_2018)
+
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')  # load from DB
+process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 from Configuration.AlCa.GlobalTag import GlobalTag
