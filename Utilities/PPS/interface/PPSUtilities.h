@@ -4,8 +4,8 @@
 #include <string>
 #include "H_BeamParticle.h"
 #include <CLHEP/Vector/LorentzVector.h>
-#include "CLHEP/Units/PhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <CLHEP/Units/PhysicalConstants.h>
+#include <CLHEP/Units/GlobalSystemOfUnits.h>
 #include "HepMC/GenParticle.h"
 
 namespace PPSTools {
