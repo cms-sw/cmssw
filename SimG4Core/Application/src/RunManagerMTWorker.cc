@@ -73,7 +73,7 @@ namespace {
   int getThreadIndex() { return s_thread_index; }
 
   void createWatchers(const edm::ParameterSet& iP,
-                      std::unique_ptr<SimActivityRegistry>& iReg,
+                      SimActivityRegistry* iReg,
                       std::vector<std::shared_ptr<SimWatcher> >& oWatchers,
                       std::vector<std::shared_ptr<SimProducer> >& oProds,
                       int thisThreadID
@@ -88,14 +88,14 @@ namespace {
       std::unique_ptr<SimWatcherMakerBase> maker(
         SimWatcherFactory::get()->create(watcher.getParameter<std::string>("type"))
       );
-      if(maker.get()==nullptr) {
+      if(maker==nullptr) {
         throw edm::Exception(edm::errors::Configuration)
 	  << "Unable to find the requested Watcher <"
 	  << watcher.getParameter<std::string>("type");
       }
       std::shared_ptr<SimWatcher> watcherTemp;
       std::shared_ptr<SimProducer> producerTemp;
-      maker->make(watcher,*(iReg.get()),watcherTemp,producerTemp);
+      maker->make(watcher,*(iReg),watcherTemp,producerTemp);
       oWatchers.push_back(watcherTemp);
       if(producerTemp) {
         oProds.push_back(producerTemp);
@@ -166,7 +166,7 @@ void RunManagerMTWorker::initializeTLS() {
   // this is used by the visualization code
   int thisID = getThreadIndex();
   if(otherRegistry){
-    m_tls->registry.get()->connect(*otherRegistry);
+    m_tls->registry->connect(*otherRegistry);
     if(thisID > 0) {
       throw edm::Exception(edm::errors::Configuration) << "SimActivityRegistry service (i.e. visualization) is not supported for more than 1 thread. If this use case is needed, RunManagerMTWorker has to be updated.";
     }
@@ -209,7 +209,7 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
 
   // Create worker run manager
   m_tls->kernel.reset(G4WorkerRunManagerKernel::GetRunManagerKernel());
-  if(!m_tls->kernel.get()) { m_tls->kernel.reset(new G4WorkerRunManagerKernel()); }
+  if(!m_tls->kernel) { m_tls->kernel.reset(new G4WorkerRunManagerKernel()); }
 
   // Define G4 exception handler
   G4StateManager::GetStateManager()->SetExceptionHandler(new ExceptionHandler());
@@ -249,8 +249,8 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
                   (*pDD),
                   runManagerMaster.catalog(),
                   m_p,
-                  m_tls->trackManager.get(),
-                  *(m_tls->registry.get()));
+                  m_tls->trackManager,
+                  *(m_tls->registry));
 
   m_tls->sensTkDets.swap(sensDets.first);
   m_tls->sensCaloDets.swap(sensDets.second);
@@ -267,17 +267,17 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
     << "RunManagerMTWorker: start initialisation of PhysicsList for the thread";
 
   physicsList->InitializeWorker();
-  m_tls->kernel.get()->SetPhysics(physicsList);
-  m_tls->kernel.get()->InitializePhysics();
+  m_tls->kernel->SetPhysics(physicsList);
+  m_tls->kernel->InitializePhysics();
 
-  const bool kernelInit = m_tls->kernel.get()->RunInitialization();
+  const bool kernelInit = m_tls->kernel->RunInitialization();
   if(!kernelInit) {
     throw edm::Exception(edm::errors::Configuration)
       << "RunManagerMTWorker: Geant4 kernel initialization failed";
   }
   //tell all interesting parties that we are beginning the job
   BeginOfJob aBeginOfJob(&es);
-  m_tls->registry.get()->beginOfJobSignal_(&aBeginOfJob);
+  m_tls->registry->beginOfJobSignal_(&aBeginOfJob);
 
   G4int sv = m_p.getParameter<int>("SteppingVerbosity");
   G4double elim = m_p.getParameter<double>("StepVerboseThreshold")*CLHEP::GeV;
@@ -303,60 +303,60 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
 void RunManagerMTWorker::initializeUserActions() {
   m_tls->runInterface.reset(new SimRunInterface(this, false));
   m_tls->userRunAction.reset(new RunAction(m_pRunAction, 
-					   m_tls->runInterface.get(),false));
+					   m_tls->runInterface,false));
   m_tls->userRunAction->SetMaster(false);
-  Connect(m_tls->userRunAction.get());
+  Connect(m_tls->userRunAction);
 
-  G4EventManager * eventManager = m_tls->kernel.get()->GetEventManager();
+  G4EventManager * eventManager = m_tls->kernel->GetEventManager();
   eventManager->SetVerboseLevel(m_EvtMgrVerbosity);
 
   EventAction * userEventAction =
-    new EventAction(m_pEventAction, m_tls->runInterface.get(), 
-		    m_tls->trackManager.get(), m_sVerbose.get());
+    new EventAction(m_pEventAction, m_tls->runInterface, 
+		    m_tls->trackManager, m_sVerbose);
   Connect(userEventAction);
   eventManager->SetUserAction(userEventAction);
 
   TrackingAction* userTrackingAction =
-    new TrackingAction(userEventAction, m_pTrackingAction, m_sVerbose.get());
+    new TrackingAction(userEventAction, m_pTrackingAction, m_sVerbose);
   Connect(userTrackingAction);
   eventManager->SetUserAction(userTrackingAction);
 
   SteppingAction* userSteppingAction =
-    new SteppingAction(userEventAction,m_pSteppingAction,m_sVerbose.get(),m_hasWatchers); 
+    new SteppingAction(userEventAction,m_pSteppingAction,m_sVerbose,m_hasWatchers); 
   Connect(userSteppingAction);
   eventManager->SetUserAction(userSteppingAction);
 
   eventManager->SetUserAction(new StackingAction(userTrackingAction,
-						 m_pStackingAction,m_sVerbose.get()));
+						 m_pStackingAction,m_sVerbose));
 
 }
 
 void  RunManagerMTWorker::Connect(RunAction* runAction)
 {
-  runAction->m_beginOfRunSignal.connect(m_tls->registry.get()->beginOfRunSignal_);
-  runAction->m_endOfRunSignal.connect(m_tls->registry.get()->endOfRunSignal_);
+  runAction->m_beginOfRunSignal.connect(m_tls->registry->beginOfRunSignal_);
+  runAction->m_endOfRunSignal.connect(m_tls->registry->endOfRunSignal_);
 }
 
 void  RunManagerMTWorker::Connect(EventAction* eventAction)
 {
-  eventAction->m_beginOfEventSignal.connect(m_tls->registry.get()->beginOfEventSignal_);
-  eventAction->m_endOfEventSignal.connect(m_tls->registry.get()->endOfEventSignal_);
+  eventAction->m_beginOfEventSignal.connect(m_tls->registry->beginOfEventSignal_);
+  eventAction->m_endOfEventSignal.connect(m_tls->registry->endOfEventSignal_);
 }
 
 void  RunManagerMTWorker::Connect(TrackingAction* trackingAction)
 {
-  trackingAction->m_beginOfTrackSignal.connect(m_tls->registry.get()->beginOfTrackSignal_);
-  trackingAction->m_endOfTrackSignal.connect(m_tls->registry.get()->endOfTrackSignal_);
+  trackingAction->m_beginOfTrackSignal.connect(m_tls->registry->beginOfTrackSignal_);
+  trackingAction->m_endOfTrackSignal.connect(m_tls->registry->endOfTrackSignal_);
 }
 
 void  RunManagerMTWorker::Connect(SteppingAction* steppingAction)
 {
-  steppingAction->m_g4StepSignal.connect(m_tls->registry.get()->g4StepSignal_);
+  steppingAction->m_g4StepSignal.connect(m_tls->registry->g4StepSignal_);
 }
 
 SimTrackManager* RunManagerMTWorker::GetSimTrackManager() {
   initializeTLS();
-  return m_tls->trackManager.get();
+  return m_tls->trackManager;
 }
 std::vector<SensitiveTkDetector*>& RunManagerMTWorker::sensTkDetectors() {
   initializeTLS();
@@ -374,20 +374,20 @@ std::vector<std::shared_ptr<SimProducer> > RunManagerMTWorker::producers() {
 void RunManagerMTWorker::initializeRun() {
   m_tls->currentRun.reset(new G4Run());
   G4StateManager::GetStateManager()->SetNewState(G4State_GeomClosed);
-  if (m_tls->userRunAction) { m_tls->userRunAction->BeginOfRunAction(m_tls->currentRun.get()); }
+  if (m_tls->userRunAction) { m_tls->userRunAction->BeginOfRunAction(m_tls->currentRun); }
 }
 
 void RunManagerMTWorker::terminateRun() {
   if(!m_tls || m_tls->runTerminated) { return; }
   if(m_tls->userRunAction) {
-    m_tls->userRunAction->EndOfRunAction(m_tls->currentRun.get());
+    m_tls->userRunAction->EndOfRunAction(m_tls->currentRun);
     m_tls->userRunAction.reset();
   }
   m_tls->currentEvent.reset();
   m_simEvent.reset();
 
-  if(m_tls->kernel.get()) {
-    m_tls->kernel.get()->RunTermination();
+  if(m_tls->kernel) {
+    m_tls->kernel->RunTermination();
   }
 
   m_tls->runTerminated = true;
@@ -442,7 +442,7 @@ void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup
     throw SimG4Exception(ss.str());
 
   } else {
-    if(!m_tls->kernel.get()) {
+    if(!m_tls->kernel) {
       std::stringstream ss;
       ss << " RunManagerMT::produce(): "
 	 << " no G4WorkerRunManagerKernel yet for thread index" 
@@ -460,7 +460,7 @@ void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup
       << m_simEvent->nVertices()
       << " vertices, generated by " << m_simEvent->nGenParts() << " particles ";
 
-    m_tls->kernel.get()->GetEventManager()->ProcessOneEvent(m_tls->currentEvent.get());
+    m_tls->kernel->GetEventManager()->ProcessOneEvent(m_tls->currentEvent);
 
     edm::LogVerbatim("SimG4CoreApplication")
       << " RunManagerMTWorker::produce: ended Event " << inpevt.id().event(); 
@@ -469,18 +469,18 @@ void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup
 
 void RunManagerMTWorker::abortEvent() {
   if(m_tls->runTerminated) { return; }
-  G4Track* t = m_tls->kernel.get()->GetEventManager()->GetTrackingManager()->GetTrack();
+  G4Track* t = m_tls->kernel->GetEventManager()->GetTrackingManager()->GetTrack();
   t->SetTrackStatus(fStopAndKill) ;
 
   // CMS-specific act
   //
   TrackingAction* uta =
-    static_cast<TrackingAction *>(m_tls->kernel.get()->GetEventManager()->GetUserTrackingAction());
+    static_cast<TrackingAction *>(m_tls->kernel->GetEventManager()->GetUserTrackingAction());
   uta->PostUserTrackingAction(t) ;
 
   m_tls->currentEvent->SetEventAborted();
-  m_tls->kernel.get()->GetEventManager()->GetStackManager()->clear();
-  m_tls->kernel.get()->GetEventManager()->GetTrackingManager()->EventAborted();
+  m_tls->kernel->GetEventManager()->GetStackManager()->clear();
+  m_tls->kernel->GetEventManager()->GetTrackingManager()->EventAborted();
 }
 
 void RunManagerMTWorker::abortRun(bool softAbort) {
