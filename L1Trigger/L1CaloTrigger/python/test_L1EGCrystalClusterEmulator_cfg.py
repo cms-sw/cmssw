@@ -46,7 +46,6 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 
 process.L1EGammaCrystalsProducer = cms.EDProducer("L1EGCrystalClusterEmulatorProducer",
    ecalTPEB = cms.InputTag("simEcalEBTriggerPrimitiveDigis","","HLT"),
-   hcalRecHit = cms.InputTag("hbhereco"),
    hcalTP = cms.InputTag("simHcalTriggerPrimitiveDigis","","HLT"),
 )
 
