@@ -382,8 +382,8 @@ def get_diagnostics(translation_unit):
     }, translation_unit.diagnostics)
 
 
-def get_default_gcc_search_paths(gcc = 'g++', language = 'c++'):
-    command = 'echo "" | %s -x%s -v -E - 2>&1' % (gcc, language)
+def get_default_gcc_search_paths(gcc = 'g++', language = 'c++', gcc_toolchain=""):
+    command = 'echo "" | %s -x%s %s -v -E - 2>&1' % (gcc, language, gcc_toolchain)
     logging.debug('Running: %s', command)
 
     paths = []
@@ -457,7 +457,9 @@ class SerializationCodeGenerator(object):
             cxx_flags = []
 
         # We are using libClang, thus we have to follow Clang include paths
-        std_flags = get_default_gcc_search_paths(gcc='clang++')
+        toolchain=""
+        if 'COMPILER_RUNTIME_OBJECTS' in os.environ: toolchain='--gcc-toolchain=%s' % os.environ['COMPILER_RUNTIME_OBJECTS']
+        std_flags = get_default_gcc_search_paths(gcc='clang++',gcc_toolchain=toolchain)
         log_flags('cpp_flags', cpp_flags)
         log_flags('cxx_flags', cxx_flags)
         log_flags('std_flags', std_flags)
