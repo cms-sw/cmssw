@@ -136,7 +136,7 @@ TEveGeoShape * clone( const TEveElement * element, TEveElement * parent /* = 0 *
 {
   TEveGeoShape* shape = new TEveGeoShape( get_name(element), get_title(element) );
 
-  std::auto_ptr<TGeoMatrix> matrix( get_transform(element) );
+  std::unique_ptr<TGeoMatrix> matrix( get_transform(element) );
   shape->SetTransMatrix( matrix.get() );
   delete matrix;
 
