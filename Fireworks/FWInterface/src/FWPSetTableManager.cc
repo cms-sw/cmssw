@@ -20,7 +20,7 @@
 #include "Fireworks/Core/interface/fwLog.h"
 
 #include "FWCore/Framework/interface/ScheduleInfo.h"
-#include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
+//#include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 //
