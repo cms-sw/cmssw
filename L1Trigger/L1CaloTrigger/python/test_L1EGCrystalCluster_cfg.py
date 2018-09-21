@@ -12,7 +12,7 @@ process.MessageLogger.cerr.FwkReport = cms.untracked.PSet(
    reportEvery = cms.untracked.int32(1)
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 process.source = cms.Source("PoolSource",
    # Set to do test run on official Phase-2 L1T Ntuples
@@ -38,39 +38,11 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 
 
 
-# --------------------------------------------------------------------------------------------
-#
-# ----    Produce the ECAL TPs
-#
-##process.simEcalEBTriggerPrimitiveDigis = cms.EDProducer("EcalEBTrigPrimProducer",
-#process.EcalEBTrigPrimProducer = cms.EDProducer("EcalEBTrigPrimProducer",
-#    BarrelOnly = cms.bool(True),
-##    barrelEcalDigis = cms.InputTag("simEcalUnsuppressedDigis","ebDigis"),
-#    barrelEcalDigis = cms.InputTag("simEcalDigis","ebDigis"),
-##    barrelEcalDigis = cms.InputTag("selectDigi","selectedEcalEBDigiCollection"),
-#    binOfMaximum = cms.int32(6), ## optional from release 200 on, from 1-10
-#    TcpOutput = cms.bool(False),
-#    Debug = cms.bool(False),
-#    Famos = cms.bool(False),
-#    nOfSamples = cms.int32(1)
-#)
-#
-#process.pEcalTPs = cms.Path( process.EcalEBTrigPrimProducer )
-
-process.EcalTPSorterProducer = cms.EDProducer("EcalTPSorterProducer",
-   tpsToKeep = cms.untracked.double(20),
-   towerMapName = cms.untracked.string("newMap.json"),
-   ecalTPEB = cms.InputTag("simEcalEBTriggerPrimitiveDigis","","HLT"),
-)
 
 
 # --------------------------------------------------------------------------------------------
 #
 # ----    Produce the L1EGCrystal clusters (code of Sasha Savin)
-
-# first you need the ECAL RecHIts :
-#process.load('Configuration.StandardSequences.Reconstruction_cff')
-#process.reconstruction_step = cms.Path( process.calolocalreco )
 
 process.L1EGammaCrystalsProducer = cms.EDProducer("L1EGCrystalClusterProducer",
    EtminForStore = cms.double(0.),
@@ -88,7 +60,7 @@ process.L1EGammaCrystalsProducer = cms.EDProducer("L1EGCrystalClusterProducer",
    useTowerMap = cms.untracked.bool(False)
 )
 
-process.pL1EG = cms.Path( process.EcalTPSorterProducer + process.L1EGammaCrystalsProducer )
+process.pL1EG = cms.Path( process.L1EGammaCrystalsProducer )
 
 
 
