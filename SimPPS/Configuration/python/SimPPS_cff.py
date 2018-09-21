@@ -5,4 +5,8 @@ import FWCore.ParameterSet.Config as cms
 from SimPPS.PPSPixelDigiProducer.RPixDetDigitizer_cfi import *
 from SimPPS.RPDigiProducer.RPSiDetConf_cfi import *
 
+from IOMC.RandomEngine.IOMC_cff import *
+RandomNumberGeneratorService.RPixDetDigitizer = cms.PSet(initialSeed =cms.untracked.uint32(137137))
+RandomNumberGeneratorService.RPSiDetDigitizer = cms.PSet(initialSeed =cms.untracked.uint32(137137))
+
 ppsDigi = cms.Sequence(RPixDetDigitizer+RPSiDetDigitizer)
