@@ -1048,9 +1048,14 @@ double MakeCoordLUT::getSectorPhi(int endcap, int sector, int subsector, int sta
   //sectorStartPhi = (endcap == 2) ? sectorStartPhi + 36./60 : sectorStartPhi + 28./60;
 
   // Manually lines up at -22 deg (Jia Fu, 2018-09-19)
+  double oldSectorStartPhi = sectorStartPhi;
   sectorStartPhi = -22. + 15. + (60. * (sector-1));
+  if (isNeighbor) {
+    sectorStartPhi += 60.;
+  }
   if (sectorStartPhi > 180.)
     sectorStartPhi -= 360.;
+  assert(std::abs(oldSectorStartPhi-sectorStartPhi) < 2.);  // sanity check
 #endif
 
   double res = deltaPhiInDegrees(globalPhi, sectorStartPhi);
