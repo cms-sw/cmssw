@@ -28,7 +28,7 @@ HGCalVFEProcessorSums::run(const HGCalDigiCollection& ee,
 
   std::vector<HGCalDataFrame> dataframes;
   std::vector<std::pair<DetId, uint32_t >> linearized_dataframes;
-  std::map<HGCalDetId, uint32_t> payload;
+  std::unordered_map<HGCalDetId, uint32_t> payload;
 
   // convert ee and fh hit collections into the same object  
   if(!ee.empty())
@@ -61,7 +61,7 @@ HGCalVFEProcessorSums::run(const HGCalDigiCollection& ee,
   {  
      for(const auto& bhdata : bh)
      { 
-       if(HcalDetId(bhdata.id()).subdetId()!=HcalEndcap) continue;
+       if(DetId(bhdata.id()).det()!=DetId::HGCalHSc && HcalDetId(bhdata.id()).subdetId()!=HcalEndcap) continue;
        uint32_t module = geometry_->getModuleFromCell(bhdata.id());
        if(geometry_->disconnectedModule(module)) continue;
        dataframes.emplace_back(bhdata.id());
