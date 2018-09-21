@@ -7,6 +7,7 @@ Test of the EventProcessor class.
 #include <iostream>
 #include <string>
 #include <stdexcept>
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "cppunit/extensions/HelperMacros.h"
@@ -61,7 +62,8 @@ void work()
       "process.out = cms.OutputModule('AsciiOutputModule')\n"
       "process.p1 = cms.Path(process.m1*process.m2)\n"
       "process.ep1 = cms.EndPath(process.out)");
-  edm::EventProcessor proc(configuration, true);
+  std::unique_ptr<edm::ParameterSet> pset; // ?????
+  edm::EventProcessor proc(std::move(pset), true);
   proc.beginJob();
   proc.run();
   proc.endJob();
