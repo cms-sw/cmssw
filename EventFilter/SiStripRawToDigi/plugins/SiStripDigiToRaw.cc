@@ -21,7 +21,7 @@ namespace sistrip {
   /** */
   DigiToRaw::DigiToRaw( FEDReadoutMode mode,
                         uint8_t packetCode,
-			bool useFedKey ) :
+                        bool useFedKey ) :
     mode_(mode),
     packetCode_(packetCode),
     useFedKey_(useFedKey),
@@ -30,8 +30,8 @@ namespace sistrip {
   {
     if ( edm::isDebugEnabled() ) {
       LogDebug("DigiToRaw")
-	<< "[sistrip::DigiToRaw::DigiToRaw]"
-	<< " Constructing object...";
+        << "[sistrip::DigiToRaw::DigiToRaw]"
+        << " Constructing object...";
     }
     bufferGenerator_.setReadoutMode(mode_);
   }
@@ -41,8 +41,8 @@ namespace sistrip {
   DigiToRaw::~DigiToRaw() {
     if ( edm::isDebugEnabled() ) {
       LogDebug("DigiToRaw")
-	<< "[sistrip::DigiToRaw::~DigiToRaw]"
-	<< " Destructing object...";
+        << "[sistrip::DigiToRaw::~DigiToRaw]"
+        << " Destructing object...";
     }
   }
 
@@ -56,33 +56,33 @@ namespace sistrip {
       buffer to stdout, retrieves data from various header fields
   */
   void DigiToRaw::createFedBuffers( edm::Event& event,
-				    edm::ESHandle<SiStripFedCabling>& cabling,
-				    edm::Handle< edm::DetSetVector<SiStripDigi> >& collection,
-				    std::unique_ptr<FEDRawDataCollection>& buffers ) { 
+                                    edm::ESHandle<SiStripFedCabling>& cabling,
+                                    edm::Handle< edm::DetSetVector<SiStripDigi> >& collection,
+                                    std::unique_ptr<FEDRawDataCollection>& buffers ) {
     createFedBuffers_(event, cabling, collection, buffers, true);
   }
   
   void DigiToRaw::createFedBuffers( edm::Event& event,
-				    edm::ESHandle<SiStripFedCabling>& cabling,
-				    edm::Handle< edm::DetSetVector<SiStripRawDigi> >& collection,
-				    std::unique_ptr<FEDRawDataCollection>& buffers ) { 
+                                    edm::ESHandle<SiStripFedCabling>& cabling,
+                                    edm::Handle< edm::DetSetVector<SiStripRawDigi> >& collection,
+                                    std::unique_ptr<FEDRawDataCollection>& buffers ) {
     createFedBuffers_(event, cabling, collection, buffers, false);
   }
 
   //with copy of headers from initial raw data collection (raw->digi->raw)
   void DigiToRaw::createFedBuffers( edm::Event& event,
-				    edm::ESHandle<SiStripFedCabling>& cabling,
-				    edm::Handle<FEDRawDataCollection> & rawbuffers,
-				    edm::Handle< edm::DetSetVector<SiStripDigi> >& collection,
-				    std::unique_ptr<FEDRawDataCollection>& buffers ) { 
+                                    edm::ESHandle<SiStripFedCabling>& cabling,
+                                    edm::Handle<FEDRawDataCollection> & rawbuffers,
+                                    edm::Handle< edm::DetSetVector<SiStripDigi> >& collection,
+                                    std::unique_ptr<FEDRawDataCollection>& buffers ) {
     createFedBuffers_(event, cabling, rawbuffers, collection, buffers, true);
   }
   
   void DigiToRaw::createFedBuffers( edm::Event& event,
-				    edm::ESHandle<SiStripFedCabling>& cabling,
-				    edm::Handle<FEDRawDataCollection> & rawbuffers,
-				    edm::Handle< edm::DetSetVector<SiStripRawDigi> >& collection,
-				    std::unique_ptr<FEDRawDataCollection>& buffers ) { 
+                                    edm::ESHandle<SiStripFedCabling>& cabling,
+                                    edm::Handle<FEDRawDataCollection> & rawbuffers,
+                                    edm::Handle< edm::DetSetVector<SiStripRawDigi> >& collection,
+                                    std::unique_ptr<FEDRawDataCollection>& buffers ) {
     createFedBuffers_(event, cabling, rawbuffers, collection, buffers, false);
   }
 
@@ -91,10 +91,10 @@ namespace sistrip {
 
   template<class Digi_t>
   void DigiToRaw::createFedBuffers_( edm::Event& event,
-				     edm::ESHandle<SiStripFedCabling>& cabling,
-				     edm::Handle< edm::DetSetVector<Digi_t> >& collection,
-				     std::unique_ptr<FEDRawDataCollection>& buffers,
-				     bool zeroSuppressed) {
+                                     edm::ESHandle<SiStripFedCabling>& cabling,
+                                     edm::Handle< edm::DetSetVector<Digi_t> >& collection,
+                                     std::unique_ptr<FEDRawDataCollection>& buffers,
+                                     bool zeroSuppressed) {
 
     edm::Handle<FEDRawDataCollection> rawbuffers;
     //CAMM initialise to some dummy empty buffers??? Or OK like this ?
@@ -104,11 +104,11 @@ namespace sistrip {
 
   template<class Digi_t>
   void DigiToRaw::createFedBuffers_( edm::Event& event,
-				     edm::ESHandle<SiStripFedCabling>& cabling,
-				     edm::Handle<FEDRawDataCollection> & rawbuffers,
-				     edm::Handle< edm::DetSetVector<Digi_t> >& collection,
-				     std::unique_ptr<FEDRawDataCollection>& buffers,
-				     bool zeroSuppressed) {
+                                     edm::ESHandle<SiStripFedCabling>& cabling,
+                                     edm::Handle<FEDRawDataCollection> & rawbuffers,
+                                     edm::Handle< edm::DetSetVector<Digi_t> >& collection,
+                                     std::unique_ptr<FEDRawDataCollection>& buffers,
+                                     bool zeroSuppressed) {
     const bool dataIsAlready8BitTruncated = zeroSuppressed && ( ! (
           //for special mode premix raw, data is zero-suppressed but not converted to 8 bit
              ( mode_ == READOUT_MODE_PREMIX_RAW )
@@ -125,27 +125,27 @@ namespace sistrip {
 
       //copy header if valid rawbuffers handle
       if (rawbuffers.isValid()){
-	if ( edm::isDebugEnabled() ) {
-	  edm::LogWarning("DigiToRaw")
-	    << "[sistrip::DigiToRaw::createFedBuffers_]"
-	    << " Valid raw buffers, getting headers from them..."
-	    << " Number of feds: " << fed_ids.size() << " between "
-	    << *(fed_ids.begin()) << " and " << *(fed_ids.end());
-	}
-	
-	const FEDRawDataCollection& rawDataCollection = *rawbuffers;
+        if ( edm::isDebugEnabled() ) {
+          edm::LogWarning("DigiToRaw")
+            << "[sistrip::DigiToRaw::createFedBuffers_]"
+            << " Valid raw buffers, getting headers from them..."
+            << " Number of feds: " << fed_ids.size() << " between "
+            << *(fed_ids.begin()) << " and " << *(fed_ids.end());
+        }
 
-	for ( auto ifed = fed_ids.begin(); ifed != fed_ids.end(); ++ifed ) {
-	  const FEDRawData& rawfedData = rawDataCollection.FEDData(*ifed);
+        const FEDRawDataCollection& rawDataCollection = *rawbuffers;
 
-	  if ( edm::isDebugEnabled() ) {
-	    edm::LogWarning("DigiToRaw")
-	      << "[sistrip::DigiToRaw::createFedBuffers_]"
-	      << "Fed " << *ifed << " : size of buffer = " << rawfedData.size();
-	  }
-	  
-	  //need to construct full object to copy full header
-	  std::unique_ptr<const sistrip::FEDBuffer> fedbuffer;
+        for ( auto ifed = fed_ids.begin(); ifed != fed_ids.end(); ++ifed ) {
+          const FEDRawData& rawfedData = rawDataCollection.FEDData(*ifed);
+
+          if ( edm::isDebugEnabled() ) {
+            edm::LogWarning("DigiToRaw")
+              << "[sistrip::DigiToRaw::createFedBuffers_]"
+              << "Fed " << *ifed << " : size of buffer = " << rawfedData.size();
+          }
+
+          //need to construct full object to copy full header
+          std::unique_ptr<const sistrip::FEDBuffer> fedbuffer;
           if ( rawfedData.size() == 0 ) {
             warnings_.add("Invalid raw data for FED, skipping", (boost::format("id %1%") % *ifed).str());
           } else {
@@ -156,7 +156,7 @@ namespace sistrip {
                         << " Could not construct FEDBuffer for FED " << *ifed
                         << std::endl;
             }
-            
+
             if ( edm::isDebugEnabled() ) {
               edm::LogWarning("DigiToRaw")
                 << "[sistrip::DigiToRaw::createFedBuffers_]"
@@ -167,7 +167,7 @@ namespace sistrip {
             //fedbuffer->headerType());
             bufferGenerator_.daqHeader() = fedbuffer->daqHeader();
             bufferGenerator_.daqTrailer() = fedbuffer->daqTrailer();
-            
+
             bufferGenerator_.trackerSpecialHeader() = fedbuffer->trackerSpecialHeader();
             bufferGenerator_.setReadoutMode(mode_);
 
@@ -319,12 +319,12 @@ namespace sistrip {
                 << debugStream.str();
             }
           }
-	}//loop on fedids
-	if ( edm::isDebugEnabled() ) {
-	  edm::LogWarning("DigiToRaw")
-	    << "[sistrip::DigiToRaw::createFedBuffers_]"
-	    << "end of first loop on feds";
-	}
+        }//loop on fedids
+        if ( edm::isDebugEnabled() ) {
+          edm::LogWarning("DigiToRaw")
+            << "[sistrip::DigiToRaw::createFedBuffers_]"
+            << "end of first loop on feds";
+        }
 
       }//end of workflow for copying header, below is workflow without copying header
       else{     
@@ -363,8 +363,8 @@ namespace sistrip {
             if (!collection.isValid()){
               if ( edm::isDebugEnabled() ) {
                 edm::LogWarning("DigiToRaw") 
-          	<< "[DigiToRaw::createFedBuffers] " 
-          	<< "digis collection is not valid...";
+                  << "[DigiToRaw::createFedBuffers] "
+                  << "digis collection is not valid...";
               }
               break;
             }
@@ -375,15 +375,15 @@ namespace sistrip {
             for ( idigi = digis_begin; idigi != digis->data.end(); idigi++ ) {
               
               if ( STRIP(idigi, digis_begin) < ipair*256 ||
-          	 STRIP(idigi, digis_begin) > ipair*256+255 ) { continue; }
+                   STRIP(idigi, digis_begin) > ipair*256+255 ) { continue; }
               const unsigned short strip = STRIP(idigi, digis_begin) % 256;
               
               if ( strip >= STRIPS_PER_FEDCH ) {
                 if ( edm::isDebugEnabled() ) {
-          	std::stringstream ss;
-          	ss << "[sistrip::DigiToRaw::createFedBuffers]"
-          	   << " strip >= strips_per_fedCh";
-          	edm::LogWarning("DigiToRaw") << ss.str();
+                  std::stringstream ss;
+                  ss << "[sistrip::DigiToRaw::createFedBuffers]"
+                     << " strip >= strips_per_fedCh";
+                  edm::LogWarning("DigiToRaw") << ss.str();
                 }
                 continue;
               }
@@ -392,15 +392,15 @@ namespace sistrip {
               if ( edm::isDebugEnabled() ) {
                 const uint16_t value = 0;//chanData[strip];
                 if ( value && value != (*idigi).adc() ) {
-          	std::stringstream ss; 
-          	ss << "[sistrip::DigiToRaw::createFedBuffers]" 
-          	   << " Incompatible ADC values in buffer!"
-          	   << "  FedId/FedCh: " << *ifed << "/" << iconn->fedCh()
-          	   << "  DetStrip: " << STRIP(idigi, digis_begin)
-          	   << "  FedChStrip: " << strip
-          	   << "  AdcValue: " << (*idigi).adc()
-          	   << "  RawData[" << strip << "]: " << value;
-          	edm::LogWarning("DigiToRaw") << ss.str();
+                  std::stringstream ss;
+                  ss << "[sistrip::DigiToRaw::createFedBuffers]"
+                     << " Incompatible ADC values in buffer!"
+                     << "  FedId/FedCh: " << *ifed << "/" << iconn->fedCh()
+                     << "  DetStrip: " << STRIP(idigi, digis_begin)
+                     << "  FedChStrip: " << strip
+                     << "  AdcValue: " << (*idigi).adc()
+                     << "  RawData[" << strip << "]: " << value;
+                  edm::LogWarning("DigiToRaw") << ss.str();
                 }
               }
               
@@ -411,8 +411,8 @@ namespace sistrip {
           // if ((*idigi).strip() >= (ipair+1)*256) break;
           
           if ( edm::isDebugEnabled() ) {
-            edm::LogWarning("DigiToRaw") 
-              << "DigiToRaw::createFedBuffers] " 
+            edm::LogWarning("DigiToRaw")
+              << "DigiToRaw::createFedBuffers] "
               << "Almost at the end...";
           }
           //create the buffer
@@ -432,9 +432,9 @@ namespace sistrip {
     }//try
     catch (const std::exception& e) {
       if ( edm::isDebugEnabled() ) {
-	edm::LogWarning("DigiToRaw") 
-	  << "DigiToRaw::createFedBuffers] " 
-	  << "Exception caught : " << e.what();
+        edm::LogWarning("DigiToRaw")
+          << "DigiToRaw::createFedBuffers] "
+          << "Exception caught : " << e.what();
       }
     }
   
