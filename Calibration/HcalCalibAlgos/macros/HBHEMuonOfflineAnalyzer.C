@@ -13,14 +13,14 @@
 //   rcorFile   consr char*  name of the text file having the correction factors
 //                           as a function of run numbers to be used for raddam
 //                           correction (default="", no corr.)
-//   flag       int          Flag of 2 digits: to where o decides if corrected
-//                           (1) or default (0) energy to be used; t decides
-//                           if all depths to be merged (1) or not (0)
-//                           (default is 0)
+//   flag       int          Flag of 2 digits ("to"): to where "o" decides if 
+//                           corrected (1) or default (0) energy to be used;
+//                           "t" decides if all depths to be merged (1) or not
+//                           (0) (default is 0)
 //   mode       int          Geometry file used 0:(defined by maxDHB/HE);
 //                           1 (Run 1; valid till 2016); 2 (Run 2; 2018);
 //                           3 (Run 3; post LS2); 4 (2017 Plan 1);
-//                           5 (Run 4; post LS3); default (4)
+//                           5 (Run 4; post LS3); default (2)
 //   maxDHB     int          Maximum number of depths for HB (4)
 //   maxDHE     int          Maximum number of depths for HE (7)
 //   runLO      int          Minimum run number (1)
@@ -331,13 +331,13 @@ public :
   
   HBHEMuonOfflineAnalyzer(TChain *tree=0, 
 			  const char* outfile="dyll_PU20_25_output_10.root", 
-			  const char* rcorFileName="", int flag=0, int mode=4,
+			  const char* rcorFileName="", int flag=0, int mode=2,
 			  int maxDHB=4, int maxDHE=7, int runLo=1,
 			  int runHi=99999999, int etaMin=1, int etaMax=29,
 			  bool debug=false);
   HBHEMuonOfflineAnalyzer(const char* infile, 
 			  const char* outfile="dyll_PU20_25_output_10.root", 
-			  const char* rcorFileName="", int flag=0, int mode=4, 
+			  const char* rcorFileName="", int flag=0, int mode=2, 
 			  int maxDHB=4, int maxDHE=7, int runLo=1, 
 			  int runHi=99999999, int etaMin=1, int etaMax=29,
 			  bool debug=false);
@@ -1063,7 +1063,7 @@ bool HBHEMuonOfflineAnalyzer::fillChain(TChain *chain,
   if (fname.substr(fname.size()-5,5) == ".root") {
     chain->Add(fname.c_str());
   } else {
-    ifstream infile(inputFileList);
+    std::ifstream infile(inputFileList);
     if (!infile.is_open()) {
       std::cout << "** ERROR: Can't open '" << inputFileList << "' for input" 
 		<< std::endl;
