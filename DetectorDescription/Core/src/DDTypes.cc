@@ -71,13 +71,13 @@ std::ostream & operator<<(std::ostream & os, const DDStringVectorArguments & t)
 }
 
 
-// Formats an angle in radians as a 0-padded string in degrees; e.g. "001.293900" for 1.2939 degrees.
+// Formats an angle in radians as a 0-padded string in degrees; e.g. "-001.293900" for -1.2939 degrees.
 std::string formatAsDegrees(double radianVal)
 {
-	const unsigned short numlen = 11;
+	const unsigned short numlen = 12;
 	char degstr[numlen];
 	int retval = snprintf(degstr, numlen, "%0*Lf", numlen - 1, CONVERT_TO( radianVal, deg ));
 	if (retval == numlen - 1)
 		return degstr;
-	else return "000.000000";
+	else return "0000.000000";
 }
