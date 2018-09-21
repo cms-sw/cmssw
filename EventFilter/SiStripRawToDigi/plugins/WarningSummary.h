@@ -2,8 +2,9 @@
 #define EventFilter_SiStripRawToDigi_WarningSummary 1
 
 #include <string>
-#include <vector>
+#include <map>
 
+namespace sistrip {
 class WarningSummary {
 public:
   WarningSummary(const std::string& category, const std::string& name, bool debug=false)
@@ -19,6 +20,7 @@ private:
   bool m_debug;
   std::string m_category;
   std::string m_name;
-  std::vector<std::pair<std::string,std::size_t>> m_warnings;
+  std::map<std::string,std::size_t> m_warnings;
 };
+}
 #endif // EventFilter_SiStripRawToDigi_WarningSummary
