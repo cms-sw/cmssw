@@ -365,6 +365,23 @@ int getTower_absolutePhiID(float phi){
    return phiID;
 }
 
+// absolue IDs range from 0-33
+// 0-16 are iEta -17 to -1
+// 17 to 33 are iEta 1 to 17
+int getToweriEta_fromAbsoluteID(int id){
+   if (id < 17) return id - 17; 
+   else return id - 16;
+}
+
+// absolue IDs range from 0-71.
+// To align with detector tower IDs (1 - 72)
+// shift all indices by 37 and loop over after 72
+int getToweriPhi_fromAbsoluteID(int id){
+   if (id < 36) return id + 37;
+   else return id - 35;
+}
+
+
 float getTowerEta_fromAbsoluteID(int id){
    float size_cell=2*1.4841/(34);
    float eta=(id*size_cell)-1.4841+0.5*size_cell;
@@ -1154,6 +1171,13 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
 		   //bool is_he=passes_he(energy_cluster_L2Card[ii][jj][ll],HE_cluster_L2Card[ii][jj][ll]); //not used so far
 		   // All the ID set to Standalone WP! Some dummy values for non calculated variables
 		   l1slhc::L1EGCrystalCluster cluster(p4calibrated, energy_cluster_L2Card[ii][jj][ll], HE_cluster_L2Card[ii][jj][ll], isolation_cluster_L2Card[ii][jj][ll], centerhit.id,-1000, -1000,-1000,-1000, energy_cluster_L2Card[ii][jj][ll],-1, is_iso && is_ss, is_iso && is_ss, is_iso && is_ss, is_iso && is_ss, is_looseTkiso && is_looseTkss, is_iso && is_ss); 
+           // Experimental parameters, don't want to bother with hardcoding them in data format
+           std::map<std::string, float> params;
+           params["standaloneWP_showerShape"] = is_ss;
+           params["standaloneWP_isolation"] = is_iso;
+           params["trkMatchWP_showerShape"] = is_looseTkss;
+           params["trkMatchWP_isolation"] = is_looseTkiso;
+           cluster.SetExperimentalParams(params);
 		   L1EGXtalClusterEmulator->push_back(cluster);
 
                    // BXVector l1t::EGamma quality defined with respect to these WPs
@@ -1176,10 +1200,10 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
               if (HCAL_tower_L2Card[ii][jj][ll]>0 or ECAL_tower_L2Card[ii][jj][ll]>0){
                  l1CaloTower.ecal_tower_et = HCAL_tower_L2Card[ii][jj][ll];
                  l1CaloTower.hcal_tower_et = ECAL_tower_L2Card[ii][jj][ll];
-                 l1CaloTower.tower_iEta = iEta_tower_L2Card[ii][jj][ll];
-                 l1CaloTower.tower_iPhi = iPhi_tower_L2Card[ii][jj][ll];
-                 l1CaloTower.tower_phi = getTowerPhi_fromAbsoluteID(iPhi_tower_L2Card[ii][jj][ll]);
+                 l1CaloTower.tower_iEta = getToweriEta_fromAbsoluteID(iEta_tower_L2Card[ii][jj][ll]);
+                 l1CaloTower.tower_iPhi = getToweriPhi_fromAbsoluteID(iPhi_tower_L2Card[ii][jj][ll]);
                  l1CaloTower.tower_eta = getTowerEta_fromAbsoluteID(iEta_tower_L2Card[ii][jj][ll]);
+                 l1CaloTower.tower_phi = getTowerPhi_fromAbsoluteID(iPhi_tower_L2Card[ii][jj][ll]);
                  std::cout << "Tower TP Position eta,iEta: " << l1CaloTower.tower_eta << "," << l1CaloTower.tower_iEta << std::endl;
                  std::cout << "Tower TP Position phi,iPhi: " << l1CaloTower.tower_phi << "," << l1CaloTower.tower_iPhi << std::endl;
                  l1CaloTowerCollection->push_back( l1CaloTower );
