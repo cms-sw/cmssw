@@ -31,7 +31,6 @@ class PATTauDiscriminationAgainstElectronMVA6 : public PATTauDiscriminationProdu
   {
     mva_ = std::make_unique<AntiElectronIDMVA6>(cfg);
 
-    usePhiAtEcalEntranceExtrapolation_ = cfg.getParameter<bool>("usePhiAtEcalEntranceExtrapolation");
     srcElectrons = cfg.getParameter<edm::InputTag>("srcElectrons");
     electronToken = consumes<pat::ElectronCollection>(srcElectrons);
     verbosity_ = ( cfg.exists("verbosity") ) ?
@@ -61,7 +60,6 @@ private:
   edm::Handle<TauCollection> taus_;
 
   std::unique_ptr<PATTauDiscriminator> category_output_;
-  bool usePhiAtEcalEntranceExtrapolation_;
 		
   int verbosity_;
 };
@@ -104,7 +102,7 @@ double PATTauDiscriminationAgainstElectronMVA6::discriminate(const TauRef& theTa
 	double deltaREleTau = deltaR(theElectron.p4(), theTauRef->p4());
 	deltaRDummy = deltaREleTau;
 	if( deltaREleTau < 0.3 ){ 	
-	  double mva_match = mva_->MVAValue(*theTauRef, theElectron, usePhiAtEcalEntranceExtrapolation_);	  
+	  double mva_match = mva_->MVAValue(*theTauRef, theElectron);
 	  bool hasGsfTrack = false;
           pat::PackedCandidate const* packedLeadTauCand = dynamic_cast<pat::PackedCandidate const*>(theTauRef->leadChargedHadrCand().get());
           if( abs(packedLeadTauCand->pdgId()) == 11 ) 
@@ -142,7 +140,7 @@ double PATTauDiscriminationAgainstElectronMVA6::discriminate(const TauRef& theTa
      } // end of loop over electrons
 
     if ( !isGsfElectronMatched ) {
-      mvaValue = mva_->MVAValue(*theTauRef, usePhiAtEcalEntranceExtrapolation_);
+      mvaValue = mva_->MVAValue(*theTauRef);
       bool hasGsfTrack = false;
       pat::PackedCandidate const* packedLeadTauCand = dynamic_cast<pat::PackedCandidate const*>(theTauRef->leadChargedHadrCand().get());
       if( abs(packedLeadTauCand->pdgId()) == 11 ) hasGsfTrack = true;
