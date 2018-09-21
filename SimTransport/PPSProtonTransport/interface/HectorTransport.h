@@ -12,10 +12,10 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Random/RandGauss.h"
-#include "HepMC/SimpleVector.h"
+#include <CLHEP/Units/GlobalSystemOfUnits.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
+#include <CLHEP/Random/RandGauss.h>
+#include <CLHEP/Vector/LorentzVector.h>
 
 #include <TMath.h>
 #include <TMatrixT.h>
@@ -32,7 +32,7 @@
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenVertex.h"
 #include "HepMC/GenParticle.h"
-#include <CLHEP/Vector/LorentzVector.h>
+#include "HepMC/SimpleVector.h"
 //Hector headers
 #include "H_BeamLine.h"
 #include "H_BeamParticle.h"
