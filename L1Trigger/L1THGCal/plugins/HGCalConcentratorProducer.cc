@@ -13,7 +13,6 @@
 
 #include "L1Trigger/L1THGCal/interface/HGCalConcentratorProcessorBase.h"
 
-#include <sstream>
 #include <memory>
 
 
@@ -63,9 +62,9 @@ void HGCalConcentratorProducer::beginRun(const edm::Run& /*run*/,
 void HGCalConcentratorProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   
   // Output collections
-  std::unique_ptr<l1t::HGCalTriggerCellBxCollection> cc_trigcell_output( new l1t::HGCalTriggerCellBxCollection );
-  std::unique_ptr<l1t::HGCalTriggerSumsBxCollection> cc_trigsums_output( new l1t::HGCalTriggerSumsBxCollection );
-
+  auto cc_trigcell_output = std::make_unique<l1t::HGCalTriggerCellBxCollection>();
+  auto cc_trigsums_output = std::make_unique<l1t::HGCalTriggerSumsBxCollection>();
+  
   // Input collections
   edm::Handle<l1t::HGCalTriggerCellBxCollection> trigCellBxColl;
 

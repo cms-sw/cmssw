@@ -13,7 +13,6 @@
 
 #include "L1Trigger/L1THGCal/interface/HGCalVFEProcessorBase.h"
 
-#include <sstream>
 #include <memory>
 
 
@@ -62,8 +61,8 @@ void HGCalVFEProducer::beginRun(const edm::Run& /*run*/,
 void HGCalVFEProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   
   // Output collections
-  std::unique_ptr<l1t::HGCalTriggerCellBxCollection> vfe_trigcell_output( new l1t::HGCalTriggerCellBxCollection );
-  std::unique_ptr<l1t::HGCalTriggerSumsBxCollection> vfe_trigsums_output( new l1t::HGCalTriggerSumsBxCollection );
+  auto vfe_trigcell_output = std::make_unique<l1t::HGCalTriggerCellBxCollection>();
+  auto vfe_trigsums_output = std::make_unique<l1t::HGCalTriggerSumsBxCollection>();
 
   // Input collections
   edm::Handle<HGCalDigiCollection> ee_digis_h;
