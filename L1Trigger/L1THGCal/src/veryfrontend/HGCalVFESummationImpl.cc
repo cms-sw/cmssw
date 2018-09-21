@@ -22,21 +22,31 @@ triggerCellSums(const HGCalTriggerGeometryBase& geometry,
     HGCalDetId triggercellid( tcid );
     payload.emplace( std::make_pair(triggercellid, 0) ); // do nothing if key exists already
     uint32_t value = frame.second;
-    // equalize value among cell thicknesses
-    if(cellid.det()==DetId::Forward)
+    unsigned det = cellid.det();
+    // equalize value among cell thicknesses for Silicon parts
+    if(det==DetId::Forward || det==DetId::HGCalEE || det==DetId::HGCalHSi)
     {
       int thickness = 0;
-      switch(cellid.subdetId())
-      { 
-        case ForwardSubdetector::HGCEE:
-          thickness = geometry.eeTopology().dddConstants().waferTypeL(HGCalDetId(cellid).wafer())-1;
-          break;
-        case ForwardSubdetector::HGCHEF:
-          thickness = geometry.fhTopology().dddConstants().waferTypeL(HGCalDetId(cellid).wafer())-1;
-          break;
-        default:
-          break;
-      };
+      // For the v8 geometry
+      if(det==DetId::Forward)
+      {
+        switch(cellid.subdetId())
+        { 
+          case ForwardSubdetector::HGCEE:
+            thickness = geometry.eeTopology().dddConstants().waferTypeL(HGCalDetId(cellid).wafer())-1;
+            break;
+          case ForwardSubdetector::HGCHEF:
+            thickness = geometry.fhTopology().dddConstants().waferTypeL(HGCalDetId(cellid).wafer())-1;
+            break;
+          default:
+            break;
+        };
+      }
+      // For the v9 geometry
+      else if(det==DetId::HGCalEE || det==DetId::HGCalHSi)
+      {
+        thickness = HGCSiliconDetId(cellid).type();
+      }
 
       double thickness_correction = thickness_corrections_.at(thickness);
       value = (double)value*thickness_correction;
