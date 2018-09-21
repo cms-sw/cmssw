@@ -44,7 +44,5 @@ linearize(const std::vector<HGCDataFrame<DetId,HGCSample>>& dataframes,
         linearized_dataframes.push_back(std::make_pair (frame.id(), amplitude_int));
     }
 }
-  
-
 
 
