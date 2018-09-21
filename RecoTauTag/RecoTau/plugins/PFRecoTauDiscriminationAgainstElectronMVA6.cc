@@ -29,10 +29,10 @@ class PFRecoTauDiscriminationAgainstElectronMVA6 : public PFTauDiscriminationPro
  public:
   explicit PFRecoTauDiscriminationAgainstElectronMVA6(const edm::ParameterSet& cfg)
     : PFTauDiscriminationProducerBase(cfg),
-      mva_(nullptr),
+      mva_(),
       category_output_()
   {
-    mva_ = new AntiElectronIDMVA6(cfg);
+    mva_ = std::make_unique<AntiElectronIDMVA6>(cfg);
 
     usePhiAtEcalEntranceExtrapolation_ = cfg.getParameter<bool>("usePhiAtEcalEntranceExtrapolation");
     srcGsfElectrons_ = cfg.getParameter<edm::InputTag>("srcGsfElectrons");
@@ -51,18 +51,13 @@ class PFRecoTauDiscriminationAgainstElectronMVA6 : public PFTauDiscriminationPro
 
   void endEvent(edm::Event&) override;
 
-  ~PFRecoTauDiscriminationAgainstElectronMVA6() override
-  {
-    delete mva_;
-  }
+  ~PFRecoTauDiscriminationAgainstElectronMVA6() override {}
 
 private:
   bool isInEcalCrack(double) const;
 
   std::string moduleLabel_;
-
-  AntiElectronIDMVA6* mva_;
-  float* mvaInput_;
+  std::unique_ptr<AntiElectronIDMVA6> mva_;
 
   edm::InputTag srcGsfElectrons_;
   edm::EDGetTokenT<reco::GsfElectronCollection> GsfElectrons_token;
