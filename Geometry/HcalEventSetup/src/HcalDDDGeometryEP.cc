@@ -2,7 +2,7 @@
 //
 // Package:    HcalDDDGeometryEP
 // Class:      HcalDDDGeometryEP
-// 
+//
 /**\class HcalDDDGeometryEP HcalDDDGeometryEP.h tmp/HcalDDDGeometryEP/interface/HcalDDDGeometryEP.h
 
  Description: <one line class summary>
@@ -19,18 +19,6 @@
 #include "Geometry/HcalEventSetup/interface/HcalDDDGeometryEP.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-//#define DebugLog
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 
 HcalDDDGeometryEP::HcalDDDGeometryEP(const edm::ParameterSet& ps ) :
   m_applyAlignment(ps.getUntrackedParameter<bool>("applyAlignment", false) ) {
@@ -41,13 +29,6 @@ HcalDDDGeometryEP::HcalDDDGeometryEP(const edm::ParameterSet& ps ) :
 		   &HcalDDDGeometryEP::produceAligned,
 		   edm::es::Label("HCAL"));
 }
-
-HcalDDDGeometryEP::~HcalDDDGeometryEP() { 
-}
-
-//
-// member functions
-//
 
 // ------------ method called to produce the data  ------------
 HcalDDDGeometryEP::ReturnType

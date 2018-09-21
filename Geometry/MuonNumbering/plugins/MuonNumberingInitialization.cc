@@ -30,9 +30,8 @@ class MuonNumberingInitialization : public edm::ESProducer
 public:
   
   MuonNumberingInitialization( const edm::ParameterSet& );
-  ~MuonNumberingInitialization() override;
 
-  typedef std::unique_ptr<MuonDDDConstants> ReturnType;
+  using ReturnType = std::unique_ptr<MuonDDDConstants>;
 
   ReturnType produce( const MuonNumberingRecord& );
 };
@@ -41,9 +40,6 @@ MuonNumberingInitialization::MuonNumberingInitialization( const edm::ParameterSe
 {
   setWhatProduced(this);
 }
-
-MuonNumberingInitialization::~MuonNumberingInitialization()
-{}
 
 MuonNumberingInitialization::ReturnType
 MuonNumberingInitialization::produce(const MuonNumberingRecord& iRecord)
