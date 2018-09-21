@@ -203,6 +203,10 @@ lowPtQuadStep =  TrackMVAClassifierPrompt.clone(
 )
 fastSim.toModify(lowPtQuadStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 highBetaStar_2018.toModify(lowPtQuadStep,qualityCuts = [-0.9,-0.35,-0.15])
+pp_on_AA_2018.toModify(lowPtQuadStep, 
+        mva = dict(GBRForestLabel = 'HIMVASelectorLowPtQuadStep_Phase1'),
+        qualityCuts = [-0.9, -0.4, 0.3],
+)
 
 # For Phase2PU140
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
