@@ -18,11 +18,12 @@
 class L1CaloTower
 {
     public:
-        GlobalVector position; // As opposed to GlobalPoint, so we can add them (for weighted average)
         float ecal_tower_et = 0.0;
         float hcal_tower_et = 0.0;
         int tower_iPhi = -99;
-        int tower_iEhi = -99;
+        int tower_iEta = -99;
+        float tower_phi = -99;
+        float tower_eta = -99;
 };
   
   

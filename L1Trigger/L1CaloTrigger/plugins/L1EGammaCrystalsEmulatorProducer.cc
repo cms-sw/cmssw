@@ -3,10 +3,8 @@
 // Package: L1CaloTrigger
 // Class: L1EGammaCrystalsEmulatorProducer
 //
-/**\class L1EGammaCrystalsEmulatorProducer L1EGammaCrystalsEmulatorProducer.cc SLHCUpgradeSimulations/L1CaloTrigger/plugin/L1EGammaCrystalsEmulatorProducer.cc
-
-Description: Produces crystal clusters using crystal-level information and hardware cobstraints
-
+/**\class L1EGammaCrystalsEmulatorProducer L1EGammaCrystalsEmulatorProducer.cc L1Trigger/L1CaloTrigger/plugins/L1EGammaCrystalsEmulatorProducer.cc
+Description: Produces crystal clusters using crystal-level information and hardware constraints
 Implementation:
 [Notes on implementation]
 */
@@ -130,6 +128,171 @@ Implementation:
 // Output tower collection
 #include "DataFormats/Phase2L1CaloTrig/interface/L1CaloTower.h"
 
+float get_calibration(float pt, float eta){
+   if (pt<15){
+        if (fabs(eta)<0.05) return 1.284;
+        else if (fabs(eta)<0.15) return 1.261;
+        else if (fabs(eta)<0.25) return 1.241;
+        else if (fabs(eta)<0.35) return 1.260;
+        else if (fabs(eta)<0.45) return 1.264;
+        else if (fabs(eta)<0.55) return 1.284;
+        else if (fabs(eta)<0.65) return 1.270;
+        else if (fabs(eta)<0.75) return 1.295;
+        else if (fabs(eta)<0.85) return 1.306;
+        else if (fabs(eta)<0.95) return 1.292;
+        else if (fabs(eta)<1.05) return 1.300;
+        else if (fabs(eta)<1.15) return 1.317;
+        else if (fabs(eta)<1.25) return 1.331;
+        else if (fabs(eta)<1.35) return 1.345;
+        else if (fabs(eta)<1.45) return 1.358;
+        else return 1.389;
+   }
+   else if (pt<25){
+        if (fabs(eta)<0.05) return 1.204;
+        else if (fabs(eta)<0.15) return 1.154;
+        else if (fabs(eta)<0.25) return 1.164;
+        else if (fabs(eta)<0.35) return 1.150;
+        else if (fabs(eta)<0.45) return 1.160;
+        else if (fabs(eta)<0.55) return 1.170;
+        else if (fabs(eta)<0.65) return 1.167;
+        else if (fabs(eta)<0.75) return 1.166;
+        else if (fabs(eta)<0.85) return 1.207;
+        else if (fabs(eta)<0.95) return 1.166;
+        else if (fabs(eta)<1.05) return 1.174;
+        else if (fabs(eta)<1.15) return 1.198;
+        else if (fabs(eta)<1.25) return 1.210;
+        else if (fabs(eta)<1.35) return 1.205;
+        else if (fabs(eta)<1.45) return 1.211;
+        else return 1.265;
+   }
+   else if (pt<35){
+        if (fabs(eta)<0.05) return 1.154;
+        else if (fabs(eta)<0.15) return 1.117;
+        else if (fabs(eta)<0.25) return 1.115;
+        else if (fabs(eta)<0.35) return 1.124;
+        else if (fabs(eta)<0.45) return 1.133;
+        else if (fabs(eta)<0.55) return 1.138;
+        else if (fabs(eta)<0.65) return 1.121;
+        else if (fabs(eta)<0.75) return 1.133;
+        else if (fabs(eta)<0.85) return 1.151;
+        else if (fabs(eta)<0.95) return 1.134;
+        else if (fabs(eta)<1.05) return 1.136;
+        else if (fabs(eta)<1.15) return 1.167;
+        else if (fabs(eta)<1.25) return 1.165;
+        else if (fabs(eta)<1.35) return 1.161;
+        else if (fabs(eta)<1.45) return 1.154;
+        else return 1.195;
+   }
+   else if (pt<45){
+        if (fabs(eta)<0.05) return 1.135;
+        else if (fabs(eta)<0.15) return 1.097;
+        else if (fabs(eta)<0.25) return 1.101;
+        else if (fabs(eta)<0.35) return 1.095;
+        else if (fabs(eta)<0.45) return 1.117;
+        else if (fabs(eta)<0.55) return 1.114;
+        else if (fabs(eta)<0.65) return 1.106;
+        else if (fabs(eta)<0.75) return 1.107;
+        else if (fabs(eta)<0.85) return 1.144;
+        else if (fabs(eta)<0.95) return 1.113;
+        else if (fabs(eta)<1.05) return 1.117;
+        else if (fabs(eta)<1.15) return 1.142;
+        else if (fabs(eta)<1.25) return 1.137;
+        else if (fabs(eta)<1.35) return 1.129;
+        else if (fabs(eta)<1.45) return 1.144;
+        else return 1.169;
+   }
+   else if (pt<55){
+        if (fabs(eta)<0.05) return 1.105;
+        else if (fabs(eta)<0.15) return 1.086;
+        else if (fabs(eta)<0.25) return 1.090;
+        else if (fabs(eta)<0.35) return 1.081;
+        else if (fabs(eta)<0.45) return 1.105;
+        else if (fabs(eta)<0.55) return 1.101;
+        else if (fabs(eta)<0.65) return 1.093;
+        else if (fabs(eta)<0.75) return 1.096;
+        else if (fabs(eta)<0.85) return 1.122;
+        else if (fabs(eta)<0.95) return 1.098;
+        else if (fabs(eta)<1.05) return 1.095;
+        else if (fabs(eta)<1.15) return 1.124;
+        else if (fabs(eta)<1.25) return 1.120;
+        else if (fabs(eta)<1.35) return 1.110;
+        else if (fabs(eta)<1.45) return 1.116;
+        else return 1.164;
+   }
+   else if (pt<65){
+        if (fabs(eta)<0.05) return 1.106;
+        else if (fabs(eta)<0.15) return 1.082;
+        else if (fabs(eta)<0.25) return 1.078;
+        else if (fabs(eta)<0.35) return 1.077;
+        else if (fabs(eta)<0.45) return 1.085;
+        else if (fabs(eta)<0.55) return 1.084;
+        else if (fabs(eta)<0.65) return 1.082;
+        else if (fabs(eta)<0.75) return 1.087;
+        else if (fabs(eta)<0.85) return 1.104;
+        else if (fabs(eta)<0.95) return 1.086;
+        else if (fabs(eta)<1.05) return 1.089;
+        else if (fabs(eta)<1.15) return 1.107;
+        else if (fabs(eta)<1.25) return 1.107;
+        else if (fabs(eta)<1.35) return 1.099;
+        else if (fabs(eta)<1.45) return 1.099;
+        else return 1.136;
+   }
+   else if (pt<75){
+        if (fabs(eta)<0.05) return 1.086;
+        else if (fabs(eta)<0.15) return 1.071;
+        else if (fabs(eta)<0.25) return 1.069;
+        else if (fabs(eta)<0.35) return 1.068;
+        else if (fabs(eta)<0.45) return 1.074;
+        else if (fabs(eta)<0.55) return 1.078;
+        else if (fabs(eta)<0.65) return 1.073;
+        else if (fabs(eta)<0.75) return 1.075;
+        else if (fabs(eta)<0.85) return 1.085;
+        else if (fabs(eta)<0.95) return 1.077;
+        else if (fabs(eta)<1.05) return 1.078;
+        else if (fabs(eta)<1.15) return 1.089;
+        else if (fabs(eta)<1.25) return 1.090;
+        else if (fabs(eta)<1.35) return 1.088;
+        else if (fabs(eta)<1.45) return 1.091;
+        else return 1.128;
+   }
+   else if (pt<85){
+        if (fabs(eta)<0.05) return 1.075;
+        else if (fabs(eta)<0.15) return 1.063;
+        else if (fabs(eta)<0.25) return 1.062;
+        else if (fabs(eta)<0.35) return 1.064;
+        else if (fabs(eta)<0.45) return 1.068;
+        else if (fabs(eta)<0.55) return 1.068;
+        else if (fabs(eta)<0.65) return 1.067;
+        else if (fabs(eta)<0.75) return 1.067;
+        else if (fabs(eta)<0.85) return 1.079;
+        else if (fabs(eta)<0.95) return 1.066;
+        else if (fabs(eta)<1.05) return 1.073;
+        else if (fabs(eta)<1.15) return 1.078;
+        else if (fabs(eta)<1.25) return 1.080;
+        else if (fabs(eta)<1.35) return 1.081;
+        else if (fabs(eta)<1.45) return 1.079;
+        else return 1.102;
+   }
+   else{
+        if (fabs(eta)<0.05) return 1.053;
+        else if (fabs(eta)<0.15) return 1.053;
+        else if (fabs(eta)<0.25) return 1.053;
+        else if (fabs(eta)<0.35) return 1.051;
+        else if (fabs(eta)<0.45) return 1.057;
+        else if (fabs(eta)<0.55) return 1.054;
+        else if (fabs(eta)<0.65) return 1.053;
+        else if (fabs(eta)<0.75) return 1.056;
+        else if (fabs(eta)<0.85) return 1.056;
+        else if (fabs(eta)<0.95) return 1.058;
+        else if (fabs(eta)<1.05) return 1.055;
+        else if (fabs(eta)<1.15) return 1.061;
+        else if (fabs(eta)<1.25) return 1.060;
+        else if (fabs(eta)<1.35) return 1.065;
+        else if (fabs(eta)<1.45) return 1.064;
+        else return 1.070;
+   }
+}
+
 float mydeltarv2(float eta1, float eta2, float phi1, float phi2){
    float deta2=(eta1-eta2)*(eta1-eta2);
    float dphi=(phi1-phi2);
@@ -200,6 +363,18 @@ int getTower_absolutePhiID(float phi){
    float size_cell=2*3.14159/(72);
    int phiID=int((phi+3.14159)/size_cell);
    return phiID;
+}
+
+float getTowerEta_fromAbsoluteID(int id){
+   float size_cell=2*1.4841/(34);
+   float eta=(id*size_cell)-1.4841+0.5*size_cell;
+   return eta;
+}
+
+float getTowerPhi_fromAbsoluteID(int id){
+   float size_cell=2*3.14159/(72);
+   float phi=(id*size_cell)-3.14159+0.5*size_cell;
+   return phi;
 }
 
 int getCrystalIDInTower(int etaID, int phiID){
@@ -304,6 +479,8 @@ class L1EGCrystalClusterEmulatorProducer : public edm::EDProducer {
       bool passes_he(float pt, float he);
       bool passes_ss(float pt, float ss);
       bool passes_iso(float pt, float iso);
+      bool passes_looseTkss(float pt, float ss);
+      bool passes_looseTkiso(float pt, float iso);
       float get_calibrate(float uncorr);
 
       edm::EDGetTokenT<EcalEBTrigPrimDigiCollection> ecalTPEBToken_;
@@ -321,6 +498,7 @@ class L1EGCrystalClusterEmulatorProducer : public edm::EDProducer {
 	float c2x5;
 	float c5x5;
         int cshowershape;
+        int cshowershapeloosetk;
         float cvalueshowershape;
 	int cphotonshowershape;
 	float cpt; // ECAL pt
@@ -489,25 +667,30 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
 //*******************************************************************
 
       // Definition of L1 outputs
-      float energy_tower_L1Card[4][17][36]; // 36 L1 cards send each 4 links with 17 towers
+      //float energy_tower_L1Card[4][17][36]; // 36 L1 cards send each 4 links with 17 towers
       float ECAL_tower_L1Card[4][17][36]; // 36 L1 cards send each 4 links with 17 towers
       float HCAL_tower_L1Card[4][17][36]; // 36 L1 cards send each 4 links with 17 towers
-      float HE_tower_L1Card[4][17][36]; // 36 L1 cards send each 4 links with 17 towers
+      int iEta_tower_L1Card[4][17][36]; // 36 L1 cards send each 4 links with 17 towers
+      int iPhi_tower_L1Card[4][17][36]; // 36 L1 cards send each 4 links with 17 towers
+      //float HE_tower_L1Card[4][17][36]; // 36 L1 cards send each 4 links with 17 towers
       float energy_cluster_L1Card[4][3][36]; // 36 L1 cards send each 4 links with 3 clusters
       int towerID_cluster_L1Card[4][3][36]; // 36 L1 cards send each 4 links with 3 clusters
       int crystalID_cluster_L1Card[4][3][36]; // 36 L1 cards send each 4 links with 3 clusters
-      int insideCrystalID_cluster_L1Card[4][3][36]; // 36 L1 cards send each 4 links with 3 clusters
+      //int insideCrystalID_cluster_L1Card[4][3][36]; // 36 L1 cards send each 4 links with 3 clusters
       int showerShape_cluster_L1Card[4][3][36]; // 36 L1 cards send each 4 links with 3 clusters
-      float valueShowerShape_cluster_L1Card[4][3][36];
-      int photonShowerShape_cluster_L1Card[4][3][36]; // 36 L1 cards send each 4 links with 3 clusters
+      int showerShapeLooseTk_cluster_L1Card[4][3][36]; // 36 L1 cards send each 4 links with 3 clusters
+      //float valueShowerShape_cluster_L1Card[4][3][36];
+      //int photonShowerShape_cluster_L1Card[4][3][36]; // 36 L1 cards send each 4 links with 3 clusters
 
       for (int ii=0; ii<4; ++ii){
 	 for (int jj=0; jj<17; ++jj){
 	    for (int ll=0; ll<36; ++ll){
-	       energy_tower_L1Card[ii][jj][ll]=0;
+	       //energy_tower_L1Card[ii][jj][ll]=0;
                ECAL_tower_L1Card[ii][jj][ll]=0;
                HCAL_tower_L1Card[ii][jj][ll]=0;
-	       HE_tower_L1Card[ii][jj][ll]=0;
+               iPhi_tower_L1Card[ii][jj][ll]=-999;
+               iEta_tower_L1Card[ii][jj][ll]=-999;
+	       //HE_tower_L1Card[ii][jj][ll]=0;
 	    }
 	 }
       }
@@ -517,8 +700,8 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
                energy_cluster_L1Card[ii][jj][ll]=0;
                towerID_cluster_L1Card[ii][jj][ll]=0;
                crystalID_cluster_L1Card[ii][jj][ll]=0;
-               insideCrystalID_cluster_L1Card[ii][jj][ll]=0;
-	       valueShowerShape_cluster_L1Card[ii][jj][ll]=0;
+               //insideCrystalID_cluster_L1Card[ii][jj][ll]=0;
+	       //valueShowerShape_cluster_L1Card[ii][jj][ll]=0;
 	    }
          }
       }
@@ -653,6 +836,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
 		 }
 	     }
 	     if (cluster_list[cc][jj].cpt>0){
+		 cluster_list[cc][jj].cpt=cluster_list[cc][jj].cpt*get_calibration(cluster_list[cc][jj].cpt,cluster_list[cc][jj].ceta); //Mark's calibration as a function of eta and pt
 	         cluster_list_merged[cc].push_back(cluster_list[cc][jj]);
 	      }
 	  }
@@ -663,23 +847,31 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
               crystalID_cluster_L1Card[jj%4][jj/4][cc]=getCrystalIDInTower(cluster_list_merged[cc][jj].ceta,cluster_list_merged[cc][jj].cphi);
               towerID_cluster_L1Card[jj%4][jj/4][cc]=getTowerID(cluster_list_merged[cc][jj].ceta,cluster_list_merged[cc][jj].cphi);
               energy_cluster_L1Card[jj%4][jj/4][cc]=cluster_list_merged[cc][jj].cpt;
-	      valueShowerShape_cluster_L1Card[jj%4][jj/4][cc]=(cluster_list_merged[cc][jj].c2x5/cluster_list_merged[cc][jj].c5x5);
+	      //valueShowerShape_cluster_L1Card[jj%4][jj/4][cc]=(cluster_list_merged[cc][jj].c2x5/cluster_list_merged[cc][jj].c5x5);
 	      if (passes_ss(cluster_list_merged[cc][jj].cpt,cluster_list_merged[cc][jj].c2x5/cluster_list_merged[cc][jj].c5x5)) showerShape_cluster_L1Card[jj%4][jj/4][cc]=1;
 	      else showerShape_cluster_L1Card[jj%4][jj/4][cc]=0;
-	      if ((cluster_list_merged[cc][jj].c2x2/cluster_list_merged[cc][jj].c5x5)>0.90) photonShowerShape_cluster_L1Card[jj%4][jj/4][cc]=1;
-              else photonShowerShape_cluster_L1Card[jj%4][jj/4][cc]=0;
-              insideCrystalID_cluster_L1Card[jj%4][jj/4][cc]=get_insideEta(cluster_list_merged[cc][jj].cWeightedEta,cluster_list_merged[cc][jj].craweta);
-              insideCrystalID_cluster_L1Card[jj%4][jj/4][cc]+=4*get_insidePhi(cluster_list_merged[cc][jj].cWeightedPhi,cluster_list_merged[cc][jj].crawphi);
+              if (passes_looseTkss(cluster_list_merged[cc][jj].cpt,cluster_list_merged[cc][jj].c2x5/cluster_list_merged[cc][jj].c5x5)) showerShapeLooseTk_cluster_L1Card[jj%4][jj/4][cc]=1;
+              else showerShapeLooseTk_cluster_L1Card[jj%4][jj/4][cc]=0;
+	      //if ((cluster_list_merged[cc][jj].c2x2/cluster_list_merged[cc][jj].c5x5)>0.90) photonShowerShape_cluster_L1Card[jj%4][jj/4][cc]=1;
+              //else photonShowerShape_cluster_L1Card[jj%4][jj/4][cc]=0;
+              //insideCrystalID_cluster_L1Card[jj%4][jj/4][cc]=get_insideEta(cluster_list_merged[cc][jj].cWeightedEta,cluster_list_merged[cc][jj].craweta);
+              //insideCrystalID_cluster_L1Card[jj%4][jj/4][cc]+=4*get_insidePhi(cluster_list_merged[cc][jj].cWeightedPhi,cluster_list_merged[cc][jj].crawphi);
           }
 
           // Loop over calo ecal hits to get the ECAL towers. Take only hits that have not been used to make clusters
           for(const auto& hit : ecalhits)
           {
+	    //cout<<"ieta, iphi: "<<hit.id.ieta()<<" "<<hit.id.iphi()<<endl;
             if (getCrystal_phiID(hit.position.phi())<=getPhiMax_card(cc) && getCrystal_phiID(hit.position.phi())>=getPhiMin_card(cc) && getCrystal_etaID(hit.position.eta())<=getEtaMax_card(cc) && getCrystal_etaID(hit.position.eta())>=getEtaMin_card(cc) && !hit.used){ // Take all the hits inside the card that have not been used yet 
                 for (int jj=0; jj<4; ++jj){ // loop over 4 links per card
                    if ((getCrystal_phiID(hit.position.phi())/5)%4==jj){ // Go to ID tower modulo 4
              	      for (int ii=0; ii<17; ++ii){
-            	         if ((getCrystal_etaID(hit.position.eta())/5)%17==ii) ECAL_tower_L1Card[jj][ii][cc]+=hit.pt();
+			 //Apply Mark's calibration at the same time (row of the lowest pT, as a function of eta)
+            	         if ((getCrystal_etaID(hit.position.eta())/5)%17==ii){ 
+			     ECAL_tower_L1Card[jj][ii][cc]+=hit.pt()*get_calibration(0,hit.position.eta());
+                             iEta_tower_L1Card[jj][ii][cc]=getTower_absoluteEtaID(hit.position.eta());//hit.id.ieta();
+                             iPhi_tower_L1Card[jj][ii][cc]=getTower_absolutePhiID(hit.position.phi());//hit.id.iphi();
+			 }
             	      } // end of loop over eta towers
                    } 
                 } // end of loop over phi links
@@ -689,11 +881,16 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
           // Loop over hcal hits to get the HCAL towers.
           for(const auto& hit : hcalhits)
           {
+            //cout<<"H ieta, iphi: "<<hit.id.ieta()<<" "<<hit.id.iphi()<<endl;
             if (getCrystal_phiID(hit.position.phi())<=getPhiMax_card(cc) && getCrystal_phiID(hit.position.phi())>=getPhiMin_card(cc) && getCrystal_etaID(hit.position.eta())<=getEtaMax_card(cc) && getCrystal_etaID(hit.position.eta())>=getEtaMin_card(cc) && hit.pt()>0){ 
                 for (int jj=0; jj<4; ++jj){
                    if ((getCrystal_phiID(hit.position.phi())/5)%4==jj){
                       for (int ii=0; ii<17; ++ii){
-                         if ((getCrystal_etaID(hit.position.eta())/5)%17==ii) HCAL_tower_L1Card[jj][ii][cc]+=hit.pt();
+                         if ((getCrystal_etaID(hit.position.eta())/5)%17==ii){ 
+			     HCAL_tower_L1Card[jj][ii][cc]+=hit.pt();
+			     iEta_tower_L1Card[jj][ii][cc]=getTower_absoluteEtaID(hit.position.eta());//hit.id.ieta();
+                             iPhi_tower_L1Card[jj][ii][cc]=getTower_absolutePhiID(hit.position.phi());//hit.id.iphi();
+			 }
                       } // end of loop over eta towers
                    } 
                 } // end of loop over phi links
@@ -708,6 +905,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
           }
      } //End of loop over cards
 
+     /*
      // From ECAL and HCAL energies of the towers compute H/E and H+E
       for (int ii=0; ii<4; ++ii){
          for (int jj=0; jj<17; ++jj){
@@ -717,7 +915,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
 	       else HE_tower_L1Card[ii][jj][ll]=-1;
             }
          }
-      }
+      }*/
 
      //cout<<"Default printout: "<<energy_tower_L1Card[0][0][0]<<" "<<insideCrystalID_cluster_L1Card[0][0][0]<<" "<<crystalID_cluster_L1Card[0][0][0]<<" "<<towerID_cluster_L1Card[0][0][0]<<" "<<energy_cluster_L1Card[0][0][0]<<" "<<HE_tower_L1Card[0][0][0]<<" "<<showerShape_cluster_L1Card[0][0][0]<<" "<<photonShowerShape_cluster_L1Card[0][0][0]<<" "<<valueShowerShape_cluster_L1Card[0][0][0]<<endl;
 
@@ -726,27 +924,32 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
 //*********************************************************
 
       // Definition of L2 outputs
-      float energy_tower_L2Card[48][17][3]; // 3 L2 cards send each 48 links with 17 towers
-      float HE_tower_L2Card[48][17][3]; // 3 L2 cards send each 48 links with 17 towers
+      //float energy_tower_L2Card[48][17][3]; // 3 L2 cards send each 48 links with 17 towers
+      //float HE_tower_L2Card[48][17][3]; // 3 L2 cards send each 48 links with 17 towers
       float HCAL_tower_L2Card[48][17][3]; // 3 L2 cards send each 48 links with 17 towers
       float ECAL_tower_L2Card[48][17][3]; // 3 L2 cards send each 48 links with 17 towers
+      int iEta_tower_L2Card[48][17][3]; // 3 L2 cards send each 48 links with 17 towers
+      int iPhi_tower_L2Card[48][17][3]; // 3 L2 cards send each 48 links with 17 towers
       float energy_cluster_L2Card[48][2][3]; // 3 L2 cards send each 48 links with 2 clusters
       int towerID_cluster_L2Card[48][2][3]; // 3 L2 cards send each 48 links with 2 clusters
       int crystalID_cluster_L2Card[48][2][3]; // 3 L2 cards send each 48 links with 2 clusters
-      int insideCrystalID_cluster_L2Card[48][2][3]; // 3 L2 cards send each 48 links with 2 clusters
+      //int insideCrystalID_cluster_L2Card[48][2][3]; // 3 L2 cards send each 48 links with 2 clusters
       float isolation_cluster_L2Card[48][2][3]; // 3 L2 cards send each 48 links with 2 clusters
       float HE_cluster_L2Card[48][2][3]; // 3 L2 cards send each 48 links with 2 clusters
       int showerShape_cluster_L2Card[48][2][3];
-      float valueShowerShape_cluster_L2Card[48][2][3];
-      int photonShowerShape_cluster_L2Card[48][2][3];
+      int showerShapeLooseTk_cluster_L2Card[48][2][3];
+      //float valueShowerShape_cluster_L2Card[48][2][3];
+      //int photonShowerShape_cluster_L2Card[48][2][3];
 
       for (int ii=0; ii<48; ++ii){
          for (int jj=0; jj<17; ++jj){
             for (int ll=0; ll<3; ++ll){
-               energy_tower_L2Card[ii][jj][ll]=0;
-               HE_tower_L2Card[ii][jj][ll]=0;
+               //energy_tower_L2Card[ii][jj][ll]=0;
+               //HE_tower_L2Card[ii][jj][ll]=0;
                HCAL_tower_L2Card[ii][jj][ll]=0;
                ECAL_tower_L2Card[ii][jj][ll]=0;
+               iEta_tower_L2Card[ii][jj][ll]=0;
+               iPhi_tower_L2Card[ii][jj][ll]=0;
             }
          }
       }
@@ -756,12 +959,13 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
                energy_cluster_L2Card[ii][jj][ll]=0;
                towerID_cluster_L2Card[ii][jj][ll]=0;
                crystalID_cluster_L2Card[ii][jj][ll]=0;
-               insideCrystalID_cluster_L2Card[ii][jj][ll]=0;
+               //insideCrystalID_cluster_L2Card[ii][jj][ll]=0;
                isolation_cluster_L2Card[ii][jj][ll]=0;
                HE_cluster_L2Card[ii][jj][ll]=0;
-               photonShowerShape_cluster_L2Card[ii][jj][ll]=0;
+               //photonShowerShape_cluster_L2Card[ii][jj][ll]=0;
                showerShape_cluster_L2Card[ii][jj][ll]=0;
-	       valueShowerShape_cluster_L2Card[ii][jj][ll]=0;
+               showerShapeLooseTk_cluster_L2Card[ii][jj][ll]=0;
+	       //valueShowerShape_cluster_L2Card[ii][jj][ll]=0;
             }
          }
       }
@@ -823,10 +1027,11 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
                   mc1.cpt=energy_cluster_L1Card[jj%4][jj/4][ii];
                   mc1.ctowerid=towerID_cluster_L1Card[jj%4][jj/4][ii];
                   mc1.ccrystalid=crystalID_cluster_L1Card[jj%4][jj/4][ii];
-		  mc1.cinsidecrystalid=insideCrystalID_cluster_L1Card[jj%4][jj/4][ii];
+		  //mc1.cinsidecrystalid=insideCrystalID_cluster_L1Card[jj%4][jj/4][ii];
                   mc1.cshowershape=showerShape_cluster_L1Card[jj%4][jj/4][ii];
-                  mc1.cvalueshowershape=valueShowerShape_cluster_L1Card[jj%4][jj/4][ii];
-                  mc1.cphotonshowershape=photonShowerShape_cluster_L1Card[jj%4][jj/4][ii];
+                  mc1.cshowershapeloosetk=showerShapeLooseTk_cluster_L1Card[jj%4][jj/4][ii];
+                  //mc1.cvalueshowershape=valueShowerShape_cluster_L1Card[jj%4][jj/4][ii];
+                  //mc1.cphotonshowershape=photonShowerShape_cluster_L1Card[jj%4][jj/4][ii];
 		  cluster_list_L2[ii].push_back(mc1);
 		}
 	   }
@@ -895,6 +1100,8 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
             for (int ll=0; ll<3; ++ll){
 		ECAL_tower_L2Card[ii][jj][ll]=ECAL_tower_L1Card[convert_L2toL1_link(ii)][convert_L2toL1_tower(jj)][convert_L2toL1_card(ll,ii)];
                 HCAL_tower_L2Card[ii][jj][ll]=HCAL_tower_L1Card[convert_L2toL1_link(ii)][convert_L2toL1_tower(jj)][convert_L2toL1_card(ll,ii)];
+                iEta_tower_L2Card[ii][jj][ll]=iEta_tower_L1Card[convert_L2toL1_link(ii)][convert_L2toL1_tower(jj)][convert_L2toL1_card(ll,ii)];
+                iPhi_tower_L2Card[ii][jj][ll]=iPhi_tower_L1Card[convert_L2toL1_link(ii)][convert_L2toL1_tower(jj)][convert_L2toL1_card(ll,ii)];
             }
          }
       }
@@ -902,18 +1109,20 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
       //Second let's fill the clusters
       for (int ii=0; ii<36; ++ii){ // The cluster list is still in the L1 like geometry
           for (unsigned int jj=0; jj<unsigned(cluster_list_L2[ii].size()) && jj<12; ++jj){
-              insideCrystalID_cluster_L2Card[4*(ii%12)+jj%4][jj/4][ii/12]=cluster_list_L2[ii][jj].cinsidecrystalid;
+              //insideCrystalID_cluster_L2Card[4*(ii%12)+jj%4][jj/4][ii/12]=cluster_list_L2[ii][jj].cinsidecrystalid;
               crystalID_cluster_L2Card[4*(ii%12)+jj%4][jj/4][ii/12]=cluster_list_L2[ii][jj].ccrystalid;
               towerID_cluster_L2Card[4*(ii%12)+jj%4][jj/4][ii/12]=cluster_list_L2[ii][jj].ctowerid;
               energy_cluster_L2Card[4*(ii%12)+jj%4][jj/4][ii/12]=cluster_list_L2[ii][jj].cpt;
               isolation_cluster_L2Card[4*(ii%12)+jj%4][jj/4][ii/12]=cluster_list_L2[ii][jj].ciso;
               HE_cluster_L2Card[4*(ii%12)+jj%4][jj/4][ii/12]=cluster_list_L2[ii][jj].chovere;
               showerShape_cluster_L2Card[4*(ii%12)+jj%4][jj/4][ii/12]=cluster_list_L2[ii][jj].cshowershape;
-              valueShowerShape_cluster_L2Card[4*(ii%12)+jj%4][jj/4][ii/12]=cluster_list_L2[ii][jj].cvalueshowershape;
-              photonShowerShape_cluster_L2Card[4*(ii%12)+jj%4][jj/4][ii/12]=cluster_list_L2[ii][jj].cphotonshowershape;
+              showerShapeLooseTk_cluster_L2Card[4*(ii%12)+jj%4][jj/4][ii/12]=cluster_list_L2[ii][jj].cshowershapeloosetk;
+              //valueShowerShape_cluster_L2Card[4*(ii%12)+jj%4][jj/4][ii/12]=cluster_list_L2[ii][jj].cvalueshowershape;
+              //photonShowerShape_cluster_L2Card[4*(ii%12)+jj%4][jj/4][ii/12]=cluster_list_L2[ii][jj].cphotonshowershape;
           }
       }
 
+      /* // Needed at hardware level but not software
       // From ECAL and HCAL energies of the towers compute H/E and H+E
       for (int ii=0; ii<48; ++ii){
          for (int jj=0; jj<17; ++jj){
@@ -923,7 +1132,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
 	       else HE_tower_L2Card[ii][jj][ll]=-1;
             }
          }
-      }
+      }*/
 
      //cout<<energy_tower_L2Card[0][0][0]<<" "<<HE_tower_L2Card[0][0][0]<<" "<<crystalID_cluster_L2Card[0][0][0]<<" "<<towerID_cluster_L2Card[0][0][0]<<" "<<energy_cluster_L2Card[0][0][0]<<" "<<HE_cluster_L2Card[0][0][0]<<" "<<isolation_cluster_L2Card[0][0][0]<<" "<<insideCrystalID_cluster_L2Card[0][0][0]<<" "<<photonShowerShape_cluster_L2Card[0][0][0]<<" "<<showerShape_cluster_L2Card[0][0][0]<<" "<<valueShowerShape_cluster_L2Card[0][0][0]<<endl;
 
@@ -936,34 +1145,49 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
        for (int jj=0; jj<2; ++jj){
            for (int ll=0; ll<3; ++ll){
                if (energy_cluster_L2Card[ii][jj][ll]>0.45 ){
-		   reco::Candidate::PolarLorentzVector p4calibrated(get_calibrate(energy_cluster_L2Card[ii][jj][ll]),getEta_fromL2LinkCardTowerCrystal(ii,ll,towerID_cluster_L2Card[ii][jj][ll],crystalID_cluster_L2Card[ii][jj][ll]),getPhi_fromL2LinkCardTowerCrystal(ii,ll,towerID_cluster_L2Card[ii][jj][ll],crystalID_cluster_L2Card[ii][jj][ll]), 0.);
+		   reco::Candidate::PolarLorentzVector p4calibrated(energy_cluster_L2Card[ii][jj][ll],getEta_fromL2LinkCardTowerCrystal(ii,ll,towerID_cluster_L2Card[ii][jj][ll],crystalID_cluster_L2Card[ii][jj][ll]),getPhi_fromL2LinkCardTowerCrystal(ii,ll,towerID_cluster_L2Card[ii][jj][ll],crystalID_cluster_L2Card[ii][jj][ll]), 0.);
 		   SimpleCaloHit centerhit;
 		   bool is_iso=passes_iso(energy_cluster_L2Card[ii][jj][ll],isolation_cluster_L2Card[ii][jj][ll]);
+                   bool is_looseTkiso=passes_looseTkiso(energy_cluster_L2Card[ii][jj][ll],isolation_cluster_L2Card[ii][jj][ll]);
 		   bool is_ss=(showerShape_cluster_L2Card[ii][jj][ll]==1);
-		   bool is_he=passes_he(energy_cluster_L2Card[ii][jj][ll],HE_cluster_L2Card[ii][jj][ll]);
+                   bool is_looseTkss=(showerShapeLooseTk_cluster_L2Card[ii][jj][ll]==1);
+		   //bool is_he=passes_he(energy_cluster_L2Card[ii][jj][ll],HE_cluster_L2Card[ii][jj][ll]); //not used so far
 		   // All the ID set to Standalone WP! Some dummy values for non calculated variables
-		   l1slhc::L1EGCrystalCluster cluster(p4calibrated, energy_cluster_L2Card[ii][jj][ll], HE_cluster_L2Card[ii][jj][ll], isolation_cluster_L2Card[ii][jj][ll], centerhit.id,-1000, -1000,-1000,-1000, get_calibrate(energy_cluster_L2Card[ii][jj][ll]),-1, is_iso && is_ss, is_iso && is_ss, is_iso && is_ss, is_iso && is_ss, is_iso && is_ss, is_iso && is_ss);
+		   l1slhc::L1EGCrystalCluster cluster(p4calibrated, energy_cluster_L2Card[ii][jj][ll], HE_cluster_L2Card[ii][jj][ll], isolation_cluster_L2Card[ii][jj][ll], centerhit.id,-1000, -1000,-1000,-1000, energy_cluster_L2Card[ii][jj][ll],-1, is_iso && is_ss, is_iso && is_ss, is_iso && is_ss, is_iso && is_ss, is_looseTkiso && is_looseTkss, is_iso && is_ss); 
 		   L1EGXtalClusterEmulator->push_back(cluster);
 
-           // BXVector l1t::EGamma quality defined with respect to these WPs
-           // FIXME, need to defaul some of these to 0 I think...
-           int standaloneWP = (int)(is_iso && is_ss);
-           int looseL1TkMatchWP = 0; // FIXME - to add soon
-           int quality = (standaloneWP*2^0) + (looseL1TkMatchWP*2^1);
-           L1EGammaCollectionBXVEmulator->push_back(0,l1t::EGamma(p4calibrated, p4calibrated.pt(), p4calibrated.eta(), p4calibrated.phi(),quality,1 ));
+                   // BXVector l1t::EGamma quality defined with respect to these WPs
+                   // FIXME, need to defaul some of these to 0 I think...
+                   int standaloneWP = (int)(is_iso && is_ss);
+                   int looseL1TkMatchWP = (int)(is_looseTkiso && is_looseTkss); 
+                   int quality = (standaloneWP*2^0) + (looseL1TkMatchWP*2^1);
+                   L1EGammaCollectionBXVEmulator->push_back(0,l1t::EGamma(p4calibrated, p4calibrated.pt(), p4calibrated.eta(), p4calibrated.phi(),quality,1 ));
 
-           // FIXME NEED TO FILL THE L1CaloTowerCollection
-           L1CaloTower l1CaloTower;
-           //l1CaloTower.position = -999; // FIXME for storing eta & phi
-           l1CaloTower.ecal_tower_et = -999;
-           l1CaloTower.hcal_tower_et = -999;
-           l1CaloTower.tower_iPhi = -999;
-           l1CaloTower.tower_iEhi = -999;
-           l1CaloTowerCollection->push_back( l1CaloTower );
 		}
 	    }
 	}
     }
+
+   // Fill the tower collection
+   for (int ii=0; ii<48; ++ii){
+       for (int jj=0; jj<17; ++jj){
+           for (int ll=0; ll<3; ++ll){
+              L1CaloTower l1CaloTower;
+              if (HCAL_tower_L2Card[ii][jj][ll]>0 or ECAL_tower_L2Card[ii][jj][ll]>0){
+                 l1CaloTower.ecal_tower_et = HCAL_tower_L2Card[ii][jj][ll];
+                 l1CaloTower.hcal_tower_et = ECAL_tower_L2Card[ii][jj][ll];
+                 l1CaloTower.tower_iEta = iEta_tower_L2Card[ii][jj][ll];
+                 l1CaloTower.tower_iPhi = iPhi_tower_L2Card[ii][jj][ll];
+                 l1CaloTower.tower_phi = getTowerPhi_fromAbsoluteID(iPhi_tower_L2Card[ii][jj][ll]);
+                 l1CaloTower.tower_eta = getTowerEta_fromAbsoluteID(iEta_tower_L2Card[ii][jj][ll]);
+                 std::cout << "Tower TP Position eta,iEta: " << l1CaloTower.tower_eta << "," << l1CaloTower.tower_iEta << std::endl;
+                 std::cout << "Tower TP Position phi,iPhi: " << l1CaloTower.tower_phi << "," << l1CaloTower.tower_iPhi << std::endl;
+                 l1CaloTowerCollection->push_back( l1CaloTower );
+	      }
+       	   }
+	}
+   }
+
 
 
    iEvent.put(std::move(L1EGXtalClusterEmulator),"L1EGXtalClusterEmulator");
@@ -982,8 +1206,18 @@ bool L1EGCrystalClusterEmulatorProducer::passes_iso(float pt, float iso) {
    return true;
 }
 
+bool L1EGCrystalClusterEmulatorProducer::passes_looseTkiso(float pt, float iso) {
+   if (( 0.38 + 1.9 * TMath::Exp( -0.05 * pt ) > iso)) return true;
+   else return false;
+}
+
 bool L1EGCrystalClusterEmulatorProducer::passes_ss(float pt, float ss) {
    if ((0.94+0.052*TMath::Exp(-0.044*pt))>ss) return false;
+   else return true;
+}
+
+bool L1EGCrystalClusterEmulatorProducer::passes_looseTkss(float pt, float ss) {
+   if ((0.944-0.65*TMath::Exp(-0.4*pt))>ss) return false;
    else return true;
 }
 
@@ -999,3 +1233,4 @@ float L1EGCrystalClusterEmulatorProducer::get_calibrate(float uncorr){
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(L1EGCrystalClusterEmulatorProducer);
+
