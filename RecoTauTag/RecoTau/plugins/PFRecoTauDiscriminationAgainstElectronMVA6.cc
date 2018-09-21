@@ -34,7 +34,6 @@ class PFRecoTauDiscriminationAgainstElectronMVA6 : public PFTauDiscriminationPro
   {
     mva_ = std::make_unique<AntiElectronIDMVA6>(cfg);
 
-    usePhiAtEcalEntranceExtrapolation_ = cfg.getParameter<bool>("usePhiAtEcalEntranceExtrapolation");
     srcGsfElectrons_ = cfg.getParameter<edm::InputTag>("srcGsfElectrons");
     GsfElectrons_token = consumes<reco::GsfElectronCollection>(srcGsfElectrons_);
 
@@ -65,7 +64,6 @@ private:
   edm::Handle<TauCollection> taus_;
 
   std::unique_ptr<PFTauDiscriminator> category_output_;
-  bool usePhiAtEcalEntranceExtrapolation_;
 
   int verbosity_;
 };
@@ -141,13 +139,12 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
 	double deltaREleTau = deltaR(theGsfElectron->p4(), thePFTauRef->p4());
 	deltaRDummy = deltaREleTau;
 	if ( deltaREleTau < 0.3 ) {
-	  double mva_match = mva_->MVAValue(*thePFTauRef, *theGsfElectron, usePhiAtEcalEntranceExtrapolation_);
+	  double mva_match = mva_->MVAValue(*thePFTauRef, *theGsfElectron);
 	  const reco::PFCandidatePtr& lpfch = thePFTauRef->leadPFChargedHadrCand();
 	  bool hasGsfTrack = false;
 	  if (lpfch.isNonnull()) {
 	    hasGsfTrack = lpfch->gsfTrackRef().isNonnull();
 	  }
-
 	  if ( !hasGsfTrack )
             hasGsfTrack = theGsfElectron->gsfTrack().isNonnull();
 
@@ -183,7 +180,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
     } // end of loop over electrons
 
     if ( !isGsfElectronMatched ) {
-      mvaValue = mva_->MVAValue(*thePFTauRef, usePhiAtEcalEntranceExtrapolation_);
+      mvaValue = mva_->MVAValue(*thePFTauRef);
       const reco::PFCandidatePtr& lpfch = thePFTauRef->leadPFChargedHadrCand();
       bool hasGsfTrack = false;
       if (lpfch.isNonnull()) {

@@ -46,6 +46,8 @@ AntiElectronIDMVA6::AntiElectronIDMVA6(const edm::ParameterSet& cfg)
   mvaName_woGwGSF_EC_ = cfg.getParameter<std::string>("mvaName_woGwGSF_EC");
   mvaName_wGwGSF_EC_ = cfg.getParameter<std::string>("mvaName_wGwGSF_EC");
 
+  usePhiAtEcalEntranceExtrapolation_ = cfg.getParameter<bool>("usePhiAtEcalEntranceExtrapolation");
+
   Var_NoEleMatch_woGwoGSF_Barrel_ = new Float_t[10];
   Var_NoEleMatch_wGwoGSF_Barrel_ = new Float_t[18];
   Var_woGwGSF_Barrel_ = new Float_t[24];
@@ -516,7 +518,7 @@ double AntiElectronIDMVA6::MVAValue(Float_t TauPt,
 }
 
 double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
-				    const reco::GsfElectron& theGsfEle, bool usePhiAtEcalEntranceExtrapolation)
+				    const reco::GsfElectron& theGsfEle)
 
 {
   // === tau variables ===
@@ -617,7 +619,7 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
   Float_t TauPhi = thePFTau.phi();
   float sumPhiTimesEnergy = 0.;
   float sumEnergyPhi = 0.;
-  if ( !usePhiAtEcalEntranceExtrapolation ){
+  if ( !usePhiAtEcalEntranceExtrapolation_ ){
     for (auto const& pfcand : signalPFCands) {
       sumPhiTimesEnergy += pfcand->positionAtECALEntrance().phi()*pfcand->energy();
       sumEnergyPhi += pfcand->energy();
@@ -729,7 +731,7 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
                   ElecMvaInDeltaEta);
 }
 
-double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau, bool usePhiAtEcalEntranceExtrapolation)
+double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau)
 {
   // === tau variables ===
   float TauEtaAtEcalEntrance = -99.;
@@ -829,7 +831,7 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau, bool usePhiAtEc
   Float_t TauPhi = thePFTau.phi();
   float sumPhiTimesEnergy = 0.;
   float sumEnergyPhi = 0.;
-  if ( !usePhiAtEcalEntranceExtrapolation ){
+  if ( !usePhiAtEcalEntranceExtrapolation_ ){
     for (const auto& pfcand : signalPFCands) {
       sumPhiTimesEnergy += pfcand->positionAtECALEntrance().phi()*pfcand->energy();
       sumEnergyPhi += pfcand->energy();
@@ -896,7 +898,7 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau, bool usePhiAtEc
                   0.);
 }
 
-double AntiElectronIDMVA6::MVAValue(const pat::Tau& theTau, const pat::Electron& theEle, bool usePhiAtEcalEntranceExtrapolation)
+double AntiElectronIDMVA6::MVAValue(const pat::Tau& theTau, const pat::Electron& theEle)
 {
   // === tau variables ===
   float TauEtaAtEcalEntrance = theTau.etaAtEcalEntrance();
@@ -978,7 +980,7 @@ double AntiElectronIDMVA6::MVAValue(const pat::Tau& theTau, const pat::Electron&
   Int_t TauSignalPFGammaCandsOut = GammasPtOutSigCone.size();
   Float_t TauVisMassIn = (pfGammaSum + pfChargedSum).mass();
   Float_t TauPhi = -99.;
-  if ( usePhiAtEcalEntranceExtrapolation ) {
+  if ( usePhiAtEcalEntranceExtrapolation_ ) {
     float sumPhiTimesEnergy = 0.;
     float sumEnergy = 0.;
     const reco::CandidatePtrVector signalCands = theTau.signalCands();
@@ -1092,7 +1094,7 @@ double AntiElectronIDMVA6::MVAValue(const pat::Tau& theTau, const pat::Electron&
                   ElecMvaInDeltaEta);
 }
 
-double AntiElectronIDMVA6::MVAValue(const pat::Tau& theTau, bool usePhiAtEcalEntranceExtrapolation)
+double AntiElectronIDMVA6::MVAValue(const pat::Tau& theTau)
 {
   // === tau variables ===
   float TauEtaAtEcalEntrance = theTau.etaAtEcalEntrance();
@@ -1166,7 +1168,7 @@ double AntiElectronIDMVA6::MVAValue(const pat::Tau& theTau, bool usePhiAtEcalEnt
   Int_t TauSignalPFGammaCandsOut = GammasPtOutSigCone.size();
   Float_t TauVisMassIn = (pfGammaSum + pfChargedSum).mass();
   Float_t TauPhi = -99.;
-  if ( usePhiAtEcalEntranceExtrapolation ) {
+  if ( usePhiAtEcalEntranceExtrapolation_ ) {
     float sumPhiTimesEnergy = 0.;
     float sumEnergy = 0.;
     const reco::CandidatePtrVector signalCands = theTau.signalCands();
