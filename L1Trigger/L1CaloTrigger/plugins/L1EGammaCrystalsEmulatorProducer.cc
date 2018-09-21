@@ -39,8 +39,6 @@ Implementation:
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include <iostream>
-#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/Phase2L1CaloTrig/interface/L1EGCrystalCluster.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
@@ -92,8 +90,6 @@ Implementation:
 #include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveDigi.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkPrimaryVertex.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "SimCalorimetry/EcalEBTrigPrimProducers/plugins/EcalEBTrigPrimProducer.h"
 #include "DataFormats/EcalDigi/interface/EcalEBTriggerPrimitiveDigi.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
@@ -113,8 +109,6 @@ Implementation:
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/HcalRecHit/interface/HcalSourcePositionData.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
@@ -501,7 +495,6 @@ class L1EGCrystalClusterEmulatorProducer : public edm::EDProducer {
       float get_calibrate(float uncorr);
 
       edm::EDGetTokenT<EcalEBTrigPrimDigiCollection> ecalTPEBToken_;
-      edm::EDGetTokenT<HBHERecHitCollection> hcalRecHitToken_;
       edm::EDGetTokenT< edm::SortedCollection<HcalTriggerPrimitiveDigi> > hcalTPToken_;
 
       edm::ESHandle<CaloGeometry> caloGeometry_;
@@ -591,7 +584,6 @@ class L1EGCrystalClusterEmulatorProducer : public edm::EDProducer {
 
 L1EGCrystalClusterEmulatorProducer::L1EGCrystalClusterEmulatorProducer(const edm::ParameterSet& iConfig) :
    ecalTPEBToken_(consumes<EcalEBTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("ecalTPEB"))),
-   hcalRecHitToken_(consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hcalRecHit"))),
    hcalTPToken_(consumes< edm::SortedCollection<HcalTriggerPrimitiveDigi> >(iConfig.getParameter<edm::InputTag>("hcalTP")))
 {
    produces<l1slhc::L1EGCrystalClusterCollection>("L1EGXtalClusterEmulator");
@@ -1200,8 +1192,8 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
            for (int ll=0; ll<3; ++ll){
               L1CaloTower l1CaloTower;
               if (HCAL_tower_L2Card[ii][jj][ll]>0 or ECAL_tower_L2Card[ii][jj][ll]>0){
-                 l1CaloTower.ecal_tower_et = HCAL_tower_L2Card[ii][jj][ll];
-                 l1CaloTower.hcal_tower_et = ECAL_tower_L2Card[ii][jj][ll];
+                 l1CaloTower.ecal_tower_et = ECAL_tower_L2Card[ii][jj][ll];
+                 l1CaloTower.hcal_tower_et = HCAL_tower_L2Card[ii][jj][ll];
                  l1CaloTower.tower_iEta = getToweriEta_fromAbsoluteID(iEta_tower_L2Card[ii][jj][ll]);
                  l1CaloTower.tower_iPhi = getToweriPhi_fromAbsoluteID(iPhi_tower_L2Card[ii][jj][ll]);
                  l1CaloTower.tower_eta = getTowerEta_fromAbsoluteID(iEta_tower_L2Card[ii][jj][ll]);
@@ -1209,15 +1201,15 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
                  //std::cout << "Tower TP Position eta,iEta: " << l1CaloTower.tower_eta << "," << l1CaloTower.tower_iEta << std::endl;
                  //std::cout << "Tower TP Position phi,iPhi: " << l1CaloTower.tower_phi << "," << l1CaloTower.tower_iPhi << std::endl;
                  
-                 for(const auto& hit : hcalhits)
-                 {
-                    if (l1CaloTower.tower_iPhi == hit.id_hcal.iphi() && l1CaloTower.tower_iEta == hit.id_hcal.ieta() )
-                    {
-                        printf("\nMatching Towers iEta:iPhi %i %i - eta1:eta2 %f %f - phi1:phi2 %f %f", l1CaloTower.tower_iEta,l1CaloTower.tower_iPhi,l1CaloTower.tower_eta,hit.position.eta(),l1CaloTower.tower_phi,(float)hit.position.phi());
-                        if (l1CaloTower.hcal_tower_et == hit.energy) std::cout << ".";
-                        else printf("\n - Mismatch in HCAL energy, l1CaloTower ET: %f hit direct ET: %f", l1CaloTower.hcal_tower_et, hit.energy);
-                    }
-                 }
+                 //for(const auto& hit : hcalhits)
+                 //{
+                 //   if (l1CaloTower.tower_iPhi == hit.id_hcal.iphi() && l1CaloTower.tower_iEta == hit.id_hcal.ieta() )
+                 //   {
+                 //       //printf("\nMatching Towers iEta:iPhi %i %i - eta1:eta2 %f %f - phi1:phi2 %f %f", l1CaloTower.tower_iEta,l1CaloTower.tower_iPhi,l1CaloTower.tower_eta,hit.position.eta(),l1CaloTower.tower_phi,(float)hit.position.phi());
+                 //       if (l1CaloTower.hcal_tower_et == hit.pt()) std::cout << ".";
+                 //       else printf("\n - Mismatch in HCAL energy, l1CaloTower ET: %f hit direct ET: %f", l1CaloTower.hcal_tower_et, hit.pt());
+                 //   }
+                 //}
                  l1CaloTowerCollection->push_back( l1CaloTower );
 	      }
        	   }
