@@ -2,7 +2,7 @@
 //
 // Package:    HcalDDDSimConstantsESModule
 // Class:      HcalDDDSimConstantsESModule
-// 
+//
 /**\class HcalDDDSimConstantsESModule Geometry/HcalCommonData/plugins/HcalDDDSimConstantsESModule.cc
 
  Description: <one line class summary>
@@ -16,10 +16,8 @@
 //
 //
 
-// system include files
 #include <memory>
 
-// user include files
 #include <FWCore/Framework/interface/ModuleFactory.h>
 #include <FWCore/Framework/interface/ESProducer.h>
 #include <FWCore/Framework/interface/ESHandle.h>
@@ -31,9 +29,8 @@ class HcalDDDSimConstantsESModule : public edm::ESProducer {
 
 public:
   HcalDDDSimConstantsESModule(const edm::ParameterSet&);
-  ~HcalDDDSimConstantsESModule() override;
 
-  typedef std::unique_ptr<HcalDDDSimConstants> ReturnType;
+  using ReturnType = std::unique_ptr<HcalDDDSimConstants>;
 
   static void fillDescriptions( edm::ConfigurationDescriptions & );
 
@@ -43,8 +40,6 @@ public:
 HcalDDDSimConstantsESModule::HcalDDDSimConstantsESModule(const edm::ParameterSet&) {
   setWhatProduced(this);
 }
-
-HcalDDDSimConstantsESModule::~HcalDDDSimConstantsESModule() {}
 
 void HcalDDDSimConstantsESModule::fillDescriptions( edm::ConfigurationDescriptions & descriptions ) {
   edm::ParameterSetDescription desc;

@@ -1,5 +1,3 @@
-
-// user include files
 #include "EcalElectronicsMappingBuilder.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
@@ -9,9 +7,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/DataRecord/interface/EcalMappingElectronicsRcd.h"
 
-//
-// constructors and destructor
-//
 EcalElectronicsMappingBuilder::EcalElectronicsMappingBuilder(const edm::ParameterSet&)
 {
   //the following line is needed to tell the framework what
@@ -19,18 +14,8 @@ EcalElectronicsMappingBuilder::EcalElectronicsMappingBuilder(const edm::Paramete
   setWhatProduced(this);
 }
 
-
-EcalElectronicsMappingBuilder::~EcalElectronicsMappingBuilder()
-{ 
-}
-
-//
-// member functions
-//
-
 // ------------ method called to produce the data  ------------
 EcalElectronicsMappingBuilder::ReturnType
-// EcalElectronicsMappingBuilder::produce(const IdealGeometryRecord& iRecord)
 EcalElectronicsMappingBuilder::produce(const EcalMappingRcd& iRecord)
 {
    auto prod = std::make_unique<EcalElectronicsMapping>();
@@ -47,7 +32,6 @@ EcalElectronicsMappingBuilder::produce(const EcalMappingRcd& iRecord)
 void EcalElectronicsMappingBuilder::FillFromDatabase(const std::vector<EcalMappingElement>& ee,
 						     EcalElectronicsMapping& theMap)   
 {
-  //  std::cout << " --- Reading the EE mapping from Database --- " << std::endl;
   for (unsigned int i=0; i < ee.size(); i++) 
     {
       if (ee[i].electronicsid == 0)
