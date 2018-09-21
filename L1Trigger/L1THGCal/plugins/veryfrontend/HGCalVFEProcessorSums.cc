@@ -60,8 +60,8 @@ HGCalVFEProcessorSums::run(const HGCalDigiCollection& ee,
   else if(!bh.empty())
   {  
      for(const auto& bhdata : bh)
-     { 
-       if(DetId(bhdata.id()).det()!=DetId::HGCalHSc && HcalDetId(bhdata.id()).subdetId()!=HcalEndcap) continue;
+     {
+       if(DetId(bhdata.id()).det()==DetId::Hcal && HcalDetId(bhdata.id()).subdetId()!=HcalEndcap) continue;
        uint32_t module = geometry_->getModuleFromCell(bhdata.id());
        if(geometry_->disconnectedModule(module)) continue;
        dataframes.emplace_back(bhdata.id());
