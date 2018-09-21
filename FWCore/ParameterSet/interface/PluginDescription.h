@@ -105,7 +105,7 @@ public:
   typeLabel_{std::move(typeLabel)},
   typeLabelIsTracked_{typeLabelIsTracked} {}
 
-  /**Constructor without a default for typeLabel
+  /**Constructor with a default for typeLabel
    @param[in] typeLabel the label for the std::string parameter which holds the plugin type to be loaded
    @param[in] defaultType the default plugin type that should be loaded if no type is given
    @param[in] typeLabelIsTracked 'true' if the parameter `typeLabel` is tracked, else should be false

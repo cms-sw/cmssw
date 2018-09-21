@@ -1,12 +1,6 @@
-/** \class edmtest::MissingDictionaryTestProducer
-\author W. David Dagenhart, created 26 May 2016
+/** \class edmtest::PluginUsingProducer
+\author Chris Jones, created 21 September 2018
 */
-
-// Without manual intervention this simply tests the case where all
-// the test dictionaries are defined, which is not very interesting.
-// Its primary purpose is to be run manually where specific dictionaries
-// have been removed from classes_def.xml and checking that the proper
-// exceptions are thrown without having to generate this code from scratch.
 
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
