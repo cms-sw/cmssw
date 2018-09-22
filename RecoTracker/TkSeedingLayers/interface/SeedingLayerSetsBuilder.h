@@ -3,7 +3,7 @@
 
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSets.h"
-
+#include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESWatcher.h"

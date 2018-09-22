@@ -85,13 +85,11 @@ void SeedFinderSelector::initEvent(const edm::Event & ev,const edm::EventSetup &
     //for CA triplet iterations
     if(CAHitTriplGenerator_){
       seedingLayer = seedingLayers_->makeSeedingLayerSetsHitsforFastSim(ev, es);
-      seedingLayerIds = seedingLayers_->layers();
       CAHitTriplGenerator_->initEvent(ev,es);
     }
     //for CA quadruplet iterations
     if(CAHitQuadGenerator_){
       seedingLayer = seedingLayers_->makeSeedingLayerSetsHitsforFastSim(ev, es);
-      seedingLayerIds = seedingLayers_->layers();
       CAHitQuadGenerator_->initEvent(ev,es);
     }    
 }
@@ -169,18 +167,18 @@ bool SeedFinderSelector::pass(const std::vector<const FastTrackerRecHit *>& hits
 	  auto filler = ihd.beginRegion(&tr_); 
 
 	  //Forming doublets for CA triplets from the allowed layer pair combinations:(0,1),(1,2)
-	  std::array<SeedingLayerSetsBuilder::SeedingLayerId,2> hitPair;
+	  std::string hitPair[2];
 	  for(int i=0; i<2; i++){
 	    SeedingLayerSetsHits::SeedingLayerSet pairCandidate;
-	    hitPair[0] = Layer_tuple(hits[i]);
-	    hitPair[1] = Layer_tuple(hits[i+1]);
+	    hitPair[0] = Layer_name(hits[i]);
+            hitPair[1] = Layer_name(hits[i+1]);
 
 	    bool found;
 	    for(SeedingLayerSetsHits::SeedingLayerSet ls : *seedingLayer){
 	      found = false;
 	      for(const auto p : layerPairs_){
 		pairCandidate = ls.slice(p,p+2);
-		if(hitPair[0] == seedingLayerIds[pairCandidate[0].index()] && hitPair[1] == seedingLayerIds[pairCandidate[1].index()]){
+		if(hitPair[0] == pairCandidate[0].name() && hitPair[1] == pairCandidate[1].name()){
 		  found = true;
 		  break;
 		}
@@ -228,18 +226,18 @@ bool SeedFinderSelector::pass(const std::vector<const FastTrackerRecHit *>& hits
       auto filler = ihd.beginRegion(&tr_);
       
       //Forming doublets for CA quadruplets from the allowed layer pair combinations:(0,1),(1,2),(2,3)
-      std::array<SeedingLayerSetsBuilder::SeedingLayerId,2> hitPair;
+      std::string hitPair[2];
       for(int i=0; i<3; i++){
 	SeedingLayerSetsHits::SeedingLayerSet pairCandidate;
-	hitPair[0] = Layer_tuple(hits[i]);
- 	hitPair[1] = Layer_tuple(hits[i+1]);
+	hitPair[0] = Layer_name(hits[i]);
+	hitPair[1] = Layer_name(hits[i+1]);
        
 	bool found;
         for(SeedingLayerSetsHits::SeedingLayerSet ls : *seedingLayer){
 	  found = false;
 	  for(const auto p : layerPairs_){
 	    pairCandidate = ls.slice(p,p+2);
-	    if(hitPair[0] == seedingLayerIds[pairCandidate[0].index()] && hitPair[1] == seedingLayerIds[pairCandidate[1].index()]){
+	    if(hitPair[0] == pairCandidate[0].name() && hitPair[1] == pairCandidate[1].name()){
 	      found = true;
 	      break;
 	    }
@@ -275,27 +273,21 @@ bool SeedFinderSelector::pass(const std::vector<const FastTrackerRecHit *>& hits
 }
 
 //new for Phase1
-SeedingLayerSetsBuilder::SeedingLayerId SeedFinderSelector::Layer_tuple(const FastTrackerRecHit * hit) const
+std::string SeedFinderSelector::Layer_name(const FastTrackerRecHit * hit) const
 {
+  std::string name="UNKWN";
   const TrackerTopology* const tTopo = trackerTopology.product();
-  GeomDetEnumerators::SubDetector subdet = GeomDetEnumerators::invalidDet;
-  TrackerDetSide side = TrackerDetSide::Barrel;
   int idLayer = 0;
-  
   if( (hit->det()->geographicalId()).subdetId() == PixelSubdetector::PixelBarrel){
-    subdet = GeomDetEnumerators::PixelBarrel;
-    side = TrackerDetSide::Barrel;
     idLayer = tTopo->pxbLayer(hit->det()->geographicalId());
+    name = "BPix"+std::to_string(idLayer);
   }
   else if ((hit->det()->geographicalId()).subdetId() == PixelSubdetector::PixelEndcap){
-    subdet = GeomDetEnumerators::PixelEndcap;
     idLayer = tTopo->pxfDisk(hit->det()->geographicalId());
-    if(tTopo->pxfSide(hit->det()->geographicalId())==1){
-      side = TrackerDetSide::NegEndcap;
-    }
-    else{
-      side = TrackerDetSide::PosEndcap;
-    }
+    if(tTopo->pxfSide(hit->det()->geographicalId())==1)
+      name = "FPix"+std::to_string(idLayer)+"_neg";
+    else
+      name = "FPix"+std::to_string(idLayer)+"_pos";
   }
-  return std::make_tuple(subdet, side, idLayer);
+  return name;
 }

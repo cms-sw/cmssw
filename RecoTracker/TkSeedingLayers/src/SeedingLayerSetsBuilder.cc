@@ -390,31 +390,34 @@ std::unique_ptr<SeedingLayerSetsHits> SeedingLayerSetsBuilder::makeSeedingLayerS
   edm::ESHandle<TrackerTopology> trackerTopology;
   es.get<TrackerTopologyRcd>().get(trackerTopology);
   const TrackerTopology* const tTopo = trackerTopology.product();
-  SeedingLayerSetsHits::OwnedHits layerhits_;
+  ctfseeding::SeedingLayer::Hits layerhits_;
 
   auto ret = std::make_unique<SeedingLayerSetsHits>(theNumberOfLayersInSet,
                                                     &theLayerSetIndices,
                                                     &theLayerNames,
-                                                    &theLayerDets);
+						    theLayerDets);
+
+  std::vector<unsigned int> indices;
+  indices.reserve(theLayers.size());
 
   for(auto& layer: theLayers) {
-    layerhits_.clear();
+    indices.push_back(layerhits_.size());
     for(auto &rh : *fastSimrechits_){
       GeomDetEnumerators::SubDetector subdet = GeomDetEnumerators::invalidDet;
-      TrackerDetSide side = TrackerDetSide::Barrel;
+      SeedingLayer::Side side = SeedingLayer::Barrel;
       int idLayer = 0;
       if( (rh.det()->geographicalId()).subdetId() == PixelSubdetector::PixelBarrel){
       	subdet = GeomDetEnumerators::PixelBarrel;
-	side = TrackerDetSide::Barrel;
+	side = SeedingLayer::Barrel;
 	idLayer = tTopo->pxbLayer(rh.det()->geographicalId());
       }
       else if ((rh.det()->geographicalId()).subdetId() == PixelSubdetector::PixelEndcap){
    	subdet = GeomDetEnumerators::PixelEndcap;
 	idLayer = tTopo->pxfDisk(rh.det()->geographicalId());
 	if(tTopo->pxfSide(rh.det()->geographicalId())==1)
-	  side = TrackerDetSide::NegEndcap;
+	  side = SeedingLayer::NegEndcap;
 	else
-	  side = TrackerDetSide::PosEndcap;
+	  side = SeedingLayer::PosEndcap;
       }
       
       if(layer.subdet == subdet && layer.side == side && layer.idLayer == idLayer){
@@ -424,6 +427,8 @@ std::unique_ptr<SeedingLayerSetsHits> SeedingLayerSetsBuilder::makeSeedingLayerS
       }
       else continue;
     }
-    ret->addHits(layer.nameIndex, std::move(layerhits_));
   }
+  layerhits_.shrink_to_fit();
+  ret->swapHits(indices, layerhits_);
+  return ret;
 }

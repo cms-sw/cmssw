@@ -3,7 +3,6 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
 
 #include "RecoPixelVertexing/PixelTriplets/interface/HitQuadrupletGenerator.h"
-#include "LayerQuadruplets.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"

@@ -4,7 +4,7 @@
 #include <vector>
 #include <memory>
 #include <string>
-
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSetsBuilder.h"
@@ -40,7 +40,7 @@ public:
     
     bool pass(const std::vector<const FastTrackerRecHit *>& hits) const;
     //new for Phase1
-    SeedingLayerSetsBuilder::SeedingLayerId Layer_tuple(const FastTrackerRecHit * hit) const;
+    std::string Layer_name(const FastTrackerRecHit * hit) const;
 
 private:
     
@@ -56,7 +56,6 @@ private:
     std::unique_ptr<SeedingLayerSetsHits> seedingLayer;
     std::vector<unsigned> layerPairs_;
     edm::ESHandle<TrackerTopology> trackerTopology;
-    std::vector<SeedingLayerSetsBuilder::SeedingLayerId> seedingLayerIds;
 };
 
 #endif
