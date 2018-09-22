@@ -53,6 +53,8 @@ Implementation:
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
+#include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalSourcePositionData.h"
@@ -102,6 +104,7 @@ class L1EGCrystalClusterProducer : public edm::EDProducer {
       edm::EDGetTokenT<EcalEBTrigPrimDigiCollection> ecalTPEBToken_;
       edm::EDGetTokenT<HBHERecHitCollection> hcalRecHitToken_;
       edm::EDGetTokenT< edm::SortedCollection<HcalTriggerPrimitiveDigi> > hcalTPToken_;
+      edm::ESHandle<CaloTPGTranscoder> decoder_;
 
       edm::ESHandle<CaloGeometry> caloGeometry_;
       const CaloSubdetectorGeometry * ebGeometry;
@@ -219,6 +222,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
    iSetup.get<HcalRecNumberingRecord>().get(hbTopology);
    hcTopology_ = hbTopology.product();
    HcalTrigTowerGeometry theTrigTowerGeometry(hcTopology_);
+   iSetup.get<CaloTPGRecord>().get(decoder_);
    
    std::vector<SimpleCaloHit> ecalhits;
    std::vector<SimpleCaloHit> hcalhits;
@@ -290,10 +294,8 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       for (auto& hit : *hbhecoll.product())
       {
 
-         // SOI_compressedEt() Compressed ET, integer representing increments of 500 MeV
-         // Cut requires 500 MeV TP
-         if ( hit.SOI_compressedEt() == 0 ) continue; // SOI_compressedEt() Compressed ET for the "Sample of Interest"
-         // Need to use proper decompression here https://github.com/cms-sw/cmssw/blob/CMSSW_9_0_X/L1Trigger/L1TCaloLayer1/src/L1TCaloLayer1FetchLUTs.cc#L97-L114
+         float et = decoder_->hcaletValue(hit.id(), hit.t0());
+         if ( et <= 0 ) continue; 
 
          //std::cout << "  -- HCAL TP: " << hit.SOI_compressedEt() << std::endl;
          //auto cell = geometryHelper.getHcalGeometry()->getGeometry(hit.id());
@@ -332,7 +334,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
          SimpleCaloHit hhit;
          hhit.id = hit.id();
          hhit.position = hcal_tp_position;
-         float et = hit.SOI_compressedEt() / 2.;
+         //float et = hit.SOI_compressedEt() / 2.;
          hhit.energy = et / sin(hhit.position.theta());
          hcalhits.push_back(hhit);
 
