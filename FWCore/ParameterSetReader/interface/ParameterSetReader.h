@@ -9,12 +9,12 @@ namespace edm {
 
   std::unique_ptr<edm::ParameterSet> readConfig(std::string const& config, int argc, char* argv[]);
 
-  std::unique_ptr<ParameterSet> readConfig(std::string const& config);
+  std::unique_ptr<edm::ParameterSet> readConfig(std::string const& config);
 
   void makeParameterSets(std::string const& configtext,
 			 std::unique_ptr<ParameterSet> & main);
 
-  std::unique_ptr<ParameterSet> readPSetsFrom(std::string const& fileOrString);
+  std::unique_ptr<edm::ParameterSet> readPSetsFrom(std::string const& fileOrString);
 
 
 };

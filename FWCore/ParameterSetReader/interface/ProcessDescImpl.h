@@ -3,7 +3,7 @@
 
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
 
-typedef PythonProcessDesc ProcessDescImpl;
+using ProcessDescImpl = PythonProcessDesc; 
 
 #endif
 
