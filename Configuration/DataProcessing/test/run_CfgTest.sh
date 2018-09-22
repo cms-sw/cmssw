@@ -32,7 +32,7 @@ do
 done
 
 
-declare -a arr=("AlCaLumiPixels" "AlCaTestEnable" "cosmicsEra_Run2_2017" "hcalnzsEra_Run2_2017" "ppEra_Run2_2017_trackingLowPU" "ppEra_Run2_2017_pp_on_XeXe" "ppEra_Run2_2017_ppRef" "ppEra_Run2_2017" "cosmicsEra_Run2_2018" "hcalnzsEra_Run2_2018" "ppEra_Run2_2018" "hcalnzsEra_Run2_2018_highBetaStar" "ppEra_Run2_2018_highBetaStar" "ppEra_Run2_2018_pp_on_AA")
+declare -a arr=("AlCaLumiPixels" "AlCaTestEnable" "cosmicsEra_Run2_2017" "hcalnzsEra_Run2_2017" "ppEra_Run2_2017_trackingLowPU" "ppEra_Run2_2017_pp_on_XeXe" "ppEra_Run2_2017_ppRef" "ppEra_Run2_2017" "cosmicsEra_Run2_2018" "hcalnzsEra_Run2_2018" "ppEra_Run2_2018" "hcalnzsEra_Run2_2018_highBetaStar" "hcalnzsEra_Run2_2018_pp_on_AA" "ppEra_Run2_2018_highBetaStar" "ppEra_Run2_2018_pp_on_AA")
 for scenario in "${arr[@]}"
 do
      runTest "${LOCAL_TEST_DIR}/RunPromptReco.py --scenario $scenario --reco --aod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever  --alcareco TkAlMinBias+SiStripCalMinBias"
@@ -60,7 +60,7 @@ runTest "${LOCAL_TEST_DIR}/RunExpressProcessing.py --scenario AlCaLumiPixels --g
 runTest "${LOCAL_TEST_DIR}/RunAlcaSkimming.py --scenario AlCaLumiPixels --lfn=/store/whatever --global-tag GLOBALTAG --skims AlCaPCCRandom,PromptCalibProdLumiPCC"
 runTest "${LOCAL_TEST_DIR}/RunAlcaHarvesting.py --scenario AlCaLumiPixels --lfn /store/whatever --dataset /A/B/C --global-tag GLOBALTAG --alcapromptdataset=PromptCalibProdLumiPCC"
 
-declare -a arr=("trackingOnlyEra_Run2_2017" "trackingOnlyEra_Run2_2018" "trackingOnlyEra_Run2_2018_highBetaStar")
+declare -a arr=("trackingOnlyEra_Run2_2017" "trackingOnlyEra_Run2_2018" "trackingOnlyEra_Run2_2018_highBetaStar" "trackingOnlyEra_Run2_2018_pp_on_AA")
 for scenario in "${arr[@]}"
 do
     runTest "${LOCAL_TEST_DIR}/RunExpressProcessing.py --scenario $scenario --global-tag GLOBALTAG  --lfn /store/whatever  --alcarecos=TkAlMinBias+PromptCalibProdBeamSpotHP"
