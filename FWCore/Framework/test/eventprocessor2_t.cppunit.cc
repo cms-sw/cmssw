@@ -64,7 +64,7 @@ void work()
       "process.p1 = cms.Path(process.m1*process.m2)\n"
       "process.ep1 = cms.EndPath(process.out)");
   std::unique_ptr<edm::ParameterSet> pset = edm::getPSetFromConfig(configuration);
-  edm::EventProcessor proc(std::move(pset), true);
+  edm::EventProcessor proc(std::move(pset));
   proc.beginJob();
   proc.run();
   proc.endJob();

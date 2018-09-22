@@ -327,49 +327,6 @@ namespace edm {
     init(processDesc, token, legacy);
   }
 
-
-  EventProcessor::EventProcessor(std::unique_ptr<ParameterSet> parameterSet, bool isPython)://std::string const& config, bool isPython):
-    actReg_(),
-    preg_(),
-    branchIDListHelper_(),
-    serviceToken_(),
-    input_(),
-    espController_(new eventsetup::EventSetupsController),
-    esp_(),
-    act_table_(),
-    processConfiguration_(),
-    schedule_(),
-    subProcesses_(),
-    historyAppender_(new HistoryAppender),
-    fb_(),
-    looper_(),
-    deferredExceptionPtrIsSet_(false),
-    sourceResourcesAcquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first),
-    sourceMutex_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second),
-    principalCache_(),
-    beginJobCalled_(false),
-    shouldWeStop_(false),
-    fileModeNoMerge_(false),
-    exceptionMessageFiles_(),
-    exceptionMessageRuns_(),
-    exceptionMessageLumis_(),
-    forceLooperToEnd_(false),
-    looperBeginJobRun_(false),
-    forceESCacheClearOnNewRun_(false),
-    asyncStopRequestedWhileProcessingEvents_(false),
-    eventSetupDataToExcludeFromPrefetching_()
-  {
-    if(isPython) {
-      auto processDesc = std::make_shared<ProcessDesc>(std::move(parameterSet));
-      init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
-    }
-    else {
-      throw Exception(errors::Configuration, "Crap - using the non-python part of this code") << "Argh";
-      // auto processDesc = std::make_shared<ProcessDesc>(config);
-      // init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
-    }
-  }
-
   void
   EventProcessor::init(std::shared_ptr<ProcessDesc>& processDesc,
                        ServiceToken const& iToken,

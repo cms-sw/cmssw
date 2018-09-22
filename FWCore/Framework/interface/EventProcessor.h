@@ -95,9 +95,6 @@ namespace edm {
                    ServiceToken const& token,
                    serviceregistry::ServiceLegacy legacy);
 
-    /// meant for unit tests
-    EventProcessor(std::unique_ptr<ParameterSet> parameterSet, bool isPython);
-
     ~EventProcessor();
 
     EventProcessor(EventProcessor const&) = delete; // Disallow copying and moving

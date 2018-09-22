@@ -77,7 +77,7 @@ class testeventprocessor: public CppUnit::TestFixture {
       "process.m2 = cms.EDProducer('TestMod',\n"
       "    ivalue = cms.int32(-3))\n"
       "process.p1 = cms.Path(process.m1*process.m2)\n");
-    edm::EventProcessor proc(edm::getPSetFromConfig(configuration), true);
+    edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
     proc.beginJob();
     proc.run();
     proc.endJob();
@@ -123,7 +123,7 @@ void testeventprocessor::beginEndTest() {
     TestBeginEndJobAnalyzer::control().beginLumiCalled = false;
     TestBeginEndJobAnalyzer::control().endLumiCalled = false;
 
-    edm::EventProcessor proc(edm::getPSetFromConfig(configuration), true);
+    edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
 
     CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().beginJobCalled);
     CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endJobCalled);
@@ -169,7 +169,7 @@ void testeventprocessor::beginEndTest() {
     TestBeginEndJobAnalyzer::control().beginLumiCalled = false;
     TestBeginEndJobAnalyzer::control().endLumiCalled = false;
 
-    edm::EventProcessor proc(edm::getPSetFromConfig(configuration), true);
+    edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
     proc.runToCompletion();
 
     CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().beginJobCalled);
@@ -192,7 +192,7 @@ void testeventprocessor::beginEndTest() {
     TestBeginEndJobAnalyzer::control().beginLumiCalled = false;
     TestBeginEndJobAnalyzer::control().endLumiCalled = false;
 
-    edm::EventProcessor proc(edm::getPSetFromConfig(configuration), true);
+    edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
     proc.beginJob();
     CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().beginJobCalled);
 
@@ -223,7 +223,7 @@ void testeventprocessor::beginEndTest() {
     TestBeginEndJobAnalyzer::control().beginLumiCalled = false;
     TestBeginEndJobAnalyzer::control().endLumiCalled = false;
 
-    edm::EventProcessor proc(edm::getPSetFromConfig(configuration), true);
+    edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
     proc.beginJob();
 
     // Check that beginJob is not called again
@@ -256,7 +256,7 @@ void testeventprocessor::beginEndTest() {
     TestBeginEndJobAnalyzer::control().beginLumiCalled = false;
     TestBeginEndJobAnalyzer::control().endLumiCalled = false;
 
-    edm::EventProcessor proc(edm::getPSetFromConfig(configuration), true);
+    edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
     proc.run();
 
     CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().beginJobCalled);
@@ -299,7 +299,7 @@ void testeventprocessor::beginEndTest() {
     TestBeginEndJobAnalyzer::control().beginLumiCalled = false;
     TestBeginEndJobAnalyzer::control().endLumiCalled = false;
 
-    edm::EventProcessor proc(edm::getPSetFromConfig(configuration), true);
+    edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
     proc.run();
 
     CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().beginJobCalled);
@@ -330,7 +330,7 @@ void testeventprocessor::cleanupJobTest()
       //std::cout << "cleanup 1" << std::endl;
 
     TestBeginEndJobAnalyzer::control().destructorCalled = false;
-    edm::EventProcessor proc(edm::getPSetFromConfig(configuration), true);
+    edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
 
     CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().destructorCalled);
     proc.beginJob();
@@ -343,7 +343,7 @@ void testeventprocessor::cleanupJobTest()
       //std::cout << "cleanup 2" << std::endl;
 
     TestBeginEndJobAnalyzer::control().destructorCalled = false;
-    edm::EventProcessor proc(edm::getPSetFromConfig(configuration), true);
+    edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
 
     CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().destructorCalled);
     proc.run();
@@ -479,7 +479,7 @@ testeventprocessor::moduleFailureTest() {
       std::string const configuration = preC +"0"+postC;
       bool threw = true;
       try {
-        edm::EventProcessor proc(edm::getPSetFromConfig(configuration), true);
+        edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
         threw = false;
       } catch(cms::Exception const& iException) {
         if(!findModuleName(iException.explainSelf())) {
@@ -492,7 +492,7 @@ testeventprocessor::moduleFailureTest() {
     {
       std::string const configuration = preC +"1"+postC;
       bool threw = true;
-      edm::EventProcessor proc(edm::getPSetFromConfig(configuration), true);
+      edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
 
       try {
         proc.beginJob();
@@ -509,7 +509,7 @@ testeventprocessor::moduleFailureTest() {
     {
       std::string const configuration = preC +"2"+postC;
       bool threw = true;
-      edm::EventProcessor proc(edm::getPSetFromConfig(configuration), true);
+      edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
 
       proc.beginJob();
       try {
@@ -527,7 +527,7 @@ testeventprocessor::moduleFailureTest() {
     {
       std::string const configuration = preC +"3"+postC;
       bool threw = true;
-      edm::EventProcessor proc(edm::getPSetFromConfig(configuration), true);
+      edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
 
       proc.beginJob();
       try {
@@ -552,7 +552,7 @@ testeventprocessor::moduleFailureTest() {
           "    input = cms.untracked.int32(2))\n"
           "process.source = cms.Source('EmptySource')\n"
           "process.p1 = cms.Path(process.m1)\n");
-        edm::EventProcessor proc(edm::getPSetFromConfig(configuration), true);
+        edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
 
         threw = false;
       } catch(cms::Exception const& iException) {
@@ -583,7 +583,7 @@ testeventprocessor::serviceConfigSaveTest() {
                              "   ivalue = cms.int32(-3))\n"
                              "process.p1 = cms.Path(process.m1)\n");
 
-   edm::EventProcessor proc(edm::getPSetFromConfig(configuration), true);
+   edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
    edm::ProcessConfiguration const& processConfiguration = proc.processConfiguration();
    edm::ParameterSet const& topPset(edm::getParameterSet(processConfiguration.parameterSetID()));
    CPPUNIT_ASSERT(topPset.existsAs<edm::ParameterSet>("DummyStoreConfigService", true));

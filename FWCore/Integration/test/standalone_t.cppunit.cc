@@ -77,7 +77,7 @@ void testStandalone::writeAndReadFile()
                               "process.p = cms.Path(process.m1)\n"
                               "process.e = cms.EndPath(process.out)\n");
 
-    edm::EventProcessor proc(edm::getPSetFromConfig(configuration), true);
+    edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
     proc.beginJob();
     proc.run();
     proc.endJob();
@@ -94,7 +94,7 @@ void testStandalone::writeAndReadFile()
                               "process.add_(cms.Service('SiteLocalConfigService'))\n"
                              );
 
-    edm::EventProcessor proc(edm::getPSetFromConfig(configuration), true);
+    edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
     proc.beginJob();
     proc.run();
     proc.endJob();
