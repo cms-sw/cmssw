@@ -74,12 +74,12 @@ namespace edm {
     enum StatusCode { epSuccess=0, epException=1, epOther=2, epSignal=3,
       epInputComplete=4, epTimedOut=5, epCountComplete=6 };
 
-    // The input string 'config' contains the entire contents of a  configuration file.
+    // The input 'parameterSet' contains the entire contents of a  configuration file.
     // Also allows the attachement of pre-existing services specified  by 'token', and
     // the specification of services by name only (defaultServices and forcedServices).
-    // 'defaultServices' are overridden by 'config'.
-    // 'forcedServices' the 'config'.
-    explicit EventProcessor(std::unique_ptr<ParameterSet> parameterSet,//std::string const& config,
+    // 'defaultServices' are overridden by 'parameterSet'.
+    // 'forcedServices' the 'parameterSet'.
+    explicit EventProcessor(std::unique_ptr<ParameterSet> parameterSet,
                             ServiceToken const& token = ServiceToken(),
                             serviceregistry::ServiceLegacy = serviceregistry::kOverlapIsError,
                             std::vector<std::string> const& defaultServices = std::vector<std::string>(),
@@ -87,7 +87,7 @@ namespace edm {
 
     // Same as previous constructor, but without a 'token'.  Token will be defaulted.
 
-    EventProcessor(std::unique_ptr<ParameterSet> parameterSet,//std::string const& config,
+    EventProcessor(std::unique_ptr<ParameterSet> parameterSet,
                    std::vector<std::string> const& defaultServices,
                    std::vector<std::string> const& forcedServices = std::vector<std::string>());
 
@@ -96,7 +96,7 @@ namespace edm {
                    serviceregistry::ServiceLegacy legacy);
 
     /// meant for unit tests
-    EventProcessor(std::unique_ptr<ParameterSet> parameterSet, bool isPython);//std::string const& config, bool isPython);
+    EventProcessor(std::unique_ptr<ParameterSet> parameterSet, bool isPython);
 
     ~EventProcessor();
 

@@ -84,7 +84,7 @@ void PythonProcessDesc::readString(std::string const& pyConfig) {
 }
 
 std::unique_ptr<edm::ParameterSet> PythonProcessDesc::parameterSet() const {
-  return std::unique_ptr<edm::ParameterSet>(new edm::ParameterSet(theProcessPSet.pset()));
+  return std::make_unique<edm::ParameterSet>(theProcessPSet.pset());
 }
 
 std::string PythonProcessDesc::dump() const {

@@ -37,7 +37,7 @@ makePSetsFromString(std::string const& module, boost::python::object& mainNamesp
 }
 
 namespace edm {
-  namespace BoostPython {
+  namespace boost_python {
     
     std::unique_ptr<edm::ParameterSet>
     readConfig(std::string const& config) {
@@ -80,7 +80,7 @@ namespace edm {
 	pythonToCppException("Configuration");
 	Py_Finalize();
       }
-      return std::unique_ptr<edm::ParameterSet>(new ParameterSet(theProcessPSet.pset()));//returnValue;
+      return std::make_unique<edm::ParameterSet>(ParameterSet(theProcessPSet.pset()));
     }
-  } // namespace BoostPython
+  } // namespace boost_python
 } // namespace edm

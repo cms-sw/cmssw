@@ -12,7 +12,7 @@
 
 namespace edm {
   class ParameterSet;
-  namespace BoostPython {
+  namespace  boost_python {
     
     // input can either be a python file name or a python config string
     std::unique_ptr<edm::ParameterSet>
