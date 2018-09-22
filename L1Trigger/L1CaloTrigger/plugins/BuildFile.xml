@@ -17,6 +17,7 @@
 <use   name="DataFormats/Phase2L1CaloTrig"/>
 <use   name="SimCalorimetry/EcalEBTrigPrimProducers"/>
 <use   name="FastSimulation/CaloGeometryTools"/>
+<use   name="CalibFormats/CaloTPG"/>
 <use   name="root"/>
 <use   name="boost"/>
 <flags EDM_PLUGIN="1"/>

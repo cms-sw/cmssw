@@ -88,6 +88,8 @@ Implementation:
 #include "Geometry/Records/interface/StackedTrackerGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveDigi.h"
+#include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
+#include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkPrimaryVertex.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "SimCalorimetry/EcalEBTrigPrimProducers/plugins/EcalEBTrigPrimProducer.h"
@@ -496,6 +498,7 @@ class L1EGCrystalClusterEmulatorProducer : public edm::EDProducer {
 
       edm::EDGetTokenT<EcalEBTrigPrimDigiCollection> ecalTPEBToken_;
       edm::EDGetTokenT< edm::SortedCollection<HcalTriggerPrimitiveDigi> > hcalTPToken_;
+      edm::ESHandle<CaloTPGTranscoder> decoder_;
 
       edm::ESHandle<CaloGeometry> caloGeometry_;
       const CaloSubdetectorGeometry * ebGeometry;
@@ -611,6 +614,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
    iSetup.get<HcalRecNumberingRecord>().get(hbTopology);
    hcTopology_ = hbTopology.product();
    HcalTrigTowerGeometry theTrigTowerGeometry(hcTopology_);
+   iSetup.get<CaloTPGRecord>().get(decoder_);
 
 //****************************************************************
 //******************* Get all the hits ***************************
@@ -643,7 +647,9 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
       iEvent.getByToken(hcalTPToken_,hbhecoll);
       for (auto& hit : *hbhecoll.product())
       {
-         if ( hit.SOI_compressedEt() == 0 ) continue; 
+         //if ( hit.SOI_compressedEt() == 0 ) continue; 
+         float et = decoder_->hcaletValue(hit.id(), hit.t0());
+         if ( et <= 0 ) continue; 
          if (!(hcTopology_->validHT(hit.id()))) {
            std::cout << " -- Hcal hit DetID not present in HCAL Geom: " << hit.id() << std::endl;
            continue;
@@ -667,7 +673,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
          hhit.id = hit.id();
          hhit.id_hcal = hit.id();
          hhit.position = hcal_tp_position;
-         float et = hit.SOI_compressedEt() / 2.;
+         //float et = hit.SOI_compressedEt() / 2.;
          hhit.energy = et / sin(hhit.position.theta());
          hcalhits.push_back(hhit);
       }
