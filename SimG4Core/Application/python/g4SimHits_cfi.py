@@ -128,7 +128,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         ExoticaPhysicsSS     = cms.untracked.bool(False),
         RhadronPhysics       = cms.bool(False),
         DarkMPFactor         = cms.double(1.0),
-        Region      = cms.string(' '),
+        Region      = cms.string(''),
         TrackingCut = cms.bool(False),
         SRType      = cms.bool(True),
         FlagMuNucl  = cms.bool(False),
@@ -183,11 +183,11 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         )
     ),
     RunAction = cms.PSet(
-        StopFile = cms.string('StopRun')
+        StopFile = cms.string('')
     ),
     EventAction = cms.PSet(
         debug = cms.untracked.bool(False),
-        StopFile = cms.string('StopRun'),
+        StopFile = cms.string(''),
         PrintRandomSeed = cms.bool(False),
         CollapsePrimaryVertices = cms.bool(False)
     ),
