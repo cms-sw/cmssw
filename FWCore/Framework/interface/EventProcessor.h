@@ -209,10 +209,13 @@ namespace edm {
 
     void doErrorStuff();
 
-    void beginRun(ProcessHistoryID const& phid, RunNumber_t run, bool& globalBeginSucceeded);
+    void beginRun(ProcessHistoryID const& phid, RunNumber_t run, bool& globalBeginSucceeded,
+                  bool& eventSetupForInstanceSucceeded);
     void endRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalBeginSucceeded, bool cleaningUpAfterException);
-    void endUnfinishedRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalBeginSucceeded, bool cleaningUpAfterException);
-    
+    void endUnfinishedRun(ProcessHistoryID const& phid, RunNumber_t run,
+                          bool globalBeginSucceeded, bool cleaningUpAfterException,
+                          bool eventSetupForInstanceSucceeded);
+
     InputSource::ItemType processLumis(std::shared_ptr<void> const& iRunResource);
     void endUnfinishedLumi();
     
