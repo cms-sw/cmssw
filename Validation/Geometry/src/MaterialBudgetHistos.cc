@@ -53,7 +53,7 @@ void MaterialBudgetHistos::fillEndTrack()
 }
 
 
-void MaterialBudgetHistos::hend() 
+void MaterialBudgetHistos::endOfRun() 
 {
   std::cout << "=== save user histos ===" << std::endl;
   hmgr->save( theFileName );

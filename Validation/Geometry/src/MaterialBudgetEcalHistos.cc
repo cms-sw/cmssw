@@ -167,7 +167,7 @@ void MaterialBudgetEcalHistos::fillEndTrack()
 }
 
 
-void MaterialBudgetEcalHistos::hend() 
+void MaterialBudgetEcalHistos::endOfRun() 
 {
   std::cout << "=== save user histos ===" << std::endl;
   hmgr->save( theFileName );

@@ -7,42 +7,36 @@
 
 #include "Validation/Geometry/interface/MaterialBudgetFormat.h"
 
-//#include "HTL/Histograms.h" // Transient histograms.
-
-
 class MaterialBudgetTree : public MaterialBudgetFormat
 {
 public:
 
   MaterialBudgetTree( std::shared_ptr<MaterialBudgetData> data, const std::string& fileName );   
-  ~MaterialBudgetTree() override{ hend(); }
+  ~MaterialBudgetTree() override { }
 
   void fillStartTrack() override;
   void fillPerStep() override;
   void fillEndTrack() override;
+  void endOfRun() override;
   
 private:
   
   virtual void book();  // user booking
-  virtual void hend();  // user ending
-  
- private:
-  TFile * theFile;
+  TFile* theFile;
   TTree* theTree; 
 
   static const int MAXSTEPS = 10000;
+
   float t_MB;
   float t_IL;
-  //  float t_Eta;
-  //  float t_Phi;
-  // rr
+
   int   t_ParticleID;
   float t_ParticlePt;
   float t_ParticleEta;
   float t_ParticlePhi;
   float t_ParticleEnergy;
   float t_ParticleMass;
-  // rr
+
   int t_Nsteps;
   float t_DeltaMB[MAXSTEPS];
   float t_DeltaMB_SUP[MAXSTEPS];
@@ -66,7 +60,7 @@ private:
   double t_FinalX[MAXSTEPS];
   double t_FinalY[MAXSTEPS];
   double t_FinalZ[MAXSTEPS];
-  // rr
+
   int    t_VolumeID[MAXSTEPS];
   const char*  t_VolumeName[MAXSTEPS];
   int    t_VolumeCopy[MAXSTEPS];
@@ -110,8 +104,7 @@ private:
   float t_ParticleStepFinalMass[MAXSTEPS];  
   int   t_ParticleStepPreInteraction[MAXSTEPS];  
   int   t_ParticleStepPostInteraction[MAXSTEPS];  
-  // rr
-};
 
+};
 
 #endif
