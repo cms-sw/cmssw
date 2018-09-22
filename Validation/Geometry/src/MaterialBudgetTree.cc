@@ -21,7 +21,6 @@ void MaterialBudgetTree::book()
   theTree->Branch("MB", &t_MB, "MB/F");
   theTree->Branch("IL", &t_IL, "IL/F");
   
-  // rr
   // PARTICLE Block
   theTree->Branch( "Particle ID",     &t_ParticleID,     "Particle_ID/I"  );
   theTree->Branch( "Particle Pt",     &t_ParticlePt,     "Particle_Pt/F"  );
@@ -29,12 +28,10 @@ void MaterialBudgetTree::book()
   theTree->Branch( "Particle Phi",    &t_ParticlePhi,    "Particle_Phi/F" );
   theTree->Branch( "Particle Energy", &t_ParticleEnergy, "Particle_E/F"   );
   theTree->Branch( "Particle Mass",   &t_ParticleMass,   "Particle_M/F"   );
-  // rr
- 
+  
   if( theData->allStepsON() ) {
     theTree->Branch("Nsteps", &t_Nsteps, "Nsteps/I");
     theTree->Branch("DeltaMB", t_DeltaMB, "DeltaMB[Nsteps]/F");
-    // rr
     theTree->Branch("DeltaMB_SUP", t_DeltaMB_SUP, "DeltaMB_SUP[Nsteps]/F");
     theTree->Branch("DeltaMB_SEN", t_DeltaMB_SEN, "DeltaMB_SEN[Nsteps]/F");
     theTree->Branch("DeltaMB_CAB", t_DeltaMB_CAB, "DeltaMB_CAB[Nsteps]/F");
@@ -42,6 +39,7 @@ void MaterialBudgetTree::book()
     theTree->Branch("DeltaMB_ELE", t_DeltaMB_ELE, "DeltaMB_ELE[Nsteps]/F");
     theTree->Branch("DeltaMB_OTH", t_DeltaMB_OTH, "DeltaMB_OTH[Nsteps]/F");
     theTree->Branch("DeltaMB_AIR", t_DeltaMB_AIR, "DeltaMB_AIR[Nsteps]/F");
+
     theTree->Branch("DeltaIL", t_DeltaIL, "DeltaIL[Nsteps]/F");
     theTree->Branch("DeltaIL_SUP", t_DeltaIL_SUP, "DeltaIL_SUP[Nsteps]/F");
     theTree->Branch("DeltaIL_SEN", t_DeltaIL_SEN, "DeltaIL_SEN[Nsteps]/F");
@@ -50,14 +48,15 @@ void MaterialBudgetTree::book()
     theTree->Branch("DeltaIL_ELE", t_DeltaIL_ELE, "DeltaIL_ELE[Nsteps]/F");
     theTree->Branch("DeltaIL_OTH", t_DeltaIL_OTH, "DeltaIL_OTH[Nsteps]/F");
     theTree->Branch("DeltaIL_AIR", t_DeltaIL_AIR, "DeltaIL_AIR[Nsteps]/F");
-    // rr
+
     theTree->Branch("Initial X", t_InitialX, "Initial_X[Nsteps]/D");
     theTree->Branch("Initial Y", t_InitialY, "Initial_Y[Nsteps]/D");
     theTree->Branch("Initial Z", t_InitialZ, "Initial_Z[Nsteps]/D");
+
     theTree->Branch("Final X",   t_FinalX,   "Final_X[Nsteps]/D");
     theTree->Branch("Final Y",   t_FinalY,   "Final_Y[Nsteps]/D");
     theTree->Branch("Final Z",   t_FinalZ,   "Final_Z[Nsteps]/D");
-    // rr
+
     theTree->Branch("Volume ID",       t_VolumeID,     "VolumeID[Nsteps]/I");
     theTree->Branch("Volume Name",     t_VolumeName,   "VolumeName[Nsteps]/C");
     theTree->Branch("Volume Copy",     t_VolumeCopy,   "VolumeCopy[Nsteps]/I");
@@ -103,7 +102,7 @@ void MaterialBudgetTree::book()
     theTree->Branch("Particle Step Final Mass",       t_ParticleStepFinalMass,       "Step_Final_Mass[Nsteps]/F");
     theTree->Branch("Particle Step Pre Interaction",  t_ParticleStepPreInteraction,  "Step_PreInteraction[Nsteps]/I");
     theTree->Branch("Particle Step Post Interaction", t_ParticleStepPostInteraction, "Step_PostInteraction[Nsteps]/I");
-    // rr
+
   }
   
   std::cout << "=== booking user TTree done ===" << std::endl;
@@ -224,15 +223,14 @@ void MaterialBudgetTree::fillEndTrack()
 }
 
 
-// here one can print the histograms or 
-// manipulate them before they are written to file
-void MaterialBudgetTree::hend() 
+void MaterialBudgetTree::endOfRun() 
 {
-  std::cout << " === save user TTree ===" << std::endl;
- 
+
+  // Prefered method to include any instruction
+  // once all the tracks are done
+
   theFile->cd();
   theTree->Write();
-  
   theFile->Close();
 
 }
