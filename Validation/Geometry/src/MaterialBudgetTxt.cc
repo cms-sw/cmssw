@@ -18,7 +18,6 @@ MaterialBudgetTxt::MaterialBudgetTxt( std::shared_ptr<MaterialBudgetData> data, 
 
 MaterialBudgetTxt::~MaterialBudgetTxt()
 {
-  theFile->close();
 }
 
 
@@ -44,3 +43,7 @@ void MaterialBudgetTxt::fillEndTrack()
   (*theFile) << G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() << " " << "finalTrkMB " << theData->getTotalMB() << std::endl;
 }
 
+void MaterialBudgetTxt::endOfRun() 
+{
+  theFile->close();
+}
