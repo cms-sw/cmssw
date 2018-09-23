@@ -102,7 +102,7 @@ void TestHistoMgr::printComparisonResult( int ih )
   // ---------------------------------------------------------
   // Do something with (e.g. print out) the result of the test 
   // ---------------------------------------------------------
-  edm::LogInfo << " Result of the Chi2 Statistical Test: " << histo1->GetName();
+  edm::LogInfo << "TestHistoMgr: Result of the Chi2 Statistical Test: " << histo1->GetName();
 #ifdef PI121
   << " distance = " << result.distance() << std::endl
   << " ndf = " << result.ndf() << std::endl
@@ -121,11 +121,6 @@ void TestHistoMgr::printComparisonResult( int ih )
   std::cout << " rms= " << histo1->GetRMS() << " " << histo1->GetName() << " " << histo1->GetTitle() << std::endl;
 
 #else
-  /*  std::cout << " LOG histo " << histo1->GetName() << " mean = " << histo1->mean() << " rms = " << histo1->rms() << std::endl;
-  std::cout << " REF histo " << histo2->GetName() << " mean = " << histo2->mean() << " rms = " << histo2->rms() << std::endl;
-  std::cout << " [OVAL]: " << histo1->GetName() << " DIFF_MEAN " << fabs(histo1->mean()-histo2->mean()) << " DIFF_RMS " << fabs(histo1->rms()-histo2->rms()) << std::endl;
-  */
-
 #endif
 }
 
