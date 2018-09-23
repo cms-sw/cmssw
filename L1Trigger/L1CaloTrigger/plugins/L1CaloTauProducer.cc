@@ -80,7 +80,10 @@ class L1CaloTauProducer : public edm::EDProducer {
         virtual void produce(edm::Event&, const edm::EventSetup&);
         //bool cluster_passes_base_cuts(float &cluster_pt, float &cluster_eta, float &iso, float &e2x5, float &e5x5) const;
         int ecalXtal_diPhi( int &iPhi_1, int &iPhi_2 ) const;
-        int hcalTower_diPhi( int &iPhi_1, int &iPhi_2 ) const;
+        int tower_diPhi( int &iPhi_1, int &iPhi_2 ) const;
+        int tower_diEta( int &iEta_1, int &iEta_2 ) const;
+        float get_deltaR( reco::Candidate::PolarLorentzVector &p4_1,
+                reco::Candidate::PolarLorentzVector &p4_2) const;
 
         //double EtminForStore;
         //double EcalTpEtMin;
@@ -195,7 +198,8 @@ class L1CaloTauProducer : public edm::EDProducer {
         class simpleL1obj
         {
             public:
-                bool stale=false; // Hits become stale once used in clustering algorithm to prevent overlap in clusters
+                bool stale = false; // Hits become stale once used in clustering algorithm to prevent overlap in clusters
+                bool associated_with_tower = false; // L1EGs become associated with a tower to find highest ET total for seeding jets
                 bool passesStandaloneWP = false; // Store whether any of the WPs are passed
                 bool passesTrkMatchWP = false; // Store whether any of the WPs are passed
                 reco::Candidate::PolarLorentzVector p4;
@@ -226,6 +230,7 @@ class L1CaloTauProducer : public edm::EDProducer {
                 float ecal_tower_et=0.;
                 float hcal_tower_et=0.;
                 float total_tower_et=0.;
+                float total_tower_plus_L1EGs_et=0.;
                 bool stale=false; // Hits become stale once used in clustering algorithm to prevent overlap in clusters
         };
 };
@@ -300,9 +305,69 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         if (debug) printf("Tower iEta %i iPhi %i eta %f phi %f ecal_et %f hcal_et %f total_et %f\n", (int)l1Hit.tower_iEta, (int)l1Hit.tower_iPhi, l1Hit.tower_eta, l1Hit.tower_phi, l1Hit.ecal_tower_et, l1Hit.hcal_tower_et, l1Hit.total_tower_et);
     }
 
-    // Sort the ECAL+HCAL tower sums based on total ET
+
+    // Make simple L1objects from the L1EG input collection with marker for 'stale'
+    // FIXME could later add quality criteria here to help differentiate likely
+    // photons/electrons vs. pions. This could be helpful for L1CaloTaus
+    std::vector< simpleL1obj > crystalClustersVect;
+    for (auto EGammaCand : crystalClusters)
+    {
+        simpleL1obj l1egObj;
+        l1egObj.SetP4(EGammaCand.pt(), EGammaCand.eta(), EGammaCand.phi(), 0.);
+        l1egObj.passesStandaloneWP = EGammaCand.standaloneWP();
+        l1egObj.passesTrkMatchWP = EGammaCand.looseL1TkMatchWP();
+        crystalClustersVect.push_back( l1egObj );
+    }
+
+    // Sorting is unnecessary as we're matching to already built HCAL Jets
+    // but it is interesting to know highest pt L1EG, so sort either way
+    // Sort clusters so we can always pick highest pt cluster to begin with in our jet clustering
+    std::sort(begin(crystalClustersVect), end(crystalClustersVect), [](const simpleL1obj& a,
+            simpleL1obj& b){return a.pt() > b.pt();});
+
+    // Match the L1EGs to their associated tower to calculate a TOTAL energy associated
+    // with a tower: "total_tower_plus_L1EGs_et".  This can be attributed to multiple
+    // L1EGs. Once an L1EG is associated with a tower, mark them as such so they are not
+    // double counted for some reason, use "associated_with_tower".
+    // This associate will be semi-crude, with barrel geometry, a tower is
+    // 0.087 wide, associate them if they are within dEta/dPhi 0.0435.
+    for (auto &l1CaloTower : l1CaloTowers)
+    {
+
+        l1CaloTower.total_tower_plus_L1EGs_et = l1CaloTower.total_tower_et;
+
+        int j = 0;
+        for (auto &l1eg : crystalClustersVect)
+        {
+
+            if (l1eg.associated_with_tower) continue;
+
+            // Could be done very cleanly with iEta/iPhi if we had this from the L1EGs...
+            float d_eta = l1CaloTower.tower_eta - l1eg.eta();
+            float d_phi = reco::deltaPhi( l1CaloTower.tower_phi, l1eg.phi() );
+
+            if ( fabs( d_eta ) > 0.0435 || fabs( d_phi ) > 0.0435 ) continue;
+
+            j++;
+            l1CaloTower.total_tower_plus_L1EGs_et += l1eg.pt();
+            if (debug) printf(" - %i L1EG associated with tower: dEta %f dPhi %f L1EG pT %f\n", j, d_eta, d_phi, l1eg.pt());
+
+            l1eg.associated_with_tower = true;
+
+        }
+    }
+
+    //for (auto &l1eg : crystalClustersVect)
+    //{
+    //    if (l1eg.associated_with_tower) continue;
+    //    printf(" --- L1EG Not Associated: pt %f eta %f phi %f\n", l1eg.pt(), l1eg.eta(), l1eg.phi());
+    //}
+
+
+
+    // Sort the ECAL+HCAL+L1EGs tower sums based on total ET
     std::sort(begin(l1CaloTowers), end(l1CaloTowers), [](const SimpleCaloHit& a,
-            SimpleCaloHit& b){return a.total_tower_et > b.total_tower_et;});
+            SimpleCaloHit& b){return a.total_tower_plus_L1EGs_et > b.total_tower_plus_L1EGs_et;});
 
 
 
@@ -333,7 +398,7 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         caloJetObj.SetLeadingL1EGP4( 0., 0., 0., 0. );
         caloJetObj.SetL1EGJetP4( 0., 0., 0., 0. );
 
-        // First find highest ET ECAL+HCAL tower and use to seed the 9x9 Jet
+        // First find highest ET ECAL+HCAL+L1EGs tower and use to seed the 9x9 Jet
         int cnt = 0;
         for (auto &l1CaloTower : l1CaloTowers)
         {
@@ -343,9 +408,9 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
             cnt++;
             if (caloJetObj.jetCluster.pt() == 0.0) // this is the first l1CaloTower to seed the jet
             {
-                // Check if the leading unused tower has pT < min for seeding a jet.
+                // Check if the leading unused tower has ET < min for seeding a jet.
                 // If so, stop jet clustering
-                if (l1CaloTower.total_tower_et < EtMinForSeedHit)
+                if (l1CaloTower.total_tower_plus_L1EGs_et < EtMinForSeedHit)
                 {
                     caloJetClusteringFinished = true;
                     continue;
@@ -408,8 +473,8 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
             // Unused l1CaloTowers which are not the initial seed
             int hit_iPhi = l1CaloTower.tower_iPhi;
-            int d_iEta = caloJetObj.seed_iEta - l1CaloTower.tower_iEta;
-            int d_iPhi = hcalTower_diPhi( caloJetObj.seed_iPhi, hit_iPhi );
+            int d_iEta = tower_diEta( caloJetObj.seed_iEta, l1CaloTower.tower_iEta );
+            int d_iPhi = tower_diPhi( caloJetObj.seed_iPhi, hit_iPhi );
             if ( abs( d_iEta ) <= 4 && abs( d_iPhi ) <= 4 ) // 9x9 HCAL Trigger Towers
             {
                 //std::cout << " ------- input jet p4 " << hcalJet.pt() << " : " << hcalJet.eta() << " : " << hcalJet.phi() << " : " << hcalJet.M()<< std::en     dl;
@@ -512,27 +577,6 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
  ******************************************************************************/
 
 
-    // Make simple L1objects from the L1EG input collection with marker for 'stale'
-    // FIXME could later add quality criteria here to help differentiate likely
-    // photons/electrons vs. pions. This could be helpful for L1CaloTaus
-    std::vector< simpleL1obj > crystalClustersVect;
-    for (auto EGammaCand : crystalClusters)
-    {
-        simpleL1obj l1egObj;
-        l1egObj.SetP4(EGammaCand.pt(), EGammaCand.eta(), EGammaCand.phi(), 0.);
-        l1egObj.passesStandaloneWP = EGammaCand.standaloneWP();
-        l1egObj.passesTrkMatchWP = EGammaCand.looseL1TkMatchWP();
-        crystalClustersVect.push_back( l1egObj );
-    }
-
-    // Sorting is unnecessary as we're matching to already built HCAL Jets
-    // but it is interesting to know highest pt L1EG, so sort either way
-    // Sort clusters so we can always pick highest pt cluster to begin with in our jet clustering
-    std::sort(begin(crystalClustersVect), end(crystalClustersVect), [](const simpleL1obj& a,
-            simpleL1obj& b){return a.pt() > b.pt();});
-
-
-
     // Cluster together the L1EGs around existing HCAL Jet
     // Cluster within dEta/dPhi 0.4 which is very close to 0.39 = 9x9/2
     //std::cout << " - Input L1EGs: " << crystalClustersVect.size() << std::endl;
@@ -562,8 +606,8 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
             // skip L1EGs outside the dEta/dPhi 0.4 range
             // cluster w.r.t. HCAL seed so the position doesn't change for every L1EG
-            float d_eta = caloJetObj.seedTower.eta() - l1eg.eta(); // See mapping of hcalInfo
-            float d_phi = reco::deltaPhi( caloJetObj.seedTower.phi(), l1eg.phi() ); // See mapping of hcalInfo
+            float d_eta = caloJetObj.seedTower.eta() - l1eg.eta();
+            float d_phi = reco::deltaPhi( caloJetObj.seedTower.phi(), l1eg.phi() );
             float d_eta_to_leading = -99;
             float d_phi_to_leading = -99;
             if ( fabs( d_eta ) > 0.4 || fabs( d_phi ) > 0.4 ) continue;
@@ -652,22 +696,19 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
         // return -9 for energy and dR values for ecalJet as defaults
         float hovere = -9;
-        params["deltaR_ecal_vs_jet"] = -9;
-        params["deltaR_ecal_vs_hcal"] = -9; 
-        params["deltaR_ecal_vs_hcal_seed"] = -9;
-        params["deltaR_ecal_lead_vs_ecal"] = -9;
-        params["deltaR_ecal_lead_vs_jet"] = -9;
         if (caloJetObj.ecalJetCluster.pt() > 0.0)
         {
-            params["deltaR_ecal_vs_jet"] = reco::deltaR( caloJetObj.ecalJetCluster, caloJetObj.jetCluster );
-            params["deltaR_ecal_vs_hcal"] = reco::deltaR( caloJetObj.ecalJetCluster, caloJetObj.hcalJetCluster );
-            params["deltaR_ecal_vs_seed_tower"] = reco::deltaR( caloJetObj.ecalJetCluster, caloJetObj.seedTower );
-            params["deltaR_ecal_lead_vs_ecal"] = reco::deltaR( caloJetObj.ecalJetCluster, caloJetObj.leadingL1EG );
-            params["deltaR_ecal_lead_vs_jet"] = reco::deltaR( caloJetObj.jetCluster, caloJetObj.leadingL1EG );
             hovere = caloJetObj.hcalJetCluster.energy() / caloJetObj.ecalJetCluster.energy();
         }
-        params["deltaR_hcal_vs_jet"] = reco::deltaR( caloJetObj.hcalJetCluster, caloJetObj.jetCluster );
-        params["deltaR_hcal_vs_seed_tower"] = reco::deltaR( caloJetObj.hcalJetCluster, caloJetObj.seedTower );
+        params["deltaR_ecal_vs_jet"] = get_deltaR( caloJetObj.ecalJetCluster, caloJetObj.jetCluster );
+        params["deltaR_L1EGjet_vs_jet"] = get_deltaR( caloJetObj.l1EGjet, caloJetObj.jetCluster );
+        params["deltaR_ecal_vs_hcal"] = get_deltaR( caloJetObj.ecalJetCluster, caloJetObj.hcalJetCluster );
+        params["deltaR_ecal_vs_seed_tower"] = get_deltaR( caloJetObj.ecalJetCluster, caloJetObj.seedTower );
+        params["deltaR_ecal_lead_vs_ecal"] = get_deltaR( caloJetObj.ecalJetCluster, caloJetObj.leadingL1EG );
+        params["deltaR_ecal_lead_vs_jet"] = get_deltaR( caloJetObj.jetCluster, caloJetObj.leadingL1EG );
+        params["deltaR_hcal_vs_jet"] = get_deltaR( caloJetObj.hcalJetCluster, caloJetObj.jetCluster );
+        params["deltaR_hcal_vs_seed_tower"] = get_deltaR( caloJetObj.hcalJetCluster, caloJetObj.seedTower );
+        params["deltaR_ecal_vs_hcal_seed"] = get_deltaR( caloJetObj.ecalJetCluster, caloJetObj.seedTower );
 
 
         params["ecal_leading_pt"] =     caloJetObj.leadingL1EG.pt();
@@ -753,7 +794,7 @@ L1CaloTauProducer::ecalXtal_diPhi( int &iPhi_1, int &iPhi_2 ) const
 
 
 int
-L1CaloTauProducer::hcalTower_diPhi( int &iPhi_1, int &iPhi_2 ) const
+L1CaloTauProducer::tower_diPhi( int &iPhi_1, int &iPhi_2 ) const
 {
     // 360 Crystals in full, 72 towers, half way is 36
     int PI = 36;
@@ -761,6 +802,27 @@ L1CaloTauProducer::hcalTower_diPhi( int &iPhi_1, int &iPhi_2 ) const
     while (result > PI) result -= 2*PI;
     while (result <= -PI) result += 2*PI;
     return result;
+}
+
+
+// Added b/c of the iEta jump from +1 to -1 across the barrel mid point
+int
+L1CaloTauProducer::tower_diEta( int &iEta_1, int &iEta_2 ) const
+{
+    // On same side of barrel
+    if (iEta_1 * iEta_2 > 0) return iEta_1 - iEta_2;
+    else return iEta_1 - iEta_2 - 1;
+}
+
+
+float
+L1CaloTauProducer::get_deltaR( reco::Candidate::PolarLorentzVector &p4_1,
+        reco::Candidate::PolarLorentzVector &p4_2) const
+{
+    // Check that pt is > 0 for both or else reco::deltaR returns bogus values
+    if (p4_1.pt() == 0) return -9;
+    if (p4_2.pt() == 0) return -9;
+    return reco::deltaR( p4_1, p4_2 );
 }
 
 
