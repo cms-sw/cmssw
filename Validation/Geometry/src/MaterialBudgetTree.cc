@@ -1,11 +1,13 @@
 #include "Validation/Geometry/interface/MaterialBudgetTree.h"
 #include "Validation/Geometry/interface/MaterialBudgetData.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 MaterialBudgetTree::MaterialBudgetTree(std::shared_ptr<MaterialBudgetData> data, const std::string& filename )
   : MaterialBudgetFormat( data )
 {
-  theFile = new TFile(filename.c_str(),"RECREATE");
+  theFile = std::make_unique<TFile>(filename.c_str(),"RECREATE");
   theFile->cd();
   book();
 }
@@ -13,9 +15,9 @@ MaterialBudgetTree::MaterialBudgetTree(std::shared_ptr<MaterialBudgetData> data,
 
 void MaterialBudgetTree::book() 
 {
-  std::cout << "=== booking user TTree ===" << std::endl;
+  LogDebug("MaterialBudget") << "MaterialBudgetTree: Booking user TTree";
   // create the TTree
-  theTree = new TTree("T1","GeometryTest Tree");
+  theTree = std::make_unique<TTree>("T1","GeometryTest Tree");
 
   // GENERAL block
   theTree->Branch("MB", &t_MB, "MB/F");
@@ -105,8 +107,7 @@ void MaterialBudgetTree::book()
 
   }
   
-  std::cout << "=== booking user TTree done ===" << std::endl;
-  
+  LogDebug("MaterialBudget") << "MaterialBudgetTree Booking user TTree done";
 }
 
 
@@ -118,31 +119,34 @@ void MaterialBudgetTree::fillStartTrack()
 
 void MaterialBudgetTree::fillPerStep()
 {
-}
 
+}
 
 void MaterialBudgetTree::fillEndTrack()
 {
+
   t_MB  = theData->getTotalMB();
   t_IL  = theData->getTotalIL();
   //  t_Eta = theData->getEta();
   //  t_Phi = theData->getPhi();
 
-  // rr
   t_ParticleID     = theData->getID();
   t_ParticlePt     = theData->getPt();
   t_ParticleEta    = theData->getEta();
   t_ParticlePhi    = theData->getPhi();
   t_ParticleEnergy = theData->getEnergy();
   t_ParticleMass   = theData->getMass();
-  // rr
   
-  // do this only if I really want to save all the steps
   if( theData->allStepsON() ) {
+
     t_Nsteps = theData->getNumberOfSteps();
+    
     if( t_Nsteps > MAXSTEPS ) t_Nsteps = MAXSTEPS;
-    std::cout << " Number of Steps into the tree " << t_Nsteps << std::endl;
+
+    edm::LogInfo("MaterialBudget") << "MaterialBudgetTree: Number of Steps into the tree " << t_Nsteps;
+
     for(int ii=0;ii<t_Nsteps;ii++) {
+
       t_DeltaMB[ii] = theData->getStepDmb(ii);
       t_DeltaMB_SUP[ii] = theData->getSupportDmb(ii);
       t_DeltaMB_SEN[ii] = theData->getSensitiveDmb(ii);
@@ -214,12 +218,10 @@ void MaterialBudgetTree::fillEndTrack()
       t_ParticleStepPreInteraction[ii]  = theData->getStepPreProcess(ii);
       t_ParticleStepPostInteraction[ii] = theData->getStepPostProcess(ii);
       
-      // rr
     }
   }
 
   theTree->Fill();
-
 }
 
 
@@ -229,9 +231,9 @@ void MaterialBudgetTree::endOfRun()
   // Prefered method to include any instruction
   // once all the tracks are done
 
+  edm::LogInfo("MaterialBudget") << "MaterialBudgetTree Writing TTree to ROOT file";
+
   theFile->cd();
   theTree->Write();
   theFile->Close();
-
 }
-

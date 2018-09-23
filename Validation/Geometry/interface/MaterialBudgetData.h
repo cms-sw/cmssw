@@ -1,12 +1,16 @@
+
 #ifndef MaterialBudgetData_h
 #define MaterialBudgetData_h 1
 
 #include "Validation/Geometry/interface/MaterialBudgetCategorizer.h"
+
 #include "G4ThreeVector.hh"
 
-// rr
 #include <CLHEP/Vector/LorentzVector.h>
-// rr
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <memory>
 
 class MaterialBudgetData;
 class G4Step;
@@ -464,7 +468,7 @@ public:
   std::string thePVname;
   int thePVcopyNo;
 
-  MaterialBudgetCategorizer* myMaterialBudgetCategorizer;
+  std::unique_ptr<MaterialBudgetCategorizer> myMaterialBudgetCategorizer;
 
   float theRadLen;
   float theIntLen;

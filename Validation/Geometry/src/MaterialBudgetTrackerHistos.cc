@@ -699,17 +699,14 @@ void MaterialBudgetTrackerHistos::fillEndTrack()
     
     // rr
   } else {
-    std::cout << "*** WARNING This event is out of the acceptance *** " << std::endl;
-    std::cout << "eta = "      << theData->getEta()
-	      << "\t phi = "   << theData->getPhi()
-	      << "\t x/X0 = "  << theData->getTotalMB()
-	      << "\t l/l0 = "  << theData->getTotalIL()
-	      << "\t steps = " << theData->getNumberOfSteps()
-	      << std::endl;
-    std::cout << "***" << std::endl;
+    edm::LogWarning("MaterialBudget") 
+      << "This event is out of the acceptance:" 
+      << "eta = "      << theData->getEta()
+      << "\t phi = "   << theData->getPhi()
+      << "\t x/X0 = "  << theData->getTotalMB()
+      << "\t l/l0 = "  << theData->getTotalIL()
+      << "\t steps = " << theData->getNumberOfSteps();
   }
-
- 
 }
 
 void MaterialBudgetTrackerHistos::endOfRun()
@@ -736,7 +733,8 @@ void MaterialBudgetTrackerHistos::endOfRun()
   hmgr->getHisto2(1660)->Divide(hmgr->getHisto2(1999));
   hmgr->getHisto2(1760)->Divide(hmgr->getHisto2(1999));
   
-  std::cout << "=== save user histos ===" << std::endl;
+  edm::LogInfo("MaterialBudget") << "Saving Histograms to: " << theFileName;
+
   hmgr->save( theFileName );
 
 }
