@@ -107,7 +107,7 @@ void MaterialBudgetTree::book()
 
   }
   
-  LogDebug("MaterialBudget") << "MaterialBudgetTree Booking user TTree done";
+  LogDebug("MaterialBudget") << "MaterialBudgetTree: Booking user TTree done";
 }
 
 

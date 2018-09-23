@@ -99,7 +99,8 @@ void MaterialBudgetCastorHistos::fillPerStep(const G4Step* aStep) {
       radLength.push_back(step/radl);
       intLength.push_back(step/intl);
     }
-    edm::LogInfo("MaterialBudget") << name << " " << step << " " << matName 
+    edm::LogInfo("MaterialBudget") << "MaterialBudgetCastorHistos: "
+				   << name << " " << step << " " << matName 
 				   << " " << stepLen << " " << step/radl << " " 
 				   << radLen << " " <<step/intl << " " <<intLen;
   } else {
@@ -161,7 +162,8 @@ void MaterialBudgetCastorHistos::fillEndTrack() {
   }
   if (printSum) {
     for (unsigned int ii=0; ii<matList.size(); ii++) {
-      edm::LogInfo("MaterialBudget") << matList[ii] << "\t" << stepLength[ii]
+      edm::LogInfo("MaterialBudget") << "MaterialBudgetCastorHistos: "
+				     << matList[ii] << "\t" << stepLength[ii]
 				     << "\t" << radLength[ii] << "\t"
 				     << intLength[ii];
     }
@@ -174,7 +176,7 @@ void MaterialBudgetCastorHistos::book() {
   edm::Service<TFileService> tfile;
   
   if ( !tfile.isAvailable() )
-    throw cms::Exception("BadConfig") << "TFileService unavailable: "
+    throw cms::Exception("BadConfig") << "MaterialBudgetCastorHistos: TFileService unavailable: "
                                       << "please add it to config file";
 
   double maxPhi=pi;

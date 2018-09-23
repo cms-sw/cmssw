@@ -311,7 +311,7 @@ void MaterialBudgetData::dataEndTrack( const G4Track* aTrack )
 
   if (!isHGCal){
     
-    LogDebug("Material Budget") <<"Radiation Length " 
+    LogDebug("Material Budget") <<"MaterialBudgetData: Radiation Length " 
 				<< G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() 
 				<< " Eta" << theEta << " Phi" << thePhi 
 				<< " TotalMB" << theTotalMB 
@@ -320,7 +320,7 @@ void MaterialBudgetData::dataEndTrack( const G4Track* aTrack )
 				<< " ELE " << theElectronicsMB << " other " << theOtherMB 
 				<< " Air " << theAirMB;
 
-    LogDebug("Material Budget") << "Interaction Length " 
+    LogDebug("Material Budget") << "MaterialBudgetData: Interaction Length " 
 				<< G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() 
 				<< " Eta " << theEta << " Phi " << thePhi 
 				<< " TotalIL " << theTotalIL
@@ -331,7 +331,7 @@ void MaterialBudgetData::dataEndTrack( const G4Track* aTrack )
 
   } else {
 
-    LogDebug("MaterialBudget") << " HGCal Material Budget: Radiation Length " 
+    LogDebug("MaterialBudget") << "MaterialBudgetData: HGCal Material Budget: Radiation Length " 
 			       << G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() 
 			       << " Eta " << theEta << " Phi " << thePhi 
 			       << " TotaLMB" << theTotalMB 
@@ -341,7 +341,7 @@ void MaterialBudgetData::dataEndTrack( const G4Track* aTrack )
 			       << " theAirMB " << theAirMB << " theStainlessSteelMB " << theStainlessSteelMB 
 			       << " theWCuMB " << theWCuMB;
     
-    LogDebug("MaterialBudget") << "HGCal Material Budget: Interaction Length " 
+    LogDebug("MaterialBudget") << "MaterialBudgetData: HGCal Material Budget: Interaction Length " 
 			       << G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() 
 			       << " Eta " << theEta << " Phi " << thePhi 
 			       << " TotalIL " << theTotalIL << " theCopperIL " << theCopperIL 
@@ -375,14 +375,14 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   
   G4String materialName = theMaterialPre->GetName();
   
-  LogDebug("MaterialBudget") << " Material " << materialName
+  LogDebug("MaterialBudget") << "MaterialBudgetData: Material " << materialName
 			     << " steplen " << steplen
 			     << " radlen " << radlen 
 			     << " mb " << steplen/radlen;
 
   G4String volumeName = aStep->GetPreStepPoint()->GetTouchable()->GetVolume(0)->GetLogicalVolume()->GetName();
 
-  LogDebug("MaterialBudget") << " Volume "   << volumeName
+  LogDebug("MaterialBudget") << "MaterialBudgetData: Volume " << volumeName
 			     << " Material " << materialName;
 
   // instantiate the categorizer
@@ -390,7 +390,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   int volumeID   = myMaterialBudgetCategorizer->volume( volumeName );
   int materialID = myMaterialBudgetCategorizer->material( materialName );
 
-  LogDebug("MaterialBudget") << " Volume ID " << volumeID 
+  LogDebug("MaterialBudget") << "MaterialBudgetData: Volume ID " << volumeID 
 			     << " Material ID " << materialID;
 
   // FIXME: Both volume ID and material ID are zeros, so this part is not executed leaving all
@@ -406,7 +406,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
       theAirFractionMB         = myMaterialBudgetCategorizer->x0fraction(materialName)[6];
       
       if(theOtherFractionMB!=0) 
-	edm::LogWarning("MaterialBudget") << " Material found with no category: " << materialName 
+	edm::LogWarning("MaterialBudget") << "MaterialBudgetData: Material found with no category: " << materialName 
 				     << " in volume " << volumeName;
 
       theSupportFractionIL     = myMaterialBudgetCategorizer->l0fraction(materialName)[0];
@@ -418,7 +418,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
       theAirFractionIL         = myMaterialBudgetCategorizer->l0fraction(materialName)[6];
 
       if(theOtherFractionIL!=0) 
-	edm::LogWarning("MaterialBudget") << " Material found with no category: " << materialName 
+	edm::LogWarning("MaterialBudget") << "MaterialBudgetData: Material found with no category: " << materialName 
 				     << " in volume " << volumeName;
     }
    else
@@ -442,7 +442,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
 
     
       if(theOtherFractionMB!=0) 
-	edm::LogWarning("MaterialBudget") << " Material found with no category: " << materialName 
+	edm::LogWarning("MaterialBudget") << "MaterialBudgetData: Material found with no category: " << materialName 
 					  << " in volume " << volumeName << std::endl;
 
       theAirFractionIL              = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[0];
@@ -458,7 +458,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
 
 
       if(theOtherFractionIL!=0) 
-	edm::LogWarning("MaterialBudget") << " Material found with no category " << materialName 
+	edm::LogWarning("MaterialBudget") << "MaterialBudgetData: Material found with no category " << materialName 
 					  << " in volume " << volumeName << std::endl;
     }
    else
@@ -479,7 +479,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   
   G4Track* track = aStep->GetTrack();
   if(theStepN==0) 
-    LogDebug("MaterialBudget") << " Simulated Particle " << theID 
+    LogDebug("MaterialBudget") << "MaterialBudgetData: Simulated Particle " << theID 
 			       << "\tMass " << theMass << " MeV/c2"
 			       << "\tPt = " << thePt  << " MeV/c" 
 			       << "\tEta = " << theEta 
@@ -579,7 +579,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
     theStepPostProcess[theStepN]    = postProcType;
     
     LogDebug("MaterialBudget") 
-      << " Step " << theStepN
+      << "MaterialBudgetData: Step " << theStepN
       << "\tDelta MB = " << theDmb[theStepN]
       << std::endl
       << " Support "  << theSupportDmb[theStepN]
@@ -602,12 +602,12 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
     
     if (interactionPre)
       LogDebug("MaterialBudget") 
-	<< "Process Pre " << interactionPre->GetProcessName()
+	<< "MaterialBudgetData: Process Pre " << interactionPre->GetProcessName()
 	<< " type " << theStepPreProcess[theStepN] 
 	<< " name " << interactionPre->GetProcessTypeName(G4ProcessType(theStepPreProcess[theStepN]));
     if (interactionPost)
       LogDebug("MaterialBudget")
-	<< "Process Post " << interactionPost->GetProcessName()
+	<< "MaterialBudgetData: Process Post " << interactionPost->GetProcessName()
 	<< " type " << theStepPostProcess[theStepN] 
 	<< " name "<< interactionPost->GetProcessTypeName(G4ProcessType(theStepPostProcess[theStepN]))
 	<< " Pre x = " << theInitialX[theStepN]
@@ -675,7 +675,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
     
     for(G4TrackVector::const_iterator iSec = aStep->GetSecondary()->begin(); iSec!=aStep->GetSecondary()->end(); iSec++) {
       LogDebug("MaterialBudget") 
-	<< " tid " << (*iSec)->GetDefinition()->GetPDGEncoding()
+	<< "MaterialBudgetData: tid " << (*iSec)->GetDefinition()->GetPDGEncoding()
 	<< " created through process type " << (*iSec)->GetCreatorProcess()->GetProcessType()
 	<< (*iSec)->GetCreatorProcess()->GetProcessTypeName(G4ProcessType((*iSec)->GetCreatorProcess()->GetProcessType()));
     }

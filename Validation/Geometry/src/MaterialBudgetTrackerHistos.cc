@@ -18,7 +18,7 @@ MaterialBudgetTrackerHistos::MaterialBudgetTrackerHistos(std::shared_ptr<Materia
 
 void MaterialBudgetTrackerHistos::book() 
 {
-  std::cout << "=== booking user histos ===" << std::endl;
+  edm::LogInfo("MaterialBudget") << " MaterialBudgetTrackerHistos: Booking Histos";
 
   // Parameters for 2D histograms
   int nzbin = 1200;
@@ -245,12 +245,6 @@ void MaterialBudgetTrackerHistos::book()
   hmgr->addHisto2( new TH2F("1751", "R vs z [Air]" , nzbin, zMin, zMax, nrbin, rMin, rMax ) );
   hmgr->addHisto2( new TH2F("1760", "MB prof local R  z [Air];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax ) );
   hmgr->addHisto2( new TH2F("1761", "R vs z [Air]" , nzbin, zMin, zMax, nrbin, rMin, rMax ) );
-  //
-  
-  // rr
-  
-  std::cout << "=== booking user histos done ===" << std::endl;
-
 }
 
 
@@ -700,7 +694,7 @@ void MaterialBudgetTrackerHistos::fillEndTrack()
     // rr
   } else {
     edm::LogWarning("MaterialBudget") 
-      << "This event is out of the acceptance:" 
+      << "MaterialBudgetTrackerHistos: This event is out of the acceptance:" 
       << "eta = "      << theData->getEta()
       << "\t phi = "   << theData->getPhi()
       << "\t x/X0 = "  << theData->getTotalMB()
@@ -733,8 +727,7 @@ void MaterialBudgetTrackerHistos::endOfRun()
   hmgr->getHisto2(1660)->Divide(hmgr->getHisto2(1999));
   hmgr->getHisto2(1760)->Divide(hmgr->getHisto2(1999));
   
-  edm::LogInfo("MaterialBudget") << "Saving Histograms to: " << theFileName;
-
+  edm::LogInfo("MaterialBudget") << "MaterialBudgetTrackerHistos: Saving Histograms to: " << theFileName;
   hmgr->save( theFileName );
 
 }
