@@ -781,7 +781,7 @@ testFormulaEvaluator::checkFormulaEvaluator() {
     std::vector<double> xValues = {.1, 1., 10., 100.};
 
 
-    auto func =[&v](double x) {return 100./3.*0.154227+2.36997;
+    auto func =[](double x) {return 100./3.*0.154227+2.36997;
     };
 
     for(auto const xv: xValues) {
