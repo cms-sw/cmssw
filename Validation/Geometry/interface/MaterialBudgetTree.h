@@ -21,9 +21,9 @@ public:
   
 private:
   
-  virtual void book();  // user booking
-  TFile* theFile;
-  TTree* theTree; 
+  void book();  // user booking
+  std::unique_ptr<TFile> theFile;
+  std::unique_ptr<TTree> theTree;
 
   static const int MAXSTEPS = 10000;
 
@@ -38,6 +38,7 @@ private:
   float t_ParticleMass;
 
   int t_Nsteps;
+
   float t_DeltaMB[MAXSTEPS];
   float t_DeltaMB_SUP[MAXSTEPS];
   float t_DeltaMB_SEN[MAXSTEPS];
@@ -46,6 +47,7 @@ private:
   float t_DeltaMB_ELE[MAXSTEPS];
   float t_DeltaMB_OTH[MAXSTEPS];
   float t_DeltaMB_AIR[MAXSTEPS];
+
   float t_DeltaIL[MAXSTEPS];
   float t_DeltaIL_SUP[MAXSTEPS];
   float t_DeltaIL_SEN[MAXSTEPS];
@@ -54,6 +56,7 @@ private:
   float t_DeltaIL_ELE[MAXSTEPS];
   float t_DeltaIL_OTH[MAXSTEPS];
   float t_DeltaIL_AIR[MAXSTEPS];
+
   double t_InitialX[MAXSTEPS];
   double t_InitialY[MAXSTEPS];
   double t_InitialZ[MAXSTEPS];
@@ -76,6 +79,7 @@ private:
   float  t_VolumeZaxis1[MAXSTEPS];
   float  t_VolumeZaxis2[MAXSTEPS];
   float  t_VolumeZaxis3[MAXSTEPS];
+
   int   t_MaterialID[MAXSTEPS];
   const char* t_MaterialName[MAXSTEPS];  
   float t_MaterialX0[MAXSTEPS];  
