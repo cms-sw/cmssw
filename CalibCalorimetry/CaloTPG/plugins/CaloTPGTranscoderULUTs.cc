@@ -160,7 +160,7 @@ CaloTPGTranscoderULUTs::produce(const CaloTPGRecord& iRecord)
 
    std::unique_ptr<CaloTPGTranscoderULUT> pTCoder(new CaloTPGTranscoderULUT(file1, file2));
    pTCoder->setup(fullLut, *theTrigTowerGeometry, NCTScaleShift, RCTScaleShift, lsbQIE8, lsbQIE11, linearLUTs_);
-   return std::unique_ptr<CaloTPGTranscoder>( pTCoder );
+   return std::unique_ptr<CaloTPGTranscoder>( std::move(pTCoder) );
 }
 
 //define this as a plug-in
