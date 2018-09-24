@@ -155,6 +155,12 @@ public:
         STEREO = 2
     };
 
+    enum HIT_DETECTOR_TYPE {
+      MUON_HIT = 0,
+      TRACKER_HIT = 1,
+      MTD_HIT = 2
+    };
+
     enum HIT_TYPE {
         VALID = 0,
         MISSING = 1,
