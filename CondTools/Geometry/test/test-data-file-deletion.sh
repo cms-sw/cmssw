@@ -6,7 +6,7 @@ mkdir -p test-data-file-deletion/src/Geometry/CMSCommonData/data/dir-for-data-fi
 ln -s dir-for-data-file test-data-file-deletion/src/Geometry/CMSCommonData/data/materials.xml
 ERR=0
 pushd test-data-file-deletion
-  CMSSW_SEARCH_PATH=$(pwd)/src1:${CMSSW_SEARCH_PATH} cmsRun $CMSSW_BASE/src/CondTools/Geometry/test/writehelpers/geometryxmlwriter.py || ERR=$?
+  CMSSW_SEARCH_PATH=$(pwd)/src:${CMSSW_SEARCH_PATH} cmsRun $CMSSW_BASE/src/CondTools/Geometry/test/writehelpers/geometryxmlwriter.py || ERR=$?
 popd
 let FILE_IN_PATH_ERROR=$(grep ' FileInPathError *= *' $CMSSW_RELEASE_BASE/src/FWCore/Utilities/interface/EDMException.h | sed 's|.*= *||;s|,.*$||')%256
 rm -rf test-data-file-deletion
