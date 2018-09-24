@@ -1562,7 +1562,7 @@ steps['RECOHID10']['--eventcontent']+=',REPACKRAW'
 
 steps['HYBRIDRepackHI2015VR']={'--eventcontent':'RAW',
                                '--datatier':'RAW',
-                               '--conditions':'auto:run2_data',
+                               '--conditions':'auto:run2_hlt_hi',
                                '--step':'RAW2DIGI,REPACK:DigiToHybridRawRepack',
                                '--scenario':'HeavyIons',                     
                                '--data':'',
