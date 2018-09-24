@@ -185,10 +185,12 @@ uint16_t HitPattern::encode(const DetId &id, TrackingRecHit::Type hitType, const
 
     // juggle the detid around to deal with the fact the bitwidth is larger
     // DetId::Muon is 2 and DetId::Forward is 6, must map to 0 and 2 respectively
-    if( detid == DetId::Muon ) {
-      detid = 0; // DetId::Muon is 2 and needs to be reordered to match old encoding where it got masked
+    if( detid == DetId::Tracker ) {
+      detid = TRACKER_HIT;
+    } else if( detid == DetId::Muon ) {
+      detid = MUON_HIT; // DetId::Muon is 2 and needs to be reordered to match old encoding where it got masked
     } else if( detid == DetId::Forward && subdet == FastTime ) {
-      detid = 2; // since DetId::Forward is some other number, reorder it here
+      detid = MTD_HIT; // since DetId::Forward is some other number, reorder it here
     }
 
     return encode(detid, subdet, layer, side, hitType);
@@ -300,7 +302,7 @@ bool HitPattern::appendHit(const uint16_t pattern, TrackingRecHit::Type hitType)
 }
 
 bool HitPattern::appendTrackerHit(uint16_t subdet, uint16_t layer, uint16_t stereo, TrackingRecHit::Type hitType) {
-    return appendHit(encode(DetId::Tracker, subdet, layer, stereo, hitType), hitType);
+    return appendHit(encode(TRACKER_HIT, subdet, layer, stereo, hitType), hitType);
 }
 
 bool HitPattern::appendMuonHit(const DetId& id, TrackingRecHit::Type hitType) {
@@ -312,10 +314,9 @@ bool HitPattern::appendMuonHit(const DetId& id, TrackingRecHit::Type hitType) {
     if UNLIKELY(id.det() != DetId::Muon) {
         throw cms::Exception("HitPattern") << "Got DetId from det " << id.det() << " that is not Muon in appendMuonHit(), which should only be used for muon hits in the HitPattern IO rule";
     }
-
-    //uint16_t detid = id.det(); // force this to zero, MTD is 2
+    
     uint16_t subdet = id.subdetId();
-    return appendHit(encode(0, subdet, encodeMuonLayer(id), 0, hitType), hitType);
+    return appendHit(encode(MUON_HIT, subdet, encodeMuonLayer(id), 0, hitType), hitType);
 }
 
 uint16_t HitPattern::getHitPatternByAbsoluteIndex(int position) const

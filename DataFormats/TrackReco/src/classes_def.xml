@@ -58,42 +58,16 @@
             };
 
             auto appendOldHitPattern = [&](const uint16_t pattern) {
-                // value used for those parameters needed by XXXDetId constructors
-                // but that we do not care about because they are not stored in the
-                // HitPattern.
-                const uint8_t DONT_CARE = 1;
-
+                // for this version we just have to add a 0 bit to the top of the pattern
                 const static unsigned short HitTypeMask = 0x3;
-                const static unsigned short HitTypeOffset = 0;
-                
-                const static unsigned short SideMask = 0x1;
-                const static unsigned short SideOffset = 2;
-                
-                const static unsigned short LayerMask = 0xF;
-                const static unsigned short LayerOffset = 3;
-
-                const static unsigned short SubstrMask = 0x7;
-                const static unsigned short SubstrOffset = 7;
-
-                const static unsigned short SubDetectorMask = 0x1;
-                const static unsigned short SubDetectorOffset = 10;
+                const static unsigned short HitTypeOffset = 0;                
 
                 const uint16_t VALID_CONST = (uint16_t) TrackingRecHit::valid;
                 const uint16_t MISSING_CONST = (uint16_t) TrackingRecHit::missing;
                 const uint16_t INACTIVE_CONST = (uint16_t) TrackingRecHit::inactive;
                 const uint16_t BAD_CONST = (uint16_t) TrackingRecHit::bad;
 
-                uint16_t rawHitType = (pattern >> HitTypeOffset) & HitTypeMask;
-                uint16_t layer = (pattern >> LayerOffset) & LayerMask;
-                uint16_t subdet = (pattern >> SubstrOffset) & SubstrMask;
-                uint16_t detector = (pattern >> SubDetectorOffset) & SubDetectorMask;
-                uint16_t stereo = (pattern >> SideOffset) & SideMask;
-
-                // DetId::Tracker = 1 and DetId::Muon = 2 but
-                // in HitPattern Tracker = 1 and Muon = 0 so a conversion is needed:
-                if (detector == 0) {
-                    detector = DetId::Muon;
-                }
+                uint16_t rawHitType = (pattern >> HitTypeOffset) & HitTypeMask;                
 
                 TrackingRecHit::Type hitType = TrackingRecHit::valid;
                 switch (rawHitType) {
@@ -109,53 +83,14 @@
                 case BAD_CONST:
                     hitType = TrackingRecHit::bad;
                     break;
-                }
-
-                DetId detId;
-                if (detector == DetId::Tracker) {
-                    return newObj->appendTrackerHit(subdet, layer, stereo, hitType);
-                } else if (detector == DetId::Muon) {
-                    switch (subdet) {
-                    case MuonSubdetId::DT: {
-                        uint16_t station = 1 + ((layer >> 2) & 0x3);
-                        uint16_t superLayer = (layer & 0x3);
-                        detId = DTLayerId(DONT_CARE, station, DONT_CARE, superLayer, DONT_CARE);
-                    }
-                    break;
-                    case MuonSubdetId::CSC: {
-                        uint16_t station = 1 + ((layer >> 2) & 0x3);
-                        uint16_t ring = 1 + (layer & 0x3);
-                        detId = CSCDetId(DONT_CARE, station, ring, DONT_CARE, DONT_CARE);
-                    }
-                    break;
-                    case MuonSubdetId::RPC: {
-                        uint16_t station =  1 + ((layer >> 2) & 0x3);
-                        uint16_t region  = layer & 0x1;
-                        uint16_t layer_muon = 1 + ((station <= 2) ? ((layer >> 1) & 0x1) : 0);
-                        detId = RPCDetId(region, DONT_CARE, station, DONT_CARE, layer_muon, DONT_CARE, DONT_CARE);
-                    }
-                    break;
-                    case MuonSubdetId::GEM: {
-                        uint16_t station =  1 + ((layer >> 2) & 0x3);
-                        uint16_t layer_muon = 1 + (layer & 0x3);
-                        detId = GEMDetId(DONT_CARE, DONT_CARE, station, layer_muon, DONT_CARE, DONT_CARE);
-                    }
-                    break;
-                    case MuonSubdetId::ME0: {
-                        uint16_t roll =  layer & 0xF;
-                        detId = ME0DetId(DONT_CARE, DONT_CARE, DONT_CARE, roll);
-                    }
-                    break;
-                    }
-                    return newObj->appendMuonHit(detId, hitType);
-                }
-                return false;
+                }                
+                return newObj->appendHit(pattern,hitType);                
             };
 
             auto fillNewHitPatternWithOldHitPattern = [&](const uint16_t oldHitPattern[]) {
                 newObj->clear();
                 for (int i = 0; i < MaxHits; i++) {
-                    uint16_t pattern = getHitFromOldHitPattern(oldHitPattern, i);
+                    uint32_t pattern = getHitFromOldHitPattern(oldHitPattern, i);
                     if (pattern == 0) {
                         break;
                     }
