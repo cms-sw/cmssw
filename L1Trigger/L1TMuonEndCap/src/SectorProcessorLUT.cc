@@ -45,6 +45,11 @@ void SectorProcessorLUT::read(bool pc_lut_data, int pc_lut_version) {
 
   std::string coord_lut_path = "L1Trigger/L1TMuon/data/emtf_luts/" + coord_lut_dir + "/";
 
+  { // Temporary work-around for Online DQM until https://github.com/cms-data/L1Trigger-L1TMuon gets updated - AWB 24.09.2018
+    if (pc_lut_version == -1 && pc_lut_data)
+      coord_lut_path = "L1Trigger/L1TMuonEndCap/data_tmp/emtf_luts/" + coord_lut_dir + "/";
+  }
+
   read_file(coord_lut_path+"ph_init_neighbor.txt",     ph_init_neighbor_);
   read_file(coord_lut_path+"ph_disp_neighbor.txt",     ph_disp_neighbor_);
   read_file(coord_lut_path+"th_init_neighbor.txt",     th_init_neighbor_);
