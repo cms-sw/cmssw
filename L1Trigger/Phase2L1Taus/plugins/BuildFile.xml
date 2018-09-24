@@ -1,27 +1,8 @@
-<use   name="L1Trigger/Phase2L1Taus"/>
-<use   name="SimGeneral/HepPDTRecord"/>
-<use   name="FastSimulation/BaseParticlePropagator"/>
-<use   name="SimDataFormats/GeneratorProducts"/>
-<use   name="PhysicsTools/UtilAlgos"/>
-<use   name="CommonTools/UtilAlgos"/>
-<use   name="DataFormats/L1CaloTrigger"/>
-<use   name="DataFormats/Phase2L1CaloTrig"/>
-<use   name="SimDataFormats/CaloHit"/>
-<use   name="FWCore/ServiceRegistry"/>
-<use   name="Geometry/Records"/>
-<use   name="Geometry/CaloGeometry"/>
-<use   name="Geometry/EcalAlgo"/>
-<use   name="DataFormats/EcalRecHit"/>
-<use   name="FastSimulation/CaloGeometryTools"/>
-<use   name="SimDataFormats/Track"/>
-<use   name="DataFormats/L1Trigger"/>
-<use   name="Geometry/CaloTopology"/>
-<use   name="Geometry/CommonDetUnit"/>
-<use   name="SimDataFormats/CaloTest"/>
-<use   name="DataFormats/HcalDetId"/>
-<use   name="DataFormats/HcalRecHit"/>
-<use   name="DataFormats/EcalDigi"/>
-<use   name="hepmc"/>
-<use   name="root"/>
-<flags   EDM_PLUGIN="1"/>
+<library file="*.cc" name="L1TriggerPhase2L1TausPlugins">
+ <use   name="L1Trigger/Phase2L1Taus"/>
+ <use   name="hepmc"/>
+ <use   name="root"/>
+ <use   name="boost"/>
+ <flags   EDM_PLUGIN="1"/>
+</library>
 
