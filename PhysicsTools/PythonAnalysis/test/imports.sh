@@ -27,7 +27,7 @@ theano-cache clear
 for i in $(cat ${CMSSW_BASE}/src/PhysicsTools/PythonAnalysis/test/commands.txt)
 do
    echo "testing $i"
-   $i
+   $i -h
 done
 
 
