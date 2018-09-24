@@ -1,0 +1,3 @@
+flawfinder -h
+ipython -h
+pylint -h
