@@ -102,7 +102,7 @@ class L1CaloTauProducer : public edm::EDProducer {
         const HcalTopology * hcTopology_;
 
         // Fit function to scale L1EG Pt to align with electron gen pT
-        TF1 ptAdjustFunc = TF1("ptAdjustFunc", "([0] + [1]*TMath::Exp(-[2]*x)) * ([3] + [4]*TMath::Exp(-[5]*x))");
+        //TF1 ptAdjustFunc = TF1("ptAdjustFunc", "([0] + [1]*TMath::Exp(-[2]*x)) * ([3] + [4]*TMath::Exp(-[5]*x))");
 
 
         class l1CaloJetObj
@@ -114,6 +114,13 @@ class L1CaloTauProducer : public edm::EDProducer {
                 reco::Candidate::PolarLorentzVector seedTower;
                 reco::Candidate::PolarLorentzVector leadingL1EG;
                 reco::Candidate::PolarLorentzVector l1EGjet;
+
+                // Matrices to map energy per included tower in ET
+                float total_map[9][9]; // 9x9 array
+                float ecal_map[9][9]; // 9x9 array
+                float hcal_map[9][9]; // 9x9 array
+                float l1eg_map[9][9]; // 9x9 array
+
                 int seed_iEta = -99;
                 int seed_iPhi = -99;
 
@@ -250,18 +257,18 @@ L1CaloTauProducer::L1CaloTauProducer(const edm::ParameterSet& iConfig) :
     produces< BXVector<l1t::Tau> >("L1CaloClusterCollectionBXVWithCuts");
 
 
-    // Fit parameters measured on 11 Aug 2018, using 500 MeV threshold for ECAL TPs
-    // working in CMSSW 10_1_7
-    // Adjustments to be applied to reco cluster pt
-    // L1EG cut working points are still a function of non-calibrated pT
-    // First order corrections
-    ptAdjustFunc.SetParameter( 0, 1.06 );
-    ptAdjustFunc.SetParameter( 1, 0.273 );
-    ptAdjustFunc.SetParameter( 2, 0.0411 );
-    // Residuals
-    ptAdjustFunc.SetParameter( 3, 1.00 );
-    ptAdjustFunc.SetParameter( 4, 0.567 );
-    ptAdjustFunc.SetParameter( 5, 0.288 );
+    //// Fit parameters measured on 11 Aug 2018, using 500 MeV threshold for ECAL TPs
+    //// working in CMSSW 10_1_7
+    //// Adjustments to be applied to reco cluster pt
+    //// L1EG cut working points are still a function of non-calibrated pT
+    //// First order corrections
+    //ptAdjustFunc.SetParameter( 0, 1.06 );
+    //ptAdjustFunc.SetParameter( 1, 0.273 );
+    //ptAdjustFunc.SetParameter( 2, 0.0411 );
+    //// Residuals
+    //ptAdjustFunc.SetParameter( 3, 1.00 );
+    //ptAdjustFunc.SetParameter( 4, 0.567 );
+    //ptAdjustFunc.SetParameter( 5, 0.288 );
 }
 
 void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -423,6 +430,12 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                 reco::Candidate::PolarLorentzVector ecalP4( l1CaloTower.ecal_tower_et, l1CaloTower.tower_eta, l1CaloTower.tower_phi, 0.);
                 reco::Candidate::PolarLorentzVector totalP4( l1CaloTower.total_tower_et, l1CaloTower.tower_eta, l1CaloTower.tower_phi, 0.);
 
+                // Map center at 4,4
+                caloJetObj.total_map[4][4] = l1CaloTower.total_tower_et; // 9x9 array
+                caloJetObj.ecal_map[4][4]  = l1CaloTower.ecal_tower_et; // 9x9 array
+                caloJetObj.hcal_map[4][4]  = l1CaloTower.hcal_tower_et; // 9x9 array
+                caloJetObj.l1eg_map[4][4]  = l1CaloTower.total_tower_plus_L1EGs_et - l1CaloTower.total_tower_et; // 9x9 array
+
                 if (hcalP4.energy() > 0)
                 {
                     caloJetObj.hcal_nHits++;
@@ -491,6 +504,11 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                 reco::Candidate::PolarLorentzVector hcalP4( l1CaloTower.hcal_tower_et, l1CaloTower.tower_eta, l1CaloTower.tower_phi, 0.);
                 reco::Candidate::PolarLorentzVector ecalP4( l1CaloTower.ecal_tower_et, l1CaloTower.tower_eta, l1CaloTower.tower_phi, 0.);
                 reco::Candidate::PolarLorentzVector totalP4( l1CaloTower.total_tower_et, l1CaloTower.tower_eta, l1CaloTower.tower_phi, 0.);
+
+                caloJetObj.total_map[4+d_iEta][4+d_iPhi] = l1CaloTower.total_tower_et; // 9x9 array
+                caloJetObj.ecal_map[4+d_iEta][4+d_iPhi]  = l1CaloTower.ecal_tower_et; // 9x9 array
+                caloJetObj.hcal_map[4+d_iEta][4+d_iPhi]  = l1CaloTower.hcal_tower_et; // 9x9 array
+                caloJetObj.l1eg_map[4+d_iEta][4+d_iPhi]  = l1CaloTower.total_tower_plus_L1EGs_et - l1CaloTower.total_tower_et; // 9x9 array
 
                 if (hcalP4.energy() > 0)
                 {
@@ -775,6 +793,16 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         float totalPtPUcorr = -1;
         l1slhc::L1CaloJet caloJet(caloJetObj.jetCluster, calibratedPt, hovere, ECalIsolation, totalPtPUcorr);
         caloJet.SetExperimentalParams(params);
+        for (int i = 0; i < 9; i++)
+        {
+            for (int j = 0; j < 9; j++)
+            {
+                caloJet.total_map[i][j] = caloJetObj.total_map[i][j];
+                caloJet.ecal_map[i][j] = caloJetObj.ecal_map[i][j];
+                caloJet.hcal_map[i][j] = caloJetObj.hcal_map[i][j];
+                caloJet.l1eg_map[i][j] = caloJetObj.l1eg_map[i][j];
+            }
+        }
 
         L1CaloTausNoCuts->push_back( caloJet );
         // Same for the moment...

@@ -19,6 +19,12 @@ namespace l1slhc
                     l1t::L1Candidate(p4), calibratedPt_(calibratedPt), hovere_(hovere), iso_(iso),
                     PUcorrPt_(PUcorrPt) {};
 
+      // Matrices to map energy per included tower in ET
+      float total_map[9][9]; // 9x9 array
+      float ecal_map[9][9]; // 9x9 array
+      float hcal_map[9][9]; // 9x9 array
+      float l1eg_map[9][9]; // 9x9 array
+
       virtual ~L1CaloJet() {};
       inline float calibratedPt() const { return calibratedPt_; };
       inline float hovere() const { return hovere_; };
