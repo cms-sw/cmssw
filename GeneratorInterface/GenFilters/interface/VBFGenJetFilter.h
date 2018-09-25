@@ -29,9 +29,9 @@
 class VBFGenJetFilter : public edm::EDFilter {
 public:
   explicit VBFGenJetFilter(const edm::ParameterSet&);
-  ~VBFGenJetFilter();
+  ~VBFGenJetFilter() override;
   
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 private:
   
   // ----------memeber function----------------------

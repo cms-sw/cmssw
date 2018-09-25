@@ -34,7 +34,7 @@ deltaRJetLep          (iConfig.getUntrackedParameter<double>("deltaRJetLep",    
   
   m_inputTag_GenJetCollection = consumes<reco::GenJetCollection>(iConfig.getUntrackedParameter<edm::InputTag>("inputTag_GenJetCollection",edm::InputTag("ak5GenJetsNoNu")));
   if (leadJetsNoLepMass) m_inputTag_GenParticleCollection  = consumes<reco::GenParticleCollection>(iConfig.getUntrackedParameter<edm::InputTag>("genParticles",edm::InputTag("genParticles")));
-
+  
 }
 
 VBFGenJetFilter::~VBFGenJetFilter(){
@@ -94,8 +94,8 @@ bool VBFGenJetFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   // If we do not find at least 2 jets veto the event
   if(filGenJets.size()<2){return false;}
-    
-    
+  
+  
   // Testing dijet mass   
   if(leadJetsNoLepMass) { 
 
