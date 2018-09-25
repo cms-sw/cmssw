@@ -21,11 +21,7 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DetectorDescription/Core/interface/DDFilter.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
 
@@ -34,51 +30,25 @@ class MuonNumberingInitialization : public edm::ESProducer
 public:
   
   MuonNumberingInitialization( const edm::ParameterSet& );
-  ~MuonNumberingInitialization() override;
 
-  typedef std::unique_ptr<MuonDDDConstants> ReturnType;
+  using ReturnType = std::unique_ptr<MuonDDDConstants>;
 
   ReturnType produce( const MuonNumberingRecord& );
-
-  void initializeMuonDDDConstants( const IdealGeometryRecord& igr );
-
-private:
-  
-  std::string label_;
-  MuonDDDConstants* muonDDDConst_;
 };
 
-MuonNumberingInitialization::MuonNumberingInitialization( const edm::ParameterSet& iConfig )
-  : muonDDDConst_( nullptr )
+MuonNumberingInitialization::MuonNumberingInitialization( const edm::ParameterSet& )
 {
-  setWhatProduced( this, dependsOn( &MuonNumberingInitialization::initializeMuonDDDConstants ));
+  setWhatProduced(this);
 }
-
-MuonNumberingInitialization::~MuonNumberingInitialization()
-{}
 
 MuonNumberingInitialization::ReturnType
 MuonNumberingInitialization::produce(const MuonNumberingRecord& iRecord)
 {
-  if ( muonDDDConst_ == nullptr )
-  {
-    edm::LogError( "MuonNumberingInitialization" ) << "MuonNumberingInitialization::produceMuonDDDConstants has NOT been initialized!";
-    throw;
-  }
-  return std::unique_ptr<MuonDDDConstants> ( muonDDDConst_ ) ;
-}
-
-void
-MuonNumberingInitialization::initializeMuonDDDConstants( const IdealGeometryRecord& igr )
-{
+  const IdealGeometryRecord& idealGeometryRecord = iRecord.getRecord<IdealGeometryRecord>();
   edm::ESTransientHandle<DDCompactView> pDD;
-  igr.get( label_, pDD );
+  idealGeometryRecord.get(pDD);
 
-  if( muonDDDConst_ != nullptr ) {
-    delete muonDDDConst_;
-  }
-
-  muonDDDConst_ = new MuonDDDConstants( *pDD );
+  return std::make_unique<MuonDDDConstants>(*pDD);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(MuonNumberingInitialization);

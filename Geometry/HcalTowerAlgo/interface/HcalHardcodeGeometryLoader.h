@@ -17,8 +17,8 @@ class HcalGeometry;
 class HcalHardcodeGeometryLoader {
 
 public:
-  HcalHardcodeGeometryLoader(const edm::ParameterSet&);
-  
+  HcalHardcodeGeometryLoader();
+
   CaloSubdetectorGeometry* load(const HcalTopology& fTopology);
 
 private:
@@ -27,7 +27,7 @@ private:
     HBHOCellParameters (int f_eta, int f_depth, int f_phiFirst, int f_phiStep, int f_dPhi, float f_rMin, float f_rMax, float f_etaMin, float f_etaMax)
       : eta(f_eta), depth(f_depth), phiFirst(f_phiFirst), phiStep(f_phiStep), dphi(f_dPhi), rMin(f_rMin), rMax(f_rMax), etaMin(f_etaMin), etaMax(f_etaMax)
     {}
- 
+
     int eta;
     int depth;
     int phiFirst;
@@ -43,7 +43,7 @@ private:
     HECellParameters (int f_eta, int f_depth, int f_phiFirst, int f_phiStep, int f_dPhi, float f_zMin, float f_zMax, float f_etaMin, float f_etaMax)
       : eta(f_eta), depth(f_depth), phiFirst(f_phiFirst), phiStep(f_phiStep), dphi(f_dPhi), zMin(f_zMin), zMax(f_zMax), etaMin(f_etaMin), etaMax(f_etaMax)
     {}
- 
+
     int eta;
     int depth;
     int phiFirst;
@@ -59,7 +59,7 @@ private:
     HFCellParameters (int f_eta, int f_depth, int f_phiFirst, int f_phiStep, int f_dPhi, float f_zMin, float f_zMax, float f_rMin, float f_rMax)
       : eta(f_eta), depth(f_depth), phiFirst(f_phiFirst), phiStep(f_phiStep), dphi(f_dPhi), zMin(f_zMin), zMax(f_zMax), rMin(f_rMin), rMax(f_rMax)
     {}
- 
+
     int eta;
     int depth;
     int phiFirst;
@@ -85,7 +85,7 @@ private:
   double DEGREE2RAD;
 
   std::vector<std::vector<int> > m_segmentation;
-  
+
 };
 
 #endif
