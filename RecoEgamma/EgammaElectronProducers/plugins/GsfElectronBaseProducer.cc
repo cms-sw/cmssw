@@ -433,6 +433,7 @@ void GsfElectronBaseProducer::endEvent()
 
 void GsfElectronBaseProducer::checkEcalSeedingParameters( edm::ParameterSet const & pset )
  {
+  if ( !pset.exists("SeedConfiguration") ) { return; }
   edm::ParameterSet seedConfiguration = pset.getParameter<edm::ParameterSet>("SeedConfiguration") ;
   //edm::ParameterSet orderedHitsFactoryPSet = seedConfiguration.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet") ;
   //edm::ParameterSet seedParameters = seedConfiguration.getParameter<edm::ParameterSet>("ecalDrivenElectronSeedsParameters") ;
