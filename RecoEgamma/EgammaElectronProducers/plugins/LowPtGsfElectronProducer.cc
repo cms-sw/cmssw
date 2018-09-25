@@ -26,21 +26,23 @@ LowPtGsfElectronProducer::~LowPtGsfElectronProducer()
 
 void LowPtGsfElectronProducer::produce( edm::Event& event, const edm::EventSetup& setup )
 {
-  auto electrons = std::make_unique<GsfElectronCollection>();
-  edm::Handle<reco::GsfElectronCoreCollection> coreElectrons;
-  event.getByToken(inputCfg_.gsfElectronCores,coreElectrons);
-  for ( unsigned int ii=0; ii < coreElectrons->size(); ++ii ) {
-    const GsfElectronCoreRef ref = edm::Ref<GsfElectronCoreCollection>(coreElectrons,ii);
-    GsfElectron* ele = new GsfElectron(ref);
-    const GsfTrackRef& gsf = ref->gsfTrack();
-    ele->setP4(GsfElectron::P4_FROM_SUPER_CLUSTER,Candidate::LorentzVector(gsf->px(),gsf->py(),gsf->pz(),0.511E-3),0,true) ;
-    LogTrace("GsfElectronAlgo")<<"Constructed new electron with energy  "<< ele->p4().e() ;
-    electrons->push_back(*ele) ;
+  if (true) { // default Egamma logic
+    beginEvent(event,setup);
+    algo_->completeElectrons(globalCache());
+    fillEvent(event);
+    endEvent();
+  } else { // simple logic to promote Core to final electron
+    auto electrons = std::make_unique<GsfElectronCollection>();
+    edm::Handle<reco::GsfElectronCoreCollection> coreElectrons;
+    event.getByToken(inputCfg_.gsfElectronCores,coreElectrons);
+    for ( unsigned int ii=0; ii < coreElectrons->size(); ++ii ) {
+      const GsfElectronCoreRef ref = edm::Ref<GsfElectronCoreCollection>(coreElectrons,ii);
+      GsfElectron* ele = new GsfElectron(ref);
+      const GsfTrackRef& gsf = ref->gsfTrack();
+      ele->setP4(GsfElectron::P4_FROM_SUPER_CLUSTER,Candidate::LorentzVector(gsf->px(),gsf->py(),gsf->pz(),0.511E-3),0,true) ;
+      LogTrace("GsfElectronAlgo")<<"Constructed new electron with energy  "<< ele->p4().e() ;
+      electrons->push_back(*ele) ;
+    }
+    event.put(std::move(electrons));
   }
-  //std::cout << "[LowPtGsfElectronProducer::produce] " << electrons->size() << std::endl; //@@
-  event.put(std::move(electrons));
-//  beginEvent(event,setup);
-//  algo_->completeElectrons(globalCache());
-//  fillEvent(event);
-//  endEvent();
 }
