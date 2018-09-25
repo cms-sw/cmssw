@@ -347,9 +347,9 @@ void SiStripBackplaneCalibration::endOfJob()
   }
 
   const unsigned int nonZeroParamsOrErrors =   // Any determined value?
-    count_if (parameters_.begin(), parameters_.end(), std::bind2nd(std::not_equal_to<double>(),0.))
+    count_if (parameters_.begin(), parameters_.end(),[](auto c){return c != 0.;})
     + count_if(paramUncertainties_.begin(), paramUncertainties_.end(),
-               std::bind2nd(std::not_equal_to<double>(), 0.));
+              [](auto c){return c!= 0.;});
 
   for (unsigned int iIOV = 0; iIOV < moduleGroupSelector_->numIovs(); ++iIOV) {
     cond::Time_t firstRunOfIOV = moduleGroupSelector_->firstRunOfIOV(iIOV);
