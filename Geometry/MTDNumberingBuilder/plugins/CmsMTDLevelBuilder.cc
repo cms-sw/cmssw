@@ -6,7 +6,7 @@
 
 #include <cmath>
 
-bool subDetByType(const GeometricTimingDet* a, const GeometricTimingDet* b)
+bool CmsMTDLevelBuilder::subDetByType(const GeometricTimingDet* a, const GeometricTimingDet* b)
 {
     // it relies on the fact that the GeometricTimingDet::GDEnumType
     // enumerators used to identify the subdetectors in the upgrade geometries
@@ -15,7 +15,7 @@ bool subDetByType(const GeometricTimingDet* a, const GeometricTimingDet* b)
 }
 
 // NP** Phase2 BarrelEndcap
-bool phiSortNP(const GeometricTimingDet* a, const GeometricTimingDet* b)
+bool CmsMTDLevelBuilder::phiSortNP(const GeometricTimingDet* a, const GeometricTimingDet* b)
 {
     if (std::abs(a->translation().rho() - b->translation().rho()) < 0.01
         && (std::abs(a->translation().phi() - b->translation().phi()) < 0.01
@@ -26,7 +26,7 @@ bool phiSortNP(const GeometricTimingDet* a, const GeometricTimingDet* b)
         return false;
 }
 
-bool isLessZ(const GeometricTimingDet* a, const GeometricTimingDet* b)
+bool CmsMTDLevelBuilder::isLessZ(const GeometricTimingDet* a, const GeometricTimingDet* b)
 {
     // NP** change for Phase 2 Tracker
     if (a->translation().z() == b->translation().z()) {
@@ -37,18 +37,18 @@ bool isLessZ(const GeometricTimingDet* a, const GeometricTimingDet* b)
     }
 }
 
-bool isLessModZ(const GeometricTimingDet* a, const GeometricTimingDet* b)
+bool CmsMTDLevelBuilder::isLessModZ(const GeometricTimingDet* a, const GeometricTimingDet* b)
 {
     return std::abs(a->translation().z()) < std::abs(b->translation().z());
 }
 
-double getPhi(const GeometricTimingDet* a)
+double CmsMTDLevelBuilder::getPhi(const GeometricTimingDet* a)
 {
     double phi = a->phi();
     return (phi >= 0 ? phi : phi + 2 * M_PI);
 }
 
-double getPhiModule(const GeometricTimingDet* a)
+double CmsMTDLevelBuilder::getPhiModule(const GeometricTimingDet* a)
 {
     std::vector<const GeometricTimingDet*> const& comp = a->components().back()->components();
     float phi = 0.;
@@ -83,7 +83,7 @@ double getPhiModule(const GeometricTimingDet* a)
     }
 }
 
-double getPhiGluedModule(const GeometricTimingDet* a)
+double CmsMTDLevelBuilder::getPhiGluedModule(const GeometricTimingDet* a)
 {
     std::vector<const GeometricTimingDet*> comp;
     a->deepComponents(comp);
@@ -119,33 +119,33 @@ double getPhiGluedModule(const GeometricTimingDet* a)
     }
 }
 
-double getPhiMirror(const GeometricTimingDet* a)
+double CmsMTDLevelBuilder::getPhiMirror(const GeometricTimingDet* a)
 {
     double phi = a->phi();
     phi = (phi >= 0 ? phi : phi + 2 * M_PI); // (-pi,pi] --> [0,2pi)
     return ((M_PI - phi) >= 0 ? (M_PI - phi) : (M_PI - phi) + 2 * M_PI); // (-pi,pi] --> [0,2pi)
 }
 
-double getPhiModuleMirror(const GeometricTimingDet* a)
+double CmsMTDLevelBuilder::getPhiModuleMirror(const GeometricTimingDet* a)
 {
     double phi = getPhiModule(a); // [0,2pi)
     phi = (phi <= M_PI ? phi : phi - 2 * M_PI); // (-pi,pi]
     return (M_PI - phi);
 }
 
-double getPhiGluedModuleMirror(const GeometricTimingDet* a)
+double CmsMTDLevelBuilder::getPhiGluedModuleMirror(const GeometricTimingDet* a)
 {
     double phi = getPhiGluedModule(a); // [0,2pi)
     phi = (phi <= M_PI ? phi : phi - 2 * M_PI); // (-pi,pi]
     return (M_PI - phi);
 }
 
-bool isLessRModule(const GeometricTimingDet* a, const GeometricTimingDet* b)
+bool CmsMTDLevelBuilder::isLessRModule(const GeometricTimingDet* a, const GeometricTimingDet* b)
 {
     return a->deepComponents().front()->rho() < b->deepComponents().front()->rho();
 }
 
-bool isLessR(const GeometricTimingDet* a, const GeometricTimingDet* b) { return a->rho() < b->rho(); }
+bool CmsMTDLevelBuilder::isLessR(const GeometricTimingDet* a, const GeometricTimingDet* b) { return a->rho() < b->rho(); }
 
 void CmsMTDLevelBuilder::build(DDFilteredView& fv, GeometricTimingDet* tracker, std::string attribute)
 {
