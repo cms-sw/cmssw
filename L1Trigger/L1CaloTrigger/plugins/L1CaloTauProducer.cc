@@ -317,6 +317,7 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         l1egObj.passesStandaloneWP = EGammaCand.standaloneWP();
         l1egObj.passesTrkMatchWP = EGammaCand.looseL1TkMatchWP();
         crystalClustersVect.push_back( l1egObj );
+        if (debug) printf("L1EG added from emulator: eta %f phi %f pt %f\n", l1egObj.eta(), l1egObj.phi(), l1egObj.pt());
     }
 
     // Sorting is unnecessary as we're matching to already built HCAL Jets
@@ -403,9 +404,9 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         for (auto &l1CaloTower : l1CaloTowers)
         {
 
+            cnt++;
             if (l1CaloTower.stale) continue; // skip l1CaloTowers which are already used
 
-            cnt++;
             if (caloJetObj.jetCluster.pt() == 0.0) // this is the first l1CaloTower to seed the jet
             {
                 // Check if the leading unused tower has ET < min for seeding a jet.
@@ -422,14 +423,23 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                 reco::Candidate::PolarLorentzVector ecalP4( l1CaloTower.ecal_tower_et, l1CaloTower.tower_eta, l1CaloTower.tower_phi, 0.);
                 reco::Candidate::PolarLorentzVector totalP4( l1CaloTower.total_tower_et, l1CaloTower.tower_eta, l1CaloTower.tower_phi, 0.);
 
-                if (hcalP4.energy() > 0) caloJetObj.hcal_nHits++;
-                if (ecalP4.energy() > 0) caloJetObj.ecal_nHits++;
-                if (totalP4.energy() > 0) caloJetObj.total_nHits++;
+                if (hcalP4.energy() > 0)
+                {
+                    caloJetObj.hcal_nHits++;
+                    caloJetObj.hcalJetCluster += hcalP4;
+                }
+                if (ecalP4.energy() > 0) 
+                {
+                    caloJetObj.ecal_nHits++;
+                    caloJetObj.ecalJetCluster += ecalP4;
+                }
+                if (totalP4.energy() > 0) 
+                {
+                    caloJetObj.total_nHits++;
+                    caloJetObj.jetCluster += totalP4;
+                    caloJetObj.seedTower += totalP4;
+                }
 
-                caloJetObj.hcalJetCluster += hcalP4;
-                caloJetObj.ecalJetCluster += ecalP4;
-                caloJetObj.jetCluster += totalP4;
-                caloJetObj.seedTower += totalP4;
 
                 caloJetObj.seed_iEta = l1CaloTower.tower_iEta;
                 caloJetObj.seed_iPhi = l1CaloTower.tower_iPhi;
@@ -437,9 +447,7 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
                 if (debug) printf(" -- hit %i, seeding input     p4 pt %f eta %f phi %f\n", cnt, l1CaloTower.total_tower_et, l1CaloTower.tower_eta, l1CaloTower.tower_phi);
                 if (debug) printf(" -- hit %i, seeding input2    p4 pt %f eta %f phi %f\n", cnt, totalP4.pt(), totalP4.eta(), totalP4.phi());
-                if (debug) printf(" -- hit %i, seeding resulting p4 pt %f eta %f phi %f\n", cnt, caloJetObj.jetCluster.pt(), caloJetObj.jetCluster.eta(), caloJetObj.jetCluster.phi());
-                //std::cout << " ----- input p4 " << l1eg.pt() << " : " << l1eg.eta() << " : " << l1eg.phi() << " : " << l1eg.M() << std::endl;
-                //std::cout << " ----- jet seed p4 " << hcalJet.pt() << " : " << hcalJet.eta() << " : " << hcalJet.phi() << " : " << hcalJet.M()<< std::endl;
+                if (debug) printf(" -- hit %i, seeding reslt tot p4 pt %f eta %f phi %f\n", cnt, caloJetObj.jetCluster.pt(), caloJetObj.jetCluster.eta(), caloJetObj.jetCluster.phi());
 
                 // Need to add the seed energy to the dR rings
                 caloJetObj.hcal_seed += hcalP4.energy();
@@ -484,13 +492,22 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                 reco::Candidate::PolarLorentzVector ecalP4( l1CaloTower.ecal_tower_et, l1CaloTower.tower_eta, l1CaloTower.tower_phi, 0.);
                 reco::Candidate::PolarLorentzVector totalP4( l1CaloTower.total_tower_et, l1CaloTower.tower_eta, l1CaloTower.tower_phi, 0.);
 
-                if (hcalP4.energy() > 0) caloJetObj.hcal_nHits++;
-                if (ecalP4.energy() > 0) caloJetObj.ecal_nHits++;
-                if (totalP4.energy() > 0) caloJetObj.total_nHits++;
+                if (hcalP4.energy() > 0)
+                {
+                    caloJetObj.hcal_nHits++;
+                    caloJetObj.hcalJetCluster += hcalP4;
+                }
+                if (ecalP4.energy() > 0) 
+                {
+                    caloJetObj.ecal_nHits++;
+                    caloJetObj.ecalJetCluster += ecalP4;
+                }
+                if (totalP4.energy() > 0) 
+                {
+                    caloJetObj.total_nHits++;
+                    caloJetObj.jetCluster += totalP4;
+                }
 
-                caloJetObj.hcalJetCluster += hcalP4;
-                caloJetObj.ecalJetCluster += ecalP4;
-                caloJetObj.jetCluster += totalP4;
 
                 if (debug) printf(" ---- hit %i input     p4 pt %f eta %f phi %f\n", cnt, totalP4.pt(), totalP4.eta(), totalP4.phi());
                 if (debug) printf(" ---- hit %i resulting p4 pt %f eta %f phi %f\n", cnt, caloJetObj.jetCluster.pt(), caloJetObj.jetCluster.eta(), caloJetObj.jetCluster.phi());
@@ -599,9 +616,11 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
         // We are pT ordered so we will always begin with the highest pT L1EG
+        int cnt = 0;
         for (auto &l1eg : crystalClustersVect)
         {
 
+            cnt++;
             if (l1eg.stale) continue; // skip L1EGs which are already used
 
             // skip L1EGs outside the dEta/dPhi 0.4 range
@@ -617,6 +636,10 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                 caloJetObj.leadingL1EG += l1eg.GetP4();
                 caloJetObj.l1EGjet += l1eg.GetP4();
                 caloJetObj.jetCluster += l1eg.GetP4();
+                if (debug) printf(" -- L1EG %i, seeding input     p4 pt %f eta %f phi %f\n", cnt, l1eg.pt(), l1eg.eta(), l1eg.phi());
+                if (debug) printf(" -- L1EG %i, seeding resulting p4 pt %f eta %f phi %f\n", cnt, caloJetObj.jetCluster.pt(), caloJetObj.jetCluster.eta(), caloJetObj.jetCluster.phi());
+                if (debug) printf(" -- L1EG %i, ecal l1eg result  p4 pt %f eta %f phi %f\n", cnt, caloJetObj.leadingL1EG.pt(), caloJetObj.leadingL1EG.eta(), caloJetObj.leadingL1EG.phi());
+                if (debug) printf(" -- L1EG %i, ecal l1eg result  p4 pt %f eta %f phi %f\n", cnt, caloJetObj.l1EGjet.pt(), caloJetObj.l1EGjet.eta(), caloJetObj.l1EGjet.phi());
                 d_eta_to_leading = 0.;
                 d_phi_to_leading = 0.;
                 //std::cout << " ----- input cal jet p4 " << jetCand.pt() << " : " << jetCand.eta() << " : " << jetCand.phi() << std::endl;
@@ -624,6 +647,9 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
             }
             else // subsequent L1EGs
             {
+                if (debug) printf(" -- L1EG %i, seeding input     p4 pt %f eta %f phi %f\n", cnt, l1eg.pt(), l1eg.eta(), l1eg.phi());
+                if (debug) printf(" -- L1EG %i, seeding resulting p4 pt %f eta %f phi %f\n", cnt, caloJetObj.jetCluster.pt(), caloJetObj.jetCluster.eta(), caloJetObj.jetCluster.phi());
+                if (debug) printf(" -- L1EG %i, ecal l1eg result  p4 pt %f eta %f phi %f\n", cnt, caloJetObj.l1EGjet.pt(), caloJetObj.l1EGjet.eta(), caloJetObj.l1EGjet.phi());
                 caloJetObj.l1EGjet += l1eg.GetP4();
                 caloJetObj.jetCluster += l1eg.GetP4();
                 d_eta_to_leading = caloJetObj.leadingL1EG.eta() - l1eg.eta();
@@ -820,9 +846,11 @@ L1CaloTauProducer::get_deltaR( reco::Candidate::PolarLorentzVector &p4_1,
         reco::Candidate::PolarLorentzVector &p4_2) const
 {
     // Check that pt is > 0 for both or else reco::deltaR returns bogus values
-    if (p4_1.pt() == 0) return -9;
-    if (p4_2.pt() == 0) return -9;
-    return reco::deltaR( p4_1, p4_2 );
+    if (p4_1.pt() > 0 && p4_2.pt() > 0) 
+    {
+        return reco::deltaR( p4_1, p4_2 );
+    }
+    else return -1;
 }
 
 
