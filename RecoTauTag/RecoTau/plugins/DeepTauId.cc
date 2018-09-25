@@ -15,6 +15,7 @@
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauClusterVariables.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 namespace {
 
@@ -85,7 +86,7 @@ float dPhi(const LVector1& p4, const LVector2& tau_p4)
 }
 
 namespace MuonSubdetId {
-enum { DT = 1, CSC = 2, RPC = 3, GEM = 4, ME0 = 5 };
+  enum { DT = 1, CSC = 2, RPC = 3, GEM = 4, ME0 = 5 };
 }
 
 struct MuonHitMatch {
@@ -111,10 +112,10 @@ struct MuonHitMatch {
         static constexpr int n_stations = 4;
 
         ++n_muons;
-        const double dR2 = ROOT::Math::VectorUtil::DeltaR2(tau.p4(), muon.p4());
+        const double dR2 = reco::deltaR2(tau.p4(), muon.p4());
         if(!best_matched_muon || dR2 < deltaR2_best_match) {
-            best_matched_muon = &muon;
-            deltaR2_best_match = dR2;
+	  best_matched_muon = &muon;
+	  deltaR2_best_match = dR2;
         }
 
         for(const auto& segment : muon.matches()) {
@@ -156,12 +157,12 @@ struct MuonHitMatch {
         if(tau.leadPFChargedHadrCand().isNonnull() && tau.leadPFChargedHadrCand()->muonRef().isNonnull())
             hadr_cand_muon = tau.leadPFChargedHadrCand()->muonRef().get();
         std::vector<const pat::Muon*> matched_muons;
-        const double deltaR2 = std::pow(deltaR, 2);
+        const double dR2 = deltaR*deltaR;
         for(const pat::Muon& muon : muons) {
             const reco::Muon* reco_muon = &muon;
             if(muon.pt() <= minPt) continue;
             if(reco_muon == hadr_cand_muon) continue;
-            if(ROOT::Math::VectorUtil::DeltaR2(tau.p4(), muon.p4()) >= deltaR2) continue;
+            if(reco::deltaR2(tau.p4(), muon.p4()) >= dR2) continue;
             matched_muons.push_back(&muon);
         }
         return matched_muons;
@@ -564,7 +565,7 @@ private:
 
         const double innerSigCone_radius = GetInnerSignalConeRadius(tau.pt());
         for(const auto& cand : candidates) {
-            const double dR = ROOT::Math::VectorUtil::DeltaR(cand->p4(), tau.leadChargedHadrCand()->p4());
+            const double dR = reco::deltaR(cand->p4(), tau.leadChargedHadrCand()->p4());
             const bool isInside_innerSigCone = dR < innerSigCone_radius;
             if(isInside_innerSigCone) {
                 p4_inner += cand->p4();
@@ -638,12 +639,12 @@ private:
     static const pat::Electron* FindMatchedElectron(const pat::Tau& tau, const pat::ElectronCollection& electrons,
                                                     double deltaR)
     {
-        const double deltaR2 = std::pow(deltaR, 2);
+        const double dR2 = deltaR*deltaR;
         const pat::Electron* matched_ele = nullptr;
         for(const auto& ele : electrons) {
-            if(ROOT::Math::VectorUtil::DeltaR2(tau.p4(), ele.p4()) < deltaR2 &&
-                    (!matched_ele || matched_ele->pt() < ele.pt())) {
-                matched_ele = &ele;
+	  if(reco::deltaR2(tau.p4(), ele.p4()) < dR2 &&
+	       (!matched_ele || matched_ele->pt() < ele.pt())) {
+	      matched_ele = &ele;
             }
         }
         return matched_ele;
