@@ -201,8 +201,10 @@ L1TkGlbMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (match_idx >= 0){
       const L1TTTrackType& matchTk = l1tks[match_idx];
       
-      float etaCut = 3.*sqrt(l1mu->hwDEtaExtra()*l1mu->hwDEtaExtra() + matchProp.sigmaEta*matchProp.sigmaEta);
-      float phiCut = 4.*sqrt(l1mu->hwDPhiExtra()*l1mu->hwDPhiExtra() + matchProp.sigmaPhi*matchProp.sigmaPhi);
+      //float etaCut = 3.*sqrt(l1mu->hwDEtaExtra()*l1mu->hwDEtaExtra() + matchProp.sigmaEta*matchProp.sigmaEta);
+      //float phiCut = 4.*sqrt(l1mu->hwDPhiExtra()*l1mu->hwDPhiExtra() + matchProp.sigmaPhi*matchProp.sigmaPhi);
+      float etaCut = 0.08;
+      float phiCut = 0.05;
 
       float dEta = std::abs(matchProp.eta - l1mu->eta());
       float dPhi = std::abs(deltaPhi(matchProp.phi, l1mu->phi()));
