@@ -25,11 +25,13 @@ class L1TMuonBarrelKalmanAlgo {
 
   L1TMuonBarrelKalmanAlgo (const edm::ParameterSet& settings);
   std::pair<bool,L1MuKBMTrack> chain(const L1MuKBMTCombinedStubRef&, const L1MuKBMTCombinedStubRefVector&);
-  L1MuKBMTrackCollection cleanAndSort(const L1MuKBMTrackCollection&,uint);
-  void resolveEtaUnit(L1MuKBMTrackCollection&);
+
+  L1MuKBMTrackCollection clean(const L1MuKBMTrackCollection&,uint);
+
+
+
   void addBMTFMuon(int,const L1MuKBMTrack&,std::unique_ptr<l1t::RegionalMuonCandBxCollection>&);
-
-
+  l1t::RegionalMuonCand  convertToBMTF(const L1MuKBMTrack& track); 
 
 
 
@@ -37,7 +39,7 @@ class L1TMuonBarrelKalmanAlgo {
  
  private:
   bool verbose_;
-  std::pair<bool,uint> match(const L1MuKBMTrack&, const L1MuKBMTCombinedStubRefVector&);
+  std::pair<bool,uint> match(const L1MuKBMTCombinedStubRef&, const L1MuKBMTCombinedStubRefVector&,int );
   int correctedPhi(const L1MuKBMTCombinedStubRef&,int);
   int correctedPhiB(const L1MuKBMTCombinedStubRef&);
   void propagate(L1MuKBMTrack&);
@@ -53,16 +55,26 @@ class L1TMuonBarrelKalmanAlgo {
   int customBitmask(unsigned int,unsigned int,unsigned int,unsigned int);
   bool getBit(int,int);
   void setFloatingPointValues(L1MuKBMTrack&,bool);
-  void estimateChiSquare(L1MuKBMTrack&);
+  int phiAt2(const L1MuKBMTrack& track);
+  bool estimateChiSquare(L1MuKBMTrack&);
   int rank(const L1MuKBMTrack&);
   int wrapAround(int,int);
   std::pair<bool,uint> getByCode(const L1MuKBMTrackCollection& tracks,int mask);
   std::map<int,int> trackAddress(const L1MuKBMTrack&,int&);
   int encode(bool ownwheel,int sector,bool tag); 
   uint twosCompToBits(int);
+  int fp_product(float,int, uint);
+
+  uint etaStubRank(const L1MuKBMTCombinedStubRef&);
+
+  void calculateEta(L1MuKBMTrack& track);
+  uint matchAbs(std::map<uint,uint>&, uint, uint);
+
 
   //LUT service
-  std::unique_ptr<L1TMuonBarrelKalmanLUTs> lutService_;
+  L1TMuonBarrelKalmanLUTs* lutService_;
+  bool punchThroughVeto(const L1MuKBMTrack& track);
+  int ptLUT(int K);
 
 
   //Initial Curvature
@@ -76,11 +88,13 @@ class L1TMuonBarrelKalmanAlgo {
   std::vector<double> aPhiBNLO_;
   std::vector<double> bPhi_;
   std::vector<double> bPhiB_;
+  double phiAt2_;
   std::vector<double> etaLUT0_;
   std::vector<double> etaLUT1_;
 
   //Chi Square estimator input
   uint globalChi2Cut_;
+  uint globalChi2CutLimit_;
   std::vector<double> chiSquare_;
   std::vector<int> chiSquareCutPattern_;
   std::vector<int> chiSquareCutCurv_;
@@ -137,17 +151,6 @@ class L1TMuonBarrelKalmanAlgo {
 
   };
 
-  class TrackSorter {
-  public:
-    TrackSorter() {
-    }
-
-    bool operator() (const L1MuKBMTrack& a ,const L1MuKBMTrack& b) {
-      if (a.curvatureAtVertex()<b.curvatureAtVertex())
-	return true;
-      return false;
-    }
-  };
   
 
 
