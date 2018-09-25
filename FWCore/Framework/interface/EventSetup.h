@@ -4,7 +4,7 @@
 //
 // Package:     Framework
 // Class:      EventSetup
-// 
+//
 /**\class EventSetup EventSetup.h FWCore/Framework/interface/EventSetup.h
 
  Description: Container for all Records dealing with non-RunState info
@@ -21,11 +21,10 @@
 // system include files
 #include <cassert>
 #include <map>
+#include <optional>
 #include <string>
 #include <type_traits>
 #include <vector>
-
-#include <boost/optional.hpp>
 
 // user include files
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -40,7 +39,7 @@
 namespace edm {
    class ActivityRegistry;
    class ESInputTag;
-   
+
    namespace eventsetup {
       class EventSetupProvider;
       class EventSetupRecord;
@@ -78,7 +77,7 @@ namespace edm {
       /** returns the Record of type T.  If no such record available
        a null pointer is returned */
       template< typename T>
-        boost::optional<T> tryToGet() const {
+        std::optional<T> tryToGet() const {
            using namespace eventsetup;
            using namespace eventsetup::heterocontainer;
 
@@ -90,7 +89,7 @@ namespace edm {
               rec.setImpl(temp);
               return rec;
            }
-           return boost::none;
+           return std::nullopt;
         }
 
       /** can directly access data if data_default_record_trait<> is defined for this data type **/
@@ -116,12 +115,12 @@ namespace edm {
            const RecordT& rec = this->get<RecordT>();
            rec.get(iTag,iHolder);
         }
-   
-      boost::optional<eventsetup::EventSetupRecordGeneric> find(const eventsetup::EventSetupRecordKey&) const;
+
+      std::optional<eventsetup::EventSetupRecordGeneric> find(const eventsetup::EventSetupRecordKey&) const;
 
       ///clears the oToFill vector and then fills it with the keys for all available records
       void fillAvailableRecordKeys(std::vector<eventsetup::EventSetupRecordKey>& oToFill) const;
-  
+
       ///returns true if the Record is provided by a Source or a Producer
       /// a value of true does not mean this EventSetup object holds such a record
       bool recordIsProvidedByAModule( eventsetup::EventSetupRecordKey const& ) const;
@@ -143,25 +142,25 @@ namespace edm {
       }
 
       void add(const eventsetup::EventSetupRecordImpl& iRecord);
-      
+
       void clear();
-      
+
     private:
       EventSetup(ActivityRegistry*);
-      
+
       EventSetup(EventSetup const&) = delete; // stop default
 
       EventSetup const& operator=(EventSetup const&) = delete; // stop default
 
       ActivityRegistry* activityRegistry() const { return activityRegistry_; }
       eventsetup::EventSetupRecordImpl const* findImpl(const eventsetup::EventSetupRecordKey&) const;
-     
+
 
       void insert(const eventsetup::EventSetupRecordKey&,
                   const eventsetup::EventSetupRecordImpl*);
 
       // ---------- member data --------------------------------
-    
+
       //NOTE: the records are not owned
       std::map<eventsetup::EventSetupRecordKey, eventsetup::EventSetupRecordImpl const *> recordMap_;
       eventsetup::EventSetupKnownRecordsSupplier const* knownRecords_;

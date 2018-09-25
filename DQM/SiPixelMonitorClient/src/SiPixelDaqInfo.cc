@@ -40,11 +40,10 @@ void SiPixelDaqInfo::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQMStore
     firstLumi = false;
   }
 
-  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-  if(nullptr != iSetup.find( recordKey ) ) {
+  if(auto runInfoRec = iSetup.tryToGet<RunInfoRcd>()) {
     //get fed summary information
     ESHandle<RunInfo> sumFED;
-    iSetup.get<RunInfoRcd>().get(sumFED);    
+    runInfoRec->get(sumFED);
     vector<int> FedsInIds= sumFED->m_fed_in;   
 
     int FedCount=0;

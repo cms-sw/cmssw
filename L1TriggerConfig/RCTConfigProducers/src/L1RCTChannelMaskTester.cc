@@ -2,7 +2,7 @@
 //
 // Package:    RCTConfigTester
 // Class:      RCTConfigTester
-// 
+//
 /**\class RCTConfigTester RCTConfigTester.h L1TriggerConfig/RCTConfigTester/src/RCTConfigTester.cc
 
  Description: <one line class summary>
@@ -58,25 +58,16 @@ void L1RCTChannelMaskTester::analyze(const edm::Event& iEvent,
 
     rctChanMask->print(std::cout);
 
-    //
-    edm::eventsetup::EventSetupRecordKey recordKey(
-            edm::eventsetup::EventSetupRecordKey::TypeTag::findType(
-                    "L1RCTNoisyChannelMaskRcd"));
-
-    if (evSetup.find(recordKey) == nullptr) {
-        //record not found
-        std::cout << "\nRecord \"" << "L1RCTNoisyChannelMaskRcd"
-                << "\" does not exist.\n" << std::endl;
-    } else {
-
+    if (auto maskRecord = evSetup.tryToGet<L1RCTNoisyChannelMaskRcd>()) {
         edm::ESHandle<L1RCTNoisyChannelMask> rctNoisyChanMask;
-        evSetup.get<L1RCTNoisyChannelMaskRcd>().get(rctNoisyChanMask);
+        maskRecord->get(rctNoisyChanMask);
 
         rctNoisyChanMask->print(std::cout);
-
+    } else {
+        std::cout << "\nRecord \"" << "L1RCTNoisyChannelMaskRcd"
+                  << "\" does not exist.\n" << std::endl;
     }
 
 }
 
 DEFINE_FWK_MODULE( L1RCTChannelMaskTester);
-
