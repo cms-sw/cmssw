@@ -6,7 +6,7 @@
 
 #include <cmath>
 
-bool subDetByType(const GeometricDet* a, const GeometricDet* b)
+bool CmsTrackerLevelBuilder::subDetByType(const GeometricDet* a, const GeometricDet* b)
 {
     // it relies on the fact that the GeometricDet::GDEnumType enumerators used
     // to identify the subdetectors in the upgrade geometries are equal to the
@@ -15,7 +15,7 @@ bool subDetByType(const GeometricDet* a, const GeometricDet* b)
 }
 
 // NP** Phase2 BarrelEndcap
-bool phiSortNP(const GeometricDet* a, const GeometricDet* b)
+bool CmsTrackerLevelBuilder::phiSortNP(const GeometricDet* a, const GeometricDet* b)
 {
     if (std::abs(a->translation().rho() - b->translation().rho()) < 0.01
         && (std::abs(a->translation().phi() - b->translation().phi()) < 0.01
@@ -26,7 +26,7 @@ bool phiSortNP(const GeometricDet* a, const GeometricDet* b)
         return false;
 }
 
-bool isLessZ(const GeometricDet* a, const GeometricDet* b)
+bool CmsTrackerLevelBuilder::isLessZ(const GeometricDet* a, const GeometricDet* b)
 {
     // NP** change for Phase 2 Tracker
     if (a->translation().z() == b->translation().z()) {
@@ -37,18 +37,18 @@ bool isLessZ(const GeometricDet* a, const GeometricDet* b)
     }
 }
 
-bool isLessModZ(const GeometricDet* a, const GeometricDet* b)
+bool CmsTrackerLevelBuilder::isLessModZ(const GeometricDet* a, const GeometricDet* b)
 {
     return std::abs(a->translation().z()) < std::abs(b->translation().z());
 }
 
-double getPhi(const GeometricDet* a)
+double CmsTrackerLevelBuilder::getPhi(const GeometricDet* a)
 {
     double phi = a->phi();
     return (phi >= 0 ? phi : phi + 2 * M_PI);
 }
 
-double getPhiModule(const GeometricDet* a)
+double CmsTrackerLevelBuilder::getPhiModule(const GeometricDet* a)
 {
     std::vector<const GeometricDet*> const& comp = a->components().back()->components();
     float phi = 0.;
@@ -83,7 +83,7 @@ double getPhiModule(const GeometricDet* a)
     }
 }
 
-double getPhiGluedModule(const GeometricDet* a)
+double CmsTrackerLevelBuilder::getPhiGluedModule(const GeometricDet* a)
 {
     std::vector<const GeometricDet*> comp;
     a->deepComponents(comp);
@@ -119,33 +119,36 @@ double getPhiGluedModule(const GeometricDet* a)
     }
 }
 
-double getPhiMirror(const GeometricDet* a)
+double CmsTrackerLevelBuilder::getPhiMirror(const GeometricDet* a)
 {
     double phi = a->phi();
     phi = (phi >= 0 ? phi : phi + 2 * M_PI); // (-pi,pi] --> [0,2pi)
     return ((M_PI - phi) >= 0 ? (M_PI - phi) : (M_PI - phi) + 2 * M_PI); // (-pi,pi] --> [0,2pi)
 }
 
-double getPhiModuleMirror(const GeometricDet* a)
+double CmsTrackerLevelBuilder::getPhiModuleMirror(const GeometricDet* a)
 {
     double phi = getPhiModule(a); // [0,2pi)
     phi = (phi <= M_PI ? phi : phi - 2 * M_PI); // (-pi,pi]
     return (M_PI - phi);
 }
 
-double getPhiGluedModuleMirror(const GeometricDet* a)
+double CmsTrackerLevelBuilder::getPhiGluedModuleMirror(const GeometricDet* a)
 {
     double phi = getPhiGluedModule(a); // [0,2pi)
     phi = (phi <= M_PI ? phi : phi - 2 * M_PI); // (-pi,pi]
     return (M_PI - phi);
-};
+}
 
-bool isLessRModule(const GeometricDet* a, const GeometricDet* b)
+bool CmsTrackerLevelBuilder::isLessRModule(const GeometricDet* a, const GeometricDet* b)
 {
     return a->deepComponents().front()->rho() < b->deepComponents().front()->rho();
 }
 
-bool isLessR(const GeometricDet* a, const GeometricDet* b) { return a->rho() < b->rho(); }
+bool CmsTrackerLevelBuilder::isLessR(const GeometricDet* a, const GeometricDet* b)
+{
+    return a->rho() < b->rho();
+}
 
 void CmsTrackerLevelBuilder::build(DDFilteredView& fv, GeometricDet* tracker, std::string attribute)
 {
