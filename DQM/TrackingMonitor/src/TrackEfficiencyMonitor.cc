@@ -299,7 +299,7 @@ void TrackEfficiencyMonitor::analyze(const edm::Event& iEvent, const edm::EventS
   //initialize values
   failedToPropagate = 0;
   nCompatibleLayers = 0;
-  findDetLayer = 0;
+  findDetLayer = false;
   
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theTTrackBuilder);
   iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny",thePropagator);
