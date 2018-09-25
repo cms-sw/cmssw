@@ -3,7 +3,7 @@
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "DataFormats/GeometryVector/interface/VectorUtil.h"
 
-#include <vector>
+#include <array>
 
 GlobalDetRodRangeZPhi::GlobalDetRodRangeZPhi( const Plane& plane) {
 
@@ -17,11 +17,11 @@ GlobalDetRodRangeZPhi::GlobalDetRodRangeZPhi( const Plane& plane) {
                   plane.toGlobal( LocalPoint( 0, 0, dz)).perp() ) ? -dz : dz ;
   
 
-  const std::vector<Surface::GlobalPoint> corners{
+  const std::array<Surface::GlobalPoint, 4> corners{{
       plane.toGlobal( LocalPoint( -dx, -dy, deltaZ)),
       plane.toGlobal( LocalPoint( -dx,  dy, deltaZ)),
       plane.toGlobal( LocalPoint(  dx, -dy, deltaZ)),
-      plane.toGlobal( LocalPoint(  dx,  dy, deltaZ))};
+      plane.toGlobal( LocalPoint(  dx,  dy, deltaZ))}};
 
   float phimin = corners[0].phi();
   float phimax = phimin;

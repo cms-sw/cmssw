@@ -114,7 +114,7 @@ std::vector<reco::BasicCluster> Multi5x5ClusterAlgo::makeClusters(
 
     }
 
-    sort(seeds.begin(), seeds.end(), [](auto& x, auto& y){return (x.energy() > y.energy());});
+    sort(seeds.begin(), seeds.end(), [](auto const& x, auto const& y){return (x.energy() > y.energy());});
 
     LogTrace("EcalClusters") << "Total number of seeds found in event = " << seeds.size();
 
