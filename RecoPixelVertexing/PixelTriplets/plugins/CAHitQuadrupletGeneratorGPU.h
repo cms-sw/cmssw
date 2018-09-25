@@ -20,6 +20,8 @@
 #include "RecoTracker/TkSeedGenerator/interface/FastCircleFit.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitorFactory.h"
+#include "RecoPixelVertexing/PixelTriplets/plugins/RecHitsMap.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/RiemannFit.h"
 
 #include "GPUCACell.h"
 
@@ -138,6 +140,8 @@ private:
     std::vector<std::array<int,4>> fetchKernelResult(int);
 
 
+    float bField_;
+
     const float extraHitRPhitolerance;
 
     const QuantityDependsPt maxChi2;
@@ -170,6 +174,13 @@ private:
 
     RecHitsMap<TrackingRecHit const *> hitmap_ = RecHitsMap<TrackingRecHit const *>(nullptr);
 
+    // Riemann Fit stuff
+    Rfit::Matrix3xNd *hitsGPU_ = nullptr;
+    Rfit::Matrix3Nd *hits_covGPU_ = nullptr;
+    Eigen::Vector4d *fast_fit_resultsGPU_ = nullptr;
+    Rfit::circle_fit *circle_fit_resultsGPU_ = nullptr;
+    Rfit::line_fit *line_fit_resultsGPU_ = nullptr;
+    Rfit::helix_fit * helix_fit_resultsGPU_ = nullptr;
 };
 
 #endif // RecoPixelVertexing_PixelTriplets_plugins_CAHitQuadrupletGeneratorGPU_h
