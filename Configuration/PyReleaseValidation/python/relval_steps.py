@@ -25,6 +25,8 @@ step1Up2015Defaults = {'-s' : 'GEN,SIM',
 step1Up2017Defaults = merge ([{'--conditions':'auto:phase1_2017_realistic','--era':'Run2_2017','--beamspot':'Realistic25ns13TeVEarly2017Collision'},step1Up2015Defaults])
 # step1 gensim: for 2018
 step1Up2018Defaults = merge ([{'--conditions':'auto:phase1_2018_realistic','--era':'Run2_2018'},step1Up2017Defaults])
+# step1 gensim: for 2018 prod
+step1Up2018ProdDefaults = merge ([{'--beamspot':'Realistic25ns13TeVEarly2018Collision','--eventcontent':'RAWSIM','--geometry':'DB:Extended'},step1Up2018Defaults])
 
 steps = Steps()
 
@@ -473,6 +475,9 @@ def gen2017(fragment,howMuch):
 def gen2018(fragment,howMuch):
     global step1Up2018Defaults
     return merge([{'cfg':fragment},howMuch,step1Up2018Defaults])
+def gen2018prod(fragment,howMuch):
+    global step1Up2018ProdDefaults
+    return merge([{'cfg':fragment},howMuch,step1Up2018ProdDefaults])
 
 ### Production test: 13 TeV equivalents
 steps['ProdMinBias_13']=gen2015('MinBias_13TeV_pythia8_TuneCUETP8M1_cfi',Kby(9,100))
@@ -563,9 +568,11 @@ steps['SMS-T1tttt_mGl-1500_mLSP-100_13UP17']=gen2017('SMS-T1tttt_mGl-1500_mLSP-1
 
 ### 2018 wf: only the ones for premixing (for the moment)
 steps['NuGun_UP18']=gen2018('SingleNuE10_cfi.py',Kby(9,50))
+steps['ProdTTbar_13UP18']=gen2018prod('TTbar_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
 steps['TTbar_13UP18']=gen2018('TTbar_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
-steps['ProdZEE_13UP18']=gen2018('ZEE_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
+steps['ProdZEE_13UP18']=gen2018prod('ZEE_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
 steps['ZEE_13UP18']=gen2018('ZEE_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
+steps['ProdZMM_13UP18']=gen2018prod('ZMM_13TeV_TuneCUETP8M1_cfi',Kby(18,100))
 steps['ZMM_13UP18']=gen2018('ZMM_13TeV_TuneCUETP8M1_cfi',Kby(18,100))
 steps['ZTT_13UP18']=gen2018('ZTT_All_hadronic_13TeV_TuneCUETP8M1_cfi',Kby(9,80))
 steps['H125GGgluonfusion_13UP18']=gen2018('H125GGgluonfusion_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
@@ -882,7 +889,7 @@ hiAlca2011 = {'--conditions':'auto:run1_mc_hi'}
 hiAlca2015 = {'--conditions':'auto:run2_mc_hi', '--era':'Run2_HI'}
 hiAlca2017 = {'--conditions':'auto:phase1_2017_realistic', '--era':'Run2_2017_pp_on_XeXe'}
 hiAlca2018 = {'--conditions':'auto:phase1_2018_realistic', '--era':'Run2_2018'}
-hiAlca2018_ppReco = {'--conditions':'auto:phase1_2018_realistic', '--era':'Run2_2018_pp_on_AA'}
+hiAlca2018_ppReco = {'--conditions':'auto:phase1_2018_realistic_hi', '--era':'Run2_2018_pp_on_AA'}
 
 
 hiDefaults2011=merge([hiAlca2011,{'--scenario':'HeavyIons','-n':2}])
@@ -1006,9 +1013,9 @@ steps["FS_PREMIXUP15_PU25"] = merge([
         {"cfg":"SingleNuE10_cfi",
          "--fast":"",
          "--conditions":"auto:run2_mc",
-         "-s":"GEN,SIM,RECOBEFMIX,DIGI,L1,DIGI2RAW",
+         "-s":"GEN,SIM,RECOBEFMIX,DIGI",
          "--eventcontent":"PREMIX",
-         "--datatier":"GEN-SIM-DIGI-RAW",
+         "--datatier":"PREMIX",
          "--procModifiers":"premix_stage1",
          "--era":"Run2_2016",
          },
@@ -1020,7 +1027,7 @@ FS_PREMIXUP15_PU25_OVERLAY = merge([
         {"-s" : "GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,DATAMIX,L1,DIGI2RAW,L1Reco,RECO,VALIDATION",
          "--datamix" : "PreMix",
          "--procModifiers": "premix_stage2",
-         "--pileup_input" : "dbs:/RelValFS_PREMIXUP15_PU25/%s/GEN-SIM-DIGI-RAW"%(baseDataSetRelease[8],),
+         "--pileup_input" : "dbs:/RelValFS_PREMIXUP15_PU25/%s/PREMIX"%(baseDataSetRelease[8],),
          },
         Kby(100,500),step1FastUpg2015Defaults])
 
@@ -1366,10 +1373,10 @@ steps['DIGIPPREF2017']=merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@fake2'}, 
 # PRE-MIXING : https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideSimulation#Pre_Mixing_Instructions
 premixUp2015Defaults = {
     '--evt_type'    : 'SingleNuE10_cfi',
-    '-s'            : 'GEN,SIM,DIGI:pdigi_valid,L1,DIGI2RAW',
+    '-s'            : 'GEN,SIM,DIGI:pdigi_valid',
     '-n'            : '10',
     '--conditions'  : 'auto:run2_mc', # 25ns GT; dedicated dict for 50ns
-    '--datatier'    : 'GEN-SIM-DIGI-RAW',
+    '--datatier'    : 'PREMIX',
     '--eventcontent': 'PREMIX',
     '--procModifiers':'premix_stage1',
     '--era'         : 'Run2_2016' # temporary replacement for premix; to be brought back to customisePostLS1 *EDIT - This comment possibly no longer relevant with switch to eras
@@ -1394,7 +1401,7 @@ steps['PREMIXUP18_PU25']=merge([PU25UP18,Kby(100,100),premixUp2018Defaults])
 digiPremixUp2015Defaults25ns = {
     '--conditions'   : 'auto:run2_mc',
     '-s'             : 'DIGI:pdigi_valid,DATAMIX,L1,DIGI2RAW,HLT:@relval2016',
-    '--pileup_input'  :  'das:/RelValPREMIXUP15_PU25/%s/GEN-SIM-DIGI-RAW'%baseDataSetRelease[5],
+    '--pileup_input'  :  'das:/RelValPREMIXUP15_PU25/%s/PREMIX'%baseDataSetRelease[5],
     '--eventcontent' : 'FEVTDEBUGHLT',
     '--datatier'     : 'GEN-SIM-DIGI-RAW-HLTDEBUG',
     '--datamix'      : 'PreMix',
@@ -1415,14 +1422,14 @@ digiPremixLocalPileupUp2015Defaults25ns = merge([digiPremixLocalPileup,
                                                  digiPremixUp2015Defaults25ns])
 digiPremixUp2015Defaults50ns=merge([{'-s':'DIGI:pdigi_valid,DATAMIX,L1,DIGI2RAW,HLT:@relval50ns'},
                                     {'--conditions':'auto:run2_mc_50ns'},
-                                    {'--pileup_input' : 'das:/RelValPREMIXUP15_PU50/%s/GEN-SIM-DIGI-RAW'%baseDataSetRelease[6]},
+                                    {'--pileup_input' : 'das:/RelValPREMIXUP15_PU50/%s/PREMIX'%baseDataSetRelease[6]},
                                     {'--era'            : 'Run2_50ns'},
                                     digiPremixUp2015Defaults25ns])
 
 digiPremixUp2017Defaults25ns = {
     '--conditions'   : 'auto:phase1_2017_realistic',
     '-s'             : 'DIGI:pdigi_valid,DATAMIX,L1,DIGI2RAW,HLT:@relval2017',
-    '--pileup_input'  :  'das:/RelValPREMIXUP17_PU25/%s/GEN-SIM-DIGI-RAW'%baseDataSetRelease[14],
+    '--pileup_input'  :  'das:/RelValPREMIXUP17_PU25/%s/PREMIX'%baseDataSetRelease[14],
     '--eventcontent' : 'FEVTDEBUGHLT',
     '--datatier'     : 'GEN-SIM-DIGI-RAW-HLTDEBUG',
     '--datamix'      : 'PreMix',
@@ -1436,7 +1443,7 @@ digiPremixLocalPileupUp2017Defaults25ns = merge([digiPremixLocalPileup,
 digiPremixUp2018Defaults25ns = {
     '--conditions'   : 'auto:phase1_2018_realistic',
     '-s'             : 'DIGI:pdigi_valid,DATAMIX,L1,DIGI2RAW,HLT:@relval2018',
-    '--pileup_input'  :  'das:/RelValPREMIXUP18_PU25/%s/GEN-SIM-DIGI-RAW'%baseDataSetRelease[15],
+    '--pileup_input'  :  'das:/RelValPREMIXUP18_PU25/%s/PREMIX'%baseDataSetRelease[15],
     '--eventcontent' : 'FEVTDEBUGHLT',
     '--datatier'     : 'GEN-SIM-DIGI-RAW-HLTDEBUG',
     '--datamix'      : 'PreMix',
@@ -1460,7 +1467,7 @@ premixProd25ns = {'-s'             : 'DIGI,DATAMIX,L1,DIGI2RAW,HLT:@relval2016',
                  '--datatier'     : 'PREMIXRAW'}
 premixProd50ns = merge([{'-s':'DIGI,DATAMIX,L1,DIGI2RAW,HLT:@relval50ns'},premixProd25ns])
 premixProd25ns2017 = merge([{'-s':'DIGI,DATAMIX,L1,DIGI2RAW,HLT:@relval2017'},premixProd25ns])
-premixProd25ns2018 = merge([{'-s':'DIGI,DATAMIX,L1,DIGI2RAW,HLT:@relval2018','--datatier':'GEN-SIM-RAW'},premixProd25ns])
+premixProd25ns2018 = merge([{'-s':'DIGI,DATAMIX,L1,DIGI2RAW,HLT:@relval2018','--datatier':'GEN-SIM-RAW','--geometry':'DB:Extended'},premixProd25ns])
 
 steps['DIGIPRMXUP15_PROD_PU25']=merge([premixProd25ns,digiPremixUp2015Defaults25ns])
 steps['DIGIPRMXUP15_PROD_PU50']=merge([premixProd50ns,digiPremixUp2015Defaults50ns])
@@ -1555,7 +1562,7 @@ steps['RECOHID10']['--eventcontent']+=',REPACKRAW'
 
 steps['HYBRIDRepackHI2015VR']={'--eventcontent':'RAW',
                                '--datatier':'RAW',
-                               '--conditions':'auto:run2_data',
+                               '--conditions':'auto:run2_hlt_hi',
                                '--step':'RAW2DIGI,REPACK:DigiToHybridRawRepack',
                                '--scenario':'HeavyIons',                     
                                '--data':'',
@@ -2027,7 +2034,7 @@ recoPremixUp17prod = merge([
 
 
 steps['RECOPRMXUP17PROD_PU25']=merge([recoPremixUp17prod])
-steps['RECOPRMXUP18PROD_PU25']=merge([{'--era':'Run2_2018','--conditions':'auto:phase1_2018_realistic'},recoPremixUp17prod])
+steps['RECOPRMXUP18PROD_PU25']=merge([{'--era':'Run2_2018','--conditions':'auto:phase1_2018_realistic','--procModifiers':'premix_stage2'},recoPremixUp17prod])
 
 
 steps['RECOPUDBG']=merge([{'--eventcontent':'RECODEBUG,MINIAODSIM,DQM'},steps['RECOPU1']])
@@ -2529,7 +2536,7 @@ stepNanoAODData = merge([{ '--data':'', '--eventcontent' : 'NANOAOD,DQM' ,'--dat
 stepNanoAODMC   = merge([{ '--mc':''  , '--eventcontent' : 'NANOAODSIM,DQM','--datatier': 'NANOAODSIM,DQMIO' }, stepNanoAODDefaults ])
 stepNanoEDMData = merge([{ '--data':'', '--eventcontent' : 'NANOEDMAOD,DQM' ,'--datatier': 'NANOAOD,DQMIO'     }, stepNanoAODDefaults ])
 stepNanoEDMMC   = merge([{ '--mc':''  , '--eventcontent' : 'NANOEDMAODSIM,DQM','--datatier': 'NANOAODSIM,DQMIO'    }, stepNanoAODDefaults ])
-
+stepNanoEDMMCProd   = merge([{ '--mc':'', '-s': 'NANO', '--eventcontent' : 'NANOEDMAODSIM','--datatier': 'NANOAODSIM'    }, stepNanoAODDefaults ])
 
 steps['NANOAOD2016']   = merge([{'--conditions': 'auto:run2_data_relval', '--era': 'Run2_2016'}, stepNanoAODData ])
 steps['NANOAOD2017']   = merge([{'--conditions': 'auto:run2_data_relval', '--era': 'Run2_2017'}, stepNanoAODData ])
@@ -2552,6 +2559,7 @@ steps['NANOEDMMC2017_92X'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_92X'}, ste
 steps['NANOEDMMC2017_94XMiniAODv1'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv1'}, steps['NANOEDMMC2017'] ])
 steps['NANOEDMMC2017_94XMiniAODv2'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv2'}, steps['NANOEDMMC2017'] ])
 steps['NANOEDMMC2016_80X'] = merge([{'--conditions': 'auto:run2_mc', '--era': 'Run2_2016,run2_miniAOD_80XLegacy'}, steps['NANOEDMMC2017'] ])
+steps['NANOEDMMC2018_PROD'] = merge([{'--conditions': 'auto:phase1_2018_realistic', '--era': 'Run2_2018', '--filein':'file:step3_inMINIAODSIM.root'}, stepNanoEDMMCProd ])
 
 steps['NANOEDM2017'] = merge([{'--conditions': 'auto:run2_data_relval', '--era': 'Run2_2017'}, stepNanoEDMData ])
 steps['NANOEDM2017_92X'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_92X'}, steps['NANOEDM2017'] ])

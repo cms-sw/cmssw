@@ -13,10 +13,10 @@
 
 #include <cmath>
 
-HcalDbService::HcalDbService (const edm::ParameterSet& cfg): 
+HcalDbService::HcalDbService() :
   mPedestals (nullptr), mPedestalWidths (nullptr),
   mEffectivePedestals (nullptr), mEffectivePedestalWidths (nullptr),
-  mGains (nullptr), mGainWidths (nullptr),  
+  mGains (nullptr), mGainWidths (nullptr),
   mQIEData(nullptr),
   mQIETypes(nullptr),
   mElectronicsMap(nullptr), mFrontEndMap(nullptr),
@@ -49,26 +49,26 @@ const HcalTopology* HcalDbService::getTopologyUsed() const {
 }
 
 
-const HcalCalibrations& HcalDbService::getHcalCalibrations(const HcalGenericDetId& fId) const 
-{ 
+const HcalCalibrations& HcalDbService::getHcalCalibrations(const HcalGenericDetId& fId) const
+{
   buildCalibrations();
   return (*mCalibSet.load(std::memory_order_acquire)).getCalibrations(fId);
 }
 
-const HcalCalibrationWidths& HcalDbService::getHcalCalibrationWidths(const HcalGenericDetId& fId) const 
-{ 
+const HcalCalibrationWidths& HcalDbService::getHcalCalibrationWidths(const HcalGenericDetId& fId) const
+{
   buildCalibWidths();
   return (*mCalibWidthSet.load(std::memory_order_acquire)).getCalibrationWidths(fId);
 }
 
-const HcalCalibrationsSet* HcalDbService::getHcalCalibrationsSet() const 
-{ 
+const HcalCalibrationsSet* HcalDbService::getHcalCalibrationsSet() const
+{
   buildCalibrations();
   return mCalibSet.load(std::memory_order_acquire);
 }
 
-const HcalCalibrationWidthsSet* HcalDbService::getHcalCalibrationWidthsSet() const 
-{ 
+const HcalCalibrationWidthsSet* HcalDbService::getHcalCalibrationWidthsSet() const
+{
   buildCalibWidths();
   return mCalibWidthSet.load(std::memory_order_acquire);
 }
@@ -173,10 +173,10 @@ bool HcalDbService::makeHcalCalibration (const HcalGenericDetId& fId, HcalCalibr
 
     float effPedTrue[4];
     bool effconverted = convertPedestals(fId,effpedestal,effPedTrue,effPedestalInADC);
-	
+
     if (pedestal && effpedestal && converted && effconverted && gain && respcorr && timecorr && lutcorr) {
       *fObject = HcalCalibrations (gain->getValues(), pedTrue, effPedTrue, respcorr->getValue(), timecorr->getValue(), lutcorr->getValue() );
-      return true; 
+      return true;
     }
   }
   return false;
@@ -207,7 +207,7 @@ bool HcalDbService::convertPedestalWidths(const HcalGenericDetId& fId, const Hca
 }
 
 
-bool HcalDbService::makeHcalCalibrationWidth (const HcalGenericDetId& fId, 
+bool HcalDbService::makeHcalCalibrationWidth (const HcalGenericDetId& fId,
 					      HcalCalibrationWidths* fObject, bool pedestalInADC, bool effPedestalInADC) const {
   if (fObject) {
     const HcalPedestalWidth* pedestalwidth = getPedestalWidth (fId);
@@ -221,11 +221,11 @@ bool HcalDbService::makeHcalCalibrationWidth (const HcalGenericDetId& fId,
     bool effconverted = convertPedestalWidths(fId,effpedestalwidth,effPedTrueWidth,effPedestalInADC);
     if (pedestalwidth && effpedestalwidth&& gainwidth && converted && effconverted) {
       *fObject = HcalCalibrationWidths (gainwidth->getValues (), pedTrueWidth, effPedTrueWidth);
-      return true; 
-    } 
+      return true;
+    }
   }
   return false;
-}  
+}
 
 const HcalQIEType* HcalDbService::getHcalQIEType (const HcalGenericDetId& fId) const {
   if (mQIETypes) {

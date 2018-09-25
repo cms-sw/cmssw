@@ -54,7 +54,7 @@ double oneOverEtResolEt(double *x, double *par) {
 }
 
 EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
-  : xtal_LSB_EB_(0), xtal_LSB_EE_(0), nSample_(5), complement2_(7), useDBShape_(false)
+  : xtal_LSB_EB_(0), xtal_LSB_EE_(0), nSample_(5), complement2_(7), useDBShape_(true)
 {
   ped_conf_id_=0;
   lin_conf_id_=0;

@@ -159,7 +159,7 @@ FWConfigurationManager::readFromOldFile(const std::string& iName) const
       message += iName;
       throw std::runtime_error(message.c_str());
    }
-   std::auto_ptr<FWConfiguration> config( reinterpret_cast<FWConfiguration*>(lConfig) );
+   std::unique_ptr<FWConfiguration> config( reinterpret_cast<FWConfiguration*>(lConfig) );
 
    setFrom( *config);
 }

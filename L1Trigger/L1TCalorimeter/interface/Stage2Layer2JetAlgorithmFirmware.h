@@ -39,8 +39,17 @@ namespace l1t {
     int donutPUEstimate(int jetEta, int jetPhi, int size,
                         const std::vector<l1t::CaloTower> & towers);
 
+    std::vector<int> getChunkyRing(Jet & jet, int pos,
+				   const std::vector<l1t::CaloTower> & towers,
+				   const std::string chunkyString);
+
     int chunkyDonutPUEstimate(Jet & jet, int pos,
                               const std::vector<l1t::CaloTower> & towers);
+
+    //Adding chunky sandwich, chunkydonut variant using only phiflaps. Useful for simple handiling of calorimeter hardware ieta strips, and in high pu environment like PbPb
+    int chunkySandwichPUEstimate(Jet & jet, int pos,
+				 const std::vector<l1t::CaloTower> & towers,
+				 const std::string chunkySandwichStr);
 
   private:
 

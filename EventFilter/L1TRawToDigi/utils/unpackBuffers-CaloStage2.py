@@ -20,6 +20,11 @@ options.register('fwVersion',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Firmware version for unpacker configuration")
+options.register('demuxFWVersion',
+                 268501079,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Firmware version for demux unpacker configuration")
 options.register('mpFramesPerEvent',
                  40,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -286,6 +291,7 @@ process.stage2DemuxRaw.nFramesOffset    = cms.untracked.vuint32(dmOffset)
 process.stage2DemuxRaw.nFramesLatency   = cms.untracked.vuint32(options.dmLatency)
 process.stage2DemuxRaw.rxFile = cms.untracked.string("demux_rx_summary.txt")
 process.stage2DemuxRaw.txFile = cms.untracked.string("demux_tx_summary.txt")
+process.stage2DemuxRaw.fwVersion = cms.untracked.int32(options.demuxFWVersion)
 
 # GT config
 if (options.doGT):
@@ -316,6 +322,7 @@ process.load('EventFilter.L1TRawToDigi.caloStage2Digis_cfi')
 process.caloStage2Digis.InputLabel = cms.InputTag('rawDataCollector')
 process.caloStage2Digis.debug      = cms.untracked.bool(options.debug)
 process.caloStage2Digis.FWId  = cms.uint32(options.fwVersion)
+process.caloStage2Digis.DmxFWId = cms.uint32(options.demuxFWVersion)
 process.caloStage2Digis.FWOverride = cms.bool(True)
 process.caloStage2Digis.TMTCheck   = cms.bool(False)
 
