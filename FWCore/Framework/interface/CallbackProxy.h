@@ -4,7 +4,7 @@
 //
 // Package:     Framework
 // Class  :     CallbackProxy
-// 
+//
 /**\class CallbackProxy CallbackProxy.h FWCore/Framework/interface/CallbackProxy.h
 
  Description: A DataProxy which performs a callback when data is requested
@@ -31,56 +31,50 @@
 #include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
-namespace edm {
-   namespace eventsetup {
+namespace edm::eventsetup {
 
-      template<class CallbackT, class RecordT, class DataT>
-      class CallbackProxy : public DataProxy {
-         
-      public:
-         using smart_pointer_traits = produce::smart_pointer_traits<DataT>;
-         using value_type = typename smart_pointer_traits::type;
-         using record_type = RecordT;
-         
-         CallbackProxy(std::shared_ptr<CallbackT>& iCallback) :
-         data_(),
-         callback_(iCallback) { 
-            //The callback fills the data directly.  This is done so that the callback does not have to
-            //  hold onto a temporary copy of the result of the callback since the callback is allowed
-            //  to return multiple items where only one item is needed by this Proxy
-            iCallback->holdOntoPointer(&data_) ; }
-         ~CallbackProxy() override {
-            DataT* dummy(nullptr);
-            callback_->holdOntoPointer(dummy) ;
-         }
-         // ---------- const member functions ---------------------
-         
-         // ---------- static member functions --------------------
-         
-         // ---------- member functions ---------------------------
-         const void* getImpl(const EventSetupRecordImpl& iRecord, const DataKey&) override {
-            assert(iRecord.key() == RecordT::keyForClass());
-            record_type rec;
-            rec.setImpl(&iRecord);
-            (*callback_)(rec);
-            return smart_pointer_traits::getPointer(data_);
-         }
-         
-         void invalidateCache() override {
-            data_ = DataT();
-            callback_->newRecordComing();
-         }
-      private:
-         CallbackProxy(const CallbackProxy&) = delete; // stop default
-         
-         const CallbackProxy& operator=(const CallbackProxy&) = delete; // stop default
-         
-         // ---------- member data --------------------------------
-         DataT data_;
-         edm::propagate_const<std::shared_ptr<CallbackT>> callback_;
-      };
-      
-   }
+  template<class CallbackT, class RecordT, class DataT>
+  class CallbackProxy : public DataProxy {
+  public:
+    using smart_pointer_traits = produce::smart_pointer_traits<DataT>;
+    using value_type = typename smart_pointer_traits::type;
+    using record_type = RecordT;
+
+    CallbackProxy(std::shared_ptr<CallbackT>& iCallback) :
+      callback_{iCallback} {
+      //The callback fills the data directly.  This is done so that the callback does not have to
+      //  hold onto a temporary copy of the result of the callback since the callback is allowed
+      //  to return multiple items where only one item is needed by this Proxy
+      iCallback->holdOntoPointer(&data_);
+    }
+
+    ~CallbackProxy() override {
+      DataT* dummy(nullptr);
+      callback_->holdOntoPointer(dummy);
+    }
+
+    const void* getImpl(const EventSetupRecordImpl& iRecord, const DataKey&) override {
+      assert(iRecord.key() == RecordT::keyForClass());
+      record_type rec;
+      rec.setImpl(&iRecord);
+      (*callback_)(rec);
+      return smart_pointer_traits::getPointer(data_);
+    }
+
+    void invalidateCache() override {
+      data_ = DataT{};
+      callback_->newRecordComing();
+    }
+
+    // Delete copy operations
+    CallbackProxy(const CallbackProxy&) = delete;
+    const CallbackProxy& operator=(const CallbackProxy&) = delete;
+
+  private:
+    DataT data_{};
+    edm::propagate_const<std::shared_ptr<CallbackT>> callback_;
+  };
+
 }
 
 #endif

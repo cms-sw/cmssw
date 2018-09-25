@@ -17,7 +17,7 @@ namespace omtf {
 void RpcPacker::initCabling(const edm::EventSetup & es) {
   edm::ESTransientHandle<RPCEMap> readoutMapping;
   es.get<RPCEMapRcd>().get(readoutMapping);
-  thePactCabling = readoutMapping->convert();
+  thePactCabling.reset(readoutMapping->convert());
   LogDebug("OmtfPacker") <<" Has PACT readout map, VERSION: " << thePactCabling->version() << std::endl;
 }
 
@@ -26,7 +26,7 @@ void RpcPacker::init(const edm::EventSetup & es)
   initCabling(es);
   RpcLinkMap omtfLink2Ele;
   omtfLink2Ele.init(es);
-  thePact2Omtf = translatePact2Omtf(omtfLink2Ele,thePactCabling);
+  thePact2Omtf = translatePact2Omtf(omtfLink2Ele,thePactCabling.get());
 }
 
 void RpcPacker::init(const edm::EventSetup & es, const std::string & connectionFile)
@@ -34,14 +34,14 @@ void RpcPacker::init(const edm::EventSetup & es, const std::string & connectionF
   initCabling(es);
   RpcLinkMap omtfLink2Ele;
   omtfLink2Ele.init(connectionFile);
-  thePact2Omtf = translatePact2Omtf(omtfLink2Ele,thePactCabling);
+  thePact2Omtf = translatePact2Omtf(omtfLink2Ele,thePactCabling.get());
 }
 
 void RpcPacker::pack(const RPCDigiCollection * digis, FedAmcRawsMap & raws) 
 {
   LogTrace("")<<" HERE HERE !!! RPC PACKER" << rpcrawtodigi::DebugDigisPrintout()(digis);
   for (int dcc=790; dcc <= 792; dcc++) {
-    RPCRecordFormatter formatter(dcc, thePactCabling);
+    RPCRecordFormatter formatter(dcc, thePactCabling.get());
     const std::vector<rpcrawtodigi::EventRecords> & merged = RPCPackingModule::eventRecords(dcc,200, digis ,formatter);
     LogTrace("") << " SIZE OF MERGED, for DCC="<<dcc<<" is: "<<merged.size()<<std::endl;
     for (const auto & rpcEvent : merged) {

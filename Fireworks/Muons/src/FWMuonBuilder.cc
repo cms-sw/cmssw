@@ -73,7 +73,7 @@ void addMatchInformation( const reco::Muon* muon,
   const std::vector<reco::MuonChamberMatch>& matches = muon->matches();
    
   //need to use auto_ptr since the segmentSet may not be passed to muonList
-  std::auto_ptr<TEveStraightLineSet> segmentSet( new TEveStraightLineSet );
+  std::unique_ptr<TEveStraightLineSet> segmentSet( new TEveStraightLineSet );
   // FIXME: This should be set elsewhere.
   segmentSet->SetLineWidth( 4 );
 

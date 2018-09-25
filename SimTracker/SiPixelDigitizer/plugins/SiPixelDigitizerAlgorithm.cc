@@ -189,7 +189,6 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   // ADC saturation value, 255(8bit adc.
   //theAdcFullScale(conf.getUntrackedParameter<int>("AdcFullScale",255)),
   theAdcFullScale(conf.getParameter<int>("AdcFullScale")),
-  theAdcFullScaleStack(conf.exists("AdcFullScaleStack")?conf.getParameter<int>("AdcFullScaleStack"):255),
 
   // Noise in electrons:
   // Pixel cell noise, relevant for generating noisy pixels
@@ -1414,15 +1413,6 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
 	adc = int( signalInElectrons / theElectronPerADC ); // calibrate gain
       }
       adc = std::min(adc, theAdcFullScale); // Check maximum value
-// Calculate layerIndex
-     if (theAdcFullScale!=theAdcFullScaleStack){
-       if(pixdet->subDetector() == GeomDetEnumerators::SubDetector::P2OTB) { // Phase 2 OT Barrel only
-	 // Set to 1 if over the threshold
-	 if (theAdcFullScaleStack==1) {adc=1;}
-	 // Make it a linear fit to the full scale of the normal adc count.   Start new adc from 1 not zero.
-	 if (theAdcFullScaleStack!=1&&theAdcFullScaleStack!=theAdcFullScale) {adc = int (1 + adc * (theAdcFullScaleStack-1)/float(theAdcFullScale) );}
-       }
-     } // Only enter this if the Adc changes for the outer layers
 #ifdef TP_DEBUG
       LogDebug ("Pixel Digitizer")
 	<< (*i).first << " " << (*i).second << " " << signalInElectrons

@@ -11,27 +11,19 @@ public:
   // These two structs are public only because of dictionary generation
   class DetIdSize {
   public:
-    // Use top 27 bits to hold the details of the DetId
-    constexpr static unsigned detIdOffset = 5;
-    constexpr static unsigned detIdMask = 0x7ffffff;
-    // Use the last 5 bits to index 2x15 elements
-    constexpr static unsigned sizeOffset = 27;
-    constexpr static unsigned sizeMask = 0x1f;
-    // With this arrangement increasing the size component is faster
-
-    DetIdSize(): detIdSize_(0) {}
-    DetIdSize(unsigned int detId): detIdSize_(detId << detIdOffset) {}
+    DetIdSize() {}
+    DetIdSize(unsigned int detId): detId_(detId) {}
 
     void increaseSize() {
-      assert(size()+1 < 1<<detIdOffset);
-      ++detIdSize_;
+      ++size_;
     }
 
-    unsigned int detIdDetails() const { return detIdSize_ >> detIdOffset; }
-    unsigned int size() const { return detIdSize_ & sizeMask; }
+    unsigned int detId() const { return detId_; }
+    unsigned int size() const { return size_; }
 
   private:
-    unsigned int detIdSize_;
+    unsigned int detId_ = 0;
+    unsigned char size_ = 0;
   };
   class Data {
   public:
@@ -56,7 +48,6 @@ public:
   };
 
   PHGCSimAccumulator() = default;
-  PHGCSimAccumulator(unsigned int detId): detSubdetId_(detId >> DetId::kSubdetOffset) {}
   ~PHGCSimAccumulator() = default;
 
   void reserve(size_t size) {
@@ -77,9 +68,7 @@ public:
    * Data bitfield above.
    */
   void emplace_back(unsigned int detId, unsigned short energyIndex, unsigned short sampleIndex, unsigned short data) {
-    assert( (detId >> DetId::kSubdetOffset) == detSubdetId_ );
-
-    if(detIdSize_.empty() || detIdSize_.back().detIdDetails() != (detId & DetIdSize::detIdMask)) {
+    if(detIdSize_.empty() || detIdSize_.back().detId() != detId) {
       detIdSize_.emplace_back(detId);
     }
     data_.emplace_back(energyIndex, sampleIndex, data);
@@ -132,7 +121,7 @@ public:
       return tmp;
     }
     TmpElem operator*() {
-      return TmpElem((acc_->detSubdetId_ << DetId::kSubdetOffset) | acc_->detIdSize_[iDet_].detIdDetails(),
+      return TmpElem(acc_->detIdSize_[iDet_].detId(),
                      acc_->data_[iData_]);
     }
 
@@ -144,7 +133,7 @@ public:
   };
 
   TmpElem back() const {
-    return TmpElem((detSubdetId_ << DetId::kSubdetOffset) | detIdSize_.back().detIdDetails(),
+    return TmpElem(detIdSize_.back().detId(),
                    data_.back());
   }
 
@@ -156,7 +145,6 @@ public:
 private:
   std::vector<DetIdSize> detIdSize_;
   std::vector<Data> data_;
-  unsigned short detSubdetId_ = 0;
 };
 
 #endif

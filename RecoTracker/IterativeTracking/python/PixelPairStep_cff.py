@@ -335,6 +335,7 @@ highBetaStar_2018.toModify(pixelPairStep,qualityCuts = [-0.95,0.0,0.3])
 
 trackingPhase1.toModify(pixelPairStep, mva=dict(GBRForestLabel = 'MVASelectorPixelPairStep_Phase1'))
 fastSim.toModify(pixelPairStep, vertices = "firstStepPrimaryVerticesBeforeMixing")
+pp_on_AA_2018.toModify(pixelPairStep, qualityCuts = [-0.2, 0.0, 0.9])
 
 # For LowPU and Phase2PU140
 import RecoTracker.IterativeTracking.LowPtTripletStep_cff

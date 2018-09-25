@@ -40,12 +40,14 @@
 //               =1 plots MPV of response vs RBX #
 //
 //             For plotting stored histograms from CalibTree
-//   PlotThreeHists(infile, prefix1, text1, prefix2, text2, prefix3, text3,
-//                  text0, type, iname, drawStatBox, normalize, save);
+//   PlotFiveHists(infile, text0, prefix0, type, iname, drawStatBox, normalize,
+//                 save, prefix1, text1, prefix2, text2, prefix3, text3,
+//                 prefix4, text4, prefix5, text5);
 //      Defaults: type=0; iname=0; drawStatBox=true; normalize=false;
-//                save=false;
+//                save=false; prefixN=""; textN=""; (for N > 0)
 //      Note prefixN, textN have the same meaning as prefix and text for set N
 //           text0 is the text for general title added within ()
+//           prefix0 is the tag attached to the canvas name
 //           type has the same meaning as in PlotTwoHists
 //
 //  PlotHistCorrResults(infile, text, prefixF, save);
@@ -154,6 +156,12 @@ struct cfactors {
     ieta(ie), depth(dp), corrf(cor), dcorr(dc) {};
 };
 
+struct results {
+  double mean, errmean, width, errwidth;
+  results(double v1=0, double er1=0, double v2=0, double er2=0) :
+    mean(v1), errmean(er1), width(v2), errwidth(er2) {};
+};
+
 std::pair<double,double> GetMean(TH1D* hist, double xmin, double xmax,
 				 double& rms) {
   
@@ -176,6 +184,29 @@ std::pair<double,double> GetMean(TH1D* hist, double xmin, double xmax,
     err   = std::sqrt((rms-mean*mean)/wt);
   }
   return std::pair<double,double>(mean,err);
+}
+
+std::pair<double,double> GetWidth(TH1D* hist, double xmin, double xmax) {
+  
+  double mean(0), mom2(0), rms(0), err(0), wt(0);
+  for (int i=1; i<=hist->GetNbinsX(); ++i) {
+    double xlow = hist->GetBinLowEdge(i);
+    double xhigh= xlow + hist->GetBinWidth(i);
+    if ((xlow >= xmin) && (xhigh <= xmax)) {
+      double cont = hist->GetBinContent(i);
+      double valu = 0.5*(xlow+xhigh);
+      wt         += cont;
+      mean       += (valu*cont);
+      mom2       += (valu*valu*cont);
+    }
+  }
+  if (wt > 0) {
+    mean /= wt;
+    mom2 /= wt;
+    rms   = std::sqrt(mom2-mean*mean);
+    err   = rms/std::sqrt(2*wt);
+  }
+  return std::pair<double,double>(rms,err);
 }
 
 std::vector <std::string> splitString (const std::string& fLine) {
@@ -261,7 +292,7 @@ Double_t doubleGauss(Double_t *x, Double_t *par) {
 }
 
 TFitResultPtr functionFit(TH1D *hist, double *fitrange, double *startvalues, 
-		 double *parlimitslo, double *parlimitshi) {
+			  double *parlimitslo, double *parlimitshi) {
 
   char FunName[100];
   sprintf(FunName,"Fitfcn_%s",hist->GetName());
@@ -310,7 +341,7 @@ std::pair<double,double> fitLanGau (TH1D* hist, bool debug) {
   return std::pair<double,double>(value,error);
 }
 
-std::pair<double,double> fitTwoGauss (TH1D* hist, bool debug) {
+results fitTwoGauss (TH1D* hist, bool debug) {
   double rms;
   std::pair<double,double> mrms = GetMean(hist, 0.2, 2.0, rms);
   double mean  = mrms.first;
@@ -340,25 +371,34 @@ std::pair<double,double> fitTwoGauss (TH1D* hist, bool debug) {
   double wt1    = (Fitfun->Value(0))*(Fitfun->Value(2));
   double value1 = Fitfun->Value(1);
   double error1 = Fitfun->FitResult::Error(1); 
+  double wval1  = Fitfun->Value(2);
+  double werr1  = Fitfun->FitResult::Error(2); 
   double wt2    = (Fitfun->Value(3))*(Fitfun->Value(5));
   double value2 = Fitfun->Value(4);
   double error2 = Fitfun->FitResult::Error(4);
+  double wval2  = Fitfun->Value(5);
+  double werr2  = Fitfun->FitResult::Error(5);
   double value  = (wt1*value1+wt2*value2)/(wt1+wt2);
+  double wval   = (wt1*wval1 +wt2*wval2)/(wt1+wt2);
   double error  = (sqrt((wt1*error1)*(wt1*error1)+(wt2*error2)*(wt2*error2))/
 		   (wt1+wt2));
-  std::cout << hist->GetName() << " Fit " << value << ":" << error
-	    << " First  " << value1 << ":" << error1 << ":" << wt1
-	    << " Second " << value2 << ":" << error2 << ":" << wt2 << std::endl;
+  double werror = (sqrt((wt1*werr1)*(wt1*werr1)+(wt2*werr2)*(wt2*werr2))/
+		   (wt1+wt2));
+  std::cout << hist->GetName() << " Fit " << value << "+-" << error
+	    << " width " << wval << " +- " << werror << " First  " << value1 
+	    << "+-" << error1 << ":" << wval1 << "+-" << werr1 << ":" << wt1
+	    << " Second " << value2 << "+-" << error2 << ":" << wval2 << "+-"
+	    << werr2 << ":" << wt2 << std::endl;
   if (debug) {
   for (int k=0; k<6; ++k) 
     std::cout << hist->GetName() << ":Parameter[" << k << "] = " 
 	      << Fitfun->Value(k) << " +- " << Fitfun->FitResult::Error(k) 
 	      << std::endl;
   }
-  return std::pair<double,double>(value,error);
+  return results(value,error,wval,werror);
 }
 
-std::pair<double,double> fitOneGauss (TH1D* hist, bool fitTwice, bool debug) {
+results fitOneGauss (TH1D* hist, bool fitTwice, bool debug) {
   double rms;
   std::pair<double,double> mrms = GetMean(hist, 0.2, 2.0, rms);
   double mean  = mrms.first;
@@ -372,6 +412,8 @@ std::pair<double,double> fitOneGauss (TH1D* hist, bool fitTwice, bool debug) {
   TFitResultPtr Fit1 = hist->Fit(g1,option.c_str(),"");
   double value = Fit1->Value(1);
   double error = Fit1->FitResult::Error(1);
+  double width = Fit1->Value(2);
+  double werror= Fit1->FitResult::Error(2);
   if (fitTwice) {
     LowEdge      = Fit1->Value(1) - 1.2*Fit1->Value(2);
     HighEdge     = Fit1->Value(1) + 1.2*Fit1->Value(2);
@@ -382,21 +424,27 @@ std::pair<double,double> fitOneGauss (TH1D* hist, bool fitTwice, bool debug) {
     TFitResultPtr Fit  = hist->Fit("gaus",option.c_str(),"",LowEdge,HighEdge);
     value = Fit->Value(1);
     error = Fit->FitResult::Error(1); 
+    width = Fit->Value(2);
+    werror= Fit->FitResult::Error(2); 
   }
 
   std::pair<double,double> meaner = GetMean(hist,0.2,2.0,rms);
+  std::pair<double,double> rmserr = GetWidth(hist,0.2,2.0);
   if (debug) {
     std::cout << "Fit " << value << ":" << error << ":" << hist->GetMeanError()
-	      << " Mean " << meaner.first << ":" << meaner.second;
+	      << " Mean " << meaner.first << ":" << meaner.second
+	      << " Width " << rmserr.first << ":" << rmserr.second;
   }
   double minvalue(0.30);
   if (value < minvalue || value > 2.0 || error > 0.5) {
     value = meaner.first; error = meaner.second;
+    width = rmserr.first; werror= rmserr.second;
   }
   if (debug) {
-    std::cout << " Final " << value << ":" << error << std::endl;
+    std::cout << " Final " << value << "+-" << error << ":" << width << "+-"
+	      << werror << std::endl;
   }
-  return std::pair<double,double>(value,error);
+  return results(value,error,width,werror);
 }
 
 void readCorrFactors(char* infile, double scale, std::map<int,cfactors>& cfacs,
@@ -458,6 +506,7 @@ void FitHistStandard(std::string infile,std::string outfile,std::string prefix,
   double dlbins[9]  = {0.0, 0.10, 0.20, 0.50, 1.0, 2.0, 2.5, 3.0, 10.0};
   std::string sname[4] = {"ratio","etaR", "dl1R","nvxR"};
   std::string lname[4] = {"Z", "E", "L", "V"};
+  std::string wname[4] = {"W", "F", "M", "X"};
   std::string xname[4] = {"i#eta", "i#eta", "d_{L1}", "# Vertex"};
   int         numb[4]  = {10, 8, 8, 5};
 
@@ -467,7 +516,7 @@ void FitHistStandard(std::string infile,std::string outfile,std::string prefix,
   }
   TFile      *file = new TFile(infile.c_str());
   std::vector<TH1D*> hists;
-  char name[100];
+  char name[100], namw[100];
   if (file != nullptr) {
     for (int m1=0; m1<4; ++m1) {
       for (int m2=0; m2<5; ++m2) {
@@ -475,24 +524,35 @@ void FitHistStandard(std::string infile,std::string outfile,std::string prefix,
 	TH1D* hist0 = (TH1D*)file->FindObjectAny(name);
 	bool ok = ((hist0 != nullptr) && (hist0->GetEntries() > 25));
 	if ((mode/checkmode[m2])%10 > 0 && ok) {
-	  TH1D* histo(0);
+	  TH1D *histo(0), *histw(0);
 	  sprintf (name, "%s%s%d", prefix.c_str(), lname[m1].c_str(),iname[m2]);
-	  if (m1 <= 1)      histo = new TH1D(name, hist0->GetTitle(), numb[m1], xbins);
-	  else if (m1 == 2) histo = new TH1D(name, hist0->GetTitle(), numb[m1], dlbins);
-	  else              histo = new TH1D(name, hist0->GetTitle(), numb[m1], vbins);
+	  sprintf (namw, "%s%s%d", prefix.c_str(), wname[m1].c_str(),iname[m2]);
+	  if (m1 <= 1) {
+	    histo = new TH1D(name, hist0->GetTitle(), numb[m1], xbins);
+	    histw = new TH1D(namw, hist0->GetTitle(), numb[m1], xbins);
+	  } else if (m1 == 2) {
+	    histo = new TH1D(name, hist0->GetTitle(), numb[m1], dlbins);
+	    histw = new TH1D(namw, hist0->GetTitle(), numb[m1], dlbins);
+	  } else {
+	    histo = new TH1D(name, hist0->GetTitle(), numb[m1], vbins);
+	    histw = new TH1D(namw, hist0->GetTitle(), numb[m1], vbins);
+	  }
 	  int jmin(numb[m1]), jmax(0);
 	  for (int j=0; j<=numb[m1]; ++j) {
 	    sprintf (name, "%s%s%d%d", prefix.c_str(), sname[m1].c_str(), iname[m2], j);
 	    TH1D* hist1 = (TH1D*)file->FindObjectAny(name);
 	    TH1D* hist  = (TH1D*)hist1->Clone();
-	    double value(0), error(0);
+	    double value(0), error(0), width(0), werror(0);
 	    if (hist->GetEntries() > 0) {
 	      value = hist->GetMean(); error = hist->GetRMS();
+	      std::pair<double,double> rmserr = GetWidth(hist,0.2,2.0);
+	      width = rmserr.first;    werror= rmserr.second;
 	    }
 	    if (hist->GetEntries() > 4) {
 	      bool flag = (j == 0) ? true : false;
-	      std::pair<double,double> meaner = fitOneGauss(hist,flag,debug);
-	      value = meaner.first;    error = meaner.second;
+	      results meaner = fitOneGauss(hist,flag,debug);
+	      value = meaner.mean;    error = meaner.errmean;
+	      width = meaner.width;   werror= meaner.errwidth;
 	      if (j != 0) {
 		if (j < jmin) jmin = j;
 		if (j > jmax) jmax = j;
@@ -501,9 +561,14 @@ void FitHistStandard(std::string infile,std::string outfile,std::string prefix,
 	    if (j == 0) {
 	      hists.push_back(hist);
 	    } else {
+	      double wbyv  = width/value;
+	      double wverr = wbyv*std::sqrt((werror*werror)/(width*width)+
+					    (error*error)/(value*value));
 	      if (saveAll) hists.push_back(hist);
 	      histo->SetBinContent(j, value);
 	      histo->SetBinError(j, error);
+	      histw->SetBinContent(j, wbyv);
+	      histw->SetBinError(j, wverr);
 	    }
 	  }
 	  if (histo->GetEntries() > 2) {
@@ -517,8 +582,12 @@ void FitHistStandard(std::string infile,std::string outfile,std::string prefix,
 	    histo->GetXaxis()->SetTitle(xname[m1].c_str());
 	    histo->GetYaxis()->SetTitle("MPV(E_{HCAL}/(p-E_{ECAL}))");
 	    histo->GetYaxis()->SetRangeUser(0.4,1.6);
+	    histw->GetXaxis()->SetTitle(xname[m1].c_str());
+	    histw->GetYaxis()->SetTitle("Width/MPV of (E_{HCAL}/(p-E_{ECAL}))");
+	    histw->GetYaxis()->SetRangeUser(0.0,0.5);
 	  }
 	  hists.push_back(histo);
+	  hists.push_back(histw);
 	}
       }
     }
@@ -541,7 +610,7 @@ void FitHistStandard(std::string infile,std::string outfile,std::string prefix,
 void FitHistExtended(const char* infile, const char* outfile,std::string prefix,
 		     int numb=50, int type=3, bool append=true, 
 		     bool fiteta=true, int iname=2, bool debug=false) {
-  std::string sname("ratio"), lname("Z"), ename("etaB");
+  std::string sname("ratio"), lname("Z"), wname("W"), ename("etaB");
   double      xbins[99];
   double xbin[23] = {-23.0, -21.0, -19.0, -17.0, -15.0, -13.0, -11.0, -9.0,
 		     -7.0, -5.0, -3.0, 0.0, 3.0, 5.0, 7.0, 9.0, 11.0, 13.0,
@@ -575,22 +644,26 @@ void FitHistExtended(const char* infile, const char* outfile,std::string prefix,
       std::cout << name << " Pointer " << hist0 << " " << ok << std::endl;
     }
     if (ok) {
-      TH1D* histo(0);
+      TH1D *histo(0), *histw(0);
       if (numb > 0) {
 	sprintf (name, "%s%s%d", prefix.c_str(), lname.c_str(), iname);
 	histo = new TH1D(name, hist0->GetTitle(), numb, xbins);
+	sprintf (name, "%s%s%d", prefix.c_str(), wname.c_str(), iname);
+	histw = new TH1D(name, hist0->GetTitle(), numb, xbins);
 	if (debug) 
 	  std::cout << name << " " << histo->GetNbinsX() << std::endl;
       }
       if (hist0->GetEntries() > 10) {
 	double rms;
-	std::pair<double,double> meaner0 = fitTwoGauss(hist0, debug);
+	results                  meaner0 = fitTwoGauss(hist0, debug);
 	std::pair<double,double> meaner1 = GetMean(hist0,0.2,2.0,rms);
+	std::pair<double,double> meaner2 = GetWidth(hist0,0.2,2.0);
 	if (debug) {
-	  std::cout << "Fit " << meaner0.first << ":" << meaner0.second 
+	  std::cout << "Fit " << meaner0.mean << ":" << meaner0.errmean
 		    << " Mean1 " << hist0->GetMean() << ":"
 		    << hist0->GetMeanError() << " Mean2 " << meaner1.first
-		    << ":" << meaner1.second << std::endl;
+		    << ":" << meaner1.second << " Width " << meaner2.first
+		    << ":" << meaner2.second << std::endl;
 	}
       }
       int         nv1(100), nv2(0);
@@ -602,7 +675,7 @@ void FitHistExtended(const char* infile, const char* outfile,std::string prefix,
 	  std::cout << "Get Histogram for " << name << " at " << hist1
 		    << std::endl;
 	}
-	double value(0), error(0), total(0);
+	double value(0), error(0), total(0), width(0), werror(0);
 	if (hist1 == nullptr) {
 	  value = 1.0;
 	} else {
@@ -611,6 +684,8 @@ void FitHistExtended(const char* infile, const char* outfile,std::string prefix,
 	    value = hist->GetMean(); error = hist->GetRMS();
 	    for (int i=1; i<=hist->GetNbinsX(); ++i) 
 	      total += hist->GetBinContent(i);
+	    std::pair<double,double> rmserr = GetWidth(hist,0.2,2.0);
+	    width = rmserr.first;    werror= rmserr.second;
 	  }
 	  if (total > 4) {
 	    if (nv1 > j) nv1 = j;
@@ -620,12 +695,13 @@ void FitHistExtended(const char* infile, const char* outfile,std::string prefix,
 	      TH1D* hist2  = (TH1D*)hist1->Clone(name);
 	      fitOneGauss(hist2,true,debug);
 	      hists.push_back(hist2);
-	      std::pair<double,double> meaner0 = fitTwoGauss(hist,debug);
-	      value = meaner0.first;
-	      error = meaner0.second;
+	      results meaner = fitTwoGauss(hist,debug);
+	      value = meaner.mean;    error = meaner.errmean;
+	      width = meaner.width;   werror= meaner.errwidth;
 	    } else {
-	      std::pair<double,double> meaner = fitOneGauss(hist,false,debug);
-	      value = meaner.first; error = meaner.second;
+	      results meaner = fitOneGauss(hist,false,debug);
+	      value = meaner.mean;    error = meaner.errmean;
+	      width = meaner.width;   werror= meaner.errwidth;
 	    }
 	    if (j != 0) {
 	      if (j < jmin) jmin = j;
@@ -639,8 +715,13 @@ void FitHistExtended(const char* infile, const char* outfile,std::string prefix,
 		    << std::endl;
 	}
 	if (j != 0) {
+	  double wbyv  = width/value;
+	  double wverr = wbyv*std::sqrt((werror*werror)/(width*width)+
+					(error*error)/(value*value));
 	  histo->SetBinContent(j, value);
 	  histo->SetBinError(j, error);
+	  histw->SetBinContent(j, wbyv);
+	  histw->SetBinError(j, wverr);
 	}
       }
       if (histo != nullptr) {
@@ -661,8 +742,12 @@ void FitHistExtended(const char* infile, const char* outfile,std::string prefix,
 	  histo->GetXaxis()->SetTitle("i#eta");
 	  histo->GetYaxis()->SetTitle("MPV(E_{HCAL}/(p-E_{ECAL}))");
 	  histo->GetYaxis()->SetRangeUser(0.4,1.6);
+	  histw->GetXaxis()->SetTitle("i#eta");
+	  histw->GetYaxis()->SetTitle("MPV/Width(E_{HCAL}/(p-E_{ECAL}))");
+	  histw->GetYaxis()->SetRangeUser(0.0,0.5);
 	}
 	hists.push_back(histo);
+	hists.push_back(histw);
       } else {
 	hists.push_back(hist0);
       }
@@ -694,9 +779,8 @@ void FitHistExtended(const char* infile, const char* outfile,std::string prefix,
 	      fitLanGau (hist3, debug);
 	      hists.push_back(hist3);
 	    }
-	    std::pair<double,double> meaner0 = fitTwoGauss(hist,debug);
-	    value = meaner0.first;
-	    error = meaner0.second;
+	    results meaner0 = fitTwoGauss(hist,debug);
+	    value = meaner0.mean;    error = meaner0.errmean;
 	    double rms;
 	    std::pair<double,double> meaner = GetMean(hist,0.2,2.0,rms);
 	    if (debug) {
@@ -765,8 +849,8 @@ void FitHistRBX(const char* infile, const char* outfile, std::string prefix,
 	  total += hist->GetBinContent(i);
       }
       if (total > 4) {
-	std::pair<double,double> meaner = fitOneGauss(hist,false,debug);
-	value = meaner.first; error = meaner.second;
+	results meaner = fitOneGauss(hist,false,debug);
+	value = meaner.mean;    error = meaner.errmean;
       }
       hists.push_back(hist);
       histo->SetBinContent(j+1, value);
@@ -813,6 +897,7 @@ void PlotHist(const char* infile, std::string prefix, std::string text,
   std::string name3[5] = {"V0", "V1", "V2", "V3", "V4"};
   std::string name4[8] = {"etaB21", "etaB22", "etaB23", "etaB24",
 			  "etaB01", "etaB02", "etaB03", "etaB04"};
+  std::string name5[5] = {"W0", "W1", "W2", "W3", "W4"};
   std::string title[5] = {"Tracks with p = 20:30 GeV",
 			  "Tracks with p = 30:40 GeV",
 			  "Tracks with p = 40:60 GeV",
@@ -835,7 +920,7 @@ void PlotHist(const char* infile, std::string prefix, std::string text,
   gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
   gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
   gStyle->SetOptTitle(0);
-  if (mode < 0 || mode > 4) mode = 0;
+  if (mode < 0 || mode > 5) mode = 0;
   if (drawStatBox) {
     int iopt(1110);
     if (mode != 0) iopt = 10;
@@ -862,6 +947,8 @@ void PlotHist(const char* infile, std::string prefix, std::string text,
       } else {
 	sprintf (name, "%s%sOne", prefix.c_str(), name4[k].c_str());
       }
+    } else if (mode == 5) {
+      sprintf (name, "%s%s", prefix.c_str(), name5[k].c_str());
     } else {
       if ((kopt/100)%10 == 0) {
 	sprintf (name, "%s%s", prefix.c_str(), name0[k].c_str());
@@ -894,7 +981,8 @@ void PlotHist(const char* infile, std::string prefix, std::string text,
 	else
 	  hist->GetXaxis()->SetRangeUser(0.25,2.25);
       } else {
-	hist->GetYaxis()->SetRangeUser(0.8,1.20);
+	if (mode == 5) hist->GetYaxis()->SetRangeUser(0.1,0.50);
+	else           hist->GetYaxis()->SetRangeUser(0.8,1.20);
 	if (kopt%10 > 0) {
 	  int nbin = hist->GetNbinsX();
 	  double LowEdge = (kopt%10 == 1) ? hist->GetBinLowEdge(1) : -20;
@@ -971,9 +1059,10 @@ void PlotHists(std::string infile, std::string prefix, std::string text,
 	       bool drawStatBox=true, bool save=false) {
   int         colors[6] = {1,6,4,7,2,9};
   std::string types[6] = {"B", "C", "D", "E", "F", "G"};
-  std::string names[2] = {"ratio20", "Z2"};
-  std::string xtitl[2] = {"E_{HCAL}/(p-E_{ECAL})","i#eta"};
-  std::string ytitl[2] = {"Tracks","MPV(E_{HCAL}/(p-E_{ECAL}))"};
+  std::string names[3] = {"ratio20", "Z2", "W2"};
+  std::string xtitl[3] = {"E_{HCAL}/(p-E_{ECAL})","i#eta","i#eta"};
+  std::string ytitl[3] = {"Tracks","MPV(E_{HCAL}/(p-E_{ECAL}))",
+			  "MPV/Width(E_{HCAL}/(p-E_{ECAL}))"};
 
   gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
   gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
@@ -983,7 +1072,7 @@ void PlotHists(std::string infile, std::string prefix, std::string text,
 
   char name[100], namep[100];
   TFile      *file = new TFile(infile.c_str());
-  for (int i=0; i<2; ++i) {
+  for (int i=0; i<3; ++i) {
     std::vector<TH1D*> hists;
     std::vector<int>   kks;
     double ymax(0.77);
@@ -1020,8 +1109,10 @@ void PlotHists(std::string infile, std::string prefix, std::string text,
 	hists[jk]->GetYaxis()->SetTitleOffset(1.15);
 	if (i == 0) {
 	  hists[jk]->GetXaxis()->SetRangeUser(0.0,2.5);
-	} else  {
+	} else if (i == 1) {
 	  hists[jk]->GetYaxis()->SetRangeUser(0.5,2.0);
+	} else {
+	  hists[jk]->GetYaxis()->SetRangeUser(0.0,0.5);
 	}
 	hists[jk]->SetMarkerStyle(20);
 	hists[jk]->SetMarkerColor(colors[k]);
@@ -1078,11 +1169,14 @@ void PlotTwoHists(std::string infile, std::string prefix1, std::string text1,
 		  int type=0, int iname=2, double lumi=0, double ener=13.0,
 		  int drawStatBox=0, bool save=false) {
   int         colors[2] = {2,4};
-  int         numb[2]   = {4,1};
-  std::string names0[4] = {"ratio00", "ratio00One", "etaB04One", "Z0"};
-  std::string names1[4] = {"ratio20", "ratio20One", "etaB24One", "Z2"};
-  std::string xtitl1[4] = {"E_{HCAL}/(p-E_{ECAL})","E_{HCAL}/(p-E_{ECAL})","E_{HCAL}/(p-E_{ECAL})","i#eta"};
-  std::string ytitl1[4] = {"Tracks","Tracks","Tracks","MPV(E_{HCAL}/(p-E_{ECAL}))"};
+  int         numb[2]   = {5,1};
+  std::string names0[5] = {"ratio00", "ratio00One", "etaB04One", "Z0", "W0"};
+  std::string names1[5] = {"ratio20", "ratio20One", "etaB24One", "Z2", "W2"};
+  std::string xtitl1[5] = {"E_{HCAL}/(p-E_{ECAL})","E_{HCAL}/(p-E_{ECAL})",
+			   "E_{HCAL}/(p-E_{ECAL})","i#eta","i#eta"};
+  std::string ytitl1[5] = {"Tracks","Tracks","Tracks",
+			   "MPV(E_{HCAL}/(p-E_{ECAL}))",
+			   "MPV/Width(E_{HCAL}/(p-E_{ECAL}))"};
   std::string names2[1] = {"R"};
   std::string xtitl2[1] = {"RBX #"};
   std::string ytitl2[1] = {"MPV(E_{HCAL}/(p-E_{ECAL}))"};
@@ -1123,10 +1217,13 @@ void PlotTwoHists(std::string infile, std::string prefix1, std::string text1,
     }
     if (hists.size() == 2) {
       if (type == 0) {
-	if (iname == 0) sprintf (namep,"c_%s%s%s",prefix1.c_str(),prefix2.c_str(),names0[i].c_str());
-	else            sprintf (namep,"c_%s%s%s",prefix1.c_str(),prefix2.c_str(),names1[i].c_str());
+	if (iname == 0) sprintf (namep,"c_%s%s%s",prefix1.c_str(),
+				 prefix2.c_str(),names0[i].c_str());
+	else            sprintf (namep,"c_%s%s%s",prefix1.c_str(),
+				 prefix2.c_str(),names1[i].c_str());
       } else {
-	sprintf (namep,"c_%s%s%s%d",prefix1.c_str(),prefix2.c_str(),names2[i].c_str(),iname);
+	sprintf (namep,"c_%s%s%s%d",prefix1.c_str(),prefix2.c_str(),
+		 names2[i].c_str(),iname);
       }
       double ymax(0.90);
       double dy   = (i == 0) ? 0.13 : 0.08;
@@ -1150,12 +1247,13 @@ void PlotTwoHists(std::string infile, std::string prefix1, std::string text1,
 	hists[jk]->GetYaxis()->SetLabelSize(0.035);
 	hists[jk]->GetYaxis()->SetTitleSize(0.040);
 	hists[jk]->GetYaxis()->SetTitleOffset(1.15);
-	if ((type == 0) && (i != 3))
+	if ((type == 0) && (i != 3) && (i != 4))
 	  hists[jk]->GetXaxis()->SetRangeUser(0.0,5.0);
-	if ((type == 0) && (i == 3))
-	  hists[jk]->GetYaxis()->SetRangeUser(0.8,1.2);
-	if (type != 0)
-	  hists[jk]->GetYaxis()->SetRangeUser(0.75,1.2);
+	if (type == 0) {
+	  if      (i == 3) hists[jk]->GetYaxis()->SetRangeUser(0.8,1.2);
+	  else if (i == 4) hists[jk]->GetYaxis()->SetRangeUser(0.0,0.5);
+	}
+	if (type != 0) hists[jk]->GetYaxis()->SetRangeUser(0.75,1.2);
 	hists[jk]->SetMarkerStyle(20);
 	hists[jk]->SetMarkerColor(colors[k]);
 	hists[jk]->SetLineColor(colors[k]);
@@ -1221,19 +1319,23 @@ void PlotTwoHists(std::string infile, std::string prefix1, std::string text1,
   }
 }
 
-void PlotThreeHists(std::string infile, std::string prefix1, std::string text1,
-		    std::string prefix2, std::string text2, std::string prefix3,
-		    std::string text3, std::string text0, int type=0,
-		    int iname=0, int drawStatBox=0, bool normalize=false,
-		    bool save=false) {
-  int         colors[3] = {2,4,6};
-  int         numb[3]   = {4,1,4};
-  std::string names0[4] = {"ratio00", "ratio00One", "etaB04", "Z0"};
-  std::string names1[4] = {"ratio20", "ratio20One", "etaB24", "Z2"};
-  std::string xtitl1[4] = {"E_{HCAL}/(p-E_{ECAL})","E_{HCAL}/(p-E_{ECAL})",
-			   "E_{HCAL}/(p-E_{ECAL})","i#eta"};
-  std::string ytitl1[4] = {"Tracks","Tracks","Tracks",
-			   "MPV(E_{HCAL}/(p-E_{ECAL}))"};
+void PlotFiveHists(std::string infile, std::string text0, std::string prefix0,
+		   int type=0, int iname=0, int drawStatBox=0, 
+		   bool normalize=false,bool save=false, std::string prefix1="",
+		   std::string text1="", std::string prefix2="", 
+		   std::string text2="", std::string prefix3="",
+		   std::string text3="", std::string prefix4="", 
+		   std::string text4="", std::string prefix5="",
+		   std::string text5="") {
+  int         colors[5] = {2,4,6,1,7};
+  int         numb[3]   = {5,1,4};
+  std::string names0[5] = {"ratio00", "ratio00One", "etaB04", "Z0", "W0"};
+  std::string names1[5] = {"ratio20", "ratio20One", "etaB24", "Z2", "W2"};
+  std::string xtitl1[5] = {"E_{HCAL}/(p-E_{ECAL})","E_{HCAL}/(p-E_{ECAL})",
+			   "E_{HCAL}/(p-E_{ECAL})","i#eta","i#eta"};
+  std::string ytitl1[5] = {"Tracks","Tracks","Tracks",
+			   "MPV(E_{HCAL}/(p-E_{ECAL}))",
+			   "MPV/Width(E_{HCAL}/(p-E_{ECAL}))"};
   std::string names2[1] = {"R"};
   std::string xtitl2[1] = {"RBX #"};
   std::string ytitl2[1] = {"MPV(E_{HCAL}/(p-E_{ECAL}))"};
@@ -1254,6 +1356,7 @@ void PlotThreeHists(std::string infile, std::string prefix1, std::string text1,
   for (int i=0; i<numb[type]; ++i) {
     std::vector<TH1D*> hists;
     std::vector<int>   kks;
+    std::vector<std::string> texts;
     double ymax(0.77);
     if (drawStatBox%10 > 0) {
       if (type == 2)   gStyle->SetOptStat(1110);
@@ -1263,30 +1366,48 @@ void PlotThreeHists(std::string infile, std::string prefix1, std::string text1,
       gStyle->SetOptStat(0);
       ymax = 0.82;
     }
-    for (int k=0; k<3; ++k) {
-      std::string prefix = (k == 0) ? prefix1 : ((k == 1) ? prefix2 : prefix3);
-      if (type == 0) {
-	if (iname == 0) sprintf (name, "%s%s",prefix.c_str(),names0[i].c_str());
-	else            sprintf (name, "%s%s",prefix.c_str(),names1[i].c_str());
-      } else if (type == 1) {
-	sprintf (name, "%s%s%d",prefix.c_str(),names2[i].c_str(),iname);
+    for (int k=0; k<5; ++k) {
+      std::string prefix, text;
+      if        (k == 0) {
+	prefix = prefix1; text = text1;
+      } else if (k == 1) {
+	prefix = prefix2; text = text2;
+      } else if (k == 2) {
+	prefix = prefix3; text = text3;
+      } else if (k == 3) {
+	prefix = prefix4; text = text4;
       } else {
-	sprintf (name, "%s%s",prefix.c_str(),names3[i].c_str());
+	prefix = prefix5; text = text5;
       }
-      TH1D* hist1 = (TH1D*)file->FindObjectAny(name);
-      if (hist1 != nullptr) {
-	hists.push_back((TH1D*)(hist1->Clone())); 
-	kks.push_back(k);
+      if (prefix != "") {
+	if (type == 0) {
+	  if (iname == 0) sprintf (name, "%s%s", prefix.c_str(),
+				   names0[i].c_str());
+	  else            sprintf (name, "%s%s", prefix.c_str(),
+				   names1[i].c_str());
+	} else if (type == 1) {
+	  sprintf (name, "%s%s%d",prefix.c_str(),names2[i].c_str(),iname);
+	} else {
+	  sprintf (name, "%s%s",prefix.c_str(),names3[i].c_str());
+	}
+	TH1D* hist1 = (TH1D*)file->FindObjectAny(name);
+	if (hist1 != nullptr) {
+	  hists.push_back((TH1D*)(hist1->Clone())); 
+	  kks.push_back(k);
+	  texts.push_back(text);
+	}
       }
     }
-    if (hists.size() == 3) {
+    if (hists.size() > 0) {
       if (type == 0) {
-	if (iname == 0) sprintf (namep,"c_%s%s%s%s",prefix1.c_str(),prefix2.c_str(),prefix3.c_str(),names0[i].c_str());
-	else            sprintf (namep,"c_%s%s%s%s",prefix1.c_str(),prefix2.c_str(),prefix3.c_str(),names1[i].c_str());
+	if (iname == 0) sprintf (namep,"c_%s%s",prefix0.c_str(),
+				 names0[i].c_str());
+	else            sprintf (namep,"c_%s%s",prefix0.c_str(),
+				 names1[i].c_str());
       } else if (type == 1) {
-	sprintf (namep,"c_%s%s%s%s%d",prefix1.c_str(),prefix2.c_str(),prefix3.c_str(),names2[i].c_str(),iname);
+	sprintf (namep,"c_%s%s%d",prefix0.c_str(),names2[i].c_str(),iname);
       } else {
-	sprintf (namep,"c_%s%s%s%s",prefix1.c_str(),prefix2.c_str(),prefix3.c_str(),names3[i].c_str());
+	sprintf (namep,"c_%s%s",prefix0.c_str(),names3[i].c_str());
       }
       double ymax(0.90);
       double dy   = (i == 0 && type == 0) ? 0.13 : 0.08;
@@ -1313,12 +1434,13 @@ void PlotThreeHists(std::string infile, std::string prefix1, std::string text1,
 	hists[jk]->GetYaxis()->SetLabelSize(0.035);
 	hists[jk]->GetYaxis()->SetTitleSize(0.040);
 	hists[jk]->GetYaxis()->SetTitleOffset(1.15);
-	if ((type == 0) && (i != 3))
+	if ((type == 0) && (i != 3) && (i != 4))
 	  hists[jk]->GetXaxis()->SetRangeUser(0.0,2.5);
-	if ((type == 0) && (i == 3))
-	  hists[jk]->GetYaxis()->SetRangeUser(0.8,1.2);
-	if (type == 1)
-	  hists[jk]->GetYaxis()->SetRangeUser(0.75,1.2);
+	if (type == 0) {
+	  if      (i == 3) hists[jk]->GetYaxis()->SetRangeUser(0.8,1.2);
+	  else if (i == 4) hists[jk]->GetYaxis()->SetRangeUser(0.0,0.5);
+	}
+	if (type == 1)     hists[jk]->GetYaxis()->SetRangeUser(0.75,1.2);
 	hists[jk]->SetMarkerStyle(20);
 	hists[jk]->SetMarkerColor(colors[k]);
 	hists[jk]->SetLineColor(colors[k]);
@@ -1339,9 +1461,7 @@ void PlotThreeHists(std::string infile, std::string prefix1, std::string text1,
 	  st1->SetX1NDC(0.70); st1->SetX2NDC(0.90);
 	  ymax = ymin;
 	}
-	if      (k == 0) sprintf (name, "%s", text1.c_str());
-	else if (k == 1) sprintf (name, "%s", text2.c_str());
-	else             sprintf (name, "%s", text3.c_str());
+	sprintf (name, "%s", texts[jk].c_str());
 	legend->AddEntry(hists[jk],name,"lp");
       }
       legend->Draw("same");

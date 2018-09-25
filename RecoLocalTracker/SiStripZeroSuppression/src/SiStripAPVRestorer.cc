@@ -46,8 +46,8 @@ SiStripAPVRestorer::SiStripAPVRestorer(const edm::ParameterSet& conf):
   size_window_(conf.getParameter<int>("sizeWindow")),
   width_cluster_(conf.getParameter<int>("widthCluster"))
 {
-  if ( restoreAlgo_ == "BaselineFollower" && inspectAlgo_ != "BaselineFollower" )
-    throw cms::Exception("Incompatible Algorithm") << "The BaselineFollower restore method requires the BaselineFollower inspect method";
+  if ( restoreAlgo_ == "BaselineFollower" && inspectAlgo_ != "BaselineFollower" && inspectAlgo_ != "Hybrid" )
+    throw cms::Exception("Incompatible Algorithm") << "The BaselineFollower restore method requires the BaselineFollower (or Hybrid) inspect method";
 }
 
 
@@ -323,8 +323,8 @@ inline uint16_t SiStripAPVRestorer::hybridEmulationInspect(uint16_t firstAPV, co
       if ( useRealMeanCM_ && ( std::end(meanCMmap_) != itCMMap ) )
         MeanAPVCM = itCMMap->second[iAPV];
 
-      const float DeltaCM = median_[iAPV] - MeanAPVCM;
-      if ( ( DeltaCM < 0 ) && ( std::abs(DeltaCM) > deltaCMThreshold_ ) ) {
+      const float DeltaCM = median_[iAPV] - (MeanAPVCM+1024)/2;
+      if ( ( DeltaCM < 0 ) && ( std::abs(DeltaCM) > deltaCMThreshold_/2 ) ) {
         apvFlags_[iAPV] = "HybridEmulation";
         ++nAPVflagged;
       }

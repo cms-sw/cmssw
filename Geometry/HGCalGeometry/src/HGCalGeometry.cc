@@ -93,7 +93,7 @@ void HGCalGeometry::newCell( const GlobalPoint& f1 ,
 				  << " GEOM " << HGCSiliconDetId(geomId);
 #endif
   }
-  const uint32_t cellIndex (m_topology.detId2denseGeomId(detId));
+  const uint32_t cellIndex (m_topology.detId2denseGeomId(geomId));
 
   if (m_det == DetId::HGCalHSc) {
     m_cellVec2.at( cellIndex ) = FlatTrd( cornersMgr(), f1, f2, f3, parm ) ;
@@ -212,37 +212,37 @@ void HGCalGeometry::newCell( const GlobalPoint& f1 ,
 
 std::shared_ptr<const CaloCellGeometry> HGCalGeometry::getGeometry(const DetId& id) const {
   if (id == DetId()) return nullptr; // nothing to get
-  DetId geoId;
+  DetId geomId;
   if ((mode_ == HGCalGeometryMode::Hexagon) || 
       (mode_ == HGCalGeometryMode::HexagonFull)) {
-    geoId = (DetId)(HGCalDetId(id).geometryCell());
+    geomId = (DetId)(HGCalDetId(id).geometryCell());
   } else if (mode_ == HGCalGeometryMode::Trapezoid) {
-    geoId = (DetId)(HGCScintillatorDetId(id).geometryCell());
+    geomId = (DetId)(HGCScintillatorDetId(id).geometryCell());
   } else if (m_topology.isHFNose()) {
-    geoId = (DetId)(HFNoseDetId(id).geometryCell());
+    geomId = (DetId)(HFNoseDetId(id).geometryCell());
   } else {
-    geoId = (DetId)(HGCSiliconDetId(id).geometryCell());
+    geomId = (DetId)(HGCSiliconDetId(id).geometryCell());
   }
-  const uint32_t cellIndex (m_topology.detId2denseGeomId(geoId));
-  const GlobalPoint pos = (id != geoId) ? getPosition(id) : GlobalPoint();
+  const uint32_t cellIndex (m_topology.detId2denseGeomId(geomId));
+  const GlobalPoint pos = (id != geomId) ? getPosition(id) : GlobalPoint();
   return cellGeomPtr (cellIndex, pos);
 
 }
 
 bool HGCalGeometry::present(const DetId& id) const {
   if (id == DetId()) return false;
-  DetId geoId;
+  DetId geomId;
   if ((mode_ == HGCalGeometryMode::Hexagon) || 
       (mode_ == HGCalGeometryMode::HexagonFull)) {
-    geoId = (DetId)(HGCalDetId(id).geometryCell());
+    geomId = (DetId)(HGCalDetId(id).geometryCell());
   } else if (mode_ == HGCalGeometryMode::Trapezoid) {
-    geoId = (DetId)(HGCScintillatorDetId(id).geometryCell());
+    geomId = (DetId)(HGCScintillatorDetId(id).geometryCell());
   } else if (m_topology.isHFNose()) {
-    geoId = (DetId)(HFNoseDetId(id).geometryCell());
+    geomId = (DetId)(HFNoseDetId(id).geometryCell());
   } else {
-    geoId = (DetId)(HGCSiliconDetId(id).geometryCell());
+    geomId = (DetId)(HGCSiliconDetId(id).geometryCell());
   }
-  const uint32_t index (m_topology.detId2denseGeomId(geoId));
+  const uint32_t index (m_topology.detId2denseGeomId(geomId));
   return (nullptr != getGeometryRawPtr(index)) ;
 }
 
@@ -443,25 +443,25 @@ std::string HGCalGeometry::cellElement() const {
   else                                                     return "Unknown";
 }
 
-unsigned int HGCalGeometry::indexFor(const DetId& id) const {
+unsigned int HGCalGeometry::indexFor(const DetId& detId) const {
   unsigned int cellIndex = ((m_det == DetId::HGCalHSc) ? m_cellVec2.size() :
 			    m_cellVec.size());
-  if (id != DetId()) {
-    DetId geoId;
+  if (detId != DetId()) {
+    DetId geomId;
     if ((mode_ == HGCalGeometryMode::Hexagon) ||
 	(mode_ == HGCalGeometryMode::HexagonFull)) {
-      geoId = (DetId)(HGCalDetId(id).geometryCell());
+      geomId = (DetId)(HGCalDetId(detId).geometryCell());
     } else if (mode_ == HGCalGeometryMode::Trapezoid) {
-      geoId = (DetId)(HGCScintillatorDetId(id).geometryCell());
+      geomId = (DetId)(HGCScintillatorDetId(detId).geometryCell());
     } else if (m_topology.isHFNose()) {
-      geoId = (DetId)(HFNoseDetId(id).geometryCell());
+      geomId = (DetId)(HFNoseDetId(detId).geometryCell());
     } else {
-      geoId = (DetId)(HGCSiliconDetId(id).geometryCell());
+      geomId = (DetId)(HGCSiliconDetId(detId).geometryCell());
     }
-    cellIndex = m_topology.detId2denseGeomId(geoId);
+    cellIndex = m_topology.detId2denseGeomId(geomId);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "indexFor " << std::hex << id.rawId() 
-				  << ":" << geoId.rawId() << std::dec 
+    edm::LogVerbatim("HGCalGeom") << "indexFor " << std::hex << detId.rawId() 
+				  << ":" << geomId.rawId() << std::dec 
 				  << " index " << cellIndex;
 #endif
   }
