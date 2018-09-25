@@ -161,8 +161,6 @@ class PFECALSuperClusterAlgo {
 
   double threshPFClusterSeed_;
   double threshPFCluster_;
-  //double etawidthSuperCluster_;
-  //double phiwidthSuperCluster_;
 
   double threshPFClusterSeedBarrel_;
   double threshPFClusterBarrel_;
