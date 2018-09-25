@@ -54,11 +54,11 @@ void dqmBmtfAlgoSelector::L1TBMTFAlgoSelector::produce(edm::Event & eve, const e
     std::unique_ptr<l1t::RegionalMuonCandBxCollection> bmtfTriggering, bmtfSecondary;
     bmtfTriggering.reset(bmtfLegacy_copy);
     bmtfSecondary.reset(bmtfKalman_copy);
-    //Print in log the addresses 
+    //Print in log the addresses
     edm::LogInfo("L1TDQM") << "Triggering and Secondary pointers filled:";
     edm::LogInfo("L1TDQM") << "bmtfTriggering address: " << bmtfTriggering.get();
     edm::LogInfo("L1TDQM") << "bmtfSecondary address: " << bmtfSecondary.get();
-    //produce the products
+    //Produce the products
     eve.put(std::move(bmtfTriggering),"BMTF");
     eve.put(std::move(bmtfSecondary),"BMTF2");
     return;
