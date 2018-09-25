@@ -150,7 +150,11 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 	    CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(CaloTools::kHFEnd) &&
 	    (tower.hwQual() & 0x4) > 0) 
 	  ringMB0 += 1;
-	  
+	if (CaloTools::mpEta(abs(tower.hwEta()))>=CaloTools::mpEta(CaloTools::kHFBegin) &&
+	    CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(CaloTools::kHFEnd) &&
+	    (tower.hwQual() & 0x8) > 0) 
+	  ringMB1 += 1;
+	
         // tower counting 
 	if (tower.hwPt()>nTowThresholdHw_ && CaloTools::mpEta(abs(tower.hwEta()))<=nTowEtaMax_) 
 	  ringNtowers += 1;
