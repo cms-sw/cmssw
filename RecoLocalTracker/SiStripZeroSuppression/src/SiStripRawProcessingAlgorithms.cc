@@ -79,7 +79,7 @@ uint16_t SiStripRawProcessingAlgorithms::suppressHybridData(uint32_t id, uint16_
     } else {
       for ( uint16_t i = 0; i < 128; ++i ) {
         const int16_t digi = procRawDigisPedSubtracted[128*(iAPV-firstAPV)+i];
-        if ( digi > 0 ) { suppressedDigis.push_back(SiStripDigi(iAPV*128+i, digi)); }
+        if ( digi > 0 ) { suppressedDigis.push_back(SiStripDigi(iAPV*128+i, suppressor->truncate(digi))); }
       }
     }
   }
