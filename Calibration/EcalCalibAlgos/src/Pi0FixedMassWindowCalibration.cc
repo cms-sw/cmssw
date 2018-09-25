@@ -426,7 +426,7 @@ Pi0FixedMassWindowCalibration::duringLoop(const edm::Event& event,
   }
 
   //Put clustershapes in event, but retain a Handle on them.
-  std::auto_ptr<reco::ClusterShapeCollection> clustersshapes_p(new reco::ClusterShapeCollection);
+  std::unique_ptr<reco::ClusterShapeCollection> clustersshapes_p(new reco::ClusterShapeCollection);
   clustersshapes_p->assign(ClusVec.begin(), ClusVec.end());
 
   cout<<"[Pi0Calibration] Basic Cluster collection size: "<<clusters.size()<<endl;
@@ -451,7 +451,7 @@ Pi0FixedMassWindowCalibration::duringLoop(const edm::Event& event,
   }
 
   //Put clustershapes in event, but retain a Handle on them.
-  std::auto_ptr<reco::ClusterShapeCollection> clustersshapes_p_recalib(new reco::ClusterShapeCollection);
+  std::unique_ptr<reco::ClusterShapeCollection> clustersshapes_p_recalib(new reco::ClusterShapeCollection);
   clustersshapes_p_recalib->assign(ClusVec_recalib.begin(), ClusVec_recalib.end());
 
   cout<<"[Pi0FixedMassWindowCalibration][recalibration] Basic Cluster collection size: "<<clusters_recalib.size()<<endl;
