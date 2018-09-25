@@ -48,19 +48,10 @@ public:
     
 private:
     
-<<<<<<< HEAD
-    void beginJob();
-    void produce( edm::Event&, const edm::EventSetup&) override;
-    void endJob();
+    void produce( edm::Event&, const edm::EventSetup&) ;
     
     void beginRun(edm::Run const& iRun, edm::EventSetup const& es) override;
     void endRun(edm::Run const& iRun, edm::EventSetup const& es) override;
-=======
-    void produce( edm::Event&, const edm::EventSetup&) ;
-    
-    void beginRun(edm::Run const& iRun, edm::EventSetup const& es) override ;
-    void endRun(edm::Run const& iRun, edm::EventSetup const& es) override ;
->>>>>>> 2ef1aaaa7a0... add modifications from Seth
     
     edm::EDGetTokenT<edm::HepMCProduct> _hepmcCollection;
     edm::EDGetTokenT<LHERunInfoProduct> _lheRunInfo;
@@ -79,13 +70,6 @@ private:
 HTXSRivetProducer::~HTXSRivetProducer(){
 }
 
-<<<<<<< HEAD
-void HTXSRivetProducer::beginJob(){
-    _analysisHandler.addAnalysis(_HTXS);
-}
-
-=======
->>>>>>> 2ef1aaaa7a0... add modifications from Seth
 void HTXSRivetProducer::produce( edm::Event & iEvent, const edm::EventSetup & ) {
     
     //get the hepmc product from the event
@@ -179,13 +163,6 @@ void HTXSRivetProducer::produce( edm::Event & iEvent, const edm::EventSetup & ) 
     }
 }
 
-<<<<<<< HEAD
-void HTXSRivetProducer::endJob(){
-    _HTXS->printClassificationSummary();
-}
-
-=======
->>>>>>> 2ef1aaaa7a0... add modifications from Seth
 void HTXSRivetProducer::endRun(edm::Run const& iRun, edm::EventSetup const& es) 
 {
   _HTXS->printClassificationSummary();
