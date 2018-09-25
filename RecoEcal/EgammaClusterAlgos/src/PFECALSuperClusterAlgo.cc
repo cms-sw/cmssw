@@ -10,11 +10,9 @@
 #include "CondFormats/DataRecord/interface/ESChannelStatusRcd.h"
 #include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
 #include "CondFormats/ESObjects/interface/ESChannelStatus.h"
+#include "RecoEgamma/EgammaTools/interface/BaselinePFSCRegression.h"
 #include "Math/GenVector/VectorUtil.h"
-#include "TFile.h"
-#include "TH2F.h"
-#include "TROOT.h"
-#include "TMath.h"
+#include "TVector2.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -71,24 +69,25 @@ namespace {
            const double majority, const double maxDEta,
            const double maxDPhi)
   {      
-    if( seed->energy_nocalib() < threshold ) return false; 
+    if( seed->energy_nocalib() < threshold ) {
+        return false; 
+    }
     const double dEta = std::abs(seed->eta()-x->eta());
-    const double dPhi = 
-  std::abs(TVector2::Phi_mpi_pi(seed->phi() - x->phi())); 
-    if( maxDEta < dEta || maxDPhi < dPhi) return false;
+    const double dPhi = std::abs(TVector2::Phi_mpi_pi(seed->phi() - x->phi())); 
+    if( maxDEta < dEta || maxDPhi < dPhi) {
+        return false;
+    }
     // now see if the clusters overlap in rechits
-    const auto& seedHitsAndFractions = 
-  seed->the_ptr()->hitsAndFractions();
-    const auto& xHitsAndFractions = 
-  x->the_ptr()->hitsAndFractions();      
+    const auto& seedHitsAndFractions = seed->the_ptr()->hitsAndFractions();
+    const auto& xHitsAndFractions = x->the_ptr()->hitsAndFractions();      
     double x_rechits_tot   = xHitsAndFractions.size();
     double x_rechits_match = 0.0;      
     for( const std::pair<DetId, float>& seedHit : seedHitsAndFractions ) {
-  for( const std::pair<DetId, float>& xHit : xHitsAndFractions ) {
-    if( seedHit.first == xHit.first ) {	    
-      x_rechits_match += 1.0;
-    }
-  }
+      for( const std::pair<DetId, float>& xHit : xHitsAndFractions ) {
+        if( seedHit.first == xHit.first ) {
+          x_rechits_match += 1.0;
+        }
+      }
     }      
     return x_rechits_match/x_rechits_tot > majority;
   }
@@ -100,31 +99,24 @@ namespace {
                    const double etawidthSuperCluster,
                    const double phiwidthSuperCluster)
   { 
-    const double dphi = 
-  std::abs(TVector2::Phi_mpi_pi(seed->phi() - x->phi()));        
+    const double dphi = std::abs(TVector2::Phi_mpi_pi(seed->phi() - x->phi()));        
     const bool passes_dphi = 
-  ( (!dyn_dphi && dphi < phiwidthSuperCluster ) || 
-    (dyn_dphi && reco::MustacheKernel::inDynamicDPhiWindow(seed->eta(),
-  					   seed->phi(),
-  					   x->energy_nocalib(),
-  					   x->eta(),
-  					   x->phi()) ) );
+      ( (!dyn_dphi && dphi < phiwidthSuperCluster ) || 
+        (dyn_dphi && reco::MustacheKernel::inDynamicDPhiWindow(seed->eta(),
+                                                               seed->phi(),
+                                                               x->energy_nocalib(),
+                                                               x->eta(),
+                                                               x->phi()) ) );
 
-    switch( type ) {
-    case PFECALSuperClusterAlgo::kBOX:
-  return ( std::abs(seed->eta()-x->eta())<etawidthSuperCluster && 
-  	 passes_dphi   );
-  break;
-    case PFECALSuperClusterAlgo::kMustache:
-  return ( passes_dphi && 
-  	 reco::MustacheKernel::inMustache(seed->eta(), 
-  			seed->phi(),
-  			x->energy_nocalib(),
-  			x->eta(),
-  			x->phi()            ));
-  break;
-    default: 
-  return false;
+    if(type == PFECALSuperClusterAlgo::kBOX) {
+      return ( std::abs(seed->eta()-x->eta()) < etawidthSuperCluster && passes_dphi);
+    }
+    if(type == PFECALSuperClusterAlgo::kMustache) {
+      return ( passes_dphi && reco::MustacheKernel::inMustache(seed->eta(), 
+                                                               seed->phi(),
+                                                               x->energy_nocalib(),
+                                                               x->eta(),
+                                                               x->phi()) );
     }
     return false;
   }
@@ -302,7 +294,6 @@ void PFECALSuperClusterAlgo::buildSuperCluster(CalibClusterPtr& seed, CalibClust
 				 << " in the ECAL barrel!";
     break;
   case PFLayer::HGCAL:  
-    break;
   case PFLayer::ECAL_ENDCAP:  
   
     phiwidthSuperCluster = phiwidthSuperClusterEndcap_; 
@@ -315,7 +306,7 @@ void PFECALSuperClusterAlgo::buildSuperCluster(CalibClusterPtr& seed, CalibClust
   default:
     break;
   }
-  auto isClusteredWithSeed = std::bind(isClustered, _1, seed,_clustype,_useDynamicDPhi, etawidthSuperCluster, phiwidthSuperCluster);
+  auto isClusteredWithSeed = std::bind(isClustered, _1, seed,_clustype,useDynamicDPhi_, etawidthSuperCluster, phiwidthSuperCluster);
   auto matchesSeedByRecHit = std::bind(isLinkedByRecHit, _1, seed,satelliteThreshold_, fractionForMajority_,0.1,0.2);
   
   // this function shuffles the list of clusters into a list

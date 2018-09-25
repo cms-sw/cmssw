@@ -121,7 +121,7 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
     
   }
   
-   sort(seeds.begin(), seeds.end(), [](auto& x, auto& y){return x.energy() > y.energy();});
+   sort(seeds.begin(), seeds.end(), [](auto const& x, auto const& y){return x.energy() > y.energy();});
 
    if (verbosity < pINFO)
    {

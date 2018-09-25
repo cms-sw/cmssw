@@ -152,7 +152,7 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl,
   LogTrace("EcalClusters") << "Built vector of seeds, about to sort them..." ;
   
   //Needs three argument sort with seed comparison operator
-  sort(seeds.begin(), seeds.end(), [](auto& x, auto& y) { return x.energy() > y.energy() ; });
+  sort(seeds.begin(), seeds.end(), [](auto const& x, auto const& y) { return x.energy() > y.energy() ; });
   
   LogTrace("EcalClusters") << "done" ;
   
