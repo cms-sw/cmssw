@@ -7,10 +7,8 @@
 
 #include "G4ThreeVector.hh"
 
-class HFFibreFiducial {
-
-public:
-  static int PMTNumber(const G4ThreeVector& pe_effect); // M.K. HF acceptance
+namespace HFFibreFiducial {
+  int PMTNumber(const G4ThreeVector& pe_effect); // M.K. HF acceptance
 };
 
 #endif
