@@ -17,11 +17,11 @@ bool subDetByType(const GeometricTimingDet* a, const GeometricTimingDet* b)
 // NP** Phase2 BarrelEndcap
 bool phiSortNP(const GeometricTimingDet* a, const GeometricTimingDet* b)
 {
-    if (fabs(a->translation().rho() - b->translation().rho()) < 0.01
-        && (fabs(a->translation().phi() - b->translation().phi()) < 0.01
-               || fabs(a->translation().phi() - b->translation().phi()) > 6.27)
+    if (std::abs(a->translation().rho() - b->translation().rho()) < 0.01
+        && (std::abs(a->translation().phi() - b->translation().phi()) < 0.01
+               || std::abs(a->translation().phi() - b->translation().phi()) > 6.27)
         && a->translation().z() * b->translation().z() > 0.0) {
-        return (fabs(a->translation().z()) < fabs(b->translation().z()));
+        return (std::abs(a->translation().z()) < std::abs(b->translation().z()));
     } else
         return false;
 }
@@ -39,7 +39,7 @@ bool isLessZ(const GeometricTimingDet* a, const GeometricTimingDet* b)
 
 bool isLessModZ(const GeometricTimingDet* a, const GeometricTimingDet* b)
 {
-    return fabs(a->translation().z()) < fabs(b->translation().z());
+    return std::abs(a->translation().z()) < std::abs(b->translation().z());
 }
 
 double getPhi(const GeometricTimingDet* a)
@@ -55,7 +55,7 @@ double getPhiModule(const GeometricTimingDet* a)
     bool sum = true;
 
     for (auto i : comp) {
-        if (fabs(i->phi()) > M_PI / 2.) {
+        if (std::abs(i->phi()) > M_PI / 2.) {
             sum = false;
             break;
         }
@@ -77,7 +77,7 @@ double getPhiModule(const GeometricTimingDet* a)
 
         double com = comp.front()->phi() >= 0 ? comp.front()->phi() : 2 * M_PI + comp.front()->phi();
         double temp
-            = fabs(phi / float(comp.size()) - com) > 2. ? M_PI - phi / float(comp.size()) : phi / float(comp.size());
+            = std::abs(phi / float(comp.size()) - com) > 2. ? M_PI - phi / float(comp.size()) : phi / float(comp.size());
         temp = temp >= 0 ? temp : 2 * M_PI + temp;
         return temp;
     }
@@ -91,7 +91,7 @@ double getPhiGluedModule(const GeometricTimingDet* a)
     bool sum = true;
 
     for (auto& i : comp) {
-        if (fabs(i->phi()) > M_PI / 2.) {
+        if (std::abs(i->phi()) > M_PI / 2.) {
             sum = false;
             break;
         }
@@ -113,7 +113,7 @@ double getPhiGluedModule(const GeometricTimingDet* a)
 
         double com = comp.front()->phi() >= 0 ? comp.front()->phi() : 2 * M_PI + comp.front()->phi();
         double temp
-            = fabs(phi / float(comp.size()) - com) > 2. ? M_PI - phi / float(comp.size()) : phi / float(comp.size());
+            = std::abs(phi / float(comp.size()) - com) > 2. ? M_PI - phi / float(comp.size()) : phi / float(comp.size());
         temp = temp >= 0 ? temp : 2 * M_PI + temp;
         return temp;
     }
