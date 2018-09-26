@@ -91,8 +91,5 @@
   <use   name="RecoParticleFlow/PFTracking"/>
   <use   name="RecoEcal/EgammaCoreTools"/>
   <use   name="Geometry/CaloTopology"/>  
-  <use   name="RecoEgamma/EgammaIsolationAlgos"/>
-  <use   name="RecoEgamma/PhotonIdentification"/>
-  <use   name="root"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
