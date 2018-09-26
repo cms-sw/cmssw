@@ -222,7 +222,7 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
 #ifdef EDM_ML_DEBUG
     else {
       LogTrace("TrackFitters") << "dump hits after smoothing";
-      Trajectory::DataContainer meas = smoothed[0].measurements();
+      Trajectory::DataContainer meas = smoothed.measurements();
       for (Trajectory::DataContainer::iterator it=meas.begin();it!=meas.end();++it) {
         LogTrace("TrackFitters") << "hit #" << meas.end()-it-1 << " validity=" << it->recHit()->isValid()
         << " det=" << it->recHit()->geographicalId().rawId();
