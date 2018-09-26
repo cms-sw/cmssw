@@ -32,7 +32,6 @@ class PythiaHepMCFilterGammaGamma : public BaseHepMCFilter {
  private:
 
   const edm::EDGetTokenT<edm::HepMCProduct> token_;
-  const int maxEvents;
 
   const double ptSeedThr, etaSeedThr, ptGammaThr, etaGammaThr, ptTkThr, etaTkThr;
   const double ptElThr, etaElThr, dRTkMax, dRSeedMax, dPhiSeedMax, dEtaSeedMax, dRNarrowCone, pTMinCandidate1, pTMinCandidate2, etaMaxCandidate;
