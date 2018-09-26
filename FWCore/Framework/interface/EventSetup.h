@@ -33,138 +33,132 @@
 #include "FWCore/Framework/interface/HCMethods.h"
 #include "FWCore/Framework/interface/NoRecordException.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
+#include "FWCore/Framework/interface/data_default_record_trait.h"
+#include "FWCore/Utilities/interface/Transition.h"
 
 // forward declarations
 
 namespace edm {
-   class ActivityRegistry;
-   class ESInputTag;
+  class ActivityRegistry;
+  class ESInputTag;
+  template <class T>
+  class ESGetTokenT;
 
-   namespace eventsetup {
-      class EventSetupProvider;
-      class EventSetupRecord;
-      class EventSetupRecordImpl;
-      template<class T> struct data_default_record_trait;
-      class EventSetupKnownRecordsSupplier;
-   }
+  namespace eventsetup {
+    class EventSetupProvider;
+    class EventSetupRecord;
+    class EventSetupRecordImpl;
+    class EventSetupKnownRecordsSupplier;
+  }
 
   class EventSetup
   {
     ///Only EventSetupProvider allowed to create a EventSetup
     friend class eventsetup::EventSetupProvider;
-    public:
-      virtual ~EventSetup();
+  public:
+    virtual ~EventSetup();
 
-      // ---------- const member functions ---------------------
-      /** returns the Record of type T.  If no such record available
-          a eventsetup::NoRecordException<T> is thrown */
-      template< typename T>
-         T get() const {
-           using namespace eventsetup;
-           using namespace eventsetup::heterocontainer;
-            //NOTE: this will catch the case where T does not inherit from EventSetupRecord
-            //  HOWEVER the error message under gcc 3.x is awful
-            static_assert(std::is_base_of<edm::eventsetup::EventSetupRecord, T>::value, "Trying to get a class that is not a Record from EventSetup");
+    EventSetup(EventSetup const&) = delete;
+    EventSetup& operator=(EventSetup const&) = delete;
 
-           auto const temp = findImpl(makeKey<typename type_from_itemtype<eventsetup::EventSetupRecordKey,T>::Type,eventsetup::EventSetupRecordKey>());
-           if(nullptr == temp) {
-             throw eventsetup::NoRecordException<T>(recordDoesExist(*this, eventsetup::EventSetupRecordKey::makeKey<T>()));
-           }
-           T returnValue;
-           returnValue.setImpl(temp);
-           return returnValue;
-         }
-      /** returns the Record of type T.  If no such record available
-       a null pointer is returned */
-      template< typename T>
-        std::optional<T> tryToGet() const {
-           using namespace eventsetup;
-           using namespace eventsetup::heterocontainer;
+    // ---------- const member functions ---------------------
+    /** returns the Record of type T.  If no such record available
+        a eventsetup::NoRecordException<T> is thrown */
+    template< typename T>
+    T get() const {
+      using namespace eventsetup;
+      using namespace eventsetup::heterocontainer;
+      //NOTE: this will catch the case where T does not inherit from EventSetupRecord
+      //  HOWEVER the error message under gcc 3.x is awful
+      static_assert(std::is_base_of_v<edm::eventsetup::EventSetupRecord, T>, "Trying to get a class that is not a Record from EventSetup");
 
-           //NOTE: this will catch the case where T does not inherit from EventSetupRecord
-           static_assert((std::is_base_of<edm::eventsetup::EventSetupRecord, T>::value),"Trying to get a class that is not a Record from EventSetup");
-           auto const temp = findImpl(makeKey<typename type_from_itemtype<eventsetup::EventSetupRecordKey,T>::Type,eventsetup::EventSetupRecordKey>());
-           if(temp != nullptr) {
-              T rec;
-              rec.setImpl(temp);
-              return rec;
-           }
-           return std::nullopt;
-        }
-
-      /** can directly access data if data_default_record_trait<> is defined for this data type **/
-      template< typename T>
-         void getData(T& iHolder) const {
-            typedef typename T::value_type data_type;
-            typedef typename eventsetup::data_default_record_trait<data_type>::type RecordT;
-            const RecordT& rec = this->get<RecordT>();
-            rec.get(iHolder);
-         }
-      template< typename T>
-         void getData(const std::string& iLabel, T& iHolder) const {
-            typedef typename T::value_type data_type;
-            typedef typename eventsetup::data_default_record_trait<data_type>::type RecordT;
-            const RecordT& rec = this->get<RecordT>();
-            rec.get(iLabel,iHolder);
-         }
-
-      template< typename T>
-        void getData(const edm::ESInputTag& iTag, T& iHolder) const {
-           typedef typename T::value_type data_type;
-           typedef typename eventsetup::data_default_record_trait<data_type>::type RecordT;
-           const RecordT& rec = this->get<RecordT>();
-           rec.get(iTag,iHolder);
-        }
-
-      std::optional<eventsetup::EventSetupRecordGeneric> find(const eventsetup::EventSetupRecordKey&) const;
-
-      ///clears the oToFill vector and then fills it with the keys for all available records
-      void fillAvailableRecordKeys(std::vector<eventsetup::EventSetupRecordKey>& oToFill) const;
-
-      ///returns true if the Record is provided by a Source or a Producer
-      /// a value of true does not mean this EventSetup object holds such a record
-      bool recordIsProvidedByAModule( eventsetup::EventSetupRecordKey const& ) const;
-      // ---------- static member functions --------------------
-
-      // ---------- member functions ---------------------------
-      template< typename T>
-         void
-         getAvoidCompilerBug(const T*& iValue) const {
-            iValue = &(get<T>());
-         }
-
-      friend class eventsetup::EventSetupRecordImpl;
-
-    protected:
-      //Only called by EventSetupProvider
-      void setKnownRecordsSupplier(eventsetup::EventSetupKnownRecordsSupplier const* iSupplier) {
-        knownRecords_ = iSupplier;
+      auto const temp = findImpl(makeKey<typename type_from_itemtype<eventsetup::EventSetupRecordKey,T>::Type,eventsetup::EventSetupRecordKey>());
+      if(nullptr == temp) {
+        throw eventsetup::NoRecordException<T>(recordDoesExist(*this, eventsetup::EventSetupRecordKey::makeKey<T>()));
       }
+      T returnValue;
+      returnValue.setImpl(temp);
+      return returnValue;
+    }
 
-      void add(const eventsetup::EventSetupRecordImpl& iRecord);
+    /** returns the Record of type T.  If no such record available
+        a null pointer is returned */
+    template< typename T>
+    std::optional<T> tryToGet() const {
+      using namespace eventsetup;
+      using namespace eventsetup::heterocontainer;
 
-      void clear();
+      //NOTE: this will catch the case where T does not inherit from EventSetupRecord
+      static_assert(std::is_base_of_v<edm::eventsetup::EventSetupRecord, T>,"Trying to get a class that is not a Record from EventSetup");
+      auto const temp = findImpl(makeKey<typename type_from_itemtype<eventsetup::EventSetupRecordKey,T>::Type,eventsetup::EventSetupRecordKey>());
+      if(temp != nullptr) {
+        T rec;
+        rec.setImpl(temp);
+        return rec;
+      }
+      return std::nullopt;
+    }
 
-    private:
-      EventSetup(ActivityRegistry*);
+    /** can directly access data if data_default_record_trait<> is defined for this data type **/
+    template< typename T>
+    bool getData(T& iHolder) const {
+      return getData("", iHolder);
+    }
 
-      EventSetup(EventSetup const&) = delete; // stop default
+    template< typename T>
+    bool getData(const std::string& iLabel, T& iHolder) const {
+      auto const& rec = this->get<eventsetup::default_record_t<T>>();
+      return rec.get(iLabel, iHolder);
+    }
 
-      EventSetup const& operator=(EventSetup const&) = delete; // stop default
+    template< typename T>
+    bool getData(const ESInputTag& iTag, T& iHolder) const {
+      auto const& rec = this->get<eventsetup::default_record_t<T>>();
+      return rec.get(iTag, iHolder);
+    }
 
-      ActivityRegistry* activityRegistry() const { return activityRegistry_; }
-      eventsetup::EventSetupRecordImpl const* findImpl(const eventsetup::EventSetupRecordKey&) const;
+    template <typename T>
+    bool getData(const ESGetTokenT<T>& iToken, ESHandle<T>& iHolder) const {
+      return getData(iToken.tag(), iHolder);
+    }
 
+    std::optional<eventsetup::EventSetupRecordGeneric> find(const eventsetup::EventSetupRecordKey&) const;
 
-      void insert(const eventsetup::EventSetupRecordKey&,
-                  const eventsetup::EventSetupRecordImpl*);
+    ///clears the oToFill vector and then fills it with the keys for all available records
+    void fillAvailableRecordKeys(std::vector<eventsetup::EventSetupRecordKey>& oToFill) const;
 
-      // ---------- member data --------------------------------
+    ///returns true if the Record is provided by a Source or a Producer
+    /// a value of true does not mean this EventSetup object holds such a record
+    bool recordIsProvidedByAModule( eventsetup::EventSetupRecordKey const& ) const;
+    // ---------- static member functions --------------------
 
-      //NOTE: the records are not owned
-      std::map<eventsetup::EventSetupRecordKey, eventsetup::EventSetupRecordImpl const *> recordMap_;
-      eventsetup::EventSetupKnownRecordsSupplier const* knownRecords_;
-      ActivityRegistry* activityRegistry_;
+    friend class eventsetup::EventSetupRecordImpl;
+
+  protected:
+    //Only called by EventSetupProvider
+    void setKnownRecordsSupplier(eventsetup::EventSetupKnownRecordsSupplier const* iSupplier) {
+      knownRecords_ = iSupplier;
+    }
+
+    void add(const eventsetup::EventSetupRecordImpl& iRecord);
+
+    void clear();
+
+  private:
+    EventSetup(ActivityRegistry*);
+
+    ActivityRegistry* activityRegistry() const { return activityRegistry_; }
+    eventsetup::EventSetupRecordImpl const* findImpl(const eventsetup::EventSetupRecordKey&) const;
+
+    void insert(const eventsetup::EventSetupRecordKey&,
+                const eventsetup::EventSetupRecordImpl*);
+
+    // ---------- member data --------------------------------
+
+    //NOTE: the records are not owned
+    std::map<eventsetup::EventSetupRecordKey, eventsetup::EventSetupRecordImpl const*> recordMap_;
+    eventsetup::EventSetupKnownRecordsSupplier const* knownRecords_;
+    ActivityRegistry* activityRegistry_;
   };
 
   // Free functions to retrieve an object from the EventSetup.
@@ -176,7 +170,7 @@ namespace edm {
     // throw if the record is not available
     setup.get<R>().get(handle);
     // throw if the handle is not valid
-    return * handle.product();
+    return *handle.product();
   }
 
   template <typename T, typename R = typename eventsetup::data_default_record_trait<typename T::value_type>::type, typename L>
@@ -185,7 +179,7 @@ namespace edm {
     // throw if the record is not available
     setup.get<R>().get(std::forward(label), handle);
     // throw if the handle is not valid
-    return * handle.product();
+    return *handle.product();
   }
 
 }

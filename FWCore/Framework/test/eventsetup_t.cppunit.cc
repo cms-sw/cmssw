@@ -489,7 +489,7 @@ void testEventsetup::getDataWithESInputTagTest()
     {
       edm::ESHandle<DummyData> data;
       edm::ESInputTag badTag("DoesNotExist","blah");
-      CPPUNIT_ASSERT_THROW(eventSetup.getData(badTag,data), cms::Exception);
+      CPPUNIT_ASSERT_THROW(eventSetup.getData(badTag, data), cms::Exception);
     }
 
 

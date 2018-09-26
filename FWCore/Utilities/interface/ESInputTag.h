@@ -90,8 +90,6 @@ namespace edm {
       ESInputTag(const std::string& iModuleLabel, const std::string& iDataLabel);
       ESInputTag(const std::string& iEncodedValue);
       
-      //virtual ~ESInputTag();
-      
       // ---------- const member functions ---------------------
       
       /**Returns the label assigned to the module for the data to be retrieved.
@@ -108,19 +106,12 @@ namespace edm {
       bool operator==(const edm::ESInputTag& iRHS) const;
       
       std::string encode() const;
-      // ---------- static member functions --------------------
-      
-      // ---------- member functions ---------------------------
       
    private:
-      //ESInputTag(const ESInputTag&); // allow default
-      
-      //const ESInputTag& operator=(const ESInputTag&); // allow default
       
       // ---------- member data --------------------------------
       std::string module_;
       std::string data_;
-   
    };
    
 }
