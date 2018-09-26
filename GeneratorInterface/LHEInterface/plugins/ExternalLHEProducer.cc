@@ -93,6 +93,7 @@ private:
   std::vector<std::string> args_;
   uint32_t npars_;
   uint32_t nEvents_;
+  bool storeXML_;
   unsigned int nThreads_{1};
   std::string outputContents_;
 
@@ -133,7 +134,8 @@ ExternalLHEProducer::ExternalLHEProducer(const edm::ParameterSet& iConfig) :
   outputFile_(iConfig.getParameter<std::string>("outputFile")),
   args_(iConfig.getParameter<std::vector<std::string> >("args")),
   npars_(iConfig.getParameter<uint32_t>("numberOfParameters")),
-  nEvents_(iConfig.getUntrackedParameter<uint32_t>("nEvents"))
+  nEvents_(iConfig.getUntrackedParameter<uint32_t>("nEvents")),
+  storeXML_(iConfig.getUntrackedParameter<bool>("storeXML"))
 {
   if (npars_ != args_.size())
     throw cms::Exception("ExternalLHEProducer") << "Problem with configuration: " << args_.size() << " script arguments given, expected " << npars_;
@@ -258,15 +260,19 @@ ExternalLHEProducer::beginRunProduce(edm::Run& run, edm::EventSetup const& es)
   
   //fill LHEXMLProduct (streaming read directly into compressed buffer to save memory)
   std::unique_ptr<LHEXMLStringProduct> p(new LHEXMLStringProduct);
-  std::ifstream instream(outputFile_);
-  if (!instream) {
-    throw cms::Exception("OutputOpenError") << "Unable to open script output file " << outputFile_ << ".";
-  }  
-  instream.seekg (0, instream.end);
-  int insize = instream.tellg();
-  instream.seekg (0, instream.beg);  
-  p->fillCompressedContent(instream, 0.25*insize);
-  instream.close();
+
+  //store the XML file only if explictly requested
+  if (storeXML_) {
+    std::ifstream instream(outputFile_);
+    if (!instream) {
+      throw cms::Exception("OutputOpenError") << "Unable to open script output file " << outputFile_ << ".";
+    }  
+    instream.seekg (0, instream.end);
+    int insize = instream.tellg();
+    instream.seekg (0, instream.beg);  
+    p->fillCompressedContent(instream, 0.25*insize);
+    instream.close();
+  }
   run.put(std::move(p), "LHEScriptOutput");
 
   // LHE C++ classes translation
@@ -499,6 +505,7 @@ ExternalLHEProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<std::vector<std::string> >("args");
   desc.add<uint32_t>("numberOfParameters");
   desc.addUntracked<uint32_t>("nEvents");
+  desc.addUntracked<bool>("storeXML", false);
 
   descriptions.addDefault(desc);
 }
