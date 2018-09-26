@@ -412,7 +412,7 @@ void CSCGEMMotherboardME11::sortLCTs(std::vector<CSCCorrelatedLCTDigi>& LCTs, in
 }
 
 //sort LCTs in whole LCTs BX window
-void CSCGEMMotherboardME11::sortLCTs(std::vector<CSCCorrelatedLCTDigi>& LCTs_final,
+void CSCGEMMotherboardME11::sortLCTs(std::vector<CSCCorrelatedLCTDigi>& LCTs,
                                      bool (*sorter)(const CSCCorrelatedLCTDigi&, const CSCCorrelatedLCTDigi&)) const
 {
   for (int bx = 0; bx < CSCConstants::MAX_LCT_TBINS; bx++) {
