@@ -94,10 +94,10 @@ class PF_PU_AssoMapAlgos{
    virtual void GetInputCollections(edm::Event&, const edm::EventSetup&);
 
    //create the track to vertex association map
-   std::auto_ptr<TrackToVertexAssMap> CreateTrackToVertexMap(edm::Handle<reco::TrackCollection>, const edm::EventSetup&);
+   std::unique_ptr<TrackToVertexAssMap> CreateTrackToVertexMap(edm::Handle<reco::TrackCollection>, const edm::EventSetup&);
 
    //create the vertex to track association map
-   std::auto_ptr<VertexToTrackAssMap> CreateVertexToTrackMap(edm::Handle<reco::TrackCollection>, const edm::EventSetup&);
+   std::unique_ptr<VertexToTrackAssMap> CreateVertexToTrackMap(edm::Handle<reco::TrackCollection>, const edm::EventSetup&);
 
    //function to sort the vertices in the AssociationMap by the sum of (pT - pT_Error)**2
    std::unique_ptr<TrackToVertexAssMap> SortAssociationMap(TrackToVertexAssMap*,edm::Handle<reco::TrackCollection>);
@@ -133,7 +133,7 @@ class PF_PU_AssoMapAlgos{
    static double dR(const math::XYZPoint&, const math::XYZVector&, edm::Handle<reco::BeamSpot>);
 
    //function to filter the conversion collection
-   static std::auto_ptr<reco::ConversionCollection> GetCleanedConversions(edm::Handle<reco::ConversionCollection>,
+   static std::unique_ptr<reco::ConversionCollection> GetCleanedConversions(edm::Handle<reco::ConversionCollection>,
                                                                           edm::Handle<reco::BeamSpot>, bool);
 
    //function to find out if the track comes from a gamma conversion
@@ -144,10 +144,10 @@ class PF_PU_AssoMapAlgos{
 				               edm::Handle<reco::BeamSpot>, std::vector<reco::VertexRef>*, double);
 
    //function to filter the Kshort collection
-   static std::auto_ptr<reco::VertexCompositeCandidateCollection> GetCleanedKshort(edm::Handle<reco::VertexCompositeCandidateCollection>, edm::Handle<reco::BeamSpot>, bool);
+   static std::unique_ptr<reco::VertexCompositeCandidateCollection> GetCleanedKshort(edm::Handle<reco::VertexCompositeCandidateCollection>, edm::Handle<reco::BeamSpot>, bool);
 
    //function to filter the Lambda collection
-   static std::auto_ptr<reco::VertexCompositeCandidateCollection> GetCleanedLambda(edm::Handle<reco::VertexCompositeCandidateCollection>, edm::Handle<reco::BeamSpot>, bool);
+   static std::unique_ptr<reco::VertexCompositeCandidateCollection> GetCleanedLambda(edm::Handle<reco::VertexCompositeCandidateCollection>, edm::Handle<reco::BeamSpot>, bool);
 
    //function to find out if the track comes from a V0 decay
    static bool ComesFromV0Decay(const reco::TrackRef, const reco::VertexCompositeCandidateCollection&,
@@ -158,7 +158,7 @@ class PF_PU_AssoMapAlgos{
 				       edm::Handle<reco::BeamSpot>, std::vector<reco::VertexRef>*, double);
 
    //function to filter the nuclear interaction collection
-   static std::auto_ptr<reco::PFDisplacedVertexCollection> GetCleanedNI(edm::Handle<reco::PFDisplacedVertexCollection>, edm::Handle<reco::BeamSpot>, bool);
+   static std::unique_ptr<reco::PFDisplacedVertexCollection> GetCleanedNI(edm::Handle<reco::PFDisplacedVertexCollection>, edm::Handle<reco::BeamSpot>, bool);
 
    //function to find out if the track comes from a nuclear interaction
    static bool ComesFromNI(const reco::TrackRef, const reco::PFDisplacedVertexCollection&, reco::PFDisplacedVertex*);
@@ -188,19 +188,19 @@ class PF_PU_AssoMapAlgos{
 
    edm::EDGetTokenT<reco::ConversionCollection> ConversionsCollectionToken_;
    edm::Handle<reco::ConversionCollection> convCollH;
-   std::auto_ptr<reco::ConversionCollection> cleanedConvCollP;
+   std::unique_ptr<reco::ConversionCollection> cleanedConvCollP;
 
    edm::EDGetTokenT<reco::VertexCompositeCandidateCollection> KshortCollectionToken_;
    edm::Handle<reco::VertexCompositeCandidateCollection> vertCompCandCollKshortH;
-   std::auto_ptr<reco::VertexCompositeCandidateCollection> cleanedKshortCollP;
+   std::unique_ptr<reco::VertexCompositeCandidateCollection> cleanedKshortCollP;
 
    edm::EDGetTokenT<reco::VertexCompositeCandidateCollection> LambdaCollectionToken_;
    edm::Handle<reco::VertexCompositeCandidateCollection> vertCompCandCollLambdaH;
-   std::auto_ptr<reco::VertexCompositeCandidateCollection> cleanedLambdaCollP;
+   std::unique_ptr<reco::VertexCompositeCandidateCollection> cleanedLambdaCollP;
 
    edm::EDGetTokenT<reco::PFDisplacedVertexCollection> NIVertexCollectionToken_;
    edm::Handle<reco::PFDisplacedVertexCollection> displVertexCollH;
-   std::auto_ptr<reco::PFDisplacedVertexCollection> cleanedNICollP;
+   std::unique_ptr<reco::PFDisplacedVertexCollection> cleanedNICollP;
 
    int input_FinalAssociation_;
 
