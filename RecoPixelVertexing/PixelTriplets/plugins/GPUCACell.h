@@ -6,49 +6,49 @@
 
 #include <cuda_runtime.h>
 
-#include "GPUHitsAndDoublets.h"
 #include "RecoLocalTracker/SiPixelRecHits/plugins/siPixelRecHitsHeterogeneousProduct.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/GPUVecArray.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/GPUSimpleVector.h"
 
 struct Quadruplet {
-  int hitId[4];
+   using hindex_type = siPixelRecHitsHeterogeneousProduct::hindex_type;
+   hindex_type hitId[4];
 };
+
 
 class GPUCACell {
 public:
-  GPUCACell() = default;
 
-  __host__ __device__
-  void init(siPixelRecHitsHeterogeneousProduct::HitsOnGPU const & hh,
-      int layerPairId, int doubletId, int innerHitId,int outerHitId)
+  using Hits = siPixelRecHitsHeterogeneousProduct::HitsOnGPU;
+  using hindex_type = siPixelRecHitsHeterogeneousProduct::hindex_type;
+
+  GPUCACell() = default;
+#ifdef __CUDACC__
+
+  __device__ __forceinline__
+  void init(Hits const & hh,
+      int layerPairId, int doubletId,  
+      hindex_type innerHitId, hindex_type outerHitId)
   {
     theInnerHitId = innerHitId;
     theOuterHitId = outerHitId;
     theDoubletId = doubletId;
     theLayerPairId = layerPairId;
 
-    theInnerX = hh.xg_d[innerHitId];
-    theOuterX = hh.xg_d[outerHitId];
-
-    theInnerY = hh.yg_d[innerHitId];
-    theOuterY = hh.yg_d[outerHitId];
-
-    theInnerZ = hh.zg_d[innerHitId];
-    theOuterZ = hh.zg_d[outerHitId];
-    theInnerR = hh.rg_d[innerHitId];
-    theOuterR = hh.rg_d[outerHitId];
+    theInnerZ = __ldg(hh.zg_d+innerHitId);
+    theInnerR = __ldg(hh.rg_d+innerHitId);
     theOuterNeighbors.reset();
   }
 
-  constexpr float get_inner_x() const { return theInnerX; }
-  constexpr float get_outer_x() const { return theOuterX; }
-  constexpr float get_inner_y() const { return theInnerY; }
-  constexpr float get_outer_y() const { return theOuterY; }
-  constexpr float get_inner_z() const { return theInnerZ; }
-  constexpr float get_outer_z() const { return theOuterZ; }
-  constexpr float get_inner_r() const { return theInnerR; }
-  constexpr float get_outer_r() const { return theOuterR; }
+  __device__ __forceinline__ float get_inner_x(Hits const & hh) const { return __ldg(hh.xg_d+theInnerHitId); }
+  __device__ __forceinline__ float get_outer_x(Hits const & hh) const { return __ldg(hh.xg_d+theOuterHitId); }
+  __device__ __forceinline__ float get_inner_y(Hits const & hh) const { return __ldg(hh.yg_d+theInnerHitId); }
+  __device__ __forceinline__ float get_outer_y(Hits const & hh) const { return __ldg(hh.yg_d+theOuterHitId); }
+  __device__ __forceinline__ float get_inner_z(Hits const & hh) const { return theInnerZ; } // { return __ldg(hh.zg_d+theInnerHitId); } // { return theInnerZ; }
+  __device__ __forceinline__ float get_outer_z(Hits const & hh) const { return __ldg(hh.zg_d+theOuterHitId); }
+  __device__ __forceinline__ float get_inner_r(Hits const & hh) const { return theInnerR; } // { return __ldg(hh.rg_d+theInnerHitId); } // { return theInnerR; }
+  __device__ __forceinline__ float get_outer_r(Hits const & hh) const { return __ldg(hh.rg_d+theOuterHitId); }
+
   constexpr unsigned int get_inner_hit_id() const {
     return theInnerHitId;
   }
@@ -56,37 +56,42 @@ public:
     return theOuterHitId;
   }
 
-  constexpr void print_cell() const {
+
+  __device__
+  void print_cell() const {
     printf("printing cell: %d, on layerPair: %d, innerHitId: %d, outerHitId: "
            "%d, innerradius %f, outerRadius %f \n",
-           theDoubletId, theLayerPairId, theInnerHitId, theOuterHitId,
-           theInnerR, theOuterR);
+           theDoubletId, theLayerPairId, theInnerHitId, theOuterHitId
+    );
   }
 
-  __host__ __device__
-  bool check_alignment_and_tag(
-      const GPUCACell *cells, unsigned int innerCellId, const float ptmin,
+
+  __device__
+  bool check_alignment(Hits const & hh,
+      GPUCACell const & otherCell, const float ptmin,
       const float region_origin_x, const float region_origin_y,
       const float region_origin_radius, const float thetaCut,
-      const float phiCut, const float hardPtCut)
+      const float phiCut, const float hardPtCut) const
   {
-    auto ro = get_outer_r();
-    auto zo = get_outer_z();
-    const auto &otherCell = cells[innerCellId];
+    auto ri = get_inner_r(hh);
+    auto zi = get_inner_z(hh);
 
-    auto r1 = otherCell.get_inner_r();
-    auto z1 = otherCell.get_inner_z();
-    bool aligned = areAlignedRZ(r1, z1, ro, zo, ptmin, thetaCut);
+    auto ro = get_outer_r(hh);
+    auto zo = get_outer_z(hh);
+
+    auto r1 = otherCell.get_inner_r(hh);
+    auto z1 = otherCell.get_inner_z(hh);
+    bool aligned = areAlignedRZ(r1, z1, ri, zi, ro, zo, ptmin, thetaCut);
     return (aligned &&
-            haveSimilarCurvature(cells, innerCellId, ptmin, region_origin_x,
+            haveSimilarCurvature(hh, otherCell, ptmin, region_origin_x,
                                  region_origin_y, region_origin_radius, phiCut,
                                  hardPtCut));
   }
 
-
-  constexpr bool areAlignedRZ(float r1, float z1, float ro, float zo,
+  __device__ __forceinline__
+  static bool areAlignedRZ(float r1, float z1, float ri, float zi, float ro, float zo,
                                         const float ptmin,
-                                        const float thetaCut) const {
+                                        const float thetaCut) {
     float radius_diff = std::abs(r1 - ro);
     float distance_13_squared =
         radius_diff * radius_diff + (z1 - zo) * (z1 - zo);
@@ -96,27 +101,26 @@ public:
                                                 // radius_diff later
 
     float tan_12_13_half_mul_distance_13_squared =
-        fabs(z1 * (get_inner_r() - ro) + get_inner_z() * (ro - r1) + zo * (r1 - get_inner_r()));
+        fabs(z1 * (ri - ro) + zi * (ro - r1) + zo * (r1 - ri));
     return tan_12_13_half_mul_distance_13_squared * pMin <= thetaCut * distance_13_squared * radius_diff;
   }
 
-  constexpr bool
-  haveSimilarCurvature(const GPUCACell *cells, unsigned int innerCellId,
+  __device__ 
+  bool
+  haveSimilarCurvature(Hits const & hh, GPUCACell const & otherCell,
                        const float ptmin, const float region_origin_x,
                        const float region_origin_y,
                        const float region_origin_radius, const float phiCut,
                        const float hardPtCut) const {
 
-    const auto &otherCell = cells[innerCellId];
+    auto x1 = otherCell.get_inner_x(hh);
+    auto y1 = otherCell.get_inner_y(hh);
 
-    auto x1 = otherCell.get_inner_x();
-    auto y1 = otherCell.get_inner_y();
+    auto x2 = get_inner_x(hh);
+    auto y2 = get_inner_y(hh);
 
-    auto x2 = get_inner_x();
-    auto y2 = get_inner_y();
-
-    auto x3 = get_outer_x();
-    auto y3 = get_outer_y();
+    auto x3 = get_outer_x(hh);
+    auto y3 = get_outer_y(hh);
 
     float distance_13_squared = (x1 - x3) * (x1 - x3) + (y1 - y3) * (y1 - y3);
     float tan_12_13_half_mul_distance_13_squared =
@@ -139,7 +143,7 @@ public:
 
       return distance_13_beamspot_squared <
              (region_origin_radius + phiCut) * (region_origin_radius + phiCut);
-    }
+    } 
 
     // 87 cm/GeV = 1/(3.8T * 0.3)
 
@@ -186,13 +190,13 @@ public:
   // trying to free the track building process from hardcoded layers, leaving
   // the visit of the graph based on the neighborhood connections between cells.
 
-#ifdef __CUDACC__
+// #ifdef __CUDACC__
 
   __device__
   inline void find_ntuplets(
-      const GPUCACell *cells,
+      GPUCACell const * __restrict__ cells,
       GPU::SimpleVector<Quadruplet> *foundNtuplets,
-      GPU::VecArray<unsigned int,3> &tmpNtuplet,
+      GPU::VecArray<hindex_type,3> &tmpNtuplet,
       const unsigned int minHitsPerNtuplet) const
   {
     // the building process for a track ends if:
@@ -231,16 +235,10 @@ public:
   int theLayerPairId;
 
 private:
-  unsigned int theInnerHitId;
-  unsigned int theOuterHitId;
-  float theInnerX;
-  float theOuterX;
-  float theInnerY;
-  float theOuterY;
   float theInnerZ;
-  float theOuterZ;
   float theInnerR;
-  float theOuterR;
+  hindex_type theInnerHitId;
+  hindex_type theOuterHitId;
 };
 
 #endif // RecoPixelVertexing_PixelTriplets_plugins_GPUCACell_h

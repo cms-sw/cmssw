@@ -20,12 +20,13 @@ namespace gpuPixelDoublets {
 
   template<typename Hist>
   __device__
+  __forceinline__
   void doubletsFromHisto(uint8_t const * __restrict__ layerPairs,
                          uint32_t nPairs,
                          GPUCACell * cells,
                          uint32_t * nCells,
                          int16_t const * __restrict__ iphi,
-                         Hist const * __restrict__ hist,
+                         Hist const & __restrict__ hist,
                          uint32_t const * __restrict__ offsets,
                          siPixelRecHitsHeterogeneousProduct::HitsOnGPU const &  __restrict__ hh,
                          GPU::VecArray< unsigned int, 256> * isOuterHitOfCell,
@@ -63,6 +64,8 @@ namespace gpuPixelDoublets {
       uint8_t outer = layerPairs[2*pairLayerId+1];
       assert(outer > inner);
 
+      auto hoff = Hist::histOff(outer);
+
       auto i = (0 == pairLayerId) ? j : j-innerLayerCumulativeSize[pairLayerId-1];
       i += offsets[inner];
 
@@ -73,8 +76,8 @@ namespace gpuPixelDoublets {
 
       // found hit corresponding to our cuda thread, now do the job
       auto mep = iphi[i];
-      auto mez = hh.zg_d[i];
-      auto mer = hh.rg_d[i];
+      auto mez = __ldg(hh.zg_d+i);
+      auto mer = __ldg(hh.rg_d+i);
 
       constexpr float z0cut = 12.f;                     // cm
       constexpr float hardPtCut = 0.5f;                 // GeV
@@ -83,13 +86,13 @@ namespace gpuPixelDoublets {
       auto ptcut = [&](int j) {
         auto r2t4 = minRadius2T4;
         auto ri = mer;
-        auto ro = hh.rg_d[j];
+        auto ro = __ldg(hh.rg_d+j);
         auto dphi = short2phi( min( abs(int16_t(mep-iphi[j])), abs(int16_t(iphi[j]-mep)) ) );
         return dphi*dphi * (r2t4 - ri*ro) > (ro-ri)*(ro-ri);
       };
       auto z0cutoff = [&](int j) {
-        auto zo = hh.zg_d[j];
-        auto ro = hh.rg_d[j];
+        auto zo = __ldg(hh.zg_d+j);
+        auto ro = __ldg(hh.rg_d+j);
         auto dr = ro-mer;
         return dr > maxr[pairLayerId] ||
           dr<0 || std::abs((mez*ro - mer*zo)) > z0cut*dr;
@@ -97,8 +100,8 @@ namespace gpuPixelDoublets {
 
       auto iphicut = phicuts[pairLayerId];
 
-      auto kl = hist[outer].bin(int16_t(mep-iphicut));
-      auto kh = hist[outer].bin(int16_t(mep+iphicut));
+      auto kl = Hist::bin(int16_t(mep-iphicut));
+      auto kh = Hist::bin(int16_t(mep+iphicut));
       auto incr = [](auto & k) { return k = (k+1) % Hist::nbins();};
       int  tot  = 0;
       int  nmin = 0;
@@ -108,9 +111,11 @@ namespace gpuPixelDoublets {
       int tooMany=0;
       for (auto kk = kl; kk != khh; incr(kk)) {
         if (kk != kl && kk != kh)
-          nmin += hist[outer].size(kk);
-        for (auto p = hist[outer].begin(kk); p < hist[outer].end(kk); ++p) {
-          auto oi=*p;
+          nmin += hist.size(kk+hoff);
+        auto const * __restrict__ p = hist.begin(kk+hoff);
+        auto const * __restrict__ e = hist.end(kk+hoff);
+        for (;p < e; ++p) {
+          auto oi=__ldg(p);
           assert(oi>=offsets[outer]);
           assert(oi<offsets[outer+1]);
 
@@ -128,19 +133,14 @@ namespace gpuPixelDoublets {
       if (tooMany > 0)
         printf("OuterHitOfCell full for %d in layer %d/%d, %d:%d   %d,%d\n", i, inner, outer, kl, kh, nmin, tot);
 
-      if (hist[outer].nspills > 0)
-        printf("spill bin to be checked in %d %d\n", outer, hist[outer].nspills);
-
-      // if (0==hist[outer].nspills) assert(tot>=nmin);
-      // look in spill bin as well....
-
     }  // loop in block...
   }
 
   constexpr auto getDoubletsFromHistoMaxBlockSize = 64;
+  constexpr auto getDoubletsFromHistoMinBlocksPerMP = 16;
 
   __global__
-  __launch_bounds__(getDoubletsFromHistoMaxBlockSize)
+  __launch_bounds__(getDoubletsFromHistoMaxBlockSize,getDoubletsFromHistoMinBlocksPerMP)
   void getDoubletsFromHisto(GPUCACell * cells,
                             uint32_t * nCells,
                             siPixelRecHitsHeterogeneousProduct::HitsOnGPU const *  __restrict__ hhp,
@@ -184,7 +184,7 @@ namespace gpuPixelDoublets {
 
     auto const &  __restrict__ hh = *hhp;
     doubletsFromHisto(layerPairs, nPairs, cells, nCells,
-                      hh.iphi_d, hh.hist_d, hh.hitsLayerStart_d,
+                      hh.iphi_d, *hh.hist_d, hh.hitsLayerStart_d,
                       hh, isOuterHitOfCell,
                       phicuts, minz, maxz, maxr);
   }
