@@ -64,28 +64,23 @@ void HGCalGeometry::newCell( const GlobalPoint& f1 ,
 			     const CCGFloat*    parm ,
 			     const DetId&       detId ) {
 
-  DetId geomId;
+  DetId geomId = getGeometryDetId(detId);
   int   cells (0);
   HGCalTopology::DecodedDetId id = m_topology.decode(detId);
   if ((mode_ == HGCalGeometryMode::Hexagon) || 
       (mode_ == HGCalGeometryMode::HexagonFull)) {
-    geomId = (DetId)(HGCalDetId(detId).geometryCell());
     cells = m_topology.dddConstants().numberCellsHexagon(id.iSec1);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "NewCell " << HGCalDetId(detId) 
 				  << " GEOM " << HGCalDetId(geomId);
 #endif
   } else if (mode_ == HGCalGeometryMode::Trapezoid) {
-    geomId = (DetId)(HGCScintillatorDetId(detId).geometryCell());
     cells  = 1;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "NewCell " << HGCScintillatorDetId(detId) 
 				  << " GEOM " << HGCScintillatorDetId(geomId);
 #endif
   } else {
-    geomId = (m_topology.isHFNose() ?
-	      (DetId)(HFNoseDetId(detId).geometryCell()) :
-	      (DetId)(HGCSiliconDetId(detId).geometryCell()));
     cells  = m_topology.dddConstants().numberCellsHexagon(id.iLay,id.iSec1,
 							  id.iSec2,false);
 #ifdef EDM_ML_DEBUG
@@ -210,38 +205,18 @@ void HGCalGeometry::newCell( const GlobalPoint& f1 ,
 #endif
 }
 
-std::shared_ptr<const CaloCellGeometry> HGCalGeometry::getGeometry(const DetId& id) const {
-  if (id == DetId()) return nullptr; // nothing to get
-  DetId geomId;
-  if ((mode_ == HGCalGeometryMode::Hexagon) || 
-      (mode_ == HGCalGeometryMode::HexagonFull)) {
-    geomId = (DetId)(HGCalDetId(id).geometryCell());
-  } else if (mode_ == HGCalGeometryMode::Trapezoid) {
-    geomId = (DetId)(HGCScintillatorDetId(id).geometryCell());
-  } else if (m_topology.isHFNose()) {
-    geomId = (DetId)(HFNoseDetId(id).geometryCell());
-  } else {
-    geomId = (DetId)(HGCSiliconDetId(id).geometryCell());
-  }
+std::shared_ptr<const CaloCellGeometry> HGCalGeometry::getGeometry(const DetId& detId) const {
+  if (detId == DetId()) return nullptr; // nothing to get
+  DetId geomId = getGeometryDetId(detId);
   const uint32_t cellIndex (m_topology.detId2denseGeomId(geomId));
-  const GlobalPoint pos = (id != geomId) ? getPosition(id) : GlobalPoint();
+  const GlobalPoint pos = (detId != geomId) ? getPosition(detId) : GlobalPoint();
   return cellGeomPtr (cellIndex, pos);
 
 }
 
-bool HGCalGeometry::present(const DetId& id) const {
-  if (id == DetId()) return false;
-  DetId geomId;
-  if ((mode_ == HGCalGeometryMode::Hexagon) || 
-      (mode_ == HGCalGeometryMode::HexagonFull)) {
-    geomId = (DetId)(HGCalDetId(id).geometryCell());
-  } else if (mode_ == HGCalGeometryMode::Trapezoid) {
-    geomId = (DetId)(HGCScintillatorDetId(id).geometryCell());
-  } else if (m_topology.isHFNose()) {
-    geomId = (DetId)(HFNoseDetId(id).geometryCell());
-  } else {
-    geomId = (DetId)(HGCSiliconDetId(id).geometryCell());
-  }
+bool HGCalGeometry::present(const DetId& detId) const {
+  if (detId == DetId()) return false;
+  DetId geomId = getGeometryDetId(detId);
   const uint32_t index (m_topology.detId2denseGeomId(geomId));
   return (nullptr != getGeometryRawPtr(index)) ;
 }
@@ -447,17 +422,7 @@ unsigned int HGCalGeometry::indexFor(const DetId& detId) const {
   unsigned int cellIndex = ((m_det == DetId::HGCalHSc) ? m_cellVec2.size() :
 			    m_cellVec.size());
   if (detId != DetId()) {
-    DetId geomId;
-    if ((mode_ == HGCalGeometryMode::Hexagon) ||
-	(mode_ == HGCalGeometryMode::HexagonFull)) {
-      geomId = (DetId)(HGCalDetId(detId).geometryCell());
-    } else if (mode_ == HGCalGeometryMode::Trapezoid) {
-      geomId = (DetId)(HGCScintillatorDetId(detId).geometryCell());
-    } else if (m_topology.isHFNose()) {
-      geomId = (DetId)(HFNoseDetId(detId).geometryCell());
-    } else {
-      geomId = (DetId)(HGCSiliconDetId(detId).geometryCell());
-    }
+    DetId geomId = getGeometryDetId(detId);
     cellIndex = m_topology.detId2denseGeomId(geomId);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "indexFor " << std::hex << detId.rawId() 
@@ -690,6 +655,21 @@ void HGCalGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  trVector,
       }
     }
   }
+}
+
+DetId HGCalGeometry::getGeometryDetId(DetId detId) const {
+  DetId geomId;
+  if ((mode_ == HGCalGeometryMode::Hexagon) || 
+      (mode_ == HGCalGeometryMode::HexagonFull)) {
+    geomId = static_cast<DetId>(HGCalDetId(detId).geometryCell());
+  } else if (mode_ == HGCalGeometryMode::Trapezoid) {
+    geomId = static_cast<DetId>(HGCScintillatorDetId(detId).geometryCell());
+  } else if (m_topology.isHFNose()) {
+    geomId = static_cast<DetId>(HFNoseDetId(detId).geometryCell());
+  } else {
+    geomId = static_cast<DetId>(HGCSiliconDetId(detId).geometryCell());
+  }
+  return geomId;
 }
 
 #include "FWCore/Utilities/interface/typelookup.h"
