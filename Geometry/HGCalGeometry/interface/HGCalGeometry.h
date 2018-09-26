@@ -123,6 +123,7 @@ private:
   template<class T>
   unsigned int getClosestCellIndex(const GlobalPoint&r, const std::vector<T>& vec) const;
   std::shared_ptr<const CaloCellGeometry> cellGeomPtr( uint32_t index, const GlobalPoint& p) const;
+  DetId getGeometryDetId(DetId detId) const;
 
   const HGCalTopology&            m_topology;
   CellVec                         m_cellVec; 
