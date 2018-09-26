@@ -395,7 +395,7 @@ std::unique_ptr<SeedingLayerSetsHits> SeedingLayerSetsBuilder::makeSeedingLayerS
   auto ret = std::make_unique<SeedingLayerSetsHits>(theNumberOfLayersInSet,
                                                     &theLayerSetIndices,
                                                     &theLayerNames,
-						    theLayerDets);
+					            theLayerDets);
 
   std::vector<unsigned int> indices;
   indices.reserve(theLayers.size());

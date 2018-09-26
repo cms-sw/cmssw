@@ -171,7 +171,7 @@ bool SeedFinderSelector::pass(const std::vector<const FastTrackerRecHit *>& hits
 	  for(int i=0; i<2; i++){
 	    SeedingLayerSetsHits::SeedingLayerSet pairCandidate;
 	    hitPair[0] = Layer_name(hits[i]);
-            hitPair[1] = Layer_name(hits[i+1]);
+	    hitPair[1] = Layer_name(hits[i+1]);
 
 	    bool found;
 	    for(SeedingLayerSetsHits::SeedingLayerSet ls : *seedingLayer){
