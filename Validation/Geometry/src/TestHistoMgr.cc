@@ -23,24 +23,18 @@ TestHistoMgr::TestHistoMgr()
 //----------------------------------------------------------------------
 TestHistoMgr::~TestHistoMgr()
 { 
-  mih1::const_iterator ite1;
-  mih2::const_iterator ite2;
-  mihp1::const_iterator itep1;
-  mihp2::const_iterator itep2;
-
-  for( ite1 = theHistos1.begin(); ite1 != theHistos1.end(); ite1++ ){ 
-    delete (*ite1).second;
+  for(auto& it: theHistos1){
+    delete it.second;
   }
-  for( ite2 = theHistos2.begin(); ite2 != theHistos2.end(); ite2++ ){
-    delete (*ite2).second;
+  for(auto& it: theHistos2){
+    delete it.second;
   }
-  for( itep1 = theHistoProfs1.begin(); itep1 != theHistoProfs1.end(); itep1++ ){
-    delete (*itep1).second;
+  for(auto& it: theHistoProfs1){
+    delete it.second;
   }
-  for( itep2 = theHistoProfs2.begin(); itep2 != theHistoProfs2.end(); itep2++ ){    
-    delete (*itep2).second;
-  }
- 
+  for(auto& it: theHistoProfs2){
+    delete it.second;
+  } 
 }
 
 //----------------------------------------------------------------------

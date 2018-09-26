@@ -38,13 +38,12 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet)
   //---- Accumulate material budget only inside selected volumes
   std::string theHistoList = m_Anal.getParameter<std::string>("HistogramList");
   std::vector<std::string> volList = m_Anal.getParameter< std::vector<std::string> >("SelectedVolumes");
-  std::vector<std::string>::const_iterator ite;
 
   edm::LogInfo("MaterialBudget") << "MaterialBudgetAction: List of the selected volumes:";
-  for( ite = volList.begin(); ite != volList.end(); ite++ ){
-    if( (*ite) != "None" ) {
-      theVolumeList.push_back( *ite );
-      edm::LogInfo("MaterialBudget") << (*ite) ;
+  for( const auto& it : volList) {
+    if( it != "None" ) {
+      theVolumeList.push_back(it);
+      edm::LogInfo("MaterialBudget") << it ;
     }
   }
 
@@ -137,18 +136,17 @@ void MaterialBudgetAction::update(const BeginOfRun* )
 {
   //----- Check that selected volumes are indeed part of the geometry
   const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
-  std::vector<G4LogicalVolume*>::const_iterator lvcite;
-  std::vector<G4String>::const_iterator volcite;
-  for( volcite = theVolumeList.begin(); volcite != theVolumeList.end(); volcite++ ){
+
+  for(const auto& volcite: theVolumeList) {
     bool volFound = false;
-    for( lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++ ) {
-      if( (*lvcite)->GetName() == *volcite )  {
+    for(const auto& lvcite: *lvs) {
+      if( lvcite->GetName() == volcite )  {
 	volFound = true;
 	break;
       }
     }
     if( !volFound ) {
-       edm::LogWarning("MaterialBudget") << "MaterialBudgetAction: selected volume not found in geometry " << *volcite;
+       edm::LogWarning("MaterialBudget") << "MaterialBudgetAction: selected volume not found in geometry " << volcite;
     }
   }
 
