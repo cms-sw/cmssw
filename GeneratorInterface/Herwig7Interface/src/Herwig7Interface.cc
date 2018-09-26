@@ -60,7 +60,7 @@ Herwig7Interface::Herwig7Interface(const edm::ParameterSet &pset) :
 	// Write events in hepmc ascii format for debugging purposes
 	string dumpEvents = pset.getUntrackedParameter<string>("dumpEvents", "");
 	if (!dumpEvents.empty()) {
-		iobc_.reset(new HepMC::IO_GenEvent(dumpEvents.c_str(), ios::out));
+		iobc_.reset(new HepMC::IO_GenEvent(dumpEvents, ios::out));
 		edm::LogInfo("ThePEGSource") << "Event logging switched on (=> " << dumpEvents << ")";
 	}
 	// Clear dumpConfig target
