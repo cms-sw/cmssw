@@ -34,12 +34,16 @@ void go() {
   constexpr uint32_t partSize = N/nParts;
   uint32_t offsets[nParts+1];
 
-  using Hist = HistoContainer<T,7,8>;
-  std::cout << "HistoContainer " << Hist::nbins() << ' ' << Hist::binSize() << ' ' << (std::numeric_limits<T>::max()-std::numeric_limits<T>::min())/Hist::nbins() << std::endl;
+  using Hist = HistoContainer<T,128,N,8*sizeof(T),uint32_t,nParts>;
+  std::cout << "HistoContainer " << (int)(offsetof(Hist,off)) << ' ' 
+             << Hist::nbins() << ' ' << Hist::totbins() << ' ' << Hist::capacity() << ' ' << Hist::wsSize() << ' '
+            << (std::numeric_limits<T>::max()-std::numeric_limits<T>::min())/Hist::nbins() << std::endl;
   
-  Hist h[nParts];
+  Hist h;
 
-  auto h_d = cuda::memory::device::make_unique<Hist[]>(current_device, nParts);
+  auto h_d = cuda::memory::device::make_unique<Hist[]>(current_device, 1);
+  auto ws_d = cuda::memory::device::make_unique<uint32_t[]>(current_device, Hist::totbins());
+
   auto off_d = cuda::memory::device::make_unique<uint32_t[]>(current_device, nParts+1);
 
 
@@ -62,18 +66,20 @@ void go() {
 
     for (long long j = 0; j < N; j++) v[j]=rgen(eng);
 
-    if (it==2) { // spill 
+    if (it==2) { // big bin 
        for (long long j = 1000; j < 2000; j++) v[j]= sizeof(T)==1 ? 22 : 3456;
     }
 
 
     cuda::memory::copy(v_d.get(), v, N*sizeof(T));
 
-    cudautils::fillManyFromVector(h_d.get(),nParts,v_d.get(),off_d.get(),offsets[10],256,0);
+    cudautils::fillManyFromVector(h_d.get(),ws_d.get(),nParts,v_d.get(),off_d.get(),offsets[10],256,0);
 
-    cuda::memory::copy(&h, h_d.get(), nParts*sizeof(Hist));                                
-
-        
+    cuda::memory::copy(&h, h_d.get(), sizeof(Hist));                                
+    assert(0==h.off[0]);
+    assert(offsets[10]==h.size());
+    
+    
     auto verify = [&](uint32_t i, uint32_t k, uint32_t t1, uint32_t t2) {
       assert(t1<N); assert(t2<N);
       if ( T(v[t1]-v[t2])<=0) std::cout << "for " << i <<':'<< v[k] <<" failed " << v[t1] << ' ' << v[t2] << std::endl;
@@ -85,16 +91,17 @@ void go() {
     auto window = T(1300);
     
     for (uint32_t j=0; j<nParts; ++j) {
-      std::cout << j << ": nspills " << h[j].nspills << std::endl;
+      auto off = Hist::histOff(j);
       for (uint32_t i=0; i<Hist::nbins(); ++i) {
-        if (0==h[j].size(i)) continue;
-        auto k= *h[j].begin(i);
-        if (j%2) k = *(h[j].begin(i)+(h[j].end(i)-h[j].begin(i))/2);
-        auto bk = h[j].bin(v[k]);
+        auto ii = i+off;
+        if (0==h.size(ii)) continue;
+        auto k= *h.begin(ii);
+        if (j%2) k = *(h.begin(ii)+(h.end(ii)-h.begin(ii))/2);
+        auto bk = h.bin(v[k]);
         assert(bk==i);
         assert(k<offsets[j+1]);
-        auto kl = h[j].bin(v[k]-window);
-        auto kh = h[j].bin(v[k]+window);
+        auto kl = h.bin(v[k]-window);
+        auto kh = h.bin(v[k]+window);
         assert(kl!=i);  assert(kh!=i);
         // std::cout << kl << ' ' << kh << std::endl;
 
@@ -103,18 +110,18 @@ void go() {
         auto nm = 0;
         bool l = true; auto khh = kh; incr(khh);
         for (auto kk=kl; kk!=khh; incr(kk)) {
-          if (kk!=kl && kk!=kh) nm+=h[j].size(kk);
-          for(auto p=h[j].begin(kk); p<h[j].end(kk); ++p) {
+          if (kk!=kl && kk!=kh) nm+=h.size(kk+off);
+          for(auto p=h.begin(kk+off); p<h.end(kk+off); ++p) {
            if ( std::min(std::abs(T(v[*p]-me)), std::abs(T(me-v[*p]))) > window ) {} else {++tot;}
           }
           if (kk==i) { l=false; continue; }
-          if (l) for (auto p=h[j].begin(kk); p<h[j].end(kk); ++p) verify(i,k,k,(*p));
-          else for (auto p=h[j].begin(kk); p<h[j].end(kk); ++p) verify(i,k,(*p),k);
+          if (l) for (auto p=h.begin(kk+off); p<h.end(kk+off); ++p) verify(i,k,k,(*p));
+          else for (auto p=h.begin(kk+off); p<h.end(kk+off); ++p) verify(i,k,(*p),k);
         }
-        if (h[j].nspills==0 && !(tot>=nm)) {
-           std::cout << "too bad " << j << ' ' << i <<' ' << me << '/'<< T(me-window)<< '/'<< T(me+window) << ": " << kl << '/' << kh << ' '<< khh << ' '<< tot<<'/'<<nm << std::endl;
+        if (!(tot>=nm)) {
+           std::cout << "too bad " << j << ' ' << i <<' ' << int(me) << '/'<< (int)T(me-window)<< '/'<< (int)T(me+window) << ": " << kl << '/' << kh << ' '<< khh << ' '<< tot<<'/'<<nm << std::endl;
         }
-        if (l) std::cout << "what? " << j << ' ' << i <<' ' << me << '/'<< T(me-window)<< '/'<< T(me+window) << ": " << kl << '/' << kh << ' '<< khh << ' '<< tot<<'/'<<nm << std::endl;
+        if (l) std::cout << "what? " << j << ' ' << i <<' ' << int(me) << '/'<< (int)T(me-window)<< '/'<< (int)T(me+window) << ": " << kl << '/' << kh << ' '<< khh << ' '<< tot<<'/'<<nm << std::endl;
         assert(!l);
       }
     }

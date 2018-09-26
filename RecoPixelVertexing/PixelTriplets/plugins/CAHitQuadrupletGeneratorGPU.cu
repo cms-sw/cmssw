@@ -164,8 +164,8 @@ KernelLineFitAllHits(GPU::SimpleVector<Quadruplet> * foundNtuplets,
 
 __global__ void
 kernel_checkOverflows(GPU::SimpleVector<Quadruplet> *foundNtuplets,
-               GPUCACell *cells, uint32_t const * nCells,
-               GPU::VecArray< unsigned int, 256> *isOuterHitOfCell,
+               GPUCACell const * __restrict__ cells, uint32_t const * __restrict__ nCells,
+               GPU::VecArray< unsigned int, 256> const * __restrict__ isOuterHitOfCell,
                uint32_t nHits, uint32_t maxNumberOfDoublets) {
 
  auto idx = threadIdx.x + blockIdx.x * blockDim.x;
@@ -185,31 +185,36 @@ kernel_checkOverflows(GPU::SimpleVector<Quadruplet> *foundNtuplets,
 }
 
 
-__global__ void
+__global__ 
+void
 kernel_connect(GPU::SimpleVector<Quadruplet> *foundNtuplets,
-               GPUCACell *cells, uint32_t const * nCells,
-               GPU::VecArray< unsigned int, 256> *isOuterHitOfCell,
+               GPUCACell::Hits const *  __restrict__ hhp,
+               GPUCACell * cells, uint32_t const * __restrict__ nCells,
+               GPU::VecArray< unsigned int, 256> const * __restrict__ isOuterHitOfCell,
                float ptmin,
                float region_origin_radius, const float thetaCut,
                const float phiCut, const float hardPtCut,
                unsigned int maxNumberOfDoublets_, unsigned int maxNumberOfHits_) {
 
-  float region_origin_x = 0.;
-  float region_origin_y = 0.;
+  auto const & hh = *hhp;
+
+  constexpr float region_origin_x = 0.;
+  constexpr float region_origin_y = 0.;
 
   auto cellIndex = threadIdx.x + blockIdx.x * blockDim.x;
 
   if (0==cellIndex) foundNtuplets->reset(); // ready for next kernel
 
   if (cellIndex >= (*nCells) ) return;
-  auto &thisCell = cells[cellIndex];
+  auto const & thisCell = cells[cellIndex];
   auto innerHitId = thisCell.get_inner_hit_id();
   auto numberOfPossibleNeighbors = isOuterHitOfCell[innerHitId].size();
+  auto vi = isOuterHitOfCell[innerHitId].data();
   for (auto j = 0; j < numberOfPossibleNeighbors; ++j) {
-     auto otherCell = isOuterHitOfCell[innerHitId][j];
+     auto otherCell = __ldg(vi+j);
 
-     if (thisCell.check_alignment_and_tag(
-                 cells, otherCell, ptmin, region_origin_x, region_origin_y,
+     if (thisCell.check_alignment(hh,
+                 cells[otherCell], ptmin, region_origin_x, region_origin_y,
                   region_origin_radius, thetaCut, phiCut, hardPtCut)
         ) {
           cells[otherCell].theOuterNeighbors.push_back(cellIndex);
@@ -218,7 +223,7 @@ kernel_connect(GPU::SimpleVector<Quadruplet> *foundNtuplets,
 }
 
 __global__ void kernel_find_ntuplets(
-    GPUCACell *cells, uint32_t const * nCells,
+    GPUCACell * const __restrict__ cells, uint32_t const * nCells,
     GPU::SimpleVector<Quadruplet> *foundNtuplets,
     unsigned int minHitsPerNtuplet,
     unsigned int maxNumberOfDoublets_)
@@ -228,7 +233,7 @@ __global__ void kernel_find_ntuplets(
   if (cellIndex >= (*nCells) ) return;
   auto &thisCell = cells[cellIndex];
   if (thisCell.theLayerPairId!=0 && thisCell.theLayerPairId!=3 && thisCell.theLayerPairId!=8) return; // inner layer is 0 FIXME
-  GPU::VecArray<unsigned int, 3> stack;
+  GPU::VecArray<CAHitQuadrupletGeneratorGPU::hindex_type, 3> stack;
   stack.reset();
   thisCell.find_ntuplets(cells, foundNtuplets, stack, minHitsPerNtuplet);
   assert(stack.size()==0);
@@ -336,9 +341,11 @@ void CAHitQuadrupletGeneratorGPU::launchKernels(const TrackingRegion &region,
 
   auto nhits = hh.nHits;
   assert(nhits <= PixelGPUConstants::maxNumberOfHits);
-  auto numberOfBlocks = (maxNumberOfDoublets_ + 512 - 1)/512;
-  kernel_connect<<<numberOfBlocks, 512, 0, cudaStream>>>(
+  auto blockSize = 64;
+  auto numberOfBlocks = (maxNumberOfDoublets_ + blockSize - 1)/blockSize;
+  kernel_connect<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
       d_foundNtupletsVec_[regionIndex], // needed only to be reset, ready for next kernel
+      hh.gpu_d,
       device_theCells_, device_nCells_,
       device_isOuterHitOfCell_,
       region.ptMin(),
@@ -347,21 +354,20 @@ void CAHitQuadrupletGeneratorGPU::launchKernels(const TrackingRegion &region,
   );
   cudaCheck(cudaGetLastError());
 
-  kernel_find_ntuplets<<<numberOfBlocks, 512, 0, cudaStream>>>(
+  kernel_find_ntuplets<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
       device_theCells_, device_nCells_,
       d_foundNtupletsVec_[regionIndex],
       4, maxNumberOfDoublets_);
   cudaCheck(cudaGetLastError());
 
-
-  numberOfBlocks = (std::max(int(nhits), maxNumberOfDoublets_) + 512 - 1)/512;
-  kernel_checkOverflows<<<numberOfBlocks, 512, 0, cudaStream>>>(
+  numberOfBlocks = (std::max(int(nhits), maxNumberOfDoublets_) + blockSize - 1)/blockSize;
+  kernel_checkOverflows<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
                         d_foundNtupletsVec_[regionIndex],
                         device_theCells_, device_nCells_,
                         device_isOuterHitOfCell_, nhits,
                         maxNumberOfDoublets_
                        );
-
+  cudaCheck(cudaGetLastError());
 
   // kernel_print_found_ntuplets<<<1, 1, 0, cudaStream>>>(d_foundNtupletsVec_[regionIndex], 10);
 
@@ -383,7 +389,7 @@ void CAHitQuadrupletGeneratorGPU::launchKernels(const TrackingRegion &region,
       line_fit_resultsGPU_);
   cudaCheck(cudaGetLastError());
 
-  if(transferToCPU) {
+  if (transferToCPU) {
     cudaCheck(cudaMemcpyAsync(h_foundNtupletsVec_[regionIndex], d_foundNtupletsVec_[regionIndex],
                               sizeof(GPU::SimpleVector<Quadruplet>),
                               cudaMemcpyDeviceToHost, cudaStream));

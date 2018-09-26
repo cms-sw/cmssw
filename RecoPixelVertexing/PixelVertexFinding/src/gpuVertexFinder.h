@@ -13,17 +13,21 @@ namespace gpuVertexFinder {
     static constexpr uint32_t MAXTRACKS = 16000;
     static constexpr uint32_t MAXVTX= 1024;
     
-    float * zt;  // input track z at bs
+    float * zt;   // input track z at bs
     float * ezt2; // input error^2 on the above
+    float * ptt2; // input pt^2 on the above
    
+
     float * zv;  // output z-posistion of found vertices
     float * wv;  //  output weight (1/error^2) on the above
     float * chi2;  // vertices chi2
+    float * ptv2;  // vertices pt^2
     uint32_t * nv;  // the number of vertices
     int32_t * iv;  // vertex index for each associated track
+    uint16_t * sortInd; // sorted index (by pt2)
 
     // workspace  
-    int8_t  * izt;  // interized z-position of input tracks (reused as interize pt2 of vertices for sorting)
+    uint8_t * izt;  // interized z-position of input tracks
     int32_t * nn; // number of nearest neighbours (reused as number of dof for output vertices)
     
   };
@@ -53,6 +57,7 @@ namespace gpuVertexFinder {
     void produce(cudaStream_t stream,
 		 float const * zt,
 		 float const * ezt2,
+                 float const * ptt2,
 		 uint32_t ntrks
 		 );
     

@@ -16,6 +16,7 @@ namespace pixelVertexHeterogeneousProduct {
     float * z_d;
     float * zerr_d;
     float * chi2_d;
+    uint16_t * sortInd;
     int32_t * ivtx_d; // this should be indexed with the original tracks, not the reduced set (oops)
   };
 
@@ -31,6 +32,7 @@ namespace pixelVertexHeterogeneousProduct {
     { }
 
     std::vector<float,    CUDAHostAllocator<float>> z,zerr, chi2;
+    std::vector<int16_t, CUDAHostAllocator<uint16_t>> sortInd;
     std::vector<int32_t, CUDAHostAllocator<int32_t>> ivtx;
 
     uint32_t nVertices=0;

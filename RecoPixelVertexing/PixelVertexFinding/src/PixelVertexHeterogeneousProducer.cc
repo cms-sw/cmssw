@@ -117,18 +117,20 @@ void PixelVertexHeterogeneousProducer::acquireGPUCuda(
 
   // Second, make a collection of pointers to the tracks we want for the vertex finder
   // fill z,ez
-  std::vector<float> z,ez;
+  std::vector<float> z,ez2,pt2;
   assert(m_trks.empty());
   for (unsigned int i=0; i<tracks.size(); i++) {
     if (tracks[i].pt() < m_ptMin) continue;    
     m_trks.push_back( reco::TrackRef(trackCollection, i) );
     z.push_back(tracks[i].dz(bs));
-    ez.push_back(tracks[i].dzError());ez.back()*=ez.back();
+    ez2.push_back(tracks[i].dzError());ez2.back()*=ez2.back();
+    pt2.push_back(std::min(25.,tracks[i].pt()));pt2.back()*=pt2.back();
+
   }
   if (verbose_) edm::LogInfo("PixelVertexHeterogeneousProducer") << ": Selected " << m_trks.size() << " of these tracks for vertexing\n";
   
   // Third, ship these tracks off to be vertexed
-  m_gpuAlgo.produce(cudaStream.id(),z.data(),ez.data(),z.size());
+  m_gpuAlgo.produce(cudaStream.id(),z.data(),ez2.data(),pt2.data(),z.size());
 
 }
 
@@ -154,23 +156,14 @@ void PixelVertexHeterogeneousProducer::produceGPUCuda(
     const reco::BeamSpot & bs = *bsHandle;
     x0=bs.x0();y0=bs.y0();z0=bs.z0(); dxdz=bs.dxdz();dydz=bs.dydz();
   }
-  // to be moved to gpu....
-  float pt2[gpuProduct.nVertices];
-  int ind[gpuProduct.nVertices];
-  for (unsigned int i=0; i<gpuProduct.nVertices; ++i) {
-    pt2[i]=0; ind[i]=i;
-  }
-  for (auto k=0U; k<m_trks.size(); ++k) {
-    auto i = gpuProduct.ivtx[k];
-    pt2[i] += m_trks[k]->pt() > 20 ? 20*20 : m_trks[k]->pt()*m_trks[k]->pt(); 
-  }
-  // sort
-  std::sort(ind,ind+gpuProduct.nVertices,[&](int i, int j){ return pt2[i]>pt2[j];});
-  if(gpuProduct.nVertices>1) assert(pt2[ind[0]]>=pt2[ind[1]]);
 
   // fill legacy data format
-  for (unsigned int j=0; j<gpuProduct.nVertices; ++j) {
-    auto i = ind[j];
+  std::set<uint16_t> uind; // fort verifing index consistency
+  for (int j=int(gpuProduct.nVertices)-1; j>=0; --j) {
+    auto i = gpuProduct.sortInd[j];  // on gpu sorted in ascending order....
+    assert(i>=0);
+    assert(i<int(gpuProduct.nVertices));
+    uind.insert(i);    
     assert(itrk.empty());
     auto z= gpuProduct.z[i];
     auto x= x0 + dxdz*z;
@@ -187,14 +180,17 @@ void PixelVertexHeterogeneousProducer::produceGPUCuda(
     assert(nt>0);
     (*vertexes).emplace_back(reco::Vertex::Point(x,y,z), err, gpuProduct.chi2[i], nt-1, nt );
     auto & v = (*vertexes).back();
-    pt2[i]=0;
     for (auto k: itrk) {
       v.add(reco::TrackBaseRef(m_trks[k]));
     }
     itrk.clear();
   }
+  assert(uind.size()==(*vertexes).size());
+  if (!uind.empty()) {
+    assert(0 == *uind.begin());
+    assert(uind.size()-1 == *uind.rbegin());  
+  }
 
-  
   if (verbose_) {
     edm::LogInfo("PixelVertexHeterogeneousProducer") << ": Found " << vertexes->size() << " vertexes\n";
     for (unsigned int i=0; i<vertexes->size(); ++i) {

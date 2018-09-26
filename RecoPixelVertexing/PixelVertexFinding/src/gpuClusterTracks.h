@@ -7,10 +7,51 @@
 #include<cassert>
 
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/radixSort.h"
+
 
 #include "gpuVertexFinder.h"
 
 namespace gpuVertexFinder {
+
+  __global__
+  void sortByPt2(int nt,
+                 OnGPU * pdata
+                )  {
+    auto & __restrict__ data = *pdata;
+    float const * __restrict__ ptt2 = data.ptt2;
+    uint32_t const & nv = *data.nv;
+
+    int32_t const * __restrict__ iv = data.iv;
+    float * __restrict__ ptv2 = data.ptv2;
+    uint16_t * __restrict__ sortInd = data.sortInd;
+
+    if (nv<1) return;
+
+    // can be done asynchronoisly at the end of previous event
+    for (int i = threadIdx.x; i < nv; i += blockDim.x) {
+      ptv2[i]=0;
+    }
+    __syncthreads();
+
+
+    for (int i = threadIdx.x; i < nt; i += blockDim.x) {
+      if (iv[i]>9990) continue;
+      atomicAdd(&ptv2[iv[i]], ptt2[i]);
+    }
+    __syncthreads();
+
+    if (1==nv) {
+      if (threadIdx.x==0) sortInd[0]=0;
+      return;
+    }
+    __shared__ uint16_t ws[1024];
+    radixSort(ptv2,sortInd,ws,nv);
+    
+    assert(ptv2[sortInd[nv-1]]>=ptv2[sortInd[nv-2]]);
+    assert(ptv2[sortInd[1]]>=ptv2[sortInd[0]]);
+  }
+
   
   // this algo does not really scale as it works in a single block...
   // enough for <10K tracks we have
@@ -24,6 +65,9 @@ namespace gpuVertexFinder {
 		     )  {
 
     constexpr bool verbose = false; // in principle the compiler should optmize out if false
+
+
+    if(verbose && 0==threadIdx.x) printf("params %d %f\n",minT,eps);
     
     auto er2mx = errmax*errmax;
     
@@ -35,42 +79,49 @@ namespace gpuVertexFinder {
     float * __restrict__ chi2 = data.chi2;
     uint32_t & nv = *data.nv;
     
-    int8_t  * __restrict__ izt = data.izt;
+    uint8_t  * __restrict__ izt = data.izt;
     int32_t * __restrict__ nn = data.nn;
     int32_t * __restrict__ iv = data.iv;
     
     assert(pdata);
     assert(zt);
     
-    __shared__ HistoContainer<int8_t,8,5,8,uint16_t> hist;
-    
-    //  if(0==threadIdx.x) printf("params %d %f\n",minT,eps);    
-    //  if(0==threadIdx.x) printf("booked hist with %d bins, size %d for %d tracks\n",hist.nbins(),hist.binSize(),nt);
-    
-    // zero hist
-    hist.nspills = 0;
-    for (auto k = threadIdx.x; k<hist.nbins(); k+=blockDim.x) hist.n[k]=0;
+    using Hist=HistoContainer<uint8_t,256,16000,8,uint16_t>;
+    constexpr auto wss = Hist::totbins();
+    __shared__ Hist hist;
+    __shared__ typename Hist::Counter ws[wss];
+    for (auto j=threadIdx.x; j<Hist::totbins(); j+=blockDim.x) { hist.off[j]=0; ws[j]=0;}
     __syncthreads();
-
-    //  if(0==threadIdx.x) printf("histo zeroed\n");
     
+    if(verbose && 0==threadIdx.x) printf("booked hist with %d bins, size %d for %d tracks\n",hist.nbins(),hist.capacity(),nt);
     
-  // fill hist  (bin shall be wider than "eps")
+    assert(nt<=hist.capacity());
+    
+    // fill hist  (bin shall be wider than "eps")
     for (int i = threadIdx.x; i < nt; i += blockDim.x) {
       assert(i<OnGPU::MAXTRACKS);
       int iz =  int(zt[i]*10.); // valid if eps<=0.1
       // iz = std::clamp(iz, INT8_MIN, INT8_MAX);  // sorry c++17 only
       iz = std::min(std::max(iz, INT8_MIN),INT8_MAX);
-      izt[i]=iz;
-      hist.fill(int8_t(iz),uint16_t(i));
+      izt[i]=iz-INT8_MIN;
+      assert(iz-INT8_MIN >= 0);
+      assert(iz-INT8_MIN < 256);
+      hist.count(izt[i]);
       iv[i]=i;
       nn[i]=0;
     }
     __syncthreads();
-    
-    //   if(0==threadIdx.x) printf("histo filled %d\n",hist.nspills);
-    if(0==threadIdx.x && hist.fullSpill()) printf("histo overflow\n");
-    
+    hist.finalize(ws);
+    __syncthreads();
+    assert(hist.size()==nt);
+    if (threadIdx.x<32) ws[threadIdx.x]=0;  // used by prefix scan...
+    __syncthreads();
+    for (int i = threadIdx.x; i < nt; i += blockDim.x) {
+      hist.fill(izt[i],uint16_t(i),ws);
+    }
+    __syncthreads();    
+
+
     // count neighbours
     for (int i = threadIdx.x; i < nt; i += blockDim.x) {
       if (ezt2[i]>er2mx) continue;
@@ -87,20 +138,20 @@ namespace gpuVertexFinder {
       
     __syncthreads();
     
-    //  if(0==threadIdx.x) printf("nn counted\n");
-    
     // cluster seeds only
     bool more = true;
     while (__syncthreads_or(more)) {
       more=false;
-      for (int i = threadIdx.x; i < nt; i += blockDim.x) {
+      for (int  k = threadIdx.x; k < hist.size(); k += blockDim.x) {
+        auto p = hist.begin()+k;
+        auto i = (*p);
+        auto be = std::min(Hist::bin(izt[i])+1,int(hist.nbins()-1));
 	if (nn[i]<minT) continue; // DBSCAN core rule
 	auto loop = [&](int j) {
-	  if (i==j) return;
+	  assert (i!=j);
 	  if (nn[j]<minT) return;  // DBSCAN core rule
-	  // look on the left
-	  auto dist = zt[j]-zt[i];
-	  if (dist<0 || dist>eps) return;
+          auto dist = std::abs(zt[i]-zt[j]);
+          if (dist>eps) return;
 	  if (dist*dist>chi2max*(ezt2[i]+ezt2[j])) return;
 	  auto old = atomicMin(&iv[j], iv[i]);
 	  if (old != iv[i]) {
@@ -109,8 +160,8 @@ namespace gpuVertexFinder {
 	  }
 	  atomicMin(&iv[i], old);
 	};
-
-	forEachInBins(hist,izt[i],1,loop);
+        ++p;
+        for (;p<hist.end(be);++p) loop(*p);
       } // for i
     } // while
     

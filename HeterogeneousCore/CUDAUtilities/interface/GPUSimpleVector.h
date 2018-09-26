@@ -87,7 +87,7 @@ template <class T> struct SimpleVector {
   inline constexpr void reset() { m_size = 0; }
   inline constexpr int size() const { return m_size; }
   inline constexpr int capacity() const { return m_capacity; }
-  inline constexpr T *data() const { return m_data; }
+  inline constexpr T const * data() const { return m_data; }
   inline constexpr void resize(int size) { m_size = size; }
   inline constexpr void set_data(T * data) { m_data = data; }
 

@@ -12,6 +12,7 @@
 #include <cuda/api_wrappers.h>
 
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClustering.h"
+#include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClusterChargeCut.h"
 
 int main(void)
 {
@@ -30,7 +31,6 @@ int main(void)
 
   auto h_clus = std::make_unique<int[]>(numElements);
 
-  auto h_debug = std::make_unique<unsigned int[]>(numElements);
   auto current_device = cuda::device::current::get();
   auto d_id = cuda::memory::device::make_unique<uint16_t[]>(current_device, numElements);
   auto d_x = cuda::memory::device::make_unique<uint16_t[]>(current_device, numElements);
@@ -44,11 +44,28 @@ int main(void)
   auto d_clusInModule = cuda::memory::device::make_unique<uint32_t[]>(current_device, MaxNumModules);
   auto d_moduleId = cuda::memory::device::make_unique<uint32_t[]>(current_device, MaxNumModules);
 
-  auto d_debug = cuda::memory::device::make_unique<unsigned int[]>(current_device, numElements);
   // later random number
   int n=0;
   int ncl=0;
   int y[10]={5,7,9,1,3,0,4,8,2,6};
+
+  auto generateClusters = [&](int kn) {
+  auto addBigNoise = 1==kn%2;
+  if (addBigNoise) {
+    constexpr int MaxPixels = 1000;
+    int id = 666;
+    for (int x=0; x<140; x+=3) {
+      for (int yy=0; yy<400; yy+=3) {
+       h_id[n]=id;
+       h_x[n]=x;
+       h_y[n]=yy;
+       h_adc[n]=1000;
+       ++n; ++ncl;
+       if (MaxPixels<=ncl) break;
+     }
+     if (MaxPixels<=ncl) break; 
+    }
+  }
 
   {
     // isolated
@@ -58,15 +75,56 @@ int main(void)
     h_id[n]=id;
     h_x[n]=x;
     h_y[n]=x;
-    h_adc[n]=100;
+    h_adc[n]= kn==0 ? 100 : 5000;
     ++n;
+
+   // first column
+    ++ncl;
+    h_id[n]=id;
+    h_x[n]=x;
+    h_y[n]=0;
+    h_adc[n]= 5000;
+    ++n;
+    // first columns
+    ++ncl;
+    h_id[n]=id;
+    h_x[n]=x+80;
+    h_y[n]=2;
+    h_adc[n]= 5000;
+    ++n;
+    h_id[n]=id;
+    h_x[n]=x+80;
+    h_y[n]=1;
+    h_adc[n]= 5000;
+    ++n;
+
+    // last column
+    ++ncl;
+    h_id[n]=id;
+    h_x[n]=x;
+    h_y[n]=415;
+    h_adc[n]= 5000;
+    ++n;
+   // last columns
+    ++ncl;
+    h_id[n]=id;
+    h_x[n]=x+80;
+    h_y[n]=415;
+    h_adc[n]= 2500;
+    ++n;
+    h_id[n]=id;
+    h_x[n]=x+80;
+    h_y[n]=414;
+    h_adc[n]= 2500;
+    ++n;
+
     // diagonal
     ++ncl;
     for (int x=20; x<25; ++x) {
       h_id[n]=id;
       h_x[n]=x;
       h_y[n]=x;
-      h_adc[n]=100;
+      h_adc[n]=1000;
       ++n;
     }
     ++ncl;
@@ -75,7 +133,7 @@ int main(void)
       h_id[n]=id;
       h_x[n]=x;
       h_y[n]=x;
-      h_adc[n]=100;
+      h_adc[n]=1000;
       ++n;
     }
     ++ncl;
@@ -86,7 +144,7 @@ int main(void)
       h_id[n]=id;
       h_x[n]=xx[k];
       h_y[n]=20+xx[k];
-      h_adc[n]=100;
+      h_adc[n]=1000;
       ++n;
     }
     // holes
@@ -95,13 +153,13 @@ int main(void)
       h_id[n]=id;
       h_x[n]=xx[k];
       h_y[n]=100;
-      h_adc[n]=100;
+      h_adc[n]= kn==2 ? 100 : 1000;
       ++n;
       if (xx[k]%2==0) {
         h_id[n]=id;
         h_x[n]=xx[k];
         h_y[n]=101;
-        h_adc[n]=100;
+        h_adc[n]=1000;
       ++n;
       }
     }
@@ -114,7 +172,7 @@ int main(void)
     h_id[n]=id;
     h_x[n]=x;
     h_y[n]=x;
-    h_adc[n]=100;
+    h_adc[n]=5000;
     ++n;
   }
   // all odd id
@@ -132,7 +190,7 @@ int main(void)
           h_id[n]=id;
           h_x[n]=x+1;
           h_y[n]=x+y[k]+2;
-          h_adc[n]=100;
+          h_adc[n]=1000;
           ++n;
         }
       } else {
@@ -140,24 +198,31 @@ int main(void)
           h_id[n]=id;
           h_x[n]=x;
           h_y[n]=x+y[9-k];
-          h_adc[n]=100;
+          h_adc[n]= kn==2 ? 10 : 1000;
           ++n;
           if (y[k]==3) continue; // hole
           if (id==51)  {h_id[n++]=InvId; h_id[n++]=InvId; }// error
           h_id[n]=id;
           h_x[n]=x+1;
           h_y[n]=x+y[k]+2;
-          h_adc[n]=100;
+          h_adc[n]= kn==2 ? 10 : 1000;
           ++n;
         }
       }
     }
   }
+  }; // end lambda
+  for (auto kkk=0; kkk<5; ++kkk) {
+  n=0; ncl=0;
+  generateClusters(kkk);
+
   std::cout << "created " << n << " digis in " << ncl << " clusters" << std::endl;
   assert(n<=numElements);
+
+
   size_t size32 = n * sizeof(unsigned int);
   size_t size16 = n * sizeof(unsigned short);
-  size_t size8 = n * sizeof(uint8_t);
+  // size_t size8 = n * sizeof(uint8_t);
 
   uint32_t nModules=0;
   cuda::memory::copy(d_moduleStart.get(),&nModules,sizeof(uint32_t));
@@ -165,10 +230,9 @@ int main(void)
   cuda::memory::copy(d_id.get(), h_id.get(), size16);
   cuda::memory::copy(d_x.get(), h_x.get(), size16);
   cuda::memory::copy(d_y.get(), h_y.get(), size16);
-  cuda::memory::copy(d_adc.get(), h_adc.get(), size8);
-  cuda::memory::device::zero(d_debug.get(),size32);
+  cuda::memory::copy(d_adc.get(), h_adc.get(), size16);
   // Launch CUDA Kernels
-  int threadsPerBlock = 256;
+  int threadsPerBlock = (kkk==5) ? 512 : ((kkk==3) ? 64 : 256);
   int blocksPerGrid = (numElements + threadsPerBlock - 1) / threadsPerBlock;
   std::cout
     << "CUDA countModules kernel launch with " << blocksPerGrid
@@ -180,7 +244,6 @@ int main(void)
                d_id.get(), d_moduleStart.get() ,d_clus.get(),n
                );
 
-  threadsPerBlock = 256;
   blocksPerGrid = MaxNumModules;    //nModules;
 
   std::cout
@@ -198,32 +261,77 @@ int main(void)
                d_clus.get(),
                n
                );
+    cudaDeviceSynchronize();
 
-  cuda::memory::copy(&nModules,d_moduleStart.get(),sizeof(uint32_t));
+    cuda::memory::copy(&nModules,d_moduleStart.get(),sizeof(uint32_t));
+
+    uint32_t nclus[MaxNumModules], moduleId[nModules];
+
+    cuda::memory::copy(&nclus,d_clusInModule.get(),MaxNumModules*sizeof(uint32_t));
+    std::cout << "before charge cut found " << std::accumulate(nclus,nclus+MaxNumModules,0) << " clusters" << std::endl;
+    for (auto i=MaxNumModules; i>0; i--) if (nclus[i-1]>0) {std::cout << "last module is " << i-1 << ' ' << nclus[i-1] << std::endl; break;}
+    if (ncl!=std::accumulate(nclus,nclus+MaxNumModules,0)) std::cout << "ERROR!!!!! wrong number of cluster found" << std::endl;
+
+    cuda::launch(
+               clusterChargeCut,
+               { blocksPerGrid, threadsPerBlock },
+               d_id.get(), d_adc.get(),
+               d_moduleStart.get(),
+               d_clusInModule.get(), d_moduleId.get(),
+               d_clus.get(),
+               n
+               );
+
+
+    cudaDeviceSynchronize();
+
   std::cout << "found " << nModules << " Modules active" << std::endl;
 
-  uint32_t nclus[MaxNumModules], moduleId[nModules];
+  cuda::memory::copy(h_id.get(), d_id.get(), size16);
   cuda::memory::copy(h_clus.get(), d_clus.get(), size32);
   cuda::memory::copy(&nclus,d_clusInModule.get(),MaxNumModules*sizeof(uint32_t));
   cuda::memory::copy(&moduleId,d_moduleId.get(),nModules*sizeof(uint32_t));
-  cuda::memory::copy(h_debug.get(), d_debug.get(), size32);
 
-  auto p = std::minmax_element(h_debug.get(),h_debug.get()+n);
-  std::cout << "debug " << *p.first << ' ' << *p.second << std::endl;
 
   std::set<unsigned int> clids;
-  std::vector<unsigned int> seeds;
   for (int i=0; i<n; ++i) {
+    assert(h_id[i]!=666);  // only noise
     if (h_id[i]==InvId) continue;
     assert(h_clus[i]>=0);
     assert(h_clus[i]<nclus[h_id[i]]);
-    clids.insert(h_id[i]*100+h_clus[i]);
+    clids.insert(h_id[i]*1000+h_clus[i]);
                  // clids.insert(h_clus[i]);
-    // if (h_clus[i]==i) seeds.push_back(i); // only if no renumbering
+  }
+
+  // verify no hole in numbering
+  auto p = clids.begin();
+  auto cmid = (*p)/1000;
+  assert (0==(*p)%1000);
+  auto c= p; ++c;
+  std::cout << "first clusters " << *p << ' ' << *c << ' ' << nclus[cmid] << ' ' << nclus[(*c)/1000] << std::endl;
+  std::cout << "last cluster " << *clids.rbegin() << ' ' << nclus[(*clids.rbegin())/1000] << std::endl;
+  for(;c!=clids.end(); ++c) {
+     auto cc = *c;
+     auto pp = *p;
+     auto mid = cc/1000;
+     auto pnc = pp%1000;
+     auto nc = cc%1000;
+     if(mid!=cmid) {
+       assert (0==cc%1000);
+       assert (nclus[cmid]-1 == pp%1000);
+       // if (nclus[cmid]-1 != pp%1000) std::cout << "error size " << mid << ": "  << nclus[mid] << ' ' << pp << std::endl;   
+       cmid=mid;
+       p=c;
+       continue;
+     }
+     p=c;
+     // assert(nc==pnc+1);
+     if (nc!=pnc+1) std::cout << "error " << mid << ": " << nc << ' ' << pnc << std::endl;
   }
 
   std::cout << "found " << std::accumulate(nclus,nclus+MaxNumModules,0) << ' ' <<  clids.size() << " clusters" << std::endl;
+  for(auto i=MaxNumModules; i>0; i--) if (nclus[i-1]>0) {std::cout << "last module is " << i-1 <<    ' ' << nclus[i-1] << std::endl;    break;}
   // << " and " << seeds.size() << " seeds" << std::endl;
-
+  } /// end loop kkk
   return 0;
 }

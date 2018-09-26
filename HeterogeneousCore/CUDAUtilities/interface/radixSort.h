@@ -75,23 +75,22 @@ template<
   int NS, // number of significant bytes to use in sorting
   typename RF
 >
-__device__  
-void radixSortImpl(T const * a, uint16_t * ind, uint32_t size, RF reorder) {
+__device__
+void
+__forceinline__
+radixSortImpl(T const * __restrict__ a, uint16_t * ind, uint16_t * ind2, uint32_t size, RF reorder) {
     
   constexpr int d = 8, w = 8*sizeof(T);
   constexpr int sb = 1<<d;
   constexpr int ps = int(sizeof(T)) - NS; 
 
-  constexpr int MaxSize = 256*32;
-  __shared__ uint16_t ind2[MaxSize];
   __shared__ int32_t c[sb], ct[sb], cu[sb];
 
   __shared__ int ibs;
   __shared__ int p;
 
   assert(size>0);
-  assert(size<=MaxSize); 
-  assert(blockDim.x==sb);  
+  assert(blockDim.x>=sb);  
 
   // bool debug = false; // threadIdx.x==0 && blockIdx.x==5;
 
@@ -104,9 +103,8 @@ void radixSortImpl(T const * a, uint16_t * ind, uint32_t size, RF reorder) {
   for (auto i=first; i<size; i+=blockDim.x)  j[i]=i;
   __syncthreads();
 
-
-  while(p < w/d) {
-    c[threadIdx.x]=0;
+  while(__syncthreads_and(p < w/d)) {
+    if (threadIdx.x<sb) c[threadIdx.x]=0;
     __syncthreads();
 
     // fill bins
@@ -117,19 +115,22 @@ void radixSortImpl(T const * a, uint16_t * ind, uint32_t size, RF reorder) {
     __syncthreads();
 
     // prefix scan "optimized"???...
-    auto x = c[threadIdx.x];
-    auto laneId = threadIdx.x & 0x1f;
-    #pragma unroll
-    for( int offset = 1 ; offset < 32 ; offset <<= 1 ) {
-      auto y = __shfl_up_sync(0xffffffff,x, offset);
-      if(laneId >= offset) x += y;
+    if (threadIdx.x<sb) {
+      auto x = c[threadIdx.x];
+      auto laneId = threadIdx.x & 0x1f;
+      #pragma unroll
+      for( int offset = 1 ; offset < 32 ; offset <<= 1 ) {
+        auto y = __shfl_up_sync(0xffffffff,x, offset);
+        if(laneId >= offset) x += y;
+      }
+      ct[threadIdx.x] = x;
     }
-    ct[threadIdx.x] = x;
     __syncthreads();
-    auto ss = (threadIdx.x/32)*32 -1;
-    c[threadIdx.x] = ct[threadIdx.x];
-    for(int i=ss; i>0; i-=32) c[threadIdx.x] +=ct[i]; 
- 
+    if (threadIdx.x<sb) {
+      auto ss = (threadIdx.x/32)*32 -1;
+      c[threadIdx.x] = ct[threadIdx.x];
+      for(int i=ss; i>0; i-=32) c[threadIdx.x] +=ct[i]; 
+    }
     /* 
     //prefix scan for the nulls  (for documentation)
     if (threadIdx.x==0)
@@ -140,27 +141,33 @@ void radixSortImpl(T const * a, uint16_t * ind, uint32_t size, RF reorder) {
      // broadcast
      ibs =size-1;
      __syncthreads();
-     while (ibs>0) {
+     while (__syncthreads_and(ibs>0)) {
        int i = ibs - threadIdx.x;
-       cu[threadIdx.x]=-1;
-       ct[threadIdx.x]=-1;
-       __syncthreads();
-       int32_t bin = -1;
-       if (i>=0) { 
-         bin = (a[j[i]] >> d*p)&(sb-1);
-         ct[threadIdx.x]=bin;
-         atomicMax(&cu[bin],int(i));
+       if (threadIdx.x<sb) {
+         cu[threadIdx.x]=-1;
+         ct[threadIdx.x]=-1;
        }
        __syncthreads();
-       if (i>=0 && i==cu[bin])  // ensure to keep them in order
-         for (int ii=threadIdx.x; ii<blockDim.x; ++ii) if (ct[ii]==bin) {
-           auto oi = ii-threadIdx.x; 
-           // assert(i>=oi);if(i>=oi) 
-           k[--c[bin]] = j[i-oi]; 
+       int32_t bin = -1;
+       if (threadIdx.x<sb) {
+         if (i>=0) { 
+           bin = (a[j[i]] >> d*p)&(sb-1);
+           ct[threadIdx.x]=bin;
+           atomicMax(&cu[bin],int(i));
          }
+       }
+       __syncthreads();
+       if (threadIdx.x<sb) {
+         if (i>=0 && i==cu[bin])  // ensure to keep them in order
+           for (int ii=threadIdx.x; ii<sb; ++ii) if (ct[ii]==bin) {
+             auto oi = ii-threadIdx.x; 
+             // assert(i>=oi);if(i>=oi) 
+             k[--c[bin]] = j[i-oi]; 
+           }
+       } 
        __syncthreads();
        if (bin>=0) assert(c[bin]>=0);
-       if (threadIdx.x==0) ibs-=blockDim.x;
+       if (threadIdx.x==0) ibs-=sb;
        __syncthreads();
      }    
       
@@ -191,6 +198,8 @@ void radixSortImpl(T const * a, uint16_t * ind, uint32_t size, RF reorder) {
   if (j!=ind) // odd...
      for (auto i=first; i<size; i+=blockDim.x) ind[i]=ind2[i];
 
+  __syncthreads();
+
   // now move negative first... (if signed)
   reorder(a,ind,ind2,size);
 
@@ -203,8 +212,10 @@ template<
   typename std::enable_if<std::is_unsigned<T>::value,T>::type* = nullptr
 >
 __device__
-void radixSort(T const * a, uint16_t * ind, uint32_t size) {
-  radixSortImpl<T,NS>(a,ind,size,dummyReorder<T>);
+void 
+__forceinline__
+radixSort(T const * a, uint16_t * ind, uint16_t * ind2, uint32_t size) {
+  radixSortImpl<T,NS>(a,ind,ind2,size,dummyReorder<T>);
 }
 
 template<
@@ -213,8 +224,10 @@ template<
   typename std::enable_if<std::is_integral<T>::value&&std::is_signed<T>::value,T>::type* = nullptr
 >
 __device__
-void radixSort(T const * a, uint16_t * ind, uint32_t size) {
-  radixSortImpl<T,NS>(a,ind,size,reorderSigned<T>);
+void 
+__forceinline__
+radixSort(T const * a, uint16_t * ind, uint16_t * ind2, uint32_t size) {
+  radixSortImpl<T,NS>(a,ind,ind2,size,reorderSigned<T>);
 }
 
 template<
@@ -223,29 +236,47 @@ template<
   typename std::enable_if<std::is_floating_point<T>::value,T>::type* = nullptr
 >
 __device__
-void radixSort(T const * a, uint16_t * ind, uint32_t size) {
+void
+__forceinline__
+ radixSort(T const * a, uint16_t * ind, uint16_t * ind2, uint32_t size) {
   using I = int;
-  radixSortImpl<I,NS>((I const *)(a),ind,size,reorderFloat<I>);
+  radixSortImpl<I,NS>((I const *)(a),ind,ind2, size,reorderFloat<I>);
 }
 
 
 
 template<typename T, int NS=sizeof(T)>
 __device__
-void radixSortMulti(T * v, uint16_t * index, uint32_t * offsets) {
+void 
+__forceinline__
+radixSortMulti(T const * v, uint16_t * index, uint32_t const * offsets, uint16_t * workspace) {
+
+  extern __shared__ uint16_t ws[];
 
   auto a = v+offsets[blockIdx.x];
-  auto ind = index+offsets[blockIdx.x];;
+  auto ind = index+offsets[blockIdx.x];
+  auto ind2 = nullptr==workspace ? ws : workspace+offsets[blockIdx.x];
   auto size = offsets[blockIdx.x+1]-offsets[blockIdx.x];
   assert(offsets[blockIdx.x+1]>=offsets[blockIdx.x]);
-  if (size>0) radixSort<T,NS>(a,ind,size);
+  if (size>0) radixSort<T,NS>(a,ind,ind2,size);
 
 }
 
 template<typename T, int NS=sizeof(T)>
 __global__
-void radixSortMultiWrapper(T * v, uint16_t * index, uint32_t * offsets) {
-  radixSortMulti<T,NS>(v,index,offsets);
+void 
+__launch_bounds__(256, 4)
+radixSortMultiWrapper(T const * v, uint16_t * index, uint32_t const * offsets, uint16_t * workspace) {
+  radixSortMulti<T,NS>(v,index,offsets, workspace);
 }
+
+template<typename T, int NS=sizeof(T)>
+__global__
+void 
+// __launch_bounds__(256, 4)
+radixSortMultiWrapper2(T const * v, uint16_t * index, uint32_t const * offsets, uint16_t * workspace) {
+  radixSortMulti<T,NS>(v,index,offsets, workspace);
+}
+
 
 #endif // HeterogeneousCoreCUDAUtilities_radixSort_H

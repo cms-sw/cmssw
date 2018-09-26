@@ -20,4 +20,4 @@
 <use name="HeterogeneousCore/CUDACore"/>
 <use name="HeterogeneousCore/Producer"/>
 <use name="HeterogeneousCore/Product"/>
-
+<use name="HeterogeneousCore/CUDAUtilities"/>

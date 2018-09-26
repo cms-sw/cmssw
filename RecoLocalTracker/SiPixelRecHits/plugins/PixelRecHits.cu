@@ -8,7 +8,7 @@
 // CMSSW headers
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/SiPixelRawToClusterGPUKernel.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClustering.h"
+#include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClusteringConstants.h"
 #include "PixelRecHits.h"
 #include "gpuPixelRecHits.h"
 
@@ -34,7 +34,7 @@ namespace {
 namespace pixelgpudetails {
   PixelRecHitGPUKernel::PixelRecHitGPUKernel(cuda::stream_t<>& cudaStream) {
 
-    constexpr auto MAX_HITS = gpuClustering::MaxNumModules * 256;
+    constexpr auto MAX_HITS = siPixelRecHitsHeterogeneousProduct::maxHits();
 
     cudaCheck(cudaMalloc((void **) & gpu_.bs_d, 3 * sizeof(float)));
     cudaCheck(cudaMalloc((void **) & gpu_.hitsLayerStart_d, 11 * sizeof(uint32_t)));
@@ -70,7 +70,8 @@ namespace pixelgpudetails {
     gpu_.iphi_d = slicePitch<int16_t>(gpu_.owner_16bit_, gpu_.owner_16bit_pitch_, 3);
     gpu_.sortIndex_d = slicePitch<uint16_t>(gpu_.owner_16bit_, gpu_.owner_16bit_pitch_, 4);
 
-    cudaCheck(cudaMalloc((void **) & gpu_.hist_d, 10 * sizeof(HitsOnGPU::Hist)));
+    cudaCheck(cudaMalloc((void **) & gpu_.hist_d, sizeof(HitsOnGPU::Hist)));
+    cudaCheck(cudaMalloc((void **) & gpu_.hws_d, 4*HitsOnGPU::Hist::totbins()));
     cudaCheck(cudaMalloc((void **) & gpu_d, sizeof(HitsOnGPU)));
     gpu_.me_d = gpu_d;
     cudaCheck(cudaMemcpyAsync(gpu_d, &gpu_, sizeof(HitsOnGPU), cudaMemcpyDefault, cudaStream.id()));
@@ -109,6 +110,7 @@ namespace pixelgpudetails {
     cudaCheck(cudaFree(gpu_.owner_32bit_));
     cudaCheck(cudaFree(gpu_.owner_16bit_));
     cudaCheck(cudaFree(gpu_.hist_d));
+    cudaCheck(cudaFree(gpu_.hws_d));
     cudaCheck(cudaFree(gpu_d));
     cudaCheck(cudaFree(d_phase1TopologyLayerStart_));
 
@@ -132,6 +134,10 @@ namespace pixelgpudetails {
 
     int threadsPerBlock = 256;
     int blocks = input.nModules; // active modules (with digis)
+
+#ifdef GPU_DEBUG
+    std::cout << "launching getHits kernel for " << blocks << " blocks" << std::endl;
+#endif
     gpuPixelRecHits::getHits<<<blocks, threadsPerBlock, 0, stream.id()>>>(
       cpeParams,
       gpu_.bs_d,
@@ -188,6 +194,6 @@ namespace pixelgpudetails {
       // radixSortMultiWrapper<int16_t><<<10, 256, 0, c.stream>>>(gpu_.iphi_d, gpu_.sortIndex_d, gpu_.hitsLayerStart_d);
     }
 
-    cudautils::fillManyFromVector(gpu_.hist_d, 10, gpu_.iphi_d, gpu_.hitsLayerStart_d, nhits_, 256, stream.id());
+    cudautils::fillManyFromVector(gpu_.hist_d, gpu_.hws_d, 10, gpu_.iphi_d, gpu_.hitsLayerStart_d, nhits_, 256, stream.id());
   }
 }

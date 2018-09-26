@@ -13,13 +13,14 @@ struct Event {
   std::vector<uint16_t>  itrack;
   std::vector<float> ztrack;
   std::vector<float> eztrack;
+  std::vector<float> pttrack;
   std::vector<uint16_t> ivert;
 };
 
 struct ClusterGenerator {
 
   explicit ClusterGenerator(float nvert, float ntrack) :
-    rgen(-13.,13), errgen(0.005,0.025), clusGen(nvert), trackGen(ntrack), gauss(0.,1.)
+    rgen(-13.,13), errgen(0.005,0.025), clusGen(nvert), trackGen(ntrack), gauss(0.,1.), ptGen(1.)
   {}
 
   void operator()(Event & ev) {
@@ -42,6 +43,8 @@ struct ClusterGenerator {
        ev.ztrack.push_back(ev.zvert[iv]+err*gauss(reng));
        ev.eztrack.push_back(err*err);
        ev.ivert.push_back(iv);
+       ev.pttrack.push_back( (iv==5? 1.f:0.5f) + ptGen(reng) );
+       ev.pttrack.back()*=ev.pttrack.back();
       }
     }
     // add noise
@@ -51,6 +54,8 @@ struct ClusterGenerator {
       ev.ztrack.push_back(rgen(reng));
       ev.eztrack.push_back(err*err);
       ev.ivert.push_back(9999);
+      ev.pttrack.push_back( 0.5f + ptGen(reng) );
+      ev.pttrack.back()*=ev.pttrack.back();
     }
 
   }
@@ -61,7 +66,7 @@ struct ClusterGenerator {
   std::poisson_distribution<int> clusGen;
   std::poisson_distribution<int> trackGen;
   std::normal_distribution<float> gauss;
-
+  std::exponential_distribution<float> ptGen;
 
 };
 
@@ -79,11 +84,14 @@ int main() {
 
   auto zt_d = cuda::memory::device::make_unique<float[]>(current_device, 64000);
   auto ezt2_d = cuda::memory::device::make_unique<float[]>(current_device, 64000);
+  auto ptt2_d = cuda::memory::device::make_unique<float[]>(current_device, 64000);
   auto zv_d = cuda::memory::device::make_unique<float[]>(current_device, 256);
   auto wv_d = cuda::memory::device::make_unique<float[]>(current_device, 256);
   auto chi2_d = cuda::memory::device::make_unique<float[]>(current_device, 256);
+  auto ptv2_d = cuda::memory::device::make_unique<float[]>(current_device, 256);
+  auto ind_d = cuda::memory::device::make_unique<uint16_t[]>(current_device, 256);
 
-  auto izt_d = cuda::memory::device::make_unique<int8_t[]>(current_device, 64000);
+  auto izt_d = cuda::memory::device::make_unique<uint8_t[]>(current_device, 64000);
   auto nn_d = cuda::memory::device::make_unique<int32_t[]>(current_device, 64000);
   auto iv_d = cuda::memory::device::make_unique<int32_t[]>(current_device, 64000);
 
@@ -95,9 +103,12 @@ int main() {
 
   onGPU.zt = zt_d.get();
   onGPU.ezt2 = ezt2_d.get();
+  onGPU.ptt2 = ptt2_d.get();
   onGPU.zv = zv_d.get();
   onGPU.wv = wv_d.get();
   onGPU.chi2 = chi2_d.get();
+  onGPU.ptv2 = ptv2_d.get();
+  onGPU.sortInd = ind_d.get();
   onGPU.nv = nv_d.get();
   onGPU.izt = izt_d.get();
   onGPU.nn = nn_d.get();
@@ -123,6 +134,7 @@ int main() {
 
   cuda::memory::copy(onGPU.zt,ev.ztrack.data(),sizeof(float)*ev.ztrack.size());
   cuda::memory::copy(onGPU.ezt2,ev.eztrack.data(),sizeof(float)*ev.eztrack.size());
+  cuda::memory::copy(onGPU.ptt2,ev.pttrack.data(),sizeof(float)*ev.eztrack.size());
 
   float eps = 0.1f;
   
@@ -130,44 +142,58 @@ int main() {
   
   if ( (i%4) == 0 )
     cuda::launch(clusterTracks,
-		 { 1, 1024 },
+		 { 1, 512+256 },
 		 ev.ztrack.size(), onGPU_d.get(),kk,eps,
 		 0.02f,12.0f
 		 );
   
   if ( (i%4) == 1 )
     cuda::launch(clusterTracks,
-		 { 1, 1024 },
+		 { 1, 512+256 },
 		 ev.ztrack.size(), onGPU_d.get(),kk,eps,
 		 0.02f,9.0f
 		 );
   
   if ( (i%4) == 2 )
     cuda::launch(clusterTracks,
-		 { 1, 1024 },
+		 { 1, 512+256 },
 		 ev.ztrack.size(), onGPU_d.get(),kk,eps,
 		 0.01f,9.0f
 		 );
   
   if ( (i%4) == 3 )
     cuda::launch(clusterTracks,
-		 { 1, 1024 },
+		 { 1, 512+256 },
 		 ev.ztrack.size(), onGPU_d.get(),kk,0.7f*eps,
 		 0.01f,9.0f
 		 );
   
-
+  cudaDeviceSynchronize();
+  cuda::launch(sortByPt2,
+               { 1, 256 },
+               ev.ztrack.size(), onGPU_d.get()
+              );
 
   uint32_t nv;
   cuda::memory::copy(&nv, onGPU.nv, sizeof(uint32_t));
+
+  if (nv==0) {
+    std::cout << "NO VERTICES???" << std::endl;
+    continue;
+  }
+
   float zv[nv];
   float	wv[nv];
   float	chi2[nv];
+  float ptv2[nv];
   int32_t nn[nv];
+  uint16_t ind[nv];
   cuda::memory::copy(&zv, onGPU.zv, nv*sizeof(float));
   cuda::memory::copy(&wv, onGPU.wv, nv*sizeof(float));
   cuda::memory::copy(&chi2, onGPU.chi2, nv*sizeof(float));
+  cuda::memory::copy(&ptv2, onGPU.ptv2, nv*sizeof(float));
   cuda::memory::copy(&nn, onGPU.nn, nv*sizeof(int32_t));
+  cuda::memory::copy(&ind, onGPU.sortInd, nv*sizeof(uint16_t));
   for (auto j=0U; j<nv; ++j) if (nn[j]>0) chi2[j]/=float(nn[j]); 
    
   {
@@ -178,7 +204,12 @@ int main() {
     auto mx = std::minmax_element(chi2,chi2+nv);
     std::cout << "min max chi2 " << *mx.first << ' ' <<  *mx.second << std::endl;
   }
-  
+  {
+    auto mx = std::minmax_element(ptv2,ptv2+nv);
+    std::cout << "min max ptv2 " << *mx.first << ' ' <<  *mx.second << std::endl;
+    std::cout << "min max ptv2 " << ptv2[ind[0]] << ' ' <<  ptv2[ind[nv-1]] << " at "  << ind[0] << ' ' << ind[nv-1] << std::endl;
+
+  }  
 
   float dd[nv];
   uint32_t ii=0;

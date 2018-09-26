@@ -17,6 +17,9 @@ namespace siPixelRecHitsHeterogeneousProduct {
 
   using CPUProduct = int; // dummy
 
+  static constexpr uint32_t maxHits() { return 65536;}
+  using hindex_type = uint16_t; // if above is <=2^16
+
   struct HitsOnGPU{
      pixelCPEforGPU::ParamsOnGPU const * cpeParams = nullptr;    // forwarded from setup, NOT owned
      float * bs_d;
@@ -32,8 +35,9 @@ namespace siPixelRecHitsHeterogeneousProduct {
      uint16_t * mr_d;
      uint16_t * mc_d;
 
-     using Hist = HistoContainer<int16_t,7,8>;
+     using Hist = HistoContainer<int16_t,128,maxHits(),8*sizeof(int16_t),uint16_t,10>;
      Hist * hist_d;
+     typename Hist::Counter *  hws_d;  
 
      HitsOnGPU const * me_d = nullptr;
 

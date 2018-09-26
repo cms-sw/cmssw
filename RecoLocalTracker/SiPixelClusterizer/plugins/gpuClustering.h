@@ -1,13 +1,18 @@
 #ifndef RecoLocalTracker_SiPixelClusterizer_plugins_gpuClustering_h
 #define RecoLocalTracker_SiPixelClusterizer_plugins_gpuClustering_h
 
+
+// #define CLUS_LIMIT_LOOP
+
 #include <cassert>
 #include <cstdint>
 #include <cstdio>
 
 #include "gpuClusteringConstants.h"
+#include "Geometry/TrackerGeometryBuilder/interface/phase1PixelTopology.h"
 
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
+
 
 namespace gpuClustering {
 
@@ -32,7 +37,9 @@ namespace gpuClustering {
     }
   }
 
-  __global__ void findClus(uint16_t const * __restrict__ id,             // module id of each pixel
+  __global__
+//  __launch_bounds__(256,4)
+  void findClus(uint16_t const * __restrict__ id,             // module id of each pixel
                            uint16_t const * __restrict__ x,              // local coordinates of each pixel
                            uint16_t const * __restrict__ y,              //
                            uint32_t const * __restrict__ moduleStart,    // index of the first pixel of each module
@@ -63,8 +70,6 @@ namespace gpuClustering {
     __syncthreads();
 
     // skip threads not associated to an existing pixel
-    bool active = (first < numElements);
-    if (active) {
       for (int i = first; i < numElements; i += blockDim.x) {
         if (id[i] == InvId)                 // skip invalid pixels
           continue;
@@ -73,87 +78,125 @@ namespace gpuClustering {
           break;
         }
       }
-    }
 
-   //init hist  (ymax < 512)
-   __shared__ HistoContainer<uint16_t,8,4,9,uint16_t> hist;
-   hist.nspills = 0;
-   for (auto k = threadIdx.x; k<hist.nbins(); k+=blockDim.x) hist.n[k]=0;
-
+   //init hist  (ymax=416 < 512 : 9bits)
+   constexpr uint32_t maxPixInModule = 4000;
+   constexpr auto  nbins = phase1PixelTopology::numColsInModule + 2;   //2+2;
+   using Hist = HistoContainer<uint16_t,nbins,maxPixInModule,9,uint16_t>;
+   constexpr auto wss = Hist::totbins();
+    __shared__ Hist hist;
+    __shared__ typename Hist::Counter ws[wss];
+    for (auto j=threadIdx.x; j<Hist::totbins(); j+=blockDim.x) { hist.off[j]=0; ws[j]=0;}
     __syncthreads();
 
-
     assert((msize == numElements) or ((msize < numElements) and (id[msize] != thisModuleId)));
-    assert(msize-firstPixel<64000);  
+    assert(msize-firstPixel<maxPixInModule);  
  
-    // skip threads not assocoated to pixels in this module
-    active = (first < msize);
 
-    // __syncthreads();
-
+#ifdef GPU_DEBUG
+    __shared__ uint32_t totGood;
+    totGood=0;
+    __syncthreads();
+#endif
 
     // fill histo
-    if (active) {
       for (int i = first; i < msize; i += blockDim.x) {
         if (id[i] == InvId)                 // skip invalid pixels
           continue;
-        hist.fill(y[i],i-firstPixel);
+        hist.count(y[i]);
+#ifdef GPU_DEBUG
+        atomicAdd(&totGood,1);
+#endif
       }
-    }
+    __syncthreads();
+    hist.finalize(ws);
+    __syncthreads();
+    if (threadIdx.x<32) ws[threadIdx.x]=0;  // used by prefix scan...
+    __syncthreads();
+#ifdef GPU_DEBUG
+    assert(hist.size()==totGood);
+    if (thisModuleId % 100 == 1)
+      if (threadIdx.x == 0)
+        printf("histo size %d\n",hist.size());
+#endif
+      for (int i = first; i < msize; i += blockDim.x) {
+        if (id[i] == InvId)                 // skip invalid pixels
+          continue;
+        hist.fill(y[i],i-firstPixel,ws);
+      }
 
+#ifdef CLUS_LIMIT_LOOP
     // assume that we can cover the whole module with up to 10 blockDim.x-wide iterations
     constexpr int maxiter = 10;
-    if (active) {
-      assert(((msize - first) / blockDim.x) <= maxiter);
+    if (threadIdx.x==0) {
+      assert((hist.size()/ blockDim.x) <= maxiter);
     }
-    int jmax[maxiter];
+    uint16_t const * jmax[maxiter];
     for (int k = 0; k < maxiter; ++k)
-      jmax[k] = msize;
+      jmax[k] = hist.end();
+#endif
 
-    __syncthreads();
-    if (threadIdx.x==0 && hist.fullSpill()) printf("histo overflow in det %d\n",thisModuleId);
+#ifdef GPU_DEBUG
+    __shared__ int nloops;
+    nloops=0;
+#endif
 
+
+    __syncthreads();  // for hit filling!
 
     // for each pixel, look at all the pixels until the end of the module;
     // when two valid pixels within +/- 1 in x or y are found, set their id to the minimum;
     // after the loop, all the pixel in each cluster should have the id equeal to the lowest
     // pixel in the cluster ( clus[i] == i ).
-    bool done = false;
-    while (not __syncthreads_and(done)) {
-      done = true;
-      if (active) {
-       for (int i = first, k = 0; i < msize; i += blockDim.x, ++k) {
-          if (id[i] == InvId)               // skip invalid pixels
-            continue;
+    bool more = true;
+    while (__syncthreads_or(more)) {
+      more = false;
+        for (int j=threadIdx.x, k = 0; j<hist.size(); j+=blockDim.x, ++k) {
+          auto p = hist.begin()+j;
+          auto i = *p + firstPixel;
+          assert (id[i] != InvId);
           assert(id[i] == thisModuleId);    // same module
+#ifdef CLUS_LIMIT_LOOP
           auto jm = jmax[k];
-          jmax[k] = i + 1;
+          jmax[k] = p + 1;
+#endif
+          int be = Hist::bin(y[i]+1);
+          auto e = hist.end(be);
+#ifdef CLUS_LIMIT_LOOP
+          e = std::min(e,jm);
+#endif      
           // loop to columns
-          auto bs = hist.bin(y[i]>0 ? y[i]-1 : 0);
-          auto be = hist.bin(y[i]+1)+1;
-          auto loop = [&](int j) {
-            j+=firstPixel;
-            if (i>=j or j>jm or 
-                std::abs(int(x[j]) - int(x[i])) > 1 or
-                std::abs(int(y[j]) - int(y[i])) > 1) return;
-            auto old = atomicMin(&clusterId[j], clusterId[i]);
+          auto loop = [&](uint16_t const * kk) {
+            auto m = (*kk)+firstPixel;
+#ifdef GPU_DEBUG
+            assert(m!=i);
+#endif
+            if (std::abs(int(x[m]) - int(x[i])) > 1) return;
+            // if (std::abs(int(y[m]) - int(y[i])) > 1) return; // binssize is 1
+            auto old = atomicMin(&clusterId[m], clusterId[i]);
             if (old != clusterId[i]) {
               // end the loop only if no changes were applied
-              done = false;
+              more = true;
             }
             atomicMin(&clusterId[i], old);
+#ifdef CLUS_LIMIT_LOOP
             // update the loop boundary for the next iteration
-            jmax[k] = std::max(j + 1,jmax[k]);
+            jmax[k] = std::max(kk + 1,jmax[k]);
+#endif
           };
-          for (auto b=bs; b<be; ++b){
-          for (auto pj=hist.begin(b);pj<hist.end(b);++pj) {
-            loop(*pj);
-          }}
-          for (auto pj=hist.beginSpill();pj<hist.endSpill();++pj)
-             loop(*pj);
-         } // pixel loop
-      } // end active
+          ++p;
+          for (;p<e;++p) loop(p);
+        } // pixel loop
+#ifdef GPU_DEBUG
+        if (threadIdx.x==0) ++nloops;
+#endif
     }  // end while
+
+#ifdef GPU_DEBUG
+   if (thisModuleId % 100 == 1)
+      if (threadIdx.x == 0)
+        printf("# loops %d\n",nloops);
+#endif
 
     __shared__ int foundClusters;
     foundClusters = 0;
@@ -161,7 +204,6 @@ namespace gpuClustering {
 
     // find the number of different clusters, identified by a pixels with clus[i] == i;
     // mark these pixels with a negative id.
-    if (active) {
       for (int i = first; i < msize; i += blockDim.x) {
         if (id[i] == InvId)                 // skip invalid pixels
           continue;
@@ -170,11 +212,9 @@ namespace gpuClustering {
           clusterId[i] = -(old + 1);
         }
       }
-    }
     __syncthreads();
 
     // propagate the negative id to all the pixels in the cluster.
-    if (active) {
       for (int i = first; i < msize; i += blockDim.x) {
         if (id[i] == InvId)                 // skip invalid pixels
           continue;
@@ -183,11 +223,9 @@ namespace gpuClustering {
           clusterId[i] = clusterId[clusterId[i]];
         }
       }
-    }
     __syncthreads();
 
     // adjust the cluster id to be a positive value starting from 0
-    if (active) {
       for (int i = first; i < msize; i += blockDim.x) {
         if (id[i] == InvId) {               // skip invalid pixels
           clusterId[i] = -9999;
@@ -195,14 +233,11 @@ namespace gpuClustering {
         }
         clusterId[i] = - clusterId[i] - 1;
       }
-    }
     __syncthreads();
 
-    if (active) {
       if (threadIdx.x == 0) {
         nClustersInModule[thisModuleId] = foundClusters;
         moduleId[blockIdx.x] = thisModuleId;
-      }
 #ifdef GPU_DEBUG
       if (thisModuleId % 100 == 1)
         if (threadIdx.x == 0)

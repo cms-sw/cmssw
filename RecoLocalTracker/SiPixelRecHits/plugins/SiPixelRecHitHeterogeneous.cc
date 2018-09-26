@@ -218,6 +218,7 @@ void SiPixelRecHitHeterogeneous::run(const edm::Handle<SiPixelClusterCollectionN
 
   int numberOfDetUnits = 0;
   int numberOfClusters = 0;
+  int numberOfLostClusters = 0;
   for (auto DSViter=input.begin(); DSViter != input.end() ; DSViter++) {
     numberOfDetUnits++;
     unsigned int detid = DSViter->detId();
@@ -234,7 +235,7 @@ void SiPixelRecHitHeterogeneous::run(const edm::Handle<SiPixelClusterCollectionN
     auto mrp = &hoc.mr[fc];
     uint32_t ngh=0;
     for (uint32_t i=0; i<nhits;++i) {
-      if( hoc.charge[fc+i]<2000 || (gind>=96 && hoc.charge[fc+i]<4000) ) continue;
+      if( hoc.charge[fc+i]<2000 || (gind>=96 && hoc.charge[fc+i]<4000) ) { ++numberOfLostClusters; continue;}
       ind[ngh]=i;std::push_heap(ind, ind+ngh+1,[&](auto a, auto b) { return mrp[a]<mrp[b];});
       ++ngh;
     }
@@ -307,6 +308,15 @@ void SiPixelRecHitHeterogeneous::run(const edm::Handle<SiPixelClusterCollectionN
 
 
   } //    <-- End loop on DetUnits
+
+  /*
+  std::cout << "SiPixelRecHitGPUVI $ det, clus, lost "
+    <<  numberOfDetUnits << ' '
+    << numberOfClusters  << ' '
+    << numberOfLostClusters
+    << std::endl;
+   */
+
 }
 
 DEFINE_FWK_MODULE(SiPixelRecHitHeterogeneous);

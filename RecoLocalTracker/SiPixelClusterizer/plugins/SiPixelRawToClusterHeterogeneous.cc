@@ -584,7 +584,7 @@ void SiPixelRawToClusterHeterogeneous::convertGPUtoCPU(edm::Event& ev,
   }
 
   int32_t nclus=-1;
-  std::vector<AccretionCluster> aclusters(256);
+  std::vector<AccretionCluster> aclusters(1024);
   auto totCluseFilled=0;
 
   auto fillClusters = [&](uint32_t detId){
@@ -611,6 +611,7 @@ void SiPixelRawToClusterHeterogeneous::convertGPUtoCPU(edm::Event& ev,
 
   for (uint32_t i = 0; i < gpu.nDigis; i++) {
     if (gpu.pdigi_h[i]==0) continue;
+    if (gpu.clus_h[i]>9000) continue; // not in cluster
     assert(gpu.rawIdArr_h[i] > 109999);
     if ( (*detDigis).detId() != gpu.rawIdArr_h[i])
       {
@@ -625,7 +626,7 @@ void SiPixelRawToClusterHeterogeneous::convertGPUtoCPU(edm::Event& ev,
     auto const & dig = (*detDigis).data.back();
     // fill clusters
     assert(gpu.clus_h[i]>=0);
-    assert(gpu.clus_h[i]<256);
+    assert(gpu.clus_h[i]<1024);
     nclus = std::max(gpu.clus_h[i],nclus);
     auto row = dig.row();
     auto col = dig.column();
