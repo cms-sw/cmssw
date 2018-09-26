@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 L1TkMuons = cms.EDProducer("L1TkMuonProducer",
     ###############################################
     ############################################### common stuff    
-    L1BMTFInputTag  = cms.InputTag("simBmtfDigis","BMTF"),
+    L1BMTFInputTag  = cms.InputTag("simKBmtfDigis","BMTF"),
     L1OMTFInputTag  = cms.InputTag("simOmtfDigis","OMTF"),
     L1EMTFInputTag  = cms.InputTag("simEmtfDigis","EMTF"),
     L1EMTFTrackCollectionInputTag = cms.InputTag("simEmtfDigis"),
