@@ -9,15 +9,15 @@ namespace l1t{
     class BMTFUnpackerOutput : public Unpacker
     {
     public:
-      //the default constructor assumes
-      //that unpacks BMTF and BMTF is triggering
+      //the constructors assume that unpacks
+      //BMTF and BMTF is triggering (except assigned differently)
       BMTFUnpackerOutput() {
 	isKalman = false;
 	isTriggeringAlgo = true;
       }
-      BMTFUnpackerOutput(const bool isTriggering_/*, const bool isKalman_*/) {
+      BMTFUnpackerOutput(const bool isTriggering_) {
+	isKalman = false;
 	isTriggeringAlgo = isTriggering_;
-	//isKalman = isKalman_;
       }
       ~BMTFUnpackerOutput() override{};
       bool unpack(const Block& block, UnpackerCollections *coll) override;
