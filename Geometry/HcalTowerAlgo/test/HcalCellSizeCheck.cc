@@ -19,19 +19,15 @@ class HcalCellSizeCheck : public edm::one::EDAnalyzer<> {
 public:
   explicit HcalCellSizeCheck(const edm::ParameterSet& );
   ~HcalCellSizeCheck( void ) override {}
-    
+
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;
   void endJob() override {}
-
-private:
-  edm::ParameterSet ps0_;
 };
 
-HcalCellSizeCheck::HcalCellSizeCheck( const edm::ParameterSet& iConfig ) :
-  ps0_(iConfig) { }
+HcalCellSizeCheck::HcalCellSizeCheck( const edm::ParameterSet& iConfig ) { }
 
-void HcalCellSizeCheck::analyze(const edm::Event& /*iEvent*/, 
+void HcalCellSizeCheck::analyze(const edm::Event& /*iEvent*/,
 				 const edm::EventSetup& iSetup) {
 
   edm::ESHandle<HcalDDDRecConstants> hDRCons;
@@ -42,7 +38,7 @@ void HcalCellSizeCheck::analyze(const edm::Event& /*iEvent*/,
   iSetup.get<HcalRecNumberingRecord>().get(topologyHandle);
   const HcalTopology topology = (*topologyHandle);
 
-  HcalFlexiHardcodeGeometryLoader m_loader(ps0_);
+  HcalFlexiHardcodeGeometryLoader m_loader;
   CaloSubdetectorGeometry*  geom = m_loader.load(topology, hcons);
 
   const std::vector<DetId>& idsb=geom->getValidDetIds(DetId::Hcal,HcalBarrel);
@@ -51,7 +47,7 @@ void HcalCellSizeCheck::analyze(const edm::Event& /*iEvent*/,
     std::pair<double,double> rz = hcons.getRZ(hid);
     std::cout << hid << " Front " << rz.first << " Back " << rz.second << "\n";
   }
-  
+
   const std::vector<DetId>& idse=geom->getValidDetIds(DetId::Hcal,HcalEndcap);
   for (auto id : idse) {
     HcalDetId hid(id.rawId());

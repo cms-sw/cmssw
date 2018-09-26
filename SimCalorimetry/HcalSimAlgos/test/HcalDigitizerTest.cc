@@ -223,9 +223,8 @@ void HcalDigitizerTest::analyze(const edm::Event& iEvent,
   //std::cout << "ZDC pedestal width " << pedestalWidths.getWidth(zdcDetId,  1) << std::endl;
   //std::cout << "ZDC gain " << gains.getValue(zdcDetId,  1) << std::endl;
   //std::cout << "ZDC gain width " << gainWidths.getValue(zdcDetId,  1) << std::endl;
-  
-  edm::ParameterSet emptyPSet;
-  HcalDbService calibratorHandle(emptyPSet);
+
+  HcalDbService calibratorHandle;
   calibratorHandle.setData(&pedestals);
   calibratorHandle.setData(&pedestalWidths);
   calibratorHandle.setData(&gains);

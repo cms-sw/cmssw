@@ -90,7 +90,7 @@ FWCSCStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
          TEveStraightLineSet* stripDigiSet = new TEveStraightLineSet();
          setupAddElement(stripDigiSet, product);
              
-         if( std::find_if( adcCounts.begin(), adcCounts.end(), bind2nd( std::greater<int>(), signalThreshold )) != adcCounts.end()) 
+         if( std::find_if( adcCounts.begin(), adcCounts.end(), [&](auto c) { return c >signalThreshold; }) != adcCounts.end()) 
          {
             stripDigiSet->SetLineWidth(3);
             int stripId = (*dit).getStrip();  

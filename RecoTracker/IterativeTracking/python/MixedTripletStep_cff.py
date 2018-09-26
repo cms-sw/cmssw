@@ -342,6 +342,7 @@ trackingPhase1.toReplaceWith(mixedTripletStep, mixedTripletStepClassifier1.clone
      qualityCuts = [-0.5,0.0,0.5],
 ))
 highBetaStar_2018.toModify(mixedTripletStep,qualityCuts = [-0.7,0.0,0.5])
+pp_on_AA_2018.toModify(mixedTripletStep, qualityCuts = [-0.5,0.0,0.9])
 
 # For LowPU
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi

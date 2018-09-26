@@ -63,8 +63,16 @@ class PluginManager
        const SearchPath& searchPath() const {
          return m_path;
        }
+       void allowNoCache() {
+         m_mustHaveCache = false;
+       }
+       
+       bool mustHaveCache() const {
+         return m_mustHaveCache;
+       }
        private:
        SearchPath m_path;
+       bool m_mustHaveCache = true;
      };
 
       ~PluginManager();

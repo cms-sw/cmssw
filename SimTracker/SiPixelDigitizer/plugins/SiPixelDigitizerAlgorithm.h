@@ -341,7 +341,6 @@ class SiPixelDigitizerAlgorithm  {
     //-- make_digis 
     const float theElectronPerADC;     // Gain, number of electrons per adc count.
     const int theAdcFullScale;         // Saturation count, 255=8bit.
-    const int theAdcFullScaleStack;    // Saturation count for stack layers, 1=1bit.
     const float theNoiseInElectrons;   // Noise (RMS) in units of electrons.
     const float theReadoutNoise;       // Noise of the readount chain in elec,
                                  //inludes DCOL-Amp,TBM-Amp, Alt, AOH,OptRec.

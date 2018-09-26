@@ -109,7 +109,7 @@ PluginManager::PluginManager(const PluginManager::Config& iConfig) :
         readCacheFile(poisonedCacheFile, dir/"poisoned", categoryToInfos_);
       }
     }
-    if(not foundAtLeastOneCacheFile) {
+    if(not foundAtLeastOneCacheFile and iConfig.mustHaveCache()) {
       auto ex = cms::Exception("PluginManagerNoCacheFile")<<"No cache files named '"<<standard::cachefileName()<<"' were found in the directories \n";
       for( auto const& seen : alreadySeen) {
         ex <<" '"<<seen<<"'\n";
