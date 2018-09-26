@@ -14,15 +14,6 @@ namespace gpuPixelRecHits {
 
 
 
-  // to be moved in common namespace...
-  constexpr uint16_t InvId=9999; // must be > MaxNumModules
-
-
-  constexpr uint32_t MaxClusInModule = pixelCPEforGPU::MaxClusInModule;
-
-  using ClusParams = pixelCPEforGPU::ClusParams;
-
-
   __global__ void getHits(pixelCPEforGPU::ParamsOnGPU const * __restrict__  cpeParams,
                           float const * __restrict__  bs,
                           uint16_t const * __restrict__  id,
@@ -42,13 +33,30 @@ namespace gpuPixelRecHits {
                           float * xe, float * ye, 
                           uint16_t * mr, uint16_t * mc)
   {
+
+    // to be moved in common namespace...
+    constexpr uint16_t InvId=9999; // must be > MaxNumModules
+    constexpr uint32_t MaxClusInModule = pixelCPEforGPU::MaxClusInModule;
+
+    using ClusParams = pixelCPEforGPU::ClusParams;
+
+
     // as usual one block per module
     __shared__ ClusParams clusParams;
 
     auto first = digiModuleStart[1 + blockIdx.x];
-    auto me = id[first];
-    assert(moduleId[blockIdx.x] == me);
+    auto me = moduleId[blockIdx.x];
     auto nclus = clusInModule[me];
+
+    if (0==nclus) return;
+
+#ifdef GPU_DEBUG
+    if (threadIdx.x==0) {
+      auto k=first;
+      while (id[k]==InvId) ++k;
+      assert(id[k]==me);
+    }
+#endif
 
 #ifdef GPU_DEBUG
     if (me%100==1)
@@ -56,7 +64,13 @@ namespace gpuPixelRecHits {
 #endif
 
     assert(blockDim.x >= MaxClusInModule);
-    assert(nclus <= MaxClusInModule);
+
+    if (threadIdx.x==0 && nclus > MaxClusInModule) { 
+      printf("WARNING: too many clusters %d in Module %d. Only first %d processed\n", nclus,me,MaxClusInModule);
+      // zero charge: do not bother to do it in parallel
+      for (auto d=MaxClusInModule; d<nclus; ++d) { chargeh[d]=0; detInd[d]=InvId;}
+    }
+    nclus = std::min(nclus, MaxClusInModule);
 
     auto ic = threadIdx.x;
 
@@ -81,7 +95,7 @@ namespace gpuPixelRecHits {
     for (int i = first; i < numElements; i += blockDim.x) {
       if (id[i] == InvId) continue;     // not valid
       if (id[i] != me) break;           // end of module
-      assert(clus[i] < nclus);
+      if (clus[i] >= nclus) continue;
       atomicMin(&clusParams.minRow[clus[i]], x[i]);
       atomicMax(&clusParams.maxRow[clus[i]], x[i]);
       atomicMin(&clusParams.minCol[clus[i]], y[i]);
@@ -93,6 +107,7 @@ namespace gpuPixelRecHits {
     for (int i = first; i < numElements; i += blockDim.x) {
       if (id[i] == InvId) continue;     // not valid
       if (id[i] != me) break;           // end of module
+      if (clus[i] >= nclus) continue;
       atomicAdd(&clusParams.charge[clus[i]], adc[i]);
       if (clusParams.minRow[clus[i]]==x[i]) atomicAdd(&clusParams.Q_f_X[clus[i]], adc[i]);
       if (clusParams.maxRow[clus[i]]==x[i]) atomicAdd(&clusParams.Q_l_X[clus[i]], adc[i]);

@@ -34,6 +34,7 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuCalibPixel.h"
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClustering.h"
+#include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClusterChargeCut.h"
 #include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelFedCablingMapGPU.h"
 
 // local includes
@@ -687,11 +688,11 @@ namespace pixelgpudetails {
         cudaCheck(cudaMemcpyAsync(adc_h, adc_d, wordCounter*sizeof(uint16_t), cudaMemcpyDefault, stream.id()));
       }
 
-      /*
-         std::cout
+#ifdef GPU_DEBUG
+       std::cout
          << "CUDA countModules kernel launch with " << blocks
          << " blocks of " << threadsPerBlock << " threads\n";
-       */
+#endif
 
       cudaCheck(cudaMemsetAsync(moduleStart_d, 0x00, sizeof(uint32_t), stream.id()));
 
@@ -703,10 +704,10 @@ namespace pixelgpudetails {
 
       threadsPerBlock = 256;
       blocks = MaxNumModules;
-      /*
+#ifdef GPU_DEBUG
          std::cout << "CUDA findClus kernel launch with " << blocks
          << " blocks of " << threadsPerBlock << " threads\n";
-       */
+#endif
       cudaCheck(cudaMemsetAsync(clusInModule_d, 0, (MaxNumModules)*sizeof(uint32_t), stream.id()));
       findClus<<<blocks, threadsPerBlock, 0, stream.id()>>>(
           moduleInd_d,
@@ -716,6 +717,18 @@ namespace pixelgpudetails {
           clus_d,
           wordCounter);
       cudaCheck(cudaGetLastError());
+
+      // apply charge cut
+      clusterChargeCut<<<blocks, threadsPerBlock, 0, stream.id()>>>(
+          moduleInd_d,
+          adc_d,
+          moduleStart_d,
+          clusInModule_d, moduleId_d,
+          clus_d,
+          wordCounter);
+      cudaCheck(cudaGetLastError());
+
+
 
       // count the module start indices already here (instead of
       // rechits) so that the number of clusters/hits can be made
