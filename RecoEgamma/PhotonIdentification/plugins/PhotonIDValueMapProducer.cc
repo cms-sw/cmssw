@@ -15,6 +15,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "RecoEgamma/EgammaTools/interface/MultiToken.h"
 #include "RecoEgamma/EgammaTools/interface/Utils.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 // This template function finds whether theCandidate is in thefootprint
 // collection. It is templated to be able to handle both reco and pat
@@ -189,7 +190,7 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
         // retrieve the full5x5 directly from the object with ->full5x5_sigmaIetaIeta()
         // for both formats.
         std::vector<float> vCov = lazyToolnoZS->localCovariances(theseed);
-        vars[0].push_back(isnan(vCov[0]) ? 0. : sqrt(vCov[0]));
+        vars[0].push_back(edm::isNotFinite(vCov[0]) ? 0. : sqrt(vCov[0]));
         vars[1].push_back(vCov[1]);
         vars[2].push_back(lazyToolnoZS->e1x3(theseed));
         vars[3].push_back(lazyToolnoZS->e2x2(theseed));

@@ -1,5 +1,5 @@
-#ifndef RecoMET_METPUSubtraction_GBRForestWriter_h
-#define RecoMET_METPUSubtraction_GBRForestWriter_h
+#ifndef CommonTools_MVAUtils_GBRForestWriter_h
+#define CommonTools_MVAUtils_GBRForestWriter_h
 
 /** \class GBRForestWriter
  *
@@ -57,8 +57,9 @@ private:
                 gbrForestName_
                     = (cfg.existsAs<std::string>("gbrForestName") ? cfg.getParameter<std::string>("gbrForestName")
                                                                   : methodName_);
-            } else
+            } else {
                 gbrForestName_ = cfg.getParameter<std::string>("gbrForestName");
+            }
         }
         ~categoryEntryType() {}
         std::string inputFileName_;
