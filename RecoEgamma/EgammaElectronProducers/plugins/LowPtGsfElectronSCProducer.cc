@@ -1,4 +1,5 @@
 #include "RecoEgamma/EgammaElectronProducers/plugins/LowPtGsfElectronSCProducer.h"
+#include "RecoParticleFlow/PFClusterTools/interface/PFClusterWidthAlgo.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -73,22 +74,9 @@ void LowPtGsfElectronSCProducer::produce( edm::Event& event, const edm::EventSet
     // Find closest "seed cluster" to GSF track extrapolated to ECAL
     const reco::PFTrajectoryPoint& point1 = gsfpf->extrapolatedPoint(LayerType::ECALShowerMax);
     reco::PFClusterRef best_seed = closest_cluster( point1, ecalClusters, ecal_matched );
-
-    //@@ Only create SC if seed PFCluster found ... ???
-    //if( best_seed.isNull() ) { continue; }
-
-    // Create new SC, with energy and position based on (extrapolated) GSF track
-    reco::SuperCluster new_sc( sqrt( gsf->p()*gsf->p() + 0.511E-3*0.511E-3 ), // energy
-			       math::XYZPoint(point1.position().X(),
-					      point1.position().Y(),
-					      point1.position().Z()) );
-    new_sc.setCorrectedEnergy( sqrt( gsf->p()*gsf->p() + 0.511E-3*0.511E-3 ) ); //@@ necessary?
-
-    // Add "seed cluster" (matched to GSF track extrapolated to ECAL)
-    if( !best_seed.isNull() ) { 
-      new_sc.addCluster( edm::refToPtr(best_seed) ); 
-      if ( new_sc.seed().isNull() ) { new_sc.setSeed( edm::refToPtr(best_seed) ); }
-    }
+    std::vector<reco::PFClusterRef> clusteredRefs;
+    if(!best_seed.isNull()) clusteredRefs.push_back(best_seed);
+    
 
     // Iterate through brem trajectories
     const std::vector<reco::PFBrem>& brems = gsfpf->PFRecBrem();
@@ -99,23 +87,22 @@ void LowPtGsfElectronSCProducer::produce( edm::Event& event, const edm::EventSet
       const reco::PFTrajectoryPoint& point2 = brem->extrapolatedPoint(LayerType::ECALShowerMax);
       reco::PFClusterRef best_brem = closest_cluster( point2, ecalClusters, ecal_matched );
 
-      // Add brem cluster
-      if( !best_brem.isNull() ) { 
-	new_sc.addCluster( edm::refToPtr(best_brem) );
-	if ( new_sc.seed().isNull() ) { new_sc.setSeed( edm::refToPtr(best_brem) ); }
+      if(!best_brem.isNull()) {
+	if(best_seed.isNull()) best_seed = best_brem;
+	clusteredRefs.push_back(best_brem);
       }
 
     }
 
     // If all else fails, attempt to extrapolate KF track and match to seed PF cluster
     reco::PFTrajectoryPoint point3;
-    if ( new_sc.seed().isNull() ) { 
+    if ( best_seed.isNull() ) { 
       const reco::PFRecTrackRef& kfpf = gsfpf->kfPFRecTrackRef();
       point3 = kfpf->extrapolatedPoint(LayerType::ECALShowerMax);
       reco::PFClusterRef best_kf = closest_cluster( point3, ecalClusters, ecal_matched );
       if( !best_kf.isNull() ) { 
-	new_sc.addCluster( edm::refToPtr(best_kf) ); 
-	new_sc.setSeed( edm::refToPtr(best_kf) ); 
+	best_seed = best_kf; 
+	clusteredRefs.push_back(best_kf); 
       }
     }
     
@@ -140,12 +127,41 @@ void LowPtGsfElectronSCProducer::produce( edm::Event& event, const edm::EventSet
 //		<< std::endl;
 //    }
 
-    // Store new SuperCluster 
-    clusters->push_back( new_sc );
+    //now we need to make the supercluster
+    if(!best_seed.isNull()) {
 
-    // Populate ValueMap container
-    clusters_valuemap.push_back( reco::SuperClusterRef(clusters_refprod,igsfpf) );
-
+      float posX=0.,posY=0.,posZ=0.;
+      float scEnergy=0.;
+      for(const auto clus : clusteredRefs){
+	scEnergy+=clus->correctedEnergy();
+	posX+=clus->correctedEnergy()*clus->position().X();
+	posY+=clus->correctedEnergy()*clus->position().Y();
+	posZ+=clus->correctedEnergy()*clus->position().Z();
+      }
+      posX/=scEnergy;
+      posY/=scEnergy;
+      posZ/=scEnergy;
+      reco::SuperCluster new_sc(scEnergy,math::XYZPoint(posX,posY,posZ));   
+      new_sc.setCorrectedEnergy(scEnergy);
+      new_sc.setSeed(edm::refToPtr(best_seed));
+      std::vector<const reco::PFCluster*> barePtrs;
+      for(const auto clus : clusteredRefs){
+	new_sc.addCluster(edm::refToPtr(clus));
+	barePtrs.push_back(&*clus);
+      }
+      PFClusterWidthAlgo pfwidth(barePtrs);
+      new_sc.setEtaWidth(pfwidth.pflowEtaWidth());
+      new_sc.setPhiWidth(pfwidth.pflowPhiWidth());
+      new_sc.rawEnergy();//cache the value of raw energy
+      
+      // Store new SuperCluster 
+      clusters->push_back( new_sc );
+      
+      // Populate ValueMap container
+      clusters_valuemap.push_back( reco::SuperClusterRef(clusters_refprod,igsfpf) );
+    }else{
+      clusters_valuemap.push_back( reco::SuperClusterRef(clusters_refprod.id()) );
+    }
   }
 
   // Put SuperClusters in event
