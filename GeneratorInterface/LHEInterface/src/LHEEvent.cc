@@ -247,9 +247,9 @@ void LHEEvent::fillEventInfo(HepMC::GenEvent *event) const
 	event->set_alphaQCD(hepeup.AQCDUP);
 }
 
-std::auto_ptr<HepMC::GenEvent> LHEEvent::asHepMCEvent() const
+std::unique_ptr<HepMC::GenEvent> LHEEvent::asHepMCEvent() const
 {
-	std::auto_ptr<HepMC::GenEvent> hepmc(new HepMC::GenEvent);
+	std::unique_ptr<HepMC::GenEvent> hepmc(new HepMC::GenEvent);
 
 	hepmc->set_signal_process_id(hepeup.IDPRUP);
 	hepmc->set_event_scale(hepeup.SCALUP);
