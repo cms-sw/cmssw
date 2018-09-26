@@ -19,20 +19,8 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 
 using namespace edm;
-//
-// constants, enums and typedefs
-//
 
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
-ESInputTag::ESInputTag()
-{
-}
+ESInputTag::ESInputTag() = default;
 
 ESInputTag::ESInputTag(const std::string& moduleLabel, const std::string& dataLabel):
 module_(moduleLabel),
@@ -52,31 +40,6 @@ ESInputTag::ESInputTag( const std::string& iEncodedValue)
    if(nwords > 0) module_ = tokens[0];
    if(nwords > 1) data_ = tokens[1];
 }
-// ESInputTag::ESInputTag(const ESInputTag& rhs)
-// {
-//    // do actual copying here;
-// }
-
-//ESInputTag::~ESInputTag()
-//{
-//}
-
-//
-// assignment operators
-//
-// const ESInputTag& ESInputTag::operator=(const ESInputTag& rhs)
-// {
-//   //An exception safe implementation is
-//   ESInputTag temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
-
-//
-// member functions
-//
-
 //
 // const member functions
 //
