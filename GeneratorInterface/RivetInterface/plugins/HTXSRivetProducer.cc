@@ -6,7 +6,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -28,7 +28,7 @@ using namespace Rivet;
 using namespace edm;
 using namespace std;
 
-class HTXSRivetProducer : public edm::stream::EDProducer<> {
+class HTXSRivetProducer : public edm::one::EDProducer<edm::one::WatchRuns> {
 public:
     
     explicit HTXSRivetProducer(const edm::ParameterSet& cfg) : 
@@ -48,9 +48,7 @@ public:
     
 private:
     
-    void beginJob();
-    void produce( edm::Event&, const edm::EventSetup&) override;
-    void endJob();
+    void produce( edm::Event&, const edm::EventSetup&) ;
     
     void beginRun(edm::Run const& iRun, edm::EventSetup const& es) override;
     void endRun(edm::Run const& iRun, edm::EventSetup const& es) override;
@@ -70,10 +68,6 @@ private:
 };
 
 HTXSRivetProducer::~HTXSRivetProducer(){
-}
-
-void HTXSRivetProducer::beginJob(){
-    _analysisHandler.addAnalysis(_HTXS);
 }
 
 void HTXSRivetProducer::produce( edm::Event & iEvent, const edm::EventSetup & ) {
@@ -169,12 +163,9 @@ void HTXSRivetProducer::produce( edm::Event & iEvent, const edm::EventSetup & ) 
     }
 }
 
-void HTXSRivetProducer::endJob(){
-    _HTXS->printClassificationSummary();
-}
-
 void HTXSRivetProducer::endRun(edm::Run const& iRun, edm::EventSetup const& es) 
 {
+  _HTXS->printClassificationSummary();
 }
 
 void HTXSRivetProducer::beginRun(edm::Run const& iRun, edm::EventSetup const& es) {
