@@ -237,3 +237,7 @@ class CrabHelper(object):
             taskname+= self.options.workflow_mode + "_"
         taskname += "run_" + str(self.options.run) + "_v" + str(self.options.trial)
         return taskname
+
+## Exception for the VOMS proxy
+class ProxyError(Exception):
+    pass
