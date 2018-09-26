@@ -44,6 +44,7 @@ if [ -n "${7}" ]; then
 fi
 
 LHEWORKDIR=`pwd`
+echo "%MSG-MG5 LHEWORKDIR = "${LHEWORKDIR}
 
 if [ "$use_gridpack_env" = false -a -n "$scram_arch_version" -a -n  "$cmssw_version" ]; then
   echo "%MSG-MG5 CMSSW version = $cmssw_version"
@@ -55,24 +56,34 @@ if [ "$use_gridpack_env" = false -a -n "$scram_arch_version" -a -n  "$cmssw_vers
 fi
 
 ##########################
-# multithread loop start
+echo "%MSG-MG5 multithread loop start"
 ##########################
+nevt_run=$(echo print $nevt/$ncpu | python)
+resid_run=$(echo print $nevt%$ncpu | python)
+
 for (( thread=0; thread<$ncpu; thread++ ))
 do
 
+    echo "%MSG-MG5 thread "${thread}" started"
     if [[ -d lheevent_$thread ]]
         then
-        echo 'lheevent_$thread directory found'
-        echo 'Setting up the environment'
+        echo '%MSG-MG5 lheevent_'$thread' directory found, removing before to proceed'
         rm -rf lheevent_$thread
     fi
     mkdir lheevent_$thread; cd lheevent_$thread
 
-    #untar the tarball directly from cvmfs
+    echo "%MSG-MG5 untar the tarball from cvmfs"
     tar -xaf ${path} 
 
-    #generate events
-    ./runcmsgrid.sh $nevt $rnum 1 ${@:5} &
+    if [[ thread -eq 0 ]]; then
+        #generate events
+        ./runcmsgrid.sh $((nevt_run+resid_run)) $rnum 1 ${@:5} &
+    else
+        #generate events
+        ./runcmsgrid.sh $((nevt_run)) $rnum 1 ${@:5} &
+    fi
+    
+    rnum=$((rnum+10))
     
     cd $LHEWORKDIR
 
@@ -91,10 +102,11 @@ done
 # merge multiple lhe files if needed
 ls -lrt $LHEWORKDIR/cmsgrid_final_*.lhe
 if [  $thread -gt "1" ]; then
-    echo "Merging files and deleting unmerged ones"
+    echo "%MSG-MG5 Merging files and deleting unmerged ones"
     cp /cvmfs/cms.cern.ch/phys_generator/gridpacks/lhe_merger/merge.pl ./
     chmod 755 merge.pl
-    ./merge.pl $LHEWORKDIR/cmsgrid_final_*.lhe cmsgrid_final.lhe banner.txt
+    ./merge.pl $LHEWORKDIR/cmsgrid_final_*.lhe cmsgrid_final.lhe.gz banner.txt
+    gzip -d cmsgrid_final.lhe.gz
     rm $LHEWORKDIR/cmsgrid_final_*.lhe banner.txt;
 else
     mv $LHEWORKDIR/cmsgrid_final_$thread.lhe $LHEWORKDIR/cmsgrid_final.lhe
