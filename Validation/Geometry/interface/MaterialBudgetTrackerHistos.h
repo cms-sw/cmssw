@@ -20,7 +20,6 @@ class MaterialBudgetTrackerHistos : public MaterialBudgetFormat
  private:
   
   virtual void book(); 
-  int MAXNUMBERSTEPS;
   double* theDmb;
   double* theX;
   double* theY;
