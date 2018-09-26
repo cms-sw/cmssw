@@ -237,10 +237,10 @@ void Herwig7Interface::flushRandomNumberGenerator()
       */
 }
 
-auto_ptr<HepMC::GenEvent> Herwig7Interface::convert(
+unique_ptr<HepMC::GenEvent> Herwig7Interface::convert(
 					const ThePEG::EventPtr &event)
 {
-	return std::auto_ptr<HepMC::GenEvent>(
+	return std::unique_ptr<HepMC::GenEvent>(
 		ThePEG::HepMCConverter<HepMC::GenEvent>::convert(*event));
 }
 
