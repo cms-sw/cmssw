@@ -19,7 +19,33 @@ islandBasicClusters = cms.EDProducer("IslandClusterProducer",
                                   LogWeighted  = cms.bool(True),
                                   W0           = cms.double(4.2),
                                   X0           = cms.double(0.89)
-                                 )
+                                 ),
+    # recHit flags to be excluded from seeding
+    SeedRecHitFlagToBeExcludedEB = cms.vstring(
+        'kFaultyHardware',
+        'kTowerRecovered',
+        'kDead'
+        ),
+    SeedRecHitFlagToBeExcludedEE = cms.vstring(
+        'kFaultyHardware',
+        'kNeighboursRecovered',
+        'kTowerRecovered',
+        'kDead',
+        'kWeird'
+        ),
+    # recHit flags to be excluded from clustering
+    RecHitFlagToBeExcludedEB = cms.vstring(
+        'kWeird',
+        'kDiWeird',
+        'kOutOfTime',
+        'kTowerRecovered'
+        ),
+    RecHitFlagToBeExcludedEE = cms.vstring(
+        'kWeird',
+        'kDiWeird',
+        'kOutOfTime',
+        'kTowerRecovered'
+        )
 )
 
 

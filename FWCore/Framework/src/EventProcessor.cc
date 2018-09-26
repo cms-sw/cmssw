@@ -940,7 +940,8 @@ namespace edm {
       << "This likely indicates a bug in an input module or corrupted input or both\n";
   }
   
-  void EventProcessor::beginRun(ProcessHistoryID const& phid, RunNumber_t run, bool& globalBeginSucceeded) {
+  void EventProcessor::beginRun(ProcessHistoryID const& phid, RunNumber_t run, bool& globalBeginSucceeded,
+                                bool& eventSetupForInstanceSucceeded) {
     globalBeginSucceeded = false;
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(phid, run);
     {
@@ -958,6 +959,7 @@ namespace edm {
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
       espController_->eventSetupForInstance(ts);
+      eventSetupForInstanceSucceeded = true;
       sentry.completedSuccessfully();
     }
     EventSetup const& es = esp_->eventSetup();
@@ -1015,21 +1017,25 @@ namespace edm {
     }
   }
 
-  void EventProcessor::endUnfinishedRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalBeginSucceeded, bool cleaningUpAfterException) {
-    //If we skip empty runs, this would be called conditionally
-    endRun(phid, run, globalBeginSucceeded, cleaningUpAfterException);
+  void EventProcessor::endUnfinishedRun(ProcessHistoryID const& phid, RunNumber_t run,
+                                        bool globalBeginSucceeded, bool cleaningUpAfterException,
+                                        bool eventSetupForInstanceSucceeded) {
+    if (eventSetupForInstanceSucceeded) {
+      //If we skip empty runs, this would be called conditionally
+      endRun(phid, run, globalBeginSucceeded, cleaningUpAfterException);
     
-    if(globalBeginSucceeded) {
-      auto t = edm::make_empty_waiting_task();
-      t->increment_ref_count();
-      RunPrincipal& runPrincipal = principalCache_.runPrincipal(phid, run);
-      MergeableRunProductMetadata* mergeableRunProductMetadata = runPrincipal.mergeableRunProductMetadata();
-      mergeableRunProductMetadata->preWriteRun();
-      writeRunAsync(edm::WaitingTaskHolder{t.get()}, phid, run, mergeableRunProductMetadata);
-      t->wait_for_all();
-      mergeableRunProductMetadata->postWriteRun();
-      if(t->exceptionPtr()) {
-        std::rethrow_exception(*t->exceptionPtr());
+      if(globalBeginSucceeded) {
+        auto t = edm::make_empty_waiting_task();
+        t->increment_ref_count();
+        RunPrincipal& runPrincipal = principalCache_.runPrincipal(phid, run);
+        MergeableRunProductMetadata* mergeableRunProductMetadata = runPrincipal.mergeableRunProductMetadata();
+        mergeableRunProductMetadata->preWriteRun();
+        writeRunAsync(edm::WaitingTaskHolder{t.get()}, phid, run, mergeableRunProductMetadata);
+        t->wait_for_all();
+        mergeableRunProductMetadata->postWriteRun();
+        if(t->exceptionPtr()) {
+          std::rethrow_exception(*t->exceptionPtr());
+        }
       }
     }
     deleteRunFromCache(phid, run);

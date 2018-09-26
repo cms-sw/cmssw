@@ -105,6 +105,7 @@ private:
   int                   getVxBin();
   int                   getDepthBin(int depth);
   int                   getPhiBin(int eta);
+  void                  makeVxBins(int modeLHC);
   int                   nDepthBins(int eta, int phi, int modeLHC);
   int                   nPhiBins(int eta);
   int                   nPBins(int eta);
@@ -207,6 +208,7 @@ void AnalyzeLepTree::Init(TChain *tree) {
   // Init() will be called many times when running on PROOF
   // (once per file to be processed).
 
+  makeVxBins(modeLHC_);
   exRBX_   = (mode_/128)%32;
   kphi_    = (mode_/32)%4;
   kdepth_  = (mode_/8)%4;
@@ -215,10 +217,15 @@ void AnalyzeLepTree::Init(TChain *tree) {
 				<< "energy for 3 types" << std::endl;  
   else                std::cout << "Produce plots of p, nvx and scatter plots "
 				<< "for each ieta" << std::endl;
-  if (((mode_/2)%2) == 0) std::cout << "Ignore the information on number of "
-				    << "vertex iformation" << std::endl;
-  else                    std::cout << "Group ranges of # of vertex "
-				    << "0:15:20:25:30:100" << std::endl;
+  if (((mode_/2)%2) == 0) {
+    std::cout << "Ignore the information on number of vertex iformation" 
+	      << std::endl;
+  } else {
+    std::cout << "Group ranges of # of vertex ";
+    for (unsigned int k=0; k<npvbin_.size(); ++k)
+      std::cout << npvbin_[k] << ":";
+    std::cout << std::endl;
+  }
   if (((mode_/4)%2) == 0) std::cout << "Ignore the information on track "
 				    << "momentum" << std::endl;
   else                    std::cout << "Separate plots for certain momentum "
@@ -474,10 +481,7 @@ bool AnalyzeLepTree::fillChain(TChain *chain, const char* inputFileList) {
 
 void AnalyzeLepTree::bookHisto() {
 
-  int npvbin[nvbin_] = {0, 15, 20, 25, 30, 100};
-  npvbin_.clear();
   for (int i=0; i<5; ++i) prange_[i].clear();
-  for (int i=0; i<nvbin_; ++i) npvbin_.push_back(npvbin[i]);
   int ipbrng[30]= {0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,2,3,3,3,4,4,4,4};
   for (int i=0; i<30; ++i) iprange_.push_back(ipbrng[i]);
   double prange0[npbin_] = {0,30,45,55,75,100,125,150,500};
@@ -551,7 +555,8 @@ void AnalyzeLepTree::bookHisto() {
 	  if ((mode_/4)%2 == 1) {
 	    int np = (eta >= 0 && eta < (int)(iprange_.size())) ? 
 	      iprange_[eta]-1 : iprange_[0];
-	    sprintf (ps, "p=%d:%d", (int)prange_[np][pbin], (int)prange_[np][pbin+1]);
+	    sprintf (ps, "p=%d:%d", (int)prange_[np][pbin], 
+		     (int)prange_[np][pbin+1]);
 	  };
 	  unsigned int id = packID(zside,eta,1,1,1,pbin);
 	  sprintf (name,"pvx%d111%d",ieta,pbin);
@@ -563,7 +568,7 @@ void AnalyzeLepTree::bookHisto() {
 	for (int vbin=0; vbin<nVxBins(); ++vbin) {
 	  char vtx[12];
 	  if ((mode_/2)%2 == 1) 
-	    sprintf(vtx, "N_{vtx}=%d:%d", npvbin[vbin], npvbin[vbin+1]);
+	    sprintf(vtx, "N_{vtx}=%d:%d", npvbin_[vbin], npvbin_[vbin+1]);
 	  unsigned int id = packID(zside,eta,1,1,vbin,1);
 	  sprintf (name,"nvx%d11%d1",ieta,vbin);
 	  sprintf (title,"Number of vertex for %s %s", etas, vtx);
@@ -617,7 +622,7 @@ void AnalyzeLepTree::bookHisto() {
 		double xmax(10.0);
 		char vtx[20];
 		if ((mode_/2)%2 == 1) {
-		  sprintf(vtx, "N_{vtx}=%d:%d", npvbin[vbin], npvbin[vbin+1]);
+		  sprintf(vtx, "N_{vtx}=%d:%d", npvbin_[vbin], npvbin_[vbin+1]);
 		} else {
 		  sprintf(vtx, "all N_{vtx}");
 		}
@@ -944,6 +949,20 @@ int AnalyzeLepTree::getPhiBin(int eta) {
   }
   return bin;
 }
+
+void AnalyzeLepTree::makeVxBins(int modeLHC) {
+  int npvbin0[nvbin_] = {0, 15, 20, 25, 30, 100};
+  int npvbin1[nvbin_] = {0, 20, 25, 30, 35, 100};
+  int npvbin2[nvbin_] = {0, 25, 30, 35, 40, 100};
+  int npvbin3[nvbin_] = {0, 30, 40, 50, 70, 200};
+  npvbin_.clear();
+  for (int i=0; i<nvbin_; ++i) {
+    if (modeLHC <= 0 || modeLHC == 3) npvbin_.push_back(npvbin0[i]);
+    else if (modeLHC == 1)            npvbin_.push_back(npvbin1[i]);
+    else if (modeLHC == 2)            npvbin_.push_back(npvbin2[i]);
+    else                              npvbin_.push_back(npvbin3[i]);
+  }
+}
     
 int AnalyzeLepTree::nDepthBins(int eta, int phi, int modeLHC) {
   // Run 1 scenario
@@ -1046,7 +1065,7 @@ void AnalyzeLepTree::getBins(int type, int ieta, int phi, int depth, int& nbin,
     } else {
       // SiPM Channels
       xmax = 10000.0;
-      nbin = 10000
+      nbin = 10000;
     }
   }
 }

@@ -48,7 +48,7 @@ int main() {
 
 
   for(int i=0; i<kNThreads; ++i) {
-    threads.emplace_back([i,&canStart,&canStartEval,&failed]() {
+    threads.emplace_back([&canStart,&canStartEval,&failed]() {
         try {
           static thread_local TThread guard;
           reco::Track trk(20., 20., reco::Track::Point(), reco::Track::Vector(1.,1.,1.), +1, reco::Track::CovarianceMatrix{});

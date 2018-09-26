@@ -109,7 +109,12 @@ namespace l1t {
       MinBiasHFM0=36,
       MPSumETEm = 37,
       MPSumHITowCount = 38,
-      SumHITowCount = 39
+      SumHITowCount = 39,
+      SumCentrality = 40,
+      SumAsymEt = 41,
+      SumAsymEtHF = 42,
+      SumAsymHt = 43,
+      SumAsymHtHF = 44
     };
     
     std::vector< ObjectType > types_;
@@ -242,6 +247,11 @@ namespace l1t {
     types_.push_back( MinBiasHFM1 );
     types_.push_back( MPSumHITowCount );
     types_.push_back( SumHITowCount );
+    types_.push_back( SumCentrality );
+    types_.push_back( SumAsymEt );
+    types_.push_back( SumAsymEtHF );
+    types_.push_back( SumAsymHt );
+    types_.push_back( SumAsymHtHF );
 
     typeStr_.push_back( "tower" );
     typeStr_.push_back( "cluster" );
@@ -281,6 +291,11 @@ namespace l1t {
     typeStr_.push_back( "minbiashfm1" );
     typeStr_.push_back( "mpsumhitowercount");
     typeStr_.push_back( "sumhitowercount");
+    typeStr_.push_back( "sumcentrality" );
+    typeStr_.push_back( "sumasymet" );
+    typeStr_.push_back( "sumasymethf" );
+    typeStr_.push_back( "sumasymht" );
+    typeStr_.push_back( "sumasymhthf" );
   }
 
 
@@ -636,8 +651,10 @@ namespace l1t {
 
           switch(itr->getType()){
           case l1t::EtSum::EtSumType::kTotalEt:     het_.at(SumET)       ->Fill( itr->hwPt() ); break;
+          case l1t::EtSum::EtSumType::kTotalEtHF:   break;
           case l1t::EtSum::EtSumType::kTotalEtEm:   het_.at(SumETEm)     ->Fill( itr->hwPt() ); break;
           case l1t::EtSum::EtSumType::kTotalHt:     het_.at(SumHT)       ->Fill( itr->hwPt() ); break;
+          case l1t::EtSum::EtSumType::kTotalHtHF:   break;
           case l1t::EtSum::EtSumType::kMissingEt:   het_.at(SumMET)      ->Fill( itr->hwPt() ); hphi_.at(SumMET)  ->Fill( itr->hwPhi() ); break;
           case l1t::EtSum::EtSumType::kMissingEtHF:  het_.at(SumMETHF)     ->Fill( itr->hwPt() ); hphi_.at(SumMETHF) ->Fill( itr->hwPhi() ); break;
           case l1t::EtSum::EtSumType::kMissingHt:   het_.at(SumMHT)      ->Fill( itr->hwPt() ); hphi_.at(SumMHT)  ->Fill( itr->hwPhi() ); break;
@@ -647,8 +664,13 @@ namespace l1t {
           case l1t::EtSum::EtSumType::kMinBiasHFP1: het_.at(MinBiasHFP1) ->Fill( itr->hwPt() ); break;
           case l1t::EtSum::EtSumType::kMinBiasHFM1: het_.at(MinBiasHFM1) ->Fill( itr->hwPt() ); break;
 	  case l1t::EtSum::EtSumType::kTowerCount:  het_.at(SumHITowCount) ->Fill( itr->hwPt() ); break;
+	  case l1t::EtSum::EtSumType::kCentrality:  het_.at(SumCentrality) ->Fill( itr->hwPt() ); break;  
+	  case l1t::EtSum::EtSumType::kAsymEt:      het_.at(SumAsymEt)     ->Fill( itr->hwPt() ); break;
+	  case l1t::EtSum::EtSumType::kAsymHt:      het_.at(SumAsymHt)     ->Fill( itr->hwPt() ); break;
+	  case l1t::EtSum::EtSumType::kAsymEtHF:    het_.at(SumAsymEtHF)   ->Fill( itr->hwPt() ); break;
+	  case l1t::EtSum::EtSumType::kAsymHtHF:    het_.at(SumAsymHtHF)   ->Fill( itr->hwPt() ); break;
 
-          default: std::cout<<"wrong type of demux sum"<<std::endl;
+          default: std::cout<<"wrong type of demux sum: "<< itr->getType() << std::endl;
           }
 
           text << "Sum : " << " type=" << itr->getType() << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;

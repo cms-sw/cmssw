@@ -277,7 +277,7 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP
   if(premixStage1_) {
     std::unique_ptr<PHGCSimAccumulator> simResult;
     if(!simHitAccumulator_->empty()) {
-      simResult = std::make_unique<PHGCSimAccumulator>(simHitAccumulator_->begin()->first);
+      simResult = std::make_unique<PHGCSimAccumulator>();
       saveSimHitAccumulator(*simResult, *simHitAccumulator_, validIds_, premixStage1MinCharge_, premixStage1MaxCharge_);
     }
     e.put(std::move(simResult), digiCollection());

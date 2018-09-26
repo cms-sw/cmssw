@@ -28,6 +28,14 @@ SimCalorimetryRECO = cms.PSet(
 SimCalorimetryAOD = cms.PSet(
     outputCommands = cms.untracked.vstring()
 )
+SimCalorimetryPREMIX = cms.PSet(
+    outputCommands = cms.untracked.vstring(
+        'keep EBDigiCollection_simEcalDigis_*_*',
+        'keep EEDigiCollection_simEcalDigis_*_*',
+        'keep ESDigiCollection_simEcalUnsuppressedDigis_*_*',
+        'keep *_simHcalDigis_*_*',
+    )
+)
 
 #
 # Add extra event content if running in Run 2
@@ -49,3 +57,7 @@ phase2_timing.toModify(SimCalorimetryRAW.outputCommands, func=lambda outputComma
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify( SimCalorimetryFEVTDEBUG.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simEcalUnsuppressedDigis_*_*') )
 phase2_common.toModify( SimCalorimetryRAW.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simEcalUnsuppressedDigis_*_*') )
+phase2_common.toModify( SimCalorimetryPREMIX.outputCommands, func=lambda outputCommands: outputCommands.append('drop ESDigiCollection_simEcalUnsuppressedDigis_*_*') )
+
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify( SimCalorimetryPREMIX.outputCommands, func=lambda outputCommands: outputCommands.append('drop EEDigiCollection_simEcalDigis_*_*') )

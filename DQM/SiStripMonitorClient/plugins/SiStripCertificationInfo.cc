@@ -44,10 +44,10 @@ SiStripCertificationInfo::beginRun(edm::Run const& run,
   constexpr int siStripFedIdMin{FEDNumbering::MINSiStripFEDID};
   constexpr int siStripFedIdMax{FEDNumbering::MAXSiStripFEDID};
 
-  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-  if (eSetup.find(recordKey) != nullptr) {
+   if(auto runInfoRec = eSetup.tryToGet<RunInfoRcd>()) {
+
     edm::ESHandle<RunInfo> sumFED;
-    eSetup.get<RunInfoRcd>().get(sumFED);
+    runInfoRec->get(sumFED);
 
     if (sumFED.isValid()) {
       for (auto const fedID : sumFED->m_fed_in) {

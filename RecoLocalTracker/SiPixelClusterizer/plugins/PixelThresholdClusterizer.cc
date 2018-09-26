@@ -51,8 +51,6 @@ PixelThresholdClusterizer::PixelThresholdClusterizer
     theConversionFactor_L1( conf.getParameter<int>("VCaltoElectronGain_L1") ),
     theOffset( conf.getParameter<int>("VCaltoElectronOffset") ),
     theOffset_L1( conf.getParameter<int>("VCaltoElectronOffset_L1") ),
-    theStackADC( conf.getParameter<int>("AdcFullScaleStack") ),
-    theFirstStack( conf.getParameter<int>("FirstStackLayer") ),
     theElectronPerADCGain( conf.getParameter<double>("ElectronPerADCGain") ),
     doPhase2Calibration( conf.getParameter<bool>("Phase2Calibration") ),
     thePhase2ReadoutMode( conf.getParameter<int>("Phase2ReadoutMode") ),
@@ -87,8 +85,6 @@ PixelThresholdClusterizer::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<int>("ClusterThreshold_L1", 4000);
   desc.add<int>("ClusterThreshold", 4000);
   desc.add<int>("maxNumberOfClusters", -1);
-  desc.add<int>("AdcFullScaleStack", 255);
-  desc.add<int>("FirstStackLayer", 5);
   desc.add<double>("ElectronPerADCGain", 135.);
   desc.add<bool>("Phase2Calibration", false);
   desc.add<int>("Phase2ReadoutMode", -1);
@@ -261,19 +257,10 @@ void PixelThresholdClusterizer::copy_to_buffer( DigiIterator begin, DigiIterator
     } else {
       int i=0;
       const float gain = theElectronPerADCGain; // default: 1 ADC = 135 electrons
-      const int maxADC8bitVal_ = 255;
       for(DigiIterator di = begin; di != end; ++di) {
         auto adc = di->adc();
         const float pedestal = 0.; //
         electron[i] = int(adc * gain + pedestal);
-        if (theLayer>=theFirstStack) {
-          if (theStackADC==1&&adc==1) {
-            electron[i] = int(maxADC8bitVal_*gain); // Arbitrarily use overflow value.
-          }
-          if (theStackADC>1&&theStackADC!=maxADC8bitVal_&&adc>=1){
-            electron[i] = int((adc-1) * gain * maxADC8bitVal_/float(theStackADC-1));
-          }
-        }
         ++i;
       }
       assert(i==(end-begin));
@@ -414,18 +401,7 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row)
       // Simple (default) linear gain 
       const float gain = theElectronPerADCGain; // default: 1 ADC = 135 electrons
       const float pedestal = 0.; //
-      const int maxADC8bitVal_ = 255; 
       electrons = int(adc * gain + pedestal);
-      if (theLayer>=theFirstStack) {
-	    if (theStackADC==1&&adc==1)
-	    {
-	      electrons = int(maxADC8bitVal_*gain); // Arbitrarily use overflow value.
-	    }
-	    if (theStackADC>1&&theStackADC!=maxADC8bitVal_&&adc>=1)
-	    {
-	      electrons = int((adc-1) * gain * maxADC8bitVal_/float(theStackADC-1));
-	    }
-      }
     }
   
   return electrons;

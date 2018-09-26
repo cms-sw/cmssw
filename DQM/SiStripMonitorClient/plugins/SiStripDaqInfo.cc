@@ -124,11 +124,11 @@ SiStripDaqInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup)
   constexpr int siStripFedIdMin{FEDNumbering::MINSiStripFEDID};
   constexpr int siStripFedIdMax{FEDNumbering::MAXSiStripFEDID};
 
-  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-  if (eSetup.find(recordKey) == nullptr) return;
+  auto runInfoRec = eSetup.tryToGet<RunInfoRcd>();
+  if (!runInfoRec) return;
 
   edm::ESHandle<RunInfo> sumFED;
-  eSetup.get<RunInfoRcd>().get(sumFED);
+  runInfoRec->get(sumFED);
 
   if (!sumFED.isValid()) return;
 

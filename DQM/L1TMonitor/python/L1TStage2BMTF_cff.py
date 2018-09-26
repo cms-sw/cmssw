@@ -34,18 +34,18 @@ l1tStage2BmtfZeroSuppFatEvts = l1tStage2BmtfZeroSupp.clone()
 l1tStage2BmtfZeroSuppFatEvts.monitorDir = cms.untracked.string("L1T/L1TStage2BMTF/zeroSuppression/FatEvts")
 l1tStage2BmtfZeroSuppFatEvts.maxFEDReadoutSize = cms.untracked.int32(25000)
 
-#New Kalman Plots for BMTF
-l1tStage2KalmanBmtf = l1tStage2Bmtf.clone()
-l1tStage2KalmanBmtf.bmtfSource = cms.InputTag("bmtfDigis","kBMTF")
-l1tStage2KalmanBmtf.monitorDir = cms.untracked.string("L1T/L1TStage2BMTF/L1TStage2KalmanBMTF")
-l1tStage2KalmanBmtf.verbose = cms.untracked.bool(False)
-l1tStage2KalmanBmtf.kalman = cms.untracked.bool(True)
+# Plots for BMTF's Secondary Algo
+l1tStage2BmtfSecond = l1tStage2Bmtf.clone()
+l1tStage2BmtfSecond.bmtfSource = cms.InputTag("bmtfDigis","BMTF2")
+l1tStage2BmtfSecond.monitorDir = cms.untracked.string("L1T/L1TStage2BMTF/L1TStage2BMTF-Secondary")
+l1tStage2BmtfSecond.verbose = cms.untracked.bool(False)
+l1tStage2BmtfSecond.isBmtf = cms.untracked.bool(True)
 
 # sequences
 l1tStage2BmtfOnlineDQMSeq = cms.Sequence(
     l1tStage2Bmtf +
-    l1tStage2BmtfZeroSupp +
-    l1tStage2KalmanBmtf
+    l1tStage2BmtfSecond +
+    l1tStage2BmtfZeroSupp
 
 )
 

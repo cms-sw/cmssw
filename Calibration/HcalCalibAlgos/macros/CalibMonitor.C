@@ -37,17 +37,19 @@
 //   corrFileName (char*)      = name of the text file having the correction
 //                               factors to be used (default="", no corr.)
 //   rcorFileName (char*)      = name of the text file having the correction
-//                               factors as a function of run numbers to be 
-//                               used for raddam correction 
-//                               (default="", no corr.)
+//                               factors as a function of run numbers or depth
+//                               to be used for raddam/depth dependent 
+//                               correction  (default="", no corr.)
 //   puCorr (int)              = PU correction to be applied or not: 0 no
 //                               correction; < 0 use eDelta; > 0 rho dependent
 //                               correction (-1)
-//   flag (int)                = 7 digit integer (cmlthdo) with specific control
+//   flag (int)                = 8 digit integer (cxmlthdo) with control
 //                               information (c=1/0 to get or not the histograms
-//                               of energy ..; m=3/2/1/0 for having 1000/500/50/
+//                               of energy ..; x=3/2/1/0 for having 1000/500/50/
 //                               100 bins for response distribution in (0:5);
-//                               l=1/0 for (not) making plots for each RBX;
+//                               m=1/0 for (not) making plots for each RBX;
+//                               l=1/0 for type of rcorFileName (1 for depth
+//                               dependent; 0 for raddam corrections);
 //                               t=1/0 for applying cut or not on L1 closeness;
 //                               h = 0/1/2 for not creating / creating in 
 //                               recreate mode / creating in append mode
@@ -55,7 +57,7 @@
 //                               d = 0/1/2/3 produces 3 standard (0,1,2) or
 //                               extended (3) set of histograms;
 //                               o = 0/1/2 for tight / loose / flexible
-//                               selection). Default = 31
+//                               selection). Default = 1031
 //   numb   (int)              = number of eta bins (50 for -25:25)
 //   dataMC (bool)             = true/false for data/MC (default true)
 //   truncateFlag    (int)     = Flag to treat different depths differently (0)
@@ -239,7 +241,7 @@ public :
 	       const std::string& prefix="", 
 	       const char *       corrFileName="",
 	       const char *       rcorFileName="", 
-	       int puCorr=-1, int flag=31, int numb=50, bool datMC=true, 
+	       int puCorr=-1, int flag=1031, int numb=50, bool datMC=true, 
 	       int truncateFlag=0, bool useGen=false, double scale=1.0, 
 	       int useScale=0, int etalo=0, int etahi=30, int runlo=0, 
 	       int runhi=99999999, int phimin=1, int phimax=72, int zside=1,
@@ -335,9 +337,10 @@ CalibMonitor::CalibMonitor(const char*        fname,
   if (plotType_ < 0 || plotType_ > 3) plotType_ = 3;
   flexibleSelect_  = (((flag_/1) %10));
   cutL1T_          = ((flag_/1000) %10);
-  selRBX_          = (((flag_/10000) %10) > 0);
-  coarseBin_       = ((flag_/100000) %10);
-  getHist_         = (((flag_/1000000) %10) > 0);
+  bool ifDepth     = (((flag_/10000) %10) > 0);
+  selRBX_          = (((flag_/100000) %10) > 0);
+  coarseBin_       = ((flag_/1000000) %10);
+  getHist_         = (((flag_/10000000) %10) > 0);
   log2by18_        = std::log(2.5)/18.0;
   etamp_           = etamn_  = 0;
   cfacmp_          = cfacmn_ = 1.0;
@@ -366,7 +369,7 @@ CalibMonitor::CalibMonitor(const char*        fname,
     std::cout << "Reads correction factors from " << corrFileName 
 	      << " with flag " << corrE_ << std::endl;
     if (std::string(rcorFileName) != "")
-      cFactor_ = new CalibCorr(rcorFileName,false);
+      cFactor_ = new CalibCorr(rcorFileName,ifDepth,false);
     if (rbx != 0) cSelect_ = new CalibSelectRBX(rbx, false);
   }
 }

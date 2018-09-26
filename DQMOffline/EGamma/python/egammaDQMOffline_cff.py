@@ -50,3 +50,8 @@ phase2_hgcal.toReplaceWith(
   egammaDQMOffline, _egammaDQMOfflineHGCal
 )
 
+from Configuration.Eras.Modifier_peripheralPbPb_cff import peripheralPbPb
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+for e in [peripheralPbPb, pp_on_AA_2018, pp_on_XeXe_2017]:
+    e.toModify(stdPhotonAnalysis, phoProducer = cms.InputTag('islandPhotons'))

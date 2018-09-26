@@ -3,8 +3,10 @@
 #include <memory>
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ESProductHost.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ReusableObjectHolder.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalNextToDeadChannel.h"
@@ -34,41 +36,50 @@ public:
 
 private:
 
-  void findNextToDeadChannelsCallback(const EcalChannelStatusRcd& chs);
-  
+  void setupNextToDeadChannels(const EcalChannelStatusRcd&,
+                               EcalNextToDeadChannel*);
+
+  using HostType = edm::ESProductHost<EcalNextToDeadChannel,
+                                      EcalChannelStatusRcd>;
+
+  edm::ReusableObjectHolder<HostType> holder_;
+
   // threshold above which a channel will be considered "dead"
   int statusThreshold_;
-
-  ReturnType returnRcd_;
 };
 
 EcalNextToDeadChannelESProducer::EcalNextToDeadChannelESProducer(const edm::ParameterSet& iConfig){
   //the following line is needed to tell the framework what
   // data is being produced
-  setWhatProduced(this, 
-		  dependsOn (&EcalNextToDeadChannelESProducer::findNextToDeadChannelsCallback));
+  setWhatProduced(this);
 
   statusThreshold_= iConfig.getParameter<int>("channelStatusThresholdForDead");
-
-  returnRcd_=std::make_shared<EcalCondObjectContainer<unsigned char>>();
 }
 
 
 
 EcalNextToDeadChannelESProducer::ReturnType
 EcalNextToDeadChannelESProducer::produce(const EcalNextToDeadChannelRcd& iRecord){
-  
-  return returnRcd_ ;
+
+  auto host = holder_.makeOrGet([]() {
+    return new HostType;
+  });
+
+  host->ifRecordChanges<EcalChannelStatusRcd>(iRecord,
+                                              [this,h=host.get()](auto const& rec) {
+    setupNextToDeadChannels(rec, h);
+  });
+
+  return host;
 }
 
 
 void 
 EcalNextToDeadChannelESProducer::
-findNextToDeadChannelsCallback(const EcalChannelStatusRcd& chs){
+setupNextToDeadChannels(const EcalChannelStatusRcd& chs,
+                        EcalNextToDeadChannel* rcd){
 
-  
-
-  EcalNextToDeadChannel* rcd= new EcalNextToDeadChannel;
+  rcd->clear();
 
   // Find channels next to dead ones and fill corresponding record
 
@@ -121,19 +132,10 @@ findNextToDeadChannelsCallback(const EcalChannelStatusRcd& chs){
       }
     } // for iy
   } // for ix
-  
-  returnRcd_.reset(rcd);
 }
 
 //define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(EcalNextToDeadChannelESProducer);
-
-
-
-
-
-
-
 
 // Configure (x)emacs for this file ...
 // Local Variables:

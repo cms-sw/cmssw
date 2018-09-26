@@ -26,8 +26,6 @@ siPixelClusters = cms.EDProducer("SiPixelClusterProducer",
     # **************************************
     maxNumberOfClusters = cms.int32(-1), # -1 means no limit.
     ElectronPerADCGain = cms.double(135.0),
-    AdcFullScaleStack = cms.int32(255),
-    FirstStackLayer = cms.int32(5),
     Phase2Calibration = cms.bool(False),
     Phase2ReadoutMode = cms.int32(-1),
     Phase2DigiBaseline = cms.double(1200.),
