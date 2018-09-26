@@ -14,7 +14,6 @@ using namespace HepMC;
 
 
 PythiaHepMCFilterGammaGamma::PythiaHepMCFilterGammaGamma(const edm::ParameterSet& iConfig) :
-  maxEvents(iConfig.getUntrackedParameter<int>("maxEvents", 0)),
   ptSeedThr(iConfig.getUntrackedParameter<double>("PtSeedThr")),
   etaSeedThr(iConfig.getUntrackedParameter<double>("EtaSeedThr")),
   ptGammaThr(iConfig.getUntrackedParameter<double>("PtGammaThr")),
@@ -38,9 +37,6 @@ PythiaHepMCFilterGammaGamma::PythiaHepMCFilterGammaGamma(const edm::ParameterSet
   nTkConeSum(iConfig.getUntrackedParameter<int>("NTkConeSum")),
   acceptPrompts(iConfig.getUntrackedParameter<bool>("AcceptPrompts")), 
   promptPtThreshold(iConfig.getUntrackedParameter<double>("PromptPtThreshold")) {
-  
-  if (maxEvents != 0) edm::LogInfo("PythiaFilterGammaGamma::PythiaFilterGammaGamma") << "WARNING, ignoring unsuported option, maxEvents = " << maxEvents << endl;
-  
 }
 
 PythiaHepMCFilterGammaGamma::~PythiaHepMCFilterGammaGamma() 
