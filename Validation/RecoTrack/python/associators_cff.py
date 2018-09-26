@@ -3,8 +3,7 @@ import FWCore.ParameterSet.Config as cms
 #### TrackAssociation
 import SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi
 import SimTracker.TrackAssociatorProducers.trackAssociatorByPosition_cfi
-# from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import tpClusterProducer as _tpClusterProducer
-from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import tpClusterProducerHeterogeneous as _tpClusterProducer
+from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import tpClusterProducer as _tpClusterProducer
 from SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi import trackingParticleRecoTrackAsssociation as _trackingParticleRecoTrackAsssociation
 
 hltTPClusterProducer = _tpClusterProducer.clone(
