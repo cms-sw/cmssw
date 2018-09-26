@@ -184,17 +184,12 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::Container1D _cCapidMinusBXmod4_SubdetPM;
 		hcaldqm::ContainerSingle2D _cCapidMinusBXmod4_CrateSlotuTCA[4]; // CrateSlot 2D histograms for each (capid-BX)%4
 		hcaldqm::ContainerSingle2D _cCapidMinusBXmod4_CrateSlotVME[4]; // CrateSlot 2D histograms for each (capid-BX)%4
-
-		// For monitoring LED misfires: ADC vs BX
-		MonitorElement* _meLEDMon;
+		hcaldqm::ContainerSingle2D _cCapid_BadvsFEDvsLS;
 
 		//	#events counters
 		MonitorElement *meNumEvents1LS; // to transfer the #events to harvesting
 		MonitorElement *meUnknownIds1LS;
 		bool _unknownIdsPresent;
-		MonitorElement *_meLEDEventCount; // Count events with LED pin diode signal > threshold
-		double _thresh_led;
-		bool _ledSignalPresent;
 
 		hcaldqm::Container2D _cSummaryvsLS_FED; // online only
 		hcaldqm::ContainerSingle2D _cSummaryvsLS; // online only
@@ -202,6 +197,13 @@ class DigiTask : public hcaldqm::DQTask
 		bool _qie10InConditions; // Flag to protect against QIE10 digis not in conditions in 2016.
 
 		std::map<HcalSubdetector, short> _capidmbx; // Expected (capid - BX) % 4 for each subdet
+
+		// LED monitoring stuff
+		double _thresh_led;
+		std::map<HcalSubdetector, std::vector<HcalDetId> > _ledCalibrationChannels;
+
+		hcaldqm::Container1D _LED_CUCountvsLS_Subdet; // Misfire count vs LS
+		hcaldqm::Container2D _LED_ADCvsBX_Subdet; // Pin diode amplitude vs BX	
 };
 
 #endif
