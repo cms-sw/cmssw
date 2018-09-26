@@ -574,7 +574,7 @@ class TauIDEmbedder(object):
         if "deepTau2017v1" in self.toKeep:
             print "Adding DeepTau isolation?"
 
-            from RecoTauTag.RecoTau.DeepTauId_cff import deepTauIdraw
+            from RecoTauTag.RecoTau.DeepTauId_cfi import deepTauIdraw
 
             self.process.deepTauIdraw = deepTauIdraw.clone(
                 electrons = self.cms.InputTag('slimmedElectrons'),
@@ -596,7 +596,7 @@ class TauIDEmbedder(object):
 	if "DPFTau_2016_v0" in self.toKeep:
             print "Adding DPF isolation?"
 
-            from RecoTauTag.RecoTau.DPFIsolation_cff import DPFIsolation
+            from RecoTauTag.RecoTau.DPFIsolation_cfi import DPFIsolation
 
             self.process.DPFIsolationv0 = DPFIsolation.clone(
                 electrons = self.cms.InputTag('slimmedElectrons'),
@@ -617,7 +617,7 @@ class TauIDEmbedder(object):
         if "DPFTau_2016_v1" in self.toKeep:
             print "Adding DPF isolation?"
 
-            from RecoTauTag.RecoTau.DPFIsolation_cff import DPFIsolation
+            from RecoTauTag.RecoTau.DPFIsolation_cfi import DPFIsolation
 
             self.process.DPFIsolationv1 = DPFIsolation.clone(
                 electrons = self.cms.InputTag('slimmedElectrons'),
