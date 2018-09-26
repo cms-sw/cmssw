@@ -237,8 +237,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
          if (sqrt(negTkHitPosD2) < (distMagXY - sigmaDistMagXY*innerHitPosCut_)) continue;
       }
       
-      std::auto_ptr<TrajectoryStateClosestToPoint> trajPlus;
-      std::auto_ptr<TrajectoryStateClosestToPoint> trajMins;
+      std::unique_ptr<TrajectoryStateClosestToPoint> trajPlus;
+      std::unique_ptr<TrajectoryStateClosestToPoint> trajMins;
       std::vector<reco::TransientTrack> theRefTracks;
       if (theRecoVertex.hasRefittedTracks()) {
          theRefTracks = theRecoVertex.refittedTracks();
