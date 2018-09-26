@@ -53,9 +53,6 @@ public:
 protected:
 
 private:
-  // TODO: REMOVE ME
-  std::set<int> all_wires;
-  DTLayerId theLayer;
   // Generate the histo name
   std::string getHistoName(const DTWireId& wId) const;
   std::string getHistoName(const DTLayerId& lId) const;
@@ -93,7 +90,8 @@ private:
 
   // Map of the histos and graph by layer
   std::map<DTLayerId, TH1I> theHistoLayerMap;
-  // TODO: REMOVE OR DOCUMENT
+
+  // Histogram containing position of all peaks
   TH1D hLayerPeaks;
   
   TSpectrum spectrum;

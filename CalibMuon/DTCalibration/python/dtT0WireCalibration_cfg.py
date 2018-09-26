@@ -25,18 +25,7 @@ process.load("DQMServices.Core.DQM_cfg")
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-#        '/store/data/Run2012C/MiniDaq/RAW/v1/000/203/540/AA9053D9-F306-E211-80A4-001D09F248F8.root',
-        '/store/data/Run2012C/MiniDaq/RAW/v1/000/199/204/148CF2AC-CAD0-E111-A056-001D09F291D2.root',
-###        '/store/data/Run2012C/MiniDaq/RAW/v1/000/200/132/D0E088D3-D7DC-E111-92D2-00237DDC5C24.root',
-        '/store/data/Run2012C/MiniDaq/RAW/v1/000/198/510/0C50021A-F4C8-E111-B861-001D09F2512C.root',
-        '/store/data/Run2012C/MiniDaq/RAW/v1/000/199/206/EC54DD2C-D3D0-E111-9019-5404A63886CE.root',
-        '/store/data/Run2012C/MiniDaq/RAW/v1/000/200/131/E024E67D-D6DC-E111-A404-0025901D6288.root',
-        '/store/data/Run2012C/MiniDaq/RAW/v1/000/201/074/92295641-C3E7-E111-899B-0025901D629C.root',
-        '/store/data/Run2012C/MiniDaq/RAW/v1/000/200/133/ACB373F1-D9DC-E111-B891-003048F024FE.root',
-        '/store/data/Run2012C/MiniDaq/RAW/v1/000/203/276/2CF5C87C-E303-E211-A314-001D09F28F25.root',
-        '/store/data/Run2012C/MiniDaq/RAW/v1/000/203/535/1EEFEF95-F506-E211-A872-001D09F2906A.root',
-        '/store/data/Run2012C/MiniDaq/RAW/v1/000/200/665/1C75364F-0EE3-E111-8021-BCAEC5329705.root',
-        '/store/data/Run2012C/MiniDaq/RAW/v1/000/200/716/8A0AC842-A3E3-E111-A669-001D09F291D7.root'
+        '/store/data/Commissioning2018/MiniDaq/RAW/v1/000/312/774/00000/CCADE144-9431-E811-9641-FA163E220C5C.root'
     )
 )
 
