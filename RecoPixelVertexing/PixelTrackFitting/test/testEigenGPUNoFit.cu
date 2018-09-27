@@ -83,7 +83,7 @@ void testMultiply() {
   kernelMultiply<<<1,1>>>(JGPU, CGPU, multiply_resultGPU);
   cudaDeviceSynchronize();
 
-  cudaMemcpy(multiply_resultGPUret, multiply_resultGPU, 
+  cudaMemcpy(multiply_resultGPUret, multiply_resultGPU,
       sizeof(Eigen::Matrix<double, row1, col2>), cudaMemcpyDeviceToHost);
   printIt(multiply_resultGPUret);
   assert(isEqualFuzzy(multiply_result, (*multiply_resultGPUret)));
@@ -91,7 +91,10 @@ void testMultiply() {
 
 void testInverse3x3() {
   std::cout << "TEST INVERSE 3x3" << std::endl;
-  Matrix3d m = Matrix3d::Random();
+  Matrix3d m;
+  fillMatrix(m);
+  m += m.transpose().eval();
+
   Matrix3d m_inv = m.inverse();
   Matrix3d *mGPU = nullptr;
   Matrix3d *mGPUret = nullptr;
@@ -117,7 +120,10 @@ void testInverse3x3() {
 
 void testInverse4x4() {
   std::cout << "TEST INVERSE 4x4" << std::endl;
-  Matrix4d m = Matrix4d::Random();
+  Matrix4d m;
+  fillMatrix(m);
+  m += m.transpose().eval();
+
   Matrix4d m_inv = m.inverse();
   Matrix4d *mGPU = nullptr;
   Matrix4d *mGPUret = nullptr;
@@ -143,9 +149,10 @@ void testInverse4x4() {
 
 void testEigenvalues() {
   std::cout << "TEST EIGENVALUES" << std::endl;
-  Matrix3d m = Matrix3d::Random();
-  Matrix3d mt = m.transpose();
-  m += mt;
+  Matrix3d m;
+  fillMatrix(m);
+  m += m.transpose().eval();
+
   Matrix3d * m_gpu = nullptr;
   Matrix3d * mgpudebug = new Matrix3d();
   Eigen::SelfAdjointEigenSolver<Matrix3d>::RealVectorType *ret = new Eigen::SelfAdjointEigenSolver<Matrix3d>::RealVectorType;
