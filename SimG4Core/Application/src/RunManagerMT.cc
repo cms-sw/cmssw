@@ -101,9 +101,7 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const & p):
 
 RunManagerMT::~RunManagerMT() 
 {
-  if(!m_runTerminated) { terminateRun(); }
-  m_stateManager->SetNewState(G4State_Quit);
-  m_geometryManager->OpenGeometry();
+  stopG4();
 }
 
 void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, 
@@ -267,6 +265,7 @@ void  RunManagerMT::Connect(RunAction* runAction)
 
 void RunManagerMT::stopG4()
 {
+  m_geometryManager->OpenGeometry();
   m_stateManager->SetNewState(G4State_Quit);
   if(!m_runTerminated) { terminateRun(); }
 }

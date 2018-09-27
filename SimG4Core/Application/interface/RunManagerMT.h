@@ -39,7 +39,6 @@ class G4Event;
 class G4Field;
 class G4StateManager;
 class G4GeometryManager;
-class G4Field;
 class RunAction;
 
 class SimRunInterface;
