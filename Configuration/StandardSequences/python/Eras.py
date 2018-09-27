@@ -20,6 +20,7 @@ class Eras (object):
                  'Run2_2016_trackingLowPU',
                  'Run2_2016_pA',
                  'Run2_2017',
+                 'Run2_2017_FastSim', #new modifier for Phase1 FastSim, skips the muon GEM sequence
                  'Run2_2017_trackingRun2',
                  'Run2_2017_trackingPhase1QuadProp',
                  'Run2_2017_trackingLowPU',
