@@ -38,7 +38,10 @@ public:
   /// get the detector field from this detid
   constexpr Detector det() const { return Detector((id_>>kDetOffset)&kDetMask); }
   /// get the contents of the subdetector field (not cast into any detector's numbering enum)
-  constexpr int subdetId() const { return ((id_>>kSubdetOffset)&kSubdetMask); }
+  constexpr int subdetId() const { 
+    return ((HGCalEE==det()) || (HGCalHSi==det()) || (HGCalHSc==det()) ?
+	    0 : ((id_>>kSubdetOffset)&kSubdetMask));
+  }
 
   constexpr uint32_t operator()() const { return id_; }
   constexpr operator uint32_t() const { return id_; }
