@@ -170,9 +170,6 @@ PrimaryVertexProducerAlgorithm::vertices(const std::vector<reco::TransientTrack>
   for( std::vector <algo>::const_iterator algorithm=algorithms.begin(); algorithm!=algorithms.end(); algorithm++){
     if (  ! (algorithm->label == label) )continue;
 
-  //std::auto_ptr<reco::VertexCollection> result(new reco::VertexCollection);
-  // reco::VertexCollection vColl;
-  
 
     std::vector<TransientVertex> pvs;
     for (std::vector< std::vector<reco::TransientTrack> >::const_iterator iclus
