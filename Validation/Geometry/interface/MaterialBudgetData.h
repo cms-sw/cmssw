@@ -2,7 +2,6 @@
 #ifndef MaterialBudgetData_h
 #define MaterialBudgetData_h 1
 
-#define MAXNUMBERSTEPS 10000
 
 #include "Validation/Geometry/interface/MaterialBudgetCategorizer.h"
 
@@ -389,6 +388,8 @@ public:
   inline void setHGCalmode(bool t) {isHGCal=t;}
  
  private:
+  
+  static constexpr int MAXNUMBERSTEPS = 10000;
 
   float theTotalMB;
   float theEta;
