@@ -3,12 +3,15 @@
 
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSets.h"
-
+#include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
-
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
+
+#include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHitCollection.h"
 
 #include <string>
 #include <vector>
@@ -21,7 +24,8 @@ class SeedingLayerSetsBuilder {
 
 public:
 
-  SeedingLayerSetsBuilder();
+  SeedingLayerSetsBuilder() = default;
+  SeedingLayerSetsBuilder(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC, const edm::InputTag& fastsimHitTag); //FastSim specific constructor
   SeedingLayerSetsBuilder(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC);
   SeedingLayerSetsBuilder(const edm::ParameterSet & cfg, edm::ConsumesCollector&& iC);
   ~SeedingLayerSetsBuilder();
@@ -39,6 +43,8 @@ public:
   const std::vector<std::string>& layerNames() const { return theLayerNames; }
   const std::vector<const DetLayer *>& layerDets() const { return theLayerDets; }
   void hits(const edm::Event& ev, const edm::EventSetup& es, std::vector<unsigned int> & indices, ctfseeding::SeedingLayer::Hits & hits) const;
+  //new function for FastSim only
+  std::unique_ptr<SeedingLayerSetsHits> makeSeedingLayerSetsHitsforFastSim(const edm::Event& ev, const edm::EventSetup& es);
 
   using SeedingLayerId = std::tuple<GeomDetEnumerators::SubDetector, ctfseeding::SeedingLayer::Side, int>;
   static SeedingLayerId nameToEnumId(const std::string& name);
@@ -49,7 +55,7 @@ private:
 
   edm::ESWatcher<TrackerRecoGeometryRecord> geometryWatcher_;
   edm::ESWatcher<TransientRecHitRecord> trhWatcher_;
-
+  edm::EDGetTokenT<FastTrackerRecHitCollection> fastSimrecHitsToken_;
   struct LayerSpec { 
     LayerSpec(unsigned short index, const std::string& layerName, const edm::ParameterSet& cfgLayer, edm::ConsumesCollector& iC);
     ~LayerSpec();

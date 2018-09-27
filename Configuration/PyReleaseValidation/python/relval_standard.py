@@ -283,6 +283,23 @@ workflows[135.13] = ['TTbar_13', ['TTbarFS_13_trackingOnlyValidation','HARVESTUP
 ### MinBias fastsim_13 TeV for mixing ###
 workflows[135.8] = ['',['MinBiasFS_13_ForMixing']]
 
+### Phase1 FastSim 13TeV ###                                                                                                                                                   
+workflows[2017.1] = ['TTbar_13_UP17', ['TTbarFS_13_UP17','HARVESTUP17FS','MINIAODMCUP17FS']]
+workflows[2017.2] = ['SingleMuPt10_UP17', ['SingleMuPt10FS_UP17','HARVESTUP17FS','MINIAODMCUP17FS']]
+workflows[2017.3] = ['SingleMuPt100_UP17', ['SingleMuPt100FS_UP17','HARVESTUP17FS','MINIAODMCUP17FS']]
+workflows[2017.4] = ['ZEE_13_UP17', ['ZEEFS_13_UP17','HARVESTUP17FS','MINIAODMCUP17FS']]
+workflows[2017.5] = ['ZTT_13_UP17',['ZTTFS_13_UP17','HARVESTUP17FS','MINIAODMCUP17FS']]
+workflows[2017.6] = ['QCD_FlatPt_15_3000_13_UP17', ['QCDFlatPt153000FS_13_UP17','HARVESTUP17FS','MINIAODMCUP17FS']]
+workflows[2017.7] = ['H125GGgluonfusion_13_UP17', ['H125GGgluonfusionFS_13_UP17','HARVESTUP17FS','MINIAODMCUP17FS']]
+workflows[2017.9] = ['ZMM_13_UP17',['ZMMFS_13_UP17','HARVESTUP17FS','MINIAODMCUP17FS']]
+workflows[2017.11] = ['SMS-T1tttt_mGl-1500_mLSP-100_13_UP17', ['SMS-T1tttt_mGl-1500_mLSP-100FS_13_UP17','HARVESTUP17FS','MINIAODMCUP17FS']]
+workflows[2017.12] = ['QCD_Pt_80_120_13_UP17', ['QCD_Pt_80_120FS_13_UP17','HARVESTUP17FS','MINIAODMCUP17FS']]
+workflows[2017.13] = ['TTbar_13_UP17', ['TTbarFS_13_trackingOnlyValidation_UP17','HARVESTUP17FS_trackingOnly']]
+
+### MinBias fastsim_13 TeV for mixing ###                                                                                                                                      
+workflows[2017.8] = ['',['MinBiasFS_13_ForMixing']]
+
+
 ### standard set ###
 ## particle guns
 workflows[15] = ['', ['SingleElectronPt10','DIGI','RECO','HARVEST']]

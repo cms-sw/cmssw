@@ -1,6 +1,6 @@
 #include <unordered_map>
 
-#include "CAHitTripletGenerator.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/CAHitTripletGenerator.h"
 
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
 
@@ -11,7 +11,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
-
+#include "CAGraph.h"
 #include "CellularAutomaton.h"
 
 #include "CommonTools/Utils/interface/DynArray.h"
