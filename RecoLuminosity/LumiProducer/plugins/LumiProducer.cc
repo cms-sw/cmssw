@@ -209,7 +209,7 @@ LumiProducer::servletTranslation(const std::string& servlet) const{
   std::string frontierConnect;
   std::string realconnect;
   cms::concurrency::xercesInitialize();  
-  std::auto_ptr< xercesc::XercesDOMParser > parser(new xercesc::XercesDOMParser);
+  std::unique_ptr< xercesc::XercesDOMParser > parser(new xercesc::XercesDOMParser);
   try{
     parser->setValidationScheme(xercesc::XercesDOMParser::Val_Auto);
     parser->setDoNamespaces(false);
