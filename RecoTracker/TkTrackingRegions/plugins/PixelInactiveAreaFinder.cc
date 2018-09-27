@@ -845,8 +845,6 @@ bool PixelInactiveAreaFinder::detWorks(det_t det){
 }
 PixelInactiveAreaFinder::DetGroup PixelInactiveAreaFinder::badAdjecentDetsBarrel(const det_t & det){
   using std::remove_if;
-  using std::bind1st;
-  using std::mem_fun;
 
   DetGroup adj;
   auto const tTopo = trackerTopology_;
