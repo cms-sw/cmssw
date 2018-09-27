@@ -5,6 +5,8 @@
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
 
+#include <math.h>
+
 #ifndef RFIT_DEBUG
 #define RFIT_DEBUG 0
 #endif  // RFIT_DEBUG
@@ -115,6 +117,107 @@ __host__ __device__ inline double cross2D(const Vector2d& a, const Vector2d& b)
     return a.x() * b.y() - a.y() * b.x();
 }
 
+
+__host__ __device__ inline void computeRadLenEff(const Vector4d& fast_fit,
+                                                 const double B,
+                                                 double & radlen_eff,
+                                                 double & theta,
+                                                 bool & in_forward) {
+    double X_barrel = 0.015;
+    double X_forward = 0.05;
+    theta = atan(fast_fit(3));
+    // atan returns values in [-pi/2, pi/2], we need [0, pi]
+    theta = theta < 0. ? theta + M_PI : theta;
+    radlen_eff = X_barrel / std::abs(sin(theta));
+    in_forward = (theta <= 0.398 or theta >= 2.743);
+    if (in_forward)
+      radlen_eff = X_forward / std::abs(cos(theta));
+    assert(radlen_eff > 0.);
+    double p_t = fast_fit(2) * B;
+    // We have also to correct the radiation lenght in the x-y plane. Since we
+    // do not know the angle of incidence of the track at this point, we
+    // arbitrarily set the correction proportional to the inverse of the
+    // transerse momentum. The cut-off is at 1 Gev, set using a single Muon Pt
+    // gun and verifying that, at that momentum, not additional correction is,
+    // in fact, needed. This is an approximation.
+    if (std::abs(p_t/1.) < 1.)
+      radlen_eff /= std::abs(p_t/1.);
+}
+
+/*!
+    \brief Compute the covariance matrix along cartesian S-Z of points due to
+    multiple Coulomb scattering to be used in the line_fit, for the barrel
+    and forward cases.
+
+ */
+__host__ __device__ inline MatrixNd Scatter_cov_line(Matrix2Nd& cov_sz,
+                                                     const Vector4d& fast_fit,
+                                                     VectorNd const& s_arcs,
+                                                     VectorNd const& z_values,
+                                                     const double B)
+{
+#if RFIT_DEBUG
+    Rfit::printIt(&s_arcs, "Scatter_cov_line - s_arcs: ");
+#endif
+    u_int n = s_arcs.rows();
+    double p_t = fast_fit(2) * B;
+    double p_2 = p_t * p_t * (1. + 1. / (fast_fit(3) * fast_fit(3)));
+    double radlen_eff = 0.;
+    double theta = 0.;
+    bool in_forward = false;
+    computeRadLenEff(fast_fit, B, radlen_eff, theta, in_forward);
+
+    const double sig2 = .000225 / p_2 * sqr(1 + 0.038 * log(radlen_eff)) * radlen_eff;
+    for (u_int k = 0; k < n; ++k)
+    {
+        for (u_int l = k; l < n; ++l)
+        {
+            for (u_int i = 0; i < std::min(k, l); ++i)
+            {
+#if RFIT_DEBUG
+              printf("Scatter_cov_line - B: %f\n", B);
+              printf("Scatter_cov_line - radlen_eff: %f, p_t: %f, p2: %f\n", radlen_eff, p_t, p_2);
+              printf("Scatter_cov_line - sig2:%f, theta: %f\n", sig2, theta);
+              printf("Scatter_cov_line - Adding to element %d, %d value %f\n", n + k, n + l, (s_arcs(k) - s_arcs(i)) * (s_arcs(l) - s_arcs(i)) * sig2 / sqr(sqr(sin(theta))));
+#endif
+              if (in_forward) {
+                cov_sz(k, l) += (z_values(k) - z_values(i)) * (z_values(l) - z_values(i)) * sig2 / sqr(sqr(cos(theta)));
+                cov_sz(l, k) = cov_sz(k, l);
+              } else {
+                cov_sz(n + k, n + l) += (s_arcs(k) - s_arcs(i)) * (s_arcs(l) - s_arcs(i)) * sig2 / sqr(sqr(sin(theta)));
+                cov_sz(n + l, n + k) = cov_sz(n + k, n + l);
+              }
+            }
+        }
+    }
+#if RFIT_DEBUG
+    Rfit::printIt(&cov_sz, "Scatter_cov_line - cov_sz: ");
+#endif
+    Matrix2Nd rot = MatrixXd::Zero(2 * n, 2 * n);
+    for (u_int i = 0; i < n; ++i) {
+      rot(i, i) = cos(theta);
+      rot(n + i, n + i) = cos(theta);
+      u_int j = (i + n);
+      // Signs seem to be wrong for the off-diagonal element, but we are
+      // inverting x-y in the input vector, since theta is the angle between
+      // the z axis and the line, and we are putting the s values, which are Y,
+      // in the first position. A simple sign flip will take care of it.
+      rot(i, j) = i < j ? sin(theta) : -sin(theta);
+    }
+
+#if RFIT_DEBUG
+    Rfit::printIt(&rot, "Scatter_cov_line - rot: ");
+#endif
+
+    Matrix2Nd tmp = rot*cov_sz*rot.transpose();
+    // We are interested only in the errors in the rotated s -axis which, in
+    // our formalism, are in the upper square matrix.
+#if RFIT_DEBUG
+    Rfit::printIt(&tmp, "Scatter_cov_line - tmp: ");
+#endif
+    return tmp.block(0, 0, n, n);
+}
+
 /*!
     \brief Compute the covariance matrix (in radial coordinates) of points in
     the transverse plane due to multiple Coulomb scattering.
@@ -141,11 +244,12 @@ __host__ __device__ inline MatrixNd Scatter_cov_rad(const Matrix2xNd& p2D,
                                                     double B)
 {
     u_int n = p2D.cols();
-    double X = 0.04;
-    double theta = atan(fast_fit(3));
-    double radlen_eff = X * sqrt(fast_fit(3) * fast_fit(3) + 1);
     double p_t = fast_fit(2) * B;
     double p_2 = p_t * p_t * (1. + 1. / (fast_fit(3) * fast_fit(3)));
+    double radlen_eff = 0.;
+    double theta = 0.;
+    bool in_forward = false;
+    computeRadLenEff(fast_fit, B, radlen_eff, theta, in_forward);
 
     MatrixNd scatter_cov_rad = MatrixXd::Zero(n, n);
     const double sig2 = .000225 / p_2 * sqr(1 + 0.038 * log(radlen_eff)) * radlen_eff;
@@ -155,13 +259,18 @@ __host__ __device__ inline MatrixNd Scatter_cov_rad(const Matrix2xNd& p2D,
         {
             for (u_int i = 0; i < std::min(k, l); ++i)
             {
+              if (in_forward) {
+                scatter_cov_rad(k, l) += (rad(k) - rad(i)) * (rad(l) - rad(i)) * sig2 / sqr(cos(theta));
+              } else {
                 scatter_cov_rad(k, l) += (rad(k) - rad(i)) * (rad(l) - rad(i)) * sig2 / sqr(sin(theta));
-                scatter_cov_rad(l, k) = scatter_cov_rad(k, l);
+              }
+              scatter_cov_rad(l, k) = scatter_cov_rad(k, l);
             }
         }
     }
+#if RFIT_DEBUG
     Rfit::printIt(&scatter_cov_rad, "Scatter_cov_rad - scatter_cov_rad: ");
-
+#endif
     return scatter_cov_rad;
 }
 
@@ -960,9 +1069,12 @@ __host__ __device__ inline line_fit Line_fit(const Matrix3xNd& hits,
     Matrix2xNd p2D(2, n);
     MatrixNx5d Jx(n, 5);
 
+#if RFIT_DEBUG
+    printf("Line_fit - B: %g\n", B);
+
     printIt(&hits, "Line_fit points: ");
     printIt(&hits_cov, "Line_fit covs: ");
-
+#endif
     // x & associated Jacobian
     // cfr https://indico.cern.ch/event/663159/contributions/2707659/attachments/1517175/2368189/Riemann_fit.pdf
     // Slide 11
@@ -1000,16 +1112,43 @@ __host__ __device__ inline line_fit Line_fit(const Matrix3xNd& hits,
     p2D.row(1) = hits.row(2);
 
     // WEIGHT COMPUTATION
+    Matrix2Nd cov_sz = MatrixXd::Zero(2 * n, 2 * n);
     VectorNd x_err2 = X_err2(hits_cov, circle, Jx, error, n);
     VectorNd y_err2 = hits_cov.block(2 * n, 2 * n, n, n).diagonal();
+    cov_sz.block(0, 0, n, n) = x_err2.asDiagonal();
+    cov_sz.block(n, n, n, n) = y_err2.asDiagonal();
+#if RFIT_DEBUG
+    printIt(&cov_sz, "line_fit - cov_sz:");
+#endif
+    MatrixNd cov_with_ms = Scatter_cov_line(cov_sz, fast_fit, p2D.row(0), p2D.row(1), B);
+#if RFIT_DEBUG
+    printIt(&cov_with_ms, "line_fit - cov_with_ms: ");
+#endif
+    Matrix4d G, G4;
+    G4 = cov_with_ms.inverse();
+#if RFIT_DEBUG
+    printIt(&G4, "line_fit - cov_with_ms.inverse():");
+#endif
+    double renorm = G4.sum();
+    G4 *= 1. / renorm;
+#if RFIT_DEBUG
+    printIt(&G4, "line_fit - G4:");
+#endif
+    G = G4;
+    const VectorNd weight = Weight_circle(G);
 
-    const VectorNd err2_inv = Weight_line(x_err2, y_err2, fast_fit(3));
-    const VectorNd weight = err2_inv * 1. / err2_inv.sum();
 
+    VectorNd err2_inv = cov_with_ms.diagonal();
+    err2_inv = err2_inv.cwiseInverse();
+//    const VectorNd err2_inv = Weight_line(x_err2, y_err2, fast_fit(3));
+//    const VectorNd weight = err2_inv * 1. / err2_inv.sum();
+
+#if RFIT_DEBUG
     printIt(&x_err2, "Line_fit - x_err2: ");
     printIt(&y_err2, "Line_fit - y_err2: ");
     printIt(&err2_inv, "Line_fit - err2_inv: ");
     printIt(&weight, "Line_fit - weight: ");
+#endif
 
     // COST FUNCTION
 
@@ -1020,17 +1159,23 @@ __host__ __device__ inline line_fit Line_fit(const Matrix3xNd& hits,
     // scatter matrix S = X^T * X
     const Matrix2xNd X = p2D.colwise() - r0;
     Matrix2d A = Matrix2d::Zero();
-    for (u_int i = 0; i < n; ++i)
-    {
-        A += err2_inv(i) * (X.col(i) * X.col(i).transpose());
-    }
+    A = X * G * X.transpose();
+//    for (u_int i = 0; i < n; ++i)
+//    {
+//        A += err2_inv(i) * (X.col(i) * X.col(i).transpose());
+//    }
 
+#if RFIT_DEBUG
     printIt(&A, "Line_fit - A: ");
+#endif
 
     // minimize
     double chi2;
     Vector2d v = min_eigen2D(A, chi2);
+#if RFIT_DEBUG
     printIt(&v, "Line_fit - v: ");
+    printf("Line_fit chi2: %e\n", chi2);
+#endif
 
     // n *= (chi2>0) ? 1 : -1; //TO FIX
     // This hack to be able to run on GPU where the automatic assignment to a
@@ -1044,7 +1189,10 @@ __host__ __device__ inline line_fit Line_fit(const Matrix3xNd& hits,
     line.par << -v(0) / v(1),                          // cotan(theta))
         -c * sqrt(sqr(v(0)) + sqr(v(1))) * 1. / v(1);  // Zip
     line.chi2 = abs(chi2);
+#if RFIT_DEBUG
     printIt(&(line.par), "Line_fit - line.par: ");
+    printf("Line_fit - v norm: %e\n", sqrt(v(0)*v(0) + v(1)*v(1)));
+#endif
 
     // ERROR PROPAGATION
     if (error)
@@ -1054,16 +1202,13 @@ __host__ __device__ inline line_fit Line_fit(const Matrix3xNd& hits,
 
         Matrix3d C;  // cov(v,c)
         {
-            double norm_chernov = 0.;
-            for (u_int i = 0; i < n; ++i)
-                norm_chernov += err2_inv(i) * (v(0) * p2D(0, i) + v(1) * p2D(1, i) + c) * (v(0) * p2D(0, i) + v(1) * p2D(1, i) + c);
-            norm_chernov /= float(n);
-            // Indeed it should read:
-            // * compute the average error in the orthogonal direction: err2_inv.cwiseInverse().sum()/sqr(n)
-            // * normalize the A(0,0)+A(1,1) dividing by err2_inv.sum(), since those have been weighted
-            const double norm = (err2_inv.cwiseInverse().sum()) * err2_inv.sum() * 1. / sqr(n);
+          // The norm is taken from Chernov, properly adapted to the weights case.
+            double norm = v.transpose() * A * v;
+            norm /= weight.sum();
+#if RFIT_DEBUG
+            printf("Line_fit - norm:    %e\n", norm);
+#endif
             const double sig2 = 1. / (A(0, 0) + A(1, 1)) * norm;
-            //      const double sig2 = 1. / (A(0, 0) + A(1, 1));
             C(0, 0) = sig2 * v1_2;
             C(1, 1) = sig2 * v0_2;
             C(0, 1) = C(1, 0) = -sig2 * v(0) * v(1);
@@ -1073,6 +1218,9 @@ __host__ __device__ inline line_fit Line_fit(const Matrix3xNd& hits,
             Matrix<double, 1, 1> tmp = (r0.transpose() * C.block(0, 0, 2, 2) * r0);
             C(2, 2) = v0_2 * C0(0) + v1_2 * C0(1) + C0(0) * C(0, 0) + C0(1) * C(1, 1) + tmp(0, 0);
         }
+#if RFIT_DEBUG
+        printIt(&C, "line_fit - C:");
+#endif
 
         Matrix<double, 2, 3> J;  // Jacobian of (v,c) -> (cotan(theta)),Zip)
         {
@@ -1083,10 +1231,15 @@ __host__ __device__ inline line_fit Line_fit(const Matrix3xNd& hits,
             J << -t0, v(0) * t1, 0, -c * v(0) * t0 * t2, v0_2 * c * t1 * t2, -sqrt_ * t0;
         }
         Matrix<double, 3, 2> JT = J.transpose().eval();
+#if RFIT_DEBUG
+        printIt(&J, "line_fit - J:");
+#endif
         line.cov = J * C * JT;
     }
 
+#if RFIT_DEBUG
     printIt(&line.cov, "Line cov:");
+#endif
     return line;
 }
 
