@@ -59,11 +59,11 @@ bool MVAComputerCache::update(
 	return true;
 }
 
-std::auto_ptr<MVAComputer> MVAComputerCache::release()
+std::unique_ptr<MVAComputer> MVAComputerCache::release()
 {
 	computerCacheId = Calibration::MVAComputer::CacheId();
 	containerCacheId = Calibration::MVAComputerContainer::CacheId();
-	return computer;
+	return std::move(computer);
 }
 
 } // namespace PhysicsTools
