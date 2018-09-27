@@ -8,8 +8,6 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 #include "RecoTracker/TkMSParametrization/interface/LongitudinalBendingCorrection.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "CAGraph.h"
-
 
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
@@ -128,7 +126,6 @@ private:
     const float caThetaCut = 0.00125f;
     const float caPhiCut = 1.f;
     const float caHardPtCut = 0.f;
-
 };
 
 

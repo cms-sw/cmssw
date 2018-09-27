@@ -1,9 +1,8 @@
-#include "CAHitQuadrupletGenerator.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/CAHitQuadrupletGenerator.h"
 
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
 
 #include "RecoPixelVertexing/PixelTriplets/interface/HitQuadrupletGenerator.h"
-#include "LayerQuadruplets.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -12,7 +11,7 @@
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 
 
-
+#include "CAGraph.h"
 #include "CellularAutomaton.h"
 
 #include "CommonTools/Utils/interface/DynArray.h"

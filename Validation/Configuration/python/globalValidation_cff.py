@@ -174,7 +174,7 @@ globalValidationMuons = cms.Sequence()
 _phase_1_globalValidation = globalValidation.copy()
 _phase_1_globalValidation += siPixelPhase1OfflineDQM_sourceV
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
-phase1Pixel.toReplaceWith( globalValidation, _phase_1_globalValidation )
+(phase1Pixel & ~fastSim).toReplaceWith( globalValidation, _phase_1_globalValidation ) #module siPixelPhase1OfflineDQM_sourceV can't run in FastSim since siPixelClusters of type edmNew::DetSetVector are not produced
 
 _run3_globalValidation = globalValidation.copy()
 _run3_globalValidation += gemSimValid

@@ -1,9 +1,10 @@
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSetsBuilder.h"
-
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 
@@ -179,7 +180,13 @@ std::string SeedingLayerSetsBuilder::LayerSpec::print(const std::vector<std::str
   return str.str();
 }
 
-SeedingLayerSetsBuilder::SeedingLayerSetsBuilder() {}
+//FastSim specific constructor
+SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC, const edm::InputTag& fastsimHitTag):
+  SeedingLayerSetsBuilder(cfg, iC)
+{
+  fastSimrecHitsToken_ = iC.consumes<FastTrackerRecHitCollection>(fastsimHitTag); 
+}
+
 SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg, edm::ConsumesCollector&& iC):
   SeedingLayerSetsBuilder(cfg, iC)
 {}
@@ -187,7 +194,6 @@ SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg, 
 {
   std::vector<std::string> namesPset = cfg.getParameter<std::vector<std::string> >("layerList");
   std::vector<std::vector<std::string> > layerNamesInSets = this->layerNamesInSets(namesPset);
-
   // debug printout of layers
   typedef std::vector<std::string>::const_iterator IS;
   typedef std::vector<std::vector<std::string> >::const_iterator IT;
@@ -373,4 +379,56 @@ SeedingLayerSetsBuilder::hits(const edm::Event& ev, const edm::EventSetup& es,
     ctfseeding::SeedingLayer::Hits && tmp = theLayers[i].extractor->hits((const TkTransientTrackingRecHitBuilder &)(*theTTRHBuilders[i]), ev, es);
     std::move(tmp.begin(), tmp.end(), std::back_inserter(hits));
   }
+}
+
+//new function for FastSim only
+std::unique_ptr<SeedingLayerSetsHits> SeedingLayerSetsBuilder::makeSeedingLayerSetsHitsforFastSim(const edm::Event& ev, const edm::EventSetup& es) {
+  updateEventSetup(es);
+
+  edm::Handle<FastTrackerRecHitCollection> fastSimrechits_;
+  ev.getByToken(fastSimrecHitsToken_,fastSimrechits_); //using FastSim RecHits
+  edm::ESHandle<TrackerTopology> trackerTopology;
+  es.get<TrackerTopologyRcd>().get(trackerTopology);
+  const TrackerTopology* const tTopo = trackerTopology.product();
+  ctfseeding::SeedingLayer::Hits layerhits_;
+
+  auto ret = std::make_unique<SeedingLayerSetsHits>(theNumberOfLayersInSet,
+                                                    &theLayerSetIndices,
+                                                    &theLayerNames,
+							theLayerDets);
+
+  std::vector<unsigned int> indices;
+  indices.reserve(theLayers.size());
+
+  for(auto& layer: theLayers) {
+    indices.push_back(layerhits_.size());
+    for(auto &rh : *fastSimrechits_){
+      GeomDetEnumerators::SubDetector subdet = GeomDetEnumerators::invalidDet;
+      SeedingLayer::Side side = SeedingLayer::Barrel;
+      int idLayer = 0;
+      if( (rh.det()->geographicalId()).subdetId() == PixelSubdetector::PixelBarrel){
+      	subdet = GeomDetEnumerators::PixelBarrel;
+	side = SeedingLayer::Barrel;
+	idLayer = tTopo->pxbLayer(rh.det()->geographicalId());
+      }
+      else if ((rh.det()->geographicalId()).subdetId() == PixelSubdetector::PixelEndcap){
+   	subdet = GeomDetEnumerators::PixelEndcap;
+	idLayer = tTopo->pxfDisk(rh.det()->geographicalId());
+	if(tTopo->pxfSide(rh.det()->geographicalId())==1)
+	  side = SeedingLayer::NegEndcap;
+	else
+	  side = SeedingLayer::PosEndcap;
+      }
+      
+      if(layer.subdet == subdet && layer.side == side && layer.idLayer == idLayer){
+	BaseTrackerRecHit const & b(rh);
+	auto ptrHit = (BaseTrackerRecHit *)(b.clone());
+	layerhits_.emplace_back(ptrHit);
+      }
+      else continue;
+    }
+  }
+  layerhits_.shrink_to_fit();
+  ret->swapHits(indices, layerhits_);
+  return ret;
 }
