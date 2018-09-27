@@ -184,6 +184,17 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   }
   
   m_kernel->SetPhysics(phys);
+
+  // Geant4 UI commands before initialisation of physics
+  if(!m_G4Commands.empty()) {
+    G4cout << "RunManagerMT: Requested UI commands: " << G4endl;
+    for (const std::string& command : m_G4Commands) {
+      G4cout << "    " << command << G4endl;
+      G4UImanager::GetUIpointer()->ApplyCommand(command);
+    }
+  }
+
+  G4StateManager::GetStateManager()->SetNewState(G4State_Init);
   m_kernel->InitializePhysics();
   m_kernel->SetUpDecayChannels();
 
@@ -211,14 +222,6 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   }
 
   initializeUserActions();
-
-  if(!m_G4Commands.empty()) {
-    G4cout << "RunManagerMT: Requested UI commands: " << G4endl;
-    for (unsigned it=0; it<m_G4Commands.size(); ++it) {
-      G4cout << "    " << m_G4Commands[it] << G4endl;
-      G4UImanager::GetUIpointer()->ApplyCommand(m_G4Commands[it]);
-    }
-  }
 
   if(verb > 1) { m_physicsList->DumpCutValuesTable(); }
 
