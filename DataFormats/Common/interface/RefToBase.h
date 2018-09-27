@@ -251,9 +251,9 @@ namespace edm {
   {
     if ( holder_ == nullptr )
     {
-	Exception::throwThis(errors::InvalidReference,
-	  "attempting get key from  null RefToBase;\n"
-	  "You should check for nullity before calling key().");
+        Exception::throwThis(errors::InvalidReference,
+          "attempting get key from  null RefToBase;\n"
+          "You should check for nullity before calling key().");
         return 0;
     }
     return  holder_->key();
