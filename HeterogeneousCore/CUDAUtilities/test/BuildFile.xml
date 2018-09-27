@@ -1,0 +1,45 @@
+<use name="HeterogeneousCore/CUDAUtilities"/>
+
+<bin file="test_GPUSimpleVector.cu" name="test_GPUSimpleVector"/>
+
+<bin file="cudastdAlgorithm_t.cpp">
+</bin>
+
+<bin file="cudastdAlgorithm_t.cu" name="gpuCudastdAlgorithm_t">
+  <use name="cuda-api-wrappers"/>
+</bin>
+
+<bin file="radixSort_t.cu" name="gpuRadixSort_t">
+  <use name="cuda-api-wrappers"/>
+</bin>
+
+<bin file="radixSort_t.cu" name="gpuRadixSort_debug">
+  <use name="cuda-api-wrappers"/>
+  <flags CUDA_FLAGS="-g -G"/>
+</bin>
+
+<bin file="HistoContainer_t.cpp">
+  <flags CXXFLAGS="-g"/>
+</bin>
+
+<bin file="HistoContainer_t.cu" name="gpuHistoContainer_t">
+  <use name="cuda-api-wrappers"/>
+   <use name="cub"/>
+</bin>
+
+<bin file="HistoContainer_t.cu" name="gpuHistoContainer_debug">
+  <use name="cuda-api-wrappers"/>
+   <use name="cub"/>
+  <flags CUDA_FLAGS="-g -G"/>
+</bin>
+
+<bin file="OneHistoContainer_t.cu" name="gpuOneHistoContainer_t">
+  <use name="cuda-api-wrappers"/>
+   <use name="cub"/>
+</bin>
+
+
+<bin file="prefixScan_t.cu" name="gpuPrefixScan_t">
+  <use name="cub"/>
+</bin>
+

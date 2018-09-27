@@ -12,6 +12,11 @@
 <use   name="boost"/>
 <use   name="vdt_headers"/>
 
+<use   name="cuda"/>
+<use   name="cuda-api-wrappers"/>
+<use name="HeterogeneousCore/CUDAUtilities"/>
+<use name="HeterogeneousCore/CUDAServices"/>
+
 <export>
   <lib   name="1"/>
 </export>
