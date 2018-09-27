@@ -47,7 +47,7 @@ class RecoTauPiZeroStripPlugin : public RecoTauPiZeroBuilderPlugin {
   public:
   explicit RecoTauPiZeroStripPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector && iC);
     ~RecoTauPiZeroStripPlugin() override {}
-    // Return type is auto_ptr<PiZeroVector>
+    // Return type is unique_ptr<PiZeroVector>
     return_type operator()(const reco::PFJet& jet) const override;
     // Hook to update PV information
     void beginEvent() override;
@@ -117,7 +117,7 @@ RecoTauPiZeroStripPlugin::return_type RecoTauPiZeroStripPlugin::operator()(
     cands.pop_front();
 
     // Add a new candidate to our collection using this seed
-    std::auto_ptr<RecoTauPiZero> strip(new RecoTauPiZero(
+    std::unique_ptr<RecoTauPiZero> strip(new RecoTauPiZero(
             *seed, RecoTauPiZero::kStrips));
     strip->addDaughter(seed);
 
@@ -141,7 +141,7 @@ RecoTauPiZeroStripPlugin::return_type RecoTauPiZeroStripPlugin::operator()(
     // Update the vertex
     if (strip->daughterPtr(0).isNonnull())
       strip->setVertex(strip->daughterPtr(0)->vertex());
-    output.push_back(strip);
+    output.push_back(strip.get());
   }
 
   // Check if we want to combine our strips
@@ -167,7 +167,7 @@ RecoTauPiZeroStripPlugin::return_type RecoTauPiZeroStripPlugin::operator()(
         secondP4 = applyMassConstraint(secondP4, combinatoricStripMassHypo_);
         Candidate::LorentzVector totalP4 = firstP4 + secondP4;
         // Make our new combined strip
-        std::auto_ptr<RecoTauPiZero> combinedStrips(
+        std::unique_ptr<RecoTauPiZero> combinedStrips(
             new RecoTauPiZero(0, totalP4,
               Candidate::Point(0, 0, 0),
               //111, 10001, true, RecoTauPiZero::kCombinatoricStrips));
@@ -186,7 +186,7 @@ RecoTauPiZeroStripPlugin::return_type RecoTauPiZeroStripPlugin::operator()(
         if (combinedStrips->daughterPtr(0).isNonnull())
           combinedStrips->setVertex(combinedStrips->daughterPtr(0)->vertex());
         // Add to our collection of combined strips
-        stripCombinations.push_back(combinedStrips);
+        stripCombinations.push_back(combinedStrips.get());
       }
     }
     // When done doing all the combinations, add the combined strips to the
