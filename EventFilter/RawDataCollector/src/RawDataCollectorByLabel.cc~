@@ -43,7 +43,7 @@ void RawDataCollectorByLabel::produce(Event & e, const EventSetup& c){
    rawData.push_back(input);
  }
 
- std::auto_ptr<FEDRawDataCollection> producedData(new FEDRawDataCollection);
+ std::unique_ptr<FEDRawDataCollection> producedData(new FEDRawDataCollection);
 
  for (unsigned int i=0; i< rawData.size(); ++i ) { 
 
