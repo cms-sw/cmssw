@@ -1247,5 +1247,5 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(ModuleNumbering);
+DEFINE_FWK_MODULE(MTDModuleNumbering);
   
