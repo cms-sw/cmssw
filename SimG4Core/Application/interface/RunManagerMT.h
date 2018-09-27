@@ -37,6 +37,9 @@ class G4MTRunManagerKernel;
 class G4Run;
 class G4Event;
 class G4Field;
+class G4StateManager;
+class G4GeometryManager;
+class G4Field;
 class RunAction;
 
 class SimRunInterface;
@@ -104,6 +107,9 @@ private:
   bool m_pUseMagneticField;
   RunAction* m_userRunAction;
   G4Run* m_currentRun;
+  G4StateManager* m_stateManager;
+  G4GeometryManager* m_geometryManager;
+
   std::unique_ptr<SimRunInterface> m_runInterface;
 
   const std::string m_PhysicsTablesDir;

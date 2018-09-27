@@ -89,7 +89,9 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const & p):
   m_currentRun = nullptr;
 
   m_kernel = new G4MTRunManagerKernel();
-  G4StateManager::GetStateManager()->SetExceptionHandler(new ExceptionHandler());
+  m_stateManager = G4StateManager::GetStateManager();
+  m_stateManager->SetExceptionHandler(new ExceptionHandler());
+  m_geometryManager->G4GeometryManager::GetInstance();
 
   m_check = p.getUntrackedParameter<bool>("CheckOverlap",false);
   m_WriteFile = p.getUntrackedParameter<std::string>("FileNameGDML","");
@@ -100,8 +102,8 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const & p):
 RunManagerMT::~RunManagerMT() 
 {
   if(!m_runTerminated) { terminateRun(); }
-  G4StateManager::GetStateManager()->SetNewState(G4State_Quit);
-  G4GeometryManager::GetInstance()->OpenGeometry();
+  m_stateManager->SetNewState(G4State_Quit);
+  m_geometryManager->OpenGeometry();
 }
 
 void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, 
@@ -194,7 +196,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
     }
   }
 
-  G4StateManager::GetStateManager()->SetNewState(G4State_Init);
+  m_stateManager->SetNewState(G4State_Init);
   m_kernel->InitializePhysics();
   m_kernel->SetUpDecayChannels();
 
@@ -246,7 +248,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   //
   //G4ParticleTable::GetParticleTable()->DumpTable("ALL");
   //
-  G4StateManager::GetStateManager()->SetNewState(G4State_GeomClosed);
+  m_stateManager->SetNewState(G4State_GeomClosed);
   m_currentRun = new G4Run(); 
   m_userRunAction->BeginOfRunAction(m_currentRun); 
 }
@@ -265,7 +267,7 @@ void  RunManagerMT::Connect(RunAction* runAction)
 
 void RunManagerMT::stopG4()
 {
-  G4StateManager::GetStateManager()->SetNewState(G4State_Quit);
+  m_stateManager->SetNewState(G4State_Quit);
   if(!m_runTerminated) { terminateRun(); }
 }
 
