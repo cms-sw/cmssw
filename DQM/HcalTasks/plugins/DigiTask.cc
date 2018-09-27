@@ -335,10 +335,17 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		std::vector<int> vFEDsVME = hcaldqm::utilities::getFEDVMEList(_emap);
 		std::vector<int> vFEDsuTCA = hcaldqm::utilities::getFEDuTCAList(_emap);
 
-		_cCapid_BadvsFEDvsLS.initialize(_name, "CapID", 
-			new hcaldqm::quantity::LumiSectionCoarse(_maxLS, 10),
-			new hcaldqm::quantity::FEDQuantity(vFEDs),		
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+		if (_ptype == fOnline) {
+			_cCapid_BadvsFEDvsLS.initialize(_name, "CapID", 
+				new hcaldqm::quantity::LumiSectionCoarse(_maxLS, 10),
+				new hcaldqm::quantity::FEDQuantity(vFEDs),		
+				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+
+			_cCapid_BadvsFEDvsLSmod50.initialize(_name, "CapID", 
+				new hcaldqm::quantity::LumiSection(60),
+				new hcaldqm::quantity::FEDQuantity(vFEDs),		
+				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+		}
 	
 		std::vector<uint32_t> vFEDHF;
 		vFEDHF.push_back(HcalElectronicsId(22, SLOT_uTCA_MIN,
@@ -540,8 +547,9 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_cBadTDCCount_depth.book(ib, _emap, _subsystem);
 
 	_cCapidMinusBXmod4_SubdetPM.book(ib, _emap, _subsystem);
-	if (_ptype != fOffline) {
+	if (_ptype == fOnline) {
 		_cCapid_BadvsFEDvsLS.book(ib, _subsystem, "BadvsLS");
+		_cCapid_BadvsFEDvsLSmod50.book(ib, _subsystem, "BadvsLSmod50");
 	}
 	for (int i = 0; i < 4; ++i) {
 		char aux[10];
@@ -736,9 +744,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			bool good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
 			if (!good_capidmbx) {
 				_xBadCapid.get(eid)++;
-				if (_ptype != fOffline) {
-					_cCapid_BadvsFEDvsLS.fill(eid, _currentLS);
-				}
+				_cCapid_BadvsFEDvsLS.fill(eid, _currentLS);
+				_cCapid_BadvsFEDvsLSmod50.fill(eid, _currentLS % 60);
 			}
 			if (eid.isVMEid()) {
 				_cCapidMinusBXmod4_CrateSlotVME[this_capidmbx].fill(eid);
@@ -917,9 +924,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			bool good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
 			if (!good_capidmbx) {
 				_xBadCapid.get(eid)++;
-				if (_ptype != fOffline) {
-					_cCapid_BadvsFEDvsLS.fill(eid, _currentLS);
-				}
+				_cCapid_BadvsFEDvsLS.fill(eid, _currentLS);
+				_cCapid_BadvsFEDvsLSmod50.fill(eid, _currentLS % 60);
 			}
 			if (eid.isVMEid()) {
 				_cCapidMinusBXmod4_CrateSlotVME[this_capidmbx].fill(eid);
@@ -1101,9 +1107,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			bool good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
 			if (!good_capidmbx) {
 				_xBadCapid.get(eid)++;
-				if (_ptype != fOffline) {
-					_cCapid_BadvsFEDvsLS.fill(eid, _currentLS);
-				}
+				_cCapid_BadvsFEDvsLS.fill(eid, _currentLS);
+				_cCapid_BadvsFEDvsLSmod50.fill(eid, _currentLS % 60);
 			}
 			if (eid.isVMEid()) {
 				_cCapidMinusBXmod4_CrateSlotVME[this_capidmbx].fill(eid);
@@ -1291,9 +1296,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				bool good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
 				if (!good_capidmbx) {
 					_xBadCapid.get(eid)++;
-					if (_ptype != fOffline) {
-						_cCapid_BadvsFEDvsLS.fill(eid, _currentLS);
-					}
+					_cCapid_BadvsFEDvsLS.fill(eid, _currentLS);
+					_cCapid_BadvsFEDvsLSmod50.fill(eid, _currentLS % 60);
 				}
 				if (eid.isVMEid()) {
 					_cCapidMinusBXmod4_CrateSlotVME[this_capidmbx].fill(eid);
@@ -1446,6 +1450,14 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	edm::LuminosityBlock const& lb, edm::EventSetup const& es)
 {
 	DQTask::beginLuminosityBlock(lb, es);
+	if (_ptype == fOnline) {
+		// Reset the bin for _cCapid_BadvsFEDvsLSmod50
+		for (std::vector<uint32_t>::const_iterator it=_vhashFEDs.begin();
+				it!=_vhashFEDs.end(); ++it) {
+			HcalElectronicsId eid = HcalElectronicsId(*it);
+			_cCapid_BadvsFEDvsLSmod50.setBinContent(eid, _currentLS % 50, 0);
+		}	
+	}
 }
 
 /* virtual */ void DigiTask::endLuminosityBlock(edm::LuminosityBlock const& lb,

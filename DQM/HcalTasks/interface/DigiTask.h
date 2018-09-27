@@ -185,6 +185,7 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::ContainerSingle2D _cCapidMinusBXmod4_CrateSlotuTCA[4]; // CrateSlot 2D histograms for each (capid-BX)%4
 		hcaldqm::ContainerSingle2D _cCapidMinusBXmod4_CrateSlotVME[4]; // CrateSlot 2D histograms for each (capid-BX)%4
 		hcaldqm::ContainerSingle2D _cCapid_BadvsFEDvsLS;
+		hcaldqm::ContainerSingle2D _cCapid_BadvsFEDvsLSmod60; // Same as _cCapid_BadvsFEDvsLS, but only for last 50 LSes (for sound alarm turning off when problem goes away)
 
 		//	#events counters
 		MonitorElement *meNumEvents1LS; // to transfer the #events to harvesting
