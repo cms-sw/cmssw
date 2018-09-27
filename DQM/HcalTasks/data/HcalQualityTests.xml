@@ -24,7 +24,7 @@
       <PARAM name="minEntries">0</PARAM>
       <PARAM name="useEmptyBins">1</PARAM>
   </QTEST>
-  <LINK name="*Hcal/DigiTask/CapID/CapID_BadvsLSmod50*">
+  <LINK name="*Hcal/DigiTask/CapID/CapID_BadvsLS*">
     <TestName activate="true">BadCapIDThreshold</TestName>
   </LINK>
 </TESTSCONFIGURATION>
