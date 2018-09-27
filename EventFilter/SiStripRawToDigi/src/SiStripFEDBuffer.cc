@@ -18,7 +18,7 @@ namespace sistrip {
       feHeader_ = FEDFEHeader::newFEHeader(headerType(),getPointerToDataAfterTrackerSpecialHeader());
       payloadPointer_ = getPointerToDataAfterTrackerSpecialHeader()+feHeader_->lengthInBytes();
     } else {
-      feHeader_ = std::auto_ptr<FEDFEHeader>();
+      feHeader_ = std::unique_ptr<FEDFEHeader>();
       payloadPointer_ = getPointerToDataAfterTrackerSpecialHeader();
       if (!allowBadBuffer) {
 	std::ostringstream ss;
