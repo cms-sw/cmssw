@@ -78,7 +78,7 @@ private:
 
 
     if(isMiniAod){
-      //std::auto_ptr<patMETCollection> product(new patMETCollection);
+      //std::unique_ptr<patMETCollection> product(new patMETCollection);
       std::unique_ptr<patMETCollection> product(new patMETCollection);
       const reco::MET& srcMET = (*srcPatMETCollection)[0];
       pat::MET outMEtPat = corrector.getCorrectedMET(srcMET, evt, es);
