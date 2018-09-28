@@ -14,29 +14,30 @@ using namespace HepMC;
 
 
 PythiaHepMCFilterGammaGamma::PythiaHepMCFilterGammaGamma(const edm::ParameterSet& iConfig) :
-  ptSeedThr(iConfig.getUntrackedParameter<double>("PtSeedThr")),
-  etaSeedThr(iConfig.getUntrackedParameter<double>("EtaSeedThr")),
-  ptGammaThr(iConfig.getUntrackedParameter<double>("PtGammaThr")),
-  etaGammaThr(iConfig.getUntrackedParameter<double>("EtaGammaThr")),
-  ptTkThr(iConfig.getUntrackedParameter<double>("PtTkThr")),
-  etaTkThr(iConfig.getUntrackedParameter<double>("EtaTkThr")),
-  ptElThr(iConfig.getUntrackedParameter<double>("PtElThr")),
-  etaElThr(iConfig.getUntrackedParameter<double>("EtaElThr")),
-  dRTkMax(iConfig.getUntrackedParameter<double>("dRTkMax")),
-  dRSeedMax(iConfig.getUntrackedParameter<double>("dRSeedMax")),
-  dPhiSeedMax(iConfig.getUntrackedParameter<double>("dPhiSeedMax")),
-  dEtaSeedMax(iConfig.getUntrackedParameter<double>("dEtaSeedMax")),
-  dRNarrowCone(iConfig.getUntrackedParameter<double>("dRNarrowCone")),
-  pTMinCandidate1(iConfig.getUntrackedParameter<double>("PtMinCandidate1")),
-  pTMinCandidate2(iConfig.getUntrackedParameter<double>("PtMinCandidate2")),
-  etaMaxCandidate(iConfig.getUntrackedParameter<double>("EtaMaxCandidate")),
-  invMassMin(iConfig.getUntrackedParameter<double>("InvMassMin")),
-  invMassMax(iConfig.getUntrackedParameter<double>("InvMassMax")),
-  energyCut(iConfig.getUntrackedParameter<double>("EnergyCut")),
-  nTkConeMax(iConfig.getUntrackedParameter<int>("NTkConeMax")),
-  nTkConeSum(iConfig.getUntrackedParameter<int>("NTkConeSum")),
-  acceptPrompts(iConfig.getUntrackedParameter<bool>("AcceptPrompts")), 
-  promptPtThreshold(iConfig.getUntrackedParameter<double>("PromptPtThreshold")) {
+  ptSeedThr(iConfig.getParameter<double>("PtSeedThr")),
+  etaSeedThr(iConfig.getParameter<double>("EtaSeedThr")),
+  ptGammaThr(iConfig.getParameter<double>("PtGammaThr")),
+  etaGammaThr(iConfig.getParameter<double>("EtaGammaThr")),
+  ptTkThr(iConfig.getParameter<double>("PtTkThr")),
+  etaTkThr(iConfig.getParameter<double>("EtaTkThr")),
+  ptElThr(iConfig.getParameter<double>("PtElThr")),
+  etaElThr(iConfig.getParameter<double>("EtaElThr")),
+  dRTkMax(iConfig.getParameter<double>("dRTkMax")),
+  dRSeedMax(iConfig.getParameter<double>("dRSeedMax")),
+  dPhiSeedMax(iConfig.getParameter<double>("dPhiSeedMax")),
+  dEtaSeedMax(iConfig.getParameter<double>("dEtaSeedMax")),
+  dRNarrowCone(iConfig.getParameter<double>("dRNarrowCone")),
+  pTMinCandidate1(iConfig.getParameter<double>("PtMinCandidate1")),
+  pTMinCandidate2(iConfig.getParameter<double>("PtMinCandidate2")),
+  etaMaxCandidate(iConfig.getParameter<double>("EtaMaxCandidate")),
+  invMassMin(iConfig.getParameter<double>("InvMassMin")),
+  invMassMax(iConfig.getParameter<double>("InvMassMax")),
+  energyCut(iConfig.getParameter<double>("EnergyCut")),
+  nTkConeMax(iConfig.getParameter<int>("NTkConeMax")),
+  nTkConeSum(iConfig.getParameter<int>("NTkConeSum")),
+  acceptPrompts(iConfig.getParameter<bool>("AcceptPrompts")),
+  promptPtThreshold(iConfig.getParameter<double>("PromptPtThreshold")) {
+
 }
 
 PythiaHepMCFilterGammaGamma::~PythiaHepMCFilterGammaGamma() 
