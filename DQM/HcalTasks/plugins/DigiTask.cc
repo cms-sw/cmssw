@@ -487,6 +487,12 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			hcaldqm::hashfunctions::fSubdet,
 			new hcaldqm::quantity::LumiSection(_maxLS),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+		if (_ptype == fOnline) {
+			_LED_CUCountvsLSmod60_Subdet.initialize(_name, "LED_CUCountvsLSmod60",
+				hcaldqm::hashfunctions::fSubdet,
+				new hcaldqm::quantity::LumiSection(60),
+				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+		}
 	}
 
 	//	BOOK HISTOGRAMS
@@ -563,6 +569,9 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	if (_ptype != fLocal) {
 		_LED_ADCvsBX_Subdet.book(ib, _emap, _subsystem);
 		_LED_CUCountvsLS_Subdet.book(ib, _emap, _subsystem);
+		if (_ptype == fOnline) {
+			_LED_CUCountvsLSmod60_Subdet.book(ib, _emap, _subsystem);
+		}
 	}
 
 	//	BOOK HISTOGRAMS that are only for Online
@@ -875,6 +884,9 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 							}
 							if (channelLEDSignalPresent) {
 								_LED_CUCountvsLS_Subdet.fill(HcalDetId(HcalEndcap, 16, 1, 1), _currentLS);
+								if (_ptype == fOnline) {
+									_LED_CUCountvsLSmod60_Subdet.fill(HcalDetId(HcalEndcap, 16, 1, 1), _currentLS % 60);
+								}
 							}
 						}
 					}
@@ -1251,6 +1263,9 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 								}
 								if (channelLEDSignalPresent) {
 									_LED_CUCountvsLS_Subdet.fill(HcalDetId(HcalForward, 16, 1, 1), _currentLS);
+									if (_ptype == fOnline) { 
+										_LED_CUCountvsLSmod60_Subdet.fill(HcalDetId(HcalForward, 16, 1, 1), _currentLS % 60);
+									}
 								}
 							}
 						}
