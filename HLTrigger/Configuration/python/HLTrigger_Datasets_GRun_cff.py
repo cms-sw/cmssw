@@ -706,6 +706,7 @@ streamPhysicsHadronsTaus_datasetTau_selector.hltResults = cms.InputTag('TriggerR
 streamPhysicsHadronsTaus_datasetTau_selector.l1tResults = cms.InputTag('')
 streamPhysicsHadronsTaus_datasetTau_selector.throw      = cms.bool(False)
 streamPhysicsHadronsTaus_datasetTau_selector.triggerConditions = cms.vstring(
+    'HLT_DoubleMediumChargedIsoPFTauHPS30_L1MaxMass_Trk1_eta2p1_Reg_v1', 
     'HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_TightID_eta2p1_Reg_v1', 
     'HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v4', 
     'HLT_DoubleMediumChargedIsoPFTauHPS40_Trk1_TightID_eta2p1_Reg_v1', 
