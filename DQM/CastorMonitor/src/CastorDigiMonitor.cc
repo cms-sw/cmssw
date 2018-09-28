@@ -24,12 +24,14 @@
 using namespace std;
 using namespace edm;
 
+namespace {
 vector<std::string> HltPaths_;
 int StatusBadChannel = 1;
-int ChannelStatus[14][16];
+int ChannelStatus[14][16] {};
 int N_GoodChannels = 224;
 int EtowerLastModule = 5;
 int TrigIndexMax = 0;
+}
 
 CastorDigiMonitor::CastorDigiMonitor(const edm::ParameterSet& ps) {
   fVerbosity = ps.getUntrackedParameter<int>("debug", 0);
