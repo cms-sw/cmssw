@@ -204,6 +204,7 @@ class DigiTask : public hcaldqm::DQTask
 		std::map<HcalSubdetector, std::vector<HcalDetId> > _ledCalibrationChannels;
 
 		hcaldqm::Container1D _LED_CUCountvsLS_Subdet; // Misfire count vs LS
+		hcaldqm::Container1D _LED_CUCountvsLSmod60_Subdet; // Misfire count vs LS
 		hcaldqm::Container2D _LED_ADCvsBX_Subdet; // Pin diode amplitude vs BX	
 };
 
