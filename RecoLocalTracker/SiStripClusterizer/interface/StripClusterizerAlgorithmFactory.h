@@ -7,6 +7,6 @@ class StripClusterizerAlgorithm;
 
 class StripClusterizerAlgorithmFactory {
  public:
-  static std::auto_ptr<StripClusterizerAlgorithm> create(const edm::ParameterSet&);
+  static std::unique_ptr<StripClusterizerAlgorithm> create(const edm::ParameterSet&);
 };
 #endif
