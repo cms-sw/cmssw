@@ -10,15 +10,8 @@
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
-// #include "CondFormats/DataRecord/interface/RPCTwinMuxLinkMapRcd.h"
-// #include "CondFormats/RPCObjects/interface/RPCLBLinkMap.h"
-// #include "CondFormats/RPCObjects/interface/RPCAMCLinkMap.h"
-// #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-// #include "DataFormats/RPCDigi/interface/RPCAMCLinkCounters.h"
 #include "DataFormats/RPCDigi/interface/RPCDigi.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
-
-// #include "EventFilter/RPCRawToDigi/interface/RPCTwinMuxRecord.h"
 
 namespace edm {
 class ConfigurationDescriptions;
@@ -44,9 +37,13 @@ public:
 
 
 protected:
-    edm::EDGetTokenT<RPCDigiCollection> TwinMux_token_;
-    edm::EDGetTokenT<RPCDigiCollection> OMTF_token_;
-    edm::EDGetTokenT<RPCDigiCollection> CPPF_token_;
+    // edm::EDGetTokenT<RPCDigiCollection> TwinMux_token_;
+    // edm::EDGetTokenT<RPCDigiCollection> OMTF_token_;
+    // edm::EDGetTokenT<RPCDigiCollection> CPPF_token_;
+
+    edm::EDGetTokenT<RPCDigiCollection> twinMux_token_;
+    edm::EDGetTokenT<RPCDigiCollection> omtf_token_;
+    edm::EDGetTokenT<RPCDigiCollection> cppf_token_;
 
 };
 

@@ -33,9 +33,9 @@ dtlocalreco_with_2DSegments = cms.Sequence(dt1DRecHits*dt2DSegments*dt4DSegments
 # CSC sequence
 csclocalreco = cms.Sequence(csc2DRecHits*cscSegments)
 # DT, CSC and RPC together
-muonlocalreco_with_2DSegments = cms.Sequence(dtlocalreco_with_2DSegments+csclocalreco+rpcRecHits)
+muonlocalreco_with_2DSegments = cms.Sequence(dtlocalreco_with_2DSegments+csclocalreco+rpcRecHits+rpcNewRecHits)
 # DT, CSC and RPC together (correct sequence for the standard path)
-muonlocalreco = cms.Sequence(dtlocalreco+csclocalreco+rpcRecHits)
+muonlocalreco = cms.Sequence(dtlocalreco+csclocalreco+rpcRecHits+rpcNewRecHits)
 
 from RecoLocalMuon.GEMRecHit.gemLocalReco_cff import *
 from RecoLocalMuon.GEMRecHit.me0LocalReco_cff import *

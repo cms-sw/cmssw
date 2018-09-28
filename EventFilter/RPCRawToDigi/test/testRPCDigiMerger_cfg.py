@@ -4,24 +4,6 @@ from FWCore.PythonUtilities.LumiList import LumiList
 from FWCore.ParameterSet.VarParsing import VarParsing
 
 options = VarParsing("analysis")
-# options.register("runList"
-#                  , []
-#                  , VarParsing.multiplicity.list
-#                  , VarParsing.varType.int
-#                  , "Run selection")
-# options.register("lumiList"
-#                  , "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/DCSOnly/json_DCSONLY.txt"
-#                  , VarParsing.multiplicity.singleton
-#                  , VarParsing.varType.string
-#                  , "JSON file")
-# options.parseArguments()
-
-# lumilist = LumiList(filename = options.lumiList)
-# if len(options.runList) :
-#     runlist = LumiList(runs = options.runList)
-#     lumilist = lumilist & runlist
-#     if not len(lumilist) :
-#         raise RuntimeError("The resulting LumiList is empty")
 
 process = cms.Process("testRPCDigiMerger")
 
@@ -29,7 +11,6 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-# process.GlobalTag.globaltag = "102X_dataRun2_Prompt_v1"
 process.GlobalTag.globaltag = "102X_dataRun2_Sep2018Rereco_test_v1"
 
 #######################################################
@@ -42,16 +23,13 @@ process.load("EventFilter.RPCRawToDigi.RPCTwinMuxRawToDigi_cff")
 
 ### RPC RawToDigi - from CPPF
 process.load("EventFilter.RPCRawToDigi.RPCCPPFRawToDigi_cff")
-# process.load("EventFilter.RPCRawToDigi.RPCCPPFRawToDigi_sqlite_cff")
+# process.load("EventFilter.RPCRawToDigi.RPCCPPFRawToDigi_sqlite_cff") #to load CPPF link maps from the local DB
 
 ### RPC RawToDigi - from OMTF
 process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 process.omtfStage2Digis = cms.EDProducer("OmtfUnpacker",
   inputLabel = cms.InputTag('rawDataCollector'),
 )
-
-
-
 
 process.load("EventFilter.RPCRawToDigi.RPCDigiMerger_cff")
 
@@ -77,11 +55,9 @@ process.source = cms.Source("PoolSource"
                                     "/store/data/Run2018D/SingleMuon/RAW/v1/000/321/909/00000/14822C7E-EDAA-E811-8189-02163E01A095.root",
                                     "/store/data/Run2018D/SingleMuon/RAW/v1/000/321/909/00000/B05E9DA8-EDAA-E811-B422-02163E016528.root",
                             )
-                            # , lumisToProcess = lumilist.getVLuminosityBlockRange()
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
-# process.maxLuminosityBlocks = cms.untracked.PSet(input = cms.untracked.int32(10))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 process.p = cms.Path( 
                        (

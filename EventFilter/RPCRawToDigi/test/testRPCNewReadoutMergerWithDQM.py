@@ -21,13 +21,8 @@ process = cms.Process("testRPCNewReadoutDQM")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-# process.MessageLogger.cerr.FwkReport.reportEvery = 10
-
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-# process.GlobalTag.globaltag = "80X_dataRun2_Express_v15"
-# process.GlobalTag.globaltag = "101X_dataRun2_Prompt_v10"
-# process.GlobalTag.globaltag = "102X_dataRun2_Prompt_v1"
 process.GlobalTag.globaltag = "102X_dataRun2_Sep2018Rereco_test_v1"
 
 #######################################################
@@ -40,7 +35,7 @@ process.load("EventFilter.RPCRawToDigi.RPCTwinMuxRawToDigi_cff")
 
 ### RPC RawToDigi - from CPPF
 process.load("EventFilter.RPCRawToDigi.RPCCPPFRawToDigi_cff")
-# process.load("EventFilter.RPCRawToDigi.RPCCPPFRawToDigi_sqlite_cff")
+# process.load("EventFilter.RPCRawToDigi.RPCCPPFRawToDigi_sqlite_cff") #to load CPPF link maps from the local DB
 
 ### RPC RawToDigi - from OMTF
 process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
@@ -104,14 +99,27 @@ process.dqmEnv.subSystemFolder = 'RPC'
 
 # Source
 process.source = cms.Source("PoolSource"
-                            , fileNames = cms.untracked.vstring(options.inputFiles)
-                            # , fileNames = cms.untracked.vstring("/store/data/Run2018D/SingleMuon/RAW/v1/000/320/855/00000/1822B685-AC98-E811-9A30-FA163E4D9C0E.root")
-                            # , fileNames = cms.untracked.vstring("file:/eos/cms/store/data/Run2018D/SingleMuon/RAW/v1/000/320/500/00000/BC8C0D64-EF93-E811-81A5-02163E00C22E.root")
-                            # , lumisToProcess = lumilist.getVLuminosityBlockRange()
+                            , fileNames = cms.untracked.vstring(
+                                    "/store/data/Run2018D/SingleMuon/RAW/v1/000/321/909/00000/34C0D29C-E3AA-E811-84FB-FA163EF5DB03.root",
+                                    "/store/data/Run2018D/SingleMuon/RAW/v1/000/321/909/00000/DEF27B09-E7AA-E811-B671-FA163EDF3211.root",
+                                    "/store/data/Run2018D/SingleMuon/RAW/v1/000/321/909/00000/163BB720-E7AA-E811-988D-FA163EC62C4D.root",
+                                    "/store/data/Run2018D/SingleMuon/RAW/v1/000/321/909/00000/B06CF0A5-E9AA-E811-AC1F-FA163EF7BA8C.root",
+                                    "/store/data/Run2018D/SingleMuon/RAW/v1/000/321/909/00000/AADE09C6-E9AA-E811-97DC-FA163E516F48.root",
+                                    "/store/data/Run2018D/SingleMuon/RAW/v1/000/321/909/00000/F4EB1DA6-E9AA-E811-8CF8-FA163ECCF441.root",
+                                    "/store/data/Run2018D/SingleMuon/RAW/v1/000/321/909/00000/A867DCA3-E9AA-E811-B8B3-FA163E1F69DA.root",
+                                    "/store/data/Run2018D/SingleMuon/RAW/v1/000/321/909/00000/DC0E29CC-E9AA-E811-AC0B-FA163E41F45F.root",
+                                    "/store/data/Run2018D/SingleMuon/RAW/v1/000/321/909/00000/8A5DAFA8-E9AA-E811-89C2-FA163EFF6119.root",
+                                    "/store/data/Run2018D/SingleMuon/RAW/v1/000/321/909/00000/B00828AF-E9AA-E811-8117-FA163E10FE53.root",
+                                    "/store/data/Run2018D/SingleMuon/RAW/v1/000/321/909/00000/28D7492E-E4AA-E811-9635-02163E013E90.root",
+                                    "/store/data/Run2018D/SingleMuon/RAW/v1/000/321/909/00000/FE2A5BAC-E9AA-E811-BC34-FA163E0639A2.root",
+                                    "/store/data/Run2018D/SingleMuon/RAW/v1/000/321/909/00000/7602E088-EDAA-E811-ABCA-FA163E749606.root",
+                                    "/store/data/Run2018D/SingleMuon/RAW/v1/000/321/909/00000/B49BB2AB-E9AA-E811-A0A0-FA163E3F57D2.root",
+                                    "/store/data/Run2018D/SingleMuon/RAW/v1/000/321/909/00000/14822C7E-EDAA-E811-8189-02163E01A095.root",
+                                    "/store/data/Run2018D/SingleMuon/RAW/v1/000/321/909/00000/B05E9DA8-EDAA-E811-B422-02163E016528.root",
+                            )
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
-# process.maxLuminosityBlocks = cms.untracked.PSet(input = cms.untracked.int32(10))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 process.p = cms.Path( 
                       (process.rpcUnpackingModule + process.RPCTwinMuxRawToDigi + process.rpcCPPFRawToDigi + process.omtfStage2Digis) 
@@ -120,13 +128,11 @@ process.p = cms.Path(
                       * (process.rpcdigidqm + process.rpcTwinMuxdigidqm + process.rpcCPPFdigidqm + process.rpcOMTFdigidqm + process.rpcMergerdigidqm)
                       * process.DQMSaver
                     )
-# process.p = cms.Path(process.RPCTwinMuxRawToDigi )
 
 # Output
 process.out = cms.OutputModule("PoolOutputModule"
                                , outputCommands = cms.untracked.vstring("drop *"
                                                                         , "keep *_rpc*RecHits_*_*")
-                               # , fileName = cms.untracked.string(options.outputFile)
                                , fileName = cms.untracked.string("testRPCNewReadoutDQM.root")
                                , SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("p"))
 )
