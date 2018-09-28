@@ -79,7 +79,7 @@ WhatsItESProducer::WhatsItESProducer(edm::ParameterSet const& pset)
   // data is being produced
   auto collector = setWhatProduced(this);
   //now do what ever other initialization is needed
-  token_ = collector.consumes<edmtest::Doodad>(dataLabel_);
+  token_ = collector.consumes<edmtest::Doodad>(edm::ESInputTag{"", dataLabel_});
 }
 
 
