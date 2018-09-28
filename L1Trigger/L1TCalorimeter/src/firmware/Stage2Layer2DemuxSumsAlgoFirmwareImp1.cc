@@ -170,7 +170,7 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
       cent |= 1 << i;
     }
   }
-  if((etHF >= 0xFFF) || (et >= 0xFFF)) cent = 0x80;
+  if((etHF == 0xFFF) || (et == 0xFFF)) cent = 0x80;
 
 
   //if (mhtx>0xFFF) mhtx = 0xFFF;
