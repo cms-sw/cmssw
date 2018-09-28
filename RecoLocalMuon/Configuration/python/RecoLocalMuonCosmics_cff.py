@@ -34,11 +34,11 @@ dtlocalrecoT0Seg = cms.Sequence(dt1DRecHits*dt4DSegments*dt4DSegmentsT0Seg)
 # CSC sequence
 csclocalreco = cms.Sequence(csc2DRecHits*cscSegments)
 # DT, CSC and RPC together
-muonlocalreco_with_2DSegments = cms.Sequence(dtlocalreco_with_2DSegments+csclocalreco+rpcRecHits)
+muonlocalreco_with_2DSegments = cms.Sequence(dtlocalreco_with_2DSegments+csclocalreco+rpcRecHits+rpcNewRecHits)
 # DT, CSC and RPC together (correct sequence for the standard path)
-muonlocalreco = cms.Sequence(dtlocalreco+csclocalreco+rpcRecHits)
+muonlocalreco = cms.Sequence(dtlocalreco+csclocalreco+rpcRecHits+rpcNewRecHits)
 # DT, CSC and RPC together (with t0seg correction for DTs)
-muonlocalrecoT0Seg = cms.Sequence(dtlocalrecoT0Seg+csclocalreco+rpcRecHits)
+muonlocalrecoT0Seg = cms.Sequence(dtlocalrecoT0Seg+csclocalreco+rpcRecHits+rpcNewRecHits)
 # all sequences to be used for GR
 muonLocalRecoGR = cms.Sequence(muonlocalreco+muonlocalrecoT0Seg)
 

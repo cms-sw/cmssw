@@ -17,15 +17,13 @@
 using namespace edm;
 using namespace std;
 
+
 RPCDigiMerger::RPCDigiMerger(edm::ParameterSet const & config)
 {
     produces<RPCDigiCollection>();
-    // if (fill_counters_) {
-    //     produces<RPCAMCLinkCounters>();
-    // }
-    TwinMux_token_ = consumes<RPCDigiCollection>(config.getParameter<edm::InputTag>("inputTagTwinMuxDigis"));
-    OMTF_token_ = consumes<RPCDigiCollection>(config.getParameter<edm::InputTag>("inputTagOMTFDigis"));
-    CPPF_token_ = consumes<RPCDigiCollection>(config.getParameter<edm::InputTag>("inputTagCPPFDigis"));
+    twinMux_token_ = consumes<RPCDigiCollection>(config.getParameter<edm::InputTag>("inputTagTwinMuxDigis"));
+    omtf_token_ = consumes<RPCDigiCollection>(config.getParameter<edm::InputTag>("inputTagOMTFDigis"));
+    cppf_token_ = consumes<RPCDigiCollection>(config.getParameter<edm::InputTag>("inputTagCPPFDigis"));
 }
 
 RPCDigiMerger::~RPCDigiMerger()
@@ -50,46 +48,47 @@ void RPCDigiMerger::produce(edm::Event & event, edm::EventSetup const & setup)
     // Get the digis 
     // TwinMux
     Handle<RPCDigiCollection> TwinMux_digis; 
-    event.getByToken(TwinMux_token_,TwinMux_digis);
+    event.getByToken(twinMux_token_,TwinMux_digis);
     // OMTF
     Handle<RPCDigiCollection> OMTF_digis; 
-    event.getByToken(OMTF_token_,OMTF_digis);
+    event.getByToken(omtf_token_,OMTF_digis);
     // CPFF
     Handle<RPCDigiCollection> CPPF_digis; 
-    event.getByToken(CPPF_token_,CPPF_digis);
+    event.getByToken(cppf_token_,CPPF_digis);
 
     // new RPCDigiCollection
     std::unique_ptr<RPCDigiCollection> rpc_digi_collection(new RPCDigiCollection());
 
+
     // loop over twinmux digis
-    for ( auto rpcdgIt = TwinMux_digis->begin(); rpcdgIt != TwinMux_digis->end(); ++rpcdgIt ) {
+    for (const auto & rpcdgIt : (*TwinMux_digis) ) {
         // The layerId
-        const RPCDetId& rpcId = (*rpcdgIt).first;
+        const RPCDetId& rpcId = rpcdgIt.first;
         // Get the iterators over the digis associated with this LayerId
-        const RPCDigiCollection::Range& range = (*rpcdgIt).second;
+        const RPCDigiCollection::Range& range = rpcdgIt.second;
 
         rpc_digi_collection->put(range, rpcId);
     }
 
     // loop over cpppf digis
-    for ( auto rpcdgIt = CPPF_digis->begin(); rpcdgIt != CPPF_digis->end(); ++rpcdgIt ) {
+    for (const auto && rpcdgIt : (*CPPF_digis) ) {
         // The layerId
-        const RPCDetId& rpcId = (*rpcdgIt).first;
+        const RPCDetId& rpcId = rpcdgIt.first;
         // Get the iterators over the digis associated with this LayerId
-        const RPCDigiCollection::Range& range = (*rpcdgIt).second;
+        const RPCDigiCollection::Range& range = rpcdgIt.second;
 
         rpc_digi_collection->put(range, rpcId);
     }
 
-    // loop over omtf digis
-    for ( auto rpcdgIt = OMTF_digis->begin(); rpcdgIt != OMTF_digis->end(); ++rpcdgIt ) {
+    // loop over cpppf digis
+    for (const auto & rpcdgIt : (*OMTF_digis) ) {
         // The layerId
-        const RPCDetId& rpcId = (*rpcdgIt).first;
+        const RPCDetId& rpcId = rpcdgIt.first;
         // Get the iterators over the digis associated with this LayerId
-        const RPCDigiCollection::Range& range = (*rpcdgIt).second;
+        const RPCDigiCollection::Range& range = rpcdgIt.second;
 
+        // accepts only rings: RE-2_R3 ; RE-1_R3 ; RE+1_R3 ; RE+2_R3 ; 
         if ( ((rpcId.region() == -1 || rpcId.region() == 1) && (rpcId.ring() == 3) && (rpcId.station() == 1 || rpcId.station() == 2)) )  {
-            // accepts only rings: RE-2_R3 ; RE-1_R3 ; RE+1_R3 ; RE+2_R3 ; 
             rpc_digi_collection->put(range, rpcId);
         }
     }
