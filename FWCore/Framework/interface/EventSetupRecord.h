@@ -107,18 +107,7 @@ namespace edm {
 
       template<typename HolderT>
       bool get(HolderT& iHolder) const {
-        typename HolderT::value_type const* value = nullptr;
-        ComponentDescription const* desc = nullptr;
-        std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
-        impl_->getImplementation(value, "", desc, iHolder.transientAccessOnly, whyFailedFactory);
-
-        if(value) {
-          iHolder = HolderT(value, desc);
-          return true;
-        } else {
-          iHolder = HolderT(std::move(whyFailedFactory));
-          return false;
-        }
+        return get("", iHolder);
       }
 
       template<typename HolderT>
@@ -138,18 +127,7 @@ namespace edm {
       }
       template<typename HolderT>
       bool get(std::string const& iName, HolderT& iHolder) const {
-        typename HolderT::value_type const* value = nullptr;
-        ComponentDescription const* desc = nullptr;
-        std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
-        impl_->getImplementation(value, iName.c_str(), desc, iHolder.transientAccessOnly, whyFailedFactory);
-
-        if(value) {
-          iHolder = HolderT(value, desc);
-          return true;
-        } else {
-          iHolder = HolderT(std::move(whyFailedFactory));
-          return false;
-        }
+        return get(iName.c_str(), iHolder);
       }
 
       template<typename HolderT>
