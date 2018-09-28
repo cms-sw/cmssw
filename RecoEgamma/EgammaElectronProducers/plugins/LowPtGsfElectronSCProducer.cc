@@ -14,8 +14,6 @@ LowPtGsfElectronSCProducer::LowPtGsfElectronSCProducer( const edm::ParameterSet&
   produces<SuperClusters>();
   produces< edm::ValueMap<reco::SuperClusterRef> >();
   gsfPfRecTracks_ = consumes<GsfPFRecTracks>( cfg.getParameter<edm::InputTag>("gsfPfRecTracks") );
-  pfRecTracks_ = consumes<PFRecTracks>( cfg.getParameter<edm::InputTag>("pfRecTracks") );
-  gsfTracks_ = consumes<GsfTracks>( cfg.getParameter<edm::InputTag>("gsfTracks") );
   ecalClusters_ = consumes<PFClusters>( cfg.getParameter<edm::InputTag>("ecalClusters") );
   hcalClusters_ = consumes<PFClusters>( cfg.getParameter<edm::InputTag>("hcalClusters") );
 }
@@ -38,23 +36,6 @@ void LowPtGsfElectronSCProducer::produce( edm::Event& event, const edm::EventSet
   event.getByToken(gsfPfRecTracks_,gsfPfRecTracks);
   if ( !gsfPfRecTracks.isValid() ) { edm::LogError("Problem with gsfPfRecTracks handle"); }
 
-  //@@ not necessary, debug only
-  edm::Handle<PFRecTracks> pfRecTracks;
-  event.getByToken(pfRecTracks_,pfRecTracks);
-  if ( !pfRecTracks.isValid() ) { edm::LogError("Problem with pfRecTracks handle"); }
-
-  //@@ not necessary, debug only
-  edm::Handle<GsfTracks> gsfTracks;
-  event.getByToken(gsfTracks_,gsfTracks);
-  if ( !gsfTracks.isValid() ) { edm::LogError("Problem with gsfTracks handle"); }
-
-  //@@ not necessary, debug only
-//  std::cout << "[LowPtGsfElectronSCProducer::produce]"
-//	    << " gsfPfRecTracks->size() " << gsfPfRecTracks->size()
-//	    << " pfRecTracks->size() " << pfRecTracks->size()
-//	    << " gsfTracks->size() " << gsfTracks->size()
-//	    << std::endl;
-
   // SuperCluster container and getRefBeforePut
   std::unique_ptr<SuperClusters> clusters( new SuperClusters() );
   clusters->reserve(gsfPfRecTracks->size());
@@ -74,9 +55,9 @@ void LowPtGsfElectronSCProducer::produce( edm::Event& event, const edm::EventSet
     // Find closest "seed cluster" to GSF track extrapolated to ECAL
     const reco::PFTrajectoryPoint& point1 = gsfpf->extrapolatedPoint(LayerType::ECALShowerMax);
     reco::PFClusterRef best_seed = closest_cluster( point1, ecalClusters, ecal_matched );
+
     std::vector<reco::PFClusterRef> clusteredRefs;
     if(!best_seed.isNull()) clusteredRefs.push_back(best_seed);
-    
 
     // Iterate through brem trajectories
     const std::vector<reco::PFBrem>& brems = gsfpf->PFRecBrem();
@@ -112,20 +93,6 @@ void LowPtGsfElectronSCProducer::produce( edm::Event& event, const edm::EventSet
     //    if(!hcal_ref.isNull()) {
     //      hcal_ktf_clusters_map.insert(std::pair<reco::TrackRef, PFClusterRef>(trk, hcal_ref));
     //    }
-
-//    if ( new_sc.seed().isNull() ) { 
-//      std::cout << " TEST " 
-//		<< point1.isValid() << " "
-//		<< point3.isValid() << " "
-//		<< ( gsfpf->kfPFRecTrackRef()->trackRef().isNull() ? -1. : 
-//		     gsfpf->kfPFRecTrackRef()->trackRef()->pt() ) << " "
-//		<< ( gsfpf->gsfTrackRef().isNull() ? -1. : gsfpf->gsfTrackRef()->pt() ) << " "
-//		<< ( gsfpf->gsfTrackRef().isNull() ? -1. : 
-//		     sqrt(gsfpf->gsfTrackRef()->innerMomentum().Perp2()) ) << " "
-//		<< ( gsfpf->gsfTrackRef().isNull() ? -1. : 
-//		     sqrt(gsfpf->gsfTrackRef()->outerMomentum().Perp2()) ) << " "
-//		<< std::endl;
-//    }
 
     //now we need to make the supercluster
     if(!best_seed.isNull()) {
@@ -180,16 +147,16 @@ reco::PFClusterRef LowPtGsfElectronSCProducer::closest_cluster( const reco::PFTr
 								const edm::Handle<PFClusters>& clusters,
 								std::vector<int>& matched ) {
   reco::PFClusterRef best_ref;
-  if( point.isValid() ) { 
-    float min_dr = 9999.f;
-    for( size_t ii = 0; ii < clusters->size(); ++ii ) {
+  if ( point.isValid() ) {
+    float min_dr = 1.e6;
+    for ( size_t ii = 0; ii < clusters->size(); ++ii ) {
       float dr = reco::deltaR( clusters->at(ii), point.positionREP() );
-      if( dr < min_dr && std::find( matched.begin(), matched.end(), ii ) == matched.end() ) {
+      if( dr < min_dr ) {// && std::find( matched.begin(), matched.end(), ii ) == matched.end() ) {//@@
 	best_ref = reco::PFClusterRef( clusters, ii );
 	min_dr = dr;
       }
     }
-    matched.push_back( best_ref.index() );
+    //matched.push_back( best_ref.index() );//@@
   }
   return best_ref;
 }

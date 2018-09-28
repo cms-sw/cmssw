@@ -28,8 +28,6 @@ class LowPtGsfElectronSCProducer : public edm::stream::EDProducer<> {
   typedef edm::Ptr<reco::PFCluster> PFClusterPtr;
   typedef reco::PFClusterCollection PFClusters;
   typedef reco::GsfPFRecTrackCollection GsfPFRecTracks;
-  typedef reco::PFRecTrackCollection PFRecTracks;
-  typedef reco::GsfTrackCollection GsfTracks;
   typedef reco::SuperClusterCollection SuperClusters;
   typedef reco::PFTrajectoryPoint::LayerType LayerType;
     
@@ -38,8 +36,6 @@ class LowPtGsfElectronSCProducer : public edm::stream::EDProducer<> {
 				      std::vector<int>& matched );
   
   edm::EDGetTokenT<GsfPFRecTracks> gsfPfRecTracks_;
-  edm::EDGetTokenT<PFRecTracks> pfRecTracks_;
-  edm::EDGetTokenT<GsfTracks> gsfTracks_;
   edm::EDGetTokenT<PFClusters> ecalClusters_;
   edm::EDGetTokenT<PFClusters> hcalClusters_;
 
