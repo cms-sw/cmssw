@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+  <ConstantsSection label="forward.xml" eval="true">
+    <Constant name="CastorL1" value="1.6165*m"/>
+    <Constant name="CastorL2" value="1.334*m"/>
+    <Constant name="CastorZ1" value="[cms:ForwdDetsZ1]-[CastorL1]"/>
+  </ConstantsSection>
+  <SolidSection label="forward.xml">
+    <Polycone name="Castor" startPhi="0*deg" deltaPhi="360*deg">
+      <ZSection z="0.0*fm" rMin="[cms:ForwdBeamR4]" rMax="[cms:ForwdDetsR1]"/>
+      <ZSection z="[CastorL2]" rMin="[cms:ForwdBeamR4]" rMax="[cms:ForwdDetsR1]"/>
+      <ZSection z="[CastorL1]" rMin="[cms:ForwdDetsR1]" rMax="[cms:ForwdDetsR1]"/>
+    </Polycone>
+  </SolidSection>
+  <LogicalPartSection label="forward.xml">
+    <LogicalPart name="CastorF" category="unspecified">
+      <rSolid name="Castor"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="CastorB" category="unspecified">
+      <rSolid name="Castor"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+  </LogicalPartSection>
+  <PosPartSection label="forward.xml">
+    <PosPart copyNumber="1">
+      <rParent name="cms:CMSE"/>
+      <rChild name="forward:CastorF"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*fm" y="0*fm" z="[CastorZ1]"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="cms:CMSE"/>
+      <rChild name="forward:CastorB"/>
+      <rRotation name="rotations:180D"/>
+      <Translation x="0*fm" y="0*fm" z="-[CastorZ1]"/>
+    </PosPart>
+  </PosPartSection>
+</DDDefinition>
