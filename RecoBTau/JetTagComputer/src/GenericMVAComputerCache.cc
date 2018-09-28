@@ -107,7 +107,7 @@ bool GenericMVAComputerCache::update(const MVAComputerContainer *calib)
 			continue;
 
 		// instantiate new MVAComputer with uptodate calibration
-		iter->computer = std::auto_ptr<GenericMVAComputer>(
+		iter->computer = std::unique_ptr<GenericMVAComputer>(
 					new GenericMVAComputer(computerCalib));
 
 		iter->cacheId = computerCalib->getCacheId();
