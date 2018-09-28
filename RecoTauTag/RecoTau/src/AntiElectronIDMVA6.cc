@@ -393,12 +393,12 @@ double AntiElectronIDMVA6::MVAValue(Float_t TauPt,
   else if ( TauSignalPFGammaCandsIn == 0 && TauHasGsf > 0.5 ) {
     if ( std::abs(TauEtaAtEcalEntrance) < ECALBarrelEndcapEtaBorder ) {
       Var_woGwGSF_Barrel_[0]  = std::max(float(-0.1), ElecEtotOverPin);
-      Var_woGwGSF_Barrel_[1]  = std::log(ElecChi2NormGSF);
+      Var_woGwGSF_Barrel_[1]  = std::log(std::max(float(0.01), ElecChi2NormGSF));
       Var_woGwGSF_Barrel_[2]  = ElecGSFNumHits;
-      Var_woGwGSF_Barrel_[3]  = std::log(std::max(float(0.1), ElecGSFTrackResol));
+      Var_woGwGSF_Barrel_[3]  = std::log(std::max(float(0.01), ElecGSFTrackResol));
       Var_woGwGSF_Barrel_[4]  = ElecGSFTracklnPt;
       Var_woGwGSF_Barrel_[5]  = ElecNumHitsDiffOverSum;
-      Var_woGwGSF_Barrel_[6]  = std::log(std::max(float(0.1), ElecChi2NormKF));
+      Var_woGwGSF_Barrel_[6]  = std::log(std::max(float(0.01), ElecChi2NormKF));
       Var_woGwGSF_Barrel_[7]  = std::min(ElecDeltaPinPoutOverPin, float(1.));
       Var_woGwGSF_Barrel_[8]  = std::min(ElecEecalOverPout, float(20.));
       Var_woGwGSF_Barrel_[9]  = ElecDeltaEta;
@@ -419,12 +419,12 @@ double AntiElectronIDMVA6::MVAValue(Float_t TauPt,
       mvaValue = mva_woGwGSF_BL_->GetClassifier(Var_woGwGSF_Barrel_);
     } else {
       Var_woGwGSF_Endcap_[0]  = std::max(float(-0.1), ElecEtotOverPin);
-      Var_woGwGSF_Endcap_[1]  = std::log(std::max(float(0.1), ElecChi2NormGSF));
+      Var_woGwGSF_Endcap_[1]  = std::log(std::max(float(0.01), ElecChi2NormGSF));
       Var_woGwGSF_Endcap_[2]  = ElecGSFNumHits;
-      Var_woGwGSF_Endcap_[3]  = std::log(std::max(float(0.1), ElecGSFTrackResol));
+      Var_woGwGSF_Endcap_[3]  = std::log(std::max(float(0.01), ElecGSFTrackResol));
       Var_woGwGSF_Endcap_[4]  = ElecGSFTracklnPt;
       Var_woGwGSF_Endcap_[5]  = ElecNumHitsDiffOverSum;
-      Var_woGwGSF_Endcap_[6]  = std::log(std::max(float(0.1), ElecChi2NormKF));
+      Var_woGwGSF_Endcap_[6]  = std::log(std::max(float(0.01), ElecChi2NormKF));
       Var_woGwGSF_Endcap_[7]  = std::min(ElecDeltaPinPoutOverPin, float(1.));
       Var_woGwGSF_Endcap_[8]  = std::min(ElecEecalOverPout, float(20.));
       Var_woGwGSF_Endcap_[9]  = ElecDeltaEta;
@@ -447,12 +447,12 @@ double AntiElectronIDMVA6::MVAValue(Float_t TauPt,
   else if ( TauSignalPFGammaCandsIn > 0 && TauHasGsf > 0.5 ) {
     if ( std::abs(TauEtaAtEcalEntrance) < ECALBarrelEndcapEtaBorder ) {
       Var_wGwGSF_Barrel_[0]  = std::max(float(-0.1), ElecEtotOverPin);
-      Var_wGwGSF_Barrel_[1]  = std::log(std::max(float(0.1), ElecChi2NormGSF));
+      Var_wGwGSF_Barrel_[1]  = std::log(std::max(float(0.01), ElecChi2NormGSF));
       Var_wGwGSF_Barrel_[2]  = ElecGSFNumHits;
-      Var_wGwGSF_Barrel_[3]  = std::log(std::max(float(0.1), ElecGSFTrackResol));
+      Var_wGwGSF_Barrel_[3]  = std::log(std::max(float(0.01), ElecGSFTrackResol));
       Var_wGwGSF_Barrel_[4]  = ElecGSFTracklnPt;
       Var_wGwGSF_Barrel_[5]  = ElecNumHitsDiffOverSum;
-      Var_wGwGSF_Barrel_[6]  = std::log(std::max(float(0.1), ElecChi2NormKF));
+      Var_wGwGSF_Barrel_[6]  = std::log(std::max(float(0.01), ElecChi2NormKF));
       Var_wGwGSF_Barrel_[7]  = std::min(ElecDeltaPinPoutOverPin, float(1.));
       Var_wGwGSF_Barrel_[8]  = std::min(ElecEecalOverPout, float(20.));
       Var_wGwGSF_Barrel_[9]  = ElecDeltaEta;
@@ -481,12 +481,12 @@ double AntiElectronIDMVA6::MVAValue(Float_t TauPt,
       mvaValue = mva_wGwGSF_BL_->GetClassifier(Var_wGwGSF_Barrel_);
     } else {
       Var_wGwGSF_Endcap_[0]  = std::max(float(-0.1), ElecEtotOverPin);
-      Var_wGwGSF_Endcap_[1]  = std::log(std::max(float(0.1), ElecChi2NormGSF));
+      Var_wGwGSF_Endcap_[1]  = std::log(std::max(float(0.01), ElecChi2NormGSF));
       Var_wGwGSF_Endcap_[2]  = ElecGSFNumHits;
-      Var_wGwGSF_Endcap_[3]  = std::log(std::max(float(0.1), ElecGSFTrackResol));
+      Var_wGwGSF_Endcap_[3]  = std::log(std::max(float(0.01), ElecGSFTrackResol));
       Var_wGwGSF_Endcap_[4]  = ElecGSFTracklnPt;
       Var_wGwGSF_Endcap_[5]  = ElecNumHitsDiffOverSum;
-      Var_wGwGSF_Endcap_[6]  = std::log(std::max(float(0.1), ElecChi2NormKF));
+      Var_wGwGSF_Endcap_[6]  = std::log(std::max(float(0.01), ElecChi2NormKF));
       Var_wGwGSF_Endcap_[7]  = std::min(ElecDeltaPinPoutOverPin, float(1.));
       Var_wGwGSF_Endcap_[8]  = std::min(ElecEecalOverPout, float(20.));
       Var_wGwGSF_Endcap_[9]  = ElecDeltaEta;
