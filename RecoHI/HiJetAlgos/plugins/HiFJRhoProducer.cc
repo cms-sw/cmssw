@@ -231,7 +231,7 @@ void HiFJRhoProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<int>("nExcl2", 2);
   desc.add<double>("etaMaxExcl2",2.);
   desc.add<double>("ptMinExcl2",20.);
-  desc.add<std::vector<double> >("etaRanges");
+  desc.add<std::vector<double> >("etaRanges",{});
   descriptions.add("hiFJRhoProducer",desc);
 }
 
