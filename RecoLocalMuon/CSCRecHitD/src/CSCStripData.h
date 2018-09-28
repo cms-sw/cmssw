@@ -53,7 +53,7 @@ class CSCStripData
   void operator*=( float factor) {
     // scale all elements of ph by 'factor'. Leaves phRaw_ unchanged.
     std::transform( ph_.begin(), ph_.end(), ph_.begin(), 
-          	   std::bind2nd( std::multiplies<float>(), factor ) );
+          	   [&factor](auto c){return c*factor;});
     phmax_ *= factor;
   }
 
