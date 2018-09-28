@@ -41,7 +41,7 @@ void testMakePtrCompositeCandidate::checkAll() {
   dcol.push_back(t2);
   edm::OrphanHandle<test::DummyCandidateCollection> handle(&dcol, pid);
   reco::CandidatePtr ptr1(handle, 0), ptr2(handle, 1);
-  auto_ptr<Candidate> cmp = makeCompositePtrCandidate(ptr1, ptr2)[ AddFourMomenta() ];  
+  unique_ptr<Candidate> cmp = makeCompositePtrCandidate(ptr1, ptr2)[ AddFourMomenta() ];  
   CPPUNIT_ASSERT(cmp->numberOfDaughters() == 2);
   const reco::Candidate * d[2];
   const Candidate & cmp2 = *cmp;
@@ -64,6 +64,6 @@ void testMakePtrCompositeCandidate::checkAll() {
   CPPUNIT_ASSERT( fabs(cmp->eta() - ptot.eta()) < epsilon );
   CPPUNIT_ASSERT( fabs(cmp->phi() - ptot.phi()) < epsilon );
 
-  auto_ptr<Candidate> cmp3 = makeCompositePtrCandidate(ptr1, ptr2, ptr1)[ AddFourMomenta() ];  
-  auto_ptr<Candidate> cmp4 = makeCompositePtrCandidate(ptr1, ptr2, ptr1, ptr2)[ AddFourMomenta() ];  
+  unique_ptr<Candidate> cmp3 = makeCompositePtrCandidate(ptr1, ptr2, ptr1)[ AddFourMomenta() ];  
+  unique_ptr<Candidate> cmp4 = makeCompositePtrCandidate(ptr1, ptr2, ptr1, ptr2)[ AddFourMomenta() ];  
 }
