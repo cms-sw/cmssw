@@ -207,7 +207,7 @@ void CastorDigiMonitor::processEvent(edm::Event const& event,
     return;
   }
 
-  float Ecell[14][16];
+  float Ecell[14][16] {};
   for (CastorDigiCollection::const_iterator j = castorDigis.begin();
        j != castorDigis.end(); j++) {
     const CastorDataFrame digi = (const CastorDataFrame)(*j);
