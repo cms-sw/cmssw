@@ -68,7 +68,7 @@ void BasicToPFJet::produce( edm::Event& Event, const edm::EventSetup& EventSetup
     PFJetColl->push_back(pfjet);
   }
 
-  //std::auto_ptr<reco::PFJetCollection> selectedPFJets(PFJetColl);
+  //std::unique_ptr<reco::PFJetCollection> selectedPFJets(PFJetColl);
   Event.put(std::move(PFJetColl));
 }
 
