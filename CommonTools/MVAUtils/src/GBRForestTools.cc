@@ -136,21 +136,23 @@ namespace {
                                     std::vector<std::string>& varNames)
     {
 
-      std::string method;
       //
       // Load weights file, for gzipped or raw xml file
       //
       tinyxml2::XMLDocument xmlDoc;
 
-      if (reco::details::hasEnding(weightsFileFullPath, ".xml")) {
+      using namespace reco::details;
+
+      if (hasEnding(weightsFileFullPath, ".xml")) {
           xmlDoc.LoadFile(weightsFileFullPath.c_str());
-      } else if (reco::details::hasEnding(weightsFileFullPath, ".gz") ||
-                 reco::details::hasEnding(weightsFileFullPath, ".gzip")) {
-          xmlDoc.Parse(reco::details::readGzipFile(weightsFileFullPath));
+      } else if (hasEnding(weightsFileFullPath, ".gz") ||
+                 hasEnding(weightsFileFullPath, ".gzip")) {
+          char * buffer = readGzipFile(weightsFileFullPath);
+          xmlDoc.Parse(buffer);
+          free(buffer);
       }
 
       tinyxml2::XMLElement* root = xmlDoc.FirstChildElement("MethodSetup");
-      method = root->Attribute("Method");
       readVariables(root->FirstChildElement("Variables"), "Variable", varNames);
 
       // Read in the TMVA general info
