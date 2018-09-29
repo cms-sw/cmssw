@@ -153,8 +153,6 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
     }
   }
 
-  std::cout << "et = " << et << ", etHF = " << etHF << ", etHFOnly = " << etHFOnly << ", cent = " << cent << std::endl;
-
   // calculate HI imbalance
   asymEt   = l1t::CaloTools::gloriousDivision(abs(etPos-etNeg), et);
   asymEtHF = l1t::CaloTools::gloriousDivision(abs(etHFPos-etHFNeg), etHF);
