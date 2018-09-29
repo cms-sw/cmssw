@@ -394,8 +394,10 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
     // Count the number of unused HCAL TPs so we can stop while loop after done.
     // Clustering can also stop once there are no seed hits >= EtMinForSeedHit
+    int n_towers = l1CaloTowers.size();
+    int n_stale = 0;
     bool caloJetClusteringFinished = false;
-    while (!caloJetClusteringFinished)
+    while (!caloJetClusteringFinished && n_towers != n_stale)
     {
 
         l1CaloJetObj caloJetObj;
@@ -424,6 +426,7 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                     continue;
                 }
                 l1CaloTower.stale = true;
+                n_stale++;
 
                 // 3 4-vectors for ECAL, HCAL, ECAL+HCAL for adding together
                 reco::Candidate::PolarLorentzVector hcalP4( l1CaloTower.hcal_tower_et, l1CaloTower.tower_eta, l1CaloTower.tower_phi, 0.);
@@ -497,6 +500,13 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
             int d_iEta = tower_diEta( caloJetObj.seed_iEta, l1CaloTower.tower_iEta );
             int d_iPhi = tower_diPhi( caloJetObj.seed_iPhi, hit_iPhi );
             if ( abs( d_iEta ) <= 4 && abs( d_iPhi ) <= 4 ) // 9x9 HCAL Trigger Towers
+            //if ( abs( d_iEta ) <= 3 && abs( d_iPhi ) <= 3 ) // 7x7 HCAL Trigger Towers
+            //if ( (abs( d_iEta ) <= 3 && abs( d_iPhi ) <= 3) ||
+            //        (abs( d_iEta ) <= 1 && abs( d_iPhi ) <= 4) ||
+            //        (abs( d_iEta ) <= 4 && abs( d_iPhi ) <= 1)) // circle small HCAL Trigger Towers
+            //if ( (abs( d_iEta ) <= 3 && abs( d_iPhi ) <= 3) ||
+            //        (abs( d_iEta ) <= 2 && abs( d_iPhi ) <= 4) ||
+            //        (abs( d_iEta ) <= 4 && abs( d_iPhi ) <= 2)) // circle larger HCAL Trigger Towers
             {
                 //std::cout << " ------- input jet p4 " << hcalJet.pt() << " : " << hcalJet.eta() << " : " << hcalJet.phi() << " : " << hcalJet.M()<< std::en     dl;
 
@@ -532,6 +542,7 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
                 //std::cout << " ------- resulting jet p4 " << hcalJet.pt() << " : " << hcalJet.eta() << " : " << hcalJet.phi() << " : " << hcalJet.M()<< std     ::endl;
                 l1CaloTower.stale = true;
+                n_stale++;
 
                 if ( abs( d_iEta ) <= 1    && abs( d_iPhi ) <= 1)
                 {
@@ -647,7 +658,14 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
             float d_phi = reco::deltaPhi( caloJetObj.seedTower.phi(), l1eg.phi() );
             float d_eta_to_leading = -99;
             float d_phi_to_leading = -99;
-            if ( fabs( d_eta ) > 0.4 || fabs( d_phi ) > 0.4 ) continue;
+            if ( fabs( d_eta ) > 0.4 || fabs( d_phi ) > 0.4 ) continue; // 9x9
+            //if ( fabs( d_eta ) > 0.3 || fabs( d_phi ) > 0.3 ) continue; // 7x7
+            //if (!( ( fabs( d_eta ) < 0.3 && fabs( d_phi ) < 0.3 ) ||
+            //        ( fabs( d_eta ) < 0.4 && fabs( d_phi ) < 0.13 ) ||
+            //        ( fabs( d_eta ) < 0.13 && fabs( d_phi ) < 0.4 ) ) ) continue; // circle small
+            //if (!( ( fabs( d_eta ) < 0.3 && fabs( d_phi ) < 0.3 ) ||
+            //        ( fabs( d_eta ) < 0.4 && fabs( d_phi ) < 0.22 ) ||
+            //        ( fabs( d_eta ) < 0.22 && fabs( d_phi ) < 0.4 ) ) ) continue; // circle larger
 
             if (caloJetObj.leadingL1EG.pt() == 0.0) // this is the first L1EG to seed the L1EG ecal jet
             {
