@@ -30,7 +30,7 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 // Pixel-related stuff:
 #include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
-#include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
 #include "CalibTracker/Records/interface/SiPixelTemplateDBObjectESProducerRcd.h"
 
 #include "FastSimulation/TrackingRecHitProducer/interface/TrackerDetIdSelector.h"

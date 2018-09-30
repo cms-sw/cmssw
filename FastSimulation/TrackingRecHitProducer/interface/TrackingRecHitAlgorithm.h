@@ -10,7 +10,7 @@
 
 // Pixel-related stuff:
 #include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
-#include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
 
 #include <string>
 #include <memory>
