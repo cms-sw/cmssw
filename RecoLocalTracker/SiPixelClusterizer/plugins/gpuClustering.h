@@ -198,7 +198,7 @@ namespace gpuClustering {
         printf("# loops %d\n",nloops);
 #endif
 
-    __shared__ int foundClusters;
+    __shared__ unsigned int foundClusters;
     foundClusters = 0;
     __syncthreads();
 
@@ -208,7 +208,7 @@ namespace gpuClustering {
         if (id[i] == InvId)                 // skip invalid pixels
           continue;
         if (clusterId[i] == i) {
-          auto old = atomicAdd(&foundClusters, 1);
+          auto old = atomicInc(&foundClusters, 0xffffffff);
           clusterId[i] = -(old + 1);
         }
       }
