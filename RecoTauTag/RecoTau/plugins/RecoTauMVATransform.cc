@@ -26,13 +26,13 @@
 namespace {
 
 // Build the transformation function from the PSet format
-std::auto_ptr<TGraph> buildTransform(const edm::ParameterSet &pset) {
+std::unique_ptr<TGraph> buildTransform(const edm::ParameterSet &pset) {
   double min = pset.getParameter<double>("min");
   double max = pset.getParameter<double>("max");
   const std::vector<double> &values =
       pset.getParameter<std::vector<double> >("transform");
   double stepSize = (max - min)/(values.size()-1);
-  std::auto_ptr<TGraph> output(new TGraph(values.size()));
+  std::unique_ptr<TGraph> output(new TGraph(values.size()));
   for (size_t step = 0; step < values.size(); ++step) {
     double x = min + step*stepSize;
     output->SetPoint(step, x, values[step]);
@@ -78,7 +78,7 @@ RecoTauMVATransform::RecoTauMVATransform(const edm::ParameterSet& pset)
 
     if (!transforms_.count(decayMode)) {
       // Add it
-      transforms_.insert(decayMode, buildTransform(transformImpl));
+      transforms_.insert(decayMode, buildTransform(transformImpl).get());
     } else {
       edm::LogError("DecayModeNotUnique") << "The tau decay mode with "
         "nCharged/nPiZero = " << nCharged << "/" << nPiZeros <<
