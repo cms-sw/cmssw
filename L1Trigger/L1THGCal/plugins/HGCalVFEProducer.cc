@@ -78,9 +78,9 @@ void HGCalVFEProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   const HGCalDigiCollection& bh_digis = *bh_digis_h;
   
   // Processing DigiCollections and putting the results into the HGCalTriggerCellBxCollection
-  vfeProcess_->run(ee_digis, HGCalDigiCollection(), HGCalDigiCollection(), *vfe_trigcell_output, es);         
-  vfeProcess_->run(HGCalDigiCollection(), fh_digis, HGCalDigiCollection(), *vfe_trigcell_output, es);   
-  vfeProcess_->run(HGCalDigiCollection(), HGCalDigiCollection(), bh_digis, *vfe_trigcell_output, es);   
+  vfeProcess_->run(ee_digis, *vfe_trigcell_output, es);         
+  vfeProcess_->run(fh_digis, *vfe_trigcell_output, es);   
+  vfeProcess_->run(bh_digis, *vfe_trigcell_output, es);   
 
   // Put in the event  
   e.put(std::move(vfe_trigcell_output), vfeProcess_->name());
