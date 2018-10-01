@@ -21,7 +21,7 @@ PedsOnlyHistograms::PedsOnlyHistograms( const edm::ParameterSet& pset,
                              bei,
                              sistrip::PEDS_ONLY )
 {
-  factory_ = auto_ptr<PedsOnlySummaryFactory>( new PedsOnlySummaryFactory );
+  factory_ = unique_ptr<PedsOnlySummaryFactory>( new PedsOnlySummaryFactory );
   LogTrace(mlDqmClient_) 
     << "[PedsOnlyHistograms::" << __func__ << "]"
     << " Constructing object...";
