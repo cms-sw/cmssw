@@ -48,7 +48,7 @@ MVAComputerESSourceBase::produce() const
 
 	for(LabelFileMap::const_iterator iter = mvaCalibrations.begin();
 	    iter != mvaCalibrations.end(); iter++) {
-		std::auto_ptr<Calibration::MVAComputer> calibration(
+		std::unique_ptr<Calibration::MVAComputer> calibration(
 			MVAComputer::readCalibration(iter->second.c_str()));
 
 		container->add(iter->first) = *calibration;
