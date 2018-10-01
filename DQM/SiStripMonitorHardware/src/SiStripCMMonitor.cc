@@ -233,7 +233,7 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
       continue;
     }
 
-    std::auto_ptr<const sistrip::FEDBuffer> buffer;
+    std::unique_ptr<const sistrip::FEDBuffer> buffer;
 
     if (!lFedErrors.fillFatalFEDErrors(fedData,0)) {
       continue;
