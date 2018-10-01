@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #==============================================================================
 # Sequence to make low pT electrons.
-# Several steps are cloned and modified to "open up" the sequence: 
+# Several steps are cloned and modified to 'open up' the sequence:
 # tracker-driven electron seeds, KF track candidates, GSF tracks.
 #==============================================================================
 
@@ -20,41 +20,33 @@ TrajectoryFilterForElectronsOpen = TrajectoryFilterForElectrons.clone()
 TrajectoryFilterForElectronsOpen.minPt = 0.
 TrajectoryFilterForElectronsOpen.minimumNumberOfHits = 3
 TrajectoryBuilderForElectronsOpen = TrajectoryBuilderForElectrons.clone()
-TrajectoryBuilderForElectronsOpen.trajectoryFilter.refToPSet_ = "TrajectoryFilterForElectronsOpen"
+TrajectoryBuilderForElectronsOpen.trajectoryFilter.refToPSet_ = 'TrajectoryFilterForElectronsOpen'
 electronCkfTrackCandidatesOpen = electronCkfTrackCandidates.clone()
-electronCkfTrackCandidatesOpen.TrajectoryBuilderPSet.refToPSet_ = "TrajectoryBuilderForElectronsOpen"
-electronCkfTrackCandidatesOpen.src = "trackerDrivenElectronSeedsOpen:SeedsForGsf"
-
+electronCkfTrackCandidatesOpen.TrajectoryBuilderPSet.refToPSet_ = 'TrajectoryBuilderForElectronsOpen'
+electronCkfTrackCandidatesOpen.src = 'trackerDrivenElectronSeedsOpen:SeedsForGsf'
 
 # GSF tracks
-#from TrackingTools.GsfTracking.GsfElectronGsfFit_cff import *
-#GsfElectronFittingSmootherOpen = GsfElectronFittingSmoother.clone()
-#GsfElectronFittingSmootherOpen.ComponentName = 'GsfElectronFittingSmootherOpen'
-#GsfElectronFittingSmootherOpen.MinNumberOfHits = 2
+from TrackingTools.GsfTracking.GsfElectronGsfFit_cff import *
+GsfElectronFittingSmootherOpen = GsfElectronFittingSmoother.clone()
+GsfElectronFittingSmootherOpen.ComponentName = 'GsfElectronFittingSmootherOpen'
+GsfElectronFittingSmootherOpen.MinNumberOfHits = 2
 from TrackingTools.GsfTracking.GsfElectronGsfFit_cff import * 
 electronGsfTracksOpen = electronGsfTracks.clone()
-#electronGsfTracks.Fitter = 'GsfElectronFittingSmoother'
-electronGsfTracksOpen.src = "electronCkfTrackCandidatesOpen"
+electronGsfTracksOpen.Fitter = 'GsfElectronFittingSmootherOpen'
+electronGsfTracksOpen.src = 'electronCkfTrackCandidatesOpen'
 
 # PFTracks
 from RecoParticleFlow.PFTracking.pfTrack_cfi import *
 pfTrackOpen = pfTrack.clone()
-pfTrackOpen.GsfTrackModuleLabel = "electronGsfTracksOpen"
+pfTrackOpen.GsfTrackModuleLabel = 'electronGsfTracksOpen'
 
 # PFGSFTracks
 from RecoParticleFlow.PFTracking.pfTrackElec_cfi import *
 pfTrackElecOpen = pfTrackElec.clone()
+pfTrackElecOpen.GsfTrackModuleLabel = 'electronGsfTracksOpen'
+pfTrackElecOpen.PFRecTrackLabel = 'pfTrackOpen'
 pfTrackElecOpen.applyGsfTrackCleaning = False
-pfTrackElecOpen.GsfTrackModuleLabel = "electronGsfTracksOpen"
-pfTrackElecOpen.PFRecTrackLabel = "pfTrackOpen"
-# Are ALL of the following necessary? 
-pfTrackElecOpen.TrajInEvents = False
-pfTrackElecOpen.ModeMomentum = True
-pfTrackElecOpen.applyEGSelection = False
-pfTrackElecOpen.applyGsfTrackCleaning = False
-pfTrackElecOpen.applyAlsoGsfAngularCleaning = False
 pfTrackElecOpen.useFifthStepForTrackerDrivenGsf = True
-pfTrackElecOpen.useFifthStepForEcalDrivenGsf = True
 
 # SuperCluster generator and matching to GSF tracks
 # Below relies on the following default configurations:
@@ -62,19 +54,19 @@ pfTrackElecOpen.useFifthStepForEcalDrivenGsf = True
 # RecoParticleFlow/PFClusterProducer/python/particleFlowClusterECAL_cff.py
 # (particleFlowClusterECAL_cfi is generated automatically)
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronSuperClusters_cfi import *
-lowPtGsfElectronSuperClusters.gsfPfRecTracks = "pfTrackElecOpen"
+lowPtGsfElectronSuperClusters.gsfPfRecTracks = 'pfTrackElecOpen'
 
 # Low pT electron cores
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronCores_cfi import *
-lowPtGsfElectronCores.gsfPfRecTracks = "pfTrackElecOpen"
-lowPtGsfElectronCores.gsfTracks = "electronGsfTracksOpen"
+lowPtGsfElectronCores.gsfPfRecTracks = 'pfTrackElecOpen'
+lowPtGsfElectronCores.gsfTracks = 'electronGsfTracksOpen'
 lowPtGsfElectronCores.useGsfPfRecTracks = True
 
 # Low pT electrons
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectrons_cfi import *
-lowPtGsfElectrons.gsfElectronCoresTag = "lowPtGsfElectronCores"
-lowPtGsfElectrons.seedsTag = "trackerDrivenElectronSeedsOpen:SeedsForGsf"
-lowPtGsfElectrons.gsfPfRecTracksTag = "pfTrackElecOpen"
+lowPtGsfElectrons.gsfElectronCoresTag = 'lowPtGsfElectronCores'
+lowPtGsfElectrons.seedsTag = 'trackerDrivenElectronSeedsOpen:SeedsForGsf'
+lowPtGsfElectrons.gsfPfRecTracksTag = 'pfTrackElecOpen'
 # Ignore below for now
 #lowPtGsfElectrons.ctfTracksCheck = False
 #lowPtGsfElectrons.gedElectronMode= True
