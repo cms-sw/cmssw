@@ -164,7 +164,7 @@ namespace sistrip {
       FEDDAQHeader defaultDAQHeader_;
       FEDDAQTrailer defaultDAQTrailer_;
       TrackerSpecialHeader defaultTrackerSpecialHeader_;
-      std::auto_ptr<FEDFEHeader> defaultFEHeader_;
+      std::unique_ptr<FEDFEHeader> defaultFEHeader_;
       std::vector<bool> feUnitsEnabled_;
       std::vector<bool> channelsEnabled_;
     };
