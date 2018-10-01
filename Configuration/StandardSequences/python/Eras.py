@@ -55,7 +55,8 @@ class Eras (object):
                            'trackingLowPU', 'trackingPhase1', 'ctpps_2016', 'trackingPhase2PU140','highBetaStar_2018',
                            'tracker_apv_vfp30_2016', 'pf_badHcalMitigation', 'run2_miniAOD_80XLegacy','run2_miniAOD_94XFall17', 'run2_nanoAOD_92X',
                            'run2_nanoAOD_94XMiniAODv1', 'run2_nanoAOD_94XMiniAODv2', 'run2_nanoAOD_94X2016',
-                           'hcalHardcodeConditions', 'hcalSkipPacker']
+                           'hcalHardcodeConditions', 'hcalSkipPacker',
+                           'pps_2016', 'pps_2017', 'pps_2018']
         internalUseModChains = ['run2_2017_noTrackingModifier']
 
 
