@@ -22,9 +22,9 @@ class HGCalVFEProcessorSums : public HGCalVFEProcessorBase
     
     HGCalVFEProcessorSums(const edm::ParameterSet& conf);
     
-    void run(const HGCalDigiCollection& ee,
-                      const HGCalDigiCollection& fh,
-                      const HGCalDigiCollection& bh, 
+    void run(const HGCalDigiCollection& digiColl,
+                      /*const HGCalDigiCollection& fh,
+                      const HGCalDigiCollection& bh,*/ 
                       l1t::HGCalTriggerCellBxCollection& triggerCellColl, 
                       const edm::EventSetup& es) override;
 	             
