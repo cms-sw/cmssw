@@ -25,8 +25,8 @@
 class TracksClusteringFromDisplacedSeed {
     public:
     struct Cluster 
-    { 
-      GlobalPoint seedPoint;  
+    {       
+      GlobalPoint seedPoint;      
       reco::TransientTrack seedingTrack;
       std::vector<reco::TransientTrack> tracks;
     };
@@ -52,6 +52,7 @@ class TracksClusteringFromDisplacedSeed {
         double 					clusterMaxSignificance;
         double 					distanceRatio;
         double 					clusterMinAngleCosine;
+	double                                  maxTimeSignificance;
 
 
 };
