@@ -555,7 +555,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_cCapidMinusBXmod4_SubdetPM.book(ib, _emap, _subsystem);
 	if (_ptype == fOnline) {
 		_cCapid_BadvsFEDvsLS.book(ib, _subsystem, "BadvsLS");
-		_cCapid_BadvsFEDvsLSmod60.book(ib, _subsystem, "BadvsLSmod50");
+		_cCapid_BadvsFEDvsLSmod60.book(ib, _subsystem, "BadvsLSmod60");
 	}
 	for (int i = 0; i < 4; ++i) {
 		char aux[10];
