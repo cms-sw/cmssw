@@ -14,12 +14,18 @@ L1TMuonBarrelKalmanAlgo::L1TMuonBarrelKalmanAlgo(const edm::ParameterSet& settin
   bPhi_(settings.getParameter<std::vector<double> >("bPhi")),
   bPhiB_(settings.getParameter<std::vector<double> >("bPhiB")),
   phiAt2_(settings.getParameter<double>("phiAt2")),
-  globalChi2Cut_(settings.getParameter<unsigned int>("globalChi2Cut")),
-  globalChi2CutLimit_(settings.getParameter<unsigned int>("globalChi2CutLimit")),
+
   chiSquare_(settings.getParameter<std::vector<double> >("chiSquare")),
   chiSquareCutPattern_(settings.getParameter<std::vector<int> >("chiSquareCutPattern")),
   chiSquareCutCurv_(settings.getParameter<std::vector<int> >("chiSquareCutCurvMax")),
   chiSquareCut_(settings.getParameter<std::vector<int> >("chiSquareCut")),
+  trackComp_(settings.getParameter<std::vector<double> >("trackComp")),
+  trackCompErr1_(settings.getParameter<std::vector<double> >("trackCompErr1")),
+  trackCompErr2_(settings.getParameter<std::vector<double> >("trackCompErr2")),
+  trackCompPattern_(settings.getParameter<std::vector<int> >("trackCompCutPattern")),
+  trackCompCutCurv_(settings.getParameter<std::vector<int> >("trackCompCutCurvMax")),
+  trackCompCut_(settings.getParameter<std::vector<int> >("trackCompCut")),
+  chiSquareCutTight_(settings.getParameter<std::vector<int> >("chiSquareCutTight")),
   combos4_(settings.getParameter<std::vector<int> >("combos4")),
   combos3_(settings.getParameter<std::vector<int> >("combos3")),
   combos2_(settings.getParameter<std::vector<int> >("combos2")),
@@ -86,27 +92,16 @@ L1TMuonBarrelKalmanAlgo::convertToBMTF(const L1MuKBMTrack& track) {
     K2=4095;
   int pt2 = ptLUT(track.curvatureAtMuon())/2;
   int eta  = track.hasFineEta() ? track.fineEta() : track.coarseEta();
-  
-  //    int phi=track.phiAtMuon()+1024;
-  //    int signPhi=1;
-  //    if (phi>=0) {
-  //      phi = phi>>1;
-  //      signPhi=1;
-  //    }
-  //    else {
-  //       phi = (-phi)>>1;
-  //       signPhi=-1;
-  //    }
-  //    phi =signPhi*int((phi*2*M_PI/(6.0*2048.0))/(0.625*M_PI/180.0));
 
 
+  //  int phi2 = track.phiAtMuon()>>2;
+  //  float phi_f = float(phi2);
+  //double kPhi = 57.2958/0.625/1024.;
+  //int phi = 24+int(floor(kPhi*phi_f));
+  //  if (phi >  69) phi =  69;
+  //  if (phi < -8) phi = -8;
+  int   phi = (24 +fp_product(0.0895386,track.phiAtMuon()>>2,14));
 
-  int phi2 = track.phiAtMuon()>>2;
-  float phi_f = float(phi2);
-  double kPhi = 57.2958/0.625/1024.;
-  int phi = 24+int(floor(kPhi*phi_f));
-  if (phi >  69) phi =  69;
-  if (phi < -8) phi = -8;
 
   int processor=track.sector();
   int HF = track.hasFineEta();
@@ -647,16 +642,16 @@ bool L1TMuonBarrelKalmanAlgo::updateLUT(L1MuKBMTrack& track,const L1MuKBMTCombin
     int phi  = correctedPhi(stub,track.sector());
     int phiB = correctedPhiB(stub);
 
-    //    if (stub->quality()<4)
-    //      phiB=trackPhiB;
+    if (stub->quality()<4)
+      phiB=trackPhiB;
 
     Vector2 residual;
-    int residualPhi = wrapAround(phi-trackPhi,2048);
-    int residualPhiB = wrapAround(phiB-trackPhiB,4096);
+    int residualPhi = wrapAround(phi-trackPhi,4096);
+    int residualPhiB = wrapAround(phiB-trackPhiB,8192);
 
 
     if (verbose_)
-      printf("residuals %d %d\n",int(residualPhi),int(residualPhiB));
+      printf("residuals %d-%d=%d %d-%d=%d\n",phi,trackPhi,int(residualPhi),phiB,trackPhiB,int(residualPhiB));
 
 
     uint absK = fabs(trackK);
@@ -680,14 +675,13 @@ bool L1TMuonBarrelKalmanAlgo::updateLUT(L1MuKBMTrack& track,const L1MuKBMTCombin
       printf("Gains:%d  %f %f %f %f\n",absK/4,GAIN[0],GAIN[1],GAIN[2],GAIN[3]);
     track.setKalmanGain(track.step(),fabs(trackK),GAIN[0],GAIN[1],1,0,GAIN[2],GAIN[3]);
 
+
     int k_0 = fp_product(GAIN[0],residualPhi,3);
     int k_1 = fp_product(GAIN[1],residualPhiB,5);
-    int KNew  = wrapAround(trackK+k_0+k_1,8192);
-
-    if (verbose_) {
-      printf("Kpure=%d,wrapped=%d\n",trackK+k_0+k_1,KNew);
-      printf("Kupdate: %d %d\n",k_0,k_1);
-    }
+    int KNew  = trackK+k_0+k_1;
+    if (fabs(KNew)>=8191)
+      return false;
+    KNew = wrapAround(KNew,8192);
     int phiNew  = phi;
 
     //different products for different firmware logic
@@ -699,11 +693,17 @@ bool L1TMuonBarrelKalmanAlgo::updateLUT(L1MuKBMTrack& track,const L1MuKBMTCombin
       printf("phiupdate: %d %d\n",pb_0,pb_1);
 
     int phiBNew;
-    if (!(mask==3 || mask ==5 || mask==9 ||mask==6|| mask==10 ||mask==12))  
+    if (!(mask==3 || mask ==5 || mask==9 ||mask==6|| mask==10 ||mask==12))  {
       phiBNew = wrapAround(trackPhiB+pb_0,4096);
-    else
+      if (fabs(trackPhiB+pb_0)>=4095)
+	return false;
+    }
+    else {
       phiBNew = wrapAround(trackPhiB+pb_1-pbdouble_0,4096);
+      if (fabs(trackPhiB+pb_1-pbdouble_0)>=4095)
+	return false;
 
+    }
     track.setCoordinates(track.step(),KNew,phiNew,phiBNew);
     track.addStub(stub);
     track.setHitPattern(hitPattern(track));
@@ -817,6 +817,9 @@ void L1TMuonBarrelKalmanAlgo::setFloatingPointValues(L1MuKBMTrack& track,bool ve
   
 
   if (vertex) {
+    int charge=1;
+    if (track.curvatureAtVertex()<0)
+      charge=-1;
     double pt = double(ptLUT(track.curvatureAtVertex()))/2.0;
 
 
@@ -824,6 +827,7 @@ void L1TMuonBarrelKalmanAlgo::setFloatingPointValues(L1MuKBMTrack& track,bool ve
 
     double eta = etaINT*lsbEta;
     track.setPtEtaPhi(pt,eta,phi);
+    track.setCharge(charge);
   }
   else {
     K=track.curvatureAtMuon();
@@ -876,8 +880,11 @@ std::pair<bool,L1MuKBMTrack> L1TMuonBarrelKalmanAlgo::chain(const L1MuKBMTCombin
       charge=phiB/fabs(phiB);
 
     int address=phiB;
-    if (track.step()>=3 && (fabs(seed->phiB())>63))
-      address=charge*63*8;
+    if (track.step()==4 && (fabs(seed->phiB())>15))
+      address=charge*15*8;
+
+    if (track.step()==3 && (fabs(seed->phiB())>30))
+      address=charge*30*8;
     if (track.step()==2 && (fabs(seed->phiB())>127))
       address=charge*127*8;         
     int initialK = int(initK_[seed->stNum()-1]*address/(1+initK2_[seed->stNum()-1]*charge*address));
@@ -885,6 +892,7 @@ std::pair<bool,L1MuKBMTrack> L1TMuonBarrelKalmanAlgo::chain(const L1MuKBMTCombin
       initialK=8191;
     if (initialK<-8191)
       initialK=-8191;
+
     track.setCoordinates(seed->stNum(),initialK,correctedPhi(seed,seed->scNum()),phiB);
     if (seed->quality()<4) {
       track.setCoordinates(seed->stNum(),0,correctedPhi(seed,seed->scNum()),0);     
@@ -969,6 +977,7 @@ std::pair<bool,L1MuKBMTrack> L1TMuonBarrelKalmanAlgo::chain(const L1MuKBMTCombin
 	  printf("Chi Square = %d\n",track.approxChi2());
 
 	vertexConstraint(track);
+	estimateCompatibility(track);
 	if (verbose_) {
 	  printf(" Coordinates after vertex constraint step:%d,phi=%d,dxy=%d,K=%d  maximum local chi2=%d\n",track.step(),track.phiAtVertex(),track.dxy(),track.curvatureAtVertex(),track.approxChi2());
 	  printf("------------------------------------------------------\n");
@@ -988,11 +997,7 @@ std::pair<bool,L1MuKBMTrack> L1TMuonBarrelKalmanAlgo::chain(const L1MuKBMTCombin
   L1MuKBMTrackCollection cleaned = clean(pretracks,seed->stNum());
 
   if (!cleaned.empty()) {
-    bool  veto = punchThroughVeto(cleaned[0]);
-    if (verbose_)
-      printf("Punch through veto=%d\n",veto);
-    if (!veto)
-      return std::make_pair(true,cleaned[0]);
+    return std::make_pair(true,cleaned[0]);
   }
   return std::make_pair(false,nullTrack);
 }       
@@ -1008,37 +1013,88 @@ bool L1TMuonBarrelKalmanAlgo::estimateChiSquare(L1MuKBMTrack& track) {
   int K = track.curvatureAtMuon();
 
   uint chi=0;
-  //   printf("Starting Chi calculation\n");
-  int coords = (track.phiAtMuon()+track.phiBAtMuon())>>3;
-  for (const auto& stub: track.stubs()) {   
-    int AK = fp_product(-chiSquare_[stub->stNum()-1],K>>3,8);
-    int stubCoords =   wrapAround((correctedPhi(stub,track.sector())>>3)+stub->phiB(),1024);
-    int diff1 = wrapAround(stubCoords-coords,2048);
-    uint delta = wrapAround(abs(diff1+AK),4096);
-    //    printf("chi estimate station=%d AK=%d stubC=%d trackC=%d delta=%d\n",stub->stNum(),AK,stubCoords,coords,delta);
-    chi=chi+delta;    
 
+  // const double PHI[4]={0.0,0.249,0.543,0.786};
+  // const double DROR[4]={0.0,0.182,0.430,0.677};
+
+
+
+  int coords = wrapAround((track.phiAtMuon()+track.phiBAtMuon())>>4,512);
+   for (const auto& stub: track.stubs()) {   
+     int AK = wrapAround(fp_product(-chiSquare_[stub->stNum()-1],K>>4,8),256);
+     int stubCoords =   wrapAround((correctedPhi(stub,track.sector())>>4)+(stub->phiB()>>1),512);
+     int diff1 = wrapAround(stubCoords-coords,1024);
+     uint delta = wrapAround(abs(diff1+AK),2048);
+     chi=chi+delta;    
+     if (verbose_)
+       printf("Chi Square stub for track with coords=%d -> AK=%d stubCoords=%d diff=%d delta=%d\n",coords,AK,stubCoords,diff1,delta); 
    }
-  //  chi=chi/2;
+
+   if (chi>127)
+     chi=127;
+    // for (const auto& stub: track.stubs()) {   
+    //   int deltaPhi = (correctedPhi(stub,track.sector())-track.phiAtMuon())>>3;
+    //   int AK =  fp_product(PHI[stub->stNum()-1],K>>3,8);
+    //   int BPB = fp_product(DROR[stub->stNum()-1],track.phiBAtMuon()>>3,8);
+    //   chi=chi+abs(deltaPhi-AK-BPB);
+    // }
+    // //  }
 
 
-  if (chi>127)
-    chi=127;
-   
   
    track.setApproxChi2(chi);
-   //   printf("Chi square for track %d = %d %d %d\n",int(track.hitPattern()),chi,globalChi2Cut_,int(fabs(K)));
-   return ((chi<=globalChi2Cut_) || (fabs(K)>globalChi2CutLimit_));
+
+    for (uint i=0;i<chiSquareCutPattern_.size();++i)  {
+      if (track.hitPattern()==chiSquareCutPattern_[i] && fabs(K)<chiSquareCutCurv_[i] && track.approxChi2()>chiSquareCut_[i])
+        return false;
+   }
+   return true;
 
 }
 
 
+
+void L1TMuonBarrelKalmanAlgo::estimateCompatibility(L1MuKBMTrack& track) {
+  int K = track.curvatureAtVertex()>>4;
+  
+  if (track.stubs().size()!=2) {
+    track.setTrackCompatibility(0);
+     return;
+  }
+
+
+
+
+  uint stubSel=1;
+  if (track.stubs()[0]->quality()>track.stubs()[1]->quality())
+    stubSel=0;
+
+  const L1MuKBMTCombinedStubRef& stub = track.stubs()[stubSel];
+  int absK = fabs(K);
+  int diff = wrapAround(stub->phiB()-fp_product(trackComp_[stub->stNum()-1],K,9),2048);
+  int delta = fabs(diff);
+  uint err = wrapAround(trackCompErr1_[stub->stNum()-1]+fp_product(trackCompErr2_[stub->stNum()-1],absK,9),256);
+  track.setTrackCompatibility(delta/err);
+
+  for (uint i=0;i<trackCompPattern_.size();++i)  {
+    int deltaMax = err*trackCompCut_[i];
+    if ( (track.hitPattern()==trackCompPattern_[i] ) && (absK<trackCompCutCurv_[i]) && ((track.approxChi2()>chiSquareCutTight_[i]) || (delta>deltaMax)  )) {
+      track.setCoordinatesAtVertex(8191,track.phiAtVertex(),track.dxy());
+      break;
+    }
+  }
+
+}
+
+
+
 int L1TMuonBarrelKalmanAlgo::rank(const L1MuKBMTrack& track) {
   //    int offset=0;
+  uint chi  = track.approxChi2()>127 ? 127 :track.approxChi2();
     if (hitPattern(track)==customBitmask(0,0,1,1))
       return 60;
     //    return offset+(track.stubs().size()*2+track.quality())*80-track.approxChi2();
-    return 160+(track.stubs().size())*20-track.approxChi2();
+    return 160+(track.stubs().size())*20-chi;
 
 }
 
@@ -1052,16 +1108,6 @@ int L1TMuonBarrelKalmanAlgo::wrapAround(int value,int maximum) {
     return wrapAround(value+2*maximum,maximum);
   return value;
 
-}
-
-
-bool L1TMuonBarrelKalmanAlgo::punchThroughVeto(const L1MuKBMTrack& track) {
-  for (uint i=0;i<chiSquareCutPattern_.size();++i)  {
-   if (track.hitPattern()==chiSquareCutPattern_[i] && fabs(track.curvatureAtVertex())<chiSquareCutCurv_[i] && track.approxChi2()>chiSquareCut_[i] && track.curvature()*track.dxy()<0) 
-     return true;
-  }
-   
-   return false;
 }
 
 
@@ -1365,10 +1411,10 @@ int L1TMuonBarrelKalmanAlgo::phiAt2(const L1MuKBMTrack& track) {
   int phiNew=phi+fp_product(phiAt2_,phiB,12);
   if (verbose_)
     printf("Phi at second station=%d\n",phiNew);
-  if (phiNew>2047)
-    phiNew=2047;
-  if (phiNew<-2048)
-    phiNew=-2048;
+  if (phiNew>4095)
+    phiNew=4095;
+  if (phiNew<-4096)
+    phiNew=-4096;
   return phiNew;
 
 }

@@ -57,6 +57,7 @@ class L1TMuonBarrelKalmanAlgo {
   void setFloatingPointValues(L1MuKBMTrack&,bool);
   int phiAt2(const L1MuKBMTrack& track);
   bool estimateChiSquare(L1MuKBMTrack&);
+  void estimateCompatibility(L1MuKBMTrack&);
   int rank(const L1MuKBMTrack&);
   int wrapAround(int,int);
   std::pair<bool,uint> getByCode(const L1MuKBMTrackCollection& tracks,int mask);
@@ -73,7 +74,6 @@ class L1TMuonBarrelKalmanAlgo {
 
   //LUT service
   L1TMuonBarrelKalmanLUTs* lutService_;
-  bool punchThroughVeto(const L1MuKBMTrack& track);
   int ptLUT(int K);
 
 
@@ -99,6 +99,14 @@ class L1TMuonBarrelKalmanAlgo {
   std::vector<int> chiSquareCutPattern_;
   std::vector<int> chiSquareCutCurv_;
   std::vector<int> chiSquareCut_;
+
+  std::vector<double> trackComp_;
+  std::vector<double> trackCompErr1_;
+  std::vector<double> trackCompErr2_;
+  std::vector<int> trackCompPattern_;
+  std::vector<int> trackCompCutCurv_;
+  std::vector<int> trackCompCut_;
+  std::vector<int> chiSquareCutTight_;
 
 
   //bitmasks to run== diferent combinations for a given seed in a given station

@@ -17,22 +17,25 @@ bmtfKalmanTrackingSettings = cms.PSet(
     phiAt2 = cms.double(0.15918),
     etaLUT0 = cms.vdouble(8.946,7.508,6.279,6.399),
     etaLUT1 = cms.vdouble(0.159,0.116,0.088,0.128),
+    #generic cuts
     chiSquare = cms.vdouble(0.0,0.109375,0.234375,0.359375),   
-    globalChi2Cut = cms.uint32(126),
-    globalChi2CutLimit = cms.uint32(2500),
-    chiSquareCutPattern = cms.vint32(3,6,12),
-    chiSquareCutCurvMax = cms.vint32(273,273,273),
-    chiSquareCut = cms.vint32(25,31,31),
+    chiSquareCutPattern = cms.vint32(7,11,13,14,15),
+    chiSquareCutCurvMax = cms.vint32(2500,2500,2500,2500,2500),
+    chiSquareCut = cms.vint32(126,126,126,126,126),
+
+    #vertex cuts
+    trackComp = cms.vdouble(1.75,1.25,0.625,0.250),   
+    trackCompErr1 = cms.vdouble(2.0,2.0,2.0,2.0),   
+    trackCompErr2 = cms.vdouble(0.218750,0.218750,0.218750,0.3125),   
+    trackCompCutPattern = cms.vint32(3,5,6,9,10,12),   
+    trackCompCutCurvMax = cms.vint32(34,34,34,34,34,34),   #this is shifted<<4
+    trackCompCut        = cms.vint32(15,15,15,15,15,15),  
+    chiSquareCutTight   = cms.vint32(40,126,60,126,126,126),  
 
     combos4=cms.vint32(9,10,11,12,13,14,15),
     combos3=cms.vint32(5,6,7),
     combos2=cms.vint32(3),
     combos1=cms.vint32(), #for future possible usage
-
-#    combos4=cms.vint32(10,11,14,15),
-#    combos3=cms.vint32(6,7),
-#    combos2=cms.vint32(3),
-#    combos1=cms.vint32(), #for future possible usage
 
     useOfflineAlgo = cms.bool(False),   
     ###Only for the offline algo -not in firmware --------------------
