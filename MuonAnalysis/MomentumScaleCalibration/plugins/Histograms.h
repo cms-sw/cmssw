@@ -2270,8 +2270,8 @@ class HMassResolutionVSPart : public Histograms
  protected:
   std::map<TString, TH1*> mapHisto_;
   TString nameSuffix_[2];
-  std::auto_ptr<HDelta> muMinus;
-  std::auto_ptr<HDelta> muPlus;
+  std::unique_ptr<HDelta> muMinus;
+  std::unique_ptr<HDelta> muPlus;
 };
 
 #endif
