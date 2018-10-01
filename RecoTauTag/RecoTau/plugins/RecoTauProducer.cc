@@ -71,7 +71,7 @@ class RecoTauProducer : public edm::stream::EDProducer<>
   BuilderList builders_;
   ModifierList modifiers_;
   // Optional selection on the output of the taus
-  std::auto_ptr<StringCutObjectSelector<reco::PFTau> > outputSelector_;
+  std::unique_ptr<StringCutObjectSelector<reco::PFTau> > outputSelector_;
   // Whether or not to add build a tau from a jet for which the builders
   // return no taus.  The tau will have no content, only the four vector of
   // the orginal jet.
@@ -118,7 +118,7 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset)
   // Check if we want to apply a final output selection
   if ( pset.exists("outputSelection") ) {
     std::string selection = pset.getParameter<std::string>("outputSelection");
-    if ( selection != "" ) {
+    if ( !selection.empty() ) {
       outputSelector_.reset(new StringCutObjectSelector<reco::PFTau>(selection));
     }
   }
