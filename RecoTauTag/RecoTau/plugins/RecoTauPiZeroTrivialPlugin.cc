@@ -19,9 +19,7 @@
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
 
-#include <boost/foreach.hpp>
-
-namespace reco { namespace tau {
+namespace reco::tau {
 
 class RecoTauPiZeroTrivialPlugin : public RecoTauPiZeroBuilderPlugin {
   public:
@@ -43,7 +41,7 @@ RecoTauPiZeroBuilderPlugin::return_type RecoTauPiZeroTrivialPlugin::operator()(
   PiZeroVector output;
   output.reserve(pfGammaCands.size());
 
-  BOOST_FOREACH(const PFCandidatePtr& gamma, pfGammaCands) {
+  for(auto const& gamma : pfGammaCands) {
     std::auto_ptr<RecoTauPiZero> piZero(new RecoTauPiZero(
             0, (*gamma).p4(), (*gamma).vertex(), 22, 1000, true,
             RecoTauPiZero::kTrivial));
@@ -53,7 +51,7 @@ RecoTauPiZeroBuilderPlugin::return_type RecoTauPiZeroTrivialPlugin::operator()(
   return output.release();
 }
 
-}} // end reco::tau
+} // end reco::tau
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_EDM_PLUGIN(RecoTauPiZeroBuilderPluginFactory,
