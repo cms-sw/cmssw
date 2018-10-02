@@ -772,7 +772,7 @@ namespace hcaldqm
 		{
 			std::vector<std::string> labels(_feds.size());
 			char name[5];
-			BOOST_FOREACH(FEDMap::value_type &v, _feds)
+			for(auto const& v : _feds)
 			{
 				sprintf(name, "%d", v.first);
 				labels[v.second] = std::string(name);
