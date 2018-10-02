@@ -75,8 +75,8 @@ class PFTauPrimaryVertexProducerBase : public edm::stream::EDProducer<> {
   bool removeMuonTracks_;
   bool removeElectronTracks_;
   DiscCutPairVec discriminators_;
-  std::auto_ptr<StringCutObjectSelector<reco::PFTau> > cut_;
-  std::auto_ptr<reco::tau::RecoTauVertexAssociator> vertexAssociator_;
+  std::unique_ptr<StringCutObjectSelector<reco::PFTau> > cut_;
+  std::unique_ptr<reco::tau::RecoTauVertexAssociator> vertexAssociator_;
 };
 
 #endif

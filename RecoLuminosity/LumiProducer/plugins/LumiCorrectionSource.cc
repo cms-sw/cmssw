@@ -109,7 +109,7 @@ LumiCorrectionSource::servletTranslation(const std::string& servlet) const{
   std::string frontierConnect;
   std::string realconnect;
   cms::concurrency::xercesInitialize();  
-  std::auto_ptr< xercesc::XercesDOMParser > parser(new xercesc::XercesDOMParser);
+  std::unique_ptr< xercesc::XercesDOMParser > parser(new xercesc::XercesDOMParser);
   try{
     parser->setValidationScheme(xercesc::XercesDOMParser::Val_Auto);
     parser->setDoNamespaces(false);
@@ -152,7 +152,7 @@ LumiCorrectionSource::translateFrontierConnect(const std::string& connectStr){
     endservlet=connectStr.rfind('/',connectStr.length());
   }
   std::string servlet=connectStr.substr(startservlet,endservlet-startservlet);
-  if( (servlet !="")&& (servlet.find_first_of(":/)[]")==std::string::npos)){
+  if( (!servlet.empty())&& (servlet.find_first_of(":/)[]")==std::string::npos)){
     if(servlet=="cms_conditions_data") servlet="";
     if(m_siteconfpath.length()==0){
       std::string url=(boost::filesystem::path("SITECONF")/boost::filesystem::path("local")/boost::filesystem::path("JobConfig")/boost::filesystem::path("site-local-config.xml")).string();

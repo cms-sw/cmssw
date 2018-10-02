@@ -139,7 +139,7 @@ namespace  {
       }
    private:
       edm::eventsetup::EventSetupRecordKey m_key;
-     boost::optional<edm::eventsetup::EventSetupRecordGeneric> m_record;
+     std::optional<edm::eventsetup::EventSetupRecordGeneric> m_record;
       fwlite::RecordWriter m_writer;
       unsigned long long m_cacheID;
       std::vector<DataInfo> m_dataInfos;

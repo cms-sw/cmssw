@@ -39,11 +39,7 @@ DTGeometryESModule::DTGeometryESModule(const edm::ParameterSet & p)
 
   applyAlignment_ = p.getParameter<bool>("applyAlignment");
 
-  if(fromDDD_) {
-    setWhatProduced(this, dependsOn(&DTGeometryESModule::geometryCallback_) );
-  } else {
-    setWhatProduced(this, dependsOn(&DTGeometryESModule::dbGeometryCallback_) );
-  }
+  setWhatProduced(this);
 
   edm::LogInfo("Geometry") << "@SUB=DTGeometryESModule"
     << "Label '" << myLabel_ << "' "
@@ -56,6 +52,21 @@ DTGeometryESModule::~DTGeometryESModule(){}
 std::shared_ptr<DTGeometry> 
 DTGeometryESModule::produce(const MuonGeometryRecord & record) {
 
+  auto host = holder_.makeOrGet([]() {
+    return new HostType;
+  });
+
+  if(fromDDD_) {
+    host->ifRecordChanges<MuonNumberingRecord>(record,
+                                               [this, &host](auto const& rec) {
+      setupGeometry(rec, host);
+    });
+  } else {
+    host->ifRecordChanges<DTRecoGeometryRcd>(record,
+                                             [this, &host](auto const& rec) {
+      setupDBGeometry(rec, host);
+    });
+  }
   //
   // Called whenever the alignments or alignment errors change
   //  
@@ -76,22 +87,24 @@ DTGeometryESModule::produce(const MuonGeometryRecord & record) {
         << "'" << myLabel_ << "') assumes fake and does not apply.";
     } else {
       GeometryAligner aligner;
-      aligner.applyAlignments<DTGeometry>( &(*_dtGeometry),
+      aligner.applyAlignments<DTGeometry>( &(*host),
                                            &(*alignments), &(*alignmentErrors),
                                            align::DetectorGlobalPosition(*globalPosition, DetId(DetId::Muon)));
     }
   }
 
-  return _dtGeometry;
+  return host; // automatically converts to std::shared_ptr<DTGeometry>
 
 }
 
-void DTGeometryESModule::geometryCallback_( const MuonNumberingRecord& record ) {
+void DTGeometryESModule::setupGeometry( const MuonNumberingRecord& record,
+                                        std::shared_ptr<HostType>& host) {
   //
   // Called whenever the muon numbering (or ideal geometry) changes
   //
 
-  _dtGeometry = std::make_shared<DTGeometry>();
+  host->clear();
+
   edm::ESHandle<MuonDDDConstants> mdc;
   record.get( mdc );
 
@@ -99,23 +112,22 @@ void DTGeometryESModule::geometryCallback_( const MuonNumberingRecord& record ) 
   record.getRecord<IdealGeometryRecord>().get(cpv);
 
   DTGeometryBuilderFromDDD builder;
-  builder.build(_dtGeometry, &(*cpv), *mdc);
-    
+  builder.build(host, &(*cpv), *mdc);
 }
 
-void DTGeometryESModule::dbGeometryCallback_( const DTRecoGeometryRcd& record ) {
+void DTGeometryESModule::setupDBGeometry( const DTRecoGeometryRcd& record,
+                                          std::shared_ptr<HostType>& host ) {
   //
   // Called whenever the muon numbering (or ideal geometry) changes
   //
 
-  _dtGeometry = std::make_shared<DTGeometry>();
+  host->clear();
+
   edm::ESHandle<RecoIdealGeometry> rig;
   record.get(rig);
   
   DTGeometryBuilderFromCondDB builder;
-  builder.build(_dtGeometry, *rig);
-
+  builder.build(host, *rig);
 }
-
 
 DEFINE_FWK_EVENTSETUP_MODULE(DTGeometryESModule);

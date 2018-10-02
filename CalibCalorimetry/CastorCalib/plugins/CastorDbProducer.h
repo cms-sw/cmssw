@@ -4,6 +4,8 @@
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ESProductHost.h"
+#include "FWCore/Utilities/interface/ReusableObjectHolder.h"
 
 class CastorDbService;
 class CastorDbRecord;
@@ -17,24 +19,33 @@ class CastorDbRecord;
 #include "CondFormats/DataRecord/interface/CastorQIEDataRcd.h"
 
 class CastorDbProducer : public edm::ESProducer {
- public:
+public:
   CastorDbProducer( const edm::ParameterSet& );
   ~CastorDbProducer() override;
   
   std::shared_ptr<CastorDbService> produce( const CastorDbRecord& );
 
-  // callbacks
-  void pedestalsCallback (const CastorPedestalsRcd& fRecord);
-  void pedestalWidthsCallback (const CastorPedestalWidthsRcd& fRecord);
-  void gainsCallback (const CastorGainsRcd& fRecord);
-  void gainWidthsCallback (const CastorGainWidthsRcd& fRecord);
-  void QIEDataCallback (const CastorQIEDataRcd& fRecord);
-  void channelQualityCallback (const CastorChannelQualityRcd& fRecord);
-  void electronicsMapCallback (const CastorElectronicsMapRcd& fRecord);
+private:
+  // ----------member data ---------------------------
+  using HostType = edm::ESProductHost<CastorDbService,
+                                      CastorPedestalsRcd,
+                                      CastorPedestalWidthsRcd,
+                                      CastorGainsRcd,
+                                      CastorGainWidthsRcd,
+                                      CastorQIEDataRcd,
+                                      CastorChannelQualityRcd,
+                                      CastorElectronicsMapRcd>;
 
-   private:
-      // ----------member data ---------------------------
-  std::shared_ptr<CastorDbService> mService;
+  void setupPedestals(const CastorPedestalsRcd&, CastorDbService*);
+  void setupPedestalWidths(const CastorPedestalWidthsRcd&, CastorDbService*);
+  void setupGains(const CastorGainsRcd&, CastorDbService*);
+  void setupGainWidths(const CastorGainWidthsRcd&, CastorDbService*);
+  void setupQIEData(const CastorQIEDataRcd&, CastorDbService*);
+  void setupChannelQuality(const CastorChannelQualityRcd&, CastorDbService*);
+  void setupElectronicsMap(const CastorElectronicsMapRcd&, CastorDbService*);
+
+  edm::ReusableObjectHolder<HostType> holder_;
+
   std::vector<std::string> mDumpRequest;
   std::ostream* mDumpStream;
 };

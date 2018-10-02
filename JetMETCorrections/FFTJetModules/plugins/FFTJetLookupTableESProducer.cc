@@ -31,7 +31,9 @@
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ESProductHost.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Utilities/interface/ReusableObjectHolder.h"
 
 #include "CondFormats/JetMETObjects/interface/FFTJetCorrectorParameters.h"
 #include "CondFormats/JetMETObjects/interface/FFTJetLUTTypes.h"
@@ -53,11 +55,12 @@ static void insertLUTItem(FFTJetLookupTableSequence& seq,
     it->second.insert(std::make_pair(name, fptr));
 }
 
-static std::shared_ptr<FFTJetLookupTableSequence>
+static void
 buildLookupTables(
     const FFTJetCorrectorParameters& tablePars,
     const std::vector<edm::ParameterSet>& tableDefs,
-    const bool isArchiveCompressed, const bool verbose)
+    const bool isArchiveCompressed, const bool verbose,
+    FFTJetLookupTableSequence* ptr)
 {
     // Load the archive stored in the FFTJetCorrectorParameters object
     CPP11_auto_ptr<gs::StringArchive> ar;
@@ -69,7 +72,7 @@ buildLookupTables(
             ar = gs::read_item<gs::StringArchive>(is);
     }
 
-    auto ptr = std::make_shared<FFTJetLookupTableSequence>();
+    ptr->clear();
 
     // Avoid loading the same item more than once
     std::set<unsigned long long> loadedSet;
@@ -101,8 +104,6 @@ buildLookupTables(
             }
         }
     }
-
-    return ptr;
 }
 
 //
@@ -122,17 +123,15 @@ public:
     ReturnType produce(const MyRecord&);
 
 private:
-    inline void doWhenChanged(const ParentRecord&)
-        {remakeProduct = true;}
 
     // Module parameters
     std::vector<edm::ParameterSet> tables;
     bool isArchiveCompressed;
     bool verbose;
 
-    // Other module variables
-    bool remakeProduct;
-    ReturnType product;
+    using HostType = edm::ESProductHost<FFTJetLookupTableSequence,
+                                        ParentRecord>;
+    edm::ReusableObjectHolder<HostType> holder_;
 };
 
 //
@@ -143,12 +142,11 @@ FFTJetLookupTableESProducer<CT>::FFTJetLookupTableESProducer(
     const edm::ParameterSet& psIn)
     : tables(psIn.getParameter<std::vector<edm::ParameterSet> >("tables")),
       isArchiveCompressed(psIn.getParameter<bool>("isArchiveCompressed")),
-      verbose(psIn.getUntrackedParameter<bool>("verbose")),
-      remakeProduct(true)
+      verbose(psIn.getUntrackedParameter<bool>("verbose"))
 {
     // The following line is needed to tell the framework what
     // data is being produced
-    setWhatProduced(this, dependsOn(&FFTJetLookupTableESProducer::doWhenChanged));
+    setWhatProduced(this);
 }
 
 // ------------ method called to produce the data  ------------
@@ -156,24 +154,18 @@ template<typename CT>
 typename FFTJetLookupTableESProducer<CT>::ReturnType
 FFTJetLookupTableESProducer<CT>::produce(const MyRecord& iRecord)
 {
-    if (remakeProduct)
-    {
-        // According to:
-        // https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideHowToGetDependentRecord
-        //
-        // If ARecord is dependent on BRecord then you can
-        // call the method getRecord of ARecord:
-        //
-        // const BRecord& b = aRecord.getRecord<BRecord>();
-        //
-        const ParentRecord& rec = iRecord.template getRecord<ParentRecord>();
+    auto host = holder_.makeOrGet([]() {
+        return new HostType;
+    });
+
+    host->template ifRecordChanges<ParentRecord>(iRecord,
+                                                 [this,product=host.get()](auto const& rec) {
         edm::ESTransientHandle<FFTJetCorrectorParameters> parHandle;
         rec.get(parHandle);
-        product = buildLookupTables(
-            *parHandle, tables, isArchiveCompressed, verbose);
-        remakeProduct = false;
-    }
-    return product;
+        buildLookupTables(*parHandle, tables, isArchiveCompressed, verbose, product);
+    });
+
+    return host;
 }
 
 //

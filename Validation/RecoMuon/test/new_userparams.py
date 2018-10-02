@@ -21,7 +21,7 @@ Publish=True
 Publish_rootfile=False
 
 # + Location of the AFS place where to put the PDFs
-WebRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
+WebRepository = '/eos/cms/store/group/phys_muon/Validation/'
 
 # User enabled to write in the afs area
 User='giovanni'

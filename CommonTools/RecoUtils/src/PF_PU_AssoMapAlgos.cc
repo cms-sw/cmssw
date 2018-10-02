@@ -106,11 +106,11 @@ PF_PU_AssoMapAlgos::GetInputCollections(edm::Event& iEvent, const edm::EventSetu
 /*************************************************************************************/
 /* create the track to vertex association map                                        */
 /*************************************************************************************/
-std::auto_ptr<TrackToVertexAssMap>
+std::unique_ptr<TrackToVertexAssMap>
 PF_PU_AssoMapAlgos::CreateTrackToVertexMap(edm::Handle<reco::TrackCollection> trkcollH, const edm::EventSetup& iSetup)
 {
 
-	auto_ptr<TrackToVertexAssMap> track2vertex(new TrackToVertexAssMap(vtxcollH, trkcollH));
+	unique_ptr<TrackToVertexAssMap> track2vertex(new TrackToVertexAssMap(vtxcollH, trkcollH));
 
 	int num_vertices = vtxcollH->size();
 	if ( num_vertices < input_MaxNumAssociations_) input_MaxNumAssociations_ = num_vertices;
@@ -150,7 +150,7 @@ PF_PU_AssoMapAlgos::CreateTrackToVertexMap(edm::Handle<reco::TrackCollection> tr
 
   	}
 
-	return track2vertex;
+	return std::move(track2vertex);
 
 }
 
@@ -158,11 +158,11 @@ PF_PU_AssoMapAlgos::CreateTrackToVertexMap(edm::Handle<reco::TrackCollection> tr
 /* create the vertex to track association map                                        */
 /*************************************************************************************/
 
-std::auto_ptr<VertexToTrackAssMap>
+std::unique_ptr<VertexToTrackAssMap>
 PF_PU_AssoMapAlgos::CreateVertexToTrackMap(edm::Handle<reco::TrackCollection> trkcollH, const edm::EventSetup& iSetup)
 {
 
-  	auto_ptr<VertexToTrackAssMap> vertex2track(new VertexToTrackAssMap(trkcollH, vtxcollH));
+  	unique_ptr<VertexToTrackAssMap> vertex2track(new VertexToTrackAssMap(trkcollH, vtxcollH));
 
 	int num_vertices = vtxcollH->size();
 	if ( num_vertices < input_MaxNumAssociations_) input_MaxNumAssociations_ = num_vertices;
@@ -438,10 +438,10 @@ PF_PU_AssoMapAlgos::dR(const math::XYZPoint& vtx_pos, const math::XYZVector& vtx
 /* function to filter the conversion collection                                      */
 /*************************************************************************************/
 
-auto_ptr<ConversionCollection>
+unique_ptr<ConversionCollection>
 PF_PU_AssoMapAlgos::GetCleanedConversions(edm::Handle<reco::ConversionCollection> convCollH, Handle<BeamSpot> bsH, bool cleanedColl)
 {
-     	auto_ptr<ConversionCollection> cleanedConvColl(new ConversionCollection() );
+     	unique_ptr<ConversionCollection> cleanedConvColl(new ConversionCollection() );
 
 	for (unsigned int convcoll_idx=0; convcoll_idx<convCollH->size(); convcoll_idx++){
 
@@ -517,11 +517,11 @@ PF_PU_AssoMapAlgos::FindConversionVertex(const reco::TrackRef trackref, const re
 /* function to filter the Kshort collection                                          */
 /*************************************************************************************/
 
-auto_ptr<VertexCompositeCandidateCollection>
+unique_ptr<VertexCompositeCandidateCollection>
 PF_PU_AssoMapAlgos::GetCleanedKshort(Handle<VertexCompositeCandidateCollection> KshortsH, Handle<BeamSpot> bsH, bool cleanedColl)
 {
 
-     	auto_ptr<VertexCompositeCandidateCollection> cleanedKaonColl(new VertexCompositeCandidateCollection() );
+     	unique_ptr<VertexCompositeCandidateCollection> cleanedKaonColl(new VertexCompositeCandidateCollection() );
 
 	for (unsigned int kscoll_idx=0; kscoll_idx<KshortsH->size(); kscoll_idx++){
 
@@ -566,11 +566,11 @@ PF_PU_AssoMapAlgos::GetCleanedKshort(Handle<VertexCompositeCandidateCollection> 
 /* function to filter the Lambda collection                                          */
 /*************************************************************************************/
 
-auto_ptr<VertexCompositeCandidateCollection>
+unique_ptr<VertexCompositeCandidateCollection>
 PF_PU_AssoMapAlgos::GetCleanedLambda(Handle<VertexCompositeCandidateCollection> LambdasH, Handle<BeamSpot> bsH, bool cleanedColl)
 {
 
-     	auto_ptr<VertexCompositeCandidateCollection> cleanedLambdaColl(new VertexCompositeCandidateCollection() );
+     	unique_ptr<VertexCompositeCandidateCollection> cleanedLambdaColl(new VertexCompositeCandidateCollection() );
 
 	for (unsigned int lambdacoll_idx=0; lambdacoll_idx<LambdasH->size(); lambdacoll_idx++){
 
@@ -686,11 +686,11 @@ PF_PU_AssoMapAlgos::FindV0Vertex(const TrackRef trackref, const VertexCompositeC
 /* function to filter the nuclear interaction collection                             */
 /*************************************************************************************/
 
-auto_ptr<PFDisplacedVertexCollection>
+unique_ptr<PFDisplacedVertexCollection>
 PF_PU_AssoMapAlgos::GetCleanedNI(Handle<PFDisplacedVertexCollection> NuclIntH, Handle<BeamSpot> bsH, bool cleanedColl)
 {
 
-     	auto_ptr<PFDisplacedVertexCollection> cleanedNIColl(new PFDisplacedVertexCollection() );
+     	unique_ptr<PFDisplacedVertexCollection> cleanedNIColl(new PFDisplacedVertexCollection() );
 
 	for (PFDisplacedVertexCollection::const_iterator niref=NuclIntH->begin(); niref!=NuclIntH->end(); niref++){
 

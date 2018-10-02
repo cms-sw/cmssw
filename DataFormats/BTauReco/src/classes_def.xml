@@ -471,4 +471,13 @@
   <class name="reco::DeepDoubleBTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::DeepDoubleBTagInfoCollection>"/>
 
+  <class name="btagbtvdeep::DeepBoostedJetFeatures"/>
+  <class name="reco::DeepBoostedJetTagInfo"/>
+  <class name="reco::DeepBoostedJetTagInfoCollection"/>
+  <class name="reco::DeepBoostedJetTagInfoRef"/>
+  <class name="reco::DeepBoostedJetTagInfoFwdRef"/>
+  <class name="reco::DeepBoostedJetTagInfoRefProd"/>
+  <class name="reco::DeepBoostedJetTagInfoRefVector"/>
+  <class name="edm::Wrapper<reco::DeepBoostedJetTagInfoCollection>" persistent="false"/>
+
 </lcgdict>

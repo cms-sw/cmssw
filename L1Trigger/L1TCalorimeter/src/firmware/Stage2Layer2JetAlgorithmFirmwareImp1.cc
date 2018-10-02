@@ -166,6 +166,11 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
 		puEt = chunkyDonutPUEstimate(jet, 5, towers);
 		iEt -= puEt;
 	      }
+
+	      if(PUSubMethod.find("ChunkySandwich") != std::string::npos){
+		puEt = chunkySandwichPUEstimate(jet, 5, towers, PUSubMethod);
+		iEt -= puEt;
+	      }
 	    }
 	    
 	    if (iEt<=0) continue;
@@ -337,15 +342,19 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::donutPUEstimate(int jetEta,
   return 4*( ring[1]+ring[2] ); // This should really be multiplied by 4.5 not 4.
 }
 
-int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(l1t::Jet & jet, int size, 
-								     const std::vector<l1t::CaloTower> & towers){
- 
+
+std::vector<int> l1t::Stage2Layer2JetAlgorithmFirmwareImp1::getChunkyRing(l1t::Jet & jet, int size, 
+									  const std::vector<l1t::CaloTower> & towers,
+									  const std::string chunkyString)
+{
   int jetPhi = jet.hwPhi();
   int jetEta = CaloTools::mpEta(jet.hwEta());
 
-   // ring is a vector with 4 ring strips, one for each side of the ring
-  // order is PhiUp, PhiDown, EtaUp, EtaDown
-  std::vector<int> ring(4,0);
+  // ring is a vector with 4 or 8 eta or strips, one for each side of the ring in ChunkyDonut, else pure phi
+  int ringSize = 4;
+  if(chunkyString == "ChunkySandwich8") ringSize = 8;
+
+  std::vector<int> ring(ringSize,0);
   
   // number of strips in donut - should make this configurable
   int nStrips = 3;
@@ -358,11 +367,7 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(l1t::Jet & 
     while ( iphiUp > CaloTools::kHBHENrPhi )   iphiUp   -= CaloTools::kHBHENrPhi;
     while ( iphiDown < 1 ) iphiDown += CaloTools::kHBHENrPhi;
 
-    int ietaUp   = jetEta + size + stripIt;
-    int ietaDown = jetEta - size - stripIt;
-    if ( jetEta<0 && ietaUp>=0 )   ietaUp   += 1;
-    if ( jetEta>0 && ietaDown<=0 ) ietaDown -= 1;
-    
+    // we will always do phiUp and PhiDown
     // do PhiUp and PhiDown
     for (int ieta=jetEta-size+1; ieta<jetEta+size; ++ieta) {
       
@@ -381,53 +386,103 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(l1t::Jet & 
       ring[1] += towEt;
 
     } 
-    
-    // do EtaUp
-    for (int iphi=jetPhi-size+1; iphi<jetPhi+size; ++iphi) {
+
+    //Only consider eta for chunkydonut
+    if(chunkyString == "ChunkyDonut"){
+      int ietaUp   = jetEta + size + stripIt;
+      int ietaDown = jetEta - size - stripIt;
+      if ( jetEta<0 && ietaUp>=0 )   ietaUp   += 1;
+      if ( jetEta>0 && ietaDown<=0 ) ietaDown -= 1;
       
-      if (abs(ietaUp) <= CaloTools::mpEta(CaloTools::kHFEnd)) {    
-        int towPhi = iphi;
-        while ( towPhi > CaloTools::kHBHENrPhi ) towPhi -= CaloTools::kHBHENrPhi;
-        while ( towPhi < 1 ) towPhi += CaloTools::kHBHENrPhi;
-
-        const CaloTower& towEtaUp = CaloTools::getTower(towers, CaloTools::caloEta(ietaUp), towPhi);
-        int towEt = towEtaUp.hwPt();
-        ring[2] += towEt;
-      }
-
-    }
-
-    // do EtaDown
-    for (int iphi=jetPhi-size+1; iphi<jetPhi+size; ++iphi) {
-      
-      if (abs(ietaDown) <= CaloTools::mpEta(CaloTools::kHFEnd)) {
-        int towPhi = iphi;
-        while ( towPhi > CaloTools::kHBHENrPhi ) towPhi -= CaloTools::kHBHENrPhi;
-        while ( towPhi < 1 ) towPhi += CaloTools::kHBHENrPhi;
+      // do EtaUp
+      for (int iphi=jetPhi-size+1; iphi<jetPhi+size; ++iphi) {
 	
-        const CaloTower& towEtaDown = CaloTools::getTower(towers, CaloTools::caloEta(ietaDown), towPhi);
-        int towEt = towEtaDown.hwPt();
-        ring[3] += towEt;
+	if (abs(ietaUp) <= CaloTools::mpEta(CaloTools::kHFEnd)) {    
+	  int towPhi = iphi;
+	  while ( towPhi > CaloTools::kHBHENrPhi ) towPhi -= CaloTools::kHBHENrPhi;
+	  while ( towPhi < 1 ) towPhi += CaloTools::kHBHENrPhi;
+	  
+	  const CaloTower& towEtaUp = CaloTools::getTower(towers, CaloTools::caloEta(ietaUp), towPhi);
+	  int towEt = towEtaUp.hwPt();
+	  ring[2] += towEt;
+	}
       }
-     
-    }     
-    
-    
-  }
-    
-  // for donut subtraction we only use the middle 2 (in energy) ring strips
-  // std::sort(ring.begin(), ring.end(), std::greater<int>());
-  // return ( ring[1]+ring[2] ); 
 
-  // use lowest 3 strips as PU estimate
+      // do EtaDown
+      for (int iphi=jetPhi-size+1; iphi<jetPhi+size; ++iphi) {
+	
+	if (abs(ietaDown) <= CaloTools::mpEta(CaloTools::kHFEnd)) {
+	  int towPhi = iphi;
+	  while ( towPhi > CaloTools::kHBHENrPhi ) towPhi -= CaloTools::kHBHENrPhi;
+	  while ( towPhi < 1 ) towPhi += CaloTools::kHBHENrPhi;
+	  
+	  const CaloTower& towEtaDown = CaloTools::getTower(towers, CaloTools::caloEta(ietaDown), towPhi);
+	  int towEt = towEtaDown.hwPt();
+	  ring[3] += towEt;
+	}	
+      }     
+    }
+    else if(chunkyString == "ChunkySandwich2"){//simplest of the sandwiches - we will just reuse phi flaps
+      for(int i = 0; i < 2; ++i){ring[i+2] = ring[i];}
+    }
+    else if(chunkyString == "ChunkySandwich2Ave" || chunkyString == "ChunkySandwich"){//simplest of the sandwiches - we will just reuse phi flaps
+      ring[2] = ((ring[0] + ring[1]) >> 1); //bitwise, effective div by 2
+      ring[3] = (ring[0] + ring[1]); // just make sure it is >= max val
+    }
+    else if(chunkyString == "ChunkySandwich4" || chunkyString == "ChunkySandwich8"){//Need to calculate two or siz additional phiflaps. Note that ChunkySandwich defaults to ChunkySandwich4 variant
+
+      for(int rI = 0; rI < (ringSize-2)/2; ++rI){
+	int iphiUp2   = jetPhi + size + (stripIt + nStrips*(rI+1));
+	int iphiDown2 = jetPhi - size - (stripIt + nStrips*(rI+1));
+	while ( iphiUp2 > CaloTools::kHBHENrPhi )   iphiUp2   -= CaloTools::kHBHENrPhi;
+	while ( iphiDown2 < 1 ) iphiDown2 += CaloTools::kHBHENrPhi;
+	
+	for (int ieta=jetEta-size+1; ieta<jetEta+size; ++ieta) {	
+	  if (abs(ieta) > CaloTools::mpEta(CaloTools::kHFEnd)) continue;
+	  
+	  int towEta = ieta;
+	  if (jetEta>0 && towEta<=0) towEta-=1;
+	  if (jetEta<0 && towEta>=0) towEta+=1;
+	  
+	  const CaloTower& towPhiUp = CaloTools::getTower(towers, CaloTools::caloEta(towEta), iphiUp2);
+	  int towEt = towPhiUp.hwPt();
+	  ring[2 + rI*2] += towEt;
+	  
+	  const CaloTower& towPhiDown = CaloTools::getTower(towers, CaloTools::caloEta(towEta), iphiDown2);
+	  towEt = towPhiDown.hwPt();
+	  ring[3 + rI*2] += towEt;	
+	}
+      }
+    }    
+  }
+
+  //sort our final ring and return;
   std::sort( ring.begin(), ring.end() );
   
-  for(unsigned int i=0; i<4; ++i) jet.setPUDonutEt(i, (short int) ring[i]);
-
-  return ( ring[0] + ring[1] + ring[2] );
-  
+  return ring;  
 }
 
+
+int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(l1t::Jet & jet, int size, 
+								     const std::vector<l1t::CaloTower> & towers){
+ 
+   // ring is a vector with 4 ring strips, one for each side of the ring
+  // PhiUp, PhiDown, EtaUp, EtaDown, sorted w/ call to chunkyring
+  std::vector<int> ring = getChunkyRing(jet, size, towers, "ChunkyDonut");
+  for(unsigned int i=0; i<4; ++i) jet.setPUDonutEt(i, (short int) ring[i]);
+  return ( ring[0] + ring[1] + ring[2] );  
+}
+
+//Following example of chunky donut, but considering only phi flaps
+//Useful for simple handling of zeroed ieta strips and for high PU environments like PbPb
+int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkySandwichPUEstimate(l1t::Jet & jet, int size, 
+									const std::vector<l1t::CaloTower> & towers,
+									const std::string chunkySandwichStr){
+  //ring will be handled identically by all variants for now - could consider a different picking w/ ChunkySandwich8, say to exclude a downward fluctuation w/ 1,2,3 from ring, etc.
+  std::vector<int> ring = getChunkyRing(jet, size, towers, chunkySandwichStr);
+  for(unsigned int i=0; i<4; ++i) jet.setPUDonutEt(i, (short int)ring[i]);
+  return (ring[0] + ring[1] + ring[2]);  
+}
 
 
 void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> & jets, int calibThreshold, bool isAllJets) {

@@ -92,7 +92,7 @@ class ProcTMVA : public TrainProcessor {
 
 	std::vector<Method>		methods;
 	std::vector<std::string>	names;
-	std::auto_ptr<TFile>		file;
+	std::unique_ptr<TFile>		file;
 	TTree				*treeSig, *treeBkg;
 	Double_t			weight;
 	std::vector<Double_t>		vars;
@@ -271,7 +271,7 @@ void ProcTMVA::trainBegin()
 	if (iteration == ITER_EXPORT) {
 		ROOTContextSentinel ctx;
 
-		file = std::auto_ptr<TFile>(TFile::Open(
+		file = std::unique_ptr<TFile>(TFile::Open(
 			trainer->trainFileName(this, "root",
 			                       "input").c_str(),
 			"RECREATE"));
@@ -333,7 +333,7 @@ void ProcTMVA::runTMVATrainer()
 			   "No signal (" << nSignal << ") or background ("
 			<< nBackground << ") events!" << std::endl;
 
-	std::auto_ptr<TFile> file(TFile::Open(
+	std::unique_ptr<TFile> file(TFile::Open(
 		trainer->trainFileName(this, "root", "output").c_str(),
 		"RECREATE"));
 	if (!file.get())
@@ -391,7 +391,7 @@ void ProcTMVA::trainEnd()
 
 			file->Close();
 			file.reset();
-			file = std::auto_ptr<TFile>(TFile::Open(
+			file = std::unique_ptr<TFile>(TFile::Open(
 				trainer->trainFileName(this, "root",
 				                       "input").c_str()));
 			if (!file.get())

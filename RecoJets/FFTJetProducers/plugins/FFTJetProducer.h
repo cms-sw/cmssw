@@ -139,46 +139,46 @@ protected:
         std::vector<fftjet::Peak>* preclusters);
 
     // Parser for the peak selector
-    virtual std::auto_ptr<fftjet::Functor1<bool,fftjet::Peak> >
+    virtual std::unique_ptr<fftjet::Functor1<bool,fftjet::Peak> >
     parse_peakSelector(const edm::ParameterSet&);
 
     // Parser for the default jet membership function
-    virtual std::auto_ptr<fftjet::ScaleSpaceKernel>
+    virtual std::unique_ptr<fftjet::ScaleSpaceKernel>
     parse_jetMembershipFunction(const edm::ParameterSet&);
 
     // Parser for the background membership function
-    virtual std::auto_ptr<fftjetcms::AbsBgFunctor>
+    virtual std::unique_ptr<fftjetcms::AbsBgFunctor>
     parse_bgMembershipFunction(const edm::ParameterSet&);
 
     // Calculator for the recombination scale
-    virtual std::auto_ptr<fftjet::Functor1<double,fftjet::Peak> >
+    virtual std::unique_ptr<fftjet::Functor1<double,fftjet::Peak> >
     parse_recoScaleCalcPeak(const edm::ParameterSet&);
 
     // Calculator for the recombination scale ratio
-    virtual std::auto_ptr<fftjet::Functor1<double,fftjet::Peak> >
+    virtual std::unique_ptr<fftjet::Functor1<double,fftjet::Peak> >
     parse_recoScaleRatioCalcPeak(const edm::ParameterSet&);
 
     // Calculator for the membership function factor
-    virtual std::auto_ptr<fftjet::Functor1<double,fftjet::Peak> >
+    virtual std::unique_ptr<fftjet::Functor1<double,fftjet::Peak> >
     parse_memberFactorCalcPeak(const edm::ParameterSet&);
 
     // Similar calculators for the iterative algorithm
-    virtual std::auto_ptr<fftjet::Functor1<double,RecoFFTJet> >
+    virtual std::unique_ptr<fftjet::Functor1<double,RecoFFTJet> >
     parse_recoScaleCalcJet(const edm::ParameterSet&);
 
-    virtual std::auto_ptr<fftjet::Functor1<double,RecoFFTJet> >
+    virtual std::unique_ptr<fftjet::Functor1<double,RecoFFTJet> >
     parse_recoScaleRatioCalcJet(const edm::ParameterSet&);
 
-    virtual std::auto_ptr<fftjet::Functor1<double,RecoFFTJet> >
+    virtual std::unique_ptr<fftjet::Functor1<double,RecoFFTJet> >
     parse_memberFactorCalcJet(const edm::ParameterSet&);
 
     // Calculator of the distance between jets which is used to make
     // the decision about convergence of the iterative algorithm
-    virtual std::auto_ptr<fftjet::Functor2<double,RecoFFTJet,RecoFFTJet> >
+    virtual std::unique_ptr<fftjet::Functor2<double,RecoFFTJet,RecoFFTJet> >
     parse_jetDistanceCalc(const edm::ParameterSet&);
 
     // Pile-up density calculator
-    virtual std::auto_ptr<fftjetcms::AbsPileupCalculator>
+    virtual std::unique_ptr<fftjetcms::AbsPileupCalculator>
     parse_pileupDensityCalc(const edm::ParameterSet& ps);
 
     // The following function performs most of the precluster selection
@@ -208,7 +208,7 @@ private:
     // The following function tells us if the grid was rebuilt.
     bool loadEnergyFlow(
         const edm::Event& iEvent,
-        std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> >& flow);
+        std::unique_ptr<fftjet::Grid2d<fftjetcms::Real> >& flow);
     void buildGridAlg();
     void prepareRecombinationScales();
     bool checkConvergence(const std::vector<RecoFFTJet>& previousIterResult,
@@ -229,12 +229,12 @@ private:
     // necessary.
     virtual void determinePileupDensityFromConfig(
         const edm::Event& iEvent,
-        std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> >& density);
+        std::unique_ptr<fftjet::Grid2d<fftjetcms::Real> >& density);
 
     // Similar function for getting pile-up shape from the database
     virtual void determinePileupDensityFromDB(
         const edm::Event& iEvent, const edm::EventSetup& iSetup,
-        std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> >& density);
+        std::unique_ptr<fftjet::Grid2d<fftjetcms::Real> >& density);
 
     // The following function builds the pile-up estimate
     // for each jet
@@ -341,38 +341,38 @@ private:
     bool loadPileupFromDB;
 
     // Scales used
-    std::auto_ptr<std::vector<double> > iniScales;
+    std::unique_ptr<std::vector<double> > iniScales;
 
     // The sparse clustering tree
     SparseTree sparseTree;
 
     // Peak selector for the peaks already in the tree
-    std::auto_ptr<fftjet::Functor1<bool,fftjet::Peak> > peakSelector;
+    std::unique_ptr<fftjet::Functor1<bool,fftjet::Peak> > peakSelector;
 
     // Recombination algorithms and related quantities
-    std::auto_ptr<RecoAlg> recoAlg;
-    std::auto_ptr<GridAlg> gridAlg;
-    std::auto_ptr<fftjet::ScaleSpaceKernel> jetMembershipFunction;
-    std::auto_ptr<fftjetcms::AbsBgFunctor> bgMembershipFunction;
+    std::unique_ptr<RecoAlg> recoAlg;
+    std::unique_ptr<GridAlg> gridAlg;
+    std::unique_ptr<fftjet::ScaleSpaceKernel> jetMembershipFunction;
+    std::unique_ptr<fftjetcms::AbsBgFunctor> bgMembershipFunction;
 
     // Calculator for the recombination scale
-    std::auto_ptr<fftjet::Functor1<double,fftjet::Peak> > recoScaleCalcPeak;
+    std::unique_ptr<fftjet::Functor1<double,fftjet::Peak> > recoScaleCalcPeak;
 
     // Calculator for the recombination scale ratio
-    std::auto_ptr<fftjet::Functor1<double,fftjet::Peak> >
+    std::unique_ptr<fftjet::Functor1<double,fftjet::Peak> >
     recoScaleRatioCalcPeak;
 
     // Calculator for the membership function factor
-    std::auto_ptr<fftjet::Functor1<double,fftjet::Peak> > memberFactorCalcPeak;
+    std::unique_ptr<fftjet::Functor1<double,fftjet::Peak> > memberFactorCalcPeak;
 
     // Similar calculators for the iterative algorithm
-    std::auto_ptr<fftjet::Functor1<double,RecoFFTJet> > recoScaleCalcJet;
-    std::auto_ptr<fftjet::Functor1<double,RecoFFTJet> > recoScaleRatioCalcJet;
-    std::auto_ptr<fftjet::Functor1<double,RecoFFTJet> > memberFactorCalcJet;
+    std::unique_ptr<fftjet::Functor1<double,RecoFFTJet> > recoScaleCalcJet;
+    std::unique_ptr<fftjet::Functor1<double,RecoFFTJet> > recoScaleRatioCalcJet;
+    std::unique_ptr<fftjet::Functor1<double,RecoFFTJet> > memberFactorCalcJet;
 
     // Calculator for the jet distance used to estimate convergence
     // of the iterative algorithm
-    std::auto_ptr<fftjet::Functor2<double,RecoFFTJet,RecoFFTJet> >
+    std::unique_ptr<fftjet::Functor2<double,RecoFFTJet,RecoFFTJet> >
     jetDistanceCalc;
 
     // Vector of selected tree nodes
@@ -412,10 +412,10 @@ private:
     // The pile-up transverse energy density discretization grid.
     // Note that this is _density_, not energy. To get energy, 
     // multiply by cell area.
-    std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> > pileupEnergyFlow;
+    std::unique_ptr<fftjet::Grid2d<fftjetcms::Real> > pileupEnergyFlow;
 
     // The functor that calculates the pile-up density
-    std::auto_ptr<fftjetcms::AbsPileupCalculator> pileupDensityCalc;
+    std::unique_ptr<fftjetcms::AbsPileupCalculator> pileupDensityCalc;
 
     // Memory buffers related to pile-up subtraction
     std::vector<fftjet::AbsKernel2d*> memFcns2dVec;

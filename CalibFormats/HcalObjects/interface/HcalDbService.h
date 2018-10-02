@@ -1,10 +1,9 @@
+#ifndef CalibFormats_HcalObjects_HcalDbService_h
+#define CalibFormats_HcalObjects_HcalDbService_h
 
 //
 // F.Ratnikov (UMd), Aug. 9, 2005
 //
-
-#ifndef HcalDbService_h
-#define HcalDbService_h
 
 #include <memory>
 #include <map>
@@ -26,11 +25,11 @@ class HcalTopology;
 
 class HcalDbService {
  public:
-  HcalDbService (const edm::ParameterSet&);
+  HcalDbService();
   ~HcalDbService();
 
   const HcalTopology* getTopologyUsed() const;
-  
+
   const HcalCalibrations& getHcalCalibrations(const HcalGenericDetId& fId) const;
   const HcalCalibrationWidths& getHcalCalibrationWidths(const HcalGenericDetId& fId) const;
   const HcalCalibrationsSet* getHcalCalibrationsSet() const;
@@ -95,10 +94,10 @@ class HcalDbService {
   void setData (const HcalRecoParams* fItem) {mRecoParams = fItem;}
 
  private:
-  bool makeHcalCalibration (const HcalGenericDetId& fId, HcalCalibrations* fObject, 
+  bool makeHcalCalibration (const HcalGenericDetId& fId, HcalCalibrations* fObject,
 			    bool pedestalInADC, bool effPedestalInADC) const;
   void buildCalibrations() const;
-  bool makeHcalCalibrationWidth (const HcalGenericDetId& fId, HcalCalibrationWidths* fObject, 
+  bool makeHcalCalibrationWidth (const HcalGenericDetId& fId, HcalCalibrationWidths* fObject,
 				 bool pedestalInADC, bool effPedestalInADC) const;
   void buildCalibWidths() const;
   bool convertPedestals(const HcalGenericDetId& fId, const HcalPedestal* pedestal, float* pedTrue, bool inADC) const;
@@ -133,3 +132,4 @@ class HcalDbService {
 };
 
 #endif
+
