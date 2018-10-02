@@ -1,5 +1,4 @@
 #include "CalibTracker/SiStripDCS/interface/SiStripDetVOffBuilder.h"
-#include "boost/foreach.hpp"
 #include <sys/stat.h>
 
 // constructor
@@ -82,7 +81,7 @@ SiStripDetVOffBuilder::~SiStripDetVOffBuilder() {
 }
 
 void SiStripDetVOffBuilder::printPar(std::stringstream& ss, const std::vector<int>& par){
-  BOOST_FOREACH(int val, par){
+  for(int val : par){
     ss << val << " ";
   }
 }
@@ -599,7 +598,7 @@ void SiStripDetVOffBuilder::statusChange( cond::Time_t & lastTime, TimesAndValue
   tStruct.actualStatus.resize(tStruct.actualValue.size());
   tStruct.actualStatus.clear();
   
-  BOOST_FOREACH(float val, tStruct.actualValue) {
+  for(float val : tStruct.actualValue) {
     tStruct.actualStatus.push_back(static_cast<int>(val));
   }
 }
