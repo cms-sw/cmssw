@@ -107,6 +107,21 @@ double puFactorRho(int type, int ieta, double rho, double eHcal) {
   return energy;
 }
 
+double puweight(double vtx) { ///////for QCD PU sample
+  double              a(1.0);
+  if      (vtx < 11)  a = 0.120593 ;
+  else if (vtx < 21)  a = 0.58804;
+  else if (vtx < 31)  a = 1.16306;
+  else if (vtx < 41)  a = 1.45892;
+  else if (vtx < 51)  a = 1.35528;
+  else if (vtx < 61)  a = 1.72032;
+  else if (vtx < 71)  a = 3.34812;
+  else if (vtx < 81)  a = 9.70097;
+  else if (vtx < 91)  a = 9.24839;
+  else if (vtx < 101) a = 23.0816;
+  return a;
+}
+
 bool fillChain(TChain *chain, const char* inputFileList) {
 
   std::string fname(inputFileList);
@@ -131,6 +146,46 @@ bool fillChain(TChain *chain, const char* inputFileList) {
   return true;
 }
 
+std::vector<std::string> splitString (const std::string& fLine) {
+  std::vector <std::string> result;
+  int start = 0;
+  bool empty = true;
+  for (unsigned i = 0; i <= fLine.size (); i++) {
+    if (fLine [i] == ' ' || i == fLine.size ()) {
+      if (!empty) {
+	std::string item (fLine, start, i-start);
+	result.push_back (item);
+	empty = true;
+      }
+      start = i+1;
+    } else {
+      if (empty) empty = false;
+    }
+  }
+  return result;
+}
+
+class CalibCorrFactor {
+public :
+  CalibCorrFactor(const char* infile, int useScale, double scale, bool etamax,
+		  bool debug);
+  ~CalibCorrFactor() {}
+
+  bool   doCorr() const {return (corrE_ || (useScale_ != 0));}
+  double getCorr(unsigned int id);
+private:
+  bool   readCorrFactor(const char* fName);
+  double getFactor(const int& ieta);
+
+  const int                           useScale_;
+  const double                        scale_;
+  const bool                          etaMax_, debug_;
+  bool                                corrE_;
+  int                                 etamp_, etamn_;
+  double                              cfacmp_, cfacmn_;
+  std::map<std::pair<int,int>,double> cfactors_;
+};
+
 class CalibCorr {
 public :
   CalibCorr(const char* infile, bool useDepth, bool debug);
@@ -140,7 +195,6 @@ public :
 private:
   void                     readCorr(const char* infile);
   void                     readCorrDepth(const char* infile);
-  std::vector<std::string> splitString(const std::string&);
   unsigned int getDetIdHE(int ieta, int iphi, int depth);
   unsigned int getDetId(int subdet, int ieta, int iphi, int depth);
   unsigned int correctDetId(const unsigned int& detId);
@@ -164,6 +218,91 @@ private:
   int              subdet_, zside_;
   std::vector<int> phis_;
 };
+
+CalibCorrFactor::CalibCorrFactor(const char* infile, int useScale, double scale,
+				 bool etamax, bool debug) : 
+  useScale_(useScale), scale_(scale), etaMax_(etamax), debug_(debug), 
+  etamp_(0), etamn_(0), cfacmp_(1), cfacmn_(1) {
+
+  corrE_ = readCorrFactor(infile);
+  std::cout << "Reads correction factors from " << infile
+	    << " with flag " << corrE_ << std::endl << " Flag for scale "
+	    << useScale_ << " with scale " << scale_ << " and flag for etaMax "
+	    << etaMax_ << std::endl;
+}
+
+double CalibCorrFactor::getCorr(unsigned int id) {
+  double cfac(1.0);
+  if (corrE_) {
+    int subdet,zside,ieta,iphi,depth;
+    unpackDetId(id,subdet,zside,ieta,iphi,depth);
+    std::map<std::pair<int,int>,double>::const_iterator 
+      itr = cfactors_.find(std::pair<int,int>(zside*ieta,depth));
+    if (itr != cfactors_.end()) {
+      cfac = itr->second;
+    } else if (etaMax_) {
+      if (zside > 0 && ieta >  etamp_) cfac = cfacmp_;
+      if (zside < 0 && ieta > -etamn_) cfac = cfacmn_;
+    }
+  } else if (useScale_ != 0) {
+    int subdet,zside,ieta,iphi,depth;
+    unpackDetId(id,subdet,zside,ieta,iphi,depth);
+    cfac = getFactor(ieta);
+  }
+  return cfac;
+}
+
+bool CalibCorrFactor::readCorrFactor(const char* fname) {
+  bool ok(false);
+  if (std::string(fname) != "") {
+    std::ifstream fInput(fname);
+    if (!fInput.good()) {
+      std::cout << "Cannot open file " << fname << std::endl;
+    } else {
+      char buffer [1024];
+      unsigned int all(0), good(0);
+      while (fInput.getline(buffer, 1024)) {
+	++all;
+	if (buffer [0] == '#') continue; //ignore comment
+	std::vector <std::string> items = splitString (std::string (buffer));
+	if (items.size () != 5) {
+	  std::cout << "Ignore  line: " << buffer << std::endl;
+	} else {
+	  ++good;
+	  int   ieta  = std::atoi (items[1].c_str());
+	  int   depth = std::atoi (items[2].c_str());
+	  float corrf = std::atof (items[3].c_str());
+	  double scale = getFactor(std::abs(ieta));
+	  cfactors_[std::pair<int,int>(ieta,depth)] = scale*corrf;
+	  if (ieta > etamp_ && depth == 1) {
+	    etamp_ = ieta; cfacmp_ = scale*corrf;
+	  }
+	  if (ieta < etamn_ && depth == 1) {
+	    etamn_ = ieta; cfacmn_ = scale*corrf;
+	  }
+	}
+      }
+      fInput.close();
+      std::cout << "Reads total of " << all << " and " << good 
+		<< " good records" << " Max eta (z>0) " << etamp_ << ":"
+		<< cfacmp_ << " eta (z<0) " << etamn_ << ":" << cfacmn_
+		<< std::endl;
+      if (good > 0) ok = true;
+    }
+  }
+  return ok;
+}
+
+double CalibCorrFactor::getFactor(const int& ieta) {
+  double scale(1.0);
+  if (ieta < 16) {
+    if ((useScale_ == 1) || (useScale_ == 3)) scale = scale_;
+  } else {
+    if ((useScale_ == 2) || (useScale_ == 3)) scale = scale_;
+  }
+  return scale;
+}
+
 
 CalibCorr::CalibCorr(const char* infile, bool ifDepth, bool debug) : 
   ifDepth_(ifDepth), debug_(debug) {
@@ -303,25 +442,6 @@ void CalibCorr::readCorr(const char* infile) {
     std::cout << "Reads total of " << all << " and " << good << " good records"
 	      << std::endl;
   }
-}
-
-std::vector<std::string> CalibCorr::splitString (const std::string& fLine) {
-  std::vector <std::string> result;
-  int start = 0;
-  bool empty = true;
-  for (unsigned i = 0; i <= fLine.size (); i++) {
-    if (fLine [i] == ' ' || i == fLine.size ()) {
-      if (!empty) {
-	std::string item (fLine, start, i-start);
-	result.push_back (item);
-	empty = true;
-      }
-      start = i+1;
-    } else {
-      if (empty) empty = false;
-    }
-  }
-  return result;
 }
 
 unsigned int CalibCorr::getDetIdHE(int ieta, int iphi, int depth) {
