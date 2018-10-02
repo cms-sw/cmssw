@@ -259,7 +259,7 @@ void CSCDigiToRaw::add(const CSCComparatorDigiCollection & comparatorDigis,
                        bool packEverything) const
 {
   add(clctDigis,fedInfo);
-  for (auto j  : comparatorDigis)
+  for (auto const& j  : comparatorDigis)
     {
       CSCDetId cscDetId=j.first;
       CSCEventData & cscData = findEventData(cscDetId, fedInfo);
@@ -269,7 +269,7 @@ void CSCDigiToRaw::add(const CSCComparatorDigiCollection & comparatorDigis,
           bool me1a = (cscDetId.station()==1) && (cscDetId.ring()==4);
 	  
 
-      for(auto& digi = j.second.first; digi != j.second.second; ++digi)
+      for(auto digi = j.second.first; digi != j.second.second; ++digi)
           {
             if (fedInfo.formatVersion_ == 2013)
               {

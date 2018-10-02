@@ -110,7 +110,6 @@ public:
 #include <sstream>
 #include <iomanip>
 #include <memory>
-#include <boost/foreach.hpp>
 #include <boost/range.hpp>
 #include <boost/algorithm/string.hpp>
 
