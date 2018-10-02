@@ -106,8 +106,8 @@ StripCompactDigiSimLinksProducer::produce(edm::Event & iEvent, const edm::EventS
             }
             thisStripSignals.push_back(key);
             DEBUG(std::cerr << "    ending state " << previousStrip << ", previous link strip " << previousLinkStrip << std::endl;)
-            //DEBUG(std::cerr << "    on previous strip: "; for(auto const& k, previousStripSignals) { std::cerr << "(ev " << k.first.rawId() << ", id " << k.second << ") "; } std::cerr << std::endl;)
-            //DEBUG(std::cerr << "    on this strip: ";     for(auto const& k,     thisStripSignals) { std::cerr << "(ev " << k.first.rawId() << ", id " << k.second << ") "; } std::cerr << std::endl;)
+            //DEBUG(std::cerr << "    on previous strip: "; for(auto const& k : previousStripSignals) { std::cerr << "(ev " << k.first.rawId() << ", id " << k.second << ") "; } std::cerr << std::endl;)
+            //DEBUG(std::cerr << "    on this strip: ";     for(auto const& k :     thisStripSignals) { std::cerr << "(ev " << k.first.rawId() << ", id " << k.second << ") "; } std::cerr << std::endl;)
             DEBUG(std::cerr << std::endl;)
         }
     }
