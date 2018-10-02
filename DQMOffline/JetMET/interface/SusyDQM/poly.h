@@ -3,7 +3,6 @@
 
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/operators.hpp>
-#include <boost/foreach.hpp>
 #include <iostream>
 #include <list>
 #include <set>
@@ -111,8 +110,8 @@ template<class T> poly<T> operator+ (const char* lhs, const poly<T>& rhs ) { ret
 template <class charT, class traits, class T> 
 inline
 std::basic_ostream<charT,traits>& operator<<(std::basic_ostream<charT,traits>& strm, const poly<T>& f) { 
-  BOOST_FOREACH(std::set<T> column, std::make_pair(f.begin_columns(),f.end_columns())) 
-    { strm << "( "; BOOST_FOREACH(T entry, column) strm << entry << ", "; strm << " )" << std::endl; }
+  for(auto const& column : std::make_pair(f.begin_columns(),f.end_columns())) 
+    { strm << "( "; for(auto const& entry : column) strm << entry << ", "; strm << " )" << std::endl; }
   return strm; 
 }
 
