@@ -59,13 +59,10 @@ namespace hcaldqm
 			}
 
 			//	get the FEDs registered at cDAQ
-			edm::eventsetup::EventSetupRecordKey recordKey(
-				edm::eventsetup::EventSetupRecordKey::TypeTag::findType(
-				"RunInfoRcd"));
-			if (es.find(recordKey))
+                        if (auto runInfoRec = es.tryToGet<RunInfoRcd>())
 			{
 				edm::ESHandle<RunInfo> ri;
-				es.get<RunInfoRcd>().get(ri);
+                                runInfoRec->get(ri);
 				std::vector<int> vfeds= ri->m_fed_in;
 				for (std::vector<int>::const_iterator it=vfeds.begin();
 					it!=vfeds.end(); ++it)

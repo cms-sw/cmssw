@@ -45,29 +45,25 @@ std::bitset<128> OMTFinput::getRefHits(unsigned int iProcessor) const{
 ///////////////////////////////////////////////////
 bool OMTFinput::addLayerHit(unsigned int iLayer,
 			    unsigned int iInput,
-			    int iPhi, int iEta){
+			    int iPhi, int iEta, bool allowOverwrite){
 
   bool overwrite = false;
   assert(iLayer<myOmtfConfig->nLayers());
   assert(iInput<14);
 
   if(iPhi>=(int)myOmtfConfig->nPhiBins()) return true;
-//  unsigned int origInput = iInput;
 
-  if (measurementsPhi[iLayer][iInput]==iPhi && measurementsEta[iLayer][iInput]==iEta) return true;
+  if(allowOverwrite && measurementsPhi[iLayer][iInput]==iPhi && measurementsEta[iLayer][iInput]==iEta) return true;
 
   if(measurementsPhi[iLayer][iInput]!=(int)myOmtfConfig->nPhiBins()) ++iInput;
   if(measurementsPhi[iLayer][iInput]!=(int)myOmtfConfig->nPhiBins()) overwrite = true;
-
-//  std::cout <<" addLayerHit :"<<iLayer<<" input orig :"<<inputorig<<" now:  "<< iInput <<" phi: "<<iPhi<< std::endl;
   
-  if(iInput>13) return false;
+  if(iInput>13) return true;
   
   measurementsPhi[iLayer][iInput] = iPhi;
   measurementsEta[iLayer][iInput] = iEta;
 
-//  return (origInput==iInput);				      
-  return (!overwrite);				      
+  return overwrite;				      
 }
 ///////////////////////////////////////////////////
 ///////////////////////////////////////////////////

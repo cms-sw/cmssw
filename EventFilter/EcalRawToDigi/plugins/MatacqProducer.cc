@@ -963,7 +963,7 @@ bool MatacqProducer::mopen(const std::string& name){
   
   try{
     inFile_
-      = auto_ptr<Storage>(StorageFactory::get()->open(name,
+      = unique_ptr<Storage>(StorageFactory::get()->open(name,
                                                       IOFlags::OpenRead));
     inFileName_ = name;
   } catch(cms::Exception& e){

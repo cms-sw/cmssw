@@ -81,7 +81,7 @@ CaloSD::CaloSD(const std::string& name, const DDCompactView & cpv,
   primAncestor = cleanIndex = totalHits = primIDSaved = 0;
   forceSave = false;
   
-  edm::LogInfo("CaloSim") << "CaloSD: Minimum energy of track for saving it " 
+  edm::LogVerbatim("CaloSim") << "CaloSD: Minimum energy of track for saving it " 
                           << energyCut/GeV  << " GeV" << "\n"
                           << "        Use of HitID Map " << useMap << "\n"
                           << "        Check last " << nCheckedHits 
@@ -143,7 +143,7 @@ G4bool CaloSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
   } else { 
     if(aStep->GetTotalEnergyDeposit() > 0.0) { 
       const G4TouchableHistory* touch = static_cast<const G4TouchableHistory*>(theTrack->GetTouchable());
-      edm::LogInfo("CaloSim") << "CaloSD::ProcessHits: unitID= " << unitID
+      edm::LogVerbatim("CaloSim") << "CaloSD::ProcessHits: unitID= " << unitID
 			      << " currUnit=   " << currentID.unitID()
 			      << " Detector: " << GetName()
 			      << " trackID= " << theTrack->GetTrackID() << " "

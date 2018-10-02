@@ -37,7 +37,8 @@ class PluginFactory<R*(Args...)> : public PluginFactoryBase
 {
       friend class DummyFriend;
    public:
-      typedef R* TemplateArgType(Args...);
+      using TemplateArgType = R*(Args...);
+      using CreatedType = R;
 
       struct PMakerBase {
         virtual R* create(Args...) const = 0;
@@ -94,6 +95,12 @@ namespace edmplugin {\
   template<> const std::string& edmplugin::PluginFactory<_factory_::TemplateArgType>::category() const { static const std::string s_cat(_category_);  return s_cat;}\
   } enum {CONCATENATE(dummy_edm_register_pluginfactory_, __LINE__)}
 
+#define EDM_REGISTER_PLUGINFACTORY2(_factory_,_category_) \
+namespace edmplugin {\
+template<> edmplugin::PluginFactory<_factory_::TemplateArgType>* edmplugin::PluginFactory<_factory_::TemplateArgType>::get() { CMS_THREAD_SAFE static edmplugin::PluginFactory<_factory_::TemplateArgType> s_instance; return &s_instance;}\
+template<> const std::string& edmplugin::PluginFactory<_factory_::TemplateArgType>::category() const { static const std::string s_cat(_category_);  return s_cat;}\
+} enum {CONCATENATE(dummy_edm_register_pluginfactory_2_, __LINE__)}
+
 #endif
 
 #define EDM_PLUGIN_SYM(x,y) EDM_PLUGIN_SYM2(x,y)
@@ -101,4 +108,7 @@ namespace edmplugin {\
 
 #define DEFINE_EDM_PLUGIN(factory,type,name) \
 static const factory::PMaker<type> EDM_PLUGIN_SYM(s_maker , __LINE__ ) (name)
+
+#define DEFINE_EDM_PLUGIN2(factory,type,name) \
+static const factory::PMaker<type> EDM_PLUGIN_SYM(s_maker2 , __LINE__ ) (name)
 

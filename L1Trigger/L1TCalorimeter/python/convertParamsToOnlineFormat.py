@@ -104,6 +104,8 @@ def getFullListOfParameters(aModule):
       (('mp_egamma', 'egammaRelaxationThreshold'),  '10_EgRelaxThr.mif',              divideByEgLsb(aModule.egMaxPtHOverE)),
       (('mp_egamma', 'egammaMaxEta'),               'egammaMaxEta.mif',          aModule.egEtaCut.value()),
       (('mp_egamma', 'egammaBypassCuts'),           'BypassEgVeto.mif',               bool(aModule.egBypassEGVetos.value())),
+      (('mp_egamma', 'egammaBypassShape'),          'BypassEgShape.mif',              bool(aModule.egBypassShape.value())),
+      (('mp_egamma', 'egammaBypassEcalFG'),         'BypassEcalFG.mif',               bool(aModule.egBypassECALFG.value())),
       (('mp_egamma', 'egammaHOverECut_iEtaLT15'),   '_RatioCutLt15.mif',              aModule.egHOverEcutBarrel.value()),
       (('mp_egamma', 'egammaHOverECut_iEtaGTEq15'), '_RatioCutGe15.mif',              aModule.egHOverEcutEndcap.value()),
       (('mp_egamma', 'egammaBypassExtendedHOverE'), '_BypassExtHE.mif',               bool(aModule.egBypassExtHOverE)),
@@ -126,7 +128,8 @@ def getFullListOfParameters(aModule):
       (('mp_jet', 'HT_jetThreshold'),    '8_HtThreshold.mif',           int(aModule.etSumEtThreshold[1] / aModule.etSumLsb.value())),
       (('mp_jet', 'MHT_jetThreshold'),   '9_MHtThreshold.mif',          int(aModule.etSumEtThreshold[3] / aModule.etSumLsb.value())),
       (('mp_jet', 'jetBypassPileUpSub'), 'BypassJetPUS.mif',            bool(aModule.jetBypassPUS.value())),
-      (('mp_jet', 'jetEnergyCalibLUT'),  'L_JetCalibration_11to18.mif', parseOfflineLUTfile(aModule.jetCalibrationLUTFile.value(), 2048))
+      (('mp_jet', 'jetEnergyCalibLUT'),  'L_JetCalibration_11to18.mif', parseOfflineLUTfile(aModule.jetCalibrationLUTFile.value(), 2048)),
+      (('mp_jet', 'jetPUSUseChunkySandwich'), 'SandwichPUS.mif',        bool(aModule.jetPUSUseChunkySandwich.value())),
     ]
 
     result += [
@@ -140,7 +143,9 @@ def getFullListOfParameters(aModule):
 
     result += [
       (('demux', 'sdfile'),  None, ''),
-      (('demux', 'algoRev'), None, 0xcafe)
+      (('demux', 'algoRev'), None, 0xcafe),
+      (('demux', 'ET_centralityLowerThresholds'), 'CentralityLowerThrs.mif', [ int(round(loBound / aModule.etSumLsb.value())) for loBound in aModule.etSumCentralityLower.value()]),
+      (('demux', 'ET_centralityUpperThresholds'), 'CentralityUpperThrs.mif', [ int(round(upBound / aModule.etSumLsb.value())) for upBound in aModule.etSumCentralityUpper.value()])
     ]
 
     result = [(a, b, parseOfflineLUTfile(c.value()) if isinstance(c, cms.FileInPath) else c) for a, b, c in result]
@@ -242,8 +247,8 @@ if __name__ == '__main__':
     os.mkdir(args.output_dir)
 
     if args.mif:
-        for fileName, value in getMifParameterMap(six.iteritems(caloParams)):
+        for fileName, value in six.iteritems(getMifParameterMap(caloParams)):
             createMIF(args.output_dir + '/' + fileName, value) 
     else:
-        for fileTag, paramList in getXmlParameterMap(six.iteritems(caloParams)):
+        for fileTag, paramList in six.iteritems(getXmlParameterMap(caloParams)):
             createXML(paramList, 'MainProcessor' if fileTag.startswith('mp') else 'Demux', args.output_dir + '/algo_' + fileTag + '.xml')

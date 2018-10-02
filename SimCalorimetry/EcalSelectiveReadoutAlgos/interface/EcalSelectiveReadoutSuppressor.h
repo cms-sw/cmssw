@@ -224,7 +224,7 @@ public:
 
   /** Help class to comput selective readout flags. 
    */
-  std::auto_ptr<EcalSelectiveReadout> ecalSelectiveReadout;
+  std::unique_ptr<EcalSelectiveReadout> ecalSelectiveReadout;
 
   const EcalTrigTowerConstituentsMap * theTriggerMap;
      

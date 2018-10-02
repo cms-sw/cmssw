@@ -96,7 +96,7 @@ private:
     std::vector<uint32_t> m_columnDefaults;
     bool m_debug;
 
-    std::auto_ptr<L1GtPatternWriter> m_writer;
+    std::unique_ptr<L1GtPatternWriter> m_writer;
 };
 
 #endif /*GlobalTriggerAnalyzer_L1GtPatternGenerator_h*/

@@ -2,7 +2,7 @@
 //
 // Package:    HcalTopologyIdealEP
 // Class:      HcalTopologyIdealEP
-// 
+//
 /**\class HcalTopologyIdealEP HcalTopologyIdealEP.h tmp/HcalTopologyIdealEP/interface/HcalTopologyIdealEP.h
 
  Description: <one line class summary>
@@ -26,34 +26,18 @@
 
 //#define DebugLog
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 HcalTopologyIdealEP::HcalTopologyIdealEP(const edm::ParameterSet& conf)
   : m_restrictions(conf.getUntrackedParameter<std::string>("Exclude")),
-    m_mergePosition(conf.getUntrackedParameter<bool>("MergePosition")),
-    m_pSet(conf) {
+    m_mergePosition(conf.getUntrackedParameter<bool>("MergePosition")) {
 #ifdef DebugLog
-  std::cout << "HcalTopologyIdealEP::HcalTopologyIdealEP with Exclude: " 
+  std::cout << "HcalTopologyIdealEP::HcalTopologyIdealEP with Exclude: "
 	    << m_restrictions << " MergePosition: " << m_mergePosition
 	    << std::endl;
   edm::LogInfo("HCAL") << "HcalTopologyIdealEP::HcalTopologyIdealEP";
 #endif
   setWhatProduced(this,
-                  &HcalTopologyIdealEP::produce,
-                  dependsOn( &HcalTopologyIdealEP::hcalRecordCallBack ));
+                  &HcalTopologyIdealEP::produce);
 }
-
-
-HcalTopologyIdealEP::~HcalTopologyIdealEP() { }
 
 void HcalTopologyIdealEP::fillDescriptions( edm::ConfigurationDescriptions & descriptions ) {
 
@@ -63,28 +47,24 @@ void HcalTopologyIdealEP::fillDescriptions( edm::ConfigurationDescriptions & des
   descriptions.add( "hcalTopologyIdealBase", desc );
 }
 
-//
-// member functions
-//
-
 // ------------ method called to produce the data  ------------
 HcalTopologyIdealEP::ReturnType
 HcalTopologyIdealEP::produce(const HcalRecNumberingRecord& iRecord) {
 #ifdef DebugLog
   std::cout << "HcalTopologyIdealEP::produce(const IdealGeometryRecord& iRecord)" << std::endl;
   edm::LogInfo("HCAL") << "HcalTopologyIdealEP::produce(const HcalGeometryRecord& iRecord)";
-#endif  
+#endif
   edm::ESHandle<HcalDDDRecConstants> pHRNDC;
   iRecord.get( pHRNDC );
   const HcalDDDRecConstants* hdc = &(*pHRNDC);
 
 #ifdef DebugLog
-  std::cout << "mode = " << hdc->getTopoMode() << ", maxDepthHB = " 
+  std::cout << "mode = " << hdc->getTopoMode() << ", maxDepthHB = "
 	    << hdc->getMaxDepth(0) << ", maxDepthHE = " << hdc->getMaxDepth(1)
 	    << ", maxDepthHF = " << hdc->getMaxDepth(2) << std::endl;
   edm::LogInfo("HCAL") << "mode = " << hdc->getTopoMode() << ", maxDepthHB = "
-		       << hdc->getMaxDepth(0) << ", maxDepthHE = " 
-		       << hdc->getMaxDepth(1) << ", maxDepthHF = " 
+		       << hdc->getMaxDepth(0) << ", maxDepthHE = "
+		       << hdc->getMaxDepth(1) << ", maxDepthHF = "
 		       << hdc->getMaxDepth(2);
 #endif
   ReturnType myTopo(new HcalTopology(hdc,m_mergePosition));
@@ -98,5 +78,3 @@ HcalTopologyIdealEP::produce(const HcalRecNumberingRecord& iRecord) {
   }
   return myTopo ;
 }
-
-

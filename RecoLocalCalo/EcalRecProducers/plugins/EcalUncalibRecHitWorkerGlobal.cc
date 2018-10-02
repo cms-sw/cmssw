@@ -18,7 +18,7 @@
 #include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
 
 EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&ps,edm::ConsumesCollector& c) :
-  EcalUncalibRecHitWorkerRunOneDigiBase(ps,c), useDBShape(false), testbeamEEShape(EEShape(useDBShape)), testbeamEBShape(EBShape(useDBShape))
+  EcalUncalibRecHitWorkerRunOneDigiBase(ps,c), testbeamEEShape(EEShape(true)), testbeamEBShape(EBShape(true))
 {
         // ratio method parameters
         EBtimeFitParameters_ = ps.getParameter<std::vector<double> >("EBtimeFitParameters"); 
@@ -62,7 +62,7 @@ EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::Paramete
 
 
 EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&ps) :
-  EcalUncalibRecHitWorkerRunOneDigiBase(ps), useDBShape(false), testbeamEEShape(EEShape(useDBShape)), testbeamEBShape(EBShape(useDBShape))
+  EcalUncalibRecHitWorkerRunOneDigiBase(ps), testbeamEEShape(EEShape(true)), testbeamEBShape(EBShape(true))
 {
         // ratio method parameters
         EBtimeFitParameters_ = ps.getParameter<std::vector<double> >("EBtimeFitParameters"); 
@@ -125,11 +125,8 @@ EcalUncalibRecHitWorkerGlobal::set(const edm::EventSetup& es)
 	es.get<EcalTimeBiasCorrectionsRcd>().get(timeCorrBias_);
   
         // for the DB Ecal Pulse Sim Shape
-        if(useDBShape) 
-	{
-	    testbeamEEShape.setEventSetup(es);
-	    testbeamEBShape.setEventSetup(es);
-	}
+	testbeamEEShape.setEventSetup(es);
+	testbeamEBShape.setEventSetup(es);
 }
 
 

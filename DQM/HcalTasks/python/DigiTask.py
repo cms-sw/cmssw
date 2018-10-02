@@ -1,9 +1,13 @@
 import FWCore.ParameterSet.Config as cms
-
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+from DQM.HcalTasks.LEDCalibrationChannels import ledCalibrationChannels
+
 digiTask = DQMEDAnalyzer(
 	"DigiTask",
-	
+
+	# Externals
+	ledCalibrationChannels = ledCalibrationChannels,
+
 	#	standard parameters
 	name = cms.untracked.string("DigiTask"),
 	debug = cms.untracked.int32(0),
@@ -31,6 +35,7 @@ digiTask = DQMEDAnalyzer(
 
 	# Reference digi sizes
 	refDigiSize = cms.untracked.vuint32(10, 10, 10, 4), # HB, HE, HO, HF
+
 )
 
 from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017

@@ -3,6 +3,7 @@
 
 #include "Fireworks/Geometry/interface/FWRecoGeometryESProducer.h"
 #include "Fireworks/Geometry/interface/FWRecoGeometry.h"
+#include "Fireworks/Geometry/interface/FWTGeoRecoGeometry.h"
 #include "Fireworks/Geometry/interface/FWRecoGeometryRecord.h"
 
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
@@ -542,8 +543,13 @@ FWRecoGeometryESProducer::addCaloGeometry( void )
       const CaloCellGeometry::CornersVec& cor = m_caloGeom->getGeometry( *it )->getCorners();      
       fillPoints( id, cor.begin(), cor.end());
     } else {
-      const HGCalGeometry* geom = dynamic_cast<const HGCalGeometry*>(m_caloGeom->getSubdetectorGeometry( *it ) );
-      const auto& cor = geom->getCorners( *it );
+      DetId::Detector det = it->det();
+      int          subdet = (((DetId::HGCalEE == det) || 
+			     (DetId::HGCalHSi == det) ||
+			     (DetId::HGCalHSc == det)) ? ForwardEmpty :
+			     it->subdetId());
+      const HGCalGeometry* geom = dynamic_cast<const HGCalGeometry*>(m_caloGeom->getSubdetectorGeometry(det,subdet));
+      const auto cor = geom->get8Corners( *it );
       fillPoints( id, cor.begin(), cor.end() );
     }
   }
@@ -588,7 +594,7 @@ FWRecoGeometryESProducer::fillPoints( unsigned int id, std::vector<GlobalPoint>:
   unsigned int index( 0 );
   for( std::vector<GlobalPoint>::const_iterator i = begin; i != end; ++i )
   {
-    assert( index < 35 );
+    assert( index < FWTGeoRecoGeometry::maxPoints_-1 );
     m_fwGeometry->idToName[id].points[index] = i->x();
     m_fwGeometry->idToName[id].points[++index] = i->y();
     m_fwGeometry->idToName[id].points[++index] = i->z();

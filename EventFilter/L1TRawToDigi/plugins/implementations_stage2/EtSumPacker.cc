@@ -44,6 +44,15 @@ namespace stage2 {
 	  if (j->getType()==l1t::EtSum::kMissingEtHF)   methf_word |= word;
 	  if (j->getType()==l1t::EtSum::kMissingHtHF)   mhthf_word |= word;
 	  if (j->getType()==l1t::EtSum::kTowerCount)    ht_word |= (word << 12);
+	  if (j->getType()==l1t::EtSum::kAsymEt)        met_word |= (word << 20);
+	  if (j->getType()==l1t::EtSum::kAsymHt)        mht_word |= (word << 20);
+	  if (j->getType()==l1t::EtSum::kAsymEtHF)      methf_word |= (word << 20);
+	  if (j->getType()==l1t::EtSum::kAsymHtHF)      mhthf_word |= (word << 20);
+	  if (j->getType()==l1t::EtSum::kCentrality){
+	    methf_word |= ((word & 0xF) << 28);
+	    mhthf_word |= (((word>>4) & 0xF) << 28);
+	  } 
+	  
 	}
 	
 	load.push_back(et_word);

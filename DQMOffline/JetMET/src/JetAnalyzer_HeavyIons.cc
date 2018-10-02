@@ -17,6 +17,7 @@ using namespace std;
 
 JetAnalyzer_HeavyIons::JetAnalyzer_HeavyIons(const edm::ParameterSet& iConfig) :
   mInputCollection               (iConfig.getParameter<edm::InputTag>       ("src")),
+  mInputVtxCollection            (iConfig.getUntrackedParameter<edm::InputTag>("srcVtx", edm::InputTag("hiSelectedVertex"))),
   mInputPFCandCollection         (iConfig.getParameter<edm::InputTag>       ("PFcands")),
   mInputCsCandCollection         (iConfig.exists("CScands") ? iConfig.getParameter<edm::InputTag>("CScands") : edm::InputTag()),
   mOutputFile                    (iConfig.getUntrackedParameter<std::string>("OutputFile","")),
@@ -53,7 +54,7 @@ JetAnalyzer_HeavyIons::JetAnalyzer_HeavyIons(const edm::ParameterSet& iConfig) :
 
   centralityBinToken = mayConsume<int>(iConfig.exists("centralitybincollection") ? iConfig.getParameter<edm::InputTag> ("centralitybincollection"): edm::InputTag());
 
-  hiVertexToken_ = consumes<std::vector<reco::Vertex> >(edm::InputTag("hiSelectedVertex"));
+  hiVertexToken_ = consumes<std::vector<reco::Vertex> >(mInputVtxCollection);
 
   etaToken_ = mayConsume<std::vector<double>>(iConfig.exists("etaMap") ? iConfig.getParameter<edm::InputTag>( "etaMap" ) : edm::InputTag());
   rhoToken_ = mayConsume<std::vector<double>>(iConfig.exists("rho") ? iConfig.getParameter<edm::InputTag>( "rho" ) : edm::InputTag());

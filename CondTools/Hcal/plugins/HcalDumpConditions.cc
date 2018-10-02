@@ -77,17 +77,19 @@ namespace edmtest
                                   const HcalTopology * topo,
                                   const std::string label)
   {
-    edm::ESHandle<S> p;
-    if(!label.empty()) context.get<SRcd>().get(label, p);
-    else context.get<SRcd>().get(p);
-    S myobject(*p.product());
-    if( topo ) myobject.setTopo(topo);
-    
-    writeToFile(myobject, e, name);
-    
-    if ( context.get<SRcd>().validityInterval().first() == edm::IOVSyncValue::invalidIOVSyncValue() )
-      std::cout << "error: invalid IOV sync value !" << std::endl;
-
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), name) != mDumpRequest.end())
+    {
+        edm::ESHandle<S> p;
+        if(!label.empty()) context.get<SRcd>().get(label, p);
+        else context.get<SRcd>().get(p);
+        S myobject(*p.product());
+        if( topo ) myobject.setTopo(topo);
+        
+        writeToFile(myobject, e, name);
+        
+        if ( context.get<SRcd>().validityInterval().first() == edm::IOVSyncValue::invalidIOVSyncValue() )
+          std::cout << "error: invalid IOV sync value !" << std::endl;
+    }
   }
 
 
@@ -108,7 +110,6 @@ namespace edmtest
         if ( context.get<SRcd>().validityInterval().first() == edm::IOVSyncValue::invalidIOVSyncValue() )
           std::cout << "error: invalid IOV sync value !" << std::endl;
     }
-
   }
 
   template<class S> void HcalDumpConditions::writeToFile(const S& myS, const edm::Event& e, const std::string name){

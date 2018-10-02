@@ -214,10 +214,8 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt, const edm::EventSetup& es)
     }
     // Apply the mass hypothesis if desired
     if (piZeroMass_ >= 0) {
-      std::for_each(
-          cleanPiZeros.begin(), cleanPiZeros.end(),
-          std::bind2nd(
-              std::mem_fun_ref(&reco::RecoTauPiZero::setMass), piZeroMass_));
+      for( auto& cleanPiZero: cleanPiZeros )
+         { cleanPiZero.setMass(this->piZeroMass_);};
     }
     // Add to association
     if ( verbosity_ >= 2 ) {

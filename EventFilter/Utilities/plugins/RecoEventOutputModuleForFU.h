@@ -50,7 +50,7 @@ namespace evf {
     void endLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
 
   private:
-    std::auto_ptr<Consumer> c_;
+    std::unique_ptr<Consumer> c_;
     std::string streamLabel_;
     boost::filesystem::path openDatFilePath_;
     boost::filesystem::path openDatChecksumFilePath_;

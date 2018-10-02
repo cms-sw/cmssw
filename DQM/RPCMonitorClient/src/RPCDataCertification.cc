@@ -47,15 +47,13 @@ void RPCDataCertification::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
 
 
 void RPCDataCertification::checkFED(edm::EventSetup const& setup){
-  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-    
   double defaultValue = 1.;
   
-  if(nullptr != setup.find( recordKey ) ) {
+  if(auto runInfoRec = setup.tryToGet<RunInfoRcd>()) {
       defaultValue = -1;
       //get fed summary information
       edm::ESHandle<RunInfo> sumFED;
-      setup.get<RunInfoRcd>().get(sumFED);    
+      runInfoRec->get(sumFED);
       std::vector<int> FedsInIds= sumFED->m_fed_in;   
       unsigned int f = 0;
       bool flag = false;
@@ -151,18 +149,3 @@ void RPCDataCertification::myBooker(DQMStore::IBooker & ibooker){
       certDiskFractions[i+2]->Fill(defaultValue_);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

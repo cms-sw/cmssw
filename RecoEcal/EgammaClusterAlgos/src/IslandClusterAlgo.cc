@@ -35,11 +35,15 @@ std::vector<reco::BasicCluster> IslandClusterAlgo::makeClusters(
     {
       threshold = ecalEndcapSeedThreshold;
       ecalPart_string = "EndCap";
+      v_chstatusSeed_ = v_chstatusSeed_Endcap_;
+      v_chstatus_ = v_chstatus_Endcap_;
     }
   if (ecalPart == barrel) 
     {
       threshold = ecalBarrelSeedThreshold;
       ecalPart_string = "Barrel";
+      v_chstatusSeed_ = v_chstatusSeed_Barrel_;
+      v_chstatus_ = v_chstatus_Barrel_;
     }
 
   if (verbosity < pINFO)
@@ -59,6 +63,13 @@ std::vector<reco::BasicCluster> IslandClusterAlgo::makeClusters(
       {
 	double energy = it->energy();
 	if (energy < threshold) continue; // need to check to see if this line is useful!
+
+        // avoid seeding for anomalous channels
+	if(! it->checkFlag(EcalRecHit::kGood)) { // if rechit is good, no need for further checks
+	  if (it->checkFlags( v_chstatus_ ) || it->checkFlags( v_chstatusSeed_ )) {
+	     continue; // the recHit has to be excluded from seeding
+	  }
+        }
 
 	auto thisCell = geometry_p->getGeometry(it->id());
 	auto const &  position = thisCell->getPosition();
@@ -255,7 +266,8 @@ bool IslandClusterAlgo::shouldBeAdded(EcalRecHitCollection::const_iterator candi
   if ( (candidate_it == recHits_->end())                 || // ...if it does not correspond to a hit
        (used_s.find(candidate_it->id()) != used_s.end()) || // ...if it already belongs to a cluster
        (candidate_it->energy() <= 0)                     || // ...if it has a negative or zero energy
-       (candidate_it->energy() > previous_it->energy()))    // ...or if the previous crystal had lower E
+       (candidate_it->energy() > previous_it->energy())  || // ...or if the previous crystal had lower E
+       (!(candidate_it->checkFlag(EcalRecHit::kGood)) && candidate_it->checkFlags( v_chstatus_ )))
     {
       return false;
     }

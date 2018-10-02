@@ -1,11 +1,8 @@
 #ifndef Geometry_HcalEventSetup_HcalDDDGeometryEP_H
 #define Geometry_HcalEventSetup_HcalDDDGeometryEP_H 1
 
-
-// system include files
 #include <memory>
 
-// user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
@@ -16,30 +13,19 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalDDDGeometryLoader.h"
 
-//
-// class decleration
-//
-
 class HcalDDDGeometryEP : public edm::ESProducer {
 
 public:
 
   HcalDDDGeometryEP(const edm::ParameterSet&);
-  ~HcalDDDGeometryEP() override;
 
-  typedef std::shared_ptr<CaloSubdetectorGeometry> ReturnType;
- 
-  void idealRecordCallBack(const HcalRecNumberingRecord&) {}
+  using ReturnType = std::unique_ptr<CaloSubdetectorGeometry>;
 
   ReturnType produceIdeal(const HcalRecNumberingRecord&);
   ReturnType produceAligned(const HcalGeometryRecord&);
 
 private:
 
-  // ----------member data ---------------------------
-
-  HcalDDDGeometryLoader* m_loader ;
   bool m_applyAlignment ;
 };
 #endif
-

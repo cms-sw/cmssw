@@ -42,7 +42,7 @@ private:
   int iEvent;
   double hTTrigMin;
   double hTTrigMax;
-  std::auto_ptr<TFile> outFile;
+  std::unique_ptr<TFile> outFile;
   std::vector<TProfile> profiles;
   //profile->MATACQ CH ID map
   std::vector<int> profChId;
