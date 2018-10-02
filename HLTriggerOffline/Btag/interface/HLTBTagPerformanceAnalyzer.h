@@ -68,9 +68,9 @@ class HLTBTagPerformanceAnalyzer : public DQMEDAnalyzer {
 		HLTConfigProvider hltConfigProvider_;
 		bool triggerConfChanged_;
 		std::vector<edm::EDGetTokenT<reco::JetTagCollection> > JetTagCollection_;
-                edm::EDGetTokenT<std::vector<reco::ShallowTagInfo> > shallowTagInfosTokenCalo_;
+        //                edm::EDGetTokenT<std::vector<reco::ShallowTagInfo> > shallowTagInfosTokenCalo_;
                 edm::EDGetTokenT<std::vector<reco::ShallowTagInfo> > shallowTagInfosTokenPf_;
-                edm::Handle<std::vector<reco::ShallowTagInfo> > shallowTagInfosCalo;
+        //                edm::Handle<std::vector<reco::ShallowTagInfo> > shallowTagInfosCalo;
                 edm::Handle<std::vector<reco::ShallowTagInfo> > shallowTagInfosPf;
 
 		/// other class variable

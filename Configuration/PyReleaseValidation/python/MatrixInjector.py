@@ -223,11 +223,14 @@ class MatrixInjector(object):
             wmsplit['RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM']=1
             wmsplit['RECODR2_2018reHLT_skimMuonEG_Prompt']=1
             wmsplit['RECODR2_2018reHLT_skimCharmonium_Prompt']=1
+            wmsplit['RECODR2_2018reHLT_skimJetHT_Prompt_HEfail']=1
+            wmsplit['RECODR2_2018reHLT_skimJetHT_Prompt_BadHcalMitig']=1
             wmsplit['HLTDR2_50ns']=1
             wmsplit['HLTDR2_25ns']=1
             wmsplit['HLTDR2_2016']=1
             wmsplit['HLTDR2_2017']=1
             wmsplit['HLTDR2_2018']=1
+            wmsplit['HLTDR2_2018_BadHcalMitig']=1
             wmsplit['Hadronizer']=1
             wmsplit['DIGIUP15']=1 
             wmsplit['RECOUP15']=1 
@@ -246,7 +249,9 @@ class MatrixInjector(object):
             wmsplit['RECOUP17_PU25']=1
             wmsplit['DIGICOS_UP17']=1
             wmsplit['RECOCOS_UP17']=1
-
+            wmsplit['HYBRIDRepackHI2015VR']=1
+            wmsplit['HYBRIDZSHI2015']=1
+            wmsplit['RECOHID15']=1
                                     
             #import pprint
             #pprint.pprint(wmsplit)            
@@ -485,6 +490,8 @@ class MatrixInjector(object):
                     t['KeepOutput']=True
                 elif t['TaskName'] in self.keep:
                     t['KeepOutput']=True
+                if t['TaskName'].startswith('HYBRIDRepackHI2015VR'):
+                    t['KeepOutput']=False
                 t.pop('nowmIO')
                 itask+=1
                 chainDict['Task%d'%(itask)]=t

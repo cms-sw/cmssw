@@ -112,25 +112,25 @@ private:
    void checkLiveMode();
 
    // ---------- member data --------------------------------
-   std::auto_ptr<CmsShowNavigator>           m_navigator;
-   std::auto_ptr<FWLiteJobMetadataManager>   m_metadataManager;
-   std::auto_ptr<fireworks::Context>         m_context;
+   std::unique_ptr<CmsShowNavigator>           m_navigator;
+   std::unique_ptr<FWLiteJobMetadataManager>   m_metadataManager;
+   std::unique_ptr<fireworks::Context>         m_context;
 
    std::vector<std::string> m_inputFiles;
    bool                     m_loadedAnyInputFile;
    const TFile             *m_openFile;
 
-   std::auto_ptr<CmsShowSearchFiles>  m_searchFiles;
+   std::unique_ptr<CmsShowSearchFiles>  m_searchFiles;
 
    // live options
    bool                         m_live;
-   std::auto_ptr<SignalTimer>   m_liveTimer;
+   std::unique_ptr<SignalTimer>   m_liveTimer;
    int                          m_liveTimeout;
    UInt_t                       m_lastXEventSerial;
 
    bool                         m_noVersionCheck;
 
-   std::auto_ptr<TMonitor> m_monitor;
+   std::unique_ptr<TMonitor> m_monitor;
 };
 
 #endif

@@ -332,16 +332,23 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
 	  }
 	}
       }
-      // Now try to include also electrons that have been reconstructed using the GraphCaloParticles
-      else if (caloParticle2SimCluster.count(match.first->g4Tracks()[0].trackId())) {
+      // Now try to include also electrons that have been reconstructed using
+      // the GraphCaloParticles. In particular, recover the cases in which the
+      // tracking particle associated to the CaloParticle has not left any hits
+      // in the calorimeters or, if it had, the cluster has been skipped due to
+      // threshold requirements.
+      if (caloParticle2SimCluster.count(match.first->g4Tracks()[0].trackId()))
+      {
         auto range = caloParticle2SimCluster.equal_range(match.first->g4Tracks()[0].trackId());
         for (auto it = range.first; it != range.second; ++it) {
           if (!usedSimCluster[it->second]) {
             usedSimCluster[it->second] = true;
-            size_t block    = simCluster2Block.find(it->second)->second;
-            size_t blockIdx = simCluster2BlockIndex.find(it->second)->second;
-            edm::Ref<reco::PFBlockCollection> blockRef(blocksHandle,block);
-            candidate.addElementInBlock(blockRef,blockIdx);
+            if (simCluster2Block.find(it->second) != simCluster2Block.end()) {
+              size_t block    = simCluster2Block.find(it->second)->second;
+              size_t blockIdx = simCluster2BlockIndex.find(it->second)->second;
+              edm::Ref<reco::PFBlockCollection> blockRef(blocksHandle,block);
+              candidate.addElementInBlock(blockRef,blockIdx);
+            }
           }
         }
       }

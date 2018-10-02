@@ -22,7 +22,7 @@ FWJobMetadataManager::~FWJobMetadataManager()
 void
 FWJobMetadataManager::update(FWJobMetadataUpdateRequest *request)
 {
-   std::auto_ptr<FWJobMetadataUpdateRequest> ptr(request);
+   std::unique_ptr<FWJobMetadataUpdateRequest> ptr(request);
    if (doUpdate(request))
       metadataChanged_();
 }

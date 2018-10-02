@@ -30,10 +30,10 @@
 <lib name="Geom"/>
 <lib name="GeomPainter"/>
 <lib name="GuiHtml"/>
-<architecture name="!amd64_clang8">
+<architecture name="!osx10">
 <lib name="GX11"/>
 </architecture>
-<architecture name="amd64_clang8">
+<architecture name="osx10">
 <lib name="GCocoa"/>
 </architecture>
 <lib name="RGL"/>

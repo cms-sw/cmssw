@@ -54,6 +54,9 @@ workflows[25211.17]=['',['GluGluHToZZTo4L_M125_Pow_py8_Evt_13UP17','DIGIUP17_PU2
 workflows[25212.17]=['',['VBFHToZZTo4Nu_M125_Pow_py8_Evt_13UP17','DIGIUP17_PU25','RECOUP17_PU25','HARVESTUP17_PU25']]
 workflows[25213.17]=['',['VBFHToBB_M125_Pow_py8_Evt_13UP17','DIGIUP17_PU25','RECOUP17_PU25','HARVESTUP17_PU25']]
 
+workflows[11024.2]=['',['TTbar_13UP18HEfailINPUT','DigiFullHEfail','RecoFullHEfail','HARVESTFullHEfail','NanoFullHEfail']]
+workflows[11024.3]=['',['TTbar_13UP18BadHcalMitigINPUT','DigiFullBadHcalMitig','RecoFullBadHcalMitig','HARVESTFullBadHcalMitig','NanoFullBadHcalMitig']]
+
 #fastsim
 workflows[25400] = ['ZEE_13',["FS_ZEE_13_UP15_PU25","HARVESTUP15FS","MINIAODMCUP15FS"]]
 workflows[25402] = ['TTbar_13',["FS_TTbar_13_UP15_PU25","HARVESTUP15FS","MINIAODMCUP15FS"]]

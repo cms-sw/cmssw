@@ -749,7 +749,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     throw lumi::Exception(std::string("non-existing HLXData "),"retrieveData","Lumi2DB");
   }
   //hlxtree->Print();
-  std::auto_ptr<HCAL_HLX::LUMI_SECTION> localSection(new HCAL_HLX::LUMI_SECTION);
+  std::unique_ptr<HCAL_HLX::LUMI_SECTION> localSection(new HCAL_HLX::LUMI_SECTION);
   HCAL_HLX::LUMI_SECTION_HEADER* lumiheader = &(localSection->hdr);
   HCAL_HLX::LUMI_SUMMARY* lumisummary = &(localSection->lumiSummary);
   HCAL_HLX::LUMI_DETAIL* lumidetail = &(localSection->lumiDetail);
@@ -766,7 +766,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
   TTree *diptree= (TTree*)source->Get("DIPCombined");
   if(diptree){
     //throw lumi::Exception(std::string("non-existing DIPData "),"retrieveData","Lumi2DB");
-    std::auto_ptr<HCAL_HLX::DIP_COMBINED_DATA> dipdata(new HCAL_HLX::DIP_COMBINED_DATA);
+    std::unique_ptr<HCAL_HLX::DIP_COMBINED_DATA> dipdata(new HCAL_HLX::DIP_COMBINED_DATA);
     diptree->SetBranchAddress("DIPCombined.",&dipdata);
     size_t ndipentries=diptree->GetEntries();
     for(size_t i=0;i<ndipentries;++i){

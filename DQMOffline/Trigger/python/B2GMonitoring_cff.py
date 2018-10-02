@@ -162,26 +162,26 @@ b2gDimuonHLTOfflineDQM.preselection.trigger.select = cms.vstring(['HLT_Mu37_TkMu
 
 b2gMonitorHLT = cms.Sequence(
     PFHT1050_Mjjmonitoring +
-    PFHT1050_Softdropmonitoring +
+#    PFHT1050_Softdropmonitoring +
 
     AK8PFJet500_Mjjmonitoring +
-    AK8PFJet500_Softdropmonitoring +
+#    AK8PFJet500_Softdropmonitoring +
 
     AK8PFHT750_TrimMass50_HTmonitoring +
     AK8PFHT750_TrimMass50_Mjjmonitoring +
-    AK8PFHT750_TrimMass50_Softdropmonitoring +
+#    AK8PFHT750_TrimMass50_Softdropmonitoring +
 
     AK8PFHT800_TrimMass50_HTmonitoring +
     AK8PFHT800_TrimMass50_Mjjmonitoring +
-    AK8PFHT800_TrimMass50_Softdropmonitoring +
+#    AK8PFHT800_TrimMass50_Softdropmonitoring +
 
     AK8PFHT850_TrimMass50_HTmonitoring +
     AK8PFHT850_TrimMass50_Mjjmonitoring +
-    AK8PFHT850_TrimMass50_Softdropmonitoring +
+#    AK8PFHT850_TrimMass50_Softdropmonitoring +
 
     AK8PFHT900_TrimMass50_HTmonitoring +
     AK8PFHT900_TrimMass50_Mjjmonitoring +
-    AK8PFHT900_TrimMass50_Softdropmonitoring +
+#    AK8PFHT900_TrimMass50_Softdropmonitoring +
 
     AK8PFJet360_TrimMass30_PromptMonitoring +
     AK8PFJet380_TrimMass30_PromptMonitoring +
@@ -195,6 +195,17 @@ b2gMonitorHLT = cms.Sequence(
 
     cms.Task(B2GegmGsfElectronIDsForDQM) ## unschedule execution [Use of electron VID requires this module being executed first]
 )
-
+## as reported in https://github.com/cms-sw/cmssw/issues/24444
+## it turned out that all softdrop modules rely on a jet collection which is available only if the miniAOD step is run @Tier0
+## ==> it is fine in the PromptReco workflow, but this collection is not available in the Express reconstruction
+## in addition, it is not available in the AOD (!!!!) ==> these modules needs to be run *WithRECO* step workflow (actually w/ the miniAOD step ....)
+b2gHLTDQMSourceWithRECO = cms.Sequence(
+    PFHT1050_Softdropmonitoring +
+    AK8PFJet500_Softdropmonitoring +
+    AK8PFHT750_TrimMass50_Softdropmonitoring +
+    AK8PFHT800_TrimMass50_Softdropmonitoring +    
+    AK8PFHT850_TrimMass50_Softdropmonitoring +
+    AK8PFHT900_TrimMass50_Softdropmonitoring    
+)
 b2gHLTDQMSourceExtra = cms.Sequence(
 )

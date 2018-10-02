@@ -9,11 +9,21 @@ namespace l1t{
     class BMTFUnpackerOutput : public Unpacker
     {
     public:
-      BMTFUnpackerOutput(){isKalman = false;}
-      BMTFUnpackerOutput(const bool type){isKalman = type;}
+      //the constructors assume that unpacks
+      //BMTF and BMTF is triggering (except assigned differently)
+      BMTFUnpackerOutput() {
+	isKalman = false;
+	isTriggeringAlgo = true;
+      }
+      BMTFUnpackerOutput(const bool isTriggering_) {
+	isKalman = false;
+	isTriggeringAlgo = isTriggering_;
+      }
       ~BMTFUnpackerOutput() override{};
       bool unpack(const Block& block, UnpackerCollections *coll) override;
+      void setKalmanAlgoTrue() {isKalman = true;}
     private:
+      bool isTriggeringAlgo;
       bool isKalman;
     };
 

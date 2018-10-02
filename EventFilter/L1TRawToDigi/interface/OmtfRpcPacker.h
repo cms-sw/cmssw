@@ -6,6 +6,8 @@
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "DataFormats/L1TMuon/interface/OMTF/OmtfDataWord64.h"
 #include "EventFilter/L1TRawToDigi/interface/OmtfLinkMappingRpc.h"
+#include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"  
+
 
 namespace edm { class EventSetup; }
 
@@ -14,7 +16,7 @@ namespace omtf {
 class RpcPacker {
 
 public:
-  RpcPacker() : thePactCabling(nullptr) {}
+  RpcPacker(){}
 
   void init(const edm::EventSetup & es);
   void init(const edm::EventSetup & es, const std::string & connectionFile);
@@ -24,7 +26,8 @@ private:
   void initCabling(const edm::EventSetup & es);
 
   MapLBIndex2EleIndex      thePact2Omtf;
-  const RPCReadOutMapping* thePactCabling;
+  std::unique_ptr<const RPCReadOutMapping> thePactCabling;
+
 };
 }
 #endif

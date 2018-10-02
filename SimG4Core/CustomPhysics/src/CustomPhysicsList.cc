@@ -38,7 +38,7 @@ CustomPhysicsList::CustomPhysicsList(const std::string& name,
   fParticleFactory.reset(new CustomParticleFactory());
   myHelper.reset(nullptr);
 
-  edm::LogInfo("SimG4CoreCustomPhysics") 
+  edm::LogVerbatim("SimG4CoreCustomPhysics") 
     << "CustomPhysicsList: Path for custom particle definition file: \n"
     <<particleDefFilePath << "\n" << "      dark_factor= " << dfactor;
 }
@@ -47,14 +47,14 @@ CustomPhysicsList::~CustomPhysicsList() {
 }
  
 void CustomPhysicsList::ConstructParticle(){
-  edm::LogInfo("SimG4CoreCustomPhysics") 
+  edm::LogVerbatim("SimG4CoreCustomPhysics") 
     << "===== CustomPhysicsList::ConstructParticle ";
   fParticleFactory.get()->loadCustomParticles(particleDefFilePath);
 }
  
 void CustomPhysicsList::ConstructProcess() {
   
-  edm::LogInfo("SimG4CoreCustomPhysics") 
+  edm::LogVerbatim("SimG4CoreCustomPhysics") 
     <<"CustomPhysicsList: adding CustomPhysics processes "
     << "for the list of particles";
 
@@ -64,7 +64,7 @@ void CustomPhysicsList::ConstructProcess() {
     CustomParticle* cp = dynamic_cast<CustomParticle*>(particle);
     if(cp) {
       G4ProcessManager* pmanager = particle->GetProcessManager();
-      edm::LogInfo("SimG4CoreCustomPhysics") 
+      edm::LogVerbatim("SimG4CoreCustomPhysics") 
 	<<"CustomPhysicsList: " << particle->GetParticleName()
 	<<"  PDGcode= " << particle->GetPDGEncoding()
 	<< "  Mass= " << particle->GetPDGMass()/GeV  <<" GeV.";
@@ -75,7 +75,7 @@ void CustomPhysicsList::ConstructProcess() {
 	}
 	if(cp->GetCloud() && fHadronicInteraction && 
 	   CustomPDGParser::s_isRHadron(particle->GetPDGEncoding())) {
-	  edm::LogInfo("SimG4CoreCustomPhysics") 
+	  edm::LogVerbatim("SimG4CoreCustomPhysics") 
 	    <<"CustomPhysicsList: " << particle->GetParticleName()
 	    <<" CloudMass= " <<cp->GetCloud()->GetPDGMass()/GeV
 	    <<" GeV; SpectatorMass= " << cp->GetSpectator()->GetPDGMass()/GeV<<" GeV.";

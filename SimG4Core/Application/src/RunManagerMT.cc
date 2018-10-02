@@ -109,7 +109,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
 {
   if (m_managerInitialized) return;
 
-  edm::LogInfo("SimG4CoreApplication") 
+  edm::LogVerbatim("SimG4CoreApplication") 
     << "RunManagerMT: start initialisation of geometry";
   
   // DDDWorld: get the DDCV from the ES and use it to build the World
@@ -118,7 +118,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   m_registry.dddWorldSignal_(m_world.get());
 
   // setup the magnetic field
-  edm::LogInfo("SimG4CoreApplication") 
+  edm::LogVerbatim("SimG4CoreApplication") 
     << "RunManagerMT: start initialisation of magnetic field";
 
   if (m_pUseMagneticField && !m_FieldFile.empty())
@@ -134,7 +134,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
     }
 
   // Create physics list
-  edm::LogInfo("SimG4CoreApplication") 
+  edm::LogVerbatim("SimG4CoreApplication") 
     << "RunManagerMT: create PhysicsList";
 
   std::unique_ptr<PhysicsListMakerBase>
@@ -168,7 +168,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   if (m_RestorePhysicsTables) {
     m_physicsList->SetPhysicsTableRetrieved(m_PhysicsTablesDir);
   }
-  edm::LogInfo("SimG4CoreApplication") 
+  edm::LogVerbatim("SimG4CoreApplication") 
     << "RunManagerMT: start initialisation of PhysicsList for master";
 
   int verb = std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity",0),

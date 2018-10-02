@@ -50,7 +50,7 @@ JetCorrFactors::Flavor
 JetCorrFactors::jecFlavor(std::string flavor) const
 {
   std::map<std::string, Flavor> flavors;
-  std::transform(flavor.begin(), flavor.end(), flavor.begin(), std::ptr_fun<int,int>(std::tolower));
+  std::transform(flavor.begin(), flavor.end(), flavor.begin(), [&](int c){ return std::tolower(c);} );
   flavors["uds"]=UDS; flavors["charm"]=CHARM; flavors["bottom"]=BOTTOM; flavors["gluon"]=GLUON; flavors["none"]=NONE;
   if(flavors.find(flavor)==flavors.end()){
     throw cms::Exception("InvalidRequest") << "You ask for a flavor, which does not exist. Available flavors are: \n"

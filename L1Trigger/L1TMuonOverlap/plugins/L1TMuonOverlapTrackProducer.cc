@@ -61,10 +61,6 @@ void L1TMuonOverlapTrackProducer::produce(edm::Event& iEvent, const edm::EventSe
   
   std::unique_ptr<l1t::RegionalMuonCandBxCollection > candidates = m_Reconstruction.reconstruct(iEvent, evSetup);
 
-  int bx = 0;
-  str<<" Number of candidates: "<<candidates->size(bx);
-  edm::LogInfo("OMTFOMTFProducer")<<str.str();
-
   iEvent.put(std::move(candidates), "OMTF");
 }
 /////////////////////////////////////////////////////
