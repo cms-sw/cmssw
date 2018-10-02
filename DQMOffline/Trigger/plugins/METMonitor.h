@@ -88,6 +88,12 @@ private:
   std::string folderName_;
   std::string histoSuffix_;
 
+  edm::InputTag metInputTag_;
+  edm::InputTag jetInputTag_;
+  edm::InputTag eleInputTag_;
+  edm::InputTag muoInputTag_;
+  edm::InputTag vtxInputTag_;
+
   edm::EDGetTokenT<reco::PFMETCollection>       metToken_;
   edm::EDGetTokenT<reco::PFJetCollection>       jetToken_;
   edm::EDGetTokenT<reco::GsfElectronCollection> eleToken_;
@@ -123,6 +129,7 @@ private:
     N_PHI, -MAX_PHI, MAX_PHI
   };
 
+  std::vector<bool> warningPrinted4token_;
 
 };
 

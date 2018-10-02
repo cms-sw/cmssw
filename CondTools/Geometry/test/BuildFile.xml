@@ -28,3 +28,4 @@
  <flags EDM_PLUGIN="1"/>
 </library> 
 
+<test name="test-data-file-deletion" command="test-data-file-deletion.sh"/>

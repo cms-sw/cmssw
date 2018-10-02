@@ -2,7 +2,7 @@
 //
 // Package:    CaloTowerHardcodeGeometryEP
 // Class:      CaloTowerHardcodeGeometryEP
-// 
+//
 /**\class CaloTowerHardcodeGeometryEP CaloTowerHardcodeGeometryEP.h tmp/CaloTowerHardcodeGeometryEP/interface/CaloTowerHardcodeGeometryEP.h
 
  Description: <one line class summary>
@@ -22,39 +22,20 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 CaloTowerHardcodeGeometryEP::CaloTowerHardcodeGeometryEP(const edm::ParameterSet& iConfig)
 {
    //the following line is needed to tell the framework what
    // data is being produced
    setWhatProduced(this,
                    &CaloTowerHardcodeGeometryEP::produce,
-                   dependsOn( &CaloTowerHardcodeGeometryEP::idealRecordCallBack ),
-		   "TOWER");
+		   edm::es::Label("TOWER"));
 
-  //now do what ever other initialization is needed
   loader_=new CaloTowerHardcodeGeometryLoader(); /// TODO : allow override of Topology.
 }
 
-
-CaloTowerHardcodeGeometryEP::~CaloTowerHardcodeGeometryEP() { 
+CaloTowerHardcodeGeometryEP::~CaloTowerHardcodeGeometryEP() {
   delete loader_;
 }
-
-
-//
-// member functions
-//
 
 // ------------ method called to produce the data  ------------
 CaloTowerHardcodeGeometryEP::ReturnType
@@ -65,9 +46,6 @@ CaloTowerHardcodeGeometryEP::produce(const CaloTowerGeometryRecord& iRecord) {
   iRecord.getRecord<HcalRecNumberingRecord>().get( hcaltopo );
   edm::ESHandle<HcalDDDRecConstants> pHRNDC;
   iRecord.getRecord<HcalRecNumberingRecord>().get( pHRNDC );
-  
+
   return std::unique_ptr<CaloSubdetectorGeometry>( loader_->load( &*cttopo, &*hcaltopo, &*pHRNDC ));
-
 }
-
-

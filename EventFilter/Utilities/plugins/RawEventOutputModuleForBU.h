@@ -46,7 +46,7 @@ class RawEventOutputModuleForBU : public edm::one::OutputModule<edm::one::WatchR
   void beginLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
   void endLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
 
-  std::auto_ptr<Consumer> templateConsumer_;
+  std::unique_ptr<Consumer> templateConsumer_;
   std::string label_;
   std::string instance_;
   edm::EDGetTokenT<FEDRawDataCollection> token_;

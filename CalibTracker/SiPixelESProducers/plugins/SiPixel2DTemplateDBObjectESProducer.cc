@@ -39,9 +39,9 @@ std::shared_ptr<SiPixel2DTemplateDBObject> SiPixel2DTemplateDBObjectESProducer::
 	GlobalPoint center(0.0, 0.0, 0.0);
 	float theMagField = magfield.product()->inTesla(center).mag();
 
-	//  std::string label = "numerator";   // &&& Temporary: matches Barrel Layer1 for 2017 data
-	//  std::string label = "denominator"; // &&& Temporary: matches Barrel Layer1 fullsim MC
-	std::string label = "";      // the correct default
+    std::string label = "numerator";   // The correct default
+	//  std::string label = "denominator"; // Outdated. Used for MC in older GT's
+	//  std::string label = "";      // Outdated. Old default 
 
 	if(     theMagField>=-0.1 && theMagField<1.0 ) label = "0T";
 	else if(theMagField>=1.0  && theMagField<2.5 ) label = "2T";

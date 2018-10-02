@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -65,6 +66,8 @@ class Pi0FixedMassWindowCalibration :  public edm::ESProducerLooper
   
   /// Destructor
   ~Pi0FixedMassWindowCalibration() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   /// Dummy implementation (job done in duringLoop)
   virtual void produce(edm::Event&, const edm::EventSetup&) {};

@@ -28,6 +28,7 @@ namespace l1t {
 			      std::vector<l1t::EtSum> & outputSums) override;
   private:
 
+    CaloParamsHelper const* params_;
     Cordic cordic_;
 
   };

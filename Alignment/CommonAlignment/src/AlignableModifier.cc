@@ -379,7 +379,7 @@ void AlignableModifier
   }
   
   // auto_ptr has exception safe delete (in contrast to bare pointer)
-  const std::auto_ptr<SurfaceDeformation> surfDef
+  const std::unique_ptr<SurfaceDeformation> surfDef
     (SurfaceDeformationFactory::create(deformType, rndDeformation));
   
   alignable->addSurfaceDeformation(surfDef.get(), true); // true to propagate down

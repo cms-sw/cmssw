@@ -771,8 +771,8 @@ std::ostream& operator<<(std::ostream& out, const PFDisplacedVertexFinder& a) {
       << " sigmacut = " << a.sigmacut_ << " T_ini = " 
       << a.t_ini_ << " ratio = " << a.ratio_ << endl << endl; 
 
-  const std::auto_ptr< reco::PFDisplacedVertexCollection >& displacedVertices_
-    = a.displacedVertices(); 
+  const std::unique_ptr< reco::PFDisplacedVertexCollection >& displacedVertices_
+    = std::move(a.displacedVertices()); 
 
 
   if(!displacedVertices_.get() ) {

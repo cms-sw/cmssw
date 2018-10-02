@@ -15,24 +15,23 @@ class HcalDetIdTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HcalDetIdTester( const edm::ParameterSet& );
   ~HcalDetIdTester( void ) override;
-    
+
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
   void endJob() override {}
 
 private:
-  edm::ParameterSet ps0_;
   bool              geomDB_;
 };
 
-HcalDetIdTester::HcalDetIdTester( const edm::ParameterSet& iConfig ) : ps0_(iConfig) {
+HcalDetIdTester::HcalDetIdTester( const edm::ParameterSet& iConfig ) {
   geomDB_ = iConfig.getParameter<bool>("GeometryFromDB");
 }
 
 HcalDetIdTester::~HcalDetIdTester( void ) {}
 
 void
-HcalDetIdTester::analyze(const edm::Event& /*iEvent*/, 
+HcalDetIdTester::analyze(const edm::Event& /*iEvent*/,
 			 const edm::EventSetup& iSetup ) {
 
   edm::ESHandle<HcalDDDRecConstants> hDRCons;
@@ -49,7 +48,7 @@ HcalDetIdTester::analyze(const edm::Event& /*iEvent*/,
     const CaloGeometry* geo = pG.product();
     caloGeom = (CaloSubdetectorGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
   } else {
-    HcalFlexiHardcodeGeometryLoader m_loader(ps0_);
+    HcalFlexiHardcodeGeometryLoader m_loader;
     caloGeom = m_loader.load(topology, hcons);
   }
 
@@ -58,7 +57,7 @@ HcalDetIdTester::analyze(const edm::Event& /*iEvent*/,
 
   int nfail0(0);
   for (int det = 1; det <= HcalForward; det++) {
-    for (int eta = -HcalDetId::kHcalEtaMask2; 
+    for (int eta = -HcalDetId::kHcalEtaMask2;
 	 eta <= HcalDetId::kHcalEtaMask2; eta++) {
       for (int depth = 1; depth <= maxDepth; depth++) {
 	for (int phi = 0; phi <= HcalDetId::kHcalPhiMask2; phi++) {
@@ -86,7 +85,7 @@ HcalDetIdTester::analyze(const edm::Event& /*iEvent*/,
     }
   }
 
-  std::cout << "\nNumber of failures:\nTopology certifies but geometry fails " 
+  std::cout << "\nNumber of failures:\nTopology certifies but geometry fails "
 	    << nfail0 << "\nGeometry certifies but Topology fails " << nfail1
 	    << std::endl << std::endl;
 }
