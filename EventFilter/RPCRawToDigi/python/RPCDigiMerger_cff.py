@@ -1,3 +1,3 @@
 import FWCore.ParameterSet.Config as cms
 
-from EventFilter.RPCRawToDigi.RPCDigiMerger_cfi import RPCDigiMerger
+from EventFilter.RPCRawToDigi.rpcDigiMerger_cfi import rpcDigiMerger

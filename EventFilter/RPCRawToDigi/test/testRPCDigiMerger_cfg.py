@@ -66,7 +66,7 @@ process.p = cms.Path(
                         + process.rpcCPPFRawToDigi 
                         + process.omtfStage2Digis
                         )
-                       * process.RPCDigiMerger 
+                       * process.rpcDigiMerger 
 )
 
 # Output
