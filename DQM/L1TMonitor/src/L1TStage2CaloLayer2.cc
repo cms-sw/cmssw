@@ -104,7 +104,7 @@ void L1TStage2CaloLayer2::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
   stage2CaloLayer2ETTEMRank_ = ibooker.book1D("ETTEMRank", "ETTEM E_{T}; ETTEM iE_{T}; Counts", 4096, -0.5, 4095.5);
   
   stage2CaloLayer2Asymmetry_ = ibooker.book1D("Asymmetry", "Asymmetry; Assymmetry; Counts", 256, -0.5, 255.5);
-  stage2CaloLayer2Centrality_ = ibooker.book1D("Centrality", "Centrality; Centrality; Counts", 8, -0.5, 7.5);
+  stage2CaloLayer2Centrality_ = ibooker.book1D("Centrality", "Centrality; Centrality; Counts", 9, -1.5, 7.5);
  
   stage2CaloLayer2MinBiasHFP0_ = ibooker.book1D("MinBiasHFP0", "HF Min Bias Sum Threshold 0, Positive #eta; N_{towers}; Events", 16, -0.5, 15.5);
   stage2CaloLayer2MinBiasHFM0_ = ibooker.book1D("MinBiasHFM0", "HF Min Bias Sum Threshold 1, Nevagive #eta; N_{towers}; Events", 16, -0.5, 15.5);
@@ -301,8 +301,11 @@ void L1TStage2CaloLayer2::analyze(const edm::Event & e, const edm::EventSetup & 
 	} else if (l1t::EtSum::EtSumType::kAsymEt == itEtSum->getType()){     //Asym ET
 	  stage2CaloLayer2Asymmetry_->Fill(itEtSum->hwPt());
         } else if (l1t::EtSum::EtSumType::kCentrality == itEtSum->getType()){     //Centrality
-          for (int i=0; i<8; i++)
-		if (((itEtSum->hwPt()>>i)&1)==1) stage2CaloLayer2Centrality_->Fill(i);
+          if (itEtSum->hwPt()==0) stage2CaloLayer2Centrality_->Fill(-1);
+          else {
+          	for (int i=0; i<8; i++)
+	        	if (((itEtSum->hwPt()>>i)&1)==1) stage2CaloLayer2Centrality_->Fill(i);
+	  }
         }
       }
     }
