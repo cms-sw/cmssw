@@ -69,8 +69,8 @@ namespace reco { namespace tau {
     for (const auto& signal_cand : tau.signalCands()) {
       const reco::PFCandidate* signal_pfcand = dynamic_cast<const reco::PFCandidate*>(signal_cand.get());
       if (signal_pfcand != nullptr) {
-	ecal_en_in_signal_pf_cands += signal_pfcand->ecalEnergy();
-	hcal_en_in_signal_pf_cands += signal_pfcand->hcalEnergy();
+        ecal_en_in_signal_pf_cands += signal_pfcand->ecalEnergy();
+        hcal_en_in_signal_pf_cands += signal_pfcand->hcalEnergy();
       }
       // TauReco@MiniAOD: recalculate for PackedCandidate if added to MiniAOD event content
     }
