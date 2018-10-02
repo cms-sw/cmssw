@@ -50,7 +50,6 @@ Description: A essource/esproducer for lumi values from DIP via runtime logger D
 #include <vector>
 #include <cstring>
 #include <iterator>
-#include <boost/foreach.hpp>
 #include <boost/tokenizer.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>

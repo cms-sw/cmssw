@@ -4,8 +4,6 @@
 #include <cmath>
 #include <iostream>
 #include <sstream>
-#include <boost/foreach.hpp>
-#define foreach BOOST_FOREACH
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"

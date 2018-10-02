@@ -28,7 +28,8 @@ void EnsembleCalibrationLA::endJob()
   TChain*const chain = new TChain("la_ensemble"); 
   for(auto const& file : inputFiles) chain->Add((file+inFileLocation).c_str());
 
-  int methods = 0;  for(unsigned int method : vMethods) methods|=method;
+  int methods = 0;
+  for(unsigned int method : vMethods) methods|=method;
 
   LA_Filler_Fitter laff(methods,samples,nbins,lowBin,highBin,maxEvents,tTopo_);
   laff.fill(chain,book);           
@@ -110,9 +111,9 @@ write_calibrations() const {
   std::fstream file((Prefix+"calibrations.dat").c_str(),std::ios::out);
   for(auto const& cal : calibrations) {
     file << cal.first << std::endl
-	 << "\t slopes(";    for(const float i : cal.second.slopes) file << i<< ","; file << ")" << std::endl
-	 << "\t offsets(";   for(const float i : cal.second.offsets) file << i<< ","; file << ")" << std::endl
-	 << "\t pulls(";     for(const float i : cal.second.pulls) file << i<< ","; file << ")" << std::endl;
+	 << "\t slopes(";    for(float i : cal.second.slopes) file << i<< ","; file << ")" << std::endl
+	 << "\t offsets(";   for(float i : cal.second.offsets) file << i<< ","; file << ")" << std::endl
+	 << "\t pulls(";     for(float i : cal.second.pulls) file << i<< ","; file << ")" << std::endl;
   }
   file.close();
 }

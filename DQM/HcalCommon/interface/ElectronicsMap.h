@@ -17,7 +17,6 @@
 #include "DQM/HcalCommon/interface/HashFilter.h"
 
 #include "boost/unordered_map.hpp"
-#include "boost/foreach.hpp"
 #include "string"
 
 namespace hcaldqm

@@ -56,7 +56,6 @@ Description: A essource/esproducer for lumi correction factor and run parameters
 #include <vector>
 #include <cstring>
 #include <iterator>
-#include <boost/foreach.hpp>
 #include <boost/tokenizer.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
