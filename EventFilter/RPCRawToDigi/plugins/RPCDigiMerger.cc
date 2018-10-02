@@ -36,7 +36,7 @@ void RPCDigiMerger::fillDescriptions(edm::ConfigurationDescriptions & descs)
     desc.add<edm::InputTag>("inputTagOMTFDigis", edm::InputTag("omtfStage2Digis", ""));
     desc.add<edm::InputTag>("inputTagCPPFDigis", edm::InputTag("rpcCPPFRawToDigi", ""));
 
-    descs.add("RPCDigiMerger", desc);
+    descs.add("rpcDigiMerger", desc);
 }
 
 void RPCDigiMerger::beginRun(edm::Run const & run, edm::EventSetup const & setup)

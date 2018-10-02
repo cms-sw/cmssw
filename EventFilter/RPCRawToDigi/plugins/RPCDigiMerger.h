@@ -28,18 +28,12 @@ public:
     RPCDigiMerger(edm::ParameterSet const & config);
     ~RPCDigiMerger() override;
 
-    // static void compute_crc_64bit(std::uint16_t & crc, std::uint64_t const & word);
-
     static void fillDescriptions(edm::ConfigurationDescriptions & descs);
 
     void beginRun(edm::Run const & run, edm::EventSetup const & setup) override;
     void produce(edm::Event & event, edm::EventSetup const & setup) override;
 
-
 protected:
-    // edm::EDGetTokenT<RPCDigiCollection> TwinMux_token_;
-    // edm::EDGetTokenT<RPCDigiCollection> OMTF_token_;
-    // edm::EDGetTokenT<RPCDigiCollection> CPPF_token_;
 
     edm::EDGetTokenT<RPCDigiCollection> twinMux_token_;
     edm::EDGetTokenT<RPCDigiCollection> omtf_token_;

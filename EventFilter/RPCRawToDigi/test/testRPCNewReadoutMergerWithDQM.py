@@ -63,7 +63,7 @@ process.rpcOMTFRecHits = process.rpcRecHits.clone()
 process.rpcOMTFRecHits.rpcDigiLabel = cms.InputTag('omtfStage2Digis')
 ### RPCRecHit - from Merger
 process.rpcMergerRecHits = process.rpcRecHits.clone()
-process.rpcMergerRecHits.rpcDigiLabel = cms.InputTag('RPCDigiMerger')
+process.rpcMergerRecHits.rpcDigiLabel = cms.InputTag('rpcDigiMerger')
 
 ### Print Summary
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
@@ -123,7 +123,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 process.p = cms.Path( 
                       (process.rpcUnpackingModule + process.RPCTwinMuxRawToDigi + process.rpcCPPFRawToDigi + process.omtfStage2Digis) 
-                      * process.RPCDigiMerger 
+                      * process.rpcDigiMerger 
                       * (process.rpcLegacyRecHits + process.rpcTwinMuxRecHits + process.rpcCPPFRecHits + process.rpcOMTFRecHits + process.rpcMergerRecHits)
                       * (process.rpcdigidqm + process.rpcTwinMuxdigidqm + process.rpcCPPFdigidqm + process.rpcOMTFdigidqm + process.rpcMergerdigidqm)
                       * process.DQMSaver
