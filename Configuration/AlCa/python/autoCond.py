@@ -58,9 +58,9 @@ autoCond = {
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in DECO mode
     'phase1_2018_cosmics'      :   '102X_upgrade2018cosmics_realistic_deco_v12',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
-    'phase1_2019_design'       : '102X_postLS2_design_v5', # GT containing design conditions for postLS2
+    'phase1_2019_design'       : '102X_postLS2_design_v7', # GT containing design conditions for postLS2
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
-    'phase1_2019_realistic'       : '102X_postLS2_realistic_v5', # GT containing realistic conditions for postLS2
+    'phase1_2019_realistic'       : '102X_postLS2_realistic_v7', # GT containing realistic conditions for postLS2
     # GlobalTag for MC production with realistic conditions for Phase2 2023
     'phase2_realistic'         : '102X_upgrade2023_realistic_v7'
 }
