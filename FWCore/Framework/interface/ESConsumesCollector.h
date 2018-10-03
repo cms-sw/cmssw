@@ -61,7 +61,7 @@ namespace edm {
     }
 
   private:
-    //only EDConsumerBase is allowed to make an instance of this class
+    //only ESProducer is allowed to make an instance of this class
     friend class ESProducer;
 
     explicit ESConsumesCollector(ESProducer* const iConsumer) :
