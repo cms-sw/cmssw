@@ -1,9 +1,9 @@
 /** \file
- * Implementation of class RawDataCollectorByLabel
+ * Implementation of class RawDataMapperByLabel
  *
  */
 
-#include "EventFilter/RawDataCollector/src/RawDataCollectorByLabel.h"
+#include "EventFilter/RawDataCollector/interface/RawDataMapperByLabel.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h" 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
@@ -20,9 +20,10 @@
 
 using namespace edm;
 
-RawDataCollectorByLabel::RawDataCollectorByLabel(const edm::ParameterSet& pset) {
+RawDataMapperByLabel::RawDataMapperByLabel(const edm::ParameterSet& pset) {
 
   inputTags_ = pset.getParameter<std::vector<InputTag> >("RawCollectionList");
+  mainCollectionTag_ = pset.getParameter<InputTag>("MainCollection");
   verbose_ = pset.getUntrackedParameter<int>("verbose",0);
 
   inputTokens_.reserve(inputTags_.size());
@@ -32,12 +33,12 @@ RawDataCollectorByLabel::RawDataCollectorByLabel(const edm::ParameterSet& pset) 
   produces<FEDRawDataCollection>();
 }
 
-RawDataCollectorByLabel::~RawDataCollectorByLabel(){
+RawDataMapperByLabel::~RawDataMapperByLabel(){
 
 }
 
 
-void RawDataCollectorByLabel::produce(Event & e, const EventSetup& c){
+void RawDataMapperByLabel::produce(Event & e, const EventSetup& c){
 
  /// Get Data from all FEDs
  std::vector< Handle<FEDRawDataCollection> > rawData;
@@ -52,6 +53,7 @@ void RawDataCollectorByLabel::produce(Event & e, const EventSetup& c){
 
  auto producedData = std::make_unique<FEDRawDataCollection>();
 
+ bool secondCollectionPresent= false;
  for (unsigned int i=0; i< rawData.size(); ++i ) { 
 
    const FEDRawDataCollection *rdc=rawData[i].product();
@@ -61,12 +63,17 @@ void RawDataCollectorByLabel::produce(Event & e, const EventSetup& c){
      std::cout << "branch name = " << rawData[i].provenance()->branchName() << std::endl;
      std::cout << "process index = " << rawData[i].provenance()->productID().processIndex() << std::endl;
    }
-
+   
+   if(secondCollectionPresent) throw cms::Exception("Unknown input type") << tagName << " unknown.  "
+        << "Two input collections are present. Please make sure that the input dataset has only one FEDRawDataCollector collection filled";
+        
+        
    for ( int j=0; j< FEDNumbering::MAXFEDID; ++j ) {
      const FEDRawData & fedData = rdc->FEDData(j);
      size_t size=fedData.size();
 
      if ( size > 0 ) {
+       secondCollectionPresent= true;
        // this fed has data -- lets copy it
        if(verbose_ > 1) std::cout << "Copying data from FED #" << j << std::endl;
        FEDRawData & fedDataProd = producedData->FEDData(j);
