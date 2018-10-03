@@ -102,7 +102,7 @@ namespace edm {
       /** can directly access data if data_default_record_trait<> is defined for this data type **/
       template< typename T>
          bool getData(T& iHolder) const {
-            return getData("", iHolder);
+            return getData(std::string{}, iHolder);
          }
 
       template< typename T>
