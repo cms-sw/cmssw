@@ -62,7 +62,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 process.p = cms.Path( 
                        (
                         process.rpcUnpackingModule 
-                        + process.RPCTwinMuxRawToDigi 
+                        + process.rpcTwinMuxRawToDigi 
                         + process.rpcCPPFRawToDigi 
                         + process.omtfStage2Digis
                         )
