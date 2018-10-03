@@ -20,6 +20,10 @@ namespace edm {
   class EDConsumerBase;
   class ESProducer;
   class ESConsumesCollector;
+  class EventSetup;
+  namespace eventsetup {
+    class EventSetupRecord;
+  }
 
   // A ESGetToken is created by calls to 'esConsumes' from an EDM
   // module.
@@ -28,10 +32,11 @@ namespace edm {
     friend class EDConsumerBase;
     friend class ESProducer;
     friend class ESConsumesCollector;
+    friend class EventSetup;
+    friend class eventsetup::EventSetupRecord;
 
   public:
     ESGetTokenT() = default;
-    ESInputTag const& tag() const noexcept { return m_tag; }
 
   private:
     explicit ESGetTokenT(ESInputTag const& tag) : m_tag{tag} {}
