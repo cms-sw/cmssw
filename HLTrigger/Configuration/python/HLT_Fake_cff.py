@@ -1,13 +1,13 @@
-# hltGetConfiguration --cff --data /dev/CMSSW_10_1_0/Fake --type Fake
+# hltGetConfiguration --cff --data /dev/CMSSW_10_3_0/Fake --type Fake
 
-# /dev/CMSSW_10_1_0/Fake/V8 (CMSSW_10_1_10_HLT1)
+# /dev/CMSSW_10_3_0/Fake/V2 (CMSSW_10_3_X_2018-10-01-2300)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_10_1_0/Fake/V8')
+  tableName = cms.string('/dev/CMSSW_10_3_0/Fake/V2')
 )
 
 fragment.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )

@@ -1,13 +1,13 @@
-# hltGetConfiguration --cff --data /dev/CMSSW_10_1_0/Fake1 --type Fake1
+# hltGetConfiguration --cff --data /dev/CMSSW_10_3_0/Fake1 --type Fake1
 
-# /dev/CMSSW_10_1_0/Fake1/V8 (CMSSW_10_1_10_HLT1)
+# /dev/CMSSW_10_3_0/Fake1/V2 (CMSSW_10_3_X_2018-10-01-2300)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_10_1_0/Fake1/V8')
+  tableName = cms.string('/dev/CMSSW_10_3_0/Fake1/V2')
 )
 
 fragment.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -58,10 +58,11 @@ fragment.hltCaloStage1Digis = cms.EDProducer( "L1TRawToDigi",
     MTF7 = cms.untracked.bool( False ),
     FWId = cms.uint32( 4294967295 ),
     TMTCheck = cms.bool( True ),
+    lenAMCTrailer = cms.untracked.int32( 0 ),
     debug = cms.untracked.bool( False ),
     FedIds = cms.vint32( 1352 ),
     lenAMCHeader = cms.untracked.int32( 8 ),
-    lenAMCTrailer = cms.untracked.int32( 0 ),
+    DmxFWId = cms.uint32( 0 ),
     FWOverride = cms.bool( False )
 )
 fragment.hltCaloStage1LegacyFormatDigis = cms.EDProducer( "L1TCaloUpgradeToGCTConverter",
