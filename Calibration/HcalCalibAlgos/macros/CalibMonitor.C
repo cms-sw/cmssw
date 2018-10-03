@@ -2076,7 +2076,7 @@ void CalibPlotProperties::Init(TChain *tree, const char* dupFileName) {
   for (int i=0; i<4; ++i)  ietas_.push_back(ietas[i]);
 
   char        name[20], title[200];
-  unsigned int kp = (ps_.size()-1);
+  unsigned int kp = ps_.size()-1;
   unsigned int kk(0);
   std::string titl[5] = {"all tracks", "good quality tracks", "selected tracks",
 			 "isolated good tracks", "tracks having MIP in ECAL"};
@@ -2388,23 +2388,23 @@ void CalibPlotProperties::Loop() {
     if (plotBasic_) {
       h_p[0]->Fill(pmom,t_EventWeight);
       h_eta[0]->Fill(t_ieta,t_EventWeight);
-      if (kp >= ps_.size()) h_eta0[kp]->Fill(t_ieta,t_EventWeight);
+      if (kp < ps_.size()) h_eta0[kp]->Fill(t_ieta,t_EventWeight);
       if (t_qltyFlag) {
 	h_p[1]->Fill(pmom,t_EventWeight);
 	h_eta[1]->Fill(t_ieta,t_EventWeight);
-	if (kp >= ps_.size()) h_eta1[kp]->Fill(t_ieta,t_EventWeight);
+	if (kp < ps_.size()) h_eta1[kp]->Fill(t_ieta,t_EventWeight);
 	if (t_selectTk) {
 	  h_p[2]->Fill(pmom,t_EventWeight);
 	  h_eta[2]->Fill(t_ieta,t_EventWeight);
-	  if (kp >= ps_.size()) h_eta2[kp]->Fill(t_ieta,t_EventWeight);
+	  if (kp < ps_.size()) h_eta2[kp]->Fill(t_ieta,t_EventWeight);
 	  if (t_hmaxNearP < cut) {
 	    h_p[3]->Fill(pmom,t_EventWeight);
 	    h_eta[3]->Fill(t_ieta,t_EventWeight);
-	    if (kp >= ps_.size()) h_eta3[kp]->Fill(t_ieta,t_EventWeight);
+	    if (kp < ps_.size()) h_eta3[kp]->Fill(t_ieta,t_EventWeight);
 	    if (t_eMipDR < 1.0) {
 	      h_p[4]->Fill(pmom,t_EventWeight);
 	      h_eta[4]->Fill(t_ieta,t_EventWeight);
-	      if (kp >= ps_.size()) {
+	      if (kp < ps_.size()) {
 		h_eta4[kp]->Fill(t_ieta,t_EventWeight);
 		h_dL1[kp]->Fill(t_mindR1,t_EventWeight);
 		h_vtx[kp]->Fill(t_goodPV,t_EventWeight);
@@ -2415,7 +2415,7 @@ void CalibPlotProperties::Loop() {
       }
     }
 
-    if (goodTk && kp != ps_.size() && selPhi) {
+    if (goodTk && kp < ps_.size() && selPhi) {
       if (rat > rcut) {
 
 	if (plotEnergy_) {
@@ -2559,10 +2559,10 @@ void CalibPlotProperties::savePlot(const std::string& theName, bool append,
 
   if (plotBasic_) {
     for (int k=0; k<5; ++k) {
-      h_p[k]->Write();
-      h_eta[k]->Write();
+      if (h_p[k]   != 0) {TH1D* h1 = (TH1D*)h_p[k]->Clone();   h1->Write();}
+      if (h_eta[k] != 0) {TH1D* h2 = (TH1D*)h_eta[k]->Clone(); h2->Write();}
     }
-    for (unsigned int k=0; k<ps_.size(); ++k) {
+    for (unsigned int k=0; k<h_eta0.size(); ++k) {
       if (h_eta0[k] != 0) {TH1D* h1 = (TH1D*)h_eta0[k]->Clone(); h1->Write();}
       if (h_eta1[k] != 0) {TH1D* h2 = (TH1D*)h_eta1[k]->Clone(); h2->Write();}
       if (h_eta2[k] != 0) {TH1D* h3 = (TH1D*)h_eta2[k]->Clone(); h3->Write();}
@@ -2578,48 +2578,42 @@ void CalibPlotProperties::savePlot(const std::string& theName, bool append,
       for (unsigned int j=0; j<=(unsigned int)(etahi_-etalo_); ++j) {
 	if (h_etaEH[k].size() > j && h_etaEH[k][j] != nullptr && 
 	  (all || (k == kp50))) {
-	  TH1D* hist = (TH1D*)h_etaEH[k][j]->Clone();
-	  hist->Write();
+	  TH1D* hist = (TH1D*)h_etaEH[k][j]->Clone(); hist->Write();
 	}
 	if (h_etaEp[k].size() > j && h_etaEp[k][j] != nullptr &&
 	    (all || (k == kp50))) {
-	  TH1D* hist = (TH1D*)h_etaEp[k][j]->Clone();
-	  hist->Write();
+	  TH1D* hist = (TH1D*)h_etaEp[k][j]->Clone(); hist->Write();
 	}
 	if (h_etaEE[k].size() > j && h_etaEE[k][j] != nullptr &&
 	    (all || (k == kp50))) {
-	  TH1D* hist = (TH1D*)h_etaEE[k][j]->Clone();
-	  hist->Write();
+	  TH1D* hist = (TH1D*)h_etaEE[k][j]->Clone(); hist->Write();
 	}
       }
     }
     
     for (unsigned int j=0; j < ietas_.size(); ++j)  {
       if (h_eHcal.size() > j && (h_eHcal[j] != nullptr)) {
-	TH1D* hist = (TH1D*)h_eHcal[j]->Clone();
-	hist->Write();
+	TH1D* hist = (TH1D*)h_eHcal[j]->Clone(); hist->Write();
       }
       if (h_mom.size() > j && (h_mom[j] != nullptr)) {
-	TH1D* hist = (TH1D*)h_mom[j]->Clone();
-	hist->Write();
+	TH1D* hist = (TH1D*)h_mom[j]->Clone(); hist->Write();
       }
       if (h_eEcal.size() > j && (h_eEcal[j] != nullptr)) {
-	TH1D* hist = (TH1D*)h_eEcal[j]->Clone();
-	hist->Write();
+	TH1D* hist = (TH1D*)h_eEcal[j]->Clone(); hist->Write();
       }
     }
   }
 
   if (plotHists_) {
-    h_nvtx->Write();
-    h_etaE->Write();
+    if (h_nvtx != 0) {TH1D* h1 = (TH1D*)h_nvtx->Clone(); h1->Write();}
+    if (h_etaE != 0) {TH2D* h2 = (TH2D*)h_etaE->Clone(); h2->Write();}
     for (unsigned int i=0; i<ndepth; ++i) {
-      h_bvlist[i]->Write();
-      h_bvlist2[i]->Write();
-      h_bvlist3[i]->Write();
-      h_evlist[i]->Write();
-      h_evlist2[i]->Write();
-      h_evlist3[i]->Write();
+      if (h_bvlist[i] !=0) {TH1D* h1=(TH1D*)h_bvlist[i]->Clone(); h1->Write();}
+      if (h_bvlist2[i]!=0) {TH1D* h2=(TH1D*)h_bvlist2[i]->Clone();h2->Write();}
+      if (h_bvlist3[i]!=0) {TH1D* h3=(TH1D*)h_bvlist3[i]->Clone();h3->Write();}
+      if (h_evlist[i] !=0) {TH1D* h4=(TH1D*)h_evlist[i]->Clone(); h4->Write();}
+      if (h_evlist2[i]!=0) {TH1D* h5=(TH1D*)h_evlist2[i]->Clone();h5->Write();}
+      if (h_evlist3[i]!=0) {TH1D* h6=(TH1D*)h_evlist3[i]->Clone();h6->Write();}
     }
   }  
   std::cout << "All done" << std::endl;
