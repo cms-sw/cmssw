@@ -32,7 +32,7 @@ RPCDigiMerger::~RPCDigiMerger()
 void RPCDigiMerger::fillDescriptions(edm::ConfigurationDescriptions & descs)
 {
     edm::ParameterSetDescription desc;
-    desc.add<edm::InputTag>("inputTagTwinMuxDigis", edm::InputTag("RPCTwinMuxRawToDigi", ""));
+    desc.add<edm::InputTag>("inputTagTwinMuxDigis", edm::InputTag("rpcTwinMuxRawToDigi", ""));
     desc.add<edm::InputTag>("inputTagOMTFDigis", edm::InputTag("omtfStage2Digis", ""));
     desc.add<edm::InputTag>("inputTagCPPFDigis", edm::InputTag("rpcCPPFRawToDigi", ""));
 

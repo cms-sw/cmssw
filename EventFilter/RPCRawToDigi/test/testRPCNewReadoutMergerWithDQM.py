@@ -54,7 +54,7 @@ process.rpcLegacyRecHits = process.rpcRecHits.clone()
 process.rpcLegacyRecHits.rpcDigiLabel = cms.InputTag('rpcUnpackingModule')
 ### RPCRecHit - from TwinMux
 process.rpcTwinMuxRecHits = process.rpcRecHits.clone()
-process.rpcTwinMuxRecHits.rpcDigiLabel = cms.InputTag('RPCTwinMuxRawToDigi')
+process.rpcTwinMuxRecHits.rpcDigiLabel = cms.InputTag('rpcTwinMuxRawToDigi')
 ### RPCRecHit - from CPPF
 process.rpcCPPFRecHits = process.rpcRecHits.clone()
 process.rpcCPPFRecHits.rpcDigiLabel = cms.InputTag('rpcCPPFRawToDigi')
@@ -122,7 +122,7 @@ process.source = cms.Source("PoolSource"
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 process.p = cms.Path( 
-                      (process.rpcUnpackingModule + process.RPCTwinMuxRawToDigi + process.rpcCPPFRawToDigi + process.omtfStage2Digis) 
+                      (process.rpcUnpackingModule + process.rpcTwinMuxRawToDigi + process.rpcCPPFRawToDigi + process.omtfStage2Digis) 
                       * process.rpcDigiMerger 
                       * (process.rpcLegacyRecHits + process.rpcTwinMuxRecHits + process.rpcCPPFRecHits + process.rpcOMTFRecHits + process.rpcMergerRecHits)
                       * (process.rpcdigidqm + process.rpcTwinMuxdigidqm + process.rpcCPPFdigidqm + process.rpcOMTFdigidqm + process.rpcMergerdigidqm)

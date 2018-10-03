@@ -57,6 +57,7 @@ RawToDigi = cms.Sequence(L1TRawToDigi
                          +muonCSCDigis
                          +muonDTDigis
                          +muonRPCDigis
+                         +muonRPCNewDigis
                          +castorDigis
                          +scalersRawToDigi
                          +tcdsDigis
@@ -70,6 +71,7 @@ RawToDigi_noTk = cms.Sequence(L1TRawToDigi
                               +muonCSCDigis
                               +muonDTDigis
                               +muonRPCDigis
+                              +muonRPCNewDigis
                               +castorDigis
                               +scalersRawToDigi
                               +tcdsDigis
