@@ -50,17 +50,17 @@ autoCond = {
     # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in PEAK mode
     'phase1_2017_cosmics_peak' : '102X_mc2017cosmics_realistic_peak_v4',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for full Phase1 2018 (and 0,0,0-centred beamspot)
-    'phase1_2018_design'       : '102X_upgrade2018_design_v7',
+    'phase1_2018_design'       : '102X_upgrade2018_design_v9',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector
-    'phase1_2018_realistic'    : '102X_upgrade2018_realistic_v12',
+    'phase1_2018_realistic'    : '102X_upgrade2018_realistic_v14',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector: HEM-15-16 fail
-    'phase1_2018_realistic_HEfail'    : '102X_upgrade2018_realistic_v12HEfail_v1',
+    'phase1_2018_realistic_HEfail'    : '102X_upgrade2018_realistic_v12HEfail_v2',
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in DECO mode
-    'phase1_2018_cosmics'      :   '102X_upgrade2018cosmics_realistic_deco_v11',
+    'phase1_2018_cosmics'      :   '102X_upgrade2018cosmics_realistic_deco_v12',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
-    'phase1_2019_design'       : '102X_postLS2_design_v5', # GT containing design conditions for postLS2
+    'phase1_2019_design'       : '102X_postLS2_design_v7', # GT containing design conditions for postLS2
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
-    'phase1_2019_realistic'       : '102X_postLS2_realistic_v5', # GT containing realistic conditions for postLS2
+    'phase1_2019_realistic'       : '102X_postLS2_realistic_v7', # GT containing realistic conditions for postLS2
     # GlobalTag for MC production with realistic conditions for Phase2 2023
     'phase2_realistic'         : '102X_upgrade2023_realistic_v7'
 }
