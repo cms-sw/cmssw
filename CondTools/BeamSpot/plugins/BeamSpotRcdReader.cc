@@ -77,7 +77,7 @@ class BeamSpotRcdReader : public edm::one::EDAnalyzer<edm::one::SharedResources>
 
       // ----------member data ---------------------------
       edm::ESWatcher<BeamSpotObjectsRcd> watcher_;
-      std::auto_ptr<std::ofstream> output_;
+      std::unique_ptr<std::ofstream> output_;
 };
 
 //
