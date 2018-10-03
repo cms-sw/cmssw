@@ -82,7 +82,7 @@ class JetMatching {
 	const std::vector<JetPartonMatch> &getMatchSummary() const
 	{ return matchSummary; }
 */
-	static std::auto_ptr<JetMatching> create(
+	static std::unique_ptr<JetMatching> create(
 					const edm::ParameterSet &params);
 
     protected:
