@@ -166,7 +166,7 @@ namespace sistrip {
       }
       
       // construct FEDBuffer
-      std::auto_ptr<sistrip::FEDBuffer> buffer;
+      std::unique_ptr<sistrip::FEDBuffer> buffer;
       try {
         buffer.reset(new sistrip::FEDBuffer(input.data(),input.size()));
         buffer->setLegacyMode(legacy_);

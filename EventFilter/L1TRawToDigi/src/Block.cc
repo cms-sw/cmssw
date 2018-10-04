@@ -74,13 +74,13 @@ namespace l1t {
    {
       if (end_ - data_ < getHeaderSize()) {
          LogDebug("L1T") << "Reached end of payload";
-         return std::auto_ptr<Block>();
+         return std::move(std::unique_ptr<Block>());
       }
 
       if (data_[0] == 0xffffffff) {
          LogDebug("L1T") << "Skipping padding word";
          ++data_;
-         return getBlock();
+         return std::move(getBlock());
       }
 
       auto header = getHeader();
@@ -89,14 +89,14 @@ namespace l1t {
          edm::LogError("L1T")
             << "Expecting a block size of " << header.getSize()
             << " but only " << (end_ - data_) << " words remaining";
-         return std::auto_ptr<Block>();
+         return std::move(std::unique_ptr<Block>());
       }
 
       LogTrace("L1T") << "Creating block with size " << header.getSize();
 
       auto res = std::unique_ptr<Block>(new Block(header, data_, data_ + header.getSize()));
       data_ += header.getSize();
-      return res;
+      return std::move(res);
    }
 
    MP7Payload::MP7Payload(const uint32_t * data, const uint32_t * end, bool legacy_mc) : Payload(data, end)
@@ -192,7 +192,7 @@ namespace l1t {
   MTF7Payload::getBlock()
   {
     if (end_ - data_ < 2)
-      return std::auto_ptr<Block>(nullptr);
+      return std::move(std::unique_ptr<Block>(nullptr));
     
     const uint16_t * data16 = reinterpret_cast<const uint16_t*>(data_);
     const uint16_t * end16 = reinterpret_cast<const uint16_t*>(end_);
@@ -215,11 +215,11 @@ namespace l1t {
     
     if (not valid(pattern)) {
       edm::LogWarning("L1T") << "MTF7 block with unrecognized id 0x" << std::hex << pattern;
-      return std::auto_ptr<Block>(nullptr);
+      return std::move(std::unique_ptr<Block>(nullptr));
     }
     
     data_ += (i + 1) * 2;
-    return std::unique_ptr<Block>(new Block(pattern, payload, 0, MTF7));
+    return std::move(std::unique_ptr<Block>(new Block(pattern, payload, 0, MTF7)));
   }
   
    CTP7Payload::CTP7Payload(const uint32_t * data, const uint32_t * end, amc::Header amcHeader) : Payload(data, end), amcHeader_(amcHeader)
@@ -257,7 +257,7 @@ namespace l1t {
    {
       if (end_ - data_ < getHeaderSize()) {
          LogDebug("L1T") << "Reached end of payload";
-         return std::auto_ptr<Block>();
+         return std::move(std::unique_ptr<Block>());
       }
       if ( capId_ > bx_per_l1a_ ) {
         edm::LogWarning("L1T") << "CTP7 with more bunch crossings than expected";
@@ -269,7 +269,7 @@ namespace l1t {
          edm::LogError("L1T")
             << "Expecting a block size of " << header.getSize()
             << " but only " << (end_ - data_) << " words remaining";
-         return std::auto_ptr<Block>();
+         return std::move(std::unique_ptr<Block>());
       }
 
       LogTrace("L1T") << "Creating block with size " << header.getSize();
@@ -277,6 +277,6 @@ namespace l1t {
       auto res = std::unique_ptr<Block>(new Block(header, data_, data_ + header.getSize()));
       data_ += header.getSize();
       capId_++;
-      return res;
+      return std::move(res);
    }
 }

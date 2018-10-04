@@ -24,12 +24,14 @@
 using namespace std;
 using namespace edm;
 
+namespace {
 vector<std::string> HltPaths_;
 int StatusBadChannel = 1;
-int ChannelStatus[14][16];
+int ChannelStatus[14][16] {};
 int N_GoodChannels = 224;
 int EtowerLastModule = 5;
 int TrigIndexMax = 0;
+}
 
 CastorDigiMonitor::CastorDigiMonitor(const edm::ParameterSet& ps) {
   fVerbosity = ps.getUntrackedParameter<int>("debug", 0);
@@ -207,7 +209,7 @@ void CastorDigiMonitor::processEvent(edm::Event const& event,
     return;
   }
 
-  float Ecell[14][16];
+  float Ecell[14][16] {};
   for (CastorDigiCollection::const_iterator j = castorDigis.begin();
        j != castorDigis.end(); j++) {
     const CastorDataFrame digi = (const CastorDataFrame)(*j);

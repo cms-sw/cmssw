@@ -416,11 +416,11 @@ void PhotonIDValueMapProducer::getImpactParameters(
     const edm::Ptr<reco::Candidate>& candidate, const reco::Vertex& pv, float& dxy, float& dz)
 {
     if (isAOD_) {
-        auto theTrack = *static_cast<const edm::Ptr<reco::PFCandidate>>(candidate)->trackRef();
+        auto const& theTrack = *static_cast<const edm::Ptr<reco::PFCandidate>>(candidate)->trackRef();
         dxy = theTrack.dxy(pv.position());
         dz = theTrack.dz(pv.position());
     } else {
-        auto aCand = *static_cast<const edm::Ptr<pat::PackedCandidate>>(candidate);
+        auto const& aCand = *static_cast<const edm::Ptr<pat::PackedCandidate>>(candidate);
         dxy = aCand.dxy(pv.position());
         dz = aCand.dz(pv.position());
     }

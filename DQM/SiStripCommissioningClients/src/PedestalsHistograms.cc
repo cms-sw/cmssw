@@ -21,7 +21,7 @@ PedestalsHistograms::PedestalsHistograms( const edm::ParameterSet& pset,
                              bei,
                              sistrip::PEDESTALS )
 {
-  factory_ = auto_ptr<PedestalsSummaryFactory>( new PedestalsSummaryFactory );
+  factory_ = unique_ptr<PedestalsSummaryFactory>( new PedestalsSummaryFactory );
   LogTrace(mlDqmClient_) 
     << "[PedestalsHistograms::" << __func__ << "]"
     << " Constructing object...";
