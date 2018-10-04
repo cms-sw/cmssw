@@ -91,10 +91,9 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
   float sumEtaTimesEnergy = 0.;
   float sumEnergy = 0.;
   const std::vector<reco::PFCandidatePtr>& signalPFCands = thePFTauRef->signalPFCands();
-  for ( std::vector<reco::PFCandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
-	pfCandidate != signalPFCands.end(); ++pfCandidate ) {
-    sumEtaTimesEnergy += ((*pfCandidate)->positionAtECALEntrance().eta()*(*pfCandidate)->energy());
-    sumEnergy += (*pfCandidate)->energy();
+  for ( const auto & pfCandidate : signalPFCands ) {
+    sumEtaTimesEnergy += (pfCandidate->positionAtECALEntrance().eta()*pfCandidate->energy());
+    sumEnergy += pfCandidate->energy();
   }
   if ( sumEnergy > 0. ) {
     tauEtaAtEcalEntrance = sumEtaTimesEnergy/sumEnergy;
@@ -102,17 +101,16 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
 
   float leadChargedPFCandEtaAtEcalEntrance = -99.;
   float leadChargedPFCandPt = -99.;
-  for ( std::vector<reco::PFCandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
-	pfCandidate != signalPFCands.end(); ++pfCandidate ) {
+  for ( const auto & pfCandidate : signalPFCands ) {
     const reco::Track* track = nullptr;
-    if ( (*pfCandidate)->trackRef().isNonnull() ) track = (*pfCandidate)->trackRef().get();
-    else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->innerTrack().isNonnull()  ) track = (*pfCandidate)->muonRef()->innerTrack().get();
-    else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->globalTrack().isNonnull() ) track = (*pfCandidate)->muonRef()->globalTrack().get();
-    else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->outerTrack().isNonnull()  ) track = (*pfCandidate)->muonRef()->outerTrack().get();
-    else if ( (*pfCandidate)->gsfTrackRef().isNonnull() ) track = (*pfCandidate)->gsfTrackRef().get();
+    if ( pfCandidate->trackRef().isNonnull() ) track = pfCandidate->trackRef().get();
+    else if ( pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->innerTrack().isNonnull()  ) track = pfCandidate->muonRef()->innerTrack().get();
+    else if ( pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->globalTrack().isNonnull() ) track = pfCandidate->muonRef()->globalTrack().get();
+    else if ( pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->outerTrack().isNonnull()  ) track = pfCandidate->muonRef()->outerTrack().get();
+    else if ( pfCandidate->gsfTrackRef().isNonnull() ) track = pfCandidate->gsfTrackRef().get();
     if ( track ) {
       if ( track->pt() > leadChargedPFCandPt ) {
-	leadChargedPFCandEtaAtEcalEntrance = (*pfCandidate)->positionAtECALEntrance().eta();
+	leadChargedPFCandEtaAtEcalEntrance = pfCandidate->positionAtECALEntrance().eta();
 	leadChargedPFCandPt = track->pt();
       }
     }
@@ -123,10 +121,9 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
     int numSignalPFGammaCandsInSigCone = 0;
     const std::vector<reco::PFCandidatePtr>& signalPFGammaCands = thePFTauRef->signalPFGammaCands();
     
-    for ( std::vector<reco::PFCandidatePtr>::const_iterator pfGamma = signalPFGammaCands.begin();
-	  pfGamma != signalPFGammaCands.end(); ++pfGamma ) {
+    for ( const auto & pfGamma : signalPFGammaCands ) {
             
-      double dR = deltaR((*pfGamma)->p4(), thePFTauRef->leadPFChargedHadrCand()->p4());
+      double dR = deltaR(pfGamma->p4(), thePFTauRef->leadPFChargedHadrCand()->p4());
       double signalrad = std::max(0.05, std::min(0.10, 3.0/std::max(1.0, thePFTauRef->pt())));
             
       // pfGammas inside the tau signal cone
@@ -136,16 +133,15 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
     }
     
     // loop over the electrons
-    for ( reco::GsfElectronCollection::const_iterator theGsfElectron = gsfElectrons_->begin();
-	  theGsfElectron != gsfElectrons_->end(); ++theGsfElectron ) {
-      if ( theGsfElectron->pt() > 10. ) { // CV: only take electrons above some minimal energy/Pt into account...
-	double deltaREleTau = deltaR(theGsfElectron->p4(), thePFTauRef->p4());
+    for ( const auto & theGsfElectron : *gsfElectrons_ ) {
+      if ( theGsfElectron.pt() > 10. ) { // CV: only take electrons above some minimal energy/Pt into account...
+	double deltaREleTau = deltaR(theGsfElectron.p4(), thePFTauRef->p4());
 	deltaRDummy = deltaREleTau;
 	if ( deltaREleTau < 0.3 ) {
-	  double mva_match = mva_->MVAValue(*thePFTauRef, *theGsfElectron);
+	  double mva_match = mva_->MVAValue(*thePFTauRef, theGsfElectron);
 	  bool hasGsfTrack = thePFTauRef->leadPFChargedHadrCand()->gsfTrackRef().isNonnull();
 	  if ( !hasGsfTrack )
-            hasGsfTrack = theGsfElectron->gsfTrack().isNonnull();
+            hasGsfTrack = theGsfElectron.gsfTrack().isNonnull();
 
 	  //// Veto taus that go to Ecal crack
 	  if ( isInEcalCrack(tauEtaAtEcalEntrance) || isInEcalCrack(leadChargedPFCandEtaAtEcalEntrance) ) {
