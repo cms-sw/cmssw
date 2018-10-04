@@ -94,11 +94,11 @@ process.siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(sr
 process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi")
 process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
 process.pixelVertices.TkFilterParameters.minPt = process.pixelTracksTrackingRegions.RegionPSet.ptMin
-process.pixelTracksTrackingRegions.RegionPSet.originRadius     = 0.4
-process.pixelTracksTrackingRegions.RegionPSet.originHalfLength = 15.
-process.pixelTracksTrackingRegions.RegionPSet.originXPos       = 0.08
-process.pixelTracksTrackingRegions.RegionPSet.originYPos       = -0.03
-process.pixelTracksTrackingRegions.RegionPSet.originZPos       = 0.
+process.pixelTracksTrackingRegions.RegionPSet.originRadius     = cms.double(0.4)
+process.pixelTracksTrackingRegions.RegionPSet.originHalfLength = cms.double(15.)
+process.pixelTracksTrackingRegions.RegionPSet.originXPos       = cms.double(0.08)
+process.pixelTracksTrackingRegions.RegionPSet.originYPos       = cms.double(-0.03)
+process.pixelTracksTrackingRegions.RegionPSet.originZPos       = cms.double(0.)
 
 
 #----------------------------
@@ -169,40 +169,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
                                             minVxDoF           = cms.double(10.0),
                                             minVxWgt           = cms.double(0.5),
                                             fileName           = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt"))
-
-
-    #----------------------------
-    # Pixel-Tracks&Vertices Config
-    #----------------------------
-    from RecoVertex.PrimaryVertexProducer.TkClusParameters_cff import DA_vectParameters
-    offlinePrimaryVertices = cms.EDProducer(
-        "PrimaryVertexProducer",
-        verbose       = cms.untracked.bool(False),
-        TrackLabel    = cms.InputTag("generalTracks"),
-        beamSpotLabel = cms.InputTag("offlineBeamSpot"),
-        TkFilterParameters           = cms.PSet(
-            algorithm                = cms.string('filter'),
-            maxNormalizedChi2        = cms.double(10.0),
-            minPixelLayersWithHits   = cms.int32(2),
-            minSiliconLayersWithHits = cms.int32(5),
-            maxD0Significance        = cms.double(4.0), 
-            minPt                    = cms.double(0.0),
-            maxEta                   = cms.double(2.4),
-            trackQuality             = cms.string("any")),
-        TkClusParameters  = DA_vectParameters,
-        vertexCollections = cms.VPSet(
-            [cms.PSet(label             = cms.string(""),
-                      algorithm         = cms.string("AdaptiveVertexFitter"),
-                      chi2cutoff        = cms.double(2.5),
-                      minNdof           = cms.double(0.0),
-                      useBeamConstraint = cms.bool(False),
-                      maxDistanceToBeam = cms.double(1.0)),
-             cms.PSet(label             = cms.string("WithBS"),
-                      algorithm         = cms.string('AdaptiveVertexFitter'),
-                      chi2cutoff        = cms.double(2.5),
-                      minNdof           = cms.double(2.0),
-                      useBeamConstraint = cms.bool(True),
-                      maxDistanceToBeam = cms.double(1.0))]))
 
 
 #----------------------------
