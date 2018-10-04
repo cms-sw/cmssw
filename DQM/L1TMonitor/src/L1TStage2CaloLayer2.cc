@@ -305,7 +305,7 @@ void L1TStage2CaloLayer2::analyze(const edm::Event & e, const edm::EventSetup & 
           else {
           	for (int i=0; i<8; i++)
 	        	if (((itEtSum->hwPt()>>i)&1)==1) stage2CaloLayer2Centrality_->Fill(i);
-	  }
+	       }
         }
       }
     }
