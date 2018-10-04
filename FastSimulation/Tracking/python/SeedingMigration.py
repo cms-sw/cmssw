@@ -14,6 +14,7 @@ def _hitSetProducerToFactoryPSet(producer):
         "MultiHitFromChi2EDProducer": "MultiHitGeneratorFromChi2",
         "CAHitTripletEDProducer": "CAHitTripletGenerator",
         "CAHitQuadrupletEDProducer": "CAHitQuadrupletGenerator",   
+        "PixelQuadrupletEDProducer": "none",
         }
     ret = cms.PSet()
     _copy(producer, ret)
