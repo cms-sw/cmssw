@@ -196,8 +196,8 @@ class JetAnalyzer_HeavyIons : public DQMEDAnalyzer {
   MonitorElement* mRhoMDist_vsEta;
   MonitorElement* mRhoDist_vsPt;
   MonitorElement* mRhoMDist_vsPt;
-  MonitorElement* mRhoDist_vsCent;
-  MonitorElement* mRhoMDist_vsCent;
+  MonitorElement* mRhoDist_vsCent[etaBins_];
+  MonitorElement* mRhoMDist_vsCent[etaBins_];
   MonitorElement* rhoEtaRange;
   MonitorElement* mCSCandpT_vsPt[etaBins_];
   MonitorElement* mCSCand_corrPFcand[etaBins_];
