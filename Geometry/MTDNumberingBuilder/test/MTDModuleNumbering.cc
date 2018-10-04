@@ -66,10 +66,10 @@
 
 //double PI = 3.141592654;
 
-class ModuleNumbering : public edm::one::EDAnalyzer<> {
+class MTDModuleNumbering : public edm::one::EDAnalyzer<> {
 public:
-  explicit ModuleNumbering( const edm::ParameterSet& );
-  ~ModuleNumbering() override;
+  explicit MTDModuleNumbering( const edm::ParameterSet& );
+  ~MTDModuleNumbering() override;
   
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -101,14 +101,14 @@ static const double tolerance_angle = 0.001; // 0.001 rad
 //
 // constructors and destructor
 //
-ModuleNumbering::ModuleNumbering( const edm::ParameterSet& iConfig )
+MTDModuleNumbering::MTDModuleNumbering( const edm::ParameterSet& iConfig )
 {
   //now do what ever initialization is needed
 
 }
 
 
-ModuleNumbering::~ModuleNumbering()
+MTDModuleNumbering::~MTDModuleNumbering()
 {
   
   // do anything here that needs to be done at desctruction time
@@ -121,7 +121,7 @@ ModuleNumbering::~ModuleNumbering()
 // member functions
 //
 
-void ModuleNumbering::fillModuleVariables(const GeometricDet* module, double& polarRadius, double& phiRad, double& z) {
+void MTDModuleNumbering::fillModuleVariables(const GeometricDet* module, double& polarRadius, double& phiRad, double& z) {
   // module variables
   polarRadius = std::sqrt(module->translation().X()*module->translation().X()+module->translation().Y()*module->translation().Y());
   phiRad = atan2(module->translation().Y(),module->translation().X());
@@ -134,7 +134,7 @@ void ModuleNumbering::fillModuleVariables(const GeometricDet* module, double& po
   //
 }
 
-double ModuleNumbering::changePhiRange_From_ZeroTwoPi_To_MinusPiPlusPi(double phiRad) {
+double MTDModuleNumbering::changePhiRange_From_ZeroTwoPi_To_MinusPiPlusPi(double phiRad) {
   double new_phiRad = phiRad;
   // tolerance near phi=PI
   if(fabs(new_phiRad-M_PI) < tolerance_angle) new_phiRad=M_PI;
@@ -144,7 +144,7 @@ double ModuleNumbering::changePhiRange_From_ZeroTwoPi_To_MinusPiPlusPi(double ph
   return new_phiRad;
 }
 
-double ModuleNumbering::changePhiRange_From_MinusPiPlusPi_To_MinusTwoPiZero(double phiRad) {
+double MTDModuleNumbering::changePhiRange_From_MinusPiPlusPi_To_MinusTwoPiZero(double phiRad) {
   double new_phiRad = phiRad;
   // tolerance near phi=PI
   if(fabs(fabs(new_phiRad)-M_PI) < tolerance_angle) new_phiRad=M_PI;
@@ -154,7 +154,7 @@ double ModuleNumbering::changePhiRange_From_MinusPiPlusPi_To_MinusTwoPiZero(doub
   return new_phiRad;
 }
 
-double ModuleNumbering::changePhiRange_From_MinusPiPlusPi_To_ZeroTwoPi(double phiRad) {
+double MTDModuleNumbering::changePhiRange_From_MinusPiPlusPi_To_ZeroTwoPi(double phiRad) {
   double new_phiRad = phiRad;
   // tolerance near phi=PI
   if(fabs(fabs(new_phiRad)-M_PI) < tolerance_angle) new_phiRad=M_PI;
@@ -166,7 +166,7 @@ double ModuleNumbering::changePhiRange_From_MinusPiPlusPi_To_ZeroTwoPi(double ph
 
 // ------------ method called to produce the data  ------------
 void
-ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
+MTDModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
@@ -175,10 +175,10 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
   
-  edm::LogInfo("ModuleNumbering") << "begins";
+  edm::LogInfo("MTDModuleNumbering") << "begins";
   
   // output file
-  std::ofstream Output("ModuleNumbering.log",std::ios::out);
+  std::ofstream Output("MTDModuleNumbering.log",std::ios::out);
   //
   
   // reset counters
@@ -193,8 +193,8 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
   edm::ESHandle<std::vector<GeometricDetExtra> > rDDE;
   iSetup.get<IdealGeometryRecord>().get( rDD );     
   iSetup.get<IdealGeometryRecord>().get( rDDE );     
-  edm::LogInfo("ModuleNumbering") << " Top node is  " << rDD.product() << " " <<  rDD.product()->name().name() << std::endl;
-  edm::LogInfo("ModuleNumbering") << " And Contains  Daughters: " << rDD.product()->deepComponents().size() << std::endl;
+  edm::LogInfo("MTDModuleNumbering") << " Top node is  " << rDD.product() << " " <<  rDD.product()->name().name() << std::endl;
+  edm::LogInfo("MTDModuleNumbering") << " And Contains  Daughters: " << rDD.product()->deepComponents().size() << std::endl;
   CmsTrackerDebugNavigator nav(*rDDE.product());
   nav.dump(*rDD.product(), *rDDE.product());
   //
@@ -1247,5 +1247,5 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(ModuleNumbering);
+DEFINE_FWK_MODULE(MTDModuleNumbering);
   
