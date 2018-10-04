@@ -71,8 +71,7 @@ int testCSCMapping::runIt(const std::string& config){
   edm::AssertHandler ah;
   int rc=0;
   try {
-    std::unique_ptr<edm::ParameterSet> pset; // ???????
-    edm::EventProcessor proc(std::move(pset));
+    edm::EventProcessor proc(edm::getPSetFromConfig(config));
     proc.run();
   } catch (cms::Exception& e){
     std::cerr << "Exception caught:  " 
