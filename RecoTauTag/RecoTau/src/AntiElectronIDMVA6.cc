@@ -526,10 +526,9 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
   float sumEtaTimesEnergy = 0.;
   float sumEnergy = 0.;
   const std::vector<reco::PFCandidatePtr>& signalPFCands = thePFTau.signalPFCands();
-  for ( std::vector<reco::PFCandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
-	pfCandidate != signalPFCands.end(); ++pfCandidate ) {
-    sumEtaTimesEnergy += (*pfCandidate)->positionAtECALEntrance().eta()*(*pfCandidate)->energy();
-    sumEnergy += (*pfCandidate)->energy();
+  for ( const auto & pfCandidate : signalPFCands ) {
+    sumEtaTimesEnergy += pfCandidate->positionAtECALEntrance().eta()*pfCandidate->energy();
+    sumEnergy += pfCandidate->energy();
   }
   if ( sumEnergy > 0. ) {
     TauEtaAtEcalEntrance = sumEtaTimesEnergy/sumEnergy;
@@ -537,17 +536,16 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
   
   float TauLeadChargedPFCandEtaAtEcalEntrance = -99.;
   float TauLeadChargedPFCandPt = -99.;
-  for ( std::vector<reco::PFCandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
-	pfCandidate != signalPFCands.end(); ++pfCandidate ) {
+  for ( const auto & pfCandidate : signalPFCands ) {
     const reco::Track* track = nullptr;
-    if ( (*pfCandidate)->trackRef().isNonnull() ) track = (*pfCandidate)->trackRef().get();
-    else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->innerTrack().isNonnull()  ) track = (*pfCandidate)->muonRef()->innerTrack().get();
-    else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->globalTrack().isNonnull() ) track = (*pfCandidate)->muonRef()->globalTrack().get();
-    else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->outerTrack().isNonnull()  ) track = (*pfCandidate)->muonRef()->outerTrack().get();
-    else if ( (*pfCandidate)->gsfTrackRef().isNonnull() ) track = (*pfCandidate)->gsfTrackRef().get();
+    if ( pfCandidate->trackRef().isNonnull() ) track = pfCandidate->trackRef().get();
+    else if ( pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->innerTrack().isNonnull()  ) track = pfCandidate->muonRef()->innerTrack().get();
+    else if ( pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->globalTrack().isNonnull() ) track = pfCandidate->muonRef()->globalTrack().get();
+    else if ( pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->outerTrack().isNonnull()  ) track = pfCandidate->muonRef()->outerTrack().get();
+    else if ( pfCandidate->gsfTrackRef().isNonnull() ) track = pfCandidate->gsfTrackRef().get();
     if ( track ) {
       if ( track->pt() > TauLeadChargedPFCandPt ) {
-	TauLeadChargedPFCandEtaAtEcalEntrance = (*pfCandidate)->positionAtECALEntrance().eta();
+	TauLeadChargedPFCandEtaAtEcalEntrance = pfCandidate->positionAtECALEntrance().eta();
 	TauLeadChargedPFCandPt = track->pt();
       }
     }
@@ -571,8 +569,7 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
   reco::Candidate::LorentzVector pfGammaSum(0,0,0,0);
   reco::Candidate::LorentzVector pfChargedSum(0,0,0,0);
   
-  for ( unsigned i = 0 ; i < thePFTau.signalPFGammaCands().size(); ++i ) {
-    reco::PFCandidatePtr gamma = thePFTau.signalPFGammaCands().at(i);
+  for ( const auto & gamma : thePFTau.signalPFGammaCands() ) {
     float dR = deltaR(gamma->p4(), thePFTau.leadPFChargedHadrCand()->p4());
     float signalrad = std::max(0.05, std::min(0.10, 3.0/std::max(1.0, thePFTau.pt())));
 
@@ -603,8 +600,7 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
     }
   }
   
-  for ( unsigned i = 0 ; i < thePFTau.signalPFChargedHadrCands().size(); ++i ) {
-    reco::PFCandidatePtr charged = thePFTau.signalPFChargedHadrCands().at(i);
+  for ( const auto & charged : thePFTau.signalPFChargedHadrCands() ) {
     float dR = deltaR(charged->p4(), thePFTau.leadPFChargedHadrCand()->p4());
     float signalrad = std::max(0.05, std::min(0.10, 3.0/std::max(1.0, thePFTau.pt())));
   
@@ -621,16 +617,16 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
   Float_t TauPhi = thePFTau.phi();
   float sumPhiTimesEnergy = 0.;
   float sumEnergyPhi = 0.;
-  if ( !usePhiAtEcalEntranceExtrapolation_ ){
-    for (auto const& pfc : signalPFCands){
+  if ( !usePhiAtEcalEntranceExtrapolation_ ) {
+    for ( const auto & pfc : signalPFCands ) {
       sumPhiTimesEnergy += pfc->positionAtECALEntrance().phi()*pfc->energy();
       sumEnergyPhi += pfc->energy();
     }
   }
   else{
     TauPhi= -99.;
-    for (unsigned int o = 0; o < signalPFCands.size(); ++o ) {
-      reco::Candidate const*  signalCand = signalPFCands[o].get();
+    for ( const auto & signalPFCand : signalPFCands ) {
+      reco::Candidate const*  signalCand = signalPFCand.get();
       float phi = thePFTau.phi();
       math::XYZPoint aPos; 
       if ( atECalEntrance(signalCand, aPos) ) phi = aPos.Phi();
@@ -741,10 +737,9 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau)
   float sumEtaTimesEnergy = 0.;
   float sumEnergy = 0.;
   const std::vector<reco::PFCandidatePtr>& signalPFCands = thePFTau.signalPFCands();
-  for ( std::vector<reco::PFCandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
-	pfCandidate != signalPFCands.end(); ++pfCandidate ) {
-    sumEtaTimesEnergy += (*pfCandidate)->positionAtECALEntrance().eta()*(*pfCandidate)->energy();
-    sumEnergy += (*pfCandidate)->energy();
+  for ( const auto & pfCandidate : signalPFCands ) {
+    sumEtaTimesEnergy += pfCandidate->positionAtECALEntrance().eta()*pfCandidate->energy();
+    sumEnergy += pfCandidate->energy();
   }
   if ( sumEnergy > 0. ) {
     TauEtaAtEcalEntrance = sumEtaTimesEnergy/sumEnergy;
@@ -752,17 +747,16 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau)
   
   float TauLeadChargedPFCandEtaAtEcalEntrance = -99.;
   float TauLeadChargedPFCandPt = -99.;
-  for ( std::vector<reco::PFCandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
-	pfCandidate != signalPFCands.end(); ++pfCandidate ) {
+  for ( const auto & pfCandidate : signalPFCands ) {
     const reco::Track* track = nullptr;
-    if ( (*pfCandidate)->trackRef().isNonnull() ) track = (*pfCandidate)->trackRef().get();
-    else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->innerTrack().isNonnull()  ) track = (*pfCandidate)->muonRef()->innerTrack().get();
-    else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->globalTrack().isNonnull() ) track = (*pfCandidate)->muonRef()->globalTrack().get();
-    else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->outerTrack().isNonnull()  ) track = (*pfCandidate)->muonRef()->outerTrack().get();
-    else if ( (*pfCandidate)->gsfTrackRef().isNonnull() ) track = (*pfCandidate)->gsfTrackRef().get();
+    if ( pfCandidate->trackRef().isNonnull() ) track = pfCandidate->trackRef().get();
+    else if ( pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->innerTrack().isNonnull()  ) track = pfCandidate->muonRef()->innerTrack().get();
+    else if ( pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->globalTrack().isNonnull() ) track = pfCandidate->muonRef()->globalTrack().get();
+    else if ( pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->outerTrack().isNonnull()  ) track = pfCandidate->muonRef()->outerTrack().get();
+    else if ( pfCandidate->gsfTrackRef().isNonnull() ) track = pfCandidate->gsfTrackRef().get();
     if ( track ) {
       if ( track->pt() > TauLeadChargedPFCandPt ) {
-	TauLeadChargedPFCandEtaAtEcalEntrance = (*pfCandidate)->positionAtECALEntrance().eta();
+	TauLeadChargedPFCandEtaAtEcalEntrance = pfCandidate->positionAtECALEntrance().eta();
 	TauLeadChargedPFCandPt = track->pt();
       }
     }
@@ -786,8 +780,7 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau)
   reco::Candidate::LorentzVector pfGammaSum(0,0,0,0);
   reco::Candidate::LorentzVector pfChargedSum(0,0,0,0);
   
-  for ( unsigned i = 0 ; i < thePFTau.signalPFGammaCands().size(); ++i ) {
-    reco::PFCandidatePtr gamma = thePFTau.signalPFGammaCands().at(i);
+  for ( const auto & gamma : thePFTau.signalPFGammaCands() ) {
     float dR = deltaR(gamma->p4(), thePFTau.leadPFChargedHadrCand()->p4());
     float signalrad = std::max(0.05, std::min(0.10, 3.0/std::max(1.0, thePFTau.pt())));
 
@@ -818,8 +811,7 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau)
     }
   }
   
-  for ( unsigned i = 0 ; i < thePFTau.signalPFChargedHadrCands().size(); ++i ) {
-    reco::PFCandidatePtr charged = thePFTau.signalPFChargedHadrCands().at(i);
+  for ( const auto & charged : thePFTau.signalPFChargedHadrCands() ) {
     float dR = deltaR(charged->p4(), thePFTau.leadPFChargedHadrCand()->p4());
     float signalrad = std::max(0.05, std::min(0.10, 3.0/std::max(1.0, thePFTau.pt())));
   
@@ -837,16 +829,15 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau)
   float sumPhiTimesEnergy = 0.;
   float sumEnergyPhi = 0.;
   if ( !usePhiAtEcalEntranceExtrapolation_ ){
-    for ( std::vector<reco::PFCandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
-	  pfCandidate != signalPFCands.end(); ++pfCandidate ) {
-      sumPhiTimesEnergy += (*pfCandidate)->positionAtECALEntrance().phi()*(*pfCandidate)->energy();
-      sumEnergyPhi += (*pfCandidate)->energy();
+    for ( const auto & pfCandidate : signalPFCands ) {
+      sumPhiTimesEnergy += pfCandidate->positionAtECALEntrance().phi()*pfCandidate->energy();
+      sumEnergyPhi += pfCandidate->energy();
     }
   }
   else{
     TauPhi= -99.;
-    for (unsigned int o = 0; o < signalPFCands.size(); o++ ) {
-      reco::Candidate const*  signalCand = signalPFCands[o].get();
+    for ( const auto & signalPFCand : signalPFCands ) {
+      reco::Candidate const*  signalCand = signalPFCand.get();
       float phi = thePFTau.phi();
       math::XYZPoint aPos;
       if ( atECalEntrance(signalCand, aPos) == true ) phi = aPos.Phi();
@@ -932,53 +923,53 @@ double AntiElectronIDMVA6::MVAValue(const pat::Tau& theTau, const pat::Electron&
   reco::Candidate::LorentzVector pfChargedSum(0,0,0,0);
   
   const reco::CandidatePtrVector signalGammaCands = theTau.signalGammaCands();
-  for ( reco::CandidatePtrVector::const_iterator gamma = signalGammaCands.begin(); gamma != signalGammaCands.end(); ++gamma ){
-    float dR = deltaR((*gamma)->p4(), theTau.leadChargedHadrCand()->p4());
+  for ( const auto & gamma : signalGammaCands ) {
+    float dR = deltaR(gamma->p4(), theTau.leadChargedHadrCand()->p4());
     float signalrad = std::max(0.05, std::min(0.10, 3.0/std::max(1.0, theTau.pt())));
 
     // pfGammas inside the tau signal cone
     if (dR < signalrad) {
       if ( theTau.leadChargedHadrCand().isNonnull() ) {
-        GammasdEtaInSigCone.push_back((*gamma)->eta() - theTau.leadChargedHadrCand()->eta());
-        GammasdPhiInSigCone.push_back((*gamma)->phi() - theTau.leadChargedHadrCand()->phi());
+        GammasdEtaInSigCone.push_back(gamma->eta() - theTau.leadChargedHadrCand()->eta());
+        GammasdPhiInSigCone.push_back(gamma->phi() - theTau.leadChargedHadrCand()->phi());
 	//A.-C. please check whether this change is safe against future trainings
         //GammasdPhiInSigCone.push_back(deltaPhi((*gamma)->phi(), theTau.leadChargedHadrCand()->phi()));
       }
       else {
-        GammasdEtaInSigCone.push_back((*gamma)->eta() - theTau.eta());
-        GammasdPhiInSigCone.push_back((*gamma)->phi() - theTau.phi());
+        GammasdEtaInSigCone.push_back(gamma->eta() - theTau.eta());
+        GammasdPhiInSigCone.push_back(gamma->phi() - theTau.phi());
 	//A.-C. please check whether this change is safe against future trainings	
-        //GammasdPhiInSigCone.push_back(deltaPhi((*gamma)->phi(), theTau.phi()));
+        //GammasdPhiInSigCone.push_back(deltaPhi(gamma->phi(), theTau.phi()));
       }
-      GammasPtInSigCone.push_back((*gamma)->pt());
-      pfGammaSum += (*gamma)->p4();
+      GammasPtInSigCone.push_back(gamma->pt());
+      pfGammaSum += gamma->p4();
     }
     // pfGammas outside the tau signal cone
     else {
       if ( theTau.leadChargedHadrCand().isNonnull() ) {
-        GammasdEtaOutSigCone.push_back((*gamma)->eta() - theTau.leadChargedHadrCand()->eta());
-        GammasdPhiOutSigCone.push_back((*gamma)->phi() - theTau.leadChargedHadrCand()->phi());
+        GammasdEtaOutSigCone.push_back(gamma->eta() - theTau.leadChargedHadrCand()->eta());
+        GammasdPhiOutSigCone.push_back(gamma->phi() - theTau.leadChargedHadrCand()->phi());
 	//A.-C. please check whether this change is safe against future trainings		
-        //GammasdPhiOutSigCone.push_back(deltaPhi((*gamma)->phi(), theTau.leadChargedHadrCand()->phi()));
+        //GammasdPhiOutSigCone.push_back(deltaPhi(gamma->phi(), theTau.leadChargedHadrCand()->phi()));
       } 
       else {
-        GammasdEtaOutSigCone.push_back((*gamma)->eta() - theTau.eta());
-        GammasdPhiOutSigCone.push_back((*gamma)->phi() - theTau.phi());
+        GammasdEtaOutSigCone.push_back(gamma->eta() - theTau.eta());
+        GammasdPhiOutSigCone.push_back(gamma->phi() - theTau.phi());
 	//A.-C. please chaekc whether this change is safe against future trainings		
-        //GammasdPhiOutSigCone.push_back(deltaPhi((*gamma)->phi(), theTau.phi()));
+        //GammasdPhiOutSigCone.push_back(deltaPhi(gamma->phi(), theTau.phi()));
       }
-      GammasPtOutSigCone.push_back((*gamma)->pt());
+      GammasPtOutSigCone.push_back(gamma->pt());
     }
   }
   
   const reco::CandidatePtrVector signalChargedCands = theTau.signalChargedHadrCands();
-  for ( reco::CandidatePtrVector::const_iterator charged  = signalChargedCands.begin(); charged  != signalChargedCands.end(); ++charged ){    
-    float dR = deltaR((*charged)->p4(), theTau.leadChargedHadrCand()->p4());
+  for ( const auto & charged : signalChargedCands ) {
+    float dR = deltaR(charged->p4(), theTau.leadChargedHadrCand()->p4());
     float signalrad = std::max(0.05, std::min(0.10, 3.0/std::max(1.0, theTau.pt())));
   
     // charged particles inside the tau signal cone
     if (dR < signalrad) {
-      pfChargedSum += (*charged)->p4();
+      pfChargedSum += charged->p4();
     }
   }
   
@@ -990,8 +981,8 @@ double AntiElectronIDMVA6::MVAValue(const pat::Tau& theTau, const pat::Electron&
     float sumPhiTimesEnergy = 0.;
     float sumEnergy = 0.;
     const reco::CandidatePtrVector signalCands = theTau.signalCands();
-    for (unsigned int o = 0; o < signalCands.size(); o++ ) {
-      reco::Candidate const* signalCand = signalCands[o].get();
+    for ( const auto & signalCandPtr : signalCands ) {
+      reco::Candidate const* signalCand = signalCandPtr.get();
       float phi = theTau.phi();
       math::XYZPoint aPos;
       if ( atECalEntrance(signalCand, aPos) == true ) phi = aPos.Phi();
@@ -1128,45 +1119,45 @@ double AntiElectronIDMVA6::MVAValue(const pat::Tau& theTau)
   reco::Candidate::LorentzVector pfChargedSum(0,0,0,0);
   
   const reco::CandidatePtrVector signalGammaCands = theTau.signalGammaCands();
-  for ( reco::CandidatePtrVector::const_iterator gamma = signalGammaCands.begin(); gamma != signalGammaCands.end(); ++gamma ) {
-    float dR = deltaR((*gamma)->p4(), theTau.leadChargedHadrCand()->p4());
+  for ( const auto & gamma : signalGammaCands ) {
+    float dR = deltaR(gamma->p4(), theTau.leadChargedHadrCand()->p4());
     float signalrad = std::max(0.05, std::min(0.10, 3.0/std::max(1.0, theTau.pt())));
 
     // pfGammas inside the tau signal cone
     if (dR < signalrad) {
       if ( theTau.leadChargedHadrCand().isNonnull() ) {
-        GammasdEtaInSigCone.push_back((*gamma)->eta() - theTau.leadChargedHadrCand()->eta());
-        GammasdPhiInSigCone.push_back((*gamma)->phi() - theTau.leadChargedHadrCand()->phi());
+        GammasdEtaInSigCone.push_back(gamma->eta() - theTau.leadChargedHadrCand()->eta());
+        GammasdPhiInSigCone.push_back(gamma->phi() - theTau.leadChargedHadrCand()->phi());
       }
       else {
-        GammasdEtaInSigCone.push_back((*gamma)->eta() - theTau.eta());
-        GammasdPhiInSigCone.push_back((*gamma)->phi() - theTau.phi());
+        GammasdEtaInSigCone.push_back(gamma->eta() - theTau.eta());
+        GammasdPhiInSigCone.push_back(gamma->phi() - theTau.phi());
       }
-      GammasPtInSigCone.push_back((*gamma)->pt());
-      pfGammaSum += (*gamma)->p4();
+      GammasPtInSigCone.push_back(gamma->pt());
+      pfGammaSum += gamma->p4();
     }
     // pfGammas outside the tau signal cone
     else {
       if ( theTau.leadChargedHadrCand().isNonnull() ) {
-        GammasdEtaOutSigCone.push_back((*gamma)->eta() - theTau.leadChargedHadrCand()->eta());
-        GammasdPhiOutSigCone.push_back((*gamma)->phi() - theTau.leadChargedHadrCand()->phi());
+        GammasdEtaOutSigCone.push_back(gamma->eta() - theTau.leadChargedHadrCand()->eta());
+        GammasdPhiOutSigCone.push_back(gamma->phi() - theTau.leadChargedHadrCand()->phi());
       } 
       else {
-        GammasdEtaOutSigCone.push_back((*gamma)->eta() - theTau.eta());
-        GammasdPhiOutSigCone.push_back((*gamma)->phi() - theTau.phi());
+        GammasdEtaOutSigCone.push_back(gamma->eta() - theTau.eta());
+        GammasdPhiOutSigCone.push_back(gamma->phi() - theTau.phi());
       }
-      GammasPtOutSigCone.push_back((*gamma)->pt());
+      GammasPtOutSigCone.push_back(gamma->pt());
     }
   }
   
   const reco::CandidatePtrVector signalChargedCands = theTau.signalChargedHadrCands();
-  for ( reco::CandidatePtrVector::const_iterator charged  = signalChargedCands.begin(); charged  != signalChargedCands.end(); ++charged ) {
-    float dR = deltaR((*charged)->p4(), theTau.leadChargedHadrCand()->p4());
+  for ( const auto & charged : signalChargedCands ) {
+    float dR = deltaR(charged->p4(), theTau.leadChargedHadrCand()->p4());
     float signalrad = std::max(0.05, std::min(0.10, 3.0/std::max(1.0, theTau.pt())));
   
     // charged particles inside the tau signal cone
     if (dR < signalrad) {
-        pfChargedSum += (*charged)->p4();
+        pfChargedSum += charged->p4();
     }
   }
   
@@ -1178,8 +1169,8 @@ double AntiElectronIDMVA6::MVAValue(const pat::Tau& theTau)
     float sumPhiTimesEnergy = 0.;
     float sumEnergy = 0.;
     const reco::CandidatePtrVector signalCands = theTau.signalCands();
-    for (unsigned int o = 0; o < signalCands.size(); o++ ) {
-      reco::Candidate const* signalCand = signalCands[o].get();
+    for ( const auto & signalCandPtr : signalCands ) {
+      reco::Candidate const* signalCand = signalCandPtr.get();
       float phi = theTau.phi();
       math::XYZPoint aPos;
       if ( atECalEntrance(signalCand, aPos) == true ) phi = aPos.Phi();
@@ -1258,9 +1249,10 @@ namespace {
    std::array<double,18> cPhi;
    // IN: define locations of the 18 phi-cracks
    cPhi[0] = 2.97025;
-   for ( unsigned iCrack = 1; iCrack <= 17; ++iCrack )
-      cPhi[iCrack] = cPhi[0] - 2.*iCrack*pi/18;
-  return cPhi;
+   for ( unsigned iCrack = 1; iCrack <= 17; ++iCrack ) {
+     cPhi[iCrack] = cPhi[0] - 2.*iCrack*pi/18;
+   }
+   return cPhi;
  }
      
   const std::array<double,18> cPhi = fill_cPhi();
