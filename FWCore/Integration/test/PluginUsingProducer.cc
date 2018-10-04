@@ -76,7 +76,7 @@ namespace edmtest {
   putToken_{produces<int>()}
   {
     auto pluginPSet = pset.getParameter<edm::ParameterSet>("plugin");
-    maker_.reset( IntFactory::get()->create(pluginPSet.getParameter<std::string>("type"), pset));
+    maker_.reset( IntFactory::get()->create(pluginPSet.getParameter<std::string>("type"), pluginPSet));
   }
 
   void PluginUsingProducer::produce(edm::StreamID, edm::Event& event, edm::EventSetup const&)  const{
