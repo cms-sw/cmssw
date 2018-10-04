@@ -120,10 +120,9 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
     int numSignalGammaCandsInSigCone = 0;
     const std::vector<reco::CandidatePtr>& signalGammaCands = thePFTauRef->signalGammaCands();
     
-    for ( std::vector<reco::CandidatePtr>::const_iterator pfGamma = signalGammaCands.begin();
-	  pfGamma != signalGammaCands.end(); ++pfGamma ) {
+    for ( const auto & pfGamma : signalPFGammaCands ) {
             
-      double dR = deltaR((*pfGamma)->p4(), thePFTauRef->leadChargedHadrCand()->p4());
+      double dR = deltaR(pfGamma->p4(), thePFTauRef->leadPFChargedHadrCand()->p4());
       double signalrad = std::max(0.05, std::min(0.10, 3.0/std::max(1.0, thePFTauRef->pt())));
             
       // pfGammas inside the tau signal cone
@@ -133,10 +132,9 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
     }
     
     // loop over the electrons
-    for ( reco::GsfElectronCollection::const_iterator theGsfElectron = gsfElectrons_->begin();
-	  theGsfElectron != gsfElectrons_->end(); ++theGsfElectron ) {
-      if ( theGsfElectron->pt() > 10. ) { // CV: only take electrons above some minimal energy/Pt into account...
-	double deltaREleTau = deltaR(theGsfElectron->p4(), thePFTauRef->p4());
+    for ( const auto & theGsfElectron : *gsfElectrons_ ) {
+      if ( theGsfElectron.pt() > 10. ) { // CV: only take electrons above some minimal energy/Pt into account...
+	double deltaREleTau = deltaR(theGsfElectron.p4(), thePFTauRef->p4());
 	deltaRDummy = deltaREleTau;
 	if ( deltaREleTau < 0.3 ) {
 	  double mva_match = mva_->MVAValue(*thePFTauRef, *theGsfElectron);
@@ -146,7 +144,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
 	    hasGsfTrack = lpfch->gsfTrackRef().isNonnull();
 	  }
 	  if ( !hasGsfTrack )
-            hasGsfTrack = theGsfElectron->gsfTrack().isNonnull();
+            hasGsfTrack = theGsfElectron.gsfTrack().isNonnull();
 
 	  //// Veto taus that go to Ecal crack
 	  if ( isInEcalCrack(tauEtaAtEcalEntrance) || isInEcalCrack(leadChargedPFCandEtaAtEcalEntrance) ) {
