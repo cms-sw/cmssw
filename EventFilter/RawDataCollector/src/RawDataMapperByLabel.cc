@@ -40,62 +40,32 @@ RawDataMapperByLabel::~RawDataMapperByLabel(){
 
 void RawDataMapperByLabel::produce(Event & e, const EventSetup& c){
 
- /// Get Data from all FEDs
- std::vector< Handle<FEDRawDataCollection> > rawData;
- rawData.reserve(inputTokens_.size());
- for(tok_iterator_t inputTok = inputTokens_.begin(); inputTok != inputTokens_.end(); ++inputTok ) {
+ 
+ bool AlredyACollectionFilled= false;
+ tag_iterator_t inputTag = inputTags_.begin();
+ //unsigned int i=0;
+ for(tok_iterator_t inputTok = inputTokens_.begin(); inputTok != inputTokens_.end(); ++inputTok, ++inputTag  ) {
    Handle<FEDRawDataCollection> input;
    if (e.getByToken(*inputTok,input)){
-     rawData.push_back(input);
+    	if(input.isValid()){
+    		if(AlredyACollectionFilled) throw cms::Exception("Unknown input type") << "Two input collections are present. Please make sure that the input dataset has only one FEDRawDataCollector collection filled";
+            //auto producedData = std::make_unique<FEDRawDataCollection>();
+            //const FEDRawDataCollection *rdc=input.product();
+            e.put(std::move(input.product()));
+            AlredyACollectionFilled = true;            
    }
-   //else{     //skipping the inputtag requested. but this is a normal operation to bare data & MC. silent warning   }
- }
-
- auto producedData = std::make_unique<FEDRawDataCollection>();
-
- bool secondCollectionPresent= false;
- for (unsigned int i=0; i< rawData.size(); ++i ) { 
-
-   const FEDRawDataCollection *rdc=rawData[i].product();
-
-   if ( verbose_ > 0 ) {
-     std::cout << "\nRAW collection #" << i+1 << std::endl;
-     std::cout << "branch name = " << rawData[i].provenance()->branchName() << std::endl;
-     std::cout << "process index = " << rawData[i].provenance()->productID().processIndex() << std::endl;
+    
    }
    
-   if(secondCollectionPresent) throw cms::Exception("Unknown input type") << tagName << " unknown.  "
-        << "Two input collections are present. Please make sure that the input dataset has only one FEDRawDataCollector collection filled";
+  
+   
+ //  if(secondCollectionPresent) 
         
         
-   for ( int j=0; j< FEDNumbering::MAXFEDID; ++j ) {
-     const FEDRawData & fedData = rdc->FEDData(j);
-     size_t size=fedData.size();
-
-     if ( size > 0 ) {
-       secondCollectionPresent= true;
-       // this fed has data -- lets copy it
-       if(verbose_ > 1) std::cout << "Copying data from FED #" << j << std::endl;
-       FEDRawData & fedDataProd = producedData->FEDData(j);
-       if ( fedDataProd.size() != 0 ) {
-	 if(verbose_ > 1) {
-	   std::cout << " More than one FEDRawDataCollection with data in FED ";
-	   std::cout << j << " Skipping the 2nd\n";
-	 }
-	 continue;
-       } 
-       fedDataProd.resize(size);
-       unsigned char *dataProd=fedDataProd.data();
-       const unsigned char *data=fedData.data();
-       for ( unsigned int k=0; k<size; ++k ) {
-	 dataProd[k]=data[k];
-       }
-     }
-   }
+  
  }
 
  // Insert the new product in the event  
- e.put(std::move(producedData));
 
 }
 
