@@ -63,6 +63,14 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
 
 #----------------------------
+# Tracking General Configuration
+#----------------------------
+process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
+process.load("RecoLocalTracker.Configuration.RecoLocalTracker_cff")
+process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
+
+
+#----------------------------
 # Pixel-Tracks&Vertices Config
 #----------------------------
 from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
@@ -103,10 +111,6 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
     process.siPixelDigis.InputLabel          = cms.InputTag("rawDataCollector")
     process.siStripDigis.ProductLabel        = cms.InputTag("rawDataCollector")
-
-    process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
-    process.load("RecoLocalTracker.Configuration.RecoLocalTracker_cff")
-    process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
 
     #----------------------------
@@ -160,10 +164,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
     process.siPixelDigis.InputLabel          = cms.InputTag("rawDataRepacker")
     process.siStripDigis.ProductLabel        = cms.InputTag("rawDataRepacker")
-
-    process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
-    process.load("RecoLocalTracker.Configuration.RecoLocalTracker_cff")
-    process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
 
     #----------------------------
