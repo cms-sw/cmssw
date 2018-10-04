@@ -20,20 +20,9 @@ CMSDarkPairProduction::CMSDarkPairProduction(const G4ParticleDefinition* p,G4dou
 
 CMSDarkPairProduction::~CMSDarkPairProduction(){}
 
-G4double CMSDarkPairProduction::ComputeCrossSectionPerAtom(const G4ParticleDefinition*,
-                                                     G4double gammaEnergy, G4double Z,
-                                                     G4double, G4double, G4double)
+G4double CMSDarkPairProduction::ComputeCrossSectionPerAtom(const G4ParticleDefinition* p,
+         G4double e, G4double Z, G4double e1, G4double e2, G4double e3)
 {
-  
-  G4double crossSection = 0.0 ;
-  if ( gammaEnergy <= 2.0*electron_mass_c2 ) return crossSection;
-  
-  SetCurrentElement(Z);
-  // choose calculator according to parameters and switches
-  // in the moment only one calculator:
-  crossSection=ComputeXSectionPerAtom(gammaEnergy,Z);
-  
-  G4double xi = Finel/(Fel - fCoulomb); // inelastic contribution
-  crossSection *= dark_factor * xsfactor*Z*(Z+xi);
-  return crossSection;
+  return dark_factor
+    *G4PairProductionRelModel::ComputeCrossSectionPerAtom(p, e, Z, e1, e2, e3);
 }
