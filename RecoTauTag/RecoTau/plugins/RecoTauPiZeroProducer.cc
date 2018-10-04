@@ -114,7 +114,7 @@ RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset)
   // Check if we want to apply a final output selection
   if (pset.exists("outputSelection")) {
     std::string selection = pset.getParameter<std::string>("outputSelection");
-    if (selection != "") {
+    if (!selection.empty()) {
       outputSelector_.reset(
           new StringCutObjectSelector<reco::RecoTauPiZero>(selection));
     }
@@ -221,10 +221,8 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt, const edm::EventSetup& es)
     }
     // Apply the mass hypothesis if desired
     if (piZeroMass_ >= 0) {
-      std::for_each(
-          cleanPiZeros.begin(), cleanPiZeros.end(),
-          std::bind2nd(
-              std::mem_fun_ref(&reco::RecoTauPiZero::setMass), piZeroMass_));
+      for( auto& cleanPiZero: cleanPiZeros )
+         { cleanPiZero.setMass(this->piZeroMass_);};
     }
     // Add to association
     if ( verbosity_ >= 2 ) {

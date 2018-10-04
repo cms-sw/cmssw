@@ -309,7 +309,7 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase
   edm::InputTag puInfoSrc_;
   edm::InputTag vertexSrc_;
 
-  std::auto_ptr<MuScleFitMuonSelector> muonSelector_;
+  std::unique_ptr<MuScleFitMuonSelector> muonSelector_;
 };
 
 template<typename T>
@@ -783,7 +783,7 @@ edm::EDLooper::Status MuScleFit::duringLoop( const edm::Event & event, const edm
   //event.getByLabel(InputTag(triggerResultsLabel_),triggerResults);
   bool isFired = false;
 
-  if(triggerPath_[0] == "")
+  if(triggerPath_[0].empty())
     isFired = true;
   else if(triggerPath_[0] == "All"){
     isFired =triggerResults->accept();

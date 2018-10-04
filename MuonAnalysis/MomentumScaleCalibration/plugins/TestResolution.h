@@ -91,7 +91,7 @@ private:
 
   int eventCounter_;
 
-  std::auto_ptr<ResolutionFunction> resolutionFunction_;
+  std::unique_ptr<ResolutionFunction> resolutionFunction_;
 };
 
 #endif // TESTRESOLUTION_HH

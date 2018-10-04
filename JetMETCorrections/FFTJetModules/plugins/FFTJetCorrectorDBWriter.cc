@@ -65,7 +65,7 @@ FFTJetCorrectorDBWriter::FFTJetCorrectorDBWriter(const edm::ParameterSet& ps)
 void FFTJetCorrectorDBWriter::analyze(const edm::Event& iEvent,
                                       const edm::EventSetup& iSetup)
 {
-    std::auto_ptr<FFTJetCorrectorParameters> fcp;
+    std::unique_ptr<FFTJetCorrectorParameters> fcp;
 
     {
         std::ifstream input(inputFile.c_str(), std::ios_base::binary);
@@ -79,8 +79,7 @@ void FFTJetCorrectorDBWriter::analyze(const edm::Event& iEvent,
                 << "Failed to stat file \"" << inputFile << '"' << std::endl;
 
         const std::size_t len = st.st_size;
-        fcp = std::auto_ptr<FFTJetCorrectorParameters>(
-            new FFTJetCorrectorParameters(len));
+        fcp = std::make_unique<FFTJetCorrectorParameters>(len);
         assert(fcp->length() == len);
         if (len)
             input.read(fcp->getBuffer(), len);
