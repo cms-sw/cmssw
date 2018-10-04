@@ -64,29 +64,6 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
 
 #----------------------------
-# Tracking Configuration
-#----------------------------
-process.castorDigis.InputLabel           = cms.InputTag("rawDataRepacker")
-process.csctfDigis.producer              = cms.InputTag("rawDataRepacker")
-process.dttfDigis.DTTF_FED_Source        = cms.InputTag("rawDataRepacker")
-process.ecalDigis.InputLabel             = cms.InputTag("rawDataRepacker")
-process.ecalPreshowerDigis.sourceTag     = cms.InputTag("rawDataRepacker")
-process.gctDigis.inputLabel              = cms.InputTag("rawDataRepacker")
-process.gtDigis.DaqGtInputTag            = cms.InputTag("rawDataRepacker")
-process.hcalDigis.InputLabel             = cms.InputTag("rawDataRepacker")
-process.muonCSCDigis.InputObjects        = cms.InputTag("rawDataRepacker")
-process.muonDTDigis.inputLabel           = cms.InputTag("rawDataRepacker")
-process.muonRPCDigis.InputLabel          = cms.InputTag("rawDataRepacker")
-process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
-process.siPixelDigis.InputLabel          = cms.InputTag("rawDataRepacker")
-process.siStripDigis.ProductLabel        = cms.InputTag("rawDataRepacker")
-
-process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
-process.load("RecoLocalTracker.Configuration.RecoLocalTracker_cff")
-process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
-
-
-#----------------------------
 # Pixel-Tracks&Vertices Config
 #----------------------------
 from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
@@ -108,6 +85,29 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.runType.getRunType() == process.runType.cosmic_run or process.runType.getRunType() == process.runType.cosmic_run_stage1 or 
     process.runType.getRunType() == process.runType.hpu_run):
     print("[beampixel_dqm_sourceclient-live_cfg]::running pp")
+
+
+    #----------------------------
+    # Tracking Configuration
+    #----------------------------
+    process.castorDigis.InputLabel           = cms.InputTag("rawDataCollector")
+    process.csctfDigis.producer              = cms.InputTag("rawDataCollector")
+    process.dttfDigis.DTTF_FED_Source        = cms.InputTag("rawDataCollector")
+    process.ecalDigis.InputLabel             = cms.InputTag("rawDataCollector")
+    process.ecalPreshowerDigis.sourceTag     = cms.InputTag("rawDataCollector")
+    process.gctDigis.inputLabel              = cms.InputTag("rawDataCollector")
+    process.gtDigis.DaqGtInputTag            = cms.InputTag("rawDataCollector")
+    process.hcalDigis.InputLabel             = cms.InputTag("rawDataCollector")
+    process.muonCSCDigis.InputObjects        = cms.InputTag("rawDataCollector")
+    process.muonDTDigis.inputLabel           = cms.InputTag("rawDataCollector")
+    process.muonRPCDigis.InputLabel          = cms.InputTag("rawDataCollector")
+    process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
+    process.siPixelDigis.InputLabel          = cms.InputTag("rawDataCollector")
+    process.siStripDigis.ProductLabel        = cms.InputTag("rawDataCollector")
+
+    process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
+    process.load("RecoLocalTracker.Configuration.RecoLocalTracker_cff")
+    process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
 
     #----------------------------
@@ -142,6 +142,29 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
 #----------------------------
 if (process.runType.getRunType() == process.runType.hi_run):
     print("[beampixel_dqm_sourceclient-live_cfg]::running HI")
+
+
+    #----------------------------
+    # Tracking Configuration
+    #----------------------------
+    process.castorDigis.InputLabel           = cms.InputTag("rawDataRepacker")
+    process.csctfDigis.producer              = cms.InputTag("rawDataRepacker")
+    process.dttfDigis.DTTF_FED_Source        = cms.InputTag("rawDataRepacker")
+    process.ecalDigis.InputLabel             = cms.InputTag("rawDataRepacker")
+    process.ecalPreshowerDigis.sourceTag     = cms.InputTag("rawDataRepacker")
+    process.gctDigis.inputLabel              = cms.InputTag("rawDataRepacker")
+    process.gtDigis.DaqGtInputTag            = cms.InputTag("rawDataRepacker")
+    process.hcalDigis.InputLabel             = cms.InputTag("rawDataRepacker")
+    process.muonCSCDigis.InputObjects        = cms.InputTag("rawDataRepacker")
+    process.muonDTDigis.inputLabel           = cms.InputTag("rawDataRepacker")
+    process.muonRPCDigis.InputLabel          = cms.InputTag("rawDataRepacker")
+    process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
+    process.siPixelDigis.InputLabel          = cms.InputTag("rawDataRepacker")
+    process.siStripDigis.ProductLabel        = cms.InputTag("rawDataRepacker")
+
+    process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
+    process.load("RecoLocalTracker.Configuration.RecoLocalTracker_cff")
+    process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
 
     #----------------------------
