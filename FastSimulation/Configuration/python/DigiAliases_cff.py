@@ -124,6 +124,19 @@ def loadDigiAliases(process, premix=False):
            }
           )
 
+    process.muonRPCNewDigis = cms.EDAlias(
+        **{"simMuonRPCDigis" if nopremix else "mixData" :
+               cms.VPSet(
+                cms.PSet(
+                    type = cms.string("RPCDetIdRPCDigiMuonDigiCollection")
+                    ),
+                #cms.PSet(
+                #    type = cms.string("RPCDigiSimLinkedmDetSetVector")
+                #    )
+                )
+           }
+          )
+
     process.muonCSCDigis = cms.EDAlias(
         **{"simMuonCSCDigis" if nopremix else "mixData" :
                cms.VPSet(
