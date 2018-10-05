@@ -85,11 +85,6 @@ int EcalFenixLinearizer::setInput(const EcalMGPASample &RawSam)
   uncorrectedSample_=RawSam.adc(); //uncorrectedSample_ is coded in the 12 LSB
   gainID_=RawSam.gainId();       //uncorrectedSample_ is coded in the 2 next bits!
 
-  if ( gainID_>1) {
-    //std::cout << "  EcalFenixLinearizer::setInput gain " << gainID_ << std::endl;
-      return -999;
-  }
-  //if (gainID_==0)    gainID_=3;
 
   if(gainID_ == 0)
   {
