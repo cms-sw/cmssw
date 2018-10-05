@@ -86,20 +86,9 @@
 namespace edm {
    class ESInputTag {
    public:
-      constexpr static struct {} Encoded{};
-      using Encoded_t = decltype(Encoded);
       ESInputTag();
-
-     // Single-argument version allows users to specify a
-      // string-based, data label that assigns no module label.  The
-      // single-argument constructor will throw if a ':' character is
-      // included in the specification.
-      ESInputTag(const std::string& iDataLabel);
       ESInputTag(const std::string& iModuleLabel, const std::string& iDataLabel);
-
-      // The Encoded tag should be provided if users desire to specify
-      // "<module-label>:<data-label>".
-      ESInputTag(const std::string& iEncodedValue, Encoded_t);
+      ESInputTag(const std::string& iEncodedValue);
 
       // ---------- const member functions ---------------------
 

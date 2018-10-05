@@ -23,32 +23,23 @@ using namespace edm;
 
 ESInputTag::ESInputTag() = default;
 
-ESInputTag::ESInputTag(const std::string& dataLabel):
-  data_(dataLabel)
+ESInputTag::ESInputTag(const std::string& moduleLabel, const std::string& dataLabel):
+module_(moduleLabel),
+data_(dataLabel)
 {
-  if(dataLabel.find(":") != std::string::npos) {
-    throw edm::Exception(errors::Configuration,"ESInputTag")
-      << "The one-parameter ESInputTag constructor with value " << dataLabel << " has at least one ':' character in it.\n"
-      << "Please use the ESInputTag(std::string const&, Encoded) constructor, which is used for encoded specifications.";
-  }
 }
 
-ESInputTag::ESInputTag(const std::string& moduleLabel, const std::string& dataLabel):
-  module_(moduleLabel),
-  data_(dataLabel)
-{}
-
-ESInputTag::ESInputTag(const std::string& iEncodedValue, Encoded_t)
+ESInputTag::ESInputTag(const std::string& iEncodedValue)
 {
-  // string is delimited by colons
-  std::vector<std::string> tokens = tokenize(iEncodedValue, ":");
-  int nwords = tokens.size();
-  if(nwords > 2) {
-    throw edm::Exception(errors::Configuration,"ESInputTag")
+   // string is delimited by colons
+   std::vector<std::string> tokens = tokenize(iEncodedValue, ":");
+   int nwords = tokens.size();
+   if(nwords > 2) {
+      throw edm::Exception(errors::Configuration,"ESInputTag")
       << "ESInputTag " << iEncodedValue << " has " << nwords << " tokens but only up two 2 are allowed.";
-  }
-  if(nwords > 0) module_ = tokens[0];
-  if(nwords > 1) data_ = tokens[1];
+   }
+   if(nwords > 0) module_ = tokens[0];
+   if(nwords > 1) data_ = tokens[1];
 }
 
 //
@@ -62,12 +53,12 @@ ESInputTag::operator==(const edm::ESInputTag& iRHS) const
 }
 
 std::string ESInputTag::encode() const {
-  static std::string const separator(":");
-  std::string result = module_;
-  if(!data_.empty()) {
-    result += separator + data_;
-  }
-  return result;
+   static std::string const separator(":");
+   std::string result = module_;
+   if(!data_.empty()) {
+      result += separator + data_;
+   }
+   return result;
 }
 
 namespace edm {

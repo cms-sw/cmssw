@@ -52,7 +52,6 @@ class WhatsItESProducer : public edm::ESProducer {
 
    private:
       // ----------member data ---------------------------
-      std::string dataLabel_;
       edm::ESGetTokenT<edmtest::Doodad> token_;
 };
 
@@ -68,7 +67,6 @@ class WhatsItESProducer : public edm::ESProducer {
 // constructors and destructor
 //
 WhatsItESProducer::WhatsItESProducer(edm::ParameterSet const& pset)
-  : dataLabel_{pset.exists("doodadLabel") ? pset.getParameter<std::string>("doodadLabel"): std::string{}}
 {
   if (pset.getUntrackedParameter<bool>("test", true)) {
      throw edm::Exception(edm::errors::Configuration, "Something is wrong with ESProducer validation\n")
@@ -78,8 +76,10 @@ WhatsItESProducer::WhatsItESProducer(edm::ParameterSet const& pset)
   //the following line is needed to tell the framework what
   // data is being produced
   auto collector = setWhatProduced(this);
+
   //now do what ever other initialization is needed
-  token_ = collector.consumes<edmtest::Doodad>(edm::ESInputTag{"", dataLabel_});
+  auto const data_label = pset.exists("doodadLabel") ? pset.getParameter<std::string>("doodadLabel"): std::string{};
+  token_ = collector.consumes<edmtest::Doodad>(edm::ESInputTag{"", data_label});
 }
 
 
