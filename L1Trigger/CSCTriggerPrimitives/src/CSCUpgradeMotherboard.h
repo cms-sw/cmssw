@@ -11,6 +11,8 @@
  */
 
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h"
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCUpgradeAnodeLCTProcessor.h"
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCUpgradeCathodeLCTProcessor.h"
 
 // generic container type
 namespace{

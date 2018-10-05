@@ -69,6 +69,14 @@ CSCUpgradeMotherboard::CSCUpgradeMotherboard(unsigned endcap, unsigned station,
   // generate the LUTs
   generator_.reset(new CSCUpgradeMotherboardLUTGenerator());
 
+  // enable the upgrade processors
+  if (isSLHC_ and theRing == 1) {
+    clctProc.reset( new CSCUpgradeCathodeLCTProcessor(endcap, station, sector, subsector, chamber, conf) );
+    if (enableAlctSLHC_) {
+      alctProc.reset( new CSCUpgradeAnodeLCTProcessor(endcap, station, sector, subsector, chamber, conf) );
+    }
+  }
+
   match_earliest_alct_only = tmbParams_.getParameter<bool>("matchEarliestAlctOnly");
   match_earliest_clct_only = tmbParams_.getParameter<bool>("matchEarliestClctOnly");
   clct_to_alct = tmbParams_.getParameter<bool>("clctToAlct");
