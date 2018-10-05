@@ -46,7 +46,7 @@ namespace edm {
     enablePrefetching_(false) {
 
     if(noFiles()) {
-      throw Exception(errors::Configuration) << "RootEmbeddedFileSequence no input files specified for secondary input source.\n";
+      throw Exception(errors::NoSecondaryFiles) << "RootEmbeddedFileSequence no input files specified for secondary input source.\n";
     }
     //
     // The SiteLocalConfig controls the TTreeCache size and the prefetching settings.
