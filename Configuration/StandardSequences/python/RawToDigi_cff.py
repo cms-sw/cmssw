@@ -57,7 +57,6 @@ RawToDigi = cms.Sequence(L1TRawToDigi
                          +muonCSCDigis
                          +muonDTDigis
                          +muonRPCDigis
-                         +muonRPCNewDigis
                          +castorDigis
                          +scalersRawToDigi
                          +tcdsDigis
@@ -71,7 +70,6 @@ RawToDigi_noTk = cms.Sequence(L1TRawToDigi
                               +muonCSCDigis
                               +muonDTDigis
                               +muonRPCDigis
-                              +muonRPCNewDigis
                               +castorDigis
                               +scalersRawToDigi
                               +tcdsDigis
@@ -125,3 +123,12 @@ _hgcal_RawToDigi = RawToDigi.copy()
 _hgcal_RawToDigi += hgcalDigis
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith(RawToDigi,_hgcal_RawToDigi)
+
+# RPC New Readout Validation
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+_rpc_NewReadoutVal_RawToDigi = RawToDigi.copy()
+_rpc_NewReadoutVal_RawToDigi_noTk = RawToDigi_noTk.copy()
+_rpc_NewReadoutVal_RawToDigi += muonRPCNewDigis
+_rpc_NewReadoutVal_RawToDigi_noTk += muonRPCNewDigis
+stage2L1Trigger.toReplaceWith(RawToDigi, _rpc_NewReadoutVal_RawToDigi)
+stage2L1Trigger.toReplaceWith(RawToDigi_noTk, _rpc_NewReadoutVal_RawToDigi)

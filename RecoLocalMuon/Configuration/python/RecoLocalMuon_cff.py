@@ -33,9 +33,9 @@ dtlocalreco_with_2DSegments = cms.Sequence(dt1DRecHits*dt2DSegments*dt4DSegments
 # CSC sequence
 csclocalreco = cms.Sequence(csc2DRecHits*cscSegments)
 # DT, CSC and RPC together
-muonlocalreco_with_2DSegments = cms.Sequence(dtlocalreco_with_2DSegments+csclocalreco+rpcRecHits+rpcNewRecHits)
+muonlocalreco_with_2DSegments = cms.Sequence(dtlocalreco_with_2DSegments+csclocalreco+rpcRecHits)
 # DT, CSC and RPC together (correct sequence for the standard path)
-muonlocalreco = cms.Sequence(dtlocalreco+csclocalreco+rpcRecHits+rpcNewRecHits)
+muonlocalreco = cms.Sequence(dtlocalreco+csclocalreco+rpcRecHits)
 
 from RecoLocalMuon.GEMRecHit.gemLocalReco_cff import *
 from RecoLocalMuon.GEMRecHit.me0LocalReco_cff import *
@@ -55,3 +55,12 @@ from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toReplaceWith( muonlocalreco , _run3_muonlocalreco )
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toReplaceWith( muonlocalreco , _phase2_muonlocalreco )
+
+# RPC New Readout Validation
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+_rpc_NewReadoutVal_muonlocalreco_with_2DSegments = muonlocalreco_with_2DSegments.copy()
+_rpc_NewReadoutVal_muonlocalreco = muonlocalreco.copy()
+_rpc_NewReadoutVal_muonlocalreco_with_2DSegments += rpcNewRecHits
+_rpc_NewReadoutVal_muonlocalreco += rpcNewRecHits
+stage2L1Trigger.toReplaceWith(muonlocalreco_with_2DSegments, _rpc_NewReadoutVal_muonlocalreco_with_2DSegments)
+stage2L1Trigger.toReplaceWith(muonlocalreco, _rpc_NewReadoutVal_muonlocalreco)
