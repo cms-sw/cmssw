@@ -139,7 +139,7 @@ from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _h
 pixelLessStepHitDoublets = _hitPairEDProducer.clone(
     seedingLayers = "pixelLessStepSeedLayers",
     trackingRegions = "pixelLessStepTrackingRegions",
-    maxElement = 0,
+    maxElement = 50000000,
     produceIntermediateHitDoublets = True,
 )
 from RecoTracker.TkSeedGenerator.multiHitFromChi2EDProducer_cfi import multiHitFromChi2EDProducer as _multiHitFromChi2EDProducer
