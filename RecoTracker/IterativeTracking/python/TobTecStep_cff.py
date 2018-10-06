@@ -158,6 +158,7 @@ tobTecStepHitDoubletsPair = _hitPairEDProducer.clone(
     seedingLayers = "tobTecStepSeedLayersPair",
     trackingRegions = "tobTecStepTrackingRegionsPair",
     produceSeedingHitSets = True,
+    maxElementTotal = 12000000,
 )
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer
 tobTecStepSeedsPair = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
