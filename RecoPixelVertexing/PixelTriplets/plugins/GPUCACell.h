@@ -6,9 +6,10 @@
 
 #include <cuda_runtime.h>
 
-#include "RecoLocalTracker/SiPixelRecHits/plugins/siPixelRecHitsHeterogeneousProduct.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/GPUVecArray.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/GPUSimpleVector.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/GPUVecArray.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
+#include "RecoLocalTracker/SiPixelRecHits/plugins/siPixelRecHitsHeterogeneousProduct.h"
 
 struct Quadruplet {
    using hindex_type = siPixelRecHitsHeterogeneousProduct::hindex_type;
