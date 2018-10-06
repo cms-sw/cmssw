@@ -1,11 +1,11 @@
 #ifndef RecoLocalTracker_SiPixelClusterizer_plugins_gpuCalibPixel_h
 #define RecoLocalTracker_SiPixelClusterizer_plugins_gpuCalibPixel_h
 
-#include <cassert>
 #include <cstdint>
 #include <cstdio>
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainForHLTonGPU.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 
 namespace gpuCalibPixel {
 

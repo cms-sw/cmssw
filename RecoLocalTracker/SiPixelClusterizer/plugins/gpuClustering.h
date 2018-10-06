@@ -1,18 +1,16 @@
 #ifndef RecoLocalTracker_SiPixelClusterizer_plugins_gpuClustering_h
 #define RecoLocalTracker_SiPixelClusterizer_plugins_gpuClustering_h
 
-
 // #define CLUS_LIMIT_LOOP
 
-#include <cassert>
 #include <cstdint>
 #include <cstdio>
 
-#include "gpuClusteringConstants.h"
 #include "Geometry/TrackerGeometryBuilder/interface/phase1PixelTopology.h"
-
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 
+#include "gpuClusteringConstants.h"
 
 namespace gpuClustering {
 
