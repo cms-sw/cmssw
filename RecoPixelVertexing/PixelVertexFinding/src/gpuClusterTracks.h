@@ -1,14 +1,13 @@
 #ifndef RecoPixelVertexing_PixelVertexFinding_clusterTracks_H
 #define RecoPixelVertexing_PixelVertexFinding_clusterTracks_H
 
-#include<cstdint>
-#include<cmath>
 #include <algorithm>
-#include<cassert>
+#include <cmath>
+#include <cstdint>
 
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/radixSort.h"
-
 
 #include "gpuVertexFinder.h"
 

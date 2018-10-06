@@ -2,7 +2,8 @@
 #define HeterogeneousCore_CUDAUtilities_prefixScan_h
 
 #include <cstdint>
-#include <cassert>
+
+#include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 
 template<typename T>
 __device__

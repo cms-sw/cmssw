@@ -1,22 +1,24 @@
 #ifndef HeterogeneousCore_CUDAUtilities_HistoContainer_h
 #define HeterogeneousCore_CUDAUtilities_HistoContainer_h
 
-#include <cassert>
-#include <cstddef> 
-#include <cstdint>
 #include <algorithm>
-#include <type_traits>
 #ifndef __CUDA_ARCH__
 #include <atomic>
 #endif // __CUDA_ARCH__
+#include <cstddef> 
+#include <cstdint>
+#include <type_traits>
 
-#include "HeterogeneousCore/CUDAUtilities/interface/cudastdAlgorithm.h"
 #ifdef __CUDACC__
-#include "HeterogeneousCore/CUDAUtilities/interface/prefixScan.h"
 #include <cub/cub.cuh>
 #endif
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
+#include "HeterogeneousCore/CUDAUtilities/interface/cudastdAlgorithm.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
+#ifdef __CUDACC__
+#include "HeterogeneousCore/CUDAUtilities/interface/prefixScan.h"
+#endif
 
 #ifdef __CUDACC__
 namespace cudautils {

@@ -2,17 +2,17 @@
 #define RecoLocalTracker_SiPixelRecHits_plugins_gpuPixelDouplets_h
 
 #include <algorithm>
-#include <cassert>
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
 #include <limits>
 
 #include "DataFormats/Math/interface/approx_atan2.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/GPUVecArray.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 #include "RecoLocalTracker/SiPixelRecHits/plugins/siPixelRecHitsHeterogeneousProduct.h"
 
 #include "GPUCACell.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/GPUVecArray.h"
 
 namespace gpuPixelDoublets {
 

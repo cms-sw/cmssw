@@ -1,8 +1,9 @@
 #ifndef HeterogeneousCoreCUDAUtilities_radixSort_H
 #define HeterogeneousCoreCUDAUtilities_radixSort_H 
 
-#include<cstdint>
-#include<cassert>
+#include <cstdint>
+
+#include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 
 template<typename T>
 __device__

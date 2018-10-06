@@ -1,11 +1,13 @@
 #ifndef RecoPixelVertexing_PixelTrackFitting_interface_RiemannFit_h
 #define RecoPixelVertexing_PixelTrackFitting_interface_RiemannFit_h
 
+#include <cmath>
+
 #include <cuda_runtime.h>
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
 
-#include <math.h>
+#include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 
 #ifndef RFIT_DEBUG
 #define RFIT_DEBUG 0
