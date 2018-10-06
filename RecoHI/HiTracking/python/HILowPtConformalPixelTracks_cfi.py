@@ -13,7 +13,7 @@ hiConformalPixelTracksHitDoublets = _hitPairEDProducer.clone(
     clusterCheck = "",
     seedingLayers = "PixelLayerTriplets",
     trackingRegions = "hiTrackingRegionWithVertex",
-    maxElement = 0,
+    maxElement = 50000000,
     produceIntermediateHitDoublets = True,
 )
 

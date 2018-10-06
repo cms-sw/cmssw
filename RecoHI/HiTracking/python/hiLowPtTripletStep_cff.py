@@ -57,7 +57,7 @@ hiLowPtTripletStepTracksHitDoublets = _hitPairEDProducer.clone(
     clusterCheck = "",
     seedingLayers = "hiLowPtTripletStepSeedLayers",
     trackingRegions = "hiLowPtTripletStepTrackingRegions",
-    maxElement = 0,
+    maxElement = 50000000,
     produceIntermediateHitDoublets = True,
 )
 import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
