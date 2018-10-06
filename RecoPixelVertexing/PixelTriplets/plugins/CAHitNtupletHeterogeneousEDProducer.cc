@@ -54,8 +54,8 @@ public:
 private:
   edm::EDGetTokenT<edm::OwnVector<TrackingRegion>> regionToken_;
 
-  edm::EDGetTokenT<HeterogeneousProduct> tGpuHits;
-  edm::EDGetTokenT<SiPixelRecHitCollectionNew> tCpuHits;
+  edm::EDGetTokenT<HeterogeneousProduct> gpuHits_;
+  edm::EDGetTokenT<SiPixelRecHitCollectionNew> cpuHits_;
 
   edm::RunningAverage localRA_;
   CAHitQuadrupletGeneratorGPU GPUGenerator_;
@@ -63,8 +63,9 @@ private:
   bool emptyRegions = false;
   std::unique_ptr<RegionsSeedingHitSets> seedingHitSets_;
 
-  bool enableTransfer_;
-  bool enableConversion_;
+  const bool doRiemannFit_;
+  const bool enableConversion_;
+  const bool enableTransfer_;
 };
 
 CAHitNtupletHeterogeneousEDProducer::CAHitNtupletHeterogeneousEDProducer(
@@ -72,13 +73,13 @@ CAHitNtupletHeterogeneousEDProducer::CAHitNtupletHeterogeneousEDProducer(
     : HeterogeneousEDProducer(iConfig),
       regionToken_(consumes<edm::OwnVector<TrackingRegion>>(
           iConfig.getParameter<edm::InputTag>("trackingRegions"))),
-      tGpuHits(consumesHeterogeneous(iConfig.getParameter<edm::InputTag>("heterogeneousPixelRecHitSrc"))),
-      tCpuHits(consumes<SiPixelRecHitCollectionNew>(iConfig.getParameter<edm::InputTag>("heterogeneousPixelRecHitSrc"))),
-      GPUGenerator_(iConfig, consumesCollector()) {
-
-  enableConversion_ = iConfig.getParameter<bool>("gpuEnableConversion");
-  enableTransfer_ = enableConversion_ || iConfig.getParameter<bool>("gpuEnableTransfer");
-
+      gpuHits_(consumesHeterogeneous(iConfig.getParameter<edm::InputTag>("heterogeneousPixelRecHitSrc"))),
+      cpuHits_(consumes<SiPixelRecHitCollectionNew>(iConfig.getParameter<edm::InputTag>("heterogeneousPixelRecHitSrc"))),
+      GPUGenerator_(iConfig, consumesCollector()),
+      doRiemannFit_(iConfig.getParameter<bool>("doRiemannFit")),
+      enableConversion_(iConfig.getParameter<bool>("gpuEnableConversion")),
+      enableTransfer_(enableConversion_ || iConfig.getParameter<bool>("gpuEnableTransfer"))
+{
   produces<RegionsSeedingHitSets>();
 }
 
@@ -88,9 +89,8 @@ void CAHitNtupletHeterogeneousEDProducer::fillDescriptions(
 
   desc.add<edm::InputTag>("doublets", edm::InputTag(""))->setComment("Not really used, kept to keep the python parameters");
   desc.add<edm::InputTag>("trackingRegions", edm::InputTag("globalTrackingRegionFromBeamSpot"));
-
   desc.add<edm::InputTag>("heterogeneousPixelRecHitSrc", edm::InputTag("siPixelRecHitsPreSplitting"));
-
+  desc.add<bool>("doRiemannFit", true);
   desc.add<bool>("gpuEnableTransfer", true);
   desc.add<bool>("gpuEnableConversion", true);
 
@@ -123,13 +123,10 @@ void CAHitNtupletHeterogeneousEDProducer::acquireGPUCuda(
 
   const TrackingRegion &region = regions[0];
 
-
   edm::Handle<siPixelRecHitsHeterogeneousProduct::GPUProduct> gh;
-  iEvent.getByToken<siPixelRecHitsHeterogeneousProduct::HeterogeneousPixelRecHit>(tGpuHits, gh);
+  iEvent.getByToken<siPixelRecHitsHeterogeneousProduct::HeterogeneousPixelRecHit>(gpuHits_, gh);
   auto const & gHits = *gh;
-//  auto nhits = gHits.nHits;
 
-  // move inside hitNtuplets???
   GPUGenerator_.buildDoublets(gHits,cudaStream.id());
 
   seedingHitSets_->reserve(regions.size(), localRA_.upper());
@@ -139,8 +136,7 @@ void CAHitNtupletHeterogeneousEDProducer::acquireGPUCuda(
         << "Creating ntuplets for " << regions.size()
         << " regions";
 
-  GPUGenerator_.hitNtuplets(region, gHits, iSetup, enableTransfer_, cudaStream.id());
-  
+  GPUGenerator_.hitNtuplets(region, gHits, iSetup, doRiemannFit_, enableTransfer_, cudaStream.id());
 }
 
 void CAHitNtupletHeterogeneousEDProducer::produceGPUCuda(
@@ -155,7 +151,7 @@ void CAHitNtupletHeterogeneousEDProducer::produceGPUCuda(
     const auto &regions = *hregions;
 
     edm::Handle<SiPixelRecHitCollectionNew> gh;
-    iEvent.getByToken(tCpuHits, gh);
+    iEvent.getByToken(cpuHits_, gh);
     auto const & rechits = *gh;
 
     std::vector<OrderedHitSeeds> ntuplets(regions.size());

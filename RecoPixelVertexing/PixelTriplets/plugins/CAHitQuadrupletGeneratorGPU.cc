@@ -85,12 +85,13 @@ void CAHitQuadrupletGeneratorGPU::hitNtuplets(
     TrackingRegion const& region,
     HitsOnCPU const& hh,
     edm::EventSetup const& es,
+    bool doRiemannFit,
     bool transferToCPU,
     cudaStream_t cudaStream)
 {
   hitsOnCPU = &hh;
   int index = 0;
-  launchKernels(region, index, hh, transferToCPU, cudaStream);
+  launchKernels(region, index, hh, doRiemannFit, transferToCPU, cudaStream);
 }
 
 void CAHitQuadrupletGeneratorGPU::fillResults(

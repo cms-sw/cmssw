@@ -321,6 +321,7 @@ void CAHitQuadrupletGeneratorGPU::allocateOnGPU()
 
 void CAHitQuadrupletGeneratorGPU::launchKernels(const TrackingRegion &region,
                                                 int regionIndex, HitsOnCPU const & hh,
+                                                bool doRiemannFit,
                                                 bool transferToCPU,
                                                 cudaStream_t cudaStream)
 {
@@ -361,26 +362,28 @@ void CAHitQuadrupletGeneratorGPU::launchKernels(const TrackingRegion &region,
 
   // kernel_print_found_ntuplets<<<1, 1, 0, cudaStream>>>(d_foundNtupletsVec_[regionIndex], 10);
 
-  kernelFastFitAllHits<<<numberOfBlocks, 512, 0, cudaStream>>>(
-      d_foundNtupletsVec_[regionIndex], hh.gpu_d, 4, bField_, helix_fit_resultsGPU_,
-      hitsGPU_, hits_covGPU_, circle_fit_resultsGPU_, fast_fit_resultsGPU_,
-      line_fit_resultsGPU_);
-  cudaCheck(cudaGetLastError());
+  if (doRiemannFit) {
+    kernelFastFitAllHits<<<numberOfBlocks, 512, 0, cudaStream>>>(
+        d_foundNtupletsVec_[regionIndex], hh.gpu_d, 4, bField_, helix_fit_resultsGPU_,
+        hitsGPU_, hits_covGPU_, circle_fit_resultsGPU_, fast_fit_resultsGPU_,
+        line_fit_resultsGPU_);
+    cudaCheck(cudaGetLastError());
 
-  blockSize = 256;
-  numberOfBlocks = (maxNumberOfQuadruplets_ + blockSize - 1) / blockSize;
+    blockSize = 256;
+    numberOfBlocks = (maxNumberOfQuadruplets_ + blockSize - 1) / blockSize;
 
-  kernelCircleFitAllHits<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
-      d_foundNtupletsVec_[regionIndex], 4, bField_, helix_fit_resultsGPU_,
-      hitsGPU_, hits_covGPU_, circle_fit_resultsGPU_, fast_fit_resultsGPU_,
-      line_fit_resultsGPU_);
-  cudaCheck(cudaGetLastError());
+    kernelCircleFitAllHits<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
+        d_foundNtupletsVec_[regionIndex], 4, bField_, helix_fit_resultsGPU_,
+        hitsGPU_, hits_covGPU_, circle_fit_resultsGPU_, fast_fit_resultsGPU_,
+        line_fit_resultsGPU_);
+    cudaCheck(cudaGetLastError());
 
-  kernelLineFitAllHits<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
-      d_foundNtupletsVec_[regionIndex], bField_, helix_fit_resultsGPU_,
-      hitsGPU_, hits_covGPU_, circle_fit_resultsGPU_, fast_fit_resultsGPU_,
-      line_fit_resultsGPU_);
-  cudaCheck(cudaGetLastError());
+    kernelLineFitAllHits<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
+        d_foundNtupletsVec_[regionIndex], bField_, helix_fit_resultsGPU_,
+        hitsGPU_, hits_covGPU_, circle_fit_resultsGPU_, fast_fit_resultsGPU_,
+        line_fit_resultsGPU_);
+    cudaCheck(cudaGetLastError());
+  }
 
   if (transferToCPU) {
     cudaCheck(cudaMemcpyAsync(h_foundNtupletsVec_[regionIndex], d_foundNtupletsVec_[regionIndex],
