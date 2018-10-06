@@ -97,7 +97,7 @@ from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _h
 tripletElectronHitDoublets = _hitPairEDProducer.clone(
     seedingLayers = "tripletElectronSeedLayers",
     trackingRegions = "tripletElectronTrackingRegions",
-    maxElement = 0,
+    maxElement = 50000000,
     produceIntermediateHitDoublets = True,
 )
 from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
