@@ -29,12 +29,12 @@ private:
     typedef std::vector<edm::EDGetTokenT<FEDRawDataCollection> >::const_iterator tok_iterator_t;
 
     std::vector<edm::InputTag> inputTags_ ;
-    edm::InputTag mainCollectionTag_ ;
     std::vector<edm::EDGetTokenT<FEDRawDataCollection> > inputTokens_;
     int  verbose_ ;
     
     bool firstEvent_;
     edm::InputTag filledCollectionName_;
+    edm::InputTag mainCollectionTag_ ;
 
 };
 
