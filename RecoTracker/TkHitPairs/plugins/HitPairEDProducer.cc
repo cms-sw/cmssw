@@ -420,16 +420,16 @@ HitPairEDProducer::HitPairEDProducer(const edm::ParameterSet& iConfig) {
   auto layersTag = iConfig.getParameter<edm::InputTag>("seedingLayers");
   auto regionTag = iConfig.getParameter<edm::InputTag>("trackingRegions");
   auto regionLayerTag = iConfig.getParameter<edm::InputTag>("trackingRegionsSeedingLayers");
-  const bool useRegionLayers = regionLayerTag.label() != "";
+  const bool useRegionLayers = !regionLayerTag.label().empty();
   if(useRegionLayers) {
-    if(regionTag.label() != "") {
+    if(!regionTag.label().empty()) {
       throw cms::Exception("Configuration") << "HitPairEDProducer requires either trackingRegions or trackingRegionsSeedingLayers to be set, now both are set to non-empty value. Set the unneeded parameter to empty value.";
     }
-    if(layersTag.label() != "") {
+    if(!layersTag.label().empty()) {
       throw cms::Exception("Configuration") << "With non-empty trackingRegionsSeedingLayers, please set also seedingLayers to empty value to reduce confusion, because the parameter is not used";
     }
   }
-  if(regionTag.label() == "" && regionLayerTag.label() == "") {
+  if(regionTag.label().empty() && regionLayerTag.label().empty()) {
     throw cms::Exception("Configuration") << "HitPairEDProducer requires either trackingRegions or trackingRegionsSeedingLayers to be set, now both are set to empty value. Set the needed parameter to a non-empty value.";
   }
 
@@ -456,7 +456,7 @@ HitPairEDProducer::HitPairEDProducer(const edm::ParameterSet& iConfig) {
     throw cms::Exception("Configuration") << "HitPairEDProducer requires either produceIntermediateHitDoublets or produceSeedingHitSets to be True. If neither are needed, just remove this module from your sequence/path as it doesn't do anything useful";
 
   auto clusterCheckTag = iConfig.getParameter<edm::InputTag>("clusterCheck");
-  if(clusterCheckTag.label() != "")
+  if(!clusterCheckTag.label().empty())
     clusterCheckToken_ = consumes<bool>(clusterCheckTag);
 
   impl_->produces(*this);
