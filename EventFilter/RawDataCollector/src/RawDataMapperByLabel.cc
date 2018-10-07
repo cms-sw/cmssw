@@ -24,7 +24,7 @@ RawDataMapperByLabel::RawDataMapperByLabel(const edm::ParameterSet& pset) {
 
   inputTags_ = pset.getParameter<std::vector<InputTag> >("RawCollectionList");
   mainCollectionTag_ = pset.getParameter<InputTag>("MainCollection");
-  verbose_ = pset.getUntrackedParameter<int>("verbose",0);
+  
 
   inputTokens_.reserve(inputTags_.size());
   for(tag_iterator_t inputTag = inputTags_.begin(); inputTag != inputTags_.end(); ++inputTag ) {
@@ -50,23 +50,19 @@ void RawDataMapperByLabel::produce(Event & e, const EventSetup& c){
    Handle<FEDRawDataCollection> input;
    if (e.getByToken(*inputTok,input)){
     	if(input.isValid()){
-    	    if(firstEvent_) filledCollectionName_ = *inputTag; 
+    	    if(firstEvent_){ 
+    	        if(mainCollectionTag_==*inputTag) continue;
+    	    	filledCollectionName_ = *inputTag; 
+    	    }
     		if(AlredyACollectionFilled) throw cms::Exception("Unknown input type") << "Two input collections are present. Please make sure that the input dataset has only one FEDRawDataCollector collection filled";
             if(!(filledCollectionName_==*inputTag)) throw cms::Exception("Unknown input type") << "The filled collection has changed!";
             e.put(std::move(std::make_unique<FEDRawDataCollection>(*input.product())) );
             AlredyACollectionFilled = true;
             firstEvent_= false;            
-   }
+   		}
     
-}
-   
-  
-   
- //  if(secondCollectionPresent) 
-        
-        
-  
- }
+	}
+  }
 
  // Insert the new product in the event  
 
