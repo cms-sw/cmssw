@@ -31,6 +31,8 @@ RawDataMapperByLabel::RawDataMapperByLabel(const edm::ParameterSet& pset) {
     inputTokens_.push_back(consumes<FEDRawDataCollection>(*inputTag));
   }
   produces<FEDRawDataCollection>();
+  firstEvent_= true;
+  filledCollectionName_= InputTag("");
 }
 
 RawDataMapperByLabel::~RawDataMapperByLabel(){
@@ -48,14 +50,15 @@ void RawDataMapperByLabel::produce(Event & e, const EventSetup& c){
    Handle<FEDRawDataCollection> input;
    if (e.getByToken(*inputTok,input)){
     	if(input.isValid()){
+    	    if(firstEvent_) filledCollectionName_ = *inputTag; 
     		if(AlredyACollectionFilled) throw cms::Exception("Unknown input type") << "Two input collections are present. Please make sure that the input dataset has only one FEDRawDataCollector collection filled";
-            //auto producedData = std::make_unique<FEDRawDataCollection>();
-            //const FEDRawDataCollection *rdc=input.product();
-            e.put(std::move(input.product()));
-            AlredyACollectionFilled = true;            
+            if(!(filledCollectionName_==*inputTag)) throw cms::Exception("Unknown input type") << "The filled collection has changed!";
+            e.put(std::move(std::make_unique<FEDRawDataCollection>(*input.product())) );
+            AlredyACollectionFilled = true;
+            firstEvent_= false;            
    }
     
-   }
+}
    
   
    
