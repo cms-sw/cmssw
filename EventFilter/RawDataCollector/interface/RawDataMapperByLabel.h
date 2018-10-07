@@ -32,6 +32,9 @@ private:
     edm::InputTag mainCollectionTag_ ;
     std::vector<edm::EDGetTokenT<FEDRawDataCollection> > inputTokens_;
     int  verbose_ ;
+    
+    bool firstEvent_;
+    edm::InputTag filledCollectionName_;
 
 };
 
