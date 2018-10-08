@@ -1,5 +1,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -11,7 +12,7 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
-#include "L1Trigger/L1THGCal/interface/HGCalVFEProcessorBase.h"
+#include "L1Trigger/L1THGCal/interface/HGCalProcessorBase.h"
 
 #include <memory>
 
@@ -31,6 +32,7 @@ class HGCalVFEProducer : public edm::stream::EDProducer<>  {
   edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
   
   std::unique_ptr<HGCalVFEProcessorBase> vfeProcess_;
+
 };
 
 DEFINE_FWK_MODULE(HGCalVFEProducer);
