@@ -21,7 +21,7 @@ caloStage2Params.regionPUSParams  = cms.vdouble()
 
 # EG
 caloStage2Params.egLsb                      = cms.double(0.5)
-caloStage2Params.egEtaCut                   = cms.int32(28)
+caloStage2Params.egEtaCut                   = cms.int32(24)
 caloStage2Params.egSeedThreshold            = cms.double(2.)
 caloStage2Params.egNeighbourThreshold       = cms.double(1.)
 caloStage2Params.egHcalThreshold            = cms.double(0.)
@@ -104,8 +104,8 @@ caloStage2Params.etSumYCalibrationType    = cms.string("None")
 caloStage2Params.etSumEttCalibrationType  = cms.string("None")
 caloStage2Params.etSumEcalSumCalibrationType = cms.string("None")
 
-caloStage2Params.etSumCentralityLower =   cms.vdouble(16.5,183.5,1460.0,3143.5,5837.0,1.0,1.0,1.0)
-caloStage2Params.etSumCentralityUpper = cms.vdouble(  25.5,230.5,1612.5,3316.0,5965.0,0.0,0.0,0.0)
+caloStage2Params.etSumCentralityLower = cms.vdouble(0.0, 2.5,  13.5,  133.0, 411.5,  1101.5, 2494.5, 65535.0)
+caloStage2Params.etSumCentralityUpper = cms.vdouble(8.0, 25.5, 208.0, 567.5, 1349.5, 2790.5, 5114.0, 65535.0)
 
 caloStage2Params.etSumMetPUSLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_towEtThresh_2017v7.txt")
 caloStage2Params.etSumEttPUSLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_towEtThresh_dummy.txt")
