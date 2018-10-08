@@ -407,8 +407,8 @@ results fitOneGauss (TH1D* hist, bool fitTwice, bool debug) {
   double rms;
   std::pair<double,double> mrms = GetMean(hist, 0.2, 2.0, rms);
   double mean  = mrms.first;
-  double LowEdge  = ((mean-1.2*rms) < 0.5) ? 0.5 : (mean-1.2*rms);
-  double HighEdge = (mean+1.2*rms);
+  double LowEdge  = ((mean-1.0*rms) < 0.5) ? 0.5 : (mean-1.0*rms);
+  double HighEdge = (mean+1.0*rms);
   if (debug) std::cout << hist->GetName() << " Mean " << mean << " RMS "
 		       << rms << " Range " << LowEdge << ":" << HighEdge <<"\n";
   std::string option = (hist->GetEntries()>100) ? "QRS" : "QRWLS";
@@ -420,8 +420,8 @@ results fitOneGauss (TH1D* hist, bool fitTwice, bool debug) {
   double width = Fit1->Value(2);
   double werror= Fit1->FitResult::Error(2);
   if (fitTwice) {
-    LowEdge      = Fit1->Value(1) - 1.2*Fit1->Value(2);
-    HighEdge     = Fit1->Value(1) + 1.2*Fit1->Value(2);
+    LowEdge      = Fit1->Value(1) - 1.0*Fit1->Value(2);
+    HighEdge     = Fit1->Value(1) + 1.0*Fit1->Value(2);
     if (LowEdge  < 0.5) LowEdge = 0.5;
     if (HighEdge > 5.0) HighEdge= 5.0;
     if (debug) std::cout << " Range for second Fit " << LowEdge << ":" 
@@ -776,13 +776,13 @@ void FitHistExtended(const char* infile, const char* outfile,std::string prefix,
 	  if (total > 4) {
 	    sprintf (name, "%sOne", hist1->GetName());
 	    TH1D* hist2  = (TH1D*)hist1->Clone(name);
-	    results meanerr = fitOneGauss(hist,false,debug);
+	    results meanerr = fitOneGauss(hist2,false,debug);
 	    value = meanerr.mean;  error = meanerr.errmean;
 	    width = meanerr.width; werror= meanerr.errwidth;
 	    double wbyv  = width/value;
 	    double wverr = wbyv*std::sqrt((werror*werror)/(width*width)+
 					  (error*error)/(value*value));
-	    std::cout << hist->GetName() << " MPV " << value << " +- " << error
+	    std::cout << hist2->GetName() << " MPV " << value << " +- " << error
 		      << " Width " << width << " +- " << werror << " W/M "
 		      << wbyv << " +- " << wverr << std::endl;
 	    hists.push_back(hist2);
