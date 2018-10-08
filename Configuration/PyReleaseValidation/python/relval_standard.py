@@ -427,7 +427,7 @@ workflows[2017.12] = ['QCD_Pt_80_120_13_UP17', ['QCD_Pt_80_120FS_13_UP17','HARVE
 workflows[2017.13] = ['TTbar_13_UP17', ['TTbarFS_13_trackingOnlyValidation_UP17','HARVESTUP17FS_trackingOnly']]
 
 ### MinBias fastsim_13 TeV for mixing ###                                                                                                                                      
-workflows[2017.8] = ['',['MinBiasFS_13_ForMixing']]
+workflows[2017.8] = ['',['MinBiasFS_13_UP17_ForMixing']]
 
 
 ### standard set ###
