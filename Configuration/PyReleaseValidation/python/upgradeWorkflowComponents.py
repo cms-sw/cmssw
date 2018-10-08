@@ -235,14 +235,14 @@ upgradeProperties[2017] = {
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
     },
     '2019' : {
-        'Geom' : 'Extended2019',
+        'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2019_realistic',
         'HLTmenu': '@relval2017',
         'Era' : 'Run3',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull','ALCAFull'],
     },
     '2019Design' : {
-        'Geom' : 'Extended2019',
+        'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2019_design',
         'HLTmenu': '@relval2017',
         'Era' : 'Run3',
