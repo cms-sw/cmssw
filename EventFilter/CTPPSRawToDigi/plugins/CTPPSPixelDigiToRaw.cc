@@ -144,10 +144,8 @@ CTPPSPixelDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::ESHandle<CTPPSPixelDAQMapping> mapping;
   if (recordWatcher_.check( iSetup )) {
     iSetup.get<CTPPSPixelDAQMappingRcd>().get(mapping);
-    for (const auto &p : mapping->ROCMapping)    {
-      CTPPSPixelDataFormatter::PPSPixelIndex iDdet2fed = { p.second.iD, p.second.roc, p.first.getROC(), p.first.getFEDId(), p.first.getChannelIdx() }; 
-      v_iDdet2fed_.emplace_back(iDdet2fed);
-    }
+    for (const auto &p : mapping->ROCMapping)   
+      v_iDdet2fed_.emplace_back(CTPPSPixelDataFormatter::PPSPixelIndex{p.second.iD, p.second.roc, p.first.getROC(), p.first.getFEDId(), p.first.getChannelIdx()}); 
     fedIds_ = mapping->fedIds();
   }
   CTPPSPixelDataFormatter formatter(mapping->ROCMapping);
