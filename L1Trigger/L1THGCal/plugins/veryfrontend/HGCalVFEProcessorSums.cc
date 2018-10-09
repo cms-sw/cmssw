@@ -4,9 +4,6 @@
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
-#include <unordered_map>
-
 DEFINE_EDM_PLUGIN(HGCalVFEProcessorBaseFactory, 
         HGCalVFEProcessorSums,
         "HGCalVFEProcessorSums");
