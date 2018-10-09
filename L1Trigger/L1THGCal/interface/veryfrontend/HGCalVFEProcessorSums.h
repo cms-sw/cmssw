@@ -8,7 +8,6 @@
 
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerSums.h"
-#include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/veryfrontend/HGCalTriggerCellCalibration.h"
