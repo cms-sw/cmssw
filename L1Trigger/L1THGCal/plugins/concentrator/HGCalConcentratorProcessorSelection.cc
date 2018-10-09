@@ -34,7 +34,7 @@ void HGCalConcentratorProcessorSelection::run(const edm::Handle<l1t::HGCalTrigge
       std::vector<l1t::HGCalTriggerCell> trigCellVecOutput;
       concentratorProcImpl_.thresholdSelectImpl(module_trigcell.second, trigCellVecOutput);
       // Push trigger Cells for each module from std::vector<l1t::HGCalTriggerCell> into the final collection
-      for( auto& trigCell : trigCellVecOutput){
+      for( const auto& trigCell : trigCellVecOutput){
         triggerCellCollOutput.push_back(0, trigCell);     
       }
     }
@@ -44,7 +44,7 @@ void HGCalConcentratorProcessorSelection::run(const edm::Handle<l1t::HGCalTrigge
       std::vector<l1t::HGCalTriggerCell> trigCellVecOutput;
       concentratorProcImpl_.bestChoiceSelectImpl(module_trigcell.second, trigCellVecOutput);     
       // Push trigger Cells for each module from std::vector<l1t::HGCalTriggerCell> into the final collection
-      for( auto& trigCell : trigCellVecOutput){
+      for( const auto& trigCell : trigCellVecOutput){
         triggerCellCollOutput.push_back(0, trigCell);       
       }
     }
