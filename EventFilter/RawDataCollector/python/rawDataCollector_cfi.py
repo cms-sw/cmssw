@@ -38,6 +38,3 @@ run3_GEM.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.
 from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
 ctpps_2016.toModify(rawDataCollector.RawCollectionList, func = lambda  list: list.extend([cms.InputTag("ctppsTotemRawData"),cms.InputTag("ctppsPixelRawData")]) )
 
-#ctpps_2016.toModify(rawDataCollector.RawCollectionList, func = lambda list:list.append(cms.InputTag("ctppsTotemRawData")) )
-#ctpps_2016.toModify(rawDataCollector.RawCollectionList, func = lambda list:list.append(cms.InputTag("ctppsPixelRawData")) )
-
