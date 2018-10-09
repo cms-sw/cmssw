@@ -1,5 +1,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -11,9 +12,8 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
-#include "L1Trigger/L1THGCal/interface/HGCalVFEProcessorBase.h"
+#include "L1Trigger/L1THGCal/interface/HGCalProcessorBase.h"
 
-#include <sstream>
 #include <memory>
 
 
@@ -32,6 +32,7 @@ class HGCalVFEProducer : public edm::stream::EDProducer<>  {
   edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
   
   std::unique_ptr<HGCalVFEProcessorBase> vfeProcess_;
+
 };
 
 DEFINE_FWK_MODULE(HGCalVFEProducer);
@@ -62,8 +63,8 @@ void HGCalVFEProducer::beginRun(const edm::Run& /*run*/,
 void HGCalVFEProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   
   // Output collections
-  std::unique_ptr<l1t::HGCalTriggerCellBxCollection> vfe_trigcell_output( new l1t::HGCalTriggerCellBxCollection );
-  std::unique_ptr<l1t::HGCalTriggerSumsBxCollection> vfe_trigsums_output( new l1t::HGCalTriggerSumsBxCollection );
+  auto vfe_trigcell_output = std::make_unique<l1t::HGCalTriggerCellBxCollection>();
+  auto vfe_trigsums_output = std::make_unique<l1t::HGCalTriggerSumsBxCollection>();
 
   // Input collections
   edm::Handle<HGCalDigiCollection> ee_digis_h;
@@ -79,9 +80,9 @@ void HGCalVFEProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   const HGCalDigiCollection& bh_digis = *bh_digis_h;
   
   // Processing DigiCollections and putting the results into the HGCalTriggerCellBxCollection
-  vfeProcess_->run(ee_digis, HGCalDigiCollection(), HGCalDigiCollection(), *vfe_trigcell_output, es);         
-  vfeProcess_->run(HGCalDigiCollection(), fh_digis, HGCalDigiCollection(), *vfe_trigcell_output, es);   
-  vfeProcess_->run(HGCalDigiCollection(), HGCalDigiCollection(), bh_digis, *vfe_trigcell_output, es);   
+  vfeProcess_->run(ee_digis, *vfe_trigcell_output, es);         
+  vfeProcess_->run(fh_digis, *vfe_trigcell_output, es);   
+  vfeProcess_->run(bh_digis, *vfe_trigcell_output, es);   
 
   // Put in the event  
   e.put(std::move(vfe_trigcell_output), vfeProcess_->name());

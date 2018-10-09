@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -11,9 +11,8 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
-#include "L1Trigger/L1THGCal/interface/HGCalTowerMapProcessorBase.h"
+#include "L1Trigger/L1THGCal/interface/HGCalProcessorBase.h"
 
-#include <sstream>
 #include <memory>
 
 class HGCalTowerMapProducer : public edm::stream::EDProducer<> { 
@@ -58,7 +57,7 @@ void HGCalTowerMapProducer::beginRun(const edm::Run& /*run*/,
 void HGCalTowerMapProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
   // Output collections
-  std::unique_ptr<l1t::HGCalTowerMapBxCollection> towersMap_output( new l1t::HGCalTowerMapBxCollection );
+  auto towersMap_output = std::make_unique<l1t::HGCalTowerMapBxCollection>();
   
   // Input collections
   edm::Handle<l1t::HGCalTriggerCellBxCollection> trigCellBxColl;
