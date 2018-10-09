@@ -1,4 +1,7 @@
 #include "Utilities/PPS/interface/PPSUtilities.h"
+#include "HepMC/GenParticle.h"
+#include "H_BeamParticle.h"
+#include <CLHEP/Vector/LorentzVector.h>
 
 CLHEP::HepLorentzVector PPSTools::HectorParticle2LorentzVector(H_BeamParticle hp,int direction)
 {
@@ -49,12 +52,12 @@ void PPSTools::LorentzBoost(CLHEP::HepLorentzVector& p_out, const string& frame)
     py_P = 0.;
     py_N = 0.;
 
-    LorentzVector BeamP, BeamN, projVect;
+    CLHEP::HepLorentzVector BeamP, BeamN, projVect;
     BeamP.setPx(px_P);BeamP.setPy(py_P);BeamP.setPz(pz_P);BeamP.setE(fBeamEnergy);
     BeamN.setPx(px_N);BeamN.setPy(py_N);BeamN.setPz(-pz_N);BeamN.setE(fBeamEnergy);
     projVect = BeamP + BeamN;
     CLHEP::Hep3Vector beta;
-    LorentzVector boosted = p_out;
+    CLHEP::HepLorentzVector boosted = p_out;
     beta = projVect.boostVector();
     boosted.boost(beta);
     p_out=boosted;

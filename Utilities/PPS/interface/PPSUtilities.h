@@ -2,23 +2,30 @@
 #define PPSTOOLS_UTILITIES
 #include <cmath>
 #include <string>
-#include "H_BeamParticle.h"
-#include <CLHEP/Vector/LorentzVector.h>
 #include <CLHEP/Units/PhysicalConstants.h>
 #include <CLHEP/Units/GlobalSystemOfUnits.h>
-#include "HepMC/GenParticle.h"
+
+
+class H_BeamParticle;
+namespace CLHEP
+{
+     class HepLorentzVector;
+}
+
+namespace HepMC
+{
+    class GenParticle;
+}
 
 namespace PPSTools {
-
-typedef CLHEP::HepLorentzVector LorentzVector;
 
 double fCrossingAngleBeam1;
 double fCrossingAngleBeam2;
 double fBeamMomentum;
 double fBeamEnergy;
-const double ProtonMass = CLHEP::proton_mass_c2/GeV;
-const double ProtonMassSQ = pow(ProtonMass,2);
 const double   urad     = 1./1000000.; 
+static const double ProtonMass=CLHEP::proton_mass_c2/GeV;
+static const double ProtonMassSQ=pow(ProtonMass,2);
 
 CLHEP::HepLorentzVector HectorParticle2LorentzVector(H_BeamParticle hp,int );
 
