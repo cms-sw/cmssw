@@ -21,7 +21,7 @@ template<typename InputCollection, typename OutputCollection> class HGCalProcess
  
   void setGeometry(const HGCalTriggerGeometryBase* const geom) { geometry_ = geom;}
   
-	  virtual void run(const InputCollection& inputColl,
+  virtual void run(const InputCollection& inputColl,
                        OutputCollection& outColl,
                        const edm::EventSetup& es) = 0;
  
