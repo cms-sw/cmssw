@@ -5,10 +5,10 @@
 // 
 /**\class CTPPSPixelDigiToRaw CTPPSPixelDigiToRaw.cc 
 
- Description: [one line class summary]
+Description: [one line class summary]
 
- Implementation:
-     [Notes on implementation]
+Implementation:
+[Notes on implementation]
 */
 //
 // Original Author:  Dilson De Jesus Damiao
@@ -61,30 +61,28 @@
 //
 
 class CTPPSPixelDigiToRaw : public edm::stream::EDProducer<> {
-   public:
-      explicit CTPPSPixelDigiToRaw(const edm::ParameterSet&);
-      ~CTPPSPixelDigiToRaw() override;
+  public:
+    explicit CTPPSPixelDigiToRaw(const edm::ParameterSet&);
+    ~CTPPSPixelDigiToRaw() override;
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   private:
-      void beginStream(edm::StreamID) override;
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      void endStream() override;
+  private:
+    void beginStream(edm::StreamID) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
+    void endStream() override;
 
-      // ----------member data ---------------------------
-  unsigned long eventCounter_;
-  int allDigiCounter_;
-  int allWordCounter_;
-  bool debug_;
-  std::set<unsigned int> fedIds_;
-  std::string mappingLabel_;
-  edm::ESWatcher<CTPPSPixelDAQMappingRcd> recordWatcher_;
-  edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelDigi>> tCTPPSPixelDigi_;
-  std::map<std::map<const uint32_t, std::map<short unsigned int, short unsigned int> > ,  std::map<short unsigned int, short unsigned int>  > iDdet2fed_;
-
-  CTPPSPixelFramePosition fPos_;
-
+    // ----------member data ---------------------------
+    unsigned long eventCounter_;
+    int allDigiCounter_;
+    int allWordCounter_;
+    bool debug_;
+    std::set<unsigned int> fedIds_;
+    std::string mappingLabel_;
+    edm::ESWatcher<CTPPSPixelDAQMappingRcd> recordWatcher_;
+    edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelDigi>> tCTPPSPixelDigi_;
+    std::vector<CTPPSPixelDataFormatter::PPSPixelIndex> v_iDdet2fed_;
+    CTPPSPixelFramePosition fPos_;
 };
 
 //
@@ -101,13 +99,12 @@ class CTPPSPixelDigiToRaw : public edm::stream::EDProducer<> {
 //
 CTPPSPixelDigiToRaw::CTPPSPixelDigiToRaw(const edm::ParameterSet& iConfig) 
 {
-   //register your products
- tCTPPSPixelDigi_ = consumes<edm::DetSetVector<CTPPSPixelDigi> >(iConfig.getParameter<edm::InputTag>("InputLabel"));
+  //register your products
+  tCTPPSPixelDigi_ = consumes<edm::DetSetVector<CTPPSPixelDigi> >(iConfig.getParameter<edm::InputTag>("InputLabel"));
 
   // Define EDProduct type
   produces<FEDRawDataCollection>();
   mappingLabel_ = iConfig.getParameter<std::string> ("mappingLabel");
-   //now do what ever other initialization is needed
   // start the counters
   eventCounter_ = 0;
   allDigiCounter_ = 0;
@@ -117,68 +114,51 @@ CTPPSPixelDigiToRaw::CTPPSPixelDigiToRaw(const edm::ParameterSet& iConfig)
 
 CTPPSPixelDigiToRaw::~CTPPSPixelDigiToRaw()
 {
-   edm::LogInfo("CTPPSPixelDigiToRaw")  << " CTPPSPixelDigiToRaw destructor!";
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void
+  void
 CTPPSPixelDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
-   using namespace std;
+  using namespace edm;
+  using namespace std;
 
- eventCounter_++;
-  edm::LogInfo("CTPPSPixelDigiToRaw") << "[CTPPSPixelDigiToRaw::produce] "
-                                   << "event number: " << eventCounter_;
+  eventCounter_++;
 
   edm::Handle< edm::DetSetVector<CTPPSPixelDigi> > digiCollection;
   iEvent.getByToken( tCTPPSPixelDigi_, digiCollection);
 
   CTPPSPixelDataFormatter::RawData rawdata;
   CTPPSPixelDataFormatter::Digis digis;
-  typedef vector< edm::DetSet<CTPPSPixelDigi> >::const_iterator DI;
 
   int digiCounter = 0;
-  for (DI di=digiCollection->begin(); di != digiCollection->end(); di++) {
-    digiCounter += (di->data).size();
-    digis[ di->id] = di->data;
+  for (auto const &di : *digiCollection) {
+    digiCounter += (di.data).size();
+    digis[ di.id] = di.data;
   }
   allDigiCounter_ += digiCounter;
-   edm::ESHandle<CTPPSPixelDAQMapping> mapping;
+  edm::ESHandle<CTPPSPixelDAQMapping> mapping;
   if (recordWatcher_.check( iSetup )) {
     iSetup.get<CTPPSPixelDAQMappingRcd>().get(mapping);
     for (const auto &p : mapping->ROCMapping)    {
-        const uint32_t piD = p.second.iD;
-        short unsigned int pROC   = p.second.roc;
-        short unsigned int pFediD = p.first.getFEDId();
-        short unsigned int pFedcH = p.first.getChannelIdx();
-        short unsigned int pROCcH = p.first.getROC();
-
-        std::map<short unsigned int,short unsigned int> mapROCIdCh;
-        mapROCIdCh.insert(std::pair<short unsigned int,short unsigned int>(pROC,pROCcH));
-
-        std::map<const uint32_t, std::map<short unsigned int, short unsigned int> > mapDetRoc;
-        mapDetRoc.insert(std::pair<const uint32_t, std::map<short unsigned int,short unsigned int> >(piD,mapROCIdCh));
-  std::map<short unsigned int,short unsigned int> mapFedIdCh;
-        mapFedIdCh.insert(std::pair<short unsigned int,short unsigned int>(pFediD,pFedcH));
-
-        iDdet2fed_.insert(std::pair<std::map<const uint32_t, std::map<short unsigned int, short unsigned int> >, std::map<short unsigned int,short unsigned int> > (mapDetRoc,mapFedIdCh));
-
+      CTPPSPixelDataFormatter::PPSPixelIndex iDdet2fed = { p.second.iD, p.second.roc, p.first.getROC(), p.first.getFEDId(), p.first.getChannelIdx() }; 
+      v_iDdet2fed_.emplace_back(iDdet2fed);
     }
     fedIds_ = mapping->fedIds();
   }
- CTPPSPixelDataFormatter formatter(mapping->ROCMapping);
+  CTPPSPixelDataFormatter formatter(mapping->ROCMapping);
 
   // create product (raw data)
   auto buffers = std::make_unique<FEDRawDataCollection>();
 
+  std::sort(v_iDdet2fed_.begin(), v_iDdet2fed_.end(), CTPPSPixelDataFormatter::compare);
+
   // convert data to raw
-  formatter.formatRawData( iEvent.id().event(), rawdata, digis, iDdet2fed_);
+  formatter.formatRawData( iEvent.id().event(), rawdata, digis, v_iDdet2fed_);
 
   // pack raw data into collection
   for (auto it = fedIds_.begin(); it != fedIds_.end(); it++) {
@@ -189,15 +169,15 @@ CTPPSPixelDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   allWordCounter_ += formatter.nWords();
 
   if (debug_) LogDebug("CTPPSPixelDigiToRaw")
-          << "Words/Digis this iEvent: "<<digiCounter<<"(fm:"<<formatter.nDigis()<<")/"
-          <<formatter.nWords()
-          <<"  all: "<< allDigiCounter_ <<"/"<<allWordCounter_;
+    << "Words/Digis this iEvent: "<<digiCounter<<"(fm:"<<formatter.nDigis()<<")/"
+      <<formatter.nWords()
+      <<"  all: "<< allDigiCounter_ <<"/"<<allWordCounter_;
 
   iEvent.put(std::move(buffers));
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
-void
+  void
 CTPPSPixelDigiToRaw::beginStream(edm::StreamID)
 {
 }

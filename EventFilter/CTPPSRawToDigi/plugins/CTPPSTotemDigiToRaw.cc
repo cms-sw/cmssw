@@ -5,10 +5,10 @@
 // 
 /**\class CTPPSTotemDigiToRaw CTPPSTotemDigiToRaw.cc temp/CTPPSTotemDigiToRaw/plugins/CTPPSTotemDigiToRaw.cc
 
- Description: [one line class summary]
+Description: [one line class summary]
 
- Implementation:
-     [Notes on implementation]
+Implementation:
+[Notes on implementation]
 */
 //
 // Original Author:  Dilson De Jesus Damiao
@@ -34,7 +34,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
-//#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -66,28 +65,28 @@
 //
 
 class CTPPSTotemDigiToRaw : public edm::stream::EDProducer<> {
-   public:
-      explicit CTPPSTotemDigiToRaw(const edm::ParameterSet&);
-      ~CTPPSTotemDigiToRaw() override;
+  public:
+    explicit CTPPSTotemDigiToRaw(const edm::ParameterSet&);
+    ~CTPPSTotemDigiToRaw() override;
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   private:
-      void beginStream(edm::StreamID) override;
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      void endStream() override;
+  private:
+    void beginStream(edm::StreamID) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
+    void endStream() override;
 
-  unsigned long eventCounter_;
-  std::set<unsigned int> fedIds_;
-  int allDigiCounter_;
-  int allWordCounter_;
-  bool debug_;
-  edm::ESWatcher<TotemReadoutRcd> recordWatcher;
-  edm::EDGetTokenT<edm::DetSetVector<TotemRPDigi>> tTotemRPDigi_;
-  std::map<std::map<const uint32_t, unsigned int>, std::map<short unsigned int, std::map<short unsigned int, short unsigned int>>> iDdet2fed_;
-  TotemFramePosition fPos_;
+    unsigned long eventCounter_;
+    std::set<unsigned int> fedIds_;
+    int allDigiCounter_;
+    int allWordCounter_;
+    bool debug_;
+    edm::ESWatcher<TotemReadoutRcd> recordWatcher;
+    edm::EDGetTokenT<edm::DetSetVector<TotemRPDigi>> tTotemRPDigi_;
+    std::vector<CTPPSTotemDataFormatter::PPSStripIndex> v_iDdet2fed_;
+    TotemFramePosition fPos_;
 
-      // ----------member data ---------------------------
+    // ----------member data ---------------------------
 };
 
 //
@@ -104,7 +103,7 @@ class CTPPSTotemDigiToRaw : public edm::stream::EDProducer<> {
 //
 CTPPSTotemDigiToRaw::CTPPSTotemDigiToRaw(const edm::ParameterSet& iConfig) 
 {
-   //register your products
+  //register your products
   tTotemRPDigi_ = consumes<edm::DetSetVector<TotemRPDigi> >(iConfig.getParameter<edm::InputTag>("InputLabel"));
   produces<FEDRawDataCollection>();
 
@@ -117,7 +116,7 @@ CTPPSTotemDigiToRaw::CTPPSTotemDigiToRaw(const edm::ParameterSet& iConfig)
 
 CTPPSTotemDigiToRaw::~CTPPSTotemDigiToRaw()
 {
-   edm::LogInfo("CTPPSTotemDigiToRaw")  << " CTPPSTotemDigiToRaw destructor!";
+  edm::LogInfo("CTPPSTotemDigiToRaw")  << " CTPPSTotemDigiToRaw destructor!";
 }
 
 
@@ -126,14 +125,12 @@ CTPPSTotemDigiToRaw::~CTPPSTotemDigiToRaw()
 //
 
 // ------------ method called to produce the data  ------------
-void
+  void
 CTPPSTotemDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
+  using namespace edm;
   using namespace std;
   eventCounter_++;
-  edm::LogInfo("CTPPSTotemDigiToRaw") << "[CTPPSTotemDigiToRaw::produce] "
-    << "event number: " << eventCounter_;
 
   edm::Handle< edm::DetSetVector<TotemRPDigi> > digiCollection;
   iEvent.getByToken( tTotemRPDigi_, digiCollection);
@@ -142,44 +139,32 @@ CTPPSTotemDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   CTPPSTotemDataFormatter::Digis digis;
 
   int digiCounter = 0;
-  typedef vector< edm::DetSet<TotemRPDigi> >::const_iterator DI;
-  for (DI di=digiCollection->begin(); di != digiCollection->end(); di++) {
-    digiCounter += (di->data).size();
-    digis[ di->detId()] = di->data;
+  for (auto const &di : *digiCollection) {
+    digiCounter += (di.data).size();
+    digis[ di.detId()] = di.data;
   }
   allDigiCounter_ += digiCounter;
   edm::ESHandle<TotemDAQMapping> mapping;
   // label of the CTPPS sub-system
-  //std::string subSystemName = "TrackingStrip";
   if (recordWatcher.check( iSetup )) {
     iSetup.get<TotemReadoutRcd>().get(mapping);
     for (const auto &p : mapping->VFATMapping) {
       //get TotemVFATInfo information
-      const uint32_t pID = (p.second.symbolicID).symbolicID;
-      unsigned int phwID = p.second.hwID;
-      std::map<const uint32_t, unsigned int> mapSymb;
-      mapSymb.insert(std::pair<const uint32_t, unsigned int>(pID,phwID));
-
-    //get TotemFramePosition information  
-      short unsigned int pFediD = p.first.getFEDId();
-      fedIds_.insert(p.first.getFEDId());
-      short unsigned int pIdxInFiber = p.first.getIdxInFiber();
-      short unsigned int pGOHId = p.first.getGOHId();
-      std::map<short unsigned int, short unsigned int> mapIdxGOH;
-      mapIdxGOH.insert(std::pair<short unsigned int, short unsigned int>(pIdxInFiber,pGOHId));
-
-      std::map<short unsigned int, std::map<short unsigned int, short unsigned int> > mapFedFiber;
-      mapFedFiber.insert(std::pair<short unsigned int, std::map<short unsigned int,short unsigned int> >(pFediD,mapIdxGOH));
-      iDdet2fed_.insert(std::pair<std::map<const uint32_t, unsigned int> , std::map<short unsigned int, std::map<short unsigned int, short unsigned int> > >(mapSymb,mapFedFiber));
+      fedIds_.emplace(p.first.getFEDId()); 
+      CTPPSTotemDataFormatter::PPSStripIndex iDdet2fed = { (p.second.symbolicID).symbolicID, p.second.hwID, p.first.getFEDId(), p.first.getIdxInFiber(), p.first.getGOHId()}; 
+      v_iDdet2fed_.emplace_back(iDdet2fed);
     }
   }
 
   CTPPSTotemDataFormatter formatter(mapping->VFATMapping);
 
-  formatter.formatRawData( iEvent.id().event(), rawdata, digis, iDdet2fed_);
-
   // create product (raw data)
   auto buffers = std::make_unique<FEDRawDataCollection>();
+
+  std::sort(v_iDdet2fed_.begin(), v_iDdet2fed_.end(), CTPPSTotemDataFormatter::compare);
+
+  // convert data to raw
+  formatter.formatRawData( iEvent.id().event(), rawdata, digis, v_iDdet2fed_);
 
   // pack raw data into collection
   for (auto it = fedIds_.begin(); it != fedIds_.end(); it++) {
@@ -199,7 +184,7 @@ CTPPSTotemDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
-void
+  void
 CTPPSTotemDigiToRaw::beginStream(edm::StreamID)
 {
 }

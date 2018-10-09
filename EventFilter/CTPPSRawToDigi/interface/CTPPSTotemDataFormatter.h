@@ -40,23 +40,35 @@ class CTPPSTotemDataFormatter {
     typedef uint32_t Word32;
     typedef uint64_t Word64;
 
-    mutable int theWordCounter;
-    mutable int theDigiCounter;
+    mutable int m_WordCounter;
+    mutable int m_DigiCounter;
 
   public:
 
-    typedef std::map<int, FEDRawData> RawData;
+    typedef std::unordered_map<int, FEDRawData> RawData;
     typedef std::vector<TotemRPDigi> DetDigis;
-    typedef std::map<cms_uint32_t,DetDigis> Digis;
+    typedef std::unordered_map<cms_uint32_t,DetDigis> Digis;
 
     CTPPSTotemDataFormatter(std::map<TotemFramePosition, TotemVFATInfo> const &mapping);
 
-    int nWords() const { return theWordCounter; }
-    int nDigis() const { return theDigiCounter; }
+    int nWords() const { return m_WordCounter; }
+    int nDigis() const { return m_DigiCounter; }
 
-     void formatRawData(unsigned int lvl1_ID, RawData & fedRawData, const Digis & digis, std::map<std::map<const uint32_t, unsigned int>, std::map<short unsigned int, std::map<short unsigned int, short unsigned int>>> iDdet2fed ) ; 
+    struct PPSStripIndex { 
+      uint32_t id; 
+      unsigned int hwid; 
+      short unsigned int fedid; 
+      short unsigned int idxinfiber; 
+      short unsigned int gohid; 
+    };
 
-     std::string print(const Word64 & word) const;
+    void formatRawData(unsigned int lvl1_ID, RawData & fedRawData, const Digis & digis, std::vector<PPSStripIndex> v_iDdet2fed ) ; 
+
+    static bool compare(const PPSStripIndex& a, const PPSStripIndex& b) {
+      return a.id < b.id; // || (a.id == b.id && a.roc < b.roc);
+    }
+
+    std::string print(const Word64 & word) const;
 };
 
 #endif

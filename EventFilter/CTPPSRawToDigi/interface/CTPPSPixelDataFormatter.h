@@ -52,53 +52,65 @@ class RPixErrorChecker;
 
 class CTPPSPixelDataFormatter {
 
-public:
+  public:
 
-  typedef edm::DetSetVector<CTPPSPixelDigi> Collection;
+    typedef edm::DetSetVector<CTPPSPixelDigi> Collection;
 
-  typedef std::map<int, FEDRawData> RawData;
-  typedef std::vector<CTPPSPixelDigi> DetDigis;
+    typedef std::unordered_map<int, FEDRawData> RawData;
+    typedef std::vector<CTPPSPixelDigi> DetDigis;
 
-  typedef std::vector<CTPPSPixelDataError> DetErrors;
-  typedef std::map<uint32_t, DetErrors> Errors;
+    typedef std::vector<CTPPSPixelDataError> DetErrors;
+    typedef std::map<uint32_t, DetErrors> Errors;
 
-  typedef uint32_t Word32;
-  typedef uint64_t Word64;
+    typedef uint32_t Word32;
+    typedef uint64_t Word64;
 
-  typedef std::map<cms_uint32_t,DetDigis> Digis;
+    typedef std::unordered_map<cms_uint32_t,DetDigis> Digis;
 
-  CTPPSPixelDataFormatter(std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo> const &mapping);
+    CTPPSPixelDataFormatter(std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo> const &mapping);
 
-  void setErrorStatus(bool theErrorStatus);
+    void setErrorStatus(bool theErrorStatus);
 
-  int nWords() const { return m_WordCounter; }
+    int nWords() const { return m_WordCounter; }
 
-  void interpretRawData( bool& errorsInEvent, int fedId,  const FEDRawData & data, Collection & digis, Errors & errors);
+    void interpretRawData( bool& errorsInEvent, int fedId,  const FEDRawData & data, Collection & digis, Errors & errors);
 
-  int nDigis() const { return m_DigiCounter; }
+    int nDigis() const { return m_DigiCounter; }
 
-  void formatRawData( unsigned int lvl1_ID, RawData & fedRawData, const Digis & digis, std::map< std::map<const uint32_t,std::map<short unsigned int, short unsigned int>>, std::map<short unsigned int,short unsigned int>> iDdet2fed);
+    struct PPSPixelIndex { 
+      uint32_t id; 
+      unsigned int roc; 
+      short unsigned int rocch; 
+      short unsigned int fedid; 
+      short unsigned int fedch;
+    };
 
-private:
+    void formatRawData( unsigned int lvl1_ID, RawData & fedRawData, const Digis & digis, std::vector<PPSPixelIndex> v_iDdet2fed);
 
-  mutable int m_WordCounter;
+    static bool compare(const PPSPixelIndex& a, const PPSPixelIndex& b) {
+      return a.id < b.id || (a.id == b.id && a.roc < b.roc);
+    }
 
-  bool m_IncludeErrors;
-  RPixErrorChecker m_ErrorCheck;
+  private:
 
-  int m_ADC_shift, m_PXID_shift, m_DCOL_shift, m_ROC_shift, m_LINK_shift;
-  Word32 m_LINK_mask, m_ROC_mask, m_DCOL_mask, m_PXID_mask, m_ADC_mask;
- 
-  int checkError(const Word32& data) const;
+    mutable int m_WordCounter;
 
-  std::string print(const Word64& word) const;
+    bool m_IncludeErrors;
+    RPixErrorChecker m_ErrorCheck;
 
-  const std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo> &m_Mapping;
+    int m_ADC_shift, m_PXID_shift, m_DCOL_shift, m_ROC_shift, m_LINK_shift;
+    Word32 m_LINK_mask, m_ROC_mask, m_DCOL_mask, m_PXID_mask, m_ADC_mask;
 
-  mutable int m_DigiCounter;
-  int m_allDetDigis;
-  int m_hasDetDigis;
-  CTPPSPixelIndices theIndices;
+    int checkError(const Word32& data) const;
+
+    std::string print(const Word64& word) const;
+
+    const std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo> &m_Mapping;
+
+    mutable int m_DigiCounter;
+    int m_allDetDigis;
+    int m_hasDetDigis;
+    CTPPSPixelIndices theIndices;
 };
 
 #endif
