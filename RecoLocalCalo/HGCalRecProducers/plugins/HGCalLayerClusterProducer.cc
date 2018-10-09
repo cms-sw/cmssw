@@ -162,7 +162,6 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt,
   //make a map detid-rechit
   // NB for the moment just host EE and FH hits
   // timing in digi for BH not implemented for now
-  //  std::map<const HGCalDetId,const HGCRecHit*> hitmap;
   std::map<const HGCalDetId, float> hitmap;
 
   switch(algoId){
