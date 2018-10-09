@@ -43,9 +43,8 @@ RawDataMapperByLabel::~RawDataMapperByLabel(){
 void RawDataMapperByLabel::produce(Event & e, const EventSetup& c){
 
  
- bool AlredyACollectionFilled= false;
+ bool AlreadyACollectionFilled= false;
  tag_iterator_t inputTag = inputTags_.begin();
- //unsigned int i=0;
  for(tok_iterator_t inputTok = inputTokens_.begin(); inputTok != inputTokens_.end(); ++inputTok, ++inputTag  ) {
    Handle<FEDRawDataCollection> input;
    if (e.getByToken(*inputTok,input)){
@@ -53,19 +52,15 @@ void RawDataMapperByLabel::produce(Event & e, const EventSetup& c){
     	    if(firstEvent_){ 
     	        if(mainCollectionTag_==*inputTag) continue;
     	    	filledCollectionName_ = *inputTag; 
-    	    }
-    		if(AlredyACollectionFilled) throw cms::Exception("Unknown input type") << "Two input collections are present. Please make sure that the input dataset has only one FEDRawDataCollector collection filled";
+            }
+    		if(AlreadyACollectionFilled) throw cms::Exception("Unknown input type") << "Two input collections are present. Please make sure that the input dataset has only one FEDRawDataCollector collection filled";
             if(!(filledCollectionName_==*inputTag)) throw cms::Exception("Unknown input type") << "The filled collection has changed!";
-            e.put(std::move(std::make_unique<FEDRawDataCollection>(*input.product())) );
-            AlredyACollectionFilled = true;
+            e.put(std::make_unique<FEDRawDataCollection>(*input.product()));
+            AlreadyACollectionFilled = true;
             firstEvent_= false;            
-   		}
-    
-	}
+        }
+    }
   }
-
- // Insert the new product in the event  
-
 }
 
 
