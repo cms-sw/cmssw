@@ -33,6 +33,7 @@ EcalDQMonitorTask::EcalDQMonitorTask(edm::ParameterSet const& _ps) :
   lastResetTime_(0),
   resetInterval_(_ps.getUntrackedParameter<double>("resetInterval"))
 {
+  int introduce_compiler_warning=0;
   ecaldqm::DependencySet dependencies;
   std::bitset<ecaldqm::nCollections> hasTaskToRun;
   edm::ConsumesCollector collector(consumesCollector());
