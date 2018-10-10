@@ -20,7 +20,7 @@ triggerCellSums(const HGCalTriggerGeometryBase& geometry,
     // find trigger cell associated to cell
     uint32_t tcid = geometry.getTriggerCellFromCell(cellid);
     HGCalDetId triggercellid( tcid );
-    payload.emplace( std::make_pair(triggercellid, 0) ); // do nothing if key exists already
+    payload.emplace(triggercellid, 0); // do nothing if key exists already
     uint32_t value = frame.second;
     unsigned det = cellid.det();
     // equalize value among cell thicknesses for Silicon parts
