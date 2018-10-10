@@ -126,7 +126,7 @@ std::map<std::string, l1t::Mask>& ) {
   paramsHelper.setTauNeighbourThreshold((conf["leptonTowerThreshold"].getValue<int>())/2);
   paramsHelper.setJetSeedThreshold((conf["jetSeedThreshold"].getValue<int>())/2);
   paramsHelper.setJetBypassPUS(conf["jetBypassPileUpSub"].getValue<bool>());
-  paramsHelper.setJetPUSUseChunkySandwich(conf["jetPUSUseChunkySandwich"].getValue<bool>());
+  paramsHelper.setJetPUSUsePhiRing(conf["jetPUSUsePhiRing"].getValue<bool>());
   paramsHelper.setEgBypassEGVetos(conf["egammaBypassCuts"].getValue<bool>());
   paramsHelper.setEgHOverEcutBarrel(conf["egammaHOverECut_iEtaLT15"].getValue<int>());
   paramsHelper.setEgHOverEcutEndcap(conf["egammaHOverECut_iEtaGTEq15"].getValue<int>());
