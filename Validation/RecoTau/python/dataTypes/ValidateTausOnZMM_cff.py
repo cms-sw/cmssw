@@ -38,8 +38,23 @@ zttLabeler = lambda module : SetValidationExtention(module, 'ZMM')
 zttModifier = ApplyFunctionToSequence(zttLabeler)
 proc.TauValNumeratorAndDenominatorZMM.visit(zttModifier)
 
+#Set discriminators
+discs_to_retain = ['ByDecayModeFinding', 'MuonRejection']
+proc.RunHPSValidationZMM.discriminators = cms.VPSet([p for p in proc.RunHPSValidationZMM.discriminators if any(disc in p.discriminator.value() for disc in discs_to_retain) ])
+
 #Sets the correct naming to efficiency histograms
 proc.efficienciesZMM.plots = Utils.SetPlotSequence(proc.TauValNumeratorAndDenominatorZMM)
+proc.efficienciesZMMSummary = cms.EDProducer("TauDQMHistEffProducer",
+    plots = cms.PSet(
+        Summary = cms.PSet(
+            denominator = cms.string('RecoTauV/hpsPFTauProducerZMM_Summary/#PAR#PlotDen'),
+            efficiency = cms.string('RecoTauV/hpsPFTauProducerZMM_Summary/#PAR#Plot'),
+            numerator = cms.string('RecoTauV/hpsPFTauProducerZMM_Summary/#PAR#PlotNum'),
+            parameter = cms.vstring('summary'),
+            stepByStep = cms.bool(True)
+        ),
+    )
+)
 
 #checks what's new in the process (the cloned sequences and modules in them)
 newProcAttributes = [x for x in dir(proc) if (x not in procAttributes) and (x.find('ZMM') != -1)]
