@@ -56,6 +56,61 @@ dEdX_weights = cms.vdouble(0.0,   # there is no layer zero
                            92.196,
                            46.098)
 
+dEdX_weights_v9 = cms.vdouble(0.0,      # there is no layer zero
+                              8.366557, # Mev
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              10.425456,  
+                              31.497849,  
+                              51.205434,  
+                              52.030486,  
+                              52.030486,  
+                              52.030486,  
+                              52.030486,  
+                              52.030486,  
+                              52.030486,  
+                              52.030486,  
+                              52.030486,  
+                              52.030486,  
+                              52.030486,  
+                              71.265149,  
+                              90.499812,  
+                              90.894274,  
+                              90.537470,  
+                              89.786205,  
+                              89.786205,  
+                              89.786205,  
+                              89.786205,  
+                              89.786205,  
+                              89.786205,  
+                              89.786205,  
+                              89.786205,  
+                              89.786205)
+
+
 # HGCAL rechit producer
 HGCalRecHit = cms.EDProducer(
     "HGCalRecHitProducer",
@@ -94,4 +149,6 @@ HGCalRecHit = cms.EDProducer(
 
     )
 
-
+from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
+phase2_hgcalV9.toModify( HGCalRecHit , layerWeights = dEdX_weights_v9 ) 
+phase2_hgcalV9.toModify( HGCalRecHit , thicknessCorrection = cms.vdouble(0.759,0.760,0.773) ) #120um, 200um, 300um

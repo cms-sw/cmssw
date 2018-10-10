@@ -47,3 +47,7 @@ HGCalUncalibRecHit = cms.EDProducer(
 
     algo = cms.string("HGCalUncalibRecHitWorkerWeights")
 )
+
+from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
+phase2_hgcalV9.toModify( HGCalUncalibRecHit.HGCEEConfig , fCPerMIP = cms.vdouble(2.06,3.43,5.15) ) #120um, 200um, 300um
+phase2_hgcalV9.toModify( HGCalUncalibRecHit.HGCHEFConfig , fCPerMIP = cms.vdouble(2.06,3.43,5.15) ) #120um, 200um, 300um
