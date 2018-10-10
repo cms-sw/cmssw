@@ -162,20 +162,20 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt,
   //make a map detid-rechit
   // NB for the moment just host EE and FH hits
   // timing in digi for BH not implemented for now
-  std::map<const HGCalDetId, float> hitmap;
+  std::unordered_map<uint32_t, float> hitmap;
 
   switch(algoId){
   case reco::CaloCluster::hgcal_em:
     evt.getByToken(hits_ee_token,ee_hits);
     algo->populate(*ee_hits);
-    for(auto it: *ee_hits) hitmap[it.detid()] = it.time();
+    for(auto const& it: *ee_hits) hitmap[HGCalDetId(it.detid())] = it.time();
     break;
   case  reco::CaloCluster::hgcal_had:
     evt.getByToken(hits_fh_token,fh_hits);
     evt.getByToken(hits_bh_token,bh_hits);
     if( fh_hits.isValid() ) {
       algo->populate(*fh_hits);
-      for(auto it: *fh_hits) hitmap[it.detid()] = it.time();
+      for(auto const& it: *fh_hits) hitmap[HGCalDetId(it.detid())] = it.time();
     } else if ( bh_hits.isValid() ) {
       algo->populate(*bh_hits);
     }
@@ -183,13 +183,13 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt,
   case reco::CaloCluster::hgcal_mixed:
     evt.getByToken(hits_ee_token,ee_hits);
     algo->populate(*ee_hits);
-    for(auto it: *ee_hits){
-      hitmap[it.detid()] = it.time();
+    for(auto const& it: *ee_hits){
+      hitmap[HGCalDetId(it.detid())] = it.time();
     }
     evt.getByToken(hits_fh_token,fh_hits);
     algo->populate(*fh_hits);
-    for(auto it: *fh_hits){
-      hitmap[it.detid()] = it.time();
+    for(auto const& it: *fh_hits){
+      hitmap[HGCalDetId(it.detid())] = it.time();
     }
     evt.getByToken(hits_bh_token,bh_hits);
     algo->populate(*bh_hits);
@@ -218,8 +218,8 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt,
     if(sCl.size() >= 3){
       std::vector<float> timeClhits;
 
-      for(auto hit : sCl.hitsAndFractions()){
-        std::map<const HGCalDetId, float>::iterator finder = hitmap.find(hit.first);
+      for(auto const& hit : sCl.hitsAndFractions()){
+        auto finder = hitmap.find(hit.first);
         if(finder == hitmap.end()) continue;
 
         //time is computed wrt  0-25ns + offset and set to -1 if no time
@@ -232,7 +232,7 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt,
     times.push_back(timeCl);
   }
 
-  std::unique_ptr<edm::ValueMap<float>> timeCl(new edm::ValueMap<float>());
+  auto timeCl = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler filler(*timeCl);
   filler.insert(clusterHandle, times.begin(), times.end());
   filler.fill();
