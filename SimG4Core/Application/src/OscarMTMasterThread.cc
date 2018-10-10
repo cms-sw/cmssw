@@ -190,7 +190,7 @@ void OscarMTMasterThread::stopThread() {
   m_masterThreadState = ThreadState::Destruct;
   m_masterCanProceed = true;
   edm::LogVerbatim("SimG4CoreApplication") 
-    << "OscarMTMasterThread::stopTread: stop main thread";
+    << "OscarMTMasterThread::stopTread: notify";
   m_notifyMasterCv.notify_one();
   lk2.unlock();
 
