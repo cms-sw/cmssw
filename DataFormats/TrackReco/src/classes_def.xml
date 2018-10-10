@@ -1,7 +1,8 @@
 <lcgdict>
 
   <class name="reco::TrackBase::AlgoMask"/>
-  <class name="reco::HitPattern" ClassVersion="12">
+  <class name="reco::HitPattern" ClassVersion="13">
+      <version ClassVersion="13" checksum="2211596316"/>
       <version ClassVersion="12" checksum="3922863495"/>
       <version ClassVersion="11" checksum="1621684703"/>
   </class>
@@ -25,6 +26,84 @@
     <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
     <field name="momentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
   </class>
+ <ioread
+    sourceClass="reco::HitPattern"
+      source="uint16_t hitPattern[50]"
+      targetClass="reco::HitPattern"
+      target="hitPattern"
+      version="[12]"
+      include="utility"
+      >
+   <![CDATA[
+            using namespace reco;
+
+            const unsigned short HitSize = 11;
+            const unsigned short PatternSize = 50;
+            const int MaxHits = (PatternSize * sizeof(uint16_t) * 8) / HitSize;
+
+            auto getHitFromOldHitPattern = [](const uint16_t hitPattern[], const int position) {
+                uint16_t bitEndOffset = (position + 1) * HitSize;
+                uint8_t secondWord   = (bitEndOffset >> 4);
+                uint8_t secondWordBits = bitEndOffset & (16 - 1); // that is, bitEndOffset % 32
+                if (secondWordBits >= HitSize) {
+                    // full block is in this word
+                    uint8_t lowBitsToTrash = secondWordBits - HitSize;
+                    return (hitPattern[secondWord] >> lowBitsToTrash) & ((1 << HitSize) - 1);
+                } else {
+                    uint8_t  firstWordBits   = HitSize - secondWordBits;
+                    uint16_t firstWordBlock  = hitPattern[secondWord - 1] >> (16 - firstWordBits);
+                    uint16_t secondWordBlock = hitPattern[secondWord] & ((1 << secondWordBits) - 1);
+                    return firstWordBlock + (secondWordBlock << firstWordBits);
+                }
+            };
+
+            auto appendOldHitPattern = [&](const uint16_t pattern) {
+                // for this version we just have to add a 0 bit to the top of the pattern
+                const static unsigned short HitTypeMask = 0x3;
+                const static unsigned short HitTypeOffset = 0;                
+
+                const uint16_t VALID_CONST = (uint16_t) TrackingRecHit::valid;
+                const uint16_t MISSING_CONST = (uint16_t) TrackingRecHit::missing;
+                const uint16_t INACTIVE_CONST = (uint16_t) TrackingRecHit::inactive;
+                const uint16_t BAD_CONST = (uint16_t) TrackingRecHit::bad;
+
+                uint16_t rawHitType = (pattern >> HitTypeOffset) & HitTypeMask;                
+
+                TrackingRecHit::Type hitType = TrackingRecHit::valid;
+                switch (rawHitType) {
+                case VALID_CONST:
+                    hitType = TrackingRecHit::valid;
+                    break;
+                case MISSING_CONST:
+                    hitType = TrackingRecHit::missing;
+                    break;
+                case INACTIVE_CONST:
+                    hitType = TrackingRecHit::inactive;
+                    break;
+                case BAD_CONST:
+                    hitType = TrackingRecHit::bad;
+                    break;
+                }                
+                return newObj->appendHit(pattern,hitType);                
+            };
+
+            auto fillNewHitPatternWithOldHitPattern = [&](const uint16_t oldHitPattern[]) {
+                newObj->clear();
+                for (int i = 0; i < MaxHits; i++) {
+                    uint16_t pattern = getHitFromOldHitPattern(oldHitPattern, i);
+                    if (pattern == 0) {
+                        break;
+                    }
+                    if(!appendOldHitPattern(pattern)) {
+                        return false;
+                    }
+                }
+                return true;
+            };
+
+            fillNewHitPatternWithOldHitPattern(onfile.hitPattern);
+      ]]>
+ </ioread>
  <ioread
       sourceClass="reco::HitPattern"
       source="uint32_t hitPattern_[25]"
