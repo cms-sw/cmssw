@@ -125,10 +125,10 @@ from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith(RawToDigi,_hgcal_RawToDigi)
 
 # RPC New Readout Validation
-from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
 _rpc_NewReadoutVal_RawToDigi = RawToDigi.copy()
 _rpc_NewReadoutVal_RawToDigi_noTk = RawToDigi_noTk.copy()
 _rpc_NewReadoutVal_RawToDigi += muonRPCNewDigis
 _rpc_NewReadoutVal_RawToDigi_noTk += muonRPCNewDigis
-stage2L1Trigger.toReplaceWith(RawToDigi, _rpc_NewReadoutVal_RawToDigi)
-stage2L1Trigger.toReplaceWith(RawToDigi_noTk, _rpc_NewReadoutVal_RawToDigi)
+stage2L1Trigger_2017.toReplaceWith(RawToDigi, _rpc_NewReadoutVal_RawToDigi)
+stage2L1Trigger_2017.toReplaceWith(RawToDigi_noTk, _rpc_NewReadoutVal_RawToDigi)

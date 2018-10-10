@@ -60,7 +60,7 @@ void RPCDigiMerger::produce(edm::Event & event, edm::EventSetup const & setup)
     std::unique_ptr<RPCDigiCollection> rpc_digi_collection(new RPCDigiCollection());
 
 
-    // loop over twinmux digis
+    // loop over TwinMux digis
     for (const auto & rpcdgIt : (*TwinMux_digis) ) {
         // The layerId
         const RPCDetId& rpcId = rpcdgIt.first;
@@ -70,7 +70,7 @@ void RPCDigiMerger::produce(edm::Event & event, edm::EventSetup const & setup)
         rpc_digi_collection->put(range, rpcId);
     }
 
-    // loop over cpppf digis
+    // loop over CPPF digis
     for (const auto && rpcdgIt : (*CPPF_digis) ) {
         // The layerId
         const RPCDetId& rpcId = rpcdgIt.first;
@@ -80,7 +80,7 @@ void RPCDigiMerger::produce(edm::Event & event, edm::EventSetup const & setup)
         rpc_digi_collection->put(range, rpcId);
     }
 
-    // loop over cpppf digis
+    // loop over OMTF digis
     for (const auto & rpcdgIt : (*OMTF_digis) ) {
         // The layerId
         const RPCDetId& rpcId = rpcdgIt.first;
