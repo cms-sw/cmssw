@@ -10,7 +10,8 @@
    <version ClassVersion="11" checksum="639174599"/>
    <version ClassVersion="10" checksum="2022291691"/>
   </class>
-  <class name="reco::TrackBase" ClassVersion="19">
+  <class name="reco::TrackBase" ClassVersion="20">
+   <version ClassVersion="20" checksum="1589774059"/>
    <version ClassVersion="19" checksum="4090229239"/>
    <version ClassVersion="18" checksum="1935215297"/>
    <version ClassVersion="17" checksum="1774167599"/>
@@ -397,7 +398,8 @@
   <class name="edm::Ref<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
   <class name="edm::RefVector<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
 
-  <class name="reco::Track" ClassVersion="19">
+  <class name="reco::Track" ClassVersion="20">
+   <version ClassVersion="20" checksum="2864582648"/>
    <version ClassVersion="19" checksum="362503460"/>
    <version ClassVersion="18" checksum="3235158110"/>
    <version ClassVersion="17" checksum="3387867292"/>
