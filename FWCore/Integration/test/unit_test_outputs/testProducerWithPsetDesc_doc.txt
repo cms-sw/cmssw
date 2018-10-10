@@ -495,6 +495,14 @@ generated for each configuration with a module label.
                         type: PSet 
                         see Section 1.1.21
 
+    plugin
+                        type: PSet 
+                        see Section 1.1.22
+
+    plugin1
+                        type: PSet 
+                        see Section 1.1.23
+
     mightGet
                         type: untracked vstring optional
                         default: none (do not write to cfi)
@@ -1948,6 +1956,46 @@ generated for each configuration with a module label.
 
         noDefault24
                         type: untracked VEventRange optional
+                        default: none (do not write to cfi)
+
+    Section 1.1.22 plugin PSet description:
+
+        Section 1.1.22.1 PluginDescriptoredmtestAnotherIntFactory Plugins description:
+
+        Section 1.1.22.1.1 edmtestAnotherOneMaker Plugin description:
+
+        type
+                        type: string 
+                        default: 'edmtestAnotherValueMaker'
+
+        Section 1.1.22.1.2 edmtestAnotherValueMaker Plugin description:
+
+        value
+                        type: int32 
+                        default: 5
+
+        type
+                        type: string 
+                        default: 'edmtestAnotherValueMaker'
+
+    Section 1.1.23 plugin1 PSet description:
+
+        Section 1.1.23.1 PluginDescriptoredmtestAnotherIntFactory Plugins description:
+
+        Section 1.1.23.1.1 edmtestAnotherOneMaker Plugin description:
+
+        type
+                        type: string 
+                        default: none (do not write to cfi)
+
+        Section 1.1.23.1.2 edmtestAnotherValueMaker Plugin description:
+
+        value
+                        type: int32 
+                        default: 5
+
+        type
+                        type: string 
                         default: none (do not write to cfi)
 
   1.2 module label: testLabel1
