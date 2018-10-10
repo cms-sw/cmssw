@@ -1,10 +1,10 @@
-#ifndef L1Trigger_RPCConeBuilder_RPCConeBuilder_h
-#define L1Trigger_RPCConeBuilder_RPCConeBuilder_h
+#ifndef L1Trigger_RPCTrigger_RPCConeBuilder_h
+#define L1Trigger_RPCTrigger_RPCConeBuilder_h
 // -*- C++ -*-
 //
 // Package:     RPCConeBuilder
 // Class  :     RPCConeBuilder
-// 
+//
 /**\class RPCConeBuilder RPCConeBuilder.h L1Trigger/RPCTrigger/interface/RPCConeBuilder.h
 
  Description: <one line class summary>
@@ -14,63 +14,48 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Mon Feb 25 12:06:44 CET 2008
 //
-#include <memory>
-#include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include "CondFormats/RPCObjects/interface/L1RPCConeBuilder.h"
-#include "CondFormats/DataRecord/interface/L1RPCConeBuilderRcd.h"
-
-
-#include "CondFormats/L1TObjects/interface/L1RPCConeDefinition.h"
-
 #include <map>
-//#include "L1TriggerConfig/RPCConeBuilder/interface/RPCStripsRing.h"
+#include <memory>
+#include <utility>
+
+#include "CondFormats/DataRecord/interface/L1RPCConeBuilderRcd.h"
+#include "CondFormats/L1TObjects/interface/L1RPCConeDefinition.h"
+#include "CondFormats/RPCObjects/interface/L1RPCConeBuilder.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "L1Trigger/RPCTrigger/interface/RPCStripsRing.h"
 
-#include "CondFormats/DataRecord/interface/L1RPCConeDefinitionRcd.h"
 class RPCConeBuilder : public edm::ESProducer {
    public:
-      
-      RPCConeBuilder(const edm::ParameterSet&);
-      ~RPCConeBuilder() override {};
 
-      typedef std::shared_ptr<L1RPCConeBuilder> ReturnType;
-      
+      RPCConeBuilder(const edm::ParameterSet&);
+
+      using ReturnType = std::unique_ptr<L1RPCConeBuilder>;
 
       ReturnType produce(const L1RPCConeBuilderRcd&);
-      //ReturnType produce(const L1RPCConfigRcd&);
-      void geometryCallback( const MuonGeometryRecord &);
-      void coneDefCallback( const L1RPCConeDefinitionRcd &);
-      
+
    private:
-     
-      void buildCones(const edm::ESHandle<RPCGeometry> & rpcGeom);
-      void buildConnections();
-      
+
+      void buildCones(RPCGeometry const*,
+                      L1RPCConeDefinition const*,
+                      RPCStripsRing::TIdToRindMap&);
+
+      void buildConnections(L1RPCConeDefinition const*,
+                            RPCStripsRing::TIdToRindMap&);
+
+      /// In the pair that is returned, the first element is the logplane number
+      /// for this connection (if not connected returns -1) and the second element
+      /// is lpSize.
       std::pair<int, int> areConnected(RPCStripsRing::TIdToRindMap::iterator ref,
-                        RPCStripsRing::TIdToRindMap::iterator other); /// Returns logplane number for this connection, if not connected returns -1. In second lpSize
-      
-      
+                                       RPCStripsRing::TIdToRindMap::iterator other,
+                                       L1RPCConeDefinition const*);
+
       // ----------member data ---------------------------
       int m_towerBeg;
       int m_towerEnd;
-      int m_rollBeg;
-      int m_rollEnd;
-      int m_hwPlaneBeg;
-      int m_hwPlaneEnd;
-      
-      edm::ESHandle<L1RPCConeDefinition> m_L1RPCConeDefinition;
-      edm::ESHandle<RPCGeometry> m_rpcGeometry;          
-      bool m_runOnceBuildCones; 
-          
-      RPCStripsRing::TIdToRindMap m_ringsMap;
-      
 };
-
-
-
 #endif
