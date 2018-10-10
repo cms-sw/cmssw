@@ -61,7 +61,3 @@ _outputs = [RecoLocalMuonFEVT, RecoLocalMuonRECO, RecoLocalMuonAOD]
 _updateOutput( run2_GEM_2017, _outputs, ['keep *_gemRecHits_*_*', 'keep *_gemSegments_*_*'] )
 _updateOutput( run3_GEM, _outputs, ['keep *_gemRecHits_*_*', 'keep *_gemSegments_*_*'] )
 _updateOutput(phase2_muon, _outputs, ['keep *_me0RecHits_*_*', 'keep *_me0Segments_*_*'])
-
-# RPC New Readout Validation
-from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
-_updateOutput(stage2L1Trigger_2017, _outputs, ['keep *_rpcNewRecHits_*_*'])
