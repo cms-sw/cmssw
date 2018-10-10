@@ -614,17 +614,11 @@ baseDataSetRelease=[
     'CMSSW_7_6_0_pre7-76X_mcRun2_asymptotic_v9_realBS-v1',         # 11 - 13 TeV High Stats MiniBias for mixing GEN-SIM
     'CMSSW_8_1_0_pre9_Geant4102-81X_mcRun2cosmics_startup_peak_v2-v1', # 12 - GEN-SIM input for 1307 cosmics wf from 810_p2
     'CMSSW_10_0_0_pre2-100X_mc2017_realistic_v1-v1',     # 13 - 13 TeV samples with GEN-SIM from PhaseI upgrade
-<<<<<<< HEAD
-    'CMSSW_10_3_0_pre5-PU25ns_103X_mc2017_realistic_v1-v1',     # 14 - fullSim PU 25ns UP17 premix
-    'CMSSW_10_3_0_pre5-PU25ns_103X_upgrade2018_realistic_v7-v1',  #15 - fullSim PU 25ns UP18 premix
-    'CMSSW_10_3_0_pre5-103X_upgrade2018_realistic_v7-v1',  #16 - GENSIM input 2018
-=======
     'CMSSW_10_3_0_pre5-PU25ns_103X_mc2017_realistic_v1-v1',     # 14 - fullSim PU 25ns UP17 premix
     'CMSSW_10_3_0_pre5-PU25ns_103X_upgrade2018_realistic_v7-v1',  #15 - fullSim PU 25ns UP18 premix
     'CMSSW_10_3_0_pre5-103X_upgrade2018_realistic_v7-v1',  #16 - GENSIM input 2018
     'CMSSW_10_3_0_pre5-103X_mc2017_realistic_v1_FastSim-v1',    # 17 - fastSim MinBias for mixing UP17
     'CMSSW_10_3_0_pre5-PU25ns_103X_mc2017_realistic_v1_FastSim-v1',# 18 - fastSim premixed MinBias UP17
->>>>>>> Test feature
     ]
 
 
