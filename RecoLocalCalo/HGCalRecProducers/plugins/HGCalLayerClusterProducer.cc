@@ -168,14 +168,14 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt,
   case reco::CaloCluster::hgcal_em:
     evt.getByToken(hits_ee_token,ee_hits);
     algo->populate(*ee_hits);
-    for(auto const& it: *ee_hits) hitmap[HGCalDetId(it.detid())] = it.time();
+    for(auto const& it: *ee_hits) hitmap[it.detid().rawId()] = it.time();
     break;
   case  reco::CaloCluster::hgcal_had:
     evt.getByToken(hits_fh_token,fh_hits);
     evt.getByToken(hits_bh_token,bh_hits);
     if( fh_hits.isValid() ) {
       algo->populate(*fh_hits);
-      for(auto const& it: *fh_hits) hitmap[HGCalDetId(it.detid())] = it.time();
+      for(auto const& it: *fh_hits) hitmap[it.detid().rawId()] = it.time();
     } else if ( bh_hits.isValid() ) {
       algo->populate(*bh_hits);
     }
@@ -184,12 +184,12 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt,
     evt.getByToken(hits_ee_token,ee_hits);
     algo->populate(*ee_hits);
     for(auto const& it: *ee_hits){
-      hitmap[HGCalDetId(it.detid())] = it.time();
+      hitmap[it.detid().rawId()] = it.time();
     }
     evt.getByToken(hits_fh_token,fh_hits);
     algo->populate(*fh_hits);
     for(auto const& it: *fh_hits){
-      hitmap[HGCalDetId(it.detid())] = it.time();
+      hitmap[it.detid().rawId()] = it.time();
     }
     evt.getByToken(hits_bh_token,bh_hits);
     algo->populate(*bh_hits);
