@@ -23,8 +23,6 @@ void HGCalConcentratorProcessorSelection::run(const edm::Handle<l1t::HGCalTrigge
   std::unordered_map<uint32_t, std::vector<l1t::HGCalTriggerCell>> tc_modules;
   for(const auto& trigCell : collInput) {
     uint32_t module = geometry_->getModuleFromTriggerCell(trigCell.detId());
-    //auto itr_insert = tc_modules.emplace(module, std::vector<l1t::HGCalTriggerCell>());
-    //itr_insert.first->second.push_back(trigCell); //bx=0
     tc_modules[module].push_back(trigCell);
   }
 
