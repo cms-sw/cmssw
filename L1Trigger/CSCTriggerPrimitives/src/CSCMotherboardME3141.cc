@@ -1,38 +1,25 @@
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME3141.h"
-#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
 
 CSCMotherboardME3141::CSCMotherboardME3141(unsigned endcap, unsigned station,
                                      unsigned sector, unsigned subsector,
                                      unsigned chamber,
                                      const edm::ParameterSet& conf) :
   CSCUpgradeMotherboard(endcap, station, sector, subsector, chamber, conf)
-  , allLCTs(match_trig_window_size)
 {
+  if (!isSLHC_ or !runME3141ILT_) edm::LogError("CSCMotherboardME3141|ConfigError")
+    << "+++ Upgrade CSCMotherboardME3141 constructed while isSLHC is not set! +++\n";
 }
 
 CSCMotherboardME3141::CSCMotherboardME3141()
   : CSCUpgradeMotherboard()
-  , allLCTs(match_trig_window_size)
 {
+  if (!isSLHC_ or !runME3141ILT_) edm::LogError("CSCMotherboardME3141|ConfigError")
+    << "+++ Upgrade CSCMotherboardME3141 constructed while isSLHC is not set! +++\n";
 }
 
 CSCMotherboardME3141::~CSCMotherboardME3141()
 {
 }
-
-void CSCMotherboardME3141::clear()
-{
-  CSCMotherboard::clear();
-
-  for (int bx = 0; bx < CSCConstants::MAX_LCT_TBINS; bx++) {
-    for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++) {
-      for (int i=0;i<CSCConstants::MAX_LCTS_PER_CSC;i++) {
-        allLCTs(bx,mbx,i).clear();
-      }
-    }
-  }
-}
-
 
 void
 CSCMotherboardME3141::run(const CSCWireDigiCollection* wiredc,
@@ -40,18 +27,18 @@ CSCMotherboardME3141::run(const CSCWireDigiCollection* wiredc,
 {
   clear();
 
-  if (!( alct and clct))
+  if (!( alctProc and clctProc))
   {
-    if (infoV >= 0) edm::LogError("L1CSCTPEmulatorSetupError")
+    if (infoV >= 0) edm::LogError("CSCMotherboardME3141|SetupError")
       << "+++ run() called for non-existing ALCT/CLCT processor! +++ \n";
     return;
   }
 
-  alct->setCSCGeometry(csc_g);
-  clct->setCSCGeometry(csc_g);
+  alctProc->setCSCGeometry(csc_g);
+  clctProc->setCSCGeometry(csc_g);
 
-  alctV = alct->run(wiredc); // run anodeLCT
-  clctV = clct->run(compdc); // run cathodeLCT
+  alctV = alctProc->run(wiredc); // run anodeLCT
+  clctV = clctProc->run(compdc); // run cathodeLCT
 
   // if there are no ALCTs and no CLCTs, it does not make sense to run this TMB
   if (alctV.empty() and clctV.empty()) return;
@@ -62,7 +49,7 @@ CSCMotherboardME3141::run(const CSCWireDigiCollection* wiredc,
   // ALCT centric matching
   for (int bx_alct = 0; bx_alct < CSCConstants::MAX_ALCT_TBINS; bx_alct++)
   {
-    if (alct->bestALCT[bx_alct].isValid())
+    if (alctProc->bestALCT[bx_alct].isValid())
     {
       const int bx_clct_start(bx_alct - match_trig_window_size/2 - alctClctOffset);
       const int bx_clct_stop(bx_alct + match_trig_window_size/2 - alctClctOffset);
@@ -72,9 +59,9 @@ CSCMotherboardME3141::run(const CSCWireDigiCollection* wiredc,
         LogTrace("CSCMotherboardME3141") << "ALCT-CLCT matching in ME34/1 chamber: " << cscChamber->id() << std::endl;
         LogTrace("CSCMotherboardME3141") << "------------------------------------------------------------------------" << std::endl;
         LogTrace("CSCMotherboardME3141") << "+++ Best ALCT Details: ";
-        alct->bestALCT[bx_alct].print();
+        alctProc->bestALCT[bx_alct].print();
         LogTrace("CSCMotherboardME3141") << "+++ Second ALCT Details: ";
-        alct->secondALCT[bx_alct].print();
+        alctProc->secondALCT[bx_alct].print();
 
         LogTrace("CSCMotherboardME3141") << "------------------------------------------------------------------------" << std::endl;
         LogTrace("CSCMotherboardME3141") << "Attempt ALCT-CLCT matching in ME34/13 in bx range: [" << bx_clct_start << "," << bx_clct_stop << "]" << std::endl;
@@ -85,22 +72,22 @@ CSCMotherboardME3141::run(const CSCWireDigiCollection* wiredc,
       {
         if (bx_clct < 0 or bx_clct >= CSCConstants::MAX_CLCT_TBINS) continue;
         if (drop_used_clcts and used_clct_mask[bx_clct]) continue;
-        if (clct->bestCLCT[bx_clct].isValid())
+        if (clctProc->bestCLCT[bx_clct].isValid())
         {
-          if (debug_matching) LogTrace("CSCMotherboardME3141") << "++Valid ME21 CLCT: " << clct->bestCLCT[bx_clct] << std::endl;
+          if (debug_matching) LogTrace("CSCMotherboardME3141") << "++Valid ME21 CLCT: " << clctProc->bestCLCT[bx_clct] << std::endl;
 
           int mbx = bx_clct-bx_clct_start;
-          CSCMotherboardME3141::correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
-                                              clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct],
+          CSCMotherboardME3141::correlateLCTs(alctProc->bestALCT[bx_alct], alctProc->secondALCT[bx_alct],
+                                              clctProc->bestCLCT[bx_clct], clctProc->secondCLCT[bx_clct],
                                               allLCTs(bx_alct,mbx,0), allLCTs(bx_alct,mbx,1));
           if (infoV > 1)
             LogTrace("CSCMotherboardME3141") << "Successful ALCT-CLCT match in ME21: bx_alct = " << bx_alct
                                              << "; match window: [" << bx_clct_start << "; " << bx_clct_stop
                                              << "]; bx_clct = " << bx_clct << std::endl;
           LogTrace("CSCMotherboardME3141") << "+++ Best CLCT Details: ";
-          clct->bestCLCT[bx_clct].print();
+          clctProc->bestCLCT[bx_clct].print();
           LogTrace("CSCMotherboardME3141") << "+++ Second CLCT Details: ";
-          clct->secondCLCT[bx_clct].print();
+          clctProc->secondCLCT[bx_clct].print();
           if (allLCTs(bx_alct,mbx,0).isValid()) {
             used_clct_mask[bx_clct] += 1;
             if (match_earliest_clct_only) break;
