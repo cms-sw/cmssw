@@ -74,3 +74,8 @@ stage2L1Trigger_2017.toReplaceWith(muonlocalreco_with_2DSegments, _rpc_NewReadou
 stage2L1Trigger_2017.toReplaceWith(muonlocalreco, _rpc_NewReadoutVal_muonlocalreco)
 stage2L1Trigger_2017.toReplaceWith(muonlocalrecoT0Seg, _rpc_NewReadoutVal_muonlocalrecoT0Seg)
 
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toReplaceWith(muonlocalreco_with_2DSegments, muonlocalreco_with_2DSegments.copyAndExclude([rpcNewRecHits]))
+fastSim.toReplaceWith(muonlocalreco, muonlocalreco.copyAndExclude([rpcNewRecHits]))
+fastSim.toReplaceWith(muonlocalrecoT0Seg, muonlocalrecoT0Seg.copyAndExclude([rpcNewRecHits]))
+
