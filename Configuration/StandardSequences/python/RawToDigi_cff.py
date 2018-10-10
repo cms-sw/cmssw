@@ -132,3 +132,10 @@ _rpc_NewReadoutVal_RawToDigi += muonRPCNewDigis
 _rpc_NewReadoutVal_RawToDigi_noTk += muonRPCNewDigis
 stage2L1Trigger_2017.toReplaceWith(RawToDigi, _rpc_NewReadoutVal_RawToDigi)
 stage2L1Trigger_2017.toReplaceWith(RawToDigi_noTk, _rpc_NewReadoutVal_RawToDigi)
+
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toReplaceWith(RawToDigi, RawToDigi.copyAndExclude([muonRPCNewDigis]))
+fastSim.toReplaceWith(RawToDigi_noTk, RawToDigi_noTk.copyAndExclude([muonRPCNewDigis]))
+
+
+
