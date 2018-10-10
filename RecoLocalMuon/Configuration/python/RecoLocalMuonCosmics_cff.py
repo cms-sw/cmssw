@@ -63,14 +63,14 @@ phase2_muon.toReplaceWith( muonlocalreco , _phase2_muonlocalreco )
 
 
 # RPC New Readout Validation
-from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
 _rpc_NewReadoutVal_muonlocalreco_with_2DSegments = muonlocalreco_with_2DSegments.copy()
 _rpc_NewReadoutVal_muonlocalreco = muonlocalreco.copy()
 _rpc_NewReadoutVal_muonlocalrecoT0Seg = muonlocalrecoT0Seg.copy()
 _rpc_NewReadoutVal_muonlocalreco_with_2DSegments += rpcNewRecHits
 _rpc_NewReadoutVal_muonlocalreco += rpcNewRecHits
 _rpc_NewReadoutVal_muonlocalrecoT0Seg += rpcNewRecHits
-stage2L1Trigger.toReplaceWith(muonlocalreco_with_2DSegments, _rpc_NewReadoutVal_muonlocalreco_with_2DSegments)
-stage2L1Trigger.toReplaceWith(muonlocalreco, _rpc_NewReadoutVal_muonlocalreco)
-stage2L1Trigger.toReplaceWith(muonlocalrecoT0Seg, _rpc_NewReadoutVal_muonlocalrecoT0Seg)
+stage2L1Trigger_2017.toReplaceWith(muonlocalreco_with_2DSegments, _rpc_NewReadoutVal_muonlocalreco_with_2DSegments)
+stage2L1Trigger_2017.toReplaceWith(muonlocalreco, _rpc_NewReadoutVal_muonlocalreco)
+stage2L1Trigger_2017.toReplaceWith(muonlocalrecoT0Seg, _rpc_NewReadoutVal_muonlocalrecoT0Seg)
 
