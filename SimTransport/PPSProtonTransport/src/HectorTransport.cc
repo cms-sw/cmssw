@@ -101,7 +101,7 @@ bool HectorTransport::transportProton(const HepMC::GenParticle* gpart)
 // shift the beam position to the given beam position at IP (in cm)
      XforPosition=(XforPosition-fVtxMeanX)+fBeamXatIP*mm_to_cm;
      YforPosition=(YforPosition-fVtxMeanY)+fBeamYatIP*mm_to_cm;
-     ZforPosition=(ZforPosition); // move the closed orbit only in the X,Y plane
+     //ZforPosition stays the same, move the closed orbit only in the X,Y plane
 //
 // shift the starting position of the track to Z=0 if configured so (all the variables below are still in cm)
      if (bApplyZShift) {
