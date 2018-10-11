@@ -7,7 +7,7 @@
 //                  runlo, runhi, phimin, phimax, zside, nvxlo, nvxhi, rbx,
 //                  exclude, etamax);
 //  c1.Loop();
-//  c1.SavePlot(histFileName,append,all);
+//  c1.savePlot(histFileName,append,all);
 //
 //        This will prepare a set of histograms which can be used for a
 //        quick fit and display using the methods in CalibFitPlots.C
@@ -17,6 +17,18 @@
 //
 //         This looks into the tree *EventInfo* and can provide a set
 //         of histograms with event statistics
+//
+//  CalibPlotProperties cc(fname, dirname, dupFileName, prefix, corrFileName,
+//		           rcorFileName, puCorr, flagC, dataMC, truncateFlag,
+//                         useGen, scale, useScale, etalo, etahi, runlo, runhi,
+//		           phimin, phimax, zside, nvxlo, nvxhi, rbx, exclude,
+//                         etamax);
+//  cc.Loop();
+//  cc.savePlot(histFileName,append,all);
+//
+//         This makes different style of plots to understand the quality of
+//         reconstruction rather than the response plots which are done by
+//         CalibMonitor
 //
 //   where:
 // 
@@ -42,10 +54,9 @@
 //                               correction  (default="", no corr.)
 //   puCorr (int)              = PU correction to be applied or not: 0 no
 //                               correction; < 0 use eDelta; > 0 rho dependent
-//                               correction (-1)
-//   flag (int)                = 8 digit integer (cxmlthdo) with control
-//                               information (c=1/0 to get or not the histograms
-//                               of energy ..; x=3/2/1/0 for having 1000/500/50/
+//                               correction (-2)
+//   flag (int)                = 7 digit integer (xmlthdo) with control
+//                               information (x=3/2/1/0 for having 1000/500/50/
 //                               100 bins for response distribution in (0:5);
 //                               m=1/0 for (not) making plots for each RBX;
 //                               l=1/0 for type of rcorFileName (1 for depth
@@ -56,6 +67,17 @@
 //                               the output text file;
 //                               d = 0/1/2/3 produces 3 standard (0,1,2) or
 //                               extended (3) set of histograms;
+//                               o = 0/1/2 for tight / loose / flexible
+//                               selection). Default = 1031
+//   flagC (int)               = 6 digit integer (mlthdo) with control
+//                               information (m=1/0 for making or not rechit
+//                               energy distributions;  l=1/0 for type of 
+//                               rcorFileName (1 for depth dependent; 0 for 
+//                               raddam corrections); t=1/0 for applying cut or
+//                               not on L1 closeness; h=1/0 for making or not
+//                               plots of momentum and total energies in the
+//                               two calorimeters ECAL/HCAL; d=1/0 for making
+//                               plots of momentum and eta distributions;
 //                               o = 0/1/2 for tight / loose / flexible
 //                               selection). Default = 1031
 //   numb   (int)              = number of eta bins (50 for -25:25)
@@ -213,18 +235,6 @@ public :
   TBranch                   *b_t_HitEnergies1;  //!
   TBranch                   *b_t_HitEnergies3;  //!
 
-  struct record {
-    record() {
-      serial_ = entry_ = run_ = event_ = ieta_ = p_ = 0;
-    };
-    record(int ser, Long64_t ent, int r, int ev, int ie, double p) :
-      serial_(ser), entry_(ent), run_(r), event_(ev), ieta_(ie), p_(p) {};
-    int      serial_;
-    Long64_t entry_;
-    int      run_, event_, ieta_;
-    double   p_;
-  };
-
   struct counter {
     counter() {
       total = 0; 
@@ -241,7 +251,7 @@ public :
 	       const std::string& prefix="", 
 	       const char *       corrFileName="",
 	       const char *       rcorFileName="", 
-	       int puCorr=-1, int flag=1031, int numb=50, bool datMC=true, 
+	       int puCorr=-2, int flag=1031, int numb=50, bool datMC=true, 
 	       int truncateFlag=0, bool useGen=false, double scale=1.0, 
 	       int useScale=0, int etalo=0, int etahi=30, int runlo=0, 
 	       int runhi=99999999, int phimin=1, int phimax=72, int zside=1,
@@ -255,51 +265,40 @@ public :
   virtual void               Loop();
   virtual Bool_t             Notify();
   virtual void               Show(Long64_t entry = -1);
-  bool                       GoodTrack (double &eHcal, double &cut, bool debug);
-  bool                       SelectPhi(bool debug);
-  void                       PlotHist(int type, int num, bool save=false);
-  template<class Hist> void  DrawHist(Hist*, TCanvas*);
-  void                       SavePlot(const std::string& theName, 
+  bool                       goodTrack (double &eHcal, double &cut, bool debug);
+  bool                       selectPhi(bool debug);
+  void                       plotHist(int type, int num, bool save=false);
+  template<class Hist> void  drawHist(Hist*, TCanvas*);
+  void                       savePlot(const std::string& theName, 
 				      bool append, bool all=false);
-  bool                       ReadCorrFactor(const char* fName);
-  std::vector<std::string>   SplitString (const std::string& fLine);
-  double                     getFactor(const int& ieta);
   void                       correctEnergy(double & ener);
-  double                     puweight(double vtx);
 private:
 
-  static const unsigned int     npbin=5, kp50=2, ndepth=7;
+  static const unsigned int     npbin=5, kp50=2;
+  CalibCorrFactor*              corrFactor_;
   CalibCorr*                    cFactor_;
   CalibSelectRBX*               cSelect_;
   const std::string             fname_, dirnm_, prefix_, outFileName_;
   const int                     corrPU_, flag_, numb_;
-  const bool                    dataMC_, useGen_, etaMax_;
-  const int                     truncateFlag_, useScale_;
+  const bool                    dataMC_, useGen_;
+  const int                     truncateFlag_;
   const int                     etalo_, etahi_;
   int                           runlo_, runhi_;
   const int                     phimin_,phimax_,zside_, nvxlo_, nvxhi_, rbx_;
-  const double                  scale_;
   bool                          exclude_, corrE_, cutL1T_, selRBX_;
-  bool                          includeRun_, getHist_;
+  bool                          includeRun_;
   int                           coarseBin_, etamp_, etamn_, plotType_;
   int                           flexibleSelect_;
-  double                        log2by18_, cfacmp_, cfacmn_;
+  double                        log2by18_;
   std::ofstream                 fileout_;
   std::vector<Long64_t>         entries_;
   std::vector<std::pair<int,int> > events_;
   std::vector<double>           etas_, ps_, dl1_;
   std::vector<int>              nvx_, ietas_;
-  TH1D                         *h_p[5], *h_eta[5], *h_nvtx;
-  std::vector<TH1D*>            h_eta0, h_eta1, h_eta2, h_eta3, h_eta4, h_rbx;
-  std::vector<TH1D*>            h_dL1,  h_vtx, h_etaF[npbin], h_etaB[npbin];
+  std::vector<TH1D*>            h_rbx, h_etaF[npbin], h_etaB[npbin];
   std::vector<TProfile*>        h_etaX[npbin];
   std::vector<TH1D*>            h_etaR[npbin], h_nvxR[npbin], h_dL1R[npbin];
   std::vector<TH1D*>            h_pp[npbin];
-  std::vector<TH1F*>            h_bvlist, h_bvlist2, h_evlist, h_evlist2;
-  std::vector<TH1F*>            h_bvlist3, h_evlist3;
-  TH2F                         *h_etaE;
-
-  std::map<std::pair<int,int>,double> cfactors_;
 };
 
 CalibMonitor::CalibMonitor(const char*        fname, 
@@ -315,21 +314,20 @@ CalibMonitor::CalibMonitor(const char*        fname,
 			   int etalo, int etahi, int runlo, int runhi, 
 			   int phimin, int phimax, int zside, int nvxlo,
 			   int nvxhi, int rbx, bool exc,
-			   bool etam) : cFactor_(nullptr), cSelect_(nullptr),
-					fname_(fname), dirnm_(dirnm), 
-					prefix_(prefix), 
+			   bool etam) : corrFactor_(nullptr), cFactor_(nullptr),
+					cSelect_(nullptr), fname_(fname), 
+					dirnm_(dirnm), prefix_(prefix), 
 					outFileName_(std::string(outFName)),
 					corrPU_(puCorr), flag_(flag), 
 					numb_(numb), dataMC_(dataMC),
-					useGen_(useGen), etaMax_(etam),
+					useGen_(useGen), 
 					truncateFlag_(truncate),
-					useScale_(useScale), etalo_(etalo), 
-					etahi_(etahi), runlo_(runlo), 
-					runhi_(runhi), phimin_(phimin), 
-					phimax_(phimax), zside_(zside), 
-					nvxlo_(nvxlo), nvxhi_(nvxhi),
-					rbx_(rbx), scale_(scale), 
-					exclude_(exc), includeRun_(true) {
+					etalo_(etalo), etahi_(etahi), 
+					runlo_(runlo), runhi_(runhi), 
+					phimin_(phimin), phimax_(phimax),
+					zside_(zside), nvxlo_(nvxlo), 
+					nvxhi_(nvxhi), rbx_(rbx), exclude_(exc),
+					includeRun_(true) {
   // if parameter tree is not specified (or zero), connect the file
   // used to generate this class and read the Tree
 
@@ -340,10 +338,7 @@ CalibMonitor::CalibMonitor(const char*        fname,
   bool ifDepth     = (((flag_/10000) %10) > 0);
   selRBX_          = (((flag_/100000) %10) > 0);
   coarseBin_       = ((flag_/1000000) %10);
-  getHist_         = (((flag_/10000000) %10) > 0);
   log2by18_        = std::log(2.5)/18.0;
-  etamp_           = etamn_  = 0;
-  cfacmp_          = cfacmn_ = 1.0;
   if (runlo_ < 0 || runhi_ < 0) {
     runlo_         = std::abs(runlo_);
     runhi_         = std::abs(runhi_);
@@ -358,16 +353,14 @@ CalibMonitor::CalibMonitor(const char*        fname,
 	    << ":" << etahi_ << " run range " << runlo_ << ":" << runhi_ 
 	    << " (inclusion flag " << includeRun_ << ") Selection of RBX " 
 	    << selRBX_ << " Vertex Range " << nvxlo_ << ":" << nvxhi_ 
-	    << " EtaMax " << etaMax_  << std::endl;
+	    << std::endl;
+  corrFactor_ = new CalibCorrFactor(corrFileName,useScale,scale,etam,false);
   if (!fillChain(chain,fname)) {
     std::cout << "*****No valid tree chain can be obtained*****" << std::endl;
   } else {
     std::cout << "Proceed with a tree chain with " << chain->GetEntries()
 	      << " entries" << std::endl;
     Init(chain,dupFileName,comFileName,outFName);
-    corrE_ = ReadCorrFactor(corrFileName);
-    std::cout << "Reads correction factors from " << corrFileName 
-	      << " with flag " << corrE_ << std::endl;
     if (std::string(rcorFileName) != "")
       cFactor_ = new CalibCorr(rcorFileName,ifDepth,false);
     if (rbx != 0) cSelect_ = new CalibSelectRBX(rbx, false);
@@ -375,6 +368,7 @@ CalibMonitor::CalibMonitor(const char*        fname,
 }
 
 CalibMonitor::~CalibMonitor() {
+  delete corrFactor_;
   delete cFactor_;
   delete cSelect_;
   if (!fChain)  return;
@@ -577,36 +571,7 @@ void CalibMonitor::Init(TChain *tree, const char* dupFileName,
   }
   if (plotType_ <= 1) {
     std::cout << "Book Histos for Standard" << std::endl;
-    for (int k=0; k<5; ++k) {
-      sprintf (name, "%sp%d", prefix_.c_str(), k);
-      sprintf (title,"%s", titl[k].c_str());
-      h_p[k] = new TH1D(name, title, 100, 10.0, 110.0);
-      sprintf (name, "%seta%d", prefix_.c_str(), k);
-      sprintf (title,"%s", titl[k].c_str());
-      h_eta[k] = new TH1D(name, title, 60, -30.0, 30.0);
-    }
     for (unsigned int k=0; k<kp; ++k) {
-      sprintf (name, "%seta0%d", prefix_.c_str(), k);
-      sprintf (title,"%s (p = %d:%d GeV)",titl[0].c_str(),ipbin[k],ipbin[k+1]);
-      h_eta0.push_back(new TH1D(name, title, 60, -30.0, 30.0));
-      sprintf (name, "%seta1%d", prefix_.c_str(), k);
-      sprintf (title,"%s (p = %d:%d GeV)",titl[1].c_str(),ipbin[k],ipbin[k+1]);
-      h_eta1.push_back(new TH1D(name, title, 60, -30.0, 30.0));
-      sprintf (name, "%seta2%d", prefix_.c_str(), k);
-      sprintf (title,"%s (p = %d:%d GeV)",titl[2].c_str(),ipbin[k],ipbin[k+1]);
-      h_eta2.push_back(new TH1D(name, title, 60, -30.0, 30.0));
-      sprintf (name, "%seta3%d", prefix_.c_str(), k);
-      sprintf (title,"%s (p = %d:%d GeV)",titl[3].c_str(),ipbin[k],ipbin[k+1]);
-      h_eta3.push_back(new TH1D(name, title, 60, -30.0, 30.0));
-      sprintf (name, "%seta4%d", prefix_.c_str(), k);
-      sprintf (title,"%s (p = %d:%d GeV)",titl[4].c_str(),ipbin[k],ipbin[k+1]);
-      h_eta4.push_back(new TH1D(name, title, 60, -30.0, 30.0));
-      sprintf (name, "%sdl1%d", prefix_.c_str(), k);
-      sprintf (title,"Distance from L1 (p = %d:%d GeV)",ipbin[k],ipbin[k+1]);
-      h_dL1.push_back(new TH1D(name, title, 160, 0.0, 8.0));
-      sprintf (name, "%svtx%d", prefix_.c_str(), k);
-      sprintf (title,"N_{Vertex} (p = %d:%d GeV)",ipbin[k],ipbin[k+1]);
-      h_vtx.push_back(new TH1D(name, title, 100, 0.0, 100.0));
       for (unsigned int i=0; i<nvx_.size(); ++i) {
 	sprintf (name, "%setaX%d%d", prefix_.c_str(), k, i);
 	if (i == 0) {
@@ -756,38 +721,6 @@ void CalibMonitor::Init(TChain *tree, const char* dupFileName,
       h_rbx[j-1]->Sumw2();
     }
   }
-
-  if (getHist_) {
-    h_nvtx = new TH1D("hnvtx","Number of vertices",10,0,100);
-    h_nvtx->Sumw2();
-    for (unsigned int i=0; i<ndepth; i++) { 
-      sprintf (name, "b_edepth%d", i);
-      sprintf (title,"Total RecHit energy in depth %d (Barrel)", i+1);
-      h_bvlist.push_back(new TH1F(name,title,1000,0,100));
-      h_bvlist[i]->Sumw2();
-      sprintf (name, "b_recedepth%d", i);
-      sprintf (title,"RecHit energy in depth %d (Barrel)", i+1);
-      h_bvlist2.push_back(new TH1F(name,title,1000,0,100));
-      h_bvlist2[i]->Sumw2();
-      sprintf (name, "b_nrecdepth%d", i);
-      sprintf (title,"#RecHits in depth %d (Barrel)", i+1);
-      h_bvlist3.push_back(new TH1F(name,title,1000,0,100));
-      h_bvlist3[i]->Sumw2();
-      sprintf (name, "e_edepth%d", i);
-      sprintf (title,"Total RecHit energy in depth %d (Endcap)", i+1);
-      h_evlist.push_back(new TH1F(name,title,1000,0,100));
-      h_evlist[i]->Sumw2();
-      sprintf (name, "e_recedepth%d", i);
-      sprintf (title,"RecHit energy in depth %d (Endcap)", i+1);
-      h_evlist2.push_back(new TH1F(name,title,1000,0,100));
-      h_evlist2[i]->Sumw2();
-      sprintf (name, "e_nrecdepth%d", i);
-      sprintf (title,"#RecHits in depth %d (Endcap)", i+1);
-      h_evlist3.push_back(new TH1F(name,title,1000,0,100));
-      h_evlist3[i]->Sumw2();
-    }
-    h_etaE = new TH2F("heta","",50,-25,25,100,0,100);
-  }
 }
 
 Bool_t CalibMonitor::Notify() {
@@ -850,7 +783,6 @@ void CalibMonitor::Loop() {
   unsigned int  duplicate(0), good(0), kount(0);
   unsigned int  kp1 = ps_.size() - 1;
   unsigned int  kv1 = 0;
-  double        sel(0), selHB(0), selHE(0);
   std::vector<int> kounts(kp1,0);
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
     Long64_t ientry = LoadTree(jentry);
@@ -940,86 +872,31 @@ void CalibMonitor::Loop() {
       std::cout << "Bin " << kp << ":" << kp1 << ":" << kv << ":" << kv1 << ":"
 		<< kd << ":" << kd1 << ":" << jp << ":" << jp1 << ":" << jp2
 		<< std::endl;
-    if (plotType_ <= 1) {
-      h_p[0]->Fill(pmom,t_EventWeight);
-      h_eta[0]->Fill(t_ieta,t_EventWeight);
-      if (kp >= 0) h_eta0[kp]->Fill(t_ieta,t_EventWeight);
-    }
     double cut = (pmom > 20) ? ((flexibleSelect_ == 0) ? 2.0 : 10.0) : 0.0;
 //  double rcut= (pmom > 20) ? 0.25: 0.1;
     double rcut(-1000.0);
-
-    // Some Standard plots for control
-    if (plotType_ <= 1) {
-      if (t_qltyFlag) {
-	h_p[1]->Fill(pmom,t_EventWeight);
-	h_eta[1]->Fill(t_ieta,t_EventWeight);
-	if (kp >= 0) h_eta1[kp]->Fill(t_ieta,t_EventWeight);
-	if (t_selectTk) {
-	  h_p[2]->Fill(pmom,t_EventWeight);
-	  h_eta[2]->Fill(t_ieta,t_EventWeight);
-	  if (kp >= 0) h_eta2[kp]->Fill(t_ieta,t_EventWeight);
-	  if (t_hmaxNearP < cut) {
-	    h_p[3]->Fill(pmom,t_EventWeight);
-	    h_eta[3]->Fill(t_ieta,t_EventWeight);
-	    if (kp >= 0) h_eta3[kp]->Fill(t_ieta,t_EventWeight);
-	    if (t_eMipDR < 1.0) {
-	      h_p[4]->Fill(pmom,t_EventWeight);
-	      h_eta[4]->Fill(t_ieta,t_EventWeight);
-	      if (kp >= 0) {
-		h_eta4[kp]->Fill(t_ieta,t_EventWeight);
-		h_dL1[kp]->Fill(t_mindR1,t_EventWeight);
-		h_vtx[kp]->Fill(t_goodPV,t_EventWeight);
-	      }
-	    }
-	  }
-	}
-      }
-    }
-
+    
     // Selection of good track and energy measured in Hcal
     double rat(1.0), eHcal(t_eHcal);
-    if (corrE_) {
+    if (corrFactor_-> doCorr()) {
       eHcal = 0;
       for (unsigned int k=0; k<t_HitEnergies->size(); ++k) {
 	// The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
 	unsigned int id = truncateId((*t_DetIds)[k],truncateFlag_,false);
-	int subdet,zside,ieta,iphi,depth;
-	unpackDetId(id,subdet,zside,ieta,iphi,depth);
-	std::map<std::pair<int,int>,double>::const_iterator 
-	  itr = cfactors_.find(std::pair<int,int>(zside*ieta,depth));
-	double cfac(1.0);
-	if (itr != cfactors_.end()) {
-	  cfac = itr->second;
-	} else if (etaMax_) {
-	  if (zside > 0 && ieta >  etamp_) cfac = cfacmp_;
-	  if (zside < 0 && ieta > -etamn_) cfac = cfacmn_;
-	}
+	double cfac     = corrFactor_->getCorr(id);
 	if (cFactor_ != 0) cfac *= cFactor_->getCorr(t_Run,(*t_DetIds)[k]);
 	eHcal += (cfac*((*t_HitEnergies)[k]));
 	if (debug) {
+	  int subdet,zside,ieta,iphi,depth;
+	  unpackDetId(id,subdet,zside,ieta,iphi,depth);
 	  std::cout << zside << ":" << ieta << ":" << depth  << " Corr " 
 		    << cfac << " " << (*t_HitEnergies)[k] << " Out " << eHcal
 		    << std::endl;
 	}
       }
-    } else if (useScale_ != 0) {
-      eHcal = 0;
-      for (unsigned int k=0; k<t_HitEnergies->size(); ++k) {
-	unsigned int id = truncateId((*t_DetIds)[k],truncateFlag_,false);
-	int subdet,zside,ieta,iphi,depth;
-	unpackDetId(id,subdet,zside,ieta,iphi,depth);
-	double cfac = getFactor(ieta);
-	eHcal += (cfac*((*t_HitEnergies)[k]));
-	if (debug) {
-	  std::cout << zside << ":" << ieta << ":" << depth << " Corr " << cfac 
-		    << " " << (*t_HitEnergies)[k] << " Out " << eHcal
-		    << std::endl;
-	}
-      }
     }
-    bool goodTk = GoodTrack(eHcal, cut, debug);
-    bool selPhi = SelectPhi(debug);
+    bool goodTk = goodTrack(eHcal, cut, debug);
+    bool selPhi = selectPhi(debug);
     if (pmom > 0) rat =  (eHcal/(pmom-t_eMipDR));
     if (debug) {
       std::cout << "Entry " << jentry << " p|eHcal|ratio " << pmom << "|" 
@@ -1061,66 +938,6 @@ void CalibMonitor::Loop() {
 	}
       }
       if (rat > rcut) {
-	if (getHist_) {
-	  h_nvtx->Fill(t_nVtx);
-	  if ((std::fabs(rat-1)<0.15) && (pmom>40) && (pmom < 60) &&
-	      ((std::abs(t_ieta) < 15) || (std::abs(t_ieta) > 17))) {
-	    float weight = dataMC_ ? t_EventWeight : t_EventWeight*puweight(t_nVtx);
-	    h_etaE->Fill(t_ieta,eHcal,weight);
-	    sel += weight;
-	    std::vector<float> bv(7,0.0f), ev(7,0.0f);
-	    std::vector<int>   bnrec(7,0), enrec(7,0);
-	    double             eb(0), ee(0);	  
-	    for (unsigned int k=0; k<t_HitEnergies->size(); ++k) {
-	      double cfac(1.0);
-	      int subdet, zside, ieta, iphi, depth;
-	      if (corrE_) {
-		unsigned int id = truncateId((*t_DetIds)[k],truncateFlag_,false);
-		unpackDetId(id,subdet,zside,ieta,iphi,depth);
-		std::map<std::pair<int,int>,double>::const_iterator 
-		  itr = cfactors_.find(std::pair<int,int>(zside*ieta,depth));
-		if (itr != cfactors_.end()) {
-		  cfac = itr->second;
-		} else if (etaMax_) {
-		  if (zside > 0 && ieta >  etamp_) cfac = cfacmp_;
-		  if (zside < 0 && ieta > -etamn_) cfac = cfacmn_;
-		}
-		if (cFactor_ != 0) 
-		  cfac *= cFactor_->getCorr(t_Run,(*t_DetIds)[k]);
-	      }
-	      double ener = cfac*(*t_HitEnergies)[k];
-	      if (corrPU_) correctEnergy(ener);
-	      unsigned int idx = (unsigned int)((*t_DetIds)[k]);
-	      unpackDetId(idx,subdet,zside,ieta,iphi,depth);
-	      if (depth > 0 && depth <= (int)(ndepth)) {
-		if (subdet == 1) {
-		  eb          += ener;
-		  bv[depth-1] += ener;
-		  h_bvlist2[depth-1]->Fill(ener,weight);
-		  ++bnrec[depth-1];
-		} else if (subdet == 2) {
-		  ee          += ener;
-		  ev[depth-1] += ener ;
-		  h_evlist2[depth-1]->Fill(ener,weight);
-		  ++enrec[depth-1];
-		}
-	      }
-	    }	
-
-	    bool barrel = (eb > ee);
-	    if (barrel) selHB += weight;
-	    else        selHE += weight;
-	    for (unsigned int i=0; i<ndepth; i++){
-	      if (barrel) {
-		h_bvlist[i]->Fill(bv[i],weight);
-		h_bvlist3[i]->Fill((bnrec[i]+0.001),weight);
-	      } else {
-		h_evlist[i]->Fill(ev[i],weight);
-		h_evlist3[i]->Fill((enrec[i]+0.001),weight);
-	      }
-	    }
-	  }
-	}
 	if (plotType_ <= 1) {
 	  h_etaX[kp][kv]->Fill(eta,rat,t_EventWeight);
 	  h_etaX[kp][kv1]->Fill(eta,rat,t_EventWeight);
@@ -1234,16 +1051,14 @@ void CalibMonitor::Loop() {
   for (unsigned int k=1; k<ps_.size(); ++k)
     if (ps_[k] > 21)  std::cout << ps_[k-1] <<":"<< ps_[k] << "     " 
 				<< kounts[k-1] << std::endl;
-  std::cout << "Number of weighted selected events " << sel << " HB " << selHB
-	    << " HE " << selHE << std::endl;
 }
 
-bool CalibMonitor::GoodTrack(double& eHcal, double &cuti, bool debug) {
+bool CalibMonitor::goodTrack(double& eHcal, double &cuti, bool debug) {
 
   bool   select(true);
   double cut(cuti);
   if (debug) {
-    std::cout << "GoodTrack input " << eHcal << ":" << cut;
+    std::cout << "goodTrack input " << eHcal << ":" << cut;
   }
   if (flexibleSelect_ > 1) {
     double eta = (t_ieta > 0) ? t_ieta : -t_ieta;
@@ -1258,7 +1073,7 @@ bool CalibMonitor::GoodTrack(double& eHcal, double &cuti, bool debug) {
   return select;
 }
 
-bool CalibMonitor::SelectPhi(bool debug) {
+bool CalibMonitor::selectPhi(bool debug) {
 
   bool   select(true);
   if (phimin_ > 1 || phimax_ < 72) {
@@ -1281,28 +1096,24 @@ bool CalibMonitor::SelectPhi(bool debug) {
   return select;
 }
 
-void CalibMonitor::PlotHist(int itype, int inum, bool save) {
+void CalibMonitor::plotHist(int itype, int inum, bool save) {
   gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
   gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
   gStyle->SetOptStat(111110);     gStyle->SetOptFit(1);
   char name[100];
-  int itmin = (itype >=0 && itype < 14) ? itype : 0;
-  int itmax = (itype >=0 && itype < 14) ? itype : 13;
-  std::string types[14] = {"p","i#eta","i#eta","i#eta","i#eta","i#eta",
-			   "i#eta","i#eta","E_{HCAL}/(p-E_{ECAL})",
-			   "E_{HCAL}/(p-E_{ECAL})","E_{HCAL}/(p-E_{ECAL})",
-			   "E_{HCAL}/(p-E_{ECAL})","dR_{L1}","Vertex"};
-  int nmax[14] = {5, 5, npbin-1, npbin-1, npbin-1, npbin-1, npbin-1, 
-		  npbin, npbin, npbin, npbin, npbin, npbin-1,npbin-1};
+  int itmin = (itype >=0 && itype < 4) ? itype : 0;
+  int itmax = (itype >=0 && itype < 4) ? itype : 3;
+  std::string types[4] = {"E_{HCAL}/(p-E_{ECAL})","E_{HCAL}/(p-E_{ECAL})",
+			  "E_{HCAL}/(p-E_{ECAL})","E_{HCAL}/(p-E_{ECAL})"};
+  int nmax[4] = {npbin, npbin, npbin, npbin};
   for (int type=itmin; type<=itmax; ++type) {
     int inmin = (inum >=0 && inum < nmax[type]) ? inum : 0;
     int inmax = (inum >=0 && inum < nmax[type]) ? inum : nmax[type]-1;
     int kmax  = 1;
-    if      (type == 8)  kmax = (int)(etas_.size());
-    else if (type == 7)  kmax = (int)(nvx_.size());
-    else if (type == 9)  kmax = (int)(etas_.size());
-    else if (type == 10) kmax = (int)(nvx_.size());
-    else if (type == 11) kmax = (int)(dl1_.size());
+    if      (type == 0)  kmax = (int)(etas_.size());
+    else if (type == 1)  kmax = (int)(etas_.size());
+    else if (type == 2)  kmax = (int)(nvx_.size());
+    else                 kmax = (int)(dl1_.size());
     for (int num=inmin; num<=inmax; ++num) {
       for (int k=0; k<kmax; ++k) {
 	sprintf (name, "c_%d%d%d", type, num, k);
@@ -1312,22 +1123,13 @@ void CalibMonitor::PlotHist(int itype, int inum, bool save) {
 	sprintf (name, "%s", types[type].c_str());
 	if (type != 7) {
 	  TH1D* hist(0);
-	  if      (type == 0)  hist = (TH1D*)(h_p[num]->Clone());
-	  else if (type == 1)  hist = (TH1D*)(h_eta[num]->Clone());
-	  else if (type == 2)  hist = (TH1D*)(h_eta0[num]->Clone());
-	  else if (type == 3)  hist = (TH1D*)(h_eta1[num]->Clone());
-	  else if (type == 4)  hist = (TH1D*)(h_eta2[num]->Clone());
-	  else if (type == 5)  hist = (TH1D*)(h_eta3[num]->Clone());
-	  else if (type == 6)  hist = (TH1D*)(h_eta4[num]->Clone());
-	  else if (type == 8)  hist = (TH1D*)(h_etaR[num][k]->Clone());
-	  else if (type == 9)  hist = (TH1D*)(h_etaF[num][k]->Clone());
-	  else if (type == 10) hist = (TH1D*)(h_nvxR[num][k]->Clone());
-	  else if (type == 11) hist = (TH1D*)(h_dL1R[num][k]->Clone());
-	  else if (type == 12) hist = (TH1D*)(h_dL1[num]->Clone());
-	  else                 hist = (TH1D*)(h_vtx[num]->Clone());
+	  if      (type == 0) hist = (TH1D*)(h_etaR[num][k]->Clone());
+	  else if (type == 1) hist = (TH1D*)(h_etaF[num][k]->Clone());
+	  else if (type == 2) hist = (TH1D*)(h_nvxR[num][k]->Clone());
+	  else                hist = (TH1D*)(h_dL1R[num][k]->Clone());
 	  hist->GetXaxis()->SetTitle(name);
 	  hist->GetYaxis()->SetTitle("Tracks");
-	  DrawHist(hist,pad);
+	  drawHist(hist,pad);
 	  if (save) {
 	    sprintf (name, "c_%s%d%d%d.gif", prefix_.c_str(), type,num,k);
 	    pad->Print(name);
@@ -1338,7 +1140,7 @@ void CalibMonitor::PlotHist(int itype, int inum, bool save) {
 	  hist->GetYaxis()->SetTitle("<E_{HCAL}/(p-E_{ECAL})>");
 	  hist->GetYaxis()->SetRangeUser(0.4,1.6);
 	  hist->Fit("pol0","q");
-	  DrawHist(hist,pad);
+	  drawHist(hist,pad);
 	  if (save) {
 	    sprintf (name, "c_%s%d%d%d.gif", prefix_.c_str(), type,num,k);
 	    pad->Print(name);
@@ -1349,77 +1151,7 @@ void CalibMonitor::PlotHist(int itype, int inum, bool save) {
   }
 }
 
-bool CalibMonitor::ReadCorrFactor(const char* fname) {
-  bool ok(false);
-  if (std::string(fname) != "") {
-    std::ifstream fInput(fname);
-    if (!fInput.good()) {
-      std::cout << "Cannot open file " << fname << std::endl;
-    } else {
-      char buffer [1024];
-      unsigned int all(0), good(0);
-      while (fInput.getline(buffer, 1024)) {
-	++all;
-	if (buffer [0] == '#') continue; //ignore comment
-	std::vector <std::string> items = SplitString (std::string (buffer));
-	if (items.size () != 5) {
-	  std::cout << "Ignore  line: " << buffer << std::endl;
-	} else {
-	  ++good;
-	  int   ieta  = std::atoi (items[1].c_str());
-	  int   depth = std::atoi (items[2].c_str());
-	  float corrf = std::atof (items[3].c_str());
-	  double scale = getFactor(std::abs(ieta));
-	  cfactors_[std::pair<int,int>(ieta,depth)] = scale*corrf;
-	  if (ieta > etamp_ && depth == 1) {
-	    etamp_ = ieta; cfacmp_ = scale*corrf;
-	  }
-	  if (ieta < etamn_ && depth == 1) {
-	    etamn_ = ieta; cfacmn_ = scale*corrf;
-	  }
-	}
-      }
-      fInput.close();
-      std::cout << "Reads total of " << all << " and " << good 
-		<< " good records" << " Max eta (z>0) " << etamp_ << ":"
-		<< cfacmp_ << " eta (z<0) " << etamn_ << ":" << cfacmn_
-		<< std::endl;
-      if (good > 0) ok = true;
-    }
-  }
-  return ok;
-}
-
-std::vector<std::string> CalibMonitor::SplitString (const std::string& fLine) {
-  std::vector <std::string> result;
-  int start = 0;
-  bool empty = true;
-  for (unsigned i = 0; i <= fLine.size (); i++) {
-    if (fLine [i] == ' ' || i == fLine.size ()) {
-      if (!empty) {
-	std::string item (fLine, start, i-start);
-	result.push_back (item);
-	empty = true;
-      }
-      start = i+1;
-    } else {
-      if (empty) empty = false;
-    }
-  }
-  return result;
-}
-
-double CalibMonitor::getFactor(const int& ieta) {
-  double scale(1.0);
-  if (ieta < 16) {
-    if ((useScale_ == 1) || (useScale_ == 3)) scale = scale_;
-  } else {
-    if ((useScale_ == 2) || (useScale_ == 3)) scale = scale_;
-  }
-  return scale;
-}
-
-template<class Hist> void CalibMonitor::DrawHist(Hist* hist, TCanvas* pad) {
+template<class Hist> void CalibMonitor::drawHist(Hist* hist, TCanvas* pad) {
   hist->GetYaxis()->SetLabelOffset(0.005);
   hist->GetYaxis()->SetTitleOffset(1.20);
   hist->Draw();
@@ -1433,7 +1165,7 @@ template<class Hist> void CalibMonitor::DrawHist(Hist* hist, TCanvas* pad) {
   pad->Update();
 }
 
-void CalibMonitor::SavePlot(const std::string& theName, bool append, bool all) {
+void CalibMonitor::savePlot(const std::string& theName, bool append, bool all) {
 
   TFile* theFile(0);
   if (append) {
@@ -1486,51 +1218,14 @@ void CalibMonitor::SavePlot(const std::string& theName, bool append, bool all) {
 	hist->Write();
       }
     }
-    if (all && (plotType_ <= 1) && ((k+1) < ps_.size())) {
-      if (h_eta0[k] != 0) {TH1D* h1 = (TH1D*)h_eta0[k]->Clone(); h1->Write();}
-      if (h_eta1[k] != 0) {TH1D* h2 = (TH1D*)h_eta1[k]->Clone(); h2->Write();}
-      if (h_eta2[k] != 0) {TH1D* h3 = (TH1D*)h_eta2[k]->Clone(); h3->Write();}
-      if (h_eta3[k] != 0) {TH1D* h4 = (TH1D*)h_eta3[k]->Clone(); h4->Write();}
-      if (h_eta4[k] != 0) {TH1D* h5 = (TH1D*)h_eta4[k]->Clone(); h5->Write();}
-      if (h_dL1[k] != 0)  {TH1D* h6 = (TH1D*)h_dL1[k]->Clone();  h6->Write();}
-      if (h_vtx[k] != 0)  {TH1D* h7 = (TH1D*)h_vtx[k]->Clone();  h7->Write();}
-    }
   }
   if (selRBX_) {
     for (unsigned int k=0; k<18; ++k) {
       if (h_rbx[k] != 0) {TH1D* h1 = (TH1D*)h_rbx[k]->Clone(); h1->Write();}
     }
   }
-
-  if (getHist_) {
-    h_nvtx->Write();
-    h_etaE->Write();
-    for (unsigned int i=0; i<ndepth; ++i) {
-      h_bvlist[i]->Write();
-      h_bvlist2[i]->Write();
-      h_bvlist3[i]->Write();
-      h_evlist[i]->Write();
-      h_evlist2[i]->Write();
-      h_evlist3[i]->Write();
-    }
-  }
   std::cout << "All done" << std::endl;
   theFile->Close();
-}
-
-double CalibMonitor::puweight(double vtx) { ///////for QCD PU sample
-  double              a(1.0);
-  if      (vtx < 11)  a = 0.120593 ;
-  else if (vtx < 21)  a = 0.58804;
-  else if (vtx < 31)  a = 1.16306;
-  else if (vtx < 41)  a = 1.45892;
-  else if (vtx < 51)  a = 1.35528;
-  else if (vtx < 61)  a = 1.72032;
-  else if (vtx < 71)  a = 3.34812;
-  else if (vtx < 81)  a = 9.70097;
-  else if (vtx < 91)  a = 9.24839;
-  else if (vtx < 101) a = 23.0816;
-  return a;
 }
 
 void CalibMonitor::correctEnergy(double& eHcal) {
@@ -1543,26 +1238,14 @@ void CalibMonitor::correctEnergy(double& eHcal) {
       // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
       for (unsigned int idet=0; idet<(*t_DetIds1).size(); idet++) { 
 	unsigned int id = truncateId((*t_DetIds1)[idet],truncateFlag_,false);
-	int subdet,zside,ieta,iphi,depth;
-	unpackDetId(id,subdet,zside,ieta,iphi,depth);
-	std::map<std::pair<int,int>,double>::const_iterator 
-	  itr = cfactors_.find(std::pair<int,int>(zside*ieta,depth));
-	double cfac = ((itr == cfactors_.end()) ? 
-		       ((useScale_ == 0) ? 1.0 : getFactor(ieta)) : 
-		       itr->second);
+	double cfac     = corrFactor_->getCorr(id);
 	if (cFactor_ != 0) cfac *= cFactor_->getCorr(t_Run,(*t_DetIds1)[idet]);
 	double hitEn = cfac*(*t_HitEnergies1)[idet];
 	Etot1  += hitEn;
       }
       for (unsigned int idet=0; idet<(*t_DetIds3).size(); idet++) { 
 	unsigned int id = truncateId((*t_DetIds3)[idet],truncateFlag_,false);
-	int subdet,zside,ieta,iphi,depth;
-	unpackDetId(id,subdet,zside,ieta,iphi,depth);
-	std::map<std::pair<int,int>,double>::const_iterator 
-	  itr = cfactors_.find(std::pair<int,int>(zside*ieta,depth));
-	double cfac = ((itr == cfactors_.end()) ? 
-		       ((useScale_ == 0) ? 1.0 : getFactor(ieta)) : 
-		       itr->second);
+	double cfac     = corrFactor_->getCorr(id);
 	if (cFactor_ != 0) cfac *= cFactor_->getCorr(t_Run,(*t_DetIds3)[idet]);
 	double hitEn = cfac*(*t_HitEnergies3)[idet];
 	Etot3  += hitEn;
@@ -2064,4 +1747,906 @@ void GetEntries::Loop() {
   pad4->Update();
   legend4->Draw("same");
   pad4->Update();
+}
+
+class CalibPlotProperties {
+public :
+  TChain                    *fChain;  //!pointer to the analyzed TTree or TChain
+  Int_t                      fCurrent;//!current Tree number in a TChain
+
+  // Declaration of leaf types
+  Int_t                      t_Run;
+  Int_t                      t_Event;
+  Int_t                      t_DataType;
+  Int_t                      t_ieta;
+  Int_t                      t_iphi;
+  Double_t                   t_EventWeight;
+  Int_t                      t_nVtx;
+  Int_t                      t_nTrk;
+  Int_t                      t_goodPV;
+  Double_t                   t_l1pt;
+  Double_t                   t_l1eta;
+  Double_t                   t_l1phi;
+  Double_t                   t_l3pt;
+  Double_t                   t_l3eta;
+  Double_t                   t_l3phi;
+  Double_t                   t_p;
+  Double_t                   t_pt;
+  Double_t                   t_phi;
+  Double_t                   t_mindR1;
+  Double_t                   t_mindR2;
+  Double_t                   t_eMipDR;
+  Double_t                   t_eHcal;
+  Double_t                   t_eHcal10;
+  Double_t                   t_eHcal30;
+  Double_t                   t_hmaxNearP;
+  Double_t                   t_rhoh;
+  Bool_t                     t_selectTk;
+  Bool_t                     t_qltyFlag;
+  Bool_t                     t_qltyMissFlag;
+  Bool_t                     t_qltyPVFlag;  
+  Double_t                   t_gentrackP;
+  std::vector<unsigned int> *t_DetIds;
+  std::vector<double>       *t_HitEnergies;
+  std::vector<bool>         *t_trgbits;
+  std::vector<unsigned int> *t_DetIds1;
+  std::vector<unsigned int> *t_DetIds3;
+  std::vector<double>       *t_HitEnergies1;
+  std::vector<double>       *t_HitEnergies3;
+
+  // List of branches
+  TBranch                   *b_t_Run;           //!
+  TBranch                   *b_t_Event;         //!
+  TBranch                   *b_t_DataType;      //!
+  TBranch                   *b_t_ieta;          //!
+  TBranch                   *b_t_iphi;          //!
+  TBranch                   *b_t_EventWeight;   //!
+  TBranch                   *b_t_nVtx;          //!
+  TBranch                   *b_t_nTrk;          //!
+  TBranch                   *b_t_goodPV;        //!
+  TBranch                   *b_t_l1pt;          //!
+  TBranch                   *b_t_l1eta;         //!
+  TBranch                   *b_t_l1phi;         //!
+  TBranch                   *b_t_l3pt;          //!
+  TBranch                   *b_t_l3eta;         //!
+  TBranch                   *b_t_l3phi;         //!
+  TBranch                   *b_t_p;             //!
+  TBranch                   *b_t_pt;            //!
+  TBranch                   *b_t_phi;           //!
+  TBranch                   *b_t_mindR1;        //!
+  TBranch                   *b_t_mindR2;        //!
+  TBranch                   *b_t_eMipDR;        //!
+  TBranch                   *b_t_eHcal;         //!
+  TBranch                   *b_t_eHcal10;       //!
+  TBranch                   *b_t_eHcal30;       //!
+  TBranch                   *b_t_hmaxNearP;     //!
+  TBranch                   *b_t_rhoh;          //!
+  TBranch                   *b_t_selectTk;      //!
+  TBranch                   *b_t_qltyFlag;      //!
+  TBranch                   *b_t_qltyMissFlag;  //!
+  TBranch                   *b_t_qltyPVFlag;    //!
+  TBranch                   *b_t_gentrackP;     //!
+  TBranch                   *b_t_DetIds;        //!
+  TBranch                   *b_t_HitEnergies;   //!
+  TBranch                   *b_t_trgbits;       //!
+  TBranch                   *b_t_DetIds1;       //!
+  TBranch                   *b_t_DetIds3;       //!
+  TBranch                   *b_t_HitEnergies1;  //!
+  TBranch                   *b_t_HitEnergies3;  //!
+
+  CalibPlotProperties(const char*        fname,
+		      const std::string& dirname, 
+		      const char *       dupFileName, 
+		      const std::string& prefix="", 
+		      const char *       corrFileName="",
+		      const char *       rcorFileName="", 
+		      int puCorr=-2, int flag=1031, bool dataMC=true,
+		      int truncateFlag=0, bool useGen=false, double scale=1.0,
+		      int useScale=0, int etalo=0, int etahi=30, int runlo=0, 
+		      int runhi=99999999, int phimin=1, int phimax=72, 
+		      int zside=1, int nvxlo=0, int nvxhi=1000, int rbx=0,
+		      bool exclude=false, bool etamax=false);
+  virtual ~CalibPlotProperties();
+  virtual Int_t              Cut(Long64_t entry);
+  virtual Int_t              GetEntry(Long64_t entry);
+  virtual Long64_t           LoadTree(Long64_t entry);
+  virtual void               Init(TChain*,const char*);
+  virtual void               Loop();
+  virtual Bool_t             Notify();
+  virtual void               Show(Long64_t entry = -1);
+  bool                       goodTrack (double &eHcal, double &cut, bool debug);
+  bool                       selectPhi(bool debug);
+  void                       savePlot(const std::string& theName, 
+				      bool append, bool all=false);
+  void                       correctEnergy(double & ener);
+private:
+
+  static const unsigned int     npbin=5, kp50=2, ndepth=7;
+  CalibCorrFactor*              corrFactor_;
+  CalibCorr*                    cFactor_;
+  CalibSelectRBX*               cSelect_;
+  const std::string             fname_, dirnm_, prefix_, outFileName_;
+  const int                     corrPU_, flag_;
+  const bool                    dataMC_, useGen_;
+  const int                     truncateFlag_;
+  const int                     etalo_, etahi_;
+  int                           runlo_, runhi_;
+  const int                     phimin_,phimax_,zside_, nvxlo_, nvxhi_, rbx_;
+  bool                          exclude_, corrE_, cutL1T_;
+  bool                          includeRun_, getHist_;
+  int                           flexibleSelect_;
+  bool                          plotBasic_, plotEnergy_, plotHists_;
+  double                        log2by18_;
+  std::ofstream                 fileout_;
+  std::vector<Long64_t>         entries_;
+  std::vector<std::pair<int,int> > events_;
+  std::vector<double>           etas_, ps_, dl1_;
+  std::vector<int>              nvx_, ietas_;
+  TH1D                         *h_p[5], *h_eta[5], *h_nvtx;
+  std::vector<TH1D*>            h_eta0, h_eta1, h_eta2, h_eta3, h_eta4;
+  std::vector<TH1D*>            h_dL1,  h_vtx;
+  std::vector<TH1D*>            h_etaEH[npbin], h_etaEp[npbin], h_etaEE[npbin];
+  std::vector<TH1D*>            h_mom, h_eEcal, h_eHcal;
+  std::vector<TH1F*>            h_bvlist, h_bvlist2, h_evlist, h_evlist2;
+  std::vector<TH1F*>            h_bvlist3, h_evlist3;
+  TH2F                         *h_etaE;
+};
+
+CalibPlotProperties::CalibPlotProperties(const char*        fname, 
+					 const std::string& dirnm, 
+					 const char*        dupFileName, 
+					 const std::string& prefix, 
+					 const char*        corrFileName,
+					 const char*        rcorFileName,
+					 int puCorr, int flag, bool dataMC,
+					 int truncate,  bool useGen, double scl,
+					 int useScale, int etalo, int etahi,
+					 int runlo, int runhi, int phimin,
+					 int phimax, int zside, int nvxlo,
+					 int nvxhi, int rbx, bool exc,
+					 bool etam) : corrFactor_(nullptr), 
+						      cFactor_(nullptr), 
+						      cSelect_(nullptr),
+						      fname_(fname), 
+						      dirnm_(dirnm), 
+						      prefix_(prefix), 
+						      corrPU_(puCorr),
+						      flag_(flag), 
+						      dataMC_(dataMC),
+						      useGen_(useGen),
+						      truncateFlag_(truncate),
+						      etalo_(etalo), 
+						      etahi_(etahi), 
+						      runlo_(runlo), 
+						      runhi_(runhi), 
+						      phimin_(phimin), 
+						      phimax_(phimax), 
+						      zside_(zside), 
+						      nvxlo_(nvxlo), 
+						      nvxhi_(nvxhi),
+						      rbx_(rbx), exclude_(exc), 
+						      includeRun_(true) {
+  // if parameter tree is not specified (or zero), connect the file
+  // used to generate this class and read the Tree
+
+  flexibleSelect_  = ((flag_/1) %10);
+  plotBasic_       = (((flag_/10)%10) > 0);
+  plotEnergy_      = (((flag_/10)%10) > 0);
+  cutL1T_          = ((flag_/1000) %10);
+  bool ifDepth     = (((flag_/10000) %10) > 0);
+  plotHists_       = (((flag_/100000) %10) > 0);
+  log2by18_        = std::log(2.5)/18.0;
+  if (runlo_ < 0 || runhi_ < 0) {
+    runlo_         = std::abs(runlo_);
+    runhi_         = std::abs(runhi_);
+    includeRun_    = false;
+  }
+  char treeName[400];
+  sprintf (treeName, "%s/CalibTree", dirnm.c_str());
+  TChain    *chain = new TChain(treeName);
+  std::cout << "Create a chain for " << treeName << " from " << fname
+	    << " flags " << flexibleSelect_ << "|" << plotBasic_ << "|"
+	    << "|" << plotEnergy_ << "|" << plotHists_ << "|" 
+	    << corrPU_ << " cons " << log2by18_ << " eta range " << etalo_ 
+	    << ":" << etahi_ << " run range " << runlo_ << ":" << runhi_ 
+	    << " (inclusion flag " << includeRun_ << ") Vertex Range " << nvxlo_ << ":" << nvxhi_ 
+	    << std::endl;
+  corrFactor_ = new CalibCorrFactor(corrFileName,useScale,scl,etam,false);
+  if (!fillChain(chain,fname)) {
+    std::cout << "*****No valid tree chain can be obtained*****" << std::endl;
+  } else {
+    std::cout << "Proceed with a tree chain with " << chain->GetEntries()
+	      << " entries" << std::endl;
+    Init(chain,dupFileName);
+    if (std::string(rcorFileName) != "")
+      cFactor_ = new CalibCorr(rcorFileName,ifDepth,false);
+    if (rbx != 0) cSelect_ = new CalibSelectRBX(rbx, false);
+  }
+}
+
+CalibPlotProperties::~CalibPlotProperties() {
+  delete corrFactor_;
+  delete cFactor_;
+  delete cSelect_;
+  if (!fChain)  return;
+  delete fChain->GetCurrentFile();
+}
+
+Int_t CalibPlotProperties::GetEntry(Long64_t entry) {
+  // Read contents of entry.
+  if (!fChain) return 0;
+  return fChain->GetEntry(entry);
+}
+
+Long64_t CalibPlotProperties::LoadTree(Long64_t entry) {
+  // Set the environment to read one entry
+  if (!fChain) return -5;
+  Long64_t centry = fChain->LoadTree(entry);
+  if (centry < 0) return centry;
+  if (!fChain->InheritsFrom(TChain::Class()))  return centry;
+  TChain *chain = (TChain*)fChain;
+  if (chain->GetTreeNumber() != fCurrent) {
+    fCurrent = chain->GetTreeNumber();
+    Notify();
+  }
+  return centry;
+}
+
+void CalibPlotProperties::Init(TChain *tree, const char* dupFileName) {
+  // The Init() function is called when the selector needs to initialize
+  // a new tree or chain. Typically here the branch addresses and branch
+  // pointers of the tree will be set.
+  // It is normally not necessary to make changes to the generated
+  // code, but the routine can be extended by the user if needed.
+  // Init() will be called many times when running on PROOF
+  // (once per file to be processed).
+  
+  // Set object pointer
+  t_DetIds       = 0;
+  t_DetIds1      = 0;
+  t_DetIds3      = 0;
+  t_HitEnergies  = 0;
+  t_HitEnergies1 = 0;
+  t_HitEnergies3 = 0;
+  t_trgbits      = 0;
+  // Set branch addresses and branch pointers
+  fChain   = tree;
+  fCurrent = -1;
+  if (!tree) return;
+  fChain->SetMakeClass(1);
+
+  fChain->SetBranchAddress("t_Run", &t_Run, &b_t_Run);
+  fChain->SetBranchAddress("t_Event", &t_Event, &b_t_Event);
+  fChain->SetBranchAddress("t_DataType", &t_DataType, &b_t_DataType);
+  fChain->SetBranchAddress("t_ieta", &t_ieta, &b_t_ieta);
+  fChain->SetBranchAddress("t_iphi", &t_iphi, &b_t_iphi);
+  fChain->SetBranchAddress("t_EventWeight", &t_EventWeight, &b_t_EventWeight);
+  fChain->SetBranchAddress("t_nVtx", &t_nVtx, &b_t_nVtx);
+  fChain->SetBranchAddress("t_nTrk", &t_nTrk, &b_t_nTrk);
+  fChain->SetBranchAddress("t_goodPV", &t_goodPV, &b_t_goodPV);
+  fChain->SetBranchAddress("t_l1pt", &t_l1pt, &b_t_l1pt);
+  fChain->SetBranchAddress("t_l1eta", &t_l1eta, &b_t_l1eta);
+  fChain->SetBranchAddress("t_l1phi", &t_l1phi, &b_t_l1phi);
+  fChain->SetBranchAddress("t_l3pt", &t_l3pt, &b_t_l3pt);
+  fChain->SetBranchAddress("t_l3eta", &t_l3eta, &b_t_l3eta);
+  fChain->SetBranchAddress("t_l3phi", &t_l3phi, &b_t_l3phi);
+  fChain->SetBranchAddress("t_p", &t_p, &b_t_p);
+  fChain->SetBranchAddress("t_pt", &t_pt, &b_t_pt);
+  fChain->SetBranchAddress("t_phi", &t_phi, &b_t_phi);
+  fChain->SetBranchAddress("t_mindR1", &t_mindR1, &b_t_mindR1);
+  fChain->SetBranchAddress("t_mindR2", &t_mindR2, &b_t_mindR2);
+  fChain->SetBranchAddress("t_eMipDR", &t_eMipDR, &b_t_eMipDR);
+  fChain->SetBranchAddress("t_eHcal", &t_eHcal, &b_t_eHcal);
+  fChain->SetBranchAddress("t_eHcal10", &t_eHcal10, &b_t_eHcal10);
+  fChain->SetBranchAddress("t_eHcal30", &t_eHcal30, &b_t_eHcal30);
+  fChain->SetBranchAddress("t_hmaxNearP", &t_hmaxNearP, &b_t_hmaxNearP);
+  fChain->SetBranchAddress("t_rhoh", &t_rhoh, &b_t_rhoh);
+  fChain->SetBranchAddress("t_selectTk", &t_selectTk, &b_t_selectTk);
+  fChain->SetBranchAddress("t_qltyFlag", &t_qltyFlag, &b_t_qltyFlag);
+  fChain->SetBranchAddress("t_qltyMissFlag", &t_qltyMissFlag, &b_t_qltyMissFlag);
+  fChain->SetBranchAddress("t_qltyPVFlag", &t_qltyPVFlag, &b_t_qltyPVFlag);
+  fChain->SetBranchAddress("t_gentrackP", &t_gentrackP, &b_t_gentrackP);
+  fChain->SetBranchAddress("t_DetIds", &t_DetIds, &b_t_DetIds);
+  fChain->SetBranchAddress("t_HitEnergies", &t_HitEnergies, &b_t_HitEnergies);
+  fChain->SetBranchAddress("t_trgbits", &t_trgbits, &b_t_trgbits);
+  fChain->SetBranchAddress("t_DetIds1", &t_DetIds1, &b_t_DetIds1);
+  fChain->SetBranchAddress("t_DetIds3", &t_DetIds3, &b_t_DetIds3);
+  fChain->SetBranchAddress("t_HitEnergies1", &t_HitEnergies1, &b_t_HitEnergies1);
+  fChain->SetBranchAddress("t_HitEnergies3", &t_HitEnergies3, &b_t_HitEnergies3);
+  Notify();
+
+  ifstream infil1(dupFileName);
+  if (!infil1.is_open()) {
+    std::cout << "Cannot open duplicate file " << dupFileName << std::endl;
+  } else {
+    while (1) {
+      Long64_t jentry;
+      infil1 >> jentry;
+      if (!infil1.good()) break;
+      entries_.push_back(jentry);
+    }
+    infil1.close();
+    std::cout << "Reads a list of " << entries_.size() << " events from " 
+	      << dupFileName << std::endl;
+  } 
+
+  int ipbin[npbin] = {20, 30, 40, 60, 100};
+  for (unsigned int i=0; i<npbin; ++i) ps_.push_back((double)(ipbin[i]));
+  int ietas[4] = {0, 13, 18, 23};
+  for (int i=0; i<4; ++i)  ietas_.push_back(ietas[i]);
+
+  char        name[20], title[200];
+  unsigned int kp = ps_.size()-1;
+  unsigned int kk(0);
+  std::string titl[5] = {"all tracks", "good quality tracks", "selected tracks",
+			 "isolated good tracks", "tracks having MIP in ECAL"};
+
+  if (plotBasic_) {
+    std::cout << "Book Basic Histos" << std::endl;
+    for (int k=0; k<5; ++k) {
+      sprintf (name, "%sp%d", prefix_.c_str(), k);
+      sprintf (title,"Momentum for %s", titl[k].c_str());
+      h_p[k] = new TH1D(name, title, 100, 10.0, 110.0);
+      sprintf (name, "%seta%d", prefix_.c_str(), k);
+      sprintf (title,"#eta for %s", titl[k].c_str());
+      h_eta[k] = new TH1D(name, title, 60, -30.0, 30.0);
+    }
+    for (unsigned int k=0; k<kp; ++k) {
+      sprintf (name, "%seta0%d", prefix_.c_str(), k);
+      sprintf (title,"#eta for %s (p = %d:%d GeV)",
+	       titl[0].c_str(),ipbin[k],ipbin[k+1]);
+      h_eta0.push_back(new TH1D(name, title, 60, -30.0, 30.0));
+      kk = h_eta0.size()-1; h_eta0[kk]->Sumw2();
+      sprintf (name, "%seta1%d", prefix_.c_str(), k);
+      sprintf (title,"#eta for %s (p = %d:%d GeV)",
+	       titl[1].c_str(),ipbin[k],ipbin[k+1]);
+      h_eta1.push_back(new TH1D(name, title, 60, -30.0, 30.0));
+      kk = h_eta1.size()-1; h_eta1[kk]->Sumw2();
+      sprintf (name, "%seta2%d", prefix_.c_str(), k);
+      sprintf (title,"#eta for %s (p = %d:%d GeV)",
+	       titl[2].c_str(),ipbin[k],ipbin[k+1]);
+      h_eta2.push_back(new TH1D(name, title, 60, -30.0, 30.0));
+      kk = h_eta2.size()-1; h_eta2[kk]->Sumw2();
+      sprintf (name, "%seta3%d", prefix_.c_str(), k);
+      sprintf (title,"#eta for %s (p = %d:%d GeV)",
+	       titl[3].c_str(),ipbin[k],ipbin[k+1]);
+      h_eta3.push_back(new TH1D(name, title, 60, -30.0, 30.0));
+      kk = h_eta3.size()-1; h_eta3[kk]->Sumw2();
+      sprintf (name, "%seta4%d", prefix_.c_str(), k);
+      sprintf (title,"#eta for %s (p = %d:%d GeV)",
+	       titl[4].c_str(),ipbin[k],ipbin[k+1]);
+      h_eta4.push_back(new TH1D(name, title, 60, -30.0, 30.0));
+      kk = h_eta4.size()-1; h_eta4[kk]->Sumw2();
+      sprintf (name, "%sdl1%d", prefix_.c_str(), k);
+      sprintf (title,"Distance from L1 (p = %d:%d GeV)",ipbin[k],ipbin[k+1]);
+      h_dL1.push_back(new TH1D(name, title, 160, 0.0, 8.0));
+      kk = h_dL1.size()-1; h_dL1[kk]->Sumw2();
+      sprintf (name, "%svtx%d", prefix_.c_str(), k);
+      sprintf (title,"N_{Vertex} (p = %d:%d GeV)",ipbin[k],ipbin[k+1]);
+      h_vtx.push_back(new TH1D(name, title, 100, 0.0, 100.0));
+      kk = h_vtx.size()-1; h_vtx[kk]->Sumw2();
+    }
+  }
+
+  if (plotEnergy_) {
+    std::cout << "Make plots for good tracks" << std::endl;
+    for (unsigned int k=0; k<kp; ++k) {
+      for (int j=etalo_; j<=etahi_+1; ++j) {
+	sprintf (name, "%senergyH%d%d", prefix_.c_str(), k, j);
+	if (j > etahi_)
+	  sprintf (title,"HCAL energy for %s (p = %d:%d GeV |#eta| = %d:%d)",
+		   titl[3].c_str(),ipbin[k],ipbin[k+1],etalo_,etahi_);
+	else
+	  sprintf (title,"HCAL energy for %s (p = %d:%d GeV |#eta| = %d)",
+		   titl[3].c_str(),ipbin[k],ipbin[k+1],j);
+	h_etaEH[k].push_back(new TH1D(name,title,200,0,200));
+	kk = h_etaEH[k].size()-1; h_etaEH[k][kk]->Sumw2();
+	sprintf (name, "%senergyP%d%d", prefix_.c_str(), k, j);
+	if (j > etahi_)
+	  sprintf (title,"momentum for %s (p = %d:%d GeV |#eta| = %d:%d)",
+		   titl[3].c_str(),ipbin[k],ipbin[k+1],etalo_,etahi_);
+	else
+	  sprintf (title,"momentum for %s (p = %d:%d GeV |#eta| = %d)",
+		   titl[3].c_str(),ipbin[k],ipbin[k+1],j);
+	h_etaEp[k].push_back(new TH1D(name,title,100,0,100));
+	kk = h_etaEp[k].size()-1; h_etaEp[k][kk]->Sumw2();
+	sprintf (name, "%senergyE%d%d", prefix_.c_str(), k, j);
+	if (j > etahi_)
+	  sprintf (title,"ECAL energy for %s (p = %d:%d GeV |#eta| = %d:%d)",
+		   titl[3].c_str(),ipbin[k],ipbin[k+1],etalo_,etahi_);
+	else
+	  sprintf (title,"ECAL energy for %s (p = %d:%d GeV |#eta| = %d)",
+		   titl[3].c_str(),ipbin[k],ipbin[k+1],j);
+	h_etaEE[k].push_back(new TH1D(name,title,100,0,10));
+	kk = h_etaEE[k].size()-1; h_etaEE[k][kk]->Sumw2();
+      }
+    }
+  
+    for (unsigned int j=0; j<ietas_.size(); ++j) {
+      sprintf (name, "%senergyH%d", prefix_.c_str(), j);
+      if (j == 0)
+	sprintf (title,"HCAL energy for %s (All)",titl[3].c_str());
+      else
+	sprintf (title,"HCAL energy for %s (|#eta| = %d:%d)",
+		 titl[3].c_str(),ietas_[j-1],ietas_[j]);
+      h_eHcal.push_back(new TH1D(name, title, 200, 0, 200));
+      kk = h_eHcal.size()-1; h_eHcal[kk]->Sumw2();
+      sprintf (name, "%senergyP%d", prefix_.c_str(), j);
+      if (j == 0)
+	sprintf (title,"Track momentum for %s (All)",titl[3].c_str());
+      else
+	sprintf (title,"Track momentum for %s (|#eta| = %d:%d)",
+		 titl[3].c_str(),ietas_[j-1],ietas_[j]);
+      h_mom.push_back(new TH1D(name, title, 100, 0, 100));
+      kk = h_mom.size()-1; h_mom[kk]->Sumw2();
+      sprintf (name, "%senergyE%d", prefix_.c_str(), j);
+      if (j == 0)
+	sprintf (title,"ECAL energy for %s (All)",titl[3].c_str());
+      else
+	sprintf (title,"ECAL energy for %s (|#eta| = %d:%d)",
+		 titl[3].c_str(),ietas_[j-1],ietas_[j]);
+      h_eEcal.push_back(new TH1D(name, title, 100, 0, 10));
+      kk = h_eEcal.size()-1; h_eEcal[kk]->Sumw2();
+    }
+  }
+
+  if (plotHists_) {
+    h_nvtx = new TH1D("hnvtx","Number of vertices",10,0,100);
+    h_nvtx->Sumw2();
+    for (unsigned int i=0; i<ndepth; i++) { 
+      sprintf (name, "b_edepth%d", i);
+      sprintf (title,"Total RecHit energy in depth %d (Barrel)", i+1);
+      h_bvlist.push_back(new TH1F(name,title,1000,0,100));
+      h_bvlist[i]->Sumw2();
+      sprintf (name, "b_recedepth%d", i);
+      sprintf (title,"RecHit energy in depth %d (Barrel)", i+1);
+      h_bvlist2.push_back(new TH1F(name,title,1000,0,100));
+      h_bvlist2[i]->Sumw2();
+      sprintf (name, "b_nrecdepth%d", i);
+      sprintf (title,"#RecHits in depth %d (Barrel)", i+1);
+      h_bvlist3.push_back(new TH1F(name,title,1000,0,100));
+      h_bvlist3[i]->Sumw2();
+      sprintf (name, "e_edepth%d", i);
+      sprintf (title,"Total RecHit energy in depth %d (Endcap)", i+1);
+      h_evlist.push_back(new TH1F(name,title,1000,0,100));
+      h_evlist[i]->Sumw2();
+      sprintf (name, "e_recedepth%d", i);
+      sprintf (title,"RecHit energy in depth %d (Endcap)", i+1);
+      h_evlist2.push_back(new TH1F(name,title,1000,0,100));
+      h_evlist2[i]->Sumw2();
+      sprintf (name, "e_nrecdepth%d", i);
+      sprintf (title,"#RecHits in depth %d (Endcap)", i+1);
+      h_evlist3.push_back(new TH1F(name,title,1000,0,100));
+      h_evlist3[i]->Sumw2();
+    }
+    h_etaE = new TH2F("heta","",50,-25,25,100,0,100);
+  }
+}
+
+Bool_t CalibPlotProperties::Notify() {
+  // The Notify() function is called when a new file is opened. This
+  // can be either for a new TTree in a TChain or when when a new TTree
+  // is started when using PROOF. It is normally not necessary to make changes
+  // to the generated code, but the routine can be extended by the
+  // user if needed. The return value is currently not used.
+  
+  return kTRUE;
+}
+
+void CalibPlotProperties::Show(Long64_t entry) {
+  // Print contents of entry.
+  // If entry is not specified, print current entry
+  if (!fChain) return;
+  fChain->Show(entry);
+}
+
+Int_t CalibPlotProperties::Cut(Long64_t) {
+  // This function may be called from Loop.
+  // returns  1 if entry is accepted.
+  // returns -1 otherwise.
+  return 1;
+}
+
+void CalibPlotProperties::Loop() {
+  //   In a ROOT session, you can do:
+  //      Root > .L CalibMonitor.C
+  //      Root > CalibMonitor t
+  //      Root > t.GetEntry(12); // Fill t data members with entry number 12
+  //      Root > t.Show();       // Show values of entry 12
+  //      Root > t.Show(16);     // Read and show values of entry 16
+  //      Root > t.Loop();       // Loop on all entries
+  //
+
+  //   This is the loop skeleton where:
+  //      jentry is the global entry number in the chain
+  //      ientry is the entry number in the current Tree
+  //   Note that the argument to GetEntry must be:
+  //      jentry for TChain::GetEntry
+  //      ientry for TTree::GetEntry and TBranch::GetEntry
+  //
+  //       To read only selected branches, Insert statements like:
+  // METHOD1:
+  //    fChain->SetBranchStatus("*",0);  // disable all branches
+  //    fChain->SetBranchStatus("branchname",1);  // activate branchname
+  // METHOD2: replace line
+  //    fChain->GetEntry(jentry);       //read all branches
+  //by  b_branchname->GetEntry(ientry); //read only this branch
+  const bool debug(false);
+
+  if (fChain == 0) return;
+
+  // Find list of duplicate events  
+  Long64_t      nentries = fChain->GetEntriesFast();
+  std::cout << "Total entries " << nentries << std::endl;
+  Long64_t      nbytes(0), nb(0);
+  unsigned int  duplicate(0), good(0), kount(0);
+  double        sel(0), selHB(0), selHE(0);
+  for (Long64_t jentry=0; jentry<nentries;jentry++) {
+    Long64_t ientry = LoadTree(jentry);
+    if (ientry < 0) break;
+    nb = fChain->GetEntry(jentry);   nbytes += nb;
+    if (jentry%100000 == 0) std::cout << "Entry " << jentry << " Run " << t_Run
+				      << " Event " << t_Event << std::endl;
+    bool select = (std::find(entries_.begin(),entries_.end(),jentry) == entries_.end());
+    if (!select) {
+      ++duplicate;
+      if (debug)
+	std::cout << "Duplicate event " << t_Run << " " << t_Event 
+		  << " " << t_p << std::endl;
+      continue;
+    }
+    bool selRun = (includeRun_ ? ((t_Run >= runlo_) && (t_Run <= runhi_)) :
+		   ((t_Run < runlo_) || (t_Run > runhi_)));
+    select      = (selRun && (fabs(t_ieta) >= etalo_) &&
+		   (fabs(t_ieta) <= etahi_) && (t_nVtx >= nvxlo_) && 
+		   (t_nVtx <= nvxhi_));
+    if (!select) {
+      if (debug)
+	std::cout << "Run # " << t_Run << " out of range of " << runlo_ << ":" 
+		  << runhi_ << " or ieta " << t_ieta << " (" << etalo_ << ":" 
+		  << etahi_ << ") or nvtx " << t_nVtx << " (" << nvxlo_ << ":"
+		  << nvxhi_ << ") out of range" << std::endl;
+      continue;
+    }
+    if (cSelect_ != nullptr) {
+      if (exclude_) {
+	if (cSelect_->isItRBX(t_DetIds))          continue;
+      } else {
+	if (!(cSelect_->isItRBX(t_ieta,t_iphi)))  continue;
+      }
+    }
+    select = (!cutL1T_ || (t_mindR1 >= 0.5));
+    if (!select) {
+      if (debug)
+	std::cout << "Reject Run # " << t_Run << " Event # " << t_Event
+		  << " too close to L1 trigger " << t_mindR1 << std::endl;
+      continue;
+    }
+    select = ((events_.size() == 0) ||
+	      (std::find(events_.begin(),events_.end(),
+			 std::pair<int,int>(t_Run,t_Event)) != events_.end()));
+    if (!select) {
+      if (debug)
+	std::cout << "Reject Run # " << t_Run << " Event # " << t_Event 
+		  << " not in the selection list" << std::endl;
+      continue;
+    }
+
+    // if (Cut(ientry) < 0) continue;
+    unsigned int kp = ps_.size();
+    double pmom = (useGen_ && (t_gentrackP > 0)) ? t_gentrackP : t_p;
+    for (unsigned int k=1; k<ps_.size(); ++k) {
+      if (pmom >= ps_[k-1] && pmom < ps_[k]) {
+	kp = k - 1; break;
+      }
+    }
+    int jp1 = (((std::abs(t_ieta) >= etalo_) && (std::abs(t_ieta) <= etahi_)) ?
+	       (std::abs(t_ieta)-etalo_) : -1);
+    int jp2 = (etahi_-etalo_+1);
+    unsigned int je1 = ietas_.size();
+    for (unsigned int j=1; j<ietas_.size(); ++j) {
+      if (std::abs(t_ieta) > ietas_[j-1] && std::abs(t_ieta) <= ietas_[j]) {
+	je1 = j; break;
+      }
+    }
+    int je2 = (je1 != ietas_.size()) ? 0 : -1;
+    if (debug)
+      std::cout << "Bin " << kp << ":" << je1 << ":" << je2 << ":" << jp1
+		<< ":" << jp2 << std::endl;
+    double cut = (pmom > 20) ? ((flexibleSelect_ == 0) ? 2.0 : 10.0) : 0.0;
+    double rcut(-1000.0);
+
+    // Selection of good track and energy measured in Hcal
+    double eHcal(t_eHcal);
+    if (corrFactor_-> doCorr()) {
+      eHcal = 0;
+      for (unsigned int k=0; k<t_HitEnergies->size(); ++k) {
+	// The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
+	unsigned int id = truncateId((*t_DetIds)[k],truncateFlag_,false);
+	double cfac     = corrFactor_->getCorr(id);
+	if (cFactor_ != 0) cfac *= cFactor_->getCorr(t_Run,(*t_DetIds)[k]);
+	eHcal += (cfac*((*t_HitEnergies)[k]));
+	if (debug) {
+	  int subdet,zside,ieta,iphi,depth;
+	  unpackDetId(id,subdet,zside,ieta,iphi,depth);
+	  std::cout << zside << ":" << ieta << ":" << depth  << " Corr " 
+		    << cfac << " " << (*t_HitEnergies)[k] << " Out " << eHcal
+		    << std::endl;
+	}
+      }
+    }
+    bool goodTk = goodTrack(eHcal, cut, debug);
+    bool selPhi = selectPhi(debug);
+    double rat = (pmom > 0) ?  (eHcal/(pmom-t_eMipDR)) : 1.0;
+    if (debug) 
+      std::cout << "Entry " << jentry << " p|eHcal|ratio " << pmom << "|" 
+		<< t_eHcal << "|" << eHcal << "|" << rat << "|" << kp 
+		<< " Cuts " << t_qltyFlag << "|" << t_selectTk << "|" 
+		<< (t_hmaxNearP < cut) << "|" << (t_eMipDR < 1.0) << "|" 
+		<< goodTk << "|" << (rat > rcut) << " Select Phi " << selPhi
+		<< std::endl;
+    if (plotBasic_) {
+      h_p[0]->Fill(pmom,t_EventWeight);
+      h_eta[0]->Fill(t_ieta,t_EventWeight);
+      if (kp < ps_.size()) h_eta0[kp]->Fill(t_ieta,t_EventWeight);
+      if (t_qltyFlag) {
+	h_p[1]->Fill(pmom,t_EventWeight);
+	h_eta[1]->Fill(t_ieta,t_EventWeight);
+	if (kp < ps_.size()) h_eta1[kp]->Fill(t_ieta,t_EventWeight);
+	if (t_selectTk) {
+	  h_p[2]->Fill(pmom,t_EventWeight);
+	  h_eta[2]->Fill(t_ieta,t_EventWeight);
+	  if (kp < ps_.size()) h_eta2[kp]->Fill(t_ieta,t_EventWeight);
+	  if (t_hmaxNearP < cut) {
+	    h_p[3]->Fill(pmom,t_EventWeight);
+	    h_eta[3]->Fill(t_ieta,t_EventWeight);
+	    if (kp < ps_.size()) h_eta3[kp]->Fill(t_ieta,t_EventWeight);
+	    if (t_eMipDR < 1.0) {
+	      h_p[4]->Fill(pmom,t_EventWeight);
+	      h_eta[4]->Fill(t_ieta,t_EventWeight);
+	      if (kp < ps_.size()) {
+		h_eta4[kp]->Fill(t_ieta,t_EventWeight);
+		h_dL1[kp]->Fill(t_mindR1,t_EventWeight);
+		h_vtx[kp]->Fill(t_goodPV,t_EventWeight);
+	      }
+	    }
+	  }
+	}
+      }
+    }
+
+    if (goodTk && kp < ps_.size() && selPhi) {
+      if (rat > rcut) {
+
+	if (plotEnergy_) {
+	  if (jp1 >= 0) {
+	    h_etaEH[kp][jp1]->Fill(eHcal,t_EventWeight);
+	    h_etaEH[kp][jp2]->Fill(eHcal,t_EventWeight);
+	    h_etaEp[kp][jp1]->Fill(pmom,t_EventWeight);
+	    h_etaEp[kp][jp2]->Fill(pmom,t_EventWeight);
+	    h_etaEE[kp][jp1]->Fill(t_eMipDR,t_EventWeight);
+	    h_etaEE[kp][jp2]->Fill(t_eMipDR,t_EventWeight);
+	  }
+	  if (kp == kp50){
+	    if (je1 != ietas_.size()) {
+	      h_eHcal[je1]->Fill(eHcal,t_EventWeight);
+	      h_eHcal[je2]->Fill(eHcal,t_EventWeight);
+	      h_mom[je1]->Fill(pmom,t_EventWeight);
+	      h_mom[je2]->Fill(pmom,t_EventWeight);
+	      h_eEcal[je1]->Fill(t_eMipDR,t_EventWeight);
+	      h_eEcal[je2]->Fill(t_eMipDR,t_EventWeight);
+	    }
+	  }
+	}
+
+	if (plotHists_) {
+	  h_nvtx->Fill(t_nVtx);
+	  if ((std::fabs(rat-1)<0.15) && (kp == kp50) &&
+	      ((std::abs(t_ieta) < 15) || (std::abs(t_ieta) > 17))) {
+	    float weight = (dataMC_ ? t_EventWeight : 
+			    t_EventWeight*puweight(t_nVtx));
+	    h_etaE->Fill(t_ieta,eHcal,weight);
+	    sel += weight;
+	    std::vector<float> bv(7,0.0f), ev(7,0.0f);
+	    std::vector<int>   bnrec(7,0), enrec(7,0);
+	    double             eb(0), ee(0);	  
+	    for (unsigned int k=0; k<t_HitEnergies->size(); ++k) {
+	      unsigned int id = truncateId((*t_DetIds)[k],truncateFlag_,false);
+	      double cfac     = corrFactor_->getCorr(id);
+	      if (cFactor_ != 0) 
+		cfac *= cFactor_->getCorr(t_Run,(*t_DetIds)[k]);
+	      double ener = cfac*(*t_HitEnergies)[k];
+	      if (corrPU_) correctEnergy(ener);
+	      unsigned int idx = (unsigned int)((*t_DetIds)[k]);
+	      int subdet, zside, ieta, iphi, depth;
+	      unpackDetId(idx,subdet,zside,ieta,iphi,depth);
+	      if (depth > 0 && depth <= (int)(ndepth)) {
+		if (subdet == 1) {
+		  eb          += ener;
+		  bv[depth-1] += ener;
+		  h_bvlist2[depth-1]->Fill(ener,weight);
+		  ++bnrec[depth-1];
+		} else if (subdet == 2) {
+		  ee          += ener;
+		  ev[depth-1] += ener ;
+		  h_evlist2[depth-1]->Fill(ener,weight);
+		  ++enrec[depth-1];
+		}
+	      }
+	    }	
+	    bool barrel = (eb > ee);
+	    if (barrel) selHB += weight;
+	    else        selHE += weight;
+	    for (unsigned int i=0; i<ndepth; i++){
+	      if (barrel) {
+		h_bvlist[i]->Fill(bv[i],weight);
+		h_bvlist3[i]->Fill((bnrec[i]+0.001),weight);
+	      } else {
+		h_evlist[i]->Fill(ev[i],weight);
+		h_evlist3[i]->Fill((enrec[i]+0.001),weight);
+	      }
+	    }
+	  }
+	}
+
+      }
+      good++;
+    }
+    ++kount;
+  }
+  std::cout << "Finds " << duplicate << " Duplicate events out of " << kount
+	    << " events in this file and " << good << " selected events"
+	    << std::endl;
+  if (plotHists_)
+    std::cout << "Number of weighted selected events " << sel << " HB " << selHB
+	      << " HE " << selHE << std::endl;
+}
+
+bool CalibPlotProperties::goodTrack(double& eHcal, double &cuti, bool debug) {
+
+  bool   select(true);
+  double cut(cuti);
+  if (debug) {
+    std::cout << "goodTrack input " << eHcal << ":" << cut;
+  }
+  if (flexibleSelect_ > 1) {
+    double eta = (t_ieta > 0) ? t_ieta : -t_ieta;
+    cut        = 8.0*exp(eta*log2by18_);
+  }
+  correctEnergy(eHcal);
+  select = ((t_qltyFlag) && (t_selectTk) && (t_hmaxNearP < cut) &&
+	    (t_eMipDR < 100.0));
+  if (debug) {
+    std::cout << " output " << eHcal << ":" << cut << ":" << select<< std::endl;
+  }
+  return select;
+}
+
+bool CalibPlotProperties::selectPhi(bool debug) {
+
+  bool   select(true);
+  if (phimin_ > 1 || phimax_ < 72) {
+    double eTotal(0), eSelec(0);
+    // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
+    for (unsigned int k=0; k<t_HitEnergies->size(); ++k) {
+      int iphi  = ((*t_DetIds)[k]) & (0x3FF);
+      int zside = ((*t_DetIds)[k]&0x80000)?(1):(-1);
+      eTotal   += ((*t_HitEnergies)[k]);
+      if (iphi >= phimin_ && iphi <= phimax_ && zside == zside_)
+	eSelec += ((*t_HitEnergies)[k]);
+    }
+    if (eSelec < 0.9*eTotal) select = false;
+    if (debug) {
+      std::cout << "Etotal " << eTotal << " and ESelec " << eSelec
+		<< " (phi " << phimin_ << ":" << phimax_ << " z "
+		<< zside_ << ") Selection " << select << std::endl;
+    }
+  }
+  return select;
+}
+
+void CalibPlotProperties::savePlot(const std::string& theName, bool append, 
+				   bool all) {
+
+  TFile* theFile(0);
+  if (append) {
+    theFile = new TFile(theName.c_str(), "UPDATE");
+  } else {
+    theFile = new TFile(theName.c_str(), "RECREATE");
+  }
+
+  theFile->cd();
+
+  if (plotBasic_) {
+    for (int k=0; k<5; ++k) {
+      if (h_p[k]   != 0) {TH1D* h1 = (TH1D*)h_p[k]->Clone();   h1->Write();}
+      if (h_eta[k] != 0) {TH1D* h2 = (TH1D*)h_eta[k]->Clone(); h2->Write();}
+    }
+    for (unsigned int k=0; k<h_eta0.size(); ++k) {
+      if (h_eta0[k] != 0) {TH1D* h1 = (TH1D*)h_eta0[k]->Clone(); h1->Write();}
+      if (h_eta1[k] != 0) {TH1D* h2 = (TH1D*)h_eta1[k]->Clone(); h2->Write();}
+      if (h_eta2[k] != 0) {TH1D* h3 = (TH1D*)h_eta2[k]->Clone(); h3->Write();}
+      if (h_eta3[k] != 0) {TH1D* h4 = (TH1D*)h_eta3[k]->Clone(); h4->Write();}
+      if (h_eta4[k] != 0) {TH1D* h5 = (TH1D*)h_eta4[k]->Clone(); h5->Write();}
+      if (h_dL1[k] != 0)  {TH1D* h6 = (TH1D*)h_dL1[k]->Clone();  h6->Write();}
+      if (h_vtx[k] != 0)  {TH1D* h7 = (TH1D*)h_vtx[k]->Clone();  h7->Write();}
+    }
+  }
+
+  if (plotEnergy_) {
+    for (unsigned int k=0; k<ps_.size()-1; ++k) {
+      for (unsigned int j=0; j<=(unsigned int)(etahi_-etalo_); ++j) {
+	if (h_etaEH[k].size() > j && h_etaEH[k][j] != nullptr && 
+	  (all || (k == kp50))) {
+	  TH1D* hist = (TH1D*)h_etaEH[k][j]->Clone(); hist->Write();
+	}
+	if (h_etaEp[k].size() > j && h_etaEp[k][j] != nullptr &&
+	    (all || (k == kp50))) {
+	  TH1D* hist = (TH1D*)h_etaEp[k][j]->Clone(); hist->Write();
+	}
+	if (h_etaEE[k].size() > j && h_etaEE[k][j] != nullptr &&
+	    (all || (k == kp50))) {
+	  TH1D* hist = (TH1D*)h_etaEE[k][j]->Clone(); hist->Write();
+	}
+      }
+    }
+    
+    for (unsigned int j=0; j < ietas_.size(); ++j)  {
+      if (h_eHcal.size() > j && (h_eHcal[j] != nullptr)) {
+	TH1D* hist = (TH1D*)h_eHcal[j]->Clone(); hist->Write();
+      }
+      if (h_mom.size() > j && (h_mom[j] != nullptr)) {
+	TH1D* hist = (TH1D*)h_mom[j]->Clone(); hist->Write();
+      }
+      if (h_eEcal.size() > j && (h_eEcal[j] != nullptr)) {
+	TH1D* hist = (TH1D*)h_eEcal[j]->Clone(); hist->Write();
+      }
+    }
+  }
+
+  if (plotHists_) {
+    if (h_nvtx != 0) {TH1D* h1 = (TH1D*)h_nvtx->Clone(); h1->Write();}
+    if (h_etaE != 0) {TH2D* h2 = (TH2D*)h_etaE->Clone(); h2->Write();}
+    for (unsigned int i=0; i<ndepth; ++i) {
+      if (h_bvlist[i] !=0) {TH1D* h1=(TH1D*)h_bvlist[i]->Clone(); h1->Write();}
+      if (h_bvlist2[i]!=0) {TH1D* h2=(TH1D*)h_bvlist2[i]->Clone();h2->Write();}
+      if (h_bvlist3[i]!=0) {TH1D* h3=(TH1D*)h_bvlist3[i]->Clone();h3->Write();}
+      if (h_evlist[i] !=0) {TH1D* h4=(TH1D*)h_evlist[i]->Clone(); h4->Write();}
+      if (h_evlist2[i]!=0) {TH1D* h5=(TH1D*)h_evlist2[i]->Clone();h5->Write();}
+      if (h_evlist3[i]!=0) {TH1D* h6=(TH1D*)h_evlist3[i]->Clone();h6->Write();}
+    }
+  }  
+  std::cout << "All done" << std::endl;
+  theFile->Close();
+}
+
+void CalibPlotProperties::correctEnergy(double& eHcal) {
+
+  double pmom = (useGen_ && (t_gentrackP>0)) ? t_gentrackP : t_p;
+  if ((corrPU_ < 0) && (pmom > 0)) {
+    double ediff = (t_eHcal30-t_eHcal10);
+    if (t_DetIds1 != 0 && t_DetIds3 != 0) {
+      double Etot1(0), Etot3(0);
+      // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
+      for (unsigned int idet=0; idet<(*t_DetIds1).size(); idet++) { 
+	unsigned int id = truncateId((*t_DetIds1)[idet],truncateFlag_,false);
+	double cfac     = corrFactor_->getCorr(id);
+	if (cFactor_ != 0) cfac *= cFactor_->getCorr(t_Run,(*t_DetIds1)[idet]);
+	double hitEn = cfac*(*t_HitEnergies1)[idet];
+	Etot1  += hitEn;
+      }
+      for (unsigned int idet=0; idet<(*t_DetIds3).size(); idet++) { 
+	unsigned int id = truncateId((*t_DetIds3)[idet],truncateFlag_,false);
+	double cfac     = corrFactor_->getCorr(id);
+	if (cFactor_ != 0) cfac *= cFactor_->getCorr(t_Run,(*t_DetIds3)[idet]);
+	double hitEn = cfac*(*t_HitEnergies3)[idet];
+	Etot3  += hitEn;
+      }
+      ediff = (Etot3-Etot1);
+    }
+    double fac = puFactor(-corrPU_,t_ieta,pmom,eHcal,ediff);
+    eHcal     *= fac;
+  } else if (corrPU_ > 1) {
+    eHcal      = puFactorRho(corrPU_,t_ieta,t_rhoh,eHcal);
+  }
 }
