@@ -6,6 +6,7 @@
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/L1Trigger/interface/EGamma.h"
+#include "L1Trigger/L1CaloTrigger/interface/L1EGammaEECalibrator.h"
 
 
 class L1EGammaEEProducer : public edm::EDProducer {
@@ -16,10 +17,12 @@ class L1EGammaEEProducer : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&);
 
       edm::EDGetToken multiclusters_token_;
+      L1EGammaEECalibrator calibrator_;
 };
 
 L1EGammaEEProducer::L1EGammaEEProducer(const edm::ParameterSet& iConfig) :
-  multiclusters_token_(consumes<l1t::HGCalMulticlusterBxCollection>(iConfig.getParameter<edm::InputTag>("Multiclusters"))) {
+  multiclusters_token_(consumes<l1t::HGCalMulticlusterBxCollection>(iConfig.getParameter<edm::InputTag>("Multiclusters"))),
+  calibrator_(iConfig.getParameter<edm::ParameterSet>("calibrationConfig")) {
     produces< BXVector<l1t::EGamma> >("L1EGammaCollectionBXVWithCuts");
 }
 
@@ -37,14 +40,20 @@ void L1EGammaEEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   // here we loop on the TPGs
   for(auto cl3d = multiclusters.begin(0); cl3d != multiclusters.end(0); cl3d++) {
-     //std::cout << "CL3D is EG: " <<  cl3d->hwQual() << "   "<<l1t::EGamma(cl3d->p4()).eta()<<"   "<<l1t::EGamma(cl3d->p4()).pt()<<std::endl;
-//     if(cl3d->hwQual()) { 
-      if(cl3d->et() > minEt_) {
-        l1t::EGamma eg=l1t::EGamma(cl3d->p4());    
-        eg.setHwQual(cl3d->hwQual()); // saved for filtering later here 
-        eg.setHwIso(1); // for now 
-        l1EgammaBxCollection->push_back(0,eg);
-//      }
+     // std::cout << "-- CL3D is EG: " <<  cl3d->hwQual() << "   "<< cl3d->eta() <<"   "<< cl3d->pt()<<std::endl;
+     if(cl3d->hwQual()) {
+       if(cl3d->et() > minEt_) {
+         int hw_quality = 1; // baseline EG ID passed
+         if(fabs(cl3d->eta()) >= 1.52) {
+           hw_quality = 2; // baseline EG ID passed + cleanup of transition region
+         }
+
+         float calib_factor = calibrator_.calibrationFactor(cl3d->pt(), cl3d->eta());
+         l1t::EGamma eg=l1t::EGamma(reco::Candidate::PolarLorentzVector(cl3d->pt()/calib_factor, cl3d->eta(), cl3d->phi(), 0.));
+         eg.setHwQual(hw_quality);
+         eg.setHwIso(1);
+         l1EgammaBxCollection->push_back(0,eg);
+      }
     }
   }
 

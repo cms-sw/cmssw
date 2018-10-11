@@ -1,4 +1,6 @@
 <use name="DataFormats/Math"/>
-<export>  
+<use name="FWCore/ParameterSet"/>
+
+<export>
   <lib   name="1"/>
 </export>
