@@ -43,7 +43,7 @@ CSCBaseboard::CSCBaseboard(unsigned endcap, unsigned station,
   runME3141ILT_ = commonParams_.existsAs<bool>("runME3141ILT")?
     commonParams_.getParameter<bool>("runME3141ILT"):false;
 
-  if (isSLHC_ and theRing == 1){
+  if (isSLHC_ and theRing == 1) {
     if (theStation == 1) {
       tmbParams_ = conf.getParameter<edm::ParameterSet>("tmbSLHC");
       clctParams_ = conf.getParameter<edm::ParameterSet>("clctSLHC");
@@ -65,12 +65,17 @@ CSCBaseboard::CSCBaseboard(unsigned endcap, unsigned station,
       alctParams_ = conf.getParameter<edm::ParameterSet>("alctSLHCME3141");
       clctParams_ = conf.getParameter<edm::ParameterSet>("clctSLHCME3141");
     }
-  } else {
+    else {//SLHC is on but ME21ME31ME41 is not upgraded
+      tmbParams_ = conf.getParameter<edm::ParameterSet>("tmbParam");
+      alctParams_ = conf.getParameter<edm::ParameterSet>("alctParam07");
+      clctParams_ = conf.getParameter<edm::ParameterSet>("clctParam07");
+    }
+  }
+  else {//others
     tmbParams_ = conf.getParameter<edm::ParameterSet>("tmbParam");
     alctParams_ = conf.getParameter<edm::ParameterSet>("alctParam07");
     clctParams_ = conf.getParameter<edm::ParameterSet>("clctParam07");
   }
-
 }
 
 CSCBaseboard::CSCBaseboard() :
