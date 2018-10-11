@@ -1270,8 +1270,8 @@ step1LHEGenSimDefault = { '--relval':'9000,50',
                           '--era'         : 'Run2_2016',
                         }
 
-# LHE-GEN-SIM with DQM
-step1LHEGenSimDQM = merge([{'-s':'LHE,GEN,SIM','--datatier'    : 'GEN-SIM,LHE,DQMIO','--eventcontent': 'LHE,RAWSIM,DQM'},step1LHEGenSimDefault])
+# LHE-GEN with DQM
+step1LHEGenDQM = merge([{'-s':'LHE,GEN,VALIDATION:genvalid','--datatier'    : 'LHE,GEN,DQMIO','--eventcontent': 'LHE,RAWSIM,DQM'},step1LHEDefaults])
                         
 
 def lhegensim(fragment,howMuch):
@@ -1305,7 +1305,7 @@ steps['sherpa_ZtoEE_0j_BlackHat_13TeV_MASTER']=genvalid('sherpa_ZtoEE_0j_BlackHa
 steps['sherpa_ZtoEE_0j_OpenLoops_13TeV_MASTER']=genvalid('sherpa_ZtoEE_0j_OpenLoops_13TeV_MASTER_cff',step1GenDefaults)
 
 #Herwig7
-steps['TTbar_13TeV_Pow_herwig7']=genvalid('Configuration/Generator/python/TT_13TeV_Pow_Herwig7_cff',step1LHEGenSimDQM)
+steps['TTbar_13TeV_Pow_herwig7']=genvalid('Configuration/Generator/python/TT_13TeV_Pow_Herwig7_cff',step1LHEGenDQM)
 
 
 # Heavy Ion
