@@ -51,7 +51,7 @@ void L1GctElectronSorter::process() {
   }
 
   //Then sort it
-  sort(data.begin(),data.end(),rank_gt());
+  sort(data.begin(),data.end(),rankByGt);
 
   //Copy data to output buffer
   for(int i = 0; i<4; i++){

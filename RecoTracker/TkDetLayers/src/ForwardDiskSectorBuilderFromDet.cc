@@ -2,8 +2,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
-
-#include "TrackingTools/DetLayers/interface/PhiLess.h"
+#include "DataFormats/GeometryVector/interface/VectorUtil.h"
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
 
 using namespace std;
@@ -62,8 +61,8 @@ ForwardDiskSectorBuilderFromDet::computeBounds( const vector<const GeomDet*>& de
 	  rmax = max( rmax, r);
 	  zmin = min( zmin, z);
 	  zmax = max( zmax, z);
-	  if ( PhiLess()( phi, phimin)) phimin = phi;
-	  if ( PhiLess()( phimax, phi)) phimax = phi;
+	  if ( Geom::phiLess( phi, phimin)) phimin = phi;
+	  if ( Geom::phiLess( phimax, phi)) phimax = phi;
 	}
 	// in addition to the corners we have to check the middle of the 
 	// det +/- length/2, since the min (max) radius for typical fw
@@ -98,8 +97,8 @@ ForwardDiskSectorBuilderFromDet::computeBounds( const vector<const GeomDet*>& de
 	rmax = max( rmax, r);
 	zmin = min( zmin, z);
 	zmax = max( zmax, z);
-	if ( PhiLess()( phi, phimin)) phimin = phi;
-	if ( PhiLess()( phimax, phi)) phimax = phi;
+	if ( Geom::phiLess( phi, phimin)) phimin = phi;
+	if ( Geom::phiLess( phimax, phi)) phimax = phi;
       }
       // in addition to the corners we have to check the middle of the 
       // det +/- length/2, since the min (max) radius for typical fw
@@ -127,7 +126,7 @@ ForwardDiskSectorBuilderFromDet::computeBounds( const vector<const GeomDet*>& de
   }
   
   
-  if (!PhiLess()(phimin, phimax)) 
+  if (!Geom::phiLess(phimin, phimax)) 
     edm::LogError("TkDetLayers") << " ForwardDiskSectorBuilderFromDet : " 
 				 << "Something went wrong with Phi Sorting !" ;
   float zPos = (zmax+zmin)/2.;

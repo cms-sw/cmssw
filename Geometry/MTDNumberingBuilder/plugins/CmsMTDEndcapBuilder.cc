@@ -5,8 +5,8 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/MTDNumberingBuilder/plugins/CmsMTDDiscBuilder.h"  
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <vector>
 
+#include <vector>
 #include <bitset>
 
 CmsMTDEndcapBuilder::CmsMTDEndcapBuilder()
@@ -38,7 +38,7 @@ CmsMTDEndcapBuilder::sortNS( DDFilteredView& fv, GeometricTimingDet* det )
 {
   GeometricTimingDet::ConstGeometricTimingDetContainer & comp = det->components();
 
-  std::stable_sort( comp.begin(), comp.end(), LessModZ());
+  std::stable_sort( comp.begin(), comp.end(), isLessModZ);
   
   for( uint32_t i = 0; i < comp.size(); i++ )
   {

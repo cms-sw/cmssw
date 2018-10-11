@@ -155,7 +155,7 @@ void PiZeroAnalyzer::makePizero(const edm::EventSetup& es, const edm::Handle<Eca
     if (energy > clusSeedThr_) seeds.push_back(*itb);
   } // Eb rechits
 
-  sort(seeds.begin(), seeds.end(), ecalRecHitLess());
+  sort(seeds.begin(), seeds.end(), [](auto& x, auto& y){return (x.energy() > y.energy());});
   for (std::vector<EcalRecHit>::iterator itseed=seeds.begin(); itseed!=seeds.end(); itseed++) {
     EBDetId seed_id = itseed->id();
     std::vector<EBDetId>::const_iterator usedIds;
