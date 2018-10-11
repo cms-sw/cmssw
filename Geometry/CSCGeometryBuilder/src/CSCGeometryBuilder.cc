@@ -16,7 +16,7 @@ CSCGeometryBuilder::CSCGeometryBuilder() : myName("CSCGeometryBuilder"){}
 CSCGeometryBuilder::~CSCGeometryBuilder(){}
 
 
-void CSCGeometryBuilder::build( const std::shared_ptr<CSCGeometry>& theGeometry
+void CSCGeometryBuilder::build( CSCGeometry& theGeometry
 				, const RecoIdealGeometry& rig
 				, const CSCRecoDigiParameters& cscpars ) {
 
@@ -109,7 +109,7 @@ void CSCGeometryBuilder::build( const std::shared_ptr<CSCGeometry>& theGeometry
     LogTrace(myName) << myName << ": end of wire group info. " ;
       
     // Are we going to apply centre-to-intersection offsets, even if values exist in the specs file?
-    if ( !theGeometry->centreTIOffsets() ) fupar[30] = 0.;  // reset to zero if flagged 'off'
+    if ( !theGeometry.centreTIOffsets() ) fupar[30] = 0.;  // reset to zero if flagged 'off'
       
     buildChamber (theGeometry, detid, fpar, fupar, gtran, grmat, wg ); //, cscpars.pWGPs[cs] );
     fupar.clear();
@@ -117,7 +117,7 @@ void CSCGeometryBuilder::build( const std::shared_ptr<CSCGeometry>& theGeometry
 }
 
 void CSCGeometryBuilder::buildChamber (  
-				       const std::shared_ptr<CSCGeometry>& theGeometry // the geometry container
+				       CSCGeometry& theGeometry // the geometry container
 				       , CSCDetId chamberId                         // the DetId for this chamber
 				       , const std::vector<float>& fpar           // volume parameters hB, hT. hD, hH	
 				       , const std::vector<float>& fupar          // user parameters 
@@ -153,17 +153,17 @@ void CSCGeometryBuilder::buildChamber (
 		   << " upar[" << fupar.size()-1 << "]=" << fupar[fupar.size()-1];
 
 
-  const CSCChamber* chamber = theGeometry->chamber( chamberId );
+  const CSCChamber* chamber = theGeometry.chamber( chamberId );
   if ( chamber ){
   }
   else { // this chamber not yet built/stored
   
     LogTrace(myName) << myName <<": CSCChamberSpecs::build requested for ME" << jstat << jring ;
      int chamberType = CSCChamberSpecs::whatChamberType( jstat, jring );
-     const CSCChamberSpecs* aSpecs = theGeometry->findSpecs( chamberType );
+     const CSCChamberSpecs* aSpecs = theGeometry.findSpecs( chamberType );
     if ( !fupar.empty() && aSpecs == nullptr ) {
       // make new one:
-      aSpecs = theGeometry->buildSpecs (chamberType, fpar, fupar, wg);
+      aSpecs = theGeometry.buildSpecs (chamberType, fpar, fupar, wg);
     } else if ( fupar.empty() && aSpecs == nullptr ) {
       edm::LogError(myName) << "SHOULD BE THROW? Error, wg and/or fupar size are 0 BUT this Chamber Spec has not been built!";
     }
@@ -238,7 +238,7 @@ void CSCGeometryBuilder::buildChamber (
     Plane::PlanePointer plane = Plane::build(aVec, aRot, bounds); 
 
     CSCChamber* chamber = new CSCChamber( plane, chamberId, aSpecs );
-    theGeometry->addChamber( chamber ); 
+    theGeometry.addChamber( chamber ); 
 
     LogTrace(myName) << myName << ": Create chamber E" << jend << " S" << jstat 
  	             << " R" << jring << " C" << jch 
@@ -267,7 +267,7 @@ void CSCGeometryBuilder::buildChamber (
       CSCDetId layerId = CSCDetId( jend, jstat, jring, jch, j );
 
       // extra-careful check that we haven't already built this layer
-      const CSCLayer* cLayer = dynamic_cast<const CSCLayer*> (theGeometry->idToDet( layerId ) );
+      const CSCLayer* cLayer = dynamic_cast<const CSCLayer*> (theGeometry.idToDet( layerId ) );
 
       if ( cLayer == nullptr ) {
 
@@ -298,7 +298,7 @@ void CSCGeometryBuilder::buildChamber (
 		    << " adr=" << layer << " layerGeom adr=" << geom ;
 
         chamber->addComponent(j, layer); 
-        theGeometry->addLayer( layer );
+        theGeometry.addLayer( layer );
       }
       else {
         edm::LogError(myName) << ": ERROR, layer " << j <<
