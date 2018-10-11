@@ -6,7 +6,7 @@ class L1TGlobalPrescalesVetosObjectKeysOnlineProd : public L1ObjectKeysOnlinePro
 private:
 
 public:
-    void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
+    void fillObjectKeys( L1TriggerKeyExt* pL1TriggerKey ) override ;
 
     L1TGlobalPrescalesVetosObjectKeysOnlineProd(const edm::ParameterSet&);
     ~L1TGlobalPrescalesVetosObjectKeysOnlineProd(void) override{}
@@ -17,7 +17,7 @@ L1TGlobalPrescalesVetosObjectKeysOnlineProd::L1TGlobalPrescalesVetosObjectKeysOn
 }
 
 
-void L1TGlobalPrescalesVetosObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey ){
+void L1TGlobalPrescalesVetosObjectKeysOnlineProd::fillObjectKeys( L1TriggerKeyExt* pL1TriggerKey ){
 
     std::string uGTKey = pL1TriggerKey->subsystemKey( L1TriggerKeyExt::kuGT ) ;
 
