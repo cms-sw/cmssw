@@ -29,11 +29,9 @@ class L1TMuonBarrelKalmanAlgo {
   L1MuKBMTrackCollection clean(const L1MuKBMTrackCollection&,uint);
 
 
-  L1MuKBMTrackCollection cleanAndSort(const L1MuKBMTrackCollection&,uint);
+
   void addBMTFMuon(int,const L1MuKBMTrack&,std::unique_ptr<l1t::RegionalMuonCandBxCollection>&);
   l1t::RegionalMuonCand  convertToBMTF(const L1MuKBMTrack& track); 
-
-
 
 
 
@@ -58,7 +56,8 @@ class L1TMuonBarrelKalmanAlgo {
   bool getBit(int,int);
   void setFloatingPointValues(L1MuKBMTrack&,bool);
   int phiAt2(const L1MuKBMTrack& track);
-  void estimateChiSquare(L1MuKBMTrack&);
+  bool estimateChiSquare(L1MuKBMTrack&);
+  void estimateCompatibility(L1MuKBMTrack&);
   int rank(const L1MuKBMTrack&);
   int wrapAround(int,int);
   std::pair<bool,uint> getByCode(const L1MuKBMTrackCollection& tracks,int mask);
@@ -70,11 +69,11 @@ class L1TMuonBarrelKalmanAlgo {
   uint etaStubRank(const L1MuKBMTCombinedStubRef&);
 
   void calculateEta(L1MuKBMTrack& track);
+  uint matchAbs(std::map<uint,uint>&, uint, uint);
 
 
   //LUT service
   L1TMuonBarrelKalmanLUTs* lutService_;
-  bool punchThroughVeto(const L1MuKBMTrack& track);
   int ptLUT(int K);
 
 
@@ -89,16 +88,25 @@ class L1TMuonBarrelKalmanAlgo {
   std::vector<double> aPhiBNLO_;
   std::vector<double> bPhi_;
   std::vector<double> bPhiB_;
-  std::vector<double> phiAt2_;
+  double phiAt2_;
   std::vector<double> etaLUT0_;
   std::vector<double> etaLUT1_;
 
   //Chi Square estimator input
   uint globalChi2Cut_;
+  uint globalChi2CutLimit_;
   std::vector<double> chiSquare_;
   std::vector<int> chiSquareCutPattern_;
   std::vector<int> chiSquareCutCurv_;
   std::vector<int> chiSquareCut_;
+
+  std::vector<double> trackComp_;
+  std::vector<double> trackCompErr1_;
+  std::vector<double> trackCompErr2_;
+  std::vector<int> trackCompPattern_;
+  std::vector<int> trackCompCutCurv_;
+  std::vector<int> trackCompCut_;
+  std::vector<int> chiSquareCutTight_;
 
 
   //bitmasks to run== diferent combinations for a given seed in a given station
@@ -151,17 +159,6 @@ class L1TMuonBarrelKalmanAlgo {
 
   };
 
-  class TrackSorter {
-  public:
-    TrackSorter() {
-    }
-
-    bool operator() (const L1MuKBMTrack& a ,const L1MuKBMTrack& b) {
-      if (abs(a.curvatureAtVertex())<=abs(b.curvatureAtVertex()))
-	return true;
-      return false;
-    }
-  };
   
 
 
