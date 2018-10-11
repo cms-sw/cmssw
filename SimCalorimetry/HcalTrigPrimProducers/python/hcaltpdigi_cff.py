@@ -27,5 +27,5 @@ HcalTrigTowerGeometryESProducer = cms.ESProducer("HcalTrigTowerGeometryESProduce
 
 run2_HCAL_2018.toModify(CaloTPGTranscoder, linearLUTs=cms.bool(True))
 run2_HCAL_2018.toModify(HcalTPGCoderULUT, linearLUTs=cms.bool(True))
-pp_on_AA_2018.toModify(CaloTPGTranscoder, FG_HF_thresholds = cms.vuint32(17, 12))
-pp_on_AA_2018.toModify(HcalTPGCoderULUT, FG_HF_thresholds = cms.vuint32(17, 12))
+pp_on_AA_2018.toModify(CaloTPGTranscoder, FG_HF_thresholds = cms.vuint32(15, 19))
+pp_on_AA_2018.toModify(HcalTPGCoderULUT, FG_HF_thresholds = cms.vuint32(15, 19))
