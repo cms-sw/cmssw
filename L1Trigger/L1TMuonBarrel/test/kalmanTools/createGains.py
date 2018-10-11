@@ -6,12 +6,17 @@ ROOT.FWLiteEnabler.enable()
 def getBit(q,i):
     return ((1<<i) & q)>>i
 
-
 def fetchKMTF(event,etaMax=0.83,chi2=800000,dxyCut=100000):
-    kmtfH  = Handle('vector<L1MuKBMTrack>')
+    kmtfH  = Handle('BXVector<L1MuKBMTrack>')
     event.getByLabel('simKBmtfDigis',kmtfH)
-    kmtf=filter(lambda x: abs(x.eta())<etaMax and x.approxChi2()<chi2 and abs(x.dxy())<dxyCut,kmtfH.product())
-    return sorted(kmtf,key=lambda x: x.pt(),reverse=True)
+    kmtf=kmtfH.product()
+    out=[]
+    for bx in [0]:
+        for j in range(0,kmtf.size(bx)):
+            mu =  kmtf.at(bx,j)
+            if abs(mu.eta())<etaMax and mu.approxChi2()<chi2 and abs(mu.dxy())<dxyCut:
+                out.append(mu)
+    return sorted(out,key=lambda x: x.pt(),reverse=True)
 
 ####Save the Kalman Gains for LUTs
 kalmanGain={}

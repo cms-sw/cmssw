@@ -6,14 +6,13 @@ ROOT.FWLiteEnabler.enable()
 
 
 
-verbose=False
-tag='singleMuonOfficial'
-isData=False
+#verbose=False
+#tag='singleMuonOfficial'
+#isData=False
 
-#tag='zerobias'
+tag='zerobias'
 #tag='zskim'
-#isData=True
-
+isData=True
 
 
 
@@ -28,13 +27,17 @@ class BMTFMuon:
     def quality(self):
         return self.muon.hwQual()
 
+    def phiINT(self):
+        return self.muon.hwPhi()
+
+    def processor(self):
+        return self.muon.processor()
+
     def hasFineEta(self):
         return self.muon.hwHF()
 
-
     def ptUnconstrained(self):
         return self.muon.hwPt2()
-
 
     def dxy(self):
         return self.muon.hwDXY()
@@ -45,14 +48,17 @@ class BMTFMuon:
         else:
             return +1 
 
-
     def __getattr__(self, name):
         return getattr(self.p4,name)
 
 
 ###Common methods############
 
-
+def getQual(track):
+    q=0
+    for stub in track.stubs():
+        q+=stub.quality()
+    return q;    
 
 
 def fetchTP(event,etaMax=0.83):
@@ -63,7 +69,7 @@ def fetchTP(event,etaMax=0.83):
     event.getByLabel('hltTriggerSummaryAOD','','HLT',tH)
     event.getByLabel('muons',mH)
 
-    muons=filter( lambda x: x.passed(ROOT.reco.Muon.CutBasedIdMediumPrompt) and x.numberOfMatches()>1 and x.pt()>10.0 and abs(x.eta())<2.4 and x.isolationR03().sumPt/x.pt()<0.1,mH.product())
+    muons=filter( lambda x: x.passed(ROOT.reco.Muon.CutBasedIdMediumPrompt) and x.numberOfMatches()>1 and x.pt()>10.0 and abs(x.eta())<2.4 and x.isolationR03().sumPt/x.pt()<0.15,mH.product())
     if len(muons)<2:
         return []
     trigger=tH.product()
@@ -81,27 +87,29 @@ def fetchTP(event,etaMax=0.83):
     if len(hlt)==0:
         return []
 
-    triggered=hlt[0]
-    tag=None
-    probe=None
-
-    tags = filter(lambda x: deltaR(x.eta(),x.phi(),triggered.eta(),triggered.phi())<0.3 and x.pt()>25.0,muons)
+    tags =[]
+    for x in muons:
+        for triggered in hlt:
+            if deltaR(x.eta(),x.phi(),triggered.eta(),triggered.phi())<0.3 and x.pt()>25:
+                tags.append(x)
+                break
     if len(tags)==0:
         return []
-    tag = min(muons,key=lambda x: deltaR(x.eta(),x.phi(),triggered.eta(),triggered.phi()))
-    muons.remove(tag)
-        
-    for mu in muons:
-        if deltaR(mu.eta(),mu.phi(),tag.eta(),tag.phi())>1.0:
-            if deltaR(mu.eta(),mu.phi(),triggered.eta(),triggered.phi())>1.0:
-                if abs(mu.eta())<etaMax:
-                    probe = mu
-                    break
 
-    if probe!=None:
-        return [probe]
-    else:
-        return []
+
+    probes=[]
+    for mu in muons:
+        isProbe=False
+        for tag in tags:
+            if deltaR(mu.eta(),mu.phi(),tag.eta(),tag.phi())>1.0:
+                if abs(mu.eta())<etaMax:
+                    isProbe=True
+                    break
+        if isProbe:
+            probes.append(mu)
+        
+
+    return probes
 
 
 
@@ -170,6 +178,15 @@ def globalBMTFPhi(muon,calib=None):
 
     return temp;
 
+
+def rawPhi(muon):
+    temp=muon.processor()*48+muon.hwPhi()
+    temp=temp*2*math.pi/576.0-math.pi*15.0/180.0;
+    if temp>math.pi:
+        temp=temp-2*math.pi;
+    return temp;
+
+
 def fetchBMTF(event,isData,etaMax=1.2):
     bmtfH  = Handle  ('BXVector<l1t::RegionalMuonCand>')
     if isData:
@@ -183,20 +200,21 @@ def fetchBMTF(event,isData,etaMax=1.2):
         for j in range(0,bmtf.size(bx)):
             mu = bmtf.at(bx,j)
             pt = mu.hwPt()*0.5
-            #calibration
             K=1.0/pt
-#            K = 1.146*K-0.271*K*K+6.199e-4
-
+            K=1.181*K/(1+0.4867*K)
             pt=1.0/K
             ####          
             phi=globalBMTFPhi(mu,'BMTF')
+            rawP = rawPhi(mu)
             eta = mu.hwEta()*0.010875           
             if abs(eta)<=etaMax:
-                bmtfMuons.append(BMTFMuon(mu,pt,eta,phi))
+                b = BMTFMuon(mu,pt,eta,phi)
+                b.rawPhi=rawP
+                bmtfMuons.append(b)
     return sorted(bmtfMuons,key=lambda x: x.pt(),reverse=True)
 
 
-def fetchKMTFNew(event,etaMax=1.2):
+def fetchKMTFNew(event,etaMax=1.2,saturate=True):
     kbmtfH  = Handle  ('BXVector<l1t::RegionalMuonCand>')
     event.getByLabel('simKBmtfDigis:BMTF',kbmtfH)
     kbmtf=kbmtfH.product()
@@ -204,18 +222,19 @@ def fetchKMTFNew(event,etaMax=1.2):
     for bx in [0]:
         for j in range(0,kbmtf.size(bx)):
             mu = kbmtf.at(bx,j)
-            pt = mu.hwPt()*0.5
-
-#            if pt!=0:
-#                K=1.0/pt
-#                K=0.932*K+0.182*K*K-4.826e-4
-#                pt=1.0/K
-            if pt>128.0:
-                pt=128.0
+            pt =mu.hwPt()*0.5
+            K=1.0/pt
+            K=1.14*K
+            pt=1.0/K
+            if pt>140.0 and saturate:
+                pt=140.0
             phi=globalBMTFPhi(mu,'KMTF')
+            rawP = rawPhi(mu)
             eta = mu.hwEta()*0.010875           
             if abs(eta)<=etaMax:
-                kbmtfMuons.append(BMTFMuon(mu,pt,eta,phi))
+                b = BMTFMuon(mu,pt,eta,phi)
+                b.rawPhi=rawP
+                kbmtfMuons.append(b)
     return sorted(kbmtfMuons,key=lambda x: x.pt(),reverse=True)
 
 
@@ -231,24 +250,26 @@ def lsBIT(bits=14):
 
 #import pdb;pdb.set_trace()
 
-def fetchKMTF(event,etaMax=0.83,chi2=800000,dxyCut=100000):
-    kmtfH  = Handle('vector<L1MuKBMTrack>')
+def fetchKMTF(event,etaMax=0.83,patterns=[],comps=[],chis=[],pts=[]):
+    kmtfH  = Handle('BXVector<L1MuKBMTrack>')
     event.getByLabel('simKBmtfDigis',kmtfH)
-    kmtf=filter(lambda x: abs(x.eta())<etaMax and x.approxChi2()<chi2 and abs(x.dxy())<dxyCut,kmtfH.product())
-#    for k in kmtf:
-#        K=1.0/k.pt()
-#        if K<0.14:
-#            K=0.967*K+0.756*K*K
-#        else:
-#            K=1.4*K-2.45*K*K
-#        pt=1.0/K
-#        k.setPtEtaPhi(pt,k.eta(),k.phi(),1)
-        
-#    kmtf=filter(lambda x: abs(x.eta())<etaMax and x.approxChi2()<chi2,kmtfH.product())
-    return sorted(kmtf,key=lambda x: x.pt(),reverse=True)
+    kmtf=kmtfH.product()
+    out=[]
+    for bx in [0]:
+        for j in range(0,kmtf.size(bx)):
+            mu =  kmtf.at(bx,j)
+            if abs(mu.eta())<etaMax:
+                veto=False
+                for pattern,comp,chi,pt in zip(patterns,comps,chis,pts):
+                    if mu.hitPattern()==p and mu.pt()>pt and (mu.trackCompatibility()>comp or mu.approxChi2()>chi):
+                        veto=True
+                        break;
+                if not veto:    
+                    out.append(mu)
+    return sorted(out,key=lambda x: x.pt(),reverse=True)
 
-def curvResidual(a,b):
-    return (a.charge()/a.pt()-b.charge()/b.pt())*b.pt()/b.charge()
+def curvResidual(a,b,factor=1.0):
+    return (a.charge()/a.pt()-factor*b.charge()/b.pt())*b.pt()/(factor*b.charge())
 
 def ptResidual(a,b):
     return (a.pt()-b.pt())/b.pt()
@@ -277,22 +298,25 @@ def deltaR2( e1, p1, e2, p2):
     return de*de + dp*dp
 
 
-def log(counter,mystubs,gen,kmtf,bmtf):   
+def log(counter,mystubs,gen,kmtfFull,kmtf,bmtf):   
     print "--------EVENT"+str(counter)+"------------"
     print "-----------------------------"
     print "-----------------------------"
     print 'Stubs:'
     for stub in mystubs:
-        print 'wheel={w} sector={sc} station={st} high/low={ts} phi={phi} phiB={phiB} qual={qual} BX={BX} eta1={eta1} eta2={eta2}'.format(w=stub.whNum(),sc=stub.scNum(),st=stub.stNum(),ts=stub.tag(),phi=stub.phi(),phiB=8*stub.phiB(),qual=stub.quality(),BX=stub.bxNum(),eta1=stub.eta1(),eta2=stub.eta2())
+        print 'wheel={w} sector={sc} station={st} high/low={ts} phi={phi} phiB={phiB} qual={qual} BX={BX} eta1={eta1} eta2={eta2}'.format(w=stub.whNum(),sc=stub.scNum(),st=stub.stNum(),ts=stub.tag(),phi=stub.phi(),phiB=stub.phiB(),qual=stub.quality(),BX=stub.bxNum(),eta1=stub.eta1(),eta2=stub.eta2())
     print 'Gen muons:'
     for g in gen:
         print "Generated muon charge={q} pt={pt} eta={eta} phi={phi}".format(q=g.charge(),pt=g.pt(),eta=g.eta(),phi=g.phi())
     print 'BMTF:'
     for g in bmtf :
-        print "BMTF charge={q} pt={pt} eta={eta} phi={phi} qual={qual} dxy={dxy} pt2={pt2} hasFineEta={HF}".format(q=g.charge(),pt=g.pt(),eta=g.eta(),phi=g.phi(),qual=g.quality(),dxy=g.dxy(),pt2=g.ptUnconstrained(),HF=g.hasFineEta())
+        print "BMTF sector={sector} charge={q} pt={pt} eta={eta} phi={phi} qual={qual} dxy={dxy} pt2={pt2} hasFineEta={HF} rawPhi={hwPHI}".format(sector=g.processor(),q=g.charge(),pt=g.pt(),eta=g.eta(),phi=g.phi(),qual=g.quality(),dxy=g.dxy(),pt2=g.ptUnconstrained(),HF=g.hasFineEta(),hwPHI=g.phiINT())
     print 'KMTF:'
     for g in kmtf :
-        print "KMTF charge={q} pt={pt} eta={eta} phi={phi} qual={qual} dxy={dxy} pt2={pt2} hasFineEta={HF}".format(q=g.charge(),pt=g.pt(),eta=g.eta(),phi=g.phi(),qual=g.quality(),dxy=g.dxy(),pt2=g.ptUnconstrained(),HF=g.hasFineEta())
+        print "KMTF sector={sector} charge={q} pt={pt} eta={eta} phi={phi} qual={qual} dxy={dxy} pt2={pt2} hasFineEta={HF} rawPhi={hwPHI}".format(sector=g.processor(),q=g.charge(),pt=g.pt(),eta=g.eta(),phi=g.phi(),qual=g.quality(),dxy=g.dxy(),pt2=g.ptUnconstrained(),HF=g.hasFineEta(),hwPHI=g.phiINT())
+    print 'KMTF Full:'
+    for g in kmtfFull :
+        print "KMTF charge={q} pt={pt} ptSTA={PTSTA} eta={eta} phi={phi} pattern={pattern} chi={chi1} comp={comp}".format(q=g.charge(),pt=g.pt(),PTSTA=g.ptUnconstrained(),eta=g.eta(),phi=g.phi(),pattern=g.hitPattern(),chi1=g.approxChi2(),comp=g.trackCompatibility() )
 
 
 
@@ -303,18 +327,47 @@ def log(counter,mystubs,gen,kmtf,bmtf):
     import pdb;pdb.set_trace()
 
 #########Histograms#############
+resKMTF = ROOT.TH2D("resKMTF","resKF",50,3,103,60,-2,2)
 
-resKMTF = ROOT.TH2D("resKMTF","resKF",25,0,100,60,-2,2)
+
+resKMTFTrack={}
+for i in [0,3,5,6,7,9,10,11,12,13,14,15]:
+    resKMTFTrack[i]=ROOT.TH2D("resKMTFTrack_"+str(i),"resKF",70,3,143,60,-2,2)
+
+
+
+chiMatched={}
+trackComp={}
+trackCompAll={}
+chiAll={}
+
+for i in [0,3,5,6,7,9,10,11,12,13,14,15]:
+    chiMatched[i] = ROOT.TH2D("chiMatched_"+str(i),"resKF",32,0,1024,64,0,256)
+    trackComp[i] = ROOT.TH2D("trackComp_"+str(i),"resKF",32,0,1024,100,0,100)
+    trackCompAll[i] = ROOT.TH2D("trackCompAll_"+str(i),"resKF",20,0,1024,100,0,100)
+    chiAll[i] = ROOT.TH2D("chiAll_"+str(i),"resKF",32,0,1024,64,0,256)
+
+
+
+quality = ROOT.TH1D("quality","resKF",24,0,24)
+
+resKMTFEta = ROOT.TH2D("resKMTFEta","resKF",8,0,0.8,60,-2,2)
+
 resSTAKMTF = ROOT.TH2D("resSTAKMTF","resKF",100,0,100,100,-8,8)
-resBMTF = ROOT.TH2D("resBMTF","resKF",25,0,100,60,-2,2)
+resBMTF = ROOT.TH2D("resBMTF","resKF",50,3,103,60,-2,2)
+resBMTFEta = ROOT.TH2D("resBMTFEta","resKF",8,0,0.8,60,-2,2)
+
 resPTKMTF = ROOT.TH2D("resPTKMTF","resKF",100,0,100,60,-2,2)
 resPTBMTF = ROOT.TH2D("resPTBMTF","resKF",100,0,100,60,-2,2)
 resEtaKMTF = ROOT.TH2D("resEtaKMTF","resKF",5,-1.2,1.2,50,-20.5*0.010875,20.5*0.010875)
 resEtaBMTF = ROOT.TH2D("resEtaBMTF","resKF",5,-1.2,1.2,50,-20.5*0.010875,20.5*0.010875)
 
 
-resPhiKMTF = ROOT.TH2D("resPhiKMTF","resKF",50,0,100,250,-0.5,0.5)
-resPhiBMTF = ROOT.TH2D("resPhiBMTF","resKF",50,0,100,250,-0.5,0.5)
+resPhiKMTF = ROOT.TH2D("resPhiKMTF","resKF",50,3,103,250,-0.5,0.5)
+phiCalibKMTF = ROOT.TH2D("phiCalibKMTF","resKF",100,-1.0/3.2,1.0/3.2,101,-0.5,0.5)
+phiCalibBMTF = ROOT.TH2D("phiCalibBMTF","resKF",100,-1.0/3.2,1.0/3.2,101,-0.5,0.5)
+
+resPhiBMTF = ROOT.TH2D("resPhiBMTF","resKF",50,3,103,250,-0.5,0.5)
 resRBMTF = ROOT.TH1D("resRBMTF","resKF",250,0,8)
 resRKMTF = ROOT.TH1D("resRKMTF","resKF",250,0,8)
 
@@ -328,27 +381,42 @@ genPt=ROOT.TH1F("genPt","genPt",50,0,100)
 PTThresholds=[0,5,7,10,15,25,30]
 genPtKMTF={}
 genPtBMTF={}
+genEtaKMTF={}
+genEtaBMTF={}
+
+etaArr=[]
+for i in range(0,21):
+    etaArr.append(-0.833+ 2*0.833*i/20.0)
+
 
 for p in PTThresholds:
     genPtKMTF[p]=ROOT.TH1F("genPtKMTF_"+str(p),"genPt",50,0,100)
     genPtBMTF[p]=ROOT.TH1F("genPtBMTF_"+str(p),"genPt",50,0,100)
+    genEtaKMTF[p]=ROOT.TH1F("genEtaKMTF"+str(p),"genPt",len(etaArr)-1,array('f',etaArr))
+    genEtaBMTF[p]=ROOT.TH1F("genEtaBMTF"+str(p),"genEta",len(etaArr)-1,array('f',etaArr))
 
 
 
-kfCalib = ROOT.TH2D("kfCalib","resKF",100,1.0/100.0,1.0/3.0,100,0,10)
-bmtfCalib = ROOT.TH2D("bmtfCalib","resKF",100,1.0/100.0,1.0/3.0,100,0,10)
+kfCalibPlus={}
+kfCalibMinus={}
+ratePerTrack={}
+for track in [3,5,6,7,9,10,11,12,13,14,15]:
+    kfCalibPlus[track] = ROOT.TH2D("kfCalibPlus_"+str(track),"resKF",560,3.2,143.2,100,0,10)
+    kfCalibMinus[track] = ROOT.TH2D("kfCalibMinus_"+str(track),"resKF",560,3.2,143.2,100,0,10)
+    ratePerTrack[track] = ROOT.TH1F("ratePerTrack_"+str(track),"rateKMTF",20,2.5,102.5)
+
+kfCalib = ROOT.TH2D("kfCalib","resKF",560,3.2,143.2,100,0,10)
+bmtfCalib = ROOT.TH2D("bmtfCalib","resKF",280,0.,140,100,0,10)
+
+
+
 
 
 #etaArr = [-0.8,-0.5,-0.3,-0.15,0.0,0.15,0.3,0.5,0.8]
 
-etaArr=[]
-for i in range(0,51):
-    etaArr.append(-0.833+ 2*0.833*i/50.0)
 
 
 genEta=ROOT.TH1F("genEta","genEta",len(etaArr)-1,array('f',etaArr))
-genEtaKMTF=ROOT.TH1F("genEtaKMTF","genPt",len(etaArr)-1,array('f',etaArr))
-genEtaBMTF=ROOT.TH1F("genEtaBMTF","genEta",len(etaArr)-1,array('f',etaArr))
 
 genPhi=ROOT.TH1F("genPhi","genEta",50,-math.pi,math.pi)
 genPhiKMTF=ROOT.TH1F("genPhiKMTF","genPt",50,-math.pi,math.pi)
@@ -358,13 +426,14 @@ genPhiBMTF=ROOT.TH1F("genPhiBMTF","genEta",50,-math.pi,math.pi)
 qualityKMTF = ROOT.TH1F("qualityKMTF","quality",16,0,16)
 qualityBMTF = ROOT.TH1F("qualityBMTF","quality",16,0,16)
 
-dxyKMTF = ROOT.TH1F("dxyKMTF","chiBest",32,0,32)
+dxyKMTF = ROOT.TH1F("dxyKMTF","chiBest",4,0,4)
 
 etaBMTF = ROOT.TH1F("etaBMTF","rateBMTF",24,-1.2,1.2)
 etaKMTF = ROOT.TH1F("etaKMTF","rateKMTF",24,-1.2,1.2)
 
-rateBMTF = ROOT.TH1F("rateBMTF","rateBMTF",20,2.5,102.5)
-rateKMTF = ROOT.TH1F("rateKMTF","rateKMTF",20,2.5,102.5)
+rateBMTF = ROOT.TH1F("rateBMTF","rateBMTF",50,0,50)
+rateKMTF = ROOT.TH1F("rateKMTF","rateKMTF",50,0,50)
+
 
 
 rateBMTFp7 = ROOT.TH1F("rateBMTFp7","rateBMTF",20,2.5,102.5)
@@ -374,6 +443,10 @@ rateKMTFp7 = ROOT.TH1F("rateKMTFp7","rateKMTF",20,2.5,102.5)
 
 
 events=Events([tag+'.root'])
+
+
+
+
 counter=-1
 for event in events:
     counter=counter+1
@@ -405,7 +478,11 @@ for event in events:
 
     #fetch gen
     if isData:
-        gen=fetchTP(event,0.83)
+        if tag=="zerobias" or tag=="output":
+            gen=[]
+        else:
+            gen=fetchTP(event,0.83)
+
     else:
         gen  = fetchGEN(event,0.83)
 #        bmtf = []
@@ -413,8 +490,12 @@ for event in events:
 
     #fetch kalman (prompt)
     kmtf = fetchKMTFNew(event,1.5)
-#   bmtf = fetchBMTF(event,isData,1.5)
-    bmtf=[]
+    bmtf = fetchBMTF(event,isData,1.5)
+#    bmtf=[]
+
+    #fetch detailed kalman
+    kmtfFull = fetchKMTF(event,1.5)
+
 
 #    for g in gen:
 #        print 'GEN', g.pt(),g.eta(),g.phi() 
@@ -422,8 +503,14 @@ for event in events:
 #    for k in kmtf:
 #        print 'L1', k.pt(),k.eta(),k.phi() 
 
+#    log(counter,stubs,gen,kmtfFull,kmtf,bmtf)
 
+    
+    for track in kmtfFull:
+        chiAll[track.hitPattern()].Fill(abs(track.curvatureAtVertex()),track.approxChi2())
+        trackCompAll[track.hitPattern()].Fill(abs(track.curvatureAtVertex()),min(track.trackCompatibility(),99.5));
 
+        quality.Fill(getQual(track))
 
     for track in kmtf:
         dxyKMTF.Fill(abs(track.dxy()))
@@ -433,95 +520,111 @@ for event in events:
 
     if len(kmtf)>0:   
         PT=kmtf[0].pt()        
-        if kmtf[0].pt()>102.4:
-            PT=102.4
+        if kmtf[0].pt()>49.99:
+            PT=49.99
             
         if abs(kmtf[0].eta())<0.7:
             rateKMTFp7.Fill(PT)
 
         rateKMTF.Fill(PT)
+        
+    if len(kmtfFull)>0:   
+        
+        PT=kmtfFull[0].pt()        
+        if kmtfFull[0].pt()>49.99:
+            PT=49.99
+        ratePerTrack[kmtfFull[0].hitPattern()].Fill(PT)
+
 
     for track in bmtf:
         qualityBMTF.Fill(track.quality())
-        etaKMTF.Fill(track.eta())
+        etaBMTF.Fill(track.eta())
         fineEtaBMTF.Fill(track.hasFineEta())
 
     if (len(bmtf)>0):    
         PT=bmtf[0].pt()        
-        if bmtf[0].pt()>102.4:
-            PT=102.4           
+        if bmtf[0].pt()>49.99:
+            PT=49.99           
         if abs(bmtf[0].eta())<0.7:
             rateBMTFp7.Fill(PT)
         rateBMTF.Fill(PT)
 
+#    if ( len(kmtfFull)>0)  and (kmtfFull[0].pt()>50):
+#        log(counter,stubs,gen,kmtfFull,kmtf,bmtf)
+   
+
+#    if (len(kmtf)>0 and kmtf[0].pt()>20) and  (len(bmtf)==0 or (len(bmtf)>0 and bmtf[0].pt()<10)):
+#        log(counter,stubs,gen,kmtfFull,kmtf,bmtf)
 
 
-
+#    log(counter,stubs,gen,kmtfFull,kmtf,bmtf)
 
     ##loop on gen and fill resolutuion and efficiencies
     for g in gen:
         if abs(g.eta())>0.83:
             continue
+        gK=g.charge()/g.pt()
+        genPhiAt2 = g.phi()-2.675*gK;
+
         genPt.Fill(g.pt())
         ##the eta efficiency we want at the plateau to see strucuture
-        if g.pt()>27.0:
+        if g.pt()>40.0:
             genEta.Fill(g.eta())
             genPhi.Fill(g.phi())
 
         #match *(loosely because we still use coarse eta)
-#        matchedBMTF = filter(lambda x: deltaR(g.eta(),g.phi(),x.eta(),x.phi())<0.3,bmtf) 
-#        matchedKMTF = filter(lambda x: deltaR(g.eta(),g.phi(),x.eta(),x.phi())<0.3,kmtf) 
+        matchedBMTF = filter(lambda x: deltaR(g.eta(),g.phi(),x.eta(),x.phi())<0.3,bmtf) 
+        matchedKMTF = filter(lambda x: deltaR(g.eta(),g.phi(),x.eta(),x.phi())<0.3,kmtf) 
+        matchedKMTFFull = filter(lambda x: deltaR(g.eta(),g.phi(),x.eta(),x.phi())<0.3,kmtfFull) 
 
-        matchedBMTF = filter(lambda x: abs(deltaPhi(g.phi(),x.phi()))<1.3,bmtf) 
-        matchedKMTF = filter(lambda x: abs(deltaPhi(g.phi(),x.phi()))<1.3,kmtf) 
-
-#        if len(matchedKMTF)==0:
-#            log(counter,stubs,gen,kmtf,bmtf)
+#        matchedBMTF = filter(lambda x: abs(deltaPhi(g.phi(),x.phi()))<2.5,bmtf) 
+#        matchedKMTF = filter(lambda x: abs(deltaPhi(g.phi(),x.phi()))<2.5,kmtf) 
+#        matchedKMTFFull = filter(lambda x: abs(deltaPhi(g.phi(),x.phi()))<2.5,kmtfFull) 
 
 
-#        if len(matchedKMTF)==0:
-#            log(counter,stubs,gen,kmtf,bmtf)
 
 
         bestBMTF=None        
         if len(matchedBMTF)>0:
-            bestBMTF = min(matchedBMTF,key = lambda x:  abs(curvResidual(x,g)))  
+            bestBMTF = max(matchedBMTF,key = lambda x:  x.quality()*1000+x.pt())
             resBMTF.Fill(g.pt(),curvResidual(bestBMTF,g))
+            resBMTFEta.Fill(abs(g.eta()),curvResidual(bestBMTF,g))
 
             resPTBMTF.Fill(g.pt(),ptResidual(bestBMTF,g))
             resEtaBMTF.Fill(g.eta(),bestBMTF.eta()-g.eta())
-            resPhiBMTF.Fill(g.pt(),bestBMTF.phi()-g.phi())
+            resPhiBMTF.Fill(g.pt(),bestBMTF.rawPhi-genPhiAt2)
+            if g.pt()<140:
+                phiCalibBMTF.Fill(g.charge()/g.pt(),bestBMTF.rawPhi-g.phi())
             resRBMTF.Fill(deltaR(g.eta(),g.phi(),bestBMTF.eta(),bestBMTF.phi()))
-            bmtfCalib.Fill(1.0/bestBMTF.pt(),bestBMTF.pt()/g.pt())
-
-            if g.pt()>27 and bestBMTF.pt()>15:
-                genEtaBMTF.Fill(g.eta())
-                genPhiBMTF.Fill(g.phi())
-
+            bmtfCalib.Fill(bestBMTF.pt(),bestBMTF.pt()/g.pt())
+                
             # for the turn on , first cut on pt and then match    
             for threshold in PTThresholds:
                 filteredBMTF = filter(lambda x: x.pt()>=float(threshold),matchedBMTF)
                 if len(filteredBMTF)>0:
                     genPtBMTF[threshold].Fill(g.pt())
-
-            
+                    if g.pt()>40:
+                        genEtaBMTF[threshold].Fill(g.eta())
+           
 
         bestKMTF=None        
         if len(matchedKMTF)>0:
-            bestKMTF = min(matchedKMTF,key = lambda x:  abs(curvResidual(x,g)))  
+            bestKMTF = max(matchedKMTF,key = lambda x:  1000*x.quality()+x.pt())
 
-#            if g.pt()>50 and bestKMTF.pt()<10:
-#                log(counter,stubs,gen,kmtf,bmtf)
+
             resKMTF.Fill(g.pt(),curvResidual(bestKMTF,g))
+            resKMTFEta.Fill(abs(g.eta()),curvResidual(bestKMTF,g))
             resSTAKMTF.Fill(g.pt(),curvResidualSTA(bestKMTF,g))
             resPTKMTF.Fill(g.pt(),ptResidual(bestKMTF,g))
 
 
             
             resEtaKMTF.Fill(g.eta(),bestKMTF.eta()-g.eta())
-            resPhiKMTF.Fill(g.pt(),bestKMTF.phi()-g.phi())
+            resPhiKMTF.Fill(g.pt(),bestKMTF.rawPhi-genPhiAt2)
+            if g.pt()<140:
+                phiCalibKMTF.Fill(g.charge()/g.pt(),bestKMTF.rawPhi-g.phi())
+
             resRKMTF.Fill(deltaR(g.eta(),g.phi(),bestKMTF.eta(),bestKMTF.phi()))
-            kfCalib.Fill(1.0/bestKMTF.pt(),bestKMTF.pt()/g.pt())
             K = bestKMTF.charge()/bestKMTF.pt()
             if K==0:
                 K=1;
@@ -534,23 +637,32 @@ for event in events:
 #                    for i in range(0,7):
 #                        d.append(s.position(i))
 #                    print s.bxNum(),s.scNum(), s.whNum(), s.stNum(),d    
-#                log(counter,stubs,gen,kmtf,bmtf)
+
 
          
 
 #            if abs(curvResidual(bestKMTF,g))>2.:
-            if g.pt()>27 and bestKMTF.pt()>15:
-                genEtaKMTF.Fill(g.eta())
-                genPhiKMTF.Fill(g.phi())
 
                 
             for threshold in PTThresholds:
                 filteredKMTF = filter(lambda x: x.pt()>=float(threshold),matchedKMTF)
                 if len(filteredKMTF)>0:
                     genPtKMTF[threshold].Fill(g.pt())
+                if len(filteredKMTF)>0 and g.pt()>40:
+                    genEtaKMTF[threshold].Fill(g.eta())
                         
-        if bestKMTF==None and bestBMTF!=None and g.pt()<4:
-            log(counter,stubs,gen,kmtf,bmtf)
+#        if (bestKMTF==None or (bestKMTF!=None and bestKMTF.pt()<15))  and bestBMTF!=None and  g.pt()>30 and abs(g.eta())>0.15 and abs(g.eta())<0.32:
+#            log(counter,stubs,gen,kmtfFull,kmtf,bmtf)
+
+#        if bestKMTF!=None  and bestBMTF!=None and g.pt()>30 and abs(g.eta())>0.15 and abs(g.eta())<0.3 and bestKMTF.pt()<25 and bestBMTF.pt()>25:
+#            print 'Residual Kalman=',abs(genPhiAt2-bestKMTF.rawPhi),'raw=',bestKMTF.rawPhi,'int=',bestKMTF.phiINT()
+#            print 'Residual BMTF=',abs(genPhiAt2-bestBMTF.rawPhi),'raw=',bestBMTF.rawPhi,'int=',bestBMTF.phiINT()
+#            log(counter,stubs,gen,kmtfFull,kmtf,bmtf)
+
+#        if bestKMTF!=None  and g.pt()<5 and  curvResidual(bestKMTF,g)>0.2:
+#            log(counter,stubs,gen,kmtfFull,kmtf,bmtf)
+
+
 #        if bestKMTF!=None and bestBMTF!=None and abs(bestKMTF.eta()-g.eta())>abs(bestBMTF.eta()-g.eta()):
 #            print 'Input Theta stubs'
 #            for s in stubsOLDTheta:
@@ -566,6 +678,30 @@ for event in events:
 #                print s.whNum(),s.scNum(),s.stNum(),s.eta1(),s.eta2(),s.qeta1(),s.qeta2()
 #            import pdb;pdb.set_trace()
 
+        if len(matchedKMTFFull)>0:
+            bestKMTFFull = max(matchedKMTFFull,key = lambda x: x.rank()*1000+x.pt())  
+            chiMatched[bestKMTFFull.hitPattern()].Fill(abs(bestKMTFFull.curvatureAtVertex()),bestKMTFFull.approxChi2());
+            trackComp[bestKMTFFull.hitPattern()].Fill(abs(bestKMTFFull.curvatureAtVertex()),min(bestKMTFFull.trackCompatibility(),99.5));
+
+                   
+            resKMTFTrack[bestKMTFFull.hitPattern()].Fill(g.pt(),curvResidual(bestKMTFFull,g))
+            resKMTFTrack[0].Fill(g.pt(),curvResidual(bestKMTFFull,g))
+            if bestKMTFFull.charge()>0:
+                kfCalibPlus[bestKMTFFull.hitPattern()].Fill(bestKMTFFull.pt(),bestKMTFFull.pt()/g.pt())
+            else:
+                kfCalibMinus[bestKMTFFull.hitPattern()].Fill(bestKMTFFull.pt(),bestKMTFFull.pt()/g.pt())
+            kfCalib.Fill(bestKMTFFull.pt(),bestKMTFFull.pt()/g.pt())
+
+
+
+
+
+         
+
+
+
+                        
+
 
         
         
@@ -575,16 +711,29 @@ f=ROOT.TFile("results_"+tag+".root","RECREATE")
 
 
 
+quality.Write()
+
+
 resKMTF.Write()     
+for n,t in resKMTFTrack.iteritems():
+    t.Write()
+    
+resKMTFEta.Write()     
 resSTAKMTF.Write()     
 resPTKMTF.Write()     
 resBMTF.Write()
+resBMTFEta.Write()
 resPTBMTF.Write()
 resEtaKMTF.Write()     
 resEtaBMTF.Write()     
 resPhiKMTF.Write()     
 resRKMTF.Write()     
 resPhiBMTF.Write()     
+
+phiCalibBMTF.Write()
+phiCalibKMTF.Write()
+
+
 resRBMTF.Write()     
 #bmtfCalib.Write()
 #kfCalib.Write()
@@ -593,26 +742,32 @@ genPt.Write()
 for p in PTThresholds:
     genPtKMTF[p].Write()
     genPtBMTF[p].Write()
+    genEtaKMTF[p].Write()
+    genEtaBMTF[p].Write()
+
     kmtfEff = ROOT.TGraphAsymmErrors(genPtKMTF[p],genPt)
     kmtfEff.Write("efficiencyVsPtKMTF"+str(p))
     bmtfEff = ROOT.TGraphAsymmErrors(genPtBMTF[p],genPt)
     bmtfEff.Write("efficiencyVsPtBMTF"+str(p))
 
+    kmtfEff = ROOT.TGraphAsymmErrors(genEtaKMTF[p],genEta)
+    kmtfEff.Write("efficiencyVsEtaKMTF"+str(p))
+    bmtfEff = ROOT.TGraphAsymmErrors(genEtaBMTF[p],genEta)
+    bmtfEff.Write("efficiencyVsEtaBMTF"+str(p))
 
 
 
-kmtfEffEta = ROOT.TGraphAsymmErrors(genEtaKMTF,genEta)
-kmtfEffEta.Write("efficiencyVsEtaKMTF")
+    genPtKMTF[p].Add(genPtBMTF[p],-1)
+    genPtKMTF[p].Divide(genPt)
+    genPtKMTF[p].Write("efficiencyDiffVsPt"+str(p))
+    
+    genEtaKMTF[p].Add(genEtaBMTF[p],-1)
+    genEtaKMTF[p].Divide(genEta)
+    genEtaKMTF[p].Write("efficiencyDiffVsEta"+str(p))
 
-bmtfEffEta = ROOT.TGraphAsymmErrors(genEtaBMTF,genEta)
-bmtfEffEta.Write("efficiencyVsEtaBMTF")
 
 
-kmtfEffPhi = ROOT.TGraphAsymmErrors(genPhiKMTF,genPhi)
-kmtfEffPhi.Write("efficiencyVsPhiKMTF")
 
-bmtfEffPhi = ROOT.TGraphAsymmErrors(genPhiBMTF,genPhi)
-bmtfEffPhi.Write("efficiencyVsPhiBMTF")
 
 etaKMTF.Write()
 etaBMTF.Write()
@@ -630,12 +785,28 @@ c.SetLineWidth(3)
 c.SetLineColor(ROOT.kBlack)
 c.Write("normRateBMTF")     
 
+for track in kfCalibPlus.keys():
+    kfCalibPlus[track].Write()
+    kfCalibMinus[track].Write()
+    ratePerTrack[track].Write()
+    chiMatched[track].Write()
+    chiAll[track].Write()
+    trackComp[track].Write()
+    trackCompAll[track].Write()
+
 kfCalib.Write()
+
 bmtfCalib.Write()
 
 rateKMTF.Write()      
 c = rateKMTF.GetCumulative(False)
 c.Write("normRateKMTF")     
+
+
+d = rateBMTF.GetCumulative(False)
+d.Divide(c)
+d.Write("rateRatioBMTFoverKMTF")
+
 
 rateBMTFp7.Write()      
 c = rateBMTFp7.GetCumulative(False)
