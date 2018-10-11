@@ -121,6 +121,7 @@ _hgcal_RawToDigi += hgcalDigis
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith(RawToDigi,_hgcal_RawToDigi)
 
-_hgcal_RawToDigi += hfnoseDigis
+_hfnose_RawToDigi = _RawToDigi.copy()
+_hfnose_RawToDigi += hfnoseDigis
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
-phase2_hfnose.toReplaceWith(RawToDigi,_hgcal_RawToDigi)
+phase2_hfnose.toReplaceWith(RawToDigi,_hfnose_RawToDigi)
