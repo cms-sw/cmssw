@@ -315,7 +315,6 @@ void HcaluLUTTPGCoder::make_cosh_ieta_map(void) {
 
 void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
     
-    HcalCalibrations calibrations;
     const HcalLutMetadata *metadata = conditions.getHcalLutMetadata();
     assert(metadata !=nullptr);
     float nominalgain_ = metadata->getNominalGain();
