@@ -1,16 +1,14 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Whatever")
 
-#process.load('Configuration.Geometry.GeometryExtended2016Reco_cff')
 process.load("Configuration.StandardSequences.GeometryDB_cff")  # load from DB
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
-print("Using GlobalTag: %s" % process.GlobalTag.globaltag.value())
+print "Using GlobalTag: %s" % process.GlobalTag.globaltag.value()
 
 # Fake alignment is/should be ideal geometry
 # ==========================================
@@ -26,7 +24,7 @@ process.analyzer1 = cms.EDAnalyzer("MakeCoordLUT",
     verbosity = cms.untracked.int32(1),
 
     # Output diectory
-    outdir = cms.string("./"),
+    outdir = cms.string("./pc_luts/firmware_MC/"),
 
     # Produce "validate.root" to validate the LUTs
     please_validate = cms.bool(True),
