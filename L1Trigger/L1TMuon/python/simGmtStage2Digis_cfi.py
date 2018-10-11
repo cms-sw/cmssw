@@ -7,7 +7,7 @@ simGmtCaloSumDigis = cms.EDProducer('L1TMuonCaloSumProducer',
 )
 
 simGmtStage2Digis = cms.EDProducer('L1TMuonProducer',
-    barrelTFInput  = cms.InputTag("simBmtfDigis", "BMTF"),
+    barrelTFInput  = cms.InputTag("simKBmtfDigis", "BMTF"),
     overlapTFInput = cms.InputTag("simOmtfDigis", "OMTF"),
     forwardTFInput = cms.InputTag("simEmtfDigis", "EMTF"),
     #triggerTowerInput = cms.InputTag("simGmtCaloSumDigis", "TriggerTower2x2s"),

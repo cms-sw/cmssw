@@ -99,14 +99,6 @@ from L1Trigger.VertexFinder.VertexProducer_cff import *
 
 phase2_SimL1Emulator += VertexProducer
 
-# Kalman Barrel MTF
-# ########################################################################
-from L1Trigger.L1TMuonBarrel.simKBmtfStubs_cfi import *
-from L1Trigger.L1TMuonBarrel.simKBmtfDigis_cfi import *
-
-phase2_SimL1Emulator += simKBmtfStubs
-phase2_SimL1Emulator += simKBmtfDigis
-
 # Barrel EGamma
 # ########################################################################
 from L1Trigger.L1CaloTrigger.l1EGammaCrystalsProducer_cfi import *
