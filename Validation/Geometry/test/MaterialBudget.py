@@ -18,16 +18,19 @@ from collections import namedtuple, OrderedDict
 import sys, os
 import argparse
 
-def paramsGood_(detector, plot):
+def paramsGood_(detector, plot, geometryOld = '', geometryNew = ''):
     """Check the validity of the arguments.
 
        Common function to check the validity of the parameters passed
        in. It returns a tuple composed by a bool and a string. The
-       bool indicates if all checks are ok, the string the name of the
-       appropriate ROOT file to open (empty string in case the any
-       check failed)
+       bool indicates if all checks are ok, the string the appropriate
+       ROOT filename to open (empty string in case any check failed)
+       If geometry comparison is being made, a list of strings is
+       returned instead.
 
     """
+
+    theFiles = []
 
     if plot not in plots.keys():
         print("Error, unknown plot %s" % plot)
@@ -37,16 +40,26 @@ def paramsGood_(detector, plot):
         print('Error, unknown detector: %s' % detector)
         return (False, '')
 
-    theDetectorFilename = ''
-    if detector in DETECTORS:
-        theDetectorFilename = 'matbdg_%s.root' % detector
-    else:
-        theDetectorFilename = 'matbdg_%s.root' % COMPOUNDS[detector][0]
+    if detector not in DETECTORS:
+        detector = COMPOUNDS[detector][0]
 
-    if not checkFile_(theDetectorFilename):
-        print("Error, missing file %s" % theDetectorFilename)
-        raise RuntimeError
-    return (True, theDetectorFilename)
+    if geometryNew:
+        oldgeoFilename = 'matbdg_%s_%s.root' % (detector,geometryOld)
+        theFiles.append(oldgeoFilename)
+        newgeoFilename = 'matbdg_%s_%s.root' % (detector,geometryNew)
+        theFiles.append(newgeoFilename)
+    else:
+        theFiles.append('matbdg_%s_%s.root' % (detector,geometryOld))
+
+    for thisFile in theFiles:
+        if not checkFile_(thisFile):
+            print("Error, missing file %s" % thisFile)
+            raise RuntimeError
+
+    if len(theFiles) >  1:
+        return (True, theFiles)
+    else:
+        return (True, theFiles[0])
 
 def checkFile_(filename):
     return os.path.exists(filename)
@@ -70,7 +83,7 @@ def assignOrAddIfExists_(h, p):
         h.Add(p.ProjectionX("B_%s" % h.GetName()), +1.000)
     return h
 
-def createPlots_(plot):
+def createPlots_(plot, geometry):
     """Cumulative material budget from simulation.
     
        Internal function that will produce a cumulative profile of the
@@ -97,7 +110,7 @@ def createPlots_(plot):
     hist_X0_elements = OrderedDict()
     prof_X0_elements = OrderedDict()
     for subDetector,color in six.iteritems(DETECTORS):
-        subDetectorFilename = "matbdg_%s.root" % subDetector
+        subDetectorFilename = "matbdg_%s_%s.root" % (subDetector,geometry)
         if not checkFile_(subDetectorFilename):
             print("Error opening file: %s" % subDetectorFilename)
             continue
@@ -303,7 +316,7 @@ def createPlotsReco_(reco_file, label, debug=False):
     c.SaveAs("RadLen_difference_%s.png" % label)
     return cumulative_matbdg
 
-def materialBudget_Simul_vs_Reco(reco_file, label, debug=False):
+def materialBudget_Simul_vs_Reco(reco_file, label, geometry, debug=False):
     """Plot reco vs simulation material budget.
     
        Function are produces a direct comparison of the material
@@ -315,7 +328,7 @@ def materialBudget_Simul_vs_Reco(reco_file, label, debug=False):
     setTDRStyle()
 
     # plots
-    cumulative_matbdg_sim = createPlots_("x_vs_eta")
+    cumulative_matbdg_sim = createPlots_("x_vs_eta", geometry)
     cumulative_matbdg_rec = createPlotsReco_(reco_file, label, debug=False)
 
     cc = TCanvas("cc", "cc", 1024, 1024)
@@ -335,7 +348,7 @@ def materialBudget_Simul_vs_Reco(reco_file, label, debug=False):
     filename = "MaterialBdg_Reco_vs_Simul_%s.png" % label
     cc.SaveAs(filename)
 
-def createCompoundPlots(detector, plot):
+def createCompoundPlots(detector, plot, geometry):
     """Produce the requested plot for the specified detector.
 
        Function that will plot the requested @plot for the specified
@@ -349,7 +362,7 @@ def createCompoundPlots(detector, plot):
     if not checkFile_(theDirname):
         os.mkdir(theDirname)
 
-    goodToGo, theDetectorFilename = paramsGood_(detector, plot)
+    goodToGo, theDetectorFilename = paramsGood_(detector, plot, geometry)
     if not goodToGo:
         return
 
@@ -368,10 +381,11 @@ def createCompoundPlots(detector, plot):
     files = []
     if detector in COMPOUNDS.keys():
         for subDetector in COMPOUNDS[detector][1:]:
-            subDetectorFilename = "matbdg_%s.root" % subDetector
+            subDetectorFilename = "matbdg_%s_%s.root" % (subDetector,geometry)
 
             # open file
             if not checkFile_(subDetectorFilename):
+                print('Error: %s not found' % subDetectorFilename)
                 continue
 
             subDetectorFile = TFile(subDetectorFilename)
@@ -414,7 +428,7 @@ def createCompoundPlots(detector, plot):
     can.SaveAs( "%s/%s_%s.png" % (theDirname, detector, plot))
 
 
-def create2DPlots(detector, plot):
+def create2DPlots(detector, plot, geometry):
     """Produce the requested plot for the specified detector.
 
        Function that will plot the requested 2D-@plot for the
@@ -428,7 +442,7 @@ def create2DPlots(detector, plot):
     if not checkFile_(theDirname):
         os.mkdir(theDirname)
 
-    goodToGo, theDetectorFilename = paramsGood_(detector, plot)
+    goodToGo, theDetectorFilename = paramsGood_(detector, plot, geometry)
     if not goodToGo:
         return
 
@@ -446,7 +460,7 @@ def create2DPlots(detector, plot):
     if detector in COMPOUNDS.keys():
         for subDetector in COMPOUNDS[detector][1:]:
             # filenames of single components
-            subDetectorFilename = "matbdg_%s.root" % subDetector
+            subDetectorFilename = "matbdg_%s_%s.root" % (subDetector,geometry)
 
             # open file
             if not checkFile_(subDetectorFilename):
@@ -557,7 +571,7 @@ def create2DPlots(detector, plot):
     can2.SaveAs( "%s/%s_%s_bw.png" % (theDirname, detector, plot))
     gStyle.SetStripDecimals(True)
 
-def createRatioPlots(detector, plot):
+def createRatioPlots(detector, plot, geometry):
     """Create ratio plots.
 
        Function that will make the ratio between the radiation length
@@ -567,7 +581,7 @@ def createRatioPlots(detector, plot):
 
     """
 
-    goodToGo, theDetectorFilename = paramsGood_(detector, plot)
+    goodToGo, theDetectorFilename = paramsGood_(detector, plot, geometry)
     if not goodToGo:
         return
 
@@ -588,7 +602,7 @@ def createRatioPlots(detector, plot):
         for subDetector in COMPOUNDS[detector][1:]:
 
             # file name
-            subDetectorFilename = "matbdg_%s.root" % subDetector
+            subDetectorFilename = "matbdg_%s_%s.root" % (subDetector,geometry)
 
             # open file
             if not checkFile_(subDetectorFilename):
@@ -648,7 +662,23 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--detector',
                         help='Detector for which you want to compute the material budget',
                         type=str,)
+    parser.add_argument('-g', '--geometry',
+                        help='Geometry, used to determine filenames',
+                        type=str)
+    parser.add_argument('-gc', '--geometry-comparison',
+                        help='Compare the material budget for two different geometries'
+                        +'-g should be specied',
+                        type=str)
     args = parser.parse_args()
+
+
+    if args.geometry is None:
+        print("Error, missing geometry")
+        raise RuntimeError
+
+    if args.geometry_comparison and args.geometry is None:
+        print("Error, geometry comparison requires two geometries")
+        raise RuntimeError
 
     if args.compare and args.single:
         print("Error, too many actions required")
@@ -661,7 +691,7 @@ if __name__ == '__main__':
         if args.label is None:
             print("Error, missing label")
             raise RuntimeError
-        materialBudget_Simul_vs_Reco(args.reco, args.label, debug=False)
+        materialBudget_Simul_vs_Reco(args.reco, args.label, args.geometry, debug=False)
 
     if args.single:
         if args.detector is None:
@@ -674,8 +704,8 @@ if __name__ == '__main__':
         required_ratio_plots = ["x_over_l_vs_eta", "x_over_l_vs_phi"]
 
         for p in required_2Dplots:
-            create2DPlots(args.detector, p)
+            create2DPlots(args.detector, p, args.geometry)
         for p in required_plots:
-            createCompoundPlots(args.detector, p)
+            createCompoundPlots(args.detector, p, args.geometry)
         for p in required_ratio_plots:
-            createRatioPlots(args.detector, p)
+            createRatioPlots(args.detector, p, args.geometry)
