@@ -65,10 +65,7 @@ class HGCalTriggerTools {
     std::vector<T> bxVectorToVector(const BXVector<T>& inputBXVector){    
       std::vector<T> outputVector;     
       //loop over collection for a given bx and put the objects into a std::vector
-      for( typename std::vector<T>::const_iterator it = inputBXVector.begin(0) ; it != inputBXVector.end(0) ; ++it )
-      { 
-        outputVector.push_back(*it); 
-      }
+      outputVector.insert(outputVector.end(), inputBXVector.begin(0), inputBXVector.end(0));
       return outputVector;
     }
 
