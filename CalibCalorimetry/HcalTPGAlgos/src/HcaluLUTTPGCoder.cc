@@ -41,7 +41,7 @@ HcaluLUTTPGCoder::HcaluLUTTPGCoder() :
   topo_{},
   delay_{},
   LUTGenerationMode_{},
-  FG_HF_threshold_{},
+  FG_HF_thresholds_{},
   bitToMask_{},
   firstHBEta_{},
   lastHBEta_{},
@@ -75,7 +75,7 @@ void HcaluLUTTPGCoder::init(const HcalTopology* top, const HcalTimeSlew* delay) 
   topo_ = top;
   delay_ = delay;
   LUTGenerationMode_ = true;
-  FG_HF_threshold_ = 0;
+  FG_HF_thresholds_ = {0, 0};
   bitToMask_ = 0;
   allLinear_ = false;
   linearLSB_QIE8_ = 1.;

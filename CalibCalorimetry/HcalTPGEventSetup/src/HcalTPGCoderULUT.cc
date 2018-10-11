@@ -117,7 +117,6 @@ void HcalTPGCoderULUT::buildCoder(const HcalTopology* topo, const edm::ESHandle<
     theCoder->setAllLinear(linearLUTs_, linearLSB_QIE8_, linearLSB_QIE11_, linearLSB_QIE11Overlap_);
     theCoder->setLUTGenerationMode(LUTGenerationMode_);
     theCoder->setMaskBit(maskBit_);
-    theCoder->setFGHFthreshold(FG_HF_threshold_);
     theCoder->setFGHFthresholds(FG_HF_thresholds_);
   }
 }
