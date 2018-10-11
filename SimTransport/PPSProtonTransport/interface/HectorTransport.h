@@ -12,10 +12,6 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include <CLHEP/Units/GlobalSystemOfUnits.h>
-#include <CLHEP/Units/GlobalPhysicalConstants.h>
-#include <CLHEP/Random/RandGauss.h>
-#include <CLHEP/Vector/LorentzVector.h>
 
 #include <TMath.h>
 #include <TMatrixT.h>
@@ -33,9 +29,6 @@
 #include "HepMC/GenVertex.h"
 #include "HepMC/GenParticle.h"
 #include "HepMC/SimpleVector.h"
-//Hector headers
-#include "H_BeamLine.h"
-#include "H_BeamParticle.h"
 
 // user include files
 #include <vector>
@@ -44,8 +37,14 @@
 #include <cmath>
 #include <tuple>
 
+namespace CLHEP
+{
+    class HepLorentzVector;
+    class HepRandomEngine;
+}
 
-//class TRandom3;
+class H_BeamParticle;
+class H_BeamLine;
 
 class HectorTransport: public ProtonTransport {
       public:
@@ -93,8 +92,8 @@ class HectorTransport: public ProtonTransport {
               std::unique_ptr<H_BeamLine> m_beamline45;
               std::unique_ptr<H_BeamLine> m_beamline56;
 
-              string beam1filename;
-              string beam2filename;
+              std::string beam1filename;
+              std::string beam2filename;
 
 };
 #endif

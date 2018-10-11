@@ -25,12 +25,7 @@
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "Utilities/PPS/interface/PPSUnitConversion.h"
-//#include "FastSimulation/CTPPSSimHitProducer/plugins/FastCTPPSParameters.h"
 
-//CLHEP
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include <CLHEP/Vector/LorentzVector.h>
 #include "Utilities/PPS/interface/PPSUtilities.h"
 
 //C++ library
@@ -44,21 +39,23 @@
 #include <utility>
 #include <cmath>
 
-// hector includes
-#include "H_Parameters.h"
-#include "H_BeamLine.h"
-#include "H_RecRPObject.h"
-#include "H_BeamParticle.h"
-
 #include "DataFormats/Math/interface/Vector.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
 
+
 //
 // class declaration
 //
+class H_BeamParticle;
+class H_RecRPObject;
+class H_BeamLine;
 
+namespace CLHEP
+{
+     class HepLorentzVector;
+}
 class CTPPSFastTrackingProducer : public edm::stream::EDProducer<> {
     public:
         explicit CTPPSFastTrackingProducer(const edm::ParameterSet&);
@@ -81,7 +78,7 @@ class CTPPSFastTrackingProducer : public edm::stream::EDProducer<> {
         void FastReco(int Direction,H_RecRPObject* station);
         void Reconstruction();	
         void ReconstructArm(H_RecRPObject* pps_station, double x1,double y1,double x2,double y2, double& tx, double& ty,double& eloss);
-        void MatchCellId(int cellId, vector<int> vrecCellId, vector<double> vrecTof, bool& match, double& recTof);
+        void MatchCellId(int cellId, std::vector<int> vrecCellId, std::vector<double> vrecTof, bool& match, double& recTof);
         bool SearchTrack(int ,int ,int Direction,double& xi,double& t,double& partP,double& pt,double& thx,double& thy,
                         double& x0,double& y0, double& xt, double& yt, double& X1d, double& Y1d, double& X2d, double& Y2d);
         void TrackerStationClear();
@@ -99,8 +96,8 @@ class CTPPSFastTrackingProducer : public edm::stream::EDProducer<> {
         std::unique_ptr<H_RecRPObject> pps_stationF;
         std::unique_ptr<H_RecRPObject> pps_stationB;
 
-        string beam1filename;
-        string beam2filename;
+        std::string beam1filename;
+        std::string beam2filename;
 
         // Defaults
         double lengthctpps ;

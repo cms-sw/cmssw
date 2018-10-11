@@ -1,5 +1,13 @@
 #include "SimTransport/PPSProtonTransport/interface/HectorTransport.h"
 #include "Utilities/PPS/interface/PPSUtilities.h"
+#include <CLHEP/Units/GlobalSystemOfUnits.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
+#include <CLHEP/Random/RandGauss.h>
+#include <CLHEP/Vector/LorentzVector.h>
+//Hector headers
+#include "H_BeamLine.h"
+#include "H_BeamParticle.h"
+
 
 HectorTransport::HectorTransport(){};
 
@@ -17,7 +25,7 @@ HectorTransport::HectorTransport(const edm::ParameterSet & param, bool verbosity
    fBeamEnergy          = hector_par.getParameter<double>("BeamEnergy"); // beam energy in GeV
    fEtacut              = hector_par.getParameter<double>("EtaCutForHector");
    fMomentumMin         = hector_par.getParameter<double>("MomentumMin");
-   fBeamMomentum        = sqrt(fBeamEnergy*fBeamEnergy - pow(CLHEP::proton_mass_c2/GeV,2));
+   fBeamMomentum        = sqrt(fBeamEnergy*fBeamEnergy - PPSTools::ProtonMassSQ);
 
     // User definitons
     lengthctpps     = hector_par.getParameter<double>("BeamLineLengthPPS" );
@@ -203,8 +211,6 @@ bool HectorTransport::SetBeamLine()
         m_beamline45->fill( b2.fullPath(), 1, "IP5");
         m_beamline56 = std::unique_ptr<H_BeamLine>(new H_BeamLine( 1, lengthctpps + 0.1 )); //
         m_beamline56->fill( b1.fullPath(), 1, "IP5");
-        //m_beamline45->offsetElements( 120, 0.097 );
-        //m_beamline56->offsetElements( 120, 0.097 );
     }
     else {
         if ( m_verbosity ) LogDebug("HectorTransportSetup") << "HectorTransport: WARNING: lengthctpps=  " << lengthctpps;

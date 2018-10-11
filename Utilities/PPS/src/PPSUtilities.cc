@@ -8,8 +8,8 @@ CLHEP::HepLorentzVector PPSTools::HectorParticle2LorentzVector(H_BeamParticle hp
      double partP = sqrt(pow(hp.getE(),2)-ProtonMassSQ);
      double theta = sqrt(pow(hp.getTX(),2)+pow(hp.getTY(),2))*urad;
      double pz = partP*cos(theta);
-     double px = tan((double)hp.getTX()*urad)*pz;//PartP*sin(theta)*cos(phi);
-     double py = tan((double)hp.getTY()*urad)*pz;//partP*sin(theta)*sin(phi);
+     double px = tan((double)hp.getTX()*urad)*pz;//it is equivalente to PartP*sin(theta)*cos(phi);
+     double py = tan((double)hp.getTY()*urad)*pz;//it is equivalente to partP*sin(theta)*sin(phi);
      pz*=direction;
      return CLHEP::HepLorentzVector(px,py,pz,hp.getE());
 }

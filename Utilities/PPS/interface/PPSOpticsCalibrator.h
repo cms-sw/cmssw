@@ -15,12 +15,14 @@
 #include <fstream>
 #include <cmath>
 #include <cstdio>
-#include "H_BeamParticle.h"
-#include "H_BeamLine.h"
 #include <tuple>
 #include <string>       // std::string
 #include <iostream>     // std::cout
 #include <sstream>      // std::stringstream, std::stringbuf
+
+class H_BeamParticle;
+class H_BeamLine;
+class H_OpticalElement;
 
 class PPSOpticsCalibrator {
 public:

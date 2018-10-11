@@ -11,13 +11,16 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-//#include "CLHEP/Random/RandGauss.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 
 #include <unordered_map>
 #include <array>
 
+namespace CLHEP
+{
+    class HepRandomEngine;
+}
 class TotemTransport: public ProtonTransport {
       public:
              TotemTransport(const edm::ParameterSet & ps, bool verbosity);

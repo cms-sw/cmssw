@@ -2,20 +2,19 @@
 #define PROTONTRANSPORT
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "HepMC/GenEvent.h"
-#include "CLHEP/Random/RandGauss.h"
-#include <CLHEP/Vector/LorentzVector.h>
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Utilities/PPS/interface/PPSUnitConversion.h"
-
 #include "SimDataFormats/Forward/interface/LHCTransportLink.h"
 #include <vector>
 #include <map>
 
+namespace CLHEP
+{
+    class HepRandomEngine;
+    class HepLorentzVector;
+}
 class ProtonTransport {
       public:
-            //ProtonTransport(const edm::ParameterSet & ps, bool verbosity);
             ProtonTransport();
             virtual ~ProtonTransport();
             std::vector<LHCTransportLink>& getCorrespondenceMap() { return theCorrespondenceMap; }
@@ -23,9 +22,7 @@ class ProtonTransport {
             void ApplyBeamCorrection(HepMC::GenParticle* p);
             void ApplyBeamCorrection(CLHEP::HepLorentzVector& p);
             void addPartToHepMC( HepMC::GenEvent * );
-            void clear() { for (std::map<unsigned int,CLHEP::HepLorentzVector* >::iterator it = m_beamPart.begin(); it != m_beamPart.end(); ++it ) delete (*it).second;
-                               m_beamPart.clear(); m_xAtTrPoint.clear(); m_yAtTrPoint.clear();
-                         };
+            void clear();
 
       protected:
             enum transport_mode {HECTOR,TOTEM};

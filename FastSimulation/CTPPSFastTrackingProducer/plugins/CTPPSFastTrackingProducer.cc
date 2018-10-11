@@ -22,9 +22,15 @@ Implementation:
 
 // user include files
 #include "FastSimulation/CTPPSFastTrackingProducer/interface/CTPPSFastTrackingProducer.h"
-//using namespace edm;
 #include "Utilities/PPS/interface/PPSUtilities.h"
-
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include <CLHEP/Vector/LorentzVector.h>
+// hector includes
+#include "H_Parameters.h"
+#include "H_BeamLine.h"
+#include "H_RecRPObject.h"
+#include "H_BeamParticle.h"
 //////////////////////
 // constructors and destructor
 //
@@ -283,7 +289,7 @@ void CTPPSFastTrackingProducer::ReconstructArm(H_RecRPObject* pps_station, doubl
     eloss = pps_station->getE();
 }
 
-void CTPPSFastTrackingProducer::MatchCellId(int cellId, vector<int> vrecCellId, vector<double> vrecTof, bool& match, double& recTof){
+void CTPPSFastTrackingProducer::MatchCellId(int cellId, std::vector<int> vrecCellId, std::vector<double> vrecTof, bool& match, double& recTof){
     for (unsigned int i = 0 ; i < vrecCellId.size(); i++){
         if(cellId == vrecCellId.at(i)) {
             match = true;

@@ -1,8 +1,19 @@
 #include "SimTransport/PPSProtonTransport/interface/ProtonTransport.h"
 #include "Utilities/PPS/interface/PPSUnitConversion.h"
+#include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Vector/LorentzVector.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+
 
 ProtonTransport::ProtonTransport() {};
 ProtonTransport::~ProtonTransport() {};
+void ProtonTransport::clear()
+{
+     for (std::map<unsigned int,CLHEP::HepLorentzVector* >::iterator it = m_beamPart.begin(); it != m_beamPart.end(); ++it ) delete (*it).second;
+     m_beamPart.clear(); m_xAtTrPoint.clear(); m_yAtTrPoint.clear();
+};
+
 void ProtonTransport::addPartToHepMC( HepMC::GenEvent * evt )
 {
     NEvent++;

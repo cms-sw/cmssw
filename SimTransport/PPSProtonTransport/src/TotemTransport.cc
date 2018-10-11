@@ -1,5 +1,10 @@
 #include "SimTransport/PPSProtonTransport/interface/TotemTransport.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include <CLHEP/Units/GlobalSystemOfUnits.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
+#include <CLHEP/Random/RandGauss.h>
+#include <CLHEP/Vector/LorentzVector.h>
+
 #include <cmath>
 
 TotemTransport::TotemTransport():ProtonTransport(){MODE=TOTEM;};
@@ -35,7 +40,7 @@ TotemTransport::TotemTransport(const edm::ParameterSet & iConfig, bool verbosity
 
         MODE = TOTEM;
 
-        fBeamMomentum        = sqrt(fBeamEnergy*fBeamEnergy - pow(proton_mass_c2/GeV,2));
+        fBeamMomentum        = sqrt(fBeamEnergy*fBeamEnergy - ProtonMassSQ);
 
         fPPSRegionStart_56=model_ip_150_r_zmax;
         fPPSRegionStart_45=model_ip_150_l_zmax;
@@ -57,7 +62,6 @@ void TotemTransport::process(const HepMC::GenEvent * evt , const edm::EventSetup
 
         for (HepMC::GenEvent::particle_const_iterator eventParticle =evt->particles_begin(); eventParticle != evt->particles_end(); ++eventParticle ) {
          if (!((*eventParticle)->status() == 1 && (*eventParticle)->pdg_id()==2212 )) continue;
-         //if (!(fabs((*eventParticle)->momentum().eta())>fEtacut && fabs((*eventParticle)->momentum().pz())>fMomentumMin)) continue;
          unsigned int line = (*eventParticle)->barcode();
          HepMC::GenParticle * gpart = (*eventParticle);
          if ( gpart->pdg_id()!=2212 ) continue; // only transport stable protons
@@ -82,7 +86,6 @@ bool TotemTransport::transportProton( const HepMC::GenParticle* in_trk)
      double in_position[3] = {(in_pos->position().x()-fVtxMeanX*cm) / meter+fBeamXatIP*mm/meter,
                               (in_pos->position().y()-fVtxMeanY*cm) / meter+fBeamYatIP*mm/meter,
                               (in_pos->position().z()-fVtxMeanZ*cm) / meter};  // move to z=0 if configured below
-                              //(in_pos->position().y()-fVtxMeanY*cm) / meter+fBeamYatIP*mm/meter, Zin_};  // CHECK! starting Z was at 0
 
 // (bApplyZShift) -- The TOTEM parameterization requires the shift to z=0
      double fCrossingAngle = (in_mom.z()>0)?fCrossingAngle_45:-fCrossingAngle_56;
@@ -122,11 +125,10 @@ bool TotemTransport::transportProton( const HepMC::GenParticle* in_trk)
     CLHEP::Hep3Vector out_mom(out_momentum[0], out_momentum[1], out_momentum[2]);
     edm::LogInfo("TotemRPProtonTransportModel") << "output -> " <<
     "position: " << out_pos << " momentum: " << out_mom << std::endl;
-    //int Direction = (in_mom.z()>0)?1:-1;
      double px = -out_momentum[0];
      double py = out_momentum[1];  // this need to be checked again, since it seems an invertion is occuring in  the prop.
      double pz = out_momentum[2];
-     double e = sqrt(px*px+py*py+pz*pz+pow(CLHEP::proton_mass_c2/GeV,2));
+     double e = sqrt(px*px+py*py+pz*pz+ProtonMassSQ);
      CLHEP::HepLorentzVector* p_out = new CLHEP::HepLorentzVector(px,py,pz,e);
      double x1_ctpps = -out_position[0]*meter; // Totem parameterization uses meter, one need it in millimeter
      double y1_ctpps = -out_position[1]*meter;

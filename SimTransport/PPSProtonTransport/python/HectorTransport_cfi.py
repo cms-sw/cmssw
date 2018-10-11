@@ -5,7 +5,7 @@ from SimG4Core.Application.hectorParameter_cfi import *
 from SimTransport.PPSProtonTransport.HectorOpticsParameters_cfi import *
 
 LHCTransport = cms.EDProducer("PPSSimTrackProducer",
-    HepMCProductLabel = cms.string('generatorSmeared'),  ## HepMC source to be processed
+    HepMCProductLabel = cms.InputTag('generatorSmeared'),  ## HepMC source to be processed
     Verbosity = cms.bool(False),
     TransportMethod = cms.string('Hector'),
     #VtxMeanX        = cms.double(0.),

@@ -24,8 +24,8 @@ double fCrossingAngleBeam2;
 double fBeamMomentum;
 double fBeamEnergy;
 const double   urad     = 1./1000000.; 
-static const double ProtonMass=CLHEP::proton_mass_c2/GeV;
-static const double ProtonMassSQ=pow(ProtonMass,2);
+const double ProtonMass=CLHEP::proton_mass_c2/GeV;
+const double ProtonMassSQ=pow(ProtonMass,2);
 
 CLHEP::HepLorentzVector HectorParticle2LorentzVector(H_BeamParticle hp,int );
 

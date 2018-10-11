@@ -2,7 +2,10 @@
 #include "Utilities/PPS/interface/PPSUnitConversion.h"
 #include <TEllipse.h>
 #include <iomanip>
-//using namespace std;
+#include "H_BeamParticle.h"
+#include "H_BeamLine.h"
+#include "H_OpticalElement.h"
+
 int main(int argc, char** argv)
 {
     int Nevents = 1000000;
@@ -38,18 +41,6 @@ int main(int argc, char** argv)
     po::notify(vm);    
 
     if (vm.count("help")) { std::cout << desc << "\n"; return 1; }
-
-    //if (vm.count("Nevents")) Nevents=vm["Nevents"].as<int>();
-    //else {std::cout << "Give the number of events: "; std::cin >> Nevents;}
-
-    //if (vm.count("BeamL")) BeamL=vm["BeamL"].as<int>();
-    //else {std::cout << "Beam line length not given. Using default 250 m"<<std::endl;}
-
-    //if (vm.count("BeamE")) BeamE=vm["BeamE"].as<int>();
-    //else {std::cout << "Beam line energy not given. Using default 6500 GeV"<<std::endl;}
-
-    //if (vm.count("output")) FileName = vm["output"].as<std::string>();
-    //if (FileName=="") {std::cout << "Output file name not given. Results will not be saved." << std::endl;}
 
     if (vm.count("Beam1"))  Beam1FileName = vm["Beam1"].as<std::string>();
     else {std::cout << "Give the beam 1 filename : "; std::cin >> Beam1FileName;}
@@ -136,9 +127,7 @@ void PPSOpticsCalibrator::AlignBeamLine()
             if (opt->getTypeString().find("Drift")<opt->getTypeString().length()) continue;
             if (name[0]=='"') name=name.substr(1,name.length());
             if (name[name.length()-1]=='"') name=name.substr(0,name.length()-1);
-            //if (opt->getK()!=0) AlignObject(opt,beamline,.005);
             beamline->alignElement(opt->getName(),0.1,0.1);
-            //beamline->tiltElement(opt->getName(),0.01,0.001);
             std::cout << "Verifying the alingment"<< std::endl;
             H_BeamParticle h_p;
             h_p.setPosition(fBeamXatIP*mm_to_um,fBeamYatIP*mm_to_um,0.,0.,0.);
@@ -162,8 +151,6 @@ void PPSOpticsCalibrator::CalibrateBeamPositionatIP(double& xpos,double& ypos)
      xpos=fBeamYatIP;
      double sigx_target=0.001;
      double sigy_target=0.001;
-     //double min_deltax=1e-4;
-     //double min_deltay=1e-4;
 //
      double sigx = 0.;
      double sigy = 0.;
@@ -239,32 +226,26 @@ void PPSOpticsCalibrator::CalibrateBeamPositionatIP(double& xpos,double& ypos)
         h_pp.resetPath();
         h_pn.resetPath();
      }
-     //if (m_verbosity){
-        //LogDebug("PPSHector::BeamPositionCalibration") 
-          std::cout <<std::right<< std::setw(10) << std::setprecision(6) << std::fixed 
-               << "Interaction number " << nInteractions << "\tX = " << xpos << " (mm) \tSigmaX = " << sigx_min << "\tDeltaX = " << deltax << "\n"
-               << "                   "                  << "\tY = " << ypos << " (mm) \tSigmaY = " << sigy_min << "\tDeltaY = " << deltay << "\n"
-               << "Calibrated beam positions: (in mm)\n"
-               << " Z (m)   \t X (twiss) \t X (calib) \t Y (twiss) \t Y (calib) \t Delta X \t Delta Y\n";
-        for(unsigned int i=0;i<BdistP.size();i++) {
-            //LogDebug("PPSHector::BeamPositionCalibration")
-                std::cout << std::setw(10) << std::setprecision(6) << std::fixed
-                <<  std::get<0>(BdistP.at(i))<< " \t "<< std::get<1>(PosP.at(i))<< " \t "<< std::get<1>(BdistP.at(i))
-                                              << " \t "<< std::get<2>(PosP.at(i))<< " \t " << std::get<2>(BdistP.at(i))
-                                              << " \t "<< std::get<1>(BdistP.at(i))-std::get<1>(PosP.at(i))
-                                              << " \t "<< std::get<2>(BdistP.at(i))-std::get<2>(PosP.at(i))
-                                              << "\n";
-        }
-        for(unsigned int i=0;i<BdistN.size();i++) {
-           //LogDebug("PPSHector::BeamPositionCalibration")
-                std::cout
-                 << -std::get<0>(BdistN.at(i))<< " \t "<<std::get<1>(PosN.at(i)) << " \t "<< std::get<1>(BdistN.at(i))
+     std::cout <<std::right<< std::setw(10) << std::setprecision(6) << std::fixed 
+             << "Interaction number " << nInteractions << "\tX = " << xpos << " (mm) \tSigmaX = " << sigx_min << "\tDeltaX = " << deltax << "\n"
+             << "                   "                  << "\tY = " << ypos << " (mm) \tSigmaY = " << sigy_min << "\tDeltaY = " << deltay << "\n"
+             << "Calibrated beam positions: (in mm)\n"
+             << " Z (m)   \t X (twiss) \t X (calib) \t Y (twiss) \t Y (calib) \t Delta X \t Delta Y\n";
+     for(unsigned int i=0;i<BdistP.size();i++) {
+             std::cout << std::setw(10) << std::setprecision(6) << std::fixed
+                     <<  std::get<0>(BdistP.at(i))<< " \t "<< std::get<1>(PosP.at(i))<< " \t "<< std::get<1>(BdistP.at(i))
+                     << " \t "<< std::get<2>(PosP.at(i))<< " \t " << std::get<2>(BdistP.at(i))
+                     << " \t "<< std::get<1>(BdistP.at(i))-std::get<1>(PosP.at(i))
+                     << " \t "<< std::get<2>(BdistP.at(i))-std::get<2>(PosP.at(i))
+                     << "\n";
+     }
+     for(unsigned int i=0;i<BdistN.size();i++) {
+             std::cout << -std::get<0>(BdistN.at(i))<< " \t "<<std::get<1>(PosN.at(i)) << " \t "<< std::get<1>(BdistN.at(i))
                                               << " \t "<<std::get<2>(PosN.at(i)) << " \t "<<std::get<2>(BdistN.at(i))
                                               << " \t "<<std::get<1>(BdistN.at(i))-std::get<1>(PosN.at(i))
                                               << " \t "<<std::get<2>(BdistN.at(i))-std::get<2>(PosN.at(i))
                                               << "\n";
-        }
-     //}
+     }
      fBeamXatIP=xpos;
      fBeamYatIP=ypos;
      return;
@@ -376,7 +357,6 @@ void PPSOpticsCalibrator::BeamProfile(TFile* fout,int Nevents)
      double _beamX_Det3_b    = bp3b->GetMean(1); double _beamY_Det3_b    = bp3b->GetMean(2);
      double _beamSigX_Det3_b = bp3b->GetRMS(1);  double _beamSigY_Det3_b = bp3b->GetRMS(2);
 
-     //LogDebug("PPSHector::BeamProfile")
      std::cout <<std::right<<std::setw(10) << std::setprecision(1) << std::fixed;
      std::cout << "HectorForPPS: BEAM parameters (in um):\n" 
              << "Beam position at Det1 positive side --> " << _beamX_Det1_f << "("<< _beamSigX_Det1_f<<"),\t"<< _beamY_Det1_f << "("<< _beamSigY_Det1_f<<")\n"
@@ -443,7 +423,7 @@ void PPSOpticsCalibrator::ReadParameterIndex(std::ifstream& tabfile)
            if (temp_string.find("NAME")<temp_string.length()) {
               curstring.str(temp_string);
               std::string header;
-              while(curstring.good()) { //curstring >> headers[N_col]; if(headers[N_col]!="*") N_col++;}
+              while(curstring.good()) { 
                    curstring >> header;
                    if (header=="*") continue; // skip first field
                    N_col++;
@@ -554,10 +534,8 @@ void PPSOpticsCalibrator::AlignObject(H_OpticalElement* opt,H_BeamLine* bline,do
          double delta_min=delta;
          double last_delta=delta;
          double displacement=init_displacement;
-         //displacement=delta;
          double TotDisplacement=0.;
          while(delta>tolerance) {
-              //double diff = opt->getRelX()-h_p.getX();
               switch (OptElementType(opt->getTypeString())) {
                       case Quadrupole:
                                switch(i) {
@@ -574,7 +552,6 @@ void PPSOpticsCalibrator::AlignObject(H_OpticalElement* opt,H_BeamLine* bline,do
                                }
                                TotDisplacement+=displacement;
                                break;
-                               //bline->tiltElement(opt->getName(),displacement,0);TotDisplacement+=displacement;
                       case Dipole:
                       default: return;
                }
