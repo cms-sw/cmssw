@@ -13,22 +13,22 @@
 class HcalDetId : public DetId {
 
 public:
-  static const uint32_t kHcalPhiMask1       = 0x7F;
-  static const uint32_t kHcalPhiMask2       = 0x3FF;
-  static const uint32_t kHcalEtaOffset1     = 7;
-  static const uint32_t kHcalEtaOffset2     = 10;
-  static const uint32_t kHcalEtaMask1       = 0x3F;
-  static const uint32_t kHcalEtaMask2       = 0x1FF;
-  static const uint32_t kHcalZsideMask1     = 0x2000;
-  static const uint32_t kHcalZsideMask2     = 0x80000;
-  static const uint32_t kHcalDepthOffset1   = 14;
-  static const uint32_t kHcalDepthOffset2   = 20;
-  static const uint32_t kHcalDepthMask1     = 0x1F;
-  static const uint32_t kHcalDepthMask2     = 0xF;
-  static const uint32_t kHcalDepthSet1      = 0x1C000;
-  static const uint32_t kHcalDepthSet2      = 0xF00000;
-  static const uint32_t kHcalIdFormat2      = 0x1000000;
-  static const uint32_t kHcalIdMask         = 0xFE000000;
+  static constexpr uint32_t kHcalPhiMask1       = 0x7F;
+  static constexpr uint32_t kHcalPhiMask2       = 0x3FF;
+  static constexpr uint32_t kHcalEtaOffset1     = 7;
+  static constexpr uint32_t kHcalEtaOffset2     = 10;
+  static constexpr uint32_t kHcalEtaMask1       = 0x3F;
+  static constexpr uint32_t kHcalEtaMask2       = 0x1FF;
+  static constexpr uint32_t kHcalZsideMask1     = 0x2000;
+  static constexpr uint32_t kHcalZsideMask2     = 0x80000;
+  static constexpr uint32_t kHcalDepthOffset1   = 14;
+  static constexpr uint32_t kHcalDepthOffset2   = 20;
+  static constexpr uint32_t kHcalDepthMask1     = 0x1F;
+  static constexpr uint32_t kHcalDepthMask2     = 0xF;
+  static constexpr uint32_t kHcalDepthSet1      = 0x1C000;
+  static constexpr uint32_t kHcalDepthSet2      = 0xF00000;
+  static constexpr uint32_t kHcalIdFormat2      = 0x1000000;
+  static constexpr uint32_t kHcalIdMask         = 0xFE000000;
 
 public:
   /** Create a null cellid*/
