@@ -19,6 +19,28 @@ _defaultPhoIDModules =  [ 'RecoEgamma.PhotonIdentification.Identification.cutBas
                         'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring16_nonTrig_V1_cff'
                         ]
 
+#the new Fall17V2 modules are loaded as default if they exist in the release
+#we do it this way as we can use the same script for all releases and people who
+#dont want V2 can still use this script
+_fall17V2PhoIDModules = [
+    'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V2_cff'
+    ]
+_fall17V2EleIDModules = [
+    'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Fall17_94X_V2_cff',
+    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_noIso_V2_cff',
+    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_iso_V2_cff'
+    ]
+
+import pkgutil
+if pkgutil.find_loader(_fall17V2EleIDModules[0]) != None:
+    _defaultEleIDModules.extend(_fall17V2EleIDModules)
+else:
+    print "EgammaPostRecoTools: Fall17V2 electron modules not found, running ID without them. If you want Fall17V2 IDs, please merge the approprate PR"
+
+if pkgutil.find_loader(_fall17V2PhoIDModules[0]) != None:
+    _defaultPhoIDModules.extend(_fall17V2PhoIDModules)
+else:
+    print "EgammaPostRecoTools: Fall17V2 photons modules not found, running ID without them. If you want Fall17V2 IDs, please merge the approprate PR"
 
 def _getEnergyCorrectionFile(era):
     if era=="2017-Nov17ReReco":
