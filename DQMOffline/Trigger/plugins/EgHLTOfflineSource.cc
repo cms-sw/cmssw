@@ -176,7 +176,7 @@ void EgHLTOfflineSource::addEleTrigPath(MonElemFuncs& monElemFuncs,const std::st
 {
   auto* filterMon = new EleHLTFilterMon(monElemFuncs,name,trigCodes->getCode(name.c_str()),binData_,cutMasks_,dohep_);  
   eleFilterMonHists_.push_back(filterMon);
-  std::sort(eleFilterMonHists_.begin(),eleFilterMonHists_.end(),EleHLTFilterMon::ptrLess<EleHLTFilterMon>()); //takes a minor efficiency hit at initalisation to ensure that the vector is always sorted
+  std::sort(eleFilterMonHists_.begin(),eleFilterMonHists_.end(),EleHLTFilterMon::ptrLess<EleHLTFilterMon>); //takes a minor efficiency hit at initalisation to ensure that the vector is always sorted
 }
 
 void EgHLTOfflineSource::addPhoTrigPath(MonElemFuncs& monElemFuncs,const std::string& name)

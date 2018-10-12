@@ -104,13 +104,8 @@ protected:
 
 
 
-class GreaterByEtPseudoJet : 
-  public std::binary_function<fastjet::PseudoJet const &, fastjet::PseudoJet const &, bool> {
-  
-public:
-  bool operator()( fastjet::PseudoJet const & j1, fastjet::PseudoJet const & j2 ) {
-    return j1.perp() > j2.perp();
-  }
-};
+bool greaterByEtPseudoJet( fastjet::PseudoJet const & j1, fastjet::PseudoJet const & j2 ) {
+  return j1.perp() > j2.perp();
+}
 
 #endif
