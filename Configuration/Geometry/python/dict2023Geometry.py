@@ -856,6 +856,32 @@ timingDict = {
             'mtdGeometry.applyAlignment = cms.bool(False)'
         ],
         "era" : "phase2_timing, phase2_timing_layer_new",
+    },
+    "I5" : {
+        1 : [
+            'Geometry/MTDCommonData/data/btl.xml',
+            'Geometry/MTDCommonData/data/etl.xml',
+            'Geometry/MTDCommonData/data/CrystalBarZ/mtd.xml',
+            ],
+        3 : [
+            'Geometry/MTDSimData/data/CrystalBar/mtdsens.xml'
+            ],
+        4 : [
+            'Geometry/MTDSimData/data/CrystalBar/mtdProdCuts.xml'
+            ],
+        "sim" : [
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
+        ],
+        "reco" :[
+            'from RecoMTD.DetLayers.mtdDetLayerGeometry_cfi import *',
+            'from Geometry.MTDGeometryBuilder.mtdParameters_cfi import *',
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
+            'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
+            'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
+            'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
+            'mtdGeometry.applyAlignment = cms.bool(False)'
+        ],
+        "era" : "phase2_timing, phase2_timing_layer_new",
     }
 }
 
@@ -876,6 +902,7 @@ detectorVersionDict = {
     ("O2","T6","C5","M2","F2","I1") : "D30",
     ("O2","T6","C6","M2","F3","I1") : "D31",
     ("O2","T6","C7","M2","F2","I1") : "D32",
+    ("O2","T6","C3","M2","F2","I5") : "D33",
 }
 
 deprecatedDets = set([ "D1", "D2", "D3", "D5", "D6" , "D7", "D4", "D8" , "D9", "D12", "D13", "D15", "D10", "D11", "D14", "D16", "D18","D20" ])
