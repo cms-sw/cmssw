@@ -3,6 +3,7 @@
 
 #include <atomic>
 #include <mutex>
+#include <array>
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Common/interface/RefVector.h"
@@ -43,6 +44,7 @@ namespace pat {
       packedPuppiweightNoLepDiff_(0),
       rawCaloFraction_(0),
       hcalFraction_(0),
+      //hcalDepthEnergyFractions_({0,0,0,0,0,0,0}),
       packedTime_(0),
       packedTimeError_(0),
       isIsolatedChargedHadron_(false),
@@ -55,6 +57,7 @@ namespace pat {
                               const reco::VertexRefProd &pvRefProd,
                               reco::VertexRef::key_type pvRefKey) :
       packedPuppiweight_(0), packedPuppiweightNoLepDiff_(0), rawCaloFraction_(0), hcalFraction_(0),
+      //hcalDepthEnergyFractions_({0,0,0,0,0,0,0}),
       packedTime_(0), packedTimeError_(0), isIsolatedChargedHadron_(false),
       p4_( new PolarLorentzVector(c.pt(), c.eta(), c.phi(), c.mass())), 
       p4c_( new LorentzVector(*p4_)), vertex_( new Point(c.vertex())), 
@@ -70,6 +73,7 @@ namespace pat {
                               const reco::VertexRefProd &pvRefProd,
                               reco::VertexRef::key_type pvRefKey) :
       packedPuppiweight_(0), packedPuppiweightNoLepDiff_(0), rawCaloFraction_(0), hcalFraction_(0),
+      //hcalDepthEnergyFractions_({0,0,0,0,0,0,0}),
       packedTime_(0), packedTimeError_(0), isIsolatedChargedHadron_(false),
       p4_( new PolarLorentzVector(p4) ), p4c_( new LorentzVector(*p4_)), 
       vertex_( new Point(vtx) ), 
@@ -87,6 +91,7 @@ namespace pat {
                               const reco::VertexRefProd &pvRefProd,
                               reco::VertexRef::key_type pvRefKey) :
       packedPuppiweight_(0), packedPuppiweightNoLepDiff_(0), rawCaloFraction_(0), hcalFraction_(0),
+      //hcalDepthEnergyFractions_({0,0,0,0,0,0,0}),
       packedTime_(0), packedTimeError_(0), isIsolatedChargedHadron_(false),
       p4_(new PolarLorentzVector(p4.Pt(), p4.Eta(), p4.Phi(), p4.M())), 
       p4c_( new LorentzVector(p4)), vertex_( new Point(vtx) ) ,
@@ -109,6 +114,7 @@ namespace pat {
       packedPuppiweightNoLepDiff_(iOther.packedPuppiweightNoLepDiff_),
       rawCaloFraction_(iOther.rawCaloFraction_),
       hcalFraction_(iOther.hcalFraction_),
+      hcalDepthEnergyFractions_(iOther.hcalDepthEnergyFractions_),
       packedTime_(iOther.packedTime_),
       packedTimeError_(iOther.packedTimeError_),
       isIsolatedChargedHadron_(iOther.isIsolatedChargedHadron_),
@@ -135,6 +141,7 @@ namespace pat {
       packedPuppiweightNoLepDiff_(iOther.packedPuppiweightNoLepDiff_),
       rawCaloFraction_(iOther.rawCaloFraction_),
       hcalFraction_(iOther.hcalFraction_),
+      hcalDepthEnergyFractions_(iOther.hcalDepthEnergyFractions_),
       packedTime_(iOther.packedTime_),
       packedTimeError_(iOther.packedTimeError_),
       isIsolatedChargedHadron_(iOther.isIsolatedChargedHadron_),
@@ -169,6 +176,7 @@ namespace pat {
       packedPuppiweightNoLepDiff_=iOther.packedPuppiweightNoLepDiff_;
       rawCaloFraction_=iOther.rawCaloFraction_;
       hcalFraction_=iOther.hcalFraction_;
+      hcalDepthEnergyFractions_ = iOther.hcalDepthEnergyFractions_;
       packedTime_=iOther.packedTime_;
       packedTimeError_=iOther.packedTimeError_;
       isIsolatedChargedHadron_=iOther.isIsolatedChargedHadron_;
@@ -246,6 +254,7 @@ namespace pat {
       packedPuppiweightNoLepDiff_=iOther.packedPuppiweightNoLepDiff_;
       rawCaloFraction_=iOther.rawCaloFraction_;
       hcalFraction_=iOther.hcalFraction_;
+      hcalDepthEnergyFractions_ = iOther.hcalDepthEnergyFractions_;
       packedTime_=iOther.packedTime_;
       packedTimeError_=iOther.packedTimeError_;
       isIsolatedChargedHadron_=iOther.isIsolatedChargedHadron_;
@@ -643,6 +652,8 @@ namespace pat {
     float rawCaloFraction() const { return (rawCaloFraction_/100.); }    /// Raw ECAL+HCAL energy over candidate energy for isolated charged hadrons
     void setHcalFraction(float p);                      /// Set the fraction of Hcal needed for HF and neutral hadrons and isolated charged hadrons
     float hcalFraction() const { return (hcalFraction_/100.); }    /// Fraction of Ecal and Hcal for HF and neutral hadrons and isolated charged hadrons
+    void setHcalDepthEnergyFractions(std::array<float,7> p);                      /// set fraction of Hcal energies in each depth
+    float hcalDepthEnergyFraction(int iDepth) const { return (hcalDepthEnergyFractions_[iDepth]/100.); }    /// Fraction of Hcal energies in each depth
 
      // isolated charged hadrons
     void setIsIsolatedChargedHadron(bool p);                      /// Set isolation (as in particle flow, i.e. at calorimeter surface rather than at PV) flat for charged hadrons
@@ -714,6 +725,7 @@ namespace pat {
     int8_t packedPuppiweightNoLepDiff_; // storing the DIFFERENCE of (all - "no lep") for compression optimization
     uint8_t rawCaloFraction_;
     int8_t hcalFraction_;
+    std::array<int8_t,7> hcalDepthEnergyFractions_;
     int16_t packedTime_;
     uint8_t packedTimeError_;
 

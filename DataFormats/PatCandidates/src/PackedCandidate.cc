@@ -373,6 +373,10 @@ void pat::PackedCandidate::setHcalFraction(float p) {
   hcalFraction_ = 100*p;
 }
 
+void pat::PackedCandidate::setHcalDepthEnergyFractions(std::array<float,7> p) {
+  for (unsigned int i=0; i<hcalDepthEnergyFractions_.size(); ++i) hcalDepthEnergyFractions_[i] = 100*p[i];
+}
+
 void pat::PackedCandidate::setIsIsolatedChargedHadron(bool p) {
   isIsolatedChargedHadron_ = p;
 }
