@@ -47,7 +47,6 @@
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include <memory>
-#include <boost/foreach.hpp>
 #include <TFormula.h>
 
 #include <memory>
@@ -117,7 +116,7 @@ PFTauPrimaryVertexProducer::PFTauPrimaryVertexProducer(const edm::ParameterSet& 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   std::vector<edm::ParameterSet> discriminators =iConfig.getParameter<std::vector<edm::ParameterSet> >("discriminators");
   // Build each of our cuts
-  BOOST_FOREACH(const edm::ParameterSet &pset, discriminators) {
+  for(auto const& pset : discriminators) {
     DiscCutPair* newCut = new DiscCutPair();
     newCut->inputToken_ =consumes<reco::PFTauDiscriminator>(pset.getParameter<edm::InputTag>("discriminator"));
 
@@ -162,7 +161,7 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
   reco::VertexRefProd VertexRefProd_out = iEvent.getRefBeforePut<reco::VertexCollection>("PFTauPrimaryVertices");
 
   // Load each discriminator
-  BOOST_FOREACH(DiscCutPair *disc, discriminators_) {
+  for(auto& disc : discriminators_) {
     edm::Handle<reco::PFTauDiscriminator> discr;
     iEvent.getByToken(disc->inputToken_, discr);
     disc->discr_ = &(*discr);
@@ -186,7 +185,7 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
       ///////////////////////
       // Check if it passed all the discrimiantors
       bool passed(true); 
-      BOOST_FOREACH(const DiscCutPair* disc, discriminators_) {
+      for(auto const& disc : discriminators_) {
         // Check this discriminator passes
 	bool passedDisc = true;
 	if ( disc->cutFormula_ )passedDisc = (disc->cutFormula_->Eval((*disc->discr_)[tau]) > 0.5);

@@ -13,7 +13,6 @@
 
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/ptr_container/ptr_list.hpp>
-#include <boost/foreach.hpp>
 #include <algorithm>
 #include <functional>
 
@@ -133,7 +132,7 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   evt.getByToken(cand_token, jetView);
 
   // Give each of our plugins a chance at doing something with the edm::Event
-  BOOST_FOREACH(Builder& builder, builders_) {
+  for(auto& builder : builders_) {
     builder.setup(evt, es);
   }
 
@@ -152,7 +151,7 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   }
 
   // Loop over our jets
-  BOOST_FOREACH(const reco::PFJetRef& jet, jetRefs) {
+  for(auto const& jet : jetRefs) {
 
     if(jet->pt() - minJetPt_ < 1e-5) continue;
     if(std::abs(jet->eta()) - maxJetAbsEta_ > -1e-5) continue;
@@ -160,7 +159,7 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt, const edm::EventSetup& es)
     PiZeroList dirtyPiZeros;
 
     // Compute the pi zeros from this jet for all the desired algorithms
-    BOOST_FOREACH(const Builder& builder, builders_) {
+    for(auto const& builder : builders_) {
       try {
         PiZeroVector result(builder(*jet));
         dirtyPiZeros.transfer(dirtyPiZeros.end(), result);
@@ -207,7 +206,7 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt, const edm::EventSetup& es)
         // add it back into the sorted list of dirty PiZeros
         toAdd->clearDaughters();
         // Add each of the unique daughters back to the pizero
-        BOOST_FOREACH(const reco::CandidatePtr& gamma, uniqueGammas) {
+        for(auto const& gamma : uniqueGammas) {
           toAdd->addDaughter(gamma);
         }
         // Update the four vector
@@ -237,7 +236,7 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 void RecoTauPiZeroProducer::print(
     const std::vector<reco::RecoTauPiZero>& piZeros, std::ostream& out) {
   const unsigned int width = 25;
-  BOOST_FOREACH(const reco::RecoTauPiZero& piZero, piZeros) {
+  for(auto const& piZero : piZeros) {
     out << piZero;
     out << "* Rankers:" << std::endl;
     for (rankerList::const_iterator ranker = rankers_.begin();
