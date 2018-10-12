@@ -255,14 +255,6 @@ PixelResolutionHistograms( std::string filename,
   cotalphaLowEdge_  = binningHisto_->GetYaxis()->GetXmin();       // low edge of the first bin;
   cotalphaBins_     = binningHisto_->GetYaxis()->GetNbins();
 
-  //--- We want the following information to show up in *every* log file!
-  // LOGINFO << std::endl 
-  std::cout << std::endl
-	  << "Loading pixel resolution file = " << filename << std::endl 
-	  << " cotBeta[" << cotbetaLowEdge_ <<","<< cotbetaBinWidth_ <<","<< cotbetaBins_ << "]" << std::endl 
-	  << " cotAlpha[" << cotalphaLowEdge_ <<","<< cotalphaBinWidth_ <<","<< cotalphaBins_ << "]" 
-	  << std::endl;
-  
 
   if ( !ignore_multi ) {
     //
