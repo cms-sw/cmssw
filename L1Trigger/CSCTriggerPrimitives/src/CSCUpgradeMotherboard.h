@@ -106,7 +106,18 @@ public:
   void setupGeometry();
   void debugLUTs();
 
+  // run TMB with GEM pad clusters as input
+  void run(const CSCWireDigiCollection* wiredc,
+           const CSCComparatorDigiCollection* compdc) override;
+
+  /* readout the two best LCTs in this CSC */
+  std::vector<CSCCorrelatedLCTDigi> readoutLCTs() const override;
+
  protected:
+
+  void correlateLCTs(const CSCALCTDigi& bestALCT, const CSCALCTDigi& secondALCT,
+                     const CSCCLCTDigi& bestCLCT, const CSCCLCTDigi& secondCLCT,
+                     CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2) const;
 
   Parity theParity;
 

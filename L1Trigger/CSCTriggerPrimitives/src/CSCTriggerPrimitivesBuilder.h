@@ -115,14 +115,17 @@ class CSCTriggerPrimitivesBuilder
   /** SLHC: special switch for disabling ME42 */
   bool disableME42_;
 
+  /** SLHC: individual switches */
+  bool runME11Up_;
+  bool runME21Up_;
+  bool runME31Up_;
+  bool runME41Up_;
+
   /** SLHC: special switch for the upgrade ME1/1 TMB */
   bool runME11ILT_;
 
   /** SLHC: special switch for the upgrade ME2/1 TMB */
   bool runME21ILT_;
-
-  /** SLHC: special switch for the upgrade ME3/1 and ME4/1 TMB */
-  bool runME3141ILT_;
 
   /** SLHC: special switch to use gem clusters */
   bool useClusters_;

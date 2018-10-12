@@ -55,10 +55,10 @@ class CSCMotherboard : public CSCBaseboard
 
   /** Run function for normal usage.  Runs cathode and anode LCT processors,
       takes results and correlates into CorrelatedLCT. */
-  void run(const CSCWireDigiCollection* wiredc, const CSCComparatorDigiCollection* compdc);
+  virtual void run(const CSCWireDigiCollection* wiredc, const CSCComparatorDigiCollection* compdc);
 
   /** Returns vector of correlated LCTs in the read-out time window, if any. */
-  std::vector<CSCCorrelatedLCTDigi> readoutLCTs() const;
+  virtual std::vector<CSCCorrelatedLCTDigi> readoutLCTs() const;
 
   /** Returns vector of all found correlated LCTs, if any. */
   std::vector<CSCCorrelatedLCTDigi> getLCTs() const;
