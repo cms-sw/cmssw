@@ -44,7 +44,6 @@
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ParameterSet/interface/validateTopLevelParameterSets.h"
-#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -216,7 +215,7 @@ namespace edm {
   }
 
   // ---------------------------------------------------------------
-  EventProcessor::EventProcessor(std::string const& config,
+  EventProcessor::EventProcessor(std::unique_ptr<ParameterSet> parameterSet,//std::string const& config,
                                  ServiceToken const& iToken,
                                  serviceregistry::ServiceLegacy iLegacy,
                                  std::vector<std::string> const& defaultServices,
@@ -249,13 +248,12 @@ namespace edm {
     looperBeginJobRun_(false),
     forceESCacheClearOnNewRun_(false),
     eventSetupDataToExcludeFromPrefetching_() {
-    std::shared_ptr<ParameterSet> parameterSet = PythonProcessDesc(config).parameterSet();
-    auto processDesc = std::make_shared<ProcessDesc>(parameterSet);
+    auto processDesc = std::make_shared<ProcessDesc>(std::move(parameterSet));
     processDesc->addServices(defaultServices, forcedServices);
     init(processDesc, iToken, iLegacy);
   }
 
-  EventProcessor::EventProcessor(std::string const& config,
+  EventProcessor::EventProcessor(std::unique_ptr<ParameterSet> parameterSet,//std::string const& config,
                                  std::vector<std::string> const& defaultServices,
                                  std::vector<std::string> const& forcedServices) :
     actReg_(),
@@ -288,8 +286,7 @@ namespace edm {
     asyncStopRequestedWhileProcessingEvents_(false),
     eventSetupDataToExcludeFromPrefetching_()
   {
-    std::shared_ptr<ParameterSet> parameterSet = PythonProcessDesc(config).parameterSet();
-    auto processDesc = std::make_shared<ProcessDesc>(parameterSet);
+    auto processDesc = std::make_shared<ProcessDesc>(std::move(parameterSet));
     processDesc->addServices(defaultServices, forcedServices);
     init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
   }
@@ -328,49 +325,6 @@ namespace edm {
     eventSetupDataToExcludeFromPrefetching_()
   {
     init(processDesc, token, legacy);
-  }
-
-
-  EventProcessor::EventProcessor(std::string const& config, bool isPython):
-    actReg_(),
-    preg_(),
-    branchIDListHelper_(),
-    serviceToken_(),
-    input_(),
-    espController_(new eventsetup::EventSetupsController),
-    esp_(),
-    act_table_(),
-    processConfiguration_(),
-    schedule_(),
-    subProcesses_(),
-    historyAppender_(new HistoryAppender),
-    fb_(),
-    looper_(),
-    deferredExceptionPtrIsSet_(false),
-    sourceResourcesAcquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first),
-    sourceMutex_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second),
-    principalCache_(),
-    beginJobCalled_(false),
-    shouldWeStop_(false),
-    fileModeNoMerge_(false),
-    exceptionMessageFiles_(),
-    exceptionMessageRuns_(),
-    exceptionMessageLumis_(),
-    forceLooperToEnd_(false),
-    looperBeginJobRun_(false),
-    forceESCacheClearOnNewRun_(false),
-    asyncStopRequestedWhileProcessingEvents_(false),
-    eventSetupDataToExcludeFromPrefetching_()
-  {
-    if(isPython) {
-      std::shared_ptr<ParameterSet> parameterSet = PythonProcessDesc(config).parameterSet();
-      auto processDesc = std::make_shared<ProcessDesc>(parameterSet);
-      init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
-    }
-    else {
-      auto processDesc = std::make_shared<ProcessDesc>(config);
-      init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
-    }
   }
 
   void
