@@ -32,6 +32,8 @@ class BTLDetId : public MTDDetId {
   static constexpr int kCrystalsInEtaTile = 4; // per module
   static constexpr int kCrystalsInPhiBar = 4; // per module and ROD
   static constexpr int kCrystalsInEtaBar = 16; // per module
+  static constexpr int kCrystalsInPhiBarZ = 64; // per module and ROD
+  static constexpr int kCrystalsInEtaBarZ = 1; // per module
   static constexpr int kCrystalsPerROD = kModulesPerROD*kCrystalsInPhiTile*kCrystalsInEtaTile; // 64 crystals per module x 54 modules per rod, independent on geometry scenario Tile or Bar
   static constexpr int MIN_ROD = 1;
   static constexpr int MAX_ROD = 72;
@@ -42,11 +44,13 @@ class BTLDetId : public MTDDetId {
   static constexpr int MAX_IPHI_TILE = kCrystalsInPhiTile*HALF_ROD;
   static constexpr int MAX_IETA_BAR = kCrystalsInEtaBar*kModulesPerROD;
   static constexpr int MAX_IPHI_BAR = kCrystalsInPhiBar*HALF_ROD;
+  static constexpr int MAX_IETA_BARZ = kCrystalsInEtaBarZ*kModulesPerROD;
+  static constexpr int MAX_IPHI_BARZ = kCrystalsInPhiBarZ*HALF_ROD;
   static constexpr int MIN_HASH =  0; // always 0 ...
   static constexpr int MAX_HASH =  2*MAX_IPHI_TILE*MAX_IETA_TILE-1; // the total amount is invariant per tile or bar)
   static constexpr int kSizeForDenseIndexing = MAX_HASH + 1 ;
 
-  enum class CrysLayout { tile = 1 , bar = 2 } ;
+  enum class CrysLayout { tile = 1 , bar = 2 , barz = 3 } ;
   
   // ---------- Constructors, enumerated types ----------
   
