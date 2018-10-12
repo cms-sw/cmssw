@@ -195,10 +195,10 @@ supportedBtagDiscr = {
   , 'pfNegativeDeepFlavourJetTags:probg'                            : [["pfNegativeDeepFlavourTagInfos"], ['pfDeepCSVNegativeTagInfos', "pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderNegativeTagInfos']]
   , 'pfDeepDoubleBJetTags:probQ'                         : [["pfDeepDoubleBTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
   , 'pfDeepDoubleBJetTags:probH'                         : [["pfDeepDoubleBTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
-  , 'pfDeepDoubleCvLJetTags:probQ'                     : [["pfDeepDoubleCvLTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
-  , 'pfDeepDoubleCvLJetTags:probH'                     : [["pfDeepDoubleCvLTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
-  , 'pfDeepDoubleCvBJetTags:probQ'                     : [["pfDeepDoubleCvBTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
-  , 'pfDeepDoubleCvBJetTags:probH'                     : [["pfDeepDoubleCvBTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfDeepDoubleCvLJetTags:probQCD'                     : [["pfDeepDoubleCvLTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfDeepDoubleCvLJetTags:probHcc'                     : [["pfDeepDoubleCvLTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfDeepDoubleCvBJetTags:probHbb'                     : [["pfDeepDoubleCvBTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  , 'pfDeepDoubleCvBJetTags:probHcc'                     : [["pfDeepDoubleCvBTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
 }
 
 # meta-taggers are simple arithmetic on top of other taggers, they are stored here

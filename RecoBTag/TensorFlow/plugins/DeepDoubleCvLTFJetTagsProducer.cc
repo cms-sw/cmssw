@@ -141,8 +141,8 @@ void DeepDoubleCvLTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescript
     { "ID_pred/Softmax" });
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::vector<unsigned int>>("probQ", {0});
-    psd0.add<std::vector<unsigned int>>("probH", {1});
+    psd0.add<std::vector<unsigned int>>("probQCD", {0});
+    psd0.add<std::vector<unsigned int>>("probHcc", {1});
     desc.add<edm::ParameterSetDescription>("flav_table", psd0);
   }
 
