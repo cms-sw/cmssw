@@ -1,7 +1,6 @@
 #ifndef TrajCandLess_H
 #define TrajCandLess_H
 
-#include <functional>
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
 /** Defines an ordering of Trajectories in terms of "goodness"
@@ -13,9 +12,7 @@
  *  is likely to be considered "better".
  */
 template <class TR>
-class TrajCandLess : public std::binary_function< const TR&,
-		     const TR&, bool>
-{
+class TrajCandLess {
 public:
 
   TrajCandLess( float p=5) : penalty(p) {}

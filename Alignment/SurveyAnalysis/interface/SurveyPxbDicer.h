@@ -67,8 +67,7 @@ private:
 	coord_t transform(const coord_t &x, const value_t &a0, const value_t &a1, const value_t &a2, const value_t &a3);
 
 	//! Function object for searching for a parameter in the VPSet
-	struct findParByName: public std::binary_function< std::string, edm::ParameterSet, bool >
-	{
+	struct findParByName {
 		bool operator () ( const std::string &name, const edm::ParameterSet &parset )
 			const {	return (parset.getParameter<std::string>("name") == name);}
 	};

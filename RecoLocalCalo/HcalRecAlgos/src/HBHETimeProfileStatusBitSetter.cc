@@ -59,7 +59,7 @@ void HBHETimeProfileStatusBitSetter::hbheSetTimeFlagsFromDigi(HBHERecHitCollecti
   
   bool Bits[4]={false, false, false, false};
   std::vector<HBHEDataFrame> digi(udigi);
-  std::sort(digi.begin(), digi.end(), compare_digi_energy()); // sort digis according to energies
+  std::sort(digi.begin(), digi.end(), compare_digi_energy); // sort digis according to energies
   std::vector<double> PulseShape; // store fC values for each time slice
   int DigiSize=0;
   //  int LeadingEta=0;

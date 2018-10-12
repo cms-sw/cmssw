@@ -1,7 +1,6 @@
 #ifndef RecoBTag_Analysis_Matching_h
 #define RecoBTag_Analysis_Matching_h
 
-#include <functional>
 #include <algorithm>
 #include <vector>
 #include <set>
@@ -49,7 +48,7 @@ class Matching {
 
     private:
 	template<class SortComparator>
-	struct Comparator : public std::binary_function<Delta, Delta, bool> {
+	struct Comparator {
 		typedef typename Matching::index_type index_type;
 
 		inline Comparator(const SimpleMatrix<Delta> &matrix,
