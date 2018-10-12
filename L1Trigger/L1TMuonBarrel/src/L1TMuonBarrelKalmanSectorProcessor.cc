@@ -106,7 +106,7 @@ L1TMuonBarrelKalmanSectorProcessor::bmtf_out L1TMuonBarrelKalmanSectorProcessor:
     out.ptSTA_3=0;
     out.SE_3=0;
 
-    if (tracks.size()>0) {
+    if (!tracks.empty()) {
       l1t::RegionalMuonCand mu = trackMaker->convertToBMTF(tracks[0]);
       out.pt_1=mu.hwPt();
       out.qual_1=mu.hwQual();
