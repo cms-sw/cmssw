@@ -12,6 +12,10 @@ int BTLDetId::iphi( CrysLayout lay ) const {
       kCrystalsInPhi = kCrystalsInPhiBar ;
       break ;
     }
+    case CrysLayout::barz  : {
+      kCrystalsInPhi = kCrystalsInPhiBarZ ;
+      break ;
+    }
     default: {
       break ;
     }
@@ -34,6 +38,11 @@ int BTLDetId::ietaAbs( CrysLayout lay ) const {
       kCrystalsInPhi = kCrystalsInPhiBar ;
       break ;
     }
+    case CrysLayout::barz  : {
+      kCrystalsInEta = kCrystalsInEtaBarZ ;
+      kCrystalsInPhi = kCrystalsInPhiBarZ ;
+      break ;
+    }
     default: {
       break ;
     }
@@ -54,6 +63,11 @@ int BTLDetId::hashedIndex( CrysLayout lay ) const {
     case CrysLayout::bar : {
       max_iphi = MAX_IPHI_BAR;
       max_ieta = MAX_IETA_BAR;
+      break ;
+    }
+    case CrysLayout::barz : {
+      max_iphi = MAX_IPHI_BARZ;
+      max_ieta = MAX_IETA_BARZ;
       break ;
     }
     default: {
@@ -80,6 +94,13 @@ BTLDetId BTLDetId::getUnhashedIndex( int hi, CrysLayout lay ) const {
       max_ieta = MAX_IETA_BAR;
       nphi = kCrystalsInPhiBar;
       keta = kCrystalsInEtaBar;
+      break ;
+    }
+    case CrysLayout::barz : {
+      max_iphi = MAX_IPHI_BARZ;
+      max_ieta = MAX_IETA_BARZ;
+      nphi = kCrystalsInPhiBarZ;
+      keta = kCrystalsInEtaBarZ;
       break ;
     }
     default: {
