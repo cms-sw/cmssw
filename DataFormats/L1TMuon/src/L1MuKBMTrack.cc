@@ -266,7 +266,7 @@ const std::vector<double>& L1MuKBMTrack::covariance() const {
 
 
 
-bool L1MuKBMTrack::overlap( const L1MuKBMTrack& other) const{
+bool L1MuKBMTrack::overlapTrack( const L1MuKBMTrack& other) const{
  
   for (const auto& s1 : stubs_) {
     for (const auto& s2 : other.stubs()) {
