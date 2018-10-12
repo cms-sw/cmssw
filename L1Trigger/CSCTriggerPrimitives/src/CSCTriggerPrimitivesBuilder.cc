@@ -3,7 +3,6 @@
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME11.h"
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCGEMMotherboardME11.h"
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCGEMMotherboardME21.h"
-#include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME3141.h"
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCMuonPortCard.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
@@ -28,9 +27,14 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
 
   checkBadChambers_ = conf.getParameter<bool>("checkBadChambers");
 
+  runME11Up_ = commonParams.existsAs<bool>("runME11Up")?commonParams.getParameter<bool>("runME11Up"):false;
+  runME21Up_ = commonParams.existsAs<bool>("runME21Up")?commonParams.getParameter<bool>("runME21Up"):false;
+  runME31Up_ = commonParams.existsAs<bool>("runME31Up")?commonParams.getParameter<bool>("runME31Up"):false;
+  runME41Up_ = commonParams.existsAs<bool>("runME41Up")?commonParams.getParameter<bool>("runME41Up"):false;
+
   runME11ILT_ = commonParams.existsAs<bool>("runME11ILT")?commonParams.getParameter<bool>("runME11ILT"):false;
   runME21ILT_ = commonParams.existsAs<bool>("runME21ILT")?commonParams.getParameter<bool>("runME21ILT"):false;
-  runME3141ILT_ = commonParams.existsAs<bool>("runME3141ILT")?commonParams.getParameter<bool>("runME3141ILT"):false;
+
   useClusters_ = commonParams.existsAs<bool>("useClusters")?commonParams.getParameter<bool>("useClusters"):false;
 
   // Initializing boards.
@@ -61,16 +65,31 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
             int ring = CSCTriggerNumbering::ringFromTriggerLabels(stat, cham);
             // When the motherboard is instantiated, it instantiates ALCT
             // and CLCT processors.
-            if (stat==1 && ring==1 && isSLHC_ && !runME11ILT_)
-              tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCMotherboardME11(endc, stat, sect, subs, cham, conf) );
-            else if (stat==1 && ring==1 && isSLHC_ && runME11ILT_)
-              tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCGEMMotherboardME11(endc, stat, sect, subs, cham, conf) );
-            else if (stat==2 && ring==1 && isSLHC_ && runME21ILT_)
-              tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCGEMMotherboardME21(endc, stat, sect, subs, cham, conf) );
-            else if ((stat==3 || stat==4) && ring==1 && isSLHC_ && runME3141ILT_)
-              tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCMotherboardME3141(endc, stat, sect, subs, cham, conf) );
-            else
+
+            // General case: SLHC
+            if (isSLHC_ and ring==1) {
+              if (stat==1) {
+                if (runME11ILT_) {
+                  tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCGEMMotherboardME11(endc, stat, sect, subs, cham, conf) );
+                }
+                else {
+                  tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCMotherboardME11(endc, stat, sect, subs, cham, conf) );
+                }
+              }
+              else if (stat==2) {
+                if (runME21ILT_) {
+                  tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCGEMMotherboardME21(endc, stat, sect, subs, cham, conf) );
+                }
+                else {
+                  tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCUpgradeMotherboard(endc, stat, sect, subs, cham, conf) );
+                }
+              }
+              else if (stat==3 || stat==4) {
+                tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCUpgradeMotherboard(endc, stat, sect, subs, cham, conf) );
+              }
+            } else {
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1].reset( new CSCMotherboard(endc, stat, sect, subs, cham, conf) );
+            }
           }
         }
       }
@@ -303,20 +322,20 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               put(preTriggerBXs, oc_pretrig, detid, " ME21 CLCT pre-trigger BX");
               put(copads, oc_gemcopad, gemId, " GEM coincidence pad");
             }
-            // running upgraded ME3/1-ME4/1 TMBs
-            else if ((stat==3 or stat==4) && ring==1 && isSLHC_ && runME3141ILT_)
+            // running upgraded ME2/1-ME3/1-ME4/1 TMBs (without GEMs or RPCs)
+            else if ((stat==2 or stat==3 or stat==4) && ring==1 && isSLHC_)
             {
               // run the TMB
-              CSCMotherboardME3141* tmb3141 = static_cast<CSCMotherboardME3141*>(tmb);
-              tmb3141->setCSCGeometry(csc_g);
-              tmb3141->run(wiredc, compdc);
+              CSCUpgradeMotherboard* utmb = static_cast<CSCUpgradeMotherboard*>(tmb);
+              utmb->setCSCGeometry(csc_g);
+              utmb->run(wiredc, compdc);
 
               // get the collections
-              const std::vector<CSCCorrelatedLCTDigi>& lctV = tmb3141->readoutLCTs();
-              const std::vector<CSCALCTDigi>& alctV = tmb3141->alctProc->readoutALCTs();
-              const std::vector<CSCCLCTDigi>& clctV = tmb3141->clctProc->readoutCLCTs();
-              const std::vector<int>& preTriggerBXs = tmb3141->clctProc->preTriggerBXs();
-              const std::vector<CSCCLCTPreTriggerDigi>& pretriggerV = tmb3141->clctProc->preTriggerDigis();
+              const std::vector<CSCCorrelatedLCTDigi>& lctV = utmb->readoutLCTs();
+              const std::vector<CSCALCTDigi>& alctV = utmb->alctProc->readoutALCTs();
+              const std::vector<CSCCLCTDigi>& clctV = utmb->clctProc->readoutCLCTs();
+              const std::vector<int>& preTriggerBXs = utmb->clctProc->preTriggerBXs();
+              const std::vector<CSCCLCTPreTriggerDigi>& pretriggerV = utmb->clctProc->preTriggerDigis();
 
               if (!(alctV.empty() && clctV.empty() && lctV.empty())) {
                 LogTrace("L1CSCTrigger")
@@ -324,11 +343,11 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               }
 
               // put collections in event
-              put(lctV, oc_lct, detid, " ME21 LCT digi");
-              put(alctV, oc_alct, detid, " ME21 ALCT digi");
-              put(clctV, oc_clct, detid, " ME21 CLCT digi");
-              put(pretriggerV, oc_pretrigger, detid, " ME21 CLCT pre-trigger digi");
-              put(preTriggerBXs, oc_pretrig, detid, " ME21 CLCT pre-trigger BX");
+              put(lctV, oc_lct, detid, " LCT digi");
+              put(alctV, oc_alct, detid, " ALCT digi");
+              put(clctV, oc_clct, detid, " CLCT digi");
+              put(pretriggerV, oc_pretrigger, detid, " CLCT pre-trigger digi");
+              put(preTriggerBXs, oc_pretrig, detid, " CLCT pre-trigger BX");
             }
 
             // running non-upgraded TMB

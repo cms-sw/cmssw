@@ -19,7 +19,7 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
 
     # Parameters common for all boards
     commonParam = cms.PSet(
-        # Flag for SLHC studies (upgraded ME11, MPC)
+        # Master flag for SLHC studies
         isSLHC = cms.bool(False),
 
         ## Whether or not to use the SLHC ALCT algorithm
@@ -400,7 +400,7 @@ me21tmbSLHCGEM = cms.PSet(
 )
 
 # to be used by ME31-ME41 chambers
-me3141tmbSLHC = cms.PSet(
+meX1tmbSLHC = cms.PSet(
     mpcBlockMe1a    = cms.uint32(0),
     alctTrigEnable  = cms.uint32(0),
     clctTrigEnable  = cms.uint32(0),
@@ -437,6 +437,7 @@ run3_GEM.toModify( cscTriggerPrimitiveDigis,
                    GEMPadDigiProducer = cms.InputTag("simMuonGEMPadDigis"),
                    GEMPadDigiClusterProducer = cms.InputTag("simMuonGEMPadDigiClusters"),
                    commonParam = dict(isSLHC = True,
+                                      runME11Up = cms.bool(True),
                                       runME11ILT = cms.bool(True),
                                       useClusters = cms.bool(False),
                                       enableAlctSLHC = cms.bool(True)),
@@ -448,14 +449,16 @@ run3_GEM.toModify( cscTriggerPrimitiveDigis,
 ## GEM-CSC ILT in ME2/1, CSC in ME3/1 and ME4/1
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toModify( cscTriggerPrimitiveDigis,
-                      commonParam = dict(runME21ILT = cms.bool(True),
-                                         runME3141ILT = cms.bool(True)),
+                      commonParam = dict(runME21Up = cms.bool(True),
+                                         runME21ILT = cms.bool(True),
+                                         runME31Up = cms.bool(True),
+                                         runME41Up = cms.bool(True)),
                       alctSLHCME21 = cscTriggerPrimitiveDigis.alctSLHC.clone(alctNplanesHitPattern = 3),
                       clctSLHCME21 = cscTriggerPrimitiveDigis.clctSLHC.clone(clctNplanesHitPattern = 3),
                       me21tmbSLHCGEM = me21tmbSLHCGEM,
                       alctSLHCME3141 = cscTriggerPrimitiveDigis.alctSLHC.clone(alctNplanesHitPattern = 4),
                       clctSLHCME3141 = cscTriggerPrimitiveDigis.clctSLHC.clone(clctNplanesHitPattern = 4),
-                      me3141tmbSLHC = me3141tmbSLHC,
+                      meX1tmbSLHC = meX1tmbSLHC,
                       copadParamGE11 = copadParamGE11,
                       copadParamGE21 = copadParamGE21
 )
