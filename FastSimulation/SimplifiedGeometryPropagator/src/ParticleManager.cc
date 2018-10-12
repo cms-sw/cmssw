@@ -91,7 +91,11 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextParticle(const 
         const HepPDT::ParticleData * particleData = particleDataTable_->particle(HepPDT::ParticleID(particle->pdgId()));
         if(!particleData)
         {
-            throw cms::Exception("fastsim::ParticleManager") << "unknown pdg id: " << particle->pdgId() << std::endl;
+	  // in very few events the Decayer (pythia) produces high mass resonances that are for some reason not present in the table (even though they should technically be)
+	  // they have short lifetimes, so decay them right away (charge and lifetime cannot be taken from table)
+	  particle->setRemainingProperLifeTimeC(0.);
+	  particle->setCharge(0.);
+	  // throw cms::Exception("fastsim::ParticleManager") << "unknown pdg id: " << particle->pdgId() << std::endl;
         }
 
         // set lifetime
