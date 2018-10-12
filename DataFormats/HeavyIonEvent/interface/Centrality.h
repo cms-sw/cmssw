@@ -23,6 +23,9 @@ public:
   double EtHFtowerSum() const {return etHFtowerSumPlus_ + etHFtowerSumMinus_;}
   double EtHFtowerSumPlus() const {return etHFtowerSumPlus_;}
   double EtHFtowerSumMinus() const {return etHFtowerSumMinus_;}
+  double EtHFtowerSumECut() const {return etHFtowerSumECutPlus_ + etHFtowerSumECutMinus_;}
+  double EtHFtowerSumECutPlus() const {return etHFtowerSumECutPlus_;}
+  double EtHFtowerSumECutMinus() const {return etHFtowerSumECutMinus_;}
   double EtHFtruncated() const {return etHFtruncatedPlus_ + etHFtruncatedMinus_;}
   double EtHFtruncatedPlus() const {return etHFtruncatedPlus_;}
   double EtHFtruncatedMinus() const {return etHFtruncatedMinus_;}
@@ -54,10 +57,12 @@ protected:
 
   double etHFhitSumPlus_;
   double etHFtowerSumPlus_;
+  double etHFtowerSumECutPlus_;
   double etHFtruncatedPlus_;
 
   double etHFhitSumMinus_;
   double etHFtowerSumMinus_;
+  double etHFtowerSumECutMinus_;
   double etHFtruncatedMinus_;
 
   double etEESumPlus_;

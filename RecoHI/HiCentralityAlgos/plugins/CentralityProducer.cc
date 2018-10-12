@@ -213,6 +213,8 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if(produceHFtowers_ || produceETmidRap_){
      creco->etHFtowerSumPlus_ = 0;
      creco->etHFtowerSumMinus_ = 0;
+     creco->etHFtowerSumECutPlus_ = 0;
+     creco->etHFtowerSumECutMinus_ = 0;
      creco->etMidRapiditySum_ = 0;
      
      Handle<CaloTowerCollection> towers;
@@ -226,16 +228,20 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   if(produceHFtowers_){
 	      if(isHF && eta > 0){
 		 creco->etHFtowerSumPlus_ += tower.pt();
+         if(tower.energy() > 1.5) creco->etHFtowerSumECutPlus_ += tower.pt();
 		 if(eta > hfEtaCut_) creco->etHFtruncatedPlus_ += tower.pt();
 	      }
 	      if(isHF && eta < 0){
 		 creco->etHFtowerSumMinus_ += tower.pt();
+         if(tower.energy() > 1.5) creco->etHFtowerSumECutMinus_ += tower.pt();
 		 if(eta < -hfEtaCut_) creco->etHFtruncatedMinus_ += tower.pt();
 	      }
 	   }else{
     	     if(reuseAny_){
 	      creco->etHFtowerSumMinus_ = inputCentrality->EtHFtowerSumMinus();
 	      creco->etHFtowerSumPlus_ = inputCentrality->EtHFtowerSumPlus();
+          creco->etHFtowerSumECutMinus_ = inputCentrality->EtHFtowerSumECutMinus();
+          creco->etHFtowerSumECutPlus_ = inputCentrality->EtHFtowerSumECutPlus();
 	      creco->etHFtruncatedMinus_ = inputCentrality->EtHFtruncatedMinus();
 	      creco->etHFtruncatedPlus_ = inputCentrality->EtHFtruncatedPlus();
     	     }
@@ -248,6 +254,8 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if(reuseAny_){
      creco->etHFtowerSumMinus_ = inputCentrality->EtHFtowerSumMinus();
      creco->etHFtowerSumPlus_ = inputCentrality->EtHFtowerSumPlus();
+     creco->etHFtowerSumECutMinus_ = inputCentrality->EtHFtowerSumECutMinus();
+     creco->etHFtowerSumECutPlus_ = inputCentrality->EtHFtowerSumECutPlus();
      creco->etMidRapiditySum_ = inputCentrality->EtMidRapiditySum();
     }
   }
