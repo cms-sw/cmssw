@@ -2,7 +2,7 @@
 //
 // Package:    WhatsItESProducer
 // Class:      WhatsItESProducer
-// 
+//
 /**\class WhatsItESProducer WhatsItESProducer.h test/WhatsItESProducer/interface/WhatsItESProducer.h
 
  Description: <one line class summary>
@@ -32,6 +32,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 //
 // class decleration
@@ -51,7 +52,7 @@ class WhatsItESProducer : public edm::ESProducer {
 
    private:
       // ----------member data ---------------------------
-      std::string dataLabel_;
+      edm::ESGetTokenT<edmtest::Doodad> token_;
 };
 
 //
@@ -66,27 +67,26 @@ class WhatsItESProducer : public edm::ESProducer {
 // constructors and destructor
 //
 WhatsItESProducer::WhatsItESProducer(edm::ParameterSet const& pset)
-: dataLabel_(pset.exists("doodadLabel")? pset.getParameter<std::string>("doodadLabel"):std::string(""))
 {
   if (pset.getUntrackedParameter<bool>("test", true)) {
      throw edm::Exception(edm::errors::Configuration, "Something is wrong with ESProducer validation\n")
        << "Or the test configuration parameter was set true (it should never be true unless you want this exception)\n";
    }
 
-   //the following line is needed to tell the framework what
-   // data is being produced
-   setWhatProduced(this);
+  //the following line is needed to tell the framework what
+  // data is being produced
+  auto collector = setWhatProduced(this);
 
-   //now do what ever other initialization is needed
+  //now do what ever other initialization is needed
+  auto const data_label = pset.exists("doodadLabel") ? pset.getParameter<std::string>("doodadLabel"): std::string{};
+  token_ = collector.consumes<edmtest::Doodad>(edm::ESInputTag{"", data_label});
 }
 
 
 WhatsItESProducer::~WhatsItESProducer()
 {
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
 
 
@@ -101,8 +101,8 @@ WhatsItESProducer::produce(const GadgetRcd& iRecord)
    using namespace edmtest;
 
    edm::ESHandle<Doodad> doodad;
-   iRecord.get(dataLabel_,doodad);
-   
+   iRecord.get(token_ ,doodad);
+
    auto pWhatsIt = std::make_unique<WhatsIt>() ;
 
    pWhatsIt->a = doodad->a;
@@ -115,7 +115,7 @@ WhatsItESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   edm::ParameterSetDescription desc;
   desc.addOptional<std::string>("doodadLabel");
   desc.addUntracked<bool>("test", false)->
-    setComment("This parameter exists only to test the parameter set validation for ESSources"); 
+    setComment("This parameter exists only to test the parameter set validation for ESSources");
   descriptions.add("WhatsItESProducer", desc);
 }
 }

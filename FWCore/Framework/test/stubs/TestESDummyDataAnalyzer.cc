@@ -2,7 +2,7 @@
 //
 // Package:    Framework
 // Class:      TestESDummyDataAnalyzer
-// 
+//
 /**\class TestESDummyDataAnalyzer TestESDummyDataAnalyzer.cc FWCore/Framework/test/stubs/TestESDummyDataAnalyzer.cc
 
  Description: <one line class summary>
@@ -32,97 +32,61 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-//
-// class decleration
-//
-
 class TestESDummyDataAnalyzer : public edm::EDAnalyzer {
-   public:
-      explicit TestESDummyDataAnalyzer(const edm::ParameterSet&);
-      ~TestESDummyDataAnalyzer();
+public:
+  explicit TestESDummyDataAnalyzer(const edm::ParameterSet&);
 
+private:
+  virtual void endJob();
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-   private:
-         virtual void endJob();
-         int m_expectedValue;
-         int m_nEventsValue;
-         int m_counter;
-         int m_totalCounter;
-         int m_totalNEvents;
-      // ----------member data ---------------------------
+  int m_expectedValue;
+  int const m_nEventsValue;
+  int m_counter{};
+  int m_totalCounter{};
+  int const m_totalNEvents;
+  edm::ESGetTokenT<edm::eventsetup::test::DummyData> const m_esToken;
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 TestESDummyDataAnalyzer::TestESDummyDataAnalyzer(const edm::ParameterSet& iConfig) :
-m_expectedValue(iConfig.getParameter<int>("expected")),
-m_nEventsValue(iConfig.getUntrackedParameter<int>("nEvents",0)),
-m_counter(0),
-m_totalCounter(0),
-m_totalNEvents(iConfig.getUntrackedParameter<int>("totalNEvents",-1) )
-{
-   //now do what ever initialization is needed
-
-}
+  m_expectedValue{iConfig.getParameter<int>("expected")},
+  m_nEventsValue{iConfig.getUntrackedParameter<int>("nEvents",0)},
+  m_totalNEvents{iConfig.getUntrackedParameter<int>("totalNEvents",-1)},
+  m_esToken{esConsumes<edm::eventsetup::test::DummyData, edm::DefaultRecord>()}
+{}
 
 
-TestESDummyDataAnalyzer::~TestESDummyDataAnalyzer()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-}
-
-
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
 void
 TestESDummyDataAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
+  using namespace edm;
 
-   ++m_totalCounter;
-//   std::cout<<"before "<<m_expectedValue<<std::endl;
-   if(m_nEventsValue) {
-      ++m_counter;
-      if(m_nEventsValue<m_counter) {
-         ++m_expectedValue;
-         m_counter=0;
-      }
-   }
-   
-   ESHandle<edm::eventsetup::test::DummyData> pData;
-   iSetup.getData(pData);
-//   std::cout<<"after "<<m_expectedValue<<" pData "<<pData->value_<<std::endl;
+  ++m_totalCounter;
+  if(m_nEventsValue) {
+    ++m_counter;
+    if(m_nEventsValue<m_counter) {
+      ++m_expectedValue;
+      m_counter=0;
+    }
+  }
 
-   if(m_expectedValue != pData->value_) {
-      throw cms::Exception("WrongValue")<<"got value "<<pData->value_<<" but expected "<<m_expectedValue;
-   }
-   
+  ESHandle<edm::eventsetup::test::DummyData> pData;
+  iSetup.getData(m_esToken, pData);
+
+  if(m_expectedValue != pData->value_) {
+    throw cms::Exception("WrongValue")<<"got value "<<pData->value_<<" but expected "<<m_expectedValue;
+  }
+
 }
 
-void 
+void
 TestESDummyDataAnalyzer::endJob()
 {
   if (-1 != m_totalNEvents &&
       m_totalNEvents != m_totalCounter) {
     throw cms::Exception("WrongNumberOfEvents")<<"expected "<<m_totalNEvents<<" but instead saw "<<m_totalCounter
-					       <<"\n";
+                                               <<"\n";
   }
 }
-//define this as a plug-in
+
 DEFINE_FWK_MODULE(TestESDummyDataAnalyzer);
