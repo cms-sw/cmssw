@@ -176,14 +176,18 @@ void EgHLTOfflineSource::addEleTrigPath(MonElemFuncs& monElemFuncs,const std::st
 {
   auto* filterMon = new EleHLTFilterMon(monElemFuncs,name,trigCodes->getCode(name.c_str()),binData_,cutMasks_,dohep_);  
   eleFilterMonHists_.push_back(filterMon);
-  std::sort(eleFilterMonHists_.begin(),eleFilterMonHists_.end(),EleHLTFilterMon::ptrLess<EleHLTFilterMon>); //takes a minor efficiency hit at initalisation to ensure that the vector is always sorted
+
+  //takes a minor efficiency hit at initalisation to ensure that the vector is always sorted
+  std::sort(eleFilterMonHists_.begin(),eleFilterMonHists_.end(),EleHLTFilterMon::ptrLess<EleHLTFilterMon>);
 }
 
 void EgHLTOfflineSource::addPhoTrigPath(MonElemFuncs& monElemFuncs,const std::string& name)
 {
   PhoHLTFilterMon* filterMon = new PhoHLTFilterMon(monElemFuncs,name,trigCodes->getCode(name.c_str()),binData_,cutMasks_,dohep_);
   phoFilterMonHists_.push_back(filterMon);
-  std::sort(phoFilterMonHists_.begin(),phoFilterMonHists_.end(),PhoHLTFilterMon::ptrLess<PhoHLTFilterMon>()); //takes a minor efficiency hit at initalisation to ensure that the vector is always sorted
+
+  //takes a minor efficiency hit at initalisation to ensure that the vector is always sorted
+  std::sort(phoFilterMonHists_.begin(),phoFilterMonHists_.end(),PhoHLTFilterMon::ptrLess<PhoHLTFilterMon>());
 }
 
 //this function puts every filter name used in a std::vector

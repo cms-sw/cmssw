@@ -61,13 +61,6 @@ namespace std{
         return h1 ^ (h2 << 1);
       }
     };
-  template<>
-    struct equal_to<std::pair<const GeomDet*,GlobalPoint> > : public std::binary_function<std::pair<const GeomDet*,GlobalPoint>,std::pair<const GeomDet*,GlobalPoint>,bool> {
-      bool operator()(const std::pair<const GeomDet*,GlobalPoint>& a, 
-		      const std::pair<const GeomDet*,GlobalPoint>& b)  const {
-	return (a.first == b.first) & (a.second == b.second);
-      }
-    };
 }
 
 class RecHitWithDist

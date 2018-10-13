@@ -12,8 +12,7 @@
  *  is likely to be considered "better".
  */
 template <class TR>
-class TrajCandLess {
-public:
+struct TrajCandLess {
 
   TrajCandLess( float p=5) : penalty(p) {}
 

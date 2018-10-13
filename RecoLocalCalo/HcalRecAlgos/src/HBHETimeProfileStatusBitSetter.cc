@@ -47,19 +47,21 @@ HBHETimeProfileStatusBitSetter::HBHETimeProfileStatusBitSetter(double R1Min, dou
 HBHETimeProfileStatusBitSetter::~HBHETimeProfileStatusBitSetter(){}
 
 
+bool compareDigiEnergy(const HBHEDataFrame& x, const HBHEDataFrame& y)
+{
+  double TotalX=0, TotalY=0;
+  for(int i=0; i!=x.size(); TotalX += x.sample(i++).nominal_fC());
+  for(int i=0; i!=y.size(); TotalY += y.sample(i++).nominal_fC());
 
-
-
-
-
-
+  return (TotalX>TotalY) ;
+}
 
 void HBHETimeProfileStatusBitSetter::hbheSetTimeFlagsFromDigi(HBHERecHitCollection * hbhe, const std::vector<HBHEDataFrame>& udigi, const std::vector<int>& RecHitIndex)
 {
   
   bool Bits[4]={false, false, false, false};
   std::vector<HBHEDataFrame> digi(udigi);
-  std::sort(digi.begin(), digi.end(), compare_digi_energy); // sort digis according to energies
+  std::sort(digi.begin(), digi.end(), compareDigiEnergy); // sort digis according to energies
   std::vector<double> PulseShape; // store fC values for each time slice
   int DigiSize=0;
   //  int LeadingEta=0;
