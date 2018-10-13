@@ -74,7 +74,6 @@ RawDataMapperByLabel::~RawDataMapperByLabel(){
 
 void RawDataMapperByLabel::produce(Event & e, const EventSetup& c){
  
- std::cout <<"starting the producer" << std::endl;
  bool alreadyACollectionFilled= false;
  tag_iterator_t inputTag = inputTags_.begin();
  for(tok_iterator_t inputTok = inputTokens_.begin(); inputTok != inputTokens_.end(); ++inputTok, ++inputTag  ) {
