@@ -63,8 +63,8 @@ RawDataMapperByLabel::RawDataMapperByLabel(const edm::ParameterSet& pset)
   }
 
   produces<FEDRawDataCollection>();
- 
 }
+
 
 RawDataMapperByLabel::~RawDataMapperByLabel(){
 
@@ -77,22 +77,22 @@ void RawDataMapperByLabel::produce(Event & e, const EventSetup& c){
  tag_iterator_t inputTag = inputTags_.begin();
  for(tok_iterator_t inputTok = inputTokens_.begin(); inputTok != inputTokens_.end(); ++inputTok, ++inputTag  ) {
    Handle<FEDRawDataCollection> input;
-   if (e.getByToken(*inputTok,input)){
-        if(input.isValid()){
-            if(firstEvent_){  
-                filledCollectionName_ = *inputTag; 
-                alreadyACollectionFilled = true;
-                firstEvent_= false;  
-            }
+   if(e.getByToken(*inputTok,input)){
+      if(input.isValid()){
+         if(firstEvent_){  
+            filledCollectionName_ = *inputTag; 
+            alreadyACollectionFilled = true;
+            firstEvent_= false;  
+         }
             
-            if(alreadyACollectionFilled) throw cms::Exception("BadInput") << "Two input collections are present." << "Please make sure that the input dataset has only one FEDRawDataCollector collection filled";
-            if(!(filledCollectionName_==*inputTag)) throw cms::Exception("BadInput") << "The filled collection has changed!";
+         if(alreadyACollectionFilled) throw cms::Exception("BadInput") << "Two input collections are present." << "Please make sure that the input dataset has only one FEDRawDataCollector collection filled";
+         if(!(filledCollectionName_==*inputTag)) throw cms::Exception("BadInput") << "The filled collection has changed!";
             
-            if(!(mainCollectionTag_==filledCollectionName_)) e.put(std::make_unique<FEDRawDataCollection>(*input.product()));
+         if(!(mainCollectionTag_==filledCollectionName_)) e.put(std::make_unique<FEDRawDataCollection>(*input.product()));
                       
-        }
-    }
-  }
+      }
+   }
+ }
 }
 
 void RawDataMapperByLabel::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
