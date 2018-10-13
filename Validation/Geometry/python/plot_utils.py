@@ -108,7 +108,7 @@ sDETS["TOB"] = kOrange
 sDETS["TEC"] = kPink
 
 # hist_label_to_num contains the logical names of the Tracker detector
-# that holds material. They are therefor not aware of which detector
+# that holds material. They are therefore not aware of which detector
 # they belong to, but they are stored in specific plots in all the
 # mat*root files produced. The numbering of the plots is identical
 # across all files.
