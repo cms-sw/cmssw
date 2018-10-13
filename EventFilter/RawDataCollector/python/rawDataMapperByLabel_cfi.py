@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-rawDataCollector = cms.EDProducer("RawDataMapperByLabel",
+rawDataMapper = cms.EDProducer("RawDataMapperByLabel",
     rawCollectionList = cms.VInputTag( cms.InputTag('rawDataCollector'),
                                        cms.InputTag('rawDataRepacker'),
                                        cms.InputTag('rawDataReducedFormat')),

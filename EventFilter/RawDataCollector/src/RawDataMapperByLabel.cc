@@ -63,6 +63,7 @@ RawDataMapperByLabel::RawDataMapperByLabel(const edm::ParameterSet& pset)
   }
 
   produces<FEDRawDataCollection>();
+   
 }
 
 
@@ -73,19 +74,23 @@ RawDataMapperByLabel::~RawDataMapperByLabel(){
 
 void RawDataMapperByLabel::produce(Event & e, const EventSetup& c){
  
+ std::cout <<"starting the producer" << std::endl;
  bool alreadyACollectionFilled= false;
  tag_iterator_t inputTag = inputTags_.begin();
  for(tok_iterator_t inputTok = inputTokens_.begin(); inputTok != inputTokens_.end(); ++inputTok, ++inputTag  ) {
    Handle<FEDRawDataCollection> input;
    if(e.getByToken(*inputTok,input)){
       if(input.isValid()){
+         if(alreadyACollectionFilled) throw cms::Exception("BadInput") << "Two input collections are present." << std::endl
+         << "Please make sure that the input dataset has only one FEDRawDataCollector collection filled";
+         
          if(firstEvent_){  
             filledCollectionName_ = *inputTag; 
             alreadyACollectionFilled = true;
             firstEvent_= false;  
          }
             
-         if(alreadyACollectionFilled) throw cms::Exception("BadInput") << "Two input collections are present." << "Please make sure that the input dataset has only one FEDRawDataCollector collection filled";
+         
          if(!(filledCollectionName_==*inputTag)) throw cms::Exception("BadInput") << "The filled collection has changed!";
             
          if(!(mainCollectionTag_==filledCollectionName_)) e.put(std::make_unique<FEDRawDataCollection>(*input.product()));
@@ -99,14 +104,14 @@ void RawDataMapperByLabel::fillDescriptions(edm::ConfigurationDescriptions & des
     edm::ParameterSetDescription desc;
     
     std::vector<edm::InputTag> tmp_itvect;
-    //tmp_itvect.push_back( edm::InputTag("rawDataCollector"));
-    //tmp_itvect.push_back( edm::InputTag("rawDataRepacker"));
-    //tmp_itvect.push_back( edm::InputTag("rawDataReducedFormat"));
+    tmp_itvect.push_back( edm::InputTag("rawDataCollector"));
+    tmp_itvect.push_back( edm::InputTag("rawDataRepacker"));
+    tmp_itvect.push_back( edm::InputTag("rawDataReducedFormat"));
     
     desc.add<std::vector<edm::InputTag>>("rawCollectionList",  tmp_itvect);
     desc.add<edm::InputTag>("mainCollection", edm::InputTag("rawDataCollector"));
     
-    descriptions.add("rawDataCollector", desc);
+    descriptions.add("rawDataMapper", desc);
 }
 
 DEFINE_FWK_MODULE(RawDataMapperByLabel);
