@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 
 // data formats
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -83,7 +84,9 @@ class FastSimProducer : public edm::stream::EDProducer<> {
     std::unique_ptr<RandomEngineAndDistribution> _randomEngine;  //!< The random engine
 
     bool simulateCalorimetry;
-    std::unique_ptr<CalorimetryManager> myCalorimetry; // unfortunately, default constructor cannot be called
+    edm::ESWatcher<CaloGeometryRecord> watchCaloGeometry_;  
+    edm::ESWatcher<CaloTopologyRecord> watchCaloTopology_;  
+    std::unique_ptr<CalorimetryManager> myCalorimetry; // unfortunately, default constructor cannot be called 
     bool simulateMuons;    
 
     fastsim::Decayer decayer_;  //!< Handles decays of non-stable particles using pythia
@@ -197,17 +200,20 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //  Initialize the calorimeter geometry
     if(simulateCalorimetry)
     {
-        edm::ESHandle<CaloGeometry> pG;
-        iSetup.get<CaloGeometryRecord>().get(pG);   
-        myCalorimetry->getCalorimeter()->setupGeometry(*pG);
+        if(watchCaloGeometry_.check(iSetup) || watchCaloTopology_.check(iSetup)){
+            edm::ESHandle<CaloGeometry> pG;
+            iSetup.get<CaloGeometryRecord>().get(pG);   
+            myCalorimetry->getCalorimeter()->setupGeometry(*pG); 
+                
+            edm::ESHandle<CaloTopology> theCaloTopology;
+            iSetup.get<CaloTopologyRecord>().get(theCaloTopology);     
+            myCalorimetry->getCalorimeter()->setupTopology(*theCaloTopology);
+            myCalorimetry->getCalorimeter()->initialize(geometry_.getMagneticFieldZ(math::XYZTLorentzVector(0., 0., 0., 0.)));
 
-        edm::ESHandle<CaloTopology> theCaloTopology;
-        iSetup.get<CaloTopologyRecord>().get(theCaloTopology);     
-        myCalorimetry->getCalorimeter()->setupTopology(*theCaloTopology);
-        myCalorimetry->getCalorimeter()->initialize(geometry_.getMagneticFieldZ(math::XYZTLorentzVector(0., 0., 0., 0.)));
+            myCalorimetry->getHFShowerLibrary()->initHFShowerLibrary(iSetup);
+        }
 
-        myCalorimetry->getHFShowerLibrary()->initHFShowerLibrary(iSetup);
-
+        // Important: this also cleans the calorimetry information from the last event
         myCalorimetry->initialize(_randomEngine.get());
     }
 
