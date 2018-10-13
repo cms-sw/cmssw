@@ -104,7 +104,7 @@ protected:
 
 
 
-bool greaterByEtPseudoJet( fastjet::PseudoJet const & j1, fastjet::PseudoJet const & j2 ) {
+inline bool greaterByEtPseudoJet( fastjet::PseudoJet const & j1, fastjet::PseudoJet const & j2 ) {
   return j1.perp() > j2.perp();
 }
 

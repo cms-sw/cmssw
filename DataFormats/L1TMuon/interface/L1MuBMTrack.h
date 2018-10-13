@@ -21,7 +21,6 @@
 #include <iosfwd>
 #include <string>
 #include <vector>
-#include <functional>
 
 //----------------------
 // Base Class Headers --
@@ -192,16 +191,13 @@ class L1MuBMTrack : public l1t::RegionalMuonCand {
     friend std::ostream& operator<<(std::ostream&, const L1MuBMTrack&);
 
     /// define a rank for muon candidates
-    class Rank : std::binary_function< const L1MuBMTrack*, const L1MuBMTrack*, bool> {
-      public :
-        bool operator()( const L1MuBMTrack* first, const L1MuBMTrack* second ) const {
-         unsigned short int rank_f = 0;  // rank of first
-         unsigned short int rank_s = 0;  // rank of second
-         if ( first )  rank_f = first->pt()  + 512 * first->quality();
-         if ( second ) rank_s = second->pt() + 512 * second->quality();
-         return rank_f > rank_s;
-       }
-    };
+    static bool rank( const L1MuBMTrack* first, const L1MuBMTrack* second ) {
+     unsigned short int rank_f = 0;  // rank of first
+     unsigned short int rank_s = 0;  // rank of second
+     if ( first )  rank_f = first->pt()  + 512 * first->quality();
+     if ( second ) rank_s = second->pt() + 512 * second->quality();
+     return rank_f > rank_s;
+   }
 
 
   private:

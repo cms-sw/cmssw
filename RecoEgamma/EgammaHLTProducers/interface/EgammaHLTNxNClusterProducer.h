@@ -33,17 +33,6 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-// Less than operator for sorting EcalRecHits according to energy.
-class ecalRecHitSort : public std::binary_function<EcalRecHit, EcalRecHit, bool> 
-{
- public:
-  bool operator()(EcalRecHit x, EcalRecHit y) 
-  { 
-    return (x.energy() > y.energy()); 
-  }
-};
-
-
 class EgammaHLTNxNClusterProducer : public edm::stream::EDProducer<> {
  public:
 

@@ -49,14 +49,6 @@ private:
   double SlopeMin_,SlopeMax_;
   double OuterMin_,OuterMax_;
   double EnergyThreshold_;
-  static bool compare_digi_energy(const HBHEDataFrame& x, const HBHEDataFrame& y) {
-    double TotalX=0, TotalY=0;
-    for(int i=0; i!=x.size(); TotalX += x.sample(i++).nominal_fC());
-    for(int i=0; i!=y.size(); TotalY += y.sample(i++).nominal_fC());
-
-    return (TotalX>TotalY) ;
-
-  }
  
   double TotalEnergyInDataFrame(const HBHEDataFrame& x) {
     double Total=0;
