@@ -6,16 +6,17 @@ import six
 import sys
 oldargv = sys.argv[:]
 sys.argv = [ '-b-' ]
-from ROOT import TCanvas, TLegend, TPaveText, THStack, TFile, TLatex
+from ROOT import TCanvas, TPad, TLegend, TPaveText, THStack, TFile, TLatex
 from ROOT import TProfile, TProfile2D, TH1D, TH2F, TPaletteAxis
-from ROOT import kBlack, kWhite, kOrange, kAzure, kBlue
-from ROOT import gROOT, gStyle
+from ROOT import kBlack, kWhite, kOrange, kAzure, kBlue, kRed, kGreen
+from ROOT import kGreyScale
+from ROOT import gROOT, gStyle, gPad
 gROOT.SetBatch(True)
 sys.argv = oldargv
 
 from Validation.Geometry.plot_utils import setTDRStyle, Plot_params, plots, COMPOUNDS, DETECTORS, sDETS, hist_label_to_num, drawEtaValues
 from collections import namedtuple, OrderedDict
-import sys, os
+import sys, os, copy
 import argparse
 
 def paramsGood_(detector, plot, geometryOld = '', geometryNew = ''):
@@ -82,6 +83,280 @@ def assignOrAddIfExists_(h, p):
     else:
         h.Add(p.ProjectionX("B_%s" % h.GetName()), +1.000)
     return h
+
+def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
+                                          geometryNew):
+
+    #setTDRStyle();
+
+    goodToGo, theFiles = paramsGood_(detector,plot,
+                                     geometryOld,geometryNew)
+
+    if not goodToGo:
+        return
+
+    oldGeoFile = TFile(theFiles[0],'READ')
+    newGeoFile = TFile(theFiles[1],'READ')
+
+    oldProfiles = OrderedDict()
+    oldHistos = OrderedDict()
+
+    newProfiles = OrderedDict()
+    newHistos = OrderedDict()
+
+    ratioHistos = OrderedDict()
+
+    #Need to write fxn to merge
+
+    canComparison = TCanvas("canComparison","canComparison",2400,1200)
+    gStyle.SetOptStat(False)
+
+    mainPadTop = [
+        
+        TPad("mainPad"+str(i),"mainPad"+str(i),
+             i*0.25, 0.60, (i+1)*0.25, 1.0)
+
+        for i in range(4)
+        
+        ]
+
+    subPadTop = [
+        
+        TPad("subPad"+str(i),"subPad"+str(i),
+             i*0.25, 0.50, (i+1)*0.25, 0.6)
+        
+        for i in range(4)
+
+        ]
+
+    mainPadBottom = [
+
+        TPad("subPad"+str(i),"subPad"+str(i),
+             i*0.25, 0.10, (i+1)*0.25, 0.5)
+        
+        for i in range(4)
+
+        ]
+
+    subPadBottom = [
+
+        TPad("subPad"+str(i),"subPad"+str(i),
+             i*0.25, 0.00, (i+1)*0.25, 0.1)
+        
+        for i in range(4)
+
+        ]
+
+    mainPad = mainPadTop + mainPadBottom
+    subPad = subPadTop + subPadBottom
+
+    for i in range(8):
+        mainPad[i].SetBottomMargin(1e-3)
+        mainPad[i].Draw()
+        subPad[i].SetBottomMargin(1e-3)
+        subPad[i].Draw()
+
+    counter = 0
+
+    def getOldHisto(prof):
+        # Get histo from TProfile and apply OldStyle
+        histo = prof.ProjectionX()
+        histo.SetFillColor(kGreen+1)
+        histo.SetLineColor(kBlack)
+        return histo
+    
+    def getNewHisto(prof):
+        # Ge histo from TProfile and apply NewStyle
+        histo = prof.ProjectionX()
+        histo.SetMarkerStyle(20)
+        histo.SetLineWidth(0)
+        return histo
+
+    def makeRatio(histoX,histoY):
+        # return stylized ratio histoX/histoY
+        histoXOverY = copy.deepcopy(histoX)
+        histoXOverY.SetTitle('')
+        histoXOverY.Divide(histoY)
+
+        histoXOverY.SetMarkerColor(kBlack)
+        histoXOverY.SetMarkerStyle(20) # Circles
+        histoXOverY.SetMarkerSize(.2)
+        histoXOverY.SetLineWidth(1)
+
+        histoXOverY.GetYaxis().SetTitleSize(14)
+        histoXOverY.GetYaxis().SetTitleFont(43)
+        histoXOverY.GetYaxis().SetLabelSize(0.17)
+        histoXOverY.GetYaxis().SetTitleOffset(3.5)
+        histoXOverY.GetYaxis().SetNdivisions(8)
+        histoXOverY.GetYaxis().SetTitle('%s/%s' % (geometryNew,geometryOld))
+
+        histoXOverY.GetXaxis().SetTitleSize(25)
+        histoXOverY.GetXaxis().SetTitleFont(43)
+        histoXOverY.GetXaxis().SetLabelSize(0.17)
+
+        return histoXOverY
+
+    # Plotting the different categories
+
+    def setUpLegend(gOld,gNew):
+        legend = TLegend(0.3,0.6,0.6,0.7)
+        legend.AddEntry(gOld,"%s %s"%(detector,geometryOld),"F") #(F)illed Box
+        legend.AddEntry(gNew,"%s %s"%(detector,geometryNew),"P") #(P)olymarker
+        legend.SetTextSize(0.035)
+        return legend
+
+    for label, [num, color, leg] in six.iteritems(hist_label_to_num):
+
+        mainPad[counter].cd()
+        prof = copy.deepcopy(oldGeoFile.Get("%d" % (num + plots[plot].plotNumber)))
+        # Prevent memory leaking by specifing a unique name
+        prof.SetName('Old_%s_%s_%s' %(label,detector,geometryOld))
+        oldProfiles[label] = copy.deepcopy(prof)
+        oldHistos[label] = getOldHisto(oldProfiles[label])
+        oldHistos[label].Draw("HIST")
+
+        prof = copy.deepcopy(newGeoFile.Get("%d" % (num + plots[plot].plotNumber)))
+        prof.SetName('New_%s_%s_%s' %(label,detector,geometryNew))
+        newProfiles[label] = copy.deepcopy(prof)
+        newHistos[label] = getNewHisto(newProfiles[label])
+        newHistos[label].Draw('SAME')
+
+        legend = copy.deepcopy(setUpLegend(oldHistos[label],newHistos[label]));
+        legend.Draw()
+
+        subPad[counter].cd()
+        ratioHistos[label] = makeRatio( newHistos[label],oldHistos[label] )
+        ratioHistos[label].Draw("HIST P E1")
+        
+        counter += 1
+
+    # Sum of all the different categories
+
+    mainPad[counter].cd()
+    prof = copy.deepcopy( oldGeoFile.Get("%d" % plots[plot].plotNumber) )
+    prof.SetName('Ratio_SUM_%s_%s'%(detector,geometryOld))
+    oldProfiles['SUM'] = copy.deepcopy(prof)
+    oldHistos['SUM'] = getOldHisto(oldProfiles['SUM'])
+    oldHistos['SUM'].Draw('HIST')
+
+    prof = newGeoFile.Get("%d" % plots[plot].plotNumber)
+    prof.SetName('Ratio_SUM_%s_%s'%(detector,geometryNew))
+    newProfiles['SUM'] = copy.deepcopy(prof)
+    newHistos['SUM'] = getNewHisto(newProfiles['SUM'])
+    newHistos['SUM'].Draw('SAME')
+
+    subPad[counter].cd()
+    ratioHistos['SUM'] = makeRatio(newHistos['SUM'],oldHistos['SUM'])
+    ratioHistos['SUM'].Draw("HIST P E1")
+        
+    canComparison.SaveAs( "%s_Comparison_%s.png" % (detector,plot) )
+
+def setUpPalette(histo2D, plot) :
+
+    # Configure Palette for 2D Histos
+
+    minX = 1.03*histo2D.GetXaxis().GetXmin();
+    maxX = 1.03*histo2D.GetXaxis().GetXmax();
+    minY = 1.03*histo2D.GetYaxis().GetXmin();
+    maxY = 1.03*histo2D.GetYaxis().GetXmax();
+
+    palette = histo2D.GetListOfFunctions().FindObject("palette")
+    if palette:
+        palette.__class__ = TPaletteAxis
+        palette.SetX1NDC(0.945)
+        palette.SetX2NDC(0.96)
+        palette.SetY1NDC(0.1)
+        palette.SetY2NDC(0.9)
+        palette.GetAxis().SetTickSize(.01)
+        palette.GetAxis().SetTitle("")
+        if plots[plot].zLog:
+            palette.GetAxis().SetLabelOffset(-0.01)
+            if histo2D.GetMaximum()/histo2D.GetMinimum() < 1e3 :
+                palette.GetAxis().SetMoreLogLabels(True)
+                palette.GetAxis().SetNoExponent(True)
+
+    paletteTitle = TLatex(1.12*maxX, maxY, plots[plot].quotaName)
+    paletteTitle.SetTextAngle(90.)
+    paletteTitle.SetTextSize(0.05)
+    paletteTitle.SetTextAlign(31)
+    paletteTitle.Draw()
+
+    histo2D.GetXaxis().SetTickLength(histo2D.GetXaxis().GetTickLength()/4.)
+    histo2D.GetYaxis().SetTickLength(histo2D.GetYaxis().GetTickLength()/4.)
+    histo2D.SetTitleOffset(0.5,'Y')
+    histo2D.GetXaxis().SetNoExponent(True)
+    histo2D.GetYaxis().SetNoExponent(True)
+
+def create2DPlotsGeometryComparison(detector, plot, 
+                                            geometryOld, geometryNew):
+
+    print('Extracting plot: %s.'%(plot))
+    print(plots[plot])
+    goodToGo, theFiles = paramsGood_(detector,plot,
+                                     geometryOld,geometryNew)
+
+
+    if not goodToGo:
+        return
+
+    oldGeoFile = TFile(theFiles[0],'READ')
+    newGeoFile = TFile(theFiles[1],'READ')
+    #Need to write fxn to merge
+
+    gStyle.SetOptStat(False)
+
+    prof = oldGeoFile.Get('%u'% plots[plot].plotNumber)
+    prof.SetName('Old_%s_%s_%s'%(detector,geometryOld,plot))
+    # Plot 60 is casting a TH2F into a TProfile2D
+    prof.__class__ = TProfile2D
+    
+    old2DHisto = prof.ProjectionXY()
+
+    prof = newGeoFile.Get('%u'% plots[plot].plotNumber)
+    prof.SetName('New_%s_%s_%s'%(detector,geometryOld,plot))
+    prof.__class__ = TProfile2D
+
+    new2DHisto = prof.ProjectionXY()
+
+    if plots[plot].iRebin:
+        old2DHisto.Rebin2D()
+        new2DHisto.Rebin2D()
+
+    ratio2DHisto = copy.deepcopy(new2DHisto)
+    ratio2DHisto.Divide(old2DHisto)
+    ratio2DHisto.SetMinimum(0.8) # plots[plot].histoMin
+    ratio2DHisto.SetMaximum(1.2) # plots[plot].histoMax
+    ratio2DHisto.SetContour(255)
+
+    can = TCanvas('can','can',
+                            2480+248,580+58+58)
+
+    can.SetLogz(plots[plot].zLog)
+    can.SetFillColor(kWhite)
+    can.SetTopMargin(0.1)
+    can.SetBottomMargin(0.1)
+    can.SetLeftMargin(0.04)
+    can.SetRightMargin(0.06)
+    can.SetFillColor(kWhite)
+    can.SetBorderMode(0)
+
+    gStyle.SetOptStat(0)
+    gStyle.SetFillColor(kWhite)
+    gStyle.SetPalette(kGreyScale)
+
+
+    ratio2DHisto.Draw('COLZsame')
+    can.Update()
+
+    setUpPalette(ratio2DHisto,plot)
+
+    keep_alive = []
+    if plots[plot].iDrawEta:
+        keep_alive.extend(drawEtaValues())
+
+    can.Modified()
+    can.SaveAs('%s_ComparisonRatio_%s.png'%(detector,plot))
+    gStyle.SetStripDecimals(True)
 
 def createPlots_(plot, geometry):
     """Cumulative material budget from simulation.
@@ -533,27 +808,7 @@ def create2DPlots(detector, plot, geometry):
     can2.Update()
 
     #Aesthetic
-    palette = hist_X0_total.GetListOfFunctions().FindObject("palette")
-    if palette:
-        palette.__class__ = TPaletteAxis
-        palette.SetX1NDC(0.945)
-        palette.SetX2NDC(0.96)
-        palette.SetY1NDC(0.1)
-        palette.SetY2NDC(0.9)
-        palette.GetAxis().SetTickSize(.01)
-        palette.GetAxis().SetTitle("")
-        if plots[plot].zLog:
-            palette.GetAxis().SetLabelOffset(-0.01)
-    paletteTitle = TLatex(1.12*maxX, maxY, plots[plot].quotaName)
-    paletteTitle.SetTextAngle(90.)
-    paletteTitle.SetTextSize(0.05)
-    paletteTitle.SetTextAlign(31)
-    paletteTitle.Draw()
-    hist_X0_total.GetYaxis().SetTickLength(hist_X0_total.GetXaxis().GetTickLength()/4.)
-    hist_X0_total.GetYaxis().SetTickLength(hist_X0_total.GetXaxis().GetTickLength()/4.)
-    hist_X0_total.SetTitleOffset(0.5,"Y")
-    hist_X0_total.GetXaxis().SetNoExponent(True)
-    hist_X0_total.GetYaxis().SetNoExponent(True)
+    setUpPalette(hist_X0_total,plot)
 
     #Add eta labels
     keep_alive = []
@@ -679,6 +934,23 @@ if __name__ == '__main__':
     if args.geometry_comparison and args.geometry is None:
         print("Error, geometry comparison requires two geometries")
         raise RuntimeError
+    
+    if args.geometry_comparison and args.geometry:
+
+        required_plots = ["x_vs_eta","x_vs_phi","x_vs_R",
+                          "l_vs_eta","l_vs_phi","l_vs_R"]
+        required_2Dplots = ["x_vs_eta_vs_phi",
+                            "l_vs_eta_vs_phi",
+                            "x_vs_z_vs_R",
+                            "l_vs_z_vs_R",
+                            "x_vs_z_vs_Rsum",
+                            "l_vs_z_vs_Rsum"]
+        for p in required_plots:
+            createCompoundPlotsGeometryComparison(args.detector, p, args.geometry,
+                                                  args.geometry_comparison)
+        for p in required_2Dplots:
+            create2DPlotsGeometryComparison(args.detector, p, args.geometry,
+                                                    args.geometry_comparison)
 
     if args.compare and args.single:
         print("Error, too many actions required")
