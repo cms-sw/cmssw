@@ -130,7 +130,6 @@ def get2DHisto_(detector,label,plot,geometry):
     rootFile = TFile()
 
     plotCode = hist_label_to_num[label][0]  +  plots[plot].plotNumber
-    print(plotCode,detector,label,plot,geometry)
 
     if detector not in COMPOUNDS.keys():
         rootFile = TFile.Open('matbdg_%s_%s.root'%(detector,geometry),'READ')
@@ -170,8 +169,8 @@ def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
     if not goodToGo:
         return
 
-    oldGeoFile = TFile(theFiles[0],'READ')
-    newGeoFile = TFile(theFiles[1],'READ')
+    oldGeoFile = TFile.Open(theFiles[0],'READ')
+    newGeoFile = TFile.Open(theFiles[1],'READ')
 
     oldHistos = OrderedDict()
     newHistos = OrderedDict()
@@ -184,36 +183,25 @@ def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
         
         TPad("mainPad"+str(i),"mainPad"+str(i),
              i*0.25, 0.60, (i+1)*0.25, 1.0)
-
         for i in range(4)
-        
         ]
-
+    
     subPadTop = [
-        
         TPad("subPad"+str(i),"subPad"+str(i),
              i*0.25, 0.50, (i+1)*0.25, 0.6)
-        
         for i in range(4)
-
         ]
 
     mainPadBottom = [
-
         TPad("subPad"+str(i),"subPad"+str(i),
              i*0.25, 0.10, (i+1)*0.25, 0.5)
-        
         for i in range(4)
-
-        ]
-
+            ]
+    
     subPadBottom = [
-
         TPad("subPad"+str(i),"subPad"+str(i),
              i*0.25, 0.00, (i+1)*0.25, 0.1)
-        
         for i in range(4)
-
         ]
 
     mainPad = mainPadTop + mainPadBottom
@@ -323,7 +311,6 @@ def create2DPlotsGeometryComparison(detector, plot,
                                             geometryOld, geometryNew):
 
     print('Extracting plot: %s.'%(plot))
-    print(plots[plot])
     goodToGo, theFiles = paramsGood_(detector,plot,
                                      geometryOld,geometryNew)
 
@@ -361,7 +348,6 @@ def create2DPlotsGeometryComparison(detector, plot,
     gStyle.SetOptStat(0)
     gStyle.SetFillColor(kWhite)
     gStyle.SetPalette(kGreyScale)
-
 
     ratio2DHisto.Draw('COLZsame')
     can.Update()
