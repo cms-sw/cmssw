@@ -28,41 +28,24 @@
 //#define PFLOW_DEBUG
 
 #ifdef PFLOW_DEBUG
-#define docast(x,y) dynamic_cast<x>(y)
-#define LOGVERB(x) edm::LogVerbatim(x)
-#define LOGWARN(x) edm::LogWarning(x)
-#define LOGERR(x) edm::LogError(x)
 #define LOGDRESSED(x)  edm::LogInfo(x)
 #else
-#define docast(x,y) reinterpret_cast<x>(y)
-#define LOGVERB(x) LogTrace(x)
-#define LOGWARN(x) edm::LogWarning(x)
-#define LOGERR(x) edm::LogError(x)
 #define LOGDRESSED(x) LogDebug(x)
 #endif
 
-namespace {
-  typedef std::list< reco::PFBlockRef >::iterator IBR;
-}
-
 PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig,
-                                   const pfEGHelpers::HeavyObjectCache*):
-  primaryVertex_(reco::Vertex()),
-  ebeeClustersCollection_("EBEEClusters"),
-  esClustersCollection_("ESClusters") {
+                                   const pfEGHelpers::HeavyObjectCache*)
+  : inputTagBlocks_        (consumes<reco::PFBlockCollection>(iConfig.getParameter<edm::InputTag>("blocks")))
+  , eetopsSrc_             (consumes<reco::PFCluster::EEtoPSAssociation>(
+                            iConfig.getParameter<edm::InputTag>("EEtoPS_source")))
+  , vertices_              (consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection")))
+  , useVerticesForNeutral_ (iConfig.getParameter<bool>("useVerticesForNeutral"))
+  , primaryVertex_         (reco::Vertex())
+  , ebeeClustersCollection_("EBEEClusters")
+  , esClustersCollection_  ("ESClusters")
+{
     
   PFEGammaAlgo::PFEGConfigInfo algo_config;
-
-  inputTagBlocks_ 
-    = consumes<reco::PFBlockCollection>(iConfig.getParameter<edm::InputTag>("blocks"));
-
-  eetopsSrc_ = consumes<reco::PFCluster::EEtoPSAssociation>(iConfig.getParameter<edm::InputTag>("EEtoPS_source"));
-
-  algo_config.useReg
-    =  iConfig.getParameter<bool>("usePhotonReg");
-
-  useVerticesForNeutral_
-    = iConfig.getParameter<bool>("useVerticesForNeutral"); 
 
   std::vector<double>  calibPFSCEle_Fbrem_barrel; 
   std::vector<double>  calibPFSCEle_Fbrem_endcap;
@@ -115,15 +98,6 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig,
   algo_config.applyCrackCorrections
     = iConfig.getParameter<bool>("pf_electronID_crackCorrection");
     
-  //PFPhoton Configuration
-
-  std::string path_mvaWeightFileConvID;
-  std::string mvaWeightFileConvID;
-  std::string path_mvaWeightFileGCorr;
-  std::string path_mvaWeightFileLCorr;
-  std::string path_X0_Map;
-  std::string path_mvaWeightFileRes;
-
   algo_config.mvaweightfile =
     iConfig.getParameter<edm::FileInPath>("pf_convID_mvaWeightFile").fullPath();
   algo_config.mvaConvCut = iConfig.getParameter<double>("pf_conv_mvaCut");  
@@ -132,40 +106,13 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig,
   algo_config.sumPtTrackIsoSlopeForPhoton = 
     iConfig.getParameter<double>("sumPtTrackIsoSlopeForPhoton");
 
-  algo_config.X0_Map = iConfig.getParameter<std::string>("X0_Map");
-  algo_config.X0_Map = 
-    edm::FileInPath( algo_config.X0_Map.c_str() ).fullPath();
-
   edm::ParameterSet iCfgCandConnector 
     = iConfig.getParameter<edm::ParameterSet>("iCfgCandConnector");
 
-
-  // fToRead =  iConfig.getUntrackedParameter<std::vector<std::string> >("toRead");
-
-  useCalibrationsFromDB_
-    = iConfig.getParameter<bool>("useCalibrationsFromDB");    
-
   algo_config.thePFEnergyCalibration.reset(new PFEnergyCalibration());
 
-  int algoType 
-    = iConfig.getParameter<unsigned>("algoType");
-  
-  switch(algoType) {
-  case 0:
-    //pfAlgo_.reset( new PFAlgo);
-    break;
-   default:
-    assert(0);
-  }
-  
   //PFEGamma
   setPFEGParameters(algo_config);  
-
-  //MIKE: Vertex Parameters
-  vertices_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection"));
-
-  verbose_ = 
-    iConfig.getUntrackedParameter<bool>("verbose",false);
 
 }
 
@@ -189,7 +136,7 @@ PFEGammaProducer::produce(edm::Event& iEvent,
   iEvent.getByToken(eetopsSrc_,eetops);
   pfeg_->setEEtoPSAssociation(eetops);
 
-  // preshower conditions                                                                                                                    
+  // preshower conditions
   edm::ESHandle<ESEEIntercalibConstants> esEEInterCalibHandle_;
   iSetup.get<ESEEIntercalibConstantsRcd>().get(esEEInterCalibHandle_);
   pfeg_->setAlphaGamma_ESplanes_fromDB(esEEInterCalibHandle_.product());
@@ -402,8 +349,8 @@ PFEGammaProducer::produce(edm::Event& iEvent,
   }
   
   //put calocluster output collections in event and get orphan handles to create ptrs
-  const edm::OrphanHandle<reco::CaloClusterCollection> &caloClusHandleEBEE = iEvent.put(std::move(caloClustersEBEE),ebeeClustersCollection_);
-  const edm::OrphanHandle<reco::CaloClusterCollection> &caloClusHandleES = iEvent.put(std::move(caloClustersES),esClustersCollection_);
+  auto const& caloClusHandleEBEE = iEvent.put(std::move(caloClustersEBEE),ebeeClustersCollection_);
+  auto const& caloClusHandleES = iEvent.put(std::move(caloClustersES),esClustersCollection_);
   
   //relink superclusters to output caloclusters
   for( auto& sc : *sClusters_ ) {
@@ -477,40 +424,20 @@ PFEGammaProducer::setPFEGParameters(PFEGammaAlgo::PFEGConfigInfo& cfg) {
   pfeg_.reset(new PFEGammaAlgo(cfg));
 }
 
-/*
-void PFAlgo::setPFPhotonRegWeights(
-                  const GBRForest *LCorrForest,
-                  const GBRForest *GCorrForest,
-                  const GBRForest *ResForest
-                  ) {                                                           
-  if(usePFPhotons_) 
-    pfpho_->setGBRForest(LCorrForest, GCorrForest, ResForest);
-} 
-*/
-
 void
 PFEGammaProducer::setPFVertexParameters(bool useVertex,
                               const reco::VertexCollection*  primaryVertices) {
   useVerticesForNeutral_ = useVertex;
 
-  //Set the vertices for muon cleaning
-//  pfmu_->setInputsForCleaning(primaryVertices);
-
-
   //Now find the primary vertex!
-  //bool primaryVertexFound = false;
   int nVtx=primaryVertices->size();
   pfeg_->setnPU(nVtx);
-//   if(usePFPhotons_){
-//     pfpho_->setnPU(nVtx);
-//   }
   primaryVertex_ = primaryVertices->front();
   for (unsigned short i=0 ;i<primaryVertices->size();++i)
     {
       if(primaryVertices->at(i).isValid()&&(!primaryVertices->at(i).isFake()))
         {
           primaryVertex_ = primaryVertices->at(i);
-          //primaryVertexFound = true;
           break;
         }
     }
@@ -519,7 +446,10 @@ PFEGammaProducer::setPFVertexParameters(bool useVertex,
   
 }
 
-void PFEGammaProducer::createSingleLegConversions(reco::PFCandidateEGammaExtraCollection &extras, reco::ConversionCollection &oneLegConversions, const edm::RefProd<reco::ConversionCollection> &convProd) {
+void PFEGammaProducer::createSingleLegConversions(reco::PFCandidateEGammaExtraCollection &extras,
+                                                  reco::ConversionCollection &oneLegConversions,
+                                                  const edm::RefProd<reco::ConversionCollection> &convProd)
+{
  
   math::Error<3>::type error;
   for (auto &extra : extras){
@@ -576,3 +506,65 @@ void PFEGammaProducer::createSingleLegConversions(reco::PFCandidateEGammaExtraCo
   
 }
 
+void PFEGammaProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>  ("blocks",          edm::InputTag("particleFlowBlock"));       // PF Blocks label
+  desc.add<edm::InputTag>  ("EEtoPS_source",   edm::InputTag("particleFlowClusterECAL")); // EE to PS association
+  desc.add<bool>           ("useVerticesForNeutral",            true);
+  desc.add<bool>           ("usePFSCEleCalib",                  true);
+  desc.add<bool>           ("useEGammaSupercluster",            true);
+  // allow building of candidates with no input or output supercluster?
+  desc.add<bool>           ("produceEGCandsWithNoSuperCluster", false);
+  desc.add<double>         ("sumEtEcalIsoForEgammaSC_barrel",   1.);
+  desc.add<double>         ("sumEtEcalIsoForEgammaSC_endcap",   2.);
+  desc.add<double>         ("coneEcalIsoForEgammaSC",           0.3);
+  desc.add<double>         ("sumPtTrackIsoForEgammaSC_barrel",  4.);
+  desc.add<double>         ("sumPtTrackIsoForEgammaSC_endcap",  4.);
+  desc.add<double>         ("coneTrackIsoForEgammaSC",          0.3);
+  desc.add<unsigned int>   ("nTrackIsoForEgammaSC",             2);
+  desc.add<double>         ("pf_electron_mvaCut",               -0.1);
+  desc.add<bool>           ("pf_electronID_crackCorrection",    false);
+  desc.add<double>         ("pf_conv_mvaCut",                   0.0);
+  desc.add<double>         ("sumPtTrackIsoForPhoton",           2.0);
+  desc.add<double>         ("sumPtTrackIsoSlopeForPhoton",      0.001);
+  desc.add<edm::InputTag>  ("vertexCollection",                edm::InputTag("offlinePrimaryVertices"));
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::vector<double>>("nuclCalibFactors", {0.8, 0.15, 0.5, 0.5, 0.05});
+    psd0.add<double>("ptErrorSecondary",    1.0);
+    psd0.add<bool>  ("bCalibPrimary",       true);
+    psd0.add<bool>  ("bCorrect",            true);
+    psd0.add<double>("dptRel_MergedTrack",  5.0);
+    psd0.add<double>("dptRel_PrimaryTrack", 10.0);
+    desc.add<edm::ParameterSetDescription>("iCfgCandConnector", psd0);
+  }
+  desc.add<std::vector<double>>("calibPFSCEle_Fbrem_barrel", {
+      0.6, 6,                                                 // Range of non constant correction
+      -0.0255975, 0.0576727, 0.975442, -0.000546394, 1.26147, // standard parameters
+      25,                                                     // pt value for switch to low pt corrections
+      -0.02025, 0.04537, 0.9728, -0.0008962, 1.172            // low pt parameters
+  });
+  desc.add<std::vector<double>>("calibPFSCEle_Fbrem_endcap", {
+      0.9, 6.5,                                              // Range of non constant correction
+      -0.0692932, 0.101776, 0.995338, -0.00236548, 0.874998, // standard parameters eta < switch value
+      1.653,                                                 // eta value for correction switch
+      -0.0750184, 0.147000, 0.923165, 0.000474665, 1.10782   // standard parameters eta > switch value
+  });
+  desc.add<std::vector<double>>("calibPFSCEle_barrel", {
+      1.004, -1.536, 22.88, -1.467, // standard
+      0.3555, 0.6227, 14.65, 2051,  // parameters
+      25,                           // pt value for switch to low pt corrections
+      0.9932, -0.5444, 0, 0.5438,   // low pt
+      0.7109, 7.645, 0.2904, 0      // parameters
+  });
+  desc.add<std::vector<double>>("calibPFSCEle_endcap", {
+      1.153, -16.5975, 5.668,
+     -0.1772, 16.22, 7.326,
+     0.0483, -4.068, 9.406
+  });
+  desc.add<edm::FileInPath>("pf_electronID_mvaWeightFile",
+      edm::FileInPath("RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_PfElectrons23Jan_IntToFloat.txt"));
+  desc.add<edm::FileInPath>("pf_convID_mvaWeightFile",
+      edm::FileInPath("RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_pfConversionAug0411.txt"));
+  descriptions.add("particleFlowEGamma", desc);
+}
