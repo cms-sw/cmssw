@@ -229,25 +229,6 @@ def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
         ratioHistos[label].Draw("HIST P E1")
         
         counter += 1
-
-    # Sum of all the different categories
-
-    mainPad[counter].cd()
-    prof = copy.deepcopy( oldGeoFile.Get("%d" % plots[plot].plotNumber) )
-    prof.SetName('Ratio_SUM_%s_%s'%(detector,geometryOld))
-    oldProfiles['SUM'] = copy.deepcopy(prof)
-    oldHistos['SUM'] = getOldHisto(oldProfiles['SUM'])
-    oldHistos['SUM'].Draw('HIST')
-
-    prof = newGeoFile.Get("%d" % plots[plot].plotNumber)
-    prof.SetName('Ratio_SUM_%s_%s'%(detector,geometryNew))
-    newProfiles['SUM'] = copy.deepcopy(prof)
-    newHistos['SUM'] = getNewHisto(newProfiles['SUM'])
-    newHistos['SUM'].Draw('SAME')
-
-    subPad[counter].cd()
-    ratioHistos['SUM'] = makeRatio(newHistos['SUM'],oldHistos['SUM'])
-    ratioHistos['SUM'].Draw("HIST P E1")
         
     canComparison.SaveAs( "%s_Comparison_%s.png" % (detector,plot) )
 
