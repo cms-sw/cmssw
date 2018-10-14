@@ -173,15 +173,9 @@ def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
     oldGeoFile = TFile(theFiles[0],'READ')
     newGeoFile = TFile(theFiles[1],'READ')
 
-    oldProfiles = OrderedDict()
     oldHistos = OrderedDict()
-
-    newProfiles = OrderedDict()
     newHistos = OrderedDict()
-
     ratioHistos = OrderedDict()
-
-    #Need to write fxn to merge
 
     canComparison = TCanvas("canComparison","canComparison",2400,1200)
     gStyle.SetOptStat(False)
@@ -230,23 +224,7 @@ def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
         mainPad[i].Draw()
         subPad[i].SetBottomMargin(1e-3)
         subPad[i].Draw()
-
-    counter = 0
-
-    def getOldHisto(prof):
-        # Get histo from TProfile and apply OldStyle
-        histo = prof.ProjectionX()
-        histo.SetFillColor(kGreen+1)
-        histo.SetLineColor(kBlack)
-        return histo
-    
-    def getNewHisto(prof):
-        # Ge histo from TProfile and apply NewStyle
-        histo = prof.ProjectionX()
-        histo.SetMarkerStyle(20)
-        histo.SetLineWidth(0)
-        return histo
-
+        
     def makeRatio(histoX,histoY):
         # return stylized ratio histoX/histoY
         histoXOverY = copy.deepcopy(histoX)
@@ -280,20 +258,18 @@ def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
         legend.SetTextSize(0.035)
         return legend
 
+    counter = 0
     for label, [num, color, leg] in six.iteritems(hist_label_to_num):
 
         mainPad[counter].cd()
-        prof = copy.deepcopy(oldGeoFile.Get("%d" % (num + plots[plot].plotNumber)))
-        # Prevent memory leaking by specifing a unique name
-        prof.SetName('Old_%s_%s_%s' %(label,detector,geometryOld))
-        oldProfiles[label] = copy.deepcopy(prof)
-        oldHistos[label] = getOldHisto(oldProfiles[label])
+        oldHistos[label] = get1DHisto_(detector,label,plot,geometryOld)
+        
+        oldHistos[label].SetFillColor(kGreen+1)
+        oldHistos[label].SetLineColor(kBlack)
         oldHistos[label].Draw("HIST")
 
-        prof = copy.deepcopy(newGeoFile.Get("%d" % (num + plots[plot].plotNumber)))
-        prof.SetName('New_%s_%s_%s' %(label,detector,geometryNew))
-        newProfiles[label] = copy.deepcopy(prof)
-        newHistos[label] = getNewHisto(newProfiles[label])
+        newHistos[label] = get1DHisto_(detector,label,plot,geometryNew)
+
         newHistos[label].Draw('SAME')
 
         legend = copy.deepcopy(setUpLegend(oldHistos[label],newHistos[label]));
@@ -354,25 +330,11 @@ def create2DPlotsGeometryComparison(detector, plot,
 
     if not goodToGo:
         return
-
-    oldGeoFile = TFile(theFiles[0],'READ')
-    newGeoFile = TFile(theFiles[1],'READ')
-    #Need to write fxn to merge
-
+    
     gStyle.SetOptStat(False)
 
-    prof = oldGeoFile.Get('%u'% plots[plot].plotNumber)
-    prof.SetName('Old_%s_%s_%s'%(detector,geometryOld,plot))
-    # Plot 60 is casting a TH2F into a TProfile2D
-    prof.__class__ = TProfile2D
-    
-    old2DHisto = prof.ProjectionXY()
-
-    prof = newGeoFile.Get('%u'% plots[plot].plotNumber)
-    prof.SetName('New_%s_%s_%s'%(detector,geometryOld,plot))
-    prof.__class__ = TProfile2D
-
-    new2DHisto = prof.ProjectionXY()
+    old2DHisto = get2DHisto_(detector,'SUM',plot,geometryOld)
+    new2DHisto = get2DHisto_(detector,'SUM',plot,geometryNew)
 
     if plots[plot].iRebin:
         old2DHisto.Rebin2D()
