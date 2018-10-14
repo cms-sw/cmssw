@@ -113,6 +113,7 @@ sDETS["TEC"] = kPink
 # mat*root files produced. The numbering of the plots is identical
 # across all files.
 hist_label_to_num = OrderedDict()
+hist_label_to_num['SUM'] = [0, kGreen, 'Total MB']
 hist_label_to_num['SUP'] = [100, 13, 'Support'] # [Index , color, legend label]
 hist_label_to_num['SEN'] = [200, 27, 'Sensitive']
 hist_label_to_num['CAB'] = [300, 46, 'Cables']
