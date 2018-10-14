@@ -84,6 +84,81 @@ def assignOrAddIfExists_(h, p):
         h.Add(p.ProjectionX("B_%s" % h.GetName()), +1.000)
     return h
 
+def get1DHisto_(detector,label,plot,geometry):
+    """
+     This function opens the appropiate ROOT file, 
+     extracts the TProfile and turns it into a Histogram,
+     if it is a compound detector, this function
+     takes care of the subdetectors' addition
+    """
+    histo = None
+    rootFile = TFile()
+
+    plotCode = hist_label_to_num[label][0] + plots[plot].plotNumber
+
+    if detector not in COMPOUNDS.keys():
+        rootFile = TFile.Open('matbdg_%s_%s.root'%(detector,geometry),'READ')
+        prof = copy.deepcopy(rootFile.Get("%d" % plotCode))
+        # Prevent memory leaking by specifing a unique name
+        prof.SetName('%u_%s_%s' %(plotCode,detector,geometry))
+        histo = prof.ProjectionX()
+    else:
+        theFiles = []
+        histos = OrderedDict()
+        for subDetector in COMPOUNDS[detector]:
+            subDetectorFilename = 'matbdg_%s_%s.root' % (subDetector,geometry)
+            if not checkFile_(subDetectorFilename):
+                print('Warning: %s not found'%subDetectorFilename)
+                continue
+            subDetectorFile = TFile.Open(subDetectorFilename,'READ')
+            theFiles.append(subDetectorFile)
+            print('*** Open file... %s' % subDetectorFilename)
+            prof = copy.deepcopy(subDetectorFile.Get('%d'%(plotCode)))
+            prof.__class__ = TProfile
+            histo = assignOrAddIfExists_(histo,prof)
+
+    return copy.deepcopy(histo)
+
+def get2DHisto_(detector,label,plot,geometry):
+    """
+     This function opens the appropiate ROOT file, 
+     extracts the TProfile2D and turns it into a Histogram,
+     if it is a compound detector, this function
+     takes care of the subdetectors' addition.
+    """
+    histo = None
+    rootFile = TFile()
+
+    plotCode = hist_label_to_num[label][0]  +  plots[plot].plotNumber
+    print(plotCode,detector,label,plot,geometry)
+
+    if detector not in COMPOUNDS.keys():
+        rootFile = TFile.Open('matbdg_%s_%s.root'%(detector,geometry),'READ')
+        prof = copy.deepcopy(rootFile.Get("%d" % plotCode))
+        # Prevent memory leaking by specifing a unique name
+        prof.SetName('Old_%u_%s_%s' %(plotCode,detector,geometry))
+        prof.__class__ = TProfile2D
+        histo = prof.ProjectionXY()
+    else:
+        histos = OrderedDict()
+        theFiles = []
+        for subDetector in COMPOUNDS[detector]:
+            subDetectorFilename = 'matbdg_%s_%s.root' % (subDetector,geometry)
+            if not checkFile_(subDetectorFilename):
+                print('Warning: %s not found'%subDetectorFilename)
+                continue
+            subDetectorFile = TFile.Open(subDetectorFilename,'READ')
+            theFiles.append(subDetectorFile)
+            print('*** Open file... %s' % subDetectorFilename)
+            prof = copy.deepcopy(subDetectorFile.Get('%d'%plotCode))
+            prof.__class__ = TProfile2D
+            if not histo:
+                histo = prof.ProjectionXY('B_%s' % prof.GetName())
+            else:
+                histo.Add(prof.ProjectionXY('B_%s' % prof.GetName()))
+
+    return copy.deepcopy(histo)
+
 def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
                                           geometryNew):
 
