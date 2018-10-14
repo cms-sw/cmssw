@@ -127,7 +127,6 @@ class PFEGammaAlgo {
     std::string mvaweightfile ;
     double mvaConvCut;
     bool useReg;
-    std::string X0_Map;
     const reco::Vertex* primaryVtx;
     double sumPtTrackIsoForPhoton;
     double sumPtTrackIsoSlopeForPhoton;
@@ -385,12 +384,6 @@ private:
   float dEta_, dPhi_, LowClusE_, RMSAll_, RMSMust_, nPFClus_;
   float TotPS1_, TotPS2_;
   float nVtx_;
-  //for Material Map
-  TH2D* X0_sum;
-  TH2D* X0_inner;
-  TH2D* X0_middle;
-  TH2D* X0_outer;
-  float x0inner_, x0middle_, x0outer_;
   //for PileUP
   float excluded_, Mustache_EtRatio_, Mustache_Et_out_;
   const ESChannelStatus* channelStatus_;
