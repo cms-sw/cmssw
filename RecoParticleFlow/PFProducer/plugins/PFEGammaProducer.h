@@ -51,7 +51,7 @@ This producer makes use of PFAlgo, the particle flow algorithm.
 class PFEGammaProducer : public edm::stream::EDProducer<edm::GlobalCache<pfEGHelpers::HeavyObjectCache> > {
  public:
   explicit PFEGammaProducer(const edm::ParameterSet&, const pfEGHelpers::HeavyObjectCache* );
-  ~PFEGammaProducer() override;
+  ~PFEGammaProducer() override {}
   
   static std::unique_ptr<pfEGHelpers::HeavyObjectCache> 
     initializeGlobalCache( const edm::ParameterSet& conf ) {
@@ -62,7 +62,7 @@ class PFEGammaProducer : public edm::stream::EDProducer<edm::GlobalCache<pfEGHel
   }
 
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void beginRun(const edm::Run &, const edm::EventSetup &) override;
+  void beginRun(const edm::Run &, const edm::EventSetup &) override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -86,7 +86,6 @@ class PFEGammaProducer : public edm::stream::EDProducer<edm::GlobalCache<pfEGHel
 
   // Use photon regression
   bool usePhotonReg_;
-  bool useRegressionFromDB_;
   const GBRForest* ReaderGC_;
   const GBRForest* ReaderLC_;
   const GBRForest* ReaderRes_;
@@ -147,7 +146,6 @@ void PFEGammaProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
   // Use Photon identification in PFAlgo (for now this has NO impact, algo is swicthed off hard-coded
   desc.add<bool>("usePhotonReg",             false);
   desc.add<bool>("useVerticesForNeutral",    true);
-  desc.add<bool>("useRegressionFromDB",      true);
   desc.add<bool>("usePFSCEleCalib",          true);
   desc.add<std::vector<double>>("calibPFSCEle_Fbrem_barrel", {
       0.6, 6,                                                 // Range of non constant correction
@@ -192,10 +190,6 @@ void PFEGammaProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>         ("sumPtTrackIsoForPhoton",           2.0);
   desc.add<double>         ("sumPtTrackIsoSlopeForPhoton",      0.001);
   desc.add<std::string>    ("X0_Map",                           "RecoParticleFlow/PFProducer/data/allX0histos.root");
-
-  desc.add<std::string>    ("pf_locC_mvaWeightFile",           "RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFClusterLCorr_14Dec2011.root");
-  desc.add<std::string>    ("pf_GlobC_mvaWeightFile",          "RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFGlobalCorr_14Dec2011.root");
-  desc.add<std::string>    ("pf_Res_mvaWeightFile",            "RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFRes_14Dec2011.root");
   // ECAL/HCAL PF cluster calibration : take it from global tag ?
   desc.add<bool>           ("useCalibrationsFromDB",           true);
   desc.add<unsigned>       ("algoType",                        0);

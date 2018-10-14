@@ -25,8 +25,6 @@
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include <sstream>
 
-#include "TFile.h"
-
 //#define PFLOW_DEBUG
 
 #ifdef PFLOW_DEBUG
@@ -65,10 +63,6 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig,
 
   useVerticesForNeutral_
     = iConfig.getParameter<bool>("useVerticesForNeutral"); 
-
-  useRegressionFromDB_
-    = iConfig.getParameter<bool>("useRegressionFromDB"); 
-
 
   std::vector<double>  calibPFSCEle_Fbrem_barrel; 
   std::vector<double>  calibPFSCEle_Fbrem_endcap;
@@ -142,23 +136,6 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig,
   algo_config.X0_Map = 
     edm::FileInPath( algo_config.X0_Map.c_str() ).fullPath();
 
-  if(!useRegressionFromDB_) {
-    std::string mvaWeightFileLCorr=iConfig.getParameter<std::string>("pf_locC_mvaWeightFile");
-    path_mvaWeightFileLCorr = edm::FileInPath( mvaWeightFileLCorr.c_str() ).fullPath();
-    std::string mvaWeightFileGCorr=iConfig.getParameter<std::string>("pf_GlobC_mvaWeightFile");
-    path_mvaWeightFileGCorr = edm::FileInPath( mvaWeightFileGCorr.c_str() ).fullPath();
-    std::string mvaWeightFileRes=iConfig.getParameter<std::string>("pf_Res_mvaWeightFile");
-    path_mvaWeightFileRes=edm::FileInPath(mvaWeightFileRes.c_str()).fullPath();
-
-    TFile *fgbr = new TFile(path_mvaWeightFileGCorr.c_str(),"READ");
-    ReaderGC_  =(const GBRForest*)fgbr->Get("GBRForest");
-    TFile *fgbr2 = new TFile(path_mvaWeightFileLCorr.c_str(),"READ");
-    ReaderLC_  = (const GBRForest*)fgbr2->Get("GBRForest");
-    TFile *fgbr3 = new TFile(path_mvaWeightFileRes.c_str(),"READ");
-    ReaderRes_  = (const GBRForest*)fgbr3->Get("GBRForest");
-    LogDebug("PFEGammaProducer")<<"Will set regressions from binary files " <<std::endl;
-  }
-
   edm::ParameterSet iCfgCandConnector 
     = iConfig.getParameter<edm::ParameterSet>("iCfgCandConnector");
 
@@ -190,52 +167,7 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig,
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose",false);
 
-//   bool debug_ = 
-//     iConfig.getUntrackedParameter<bool>("debug",false);
-
 }
-
-
-
-PFEGammaProducer::~PFEGammaProducer() {}
-
-void 
-PFEGammaProducer::beginRun(const edm::Run & run, 
-                     const edm::EventSetup & es) 
-{
-
-  /* // kept for historical reasons
-  if(useRegressionFromDB_) {
-    
-    edm::ESHandle<GBRForest> readerPFLCEB;
-    edm::ESHandle<GBRForest> readerPFLCEE;    
-    edm::ESHandle<GBRForest> readerPFGCEB;
-    edm::ESHandle<GBRForest> readerPFGCEEHR9;
-    edm::ESHandle<GBRForest> readerPFGCEELR9;
-    edm::ESHandle<GBRForest> readerPFRes;
-    es.get<GBRWrapperRcd>().get("PFLCorrectionBar",readerPFLCEB);
-    ReaderLCEB_=readerPFLCEB.product();
-    es.get<GBRWrapperRcd>().get("PFLCorrectionEnd",readerPFLCEE);
-    ReaderLCEE_=readerPFLCEE.product();
-    es.get<GBRWrapperRcd>().get("PFGCorrectionBar",readerPFGCEB);       
-    ReaderGCBarrel_=readerPFGCEB.product();
-    es.get<GBRWrapperRcd>().get("PFGCorrectionEndHighR9",readerPFGCEEHR9);
-    ReaderGCEndCapHighr9_=readerPFGCEEHR9.product();
-    es.get<GBRWrapperRcd>().get("PFGCorrectionEndLowR9",readerPFGCEELR9);
-    ReaderGCEndCapLowr9_=readerPFGCEELR9.product();
-    es.get<GBRWrapperRcd>().get("PFEcalResolution",readerPFRes);
-    ReaderEcalRes_=readerPFRes.product();
-
-    
-    LogDebug("PFEGammaProducer")<<"setting regressions from DB "<<std::endl;
-    
-  } 
-  */
-
-  //pfAlgo_->setPFPhotonRegWeights(ReaderLC_, ReaderGC_, ReaderRes_);
-    
-}
-
 
 void 
 PFEGammaProducer::produce(edm::Event& iEvent, 
