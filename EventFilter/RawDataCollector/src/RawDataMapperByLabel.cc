@@ -101,16 +101,11 @@ void RawDataMapperByLabel::produce(Event & e, const EventSetup& c){
 
 void RawDataMapperByLabel::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
     edm::ParameterSetDescription desc;
-    
-    std::vector<edm::InputTag> tmp_itvect;
-    tmp_itvect.push_back( edm::InputTag("rawDataCollector"));
-    tmp_itvect.push_back( edm::InputTag("rawDataRepacker"));
-    tmp_itvect.push_back( edm::InputTag("rawDataReducedFormat"));
-    
-    desc.add<std::vector<edm::InputTag>>("rawCollectionList",  tmp_itvect);
+      
+    desc.add<std::vector<edm::InputTag>>("rawCollectionList", {{"rawDataCollector", "rawDataRepacker", "rawDataReducedFormat"}});
     desc.add<edm::InputTag>("mainCollection", edm::InputTag("rawDataCollector"));
     
-    descriptions.add("rawDataMapper", desc);
+    descriptions.add("rawDataMapperByLabel", desc);
 }
 
 DEFINE_FWK_MODULE(RawDataMapperByLabel);
