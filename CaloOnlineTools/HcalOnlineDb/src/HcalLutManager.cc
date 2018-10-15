@@ -1,9 +1,10 @@
-#include <fstream>
-#include <sstream>
-#include <sys/time.h>
 #include <cstdlib>
-#include <sys/types.h>
+#include <fstream>
+#include <memory> 
+#include <sstream>
 #include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 #include <cstdlib>  // For srand() and rand()
@@ -301,10 +302,10 @@ std::map<int, std::shared_ptr<LutXml> > HcalLutManager::getLutXmlFromAsciiMaster
     }
     if ( lut_index >= 0 ){
       if ( _xml.count(row->second.crate) == 0 && split_by_crate ){
-	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(row->second.crate,std::shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(row->second.crate,std::make_shared<LutXml>()) );
       }
       else if ( _xml.count(0) == 0 && !split_by_crate ){
-	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(0,std::shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(0,std::make_shared<LutXml>()) );
       }
       _cfg.ieta = row->second.side*row->second.eta;
       _cfg.iphi = row->second.phi;
@@ -396,10 +397,10 @@ std::map<int, std::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFr
       }
       if ( lut_index >= 0 ){
 	if ( _xml.count(row->crate) == 0 && split_by_crate ){
-	  _xml.insert( std::pair<int,std::shared_ptr<LutXml> >(row->crate,std::shared_ptr<LutXml>(new LutXml())) );
+	  _xml.insert( std::pair<int,std::shared_ptr<LutXml> >(row->crate,std::make_shared<LutXml>()) );
 	}
 	else if ( _xml.count(0) == 0 && !split_by_crate ){
-	  _xml.insert( std::pair<int,std::shared_ptr<LutXml> >(0,std::shared_ptr<LutXml>(new LutXml())) );
+	  _xml.insert( std::pair<int,std::shared_ptr<LutXml> >(0,std::make_shared<LutXml>()) );
 	}
 	_cfg.ieta = row->ieta;
 	_cfg.iphi = row->iphi;
@@ -501,10 +502,10 @@ std::map<int, std::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFr
       }
       if ( lut_index >= 0 ){
 	if ( _xml.count(aCrate) == 0 && split_by_crate ){
-	  _xml.insert( std::pair<int,std::shared_ptr<LutXml> >(aCrate,std::shared_ptr<LutXml>(new LutXml())) );
+	  _xml.insert( std::pair<int,std::shared_ptr<LutXml> >(aCrate,std::make_shared<LutXml>()) );
 	}
 	else if ( _xml.count(0) == 0 && !split_by_crate ){
-	  _xml.insert( std::pair<int,std::shared_ptr<LutXml> >(0,std::shared_ptr<LutXml>(new LutXml())) );
+	  _xml.insert( std::pair<int,std::shared_ptr<LutXml> >(0,std::make_shared<LutXml>()) );
 	}
 	_cfg.ieta = _ieta;
 	_cfg.iphi = _iphi;
@@ -584,10 +585,10 @@ std::map<int, std::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFrom
     }
     if ( lut_index >= 0 ){
       if ( _xml.count(row->crate) == 0 && split_by_crate ){
-	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(row->crate,std::shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(row->crate,std::make_shared<LutXml>()) );
       }
       else if ( _xml.count(0) == 0 && !split_by_crate ){
-	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(0,std::shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(0,std::make_shared<LutXml>()) );
       }
       _cfg.ieta = row->ieta;
       _cfg.iphi = row->iphi;
@@ -655,10 +656,10 @@ std::map<int, std::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFr
     LutXml::Config _cfg;
     
     if ( _xml.count(row->second.crate) == 0 && split_by_crate ){
-      _xml.insert( std::pair<int,std::shared_ptr<LutXml> >(row->second.crate,std::shared_ptr<LutXml>(new LutXml())) );
+      _xml.insert( std::pair<int,std::shared_ptr<LutXml> >(row->second.crate,std::make_shared<LutXml>()) );
     }
     else if ( _xml.count(0) == 0 && !split_by_crate ){
-      _xml.insert( std::pair<int,std::shared_ptr<LutXml> >(0,std::shared_ptr<LutXml>(new LutXml())) );
+      _xml.insert( std::pair<int,std::shared_ptr<LutXml> >(0,std::make_shared<LutXml>()) );
     }
     _cfg.ieta = row->second.side*row->second.eta;
     _cfg.iphi = row->second.phi;
@@ -767,7 +768,7 @@ std::map<int, std::shared_ptr<LutXml> > HcalLutManager::getMasks(int masktype, s
 	_cfg.formatrevision = "1";
 
 	int c= split_by_crate ? crate : 0;
-	if ( _xml.count(c) == 0 ) _xml[c]=std::shared_ptr<LutXml>(new LutXml());
+	if ( _xml.count(c) == 0 ) _xml[c]=std::make_shared<LutXml>();
 
 	_xml[c]->addLut(_cfg);  
 	_counter.count();
@@ -801,10 +802,10 @@ std::map<int, std::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFr
       LutXml::Config _cfg;
       
       if ( _xml.count(row->crate) == 0 && split_by_crate ){
-	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(row->crate,std::shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(row->crate,std::make_shared<LutXml>()) );
       }
       else if ( _xml.count(0) == 0 && !split_by_crate ){
-	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(0,std::shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(0,std::make_shared<LutXml>()) );
       }
       _cfg.ieta = row->ieta;
       _cfg.iphi = row->iphi;
@@ -874,10 +875,10 @@ std::map<int, std::shared_ptr<LutXml> > HcalLutManager::getHEFineGrainLUTs(std::
       LutXml::Config _cfg;
 
       if ( _xml.count(row->crate) == 0 && split_by_crate ){
-	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(row->crate,std::shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(row->crate,std::make_shared<LutXml>()) );
       }
       else if ( _xml.count(0) == 0 && !split_by_crate ){
-	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(0,std::shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(0,std::make_shared<LutXml>()) );
       }
       _cfg.ieta = row->ieta;
       _cfg.iphi = row->iphi;
@@ -970,10 +971,10 @@ std::map<int, std::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFrom
 
 
 	if ( _xml.count(row->crate) == 0 && split_by_crate ){
-	    _xml.insert( std::pair<int,std::shared_ptr<LutXml> >(row->crate,std::shared_ptr<LutXml>(new LutXml())) );
+	    _xml.insert( std::pair<int,std::shared_ptr<LutXml> >(row->crate,std::make_shared<LutXml>()) );
 	}
 	else if ( _xml.count(0) == 0 && !split_by_crate ){
-	    _xml.insert( std::pair<int,std::shared_ptr<LutXml> >(0,std::shared_ptr<LutXml>(new LutXml())) );
+	    _xml.insert( std::pair<int,std::shared_ptr<LutXml> >(0,std::make_shared<LutXml>()) );
 	}
 
 	_cfg.ieta = row->ieta;
@@ -1051,10 +1052,10 @@ std::map<int, std::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFrom
     const int tp_version = row->idepth / 10;
     if ( row->subdet . find("HT") != std::string::npos && _coder.HTvalid(row->ieta, row->iphi, tp_version) ){
       if ( _xml.count(row->crate) == 0 && split_by_crate ){
-	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(row->crate,std::shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(row->crate,std::make_shared<LutXml>()) );
       }
       else if ( _xml.count(0) == 0 && !split_by_crate ){
-	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(0,std::shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(0,std::make_shared<LutXml>()) );
       }
       _cfg.ieta = row->ieta;
       _cfg.iphi = row->iphi;
@@ -1553,7 +1554,7 @@ std::map<int, std::shared_ptr<LutXml> > HcalLutManager::get_brickSet_from_oracle
 	*/
 	const char * bs = brick_set . c_str();
 	MemBufInputSource * lut_clob = new MemBufInputSource( (const XMLByte *)bs, strlen( bs ), "lut_clob", false );
-	std::shared_ptr<LutXml> lut_xml = std::shared_ptr<LutXml>( new LutXml( *lut_clob ) );
+	std::shared_ptr<LutXml> lut_xml = std::make_shared<LutXml>( *lut_clob );
 	lut_map[crate] = lut_xml;
 	edm::LogInfo("HcalLutManager") << "done";
       }
@@ -1766,10 +1767,10 @@ std::map<int, std::shared_ptr<LutXml> > HcalLutManager::getZdcLutXml( std::strin
     // only ZDC channels
     if ( row->zdc_section . find("ZDC") != std::string::npos ){
       if ( _xml.count(row->crate) == 0 && split_by_crate ){
-	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(row->crate,std::shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(row->crate,std::make_shared<LutXml>()) );
       }
       else if ( _xml.count(0) == 0 && !split_by_crate ){
-	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(0,std::shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(0,std::make_shared<LutXml>()) );
       }
       //  FIXME: introduce proper tag names in ZDC bricks for logical channel info
       _cfg.ieta = row->zdc_channel; // int
