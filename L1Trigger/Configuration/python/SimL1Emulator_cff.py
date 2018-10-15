@@ -107,6 +107,11 @@ phase2_SimL1Emulator += l1EGammaCrystalsProducer
 from L1Trigger.L1CaloTrigger.l1EGammaEEProducer_cfi import * 
 phase2_SimL1Emulator += l1EGammaEEProducer
 
+# Barrel L1Tk + Stub
+# ########################################################################
+from L1Trigger.L1TTrackMatch.L1TTrackerPlusStubs_cfi import *
+l1KBmtfStubMatchedMuons = l1StubMatchedMuons.clone()
+phase2_SimL1Emulator += l1KBmtfStubMatchedMuons 
 
 # Tk + StandaloneObj
 # (include L1TkPrimaryVertex)
