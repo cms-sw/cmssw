@@ -192,6 +192,9 @@ process.tasksPath = cms.Path(
 		+process.zdcQIE10Task
 )
 
+if isHeavyIon:
+    process.tasksPath += process.zdcQIE10Task
+
 process.harvestingPath = cms.Path(
 	process.hcalOnlineHarvesting
 )
