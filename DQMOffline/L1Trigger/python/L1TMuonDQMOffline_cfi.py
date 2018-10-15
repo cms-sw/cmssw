@@ -41,7 +41,7 @@ l1tMuonDQMOffline = DQMEDAnalyzer('L1TMuonDQMOffline',
     tagPtCut = cms.untracked.double(30.),
     recoToL1PtCutFactor = cms.untracked.double(1.25),
     cuts = cms.untracked.VPSet(cutsPSets),
-    useL1AtVtxCoord = cms.untracked.bool(True),
+    useL1AtVtxCoord = cms.untracked.bool(False),
 
     muonInputTag = cms.untracked.InputTag("muons"),
     gmtInputTag  = cms.untracked.InputTag("gmtStage2Digis","Muon"),
