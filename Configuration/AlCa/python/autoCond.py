@@ -24,11 +24,11 @@ autoCond = {
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
     'run2_mc_pa'        :   '103X_mcRun2_pA_v1',
     # GlobalTag for Run1 data reprocessing
-    'run1_data'         :   '103X_dataRun2_v3',
+    'run1_data'         :   '103X_dataRun2_v5',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'         :   '103X_dataRun2_v3',
+    'run2_data'         :   '103X_dataRun2_v5',
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
-    'run2_data_relval'  :   '103X_dataRun2_relval_v6',
+    'run2_data_relval'  :   '103X_dataRun2_relval_v7',
     # GlobalTag for Run2 data 2018B relvals only: HEM-15-16 fail
     'run2_data_promptlike_HEfail' : '103X_dataRun2_PromptLike_HEfail_v4',
     # GlobalTag for Run2 data 2016H relvals only: Prompt Conditions + fixed L1 menu (to be removed)
