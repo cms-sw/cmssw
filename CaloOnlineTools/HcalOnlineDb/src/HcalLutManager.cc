@@ -264,10 +264,10 @@ HcalLutSet HcalLutManager::getLutSetFromFile( std::string _filename, int _type )
 
 
 
-std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLutXmlFromAsciiMaster( std::string _filename, std::string _tag, int _crate, bool split_by_crate )
+std::map<int, std::shared_ptr<LutXml> > HcalLutManager::getLutXmlFromAsciiMaster( std::string _filename, std::string _tag, int _crate, bool split_by_crate )
 {
   edm::LogInfo("HcalLutManager") << "Generating linearization (input) LUTs from ascii master file...";
-  std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
+  std::map<int, std::shared_ptr<LutXml> > _xml; // index - crate number
 
   LMap _lmap;
   _lmap . read( "./backup/HCALmapHBEF.txt", "HBEF" );
@@ -301,10 +301,10 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLutXmlFromAsciiMast
     }
     if ( lut_index >= 0 ){
       if ( _xml.count(row->second.crate) == 0 && split_by_crate ){
-	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(row->second.crate,boost::shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(row->second.crate,std::shared_ptr<LutXml>(new LutXml())) );
       }
       else if ( _xml.count(0) == 0 && !split_by_crate ){
-	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(0,boost::shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(0,std::shared_ptr<LutXml>(new LutXml())) );
       }
       _cfg.ieta = row->second.side*row->second.eta;
       _cfg.iphi = row->second.phi;
@@ -350,10 +350,10 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLutXmlFromAsciiMast
 //
 //_____ get HO from ASCII master here ___________________________________
 //
-std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromAsciiMasterEmap( std::string _filename, std::string _tag, int _crate, bool split_by_crate )
+std::map<int, std::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromAsciiMasterEmap( std::string _filename, std::string _tag, int _crate, bool split_by_crate )
 {
   edm::LogInfo("HcalLutManager") << "Generating linearization (input) LUTs from ascii master file...";
-  std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
+  std::map<int, std::shared_ptr<LutXml> > _xml; // index - crate number
 
   EMap _emap(emap);
   std::vector<EMap::EMapRow> & _map = _emap.get_map();
@@ -396,10 +396,10 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXml
       }
       if ( lut_index >= 0 ){
 	if ( _xml.count(row->crate) == 0 && split_by_crate ){
-	  _xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(row->crate,boost::shared_ptr<LutXml>(new LutXml())) );
+	  _xml.insert( std::pair<int,std::shared_ptr<LutXml> >(row->crate,std::shared_ptr<LutXml>(new LutXml())) );
 	}
 	else if ( _xml.count(0) == 0 && !split_by_crate ){
-	  _xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(0,boost::shared_ptr<LutXml>(new LutXml())) );
+	  _xml.insert( std::pair<int,std::shared_ptr<LutXml> >(0,std::shared_ptr<LutXml>(new LutXml())) );
 	}
 	_cfg.ieta = row->ieta;
 	_cfg.iphi = row->iphi;
@@ -451,10 +451,10 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXml
 }
 
 
-std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromAsciiMasterEmap_new( std::string _filename, std::string _tag, int _crate, bool split_by_crate )
+std::map<int, std::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromAsciiMasterEmap_new( std::string _filename, std::string _tag, int _crate, bool split_by_crate )
 {
   edm::LogInfo("HcalLutManager") << "Generating linearization (input) LUTs from ascii master file...";
-  std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
+  std::map<int, std::shared_ptr<LutXml> > _xml; // index - crate number
 
   // read LUTs and their eta/phi/depth/subdet ranges
   HcalLutSet _set = getLutSetFromFile( _filename );
@@ -501,10 +501,10 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXml
       }
       if ( lut_index >= 0 ){
 	if ( _xml.count(aCrate) == 0 && split_by_crate ){
-	  _xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(aCrate,boost::shared_ptr<LutXml>(new LutXml())) );
+	  _xml.insert( std::pair<int,std::shared_ptr<LutXml> >(aCrate,std::shared_ptr<LutXml>(new LutXml())) );
 	}
 	else if ( _xml.count(0) == 0 && !split_by_crate ){
-	  _xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(0,boost::shared_ptr<LutXml>(new LutXml())) );
+	  _xml.insert( std::pair<int,std::shared_ptr<LutXml> >(0,std::shared_ptr<LutXml>(new LutXml())) );
 	}
 	_cfg.ieta = _ieta;
 	_cfg.iphi = _iphi;
@@ -544,10 +544,10 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXml
 }
 
 
-std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromAsciiMaster( std::string _filename, std::string _tag, int _crate, bool split_by_crate )
+std::map<int, std::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromAsciiMaster( std::string _filename, std::string _tag, int _crate, bool split_by_crate )
 {
   edm::LogInfo("HcalLutManager") << "Generating compression (output) LUTs from ascii master file...";
-  std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
+  std::map<int, std::shared_ptr<LutXml> > _xml; // index - crate number
 
   edm::LogInfo("HcalLutManager") << "instantiating CaloTPGTranscoderULUT in order to check the validity of (ieta,iphi)...";
   CaloTPGTranscoderULUT _coder;
@@ -584,10 +584,10 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
     }
     if ( lut_index >= 0 ){
       if ( _xml.count(row->crate) == 0 && split_by_crate ){
-	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(row->crate,boost::shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(row->crate,std::shared_ptr<LutXml>(new LutXml())) );
       }
       else if ( _xml.count(0) == 0 && !split_by_crate ){
-	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(0,boost::shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(0,std::shared_ptr<LutXml>(new LutXml())) );
       }
       _cfg.ieta = row->ieta;
       _cfg.iphi = row->iphi;
@@ -629,10 +629,10 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
 }
 
 
-std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromCoder( const HcalTPGCoder & _coder, std::string _tag, bool split_by_crate )
+std::map<int, std::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromCoder( const HcalTPGCoder & _coder, std::string _tag, bool split_by_crate )
 {
   edm::LogInfo("HcalLutManager") << "Generating linearization (input) LUTs from HcaluLUTTPGCoder...";
-  std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
+  std::map<int, std::shared_ptr<LutXml> > _xml; // index - crate number
 
   //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.03_080817.txt");
   //std::vector<EMap::EMapRow> & _map = _emap.get_map();
@@ -655,10 +655,10 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXml
     LutXml::Config _cfg;
     
     if ( _xml.count(row->second.crate) == 0 && split_by_crate ){
-      _xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(row->second.crate,boost::shared_ptr<LutXml>(new LutXml())) );
+      _xml.insert( std::pair<int,std::shared_ptr<LutXml> >(row->second.crate,std::shared_ptr<LutXml>(new LutXml())) );
     }
     else if ( _xml.count(0) == 0 && !split_by_crate ){
-      _xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(0,boost::shared_ptr<LutXml>(new LutXml())) );
+      _xml.insert( std::pair<int,std::shared_ptr<LutXml> >(0,std::shared_ptr<LutXml>(new LutXml())) );
     }
     _cfg.ieta = row->second.side*row->second.eta;
     _cfg.iphi = row->second.phi;
@@ -712,7 +712,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXml
 }
 
 
-std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getMasks(int masktype, std::string _tag, bool split_by_crate ){
+std::map<int, std::shared_ptr<LutXml> > HcalLutManager::getMasks(int masktype, std::string _tag, bool split_by_crate ){
     edm::LogInfo("HcalLutManager") << "Generating TDC masks...";
 
     EMap _emap(emap);
@@ -749,7 +749,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getMasks(int masktype,
 	}
     }
 
-    std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
+    std::map<int, std::shared_ptr<LutXml> > _xml; // index - crate number
     RooGKCounter _counter;
 
     for(const auto &i: masks){
@@ -767,7 +767,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getMasks(int masktype,
 	_cfg.formatrevision = "1";
 
 	int c= split_by_crate ? crate : 0;
-	if ( _xml.count(c) == 0 ) _xml[c]=boost::shared_ptr<LutXml>(new LutXml());
+	if ( _xml.count(c) == 0 ) _xml[c]=std::shared_ptr<LutXml>(new LutXml());
 
 	_xml[c]->addLut(_cfg);  
 	_counter.count();
@@ -781,10 +781,10 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getMasks(int masktype,
 
 
 
-std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromCoderEmap( const HcalTPGCoder & _coder, std::string _tag, bool split_by_crate )
+std::map<int, std::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromCoderEmap( const HcalTPGCoder & _coder, std::string _tag, bool split_by_crate )
 {
   edm::LogInfo("HcalLutManager") << "Generating linearization (input) LUTs from HcaluLUTTPGCoder...";
-  std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
+  std::map<int, std::shared_ptr<LutXml> > _xml; // index - crate number
 
   EMap _emap(emap);
   std::vector<EMap::EMapRow> & _map = _emap.get_map();
@@ -801,10 +801,10 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXml
       LutXml::Config _cfg;
       
       if ( _xml.count(row->crate) == 0 && split_by_crate ){
-	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(row->crate,boost::shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(row->crate,std::shared_ptr<LutXml>(new LutXml())) );
       }
       else if ( _xml.count(0) == 0 && !split_by_crate ){
-	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(0,boost::shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(0,std::shared_ptr<LutXml>(new LutXml())) );
       }
       _cfg.ieta = row->ieta;
       _cfg.iphi = row->iphi;
@@ -854,10 +854,10 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXml
   return _xml;
 }
 
-std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getHEFineGrainLUTs(std::string _tag, bool split_by_crate )
+std::map<int, std::shared_ptr<LutXml> > HcalLutManager::getHEFineGrainLUTs(std::string _tag, bool split_by_crate )
 {
   edm::LogInfo("HcalLutManager") << "Generating HE fine grain LUTs";
-  std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
+  std::map<int, std::shared_ptr<LutXml> > _xml; // index - crate number
 
   EMap _emap(emap);
   std::vector<EMap::EMapRow> & _map = _emap.get_map();
@@ -874,10 +874,10 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getHEFineGrainLUTs(std
       LutXml::Config _cfg;
 
       if ( _xml.count(row->crate) == 0 && split_by_crate ){
-	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(row->crate,boost::shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(row->crate,std::shared_ptr<LutXml>(new LutXml())) );
       }
       else if ( _xml.count(0) == 0 && !split_by_crate ){
-	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(0,boost::shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(0,std::shared_ptr<LutXml>(new LutXml())) );
       }
       _cfg.ieta = row->ieta;
       _cfg.iphi = row->iphi;
@@ -934,11 +934,11 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getHEFineGrainLUTs(std
 
 
 
-std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromCoder( const CaloTPGTranscoderULUT & _coder, std::string _tag, bool split_by_crate )
+std::map<int, std::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromCoder( const CaloTPGTranscoderULUT & _coder, std::string _tag, bool split_by_crate )
 {
     edm::LogInfo("HcalLutManager") << "Generating compression (output) LUTs from CaloTPGTranscoderULUT," << std::endl
         << "initialized from Event Setup" << std::endl;
-    std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
+    std::map<int, std::shared_ptr<LutXml> > _xml; // index - crate number
 
     EMap _emap(emap);
 
@@ -970,10 +970,10 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
 
 
 	if ( _xml.count(row->crate) == 0 && split_by_crate ){
-	    _xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(row->crate,boost::shared_ptr<LutXml>(new LutXml())) );
+	    _xml.insert( std::pair<int,std::shared_ptr<LutXml> >(row->crate,std::shared_ptr<LutXml>(new LutXml())) );
 	}
 	else if ( _xml.count(0) == 0 && !split_by_crate ){
-	    _xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(0,boost::shared_ptr<LutXml>(new LutXml())) );
+	    _xml.insert( std::pair<int,std::shared_ptr<LutXml> >(0,std::shared_ptr<LutXml>(new LutXml())) );
 	}
 
 	_cfg.ieta = row->ieta;
@@ -1022,10 +1022,10 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
 
 
 
-std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromCoder( std::string _tag, bool split_by_crate )
+std::map<int, std::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromCoder( std::string _tag, bool split_by_crate )
 {
   edm::LogInfo("HcalLutManager") << "Generating compression (output) LUTs from CaloTPGTranscoderULUT";
-  std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
+  std::map<int, std::shared_ptr<LutXml> > _xml; // index - crate number
 
   //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v5_080208.txt");
   //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.03_080817.txt");
@@ -1051,10 +1051,10 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
     const int tp_version = row->idepth / 10;
     if ( row->subdet . find("HT") != std::string::npos && _coder.HTvalid(row->ieta, row->iphi, tp_version) ){
       if ( _xml.count(row->crate) == 0 && split_by_crate ){
-	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(row->crate,boost::shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(row->crate,std::shared_ptr<LutXml>(new LutXml())) );
       }
       else if ( _xml.count(0) == 0 && !split_by_crate ){
-	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(0,boost::shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(0,std::shared_ptr<LutXml>(new LutXml())) );
       }
       _cfg.ieta = row->ieta;
       _cfg.iphi = row->iphi;
@@ -1102,9 +1102,9 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
 
 
 
-int HcalLutManager::writeLutXmlFiles( std::map<int, boost::shared_ptr<LutXml> > & _xml, std::string _tag, bool split_by_crate )
+int HcalLutManager::writeLutXmlFiles( std::map<int, std::shared_ptr<LutXml> > & _xml, std::string _tag, bool split_by_crate )
 {
-  for (std::map<int,boost::shared_ptr<LutXml> >::const_iterator cr = _xml.begin(); cr != _xml.end(); cr++){
+  for (std::map<int,std::shared_ptr<LutXml> >::const_iterator cr = _xml.begin(); cr != _xml.end(); cr++){
     std::stringstream output_file_name;
     if ( split_by_crate ){
       output_file_name << _tag << "_" << cr->first << ".xml";
@@ -1120,7 +1120,7 @@ int HcalLutManager::writeLutXmlFiles( std::map<int, boost::shared_ptr<LutXml> > 
 int HcalLutManager::createLinLutXmlFiles( std::string _tag, std::string _lin_file, bool split_by_crate )
 {
   //std::cout << "DEBUG1: split_by_crate = " << split_by_crate << std::endl;
-  std::map<int, boost::shared_ptr<LutXml> > xml;
+  std::map<int, std::shared_ptr<LutXml> > xml;
   if ( !lut_checksums_xml ){
     lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
   }
@@ -1139,7 +1139,7 @@ int HcalLutManager::createLinLutXmlFiles( std::string _tag, std::string _lin_fil
 int HcalLutManager::createAllLutXmlFiles( std::string _tag, std::string _lin_file, std::string _comp_file, bool split_by_crate )
 {
   //std::cout << "DEBUG1: split_by_crate = " << split_by_crate << std::endl;
-  std::map<int, boost::shared_ptr<LutXml> > xml;
+  std::map<int, std::shared_ptr<LutXml> > xml;
   if ( !lut_checksums_xml ){
     lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
   }
@@ -1164,7 +1164,7 @@ int HcalLutManager::createAllLutXmlFiles( std::string _tag, std::string _lin_fil
 int HcalLutManager::createCompLutXmlFilesFromCoder( std::string _tag, bool split_by_crate )
 {
   //std::cout << "DEBUG1: split_by_crate = " << split_by_crate << std::endl;
-  std::map<int, boost::shared_ptr<LutXml> > xml;
+  std::map<int, std::shared_ptr<LutXml> > xml;
   if ( !lut_checksums_xml ){
     lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
   }
@@ -1182,7 +1182,7 @@ int HcalLutManager::createCompLutXmlFilesFromCoder( std::string _tag, bool split
 int HcalLutManager::createAllLutXmlFilesFromCoder( const HcalTPGCoder & _coder, std::string _tag, bool split_by_crate )
 {
   //std::cout << "DEBUG1: split_by_crate = " << split_by_crate << std::endl;
-  std::map<int, boost::shared_ptr<LutXml> > xml;
+  std::map<int, std::shared_ptr<LutXml> > xml;
   if ( !lut_checksums_xml ){
     lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
   }
@@ -1204,22 +1204,22 @@ int HcalLutManager::createAllLutXmlFilesFromCoder( const HcalTPGCoder & _coder, 
 //
 int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii( std::string _tag, const HcalTPGCoder & _coder, const CaloTPGTranscoderULUT & _transcoder, std::string _lin_file, bool split_by_crate )
 {
-  std::map<int, boost::shared_ptr<LutXml> > xml;
+  std::map<int, std::shared_ptr<LutXml> > xml;
   if ( !lut_checksums_xml ){
     lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
   }
   
   if ( !_lin_file.empty() ){
-    const std::map<int, boost::shared_ptr<LutXml> > _lin_lut_ascii_xml = getLinearizationLutXmlFromAsciiMasterEmap( _lin_file, _tag, -1, split_by_crate );
+    const std::map<int, std::shared_ptr<LutXml> > _lin_lut_ascii_xml = getLinearizationLutXmlFromAsciiMasterEmap( _lin_file, _tag, -1, split_by_crate );
     addLutMap( xml, _lin_lut_ascii_xml );
   }
-  const std::map<int, boost::shared_ptr<LutXml> > _lin_lut_xml = getLinearizationLutXmlFromCoderEmap( _coder, _tag, split_by_crate );
+  const std::map<int, std::shared_ptr<LutXml> > _lin_lut_xml = getLinearizationLutXmlFromCoderEmap( _coder, _tag, split_by_crate );
   addLutMap( xml, _lin_lut_xml );
   //
-  const std::map<int, boost::shared_ptr<LutXml> > _comp_lut_xml = getCompressionLutXmlFromCoder( _transcoder, _tag, split_by_crate );
+  const std::map<int, std::shared_ptr<LutXml> > _comp_lut_xml = getCompressionLutXmlFromCoder( _transcoder, _tag, split_by_crate );
   addLutMap( xml, _comp_lut_xml );
 
-  const std::map<int, boost::shared_ptr<LutXml> > _HE_FG_lut_xml = getHEFineGrainLUTs(_tag, split_by_crate );
+  const std::map<int, std::shared_ptr<LutXml> > _HE_FG_lut_xml = getHEFineGrainLUTs(_tag, split_by_crate );
   addLutMap( xml, _HE_FG_lut_xml );
 
   writeLutXmlFiles( xml, _tag, split_by_crate );
@@ -1233,19 +1233,19 @@ int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii( std::string _ta
 
 int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii( std::string _tag, const HcalTPGCoder & _coder, std::string _lin_file, bool split_by_crate )
 {
-  std::map<int, boost::shared_ptr<LutXml> > xml;
+  std::map<int, std::shared_ptr<LutXml> > xml;
   if ( !lut_checksums_xml ){
     lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
   }
   
   if ( !_lin_file.empty() ){
-    const std::map<int, boost::shared_ptr<LutXml> > _lin_lut_ascii_xml = getLinearizationLutXmlFromAsciiMasterEmap( _lin_file, _tag, -1, split_by_crate );
+    const std::map<int, std::shared_ptr<LutXml> > _lin_lut_ascii_xml = getLinearizationLutXmlFromAsciiMasterEmap( _lin_file, _tag, -1, split_by_crate );
     addLutMap( xml, _lin_lut_ascii_xml );
   }
-  const std::map<int, boost::shared_ptr<LutXml> > _lin_lut_xml = getLinearizationLutXmlFromCoderEmap( _coder, _tag, split_by_crate );
+  const std::map<int, std::shared_ptr<LutXml> > _lin_lut_xml = getLinearizationLutXmlFromCoderEmap( _coder, _tag, split_by_crate );
   addLutMap( xml, _lin_lut_xml );
   //
-  const std::map<int, boost::shared_ptr<LutXml> > _comp_lut_xml = getCompressionLutXmlFromCoder( _tag, split_by_crate );
+  const std::map<int, std::shared_ptr<LutXml> > _comp_lut_xml = getCompressionLutXmlFromCoder( _tag, split_by_crate );
   addLutMap( xml, _comp_lut_xml );
   
   writeLutXmlFiles( xml, _tag, split_by_crate );
@@ -1261,7 +1261,7 @@ int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii( std::string _ta
 int HcalLutManager::createAllLutXmlFilesLinAsciiCompCoder( std::string _tag, std::string _lin_file, bool split_by_crate )
 {
   //std::cout << "DEBUG1: split_by_crate = " << split_by_crate << std::endl;
-  std::map<int, boost::shared_ptr<LutXml> > xml;
+  std::map<int, std::shared_ptr<LutXml> > xml;
   if ( !lut_checksums_xml ){
     lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
   }
@@ -1280,9 +1280,9 @@ int HcalLutManager::createAllLutXmlFilesLinAsciiCompCoder( std::string _tag, std
 
 
 
-void HcalLutManager::addLutMap(std::map<int, boost::shared_ptr<LutXml> > & result, const std::map<int, boost::shared_ptr<LutXml> > & other)
+void HcalLutManager::addLutMap(std::map<int, std::shared_ptr<LutXml> > & result, const std::map<int, std::shared_ptr<LutXml> > & other)
 {
-  for ( std::map<int, boost::shared_ptr<LutXml> >::const_iterator lut=other.begin(); lut!=other.end(); lut++ ){
+  for ( std::map<int, std::shared_ptr<LutXml> >::const_iterator lut=other.begin(); lut!=other.end(); lut++ ){
     edm::LogInfo("HcalLutManager") << "Added LUTs for crate " << lut->first;
     if ( result.count(lut->first)==0 ){
       result . insert( *lut );
@@ -1485,13 +1485,13 @@ std::vector<unsigned int> HcalLutManager::getLutFromXml_old( std::string tag, ui
 
 int HcalLutManager::get_xml_files_from_db( std::string tag, const std::string db_accessor, bool split_by_crate )
 {
-  std::map<int, boost::shared_ptr<LutXml> > lut_map = get_brickSet_from_oracle( tag, db_accessor );
+  std::map<int, std::shared_ptr<LutXml> > lut_map = get_brickSet_from_oracle( tag, db_accessor );
   if (split_by_crate){
     writeLutXmlFiles( lut_map, tag, split_by_crate );
   }      
   else{
     LutXml result;
-    for( std::map<int, boost::shared_ptr<LutXml> >::const_iterator xml = lut_map.begin(); xml != lut_map.end(); xml++ ){
+    for( std::map<int, std::shared_ptr<LutXml> >::const_iterator xml = lut_map.begin(); xml != lut_map.end(); xml++ ){
       result += *(xml->second);
     }
     std::stringstream out_file;
@@ -1502,7 +1502,7 @@ int HcalLutManager::get_xml_files_from_db( std::string tag, const std::string db
   return 0;
 }
 
-std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::get_brickSet_from_oracle( std::string tag, const std::string _accessor )
+std::map<int, std::shared_ptr<LutXml> > HcalLutManager::get_brickSet_from_oracle( std::string tag, const std::string _accessor )
 {
   HCALConfigDB * db = new HCALConfigDB();
   XMLProcessor::getInstance(); // initialize xerces-c engine
@@ -1524,7 +1524,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::get_brickSet_from_orac
 
   std::string brick_set;
 
-  std::map<int, boost::shared_ptr<LutXml> > lut_map;
+  std::map<int, std::shared_ptr<LutXml> > lut_map;
 
   try {
     //SELECT
@@ -1553,7 +1553,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::get_brickSet_from_orac
 	*/
 	const char * bs = brick_set . c_str();
 	MemBufInputSource * lut_clob = new MemBufInputSource( (const XMLByte *)bs, strlen( bs ), "lut_clob", false );
-	boost::shared_ptr<LutXml> lut_xml = boost::shared_ptr<LutXml>( new LutXml( *lut_clob ) );
+	std::shared_ptr<LutXml> lut_xml = std::shared_ptr<LutXml>( new LutXml( *lut_clob ) );
 	lut_map[crate] = lut_xml;
 	edm::LogInfo("HcalLutManager") << "done";
       }
@@ -1710,22 +1710,22 @@ int HcalLutManager::test_direct_xml_parsing( std::string _filename ){
 //
 int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii_ZDC( std::string _tag, const HcalTPGCoder & _coder, const CaloTPGTranscoderULUT & _transcoder, std::string _lin_file, bool split_by_crate )
 {
-  std::map<int, boost::shared_ptr<LutXml> > xml;
+  std::map<int, std::shared_ptr<LutXml> > xml;
   if ( !lut_checksums_xml ){
     lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
   }
   
   if ( !_lin_file.empty() ){
-    const std::map<int, boost::shared_ptr<LutXml> > _lin_lut_ascii_xml = getLinearizationLutXmlFromAsciiMasterEmap( _lin_file, _tag, -1, split_by_crate );
+    const std::map<int, std::shared_ptr<LutXml> > _lin_lut_ascii_xml = getLinearizationLutXmlFromAsciiMasterEmap( _lin_file, _tag, -1, split_by_crate );
     addLutMap( xml, _lin_lut_ascii_xml );
   }
-  const std::map<int, boost::shared_ptr<LutXml> > _lin_lut_xml = getLinearizationLutXmlFromCoderEmap( _coder, _tag, split_by_crate );
+  const std::map<int, std::shared_ptr<LutXml> > _lin_lut_xml = getLinearizationLutXmlFromCoderEmap( _coder, _tag, split_by_crate );
   addLutMap( xml, _lin_lut_xml );
   //
-  const std::map<int, boost::shared_ptr<LutXml> > _comp_lut_xml = getCompressionLutXmlFromCoder( _transcoder, _tag, split_by_crate );
+  const std::map<int, std::shared_ptr<LutXml> > _comp_lut_xml = getCompressionLutXmlFromCoder( _transcoder, _tag, split_by_crate );
   addLutMap( xml, _comp_lut_xml );
 
-  const std::map<int, boost::shared_ptr<LutXml> > _HE_FG_lut_xml = getHEFineGrainLUTs(_tag, split_by_crate );
+  const std::map<int, std::shared_ptr<LutXml> > _HE_FG_lut_xml = getHEFineGrainLUTs(_tag, split_by_crate );
   addLutMap( xml, _HE_FG_lut_xml );
 
   for(auto masktype: {0,1,2}){
@@ -1733,7 +1733,7 @@ int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii_ZDC( std::string
       addLutMap(xml, masks);
   }
   //
-  const std::map<int, boost::shared_ptr<LutXml> > _zdc_lut_xml = getZdcLutXml( _tag, split_by_crate );
+  const std::map<int, std::shared_ptr<LutXml> > _zdc_lut_xml = getZdcLutXml( _tag, split_by_crate );
   addLutMap( xml, _zdc_lut_xml );
   
   writeLutXmlFiles( xml, _tag, split_by_crate );
@@ -1745,11 +1745,11 @@ int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii_ZDC( std::string
 }
 
 
-std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getZdcLutXml( std::string _tag,
+std::map<int, std::shared_ptr<LutXml> > HcalLutManager::getZdcLutXml( std::string _tag,
 								 bool split_by_crate )
 {
   edm::LogInfo("HcalLutManager") << "Generating ZDC LUTs ...may the Force be with us...";
-  std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
+  std::map<int, std::shared_ptr<LutXml> > _xml; // index - crate number
 
   EMap _emap(emap);
 
@@ -1766,10 +1766,10 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getZdcLutXml( std::str
     // only ZDC channels
     if ( row->zdc_section . find("ZDC") != std::string::npos ){
       if ( _xml.count(row->crate) == 0 && split_by_crate ){
-	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(row->crate,boost::shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(row->crate,std::shared_ptr<LutXml>(new LutXml())) );
       }
       else if ( _xml.count(0) == 0 && !split_by_crate ){
-	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(0,boost::shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,std::shared_ptr<LutXml> >(0,std::shared_ptr<LutXml>(new LutXml())) );
       }
       //  FIXME: introduce proper tag names in ZDC bricks for logical channel info
       _cfg.ieta = row->zdc_channel; // int
