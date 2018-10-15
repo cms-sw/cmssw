@@ -268,8 +268,14 @@ def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
         ratioHistos[label].Draw("HIST P E1")
         
         counter += 1
+
+    theDirname = "Images"
+
+    if not checkFile_(theDirname):
+        os.mkdir(theDirname)
         
-    canComparison.SaveAs( "%s_Comparison_%s.png" % (detector,plot) )
+    canComparison.SaveAs( "%s/%s_Comparison_%s_%s_vs_%s.png"
+                          % (theDirname,detector,plot,geometryOld,geometryNew) )
 
 def setUpPalette(histo2D, plot) :
 
@@ -359,7 +365,14 @@ def create2DPlotsGeometryComparison(detector, plot,
         keep_alive.extend(drawEtaValues())
 
     can.Modified()
-    can.SaveAs('%s_ComparisonRatio_%s.png'%(detector,plot))
+
+    theDirname = "Images"
+
+    if not checkFile_(theDirname):
+        os.mkdir(theDirname)
+        
+    can.SaveAs( "%s/%s_ComparisonRatio_%s_%s_vs_%s.png"
+                % (theDirname,detector,plot,geometryOld,geometryNew) )
     gStyle.SetStripDecimals(True)
 
 def createPlots_(plot, geometry):
@@ -703,8 +716,10 @@ def createCompoundPlots(detector, plot, geometry):
 
     # Store
     can.Update();
-    can.SaveAs( "%s/%s_%s.pdf" % (theDirname, detector, plot))
-    can.SaveAs( "%s/%s_%s.png" % (theDirname, detector, plot))
+    can.SaveAs( "%s/%s_%s_%s.pdf" 
+                % (theDirname, detector, plot, geometry))
+    can.SaveAs( "%s/%s_%s_%s.png" 
+                % (theDirname, detector, plot, geometry))
 
 
 def create2DPlots(detector, plot, geometry):
@@ -826,8 +841,10 @@ def create2DPlots(detector, plot, geometry):
     can2.Update()
     can2.Modified()
 
-    can2.SaveAs( "%s/%s_%s_bw.pdf" % (theDirname, detector, plot))
-    can2.SaveAs( "%s/%s_%s_bw.png" % (theDirname, detector, plot))
+    can2.SaveAs( "%s/%s_%s_%s_bw.pdf" 
+                 % (theDirname, detector, plot, geometry))
+    can2.SaveAs( "%s/%s_%s_%s_bw.png" 
+                 % (theDirname, detector, plot, geometry))
     gStyle.SetStripDecimals(True)
 
 def createRatioPlots(detector, plot, geometry):
@@ -900,8 +917,10 @@ def createRatioPlots(detector, plot, geometry):
 
     # Store
     canR.Update()
-    canR.SaveAs("%s/%s_%s.pdf" % (theDirname, detector, plot))
-    canR.SaveAs("%s/%s_%s.png" % (theDirname, detector, plot))
+    canR.SaveAs("%s/%s_%s_%s.pdf" 
+                % (theDirname, detector, plot, geometry))
+    canR.SaveAs("%s/%s_%s_%s.png" 
+                % (theDirname, detector, plot, geometry))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Generic Material Plotter',
