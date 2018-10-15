@@ -188,9 +188,10 @@ process.tasksPath = cms.Path(
 		+process.nocqTask
 		+process.fcdTask
 		#+process.qie11Task
-		#ZDC to be removed after 2018 PbPb run
-		+process.zdcQIE10Task
 )
+
+if isHeavyIon:
+    process.tasksPath += process.zdcQIE10Task
 
 process.harvestingPath = cms.Path(
 	process.hcalOnlineHarvesting
