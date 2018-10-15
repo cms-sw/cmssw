@@ -988,7 +988,7 @@ if __name__ == '__main__':
             raise RuntimeError
         materialBudget_Simul_vs_Reco(args.reco, args.label, args.geometry, debug=False)
 
-    if args.single:
+    if args.single and not args.geometry_comparison:
         if args.detector is None:
             print("Error, missing detector")
             raise RuntimeError
