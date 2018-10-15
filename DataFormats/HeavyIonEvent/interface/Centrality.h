@@ -40,11 +40,15 @@ public:
   double EtEcalSum() const {return etEBSum_ + EtEESum();}
   double EtEcaltruncated() const {return etEBtruncated_ + EtEEtruncated();}
   double multiplicityPixel() const {return pixelMultiplicity_;}
+  double multiplicityPixelPlus() const {return pixelMultiplicityPlus_;}
+  double multiplicityPixelMinus() const {return pixelMultiplicityMinus_;}
   double Ntracks() const {return trackMultiplicity_;}
   double NtracksPtCut() const {return ntracksPtCut_;}
   double NtracksEtaCut() const {return ntracksEtaCut_;}
   double NtracksEtaPtCut() const {return ntracksEtaPtCut_;}
   double NpixelTracks() const {return nPixelTracks_;}
+  //double NpixelTracksPlus() const {return nPixelTracksPlus_;}
+  //double NpixelTracksMinus() const {return nPixelTracksMinus_;}
 
   double zdcSum() const {return zdcSumPlus_ + zdcSumMinus_;}
   double zdcSumPlus() const {return zdcSumPlus_;}
@@ -73,6 +77,8 @@ protected:
   double etEBtruncated_;
 
   double pixelMultiplicity_;
+  double pixelMultiplicityPlus_;
+  double pixelMultiplicityMinus_;
   double trackMultiplicity_;
   double zdcSumPlus_;
   double zdcSumMinus_;
