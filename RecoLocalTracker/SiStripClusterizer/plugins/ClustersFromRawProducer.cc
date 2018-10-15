@@ -184,14 +184,6 @@ namespace {
 #endif
     
   };
-
-  uint16_t physicalToReadoutOrder( uint16_t physical_order )
-  {
-    auto phys_float = static_cast<float>(physical_order);
-    return ( 4*(static_cast<uint16_t>(phys_float/ 8.0)%4)
-           +    static_cast<uint16_t>(phys_float/32.0)
-           + 16*(physical_order%8) );
-  }
 } // namespace
 
 
@@ -515,7 +507,8 @@ try { // edmNew::CapacityExaustedException
       // un-multiplex the digis (from readout to physical order)
       std::vector<int16_t> digis;
       for ( uint16_t i = 0; i != samples.size(); ++i ) {
-        const auto readout = physicalToReadoutOrder(i%128)*2 + ( (i/128) ? 1 : 0);
+        // move bits around:   2-0->7-5   ,   4-3->4-3   ,      6-5->2-1     ,      7->0
+        const auto readout = ((i&0x7)<<5) + (i&(0x3<<3)) + ((i&(0x3<<5))>>4) + ((i&(0x1<<7))>>7);
         digis.push_back(samples[readout]);
       }
       //process raw
