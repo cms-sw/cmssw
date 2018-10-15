@@ -303,6 +303,8 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      iEvent.getByToken(srcPixelhits_,rchts);
      rechits = rchts.product();
      int nPixel =0 ;
+     int nPixel_plus =0 ;
+     int nPixel_minus =0 ;
      for (SiPixelRecHitCollection::const_iterator it = rechits->begin(); it!=rechits->end();it++)
      {
         SiPixelRecHitCollection::DetSet hits = *it;
@@ -311,14 +313,16 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         const SiPixelRecHitCollection::DetSet recHitRange = *recHitMatch;
         for ( SiPixelRecHitCollection::DetSet::const_iterator recHitIterator = recHitRange.begin(); 
 	      recHitIterator != recHitRange.end(); ++recHitIterator) {
+
 	  // add selection if needed, now all hits.
-	  if(doPixelCut_){
 	    const SiPixelRecHit * recHit = &(*recHitIterator);
 	    const PixelGeomDetUnit* pixelLayer = dynamic_cast<const PixelGeomDetUnit*> (tGeo->idToDet(recHit->geographicalId()));
 	    GlobalPoint gpos = pixelLayer->toGlobal(recHit->localPosition());
 	    math::XYZVector rechitPos(gpos.x(),gpos.y(),gpos.z());
+	    double eta = rechitPos.eta();
 	    double abeta = std::abs(rechitPos.eta());
 	    int clusterSize = recHit->cluster()->size();
+	  if(doPixelCut_){
             if (                abeta < 0.5 && clusterSize < 1) continue;
 	    if ( abeta > 0.5 && abeta < 1   && clusterSize < 2) continue;
             if ( abeta > 1.  && abeta < 1.5 && clusterSize < 3) continue;
@@ -327,9 +331,14 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             if ( abeta > 2.5 && abeta < 5   && clusterSize < 9) continue;
 	  }
 	  nPixel++;
+      if(eta>=0) nPixel_plus++;
+      if(eta<0) nPixel_minus++;
+      
         } 
      }
      creco->pixelMultiplicity_ = nPixel;
+     creco->pixelMultiplicityPlus_ = nPixel_plus;
+     creco->pixelMultiplicityMinus_ = nPixel_minus;
   }else{
     if(reuseAny_){
      creco->pixelMultiplicity_ = inputCentrality->multiplicityPixel();
