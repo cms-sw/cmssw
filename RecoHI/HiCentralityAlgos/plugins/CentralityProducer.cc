@@ -342,6 +342,8 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }else{
     if(reuseAny_){
      creco->pixelMultiplicity_ = inputCentrality->multiplicityPixel();
+     creco->pixelMultiplicityPlus_ = inputCentrality->multiplicityPixelPlus();
+     creco->pixelMultiplicityMinus_ = inputCentrality->multiplicityPixelMinus();
     }
   }
 
@@ -431,11 +433,24 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     Handle<TrackCollection> pixeltracks;
     iEvent.getByToken(srcPixelTracks_,pixeltracks);
     int nPixelTracks = pixeltracks->size();
+    int nPixelTracksPlus = 0;
+    int nPixelTracksMinus = 0;
+
+    for(unsigned int i = 0 ; i < pixeltracks->size(); ++i){
+        const Track& track = (*pixeltracks)[i];
+
+        if(track.eta()<0) nPixelTracksMinus++;
+        else nPixelTracksPlus++;
+    }
     creco->nPixelTracks_ = nPixelTracks;
+    creco->nPixelTracksPlus_ = nPixelTracksPlus;
+    creco->nPixelTracksMinus_ = nPixelTracksMinus;
   }
   else{
     if(reuseAny_){
      creco->nPixelTracks_ = inputCentrality->NpixelTracks();
+     creco->nPixelTracksPlus_ = inputCentrality->NpixelTracksPlus();
+     creco->nPixelTracksMinus_ = inputCentrality->NpixelTracksMinus();
     }
   }
 

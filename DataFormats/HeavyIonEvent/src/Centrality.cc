@@ -35,7 +35,9 @@ etMidRapiditySum_(0),
 ntracksPtCut_(0),
 ntracksEtaCut_(0),
 ntracksEtaPtCut_(0),
-nPixelTracks_(0)
+nPixelTracks_(0),
+nPixelTracksPlus_(0),
+nPixelTracksMinus_(0)
 {
 }
 
