@@ -146,6 +146,19 @@ namespace l1t {
     int egMaxPtHOverEIsolation() const { return egp_.maxPtHOverEIsolation_; }
     unsigned egBypassEGVetos() { return pnode_[egBypassEGVetosFlag].uparams_[0]; }
     unsigned egBypassExtHOverE() { return pnode_[egBypassExtHoE].uparams_[0]; }
+    unsigned egBypassShape() const {
+      if(pnode_[egBypassShapeFlag].uparams_.empty()) return 0;
+      else return pnode_[egBypassShapeFlag].uparams_[0];
+    }
+    unsigned egBypassECALFG()  const {
+      if(pnode_[egBypassECALFGFlag].uparams_.empty()) return 0;
+      else return pnode_[egBypassECALFGFlag].uparams_[0];
+    }
+    unsigned egBypassHoE() const {
+      if(pnode_[egBypassHoEFlag].uparams_.empty()) return 0;
+      else return pnode_[egBypassHoEFlag].uparams_[0];
+    }
+
     int egHOverEcutBarrel() const {return pnode_[egHOverEBarrel].iparams_[0]; }
     int egHOverEcutEndcap() const {return pnode_[egHOverEEndcap].iparams_[0]; }
 
@@ -184,6 +197,14 @@ namespace l1t {
     void setEgBypassEGVetos(unsigned flag) { 
       pnode_[egBypassEGVetosFlag].uparams_.resize(1);
       pnode_[egBypassEGVetosFlag].uparams_[0] = flag; 
+    }
+    void setEgBypassShape(unsigned flag) { 
+      pnode_[egBypassShapeFlag].uparams_.resize(1);
+      pnode_[egBypassShapeFlag].uparams_[0] = flag; 
+    }
+    void setEgBypassECALFG(unsigned flag) { 
+      pnode_[egBypassECALFGFlag].uparams_.resize(1);
+      pnode_[egBypassECALFGFlag].uparams_[0] = flag; 
     }
     void setEgBypassExtHOverE(unsigned flag) {
       pnode_[egBypassExtHoE].uparams_.resize(1);
