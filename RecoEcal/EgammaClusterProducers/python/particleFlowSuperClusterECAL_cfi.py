@@ -60,9 +60,6 @@ particleFlowSuperClusterECALBox = cms.EDProducer(
     phiwidth_SuperClusterEndcap = cms.double(0.28),
     etawidth_SuperClusterEndcap = cms.double(0.04),
 
-    # threshold in preshower
-    thresh_PFClusterES = cms.double(0.),                                          
-
     # turn on merging of the seed cluster to its nearest neighbors
     # that share a rechit
     doSatelliteClusterMerge = cms.bool(False),
@@ -100,9 +97,6 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
     PFSuperClusterCollectionEndcap = cms.string("particleFlowSuperClusterECALEndcap"),
     PFBasicClusterCollectionPreshower = cms.string("particleFlowBasicClusterECALPreshower"),
     PFSuperClusterCollectionEndcapWithPreshower = cms.string("particleFlowSuperClusterECALEndcapWithPreshower"),                                          
-
-    #use preshower ?
-    use_preshower = cms.bool(True),
 
     # are the seed thresholds Et or Energy?
     seedThresholdIsET = cms.bool(True),

@@ -25,7 +25,7 @@ This example creates a histogram of Jet Pt, using Jets with Pt above 30 and ETA 
 #include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include "PhysicsTools/FWLite/interface/TFileService.h"
 #include "DataFormats/FWLite/interface/ChainEvent.h"
-#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
+#include "FWCore/ParameterSetReader/interface/ProcessDescImpl.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 
 
@@ -249,7 +249,7 @@ int main (int argc, char* argv[])
 
   cout << "Getting parameters" << endl;
   // Get the python configuration
-  PythonProcessDesc builder(argv[1]);
+  ProcessDescImpl builder(argv[1]);
   std::shared_ptr<edm::ProcessDesc> b = builder.processDesc();
   std::shared_ptr<edm::ParameterSet> parameters = b->getProcessPSet();
   parameters->registerIt(); 

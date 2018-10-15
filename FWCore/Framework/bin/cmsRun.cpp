@@ -15,7 +15,7 @@ PSet script.   See notes in EventProcessor.cpp for details about it.
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/PluginManager/interface/standard.h"
-#include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
+#include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/ServiceRegistry/interface/ServiceWrapper.h"
@@ -277,8 +277,8 @@ int main(int argc, char* argv[]) {
       context += fileName;
       std::shared_ptr<edm::ProcessDesc> processDesc;
       try {
-        std::shared_ptr<edm::ParameterSet> parameterSet = edm::readConfig(fileName, argc, argv);
-        processDesc.reset(new edm::ProcessDesc(parameterSet));
+        std::unique_ptr<edm::ParameterSet> parameterSet = edm::readConfig(fileName, argc, argv);
+        processDesc.reset(new edm::ProcessDesc(std::move(parameterSet)));
       }
       catch(cms::Exception& iException) {
         edm::Exception e(edm::errors::ConfigFileReadError, "", iException);

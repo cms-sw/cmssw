@@ -56,7 +56,7 @@ void TrackerStablePhiSort(RandomAccessIterator begin,
   
   std::vector<Element> tmpvec(end-begin);
   std::transform(begin,end,tmpvec.begin(),
-		 boost::bind(Element::template build<Extractor>,_1, boost::cref(extr))
+		 std::bind(Element::template build<Extractor>,std::placeholders::_1, boost::cref(extr))
 		 );
   
   std::vector<Element> tmpcop(end-begin);
@@ -80,9 +80,9 @@ void TrackerStablePhiSort(RandomAccessIterator begin,
     //stability check
     // check if the last element is too near to zero --> probably it is zero
     double tolerance = 0.000001;
-    if( fabs(tmpvec.back().value - 0) < tolerance       // near 0
+    if( std::abs(tmpvec.back().value - 0) < tolerance       // near 0
 	||
-	fabs(tmpvec.back().value - 2*M_PI) < tolerance ) { // near 2pi
+	std::abs(tmpvec.back().value - 2*M_PI) < tolerance ) { // near 2pi
       // move it to front 
       tmpvec.insert(tmpvec.begin(),tmpvec.back());
       tmpvec.pop_back();

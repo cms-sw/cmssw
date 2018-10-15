@@ -13,7 +13,6 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -38,7 +37,51 @@ const int HcaluLUTTPGCoder::QIE11_LUT_BITMASK;
 
 constexpr double MaximumFractionalError = 0.002; // 0.2% error allowed from this source
 
-HcaluLUTTPGCoder::HcaluLUTTPGCoder(const HcalTopology* top, const edm::ESHandle<HcalTimeSlew>& delay) : topo_(top),  delay_(delay), LUTGenerationMode_(true), bitToMask_(0), allLinear_(false), linearLSB_QIE8_(1.), linearLSB_QIE11_(1.), pulseCorr_(std::make_unique<HcalPulseContainmentManager>(MaximumFractionalError)) {
+HcaluLUTTPGCoder::HcaluLUTTPGCoder() :
+  topo_{},
+  delay_{},
+  LUTGenerationMode_{},
+  FG_HF_threshold_{},
+  bitToMask_{},
+  firstHBEta_{},
+  lastHBEta_{},
+  nHBEta_{},
+  maxDepthHB_{},
+  sizeHB_{},
+  firstHEEta_{},
+  lastHEEta_{},
+  nHEEta_{},
+  maxDepthHE_{},
+  sizeHE_{},
+  firstHFEta_{},
+  lastHFEta_{},
+  nHFEta_{},
+  maxDepthHF_{},
+  sizeHF_{},
+  cosh_ieta_28_HE_low_depths_{},
+  cosh_ieta_28_HE_high_depths_{},
+  cosh_ieta_29_HE_{},
+  allLinear_{},
+  linearLSB_QIE8_{},
+  linearLSB_QIE11_{},
+  linearLSB_QIE11Overlap_{} {
+}
+
+HcaluLUTTPGCoder::HcaluLUTTPGCoder(const HcalTopology* top, const HcalTimeSlew* delay) {
+  init(top, delay);
+}
+
+void HcaluLUTTPGCoder::init(const HcalTopology* top, const HcalTimeSlew* delay) {
+  topo_ = top;
+  delay_ = delay;
+  LUTGenerationMode_ = true;
+  FG_HF_threshold_ = 0;
+  bitToMask_ = 0;
+  allLinear_ = false;
+  linearLSB_QIE8_ = 1.;
+  linearLSB_QIE11_ = 1.;
+  linearLSB_QIE11Overlap_ = 1.;
+  pulseCorr_ = std::make_unique<HcalPulseContainmentManager>(MaximumFractionalError);
   firstHBEta_ = topo_->firstHBRing();      
   lastHBEta_  = topo_->lastHBRing();
   nHBEta_     = (lastHBEta_-firstHBEta_+1);

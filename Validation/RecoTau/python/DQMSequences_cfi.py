@@ -33,8 +33,11 @@ pfTauRunDQMValidation = cms.Sequence(
 
 runTauEff = cms.Sequence(
     efficienciesRealData+
+    efficienciesRealDataSummary+
     efficienciesRealElectronsData+
+    efficienciesRealElectronsDataSummary+
     efficienciesRealMuonsData+
+    efficienciesRealMuonsDataSummary+
     normalizePlotsRealMuonsData
     )
 
