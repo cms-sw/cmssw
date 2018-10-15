@@ -132,8 +132,8 @@ void L1TStage2CaloLayer2DEClientSummary::processHistograms(DQMStore::IGetter &ig
     //   totalEg = 0, goodEg = 0, totalTau = 0, goodTau = 0, totalSums = 0,
     //   goodSums = 0;
 
-    // by default show 100% agreement (for edge case when no objects are found)
-    double evtRatio = 1, jetRatio = 1, egRatio = 1, tauRatio = 1, sumRatio = 1;
+    // by default show 0% agreement (for edge case when no objects are found)
+    double evtRatio = 0, jetRatio = 0, egRatio = 0, tauRatio = 0, sumRatio = 0;
 
     double totalEvents = hlSummary_->getBinContent(1);
     double goodEvents  = hlSummary_->getBinContent(2);
