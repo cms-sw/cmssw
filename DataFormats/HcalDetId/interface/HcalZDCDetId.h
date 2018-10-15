@@ -63,7 +63,7 @@ private:
 
 public:
 
-  enum { kSizeForDenseIndexing = 2*kDepRun1 } ;
+  enum { kSizeForDenseIndexing = 2*kDepTot } ;
 
 };
 
