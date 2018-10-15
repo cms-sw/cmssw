@@ -20,7 +20,7 @@ packedPFCandidates = cms.EDProducer("PATPackedCandidateProducer",
     covarianceVersion = cms.int32(0), #so far: 0 is Phase0, 1 is Phase1   
 #    covariancePackingSchemas = cms.vint32(1,257,513,769,0),  # a cheaper schema in kb/ev 
     covariancePackingSchemas = cms.vint32(8,264,520,776,0),   # more accurate schema +0.6kb/ev   
-    pfCandidateTypesForHcalDepth = cms.vint32(5,2,4),  # PF candidate types for adding Hcal depth energy fraction information (5: neutral hadron, 2: PF electron, 4: PF photon)
+    pfCandidateTypesForHcalDepth = cms.vint32(130,11,22),  # PF candidate types for adding Hcal depth energy fraction information (130: neutral hadron, 11: PF electron, 22: PF photon)
     storeTiming = cms.bool(False)
 )
 

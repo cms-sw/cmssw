@@ -324,7 +324,6 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
 	}
 
 	// storing HcalDepthEnergyFraction information
-	std::cout << cand.pdgId() << std::endl;
 	if ( std::find(pfCandidateTypesForHcalDepth_.begin(), pfCandidateTypesForHcalDepth_.end(), abs(cand.pdgId())) != pfCandidateTypesForHcalDepth_.end() ){
 	  std::array<float,7> hcalDepthEnergyFractions {{
 	      cand.hcalDepthEnergyFraction(1), cand.hcalDepthEnergyFraction(2), cand.hcalDepthEnergyFraction(3), cand.hcalDepthEnergyFraction(4),
