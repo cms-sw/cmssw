@@ -113,7 +113,7 @@ sDETS["TEC"] = kPink
 # mat*root files produced. The numbering of the plots is identical
 # across all files.
 hist_label_to_num = OrderedDict()
-hist_label_to_num['SUM'] = [0, kGreen, 'Total MB']
+hist_label_to_num['SUM'] = [0, kGreen+1, 'Total MB']
 hist_label_to_num['SUP'] = [100, 13, 'Support'] # [Index , color, legend label]
 hist_label_to_num['SEN'] = [200, 27, 'Sensitive']
 hist_label_to_num['CAB'] = [300, 46, 'Cables']
@@ -137,12 +137,18 @@ def setTDRStyle():
 
     # For the Pad:
     tdrStyle.SetPadBorderMode(0)
+    tdrStyle.SetPadTopMargin(0.05)
+    tdrStyle.SetPadBottomMargin(0.15)
+    tdrStyle.SetPadLeftMargin(0.16)
+    tdrStyle.SetPadRightMargin(0.04)
     tdrStyle.SetPadColor(kWhite)
     tdrStyle.SetPadGridX(False)
     tdrStyle.SetPadGridY(False)
-    tdrStyle.SetGridColor(0)
+    tdrStyle.SetGridColor(kWhite)
     tdrStyle.SetGridStyle(3)
     tdrStyle.SetGridWidth(1)
+    tdrStyle.SetPadTickX(True)
+    tdrStyle.SetPadTickY(True)
 
     # For the frame:
     tdrStyle.SetFrameBorderMode(0)
@@ -151,7 +157,7 @@ def setTDRStyle():
     tdrStyle.SetFrameFillStyle(0)
     tdrStyle.SetFrameLineColor(1)
     tdrStyle.SetFrameLineStyle(1)
-    tdrStyle.SetFrameLineWidth(1)
+    tdrStyle.SetFrameLineWidth(0)
 
     # For the histo:
     tdrStyle.SetHistLineColor(1)
@@ -202,7 +208,7 @@ def setTDRStyle():
     tdrStyle.SetTitleFont(42, "XYZ")
     tdrStyle.SetTitleSize(0.06, "XYZ")
     tdrStyle.SetTitleXOffset(0.9)
-    tdrStyle.SetTitleYOffset(1.25)
+    tdrStyle.SetTitleYOffset(1.7)
 
     # For the axis labels:
     tdrStyle.SetLabelColor(1, "XYZ")
@@ -222,6 +228,9 @@ def setTDRStyle():
     tdrStyle.SetOptLogx(0)
     tdrStyle.SetOptLogy(0)
     tdrStyle.SetOptLogz(0)
+
+    # Miscellaneous
+    tdrStyle.SetLegendBorderSize(0)
 
     # Postscript options:
     tdrStyle.SetPaperSize(20.,20.)
