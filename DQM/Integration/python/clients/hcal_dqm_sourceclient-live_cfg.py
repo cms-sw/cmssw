@@ -134,7 +134,7 @@ process.load('DQM.HcalTasks.TPTask')
 process.load('DQM.HcalTasks.RawTask')
 process.load('DQM.HcalTasks.NoCQTask')
 process.load('DQM.HcalTasks.FCDTask')
-#process.load('DQM.HcalTasks.ZDCTask')
+process.load('DQM.HcalTasks.ZDCTask')
 #process.load('DQM.HcalTasks.QIE11Task') # 2018: integrate QIE11Task into DigiTask
 process.load('DQM.HcalTasks.HcalOnlineHarvesting')
 process.load('DQM.HcalTasks.HcalQualityTests')
@@ -188,8 +188,8 @@ process.tasksPath = cms.Path(
 		+process.nocqTask
 		+process.fcdTask
 		#+process.qie11Task
-		#ZDC to be removed for 2017 pp running
-		#+process.zdcTask
+		#ZDC to be removed after 2018 PbPb run
+		+process.zdcQIE10Task
 )
 
 process.harvestingPath = cms.Path(
