@@ -135,7 +135,7 @@ def get2DHisto_(detector,label,plot,geometry):
         rootFile = TFile.Open('matbdg_%s_%s.root'%(detector,geometry),'READ')
         prof = copy.deepcopy(rootFile.Get("%d" % plotCode))
         # Prevent memory leaking by specifing a unique name
-        prof.SetName('Old_%u_%s_%s' %(plotCode,detector,geometry))
+        prof.SetName('%u_%s_%s' %(plotCode,detector,geometry))
         prof.__class__ = TProfile2D
         histo = prof.ProjectionXY()
     else:
@@ -161,7 +161,7 @@ def get2DHisto_(detector,label,plot,geometry):
 def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
                                           geometryNew):
 
-    #setTDRStyle();
+    setTDRStyle();
 
     goodToGo, theFiles = paramsGood_(detector,plot,
                                      geometryOld,geometryNew)
@@ -169,18 +169,14 @@ def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
     if not goodToGo:
         return
 
-    oldGeoFile = TFile.Open(theFiles[0],'READ')
-    newGeoFile = TFile.Open(theFiles[1],'READ')
-
     oldHistos = OrderedDict()
     newHistos = OrderedDict()
     ratioHistos = OrderedDict()
 
     canComparison = TCanvas("canComparison","canComparison",2400,1200)
     gStyle.SetOptStat(False)
-
-    mainPadTop = [
-        
+    
+    mainPadTop = [        
         TPad("mainPad"+str(i),"mainPad"+str(i),
              i*0.25, 0.60, (i+1)*0.25, 1.0)
         for i in range(4)
@@ -191,7 +187,7 @@ def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
              i*0.25, 0.50, (i+1)*0.25, 0.6)
         for i in range(4)
         ]
-
+    
     mainPadBottom = [
         TPad("subPad"+str(i),"subPad"+str(i),
              i*0.25, 0.10, (i+1)*0.25, 0.5)
@@ -203,14 +199,16 @@ def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
              i*0.25, 0.00, (i+1)*0.25, 0.1)
         for i in range(4)
         ]
-
+    
     mainPad = mainPadTop + mainPadBottom
     subPad = subPadTop + subPadBottom
-
+    
     for i in range(8):
+        mainPad
         mainPad[i].SetBottomMargin(1e-3)
         mainPad[i].Draw()
-        subPad[i].SetBottomMargin(1e-3)
+        subPad[i].SetTopMargin(1e-3)
+        subPad[i].SetBottomMargin(0.2)
         subPad[i].Draw()
         
     def makeRatio(histoX,histoY):
@@ -228,11 +226,12 @@ def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
         histoXOverY.GetYaxis().SetTitleFont(43)
         histoXOverY.GetYaxis().SetLabelSize(0.17)
         histoXOverY.GetYaxis().SetTitleOffset(3.5)
-        histoXOverY.GetYaxis().SetNdivisions(8)
-        histoXOverY.GetYaxis().SetTitle('%s/%s' % (geometryNew,geometryOld))
+        histoXOverY.GetYaxis().SetNdivisions(6,3,0)
+        histoXOverY.GetYaxis().SetTitle('#frac{%s}{%s}' % (geometryNew,geometryOld))
 
         histoXOverY.GetXaxis().SetTitleSize(25)
         histoXOverY.GetXaxis().SetTitleFont(43)
+        histoXOverY.GetXaxis().SetTitleOffset(3.5)
         histoXOverY.GetXaxis().SetLabelSize(0.17)
 
         return histoXOverY
@@ -251,13 +250,14 @@ def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
 
         mainPad[counter].cd()
         oldHistos[label] = get1DHisto_(detector,label,plot,geometryOld)
-        
-        oldHistos[label].SetFillColor(kGreen+1)
+        oldHistos[label].SetFillColor(color)
         oldHistos[label].SetLineColor(kBlack)
+        oldHistos[label].SetLineWidth(1)
         oldHistos[label].Draw("HIST")
 
         newHistos[label] = get1DHisto_(detector,label,plot,geometryNew)
-
+        newHistos[label].SetMarkerSize(.5)
+        newHistos[label].SetMarkerStyle(20)
         newHistos[label].Draw('SAME')
 
         legend = copy.deepcopy(setUpLegend(oldHistos[label],newHistos[label]));
@@ -319,7 +319,6 @@ def create2DPlotsGeometryComparison(detector, plot,
     print('Extracting plot: %s.'%(plot))
     goodToGo, theFiles = paramsGood_(detector,plot,
                                      geometryOld,geometryNew)
-
 
     if not goodToGo:
         return
