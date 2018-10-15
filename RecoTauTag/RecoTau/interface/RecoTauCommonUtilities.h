@@ -23,7 +23,6 @@
 #include <boost/mem_fn.hpp>
 
 #include <boost/type_traits/is_base_of.hpp>
-#include <boost/static_assert.hpp>
 
 namespace reco { namespace tau {
 
@@ -75,7 +74,7 @@ RefVectorType castView(const edm::Handle<BaseView>& view) {
   typedef typename RefVectorType::value_type OutputRef;
   // Double check at compile time that the inheritance is okay.  It can still
   // fail at runtime if you pass it the wrong collection.
-  BOOST_STATIC_ASSERT(
+  static_assert(
       (boost::is_base_of<typename BaseView::value_type,
                          typename RefVectorType::member_type>::value));
   RefVectorType output;

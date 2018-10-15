@@ -42,7 +42,7 @@ CmsTrackerPixelPhase1EndcapBuilder::sortNS( DDFilteredView& fv, GeometricDet* de
   switch( comp.front()->type())
   {
   case GeometricDet::PixelPhase1Disk:
-    std::sort( comp.begin(), comp.end(), LessModZ());
+    std::sort( comp.begin(), comp.end(), isLessModZ);
     break;
   default:
     edm::LogError( "CmsTrackerPixelPhase1EndcapBuilder" ) << "ERROR - wrong SubDet to sort..... " << det->components().front()->type(); 

@@ -66,17 +66,6 @@ const int CSCAnodeLCTProcessor::pattern_envelope[CSCConstants::NUM_ALCT_PATTERNS
            0, -1, -2}
 };
 
-// time averaging weights for pattern (used for SLHC version)
-const int CSCAnodeLCTProcessor::time_weights[CSCConstants::MAX_WIRES_IN_PATTERN] =
-  //Layer
-  { 0,  1,  1,
-        1,  2,
-            2,
-            2,  1,
-            2,  1,  0,
-            1,  1,  0};
-
-
 // Since the test beams in 2003, both collision patterns are "completely
 // open".  This is our current default.
 const int CSCAnodeLCTProcessor::pattern_mask_open[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN] = {
@@ -183,7 +172,7 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
   // Other parameters.
 
   // Flag for SLHC studies
-  isSLHC       = comm.getParameter<bool>("isSLHC");
+  isSLHC_       = comm.getParameter<bool>("isSLHC");
 
   // special configuration parameters for ME11 treatment
   disableME1a = comm.getParameter<bool>("disableME1a");
@@ -206,7 +195,7 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
 
   // Check and print configuration parameters.
   checkConfigParameters();
-  if ((infoV > 0 || isSLHC) && !config_dumped) {
+  if ((infoV > 0 || isSLHC_) && !config_dumped) {
     //std::cout<<"**** ALCT constructor parameters dump ****"<<std::endl;
     dumpConfigParams();
     config_dumped = true;
@@ -225,7 +214,7 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
 
   // whether to calculate bx as corrected_bx instead of pretrigger one
   use_corrected_bx = false;
-  if (isSLHC && isME11) {
+  if (isSLHC_ && isME11) {
     use_corrected_bx = conf.getParameter<bool>("alctUseCorrectedBx");
   }
 
@@ -251,7 +240,7 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor() :
   setDefaultConfigParameters();
   infoV = 2;
 
-  isSLHC = false;
+  isSLHC_ = false;
   disableME1a = false;
 
   early_tbins = 4;
@@ -452,7 +441,7 @@ CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* wiredc) {
   // from the wire digis and then passes them on to another run() function.
 
   static std::atomic<bool> config_dumped{false};
-  if ((infoV > 0 || isSLHC) && !config_dumped) {
+  if ((infoV > 0 || isSLHC_) && !config_dumped) {
     //std::cout<<"**** ALCT run parameters dump ****"<<std::endl;
     dumpConfigParams();
     config_dumped = true;
@@ -578,7 +567,7 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
 
   // Do the rest only if there is at least one trigger candidate.
   if (trigger) {
-    if (isSLHC) ghostCancellationLogicSLHC();
+    if (isSLHC_) ghostCancellationLogicSLHC();
     else ghostCancellationLogic();
     lctSearch();
   }

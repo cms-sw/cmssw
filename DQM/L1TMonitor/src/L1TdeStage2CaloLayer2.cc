@@ -256,6 +256,22 @@ void L1TdeStage2CaloLayer2::bookHistograms(
   // for reference on arguments of book2D, see
   // https://cmssdt.cern.ch/SDT/doxygen/CMSSW_8_0_24/doc/html/df/d26/DQMStore_8cc_source.html#l01070
 
+ // book asymmetry count
+ 
+ asymCountData = ibooker.book1D("Problematic Asymmetry Count - Data",
+                                "", 256, -0.5, 255.5);
+ asymCountEmul = ibooker.book1D("Problematic Asymmetry Count - Emulator",
+                                "", 256, -0.5, 255.5);
+
+ // book centrality sums
+ 
+ asymCountData = ibooker.book1D("Problematic Centrality Count - Data",
+                                "", 9, -1.5, 7.5);
+ asymCountEmul = ibooker.book1D("Problematic Centrality Count - Emulator",
+                                "", 9, -1.5, 7.5);
+
+
+
 
   // setup the directory where the histograms are to be visualised, value is set
   // in constructor and taken from python configuration file for module
@@ -313,7 +329,7 @@ void L1TdeStage2CaloLayer2::bookHistograms(
   tauSummary->setBinLabel(ISOTAUETOFF, "iso taus Et off");
 
   sumSummary = ibooker.book1D(
-    "Energy Sum Agreement Summary", "Sum Agreement Summary", 14, 1, 15);
+    "Energy Sum Agreement Summary", "Sum Agreement Summary", 18, 1, 19);
   sumSummary->setBinLabel(NSUMS, "total sums");
   sumSummary->setBinLabel(SUMGOOD, "good sums");
   sumSummary->setBinLabel(NETTSUMS, "total ETT sums");
@@ -328,6 +344,11 @@ void L1TdeStage2CaloLayer2::bookHistograms(
   sumSummary->setBinLabel(MBHFSUMGOOD, "good MBHF sums");
   sumSummary->setBinLabel(NTOWCOUNTS, "total TowCount sums");
   sumSummary->setBinLabel(TOWCOUNTGOOD, "good TowCount sums");
+  sumSummary->setBinLabel(NASYMCOUNTS, "total AsymCount sums");
+  sumSummary->setBinLabel(ASYMCOUNTGOOD, "good AsymCount sums");
+  sumSummary->setBinLabel(NCENTRCOUNTS, "total CentrCount sums");
+  sumSummary->setBinLabel(CENTRCOUNTGOOD, "good CentrCount sums");
+  
 
   // high level directory
   ibooker.setCurrentFolder(monitorDir);
@@ -1477,6 +1498,72 @@ bool L1TdeStage2CaloLayer2::compareSums(
       sumSummary->Fill(NTOWCOUNTS);
       sumSummary->Fill(NSUMS);
     }
+
+    // AsymmetryCount
+    if (l1t::EtSum::EtSumType::kAsymEt == dataIt->getType()) {
+
+      dataEt = dataIt->hwPt();
+      emulEt = emulIt->hwPt();
+
+      if (dataEt != emulEt) {
+        eventGood = false;
+        asymCountData->Fill(dataEt);
+        asymCountEmul->Fill(emulEt);
+      } else {
+        agreementSummary->Fill(SUMGOOD_S);
+        sumSummary->Fill(SUMGOOD);
+        sumSummary->Fill(ASYMCOUNTGOOD);
+      }
+
+      if (verbose) {
+        edm::LogInfo("L1TdeStage2CaloLayer2") << "AsymCount  | ";
+        if (dataEt != emulEt)
+          edm::LogInfo("L1TdeStage2CaloLayer2") << "x ";
+        else
+          edm::LogInfo("L1TdeStage2CaloLayer2") << "  ";
+
+        edm::LogInfo("L1TdeStage2CaloLayer2") << dataEt << "\t" << emulEt;
+        edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
+      }
+      // update sum counters
+      agreementSummary->Fill(NSUMS_S);
+      sumSummary->Fill(NASYMCOUNTS);
+      sumSummary->Fill(NSUMS);
+    }
+   
+    // CentralityCount
+    if (l1t::EtSum::EtSumType::kCentrality == dataIt->getType()) {
+
+      dataEt = dataIt->hwPt();
+      emulEt = emulIt->hwPt();
+
+      if (dataEt != emulEt) {
+        eventGood = false;
+        centrCountData->Fill(dataEt);
+        centrCountEmul->Fill(emulEt);
+      } else {
+        agreementSummary->Fill(SUMGOOD_S);
+        sumSummary->Fill(SUMGOOD);
+        sumSummary->Fill(CENTRCOUNTGOOD);
+      }
+
+      if (verbose) {
+        edm::LogInfo("L1TdeStage2CaloLayer2") << "CentrCount  | ";
+        if (dataEt != emulEt)
+          edm::LogInfo("L1TdeStage2CaloLayer2") << "x ";
+        else
+          edm::LogInfo("L1TdeStage2CaloLayer2") << "  ";
+
+        edm::LogInfo("L1TdeStage2CaloLayer2") << dataEt << "\t" << emulEt;
+        edm::LogInfo("L1TdeStage2CaloLayer2") << std::endl;
+      }
+      // update sum counters
+      agreementSummary->Fill(NSUMS_S);
+      sumSummary->Fill(NCENTRCOUNTS);
+      sumSummary->Fill(NSUMS);
+    }
+
+
 
     ++dataIt;
     ++emulIt;

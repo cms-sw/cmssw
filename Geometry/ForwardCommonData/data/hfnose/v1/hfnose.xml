@@ -189,9 +189,13 @@
     <Numeric name="Sectors"          value="36"/>
     <Vector name="SlopeBottom" type="numeric" nEntries="2">
       [HFNoseSlope1], [HFNoseSlope1]</Vector>
+    <Vector name="ZFrontBottom" type="numeric" nEntries="2">
+      [HFNoseZ1], [HFNoseZ3]</Vector>
+    <Vector name="RMinFront" type="numeric" nEntries="2">
+      [HFNoseRMin1], [HFNoseRMin3]</Vector>
     <Vector name="SlopeTop" type="numeric" nEntries="2">
       [HFNoseSlope2], [HFNoseSlope2]</Vector>
-    <Vector name="ZFront" type="numeric" nEntries="2">
+    <Vector name="ZFrontTop" type="numeric" nEntries="2">
       [HFNoseZ1], [HFNoseZ3]</Vector>
     <Vector name="RMaxFront" type="numeric" nEntries="2">
       [HFNoseRMax1], [HFNoseRMax3]</Vector>

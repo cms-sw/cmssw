@@ -18,7 +18,7 @@ process.GlobalTag.globaltag = autoCond['phase2_realistic']
 
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.categories.append('HGCalGeom')
-    process.MessageLogger.categories.append('HGCSim')
+    process.MessageLogger.categories.append('HFNSim')
     process.MessageLogger.categories.append('HGCalValidation')
 
 process.load("IOMC.RandomEngine.IOMC_cff")
@@ -39,7 +39,7 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.PSet(
         PartID = cms.vint32(13),
         MinEta = cms.double(3.00),
-        MaxEta = cms.double(5.00),
+        MaxEta = cms.double(4.30),
         MinPhi = cms.double(-3.1415926),
         MaxPhi = cms.double(3.1415926),
         MinE   = cms.double(1000.00),

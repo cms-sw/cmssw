@@ -12,7 +12,7 @@
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelCylinderCrossing.h"
 #include "TrackingTools/DetLayers/interface/CylinderBuilderFromDet.h"
-#include "TrackingTools/DetLayers/interface/PhiLess.h"
+#include "DataFormats/GeometryVector/interface/VectorUtil.h"
 
 
 using namespace std;
@@ -104,8 +104,8 @@ std::tuple<bool,int,int>  TBPLayer::computeIndexes(GlobalPoint gInnerPoint, Glob
   float outerDist = theOuterBinFinder.binPosition(outerIndex) - gOuterPoint.barePhi() ;
 
   
-  innerDist *= PhiLess()( theInnerBinFinder.binPosition(innerIndex),gInnerPoint.barePhi()) ? -1.f : 1.f; 
-  outerDist *= PhiLess()( theOuterBinFinder.binPosition(outerIndex),gOuterPoint.barePhi()) ? -1.f : 1.f; 
+  innerDist *= Geom::phiLess( theInnerBinFinder.binPosition(innerIndex),gInnerPoint.barePhi()) ? -1.f : 1.f; 
+  outerDist *= Geom::phiLess( theOuterBinFinder.binPosition(outerIndex),gOuterPoint.barePhi()) ? -1.f : 1.f; 
   if (innerDist < 0.f) { innerDist += Geom::ftwoPi();}
   if (outerDist < 0.f) { outerDist += Geom::ftwoPi();}
  
@@ -142,7 +142,7 @@ void TBPLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   int posStartIndex = closestIndex+1;
 
   if (checkClosest) { // must decide if the closest is on the neg or pos side
-    if ( PhiLess()( gphi, sLayer[closestIndex]->surface().phi())) {
+    if ( Geom::phiLess( gphi, sLayer[closestIndex]->surface().phi())) {
       posStartIndex = closestIndex;
     }
     else {
