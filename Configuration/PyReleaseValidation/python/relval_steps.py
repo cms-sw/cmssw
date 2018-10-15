@@ -892,7 +892,7 @@ FS_PREMIXUP17_PU50_OVERLAY = merge([
 #        {"-s" : "GEN,SIM,RECOBEFMIX,DIGIPREMIX_S2:pdigi_valid,DATAMIX,L1,DIGI2RAW,L1Reco,RECO,HLT:@relval2016,VALIDATION",
         {"-s" : "GEN,SIM,RECOBEFMIX,DIGIPREMIX_S2:pdigi_valid,DATAMIX,L1,DIGI2RAW,L1Reco,RECO,VALIDATION",
          "--datamix" : "PreMix",
-         "--pileup_input" : "dbs:/RelValFS_PREMIXUP17_PU50/%s/PREMIX"%(baseDataSetRelease[16],),
+         "--pileup_input" : "dbs:/RelValFS_PREMIXUP17_PU50/%s/GEN-SIM-DIGI-RAW"%(baseDataSetRelease[16],),
          },
         Kby(100,500),step1FastUpg2017Defaults])
 
