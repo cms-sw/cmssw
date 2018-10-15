@@ -82,7 +82,7 @@ void L1TStage2CaloLayer2DEClientSummary::book(DQMStore::IBooker &ibooker) {
 
   if (sumSummary == nullptr) {
     sumSummary = ibooker.book1D(
-      "Energy Sum Agreement Summary", "Sum Agreement Summary", 7, 1, 8);
+      "Energy Sum Agreement Summary", "Sum Agreement Summary", 9, 1, 10);
     sumSummary->setBinLabel(1, "good sums");
     sumSummary->setBinLabel(2, "good ETT sums");
     sumSummary->setBinLabel(3, "good HTT sums");
@@ -90,6 +90,8 @@ void L1TStage2CaloLayer2DEClientSummary::book(DQMStore::IBooker &ibooker) {
     sumSummary->setBinLabel(5, "good MHT sums");
     sumSummary->setBinLabel(6, "good MBHF sums");
     sumSummary->setBinLabel(7, "good TowCount sums");
+    sumSummary->setBinLabel(8, "good AsymCount sums");
+    sumSummary->setBinLabel(9, "good CentrCount sums");
   } else {
     sumSummary->Reset();
   }
@@ -287,7 +289,7 @@ void L1TStage2CaloLayer2DEClientSummary::processHistograms(DQMStore::IGetter &ig
     // by default show 100% agreement (for edge case when no objects are found)
     double goodSumRatio = 1, goodETTRatio = 1, goodHTTRatio = 1,
       goodMETRatio = 1, goodMHTRatio = 1, goodMBHFRatio = 1,
-      goodTowCountRatio = 1;
+      goodTowCountRatio = 1, goodAsymCountRatio = 1, goodCentrCountRatio = 1; 
 
     double totalSums     = sumSummary_->getBinContent(1);
     double goodSums      = sumSummary_->getBinContent(2);
@@ -303,7 +305,10 @@ void L1TStage2CaloLayer2DEClientSummary::processHistograms(DQMStore::IGetter &ig
     double goodMBHF      = sumSummary_->getBinContent(12);
     double totalTowCount = sumSummary_->getBinContent(13);
     double goodTowCount  = sumSummary_->getBinContent(14);
-
+    double totalAsymCount= sumSummary_->getBinContent(15);
+    double goodAsymCount = sumSummary_->getBinContent(16);
+    double totalCentrCount= sumSummary_->getBinContent(17);
+    double goodCentrCount = sumSummary_->getBinContent(18);
     if (totalSums)
       goodSumRatio = goodSums / totalSums;
 
@@ -324,6 +329,12 @@ void L1TStage2CaloLayer2DEClientSummary::processHistograms(DQMStore::IGetter &ig
 
     if (totalTowCount)
       goodTowCountRatio = goodTowCount / totalTowCount;
+        
+    if (totalAsymCount)
+      goodAsymCountRatio = goodAsymCount / totalAsymCount;
+
+    if (totalCentrCount)
+      goodCentrCountRatio = goodCentrCount / totalCentrCount;
 
     sumSummary->setBinContent(1, goodSumRatio);
     sumSummary->setBinContent(2, goodETTRatio);
@@ -332,6 +343,8 @@ void L1TStage2CaloLayer2DEClientSummary::processHistograms(DQMStore::IGetter &ig
     sumSummary->setBinContent(5, goodMHTRatio);
     sumSummary->setBinContent(6, goodMBHFRatio);
     sumSummary->setBinContent(7, goodTowCountRatio);
+    sumSummary->setBinContent(8, goodAsymCountRatio);
+    sumSummary->setBinContent(9, goodCentrCountRatio);
   }
 
   }
