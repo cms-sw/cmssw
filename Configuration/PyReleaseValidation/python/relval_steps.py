@@ -837,7 +837,7 @@ FS_UP15_PU25_OVERLAY = merge([PUFS25,Kby(100,500),steps['TTbarFS_13']] )
 
 ### FastSim: template to produce signal and overlay with minbias events #PU50
 PUFSAVE50={'--pileup':'AVE_50_BX_25ns',
-        '--pileup_input':'das:/RelValMinBiasFS_13_UP17_ForMixing/%s/GEN-SIM-RECO'%(baseDataSetRelease[17],)}
+        '--pileup_input':'das:/RelValMinBiasFS_13_UP17_ForMixing/%s/GEN-SIM-RECO'%(baseDataSetRelease[15],)}
 FS_UP17_PU50_OVERLAY = merge([PUFSAVE50,Kby(100,500),steps['TTbarFS_13_UP17']] )
 
 ### FastSim: produce sample of premixed minbias events
@@ -880,21 +880,19 @@ steps["FS_PREMIXUP17_PU50"] = merge([
         {"cfg":"SingleNuE10_cfi",
          "--fast":"",
          "--conditions":"auto:phase1_2017_realistic",
-         "-s":"GEN,SIM,RECOBEFMIX,DIGI",
+         "-s":"GEN,SIM,RECOBEFMIX,DIGIPREMIX,L1,DIGI2RAW",
          "--eventcontent":"PREMIX",
-         "--datatier":"PREMIX",
-         "--procModifiers":"premix_stage1",
+         "--datatier":"GEN-SIM-DIGI-RAW",
          "--era":"Run2_2017_FastSim",
          },
         PUFSAVE50,Kby(100,500)])
 
 ### Fastsim: template to produce signal and overlay it with premixed minbias events
 FS_PREMIXUP17_PU50_OVERLAY = merge([
-#        {"-s" : "GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,DATAMIX,L1,DIGI2RAW,L1Reco,RECO,HLT:@relval2016,VALIDATION",
-        {"-s" : "GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,DATAMIX,L1,DIGI2RAW,L1Reco,RECO,VALIDATION",
+#        {"-s" : "GEN,SIM,RECOBEFMIX,DIGIPREMIX_S2:pdigi_valid,DATAMIX,L1,DIGI2RAW,L1Reco,RECO,HLT:@relval2016,VALIDATION",
+        {"-s" : "GEN,SIM,RECOBEFMIX,DIGIPREMIX_S2:pdigi_valid,DATAMIX,L1,DIGI2RAW,L1Reco,RECO,VALIDATION",
          "--datamix" : "PreMix",
-         "--procModifiers": "premix_stage2",
-         "--pileup_input" : "dbs:/RelValFS_PREMIXUP17_PU50/%s/PREMIX"%(baseDataSetRelease[18],),
+         "--pileup_input" : "dbs:/RelValFS_PREMIXUP17_PU50/%s/PREMIX"%(baseDataSetRelease[16],),
          },
         Kby(100,500),step1FastUpg2017Defaults])
 
@@ -2402,4 +2400,3 @@ steps['RecoFull_trackingOnlyRun2_2017'] = merge([{'--era': 'Run2_2017_trackingRu
 steps['RecoFull_trackingPhase1QuadProp_2017'] = merge([{'--era': 'Run2_2017_trackingPhase1QuadProp'}, steps['RecoFull_2017']])
 steps['RecoFull_trackingOnlyPhase1QuadProp_2017'] = merge([{'--era': 'Run2_2017_trackingPhase1QuadProp'}, steps['RecoFull_trackingOnly_2017']])
 steps['RecoFull_trackingLowPU_2017'] = merge([{'--era': 'Run2_2017_trackingLowPU'}, steps['RecoFull_2017']])
-# my-new-feature
