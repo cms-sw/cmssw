@@ -47,8 +47,8 @@ public:
   double NtracksEtaCut() const {return ntracksEtaCut_;}
   double NtracksEtaPtCut() const {return ntracksEtaPtCut_;}
   double NpixelTracks() const {return nPixelTracks_;}
-  //double NpixelTracksPlus() const {return nPixelTracksPlus_;}
-  //double NpixelTracksMinus() const {return nPixelTracksMinus_;}
+  double NpixelTracksPlus() const {return nPixelTracksPlus_;}
+  double NpixelTracksMinus() const {return nPixelTracksMinus_;}
 
   double zdcSum() const {return zdcSumPlus_ + zdcSumMinus_;}
   double zdcSumPlus() const {return zdcSumPlus_;}
@@ -87,6 +87,8 @@ protected:
   double ntracksEtaCut_;
   double ntracksEtaPtCut_;
   double nPixelTracks_;
+  double nPixelTracksPlus_;
+  double nPixelTracksMinus_;
 
 };
 
