@@ -14,7 +14,6 @@ CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap, unsigned station,
 {
   // super chamber has layer=0!
   gemId = GEMDetId(theRegion, 1, theStation, 0, theChamber, 0).rawId();
-  std::cout <<"CSCGEMMotherboard GEMDetID "<< gemId <<" CSC station "<< theStation <<" ring "<< theRing << std::endl;
 
   const edm::ParameterSet coPadParams(station==1 ?
 				      conf.getParameter<edm::ParameterSet>("copadParamGE11") :
