@@ -59,7 +59,7 @@ bool PythiaHepMCFilterGammaGamma::filter(const HepMC::GenEvent* myGenEvent) {
   // around candidates
   std::vector<const GenParticle*> stable;
 
-  std::vector<const GenParticle*>::const_iterator itPart, itStable, itEn;
+  std::vector<const GenParticle*>::const_iterator itStable, itEn;
 
   //----------
   // 1. find electron/photon seeds
