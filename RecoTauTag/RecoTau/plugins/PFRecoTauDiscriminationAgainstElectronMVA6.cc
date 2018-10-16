@@ -29,12 +29,11 @@ class PFRecoTauDiscriminationAgainstElectronMVA6 : public PFTauDiscriminationPro
  public:
   explicit PFRecoTauDiscriminationAgainstElectronMVA6(const edm::ParameterSet& cfg)
     : PFTauDiscriminationProducerBase(cfg),
-      mva_(nullptr),
+      mva_(),
       category_output_()
   {
-    mva_ = new AntiElectronIDMVA6(cfg);
+    mva_ = std::make_unique<AntiElectronIDMVA6>(cfg);
 
-    usePhiAtEcalEntranceExtrapolation_ = cfg.getParameter<bool>("usePhiAtEcalEntranceExtrapolation");
     srcGsfElectrons_ = cfg.getParameter<edm::InputTag>("srcGsfElectrons");
     GsfElectrons_token = consumes<reco::GsfElectronCollection>(srcGsfElectrons_);
 
@@ -51,18 +50,13 @@ class PFRecoTauDiscriminationAgainstElectronMVA6 : public PFTauDiscriminationPro
 
   void endEvent(edm::Event&) override;
 
-  ~PFRecoTauDiscriminationAgainstElectronMVA6() override
-  {
-    delete mva_;
-  }
+  ~PFRecoTauDiscriminationAgainstElectronMVA6() override {}
 
 private:
   bool isInEcalCrack(double) const;
 
   std::string moduleLabel_;
-
-  AntiElectronIDMVA6* mva_;
-  float* mvaInput_;
+  std::unique_ptr<AntiElectronIDMVA6> mva_;
 
   edm::InputTag srcGsfElectrons_;
   edm::EDGetTokenT<reco::GsfElectronCollection> GsfElectrons_token;
@@ -70,7 +64,6 @@ private:
   edm::Handle<TauCollection> taus_;
 
   std::unique_ptr<PFTauDiscriminator> category_output_;
-  bool usePhiAtEcalEntranceExtrapolation_;
 
   int verbosity_;
 };
@@ -127,10 +120,9 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
     int numSignalGammaCandsInSigCone = 0;
     const std::vector<reco::CandidatePtr>& signalGammaCands = thePFTauRef->signalGammaCands();
     
-    for ( std::vector<reco::CandidatePtr>::const_iterator pfGamma = signalGammaCands.begin();
-	  pfGamma != signalGammaCands.end(); ++pfGamma ) {
+    for ( const auto & pfGamma : signalGammaCands ) {
             
-      double dR = deltaR((*pfGamma)->p4(), thePFTauRef->leadChargedHadrCand()->p4());
+      double dR = deltaR(pfGamma->p4(), thePFTauRef->leadChargedHadrCand()->p4());
       double signalrad = std::max(0.05, std::min(0.10, 3.0/std::max(1.0, thePFTauRef->pt())));
             
       // pfGammas inside the tau signal cone
@@ -140,21 +132,19 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
     }
     
     // loop over the electrons
-    for ( reco::GsfElectronCollection::const_iterator theGsfElectron = gsfElectrons_->begin();
-	  theGsfElectron != gsfElectrons_->end(); ++theGsfElectron ) {
-      if ( theGsfElectron->pt() > 10. ) { // CV: only take electrons above some minimal energy/Pt into account...
-	double deltaREleTau = deltaR(theGsfElectron->p4(), thePFTauRef->p4());
+    for ( const auto & theGsfElectron : *gsfElectrons_ ) {
+      if ( theGsfElectron.pt() > 10. ) { // CV: only take electrons above some minimal energy/Pt into account...
+	double deltaREleTau = deltaR(theGsfElectron.p4(), thePFTauRef->p4());
 	deltaRDummy = deltaREleTau;
 	if ( deltaREleTau < 0.3 ) {
-	  double mva_match = mva_->MVAValue(*thePFTauRef, *theGsfElectron, usePhiAtEcalEntranceExtrapolation_);
+	  double mva_match = mva_->MVAValue(*thePFTauRef, theGsfElectron);
 	  const reco::PFCandidatePtr& lpfch = thePFTauRef->leadPFChargedHadrCand();
 	  bool hasGsfTrack = false;
 	  if (lpfch.isNonnull()) {
 	    hasGsfTrack = lpfch->gsfTrackRef().isNonnull();
 	  }
-
 	  if ( !hasGsfTrack )
-            hasGsfTrack = theGsfElectron->gsfTrack().isNonnull();
+            hasGsfTrack = theGsfElectron.gsfTrack().isNonnull();
 
 	  //// Veto taus that go to Ecal crack
 	  if ( isInEcalCrack(tauEtaAtEcalEntrance) || isInEcalCrack(leadChargedPFCandEtaAtEcalEntrance) ) {
@@ -188,7 +178,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
     } // end of loop over electrons
 
     if ( !isGsfElectronMatched ) {
-      mvaValue = mva_->MVAValue(*thePFTauRef, usePhiAtEcalEntranceExtrapolation_);
+      mvaValue = mva_->MVAValue(*thePFTauRef);
       const reco::PFCandidatePtr& lpfch = thePFTauRef->leadPFChargedHadrCand();
       bool hasGsfTrack = false;
       if (lpfch.isNonnull()) {
