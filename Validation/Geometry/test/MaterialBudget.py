@@ -6,10 +6,11 @@ import six
 import sys
 oldargv = sys.argv[:]
 sys.argv = [ '-b-' ]
-from ROOT import TCanvas, TPad, TLegend, TPaveText, THStack, TFile, TLatex
-from ROOT import TProfile, TProfile2D, TH1D, TH2F, TPaletteAxis
+from ROOT import TCanvas, TPad, TGaxis, TLegend, TPaveText, THStack, TFile, TLatex
+from ROOT import TProfile, TProfile2D, TH1D, TH2F, TPaletteAxis, TStyle
 from ROOT import kBlack, kWhite, kOrange, kAzure, kBlue, kRed, kGreen
 from ROOT import kGreyScale
+from ROOT import kTRUE, kFALSE
 from ROOT import gROOT, gStyle, gPad
 gROOT.SetBatch(True)
 sys.argv = oldargv
@@ -172,6 +173,7 @@ def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
     oldHistos = OrderedDict()
     newHistos = OrderedDict()
     ratioHistos = OrderedDict()
+    diffHistos = OrderedDict()
 
     canComparison = TCanvas("canComparison","canComparison",2400,1200)
     gStyle.SetOptStat(False)
@@ -236,20 +238,39 @@ def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
 
         return histoXOverY
 
+    canComparisonDiff = TCanvas("canComparisonDiff","canComparisonDiff",2400,1200)
+    canComparisonDiff.Divide(4,2)
+
+    def makeDiff(histoNew,histoOld):
+        # Return stylized histoNew - histoOld
+        diff = copy.deepcopy(histoNew)
+        diff.Add(histoOld,-1.0)
+        return diff
+
+
     # Plotting the different categories
 
-    def setUpLegend(gOld,gNew):
-        legend = TLegend(0.3,0.6,0.6,0.7)
-        legend.AddEntry(gOld,"%s %s"%(detector,geometryOld),"F") #(F)illed Box
-        legend.AddEntry(gNew,"%s %s"%(detector,geometryNew),"P") #(P)olymarker
-        legend.SetTextSize(0.035)
+    def setUpTitle(detector,label,plot):
+        title = 'Material Budget %s [%s];%s;%s' % (detector,label,
+                                                   plots[plot].abscissa,
+                                                   plots[plot].ordinate)
+        return title
+
+    def setUpLegend(gOld,gNew,label):
+        legend = TLegend(0.4,0.6,0.7,0.8)
+        legend.AddEntry(gOld,"%s %s [%s]"%(detector,geometryOld,label),"F") #(F)illed Box
+        legend.AddEntry(gNew,"%s %s [%s]"%(detector,geometryNew,label),"P") #(P)olymarker
+        legend.SetTextFont(42)
+        legend.SetTextSize(0.03)
         return legend
 
     counter = 0
+    legends = OrderedDict() #KeepAlive
     for label, [num, color, leg] in six.iteritems(hist_label_to_num):
 
         mainPad[counter].cd()
         oldHistos[label] = get1DHisto_(detector,label,plot,geometryOld)
+        oldHistos[label].SetTitle(setUpTitle(detector,leg,plot))
         oldHistos[label].SetFillColor(color)
         oldHistos[label].SetLineColor(kBlack)
         oldHistos[label].SetLineWidth(1)
@@ -260,13 +281,28 @@ def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
         newHistos[label].SetMarkerStyle(20)
         newHistos[label].Draw('SAME')
 
-        legend = copy.deepcopy(setUpLegend(oldHistos[label],newHistos[label]));
-        legend.Draw()
+        legends[label]= setUpLegend(oldHistos[label],newHistos[label],
+                                    leg);
+        legends[label].Draw()
 
+        # Ratio
         subPad[counter].cd()
         ratioHistos[label] = makeRatio( newHistos[label],oldHistos[label] )
-        ratioHistos[label].Draw("HIST P E1")
-        
+        ratioHistos[label].SetMarkerStyle(20)
+        ratioHistos[label].SetMarkerSize(.5)
+        ratioHistos[label].GetYaxis().SetTitleOffset(2.5)
+        ratioHistos[label].GetXaxis().SetLabelSize(0.17)
+        ratioHistos[label].GetXaxis().SetTitleOffset(2.5)
+        ratioHistos[label].Draw("HIST P")
+
+        # Difference
+        canComparisonDiff.cd(counter+1)
+        diffHistos[label] = makeDiff( newHistos[label],oldHistos[label] )
+        diffHistos[label].SetTitle('#splitline{Material Budget Difference %s [%s]}{ (%s-%s)};%s;%s'
+                                   %(detector,leg,geometryNew,geometryOld,
+                                     plots[plot].abscissa,plots[plot].ordinate))
+        diffHistos[label].Draw("HIST P")
+
         counter += 1
 
     theDirname = "Images"
@@ -274,8 +310,12 @@ def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
     if not checkFile_(theDirname):
         os.mkdir(theDirname)
         
-    canComparison.SaveAs( "%s/%s_Comparison_%s_%s_vs_%s.png"
+    canComparison.SaveAs( "%s/%s_ComparisonRatio_%s_%s_vs_%s.png"
                           % (theDirname,detector,plot,geometryOld,geometryNew) )
+    canComparisonDiff.SaveAs( "%s/%s_ComparisonDifference_%s_%s_vs_%s.png"
+                          % (theDirname,detector,plot,geometryOld,geometryNew) )
+    
+    
 
 def setUpPalette(histo2D, plot) :
 
@@ -336,32 +376,56 @@ def create2DPlotsGeometryComparison(detector, plot,
     ratio2DHisto.Divide(old2DHisto)
     ratio2DHisto.SetMinimum(0.8) # plots[plot].histoMin
     ratio2DHisto.SetMaximum(1.2) # plots[plot].histoMax
-    ratio2DHisto.SetContour(255)
+
+    diff2DHisto = copy.deepcopy(new2DHisto)
+    diff2DHisto.Add(old2DHisto,-1.0)
+
+    def setPadStyle():
+        gPad.SetLeftMargin(0.05)
+        gPad.SetRightMargin(0.08)
+        gPad.SetTopMargin(0.10)
+        gPad.SetBottomMargin(0.10)
+        gPad.SetLogz(plots[plot].zLog)
+        gPad.SetFillColor(kWhite)
+        gPad.SetBorderMode(0)
 
     can = TCanvas('can','can',
-                            2480+248,580+58+58)
-
-    can.SetLogz(plots[plot].zLog)
-    can.SetFillColor(kWhite)
-    can.SetTopMargin(0.1)
-    can.SetBottomMargin(0.1)
-    can.SetLeftMargin(0.04)
-    can.SetRightMargin(0.06)
-    can.SetFillColor(kWhite)
-    can.SetBorderMode(0)
-
+                  2724,1336)
+    can.Divide(1,2)
+    can.cd(1)
+    setPadStyle()
+    
     gStyle.SetOptStat(0)
     gStyle.SetFillColor(kWhite)
-    gStyle.SetPalette(kGreyScale)
+    #Style.SetPalette(kGreyScale)
 
-    ratio2DHisto.Draw('COLZsame')
+    ratio2DHisto.SetTitle("%s/%s;%s;%s"
+                          %(geometryOld, geometryNew,
+                            plots[plot].abscissa,
+                            plots[plot].ordinate))
+    ratio2DHisto.Draw('COLZ')
+
     can.Update()
 
     setUpPalette(ratio2DHisto,plot)
 
-    keep_alive = []
+    etasTop = []
     if plots[plot].iDrawEta:
-        keep_alive.extend(drawEtaValues())
+        etasTop.extend(drawEtaValues())
+
+    can.cd(2)
+
+    diff2DHisto.SetTitle('%s - %s MaterialBudget %s;%s;%s'
+                         %(geometryNew,geometryOld,detector,
+                           plots[plot].abscissa,plots[plot].ordinate))
+    setPadStyle()
+    diff2DHisto.Draw("COLZ")
+    can.Update()
+    setUpPalette(diff2DHisto,plot)
+
+    etasBottom = []
+    if plots[plot].iDrawEta:
+        etasBottom.extend(drawEtaValues())
 
     can.Modified()
 
@@ -370,7 +434,7 @@ def create2DPlotsGeometryComparison(detector, plot,
     if not checkFile_(theDirname):
         os.mkdir(theDirname)
         
-    can.SaveAs( "%s/%s_ComparisonRatio_%s_%s_vs_%s.png"
+    can.SaveAs( "%s/%s_Comparison_%s_%s_vs_%s.png"
                 % (theDirname,detector,plot,geometryOld,geometryNew) )
     gStyle.SetStripDecimals(True)
 
