@@ -2,7 +2,8 @@ from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("BeamMonitor", eras.Run2_2018)
+#process = cms.Process("BeamMonitor", eras.Run2_2018) # FIMXE
+process = cms.Process("BeamMonitor", eras.Run2_2018_pp_on_AA)
 
 # Message logger
 #process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -87,7 +88,8 @@ if (process.runType.getRunType() == process.runType.pp_run or
     process.runType.getRunType() == process.runType.pp_run_stage1 or
     process.runType.getRunType() == process.runType.cosmic_run or
     process.runType.getRunType() == process.runType.cosmic_run_stage1 or 
-    process.runType.getRunType() == process.runType.hpu_run):
+    process.runType.getRunType() == process.runType.hpu_run or
+    process.runType.getRunType() == process.runType.hi_run):
 
     print("[beamhlt_dqm_sourceclient-live_cfg]:: Running pp")
 
