@@ -27,6 +27,9 @@ muonDTDigis = EventFilter.DTRawToDigi.dtunpacker_cfi.muonDTDigis.clone()
 import EventFilter.RPCRawToDigi.rpcUnpacker_cfi
 muonRPCDigis = EventFilter.RPCRawToDigi.rpcUnpacker_cfi.rpcunpacker.clone()
 
+import EventFilter.RPCRawToDigi.rpcDigiMerger_cfi
+muonRPCNewDigis = EventFilter.RPCRawToDigi.rpcDigiMerger_cfi.rpcDigiMerger.clone()
+
 import EventFilter.GEMRawToDigi.muonGEMDigis_cfi
 muonGEMDigis = EventFilter.GEMRawToDigi.muonGEMDigis_cfi.muonGEMDigis.clone()
 
@@ -120,3 +123,19 @@ _hgcal_RawToDigi = RawToDigi.copy()
 _hgcal_RawToDigi += hgcalDigis
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith(RawToDigi,_hgcal_RawToDigi)
+
+# RPC New Readout Validation
+from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
+_rpc_NewReadoutVal_RawToDigi = RawToDigi.copy()
+_rpc_NewReadoutVal_RawToDigi_noTk = RawToDigi_noTk.copy()
+_rpc_NewReadoutVal_RawToDigi += muonRPCNewDigis
+_rpc_NewReadoutVal_RawToDigi_noTk += muonRPCNewDigis
+stage2L1Trigger_2017.toReplaceWith(RawToDigi, _rpc_NewReadoutVal_RawToDigi)
+stage2L1Trigger_2017.toReplaceWith(RawToDigi_noTk, _rpc_NewReadoutVal_RawToDigi)
+
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toReplaceWith(RawToDigi, RawToDigi.copyAndExclude([muonRPCNewDigis]))
+fastSim.toReplaceWith(RawToDigi_noTk, RawToDigi_noTk.copyAndExclude([muonRPCNewDigis]))
+
+
+
