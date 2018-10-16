@@ -41,7 +41,7 @@ HcaluLUTTPGCoder::HcaluLUTTPGCoder() :
   topo_{},
   delay_{},
   LUTGenerationMode_{},
-  FG_HF_threshold_{},
+  FG_HF_thresholds_{},
   bitToMask_{},
   firstHBEta_{},
   lastHBEta_{},
@@ -75,7 +75,7 @@ void HcaluLUTTPGCoder::init(const HcalTopology* top, const HcalTimeSlew* delay) 
   topo_ = top;
   delay_ = delay;
   LUTGenerationMode_ = true;
-  FG_HF_threshold_ = 0;
+  FG_HF_thresholds_ = {0, 0};
   bitToMask_ = 0;
   allLinear_ = false;
   linearLSB_QIE8_ = 1.;
@@ -315,7 +315,6 @@ void HcaluLUTTPGCoder::make_cosh_ieta_map(void) {
 
 void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
     
-    HcalCalibrations calibrations;
     const HcalLutMetadata *metadata = conditions.getHcalLutMetadata();
     assert(metadata !=nullptr);
     float nominalgain_ = metadata->getNominalGain();
@@ -444,7 +443,8 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 		if (isMasked) lut[adc] = 0;
 		else {
 		  lut[adc] = std::min(std::max(0,int((adc2fC(adc) - ped) * gain * rcalib / lsb_ / cosh_ieta_[cell.ietaAbs()])), MASK);
-		    if(adc>FG_HF_threshold_) lut[adc] |= QIE10_LUT_MSB;
+		    if(adc>FG_HF_thresholds_[0]) lut[adc] |= QIE10_LUT_MSB0;
+		    if(adc>FG_HF_thresholds_[1]) lut[adc] |= QIE10_LUT_MSB1;
 		}
 	    }
         }
@@ -515,12 +515,13 @@ bool HcaluLUTTPGCoder::getMSB(const HcalDetId& id, int adc) const{
   return (lut.at(adc) & QIE8_LUT_MSB);
 }
 
-void HcaluLUTTPGCoder::lookupMSB(const QIE10DataFrame& df, std::vector<bool>& msb) const{
+void HcaluLUTTPGCoder::lookupMSB(const QIE10DataFrame& df, std::vector<std::bitset<2>>& msb) const{
     msb.resize(df.samples());
     int lutId = getLUTId(HcalDetId(df.id()));
     const Lut& lut = inputLUT_.at(lutId);
     for (int i = 0; i < df.samples(); ++i) {
-	msb[i] = lut.at(df[i].adc()) & QIE10_LUT_MSB;
+	msb[i][0] = lut.at(df[i].adc()) & QIE10_LUT_MSB0;
+	msb[i][1] = lut.at(df[i].adc()) & QIE10_LUT_MSB1;
     }
 }
 

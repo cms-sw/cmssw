@@ -55,11 +55,11 @@ public:
   void update(const char* filename, bool appendMSB = false);
   void updateXML(const char* filename);
   void setLUTGenerationMode(bool gen){ LUTGenerationMode_ = gen; };
-  void setFGHFthreshold(unsigned int fgthreshold){ FG_HF_threshold_ = fgthreshold; };
+  void setFGHFthresholds(const std::vector<uint32_t>& fgthresholds){ FG_HF_thresholds_ = fgthresholds; };
   void setMaskBit(int bit){ bitToMask_ = bit; };
   void setAllLinear(bool linear, double lsb8, double lsb11, double lsb11overlap) { allLinear_ = linear; linearLSB_QIE8_ = lsb8; linearLSB_QIE11_ = lsb11; linearLSB_QIE11Overlap_ = lsb11overlap; };
   void lookupMSB(const HBHEDataFrame& df, std::vector<bool>& msb) const;
-  void lookupMSB(const QIE10DataFrame& df, std::vector<bool>& msb) const;
+  void lookupMSB(const QIE10DataFrame& df, std::vector<std::bitset<2>>& msb) const;
   void lookupMSB(const QIE11DataFrame& df, std::vector<std::bitset<2>>& msb) const;
   bool getMSB(const HcalDetId& id, int adc) const;
   int getLUTId(HcalSubdetector id, int ieta, int iphi, int depth) const;
@@ -83,13 +83,14 @@ private:
   static const int QIE8_LUT_MSB = 0x400;
   static const int QIE11_LUT_MSB0 = 0x400;
   static const int QIE11_LUT_MSB1 = 0x800;
-  static const int QIE10_LUT_MSB  = 0x1000;
+  static const int QIE10_LUT_MSB0  = 0x1000;
+  static const int QIE10_LUT_MSB1  = 0x2000;
   
   // member variables
   const HcalTopology* topo_;
   const HcalTimeSlew* delay_;
   bool LUTGenerationMode_;
-  unsigned int FG_HF_threshold_;
+  std::vector<uint32_t> FG_HF_thresholds_;
   int  bitToMask_;
   int  firstHBEta_, lastHBEta_, nHBEta_, maxDepthHB_, sizeHB_;
   int  firstHEEta_, lastHEEta_, nHEEta_, maxDepthHE_, sizeHE_;
