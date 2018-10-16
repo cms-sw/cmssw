@@ -133,10 +133,9 @@ void DeepDoubleCvLTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescript
   desc.add<std::vector<std::string>>("input_names", 
     { "input_1", "input_2", "input_3" });
   desc.add<edm::FileInPath>("graph_path",
-    edm::FileInPath("RecoBTag/Combined/data/DeepDoubleC/DDCvL.pb")); //XXX
+    edm::FileInPath("RecoBTag/Combined/data/DeepDoubleC/V01/DDCvL.pb"));
   desc.add<std::vector<std::string>>("lp_names",
     { "db_input_batchnorm/keras_learning_phase" });
-    //{ "cpf_input_batchnorm/keras_learning_phase" });
   desc.add<std::vector<std::string>>("output_names",
     { "ID_pred/Softmax" });
   {
