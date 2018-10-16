@@ -77,6 +77,84 @@ namespace btagbtvdeep {
     *(++ptr) = tag_info_features.z_ratio;
   }
 
+  void db_tensor_filler(tensorflow::Tensor & tensor,
+                         std::size_t jet_n,
+                         const btagbtvdeep::DeepDoubleCvLFeatures & features) {
+
+    float* ptr = &tensor.tensor<float, 3>()(jet_n, 0, 0);
+
+    // variables from BoostedDoubleSVTagInfo
+    const auto & tag_info_features = features.tag_info_features;
+    *ptr = tag_info_features.jetNTracks;
+    *(++ptr) = tag_info_features.jetNSecondaryVertices;
+    *(++ptr) = tag_info_features.tau1_trackEtaRel_0;
+    *(++ptr) = tag_info_features.tau1_trackEtaRel_1;
+    *(++ptr) = tag_info_features.tau1_trackEtaRel_2;
+    *(++ptr) = tag_info_features.tau2_trackEtaRel_0;
+    *(++ptr) = tag_info_features.tau2_trackEtaRel_1;
+    *(++ptr) = tag_info_features.tau2_trackEtaRel_2;
+    *(++ptr) = tag_info_features.tau1_flightDistance2dSig;
+    *(++ptr) = tag_info_features.tau2_flightDistance2dSig;
+    *(++ptr) = tag_info_features.tau1_vertexDeltaR;
+    // Note: this variable is not used in the 27-input BDT
+    //    *(++ptr) = tag_info_features.tau2_vertexDeltaR;
+    *(++ptr) = tag_info_features.tau1_vertexEnergyRatio;
+    *(++ptr) = tag_info_features.tau2_vertexEnergyRatio;
+    *(++ptr) = tag_info_features.tau1_vertexMass;
+    *(++ptr) = tag_info_features.tau2_vertexMass;
+    *(++ptr) = tag_info_features.trackSip2dSigAboveBottom_0;
+    *(++ptr) = tag_info_features.trackSip2dSigAboveBottom_1;
+    *(++ptr) = tag_info_features.trackSip2dSigAboveCharm;
+    *(++ptr) = tag_info_features.trackSip3dSig_0;
+    *(++ptr) = tag_info_features.tau1_trackSip3dSig_0;
+    *(++ptr) = tag_info_features.tau1_trackSip3dSig_1;
+    *(++ptr) = tag_info_features.trackSip3dSig_1;
+    *(++ptr) = tag_info_features.tau2_trackSip3dSig_0;
+    *(++ptr) = tag_info_features.tau2_trackSip3dSig_1;
+    *(++ptr) = tag_info_features.trackSip3dSig_2;
+    *(++ptr) = tag_info_features.trackSip3dSig_3;
+    *(++ptr) = tag_info_features.z_ratio;
+  }
+
+  void db_tensor_filler(tensorflow::Tensor & tensor,
+                         std::size_t jet_n,
+                         const btagbtvdeep::DeepDoubleCvBFeatures & features) {
+
+    float* ptr = &tensor.tensor<float, 3>()(jet_n, 0, 0);
+
+    // variables from BoostedDoubleSVTagInfo
+    const auto & tag_info_features = features.tag_info_features;
+    *ptr = tag_info_features.jetNTracks;
+    *(++ptr) = tag_info_features.jetNSecondaryVertices;
+    *(++ptr) = tag_info_features.tau1_trackEtaRel_0;
+    *(++ptr) = tag_info_features.tau1_trackEtaRel_1;
+    *(++ptr) = tag_info_features.tau1_trackEtaRel_2;
+    *(++ptr) = tag_info_features.tau2_trackEtaRel_0;
+    *(++ptr) = tag_info_features.tau2_trackEtaRel_1;
+    *(++ptr) = tag_info_features.tau2_trackEtaRel_2;
+    *(++ptr) = tag_info_features.tau1_flightDistance2dSig;
+    *(++ptr) = tag_info_features.tau2_flightDistance2dSig;
+    *(++ptr) = tag_info_features.tau1_vertexDeltaR;
+    // Note: this variable is not used in the 27-input BDT
+    //    *(++ptr) = tag_info_features.tau2_vertexDeltaR;
+    *(++ptr) = tag_info_features.tau1_vertexEnergyRatio;
+    *(++ptr) = tag_info_features.tau2_vertexEnergyRatio;
+    *(++ptr) = tag_info_features.tau1_vertexMass;
+    *(++ptr) = tag_info_features.tau2_vertexMass;
+    *(++ptr) = tag_info_features.trackSip2dSigAboveBottom_0;
+    *(++ptr) = tag_info_features.trackSip2dSigAboveBottom_1;
+    *(++ptr) = tag_info_features.trackSip2dSigAboveCharm;
+    *(++ptr) = tag_info_features.trackSip3dSig_0;
+    *(++ptr) = tag_info_features.tau1_trackSip3dSig_0;
+    *(++ptr) = tag_info_features.tau1_trackSip3dSig_1;
+    *(++ptr) = tag_info_features.trackSip3dSig_1;
+    *(++ptr) = tag_info_features.tau2_trackSip3dSig_0;
+    *(++ptr) = tag_info_features.tau2_trackSip3dSig_1;
+    *(++ptr) = tag_info_features.trackSip3dSig_2;
+    *(++ptr) = tag_info_features.trackSip3dSig_3;
+    *(++ptr) = tag_info_features.z_ratio;
+  }
+
   void c_pf_tensor_filler(tensorflow::Tensor & tensor,
                           std::size_t jet_n,
                           std::size_t c_pf_n,
