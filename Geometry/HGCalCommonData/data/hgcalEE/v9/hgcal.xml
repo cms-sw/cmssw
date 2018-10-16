@@ -49,17 +49,6 @@
   <Constant name="rMaxEEMax"            value="([rMaxHGCal1]+(([zMaxEE]-[zHGCal1])*[slope2]))"/>
 </ConstantsSection>
 
-<MaterialSection label="hgcal.xml">
-  <CompositeMaterial name="WCu" density="14.979*g/cm3" symbol=" " method="mixture by weight">
-    <MaterialFraction fraction="0.75">
-      <rMaterial name="materials:Tungsten"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.25">
-      <rMaterial name="materials:Copper"/>
-    </MaterialFraction>
-  </CompositeMaterial>
-</MaterialSection>
-
 <SolidSection label="hgcal.xml">
   <Polycone name="HGCal" startPhi="0*deg" deltaPhi="360*deg">
     <ZSection z="[zHGCal1]" rMin="[rMinHGCal1]" rMax="[rMaxHGCal1]"/>

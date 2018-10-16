@@ -143,10 +143,11 @@ namespace soa {
     
     template <typename T, typename... CArgs>
     Table(T const& iContainer, CArgs... iArgs): m_size(iContainer.size()) {
-      using CtrChoice = std::conditional_t<sizeof...(CArgs)==0,
-      CtrFillerFromAOS,
-      CtrFillerFromContainers>;
-      m_size = CtrChoice::fill(m_values,iContainer,std::forward<CArgs>(iArgs)...);
+      if constexpr(sizeof...(CArgs)==0) {
+        CtrFillerFromAOS::fill(m_values,iContainer);
+      } else {
+        CtrFillerFromContainers::fill(m_values,iContainer,std::forward<CArgs>(iArgs)...);
+      }
     }
     
     template<typename T, typename... CArgs>
@@ -156,7 +157,7 @@ namespace soa {
     }
     
     Table( Table<Args...> const& iOther):m_size(iOther.m_size), m_values{{nullptr}} {
-      copyFromToWithResize<0>(m_size,iOther.m_values,m_values);
+      copyFromToWithResizeAll(m_size,iOther.m_values,m_values, std::make_index_sequence<sizeof...(Args)>{});
     }
     
     Table( Table<Args...>&& iOther):m_size(0), m_values{{nullptr}} {
@@ -358,19 +359,21 @@ namespace soa {
       }
     };
 
+    template<size_t... I>
+    static void copyFromToWithResizeAll(size_t iNElements, std::array<void *, sizeof...(Args)> const& iFrom, std::array<void*, sizeof...(Args)>& oTo,
+                                        std::index_sequence<I...>) {
+      (copyFromToWithResize<I>(iNElements, iFrom, oTo), ...);
+    }
     
     template<int I>
     static void copyFromToWithResize(size_t iNElements, std::array<void *, sizeof...(Args)> const& iFrom, std::array<void*, sizeof...(Args)>& oTo) {
-      if constexpr(I < sizeof...(Args)) {
-        using Layout = std::tuple<Args...>;
-        using Type = typename std::tuple_element<I,Layout>::type::type;
-        Type* oldPtr = static_cast<Type*>(oTo[I]);
-        Type* ptr = new Type[iNElements];
-        oTo[I]=ptr;
-        std::copy(static_cast<Type const*>(iFrom[I]), static_cast<Type const*>(iFrom[I])+iNElements, ptr);
-        delete [] oldPtr;
-        copyFromToWithResize<I+1>(iNElements, iFrom, oTo);
-      }
+      using Layout = std::tuple<Args...>;
+      using Type = typename std::tuple_element<I,Layout>::type::type;
+      Type* oldPtr = static_cast<Type*>(oTo[I]);
+      Type* ptr = new Type[iNElements];
+      oTo[I]=ptr;
+      std::copy(static_cast<Type const*>(iFrom[I]), static_cast<Type const*>(iFrom[I])+iNElements, ptr);
+      delete [] oldPtr;
     }
     
     template<int I>

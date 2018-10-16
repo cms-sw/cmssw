@@ -50,6 +50,35 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_capidmbx[HcalEndcap] = 1;
 	_capidmbx[HcalOuter] = 1;
 	_capidmbx[HcalForward] = 1;
+
+	// LED calibration channels
+	std::vector<edm::ParameterSet> vLedCalibChannels = ps.getParameter<std::vector<edm::ParameterSet>>("ledCalibrationChannels");
+	for (int i = 0; i <= 3; ++i) {
+		HcalSubdetector this_subdet = HcalEmpty;
+		switch (i) {
+			case 0:
+				this_subdet = HcalBarrel;
+				break;
+			case 1:
+				this_subdet = HcalEndcap;
+				break;
+			case 2:
+				this_subdet = HcalOuter;
+				break;
+			case 3:
+				this_subdet = HcalForward;
+				break;
+			default:
+				this_subdet = HcalEmpty;
+				break;
+		}
+		std::vector<int32_t> subdet_calib_ietas = vLedCalibChannels[i].getUntrackedParameter<std::vector<int32_t>>("ieta");
+		std::vector<int32_t> subdet_calib_iphis = vLedCalibChannels[i].getUntrackedParameter<std::vector<int32_t>>("iphi");
+		std::vector<int32_t> subdet_calib_depths = vLedCalibChannels[i].getUntrackedParameter<std::vector<int32_t>>("depth");
+		for (unsigned int ichannel = 0; ichannel < subdet_calib_ietas.size(); ++ichannel) {
+			_ledCalibrationChannels[this_subdet].push_back(HcalDetId(HcalOther, subdet_calib_ietas[ichannel], subdet_calib_iphis[ichannel], subdet_calib_depths[ichannel]));
+		}
+	}
 }
 
 /* virtual */ void DigiTask::bookHistograms(DQMStore::IBooker& ib,
@@ -305,6 +334,18 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		std::vector<int> vFEDs = hcaldqm::utilities::getFEDList(_emap);
 		std::vector<int> vFEDsVME = hcaldqm::utilities::getFEDVMEList(_emap);
 		std::vector<int> vFEDsuTCA = hcaldqm::utilities::getFEDuTCAList(_emap);
+
+		if (_ptype == fOnline) {
+			_cCapid_BadvsFEDvsLS.initialize(_name, "CapID", 
+				new hcaldqm::quantity::LumiSectionCoarse(_maxLS, 10),
+				new hcaldqm::quantity::FEDQuantity(vFEDs),		
+				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+
+			_cCapid_BadvsFEDvsLSmod60.initialize(_name, "CapID", 
+				new hcaldqm::quantity::LumiSection(60),
+				new hcaldqm::quantity::FEDQuantity(vFEDs),		
+				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+		}
 	
 		std::vector<uint32_t> vFEDHF;
 		vFEDHF.push_back(HcalElectronicsId(22, SLOT_uTCA_MIN,
@@ -435,6 +476,24 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			_xBadCapid.initialize(hcaldqm::hashfunctions::fFED);
 		}
 	}
+	if (_ptype != fLocal) {
+		_LED_ADCvsBX_Subdet.initialize(_name, "LED_ADCvsBX", 
+			hcaldqm::hashfunctions::fSubdet, 
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBX_36),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_256_4),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+
+		_LED_CUCountvsLS_Subdet.initialize(_name, "LED_CUCountvsLS",
+			hcaldqm::hashfunctions::fSubdet,
+			new hcaldqm::quantity::LumiSection(_maxLS),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+		if (_ptype == fOnline) {
+			_LED_CUCountvsLSmod60_Subdet.initialize(_name, "LED_CUCountvsLSmod60",
+				hcaldqm::hashfunctions::fSubdet,
+				new hcaldqm::quantity::LumiSection(60),
+				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+		}
+	}
 
 	//	BOOK HISTOGRAMS
 	char cutstr[200];
@@ -494,13 +553,26 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_cBadTDCCount_depth.book(ib, _emap, _subsystem);
 
 	_cCapidMinusBXmod4_SubdetPM.book(ib, _emap, _subsystem);
+	if (_ptype == fOnline) {
+		_cCapid_BadvsFEDvsLS.book(ib, _subsystem, "BadvsLS");
+		_cCapid_BadvsFEDvsLSmod60.book(ib, _subsystem, "BadvsLSmod60");
+	}
 	for (int i = 0; i < 4; ++i) {
-		char aux[10];
-		sprintf(aux, "%d_uTCA", i);
+		constexpr unsigned int kSize=16;
+		char aux[kSize];
+		snprintf(aux, kSize, "%d_uTCA", i);
 		_cCapidMinusBXmod4_CrateSlotuTCA[i].book(ib, _subsystem, aux);
 
-		sprintf(aux, "%d_VME", i);
+		snprintf(aux, kSize, "%d_VME", i);
 		_cCapidMinusBXmod4_CrateSlotVME[i].book(ib, _subsystem, aux);
+	}
+
+	if (_ptype != fLocal) {
+		_LED_ADCvsBX_Subdet.book(ib, _emap, _subsystem);
+		_LED_CUCountvsLS_Subdet.book(ib, _emap, _subsystem);
+		if (_ptype == fOnline) {
+			_LED_CUCountvsLSmod60_Subdet.book(ib, _emap, _subsystem);
+		}
 	}
 
 	//	BOOK HISTOGRAMS that are only for Online
@@ -537,12 +609,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		_xUni.book(_emap);
 		_xDigiSize.book(_emap);
 		_xBadCapid.book(_emap);
-
-		// Manually book LED monitoring histogram, to get custom axis
-		ib.setCurrentFolder(_subsystem+"/"+_name+"/LED");
-		_meLEDMon = ib.book2D("LED_ADCvsBX", "Pin diode ADC vs BX", 99, -0.5, 3564-0.5, 64, -0.5, 255.5);
-		_meLEDMon->setAxisTitle("BX", 1);
-		_meLEDMon->setAxisTitle("ADC", 2);
 
 		// just PER HF FED RECORD THE #CHANNELS
 		// ONLY WAY TO DO THAT AUTOMATICALLY AND W/O HARDCODING 1728
@@ -589,10 +655,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_unknownIdsPresent = false;
 	meUnknownIds1LS->setLumiFlag();
 
-	_ledSignalPresent = false;
-	ib.setCurrentFolder(_subsystem+"/"+_name+"/LED");
-	_meLEDEventCount = ib.book1D("LEDEventCount", "LEDEventCount", 1, 0, 2);
-	_meLEDEventCount->setLumiFlag();
 }
 
 /* virtual */ void DigiTask::_resetMonitors(hcaldqm::UpdateFreq uf)
@@ -692,6 +754,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			bool good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
 			if (!good_capidmbx) {
 				_xBadCapid.get(eid)++;
+				_cCapid_BadvsFEDvsLS.fill(eid, _currentLS);
+				_cCapid_BadvsFEDvsLSmod60.fill(eid, _currentLS % 60);
 			}
 			if (eid.isVMEid()) {
 				_cCapidMinusBXmod4_CrateSlotVME[this_capidmbx].fill(eid);
@@ -805,28 +869,33 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		HcalDetId const& did = digi.detid();
 		if (did.subdet() != HcalEndcap) {
 			// LED monitoring from calibration channels
-			if (did.subdet() == HcalOther) {
-				HcalOtherDetId hodid(digi.detid());
-				if (hodid.subdet() == HcalCalibration) {
-					if (did.depth() == 10) {
-						_ledSignalPresent = false;
-						for (int i=0; i<digi.samples(); i++) {
-							if (_ptype == fOnline) {
-								_meLEDMon->Fill(bx, digi[i].adc());
+			if (_ptype != fLocal) {
+				if (did.subdet() == HcalOther) {
+					HcalOtherDetId hodid(digi.detid());
+					if (hodid.subdet() == HcalCalibration) {
+						// New method: use configurable list of channels
+						if (std::find(_ledCalibrationChannels[HcalEndcap].begin(), _ledCalibrationChannels[HcalEndcap].end(), did) != _ledCalibrationChannels[HcalEndcap].end()) {
+							bool channelLEDSignalPresent = false;
+							for (int i=0; i<digi.samples(); i++) {
+								_LED_ADCvsBX_Subdet.fill(HcalDetId(HcalEndcap, 16, 1, 1), bx, digi[i].adc());
+
+								if (digi[i].adc() > _thresh_led) {
+									channelLEDSignalPresent = true;
+								}
 							}
-							if (digi[i].adc() > _thresh_led) {
-								_ledSignalPresent = true;
+							if (channelLEDSignalPresent) {
+								_LED_CUCountvsLS_Subdet.fill(HcalDetId(HcalEndcap, 16, 1, 1), _currentLS);
+								if (_ptype == fOnline) {
+									_LED_CUCountvsLSmod60_Subdet.fill(HcalDetId(HcalEndcap, 16, 1, 1), _currentLS % 60);
+								}
 							}
-						}
-						if (_ledSignalPresent) {
-							_meLEDEventCount->Fill(1);
 						}
 					}
 				}
 			}
-
 			continue;
 		}
+
 		uint32_t rawid = _ehashmap.lookup(did);
 		if (rawid == 0) {
 			meUnknownIds1LS->Fill(1);
@@ -868,6 +937,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			bool good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
 			if (!good_capidmbx) {
 				_xBadCapid.get(eid)++;
+				_cCapid_BadvsFEDvsLS.fill(eid, _currentLS);
+				_cCapid_BadvsFEDvsLSmod60.fill(eid, _currentLS % 60);
 			}
 			if (eid.isVMEid()) {
 				_cCapidMinusBXmod4_CrateSlotVME[this_capidmbx].fill(eid);
@@ -1049,6 +1120,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			bool good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
 			if (!good_capidmbx) {
 				_xBadCapid.get(eid)++;
+				_cCapid_BadvsFEDvsLS.fill(eid, _currentLS);
+				_cCapid_BadvsFEDvsLSmod60.fill(eid, _currentLS % 60);
 			}
 			if (eid.isVMEid()) {
 				_cCapidMinusBXmod4_CrateSlotVME[this_capidmbx].fill(eid);
@@ -1174,6 +1247,31 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			//	Explicit check on the DetIds present in the Collection
 			HcalDetId const& did = digi.detid();
 			if (did.subdet() != HcalForward) {
+				// LED monitoring from calibration channels
+				if (_ptype != fLocal) {
+					if (did.subdet() == HcalOther) {
+						HcalOtherDetId hodid(digi.detid());
+						if (hodid.subdet() == HcalCalibration) {
+							// New method: use configurable list of channels
+							if (std::find(_ledCalibrationChannels[HcalForward].begin(), _ledCalibrationChannels[HcalForward].end(), did) != _ledCalibrationChannels[HcalForward].end()) {
+								bool channelLEDSignalPresent = false;
+								for (int i=0; i<digi.samples(); i++) {
+									_LED_ADCvsBX_Subdet.fill(HcalDetId(HcalForward, 16, 1, 1), bx, digi[i].adc());
+
+									if (digi[i].adc() > _thresh_led) {
+										channelLEDSignalPresent = true;
+									}
+								}
+								if (channelLEDSignalPresent) {
+									_LED_CUCountvsLS_Subdet.fill(HcalDetId(HcalForward, 16, 1, 1), _currentLS);
+									if (_ptype == fOnline) { 
+										_LED_CUCountvsLSmod60_Subdet.fill(HcalDetId(HcalForward, 16, 1, 1), _currentLS % 60);
+									}
+								}
+							}
+						}
+					}
+				}
 				continue;
 			}
 
@@ -1214,6 +1312,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				bool good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
 				if (!good_capidmbx) {
 					_xBadCapid.get(eid)++;
+					_cCapid_BadvsFEDvsLS.fill(eid, _currentLS);
+					_cCapid_BadvsFEDvsLSmod60.fill(eid, _currentLS % 60);
 				}
 				if (eid.isVMEid()) {
 					_cCapidMinusBXmod4_CrateSlotVME[this_capidmbx].fill(eid);
@@ -1366,6 +1466,14 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	edm::LuminosityBlock const& lb, edm::EventSetup const& es)
 {
 	DQTask::beginLuminosityBlock(lb, es);
+	if (_ptype == fOnline) {
+		// Reset the bin for _cCapid_BadvsFEDvsLSmod60
+		for (std::vector<uint32_t>::const_iterator it=_vhashFEDs.begin();
+				it!=_vhashFEDs.end(); ++it) {
+			HcalElectronicsId eid = HcalElectronicsId(*it);
+			_cCapid_BadvsFEDvsLSmod60.setBinContent(eid, _currentLS % 50, 0);
+		}	
+	}
 }
 
 /* virtual */ void DigiTask::endLuminosityBlock(edm::LuminosityBlock const& lb,
@@ -1453,10 +1561,33 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			else
 				_vflags[fUnknownIds]._state = hcaldqm::flag::fGOOD;
 
-			if (_ledSignalPresent)
-				_vflags[fLED]._state = hcaldqm::flag::fBAD;
-			else
-				_vflags[fLED]._state = hcaldqm::flag::fGOOD;
+			// LED misfires
+			if (_ptype != fLocal) {
+				if (hcaldqm::utilities::isFEDHBHE(eid)) {
+					HcalDetId did_hb(hcaldqm::hashfunctions::hash_Subdet(HcalDetId(HcalBarrel, 1, 1, 1)));
+					HcalDetId did_he(hcaldqm::hashfunctions::hash_Subdet(HcalDetId(HcalEndcap, 16, 1, 1)));
+
+					if (_LED_CUCountvsLS_Subdet.getBinContent(did_hb, _currentLS) > 0 || _LED_CUCountvsLS_Subdet.getBinContent(did_he, _currentLS) > 0) {
+						_vflags[fLED]._state = hcaldqm::flag::fBAD;
+					} else {
+						_vflags[fLED]._state = hcaldqm::flag::fGOOD;
+					}
+				} else if (hcaldqm::utilities::isFEDHF(eid)) {
+					HcalDetId did_hf(hcaldqm::hashfunctions::hash_Subdet(HcalDetId(HcalForward, 29, 1, 1)));
+					if (_LED_CUCountvsLS_Subdet.getBinContent(did_hf, _currentLS) > 0) {
+						_vflags[fLED]._state = hcaldqm::flag::fBAD;
+					} else {
+						_vflags[fLED]._state = hcaldqm::flag::fGOOD;
+					}
+				} else if (hcaldqm::utilities::isFEDHO(eid)) {
+					HcalDetId did_ho(hcaldqm::hashfunctions::hash_Subdet(HcalDetId(HcalOuter, 1, 1, 1)));
+					if (_LED_CUCountvsLS_Subdet.getBinContent(did_ho, _currentLS) > 0) {
+						_vflags[fLED]._state = hcaldqm::flag::fBAD;
+					} else {
+						_vflags[fLED]._state = hcaldqm::flag::fGOOD;
+					}
+				}
+			}
 
 			int iflag=0;
 			for (std::vector<hcaldqm::flag::Flag>::iterator ft=_vflags.begin();

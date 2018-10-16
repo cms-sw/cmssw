@@ -43,7 +43,8 @@ struct RunResources {
   ~RunResources() noexcept {
     try {
       //If we skip empty runs, this would be called conditionally
-      ep_.endUnfinishedRun(processHistoryID(), run(), globalTransitionSucceeded_, cleaningUpAfterException_);
+      ep_.endUnfinishedRun(processHistoryID(), run(), globalTransitionSucceeded_,
+                           cleaningUpAfterException_, eventSetupForInstanceSucceeded_);
     }
     catch(...) {
       if(cleaningUpAfterException_ or not ep_.setDeferredException(std::current_exception())) {
@@ -76,6 +77,7 @@ struct RunResources {
   bool cleaningUpAfterException_ = true;
   bool success_ = false;
   bool globalTransitionSucceeded_ = false;
+  bool eventSetupForInstanceSucceeded_ = false;
 };
 
 class LumisInRunProcessor {
@@ -162,7 +164,9 @@ private:
       }
       currentRun_ = std::make_shared<RunResources>(iEP,runID.first,runID.second);
       iEP.readRun();
-      iEP.beginRun(runID.first,runID.second, currentRun_->globalTransitionSucceeded_);
+      iEP.beginRun(runID.first,runID.second,
+                   currentRun_->globalTransitionSucceeded_,
+                   currentRun_->eventSetupForInstanceSucceeded_);
       //only if we succeed at beginRun should we run writeRun
       currentRun_->succeeded();
     } else {

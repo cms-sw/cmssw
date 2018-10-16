@@ -56,7 +56,7 @@ public:
   template <typename... OArgs>
   TableView( Table<OArgs...> const& iTable):
   m_size(iTable.size()) {
-    fillArray<0>(iTable);
+    fillArray(iTable, std::make_index_sequence<sizeof...(Args)>{});
   }
   TableView( unsigned int iSize, std::array<void*, sizeof...(Args)>& iArray):
   m_size(iSize),
@@ -92,13 +92,9 @@ private:
     return m_values[impl::GetIndex<0,U,Layout>::index];
   }
   
-  template <int I, typename T>
-  void fillArray( T const& iTable) {
-    if constexpr(I<sizeof...(Args)) {
-      using ElementType = typename std::tuple_element<I, Layout>::type;
-      m_values[I] = iTable.columnAddressWorkaround(static_cast<ElementType const*>(nullptr));
-      fillArray<I+1>(iTable);
-    }
+  template <typename T, size_t... I>
+  void fillArray( T const& iTable, std::index_sequence<I...>) {
+    ( (m_values[I] = iTable.columnAddressWorkaround(static_cast<typename std::tuple_element<I, Layout>::type const*>(nullptr))), ...);
   }
 };
 

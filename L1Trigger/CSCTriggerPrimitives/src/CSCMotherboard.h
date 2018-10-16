@@ -37,6 +37,8 @@
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCAnodeLCTProcessor.h"
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCCathodeLCTProcessor.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
+#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class CSCGeometry;
 
@@ -45,8 +47,8 @@ class CSCMotherboard
  public:
   /** Normal constructor. */
   CSCMotherboard(unsigned endcap, unsigned station, unsigned sector,
-		 unsigned subsector, unsigned chamber,
-		 const edm::ParameterSet& conf);
+                 unsigned subsector, unsigned chamber,
+                 const edm::ParameterSet& conf);
 
   /** Constructor for use during testing. */
   CSCMotherboard();
@@ -74,13 +76,33 @@ class CSCMotherboard
   void setCSCGeometry(const CSCGeometry *g) { csc_g = g; }
 
   /** Anode LCT processor. */
-  std::unique_ptr<CSCAnodeLCTProcessor> alct;
+  std::unique_ptr<CSCAnodeLCTProcessor> alctProc;
 
   /** Cathode LCT processor. */
-  std::unique_ptr<CSCCathodeLCTProcessor> clct;
+  std::unique_ptr<CSCCathodeLCTProcessor> clctProc;
 
  // VK: change to protected, to allow inheritance
  protected:
+
+  /* Containers for reconstructed ALCTs and CLCTs */
+  std::vector<CSCALCTDigi> alctV;
+  std::vector<CSCCLCTDigi> clctV;
+
+  /** Container for first correlated LCT. */
+  CSCCorrelatedLCTDigi firstLCT[CSCConstants::MAX_LCT_TBINS];
+
+  /** Container for second correlated LCT. */
+  CSCCorrelatedLCTDigi secondLCT[CSCConstants::MAX_LCT_TBINS];
+
+  // Parameters common for all boards
+  edm::ParameterSet commonParams_;
+
+  // Parameters for processors
+  edm::ParameterSet alctParams_;
+  edm::ParameterSet clctParams_;
+
+  // Motherboard parameters:
+  edm::ParameterSet tmbParams_;
 
   // helper function to return ALCT with correct central BX
   CSCALCTDigi getBXShiftedALCT(const CSCALCTDigi&) const;
@@ -100,7 +122,12 @@ class CSCMotherboard
   const CSCGeometry* csc_g;
 
   /** Flag for SLHC studies. */
-  bool isSLHC;
+  bool isSLHC_;
+
+  /* Flags to run upgrade algorithms */
+  bool runME11ILT_;
+  bool runME21ILT_;
+  bool runME3141ILT_;
 
   /** Configuration parameters. */
   unsigned int mpc_block_me1a;
@@ -131,12 +158,6 @@ class CSCMotherboard
   static const unsigned int def_match_trig_enable, def_match_trig_window_size;
   static const unsigned int def_tmb_l1a_window_size;
 
-  /** Container for first correlated LCT. */
-  CSCCorrelatedLCTDigi firstLCT[CSCConstants::MAX_LCT_TBINS];
-
-  /** Container for second correlated LCT. */
-  CSCCorrelatedLCTDigi secondLCT[CSCConstants::MAX_LCT_TBINS];
-
   /** Make sure that the parameter values are within the allowed range. */
   void checkConfigParameters();
 
@@ -150,9 +171,8 @@ class CSCMotherboard
                                      const CSCCLCTDigi& cLCT,
                                      int type, int trknmb) const;
 
-  // CLCT pattern number: encodes the pattern number itself and
-  // whether the pattern consists of half-strips or di-strips.
-  unsigned int encodePattern(const int ptn, const int highPt) const;
+  // CLCT pattern number: encodes the pattern number itself
+  unsigned int encodePattern(const int clctPattern) const;
 
   // 4-bit LCT quality number.Made by TMB lookup tables and used for MPC sorting.
   unsigned int findQuality(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT) const;
@@ -178,8 +198,5 @@ class CSCMotherboard
 
   /** Dump TMB/MPC configuration parameters. */
   void dumpConfigParams() const;
-
-  // Method for tests
-  void testLCT();
 };
 #endif

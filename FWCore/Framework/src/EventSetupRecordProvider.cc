@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "make_shared_noexcept_false.h"
 
 
 
@@ -108,10 +109,11 @@ void
 EventSetupRecordProvider::setDependentProviders(const std::vector< std::shared_ptr<EventSetupRecordProvider> >& iProviders)
 {
    using std::placeholders::_1;
-   std::shared_ptr<DependentRecordIntervalFinder> newFinder = std::make_shared<DependentRecordIntervalFinder>(key());
-   
+   std::shared_ptr<DependentRecordIntervalFinder> newFinder = make_shared_noexcept_false<DependentRecordIntervalFinder>(key());
+
    std::shared_ptr<EventSetupRecordIntervalFinder> old = swapFinder(newFinder);
-   for_all(iProviders, std::bind(std::mem_fun(&DependentRecordIntervalFinder::addProviderWeAreDependentOn), &(*newFinder), _1));
+
+   for(auto const& p: iProviders) { newFinder->addProviderWeAreDependentOn(p); };
    //if a finder was already set, add it as a depedency.  This is done to ensure that the IOVs properly change even if the
    // old finder does not update each time a dependent record does change
    if(old.get() != nullptr) {
@@ -124,8 +126,7 @@ EventSetupRecordProvider::usePreferred(const DataToPreferredProviderMap& iMap)
   using std::placeholders::_1;
   for_all(providers_, std::bind(&EventSetupRecordProvider::addProxiesToRecordHelper,this,_1,iMap));
   if (1 < multipleFinders_->size()) {
-     
-     std::shared_ptr<IntersectingIOVRecordIntervalFinder> intFinder = std::make_shared<IntersectingIOVRecordIntervalFinder>(key_);
+     std::shared_ptr<IntersectingIOVRecordIntervalFinder> intFinder = make_shared_noexcept_false<IntersectingIOVRecordIntervalFinder>(key_);
      intFinder->swapFinders(*multipleFinders_);
      finder_ = intFinder;
   }

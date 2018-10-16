@@ -78,6 +78,7 @@ public:
       
   /// Returns the corner points of this cell's volume.
   CornersVec getCorners( const DetId& id ) const; 
+  CornersVec get8Corners( const DetId& id ) const; 
 
   // avoid sorting set in base class  
   const std::vector<DetId>& getValidDetIds( DetId::Detector det = DetId::Detector(0), int subdet = 0) const override { return m_validIds; }
@@ -122,6 +123,7 @@ private:
   template<class T>
   unsigned int getClosestCellIndex(const GlobalPoint&r, const std::vector<T>& vec) const;
   std::shared_ptr<const CaloCellGeometry> cellGeomPtr( uint32_t index, const GlobalPoint& p) const;
+  DetId getGeometryDetId(DetId detId) const;
 
   const HGCalTopology&            m_topology;
   CellVec                         m_cellVec; 

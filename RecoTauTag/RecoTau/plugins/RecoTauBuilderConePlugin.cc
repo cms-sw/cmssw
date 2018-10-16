@@ -118,7 +118,7 @@ namespace xclean
   template<>
   inline void CrossCleanPtrs<PiZeroList::const_iterator>::initialize(const PiZeroList::const_iterator& piZerosBegin, const PiZeroList::const_iterator& piZerosEnd) 
   {
-    BOOST_FOREACH( const PFCandidatePtr &ptr, flattenPiZeros(piZerosBegin, piZerosEnd) ) {
+    for(auto const& ptr : flattenPiZeros(piZerosBegin, piZerosEnd) ) {
       toRemove_.insert(CandidatePtr(ptr));
     }
   }

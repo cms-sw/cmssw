@@ -23,8 +23,7 @@ void SiPixelDcsInfo::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQMStore
     FractionEndcap_= iBooker.bookFloat("PixelEndcapFraction");  
   }
 
-  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-  if(nullptr != iSetup.find( recordKey ) ) {
+  if(iSetup.tryToGet<RunInfoRcd>()) {
       //all Pixel:
       Fraction_->Fill(1.);
       //Barrel:

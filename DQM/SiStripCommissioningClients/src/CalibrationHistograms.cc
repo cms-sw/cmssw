@@ -30,7 +30,7 @@ CalibrationHistograms::CalibrationHistograms( const edm::ParameterSet& pset,
        << "[CalibrationHistograms::" << __func__ << "]"
        << " Constructing object...";
   std::string temp = std::string(sistrip::collate_) + "/" + sistrip::root_;
-  factory_ = auto_ptr<CalibrationSummaryFactory>( new CalibrationSummaryFactory );
+  factory_ = unique_ptr<CalibrationSummaryFactory>( new CalibrationSummaryFactory );
   MonitorElement* calchanElement = bei->get(temp + "/calchan");
   if(calchanElement) {
     calchan_ = calchanElement->getIntValue();

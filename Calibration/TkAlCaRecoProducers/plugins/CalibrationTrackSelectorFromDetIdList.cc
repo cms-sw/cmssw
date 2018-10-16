@@ -46,7 +46,7 @@ private:
   void beginRun(edm::Run const& run, const edm::EventSetup&) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
   edm::EDGetTokenT<reco::TrackCollection> m_label;
-  TrackCandidate makeCandidate(const reco::Track &tk, std::vector<TrackingRecHit *>::iterator hitsBegin, std::vector<TrackingRecHit *>::iterator hitsEnd);
+  TrackCandidate makeCandidate(const reco::Track &tk, std::vector<const TrackingRecHit*>::iterator hitsBegin, std::vector<const TrackingRecHit*>::iterator hitsEnd);
 
   std::vector<DetIdSelector> detidsels_;
   bool m_verbose;
@@ -82,20 +82,20 @@ void CalibrationTrackSelectorFromDetIdList::produce(edm::Event& iEvent, const ed
   using namespace edm;
   using namespace std;
 
-  edm::Handle<std::vector<reco::Track> > tracks;
-  iEvent.getByToken(m_label, tracks);
+  edm::Handle<std::vector<reco::Track> > trackCollectionHandle;
+  iEvent.getByToken(m_label, trackCollectionHandle);
+  auto const & tracks = *trackCollectionHandle;
+
   auto output = std::make_unique<TrackCandidateCollection>();
   
   // loop on tracks
-  for (std::vector<reco::Track>::const_iterator ittrk = tracks->begin(), edtrk = tracks->end(); ittrk != edtrk; ++ittrk) {
-    const reco::Track *trk = &(*ittrk);
+  for(auto &trk : tracks){
 
-    std::vector<TrackingRecHit *> hits;
-    hits.clear();
-    
+    std::vector<const TrackingRecHit*>  hits; 
+   
     bool saveTrack(false);
 
-    for (trackingRecHit_iterator ith = trk->recHitsBegin(), edh = trk->recHitsEnd(); ith != edh; ++ith) {
+    for (trackingRecHit_iterator ith = trk.recHitsBegin(), edh = trk.recHitsEnd(); ith != edh; ++ith) {
       const TrackingRecHit * hit = (*ith); // ith is an iterator on edm::Ref to rechit
       DetId detid = hit->geographicalId();
       
@@ -108,14 +108,12 @@ void CalibrationTrackSelectorFromDetIdList::produce(edm::Event& iEvent, const ed
       }
 
       // here there will be the selection
-      hits.push_back(hit->clone());
+      hits.emplace_back(hit);
 
     }
 
-    std::vector<TrackingRecHit *>::iterator begin = hits.begin(), end = hits.end();
-
     if(saveTrack){
-      output->push_back( makeCandidate ( *ittrk, begin, end ) );
+      output->push_back( makeCandidate (trk, hits.begin(), hits.end() ) );
     }
 
   }
@@ -123,7 +121,7 @@ void CalibrationTrackSelectorFromDetIdList::produce(edm::Event& iEvent, const ed
 }
 
 TrackCandidate
-CalibrationTrackSelectorFromDetIdList::makeCandidate(const reco::Track &tk, std::vector<TrackingRecHit *>::iterator hitsBegin, std::vector<TrackingRecHit *>::iterator hitsEnd) {
+CalibrationTrackSelectorFromDetIdList::makeCandidate(const reco::Track &tk, std::vector<const TrackingRecHit*>::iterator hitsBegin, std::vector<const TrackingRecHit*>::iterator hitsEnd) {
   
   PropagationDirection   pdir = tk.seedDirection();
   PTrajectoryStateOnDet state;
@@ -142,7 +140,7 @@ CalibrationTrackSelectorFromDetIdList::makeCandidate(const reco::Track &tk, std:
   TrackCandidate::RecHitContainer ownHits;
   ownHits.reserve(hitsEnd - hitsBegin);
   for ( ; hitsBegin != hitsEnd; ++hitsBegin) {
-    ownHits.push_back( *hitsBegin );
+    ownHits.push_back( (*hitsBegin)->clone() );
   }
 
   TrackCandidate cand(ownHits, seed, state, tk.seedRef());

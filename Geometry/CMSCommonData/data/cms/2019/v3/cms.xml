@@ -68,7 +68,7 @@
  <Constant name="TotemBeamR2"  value="12.15*cm"/>
  <Constant name="TotemBeamR3"  value="12.20*cm"/>
  <Constant name="TotemBeamR4"  value="4.20*cm"/>
- <Constant name="TotemBeamR5"  value="320.0*cm"/>
+ <Constant name="TotemBeamR5"  value="3.575*cm"/>
  <Constant name="ForwdBeamZ1"  value="10.539*m"/>
  <Constant name="ForwdBeamZ2"  value="13.109*m"/>
  <Constant name="ForwdBeamZ3"  value="13.290*m"/>

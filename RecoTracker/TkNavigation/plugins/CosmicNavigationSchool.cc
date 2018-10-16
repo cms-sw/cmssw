@@ -56,7 +56,6 @@ private:
 #include "SimpleBarrelNavigableLayer.h"
 #include "SimpleForwardNavigableLayer.h"
 #include "SimpleNavigableLayer.h"
-#include "DiskLessInnerRadius.h"
 #include "SymmetricLayerFinder.h"
 
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
@@ -353,33 +352,28 @@ SkippingLayerCosmicNavigationSchool::SkippingLayerCosmicNavigationSchool(const G
 class dso_hidden SkippingLayerCosmicNavigationSchoolESProducer final : public edm::ESProducer {
  public:
   SkippingLayerCosmicNavigationSchoolESProducer(const edm::ParameterSet& iConfig) {
-  theNavigationPSet = iConfig;
-  theNavigationSchoolName = theNavigationPSet.getParameter<std::string>("ComponentName");
-  //the following line is needed to tell the framework what
-  // data is being produced
-  setWhatProduced(this, theNavigationSchoolName);
-  
-}
-
+    theNavigationPSet = iConfig;
+    theNavigationSchoolName = theNavigationPSet.getParameter<std::string>("ComponentName");
+    //the following line is needed to tell the framework what
+    // data is being produced
+    setWhatProduced(this, theNavigationSchoolName);
+  }
 
   ~SkippingLayerCosmicNavigationSchoolESProducer() override{}
 
-   typedef std::shared_ptr<NavigationSchool> ReturnType;
-
+  using ReturnType = std::unique_ptr<NavigationSchool>;
 
   ReturnType produce(const NavigationSchoolRecord&);
 
   // ----------member data ---------------------------
   edm::ParameterSet theNavigationPSet;
   std::string theNavigationSchoolName;
-
-
 };
 
+SkippingLayerCosmicNavigationSchoolESProducer::ReturnType
+SkippingLayerCosmicNavigationSchoolESProducer::produce(const NavigationSchoolRecord& iRecord) {
 
-SkippingLayerCosmicNavigationSchoolESProducer::ReturnType SkippingLayerCosmicNavigationSchoolESProducer::produce(const NavigationSchoolRecord& iRecord){
-  using namespace edm::es;
-  std::shared_ptr<NavigationSchool> theNavigationSchool ;
+  std::unique_ptr<NavigationSchool> theNavigationSchool ;
 
   // get the field
   edm::ESHandle<MagneticField>                field;

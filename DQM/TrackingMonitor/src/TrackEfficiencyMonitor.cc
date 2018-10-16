@@ -296,7 +296,10 @@ void TrackEfficiencyMonitor::analyze(const edm::Event& iEvent, const edm::EventS
   iSetup.get<NavigationSchoolRecord>().get("CosmicNavigationSchool", nav); 
   iSetup.get<CkfComponentsRecord>().get(measurementTrackerHandle);
  
-  nCompatibleLayers = 0; 
+  //initialize values
+  failedToPropagate = 0;
+  nCompatibleLayers = 0;
+  findDetLayer = false;
   
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theTTrackBuilder);
   iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny",thePropagator);

@@ -88,10 +88,10 @@ namespace cms
     void runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
 
   private:
-    std::auto_ptr<CATopJetAlgorithm>        legacyCMSTopTagger_;         /// The algorithm to do the work
-    std::auto_ptr<fastjet::CMSTopTagger>     fjCMSTopTagger_;    // The FastJet implementation of the CMS tagger
-    std::auto_ptr<fastjet::JHTopTagger>     fjJHUTopTagger_;
-    std::auto_ptr<fastjet::RestFrameNSubjettinessTagger>   fjNSUBTagger_;
+    std::unique_ptr<CATopJetAlgorithm>        legacyCMSTopTagger_;         /// The algorithm to do the work
+    std::unique_ptr<fastjet::CMSTopTagger>     fjCMSTopTagger_;    // The FastJet implementation of the CMS tagger
+    std::unique_ptr<fastjet::JHTopTagger>     fjJHUTopTagger_;
+    std::unique_ptr<fastjet::RestFrameNSubjettinessTagger>   fjNSUBTagger_;
 
 
 

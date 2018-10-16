@@ -47,7 +47,7 @@ namespace soa {
     Layout m_fillers;
     
     template<int I, typename ELEMENT>
-    auto callFiller(ELEMENT&& iEl) -> decltype(std::get<I>(m_fillers).m_f(iEl)) {
+    decltype(auto) callFiller(ELEMENT&& iEl) {
       return std::get<I>(m_fillers).m_f(iEl);
     }
     

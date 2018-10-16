@@ -87,7 +87,7 @@ namespace edm {
       }
       
       template<>
-      void EventSetupRecord::get<fwliteeswriter::Handle>(const std::string& iName, fwliteeswriter::Handle& iHolder) const {
+      bool EventSetupRecord::get<fwliteeswriter::Handle>(const std::string& iName, fwliteeswriter::Handle& iHolder) const {
          fwliteeswriter::DummyType t;
          t.m_tag = &(iHolder.m_info->m_tag);
          const fwliteeswriter::DummyType* value = &t;
@@ -96,6 +96,7 @@ namespace edm {
          impl_->getImplementation(value, iName.c_str(),desc,true, dummy);
          iHolder.m_data = t.m_data;
          iHolder.m_desc = desc;
+         return true;
       }
       
    }
@@ -139,7 +140,7 @@ namespace  {
       }
    private:
       edm::eventsetup::EventSetupRecordKey m_key;
-     boost::optional<edm::eventsetup::EventSetupRecordGeneric> m_record;
+     std::optional<edm::eventsetup::EventSetupRecordGeneric> m_record;
       fwlite::RecordWriter m_writer;
       unsigned long long m_cacheID;
       std::vector<DataInfo> m_dataInfos;

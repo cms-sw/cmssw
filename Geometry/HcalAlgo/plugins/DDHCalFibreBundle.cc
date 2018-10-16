@@ -37,9 +37,8 @@ void DDHCalFibreBundle::initialize(const DDNumericArguments & nArgs,
   rEnd        = vArgs["RadiusEnd"];
   bundle      = dbl_to_int(vArgs["Bundles"]);
   tilt        = nArgs["TiltAngle"];
-
-  DDCurrentNamespace ns;
-  idNameSpace = *ns;
+  
+  idNameSpace = DDCurrentNamespace::ns();
   childPrefix = sArgs["Child"]; 
   DDName parentName = parent().name();
   LogDebug("HCalGeom") << "DDHCalFibreBundle debug: Parent " << parentName

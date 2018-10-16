@@ -34,7 +34,7 @@ class FedCablingHistograms : virtual public CommissioningHistograms {
   
   Analyses data_;
   
-  std::auto_ptr<Factory> factory_;
+  std::unique_ptr<Factory> factory_;
 
 };
 

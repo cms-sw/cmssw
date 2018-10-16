@@ -133,6 +133,8 @@ caloParams = cms.ESProducer(
 
 
     # HI
+    etSumCentralityLower =   cms.vdouble(0,200,400,600,800, 1000,1200,1400),
+    etSumCentralityUpper = cms.vdouble(200,400,600,800,1000,1200,1400,1600),
     centralityNodeVersion = cms.int32(1),
     centralityRegionMask = cms.int32(0),
     minimumBiasThresholds = cms.vint32(0, 0, 0, 0),

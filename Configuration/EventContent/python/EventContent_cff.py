@@ -18,7 +18,7 @@ import FWCore.ParameterSet.Config as cms
 #    slimmed-down version of RAWSIM for small transient disk size during MC production, contains Gen+Rawdata
 #
 #  PREMIX
-#    extension of GENRAW with special Digi collection(s) for pre-mixing minbias events for pileup simulation
+#    contains special Digi collection(s) for pre-mixing minbias events for pileup simulation
 #    Raw2Digi step is done on this file.
 #
 #  PREMIXRAW
@@ -527,70 +527,14 @@ GENRAWEventContent.outputCommands.extend(IOMCRAW.outputCommands)
 GENRAWEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
 GENRAWEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 
-PREMIXEventContent.outputCommands.extend(RAWEventContent.outputCommands)
-PREMIXEventContent.outputCommands.extend(GeneratorInterfaceRECO.outputCommands)
-PREMIXEventContent.outputCommands.extend(SimG4CoreRECO.outputCommands)
-PREMIXEventContent.outputCommands.extend(SimTrackerRAW.outputCommands)
 PREMIXEventContent.outputCommands.extend(SimGeneralRAW.outputCommands)
-PREMIXEventContent.outputCommands.extend(RecoGenMETFEVT.outputCommands)
-PREMIXEventContent.outputCommands.extend(RecoGenJetsFEVT.outputCommands)
-PREMIXEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
 PREMIXEventContent.outputCommands.extend(IOMCRAW.outputCommands)
-PREMIXEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
 PREMIXEventContent.outputCommands.extend(CommonEventContent.outputCommands)
-PREMIXEventContent.outputCommands.append('keep RPCDetIdRPCDigiMuonDigiCollection_simMuonRPCDigis_*_*')
-PREMIXEventContent.outputCommands.append('keep *_mix_MergedTrackTruth_*')
-PREMIXEventContent.outputCommands.append('keep StripDigiSimLinkedmDetSetVector_simSiStripDigis_*_*')
-PREMIXEventContent.outputCommands.append('keep PixelDigiSimLinkedmDetSetVector_simSiPixelDigis_*_*')
-PREMIXEventContent.outputCommands.append('keep StripDigiSimLinkedmDetSetVector_simMuonCSCDigis_*_*')
-PREMIXEventContent.outputCommands.append('keep RPCDigiSimLinkedmDetSetVector_*_*_*')
-PREMIXEventContent.outputCommands.append('keep DTLayerIdDTDigiSimLinkMuonDigiCollection_*_*_*')
+PREMIXEventContent.outputCommands.extend(SimTrackerPREMIX.outputCommands)
+PREMIXEventContent.outputCommands.extend(SimCalorimetryPREMIX.outputCommands)
+PREMIXEventContent.outputCommands.extend(SimMuonPREMIX.outputCommands)
+PREMIXEventContent.outputCommands.extend(SimGeneralPREMIX.outputCommands)
 fastSim.toModify(PREMIXEventContent, outputCommands = PREMIXEventContent.outputCommands+fastSimEC.extraPremixContent)
-# Phase2 essentially extends the content to DIGI
-# We could split this by subdetector-eras, but let's start with simple
-from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-phase2_common.toModify(PREMIXEventContent, outputCommands = PREMIXEventContent.outputCommands+[
-        # Tracker
-        'keep Phase2TrackerDigiedmDetSetVector_mix_*_*',
-        'keep *_*_Phase2OTDigiSimLink_*',
-        'keep *_simSiPixelDigis_*_*', # covers digis and digiSimLinks
-        # MTD
-        # ???
-        # ECAL
-        'keep *_simEcalDigis_ebDigis_*',
-        'keep ESDigiCollection_simEcalUnsuppressedDigis_*_*',
-        # HCAL
-        'keep *_simHcalDigis_*_*',
-        'keep ZDCDataFramesSorted_simHcalUnsuppressedDigis_*_*',
-        # HGCAL
-        'keep *_simHGCalUnsuppressedDigis_EE_*',
-        'keep *_simHGCalUnsuppressedDigis_HEfront_*',
-        'keep *_simHGCalUnsuppressedDigis_HEback_*',
-        # DT
-        'keep *_simMuonDTDigis_*_*',
-        # CSC
-        'keep *_simMuonCSCDigis_*_*',
-        'keep *_simMuonCscTriggerPrimitiveDigis_*_*',
-        # RPC
-        'keep *_simMuonRPCDigis_*_*',
-        # GEM
-        'keep *_simMuonGEMDigis_*_*',
-        'keep *_*_GEMDigiSimLink_*',
-        'keep *_*_GEMStripDigiSimLink_*',
-        # ME0
-        'keep *_simMuonME0Digis_*_*',
-        'keep *_mix_g4SimHitsMuonME0Hits_*',
-        'keep *_*_ME0DigiSimLink_*',
-        'keep *_*_ME0StripDigiSimLink_*',
-        # CaloParticles
-        'keep *_mix_MergedCaloTruth_*',
-])
-
-
-from Configuration.Eras.Modifier_hcalSkipPacker_cff import hcalSkipPacker
-hcalSkipPacker.toModify(PREMIXEventContent.outputCommands,
-    func=lambda outputCommands: outputCommands.append('keep *_simHcalDigis_*_*')
-)
 
 PREMIXRAWEventContent.outputCommands.extend(RAWSIMEventContent.outputCommands)
 PREMIXRAWEventContent.outputCommands.append('keep CrossingFramePlaybackInfoNew_*_*_*')

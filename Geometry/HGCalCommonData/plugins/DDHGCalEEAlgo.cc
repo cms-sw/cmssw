@@ -126,8 +126,7 @@ void DDHGCalEEAlgo::initialize(const DDNumericArguments & nArgs,
 				  << " Rmax " << rMaxFront_[i] << " Slope " 
 				  << slopeT_[i];
 #endif
-  DDCurrentNamespace ns;
-  nameSpace_    = *ns;
+  nameSpace_    = DDCurrentNamespace::ns();
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: NameSpace " << nameSpace_;
 #endif

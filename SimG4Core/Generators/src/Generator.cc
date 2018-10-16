@@ -72,7 +72,7 @@ Generator::Generator(const ParameterSet & p) :
       for ( unsigned int ii = 0; ii < pdgFilter.size(); ++ii) {
 	ss << pdgFilter[ii] << "  ";
       }
-      edm::LogInfo("SimG4CoreGenerator") << ss.str();
+      edm::LogVerbatim("SimG4CoreGenerator") << ss.str();
     }
   }
 
@@ -84,7 +84,7 @@ Generator::Generator(const ParameterSet & p) :
   Z_hector = theRDecLenCut*((1 - exp(-2*theEtaCutForHector)) 
 			    / ( 2*exp(-theEtaCutForHector) ) );
 
-  edm::LogInfo("SimG4CoreGenerator") 
+  edm::LogVerbatim("SimG4CoreGenerator") 
     << " Rdecaycut= " << theRDecLenCut/cm 
     << " cm;  Zdecaycut= " << theDecLenCut/cm 
     << "Z_min= " << Z_lmin/cm << " cm; Z_max= " << Z_lmax 
@@ -131,7 +131,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
                                      (*(evt->vertices_begin()))->position().t());
 
   if(verbose > 0) {
-    edm::LogInfo("SimG4CoreGenerator") << &evt;
+    edm::LogVerbatim("SimG4CoreGenerator") << &evt;
     LogDebug("SimG4CoreGenerator") << "Primary Vertex = (" 
 				   << vtx_->x() << "," 
 				   << vtx_->y() << ","
@@ -230,7 +230,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
       if (fPDGFilter) { 
 	bool isInTheList = IsInTheFilterList(pdg);
 	if((!pdgFilterSel && isInTheList) || (pdgFilterSel && !isInTheList)) { 
-	  edm::LogInfo("SimG4CoreGenerator") 
+	  edm::LogVerbatim("SimG4CoreGenerator") 
 	    << " Skiped GenParticle barcode= " << (*pitr)->barcode() 
 	    << " PDGid= " << pdg
 	    << " status= " << status 
@@ -242,7 +242,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
         }
       }
 
-      edm::LogInfo("SimG4CoreGenerator") 
+      edm::LogVerbatim("SimG4CoreGenerator") 
 	<< " pdg= " << pdg
 	<< " status= " << status 
 	<< " hasPreDefinedDecay: " << hasDecayVertex

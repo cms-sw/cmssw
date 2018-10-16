@@ -52,21 +52,28 @@ public:
     // algorithm cuts will be mapped to "OK". However, HFRecHit
     // will still be made using proper status flags.
     //
+    // If "alwaysCalculateChargeAsymmetry" is true, charge asymmetry
+    // status bit will be set whenever the data is available for both
+    // anodes. If "alwaysCalculateChargeAsymmetry" is false, the bit
+    // will be set only if the status of both anodes is "OK" (or mapped
+    // into "OK").
+    //
     HFSimpleTimeCheck(const std::pair<float,float> tlimits[2],
                       const float energyWeights[2*HFAnodeStatus::N_POSSIBLE_STATES-1][2],
                       unsigned soiPhase, float timeShift,
                       float triseIfNoTDC, float tfallIfNoTDC,
                       float minChargeForUndershoot, float minChargeForOvershoot,
-                      bool rejectAllFailures = true);
+                      bool rejectAllFailures = true,
+                      bool alwaysCalculateChargeAsymmetry = true);
 
     inline ~HFSimpleTimeCheck() override {}
 
     inline bool isConfigurable() const override {return false;}
 
     HFRecHit reconstruct(const HFPreRecHit& prehit,
-                                 const HcalCalibrations& calibs,
-                                 const bool flaggedBadInDB[2],
-                                 bool expectSingleAnodePMT) override;
+                         const HcalCalibrations& calibs,
+                         const bool flaggedBadInDB[2],
+                         bool expectSingleAnodePMT) override;
 
     inline unsigned soiPhase() const {return soiPhase_;}
     inline float timeShift() const {return timeShift_;}
@@ -75,6 +82,7 @@ public:
     inline float minChargeForUndershoot() const {return minChargeForUndershoot_;}
     inline float minChargeForOvershoot() const {return minChargeForOvershoot_;}
     inline bool rejectingAllFailures() const {return rejectAllFailures_;}
+    inline bool alwaysCalculatingQAsym() const {return alwaysQAsym_;}
 
 protected:
     virtual unsigned determineAnodeStatus(unsigned anodeNumber,
@@ -93,6 +101,7 @@ private:
     float minChargeForUndershoot_;
     float minChargeForOvershoot_;
     bool rejectAllFailures_;
+    bool alwaysQAsym_;
 };
 
 #endif // RecoLocalCalo_HcalRecAlgos_HFSimpleTimeCheck_h_

@@ -14,7 +14,6 @@
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
 //
-#include <functional>
 #include <algorithm>
 #include <typeinfo>
 #include <iostream>
@@ -205,25 +204,11 @@ MVAComputer &MVAComputerContainer::add(const std::string &label)
 	return entries.back().second;
 }
 
-namespace {
-	struct Comparator :
-		public std::unary_function<const std::string&, bool> {
-
-		inline Comparator(const std::string &label) : label(label) {}
-
-		inline bool
-		operator () (const MVAComputerContainer::Entry &entry) const
-		{ return entry.first == label; }
-
-		const std::string &label;
-	};
-}
-
 const MVAComputer &MVAComputerContainer::find(const std::string &label) const
 {
 	std::vector<Entry>::const_iterator pos =
 				std::find_if(entries.begin(), entries.end(),
-				             Comparator(label));
+                             [&label](const MVAComputerContainer::Entry &entry){return entry.first == label;});
 
 	if (pos == entries.end())
 		throw cms::Exception("MVAComputerCalibration")
@@ -237,7 +222,7 @@ bool MVAComputerContainer::contains(const std::string &label) const
 {
 	std::vector<Entry>::const_iterator pos =
 				std::find_if(entries.begin(), entries.end(),
-				             Comparator(label));
+                             [&label](const MVAComputerContainer::Entry &entry){return entry.first == label;});
 	if (pos == entries.end()) return false;
 	return true;
 }

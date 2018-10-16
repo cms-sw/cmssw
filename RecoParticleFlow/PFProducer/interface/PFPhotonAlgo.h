@@ -85,7 +85,7 @@ class PFPhotonAlgo {
 			      std::vector<reco::PFCandidatePhotonExtra>& pfPhotonExtraCandidates,
 			      std::vector<reco::PFCandidate>& 
 			      tempElectronCandidates
-			      //      std::auto_ptr< reco::PFCandidateCollection > &pfElectronCandidates_  
+			      //      std::shared_ptr< reco::PFCandidateCollection > &pfElectronCandidates_  
 			      ){
     isvalid_=false;
     // RunPFPhoton has to set isvalid_ to TRUE in case it finds a valid candidate

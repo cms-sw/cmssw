@@ -17,22 +17,20 @@ class HcalGeometryPlan1Tester : public edm::one::EDAnalyzer<> {
 public:
   explicit HcalGeometryPlan1Tester( const edm::ParameterSet& );
   ~HcalGeometryPlan1Tester( void ) override {}
-    
+
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;
   void endJob() override {}
 
 private:
-  edm::ParameterSet ps0_;
   bool              geomES_;
 };
 
-HcalGeometryPlan1Tester::HcalGeometryPlan1Tester( const edm::ParameterSet& iConfig ) :
-  ps0_(iConfig) {
+HcalGeometryPlan1Tester::HcalGeometryPlan1Tester( const edm::ParameterSet& iConfig ) {
   geomES_ = iConfig.getParameter<bool>("GeometryFromES");
 }
 
-void HcalGeometryPlan1Tester::analyze(const edm::Event& /*iEvent*/, 
+void HcalGeometryPlan1Tester::analyze(const edm::Event& /*iEvent*/,
 				      const edm::EventSetup& iSetup) {
 
   edm::ESHandle<HcalDDDRecConstants> hDRCons;
@@ -49,7 +47,7 @@ void HcalGeometryPlan1Tester::analyze(const edm::Event& /*iEvent*/,
     const CaloGeometry* geo = pG.product();
     geom = (geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
   } else {
-    HcalFlexiHardcodeGeometryLoader m_loader(ps0_);
+    HcalFlexiHardcodeGeometryLoader m_loader;
     geom = (m_loader.load(topology, hcons));
   }
   //  geom  = (HcalGeometry*)(geom0);
@@ -76,10 +74,10 @@ void HcalGeometryPlan1Tester::analyze(const edm::Event& /*iEvent*/,
       dphi = std::abs(pt0.phi() - pt2.phi());
       if (dphi > M_PI) dphi -= (2*M_PI);
       if ((deta>0.00001) || (dphi>0.00001)) ok = false;
-      std::cout << "Unmerged ID " << (*itr) << " (" << pt1.eta() << ", " 
+      std::cout << "Unmerged ID " << (*itr) << " (" << pt1.eta() << ", "
 		<< pt1.phi() << ", " << pt1.z() << ") Merged ID " << idnew
 		<< " (" << pt2.eta() << ", " << pt2.phi() << ", " << pt2.z()
-		<< ") or (" << pt0.eta() << ", " << pt0.phi() << ", " 
+		<< ") or (" << pt0.eta() << ", " << pt0.phi() << ", "
 		<< pt0.z() << ")";
       if (ok) ++ngood;
       else    std::cout << " ***** ERROR *****";

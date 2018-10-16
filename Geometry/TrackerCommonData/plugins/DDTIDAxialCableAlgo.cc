@@ -58,8 +58,7 @@ void DDTIDAxialCableAlgo::initialize(const DDNumericArguments & nArgs,
   for (int i=0; i<(int)(zposRing.size()); i++)
     LogDebug("TIDGeom") << "\tzposRing[" << i <<"] = " << zposRing[i];
 
-  DDCurrentNamespace ns;
-  idNameSpace = *ns;
+  idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
   matIn       = sArgs["MaterialIn"]; 
   matOut      = sArgs["MaterialOut"]; 

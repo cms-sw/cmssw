@@ -16,7 +16,7 @@
 
 class BTLDetId : public MTDDetId {
   
- private:
+ public:
   
   static constexpr uint32_t kBTLmoduleOffset           = 10;
   static constexpr uint32_t kBTLmoduleMask             = 0x3F;
@@ -24,8 +24,6 @@ class BTLDetId : public MTDDetId {
   static constexpr uint32_t kBTLmodTypeMask            = 0x3;
   static constexpr uint32_t kBTLCrystalOffset          = 0;
   static constexpr uint32_t kBTLCrystalMask            = 0x3F;
-
- public:
 
   /// range constants, need two sets for the time being (one for tiles and one for bars)
   static constexpr int kModulesPerROD = 54;
@@ -49,8 +47,6 @@ class BTLDetId : public MTDDetId {
   static constexpr int kSizeForDenseIndexing = MAX_HASH + 1 ;
 
   enum class CrysLayout { tile = 1 , bar = 2 } ;
-
- public:
   
   // ---------- Constructors, enumerated types ----------
   

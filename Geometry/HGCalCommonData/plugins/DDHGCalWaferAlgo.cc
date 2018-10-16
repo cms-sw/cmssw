@@ -46,8 +46,7 @@ void DDHGCalWaferAlgo::initialize(const DDNumericArguments & nArgs,
 	      << std::endl;
 #endif
   rotns       = sArgs["RotNameSpace"];
-  DDCurrentNamespace ns;
-  idNameSpace = *ns;
+  idNameSpace = DDCurrentNamespace::ns();
   parentName  = parent().name(); 
 #ifdef EDM_ML_DEBUG
   std::cout << "DDHGCalWaferAlgo debug: Parent " << parentName << " NameSpace "

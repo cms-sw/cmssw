@@ -19,6 +19,7 @@ options.register('fileNumber', 1, VarParsing.VarParsing.multiplicity.singleton, 
 options.register('iterNumber', 0, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "Iteration number")
 options.register('lastIter', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "Last iteration")
 options.register('alignRcd','', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "AlignmentRcd")
+options.register('conditions',"None", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "File with conditions")
 
 # get and parse the command line arguments
 options.parseArguments()   
@@ -157,13 +158,17 @@ elif isMc:
 elif isData:
     process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
-
-
+if options.conditions != "None":
+    import importlib
+    mod = importlib.import_module("Alignment.APEEstimation.conditions.{}".format(options.conditions))
+    mod.applyConditions(process)
 
 ## Alignment and APE
 ##
 ## Choose Alignment (w/o touching APE)
-if options.alignRcd=='design':
+if options.alignRcd=='fromConditions':
+    pass # Alignment is read from the conditions file in this case
+elif options.alignRcd=='design':
     CondDBAlignment = CondDB.clone(connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'))
     process.myTrackerAlignment = cms.ESSource("PoolDBESSource",
         CondDBAlignment,
@@ -202,6 +207,26 @@ elif options.alignRcd == 'mp2705':
                 record = cms.string('TrackerAlignmentRcd'),
                 tag = cms.string('Alignments'),
             )
+        )
+    )
+    process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
+
+elif options.alignRcd == 'mp2853':
+    CondDBAlignment = CondDB.clone()
+    process.myTrackerAlignment = cms.ESSource("PoolDBESSource",
+        CondDBAlignment,
+        timetype = cms.string("runnumber"),
+        toGet = cms.VPSet(
+            cms.PSet(
+                connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/MP/MPproduction/mp2853/jobData/jobm3/alignments_MP.db'),
+                record = cms.string('TrackerAlignmentRcd'),
+                tag = cms.string('Alignments'),
+            ),
+            #~ cms.PSet(
+                #~ connect=cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
+                #~ record=cms.string('SiPixelTemplateDBObjectRcd'),
+                #~ tag=cms.string('SiPixelTemplateDBObject_38T_TempForAlignmentReReco2018_v3'),
+            #~ )
         )
     )
     process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
@@ -310,4 +335,6 @@ process.p = cms.Path(
     process.RefitterHighPuritySequence*
     process.ApeEstimatorSequence
 )
+
+
 

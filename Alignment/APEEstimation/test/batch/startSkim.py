@@ -8,6 +8,33 @@ import time
 import argparse
 import multiprocessing as mp
 
+def replaceAllRanges(string):
+    if "[" in string and "]" in string:
+        strings = []
+        posS = string.find("[")
+        posE = string.find("]")
+        nums = string[posS+1:posE].split(",")
+        expression = string[posS:posE+1]
+        
+        nums = string[string.find("[")+1:string.find("]")]
+        for interval in nums.split(","):
+            interval = interval.strip()
+            if "-" in interval:
+                lowNum = int(interval.split("-")[0])
+                upNum = int(interval.split("-")[1])
+                for i in range(lowNum, upNum+1):
+                    newstring = string[0:posS]+str(i)+string[posE+1:]
+                    newstring = replaceAllRanges(newstring)
+                    strings += newstring
+            else:
+                newstring = string[0:posS]+interval+string[posE+1:]
+                newstring = replaceAllRanges(newstring)
+                strings += newstring
+        return strings
+    else:
+        return [string,]
+
+
 def doSkim(sample):
     base = os.environ['CMSSW_BASE']    
     
@@ -103,28 +130,11 @@ def main(argv):
     
     finalSamples = []
     for sample in args.samples:
-        if "[" in sample and "]" in sample:
-            posS = sample.find("[")
-            posE = sample.find("]")
-            nums = sample[posS+1:posE].split(",")
-            expression = sample[posS:posE+1]
-            
-            nums = sample[sample.find("[")+1:sample.find("]")]
-            for interval in nums.split(","):
-                interval = interval.strip()
-                if "-" in interval:
-                    lowNum = int(interval.split("-")[0])
-                    upNum = int(interval.split("-")[1])
-                    for i in range(lowNum, upNum+1):
-                        finalSamples.append("%s"%(sample.replace(expression,str(i))))
-                else:
-                    finalSamples.append("%s"%(sample.replace(expression,interval)))
-        else:
-            finalSamples.append(sample)
+        parsedSamples = replaceAllRanges(sample)
+        finalSamples += parsedSamples
     
     args.samples = finalSamples
-    print(args.samples)
-
+    
     if len(args.samples) == 1 or args.consecutive:
         for sample in args.samples:
             doSkim(sample) 

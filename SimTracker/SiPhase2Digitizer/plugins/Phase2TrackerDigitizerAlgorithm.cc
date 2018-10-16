@@ -82,7 +82,11 @@ Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::Para
 
   ClusterWidth(conf_specific.getParameter<double>("ClusterWidth")),  // Charge integration spread on the collection plane
 
-  doDigitalReadout(conf_specific.getParameter<bool>("DigitalReadout")),         //  Flag to decide analog or digital readout
+  // Allowed modes of readout which has following values :
+  // 0          ---> Digital or binary readout 
+  // -1         ---> Analog readout, current digitizer (Inner Pixel) (TDR version) with no threshold subtraction
+  // Analog readout with dual slope with the "second" slope being 1/2^(n-1) and threshold subtraction (n = 1, 2, 3,4)
+  thePhase2ReadoutMode(conf_specific.getParameter<int>("Phase2ReadoutMode")), 
 
   // ADC calibration 1adc count(135e.
   // Corresponds to 2adc/kev, 270[e/kev]/135[e/adc](2[adc/kev]
@@ -161,7 +165,8 @@ Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::Para
 			    << theThresholdInE_Endcap
 			    << "\nthreshold in electron Barrel = "
 			    << theThresholdInE_Barrel
-			    << " " << theElectronPerADC << " " << theAdcFullScale
+			    << " ElectronPerADC " << theElectronPerADC 
+			    << " ADC Scale (in bits) " << theAdcFullScale
 			    << " The delta cut-off is set to " << tMax
 			    << " pix-inefficiency " << AddPixelInefficiency;
 }
@@ -972,10 +977,9 @@ void Phase2TrackerDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* p
     //    DigitizerUtility::Amplitude sig_data = s.second;  
     const DigitizerUtility::Amplitude& sig_data = s.second;
     float signalInElectrons  = sig_data.ampl();
-    int adc;
+    unsigned short adc;
     if (signalInElectrons >= theThresholdInE) { // check threshold
-      if (doDigitalReadout) adc = theAdcFullScale;
-      else adc = std::min( int(signalInElectrons / theElectronPerADC), theAdcFullScale );
+      adc = convertSignalToAdc(detID, signalInElectrons, theThresholdInE);
       DigitizerUtility::DigiSimInfo info;
       info.sig_tot     = adc;
       info.ot_bit      = ( signalInElectrons  > theHIPThresholdInE ? true : false);
@@ -988,4 +992,34 @@ void Phase2TrackerDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* p
       digi_map.insert({s.first, info});
     }
   }
+}
+//
+// Scale the Signal using Dual Slope option 
+//
+int Phase2TrackerDigitizerAlgorithm::convertSignalToAdc(uint32_t detID, float signal_in_elec,float threshold) {
+  int signal_in_adc;
+  int temp_signal;
+  const int max_limit = 10;
+  if (thePhase2ReadoutMode == 0) signal_in_adc = theAdcFullScale;
+  else { 
+    
+    if (thePhase2ReadoutMode == -1) {
+      temp_signal = std::min( int(signal_in_elec / theElectronPerADC), theAdcFullScale );
+    } else {
+      // calculate the kink point and the slope
+      const int dualslope_param = std::min(abs(thePhase2ReadoutMode), max_limit);
+      const int kink_point = int(theAdcFullScale/2) +1;
+      temp_signal = std::floor((signal_in_elec-threshold) / theElectronPerADC) + 1;
+      if ( temp_signal > kink_point) temp_signal = std::floor((temp_signal - kink_point)/(pow(2, dualslope_param-1))) + kink_point;
+    }     
+    signal_in_adc = std::min(temp_signal, theAdcFullScale );
+    LogInfo("Phase2TrackerDigitizerAlgorithm") << " DetId " << detID
+                                               << " signal_in_elec " << signal_in_elec 
+					       << " threshold " << threshold << " signal_above_thr " 
+					       << (signal_in_elec-threshold) 
+					       << " temp conversion " << std::floor((signal_in_elec-threshold)/theElectronPerADC)+1
+					       << " signal after slope correction " << temp_signal 
+					       << " signal_in_adc " << signal_in_adc;
+  } 
+  return signal_in_adc; 
 }

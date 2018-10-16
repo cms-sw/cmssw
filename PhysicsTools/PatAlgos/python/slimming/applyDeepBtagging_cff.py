@@ -42,14 +42,14 @@ def applyDeepBtagging( process, postfix="" ) :
     # delete module not used anymore (slimmedJets substitutes)
     delattr(process, 'selectedUpdatedPatJetsSlimmedDeepFlavour'+postfix)
 
+    from RecoBTag.MXNet.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll as pfDeepBoostedJetTagsAll
 
-
-    # update slimmed jets to include DeepFlavour (keep same name)
-    # make clone for DeepDoubleB-less slimmed AK8 jets, so output name is preserved
-    addToProcessAndTask('slimmedJetsAK8NoDeepDoubleB', process.slimmedJetsAK8.clone(), process, task)
+    # update slimmed jets to include particle-based deep taggers (keep same name)
+    # make clone for DeepTags-less slimmed AK8 jets, so output name is preserved
+    addToProcessAndTask('slimmedJetsAK8NoDeepTags', process.slimmedJetsAK8.clone(), process, task)
     updateJetCollection(
        process,
-       jetSource = cms.InputTag('slimmedJetsAK8NoDeepDoubleB'),
+       jetSource = cms.InputTag('slimmedJetsAK8NoDeepTags'),
        # updateJetCollection defaults to MiniAOD inputs but
        # here it is made explicit (as in training or MINIAOD redoing)
        pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
@@ -58,19 +58,19 @@ def applyDeepBtagging( process, postfix="" ) :
        muSource = cms.InputTag('slimmedMuons'),
        elSource = cms.InputTag('slimmedElectrons'),
        rParam = 0.8,
-       jetCorrections = ('AK8PFPuppi', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
+       jetCorrections = ('AK8PFPuppi', cms.vstring(['L2Relative', 'L3Absolute']), 'None'),
        btagDiscriminators = [
           'pfDeepDoubleBJetTags:probQ',
           'pfDeepDoubleBJetTags:probH',
-       ],
-       postfix = 'SlimmedAK8DeepDoubleB'+postfix,
+       ] + pfDeepBoostedJetTagsAll,
+       postfix = 'SlimmedAK8DeepTags'+postfix,
        printWarning = False
     )
 
-    # slimmedJetsAK8 with DeepDoubleB (remove DeepDoubleB-less)
+    # slimmedJetsAK8 with DeepTags (remove DeepTags-less)
     delattr(process, 'slimmedJetsAK8')
-    addToProcessAndTask('slimmedJetsAK8', getattr(process,'selectedUpdatedPatJetsSlimmedAK8DeepDoubleB'+postfix).clone(), process, task)
+    addToProcessAndTask('slimmedJetsAK8', getattr(process,'selectedUpdatedPatJetsSlimmedAK8DeepTags'+postfix).clone(), process, task)
     # delete module not used anymore (slimmedJetsAK8 substitutes)
-    delattr(process, 'selectedUpdatedPatJetsSlimmedAK8DeepDoubleB'+postfix)
-    
+    delattr(process, 'selectedUpdatedPatJetsSlimmedAK8DeepTags'+postfix)
+
 

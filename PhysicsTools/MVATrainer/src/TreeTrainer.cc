@@ -92,9 +92,7 @@ bool TreeTrainer::iteration(MVATrainer *trainer)
 
 	MVAComputer computer(calib, true);
 
-	std::for_each(readers.begin(), readers.end(),
-	              std::bind2nd(std::mem_fun_ref(&TreeReader::loop),
-	                           &computer));
+	for( auto && p : readers ) p.loop(&computer);
 
 	return false;
 }

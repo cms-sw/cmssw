@@ -252,13 +252,4 @@ class CkfDebugger {
   int totSeeds;
 };
 
-class less_mag : public std::binary_function<PSimHit*, PSimHit*, bool> {
- public:
-  less_mag(){ }
-  bool operator()(const PSimHit* a,const PSimHit* b) { 
-    return 
-      ( a->timeOfFlight()< b->timeOfFlight() );
-  }
-};
-
 #endif

@@ -126,11 +126,10 @@ void SiStripOfflineDQM::beginRun(edm::Run const& run, edm::EventSetup const& eSe
   edm::LogInfo ("BeginRun") <<"SiStripOfflineDQM:: Begining of Run";
 
   int nFEDs = 0;
-  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-  if( eSetup.find( recordKey ) != nullptr) {
+  if(auto runInfoRec = eSetup.tryToGet<RunInfoRcd>()) {
 
     edm::ESHandle<RunInfo> sumFED;
-    eSetup.get<RunInfoRcd>().get(sumFED);    
+    runInfoRec->get(sumFED);
     if ( sumFED.isValid() ) {
 
       const int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
