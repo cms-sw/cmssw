@@ -4,8 +4,8 @@
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 #include "DataFormats/BTauReco/interface/DeepFlavourTagInfo.h"
 #include "DataFormats/BTauReco/interface/DeepDoubleBTagInfo.h"
-
-
+#include "DataFormats/BTauReco/interface/DeepDoubleCvLTagInfo.h"
+#include "DataFormats/BTauReco/interface/DeepDoubleCvBTagInfo.h"
 
 namespace btagbtvdeep {
 
@@ -25,6 +25,13 @@ namespace btagbtvdeep {
                          std::size_t jet_n,
                          const btagbtvdeep::DeepDoubleBFeatures & features) ;
 
+  void db_tensor_filler(tensorflow::Tensor & tensor,
+                         std::size_t jet_n,
+                         const btagbtvdeep::DeepDoubleCvLFeatures & features) ;
+
+  void db_tensor_filler(tensorflow::Tensor & tensor,
+                         std::size_t jet_n,
+                         const btagbtvdeep::DeepDoubleCvBFeatures & features) ;
 
   void c_pf_tensor_filler(tensorflow::Tensor & tensor,
                           std::size_t jet_n,

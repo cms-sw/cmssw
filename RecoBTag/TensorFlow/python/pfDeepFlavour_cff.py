@@ -7,7 +7,10 @@ from RecoBTag.FeatureTools.pfDeepDoubleBTagInfos_cfi import pfDeepDoubleBTagInfo
 from RecoBTag.TensorFlow.pfDeepFlavourJetTags_cfi import pfDeepFlavourJetTags
 from RecoBTag.TensorFlow.pfNegativeDeepFlavourJetTags_cfi import pfNegativeDeepFlavourJetTags
 from RecoBTag.TensorFlow.pfDeepDoubleBJetTags_cfi import pfDeepDoubleBJetTags
-
+from RecoBTag.TensorFlow.pfDeepDoubleCvLTagInfos_cfi import pfDeepDoubleCvLTagInfos
+from RecoBTag.TensorFlow.pfDeepDoubleCvLJetTags_cfi import pfDeepDoubleCvLJetTags
+from RecoBTag.TensorFlow.pfDeepDoubleCvBTagInfos_cfi import pfDeepDoubleCvBTagInfos
+from RecoBTag.TensorFlow.pfDeepDoubleCvBJetTags_cfi import pfDeepDoubleCvBJetTags
 from CommonTools.PileupAlgos.Puppi_cff import puppi
 from PhysicsTools.PatAlgos.slimming.primaryVertexAssociation_cfi import primaryVertexAssociation
 
