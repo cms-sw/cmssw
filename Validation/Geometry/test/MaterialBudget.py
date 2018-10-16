@@ -162,7 +162,7 @@ def get2DHisto_(detector,label,plot,geometry):
 def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
                                           geometryNew):
 
-    setTDRStyle();
+    setTDRStyle()
 
     goodToGo, theFiles = paramsGood_(detector,plot,
                                      geometryOld,geometryNew)
@@ -206,9 +206,13 @@ def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
     subPad = subPadTop + subPadBottom
     
     for i in range(8):
-        mainPad
+        mainPad[i].SetLeftMargin(0.1)
+        mainPad[i].SetRightMargin(0.1)
+        mainPad[i].SetTopMargin(0.1)
         mainPad[i].SetBottomMargin(1e-3)
         mainPad[i].Draw()
+        subPad[i].SetLeftMargin(0.1)
+        subPad[i].SetRightMargin(0.1)
         subPad[i].SetTopMargin(1e-3)
         subPad[i].SetBottomMargin(0.2)
         subPad[i].Draw()
@@ -274,12 +278,14 @@ def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
         oldHistos[label].SetFillColor(color)
         oldHistos[label].SetLineColor(kBlack)
         oldHistos[label].SetLineWidth(1)
+        #https://root.cern.ch/doc/master/classTAttFill.html
+        oldHistos[label].SetFillStyle(3144)
         oldHistos[label].Draw("HIST")
 
         newHistos[label] = get1DHisto_(detector,label,plot,geometryNew)
         newHistos[label].SetMarkerSize(.5)
         newHistos[label].SetMarkerStyle(20)
-        newHistos[label].Draw('SAME')
+        newHistos[label].Draw('SAME P')
 
         legends[label]= setUpLegend(oldHistos[label],newHistos[label],
                                     leg);
@@ -330,9 +336,9 @@ def setUpPalette(histo2D, plot) :
     if palette:
         palette.__class__ = TPaletteAxis
         palette.SetX1NDC(0.945)
+        palette.SetY1NDC(gPad.GetBottomMargin())
         palette.SetX2NDC(0.96)
-        palette.SetY1NDC(0.1)
-        palette.SetY2NDC(0.9)
+        palette.SetY2NDC(1-gPad.GetTopMargin())
         palette.GetAxis().SetTickSize(.01)
         palette.GetAxis().SetTitle("")
         if plots[plot].zLog:
@@ -354,7 +360,9 @@ def setUpPalette(histo2D, plot) :
     histo2D.GetYaxis().SetNoExponent(True)
 
 def create2DPlotsGeometryComparison(detector, plot, 
-                                            geometryOld, geometryNew):
+                                    geometryOld, geometryNew):
+
+    setTDRStyle()
 
     print('Extracting plot: %s.'%(plot))
     goodToGo, theFiles = paramsGood_(detector,plot,
