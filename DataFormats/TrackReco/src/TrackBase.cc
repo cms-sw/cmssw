@@ -67,9 +67,13 @@ std::string const TrackBase::qualityNames[] = {
 };
 
 TrackBase::TrackBase() :
+    covt0t0_(-1.f),
+    covbetabeta_(-1.f),
     chi2_(0),
     vertex_(0, 0, 0),
+    t0_(0),
     momentum_(0, 0, 0),
+    beta_(0),
     ndof_(0),
     charge_(0),
     algorithm_(undefAlgorithm),
@@ -89,10 +93,15 @@ TrackBase::TrackBase() :
 
 TrackBase::TrackBase(double chi2, double ndof, const Point &vertex, const Vector &momentum,
                      int charge, const CovarianceMatrix &cov, TrackAlgorithm algorithm,
-                     TrackQuality quality, signed char nloops, uint8_t stopReason):
+                     TrackQuality quality, signed char nloops, uint8_t stopReason,
+		     float t0, float beta, float covt0t0, float covbetabeta):
+    covt0t0_(covt0t0),
+    covbetabeta_(covbetabeta),
     chi2_(chi2),
     vertex_(vertex),
+    t0_(t0),
     momentum_(momentum),
+    beta_(beta),
     ndof_(ndof),
     charge_(charge),
     algorithm_(algorithm),

@@ -43,8 +43,8 @@ class MatchJet {
   CorrectJet recJetCorrector;
 
   double maxChi2;
-  double sigmaDeltaR;
-  double sigmaDeltaE;
+  double sigmaDeltaR2;
+  double sigmaDeltaE2;
   double threshold;
 };
 

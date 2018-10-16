@@ -266,6 +266,16 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
   edm::LogVerbatim("SimG4CoreApplication") 
     << "RunManagerMTWorker: start initialisation of PhysicsList for the thread";
 
+  // Geant4 UI commands in PreInit state
+  if(!runManagerMaster.G4Commands().empty()) {
+    G4cout << "RunManagerMTWorker: Requested UI commands: " << G4endl;
+    for(const std::string& command: runManagerMaster.G4Commands()) {
+      G4cout << "          " << command << G4endl;
+      G4UImanager::GetUIpointer()->ApplyCommand(command);
+    }
+  }
+  G4StateManager::GetStateManager()->SetNewState(G4State_Init);
+
   physicsList->InitializeWorker();
   m_tls->kernel->SetPhysics(physicsList);
   m_tls->kernel->InitializePhysics();
@@ -293,11 +303,7 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
   edm::LogVerbatim("SimG4CoreApplication")
     << "RunManagerMTWorker::initializeThread done for the thread " << thisID;
 
-  for(const std::string& command: runManagerMaster.G4Commands()) {
-    edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker:: Requests UI: "
-                                         << command;
-    G4UImanager::GetUIpointer()->ApplyCommand(command);
-  }
+  G4StateManager::GetStateManager()->SetNewState(G4State_Idle);
 }
 
 void RunManagerMTWorker::initializeUserActions() {

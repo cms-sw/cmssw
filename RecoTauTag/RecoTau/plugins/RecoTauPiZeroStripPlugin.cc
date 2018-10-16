@@ -174,12 +174,10 @@ RecoTauPiZeroStripPlugin::return_type RecoTauPiZeroStripPlugin::operator()(
               111, 10001, true, RecoTauPiZero::kUndefined));
 
         // Now loop over the strip members
-        BOOST_FOREACH(const RecoTauPiZero::daughters::value_type& gamma,
-            first->daughterPtrVector()) {
+        for(auto const& gamma : first->daughterPtrVector()) {
           combinedStrips->addDaughter(gamma);
         }
-        BOOST_FOREACH(const RecoTauPiZero::daughters::value_type& gamma,
-            second->daughterPtrVector()) {
+        for(auto const& gamma : second->daughterPtrVector()) {
           combinedStrips->addDaughter(gamma);
         }
         // Update the vertex
