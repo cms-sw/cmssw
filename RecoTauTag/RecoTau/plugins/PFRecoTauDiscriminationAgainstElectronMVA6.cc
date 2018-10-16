@@ -120,9 +120,9 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
     int numSignalGammaCandsInSigCone = 0;
     const std::vector<reco::CandidatePtr>& signalGammaCands = thePFTauRef->signalGammaCands();
     
-    for ( const auto & pfGamma : signalPFGammaCands ) {
+    for ( const auto & pfGamma : signalGammaCands ) {
             
-      double dR = deltaR(pfGamma->p4(), thePFTauRef->leadPFChargedHadrCand()->p4());
+      double dR = deltaR(pfGamma->p4(), thePFTauRef->leadChargedHadrCand()->p4());
       double signalrad = std::max(0.05, std::min(0.10, 3.0/std::max(1.0, thePFTauRef->pt())));
             
       // pfGammas inside the tau signal cone
@@ -137,7 +137,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
 	double deltaREleTau = deltaR(theGsfElectron.p4(), thePFTauRef->p4());
 	deltaRDummy = deltaREleTau;
 	if ( deltaREleTau < 0.3 ) {
-	  double mva_match = mva_->MVAValue(*thePFTauRef, *theGsfElectron);
+	  double mva_match = mva_->MVAValue(*thePFTauRef, theGsfElectron);
 	  const reco::PFCandidatePtr& lpfch = thePFTauRef->leadPFChargedHadrCand();
 	  bool hasGsfTrack = false;
 	  if (lpfch.isNonnull()) {

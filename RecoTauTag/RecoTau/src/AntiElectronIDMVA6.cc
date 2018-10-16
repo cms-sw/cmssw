@@ -569,8 +569,8 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
   reco::Candidate::LorentzVector pfGammaSum(0,0,0,0);
   reco::Candidate::LorentzVector pfChargedSum(0,0,0,0);
   
-  for ( const auto & gamma : thePFTau.signalPFGammaCands() ) {
-    float dR = deltaR(gamma->p4(), thePFTau.leadPFChargedHadrCand()->p4());
+  for ( const auto & gamma : thePFTau.signalGammaCands() ) {
+    float dR = deltaR(gamma->p4(), thePFTau.leadChargedHadrCand()->p4());
     float signalrad = std::max(0.05, std::min(0.10, 3.0/std::max(1.0, thePFTau.pt())));
 
     // pfGammas inside the tau signal cone
@@ -600,8 +600,8 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
     }
   }
   
-  for ( const auto & charged : thePFTau.signalPFChargedHadrCands() ) {
-    float dR = deltaR(charged->p4(), thePFTau.leadPFChargedHadrCand()->p4());
+  for ( const auto & charged : thePFTau.signalChargedHadrCands() ) {
+    float dR = deltaR(charged->p4(), thePFTau.leadChargedHadrCand()->p4());
     float signalrad = std::max(0.05, std::min(0.10, 3.0/std::max(1.0, thePFTau.pt())));
   
     // charged particles inside the tau signal cone
@@ -779,8 +779,8 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau)
   reco::Candidate::LorentzVector pfGammaSum(0,0,0,0);
   reco::Candidate::LorentzVector pfChargedSum(0,0,0,0);
   
-  for ( const auto & gamma : thePFTau.signalPFGammaCands() ) {
-    float dR = deltaR(gamma->p4(), thePFTau.leadPFChargedHadrCand()->p4());
+  for ( const auto & gamma : thePFTau.signalGammaCands() ) {
+    float dR = deltaR(gamma->p4(), thePFTau.leadChargedHadrCand()->p4());
     float signalrad = std::max(0.05, std::min(0.10, 3.0/std::max(1.0, thePFTau.pt())));
 
     // pfGammas inside the tau signal cone
@@ -810,8 +810,8 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau)
     }
   }
   
-  for ( const auto & charged : thePFTau.signalPFChargedHadrCands() ) {
-    float dR = deltaR(charged->p4(), thePFTau.leadPFChargedHadrCand()->p4());
+  for ( const auto & charged : thePFTau.signalChargedHadrCands() ) {
+    float dR = deltaR(charged->p4(), thePFTau.leadChargedHadrCand()->p4());
     float signalrad = std::max(0.05, std::min(0.10, 3.0/std::max(1.0, thePFTau.pt())));
   
     // charged particles inside the tau signal cone
