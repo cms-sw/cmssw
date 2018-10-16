@@ -288,7 +288,8 @@ if (options.doDemux):
 
 process.stage2DemuxRaw.nFramesPerEvent    = cms.untracked.int32(options.dmFramesPerEvent)
 process.stage2DemuxRaw.nFramesOffset    = cms.untracked.vuint32(dmOffset)
-process.stage2DemuxRaw.nFramesLatency   = cms.untracked.vuint32(options.dmLatency)
+# add 1 to demux latency to take account of header, match online definition of latency
+process.stage2DemuxRaw.nFramesLatency   = cms.untracked.vuint32(options.dmLatency+1)
 process.stage2DemuxRaw.rxFile = cms.untracked.string("demux_rx_summary.txt")
 process.stage2DemuxRaw.txFile = cms.untracked.string("demux_tx_summary.txt")
 process.stage2DemuxRaw.fwVersion = cms.untracked.int32(options.demuxFWVersion)

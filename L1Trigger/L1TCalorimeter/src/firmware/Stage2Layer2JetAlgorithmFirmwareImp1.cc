@@ -111,10 +111,16 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
 	  
 	  int seedEt = tow.hwPt();
 	  int iEt = seedEt;
+	  bool satSeed = false;
 	  bool vetoCandidate = false;
 	  
 	  // check it passes the seed threshold
 	  if(iEt < floor(params_->jetSeedThreshold()/params_->towerLsbSum())) continue;
+
+	  if (seedEt == CaloTools::kSatHcal ||
+	      seedEt == CaloTools::kSatEcal ||
+	      seedEt == CaloTools::kSatTower)
+	    satSeed=true;
 	  
 	  // loop over towers in this jet
 	  for( int deta = -4; deta < 5; ++deta ) {
@@ -157,7 +163,8 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
 	    int caloEta = CaloTools::caloEta(ieta);
 	    l1t::Jet jet( p4, -999, caloEta, iphi, 0);
 
-	    if(!params_->jetBypassPUS()){
+	    if(!params_->jetBypassPUS()
+	       && !satSeed){
 	      if (PUSubMethod == "Donut") {
 		puEt = donutPUEstimate(ieta, iphi, 5, towers);	    
 		iEt -= puEt;
