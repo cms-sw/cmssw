@@ -246,6 +246,36 @@ double HGCalDDDConstants::cellSizeHex(int type) const {
   return cell;
 }
 
+int HGCalDDDConstants::cellType(int type, int cellU, int cellV) const {
+  // type=0: in the middle; 1..6: the edges clocwise from bottom left;
+  //     =11..16: the corners clockwise from bottom
+  int N = (type == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_;
+  if (cellU == 0) {
+    if      (cellV == 0)         return 12;
+    else if (cellV-cellU == N-1) return 11;
+    else                         return 1;
+  } else if (cellV == 0) {
+    if (cellU-cellV == N)        return 13;
+    else                         return 2;
+  } else if (cellU-cellV == N) {
+    if (cellU == 2*N-1)          return 14;
+    else                         return 3;
+  } else if (cellU == 2*N-1) {
+    if (cellV == 2*N-1)          return 15;
+    else                         return 4;
+  } else if (cellV == 2*N-1) {
+    if (cellV-cellU == N-1)      return 16;
+    else                         return 5;
+  } else if (cellV-cellU == N-1) {
+    return 6;
+  } else if ((cellU > 2*N-1) || (cellV > 2*N-1) || (cellV >= (cellU+N)) ||
+	     (cellU > (cellV+N))) {
+    return -1;
+  } else {
+    return 0;
+  }
+}
+
 double HGCalDDDConstants::distFromEdgeHex(double x, double y, double z) const {
 
   //Assming the point is within a hexagonal plane of the wafer, calculate
@@ -467,11 +497,29 @@ bool HGCalDDDConstants::isValidHex8(int layer, int modU, int modV, int cellU,
   //Check validity for a layer|wafer|cell of post-TDR version
   int indx  = HGCalWaferIndex::waferIndex(layer,modU,modV);
   auto itr  = hgpar_->typesInLayers_.find(indx);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::isValidHex8:WaferType "
+				<< layer << ":" << modU << ":" << modV << ":"
+				<< indx << " Test " 
+				<< (itr == hgpar_->typesInLayers_.end());
+#endif
   if (itr == hgpar_->typesInLayers_.end()) return false;
   auto jtr  = waferIn_.find(indx);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::isValidHex8:WaferIn "
+				<< jtr->first << ":" << jtr->second;
+#endif
   if (!(jtr->second))                      return false;
   int  N = ((hgpar_->waferTypeL_[itr->second] == 0) ? hgpar_->nCellsFine_ :
 	    hgpar_->nCellsCoarse_);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::isValidHex8:Cell "
+				<< cellU << ":" << cellV << ":" << N 
+				<< " Tests " << (cellU >= 0) << ":"
+				<< (cellU < 2*N) << ":" << (cellV >= 0) << ":"
+				<< (cellV < 2*N) << ":" << ((cellV-cellU) < N)
+				<< ":" << ((cellU-cellV) <= N);
+#endif
   if ((cellU >= 0) && (cellU < 2*N) && (cellV >= 0) && (cellV < 2*N)) {
     return (((cellV-cellU) < N) && ((cellU-cellV) <= N));
   } else {
@@ -704,6 +752,12 @@ int HGCalDDDConstants::maxRows(int lay, bool reco) const {
     kymax = 1+2*hgpar_->waferUVMaxLayer_[index.first];
   }
   return kymax;
+}
+
+int HGCalDDDConstants::modifyUV(int uv, int type1, int type2) const {
+  // Modify u/v for transition of type1 to type2
+  return (((type1==type2) || (type1*type2 !=0)) ? uv : 
+	  ((type1==0) ? (2*uv+1)/3 : (3*uv)/2));
 }
 
 int HGCalDDDConstants::modules(int lay, bool reco) const {
