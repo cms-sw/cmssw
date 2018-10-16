@@ -223,7 +223,7 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanRegionModule::sort4(const L1MuKBMTrack
     }
     else {
       s3_2=s2_2;
-      s3_3=static_cast<L1MuKBMTrack&>(s3_3);
+      s3_3=s2_3;
     }
 
     out.push_back(s3_1);
