@@ -48,4 +48,17 @@ SimTrackerAOD = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_allTrackMCMatch_*_*')
 )
 
-
+# Event content for premixing library
+SimTrackerPREMIX = cms.PSet(
+    outputCommands = cms.untracked.vstring(
+        'keep *_simSiPixelDigis_*_*', # covers digis and digiSimLinks
+        'keep *_simSiStripDigis_ZeroSuppressed_*',
+        'keep StripDigiSimLinkedmDetSetVector_simSiStripDigis_*_*',
+        'keep *_mix_AffectedAPVList_*',
+    )
+)
+phase2_tracker.toModify(SimTrackerPREMIX, outputCommands = [
+        'keep Phase2TrackerDigiedmDetSetVector_mix_*_*',
+        'keep *_*_Phase2OTDigiSimLink_*',
+        'keep *_simSiPixelDigis_*_*', # covers digis and digiSimLinks
+])

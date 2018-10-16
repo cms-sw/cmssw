@@ -271,7 +271,6 @@ protected:
    LocalVector driftDirection       (DetParam & theDetParam, LocalVector bfield ) const ;
    void computeLorentzShifts(DetParam &) const ;
    
-   bool isFlipped(DetParam const & theDetParam) const;              // is the det flipped or not?
    
    //---------------------------------------------------------------------------
    //  Cluster-level services.

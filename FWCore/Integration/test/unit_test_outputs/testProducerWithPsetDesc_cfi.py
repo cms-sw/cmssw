@@ -271,5 +271,11 @@ testProducerWithPsetDesc = cms.EDProducer('ProducerWithPSetDesc',
     testWithVectorOfSets = cms.untracked.vstring()
   ),
   noDefaultPset3 = cms.PSet(),
-  noDefaultPset4 = cms.PSet()
+  noDefaultPset4 = cms.PSet(),
+  plugin = cms.PSet(
+    value = cms.int32(5),
+    type = cms.string('edmtestAnotherValueMaker')
+  
+  ),
+  plugin1 = cms.PSet()
 )

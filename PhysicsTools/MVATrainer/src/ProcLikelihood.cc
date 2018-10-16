@@ -294,8 +294,7 @@ Calibration::VarProcessor *ProcLikelihood::getCalibration() const
 		std::transform(iter->signal.distr.begin(),
 		               iter->signal.distr.end(),
 		               values.begin() + 1,
-		               std::bind1st(std::multiplies<double>(),
-		                            factor));
+		               [&](auto const& c) {return c * factor;});
 		pdf.signal.setValues(values);
 
 		pdf.background =
@@ -311,8 +310,7 @@ Calibration::VarProcessor *ProcLikelihood::getCalibration() const
 		std::transform(iter->background.distr.begin(),
 		               iter->background.distr.end(),
 		               values.begin() + 1,
-		               std::bind1st(std::multiplies<double>(),
-		                            factor));
+		               [&](auto const& c){return c * factor;});
 		pdf.background.setValues(values);
 
 		pdf.useSplines = true;

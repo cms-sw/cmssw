@@ -78,9 +78,7 @@ namespace {
 	};
 	
 	template<typename T>
-	struct RefToBaseLess : public std::binary_function<edm::RefToBase<T>,
-							   edm::RefToBase<T>,
-							   bool> {
+	struct RefToBaseLess {
 		inline bool operator()(const edm::RefToBase<T> &r1,
 				       const edm::RefToBase<T> &r2) const
 		{
@@ -177,8 +175,7 @@ class TemplatedSecondaryVertexProducer : public edm::stream::EDProducer<> {
 
 	void markUsedTracks(TrackDataVector & trackData, const input_container & trackRefs, const SecondaryVertex & sv,size_t idx);
 
-	struct SVBuilder :
-		public std::unary_function<const VTX&, SecondaryVertex> {
+	struct SVBuilder {
 
 		SVBuilder(const reco::Vertex &pv,
 		          const GlobalVector &direction,
@@ -199,8 +196,7 @@ class TemplatedSecondaryVertexProducer : public edm::stream::EDProducer<> {
 		double 			minTrackWeight;
 	};
 
-	struct SVFilter :
-		public std::unary_function<const SecondaryVertex&, bool> {
+	struct SVFilter {
 
 		SVFilter(const VertexFilter &filter, const Vertex &pv,
 		         const GlobalVector &direction) :
@@ -640,8 +636,8 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 	}
 	// ------------------------------------ SV clustering END ----------------------------------------------
 
-	std::auto_ptr<ConfigurableVertexReconstructor> vertexReco;
-	std::auto_ptr<GhostTrackVertexFinder> vertexRecoGT;
+	std::unique_ptr<ConfigurableVertexReconstructor> vertexReco;
+	std::unique_ptr<GhostTrackVertexFinder> vertexRecoGT;
 	if (useGhostTrack)
 		vertexRecoGT.reset(new GhostTrackVertexFinder(
 			vtxRecoPSet.getParameter<double>("maxFitChi2"),
@@ -706,7 +702,7 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 
 		std::vector<TransientTrack> fitTracks;
 		std::vector<GhostTrackState> gtStates;
-		std::auto_ptr<GhostTrackPrediction> gtPred;
+		std::unique_ptr<GhostTrackPrediction> gtPred;
 		if (useGhostTrack)
 			gtPred.reset(new GhostTrackPrediction(
 						*iterJets->ghostTrack()));
@@ -753,7 +749,7 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 			}
 		}
 
-		std::auto_ptr<GhostTrack> ghostTrack;
+		std::unique_ptr<GhostTrack> ghostTrack;
 		if (useGhostTrack)
 			ghostTrack.reset(new GhostTrack(
 				GhostTrackPrediction(

@@ -50,8 +50,8 @@ void DDTrackerAngular::initialize(const DDNumericArguments & nArgs,
 			  << rangeAngle/CLHEP::deg << " " << delta/CLHEP::deg
 			  << " Radius " << radius << " Centre " << center[0] 
 			  << ", " << center[1] << ", "<<center[2];
-  DDCurrentNamespace ns;
-  idNameSpace = *ns;
+
+  idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
 
   DDName parentName = parent().name();

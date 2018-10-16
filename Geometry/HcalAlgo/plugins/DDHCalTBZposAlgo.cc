@@ -42,8 +42,7 @@ void DDHCalTBZposAlgo::initialize(const DDNumericArguments & nArgs,
 		       << "\tRadial Distance " << dist << "\tTilt angle "
 		       << tilt/CLHEP::deg << "\tcopyNumber " << copyNumber;
 
-  DDCurrentNamespace ns;
-  idNameSpace = *ns;
+  idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
   DDName parentName = parent().name(); 
   LogDebug("HCalGeom") << "DDHCalTBZposAlgo debug: Parent " << parentName

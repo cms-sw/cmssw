@@ -34,7 +34,7 @@ DTGeometryBuilderFromDDD::DTGeometryBuilderFromDDD() {}
 DTGeometryBuilderFromDDD::~DTGeometryBuilderFromDDD(){}
 
 
-void DTGeometryBuilderFromDDD::build(std::shared_ptr<DTGeometry> theGeometry,
+void DTGeometryBuilderFromDDD::build(DTGeometry& theGeometry,
                                      const DDCompactView* cview,
                                      const MuonDDDConstants& muonConstants){
   //  cout << "DTGeometryBuilderFromDDD::build" << endl;
@@ -48,17 +48,13 @@ void DTGeometryBuilderFromDDD::build(std::shared_ptr<DTGeometry> theGeometry,
   DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0.0)};
 
   DDFilteredView fview(*cview,filter);
-  buildGeometry(std::move(theGeometry), fview, muonConstants);
+  buildGeometry(theGeometry, fview, muonConstants);
 }
 
 
-void DTGeometryBuilderFromDDD::buildGeometry(const std::shared_ptr<DTGeometry>& theGeometry,
+void DTGeometryBuilderFromDDD::buildGeometry(DTGeometry& theGeometry,
                                              DDFilteredView& fv,
                                              const MuonDDDConstants& muonConstants) const {
-  // static const string t0 = "DTGeometryBuilderFromDDD::buildGeometry";
-  // TimeMe timer(t0,true);
-
-  //DTGeometry* theGeometry = new DTGeometry;
 
   bool doChamber = fv.firstChild();
 
@@ -82,7 +78,7 @@ void DTGeometryBuilderFromDDD::buildGeometry(const std::shared_ptr<DTGeometry>& 
     while (doSL) {
       SLCounter++;
       DTSuperLayer* sl = buildSuperLayer(fv, chamber, type, muonConstants);
-      theGeometry->add(sl);
+      theGeometry.add(sl);
 
       bool doL = fv.firstChild();
       int LCounter=0;
@@ -90,7 +86,7 @@ void DTGeometryBuilderFromDDD::buildGeometry(const std::shared_ptr<DTGeometry>& 
       while (doL) {
         LCounter++;
         DTLayer* layer = buildLayer(fv, sl, type, muonConstants);
-        theGeometry->add(layer);
+        theGeometry.add(layer);
 
         fv.parent();
         doL = fv.nextSibling(); // go to next layer
@@ -99,7 +95,7 @@ void DTGeometryBuilderFromDDD::buildGeometry(const std::shared_ptr<DTGeometry>& 
       fv.parent();
       doSL = fv.nextSibling(); // go to next SL
     } // sls
-    theGeometry->add(chamber);
+    theGeometry.add(chamber);
 
     fv.parent();
     doChamber = fv.nextSibling(); // go to next chamber

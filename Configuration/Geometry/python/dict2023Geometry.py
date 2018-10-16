@@ -374,6 +374,7 @@ caloDict = {
             'Geometry/HcalCommonData/data/hcalSimNumbering/NoHE/hcalSimNumbering.xml',
             'Geometry/HcalCommonData/data/hcalRecNumbering/NoHE/hcalRecNumbering.xml',
             'Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml',
+            'Geometry/HGCalCommonData/data/hgcalMaterial/v1/hgcalMaterial.xml',
             'Geometry/HGCalCommonData/data/hgcal/v9/hgcal.xml',
             'Geometry/HGCalCommonData/data/hgcalEE/v9/hgcalEE.xml',
             'Geometry/HGCalCommonData/data/hgcalHEsil/v9/hgcalHEsil.xml',
@@ -448,6 +449,7 @@ caloDict = {
             'Geometry/HcalCommonData/data/hcalSimNumbering/NoHE/hcalSimNumbering.xml',
             'Geometry/HcalCommonData/data/hcalRecNumbering/NoHE/hcalRecNumbering.xml',
             'Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml',
+            'Geometry/HGCalCommonData/data/hgcalMaterial/v1/hgcalMaterial.xml',
             'Geometry/HGCalCommonData/data/hgcal/v9/hgcal.xml',
             'Geometry/HGCalCommonData/data/hgcalEE/v9/hgcalEE.xml',
             'Geometry/HGCalCommonData/data/hgcalHEsil/v9/hgcalHEsil.xml',
@@ -522,6 +524,7 @@ caloDict = {
             'Geometry/HcalCommonData/data/hcalSimNumbering/NoHE/hcalSimNumbering.xml',
             'Geometry/HcalCommonData/data/hcalRecNumbering/NoHE/hcalRecNumbering.xml',
             'Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml',
+            'Geometry/HGCalCommonData/data/hgcalMaterial/v1/hgcalMaterial.xml',
             'Geometry/HGCalCommonData/data/hgcal/v9/hgcal.xml',
             'Geometry/HGCalCommonData/data/hgcalEE/v9/hgcalEE.xml',
             'Geometry/HGCalCommonData/data/hgcalHEsil/v9/hgcalHEsil.xml',
@@ -607,6 +610,7 @@ caloDict = {
             'Geometry/HcalCommonData/data/hcalSimNumbering/NoHE/hcalSimNumbering.xml',
             'Geometry/HcalCommonData/data/hcalRecNumbering/NoHE/hcalRecNumbering.xml',
             'Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml',
+            'Geometry/HGCalCommonData/data/hgcalMaterial/v1/hgcalMaterial.xml',
             'Geometry/HGCalCommonData/data/hgcal/v9a/hgcal.xml',
             'Geometry/HGCalCommonData/data/hgcalEE/v9a/hgcalEE.xml',
             'Geometry/HGCalCommonData/data/hgcalHEsil/v9a/hgcalHEsil.xml',
@@ -814,8 +818,16 @@ timingDict = {
             'Geometry/MTDSimData/data/CrystalTile/mtdProdCuts.xml'
             ],
         "sim" : [
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
         ],
         "reco" :[
+            'from RecoMTD.DetLayers.mtdDetLayerGeometry_cfi import *',
+            'from Geometry.MTDGeometryBuilder.mtdParameters_cfi import *',
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
+            'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
+            'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
+            'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
+            'mtdGeometry.applyAlignment = cms.bool(False)'
         ],
         "era" : "phase2_timing, phase2_timing_layer_new",
     },
@@ -832,8 +844,16 @@ timingDict = {
             'Geometry/MTDSimData/data/CrystalBar/mtdProdCuts.xml'
             ],
         "sim" : [
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
         ],
         "reco" :[
+            'from RecoMTD.DetLayers.mtdDetLayerGeometry_cfi import *',
+            'from Geometry.MTDGeometryBuilder.mtdParameters_cfi import *',
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
+            'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
+            'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
+            'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
+            'mtdGeometry.applyAlignment = cms.bool(False)'
         ],
         "era" : "phase2_timing, phase2_timing_layer_new",
     }

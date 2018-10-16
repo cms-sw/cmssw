@@ -15,6 +15,7 @@ class MaterialBudgetTxt : public MaterialBudgetFormat
   void fillStartTrack() override;
   void fillPerStep() override;
   void fillEndTrack() override;
+  void endOfRun() override;
 
  private:
   std::ofstream* theFile;

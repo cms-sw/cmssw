@@ -43,7 +43,7 @@ HGCScintillatorDetId& HGCScintillatorDetId::operator=(const DetId& gen) {
 }
 
 std::ostream& operator<<(std::ostream& s,const HGCScintillatorDetId& id) {
-  return s << " EE:HE= " << id.isEE() << ":" << id.isHE()
+  return s << " HGCScintillatorDetId::EE:HE= " << id.isEE() << ":" << id.isHE()
 	   << " type= " << id.type()  << " layer= " << id.layer() 
 	   << " radius= "  << id.iradius() << " phi= " << id.iphi();
 }

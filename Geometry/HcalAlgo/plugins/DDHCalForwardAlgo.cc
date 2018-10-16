@@ -51,8 +51,7 @@ void DDHCalForwardAlgo::initialize(const DDNumericArguments & nArgs,
 			 << " occurence " << number[i] << " first child index "
 			 << type[i];
 
-  DDCurrentNamespace ns;
-  idNameSpace = *ns;
+  idNameSpace = DDCurrentNamespace::ns();
   DDName parentName = parent().name(); 
   LogDebug("HCalGeom") << "DDHCalForwardAlgo debug: Parent " << parentName
 		       << " NameSpace " << idNameSpace;

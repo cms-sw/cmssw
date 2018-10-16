@@ -46,7 +46,13 @@ namespace l1t {
 	   layer1HOverE=39,
 	   PUTowerThreshold=40,
 	   tauTrimmingShapeVeto=41,
-	   NUM_CALOPARAMNODES=42
+	   egBypassShapeFlag=42,
+	   egBypassECALFGFlag=43,
+	   egBypassHoEFlag=44,
+	   etSumCentralityLower=45,
+	   etSumCentralityUpper=46,
+	   jetPUSUsePhiRingFlag=47,
+	   NUM_CALOPARAMNODES=48
     };
 
     CaloParamsHelperO2O() { pnode_.resize(NUM_CALOPARAMNODES); }
@@ -58,7 +64,7 @@ namespace l1t {
     };
     ~CaloParamsHelperO2O() {}
 
-    bool isValidForStage1() {return 1; } 
+    bool isValidForStage1() {return true; } 
     bool isValidForStage2() {return (version_ >= 2); }
 
     L1CaloEtScale emScale() { return emScale_; }
@@ -140,6 +146,19 @@ namespace l1t {
     int egMaxPtHOverEIsolation() const { return egp_.maxPtHOverEIsolation_; }
     unsigned egBypassEGVetos() { return pnode_[egBypassEGVetosFlag].uparams_[0]; }
     unsigned egBypassExtHOverE() { return pnode_[egBypassExtHoE].uparams_[0]; }
+    unsigned egBypassShape() const {
+      if(pnode_[egBypassShapeFlag].uparams_.empty()) return 0;
+      else return pnode_[egBypassShapeFlag].uparams_[0];
+    }
+    unsigned egBypassECALFG()  const {
+      if(pnode_[egBypassECALFGFlag].uparams_.empty()) return 0;
+      else return pnode_[egBypassECALFGFlag].uparams_[0];
+    }
+    unsigned egBypassHoE() const {
+      if(pnode_[egBypassHoEFlag].uparams_.empty()) return 0;
+      else return pnode_[egBypassHoEFlag].uparams_[0];
+    }
+
     int egHOverEcutBarrel() const {return pnode_[egHOverEBarrel].iparams_[0]; }
     int egHOverEcutEndcap() const {return pnode_[egHOverEEndcap].iparams_[0]; }
 
@@ -178,6 +197,14 @@ namespace l1t {
     void setEgBypassEGVetos(unsigned flag) { 
       pnode_[egBypassEGVetosFlag].uparams_.resize(1);
       pnode_[egBypassEGVetosFlag].uparams_[0] = flag; 
+    }
+    void setEgBypassShape(unsigned flag) { 
+      pnode_[egBypassShapeFlag].uparams_.resize(1);
+      pnode_[egBypassShapeFlag].uparams_[0] = flag; 
+    }
+    void setEgBypassECALFG(unsigned flag) { 
+      pnode_[egBypassECALFGFlag].uparams_.resize(1);
+      pnode_[egBypassECALFGFlag].uparams_[0] = flag; 
     }
     void setEgBypassExtHOverE(unsigned flag) {
       pnode_[egBypassExtHoE].uparams_.resize(1);
@@ -289,6 +316,7 @@ namespace l1t {
     }
 
     unsigned jetBypassPUS() const { return pnode_[jetBypassPUSFlag].uparams_[0]; }
+    unsigned jetPUSUsePhiRing() const { return pnode_[jetPUSUsePhiRingFlag].uparams_[0]; }
 
     std::string jetPUSType() const { return pnode_[jetPUS].type_; }
     std::vector<double> jetPUSParams() { return pnode_[jetPUS].dparams_; }
@@ -317,7 +345,10 @@ namespace l1t {
       pnode_[jetBypassPUSFlag].uparams_.resize(1);
       pnode_[jetBypassPUSFlag].uparams_[0] = flag; 
     }
-    
+    void setJetPUSUsePhiRing(unsigned flag) {
+      pnode_[jetPUSUsePhiRingFlag].uparams_.resize(1);
+      pnode_[jetPUSUsePhiRingFlag].uparams_[0] = flag; 
+    }
     // sums
 
     double etSumLsb() const { return etSumLsb_; }
@@ -394,7 +425,30 @@ namespace l1t {
     void setEtSumEttCalibrationLUT(const l1t::LUT & lut) { pnode_[etSumEttCalibration].LUT_ = lut; }
     void setEtSumEcalSumCalibrationLUT(const l1t::LUT & lut) { pnode_[etSumEcalSumCalibration].LUT_ = lut; }
 
-
+    double etSumCentLower(unsigned centClass) const {
+      if (pnode_[etSumCentralityLower].dparams_.size()>centClass)
+	return pnode_[etSumCentralityLower].dparams_.at(centClass);
+      else return 0.;
+    }
+    
+    double etSumCentUpper(unsigned centClass) const {
+      if (pnode_[etSumCentralityUpper].dparams_.size()>centClass)
+	return pnode_[etSumCentralityUpper].dparams_.at(centClass);
+      else return 0.;
+    }
+    
+    void setEtSumCentLower(unsigned centClass, double loBound) {
+      if (pnode_[etSumCentralityLower].dparams_.size()<=centClass) 
+	pnode_[etSumCentralityLower].dparams_.resize(centClass+1);
+      pnode_[etSumCentralityLower].dparams_.at(centClass) = loBound;
+    }
+    
+    void setEtSumCentUpper(unsigned centClass, double upBound) {
+      if (pnode_[etSumCentralityUpper].dparams_.size()<=centClass) 
+	pnode_[etSumCentralityUpper].dparams_.resize(centClass+1);
+      pnode_[etSumCentralityUpper].dparams_.at(centClass) = upBound;
+    }
+    
     // HI centrality
     int centralityRegionMask() const {
       if(pnode_[hiCentrality].version_ == 1)

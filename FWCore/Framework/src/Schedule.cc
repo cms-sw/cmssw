@@ -34,6 +34,7 @@
 #include "FWCore/Utilities/interface/TypeID.h"
 
 
+
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
@@ -44,6 +45,9 @@
 #include <set>
 #include <exception>
 #include <sstream>
+
+#include "make_shared_noexcept_false.h"
+
 
 namespace edm {
 
@@ -81,7 +85,7 @@ namespace edm {
       bool postCalled = false;
       std::shared_ptr<TriggerResultInserter> returnValue;
       try {
-        maker::ModuleHolderT<TriggerResultInserter> holder(std::make_shared<TriggerResultInserter>(*trig_pset, iPrealloc.numberOfStreams()),static_cast<Maker const*>(nullptr));
+        maker::ModuleHolderT<TriggerResultInserter> holder(make_shared_noexcept_false<TriggerResultInserter>(*trig_pset, iPrealloc.numberOfStreams()),static_cast<Maker const*>(nullptr));
         holder.setModuleDescription(md);
         holder.registerProductsAndCallbacks(&preg);
         returnValue =holder.module();
@@ -132,7 +136,7 @@ namespace edm {
         bool postCalled = false;
 
         try {
-          maker::ModuleHolderT<T> holder(std::make_shared<T>(iPrealloc.numberOfStreams()),
+          maker::ModuleHolderT<T> holder(make_shared_noexcept_false<T>(iPrealloc.numberOfStreams()),
                                          static_cast<Maker const*>(nullptr));
           holder.setModuleDescription(md);
           holder.registerProductsAndCallbacks(&preg);
@@ -473,7 +477,7 @@ namespace edm {
     assert(0<prealloc.numberOfStreams());
     streamSchedules_.reserve(prealloc.numberOfStreams());
     for(unsigned int i=0; i<prealloc.numberOfStreams();++i) {
-      streamSchedules_.emplace_back(std::make_shared<StreamSchedule>(
+      streamSchedules_.emplace_back(make_shared_noexcept_false<StreamSchedule>(
         resultsInserter(),
         pathStatusInserters_,
         endPathStatusInserters_,

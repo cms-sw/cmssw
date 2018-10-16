@@ -89,7 +89,9 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const & p):
   m_currentRun = nullptr;
 
   m_kernel = new G4MTRunManagerKernel();
-  G4StateManager::GetStateManager()->SetExceptionHandler(new ExceptionHandler());
+  m_stateManager = G4StateManager::GetStateManager();
+  m_stateManager->SetExceptionHandler(new ExceptionHandler());
+  m_geometryManager->G4GeometryManager::GetInstance();
 
   m_check = p.getUntrackedParameter<bool>("CheckOverlap",false);
   m_WriteFile = p.getUntrackedParameter<std::string>("FileNameGDML","");
@@ -99,9 +101,7 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const & p):
 
 RunManagerMT::~RunManagerMT() 
 {
-  if(!m_runTerminated) { terminateRun(); }
-  G4StateManager::GetStateManager()->SetNewState(G4State_Quit);
-  G4GeometryManager::GetInstance()->OpenGeometry();
+  stopG4();
 }
 
 void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, 
@@ -109,7 +109,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
 {
   if (m_managerInitialized) return;
 
-  edm::LogInfo("SimG4CoreApplication") 
+  edm::LogVerbatim("SimG4CoreApplication") 
     << "RunManagerMT: start initialisation of geometry";
   
   // DDDWorld: get the DDCV from the ES and use it to build the World
@@ -118,7 +118,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   m_registry.dddWorldSignal_(m_world.get());
 
   // setup the magnetic field
-  edm::LogInfo("SimG4CoreApplication") 
+  edm::LogVerbatim("SimG4CoreApplication") 
     << "RunManagerMT: start initialisation of magnetic field";
 
   if (m_pUseMagneticField && !m_FieldFile.empty())
@@ -134,7 +134,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
     }
 
   // Create physics list
-  edm::LogInfo("SimG4CoreApplication") 
+  edm::LogVerbatim("SimG4CoreApplication") 
     << "RunManagerMT: create PhysicsList";
 
   std::unique_ptr<PhysicsListMakerBase>
@@ -168,7 +168,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   if (m_RestorePhysicsTables) {
     m_physicsList->SetPhysicsTableRetrieved(m_PhysicsTablesDir);
   }
-  edm::LogInfo("SimG4CoreApplication") 
+  edm::LogVerbatim("SimG4CoreApplication") 
     << "RunManagerMT: start initialisation of PhysicsList for master";
 
   int verb = std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity",0),
@@ -184,6 +184,17 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   }
   
   m_kernel->SetPhysics(phys);
+
+  // Geant4 UI commands before initialisation of physics
+  if(!m_G4Commands.empty()) {
+    G4cout << "RunManagerMT: Requested UI commands: " << G4endl;
+    for (const std::string& command : m_G4Commands) {
+      G4cout << "    " << command << G4endl;
+      G4UImanager::GetUIpointer()->ApplyCommand(command);
+    }
+  }
+
+  m_stateManager->SetNewState(G4State_Init);
   m_kernel->InitializePhysics();
   m_kernel->SetUpDecayChannels();
 
@@ -212,14 +223,6 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
 
   initializeUserActions();
 
-  if(!m_G4Commands.empty()) {
-    G4cout << "RunManagerMT: Requested UI commands: " << G4endl;
-    for (unsigned it=0; it<m_G4Commands.size(); ++it) {
-      G4cout << "    " << m_G4Commands[it] << G4endl;
-      G4UImanager::GetUIpointer()->ApplyCommand(m_G4Commands[it]);
-    }
-  }
-
   if(verb > 1) { m_physicsList->DumpCutValuesTable(); }
 
   // geometry dump
@@ -243,7 +246,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   //
   //G4ParticleTable::GetParticleTable()->DumpTable("ALL");
   //
-  G4StateManager::GetStateManager()->SetNewState(G4State_GeomClosed);
+  m_stateManager->SetNewState(G4State_GeomClosed);
   m_currentRun = new G4Run(); 
   m_userRunAction->BeginOfRunAction(m_currentRun); 
 }
@@ -262,7 +265,8 @@ void  RunManagerMT::Connect(RunAction* runAction)
 
 void RunManagerMT::stopG4()
 {
-  G4StateManager::GetStateManager()->SetNewState(G4State_Quit);
+  m_geometryManager->OpenGeometry();
+  m_stateManager->SetNewState(G4State_Quit);
   if(!m_runTerminated) { terminateRun(); }
 }
 

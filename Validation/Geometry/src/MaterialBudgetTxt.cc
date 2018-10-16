@@ -9,25 +9,23 @@ MaterialBudgetTxt::MaterialBudgetTxt( std::shared_ptr<MaterialBudgetData> data, 
 {
   const char * fnamechar = fileName.c_str();
   theFile = new std::ofstream(fnamechar, std::ios::out);
-  std::cout <<"Dumping  Material Budget to " << fileName << std::endl;
+  edm::LogInfo("MaterialBudget") << "MaterialBudgetTxt: Dumping  Material Budget to " << fileName;
   if (theFile->fail()){
-    std::cerr <<" Error opening file" << fileName << std::endl;
+    edm::LogError("MaterialBudget") <<"MaterialBudgetTxt: Error opening file" << fileName;
   }
 }
 
 
 MaterialBudgetTxt::~MaterialBudgetTxt()
 {
-  theFile->close();
 }
 
 
 void MaterialBudgetTxt::fillStartTrack()
 {
-   std::cout << " Track "<< G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() << " " << theData->getEta() << " " << theData->getPhi() << std::endl;
+  
   (*theFile)<< " Track "<< G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() << " " << theData->getEta() << " " << theData->getPhi() << std::endl;
-  // + 1 was GEANT3 notation    (*theFile)<< " Track "<< G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() + 1<< " " << theData->getEta() << " " << theData->getPhi() << std::endl;
-
+  // + 1 was GEANT3 notation  (*theFile)<< " Track "<< G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() + 1<< " " << theData->getEta() << " " << theData->getPhi() << std::endl;
 }
 
 
@@ -44,3 +42,7 @@ void MaterialBudgetTxt::fillEndTrack()
   (*theFile) << G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() << " " << "finalTrkMB " << theData->getTotalMB() << std::endl;
 }
 
+void MaterialBudgetTxt::endOfRun() 
+{
+  theFile->close();
+}

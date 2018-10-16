@@ -150,7 +150,11 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 	    CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(CaloTools::kHFEnd) &&
 	    (tower.hwQual() & 0x4) > 0) 
 	  ringMB0 += 1;
-	  
+	if (CaloTools::mpEta(abs(tower.hwEta()))>=CaloTools::mpEta(CaloTools::kHFBegin) &&
+	    CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(CaloTools::kHFEnd) &&
+	    (tower.hwQual() & 0x8) > 0) 
+	  ringMB1 += 1;
+	
         // tower counting 
 	if (tower.hwPt()>nTowThresholdHw_ && CaloTools::mpEta(abs(tower.hwEta()))<=nTowEtaMax_) 
 	  ringNtowers += 1;
@@ -177,17 +181,13 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 
     // saturate energy sums if saturated TP/tower
 
-    if(ecalEtSat) etem = 0xffff;
-    if(ettSat) et = 0xffff;
-    if(ettHFSat) etHF = 0xffff;
-    if(metSat){ 
-      ex = 0x7fffffff;
-      ey = 0x7fffffff;
-    }
-    if(metHFSat){
-      exHF = 0x7fffffff;
-      eyHF = 0x7fffffff;
-    }
+    if(ecalEtSat || etem > 0xffff) etem = 0xffff;
+    if(ettSat || et > 0xffff) et = 0xffff;
+    if(ettHFSat || etHF > 0xffff) etHF = 0xffff;
+    if(metSat || ex > 0x7fffffff) ex = 0x7fffffff;
+    if(metSat || ey > 0x7fffffff) ey = 0x7fffffff;
+    if(metHFSat || exHF > 0x7fffffff) exHF = 0x7fffffff;
+    if(metHFSat || eyHF > 0x7fffffff) eyHF = 0x7fffffff;
     
     l1t::EtSum etSumTotalEt(p4,l1t::EtSum::EtSumType::kTotalEt,et,0,0,0);
     l1t::EtSum etSumEx(p4,l1t::EtSum::EtSumType::kTotalEtx,ex,0,0,0);

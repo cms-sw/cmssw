@@ -845,8 +845,6 @@ bool PixelInactiveAreaFinder::detWorks(det_t det){
 }
 PixelInactiveAreaFinder::DetGroup PixelInactiveAreaFinder::badAdjecentDetsBarrel(const det_t & det){
   using std::remove_if;
-  using std::bind1st;
-  using std::mem_fun;
 
   DetGroup adj;
   auto const tTopo = trackerTopology_;
@@ -870,8 +868,7 @@ PixelInactiveAreaFinder::DetGroup PixelInactiveAreaFinder::badAdjecentDetsBarrel
     adj.push_back( tTopo->pxbDetId( layer, ladder, module-1 )() );
   }
   //remove working detectors from list
-  adj.erase(remove_if(adj.begin(),adj.end(),bind1st(
-                                                    mem_fun(&PixelInactiveAreaFinder::detWorks),this)),adj.end());
+  adj.erase(remove_if(adj.begin(),adj.end(), [&](auto c) {return this->detWorks(c);}), adj.end());
   return adj;
 }
 PixelInactiveAreaFinder::DetGroup PixelInactiveAreaFinder::badAdjecentDetsEndcap(const det_t & det){

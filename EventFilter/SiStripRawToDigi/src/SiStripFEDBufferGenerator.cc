@@ -525,7 +525,7 @@ namespace sistrip {
   {
     //deal with disabled FE units and channels properly (FE enables, status bits)
     TrackerSpecialHeader tkSpecialHeader(defaultTrackerSpecialHeader_);
-    std::auto_ptr<FEDFEHeader> fedFeHeader(defaultFEHeader_->clone());
+    std::unique_ptr<FEDFEHeader> fedFeHeader(defaultFEHeader_->clone());
     for (uint8_t iFE = 0; iFE < FEUNITS_PER_FED; iFE++) {
       const bool enabled = feUnitsEnabled_[iFE];
       tkSpecialHeader.setFEEnableForFEUnit(iFE,enabled);

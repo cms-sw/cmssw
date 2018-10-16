@@ -87,8 +87,7 @@ void DDAHcalModuleAlgo::initialize(const DDNumericArguments & nArgs,
   std::cout << std::endl;
 #endif
   zMinBlock     = nArgs["zMinBlock"];
-  DDCurrentNamespace ns;
-  idNameSpace   = *ns;
+  idNameSpace   = DDCurrentNamespace::ns();
 #ifdef EDM_ML_DEBUG
   std::cout << "DDAHcalModuleAlgo: NameSpace " << idNameSpace << std::endl;
 #endif

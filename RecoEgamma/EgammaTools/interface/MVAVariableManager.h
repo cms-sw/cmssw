@@ -45,6 +45,9 @@ class MVAVariableManager {
         std::string name, formula, upper, lower;
         while( true ) {
             file >> name;
+            if(file.eof()) {
+                break;
+            }
             if (name.find("#") != std::string::npos) {
                 file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                 continue;
