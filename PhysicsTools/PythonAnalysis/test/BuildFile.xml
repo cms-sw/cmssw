@@ -10,7 +10,7 @@
 <test name="testBottleneck" command="testBottleneck.py"/>
 <test name="testDeepDish" command="testDeepDish.py"/>
 <test name="testNumExpr" command="testNumExpr.py"/>
-<test name="testNumba" command="testNumba.py"/>
+#<test name="testNumba" command="testNumba.py"/>
 <test name="testTables" command="testTables.py"/>
 
 <test name="testDownhill" command="testDownhill.sh"/>
@@ -19,7 +19,7 @@
 
 <test name="testhep_ml" command="testhep_ml.sh"/>
 <test name="testUncertainties" command="testUncertainties.py"/>
-<test name="testImports" command="imports.sh"/>
+#<test name="testImports" command="imports.sh"/>
 <test name="testTheano" command="testTheano.sh"/>
 
 <bin name="test_PyMVA" file="test_PyMVA.cpp">
