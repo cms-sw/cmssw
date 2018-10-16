@@ -114,13 +114,13 @@ CmsTrackerPhase1DiskBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
   zmaxpanels.reserve( totalblade );
   for( uint32_t j = 0; j < totalblade; j++ )
   {
-    if( fabs( comp[2*j]->translation().z()) > fabs( comp[ 2*j +1 ]->translation().z()))
+    if( std::abs( comp[2*j]->translation().z()) > std::abs( comp[ 2*j +1 ]->translation().z()))
     {
       zmaxpanels.emplace_back( det->component(2*j) );
       zminpanels.emplace_back( det->component(2*j+1) );
 
     }
-    else if( fabs( comp[2*j]->translation().z()) < fabs( comp[ 2*j +1 ]->translation().z()))
+    else if( std::abs( comp[2*j]->translation().z()) < std::abs( comp[ 2*j +1 ]->translation().z()))
     {
       zmaxpanels.emplace_back( det->component(2*j+1) );
       zminpanels.emplace_back( det->component(2*j) );

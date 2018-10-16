@@ -80,9 +80,9 @@ void MTDStablePhiSort(RandomAccessIterator begin,
     //stability check
     // check if the last element is too near to zero --> probably it is zero
     double tolerance = 0.000001;
-    if( fabs(tmpvec.back().value - 0) < tolerance       // near 0
+    if( std::abs(tmpvec.back().value - 0) < tolerance       // near 0
 	||
-	fabs(tmpvec.back().value - 2*M_PI) < tolerance ) { // near 2pi
+	std::abs(tmpvec.back().value - 2*M_PI) < tolerance ) { // near 2pi
       // move it to front 
       tmpvec.insert(tmpvec.begin(),tmpvec.back());
       tmpvec.pop_back();

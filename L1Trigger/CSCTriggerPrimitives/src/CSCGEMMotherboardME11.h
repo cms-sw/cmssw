@@ -28,10 +28,6 @@ class CSCGEMMotherboardME11 : public CSCGEMMotherboard
   /** Default destructor. */
   ~CSCGEMMotherboardME11() override;
 
-  /** Clears correlated LCT and passes clear signal on to cathode and anode
-      LCT processors. */
-  void clear();
-
   /** Run function for normal usage.  Runs cathode and anode LCT processors,
       takes results and correlates into CorrelatedLCT. */
   void run(const CSCWireDigiCollection* wiredc,
@@ -42,33 +38,24 @@ class CSCGEMMotherboardME11 : public CSCGEMMotherboard
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs1a() const;
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs1b() const;
 
-  /** additional Cathode LCT processor for ME1a */
-  std::unique_ptr<CSCCathodeLCTProcessor> clct1a;
-
  private:
 
   /* access to the LUTs needed for matching */
   const CSCGEMMotherboardLUTME11* getLUT() const override {return tmbLUT_.get();}
   std::unique_ptr<CSCGEMMotherboardLUTME11> tmbLUT_;
-
-  /** Returns vectors of found ALCTs in ME1a and ME1b, if any. */
-  std::vector<CSCALCTDigi> getALCTs1b() const {return alctV;}
-
-  /** Returns vectors of found CLCTs in ME1a and ME1b, if any. */
-  std::vector<CSCCLCTDigi> getCLCTs1a() const {return clctV1a;}
-  std::vector<CSCCLCTDigi> getCLCTs1b() const {return clctV1b;}
+  std::unique_ptr<CSCMotherboardLUTME11> cscTmbLUT_;
 
   /* readout the LCTs in a sector of ME11 */
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs(enum CSCPart me1ab) const;
 
   /** Methods to sort the LCTs */
-  void sortLCTs(std::vector<CSCCorrelatedLCTDigi>&, int bx, enum CSCPart,
+  void sortLCTs(std::vector<CSCCorrelatedLCTDigi>&, int bx,
                 bool (*sorter)(const CSCCorrelatedLCTDigi&, const CSCCorrelatedLCTDigi&)) const;
-  void sortLCTs(std::vector<CSCCorrelatedLCTDigi>&, enum CSCPart,
+  void sortLCTs(std::vector<CSCCorrelatedLCTDigi>&,
                 bool (*sorter)(const CSCCorrelatedLCTDigi&, const CSCCorrelatedLCTDigi&)) const;
 
   /* check if an ALCT cross a CLCT in an ME11 sector */
-  bool doesALCTCrossCLCT(const CSCALCTDigi &a, const CSCCLCTDigi &c, int me) const;
+  bool doesALCTCrossCLCT(const CSCALCTDigi &a, const CSCCLCTDigi &c) const;
 
   /* correlate a pair of ALCTs and a pair of CLCTs with matched pads or copads
      the output is up to two LCTs in a sector of ME11 */
@@ -79,19 +66,10 @@ class CSCGEMMotherboardME11 : public CSCGEMMotherboard
                         const GEMPadDigiIds& pads,
                         const GEMCoPadDigiIds& copads,
                         CSCCorrelatedLCTDigi& lct1,
-                        CSCCorrelatedLCTDigi& lct2,
-                        enum CSCPart p) const;
-
-  /* store the LCTs found separately in ME1a and ME1b */
-  LCTContainer allLCTs1b;
-  LCTContainer allLCTs1a;
-
-  /** SLHC: special configuration parameters for ME11 treatment. */
-  bool smartME1aME1b, disableME1a, gangedME1a;
+                        CSCCorrelatedLCTDigi& lct2) const;
 
   /* store the CLCTs found separately in ME1a and ME1b */
-  std::vector<CSCCLCTDigi> clctV1a;
-  std::vector<CSCCLCTDigi> clctV1b;
+  std::vector<CSCCLCTDigi> clctV;
 
   // Drop low quality stubs if they don't have GEMs
   bool dropLowQualityCLCTsNoGEMs_ME1a_;

@@ -24,9 +24,11 @@
 // user include files
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/ESProducer.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ESProductHost.h"
+#include "FWCore/Utilities/interface/ReusableObjectHolder.h"
+
 #include "CalibCalorimetry/HcalTPGAlgos/interface/HcaluLUTTPGCoder.h"
 #include "CalibFormats/HcalObjects/interface/HcalTPGRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -43,14 +45,19 @@ public:
   ~HcalTPGCoderULUT() override;
      
   typedef std::shared_ptr<HcalTPGCoder> ReturnType;
-  void dbRecordCallback(const HcalDbRecord&);
 
   ReturnType produce(const HcalTPGRecord&);
+
 private:
-  void buildCoder(const HcalTopology*, const edm::ESHandle<HcalTimeSlew>&);
+
+  using HostType = edm::ESProductHost<HcaluLUTTPGCoder,
+                                      HcalDbRecord>;
+
+  void setupDBRecord(const HcalDbRecord&, HcaluLUTTPGCoder*);
+  void buildCoder(const HcalTopology*, const edm::ESHandle<HcalTimeSlew>&, HcaluLUTTPGCoder*);
+
   // ----------member data ---------------------------
-  ReturnType coder_;  
-  HcaluLUTTPGCoder* theCoder_;
+  edm::ReusableObjectHolder<HostType> holder_;
   bool read_FGLut_, read_Ascii_,read_XML_,LUTGenerationMode_,linearLUTs_;
   double linearLSB_QIE8_, linearLSB_QIE11Overlap_, linearLSB_QIE11_;
   int maskBit_;
@@ -78,7 +85,6 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig)
   //the following line is needed to tell the framework what
   // data is being produced
   if (!(read_Ascii_ || read_XML_)) {
-    setWhatProduced(this,(dependsOn(&HcalTPGCoderULUT::dbRecordCallback)));
     LUTGenerationMode_ = iConfig.getParameter<bool>("LUTGenerationMode");
     linearLUTs_ = iConfig.getParameter<bool>("linearLUTs");
     auto scales = iConfig.getParameter<edm::ParameterSet>("tpScales").getParameter<edm::ParameterSet>("HBHE");
@@ -89,36 +95,31 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig)
     FG_HF_threshold_ = iConfig.getParameter<uint32_t>("FG_HF_threshold"); 
   } else {
     ifilename_=iConfig.getParameter<edm::FileInPath>("inputLUTs");
-    setWhatProduced(this);
   }
-
-  theCoder_=nullptr;
+  setWhatProduced(this);
 }
-
   
-void HcalTPGCoderULUT::buildCoder(const HcalTopology* topo, const edm::ESHandle<HcalTimeSlew>& delay) {
+void HcalTPGCoderULUT::buildCoder(const HcalTopology* topo, const edm::ESHandle<HcalTimeSlew>& delay, HcaluLUTTPGCoder* theCoder) {
   using namespace edm::es;
-  theCoder_ = new HcaluLUTTPGCoder(topo, delay);
+  theCoder->init(topo, delay.product());
   if (read_Ascii_ || read_XML_){
     edm::LogInfo("HCAL") << "Using ASCII/XML LUTs" << ifilename_.fullPath() << " for HcalTPGCoderULUT initialization";
     if (read_Ascii_) {
-      theCoder_->update(ifilename_.fullPath().c_str());
+      theCoder->update(ifilename_.fullPath().c_str());
     } else if (read_XML_) {
-      theCoder_->updateXML(ifilename_.fullPath().c_str());
+      theCoder->updateXML(ifilename_.fullPath().c_str());
     }
     // Read FG LUT and append to most significant bit 11
     if (read_FGLut_) {
-      theCoder_->update(fgfile_.fullPath().c_str(), true);
-    } 
+      theCoder->update(fgfile_.fullPath().c_str(), true);
+    }
   } else {
-    theCoder_->setAllLinear(linearLUTs_, linearLSB_QIE8_, linearLSB_QIE11_, linearLSB_QIE11Overlap_);
-    theCoder_->setLUTGenerationMode(LUTGenerationMode_);
-    theCoder_->setMaskBit(maskBit_);
-    theCoder_->setFGHFthreshold(FG_HF_threshold_);
-  }  
-  coder_=ReturnType(theCoder_);
+    theCoder->setAllLinear(linearLUTs_, linearLSB_QIE8_, linearLSB_QIE11_, linearLSB_QIE11Overlap_);
+    theCoder->setLUTGenerationMode(LUTGenerationMode_);
+    theCoder->setMaskBit(maskBit_);
+    theCoder->setFGHFthreshold(FG_HF_threshold_);
+  }
 }
-
 
 HcalTPGCoderULUT::~HcalTPGCoderULUT() {
   
@@ -135,7 +136,11 @@ HcalTPGCoderULUT::~HcalTPGCoderULUT() {
 HcalTPGCoderULUT::ReturnType
 HcalTPGCoderULUT::produce(const HcalTPGRecord& iRecord)
 {
-  if (theCoder_==nullptr || (read_Ascii_ || read_XML_)) {// !(read_Ascii_ || read_XML_) goes via dbRecordCallback
+  auto host = holder_.makeOrGet([]() {
+    return new HostType;
+  });
+
+  if (read_Ascii_ || read_XML_) {
     edm::ESHandle<HcalTopology> htopo;
     iRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
     const HcalTopology* topo=&(*htopo);
@@ -143,14 +148,18 @@ HcalTPGCoderULUT::produce(const HcalTPGRecord& iRecord)
     edm::ESHandle<HcalTimeSlew> delay;
     iRecord.getRecord<HcalDbRecord>().getRecord<HcalTimeSlewRecord>().get("HBHE", delay);
 
-    buildCoder(topo, delay);
+    buildCoder(topo, delay, host.get());
+  } else {
+    host->ifRecordChanges<HcalDbRecord>(iRecord,
+                                        [this,h=host.get()](auto const& rec) {
+      setupDBRecord(rec, h);
+    });
   }
-  
-
-  return coder_;
+  return host;
 }
 
-void HcalTPGCoderULUT::dbRecordCallback(const HcalDbRecord& theRec) {
+void HcalTPGCoderULUT::setupDBRecord(const HcalDbRecord& theRec,
+                                     HcaluLUTTPGCoder* theCoder) {
   edm::ESHandle<HcalDbService> conditions;
   theRec.get(conditions);
   edm::ESHandle<HcalTopology> htopo;
@@ -160,13 +169,13 @@ void HcalTPGCoderULUT::dbRecordCallback(const HcalDbRecord& theRec) {
   edm::ESHandle<HcalTimeSlew> delay;
   theRec.getRecord<HcalTimeSlewRecord>().get("HBHE", delay);
 
-  buildCoder(topo, delay);
+  buildCoder(topo, delay, theCoder);
 
-  theCoder_->update(*conditions);
+  theCoder->update(*conditions);
 
   // Temporary update for FG Lut
   // Will be moved to DB
-  if (read_FGLut_) theCoder_->update(fgfile_.fullPath().c_str(),true);
+  if (read_FGLut_) theCoder->update(fgfile_.fullPath().c_str(),true);
 }
 
 //define this as a plug-in

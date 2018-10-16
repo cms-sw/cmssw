@@ -50,6 +50,12 @@ public:
      return Rotation(m_eulerAngles); }
 
   Transform transform() const { return Transform( rotation(), translation() ) ; }  
+
+  // Implemented so this can be sorted by rawId
+  const bool operator < ( const AlignTransform & other ) const
+  {
+        return ( m_rawId < other.rawId() );
+  }
       
  private:
 

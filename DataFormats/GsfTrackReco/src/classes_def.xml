@@ -24,7 +24,8 @@
   <class name="edm::Ref<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra> >"/>
   <class name="edm::RefVector<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra> >"/>
 
-  <class name="reco::GsfTrack" ClassVersion="19">
+  <class name="reco::GsfTrack" ClassVersion="20">
+   <version ClassVersion="20" checksum="3090385640"/>
    <version ClassVersion="19" checksum="2111870580"/>
    <version ClassVersion="18" checksum="1193413886"/>
    <version ClassVersion="17" checksum="2463004588"/>

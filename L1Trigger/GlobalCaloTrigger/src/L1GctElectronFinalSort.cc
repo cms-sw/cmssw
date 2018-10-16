@@ -1,5 +1,4 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronFinalSort.h"
-
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmLeafCard.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -83,7 +82,7 @@ void L1GctElectronFinalSort::process(){
     }
 
     //Then sort it
-    sort(data.begin(),data.end(),rank_gt());
+    sort(data.begin(),data.end(),L1GctElectronSorter::rankByGt);
   
     //Copy data to output buffer
     std::vector<L1GctEmCand> temp(4);

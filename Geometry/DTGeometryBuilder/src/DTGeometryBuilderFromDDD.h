@@ -10,7 +10,7 @@
  */
 
 #include "DataFormats/GeometrySurface/interface/Plane.h"
-#include <memory>
+
 #include <vector>
 
 class DTGeometry;
@@ -31,7 +31,7 @@ class DTGeometryBuilderFromDDD {
     virtual ~DTGeometryBuilderFromDDD();
 
     // Operations
-    void build(std::shared_ptr<DTGeometry> theGeometry,
+    void build(DTGeometry& theGeometry,
                const DDCompactView* cview, 
                const MuonDDDConstants& muonConstants);
 
@@ -61,7 +61,7 @@ class DTGeometryBuilderFromDDD {
     RCPPlane plane(const DDFilteredView& fv, 
                    Bounds * bounds) const ;
 
-    void buildGeometry(const std::shared_ptr<DTGeometry>& theGeometry,
+    void buildGeometry(DTGeometry& theGeometry,
                        DDFilteredView& fv,
                        const MuonDDDConstants& muonConstants) const;
 
