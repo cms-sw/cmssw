@@ -61,7 +61,11 @@ hfreco = cms.EDProducer("HFPhase1Reconstructor",
         minChargeForOvershoot = cms.double(1.0e10),
 
         # Do not construct rechits with problems
-        rejectAllFailures = cms.bool(True)
+        rejectAllFailures = cms.bool(True),
+
+        # If False, calculate charge asymmetry only when both PMT
+        # anodes have "OK" status (or were mapped into "OK" status)
+        alwaysCalculateQAsymmetry = cms.bool(True)
     ),
 
     # Reconstruction algorithm data to fetch from DB, if any
