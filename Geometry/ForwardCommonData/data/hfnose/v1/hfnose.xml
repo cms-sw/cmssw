@@ -150,8 +150,8 @@
       hfnoseWafer:HFNoseWafer1Fine, hfnoseWafer:HFNoseWafer1Fine</Vector>
     <Vector name="MaterialNames" type="string" nEntries="9">
       materials:Polyethylene, materials:StainlessSteel, materials:Lead, 
-      materials:Copper,  materials:M_NEMA FR4 plate, materials:Silicon,
-      materials:StainlessSteel, hgcal:WCu, materials:Air</Vector>
+      materials:Copper,  hgcalMaterial:HGC_G10-FR4, materials:Silicon,
+      materials:StainlessSteel, hgcalMaterial:WCu, materials:Air</Vector>
     <Vector name="VolumeNames" type="string" nEntries="9">
       HFNoseModerator, HFNoseAbsorberCover, HFNoseAbsorber1, HFNoseHeatShield,
       HFNosePCB, HGCalHFNoseSensitive, HFNoseAbsorber2, HFNoseBasePlate,

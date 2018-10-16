@@ -56,7 +56,7 @@ HGCalGeometryESProducer::HGCalGeometryESProducer(const edm::ParameterSet& iConfi
 
   name_     = iConfig.getUntrackedParameter<std::string>("Name");
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") <<"constructing HGCalGeometry for " << name_ << std::endl;
+  edm::LogVerbatim("HGCalGeom") << "Constructing HGCalGeometry for " << name_;
 #endif
   setWhatProduced(this, name_);
 }
