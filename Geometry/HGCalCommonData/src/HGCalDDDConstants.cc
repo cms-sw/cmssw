@@ -246,33 +246,34 @@ double HGCalDDDConstants::cellSizeHex(int type) const {
   return cell;
 }
 
-int HGCalDDDConstants::cellType(int type, int cellU, int cellV) const {
+HGCalDDDConstants::CellType HGCalDDDConstants::cellType(int type, int cellU,
+							int cellV) const {
   // type=0: in the middle; 1..6: the edges clocwise from bottom left;
   //     =11..16: the corners clockwise from bottom
   int N = (type == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_;
   if (cellU == 0) {
-    if      (cellV == 0)         return 12;
-    else if (cellV-cellU == N-1) return 11;
-    else                         return 1;
+    if      (cellV == 0)         return BottomLeftCorner;
+    else if (cellV-cellU == N-1) return BottomCorner;
+    else                         return BottomLeftEdge;
   } else if (cellV == 0) {
-    if (cellU-cellV == N)        return 13;
-    else                         return 2;
+    if (cellU-cellV == N)        return TopLeftCorner;
+    else                         return LeftEdge;
   } else if (cellU-cellV == N) {
-    if (cellU == 2*N-1)          return 14;
-    else                         return 3;
+    if (cellU == 2*N-1)          return TopCorner;
+    else                         return TopLeftEdge;
   } else if (cellU == 2*N-1) {
-    if (cellV == 2*N-1)          return 15;
-    else                         return 4;
+    if (cellV == 2*N-1)          return TopRightCorner;
+    else                         return TopRightEdge;
   } else if (cellV == 2*N-1) {
-    if (cellV-cellU == N-1)      return 16;
-    else                         return 5;
+    if (cellV-cellU == N-1)      return BottomRightCorner;
+    else                         return RightEdge;
   } else if (cellV-cellU == N-1) {
-    return 6;
+    return BottomRightEdge;
   } else if ((cellU > 2*N-1) || (cellV > 2*N-1) || (cellV >= (cellU+N)) ||
 	     (cellU > (cellV+N))) {
-    return -1;
+    return UndefinedType;
   } else {
-    return 0;
+    return CentralType;
   }
 }
 
