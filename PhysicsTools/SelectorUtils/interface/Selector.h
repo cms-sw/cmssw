@@ -17,15 +17,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Common/interface/EventBase.h"
 #include <fstream>
-#include <functional>
 
 /// Functor that operates on <T>
 template<class T>
-class Selector : public std::binary_function<T, pat::strbitset, bool>  {
+class Selector {
 
  public:
   typedef T                                            data_type;
-  typedef std::binary_function<T,pat::strbitset,bool>  base_type;
   typedef pat::strbitset::index_type                   index_type;
   typedef std::pair<index_type, size_t>                cut_flow_item;
   typedef std::vector<cut_flow_item>                   cut_flow_map;

@@ -30,60 +30,44 @@
 
 // forward declarations
 namespace edm {
-   namespace eventsetup {
-      namespace heterocontainer {
+  namespace eventsetup {
+    namespace heterocontainer {
 
-         using typelookup::className;
+      using typelookup::className;
 
-         class HCTypeTag : public TypeIDBase {
-            // ---------- friend classes and functions ---------------
-         public:
-            // ---------- constants, enums and typedefs --------------
+      class HCTypeTag : public TypeIDBase {
+      public:
 
-            // ---------- Constructors and destructor ----------------
-            HCTypeTag() : m_name("") {}
-            //virtual ~HCTypeTag();
+        HCTypeTag() = default;
 
-            // ---------- member functions ---------------------------
+        // ---------- member functions ---------------------------
 
-            // ---------- const member functions ---------------------
-            std::type_info const& value() const { return typeInfo(); }
-            char const* name() const { return m_name; }
+        // ---------- const member functions ---------------------
+        std::type_info const& value() const { return typeInfo(); }
+        char const* name() const { return m_name; }
 
-            ///find a type based on the types name, if not found will return default HCTypeTag
-            static HCTypeTag findType(char const* iTypeName);
-            static HCTypeTag findType(std::string const& iTypeName);
+        ///find a type based on the types name, if not found will return default HCTypeTag
+        static HCTypeTag findType(char const* iTypeName);
+        static HCTypeTag findType(std::string const& iTypeName);
 
-            template <typename T>
-            static HCTypeTag make() {
-               return HCTypeTag(typelookup::classTypeInfo<T>(),typelookup::className<T>());
-            }
+        template <typename T>
+        static HCTypeTag make() {
+          return HCTypeTag(typelookup::classTypeInfo<T>(),typelookup::className<T>());
+        }
 
-         protected:
-            // ---------- protected member functions -----------------
-            HCTypeTag(std::type_info const& iValue, char const* iName) :
-            TypeIDBase(iValue), m_name(iName) {}
+      protected:
+        // ---------- protected member functions -----------------
+        HCTypeTag(std::type_info const& iValue, char const* iName) :
+          TypeIDBase(iValue), m_name(iName) {}
 
-            HCTypeTag(TypeIDBase const& iValue, const char* iName) :
-            TypeIDBase(iValue), m_name(iName) {}
+        HCTypeTag(TypeIDBase const& iValue, const char* iName) :
+          TypeIDBase(iValue), m_name(iName) {}
 
-            // ---------- protected const member functions -----------
-
-            // ---------- protected static member functions ----------
-
-         private:
-            // ---------- Constructors and destructor ----------------
-            //HCTypeTag(HCTypeTag const&); // use default
-
-            // ---------- assignment operator(s) ---------------------
-            //HCTypeTag const& operator=(HCTypeTag const&); // use default
-
-
-            // ---------- data members -------------------------------
-            char const* m_name;
-         };
-      }
-   }
+      private:
+        char const* m_name{""};
+      };
+    }
+  }
 }
 #define HCTYPETAG_HELPER_METHODS(_dataclass_) TYPELOOKUP_METHODS(_dataclass_)
 

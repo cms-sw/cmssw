@@ -85,12 +85,12 @@ JetAnalyzer_HeavyIons::JetAnalyzer_HeavyIons(const edm::ParameterSet& iConfig) :
     mRhoMDist_vsEta=nullptr;
     mRhoDist_vsPt=nullptr;
     mRhoMDist_vsPt=nullptr;
-    //mRhoDist_vsCent=0;
-    //mRhoMDist_vsCent=0;
 
     rhoEtaRange=nullptr;
     for(int ieta=0; ieta<etaBins_; ieta++){
 	mCSCandpT_vsPt[ieta]=nullptr;
+        mRhoDist_vsCent[ieta]=nullptr;
+        mRhoMDist_vsCent[ieta]=nullptr;
 	for(int ipt=0; ipt<ptBins_; ipt++){
 		mSubtractedEFrac[ipt][ieta]=nullptr;
 		mSubtractedE[ipt][ieta]=nullptr;
@@ -183,14 +183,17 @@ void JetAnalyzer_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
   TH2F *h2D_etabins_vs_pt2 = new TH2F("h2D_etabins_vs_pt2",";#eta;sum p_{T}^{2}",etaBins_,edge_pseudorapidity,10000,0,10000);
   TH2F *h2D_etabins_vs_pt = new TH2F("h2D_etabins_vs_pt",";#eta;sum p_{T}",etaBins_,edge_pseudorapidity,500,0,500);
   TH2F *h2D_pfcand_etabins_vs_pt = new TH2F("h2D_etabins_vs_pt",";#eta;sum p_{T}",etaBins_,edge_pseudorapidity,300, 0, 300);
- 
-  TH2F *h2D_etabins_forRho = new TH2F("etabinsForRho","",etaBins_, edge_pseudorapidity, 500,0,300);
-  TH2F *h2D_ptBins_forRho = new TH2F("ptBinsForRho","",300,0,300,500,0,300);
-  TH2F *h2D_centBins_forRho = new TH2F("centBinsForRho","",200,0,200,500,0,300);
 
-  TH2F *h2D_etabins_forRhoM = new TH2F("etabinsForRho","",etaBins_, edge_pseudorapidity, 100,0,1.5);
-  TH2F *h2D_ptBins_forRhoM = new TH2F("ptBinsForRho","",300,0,300,100,0,1.5);
-  //TH2F *h2D_centBins_forRhoM = new TH2F("centBinsForRho","",200,0,200,100,0,1.5);
+  const int nHihfBins = 100;
+  const double hihfBins[nHihfBins+1] = {0, 11.282305, 11.82962, 12.344717, 13.029054, 13.698554, 14.36821, 15.140326, 15.845786, 16.684441, 17.449186, 18.364939, 19.247023, 20.448898, 21.776642, 22.870239, 24.405788, 26.366919, 28.340206, 30.661842, 33.657627, 36.656773, 40.028049, 44.274784, 48.583706, 52.981358, 56.860199, 61.559853, 66.663689, 72.768196, 78.265915, 84.744431, 92.483459, 100.281021, 108.646576, 117.023911, 125.901093, 135.224899, 147.046875, 159.864258, 171.06015, 184.76535, 197.687103, 212.873535, 229.276413, 245.175369, 262.498322, 280.54599, 299.570801, 317.188446, 336.99881, 357.960144, 374.725922, 400.638367, 426.062103, 453.07251, 483.99704, 517.556396, 549.421143, 578.050781, 608.358643, 640.940979, 680.361755, 719.215027, 757.798645, 793.882385, 839.83728, 887.268127, 931.233276, 980.856689, 1023.191833, 1080.281494, 1138.363892, 1191.303345, 1251.439453, 1305.288818, 1368.290894, 1433.700684, 1501.597412, 1557.918335, 1625.636475, 1695.08374, 1761.771484, 1848.941162, 1938.178345, 2027.55603, 2127.364014, 2226.186523, 2315.188965, 2399.225342, 2501.608643, 2611.077881, 2726.316162, 2848.74707, 2972.975342, 3096.565674, 3219.530762, 3361.178223, 3568.028564, 3765.690186, 50000}; 
+
+  TH2F *h2D_etabins_forRho = new TH2F("etabinsForRho","#rho vs. #eta;#eta;#rho",etaBins_, edge_pseudorapidity, 500,0,300);
+  TH2F *h2D_ptBins_forRho = new TH2F("ptBinsForRho","#rho vs. p_{T};p_{T};#rho",300,0,300,500,0,300);
+  TH2F *h2D_centBins_forRho = new TH2F("centBinsForRho","dummy;HIHF;#rho",nHihfBins,hihfBins,500,0,300);
+
+  TH2F *h2D_etabins_forRhoM = new TH2F("etabinsForRho","#rho_{M} vs. #eta;#eta;#rho_{M}",etaBins_, edge_pseudorapidity, 100,0,1.5);
+  TH2F *h2D_ptBins_forRhoM = new TH2F("ptBinsForRho","#rho_{M} vs. p_{T};p_{T};#rho_{M}",300,0,300,100,0,1.5);
+  TH2F *h2D_centBins_forRhoM = new TH2F("centBinsForRho","dummy;HIHF;#rho_{M}",nHihfBins,hihfBins,100,0,1.5);
   
   if(isPFJet){
 
@@ -225,13 +228,24 @@ void JetAnalyzer_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
 	    mRhoMDist_vsEta= ibooker.book2D("rhoMDist_vsEta",h2D_etabins_forRhoM);
 	    mRhoDist_vsPt= ibooker.book2D("rhoDist_vsPt",h2D_ptBins_forRho);
 	    mRhoMDist_vsPt= ibooker.book2D("rhoMDist_vsPt",h2D_ptBins_forRhoM);
-	    //mRhoDist_vsCent=ibooker.book2D("rhoDist_vsCent",h2D_centBins_forRho);
-	    //mRhoMDist_vsCent=ibooker.book2D("rhoMDist_vsCent",h2D_centBins_forRhoM);
 
 	    //this is kind of a janky way to fill the eta since i can't get it from the edm::Event here... - kjung
 	    rhoEtaRange=ibooker.book1D("rhoEtaRange","",500,-5.5,5.5);
 	    for(int ieta=0; ieta<etaBins_; ieta++){ 
 		    mCSCandpT_vsPt[ieta]=ibooker.book1D(Form("csCandPt_etaBin%d",ieta),"CS candidate pt, eta-by-eta",150,0,300);
+
+	            const char* lc = edge_pseudorapidity[ieta]<0 ? "n":"p";
+	            const char* rc = edge_pseudorapidity[ieta+1]<0 ? "n":"p";
+	            std::string histoName = Form("Dist_vsCent_%s%.3g_%s%.3g",lc,abs(edge_pseudorapidity[ieta]),rc,abs(edge_pseudorapidity[ieta+1]));
+	            for(int id=0; id<2; id++){ if(histoName.find(".")!=std::string::npos){ histoName.replace(histoName.find("."), 1, "p"); } }
+                    std::string rhoName = "rho";
+                    rhoName.append(histoName);
+                    h2D_centBins_forRho->SetTitle(Form("#rho vs. HIHF in the range %.3g < #eta < %.3g",edge_pseudorapidity[ieta],edge_pseudorapidity[ieta+1]));
+	            mRhoDist_vsCent[ieta] = ibooker.book2D(rhoName.c_str(),h2D_centBins_forRho);
+                    std::string rhoMName = "rhoM";
+                    rhoMName.append(histoName);
+                    h2D_centBins_forRhoM->SetTitle(Form("#rho_{M} vs. HIHF in the range %.3g < #eta < %.3g",edge_pseudorapidity[ieta],edge_pseudorapidity[ieta+1]));
+	            mRhoMDist_vsCent[ieta] = ibooker.book2D(rhoMName.c_str(),h2D_centBins_forRhoM);
 		    for(int ipt=0; ipt<ptBins_; ipt++){
 			    mSubtractedEFrac[ipt][ieta]= ibooker.book1D(Form("subtractedEFrac_JetPt%d_to_%d_etaBin%d",ptBin[ipt],ptBin[ipt+1],ieta),"subtracted fraction of CS jet",50,0,1);
 			    mSubtractedE[ipt][ieta]= ibooker.book1D(Form("subtractedE_JetPt%d_to_%d_etaBin%d",ptBin[ipt],ptBin[ipt+1],ieta),"subtracted total of CS jet",300,0,300);
@@ -335,6 +349,7 @@ void JetAnalyzer_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
   delete h2D_etabins_forRho;
   delete h2D_ptBins_forRho;
   delete h2D_centBins_forRho;
+  delete h2D_centBins_forRhoM;
 
 }
 
@@ -818,8 +833,8 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
 			mRhoMDist_vsEta->Fill(recoJets[ijet].eta(), rhom->at(irho));
 			mRhoDist_vsPt->Fill(recoJets[ijet].pt(), rho->at(irho));
                         mRhoMDist_vsPt->Fill(recoJets[ijet].pt(), rhom->at(irho));
-			//if(ijet==0) mRhoDist_vsCent->Fill(*cbin, rho->at(irho));
-			//if(ijet==0) mRhoMDist_vsCent->Fill(*cbin, rhom->at(irho));
+			mRhoDist_vsCent[ieta]->Fill(HF_energy, rho->at(irho));
+			mRhoMDist_vsCent[ieta]->Fill(HF_energy, rhom->at(irho));
 		}
 	}
 

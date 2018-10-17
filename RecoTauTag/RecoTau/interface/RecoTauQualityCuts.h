@@ -19,9 +19,6 @@
  *
  */
 
-#include <boost/function.hpp>
-#include <boost/foreach.hpp>
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
@@ -29,15 +26,17 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
+#include <functional>
+
 namespace reco { namespace tau {
 
 class RecoTauQualityCuts 
 {
  public:
   // Quality cut types
-  typedef boost::function<bool (const TrackBaseRef&)> TrackQCutFunc;  
+  typedef std::function<bool (const TrackBaseRef&)> TrackQCutFunc;
   typedef std::vector<TrackQCutFunc> TrackQCutFuncCollection;
-  typedef boost::function<bool (const Candidate&)> CandQCutFunc;  
+  typedef std::function<bool (const Candidate&)> CandQCutFunc;
   typedef std::vector<CandQCutFunc> CandQCutFuncCollection;
   typedef std::map<int, CandQCutFuncCollection> CandQCutFuncMap;
   
@@ -66,7 +65,7 @@ class RecoTauQualityCuts
   Coll filterTracks(const Coll& coll, bool invert = false) const 
   {
     Coll output;
-    BOOST_FOREACH( const typename Coll::value_type track, coll ) {
+    for(auto const& track : coll ) {
       if ( filterTrack(track)^invert ) output.push_back(track);
     }
     return output;
@@ -84,7 +83,7 @@ class RecoTauQualityCuts
   Coll filterCandRefs(const Coll& refcoll, bool invert = false) const 
   {
     Coll output;
-    BOOST_FOREACH( const typename Coll::value_type cand, refcoll ) {
+    for(auto const& cand : refcoll ) {
       if ( filterCandRef(cand)^invert ) output.push_back(cand);
     }
     return output;
