@@ -28,9 +28,9 @@ namespace pat {
     void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   private:
     edm::EDGetTokenT<edm::View<pat::Jet> > jetsrc_;
-    double PtThreshold_;
-    double MinEtaThreshold_;
-    double MaxEtaThreshold_;
+    double ptThreshold_;
+    double minEtaThreshold_;
+    double maxEtaThreshold_;
     bool userawPt_;
   };
 }
@@ -38,9 +38,9 @@ namespace pat {
 
 pat::BadPFCandidateJetsEEnoiseProducer::BadPFCandidateJetsEEnoiseProducer(const edm::ParameterSet& iConfig) :
   jetsrc_(consumes<edm::View<pat::Jet> >(iConfig.getParameter<edm::InputTag>("jetsrc") )),
-  PtThreshold_(iConfig.getParameter<double>("PtThreshold")),
-  MinEtaThreshold_(iConfig.getParameter<double>("MinEtaThreshold")),
-  MaxEtaThreshold_(iConfig.getParameter<double>("MaxEtaThreshold")),
+  ptThreshold_(iConfig.getParameter<double>("ptThreshold")),
+  minEtaThreshold_(iConfig.getParameter<double>("minEtaThreshold")),
+  maxEtaThreshold_(iConfig.getParameter<double>("maxEtaThreshold")),
   userawPt_(iConfig.getParameter<bool>("userawPt"))
 {
   
@@ -66,10 +66,10 @@ void pat::BadPFCandidateJetsEEnoiseProducer::produce(edm::StreamID, edm::Event& 
     edm::Ptr<pat::Jet> candjet = jetcandidates->ptrAt(jetindex);
 
     // Corrected Pt or Uncorrected Pt (It is defined from cfi file)
-    double PtJet = userawPt_ ? candjet->correctedJet("Uncorrected").pt() : candjet->pt();
-    double AbsEtaJet = std::abs(candjet->eta());
+    double ptJet = userawPt_ ? candjet->correctedJet("Uncorrected").pt() : candjet->pt();
+    double absEtaJet = std::abs(candjet->eta());
     
-    if ( PtJet > PtThreshold_ || AbsEtaJet < MinEtaThreshold_ || AbsEtaJet > MaxEtaThreshold_) {
+    if ( ptJet > ptThreshold_ || absEtaJet < minEtaThreshold_ || absEtaJet > maxEtaThreshold_) {
       // save good jets
       goodJets->emplace_back(candjet);
     }
@@ -88,9 +88,9 @@ void pat::BadPFCandidateJetsEEnoiseProducer::fillDescriptions(edm::Configuration
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("jetsrc",edm::InputTag("slimmedJets"));
   desc.add<bool>("userawPt",true);
-  desc.add<double>("PtThreshold",75.0);
-  desc.add<double>("MinEtaThreshold",2.65);
-  desc.add<double>("MaxEtaThreshold",3.139);
+  desc.add<double>("ptThreshold",75.0);
+  desc.add<double>("minEtaThreshold",2.65);
+  desc.add<double>("maxEtaThreshold",3.139);
 
   descriptions.add("BadPFCandidateJetsEEnoiseProducer",desc);
 }
