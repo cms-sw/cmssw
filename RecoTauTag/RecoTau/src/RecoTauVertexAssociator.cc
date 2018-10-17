@@ -129,7 +129,7 @@ const reco::TrackBaseRef RecoTauVertexAssociator::getLeadTrackRef(const Jet& jet
 namespace {
   // Define functors which extract the relevant information from a collection of
   // vertices.
-  double dzToTrack(const reco::VertexRef& vtx, const reco::TrackBaseRef& trk)
+  double dzToTrack(const reco::VertexRef& vtx, const reco::Track* trk)
   {
     if ( !trk || !vtx ) {
       return std::numeric_limits<double>::infinity();
@@ -343,7 +343,7 @@ RecoTauVertexAssociator::associatedVertex(const TrackBaseRef& track) const
 	int idxVertex = 0;
 	for ( std::vector<reco::VertexRef>::const_iterator selectedVertex = selectedVertices_.begin();
 	      selectedVertex != selectedVertices_.end(); ++selectedVertex ) {
-	  double dZ = dzToTrack(*selectedVertex, track);
+	  double dZ = dzToTrack(*selectedVertex, track.get());
 	  if ( verbosity_ ) {
 	    std::cout << "vertex #" << idxVertex << ": x = " << (*selectedVertex)->position().x() << ", y = " << (*selectedVertex)->position().y() << ", z = " << (*selectedVertex)->position().z() 
 		      << " --> dZ = " << dZ << std::endl;
