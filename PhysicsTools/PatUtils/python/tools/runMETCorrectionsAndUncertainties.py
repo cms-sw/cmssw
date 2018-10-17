@@ -89,8 +89,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                           "Technical parameter to identify the resulting sequence and its modules (allows multiple calls in a job)", Type=str)
         self.addParameter(self._defaultParameters,'fixEE2017', False,
                           "Exclude jets and PF candidates with EE noise characteristics (fix for 2017 run)", Type=bool)
-        self.addParameter(self._defaultParameters,'fixEE2017Params', {'userawPt': True, 'PtThreshold': 50.0, 'MinEtaThreshold': 2.65, 'MaxEtaThreshold': 3.139},
-                          "Parameters dict for fixEE2017: userawPt, PtThreshold, MinEtaThreshold, MaxEtaThreshold", Type=dict)
+        self.addParameter(self._defaultParameters,'fixEE2017Params', {'userawPt': True, 'ptThreshold': 50.0, 'minEtaThreshold': 2.65, 'maxEtaThreshold': 3.139},
+                          "Parameters dict for fixEE2017: userawPt, ptThreshold, minEtaThreshold, maxEtaThreshold", Type=dict)
 
         #private parameters
         self.addParameter(self._defaultParameters, 'Puppi', False,
@@ -1780,15 +1780,15 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         task = getPatAlgosToolsTask(process)
 
-        PFCandidateJetsWithEEnoise = cms.EDProducer("BadPFCandidateJetsEEnoiseProducer",
+        pfCandidateJetsWithEEnoise = cms.EDProducer("BadPFCandidateJetsEEnoiseProducer",
             jetsrc = jets,
             userawPt = cms.bool(params["userawPt"]),
-            PtThreshold = cms.double(params["PtThreshold"]),
-            MinEtaThreshold = cms.double(params["MinEtaThreshold"]),
-            MaxEtaThreshold = cms.double(params["MaxEtaThreshold"]),
+            ptThreshold = cms.double(params["ptThreshold"]),
+            minEtaThreshold = cms.double(params["minEtaThreshold"]),
+            maxEtaThreshold = cms.double(params["maxEtaThreshold"]),
         )
-        addToProcessAndTask("PFCandidateJetsWithEEnoise"+postfix, PFCandidateJetsWithEEnoise, process, task)
-        patMetModuleSequence += getattr(process,"PFCandidateJetsWithEEnoise"+postfix)
+        addToProcessAndTask("pfCandidateJetsWithEEnoise"+postfix, pfCandidateJetsWithEEnoise, process, task)
+        patMetModuleSequence += getattr(process,"pfCandidateJetsWithEEnoise"+postfix)
         pfcandidateClustered = cms.EDProducer("CandViewMerger",
             src = cms.VInputTag(goodcolls+[jets])
         )
@@ -1802,7 +1802,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         patMetModuleSequence += getattr(process,"pfcandidateForUnclusteredUnc"+postfix)
         badUnclustered = cms.EDFilter("CandPtrSelector",
             src = cms.InputTag("pfcandidateForUnclusteredUnc"+postfix),
-            cut = cms.string("abs(eta) > "+str(params["MinEtaThreshold"])+" && abs(eta) < "+str(params["MaxEtaThreshold"])),
+            cut = cms.string("abs(eta) > "+str(params["minEtaThreshold"])+" && abs(eta) < "+str(params["maxEtaThreshold"])),
         )
         addToProcessAndTask("badUnclustered"+postfix, badUnclustered, process, task)
         patMetModuleSequence += getattr(process,"badUnclustered"+postfix)
@@ -1814,7 +1814,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         superbad = cms.EDProducer("CandViewMerger",
             src = cms.VInputTag(
                 cms.InputTag("blobUnclustered"+postfix),
-                cms.InputTag("PFCandidateJetsWithEEnoise"+postfix,"bad"),
+                cms.InputTag("pfCandidateJetsWithEEnoise"+postfix,"bad"),
             )
         )
         addToProcessAndTask("superbad"+postfix, superbad, process, task)
@@ -1826,7 +1826,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         addToProcessAndTask("pfCandidatesGoodEE2017"+postfix, pfCandidatesGoodEE2017, process, task)
         patMetModuleSequence += getattr(process,"pfCandidatesGoodEE2017"+postfix)
         # return good cands and jets
-        return (cms.InputTag("pfCandidatesGoodEE2017"+postfix), cms.InputTag("PFCandidateJetsWithEEnoise"+postfix,"good"))
+        return (cms.InputTag("pfCandidatesGoodEE2017"+postfix), cms.InputTag("pfCandidateJetsWithEEnoise"+postfix,"good"))
 
 #========================================================================================
 runMETCorrectionsAndUncertainties = RunMETCorrectionsAndUncertainties()
