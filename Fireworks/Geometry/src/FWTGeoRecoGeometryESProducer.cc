@@ -258,12 +258,12 @@ FWTGeoRecoGeometryESProducer::GetMedium(ERecoDet det)
 
 
 
-std::shared_ptr<FWTGeoRecoGeometry> 
+std::unique_ptr<FWTGeoRecoGeometry> 
 FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
 {
    using namespace edm;
 
-   m_fwGeometry = std::make_shared<FWTGeoRecoGeometry>();
+   auto fwTGeoRecoGeometry = std::make_unique<FWTGeoRecoGeometry>();
   
    if( m_calo ) {
      edm::ESHandle<CaloGeometry> caloH;
@@ -277,7 +277,7 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
       gGeoIdentity = new TGeoIdentity( "Identity" );
    }
 
-   m_fwGeometry->manager( geom );
+   fwTGeoRecoGeometry->manager( geom );
   
    // Default material is Vacuum
    TGeoMaterial *vacuum = new TGeoMaterial( "Vacuum", 0 ,0 ,0 );
@@ -287,7 +287,7 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
   
    if( nullptr == top )
    {
-      return std::shared_ptr<FWTGeoRecoGeometry>();
+      return std::unique_ptr<FWTGeoRecoGeometry>();
    }
    geom->SetTopVolume( top );
    // ROOT chokes unless colors are assigned
@@ -342,7 +342,7 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
    // printf("==== geo manager NNodes = %d \n", geom->GetNNodes());
    geom->CloseGeometry();
 
-   return m_fwGeometry;
+   return fwTGeoRecoGeometry;
 }
 
 /** Create TGeo shape for GeomDet */
