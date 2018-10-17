@@ -20,7 +20,7 @@ class  MTDParametersESModule: public edm::ESProducer
   MTDParametersESModule( const edm::ParameterSet & );
   ~MTDParametersESModule( void ) override;
 
-  typedef std::shared_ptr<PMTDParameters> ReturnType;
+  using ReturnType = std::unique_ptr<PMTDParameters>;
 
   static void fillDescriptions( edm::ConfigurationDescriptions & );
   

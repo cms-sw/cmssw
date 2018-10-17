@@ -25,7 +25,7 @@ GlobalTrackingGeometryESProducer::GlobalTrackingGeometryESProducer(const edm::Pa
 
 GlobalTrackingGeometryESProducer::~GlobalTrackingGeometryESProducer(){}
 
-std::shared_ptr<GlobalTrackingGeometry>
+std::unique_ptr<GlobalTrackingGeometry>
 GlobalTrackingGeometryESProducer::produce(const GlobalTrackingGeometryRecord& record) {
 
   TrackerGeometry const* tk = nullptr;
@@ -107,7 +107,7 @@ GlobalTrackingGeometryESProducer::produce(const GlobalTrackingGeometryRecord& re
   }
 
   GlobalTrackingGeometryBuilder builder;
-  return std::shared_ptr<GlobalTrackingGeometry>(builder.build(tk, mtd, dt, csc, rpc, gem, me0));
+  return std::unique_ptr<GlobalTrackingGeometry>(builder.build(tk, mtd, dt, csc, rpc, gem, me0));
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(GlobalTrackingGeometryESProducer);

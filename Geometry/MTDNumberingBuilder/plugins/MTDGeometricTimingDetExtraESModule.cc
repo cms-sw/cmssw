@@ -29,9 +29,9 @@ MTDGeometricTimingDetExtraESModule::MTDGeometricTimingDetExtraESModule(const edm
 
 MTDGeometricTimingDetExtraESModule::~MTDGeometricTimingDetExtraESModule() {}
 
-std::shared_ptr<std::vector<GeometricTimingDetExtra> >
+std::unique_ptr<std::vector<GeometricTimingDetExtra> >
 MTDGeometricTimingDetExtraESModule::produce(const IdealGeometryRecord & iRecord) {
-  auto gde = std::make_shared<std::vector<GeometricTimingDetExtra> >();
+  auto gde = std::make_unique<std::vector<GeometricTimingDetExtra> >();
   // get the GeometricTimingDet which has a nav_type
   edm::ESHandle<GeometricTimingDet> gd;
   iRecord.get ( gd );
@@ -144,7 +144,7 @@ MTDGeometricTimingDetExtraESModule::produce(const IdealGeometryRecord & iRecord)
 				       , pgde.material_, nm));
     }
   }
-  return std::shared_ptr<std::vector<GeometricTimingDetExtra> >(gde);
+  return gde;
 }
 
 void MTDGeometricTimingDetExtraESModule::putOne(std::vector<GeometricTimingDetExtra> & gde, const GeometricTimingDet* gd, const DDExpandedView& ev, int lev ) {
