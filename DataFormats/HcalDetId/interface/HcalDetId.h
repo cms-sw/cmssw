@@ -13,22 +13,22 @@
 class HcalDetId : public DetId {
 
 public:
-  static const int kHcalPhiMask1       = 0x7F;
-  static const int kHcalPhiMask2       = 0x3FF;
-  static const int kHcalEtaOffset1     = 7;
-  static const int kHcalEtaOffset2     = 10;
-  static const int kHcalEtaMask1       = 0x3F;
-  static const int kHcalEtaMask2       = 0x1FF;
-  static const int kHcalZsideMask1     = 0x2000;
-  static const int kHcalZsideMask2     = 0x80000;
-  static const int kHcalDepthOffset1   = 14;
-  static const int kHcalDepthOffset2   = 20;
-  static const int kHcalDepthMask1     = 0x1F;
-  static const int kHcalDepthMask2     = 0xF;
-  static const int kHcalDepthSet1      = 0x1C000;
-  static const int kHcalDepthSet2      = 0xF00000;
-  static const int kHcalIdFormat2      = 0x1000000;
-  static const int kHcalIdMask         = 0xFE000000;
+  static constexpr uint32_t kHcalPhiMask1       = 0x7F;
+  static constexpr uint32_t kHcalPhiMask2       = 0x3FF;
+  static constexpr uint32_t kHcalEtaOffset1     = 7;
+  static constexpr uint32_t kHcalEtaOffset2     = 10;
+  static constexpr uint32_t kHcalEtaMask1       = 0x3F;
+  static constexpr uint32_t kHcalEtaMask2       = 0x1FF;
+  static constexpr uint32_t kHcalZsideMask1     = 0x2000;
+  static constexpr uint32_t kHcalZsideMask2     = 0x80000;
+  static constexpr uint32_t kHcalDepthOffset1   = 14;
+  static constexpr uint32_t kHcalDepthOffset2   = 20;
+  static constexpr uint32_t kHcalDepthMask1     = 0x1F;
+  static constexpr uint32_t kHcalDepthMask2     = 0xF;
+  static constexpr uint32_t kHcalDepthSet1      = 0x1C000;
+  static constexpr uint32_t kHcalDepthSet2      = 0xF00000;
+  static constexpr uint32_t kHcalIdFormat2      = 0x1000000;
+  static constexpr uint32_t kHcalIdMask         = 0xFE000000;
 
 public:
   /** Create a null cellid*/
@@ -104,19 +104,23 @@ public:
     if (rawid == id_) return true;
     int zsid{0}, eta{0}, phi{0}, dep{0};
     unpackId(rawid, zsid, eta, phi, dep);
-    bool result = (((id_&kHcalIdMask) == (rawid&kHcalIdMask)) && (zsid==zside())
-       && (eta==ietaAbs()) && (phi==iphi()) && (dep==depth()));
+    bool result = (((id_&kHcalIdMask) == (rawid&kHcalIdMask)) && 
+		   (zsid==zside()) && (eta==ietaAbs()) && (phi==iphi()) &&
+		   (dep==depth()));
     return result;
   }
+
   constexpr bool operator!=(DetId gen) const {
     uint32_t rawid = gen.rawId();
     if (rawid == id_) return false;
     int zsid{0}, eta{0}, phi{0}, dep{0};
     unpackId(rawid, zsid, eta, phi, dep);
-    bool result = (((id_&kHcalIdMask)!=(rawid&kHcalIdMask)) || (zsid!=zside())
-      || (eta!=ietaAbs()) || (phi!=iphi()) || (dep!=depth()));
+    bool result = (((id_&kHcalIdMask)!=(rawid&kHcalIdMask)) ||
+		   (zsid!=zside()) || (eta!=ietaAbs()) || 
+		   (phi!=iphi()) || (dep!=depth()));
     return result;
   }
+
   constexpr bool operator<(DetId gen) const {
     uint32_t rawid = gen.rawId();
     if ((rawid&kHcalIdFormat2)==(id_&kHcalIdFormat2)) {
@@ -126,13 +130,13 @@ public:
       unpackId(rawid, zsid, eta, phi, dep);
       rawid &= kHcalIdMask;
       if (oldFormat()) {
-        rawid |= ((dep&kHcalDepthMask1)<<kHcalDepthOffset1) |
-    ((zsid>0)?(kHcalZsideMask1|(eta<<kHcalEtaOffset1)):((eta)<<kHcalEtaOffset1)) |
-    (phi&kHcalPhiMask1);
+        rawid |= (((dep&kHcalDepthMask1)<<kHcalDepthOffset1) |
+		  ((zsid>0)?(kHcalZsideMask1|(eta<<kHcalEtaOffset1)):((eta)<<kHcalEtaOffset1)) |
+		  (phi&kHcalPhiMask1));
       } else {
-        rawid |= (kHcalIdFormat2) | ((dep&kHcalDepthMask2)<<kHcalDepthOffset2) |
-    ((zsid>0)?(kHcalZsideMask2|(eta<<kHcalEtaOffset2)):((eta)<<kHcalEtaOffset2)) |
-    (phi&kHcalPhiMask2);
+        rawid |= ((kHcalIdFormat2) | ((dep&kHcalDepthMask2)<<kHcalDepthOffset2) |
+		  ((zsid>0)?(kHcalZsideMask2|(eta<<kHcalEtaOffset2)):((eta)<<kHcalEtaOffset2)) |
+		  (phi&kHcalPhiMask2));
       }
       return (id_<rawid);
     }
@@ -200,9 +204,9 @@ public:
       int zsid{0}, eta{0}, phi{0}, dep{0};
       unpackId(rawid, zsid, eta, phi, dep);
       rawid    = inpid&kHcalIdMask;
-      rawid   |= (kHcalIdFormat2) | ((dep&kHcalDepthMask2)<<kHcalDepthOffset2) |
-        ((zsid>0)?(kHcalZsideMask2|(eta<<kHcalEtaOffset2)):((eta)<<kHcalEtaOffset2)) |
-        (phi&kHcalPhiMask2);
+      rawid   |= ((kHcalIdFormat2) | ((dep&kHcalDepthMask2)<<kHcalDepthOffset2) |
+		  ((zsid>0)?(kHcalZsideMask2|(eta<<kHcalEtaOffset2)):((eta)<<kHcalEtaOffset2)) |
+		  (phi&kHcalPhiMask2));
     }
     return rawid;
   }
@@ -215,7 +219,7 @@ public:
     unpackId(rawid, zsid, eta, phi, dep);
     if (subdet() == HcalForward && dep > 2) dep -= 2;
     bool result = ((zsid==zside()) && (eta==ietaAbs()) && (phi==iphi()) &&
-       (dep==hfdepth()));
+		   (dep==hfdepth()));
     return result;
   }
   constexpr HcalDetId baseDetId() const {

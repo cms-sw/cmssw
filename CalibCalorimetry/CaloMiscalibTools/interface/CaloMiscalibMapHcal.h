@@ -22,9 +22,9 @@ public:
 void prefillMap(const HcalTopology & topology){
 
   for (int det = 1; det <= HcalForward; det++) {
-    for (int eta = -HcalDetId::kHcalEtaMask2; eta <= HcalDetId::kHcalEtaMask2; eta++) {
-      for (int phi = 1; phi <= HcalDetId::kHcalPhiMask2; phi++) {
-	for (int depth = 1; depth <= HcalDetId::kHcalDepthMask2; depth++) {
+    for (int eta = -HcalDetId::kHcalEtaMask2; eta <= (int)(HcalDetId::kHcalEtaMask2); eta++) {
+      for (unsigned int phi = 1; phi <= HcalDetId::kHcalPhiMask2; phi++) {
+	for (unsigned int depth = 1; depth <= HcalDetId::kHcalDepthMask2; depth++) {
 
 	  try {
 	    HcalDetId hcaldetid ((HcalSubdetector) det, eta, phi, depth);
