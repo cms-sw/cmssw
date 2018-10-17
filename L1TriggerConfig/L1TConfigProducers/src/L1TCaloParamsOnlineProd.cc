@@ -91,8 +91,10 @@ std::map<std::string, l1t::Mask>& ) {
     "ETMET_maxTowerEta",
     "ET_energyCalibLUT",
     "ecalET_energyCalibLUT",
-    "METX_energyCalibLUT",
-    "METY_energyCalibLUT",
+    "MET_energyCalibLUT",
+    "METHF_energyCalibLUT",
+    "MET_phiCalibLUT",
+    "METHF_phiCalibLUT",
     "egammaRelaxationThreshold",
     "egammaMaxEta",
     "egammaEnergyCalibLUT",
@@ -164,7 +166,10 @@ std::map<std::string, l1t::Mask>& ) {
 
   paramsHelper.setEtSumEttCalibrationLUT    ( l1t::convertToLUT( conf["ET_energyCalibLUT"].getVector<int>() ) );
   paramsHelper.setEtSumEcalSumCalibrationLUT( l1t::convertToLUT( conf["ecalET_energyCalibLUT"].getVector<int>() ) );
-  paramsHelper.setEtSumXCalibrationLUT      ( l1t::convertToLUT( conf["METX_energyCalibLUT"].getVector<int>() ) );
+  paramsHelper.setMetCalibrationLUT      ( l1t::convertToLUT( conf["MET_energyCalibLUT"].getVector<int>() ) );
+  paramsHelper.setMetHFCalibrationLUT      ( l1t::convertToLUT( conf["METHF_energyCalibLUT"].getVector<int>() ) );
+  paramsHelper.setMetPhiCalibrationLUT      ( l1t::convertToLUT( conf["MET_phiCalibLUT"].getVector<int>() ) );
+  paramsHelper.setMetHFPhiCalibrationLUT      ( l1t::convertToLUT( conf["METHF_phiCalibLUT"].getVector<int>() ) );
 
   paramsHelper.setEgMaxPtHOverE((conf["egammaRelaxationThreshold"].getValue<int>())/2.);
   paramsHelper.setEgEtaCut((conf["egammaMaxEta"].getValue<int>()));

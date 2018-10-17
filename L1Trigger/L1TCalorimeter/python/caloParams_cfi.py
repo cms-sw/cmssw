@@ -122,15 +122,16 @@ caloParams = cms.ESProducer(
     etSumMetPUSType          = cms.string("None"),
     etSumEttPUSType          = cms.string("None"),
     etSumEcalSumPUSType      = cms.string("None"),
-    etSumXCalibrationType    = cms.string("None"),
-    etSumYCalibrationType    = cms.string("None"),
+    metCalibrationType    = cms.string("None"),
+    metHFCalibrationType    = cms.string("None"),
     etSumEttCalibrationType  = cms.string("None"),
     etSumEcalSumCalibrationType = cms.string("None"),
-    etSumXCalibrationLUTFile  = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt"),
-    etSumYCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt"),
+    metCalibrationLUTFile  = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt"),
+    metHFCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt"),
     etSumEttCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt"),
     etSumEcalSumCalibrationLUTFile   = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt"),
-
+    metPhiCalibrationLUTFile  = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt"),
+    metHFPhiCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_etSumPUS_dummy.txt"),
 
     # HI
     etSumCentralityLower =   cms.vdouble(0,200,400,600,800, 1000,1200,1400),
