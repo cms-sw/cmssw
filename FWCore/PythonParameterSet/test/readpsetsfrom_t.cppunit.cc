@@ -45,7 +45,7 @@ void testreadpsetsfrom::simpleTest()
                       "dummy =  cms.PSet(b = cms.bool(True))\n"
                       "foo = cms.PSet(a = cms.string('blah'))\n"
    ;
-   std::shared_ptr<edm::ParameterSet> test = edm::readPSetsFrom(kTest);
+   std::shared_ptr<edm::ParameterSet> test = edm::boost_python::readPSetsFrom(kTest);
    
    CPPUNIT_ASSERT(test->getParameterSet("dummy").getParameter<bool>("b")==true);
    CPPUNIT_ASSERT(test->getParameterSet("foo").getParameter<std::string>("a")==std::string("blah"));

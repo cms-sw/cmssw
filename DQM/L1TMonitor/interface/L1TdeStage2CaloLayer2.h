@@ -261,7 +261,11 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
     NMBHFSUMS,
     MBHFSUMGOOD,
     NTOWCOUNTS,
-    TOWCOUNTGOOD
+    TOWCOUNTGOOD,
+    NASYMCOUNTS,
+    ASYMCOUNTGOOD,
+    NCENTRCOUNTS,
+    CENTRCOUNTGOOD
   };
 
   // objects to represent individual plots shown in DQM
@@ -369,6 +373,18 @@ class L1TdeStage2CaloLayer2 : public DQMEDAnalyzer {
   // mismatched towercount sum
   MonitorElement * towCountData;
   MonitorElement * towCountEmul;
+
+  // mismatched assymetry
+  
+  MonitorElement * asymCountData;
+  MonitorElement * asymCountEmul;
+
+  // mismatched centrality
+     
+  MonitorElement * centrCountData;
+  MonitorElement * centrCountEmul;
+
+
 
   bool verbose;
   bool enable2DComp; // Default value is false. Set to true in the configuration file for enabling 2D eta-phi histograms

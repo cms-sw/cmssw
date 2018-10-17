@@ -2,7 +2,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauVertexAssociator.h"
-#include <boost/foreach.hpp>
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 /* class PFRecoTauDiscriminationByNProngs
@@ -59,7 +58,7 @@ double PFRecoTauDiscriminationByNProngs::discriminate(const PFTauRef& tau) const
 	    qcuts_->setPV(pv);
 	    qcuts_->setLeadTrack(*tau->leadChargedHadrCand());
 
-	    BOOST_FOREACH( const reco::CandidatePtr& cand, tau->signalChargedHadrCands() ) {
+	    for(auto const& cand : tau->signalChargedHadrCands() ) {
 	        if ( qcuts_->filterCandRef(cand) ) np++;
  	    }
 	}

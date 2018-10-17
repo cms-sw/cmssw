@@ -40,7 +40,7 @@ CmsMTDDiscBuilder::sortNS( DDFilteredView& fv, GeometricTimingDet* det )
 
   switch(det->components().front()->type()){
   case GeometricTimingDet::ETLRing:
-    std::stable_sort(comp.begin(),comp.end(),LessR_module());
+    std::stable_sort(comp.begin(),comp.end(),isLessRModule);
     break;
   default:
     edm::LogError("CmsMTDDiscBuilder")<<"ERROR - wrong SubDet to sort..... "<<det->components().front()->type();

@@ -14,36 +14,13 @@
 using namespace btag;
 
 namespace {
-	template<typename T>
-	static inline T sqr(const T & val) { return val * val; }
-
-	template<typename T1, typename T2, typename R>
-	struct JetDistance : public std::binary_function<T1, T2, R> {
-		JetDistance(double sigmaDeltaR, double sigmaDeltaE) :
-			sigmaDeltaR2(sqr(sigmaDeltaR)),
-			sigmaDeltaE2(sqr(sigmaDeltaE)) {}
-
-		double operator () (const T1 &v1, const T2 &v2) const
-		{
-			using namespace ROOT::Math;
-//			return VectorUtil::DeltaR2(v1, v2) / sigmaDeltaR2 +
-//			       sqr(2. * (v1.R() - v2.R()) /
-//			                (v1.R() + v2.R())) / sigmaDeltaE2;
-			double x = VectorUtil::DeltaR2(v1, v2) / sigmaDeltaR2 +
-			       sqr(2. * (v1.R() - v2.R()) /
-			                (v1.R() + v2.R())) / sigmaDeltaE2;
-// std::cout << "xxx " << VectorUtil::DeltaPhi(v1, v2) << " " << (v1.Eta() - v2.Eta()) << " " << (v1.R() - v2.R()) / (v1.R() + v2.R()) << " " << x << std::endl;
-			return x;
-		}
-
-		double sigmaDeltaR2, sigmaDeltaE2;
-	};
+    inline double sqr(double val) { return val * val; }
 }
 
 MatchJet::MatchJet(const edm::ParameterSet& pSet) :
   maxChi2(pSet.getParameter<double>("maxChi2")),
-  sigmaDeltaR(pSet.getParameter<double>("sigmaDeltaR")),
-  sigmaDeltaE(pSet.getParameter<double>("sigmaDeltaE")),
+  sigmaDeltaR2(sqr(pSet.getParameter<double>("sigmaDeltaR"))),
+  sigmaDeltaE2(sqr(pSet.getParameter<double>("sigmaDeltaE"))),
   threshold(1.0)
 {
 }
@@ -94,8 +71,16 @@ void MatchJet::matchCollections(
 	recToRef.resize(recJets.size(), -1);
 
 	Matching<double> matching(corrRefJets, corrRecJets,
-	                          JetDistance<Vector, Vector, double>(
-	                          		sigmaDeltaR, sigmaDeltaE));
+        [this](auto& v1, auto& v2)
+        {
+            double x = ROOT::Math::VectorUtil::DeltaR2(v1, v2) / this->sigmaDeltaR2 +
+                       sqr(2. * (v1.R() - v2.R()) / (v1.R() + v2.R())) / this->sigmaDeltaE2;
+            // Possible debug output
+            // std::cout << "xxx " << ROOT::Math::VectorUtil::DeltaPhi(v1, v2) << " " << (v1.Eta() - v2.Eta())
+            // << " " << (v1.R() - v2.R()) / (v1.R() + v2.R()) << " " << x << std::endl;
+            return x;
+        });
+
 	typedef Matching<double>::Match Match;
 
 	const std::vector<Match>& matches =

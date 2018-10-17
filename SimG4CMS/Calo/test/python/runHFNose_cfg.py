@@ -22,6 +22,7 @@ from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['phase2_realistic']
 
 if hasattr(process,'MessageLogger'):
+    process.MessageLogger.categories.append('HGCalGeom')
     process.MessageLogger.categories.append('HFNSim')
     process.MessageLogger.categories.append('HGCalValidation')
 
@@ -44,8 +45,8 @@ process.source = cms.Source("EmptySource",
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.PSet(
         PartID = cms.vint32(13),
-        MinEta = cms.double(3.10),
-        MaxEta = cms.double(5.00),
+        MinEta = cms.double(3.00),
+        MaxEta = cms.double(4.30),
         MinPhi = cms.double(-3.1415926),
         MaxPhi = cms.double(3.1415926),
         MinE   = cms.double(100.00),
@@ -64,24 +65,16 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('hfnose.root')
 )
 
-process.load('Validation.HGCalValidation.hgcalGeometryTest_cfi')
+process.load('Validation.HGCalValidation.hfnoseSimHitStudy_cfi')
 
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
-process.analysis_step   = cms.Path(process.hgcalGeometryTest)
+process.analysis_step   = cms.Path(process.hgcalSimHitStudy)
 process.out_step        = cms.EndPath(process.output)
 
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/FTFP_BERT_EMM'
 process.g4SimHits.Physics.DefaultCutValue   = 0.1
-process.hgcalGeometryTest.DetectorNames     = ['HGCalHFNoseSensitive']
-process.hgcalGeometryTest.CaloHitSources    = ['HFNoseHits']
-process.hgcalGeometryTest.RMax              = 1500.0
-process.hgcalGeometryTest.ZMin              = 10400.0
-process.hgcalGeometryTest.ZMax              = 11000.0
-process.hgcalGeometryTest.NBinR             = 75
-process.hgcalGeometryTest.NBinZ             = 60
-process.hgcalGeometryTest.Verbosity         = 0
-process.hgcalGeometryTest.IfNose            = True
+process.hgcalSimHitStudy.verbosity = 0
 
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,
