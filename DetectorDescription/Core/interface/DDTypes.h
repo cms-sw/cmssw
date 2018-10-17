@@ -31,4 +31,8 @@ std::ostream & operator<<(std::ostream & os, const DDStringArguments & t);
 std::ostream & operator<<(std::ostream & os, const DDVectorArguments & t);
 std::ostream & operator<<(std::ostream & os, const DDMapArguments & t);
 std::ostream & operator<<(std::ostream & os, const DDStringVectorArguments & t);
+
+// Formats an angle in radians as a 0-padded string in degrees; e.g. "0001.293900" for 1.2939 degrees.
+std::string formatAsDegrees(double radianVal);
+
 #endif // DDTYPES

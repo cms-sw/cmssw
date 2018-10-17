@@ -1,11 +1,10 @@
 #include "RecoTauTag/RecoTau/interface/RecoTauBinnedIsolationPlugin.h"
-#include <boost/foreach.hpp>
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-namespace reco { namespace tau {
+namespace reco::tau {
 
 namespace {
 template<typename C>
@@ -24,7 +23,7 @@ RecoTauDiscriminationBinnedIsolation::RecoTauDiscriminationBinnedIsolation(
   // Configure the binning
   typedef std::vector<edm::ParameterSet> VPSet;
   VPSet binning = pset.getParameter<VPSet>("binning");
-  BOOST_FOREACH(const edm::ParameterSet& bincfg, binning) {
+  for(auto const& bincfg : binning) {
     std::vector<double> bins = bincfg.getParameter<std::vector<double> >(
         "binLowEdges");
     int nVtx = bincfg.getParameter<int>("nPUVtx");
@@ -75,7 +74,7 @@ std::vector<double> RecoTauDiscriminationBinnedIsolation::operator()(
   // Get the desired isolation objects
   std::vector<reco::CandidatePtr> isoObjects = extractIsoObjects(tau);
   // Loop over each and histogram their pt
-  BOOST_FOREACH(const reco::CandidatePtr& cand, isoObjects) {
+  for(auto const& cand : isoObjects) {
     int highestBinLessThan = -1;
     for (size_t ibin = 0; ibin < bins->size(); ++ibin) {
       if (cand->pt() > bins->at(ibin)) {
@@ -89,4 +88,4 @@ std::vector<double> RecoTauDiscriminationBinnedIsolation::operator()(
 }
 
 
-}} // end namespace reco::tau
+} // end namespace reco::tau

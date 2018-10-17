@@ -129,39 +129,21 @@ const reco::TrackBaseRef RecoTauVertexAssociator::getLeadTrackRef(const Jet& jet
 namespace {
   // Define functors which extract the relevant information from a collection of
   // vertices.
-  class DZtoTrack : public std::unary_function<double, reco::VertexRef> 
+  double dzToTrack(const reco::VertexRef& vtx, const reco::Track* trk)
   {
-   public:
-    DZtoTrack(const reco::Track* trk) 
-      : trk_(trk) 
-    {}
-    double operator()(const reco::VertexRef& vtx) const 
-    {
-      if ( !trk_ || !vtx ) {
-        return std::numeric_limits<double>::infinity();
-      }
-      return std::abs(trk_->dz(vtx->position()));
+    if ( !trk || !vtx ) {
+      return std::numeric_limits<double>::infinity();
     }
-   private:
-    const reco::Track* trk_;
-  };
+    return std::abs(trk->dz(vtx->position()));
+  }
   
-  class TrackWeightInVertex : public std::unary_function<double, reco::VertexRef>
+  double trackWeightInVertex(const reco::VertexRef& vtx, const reco::TrackBaseRef& trk)
   {
-   public:
-    TrackWeightInVertex(const reco::TrackBaseRef& trk)
-      : trk_(trk)
-    {}
-    double operator()(const reco::VertexRef& vtx) const 
-    {
-      if ( !trk_ || !vtx ) {
-        return 0.0;
-      }
-      return vtx->trackWeight(trk_);
+    if ( !trk || !vtx ) {
+      return 0.0;
     }
-   private:
-    const reco::TrackBaseRef trk_;
-  };
+    return vtx->trackWeight(trk);
+  }
 }
 
 RecoTauVertexAssociator::RecoTauVertexAssociator(const edm::ParameterSet& pset, edm::ConsumesCollector && iC)
@@ -301,12 +283,11 @@ RecoTauVertexAssociator::associatedVertex(const Track* track) const
   } else if ( algo_ == kClosestDeltaZ ) {
     if ( track ) {
       double closestDistance = 1.e+6;
-      DZtoTrack dzComputer(track);
       // Find the vertex that has the lowest dZ to the track
       int idxVertex = 0;
       for ( std::vector<reco::VertexRef>::const_iterator selectedVertex = selectedVertices_.begin();
 	    selectedVertex != selectedVertices_.end(); ++selectedVertex ) {
-	double dZ = dzComputer(*selectedVertex);
+	double dZ = dzToTrack(*selectedVertex, track);
 	if ( verbosity_ ) {
 	  std::cout << "vertex #" << idxVertex << ": x = " << (*selectedVertex)->position().x() << ", y = " << (*selectedVertex)->position().y() << ", z = " << (*selectedVertex)->position().z() 
 		    << " --> dZ = " << dZ << std::endl;
@@ -338,11 +319,10 @@ RecoTauVertexAssociator::associatedVertex(const TrackBaseRef& track) const
     if ( track.isNonnull() ) {
       double largestWeight = -1.;
       // Find the vertex that has the highest association probability to the track
-      TrackWeightInVertex weightComputer(track);
       int idxVertex = 0;
       for ( std::vector<reco::VertexRef>::const_iterator selectedVertex = selectedVertices_.begin();
 	    selectedVertex != selectedVertices_.end(); ++selectedVertex ) {
-	double weight = weightComputer(*selectedVertex);
+	double weight = trackWeightInVertex(*selectedVertex, track);
 	if ( verbosity_ ) {
 	  std::cout << "vertex #" << idxVertex << ": x = " << (*selectedVertex)->position().x() << ", y = " << (*selectedVertex)->position().y() << ", z = " << (*selectedVertex)->position().z() 
 		    << " --> weight = " << weight << std::endl;
@@ -359,12 +339,11 @@ RecoTauVertexAssociator::associatedVertex(const TrackBaseRef& track) const
 	  std::cout << "No vertex had positive weight! Trying dZ instead... " << std::endl;
 	}
 	double closestDistance = 1.e+6;
-	DZtoTrack dzComputer(track.get());
 	// Find the vertex that has the lowest dZ to the leading track
 	int idxVertex = 0;
 	for ( std::vector<reco::VertexRef>::const_iterator selectedVertex = selectedVertices_.begin();
 	      selectedVertex != selectedVertices_.end(); ++selectedVertex ) {
-	  double dZ = dzComputer(*selectedVertex);
+	  double dZ = dzToTrack(*selectedVertex, track.get());
 	  if ( verbosity_ ) {
 	    std::cout << "vertex #" << idxVertex << ": x = " << (*selectedVertex)->position().x() << ", y = " << (*selectedVertex)->position().y() << ", z = " << (*selectedVertex)->position().z() 
 		      << " --> dZ = " << dZ << std::endl;

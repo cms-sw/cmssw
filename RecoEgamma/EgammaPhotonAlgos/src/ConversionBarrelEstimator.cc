@@ -3,8 +3,8 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h" 
-#include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
+#include "DataFormats/GeometryVector/interface/VectorUtil.h"
 
 
   // zero value indicates incompatible ts - hit pair
@@ -76,7 +76,7 @@ bool ConversionBarrelEstimator::estimate( const TrajectoryStateOnSurface& ts,
 
 
    if(rangesIntersect(trajZRange, plane.zSpan()) &&
-      rangesIntersect(trajPhiRange, plane.phiSpan(), PhiLess())) {
+      rangesIntersect(trajPhiRange, plane.phiSpan(), [](auto x, auto y){return Geom::phiLess(x, y);})) {
      //     std::cout << "   ConversionBarrelEstimator::estimate( const TrajectoryStateOnSurface& ts, const BoundPlane& plane)  IN RANGE " << std::endl;  
     return true;   
 

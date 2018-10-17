@@ -9,8 +9,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
+#include "DetectorDescription/Core/interface/DDUnits.h"
 #include "Geometry/MuonCommonData/plugins/DDMuonAngular.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+
+using namespace dd;
+using namespace dd::operators;
 
 //#define EDM_ML_DEBUG
 
@@ -36,8 +39,8 @@ void DDMuonAngular::initialize(const DDNumericArguments & nArgs,
   incrCopyNo  = int (nArgs["incrCopyNo"]);
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("MuonGeom") << "DDMuonAngular debug: Parameters for positioning-- "
-			   << n << " copies in steps of " << stepAngle/CLHEP::deg 
-			   << " from " << startAngle/CLHEP::deg << " \tZoffest " 
+			   << n << " copies in steps of " << CONVERT_TO( stepAngle, deg )
+			   << " from " << CONVERT_TO( startAngle, deg ) << " \tZoffest " 
 			   << zoffset << "\tStart and inremental copy nos " 
 			   << startCopyNo << ", " << incrCopyNo;
 #endif
@@ -59,30 +62,22 @@ void DDMuonAngular::execute(DDCompactView& cpv) {
 
   for (int ii=0; ii<n; ii++) {
 
-    double phideg = phi/CLHEP::deg;
-    int    iphi;
-    if (phideg > 0)  iphi = int(phideg+0.1);
-    else             iphi = int(phideg-0.1);
-    if (iphi >= 360) iphi   -= 360;
-    phideg = iphi;
+    double phitmp = phi;
+    if (phitmp >= 2._pi) phitmp -= 2._pi;
     DDRotation rotation;
     std::string rotstr("NULL");
 
-    if (iphi != 0) {
+    if (std::abs(phitmp) >= 1.0_deg) {
       rotstr = "R"; 
-      if (phideg >=0 && phideg < 10) rotstr = "R00"; 
-      else if (phideg < 100)         rotstr = "R0";
-      rotstr = rotstr + std::to_string(phideg);
+      rotstr  += formatAsDegrees(phitmp);
       rotation = DDRotation(DDName(rotstr, rotns)); 
       if (!rotation) {
 #ifdef EDM_ML_DEBUG
         edm::LogInfo("MuonGeom") << "DDMuonAngular test: Creating a new rotation "
 				 << DDName(rotstr, idNameSpace) << "\t90, " 
-				 << phideg << ", 90, " << (phideg+90) << ", 0, 0";
+				 << CONVERT_TO( phitmp, deg ) << ", 90, " << CONVERT_TO(phitmp + 90._deg, deg) << ", 0, 0";
 #endif
-        rotation = DDrot(DDName(rotstr, rotns), 90*CLHEP::deg, 
-			 phideg*CLHEP::deg, 90*CLHEP::deg, 
-			 (90+phideg)*CLHEP::deg, 0*CLHEP::deg,  0*CLHEP::deg);
+        rotation = DDrot(DDName(rotstr, rotns), 90._deg, phitmp, 90._deg, 90._deg + phitmp, 0., 0.);
       } 
     }
     

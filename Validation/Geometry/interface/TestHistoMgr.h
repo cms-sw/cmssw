@@ -7,10 +7,12 @@
 #include "TProfile2D.h"
 #include "TFile.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <map>
 #include <string>
+#include <memory>
 
-//#include "HTL/Histograms.h" // Transient histograms.
 typedef std::map< int, TH1F* > mih1;
 typedef std::map< int, TH2F* > mih2;
 typedef std::map< int, TProfile* > mihp1;
@@ -46,7 +48,7 @@ public:
   mihp1 theHistoProfs1;
   mihp2 theHistoProfs2;
 
-  TFile * theFileRef;
+  std::unique_ptr<TFile> theFileRef;
 
 };
 

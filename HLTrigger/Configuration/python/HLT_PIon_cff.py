@@ -1,13 +1,13 @@
-# hltGetConfiguration --cff --data /dev/CMSSW_10_1_0/PIon --type PIon
+# hltGetConfiguration --cff --data /dev/CMSSW_10_3_0/PIon --type PIon
 
-# /dev/CMSSW_10_1_0/PIon/V83 (CMSSW_10_1_10_HLT1)
+# /dev/CMSSW_10_3_0/PIon/V1 (CMSSW_10_3_X_2018-10-01-2300)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_10_1_0/PIon/V83')
+  tableName = cms.string('/dev/CMSSW_10_3_0/PIon/V1')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -2477,39 +2477,12 @@ fragment.hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
     'HcalCellDead' )
 )
 fragment.hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexESProducer",
+  charmCut = cms.double( 1.5 ),
   recordLabel = cms.string( "HLT" ),
-  categoryVariableName = cms.string( "vertexCategory" ),
   useTrackWeights = cms.bool( True ),
   useCategories = cms.bool( True ),
   pseudoMultiplicityMin = cms.uint32( 2 ),
-  correctVertexMass = cms.bool( True ),
-  trackSelection = cms.PSet( 
-    maxDistToAxis = cms.double( 0.07 ),
-    totalHitsMin = cms.uint32( 0 ),
-    ptMin = cms.double( 0.0 ),
-    sip2dSigMax = cms.double( 99999.9 ),
-    sip2dValMax = cms.double( 99999.9 ),
-    sip3dSigMax = cms.double( 99999.9 ),
-    sip3dValMax = cms.double( 99999.9 ),
-    maxDecayLen = cms.double( 5.0 ),
-    qualityClass = cms.string( "any" ),
-    jetDeltaRMax = cms.double( 0.3 ),
-    normChi2Max = cms.double( 99999.9 ),
-    pixelHitsMin = cms.uint32( 0 ),
-    sip2dSigMin = cms.double( -99999.9 ),
-    sip2dValMin = cms.double( -99999.9 ),
-    sip3dSigMin = cms.double( -99999.9 ),
-    sip3dValMin = cms.double( -99999.9 )
-  ),
-  calibrationRecords = cms.vstring( 'CombinedSVRecoVertex',
-    'CombinedSVPseudoVertex',
-    'CombinedSVNoVertex' ),
-  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
-  charmCut = cms.double( 1.5 ),
-  vertexFlip = cms.bool( False ),
-  minimumTrackWeight = cms.double( 0.5 ),
-  pseudoVertexV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.05 ) ),
-  trackMultiplicityMin = cms.uint32( 3 ),
+  categoryVariableName = cms.string( "vertexCategory" ),
   trackPseudoSelection = cms.PSet( 
     maxDistToAxis = cms.double( 0.07 ),
     totalHitsMin = cms.uint32( 0 ),
@@ -2528,54 +2501,44 @@ fragment.hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexES
     sip3dSigMin = cms.double( -99999.9 ),
     sip3dValMin = cms.double( -99999.9 )
   ),
+  calibrationRecords = cms.vstring( 'CombinedSVRecoVertex',
+    'CombinedSVPseudoVertex',
+    'CombinedSVNoVertex' ),
+  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
+  correctVertexMass = cms.bool( True ),
+  vertexFlip = cms.bool( False ),
+  minimumTrackWeight = cms.double( 0.5 ),
+  pseudoVertexV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.05 ) ),
+  trackMultiplicityMin = cms.uint32( 3 ),
+  trackSelection = cms.PSet( 
+    maxDistToAxis = cms.double( 0.07 ),
+    totalHitsMin = cms.uint32( 0 ),
+    ptMin = cms.double( 0.0 ),
+    sip2dSigMax = cms.double( 99999.9 ),
+    sip2dValMax = cms.double( 99999.9 ),
+    sip3dSigMax = cms.double( 99999.9 ),
+    sip3dValMax = cms.double( 99999.9 ),
+    maxDecayLen = cms.double( 5.0 ),
+    qualityClass = cms.string( "any" ),
+    jetDeltaRMax = cms.double( 0.3 ),
+    normChi2Max = cms.double( 99999.9 ),
+    pixelHitsMin = cms.uint32( 0 ),
+    sip2dSigMin = cms.double( -99999.9 ),
+    sip2dValMin = cms.double( -99999.9 ),
+    sip3dSigMin = cms.double( -99999.9 ),
+    sip3dValMin = cms.double( -99999.9 )
+  ),
   trackSort = cms.string( "sip2dSig" ),
   SoftLeptonFlip = cms.bool( False ),
   trackFlip = cms.bool( False )
 )
 fragment.hltCombinedSecondaryVertexV2 = cms.ESProducer( "CombinedSecondaryVertexESProducer",
+  charmCut = cms.double( 1.5 ),
   recordLabel = cms.string( "HLT" ),
-  categoryVariableName = cms.string( "vertexCategory" ),
   useTrackWeights = cms.bool( True ),
   useCategories = cms.bool( True ),
   pseudoMultiplicityMin = cms.uint32( 2 ),
-  correctVertexMass = cms.bool( True ),
-  trackSelection = cms.PSet( 
-    max_pT_dRcut = cms.double( 0.1 ),
-    b_dR = cms.double( 0.6263 ),
-    min_pT = cms.double( 120.0 ),
-    b_pT = cms.double( 0.3684 ),
-    ptMin = cms.double( 0.0 ),
-    max_pT_trackPTcut = cms.double( 3.0 ),
-    max_pT = cms.double( 500.0 ),
-    useVariableJTA = cms.bool( False ),
-    maxDecayLen = cms.double( 5.0 ),
-    qualityClass = cms.string( "any" ),
-    normChi2Max = cms.double( 99999.9 ),
-    sip2dValMin = cms.double( -99999.9 ),
-    sip3dValMin = cms.double( -99999.9 ),
-    a_dR = cms.double( -0.001053 ),
-    maxDistToAxis = cms.double( 0.07 ),
-    totalHitsMin = cms.uint32( 0 ),
-    a_pT = cms.double( 0.005263 ),
-    sip2dSigMax = cms.double( 99999.9 ),
-    sip2dValMax = cms.double( 99999.9 ),
-    sip3dSigMax = cms.double( 99999.9 ),
-    sip3dValMax = cms.double( 99999.9 ),
-    min_pT_dRcut = cms.double( 0.5 ),
-    jetDeltaRMax = cms.double( 0.3 ),
-    pixelHitsMin = cms.uint32( 0 ),
-    sip3dSigMin = cms.double( -99999.9 ),
-    sip2dSigMin = cms.double( -99999.9 )
-  ),
-  calibrationRecords = cms.vstring( 'CombinedSVIVFV2RecoVertex',
-    'CombinedSVIVFV2PseudoVertex',
-    'CombinedSVIVFV2NoVertex' ),
-  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
-  charmCut = cms.double( 1.5 ),
-  vertexFlip = cms.bool( False ),
-  minimumTrackWeight = cms.double( 0.5 ),
-  pseudoVertexV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.05 ) ),
-  trackMultiplicityMin = cms.uint32( 3 ),
+  categoryVariableName = cms.string( "vertexCategory" ),
   trackPseudoSelection = cms.PSet( 
     max_pT_dRcut = cms.double( 0.1 ),
     b_dR = cms.double( 0.6263 ),
@@ -2603,6 +2566,43 @@ fragment.hltCombinedSecondaryVertexV2 = cms.ESProducer( "CombinedSecondaryVertex
     pixelHitsMin = cms.uint32( 0 ),
     sip3dSigMin = cms.double( -99999.9 ),
     sip2dSigMin = cms.double( 2.0 )
+  ),
+  calibrationRecords = cms.vstring( 'CombinedSVIVFV2RecoVertex',
+    'CombinedSVIVFV2PseudoVertex',
+    'CombinedSVIVFV2NoVertex' ),
+  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
+  correctVertexMass = cms.bool( True ),
+  vertexFlip = cms.bool( False ),
+  minimumTrackWeight = cms.double( 0.5 ),
+  pseudoVertexV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.05 ) ),
+  trackMultiplicityMin = cms.uint32( 3 ),
+  trackSelection = cms.PSet( 
+    max_pT_dRcut = cms.double( 0.1 ),
+    b_dR = cms.double( 0.6263 ),
+    min_pT = cms.double( 120.0 ),
+    b_pT = cms.double( 0.3684 ),
+    ptMin = cms.double( 0.0 ),
+    max_pT_trackPTcut = cms.double( 3.0 ),
+    max_pT = cms.double( 500.0 ),
+    useVariableJTA = cms.bool( False ),
+    maxDecayLen = cms.double( 5.0 ),
+    qualityClass = cms.string( "any" ),
+    normChi2Max = cms.double( 99999.9 ),
+    sip2dValMin = cms.double( -99999.9 ),
+    sip3dValMin = cms.double( -99999.9 ),
+    a_dR = cms.double( -0.001053 ),
+    maxDistToAxis = cms.double( 0.07 ),
+    totalHitsMin = cms.uint32( 0 ),
+    a_pT = cms.double( 0.005263 ),
+    sip2dSigMax = cms.double( 99999.9 ),
+    sip2dValMax = cms.double( 99999.9 ),
+    sip3dSigMax = cms.double( 99999.9 ),
+    sip3dValMax = cms.double( 99999.9 ),
+    min_pT_dRcut = cms.double( 0.5 ),
+    jetDeltaRMax = cms.double( 0.3 ),
+    pixelHitsMin = cms.uint32( 0 ),
+    sip3dSigMin = cms.double( -99999.9 ),
+    sip2dSigMin = cms.double( -99999.9 )
   ),
   trackSort = cms.string( "sip2dSig" ),
   SoftLeptonFlip = cms.bool( False ),
@@ -3794,6 +3794,7 @@ fragment.siStripLorentzAngleDepESProducer = cms.ESProducer( "SiStripLorentzAngle
 fragment.ThroughputService = cms.Service( "ThroughputService",
     dqmPath = cms.untracked.string( "HLT/Throughput" ),
     timeRange = cms.untracked.double( 60000.0 ),
+    dqmPathByProcesses = cms.untracked.bool( False ),
     timeResolution = cms.untracked.double( 5.828 )
 )
 
@@ -3830,10 +3831,11 @@ fragment.hltGtStage2Digis = cms.EDProducer( "L1TRawToDigi",
     MTF7 = cms.untracked.bool( False ),
     FWId = cms.uint32( 0 ),
     TMTCheck = cms.bool( True ),
+    lenAMCTrailer = cms.untracked.int32( 0 ),
     debug = cms.untracked.bool( False ),
     FedIds = cms.vint32( 1404 ),
     lenAMCHeader = cms.untracked.int32( 8 ),
-    lenAMCTrailer = cms.untracked.int32( 0 ),
+    DmxFWId = cms.uint32( 0 ),
     FWOverride = cms.bool( False )
 )
 fragment.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",

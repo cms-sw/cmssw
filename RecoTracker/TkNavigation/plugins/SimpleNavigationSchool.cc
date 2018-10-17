@@ -5,21 +5,18 @@
 #include "SimpleBarrelNavigableLayer.h"
 #include "SimpleForwardNavigableLayer.h"
 #include "SimpleNavigableLayer.h"
-#include "DiskLessInnerRadius.h"
 #include "SymmetricLayerFinder.h"
 
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "TrackingTools/DetLayers/src/DetBelowZ.h"
 #include "TrackingTools/DetLayers/src/DetLessZ.h"
-// #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include <functional>
 #include <algorithm>
 #include <map>
 #include <cmath>
@@ -313,7 +310,8 @@ SimpleNavigationSchool::splitForwardLayers()
   FDLI end   = myRightLayers.end();
 
   // sort according to inner radius, but keeping the ordering in z!
-  stable_sort ( begin, end, DiskLessInnerRadius());
+  std::stable_sort ( begin, end, []( const ForwardDetLayer* a, const ForwardDetLayer* b)
+          { return a->specificSurface().innerRadius() < b->specificSurface().innerRadius();});
 
   // partition in cylinders
   vector<FDLC> result;
@@ -342,7 +340,7 @@ SimpleNavigationSchool::splitForwardLayers()
       LogDebug("TkNavigation") << "found break between groups" ;
 
       // sort layers in group along Z
-      stable_sort ( current.begin(), current.end(), DetLessZ());
+      std::stable_sort ( current.begin(), current.end(), isDetLessZ);
 
       result.push_back(current);
       current.clear();
@@ -354,7 +352,7 @@ SimpleNavigationSchool::splitForwardLayers()
   // now sort subsets in Z
   for ( vector<FDLC>::iterator ivec = result.begin();
 	ivec != result.end(); ivec++) {
-    stable_sort( ivec->begin(), ivec->end(), DetLessZ());
+      std::stable_sort( ivec->begin(), ivec->end(), isDetLessZ);
   }
 
   return result;

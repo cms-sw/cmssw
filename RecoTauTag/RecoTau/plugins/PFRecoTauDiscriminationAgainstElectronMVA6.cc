@@ -90,9 +90,9 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
   float tauEtaAtEcalEntrance = -99.;
   float sumEtaTimesEnergy = 0.;
   float sumEnergy = 0.;
-  for (const auto& pfcand : thePFTauRef->signalPFCands()) {
-    sumEtaTimesEnergy += (pfcand->positionAtECALEntrance().eta()*pfcand->energy());
-    sumEnergy += pfcand->energy();
+  for ( const auto & pfCandidate : thePFTauRef->signalPFCands() ) {
+    sumEtaTimesEnergy += (pfCandidate->positionAtECALEntrance().eta()*pfCandidate->energy());
+    sumEnergy += pfCandidate->energy();
   }
   if ( sumEnergy > 0. ) {
     tauEtaAtEcalEntrance = sumEtaTimesEnergy/sumEnergy;
@@ -100,16 +100,16 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
 
   float leadChargedPFCandEtaAtEcalEntrance = -99.;
   float leadChargedPFCandPt = -99.;
-  for (const auto& pfcand : thePFTauRef->signalPFCands()) {
+  for ( const auto & pfCandidate : thePFTauRef->signalPFCands() ) {
     const reco::Track* track = nullptr;
-    if ( pfcand->trackRef().isNonnull() ) track = pfcand->trackRef().get();
-    else if ( pfcand->muonRef().isNonnull() && pfcand->muonRef()->innerTrack().isNonnull()  ) track = pfcand->muonRef()->innerTrack().get();
-    else if ( pfcand->muonRef().isNonnull() && pfcand->muonRef()->globalTrack().isNonnull() ) track = pfcand->muonRef()->globalTrack().get();
-    else if ( pfcand->muonRef().isNonnull() && pfcand->muonRef()->outerTrack().isNonnull()  ) track = pfcand->muonRef()->outerTrack().get();
-    else if ( pfcand->gsfTrackRef().isNonnull() ) track = pfcand->gsfTrackRef().get();
+    if ( pfCandidate->trackRef().isNonnull() ) track = pfCandidate->trackRef().get();
+    else if ( pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->innerTrack().isNonnull()  ) track = pfCandidate->muonRef()->innerTrack().get();
+    else if ( pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->globalTrack().isNonnull() ) track = pfCandidate->muonRef()->globalTrack().get();
+    else if ( pfCandidate->muonRef().isNonnull() && pfCandidate->muonRef()->outerTrack().isNonnull()  ) track = pfCandidate->muonRef()->outerTrack().get();
+    else if ( pfCandidate->gsfTrackRef().isNonnull() ) track = pfCandidate->gsfTrackRef().get();
     if ( track ) {
       if ( track->pt() > leadChargedPFCandPt ) {
-	leadChargedPFCandEtaAtEcalEntrance = pfcand->positionAtECALEntrance().eta();
+	leadChargedPFCandEtaAtEcalEntrance = pfCandidate->positionAtECALEntrance().eta();
 	leadChargedPFCandPt = track->pt();
       }
     }

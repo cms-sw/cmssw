@@ -101,10 +101,13 @@ class CSCTriggerPrimitivesBuilder
   bool checkBadChambers_;
 
   /** SLHC: special configuration parameters for ME11 treatment. */
-  bool smartME1aME1b, disableME1a;
+  bool isSLHC_;
 
   /** SLHC: special switch for disabling ME42 */
-  bool disableME42;
+  bool disableME1a_;
+
+  /** SLHC: special switch for disabling ME42 */
+  bool disableME42_;
 
   /** SLHC: special switch for the upgrade ME1/1 TMB */
   bool runME11ILT_;
@@ -118,7 +121,7 @@ class CSCTriggerPrimitivesBuilder
   /** SLHC: special switch to use gem clusters */
   bool useClusters_;
 
-  int m_minBX, m_maxBX; // min and max BX to sort.
+  int m_minBX_, m_maxBX_; // min and max BX to sort.
 
   /** Pointers to TMB processors for all possible chambers. */
   std::unique_ptr<CSCMotherboard>

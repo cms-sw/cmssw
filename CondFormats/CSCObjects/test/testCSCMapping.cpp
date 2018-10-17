@@ -9,6 +9,7 @@
 #include <FWCore/Framework/interface/EventProcessor.h>
 #include <FWCore/PluginManager/interface/ProblemTracker.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
 #include <FWCore/ParameterSet/interface/FileInPath.h>
 #include <CondFormats/CSCObjects/interface/CSCReadoutMappingFromFile.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
@@ -71,7 +72,7 @@ int testCSCMapping::runIt(const std::string& config){
   edm::AssertHandler ah;
   int rc=0;
   try {
-    edm::EventProcessor proc(config);
+    edm::EventProcessor proc(edm::getPSetFromConfig(config));
     proc.run();
   } catch (cms::Exception& e){
     std::cerr << "Exception caught:  " 

@@ -6,8 +6,9 @@
 #include "Geometry/MTDNumberingBuilder/plugins/MTDStablePhiSort.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <vector>
 
+#include <functional>
+#include <vector>
 #include <bitset>
 
 void CmsMTDTrayBuilder::buildComponent(DDFilteredView& fv, GeometricTimingDet* g, std::string side){
@@ -46,7 +47,7 @@ void CmsMTDTrayBuilder::sortNS(DDFilteredView& fv, GeometricTimingDet* det){
   
   // rods 
   if(!rods.empty()){
-    MTDStablePhiSort(rods.begin(), rods.end(), ExtractPhi());
+    MTDStablePhiSort(rods.begin(), rods.end(), std::function<double(const GeometricTimingDet*)>(getPhi));
     uint32_t  totalrods = rods.size();
   
     LogTrace("DetConstruction") << " Rods ordered by phi: ";

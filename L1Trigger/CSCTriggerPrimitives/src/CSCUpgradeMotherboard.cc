@@ -2,7 +2,7 @@
 #include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
 
 CSCUpgradeMotherboard::LCTContainer::LCTContainer(unsigned int trig_window_size)
-  : match_trig_window_size(trig_window_size)
+  : match_trig_window_size_(trig_window_size)
 {
 }
 
@@ -14,12 +14,19 @@ CSCUpgradeMotherboard::LCTContainer::operator()(int bx, int match_bx, int lct)
 
 void
 CSCUpgradeMotherboard::LCTContainer::getTimeMatched(const int bx,
-						    std::vector<CSCCorrelatedLCTDigi>& lcts) const
+                                                    std::vector<CSCCorrelatedLCTDigi>& lcts) const
 {
-  for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
-    for (int i=0;i<2;i++)
-      if (data[bx][mbx][i].isValid())
-        lcts.push_back(data[bx][mbx][i]);
+  for (unsigned int mbx = 0; mbx < match_trig_window_size_; mbx++) {
+    for (int i=0;i<2;i++) {
+      // consider only valid LCTs
+      if (not data[bx][mbx][i].isValid()) continue;
+
+      // remove duplicated LCTs
+      if (std::find(lcts.begin(), lcts.end(), data[bx][mbx][i]) != lcts.end()) continue;
+
+      lcts.push_back(data[bx][mbx][i]);
+    }
+  }
 }
 
 void
@@ -32,24 +39,40 @@ CSCUpgradeMotherboard::LCTContainer::getMatched(std::vector<CSCCorrelatedLCTDigi
   }
 }
 
-CSCUpgradeMotherboard::CSCUpgradeMotherboard(unsigned endcap, unsigned station,
-						   unsigned sector, unsigned subsector,
-						   unsigned chamber,
-						   const edm::ParameterSet& conf) :
-  CSCMotherboard(endcap, station, sector, subsector, chamber, conf)
+void
+CSCUpgradeMotherboard::LCTContainer::clear()
 {
-  if (!isSLHC) edm::LogError("L1CSCTPEmulatorConfigError")
-    << "+++ Upgrade CSCUpgradeMotherboard constructed while isSLHC is not set! +++\n";
+  // Loop over all time windows
+  for (int bx = 0; bx < CSCConstants::MAX_LCT_TBINS; bx++) {
+    // Loop over all matched trigger windows
+    for (unsigned int mbx = 0; mbx < match_trig_window_size_; mbx++) {
+      // Loop over all stubs
+      for (int i=0;i<CSCConstants::MAX_LCTS_PER_CSC;i++) {
+        data[bx][mbx][i].clear();
+      }
+    }
+  }
+}
+
+CSCUpgradeMotherboard::CSCUpgradeMotherboard(unsigned endcap, unsigned station,
+                                             unsigned sector, unsigned subsector,
+                                             unsigned chamber,
+                                             const edm::ParameterSet& conf) :
+  // special configuration parameters for ME11 treatment
+  CSCMotherboard(endcap, station, sector, subsector, chamber, conf)
+  , allLCTs(match_trig_window_size)
+  // special configuration parameters for ME11 treatment
+  , disableME1a(commonParams_.getParameter<bool>("disableME1a"))
+  , gangedME1a(commonParams_.getParameter<bool>("gangedME1a"))
+{
+  if (!isSLHC_) edm::LogError("CSCUpgradeMotherboard|ConfigError")
+    << "+++ Upgrade CSCUpgradeMotherboard constructed while isSLHC_ is not set! +++\n";
 
   theRegion = (theEndcap == 1) ? 1: -1;
   theChamber = CSCTriggerNumbering::chamberFromTriggerLabels(theSector,theSubsector,theStation,theTrigChamber);
   par = theChamber%2==0 ? Parity::Even : Parity::Odd;
 
-  commonParams_ = conf.getParameter<edm::ParameterSet>("commonParam");
-  if (theStation==1) tmbParams_ = conf.getParameter<edm::ParameterSet>("me11tmbSLHCGEM");
-  else if (theStation==2) tmbParams_ = conf.getParameter<edm::ParameterSet>("me21tmbSLHCGEM");
-  else if (theStation==3 or theStation==4) tmbParams_ = conf.getParameter<edm::ParameterSet>("me3141tmbSLHC");
-
+  // generate the LUTs
   generator_.reset(new CSCUpgradeMotherboardLUTGenerator());
 
   match_earliest_alct_only = tmbParams_.getParameter<bool>("matchEarliestAlctOnly");
@@ -61,26 +84,45 @@ CSCUpgradeMotherboard::CSCUpgradeMotherboard(unsigned endcap, unsigned station,
   debug_matching = tmbParams_.getParameter<bool>("debugMatching");
   debug_luts = tmbParams_.getParameter<bool>("debugLUTs");
 
-  pref[0] = match_trig_window_size/2;
-  for (unsigned int m=2; m<match_trig_window_size; m+=2)
-  {
-    pref[m-1] = pref[0] - m/2;
-    pref[m]   = pref[0] + m/2;
-  }
+  setPrefIndex();
 }
 
-CSCUpgradeMotherboard::CSCUpgradeMotherboard() : CSCMotherboard()
+CSCUpgradeMotherboard::CSCUpgradeMotherboard()
+  : CSCMotherboard()
+  , allLCTs(match_trig_window_size)
 {
-  pref[0] = match_trig_window_size/2;
-  for (unsigned int m=2; m<match_trig_window_size; m+=2)
-  {
-    pref[m-1] = pref[0] - m/2;
-    pref[m]   = pref[0] + m/2;
-  }
+  if (!isSLHC_) edm::LogError("CSCUpgradeMotherboard|ConfigError")
+    << "+++ Upgrade CSCUpgradeMotherboard constructed while isSLHC_ is not set! +++\n";
+
+  setPrefIndex();
 }
 
 CSCUpgradeMotherboard::~CSCUpgradeMotherboard()
 {
+}
+
+enum CSCPart CSCUpgradeMotherboard::getCSCPart(int keystrip) const
+{
+  if (theStation == 1 and (theRing ==1 or theRing == 4)){
+    if (keystrip > CSCConstants::MAX_HALF_STRIP_ME1B){
+      if ( !gangedME1a )
+        return CSCPart::ME1Ag;
+      else
+        return CSCPart::ME1A;
+    }else if (keystrip <= CSCConstants::MAX_HALF_STRIP_ME1B and keystrip >= 0)
+      return CSCPart::ME1B;
+    else
+      return CSCPart::ME11;
+  }else if (theStation == 2 and theRing == 1 )
+    return CSCPart::ME21;
+  else if  (theStation == 3 and theRing == 1 )
+    return CSCPart::ME31;
+  else if (theStation == 4 and theRing == 1 )
+    return CSCPart::ME41;
+  else{
+    edm::LogError("CSCUpgradeMotherboard|Error") <<" ++ getCSCPart() failed to find the CSC chamber for in case ";
+    return  CSCPart::ME11;// return ME11 by default
+  }
 }
 
 void CSCUpgradeMotherboard::debugLUTs()
@@ -113,4 +155,22 @@ void CSCUpgradeMotherboard::setupGeometry()
   const CSCDetId csc_id(theEndcap, theStation, theStation, chid, 0);
   cscChamber = csc_g->chamber(csc_id);
   generator_->setCSCGeometry(csc_g);
+}
+
+
+void CSCUpgradeMotherboard::setPrefIndex()
+{
+  pref[0] = match_trig_window_size/2;
+  for (unsigned int m=2; m<match_trig_window_size; m+=2)
+  {
+    pref[m-1] = pref[0] - m/2;
+    pref[m]   = pref[0] + m/2;
+  }
+}
+
+
+void CSCUpgradeMotherboard::clear()
+{
+  CSCMotherboard::clear();
+  allLCTs.clear();
 }

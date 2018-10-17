@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<MaterialSection label="hgcalMaterial.xml">
+  <CompositeMaterial name="WCu" density="14.979*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.75">
+      <rMaterial name="materials:Tungsten"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.25">
+      <rMaterial name="materials:Copper"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="HGC_G10-FR4" density="1.85*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.18077359">
+    <rMaterial name="materials:Silicon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.4056325">
+    <rMaterial name="materials:Oxygen"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.27804208">
+    <rMaterial name="materials:Carbon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.068442752">
+    <rMaterial name="materials:Hydrogen"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.067109079">
+    <rMaterial name="materials:Bromine"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+</MaterialSection>
+
+</DDDefinition>
