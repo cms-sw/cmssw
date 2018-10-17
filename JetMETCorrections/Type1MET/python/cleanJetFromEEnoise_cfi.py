@@ -2,13 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 
 #______________________________________________________#
-PFCandidateJetsWithEEnoise = cms.EDProducer(
+pfCandidateJetsWithEEnoise = cms.EDProducer(
     "BadPFCandidateJetsEEnoiseProducer",
     jetsrc                     = cms.InputTag("slimmedJets"),
     userawPt                   = cms.bool(True),
-    PtThreshold                = cms.double(75.0),
-    MinEtaThreshold            = cms.double(2.65),
-    MaxEtaThreshold            = cms.double(3.139)
+    ptThreshold                = cms.double(75.0),
+    minEtaThreshold            = cms.double(2.65),
+    maxEtaThreshold            = cms.double(3.139)
     )
 
 
@@ -43,7 +43,7 @@ superbad = cms.EDProducer(
     "CandViewMerger",
     src = cms.VInputTag(
         cms.InputTag("badUnclustered"),
-        cms.InputTag("PFCandidateJetsWithEEnoise"))
+        cms.InputTag("pfCandidateJetsWithEEnoise"))
     )
 #___________________________________________________________#
 cleanPFCandidates = cms.EDProducer(
@@ -57,7 +57,7 @@ cleanPFCandidates = cms.EDProducer(
 #__________________________________________________________#
 
 
-fullsuperbadSequence = cms.Sequence(PFCandidateJetsWithEEnoise+
+fullsuperbadSequence = cms.Sequence(pfCandidateJetsWithEEnoise+
                                     pfcandidateClustered +
                                     pfcandidateForUnclusteredUnc +
                                     badUnclustered +
