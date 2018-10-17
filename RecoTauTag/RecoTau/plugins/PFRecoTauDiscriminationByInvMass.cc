@@ -55,7 +55,7 @@ double
 PFRecoTauDiscriminationByInvMass::discriminate(const reco::PFTauRef& tau) const {
   double mass = tau->mass();
   if (cut_) {
-    unsigned int charged = tau->signalPFChargedHadrCands().size();
+    unsigned int charged = tau->signalChargedHadrCands().size();
     unsigned int pizeros = tau->signalPiZeroCandidates().size();
     DecayModeCutMap::const_iterator specificCut = decayModeCuts_.find(
         std::make_pair(charged, pizeros));

@@ -2,8 +2,8 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/angle.h"
 #include <algorithm>
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
 #include <boost/foreach.hpp>
 
@@ -12,7 +12,7 @@ namespace reco { namespace tau { namespace disc {
 // Helper functions
 namespace {
 
-const PFCandidate& removeRef(const PFCandidatePtr& pfRef) {
+const Candidate& removeRef(const CandidatePtr& pfRef) {
   return *pfRef;
 }
 
@@ -46,22 +46,22 @@ class DeltaRToAxis {
 
 } // end helper functions
 
-PFCandidatePtr mainTrack(Tau tau) {
-  if (tau.signalPFChargedHadrCands().size() ==  3) {
+CandidatePtr mainTrack(Tau tau) {
+  if (tau.signalChargedHadrCands().size() ==  3) {
     for (size_t itrk = 0; itrk < 3; ++itrk) {
-      if (tau.signalPFChargedHadrCands()[itrk]->charge() * tau.charge() < 0)
-        return tau.signalPFChargedHadrCands()[itrk];
+      if (tau.signalChargedHadrCands()[itrk]->charge() * tau.charge() < 0)
+        return tau.signalChargedHadrCands()[itrk];
     }
   }
-  return tau.leadPFChargedHadrCand();
+  return tau.leadChargedHadrCand();
 }
 
-std::vector<PFCandidatePtr> notMainTrack(Tau tau)
+std::vector<CandidatePtr> notMainTrack(Tau tau)
 {
-  const PFCandidatePtr& mainTrackPtr = mainTrack(tau);
-  std::vector<PFCandidatePtr> output;
-  output.reserve(tau.signalPFChargedHadrCands().size() - 1);
-  BOOST_FOREACH(const PFCandidatePtr& ptr, tau.signalPFChargedHadrCands()) {
+  const CandidatePtr& mainTrackPtr = mainTrack(tau);
+  std::vector<CandidatePtr> output;
+  output.reserve(tau.signalChargedHadrCands().size() - 1);
+  BOOST_FOREACH(const CandidatePtr& ptr, tau.signalChargedHadrCands()) {
     if (ptr != mainTrackPtr)
       output.push_back(ptr);
   }
@@ -115,7 +115,7 @@ double IsolationECALPtFraction(Tau tau) {
 
 double IsolationNeutralHadronPtFraction(Tau tau) {
   double sum = 0.0;
-  BOOST_FOREACH(PFCandidatePtr cand, tau.isolationPFNeutrHadrCands()) {
+  BOOST_FOREACH(CandidatePtr cand, tau.isolationNeutrHadrCands()) {
     sum += cand->pt();
   }
   return sum/tau.jetRef()->pt();
@@ -129,7 +129,7 @@ double ScaledEtaJetCollimation(Tau tau) {
 double OpeningDeltaR(Tau tau) {
   double sumEt = 0;
   double weightedDeltaR = 0;
-  BOOST_FOREACH(const reco::PFCandidatePtr& cand, tau.signalPFCands()) {
+  BOOST_FOREACH(const reco::CandidatePtr& cand, tau.signalCands()) {
     double candEt = cand->et();
     double candDeltaR = reco::deltaR(cand->p4(), tau.p4());
     sumEt += candEt;
@@ -141,7 +141,7 @@ double OpeningDeltaR(Tau tau) {
 double OpeningAngle3D(Tau tau) {
   double sumE = 0;
   double weightedAngle = 0;
-  BOOST_FOREACH(const reco::PFCandidatePtr& cand, tau.signalPFCands()) {
+  BOOST_FOREACH(const reco::CandidatePtr& cand, tau.signalCands()) {
     double candE = cand->energy();
     double candAngle = angle(cand->p4(), tau.p4());
     sumE += candE;
@@ -152,7 +152,7 @@ double OpeningAngle3D(Tau tau) {
 
 double ScaledOpeningDeltaR(Tau tau) {
   double max = 0.0;
-  const std::vector<PFCandidatePtr>& cands = tau.signalPFCands();
+  const std::vector<CandidatePtr>& cands = tau.signalCands();
   for (size_t i = 0; i < cands.size()-1; ++i) {
     for (size_t j = i+1; j < cands.size(); ++j) {
       double deltaRVal = deltaR(cands[i]->p4(), cands[j]->p4());
@@ -174,10 +174,10 @@ double ScaledPhiJetCollimation(Tau tau) {
 }
 
 double IsolationChargedAveragePtFraction(Tau tau) {
-  size_t nIsoCharged = tau.isolationPFChargedHadrCands().size();
+  size_t nIsoCharged = tau.isolationChargedHadrCands().size();
   double averagePt = (nIsoCharged) ?
       tau.isolationPFChargedHadrCandsPtSum()/nIsoCharged : 0;
-  return averagePt/tau.leadPFChargedHadrCand()->pt();
+  return averagePt/tau.leadChargedHadrCand()->pt();
 }
 
 double MainTrackPtFraction(Tau tau) {
@@ -185,13 +185,13 @@ double MainTrackPtFraction(Tau tau) {
 }
 
 VDouble Dalitz2(Tau tau) {
-  PFCandidatePtr theMainTrack = mainTrack(tau);
-  std::vector<PFCandidatePtr> otherSignalTracks = notMainTrack(tau);
+  CandidatePtr theMainTrack = mainTrack(tau);
+  std::vector<CandidatePtr> otherSignalTracks = notMainTrack(tau);
   const std::vector<RecoTauPiZero> &pizeros = tau.signalPiZeroCandidates();
   VDouble output;
   output.reserve(otherSignalTracks.size() + pizeros.size());
   // Add combos with tracks
-  BOOST_FOREACH(PFCandidatePtr trk, otherSignalTracks) {
+  BOOST_FOREACH(CandidatePtr trk, otherSignalTracks) {
     reco::Candidate::LorentzVector p4 = theMainTrack->p4() + trk->p4();
     output.push_back(p4.mass());
   }
@@ -204,8 +204,8 @@ VDouble Dalitz2(Tau tau) {
 }
 
 double IsolationChargedSumHard(Tau tau) {
-  VDouble isocands = extract(tau.isolationPFChargedHadrCands(),
-                             std::mem_fun_ref(&PFCandidate::pt));
+  VDouble isocands = extract(tau.isolationChargedHadrCands(),
+                             std::mem_fun_ref(&Candidate::pt));
   double output = 0.0;
   BOOST_FOREACH(double pt, isocands) {
     if (pt > 1.0)
@@ -215,8 +215,8 @@ double IsolationChargedSumHard(Tau tau) {
 }
 
 double IsolationChargedSumSoft(Tau tau) {
-  VDouble isocands = extract(tau.isolationPFChargedHadrCands(),
-                             std::mem_fun_ref(&PFCandidate::pt));
+  VDouble isocands = extract(tau.isolationChargedHadrCands(),
+                             std::mem_fun_ref(&Candidate::pt));
   double output = 0.0;
   BOOST_FOREACH(double pt, isocands) {
     if (pt < 1.0)
@@ -235,8 +235,8 @@ double IsolationChargedSumSoftRelative(Tau tau) {
 }
 
 double IsolationECALSumHard(Tau tau) {
-  VDouble isocands = extract(tau.isolationPFGammaCands(),
-                             std::mem_fun_ref(&PFCandidate::pt));
+  VDouble isocands = extract(tau.isolationGammaCands(),
+                             std::mem_fun_ref(&Candidate::pt));
   double output = 0.0;
   BOOST_FOREACH(double pt, isocands) {
     if (pt > 1.5)
@@ -246,8 +246,8 @@ double IsolationECALSumHard(Tau tau) {
 }
 
 double IsolationECALSumSoft(Tau tau) {
-  VDouble isocands = extract(tau.isolationPFGammaCands(),
-                             std::mem_fun_ref(&PFCandidate::pt));
+  VDouble isocands = extract(tau.isolationGammaCands(),
+                             std::mem_fun_ref(&Candidate::pt));
   double output = 0.0;
   BOOST_FOREACH(double pt, isocands) {
     if (pt < 1.5)
@@ -267,7 +267,7 @@ double IsolationECALSumSoftRelative(Tau tau) {
 double EMFraction(Tau tau) {
   //double result = tau.emFraction();
   reco::Candidate::LorentzVector gammaP4;
-  BOOST_FOREACH(const reco::PFCandidatePtr& gamma, tau.signalPFGammaCands()) {
+  BOOST_FOREACH(const reco::CandidatePtr& gamma, tau.signalGammaCands()) {
     gammaP4 += gamma->p4();
   }
   double result = gammaP4.pt()/tau.pt();
@@ -276,12 +276,12 @@ double EMFraction(Tau tau) {
     LogDebug("TauDiscFunctions") << "EM fraction = " << result
       << tau ;
       LogDebug("TauDiscFunctions") << "charged" ;
-    BOOST_FOREACH(const reco::PFCandidatePtr cand, tau.signalPFChargedHadrCands()) {
-      LogDebug("TauDiscFunctions") << " pt: " << cand->pt() << " type: " << cand->particleId() <<  " key: " << cand.key() ;
+    BOOST_FOREACH(const reco::CandidatePtr cand, tau.signalChargedHadrCands()) {
+      LogDebug("TauDiscFunctions") << " pt: " << cand->pt() << " pdgId: " << cand->pdgId() <<  " key: " << cand.key() ;
     }
     LogDebug("TauDiscFunctions") << "gammas" ;
-    BOOST_FOREACH(const reco::PFCandidatePtr cand, tau.signalPFGammaCands()) {
-      LogDebug("TauDiscFunctions") << " pt: " << cand->pt() << " type: " << cand->particleId() <<  " key: " << cand.key() ;
+    BOOST_FOREACH(const reco::CandidatePtr cand, tau.signalGammaCands()) {
+      LogDebug("TauDiscFunctions") << " pt: " << cand->pt() << " pdgId: " << cand->pdgId() <<  " key: " << cand.key() ;
     }
   }
   return result;
@@ -292,26 +292,26 @@ double ImpactParameterSignificance(Tau tau) {
 }
 
 double OutlierN(Tau tau) {
-  return tau.isolationPFChargedHadrCands().size() +
-      tau.isolationPFGammaCands().size();
+  return tau.isolationChargedHadrCands().size() +
+      tau.isolationGammaCands().size();
 }
 
 double OutlierNCharged(Tau tau) {
-  return tau.isolationPFChargedHadrCands().size();
+  return tau.isolationChargedHadrCands().size();
 }
 
 double MainTrackPt(Tau tau) {
-  PFCandidatePtr trk = mainTrack(tau);
+  CandidatePtr trk = mainTrack(tau);
   return (!trk) ? 0.0 : trk->pt();
 }
 
 double MainTrackEta(Tau tau) {
-  PFCandidatePtr trk = mainTrack(tau);
+  CandidatePtr trk = mainTrack(tau);
   return (!trk) ? 0.0 : trk->eta();
 }
 
 double MainTrackAngle(Tau tau) {
-  PFCandidatePtr trk = mainTrack(tau);
+  CandidatePtr trk = mainTrack(tau);
   return (!trk) ? 0.0 : deltaR(trk->p4(), tau.p4());
 }
 
@@ -330,11 +330,11 @@ double NeutralOutlierSumPt(Tau tau) {
 
 // Quantities associated to tracks - that are not the main track
 VDouble TrackPt(Tau tau) {
-  return extract(notMainTrack(tau), std::mem_fun_ref(&PFCandidate::pt));
+  return extract(notMainTrack(tau), std::mem_fun_ref(&Candidate::pt));
 }
 
 VDouble TrackEta(Tau tau) {
-  return extract(notMainTrack(tau), std::mem_fun_ref(&PFCandidate::eta));
+  return extract(notMainTrack(tau), std::mem_fun_ref(&Candidate::eta));
 }
 
 VDouble TrackAngle(Tau tau) {
@@ -356,29 +356,29 @@ VDouble PiZeroAngle(Tau tau) {
 
 // Isolation quantities
 VDouble OutlierPt(Tau tau) {
-  return extract(tau.isolationPFCands(), std::mem_fun_ref(&PFCandidate::pt));
+  return extract(tau.isolationCands(), std::mem_fun_ref(&Candidate::pt));
 }
 
 VDouble OutlierAngle(Tau tau) {
-  return extract(tau.isolationPFCands(), DeltaRToAxis(tau.p4()));
+  return extract(tau.isolationCands(), DeltaRToAxis(tau.p4()));
 }
 
 VDouble ChargedOutlierPt(Tau tau) {
-  return extract(tau.isolationPFChargedHadrCands(),
-                 std::mem_fun_ref(&PFCandidate::pt));
+  return extract(tau.isolationChargedHadrCands(),
+                 std::mem_fun_ref(&Candidate::pt));
 }
 
 VDouble ChargedOutlierAngle(Tau tau) {
-  return extract(tau.isolationPFChargedHadrCands(), DeltaRToAxis(tau.p4()));
+  return extract(tau.isolationChargedHadrCands(), DeltaRToAxis(tau.p4()));
 }
 
 VDouble NeutralOutlierPt(Tau tau) {
-  return extract(tau.isolationPFGammaCands(),
-                 std::mem_fun_ref(&PFCandidate::pt));
+  return extract(tau.isolationGammaCands(),
+                 std::mem_fun_ref(&Candidate::pt));
 }
 
 VDouble NeutralOutlierAngle(Tau tau) {
-  return extract(tau.isolationPFGammaCands(), DeltaRToAxis(tau.p4()));
+  return extract(tau.isolationGammaCands(), DeltaRToAxis(tau.p4()));
 }
 
 // Invariant mass of main track with other combinations

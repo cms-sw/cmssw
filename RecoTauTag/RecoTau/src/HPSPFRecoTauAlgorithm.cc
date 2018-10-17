@@ -26,11 +26,11 @@ HPSPFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& tagInfo,const Vertex& v
 
   pfTaus_.clear();
   //make the strips globally.
-  std::vector<std::vector<PFCandidatePtr>> strips = candidateMerger_->mergeCandidates(tagInfo->PFCands());
+  std::vector<std::vector<CandidatePtr> > strips = candidateMerger_->mergeCandidates(tagInfo->PFCands());
 
 
   //Sort the hadrons globally and once!
-  std::vector<PFCandidatePtr> hadrons = tagInfo->PFChargedHadrCands();
+  std::vector<CandidatePtr> hadrons = tagInfo->PFChargedHadrCands();
   if(hadrons.size()>1)
     TauTagTools::sortRefVectorByPt(hadrons);
 
@@ -64,7 +64,7 @@ HPSPFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& tagInfo,const Vertex& v
       const TransientTrack leadTrack=TransientTrackBuilder_->build(pfTau.leadPFChargedHadrCand()->trackRef());
       if(pfTau.pfTauTagInfoRef().isNonnull())
         if(pfTau.pfTauTagInfoRef()->pfjetRef().isNonnull()) {
-          PFJetRef jet = pfTau.pfTauTagInfoRef()->pfjetRef();
+          JetBaseRef jet = pfTau.pfTauTagInfoRef()->pfjetRef();
           GlobalVector jetDir(jet->px(),jet->py(),jet->pz());
           if(IPTools::signedTransverseImpactParameter(leadTrack,jetDir,vertex).first)
             pfTau.setleadPFChargedHadrCandsignedSipt(IPTools::signedTransverseImpactParameter(leadTrack,jetDir,vertex).second.significance());
@@ -85,13 +85,13 @@ HPSPFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& tagInfo,const Vertex& v
 
 //Create one prong tau
 void
-HPSPFRecoTauAlgorithm::buildOneProng(const reco::PFTauTagInfoRef& tagInfo,const std::vector<reco::PFCandidatePtr>& hadrons)
+HPSPFRecoTauAlgorithm::buildOneProng(const reco::PFTauTagInfoRef& tagInfo,const std::vector<reco::CandidatePtr>& hadrons)
 {
   PFTauCollection  taus;
 
   if(!hadrons.empty())
     for(unsigned int h=0;h<hadrons.size();++h) {
-      PFCandidatePtr hadron = hadrons[h];
+      CandidatePtr hadron = hadrons[h];
 
       //In the one prong case the lead Track pt should be above the tau Threshold!
       //since all the tau is just one track!
@@ -106,14 +106,14 @@ HPSPFRecoTauAlgorithm::buildOneProng(const reco::PFTauTagInfoRef& tagInfo,const 
             tau.setpfTauTagInfoRef(tagInfo);
 
             //Put the Hadron in the signal Constituents
-            std::vector<PFCandidatePtr> signal;
+            std::vector<CandidatePtr> signal;
             signal.push_back(hadron);
 
             //Set The signal candidates of the PF Tau
-            tau.setsignalPFChargedHadrCands(signal);
-            tau.setsignalPFCands(signal);
-            tau.setleadPFChargedHadrCand(hadron);
-            tau.setleadPFCand(hadron);
+            tau.setsignalChargedHadrCands(signal);
+            tau.setsignalCands(signal);
+            tau.setleadChargedHadrCand(hadron);
+            tau.setleadCand(hadron);
 
             //Fill isolation variables
             associateIsolationCandidates(tau,0.0);
@@ -135,7 +135,7 @@ HPSPFRecoTauAlgorithm::buildOneProng(const reco::PFTauTagInfoRef& tagInfo,const 
 //Build one Prong + Strip
 
 void
-HPSPFRecoTauAlgorithm::buildOneProngStrip(const reco::PFTauTagInfoRef& tagInfo,const  std::vector<std::vector<PFCandidatePtr> >& strips,const std::vector<reco::PFCandidatePtr> & hadrons)
+HPSPFRecoTauAlgorithm::buildOneProngStrip(const reco::PFTauTagInfoRef& tagInfo,const  std::vector<std::vector<CandidatePtr> >& strips,const std::vector<reco::CandidatePtr> & hadrons)
 
 {
   //Create output Collection
@@ -147,12 +147,12 @@ HPSPFRecoTauAlgorithm::buildOneProngStrip(const reco::PFTauTagInfoRef& tagInfo,c
   //make taus like this only if there is at least one hadron+ 1 strip
   if(!hadrons.empty()&&!strips.empty()){
     //Combinatorics between strips and clusters
-    for(std::vector<std::vector<PFCandidatePtr>>::const_iterator candVector=strips.begin();candVector!=strips.end();++candVector)
-      for(std::vector<PFCandidatePtr>::const_iterator hadron=hadrons.begin();hadron!=hadrons.end();++hadron) {
+    for(std::vector<std::vector<CandidatePtr>>::const_iterator candVector=strips.begin();candVector!=strips.end();++candVector)
+      for(std::vector<CandidatePtr>::const_iterator hadron=hadrons.begin();hadron!=hadrons.end();++hadron) {
 
         //First Cross cleaning ! If you asked to clusterize the candidates
         //with tracks too then you should not double count the track
-        std::vector<PFCandidatePtr> emConstituents = *candVector;
+        std::vector<CandidatePtr> emConstituents = *candVector;
         removeCandidateFromRefVector(*hadron,emConstituents);
 
         //Create a LorentzVector for the strip
@@ -174,9 +174,9 @@ HPSPFRecoTauAlgorithm::buildOneProngStrip(const reco::PFTauTagInfoRef& tagInfo,c
               tau.setpfTauTagInfoRef(tagInfo);
 
               //Create the signal vectors
-              std::vector<PFCandidatePtr> signal;
-              std::vector<PFCandidatePtr> signalH;
-              std::vector<PFCandidatePtr> signalG;
+              std::vector<CandidatePtr> signal;
+              std::vector<CandidatePtr> signalH;
+              std::vector<CandidatePtr> signalG;
 
               //Store the hadron in the PFTau
               signalH.push_back(*hadron);
@@ -192,23 +192,23 @@ HPSPFRecoTauAlgorithm::buildOneProngStrip(const reco::PFTauTagInfoRef& tagInfo,c
                                  ROOT::Math::VectorUtil::DeltaR(tau.p4(),strip));
 
               if(!emConstituents.empty())
-                for(std::vector<PFCandidatePtr>::const_iterator j=emConstituents.begin();j!=emConstituents.end();++j)  {
+                for(std::vector<CandidatePtr>::const_iterator j=emConstituents.begin();j!=emConstituents.end();++j)  {
                   signal.push_back(*j);
                   signalG.push_back(*j);
                 }
 
               //Set the PFTau
-              tau.setsignalPFChargedHadrCands(signalH);
-              tau.setsignalPFGammaCands(signalG);
-              tau.setsignalPFCands(signal);
-              tau.setleadPFChargedHadrCand(*hadron);
-              tau.setleadPFNeutralCand(emConstituents[0]);
+              tau.setsignalChargedHadrCands(signalH);
+              tau.setsignalGammaCands(signalG);
+              tau.setsignalCands(signal);
+              tau.setleadChargedHadrCand(*hadron);
+              tau.setleadNeutralCand(emConstituents[0]);
 
               //Set the lead Candidate->Can be the hadron or the leading PFGamma(When we clear the Dataformat we will put the strip)
               if((*hadron)->pt()>emConstituents[0]->pt())
-                tau.setleadPFCand(*hadron);
+                tau.setleadCand(*hadron);
               else
-                tau.setleadPFCand(emConstituents[0]);
+                tau.setleadCand(emConstituents[0]);
 
               //Apply the signal cone size formula
               if(isNarrowTau(tau,tauCone)) {
@@ -231,7 +231,7 @@ HPSPFRecoTauAlgorithm::buildOneProngStrip(const reco::PFTauTagInfoRef& tagInfo,c
 }
 
 void
-HPSPFRecoTauAlgorithm::buildOneProngTwoStrips(const reco::PFTauTagInfoRef& tagInfo,const  std::vector<std::vector<PFCandidatePtr> >& strips,const std::vector<reco::PFCandidatePtr>& hadrons)
+HPSPFRecoTauAlgorithm::buildOneProngTwoStrips(const reco::PFTauTagInfoRef& tagInfo,const  std::vector<std::vector<CandidatePtr> >& strips,const std::vector<reco::CandidatePtr>& hadrons)
 {
 
 
@@ -242,13 +242,13 @@ HPSPFRecoTauAlgorithm::buildOneProngTwoStrips(const reco::PFTauTagInfoRef& tagIn
     //Combinatorics between strips and clusters
     for(unsigned int Nstrip1=0;Nstrip1<strips.size()-1;++Nstrip1)
       for(unsigned int Nstrip2=Nstrip1+1;Nstrip2<strips.size();++Nstrip2)
-        for(std::vector<PFCandidatePtr>::const_iterator hadron=hadrons.begin();hadron!=hadrons.end();++hadron) {
+        for(std::vector<CandidatePtr>::const_iterator hadron=hadrons.begin();hadron!=hadrons.end();++hadron) {
 
 
 
           //Create the strips and the vectors .Again cross clean the track if associated
-          std::vector<PFCandidatePtr> emConstituents1 = strips[Nstrip1];
-          std::vector<PFCandidatePtr> emConstituents2 = strips[Nstrip2];
+          std::vector<CandidatePtr> emConstituents1 = strips[Nstrip1];
+          std::vector<CandidatePtr> emConstituents2 = strips[Nstrip2];
           removeCandidateFromRefVector(*hadron,emConstituents1);
           removeCandidateFromRefVector(*hadron,emConstituents2);
 
@@ -278,9 +278,9 @@ HPSPFRecoTauAlgorithm::buildOneProngTwoStrips(const reco::PFTauTagInfoRef& tagIn
 
 
                   //Create the signal vectors
-                  std::vector<PFCandidatePtr> signal;
-                  std::vector<PFCandidatePtr> signalH;
-                  std::vector<PFCandidatePtr> signalG;
+                  std::vector<CandidatePtr> signal;
+                  std::vector<CandidatePtr> signalH;
+                  std::vector<CandidatePtr> signalG;
 
                   //Store the hadron in the PFTau
                   signalH.push_back(*hadron);
@@ -300,27 +300,27 @@ HPSPFRecoTauAlgorithm::buildOneProngTwoStrips(const reco::PFTauTagInfoRef& tagIn
 
                   }
 
-                  for(std::vector<PFCandidatePtr>::const_iterator j=emConstituents1.begin();j!=emConstituents1.end();++j)  {
+                  for(std::vector<CandidatePtr>::const_iterator j=emConstituents1.begin();j!=emConstituents1.end();++j)  {
                     signal.push_back(*j);
                     signalG.push_back(*j);
                   }
 
-                  for(std::vector<PFCandidatePtr>::const_iterator j=emConstituents2.begin();j!=emConstituents2.end();++j)  {
+                  for(std::vector<CandidatePtr>::const_iterator j=emConstituents2.begin();j!=emConstituents2.end();++j)  {
                     signal.push_back(*j);
                     signalG.push_back(*j);
                   }
 
                   //Set the PFTau
-                  tau.setsignalPFChargedHadrCands(signalH);
-                  tau.setsignalPFGammaCands(signalG);
-                  tau.setsignalPFCands(signal);
-                  tau.setleadPFChargedHadrCand(*hadron);
+                  tau.setsignalChargedHadrCands(signalH);
+                  tau.setsignalGammaCands(signalG);
+                  tau.setsignalCands(signal);
+                  tau.setleadChargedHadrCand(*hadron);
 
                   //Set the lead Candidate->Can be the hadron or the leading PFGamma(When we clear the Dataformat we will put the strip)
                   if((*hadron)->pt()>emConstituents1[0]->pt())
-                    tau.setleadPFCand(*hadron);
+                    tau.setleadCand(*hadron);
                   else
-                    tau.setleadPFCand(emConstituents1[0]);
+                    tau.setleadCand(emConstituents1[0]);
 
                   //Apply the cone size formula
                   if(isNarrowTau(tau,tauCone)) {
@@ -351,7 +351,7 @@ HPSPFRecoTauAlgorithm::buildOneProngTwoStrips(const reco::PFTauTagInfoRef& tagIn
 
 
 void
-HPSPFRecoTauAlgorithm::buildThreeProngs(const reco::PFTauTagInfoRef& tagInfo,const std::vector<reco::PFCandidatePtr>& hadrons)
+HPSPFRecoTauAlgorithm::buildThreeProngs(const reco::PFTauTagInfoRef& tagInfo,const std::vector<reco::CandidatePtr>& hadrons)
 {
   PFTauCollection taus;
   //get Hadrons
@@ -363,9 +363,16 @@ HPSPFRecoTauAlgorithm::buildThreeProngs(const reco::PFTauTagInfoRef& tagInfo,con
       for(unsigned int b=a+1;b<hadrons.size()-1;++b)
         for(unsigned int c=b+1;c<hadrons.size();++c) {
 
-          PFCandidatePtr h1 = hadrons[a];
-          PFCandidatePtr h2 = hadrons[b];
-          PFCandidatePtr h3 = hadrons[c];
+          CandidatePtr c_h1 = hadrons[a];
+          CandidatePtr c_h2 = hadrons[b];
+          CandidatePtr c_h3 = hadrons[c];
+
+          const reco::PFCandidate* h1 = dynamic_cast<const reco::PFCandidate*>(c_h1.get());
+          const reco::PFCandidate* h2 = dynamic_cast<const reco::PFCandidate*>(c_h2.get());
+          const reco::PFCandidate* h3 = dynamic_cast<const reco::PFCandidate*>(c_h3.get());
+          if (h1 == nullptr || h2 == nullptr || h3 == nullptr) {
+            throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm as not updated to cope with PFTaus made from other Candidates.\n";
+          }
 
           //check charge Compatibility and lead track
           int charge=h1->charge()+h2->charge()+h3->charge();
@@ -381,10 +388,10 @@ HPSPFRecoTauAlgorithm::buildThreeProngs(const reco::PFTauTagInfoRef& tagInfo,con
               if(tau.pt()>tauThreshold_)//Threshold
                 if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),tagInfo->pfjetRef()->p4())<matchingCone_) {//Matching Cone
 
-                  std::vector<PFCandidatePtr> signal;
-                  signal.push_back(h1);
-                  signal.push_back(h2);
-                  signal.push_back(h3);
+                  std::vector<CandidatePtr> signal;
+                  signal.push_back(c_h1);
+                  signal.push_back(c_h2);
+                  signal.push_back(c_h3);
                   //calculate the tau cone by getting the maximum distance
                   double tauCone = 10000.0;
                   if(coneMetric_=="DR")
@@ -401,10 +408,10 @@ HPSPFRecoTauAlgorithm::buildThreeProngs(const reco::PFTauTagInfoRef& tagInfo,con
                   }
 
                   //Set The PFTau
-                  tau.setsignalPFChargedHadrCands(signal);
-                  tau.setsignalPFCands(signal);
-                  tau.setleadPFChargedHadrCand(h1);
-                  tau.setleadPFCand(h1);
+                  tau.setsignalChargedHadrCands(signal);
+                  tau.setsignalCands(signal);
+                  tau.setleadChargedHadrCand(c_h1);
+                  tau.setleadCand(c_h1);
 
                   if(isNarrowTau(tau,tauCone)) {
                     //calculate the isolation Deposits
@@ -457,31 +464,31 @@ HPSPFRecoTauAlgorithm::associateIsolationCandidates(reco::PFTau& tau,
 
   if(tau.pfTauTagInfoRef().isNull()) return;
 
-  std::vector<PFCandidatePtr> hadrons;
-  std::vector<PFCandidatePtr> gammas;
-  std::vector<PFCandidatePtr> neutral;
+  std::vector<CandidatePtr> hadrons;
+  std::vector<CandidatePtr> gammas;
+  std::vector<CandidatePtr> neutral;
 
   //Remove candidates outside the cones
   if(useIsolationAnnulus_)
   {
-    const std::vector<reco::PFCandidatePtr>& pfChargedHadrCands = tau.pfTauTagInfoRef()->PFChargedHadrCands();
+    const std::vector<reco::CandidatePtr>& pfChargedHadrCands = tau.pfTauTagInfoRef()->PFChargedHadrCands();
     double tauEta=tau.eta();
     double tauPhi=tau.phi();
-    for ( std::vector<reco::PFCandidatePtr>::const_iterator pfChargedHadrCand = pfChargedHadrCands.begin();
+    for ( std::vector<reco::CandidatePtr>::const_iterator pfChargedHadrCand = pfChargedHadrCands.begin();
 	  pfChargedHadrCand != pfChargedHadrCands.end(); ++pfChargedHadrCand ) {
       double dR = reco::deltaR(tauEta, tauPhi, (*pfChargedHadrCand)->eta(), (*pfChargedHadrCand)->phi());
       if ( dR > tauCone && dR < chargeIsolationCone_ ) hadrons.push_back(*pfChargedHadrCand);
     }
 
-    const std::vector<reco::PFCandidatePtr>& pfGammaCands = tau.pfTauTagInfoRef()->PFGammaCands();
-    for ( std::vector<reco::PFCandidatePtr>::const_iterator pfGammaCand = pfGammaCands.begin();
+    const std::vector<reco::CandidatePtr>& pfGammaCands = tau.pfTauTagInfoRef()->PFGammaCands();
+    for ( std::vector<reco::CandidatePtr>::const_iterator pfGammaCand = pfGammaCands.begin();
 	  pfGammaCand != pfGammaCands.end(); ++pfGammaCand ) {
       double dR = reco::deltaR(tauEta, tauPhi, (*pfGammaCand)->eta(), (*pfGammaCand)->phi());
       if ( dR > tauCone && dR < gammaIsolationCone_ ) gammas.push_back(*pfGammaCand);
     }
 
-    const std::vector<reco::PFCandidatePtr>& pfNeutralHadrCands = tau.pfTauTagInfoRef()->PFNeutrHadrCands();
-    for ( std::vector<reco::PFCandidatePtr>::const_iterator pfNeutralHadrCand = pfNeutralHadrCands.begin();
+    const std::vector<reco::CandidatePtr>& pfNeutralHadrCands = tau.pfTauTagInfoRef()->PFNeutrHadrCands();
+    for ( std::vector<reco::CandidatePtr>::const_iterator pfNeutralHadrCand = pfNeutralHadrCands.begin();
 	  pfNeutralHadrCand != pfNeutralHadrCands.end(); ++pfNeutralHadrCand ) {
       double dR = reco::deltaR(tauEta, tauPhi, (*pfNeutralHadrCand)->eta(), (*pfNeutralHadrCand)->phi());
       if ( dR > tauCone && dR < neutrHadrIsolationCone_ ) hadrons.push_back(*pfNeutralHadrCand);
@@ -489,22 +496,22 @@ HPSPFRecoTauAlgorithm::associateIsolationCandidates(reco::PFTau& tau,
   } else {
     double tauEta=tau.eta();
     double tauPhi=tau.phi();
-    const std::vector<reco::PFCandidatePtr>& pfChargedHadrCands = tau.pfTauTagInfoRef()->PFChargedHadrCands();
-    for ( std::vector<reco::PFCandidatePtr>::const_iterator pfChargedHadrCand = pfChargedHadrCands.begin();
+    const std::vector<reco::CandidatePtr>& pfChargedHadrCands = tau.pfTauTagInfoRef()->PFChargedHadrCands();
+    for ( std::vector<reco::CandidatePtr>::const_iterator pfChargedHadrCand = pfChargedHadrCands.begin();
 	  pfChargedHadrCand != pfChargedHadrCands.end(); ++pfChargedHadrCand ) {
       double dR = reco::deltaR(tauEta, tauPhi, (*pfChargedHadrCand)->eta(), (*pfChargedHadrCand)->phi());
       if ( dR < chargeIsolationCone_ ) hadrons.push_back(*pfChargedHadrCand);
     }
 
-    const std::vector<reco::PFCandidatePtr>& pfGammaCands = tau.pfTauTagInfoRef()->PFGammaCands();
-    for ( std::vector<reco::PFCandidatePtr>::const_iterator pfGammaCand = pfGammaCands.begin();
+    const std::vector<reco::CandidatePtr>& pfGammaCands = tau.pfTauTagInfoRef()->PFGammaCands();
+    for ( std::vector<reco::CandidatePtr>::const_iterator pfGammaCand = pfGammaCands.begin();
 	  pfGammaCand != pfGammaCands.end(); ++pfGammaCand ) {
       double dR = reco::deltaR(tauEta, tauPhi, (*pfGammaCand)->eta(), (*pfGammaCand)->phi());
       if ( dR < gammaIsolationCone_ ) gammas.push_back(*pfGammaCand);
     }
 
-    const std::vector<reco::PFCandidatePtr>& pfNeutralHadrCands = tau.pfTauTagInfoRef()->PFNeutrHadrCands();
-    for ( std::vector<reco::PFCandidatePtr>::const_iterator pfNeutralHadrCand = pfNeutralHadrCands.begin();
+    const std::vector<reco::CandidatePtr>& pfNeutralHadrCands = tau.pfTauTagInfoRef()->PFNeutrHadrCands();
+    for ( std::vector<reco::CandidatePtr>::const_iterator pfNeutralHadrCand = pfNeutralHadrCands.begin();
 	  pfNeutralHadrCand != pfNeutralHadrCands.end(); ++pfNeutralHadrCand ) {
       double dR = reco::deltaR(tauEta, tauPhi, (*pfNeutralHadrCand)->eta(), (*pfNeutralHadrCand)->phi());
       if ( dR < neutrHadrIsolationCone_ ) hadrons.push_back(*pfNeutralHadrCand);
@@ -512,12 +519,12 @@ HPSPFRecoTauAlgorithm::associateIsolationCandidates(reco::PFTau& tau,
   }
 
   //remove the signal Constituents from the collections
-  for(std::vector<PFCandidatePtr>::const_iterator i=tau.signalPFChargedHadrCands().begin();i!=tau.signalPFChargedHadrCands().end();++i)
+  for(std::vector<CandidatePtr>::const_iterator i=tau.signalChargedHadrCands().begin();i!=tau.signalChargedHadrCands().end();++i)
   {
     removeCandidateFromRefVector(*i,hadrons);
   }
 
-  for(std::vector<PFCandidatePtr>::const_iterator i=tau.signalPFGammaCands().begin();i!=tau.signalPFGammaCands().end();++i)
+  for(std::vector<CandidatePtr>::const_iterator i=tau.signalGammaCands().begin();i!=tau.signalGammaCands().end();++i)
   {
     removeCandidateFromRefVector(*i,gammas);
     removeCandidateFromRefVector(*i,hadrons);//special case where we included a hadron if the strip!
@@ -538,18 +545,18 @@ HPSPFRecoTauAlgorithm::associateIsolationCandidates(reco::PFTau& tau,
 
   tau.setisolationPFChargedHadrCandsPtSum(sumPT);
   tau.setisolationPFGammaCandsEtSum(sumET);
-  tau.setisolationPFChargedHadrCands(hadrons);
-  tau.setisolationPFNeutrHadrCands(neutral);
-  tau.setisolationPFGammaCands(gammas);
+  tau.setisolationChargedHadrCands(hadrons);
+  tau.setisolationNeutrHadrCands(neutral);
+  tau.setisolationGammaCands(gammas);
 
-  std::vector<PFCandidatePtr> isoAll = hadrons;
+  std::vector<CandidatePtr> isoAll = hadrons;
   for(unsigned int i=0;i<gammas.size();++i)
     isoAll.push_back(gammas[i]);
 
   for(unsigned int i=0;i<neutral.size();++i)
     isoAll.push_back(neutral[i]);
 
-  tau.setisolationPFCands(isoAll);
+  tau.setisolationCands(isoAll);
 }
 
 void
@@ -679,7 +686,7 @@ HPSPFRecoTauAlgorithm::configure(const edm::ParameterSet& p)
 
 
 math::XYZTLorentzVector
-HPSPFRecoTauAlgorithm::createMergedLorentzVector(const std::vector<reco::PFCandidatePtr>& cands)
+HPSPFRecoTauAlgorithm::createMergedLorentzVector(const std::vector<reco::CandidatePtr>& cands)
 {
   math::XYZTLorentzVector sum;
   for(unsigned int i=0;i<cands.size();++i) {
@@ -689,11 +696,11 @@ HPSPFRecoTauAlgorithm::createMergedLorentzVector(const std::vector<reco::PFCandi
 }
 
 void
-HPSPFRecoTauAlgorithm::removeCandidateFromRefVector(const reco::PFCandidatePtr& cand,std::vector<reco::PFCandidatePtr>& vec)
+HPSPFRecoTauAlgorithm::removeCandidateFromRefVector(const reco::CandidatePtr& cand,std::vector<reco::CandidatePtr>& vec)
 {
-  std::vector<PFCandidatePtr> newVec;
+  std::vector<CandidatePtr> newVec;
 
-  std::vector<PFCandidatePtr>::iterator it;
+  std::vector<CandidatePtr>::iterator it;
   it = std::find(vec.begin(),vec.end(),cand);
   if(it!=vec.end())
     vec.erase(it);
@@ -771,4 +778,3 @@ HPSPFRecoTauAlgorithm::getBestTauCandidate(reco::PFTauCollection& taus)
 
   return *it;
 }
-

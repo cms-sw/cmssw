@@ -214,7 +214,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA5::discriminate(const PFTauRef& 
     edm::LogPrint("PFTauAgainstEleMVA5") << "<PFRecoTauDiscriminationAgainstElectronMVA5::discriminate>:" ;
     edm::LogPrint("PFTauAgainstEleMVA5") << " tau: Pt = " << thePFTauRef->pt() << ", eta = " << thePFTauRef->eta() << ", phi = " << thePFTauRef->phi();
     edm::LogPrint("PFTauAgainstEleMVA5") << " deltaREleTau = " << deltaRDummy << ", isGsfElectronMatched = " << isGsfElectronMatched;
-    edm::LogPrint("PFTauAgainstEleMVA5") << " #Prongs = " << thePFTauRef->signalPFChargedHadrCands().size();
+    edm::LogPrint("PFTauAgainstEleMVA5") << " #Prongs = " << thePFTauRef->signalChargedHadrCands().size();
     edm::LogPrint("PFTauAgainstEleMVA5") << " MVA = " << mvaValue << ", category = " << category;
   }
 

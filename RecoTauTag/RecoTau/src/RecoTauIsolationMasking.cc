@@ -32,11 +32,11 @@ class PtSorter {
 // Check if an object is within DR of a track collection
 class MultiTrackDRFilter {
   public:
-  MultiTrackDRFilter(double deltaR, const std::vector<reco::PFCandidatePtr>& trks)
+  MultiTrackDRFilter(double deltaR, const std::vector<reco::CandidatePtr>& trks)
       :deltaR_(deltaR),tracks_(trks){}
     template <typename T>
     bool operator()(const T& t) const {
-      BOOST_FOREACH(const reco::PFCandidatePtr& trk, tracks_) {
+      BOOST_FOREACH(const reco::CandidatePtr& trk, tracks_) {
         if (reco::deltaR(trk->p4(), t->p4()) < deltaR_)
           return true;
       }
@@ -44,7 +44,7 @@ class MultiTrackDRFilter {
     }
   private:
     double deltaR_;
-  const std::vector<reco::PFCandidatePtr>& tracks_;
+  const std::vector<reco::CandidatePtr>& tracks_;
 };
 
 double square(double x) { return x*x; }
@@ -75,15 +75,15 @@ RecoTauIsolationMasking::IsoMaskResult
 RecoTauIsolationMasking::mask(const reco::PFTau& tau) const {
   IsoMaskResult output;
 
-  typedef std::list<reco::PFCandidatePtr> PFCandList;
+  typedef std::list<reco::CandidatePtr> CandList;
   // Copy original iso collections.
-  std::copy(tau.isolationPFGammaCands().begin(),
-      tau.isolationPFGammaCands().end(), std::back_inserter(output.gammas));
-  std::copy(tau.isolationPFNeutrHadrCands().begin(),
-      tau.isolationPFNeutrHadrCands().end(),
+  std::copy(tau.isolationGammaCands().begin(),
+      tau.isolationGammaCands().end(), std::back_inserter(output.gammas));
+  std::copy(tau.isolationNeutrHadrCands().begin(),
+      tau.isolationNeutrHadrCands().end(),
       std::back_inserter(output.h0s));
 
-  std::vector<PFCandList*> courses;
+  std::vector<CandList*> courses;
   courses.push_back(&(output.h0s));
   courses.push_back(&(output.gammas));
   // Mask using each one of the tracks
@@ -108,14 +108,14 @@ RecoTauIsolationMasking::mask(const reco::PFTau& tau) const {
     //DRSorter sorter(track->p4());
     PtSorter sorter;
 
-    BOOST_FOREACH(PFCandList* course, courses) {
+    BOOST_FOREACH(CandList* course, courses) {
       // Sort by deltaR to the current track
       course->sort(sorter);
-      PFCandList::iterator toEatIter = course->begin();
+      CandList::iterator toEatIter = course->begin();
       // While there are still candidates to eat in this course and they are
       // within the cone.
       while (toEatIter != course->end()) {
-        const reco::PFCandidate& toEat = **toEatIter;
+        const reco::Candidate& toEat = **toEatIter;
         double toEatEnergy = toEat.energy();
         double toEatErrorSq = square(resolution(toEat));
         // Check if we can absorb this candidate into the track.
@@ -136,42 +136,41 @@ RecoTauIsolationMasking::mask(const reco::PFTau& tau) const {
   // This removes upward fluctuating HCAL objects
   if (finalHcalCone_ > 0) {
     MultiTrackDRFilter hcalFinalFilter(finalHcalCone_,
-        tau.signalPFChargedHadrCands());
+        tau.signalChargedHadrCands());
     std::remove_if(output.h0s.begin(), output.h0s.end(), hcalFinalFilter);
   }
   return output;
 }
 
 double RecoTauIsolationMasking::resolution(
-    const reco::PFCandidate& cand) const {
-  if (cand.particleId() == reco::PFCandidate::h0) {
+    const reco::Candidate& cand) const {
+  if (cand.pdgId() == 130) {
     // NB for HCAL it returns relative energy
     return cand.energy()*resolutions_->getEnergyResolutionHad(cand.energy(),
         cand.eta(), cand.phi());
-  } else if (cand.particleId() == reco::PFCandidate::gamma) {
+  } else if (cand.pdgId() == 22) {
     return resolutions_->getEnergyResolutionEm(cand.energy(), cand.eta());
-  } else if (cand.particleId() == reco::PFCandidate::e) {
+  } else if (std::abs(cand.pdgId()) == 11) {
     // FIXME what is the electron resolution??
     return 0.15;
   } else {
     edm::LogWarning("IsoMask::res (bad pf id)")
-      << "Unknown PF ID: " << cand.particleId();
+      << "Unknown PF PDG ID: " << cand.pdgId();
   }
   return -1;
 }
 
 bool RecoTauIsolationMasking::inCone(const reco::PFCandidate& track,
-    const reco::PFCandidate& cand) const {
+    const reco::Candidate& cand) const {
   double openingDR = reco::deltaR(track.positionAtECALEntrance(), cand.p4());
-  if (cand.particleId() == reco::PFCandidate::h0) {
+  if (cand.pdgId() == 130) {
     return (openingDR < hcalCone_);
-  } else if (cand.particleId() == reco::PFCandidate::gamma ||
-      cand.particleId() == reco::PFCandidate::e) {
+  } else if (cand.pdgId() == 22 ||
+      abs(cand.pdgId()) == 11) {
     return openingDR < ecalCone_;
   } else {
     edm::LogWarning("IsoMask::inCone (bad pf id)")
-      << "Unknown PF ID: " << cand.particleId()
-      << " " <<  reco::PFCandidate::e;
+      << "Unknown PF PDG ID: " << cand.pdgId();
   }
   return -1;
 }

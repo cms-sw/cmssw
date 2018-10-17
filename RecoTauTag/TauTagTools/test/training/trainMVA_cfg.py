@@ -227,7 +227,7 @@ process.signalRawTausLeadPionPt = cms.EDFilter(
     "PFTauViewRefSelector",
     src = cms.InputTag("signalRawTaus"),
     cut = cms.string(
-        'leadPFChargedHadrCand().muonRef().isNull() &leadPFCand().pt() > 5.0'),
+        'leadPFChargedHadrCand().muonRef().isNull() &leadCand().pt() > 5.0'),
     # We can skip events where no taus pass this requirement
     filter = cms.bool(True),
 )

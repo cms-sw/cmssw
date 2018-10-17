@@ -3,12 +3,12 @@
 
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/JetReco/interface/JetCollection.h"
 
 namespace reco {
    // This base class improves the readability of the ROOT class name by hiding
    // the template crap
-   typedef edm::AssociationVector<PFJetRefProd, std::vector<std::vector<RecoTauPiZero> > >
+   typedef edm::AssociationVector<JetRefBaseProd, std::vector<std::vector<RecoTauPiZero> > >
      JetPiZeroAssociationBase;  
 
    class JetPiZeroAssociation : public JetPiZeroAssociationBase {
@@ -17,7 +17,7 @@ namespace reco {
       JetPiZeroAssociationBase()
       { }
     
-    JetPiZeroAssociation(const reco::PFJetRefProd & ref) :
+    JetPiZeroAssociation(const JetRefBaseProd & ref) :
       JetPiZeroAssociationBase(ref)
       { }
     
