@@ -47,6 +47,12 @@ namespace l1t
             
             void   setMipPt( double value ) { mipPt_ = value; }
             double mipPt() const            { return mipPt_;  }
+
+            void     setUncompressedCharge( uint32_t value ) { uncompressedCharge_ = value; }
+            uint32_t uncompressedCharge() const              { return uncompressedCharge_;  }
+
+            void     setCompressedCharge( uint32_t value ) { compressedCharge_ = value; }
+            uint32_t compressedCharge() const              { return compressedCharge_;  }
             
         private:
             
@@ -54,6 +60,9 @@ namespace l1t
             GlobalPoint position_;
             
             double mipPt_;
+
+            uint32_t uncompressedCharge_;
+            uint32_t compressedCharge_;
 
     };
 
