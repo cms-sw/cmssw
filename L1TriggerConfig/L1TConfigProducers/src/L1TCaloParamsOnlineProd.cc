@@ -114,8 +114,10 @@ std::map<std::string, l1t::Mask>& ) {
     "ET_centralityUpperThresholds",
     "ET_energyCalibLUT",
     "ecalET_energyCalibLUT",
-    "METX_energyCalibLUT",
-    "METY_energyCalibLUT"
+    "MET_energyCalibLUT",
+    "METHF_energyCalibLUT",
+    "MET_phiCalibLUT",
+    "METHF_phiCalibLUT",
   };
 
   for (const auto param : expectedParams) {
@@ -181,8 +183,29 @@ std::map<std::string, l1t::Mask>& ) {
   // demux tower sum calib LUTs
   paramsHelper.setEtSumEttCalibrationLUT    ( l1t::convertToLUT( conf["ET_energyCalibLUT"].getVector<int>() ) );
   paramsHelper.setEtSumEcalSumCalibrationLUT( l1t::convertToLUT( conf["ecalET_energyCalibLUT"].getVector<int>() ) );
-  paramsHelper.setEtSumXCalibrationLUT      ( l1t::convertToLUT( conf["METX_energyCalibLUT"].getVector<int>() ) );
-  paramsHelper.setEtSumYCalibrationLUT      ( l1t::convertToLUT( conf["METY_energyCalibLUT"].getVector<int>() ) );
+  paramsHelper.setMetCalibrationLUT      ( l1t::convertToLUT( conf["MET_energyCalibLUT"].getVector<int>() ) );
+  paramsHelper.setMetHFCalibrationLUT      ( l1t::convertToLUT( conf["METHF_energyCalibLUT"].getVector<int>() ) );
+  paramsHelper.setMetPhiCalibrationLUT      ( l1t::convertToLUT( conf["MET_phiCalibLUT"].getVector<int>() ) );
+  paramsHelper.setMetHFPhiCalibrationLUT      ( l1t::convertToLUT( conf["METHF_phiCalibLUT"].getVector<int>() ) );
+
+  paramsHelper.setEgMaxPtHOverE((conf["egammaRelaxationThreshold"].getValue<int>())/2.);
+  paramsHelper.setEgEtaCut((conf["egammaMaxEta"].getValue<int>()));
+  paramsHelper.setEgCalibrationLUT  ( l1t::convertToLUT( conf["egammaEnergyCalibLUT"].getVector<int>() ) );
+  paramsHelper.setEgIsolationLUT    ( l1t::convertToLUT( conf["egammaIsoLUT1"].getVector<int>() ) );
+  paramsHelper.setEgIsolationLUT2   ( l1t::convertToLUT( conf["egammaIsoLUT2"].getVector<int>() ) );
+
+  paramsHelper.setIsoTauEtaMax((conf["tauMaxEta"].getValue<int>()));
+
+  paramsHelper.setTauCalibrationLUT( l1t::convertToLUT( conf["tauEnergyCalibLUT"].getVector<int>() ) );
+  paramsHelper.setTauIsolationLUT  ( l1t::convertToLUT( conf["tauIsoLUT1"].getVector<int>() ) );
+  if( conf.find("tauIsoLUT2") != conf.end() )
+    paramsHelper.setTauIsolationLUT2 ( l1t::convertToLUT( conf["tauIsoLUT2"].getVector<int>() ) );
+
+  paramsHelper.setEgBypassExtHOverE( conf["egammaBypassExtendedHOverE"].getValue<bool>() );
+
+  if( conf.find("P_TauTrimming_13to8.mif") != conf.end() )
+    paramsHelper.setTauTrimmingShapeVetoLUT( l1t::convertToLUT( conf["P_TauTrimming_13to8.mif"].getVector<int>() ) );
+>>>>>>> f52d23c58c4... More updates for O2O
 
   return true;
 }
