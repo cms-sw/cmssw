@@ -61,3 +61,8 @@ phase2_common.toModify( SimCalorimetryPREMIX.outputCommands, func=lambda outputC
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify( SimCalorimetryPREMIX.outputCommands, func=lambda outputCommands: outputCommands.append('drop EEDigiCollection_simEcalDigis_*_*') )
+
+from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
+phase2_hfnose.toModify( SimCalorimetryFEVTDEBUG.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simHFNoseUnsuppressedDigis_*_*') )
+phase2_common.toModify( SimCalorimetryRAW.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simHFNoseUnsuppressedDigis_*_*') )
+

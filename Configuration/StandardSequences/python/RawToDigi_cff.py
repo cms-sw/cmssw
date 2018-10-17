@@ -137,5 +137,9 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(RawToDigi, RawToDigi.copyAndExclude([muonRPCNewDigis]))
 fastSim.toReplaceWith(RawToDigi_noTk, RawToDigi_noTk.copyAndExclude([muonRPCNewDigis]))
 
+_hfnose_RawToDigi = RawToDigi.copy()
+_hfnose_RawToDigi += hfnoseDigis
 
+from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
+phase2_hfnose.toReplaceWith(RawToDigi,_hfnose_RawToDigi)
 
