@@ -251,27 +251,27 @@ void TauTagValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
     xaxisLabel = ";size";
     yaxislabel = ";Frequency";
     bins = 20;
-    plotName = plotType + "signalPFCands";
+    plotName = plotType + "signalCands";
     tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, -0.5, bins-0.5);
     plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-    plotName = plotType + "signalPFChargedHadrCands";
+    plotName = plotType + "signalChargedHadrCands";
     tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, -0.5, bins-0.5);
     plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-    plotName = plotType + "signalPFNeutrHadrCands";
+    plotName = plotType + "signalNeutrHadrCands";
     tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, -0.5, bins-0.5);
     plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
 
-    plotName = plotType + "isolationPFCands";
+    plotName = plotType + "isolationCands";
     tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, -0.5, bins-0.5);
     plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-    plotName = plotType + "isolationPFChargedHadrCands";
+    plotName = plotType + "isolationChargedHadrCands";
     bins = 10;
     tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, -0.5, bins-0.5);
     plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-    plotName = plotType + "isolationPFNeutrHadrCands";
+    plotName = plotType + "isolationNeutrHadrCands";
     tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, -0.5, bins-0.5);
     plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-    plotName = plotType + "isolationPFGammaCands";
+    plotName = plotType + "isolationGammaCands";
     tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, -0.5, bins-0.5);
     plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
 
@@ -279,25 +279,25 @@ void TauTagValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
     xaxisLabel = ";p_{T}^{sum}/ GeV";
     yaxislabel = ";Frequency";
     bins = 20;
-    plotName = plotType + "signalPFCands";
+    plotName = plotType + "signalCands";
     tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 50.);
     plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-    plotName = plotType + "signalPFChargedHadrCands";
+    plotName = plotType + "signalChargedHadrCands";
     tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 50.);
     plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-    plotName = plotType + "signalPFNeutrHadrCands";
+    plotName = plotType + "signalNeutrHadrCands";
     tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 50.);
     plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-    plotName = plotType + "isolationPFCands";
+    plotName = plotType + "isolationCands";
     tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 50.);
     plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-    plotName = plotType + "isolationPFChargedHadrCands";
+    plotName = plotType + "isolationChargedHadrCands";
     tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 10.);
     plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-    plotName = plotType + "isolationPFNeutrHadrCands";
+    plotName = plotType + "isolationNeutrHadrCands";
     tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 30.);
     plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-    plotName = plotType + "isolationPFGammaCands";
+    plotName = plotType + "isolationGammaCands";
     tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 20.);
     plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
 
@@ -526,53 +526,53 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
           }
           //fill: size and sumPt within tau isolation
           std::string plotType = "_Size_";
-          element = plotMap_.find( currentDiscriminatorLabel + plotType + "signalPFCands" );
-          if( element != plotMap_.end() ) element->second->Fill( thePFTau->signalPFCands().size() );
-          element = plotMap_.find( currentDiscriminatorLabel + plotType + "signalPFChargedHadrCands" );
-          if( element != plotMap_.end() ) element->second->Fill( thePFTau->signalPFChargedHadrCands().size() );
-          element = plotMap_.find( currentDiscriminatorLabel + plotType + "signalPFNeutrHadrCands" );
-          if( element != plotMap_.end() ) element->second->Fill( thePFTau->signalPFNeutrHadrCands().size() );
-          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFCands" );
-          if( element != plotMap_.end() ) element->second->Fill( thePFTau->isolationPFCands().size() );
-          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFChargedHadrCands" );
-          if( element != plotMap_.end() ) element->second->Fill( thePFTau->isolationPFChargedHadrCands().size() );
-          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFNeutrHadrCands" );
-          if( element != plotMap_.end() ) element->second->Fill( thePFTau->isolationPFNeutrHadrCands().size() );
-          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFGammaCands" );
-          if( element != plotMap_.end() ) element->second->Fill( thePFTau->isolationPFGammaCands().size() );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "signalCands" );
+          if( element != plotMap_.end() ) element->second->Fill( thePFTau->signalCands().size() );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "signalChargedHadrCands" );
+          if( element != plotMap_.end() ) element->second->Fill( thePFTau->signalChargedHadrCands().size() );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "signalNeutrHadrCands" );
+          if( element != plotMap_.end() ) element->second->Fill( thePFTau->signalNeutrHadrCands().size() );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationCands" );
+          if( element != plotMap_.end() ) element->second->Fill( thePFTau->isolationCands().size() );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationChargedHadrCands" );
+          if( element != plotMap_.end() ) element->second->Fill( thePFTau->isolationChargedHadrCands().size() );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationNeutrHadrCands" );
+          if( element != plotMap_.end() ) element->second->Fill( thePFTau->isolationNeutrHadrCands().size() );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationGammaCands" );
+          if( element != plotMap_.end() ) element->second->Fill( thePFTau->isolationGammaCands().size() );
 
           plotType = "_SumPt_";
-          element = plotMap_.find( currentDiscriminatorLabel + plotType + "signalPFCands" );
-          if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->signalPFCands() ) );
-          element = plotMap_.find( currentDiscriminatorLabel + plotType + "signalPFChargedHadrCands" );
-          if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->signalPFChargedHadrCands() ) );
-          element = plotMap_.find( currentDiscriminatorLabel + plotType + "signalPFNeutrHadrCands" );
-          if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->signalPFNeutrHadrCands() ) );
-          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFCands" );
-          if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->isolationPFCands() ) );
-          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFChargedHadrCands" );
-          if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->isolationPFChargedHadrCands() ) );
-          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFNeutrHadrCands" );
-          if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->isolationPFNeutrHadrCands() ) );
-          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFGammaCands" );
-          if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->isolationPFGammaCands() ) );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "signalCands" );
+          if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->signalCands() ) );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "signalChargedHadrCands" );
+          if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->signalChargedHadrCands() ) );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "signalNeutrHadrCands" );
+          if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->signalNeutrHadrCands() ) );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationCands" );
+          if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->isolationCands() ) );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationChargedHadrCands" );
+          if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->isolationChargedHadrCands() ) );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationNeutrHadrCands" );
+          if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->isolationNeutrHadrCands() ) );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationGammaCands" );
+          if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->isolationGammaCands() ) );
 
           //deprecated
 
           if( TauProducer_.find("PFTau") != string::npos ){
             if ( currentDiscriminatorLabel.find("LeadingTrackPtCut") != string::npos){
-              nPFJet_LeadingChargedHadron_ChargedHadronsSignal_->Fill((*thePFTau).signalPFChargedHadrCands().size());
-              nPFJet_LeadingChargedHadron_ChargedHadronsIsolAnnulus_->Fill((*thePFTau).isolationPFChargedHadrCands().size());
-              nPFJet_LeadingChargedHadron_GammasSignal_->Fill((*thePFTau).signalPFGammaCands().size());
-              nPFJet_LeadingChargedHadron_GammasIsolAnnulus_->Fill((*thePFTau).isolationPFGammaCands().size());
-              nPFJet_LeadingChargedHadron_NeutralHadronsSignal_->Fill((*thePFTau).signalPFNeutrHadrCands().size());
-              nPFJet_LeadingChargedHadron_NeutralHadronsIsolAnnulus_->Fill((*thePFTau).isolationPFNeutrHadrCands().size());
+              nPFJet_LeadingChargedHadron_ChargedHadronsSignal_->Fill((*thePFTau).signalChargedHadrCands().size());
+              nPFJet_LeadingChargedHadron_ChargedHadronsIsolAnnulus_->Fill((*thePFTau).isolationChargedHadrCands().size());
+              nPFJet_LeadingChargedHadron_GammasSignal_->Fill((*thePFTau).signalGammaCands().size());
+              nPFJet_LeadingChargedHadron_GammasIsolAnnulus_->Fill((*thePFTau).isolationGammaCands().size());
+              nPFJet_LeadingChargedHadron_NeutralHadronsSignal_->Fill((*thePFTau).signalNeutrHadrCands().size());
+              nPFJet_LeadingChargedHadron_NeutralHadronsIsolAnnulus_->Fill((*thePFTau).isolationNeutrHadrCands().size());
             }
             else if ( currentDiscriminatorLabel.find("ByIsolation") != string::npos ){
-              nIsolated_NoChargedNoGammas_ChargedHadronsSignal_->Fill((*thePFTau).signalPFChargedHadrCands().size());
-              nIsolated_NoChargedNoGammas_GammasSignal_->Fill((*thePFTau).signalPFGammaCands().size());
-              nIsolated_NoChargedNoGammas_NeutralHadronsSignal_->Fill((*thePFTau).signalPFNeutrHadrCands().size());
-              nIsolated_NoChargedNoGammas_NeutralHadronsIsolAnnulus_->Fill((*thePFTau).isolationPFNeutrHadrCands().size());
+              nIsolated_NoChargedNoGammas_ChargedHadronsSignal_->Fill((*thePFTau).signalChargedHadrCands().size());
+              nIsolated_NoChargedNoGammas_GammasSignal_->Fill((*thePFTau).signalGammaCands().size());
+              nIsolated_NoChargedNoGammas_NeutralHadronsSignal_->Fill((*thePFTau).signalNeutrHadrCands().size());
+              nIsolated_NoChargedNoGammas_NeutralHadronsIsolAnnulus_->Fill((*thePFTau).isolationNeutrHadrCands().size());
             }
           }
         }
@@ -600,9 +600,9 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   }//End of PFTau Collection If Loop
 }
 
-double TauTagValidation::getSumPt(const std::vector<edm::Ptr<reco::PFCandidate> > & candidates ){
+double TauTagValidation::getSumPt(const std::vector<edm::Ptr<reco::Candidate> > & candidates ){
   double sumPt = 0.;
-  for (std::vector<edm::Ptr<reco::PFCandidate> >::const_iterator candidate = candidates.begin(); candidate!=candidates.end(); ++candidate) {
+  for (std::vector<edm::Ptr<reco::Candidate> >::const_iterator candidate = candidates.begin(); candidate!=candidates.end(); ++candidate) {
     sumPt += (*candidate)->pt();
   }
   return sumPt;

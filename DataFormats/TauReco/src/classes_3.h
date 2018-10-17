@@ -31,8 +31,11 @@
 #include "DataFormats/TauReco/interface/PFTau3ProngSummaryFwd.h"
 #include "DataFormats/TauReco/interface/PFTau3ProngSummaryAssociation.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 #include <vector>
 #include <map>
@@ -82,6 +85,9 @@ namespace DataFormats_TauReco {
     std::pair<reco::PFJetRef, std::vector<reco::RecoTauPiZero> >                              jetPiZeroAssoc_p;
     std::vector<std::pair<reco::PFJetRef, std::vector<reco::RecoTauPiZero> > >                jetPiZeroAssoc_v;
 
+    std::pair<reco::JetBaseRef, std::vector<reco::RecoTauPiZero> >                              jetBasePiZeroAssoc_p;
+    std::vector<std::pair<reco::JetBaseRef, std::vector<reco::RecoTauPiZero> > >                jetBasePiZeroAssoc_v;
+
     std::vector<std::vector<reco::RecoTauPiZero> >                jetPiZeroAssoc_v_v;
     
     reco::PFJetChargedHadronAssociationBase                     jetChHAssoc_b;
@@ -93,6 +99,9 @@ namespace DataFormats_TauReco {
 
     std::pair<reco::PFJetRef, std::vector<reco::PFRecoTauChargedHadron> >                              jetChHAssoc_p;
     std::vector<std::pair<reco::PFJetRef, std::vector<reco::PFRecoTauChargedHadron> > >                jetChHAssoc_v;
+
+    std::pair<reco::JetBaseRef, std::vector<reco::PFRecoTauChargedHadron> >                              jetBaseChHAssoc_p;
+    std::vector<std::pair<reco::JetBaseRef, std::vector<reco::PFRecoTauChargedHadron> > >                jetBaseChHAssoc_v;
 
     std::vector<std::vector<reco::PFRecoTauChargedHadron> >                jetChHAssoc_v_v;
 
@@ -235,8 +244,5 @@ namespace DataFormats_TauReco {
 /*     edm::helpers::KeyVal<edm::RefProd<std::vector<reco::PFJet> >,edm::RefProd<std::vector<reco::PFCandidate> > > jetPFCandidateAssociation_kv; */
 /*     edm::helpers::KeyVal<edm::Ref<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> >,edm::RefVector<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > jetPFCandidateAssociation_kv2; */
 /*     std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> >,edm::RefVector<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > > jetPFCandidateAssociation_mkv; */
-   
-
-
   };
 }

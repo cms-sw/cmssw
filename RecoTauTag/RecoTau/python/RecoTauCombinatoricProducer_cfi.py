@@ -138,7 +138,7 @@ combinatoricRecoTaus = cms.EDProducer("RecoTauProducer",
     chargedHadronSrc = cms.InputTag('ak4PFJetsRecoTauChargedHadrons'),
     piZeroSrc = cms.InputTag("ak4PFJetsRecoTauPiZeros"),
     buildNullTaus = cms.bool(False),
-    outputSelection = cms.string("leadPFChargedHadrCand().isNonnull()"), # MB: always require that leading PFChargedHadron candidate exists
+    outputSelection = cms.string("leadChargedHadrCand().isNonnull()"), # MB: always require that leading PFChargedHadron candidate exists
     # Make maximum size from which to collect isolation cone objects, w.r.t to
     # the axis of the signal cone objects
     builders = cms.VPSet(

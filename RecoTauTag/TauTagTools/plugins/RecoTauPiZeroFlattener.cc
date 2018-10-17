@@ -61,7 +61,7 @@ RecoTauPiZeroFlattener::produce(edm::Event& evt, const edm::EventSetup& es) {
   // Loop over the jets and append the pizeros for each jet to our output
   // collection.
   BOOST_FOREACH(reco::PFJetRef jetRef, jets) {
-    const std::vector<reco::RecoTauPiZero>& pizeros = (*piZeroAssoc)[jetRef];
+    const std::vector<reco::RecoTauPiZero>& pizeros = (*piZeroAssoc)[reco::JetBaseRef(jetRef)];
     output->reserve(output->size() + pizeros.size());
     output->insert(output->end(), pizeros.begin(), pizeros.end());
   }

@@ -25,8 +25,8 @@ class RecoTauIsolationMasking {
   public:
     // Structure containing new, maksed isolation collections
     struct IsoMaskResult {
-      std::list<reco::PFCandidatePtr> gammas;
-      std::list<reco::PFCandidatePtr> h0s;
+      std::list<reco::CandidatePtr> gammas;
+      std::list<reco::CandidatePtr> h0s;
     };
     RecoTauIsolationMasking(const edm::ParameterSet& pset);
     ~RecoTauIsolationMasking();
@@ -36,10 +36,10 @@ class RecoTauIsolationMasking {
     void setMaxSigmas(double maxSigmas) {maxSigmas_ = maxSigmas;}
   private:
     // Get the energy resoltuion of a gamma or h0 candidate
-    double resolution(const reco::PFCandidate& cand) const;
+    double resolution(const reco::Candidate& cand) const;
     // Check if the candidate is in the correct cone
     bool inCone(const reco::PFCandidate& track,
-        const reco::PFCandidate& cand) const;
+        const reco::Candidate& cand) const;
 
     double ecalCone_;
     double hcalCone_;
