@@ -21,6 +21,7 @@ class HGCalVFECompressionImpl
   uint32_t mantissaBits_;
   bool     rounding_;
   bool     saturable_;
+  uint32_t saturationCode_;
   uint32_t saturationValue_;
   uint32_t compressedValueLUT_[256];
      

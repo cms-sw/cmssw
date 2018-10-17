@@ -7,6 +7,7 @@ HGCalVFECompressionImpl(const edm::ParameterSet& conf):
     rounding_(conf.getParameter<bool>("rounding"))
 {
   saturable_ = false;
+  saturationCode_ = (1 << (exponentBits_ + mantissaBits_)) - 1;
   saturationValue_ = 0xffffffff;
   if (((1 << exponentBits_) + mantissaBits_ - 1) < 32) {
     saturable_ = true;
@@ -36,15 +37,17 @@ HGCalVFECompressionImpl::
 compressSingle(const uint32_t value)
 {
   // check for saturation
-  if (saturable_ && value > saturationValue_)
-      return 0xff;
+  if (saturable_ && value > saturationValue_) {
+    return saturationCode_;
+  }
 
   // count bit length
   uint32_t valcopy = value;
   uint32_t bitlen;
   for (bitlen = 0; valcopy != 0; valcopy >>= 1, bitlen++) {}
-  if (bitlen <= mantissaBits_)
+  if (bitlen <= mantissaBits_) {
     return value;
+  }
 
   // build exponent and mantissa
   const uint32_t exponent = bitlen - mantissaBits_;
@@ -53,8 +56,8 @@ compressSingle(const uint32_t value)
   // assemble floating-point
   const uint32_t floatval = (exponent << mantissaBits_) | mantissa;
 
-  // we will never want to round up 0xff here
-  if (!rounding_ || floatval == 0xff) {
+  // we will never want to round up maximum code here
+  if (!rounding_ || floatval == saturationCode_) {
     return floatval;
   }
   else {
@@ -79,7 +82,7 @@ compress(const std::map<HGCalDetId, uint32_t>& payload,
     const uint32_t value = item.second;
     const uint32_t code = compressSingle(value);
     const uint32_t compressed_value = decompressSingle(code);
-    std::array<uint32_t, 2> compressed_item = {{ static_cast<uint32_t>(code), compressed_value }};
+    std::array<uint32_t, 2> compressed_item = {{ code, compressed_value }};
     compressed_payload.insert( std::make_pair(item.first, compressed_item) );
   }
 }
