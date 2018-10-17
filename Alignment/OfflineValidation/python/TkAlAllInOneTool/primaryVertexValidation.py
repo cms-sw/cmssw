@@ -28,10 +28,7 @@ class PrimaryVertexValidation(GenericValidationData_CTSR, ParallelValidation, Va
 
         if self.general["pvvalidationreference"].startswith("/store"):
             self.general["pvvalidationreference"] = "root://eoscms//eos/cms" + self.general["pvvalidationreference"]
-#        if self.NJobs > 1:
-#            raise AllInOneError("Parallel jobs not implemented for the PrimaryVertex validation!\n"
-#                                "Please set parallelJobs = 1.")
-
+            
     @property
     def ValidationTemplate(self):
         return configTemplates.PrimaryVertexValidationTemplate
