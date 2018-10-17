@@ -40,10 +40,10 @@ MTDParametersESModule::produce( const PMTDParametersRcd& iRecord )
   edm::ESTransientHandle<DDCompactView> cpv;
   iRecord.getRecord<IdealGeometryRecord>().get( cpv );
     
-  PMTDParameters* ptp = new PMTDParameters();
+  auto ptp = std::make_unique<PMTDParameters>();
   builder.build( &(*cpv), *ptp );
   
-  return ReturnType( ptp ) ;
+  return ptp;
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE( MTDParametersESModule);

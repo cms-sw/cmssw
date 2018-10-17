@@ -17,13 +17,12 @@ class  TrackerDigiGeometryESModule: public edm::ESProducer{
  public:
   TrackerDigiGeometryESModule(const edm::ParameterSet & p);
   ~TrackerDigiGeometryESModule() override; 
-  std::shared_ptr<TrackerGeometry> produce(const TrackerDigiGeometryRecord &);
+  std::unique_ptr<TrackerGeometry> produce(const TrackerDigiGeometryRecord &);
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
  private:
   /// Called when geometry description changes
-  std::shared_ptr<TrackerGeometry> _tracker;
   const std::string alignmentsLabel_;
   const std::string myLabel_;
   bool applyAlignment_; // Switch to apply alignment corrections
