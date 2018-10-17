@@ -13,8 +13,8 @@ class HGCalVFECompressionImpl
 
   void compress(const std::map<HGCalDetId, uint32_t>&,
                 std::map<HGCalDetId, std::array<uint32_t, 2> >&);
-  uint8_t compressSingle(const uint32_t value);
-  uint32_t decompressSingle(const uint8_t code);
+  uint32_t compressSingle(const uint32_t value);
+  uint32_t decompressSingle(const uint32_t code);
      
  private:
   uint32_t exponentBits_;

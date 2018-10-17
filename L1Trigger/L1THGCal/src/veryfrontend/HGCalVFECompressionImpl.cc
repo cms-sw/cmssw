@@ -19,8 +19,7 @@ HGCalVFECompressionImpl(const edm::ParameterSet& conf):
   uint32_t compval = 0;
   const uint32_t mantissaMask = (1 << mantissaBits_) - 1;
   uint32_t incval = 1;
-  for (int codeInt = 0; codeInt < 0x100; codeInt++) {
-    const uint8_t code = static_cast<uint8_t>(codeInt);
+  for (uint32_t code = 0; code < 0x100; code++) {
     compressedValueLUT_[code] = compval;
     if ((code & mantissaMask) == 0) {
       incval <<= 1;
@@ -32,7 +31,7 @@ HGCalVFECompressionImpl(const edm::ParameterSet& conf):
   }
 }
 
-uint8_t
+uint32_t
 HGCalVFECompressionImpl::
 compressSingle(const uint32_t value)
 {
@@ -42,17 +41,17 @@ compressSingle(const uint32_t value)
 
   // count bit length
   uint32_t valcopy = value;
-  uint8_t bitlen;
+  uint32_t bitlen;
   for (bitlen = 0; valcopy != 0; valcopy >>= 1, bitlen++) {}
   if (bitlen <= mantissaBits_)
-    return static_cast<uint8_t>(value);
+    return value;
 
   // build exponent and mantissa
-  const uint8_t exponent = bitlen - mantissaBits_;
-  const uint8_t mantissa = (value >> (exponent-1)) & ~(1<<mantissaBits_);
+  const uint32_t exponent = bitlen - mantissaBits_;
+  const uint32_t mantissa = (value >> (exponent-1)) & ~(1<<mantissaBits_);
 
   // assemble floating-point
-  const uint8_t floatval = (exponent << mantissaBits_) | mantissa;
+  const uint32_t floatval = (exponent << mantissaBits_) | mantissa;
 
   // we will never want to round up 0xff here
   if (!rounding_ || floatval == 0xff) {
@@ -66,7 +65,7 @@ compressSingle(const uint32_t value)
 
 uint32_t
 HGCalVFECompressionImpl::
-decompressSingle(const uint8_t code)
+decompressSingle(const uint32_t code)
 {
   return compressedValueLUT_[code];
 }
@@ -78,7 +77,7 @@ compress(const std::map<HGCalDetId, uint32_t>& payload,
 {
   for (const auto& item : payload) {
     const uint32_t value = item.second;
-    const uint8_t code = compressSingle(value);
+    const uint32_t code = compressSingle(value);
     const uint32_t compressed_value = decompressSingle(code);
     std::array<uint32_t, 2> compressed_item = {{ static_cast<uint32_t>(code), compressed_value }};
     compressed_payload.insert( std::make_pair(item.first, compressed_item) );
