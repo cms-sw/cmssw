@@ -82,37 +82,42 @@ std::map<std::string, l1t::Mask>& ) {
     "leptonSeedThreshold",
     "leptonTowerThreshold",
     "pileUpTowerThreshold",
-    "jetSeedThreshold",
-    "jetMaxEta",
-    "HTMHT_maxJetEta",
-    "HT_jetThreshold",
-    "MHT_jetThreshold",
-    "jetEnergyCalibLUT",
-    "ETMET_maxTowerEta",
-    "ET_energyCalibLUT",
-    "ecalET_energyCalibLUT",
-    "METX_energyCalibLUT",
-    "METY_energyCalibLUT",
     "egammaRelaxationThreshold",
     "egammaMaxEta",
+    "egammaBypassCuts",
+    "egammaBypassShape",
+    "egammaBypassEcalFG'",
+    "egammaBypassExtendedHOverE",
+    "egammaHOverECut_iEtaLT15",
+    "egammaHOverECut_iEtaGTEq15",
     "egammaEnergyCalibLUT",
     "egammaIsoLUT1",
     "egammaIsoLUT2",
     "tauMaxEta",
     "tauEnergyCalibLUT",
-    "tauIsoLUT1",
-///    "tauIsoLUT2",
+    "tauIsoLUT",
+    "tauTrimmingLUT",
+    "jetSeedThreshold",
+    "HTMHT_maxJetEta",
+    "HT_jetThreshold",
+    "MHT_jetThreshold",
+    "jetBypassPileUpSub",
+    "jetEnergyCalibLUT",
+    "jetPUSUsePhiRing",
     "towerCountThreshold",
     "towerCountMaxEta",
+    "ETMET_maxTowerEta",
+    "ecalET_towerThresholdLUT",
     "ET_towerThresholdLUT",
     "MET_towerThresholdLUT",
-    "ecalET_towerThresholdLUT",
-    "jetBypassPileUpSub",
-    "egammaBypassCuts",
-    "egammaHOverECut_iEtaLT15",
-    "egammaHOverECut_iEtaGTEq15",
-    "egammaBypassExtendedHOverE"
+    "ET_centralityLowerThresholds",
+    "ET_centralityUpperThresholds",
+    "ET_energyCalibLUT",
+    "ecalET_energyCalibLUT",
+    "METX_energyCalibLUT",
+    "METY_energyCalibLUT"
   };
+
   for (const auto param : expectedParams) {
     if ( conf.find(param) == conf.end() ) {
       edm::LogError("L1-O2O: L1TCaloParamsOnlineProd") << "Unable to locate expected CaloLayer2 parameter: " << param << " in L1 settings payload!";
@@ -124,18 +129,31 @@ std::map<std::string, l1t::Mask>& ) {
   paramsHelper.setTauSeedThreshold((conf["leptonSeedThreshold"].getValue<int>())/2);
   paramsHelper.setEgNeighbourThreshold((conf["leptonTowerThreshold"].getValue<int>())/2);
   paramsHelper.setTauNeighbourThreshold((conf["leptonTowerThreshold"].getValue<int>())/2);
+  paramsHelper.setPileUpTowerThreshold((conf["pileUpTowerThreshold"].getValue<int>())/2);
+
+  paramsHelper.setEgMaxPtHOverE((conf["egammaRelaxationThreshold"].getValue<int>())/2.);
+  paramsHelper.setEgEtaCut((conf["egammaMaxEta"].getValue<int>()));
+  paramsHelper.setEgBypassEGVetos(conf["egammaBypassCuts"].getValue<bool>());
+  paramsHelper.setEgBypassShape( conf["egammaBypassShape"].getValue<bool>() );
+  paramsHelper.setEgBypassECALFG( conf["egammaBypassECALFG"].getValue<bool>() );
+  paramsHelper.setEgBypassExtHOverE( conf["egammaBypassExtendedHOverE"].getValue<bool>() );
+  paramsHelper.setEgHOverEcutBarrel(conf["egammaHOverECut_iEtaLT15"].getValue<int>());
+  paramsHelper.setEgHOverEcutEndcap(conf["egammaHOverECut_iEtaGTEq15"].getValue<int>());
+  paramsHelper.setEgCalibrationLUT  ( l1t::convertToLUT( conf["egammaEnergyCalibLUT"].getVector<int>() ) );
+  paramsHelper.setEgIsolationLUT    ( l1t::convertToLUT( conf["egammaIsoLUT1"].getVector<int>() ) );
+  paramsHelper.setEgIsolationLUT2   ( l1t::convertToLUT( conf["egammaIsoLUT2"].getVector<int>() ) );
+
+  paramsHelper.setIsoTauEtaMax((conf["tauMaxEta"].getValue<int>()));
+  paramsHelper.setTauCalibrationLUT( l1t::convertToLUT( conf["tauEnergyCalibLUT"].getVector<int>() ) );
+  paramsHelper.setTauIsolationLUT  ( l1t::convertToLUT( conf["tauIsoLUT"].getVector<int>() ) );
+  paramsHelper.setTauTrimmingShapeVetoLUT( l1t::convertToLUT( conf["tauTrimmingLUT"].getVector<int>() ) );
+
+
   paramsHelper.setJetSeedThreshold((conf["jetSeedThreshold"].getValue<int>())/2);
   paramsHelper.setJetBypassPUS(conf["jetBypassPileUpSub"].getValue<bool>());
   paramsHelper.setJetPUSUsePhiRing(conf["jetPUSUsePhiRing"].getValue<bool>());
-  paramsHelper.setEgBypassEGVetos(conf["egammaBypassCuts"].getValue<bool>());
-  paramsHelper.setEgHOverEcutBarrel(conf["egammaHOverECut_iEtaLT15"].getValue<int>());
-  paramsHelper.setEgHOverEcutEndcap(conf["egammaHOverECut_iEtaGTEq15"].getValue<int>());
+  paramsHelper.setJetCalibrationLUT ( l1t::convertToLUT( conf["jetEnergyCalibLUT"].getVector<uint32_t>() ) );
 
-
-  // Currently not used // paramsHelper.setEgPileupTowerThresh((conf["pileUpTowerThreshold"].getValue<int>())); 
-  // Currently not used // paramsHelper.setTauPileupTowerThresh((conf["pileUpTowerThreshold"].getValue<int>())); 
-  // Currently not used // paramsHelper.setJetMaxEta((conf["jetMaxEta"].getValue<int>()));
-  
   std::vector<int> etSumEtaMax;
   std::vector<int> etSumEtThresh;
   
@@ -144,45 +162,27 @@ std::map<std::string, l1t::Mask>& ) {
   etSumEtaMax.push_back(conf["ETMET_maxTowerEta"].getValue<int>());
   etSumEtaMax.push_back(conf["HTMHT_maxJetEta"].getValue<int>());
   etSumEtaMax.push_back(conf["towerCountMaxEta"].getValue<int>());
-  
-  etSumEtThresh.push_back(0); //conf["ET_towerThreshold"].getValue<int>()/2); // ETT tower threshold
+
+  etSumEtThresh.push_back(0); //deprecated by EttPUSLUT
   etSumEtThresh.push_back(conf["HT_jetThreshold"].getValue<int>()/2);
-  etSumEtThresh.push_back(0); //conf["MET_towerThreshold"].getValue<int>()/2); // ETM tower threshold
+  etSumEtThresh.push_back(0); //deprecated by MetPUSLUT
   etSumEtThresh.push_back(conf["MHT_jetThreshold"].getValue<int>()/2);
-  etSumEtThresh.push_back(conf["ET_towerThreshold"].getValue<int>()/2);
+  etSumEtThresh.push_back(conf["towerCountThreshold"].getValue<int>()/2);
 
   for (uint i=0; i<5; ++i) {
     paramsHelper.setEtSumEtaMax(i, etSumEtaMax.at(i));
     paramsHelper.setEtSumEtThreshold(i, etSumEtThresh.at(i));
   }
 
-  paramsHelper.setJetCalibrationLUT ( l1t::convertToLUT( conf["jetEnergyCalibLUT"].getVector<uint32_t>() ) );
-
   paramsHelper.setEtSumMetPUSLUT    ( l1t::convertToLUT( conf["MET_towerThresholdLUT"].getVector<int>() ) );
   paramsHelper.setEtSumEttPUSLUT    ( l1t::convertToLUT( conf["ET_towerThresholdLUT"].getVector<int>() ) );
   paramsHelper.setEtSumEcalSumPUSLUT( l1t::convertToLUT( conf["ecalET_towerThresholdLUT"].getVector<int>() ) );
 
+  // demux tower sum calib LUTs
   paramsHelper.setEtSumEttCalibrationLUT    ( l1t::convertToLUT( conf["ET_energyCalibLUT"].getVector<int>() ) );
   paramsHelper.setEtSumEcalSumCalibrationLUT( l1t::convertToLUT( conf["ecalET_energyCalibLUT"].getVector<int>() ) );
   paramsHelper.setEtSumXCalibrationLUT      ( l1t::convertToLUT( conf["METX_energyCalibLUT"].getVector<int>() ) );
-
-  paramsHelper.setEgMaxPtHOverE((conf["egammaRelaxationThreshold"].getValue<int>())/2.);
-  paramsHelper.setEgEtaCut((conf["egammaMaxEta"].getValue<int>()));
-  paramsHelper.setEgCalibrationLUT  ( l1t::convertToLUT( conf["egammaEnergyCalibLUT"].getVector<int>() ) );
-  paramsHelper.setEgIsolationLUT    ( l1t::convertToLUT( conf["egammaIsoLUT1"].getVector<int>() ) );
-  paramsHelper.setEgIsolationLUT2   ( l1t::convertToLUT( conf["egammaIsoLUT2"].getVector<int>() ) );
-
-  paramsHelper.setIsoTauEtaMax((conf["tauMaxEta"].getValue<int>()));
-
-  paramsHelper.setTauCalibrationLUT( l1t::convertToLUT( conf["tauEnergyCalibLUT"].getVector<int>() ) );
-  paramsHelper.setTauIsolationLUT  ( l1t::convertToLUT( conf["tauIsoLUT1"].getVector<int>() ) );
-  if( conf.find("tauIsoLUT2") != conf.end() )
-    paramsHelper.setTauIsolationLUT2 ( l1t::convertToLUT( conf["tauIsoLUT2"].getVector<int>() ) );
-
-  paramsHelper.setEgBypassExtHOverE( conf["egammaBypassExtendedHOverE"].getValue<bool>() );
-
-  if( conf.find("P_TauTrimming_13to8.mif") != conf.end() )
-    paramsHelper.setTauTrimmingShapeVetoLUT( l1t::convertToLUT( conf["P_TauTrimming_13to8.mif"].getVector<int>() ) );
+  paramsHelper.setEtSumYCalibrationLUT      ( l1t::convertToLUT( conf["METY_energyCalibLUT"].getVector<int>() ) );
 
   return true;
 }

@@ -73,6 +73,7 @@ Example: two algorithms each creating only one objects
 #include <string>
 
 // user include files
+#include "FWCore/Framework/interface/ESConsumesCollector.h"
 #include "FWCore/Framework/interface/ESProxyFactoryProducer.h"
 #include "FWCore/Framework/interface/ProxyArgumentFactoryTemplate.h"
 
@@ -112,22 +113,22 @@ namespace edm {
         method in order to do the registration with the EventSetup
     */
     template<typename T>
-    void setWhatProduced(T* iThis, const es::Label& iLabel = es::Label()) {
-      setWhatProduced(iThis , &T::produce, iLabel);
+    auto setWhatProduced(T* iThis, const es::Label& iLabel = {}) {
+      return setWhatProduced(iThis , &T::produce, iLabel);
     }
 
     template<typename T>
-    void setWhatProduced(T* iThis, const char* iLabel) {
-      setWhatProduced(iThis , es::Label(iLabel));
+    auto setWhatProduced(T* iThis, const char* iLabel) {
+      return setWhatProduced(iThis , es::Label(iLabel));
     }
     template<typename T>
-    void setWhatProduced(T* iThis, const std::string& iLabel) {
-      setWhatProduced(iThis , es::Label(iLabel));
+    auto setWhatProduced(T* iThis, const std::string& iLabel) {
+      return setWhatProduced(iThis , es::Label(iLabel));
     }
 
     template<typename T, typename TDecorator >
-    void setWhatProduced(T* iThis, const TDecorator& iDec, const es::Label& iLabel = es::Label()) {
-      setWhatProduced(iThis , &T::produce, iDec, iLabel);
+    auto setWhatProduced(T* iThis, const TDecorator& iDec, const es::Label& iLabel = {}) {
+      return setWhatProduced(iThis , &T::produce, iDec, iLabel);
     }
     /** \param iThis the 'this' pointer to an inheriting class instance
         \param iMethod a member method of then inheriting class
@@ -135,10 +136,10 @@ namespace edm {
         method in order to do the registration with the EventSetup
     */
     template<typename T, typename TReturn, typename TRecord>
-    void setWhatProduced(T* iThis,
+    auto setWhatProduced(T* iThis,
                          TReturn (T ::* iMethod)(const TRecord&),
-                         const es::Label& iLabel = es::Label()) {
-      setWhatProduced(iThis, iMethod, eventsetup::CallbackSimpleDecorator<TRecord>(),iLabel);
+                         const es::Label& iLabel = {}) {
+      return setWhatProduced(iThis, iMethod, eventsetup::CallbackSimpleDecorator<TRecord>(),iLabel);
     }
     /** \param iThis the 'this' pointer to an inheriting class instance
         \param iMethod a member method of then inheriting class
@@ -147,10 +148,10 @@ namespace edm {
         method in order to do the registration with the EventSetup
     */
     template<typename T, typename TReturn, typename TRecord, typename TArg>
-    void setWhatProduced(T* iThis,
+    ESConsumesCollector setWhatProduced(T* iThis,
                          TReturn (T ::* iMethod)(const TRecord&),
                          const TArg& iDec,
-                         const es::Label& iLabel = es::Label()) {
+                         const es::Label& iLabel = {}) {
       auto callback = std::make_shared<eventsetup::Callback<T,
                                                             TReturn,
                                                             TRecord,
@@ -163,7 +164,7 @@ namespace edm {
                        static_cast<const typename eventsetup::produce::product_traits<TReturn>::type *>(nullptr),
                        static_cast<const TRecord*>(nullptr),
                        iLabel);
-      //static_assert((std::is_base_of<ED, T>::type));
+      return ESConsumesCollector{iThis};
     }
 
     ESProducer(const ESProducer&) = delete; // stop default
@@ -177,11 +178,11 @@ namespace edm {
       registerProduct(iCallback, static_cast<const typename TList::tail_type*>(nullptr), iRecord, iLabel);
       registerProducts(iCallback, static_cast<const typename TList::head_type*>(nullptr), iRecord, iLabel);
     }
+
     template<typename T, typename TRecord>
     void registerProducts(std::shared_ptr<T>, const eventsetup::produce::Null*, const TRecord*,const es::Label&) {
       //do nothing
     }
-
 
     template<typename T, typename TProduct, typename TRecord>
     void registerProduct(std::shared_ptr<T> iCallback, const TProduct*, const TRecord*,const es::Label& iLabel) {

@@ -106,9 +106,9 @@ def getFullListOfParameters(aModule):
       (('mp_egamma', 'egammaBypassCuts'),           'BypassEgVeto.mif',               bool(aModule.egBypassEGVetos.value())),
       (('mp_egamma', 'egammaBypassShape'),          'BypassEgShape.mif',              bool(aModule.egBypassShape.value())),
       (('mp_egamma', 'egammaBypassEcalFG'),         'BypassEcalFG.mif',               bool(aModule.egBypassECALFG.value())),
+      (('mp_egamma', 'egammaBypassExtendedHOverE'), '_BypassExtHE.mif',               bool(aModule.egBypassExtHOverE)),
       (('mp_egamma', 'egammaHOverECut_iEtaLT15'),   '_RatioCutLt15.mif',              aModule.egHOverEcutBarrel.value()),
       (('mp_egamma', 'egammaHOverECut_iEtaGTEq15'), '_RatioCutGe15.mif',              aModule.egHOverEcutEndcap.value()),
-      (('mp_egamma', 'egammaBypassExtendedHOverE'), '_BypassExtHE.mif',               bool(aModule.egBypassExtHOverE)),
       (('mp_egamma', 'egammaEnergyCalibLUT'),       'C_EgammaCalibration_12to18.mif', parseOfflineLUTfile(aModule.egCalibrationLUTFile.value(), 4096)),
       (('mp_egamma', 'egammaIsoLUT1'),              'D_EgammaIsolation1_13to9.mif',   parseOfflineLUTfile(aModule.egIsoLUTFile.value(), 8192)),
       (('mp_egamma', 'egammaIsoLUT2'),              'D_EgammaIsolation2_13to9.mif',   parseOfflineLUTfile(aModule.egIsoLUTFile2.value(), 8192))
@@ -124,12 +124,12 @@ def getFullListOfParameters(aModule):
     result += [
       (('mp_jet', 'jetSeedThreshold'),   '1_JetSeedThreshold.mif',      divideByJetLsb(aModule.jetSeedThreshold)),
       (('mp_jet', 'jetMaxEta'),          '6_JetEtaMax.mif',             0x00028),
+      (('mp_jet', 'jetBypassPileUpSub'), 'BypassJetPUS.mif',            bool(aModule.jetBypassPUS.value())),
+      (('mp_jet', 'jetPUSUsePhiRing'), 'PhiRingPUS.mif',        bool(aModule.jetPUSUsePhiRing.value())),
+      (('mp_jet', 'jetEnergyCalibLUT'),  'L_JetCalibration_11to18.mif', parseOfflineLUTfile(aModule.jetCalibrationLUTFile.value(), 2048)),
       (('mp_jet', 'HTMHT_maxJetEta'),    'HTMHT_maxJetEta.mif',         aModule.etSumEtaMax[1]), # assert == etSumEtaMax[3] ?
       (('mp_jet', 'HT_jetThreshold'),    '8_HtThreshold.mif',           int(aModule.etSumEtThreshold[1] / aModule.etSumLsb.value())),
       (('mp_jet', 'MHT_jetThreshold'),   '9_MHtThreshold.mif',          int(aModule.etSumEtThreshold[3] / aModule.etSumLsb.value())),
-      (('mp_jet', 'jetBypassPileUpSub'), 'BypassJetPUS.mif',            bool(aModule.jetBypassPUS.value())),
-      (('mp_jet', 'jetEnergyCalibLUT'),  'L_JetCalibration_11to18.mif', parseOfflineLUTfile(aModule.jetCalibrationLUTFile.value(), 2048)),
-      (('mp_jet', 'jetPUSUsePhiRing'), 'PhiRingPUS.mif',        bool(aModule.jetPUSUsePhiRing.value())),
     ]
 
     result += [
@@ -146,6 +146,10 @@ def getFullListOfParameters(aModule):
       (('demux', 'algoRev'), None, 0xcafe),
       (('demux', 'ET_centralityLowerThresholds'), 'CentralityLowerThrs.mif', [ int(round(loBound / aModule.etSumLsb.value())) for loBound in aModule.etSumCentralityLower.value()]),
       (('demux', 'ET_centralityUpperThresholds'), 'CentralityUpperThrs.mif', [ int(round(upBound / aModule.etSumLsb.value())) for upBound in aModule.etSumCentralityUpper.value()])
+      (('demux', 'ET_energyCalibLUT'),            'M_ETMET_11to18.mif',      parseOfflineLUTfile(aModule.etSumEttCalibrationLUTFile.value(), 2048, aTruncate = True)),
+      (('demux', 'ecalET_energyCalibLUT'),        'M_ETMETecal_11to18.mif',  parseOfflineLUTfile(aModule.etSumEcalSumCalibrationLUTFile.value(), 2048, aTruncate = True)),
+      (('demux', 'METX_energyCalibLUT'),          'M_ETMETX_11to18.mif',     parseOfflineLUTfile(aModule.etSumXCalibrationLUTFile.value(), 2048, aTruncate = True)),
+      (('demux', 'METY_energyCalibLUT'),          'M_ETMETY_11to18.mif',     parseOfflineLUTfile(aModule.etSumYCalibrationLUTFile.value(), 2048, aTruncate = True)),
     ]
 
     result = [(a, b, parseOfflineLUTfile(c.value()) if isinstance(c, cms.FileInPath) else c) for a, b, c in result]

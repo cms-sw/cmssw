@@ -47,8 +47,8 @@ else:
     unpackRPC = EventFilter.RPCRawToDigi.rpcUnpacker_cfi.rpcunpacker.clone(
         InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
 
-    import EventFilter.RPCRawToDigi.RPCTwinMuxRawToDigi_cfi
-    unpackRPCTwinMux = EventFilter.RPCRawToDigi.RPCTwinMuxRawToDigi_cfi.RPCTwinMuxRawToDigi.clone(
+    import EventFilter.RPCRawToDigi.rpcTwinMuxRawToDigi_cfi
+    unpackRPCTwinMux = EventFilter.RPCRawToDigi.rpcTwinMuxRawToDigi_cfi.rpcTwinMuxRawToDigi.clone(
         inputTag = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
 
     import EventFilter.L1TXRawToDigi.twinMuxStage2Digis_cfi

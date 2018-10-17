@@ -11,7 +11,6 @@
 #include "Alignment/MuonAlignment/interface/AlignableDTBarrel.h"
 #include "CondFormats/Alignment/interface/Alignments.h" 
 #include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h" 
-#include "CondFormats/Alignment/interface/AlignmentSorter.h" 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
@@ -118,8 +117,8 @@ Alignments* AlignableDTBarrel::alignments( void ) const
               std::back_inserter(m_alignments->m_align));
   }
 
-  std::sort( m_alignments->m_align.begin(), m_alignments->m_align.end(), 
-			 lessAlignmentDetId<AlignTransform>() );
+  // sort by rawId
+  std::sort( m_alignments->m_align.begin(), m_alignments->m_align.end());
 
   return m_alignments;
 }
@@ -136,8 +135,8 @@ AlignmentErrorsExtended* AlignableDTBarrel::alignmentErrors( void ) const
               std::back_inserter(m_alignmentErrors->m_alignError));
   }
 
-  std::sort( m_alignmentErrors->m_alignError.begin(), m_alignmentErrors->m_alignError.end(), 
-			 lessAlignmentDetId<AlignTransformErrorExtended>() );
+  // sort by rawId
+  std::sort( m_alignmentErrors->m_alignError.begin(), m_alignmentErrors->m_alignError.end());
 
   return m_alignmentErrors;
 }

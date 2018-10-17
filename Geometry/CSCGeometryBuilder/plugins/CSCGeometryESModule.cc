@@ -131,7 +131,7 @@ void CSCGeometryESModule::initCSCGeometry_( const MuonGeometryRecord& record, st
       record.getRecord<IdealGeometryRecord>().get(cpv);
       rec.get(mdc);
       CSCGeometryBuilderFromDDD builder;
-      builder.build(host, &(*cpv), *mdc);
+      builder.build(*host, &(*cpv), *mdc);
     });
   } else {
     bool recreateGeometry = false;
@@ -153,7 +153,7 @@ void CSCGeometryESModule::initCSCGeometry_( const MuonGeometryRecord& record, st
       record.getRecord<CSCRecoGeometryRcd>().get(rig);
       record.getRecord<CSCRecoDigiParametersRcd>().get(rdp);
       CSCGeometryBuilder cscgb;
-      cscgb.build(host, *rig, *rdp);
+      cscgb.build(*host, *rig, *rdp);
     }
   }
 }

@@ -145,9 +145,11 @@ protected:
                  int indentation,
                  bool& wroteSomething) const final {
     if(not defaultType_.empty()) {
-      auto conf = edmplugin::standard::config();
-      conf.allowNoCache();
-      edmplugin::PluginManager::configure(conf);
+      if (!edmplugin::PluginManager::isAvailable()) {
+        auto conf = edmplugin::standard::config();
+        conf.allowNoCache();
+        edmplugin::PluginManager::configure(conf);
+      }
 
       loadPlugin(defaultType_);
       
