@@ -39,7 +39,6 @@
 
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/ptr_container/ptr_list.hpp>
-#include <boost/foreach.hpp>
 
 #include <string>
 #include <vector>
@@ -142,7 +141,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
   }
 
   // give each of our plugins a chance at doing something with the edm::Event
-  BOOST_FOREACH( Builder& builder, builders_ ) {
+  for(auto& builder : builders_ ) {
     builder.setup(evt, es);
   }
   
@@ -168,8 +167,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
   }
 
   // loop over our jets
-  for (size_t i_j = 0; i_j < pfJets.size(); ++i_j) {
-    const auto& pfJet = pfJets.at(i_j);
+  for(const auto& pfJet : pfJets ) {
     
     if(pfJet->pt() - minJetPt_ < 1e-5) continue;
     if(std::abs(pfJet->eta()) - maxJetAbsEta_ > -1e-5) continue;
@@ -178,7 +176,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
     ChargedHadronList uncleanedChargedHadrons;
 
     // merge candidates reconstructed by all desired algorithm plugins
-    BOOST_FOREACH( const Builder& builder, builders_ ) {
+    for(auto const& builder : builders_ ) {
       try {
         ChargedHadronVector result(builder(*pfJet));
 	if ( verbosity_ ) {
@@ -279,7 +277,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
 	cleanedChargedHadrons.push_back(*nextChargedHadron);
       } else { // remove overlapping neutral PFCandidates, reevaluate ranking criterion and process ChargedHadron candidate again
 	nextChargedHadron->neutralPFCandidates_.clear();
-	BOOST_FOREACH( const reco::CandidatePtr& neutralPFCand, uniqueNeutralPFCands ) {
+    for(auto const& neutralPFCand : uniqueNeutralPFCands ) {
           nextChargedHadron->neutralPFCandidates_.push_back(neutralPFCand);
         }
 	// update ChargedHadron four-momentum

@@ -7,10 +7,7 @@
 
 #include "RecoTauTag/RecoTau/interface/pfRecoTauChargedHadronAuxFunctions.h"
 
-#include <boost/foreach.hpp>
-#include <boost/bind.hpp>
-
-namespace reco { namespace tau {
+namespace reco::tau {
 
 RecoTauConstructor::RecoTauConstructor(const JetBaseRef& jet, const edm::Handle<edm::View<reco::Candidate> >& pfCands, 
 				       bool copyGammasFromPiZeros,
@@ -49,7 +46,7 @@ RecoTauConstructor::RecoTauConstructor(const JetBaseRef& jet, const edm::Handle<
 
   // Build our temporary sorted collections, since you can't use stl sorts on
   // RefVectors
-  BOOST_FOREACH(const CollectionMap::value_type& colkey, collections_) {
+  for(auto const& colkey : collections_) {
     // Build an empty list for each collection
     sortedCollections_[colkey.first] = SortedListPtr(
         new SortedListPtr::element_type);
@@ -272,7 +269,7 @@ void RecoTauConstructor::sortAndCopyIntoTau() {
 
   // Sort each of our sortable collections, and copy them into the final
   // tau RefVector.
-  BOOST_FOREACH ( const CollectionMap::value_type& colkey, collections_ ) {
+  for (auto const& colkey : collections_ ) {
     SortedListPtr sortedCollection = sortedCollections_[colkey.first];
     std::sort(sortedCollection->begin(),
               sortedCollection->end(),
@@ -424,4 +421,4 @@ std::auto_ptr<reco::PFTau> RecoTauConstructor::get(bool setupLeadingObjects)
   }
   return tau_;
 }
-}} // end namespace reco::tau
+} // end namespace reco::tau

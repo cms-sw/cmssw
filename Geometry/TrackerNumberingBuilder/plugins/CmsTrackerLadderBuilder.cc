@@ -18,7 +18,7 @@ void CmsTrackerLadderBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
 
   //sorting for PhaseI & PhaseII pixel ladder modules
   //sorting also for PhaseII outer tracker rod modules
-  std::sort(comp.begin(),comp.end(),LessZ());
+  std::sort(comp.begin(),comp.end(),isLessZ);
  
   for(uint32_t i=0; i<comp.size();i++){
     det->component(i)->setGeographicalID(i+1);

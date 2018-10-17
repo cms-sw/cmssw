@@ -11,7 +11,7 @@
 #include "Rivet/AnalysisHandler.hh"
 #include "Rivet/Analysis.hh"
 #include "Rivet/Tools/RivetYODA.hh"
-#include "tinyxml.h"
+#include "tinyxml2.h"
 
 #include <string>
 #include <vector>
@@ -22,6 +22,7 @@
 using namespace Rivet;
 using namespace edm;
 using namespace std;
+using namespace tinyxml2;
 
 RivetHarvesting::RivetHarvesting(const edm::ParameterSet& pset) : 
 _analysisHandler(),
@@ -186,11 +187,12 @@ void RivetHarvesting::endJob(){
 vector<YODA::Point2D> RivetHarvesting::getPoint2DValsErrs(std::string filename, std::string path, std::string name) {
   
     // Open YODA XML file
-    TiXmlDocument doc(filename);
-    doc.LoadFile();
+    XMLDocument doc;
+    doc.LoadFile(filename.c_str());
+    //doc.LoadFile();
     if (doc.Error()) {
-      string err = "Error in " + string(doc.Value());
-      err += ": " + string(doc.ErrorDesc());
+      string err = "Error in " + filename;
+      err += ": " + string(doc.ErrorStr());
       cerr << err << endl;
       throw cms::Exception("RivetHarvesting") << "Cannot open " << filename;
     }
@@ -200,10 +202,9 @@ vector<YODA::Point2D> RivetHarvesting::getPoint2DValsErrs(std::string filename, 
     
     try {
       // Walk down tree to get to the <paper> element
-      const TiXmlNode* yodaN = doc.FirstChild("yoda");
+      const XMLElement* yodaN = doc.FirstChildElement("yoda");
       if (!yodaN) throw cms::Exception("RivetHarvesting") << "Couldn't get <yoda> root element";
-      for (const TiXmlNode* dpsN = yodaN->FirstChild("dataPointSet"); dpsN; dpsN = dpsN->NextSibling()) {
-        const TiXmlElement* dpsE = dpsN->ToElement();
+      for (const XMLElement* dpsE = yodaN->FirstChildElement("dataPointSet"); dpsE; dpsE = dpsE->NextSiblingElement()) {
         const string plotname = dpsE->Attribute("name");
         const string plotpath = dpsE->Attribute("path");
         if (plotpath != path && plotname != name)
@@ -216,12 +217,10 @@ vector<YODA::Point2D> RivetHarvesting::getPoint2DValsErrs(std::string filename, 
 
         /// @todo Check that "path" matches filename
         vector<Point2D> points;
-        for (const TiXmlNode* dpN = dpsN->FirstChild("dataPoint"); dpN; dpN = dpN->NextSibling()) {
-          const TiXmlNode* xMeasN = dpN->FirstChild("measurement");
-          const TiXmlNode* yMeasN = xMeasN->NextSibling();
-          if (xMeasN && yMeasN)  {
-            const TiXmlElement* xMeasE = xMeasN->ToElement();
-            const TiXmlElement* yMeasE = yMeasN->ToElement();
+        for (const XMLElement* dpE = dpsE->FirstChildElement("dataPoint"); dpE; dpE = dpE->NextSiblingElement()) {
+          const XMLElement* xMeasE = dpE->FirstChildElement("measurement");
+          const XMLElement* yMeasE = xMeasE->NextSiblingElement();
+          if (xMeasE && yMeasE)  {
             const string xcentreStr   = xMeasE->Attribute("value");
             const string xerrplusStr  = xMeasE->Attribute("errorPlus");
             const string xerrminusStr = xMeasE->Attribute("errorMinus");

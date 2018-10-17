@@ -99,8 +99,6 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
   double phiwidthSuperClusterEndcap = iConfig.getParameter<double>("phiwidth_SuperClusterEndcap");
   double etawidthSuperClusterEndcap = iConfig.getParameter<double>("etawidth_SuperClusterEndcap");
 
-  double threshPFClusterES = iConfig.getParameter<double>("thresh_PFClusterES");
-
   //double threshPFClusterMustacheOutBarrel = iConfig.getParameter<double>("thresh_PFClusterMustacheOutBarrel");
   //double threshPFClusterMustacheOutEndcap = iConfig.getParameter<double>("thresh_PFClusterMustacheOutEndcap");
 
@@ -132,8 +130,6 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
   superClusterAlgo_.setPhiwidthSuperClusterEndcap( phiwidthSuperClusterEndcap );
   superClusterAlgo_.setEtawidthSuperClusterEndcap( etawidthSuperClusterEndcap );
 
-  superClusterAlgo_.setThreshPFClusterES( threshPFClusterES );
-
   superClusterAlgo_.setSatelliteMerging( doSatelliteClusterMerge );
   superClusterAlgo_.setSatelliteThreshold( satelliteClusterSeedThreshold );
   superClusterAlgo_.setMajorityFraction( satelliteMajorityFraction );
@@ -145,7 +141,6 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
   thePFEnergyCalibration_ = 
     std::make_shared<PFEnergyCalibration>();
   superClusterAlgo_.setPFClusterCalibration(thePFEnergyCalibration_);
-  superClusterAlgo_.setUsePS(iConfig.getParameter<bool>("use_preshower"));
 
   bool applyCrackCorrections_ = iConfig.getParameter<bool>("applyCrackCorrections");
   superClusterAlgo_.setCrackCorrections(applyCrackCorrections_);

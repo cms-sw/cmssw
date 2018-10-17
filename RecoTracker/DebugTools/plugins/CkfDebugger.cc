@@ -172,7 +172,7 @@ void CkfDebugger::printSimHits( const edm::Event& iEvent)
   
   for (std::map<unsigned int,std::vector<PSimHit*> >::iterator it=idHitsMap.begin();
        it!=idHitsMap.end();it++){
-    sort(it->second.begin(),it->second.end(),less_mag());
+    sort(it->second.begin(),it->second.end(),[](auto* a, auto* b){ return a->timeOfFlight()< b->timeOfFlight(); });
     for (std::vector<PSimHit*>::iterator isim = it->second.begin();
 	 isim != it->second.end(); ++isim){
       const GeomDetUnit* detUnit = theTrackerGeom->idToDetUnit( DetId((*isim)->detUnitId()));
