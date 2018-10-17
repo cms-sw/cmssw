@@ -4,3 +4,5 @@ __init__.py
 .#*
 #*#
 *~
+Validation/Geometry/test/*.root
+Validation/Geometry/test/*.log
