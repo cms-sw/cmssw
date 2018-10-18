@@ -205,7 +205,6 @@ std::map<std::string, l1t::Mask>& ) {
 
   if( conf.find("P_TauTrimming_13to8.mif") != conf.end() )
     paramsHelper.setTauTrimmingShapeVetoLUT( l1t::convertToLUT( conf["P_TauTrimming_13to8.mif"].getVector<int>() ) );
->>>>>>> f52d23c58c4... More updates for O2O
 
   return true;
 }
