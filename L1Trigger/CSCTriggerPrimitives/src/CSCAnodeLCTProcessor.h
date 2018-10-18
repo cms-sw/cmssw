@@ -103,6 +103,8 @@ class CSCAnodeLCTProcessor : public CSCBaseboard
   std::vector<CSCWireDigi> digiV[CSCConstants::NUM_LAYERS];
   unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES];
 
+  std::vector<CSCALCTDigi> lct_list;
+
   /** Configuration parameters. */
   unsigned int fifo_tbins, fifo_pretrig, drift_delay;
   unsigned int nplanes_hit_pretrig, nplanes_hit_accel_pretrig;
@@ -183,6 +185,8 @@ class CSCAnodeLCTProcessor : public CSCBaseboard
      previous wire (this has not been done in 2003 test beam).  The
      cancellation is done separately for collision and accelerator patterns. */
   virtual void ghostCancellationLogic();
+
+  virtual void ghostCancellationLogicOneWire(const int key_wire);
 
   virtual int getTempALCTQuality(int temp_quality) const;
 

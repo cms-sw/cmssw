@@ -478,25 +478,40 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
           if (infoV > 2) showPatterns(i_wire);
           if (patternDetection(i_wire)) {
             trigger = true;
-            break;
+            ghostCancellationLogicOneWire(i_wire);
+     
+            int bx = (use_corrected_bx) ? first_bx_corrected[i_wire]:first_bx[i_wire];
+            if (bx >= CSCConstants::MAX_ALCT_TBINS)  
+               edm::LogError("CSCAnodeLCTProcessor") <<" bx of valid trigger : "<< bx <<" > max allowed value "<<  CSCConstants::MAX_ALCT_TBINS;
+
+            //acceloration mode
+            if (quality[i_wire][0] > 0 and bx <  CSCConstants::MAX_ALCT_TBINS) 
+               lct_list.push_back(CSCALCTDigi(1, quality[i_wire][0], 1, 0, i_wire, bx));
+
+            //collision mode
+            if (quality[i_wire][1] > 0 and bx <  CSCConstants::MAX_ALCT_TBINS)
+               lct_list.push_back(CSCALCTDigi(1, quality[i_wire][1], 0, quality[i_wire][2], i_wire, bx));
+                  
+            //break;
           }
-          else {
+          //else {
             // Assume that the earliest time when another pre-trigger can
             // occur in case pattern detection failed is bx_pretrigger+4:
             // this seems to match the data.
-            start_bx = first_bx[i_wire] + drift_delay + pretrig_extra_deadtime;
-          }
+          start_bx = first_bx[i_wire] + drift_delay + pretrig_extra_deadtime;
+          //}
         }
-        else {
+        else {//no pretrigger, skip this wiregroup
           break;
         }
-      }
+      }// end of while
+   
     }
   }
 
   // Do the rest only if there is at least one trigger candidate.
   if (trigger) {
-    ghostCancellationLogic();
+    //ghostCancellationLogic();
     lctSearch();
   }
 }
@@ -836,8 +851,8 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire)
       else {
         // Only one collision pattern (of the best quality) is reported
         if (static_cast<int>(temp_quality) > quality[key_wire][1]) {
-          quality[key_wire][1] = temp_quality;
-          quality[key_wire][2] = i_pattern-1;
+          quality[key_wire][1] = temp_quality;//real quality
+          quality[key_wire][2] = i_pattern-1; // pattern, left or right 
         }
       }
       if (infoV > 1) {
@@ -856,8 +871,13 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire)
       LogTrace("CSCAnodeLCTProcessor")
         << "Collision Pattern B is chosen" << "\n";
   }
+
+  trigMode(key_wire);
+
+
   return trigger;
 }
+
 
 void CSCAnodeLCTProcessor::ghostCancellationLogic()
 {
@@ -938,8 +958,62 @@ void CSCAnodeLCTProcessor::ghostCancellationLogic()
 }
 
 
+
+
+void  CSCAnodeLCTProcessor::ghostCancellationLogicOneWire(const int key_wire){
+
+  int ghost_cleared[2];
+
+    for (int i_pattern = 0; i_pattern < 2; i_pattern++) {
+      ghost_cleared[i_pattern] = 0;
+
+      // Non-empty wire group.
+      int qual_this = quality[key_wire][i_pattern];
+      if (qual_this > 0) {
+
+        // Previous wire.
+        int qual_prev = (key_wire > 0) ? quality[key_wire-1][i_pattern] : 0;
+        if (qual_prev > 0) {
+          int dt = first_bx[key_wire] - first_bx[key_wire-1];
+          // Cancel this wire
+          //   1) If the candidate at the previous wire is at the same bx
+          //      clock and has better quality (or equal quality - this has
+          //      been implemented only in 2004).
+          //   2) If the candidate at the previous wire is up to 4 clocks
+          //      earlier, regardless of quality.
+          if (dt == 0) {
+            if (qual_prev >= qual_this) ghost_cleared[i_pattern] = 1;
+          }
+          else if (dt > 0 && dt <= ghost_cancellation_bx_depth ) {
+            if ((!ghost_cancellation_side_quality) ||
+                (qual_prev > qual_this) )
+              ghost_cleared[i_pattern] = 1;
+          }
+        }
+
+        if (ghost_cleared[i_pattern] == 1) {
+          if (infoV > 1) LogTrace("CSCAnodeLCTProcessor")
+            << ((i_pattern == 0) ? "Accelerator" : "Collision")
+            << " pattern ghost cancelled on key_wire " << key_wire <<" q="<<qual_this
+            << "  by wire " << key_wire-1<<" q="<<qual_prev;
+        }
+
+      }
+    }
+
+  // All cancellation is done in parallel, so wiregroups do not know what
+  // their neighbors are cancelling.
+    for (int i_pattern = 0; i_pattern < 2; i_pattern++) {
+      if (ghost_cleared[i_pattern] > 0) {
+        clear(key_wire, i_pattern);
+      }
+    }
+}
+
+
 void CSCAnodeLCTProcessor::lctSearch()
 {
+  /*
   // First modify the quality according accel_mode, then store all
   // of the valid LCTs in an array.
   std::vector<CSCALCTDigi> lct_list;
@@ -976,9 +1050,9 @@ void CSCAnodeLCTProcessor::lctSearch()
       }
 
       // Modify qualities according to accel_mode parameter.
-      accelMode(i_wire);
+      //accelMode(i_wire);
     }
-  }
+  }*/
 
   // Best track selector selects two collision and two accelerator ALCTs
   // with the best quality per time bin.
@@ -1168,11 +1242,15 @@ bool CSCAnodeLCTProcessor::isBetterALCT(const CSCALCTDigi& lhsALCT,
   // If qualities are the same, check accelerator bits of both ALCTs.
   // If they are not the same, rank according to accel_mode value.
   // If they are the same, keep the track selector assignment.
-  else if (qual1 == qual2 &&
-           lhsALCT.getAccelerator() != rhsALCT.getAccelerator() &&
-           quality[lhsALCT.getKeyWG()][1-lhsALCT.getAccelerator()] >
-           quality[rhsALCT.getKeyWG()][1-rhsALCT.getAccelerator()])
-    {returnValue = true;}
+  //else if (qual1 == qual2 &&
+  //         lhsALCT.getAccelerator() != rhsALCT.getAccelerator() &&
+  //         quality[lhsALCT.getKeyWG()][1-lhsALCT.getAccelerator()] >
+  //         quality[rhsALCT.getKeyWG()][1-rhsALCT.getAccelerator()])
+  //  {returnValue = true;}
+  else if (qual1 == qual2 && lhsALCT.getAccelerator() != rhsALCT.getAccelerator()){
+      if ((accel_mode == 0 || accel_mode == 1) && rhsALCT.getAccelerator() == 0) returnValue = true;
+      if ((accel_mode == 2 || accel_mode == 3) && lhsALCT.getAccelerator() == 0) returnValue = true;
+  }
 
   return returnValue;
 }
@@ -1433,7 +1511,7 @@ void CSCAnodeLCTProcessor::showPatterns(const int key_wire)
             strstrm_pulse << ((pulse[this_layer][this_wire]>>(32-i)) & 1);
           }
           LogTrace("CSCAnodeLCTProcessor")
-            << strstrm_pulse.str() << " on layer " << this_layer;
+            << strstrm_pulse.str() << " on layer " << this_layer <<" wire "<< this_wire;
         }
       }
     }
