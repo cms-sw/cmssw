@@ -1,3 +1,6 @@
+#To make sure we rebuild this package when python_tools package updated
+<use name="python_tools"/>
+
 <use name="py2-histogrammar"/>
 <use name="rootpy"/>
 
@@ -10,7 +13,6 @@
 <test name="testBottleneck" command="testBottleneck.py"/>
 <test name="testDeepDish" command="testDeepDish.py"/>
 <test name="testNumExpr" command="testNumExpr.py"/>
-<test name="testNumba" command="testNumba.py"/>
 <test name="testTables" command="testTables.py"/>
 
 <test name="testDownhill" command="testDownhill.sh"/>
@@ -28,3 +30,12 @@
 <test name="test_root_PyMVA" command="rm -f tmp/test_PyMVA; mkdir tmp/test_PyMVA; cd tmp/test_PyMVA; cp $(LOCALTOP)/src/PhysicsTools/PythonAnalysis/test/test_PyMVA.cpp .;  root -n -b -l -q test_PyMVA.cpp+">
   <use name="rootpymva"/>
 </test>
+<iftool name="py2-numba">
+  <test name="testNumba" command="testNumba.py"/>
+</iftool>
+<iftool name="py2-llvmlite">
+  <test name="testLLVMLite" command="python -c 'import llvmlite'"/>
+</iftool>
+<iftool name="py2-numpy">
+  <test name="testNumPy" command="python -c 'import numpy'"/>
+</iftool>
