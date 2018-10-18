@@ -80,7 +80,7 @@ public:
   TotemDAQMappingESSourceXML(const edm::ParameterSet &);
   ~TotemDAQMappingESSourceXML() override;
 
-  edm::ESProducts< std::shared_ptr<TotemDAQMapping>, std::shared_ptr<TotemAnalysisMask> > produce( const TotemReadoutRcd & );
+  edm::ESProducts< std::unique_ptr<TotemDAQMapping>, std::unique_ptr<TotemAnalysisMask> > produce( const TotemReadoutRcd & );
 
 private:
   unsigned int verbosity;
@@ -119,19 +119,19 @@ private:
   enum ParseType { pMapping, pMask };
 
   /// parses XML file
-  void ParseXML(ParseType, const string &file, const std::shared_ptr<TotemDAQMapping>&, const std::shared_ptr<TotemAnalysisMask>&);
+  void ParseXML(ParseType, const string &file, const std::unique_ptr<TotemDAQMapping>&, const std::unique_ptr<TotemAnalysisMask>&);
 
   /// recursive method to extract RP-related information from the DOM tree
   void ParseTreeRP(ParseType, xercesc::DOMNode *, NodeType, unsigned int parentID,
-    const std::shared_ptr<TotemDAQMapping>&, const std::shared_ptr<TotemAnalysisMask>&);
+    const std::unique_ptr<TotemDAQMapping>&, const std::unique_ptr<TotemAnalysisMask>&);
 
   /// recursive method to extract RP-related information from the DOM tree
   void ParseTreeDiamond(ParseType, xercesc::DOMNode *, NodeType, unsigned int parentID,
-    const std::shared_ptr<TotemDAQMapping>&, const std::shared_ptr<TotemAnalysisMask>&);
+    const std::unique_ptr<TotemDAQMapping>&, const std::unique_ptr<TotemAnalysisMask>&);
 
   /// recursive method to extract RP-related information from the DOM tree
   void ParseTreeTotemTiming(ParseType, xercesc::DOMNode *, NodeType, unsigned int parentID,
-    const std::shared_ptr<TotemDAQMapping>&, const std::shared_ptr<TotemAnalysisMask>&);
+    const std::unique_ptr<TotemDAQMapping>&, const std::unique_ptr<TotemAnalysisMask>&);
 
 private:
   /// adds the path prefix, if needed
@@ -305,13 +305,13 @@ string TotemDAQMappingESSourceXML::CompleteFileName(const string &fn)
 
 //----------------------------------------------------------------------------------------------------
 
-edm::ESProducts< std::shared_ptr<TotemDAQMapping>, std::shared_ptr<TotemAnalysisMask> >
+edm::ESProducts< std::unique_ptr<TotemDAQMapping>, std::unique_ptr<TotemAnalysisMask> >
   TotemDAQMappingESSourceXML::produce( const TotemReadoutRcd & )
 {
   assert(currentBlockValid);
 
-  auto mapping = std::make_shared<TotemDAQMapping>();
-  auto mask = std::make_shared<TotemAnalysisMask>();
+  auto mapping = std::make_unique<TotemDAQMapping>();
+  auto mask = std::make_unique<TotemAnalysisMask>();
 
   // initialize Xerces
   try
@@ -335,13 +335,13 @@ edm::ESProducts< std::shared_ptr<TotemDAQMapping>, std::shared_ptr<TotemAnalysis
   XMLPlatformUtils::Terminate();
 
   // commit the products
-  return edm::es::products(mapping, mask);
+  return edm::es::products(std::move(mapping), std::move(mask));
 }
 
 //----------------------------------------------------------------------------------------------------
 
 void TotemDAQMappingESSourceXML::ParseXML(ParseType pType, const string &file,
-  const std::shared_ptr<TotemDAQMapping> &mapping, const std::shared_ptr<TotemAnalysisMask> &mask)
+  const std::unique_ptr<TotemDAQMapping> &mapping, const std::unique_ptr<TotemAnalysisMask> &mask)
 {
   unique_ptr<XercesDOMParser> parser(new XercesDOMParser());
   parser->parse(file.c_str());
@@ -368,8 +368,8 @@ void TotemDAQMappingESSourceXML::ParseXML(ParseType pType, const string &file,
 //-----------------------------------------------------------------------------------------------------------
 
 void TotemDAQMappingESSourceXML::ParseTreeRP(ParseType pType, xercesc::DOMNode * parent, NodeType parentType,
-  unsigned int parentID, const std::shared_ptr<TotemDAQMapping>& mapping,
-  const std::shared_ptr<TotemAnalysisMask>& mask)
+  unsigned int parentID, const std::unique_ptr<TotemDAQMapping>& mapping,
+  const std::unique_ptr<TotemAnalysisMask>& mask)
 {
 #ifdef DEBUG
   printf(">> TotemDAQMappingESSourceXML::ParseTreeRP(%s, %u, %u)\n", cms::xerces::toString(parent->getNodeName()),
@@ -502,8 +502,8 @@ void TotemDAQMappingESSourceXML::ParseTreeRP(ParseType pType, xercesc::DOMNode *
 //----------------------------------------------------------------------------------------------------
 
 void TotemDAQMappingESSourceXML::ParseTreeDiamond(ParseType pType, xercesc::DOMNode * parent, NodeType parentType,
-  unsigned int parentID, const std::shared_ptr<TotemDAQMapping>& mapping,
-  const std::shared_ptr<TotemAnalysisMask>& mask)
+  unsigned int parentID, const std::unique_ptr<TotemDAQMapping>& mapping,
+  const std::unique_ptr<TotemAnalysisMask>& mask)
 {
 
 #ifdef DEBUG
@@ -628,8 +628,8 @@ void TotemDAQMappingESSourceXML::ParseTreeDiamond(ParseType pType, xercesc::DOMN
 //----------------------------------------------------------------------------------------------------
 
 void TotemDAQMappingESSourceXML::ParseTreeTotemTiming(ParseType pType, xercesc::DOMNode * parent, NodeType parentType,
-  unsigned int parentID, const std::shared_ptr<TotemDAQMapping>& mapping,
-  const std::shared_ptr<TotemAnalysisMask>& mask)
+  unsigned int parentID, const std::unique_ptr<TotemDAQMapping>& mapping,
+  const std::unique_ptr<TotemAnalysisMask>& mask)
 {
   DOMNodeList *children = parent->getChildNodes();
 
