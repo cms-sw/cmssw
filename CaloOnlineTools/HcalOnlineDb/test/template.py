@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("TEST")
+process = cms.Process("TEST", eras.Run2_2018)
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.categories.append('LUT')
@@ -19,8 +19,6 @@ process.GlobalTag.globaltag = '__GlobalTag__'
 process.load("SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff")
 
 process.HcalTPGCoderULUT.LUTGenerationMode = cms.bool(True)
-
-process.CaloTPGTranscoder.HFTPScaleShift.NCT=2;
 
 process.HcalTPGCoderULUT.DumpL1TriggerObjects = cms.bool(True)
 process.HcalTPGCoderULUT.TagName = cms.string('__LUTtag__')

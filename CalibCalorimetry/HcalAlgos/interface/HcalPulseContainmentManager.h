@@ -14,7 +14,7 @@ public:
   const HcalPulseContainmentCorrection * get(const HcalDetId & detId, int toAdd, float fixedphase_ns);
 
   void beginRun(edm::EventSetup const & es);
-  void beginRun(const HcalDbService* conditions, const edm::ESHandle<HcalTimeSlew>& delay);
+  void beginRun(const HcalDbService* conditions, const HcalTimeSlew* delay);
 
   void setTimeSlew(const HcalTimeSlew* timeSlew) {
     hcalTimeSlew_delay_ = timeSlew;

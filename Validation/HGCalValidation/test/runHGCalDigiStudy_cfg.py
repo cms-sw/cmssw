@@ -8,6 +8,7 @@ process.load('Configuration.Geometry.GeometryExtended2023D28_cff')
 process.load('Configuration.Geometry.GeometryExtended2023D28Reco_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Validation.HGCalValidation.hgcDigiStudy_cfi')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
@@ -32,8 +33,13 @@ process.TFileService = cms.Service("TFileService",
                                    closeFileFast = cms.untracked.bool(True)
                                    )
 
-process.analysis_step   = cms.Path(process.hgcalDigiStudy)
-process.hgcalDigiStudy.verbosity = 1
+process.raw2digi_step = cms.Path(process.RawToDigi)
+process.analysis_step = cms.Path(process.hgcalDigiStudyEE+
+                                 process.hgcalDigiStudyHEF+
+                                 process.hgcalDigiStudyHEB)
+process.hgcalDigiStudyEE.verbosity = 1
+process.hgcalDigiStudyHEF.verbosity = 1
+process.hgcalDigiStudyHEB.verbosity = 1
 
 # Schedule definition
-process.schedule = cms.Schedule(process.analysis_step)
+process.schedule = cms.Schedule(process.raw2digi_step,process.analysis_step)

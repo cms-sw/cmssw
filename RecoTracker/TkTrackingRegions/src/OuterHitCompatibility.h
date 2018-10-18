@@ -13,8 +13,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/HitRZCompatibility.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-
-#include "TrackingTools/DetLayers/interface/PhiLess.h"
+#include "DataFormats/GeometryVector/interface/VectorUtil.h"
 #include "DataFormats/Math/interface/approx_atan2.h"
 
 #include "FWCore/Utilities/interface/Visibility.h"
@@ -45,8 +44,7 @@ public:
 
   bool checkPhi(float phi, float r) const {
     auto hitPhiRange = thePhiPrediction(r);
-    PhiLess less;
-    bool phiOK = less(hitPhiRange.min(),phi) && less(phi,hitPhiRange.max());
+    bool phiOK = Geom::phiLess(hitPhiRange.min(),phi) && Geom::phiLess(phi,hitPhiRange.max());
     return phiOK;
   }
 

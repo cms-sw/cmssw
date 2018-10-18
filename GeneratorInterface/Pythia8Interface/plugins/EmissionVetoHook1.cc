@@ -253,6 +253,10 @@ double EmissionVetoHook1::pTcalc(const Pythia8::Event &e, int i, int j, int k, i
 // at the end of the event and the final entry is the POWHEG emission.
 // If there is no POWHEG emission, then pThard is set to QRen.
 bool EmissionVetoHook1::doVetoMPIStep(int nMPI, const Pythia8::Event &e) {
+
+    if(nFinalMode == 3 && pThardMode != 0) 
+      fatalEmissionVeto(std::string("When nFinalMode is set to 3, ptHardMode should be set to 0, since the emission variables in doVetoMPIStep are not set correctly case when there are three possible particle Born particle counts."));
+
   // Extra check on nMPI
   if (nMPI > 1) return false;
 
@@ -307,9 +311,17 @@ bool EmissionVetoHook1::doVetoMPIStep(int nMPI, const Pythia8::Event &e) {
 
   // don't perform a cross check in case of nfinalmode == 2 
   if (nFinalMode != 2) { 
+
     // Extra check that we have the correct final state
-    if (count != nFinal && count != nFinal + 1)
-      fatalEmissionVeto(std::string("Wrong number of final state particles in event"));
+    // In POWHEG WGamma, both w+0/1 jets and w+gamma+0/1 jets are generated at the same time, which leads to three different possible numbers of particles
+    // Normally, there would be only two possible numbers of particles for X and X+1 jet
+    if(nFinalMode == 3){
+      if (count != nFinal && count != nFinal + 1 && count != nFinal - 1)
+	fatalEmissionVeto(std::string("Wrong number of final state particles in event"));
+    } else {
+      if (count != nFinal && count != nFinal + 1)
+	fatalEmissionVeto(std::string("Wrong number of final state particles in event"));
+    }
     // Flag if POWHEG radiation present and index
     if (count == nFinal + 1) isEmt = true;
     if (isEmt) iEmt = e.size() - 1;

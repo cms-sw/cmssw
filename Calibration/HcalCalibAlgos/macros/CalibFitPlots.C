@@ -59,6 +59,11 @@
 //
 //             For plotting correction factors from upto 5 different runs 
 //             on the same canvas
+//
+//  PlotHistCorrAsymmetry(infile, text, prefixF, save);
+//
+//             For plotting (fractional) asymmetry in the correction factors
+//
 //  PlotHistCorrFactors(infile1, text1, infile2, text2, infile3, text3,
 //                      infile4, text4, infile5, text5, prefixF, ratio,
 //                      drawStatBox, nmin, dataMC, year, save)
@@ -402,8 +407,8 @@ results fitOneGauss (TH1D* hist, bool fitTwice, bool debug) {
   double rms;
   std::pair<double,double> mrms = GetMean(hist, 0.2, 2.0, rms);
   double mean  = mrms.first;
-  double LowEdge  = ((mean-1.2*rms) < 0.5) ? 0.5 : (mean-1.2*rms);
-  double HighEdge = (mean+1.2*rms);
+  double LowEdge  = ((mean-1.0*rms) < 0.5) ? 0.5 : (mean-1.0*rms);
+  double HighEdge = (mean+1.0*rms);
   if (debug) std::cout << hist->GetName() << " Mean " << mean << " RMS "
 		       << rms << " Range " << LowEdge << ":" << HighEdge <<"\n";
   std::string option = (hist->GetEntries()>100) ? "QRS" : "QRWLS";
@@ -415,8 +420,8 @@ results fitOneGauss (TH1D* hist, bool fitTwice, bool debug) {
   double width = Fit1->Value(2);
   double werror= Fit1->FitResult::Error(2);
   if (fitTwice) {
-    LowEdge      = Fit1->Value(1) - 1.2*Fit1->Value(2);
-    HighEdge     = Fit1->Value(1) + 1.2*Fit1->Value(2);
+    LowEdge      = Fit1->Value(1) - 1.0*Fit1->Value(2);
+    HighEdge     = Fit1->Value(1) + 1.0*Fit1->Value(2);
     if (LowEdge  < 0.5) LowEdge = 0.5;
     if (HighEdge > 5.0) HighEdge= 5.0;
     if (debug) std::cout << " Range for second Fit " << LowEdge << ":" 
@@ -762,7 +767,7 @@ void FitHistExtended(const char* infile, const char* outfile,std::string prefix,
 	}
 	if (hist1 != nullptr) {
 	  TH1D* hist  = (TH1D*)hist1->Clone();
-	  double value(0), error(0), total(0);
+	  double value(0), error(0), total(0), width(0), werror(0);
 	  if (hist->GetEntries() > 0) {
 	    value = hist->GetMean(); error = hist->GetRMS();
 	    for (int i=1; i<=hist->GetNbinsX(); ++i) 
@@ -771,7 +776,15 @@ void FitHistExtended(const char* infile, const char* outfile,std::string prefix,
 	  if (total > 4) {
 	    sprintf (name, "%sOne", hist1->GetName());
 	    TH1D* hist2  = (TH1D*)hist1->Clone(name);
-	    fitOneGauss(hist2,true,debug);
+	    results meanerr = fitOneGauss(hist2,false,debug);
+	    value = meanerr.mean;  error = meanerr.errmean;
+	    width = meanerr.width; werror= meanerr.errwidth;
+	    double wbyv  = width/value;
+	    double wverr = wbyv*std::sqrt((werror*werror)/(width*width)+
+					  (error*error)/(value*value));
+	    std::cout << hist2->GetName() << " MPV " << value << " +- " << error
+		      << " Width " << width << " +- " << werror << " W/M "
+		      << wbyv << " +- " << wverr << std::endl;
 	    hists.push_back(hist2);
 	    if (hist1->GetBinLowEdge(1) < 0.1) {
 	      sprintf (name, "%sTwo", hist1->GetName());
@@ -1655,13 +1668,102 @@ void PlotHistCorrFactor(char* infile, std::string text,
   pad->Update();
   if (fits < 1) {
     pad->Range(0.0,0.0,1.0,1.0);
-    TLine line = TLine(0.0,0.5,1.0,0.5); //etamin,1.0,etamax,1.0);
-    line.SetLineColor(9);
-    line.SetLineWidth(2);
-    line.SetLineStyle(2);
-    line.Draw("same");
+    TLine* line = new TLine(0.0,0.5,1.0,0.5); //etamin,1.0,etamax,1.0);
+    line->SetLineColor(9);
+    line->SetLineWidth(2);
+    line->SetLineStyle(2);
+    line->Draw("same");
     pad->Update();
   }
+  if (save) {
+    sprintf (name, "%s.pdf", pad->GetName());
+    pad->Print(name);
+  }
+}
+
+void PlotHistCorrAsymmetry(char* infile, std::string text, 
+			   std::string prefixF="", bool save=false) {
+
+  std::map<int,cfactors> cfacs;
+  int    etamin(100), etamax(-100), maxdepth(0);
+  double scale(1.0);
+  readCorrFactors(infile,scale,cfacs,etamin,etamax,maxdepth);
+
+  gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
+  gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
+  gStyle->SetOptTitle(0);
+  gStyle->SetOptStat(0);          gStyle->SetOptFit(10);
+  int colors[6] = {1,6,4,7,2,9};
+  int mtype[6]  = {20,21,22,23,24,33};
+  int nbin = etamax + 1;
+  std::vector<TH1D*> hists;
+  std::vector<int>   entries;
+  char               name[100];
+  double             dy(0);
+  for (int j=0; j<maxdepth; ++j) {
+    sprintf (name, "hd%d", j+1);
+    TH1D* h = new TH1D(name, name, nbin, 0, etamax);
+    int nent(0);
+    for (std::map<int,cfactors>::const_iterator itr = cfacs.begin(); 
+	 itr != cfacs.end(); ++itr) {
+      if ((itr->second).depth == j+1) {
+	int  ieta = (itr->second).ieta;
+	float vl1 = (itr->second).corrf;
+	float dv1 = (itr->second).dcorr;
+	if (ieta > 0) {
+	  for (std::map<int,cfactors>::const_iterator ktr = cfacs.begin(); 
+	       ktr != cfacs.end(); ++ktr) {
+	    if (((ktr->second).depth == j+1) && ((ktr->second).ieta == -ieta)) {
+	      float vl2 = (ktr->second).corrf;
+	      float dv2 = (ktr->second).dcorr;
+	      float val = 2.0 * (vl1-vl2) / (vl1+vl2);
+	      float dvl	= (4.0 * sqrt(vl1*vl1*dv2*dv2+vl2*vl2*dv1*dv1) /
+			   ((vl1+vl2)*(vl1+vl2)));
+	      int   bin = ieta;
+	      h->SetBinContent(bin,val);
+	      h->SetBinError(bin,dvl);
+	      nent++;
+	    }
+	  }
+	}
+      }
+    }
+    h->SetLineColor(colors[j]);
+    h->SetMarkerColor(colors[j]);
+    h->SetMarkerStyle(mtype[j]);
+    h->GetXaxis()->SetTitle("i#eta");
+    h->GetYaxis()->SetTitle("Asymmetry in Correction Factor");
+    h->GetYaxis()->SetLabelOffset(0.005);
+    h->GetYaxis()->SetTitleOffset(1.20);
+    h->GetYaxis()->SetRangeUser(-0.25,0.25);
+    hists.push_back(h);
+    entries.push_back(nent);
+    dy  += 0.025;
+  }
+  sprintf (name, "c_%sCorrAsymmetry", prefixF.c_str());
+  TCanvas *pad = new TCanvas(name, name, 700, 500);
+  pad->SetRightMargin(0.10); pad->SetTopMargin(0.10);
+  double yh = 0.90;
+  double yl = yh-0.035*hists.size()-dy-0.01;
+  TLegend *legend = new TLegend(0.60, yl, 0.90, yl+0.035*hists.size());
+  legend->SetFillColor(kWhite);
+  for (unsigned int k=0; k<hists.size(); ++k) {
+    if (k == 0) hists[k]->Draw("");
+    else        hists[k]->Draw("sames");
+    pad->Update();
+    sprintf (name, "Depth %d (%s)", k+1, text.c_str());
+    legend->AddEntry(hists[k],name,"lp");
+  }
+  legend->Draw("same");
+  pad->Update();
+
+  TLine* line = new TLine(0.0,0.0,etamax,0.0);
+  line->SetLineColor(9);
+  line->SetLineWidth(2);
+  line->SetLineStyle(2);
+  line->Draw("same");
+  pad->Update();
+
   if (save) {
     sprintf (name, "%s.pdf", pad->GetName());
     pad->Print(name);

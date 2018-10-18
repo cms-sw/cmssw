@@ -112,7 +112,7 @@ void DTGeometryESModule::setupGeometry( const MuonNumberingRecord& record,
   record.getRecord<IdealGeometryRecord>().get(cpv);
 
   DTGeometryBuilderFromDDD builder;
-  builder.build(host, &(*cpv), *mdc);
+  builder.build(*host, &(*cpv), *mdc);
 }
 
 void DTGeometryESModule::setupDBGeometry( const DTRecoGeometryRcd& record,
