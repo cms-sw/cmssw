@@ -85,7 +85,7 @@ def assignOrAddIfExists_(h, p):
         h.Add(p.ProjectionX("B_%s" % h.GetName()), +1.000)
     return h
 
-def get1DHisto_(detector,label,plot,geometry):
+def get1DHisto_(detector,plotNumber,geometry):
     """
      This function opens the appropiate ROOT file, 
      extracts the TProfile and turns it into a Histogram,
@@ -95,13 +95,11 @@ def get1DHisto_(detector,label,plot,geometry):
     histo = None
     rootFile = TFile()
 
-    plotCode = hist_label_to_num[label][0] + plots[plot].plotNumber
-
     if detector not in COMPOUNDS.keys():
         rootFile = TFile.Open('matbdg_%s_%s.root'%(detector,geometry),'READ')
-        prof = copy.deepcopy(rootFile.Get("%d" % plotCode))
+        prof = copy.deepcopy(rootFile.Get("%d" % plotNumber))
         # Prevent memory leaking by specifing a unique name
-        prof.SetName('%u_%s_%s' %(plotCode,detector,geometry))
+        prof.SetName('%u_%s_%s' %(plotNumber,detector,geometry))
         histo = prof.ProjectionX()
     else:
         theFiles = []
@@ -114,29 +112,29 @@ def get1DHisto_(detector,label,plot,geometry):
             subDetectorFile = TFile.Open(subDetectorFilename,'READ')
             theFiles.append(subDetectorFile)
             print('*** Open file... %s' % subDetectorFilename)
-            prof = copy.deepcopy(subDetectorFile.Get('%d'%(plotCode)))
+            prof = copy.deepcopy(subDetectorFile.Get('%d'%(plotNumber)))
             prof.__class__ = TProfile
             histo = assignOrAddIfExists_(histo,prof)
 
     return copy.deepcopy(histo)
 
-def get2DHisto_(detector,label,plot,geometry):
+def get2DHisto_(detector,plotNumber,geometry):
     """
      This function opens the appropiate ROOT file, 
      extracts the TProfile2D and turns it into a Histogram,
      if it is a compound detector, this function
      takes care of the subdetectors' addition.
+
+     Note that it takes plotNumber as opposed to plot
     """
     histo = None
     rootFile = TFile()
 
-    plotCode = hist_label_to_num[label][0]  +  plots[plot].plotNumber
-
     if detector not in COMPOUNDS.keys():
         rootFile = TFile.Open('matbdg_%s_%s.root'%(detector,geometry),'READ')
-        prof = copy.deepcopy(rootFile.Get("%d" % plotCode))
+        prof = copy.deepcopy(rootFile.Get("%d" % plotNumber))
         # Prevent memory leaking by specifing a unique name
-        prof.SetName('%u_%s_%s' %(plotCode,detector,geometry))
+        prof.SetName('%u_%s_%s' %(plotNumber,detector,geometry))
         prof.__class__ = TProfile2D
         histo = prof.ProjectionXY()
     else:
@@ -150,7 +148,7 @@ def get2DHisto_(detector,label,plot,geometry):
             subDetectorFile = TFile.Open(subDetectorFilename,'READ')
             theFiles.append(subDetectorFile)
             print('*** Open file... %s' % subDetectorFilename)
-            prof = copy.deepcopy(subDetectorFile.Get('%d'%plotCode))
+            prof = copy.deepcopy(subDetectorFile.Get('%d'%plotNumber))
             prof.__class__ = TProfile2D
             if not histo:
                 histo = prof.ProjectionXY('B_%s' % prof.GetName())
@@ -273,7 +271,9 @@ def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
     for label, [num, color, leg] in six.iteritems(hist_label_to_num):
 
         mainPad[counter].cd()
-        oldHistos[label] = get1DHisto_(detector,label,plot,geometryOld)
+        oldHistos[label] = get1DHisto_(detector,
+                                       num+plots[plot].plotNumber
+                                       ,geometryOld)
         oldHistos[label].SetTitle(setUpTitle(detector,leg,plot))
         oldHistos[label].SetFillColor(color)
         oldHistos[label].SetLineColor(kBlack)
@@ -282,7 +282,9 @@ def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
         oldHistos[label].SetFillStyle(3144)
         oldHistos[label].Draw("HIST")
 
-        newHistos[label] = get1DHisto_(detector,label,plot,geometryNew)
+        newHistos[label] = get1DHisto_(detector,
+                                       num+plots[plot].plotNumber
+                                       ,geometryNew)
         newHistos[label].SetMarkerSize(.5)
         newHistos[label].SetMarkerStyle(20)
         newHistos[label].Draw('SAME P')
@@ -373,8 +375,8 @@ def create2DPlotsGeometryComparison(detector, plot,
     
     gStyle.SetOptStat(False)
 
-    old2DHisto = get2DHisto_(detector,'SUM',plot,geometryOld)
-    new2DHisto = get2DHisto_(detector,'SUM',plot,geometryNew)
+    old2DHisto = get2DHisto_(detector,plots[plot].plotNumber,geometryOld)
+    new2DHisto = get2DHisto_(detector,plots[plot].plotNumber,geometryNew)
 
     if plots[plot].iRebin:
         old2DHisto.Rebin2D()
@@ -729,45 +731,26 @@ def createCompoundPlots(detector, plot, geometry):
     if not goodToGo:
         return
 
-    theDetectorFile = TFile(theDetectorFilename)
-    #
-
-    # get TProfiles
-    prof_X0_elements = OrderedDict()
     hist_X0_elements = OrderedDict()
-    for label, [num, color, leg] in six.iteritems(hist_label_to_num):
-        prof_X0_elements[label] = theDetectorFile.Get("%d" % (num + plots[plot].plotNumber))
-        hist_X0_elements[label] = prof_X0_elements[label].ProjectionX()
-        hist_X0_elements[label].SetFillColor(color)
-        hist_X0_elements[label].SetLineColor(kBlack)
-
-    files = []
-    if detector in COMPOUNDS.keys():
-        for subDetector in COMPOUNDS[detector][1:]:
-            subDetectorFilename = "matbdg_%s_%s.root" % (subDetector,geometry)
-
-            # open file
-            if not checkFile_(subDetectorFilename):
-                print('Error: %s not found' % subDetectorFilename)
-                continue
-
-            subDetectorFile = TFile(subDetectorFilename)
-            files.append(subDetectorFile)
-            print("*** Open file... %s" %  subDetectorFilename)
-
-            # subdetector profiles
-            for label, [num, color, leg] in six.iteritems(hist_label_to_num):
-                prof_X0_elements[label] = subDetectorFile.Get("%d" % (num + plots[plot].plotNumber))
-                hist_X0_elements[label].Add(prof_X0_elements[label].ProjectionX("B_%s" % prof_X0_elements[label].GetName())
-                                            , +1.000)
 
     # stack
     stackTitle = "Material Budget %s;%s;%s" % (detector,
                                                plots[plot].abscissa,
                                                plots[plot].ordinate)
     stack_X0 = THStack("stack_X0", stackTitle);
+    theLegend = TLegend(0.70, 0.70, 0.89, 0.89);
+
     for label, [num, color, leg] in six.iteritems(hist_label_to_num):
+        # We don't want the sum to be added as part of the stack
+        if label is 'SUM':
+            continue
+        hist_X0_elements[label] = get1DHisto_(detector,
+                                              num + plots[plot].plotNumber,
+                                              geometry)
+        hist_X0_elements[label].SetFillColor(color)
+        hist_X0_elements[label].SetLineColor(kBlack)
         stack_X0.Add(hist_X0_elements[label])
+        theLegend.AddEntry(hist_X0_elements[label], leg, "f")
 
     # canvas
     canname = "MBCan_1D_%s_%s"  % (detector, plot)
@@ -778,11 +761,6 @@ def createCompoundPlots(detector, plot, geometry):
 
     # Draw
     stack_X0.Draw("HIST");
-
-    # Legenda
-    theLegend = TLegend(0.70, 0.70, 0.89, 0.89);
-    for label, [num, color, leg] in six.iteritems(hist_label_to_num):
-        theLegend.AddEntry(hist_X0_elements[label], leg, "f")
     theLegend.Draw();
 
     # Store
