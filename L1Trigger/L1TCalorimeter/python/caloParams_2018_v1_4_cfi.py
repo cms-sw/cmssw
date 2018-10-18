@@ -76,8 +76,8 @@ caloStage2Params.tauPUSParams                  = cms.vdouble(1,4,32)
 caloStage2Params.jetLsb                = cms.double(0.5)
 caloStage2Params.jetSeedThreshold      = cms.double(4.0)
 caloStage2Params.jetNeighbourThreshold = cms.double(0.)
-caloStage2Params.jetPUSType            = cms.string("ChunkySandwich")
-caloStage2Params.jetPUSUseChunkySandwich = cms.uint32(True)
+caloStage2Params.jetPUSType            = cms.string("PhiRing1")
+caloStage2Params.jetPUSUsePhiRing      = cms.uint32(True)
 caloStage2Params.jetBypassPUS          = cms.uint32(0)
 
 # Calibration options
@@ -85,7 +85,7 @@ caloStage2Params.jetCalibrationType = cms.string("LUT")
 
 caloStage2Params.jetCompressPtLUTFile     = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_pt_compress_2017v1.txt")
 caloStage2Params.jetCompressEtaLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_eta_compress_2017v1.txt")
-caloStage2Params.jetCalibrationLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_calib_2018v1_ECALZS_noHFJEC.txt")
+caloStage2Params.jetCalibrationLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_calib_2018v1_ECALZS_noHFJEC_HI.txt")
 
 
 # sums: 0=ET, 1=HT, 2=MET, 3=MHT

@@ -25,10 +25,10 @@ void CmsTrackerRingBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
   switch(comp.front()->type()) {
   
   case GeometricDet::mergedDet: 
-    TrackerStablePhiSort(comp.begin(), comp.end(), ExtractPhiGluedModule()); 
+    TrackerStablePhiSort(comp.begin(), comp.end(), std::function<double(const GeometricDet*)>(getPhiGluedModule));
     break;
   case GeometricDet::DetUnit: 
-    TrackerStablePhiSort(comp.begin(), comp.end(), ExtractPhi()); 
+    TrackerStablePhiSort(comp.begin(), comp.end(), std::function<double(const GeometricDet*)>(getPhi));
     break;
   default:
     edm::LogError("CmsTrackerRingBuilder")<<"ERROR - wrong SubDet to sort..... "<<det->components().front()->type(); 
@@ -46,11 +46,11 @@ void CmsTrackerRingBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
     
     // TEC- 
     if( det->translation().z() < 0 && pname == TECDet) {
-      TrackerStablePhiSort(comp.begin(), comp.end(), ExtractPhiMirror());
+      TrackerStablePhiSort(comp.begin(), comp.end(), std::function<double(const GeometricDet*)>(getPhiMirror));
     }
     
     if( det->translation().z() < 0 && pname == TECGluedDet) {
-      TrackerStablePhiSort(comp.begin(), comp.end(), ExtractPhiGluedModuleMirror());
+      TrackerStablePhiSort(comp.begin(), comp.end(), std::function<double(const GeometricDet*)>(getPhiGluedModuleMirror));
     }
 
     for(uint32_t i=0; i<comp.size();i++)
@@ -62,7 +62,7 @@ void CmsTrackerRingBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
     // Module Number: 5 bits [1,...,20 at most]
     //
     for(uint32_t i=0; i<comp.size();i++){
-      if(fabs(comp[i]->translation().z())<fabs(det->translation().z())){      
+      if(std::abs(comp[i]->translation().z())<std::abs(det->translation().z())){      
 	compfw.emplace_back(det->component(i));
       } else {
 	compbw.emplace_back(det->component(i));

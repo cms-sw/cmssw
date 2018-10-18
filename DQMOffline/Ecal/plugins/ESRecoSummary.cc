@@ -35,17 +35,6 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalCleaningAlgo.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalRecHitLess.h"
-
-// Less than operator for sorting EcalRecHits according to energy.
-class ecalRecHitLess : public std::binary_function<EcalRecHit, EcalRecHit, bool>
-{
-public:
-  bool operator()(EcalRecHit x, EcalRecHit y)
-  {
-    return (x.energy() > y.energy());
-  }
-};
 
 //
 // constructors and destructor

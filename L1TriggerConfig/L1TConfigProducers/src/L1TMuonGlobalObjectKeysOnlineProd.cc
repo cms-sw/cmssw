@@ -6,7 +6,7 @@ class L1TMuonGlobalObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBaseExt {
 private:
 
 public:
-    void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
+    void fillObjectKeys( L1TriggerKeyExt* pL1TriggerKey ) override ;
 
     L1TMuonGlobalObjectKeysOnlineProd(const edm::ParameterSet&);
     ~L1TMuonGlobalObjectKeysOnlineProd(void) override{}
@@ -17,7 +17,7 @@ L1TMuonGlobalObjectKeysOnlineProd::L1TMuonGlobalObjectKeysOnlineProd(const edm::
 }
 
 
-void L1TMuonGlobalObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey ){
+void L1TMuonGlobalObjectKeysOnlineProd::fillObjectKeys( L1TriggerKeyExt* pL1TriggerKey ){
 
     std::string uGMTKey = pL1TriggerKey->subsystemKey( L1TriggerKeyExt::kuGMT ) ;
 

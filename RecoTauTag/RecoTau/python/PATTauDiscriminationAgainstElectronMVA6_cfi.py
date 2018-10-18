@@ -4,7 +4,7 @@ from RecoTauTag.RecoTau.TauDiscriminatorTools import requireLeadTrack
 
 patTauDiscriminationAgainstElectronMVA6 = cms.EDProducer("PATTauDiscriminationAgainstElectronMVA6",
     # tau collection to discriminate
-    PFTauProducer = cms.InputTag('slimmedTaus'),
+    PATTauProducer = cms.InputTag('slimmedTaus'),
 
     # Require leading pion ensures that:
     #  1) these is at least one track above threshold (0.5 GeV) in the signal cone

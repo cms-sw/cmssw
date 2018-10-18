@@ -49,6 +49,12 @@ class WhatsItAnalyzer : public edm::EDAnalyzer {
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
    private:
+
+      void getAndTest(GadgetRcd const& record,
+                      edm::ESHandle<WhatsIt>& handle,
+                      int expectedValue,
+                      const char* label);
+
       // ----------member data ---------------------------
       std::vector<int> expectedValues_;
       unsigned int index_;
@@ -91,19 +97,29 @@ WhatsItAnalyzer::~WhatsItAnalyzer()
 void
 WhatsItAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
-   ESHandle<WhatsIt> pSetup;
-   iSetup.get<GadgetRcd>().get(pSetup);
+   edm::ESHandle<WhatsIt> pSetup;
+   GadgetRcd const& gadgetRcd = iSetup.get<GadgetRcd>();
 
-   std::cout <<"WhatsIt "<<pSetup->a<<std::endl;
-   if(!expectedValues_.empty()) {
-      if(expectedValues_.at(index_) != pSetup->a) {
-         throw cms::Exception("TestFail")<<"expected value "<<expectedValues_[index_]
-         <<" but was got "<<pSetup->a;
-      }
+   if (index_ < expectedValues_.size()) {
+      int expectedValue = expectedValues_.at(index_);
+      getAndTest(gadgetRcd, pSetup, expectedValue, "");
+      getAndTest(gadgetRcd, pSetup, expectedValue, "A");
+      getAndTest(gadgetRcd, pSetup, expectedValue, "B");
+      getAndTest(gadgetRcd, pSetup, expectedValue, "C");
+      getAndTest(gadgetRcd, pSetup, expectedValue, "D");
       ++index_;
    }
-   
+}
+
+void WhatsItAnalyzer::getAndTest(GadgetRcd const& record,
+                                 edm::ESHandle<WhatsIt>& handle,
+                                 int expectedValue,
+                                 const char* label) {
+   record.get(label, handle);
+   if (expectedValue != handle->a) {
+      throw cms::Exception("TestFail") << label << ": expected value " << expectedValue
+         << " but got "<< handle->a;
+   }
 }
 }
 using namespace edmtest;

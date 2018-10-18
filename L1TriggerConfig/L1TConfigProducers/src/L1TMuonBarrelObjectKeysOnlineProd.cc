@@ -6,7 +6,7 @@ class L1TMuonBarrelObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBaseExt {
 private:
 
 public:
-    void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
+    void fillObjectKeys( L1TriggerKeyExt* pL1TriggerKey ) override ;
 
     L1TMuonBarrelObjectKeysOnlineProd(const edm::ParameterSet&);
     ~L1TMuonBarrelObjectKeysOnlineProd(void) override{}
@@ -17,7 +17,7 @@ L1TMuonBarrelObjectKeysOnlineProd::L1TMuonBarrelObjectKeysOnlineProd(const edm::
 }
 
 
-void L1TMuonBarrelObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey ){
+void L1TMuonBarrelObjectKeysOnlineProd::fillObjectKeys( L1TriggerKeyExt* pL1TriggerKey ){
 
     std::string BMTFKey = pL1TriggerKey->subsystemKey( L1TriggerKeyExt::kBMTF ) ;
 

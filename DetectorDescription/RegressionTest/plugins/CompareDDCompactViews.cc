@@ -49,8 +49,7 @@ CompareDDCompactViews::beginRun( const edm::Run&, edm::EventSetup const& es )
   cpv2.lockdown();
 
   DDCompOptions ddco;
-  DDCompareCPV ddccpv( ddco );
-  bool graphmatch = ddccpv( cpv1, cpv2 );
+  bool graphmatch = DDCompareCPV( cpv1, cpv2, ddco );
    
   if( graphmatch ) {
     std::cout << "DDCompactView graphs match" << std::endl;

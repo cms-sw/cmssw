@@ -10,7 +10,7 @@ namespace funct {
 
   template<int n, int m>
   struct FractionStruct { 
-    BOOST_STATIC_ASSERT(m != 0);
+    static_assert(m != 0);
     static const int numerator = n, denominator = m;
     double operator()() const { return double(n) / double (m); }
     operator double() const { return double(n) / double (m); }
