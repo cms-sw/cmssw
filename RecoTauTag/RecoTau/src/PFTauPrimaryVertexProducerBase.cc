@@ -178,14 +178,10 @@ void PFTauPrimaryVertexProducerBase::produce(edm::Event& iEvent,const edm::Event
 	if ( transTracks.size() >= 2 ) {
 	  AdaptiveVertexFitter avf;
 	  avf.setWeightThreshold(0.1); //weight per track. allow almost every fit, else --> exception
-	  try {
-	    if ( !useBeamSpot_ ){
-	      transVtx = avf.vertex(transTracks);
-	    } else {
-	      transVtx = avf.vertex(transTracks, *beamSpot);
-	    }
-	  } catch (...) {
-	    fitOK = false;
+	  if ( !useBeamSpot_ ){
+	    transVtx = avf.vertex(transTracks);
+	  } else {
+	    transVtx = avf.vertex(transTracks, *beamSpot);
 	  }
 	} else fitOK = false;
 	if ( fitOK ) thePV = transVtx;
