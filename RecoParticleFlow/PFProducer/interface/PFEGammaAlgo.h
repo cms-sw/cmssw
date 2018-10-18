@@ -109,27 +109,11 @@ class PFEGammaAlgo {
   
   struct PFEGConfigInfo {
     double mvaEleCut;
-    std::string  mvaWeightFileEleID;
-    std::shared_ptr<PFSCEnergyCalibration> thePFSCEnergyCalibration;
     std::shared_ptr<PFEnergyCalibration> thePFEnergyCalibration;
     bool applyCrackCorrections;
-    bool usePFSCEleCalib;
-    bool useEGElectrons;
-    bool useEGammaSupercluster;
     bool produceEGCandsWithNoSuperCluster;
-    double sumEtEcalIsoForEgammaSC_barrel;
-    double sumEtEcalIsoForEgammaSC_endcap;
-    double coneEcalIsoForEgammaSC;
-    double sumPtTrackIsoForEgammaSC_barrel;
-    double sumPtTrackIsoForEgammaSC_endcap;
-    unsigned int nTrackIsoForEgammaSC;
-    double coneTrackIsoForEgammaSC;
-    std::string mvaweightfile ;
     double mvaConvCut;
-    bool useReg;
     const reco::Vertex* primaryVtx;
-    double sumPtTrackIsoForPhoton;
-    double sumPtTrackIsoSlopeForPhoton;
   };
 
   //constructor
@@ -357,8 +341,6 @@ private:
   const GBRForest *ReaderGCEElR9_;
   
 //  boost::shared_ptr<PFEnergyCalibration> thePFEnergyCalibration_;
-  double sumPtTrackIsoForPhoton_;
-  double sumPtTrackIsoSlopeForPhoton_;
   std::vector<int>match_ind;
   //std::auto_ptr< reco::PFCandidateCollection > permElectronCandidates_;
 
