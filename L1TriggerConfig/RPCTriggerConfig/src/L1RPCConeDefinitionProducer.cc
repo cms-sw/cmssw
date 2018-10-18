@@ -39,7 +39,7 @@ class L1RPCConeDefinitionProducer : public edm::ESProducer {
       L1RPCConeDefinitionProducer(const edm::ParameterSet&);
       ~L1RPCConeDefinitionProducer() override;
 
-      typedef std::shared_ptr<L1RPCConeDefinition> ReturnType;
+      using ReturnType = std::unique_ptr<L1RPCConeDefinition>;
 
       ReturnType produce(const L1RPCConeDefinitionRcd&);
    private:
@@ -188,8 +188,7 @@ L1RPCConeDefinitionProducer::~L1RPCConeDefinitionProducer(){}
 L1RPCConeDefinitionProducer::ReturnType
 L1RPCConeDefinitionProducer::produce(const L1RPCConeDefinitionRcd& iRecord)
 {
-   using namespace edm::es;
-   auto pL1RPCConeDefinition = std::make_shared<L1RPCConeDefinition>();
+   auto pL1RPCConeDefinition = std::make_unique<L1RPCConeDefinition>();
 
    pL1RPCConeDefinition->setFirstTower(m_towerBeg);
    pL1RPCConeDefinition->setLastTower(m_towerEnd);
@@ -197,8 +196,7 @@ L1RPCConeDefinitionProducer::produce(const L1RPCConeDefinitionRcd& iRecord)
    pL1RPCConeDefinition->setLPSizeVec(m_LPSizeVec);
    pL1RPCConeDefinition->setRingToLPVec(m_ringToLPVec);
    pL1RPCConeDefinition->setRingToTowerVec(m_ringToTowerVec);
-   
-   
+
    return pL1RPCConeDefinition ;
 }
 

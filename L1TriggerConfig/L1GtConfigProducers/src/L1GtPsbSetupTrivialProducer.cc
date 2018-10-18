@@ -113,16 +113,12 @@ L1GtPsbSetupTrivialProducer::~L1GtPsbSetupTrivialProducer()
 // member functions
 
 // method called to produce the data
-std::shared_ptr<L1GtPsbSetup> L1GtPsbSetupTrivialProducer::producePsbSetup(
+std::unique_ptr<L1GtPsbSetup> L1GtPsbSetupTrivialProducer::producePsbSetup(
         const L1GtPsbSetupRcd& iRecord)
 {
-
-    using namespace edm::es;
-
-    auto pL1GtPsbSetup = std::make_shared<L1GtPsbSetup>();
+    auto pL1GtPsbSetup = std::make_unique<L1GtPsbSetup>();
 
     pL1GtPsbSetup->setGtPsbSetup(m_gtPsbSetup);
 
     return pL1GtPsbSetup;
 }
-

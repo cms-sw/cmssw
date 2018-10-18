@@ -50,10 +50,10 @@ class L1GctConfigProducers : public edm::ESProducer {
  public:
   L1GctConfigProducers(const edm::ParameterSet&);
   ~L1GctConfigProducers() override;
-  
-  typedef std::shared_ptr<L1GctJetFinderParams>          JfParamsReturnType;
-  typedef std::shared_ptr<L1GctChannelMask>          ChanMaskReturnType;
-  
+
+  using JfParamsReturnType = std::unique_ptr<L1GctJetFinderParams>;
+  using ChanMaskReturnType = std::unique_ptr<L1GctChannelMask>;
+
   JfParamsReturnType produceJfParams(const L1GctJetFinderParamsRcd&);
   ChanMaskReturnType produceChanMask(const L1GctChannelMaskRcd&);
 

@@ -25,7 +25,7 @@ public:
   L1TMuonEndCapForestESProducer(const edm::ParameterSet&);
   ~L1TMuonEndCapForestESProducer() override {}
 
-  typedef std::shared_ptr<L1TMuonEndCapForest> ReturnType;
+  using ReturnType = std::unique_ptr<L1TMuonEndCapForest>;
 
   ReturnType produce(const L1TMuonEndCapForestRcd&);
 
@@ -108,7 +108,7 @@ L1TMuonEndCapForestESProducer::produce(const L1TMuonEndCapForestRcd& iRecord)
   std::array<emtf::Forest, 16> forests = pt_assign_engine_->getForests();
   std::vector<int> allowedModes = pt_assign_engine_->getAllowedModes();
   // construct empty cond payload
-  std::shared_ptr<L1TMuonEndCapForest> pEMTFForest(new L1TMuonEndCapForest());
+  auto pEMTFForest = std::make_unique<L1TMuonEndCapForest>();
   // pack the forests into the cond payload for each mode
   pEMTFForest->forest_coll_.resize(0);
   for (unsigned int i = 0; i < allowedModes.size(); i++) {

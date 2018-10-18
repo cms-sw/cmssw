@@ -68,12 +68,9 @@ L1GtPrescaleFactorsTechTrigTrivialProducer::~L1GtPrescaleFactorsTechTrigTrivialP
 // member functions
 
 // method called to produce the data
-std::shared_ptr<L1GtPrescaleFactors> 
+std::unique_ptr<L1GtPrescaleFactors> 
     L1GtPrescaleFactorsTechTrigTrivialProducer::producePrescaleFactors(
         const L1GtPrescaleFactorsTechTrigRcd& iRecord)
 {
-
-    auto pL1GtPrescaleFactors = std::make_shared<L1GtPrescaleFactors>(m_prescaleFactors);
-
-    return pL1GtPrescaleFactors;
+    return std::make_unique<L1GtPrescaleFactors>(m_prescaleFactors);
 }
