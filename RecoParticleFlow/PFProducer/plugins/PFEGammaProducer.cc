@@ -47,14 +47,8 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig,
     
   PFEGammaAlgo::PFEGConfigInfo algo_config;
 
-  std::vector<double>  calibPFSCEle_Fbrem_barrel; 
-  std::vector<double>  calibPFSCEle_Fbrem_endcap;
-  std::vector<double>  calibPFSCEle_barrel;
-  std::vector<double>  calibPFSCEle_endcap;
-                               
   algo_config.produceEGCandsWithNoSuperCluster = 
     iConfig.getParameter<bool>("produceEGCandsWithNoSuperCluster");
-
 
   // register products
   produces<reco::PFCandidateCollection>();
