@@ -103,6 +103,8 @@ class CSCTriggerPrimitivesBuilder
   static const int min_chamber;   // chambers per trigger subsector
   static const int max_chamber;
 
+  //debug
+  int infoV;
   /// a flag whether to skip chambers from the bad chambers map
   bool checkBadChambers_;
 
