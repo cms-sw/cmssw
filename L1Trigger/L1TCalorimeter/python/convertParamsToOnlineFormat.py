@@ -129,7 +129,7 @@ def getFullListOfParameters(aModule):
       (('mp_jet', 'MHT_jetThreshold'),   '9_MHtThreshold.mif',          int(aModule.etSumEtThreshold[3] / aModule.etSumLsb.value())),
       (('mp_jet', 'jetBypassPileUpSub'), 'BypassJetPUS.mif',            bool(aModule.jetBypassPUS.value())),
       (('mp_jet', 'jetEnergyCalibLUT'),  'L_JetCalibration_11to18.mif', parseOfflineLUTfile(aModule.jetCalibrationLUTFile.value(), 2048)),
-      (('mp_jet', 'jetPUSUseChunkySandwich'), 'SandwichPUS.mif',        bool(aModule.jetPUSUseChunkySandwich.value())),
+      (('mp_jet', 'jetPUSUsePhiRing'), 'PhiRingPUS.mif',        bool(aModule.jetPUSUsePhiRing.value())),
     ]
 
     result += [
