@@ -47,7 +47,6 @@ jupyter
 jupyter_client
 jupyter_console
 jupyter_core
-llvmlite
 matplotlib
 mistune
 mock
@@ -56,7 +55,6 @@ nbformat
 networkx
 nose
 notebook
-numba
 numexpr
 numpy
 oamap
