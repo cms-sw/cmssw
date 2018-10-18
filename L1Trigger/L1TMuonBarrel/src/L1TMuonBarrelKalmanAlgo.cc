@@ -1191,7 +1191,7 @@ std::map<int,int> L1TMuonBarrelKalmanAlgo::trackAddress(const L1MuKBMTrack& trac
   out[l1t::RegionalMuonCand::kSegSelStat2]=0;
   out[l1t::RegionalMuonCand::kSegSelStat3]=0;
   out[l1t::RegionalMuonCand::kSegSelStat4]=0;
-  out[l1t::RegionalMuonCand::kNumBmtfSubAddr]=0;
+  //out[l1t::RegionalMuonCand::kNumBmtfSubAddr]=0; // This is commented out for better data/MC agreement
 
 
   for (const auto stub: track.stubs()) {
