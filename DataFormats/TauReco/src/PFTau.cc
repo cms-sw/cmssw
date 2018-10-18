@@ -153,74 +153,74 @@ namespace {
 
 const PFCandidatePtr PFTau::leadPFChargedHadrCand() const {
   if (!leadPFChargedHadrCand_.isSet())
-    leadPFChargedHadrCand_.set(std::move(convertToPFPtr(leadChargedHadrCand_)));
+    leadPFChargedHadrCand_.set(convertToPFPtr(leadChargedHadrCand_));
   return *leadPFChargedHadrCand_;
 }
 
 const PFCandidatePtr PFTau::leadPFNeutralCand() const {
   if (!leadPFNeutralCand_.isSet())
-    leadPFNeutralCand_.set(std::move(convertToPFPtr(leadNeutralCand_)));
+    leadPFNeutralCand_.set(convertToPFPtr(leadNeutralCand_));
   return *leadPFNeutralCand_;
 }
 
 const PFCandidatePtr PFTau::leadPFCand() const {
   if (!leadPFCand_.isSet())
-    leadPFCand_.set(std::move(convertToPFPtr(leadCand_)));
+    leadPFCand_.set(convertToPFPtr(leadCand_));
   return *leadPFCand_;
 }
 
 const std::vector<reco::PFCandidatePtr>& PFTau::signalPFCands() const {
   if (!selectedTransientSignalPFCands_.isSet()) {
-    selectedTransientSignalPFCands_.set(std::move(convertToPFPtrs(selectedSignalCands_)));
+    selectedTransientSignalPFCands_.set(convertToPFPtrs(selectedSignalCands_));
   }
   return *selectedTransientSignalPFCands_;
 }
 
 const std::vector<reco::PFCandidatePtr>& PFTau::signalPFChargedHadrCands() const {
   if (!selectedTransientSignalPFChargedHadrCands_.isSet()) {
-    selectedTransientSignalPFChargedHadrCands_.set(std::move(convertToPFPtrs(selectedSignalChargedHadrCands_)));
+    selectedTransientSignalPFChargedHadrCands_.set(convertToPFPtrs(selectedSignalChargedHadrCands_));
   }
   return *selectedTransientSignalPFChargedHadrCands_;
 }
 
 const std::vector<reco::PFCandidatePtr>& PFTau::signalPFNeutrHadrCands() const {
   if (!selectedTransientSignalPFNeutrHadrCands_.isSet()) {
-    selectedTransientSignalPFNeutrHadrCands_.set(std::move(convertToPFPtrs(selectedSignalNeutrHadrCands_)));
+    selectedTransientSignalPFNeutrHadrCands_.set(convertToPFPtrs(selectedSignalNeutrHadrCands_));
   }
   return *selectedTransientSignalPFNeutrHadrCands_;
 }
 
 const std::vector<reco::PFCandidatePtr>& PFTau::signalPFGammaCands() const {
   if (!selectedTransientSignalPFGammaCands_.isSet()) {
-    selectedTransientSignalPFGammaCands_.set(std::move(convertToPFPtrs(selectedSignalGammaCands_)));
+    selectedTransientSignalPFGammaCands_.set(convertToPFPtrs(selectedSignalGammaCands_));
   }
   return *selectedTransientSignalPFGammaCands_;
 }
 
 const std::vector<reco::PFCandidatePtr>& PFTau::isolationPFCands() const {
   if (!selectedTransientIsolationPFCands_.isSet()) {
-    selectedTransientIsolationPFCands_.set(std::move(convertToPFPtrs(selectedIsolationCands_)));
+    selectedTransientIsolationPFCands_.set(convertToPFPtrs(selectedIsolationCands_));
   }
   return *selectedTransientIsolationPFCands_;
 }
 
 const std::vector<reco::PFCandidatePtr>& PFTau::isolationPFChargedHadrCands() const {
   if (!selectedTransientIsolationPFChargedHadrCands_.isSet()) {
-    selectedTransientIsolationPFChargedHadrCands_.set(std::move(convertToPFPtrs(selectedIsolationChargedHadrCands_)));
+    selectedTransientIsolationPFChargedHadrCands_.set(convertToPFPtrs(selectedIsolationChargedHadrCands_));
   }
   return *selectedTransientIsolationPFChargedHadrCands_;
 }
 
 const std::vector<reco::PFCandidatePtr>& PFTau::isolationPFNeutrHadrCands() const {
   if (!selectedTransientIsolationPFNeutrHadrCands_.isSet()) {
-    selectedTransientIsolationPFNeutrHadrCands_.set(std::move(convertToPFPtrs(selectedIsolationNeutrHadrCands_)));
+    selectedTransientIsolationPFNeutrHadrCands_.set(convertToPFPtrs(selectedIsolationNeutrHadrCands_));
   }
   return *selectedTransientIsolationPFNeutrHadrCands_;
 }
 
 const std::vector<reco::PFCandidatePtr>& PFTau::isolationPFGammaCands() const {
   if (!selectedTransientIsolationPFGammaCands_.isSet()) {
-    selectedTransientIsolationPFGammaCands_.set(std::move(convertToPFPtrs(selectedIsolationGammaCands_)));
+    selectedTransientIsolationPFGammaCands_.set(convertToPFPtrs(selectedIsolationGammaCands_));
   }
   return *selectedTransientIsolationPFGammaCands_;
 }
