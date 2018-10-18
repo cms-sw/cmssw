@@ -22,6 +22,7 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
   // special configuration parameters for ME11 treatment
   edm::ParameterSet commonParams = conf.getParameter<edm::ParameterSet>("commonParam");
   isSLHC_ = commonParams.getParameter<bool>("isSLHC");
+  infoV = commonParams.getParameter<int>("verbosity");
   disableME1a_ = commonParams.getParameter<bool>("disableME1a");
   disableME42_ = commonParams.getParameter<bool>("disableME42");
 
@@ -188,7 +189,8 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             {
               // run the TMB
               CSCMotherboardME11* tmb11 = static_cast<CSCMotherboardME11*>(tmb);
-              LogTrace("CSCTriggerPrimitivesBuilder")<<"CSCTriggerPrimitivesBuilder::build in E:"<<endc<<" S:"<<stat<<" R:"<<ring;
+              if (infoV > 1)
+			    LogTrace("CSCTriggerPrimitivesBuilder")<<"CSCTriggerPrimitivesBuilder::build in E:"<<endc<<" S:"<<stat<<" R:"<<ring;
               tmb11->run(wiredc,compdc);
 
               // get all collections
@@ -203,12 +205,13 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               const std::vector<CSCCLCTDigi>& clctV1a = tmb11->clctProc->readoutCLCTsME1a();
               const std::vector<CSCCLCTPreTriggerDigi>& pretriggerV1a = tmb11->clctProc->preTriggerDigisME1a();
 
-              LogTrace("CSCTriggerPrimitivesBuilder")<<"CSCTriggerPrimitivesBuilder:: a="<<alctV.size()<<" c="<<clctV.size()<<" l="<<lctV.size()
+              if (infoV > 1)
+                  LogTrace("CSCTriggerPrimitivesBuilder")<<"CSCTriggerPrimitivesBuilder:: a="<<alctV.size()<<" c="<<clctV.size()<<" l="<<lctV.size()
                                                      <<" c="<<clctV1a.size()<<" l="<<lctV1a.size();
 
               // ME1/b
 
-              if (!(lctV.empty()&&alctV.empty()&&clctV.empty())) {
+              if (!(lctV.empty()&&alctV.empty()&&clctV.empty()) and infoV > 1) {
                 LogTrace("L1CSCTrigger")
                   << "CSCTriggerPrimitivesBuilder results in " <<detid;
               }
@@ -226,7 +229,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
 
               CSCDetId detid1a(endc, stat, 4, chid, 0);
 
-              if (!(lctV1a.empty() && clctV1a.empty())){
+              if (!(lctV1a.empty() && clctV1a.empty()) and infoV > 1){
                 LogTrace("L1CSCTrigger") << "CSCTriggerPrimitivesBuilder results in " <<detid1a;
               }
 
@@ -243,7 +246,8 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               CSCGEMMotherboardME11* tmb11GEM = static_cast<CSCGEMMotherboardME11*>(tmb);
               tmb11GEM->setCSCGeometry(csc_g);
               tmb11GEM->setGEMGeometry(gem_g);
-              LogTrace("CSCTriggerPrimitivesBuilder")<<"CSCTriggerPrimitivesBuilder::build in E:"<<endc<<" S:"<<stat<<" R:"<<ring;
+              if (infoV > 1)
+                  LogTrace("CSCTriggerPrimitivesBuilder")<<"CSCTriggerPrimitivesBuilder::build in E:"<<endc<<" S:"<<stat<<" R:"<<ring;
               tmb11GEM->run(wiredc, compdc, gemPads);
 
               // 0th layer means whole chamber.
@@ -261,7 +265,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               const std::vector<GEMCoPadDigi>& copads = tmb11GEM->coPadProcessor->readoutCoPads();
 
               // ME1/b
-              if (!(lctV.empty()&&alctV.empty()&&clctV.empty())) {
+              if (!(lctV.empty()&&alctV.empty()&&clctV.empty()) and infoV > 1) {
                 LogTrace("L1CSCTrigger")
                   << "CSCTriggerPrimitivesBuilder results in " <<detid;
               }
@@ -279,7 +283,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
 
               CSCDetId detid1a(endc, stat, 4, chid, 0);
 
-              if (!(lctV1a.empty() && clctV1a.empty())){
+              if (!(lctV1a.empty() && clctV1a.empty()) and infoV > 1){
                 LogTrace("L1CSCTrigger") << "CSCTriggerPrimitivesBuilder results in " <<detid1a;
               }
 
@@ -309,7 +313,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               const std::vector<CSCCLCTPreTriggerDigi>& pretriggerV = tmb21GEM->clctProc->preTriggerDigis();
               const std::vector<GEMCoPadDigi>& copads = tmb21GEM->coPadProcessor->readoutCoPads();
 
-              if (!(alctV.empty() && clctV.empty() && lctV.empty())) {
+              if (!(alctV.empty() && clctV.empty() && lctV.empty()) and infoV > 1) {
                 LogTrace("L1CSCTrigger")
                   << "CSCTriggerPrimitivesBuilder got results in " <<detid;
               }
@@ -337,7 +341,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               const std::vector<int>& preTriggerBXs = utmb->clctProc->preTriggerBXs();
               const std::vector<CSCCLCTPreTriggerDigi>& pretriggerV = utmb->clctProc->preTriggerDigis();
 
-              if (!(alctV.empty() && clctV.empty() && lctV.empty())) {
+              if (!(alctV.empty() && clctV.empty() && lctV.empty()) and infoV > 1) {
                 LogTrace("L1CSCTrigger")
                   << "CSCTriggerPrimitivesBuilder got results in " <<detid;
               }
@@ -363,7 +367,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               const std::vector<int>& preTriggerBXs = tmb->clctProc->preTriggerBXs();
               const std::vector<CSCCLCTPreTriggerDigi>& pretriggerV = tmb->clctProc->preTriggerDigis();
 
-              if (!(alctV.empty() && clctV.empty() && lctV.empty())) {
+              if (!(alctV.empty() && clctV.empty() && lctV.empty()) and infoV > 1) {
                 LogTrace("L1CSCTrigger")
                   << "CSCTriggerPrimitivesBuilder got results in " <<detid;
               }
@@ -415,12 +419,13 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
   for (; itr != result.end(); itr++)
   {
     oc_sorted_lct.insertDigi(CSCDetId(itr->getDetId().rawId()), *(itr->getDigi()));
-    LogDebug("L1CSCTrigger")
-      << "MPC " << *(itr->getDigi()) << " found in ME"
-      << ((itr->endcap() == 1) ? "+" : "-") << itr->station() << "/"
-      << CSCDetId(itr->getDetId().rawId()).ring() << "/"
-      << CSCDetId(itr->getDetId().rawId()).chamber()
-      << " (sector " << itr->sector()
-      << " trig id. " << itr->cscid() << ")" << "\n";
+    if (infoV > 1)
+      LogDebug("L1CSCTrigger")
+        << "MPC " << *(itr->getDigi()) << " found in ME"
+        << ((itr->endcap() == 1) ? "+" : "-") << itr->station() << "/"
+        << CSCDetId(itr->getDetId().rawId()).ring() << "/"
+        << CSCDetId(itr->getDetId().rawId()).chamber()
+        << " (sector " << itr->sector()
+        << " trig id. " << itr->cscid() << ")" << "\n";
   }
 }

@@ -21,6 +21,9 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
     commonParam = cms.PSet(
         # Master flag for SLHC studies
         isSLHC = cms.bool(False),
+        
+        # Debug
+        verbosity = cms.int32(0),
 
         ## Whether or not to use the SLHC ALCT algorithm
         enableAlctSLHC = cms.bool(False),
@@ -148,8 +151,8 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         clctDriftDelay  = cms.uint32(2),
         clctNplanesHitPretrig = cms.uint32(3),
         clctNplanesHitPattern = cms.uint32(4),
-        # increase pattern ID threshold from 2 to 4 to trigger higher pt tracks
-        clctPidThreshPretrig  = cms.uint32(4),
+        # increase pattern ID threshold from 2 to 4 to trigger higher pt tracks,ignored--Tao
+        clctPidThreshPretrig  = cms.uint32(2),
         # decrease possible minimal #HS distance between two CLCTs in a BX from 10 to 5:
         clctMinSeparation     = cms.uint32(5),
         # Debug
@@ -162,22 +165,24 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         useDeadTimeZoning = cms.bool(True),
 
         # Width (in #HS) of a fixed dead zone around a key HS:
-        clctStateMachineZone = cms.uint32(8),
+        clctStateMachineZone = cms.uint32(4),
 
         # Enables the algo which instead of using the fixed dead zone width,
         # varies it depending on the width of a triggered CLCT pattern
         # (if True, the clctStateMachineZone is ignored):
-        useDynamicStateMachineZone = cms.bool(True),
+        useDynamicStateMachineZone = cms.bool(False),
 
         # Pretrigger HS +- clctPretriggerTriggerZone sets the trigger matching zone
         # which defines how far from pretrigger HS the TMB may look for a trigger HS
         # (it becomes important to do so with localized dead-time zoning):
-        clctPretriggerTriggerZone = cms.uint32(5),
+        # not implemented yet, 2018-10-18, Tao
+        clctPretriggerTriggerZone = cms.uint32(224),
 
         # whether to store the "corrected" CLCT stub time
         # (currently it is median time of all hits in a pattern) into the CSCCLCTDigi bx,
         # and temporary store the regular "key layer hit" time into the CSCCLCTDigi fullBX:
-        clctUseCorrectedBx = cms.bool(True)
+        # not feasible --Tao
+        clctUseCorrectedBx = cms.bool(False)
     ),
 
     tmbParam = cms.PSet(
