@@ -47,7 +47,7 @@ public:
   L1TUtmTriggerMenuESProducer(const edm::ParameterSet&);
   ~L1TUtmTriggerMenuESProducer() override;
 
-  typedef std::shared_ptr<L1TUtmTriggerMenu> ReturnType;
+  using ReturnType = std::unique_ptr<const L1TUtmTriggerMenu>;
 
   ReturnType produce(const L1TUtmTriggerMenuRcd&);
 
@@ -108,12 +108,7 @@ L1TUtmTriggerMenuESProducer::produce(const L1TUtmTriggerMenuRcd& iRecord)
 
   //const L1TUtmTriggerMenu * cmenu = reinterpret_cast<const L1TUtmTriggerMenu *>(tmeventsetup::getTriggerMenu("/afs/cern.ch/user/t/tmatsush/public/tmGui/test-menu.xml"));  
   const L1TUtmTriggerMenu * cmenu = reinterpret_cast<const L1TUtmTriggerMenu *>(tmeventsetup::getTriggerMenu(m_L1TriggerMenuFile));  
-  L1TUtmTriggerMenu * menu = const_cast<L1TUtmTriggerMenu *>(cmenu);
-
-  using namespace edm::es;
-  std::shared_ptr<L1TUtmTriggerMenu> pMenu ;
-  pMenu = std::shared_ptr< L1TUtmTriggerMenu >(menu);
-  return pMenu;
+  return ReturnType(cmenu);
 }
 
 //define this as a plug-in

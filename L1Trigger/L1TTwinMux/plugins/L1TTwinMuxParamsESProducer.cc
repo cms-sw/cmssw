@@ -30,7 +30,7 @@ class L1TTwinMuxParamsESProducer : public edm::ESProducer {
       L1TTwinMuxParamsESProducer(const edm::ParameterSet&);
       ~L1TTwinMuxParamsESProducer() override;
 
-      typedef std::shared_ptr<L1TTwinMuxParams> ReturnType;
+      using ReturnType = std::unique_ptr<L1TTwinMuxParams>;
 
       ReturnType produce(const L1TTwinMuxParamsRcd&);
    private:
@@ -91,12 +91,7 @@ L1TTwinMuxParamsESProducer::~L1TTwinMuxParamsESProducer()
 L1TTwinMuxParamsESProducer::ReturnType
 L1TTwinMuxParamsESProducer::produce(const L1TTwinMuxParamsRcd& iRecord)
 {
-   using namespace edm::es;
-   // boost::shared_ptr<L1TwinMuxParams> pTMParams;
-
-   // pTMParams = boost::shared_ptr<L1TwinMuxParams>(new L1TwinMuxParams(m_params));
-   //return pTMParams;
-   return std::make_shared<L1TTwinMuxParams>(m_params);
+   return std::make_unique<L1TTwinMuxParams>(m_params);
 }
 
 //define this as a plug-in

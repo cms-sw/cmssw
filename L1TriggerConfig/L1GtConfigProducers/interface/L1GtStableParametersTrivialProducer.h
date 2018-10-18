@@ -49,7 +49,7 @@ public:
     /// public methods
 
     /// L1 GT parameters
-    std::shared_ptr<L1GtStableParameters> produceGtStableParameters(
+    std::unique_ptr<L1GtStableParameters> produceGtStableParameters(
         const L1GtStableParametersRcd&);
 
 private:

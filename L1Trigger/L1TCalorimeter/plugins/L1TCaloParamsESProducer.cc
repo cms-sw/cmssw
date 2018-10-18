@@ -46,7 +46,7 @@ public:
   L1TCaloParamsESProducer(const edm::ParameterSet&);
   ~L1TCaloParamsESProducer() override;
 
-  typedef std::shared_ptr<CaloParams> ReturnType;
+  using ReturnType = std::unique_ptr<CaloParams>;
 
   ReturnType produce(const L1TCaloParamsRcd&);
 
@@ -379,7 +379,7 @@ L1TCaloParamsESProducer::ReturnType
 L1TCaloParamsESProducer::produce(const L1TCaloParamsRcd& iRecord)
 {
    using namespace edm::es;
-   return std::make_shared<CaloParams>(m_params);
+   return std::make_unique<CaloParams>(m_params);
 }
 
 
