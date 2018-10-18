@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # HLT dimuon trigger
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 hltZEEHI = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-hltZEEHI.HLTPaths = ["HLT_PADoublePhoton15_Eta3p1_Mass50_1000_v*"]
+hltZEEHI.HLTPaths = ["HLT_HIDoubleEle10Gsf_v*"]
 hltZEEHI.throw = False
 hltZEEHI.andOr = True
 
