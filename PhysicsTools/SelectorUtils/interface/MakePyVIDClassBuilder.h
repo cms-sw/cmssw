@@ -2,7 +2,7 @@
 #define __PhysicsTools_SelectorUtils_MakePyVIDClassBuilder_h__
 
 #include "PhysicsTools/SelectorUtils/interface/VersionedSelector.h"
-#include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
+#include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
 
 template<class PhysObj>
 struct MakeVersionedSelector {

@@ -56,7 +56,7 @@ namespace l1t {
 	   egBypassHoEFlag=44,
 	   etSumCentralityLower=45,
 	   etSumCentralityUpper=46,
-           jetPUSUsePhiRingFlag=47,
+     jetPUSUsePhiRingFlag=47,
 	   metPhiCalibration=48,
 	   metHFPhiCalibration=49,
 	   NUM_CALOPARAMNODES=50

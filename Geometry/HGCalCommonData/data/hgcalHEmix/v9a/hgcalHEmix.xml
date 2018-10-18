@@ -45,7 +45,7 @@
       0, 0, 0, 1, 0 </Vector>
     <Vector name="TopMaterialNames" type="string" nEntries="3">
       materials:Cables, materials:H_Scintillator, 
-      materials:M_NEMA FR4 plate</Vector>
+      hgcalMaterial:HGC_G10-FR4</Vector>
     <Vector name="TopVolumeNames" type="string" nEntries="3">
       HGCalCableConnector, HGCalHEScintillatorSensitive, HGCalTopPCB</Vector>
     <Vector name="TopLayerThickness" type="numeric" nEntries="3">
@@ -53,8 +53,8 @@
     <Vector name="TopLayerType" type="numeric" nEntries="3"> 
       0, 1, 2</Vector>
     <Vector name="BottomMaterialNames" type="string" nEntries="5">
-      materials:Air, materials:M_NEMA FR4 plate, materials:Air, 
-      materials:Silicon, materials:M_NEMA FR4 plate</Vector>
+      materials:Air, hgcalMaterial:HGC_G10-FR4, materials:Air, 
+      materials:Silicon, hgcalMaterial:HGC_G10-FR4</Vector>
     <Vector name="BottomVolumeNames" type="string" nEntries="5">
       HGCalAirGap1, HGCalBottomPCB, HGCalAirGap2, HGCalHESiliconSensitive, 
       HGCalBaseplate</Vector>

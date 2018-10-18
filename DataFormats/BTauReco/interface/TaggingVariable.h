@@ -5,7 +5,6 @@
 #include <vector>
 #include <string>
 
-#include <boost/static_assert.hpp>
 #include <boost/pointee.hpp>
 #include <boost/type_traits/is_convertible.hpp>
 
@@ -209,7 +208,7 @@ namespace reco {
     // [begin, end) must identify a valid range of iterators to TaggingVariableList
     template <typename InputIterator>
     TaggingVariableList( const InputIterator begin, const InputIterator end ) : m_list() {
-      BOOST_STATIC_ASSERT(( boost::is_convertible< const TaggingVariableList, typename boost::pointee<InputIterator>::type >::value ));
+      static_assert(( boost::is_convertible< const TaggingVariableList, typename boost::pointee<InputIterator>::type >::value ));
       for (const InputIterator i = begin; i != end; i++)
         insert(*i);
     }

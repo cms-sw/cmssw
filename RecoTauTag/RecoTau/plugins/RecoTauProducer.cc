@@ -18,7 +18,6 @@
  */
 #include "boost/bind.hpp"
 #include <boost/ptr_container/ptr_vector.hpp>
-#include <boost/foreach.hpp>
 
 #include <algorithm>
 #include <functional>
@@ -163,7 +162,7 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   output->reserve(jets.size());
   
   // Loop over the jets and build the taus for each jet
-  BOOST_FOREACH( reco::PFJetRef jetRef, jets ) {
+  for(auto const& jetRef : jets ) {
     // Get the jet with extra constituents from an area around the jet
     if(jetRef->pt() - minJetPt_ < 1e-5) continue;
     if(std::abs(jetRef->eta()) - maxJetAbsEta_ > -1e-5) continue;
@@ -211,7 +210,7 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
         nTausBuilt += taus.size();
       } else {
         // Copy only those that pass the selection.
-        BOOST_FOREACH( const reco::PFTau& tau, taus ) {
+        for(auto const& tau : taus ) {
           if ( (*outputSelector_)(tau) ) {
             nTausBuilt++;
             output->push_back(tau);

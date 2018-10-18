@@ -8,7 +8,6 @@
  * ============================================================================
  */
 
-#include <boost/foreach.hpp>
 #include <boost/ptr_container/ptr_map.hpp>
 #include <memory>
 
@@ -66,7 +65,7 @@ RecoTauMVATransform::RecoTauMVATransform(const edm::ParameterSet& pset)
   typedef std::vector<edm::ParameterSet> VPSet;
   const VPSet& transforms = pset.getParameter<VPSet>("transforms");
   prediscriminantFailValue_ = -2.0;
-  BOOST_FOREACH(const edm::ParameterSet &transform, transforms) {
+  for(auto const& transform : transforms) {
     unsigned int nCharged = transform.getParameter<unsigned int>("nCharged");
     unsigned int nPiZeros = transform.getParameter<unsigned int>("nPiZeros");
     // Get the transform

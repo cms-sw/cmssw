@@ -227,60 +227,60 @@
     <station id="2">        <!-- 220 m -->
       <rp_detector_set id="0">       <!-- Near Top -->
         <timing_plane id="0">
-          <timing_channel id="0" hwId="0x60"/>
-          <timing_channel id="1" hwId="0x61"/>
-          <timing_channel id="2" hwId="0x62"/>
-          <timing_channel id="3" hwId="0x63"/>
-          <timing_channel id="4" hwId="0x64"/>
-          <timing_channel id="5" hwId="0x65"/>
-          <timing_channel id="6" hwId="0x66"/>
-          <timing_channel id="7" hwId="0x67"/>
-          <timing_channel id="8" hwId="0x68"/>
-          <timing_channel id="9" hwId="0x69"/>
-          <timing_channel id="10" hwId="0x6A"/>
-          <timing_channel id="11" hwId="0x6B"/>
+          <timing_channel id="0" hwId="0x6B"/>
+          <timing_channel id="1" hwId="0x6A"/>
+          <timing_channel id="2" hwId="0x69"/>
+          <timing_channel id="3" hwId="0x68"/>
+          <timing_channel id="4" hwId="0x67"/>
+          <timing_channel id="5" hwId="0x66"/>
+          <timing_channel id="6" hwId="0x65"/>
+          <timing_channel id="7" hwId="0x64"/>
+          <timing_channel id="8" hwId="0x63"/>
+          <timing_channel id="9" hwId="0x62"/>
+          <timing_channel id="10" hwId="0x61"/>
+          <timing_channel id="11" hwId="0x60"/>
         </timing_plane>
         <timing_plane id="1">
-          <timing_channel id="0" hwId="0x6C"/>
-          <timing_channel id="1" hwId="0x6D"/>
-          <timing_channel id="2" hwId="0x6E"/>
-          <timing_channel id="3" hwId="0x6F"/>
-          <timing_channel id="4" hwId="0x70"/>
-          <timing_channel id="5" hwId="0x71"/>
-          <timing_channel id="6" hwId="0x72"/>
-          <timing_channel id="7" hwId="0x73"/>
-          <timing_channel id="8" hwId="0x74"/>
-          <timing_channel id="9" hwId="0x75"/>
-          <timing_channel id="10" hwId="0x76"/>
-          <timing_channel id="11" hwId="0x77"/>
+          <timing_channel id="0" hwId="0x77"/>
+          <timing_channel id="1" hwId="0x76"/>
+          <timing_channel id="2" hwId="0x75"/>
+          <timing_channel id="3" hwId="0x74"/>
+          <timing_channel id="4" hwId="0x73"/>
+          <timing_channel id="5" hwId="0x72"/>
+          <timing_channel id="6" hwId="0x71"/>
+          <timing_channel id="7" hwId="0x70"/>
+          <timing_channel id="8" hwId="0x8F"/>
+          <timing_channel id="9" hwId="0x8E"/>
+          <timing_channel id="10" hwId="0x8D"/>
+          <timing_channel id="11" hwId="0x8C"/>
         </timing_plane>
         <timing_plane id="2">
-          <timing_channel id="0" hwId="0x78"/>
-          <timing_channel id="1" hwId="0x79"/>
-          <timing_channel id="2" hwId="0x7A"/>
-          <timing_channel id="3" hwId="0x7B"/>
-          <timing_channel id="4" hwId="0x7C"/>
-          <timing_channel id="5" hwId="0x7D"/>
-          <timing_channel id="6" hwId="0x7E"/>
-          <timing_channel id="7" hwId="0x7F"/>
-          <timing_channel id="8" hwId="0x80"/>
-          <timing_channel id="9" hwId="0x81"/>
-          <timing_channel id="10" hwId="0x82"/>
-          <timing_channel id="11" hwId="0x83"/>
+          <timing_channel id="0" hwId="0x83"/>
+          <timing_channel id="1" hwId="0x82"/>
+          <timing_channel id="2" hwId="0x81"/>
+          <timing_channel id="3" hwId="0x80"/>
+          <timing_channel id="4" hwId="0x7F"/>
+          <timing_channel id="5" hwId="0x7E"/>
+          <timing_channel id="6" hwId="0x7D"/>
+          <timing_channel id="7" hwId="0x7C"/>
+          <timing_channel id="8" hwId="0x7B"/>
+          <timing_channel id="9" hwId="0x7A"/>
+          <timing_channel id="10" hwId="0x79"/>
+          <timing_channel id="11" hwId="0x78"/>
         </timing_plane>
         <timing_plane id="3">
-          <timing_channel id="0" hwId="0x84"/>
-          <timing_channel id="1" hwId="0x85"/>
-          <timing_channel id="2" hwId="0x86"/>
-          <timing_channel id="3" hwId="0x87"/>
-          <timing_channel id="4" hwId="0x88"/>
-          <timing_channel id="5" hwId="0x89"/>
-          <timing_channel id="6" hwId="0x8A"/>
-          <timing_channel id="7" hwId="0x8B"/>
-          <timing_channel id="8" hwId="0x8C"/>
-          <timing_channel id="9" hwId="0x8D"/>
-          <timing_channel id="10" hwId="0x8E"/>
-          <timing_channel id="11" hwId="0x8F"/>
+          <timing_channel id="0" hwId="0x6F"/>
+          <timing_channel id="1" hwId="0x6E"/>
+          <timing_channel id="2" hwId="0x6D"/>
+          <timing_channel id="3" hwId="0x6C"/>
+          <timing_channel id="4" hwId="0x8B"/>
+          <timing_channel id="5" hwId="0x8A"/>
+          <timing_channel id="6" hwId="0x89"/>
+          <timing_channel id="7" hwId="0x88"/>
+          <timing_channel id="8" hwId="0x87"/>
+          <timing_channel id="9" hwId="0x86"/>
+          <timing_channel id="10" hwId="0x85"/>
+          <timing_channel id="11" hwId="0x84"/>
         </timing_plane>
         <rp_sampic_board id="0">
           <rp_sampic_channel       id="0"        FEDId="586"     GOHId="0"       IdxInFiber="0"/>
@@ -338,18 +338,18 @@
     <station id="2">        <!-- 220 m -->
       <rp_detector_set id="1">       <!-- Near Bottom -->
         <timing_plane id="4">
-          <timing_channel id="11" hwId="0x90"/>
-          <timing_channel id="10" hwId="0x91"/>
-          <timing_channel id="9" hwId="0x92"/>
-          <timing_channel id="8" hwId="0x93"/>
-          <timing_channel id="7" hwId="0x94"/>
-          <timing_channel id="6" hwId="0x95"/>
-          <timing_channel id="0" hwId="0x96"/>
-          <timing_channel id="1" hwId="0x97"/>
-          <timing_channel id="2" hwId="0x98"/>
-          <timing_channel id="3" hwId="0x99"/>
-          <timing_channel id="4" hwId="0x9A"/>
-          <timing_channel id="5" hwId="0x9B"/>
+          <timing_channel id="0" hwId="0x9B"/>
+          <timing_channel id="1" hwId="0x9A"/>
+          <timing_channel id="2" hwId="0x99"/>
+          <timing_channel id="3" hwId="0x98"/>
+          <timing_channel id="4" hwId="0x97"/>
+          <timing_channel id="5" hwId="0x96"/>
+          <timing_channel id="6" hwId="0x93"/>
+          <timing_channel id="7" hwId="0x92"/>
+          <timing_channel id="8" hwId="0x91"/>
+          <timing_channel id="9" hwId="0x90"/>
+          <timing_channel id="10" hwId="0x94"/>
+          <timing_channel id="11" hwId="0x95"/>
         </timing_plane>
         <timing_plane id="5">
           <timing_channel id="11" hwId="0x9C"/>

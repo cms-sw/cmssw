@@ -144,6 +144,14 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
       }
   }
 
+  // calculate centrality
+  etHFOnly = abs(etHF - et);
+  for(uint i=0; i<8; ++i){
+    if(etHFOnly >= (params_->etSumCentLower(i)/params_->towerLsbSum())
+       && etHFOnly <= (params_->etSumCentUpper(i)/params_->towerLsbSum())){
+      cent |= 1 << i;
+    }
+  }
 
   // calculate HI imbalance
   asymEt   = l1t::CaloTools::gloriousDivision(abs(etPos-etNeg), et);
@@ -157,22 +165,12 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
   if (ht>0xFFF)   ht   = 0xFFF;
   if (htHF>0xFFF) htHF = 0xFFF;
 
-  if(asymEt   > 0xFF) asymEt   = 0xFF;
-  if(asymEtHF > 0xFF) asymEtHF = 0xFF;
-  if(asymHt   > 0xFF) asymHt   = 0xFF;
-  if(asymHtHF > 0xFF) asymHtHF = 0xFF;
-
-  // calculate centrality
-  etHFOnly = abs(etHF - et);
-  for(uint i=0; i<8; ++i){
-    if(etHFOnly >= (params_->etSumCentLower(i)/params_->towerLsbSum())
-       && etHFOnly <= (params_->etSumCentUpper(i)/params_->towerLsbSum())){
-      cent |= 1 << i;
-    }
-  }
+  if(et == 0xFFF) asymEt   = 0xFF;
+  if(etHF == 0xFFF) asymEtHF = 0xFF;
+  if(ht == 0xFFF) asymHt   = 0xFF;
+  if(htHF == 0xFFF) asymHtHF = 0xFF;
   if((etHF == 0xFFF) || (et == 0xFFF)) cent = 0x80;
-
-
+  
   //if (mhtx>0xFFF) mhtx = 0xFFF;
   //if (mhty>0xFFF) mhty = 0xFFF;
 

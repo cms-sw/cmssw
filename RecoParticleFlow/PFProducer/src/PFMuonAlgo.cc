@@ -661,18 +661,18 @@ std::vector<reco::Muon::MuonTrackTypePair> PFMuonAlgo::muonTracks(const reco::Mu
   
   if(muon->globalTrack().isNonnull() && muon->globalTrack()->pt()>0) 
     if(muon->globalTrack()->ptError()/muon->globalTrack()->pt()<dpt)
-      out.push_back(std::make_pair(muon->globalTrack(),reco::Muon::CombinedTrack));
+      out.emplace_back(muon->globalTrack(),reco::Muon::CombinedTrack);
 
   if(muon->innerTrack().isNonnull() && muon->innerTrack()->pt()>0) 
     if(muon->innerTrack()->ptError()/muon->innerTrack()->pt()<dpt)//Here Loose!@
-      out.push_back(std::make_pair(muon->innerTrack(),reco::Muon::InnerTrack));
+      out.emplace_back(muon->innerTrack(),reco::Muon::InnerTrack);
 
   bool pickyExists=false; 
   double pickyDpt=99999.; 
   if(muon->pickyTrack().isNonnull() && muon->pickyTrack()->pt()>0) {
     pickyDpt = muon->pickyTrack()->ptError()/muon->pickyTrack()->pt(); 
     if(pickyDpt<dpt) 
-      out.push_back(std::make_pair(muon->pickyTrack(),reco::Muon::Picky));
+      out.emplace_back(muon->pickyTrack(),reco::Muon::Picky);
     pickyExists=true;
   }
 
@@ -681,7 +681,7 @@ std::vector<reco::Muon::MuonTrackTypePair> PFMuonAlgo::muonTracks(const reco::Mu
   if(muon->dytTrack().isNonnull() && muon->dytTrack()->pt()>0) {
     dytDpt = muon->dytTrack()->ptError()/muon->dytTrack()->pt(); 
     if(dytDpt<dpt) 
-      out.push_back(std::make_pair(muon->dytTrack(),reco::Muon::DYT));
+      out.emplace_back(muon->dytTrack(),reco::Muon::DYT);
     dytExists=true;
   }
 
@@ -694,12 +694,12 @@ std::vector<reco::Muon::MuonTrackTypePair> PFMuonAlgo::muonTracks(const reco::Mu
     if( ( (pickyExists && tpfmsDpt<pickyDpt) || (!pickyExists) ) && 
 	( (dytExists   && tpfmsDpt<dytDpt)   || (!dytExists)   ) && 
 	tpfmsDpt<dpt )
-      out.push_back(std::make_pair(muon->tpfmsTrack(),reco::Muon::TPFMS));
+      out.emplace_back(muon->tpfmsTrack(),reco::Muon::TPFMS);
   }
 
   if(includeSA && muon->outerTrack().isNonnull())
     if(muon->outerTrack()->ptError()/muon->outerTrack()->pt()<dpt)
-      out.push_back(std::make_pair(muon->outerTrack(),reco::Muon::OuterTrack));
+      out.emplace_back(muon->outerTrack(),reco::Muon::OuterTrack);
 
   return out;
 
