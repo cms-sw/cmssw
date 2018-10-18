@@ -30,8 +30,8 @@ private:
     bool printEcalSF;
     bool printEtSumEttPUSLUT;
     bool printEtSumEcalSumPUSLUT;
-    bool printEtSumXCalibrationLUT;
-    bool printEtSumYCalibrationLUT;
+    bool printMetCalibrationLUT;
+    bool printMetHFCalibrationLUT;
     bool printEtSumEttCalibrationLUT;
     bool printEtSumEcalSumCalibrationLUT;
 
@@ -59,8 +59,8 @@ public:
         printEcalSF      = pset.getUntrackedParameter<bool>("printEcalSF",     false);
         printEtSumEttPUSLUT             = pset.getUntrackedParameter<bool>("printEtSumEttPUSLUT",             false);
         printEtSumEcalSumPUSLUT         = pset.getUntrackedParameter<bool>("printEtSumEcalSumPUSLUT",         false);
-        printEtSumXCalibrationLUT       = pset.getUntrackedParameter<bool>("printEtSumXCalibrationLUT",       false);
-        printEtSumYCalibrationLUT       = pset.getUntrackedParameter<bool>("printEtSumYCalibrationLUT",       false);
+        printMetCalibrationLUT       = pset.getUntrackedParameter<bool>("printMetCalibrationLUT",       false);
+        printMetHFCalibrationLUT       = pset.getUntrackedParameter<bool>("printMetHFCalibrationLUT",       false);
         printEtSumEttCalibrationLUT     = pset.getUntrackedParameter<bool>("printEtSumEttCalibrationLUT",     false);
         printEtSumEcalSumCalibrationLUT = pset.getUntrackedParameter<bool>("printEtSumEcalSumCalibrationLUT", false);
 
@@ -460,8 +460,8 @@ void L1TCaloParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetu
     cout<<"  etSumMetPUSType=        " << ptr1->etSumMetPUSType() << endl;
     cout<<"  etSumEttPUSType=        " << ptr1->etSumEttPUSType() << endl;
     cout<<"  etSumEcalSumPUSType=    " << ptr1->etSumEcalSumPUSType() << endl;
-    cout<<"  etSumXCalibrationType=  " << ptr1->etSumXCalibrationType() << endl;
-    cout<<"  etSumYCalibrationType=  " << ptr1->etSumYCalibrationType() << endl;
+    cout<<"  metCalibrationType=  " << ptr1->metCalibrationType() << endl;
+    cout<<"  metHFCalibrationType=  " << ptr1->metHFCalibrationType() << endl;
     cout<<"  etSumEttCalibrationType=" << ptr1->etSumEttCalibrationType() << endl;
     cout<<"  etSumEcalSumCalibrationType=" << ptr1->etSumEcalSumCalibrationType() << endl;
 
@@ -513,36 +513,36 @@ void L1TCaloParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetu
         cout<<"  etSumEcalSumPUSLUT=     [0]"<<endl;
     }
 
-    if( !ptr1->etSumXCalibrationLUT()->empty() ){
-        cout<<"  etSumXCalibrationLUT=   ["<<ptr1->etSumXCalibrationLUT()->maxSize()<<"] "<<flush;
-        int etSumXCalibrationLUT[ptr1->etSumXCalibrationLUT()->maxSize()];
-        for(unsigned int i=0; i<ptr1->etSumXCalibrationLUT()->maxSize(); i++)
-            etSumXCalibrationLUT[i] = ptr1->etSumXCalibrationLUT()->data(i);
+    if( !ptr1->metCalibrationLUT()->empty() ){
+        cout<<"  metCalibrationLUT=   ["<<ptr1->metCalibrationLUT()->maxSize()<<"] "<<flush;
+        int metCalibrationLUT[ptr1->metCalibrationLUT()->maxSize()];
+        for(unsigned int i=0; i<ptr1->metCalibrationLUT()->maxSize(); i++)
+            metCalibrationLUT[i] = ptr1->metCalibrationLUT()->data(i);
 
-        cout << hash( etSumXCalibrationLUT, sizeof(int)*ptr1->etSumXCalibrationLUT()->maxSize()  ) << endl;
+        cout << hash( metCalibrationLUT, sizeof(int)*ptr1->metCalibrationLUT()->maxSize()  ) << endl;
 
-        if( printEtSumXCalibrationLUT )
-            for(unsigned int i=0; i<ptr1->etSumXCalibrationLUT()->maxSize(); i++)
-            cout<<i<<" "<<etSumXCalibrationLUT[i]<<endl;
+        if( printMetCalibrationLUT )
+            for(unsigned int i=0; i<ptr1->metCalibrationLUT()->maxSize(); i++)
+            cout<<i<<" "<<metCalibrationLUT[i]<<endl;
 
     } else {
-        cout<<"  etSumXCalibrationLUT=   [0]"<<endl;
+        cout<<"  metCalibrationLUT=   [0]"<<endl;
     }
 
-    if( !ptr1->etSumYCalibrationLUT()->empty() ){
-        cout<<"  etSumYCalibrationLUT=   ["<<ptr1->etSumYCalibrationLUT()->maxSize()<<"] "<<flush;
-        int etSumYCalibrationLUT[ptr1->etSumYCalibrationLUT()->maxSize()];
-        for(unsigned int i=0; i<ptr1->etSumYCalibrationLUT()->maxSize(); i++)
-            etSumYCalibrationLUT[i] = ptr1->etSumYCalibrationLUT()->data(i);
+    if( !ptr1->metHFCalibrationLUT()->empty() ){
+        cout<<"  metHFCalibrationLUT=   ["<<ptr1->metHFCalibrationLUT()->maxSize()<<"] "<<flush;
+        int metHFCalibrationLUT[ptr1->metHFCalibrationLUT()->maxSize()];
+        for(unsigned int i=0; i<ptr1->metHFCalibrationLUT()->maxSize(); i++)
+            metHFCalibrationLUT[i] = ptr1->metHFCalibrationLUT()->data(i);
 
-        cout << hash( etSumYCalibrationLUT, sizeof(int)*ptr1->etSumYCalibrationLUT()->maxSize()  ) << endl;
+        cout << hash( metHFCalibrationLUT, sizeof(int)*ptr1->metHFCalibrationLUT()->maxSize()  ) << endl;
 
-        if( printEtSumYCalibrationLUT )
-            for(unsigned int i=0; i<ptr1->etSumYCalibrationLUT()->maxSize(); i++)
-            cout<<i<<" "<<etSumYCalibrationLUT[i]<<endl;
+        if( printMetHFCalibrationLUT )
+            for(unsigned int i=0; i<ptr1->metHFCalibrationLUT()->maxSize(); i++)
+            cout<<i<<" "<<metHFCalibrationLUT[i]<<endl;
 
     } else {
-        cout<<"  etSumYCalibrationLUT=   [0]"<<endl;
+        cout<<"  metHFCalibrationLUT=   [0]"<<endl;
     }
 
     if( !ptr1->etSumEttCalibrationLUT()->empty() ){
