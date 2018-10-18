@@ -122,11 +122,7 @@ void PFTauSecondaryVertexProducer::produce(edm::StreamID, edm::Event& iEvent,con
 	bool FitOk(true);
 	KalmanVertexFitter kvf(true);
         if(transTrk.size() > 1) {
-          try{
-            transVtx = kvf.vertex(transTrk); //KalmanVertexFitter  
-          }catch(...){
-            FitOk=false;
-          }
+	  transVtx = kvf.vertex(transTrk); //KalmanVertexFitter
         } else {
           FitOk = false;
         }
