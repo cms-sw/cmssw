@@ -32,6 +32,11 @@ class CSCUpgradeCathodeLCTProcessor : public CSCCathodeLCTProcessor
   /** Default constructor. Used for testing. */
   CSCUpgradeCathodeLCTProcessor();
 
+ protected:
+  /* is a given half-strip in a pretrigger dead zone */
+  bool pretrig_busyzone[CSCConstants::NUM_HALF_STRIPS_7CFEBS];
+
+
  private:
   /** VK: use of localized dead-time zones */
   bool use_dead_time_zoning;
@@ -46,6 +51,10 @@ class CSCUpgradeCathodeLCTProcessor : public CSCCathodeLCTProcessor
 
   //--------------- Functions for SLHC studies ----------------
   std::vector<CSCCLCTDigi> findLCTs(const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]) override;
+
+  /* SLHC version,  Check all half-strip pattern envelopes simultaneously, on every clock cycle, for a matching pattern */
+  bool preTrigger(const unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
+                  const int start_bx, int& first_bx) override;
 };
 
 #endif
