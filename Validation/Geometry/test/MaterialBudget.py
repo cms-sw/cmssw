@@ -791,35 +791,7 @@ def create2DPlots(detector, plot, geometry):
 
     theDetectorFile = TFile(theDetectorFilename)
 
-    # get TProfiles
-    prof2d_X0_det_total = theDetectorFile.Get('%s' % plots[plot].plotNumber)
-
-    # histos
-    prof2d_X0_det_total.__class__ = TProfile2D
-    hist_X0_total = prof2d_X0_det_total.ProjectionXY()
-
-    # keep files live forever
-    files = []
-    if detector in COMPOUNDS.keys():
-        for subDetector in COMPOUNDS[detector][1:]:
-            # filenames of single components
-            subDetectorFilename = "matbdg_%s_%s.root" % (subDetector,geometry)
-
-            # open file
-            if not checkFile_(subDetectorFilename):
-                print("Error, missing file %s" % subDetectorFilename)
-                continue
-
-            subDetectorFile = TFile(subDetectorFilename)
-            files.append(subDetectorFile)
-            print("*** Open file... %s" %  subDetectorFilename)
-
-            # subdetector profiles
-            prof2d_X0_det_total = subDetectorFile.Get('%s' % plots[plot].plotNumber)
-            prof2d_X0_det_total.__class__ = TProfile2D
-
-            # add to summary histogram
-            hist_X0_total.Add(prof2d_X0_det_total.ProjectionXY("B_%s" % prof2d_X0_det_total.GetName()), +1.000 )
+    hist_X0_total = get2DHisto_(detector,plots[plot].plotNumber,geometry)
 
     # # properties
     gStyle.SetPalette(1)
@@ -920,31 +892,12 @@ def createRatioPlots(detector, plot, geometry):
     prof_l0_det_total = theDetectorFile.Get('%d' % (1000+plots[plot].plotNumber))
 
     # histos
-    hist_x0_total = prof_x0_det_total.ProjectionX()
-    hist_l0_total = prof_l0_det_total.ProjectionX()
+    hist_x0_total = get1DHisto_(detector,plots[plot].plotNumber,geometry)
+    hist_l0_total = get1DHisto_(detector,1000+plots[plot].plotNumber,geometry)
 
-    if detector in COMPOUNDS.keys():
-        for subDetector in COMPOUNDS[detector][1:]:
-
-            # file name
-            subDetectorFilename = "matbdg_%s_%s.root" % (subDetector,geometry)
-
-            # open file
-            if not checkFile_(subDetectorFilename):
-                print("Error, missing file %s" % subDetectorFilename)
-                continue
-
-            subDetectorFile = TFile(subDetectorFilename)
-
-            # subdetector profiles
-            prof_x0_det_total = subDetectorFile.Get('%d' % plots[plot].plotNumber)
-            prof_l0_det_total = subDetectorFile.Get('%d' % (1000+plots[plot].plotNumber))
-            # add to summary histogram
-            hist_x0_total.Add(prof_x0_det_total.ProjectionX("B_%s" % prof_x0_det_total.GetName()), +1.000 )
-            hist_l0_total.Add(prof_l0_det_total.ProjectionX("B_%s" % prof_l0_det_total.GetName()), +1.000 )
-    #
     hist_x0_over_l0_total = hist_x0_total
     hist_x0_over_l0_total.Divide(hist_l0_total)
+
     histTitle = "Material Budget %s;%s;%s" % (detector,
                                               plots[plot].abscissa,
                                               plots[plot].ordinate)
