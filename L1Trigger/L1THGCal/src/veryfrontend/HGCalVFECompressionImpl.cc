@@ -6,11 +6,9 @@ HGCalVFECompressionImpl(const edm::ParameterSet& conf):
     mantissaBits_(conf.getParameter<uint32_t>("mantissaBits")),
     rounding_(conf.getParameter<bool>("rounding"))
 {
-  saturable_ = false;
   saturationCode_ = (1 << (exponentBits_ + mantissaBits_)) - 1;
   saturationValue_ = 0xffffffff;
   if (((1 << exponentBits_) + mantissaBits_ - 1) < 32) {
-    saturable_ = true;
     saturationValue_ = (1 << ((1 << exponentBits_) + mantissaBits_ - 1)) - 1;
   }
   else {
@@ -35,7 +33,7 @@ HGCalVFECompressionImpl::
 compressSingle(const uint32_t value)
 {
   // check for saturation
-  if (saturable_ && value > saturationValue_) {
+  if (value > saturationValue_) {
     return saturationCode_;
   }
 
