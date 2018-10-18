@@ -118,6 +118,71 @@ void CSCUpgradeAnodeLCTProcessor::ghostCancellationLogic()
   }
 }
 
+
+
+void CSCUpgradeAnodeLCTProcessor::ghostCancellationLogicOneWire(const int key_wire)
+{
+  int ghost_cleared[2];
+
+    for (int i_pattern = 0; i_pattern < 2; i_pattern++) {
+      ghost_cleared[i_pattern] = 0;
+
+      // Non-empty wire group.
+      int qual_this = quality[key_wire][i_pattern];
+      if (qual_this > 0) {
+
+        if (isSLHC_ and (runME21ILT_ or runME3141ILT_))
+          qual_this = (qual_this & 0x03);
+        // Previous wire.
+        int dt = -1;
+        int qual_prev = (key_wire > 0) ? quality[key_wire-1][i_pattern] : 0;
+        if (qual_prev > 0) {
+          if (use_corrected_bx)
+            dt = first_bx_corrected[key_wire] - first_bx_corrected[key_wire-1];
+          else
+            dt = first_bx[key_wire] - first_bx[key_wire-1];
+          // hack to run the Phase-II ME2/1, ME3/1 and ME4/1 ILT
+          if (isSLHC_ and (runME21ILT_ or runME3141ILT_))
+            qual_prev = (qual_prev & 0x03);
+
+          // Cancel this wire
+          //   1) If the candidate at the previous wire is at the same bx
+          //      clock and has better quality (or equal? quality - this has
+          //      been implemented only in 2004).
+          //   2) If the candidate at the previous wire is up to 4 clocks
+          //      earlier, regardless of quality.
+          if (dt == 0) {
+            if (qual_prev > qual_this) ghost_cleared[i_pattern] = 1;
+          }
+          else if (dt > 0 && dt <= ghost_cancellation_bx_depth ) {
+            if ((!ghost_cancellation_side_quality) ||
+                (qual_prev > qual_this) )
+              ghost_cleared[i_pattern] = 1;
+          }
+        }
+
+        // Skip this step if this wire is already declared "ghost".
+        if (ghost_cleared[i_pattern] == 1) {
+          if (infoV > 1) LogTrace("CSCUpgradeAnodeLCTProcessor")
+            << ((i_pattern == 0) ? "Accelerator" : "Collision")
+            << " pattern ghost cancelled on key_wire " << key_wire <<" q="<<qual_this
+            << "  by wire " << key_wire-1<<" q="<<qual_prev<<"  dt="<<dt;
+          continue;
+        }
+
+    }
+  }
+
+  // All cancellation is done in parallel, so wiregroups do not know what
+  // their neighbors are cancelling.
+    for (int i_pattern = 0; i_pattern < 2; i_pattern++) {
+      if (ghost_cleared[i_pattern] > 0) {
+        clear(key_wire, i_pattern);
+      }
+    }
+}
+
+
 int CSCUpgradeAnodeLCTProcessor::getTempALCTQuality(int temp_quality) const
 {
   // Quality definition changed on 22 June 2007: it no longer depends
