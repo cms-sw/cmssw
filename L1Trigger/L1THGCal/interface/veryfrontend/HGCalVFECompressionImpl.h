@@ -11,6 +11,7 @@ class HGCalVFECompressionImpl
  public:
   HGCalVFECompressionImpl(const edm::ParameterSet& conf);
 
+  uint32_t bitLength(uint32_t x);
   void compress(const std::map<HGCalDetId, uint32_t>&,
                 std::map<HGCalDetId, std::array<uint32_t, 2> >&);
   uint32_t compressSingle(const uint32_t value);
@@ -23,7 +24,6 @@ class HGCalVFECompressionImpl
   bool     saturable_;
   uint32_t saturationCode_;
   uint32_t saturationValue_;
-  uint32_t compressedValueLUT_[256];
      
 };
 

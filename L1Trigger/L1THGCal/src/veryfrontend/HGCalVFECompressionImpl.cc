@@ -15,21 +15,15 @@ HGCalVFECompressionImpl(const edm::ParameterSet& conf):
   }
   // TODO: for non-saturating need to get maximum code point as well?
   // i.e. 8-bit compressed code that would hit 0xffffffff
+}
 
-  // build the compressed values lookup table
-  uint32_t compval = 0;
-  const uint32_t mantissaMask = (1 << mantissaBits_) - 1;
-  uint32_t incval = 1;
-  for (uint32_t code = 0; code < 0x100; code++) {
-    compressedValueLUT_[code] = compval;
-    if ((code & mantissaMask) == 0) {
-      incval <<= 1;
-      if (((code & ~mantissaMask) >> mantissaBits_) <= 1) {
-        incval >>= 1;
-      }
-    }
-    compval += incval;
-  }
+uint32_t
+HGCalVFECompressionImpl::
+bitLength(uint32_t x)
+{
+  uint32_t bitlen;
+  for (bitlen = 0; x != 0; x >>= 1, bitlen++) {}
+  return bitlen;
 }
 
 uint32_t
@@ -42,9 +36,7 @@ compressSingle(const uint32_t value)
   }
 
   // count bit length
-  uint32_t valcopy = value;
-  uint32_t bitlen;
-  for (bitlen = 0; valcopy != 0; valcopy >>= 1, bitlen++) {}
+  const uint32_t bitlen = bitLength(value);
   if (bitlen <= mantissaBits_) {
     return value;
   }
@@ -70,7 +62,12 @@ uint32_t
 HGCalVFECompressionImpl::
 decompressSingle(const uint32_t code)
 {
-  return compressedValueLUT_[code];
+  const uint32_t exponent = (code >> mantissaBits_) & ((1 << exponentBits_) - 1);
+  if (exponent == 0) {
+    return code;
+  }
+  const uint32_t mantissa = code & ((1 << mantissaBits_) - 1);
+  return ((1 << mantissaBits_) | mantissa) << (exponent - 1);
 }
 
 void
