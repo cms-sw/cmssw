@@ -193,8 +193,12 @@ def nanoAOD_addDeepBoostedJetForPre103X(process):
        jetCorrections = ('AK8PFPuppi', cms.vstring(['L2Relative', 'L3Absolute', 'L2L3Residual']), 'None'),
        btagDiscriminators = pfDeepBoostedJetTagsAll,
        postfix='AK8Puppi',
+       printWarning = False
        )
-    process.slimmedJetsAK8WithUserData.src = 'selectedUpdatedPatJetsAK8Puppi'
+    process.looseJetIdAK8.src = "selectedUpdatedPatJetsAK8Puppi"
+    process.tightJetIdAK8.src = "selectedUpdatedPatJetsAK8Puppi"
+    process.tightJetIdLepVetoAK8.src = "selectedUpdatedPatJetsAK8Puppi"
+    process.slimmedJetsAK8WithUserData.src = "selectedUpdatedPatJetsAK8Puppi"
     return process
 
 
