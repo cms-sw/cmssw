@@ -51,32 +51,9 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig,
   std::vector<double>  calibPFSCEle_Fbrem_endcap;
   std::vector<double>  calibPFSCEle_barrel;
   std::vector<double>  calibPFSCEle_endcap;
-  algo_config.usePFSCEleCalib = iConfig.getParameter<bool>("usePFSCEleCalib");
-  calibPFSCEle_Fbrem_barrel = iConfig.getParameter<std::vector<double> >("calibPFSCEle_Fbrem_barrel");
-  calibPFSCEle_Fbrem_endcap = iConfig.getParameter<std::vector<double> >("calibPFSCEle_Fbrem_endcap");
-  calibPFSCEle_barrel = iConfig.getParameter<std::vector<double> >("calibPFSCEle_barrel");
-  calibPFSCEle_endcap = iConfig.getParameter<std::vector<double> >("calibPFSCEle_endcap");
-  algo_config.thePFSCEnergyCalibration.reset( new PFSCEnergyCalibration( calibPFSCEle_Fbrem_barrel,calibPFSCEle_Fbrem_endcap,
-									 calibPFSCEle_barrel,calibPFSCEle_endcap ) ); 
                                
-  algo_config.useEGammaSupercluster = 
-    iConfig.getParameter<bool>("useEGammaSupercluster");
   algo_config.produceEGCandsWithNoSuperCluster = 
     iConfig.getParameter<bool>("produceEGCandsWithNoSuperCluster");
-  algo_config.sumEtEcalIsoForEgammaSC_barrel = 
-    iConfig.getParameter<double>("sumEtEcalIsoForEgammaSC_barrel");
-  algo_config.sumEtEcalIsoForEgammaSC_endcap = 
-    iConfig.getParameter<double>("sumEtEcalIsoForEgammaSC_endcap");
-  algo_config.coneEcalIsoForEgammaSC = 
-    iConfig.getParameter<double>("coneEcalIsoForEgammaSC");
-  algo_config.sumPtTrackIsoForEgammaSC_barrel = 
-    iConfig.getParameter<double>("sumPtTrackIsoForEgammaSC_barrel");
-  algo_config.sumPtTrackIsoForEgammaSC_endcap = 
-    iConfig.getParameter<double>("sumPtTrackIsoForEgammaSC_endcap");
-  algo_config.coneTrackIsoForEgammaSC = 
-    iConfig.getParameter<double>("coneTrackIsoForEgammaSC");
-  algo_config.nTrackIsoForEgammaSC  = 
-    iConfig.getParameter<unsigned int>("nTrackIsoForEgammaSC");
 
 
   // register products
@@ -92,22 +69,10 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig,
     = iConfig.getParameter<double>("pf_electron_mvaCut");
 
   
-  algo_config. mvaWeightFileEleID
-    = iConfig.getParameter<edm::FileInPath>("pf_electronID_mvaWeightFile").fullPath();
-
   algo_config.applyCrackCorrections
     = iConfig.getParameter<bool>("pf_electronID_crackCorrection");
     
-  algo_config.mvaweightfile =
-    iConfig.getParameter<edm::FileInPath>("pf_convID_mvaWeightFile").fullPath();
   algo_config.mvaConvCut = iConfig.getParameter<double>("pf_conv_mvaCut");  
-  algo_config.sumPtTrackIsoForPhoton = 
-    iConfig.getParameter<double>("sumPtTrackIsoForPhoton");
-  algo_config.sumPtTrackIsoSlopeForPhoton = 
-    iConfig.getParameter<double>("sumPtTrackIsoSlopeForPhoton");
-
-  edm::ParameterSet iCfgCandConnector 
-    = iConfig.getParameter<edm::ParameterSet>("iCfgCandConnector");
 
   algo_config.thePFEnergyCalibration.reset(new PFEnergyCalibration());
 
@@ -126,10 +91,10 @@ PFEGammaProducer::produce(edm::Event& iEvent,
     <<" in run "<<iEvent.id().run()<<std::endl;
   
 
-  // reset output collection  
-  egCandidates_ = std::make_unique<reco::PFCandidateCollection>();
-  egExtra_ = std::make_unique<reco::PFCandidateEGammaExtraCollection>();
-  sClusters_ = std::make_unique<reco::SuperClusterCollection>();
+  // output collections
+  auto egCandidates_ = std::make_unique<reco::PFCandidateCollection>();
+  auto egExtra_      = std::make_unique<reco::PFCandidateEGammaExtraCollection>();
+  auto sClusters_    = std::make_unique<reco::SuperClusterCollection>();
     
   // Get the EE-PS associations
   edm::Handle<reco::PFCluster::EEtoPSAssociation> eetops;
@@ -156,7 +121,7 @@ PFEGammaProducer::produce(edm::Event& iEvent,
   }
 
   //Assign the PFAlgo Parameters
-  setPFVertexParameters(useVerticesForNeutral_,vertices.product());
+  setPFVertexParameters(vertices.product());
 
   // get the collection of blocks 
 
@@ -374,7 +339,7 @@ PFEGammaProducer::produce(edm::Event& iEvent,
   
   //create and fill references to single leg conversions
   edm::RefProd<reco::ConversionCollection> convProd = iEvent.getRefBeforePut<reco::ConversionCollection>();
-  singleLegConv_ = std::make_unique<reco::ConversionCollection>();  
+  auto singleLegConv_ = std::make_unique<reco::ConversionCollection>();
   createSingleLegConversions(*egExtra_, *singleLegConv_, convProd);
   
   // release our demonspawn into the wild to cause havoc
@@ -388,17 +353,6 @@ PFEGammaProducer::produce(edm::Event& iEvent,
 void 
 PFEGammaProducer::setPFEGParameters(PFEGammaAlgo::PFEGConfigInfo& cfg) {  
   
-  FILE * fileEleID = fopen(cfg.mvaWeightFileEleID.c_str(), "r");
-  if (fileEleID) {
-    fclose(fileEleID);
-  }
-  else {
-    std::string err = "PFAlgo: cannot open weight file '";
-    err += cfg.mvaWeightFileEleID;
-    err += "'";
-    throw std::invalid_argument( err );
-  }
-
   //for MVA pass PV if there is one in the collection otherwise pass a dummy  
   if(!useVerticesForNeutral_) { // create a dummy PV  
     reco::Vertex::Error e;  
@@ -408,26 +362,12 @@ PFEGammaProducer::setPFEGParameters(PFEGammaAlgo::PFEGConfigInfo& cfg) {
     reco::Vertex::Point p(0, 0, 0);  
     primaryVertex_ = reco::Vertex(p, e, 0, 0, 0);  
   }  
-  // pv=&dummy;  
-  //if(! usePFPhotons_) return;  
-  FILE * filePhotonConvID = fopen(cfg.mvaweightfile.c_str(), "r");  
-  if (filePhotonConvID) {  
-    fclose(filePhotonConvID);  
-  }  
-  else {  
-    std::string err = "PFAlgo: cannot open weight file '";  
-    err += cfg.mvaweightfile;
-    err += "'";  
-    throw std::invalid_argument( err );  
-  }  
   cfg.primaryVtx = &primaryVertex_;  
   pfeg_.reset(new PFEGammaAlgo(cfg));
 }
 
 void
-PFEGammaProducer::setPFVertexParameters(bool useVertex,
-                              const reco::VertexCollection*  primaryVertices) {
-  useVerticesForNeutral_ = useVertex;
+PFEGammaProducer::setPFVertexParameters(const reco::VertexCollection*  primaryVertices) {
 
   //Now find the primary vertex!
   int nVtx=primaryVertices->size();
@@ -508,60 +448,14 @@ void PFEGammaProducer::createSingleLegConversions(reco::PFCandidateEGammaExtraCo
 
 void PFEGammaProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>  ("blocks",          edm::InputTag("particleFlowBlock"));       // PF Blocks label
-  desc.add<edm::InputTag>  ("EEtoPS_source",   edm::InputTag("particleFlowClusterECAL")); // EE to PS association
-  desc.add<bool>           ("useVerticesForNeutral",            true);
-  desc.add<bool>           ("usePFSCEleCalib",                  true);
-  desc.add<bool>           ("useEGammaSupercluster",            true);
-  // allow building of candidates with no input or output supercluster?
-  desc.add<bool>           ("produceEGCandsWithNoSuperCluster", false);
-  desc.add<double>         ("sumEtEcalIsoForEgammaSC_barrel",   1.);
-  desc.add<double>         ("sumEtEcalIsoForEgammaSC_endcap",   2.);
-  desc.add<double>         ("coneEcalIsoForEgammaSC",           0.3);
-  desc.add<double>         ("sumPtTrackIsoForEgammaSC_barrel",  4.);
-  desc.add<double>         ("sumPtTrackIsoForEgammaSC_endcap",  4.);
-  desc.add<double>         ("coneTrackIsoForEgammaSC",          0.3);
-  desc.add<unsigned int>   ("nTrackIsoForEgammaSC",             2);
-  desc.add<double>         ("pf_electron_mvaCut",               -0.1);
-  desc.add<bool>           ("pf_electronID_crackCorrection",    false);
-  desc.add<double>         ("pf_conv_mvaCut",                   0.0);
-  desc.add<double>         ("sumPtTrackIsoForPhoton",           2.0);
-  desc.add<double>         ("sumPtTrackIsoSlopeForPhoton",      0.001);
+  desc.add<bool>  ("useVerticesForNeutral",            true);
+  desc.add<bool>  ("produceEGCandsWithNoSuperCluster", false)->setComment("Allow building of candidates with no input or output supercluster?");
+  desc.add<double>("pf_electron_mvaCut",               -0.1);
+  desc.add<bool>  ("pf_electronID_crackCorrection",    false);
+  desc.add<double>("pf_conv_mvaCut",                   0.0);
+  desc.add<edm::InputTag>  ("blocks",          edm::InputTag("particleFlowBlock"))->setComment("PF Blocks label");
+  desc.add<edm::InputTag>  ("EEtoPS_source",   edm::InputTag("particleFlowClusterECAL"))->setComment("EE to PS association");
   desc.add<edm::InputTag>  ("vertexCollection",                edm::InputTag("offlinePrimaryVertices"));
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::vector<double>>("nuclCalibFactors", {0.8, 0.15, 0.5, 0.5, 0.05});
-    psd0.add<double>("ptErrorSecondary",    1.0);
-    psd0.add<bool>  ("bCalibPrimary",       true);
-    psd0.add<bool>  ("bCorrect",            true);
-    psd0.add<double>("dptRel_MergedTrack",  5.0);
-    psd0.add<double>("dptRel_PrimaryTrack", 10.0);
-    desc.add<edm::ParameterSetDescription>("iCfgCandConnector", psd0);
-  }
-  desc.add<std::vector<double>>("calibPFSCEle_Fbrem_barrel", {
-      0.6, 6,                                                 // Range of non constant correction
-      -0.0255975, 0.0576727, 0.975442, -0.000546394, 1.26147, // standard parameters
-      25,                                                     // pt value for switch to low pt corrections
-      -0.02025, 0.04537, 0.9728, -0.0008962, 1.172            // low pt parameters
-  });
-  desc.add<std::vector<double>>("calibPFSCEle_Fbrem_endcap", {
-      0.9, 6.5,                                              // Range of non constant correction
-      -0.0692932, 0.101776, 0.995338, -0.00236548, 0.874998, // standard parameters eta < switch value
-      1.653,                                                 // eta value for correction switch
-      -0.0750184, 0.147000, 0.923165, 0.000474665, 1.10782   // standard parameters eta > switch value
-  });
-  desc.add<std::vector<double>>("calibPFSCEle_barrel", {
-      1.004, -1.536, 22.88, -1.467, // standard
-      0.3555, 0.6227, 14.65, 2051,  // parameters
-      25,                           // pt value for switch to low pt corrections
-      0.9932, -0.5444, 0, 0.5438,   // low pt
-      0.7109, 7.645, 0.2904, 0      // parameters
-  });
-  desc.add<std::vector<double>>("calibPFSCEle_endcap", {
-      1.153, -16.5975, 5.668,
-     -0.1772, 16.22, 7.326,
-     0.0483, -4.068, 9.406
-  });
   desc.add<edm::FileInPath>("pf_electronID_mvaWeightFile",
       edm::FileInPath("RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_PfElectrons23Jan_IntToFloat.txt"));
   desc.add<edm::FileInPath>("pf_convID_mvaWeightFile",

@@ -29,12 +29,6 @@
 
 #include "RecoParticleFlow/PFProducer/interface/PFEGammaAlgo.h"
 
-class PFEnergyCalibrationHF;
-class PFEnergyCalibration;
-class PFSCEnergyCalibration;
-class PFEnergyCalibrationHF;
-class GBRForest;
-
 /**\class PFEGammaProducer
 \brief Producer for particle flow reconstructed particles (PFCandidates)
 
@@ -67,7 +61,7 @@ class PFEGammaProducer : public edm::stream::EDProducer<edm::GlobalCache<pfEGHel
 
   void setPFEGParameters(PFEGammaAlgo::PFEGConfigInfo&);
 
-  void setPFVertexParameters(bool useVertex, const reco::VertexCollection*  primaryVertices);
+  void setPFVertexParameters(const reco::VertexCollection*  primaryVertices);
 
   void createSingleLegConversions(reco::PFCandidateEGammaExtraCollection &extras,
                                   reco::ConversionCollection &oneLegConversions,
@@ -78,44 +72,18 @@ class PFEGammaProducer : public edm::stream::EDProducer<edm::GlobalCache<pfEGHel
   const edm::EDGetTokenT<reco::PFCluster::EEtoPSAssociation> eetopsSrc_;
   const edm::EDGetTokenT<reco::VertexCollection>             vertices_;
 
-  // what about e/g electrons ?
-  bool useEGammaElectrons_;
-
   // Use vertices for Neutral particles ?
-  bool useVerticesForNeutral_;
-
-  std::shared_ptr<PFSCEnergyCalibration> thePFSCEnergyCalibration_;
+  const bool useVerticesForNeutral_;
 
   /// Variables for PFEGamma
-  std::string mvaWeightFileEleID_;
-  std::vector<double> setchi2Values_;
-  double mvaEleCut_;
-  bool usePFElectrons_;
-  bool usePFPhotons_;
-  bool applyCrackCorrectionsElectrons_;
-  bool usePFSCEleCalib_;
-  bool useEGElectrons_;
-  bool useEGammaSupercluster_;
-  double sumEtEcalIsoForEgammaSC_barrel_;
-  double sumEtEcalIsoForEgammaSC_endcap_;
-  double coneEcalIsoForEgammaSC_;
-  double sumPtTrackIsoForEgammaSC_barrel_;
-  double sumPtTrackIsoForEgammaSC_endcap_;
-  double coneTrackIsoForEgammaSC_;
-  unsigned int nTrackIsoForEgammaSC_;
 
   reco::Vertex primaryVertex_;
 
-  std::unique_ptr<reco::PFCandidateCollection>            egCandidates_;
-  std::unique_ptr<reco::PFCandidateEGammaExtraCollection> egExtra_;
-  std::unique_ptr<reco::ConversionCollection>             singleLegConv_;
-  std::unique_ptr<reco::SuperClusterCollection>           sClusters_;
-
   /// particle flow algorithm
-  std::unique_ptr<PFEGammaAlgo>      pfeg_;
+  std::unique_ptr<PFEGammaAlgo> pfeg_;
 
-  std::string ebeeClustersCollection_;
-  std::string esClustersCollection_;
+  const std::string ebeeClustersCollection_;
+  const std::string esClustersCollection_;
 
 };
 
