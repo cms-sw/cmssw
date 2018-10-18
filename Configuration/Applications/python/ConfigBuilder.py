@@ -928,7 +928,6 @@ class ConfigBuilder(object):
         self.L1MENUDefaultCFF="Configuration/StandardSequences/L1TriggerDefaultMenu_cff"
         self.HLTDefaultCFF="Configuration/StandardSequences/HLTtable_cff"
         self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_Data_cff"
-        self.RAW2DIGIDataRemapperCFF="Configuration/StandardSequences/RawToDigi_DataRemapper_cff"
         if self._options.isRepacked: self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_DataMapper_cff"
         self.L1RecoDefaultCFF="Configuration/StandardSequences/L1Reco_cff"
         self.L1TrackTriggerDefaultCFF="Configuration/StandardSequences/L1TrackTrigger_cff"
