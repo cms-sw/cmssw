@@ -13,6 +13,10 @@ HGCalVFECompressionImpl(const edm::ParameterSet& conf):
     saturable_ = true;
     saturationValue_ = (1 << ((1 << exponentBits_) + mantissaBits_ - 1)) - 1;
   }
+  else {
+    throw cms::Exception("CodespaceCannotFit")
+      << "The code space cannot fit into the unsigned 32-bit space.\n";
+  }
   // TODO: for non-saturating need to get maximum code point as well?
   // i.e. 8-bit compressed code that would hit 0xffffffff
 }

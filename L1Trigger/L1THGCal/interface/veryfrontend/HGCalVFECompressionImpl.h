@@ -2,6 +2,7 @@
 #define __L1Trigger_L1THGCal_HGCalVFECompressionImpl_h__
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 
