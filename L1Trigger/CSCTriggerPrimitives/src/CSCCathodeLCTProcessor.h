@@ -109,7 +109,7 @@ class CSCCathodeLCTProcessor : public CSCBaseboard
   virtual std::vector<CSCCLCTDigi> findLCTs(const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
 
   /* Check all half-strip pattern envelopes simultaneously, on every clock cycle, for a matching pattern */
-  bool preTrigger(const unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
+  virtual bool preTrigger(const unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
                   const int start_bx, int& first_bx);
 
   /* For a given clock cycle, check each half-strip if a pattern matches */
