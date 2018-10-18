@@ -146,10 +146,12 @@ def getFullListOfParameters(aModule):
       (('demux', 'algoRev'), None, 0xcafe),
       (('demux', 'ET_centralityLowerThresholds'), 'CentralityLowerThrs.mif', [ int(round(loBound / aModule.etSumLsb.value())) for loBound in aModule.etSumCentralityLower.value()]),
       (('demux', 'ET_centralityUpperThresholds'), 'CentralityUpperThrs.mif', [ int(round(upBound / aModule.etSumLsb.value())) for upBound in aModule.etSumCentralityUpper.value()])
-      (('demux', 'ET_energyCalibLUT'),            'M_ETMET_11to18.mif',      parseOfflineLUTfile(aModule.etSumEttCalibrationLUTFile.value(), 2048, aTruncate = True)),
-      (('demux', 'ecalET_energyCalibLUT'),        'M_ETMETecal_11to18.mif',  parseOfflineLUTfile(aModule.etSumEcalSumCalibrationLUTFile.value(), 2048, aTruncate = True)),
-      (('demux', 'METX_energyCalibLUT'),          'M_ETMETX_11to18.mif',     parseOfflineLUTfile(aModule.etSumXCalibrationLUTFile.value(), 2048, aTruncate = True)),
-      (('demux', 'METY_energyCalibLUT'),          'M_ETMETY_11to18.mif',     parseOfflineLUTfile(aModule.etSumYCalibrationLUTFile.value(), 2048, aTruncate = True)),
+      (('demux', 'MET_energyCalibLUT'),       'M_METnoHFenergyCalibration_12to18.mif',     parseOfflineLUTfile(aModule.metCalibrationLUTFile.value(), 4096, aTruncate = True)),
+      (('demux', 'METHF_energyCalibLUT'),     'M_METwithHFenergyCalibration_12to18.mif',   parseOfflineLUTfile(aModule.metHFCalibrationLUTFile.value(), 4096, aTruncate = True)),
+      (('demux', 'ET_energyCalibLUT'),        'S_ETcalibration_12to18.mif',       parseOfflineLUTfile(aModule.etSumEttCalibrationLUTFile.value(), 4096, aTruncate = True)),
+      (('demux', 'ecalET_energyCalibLUT'),    'R_EcalCalibration_12to18.mif',     parseOfflineLUTfile(aModule.etSumEcalSumCalibrationLUTFile.value(), 4096, aTruncate = True)),
+      (('demux', 'MET_phiCalibLUT'),          'Q_METnoHFphiCalibration_12to18.mif',     parseOfflineLUTfile(aModule.metPhiCalibrationLUTFile.value(), 4096, aTruncate = True)),
+      (('demux', 'METHF_phiCalibLUT'),        'Q_METwithHFphiCalibration_12to18.mif',   parseOfflineLUTfile(aModule.metHFPhiCalibrationLUTFile.value(), 4096, aTruncate = True)),
     ]
 
     result = [(a, b, parseOfflineLUTfile(c.value()) if isinstance(c, cms.FileInPath) else c) for a, b, c in result]
