@@ -50,7 +50,7 @@ public:
    TGeoMgrFromDdd(const edm::ParameterSet&);
    ~TGeoMgrFromDdd() override;
 
-   typedef std::shared_ptr<TGeoManager> ReturnType;
+   using ReturnType = std::unique_ptr<TGeoManager>;
 
    // ---------- const member functions ---------------------
 
