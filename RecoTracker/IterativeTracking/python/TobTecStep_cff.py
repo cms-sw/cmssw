@@ -71,7 +71,7 @@ from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _h
 tobTecStepHitDoubletsTripl = _hitPairEDProducer.clone(
     seedingLayers = "tobTecStepSeedLayersTripl",
     trackingRegions = "tobTecStepTrackingRegionsTripl",
-    maxElement = 0,
+    maxElement = 50000000,
     produceIntermediateHitDoublets = True,
 )
 from RecoTracker.TkSeedGenerator.multiHitFromChi2EDProducer_cfi import multiHitFromChi2EDProducer as _multiHitFromChi2EDProducer
@@ -158,6 +158,7 @@ tobTecStepHitDoubletsPair = _hitPairEDProducer.clone(
     seedingLayers = "tobTecStepSeedLayersPair",
     trackingRegions = "tobTecStepTrackingRegionsPair",
     produceSeedingHitSets = True,
+    maxElementTotal = 12000000,
 )
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer
 tobTecStepSeedsPair = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
