@@ -96,8 +96,13 @@ def get1DHisto_(detector,plotNumber,geometry):
     rootFile = TFile()
 
     if detector not in COMPOUNDS.keys():
-        rootFile = TFile.Open('matbdg_%s_%s.root'%(detector,geometry),'READ')
-        prof = copy.deepcopy(rootFile.Get("%d" % plotNumber))
+        detectorFilename = 'matbdg_%s_%s.root'%(detector,geometry)
+        if not checkFile_(detectorFilename):
+            print('Warning: %s not found' % detectorFilename)
+            return 0
+        rootFile = TFile.Open(detectorFilename,'READ')
+        prof = rootFile.Get("%d" % plotNumber)
+        if not prof: return 0
         # Prevent memory leaking by specifing a unique name
         prof.SetName('%u_%s_%s' %(plotNumber,detector,geometry))
         histo = prof.ProjectionX()
@@ -112,7 +117,8 @@ def get1DHisto_(detector,plotNumber,geometry):
             subDetectorFile = TFile.Open(subDetectorFilename,'READ')
             theFiles.append(subDetectorFile)
             print('*** Open file... %s' % subDetectorFilename)
-            prof = copy.deepcopy(subDetectorFile.Get('%d'%(plotNumber)))
+            prof = subDetectorFile.Get('%d'%(plotNumber))
+            if not prof: return 0
             prof.__class__ = TProfile
             histo = assignOrAddIfExists_(histo,prof)
 
@@ -131,8 +137,13 @@ def get2DHisto_(detector,plotNumber,geometry):
     rootFile = TFile()
 
     if detector not in COMPOUNDS.keys():
-        rootFile = TFile.Open('matbdg_%s_%s.root'%(detector,geometry),'READ')
-        prof = copy.deepcopy(rootFile.Get("%d" % plotNumber))
+        detectorFilename('matbdg_%s_%s.root'%(detector,geometry))
+        if not checkFile_(detectorFilename):
+            print('Warning: %s not found' % detectorFilename)
+            return 0
+        rootFile = TFile.Open(detectorFilename,'READ')
+        prof = rootFile.Get("%d" % plotNumber)
+        if not prof: return 0
         # Prevent memory leaking by specifing a unique name
         prof.SetName('%u_%s_%s' %(plotNumber,detector,geometry))
         prof.__class__ = TProfile2D
@@ -148,7 +159,8 @@ def get2DHisto_(detector,plotNumber,geometry):
             subDetectorFile = TFile.Open(subDetectorFilename,'READ')
             theFiles.append(subDetectorFile)
             print('*** Open file... %s' % subDetectorFilename)
-            prof = copy.deepcopy(subDetectorFile.Get('%d'%plotNumber))
+            prof = subDetectorFile.Get('%d'%plotNumber)
+            if not prof: return 0
             prof.__class__ = TProfile2D
             if not histo:
                 histo = prof.ProjectionXY('B_%s' % prof.GetName())
