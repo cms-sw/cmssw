@@ -97,6 +97,11 @@ def customisePostEra_Run2_2018_pp_on_AA_express_trackingOnly(process):
     customisePostEra_Run2_2018_express_trackingOnly(process)
     return process
 
+def customisePostEra_Run2_2018_cosmics_hybrid(process):
+    from RecoLocalTracker.SiStripZeroSuppression.customiseHybrid import runOnHybridZS
+    runOnHybridZS(process)
+    return process
+
 
 ##############################################################################
 def customisePPData(process):
