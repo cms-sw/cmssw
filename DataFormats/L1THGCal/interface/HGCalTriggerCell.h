@@ -59,10 +59,10 @@ namespace l1t
             HGCalDetId detid_;
             GlobalPoint position_;
             
-            double mipPt_;
+            double mipPt_{0.};
 
-            uint32_t uncompressedCharge_;
-            uint32_t compressedCharge_;
+            uint32_t uncompressedCharge_{0};
+            uint32_t compressedCharge_{0};
 
     };
 
