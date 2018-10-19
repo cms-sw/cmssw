@@ -34,6 +34,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -99,6 +100,7 @@ class CentralityProducer : public edm::EDProducer {
 
   edm::ESHandle<TrackerGeometry> tGeo;
   edm::ESHandle<CaloGeometry> cGeo;
+  edm::ESHandle<TrackerTopology> topo_;
 
 };
 
@@ -184,6 +186,7 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   if(producePixelhits_) iSetup.get<TrackerDigiGeometryRecord>().get(tGeo);
   if(produceEcalhits_) iSetup.get<CaloGeometryRecord>().get(cGeo);
+  if(producePixelhits_) iSetup.get<TrackerTopologyRcd>().get(topo_);
 
   auto creco = std::make_unique<Centrality>();
   Handle<Centrality> inputCentrality;
@@ -240,8 +243,8 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     	     if(reuseAny_){
 	      creco->etHFtowerSumMinus_ = inputCentrality->EtHFtowerSumMinus();
 	      creco->etHFtowerSumPlus_ = inputCentrality->EtHFtowerSumPlus();
-          creco->etHFtowerSumECutMinus_ = inputCentrality->EtHFtowerSumECutMinus();
-          creco->etHFtowerSumECutPlus_ = inputCentrality->EtHFtowerSumECutPlus();
+             creco->etHFtowerSumECutMinus_ = inputCentrality->EtHFtowerSumECutMinus();
+             creco->etHFtowerSumECutPlus_ = inputCentrality->EtHFtowerSumECutPlus();
 	      creco->etHFtruncatedMinus_ = inputCentrality->EtHFtruncatedMinus();
 	      creco->etHFtruncatedPlus_ = inputCentrality->EtHFtruncatedPlus();
     	     }
@@ -322,17 +325,17 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    double eta = rechitPos.eta();
 	    double abeta = std::abs(rechitPos.eta());
 	    int clusterSize = recHit->cluster()->size();
+           unsigned layer = topo_->layer(detId);
 	  if(doPixelCut_){
-            if (                abeta < 0.5 && clusterSize < 1) continue;
-	    if ( abeta > 0.5 && abeta < 1   && clusterSize < 2) continue;
-            if ( abeta > 1.  && abeta < 1.5 && clusterSize < 3) continue;
-            if ( abeta > 1.5 && abeta < 2.  && clusterSize < 4) continue;
-            if ( abeta > 2.  && abeta < 2.5 && clusterSize < 6) continue;
-            if ( abeta > 2.5 && abeta < 5   && clusterSize < 9) continue;
+          if (detId.det() == DetId::Tracker && detId.subdetId() == PixelSubdetector::PixelBarrel){
+            if (layer==1 && 18*abeta-40>clusterSize) continue;
+            if (layer==2 && 6*abeta-7.2>clusterSize) continue;
+            if ((layer==3 || layer==4) && 4*abeta-2.4>clusterSize) continue;
+          }
 	  }
 	  nPixel++;
-      if(eta>=0) nPixel_plus++;
-      if(eta<0) nPixel_minus++;
+         if(eta>=0) nPixel_plus++;
+         if(eta<0) nPixel_minus++;
       
         } 
      }
@@ -436,9 +439,7 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     int nPixelTracksPlus = 0;
     int nPixelTracksMinus = 0;
 
-    for(unsigned int i = 0 ; i < pixeltracks->size(); ++i){
-        const Track& track = (*pixeltracks)[i];
-
+    for (auto const& track : *pixeltracks){
         if(track.eta()<0) nPixelTracksMinus++;
         else nPixelTracksPlus++;
     }

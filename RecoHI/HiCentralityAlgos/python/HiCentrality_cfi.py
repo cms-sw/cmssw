@@ -39,7 +39,7 @@ from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
     e.toModify(hiCentrality,
                producePixelTracks = True,
-               srcPixelTracks = cms.InputTag("hiConformalPixelTracks"),
+               srcPixelTracks = "hiConformalPixelTracks",
                srcTracks = cms.InputTag("generalTracks"),
                srcVertex = cms.InputTag("offlinePrimaryVertices")
                )
