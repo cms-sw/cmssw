@@ -36,21 +36,23 @@
 #include "TNamed.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-void FWRecoGeometryESProducer::ADD_PIXEL_TOPOLOGY( unsigned int rawid, const GeomDet* detUnit ) {                                    
+void FWRecoGeometryESProducer::ADD_PIXEL_TOPOLOGY( unsigned int rawid,
+                                                   const GeomDet* detUnit,
+                                                   FWRecoGeometry& fwRecoGeometry ) {
    const PixelGeomDetUnit* det = dynamic_cast<const PixelGeomDetUnit*>( detUnit ); 
    if( det )							
    {      							
       const PixelTopology* topo = &det->specificTopology(); 
     
       std::pair<float,float> pitch = topo->pitch();
-      m_fwGeometry->idToName[rawid].topology[0] = pitch.first;
-      m_fwGeometry->idToName[rawid].topology[1] = pitch.second;
+      fwRecoGeometry.idToName[rawid].topology[0] = pitch.first;
+      fwRecoGeometry.idToName[rawid].topology[1] = pitch.second;
 
-      m_fwGeometry->idToName[rawid].topology[2] = topo->localX(0.f); // offsetX
-      m_fwGeometry->idToName[rawid].topology[3] = topo->localY(0.f); // offsetY
+      fwRecoGeometry.idToName[rawid].topology[2] = topo->localX(0.f); // offsetX
+      fwRecoGeometry.idToName[rawid].topology[3] = topo->localY(0.f); // offsetY
 
       // big pixels layout
-      m_fwGeometry->idToName[rawid].topology[4] = topo->isItBigPixelInX(80) ? 0 : 1;
+      fwRecoGeometry.idToName[rawid].topology[4] = topo->isItBigPixelInX(80) ? 0 : 1;
    }
 }
 
@@ -59,26 +61,26 @@ void FWRecoGeometryESProducer::ADD_PIXEL_TOPOLOGY( unsigned int rawid, const Geo
   if( det )                                                     \
   {                                                             \
     const StripTopology* topo = dynamic_cast<const StripTopology*>( &det->specificTopology() ); \
-    m_fwGeometry->idToName[rawid].topology[0] = 0;            		    \
-    m_fwGeometry->idToName[rawid].topology[1] = topo->nstrips();            \
-    m_fwGeometry->idToName[rawid].topology[2] = topo->stripLength();        \
+    fwRecoGeometry.idToName[rawid].topology[0] = 0;            		    \
+    fwRecoGeometry.idToName[rawid].topology[1] = topo->nstrips();            \
+    fwRecoGeometry.idToName[rawid].topology[2] = topo->stripLength();        \
     if( const RadialStripTopology* rtop = dynamic_cast<const RadialStripTopology*>( &(det->specificType().specificTopology()) ) ) \
       {									\
-      m_fwGeometry->idToName[rawid].topology[0] = 1;			\
-      m_fwGeometry->idToName[rawid].topology[3] = rtop->yAxisOrientation(); \
-      m_fwGeometry->idToName[rawid].topology[4] = rtop->originToIntersection(); \
-      m_fwGeometry->idToName[rawid].topology[5] = rtop->phiOfOneEdge(); \
-      m_fwGeometry->idToName[rawid].topology[6] = rtop->angularWidth(); \
+      fwRecoGeometry.idToName[rawid].topology[0] = 1;			\
+      fwRecoGeometry.idToName[rawid].topology[3] = rtop->yAxisOrientation(); \
+      fwRecoGeometry.idToName[rawid].topology[4] = rtop->originToIntersection(); \
+      fwRecoGeometry.idToName[rawid].topology[5] = rtop->phiOfOneEdge(); \
+      fwRecoGeometry.idToName[rawid].topology[6] = rtop->angularWidth(); \
     }                                                                   \
     else if( dynamic_cast<const RectangularStripTopology*>( &(det->specificType().specificTopology()) ) )     \
     {                                                                   \
-      m_fwGeometry->idToName[rawid].topology[0] = 2;			\
-      m_fwGeometry->idToName[rawid].topology[3] = topo->pitch();	\
+      fwRecoGeometry.idToName[rawid].topology[0] = 2;			\
+      fwRecoGeometry.idToName[rawid].topology[3] = topo->pitch();	\
     }									\
     else if( dynamic_cast<const TrapezoidalStripTopology*>( &(det->specificType().specificTopology()) ) )     \
     {                                                                   \
-      m_fwGeometry->idToName[rawid].topology[0] = 3;			\
-      m_fwGeometry->idToName[rawid].topology[3] = topo->pitch();	\
+      fwRecoGeometry.idToName[rawid].topology[0] = 3;			\
+      fwRecoGeometry.idToName[rawid].topology[3] = topo->pitch();	\
     }									\
   }                                                                     \
 
@@ -101,12 +103,12 @@ FWRecoGeometryESProducer::FWRecoGeometryESProducer( const edm::ParameterSet& pse
 FWRecoGeometryESProducer::~FWRecoGeometryESProducer( void )
 {}
 
-std::shared_ptr<FWRecoGeometry> 
+std::unique_ptr<FWRecoGeometry> 
 FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
 {
   using namespace edm;
 
-  m_fwGeometry = std::make_shared<FWRecoGeometry>();
+  auto fwRecoGeometry = std::make_unique<FWRecoGeometry>();
 
   if( m_tracker || m_muon ) {
     record.getRecord<GlobalTrackingGeometryRecord>().get( m_geomRecord );  
@@ -116,45 +118,45 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
     
   if( m_tracker )
   {
-    addPixelBarrelGeometry( );
-    addPixelForwardGeometry();
-    addTIBGeometry();
-    addTIDGeometry();
-    addTOBGeometry();
-    addTECGeometry();
-    writeTrackerParametersXML();
+    addPixelBarrelGeometry(*fwRecoGeometry);
+    addPixelForwardGeometry(*fwRecoGeometry);
+    addTIBGeometry(*fwRecoGeometry);
+    addTIDGeometry(*fwRecoGeometry);
+    addTOBGeometry(*fwRecoGeometry);
+    addTECGeometry(*fwRecoGeometry);
+    writeTrackerParametersXML(*fwRecoGeometry);
   }
   if( m_muon )
   {
-    addDTGeometry();
-    addCSCGeometry();
-    addRPCGeometry();
-    addGEMGeometry();
-    addME0Geometry();
+    addDTGeometry(*fwRecoGeometry);
+    addCSCGeometry(*fwRecoGeometry);
+    addRPCGeometry(*fwRecoGeometry);
+    addGEMGeometry(*fwRecoGeometry);
+    addME0Geometry(*fwRecoGeometry);
   }
   if( m_calo )
   {
     edm::ESHandle<CaloGeometry>                caloGeomH;
     record.getRecord<CaloGeometryRecord>().get(caloGeomH);
     m_caloGeom = caloGeomH.product();
-    addCaloGeometry();
+    addCaloGeometry(*fwRecoGeometry);
   }
 
   if( m_timing ) {
     record.getRecord<CaloGeometryRecord>().getRecord<IdealGeometryRecord>().get( "FastTimeBarrel", m_ftlBarrelGeom );
     record.getRecord<CaloGeometryRecord>().getRecord<IdealGeometryRecord>().get( "SFBX", m_ftlEndcapGeom );
-    addFTLGeometry();
+    addFTLGeometry(*fwRecoGeometry);
   }
   
-  m_fwGeometry->idToName.resize( m_current + 1 );
-  std::vector<FWRecoGeom::Info>( m_fwGeometry->idToName ).swap( m_fwGeometry->idToName );
-  std::sort( m_fwGeometry->idToName.begin(), m_fwGeometry->idToName.end());
+  fwRecoGeometry->idToName.resize( m_current + 1 );
+  std::vector<FWRecoGeom::Info>( fwRecoGeometry->idToName ).swap( fwRecoGeometry->idToName );
+  std::sort( fwRecoGeometry->idToName.begin(), fwRecoGeometry->idToName.end());
 
-  return m_fwGeometry;
+  return fwRecoGeometry;
 }
 
 void
-FWRecoGeometryESProducer::addCSCGeometry( void )
+FWRecoGeometryESProducer::addCSCGeometry( FWRecoGeometry& fwRecoGeometry )
 {
   DetId detId( DetId::Muon, 2 ); 
   const CSCGeometry* cscGeometry = (const CSCGeometry*) m_geomRecord->slaveGeometry( detId );
@@ -167,8 +169,8 @@ FWRecoGeometryESProducer::addCSCGeometry( void )
     if( chamber )
     {
       unsigned int rawid = chamber->geographicalId();
-      unsigned int current =  insert_id( rawid );
-      fillShapeAndPlacement( current, chamber );
+      unsigned int current =  insert_id( rawid, fwRecoGeometry );
+      fillShapeAndPlacement( current, chamber, fwRecoGeometry );
       //
       // CSC layers geometry
       //
@@ -181,20 +183,20 @@ FWRecoGeometryESProducer::addCSCGeometry( void )
 	if( layer )
 	{
 	  unsigned int rawid = layer->geographicalId();
-	  unsigned int current = insert_id( rawid );
-	  fillShapeAndPlacement( current, layer );
+	  unsigned int current = insert_id( rawid, fwRecoGeometry );
+	  fillShapeAndPlacement( current, layer, fwRecoGeometry );
 
 	  const CSCStripTopology* stripTopology = layer->geometry()->topology();
-	  m_fwGeometry->idToName[current].topology[0] = stripTopology->yAxisOrientation();
-	  m_fwGeometry->idToName[current].topology[1] = stripTopology->centreToIntersection();
-	  m_fwGeometry->idToName[current].topology[2] = stripTopology->yCentreOfStripPlane();
-	  m_fwGeometry->idToName[current].topology[3] = stripTopology->phiOfOneEdge();
-	  m_fwGeometry->idToName[current].topology[4] = stripTopology->stripOffset();
-	  m_fwGeometry->idToName[current].topology[5] = stripTopology->angularWidth();
+	  fwRecoGeometry.idToName[current].topology[0] = stripTopology->yAxisOrientation();
+	  fwRecoGeometry.idToName[current].topology[1] = stripTopology->centreToIntersection();
+	  fwRecoGeometry.idToName[current].topology[2] = stripTopology->yCentreOfStripPlane();
+	  fwRecoGeometry.idToName[current].topology[3] = stripTopology->phiOfOneEdge();
+	  fwRecoGeometry.idToName[current].topology[4] = stripTopology->stripOffset();
+	  fwRecoGeometry.idToName[current].topology[5] = stripTopology->angularWidth();
 
 	  const CSCWireTopology* wireTopology = layer->geometry()->wireTopology();
-	  m_fwGeometry->idToName[current].topology[6] = wireTopology->wireSpacing();
-	  m_fwGeometry->idToName[current].topology[7] = wireTopology->wireAngle();
+	  fwRecoGeometry.idToName[current].topology[6] = wireTopology->wireSpacing();
+	  fwRecoGeometry.idToName[current].topology[7] = wireTopology->wireAngle();
 	}
       }
     }
@@ -202,7 +204,7 @@ FWRecoGeometryESProducer::addCSCGeometry( void )
 }
 
 void
-FWRecoGeometryESProducer::addDTGeometry( void )
+FWRecoGeometryESProducer::addDTGeometry( FWRecoGeometry& fwRecoGeometry )
 {
   DetId detId( DetId::Muon, 1 );
   const DTGeometry* dtGeometry = (const DTGeometry*) m_geomRecord->slaveGeometry( detId );
@@ -219,8 +221,8 @@ FWRecoGeometryESProducer::addDTGeometry( void )
     if( chamber )
     {
       unsigned int rawid = chamber->geographicalId().rawId();
-      unsigned int current = insert_id( rawid );
-      fillShapeAndPlacement( current, chamber );
+      unsigned int current = insert_id( rawid, fwRecoGeometry );
+      fillShapeAndPlacement( current, chamber, fwRecoGeometry );
     }
   }
 
@@ -234,29 +236,29 @@ FWRecoGeometryESProducer::addDTGeometry( void )
     if( layer )
     {
       unsigned int rawid = layer->id().rawId();
-      unsigned int current = insert_id( rawid );
-      fillShapeAndPlacement( current, layer );
+      unsigned int current = insert_id( rawid, fwRecoGeometry );
+      fillShapeAndPlacement( current, layer, fwRecoGeometry );
 
       const DTTopology& topo = layer->specificTopology();
       const BoundPlane& surf = layer->surface();
       // Topology W/H/L:
-      m_fwGeometry->idToName[current].topology[0] = topo.cellWidth();
-      m_fwGeometry->idToName[current].topology[1] = topo.cellHeight();
-      m_fwGeometry->idToName[current].topology[2] = topo.cellLenght();
-      m_fwGeometry->idToName[current].topology[3] = topo.firstChannel();
-      m_fwGeometry->idToName[current].topology[4] = topo.lastChannel();
-      m_fwGeometry->idToName[current].topology[5] = topo.channels();
+      fwRecoGeometry.idToName[current].topology[0] = topo.cellWidth();
+      fwRecoGeometry.idToName[current].topology[1] = topo.cellHeight();
+      fwRecoGeometry.idToName[current].topology[2] = topo.cellLenght();
+      fwRecoGeometry.idToName[current].topology[3] = topo.firstChannel();
+      fwRecoGeometry.idToName[current].topology[4] = topo.lastChannel();
+      fwRecoGeometry.idToName[current].topology[5] = topo.channels();
 
       // Bounds W/H/L:
-      m_fwGeometry->idToName[current].topology[6] = surf.bounds().width();
-      m_fwGeometry->idToName[current].topology[7] = surf.bounds().thickness();
-      m_fwGeometry->idToName[current].topology[8] = surf.bounds().length();
+      fwRecoGeometry.idToName[current].topology[6] = surf.bounds().width();
+      fwRecoGeometry.idToName[current].topology[7] = surf.bounds().thickness();
+      fwRecoGeometry.idToName[current].topology[8] = surf.bounds().length();
     }
   }  
 }
 
 void
-FWRecoGeometryESProducer::addRPCGeometry( void )
+FWRecoGeometryESProducer::addRPCGeometry( FWRecoGeometry& fwRecoGeometry )
 {
   //
   // RPC rolls geometry
@@ -271,13 +273,13 @@ FWRecoGeometryESProducer::addRPCGeometry( void )
     if( roll )
     {
       unsigned int rawid = roll->geographicalId().rawId();
-      unsigned int current = insert_id( rawid );
-      fillShapeAndPlacement( current, roll );
+      unsigned int current = insert_id( rawid, fwRecoGeometry );
+      fillShapeAndPlacement( current, roll, fwRecoGeometry );
 
       const StripTopology& topo = roll->specificTopology();
-      m_fwGeometry->idToName[current].topology[0] = topo.nstrips();
-      m_fwGeometry->idToName[current].topology[1] = topo.stripLength();
-      m_fwGeometry->idToName[current].topology[2] = topo.pitch();
+      fwRecoGeometry.idToName[current].topology[0] = topo.nstrips();
+      fwRecoGeometry.idToName[current].topology[1] = topo.stripLength();
+      fwRecoGeometry.idToName[current].topology[2] = topo.pitch();
     }
   }
 
@@ -285,7 +287,7 @@ FWRecoGeometryESProducer::addRPCGeometry( void )
   try {
      RPCDetId id(1, 1, 4, 1, 1, 1, 1 );
      m_geomRecord->slaveGeometry( detId );
-     m_fwGeometry->extraDet.Add(new TNamed("RE4", "RPC endcap station 4"));
+     fwRecoGeometry.extraDet.Add(new TNamed("RE4", "RPC endcap station 4"));
   }
     catch (std::runtime_error &e) {
        std::cerr << e.what() << std::endl; 
@@ -293,7 +295,7 @@ FWRecoGeometryESProducer::addRPCGeometry( void )
 }
 
 void
-FWRecoGeometryESProducer::addGEMGeometry( void )
+FWRecoGeometryESProducer::addGEMGeometry( FWRecoGeometry& fwRecoGeometry )
 {
   //
   // GEM geometry
@@ -310,8 +312,8 @@ FWRecoGeometryESProducer::addGEMGeometry( void )
       if( sc )
       {
 	unsigned int rawid = sc->geographicalId().rawId();
-	unsigned int current = insert_id( rawid );
-	fillShapeAndPlacement( current, sc );
+	unsigned int current = insert_id( rawid, fwRecoGeometry );
+	fillShapeAndPlacement( current, sc, fwRecoGeometry );
       }
     }
     // add in chambers
@@ -320,8 +322,8 @@ FWRecoGeometryESProducer::addGEMGeometry( void )
       if( ch )
       {
 	unsigned int rawid = ch->geographicalId().rawId();
-	unsigned int current = insert_id( rawid );
-	fillShapeAndPlacement( current, ch );
+	unsigned int current = insert_id( rawid, fwRecoGeometry );
+	fillShapeAndPlacement( current, ch, fwRecoGeometry );
       }
     }    
     // add in etaPartitions - gem rechits are based on etaPartitions
@@ -330,28 +332,28 @@ FWRecoGeometryESProducer::addGEMGeometry( void )
       if( roll )
       {
 	unsigned int rawid = roll->geographicalId().rawId();
-	unsigned int current = insert_id( rawid );
-	fillShapeAndPlacement( current, roll );
+	unsigned int current = insert_id( rawid, fwRecoGeometry );
+	fillShapeAndPlacement( current, roll, fwRecoGeometry );
 
 	const StripTopology& topo = roll->specificTopology();
-	m_fwGeometry->idToName[current].topology[0] = topo.nstrips();
-	m_fwGeometry->idToName[current].topology[1] = topo.stripLength();
-	m_fwGeometry->idToName[current].topology[2] = topo.pitch();
+	fwRecoGeometry.idToName[current].topology[0] = topo.nstrips();
+	fwRecoGeometry.idToName[current].topology[1] = topo.stripLength();
+	fwRecoGeometry.idToName[current].topology[2] = topo.pitch();
 
 	float height = topo.stripLength()/2;
 	LocalPoint  lTop( 0., height, 0.);
 	LocalPoint  lBottom( 0., -height, 0.);
-	m_fwGeometry->idToName[current].topology[3] = roll->localPitch(lTop);
-	m_fwGeometry->idToName[current].topology[4] = roll->localPitch(lBottom);
-	m_fwGeometry->idToName[current].topology[5] = roll->npads();
+	fwRecoGeometry.idToName[current].topology[3] = roll->localPitch(lTop);
+	fwRecoGeometry.idToName[current].topology[4] = roll->localPitch(lBottom);
+	fwRecoGeometry.idToName[current].topology[5] = roll->npads();
       }
     }
 
-    m_fwGeometry->extraDet.Add(new TNamed("GEM", "GEM muon detector"));
+    fwRecoGeometry.extraDet.Add(new TNamed("GEM", "GEM muon detector"));
     try {
       GEMDetId id(1, 1, 2, 1, 1, 1 );
       m_geomRecord->slaveGeometry( detId );
-      m_fwGeometry->extraDet.Add(new TNamed("GE2", "GEM endcap station 2"));
+      fwRecoGeometry.extraDet.Add(new TNamed("GE2", "GEM endcap station 2"));
     }
     catch (std::runtime_error &e) {
        std::cerr << e.what() << std::endl; 
@@ -365,7 +367,7 @@ FWRecoGeometryESProducer::addGEMGeometry( void )
 }
 
 void
-FWRecoGeometryESProducer::addME0Geometry( void )
+FWRecoGeometryESProducer::addME0Geometry( FWRecoGeometry& fwRecoGeometry )
 {
   //                                                                                                                               
   // ME0 geometry                                                                                                                  
@@ -380,23 +382,23 @@ FWRecoGeometryESProducer::addME0Geometry( void )
       if( roll )
       {
 	unsigned int rawid = roll->geographicalId().rawId();
-	unsigned int current = insert_id( rawid );
-	fillShapeAndPlacement( current, roll );
+	unsigned int current = insert_id( rawid, fwRecoGeometry );
+	fillShapeAndPlacement( current, roll, fwRecoGeometry );
 	  
 	const StripTopology& topo = roll->specificTopology();
-	m_fwGeometry->idToName[current].topology[0] = topo.nstrips();
-	m_fwGeometry->idToName[current].topology[1] = topo.stripLength();
-	m_fwGeometry->idToName[current].topology[2] = topo.pitch();
+	fwRecoGeometry.idToName[current].topology[0] = topo.nstrips();
+	fwRecoGeometry.idToName[current].topology[1] = topo.stripLength();
+	fwRecoGeometry.idToName[current].topology[2] = topo.pitch();
 	
 	float height = topo.stripLength()/2;
 	LocalPoint  lTop( 0., height, 0.);
 	LocalPoint  lBottom( 0., -height, 0.);
-	m_fwGeometry->idToName[current].topology[3] = roll->localPitch(lTop);
-	m_fwGeometry->idToName[current].topology[4] = roll->localPitch(lBottom);
-	m_fwGeometry->idToName[current].topology[5] = roll->npads();
+	fwRecoGeometry.idToName[current].topology[3] = roll->localPitch(lTop);
+	fwRecoGeometry.idToName[current].topology[4] = roll->localPitch(lBottom);
+	fwRecoGeometry.idToName[current].topology[5] = roll->npads();
       }
     }
-    m_fwGeometry->extraDet.Add(new TNamed("ME0", "ME0 muon detector"));
+    fwRecoGeometry.extraDet.Add(new TNamed("ME0", "ME0 muon detector"));
   }
   catch( cms::Exception &exception )
   {
@@ -405,7 +407,7 @@ FWRecoGeometryESProducer::addME0Geometry( void )
 }  
 
 void
-FWRecoGeometryESProducer::addPixelBarrelGeometry( void )
+FWRecoGeometryESProducer::addPixelBarrelGeometry( FWRecoGeometry& fwRecoGeometry )
 {
   for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsPXB().begin(),
 						    end = m_trackerGeom->detsPXB().end();
@@ -417,16 +419,16 @@ FWRecoGeometryESProducer::addPixelBarrelGeometry( void )
     {     
       DetId detid = det->geographicalId();
       unsigned int rawid = detid.rawId();
-      unsigned int current = insert_id( rawid );
-      fillShapeAndPlacement( current, det );
+      unsigned int current = insert_id( rawid, fwRecoGeometry );
+      fillShapeAndPlacement( current, det, fwRecoGeometry );
 
-      ADD_PIXEL_TOPOLOGY( current, m_trackerGeom->idToDetUnit( detid ));
+      ADD_PIXEL_TOPOLOGY( current, m_trackerGeom->idToDetUnit( detid ), fwRecoGeometry);
     }
   }
 }
 
 void
-FWRecoGeometryESProducer::addPixelForwardGeometry( void )
+FWRecoGeometryESProducer::addPixelForwardGeometry( FWRecoGeometry& fwRecoGeometry )
 {
   for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsPXF().begin(),
 						    end = m_trackerGeom->detsPXF().end();
@@ -438,16 +440,16 @@ FWRecoGeometryESProducer::addPixelForwardGeometry( void )
     {     
       DetId detid = det->geographicalId();
       unsigned int rawid = detid.rawId();
-      unsigned int current = insert_id( rawid );
-      fillShapeAndPlacement( current, det );
+      unsigned int current = insert_id( rawid, fwRecoGeometry );
+      fillShapeAndPlacement( current, det, fwRecoGeometry );
     
-      ADD_PIXEL_TOPOLOGY( current, m_trackerGeom->idToDetUnit( detid ));
+      ADD_PIXEL_TOPOLOGY( current, m_trackerGeom->idToDetUnit( detid ), fwRecoGeometry);
     }
   }
 }
 
 void
-FWRecoGeometryESProducer::addTIBGeometry( void )
+FWRecoGeometryESProducer::addTIBGeometry( FWRecoGeometry& fwRecoGeometry )
 {
   for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTIB().begin(),
 						    end = m_trackerGeom->detsTIB().end();
@@ -459,8 +461,8 @@ FWRecoGeometryESProducer::addTIBGeometry( void )
     {     
       DetId detid = det->geographicalId();
       unsigned int rawid = detid.rawId();
-      unsigned int current = insert_id( rawid );
-      fillShapeAndPlacement( current, det );
+      unsigned int current = insert_id( rawid, fwRecoGeometry );
+      fillShapeAndPlacement( current, det, fwRecoGeometry );
 
       ADD_SISTRIP_TOPOLOGY( current, m_trackerGeom->idToDet( detid ));
     }
@@ -468,7 +470,7 @@ FWRecoGeometryESProducer::addTIBGeometry( void )
 }
 
 void
-FWRecoGeometryESProducer::addTOBGeometry( void )
+FWRecoGeometryESProducer::addTOBGeometry( FWRecoGeometry& fwRecoGeometry )
 {
   for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTOB().begin(),
 						    end = m_trackerGeom->detsTOB().end();
@@ -480,8 +482,8 @@ FWRecoGeometryESProducer::addTOBGeometry( void )
     {     
       DetId detid = det->geographicalId();
       unsigned int rawid = detid.rawId();
-      unsigned int current = insert_id( rawid );
-      fillShapeAndPlacement( current, det );
+      unsigned int current = insert_id( rawid, fwRecoGeometry );
+      fillShapeAndPlacement( current, det, fwRecoGeometry );
 
       ADD_SISTRIP_TOPOLOGY( current, m_trackerGeom->idToDet( detid ));
     }
@@ -489,7 +491,7 @@ FWRecoGeometryESProducer::addTOBGeometry( void )
 }
 
 void
-FWRecoGeometryESProducer::addTIDGeometry( void )
+FWRecoGeometryESProducer::addTIDGeometry( FWRecoGeometry& fwRecoGeometry )
 {
   for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTID().begin(),
 						    end = m_trackerGeom->detsTID().end();
@@ -501,8 +503,8 @@ FWRecoGeometryESProducer::addTIDGeometry( void )
     {     
       DetId detid = det->geographicalId();
       unsigned int rawid = detid.rawId();
-      unsigned int current = insert_id( rawid );
-      fillShapeAndPlacement( current, det );
+      unsigned int current = insert_id( rawid, fwRecoGeometry );
+      fillShapeAndPlacement( current, det, fwRecoGeometry );
 
       ADD_SISTRIP_TOPOLOGY( current, m_trackerGeom->idToDet( detid ));
     }
@@ -510,7 +512,7 @@ FWRecoGeometryESProducer::addTIDGeometry( void )
 }
 
 void
-FWRecoGeometryESProducer::addTECGeometry( void )
+FWRecoGeometryESProducer::addTECGeometry( FWRecoGeometry& fwRecoGeometry )
 {
   for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTEC().begin(),
 						    end = m_trackerGeom->detsTEC().end();
@@ -522,8 +524,8 @@ FWRecoGeometryESProducer::addTECGeometry( void )
     {     
       DetId detid = det->geographicalId();
       unsigned int rawid = detid.rawId();
-      unsigned int current = insert_id( rawid );
-      fillShapeAndPlacement( current, det );
+      unsigned int current = insert_id( rawid, fwRecoGeometry );
+      fillShapeAndPlacement( current, det, fwRecoGeometry );
 
       ADD_SISTRIP_TOPOLOGY( current, m_trackerGeom->idToDet( detid ));
     }
@@ -531,17 +533,17 @@ FWRecoGeometryESProducer::addTECGeometry( void )
 }
 
 void
-FWRecoGeometryESProducer::addCaloGeometry( void )
+FWRecoGeometryESProducer::addCaloGeometry( FWRecoGeometry& fwRecoGeometry )
 {
   std::vector<DetId> vid = m_caloGeom->getValidDetIds(); // Calo
   for( std::vector<DetId>::const_iterator it = vid.begin(),
 	 end = vid.end();
        it != end; ++it ) {
-    unsigned int id = insert_id( it->rawId());
+    unsigned int id = insert_id( it->rawId(), fwRecoGeometry);
     if( !((DetId::Forward == it->det()) || (DetId::HGCalEE == it->det()) ||
 	  (DetId::HGCalHSi == it->det()) || (DetId::HGCalHSc == it->det())) ) {
       const CaloCellGeometry::CornersVec& cor = m_caloGeom->getGeometry( *it )->getCorners();      
-      fillPoints( id, cor.begin(), cor.end());
+      fillPoints( id, cor.begin(), cor.end(), fwRecoGeometry);
     } else {
       DetId::Detector det = it->det();
       int          subdet = (((DetId::HGCalEE == det) || 
@@ -550,54 +552,58 @@ FWRecoGeometryESProducer::addCaloGeometry( void )
 			     it->subdetId());
       const HGCalGeometry* geom = dynamic_cast<const HGCalGeometry*>(m_caloGeom->getSubdetectorGeometry(det,subdet));
       const auto cor = geom->get8Corners( *it );
-      fillPoints( id, cor.begin(), cor.end() );
+      fillPoints( id, cor.begin(), cor.end(), fwRecoGeometry );
     }
   }
 }
 
 void
-FWRecoGeometryESProducer::addFTLGeometry( void )
+FWRecoGeometryESProducer::addFTLGeometry( FWRecoGeometry& fwRecoGeometry )
 {
   // do the barrel
   std::vector<DetId> vid = std::move(m_ftlBarrelGeom->getValidDetIds()); 
   for( std::vector<DetId>::const_iterator it = vid.begin(),
 	 end = vid.end();
        it != end; ++it ) {
-    unsigned int id = insert_id( it->rawId());
+    unsigned int id = insert_id( it->rawId(), fwRecoGeometry);
     const auto& cor =  m_ftlBarrelGeom->getCorners( *it );      
-    fillPoints( id, cor.begin(), cor.end());    
+    fillPoints( id, cor.begin(), cor.end(), fwRecoGeometry);    
   }
   // do the endcap
   vid = std::move(m_ftlEndcapGeom->getValidDetIds()); 
   for( std::vector<DetId>::const_iterator it = vid.begin(),
 	 end = vid.end();
        it != end; ++it ) {
-    unsigned int id = insert_id( it->rawId());
+    unsigned int id = insert_id( it->rawId(), fwRecoGeometry);
     const auto& cor =  m_ftlEndcapGeom->getCorners( *it );      
-    fillPoints( id, cor.begin(), cor.end());    
+    fillPoints( id, cor.begin(), cor.end(), fwRecoGeometry);    
   }
 }
 
 unsigned int
-FWRecoGeometryESProducer::insert_id( unsigned int rawid )
+FWRecoGeometryESProducer::insert_id( unsigned int rawid,
+                                     FWRecoGeometry& fwRecoGeometry )
 {
   ++m_current;
-  m_fwGeometry->idToName.push_back(FWRecoGeom::Info());
-  m_fwGeometry->idToName.back().id = rawid;
+  fwRecoGeometry.idToName.push_back(FWRecoGeom::Info());
+  fwRecoGeometry.idToName.back().id = rawid;
   
   return m_current;
 }
 
 void
-FWRecoGeometryESProducer::fillPoints( unsigned int id, std::vector<GlobalPoint>::const_iterator begin, std::vector<GlobalPoint>::const_iterator end )
+FWRecoGeometryESProducer::fillPoints( unsigned int id,
+                                      std::vector<GlobalPoint>::const_iterator begin,
+                                      std::vector<GlobalPoint>::const_iterator end,
+                                      FWRecoGeometry& fwRecoGeometry )
 {
   unsigned int index( 0 );
   for( std::vector<GlobalPoint>::const_iterator i = begin; i != end; ++i )
   {
     assert( index < FWTGeoRecoGeometry::maxPoints_-1 );
-    m_fwGeometry->idToName[id].points[index] = i->x();
-    m_fwGeometry->idToName[id].points[++index] = i->y();
-    m_fwGeometry->idToName[id].points[++index] = i->z();
+    fwRecoGeometry.idToName[id].points[index] = i->x();
+    fwRecoGeometry.idToName[id].points[++index] = i->y();
+    fwRecoGeometry.idToName[id].points[++index] = i->z();
     ++index;
   }
 }
@@ -605,7 +611,8 @@ FWRecoGeometryESProducer::fillPoints( unsigned int id, std::vector<GlobalPoint>:
 
 /** Shape of GeomDet */
 void
-FWRecoGeometryESProducer::fillShapeAndPlacement( unsigned int id, const GeomDet *det )
+FWRecoGeometryESProducer::fillShapeAndPlacement( unsigned int id, const GeomDet *det,
+                                                 FWRecoGeometry& fwRecoGeometry )
 {
   // Trapezoidal
   const Bounds *b = &((det->surface ()).bounds ());
@@ -614,42 +621,42 @@ FWRecoGeometryESProducer::fillShapeAndPlacement( unsigned int id, const GeomDet 
       std::array< const float, 4 > const & par = b2->parameters ();
     
     // These parameters are half-lengths, as in CMSIM/GEANT3
-    m_fwGeometry->idToName[id].shape[0] = 1;
-    m_fwGeometry->idToName[id].shape[1] = par [0]; // hBottomEdge
-    m_fwGeometry->idToName[id].shape[2] = par [1]; // hTopEdge
-    m_fwGeometry->idToName[id].shape[3] = par [2]; // thickness
-    m_fwGeometry->idToName[id].shape[4] = par [3]; // apothem
+    fwRecoGeometry.idToName[id].shape[0] = 1;
+    fwRecoGeometry.idToName[id].shape[1] = par [0]; // hBottomEdge
+    fwRecoGeometry.idToName[id].shape[2] = par [1]; // hTopEdge
+    fwRecoGeometry.idToName[id].shape[3] = par [2]; // thickness
+    fwRecoGeometry.idToName[id].shape[4] = par [3]; // apothem
   }
   if( const RectangularPlaneBounds *b2 = dynamic_cast<const RectangularPlaneBounds *> (b))
   {
     // Rectangular
-    m_fwGeometry->idToName[id].shape[0] = 2;
-    m_fwGeometry->idToName[id].shape[1] = b2->width() * 0.5; // half width
-    m_fwGeometry->idToName[id].shape[2] = b2->length() * 0.5; // half length
-    m_fwGeometry->idToName[id].shape[3] = b2->thickness() * 0.5; // half thickness
+    fwRecoGeometry.idToName[id].shape[0] = 2;
+    fwRecoGeometry.idToName[id].shape[1] = b2->width() * 0.5; // half width
+    fwRecoGeometry.idToName[id].shape[2] = b2->length() * 0.5; // half length
+    fwRecoGeometry.idToName[id].shape[3] = b2->thickness() * 0.5; // half thickness
   }
 
   // Position of the DetUnit's center
   GlobalPoint pos = det->surface().position();
-  m_fwGeometry->idToName[id].translation[0] = pos.x();
-  m_fwGeometry->idToName[id].translation[1] = pos.y();
-  m_fwGeometry->idToName[id].translation[2] = pos.z();
+  fwRecoGeometry.idToName[id].translation[0] = pos.x();
+  fwRecoGeometry.idToName[id].translation[1] = pos.y();
+  fwRecoGeometry.idToName[id].translation[2] = pos.z();
 
   // Add the coeff of the rotation matrix
   // with a projection on the basis vectors
   TkRotation<float> detRot = det->surface().rotation();
-  m_fwGeometry->idToName[id].matrix[0] = detRot.xx();
-  m_fwGeometry->idToName[id].matrix[1] = detRot.yx();
-  m_fwGeometry->idToName[id].matrix[2] = detRot.zx();
-  m_fwGeometry->idToName[id].matrix[3] = detRot.xy();
-  m_fwGeometry->idToName[id].matrix[4] = detRot.yy();
-  m_fwGeometry->idToName[id].matrix[5] = detRot.zy();
-  m_fwGeometry->idToName[id].matrix[6] = detRot.xz();
-  m_fwGeometry->idToName[id].matrix[7] = detRot.yz();
-  m_fwGeometry->idToName[id].matrix[8] = detRot.zz();
+  fwRecoGeometry.idToName[id].matrix[0] = detRot.xx();
+  fwRecoGeometry.idToName[id].matrix[1] = detRot.yx();
+  fwRecoGeometry.idToName[id].matrix[2] = detRot.zx();
+  fwRecoGeometry.idToName[id].matrix[3] = detRot.xy();
+  fwRecoGeometry.idToName[id].matrix[4] = detRot.yy();
+  fwRecoGeometry.idToName[id].matrix[5] = detRot.zy();
+  fwRecoGeometry.idToName[id].matrix[6] = detRot.xz();
+  fwRecoGeometry.idToName[id].matrix[7] = detRot.yz();
+  fwRecoGeometry.idToName[id].matrix[8] = detRot.zz();
 }
 
-void FWRecoGeometryESProducer::writeTrackerParametersXML()
+void FWRecoGeometryESProducer::writeTrackerParametersXML(FWRecoGeometry& fwRecoGeometry)
 {
   std::string path = "Geometry/TrackerCommonData/data/";
   if ( m_trackerGeom->isThere(GeomDetEnumerators::P1PXB) ||
@@ -666,5 +673,5 @@ void FWRecoGeometryESProducer::writeTrackerParametersXML()
   std::ifstream t(fullPath);
   std::stringstream buffer;
   buffer << t.rdbuf();
-  m_fwGeometry->trackerTopologyXML = buffer.str();
+  fwRecoGeometry.trackerTopologyXML = buffer.str();
 }
