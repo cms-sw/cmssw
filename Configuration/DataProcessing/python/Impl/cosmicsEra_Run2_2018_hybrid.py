@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-_cosmicsEra_Run2_2018_HI_
+_cosmicsEra_Run2_2018_hybrid_
 
 Scenario supporting cosmic data taking
 
@@ -12,7 +12,7 @@ import sys
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 from Configuration.DataProcessing.Impl.cosmics import cosmics
 
-class cosmicsEra_Run2_2018_HI(cosmics):
+class cosmicsEra_Run2_2018_hybrid(cosmics):
     def __init__(self):
         cosmics.__init__(self)
         self.eras = Run2_2018
@@ -21,7 +21,7 @@ class cosmicsEra_Run2_2018_HI(cosmics):
         self.expressCustoms = [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018_cosmics_hybrid' ]
         self.visCustoms = [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018_cosmics_hybrid' ]
     """
-    _cosmicsEra_Run2_2018_HI_
+    _cosmicsEra_Run2_2018_hybrid_
 
     Implement configuration building for data processing for cosmic
     data taking in Run2, during the 2018 heavy ion data taking period
@@ -41,7 +41,7 @@ class cosmicsEra_Run2_2018_HI(cosmics):
         if self.isRepacked:
             self._setRepackedFlag(args)
 
-        return super(cosmicsEra_Run2_2018_HI, self).promptReco(globalTag, **args)
+        return super(cosmicsEra_Run2_2018_hybrid, self).promptReco(globalTag, **args)
 
     def expressProcessing(self, globalTag, **args):
         if not 'customs' in args:
@@ -54,7 +54,7 @@ class cosmicsEra_Run2_2018_HI(cosmics):
 
         print("Express: ", args)
 
-        return super(cosmicsEra_Run2_2018_HI, self).expressProcessing(globalTag, **args)
+        return super(cosmicsEra_Run2_2018_hybrid, self).expressProcessing(globalTag, **args)
 
     def visualizationProcessing(self, globalTag, **args):
         if not 'customs' in args:
@@ -65,4 +65,4 @@ class cosmicsEra_Run2_2018_HI(cosmics):
         if self.isRepacked:
             self._setRepackedFlag(args)
 
-        return super(cosmicsEra_Run2_2018_HI, self).visualizationProcessing(globalTag, **args)
+        return super(cosmicsEra_Run2_2018_hybrid, self).visualizationProcessing(globalTag, **args)
