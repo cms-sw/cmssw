@@ -23,16 +23,16 @@ template <unsigned int N>
 DistanceBetweenComponentsESProducer<N>::~DistanceBetweenComponentsESProducer() {}
 
 template <unsigned int N>
-typename std::shared_ptr< DistanceBetweenComponents<N> > 
+typename std::unique_ptr< DistanceBetweenComponents<N> > 
 DistanceBetweenComponentsESProducer<N>::produce(const TrackingComponentsRecord & iRecord){ 
 
   std::string distName = pset_.getParameter<std::string>("DistanceMeasure");
   
-  std::shared_ptr< DistanceBetweenComponents<N> > distance;
+  std::unique_ptr< DistanceBetweenComponents<N> > distance;
   if ( distName == "KullbackLeibler" )
-    distance = std::shared_ptr< DistanceBetweenComponents<N> >(new KullbackLeiblerDistance<N>());
+    distance = std::unique_ptr< DistanceBetweenComponents<N> >(new KullbackLeiblerDistance<N>());
 // //   else if ( distName == "Mahalanobis" )
-// //     distance = std::shared_ptr<DistanceBetweenComponents>(new MahalanobisDistance());
+// //     distance = std::unique_ptr<DistanceBetweenComponents>(new MahalanobisDistance());
   
   return distance;
 }
