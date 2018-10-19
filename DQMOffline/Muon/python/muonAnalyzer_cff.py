@@ -31,6 +31,7 @@ phase2_muon.toReplaceWith(muonAnalyzer, muonAnalyzer.copyAndExclude([ # FIXME
 
 muonAnalyzer_miniAOD = cms.Sequence(muonRecoAnalyzer_miniAOD* 
                                     muonKinVsEtaAnalyzer_miniAOD*
+                                    triggerMatchMonitor_miniAOD*
                                     diMuonHistos_miniAOD*
                                     LooseMuonEfficiencyAnalyzer_miniAOD*
                                     MediumMuonEfficiencyAnalyzer_miniAOD*

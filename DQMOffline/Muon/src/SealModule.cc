@@ -34,7 +34,7 @@ DEFINE_FWK_MODULE(SegmentTrackAnalyzer);
 DEFINE_FWK_MODULE(MuonEnergyDepositAnalyzer);
 DEFINE_FWK_MODULE(MuonSeedsAnalyzer);
 DEFINE_FWK_MODULE(MuonMiniAOD);
-
+DEFINE_FWK_MODULE(TriggerMatchMonitor);
 
 
 
