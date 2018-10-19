@@ -205,7 +205,13 @@ void go()
 }
 
 int main() {
-  if (cuda::device::count() == 0) {
+  int count = 0;
+  auto status = cudaGetDeviceCount(& count);
+  if (status != cudaSuccess) {
+    std::cerr << cudaGetErrorString(status) << ", the test will be skipped." << "\n";
+    exit(EXIT_SUCCESS);
+  }
+  if (count == 0) {
     std::cerr << "No CUDA devices on this system, the test will be skipped." << "\n";
     exit(EXIT_SUCCESS);
   }
