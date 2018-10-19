@@ -208,7 +208,7 @@ int main() {
   int count = 0;
   auto status = cudaGetDeviceCount(& count);
   if (status != cudaSuccess) {
-    std::cerr << cudaGetErrorString(status) << ", the test will be skipped." << "\n";
+    std::cerr << "Failed to initialise the CUDA runtime, the test will be skipped." << "\n";
     exit(EXIT_SUCCESS);
   }
   if (count == 0) {
