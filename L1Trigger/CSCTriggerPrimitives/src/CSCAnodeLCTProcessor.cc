@@ -362,6 +362,7 @@ void CSCAnodeLCTProcessor::clear()
     bestALCT[bx].clear();
     secondALCT[bx].clear();
   }
+  lct_list.clear();
 }
 
 void CSCAnodeLCTProcessor::clear(const int wire, const int pattern)
@@ -485,12 +486,18 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
                edm::LogError("CSCAnodeLCTProcessor") <<" bx of valid trigger : "<< bx <<" > max allowed value "<<  CSCConstants::MAX_ALCT_TBINS;
 
             //acceloration mode
-            if (quality[i_wire][0] > 0 and bx <  CSCConstants::MAX_ALCT_TBINS) 
+            if (quality[i_wire][0] > 0 and bx <  CSCConstants::MAX_ALCT_TBINS){
                lct_list.push_back(CSCALCTDigi(1, quality[i_wire][0], 1, 0, i_wire, bx));
+               if (infoV > 1)   LogTrace("CSCAnodeLCTProcessor") 
+                                  <<"Add one ALCT to list "<< lct_list.back(); 
+               }
 
             //collision mode
-            if (quality[i_wire][1] > 0 and bx <  CSCConstants::MAX_ALCT_TBINS)
+            if (quality[i_wire][1] > 0 and bx <  CSCConstants::MAX_ALCT_TBINS){
                lct_list.push_back(CSCALCTDigi(1, quality[i_wire][1], 0, quality[i_wire][2], i_wire, bx));
+               if (infoV > 1)   LogTrace("CSCAnodeLCTProcessor") 
+                                  <<"Add one ALCT to list "<< lct_list.back(); 
+            }
                   
             //break;
           }
@@ -961,6 +968,8 @@ void CSCAnodeLCTProcessor::ghostCancellationLogic()
 
 
 void  CSCAnodeLCTProcessor::ghostCancellationLogicOneWire(const int key_wire){
+    
+  if (key_wire == 0) return;//ignore ghost cancellation for wire=0
 
   int ghost_cleared[2];
 
@@ -972,9 +981,21 @@ void  CSCAnodeLCTProcessor::ghostCancellationLogicOneWire(const int key_wire){
       if (qual_this > 0) {
 
         // Previous wire.
-        int qual_prev = (key_wire > 0) ? quality[key_wire-1][i_pattern] : 0;
-        if (qual_prev > 0) {
-          int dt = first_bx[key_wire] - first_bx[key_wire-1];
+        //int qual_prev = (key_wire > 0) ? quality[key_wire-1][i_pattern] : 0;
+        //previous ALCTs were pushed to lct_list, stop use the array quality[key_wire-1][i_pattern]
+        for (auto& p : lct_list){
+          if (not (p.isValid() and p.getKeyWG() == key_wire -1 and 1-p.getAccelerator() == i_pattern)) continue;
+            
+          bool ghost_cleared_prev = false;
+          int qual_prev = p.getQuality();
+          int first_bx_prev = p.getBX();
+          if (infoV > 1) LogTrace("CSCAnodeLCTProcessor")
+            << "ghost concellation logic " << ((i_pattern == 0) ? "Accelerator" : "Collision")
+            << " key_wire "<< key_wire <<" quality "<< qual_this <<" bx " <<  first_bx[key_wire]
+            << " previous key_wire "<< key_wire -1 <<" quality "<< qual_prev <<" bx " <<  first_bx[key_wire-1];
+
+          //int dt = first_bx[key_wire] - first_bx[key_wire-1];
+          int dt = first_bx[key_wire] - first_bx_prev;
           // Cancel this wire
           //   1) If the candidate at the previous wire is at the same bx
           //      clock and has better quality (or equal quality - this has
@@ -983,23 +1004,37 @@ void  CSCAnodeLCTProcessor::ghostCancellationLogicOneWire(const int key_wire){
           //      earlier, regardless of quality.
           if (dt == 0) {
             if (qual_prev >= qual_this) ghost_cleared[i_pattern] = 1;
+            else if (qual_prev < qual_this) ghost_cleared_prev = true;
           }
           else if (dt > 0 && dt <= ghost_cancellation_bx_depth ) {
             if ((!ghost_cancellation_side_quality) ||
                 (qual_prev > qual_this) )
               ghost_cleared[i_pattern] = 1;
           }
-        }
+          else if (dt < 0 && dt*(-1) <= ghost_cancellation_bx_depth){
+            if ((!ghost_cancellation_side_quality) ||
+                (qual_prev < qual_this) )
+              ghost_cleared_prev = true;
+          }
 
         if (ghost_cleared[i_pattern] == 1) {
           if (infoV > 1) LogTrace("CSCAnodeLCTProcessor")
             << ((i_pattern == 0) ? "Accelerator" : "Collision")
             << " pattern ghost cancelled on key_wire " << key_wire <<" q="<<qual_this
             << "  by wire " << key_wire-1<<" q="<<qual_prev;
+        } 
+     
+        if (ghost_cleared_prev) {
+          if (infoV > 1) LogTrace("CSCAnodeLCTProcessor")
+            << ((i_pattern == 0) ? "Accelerator" : "Collision")
+            << " pattern ghost cancelled on key_wire " << key_wire - 1 <<" q="<<qual_prev
+            << "  by wire " << key_wire <<" q="<<qual_this;
+            p.setValid(0);//clean prev ALCT
+        }
         }
 
-      }
-    }
+      }// if qual_this > 0
+    }//i_pattern
 
   // All cancellation is done in parallel, so wiregroups do not know what
   // their neighbors are cancelling.
