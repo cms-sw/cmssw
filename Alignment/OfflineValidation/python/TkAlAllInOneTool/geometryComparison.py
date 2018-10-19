@@ -257,7 +257,7 @@ class GeometryComparison(GenericValidation):
                         "-c \"rfcp {} .oO[datadir]Oo./.oO[name]Oo."
                         ".Comparison_common"+name+"_Images/.oO[common]Oo._.oO[name]Oo..Visualization.gif\"\n")
 
-                resultingFile = replaceByMap(("/store/caf/user/$USER/.oO[eosdir]Oo./compared%s_"
+                resultingFile = replaceByMap(("/store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./compared%s_"
                                               ".oO[name]Oo..root"%name), repMap)
                 resultingFile = os.path.expandvars( resultingFile )
                 resultingFile = os.path.abspath( resultingFile )
