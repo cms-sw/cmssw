@@ -572,73 +572,119 @@ class TauIDEmbedder(object):
             tauIDSources.byVVTightIsolationMVArun2v1DBnewDMwLT2016 = self.cms.InputTag('rerunDiscriminationByIsolationNewDMMVArun2v1VVTight')
 
         if "deepTau2017v1" in self.toKeep:
-            print "Adding DeepTau isolation?"
+            print "Adding DeepTau isolation"
 
-            from RecoTauTag.RecoTau.DeepTauId_cfi import deepTauIdraw
+            working_points = {
+                "e": {
+                    "VVVLoose" : "0.96424",
+                    "VVLoose" : "0.98992",
+                    "VLoose" : "0.99574",
+                    "Loose": "0.99831",
+                    "Medium": "0.99868",
+                    "Tight": "0.99898",
+                    "VTight": "0.99911",
+                    "VVTight": "0.99918"
+                },
+                "mu": {
+                    "VVVLoose" : "0.959619",
+                    "VVLoose" : "0.997687",
+                    "VLoose" : "0.999392",
+                    "Loose": "0.999755",
+                    "Medium": "0.999854",
+                    "Tight": "0.999886",
+                    "VTight": "0.99994",
+                    "VVTight": "0.9999971"
+                },
 
-            self.process.deepTauIdraw = deepTauIdraw.clone(
+                "jet": {
+                    "VVVLoose" : "0.5329",
+                    "VVLoose" : "0.7645",
+                    "VLoose" : "0.8623",
+                    "Loose": "0.9140",
+                    "Medium": "0.9464",
+                    "Tight": "0.9635",
+                    "VTight": "0.9760",
+                    "VVTight": "0.9859"
+                }
+            }
+            self.process.DeepTau2017v1 = self.cms.EDProducer("DeepTauId",
                 electrons = self.cms.InputTag('slimmedElectrons'),
                 muons = self.cms.InputTag('slimmedMuons'),
                 taus = self.cms.InputTag('slimmedTaus'),
-                graph_file = self.cms.string('RecoTauTag/RecoTau/data/deepTau_2017v1_20L1024N.pb')
+                graph_file = self.cms.string('RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N.pb')
             )
+
+            self.ProcessDeepProducer('DeepTau2017v1', tauIDSources, working_points)
 
             self.process.rerunMvaIsolationSequence += self.cms.Sequence(
-                self.process.deepTauIdraw
+                self.process.DeepTau2017v1
             )
-
-            tauIDSources.deepTau2017v1tauVSe = self.cms.InputTag('deepTauIdraw', 'tauVSe')
-            tauIDSources.deepTau2017v1tauVSmu = self.cms.InputTag('deepTauIdraw', 'tauVSmu')
-            tauIDSources.deepTau2017v1tauVSjet = self.cms.InputTag('deepTauIdraw', 'tauVSjet')#$= self.cms.InputTag('deepTauIdrawtauVSjet')
-            tauIDSources.deepTau2017v1tauVSall = self.cms.InputTag('deepTauIdraw', 'tauVSall')
-	    print("Doing an embedding ")
 
 	if "DPFTau_2016_v0" in self.toKeep:
-            print "Adding DPF isolation?"
+            print "Adding DPF isolation"
 
-            from RecoTauTag.RecoTau.DPFIsolation_cfi import DPFIsolation
+            working_points = {
+                "all": {
 
-            self.process.DPFIsolationv0 = DPFIsolation.clone(
-                electrons = self.cms.InputTag('slimmedElectrons'),
-                muons = self.cms.InputTag('slimmedMuons'),
-                taus = self.cms.InputTag('slimmedTaus'),
-                graph_file = self.cms.string('RecoTauTag/RecoTau/data/DPFIsolation_2017v0.pb')
+                    "Tight" : "? decayMode == 0 ? (0.898328 - 0.000160992 * pt) : " +
+                              "(? decayMode == 1 ? 0.910138 - 0.000229923 * pt : " +
+                              "(? decayMode == 10 ? (0.873958 - 0.0002328 * pt) : 1))"
+                    # "Tight" : "(decayMode == 0) * (0.898328 - 0.000160992 * pt) + \
+                    #            (decayMode == 1) * (0.910138 - 0.000229923 * pt) + \
+                    #            (decayMode == 10) * (0.873958 - 0.0002328 * pt) "
+                }
+            }
+
+            self.process.DPFTau2016v0 = self.cms.EDProducer("DPFIsolation",
+                pfcands     = self.cms.InputTag('packedPFCandidates'),
+                taus 	    = self.cms.InputTag('slimmedTaus'),
+                vertices    = self.cms.InputTag('offlineSlimmedPrimaryVertices'),
+                graph_file  = self.cms.string('RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v0.pb')
             )
+
+            self.ProcessDeepProducer('DPFTau2016v0', tauIDSources, working_points)
 
             self.process.rerunMvaIsolationSequence += self.cms.Sequence(
-                self.process.DPFIsolationv0
+                self.process.DPFTau2016v0
             )
-
-            tauIDSources.DPFTau_2016_v0tauVSe = self.cms.InputTag('DPFIsolationv0', 'tauVSe')
-            tauIDSources.DPFTau_2016_v0tauVSmu = self.cms.InputTag('DPFIsolationv0', 'tauVSmu')
-            tauIDSources.DPFTau_2016_v0tauVSjet = self.cms.InputTag('DPFIsolationv0', 'tauVSjet')
-            tauIDSources.DPFTau_2016_v0tauVSall = self.cms.InputTag('DPFIsolationv0', 'tauVSall')
 
         if "DPFTau_2016_v1" in self.toKeep:
-            print "Adding DPF isolation?"
+            print "Adding DPF isolation"
 
-            from RecoTauTag.RecoTau.DPFIsolation_cfi import DPFIsolation
+            working_points = {
+                "all": {"Tight" : "0.123"}
+            }
 
-            self.process.DPFIsolationv1 = DPFIsolation.clone(
-                electrons = self.cms.InputTag('slimmedElectrons'),
-                muons = self.cms.InputTag('slimmedMuons'),
-                taus = self.cms.InputTag('slimmedTaus'),
-                graph_file = self.cms.string('RecoTauTag/RecoTau/data/DPFIsolation_2017v1.pb')
+            self.process.DPFTau2016v1 = self.cms.EDProducer("DPFIsolation",
+                pfcands     = self.cms.InputTag('packedPFCandidates'),
+                taus 	    = self.cms.InputTag('slimmedTaus'),
+                vertices    = self.cms.InputTag('offlineSlimmedPrimaryVertices'),
+                graph_file  = self.cms.string('RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v1.pb')
             )
+
+            self.ProcessDeepProducer('DPFTau2016v1', tauIDSources, working_points)
 
             self.process.rerunMvaIsolationSequence += self.cms.Sequence(
-                self.process.DPFIsolationv1
+                self.process.DPFTau2016v1
             )
 
-            tauIDSources.DPFTau_2016_v1tauVSe = self.cms.InputTag('DPFIsolationv1', 'tauVSe')
-            tauIDSources.DPFTau_2016_v1tauVSmu = self.cms.InputTag('DPFIsolationv1', 'tauVSmu')
-            tauIDSources.DPFTau_2016_v1tauVSjet = self.cms.InputTag('DPFIsolationv1', 'tauVSjet')
-            tauIDSources.DPFTau_2016_v1tauVSall = self.cms.InputTag('DPFIsolationv1', 'tauVSall')
-
-
-
+        print("Doing an embedding ")
         embedID = self.cms.EDProducer("PATTauIDEmbedder",
             src = self.cms.InputTag('slimmedTaus'),
             tauIDSources = tauIDSources
         )
         self.process.NewTauIDsEmbedded = embedID
+
+
+    def ProcessDeepProducer(self, producer_name, tauIDSources, working_points):
+        for target,points in working_points.iteritems():
+            cuts = self.cms.PSet()
+            setattr(tauIDSources, 'by{}VS{}raw'.format(producer_name, target),
+                        self.cms.InputTag(producer_name, 'VS{}'.format(target)))
+            for point,cut in points.iteritems():
+                setattr(cuts, point, self.cms.string(cut))
+
+                setattr(tauIDSources, 'by{}{}VS{}'.format(point, producer_name, target),
+                        self.cms.InputTag(producer_name, 'VS{}{}'.format(target, point)))
+
+            setattr(getattr(self.process, producer_name), 'VS{}WP'.format(target), cuts)
