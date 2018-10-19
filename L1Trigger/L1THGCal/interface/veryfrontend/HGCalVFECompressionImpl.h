@@ -12,13 +12,14 @@ class HGCalVFECompressionImpl
  public:
   HGCalVFECompressionImpl(const edm::ParameterSet& conf);
 
-  uint32_t bitLength(uint32_t x);
   void compress(const std::map<HGCalDetId, uint32_t>&,
                 std::map<HGCalDetId, std::array<uint32_t, 2> >&);
   uint32_t compressSingle(const uint32_t value);
   uint32_t decompressSingle(const uint32_t code);
      
  private:
+  uint32_t bitLength(uint32_t x);
+
   uint32_t exponentBits_;
   uint32_t mantissaBits_;
   bool     rounding_;

@@ -6,15 +6,12 @@ HGCalVFECompressionImpl(const edm::ParameterSet& conf):
     mantissaBits_(conf.getParameter<uint32_t>("mantissaBits")),
     rounding_(conf.getParameter<bool>("rounding"))
 {
-  saturationCode_ = (1 << (exponentBits_ + mantissaBits_)) - 1;
-  saturationValue_ = 0xffffffff;
-  if (((1 << exponentBits_) + mantissaBits_ - 1) < 32) {
-    saturationValue_ = (1 << ((1 << exponentBits_) + mantissaBits_ - 1)) - 1;
-  }
-  else {
+  if (((1 << exponentBits_) + mantissaBits_ - 1) >= 32) {
     throw cms::Exception("CodespaceCannotFit")
       << "The code space cannot fit into the unsigned 32-bit space.\n";
   }
+  saturationCode_ = (1 << (exponentBits_ + mantissaBits_)) - 1;
+  saturationValue_ = (1 << ((1 << exponentBits_) + mantissaBits_ - 1)) - 1;
   // TODO: for non-saturating need to get maximum code point as well?
   // i.e. 8-bit compressed code that would hit 0xffffffff
 }
