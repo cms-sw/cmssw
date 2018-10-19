@@ -1,21 +1,12 @@
 /*
  * \class DeepTauId
  *
- * Tau identification using Deep NN
+ * Tau identification using Deep NN.
  *
  * \author Konstantin Androsov, INFN Pisa
  */
 
-#include <Math/VectorUtil.h>
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
-#include "DataFormats/PatCandidates/interface/Electron.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
-#include "DataFormats/PatCandidates/interface/Tau.h"
-#include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
-#include "RecoTauTag/RecoTau/interface/PFRecoTauClusterVariables.h"
-#include "DataFormats/Math/interface/deltaR.h"
+#include "RecoTauTag/RecoTau/interface/DeepTauBase.h"
 
 namespace {
 
@@ -236,80 +227,58 @@ private:
 
 } // anonymous namespace
 
-
-class DeepTauId : public edm::stream::EDProducer<> {
+class DeepTauId : public deep_tau::DeepTauBase {
 public:
-    using TauType = pat::Tau;
-    using TauDiscriminator = pat::PATTauDiscriminator;
-    using TauCollection = std::vector<TauType>;
-    using TauRef = edm::Ref<TauCollection>;
-    using TauRefProd = edm::RefProd<TauCollection>;
-    using ElectronCollection = pat::ElectronCollection;
-    using MuonCollection = pat::MuonCollection;
-    using LorentzVectorXYZ = ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>;
-    using GraphPtr = std::shared_ptr<tensorflow::GraphDef>;
 
     static constexpr float default_value = -999.;
-
-    struct Output {
-        std::vector<size_t> num, den;
-
-        Output(const std::vector<size_t>& _num, const std::vector<size_t>& _den) : num(_num), den(_den) {}
-
-        std::unique_ptr<TauDiscriminator> get_value(const edm::Handle<TauCollection>& taus,
-                                                    const tensorflow::Tensor& pred) const
-        {
-            auto output = std::make_unique<TauDiscriminator>(TauRefProd(taus));
-            for(size_t tau_index = 0; tau_index < taus->size(); ++tau_index) {
-                float x = 0;
-                for(size_t num_elem : num)
-                    x += pred.matrix<float>()(tau_index, num_elem);
-                if(x != 0) {
-                    float den_val = 0;
-                    for(size_t den_elem : den)
-                        den_val += pred.matrix<float>()(tau_index, den_elem);
-                    x = den_val != 0 ? x / den_val : std::numeric_limits<float>::max();
-                }
-                output->setValue(tau_index, x);
-            }
-            return output;
-        }
-    };
-
-    using OutputCollection = std::map<std::string, Output>;
 
     static const OutputCollection& GetOutputs()
     {
         static constexpr size_t e_index = 0, mu_index = 1, tau_index = 2, jet_index = 3;
         static const OutputCollection outputs = {
-            { "tauVSe", Output({tau_index}, {e_index, tau_index}) },
-            { "tauVSmu", Output({tau_index}, {mu_index, tau_index}) },
-            { "tauVSjet", Output({tau_index}, {jet_index, tau_index}) },
-            { "tauVSall", Output({tau_index}, {e_index, mu_index, jet_index, tau_index}) }
+            { "VSe", Output({tau_index}, {e_index, tau_index}) },
+            { "VSmu", Output({tau_index}, {mu_index, tau_index}) },
+            { "VSjet", Output({tau_index}, {jet_index, tau_index}) },
         };
         return outputs;
     }
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions)
+    {
+        edm::ParameterSetDescription desc;
+        desc.add<edm::InputTag>("electrons", edm::InputTag("slimmedElectrons"));
+        desc.add<edm::InputTag>("muons", edm::InputTag("slimmedMuons"));
+        desc.add<edm::InputTag>("taus", edm::InputTag("slimmedTaus"));
+        desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N.pb");
+
+        edm::ParameterSetDescription descWP;
+        descWP.add<std::string>("VVVLoose", "0");
+        descWP.add<std::string>("VVLoose", "0");
+        descWP.add<std::string>("VLoose", "0");
+        descWP.add<std::string>("Loose", "0");
+        descWP.add<std::string>("Medium", "0");
+        descWP.add<std::string>("Tight", "0");
+        descWP.add<std::string>("VTight", "0");
+        descWP.add<std::string>("VVTight", "0");
+        descWP.add<std::string>("VVVTight", "0");
+        desc.add<edm::ParameterSetDescription>("VSeWP", descWP);
+        desc.add<edm::ParameterSetDescription>("VSmuWP", descWP);
+        desc.add<edm::ParameterSetDescription>("VSjetWP", descWP);
+        descriptions.add("DeepTau2017v1", desc);
+    }
+
 public:
     explicit DeepTauId(const edm::ParameterSet& cfg) :
+        DeepTauBase(cfg, GetOutputs()),
         electrons_token(consumes<ElectronCollection>(cfg.getParameter<edm::InputTag>("electrons"))),
         muons_token(consumes<MuonCollection>(cfg.getParameter<edm::InputTag>("muons"))),
-        taus_token(consumes<TauCollection>(cfg.getParameter<edm::InputTag>("taus"))),
-        graph(tensorflow::loadGraphDef(edm::FileInPath(cfg.getParameter<std::string>("graph_file")).fullPath())),
-        session(tensorflow::createSession(graph.get())),
         input_layer(graph->node(0).name()),
         output_layer(graph->node(graph->node_size() - 1).name())
     {
-        for(const auto& output_desc : GetOutputs())
-            produces<TauDiscriminator>(output_desc.first);
     }
 
-    virtual ~DeepTauId() override
-    {
-        tensorflow::closeSession(session);
-    }
-
-    virtual void produce(edm::Event& event, const edm::EventSetup& es) override
+private:
+    virtual tensorflow::Tensor GetPredictions(edm::Event& event, const edm::EventSetup& es) override
     {
         edm::Handle<pat::ElectronCollection> electrons;
         event.getByToken(electrons_token, electrons);
@@ -317,19 +286,12 @@ public:
         edm::Handle<pat::MuonCollection> muons;
         event.getByToken(muons_token, muons);
 
-        edm::Handle<TauCollection> taus;
-        event.getByToken(taus_token, taus);
-
         const tensorflow::Tensor& inputs = CreateInputs<dnn_inputs_2017v1>(*taus, *electrons, *muons);
         std::vector<tensorflow::Tensor> pred_vector;
         tensorflow::run(session, { { input_layer, inputs } }, { output_layer }, &pred_vector);
-        const tensorflow::Tensor& pred = pred_vector.at(0);
-
-        for(const auto& output_desc : GetOutputs())
-            event.put(output_desc.second.get_value(taus, pred), output_desc.first);
+        return pred_vector.at(0);
     }
 
-private:
     template<typename dnn_inputs>
     tensorflow::Tensor CreateInputs(const TauCollection& taus, const ElectronCollection& electrons,
                                     const MuonCollection& muons) const
@@ -653,9 +615,6 @@ private:
 private:
     edm::EDGetTokenT<ElectronCollection> electrons_token;
     edm::EDGetTokenT<MuonCollection> muons_token;
-    edm::EDGetTokenT<TauCollection> taus_token;
-    GraphPtr graph;
-    tensorflow::Session* session;
     std::string input_layer, output_layer;
     TauIdMVAAuxiliaries clusterVariables;
 };
