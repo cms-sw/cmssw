@@ -186,7 +186,7 @@ class CSCAnodeLCTProcessor : public CSCBaseboard
      cancellation is done separately for collision and accelerator patterns. */
   virtual void ghostCancellationLogic();
 
-  virtual void ghostCancellationLogicOneWire(const int key_wire);
+  virtual void ghostCancellationLogicOneWire(const int key_wire, int *ghost_cleared);
 
   virtual int getTempALCTQuality(int temp_quality) const;
 

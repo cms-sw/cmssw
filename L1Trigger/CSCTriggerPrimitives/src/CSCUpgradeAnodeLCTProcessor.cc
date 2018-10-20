@@ -120,13 +120,12 @@ void CSCUpgradeAnodeLCTProcessor::ghostCancellationLogic()
 
 
 
-void CSCUpgradeAnodeLCTProcessor::ghostCancellationLogicOneWire(const int key_wire)
+void CSCUpgradeAnodeLCTProcessor::ghostCancellationLogicOneWire(const int key_wire, int *ghost_cleared)
 {
-  if (key_wire == 0) return;//ignore ghost cancellation for wire=0
-  int ghost_cleared[2];
 
     for (int i_pattern = 0; i_pattern < 2; i_pattern++) {
       ghost_cleared[i_pattern] = 0;
+      if (key_wire == 0) continue;
 
       // Non-empty wire group.
       int qual_this = quality[key_wire][i_pattern];
@@ -176,12 +175,12 @@ void CSCUpgradeAnodeLCTProcessor::ghostCancellationLogicOneWire(const int key_wi
               ghost_cleared_prev = true;
           }
 
-        // Skip this step if this wire is already declared "ghost".
         if (ghost_cleared[i_pattern] == 1) {
           if (infoV > 1) LogTrace("CSCUpgradeAnodeLCTProcessor")
             << ((i_pattern == 0) ? "Accelerator" : "Collision")
             << " pattern ghost cancelled on key_wire " << key_wire <<" q="<<qual_this
             << "  by wire " << key_wire-1<<" q="<<qual_prev<<"  dt="<<dt;
+          //cancellation for key_wire is done when ALCT is created and pushed to lct_list
         }
         if (ghost_cleared_prev) {
           if (infoV > 1) LogTrace("CSCAnodeLCTProcessor")
@@ -196,13 +195,7 @@ void CSCUpgradeAnodeLCTProcessor::ghostCancellationLogicOneWire(const int key_wi
     }
   }
 
-  // All cancellation is done in parallel, so wiregroups do not know what
-  // their neighbors are cancelling.
-    for (int i_pattern = 0; i_pattern < 2; i_pattern++) {
-      if (ghost_cleared[i_pattern] > 0) {
-        clear(key_wire, i_pattern);
-      }
-    }
+  
 }
 
 

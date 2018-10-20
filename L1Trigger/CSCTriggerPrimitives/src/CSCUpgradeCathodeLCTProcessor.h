@@ -34,7 +34,7 @@ class CSCUpgradeCathodeLCTProcessor : public CSCCathodeLCTProcessor
 
  protected:
   /* is a given half-strip in a pretrigger dead zone */
-  bool pretrig_busyzone[CSCConstants::NUM_HALF_STRIPS_7CFEBS];
+  bool busyMap[CSCConstants::NUM_HALF_STRIPS_7CFEBS][CSCConstants::MAX_CLCT_TBINS];
 
 
  private:
