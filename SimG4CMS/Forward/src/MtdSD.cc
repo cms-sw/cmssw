@@ -23,7 +23,7 @@
 
 #include <iostream>
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 //-------------------------------------------------------------------
 MtdSD::MtdSD(const std::string& name, const DDCompactView & cpv,
 	     const SensitiveDetectorCatalog & clg, 
@@ -54,11 +54,13 @@ MtdSD::MtdSD(const std::string& name, const DDCompactView & cpv,
     isETL=true;
   } else {
     scheme = nullptr;
-    edm::LogWarning("EcalSim") << "MtdSD: ReadoutName not supported";
+    edm::LogWarning("MtdSim") << "MtdSD: ReadoutName not supported";
   }
   if (scheme)  setNumberingScheme(scheme);
 
-  setTimeFactor(100.);
+  double newTimeFactor = 1./m_p.getParameter<double>("TimeSliceUnit");
+  edm::LogInfo("MtdSim") << "New time factor = " << newTimeFactor;
+  setTimeFactor(newTimeFactor);
 
   edm::LogVerbatim("MtdSim") << "MtdSD: Instantiation completed for "
 			     << name << " of type " << type;

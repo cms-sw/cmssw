@@ -30,7 +30,7 @@
 #include <vector>
 #include <iostream>
 
-//#define debug
+#define debug
 
 static const float invgev = 1.0/CLHEP::GeV;
 static const double invns = 1.0/CLHEP::nanosecond;
@@ -77,6 +77,7 @@ void TimingSD::Initialize(G4HCofThisEvent * HCE) {
 void TimingSD::setTimeFactor(double val)
 {
   if(val <= 0.0) { return; }
+  timeFactor = val;
 #ifdef debug
   edm::LogVerbatim("TimingSim") 
     << "TimingSD : for " << GetName()
@@ -127,6 +128,15 @@ void TimingSD::getStepInfo(const G4Step* aStep) {
     setToLocal(preStepPoint, hitPoint, hitPointLocal);  
     tof = (float)(preStepPoint->GetGlobalTime()*invns);
   }
+
+#ifdef debug
+  edm::LogInfo("TimingSim") << "TimingSD:" 
+                            << "\n Global entry point: " << hitPoint 
+                            << "\n Global exit  point: " << hitPointExit
+                            << "\n Local  entry point: " << hitPointLocal 
+                            << "\n Local  exit  point: " << hitPointLocalExit; 
+#endif
+
 
   incidentEnergy = preStepPoint->GetKineticEnergy();
 
@@ -228,12 +238,12 @@ void TimingSD::storeHit(BscG4Hit* hit){
 void TimingSD::createNewHit(const G4Step* aStep) {
 
 #ifdef debug
-  const G4VPhysicsVolume* currentPV = preStepPoint->GetPhysicalVolume();
+  const G4VPhysicalVolume* currentPV = preStepPoint->GetPhysicalVolume();
   edm::LogVerbatim("TimingSim") 
     << "TimingSD CreateNewHit for " << GetName()
     << " PV "     << currentPV->GetName()
     << " PVid = " << currentPV->GetCopyNo()
-    << " Unit "   << unitID <<
+    << " Unit "   << unitID 
     << "\n primary " << primaryID
     << " Tof(ns)= " << tof
     << " time slice " << tSliceID
@@ -315,6 +325,13 @@ void TimingSD::EndOfEvent(G4HCofThisEvent* ) {
     BscG4Hit* aHit = (*theHC)[j];
     Local3DPoint locEntryPoint= ConvertToLocal3DPoint(aHit->getEntryLocalP());
     Local3DPoint locExitPoint = ConvertToLocal3DPoint(aHit->getExitLocalP());
+
+#ifdef debug
+    edm::LogInfo("TimingSim") << "TimingSD: Hit for storage \n" << *aHit 
+                              << "\n Entry point: " << locEntryPoint
+                              << "\n Exit  point: " << locExitPoint << "\n";
+#endif
+
 
     slave->processHits(PSimHit(locEntryPoint,locExitPoint,
 			       aHit->getPabs(),
