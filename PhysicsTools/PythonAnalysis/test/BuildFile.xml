@@ -39,3 +39,4 @@
 <iftool name="py2-numpy">
   <test name="testNumPy" command="python -c 'import numpy'"/>
 </iftool>
+<test name="testPYDablooms" command="python -c 'import pydablooms'"/>
