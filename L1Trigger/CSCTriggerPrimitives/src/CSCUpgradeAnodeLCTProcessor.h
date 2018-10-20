@@ -32,7 +32,7 @@ class CSCUpgradeAnodeLCTProcessor : public CSCAnodeLCTProcessor
      previous wire (this has not been done in 2003 test beam).  The
      cancellation is done separately for collision and accelerator patterns. */
   void ghostCancellationLogic() override;
-  void ghostCancellationLogicOneWire(const int key_wire) override;
+  void ghostCancellationLogicOneWire(const int key_wire, int* ghost_cleared) override;
 
   /* Quality definition that includes hits in GE1/1 or GE2/1 */
   int getTempALCTQuality(int temp_quality) const override;

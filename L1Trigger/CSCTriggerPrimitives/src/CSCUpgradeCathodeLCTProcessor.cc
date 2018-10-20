@@ -80,7 +80,7 @@ bool CSCUpgradeCathodeLCTProcessor::preTrigger(
         }
         //ispretrig[hstrip] = false; it is initialzed in findLCT
         if (nhits[hstrip]    >= nplanes_hit_pretrig &&
-            best_pid[hstrip] >= pid_thresh_pretrig && !pretrig_busyzone[hstrip]) {
+            best_pid[hstrip] >= pid_thresh_pretrig && !busyMap[hstrip][bx_time]) {
           pre_trig = true;
           ispretrig[hstrip] = true;
          
@@ -94,32 +94,43 @@ bool CSCUpgradeCathodeLCTProcessor::preTrigger(
                                                              1, bend, halfstrip, cfeb, bx_time, nPreTriggers, 0));
 
         }else if (nhits[hstrip]    >= nplanes_hit_pretrig &&
-            best_pid[hstrip] >= pid_thresh_pretrig)
-		    if (infoV > 1)  LogTrace("CSCUpgradeCathodeLCTProcessor")
-						<<" halfstrip "<< std::setw(3) << hstrip  <<" in dead zone ";
-      }
+            best_pid[hstrip] >= pid_thresh_pretrig){//busy zone, keep pretriggering,ignore this
+            ispretrig[hstrip] = true;
+		if (infoV > 1)  LogTrace("CSCUpgradeCathodeLCTProcessor")
+						<<" halfstrip "<< std::setw(3) << hstrip  <<" in dead zone and is pretriggerred";
+        }else if (nhits[hstrip] < nplanes_hit_pretrig || best_pid[hstrip] < pid_thresh_pretrig){
+            // not pretriggered anyone, release dead zone 
+            ispretrig[hstrip] = false;
+	  }
+      }// find all pretriggers
 
+      //update dead zone
+      for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER-1];
+         hstrip < nStrips; hstrip++) {
+        
+        if (ispretrig[hstrip]){
+          int min_hstrip = hstrip - delta_hs;//only fixed localized dead time zone is implemented
+          int max_hstrip = hstrip + delta_hs;
+          if (min_hstrip < stagger[CSCConstants::KEY_CLCT_LAYER - 1])
+            min_hstrip = stagger[CSCConstants::KEY_CLCT_LAYER - 1];
+          if (max_hstrip >= nStrips)
+            max_hstrip = nStrips-1;
+          for (int hs = min_hstrip; hs <= max_hstrip; hs++)
+              busyMap[hs][bx_time+1] = true;
+          if (infoV > 1)
+            LogTrace("CSCUpgradeCathodeLCTProcessor") << " marked zoen around pretriggerred halfstrip " << hstrip <<" as dead zone for pretriggering at bx" 
+              << bx_time+1 <<" halfstrip: [" << min_hstrip << "," << max_hstrip << "]";
+        }
+	}
       if (pre_trig) {
         first_bx = bx_time; // bx at time of pretrigger
-        for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER-1];
-           hstrip < nStrips; hstrip++) {
-          
-          if(ispretrig[hstrip]) for (int ihs =0; ihs <= delta_hs; ihs++){
-		if (hstrip - ihs >= stagger[CSCConstants::KEY_CLCT_LAYER-1] && hstrip - ihs>=0) pretrig_busyzone[hstrip-ihs] = true;
-		if (hstrip + ihs < nStrips) pretrig_busyzone[hstrip+ihs] = true;
-	    }
-	  }
         return true;
       }
-    } else //no pattern found, remove the dead time zone
+    } else //no pattern found, remove all dead time zone
       for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER-1];
-           hstrip < nStrips; hstrip++) 
-		if (ispretrig[hstrip]) {
-			ispretrig[hstrip] = false;//dead zone is gone
-                  for (int ihs =0; ihs <= delta_hs; ihs++){
-			  if (hstrip - ihs >= stagger[CSCConstants::KEY_CLCT_LAYER-1] && hstrip - ihs>=0) pretrig_busyzone[hstrip-ihs] = false;
-			  if (hstrip + ihs < nStrips) pretrig_busyzone[hstrip+ihs] = false;
-			}
+           hstrip < nStrips; hstrip++){
+		if (ispretrig[hstrip]) 
+			ispretrig[hstrip] = false;//dead zone is gone by default
 		}
 
   } // end loop over bx times
@@ -141,23 +152,19 @@ CSCUpgradeCathodeLCTProcessor::findLCTs(const std::vector<int> halfstrip[CSCCons
 
   std::vector<CSCCLCTDigi> lctList;
 
-  // Max. number of half-strips for this chamber.
-  const int nStrips = 2*numStrips + 1;
-  // initialize the ispretrig before doing pretriggering
-  for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER-1];
-   hstrip < nStrips; hstrip++){
-      ispretrig[hstrip] = false;
-      pretrig_busyzone[hstrip] = false;
-   }
-     
 
   // Max. number of half-strips for this chamber.
   const int maxHalfStrips = 2 * numStrips + 1;
 
+  // initialize the ispretrig before doing pretriggering
+  for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER-1];
+   hstrip < maxHalfStrips; hstrip++){
+      ispretrig[hstrip] = false;
+   }
+     
   if (infoV > 1) dumpDigis(halfstrip, maxHalfStrips);
 
   // keeps dead-time zones around key halfstrips of triggered CLCTs
-  bool busyMap[CSCConstants::NUM_HALF_STRIPS_7CFEBS][CSCConstants::MAX_CLCT_TBINS];
   for (int i = 0; i < CSCConstants::NUM_HALF_STRIPS_7CFEBS; i++) {
     for (int j = 0; j < CSCConstants::MAX_CLCT_TBINS; j++) {
       busyMap[i][j] = false;
@@ -262,8 +269,8 @@ CSCUpgradeCathodeLCTProcessor::findLCTs(const std::vector<int> halfstrip[CSCCons
           //   - in busy zones from previous trigger
           if (quality[hstrip] > best_quality[0] &&
               pretrig_zone[hstrip] &&
-              //!busyMap[hstrip][first_bx] )
-              !busyMap[hstrip][latch_bx] )
+              !busyMap[hstrip][first_bx] )
+              //!busyMap[hstrip][latch_bx] )
           {
             best_halfstrip[0] = hstrip;
             best_quality[0] = quality[hstrip];
@@ -287,8 +294,8 @@ CSCUpgradeCathodeLCTProcessor::findLCTs(const std::vector<int> halfstrip[CSCCons
         {
           if (quality[hstrip] > best_quality[1] &&
               pretrig_zone[hstrip] &&
-              //!busyMap[hstrip][first_bx] )
-              !busyMap[hstrip][latch_bx] )
+              !busyMap[hstrip][first_bx] )
+              //!busyMap[hstrip][latch_bx] )
           {
             best_halfstrip[1] = hstrip;
             best_quality[1] = quality[hstrip];
@@ -403,6 +410,7 @@ CSCUpgradeCathodeLCTProcessor::findLCTs(const std::vector<int> halfstrip[CSCCons
       }//hits_in_time
       //localized dead time zone is around the pretrigger, not really around trigger
       //as the descision of dead zone is made by pretrigger --Tao
+      /*
       for (int hstrip = 0; hstrip < CSCConstants::NUM_HALF_STRIPS_7CFEBS; hstrip++)
       {
         if (ispretrig[hstrip])
@@ -419,7 +427,7 @@ CSCUpgradeCathodeLCTProcessor::findLCTs(const std::vector<int> halfstrip[CSCCons
             LogTrace("CSCUpgradeCathodeLCTProcessor") << " marked pretrigger halfstrip zone as dead zone for CLCT construction at bx" 
               << latch_bx+1 <<" halfstrip: [" << min_hstrip << "," << max_hstrip << "]";
         }
-      }
+      }*/
     }//pre_trig
     else
     {

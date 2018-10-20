@@ -479,7 +479,8 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
           if (infoV > 2) showPatterns(i_wire);
           if (patternDetection(i_wire)) {
             trigger = true;
-            ghostCancellationLogicOneWire(i_wire);
+            int ghost_cleared[2] = {0, 0};
+            ghostCancellationLogicOneWire(i_wire, ghost_cleared);
      
             int bx = (use_corrected_bx) ? first_bx_corrected[i_wire]:first_bx[i_wire];
             if (bx >= CSCConstants::MAX_ALCT_TBINS)  
@@ -487,14 +488,16 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
 
             //acceloration mode
             if (quality[i_wire][0] > 0 and bx <  CSCConstants::MAX_ALCT_TBINS){
-               lct_list.push_back(CSCALCTDigi(1, quality[i_wire][0], 1, 0, i_wire, bx));
+               int valid = (ghost_cleared[0] == 0) ? 1 : 0;//cancelled, valid=0, otherwise it is 1
+               lct_list.push_back(CSCALCTDigi(valid, quality[i_wire][0], 1, 0, i_wire, bx));
                if (infoV > 1)   LogTrace("CSCAnodeLCTProcessor") 
                                   <<"Add one ALCT to list "<< lct_list.back(); 
                }
 
             //collision mode
             if (quality[i_wire][1] > 0 and bx <  CSCConstants::MAX_ALCT_TBINS){
-               lct_list.push_back(CSCALCTDigi(1, quality[i_wire][1], 0, quality[i_wire][2], i_wire, bx));
+               int valid = (ghost_cleared[1] == 0) ? 1 : 0;//cancelled, valid=0, otherwise it is 1
+               lct_list.push_back(CSCALCTDigi(valid, quality[i_wire][1], 0, quality[i_wire][2], i_wire, bx));
                if (infoV > 1)   LogTrace("CSCAnodeLCTProcessor") 
                                   <<"Add one ALCT to list "<< lct_list.back(); 
             }
@@ -955,6 +958,7 @@ void CSCAnodeLCTProcessor::ghostCancellationLogic()
 
   // All cancellation is done in parallel, so wiregroups do not know what
   // their neighbors are cancelling.
+  // namely, if wiregroup 10, 11, 12 all have trigger and same quality, only wiregroup 10 can keep the trigger
   for (int key_wire = 0; key_wire < numWireGroups; key_wire++) {
     for (int i_pattern = 0; i_pattern < 2; i_pattern++) {
       if (ghost_cleared[key_wire][i_pattern] > 0) {
@@ -967,14 +971,14 @@ void CSCAnodeLCTProcessor::ghostCancellationLogic()
 
 
 
-void  CSCAnodeLCTProcessor::ghostCancellationLogicOneWire(const int key_wire){
+void  CSCAnodeLCTProcessor::ghostCancellationLogicOneWire(const int key_wire, int *ghost_cleared){
     
-  if (key_wire == 0) return;//ignore ghost cancellation for wire=0
 
-  int ghost_cleared[2];
+  //int ghost_cleared[2];
 
     for (int i_pattern = 0; i_pattern < 2; i_pattern++) {
       ghost_cleared[i_pattern] = 0;
+      if (key_wire == 0) continue;//ignore
 
       // Non-empty wire group.
       int qual_this = quality[key_wire][i_pattern];
@@ -984,7 +988,10 @@ void  CSCAnodeLCTProcessor::ghostCancellationLogicOneWire(const int key_wire){
         //int qual_prev = (key_wire > 0) ? quality[key_wire-1][i_pattern] : 0;
         //previous ALCTs were pushed to lct_list, stop use the array quality[key_wire-1][i_pattern]
         for (auto& p : lct_list){
-          if (not (p.isValid() and p.getKeyWG() == key_wire -1 and 1-p.getAccelerator() == i_pattern)) continue;
+          //ignore whether ALCT is valid or not in ghost cancellation
+          //if wiregroup 10, 11, 12 all have trigger and same quality, only wiregroup 10 can keep the trigger
+          //this met with firmware 
+          if (not (p.getKeyWG() == key_wire -1 and 1-p.getAccelerator() == i_pattern)) continue;
             
           bool ghost_cleared_prev = false;
           int qual_prev = p.getQuality();
@@ -1022,6 +1029,7 @@ void  CSCAnodeLCTProcessor::ghostCancellationLogicOneWire(const int key_wire){
             << ((i_pattern == 0) ? "Accelerator" : "Collision")
             << " pattern ghost cancelled on key_wire " << key_wire <<" q="<<qual_this
             << "  by wire " << key_wire-1<<" q="<<qual_prev;
+          //cancellation for key_wire is done when ALCT is created and pushed to lct_list
         } 
      
         if (ghost_cleared_prev) {
@@ -1036,13 +1044,6 @@ void  CSCAnodeLCTProcessor::ghostCancellationLogicOneWire(const int key_wire){
       }// if qual_this > 0
     }//i_pattern
 
-  // All cancellation is done in parallel, so wiregroups do not know what
-  // their neighbors are cancelling.
-    for (int i_pattern = 0; i_pattern < 2; i_pattern++) {
-      if (ghost_cleared[i_pattern] > 0) {
-        clear(key_wire, i_pattern);
-      }
-    }
 }
 
 
