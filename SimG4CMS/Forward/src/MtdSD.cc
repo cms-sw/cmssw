@@ -23,7 +23,7 @@
 
 #include <iostream>
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 //-------------------------------------------------------------------
 MtdSD::MtdSD(const std::string& name, const DDCompactView & cpv,
 	     const SensitiveDetectorCatalog & clg, 
