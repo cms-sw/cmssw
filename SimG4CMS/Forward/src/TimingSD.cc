@@ -30,7 +30,7 @@
 #include <vector>
 #include <iostream>
 
-#define debug
+//#define debug
 
 static const float invgev = 1.0/CLHEP::GeV;
 static const double invns = 1.0/CLHEP::nanosecond;
@@ -114,7 +114,7 @@ void TimingSD::getStepInfo(const G4Step* aStep) {
   preStepPoint = aStep->GetPreStepPoint(); 
   postStepPoint= aStep->GetPostStepPoint(); 
   hitPointExit = postStepPoint->GetPosition();	
-  setToLocal(postStepPoint, hitPointExit, hitPointLocalExit);  
+  setToLocal(preStepPoint, hitPointExit, hitPointLocalExit);  
   const G4Track* newTrack = aStep->GetTrack();   
 
   // neutral particles deliver energy post step 
@@ -130,11 +130,20 @@ void TimingSD::getStepInfo(const G4Step* aStep) {
   }
 
 #ifdef debug
-  edm::LogInfo("TimingSim") << "TimingSD:" 
-                            << "\n Global entry point: " << hitPoint 
-                            << "\n Global exit  point: " << hitPointExit
-                            << "\n Local  entry point: " << hitPointLocal 
-                            << "\n Local  exit  point: " << hitPointLocalExit; 
+  double distGlobal = std::sqrt(std::pow(hitPoint.x()-hitPointExit.x(),2)+
+                                std::pow(hitPoint.y()-hitPointExit.y(),2)+
+                                std::pow(hitPoint.z()-hitPointExit.z(),2));
+  double distLocal = std::sqrt(std::pow(hitPointLocal.x()-hitPointLocalExit.x(),2)+
+                                std::pow(hitPointLocal.y()-hitPointLocalExit.y(),2)+
+                                std::pow(hitPointLocal.z()-hitPointLocalExit.z(),2));
+  LogDebug("TimingSim") << "TimingSD:" 
+                        << "\n Global entry point: " << hitPoint 
+                        << "\n Global exit  point: " << hitPointExit
+                        << "\n Global step length: " << distGlobal
+                        << "\n Local  entry point: " << hitPointLocal 
+                        << "\n Local  exit  point: " << hitPointLocalExit 
+                        << "\n Local  step length: " << distLocal;
+  if ( std::fabs(distGlobal - distLocal) > 1.e-6 ) { LogDebug("TimingSim") << "DIFFERENCE IN DISTANCE \n"; }
 #endif
 
 
