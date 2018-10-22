@@ -131,7 +131,8 @@ private:
   const std::string              theTrackQuality_;
   const std::string              processName_, l1Filter_;
   const std::string              l2Filter_, l3Filter_;
-  const double                   a_coneR_, a_mipR_, pTrackMin_, eEcalMax_;
+  const double                   a_coneR_, a_mipR_, a_mipR2_, a_mipR3_;
+  const double                   a_mipR4_, a_mipR5_, pTrackMin_, eEcalMax_;
   const double                   maxRestrictionP_, slopeRestrictionP_;
   const double                   hcalScale_, eIsolate1_, eIsolate2_;
   const double                   pTrackLow_, pTrackHigh_;
@@ -170,7 +171,8 @@ private:
   double                     t_l1pt, t_l1eta, t_l1phi;
   double                     t_l3pt, t_l3eta, t_l3phi;
   double                     t_mindR1, t_mindR2;
-  double                     t_eMipDR, t_hmaxNearP, t_gentrackP;
+  double                     t_eMipDR,  t_eMipDR2,  t_eMipDR3,  t_eMipDR4;
+  double                     t_eMipDR5, t_hmaxNearP, t_gentrackP;
   double                     t_emaxNearP, t_eAnnular, t_hAnnular;
   double                     t_eHcal, t_eHcal10, t_eHcal30, t_rhoh;
   bool                       t_selectTk, t_qltyFlag, t_qltyMissFlag;
@@ -196,6 +198,10 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig) :
   l3Filter_(iConfig.getParameter<std::string>("l3Filter")),
   a_coneR_(iConfig.getParameter<double>("coneRadius")),
   a_mipR_(iConfig.getParameter<double>("coneRadiusMIP")),
+  a_mipR2_(iConfig.getParameter<double>("coneRadiusMIP2")),
+  a_mipR3_(iConfig.getParameter<double>("coneRadiusMIP3")),
+  a_mipR4_(iConfig.getParameter<double>("coneRadiusMIP4")),
+  a_mipR5_(iConfig.getParameter<double>("coneRadiusMIP5")),
   pTrackMin_(iConfig.getParameter<double>("minimumTrackP")),
   eEcalMax_(iConfig.getParameter<double>("maximumEcalEnergy")),
   maxRestrictionP_(iConfig.getParameter<double>("maxTrackP")),
@@ -316,6 +322,10 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig) :
 				   << ":" << a_coneR1_ << ":" << a_coneR2_
 				   <<"\t a_charIsoR "      << a_charIsoR_
 				   <<"\t a_mipR "          << a_mipR_
+				   <<"\t a_mipR2 "         << a_mipR2_
+				   <<"\t a_mipR3 "         << a_mipR3_
+				   <<"\t a_mipR4 "         << a_mipR4_
+				   <<"\t a_mipR5 "         << a_mipR5_
 				   <<"\n pTrackMin_ "      << pTrackMin_
 				   <<"\t eEcalMax_ "       << eEcalMax_
 				   <<"\t maxRestrictionP_ "<< maxRestrictionP_
@@ -587,12 +597,15 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
 	      std::vector<int> Keys;
 	      std::string label = triggerEvent.filterTag(ifilter).label();
 	      //loop over keys to objects passing this filter
-	      for (unsigned int imodule=0; imodule<moduleLabels.size(); imodule++) {
+	      for (unsigned int imodule=0; imodule<moduleLabels.size();
+		   imodule++) {
 		if (label.find(moduleLabels[imodule]) != std::string::npos) {
 #ifdef EDM_ML_DEBUG
 		  edm::LogVerbatim("HcalIsoTrack") << "FilterName " << label;
 #endif
-		  for (unsigned int ifiltrKey=0; ifiltrKey<triggerEvent.filterKeys(ifilter).size(); ++ifiltrKey) {
+		  for (unsigned int ifiltrKey=0; 
+		       ifiltrKey<triggerEvent.filterKeys(ifilter).size();
+		       ++ifiltrKey) {
 		    Keys.push_back(triggerEvent.filterKeys(ifilter)[ifiltrKey]);
 		    const trigger::TriggerObject& TO(TOC[Keys[ifiltrKey]]);
 		    math::XYZTLorentzVector v4(TO.px(), TO.py(), TO.pz(), TO.energy());
@@ -707,6 +720,10 @@ void HcalIsoTrkAnalyzer::beginJob() {
   tree->Branch("t_mindR1",      &t_mindR1,      "t_mindR1/D");
   tree->Branch("t_mindR2",      &t_mindR2,      "t_mindR2/D");
   tree->Branch("t_eMipDR",      &t_eMipDR,      "t_eMipDR/D");
+  tree->Branch("t_eMipDR2",      &t_eMipDR2,      "t_eMipDR2/D");
+  tree->Branch("t_eMipDR3",      &t_eMipDR3,      "t_eMipDR3/D");
+  tree->Branch("t_eMipDR4",      &t_eMipDR4,      "t_eMipDR4/D");
+  tree->Branch("t_eMipDR5",      &t_eMipDR5,      "t_eMipDR5/D");
   tree->Branch("t_eHcal",       &t_eHcal,       "t_eHcal/D");
   tree->Branch("t_eHcal10",     &t_eHcal10,     "t_eHcal10/D");
   tree->Branch("t_eHcal30",     &t_eHcal30,     "t_eHcal30/D");
@@ -831,6 +848,10 @@ void HcalIsoTrkAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<double>("coneRadius",34.98);
   // signal zone in ECAL and MIP energy cutoff
   desc.add<double>("coneRadiusMIP",14.0);
+  desc.add<double>("coneRadiusMIP2",18.0);
+  desc.add<double>("coneRadiusMIP3",20.0);
+  desc.add<double>("coneRadiusMIP4",22.0);
+  desc.add<double>("coneRadiusMIP5",24.0);
   desc.add<double>("maximumEcalEnergy",2.0);
   // following 4 parameters are for isolation cuts and described in the code
   desc.add<double>("maxTrackP",8.0);
@@ -958,6 +979,7 @@ std::array<int,3> HcalIsoTrkAnalyzer::fillTree(std::vector< math::XYZTLorentzVec
     if (t_qltyFlag) {
       nselTracks++;
       int nNearTRKs(0);
+      ////////////////////////////////-MIP STUFF-//////////////////////////////
       std::vector<DetId>  eIds;
       std::vector<double> eHit;
       t_eMipDR = spr::eCone_ecal(geo, barrelRecHitsHandle, 
@@ -977,6 +999,92 @@ std::array<int,3> HcalIsoTrkAnalyzer::fillTree(std::vector< math::XYZTLorentzVec
 				       << ":" << eEcal;
 #endif
       t_eMipDR = eEcal;
+      ////////////////////////////////-MIP STUFF-///////////////////////////////
+      ////////////////////////////////-MIP STUFF-2//////////////////////////////
+      std::vector<DetId>  eIds2;
+      std::vector<double> eHit2;
+      t_eMipDR2 = spr::eCone_ecal(geo, barrelRecHitsHandle, 
+				  endcapRecHitsHandle, trkDetItr->pointHCAL,
+				  trkDetItr->pointECAL, a_mipR2_, 
+				  trkDetItr->directionECAL, eIds2, eHit2);
+      double eEcal2(0);
+      for (unsigned int k=0; k<eIds2.size(); ++k) {
+        const GlobalPoint& pos = geo->getPosition(eIds2[k]);
+	double eta  = std::abs(pos.eta());
+	double eThr = (eIds2[k].subdetId() == EcalBarrel) ? hitEthrEB_ :
+	  (((eta*hitEthrEE3_+hitEthrEE2_)*eta+hitEthrEE1_)*eta+hitEthrEE0_);
+	if (eHit2[k] > eThr) eEcal2 += eHit2[k];
+      }
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HcalIsoTrack") << "eMIP before and after: " << t_eMipDR2
+				       << ":" << eEcal2;
+#endif
+      t_eMipDR2 = eEcal2;
+      ////////////////////////////////-MIP STUFF-2/////////////////////////////
+      ////////////////////////////////-MIP STUFF-3/////////////////////////////
+      std::vector<DetId>  eIds3;
+      std::vector<double> eHit3;
+      t_eMipDR3 = spr::eCone_ecal(geo, barrelRecHitsHandle, 
+				  endcapRecHitsHandle, trkDetItr->pointHCAL,
+				  trkDetItr->pointECAL, a_mipR3_, 
+				  trkDetItr->directionECAL, eIds3, eHit3);
+      double eEcal3(0);
+      for (unsigned int k=0; k<eIds3.size(); ++k) {
+        const GlobalPoint& pos = geo->getPosition(eIds3[k]);
+	double eta  = std::abs(pos.eta());
+	double eThr = (eIds3[k].subdetId() == EcalBarrel) ? hitEthrEB_ :
+	  (((eta*hitEthrEE3_+hitEthrEE2_)*eta+hitEthrEE1_)*eta+hitEthrEE0_);
+	if (eHit3[k] > eThr) eEcal3 += eHit3[k];
+      }
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HcalIsoTrack") << "eMIP before and after: " << t_eMipDR3
+				       << ":" << eEcal3;
+#endif
+      t_eMipDR3 = eEcal3;
+      ////////////////////////////////-MIP STUFF-3/////////////////////////////
+      ////////////////////////////////-MIP STUFF-4/////////////////////////////
+      std::vector<DetId>  eIds4;
+      std::vector<double> eHit4;
+      t_eMipDR4 = spr::eCone_ecal(geo, barrelRecHitsHandle, 
+				  endcapRecHitsHandle, trkDetItr->pointHCAL,
+				  trkDetItr->pointECAL, a_mipR4_, 
+				  trkDetItr->directionECAL, eIds4, eHit4);
+      double eEcal4(0);
+      for (unsigned int k=0; k<eIds4.size(); ++k) {
+        const GlobalPoint& pos = geo->getPosition(eIds4[k]);
+	double eta  = std::abs(pos.eta());
+	double eThr = (eIds4[k].subdetId() == EcalBarrel) ? hitEthrEB_ :
+	  (((eta*hitEthrEE3_+hitEthrEE2_)*eta+hitEthrEE1_)*eta+hitEthrEE0_);
+	if (eHit4[k] > eThr) eEcal4 += eHit4[k];
+      }
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HcalIsoTrack") << "eMIP before and after: " << t_eMipDR4
+				       << ":" << eEcal4;
+#endif
+      t_eMipDR = eEcal4;
+      ////////////////////////////////-MIP STUFF-4/////////////////////////////
+      ////////////////////////////////-MIP STUFF-5/////////////////////////////
+      std::vector<DetId>  eIds5;
+      std::vector<double> eHit5;
+      t_eMipDR5 = spr::eCone_ecal(geo, barrelRecHitsHandle, 
+				  endcapRecHitsHandle, trkDetItr->pointHCAL,
+				  trkDetItr->pointECAL, a_mipR5_, 
+				  trkDetItr->directionECAL, eIds5, eHit5);
+      double eEcal5(0);
+      for (unsigned int k=0; k<eIds5.size(); ++k) {
+        const GlobalPoint& pos = geo->getPosition(eIds5[k]);
+	double eta  = std::abs(pos.eta());
+	double eThr = (eIds5[k].subdetId() == EcalBarrel) ? hitEthrEB_ :
+	  (((eta*hitEthrEE3_+hitEthrEE2_)*eta+hitEthrEE1_)*eta+hitEthrEE0_);
+	if (eHit5[k] > eThr) eEcal5 += eHit5[k];
+      }
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HcalIsoTrack") << "eMIP before and after: " << t_eMipDR5
+				       << ":" << eEcal5;
+#endif
+      t_eMipDR5 = eEcal5;
+      ////////////////////////////////-MIP STUFF-5/////////////////////////////
+
       t_emaxNearP = spr::chargeIsolationEcal(nTracks, trkCaloDets, geo, 
 					     caloTopology, 15,15);
       const DetId cellE(trkDetItr->detIdECAL);

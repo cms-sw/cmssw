@@ -15,10 +15,22 @@
 #include "TLorentzVector.h"
 #include "TInterpreter.h"
 
+#include "Calibration/IsolatedParticles/interface/CaloPropagateTrack.h"
+#include "Calibration/IsolatedParticles/interface/ChargeIsolation.h"
+#include "Calibration/IsolatedParticles/interface/eCone.h"
+#include "Calibration/IsolatedParticles/interface/eECALMatrix.h"
+#include "Calibration/IsolatedParticles/interface/eHCALMatrix.h"
+#include "Calibration/IsolatedParticles/interface/TrackSelection.h"
+
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
+#include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
+
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-
 //Tracks
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -28,7 +40,6 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-
 //Triggers
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
@@ -36,41 +47,21 @@
 #include "DataFormats/Luminosity/interface/LumiDetails.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/deltaR.h"
-
-#include "L1Trigger/L1TGlobal/interface/L1TGlobalUtil.h"
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
-
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
-#include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
-
 //Generator information
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Common/interface/TriggerNames.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-#include "Calibration/IsolatedParticles/interface/CaloPropagateTrack.h"
-#include "Calibration/IsolatedParticles/interface/ChargeIsolation.h"
-#include "Calibration/IsolatedParticles/interface/eCone.h"
-#include "Calibration/IsolatedParticles/interface/eECALMatrix.h"
-#include "Calibration/IsolatedParticles/interface/eHCALMatrix.h"
-#include "Calibration/IsolatedParticles/interface/TrackSelection.h"
-
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
@@ -79,8 +70,18 @@
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
+
+#include "L1Trigger/L1TGlobal/interface/L1TGlobalUtil.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
+
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 #define EDM_ML_DEBUG
 
@@ -116,6 +117,8 @@ private:
   double dR(math::XYZTLorentzVector&, math::XYZTLorentzVector&);
   double trackP(const reco::Track* ,
 		const edm::Handle<reco::GenParticleCollection>&);
+  double trackE(const reco::Track* ,
+		const edm::Handle<reco::GenParticleCollection>&);
   double rhoh(const edm::Handle<CaloTowerCollection>&);
   void   storeEnergy(int indx, const HcalRespCorrs* respCorrs, 
 		     const std::vector<DetId>& ids,
@@ -127,15 +130,19 @@ private:
 		      edm::Handle<EcalRecHitCollection>& hitsEE,
 		      const CaloGeometry* geo,
 		      const CaloTopology* caloTopology,
-		      const GlobalVector& track,
+		      const reco::Track* pTrack,
 		      int ieta, int iphi);  
   void fillHCALmatrix(const HcalTopology* topology,
 		      const DetId& detId,
 		      edm::Handle<HBHERecHitCollection>& hbhe,
 		      const CaloGeometry* geo,
-		      const GlobalVector& track,
+		      const reco::Track* pTrack,
 		      int ieta, int iphi);
+  void TrackMap(unsigned int trkIndex, 
+		std::vector<spr::propagatedTrackDirection> & trkDirs, 
+		double dR);
   
+
   l1t::L1TGlobalUtil            *l1GtUtils_;
   edm::Service<TFileService>     fs;
   HLTConfigProvider              hltConfig_;
@@ -158,6 +165,8 @@ private:
   const std::string              labelGenTrack_, labelRecVtx_, labelEB_; 
   const std::string              labelEE_, labelHBHE_, labelTower_,l1TrigName_;
   const int                      matrixECAL_, matrixHCAL_;
+  const double                   mapR_;
+  const bool                     get2Ddist_;
   unsigned int                   nRun_, nLow_, nHigh_;
   double                         a_charIsoR_, a_coneR1_, a_coneR2_;
   const HcalDDDRecConstants     *hdc_;
@@ -181,10 +190,11 @@ private:
   int                        t_Run, t_Event, t_DataType, t_ieta, t_iphi; 
   int                        t_goodPV, t_nVtx, t_nTrk;
   double                     t_EventWeight, t_p, t_pt, t_phi;
+  double                     t_mapP,t_mapPt,t_mapEta,t_mapPhi;
   double                     t_l1pt, t_l1eta, t_l1phi;
   double                     t_l3pt, t_l3eta, t_l3phi;
   double                     t_mindR1, t_mindR2;
-  double                     t_eMipDR, t_hmaxNearP, t_gentrackP;
+  double                     t_eMipDR, t_hmaxNearP, t_gentrackP, t_gentrackE;
   double                     t_emaxNearP, t_eAnnular, t_hAnnular;
   double                     t_eHcal, t_eHcal10, t_eHcal30, t_rhoh;
   bool                       t_selectTk, t_qltyFlag, t_qltyMissFlag;
@@ -247,6 +257,8 @@ HcalIsoTrackStudy::HcalIsoTrackStudy(const edm::ParameterSet& iConfig) :
   l1TrigName_(iConfig.getUntrackedParameter<std::string>("l1TrigName","L1_SingleJet60")),
   matrixECAL_(iConfig.getUntrackedParameter<int>("matrixECAL",5)),
   matrixHCAL_(iConfig.getUntrackedParameter<int>("matrixHCAL",3)),
+  mapR_(iConfig.getUntrackedParameter<double>("mapRadius",34.98)),
+  get2Ddist_(iConfig.getUntrackedParameter<double>("get2Ddist",false)),
   nRun_(0), nLow_(0), nHigh_(0), hdc_(nullptr) {
 
   usesResource(TFileService::kSharedResource);
@@ -380,8 +392,7 @@ HcalIsoTrackStudy::HcalIsoTrackStudy(const edm::ParameterSet& iConfig) :
   }
 }
 
-void HcalIsoTrackStudy::analyze(edm::Event const& iEvent,
-				edm::EventSetup const& iSetup) {
+void HcalIsoTrackStudy::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
 
   t_Run      = iEvent.id().run();
   t_Event    = iEvent.id().event();
@@ -724,6 +735,11 @@ void HcalIsoTrackStudy::beginJob() {
   tree->Branch("t_p",           &t_p,           "t_p/D");
   tree->Branch("t_pt",          &t_pt,          "t_pt/D");
   tree->Branch("t_phi",         &t_phi,         "t_phi/D");
+  tree->Branch("t_mapP",        &t_mapP,        "t_mapP/D");
+  tree->Branch("t_mapPt",       &t_mapPt,       "t_mapPt/D");
+  tree->Branch("t_mapEta",      &t_mapEta,      "t_mapEta/D");
+  tree->Branch("t_mapPhi",      &t_mapPhi,      "t_mapPhi/D");
+
   tree->Branch("t_mindR1",      &t_mindR1,      "t_mindR1/D");
   tree->Branch("t_mindR2",      &t_mindR2,      "t_mindR2/D");
   tree->Branch("t_eMipDR",      &t_eMipDR,      "t_eMipDR/D");
@@ -740,6 +756,7 @@ void HcalIsoTrackStudy::beginJob() {
   tree->Branch("t_qltyMissFlag",&t_qltyMissFlag,"t_qltyMissFlag/O");
   tree->Branch("t_qltyPVFlag",  &t_qltyPVFlag,  "t_qltyPVFlag/O");
   tree->Branch("t_gentrackP",   &t_gentrackP,   "t_gentrackP/D");
+  tree->Branch("t_gentrackE",   &t_gentrackE,   "t_gentrackE/D");
 
   t_DetIds       = new std::vector<unsigned int>();
   t_DetIds1      = new std::vector<unsigned int>();
@@ -908,26 +925,28 @@ void HcalIsoTrackStudy::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.addUntracked<std::string>("l1TrigName","L1_SingleJet60");
   desc.addUntracked<int>("matrixECAL",5);
   desc.addUntracked<int>("matrixHCAL",3);
+  desc.addUntracked<double>("mapRadius",34.98);
+  desc.addUntracked<bool>("get2Ddist",false);
   descriptions.add("hcalIsoTrackStudy",desc);
 }
 
 std::array<int,3> HcalIsoTrackStudy::fillTree(std::vector< math::XYZTLorentzVector>& vecL1,
-					      std::vector< math::XYZTLorentzVector>& vecL3,
-					      math::XYZPoint& leadPV,
-					      std::vector<spr::propagatedTrackDirection>& trkCaloDirections,
-					      std::vector<spr::propagatedTrackID>& trkCaloDets,
-					      const CaloGeometry* geo,
-					      const CaloTopology* caloTopology,
-					      const HcalTopology* theHBHETopology,
-					      const EcalChannelStatus* theEcalChStatus, 
-					      const EcalSeverityLevelAlgo* theEcalSevlv,
-					      edm::Handle<EcalRecHitCollection>& barrelRecHitsHandle,
-					      edm::Handle<EcalRecHitCollection>& endcapRecHitsHandle,
-					      edm::Handle<HBHERecHitCollection>& hbhe,
-					      edm::Handle<CaloTowerCollection>& tower,
-					      edm::Handle<reco::GenParticleCollection>& genParticles,
-					      const HcalRespCorrs* respCorrs) {
-  
+					       std::vector< math::XYZTLorentzVector>& vecL3,
+					       math::XYZPoint& leadPV,
+					       std::vector<spr::propagatedTrackDirection>& trkCaloDirections,
+					       std::vector<spr::propagatedTrackID>& trkCaloDets,
+					       const CaloGeometry* geo,
+					       const CaloTopology* caloTopology,
+					       const HcalTopology* theHBHETopology,
+					       const EcalChannelStatus* theEcalChStatus, 
+					       const EcalSeverityLevelAlgo* theEcalSevlv,
+					       edm::Handle<EcalRecHitCollection>& barrelRecHitsHandle,
+					       edm::Handle<EcalRecHitCollection>& endcapRecHitsHandle,
+					       edm::Handle<HBHERecHitCollection>& hbhe,
+					       edm::Handle<CaloTowerCollection>& tower,
+					       edm::Handle<reco::GenParticleCollection>& genParticles,
+					       const HcalRespCorrs* respCorrs) {
+
   int nSave(0), nLoose(0), nTight(0);
   //Loop over tracks
   std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr;
@@ -1045,6 +1064,7 @@ std::array<int,3> HcalIsoTrackStudy::fillTree(std::vector< math::XYZTLorentzVect
 				       << ":"  << h7x7 << ":" << t_hAnnular;
 #endif
       t_gentrackP = trackP(pTrack, genParticles);
+      t_gentrackE = trackE(pTrack, genParticles);
       if (t_eMipDR < eEcalMax_ && t_hmaxNearP < eIsolation) {
 	t_DetIds->clear();  t_HitEnergies->clear();
 	t_DetIds1->clear(); t_HitEnergies1->clear();
@@ -1076,11 +1096,13 @@ std::array<int,3> HcalIsoTrackStudy::fillTree(std::vector< math::XYZTLorentzVect
 	storeEnergy(3,respCorrs,ids3,edet3,t_eHcal30,t_DetIds3,t_HitEnergies3);
 	
 	fillECALmatrix(cellE,barrelRecHitsHandle,endcapRecHitsHandle,
-		       geo,caloTopology,trkDetItr->directionECAL,
-		       matrixECAL_,matrixECAL_);
-	fillHCALmatrix(theHBHETopology,cellH,hbhe,geo,trkDetItr->directionHCAL,
+		       geo,caloTopology,pTrack,matrixECAL_,matrixECAL_);
+	fillHCALmatrix(theHBHETopology,cellH,hbhe,geo,pTrack,
 		       matrixHCAL_,matrixHCAL_);
+
+	TrackMap(nTracks, trkCaloDirections,mapR_);
 	
+
 	t_p           = pTrack->p();
 	t_pt          = pTrack->pt();
 	t_phi         = pTrack->phi();
@@ -1166,13 +1188,12 @@ std::array<int,3> HcalIsoTrackStudy::fillTree(std::vector< math::XYZTLorentzVect
   return i3;
 }
 
-double HcalIsoTrackStudy::dR(math::XYZTLorentzVector& vec1,
-			     math::XYZTLorentzVector& vec2) {
+double HcalIsoTrackStudy::dR(math::XYZTLorentzVector& vec1, math::XYZTLorentzVector& vec2) {
   return reco::deltaR(vec1.eta(),vec1.phi(),vec2.eta(),vec2.phi());
 }
 
 double HcalIsoTrackStudy::trackP(const reco::Track* pTrack,
-				 const edm::Handle<reco::GenParticleCollection>& genParticles) {
+				    const edm::Handle<reco::GenParticleCollection>& genParticles) {
 
   double pmom = -1.0;
   if (genParticles.isValid()) {
@@ -1181,15 +1202,35 @@ double HcalIsoTrackStudy::trackP(const reco::Track* pTrack,
       double dR = reco::deltaR(pTrack->eta(), pTrack->phi(),
 			       p.momentum().Eta(), p.momentum().Phi());
       if (dR < mindR) {
-	mindR = dR; pmom = p.momentum().r();
+	mindR = dR; pmom = p.momentum().R();
+	//	std::cout<<"p.E() :"<<p.energy()<<"   p.p() :"<<p.momentum().R()<<" p.M  :"<<p.mass()<<std::endl;
       }
     }
   }
   return pmom;
 }
 
+double HcalIsoTrackStudy::trackE(const reco::Track* pTrack,
+				    const edm::Handle<reco::GenParticleCollection>& genParticles) {
+
+  double pE = -1.0;
+  if (genParticles.isValid()) {
+    double mindR(999.9);
+    for (const auto &p : (*genParticles)) {
+      double dR = reco::deltaR(pTrack->eta(), pTrack->phi(),
+			       p.momentum().Eta(), p.momentum().Phi());
+      if (dR < mindR) {
+	mindR = dR; pE = p.energy();
+	//	std::cout<<"p.E() :"<<p.energy()<<"   p.p() :"<<p.momentum().R()<<" p.M  :"<<p.mass()<<std::endl;
+      }
+    }
+  }
+  return pE;
+}
+
+
 double HcalIsoTrackStudy::rhoh(const edm::Handle<CaloTowerCollection>& tower) {
-  
+
   std::vector<double> sumPFNallSMDQH2;
   sumPFNallSMDQH2.reserve(phibins_.size()*etabins_.size());
   
@@ -1217,11 +1258,11 @@ double HcalIsoTrackStudy::rhoh(const edm::Handle<CaloTowerCollection>& tower) {
 }
 
 void HcalIsoTrackStudy::storeEnergy(int indx, const HcalRespCorrs* respCorrs, 
-				    const std::vector<DetId>& ids,
-				    std::vector<double>& edet,
-				    double & eHcal, 
-				    std::vector<unsigned int> *detIds, 
-				    std::vector<double> *hitEnergies) {
+				       const std::vector<DetId>& ids,
+				       std::vector<double>& edet,
+				       double & eHcal, 
+				       std::vector<unsigned int> *detIds, 
+				       std::vector<double> *hitEnergies) {
   double ehcal(0);
   if (unCorrect_) {
     for (unsigned int k=0; k<ids.size(); ++k) {
@@ -1282,107 +1323,113 @@ void HcalIsoTrackStudy::fillECALmatrix(const DetId& detId,
 				       edm::Handle<EcalRecHitCollection>& hitsEE,
 				       const CaloGeometry* geo,
 				       const CaloTopology* caloTopology,
-				       const GlobalVector& track,
+				       const reco::Track* pTrack,
 				       int ieta, int iphi) {
   
   //Find the position of the central hit
   std::vector< EcalRecHitCollection::const_iterator> hits;
+  
   GlobalPoint center;
-  if (detId.subdetId()==EcalBarrel) {
-    spr::findHit(hitsEB,detId,hits,false);
-  } else if (detId.subdetId()==EcalEndcap) {
-    spr::findHit(hitsEE,detId,hits,false);
+  if (detId.subdetId() == EcalEndcap) {
+    EEDetId EEid = EEDetId(detId);
+    center = geo->getPosition(EEid);
+  } else if (detId.subdetId() == EcalBarrel) {
+    EBDetId EBid = EBDetId(detId);
+    center = geo->getPosition(EBid);
   }
-  if (!hits.empty()) {
-    center = spr::getGpos(geo,hits[0]);
-    for (auto const& hit : hits) {
-      GlobalPoint pos = spr::getGpos(geo,hit);
-      GlobalVector v1(pos.x()-center.x(),pos.y()-center.y(),pos.z()-center.z());
-      double dist = v1.mag();
-      if (dist > 0) {
-	double cth = ((v1.x()*track.x()+v1.y()*track.y()+v1.z()*track.z())/
-		      (dist*track.mag()));
-	dist      *= std::sqrt(1.0-cth*cth);
-      }
-      double ener = hit->energy();
-      t_DetIdEC->emplace_back(detId);
-      t_HitEnergyEC->emplace_back(ener);
-      t_HitDistEC->emplace_back(dist);
-    }
-  }
-      
   std::vector<DetId> vdets; 
   spr::matrixECALIds(detId, ieta, iphi, geo, caloTopology, vdets, false);
 
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalIsoTrack") << "Inside the fill func |||||||||||||||||"
+				   << "center.x(): " << center.x() 
+				   << "| center.y(): " << center.y()
+				   << "| center.z(): " << center.z() << "\n"
+				   << "Size of detid vector: " << vdets.size();
+#endif
+  int i=0;
   for (auto const& id : vdets) {
+    i++;
+    //    std::cout<<"counter inside vdet:"<<i<<std::endl;
     hits.clear();
     if (id.subdetId()==EcalBarrel) {
       spr::findHit(hitsEB,id,hits,false);
     } else if (id.subdetId()==EcalEndcap) {
       spr::findHit(hitsEE,id,hits,false);
     }
-    for (auto const& hit : hits) {
-      GlobalPoint pos = spr::getGpos(geo,hit);
-      GlobalVector v1(pos.x()-center.x(),pos.y()-center.y(),pos.z()-center.z());
-      double dist = v1.mag();
-      if (dist > 0) {
-	double cth = ((v1.x()*track.x()+v1.y()*track.y()+v1.z()*track.z())/
-		      (dist*track.mag()));
-	dist      *= std::sqrt(1.0-cth*cth);
+    if (i == 1 && hits.empty()){
+      t_DetIdEC->emplace_back(id);
+      t_HitEnergyEC->emplace_back(0.0);
+      t_HitDistEC->emplace_back(0.0);
+    }
+    if (!hits.empty()) {
+      for (auto const& hit : hits) {
+	GlobalPoint pos = spr::getGpos(geo,hit);
+	GlobalVector v1(pos.x()-center.x(),pos.y()-center.y(),pos.z()-center.z());
+	double dist = v1.mag();
+	if (get2Ddist_ && (dist > 0)) {
+	  double cth = ((v1.x()*pTrack->px()+v1.y()*pTrack->py()+
+			 v1.z()*pTrack->pz())/(dist*pTrack->p()));
+	  dist      *= std::sqrt(1.0-cth*cth);
+	}
+	double ener = hit->energy();
+	t_DetIdEC->emplace_back(hit->id());
+	t_HitEnergyEC->emplace_back(ener);
+	t_HitDistEC->emplace_back(dist);
       }
-      double ener = hit->energy();
-      t_DetIdEC->emplace_back(detId);
-      t_HitEnergyEC->emplace_back(ener);
-      t_HitDistEC->emplace_back(dist);
     }
   }
+  
 }
 
 void HcalIsoTrackStudy::fillHCALmatrix(const HcalTopology* topology,
 				       const DetId& detId,
 				       edm::Handle<HBHERecHitCollection>& hbhe,
 				       const CaloGeometry* geo,
-				       const GlobalVector& track,
+				       const reco::Track* pTrack,
 				       int ieta, int iphi) {
 
   
   //Find the position of the central hit
   std::vector<HBHERecHitCollection::const_iterator> hits;
-  GlobalPoint center;
-  spr::findHit(hbhe,detId,hits,false);
-  if (!hits.empty()) {
-    center = spr::getGpos(geo,hits[0]);
-    for (auto const& hit : hits) {
-      GlobalPoint pos = spr::getGpos(geo,hit);
-      GlobalVector v1(pos.x()-center.x(),pos.y()-center.y(),pos.z()-center.z());
-      double dist = v1.mag();
-      if (dist > 0) {
-	double cth = ((v1.x()*track.x()+v1.y()*track.y()+v1.z()*track.z())/
-		      (dist*track.mag()));
-	dist      *= std::sqrt(1.0-cth*cth);
-      }
-      double ener = hit->energy();
-      t_DetIdHC->emplace_back(detId);
-      t_HitEnergyHC->emplace_back(ener);
-      t_HitDistHC->emplace_back(dist);
-    }
-  }
-
   spr::hitHCALmatrix(topology, detId, hbhe, ieta, iphi, hits, false, false);
-  
+  GlobalPoint center = (static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(detId)))->getPosition(detId);
   for (auto const& hit : hits) {
     GlobalPoint pos = spr::getGpos(geo,hit);
     GlobalVector v1(pos.x()-center.x(),pos.y()-center.y(),pos.z()-center.z());
     double dist = v1.mag();
-    if (dist > 0) {
-      double cth = ((v1.x()*track.x()+v1.y()*track.y()+v1.z()*track.z())/
-		    (dist*track.mag()));
+    if (get2Ddist_ && (dist > 0)) {
+      double cth = ((v1.x()*pTrack->px()+v1.y()*pTrack->py()+
+		     v1.z()*pTrack->pz())/(dist*pTrack->p()));
       dist      *= std::sqrt(1.0-cth*cth);
     }
     double ener = spr::getEnergy(hit, useRaw_);
-    t_DetIdHC->emplace_back(detId);
+    t_DetIdHC->emplace_back(hit->id());
     t_HitEnergyHC->emplace_back(ener);
     t_HitDistHC->emplace_back(dist);
+  }
+
+}
+
+void HcalIsoTrackStudy::TrackMap(unsigned int trkIndex, 
+				 std::vector<spr::propagatedTrackDirection>& trkDirs, 
+				 double dR) {
+
+  if (trkDirs[trkIndex].okHCAL) {
+    for (unsigned int indx=0; indx<trkDirs.size(); ++indx) {
+      if (trkDirs[indx].ok && trkDirs[indx].okHCAL) {
+	int isConeChargedIso = spr::coneChargeIsolation(trkDirs[trkIndex].pointHCAL, trkDirs[indx].pointHCAL, trkDirs[trkIndex].directionHCAL, dR);
+	if (isConeChargedIso==0) {
+	  const reco::Track* pTrack = &(*(trkDirs[indx].trkItr));
+	  TVector3 point(trkDirs[indx].pointHCAL.x(),trkDirs[indx].pointHCAL.y(),trkDirs[indx].pointHCAL.z());
+
+	  t_mapP = pTrack->p();
+	  t_mapPt = pTrack->pt();
+	  t_mapEta = point.Eta();
+	  t_mapPhi = point.Phi();
+	}
+      }
+    }
   }
 }
 
