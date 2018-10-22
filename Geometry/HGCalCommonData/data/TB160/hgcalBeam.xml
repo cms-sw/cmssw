@@ -197,7 +197,7 @@
   </LogicalPart>
   <LogicalPart name="HGCFR4" category="unspecified">
     <rSolid name="HGCFR4"/>
-    <rMaterial name="materials:NEMA FR4 plate"/>
+    <rMaterial name="materials:M_NEMA FR4 plate"/>
   </LogicalPart>
   <LogicalPart name="HGCCFiber1" category="unspecified">
     <rSolid name="HGCCFiber1"/>
