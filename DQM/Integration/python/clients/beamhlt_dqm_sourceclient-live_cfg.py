@@ -27,7 +27,10 @@ process.load("DQM.Integration.config.inputsource_cfi")
 #process.load("DQM.Integration.config.fileinputsource_cfi")
 
 # new stream label
-process.source.streamLabel = cms.untracked.string('streamDQMOnlineBeamspot')
+if(process.runType.getRunType() == process.runType.hi_run):
+  process.source.streamLabel = cms.untracked.string('streamHIDQMOnlineBeamspot')
+else:
+  process.source.streamLabel = cms.untracked.string('streamDQMOnlineBeamspot')
 
 #--------------------------
 # HLT Filter
@@ -106,9 +109,14 @@ if (process.runType.getRunType() == process.runType.pp_run or
     process.dqmBeamMonitor.PVFitter.minVertexNdf        = 10
   
     # some inputs to BeamMonitor
-    process.dqmBeamMonitor.BeamFitter.TrackCollection = 'hltPFMuonMerging'
-    process.dqmBeamMonitor.primaryVertex              = 'hltVerticesPFFilter'
-    process.dqmBeamMonitor.PVFitter.VertexCollection  = 'hltVerticesPFFilter'
+    if(process.runType.getRunType() == process.runType.hi_run):
+      process.dqmBeamMonitor.BeamFitter.TrackCollection = 'hltPFMuonMergingPPOnAA'
+      process.dqmBeamMonitor.primaryVertex              = 'hltVerticesPFFilterPPOnAA'
+      process.dqmBeamMonitor.PVFitter.VertexCollection  = 'hltVerticesPFFilterPPOnAA'
+    else:
+      process.dqmBeamMonitor.BeamFitter.TrackCollection = 'hltPFMuonMerging'
+      process.dqmBeamMonitor.primaryVertex              = 'hltVerticesPFFilter'
+      process.dqmBeamMonitor.PVFitter.VertexCollection  = 'hltVerticesPFFilter'
 
     # keep checking this with new release expected close to 1
     process.dqmBeamMonitor.PVFitter.errorScale = 0.95
@@ -116,8 +124,8 @@ if (process.runType.getRunType() == process.runType.pp_run or
     #TriggerName for selecting pv for DIP publication, NO wildcard needed here
     #it will pick all triggers which has these strings in theri name
     process.dqmBeamMonitor.jetTrigger = cms.untracked.vstring(
-        "HLT_HT300_Beamspot", "HLT_HT300_Beamspot")
-#        "HLT_PAZeroBias_v", "HLT_ZeroBias_v", "HLT_QuadJet")
+        "HLT_HT300_Beamspot", "HLT_HT300_Beamspot",
+        "HLT_PAZeroBias_v", "HLT_ZeroBias_v", "HLT_QuadJet")
 
     process.dqmBeamMonitor.hltResults = cms.InputTag("TriggerResults","","HLT")
 
