@@ -133,9 +133,10 @@ void SiStripApvShotCleaner::subtractCM(){
     return;
 
   //Subtract the median
+  const bool is10bit = apvDigis[0].adc() > 255; // approximation; definitely 10bit in this case
   size_t i=0;
   for(;i<stripsForMedian&&apvDigis[i].adc()>CM;++i){
-    uint16_t adc=apvDigis[i].adc()>253?apvDigis[i].adc():(uint16_t)(apvDigis[i].adc()-CM);
+    const uint16_t adc = ( ( apvDigis[i].adc() > 253 ) && !is10bit ) ? apvDigis[i].adc() : (uint16_t)(apvDigis[i].adc()-CM);
     apvDigis[i]=SiStripDigi(apvDigis[i].strip(),adc);
   }
   apvDigis.resize(i);
