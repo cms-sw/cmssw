@@ -3,19 +3,9 @@
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 
-options = VarParsing('analysis')
-options.parseArguments()
-
-process = cms.Process('runDeepTauIDsOnMiniAOD')
-process.options = cms.untracked.PSet()
-process.options.wantSummary = cms.untracked.bool(False)
-process.options.allowUnscheduled = cms.untracked.bool(True)
-process.options.numberOfThreads = cms.untracked.uint32(8)
-process.options.numberOfStreams = cms.untracked.uint32(0)
-
-process.load('FWCore.MessageLogger.MessageLogger_cfi')
-process.MessageLogger.cerr.FwkReport.reportEvery = 100
-
+# options = VarParsing('analysis')
+# options.parseArguments()
+process = cms.Process('TauID')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.Geometry.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
@@ -42,5 +32,10 @@ process.p = cms.Path(
     process.rerunMvaIsolationSequence *
     process.NewTauIDsEmbedded
 )
+process.load('FWCore.MessageLogger.MessageLogger_cfi')
+if process.maxEvents.input.value()>10:
+     process.MessageLogger.cerr.FwkReport.reportEvery = process.maxEvents.input.value()//10
+if process.maxEvents.input.value()>10000 or process.maxEvents.input.value()<0:
+     process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 process.outpath = cms.EndPath(process.out)
