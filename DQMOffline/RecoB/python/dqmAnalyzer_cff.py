@@ -10,6 +10,14 @@ bTagAnalysis.doJEC = True
 #Residual correction will be added inside the c++ code only for data (checking the presence of genParticles collection), not explicit here as this sequence also ran on MC FullSim
 bTagPlotsDATA = cms.Sequence(pfDeepCSVDiscriminatorsJetTags * bTagAnalysis)
 
+## customizations for the pp_on_AA eras
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+(pp_on_XeXe_2017 | pp_on_AA_2018).toModify(bTagAnalysis,
+                                           doJEC=False
+                                           )
+
+
 ########## MC ############
 #Matching
 from PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi import selectedHadronsAndPartons
@@ -46,6 +54,11 @@ bTagValidation.genJetsMatched = cms.InputTag("newpatJetGenJetMatch")
 #to run on fastsim
 prebTagSequenceMC = cms.Sequence(ak4GenJetsForPUid*newpatJetGenJetMatch*selectedHadronsAndPartons*myak4JetFlavourInfos*pfDeepCSVDiscriminatorsJetTags)
 bTagPlotsMC = cms.Sequence(bTagValidation)
+
+## customizations for the pp_on_AA eras
+(pp_on_XeXe_2017 | pp_on_AA_2018).toModify(bTagValidation,
+                                           doJEC=False
+                                           )
 
 #to run on fullsim in the validation sequence, all histograms produced in the dqmoffline sequence
 bTagValidationNoall = bTagValidation.clone(flavPlots="bcl")

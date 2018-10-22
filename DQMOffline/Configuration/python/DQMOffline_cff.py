@@ -188,7 +188,8 @@ phase2_hcal.toReplaceWith( PostDQMOfflineMiniAOD, PostDQMOfflineMiniAOD.copyAndE
 ]))
 
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-pp_on_AA_2018.toReplaceWith(DQMOffline, DQMOffline.copyAndExclude([pfTauRunDQMValidation]))
+_pfTauRunDQMValidation = cms.Sequence()
+pp_on_AA_2018.toReplaceWith(pfTauRunDQMValidation, _pfTauRunDQMValidation)
 
 from PhysicsTools.NanoAOD.nanoDQM_cff import nanoDQM
 DQMOfflineNanoAOD = cms.Sequence(nanoDQM)
