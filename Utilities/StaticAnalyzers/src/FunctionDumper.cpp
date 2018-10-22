@@ -213,8 +213,8 @@ void FunctionDumper::checkASTDecl(const FunctionTemplateDecl *TD, AnalysisManage
      std::string sname(sfile);
      if ( ! support::isInterestingLocation(sname) ) return;
      if ( ! support::isCmsLocalFile(sfile) ) return;
-     for (FunctionTemplateDecl::spec_iterator I = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_begin(), 
-               E = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_end(); I != E; ++I) 
+     for (auto I = TD->spec_begin(), 
+               E = TD->spec_end(); I != E; ++I) 
           {
                if (I->doesThisDeclarationHaveABody()) {
                    FDumper walker(BR, mgr.getAnalysisDeclContext(*I), (*I));
