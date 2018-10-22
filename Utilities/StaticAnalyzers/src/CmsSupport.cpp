@@ -22,9 +22,11 @@
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // PGartung needed for bloom filter loading
+extern "C" {
 #include "dablooms.h"
 #define CAPACITY 5000
 #define ERROR_RATE .0002
+}
 
 using namespace clang;
 using namespace llvm;
