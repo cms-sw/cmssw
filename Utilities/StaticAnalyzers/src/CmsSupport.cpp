@@ -152,7 +152,7 @@ bool clangcms::support::isSafeClassName(const std::string &cname) {
 
 bool clangcms::support::isDataClass(const std::string & name) {
      CMS_THREAD_SAFE static std::string iname("");
-     if ( iname == "") {
+     if ( iname.empty()) {
           clang::FileSystemOptions FSO;
           clang::FileManager FM(FSO);
           const char * lPath = std::getenv("LOCALRT");
