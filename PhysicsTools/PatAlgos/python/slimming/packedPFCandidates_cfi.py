@@ -20,7 +20,8 @@ packedPFCandidates = cms.EDProducer("PATPackedCandidateProducer",
     covarianceVersion = cms.int32(0), #so far: 0 is Phase0, 1 is Phase1   
 #    covariancePackingSchemas = cms.vint32(1,257,513,769,0),  # a cheaper schema in kb/ev 
     covariancePackingSchemas = cms.vint32(8,264,520,776,0),   # more accurate schema +0.6kb/ev   
-    pfCandidateTypesForHcalDepth = cms.vint32(130,11,22),  # PF candidate types for adding Hcal depth energy fraction information (130: neutral hadron, 11: PF electron, 22: PF photon)
+    pfCandidateTypesForHcalDepth = cms.vint32(),              # PF candidate types for adding Hcal depth energy fraction information, none by default
+    storeHcalDepthEndcapOnly = cms.bool(False),               # In case of 2018, need hcal depth info only for endcap. For run3 and beyond, we need information for barrel.
     storeTiming = cms.bool(False)
 )
 
@@ -33,3 +34,11 @@ run2_miniAOD_80XLegacy.toModify(packedPFCandidates, chargedHadronIsolation = "" 
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 phase2_timing.toModify(packedPFCandidates, storeTiming = cms.bool(True))
 
+from Configuration.Eras.Modifier_run2_HCAL_2018_cff import run2_HCAL_2018
+run2_HCAL_2018.toModify(packedPFCandidates,
+    pfCandidateTypesForHcalDepth = cms.vint32(130,11,22),  # PF candidate types for adding Hcal depth energy fraction information (130: neutral hadron, 11: PF electron, 22: PF photon)
+    storeHcalDepthEndcapOnly = cms.bool(True)
+)
+
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(packedPFCandidates, storeHcalDepthEndcapOnly = cms.bool(False))
