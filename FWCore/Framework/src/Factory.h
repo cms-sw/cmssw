@@ -11,6 +11,7 @@
 #include <memory>
 #include "FWCore/Utilities/interface/Signal.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace edm {
   typedef edmplugin::PluginFactory<Maker* ()> MakerPluginFactory;
@@ -35,7 +36,7 @@ namespace edm {
     Factory();
     Maker* findMaker(const MakeModuleParams& p) const;
     static Factory const singleInstance_;
-    mutable MakerMap makers_;
+    CMS_THREAD_SAFE mutable MakerMap makers_;
   };
 
 }

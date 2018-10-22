@@ -27,6 +27,7 @@
 // user include files
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // forward declarations
 
@@ -43,7 +44,7 @@ namespace edm::es {
 
     T& operator*() { return *product_;}
     T* operator->() { return product_.get(); }
-    mutable std::shared_ptr<T> product_{nullptr};
+    CMS_THREAD_SAFE mutable std::shared_ptr<T> product_{nullptr};
   };
 
   template<int ILabel, typename T>

@@ -17,6 +17,7 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include "DataFormats/Provenance/interface/SelectedProducts.h"
 
@@ -290,7 +291,7 @@ namespace edm {
     //EventSelection
     bool wantAllEvents_;
     ParameterSetID selector_config_id_;
-    mutable detail::TriggerResultsBasedEventSelector selectors_;
+    CMS_THREAD_SAFE mutable detail::TriggerResultsBasedEventSelector selectors_;
 
     // needed because of possible EDAliases.
     // filled in only if key and value are different.

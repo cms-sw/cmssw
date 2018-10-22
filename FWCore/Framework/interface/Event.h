@@ -40,6 +40,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/Likely.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <memory>
 #include <string>
@@ -334,8 +335,8 @@ namespace edm {
     // merely a cache reflecting what has been retrieved from the
     // Principal class.
     typedef std::unordered_set<BranchID::value_type> BranchIDSet;
-    mutable BranchIDSet gotBranchIDs_;
-    mutable std::vector<bool> gotBranchIDsFromPrevious_;
+    CMS_THREAD_SAFE mutable BranchIDSet gotBranchIDs_;
+    CMS_THREAD_SAFE mutable std::vector<bool> gotBranchIDsFromPrevious_;
     std::vector<BranchID>* previousBranchIDs_ = nullptr;
     std::vector<BranchID>* gotBranchIDsFromAcquire_ = nullptr;
 
@@ -343,7 +344,7 @@ namespace edm {
     void addToGotBranchIDs(BranchID const& branchID) const;
 
     // We own the retrieved Views, and have to destroy them.
-    mutable std::vector<std::shared_ptr<ViewBase> > gotViews_;
+    CMS_THREAD_SAFE mutable std::vector<std::shared_ptr<ViewBase> > gotViews_;
 
     StreamID streamID_;
     ModuleCallingContext const* moduleCallingContext_;

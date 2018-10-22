@@ -20,7 +20,7 @@
 
 // system include files
 #include "FWCore/Concurrency/interface/SerialTaskQueueChain.h"
-
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 // user include files
 
 // forward declarations
@@ -55,7 +55,7 @@ namespace edm {
   private:
     
     // ---------- member data --------------------------------
-    mutable SerialTaskQueueChain m_queues;
+    CMS_THREAD_SAFE mutable SerialTaskQueueChain m_queues;
   };
 }
 

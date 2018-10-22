@@ -28,6 +28,7 @@
 #include "tbb/concurrent_vector.h"
 
 #include "FWCore/Utilities/interface/Signal.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 // user include files
 #include "FWCore/PluginManager/interface/PluginInfo.h"
 
@@ -76,7 +77,7 @@ class PluginFactoryBase
       virtual const std::string& category() const = 0;
       
       ///signal containing plugin category, and  plugin info for newly added plugin
-      mutable edm::signalslot::Signal<void(const std::string&, const PluginInfo&)> newPluginAdded_;
+      CMS_THREAD_SAFE mutable edm::signalslot::Signal<void(const std::string&, const PluginInfo&)> newPluginAdded_;
 
       // ---------- static member functions --------------------
 

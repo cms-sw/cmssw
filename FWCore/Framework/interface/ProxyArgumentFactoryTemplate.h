@@ -25,6 +25,7 @@
 // user include files
 #include "FWCore/Framework/interface/ProxyFactoryBase.h"
 #include "FWCore/Framework/interface/DataKey.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // forward declarations
 namespace edm {
@@ -59,7 +60,7 @@ class ProxyArgumentFactoryTemplate : public ProxyFactoryBase
       const ProxyArgumentFactoryTemplate& operator=(const ProxyArgumentFactoryTemplate&) = delete; // stop default
 
       // ---------- member data --------------------------------
-      mutable ArgT arg_;
+      CMS_THREAD_SAFE mutable ArgT arg_;
 };
 
    }

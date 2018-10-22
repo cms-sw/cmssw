@@ -31,6 +31,7 @@
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // forward declarations
 namespace edm {
@@ -116,7 +117,7 @@ template<typename T>
       const ComponentFactory& operator=(const ComponentFactory&); // stop default
 
       // ---------- member data --------------------------------
-      mutable MakerMap makers_;
+      CMS_THREAD_SAFE mutable MakerMap makers_;
 };
 
    }

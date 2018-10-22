@@ -39,6 +39,7 @@
 #include <type_traits>
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace cms {
 
@@ -191,7 +192,7 @@ namespace cms {
     // data members
     std::ostringstream ost_;
     std::string category_;
-    mutable std::string what_;
+    CMS_THREAD_SAFE mutable std::string what_;
     std::list<std::string> context_;
     std::list<std::string> additionalInfo_;
     bool alreadyPrinted_;

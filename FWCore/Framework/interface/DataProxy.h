@@ -92,8 +92,8 @@ namespace edm {
 
          // ---------- member data --------------------------------
          CMS_THREAD_SAFE mutable void const* cache_; //protected by a global mutex
-         mutable std::atomic<bool> cacheIsValid_;
-         mutable std::atomic<bool> nonTransientAccessRequested_;
+         CMS_THREAD_SAFE mutable std::atomic<bool> cacheIsValid_;
+         CMS_THREAD_SAFE mutable std::atomic<bool> nonTransientAccessRequested_;
          ComponentDescription const* description_;
       };
    }

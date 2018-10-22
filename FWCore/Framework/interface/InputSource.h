@@ -52,6 +52,7 @@ Some examples of InputSource subclasses may be:
 #include "FWCore/Utilities/interface/Signal.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <memory>
 #include <string>
@@ -421,12 +422,12 @@ namespace edm {
     edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     std::string processGUID_;
     Timestamp time_;
-    mutable bool newRun_;
-    mutable bool newLumi_;
+    CMS_THREAD_SAFE mutable bool newRun_;
+    CMS_THREAD_SAFE mutable bool newLumi_;
     bool eventCached_;
-    mutable ItemType state_;
-    mutable std::shared_ptr<RunAuxiliary> runAuxiliary_;
-    mutable std::shared_ptr<LuminosityBlockAuxiliary>  lumiAuxiliary_;
+    CMS_THREAD_SAFE mutable ItemType state_;
+    CMS_THREAD_SAFE mutable std::shared_ptr<RunAuxiliary> runAuxiliary_;
+    CMS_THREAD_SAFE mutable std::shared_ptr<LuminosityBlockAuxiliary>  lumiAuxiliary_;
     std::string statusFileName_;
 
     unsigned int numberOfEventsBeforeBigSkip_;
