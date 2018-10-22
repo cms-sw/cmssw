@@ -34,11 +34,10 @@ void PixelTrackCleanerBySharedHits::cleanTracks(TracksWithTTRHs & trackHitPairs)
      ind[i]=i; 
      score[i]= 32000-std::min(32000, int(trackHitPairs[i].first->chi2()*100.f));  // chi2: smaller is better
      if (trackHitPairs[i].second.size()==4) score[i]+=32001; //  s4 always better than s3
-   }
-   std::sort(ind,ind+size,[&](unsigned int i, unsigned int j){return score[i]>score[j];});
+  }
+  std::sort(ind,ind+size,[&](unsigned int i, unsigned int j){return score[i]>score[j];});
 
-  int killed=0;
-  auto kill = [&](unsigned int k) { assert(trackHitPairs[k].first); killed++; delete trackHitPairs[k].first; trackHitPairs[k].first=nullptr;};
+  auto kill = [&](unsigned int k) {delete trackHitPairs[k].first; trackHitPairs[k].first=nullptr;};
 
   // sorted: first is always better!
 
@@ -113,5 +112,4 @@ void PixelTrackCleanerBySharedHits::cleanTracks(TracksWithTTRHs & trackHitPairs)
   }  //tk1
 
   trackHitPairs.erase(std::remove_if(trackHitPairs.begin(),trackHitPairs.end(),[&](TrackWithTTRHs & v){ return nullptr==v.first;}),trackHitPairs.end());
-  std::cout << "Q after clean " << trackHitPairs.size() << ' ' << killed << std::endl;
 }
