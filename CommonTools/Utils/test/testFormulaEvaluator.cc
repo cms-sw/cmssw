@@ -373,6 +373,22 @@ testFormulaEvaluator::checkFormulaEvaluator() {
   }
 
   {
+    reco::FormulaEvaluator f("2*(3*4*5)/6");
+    
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == 2*(3*4*5)/6 );
+  }
+
+  {
+    reco::FormulaEvaluator f("2*(2.5*3*3.5)*(4*4.5*5)/6");
+    
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == 2*(2.5*3*3.5)*(4*4.5*5)/6 );
+  }
+
+  {
     reco::FormulaEvaluator f("x");
     
     std::vector<double> emptyV;
@@ -907,6 +923,37 @@ testFormulaEvaluator::checkFormulaEvaluator() {
     auto func = [&v](double x) { return v[0]+v[1]*std::exp(-x/v[2]); };
 
     CPPUNIT_ASSERT( compare( f.evaluate(x,v), func(x[0]) ) );
+  }
+
+  {
+    reco::FormulaEvaluator f("max(0.0001,1-y/x*([1]*(z-[0])*(1+[2]*log(x/30.))))");
+
+    std::vector<double> v = { 1.4, 0.453645, -0.015665 };
+    std::vector<double> x = { 157.2, 0.5, 23.2 };
+
+    auto func = [&v](double x, double y, double z ) { return std::max(0.0001,1-y/x*(v[1]*(z-v[0])*(1+v[2]*std::log(x/30.)))); };
+
+    CPPUNIT_ASSERT( compare( f.evaluate(x,v), func(x[0],x[1],x[2]) ) );
+  }
+  {
+    reco::FormulaEvaluator f("max(0.0001,1-y*[1]*(z-[0])*(1+[2]*log(x/30.))/x)");
+
+    std::vector<double> v = { 1.4, 0.453645, -0.015665 };
+    std::vector<double> x = { 157.2, 0.5, 23.2 };
+
+    auto func = [&v](double x, double y, double z ) { return std::max(0.0001,1-y/x*(v[1]*(z-v[0])*(1+v[2]*std::log(x/30.)))); };
+
+    CPPUNIT_ASSERT( compare( f.evaluate(x,v), func(x[0],x[1],x[2]) ) );
+  }
+  {
+    reco::FormulaEvaluator f("max(0.0001,1-y*([1]*(z-[0])*(1+[2]*log(x/30.)))/x)");
+
+    std::vector<double> v = { 1.4, 0.453645, -0.015665 };
+    std::vector<double> x = { 157.2, 0.5, 23.2 };
+
+    auto func = [&v](double x, double y, double z ) { return std::max(0.0001,1-y*(v[1]*(z-v[0])*(1+v[2]*std::log(x/30.)))/x); };
+
+    CPPUNIT_ASSERT( compare( f.evaluate(x,v), func(x[0],x[1],x[2]) ) );
   }
 
   {

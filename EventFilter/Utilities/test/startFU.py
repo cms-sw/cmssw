@@ -41,9 +41,6 @@ process.maxEvents = cms.untracked.PSet(
 process.options = cms.untracked.PSet(
     numberOfThreads = cms.untracked.uint32(options.numThreads),
     numberOfStreams = cms.untracked.uint32(options.numThreads),
-    multiProcesses = cms.untracked.PSet(
-    maxChildProcesses = cms.untracked.int32(0)
-    )
 )
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(threshold = cms.untracked.string( "INFO" )),
@@ -57,6 +54,8 @@ process.FastMonitoringService = cms.Service("FastMonitoringService",
     slowName = cms.untracked.string( 'slowmoni' ))
 
 process.EvFDaqDirector = cms.Service("EvFDaqDirector",
+    useFileService = cms.untracked.bool(False),
+    fileServiceHost = cms.untracked.string("htcp40.cern.ch"),
     runNumber = cms.untracked.uint32(options.runNumber),
     baseDir = cms.untracked.string(options.fuBaseDir),
     buBaseDir = cms.untracked.string(options.buBaseDir),

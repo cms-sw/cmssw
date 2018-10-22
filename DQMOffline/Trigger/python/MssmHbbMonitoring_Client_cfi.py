@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 MssmHbbHLTEfficiency = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/Higgs/MssmHbb/fullhadronic/*"),
+    subDirs        = cms.untracked.vstring("HLT/HIG/MssmHbb/fullhadronic/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -34,7 +34,7 @@ MssmHbbHLTEfficiency = DQMEDHarvester("DQMGenericClient",
 )
 
 MssmHbbmuHLTEfficiency = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/Higgs/MssmHbb/semileptonic/*"),
+    subDirs        = cms.untracked.vstring("HLT/HIG/MssmHbb/semileptonic/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -79,7 +79,7 @@ MssmHbbmuHLTEfficiency = DQMEDHarvester("DQMGenericClient",
 )
 
 MssmHbbmuHLTcontrolEfficiency = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/Higgs/MssmHbb/control/*"),
+    subDirs        = cms.untracked.vstring("HLT/HIG/MssmHbb/control/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages                                                                                                                                   
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(

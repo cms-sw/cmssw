@@ -209,9 +209,21 @@ void PrimitiveSelection::process(
       //int selected = map_tp_it->first;
       TriggerPrimitiveCollection& tmp_primitives = map_tp_it->second;  // pass by reference
 
+      // Check to see if unpacked CPPF digis have <= 2 digis per chamber, as expected
+      if (tmp_primitives.size() > 2 && tmp_primitives.at(0).getRPCData().isCPPF) {
+	edm::LogWarning("L1T") << "\n******************* EMTF EMULATOR: SUPER-BIZZARE CASE *******************";
+	edm::LogWarning("L1T") << "Found " << tmp_primitives.size() << " CPPF digis in the same chamber";
+	for (const auto & tp : tmp_primitives) tp.print(std::cout);
+	edm::LogWarning("L1T") << "************************* ONLY KEEP FIRST TWO *************************\n\n";
+      }
+
       // Keep the first two clusters
       if (tmp_primitives.size() > 2)
         tmp_primitives.erase(tmp_primitives.begin()+2, tmp_primitives.end());
+
+      // Skip cluster size cut if primitives are from CPPF emulator or EMTF unpacker (already clustered)
+      if (!tmp_primitives.empty() && tmp_primitives.at(0).getRPCData().isCPPF)
+	break;
 
       // Apply cluster size cut
       tmp_primitives.erase(
@@ -442,8 +454,9 @@ void PrimitiveSelection::merge(
           tmp_rpc_primitives.push_back(tp);
         }
       }
-      if (not(rpc_primitives.size() <= 2))  // at most 2 hits
-	{ edm::LogError("L1T") << "rpc_primitives.size() = " << rpc_primitives.size(); return; }
+      if (not(tmp_rpc_primitives.size() <= 2))  // at most 2 hits
+	{ edm::LogError("L1T") << "tmp_rpc_primitives.size() = " << tmp_rpc_primitives.size(); return; }
+
       selected_prim_map[selected_rpc] = tmp_rpc_primitives;
 
     } else {
@@ -630,6 +643,11 @@ int PrimitiveSelection::select_rpc(const TriggerPrimitive& muon_primitive) const
 
     int tp_bx        = tp_data.bx;
     int tp_strip     = tp_data.strip;
+    int tp_emtf_sect = tp_data.emtf_sector;
+    bool tp_CPPF     = tp_data.isCPPF;
+
+    // In neighbor chambers, have two separate CPPFDigis for the two EMTF sectors
+    if (tp_CPPF && (tp_emtf_sect != sector_)) return selected;
 
     if ( !(tp_region != 0) ) {
       edm::LogWarning("L1T") << "EMTF RPC format error: tp_region = "  << tp_region; return selected; }
@@ -645,7 +663,7 @@ int PrimitiveSelection::select_rpc(const TriggerPrimitive& muon_primitive) const
       edm::LogWarning("L1T") << "EMTF RPC format error: tp_ring = " << tp_ring; return selected; }
     if ( !(1 <= tp_roll && tp_roll <= 3) ) {
       edm::LogWarning("L1T") << "EMTF RPC format error: tp_roll = "  << tp_roll; return selected; }
-    if ( !(1 <= tp_strip && tp_strip <= 32) ) {
+    if ( !(tp_CPPF || (1 <= tp_strip && tp_strip <= 32)) ) {
       edm::LogWarning("L1T") << "EMTF RPC format error: tp_data.strip = "   << tp_data.strip; return selected; }
     if ( !(tp_station > 2 || tp_ring != 3) ) {
       edm::LogWarning("L1T") << "EMTF RPC format error: tp_station = " << tp_station << ", tp_ring = " << tp_ring; return selected; }

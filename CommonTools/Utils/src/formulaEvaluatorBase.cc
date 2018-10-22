@@ -11,6 +11,7 @@
 //
 
 // system include files
+#include <algorithm>
 
 // user include files
 #include "CommonTools/Utils/src/formulaEvaluatorBase.h"
@@ -39,5 +40,13 @@ reco::formula::EvaluatorBase::EvaluatorBase(Precedence iPrec):
 
 reco::formula::EvaluatorBase::~EvaluatorBase()
 {
+}
+
+std::vector<std::string> 
+reco::formula::shiftAST(std::vector<std::string> child) {
+  for(auto& c: child) {
+    c.insert(c.begin(),'.');
+  }
+  return child;
 }
 

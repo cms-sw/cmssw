@@ -461,7 +461,7 @@ void PrimitiveConversion::convert_rpc(
   int tp_station   = tp_detId.station();    // 1 - 4
   int tp_ring      = tp_detId.ring();       // 2 - 3 (increasing theta)
   int tp_roll      = tp_detId.roll();       // 1 - 3 (decreasing theta; aka A - C; space between rolls is 9 - 15 in theta_fp)
-  //int tp_layer     = tp_detId.layer();
+  //int tp_layer     = tp_detId.layer();      // Always 1 in the Endcap, 1 or 2 in the Barrel
 
   int tp_bx        = tp_data.bx;
   int tp_strip     = ((tp_data.strip_low + tp_data.strip_hi) / 2);  // in full-strip unit
@@ -517,10 +517,14 @@ void PrimitiveConversion::convert_rpc(
   conv_hit.set_neighbor      ( is_neighbor );
   conv_hit.set_sector_idx    ( (endcap_ == 1) ? sector_ - 1 : sector_ + 5 );
 
-
-  // Get coordinates from fullsim since LUTs do not exist yet
+  // Get coordinates from fullsim
   bool use_fullsim_coords = true;
-  if (use_fullsim_coords) {
+
+  if (tp_data.isCPPF) {  // CPPF digis from EMTF unpacker or CPPF emulator
+    conv_hit.set_phi_fp   ( tp_data.phi_int * 4 );   // Full-precision integer phi
+    conv_hit.set_theta_fp ( tp_data.theta_int * 4 ); // Full-precision integer theta
+  }
+  else if (use_fullsim_coords) {
     const GlobalPoint& gp = tp_geom_->getGlobalPoint(muon_primitive);
     double glob_phi   = emtf::rad_to_deg(gp.phi().value());
     double glob_theta = emtf::rad_to_deg(gp.theta());
@@ -561,10 +565,10 @@ void PrimitiveConversion::convert_rpc(
     conv_hit.set_theta_fp  ( th );  // Full-precision integer theta
   }
 
-  convert_rpc_details(conv_hit);
+  convert_rpc_details(conv_hit, (tp_data.isCPPF == false));
 }
 
-void PrimitiveConversion::convert_rpc_details(EMTFHit& conv_hit) const {
+void PrimitiveConversion::convert_rpc_details(EMTFHit& conv_hit, const bool use_cppf_lut) const {
   const bool is_neighbor = conv_hit.Neighbor();
 
   const int pc_station = conv_hit.PC_station();
@@ -591,8 +595,7 @@ void PrimitiveConversion::convert_rpc_details(EMTFHit& conv_hit) const {
   int fph = conv_hit.Phi_fp();
   int th  = conv_hit.Theta_fp();
 
-  bool use_cppf_coords = true;
-  if (use_cppf_coords) {
+  if (use_cppf_lut) {
     int halfstrip = (conv_hit.Strip_low() + conv_hit.Strip_hi() - 1);
     if (not(1 <= halfstrip && halfstrip <= 64))
       { edm::LogError("L1T") << "halfstrip = " << halfstrip; return; }
