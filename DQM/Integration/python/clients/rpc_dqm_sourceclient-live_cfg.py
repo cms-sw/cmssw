@@ -161,6 +161,7 @@ print("Running with run type = ", process.runType.getRunType())
 if (process.runType.getRunType() == process.runType.hi_run):
     process.rpcunpacker.InputLabel = cms.InputTag("rawDataRepacker")
     process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
+    process.rpcTwinMuxRawToDigi.inputTag = cms.InputTag("rawDataRepacker")
     process.rpcCPPFRawToDigi.inputTag = cms.InputTag("rawDataRepacker")
     process.omtfStage2Digis.inputLabel = cms.InputTag("rawDataRepacker")
     process.rpcEventSummary.MinimumRPCEvents  = cms.untracked.int32(100000)
