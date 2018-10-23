@@ -243,8 +243,6 @@ PileupJetIdentifier PileupJetIdAlgo::computeMva()
 PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, float jec, const reco::Vertex * vtx,
 							const reco::VertexCollection & allvtx, double rho, bool usePuppi) 
 {
-
-	static std::atomic<int> printWarning{10};
 	
 	// initialize all variables to 0
 	resetVariables();
