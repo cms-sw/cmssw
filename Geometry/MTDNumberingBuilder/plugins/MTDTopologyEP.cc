@@ -33,9 +33,7 @@ MTDTopologyEP::produce( const MTDTopologyRcd& iRecord )
   iRecord.getRecord<PMTDParametersRcd>().get( ptp );
   fillParameters( *ptp );
   
-  ReturnType myTopo( new MTDTopology( btlVals_, etlVals_ ));
-
-  return myTopo ;
+  return std::make_unique<MTDTopology>( btlVals_, etlVals_ );
 }
 
 void

@@ -67,7 +67,7 @@ MTDDigiGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions & descr
 }
 
 //__________________________________________________________________
-std::shared_ptr<MTDGeometry> 
+std::unique_ptr<MTDGeometry>
 MTDDigiGeometryESModule::produce(const MTDDigiGeometryRecord & iRecord)
 { 
   //
@@ -84,9 +84,8 @@ MTDDigiGeometryESModule::produce(const MTDDigiGeometryRecord & iRecord)
   iRecord.getRecord<PMTDParametersRcd>().get( ptp );
   
   MTDGeomBuilderFromGeometricTimingDet builder;
-  mtd_  = std::shared_ptr<MTDGeometry>(builder.build(&(*gD), *ptp, tTopo));
+  std::unique_ptr<MTDGeometry> mtd(builder.build(&(*gD), *ptp, tTopo));
 
-  
   if (applyAlignment_) {
     // Since fake is fully working when checking for 'empty', we should get rid of applyAlignment_!
     edm::ESHandle<Alignments> globalPosition;
@@ -103,7 +102,7 @@ MTDDigiGeometryESModule::produce(const MTDDigiGeometryRecord & iRecord)
 			     << "'" << myLabel_ << "') assumes fake and does not apply.";
     } else {
       GeometryAligner ali;
-      ali.applyAlignments<MTDGeometry>(&(*mtd_), &(*alignments), &(*alignmentErrors),
+      ali.applyAlignments<MTDGeometry>(&(*mtd), &(*alignments), &(*alignmentErrors),
 				       align::DetectorGlobalPosition(*globalPosition,
 								     DetId(DetId::Forward)));
     }
@@ -118,12 +117,12 @@ MTDDigiGeometryESModule::produce(const MTDDigiGeometryRecord & iRecord)
 			     << "'" << myLabel_ << "') assumes fake and does not apply.";
     } else {
       GeometryAligner ali;
-      ali.attachSurfaceDeformations<MTDGeometry>(&(*mtd_), &(*surfaceDeformations));
+      ali.attachSurfaceDeformations<MTDGeometry>(&(*mtd), &(*surfaceDeformations));
     }
   }
   
   
-  return mtd_;
+  return mtd;
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(MTDDigiGeometryESModule);

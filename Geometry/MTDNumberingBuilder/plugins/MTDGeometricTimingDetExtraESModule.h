@@ -12,7 +12,7 @@ class  MTDGeometricTimingDetExtraESModule: public edm::ESProducer {
  public:
   MTDGeometricTimingDetExtraESModule(const edm::ParameterSet & p);
   ~MTDGeometricTimingDetExtraESModule() override; 
-  std::shared_ptr<std::vector<GeometricTimingDetExtra> > produce(const IdealGeometryRecord &);
+  std::unique_ptr<std::vector<GeometricTimingDetExtra> > produce(const IdealGeometryRecord &);
 
  protected:
 
