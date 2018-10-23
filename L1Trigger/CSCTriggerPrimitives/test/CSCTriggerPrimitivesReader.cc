@@ -1725,7 +1725,7 @@ void CSCTriggerPrimitivesReader::compareALCTs(
 		    <<" stubs_comparison 0 key_WG_data "<<stubs_comparison[0].key_WG_data <<" key_WG_emul "<< stubs_comparison[0].key_WG_emul;
 		//if (stat==1) std::cout <<" stub_tree filled , ring "<< stubs_comparison[0].ring << std::endl;
 		//cout <<"ALCT data BX "<< stubs_comparison[0].bx_data <<" WG "<< stubs_comparison[0].key_WG_data <<" emul BX "<< stubs_comparison[0].bx_emul<<" emul BX corrected "<< stubs_comparison[0].bx_corr_emul <<" WG "<< stubs_comparison[0].key_WG_emul << endl;
-		//stub_tree[0]->Fill(); 
+		stub_tree[0]->Fill(); 
 	    }//loop data
 	    for (int i = 0; i<nemul; i++){
 		if (alctV_emul[i].isValid() == 0 or bookedalctV_emul[i]) continue;
@@ -1839,7 +1839,8 @@ void CSCTriggerPrimitivesReader::compareCLCTs(
 		  int corr_bx =
 		    ((*pd).getFullBX() + emul_bx - tbin_cathode_offset) & 0x03;
 		  int bx_data = pd->getBX();
-		  if (corr_bx == bx_data or abs(pe->getKeyStrip() - pd->getKeyStrip())<=2){//if emulated BX after correction is same as data bx, it will be readout
+		  //if (corr_bx == bx_data or abs(pe->getKeyStrip() - pd->getKeyStrip())<=1){//if emulated BX after correction is same as data bx, it will be readout
+		  if (corr_bx == bx_data){//if emulated BX after correction is same as data bx, it will be readout
 		    nemul_readout++;
 		    break;
 		  }
