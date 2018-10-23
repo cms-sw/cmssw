@@ -618,18 +618,9 @@ PFEGammaAlgo(const PFEGammaAlgo::PFEGConfigInfo& cfg) :
   dEta_(0.0), dPhi_(0.0), LowClusE_(0.0), RMSAll_(0.0), RMSMust_(0.0), nPFClus_(0.0),
   TotPS1_(0.0), TotPS2_(0.0),
   nVtx_(0.0),
-  x0inner_(0.0), x0middle_(0.0), x0outer_(0.0),
   excluded_(0.0), Mustache_EtRatio_(0.0), Mustache_Et_out_(0.0),
   channelStatus_(nullptr)
-{   
-  //Material Map
-  TFile *XO_File = new TFile(cfg_.X0_Map.c_str(),"READ");
-  X0_sum    = (TH2D*)XO_File->Get("TrackerSum");
-  X0_inner  = (TH2D*)XO_File->Get("Inner");
-  X0_middle = (TH2D*)XO_File->Get("Middle");
-  X0_outer  = (TH2D*)XO_File->Get("Outer");
-  
-}
+{}
 
 void PFEGammaAlgo::RunPFEG(const pfEGHelpers::HeavyObjectCache* hoc,
                            const reco::PFBlockRef&  blockRef,

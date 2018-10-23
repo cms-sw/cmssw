@@ -25,82 +25,30 @@
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include <sstream>
 
-#include "TFile.h"
-
 //#define PFLOW_DEBUG
 
 #ifdef PFLOW_DEBUG
-#define docast(x,y) dynamic_cast<x>(y)
-#define LOGVERB(x) edm::LogVerbatim(x)
-#define LOGWARN(x) edm::LogWarning(x)
-#define LOGERR(x) edm::LogError(x)
 #define LOGDRESSED(x)  edm::LogInfo(x)
 #else
-#define docast(x,y) reinterpret_cast<x>(y)
-#define LOGVERB(x) LogTrace(x)
-#define LOGWARN(x) edm::LogWarning(x)
-#define LOGERR(x) edm::LogError(x)
 #define LOGDRESSED(x) LogDebug(x)
 #endif
 
-namespace {
-  typedef std::list< reco::PFBlockRef >::iterator IBR;
-}
-
 PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig,
-                                   const pfEGHelpers::HeavyObjectCache*):
-  primaryVertex_(reco::Vertex()),
-  ebeeClustersCollection_("EBEEClusters"),
-  esClustersCollection_("ESClusters") {
+                                   const pfEGHelpers::HeavyObjectCache*)
+  : inputTagBlocks_        (consumes<reco::PFBlockCollection>(iConfig.getParameter<edm::InputTag>("blocks")))
+  , eetopsSrc_             (consumes<reco::PFCluster::EEtoPSAssociation>(
+                            iConfig.getParameter<edm::InputTag>("EEtoPS_source")))
+  , vertices_              (consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection")))
+  , useVerticesForNeutral_ (iConfig.getParameter<bool>("useVerticesForNeutral"))
+  , primaryVertex_         (reco::Vertex())
+  , ebeeClustersCollection_("EBEEClusters")
+  , esClustersCollection_  ("ESClusters")
+{
     
   PFEGammaAlgo::PFEGConfigInfo algo_config;
 
-  inputTagBlocks_ 
-    = consumes<reco::PFBlockCollection>(iConfig.getParameter<edm::InputTag>("blocks"));
-
-  eetopsSrc_ = consumes<reco::PFCluster::EEtoPSAssociation>(iConfig.getParameter<edm::InputTag>("EEtoPS_source"));
-
-  algo_config.useReg
-    =  iConfig.getParameter<bool>("usePhotonReg");
-
-  useVerticesForNeutral_
-    = iConfig.getParameter<bool>("useVerticesForNeutral"); 
-
-  useRegressionFromDB_
-    = iConfig.getParameter<bool>("useRegressionFromDB"); 
-
-
-  std::vector<double>  calibPFSCEle_Fbrem_barrel; 
-  std::vector<double>  calibPFSCEle_Fbrem_endcap;
-  std::vector<double>  calibPFSCEle_barrel;
-  std::vector<double>  calibPFSCEle_endcap;
-  algo_config.usePFSCEleCalib = iConfig.getParameter<bool>("usePFSCEleCalib");
-  calibPFSCEle_Fbrem_barrel = iConfig.getParameter<std::vector<double> >("calibPFSCEle_Fbrem_barrel");
-  calibPFSCEle_Fbrem_endcap = iConfig.getParameter<std::vector<double> >("calibPFSCEle_Fbrem_endcap");
-  calibPFSCEle_barrel = iConfig.getParameter<std::vector<double> >("calibPFSCEle_barrel");
-  calibPFSCEle_endcap = iConfig.getParameter<std::vector<double> >("calibPFSCEle_endcap");
-  algo_config.thePFSCEnergyCalibration.reset( new PFSCEnergyCalibration( calibPFSCEle_Fbrem_barrel,calibPFSCEle_Fbrem_endcap,
-									 calibPFSCEle_barrel,calibPFSCEle_endcap ) ); 
-                               
-  algo_config.useEGammaSupercluster = 
-    iConfig.getParameter<bool>("useEGammaSupercluster");
   algo_config.produceEGCandsWithNoSuperCluster = 
     iConfig.getParameter<bool>("produceEGCandsWithNoSuperCluster");
-  algo_config.sumEtEcalIsoForEgammaSC_barrel = 
-    iConfig.getParameter<double>("sumEtEcalIsoForEgammaSC_barrel");
-  algo_config.sumEtEcalIsoForEgammaSC_endcap = 
-    iConfig.getParameter<double>("sumEtEcalIsoForEgammaSC_endcap");
-  algo_config.coneEcalIsoForEgammaSC = 
-    iConfig.getParameter<double>("coneEcalIsoForEgammaSC");
-  algo_config.sumPtTrackIsoForEgammaSC_barrel = 
-    iConfig.getParameter<double>("sumPtTrackIsoForEgammaSC_barrel");
-  algo_config.sumPtTrackIsoForEgammaSC_endcap = 
-    iConfig.getParameter<double>("sumPtTrackIsoForEgammaSC_endcap");
-  algo_config.coneTrackIsoForEgammaSC = 
-    iConfig.getParameter<double>("coneTrackIsoForEgammaSC");
-  algo_config.nTrackIsoForEgammaSC  = 
-    iConfig.getParameter<unsigned int>("nTrackIsoForEgammaSC");
-
 
   // register products
   produces<reco::PFCandidateCollection>();
@@ -115,127 +63,17 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig,
     = iConfig.getParameter<double>("pf_electron_mvaCut");
 
   
-  algo_config. mvaWeightFileEleID
-    = iConfig.getParameter<edm::FileInPath>("pf_electronID_mvaWeightFile").fullPath();
-
   algo_config.applyCrackCorrections
     = iConfig.getParameter<bool>("pf_electronID_crackCorrection");
     
-  //PFPhoton Configuration
-
-  std::string path_mvaWeightFileConvID;
-  std::string mvaWeightFileConvID;
-  std::string path_mvaWeightFileGCorr;
-  std::string path_mvaWeightFileLCorr;
-  std::string path_X0_Map;
-  std::string path_mvaWeightFileRes;
-
-  algo_config.mvaweightfile =
-    iConfig.getParameter<edm::FileInPath>("pf_convID_mvaWeightFile").fullPath();
   algo_config.mvaConvCut = iConfig.getParameter<double>("pf_conv_mvaCut");  
-  algo_config.sumPtTrackIsoForPhoton = 
-    iConfig.getParameter<double>("sumPtTrackIsoForPhoton");
-  algo_config.sumPtTrackIsoSlopeForPhoton = 
-    iConfig.getParameter<double>("sumPtTrackIsoSlopeForPhoton");
-
-  algo_config.X0_Map = iConfig.getParameter<std::string>("X0_Map");
-  algo_config.X0_Map = 
-    edm::FileInPath( algo_config.X0_Map.c_str() ).fullPath();
-
-  if(!useRegressionFromDB_) {
-    std::string mvaWeightFileLCorr=iConfig.getParameter<std::string>("pf_locC_mvaWeightFile");
-    path_mvaWeightFileLCorr = edm::FileInPath( mvaWeightFileLCorr.c_str() ).fullPath();
-    std::string mvaWeightFileGCorr=iConfig.getParameter<std::string>("pf_GlobC_mvaWeightFile");
-    path_mvaWeightFileGCorr = edm::FileInPath( mvaWeightFileGCorr.c_str() ).fullPath();
-    std::string mvaWeightFileRes=iConfig.getParameter<std::string>("pf_Res_mvaWeightFile");
-    path_mvaWeightFileRes=edm::FileInPath(mvaWeightFileRes.c_str()).fullPath();
-
-    TFile *fgbr = new TFile(path_mvaWeightFileGCorr.c_str(),"READ");
-    ReaderGC_  =(const GBRForest*)fgbr->Get("GBRForest");
-    TFile *fgbr2 = new TFile(path_mvaWeightFileLCorr.c_str(),"READ");
-    ReaderLC_  = (const GBRForest*)fgbr2->Get("GBRForest");
-    TFile *fgbr3 = new TFile(path_mvaWeightFileRes.c_str(),"READ");
-    ReaderRes_  = (const GBRForest*)fgbr3->Get("GBRForest");
-    LogDebug("PFEGammaProducer")<<"Will set regressions from binary files " <<std::endl;
-  }
-
-  edm::ParameterSet iCfgCandConnector 
-    = iConfig.getParameter<edm::ParameterSet>("iCfgCandConnector");
-
-
-  // fToRead =  iConfig.getUntrackedParameter<std::vector<std::string> >("toRead");
-
-  useCalibrationsFromDB_
-    = iConfig.getParameter<bool>("useCalibrationsFromDB");    
 
   algo_config.thePFEnergyCalibration.reset(new PFEnergyCalibration());
 
-  int algoType 
-    = iConfig.getParameter<unsigned>("algoType");
-  
-  switch(algoType) {
-  case 0:
-    //pfAlgo_.reset( new PFAlgo);
-    break;
-   default:
-    assert(0);
-  }
-  
   //PFEGamma
   setPFEGParameters(algo_config);  
 
-  //MIKE: Vertex Parameters
-  vertices_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection"));
-
-  verbose_ = 
-    iConfig.getUntrackedParameter<bool>("verbose",false);
-
-//   bool debug_ = 
-//     iConfig.getUntrackedParameter<bool>("debug",false);
-
 }
-
-
-
-PFEGammaProducer::~PFEGammaProducer() {}
-
-void 
-PFEGammaProducer::beginRun(const edm::Run & run, 
-                     const edm::EventSetup & es) 
-{
-
-  /* // kept for historical reasons
-  if(useRegressionFromDB_) {
-    
-    edm::ESHandle<GBRForest> readerPFLCEB;
-    edm::ESHandle<GBRForest> readerPFLCEE;    
-    edm::ESHandle<GBRForest> readerPFGCEB;
-    edm::ESHandle<GBRForest> readerPFGCEEHR9;
-    edm::ESHandle<GBRForest> readerPFGCEELR9;
-    edm::ESHandle<GBRForest> readerPFRes;
-    es.get<GBRWrapperRcd>().get("PFLCorrectionBar",readerPFLCEB);
-    ReaderLCEB_=readerPFLCEB.product();
-    es.get<GBRWrapperRcd>().get("PFLCorrectionEnd",readerPFLCEE);
-    ReaderLCEE_=readerPFLCEE.product();
-    es.get<GBRWrapperRcd>().get("PFGCorrectionBar",readerPFGCEB);       
-    ReaderGCBarrel_=readerPFGCEB.product();
-    es.get<GBRWrapperRcd>().get("PFGCorrectionEndHighR9",readerPFGCEEHR9);
-    ReaderGCEndCapHighr9_=readerPFGCEEHR9.product();
-    es.get<GBRWrapperRcd>().get("PFGCorrectionEndLowR9",readerPFGCEELR9);
-    ReaderGCEndCapLowr9_=readerPFGCEELR9.product();
-    es.get<GBRWrapperRcd>().get("PFEcalResolution",readerPFRes);
-    ReaderEcalRes_=readerPFRes.product();
-
-    
-    LogDebug("PFEGammaProducer")<<"setting regressions from DB "<<std::endl;
-    
-  } 
-  */
-
-  //pfAlgo_->setPFPhotonRegWeights(ReaderLC_, ReaderGC_, ReaderRes_);
-    
-}
-
 
 void 
 PFEGammaProducer::produce(edm::Event& iEvent, 
@@ -247,17 +85,17 @@ PFEGammaProducer::produce(edm::Event& iEvent,
     <<" in run "<<iEvent.id().run()<<std::endl;
   
 
-  // reset output collection  
-  egCandidates_ = std::make_unique<reco::PFCandidateCollection>();
-  egExtra_ = std::make_unique<reco::PFCandidateEGammaExtraCollection>();
-  sClusters_ = std::make_unique<reco::SuperClusterCollection>();
+  // output collections
+  auto egCandidates_ = std::make_unique<reco::PFCandidateCollection>();
+  auto egExtra_      = std::make_unique<reco::PFCandidateEGammaExtraCollection>();
+  auto sClusters_    = std::make_unique<reco::SuperClusterCollection>();
     
   // Get the EE-PS associations
   edm::Handle<reco::PFCluster::EEtoPSAssociation> eetops;
   iEvent.getByToken(eetopsSrc_,eetops);
   pfeg_->setEEtoPSAssociation(eetops);
 
-  // preshower conditions                                                                                                                    
+  // preshower conditions
   edm::ESHandle<ESEEIntercalibConstants> esEEInterCalibHandle_;
   iSetup.get<ESEEIntercalibConstantsRcd>().get(esEEInterCalibHandle_);
   pfeg_->setAlphaGamma_ESplanes_fromDB(esEEInterCalibHandle_.product());
@@ -277,7 +115,7 @@ PFEGammaProducer::produce(edm::Event& iEvent,
   }
 
   //Assign the PFAlgo Parameters
-  setPFVertexParameters(useVerticesForNeutral_,vertices.product());
+  setPFVertexParameters(vertices.product());
 
   // get the collection of blocks 
 
@@ -470,8 +308,8 @@ PFEGammaProducer::produce(edm::Event& iEvent,
   }
   
   //put calocluster output collections in event and get orphan handles to create ptrs
-  const edm::OrphanHandle<reco::CaloClusterCollection> &caloClusHandleEBEE = iEvent.put(std::move(caloClustersEBEE),ebeeClustersCollection_);
-  const edm::OrphanHandle<reco::CaloClusterCollection> &caloClusHandleES = iEvent.put(std::move(caloClustersES),esClustersCollection_);
+  auto const& caloClusHandleEBEE = iEvent.put(std::move(caloClustersEBEE),ebeeClustersCollection_);
+  auto const& caloClusHandleES = iEvent.put(std::move(caloClustersES),esClustersCollection_);
   
   //relink superclusters to output caloclusters
   for( auto& sc : *sClusters_ ) {
@@ -495,7 +333,7 @@ PFEGammaProducer::produce(edm::Event& iEvent,
   
   //create and fill references to single leg conversions
   edm::RefProd<reco::ConversionCollection> convProd = iEvent.getRefBeforePut<reco::ConversionCollection>();
-  singleLegConv_ = std::make_unique<reco::ConversionCollection>();  
+  auto singleLegConv_ = std::make_unique<reco::ConversionCollection>();
   createSingleLegConversions(*egExtra_, *singleLegConv_, convProd);
   
   // release our demonspawn into the wild to cause havoc
@@ -509,17 +347,6 @@ PFEGammaProducer::produce(edm::Event& iEvent,
 void 
 PFEGammaProducer::setPFEGParameters(PFEGammaAlgo::PFEGConfigInfo& cfg) {  
   
-  FILE * fileEleID = fopen(cfg.mvaWeightFileEleID.c_str(), "r");
-  if (fileEleID) {
-    fclose(fileEleID);
-  }
-  else {
-    std::string err = "PFAlgo: cannot open weight file '";
-    err += cfg.mvaWeightFileEleID;
-    err += "'";
-    throw std::invalid_argument( err );
-  }
-
   //for MVA pass PV if there is one in the collection otherwise pass a dummy  
   if(!useVerticesForNeutral_) { // create a dummy PV  
     reco::Vertex::Error e;  
@@ -529,56 +356,22 @@ PFEGammaProducer::setPFEGParameters(PFEGammaAlgo::PFEGConfigInfo& cfg) {
     reco::Vertex::Point p(0, 0, 0);  
     primaryVertex_ = reco::Vertex(p, e, 0, 0, 0);  
   }  
-  // pv=&dummy;  
-  //if(! usePFPhotons_) return;  
-  FILE * filePhotonConvID = fopen(cfg.mvaweightfile.c_str(), "r");  
-  if (filePhotonConvID) {  
-    fclose(filePhotonConvID);  
-  }  
-  else {  
-    std::string err = "PFAlgo: cannot open weight file '";  
-    err += cfg.mvaweightfile;
-    err += "'";  
-    throw std::invalid_argument( err );  
-  }  
   cfg.primaryVtx = &primaryVertex_;  
   pfeg_.reset(new PFEGammaAlgo(cfg));
 }
 
-/*
-void PFAlgo::setPFPhotonRegWeights(
-                  const GBRForest *LCorrForest,
-                  const GBRForest *GCorrForest,
-                  const GBRForest *ResForest
-                  ) {                                                           
-  if(usePFPhotons_) 
-    pfpho_->setGBRForest(LCorrForest, GCorrForest, ResForest);
-} 
-*/
-
 void
-PFEGammaProducer::setPFVertexParameters(bool useVertex,
-                              const reco::VertexCollection*  primaryVertices) {
-  useVerticesForNeutral_ = useVertex;
-
-  //Set the vertices for muon cleaning
-//  pfmu_->setInputsForCleaning(primaryVertices);
-
+PFEGammaProducer::setPFVertexParameters(const reco::VertexCollection*  primaryVertices) {
 
   //Now find the primary vertex!
-  //bool primaryVertexFound = false;
   int nVtx=primaryVertices->size();
   pfeg_->setnPU(nVtx);
-//   if(usePFPhotons_){
-//     pfpho_->setnPU(nVtx);
-//   }
   primaryVertex_ = primaryVertices->front();
   for (unsigned short i=0 ;i<primaryVertices->size();++i)
     {
       if(primaryVertices->at(i).isValid()&&(!primaryVertices->at(i).isFake()))
         {
           primaryVertex_ = primaryVertices->at(i);
-          //primaryVertexFound = true;
           break;
         }
     }
@@ -587,7 +380,10 @@ PFEGammaProducer::setPFVertexParameters(bool useVertex,
   
 }
 
-void PFEGammaProducer::createSingleLegConversions(reco::PFCandidateEGammaExtraCollection &extras, reco::ConversionCollection &oneLegConversions, const edm::RefProd<reco::ConversionCollection> &convProd) {
+void PFEGammaProducer::createSingleLegConversions(reco::PFCandidateEGammaExtraCollection &extras,
+                                                  reco::ConversionCollection &oneLegConversions,
+                                                  const edm::RefProd<reco::ConversionCollection> &convProd)
+{
  
   math::Error<3>::type error;
   for (auto &extra : extras){
@@ -644,3 +440,19 @@ void PFEGammaProducer::createSingleLegConversions(reco::PFCandidateEGammaExtraCo
   
 }
 
+void PFEGammaProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>  ("useVerticesForNeutral",            true);
+  desc.add<bool>  ("produceEGCandsWithNoSuperCluster", false)->setComment("Allow building of candidates with no input or output supercluster?");
+  desc.add<double>("pf_electron_mvaCut",               -0.1);
+  desc.add<bool>  ("pf_electronID_crackCorrection",    false);
+  desc.add<double>("pf_conv_mvaCut",                   0.0);
+  desc.add<edm::InputTag>  ("blocks",          edm::InputTag("particleFlowBlock"))->setComment("PF Blocks label");
+  desc.add<edm::InputTag>  ("EEtoPS_source",   edm::InputTag("particleFlowClusterECAL"))->setComment("EE to PS association");
+  desc.add<edm::InputTag>  ("vertexCollection",                edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::FileInPath>("pf_electronID_mvaWeightFile",
+      edm::FileInPath("RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_PfElectrons23Jan_IntToFloat.txt"));
+  desc.add<edm::FileInPath>("pf_convID_mvaWeightFile",
+      edm::FileInPath("RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_pfConversionAug0411.txt"));
+  descriptions.add("particleFlowEGamma", desc);
+}
