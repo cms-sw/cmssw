@@ -24,7 +24,7 @@ class  MTDDetLayerGeometryESProducer: public edm::ESProducer{
   ~MTDDetLayerGeometryESProducer() override; 
 
   /// Produce MuonDeLayerGeometry.
-  std::shared_ptr<MTDDetLayerGeometry> produce(const MTDRecoGeometryRecord & record);
+  std::unique_ptr<MTDDetLayerGeometry> produce(const MTDRecoGeometryRecord & record);
 
  private:
 };
