@@ -202,10 +202,10 @@ fi
 
 ls -lh .
 
-eos mkdir -p /store/caf/user/$USER/.oO[eosdir]Oo./plots/
+eos mkdir -p /store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./plots/
 for RootOutputFile in $(ls *root )
 do
-    xrdcp -f ${RootOutputFile} root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./${RootOutputFile}
+    xrdcp -f ${RootOutputFile} root://eoscms//eos/cms/store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./${RootOutputFile}
     rfcp ${RootOutputFile}  .oO[workingdir]Oo.
 done
 
@@ -219,12 +219,12 @@ root -b -q "FitPVResiduals.C(\\"${PWD}/${RootOutputFile}=${theLabel},${PWD}/PVVa
 
 mkdir -p .oO[plotsdir]Oo.
 for PngOutputFile in $(ls *png ); do
-    xrdcp -f ${PngOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./plots/${PngOutputFile}
+    xrdcp -f ${PngOutputFile}  root://eoscms//eos/cms/store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./plots/${PngOutputFile}
     rfcp ${PngOutputFile}  .oO[plotsdir]Oo.
 done
 
 for PdfOutputFile in $(ls *pdf ); do
-    xrdcp -f ${PdfOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./plots/${PdfOutputFile}
+    xrdcp -f ${PdfOutputFile}  root://eoscms//eos/cms/store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./plots/${PdfOutputFile}
     rfcp ${PdfOutputFile}  .oO[plotsdir]Oo.
 done
 
@@ -292,12 +292,12 @@ rfcp .oO[plottingscriptpath]Oo. .
 root -x -b -q .oO[plottingscriptname]Oo.++
 
 for PdfOutputFile in $(ls *pdf ); do
-    xrdcp -f ${PdfOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./plots/${PdfOutputFile}
+    xrdcp -f ${PdfOutputFile}  root://eoscms//eos/cms/store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./plots/${PdfOutputFile}
     rfcp ${PdfOutputFile}  .oO[datadir]Oo./.oO[PlotsDirName]Oo.
 done
 
 for PngOutputFile in $(ls *png ); do
-    xrdcp -f ${PngOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./plots/${PngOutputFile}
+    xrdcp -f ${PngOutputFile}  root://eoscms//eos/cms/store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./plots/${PngOutputFile}
     rfcp ${PngOutputFile}  .oO[datadir]Oo./.oO[PlotsDirName]Oo.
 done
 
