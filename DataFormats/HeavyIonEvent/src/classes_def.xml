@@ -3,7 +3,8 @@
  <version ClassVersion="11" checksum="393681411"/>
 </class>
 <class name="edm::Wrapper<reco::EvtPlane>"/>
-<class name="reco::Centrality" ClassVersion="10">
+<class name="reco::Centrality" ClassVersion="11">
+ <version ClassVersion="11" checksum="688182903"/>
  <version ClassVersion="10" checksum="3770933457"/>
 </class>
 <class name="edm::Wrapper<reco::Centrality>"/>
