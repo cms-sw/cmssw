@@ -32,14 +32,9 @@ void RPCEfficiencySecond::beginJob(){}
 
 void RPCEfficiencySecond::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,  edm::LuminosityBlock const & lb, edm::EventSetup const& iSetup){
 
-  if(!init_){
-    
     LogDebug("rpcefficiencysecond")<<"Getting the RPC Geometry";    
-  
     iSetup.get<MuonGeometryRecord>().get(rpcGeo_);   
     init_= true;
-
-  }
 }
 
 
