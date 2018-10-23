@@ -13,6 +13,7 @@ HGCalVFEProcessorSums::
 HGCalVFEProcessorSums(const edm::ParameterSet& conf) : HGCalVFEProcessorBase(conf),
   vfeLinearizationImpl_(conf),
   vfeSummationImpl_(conf),
+  vfeCompressionImpl_(conf),
   calibration_( conf.getParameterSet("calib_parameters") )
 { 
 }
@@ -29,6 +30,7 @@ HGCalVFEProcessorSums::run(const HGCEEDigiCollection& ee,
   std::vector<HGCDataFrame<DetId,HGCSample>> dataframes;
   std::vector<std::pair<DetId, uint32_t >> linearized_dataframes;
   std::map<HGCalDetId, uint32_t> payload;
+  std::map<HGCalDetId, std::array<uint32_t, 2> > compressed_payload;
 
   // convert ee and fh hit collections into the same object  
   if(!ee.empty())
@@ -74,6 +76,7 @@ HGCalVFEProcessorSums::run(const HGCEEDigiCollection& ee,
 
   vfeLinearizationImpl_.linearize(dataframes, linearized_dataframes);
   vfeSummationImpl_.triggerCellSums(*geometry_, linearized_dataframes, payload);  
+  vfeCompressionImpl_.compress(payload, compressed_payload);
   
   // Transform map to trigger cell vector vector<HGCalTriggerCell>
   for(const auto& id_value : payload)
