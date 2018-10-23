@@ -28,6 +28,7 @@ class LutXml : public XMLDOMBlock {
 public:
   typedef struct _Config {
     _Config();
+    std::string infotype;
     int ieta, iphi, depth, crate, slot, topbottom, fiber, fiberchan, lut_type;
     std::string creationtag;
     std::string creationstamp;
