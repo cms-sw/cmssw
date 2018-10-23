@@ -31,7 +31,7 @@ mvaTag = "Run2Spring15NonTrig50nsV2p1"
 
 mvaSpring15NonTrigWeightFiles_V2p1 = cms.vstring(
     path.join(weightFileBaseDir, "Spring15/50ns_EB_V2.weights.xml.gz"),
-    path.join(weightFileBaseDir, "Spring15/50ns_EB_V2.weights.xml.gz"),
+    path.join(weightFileBaseDir, "Spring15/50ns_EE_V2.weights.xml.gz"),
     )
 
 # The locatoins of value maps with the actual MVA values and categories
