@@ -6,6 +6,7 @@ class TauIDEmbedder(object):
     """class to rerun the tau seq and acces trainings from the database"""
 
     def __init__(self, process, cms, debug = False,
+        updatedTauName = "slimmedTausNewID",
         toKeep = ["2016v1", "newDM2016v1","deepTau2017v1","DPFTau_2016_v0"],
         tauIdDiscrMVA_trainings_run2_2017 = {
             'tauIdMVAIsoDBoldDMwLT2017' : "tauIdMVAIsoDBoldDMwLT2017",
@@ -28,6 +29,7 @@ class TauIDEmbedder(object):
         self.process = process
         self.cms = cms
         self.debug = debug
+        self.updatedTauName = updatedTauName
         self.process.load('RecoTauTag.Configuration.loadRecoTauTagMVAsFromPrepDB_cfi')
         if len(conditionDB) != 0:
             self.process.CondDBTauConnection.connect = cms.string(conditionDB)
@@ -100,7 +102,8 @@ class TauIDEmbedder(object):
                 )
             )
 
-    def runTauID(self, name='NewTauIDsEmbedded'):
+    def runTauID(self):
+        self.process.rerunMvaIsolationTask = self.cms.Task()
         self.process.rerunMvaIsolationSequence = self.cms.Sequence()
         tauIDSources = self.cms.PSet()
 
@@ -122,8 +125,8 @@ class TauIDEmbedder(object):
                 }
             }
             # update the list of available in DB samples
-            if not self.is_above_cmssw_version(10, 0, 0, self.debug):
-                if self.debug: print "runTauID: not is_above_cmssw_version(10, 0, 0). Will update the list of available in DB samples to access 2017v1"
+            if not self.is_above_cmssw_version(9, 4, 4, self.debug):
+                if self.debug: print "runTauID: not is_above_cmssw_version(9, 4, 4). Will update the list of available in DB samples to access 2017v1"
                 self.loadMVA_WPs_run2_2017()
 
             self.process.rerunDiscriminationByIsolationOldDMMVArun2017v1raw = patDiscriminationByIsolationMVArun2v1raw.clone(
@@ -165,16 +168,18 @@ class TauIDEmbedder(object):
             self.process.rerunDiscriminationByIsolationOldDMMVArun2017v1VVTight = self.process.rerunDiscriminationByIsolationOldDMMVArun2017v1VLoose.clone()
             self.process.rerunDiscriminationByIsolationOldDMMVArun2017v1VVTight.mapping[0].cut = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_WPEff40")
 
-            self.process.rerunMvaIsolationSequence += self.cms.Sequence(
-                self.process.rerunDiscriminationByIsolationOldDMMVArun2017v1raw
-                *self.process.rerunDiscriminationByIsolationOldDMMVArun2017v1VLoose
-                *self.process.rerunDiscriminationByIsolationOldDMMVArun2017v1VVLoose
-                *self.process.rerunDiscriminationByIsolationOldDMMVArun2017v1Loose
-                *self.process.rerunDiscriminationByIsolationOldDMMVArun2017v1Medium
-                *self.process.rerunDiscriminationByIsolationOldDMMVArun2017v1Tight
-                *self.process.rerunDiscriminationByIsolationOldDMMVArun2017v1VTight
-                *self.process.rerunDiscriminationByIsolationOldDMMVArun2017v1VVTight
+            self.rerunIsolationOldDMMVArun2017v1Task =  self.cms.Task(
+                self.process.rerunDiscriminationByIsolationOldDMMVArun2017v1raw,
+                self.process.rerunDiscriminationByIsolationOldDMMVArun2017v1VLoose,
+                self.process.rerunDiscriminationByIsolationOldDMMVArun2017v1VVLoose,
+                self.process.rerunDiscriminationByIsolationOldDMMVArun2017v1Loose,
+                self.process.rerunDiscriminationByIsolationOldDMMVArun2017v1Medium,
+                self.process.rerunDiscriminationByIsolationOldDMMVArun2017v1Tight,
+                self.process.rerunDiscriminationByIsolationOldDMMVArun2017v1VTight,
+                self.process.rerunDiscriminationByIsolationOldDMMVArun2017v1VVTight
             )
+            self.process.rerunMvaIsolationTask.add(self.rerunIsolationOldDMMVArun2017v1Task)
+            self.process.rerunMvaIsolationSequence += self.cms.Sequence(self.rerunIsolationOldDMMVArun2017v1Task)
 
             tauIDSources.byIsolationMVArun2017v1DBoldDMwLTraw2017 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v1raw')
             tauIDSources.byVVLooseIsolationMVArun2017v1DBoldDMwLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v1VVLoose')
@@ -203,8 +208,9 @@ class TauIDEmbedder(object):
                 }
             }
 
-            if self.debug: print "runTauID: not is_above_cmssw_version(10, 0, 0). Will update the list of available in DB samples to access 2017v2"
-            self.loadMVA_WPs_run2_2017()
+            if not self.is_above_cmssw_version(9, 4, 5, self.debug):
+                if self.debug: print "runTauID: not is_above_cmssw_version(9, 4, 5). Will update the list of available in DB samples to access 2017v2"
+                self.loadMVA_WPs_run2_2017()
 
             self.process.rerunDiscriminationByIsolationOldDMMVArun2017v2raw = patDiscriminationByIsolationMVArun2v1raw.clone(
                 PATTauProducer = self.cms.InputTag('slimmedTaus'),
@@ -246,16 +252,18 @@ class TauIDEmbedder(object):
             self.process.rerunDiscriminationByIsolationOldDMMVArun2017v2VVTight = self.process.rerunDiscriminationByIsolationOldDMMVArun2017v2VLoose.clone()
             self.process.rerunDiscriminationByIsolationOldDMMVArun2017v2VVTight.mapping[0].cut = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v2_WPEff40")
 
-            self.process.rerunMvaIsolationSequence += self.cms.Sequence(
-                self.process.rerunDiscriminationByIsolationOldDMMVArun2017v2raw
-                *self.process.rerunDiscriminationByIsolationOldDMMVArun2017v2VLoose
-                *self.process.rerunDiscriminationByIsolationOldDMMVArun2017v2VVLoose
-                *self.process.rerunDiscriminationByIsolationOldDMMVArun2017v2Loose
-                *self.process.rerunDiscriminationByIsolationOldDMMVArun2017v2Medium
-                *self.process.rerunDiscriminationByIsolationOldDMMVArun2017v2Tight
-                *self.process.rerunDiscriminationByIsolationOldDMMVArun2017v2VTight
-                *self.process.rerunDiscriminationByIsolationOldDMMVArun2017v2VVTight
+            self.rerunIsolationOldDMMVArun2017v2Task = self.cms.Task(
+                self.process.rerunDiscriminationByIsolationOldDMMVArun2017v2raw,
+                self.process.rerunDiscriminationByIsolationOldDMMVArun2017v2VLoose,
+                self.process.rerunDiscriminationByIsolationOldDMMVArun2017v2VVLoose,
+                self.process.rerunDiscriminationByIsolationOldDMMVArun2017v2Loose,
+                self.process.rerunDiscriminationByIsolationOldDMMVArun2017v2Medium,
+                self.process.rerunDiscriminationByIsolationOldDMMVArun2017v2Tight,
+                self.process.rerunDiscriminationByIsolationOldDMMVArun2017v2VTight,
+                self.process.rerunDiscriminationByIsolationOldDMMVArun2017v2VVTight
             )
+            self.process.rerunMvaIsolationTask.add(self.rerunIsolationOldDMMVArun2017v2Task)
+            self.process.rerunMvaIsolationSequence += self.cms.Sequence(self.rerunIsolationOldDMMVArun2017v2Task)
 
             tauIDSources.byIsolationMVArun2017v2DBoldDMwLTraw2017 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v2raw')
             tauIDSources.byVVLooseIsolationMVArun2017v2DBoldDMwLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v2VVLoose')
@@ -283,8 +291,9 @@ class TauIDEmbedder(object):
                 }
             }
 
-            if self.debug: print "runTauID: not is_above_cmssw_version(10, 0, 0). Will update the list of available in DB samples to access newDM2017v2"
-            self.loadMVA_WPs_run2_2017()
+            if not self.is_above_cmssw_version(9, 4, 5, self.debug):
+                if self.debug: print "runTauID: not is_above_cmssw_version(9, 4, 5). Will update the list of available in DB samples to access newDM2017v2"
+                self.loadMVA_WPs_run2_2017()
 
             self.process.rerunDiscriminationByIsolationNewDMMVArun2017v2raw = patDiscriminationByIsolationMVArun2v1raw.clone(
                 PATTauProducer = self.cms.InputTag('slimmedTaus'),
@@ -326,16 +335,18 @@ class TauIDEmbedder(object):
             self.process.rerunDiscriminationByIsolationNewDMMVArun2017v2VVTight = self.process.rerunDiscriminationByIsolationNewDMMVArun2017v2VLoose.clone()
             self.process.rerunDiscriminationByIsolationNewDMMVArun2017v2VVTight.mapping[0].cut = self.cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2017v2_WPEff40")
 
-            self.process.rerunMvaIsolationSequence += self.cms.Sequence(
-                self.process.rerunDiscriminationByIsolationNewDMMVArun2017v2raw
-                *self.process.rerunDiscriminationByIsolationNewDMMVArun2017v2VLoose
-                *self.process.rerunDiscriminationByIsolationNewDMMVArun2017v2VVLoose
-                *self.process.rerunDiscriminationByIsolationNewDMMVArun2017v2Loose
-                *self.process.rerunDiscriminationByIsolationNewDMMVArun2017v2Medium
-                *self.process.rerunDiscriminationByIsolationNewDMMVArun2017v2Tight
-                *self.process.rerunDiscriminationByIsolationNewDMMVArun2017v2VTight
-                *self.process.rerunDiscriminationByIsolationNewDMMVArun2017v2VVTight
+            self.rerunIsolationNewDMMVArun2017v2Task = self.cms.Task(
+                self.process.rerunDiscriminationByIsolationNewDMMVArun2017v2raw,
+                self.process.rerunDiscriminationByIsolationNewDMMVArun2017v2VLoose,
+                self.process.rerunDiscriminationByIsolationNewDMMVArun2017v2VVLoose,
+                self.process.rerunDiscriminationByIsolationNewDMMVArun2017v2Loose,
+                self.process.rerunDiscriminationByIsolationNewDMMVArun2017v2Medium,
+                self.process.rerunDiscriminationByIsolationNewDMMVArun2017v2Tight,
+                self.process.rerunDiscriminationByIsolationNewDMMVArun2017v2VTight,
+                self.process.rerunDiscriminationByIsolationNewDMMVArun2017v2VVTight
             )
+            self.process.rerunMvaIsolationTask.add(self.rerunIsolationNewDMMVArun2017v2Task)
+            self.process.rerunMvaIsolationSequence += self.cms.Sequence(self.rerunIsolationNewDMMVArun2017v2Task)
 
             tauIDSources.byIsolationMVArun2017v2DBnewDMwLTraw2017 = self.cms.InputTag('rerunDiscriminationByIsolationNewDMMVArun2017v2raw')
             tauIDSources.byVVLooseIsolationMVArun2017v2DBnewDMwLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationNewDMMVArun2017v2VVLoose')
@@ -363,8 +374,9 @@ class TauIDEmbedder(object):
                 }
             }
 
-            if self.debug: print "runTauID: not is_above_cmssw_version(10, 0, 0). Will update the list of available in DB samples to access dR0p32017v2"
-            self.loadMVA_WPs_run2_2017()
+            if not self.is_above_cmssw_version(9, 4, 5, self.debug):
+                if self.debug: print "runTauID: not is_above_cmssw_version(9, 4, 5). Will update the list of available in DB samples to access dR0p32017v2"
+                self.loadMVA_WPs_run2_2017()
 
             self.process.rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2raw = patDiscriminationByIsolationMVArun2v1raw.clone(
                 PATTauProducer = self.cms.InputTag('slimmedTaus'),
@@ -410,16 +422,18 @@ class TauIDEmbedder(object):
             self.process.rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2VVTight = self.process.rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2VLoose.clone()
             self.process.rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2VVTight.mapping[0].cut = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT2017v2_WPEff40")
 
-            self.process.rerunMvaIsolationSequence += self.cms.Sequence(
-                self.process.rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2raw
-                *self.process.rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2VLoose
-                *self.process.rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2VVLoose
-                *self.process.rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2Loose
-                *self.process.rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2Medium
-                *self.process.rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2Tight
-                *self.process.rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2VTight
-                *self.process.rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2VVTight
+            self.rerunIsolationOldDMdR0p3MVArun2017v2Task = self.cms.Task(
+                self.process.rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2raw,
+                self.process.rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2VLoose,
+                self.process.rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2VVLoose,
+                self.process.rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2Loose,
+                self.process.rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2Medium,
+                self.process.rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2Tight,
+                self.process.rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2VTight,
+                self.process.rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2VVTight
             )
+            self.process.rerunMvaIsolationTask.add(self.rerunIsolationOldDMdR0p3MVArun2017v2Task)
+            self.process.rerunMvaIsolationSequence += self.cms.Sequence(self.rerunIsolationOldDMdR0p3MVArun2017v2Task)
 
             tauIDSources.byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2raw')
             tauIDSources.byVVLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2VVLoose')
@@ -496,15 +510,17 @@ class TauIDEmbedder(object):
             self.process.rerunDiscriminationByIsolationOldDMMVArun2v1VVTight = self.process.rerunDiscriminationByIsolationOldDMMVArun2v1VLoose.clone()
             self.process.rerunDiscriminationByIsolationOldDMMVArun2v1VVTight.mapping[0].cut = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v1_WPEff40")
 
-            self.process.rerunMvaIsolationSequence += self.cms.Sequence(
-                self.process.rerunDiscriminationByIsolationOldDMMVArun2v1raw
-                *self.process.rerunDiscriminationByIsolationOldDMMVArun2v1VLoose
-                *self.process.rerunDiscriminationByIsolationOldDMMVArun2v1Loose
-                *self.process.rerunDiscriminationByIsolationOldDMMVArun2v1Medium
-                *self.process.rerunDiscriminationByIsolationOldDMMVArun2v1Tight
-                *self.process.rerunDiscriminationByIsolationOldDMMVArun2v1VTight
-                *self.process.rerunDiscriminationByIsolationOldDMMVArun2v1VVTight
+            self.rerunIsolationOldDMMVArun2016v1Task = self.cms.Task(
+                self.process.rerunDiscriminationByIsolationOldDMMVArun2v1raw,
+                self.process.rerunDiscriminationByIsolationOldDMMVArun2v1VLoose,
+                self.process.rerunDiscriminationByIsolationOldDMMVArun2v1Loose,
+                self.process.rerunDiscriminationByIsolationOldDMMVArun2v1Medium,
+                self.process.rerunDiscriminationByIsolationOldDMMVArun2v1Tight,
+                self.process.rerunDiscriminationByIsolationOldDMMVArun2v1VTight,
+                self.process.rerunDiscriminationByIsolationOldDMMVArun2v1VVTight
             )
+            self.process.rerunMvaIsolationTask.add(self.rerunIsolationOldDMMVArun2016v1Task)
+            self.process.rerunMvaIsolationSequence += self.cms.Sequence(self.rerunIsolationOldDMMVArun2016v1Task)
 
             tauIDSources.byIsolationMVArun2v1DBoldDMwLTraw2016 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2v1raw')
             tauIDSources.byVLooseIsolationMVArun2v1DBoldDMwLT2016 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2v1VLoose')
@@ -553,15 +569,17 @@ class TauIDEmbedder(object):
             self.process.rerunDiscriminationByIsolationNewDMMVArun2v1VVTight = self.process.rerunDiscriminationByIsolationNewDMMVArun2v1VLoose.clone()
             self.process.rerunDiscriminationByIsolationNewDMMVArun2v1VVTight.mapping[0].cut = self.cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2016v1_WPEff40")
 
-            self.process.rerunMvaIsolationSequence += self.cms.Sequence(
-                self.process.rerunDiscriminationByIsolationNewDMMVArun2v1raw
-                *self.process.rerunDiscriminationByIsolationNewDMMVArun2v1VLoose
-                *self.process.rerunDiscriminationByIsolationNewDMMVArun2v1Loose
-                *self.process.rerunDiscriminationByIsolationNewDMMVArun2v1Medium
-                *self.process.rerunDiscriminationByIsolationNewDMMVArun2v1Tight
-                *self.process.rerunDiscriminationByIsolationNewDMMVArun2v1VTight
-                *self.process.rerunDiscriminationByIsolationNewDMMVArun2v1VVTight
+            self.rerunIsolationNewDMMVArun2016v1Task = self.cms.Task(
+                self.process.rerunDiscriminationByIsolationNewDMMVArun2v1raw,
+                self.process.rerunDiscriminationByIsolationNewDMMVArun2v1VLoose,
+                self.process.rerunDiscriminationByIsolationNewDMMVArun2v1Loose,
+                self.process.rerunDiscriminationByIsolationNewDMMVArun2v1Medium,
+                self.process.rerunDiscriminationByIsolationNewDMMVArun2v1Tight,
+                self.process.rerunDiscriminationByIsolationNewDMMVArun2v1VTight,
+                self.process.rerunDiscriminationByIsolationNewDMMVArun2v1VVTight
             )
+            self.process.rerunMvaIsolationTask.add(self.rerunIsolationNewDMMVArun2016v1Task)
+            self.process.rerunMvaIsolationSequence += self.cms.Sequence(self.rerunIsolationNewDMMVArun2016v1Task)
 
             tauIDSources.byIsolationMVArun2v1DBnewDMwLTraw2016 = self.cms.InputTag('rerunDiscriminationByIsolationNewDMMVArun2v1raw')
             tauIDSources.byVLooseIsolationMVArun2v1DBnewDMwLT2016 = self.cms.InputTag('rerunDiscriminationByIsolationNewDMMVArun2v1VLoose')
@@ -572,7 +590,7 @@ class TauIDEmbedder(object):
             tauIDSources.byVVTightIsolationMVArun2v1DBnewDMwLT2016 = self.cms.InputTag('rerunDiscriminationByIsolationNewDMMVArun2v1VVTight')
 
         if "deepTau2017v1" in self.toKeep:
-            print "Adding DeepTau isolation"
+            print "Adding DeepTau IDs"
 
             working_points = {
                 "e": {
@@ -607,21 +625,20 @@ class TauIDEmbedder(object):
                     "VVTight": "0.9859"
                 }
             }
-            self.process.DeepTau2017v1 = self.cms.EDProducer("DeepTauId",
+            self.process.deepTau2017v1 = self.cms.EDProducer("DeepTauId",
                 electrons = self.cms.InputTag('slimmedElectrons'),
                 muons = self.cms.InputTag('slimmedMuons'),
                 taus = self.cms.InputTag('slimmedTaus'),
                 graph_file = self.cms.string('RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N.pb')
             )
 
-            self.ProcessDeepProducer('DeepTau2017v1', tauIDSources, working_points)
+            self.processDeepProducer('deepTau2017v1', tauIDSources, working_points)
 
-            self.process.rerunMvaIsolationSequence += self.cms.Sequence(
-                self.process.DeepTau2017v1
-            )
+            self.process.rerunMvaIsolationTask.add(self.process.deepTau2017v1)
+            self.process.rerunMvaIsolationSequence += self.process.deepTau2017v1
 
 	if "DPFTau_2016_v0" in self.toKeep:
-            print "Adding DPF isolation"
+            print "Adding DPFTau isolation (v0)"
 
             working_points = {
                 "all": {
@@ -635,56 +652,54 @@ class TauIDEmbedder(object):
                 }
             }
 
-            self.process.DPFTau2016v0 = self.cms.EDProducer("DPFIsolation",
+            self.process.dpfTau2016v0 = self.cms.EDProducer("DPFIsolation",
                 pfcands     = self.cms.InputTag('packedPFCandidates'),
                 taus 	    = self.cms.InputTag('slimmedTaus'),
                 vertices    = self.cms.InputTag('offlineSlimmedPrimaryVertices'),
                 graph_file  = self.cms.string('RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v0.pb')
             )
 
-            self.ProcessDeepProducer('DPFTau2016v0', tauIDSources, working_points)
+            self.processDeepProducer('dpfTau2016v0', tauIDSources, working_points)
 
-            self.process.rerunMvaIsolationSequence += self.cms.Sequence(
-                self.process.DPFTau2016v0
-            )
+            self.process.rerunMvaIsolationTask.add(self.process.dpfTau2016v0)
+            self.process.rerunMvaIsolationSequence += self.process.dpfTau2016v0
 
         if "DPFTau_2016_v1" in self.toKeep:
-            print "Adding DPF isolation"
+            print "Adding DPFTau isolation (v1)"
 
             working_points = {
-                "all": {"Tight" : "0.123"}
+                "all": {"Tight" : "0.123"} #FIXME: define WP
             }
 
-            self.process.DPFTau2016v1 = self.cms.EDProducer("DPFIsolation",
+            self.process.dpfTau2016v1 = self.cms.EDProducer("DPFIsolation",
                 pfcands     = self.cms.InputTag('packedPFCandidates'),
                 taus 	    = self.cms.InputTag('slimmedTaus'),
                 vertices    = self.cms.InputTag('offlineSlimmedPrimaryVertices'),
                 graph_file  = self.cms.string('RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v1.pb')
             )
 
-            self.ProcessDeepProducer('DPFTau2016v1', tauIDSources, working_points)
+            self.processDeepProducer('dpfTau2016v1', tauIDSources, working_points)
 
-            self.process.rerunMvaIsolationSequence += self.cms.Sequence(
-                self.process.DPFTau2016v1
-            )
+            self.process.rerunMvaIsolationTask.add(self.process.dpfTau2016v1)
+            self.process.rerunMvaIsolationSequence += self.process.dpfTau2016v1
 
-        print("Doing an embedding ")
+        print('Embedding new TauIDs into \"'+self.updatedTauName+'\"')
         embedID = self.cms.EDProducer("PATTauIDEmbedder",
             src = self.cms.InputTag('slimmedTaus'),
             tauIDSources = tauIDSources
         )
-        self.process.NewTauIDsEmbedded = embedID
+        setattr(self.process, self.updatedTauName, embedID)
 
 
-    def ProcessDeepProducer(self, producer_name, tauIDSources, working_points):
+    def processDeepProducer(self, producer_name, tauIDSources, working_points):
         for target,points in working_points.iteritems():
             cuts = self.cms.PSet()
-            setattr(tauIDSources, 'by{}VS{}raw'.format(producer_name, target),
+            setattr(tauIDSources, 'by{}VS{}raw'.format(producer_name[0].upper()+producer_name[1:], target),
                         self.cms.InputTag(producer_name, 'VS{}'.format(target)))
             for point,cut in points.iteritems():
                 setattr(cuts, point, self.cms.string(cut))
 
-                setattr(tauIDSources, 'by{}{}VS{}'.format(point, producer_name, target),
+                setattr(tauIDSources, 'by{}{}VS{}'.format(point, producer_name[0].upper()+producer_name[1:], target),
                         self.cms.InputTag(producer_name, 'VS{}{}'.format(target, point)))
 
             setattr(getattr(self.process, producer_name), 'VS{}WP'.format(target), cuts)
