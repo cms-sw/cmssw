@@ -18,7 +18,7 @@ namespace StubPtConsistency {
     float trk_signedPt = (speedOfLight/UnitConversion)*mMagneticFieldStrength/aTrack.getRInv(nPar); // P(MeV/c) = (c/10^9)·Q·B(kG)·R(cm)
 
     // loop over stubs
-    std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > stubRefs = aTrack.getStubRefs();
+    const auto& stubRefs = aTrack.getStubRefs();
     int nStubs = stubRefs.size();
 
     for ( const auto& stubRef : stubRefs) {
