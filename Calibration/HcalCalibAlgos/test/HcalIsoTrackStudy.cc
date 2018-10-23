@@ -211,9 +211,6 @@ private:
   std::vector<double>       *t_HitEnergyHC, *t_HitDistHC;
 };
 
-static const bool useL1EventSetup(false);
-static const bool useL1GtTriggerMenuLite(true);
-
 HcalIsoTrackStudy::HcalIsoTrackStudy(const edm::ParameterSet& iConfig) : 
   trigNames_(iConfig.getParameter<std::vector<std::string> >("triggers")),
   theTrackQuality_(iConfig.getParameter<std::string>("trackQuality")),
@@ -442,7 +439,6 @@ void HcalIsoTrackStudy::analyze(edm::Event const& iEvent, edm::EventSetup const&
   //Get track collection
   edm::Handle<reco::TrackCollection> trkCollection;
   iEvent.getByToken(tok_genTrack_, trkCollection);
-  reco::TrackCollection::const_iterator trkItr;
   if (!trkCollection.isValid()) {
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " 
 				    << labelGenTrack_;
@@ -774,7 +770,7 @@ void HcalIsoTrackStudy::beginJob() {
   tree->Branch("t_DetIds",      "std::vector<unsigned int>", &t_DetIds);
   tree->Branch("t_HitEnergies", "std::vector<double>",       &t_HitEnergies);
   if (((mode_/10)%10) == 1) {
-    tree->Branch("t_trgbits",     "std::vector<bool>",         &t_trgbits); 
+    tree->Branch("t_trgbits",   "std::vector<bool>",         &t_trgbits); 
   }
   if ((mode_%10) == 1) {
     tree->Branch("t_DetIds1",      "std::vector<unsigned int>", &t_DetIds1);

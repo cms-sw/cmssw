@@ -186,9 +186,6 @@ private:
   std::vector<int>          *t_ietaAll, *t_ietaGood, *t_trackType;
 };
 
-static const bool useL1EventSetup(false);
-static const bool useL1GtTriggerMenuLite(true);
-
 HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig) : 
   trigNames_(iConfig.getParameter<std::vector<std::string> >("triggers")),
   theTrackQuality_(iConfig.getParameter<std::string>("trackQuality")),
@@ -421,7 +418,6 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
   //Get track collection
   edm::Handle<reco::TrackCollection> trkCollection;
   iEvent.getByToken(tok_genTrack_, trkCollection);
-  reco::TrackCollection::const_iterator trkItr;
   if (!trkCollection.isValid()) {
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " 
 				    << labelGenTrack_;
@@ -720,10 +716,10 @@ void HcalIsoTrkAnalyzer::beginJob() {
   tree->Branch("t_mindR1",      &t_mindR1,      "t_mindR1/D");
   tree->Branch("t_mindR2",      &t_mindR2,      "t_mindR2/D");
   tree->Branch("t_eMipDR",      &t_eMipDR,      "t_eMipDR/D");
-  tree->Branch("t_eMipDR2",      &t_eMipDR2,      "t_eMipDR2/D");
-  tree->Branch("t_eMipDR3",      &t_eMipDR3,      "t_eMipDR3/D");
-  tree->Branch("t_eMipDR4",      &t_eMipDR4,      "t_eMipDR4/D");
-  tree->Branch("t_eMipDR5",      &t_eMipDR5,      "t_eMipDR5/D");
+  tree->Branch("t_eMipDR2",     &t_eMipDR2,     "t_eMipDR2/D");
+  tree->Branch("t_eMipDR3",     &t_eMipDR3,     "t_eMipDR3/D");
+  tree->Branch("t_eMipDR4",     &t_eMipDR4,     "t_eMipDR4/D");
+  tree->Branch("t_eMipDR5",     &t_eMipDR5,     "t_eMipDR5/D");
   tree->Branch("t_eHcal",       &t_eHcal,       "t_eHcal/D");
   tree->Branch("t_eHcal10",     &t_eHcal10,     "t_eHcal10/D");
   tree->Branch("t_eHcal30",     &t_eHcal30,     "t_eHcal30/D");
@@ -1061,7 +1057,7 @@ std::array<int,3> HcalIsoTrkAnalyzer::fillTree(std::vector< math::XYZTLorentzVec
       edm::LogVerbatim("HcalIsoTrack") << "eMIP before and after: " << t_eMipDR4
 				       << ":" << eEcal4;
 #endif
-      t_eMipDR = eEcal4;
+      t_eMipDR4 = eEcal4;
       ////////////////////////////////-MIP STUFF-4/////////////////////////////
       ////////////////////////////////-MIP STUFF-5/////////////////////////////
       std::vector<DetId>  eIds5;
