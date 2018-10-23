@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 process = cms.Process("TEST", Run2_2018)

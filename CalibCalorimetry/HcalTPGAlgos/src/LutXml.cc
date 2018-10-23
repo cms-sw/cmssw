@@ -28,7 +28,9 @@
 using namespace std;
 XERCES_CPP_NAMESPACE_USE
 
-LutXml::Config::_Config() {
+LutXml::Config::_Config()
+{
+  infotype = "LUT";
   ieta = -1000;
   iphi = -1000;
   depth = -1;
@@ -81,6 +83,7 @@ void LutXml::addLut(LutXml::Config &_config, XMLDOMBlock *checksums_xml) {
   brickElem = document->createElement(XMLProcessor::_toXMLCh("CFGBrick"));
   rootElem->appendChild(brickElem);
 
+  addParameter( "INFOTYPE", "string", _config.infotype );
   addParameter("CREATIONTAG", "string", _config.creationtag);
   addParameter("CREATIONSTAMP", "string", _config.creationstamp);
   addParameter("FORMATREVISION", "string", _config.formatrevision);
