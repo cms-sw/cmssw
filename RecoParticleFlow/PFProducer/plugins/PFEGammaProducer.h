@@ -9,9 +9,6 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 
-// useful?
-#include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -32,13 +29,7 @@
 
 #include "RecoParticleFlow/PFProducer/interface/PFEGammaAlgo.h"
 
-class PFEnergyCalibrationHF;
-class PFEnergyCalibration;
-class PFSCEnergyCalibration;
-class PFEnergyCalibrationHF;
-class GBRForest;
-
-/**\class PFEGammaProducer 
+/**\class PFEGammaProducer
 \brief Producer for particle flow reconstructed particles (PFCandidates)
 
 This producer makes use of PFAlgo, the particle flow algorithm.
@@ -49,99 +40,50 @@ This producer makes use of PFAlgo, the particle flow algorithm.
 
 
 class PFEGammaProducer : public edm::stream::EDProducer<edm::GlobalCache<pfEGHelpers::HeavyObjectCache> > {
+
  public:
   explicit PFEGammaProducer(const edm::ParameterSet&, const pfEGHelpers::HeavyObjectCache* );
-  ~PFEGammaProducer() override;
-  
-  static std::unique_ptr<pfEGHelpers::HeavyObjectCache> 
+  ~PFEGammaProducer() override {}
+
+  static std::unique_ptr<pfEGHelpers::HeavyObjectCache>
     initializeGlobalCache( const edm::ParameterSet& conf ) {
        return std::unique_ptr<pfEGHelpers::HeavyObjectCache>(new pfEGHelpers::HeavyObjectCache(conf));
    }
-  
-  static void globalEndJob(pfEGHelpers::HeavyObjectCache const* ) {
-  }
+
+  static void globalEndJob(pfEGHelpers::HeavyObjectCache const* ) {}
 
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void beginRun(const edm::Run &, const edm::EventSetup &) override;
+  void beginRun(const edm::Run &, const edm::EventSetup &) override {}
 
- private:  
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  void setPFEGParameters(PFEGammaAlgo::PFEGConfigInfo&);  
-  
-  void setPFVertexParameters(bool useVertex,
-			     const reco::VertexCollection*  primaryVertices);	  
-   
-  void createSingleLegConversions(reco::PFCandidateEGammaExtraCollection &extras, reco::ConversionCollection &oneLegConversions, const edm::RefProd<reco::ConversionCollection> &convProd);
-  
-  
-  edm::EDGetTokenT<reco::PFBlockCollection>  inputTagBlocks_;
-  edm::EDGetTokenT<reco::PFCluster::EEtoPSAssociation> eetopsSrc_;
-  edm::EDGetTokenT<reco::VertexCollection>  vertices_;
+ private:
 
-  //Use of HO clusters and links in PF Reconstruction
+  void setPFEGParameters(PFEGammaAlgo::PFEGConfigInfo&);
 
-  /// verbose ?
-  bool  verbose_;
+  void setPFVertexParameters(const reco::VertexCollection*  primaryVertices);
 
-  // Use photon regression
-  bool usePhotonReg_;
-  bool useRegressionFromDB_;
-  const GBRForest* ReaderGC_;
-  const GBRForest* ReaderLC_;
-  const GBRForest* ReaderRes_;
-  //const GBRForest* ReaderLCEB_;
-  //const GBRForest* ReaderLCEE_;
-  //const GBRForest* ReaderGCBarrel_;
-  //const GBRForest* ReaderGCEndCapHighr9_;
-  //const GBRForest* ReaderGCEndCapLowr9_;
-  //const GBRForest* ReaderEcalRes_;
-  // what about e/g electrons ?
-  bool useEGammaElectrons_;
+  void createSingleLegConversions(reco::PFCandidateEGammaExtraCollection &extras,
+                                  reco::ConversionCollection &oneLegConversions,
+                                  const edm::RefProd<reco::ConversionCollection> &convProd);
+
+
+  const edm::EDGetTokenT<reco::PFBlockCollection>            inputTagBlocks_;
+  const edm::EDGetTokenT<reco::PFCluster::EEtoPSAssociation> eetopsSrc_;
+  const edm::EDGetTokenT<reco::VertexCollection>             vertices_;
 
   // Use vertices for Neutral particles ?
-  bool useVerticesForNeutral_;
+  const bool useVerticesForNeutral_;
 
-  // Take PF cluster calibrations from Global Tag ?
-  bool useCalibrationsFromDB_;
-
-  std::shared_ptr<PFSCEnergyCalibration> thePFSCEnergyCalibration_;  
-  
   /// Variables for PFEGamma
-  std::string mvaWeightFileEleID_;
-  std::vector<double> setchi2Values_;
-  double mvaEleCut_;
-  bool usePFElectrons_;
-  bool usePFPhotons_;
-  bool applyCrackCorrectionsElectrons_;
-  bool usePFSCEleCalib_;
-  bool useEGElectrons_;
-  bool useEGammaSupercluster_;
-  double sumEtEcalIsoForEgammaSC_barrel_;
-  double sumEtEcalIsoForEgammaSC_endcap_;
-  double coneEcalIsoForEgammaSC_;
-  double sumPtTrackIsoForEgammaSC_barrel_;
-  double sumPtTrackIsoForEgammaSC_endcap_;
-  double coneTrackIsoForEgammaSC_;
-  unsigned int nTrackIsoForEgammaSC_;  
-  
-  reco::Vertex       primaryVertex_;
-  
-  std::unique_ptr<reco::PFCandidateCollection> egCandidates_;
-  std::unique_ptr<reco::PFCandidateEGammaExtraCollection> egExtra_;
-  std::unique_ptr<reco::ConversionCollection> singleLegConv_;
-  std::unique_ptr<reco::SuperClusterCollection> sClusters_;  
 
-  /// the unfiltered electron collection 
-    
-  
-  // Name of the calibration functions to read from the database
-  // std::vector<std::string> fToRead;
-  
+  reco::Vertex primaryVertex_;
+
   /// particle flow algorithm
-  std::unique_ptr<PFEGammaAlgo>      pfeg_;
-  
-  std::string ebeeClustersCollection_;
-  std::string esClustersCollection_;
+  std::unique_ptr<PFEGammaAlgo> pfeg_;
+
+  const std::string ebeeClustersCollection_;
+  const std::string esClustersCollection_;
 
 };
 
