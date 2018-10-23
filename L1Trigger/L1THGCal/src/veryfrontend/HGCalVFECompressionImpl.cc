@@ -12,8 +12,6 @@ HGCalVFECompressionImpl(const edm::ParameterSet& conf):
   }
   saturationCode_ = (1 << (exponentBits_ + mantissaBits_)) - 1;
   saturationValue_ = (1 << ((1 << exponentBits_) + mantissaBits_ - 1)) - 1;
-  // TODO: for non-saturating need to get maximum code point as well?
-  // i.e. 8-bit compressed code that would hit 0xffffffff
 }
 
 void
@@ -79,8 +77,8 @@ compress(const std::map<HGCalDetId, uint32_t>& payload,
 {
   for (const auto& item : payload) {
     const uint32_t value = item.second;
-    uint32_t code;
-    uint32_t compressed_value;
+    uint32_t code(0);
+    uint32_t compressed_value(0);
     compressSingle(value, code, compressed_value);
     std::array<uint32_t, 2> compressed_item = {{ code, compressed_value }};
     compressed_payload.insert( std::make_pair(item.first, compressed_item) );
