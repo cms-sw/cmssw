@@ -18,7 +18,8 @@ HcalAlignmentEP::~HcalAlignmentEP() {}
  
 HcalAlignmentEP::ReturnAli HcalAlignmentEP::produceHcalAli( const HcalAlignmentRcd& iRecord ) {
 
-  HcalAlignmentEP::ReturnAli ali ( new Alignments ) ;
+  auto ali = std::make_unique<Alignments>();
+
   std::vector<AlignTransform>& vtr ( ali->m_align ) ;
   const unsigned int nA ( HcalGeometry::numberOfAlignments() ) ; 
   vtr.resize( nA ) ;

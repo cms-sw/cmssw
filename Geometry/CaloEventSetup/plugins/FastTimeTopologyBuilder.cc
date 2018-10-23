@@ -44,7 +44,7 @@ public:
   FastTimeTopologyBuilder( const edm::ParameterSet& iP );
   ~FastTimeTopologyBuilder() override ;
 
-  typedef std::shared_ptr< FastTimeTopology > ReturnType;
+  using ReturnType = std::unique_ptr<FastTimeTopology>;
 
   ReturnType produce(const IdealGeometryRecord&);
 
@@ -84,11 +84,10 @@ FastTimeTopologyBuilder::produce(const IdealGeometryRecord& iRecord ) {
   iRecord.get(pHGDC) ;
   const FastTimeDDDConstants & hgdc = (*pHGDC);
 
-  ReturnType ct ( new FastTimeTopology(hgdc, subdet_, type_) ) ;
 #ifdef EDM_ML_DEBUG
   std::cout << "Create FastTimeTopology(hgdc,subdet,type)" << std::endl;
 #endif
-  return ct ;
+  return std::make_unique<FastTimeTopology>(hgdc, subdet_, type_);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(FastTimeTopologyBuilder);

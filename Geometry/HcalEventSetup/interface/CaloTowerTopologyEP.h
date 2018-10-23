@@ -29,7 +29,7 @@ public:
   CaloTowerTopologyEP(const edm::ParameterSet&);
   ~CaloTowerTopologyEP() override;
 
-  typedef std::shared_ptr<CaloTowerTopology> ReturnType;
+  using ReturnType = std::unique_ptr<CaloTowerTopology>;
 
   static void fillDescriptions( edm::ConfigurationDescriptions & descriptions );
     
