@@ -14,11 +14,12 @@ class HGCalVFECompressionImpl
 
   void compress(const std::map<HGCalDetId, uint32_t>&,
                 std::map<HGCalDetId, std::array<uint32_t, 2> >&);
+
+ private:
   void compressSingle(const uint32_t value,
                       uint32_t & compressedCode,
                       uint32_t & compressedValue);
      
- private:
   uint32_t exponentBits_;
   uint32_t mantissaBits_;
   bool     rounding_;
