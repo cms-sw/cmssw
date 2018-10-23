@@ -56,8 +56,8 @@ done
 
 dump(){
     CheckParameter record 
-    CheckParameter run
-    CheckParameter GT
+    CheckParameter Run
+    CheckParameter GlobalTag
 
     dumpCmd="cmsRun $CMSSW_RELEASE_BASE/src/CondTools/Hcal/test/runDumpHcalCond_cfg.py geometry=DB prefix="""
 
@@ -68,19 +68,19 @@ dump(){
 
     if [ ! -z $tag ]
     then
-	if ! $dumpCmd dumplist=$record run=$run globaltag=$GT  frontierloc=$frontier frontierlist=Hcal${record}Rcd:$tag  
+	if ! $dumpCmd dumplist=$record run=$Run globaltag=$GlobalTag  frontierloc=$frontier frontierlist=Hcal${record}Rcd:$tag  
 	then
 	    exit 1
 	fi
     else 
-	if ! $dumpCmd dumplist=$record run=$run globaltag=$GT 
+	if ! $dumpCmd dumplist=$record run=$Run globaltag=$GlobalTag 
 	then
 	    exit 1
 	fi
     fi
 
     mkdir -p $CondDir/$record
-    mv ${record}_Run$run.txt $CondDir/$record/.
+    mv ${record}_Run$Run.txt $CondDir/$record/.
 }
 
 if [[ "$cmd" == "dump" ]]
@@ -93,10 +93,10 @@ then
     CheckFile $card
     source $card
     for i in ${inputConditions[@]}; do
-	t=$i
-	./genLUT.sh dump run=$Run record=$t GT=$GlobalTag tag=${!t}
+	record=$i
+	tag=${!t}
+	dump 
     done
-
 
 
 elif [[ "$cmd" == "generate" ]]
@@ -204,10 +204,8 @@ then
 elif [ "$cmd" == "makeTriggerKey" ]
 then
     CheckParameter card
-    CheckParameter l1totag 
+    CheckParameter l1to
     CheckParameter production
-    CheckParameter o2oL1TriggerObjects
-    CheckParameter o2oInputs
     CheckFile $card
     source $card
     tktag=HCAL_$Tag
@@ -229,12 +227,12 @@ then
     <Parameter type=\"string\" name=\"CREATIONSTAMP\">$dd</Parameter>
     <Parameter type=\"string\" name=\"CREATIONTAG\">$tktag</Parameter> 
     <Parameter type=\"string\" name=\"HCAL_LUT_TAG\">$Tag</Parameter>  
-    <Parameter type=\"boolean\" name=\"updateInputs\">$o2oInputs</Parameter>  
-    <Parameter type=\"boolean\" name=\"updateL1TriggerObjects\">$o2oL1TriggerObjects</Parameter>  
+    <Parameter type=\"boolean\" name=\"updateInputs\">$O2OInputs</Parameter>  
+    <Parameter type=\"boolean\" name=\"updateL1TriggerObjects\">$O2OL1TriggerObjects</Parameter>  
     <Parameter type=\"string\" name=\"GlobalTag\">$GlobalTag</Parameter> 
     <Parameter type=\"string\" name=\"CMSSW\">$CMSSW_VERSION</Parameter> 
     <Parameter type=\"string\" name=\"InputRun\">$Run</Parameter>  
-    <Parameter type=\"string\" name=\"L1TriggerObjects\">$l1totag</Parameter>$inputs
+    <Parameter type=\"string\" name=\"L1TriggerObjects\">$l1to</Parameter>$inputs
     <Data elements=\"1\">$production</Data> 
 </CFGBrick>
 </CFGBrickSet>""" > $CondDir/$Tag/$tktag.xml
