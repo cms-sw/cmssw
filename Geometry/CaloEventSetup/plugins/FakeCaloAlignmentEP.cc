@@ -61,8 +61,8 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 {
    public:
 
-      typedef std::shared_ptr<Alignments>      ReturnAli    ;
-      typedef std::shared_ptr<AlignmentErrors> ReturnAliErr ;
+      using ReturnAli = std::unique_ptr<Alignments>;
+      using ReturnAliErr = std::unique_ptr<AlignmentErrors>;
 
       typedef AlignTransform::Translation Trl ;
       typedef AlignTransform::Rotation    Rot ;
@@ -95,7 +95,7 @@ class FakeCaloAlignmentEP : public edm::ESProducer
  
       ReturnAli    produceEBAli( const EBAlignmentRcd& /*iRecord*/ ) 
       {
-	 ReturnAli ali ( new Alignments ) ;
+	 ReturnAli ali = std::make_unique<Alignments>();
 	 std::vector<AlignTransform>& vtr ( ali->m_align ) ;
 	 const unsigned int nA ( EcalBarrelGeometry::numberOfAlignments() ) ; 
 	 vtr.reserve( nA ) ;
@@ -112,14 +112,13 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 
       ReturnAliErr produceEBAliErr( const EBAlignmentErrorExtendedRcd& /*iRecord*/ ) 
       { 
-	 ReturnAliErr aliErr ( new AlignmentErrors ); 
-	 return aliErr ;
+         return std::make_unique<AlignmentErrors>();
       }
 //-------------------------------------------------------------------
 
       ReturnAli    produceEEAli( const EEAlignmentRcd& /*iRecord*/ ) 
       {
-	 ReturnAli ali ( new Alignments ) ;
+	 ReturnAli ali = std::make_unique<Alignments>();
 	 std::vector<AlignTransform>& vtr ( ali->m_align ) ;
 	 const unsigned int nA ( EcalEndcapGeometry::numberOfAlignments() ) ; 
 	 vtr.reserve( nA ) ;
@@ -135,14 +134,13 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 
       ReturnAliErr produceEEAliErr( const EEAlignmentErrorExtendedRcd& /*iRecord*/ ) 
       { 
-	 ReturnAliErr aliErr ( new AlignmentErrors ); 
-	 return aliErr ;
+         return std::make_unique<AlignmentErrors>();
       }
 //-------------------------------------------------------------------
 
       ReturnAli    produceESAli( const ESAlignmentRcd& /*iRecord*/ ) 
       {
-	 ReturnAli ali ( new Alignments ) ;
+	 ReturnAli ali = std::make_unique<Alignments>();
 	 std::vector<AlignTransform>& vtr ( ali->m_align ) ;
 	 const unsigned int nA ( EcalPreshowerGeometry::numberOfAlignments() ) ; 
 	 vtr.reserve( nA ) ;
@@ -158,14 +156,13 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 
       ReturnAliErr produceESAliErr( const ESAlignmentErrorExtendedRcd& /*iRecord*/ ) 
       { 
-	 ReturnAliErr aliErr ( new AlignmentErrors ); 
-	 return aliErr ;
+         return std::make_unique<AlignmentErrors>();
       }
 //-------------------------------------------------------------------
 
       ReturnAli    produceHBAli( const HBAlignmentRcd& /*iRecord*/ ) 
       {
-	 ReturnAli ali ( new Alignments ) ;
+	 ReturnAli ali = std::make_unique<Alignments>();
 	 std::vector<AlignTransform>& vtr ( ali->m_align ) ;
 	 const unsigned int nA ( HcalGeometry::numberOfBarrelAlignments() ) ; 
 	 vtr.reserve( nA ) ;
@@ -180,15 +177,14 @@ class FakeCaloAlignmentEP : public edm::ESProducer
       }
 
       ReturnAliErr produceHBAliErr( const HBAlignmentErrorExtendedRcd& /*iRecord*/ ) 
-      { 
-	 ReturnAliErr aliErr ( new AlignmentErrors ); 
-	 return aliErr ;
+      {
+         return std::make_unique<AlignmentErrors>();
       }
 //-------------------------------------------------------------------
 
       ReturnAli    produceHEAli( const HEAlignmentRcd& /*iRecord*/ ) 
       {
-	 ReturnAli ali ( new Alignments ) ;
+	 ReturnAli ali = std::make_unique<Alignments>();
 	 std::vector<AlignTransform>& vtr ( ali->m_align ) ;
 	 const unsigned int nA ( HcalGeometry::numberOfEndcapAlignments() ) ; 
 	 vtr.reserve( nA ) ;
@@ -203,15 +199,14 @@ class FakeCaloAlignmentEP : public edm::ESProducer
       }
 
       ReturnAliErr produceHEAliErr( const HEAlignmentErrorExtendedRcd& /*iRecord*/ ) 
-      { 
-	 ReturnAliErr aliErr ( new AlignmentErrors ); 
-	 return aliErr ;
+      {
+         return std::make_unique<AlignmentErrors>();
       }
 //-------------------------------------------------------------------
 
       ReturnAli    produceHOAli( const HOAlignmentRcd& /*iRecord*/ ) 
       {
-	 ReturnAli ali ( new Alignments ) ;
+	 ReturnAli ali = std::make_unique<Alignments>();
 	 std::vector<AlignTransform>& vtr ( ali->m_align ) ;
 	 const unsigned int nA ( HcalGeometry::numberOfOuterAlignments() ) ; 
 	 vtr.reserve( nA ) ;
@@ -226,15 +221,14 @@ class FakeCaloAlignmentEP : public edm::ESProducer
       }
 
       ReturnAliErr produceHOAliErr( const HOAlignmentErrorExtendedRcd& /*iRecord*/ ) 
-      { 
-	 ReturnAliErr aliErr ( new AlignmentErrors ); 
-	 return aliErr ;
+      {
+         return std::make_unique<AlignmentErrors>();
       }
 //-------------------------------------------------------------------
 
       ReturnAli    produceHFAli( const HFAlignmentRcd& /*iRecord*/ ) 
       {
-	 ReturnAli ali ( new Alignments ) ;
+	 ReturnAli ali = std::make_unique<Alignments>();
 	 std::vector<AlignTransform>& vtr ( ali->m_align ) ;
 	 const unsigned int nA ( HcalGeometry::numberOfForwardAlignments() ) ; 
 	 vtr.reserve( nA ) ;
@@ -250,14 +244,13 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 
       ReturnAliErr produceHFAliErr( const HFAlignmentErrorExtendedRcd& /*iRecord*/ ) 
       { 
-	 ReturnAliErr aliErr ( new AlignmentErrors ); 
-	 return aliErr ;
+         return std::make_unique<AlignmentErrors>();
       }
 //-------------------------------------------------------------------
 
       ReturnAli    produceZdcAli( const ZDCAlignmentRcd& /*iRecord*/ ) 
       {
-	 ReturnAli ali ( new Alignments ) ;
+	 ReturnAli ali = std::make_unique<Alignments>();
 	 std::vector<AlignTransform>& vtr ( ali->m_align ) ;
 	 const unsigned int nA ( ZdcGeometry::numberOfAlignments() ) ; 
 	 vtr.reserve( nA ) ;
@@ -273,14 +266,13 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 
       ReturnAliErr produceZdcAliErr( const ZDCAlignmentErrorExtendedRcd& /*iRecord*/ ) 
       { 
-	 ReturnAliErr aliErr ( new AlignmentErrors ); 
-	 return aliErr ;
+         return std::make_unique<AlignmentErrors>();
       }
 //-------------------------------------------------------------------
 
       ReturnAli    produceCastorAli( const CastorAlignmentRcd& /*iRecord*/ ) 
       {
-	 ReturnAli ali ( new Alignments ) ;
+	 ReturnAli ali = std::make_unique<Alignments>();
 	 std::vector<AlignTransform>& vtr ( ali->m_align ) ;
 	 const unsigned int nA ( CastorGeometry::numberOfAlignments() ) ; 
 	 vtr.reserve( nA ) ;
@@ -296,8 +288,7 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 
       ReturnAliErr produceCastorAliErr( const CastorAlignmentErrorExtendedRcd& /*iRecord*/ ) 
       { 
-	 ReturnAliErr aliErr ( new AlignmentErrors ); 
-	 return aliErr ;
+         return std::make_unique<AlignmentErrors>();
       }
 };
 
