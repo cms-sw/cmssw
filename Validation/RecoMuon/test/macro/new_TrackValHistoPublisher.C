@@ -301,9 +301,9 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
     drawopt[1]="hist";
     drawopt[2]="";
 
-    norm[0]= -1.;
-    norm[1]=  2.;
-    norm[2]= -1.;
+    norm[0]= 0.;
+    norm[1]= 0.;
+    norm[2]= 0.;
 
     logy[0]=true;
     logy[1]=false;
