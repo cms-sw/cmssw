@@ -33,7 +33,6 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 #process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
 #process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
-#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag = "102X_dataRun2_Express_v4"
 process.GlobalTag.RefreshEachRun = cms.untracked.bool(True)
 
@@ -51,7 +50,6 @@ process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/rpc_reference.root'
 process.load("EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi")
 
 ############## RPC Unpacker  ####################
-process.load("EventFilter.RPCRawToDigi.rpcUnpackingModule_cfi")
 process.rpcunpacker = cms.EDProducer("RPCUnpackingModule",
     InputLabel = cms.InputTag("source"),
     doSynchro = cms.bool(False)
@@ -65,7 +63,6 @@ process.load("EventFilter.RPCRawToDigi.RPCCPPFRawToDigi_cff")
 # process.load("EventFilter.RPCRawToDigi.RPCCPPFRawToDigi_sqlite_cff") #to load CPPF link maps from the local DB
 
 ### RPC RawToDigi - from OMTF
-process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 process.omtfStage2Digis = cms.EDProducer("OmtfUnpacker",
   inputLabel = cms.InputTag('rawDataCollector'),
 )
@@ -142,7 +139,7 @@ process.rpcChamberQualityMerger.RecHitTypeFolder = cms.untracked.string("AllHits
 
 ###############  Sequences ######################
 process.rpcSource = cms.Sequence( process.rpcunpacker
-                      * (process.rpcUnpackingModule + process.rpcTwinMuxRawToDigi + process.rpcCPPFRawToDigi + process.omtfStage2Digis) 
+                      * (process.rpcTwinMuxRawToDigi + process.rpcCPPFRawToDigi + process.omtfStage2Digis) 
                       * process.rpcDigiMerger 
                       * (process.rpcRecHits + process.rpcMergerRecHits)
                       * process.scalersRawToDigi
@@ -154,6 +151,7 @@ process.p = cms.Path(process.hltTriggerTypeFilter*process.rpcSource*process.rpcC
 
 process.rpcunpacker.InputLabel = cms.InputTag("rawDataCollector")
 process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
+process.rpcCPPFRawToDigi.inputTag = cms.InputTag("rawDataCollector")
 #--------------------------------------------------
 # Heavy Ion Specific Fed Raw Data Collection Label
 #--------------------------------------------------
@@ -163,6 +161,8 @@ print("Running with run type = ", process.runType.getRunType())
 if (process.runType.getRunType() == process.runType.hi_run):
     process.rpcunpacker.InputLabel = cms.InputTag("rawDataRepacker")
     process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
+    process.rpcCPPFRawToDigi.inputTag = cms.InputTag("rawDataRepacker")
+    process.omtfStage2Digis.inputLabel = cms.InputTag("rawDataRepacker")
     process.rpcEventSummary.MinimumRPCEvents  = cms.untracked.int32(100000)
     process.rpcEventSummaryMerger.MinimumRPCEvents  = cms.untracked.int32(100000)
 
