@@ -195,6 +195,7 @@ def cppboolstring(string, name):
     """
     return pythonboolstring(string, name).lower()
 
+conddbcode = None
 def conddb(*args):
     """
     Wrapper for conddb, so that you can run
@@ -204,29 +205,36 @@ def conddb(*args):
     getcommandoutput2(conddb ...) doesn't work, it imports
     the wrong sqlalchemy in CondCore/Utilities/python/conddblib.py
     """
-    from tempfile import NamedTemporaryFile
+    global conddbcode
+    from tempfile import mkdtemp, NamedTemporaryFile
 
-    with open(getCommandOutput2("which conddb").strip()) as f:
-        conddb = f.read()
+    if conddbcode is None:
+        conddbfile = getCommandOutput2("which conddb").strip()
+        tmpdir = mkdtemp()
+        getCommandOutput2("2to3 -f print -o " + tmpdir + " -n -w " + conddbfile)
+
+        with open(os.path.join(tmpdir, "conddb")) as f:
+            conddb = f.read()
+
+        conddbcode = conddb.replace("sys.exit", "sysexit")
 
     def sysexit(number):
         if number != 0:
             raise AllInOneError("conddb exited with status {}".format(number))
     namespace = {"sysexit": sysexit, "conddboutput": ""}
 
-    conddb = conddb.replace("sys.exit", "sysexit")
-
     bkpargv = sys.argv
     sys.argv[1:] = args
     bkpstdout = sys.stdout
-    with NamedTemporaryFile(bufsize=0) as sys.stdout:
-        exec(conddb, namespace)
-        namespace["main"]()
-        with open(sys.stdout.name) as f:
-            result = f.read()
-
-    sys.argv[:] = bkpargv
-    sys.stdout = bkpstdout
+    try:
+        with NamedTemporaryFile(bufsize=0) as sys.stdout:
+            exec(conddbcode, namespace)
+            namespace["main"]()
+            with open(sys.stdout.name) as f:
+                result = f.read()
+    finally:
+        sys.argv[:] = bkpargv
+        sys.stdout = bkpstdout
 
     return result
 
