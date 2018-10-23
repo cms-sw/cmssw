@@ -28,10 +28,11 @@ public:
   HGCalDDDConstants(const HGCalParameters* hp, const std::string& name);
   ~HGCalDDDConstants();
 
-  enum CellType {UndefinedType=-1, CentralType=0, BottomLeftEdge=1, LeftEdge=2,
-		 TopLeftEdge=3, TopRightEdge=4, RightEdge=5, BottomRightEdge=6,
-                 BottomCorner=11, BottomLeftCorner=12, TopLeftCorner=13,
-                 TopCorner=14, TopRightCorner=15, BottomRightCorner=16};
+  enum class CellType {
+      UndefinedType=-1, CentralType=0, BottomLeftEdge=1, LeftEdge=2,
+      TopLeftEdge=3, TopRightEdge=4, RightEdge=5, BottomRightEdge=6,
+      BottomCorner=11, BottomLeftCorner=12, TopLeftCorner=13,
+      TopCorner=14, TopRightCorner=15, BottomRightCorner=16};
 
   std::pair<int,int>  assignCell(float x, float y, int lay, int subSec,
 				 bool reco) const;
@@ -42,6 +43,10 @@ public:
   bool                cellInLayer(int waferU, int waferV, int cellU, int cellV,
 				  int lay, bool reco) const;
   double              cellSizeHex(int type) const;
+  std::pair<double,double> cellSizeTrap(int type, int irad) const {
+    return std::pair<double,double>(hgpar_->radiusLayer_[type][irad-1],
+				    hgpar_->radiusLayer_[type][irad]);
+  }
   double              cellThickness(int layer, int waferU, int waferV) const;
   CellType            cellType(int type, int waferU, int waferV) const;
   double              distFromEdgeHex(double x, double y, double z) const;
