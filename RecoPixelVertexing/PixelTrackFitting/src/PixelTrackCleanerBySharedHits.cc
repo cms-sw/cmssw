@@ -91,7 +91,7 @@ void PixelTrackCleanerBySharedHits::cleanTracks(TracksWithTTRHs & trackHitPairs)
       auto track2 = trackHitPairs[iTrack2].first;
       if (!track2) continue;
       auto const & recHits2 = trackHitPairs[iTrack2].second;
-      auto s2 = recHits1.size();
+      auto s2 = recHits2.size();
       auto commonRecHits = 0U;
       auto f2=0U;
       for (auto iRecHit1 = 0U; iRecHit1 < s1; ++iRecHit1) {
