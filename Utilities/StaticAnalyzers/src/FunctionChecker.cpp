@@ -40,7 +40,7 @@ public:
 
   const clang::Stmt * ParentStmt(const Stmt *S) {
   	const Stmt * P = AC->getParentMap().getParentIgnoreParens(S);
-	if (!P) return 0;
+	if (!P) return nullptr;
 	return P;
   }
 
@@ -189,8 +189,8 @@ void FunctionChecker::checkASTDecl(const FunctionTemplateDecl *TD, AnalysisManag
    	if (!support::isCmsLocalFile(sfile)) return;
 	std::string fname(sfile);
 	if ( !support::isInterestingLocation(fname) ) return;
-	for (FunctionTemplateDecl::spec_iterator I = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_begin(), 
-			E = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_end(); I != E; ++I) 
+	for (auto I = TD->spec_begin(), 
+			E = TD->spec_end(); I != E; ++I) 
 		{
 			if (I->doesThisDeclarationHaveABody()) {
 				FWalker walker(this,BR, mgr.getAnalysisDeclContext(*I));

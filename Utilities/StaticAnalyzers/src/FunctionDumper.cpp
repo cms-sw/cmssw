@@ -64,7 +64,7 @@ public:
 
   const clang::Stmt * ParentStmt(const Stmt *S) {
   const Stmt * P = AC->getParentMap().getParentIgnoreParens(S);
-  if (!P) return 0;
+  if (!P) return nullptr;
   return P;
   }
 
@@ -74,7 +74,7 @@ public:
           const char* fname = BR.getSourceManager().getPresumedLoc(AD->getLocation()).getFilename();
           const char* sname = "/src/";
           const char* filename = std::strstr(fname, sname);
-          if (filename != NULL) name = name.substr(0, anon_ns.size() - 1)+" in "+filename+")"+name.substr(anon_ns.size());
+          if (filename != nullptr) name = name.substr(0, anon_ns.size() - 1)+" in "+filename+")"+name.substr(anon_ns.size());
           }
       return;
   }
@@ -213,8 +213,8 @@ void FunctionDumper::checkASTDecl(const FunctionTemplateDecl *TD, AnalysisManage
      std::string sname(sfile);
      if ( ! support::isInterestingLocation(sname) ) return;
      if ( ! support::isCmsLocalFile(sfile) ) return;
-     for (FunctionTemplateDecl::spec_iterator I = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_begin(), 
-               E = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_end(); I != E; ++I) 
+     for (auto I = TD->spec_begin(), 
+               E = TD->spec_end(); I != E; ++I) 
           {
                if (I->doesThisDeclarationHaveABody()) {
                    FDumper walker(BR, mgr.getAnalysisDeclContext(*I), (*I));
