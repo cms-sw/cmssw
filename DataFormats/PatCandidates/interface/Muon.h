@@ -319,7 +319,7 @@ namespace pat {
       const pat::TriggerObjectStandAlone* hltObject(const size_t idx=0)  const { 
 	return triggerObjectMatchByType(trigger::TriggerMuon,idx);
       }
-      bool triggered( const char * pathName ){
+      bool triggered( const char * pathName ) const {
 	return triggerObjectMatchByPath(pathName,true,true)!=nullptr;
       }
 
