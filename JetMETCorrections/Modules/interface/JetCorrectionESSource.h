@@ -60,7 +60,7 @@ public:
 
   ~JetCorrectionESSource() override {}
 
-  std::shared_ptr<JetCorrector> produce(JetCorrectionsRecord const& iRecord) 
+  std::unique_ptr<JetCorrector> produce(JetCorrectionsRecord const& iRecord) 
   {
     std::string fileName("CondFormats/JetMETObjects/data/");
     if (!mEra.empty())
@@ -74,7 +74,7 @@ public:
       std::cout << "Parameter File: " << fileName << std::endl;
     edm::FileInPath fip(fileName);
     JetCorrectorParameters *tmpJetCorPar = new JetCorrectorParameters(fip.fullPath(), mSection);
-    return std::make_shared<Corrector>(*tmpJetCorPar, mParameterSet);
+    return std::make_unique<Corrector>(*tmpJetCorPar, mParameterSet);
   }
 
   void setIntervalFor(edm::eventsetup::EventSetupRecordKey const&, edm::IOVSyncValue const&, edm::ValidityInterval& fIOV) override
