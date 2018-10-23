@@ -221,10 +221,14 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
                 vars.insert(btau::trackMomentum, trackMag, true);
                 vars.insert(btau::trackEta, trackMom.Eta(), true);
 
-                vars.insert(btau::trackPtRel, VectorUtil::Perp(trackMom, jetDir), true);
+                // check for erroneous Perp^2 values before evaluating Perp (fix for DeepCSV NaN outputs)
+                double perp_trackMom_jetDir = VectorUtil::Perp2(trackMom, jetDir);
+                perp_trackMom_jetDir = (perp_trackMom_jetDir > 0. ? std::sqrt(perp_trackMom_jetDir ) : 0. );
+
+                vars.insert(btau::trackPtRel, perp_trackMom_jetDir, true);
                 vars.insert(btau::trackPPar, jetDir.Dot(trackMom), true);
                 vars.insert(btau::trackDeltaR, VectorUtil::DeltaR(trackMom, jetDir), true);
-                vars.insert(btau::trackPtRatio, VectorUtil::Perp(trackMom, jetDir) / trackMag, true);
+                vars.insert(btau::trackPtRatio, perp_trackMom_jetDir / trackMag, true);
                 vars.insert(btau::trackPParRatio, jetDir.Dot(trackMom) / trackMag, true);
         }
 
