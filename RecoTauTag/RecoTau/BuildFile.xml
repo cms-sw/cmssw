@@ -27,6 +27,7 @@
 <use   name="FastSimulation/BaseParticlePropagator"/>
 <use   name="FastSimulation/Particle"/>
 <use   name="roottmva"/>
+<use   name="PhysicsTools/TensorFlow"/>
 <export>
   <lib   name="1"/>
 </export>
