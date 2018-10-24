@@ -418,12 +418,12 @@ HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples, HcalTriggerP
 
       if (isPeak){
          output[ibin] = std::min<unsigned int>(sum[idx],QIE11_MAX_LINEARIZATION_ET);
-         finegrain[ibin] = fg_algo.compute(msb[idx]).to_ulong();
       } else {
          // Not a peak
          output[ibin] = 0;
-         finegrain[ibin] = 0;
       }
+      // peak-finding is not applied for FG bits
+      finegrain[ibin] = fg_algo.compute(msb[idx]).to_ulong();
    }
    outcoder_->compress(output, finegrain, result);
 }
@@ -791,8 +791,8 @@ HcalTriggerPrimitiveAlgo::addUpgradeFG(const HcalTrigTowerDetId& id, int depth, 
       it = fgUpgradeMap_.insert(std::make_pair(id, element)).first;
    }
    for (unsigned int i = 0; i < bits.size(); ++i) {
-      it->second[i][0][depth] = bits[i][0];
-      it->second[i][1][depth] = bits[i][1];
+      it->second[i][0][depth-1] = bits[i][0];
+      it->second[i][1][depth-1] = bits[i][1];
    }
 }
 
