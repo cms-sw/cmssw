@@ -15,9 +15,26 @@ streamParkingBPH1_datasetParkingBPH1_selector.triggerConditions = cms.vstring(
     'HLT_Mu8_IP3_part0_v3', 
     'HLT_Mu8_IP5_part0_v2', 
     'HLT_Mu8_IP6_part0_v2', 
+    'HLT_Mu9_IP0_part0_v2', 
+    'HLT_Mu9_IP3_part0_v2', 
     'HLT_Mu9_IP4_part0_v2', 
     'HLT_Mu9_IP5_part0_v2', 
     'HLT_Mu9_IP6_part0_v3'
+)
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamParkingBPH1_datasetParkingBPHPromptCSCS_selector
+streamParkingBPH1_datasetParkingBPHPromptCSCS_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamParkingBPH1_datasetParkingBPHPromptCSCS_selector.l1tResults = cms.InputTag('')
+streamParkingBPH1_datasetParkingBPHPromptCSCS_selector.throw      = cms.bool(False)
+streamParkingBPH1_datasetParkingBPHPromptCSCS_selector.triggerConditions = cms.vstring(
+    'HLT_Mu12_IP6_ToCSCS_v1', 
+    'HLT_Mu7_IP4_ToCSCS_v1', 
+    'HLT_Mu8_IP3_ToCSCS_v1', 
+    'HLT_Mu8_IP5_ToCSCS_v1', 
+    'HLT_Mu8_IP6_ToCSCS_v1', 
+    'HLT_Mu9_IP4_ToCSCS_v1', 
+    'HLT_Mu9_IP5_ToCSCS_v1', 
+    'HLT_Mu9_IP6_ToCSCS_v1'
 )
 
 
@@ -177,7 +194,7 @@ streamPhysicsCommissioning_datasetNoBPTX_selector.hltResults = cms.InputTag('Tri
 streamPhysicsCommissioning_datasetNoBPTX_selector.l1tResults = cms.InputTag('')
 streamPhysicsCommissioning_datasetNoBPTX_selector.throw      = cms.bool(False)
 streamPhysicsCommissioning_datasetNoBPTX_selector.triggerConditions = cms.vstring(
-    'HLT_CDC_L2cosmic_5_er1p0_v1', 
+    'HLT_CDC_L2cosmic_10_er1p0_v1', 
     'HLT_CDC_L2cosmic_5p5_er1p0_v1', 
     'HLT_L2Mu10_NoVertex_NoBPTX3BX_v5', 
     'HLT_L2Mu10_NoVertex_NoBPTX_v6', 
@@ -326,6 +343,27 @@ streamPhysicsEndOfFill_datasetEmptyBX_selector.triggerConditions = cms.vstring(
     'HLT_L1NotBptxOR_v3', 
     'HLT_L1UnpairedBunchBptxMinus_v2', 
     'HLT_L1UnpairedBunchBptxPlus_v2'
+)
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsEndOfFill_datasetFSQJet1_selector
+streamPhysicsEndOfFill_datasetFSQJet1_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsEndOfFill_datasetFSQJet1_selector.l1tResults = cms.InputTag('')
+streamPhysicsEndOfFill_datasetFSQJet1_selector.throw      = cms.bool(False)
+streamPhysicsEndOfFill_datasetFSQJet1_selector.triggerConditions = cms.vstring(
+    'HLT_DiPFJet15_NoCaloMatched_v16', 
+    'HLT_DiPFJet25_NoCaloMatched_v16'
+)
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsEndOfFill_datasetFSQJet2_selector
+streamPhysicsEndOfFill_datasetFSQJet2_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsEndOfFill_datasetFSQJet2_selector.l1tResults = cms.InputTag('')
+streamPhysicsEndOfFill_datasetFSQJet2_selector.throw      = cms.bool(False)
+streamPhysicsEndOfFill_datasetFSQJet2_selector.triggerConditions = cms.vstring(
+    'HLT_DiPFJet15_FBEta3_NoCaloMatched_v17', 
+    'HLT_DiPFJet25_FBEta3_NoCaloMatched_v17', 
+    'HLT_DiPFJetAve15_HFJEC_v17', 
+    'HLT_DiPFJetAve25_HFJEC_v17', 
+    'HLT_DiPFJetAve35_HFJEC_v17'
 )
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsEndOfFill_datasetHINCaloJets_selector
@@ -536,6 +574,9 @@ streamPhysicsHadronsTaus_datasetJetHT_selector.triggerConditions = cms.vstring(
     'HLT_PFHT350MinPFJet15_v9', 
     'HLT_PFHT350_v19', 
     'HLT_PFHT370_v17', 
+    'HLT_PFHT400_FivePFJet_100_100_60_30_30_DoublePFBTagDeepCSV_4p5_v8', 
+    'HLT_PFHT400_FivePFJet_100_100_60_30_30_v8', 
+    'HLT_PFHT400_FivePFJet_120_120_60_30_30_DoublePFBTagDeepCSV_4p5_v8', 
     'HLT_PFHT400_SixPFJet32_DoublePFBTagDeepCSV_2p94_v8', 
     'HLT_PFHT400_SixPFJet32_v8', 
     'HLT_PFHT430_v17', 
@@ -665,6 +706,7 @@ streamPhysicsHadronsTaus_datasetTau_selector.hltResults = cms.InputTag('TriggerR
 streamPhysicsHadronsTaus_datasetTau_selector.l1tResults = cms.InputTag('')
 streamPhysicsHadronsTaus_datasetTau_selector.throw      = cms.bool(False)
 streamPhysicsHadronsTaus_datasetTau_selector.triggerConditions = cms.vstring(
+    'HLT_DoubleMediumChargedIsoPFTauHPS30_L1MaxMass_Trk1_eta2p1_Reg_v1', 
     'HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_TightID_eta2p1_Reg_v1', 
     'HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v4', 
     'HLT_DoubleMediumChargedIsoPFTauHPS40_Trk1_TightID_eta2p1_Reg_v1', 
