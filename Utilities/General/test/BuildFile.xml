@@ -8,3 +8,11 @@
 <bin file="google-benchmark-pass-argv.cpp" name="google-benchmark-pass-argv">
   <use name="google-benchmark-main"/>
 </bin>
+
+<ifarchitecture name="_amd64_">
+  <iftool name="!cuda-gcc-support">
+    <test name="CudaGCCSupport" command="echo ERROR: Unsupported GCC version && exit 1"/>
+  <else/>
+    <test name="CudaGCCSupport" command="echo Supported GCC version"/>
+  </iftool>
+</ifarchitecture>

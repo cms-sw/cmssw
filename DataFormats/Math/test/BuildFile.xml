@@ -72,7 +72,7 @@
 <bin name="testDataFormatsMathPacking" file="testMiniFloat.cpp,testlogintpack.cpp,testRunner.cpp">
   <use   name="cppunit"/>
 </bin>
-
+<iftool name="cuda-gcc-support">
 <architecture match="_amd64_">
 <bin file="cudaAtan2Test.cu" name="DFM_Atan2">
   <use name="cuda"/>
@@ -98,3 +98,4 @@
   <flags CXXFLAGS="-ffp-contract=off"/>
 </bin>
 </architecture>
+</iftool>
