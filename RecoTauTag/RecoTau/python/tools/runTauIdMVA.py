@@ -48,19 +48,27 @@ class TauIDEmbedder(object):
     @staticmethod
     def get_cmssw_version(debug = False):
         """returns 'CMSSW_X_Y_Z'"""
-        if debug: print "get_cmssw_version:", os.environ["CMSSW_RELEASE_BASE"].split('/')[-1]
-        return os.environ["CMSSW_RELEASE_BASE"].split('/')[-1]
+        cmssw_version = os.environ["CMSSW_VERSION"]
+        if debug: print "get_cmssw_version:", cmssw_version
+        return cmssw_version
 
     @classmethod
     def get_cmssw_version_number(klass, debug = False):
-        """returns 'X_Y_Z' (without 'CMSSW_')"""
-        if debug: print "get_cmssw_version_number:", map(int, klass.get_cmssw_version().split("CMSSW_")[1].split("_")[0:3])
-        return map(int, klass.get_cmssw_version().split("CMSSW_")[1].split("_")[0:3])
+        """returns '(release, subversion, patch)' (without 'CMSSW_')"""
+        v = klass.get_cmssw_version().split("CMSSW_")[1].split("_")[0:3]
+        if debug: print "get_cmssw_version_number:", v
+        if v[2] == "X":
+            patch = -1
+        else:
+            patch = int(v[2])
+        return int(v[0]), int(v[1]), patch
 
     @staticmethod
     def versionToInt(release=9, subversion=4, patch=0, debug = False):
-        if debug: print "versionToInt:", release * 10000 + subversion * 100 + patch
-        return release * 10000 + subversion * 100 + patch
+        version = release * 10000 + subversion * 100 + patch + 1 # shifted by one to account for pre-releases.
+        if debug: print "versionToInt:", version
+        return version
+
 
     @classmethod
     def is_above_cmssw_version(klass, release=9, subversion=4, patch=0, debug = False):

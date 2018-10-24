@@ -250,7 +250,6 @@ public:
         desc.add<edm::InputTag>("muons", edm::InputTag("slimmedMuons"));
         desc.add<edm::InputTag>("taus", edm::InputTag("slimmedTaus"));
         desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N.pb");
-
         edm::ParameterSetDescription descWP;
         descWP.add<std::string>("VVVLoose", "0");
         descWP.add<std::string>("VVLoose", "0");
@@ -345,14 +344,14 @@ private:
                 ? dPhi(leadChargedHadrCand->p4(), tau.p4()) : default_value;
         get(dnn::leadChargedHadrCand_mass) = leadChargedHadrCand
                 ? leadChargedHadrCand->p4().mass() : default_value;
-        get(dnn::pt_weighted_deta_strip) = clusterVariables.tau_pt_weighted_deta_strip(tau, tau.decayMode());
-        get(dnn::pt_weighted_dphi_strip) = clusterVariables.tau_pt_weighted_dphi_strip(tau, tau.decayMode());
-        get(dnn::pt_weighted_dr_signal) = clusterVariables.tau_pt_weighted_dr_signal(tau, tau.decayMode());
-        get(dnn::pt_weighted_dr_iso) = clusterVariables.tau_pt_weighted_dr_iso(tau, tau.decayMode());
+        get(dnn::pt_weighted_deta_strip) = reco::tau::pt_weighted_deta_strip(tau, tau.decayMode());
+        get(dnn::pt_weighted_dphi_strip) = reco::tau::pt_weighted_dphi_strip(tau, tau.decayMode());
+        get(dnn::pt_weighted_dr_signal) = reco::tau::pt_weighted_dr_signal(tau, tau.decayMode());
+        get(dnn::pt_weighted_dr_iso) = reco::tau::pt_weighted_dr_iso(tau, tau.decayMode());
         get(dnn::leadingTrackNormChi2) = tau.leadingTrackNormChi2();
-        get(dnn::e_ratio) = clusterVariables.tau_Eratio(tau);
+        get(dnn::e_ratio) = reco::tau::eratio(tau);
         get(dnn::gj_angle_diff) = CalculateGottfriedJacksonAngleDifference(tau);
-        get(dnn::n_photons) = clusterVariables.tau_n_photons_total(tau);
+        get(dnn::n_photons) = reco::tau::n_photons_total(tau);
         get(dnn::emFraction) = tau.emFraction_MVA();
         get(dnn::has_gsf_track) = leadChargedHadrCand && std::abs(leadChargedHadrCand->pdgId()) == 11;
         get(dnn::inside_ecal_crack) = IsInEcalCrack(tau.p4().Eta());
@@ -616,7 +615,6 @@ private:
     edm::EDGetTokenT<ElectronCollection> electrons_token;
     edm::EDGetTokenT<MuonCollection> muons_token;
     std::string input_layer, output_layer;
-    TauIdMVAAuxiliaries clusterVariables;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
