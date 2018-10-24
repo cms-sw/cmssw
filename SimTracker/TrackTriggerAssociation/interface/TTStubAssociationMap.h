@@ -108,8 +108,8 @@ edm::Ptr< TrackingParticle > TTStubAssociationMap< T >::findTrackingParticlePtr(
   }
 
   /// Default: return NULL
-  edm::Ptr< TrackingParticle >* temp = new edm::Ptr< TrackingParticle >();
-  return *temp;
+  //edm::Ptr< TrackingParticle >* temp = new edm::Ptr< TrackingParticle >();
+  return edm::Ptr< TrackingParticle >();
 }
 
 template< typename T >
