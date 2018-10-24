@@ -2,6 +2,7 @@
 #include <memory>
 
 #include "L1Trigger/TrackTrigger/interface/StubPtConsistency.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 
 namespace StubPtConsistency {
 
@@ -11,11 +12,10 @@ namespace StubPtConsistency {
 
     double trk_bendchi2 = 0.0;
     double bend_resolution = 0.483;
-    float speedOfLight = 3.0E8; //in m/s
-    float UnitConversion = 1.0E11;
+    float speedOfLightConverted = CLHEP::c_light/1.0E5; // B*c/2E11 - converts q/pt to track angle at some radius from beamline
 
     // Need the pT signed in order to determine if bend is positive or negative
-    float trk_signedPt = (speedOfLight/UnitConversion)*mMagneticFieldStrength/aTrack.getRInv(nPar); // P(MeV/c) = (c/10^9)·Q·B(kG)·R(cm)
+    float trk_signedPt = speedOfLightConverted*mMagneticFieldStrength/aTrack.getRInv(nPar); // P(MeV/c) = (c/10^9)·Q·B(kG)·R(cm)
 
     // loop over stubs
     const auto& stubRefs = aTrack.getStubRefs();
@@ -58,8 +58,7 @@ namespace StubPtConsistency {
       float stubBend = stubRef->getTriggerBend();
       if (!isBarrel && stub_z<0.0) stubBend=-stubBend; // flip sign of bend if in negative end cap
 
-      // B*c/2E11 - converts q/pt to track angle at some radius from beamline
-      float trackBend = -(sensorSpacing*stub_r*mMagneticFieldStrength*(speedOfLight/UnitConversion/2))/(stripPitch*trk_signedPt*correction);
+      float trackBend = -(sensorSpacing*stub_r*mMagneticFieldStrength*(speedOfLightConverted/2))/(stripPitch*trk_signedPt*correction);
       float bendDiff = trackBend-stubBend;
 
       trk_bendchi2 += (bendDiff*bendDiff)/(bend_resolution*bend_resolution);
