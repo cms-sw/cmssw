@@ -18,6 +18,7 @@ namespace hcaldqm
 	{
 		//	TEMPORARY
 		_vhashFEDs.clear(); _vcdaqEids.clear();
+		_vhashCrates.clear();
 
 		//	get various FED lists
 		edm::ESHandle<HcalDbService> dbs;
