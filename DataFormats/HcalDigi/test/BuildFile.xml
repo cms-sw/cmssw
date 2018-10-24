@@ -5,6 +5,7 @@
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>
 </library>
+<iftool name="cuda-gcc-support">
 <architecture match="_amd64_">
 <bin name="test_hcal_digi" file="test_hcal_digi.cu">
     <use name="DataFormats/DetId"/>
@@ -13,3 +14,4 @@
     <use name="DataFormats/Common"/>
 </bin>
 </architecture>
+</iftool>
