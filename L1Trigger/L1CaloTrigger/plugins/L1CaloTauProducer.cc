@@ -309,6 +309,7 @@ L1CaloTauProducer::L1CaloTauProducer(const edm::ParameterSet& iConfig) :
     //ptAdjustFunc.SetParameter( 3, 1.00 );
     //ptAdjustFunc.SetParameter( 4, 0.567 );
     //ptAdjustFunc.SetParameter( 5, 0.288 );
+    printf("\nHcalTpEtMin = %f\nEcalTpEtMin = %f\n", HcalTpEtMin, EcalTpEtMin);
 }
 
 void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -331,7 +332,6 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     iEvent.getByToken(crystalClustersToken_,crystalClustersHandle);
     crystalClusters = (*crystalClustersHandle.product());
 
-
     
     // Load the ECAL+HCAL tower sums coming from L1EGammaCrystalsEmulatorProducer.cc
     std::vector< SimpleCaloHit > l1CaloTowers;
@@ -346,7 +346,7 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         // Add min ET thresholds for tower ET
         if (l1Hit.ecal_tower_et < EcalTpEtMin) l1Hit.ecal_tower_et = 0.0;
         if (l1Hit.hcal_tower_et < HcalTpEtMin) l1Hit.hcal_tower_et = 0.0;
-        l1Hit.total_tower_et  = hit.ecal_tower_et + hit.hcal_tower_et;
+        l1Hit.total_tower_et  = l1Hit.ecal_tower_et + l1Hit.hcal_tower_et;
         l1Hit.tower_iEta  = hit.tower_iEta;
         l1Hit.tower_iPhi  = hit.tower_iPhi;
         l1Hit.tower_eta  = hit.tower_eta;
@@ -430,15 +430,15 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
         }
 
-        total_et += l1CaloTower.total_tower_et;
+        total_et += l1CaloTower.total_tower_plus_L1EGs_et;
         if (l1CaloTower.total_tower_plus_L1EGs_et > 0) total_nTowers++;
         iPhi_ET_rings_total[ abs( l1CaloTower.tower_iEta ) ] += l1CaloTower.total_tower_et;
         iPhi_ET_rings_hcal[ abs( l1CaloTower.tower_iEta ) ] += l1CaloTower.hcal_tower_et;
         iPhi_ET_rings_ecal[ abs( l1CaloTower.tower_iEta ) ] += l1CaloTower.ecal_tower_et;
         iPhi_ET_rings_l1eg[ abs( l1CaloTower.tower_iEta ) ] += l1CaloTower.total_tower_plus_L1EGs_et - l1CaloTower.ecal_tower_et;
         if (l1CaloTower.total_tower_et > 0) iPhi_nTower_rings_total[ abs( l1CaloTower.tower_iEta ) ]++;
-        if (l1CaloTower.hcal_tower_et >0) iPhi_nTower_rings_hcal[ abs( l1CaloTower.tower_iEta ) ]++;
-        if (l1CaloTower.ecal_tower_et >0) iPhi_nTower_rings_ecal[ abs( l1CaloTower.tower_iEta ) ]++;
+        if (l1CaloTower.hcal_tower_et > 0) iPhi_nTower_rings_hcal[ abs( l1CaloTower.tower_iEta ) ]++;
+        if (l1CaloTower.ecal_tower_et > 0) iPhi_nTower_rings_ecal[ abs( l1CaloTower.tower_iEta ) ]++;
         if (l1CaloTower.total_tower_plus_L1EGs_et != l1CaloTower.ecal_tower_et) iPhi_nTower_rings_l1eg[ abs( l1CaloTower.tower_iEta ) ]++;
     }
 
@@ -571,8 +571,8 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
             int hit_iPhi = l1CaloTower.tower_iPhi;
             int d_iEta = tower_diEta( caloJetObj.seed_iEta, l1CaloTower.tower_iEta );
             int d_iPhi = tower_diPhi( caloJetObj.seed_iPhi, hit_iPhi );
-            if ( abs( d_iEta ) <= 4 && abs( d_iPhi ) <= 4 ) // 9x9 HCAL Trigger Towers
-            //if ( abs( d_iEta ) <= 3 && abs( d_iPhi ) <= 3 ) // 7x7 HCAL Trigger Towers
+            //if ( abs( d_iEta ) <= 4 && abs( d_iPhi ) <= 4 ) // 9x9 HCAL Trigger Towers
+            if ( abs( d_iEta ) <= 3 && abs( d_iPhi ) <= 3 ) // 7x7 HCAL Trigger Towers
             //if ( (abs( d_iEta ) <= 3 && abs( d_iPhi ) <= 3) ||
             //        (abs( d_iEta ) <= 1 && abs( d_iPhi ) <= 4) ||
             //        (abs( d_iEta ) <= 4 && abs( d_iPhi ) <= 1)) // circle small HCAL Trigger Towers
@@ -700,8 +700,8 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
             int d_iEta = tower_diEta( caloJetObj.seed_iEta, l1CaloTower.tower_iEta );
             int d_iPhi = tower_diPhi( caloJetObj.seed_iPhi, hit_iPhi );
             if ( ( abs( d_iEta ) <= 7 && abs( d_iPhi ) <= 7 ) && // 15x15 TT Outer perimeter
-                ( abs( d_iEta ) > 4 || abs( d_iPhi ) > 4 ) ) // exclude 9x9 central region
-            //    ( abs( d_iEta ) <= 3 && abs( d_iPhi ) <= 3 ) // 7x7 HCAL Trigger Towers
+            //    ( abs( d_iEta ) > 4 || abs( d_iPhi ) > 4 ) ) // exclude 9x9 central region
+                ( abs( d_iEta ) > 3 || abs( d_iPhi ) > 3 ) ) // 7x7 HCAL Trigger Towers
             //    ( (abs( d_iEta ) <= 3 && abs( d_iPhi ) <= 3) ||
             //         (abs( d_iEta ) <= 1 && abs( d_iPhi ) <= 4) ||
             //         (abs( d_iEta ) <= 4 && abs( d_iPhi ) <= 1)) // circle small HCAL Trigger Towers
@@ -732,8 +732,8 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
             float d_eta = caloJetObj.seedTower.eta() - l1eg.eta();
             float d_phi = reco::deltaPhi( caloJetObj.seedTower.phi(), l1eg.phi() );
             if ( ( fabs( d_eta ) < 0.65 && fabs( d_phi ) < 0.65 ) && // within 15x15
-                ( fabs( d_eta ) > 0.4 || fabs( d_phi ) > 0.4 ) ) // not 9x9
-            //if ( fabs( d_eta ) > 0.3 || fabs( d_phi ) > 0.3 ) continue; // 7x7
+                //( fabs( d_eta ) > 0.4 || fabs( d_phi ) > 0.4 ) ) // not 9x9
+                ( fabs( d_eta ) > 0.3 || fabs( d_phi ) > 0.3 ) ) // 7x7
             //if (!( ( fabs( d_eta ) < 0.3 && fabs( d_phi ) < 0.3 ) ||
             //        ( fabs( d_eta ) < 0.4 && fabs( d_phi ) < 0.13 ) ||
             //        ( fabs( d_eta ) < 0.13 && fabs( d_phi ) < 0.4 ) ) ) continue; // circle small
@@ -790,8 +790,8 @@ void L1CaloTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
             float d_phi = reco::deltaPhi( caloJetObj.seedTower.phi(), l1eg.phi() );
             float d_eta_to_leading = -99;
             float d_phi_to_leading = -99;
-            if ( fabs( d_eta ) > 0.4 || fabs( d_phi ) > 0.4 ) continue; // 9x9
-            //if ( fabs( d_eta ) > 0.3 || fabs( d_phi ) > 0.3 ) continue; // 7x7
+            //if ( fabs( d_eta ) > 0.4 || fabs( d_phi ) > 0.4 ) continue; // 9x9
+            if ( fabs( d_eta ) > 0.3 || fabs( d_phi ) > 0.3 ) continue; // 7x7
             //if (!( ( fabs( d_eta ) < 0.3 && fabs( d_phi ) < 0.3 ) ||
             //        ( fabs( d_eta ) < 0.4 && fabs( d_phi ) < 0.13 ) ||
             //        ( fabs( d_eta ) < 0.13 && fabs( d_phi ) < 0.4 ) ) ) continue; // circle small
