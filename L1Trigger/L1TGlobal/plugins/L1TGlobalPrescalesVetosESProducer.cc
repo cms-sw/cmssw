@@ -394,8 +394,6 @@ L1TGlobalPrescalesVetosESProducer::produce(const L1TGlobalPrescalesVetosRcd& iRe
     }
   }
 
-  // write the condition format to the event setup via the helper:
-  using namespace edm::es;
   // Return copy so that we don't give away our owned pointer to framework
   return std::make_unique<L1TGlobalPrescalesVetos>(*data_.getWriteInstance());
 }

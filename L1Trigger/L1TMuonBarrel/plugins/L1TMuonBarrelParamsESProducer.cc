@@ -699,8 +699,6 @@ int L1TMuonBarrelParamsESProducer::load_ext(std::vector<L1TMuonBarrelParams::LUT
 L1TMuonBarrelParamsESProducer::ReturnType
 L1TMuonBarrelParamsESProducer::produce(const L1TMuonBarrelParamsRcd& iRecord)
 {
-   using namespace edm::es;
-
    return std::make_unique<L1TMuonBarrelParams>(m_params_helper);
 }
 

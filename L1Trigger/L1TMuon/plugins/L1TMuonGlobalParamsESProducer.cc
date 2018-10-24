@@ -323,8 +323,6 @@ L1TMuonGlobalParamsESProducer::~L1TMuonGlobalParamsESProducer()
 L1TMuonGlobalParamsESProducer::ReturnType
 L1TMuonGlobalParamsESProducer::produce(const L1TMuonGlobalParamsRcd& iRecord)
 {
-   using namespace edm::es;
-
    return std::make_unique<L1TMuonGlobalParams>(m_params);
 }
 
