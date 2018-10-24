@@ -106,7 +106,6 @@ L1CaloInputScalesProducer::produceEcalScale(const L1CaloEcalScaleRcd& iRecord)
 std::unique_ptr<L1CaloHcalScale>
 L1CaloInputScalesProducer::produceHcalScale(const L1CaloHcalScaleRcd& iRecord)
 {
-   using namespace edm::es;
    auto pL1CaloHcalScale = std::make_unique<L1CaloHcalScale>() ;
 
    std::vector< double >::const_iterator posItr =

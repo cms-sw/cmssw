@@ -378,11 +378,8 @@ L1TCaloParamsESProducer::~L1TCaloParamsESProducer()
 L1TCaloParamsESProducer::ReturnType
 L1TCaloParamsESProducer::produce(const L1TCaloParamsRcd& iRecord)
 {
-   using namespace edm::es;
    return std::make_unique<CaloParams>(m_params);
 }
-
-
 
 //define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(L1TCaloParamsESProducer);
