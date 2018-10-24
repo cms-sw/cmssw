@@ -11,7 +11,9 @@ HGCalVFECompressionImpl(const edm::ParameterSet& conf):
       << "The code space cannot fit into the unsigned 32-bit space.\n";
   }
   saturationCode_ = (1 << (exponentBits_ + mantissaBits_)) - 1;
-  saturationValue_ = (1 << ((1 << exponentBits_) + mantissaBits_ - 1)) - 1;
+  saturationValue_ =
+      (exponentBits_ == 0) ? saturationCode_ :
+        ((1 << (mantissaBits_ + 1)) - 1) << ((1 << exponentBits_) - 2);
 }
 
 void
@@ -23,9 +25,7 @@ compressSingle(const uint32_t value,
   // check for saturation
   if (value > saturationValue_) {
     compressedCode = saturationCode_;
-    compressedValue =
-      (exponentBits_ == 0) ? saturationCode_ :
-        ((1 << (mantissaBits_ + 1)) - 1) << ((1 << exponentBits_) - 2);
+    compressedValue = saturationValue_;
     return;
   }
 
