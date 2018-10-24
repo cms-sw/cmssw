@@ -120,3 +120,5 @@ xgboost
 cx_Oracle
 h5py_cache
 google
+lxml
+bs4
