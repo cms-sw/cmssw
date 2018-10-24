@@ -136,9 +136,9 @@ int main(int argc, char ** argv){
 	std::string _file_list = parser.stringValue("outputFile");
 	std::string _tag     = parser.stringValue("tag");
 	std::string _comment = parser.stringValue("storePrepend");
-	std::string _prefix  = "HCAL";
-	std::string _version = "Physics";
-	int _subversion	     = 0; 
+	const std::string& _prefix  = _tag;
+	std::string _version = "1";
+	int _subversion      = 0;
 	HcalLutManager manager;
 	manager.create_lut_loader( _file_list, _prefix, _tag, _comment, _tag, _subversion);
     }
