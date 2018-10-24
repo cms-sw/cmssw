@@ -185,80 +185,105 @@ def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
     ratioHistos = OrderedDict()
     diffHistos = OrderedDict()
 
-    canComparison = TCanvas("canComparison","canComparison",2400,1200)
-    gStyle.SetOptStat(False)
+    def setUpCanvas(canvas):
+
+        gStyle.SetOptStat(False)
     
-    mainPadTop = [        
-        TPad("mainPad"+str(i),"mainPad"+str(i),
-             i*0.25, 0.60, (i+1)*0.25, 1.0)
-        for i in range(4)
-        ]
-    
-    subPadTop = [
-        TPad("subPad"+str(i),"subPad"+str(i),
-             i*0.25, 0.50, (i+1)*0.25, 0.6)
-        for i in range(4)
-        ]
-    
-    mainPadBottom = [
-        TPad("subPad"+str(i),"subPad"+str(i),
-             i*0.25, 0.10, (i+1)*0.25, 0.5)
-        for i in range(4)
+        mainPadTop = [        
+            TPad("mainPadTop"+str(i)+'_'+canvas.GetName(),
+                 "mainPad"+str(i),
+                 i*0.25, 0.60, (i+1)*0.25, 1.0)
+            for i in range(4)
             ]
-    
-    subPadBottom = [
-        TPad("subPad"+str(i),"subPad"+str(i),
-             i*0.25, 0.00, (i+1)*0.25, 0.1)
-        for i in range(4)
-        ]
-    
-    mainPad = mainPadTop + mainPadBottom
-    subPad = subPadTop + subPadBottom
-    
-    for i in range(8):
-        mainPad[i].SetLeftMargin(0.1)
-        mainPad[i].SetRightMargin(0.1)
-        mainPad[i].SetTopMargin(0.1)
-        mainPad[i].SetBottomMargin(1e-3)
-        mainPad[i].Draw()
-        subPad[i].SetLeftMargin(0.1)
-        subPad[i].SetRightMargin(0.1)
-        subPad[i].SetTopMargin(1e-3)
-        subPad[i].SetBottomMargin(0.2)
-        subPad[i].Draw()
+        
+        subPadTop = [
+            TPad("subPadTop"+str(i)+'_'+canvas.GetName(),
+                "subPad"+str(i),
+                 i*0.25, 0.50, (i+1)*0.25, 0.6)
+            for i in range(4)
+            ]
+        
+        mainPadBottom = [
+            TPad("mainPadBottom"+str(i)+'_'+canvas.GetName(),
+                 "subPad"+str(i),
+                 i*0.25, 0.10, (i+1)*0.25, 0.5)
+            for i in range(4)
+            ]
+        
+        subPadBottom = [
+            TPad("subPadBottom"+str(i)+'_'+canvas.GetName(),
+                 "subPad"+str(i),
+                 i*0.25, 0.00, (i+1)*0.25, 0.1)
+            for i in range(4)
+            ]
+        
+        mainPad = mainPadTop + mainPadBottom
+        subPad = subPadTop + subPadBottom    
+        
+        leftMargin = 0.12
+        rightMargin = 0.12
+        topMargin = 0.12
+        bottomMargin = 0.2
+        for i in range(8):
+            mainPad[i].SetLeftMargin(leftMargin)
+            mainPad[i].SetRightMargin(rightMargin)
+            mainPad[i].SetTopMargin(topMargin)
+            mainPad[i].SetBottomMargin(1e-3)
+            mainPad[i].Draw()
+            subPad[i].SetLeftMargin(leftMargin)
+            subPad[i].SetRightMargin(rightMargin)
+            subPad[i].SetTopMargin(1e-3)
+            subPad[i].SetBottomMargin(bottomMargin)
+            subPad[i].Draw()
+
+        return mainPad, subPad
+
+    canComparison = TCanvas("canComparison","canComparison",2400,1200)
+    mainPad, subPad = setUpCanvas(canComparison)
+
+
+    def setStyleHistoSubPad(histo):
+        histo.SetTitle('')
+        histo.SetMarkerColor(kBlack)
+        histo.SetMarkerStyle(20) # Circles
+        histo.SetMarkerSize(.5)
+        histo.SetLineWidth(1)
+
+        histo.GetYaxis().SetTitleSize(14)
+        histo.GetYaxis().SetTitleFont(43)
+        histo.GetYaxis().SetLabelSize(0.17)
+        histo.GetYaxis().SetTitleOffset(5.0)
+        histo.GetYaxis().SetNdivisions(6,3,0)
+
+        histo.GetXaxis().SetTitleSize(25)
+        histo.GetXaxis().SetTitleFont(43)
+        histo.GetXaxis().SetTitleOffset(6.0)
+        histo.GetXaxis().SetLabelSize(0.17)
+
+        return histo
         
     def makeRatio(histoX,histoY):
         # return stylized ratio histoX/histoY
         histoXOverY = copy.deepcopy(histoX)
-        histoXOverY.SetTitle('')
         histoXOverY.Divide(histoY)
-
-        histoXOverY.SetMarkerColor(kBlack)
-        histoXOverY.SetMarkerStyle(20) # Circles
-        histoXOverY.SetMarkerSize(.2)
-        histoXOverY.SetLineWidth(1)
-
-        histoXOverY.GetYaxis().SetTitleSize(14)
-        histoXOverY.GetYaxis().SetTitleFont(43)
-        histoXOverY.GetYaxis().SetLabelSize(0.17)
-        histoXOverY.GetYaxis().SetTitleOffset(3.5)
-        histoXOverY.GetYaxis().SetNdivisions(6,3,0)
         histoXOverY.GetYaxis().SetTitle('#frac{%s}{%s}' % (geometryNew,geometryOld))
 
-        histoXOverY.GetXaxis().SetTitleSize(25)
-        histoXOverY.GetXaxis().SetTitleFont(43)
-        histoXOverY.GetXaxis().SetTitleOffset(3.5)
-        histoXOverY.GetXaxis().SetLabelSize(0.17)
-
         return histoXOverY
-
-    canComparisonDiff = TCanvas("canComparisonDiff","canComparisonDiff",2400,1200)
-    canComparisonDiff.Divide(4,2)
 
     def makeDiff(histoNew,histoOld):
         # Return stylized histoNew - histoOld
         diff = copy.deepcopy(histoNew)
         diff.Add(histoOld,-1.0)
+        diff.GetYaxis().SetTitle(geometryNew 
+                                 + " - "
+                                 + geometryOld)
+        diff.GetYaxis().SetNdivisions(6,3,0)
+
+        diff.GetXaxis().SetTitleSize(25)
+        diff.GetXaxis().SetTitleFont(43)
+        diff.GetXaxis().SetTitleOffset(3.5)
+        diff.GetXaxis().SetLabelSize(0.17)
+        
         return diff
 
 
@@ -308,20 +333,8 @@ def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
         # Ratio
         subPad[counter].cd()
         ratioHistos[label] = makeRatio( newHistos[label],oldHistos[label] )
-        ratioHistos[label].SetMarkerStyle(20)
-        ratioHistos[label].SetMarkerSize(.5)
-        ratioHistos[label].GetYaxis().SetTitleOffset(2.5)
-        ratioHistos[label].GetXaxis().SetLabelSize(0.17)
-        ratioHistos[label].GetXaxis().SetTitleOffset(2.5)
+        ratioHistos[label] = setStyleHistoSubPad(ratioHistos[label])
         ratioHistos[label].Draw("HIST P")
-
-        # Difference
-        canComparisonDiff.cd(counter+1)
-        diffHistos[label] = makeDiff( newHistos[label],oldHistos[label] )
-        diffHistos[label].SetTitle('#splitline{Material Budget Difference %s [%s]}{ (%s-%s)};%s;%s'
-                                   %(detector,leg,geometryNew,geometryOld,
-                                     plots[plot].abscissa,plots[plot].ordinate))
-        diffHistos[label].Draw("HIST P")
 
         counter += 1
 
@@ -332,10 +345,35 @@ def createCompoundPlotsGeometryComparison(detector, plot, geometryOld,
         
     canComparison.SaveAs( "%s/%s_ComparisonRatio_%s_%s_vs_%s.png"
                           % (theDirname,detector,plot,geometryOld,geometryNew) )
-    canComparisonDiff.SaveAs( "%s/%s_ComparisonDifference_%s_%s_vs_%s.png"
+
+    ######## Difference ########
+
+    canDiff = TCanvas("canDiff","canDiff",2400,1200)
+
+    mainPadDiff, subPadDiff = setUpCanvas(canDiff)
+ 
+    counter = 0
+    for label, [num, color, leg] in six.iteritems(hist_label_to_num):
+        mainPadDiff[counter].cd()
+        oldHistos[label].SetTitle('Difference%s'%(label))
+        oldHistos[label].SetTitle(setUpTitle(detector,leg,plot))
+        oldHistos[label].Draw("HIST")
+        newHistos[label].Draw('SAME P')
+
+        legends[label].Draw()
+
+        # Difference
+        subPadDiff[counter].cd()
+        diffHistos[label] = makeDiff( newHistos[label],oldHistos[label] )
+        diffHistos[label] = setStyleHistoSubPad(diffHistos[label])
+        diffHistos[label].SetTitle('')
+        diffHistos[label].SetFillColor(color+1)
+        diffHistos[label].Draw("HIST")
+        counter +=1
+
+    canDiff.SaveAs( "%s/%s_ComparisonDifference_%s_%s_vs_%s.png"
                           % (theDirname,detector,plot,geometryOld,geometryNew) )
-    
-    
+        
 
 def setUpPalette(histo2D, plot) :
 
