@@ -9,6 +9,7 @@ from DQMOffline.Muon.muonEnergyDepositAnalyzer_cfi import *
 from DQMOffline.Muon.segmentTrackAnalyzer_cfi import *
 from DQMOffline.Muon.muonSeedsAnalyzer_cfi import *
 from DQMOffline.Muon.muonPFAnalyzer_cfi import *
+from DQMOffline.Muon.triggerMatchMonitor_cfi import *
 
 muonAnalyzer = cms.Sequence(muonEnergyDepositAnalyzer*
                             muonSeedsAnalyzer*
@@ -34,7 +35,8 @@ muonAnalyzer_miniAOD = cms.Sequence(muonRecoAnalyzer_miniAOD*
                                     diMuonHistos_miniAOD*
                                     LooseMuonEfficiencyAnalyzer_miniAOD*
                                     MediumMuonEfficiencyAnalyzer_miniAOD*
-                                    TightMuonEfficiencyAnalyzer_miniAOD)
+                                    TightMuonEfficiencyAnalyzer_miniAOD*
+                                    triggerMatchMonitor_miniAOD)
 
 muonAnalyzer_noHLT = cms.Sequence(muonEnergyDepositAnalyzer*
                                   muonSeedsAnalyzer*
