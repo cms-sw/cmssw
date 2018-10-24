@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+from CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi import *
 from CommonTools.ParticleFlow.pfMET_cfi  import *
 from CommonTools.ParticleFlow.pfJets_cff import *
 from CommonTools.ParticleFlow.pfTaus_cff import *
@@ -151,6 +152,7 @@ pfMetEI = pfMET.clone(jets=cms.InputTag("pfJetsEI"))
 
 #EITopPAG = cms.Sequence(
 EIsequence = cms.Sequence(
+    goodOfflinePrimaryVertices +
     pfPileUpEI +
     pfPileUpJMEEI +
     pfNoPileUpEI +
@@ -175,12 +177,3 @@ EIsequence = cms.Sequence(
     pfCombinedInclusiveSecondaryVertexV2BJetTagsEI
     )
 
-## customizations for the pp_on_AA eras                                                                                                                                                        
-from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-(pp_on_XeXe_2017 | pp_on_AA_2018).toModify(pfPileUpJMEEI,
-                                           Vertices = "offlinePrimaryVertices"
-                                           )
-(pp_on_XeXe_2017 | pp_on_AA_2018).toModify(pfJetsEI,
-                                           srcPVs = "offlinePrimaryVertices"
-                                           )
