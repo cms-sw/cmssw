@@ -110,7 +110,6 @@ process.load("L1Trigger.Configuration.L1TRawToDigi_cff")
 if isHeavyIon:
 	process.csctfDigis.producer = cms.InputTag("rawDataRepacker")
 	process.dttfDigis.DTTF_FED_Source = cms.InputTag("rawDataRepacker")
-	process.RPCTwinMuxRawToDigi.inputTag = cms.InputTag("rawDataRepacker")
 	process.twinMuxStage2Digis.DTTM7_FED_Source = cms.InputTag("rawDataRepacker")
 	process.omtfStage2Digis.inputLabel = cms.InputTag("rawDataRepacker")
 	process.caloStage1Digis.InputLabel = cms.InputTag("rawDataRepacker") #new
@@ -120,6 +119,8 @@ if isHeavyIon:
 	process.caloStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
 	process.gmtStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
 	process.gtStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
+	process.rpcTwinMuxRawToDigi.inputTag = cms.InputTag("rawDataRepacker")
+	process.rpcCPPFRawToDigi.inputTag = cms.InputTag("rawDataRepacker")
 
 # Exclude the laser FEDs. They contaminate the QIE10/11 digi collections. 
 #from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
