@@ -520,23 +520,17 @@ def createPlots_(plot, geometry):
         print("Error: chosen plot name not known %s" % plot)
         return
 
+    hist_X0_detectors = OrderedDict()
     hist_X0_IB = None
-    # We need to keep the file content alive for the lifetime of the
-    # full function....
-    subDetectorFiles = []
-
     hist_X0_elements = OrderedDict()
-    prof_X0_elements = OrderedDict()
-    for subDetector,color in six.iteritems(DETECTORS):
-        subDetectorFilename = "matbdg_%s_%s.root" % (subDetector,geometry)
-        if not checkFile_(subDetectorFilename):
-            print("Error opening file: %s" % subDetectorFilename)
-            continue
 
-        subDetectorFiles.append(TFile(subDetectorFilename))
-        subDetectorFile = subDetectorFiles[-1]
-        print ("Opening file: %s" % subDetectorFilename)
-        prof_X0_XXX = subDetectorFile.Get("%d" % plots[plot].plotNumber)
+    for subDetector,color in six.iteritems(DETECTORS):
+        h = get1DHisto_(subDetector,plots[plot].plotNumber,geometry)
+        if not h: 
+            print('Warning: Skipping %s'%subDetector)
+            continue
+        hist_X0_detectors[subDetector] = h
+
 
         # Merge together the "inner barrel detectors".
         if subDetector in IBs:
@@ -544,8 +538,6 @@ def createPlots_(plot, geometry):
                 hist_X0_IB,
                 hist_X0_detectors[subDetector]
                 )
-
-        hist_X0_detectors[subDetector] = prof_X0_XXX.ProjectionX()
 
         # category profiles
         for label, [num, color, leg] in six.iteritems(hist_label_to_num):
@@ -567,10 +559,7 @@ def createPlots_(plot, geometry):
 
     # colors
     for det, color in six.iteritems(DETECTORS):
-        setColorIfExists_(hist_X0_detectors, det, color)
-
-    for label, [num, color, leg] in six.iteritems(hist_label_to_num):
-        hist_X0_elements[label].SetFillColor(color)
+        setColorIfExists_(hist_X0_detectors, det,  color)
 
     # First Plot: BeamPipe + Pixel + TIB/TID + TOB + TEC + Outside
     # stack
