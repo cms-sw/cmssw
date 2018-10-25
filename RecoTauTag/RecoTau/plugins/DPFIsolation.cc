@@ -96,6 +96,8 @@ private:
 
         tensorflow::Tensor predictions(tensorflow::DT_FLOAT, { static_cast<int>(taus->size()), 1});
 
+        std::vector<tensorflow::Tensor> outputs;
+
         float pfCandPt, pfCandPz, pfCandPtRel, pfCandPzRel, pfCandDr, pfCandDEta, pfCandDPhi, pfCandEta, pfCandDz,
               pfCandDzErr, pfCandD0, pfCandD0D0, pfCandD0Dz, pfCandD0Dphi, pfCandPuppiWeight,
               pfCandPixHits, pfCandHits, pfCandLostInnerHits, pfCandPdgID, pfCandCharge, pfCandFromPV,
@@ -384,7 +386,6 @@ private:
     edm::EDGetTokenT<pat::PackedCandidateCollection> pfcand_token;
     edm::EDGetTokenT<reco::VertexCollection> vtx_token;
     unsigned graphVersion;
-    std::vector<tensorflow::Tensor> outputs;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
