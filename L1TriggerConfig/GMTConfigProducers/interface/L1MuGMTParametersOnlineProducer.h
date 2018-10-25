@@ -33,7 +33,7 @@ public:
   ~L1MuGMTParametersOnlineProducer() override;
   
   /// The method that actually implements the production of the parameter objects
-  std::shared_ptr<L1MuGMTParameters> newObject( const std::string& objectKey ) override;
+  std::unique_ptr<L1MuGMTParameters> newObject( const std::string& objectKey ) override;
  protected:
 
   void checkCMSSWVersion(const coral::AttributeList& configRecord);

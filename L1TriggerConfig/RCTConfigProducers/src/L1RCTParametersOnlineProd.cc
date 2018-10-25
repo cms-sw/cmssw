@@ -38,7 +38,7 @@ class L1RCTParametersOnlineProd :
       L1RCTParametersOnlineProd(const edm::ParameterSet&);
       ~L1RCTParametersOnlineProd() override;
 
-  std::shared_ptr< L1RCTParameters > newObject(
+  std::unique_ptr< L1RCTParameters > newObject(
     const std::string& objectKey ) override ;
 
   void fillScaleFactors(
@@ -84,11 +84,9 @@ L1RCTParametersOnlineProd::~L1RCTParametersOnlineProd()
 
 }
 
-std::shared_ptr< L1RCTParameters >
+std::unique_ptr< L1RCTParameters >
 L1RCTParametersOnlineProd::newObject( const std::string& objectKey )
 {
-     using namespace edm::es;
-
      std::string rctSchema = "CMS_RCT" ;
      const l1t::OMDSReader::QueryResults paremKeyResults =
        m_omdsReader.singleAttribute( objectKey ) ;
@@ -133,7 +131,7 @@ L1RCTParametersOnlineProd::newObject( const std::string& objectKey )
 	 paremResults.numberRows() != 1 ) // check query successful
        {
 	 edm::LogError( "L1-O2O" ) << "Problem with L1RCTParameters key." ;
-	 return std::shared_ptr< L1RCTParameters >() ;
+	 return std::unique_ptr< L1RCTParameters >() ;
        }
 
      double eGammaLSB, jetMETLSB, eMinForFGCut, eMaxForFGCut, hOeCut ;
@@ -206,7 +204,7 @@ L1RCTParametersOnlineProd::newObject( const std::string& objectKey )
      if( egammaEcalResults.queryFailed() ) // check query successful
        {
 	 edm::LogError( "L1-O2O" ) << "Problem with EgammaEcal key." ;
-	 return std::shared_ptr< L1RCTParameters >() ;
+	 return std::unique_ptr< L1RCTParameters >() ;
        }
 
 //      std::cout << "egammaEcal " ;
@@ -236,7 +234,7 @@ L1RCTParametersOnlineProd::newObject( const std::string& objectKey )
      if( egammaHcalResults.queryFailed() ) // check query successful
        {
 	 edm::LogError( "L1-O2O" ) << "Problem with EgammaHcal key." ;
-	 return std::shared_ptr< L1RCTParameters >() ;
+	 return std::unique_ptr< L1RCTParameters >() ;
        }
 
 //      std::cout << "egammaHcal " ;
@@ -266,7 +264,7 @@ L1RCTParametersOnlineProd::newObject( const std::string& objectKey )
      if( jetmetEcalResults.queryFailed() ) // check query successful
        {
 	 edm::LogError( "L1-O2O" ) << "Problem with JetmetEcal key." ;
-	 return std::shared_ptr< L1RCTParameters >() ;
+	 return std::unique_ptr< L1RCTParameters >() ;
        }
 
 //      std::cout << "jetmetEcal " ;
@@ -296,7 +294,7 @@ L1RCTParametersOnlineProd::newObject( const std::string& objectKey )
      if( jetmetHcalResults.queryFailed() ) // check query successful
        {
 	 edm::LogError( "L1-O2O" ) << "Problem with JetmetHcal key." ;
-	 return std::shared_ptr< L1RCTParameters >() ;
+	 return std::unique_ptr< L1RCTParameters >() ;
        }
 
 //      std::cout << "jetmetHcal " ;
@@ -340,7 +338,7 @@ L1RCTParametersOnlineProd::newObject( const std::string& objectKey )
        if( hcalCalibResults.queryFailed() ) {// check query successful
 	 
 	 edm::LogError( "L1-O2O" ) << "Problem with JetmetHcal key." ;
-	 return std::shared_ptr< L1RCTParameters >() ;
+	 return std::unique_ptr< L1RCTParameters >() ;
        }
        
 //      std::cout << "jetmetHcal " ;
@@ -362,7 +360,7 @@ L1RCTParametersOnlineProd::newObject( const std::string& objectKey )
      if( hcalCalibHighResults.queryFailed() ) // check query successful
        {
 	 edm::LogError( "L1-O2O" ) << "Problem with hcalHigh key." ;
-	 return std::shared_ptr< L1RCTParameters >() ;
+	 return std::unique_ptr< L1RCTParameters >() ;
        }
 
 
@@ -384,7 +382,7 @@ L1RCTParametersOnlineProd::newObject( const std::string& objectKey )
      if( ecalCalibResults.queryFailed() ) // check query successful
        {
 	 edm::LogError( "L1-O2O" ) << "Problem with ecal calib key." ;
-	 return std::shared_ptr< L1RCTParameters >() ;
+	 return std::unique_ptr< L1RCTParameters >() ;
        }
 
      
@@ -414,7 +412,7 @@ L1RCTParametersOnlineProd::newObject( const std::string& objectKey )
      if( crossTermResults.queryFailed() ) // check query successful
        {
 	 edm::LogError( "L1-O2O" ) << "Problem with crossTerms key." ;
-	 return std::shared_ptr< L1RCTParameters >() ;
+	 return std::unique_ptr< L1RCTParameters >() ;
        }
 
      fillScaleFactors( crossTermResults, crossTermsScaleFactors,6 ) ;
@@ -434,7 +432,7 @@ L1RCTParametersOnlineProd::newObject( const std::string& objectKey )
      if( hoveresmearhighResults.queryFailed() ) // check query successful
        {
 	 edm::LogError( "L1-O2O" ) << "Problem with low h over e smear key." ;
-	 return std::shared_ptr< L1RCTParameters >() ;
+	 return std::unique_ptr< L1RCTParameters >() ;
        }
 
 //      std::cout << "egammaEcal " ;
@@ -456,7 +454,7 @@ L1RCTParametersOnlineProd::newObject( const std::string& objectKey )
      if( hoveresmearlowResults.queryFailed() ) // check query successful
        {
 	 edm::LogError( "L1-O2O" ) << "Problem with low h over e smear key." ;
-	 return std::shared_ptr< L1RCTParameters >() ;
+	 return std::unique_ptr< L1RCTParameters >() ;
        }
 
 //      std::cout << "egammaEcal " ;
@@ -468,7 +466,7 @@ L1RCTParametersOnlineProd::newObject( const std::string& objectKey )
 
      // Default objects for Lindsey 
 
-     return std::make_shared< L1RCTParameters >(
+     return std::make_unique< L1RCTParameters >(
                              eGammaLSB,
                              jetMETLSB,
                              eMinForFGCut,

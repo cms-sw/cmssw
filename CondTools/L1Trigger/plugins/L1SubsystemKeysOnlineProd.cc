@@ -80,7 +80,6 @@ L1SubsystemKeysOnlineProd::~L1SubsystemKeysOnlineProd()
 L1SubsystemKeysOnlineProd::ReturnType
 L1SubsystemKeysOnlineProd::produce(const L1TriggerKeyRcd& iRecord)
 {
-   using namespace edm::es;
    std::unique_ptr<L1TriggerKey> pL1TriggerKey ;
 
    // Get L1TriggerKeyList
