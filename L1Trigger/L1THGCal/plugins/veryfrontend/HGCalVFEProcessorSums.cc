@@ -82,9 +82,9 @@ HGCalVFEProcessorSums::run(const HGCEEDigiCollection& ee,
   for(const auto& id_value : payload)
   { 
     if (id_value.second>0){
-      l1t::HGCalTriggerCell triggerCell(reco::LeafCandidate::LorentzVector(), id_value.second, 0, 0, 0, id_value.first.rawId());
+      l1t::HGCalTriggerCell triggerCell(reco::LeafCandidate::LorentzVector(), compressed_payload[id_value.first][1], 0, 0, 0, id_value.first.rawId());
       triggerCell.setCompressedCharge(compressed_payload[id_value.first][0]);
-      triggerCell.setUncompressedCharge(compressed_payload[id_value.first][1]);
+      triggerCell.setUncompressedCharge(id_value.second);
       GlobalPoint point = geometry_->getTriggerCellPosition(id_value.first.rawId());
       
       // 'value' is hardware, so p4 is meaningless, except for eta and phi
