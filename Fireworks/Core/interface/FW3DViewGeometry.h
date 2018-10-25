@@ -47,6 +47,9 @@ public:
    void showPixelEndcap( bool );
    void showTrackerBarrel( bool );
    void showTrackerEndcap( bool );
+   void showHGCalEE( bool );
+   void showHGCalHSi( bool );
+   void showHGCalHSc( bool );
 private:
    FW3DViewGeometry(const FW3DViewGeometry&) = delete; // stop default
 
@@ -62,6 +65,9 @@ private:
    TEveElementList*   m_pixelEndcapElements;
    TEveElementList*   m_trackerBarrelElements;
    TEveElementList*   m_trackerEndcapElements;
+   TEveElementList*   m_HGCalEEElements;
+   TEveElementList*   m_HGCalHSiElements;
+   TEveElementList*   m_HGCalHScElements;
 };
 
 #endif
