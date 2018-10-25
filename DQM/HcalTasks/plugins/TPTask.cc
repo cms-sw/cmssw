@@ -15,11 +15,14 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		edm::InputTag("emulDigis"));
 	_tagEmulNoTDCCut = ps.getUntrackedParameter<edm::InputTag>("tagEmulNoTDCCut",
 		edm::InputTag("emulTPDigisNoTDCCut"));
+	_tagFEDs = ps.getUntrackedParameter<edm::InputTag>("tagFEDs",
+		edm::InputTag("rawDataCollector"));
 
 	_tokData = consumes<HcalTrigPrimDigiCollection>(_tagData);
 	_tokDataL1Rec = consumes<HcalTrigPrimDigiCollection>(_tagDataL1Rec);
 	_tokEmul = consumes<HcalTrigPrimDigiCollection>(_tagEmul);
 	_tokEmulNoTDCCut = consumes<HcalTrigPrimDigiCollection>(_tagEmulNoTDCCut);
+	_tokFEDs = consumes<FEDRawDataCollection>(_tagFEDs);
 
 	_skip1x1 = ps.getUntrackedParameter<bool>("skip1x1", true);
 	_cutEt = ps.getUntrackedParameter<int>("cutEt", 3);
@@ -37,6 +40,8 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 	std::vector<int> tmp = ps.getUntrackedParameter<std::vector<int> >("vFGBitsReady");
 	for (uint32_t iii=0; iii<constants::NUM_FGBITS; iii++)
 		_vFGBitsReady.push_back(tmp[iii]);
+	ignoreHFfbs_ = ps.getUntrackedParameter<bool>("ignoreHFfbs", false);
+
 
 	_vflags.resize(nTPFlag);
 	_vflags[fEtMsm]=flag::Flag("EtMsm");
@@ -1080,42 +1085,62 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		// Compare the sent ("uHTR") and received (L1T "layer1") TPs
 		// This algorithm is copied from DQM/L1TMonitor/src/L1TStage2CaloLayer1.cc 
 		// ...but it turns out to be extremely useful for detecting uHTR problems
-		_vTPDigis_SentRec.clear();
-		ComparisonHelper::zip(cdata->begin(), cdata->end(), 
-							cdataL1Rec->begin(), cdataL1Rec->end(), 
-							std::inserter(_vTPDigis_SentRec, _vTPDigis_SentRec.begin()), 
-							HcalTrigPrimDigiCollection::key_compare());
 
-		for ( const auto& tpPair : _vTPDigis_SentRec) {
-			// From here, literal copy pasta from L1T
-			const auto& sentTp = tpPair.first;
-			const auto& recdTp = tpPair.second;
-			const int ieta = sentTp.id().ieta();
-			if ( abs(ieta) > 28 && sentTp.id().version() != 1 ) continue;
-			//const int iphi = sentTp.id().iphi();
-			const bool towerMasked = recdTp.sample(0).raw() & (1<<13);
-			//const bool linkMasked  = recdTp.sample(0).raw() & (1<<14);
-			const bool linkError   = recdTp.sample(0).raw() & (1<<15);
-
-			if ( towerMasked || linkError ) {
-				// Do not compare if known to be bad
-				continue;
+		// Check if caloLayer1 is available
+		bool caloLayer1OutOfRun{true};
+		edm::Handle<FEDRawDataCollection> craw;
+		if (!e.getByToken(_tokFEDs, craw))
+			_logger.dqmthrow("Collection FEDRawDataCollection isn't available"+
+				_tagFEDs.label()+" " +_tagFEDs.instance());
+		if (craw.isValid()) {
+			caloLayer1OutOfRun = false;
+			for (int iFed = 1354; iFed < 1360; iFed += 2) {
+				const FEDRawData& fedRawData = craw->FEDData(iFed);
+				if ( fedRawData.size() == 0 ) {
+					caloLayer1OutOfRun = true;
+					continue;  // In case one of 3 layer 1 FEDs not in
+				}
 			}
-			const bool HetAgreement = sentTp.SOI_compressedEt() == recdTp.SOI_compressedEt();
-			const bool Hfb1Agreement = sentTp.SOI_fineGrain() == recdTp.SOI_fineGrain();
-			// Ignore minBias (FB2) bit if we receieve 0 ET, which means it is likely zero-suppressed on HCal readout side
-			const bool Hfb2Agreement = ( abs(ieta) < 29 ) ? true : (recdTp.SOI_compressedEt()==0 || (sentTp.SOI_fineGrain(1) == recdTp.SOI_fineGrain(1)));
-			if (!(HetAgreement && Hfb1Agreement && Hfb2Agreement)) {
-				HcalTrigTowerDetId tid = sentTp.id();
-				uint32_t rawid = _ehashmap.lookup(tid);
-				if (rawid==0) {
+		}
+
+		if (!caloLayer1OutOfRun) {
+			_vTPDigis_SentRec.clear();
+			ComparisonHelper::zip(cdata->begin(), cdata->end(), 
+								cdataL1Rec->begin(), cdataL1Rec->end(), 
+								std::inserter(_vTPDigis_SentRec, _vTPDigis_SentRec.begin()), 
+								HcalTrigPrimDigiCollection::key_compare());
+
+			for ( const auto& tpPair : _vTPDigis_SentRec) {
+				// From here, literal copy pasta from L1T
+				const auto& sentTp = tpPair.first;
+				const auto& recdTp = tpPair.second;
+				const int ieta = sentTp.id().ieta();
+				if ( abs(ieta) > 28 && sentTp.id().version() != 1 ) continue;
+				//const int iphi = sentTp.id().iphi();
+				const bool towerMasked = recdTp.sample(0).raw() & (1<<13);
+				//const bool linkMasked  = recdTp.sample(0).raw() & (1<<14);
+				const bool linkError   = recdTp.sample(0).raw() & (1<<15);
+
+				if ( towerMasked || linkError ) {
+					// Do not compare if known to be bad
 					continue;
 				}
-				HcalElectronicsId const& eid(rawid);
+				const bool HetAgreement = sentTp.SOI_compressedEt() == recdTp.SOI_compressedEt();
+				const bool Hfb1Agreement = ( abs(ieta) < 29 ) ? true : (recdTp.SOI_compressedEt()==0 || (sentTp.SOI_fineGrain() == recdTp.SOI_fineGrain()) || ignoreHFfbs_);
+				// Ignore minBias (FB2) bit if we receieve 0 ET, which means it is likely zero-suppressed on HCal readout side
+				const bool Hfb2Agreement = ( abs(ieta) < 29 ) ? true : (recdTp.SOI_compressedEt()==0 || (sentTp.SOI_fineGrain(1) == recdTp.SOI_fineGrain(1)) || ignoreHFfbs_);
+				if (!(HetAgreement && Hfb1Agreement && Hfb2Agreement)) {
+					HcalTrigTowerDetId tid = sentTp.id();
+					uint32_t rawid = _ehashmap.lookup(tid);
+					if (rawid==0) {
+						continue;
+					}
+					HcalElectronicsId const& eid(rawid);
 
-				_cEtMsm_uHTR_L1T_depthlike.fill(tid);
-				_cEtMsm_uHTR_L1T_LS.fill(_currentLS);
-				_xSentRecL1Msm.get(eid)++;
+					_cEtMsm_uHTR_L1T_depthlike.fill(tid);
+					_cEtMsm_uHTR_L1T_LS.fill(_currentLS);
+					_xSentRecL1Msm.get(eid)++;
+				}
 			}
 		}
 	}

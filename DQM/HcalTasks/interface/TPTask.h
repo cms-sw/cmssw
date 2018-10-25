@@ -40,10 +40,12 @@ class TPTask : public hcaldqm::DQTask
 		edm::InputTag		_tagDataL1Rec;
 		edm::InputTag		_tagEmul;
 		edm::InputTag		_tagEmulNoTDCCut;
+		edm::InputTag		_tagFEDs;
 		edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tokData;
 		edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tokDataL1Rec;
 		edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tokEmul;
 		edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tokEmulNoTDCCut;
+		edm::EDGetTokenT<FEDRawDataCollection>	_tokFEDs;
 
 		//	flag vector
 		std::vector<hcaldqm::flag::Flag> _vflags;
@@ -64,6 +66,7 @@ class TPTask : public hcaldqm::DQTask
 			_thresh_FGMsmRate_high, _thresh_FGMsmRate_low,
 			_thresh_DataMsn, _thresh_EmulMsn;
 		std::vector<bool> _vFGBitsReady;
+		bool ignoreHFfbs_; 
 
 		//	hashes/FEDs vectors
 		std::vector<uint32_t> _vhashFEDs;
