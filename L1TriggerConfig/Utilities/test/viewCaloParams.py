@@ -76,8 +76,8 @@ process.l1cpv = cms.EDAnalyzer("L1TCaloParamsViewer",
                                printEcalSF = cms.untracked.bool(False),
                                printEtSumEttPUSLUT = cms.untracked.bool(False),
                                printEtSumEcalSumPUSLUT = cms.untracked.bool(False),
-                               printEtSumXCalibrationLUT = cms.untracked.bool(False),
-                               printEtSumYCalibrationLUT = cms.untracked.bool(False),
+                               printMetCalibrationLUT = cms.untracked.bool(False),
+                               printMetHFCalibrationLUT = cms.untracked.bool(False),
                                printEtSumEttCalibrationLUT = cms.untracked.bool(False),
                                printEtSumEcalSumCalibrationLUT = cms.untracked.bool(False)
 )
