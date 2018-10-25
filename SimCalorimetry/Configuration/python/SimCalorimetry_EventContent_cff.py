@@ -76,3 +76,7 @@ phase2_hgcal.toModify( SimCalorimetryRAW, outputCommands = SimCalorimetryRAW.out
 phase2_hgcal.toModify( SimCalorimetryFEVTDEBUG, outputCommands = SimCalorimetryFEVTDEBUG.outputCommands + _phase2_hgc_extraCommands.v )
 phase2_hgcal.toModify( SimCalorimetryRECO, outputCommands = SimCalorimetryRECO.outputCommands + _phase2_hgc_extraCommands.v )
 phase2_hgcal.toModify( SimCalorimetryPREMIX, outputCommands = SimCalorimetryPREMIX.outputCommands + _phase2_hgc_extraCommands.v )
+
+from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
+phase2_hfnose.toModify( SimCalorimetryFEVTDEBUG.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simHFNoseUnsuppressedDigis_*_*') )
+phase2_hfnose.toModify( SimCalorimetryRAW.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simHFNoseUnsuppressedDigis_*_*') )
