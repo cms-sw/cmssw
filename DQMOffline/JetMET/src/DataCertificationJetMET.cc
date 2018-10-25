@@ -605,7 +605,7 @@ DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter&
   MonitorElement *meJetEMFrac[4];
   MonitorElement *meJetConstituents[4];
   RunDir = "";
-  if (RunDir == "") newHistoName = "JetMET/Jet/";
+  if (RunDir.empty()) newHistoName = "JetMET/Jet/";
   else              newHistoName = RunDir+"/JetMET/Runsummary/Jet/";
   std::string cleaningdir = "";
     cleaningdir = "Cleaned";
@@ -931,7 +931,7 @@ DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter&
   MonitorElement *meMETPhi[2];
  
   RunDir = "";
-  if (RunDir == "") newHistoName = "JetMET/MET/";
+  if (RunDir.empty()) newHistoName = "JetMET/MET/";
   else              newHistoName = RunDir+"/JetMET/Runsummary/MET/";
 
     metFolder = "Cleaned";
