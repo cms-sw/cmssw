@@ -38,7 +38,7 @@ class RPCConfigOnlineProd : public L1ConfigOnlineProdBase< L1RPCConfigRcd,
       RPCConfigOnlineProd(const edm::ParameterSet&);
       ~RPCConfigOnlineProd() override;
 
-  std::shared_ptr< L1RPCConfig > newObject(
+  std::unique_ptr< L1RPCConfig > newObject(
     const std::string& objectKey ) override ;
 
    private:
@@ -74,13 +74,13 @@ RPCConfigOnlineProd::~RPCConfigOnlineProd()
 
 }
 
-std::shared_ptr< L1RPCConfig >
+std::unique_ptr< L1RPCConfig >
 RPCConfigOnlineProd::newObject( const std::string& objectKey )
 {
   edm::LogError( "L1-O2O" ) << "L1RPCConfig object with key "
 			    << objectKey << " not in ORCON!" ;
 
-  return std::shared_ptr< L1RPCConfig >() ;
+  return std::unique_ptr< L1RPCConfig >() ;
 }
 
 //

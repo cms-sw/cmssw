@@ -36,8 +36,8 @@ class L1HfRingEtScaleOnlineProd :
       L1HfRingEtScaleOnlineProd(const edm::ParameterSet&);
       ~L1HfRingEtScaleOnlineProd() override;
 
-  std::shared_ptr< L1CaloEtScale > newObject(
-    const std::string& objectKey ) override ;
+      std::unique_ptr< L1CaloEtScale > newObject(
+         const std::string& objectKey ) override ;
 
 
    private:
@@ -74,11 +74,9 @@ L1HfRingEtScaleOnlineProd::~L1HfRingEtScaleOnlineProd()
 
 }
 
-std::shared_ptr< L1CaloEtScale >
+std::unique_ptr< L1CaloEtScale >
 L1HfRingEtScaleOnlineProd::newObject( const std::string& objectKey )
 {
-     using namespace edm::es;
-
      // get scales keys
      l1t::OMDSReader::QueryResults scalesKeyResults =
        m_omdsReader.basicQuery(
@@ -182,7 +180,7 @@ L1HfRingEtScaleOnlineProd::newObject( const std::string& objectKey )
      }
 
      //~~~~~~~~~ Instantiate new L1HfRingEtScale object. ~~~~~~~~~
-     return std::make_shared<L1CaloEtScale>(0xff, 0x7, rgnEtLsb, thresholds);
+     return std::make_unique<L1CaloEtScale>(0xff, 0x7, rgnEtLsb, thresholds);
 }
 
 

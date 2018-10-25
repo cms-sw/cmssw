@@ -43,14 +43,13 @@ class L1CaloHcalScaleConfigOnlineProd :
       L1CaloHcalScaleConfigOnlineProd(const edm::ParameterSet& iConfig);
       ~L1CaloHcalScaleConfigOnlineProd() override;
 
-  std::shared_ptr< L1CaloHcalScale > produce(const L1CaloHcalScaleRcd& iRecord) override ;
+      std::unique_ptr< L1CaloHcalScale > produce(const L1CaloHcalScaleRcd& iRecord) override ;
 
-  std::shared_ptr< L1CaloHcalScale > newObject(
-    const std::string& objectKey ) override ;
+      std::unique_ptr< L1CaloHcalScale > newObject(
+         const std::string& objectKey ) override ;
 
    private:
- 
-  L1CaloHcalScale* hcalScale;
+
   const HcalTrigTowerGeometry* theTrigTowerGeometry;
   CaloTPGTranscoderULUT* caloTPG;
   typedef std::vector<double> RCTdecompression;
@@ -80,7 +79,6 @@ L1CaloHcalScaleConfigOnlineProd::L1CaloHcalScaleConfigOnlineProd(
   : L1ConfigOnlineProdBase< L1CaloHcalScaleRcd, L1CaloHcalScale >( iConfig ),
     theTrigTowerGeometry( nullptr )
 {
-  hcalScale = new L1CaloHcalScale(0);
   caloTPG = new CaloTPGTranscoderULUT();
 }
 
@@ -94,24 +92,18 @@ L1CaloHcalScaleConfigOnlineProd::~L1CaloHcalScaleConfigOnlineProd()
     delete caloTPG;
 }
 
-std::shared_ptr< L1CaloHcalScale >
+std::unique_ptr< L1CaloHcalScale >
 L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 {
   assert( theTrigTowerGeometry != nullptr );
   
-     using namespace edm::es;
- 
      edm::LogInfo("L1CaloHcalScaleConfigOnlineProd") << "object Key " << objectKey;
 
-     if(objectKey == "NULL" || objectKey == "")  // return default blank ecal scale	 
-       return std::shared_ptr< L1CaloHcalScale >( hcalScale );
-     if(objectKey == "IDENTITY"){  // return identity ecal scale  
-       
-       delete hcalScale;
-       
-       hcalScale = new L1CaloHcalScale(1);
-       
-       return std::shared_ptr< L1CaloHcalScale >( hcalScale);
+     if(objectKey == "NULL" || objectKey == "") { // return default blank ecal scale
+       return std::make_unique<L1CaloHcalScale>(0);
+     }
+     if(objectKey == "IDENTITY") {  // return identity ecal scale
+       return std::make_unique<L1CaloHcalScale>(1);
      }
   
      std::vector<unsigned int> analyticalLUT(1024, 0);
@@ -162,7 +154,7 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	|| (paramResults.numberRows()!=1) ) // check query successful
        {
 	 edm::LogError( "L1-O2O" ) << "Problem with L1CaloHcalScale key.  Unable to find lutparam dat table" ;
-	 return std::shared_ptr< L1CaloHcalScale >() ;
+	 return std::unique_ptr< L1CaloHcalScale >() ;
        }
         
     double hcalLSB, nominal_gain;
@@ -238,7 +230,7 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	|| (chanResults.numberRows()==0) ) // check query successful
        {
 	 edm::LogError( "L1-O2O" ) << "Problem with L1CaloHcalScale key.  Unable to find lutparam dat table nrows" << chanResults.numberRows() ;
-	 return std::shared_ptr< L1CaloHcalScale >() ;
+	 return std::unique_ptr< L1CaloHcalScale >() ;
        }
 
 
@@ -299,7 +291,7 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
        }
      }
      
-
+     auto hcalScale = std::make_unique<L1CaloHcalScale>(0);
 
      // XXX L1CaloHcalScale is only setup for 2x3 TP
      const int tp_version = 0;
@@ -335,11 +327,10 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
      hcalScale->print(s);
      edm::LogInfo("L1CaloHcalScaleConfigOnlineProd") << s.str();
 // ------------ method called to produce the data  ------------
-     return std::shared_ptr< L1CaloHcalScale >( hcalScale );
-
+     return hcalScale;
 }
 
-std::shared_ptr< L1CaloHcalScale >
+std::unique_ptr< L1CaloHcalScale >
 L1CaloHcalScaleConfigOnlineProd::produce( const L1CaloHcalScaleRcd& iRecord )
 {
   edm::ESHandle<HcalTrigTowerGeometry> pG;

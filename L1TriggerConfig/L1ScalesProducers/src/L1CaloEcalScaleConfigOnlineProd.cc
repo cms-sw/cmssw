@@ -41,34 +41,19 @@ class L1CaloEcalScaleConfigOnlineProd :
       L1CaloEcalScaleConfigOnlineProd(const edm::ParameterSet&);
       ~L1CaloEcalScaleConfigOnlineProd() override;
 
-  std::shared_ptr< L1CaloEcalScale > newObject(
-    const std::string& objectKey ) override ;
-
+      std::unique_ptr< L1CaloEcalScale > newObject(
+         const std::string& objectKey ) override ;
 
    private:
- const EcalElectronicsMapping * theMapping_ ;
-  std::map<int, std::vector<int>* > groupInfo;
-  EcalTPGGroups*  lutGrpMap;
-  L1CaloEcalScale* ecalScale;
-      // ----------member data ---------------------------
+      const EcalElectronicsMapping * theMapping_ ;
+      std::map<int, std::vector<int>* > groupInfo;
+      EcalTPGGroups*  lutGrpMap;
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 L1CaloEcalScaleConfigOnlineProd::L1CaloEcalScaleConfigOnlineProd(
   const edm::ParameterSet& iConfig)
   : L1ConfigOnlineProdBase< L1CaloEcalScaleRcd, L1CaloEcalScale >( iConfig )
 {
-  ecalScale = new L1CaloEcalScale(0);
   theMapping_ = new EcalElectronicsMapping();
    lutGrpMap = new EcalTPGGroups();
 
@@ -81,29 +66,24 @@ L1CaloEcalScaleConfigOnlineProd::~L1CaloEcalScaleConfigOnlineProd()
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
   delete theMapping_;
- 
-  //  delete ecalScale;
+
   //  delete lutGrpMap;
   groupInfo.clear();
 
 
 }
 
-std::shared_ptr< L1CaloEcalScale >
+std::unique_ptr< L1CaloEcalScale >
 L1CaloEcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 {
-     using namespace edm::es;
- 
      std:: cout << "object Key " << objectKey <<std::endl;
 
-     if(objectKey == "NULL" || objectKey == "")  // return default blank ecal scale	 
-        return std::shared_ptr< L1CaloEcalScale >( ecalScale );
-     if(objectKey == "IDENTITY"){  // return identity ecal scale  
-       ecalScale = nullptr;
-       ecalScale = new L1CaloEcalScale(1);
-       return std::shared_ptr< L1CaloEcalScale >( ecalScale);
+     if(objectKey == "NULL" || objectKey == "")  { // return default blank ecal scale
+       return std::make_unique<L1CaloEcalScale>(0);
      }
-     
+     if(objectKey == "IDENTITY") {  // return identity ecal scale
+       return std::make_unique<L1CaloEcalScale>(1);
+     }
 
      double ee_lsb = 0.;
      double eb_lsb = 0.;
@@ -136,7 +116,7 @@ L1CaloEcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	|| (paramResults.numberRows()==0) ) // check query successful
        {
 	 edm::LogError( "L1-O2O" ) << "Problem with L1CaloEcalScale key.  Unable to find lutparam dat table" ;
-	 return std::shared_ptr< L1CaloEcalScale >() ;
+	 return std::unique_ptr< L1CaloEcalScale >() ;
        }
 
     
@@ -168,7 +148,7 @@ L1CaloEcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	 ee_lsb = etSat/1024;
        else {
 	 edm::LogError( "L1-O2O" ) << "Problem with L1CaloEcalScale  LOGIC_ID.  unable to find channel view with appropiate logic id" ;
-	 return std::shared_ptr< L1CaloEcalScale >() ;
+	 return std::unique_ptr< L1CaloEcalScale >() ;
        }
 
      }
@@ -191,7 +171,7 @@ L1CaloEcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	|| (lutGrpResults.numberRows()%1024 !=0) ) // check query successful
        {
 	 edm::LogError( "L1-O2O" ) << "Problem with L1CaloEcalScale key.  No group info" ;
-	 return std::shared_ptr< L1CaloEcalScale >() ;
+	 return std::unique_ptr< L1CaloEcalScale >() ;
        }
 
 
@@ -253,7 +233,7 @@ L1CaloEcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	|| (grpMapResults.numberRows()==0) ) // check query successful
        {
 	 edm::LogError( "L1-O2O" ) << "Problem with L1CaloEcalScale key. No fe_config_lut_dat info" ;
-	 return std::shared_ptr< L1CaloEcalScale >() ;
+	 return std::unique_ptr< L1CaloEcalScale >() ;
        }
 
      nEntries = grpMapResults.numberRows();
@@ -276,7 +256,7 @@ L1CaloEcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	   || (paramResults.numberRows()==0) ) // check query successful
 	 {
 	 edm::LogError( "L1-O2O" ) << "Problem with L1CaloEcalScale key.  Unable to find logic_id channel view" ;
-	 return std::shared_ptr< L1CaloEcalScale >() ;
+	 return std::unique_ptr< L1CaloEcalScale >() ;
        }
        for(int j = 0; j < IDResults.numberRows(); j++){
 
@@ -325,7 +305,7 @@ L1CaloEcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
      
      const EcalTPGGroups::EcalTPGGroupsMap & gMap = lutGrpMap->getMap();
      
-
+     auto ecalScale = std::make_unique<L1CaloEcalScale>(0);
 
      for( unsigned short ieta = 1 ; ieta <= L1CaloEcalScale::nBinEta; ++ieta ){
        EcalSubdetector subdet = ( ieta <= 17  ) ? EcalBarrel : EcalEndcap ;
@@ -361,7 +341,7 @@ L1CaloEcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 
  
 // ------------ method called to produce the data  ------------
-     return std::shared_ptr< L1CaloEcalScale >( ecalScale );
+     return ecalScale;
 }
 //define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(L1CaloEcalScaleConfigOnlineProd);
