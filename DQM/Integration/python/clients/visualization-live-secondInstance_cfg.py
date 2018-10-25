@@ -40,6 +40,7 @@ kwds = {
 
 # example of how to add a filer IN FRONT of all the paths, eg for HLT selection
 #kwds['preFilter'] = 'DQM/Integration/python/config/visualizationPreFilter.hltfilter'
+kwds['preFilter'] = 'DQM/Integration/config/visualizationPreFilter.pixelClusterFilter'
 
 process = scenario.visualizationProcessing(writeTiers=['FEVT'], **kwds)
 
@@ -74,6 +75,7 @@ oldo = process._Process__outputmodules["FEVToutput"]
 del process._Process__outputmodules["FEVToutput"]
 
 process.FEVToutput = cms.OutputModule("JsonWritingTimeoutPoolOutputModule",
+    SelectEvents = oldo.SelectEvents,
     splitLevel = oldo.splitLevel,
     outputCommands = oldo.outputCommands,
     fileName = oldo.fileName,
