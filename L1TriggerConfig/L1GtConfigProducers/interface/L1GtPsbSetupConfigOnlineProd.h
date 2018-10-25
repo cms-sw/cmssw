@@ -45,7 +45,7 @@ public:
     ~L1GtPsbSetupConfigOnlineProd() override;
 
     /// public methods
-    std::shared_ptr<L1GtPsbSetup> newObject(const std::string& objectKey) override;
+    std::unique_ptr<L1GtPsbSetup> newObject(const std::string& objectKey) override;
 
 private:
 
