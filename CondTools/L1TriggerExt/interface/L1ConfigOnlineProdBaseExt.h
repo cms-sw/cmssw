@@ -35,9 +35,9 @@ class L1ConfigOnlineProdBaseExt : public edm::ESProducer {
       L1ConfigOnlineProdBaseExt(const edm::ParameterSet&);
       ~L1ConfigOnlineProdBaseExt() override;
 
-      std::shared_ptr< TData > produce(const TRcd& iRecord);
+      std::unique_ptr< const TData > produce(const TRcd& iRecord);
 
-      virtual std::shared_ptr< TData > newObject(
+      virtual std::unique_ptr< const TData > newObject(
 	const std::string& objectKey, const TRcd& iRecord) = 0 ;
 
    private:
@@ -52,7 +52,6 @@ class L1ConfigOnlineProdBaseExt : public edm::ESProducer {
       // If bool is false, produce method should throw
       // DataAlreadyPresentException.
       bool getObjectKey( const TRcd& record,
-                         std::shared_ptr< TData > data,
                          std::string& objectKey ) ;
 
       // For reading object directly from a CondDB w/o PoolDBOutputService
@@ -106,15 +105,14 @@ L1ConfigOnlineProdBaseExt<TRcd, TData>::~L1ConfigOnlineProdBaseExt()
 }
 
 template< class TRcd, class TData >
-std::shared_ptr< TData >
+std::unique_ptr< const TData >
 L1ConfigOnlineProdBaseExt<TRcd, TData>::produce( const TRcd& iRecord )
 {
-   using namespace edm::es;
-   std::shared_ptr< TData > pData ;
+   std::unique_ptr< const TData > pData ;
 
    // Get object key and check if already in ORCON
    std::string key ;
-   if( getObjectKey( iRecord, pData, key ) || m_forceGeneration )
+   if( getObjectKey( iRecord, key ) || m_forceGeneration )
    {
      if( m_copyFromCondDB )
        {
@@ -157,7 +155,7 @@ L1ConfigOnlineProdBaseExt<TRcd, TData>::produce( const TRcd& iRecord )
        }
 
      //     if( pData.get() == 0 )
-     if( pData == std::shared_ptr< TData >() )
+     if( pData == std::unique_ptr< const TData >() )
        {
 	 std::string dataType = edm::typelookup::className<TData>();
 
@@ -182,7 +180,6 @@ template< class TRcd, class TData >
 bool 
 L1ConfigOnlineProdBaseExt<TRcd, TData>::getObjectKey(
   const TRcd& record,
-  std::shared_ptr< TData > data,
   std::string& objectKey )
 {
    // Get L1TriggerKeyExt
