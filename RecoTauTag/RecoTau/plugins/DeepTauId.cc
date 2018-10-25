@@ -277,7 +277,8 @@ public:
     }
 
 private:
-    virtual tensorflow::Tensor GetPredictions(edm::Event& event, const edm::EventSetup& es) override
+    virtual tensorflow::Tensor GetPredictions(edm::Event& event, const edm::EventSetup& es,
+                                              edm::Handle<TauCollection> taus) override
     {
         edm::Handle<pat::ElectronCollection> electrons;
         event.getByToken(electrons_token, electrons);
@@ -305,9 +306,9 @@ private:
     void SetInputs(const TauCollection& taus, size_t tau_index, tensorflow::Tensor& inputs,
                    const ElectronCollection& electrons, const MuonCollection& muons) const
     {
-
         static constexpr bool check_all_set = false;
         static constexpr float magic_number = -42;
+        static const TauIdMVAAuxiliaries clusterVariables;
         const auto& get = [&](int var_index) -> float& { return inputs.matrix<float>()(tau_index, var_index); };
         const TauType& tau = taus.at(tau_index);
         auto leadChargedHadrCand = dynamic_cast<const pat::PackedCandidate*>(tau.leadChargedHadrCand().get());
@@ -603,9 +604,8 @@ private:
         const double dR2 = deltaR*deltaR;
         const pat::Electron* matched_ele = nullptr;
         for(const auto& ele : electrons) {
-	  if(reco::deltaR2(tau.p4(), ele.p4()) < dR2 &&
-	       (!matched_ele || matched_ele->pt() < ele.pt())) {
-	      matched_ele = &ele;
+            if(reco::deltaR2(tau.p4(), ele.p4()) < dR2 && (!matched_ele || matched_ele->pt() < ele.pt())) {
+                matched_ele = &ele;
             }
         }
         return matched_ele;
