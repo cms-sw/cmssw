@@ -70,20 +70,20 @@ def setColorIfExists_(histos, h, color):
     if h in histos.keys():
         histos[h].SetFillColor(color)
 
-def assignOrAddIfExists_(h, p):
-    """Assign the projection of p to h.
+def assignOrAddIfExists_(h1, h2):
+    """Assign the projection of h2 to h1.
 
-       Function to assign the projection of p to h, in the case in
-       which h is None, otherwise add the projection to the already
-       valid h object
+       Function to assign the h2 to h1 in the case in
+       which h1 is None, otherwise add h2 to the already
+       valid h1 object
 
     """
 
-    if not h:
-        h = p.ProjectionX()
+    if not h1:
+        h1 = h2
     else:
-        h.Add(p.ProjectionX("B_%s" % h.GetName()), +1.000)
-    return h
+        h1.Add(h2, +1.000)
+    return h1
 
 def get1DHisto_(detector,plotNumber,geometry):
     """
@@ -123,7 +123,7 @@ def get1DHisto_(detector,plotNumber,geometry):
             prof = subDetectorFile.Get('%d'%(plotNumber)) 
             if not prof: return 0
             prof.__class__ = TProfile
-            histo = assignOrAddIfExists_(histo,prof)
+            histo = assignOrAddIfExists_(histo,prof.ProjectionX())
 
     return copy.deepcopy(histo)
 
@@ -540,15 +540,23 @@ def createPlots_(plot, geometry):
 
         # Merge together the "inner barrel detectors".
         if subDetector in IBs:
-            hist_X0_IB = assignOrAddIfExists_(hist_X0_IB, prof_X0_XXX)
+            hist_X0_IB = assignOrAddIfExists_(
+                hist_X0_IB,
+                hist_X0_detectors[subDetector]
+                )
 
         hist_X0_detectors[subDetector] = prof_X0_XXX.ProjectionX()
 
         # category profiles
         for label, [num, color, leg] in six.iteritems(hist_label_to_num):
-            prof_X0_elements[label] = subDetectorFile.Get("%d" % (num + plots[plot].plotNumber))
-            hist_X0_elements[label] = assignOrAddIfExists_(hist_X0_elements.setdefault(label, None),
-                                                          prof_X0_elements[label])
+            if label is 'SUM': continue
+            hist_label = get1DHisto_(subDetector, num + plots[plot].plotNumber, geometry)
+            hist_X0_elements[label] = assignOrAddIfExists_(
+                hist_X0_elements.setdefault(label,None),
+                hist_label,
+                )
+            hist_X0_elements[label].SetFillColor(color)
+
 
     cumulative_matbdg = TH1D("CumulativeSimulMatBdg",
                              "CumulativeSimulMatBdg",
