@@ -60,18 +60,17 @@ public:
     virtual void produce(edm::Event& event, const edm::EventSetup& es) override;
 
 private:
-    virtual tensorflow::Tensor GetPredictions(edm::Event& event, const edm::EventSetup& es) = 0;
-    virtual void CreateOutputs(edm::Event& event, const tensorflow::Tensor& pred);
+    virtual tensorflow::Tensor GetPredictions(edm::Event& event, const edm::EventSetup& es,
+                                              edm::Handle<TauCollection> taus) = 0;
+    virtual void CreateOutputs(edm::Event& event, const tensorflow::Tensor& pred, edm::Handle<TauCollection> taus);
 
 protected:
     edm::EDGetTokenT<TauCollection> taus_token;
-    edm::Handle<TauCollection> taus;
     std::string graphName;
     GraphPtr graph;
     tensorflow::Session* session;
     std::map<std::string, WPMap> working_points;
     OutputCollection outputs;
-
 };
 
 } // namespace deep_tau

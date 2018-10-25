@@ -618,7 +618,7 @@ class TauIDEmbedder(object):
                     "Loose": "0.999755",
                     "Medium": "0.999854",
                     "Tight": "0.999886",
-                    "VTight": "0.99994",
+                    "VTight": "0.999944",
                     "VVTight": "0.9999971"
                 },
 
