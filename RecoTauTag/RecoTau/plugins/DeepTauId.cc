@@ -308,7 +308,6 @@ private:
     {
         static constexpr bool check_all_set = false;
         static constexpr float magic_number = -42;
-        static const TauIdMVAAuxiliaries clusterVariables;
         const auto& get = [&](int var_index) -> float& { return inputs.matrix<float>()(tau_index, var_index); };
         const TauType& tau = taus.at(tau_index);
         auto leadChargedHadrCand = dynamic_cast<const pat::PackedCandidate*>(tau.leadChargedHadrCand().get());
