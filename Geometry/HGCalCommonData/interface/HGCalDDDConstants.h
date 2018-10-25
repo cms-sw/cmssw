@@ -28,6 +28,12 @@ public:
   HGCalDDDConstants(const HGCalParameters* hp, const std::string& name);
   ~HGCalDDDConstants();
 
+  enum class CellType {
+      UndefinedType=-1, CentralType=0, BottomLeftEdge=1, LeftEdge=2,
+      TopLeftEdge=3, TopRightEdge=4, RightEdge=5, BottomRightEdge=6,
+      BottomCorner=11, BottomLeftCorner=12, TopLeftCorner=13,
+      TopCorner=14, TopRightCorner=15, BottomRightCorner=16};
+
   std::pair<int,int>  assignCell(float x, float y, int lay, int subSec,
 				 bool reco) const;
   std::array<int,5>   assignCellHex(float x, float y, int lay, 
@@ -37,7 +43,12 @@ public:
   bool                cellInLayer(int waferU, int waferV, int cellU, int cellV,
 				  int lay, bool reco) const;
   double              cellSizeHex(int type) const;
+  std::pair<double,double> cellSizeTrap(int type, int irad) const {
+    return std::pair<double,double>(hgpar_->radiusLayer_[type][irad-1],
+				    hgpar_->radiusLayer_[type][irad]);
+  }
   double              cellThickness(int layer, int waferU, int waferV) const;
+  CellType            cellType(int type, int waferU, int waferV) const;
   double              distFromEdgeHex(double x, double y, double z) const;
   double              distFromEdgeTrap(double x, double y, double z) const;
   void                etaPhiFromPosition(const double x, const double y,
@@ -55,6 +66,8 @@ public:
   std::vector<HGCalParameters::hgtrform> getTrForms() const ;
   int                 getTypeTrap(int layer) const;
   int                 getTypeHex(int layer, int waferU, int waferV) const;
+  int                 getUVMax(int type) const
+  {return ((type == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_);}
   bool                isHalfCell(int waferType, int cell) const;
   bool                isValidHex(int lay, int mod, int cell, bool reco) const;
   bool                isValidHex8(int lay, int modU, int modV, int cellU,
@@ -81,6 +94,7 @@ public:
   int                 maxMoudlesPerLayer() const {return maxWafersPerLayer_;}
   int                 maxRows(int lay, bool reco) const;
   double              minSlope() const {return hgpar_->slopeMin_[0];}
+  int                 modifyUV(int uv, int type1, int type2) const;
   int                 modules(int lay, bool reco) const;
   int                 modulesInit(int lay, bool reco) const;
   double              mouseBite(bool reco) const;
