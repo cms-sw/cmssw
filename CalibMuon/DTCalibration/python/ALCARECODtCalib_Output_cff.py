@@ -46,7 +46,9 @@ from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 
 OutALCARECODtCalibHI = copy.deepcopy(OutALCARECODtCalib_noDrop)
 OutALCARECODtCalibHI.outputCommands.insert(0, "drop *")
-OutALCARECODtCalibHI.outputCommands.append("keep *_hiSelectedVertex_*_*")
+OutALCARECODtCalibHI.outputCommands.append("keep *_offlinePrimaryVertices__*")
+OutALCARECODtCalibHI.outputCommands.append("keep *_offlinePrimaryVerticesWithBS_*_*")
+OutALCARECODtCalibHI.outputCommands.append("keep *_offlinePrimaryVerticesFromCosmicTracks_*_*")
 
 #Specify to use HI output for the pp_on_AA_2018 eras
 pp_on_AA_2018.toReplaceWith(OutALCARECODtCalib,OutALCARECODtCalibHI)
