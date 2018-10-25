@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 import lxml
 from bs4 import BeautifulSoup
-url=r'index-full.html'
+import sys
+url=sys.argv[1]
 page=open(url)
 soup=BeautifulSoup(page.read(),features="lxml")
 seen=set()
