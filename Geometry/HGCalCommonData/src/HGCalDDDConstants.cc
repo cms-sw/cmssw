@@ -241,9 +241,42 @@ double HGCalDDDConstants::cellThickness(int layer, int waferU,
 double HGCalDDDConstants::cellSizeHex(int type) const {
   int    indx = (((mode_ == HGCalGeometryMode::Hexagon8) ||
 		  (mode_ == HGCalGeometryMode::Hexagon8Full)) ?
-		 ((type >= 1) ? 1 : 0) : ((type == 1) ? 0 : 1)); 
-  double cell = (0.5*HGCalParameters::k_ScaleFromDDD*hgpar_->cellSize_[indx]);
+		 ((type >= 1) ? 1 : 0) : ((type == 1) ? 1 : 0)); 
+  double cell = ((mode_ == HGCalGeometryMode::Trapezoid) ? 
+		 0.5*hgpar_->cellSize_[indx] :
+		 0.5*HGCalParameters::k_ScaleFromDDD*hgpar_->cellSize_[indx]);
   return cell;
+}
+
+HGCalDDDConstants::CellType HGCalDDDConstants::cellType(int type, int cellU,
+							int cellV) const {
+  // type=0: in the middle; 1..6: the edges clocwise from bottom left;
+  //     =11..16: the corners clockwise from bottom
+  int N = (type == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_;
+  if (cellU == 0) {
+    if      (cellV == 0)         return HGCalDDDConstants::CellType::BottomLeftCorner;
+    else if (cellV-cellU == N-1) return HGCalDDDConstants::CellType::BottomCorner;
+    else                         return HGCalDDDConstants::CellType::BottomLeftEdge;
+  } else if (cellV == 0) {
+    if (cellU-cellV == N)        return HGCalDDDConstants::CellType::TopLeftCorner;
+    else                         return HGCalDDDConstants::CellType::LeftEdge;
+  } else if (cellU-cellV == N) {
+    if (cellU == 2*N-1)          return HGCalDDDConstants::CellType::TopCorner;
+    else                         return HGCalDDDConstants::CellType::TopLeftEdge;
+  } else if (cellU == 2*N-1) {
+    if (cellV == 2*N-1)          return HGCalDDDConstants::CellType::TopRightCorner;
+    else                         return HGCalDDDConstants::CellType::TopRightEdge;
+  } else if (cellV == 2*N-1) {
+    if (cellV-cellU == N-1)      return HGCalDDDConstants::CellType::BottomRightCorner;
+    else                         return HGCalDDDConstants::CellType::RightEdge;
+  } else if (cellV-cellU == N-1) {
+    return HGCalDDDConstants::CellType::BottomRightEdge;
+  } else if ((cellU > 2*N-1) || (cellV > 2*N-1) || (cellV >= (cellU+N)) ||
+	     (cellU > (cellV+N))) {
+    return HGCalDDDConstants::CellType::UndefinedType;
+  } else {
+    return HGCalDDDConstants::CellType::CentralType;
+  }
 }
 
 double HGCalDDDConstants::distFromEdgeHex(double x, double y, double z) const {
@@ -467,11 +500,29 @@ bool HGCalDDDConstants::isValidHex8(int layer, int modU, int modV, int cellU,
   //Check validity for a layer|wafer|cell of post-TDR version
   int indx  = HGCalWaferIndex::waferIndex(layer,modU,modV);
   auto itr  = hgpar_->typesInLayers_.find(indx);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::isValidHex8:WaferType "
+				<< layer << ":" << modU << ":" << modV << ":"
+				<< indx << " Test " 
+				<< (itr == hgpar_->typesInLayers_.end());
+#endif
   if (itr == hgpar_->typesInLayers_.end()) return false;
   auto jtr  = waferIn_.find(indx);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::isValidHex8:WaferIn "
+				<< jtr->first << ":" << jtr->second;
+#endif
   if (!(jtr->second))                      return false;
   int  N = ((hgpar_->waferTypeL_[itr->second] == 0) ? hgpar_->nCellsFine_ :
 	    hgpar_->nCellsCoarse_);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::isValidHex8:Cell "
+				<< cellU << ":" << cellV << ":" << N 
+				<< " Tests " << (cellU >= 0) << ":"
+				<< (cellU < 2*N) << ":" << (cellV >= 0) << ":"
+				<< (cellV < 2*N) << ":" << ((cellV-cellU) < N)
+				<< ":" << ((cellU-cellV) <= N);
+#endif
   if ((cellU >= 0) && (cellU < 2*N) && (cellV >= 0) && (cellV < 2*N)) {
     return (((cellV-cellU) < N) && ((cellU-cellV) <= N));
   } else {
@@ -704,6 +755,12 @@ int HGCalDDDConstants::maxRows(int lay, bool reco) const {
     kymax = 1+2*hgpar_->waferUVMaxLayer_[index.first];
   }
   return kymax;
+}
+
+int HGCalDDDConstants::modifyUV(int uv, int type1, int type2) const {
+  // Modify u/v for transition of type1 to type2
+  return (((type1==type2) || (type1*type2 !=0)) ? uv : 
+	  ((type1==0) ? (2*uv+1)/3 : (3*uv)/2));
 }
 
 int HGCalDDDConstants::modules(int lay, bool reco) const {
