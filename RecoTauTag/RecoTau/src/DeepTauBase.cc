@@ -65,12 +65,14 @@ DeepTauBase::~DeepTauBase()
 
 void DeepTauBase::produce(edm::Event& event, const edm::EventSetup& es)
 {
+    edm::Handle<TauCollection> taus;
     event.getByToken(taus_token, taus);
-    const tensorflow::Tensor& pred = GetPredictions(event, es);
-    CreateOutputs(event, pred);
+
+    const tensorflow::Tensor& pred = GetPredictions(event, es, taus);
+    CreateOutputs(event, pred, taus);
 }
 
-void DeepTauBase::CreateOutputs(edm::Event& event, const tensorflow::Tensor& pred)
+void DeepTauBase::CreateOutputs(edm::Event& event, const tensorflow::Tensor& pred, edm::Handle<TauCollection> taus)
 {
     for(const auto& output_desc : outputs) {
         auto result_map = output_desc.second.get_value(taus, pred, working_points.at(output_desc.first));

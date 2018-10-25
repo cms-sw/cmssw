@@ -79,18 +79,24 @@ public:
             graphVersion = 1;
         else
             throw cms::Exception("DPFIsolation") << "unknown version of the graph file.";
-
-        tensor = tensorflow::Tensor(tensorflow::DT_FLOAT, {1,
-            static_cast<int>(GetNumberOfParticles(graphVersion)), static_cast<int>(GetNumberOfFeatures(graphVersion))});
     }
 
 private:
-    virtual tensorflow::Tensor GetPredictions(edm::Event& event, const edm::EventSetup& es) override
+    virtual tensorflow::Tensor GetPredictions(edm::Event& event, const edm::EventSetup& es,
+                                              edm::Handle<TauCollection> taus) override
     {
+        edm::Handle<pat::PackedCandidateCollection> pfcands;
         event.getByToken(pfcand_token, pfcands);
+
+        edm::Handle<reco::VertexCollection> vertices;
         event.getByToken(vtx_token, vertices);
 
+        tensorflow::Tensor tensor(tensorflow::DT_FLOAT, {1,
+            static_cast<int>(GetNumberOfParticles(graphVersion)), static_cast<int>(GetNumberOfFeatures(graphVersion))});
+
         tensorflow::Tensor predictions(tensorflow::DT_FLOAT, { static_cast<int>(taus->size()), 1});
+
+        std::vector<tensorflow::Tensor> outputs;
 
         float pfCandPt, pfCandPz, pfCandPtRel, pfCandPzRel, pfCandDr, pfCandDEta, pfCandDPhi, pfCandEta, pfCandDz,
               pfCandDzErr, pfCandD0, pfCandD0D0, pfCandD0Dz, pfCandD0Dphi, pfCandPuppiWeight,
@@ -378,14 +384,8 @@ private:
 
 private:
     edm::EDGetTokenT<pat::PackedCandidateCollection> pfcand_token;
-    edm::EDGetTokenT<reco::VertexCollection>         vtx_token;
-
-    edm::Handle<pat::PackedCandidateCollection>      pfcands;
-    edm::Handle<reco::VertexCollection>              vertices;
-
+    edm::EDGetTokenT<reco::VertexCollection> vtx_token;
     unsigned graphVersion;
-    tensorflow::Tensor tensor;
-    std::vector<tensorflow::Tensor> outputs;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"

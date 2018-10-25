@@ -610,7 +610,7 @@ class TauIDEmbedder(object):
                     "Loose": "0.999755",
                     "Medium": "0.999854",
                     "Tight": "0.999886",
-                    "VTight": "0.99994",
+                    "VTight": "0.999944",
                     "VVTight": "0.9999971"
                 },
 
@@ -666,6 +666,8 @@ class TauIDEmbedder(object):
 
         if "DPFTau_2016_v1" in self.toKeep:
             print "Adding DPFTau isolation (v1)"
+            print "WARNING: WPs are not defined for DPFTau_2016_v1"
+            print "WARNING: The score of DPFTau_2016_v1 is inverted: i.e. for Sig->0, for Bkg->1 with -1 for undefined input (preselection not passed)."
 
             working_points = {
                 "all": {"Tight" : "0.123"} #FIXME: define WP
