@@ -90,16 +90,19 @@ def get1DHisto_(detector,plotNumber,geometry):
      This function opens the appropiate ROOT file, 
      extracts the TProfile and turns it into a Histogram,
      if it is a compound detector, this function
-     takes care of the subdetectors' addition
+     takes care of the subdetectors' addition unless the
+     detector's ROOT file is present in which case no addition
+     is performed and the detector ROOT file is used.
     """
     histo = None
     rootFile = TFile()
 
-    if detector not in COMPOUNDS.keys():
-        detectorFilename = 'matbdg_%s_%s.root'%(detector,geometry)
+    detectorFilename = 'matbdg_%s_%s.root'%(detector,geometry)
+    if detector not in COMPOUNDS.keys() or checkFile_(detectorFilename):
         if not checkFile_(detectorFilename):
             print('Warning: %s not found' % detectorFilename)
             return 0
+        print('Reading from: %s File' % detectorFilename)
         rootFile = TFile.Open(detectorFilename,'READ')
         prof = rootFile.Get("%d" % plotNumber)
         if not prof: return 0
@@ -114,10 +117,10 @@ def get1DHisto_(detector,plotNumber,geometry):
             if not checkFile_(subDetectorFilename):
                 print('Warning: %s not found'%subDetectorFilename)
                 continue
+            print('Reading from: %s File' % subDetectorFilename)
             subDetectorFile = TFile.Open(subDetectorFilename,'READ')
             theFiles.append(subDetectorFile)
-            print('*** Open file... %s' % subDetectorFilename)
-            prof = subDetectorFile.Get('%d'%(plotNumber))
+            prof = subDetectorFile.Get('%d'%(plotNumber)) 
             if not prof: return 0
             prof.__class__ = TProfile
             histo = assignOrAddIfExists_(histo,prof)
@@ -136,8 +139,8 @@ def get2DHisto_(detector,plotNumber,geometry):
     histo = None
     rootFile = TFile()
 
-    if detector not in COMPOUNDS.keys():
-        detectorFilename('matbdg_%s_%s.root'%(detector,geometry))
+    detectorFilename = 'matbdg_%s_%s.root'%(detector,geometry)
+    if detector not in COMPOUNDS.keys() or checkFile_(detectorFilename):
         if not checkFile_(detectorFilename):
             print('Warning: %s not found' % detectorFilename)
             return 0
