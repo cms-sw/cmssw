@@ -333,6 +333,8 @@ clear()
   tc_wafertype_.clear();
   tc_cell_.clear();
   tc_data_.clear();
+  tc_uncompressedCharge_.clear();
+  tc_compressedCharge_.clear();
   tc_mipPt_.clear();
   tc_pt_.clear();
   tc_energy_.clear();
