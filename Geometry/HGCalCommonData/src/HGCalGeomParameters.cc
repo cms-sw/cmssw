@@ -837,9 +837,11 @@ void HGCalGeomParameters::loadWaferHexagon(HGCalParameters& php) {
   double rr   = 2.0*dx*tan(30.0*CLHEP::deg);
   int    ncol = (int)(2.0*rout/waferW) + 1;
   int    nrow = (int)(rout/(waferW*tan(30.0*CLHEP::deg))) + 1;
+  int    ns2   = (2*ncol+1)*(2*nrow+1)*php.layer_.size();
   int    incm(0), inrm(0), kount(0), ntot(0);
   double xc[HGCalParameters::k_CornerSize], yc[HGCalParameters::k_CornerSize];
   HGCalParameters::layer_map copiesInLayers(php.layer_.size()+1);
+  HGCalParameters::waferT_map waferTypes(ns2+1);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Row " << nrow << " Column " << ncol;
 #endif
@@ -850,12 +852,12 @@ void HGCalGeomParameters::loadWaferHexagon(HGCalParameters& php) {
       if (inr%2 == inc%2) {
         double xpos = nc*dx;
         double ypos = nr*dy;
-        xc[0] = xpos+dx; yc[0] = ypos-0.5*rr;
-        xc[1] = xpos+dx; yc[1] = ypos+0.5*rr;
-        xc[2] = xpos;    yc[2] = ypos+rr;
-        xc[3] = xpos-dx; yc[3] = ypos+0.5*rr;
+        xc[0] = xpos;    yc[0] = ypos+rr;
+        xc[1] = xpos-dx; yc[1] = ypos+0.5*rr;
+        xc[2] = xpos-dx; yc[2] = ypos-0.5*rr;
+        xc[3] = xpos;    yc[3] = ypos-rr;
         xc[4] = xpos+dx; yc[4] = ypos-0.5*rr;
-        xc[5] = xpos;    yc[5] = ypos-rr;
+        xc[5] = xpos+dx; yc[5] = ypos+0.5*rr;
         bool cornerOne(false);
 	for (unsigned int k=0; k<HGCalParameters::k_CornerSize; ++k) {
 	  double rpos = std::sqrt(xc[k]*xc[k]+yc[k]*yc[k]);
@@ -891,16 +893,40 @@ void HGCalGeomParameters::loadWaferHexagon(HGCalParameters& php) {
 	  php.waferPosY_.emplace_back(ypos);
 	  for (unsigned int il=0; il<php.layer_.size(); ++il) {
 	    bool corner(false), cornerAll(true);
+	    int  nCorner(0), firstCorner(-1), firstMiss(-1);
 	    for (unsigned int k=0; k<HGCalParameters::k_CornerSize; ++k) {
 	      double rpos = std::sqrt(xc[k]*xc[k]+yc[k]*yc[k]);
 	      if (rpos >= php.rMinLayHex_[il] && 
-		  rpos <= php.rMaxLayHex_[il]) corner    = true;
-	      else                             cornerAll = false;
+		  rpos <= php.rMaxLayHex_[il]) {
+		corner    = true;
+		++nCorner;
+		if (firstCorner < 0) firstCorner = k;
+	      } else {
+		cornerAll = false;
+		if (firstMiss < 0)   firstMiss = k;
+	      }
 	    }
 	    if (corner) {
 	      auto cpy = copiesInLayers[php.layer_[il]].find(copy);
 	      if (cpy == copiesInLayers[php.layer_[il]].end()) 
 		copiesInLayers[php.layer_[il]][copy] = cornerAll ? php.waferCopy_.size() : -1;
+	    }
+	    if ((!cornerAll) && (nCorner > 0)) {
+	      if (nCorner == 3) {
+		if ((firstCorner == 0) && (firstMiss < 3)) 
+		  firstCorner = firstMiss+3;
+	      } else if (nCorner == 4) {
+		if ((firstCorner == 0) && (firstMiss < 4)) 
+		  firstCorner = firstMiss+2;
+	      } else if (nCorner == 5) {
+		if ((firstCorner == 0) && (firstMiss < 5)) 
+		  firstCorner = firstMiss+1;
+	      } else if (nCorner == 2) {
+		if ((firstCorner == 0) && (firstMiss < 2)) 
+		  firstCorner = firstMiss+4;
+	      }
+	      int wl = HGCalWaferIndex::waferIndex(php.layer_[il],copy,0,true);
+	      waferTypes[wl] = std::make_pair(nCorner,firstCorner);
 	    }
 	  }
 	}
@@ -908,6 +934,7 @@ void HGCalGeomParameters::loadWaferHexagon(HGCalParameters& php) {
     }
   }
   php.copiesInLayers_ = copiesInLayers;
+  php.waferTypes_     = waferTypes;
   php.nSectors_       = (int)(php.waferCopy_.size());
   php.waferUVMax_     = 0;
 #ifdef EDM_ML_DEBUG
@@ -967,6 +994,7 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
 #endif
   HGCalParameters::wafer_map wafersInLayers(ns1+1);
   HGCalParameters::wafer_map typesInLayers(ns2+1);
+  HGCalParameters::waferT_map waferTypes(ns2+1);
   int ipos(0), lpos(0), uvmax(0);
   std::vector<int> uvmx(php.zLayerHex_.size(),0);
   double xc[HGCalParameters::k_CornerSize], yc[HGCalParameters::k_CornerSize];
@@ -982,12 +1010,12 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
       php.waferPosY_.emplace_back(ypos);
       wafersInLayers[indx] = ipos;
       ++ipos;
-      xc[0] = xpos+r;  yc[0] = ypos+0.5*R;
-      xc[1] = xpos;    yc[1] = ypos+R;
-      xc[2] = xpos-r;  yc[2] = ypos+0.5*R;
-      xc[3] = xpos-r;  yc[3] = ypos-0.5*R;
-      xc[4] = xpos;    yc[4] = ypos-R;
-      xc[5] = xpos+r;  yc[5] = ypos-0.5*R;
+      xc[0] = xpos;    yc[0] = ypos+R;
+      xc[1] = xpos-r;  yc[1] = ypos+0.5*R;
+      xc[2] = xpos-r;  yc[2] = ypos-0.5*R;
+      xc[3] = xpos;    yc[3] = ypos-R;
+      xc[4] = xpos+r;  yc[4] = ypos-0.5*R;
+      xc[5] = xpos+r;  yc[5] = ypos+0.5*R;
       bool cornerOne(false), cornerAll(true);
       for (unsigned int k=0; k<HGCalParameters::k_CornerSize; ++k) {
         double rpos = sqrt(xc[k]*xc[k]+yc[k]*yc[k]);
@@ -1007,15 +1035,65 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
 	++lpos;
 #ifdef EDM_ML_DEBUG
 	indtypes.emplace_back(kndx);
+	int  corners[6];
 #endif
 	bool cornerOne(false), cornerAll(true);
+	int  nCorner(0), firstCorner(-1), firstMiss(-1);
 	for (unsigned int k=0; k<HGCalParameters::k_CornerSize; ++k) {
 	  double rpos = sqrt(xc[k]*xc[k]+yc[k]*yc[k]);
-	  if (rpos <= php.rMaxLayHex_[i]) cornerOne = true;
-	  else                            cornerAll = false;
+	  if ((rpos <= php.rMaxLayHex_[i]) && (rpos >= php.rMinLayHex_[i])) {
+	    cornerOne = true;
+#ifdef EDM_ML_DEBUG
+	    corners[nCorner] = k;
+#endif
+	    if (firstCorner < 0) firstCorner = k;
+	    ++nCorner;
+	  } else {
+	    cornerAll = false;
+	    if (firstMiss < 0)   firstMiss = k;
+	  }
 	}
+#ifdef EDM_ML_DEBUG
+	if (((nCorner==0) && std::abs(u) < 5 && std::abs(v) < 5) ||
+	    (std::abs(u) < 2 && std::abs(v) < 2)) {
+	  edm::LogVerbatim("HGCalGeom") << "Layer " << lay << " R "
+					<< php.rMinLayHex_[i] << ":"
+					<< php.rMaxLayHex_[i] << " u "
+					<< u << " v " << v << " with "
+					<< nCorner << " corners";
+	  for (int k=0; k<6; ++k) {
+	    double rpos = std::sqrt(xc[k]*xc[k]+yc[k]*yc[k]);
+	    edm::LogVerbatim("HGCalGeom") << "[" << k << "] x " << xc[k] 
+					  << " y " << yc[k] << " R " << rpos;
+	  }
+	}
+#endif
 	if ((cornerAll) || (cornerOne && php.defineFull_)) {
 	  uvmx[i] = std::max(uvmx[i],std::max(std::abs(u),std::abs(v)));
+	}
+	if ((!cornerAll) && (nCorner > 0)) {
+	  if (nCorner == 3) {
+	    if ((firstCorner == 0) && (firstMiss < 3)) 
+	      firstCorner = firstMiss+3;
+	  } else if (nCorner == 4) {
+	    if ((firstCorner == 0) && (firstMiss < 4)) 
+	      firstCorner = firstMiss+2;
+	  } else if (nCorner == 5) {
+	    if ((firstCorner == 0) && (firstMiss < 5)) 
+	      firstCorner = firstMiss+1;
+	  } else if (nCorner == 2) {
+	    if ((firstCorner == 0) && (firstMiss < 2)) 
+	      firstCorner = firstMiss+4;
+	  }
+#ifdef EDM_ML_DEBUG
+	  edm::LogVerbatim("HGCalGeom") << "Layer " << lay << " u|v " << u 
+					<< ":" << v << " with " << nCorner
+					<< " corners First " << firstCorner;
+	  for (int k=0; k<nCorner; ++k)
+	    edm::LogVerbatim("HGCalGeom") << " [" << k << " ] " << corners[k];
+#endif
+	  int wl = HGCalWaferIndex::waferIndex(lay,u,v);
+	  waferTypes[wl] = std::make_pair(nCorner,firstCorner);
 	}
       }
     }
@@ -1024,6 +1102,7 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
   php.waferUVMaxLayer_= uvmx;
   php.wafersInLayers_ = wafersInLayers;
   php.typesInLayers_  = typesInLayers;
+  php.waferTypes_     = waferTypes;
   php.nSectors_       = (int)(php.waferCopy_.size());
   HGCalParameters::hgtrap mytr;
   mytr.lay = 1;           mytr.bl = php.waferR_; 
@@ -1287,5 +1366,5 @@ HGCalGeomParameters::cellPosition(const std::vector<HGCalGeomParameters::cellPar
     dy = (yy - itrf->xyz.y());
     if (std::abs(dy) < tolerance) dy = 0;
   }
-  return std::pair<double,double>(dx,dy);
+  return std::make_pair(dx,dy);
 }
