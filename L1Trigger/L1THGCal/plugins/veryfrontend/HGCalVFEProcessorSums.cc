@@ -13,6 +13,7 @@ HGCalVFEProcessorSums::
 HGCalVFEProcessorSums(const edm::ParameterSet& conf) : HGCalVFEProcessorBase(conf),
   vfeLinearizationImpl_(conf),
   vfeSummationImpl_(conf),
+  vfeCompressionImpl_(conf),
   calibration_( conf.getParameterSet("calib_parameters") )
 { 
 }
@@ -29,6 +30,7 @@ HGCalVFEProcessorSums::run(const HGCEEDigiCollection& ee,
   std::vector<HGCDataFrame<DetId,HGCSample>> dataframes;
   std::vector<std::pair<DetId, uint32_t >> linearized_dataframes;
   std::map<HGCalDetId, uint32_t> payload;
+  std::map<HGCalDetId, std::array<uint32_t, 2> > compressed_payload;
 
   // convert ee and fh hit collections into the same object  
   if(!ee.empty())
@@ -74,12 +76,15 @@ HGCalVFEProcessorSums::run(const HGCEEDigiCollection& ee,
 
   vfeLinearizationImpl_.linearize(dataframes, linearized_dataframes);
   vfeSummationImpl_.triggerCellSums(*geometry_, linearized_dataframes, payload);  
+  vfeCompressionImpl_.compress(payload, compressed_payload);
   
   // Transform map to trigger cell vector vector<HGCalTriggerCell>
   for(const auto& id_value : payload)
   { 
     if (id_value.second>0){
-      l1t::HGCalTriggerCell triggerCell(reco::LeafCandidate::LorentzVector(), id_value.second, 0, 0, 0, id_value.first.rawId());
+      l1t::HGCalTriggerCell triggerCell(reco::LeafCandidate::LorentzVector(), compressed_payload[id_value.first][1], 0, 0, 0, id_value.first.rawId());
+      triggerCell.setCompressedCharge(compressed_payload[id_value.first][0]);
+      triggerCell.setUncompressedCharge(id_value.second);
       GlobalPoint point = geometry_->getTriggerCellPosition(id_value.first.rawId());
       
       // 'value' is hardware, so p4 is meaningless, except for eta and phi
