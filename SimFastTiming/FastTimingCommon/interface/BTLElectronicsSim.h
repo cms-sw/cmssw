@@ -72,9 +72,11 @@ class BTLElectronicsSim {
 
   // synthesized adc/tdc information
   const float adcSaturation_MIP_;
+  const uint32_t adcBitSaturation_;
   const float adcLSB_MIP_;
   const float adcThreshold_MIP_;
   const float toaLSB_ns_;
+  const uint32_t tdcBitSaturation_;
 
   const float CorrCoeff_;
   const float cosPhi_;
