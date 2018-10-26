@@ -13,13 +13,13 @@ for row in rows:
     cells=row.findChildren('td')
     key=str(cells[2])+str(cells[4])+str(cells[5])
     if key in seen:
-        row.decompose()
         href = cells[6].find('a',href=True)
         if href:
           report = href['href'].split("#")[0]
           report_file = os.path.join(report_dir, report)
           if report.startswith("report-") and os.path.exists(report_file):
             os.remove(report_file)
+        row.decompose()
     else:
         seen.add(key)
 print soup.prettify("latin1")
