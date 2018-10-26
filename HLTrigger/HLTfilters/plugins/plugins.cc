@@ -3,6 +3,7 @@
 #include "HLTBool.h"
 #include "HLTFiltCand.h"
 #include "HLTHighLevel.h"
+#include "EventBXFilter.h"
 
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
@@ -120,6 +121,7 @@ typedef HLTDoublet<RecoEcalCandidate   ,  PFMET> HLT2PhotonPFMET;
 DEFINE_FWK_MODULE(HLTBool);
 DEFINE_FWK_MODULE(HLTFiltCand);
 DEFINE_FWK_MODULE(HLTHighLevel);
+DEFINE_FWK_MODULE(EventBXFilter);
 
 DEFINE_FWK_MODULE(HLT2CaloJetCaloJet);
 DEFINE_FWK_MODULE(HLT2CaloJetCaloMET);
