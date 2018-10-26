@@ -17,6 +17,7 @@ public:
 
   typedef std::vector<std::unordered_map<int32_t,int32_t> > layer_map;
   typedef std::unordered_map<int32_t, int32_t>              wafer_map;
+  typedef std::unordered_map<int32_t,std::pair<int32_t,int32_t> >  waferT_map;
 
   static constexpr double   k_ScaleFromDDD = 0.1;
   static constexpr double   k_ScaleToDDD   = 10.0;
@@ -152,7 +153,8 @@ public:
   int                             firstMixedLayer_;
   wafer_map                       wafersInLayers_;
   wafer_map                       typesInLayers_;
- 
+  waferT_map                      waferTypes_;
+
   COND_SERIALIZABLE;
 
 private:

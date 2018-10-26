@@ -691,6 +691,100 @@ std::pair<float,float> HGCalDDDConstants::locateCellTrap(int lay, int irad,
   return std::make_pair(x,y);
 }
 
+bool HGCalDDDConstants::maskCell(const DetId& detId, int corners) const {
+  bool mask(false);
+  if (corners > 2 && corners < 6) {
+    if ((mode_ == HGCalGeometryMode::Hexagon8) ||
+	(mode_ == HGCalGeometryMode::Hexagon8Full)) {
+      HGCSiliconDetId id(detId);
+      int wl = HGCalWaferIndex::waferIndex(id.layer(),id.waferU(),id.waferV());
+      auto itr = hgpar_->waferTypes_.find(wl);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "MaskCell: Layer " << id.layer() 
+				    << " Wafer " << id.waferU() << ":"
+				    << id.waferV() << " Index " << wl << ":"
+				    << (itr != hgpar_->waferTypes_.end());
+#endif
+      if (itr != hgpar_->waferTypes_.end()) {
+	int N    = getUVMax(id.type());
+	int ncor = (itr->second).first;
+	int fcor = (itr->second).second;
+	if (ncor >= corners) {
+	  int u = id.cellU();
+	  int v = id.cellV();
+	  if (ncor == 4) {
+	    switch (fcor) {
+	      case(0): { mask = (v >= N); break; }
+	      case(1): { mask = (u >= N); break; }
+	      case(2): { mask = (u <= v); break; }
+	      case(3): { mask = (v <  N); break; }
+	      case(4): { mask = (u <  N); break; }
+	      default: { mask = (u >  v); break; }
+	    }
+	  } else {
+	    switch (fcor) {
+	      case(0): { 
+		if (ncor == 3) {
+		  mask = !((u > 2*v) && (v < N)); 
+		} else {
+		  mask = ((u >= N) && (v >= N) && ((u+v) > (3*N-2)));
+		}
+		break; 
+	      }
+	      case(1): { 
+		if (ncor == 3) {
+		  mask = !((u+v) < N); 
+		} else {
+		  mask = ((u >= N) && (u > v) && ((2*u-v) > 2*N));
+		}
+		break; 
+	      }
+	      case(2): { 
+		if (ncor == 3) {
+		  mask = !((u < N) && (v > u) && (v > (2*u-1)));
+		} else {
+		  mask = ((u > 2*v) && (v < N)); 
+		}
+		break; 
+	      }
+	      case(3): { 
+		if (ncor == 3) {
+		  mask = !((v >= u) && ((2*v-u) > (2*N-2)));
+		} else {
+		  mask = ((u+v) < N); 
+		}
+		break; 
+	      }
+	      case(4) : { 
+		if (ncor == 3) {
+		  mask = !((u >= N) && (v >= N) && ((u+v) > (3*N-2)));
+		} else {
+		  mask = ((u < N) && (v > u) && (v > (2*u-1)));
+		}
+		break; 
+	      }
+	      default: { 
+		if (ncor == 3) {
+		  mask = !((u >= N) && (u > v) && ((2*u-v) > 2*N));
+		} else {
+		  mask = ((v >= u) && ((2*v-u) > (2*N-2)));
+		}
+		break; 
+	      }
+	    }
+	  }
+#ifdef EDM_ML_DEBUG
+	  edm::LogVerbatim("HGCalGeom") << "Corners: " << ncor << ":" << fcor
+					<< " N " << N << " u " << u << " v "
+					<< v << " Mask " << mask;
+#endif
+	}
+      }
+    }
+  }
+  return mask;
+}
+
 int HGCalDDDConstants::maxCells(bool reco) const {
 
   int cells(0);
@@ -883,8 +977,8 @@ std::pair<double,double> HGCalDDDConstants::rangeR(double z, bool reco) const {
     rmax *= HGCalParameters::k_ScaleToDDD;
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo:rangeR: " << z << ":" << zz
-				<< " R " << rmin << ":" << rmax;
+  edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants:rangeR: " << z << ":"
+				<< zz << " R " << rmin << ":" << rmax;
 #endif
   return std::pair<double,double>(rmin,rmax);
 }
@@ -894,7 +988,7 @@ std::pair<double,double> HGCalDDDConstants::rangeZ(bool reco) const {
   double zmax = (hgpar_->zLayerHex_[hgpar_->zLayerHex_.size()-1] +
 		 hgpar_->waferThick_);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo:rangeZ: " << zmin << ":" 
+  edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants:rangeZ: " << zmin << ":" 
 				<< zmax << ":" << hgpar_->waferThick_;
 #endif
   if (!reco) {
@@ -1320,12 +1414,12 @@ bool HGCalDDDConstants::waferInLayerTest(int wafer, int lay, bool full) const {
   const double waferX = hgpar_->waferPosX_[wafer];
   const double waferY = hgpar_->waferPosY_[wafer];
   double xc[HGCalParameters::k_CornerSize], yc[HGCalParameters::k_CornerSize];
-  xc[0] = waferX+rmax_; yc[0] = waferY-0.5*hexside_;
-  xc[1] = waferX+rmax_; yc[1] = waferY+0.5*hexside_;
-  xc[2] = waferX;       yc[2] = waferY+hexside_;
-  xc[3] = waferX-rmax_; yc[3] = waferY+0.5*hexside_;
+  xc[0] = waferX;       yc[0] = waferY+hexside_;
+  xc[1] = waferX-rmax_; yc[1] = waferY+0.5*hexside_;
+  xc[2] = waferX-rmax_; yc[2] = waferY-0.5*hexside_;
+  xc[3] = waferX;       yc[3] = waferY-hexside_;
   xc[4] = waferX+rmax_; yc[4] = waferY-0.5*hexside_;
-  xc[5] = waferX;       yc[5] = waferY-hexside_;
+  xc[5] = waferX+rmax_; yc[5] = waferY+0.5*hexside_;
   bool cornerOne(false), cornerAll(true);
   for (unsigned int k=0; k<HGCalParameters::k_CornerSize; ++k) {
     double rpos = std::sqrt(xc[k]*xc[k]+yc[k]*yc[k]);

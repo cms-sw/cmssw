@@ -85,6 +85,7 @@ public:
   std::pair<float,float> locateCellTrap(int lay, int ieta, int iphi,
 					bool reco) const;
   int                 levelTop(int ind=0) const {return hgpar_->levelT_[ind];}
+  bool                maskCell(const DetId& id, int corners) const;
   int                 maxCellUV() const {
     return ((mode_==HGCalGeometryMode::Trapezoid) ? hgpar_->nCellsFine_ :
 	    2*hgpar_->nCellsFine_);}
