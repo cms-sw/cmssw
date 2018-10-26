@@ -117,14 +117,9 @@ fastSim.toModify(muonAssociatorByHitsCommonParameters,
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 premix_stage2.toModify(muonAssociatorByHitsCommonParameters,
-    DTdigisimlinkTag = "mixData:simMuonDTDigis",
-    CSClinksTag = "mixData:MuonCSCStripDigiSimLinks",
-    CSCwireLinksTag = "mixData:MuonCSCWireDigiSimLinks",
-    RPCdigisimlinkTag = "mixData:RPCDigiSimLink",
     pixelSimLinkSrc = "mixData:PixelDigiSimLink",
     stripSimLinkSrc = "mixData:StripDigiSimLink",
     phase2TrackerSimLinkSrc = "mixData:Phase2OTDigiSimLink",
-    GEMdigisimlinkTag = "mixData:GEMStripDigiSimLink",
 )
   
 muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
