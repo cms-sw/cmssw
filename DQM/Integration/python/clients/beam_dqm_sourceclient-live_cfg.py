@@ -381,7 +381,8 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.p = cms.Path(process.scalersRawToDigi
                          *process.dqmTKStatus
                          *process.hltTriggerTypeFilter
-                         *process.filter_step
+                         # The following filter was used during 2018 high pile up (HPU) run.
+                         #*process.filter_step
                          *process.dqmcommon
                          *process.tracking_FirstStep
                          *process.monitor
