@@ -27,10 +27,7 @@ process.load("DQM.Integration.config.inputsource_cfi")
 #process.load("DQM.Integration.config.fileinputsource_cfi")
 
 # new stream label
-if(process.runType.getRunType() == process.runType.hi_run):
-  process.source.streamLabel = cms.untracked.string('streamHIDQMOnlineBeamspot')
-else:
-  process.source.streamLabel = cms.untracked.string('streamDQMOnlineBeamspot')
+process.source.streamLabel = cms.untracked.string('streamDQMOnlineBeamspot')
 
 #--------------------------
 # HLT Filter
