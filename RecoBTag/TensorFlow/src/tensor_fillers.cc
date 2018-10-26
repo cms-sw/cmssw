@@ -76,7 +76,7 @@ namespace btagbtvdeep {
     *(++ptr) = tag_info_features.trackSip3dSig_3; 
     *(++ptr) = tag_info_features.z_ratio;
   }
-
+/*
   void db_tensor_filler(tensorflow::Tensor & tensor,
                          std::size_t jet_n,
                          const btagbtvdeep::DeepDoubleCvLFeatures & features) {
@@ -154,7 +154,7 @@ namespace btagbtvdeep {
     *(++ptr) = tag_info_features.trackSip3dSig_3;
     *(++ptr) = tag_info_features.z_ratio;
   }
-
+*/
   void c_pf_tensor_filler(tensorflow::Tensor & tensor,
                           std::size_t jet_n,
                           std::size_t c_pf_n,
