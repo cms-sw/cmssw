@@ -39,8 +39,7 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
 				<< numberExpected << " for sub-detector " 
 				<< topology.subDetector() << " Shapes " 
 				<< numberOfShapes << ":" << parametersPerShape_
-				<< " mode " << mode << " ifNose "
-				<< topology.isHFNose();
+				<< " mode " << mode;
 #endif
   geom->allocateCorners( numberOfCells ) ;
   geom->allocatePar(numberOfShapes, parametersPerShape_);
