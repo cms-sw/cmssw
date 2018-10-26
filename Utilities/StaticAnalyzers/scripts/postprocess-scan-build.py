@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 import lxml
 from bs4 import BeautifulSoup
-import sys
-url=sys.argv[1]
+import sys, os
+url=os.path.abspath(sys.argv[1])
+report_dir = os.path.dirname(url)
 page=open(url)
 soup=BeautifulSoup(page.read(),features="lxml")
 seen=set()
@@ -13,6 +14,12 @@ for row in rows:
     key=str(cells[2])+str(cells[4])+str(cells[5])
     if key in seen:
         row.decompose()
+        href = cells[6].find('a',href=True)
+        if href:
+          report = href['href'].split("#")[0]
+          report_file = os.path.join(report_dir, report)
+          if report.startswith("report-") and os.path.exists(report_file):
+            os.remove(report_file)
     else:
         seen.add(key)
 print soup.prettify("latin1")
