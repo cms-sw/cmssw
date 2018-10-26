@@ -70,7 +70,7 @@ process.source.fileNames = cms.untracked.vstring(
 #'root://cmsxrootd.fnal.gov//store/mc/RunIIFall17MiniAODv2/GluGluHToCC_M125_13TeV_powheg_pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v2/30000/72164088-CB67-E811-9D0D-008CFA197AC4.root',
 #'root://cmsxrootd.fnal.gov//store/mc/RunIIFall17MiniAOD/QCD_HT700to1000_TuneCP5_13TeV-madgraph-pythia8/MINIAODSIM/94X_mc2017_realistic_v10-v1/20000/C0F304A4-23FA-E711-942E-E0071B6CAD20.root'
 )
-process.maxEvents.input = 1000 
+process.maxEvents.input = -1 
 
 from Configuration.EventContent.EventContent_cff import MINIAODSIMEventContent
 process.out.outputCommands.append('keep *_slimmedJetsAK8*_*_*')
@@ -80,8 +80,8 @@ process.out.outputCommands.append('keep *_selectedPatJets*_*_*')
 process.out.outputCommands.append('keep *_selectedUpdatedPatJets*_*_*')
 process.out.outputCommands.append('keep *_pfBoostedDoubleSVAK8TagInfos*_*_*')
 process.out.outputCommands.append('keep *_pfDeepDoubleBTagInfos*_*_*')
-process.out.outputCommands.append('keep *_pfDeepDoubleCvLTagInfos*_*_*')
-process.out.outputCommands.append('keep *_pfDeepDoubleCvBTagInfos*_*_*')
+#process.out.outputCommands.append('keep *_pfDeepDoubleCvLTagInfos*_*_*')
+#process.out.outputCommands.append('keep *_pfDeepDoubleCvBTagInfos*_*_*')
 process.out.outputCommands.append('keep *_updatedPatJets*_*_*')
 
 process.out.fileName = 'output_test_DDX.root'
