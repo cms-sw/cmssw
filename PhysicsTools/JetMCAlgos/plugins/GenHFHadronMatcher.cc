@@ -318,7 +318,7 @@ std::vector<int> GenHFHadronMatcher::findHadronJets ( const reco::GenParticleCol
             leptonMother = leptonMother->mother();
         }
         // Skipping this lepton if its mother is not a proper hadron
-        if(!isHadron(flavour_, leptonMother)) continue;
+        if(leptonMother == nullptr or !isHadron(flavour_, leptonMother)) continue;
         // Finding the index of this hadron in the list of analysed particles
         size_t leptonHadronParticleIndex = std::find(hadMothersCand.begin(), hadMothersCand.end(), leptonMother) - hadMothersCand.begin();
         if(leptonHadronParticleIndex >= hadMothersCand.size()) continue;
