@@ -190,8 +190,8 @@ fill(const edm::Event& e, const edm::EventSetup& es)
       tc_wafertype_.emplace_back(id.waferType());
       tc_cell_.emplace_back(id.cell());
       tc_data_.emplace_back(tc_itr->hwPt());
-      tc_uncompressedCharge_.emplace_back(tc_itr->uncompressedCharge());   // TODO: charge is hardware data?
-      tc_compressedCharge_.emplace_back(tc_itr->compressedCharge());   // TODO: charge is hardware data?
+      tc_uncompressedCharge_.emplace_back(tc_itr->uncompressedCharge());
+      tc_compressedCharge_.emplace_back(tc_itr->compressedCharge());
       tc_mipPt_.emplace_back(tc_itr->mipPt());
       // physical values 
       tc_pt_.emplace_back(tc_itr->pt());
