@@ -854,7 +854,8 @@ void HGCalGeomParameters::loadWaferHexagon(HGCalParameters& php) {
         double ypos = nr*dy;
         xc[0] = xpos;    yc[0] = ypos+rr;
         xc[1] = xpos-dx; yc[1] = ypos+0.5*rr;
-        xc[2] = xpos-dx; yc[2] = ypos-0.5*rr;
+//       xc[2] = xpos-dx; yc[2] = ypos-0.5*rr;   Bug correction
+        xc[2] = xpos+dx; yc[2] = ypos-0.5*rr;
         xc[3] = xpos;    yc[3] = ypos-rr;
         xc[4] = xpos+dx; yc[4] = ypos-0.5*rr;
         xc[5] = xpos+dx; yc[5] = ypos+0.5*rr;

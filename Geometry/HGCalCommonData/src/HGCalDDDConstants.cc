@@ -1416,7 +1416,12 @@ bool HGCalDDDConstants::waferInLayerTest(int wafer, int lay, bool full) const {
   double xc[HGCalParameters::k_CornerSize], yc[HGCalParameters::k_CornerSize];
   xc[0] = waferX;       yc[0] = waferY+hexside_;
   xc[1] = waferX-rmax_; yc[1] = waferY+0.5*hexside_;
-  xc[2] = waferX-rmax_; yc[2] = waferY-0.5*hexside_;
+  if ((mode_ == HGCalGeometryMode::Hexagon) ||
+      (mode_ == HGCalGeometryMode::HexagonFull)) { // Till bug in l1 fixed
+    xc[2] = waferX+rmax_; yc[2] = waferY-0.5*hexside_;
+  } else {
+    xc[2] = waferX-rmax_; yc[2] = waferY-0.5*hexside_;
+  }
   xc[3] = waferX;       yc[3] = waferY-hexside_;
   xc[4] = waferX+rmax_; yc[4] = waferY-0.5*hexside_;
   xc[5] = waferX+rmax_; yc[5] = waferY+0.5*hexside_;
