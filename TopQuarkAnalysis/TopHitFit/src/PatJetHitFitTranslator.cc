@@ -120,7 +120,7 @@ JetTranslatorBase<pat::Jet>::operator()(const pat::Jet& jet,
     double            jet_eta        = jet.eta();
 
     if (jet.isCaloJet()) {
-        jet_eta = ((reco::CaloJet*) jet.originalObject())->detectorP4().eta();
+        jet_eta = static_cast<const reco::CaloJet*>(jet.originalObject())->detectorP4().eta();
     }
     if (jet.isPFJet()) {
         // do nothing at the moment!
@@ -174,7 +174,7 @@ JetTranslatorBase<pat::Jet>::CheckEta(const pat::Jet& jet) const
     double            jet_eta        = jet.eta();
 
     if (jet.isCaloJet()) {
-        jet_eta = ((reco::CaloJet*) jet.originalObject())->detectorP4().eta();
+        jet_eta = static_cast<const reco::CaloJet*>(jet.originalObject())->detectorP4().eta();
     }
     if (jet.isPFJet()) {
         // do nothing at the moment!
