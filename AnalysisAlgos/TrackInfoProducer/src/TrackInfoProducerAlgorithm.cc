@@ -77,7 +77,7 @@ void TrackInfoProducerAlgorithm::run(const edm::Ref<std::vector<Trajectory> > tr
       LocalPoint pmonoup, pstereoup;
       if(matchedhit){
 	type=Matched;
-	GluedGeomDet * gdet=(GluedGeomDet *)tracker->idToDet(matchedhit->geographicalId());
+	const GluedGeomDet * gdet=static_cast<const GluedGeomDet *>(tracker->idToDet(matchedhit->geographicalId()));
 	
 	GlobalVector gtrkdirfwd=gdet->toGlobal(fwdptsod.parameters().momentum());
 	GlobalVector gtrkdirbwd=gdet->toGlobal(bwdptsod.parameters().momentum());
@@ -115,7 +115,7 @@ void TrackInfoProducerAlgorithm::run(const edm::Ref<std::vector<Trajectory> > tr
       }
       else if(phit){
 	type=Projected;
-	GluedGeomDet * gdet=(GluedGeomDet *)tracker->idToDet(phit->geographicalId());
+	const GluedGeomDet * gdet=static_cast<const GluedGeomDet *>(tracker->idToDet(phit->geographicalId()));
 	
 	GlobalVector gtrkdirfwd=gdet->toGlobal(fwdptsod.parameters().momentum());
 	GlobalVector gtrkdirbwd=gdet->toGlobal(bwdptsod.parameters().momentum());
