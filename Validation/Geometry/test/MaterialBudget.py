@@ -617,6 +617,8 @@ def createPlots_(plot, geometry):
     stack_X0_Materials = THStack("stack_X0",stackTitle_Materials)
     stack_X0_Materials.Add(hist_X0_detectors["BeamPipe"])
     for label, [num, color, leg] in six.iteritems(hist_label_to_num):
+        if label is 'SUM':
+            continue
         stack_X0_Materials.Add(hist_X0_elements[label])
 
     # canvas
@@ -638,6 +640,8 @@ def createPlots_(plot, geometry):
 
     theLegend_Materials.AddEntry(hist_X0_detectors["BeamPipe"],  "Beam Pipe", "f")
     for label, [num, color, leg] in six.iteritems(hist_label_to_num):
+        if label is 'SUM':
+            continue
         theLegend_Materials.AddEntry(hist_X0_elements[label], leg, "f")
     theLegend_Materials.Draw()
 
