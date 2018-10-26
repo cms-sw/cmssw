@@ -163,7 +163,7 @@ pp_on_AA_2018.toReplaceWith(highlevelreco,highlevelreco.copyAndExclude([PFTau]))
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 from RecoHI.HiTracking.HILowPtConformalPixelTracks_cfi import *
 _highlevelreco_HI_wPixTracks = highlevelreco.copy()
-pp_on_AA_2018.toReplaceWith(highlevelreco, cms.Sequence(_highlevelreco_HI_wPixTracks* hiConformalPixelTracksSequencePhase1))
+(pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(highlevelreco, cms.Sequence(_highlevelreco_HI_wPixTracks* hiConformalPixelTracksSequencePhase1))
 
 # not commisoned and not relevant in FastSim (?):
 _fastSim_highlevelreco = highlevelreco.copyAndExclude([cosmicDCTracksSeq,muoncosmichighlevelreco])
