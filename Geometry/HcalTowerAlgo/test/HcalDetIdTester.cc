@@ -58,9 +58,9 @@ HcalDetIdTester::analyze(const edm::Event& /*iEvent*/,
   int nfail0(0);
   for (int det = 1; det <= HcalForward; det++) {
     for (int eta = -HcalDetId::kHcalEtaMask2;
-	 eta <= HcalDetId::kHcalEtaMask2; eta++) {
+	 eta <= (int)(HcalDetId::kHcalEtaMask2); eta++) {
       for (int depth = 1; depth <= maxDepth; depth++) {
-	for (int phi = 0; phi <= HcalDetId::kHcalPhiMask2; phi++) {
+	for (unsigned int phi = 0; phi <= HcalDetId::kHcalPhiMask2; phi++) {
 	  HcalDetId detId ((HcalSubdetector) det, eta, phi, depth);
 	  if (topology.valid(detId)) {
 	    auto cell = caloGeom->getGeometry((DetId)(detId));

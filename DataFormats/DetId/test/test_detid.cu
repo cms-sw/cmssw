@@ -6,7 +6,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
-__global__ void test_gen_detid(DetId* id, int const rawid) {
+__global__ void test_gen_detid(DetId* id, uint32_t const rawid) {
     DetId did{rawid};
     *id = did;
 }
