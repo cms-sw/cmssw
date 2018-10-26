@@ -108,7 +108,7 @@ class ZMuMuValidation(GenericValidationData, ValidationWithPlots):
         returned, else the validation is appended to the list
         """
         repMap = self.getRepMap()
-        return replaceByMap('    filenames.push_back("root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./BiasCheck.root");  titles.push_back(".oO[title]Oo.");  colors.push_back(.oO[color]Oo.);  linestyles.push_back(.oO[style]Oo.);\n', repMap)
+        return replaceByMap('    filenames.push_back("root://eoscms//eos/cms/store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./BiasCheck.root");  titles.push_back(".oO[title]Oo.");  colors.push_back(.oO[color]Oo.);  linestyles.push_back(.oO[style]Oo.);\n', repMap)
 
     @classmethod
     def plottingscriptname(cls):
