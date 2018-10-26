@@ -12,7 +12,7 @@
 
 #include "DataFormats/BTauReco/interface/JetTag.h"
 
-#include "DataFormats/BTauReco/interface/DeepDoubleBTagInfo.h"
+#include "DataFormats/BTauReco/interface/DeepDoubleXTagInfo.h"
 
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
@@ -55,7 +55,7 @@ class DeepDoubleBTFJetTagsProducer : public edm::stream::EDProducer<edm::GlobalC
     };
 
   private:
-    typedef std::vector<reco::DeepDoubleBTagInfo> TagInfoCollection;
+    typedef std::vector<reco::DeepDoubleXTagInfo> TagInfoCollection;
     typedef reco::JetTagCollection JetTagCollection;
 
     void beginStream(edm::StreamID) override {}
@@ -129,7 +129,7 @@ void DeepDoubleBTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptio
 
   // pfDeepDoubleBJetTags
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("src", edm::InputTag("pfDeepDoubleBTagInfos"));
+  desc.add<edm::InputTag>("src", edm::InputTag("pfDeepDoubleXTagInfos"));
   desc.add<std::vector<std::string>>("input_names", 
     { "input_1", "input_2", "input_3" });
   desc.add<edm::FileInPath>("graph_path",

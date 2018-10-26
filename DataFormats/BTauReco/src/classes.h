@@ -54,8 +54,8 @@
 #include "DataFormats/BTauReco/interface/ChargedCandidateFeatures.h"
 #include "DataFormats/BTauReco/interface/DeepFlavourFeatures.h"
 #include "DataFormats/BTauReco/interface/DeepFlavourTagInfo.h"
-#include "DataFormats/BTauReco/interface/DeepDoubleBFeatures.h"
-#include "DataFormats/BTauReco/interface/DeepDoubleBTagInfo.h"
+#include "DataFormats/BTauReco/interface/DeepDoubleXFeatures.h"
+#include "DataFormats/BTauReco/interface/DeepDoubleXTagInfo.h"
 #include "DataFormats/BTauReco/interface/DeepBoostedJetTagInfo.h"
 
 
@@ -419,14 +419,14 @@ namespace DataFormats_BTauReco {
     edm::Wrapper<reco::DeepFlavourTagInfoCollection> deep_flavour_tag_info_collection_edm_wrapper;
 
     btagbtvdeep::BoostedDoubleSVTagInfoFeatures boosted_double_sv_tag_info_features;
-    btagbtvdeep::DeepDoubleBFeatures deep_doubleb_features;
-    reco::DeepDoubleBTagInfo deep_doubleb_tag_info;
-    reco::DeepDoubleBTagInfoCollection deep_doubleb_tag_info_collection;
-    reco::DeepDoubleBTagInfoRef deep_doubleb_tag_info_collection_ref;
-    reco::DeepDoubleBTagInfoFwdRef deep_doubleb_tag_info_collection_fwd_ref;
-    reco::DeepDoubleBTagInfoRefProd deep_doubleb_tag_info_collection_ref_prod;
-    reco::DeepDoubleBTagInfoRefVector deep_doubleb_tag_info_collection_ref_vector;
-    edm::Wrapper<reco::DeepDoubleBTagInfoCollection> deep_doubleb_tag_info_collection_edm_wrapper;
+    btagbtvdeep::DeepDoubleXFeatures deep_doublex_features;
+    reco::DeepDoubleXTagInfo deep_doublex_tag_info;
+    reco::DeepDoubleXTagInfoCollection deep_doublex_tag_info_collection;
+    reco::DeepDoubleXTagInfoRef deep_doublex_tag_info_collection_ref;
+    reco::DeepDoubleXTagInfoFwdRef deep_doublex_tag_info_collection_fwd_ref;
+    reco::DeepDoubleXTagInfoRefProd deep_doublex_tag_info_collection_ref_prod;
+    reco::DeepDoubleXTagInfoRefVector deep_doublex_tag_info_collection_ref_vector;
+    edm::Wrapper<reco::DeepDoubleXTagInfoCollection> deep_doublex_tag_info_collection_edm_wrapper;
     
     btagbtvdeep::DeepBoostedJetFeatures deep_boosted_jet_tag_info_features;
     reco::DeepBoostedJetTagInfo deep_boosted_jet_tag_info;
