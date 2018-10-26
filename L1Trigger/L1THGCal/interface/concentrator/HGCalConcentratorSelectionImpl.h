@@ -6,7 +6,6 @@
 
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerSums.h"
-#include "DataFormats/L1THGCal/interface/HGCalSuperTriggerCellMap.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 
@@ -36,9 +35,28 @@ class HGCalConcentratorSelectionImpl
 
   private:
 
-    l1t::HGCalSuperTriggerCellMap* getSuperTriggerCell_(uint32_t module_id, l1t::HGCalTriggerCell TC);
-    std::map<uint32_t,std::map<int,l1t::HGCalSuperTriggerCellMap> > mapSuperTriggerCellMap_; 
-    void clearSuperTriggerCellMap();
+    int getSuperTriggerCellId_(int detid) const ;
+
+    struct SuperTriggerCell {
+        float sumPt, sumMipPt;
+        int sumHwPt, maxHwPt; 
+        unsigned maxId;
+        SuperTriggerCell() : sumPt(0), sumMipPt(0), sumHwPt(0), maxHwPt(0), maxId(0) {}
+        void add(const l1t::HGCalTriggerCell &c) {
+            sumPt += c.pt();
+            sumMipPt += c.mipPt();
+            sumHwPt += c.hwPt();
+            if (maxId == 0 || c.hwPt() > maxHwPt) {
+                maxHwPt = c.hwPt();
+                maxId = c.detId();
+            }
+        }
+        void assignEnergy(l1t::HGCalTriggerCell &c) const {
+            c.setHwPt(sumHwPt);
+            c.setMipPt(sumMipPt);
+            c.setP4(math::PtEtaPhiMLorentzVector(sumPt, c.eta(), c.phi(), c.mass())); // there's no setPt
+        }
+    };
 
     size_t   nData_;
     size_t   nCellsInModule_;
