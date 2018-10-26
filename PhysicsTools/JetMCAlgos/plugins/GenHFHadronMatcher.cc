@@ -47,9 +47,6 @@
 
 #include "SimDataFormats/JetMatching/interface/JetFlavourInfoMatching.h"
 
-#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-
-
 
 //
 // class declaration
@@ -106,7 +103,6 @@ private:
 
     std::string flavourStr_;  // Name of the flavour specified in config file
 
-    edm::ESHandle<ParticleDataTable> pdt_;
 };
 
 //
@@ -189,8 +185,6 @@ void GenHFHadronMatcher::fillDescriptions ( edm::ConfigurationDescriptions& desc
 // ------------ method called to produce the data  ------------
 void GenHFHadronMatcher::produce ( edm::Event& evt, const edm::EventSetup& setup )
 {
-    setup.getData ( pdt_ );
-
     using namespace edm;
 
     edm::Handle<reco::GenParticleCollection> genParticles;
