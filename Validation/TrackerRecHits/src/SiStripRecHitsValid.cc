@@ -222,8 +222,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     if(iLayerME != LayerMEsMap.end()){
       for(auto const& rechit : theDetSet){	
         const GeomDetUnit *  det = tracker.idToDetUnit(detid);
-        const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
-        const StripTopology &topol=(StripTopology&)stripdet->topology();
+        const StripTopology &topol=static_cast<const StripGeomDetUnit*>(det)->specificTopology();
         //analyze RecHits 
         rechitanalysis(rechit,topol,associate);
         // fill the result in a histogram
@@ -262,8 +261,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     if(iStereoAndMatchedME != StereoAndMatchedMEsMap.end()){
       for (auto const& rechit : theDetSet) {
         const GeomDetUnit *  det = tracker.idToDetUnit(detid);
-        const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
-        const StripTopology &topol=(StripTopology&)stripdet->topology();
+        const StripTopology &topol=static_cast<const StripGeomDetUnit*>(det)->specificTopology();
         //analyze RecHits
         rechitanalysis(rechit,topol,associate);
         // fill the result in a histogram
@@ -301,7 +299,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     //loop over rechits-matched in the same subdetector
     if(iStereoAndMatchedME != StereoAndMatchedMEsMap.end()){
       for (auto const& rechit : theDetSet) {
-        const GluedGeomDet* gluedDet = (const GluedGeomDet*)tracker.idToDet(rechit.geographicalId());
+        const GluedGeomDet* gluedDet = static_cast<const GluedGeomDet*>(tracker.idToDet(rechit.geographicalId()));
         //analyze RecHits 
         rechitanalysis_matched(rechit, gluedDet, associate);
         // fill the result in a histogram
@@ -462,7 +460,7 @@ void SiStripRecHitsValid::rechitanalysis_matched(SiStripMatchedRecHit2D const re
     PSimHit const * closest = nullptr;
     std::pair<LocalPoint,LocalVector> closestPair;
 
-    const StripGeomDetUnit* partnerstripdet =(StripGeomDetUnit*) gluedDet->stereoDet();
+    const StripGeomDetUnit* partnerstripdet = static_cast<const StripGeomDetUnit*>(gluedDet->stereoDet());
     std::pair<LocalPoint,LocalVector> hitPair;
 
     for(auto const &m : matched){
