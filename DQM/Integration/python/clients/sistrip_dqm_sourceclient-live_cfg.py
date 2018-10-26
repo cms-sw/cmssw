@@ -13,7 +13,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout')
 )
 
-live=True
+live=False
 # uncomment for running on lxplus
 #live=False
 offlineTesting=not live
@@ -343,6 +343,14 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     # Redefinition of siPixelClusters: has to be after RecoTracker.IterativeTracking.InitialStepPreSplitting_cff
     process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
 
+    # Select events based on the pixel cluster multiplicity
+    import  HLTrigger.special.hltPixelActivityFilter_cfi
+    process.multFilter = HLTrigger.special.hltPixelActivityFilter_cfi.hltPixelActivityFilter.clone(
+        inputTag  = cms.InputTag('siPixelClusters'),
+        minClusters = cms.uint32(1),
+        maxClusters = cms.uint32(20000)
+        )
+
     from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
     process.PixelLayerTriplets.BPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
     process.PixelLayerTriplets.FPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
@@ -363,6 +371,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
         process.SiStripClients*
         process.SiStripSources_LocalReco*
         ##### TRIGGER SELECTION #####
+        process.multFilter*
         process.hltHighLevel*
         process.RecoForDQM_TrkReco*
         process.SiStripSources_TrkReco*
