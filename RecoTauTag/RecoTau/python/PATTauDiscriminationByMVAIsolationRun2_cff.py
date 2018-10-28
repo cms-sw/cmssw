@@ -16,7 +16,6 @@ patDiscriminationByIsolationMVArun2v1raw = cms.EDProducer("PATTauDiscriminationB
     inputFileName = cms.FileInPath("RecoTauTag/RecoTau/test/dummyMVAinputFile"), # the filename for MVA if it is not loaded from DB
     mvaName = cms.string("replaceMeByNameOfMVATraining"), # e.g. RecoTauTag_tauIdMVADBoldDMwLTv1
     mvaOpt = cms.string("replaceMeByMVAOption"), # e.g. DBoldDMwLT
-    requireDecayMode = cms.bool(True),
     
     # change these only if input isolation sums changed for the MVA training you want to use
     srcChargedIsoPtSum = cms.string('chargedIsoPtSum'),

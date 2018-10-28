@@ -1,6 +1,9 @@
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 /* class PFRecoTauDiscriminationByInvMass
  * created : August 30 2010,
  * contributors : Sami Lehti (sami.lehti@cern.ch ; HIP, Helsinki)
@@ -35,6 +38,7 @@ class PFRecoTauDiscriminationByInvMass: public PFTauDiscriminationProducerBase {
     ~PFRecoTauDiscriminationByInvMass() override{}
     double discriminate(const reco::PFTauRef&) const override;
 
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   private:
     typedef std::pair<unsigned int, unsigned int> IntPair;
     typedef std::pair<double, double> DoublePair;
@@ -61,5 +65,29 @@ PFRecoTauDiscriminationByInvMass::discriminate(const reco::PFTauRef& tau) const 
   return mass;
 }
 
-DEFINE_FWK_MODULE(PFRecoTauDiscriminationByInvMass);
+void
+PFRecoTauDiscriminationByInvMass::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // pfRecoTauDiscriminationByInvMass
+  edm::ParameterSetDescription desc;
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("BooleanOperator", "and");
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("cut");
+      psd1.add<edm::InputTag>("Producer");
+      psd0.addOptional<edm::ParameterSetDescription>("leadTrack", psd1);
+    }
+    desc.add<edm::ParameterSetDescription>("Prediscriminants", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("max");
+    psd0.add<double>("min");
+    desc.add<edm::ParameterSetDescription>("select", psd0);
+  }
+  desc.add<edm::InputTag>("PFTauProducer", edm::InputTag("pfRecoTauProducer"));
+  descriptions.add("pfRecoTauDiscriminationByInvMass", desc);
+}
 
+DEFINE_FWK_MODULE(PFRecoTauDiscriminationByInvMass);

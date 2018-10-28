@@ -53,47 +53,12 @@ def customiseFor25811(process):
             prod.MissCalibrate = cms.bool(prod.MissCalibrate.value())
     return process
 
-# default parameters moved from code to configs
+# type of parameter changed
 def customiseFor24501(process):
-    for producer in producers_by_type(process, "RecoTauJetRegionProducer"):
-        producer.verbosity = cms.int32(0)
-    for producer in producers_by_type(process, "PFRecoTauChargedHadronProducer"):
-        producer.verbosity = cms.int32(0)
-    for producer in producers_by_type(process, "RecoTauPiZeroProducer"):
-        producer.verbosity = cms.int32(0)
-        for i in range(0,len(producer.builders)):
-            producer.builders[i].verbosity = cms.int32(0)
-    for producer in producers_by_type(process, "RecoTauProducer"):
-        producer.verbosity = cms.int32(0)
-        for i in range(0,len(producer.builders)):
-            producer.builders[i].verbosity = cms.int32(0)
-    for producer in producers_by_type(process, "PFRecoTauDiscriminationByHPSSelection"):
-        producer.verbosity = cms.int32(0)
-        for i in range(0,len(producer.decayModes)):
-            if not hasattr(producer.decayModes[i],"minPi0Mass"):
-                producer.decayModes[i].minPi0Mass = cms.double(-1.e3)
-            if not hasattr(producer.decayModes[i],"maxPi0Mass"):
-                producer.decayModes[i].maxPi0Mass = cms.double(1.e9)        
-            if not hasattr(producer.decayModes[i],"assumeStripMass"):
-                producer.decayModes[i].assumeStripMass = cms.double(-1)
-    for producer in producers_by_type(process, "RecoTauCleaner"):
-        producer.outputSelection = cms.string("")
-        producer.verbosity = cms.int32(0)
-        for i in range(0,len(producer.cleaners)):
-            if not hasattr(producer.cleaners[i],"tolerance"):
-                producer.cleaners[i].tolerance = cms.double(0)
     for producer in producers_by_type(process, "PFRecoTauDiscriminationByIsolation"):
-         producer.verbosity = cms.int32(0)
-         if not hasattr(producer,"storeRawOccupancy"):
-             producer.storeRawOccupancy = cms.bool(False)
-         if not hasattr(producer,"storeRawSumPt"):
-             producer.storeRawSumPt = cms.bool(False)
-         if not hasattr(producer,"storeRawPUsumPt"):
-             producer.storeRawPUsumPt = cms.bool(False)
-         if not hasattr(producer,"storeRawFootprintCorrection"):
-             producer.storeRawFootprintCorrection = cms.bool(False)
-         if not hasattr(producer,"storeRawPhotonSumPt_outsideSignalCone"):
-             producer.storeRawPhotonSumPt_outsideSignalCone = cms.bool(False)
+        if hasattr(producer, "deltaBetaPUTrackPtCutOverride"):
+            deltaBetaPUTrackPtCutOverride_val = producer.deltaBetaPUTrackPtCutOverride
+            producer.deltaBetaPUTrackPtCutOverride = cms.bool(True)
     return process
 
 

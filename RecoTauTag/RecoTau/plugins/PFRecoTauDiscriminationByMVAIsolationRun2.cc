@@ -17,6 +17,9 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
@@ -129,6 +132,7 @@ class PFRecoTauDiscriminationByMVAIsolationRun2 : public PFTauDiscriminationProd
     }
   }
 
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
  private:
 
   std::string moduleLabel_;
@@ -355,6 +359,33 @@ void PFRecoTauDiscriminationByMVAIsolationRun2::endEvent(edm::Event& evt)
   // add all category indices to event
   evt.put(std::move(category_output_), "category");
 }
+
+
+void
+PFRecoTauDiscriminationByMVAIsolationRun2::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // pfRecoTauDiscriminationByMVAIsolationRun2
+  edm::ParameterSetDescription desc;
+
+  desc.add<std::string>("mvaName");
+  desc.add<bool>("loadMVAfromDB");
+  desc.addOptional<edm::FileInPath>("inputFileName");
+  desc.add<std::string>("mvaOpt");
+
+  desc.add<edm::InputTag>("srcTauTransverseImpactParameters");
+  desc.add<edm::InputTag>("srcChargedIsoPtSum");
+  desc.add<edm::InputTag>("srcNeutralIsoPtSum");
+  desc.add<edm::InputTag>("srcPUcorrPtSum");
+
+  desc.add<edm::InputTag>("srcPhotonPtSumOutsideSignalCone");
+  desc.add<edm::InputTag>("srcFootprintCorrection");
+
+  desc.add<int>("verbosity");
+
+  fillProducerDescriptions(desc); // inherited from the base
+
+  descriptions.add("pfRecoTauDiscriminationByMVAIsolationRun2", desc);
+}
+
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationByMVAIsolationRun2);
 
