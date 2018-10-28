@@ -81,7 +81,6 @@ process.out.outputCommands.append('keep *_selectedUpdatedPatJets*_*_*')
 process.out.outputCommands.append('keep *_pfBoostedDoubleSVAK8TagInfos*_*_*')
 process.out.outputCommands.append('keep *_pfDeepDoubleXTagInfos*_*_*')
 #process.out.outputCommands.append('keep *_pfDeepDoubleCvLTagInfos*_*_*')
-#process.out.outputCommands.append('keep *_pfDeepDoubleCvBTagInfos*_*_*')
 process.out.outputCommands.append('keep *_updatedPatJets*_*_*')
 
 process.out.fileName = 'output_test_DDX.root'
