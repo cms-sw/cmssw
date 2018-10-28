@@ -1,11 +1,11 @@
 import os
 import configTemplates
 import globalDictionaries
-from genericValidation import GenericValidationData_CTSR, ValidationWithPlots, pythonboolstring
+from genericValidation import GenericValidationData_CTSR, ParallelValidation, ValidationWithPlots, pythonboolstring
 from helperFunctions import replaceByMap
 from TkAlExceptions import AllInOneError
 
-class PrimaryVertexValidation(GenericValidationData_CTSR, ValidationWithPlots):
+class PrimaryVertexValidation(GenericValidationData_CTSR, ParallelValidation, ValidationWithPlots):
     configBaseName  = "TkAlPrimaryVertexValidation"
     scriptBaseName  = "TkAlPrimaryVertexValidation"
     crabCfgBaseName = "TkAlPrimaryVertexValidation"
@@ -28,10 +28,7 @@ class PrimaryVertexValidation(GenericValidationData_CTSR, ValidationWithPlots):
 
         if self.general["pvvalidationreference"].startswith("/store"):
             self.general["pvvalidationreference"] = "root://eoscms//eos/cms" + self.general["pvvalidationreference"]
-        if self.NJobs > 1:
-            raise AllInOneError("Parallel jobs not implemented for the PrimaryVertex validation!\n"
-                                "Please set parallelJobs = 1.")
-
+            
     @property
     def ValidationTemplate(self):
         return configTemplates.PrimaryVertexValidationTemplate
