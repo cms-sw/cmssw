@@ -11,6 +11,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
@@ -36,6 +39,8 @@ class TauDiscriminationAgainstMuon final : public TauDiscriminationProducerBase<
   void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
   double discriminate(const TauRef&) const override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:  
   bool evaluateMuonVeto(const reco::Muon&) const;
@@ -119,6 +124,32 @@ double TauDiscriminationAgainstMuon<TauType, TauDiscriminator>::discriminate(con
 
   return (decision ? 1. : 0.);
 }
+}
+
+template<class TauType, class TauDiscriminator>
+void TauDiscriminationAgainstMuon<TauType, TauDiscriminator>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+//CaloRecoTauDiscriminationAgainstMuon::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // caloRecoTauDiscriminationAgainstMuon
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("CaloTauProducer", edm::InputTag("caloRecoTauProducer"));
+  desc.add<edm::InputTag>("muonSource", edm::InputTag("muons"));
+  desc.add<double>("muonCompCut", 0.0);
+  desc.add<double>("segmCompCoefficient", 0.5);
+  desc.add<double>("dRmatch", 0.5);
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("BooleanOperator", "and");
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("cut");
+      psd1.add<edm::InputTag>("Producer");
+      psd0.addOptional<edm::ParameterSetDescription>("leadTrack", psd1);
+    }
+    desc.add<edm::ParameterSetDescription>("Prediscriminants", psd0);
+  }
+  desc.add<std::string>("discriminatorOption", "noSegMatch");
+  desc.add<double>("caloCompCoefficient", 0.5);
+  descriptions.add("caloRecoTauDiscriminationAgainstMuon", desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

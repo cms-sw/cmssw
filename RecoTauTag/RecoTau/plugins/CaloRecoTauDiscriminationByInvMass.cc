@@ -1,6 +1,9 @@
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 /* class CaloRecoTauDiscriminationByInvMass
  * created : September 23 2010,
  * contributors : Sami Lehti (sami.lehti@cern.ch ; HIP, Helsinki)
@@ -30,6 +33,7 @@ class CaloRecoTauDiscriminationByInvMass final : public CaloTauDiscriminationPro
 
     double discriminate(const reco::CaloTauRef&) const override;
 
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   private:
     double threeProngInvMass(const CaloTauRef&) const ;
     double chargedPionMass;
@@ -61,4 +65,27 @@ double CaloRecoTauDiscriminationByInvMass::threeProngInvMass(
 }
 
 }
+
+void
+CaloRecoTauDiscriminationByInvMass::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // caloRecoTauDiscriminationByInvMass
+  edm::ParameterSetDescription desc;
+  desc.add<double>("invMassMin", 0.0);
+  desc.add<edm::InputTag>("CaloTauProducer", edm::InputTag("caloRecoTauProducer"));
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("BooleanOperator", "and");
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("cut");
+      psd1.add<edm::InputTag>("Producer");
+      psd0.addOptional<edm::ParameterSetDescription>("leadTrack", psd1);
+    }
+    desc.add<edm::ParameterSetDescription>("Prediscriminants", psd0);
+  }
+  desc.add<bool>("BooleanOutput", true);
+  desc.add<double>("invMassMax", 1.4);
+  descriptions.add("caloRecoTauDiscriminationByInvMass", desc);
+}
+
 DEFINE_FWK_MODULE(CaloRecoTauDiscriminationByInvMass);

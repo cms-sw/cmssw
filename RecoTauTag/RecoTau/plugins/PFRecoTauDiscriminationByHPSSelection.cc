@@ -1,6 +1,9 @@
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
@@ -22,6 +25,8 @@ class PFRecoTauDiscriminationByHPSSelection : public PFTauDiscriminationProducer
   explicit PFRecoTauDiscriminationByHPSSelection(const edm::ParameterSet&);
   ~PFRecoTauDiscriminationByHPSSelection() override;
   double discriminate(const reco::PFTauRef&) const override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:
   typedef StringObjectFunction<reco::PFTau> TauFunc;
@@ -318,6 +323,46 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) c
     edm::LogPrint("PFTauByHPSSelect") << " passes all cuts." ;
   }
   return 1.0;
+}
+
+void
+PFRecoTauDiscriminationByHPSSelection::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // hpsSelectionDiscriminator
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("PFTauProducer", edm::InputTag("combinatoricRecoTaus"));
+  desc.add<int>("verbosity", 0);
+  desc.add<double>("minTauPt", 0.0);
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("BooleanOperator", "and");
+    desc.add<edm::ParameterSetDescription>("Prediscriminants", psd0);
+  }
+
+  {
+    edm::ParameterSetDescription vpset_decayModes;
+    vpset_decayModes.add<double>("minPi0Mass", -1.e3);
+    vpset_decayModes.add<std::string>("maxMass");
+    vpset_decayModes.add<double>("maxPi0Mass", 1.e9);
+    vpset_decayModes.add<unsigned int>("nPiZeros");
+    vpset_decayModes.add<double>("minMass");
+    vpset_decayModes.add<unsigned int>("nChargedPFCandsMin", 0);
+    vpset_decayModes.add<unsigned int>("nTracksMin", 0);
+    vpset_decayModes.add<unsigned int>("nCharged");
+    {
+      edm::ParameterSetDescription psd0;
+      psd0.add<bool>("phi");
+      psd0.add<bool>("eta");
+      psd0.add<bool>("mass");
+      vpset_decayModes.add<edm::ParameterSetDescription>("applyBendCorrection", psd0);
+    }
+    vpset_decayModes.add<double>("assumeStripMass", -1.0);
+    desc.addVPSet("decayModes", vpset_decayModes);
+  }
+
+  desc.add<double>("matchingCone", 0.5);
+  desc.add<int>("minPixelHits", 1);
+  desc.add<bool>("requireTauChargedHadronsToBeChargedPFCands", false);
+  descriptions.add("hpsSelectionDiscriminator", desc);
 }
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationByHPSSelection);

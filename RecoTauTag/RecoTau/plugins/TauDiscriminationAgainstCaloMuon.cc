@@ -11,6 +11,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
@@ -102,6 +105,8 @@ class TauDiscriminationAgainstCaloMuon final : public TauDiscriminationProducerB
   void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
   double discriminate(const TauRef&) const override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:  
   edm::InputTag srcEcalRecHitsBarrel_;
@@ -306,6 +311,44 @@ double TauDiscriminationAgainstCaloMuon<TauType, TauDiscriminator>::discriminate
 
 typedef TauDiscriminationAgainstCaloMuon<PFTau, PFTauDiscriminator> PFRecoTauDiscriminationAgainstCaloMuon;
 typedef TauDiscriminationAgainstCaloMuon<CaloTau, CaloTauDiscriminator> CaloRecoTauDiscriminationAgainstCaloMuon;
+
+// accordingly method for specific class
+template<>
+void
+TauDiscriminationAgainstCaloMuon<PFTau, PFTauDiscriminator>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // pfRecoTauDiscriminationAgainstCaloMuon
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("srcHcalRecHits", edm::InputTag("hbhereco"));
+  desc.add<double>("minLeadTrackPt", 15.0);
+  desc.add<double>("maxEnToTrackRatio", 0.25);
+  desc.add<edm::InputTag>("srcVertex", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::InputTag>("PFTauProducer", edm::InputTag("pfRecoTauProducer"));
+  desc.add<edm::InputTag>("srcEcalRecHitsBarrel", edm::InputTag("ecalRecHit","EcalRecHitsEB"));
+  desc.add<double>("dRhcal", 25.0);
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("BooleanOperator", "and");
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("cut");
+      psd1.add<edm::InputTag>("Producer");
+      psd0.addOptional<edm::ParameterSetDescription>("leadTrack", psd1);
+    }
+    desc.add<edm::ParameterSetDescription>("Prediscriminants", psd0);
+  }
+  desc.add<double>("maxEnHcal", 8.0);
+  desc.add<double>("dRecal", 15.0);
+  desc.add<edm::InputTag>("srcEcalRecHitsEndcap", edm::InputTag("ecalRecHit","EcalRecHitsEE"));
+  desc.add<double>("minLeadTrackPtFraction", 0.8);
+  desc.add<double>("maxEnEcal", 3.0);
+  descriptions.add("pfRecoTauDiscriminationAgainstCaloMuon", desc);
+}
+
+template<>
+void
+TauDiscriminationAgainstCaloMuon<CaloTau, CaloTauDiscriminator>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // there was no cfi file for this plugin
+}
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationAgainstCaloMuon);
 DEFINE_FWK_MODULE(CaloRecoTauDiscriminationAgainstCaloMuon);
