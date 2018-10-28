@@ -28,6 +28,10 @@ hlt4vector = cms.Path(
     * hltObjectsMonitor
 )
 
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from DQM.HLTEvF.HLTObjectMonitorLeadLead_cfi import *
+if pp_on_AA_2018:
+    hlt4vector += hltObjectMonitorLeadLead
 
 #hlt4vector = cms.Path(onlineOccPlot * hltObjectMonitor)
 #hlt4vector = cms.Path(onlineOccPlot)
