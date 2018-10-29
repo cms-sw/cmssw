@@ -93,8 +93,10 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event & event, std::vector<Mu
   MuScleFitPlotter * plotter)
 {
   edm::Handle<pat::CompositeCandidateCollection > collAll;
-  try { event.getByLabel("onia2MuMuPatTrkTrk", collAll); }
-  catch (...) { std::cout << "J/psi not present in event!" << std::endl; }
+  event.getByLabel("onia2MuMuPatTrkTrk", collAll);
+  if(!collAll.isValid()) {
+    edm::LogWarning("MuScleFitUtils") << "J/psi not present in event!";
+  }
   std::vector<const pat::Muon*> collMuSel;
 
   //================onia cuts===========================/
