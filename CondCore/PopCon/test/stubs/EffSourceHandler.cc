@@ -56,7 +56,7 @@ void popcon::ExEffSource::getNewObjects() {
   if (tagInfo().size>0) {
     Ref payload = lastPayload();
     edm::LogInfo   ("ExEffsSource")<<" type of last payload  "<< 
-      typeid(*payload).name()<<std::endl;
+      typeid(value_type).name()<<std::endl;
   }
 
 
