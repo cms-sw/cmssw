@@ -908,7 +908,9 @@ bool muon::isSoftMuon(const reco::Muon& muon, const reco::Vertex& vtx,
 
 
 bool muon::isHighPtMuon(const reco::Muon& muon, const reco::Vertex& vtx){
-  bool muID =   muon.isGlobalMuon() && muon.globalTrack()->hitPattern().numberOfValidMuonHits() >0 && (muon.numberOfMatchedStations() > 1);
+  bool muValHits = ( muon.globalTrack()->hitPattern().numberOfValidMuonHits()>0 || muon.tunePMuonBestTrack()->hitPattern().numberOfValidMuonHits()>0 );
+  bool muMatchedSt = muon.isTrackerMuon() && ( ( muon.numberOfMatchedStations()>1 ) || ( muon.numberOfMatchedStations()==1 && ( muon.expectedNnumberOfMatchedStations()<2 || !(muon.stationMask()==1 || muon.stationMask()==16) ||  muon.numberOfMatchedRPCLayers()>2 ) ) );
+  bool muID = muon.isGlobalMuon() && muValHits && muMatchedSt;
   if(!muID) return false;
 
   bool hits = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
