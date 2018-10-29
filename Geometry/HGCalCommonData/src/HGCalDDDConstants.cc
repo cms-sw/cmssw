@@ -709,7 +709,9 @@ bool HGCalDDDConstants::maskCell(const DetId& detId, int corners) const {
 	int N    = getUVMax(id.type());
 	int ncor = (itr->second).first;
 	int fcor = (itr->second).second;
-	if (ncor >= corners) {
+	if (ncor < corners) {
+	  mask   = true;
+	} else {
 	  int u = id.cellU();
 	  int v = id.cellV();
 	  if (ncor == 4) {
