@@ -60,8 +60,8 @@ def applyDeepBtagging( process, postfix="" ) :
        rParam = 0.8,
        jetCorrections = ('AK8PFPuppi', cms.vstring(['L2Relative', 'L3Absolute']), 'None'),
        btagDiscriminators = [
-          'pfDeepDoubleBJetTags:probQ',
-          'pfDeepDoubleBJetTags:probH',
+          'pfDeepDoubleBvLJetTags:probQCD',
+          'pfDeepDoubleBvLJetTags:probHbb',
           'pfDeepDoubleCvLJetTags:probQCD',
           'pfDeepDoubleCvLJetTags:probHcc',
           'pfDeepDoubleCvBJetTags:probHbb',

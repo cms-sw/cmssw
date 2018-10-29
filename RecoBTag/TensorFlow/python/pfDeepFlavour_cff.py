@@ -6,7 +6,7 @@ from RecoBTag.FeatureTools.pfDeepDoubleXTagInfos_cfi import pfDeepDoubleXTagInfo
 
 from RecoBTag.TensorFlow.pfDeepFlavourJetTags_cfi import pfDeepFlavourJetTags
 from RecoBTag.TensorFlow.pfNegativeDeepFlavourJetTags_cfi import pfNegativeDeepFlavourJetTags
-from RecoBTag.TensorFlow.pfDeepDoubleBJetTags_cfi import pfDeepDoubleBJetTags
+from RecoBTag.TensorFlow.pfDeepDoubleBvLJetTags_cfi import pfDeepDoubleBvLJetTags
 from RecoBTag.TensorFlow.pfDeepDoubleCvBJetTags_cfi import pfDeepDoubleCvBJetTags
 from RecoBTag.TensorFlow.pfDeepDoubleCvLJetTags_cfi import pfDeepDoubleCvLJetTags
 from CommonTools.PileupAlgos.Puppi_cff import puppi
