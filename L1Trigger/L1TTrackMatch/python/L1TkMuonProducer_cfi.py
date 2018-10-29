@@ -36,7 +36,7 @@ L1TkMuons = cms.EDProducer("L1TkMuonProducer",
     ##      - and a linear interpolation in the middle
     ## facror = 0 --> no changes to the window size
     initial_window_factor   = cms.double(0.0),
-    final_window_factor     = cms.double(0.0),
+    final_window_factor     = cms.double(0.5),
     pt_start_relax          = cms.double(2.0),
     pt_end_relax            = cms.double(6.0),
     do_relax_factors        = cms.bool(True),
