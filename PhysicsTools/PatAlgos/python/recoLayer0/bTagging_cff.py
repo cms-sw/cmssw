@@ -41,7 +41,7 @@ supportedBtagInfos = [
     # DeepFlavour tag infos
   , 'pfDeepFlavourTagInfos'
   , 'pfNegativeDeepFlavourTagInfos'
-    # DeepDoubleB tag infos
+    # DeepDoubleB/C tag infos
   , 'pfDeepDoubleXTagInfos'
     # DeepBoostedJet tag infos
   , 'pfDeepBoostedJetTagInfos'
