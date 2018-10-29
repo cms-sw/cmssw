@@ -35,7 +35,7 @@
 <bin   file="SSEVec_t.cpp" name="DataFormatsSSEVec_t">
 </bin>
 <bin   file="crossV4_t.cpp" name="DataFormatscrossV4_t">
-  <flags CXXFLAGS="-Ofast"/>
+  <use name="ofast-flag"/>
 </bin>
 <bin   file="sign_t.cpp" name="DataFormatsSign_t">
 </bin>
@@ -60,7 +60,7 @@
 <bin   file="Similarity_t.cpp" name="DataFormatsSimilarity_t">
 </bin>
 <bin   file="Similarity_t.cpp" name="DataFormatsSimilarityFast_t">
-<flags CXXFLAGS="-Ofast"/>
+  <use name="ofast-flag"/>
 </bin>
 
 <bin   file="MulSymMatrix_t.cpp" name="DataFormatsMulSymMatrix_t">
