@@ -78,7 +78,7 @@ L1CaloEcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 {
      std:: cout << "object Key " << objectKey <<std::endl;
 
-     if(objectKey == "NULL" || objectKey == "")  { // return default blank ecal scale
+     if(objectKey == "NULL" || objectKey.empty())  { // return default blank ecal scale
        return std::make_unique<L1CaloEcalScale>(0);
      }
      if(objectKey == "IDENTITY") {  // return identity ecal scale
