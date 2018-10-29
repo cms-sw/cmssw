@@ -39,4 +39,7 @@
 <iftool name="py2-numpy">
   <test name="testNumPy" command="python -c 'import numpy'"/>
 </iftool>
+<iftool name="py2-cx-oracle">
+  <test name="testCxOracle" command="python -c 'import cx_Oracle'"/>
+</iftool>
 <test name="testPYDablooms" command="python -c 'import pydablooms'"/>
