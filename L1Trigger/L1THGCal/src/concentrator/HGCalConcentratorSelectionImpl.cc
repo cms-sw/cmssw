@@ -1,8 +1,5 @@
 #include "L1Trigger/L1THGCal/interface/concentrator/HGCalConcentratorSelectionImpl.h"
 
-#include <iostream>
-#include <unordered_map>
-
 HGCalConcentratorSelectionImpl::
 HGCalConcentratorSelectionImpl(const edm::ParameterSet& conf):
   nData_(conf.getParameter<uint32_t>("NData")),
@@ -56,50 +53,3 @@ bestChoiceSelectImpl(const std::vector<l1t::HGCalTriggerCell>& trigCellVecInput,
   
 }
 
-int
-HGCalConcentratorSelectionImpl::getSuperTriggerCellId_(int detid) const {
-  HGCalDetId TC_id(detid);
-  if(TC_id.subdetId()==HGCHEB) {
-      return TC_id.cell(); //scintillator
-  } else {
-      int TC_wafer = TC_id.wafer();
-      int TC_12th = ( TC_id.cell() & 0x3a );
-
-      return TC_wafer<<6 | TC_12th;
-  }
-
-}
-
-
-void 
-HGCalConcentratorSelectionImpl::
-superTriggerCellSelectImpl(uint32_t module_id ,const std::vector<l1t::HGCalTriggerCell>& trigCellVecInput, std::vector<l1t::HGCalTriggerCell>& trigCellVecOutput)
-{ 
-
-  std::unordered_map<int,SuperTriggerCell> STCs;
-
-  // first pass, fill the super trigger cells
-  for (const l1t::HGCalTriggerCell & tc : trigCellVecInput) {
-    if (tc.subdetId() == HGCHEB) continue;
-    STCs[getSuperTriggerCellId_(tc.detId())].add(tc);
-  }
-    
-  // second pass, write them out
-  for (const l1t::HGCalTriggerCell & tc : trigCellVecInput) {
-
-    //If scintillator use a simple threshold cut
-    if (tc.subdetId() == HGCHEB) {
-      if ( ( tc.hwPt() >= TCThresholdBH_ADC_ ) && (tc.mipPt() >= triggercell_threshold_scintillator_ ) ) {
-	trigCellVecOutput.push_back( tc );
-      }
-    } else {
-      const auto & stc = STCs[getSuperTriggerCellId_(tc.detId())]; 
-      if (tc.detId() == stc.maxId) {
-	trigCellVecOutput.push_back( tc );
-        stc.assignEnergy(trigCellVecOutput.back());
-      }
-    }
-
-  } // end of second loop
-  
-}
