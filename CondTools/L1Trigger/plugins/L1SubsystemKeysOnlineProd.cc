@@ -92,7 +92,7 @@ L1SubsystemKeysOnlineProd::produce(const L1TriggerKeyRcd& iRecord)
      }
 
    // If L1TriggerKeyList does not contain TSC key, token is empty
-   if( keyList.token( m_tscKey ) == std::string() ||
+   if( keyList.token( m_tscKey ).empty() ||
        m_forceGeneration )
      {
        // Instantiate new L1TriggerKey

@@ -238,7 +238,7 @@ L1ConfigOnlineProdBase<TRcd, TData>::getObjectKey(
 
    // If L1TriggerKeyList does not contain object key, token is empty
    return
-      keyList.token( recordName, dataType, objectKey ) == std::string() ;
+      keyList.token( recordName, dataType, objectKey ).empty() ;
 }
 
 #endif
