@@ -133,8 +133,8 @@ void DeepDoubleXTFJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<std::vector<std::string>>("input_names", 
     { "input_1", "input_2", "input_3" });
   desc.add<edm::FileInPath>("graph_path",
-    //edm::FileInPath("RecoBTag/Combined/data/DeepDoubleB/V01/constant_graph_PtCut_MassSculptPen.pb"));
-    edm::FileInPath("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDB.pb"));
+    edm::FileInPath("RecoBTag/Combined/data/DeepDoubleB/V01/constant_graph_PtCut_MassSculptPen.pb"));
+    //edm::FileInPath("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDB.pb"));
   desc.add<std::vector<std::string>>("lp_names",
     { "db_input_batchnorm/keras_learning_phase" });
   desc.add<std::vector<std::string>>("output_names",
