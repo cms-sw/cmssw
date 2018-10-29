@@ -51,7 +51,6 @@ for iev,event in enumerate(events_c):
         print "DDCvB", jet.bDiscriminator("pfDeepDoubleCvBJetTags:probHbb"), jet.bDiscriminator("pfDeepDoubleCvBJetTags:probHcc")
         h_probQ_ddb.Fill(jet.bDiscriminator("pfDeepDoubleBJetTags:probQ"))
         h_probH_ddb.Fill(jet.bDiscriminator("pfDeepDoubleBJetTags:probH"))
-        #h_probQplusH_ddb.Fill(jet.bDiscriminator("pfDeepDoubleBJetTags:probQ")+jet.bDiscriminator("pfDeepDoubleBJetTags:probH"))
         h_probQ_ddc.Fill(jet.bDiscriminator("pfDeepDoubleCvLJetTags:probQCD"))
         h_probH_ddc.Fill(jet.bDiscriminator("pfDeepDoubleCvLJetTags:probHcc"))
     print "\nEvent", iev
@@ -72,12 +71,3 @@ h_probH_ddc.SetLineStyle(10)
 h_probQ_ddc.Draw("SAME")
 c1b.Draw()
 c1b.SaveAs("ProbH_vc_vb.png")
-
-#c1c = ROOT.TCanvas()
-#h_probQplusH_ddb.Draw("HISTO")
-#h_probQplusH_ddc.SetLineColor(632)
-#h_probQplusH_ddc.SetLineStyle(10)
-#h_probQplusH_ddc.Draw("SAME")
-#c1c.Draw()
-#c1c.SaveAs("ProbQplusH_vc_vc.pdf")
-
