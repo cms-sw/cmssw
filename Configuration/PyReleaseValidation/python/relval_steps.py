@@ -102,6 +102,9 @@ steps['RunPA2013']={'INPUT':InputInfo(dataSet='/PAMinBiasUPC/HIRun2013-v1/RAW',l
 Run2015HI={263400: [[65,904]]}
 steps['RunHI2015VR']={'INPUT':InputInfo(dataSet='/HITrackerVirginRaw/HIRun2015-v1/RAW',label='hi2015vr',events=10000,location='STD',ls=Run2015HI)}
 
+steps['RunHI2018']={'INPUT':InputInfo(dataSet='/HIMinimumBias0/Tier0_REPLAY_vocms015-v214/RAW',label='hi2018',run=[325174],events=10000,location='STD')}
+steps['RunHI2018Reduced']={'INPUT':InputInfo(dataSet='/HIMinimumBiasReducedFormat0/Tier0_REPLAY_vocms015-v214/RAW',label='hi2018reduced',run=[325174],events=10000,location='STD')}
+
 Run2012A=[191226]
 Run2012ASk=Run2012A+[]
 steps['RunMinBias2012A']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2012A-v1/RAW',label='mb2012A',run=Run2012A, events=100000,location='STD')}
@@ -1652,6 +1655,14 @@ steps['RECOHID15']=merge([{ '--runUnscheduled':'',
                             '--era':'Run2_HI'
                             },steps['RECOHID11']])
                            
+steps['RECOHID18']=merge([{ '--scenario':'pp',
+                            '--conditions':'103X_dataRun2_Prompt_v2',
+                            '-s':'RAW2DIGI,L1Reco,RECO,EI,DQM:@common+@standardDQM+@ExtraHLT',
+                            '--datatier':'AOD,DQMIO',
+                            '--eventcontent':'AOD,DQM',
+                            '--era':'Run2_2018_pp_on_AA'
+                            },steps['RECOHID15']])
+
 steps['TIER0']=merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customisePrompt',
                        '-s':'RAW2DIGI,L1Reco,RECO,EI,ALCAPRODUCER:@allForPrompt,DQM:@allForPrompt,ENDJOB',
                        '--datatier':'RECO,AOD,ALCARECO,DQMIO',
@@ -2355,6 +2366,9 @@ steps['HARVESTDHI']={'-s':'HARVESTING:dqmHarvesting',
 steps['HARVESTDHI15']=merge([{ '--conditions':'auto:run2_data',
                                '--era':'Run2_HI',
                                '-n':-1},steps['HARVESTDHI']])
+
+steps['HARVESTDHI18']=merge([{ '--era':'Run2_2018_pp_on_AA',
+                               '--scenario':'pp' },steps['HARVESTDHI15']])
 
 #MC
 steps['HARVEST']={'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
