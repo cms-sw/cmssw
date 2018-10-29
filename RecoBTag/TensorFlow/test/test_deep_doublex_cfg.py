@@ -52,8 +52,8 @@ updateJetCollection(
    jetCorrections = ('AK8PFchs', cms.vstring(['L2Relative', 'L3Absolute']), 'None'),
    btagDiscriminators = [
       'pfBoostedDoubleSecondaryVertexAK8BJetTags',
-      'pfDeepDoubleBJetTags:probQ', 
-      'pfDeepDoubleBJetTags:probH',
+      'pfDeepDoubleBvLJetTags:probQCD', 
+      'pfDeepDoubleBvLJetTags:probHbb',
       'pfDeepDoubleCvLJetTags:probQCD',
       'pfDeepDoubleCvLJetTags:probHcc',
       'pfDeepDoubleCvBJetTags:probHbb',
