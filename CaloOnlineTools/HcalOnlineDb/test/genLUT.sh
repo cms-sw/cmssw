@@ -208,7 +208,7 @@ then
     CheckParameter production
     CheckFile $card
     source $card
-    tktag=HCAL_$Tag
+    tktag=$Tag
     dd=$(date +"%Y-%m-%d %H:%M:%S")
     inputs=""
     for i in ${inputConditions[@]}; do
@@ -223,7 +223,7 @@ then
     echo """<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>
 <CFGBrickSet>
 <CFGBrick>
-    <Parameter type=\"string\" name=\"INFOTYPE\">TriggerKey</Parameter>
+    <Parameter type=\"string\" name=\"INFOTYPE\">TRIGGERKEY</Parameter>
     <Parameter type=\"string\" name=\"CREATIONSTAMP\">$dd</Parameter>
     <Parameter type=\"string\" name=\"CREATIONTAG\">$tktag</Parameter> 
     <Parameter type=\"string\" name=\"HCAL_LUT_TAG\">$Tag</Parameter>  
@@ -235,7 +235,7 @@ then
     <Parameter type=\"string\" name=\"L1TriggerObjects\">$l1to</Parameter>$inputs
     <Data elements=\"1\">$production</Data> 
 </CFGBrick>
-</CFGBrickSet>""" > $CondDir/$Tag/$tktag.xml
+</CFGBrickSet>""" > $CondDir/$Tag/tk_$tktag.xml
     
 
 ##
