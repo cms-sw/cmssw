@@ -1,4 +1,7 @@
+# cmsRun single_neutrino_cfg.py nEvents=1000
+
 import FWCore.ParameterSet.Config as cms
+from FWCore.ParameterSet.VarParsing import VarParsing
 
 process = cms.Process("TestProcess")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
@@ -11,8 +14,19 @@ process.load("GeneratorInterface.Core.generatorSmeared_cfi")
 
 process.load("Configuration.EventContent.EventContent_cff")
 
+options = VarParsing('analysis')
+
+options.register('nEvents',
+                 10000,
+                 VarParsing.multiplicity.singleton,
+                 VarParsing.varType.int,
+                 "Maximum number of events"
+)
+
+options.parseArguments()
+
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10000)
+    input = cms.untracked.int32(options.nEvents)
 )
 
 process.load("IOMC.RandomEngine.IOMC_cff")
