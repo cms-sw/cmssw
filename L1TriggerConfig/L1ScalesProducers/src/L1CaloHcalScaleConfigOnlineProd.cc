@@ -99,7 +99,7 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
   
      edm::LogInfo("L1CaloHcalScaleConfigOnlineProd") << "object Key " << objectKey;
 
-     if(objectKey == "NULL" || objectKey == "") { // return default blank ecal scale
+     if(objectKey == "NULL" || objectKey.empty()) { // return default blank ecal scale
        return std::make_unique<L1CaloHcalScale>(0);
      }
      if(objectKey == "IDENTITY") {  // return identity ecal scale
