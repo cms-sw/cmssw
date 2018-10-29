@@ -70,6 +70,7 @@ process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi")
 # Condition for P5 cluster
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 # Condition for lxplus: change and possibly customise the GT
+#process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
 #process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
 
@@ -363,11 +364,25 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
                                                                "HLT_QuadJet")
 
     process.dqmBeamMonitor.hltResults = cms.InputTag("TriggerResults","","HLT")
+ 
+    # Select events based on the pixel cluster multiplicity
+    import  HLTrigger.special.hltPixelActivityFilter_cfi
+    process.multFilter = HLTrigger.special.hltPixelActivityFilter_cfi.hltPixelActivityFilter.clone(
+       inputTag  = cms.InputTag('siPixelClustersPreSplitting'),
+       minClusters = cms.uint32(10000),
+       maxClusters = cms.uint32(50000)
+    )
 
+    process.filter_step = cms.Sequence( process.siPixelDigis
+                                       *process.siPixelClustersPreSplitting
+                                       *process.multFilter
+                                  )
 
     process.p = cms.Path(process.scalersRawToDigi
                          *process.dqmTKStatus
                          *process.hltTriggerTypeFilter
+                         # The following filter was used during 2018 high pile up (HPU) run.
+                         #*process.filter_step
                          *process.dqmcommon
                          *process.tracking_FirstStep
                          *process.monitor
