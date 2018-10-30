@@ -51,6 +51,9 @@ tracking2_moduleName = "hlttktkFilterForDsDpt20"
 tracking3_pathName = "HLT_HILcPPTrackingGlobal_Dpt20"
 tracking3_moduleName = "hlttktkFilterForLcDpt20"
 
+fulltrack_pathName = "HLT_HIFullTracks_Multiplicity6080"
+fulltrack_moduleName = "hltFullIterativeTrackingMergedPPOnAA"
+
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 hltObjectMonitorLeadLead = DQMEDAnalyzer('HLTObjectMonitorHI',
     processName         = cms.string("HLT"),
@@ -646,6 +649,36 @@ hltObjectMonitorLeadLead = DQMEDAnalyzer('HLTObjectMonitorHI',
         NbinsX = cms.int32(50),
         Xmin = cms.double(2.1),
         Xmax = cms.double(2.5)
+        ),
+    HIFullTracksMultiplicity6080Pt = cms.PSet(
+        pathName = cms.string(fulltrack_pathName),
+        moduleName = cms.string(fulltrack_moduleName),
+        plotLabel = cms.string("HIFullTracksMultiplicity6080_pT"),
+        axisLabel = cms.string("p_{T} [GeV]"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(50),
+        Xmin = cms.double(0),
+        Xmax = cms.double(100)
+        ),
+    HIFullTracksMultiplicity6080Eta = cms.PSet(
+        pathName = cms.string(fulltrack_pathName),
+        moduleName = cms.string(fulltrack_moduleName),
+        plotLabel = cms.string("HIFullTracksMultiplicity6080_eta"),
+        axisLabel = cms.string("eta"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(30),
+        Xmin = cms.double(-2.4),
+        Xmax = cms.double(2.4)
+        ),
+    HIFullTracksMultiplicity6080Phi = cms.PSet(
+        pathName = cms.string(fulltrack_pathName),
+        moduleName = cms.string(fulltrack_moduleName),
+        plotLabel = cms.string("HIFullTracksMultiplicity6080_Phi"),
+        axisLabel = cms.string("phi"),
+        mainWorkspace = cms.bool(True),
+        NbinsX = cms.int32(50),
+        Xmin = cms.double(-3.2),
+        Xmax = cms.double(3.2)
         ),
     wallTime = cms.PSet(
 	pathName = cms.string("wall time per event"),
