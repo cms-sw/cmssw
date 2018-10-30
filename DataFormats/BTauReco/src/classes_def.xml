@@ -448,8 +448,7 @@
     <version ClassVersion="3" checksum="2487956635"/>
   </class>
   <class name="btagbtvdeep::DeepDoubleXFeatures" ClassVersion="3">
-   <version ClassVersion="3" checksum="2789036018"/>
-    <version ClassVersion="4" checksum="2789036018"/>
+    <version ClassVersion="3" checksum="2789036018"/>
   </class>
   <class name="btagbtvdeep::BoostedDoubleSVTagInfoFeatures" ClassVersion="3">
     <version ClassVersion="3" checksum="683471882"/>
