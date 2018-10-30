@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import sys, os, urllib
 
 
@@ -106,10 +107,10 @@ for analysisType in knownDatasets.keys():
         parameters["referenceobj1"] = "other::" + new_dataset
 
 
-    print "analysis: " + analysisType
-    print
-    print "          " + base_url + "?" + ";".join([ x + "=" + urllib.quote(str(parameters[x])) for x in parameters.keys() ])
+    print("analysis: " + analysisType)
+    print()
+    print("          " + base_url + "?" + ";".join([ x + "=" + urllib.quote(str(parameters[x])) for x in parameters.keys() ]))
 
-    print
-    print
+    print()
+    print()
     

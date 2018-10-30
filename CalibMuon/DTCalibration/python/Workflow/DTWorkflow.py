@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os,sys
 import glob
 import logging
@@ -231,7 +232,7 @@ class DTWorkflow(CLIHelper, CrabHelper):
             path = self.result_path
         except:
             path = os.getcwd()
-        print "path", path
+        print("path", path)
         out_path = os.path.abspath(os.path.join(path,
                                                 os.path.splitext(db_path)[0] + ".txt"))
 

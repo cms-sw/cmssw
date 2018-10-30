@@ -13,19 +13,12 @@
 
 using namespace std;
 
-l1t::Stage2PreProcessorFirmwareImp1::Stage2PreProcessorFirmwareImp1(unsigned fwv, CaloParamsHelper* params) :
-  m_params(params)
+l1t::Stage2PreProcessorFirmwareImp1::Stage2PreProcessorFirmwareImp1(unsigned fwv, CaloParamsHelper const* params) :
+  m_towerAlgo{ std::make_unique<Stage2TowerCompressAlgorithmFirmwareImp1>(params) }
 {
 
-  m_towerAlgo = new Stage2TowerCompressAlgorithmFirmwareImp1(m_params);
 
 }
-
-l1t::Stage2PreProcessorFirmwareImp1::~Stage2PreProcessorFirmwareImp1()
-{
-
-};
-
 
 //need to switch to BXVector
 void l1t::Stage2PreProcessorFirmwareImp1::processEvent(const std::vector<l1t::CaloTower> & inTowers,

@@ -20,10 +20,10 @@ using namespace PhysicsTools;
 
 static std::vector<std::string>
 getCalibrationLabels(const edm::ParameterSet &params,
-                     std::auto_ptr<TagInfoMVACategorySelector> &selector)
+                     std::unique_ptr<TagInfoMVACategorySelector> &selector)
 {
 	if (params.getParameter<bool>("useCategories")) {
-		selector = std::auto_ptr<TagInfoMVACategorySelector>(
+		selector = std::unique_ptr<TagInfoMVACategorySelector>(
 				new TagInfoMVACategorySelector(params));
 
 		return selector->getCategoryLabels();

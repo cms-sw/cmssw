@@ -1,7 +1,7 @@
 {
     "destinationDatabase": "oracle://cms_orcon_prod/CMS_CONDITIONS", 
     "destinationTags": {
-        "BeamSpotObjects_PCL_byLumi_v0_prompt": {}
+        "BeamSpotObjects_LegacyPCL_byLumi_v0_prompt": {}
     }, 
     "inputTag": "BeamSpotObject_ByLumi", 
     "since": null, 

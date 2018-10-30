@@ -548,7 +548,6 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
   //get Handles to SimTracks and SimHits
   edm::Handle<edm::SimTrackContainer> SimTk;
   if (doMC_) iEvent.getByToken(tok_simTk_,SimTk);
-  edm::SimTrackContainer::const_iterator simTrkItr;
 
   edm::Handle<edm::SimVertexContainer> SimVtx;
   if (doMC_) iEvent.getByToken(tok_simVtx_,SimVtx);

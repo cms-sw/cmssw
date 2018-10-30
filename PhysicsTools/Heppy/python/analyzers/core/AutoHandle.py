@@ -1,3 +1,4 @@
+from __future__ import print_function
 #ROOTTOOLS
 from DataFormats.FWLite import Events, Handle
         
@@ -48,7 +49,7 @@ class AutoHandle( Handle, object ):
             if not self.mayFail and self.fallbackLabel == None:
                 if self.autoDisable : # if auto disable we disable at first failure
                    self.disabled=True
-                   print "Disabling as there is no fallback ",self.label,self.type,"at first failure"
+                   print("Disabling as there is no fallback ",self.label,self.type,"at first failure")
                 raise Exception(errstr)
             if self.fallbackLabel != None:
                 try:
@@ -66,12 +67,12 @@ class AutoHandle( Handle, object ):
                     if not self.mayFail:
                         if self.autoDisable : # if auto disable we disable at first failure
                             self.disabled=True
-                            print "Disabling after fallback ",self.label,self.type,"at first failure"
+                            print("Disabling after fallback ",self.label,self.type,"at first failure")
                         raise Exception(errstr)
         if not self.isValid() :
             if self.autoDisable : # if auto disable we disable at first failure
                  self.disabled=True
-                 print "Disabling ",self.label,self.type,"at first failure"
+                 print("Disabling ",self.label,self.type,"at first failure")
                  return
 
 

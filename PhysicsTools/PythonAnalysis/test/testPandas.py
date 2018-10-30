@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as pyplot
@@ -25,32 +26,32 @@ names = ['Bob','Jessica','Mary','John','Mel']
 births = [968, 155, 77, 578, 973]
 
 BabyDataSet = list(zip(names,births))
-print BabyDataSet
+print(BabyDataSet)
 
 df = pd.DataFrame(data = BabyDataSet, columns=['Names', 'Births'])
-print df
+print(df)
 
 df.to_csv('births1880.csv',index=False,header=False)
 
 Location = './births1880.csv'
 df = pd.read_csv(Location)
 
-print df
+print(df)
 
 df = pd.read_csv(Location, names=['Names','Births'])
-print df
+print(df)
 
-print df.dtypes
+print(df.dtypes)
 
 # Check data type of Births column
-print df.Births.dtype
+print(df.Births.dtype)
 
 # Method 1:
 Sorted = df.sort_values(['Births'], ascending=False)
-print Sorted.head(1)
+print(Sorted.head(1))
 
 # Method 2:
-print df['Births'].max()
+print(df['Births'].max())
 
 # Create graph
 df['Births'].plot()
@@ -69,7 +70,7 @@ pyplot.annotate(Text, xy=(1, MaxValue), xytext=(8, 0),
                  xycoords=('axes fraction', 'data'), textcoords='offset points')
 
 print("The most popular name")
-print df[df['Births'] == df['Births'].max()]
+print(df[df['Births'] == df['Births'].max()])
 
 
 

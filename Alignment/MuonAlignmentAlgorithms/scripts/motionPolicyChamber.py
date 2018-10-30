@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import os, sys, optparse, math, copy
 from Alignment.MuonAlignment.geometryXMLparser import MuonGeometry, dtorder, cscorder
 
@@ -8,7 +9,7 @@ for i in range(len(copyargs)):
     if copyargs[i] == "":
         copyargs[i] = "\"\""
 commandline = " ".join(copyargs)
-print commandline
+print(commandline)
 
 prog = sys.argv[0]
 
@@ -31,7 +32,7 @@ Options:
 """ % vars()
 
 if len(sys.argv) < 5:
-  print "Too few arguments.\n\n"+usage
+  print("Too few arguments.\n\n"+usage)
   sys.exit()
 
 parser=optparse.OptionParser(usage)
@@ -71,11 +72,11 @@ if options.csc or not ( options.dt or options.csc):
   DO_CSC = True
 
 
-if not os.access(theInXML0,os.F_OK): print theInXML0,"not found!\n"
-if not os.access(theInXMLN,os.F_OK): print theInXMLN,"not found!\n"
-if not os.access(theInREPN,os.F_OK): print theInREPN,"not found!\n"
+if not os.access(theInXML0,os.F_OK): print(theInXML0,"not found!\n")
+if not os.access(theInXMLN,os.F_OK): print(theInXMLN,"not found!\n")
+if not os.access(theInREPN,os.F_OK): print(theInREPN,"not found!\n")
 if not (os.access(theInXML0,os.F_OK) and os.access(theInXMLN,os.F_OK) and os.access(theInREPN,os.F_OK)):
-  print usage
+  print(usage)
   sys.exit()
 
 geom0 = MuonGeometry(file(theInXML0))
@@ -122,7 +123,7 @@ def loopover(muSystem):
       chWasntMoved = False
     
     if g1.relativeto != g2.relativeto:
-      print "%s %s relativeto=\"%s\" versus relativeto=\"%s\"" % (muSystem, str(key), g1.relativeto, g2.relativeto)
+      print("%s %s relativeto=\"%s\" versus relativeto=\"%s\"" % (muSystem, str(key), g1.relativeto, g2.relativeto))
 
     found = False
     #r = reports[0]
@@ -132,12 +133,12 @@ def loopover(muSystem):
         rep = r
         break
     if not found:
-      if is_ch: print muSystem, str(key), "not found in the report. Continue..."
+      if is_ch: print(muSystem, str(key), "not found in the report. Continue...")
       continue
     if is_ch: nkeysr+=1
 
     if rep.status != "PASS":
-      if is_ch: print muSystem, str(key), "status is not PASS: %s   Continue..." % rep.status
+      if is_ch: print(muSystem, str(key), "status is not PASS: %s   Continue..." % rep.status)
       continue
     #print muSystem, str(key), str(ch_key)
     if is_ch: nkeyspass+=1
@@ -154,8 +155,8 @@ def loopover(muSystem):
         ok = False
         if is_ch:
           nfail_toideal += 1
-          print "Warning!!!", muSystem, str(key), \
-            "moved too much with respect to ideal: dx=%.2f mm  dy=%.2f mm  dphiy=%.2f mrad  dphiz=%.2f mrad  skipping..." % (ch_g2.x*10, ch_g2.y*10, ch_g2.phiy*1000, ch_g2.phiz*1000)
+          print("Warning!!!", muSystem, str(key), \
+            "moved too much with respect to ideal: dx=%.2f mm  dy=%.2f mm  dphiy=%.2f mrad  dphiz=%.2f mrad  skipping..." % (ch_g2.x*10, ch_g2.y*10, ch_g2.phiy*1000, ch_g2.phiz*1000))
       if is_ch and ok: nok_toideal +=1
       
       # check that movements during the final iteration were negligible
@@ -165,17 +166,17 @@ def loopover(muSystem):
           ok = False
           if is_ch:
             nfail_deltafinal += 1
-            print "Warning!!!", muSystem, str(key), \
+            print("Warning!!!", muSystem, str(key), \
               "moved too much at final iteration: dx=%.2f mm  dy=%.2f mm  dphiy=%.2f mrad  dphiz=%.2f mrad   skipping..." % \
-                (rep.deltax.value*10, rep.deltay.value*10, rep.deltaphiy.value*1000, rep.deltaphiz.value*1000)
+                (rep.deltax.value*10, rep.deltay.value*10, rep.deltaphiy.value*1000, rep.deltaphiz.value*1000))
       else:
         if abs(rep.deltax.value) > 0.03 or abs(rep.deltaphiy.value) > 0.0003 or abs(rep.deltaphiz.value) > 0.0006:
           ok = False
           if is_ch:
             nfail_deltafinal += 1
-            print "Warning!!!", muSystem, str(key), \
+            print("Warning!!!", muSystem, str(key), \
               "moved too much at final iteration: dx=%.2f mm  dphiy=%.2f mrad  dphiz=%.2f mrad   skipping..." % \
-                (rep.deltax.value*10, rep.deltaphiy.value*1000, rep.deltaphiz.value*1000)
+                (rep.deltax.value*10, rep.deltaphiy.value*1000, rep.deltaphiz.value*1000))
       if is_ch and ok: nok_deltafinal +=1
 
       # low statictics check:
@@ -183,7 +184,7 @@ def loopover(muSystem):
         ok = False
         if is_ch:
           nfail_lowstat +=1
-          print "Warning!!!", muSystem, str(key), "low statistics chamber with too big dx.error = %.2f mm   skipping..." % (rep.deltax.error*10.)
+          print("Warning!!!", muSystem, str(key), "low statistics chamber with too big dx.error = %.2f mm   skipping..." % (rep.deltax.error*10.))
       if is_ch and ok: nok_lowstat +=1
     
       # N-SIGMA MOTION POLICY CHECK
@@ -193,8 +194,8 @@ def loopover(muSystem):
         ok = False
         if is_ch:
           nfail_nsigma += 1
-          print muSystem, str(key), "not moved: xN-x0 = %.3f - %.3f = %.3f < %.3f mm" % \
-            ( ch_g2.x*10., ch_g1.x*10., (ch_g2.x-ch_g1.x)*10., theNSigma * math.sqrt ( rep.deltax.error*rep.deltax.error + 0.02*0.02 )*10.)
+          print(muSystem, str(key), "not moved: xN-x0 = %.3f - %.3f = %.3f < %.3f mm" % \
+            ( ch_g2.x*10., ch_g1.x*10., (ch_g2.x-ch_g1.x)*10., theNSigma * math.sqrt ( rep.deltax.error*rep.deltax.error + 0.02*0.02 )*10.))
 
       if ok: chWasntMoved = False
     
@@ -204,7 +205,7 @@ def loopover(muSystem):
     # MOTION
     if is_ch:
       movedChamberKeys.append(ch_key)
-      print muSystem, str(key), "moved!"
+      print(muSystem, str(key), "moved!")
       nmoved+=1
     #move this chamber/superlayer/layer:
     if muSystem == "DT":
@@ -214,7 +215,7 @@ def loopover(muSystem):
     
   nnotmoved = nkeys - nmoved
   nsig = int(theNSigma)
-  print """
+  print("""
 %(muSystem)s REPORT for  %(nsig)d sigma policy:
 Cumulative counters:
   %(nkeys)d\t chambers in geometry
@@ -231,7 +232,7 @@ Not moved counters:
     %(nfail_deltafinal)d\t big deltas during final iteration
     %(nfail_lowstat)d\t low statistics (or big deltax.error)
     %(nfail_nsigma)d\t |x_final - x_initial| < nsigma
-""" % vars()
+""" % vars())
 
 if DO_DT: loopover("DT")
 if DO_CSC: loopover("CSC")

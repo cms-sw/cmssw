@@ -1,3 +1,4 @@
+from __future__ import print_function
 from array import array
 from copy import copy
 from copy import deepcopy
@@ -174,7 +175,7 @@ class HipPyOptionParser:
                dtype=int(val)
                self.datatype=dtype
             except ValueError:
-               print "Data type is not an integer"
+               print("Data type is not an integer")
          # Get lumi json file
          elif key=="lumilist":
             self.LumiJSON = LumiList.LumiList(filename = val).getVLuminosityBlockRange()
@@ -191,7 +192,7 @@ class HipPyOptionParser:
                fval=float(val)
                self.overallweight=fval
             except ValueError:
-               print "Overall weight is not a float"
+               print("Overall weight is not a float")
          # Get uniform eta formula. Turns reweighting on
          elif key=="uniformetaformula":
             self.uniformetaformula=val

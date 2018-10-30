@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 import os
@@ -33,35 +34,35 @@ def L1TTurnOffUnpackStage2GtGmtAndCalo(process):
     return process
 
 def L1TStage1DigisSummary(process):
-    print "L1T INFO:  will dump a summary of unpacked Stage1 content to screen."
+    print("L1T INFO:  will dump a summary of unpacked Stage1 content to screen.")
     process.load('L1Trigger.L1TCommon.l1tSummaryStage1Digis_cfi')
     process.l1tstage1summary = cms.Path(process.l1tSummaryStage1Digis)
     process.schedule.append(process.l1tstage1summary)
     return process
 
 def L1TStage2DigisSummary(process):
-    print "L1T INFO:  will dump a summary of unpacked Stage2 content to screen."
+    print("L1T INFO:  will dump a summary of unpacked Stage2 content to screen.")
     process.load('L1Trigger.L1TCommon.l1tSummaryStage2Digis_cfi')
     process.l1tstage2summary = cms.Path(process.l1tSummaryStage2Digis)
     process.schedule.append(process.l1tstage2summary)
     return process
 
 def L1TStage1SimDigisSummary(process):
-    print "L1T INFO:  will dump a summary of simulated Stage1 content to screen."
+    print("L1T INFO:  will dump a summary of simulated Stage1 content to screen.")
     process.load('L1Trigger.L1TCommon.l1tSummaryStage1SimDigis_cfi')
     process.l1tsimstage1summary = cms.Path(process.l1tSummaryStage1SimDigis)
     process.schedule.append(process.l1tsimstage1summary)
     return process
 
 def L1TStage2SimDigisSummary(process):
-    print "L1T INFO:  will dump a summary of simulated Stage2 content to screen."
+    print("L1T INFO:  will dump a summary of simulated Stage2 content to screen.")
     process.load('L1Trigger.L1TCommon.l1tSummaryStage2SimDigis_cfi')
     process.l1tsimstage2summary = cms.Path(process.l1tSummaryStage2SimDigis)
     process.schedule.append(process.l1tsimstage2summary)
     return process
 
 def L1TGlobalDigisSummary(process):
-    print "L1T INFO:  will dump a summary of unpacked L1T Global output to screen."
+    print("L1T INFO:  will dump a summary of unpacked L1T Global output to screen.")
     process.l1tGlobalSummary = cms.EDAnalyzer(
         'L1TGlobalSummary',
         AlgInputTag = cms.InputTag("gtStage2Digis"),
@@ -80,7 +81,7 @@ def L1TGlobalMenuXML(process):
     return process
 
 def L1TGlobalSimDigisSummary(process):
-    print "L1T INFO:  will dump a summary of simulated L1T Global output to screen."
+    print("L1T INFO:  will dump a summary of simulated L1T Global output to screen.")
     process.l1tSimGlobalSummary = cms.EDAnalyzer(
         'L1TGlobalSummary',
         AlgInputTag = cms.InputTag("simGtStage2Digis"),
@@ -103,8 +104,8 @@ def L1TAddInfoOutput(process):
 
 
 def L1TAddDebugOutput(process):
-    print "L1T INFO:  sending debugging ouput to file l1tdebug.log"
-    print "L1T INFO:  add <flags CXXFLAGS=\"-g -D=EDM_ML_DEBUG\"/> in BuildFile.xml of any package you want to debug..."
+    print("L1T INFO:  sending debugging ouput to file l1tdebug.log")
+    print("L1T INFO:  add <flags CXXFLAGS=\"-g -D=EDM_ML_DEBUG\"/> in BuildFile.xml of any package you want to debug...")
     process.MessageLogger = cms.Service(
         "MessageLogger",
         destinations = cms.untracked.vstring('l1tdebug','cerr'),
@@ -115,7 +116,7 @@ def L1TAddDebugOutput(process):
     return process
 
 def L1TDumpEventData(process):
-    print "L1T INFO:  adding EventContentAnalyzer to process schedule"
+    print("L1T INFO:  adding EventContentAnalyzer to process schedule")
     process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
     process.l1tdumpevent = cms.Path(process.dumpED)
     process.schedule.append(process.l1tdumpevent)
@@ -128,7 +129,7 @@ def L1TDumpEventSummary(process):
     return process
 
 def L1TStage2ComparisonRAWvsEMU(process):
-    print "L1T INFO:  will dump a comparison of unpacked vs emulated Stage2 content to screen."
+    print("L1T INFO:  will dump a comparison of unpacked vs emulated Stage2 content to screen.")
     process.load('L1Trigger.L1TCommon.l1tComparisonStage2RAWvsEMU_cfi')
     process.l1tstage2comparison = cms.Path(process.l1tComparisonStage2RAWvsEMU)
     process.schedule.append(process.l1tstage2comparison)
@@ -136,7 +137,7 @@ def L1TStage2ComparisonRAWvsEMU(process):
 
 
 def L1TGtStage2ComparisonRAWvsEMU(process):
-    print "L1T INFO:  will dump a comparison of unpacked vs emulated GT Stage2 content to screen."
+    print("L1T INFO:  will dump a comparison of unpacked vs emulated GT Stage2 content to screen.")
     process.load('L1Trigger.L1TCommon.l1tComparisonGtStage2RAWvsEMU_cfi')
     process.l1tgtstage2comparison = cms.Path(process.l1tComparisonGtStage2RAWvsEMU)
     process.schedule.append(process.l1tgtstage2comparison)

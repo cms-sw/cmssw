@@ -33,6 +33,8 @@ class DTGeometry : public TrackingGeometry {
     /// Destructor
     ~DTGeometry() override;
 
+    void clear();
+
     //---- Base class' interface 
 
     // Return a vector of all det types
@@ -86,6 +88,7 @@ class DTGeometry : public TrackingGeometry {
 
     friend class GeometryAligner;
 
+    void deallocate();
 
     /// Add a DTChamber to Geometry
     void add(DTChamber* ch);

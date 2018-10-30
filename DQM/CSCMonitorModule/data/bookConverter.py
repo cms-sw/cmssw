@@ -1,3 +1,4 @@
+from __future__ import print_function
 import xml.dom.minidom as dom
 import sys, os, optparse
 
@@ -14,7 +15,7 @@ class OptionParser(optparse.OptionParser):
     self.add_option("--xsd", action="store_true", dest="xsd", help="Create XML Schema fragment")
 
 def read_data():
-  print "Reading histogram file"
+  print("Reading histogram file")
   n = 0
   histos = srcdoc.getElementsByTagName("Histogram")
   for histo in histos:
@@ -74,9 +75,9 @@ def create_xsd():
 
 def create_declaration(cid):
   co = comb[cid]
-  print "Declaration to apply:", co
+  print("Declaration to apply:", co)
   for k in comb[cid]:
-    print keys[k]['name'], '=', keys[k]['value']
+    print(keys[k]['name'], '=', keys[k]['value'])
 
 def cexists(s, c):
   d = len(c)
@@ -103,7 +104,7 @@ def kpermutation(vfrom, vto, min, max):
     queue = []
 
 def compute(min, max):
-  print "Computing permutations"
+  print("Computing permutations")
   for v in kpermutation(0, len(keys), min, max):
     ci = -1
     for h in histograms:
@@ -132,7 +133,7 @@ if __name__ == "__main__":
   opts = opts.__dict__
 
   if opts['src'] in ('', None):
-    print "You must specify a valid source xml file"
+    print("You must specify a valid source xml file")
     sys.exit(0)
 
   resdoc = dom.Document()
@@ -152,26 +153,26 @@ if __name__ == "__main__":
   if opts['xsd'] != None:
 
     create_xsd()
-    print resdoc.toprettyxml()
+    print(resdoc.toprettyxml())
 
   else:
 
     for h in histograms:
       if len(h) > len_max: len_max = len(h)
       if len(h) < len_min: len_min = len(h)
-    print "Computed len: min = ", len_min, ", max = ", len_max
+    print("Computed len: min = ", len_min, ", max = ", len_max)
 
     min = 2
     if opts['min'] not in (0, None): min = opts['min']
     max = len_max
     if opts['max'] not in (0, None): max = opts['max']
-    print "Computing lens from", min, " to ", max
+    print("Computing lens from", min, " to ", max)
 
     compute(min, max)
     priorities()
 
     for pi in sorted(prior.keys()):
-      print pi, "=", prior[pi]
+      print(pi, "=", prior[pi])
 
     if opts['cid'] != None:
       create_declaration(opts['cid'])

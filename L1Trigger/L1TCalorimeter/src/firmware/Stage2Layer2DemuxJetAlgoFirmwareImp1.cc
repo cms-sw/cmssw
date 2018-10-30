@@ -26,15 +26,8 @@ inline bool operator> ( l1t::Jet& a, l1t::Jet& b )
 
 #include "L1Trigger/L1TCalorimeter/interface/BitonicSort.h"
 
-l1t::Stage2Layer2DemuxJetAlgoFirmwareImp1::Stage2Layer2DemuxJetAlgoFirmwareImp1(CaloParamsHelper* params) :
-  params_(params)
+l1t::Stage2Layer2DemuxJetAlgoFirmwareImp1::Stage2Layer2DemuxJetAlgoFirmwareImp1(CaloParamsHelper const* ) 
 {
-
-
-}
-
-
-l1t::Stage2Layer2DemuxJetAlgoFirmwareImp1::~Stage2Layer2DemuxJetAlgoFirmwareImp1() {
 
 
 }
@@ -58,7 +51,7 @@ void l1t::Stage2Layer2DemuxJetAlgoFirmwareImp1::processEvent(const std::vector<l
   // convert eta to GT coordinates
   for(auto& jet : outputJets){
 
-    int gtEt = jet.hwPt() == 0xFFFF ? 0x7FF :  jet.hwPt();
+    int gtEt = jet.hwPt() > 0x7FF ? 0x7FF :  jet.hwPt();
     int gtEta = CaloTools::gtEta(CaloTools::mpEta(jet.hwEta()));
     int gtPhi = CaloTools::gtPhi(CaloTools::mpEta(jet.hwEta()),jet.hwPhi());
     

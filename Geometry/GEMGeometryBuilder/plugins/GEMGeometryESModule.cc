@@ -32,23 +32,23 @@ GEMGeometryESModule::GEMGeometryESModule(const edm::ParameterSet & p)
 
 GEMGeometryESModule::~GEMGeometryESModule(){}
 
-std::shared_ptr<GEMGeometry>
+std::unique_ptr<GEMGeometry>
 GEMGeometryESModule::produce(const MuonGeometryRecord & record) 
 {
-  gemGeometry = std::make_shared<GEMGeometry>();
-  
+  auto gemGeometry = std::make_unique<GEMGeometry>();
+
   if( useDDD ) {
     edm::ESTransientHandle<DDCompactView> cpv;
     record.getRecord<IdealGeometryRecord>().get(cpv);
     edm::ESHandle<MuonDDDConstants> mdc;
     record.getRecord<MuonNumberingRecord>().get(mdc);
     GEMGeometryBuilderFromDDD builder;
-    builder.build(gemGeometry, &(*cpv), *mdc);
+    builder.build(*gemGeometry, &(*cpv), *mdc);
   } else {
     edm::ESHandle<RecoIdealGeometry> riggem;
     record.getRecord<GEMRecoGeometryRcd>().get(riggem);
     GEMGeometryBuilderFromCondDB builder;
-    builder.build(gemGeometry, *riggem);
+    builder.build(*gemGeometry, *riggem);
   }
   
   return gemGeometry;  

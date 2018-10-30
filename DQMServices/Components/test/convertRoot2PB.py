@@ -1,9 +1,10 @@
+from __future__ import print_function
 import sys
 import FWCore.ParameterSet.Config as cms
 
-print len(sys.argv)
+print(len(sys.argv))
 if len(sys.argv) < 3:
-    print 'Error: expecting filename to be converted'
+    print('Error: expecting filename to be converted')
     sys.exit(1)
 filename = sys.argv[2].split('.root')[0]
 

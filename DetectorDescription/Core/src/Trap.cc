@@ -1,14 +1,14 @@
 #include "DetectorDescription/Core/src/Trap.h"
+#include "DetectorDescription/Core/interface/DDUnits.h"
 
 #include <cmath>
 #include <vector>
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DetectorDescription/Core/src/Solid.h"
 
 using std::sqrt;
+using namespace dd::operators;
 
 DDI::Trap::Trap( double pDz, 
                  double pTheta,
@@ -35,17 +35,17 @@ DDI::Trap::Trap( double pDz,
 
 void DDI::Trap::stream(std::ostream & os) const
 {
-  os << " dz=" << p_[0]/cm
-     << " theta=" << p_[1]/deg
-     << " phi=" << p_[2]/deg
-     << " dy1=" << p_[3]/cm
-     << " dx1=" << p_[4]/cm
-     << " dx2=" << p_[5]/cm
-     << " alpha1=" << p_[6]/deg
-     << " dy2=" << p_[7]/cm
-     << " dx3=" << p_[8]/cm
-     << " dx4=" << p_[9]/cm
-     << " alpha2=" << p_[10]/deg;
+  os << " dz=" << CONVERT_TO( p_[0], cm )
+     << " theta=" << CONVERT_TO( p_[1], deg )
+     << " phi=" << CONVERT_TO( p_[2], deg )
+     << " dy1=" << CONVERT_TO( p_[3], cm )
+     << " dx1=" << CONVERT_TO( p_[4], cm )
+     << " dx2=" << CONVERT_TO( p_[5], cm )
+     << " alpha1=" << CONVERT_TO( p_[6], deg )
+     << " dy2=" << CONVERT_TO( p_[7], cm )
+     << " dx3=" << CONVERT_TO( p_[8], cm )
+     << " dx4=" << CONVERT_TO( p_[9], cm )
+     << " alpha2=" << CONVERT_TO( p_[10], deg );
 }
 
 double DDI::Trap::volume() const

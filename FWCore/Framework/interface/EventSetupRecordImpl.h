@@ -82,7 +82,7 @@ namespace edm {
       class EventSetupRecordImpl {
 
         friend class EventSetupRecord;
-        
+
       public:
          EventSetupRecordImpl(const EventSetupRecordKey& iKey);
 
@@ -177,7 +177,7 @@ namespace edm {
             void const* pValue = this->getFromProxy(dataKey, iDesc, iTransientAccessOnly);
             if(nullptr == pValue) {
               whyFailedFactory =
-                makeESHandleExceptionFactory([=]()->std::exception_ptr {
+                makeESHandleExceptionFactory([=] {
                     NoProxyException<DataT> ex(this->key(), dataKey);
                     return std::make_exception_ptr(ex);
                 });

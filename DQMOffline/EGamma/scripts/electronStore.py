@@ -23,6 +23,7 @@
 #=========================================================================
 
 
+from __future__ import print_function
 import os, sys, datetime, shutil, optparse
 
 
@@ -31,11 +32,11 @@ import os, sys, datetime, shutil, optparse
 #============================================
 
 def mysystem(command,apply=1):
-  print command
+  print(command)
   if apply==1: return os.system(command)
   elif apply==0:  return 0
   else:
-    print '[electronStore.py] UNSUPPORTED ARGUMENT VALUE FOR mysystem(,apply):',apply
+    print('[electronStore.py] UNSUPPORTED ARGUMENT VALUE FOR mysystem(,apply):',apply)
     exit(1)
   
 
@@ -78,7 +79,7 @@ if __name__ == "__main__":
   (options, args) = parser.parse_args()
   
   if len(args)<2:
-    print "[electronStore.py] I NEED AT LEAST TWO ARGUMENTS."
+    print("[electronStore.py] I NEED AT LEAST TWO ARGUMENTS.")
     exit(2)
   store_file = args.pop(0)
   store_dir = args.pop()
@@ -102,13 +103,13 @@ if __name__ == "__main__":
   #============================================
 
   if os.path.isfile(store_file)==True :
-    print "STORE_FILE =",store_file
+    print("STORE_FILE =",store_file)
   else :
-    print "[electronStore.py] FILE DOES NOT EXIST :",store_file
+    print("[electronStore.py] FILE DOES NOT EXIST :",store_file)
     exit(3)
     
   if ( store_logs != '' ) :
-    print "STORE_LOGS =",store_logs
+    print("STORE_LOGS =",store_logs)
 
 
   #============================================
@@ -117,7 +118,7 @@ if __name__ == "__main__":
   
   output_file = store_dir+'/'+store_file
   if ( options.force==False and os.path.isfile(output_file)==True ) :
-    print "[electronStore.py] ERROR: "+store_file+" ALREADY STORED IN "+store_dir+" !"
+    print("[electronStore.py] ERROR: "+store_file+" ALREADY STORED IN "+store_dir+" !")
     exit(4)
 
 
@@ -153,11 +154,11 @@ if __name__ == "__main__":
     links.append('<a href="'+store_url+'/'+config+'.py">'+config+'.py</a>')
 
   comment_file = open(store_dir+'/'+store_file+'.comment','w')
-  print >>comment_file, 'The <a href="'+store_url+'/'+store_file+'">'+options.release+' histograms</a>',
+  print('The <a href="'+store_url+'/'+store_file+'">'+options.release+' histograms</a>', end=' ', file=comment_file)
   if (options.message!=''):
-    print >>comment_file, ' ('+options.message+')',
-  print >>comment_file, ' have been prepared with those analyzers and configurations: '+', '.join(links)+'.',
-  print >>comment_file
+    print(' ('+options.message+')', end=' ', file=comment_file)
+  print(' have been prepared with those analyzers and configurations: '+', '.join(links)+'.', end=' ', file=comment_file)
+  print(file=comment_file)
   comment_file.close()
   
 

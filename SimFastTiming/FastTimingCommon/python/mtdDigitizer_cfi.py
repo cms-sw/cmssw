@@ -14,6 +14,7 @@ _barrel_MTDDigitizer = cms.PSet(
         PhotonDetectionEff       = cms.double(0.20),
         ),
     ElectronicsSimulation = cms.PSet(
+        bxTime                     = cms.double(25),    # [ns] 
         ScintillatorRiseTime       = cms.double(1.1),   # [ns]
         ScintillatorDecayTime      = cms.double(40.),   # [ns]
         ChannelTimeOffset          = cms.double(0.),    # [ns]
@@ -26,6 +27,7 @@ _barrel_MTDDigitizer = cms.PSet(
         SinglePhotonTimeResolution = cms.double(0.060), # [ns]
         SigmaElectronicNoise       = cms.double(1.),    # [p.e.]
         SigmaClock                 = cms.double(0.015), # [ns]
+        CorrelationCoefficient     = cms.double(1.),
         Npe_to_pC                  = cms.double(0.016), # [pC] 
         Npe_to_V                   = cms.double(0.0064),# [V] 
 
@@ -53,16 +55,18 @@ _endcap_MTDDigitizer = cms.PSet(
         meVPerMIP         = cms.double(0.085), # from HGCal
         ),
     ElectronicsSimulation = cms.PSet(
+        bxTime             = cms.double(25),
+        etaResolution      = cms.string("0.03+0.0025*x"), # This is just a dummy dependence on eta.
         # n bits for the ADC 
-        adcNbits          = cms.uint32(12),
+        adcNbits           = cms.uint32(12),
         # n bits for the TDC
-        tdcNbits          = cms.uint32(12),
+        tdcNbits           = cms.uint32(12),
         # ADC saturation
         adcSaturation_MIP  = cms.double(102),
         # for different thickness
         adcThreshold_MIP   = cms.double(0.025),
         # LSB for time of arrival estimate from TDC in ns
-        toaLSB_ns         = cms.double(0.005),
+        toaLSB_ns          = cms.double(0.005),
         )
     )
 

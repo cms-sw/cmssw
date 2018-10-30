@@ -36,12 +36,10 @@ private:
 			    std::vector<int> &dins);
   void testFlexiGeomHF(CaloSubdetectorGeometry* geom);
 
-  edm::ParameterSet ps0_;
   bool              useOld_;
 };
 
-HcalGeometryTester::HcalGeometryTester( const edm::ParameterSet& iConfig ) :
-  ps0_(iConfig) {
+HcalGeometryTester::HcalGeometryTester( const edm::ParameterSet& iConfig ) {
   useOld_ = iConfig.getParameter<bool>( "UseOldLoader" );
 }
 
@@ -56,10 +54,10 @@ void HcalGeometryTester::analyze(const edm::Event& /*iEvent*/,
   const HcalTopology topology = (*topologyHandle);
   CaloSubdetectorGeometry* geom(nullptr);
   if (useOld_) {
-    HcalHardcodeGeometryLoader m_loader(ps0_);
+    HcalHardcodeGeometryLoader m_loader;
     geom = m_loader.load(topology);
   } else {
-    HcalFlexiHardcodeGeometryLoader m_loader(ps0_);
+    HcalFlexiHardcodeGeometryLoader m_loader;
     geom = m_loader.load(topology, hcons);
   }
 
@@ -168,7 +166,7 @@ void HcalGeometryTester::testTriggerGeometry(const HcalTopology& topology) {
   HcalDetId forwardDet2(HcalForward, 29, 71, 2);
   HcalDetId forwardDet3(HcalForward, 40, 71, 1);
 
-  typedef std::vector<HcalTrigTowerDetId> TowerDets;
+  using TowerDets = std::vector<HcalTrigTowerDetId>;
   if (topology.valid(barrelDet)) {
     TowerDets barrelTowers = trigTowers.towerIds(barrelDet);
     std::cout << "Trigger Tower Size: Barrel " << barrelTowers.size()

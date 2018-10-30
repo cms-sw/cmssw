@@ -19,12 +19,15 @@ is the DataBlock.
 
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Framework/interface/Principal.h"
 
 namespace edm {
 
   class HistoryAppender;
+  class MergeableRunProductProcesses;
+  class MergeableRunProductMetadata;
   class ModuleCallingContext;
 
   class RunPrincipal : public Principal {
@@ -38,8 +41,9 @@ namespace edm {
         ProcessConfiguration const& pc,
         HistoryAppender* historyAppender,
         unsigned int iRunIndex,
-        bool isForPrimaryProcess=true);
-    ~RunPrincipal() override {}
+        bool isForPrimaryProcess=true,
+        MergeableRunProductProcesses const* mergeableRunProductProcesses = nullptr);
+    ~RunPrincipal() override;
 
     void fillRunPrincipal(ProcessHistoryRegistry const& processHistoryRegistry, DelayedReader* reader = nullptr);
 
@@ -93,6 +97,10 @@ namespace edm {
     void put(ProductResolverIndex index,
              std::unique_ptr<WrapperBase> edp) const;
 
+    MergeableRunProductMetadata* mergeableRunProductMetadata() {return mergeableRunProductMetadataPtr_.get();}
+
+    void preReadFile();
+
   private:
 
     unsigned int transitionIndex_() const override;
@@ -100,6 +108,11 @@ namespace edm {
     edm::propagate_const<std::shared_ptr<RunAuxiliary>> aux_;
     ProcessHistoryID m_reducedHistoryID;
     RunIndex index_;
+
+    // For the primary input RunPrincipals created by the EventProcessor,
+    // there should be one MergeableRunProductMetadata object created
+    // per concurrent run. In all other cases, this should just be null.
+    edm::propagate_const<std::unique_ptr<MergeableRunProductMetadata>> mergeableRunProductMetadataPtr_;
   };
 }
 #endif

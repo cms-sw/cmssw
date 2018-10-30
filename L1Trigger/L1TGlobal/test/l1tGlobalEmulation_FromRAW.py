@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Auto generated configuration file
 # using: 
 # Revision: 1.19 
@@ -187,7 +188,7 @@ process.TriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25nsStage1_v6_uGT_v2a
 #process.TriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25nsStage1_v6_uGT_v3.xml'
 process.TriggerMenuXml.newGrammar = cms.bool(options.newXML)
 if(options.newXML):
-   print "Using new XML Grammar "
+   print("Using new XML Grammar ")
    #process.TriggerMenuXml.DefXmlFile = 'L1Menu_CollisionsHeavyIons2015_v4_uGT_v2.xml'
    #process.TriggerMenuXml.DefXmlFile = 'MuonTest.xml'
    process.TriggerMenuXml.DefXmlFile = 'test_ext.xml'

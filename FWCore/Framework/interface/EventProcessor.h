@@ -14,6 +14,7 @@ configured in the user's main() function, and is set running.
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/InputSource.h"
+#include "FWCore/Framework/interface/MergeableRunProductProcesses.h"
 #include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Framework/src/PrincipalCache.h"
@@ -44,6 +45,7 @@ namespace edm {
 
   class ExceptionToActionTable;
   class BranchIDListHelper;
+  class MergeableRunProductMetadata;
   class ThinnedAssociationsHelper;
   class EDLooperBase;
   class HistoryAppender;
@@ -72,12 +74,12 @@ namespace edm {
     enum StatusCode { epSuccess=0, epException=1, epOther=2, epSignal=3,
       epInputComplete=4, epTimedOut=5, epCountComplete=6 };
 
-    // The input string 'config' contains the entire contents of a  configuration file.
+    // The input 'parameterSet' contains the entire contents of a  configuration file.
     // Also allows the attachement of pre-existing services specified  by 'token', and
     // the specification of services by name only (defaultServices and forcedServices).
-    // 'defaultServices' are overridden by 'config'.
-    // 'forcedServices' the 'config'.
-    explicit EventProcessor(std::string const& config,
+    // 'defaultServices' are overridden by 'parameterSet'.
+    // 'forcedServices' the 'parameterSet'.
+    explicit EventProcessor(std::unique_ptr<ParameterSet> parameterSet,
                             ServiceToken const& token = ServiceToken(),
                             serviceregistry::ServiceLegacy = serviceregistry::kOverlapIsError,
                             std::vector<std::string> const& defaultServices = std::vector<std::string>(),
@@ -85,16 +87,13 @@ namespace edm {
 
     // Same as previous constructor, but without a 'token'.  Token will be defaulted.
 
-    EventProcessor(std::string const& config,
+    EventProcessor(std::unique_ptr<ParameterSet> parameterSet,
                    std::vector<std::string> const& defaultServices,
                    std::vector<std::string> const& forcedServices = std::vector<std::string>());
 
     EventProcessor(std::shared_ptr<ProcessDesc> processDesc,
                    ServiceToken const& token,
                    serviceregistry::ServiceLegacy legacy);
-
-    /// meant for unit tests
-    EventProcessor(std::string const& config, bool isPython);
 
     ~EventProcessor();
 
@@ -207,10 +206,13 @@ namespace edm {
 
     void doErrorStuff();
 
-    void beginRun(ProcessHistoryID const& phid, RunNumber_t run, bool& globalBeginSucceeded);
+    void beginRun(ProcessHistoryID const& phid, RunNumber_t run, bool& globalBeginSucceeded,
+                  bool& eventSetupForInstanceSucceeded);
     void endRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalBeginSucceeded, bool cleaningUpAfterException);
-    void endUnfinishedRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalBeginSucceeded, bool cleaningUpAfterException);
-    
+    void endUnfinishedRun(ProcessHistoryID const& phid, RunNumber_t run,
+                          bool globalBeginSucceeded, bool cleaningUpAfterException,
+                          bool eventSetupForInstanceSucceeded);
+
     InputSource::ItemType processLumis(std::shared_ptr<void> const& iRunResource);
     void endUnfinishedLumi();
     
@@ -227,7 +229,7 @@ namespace edm {
     std::pair<ProcessHistoryID,RunNumber_t> readAndMergeRun();
     void readLuminosityBlock(LuminosityBlockProcessingStatus&);
     int readAndMergeLumi(LuminosityBlockProcessingStatus&);
-    void writeRunAsync(WaitingTaskHolder, ProcessHistoryID const& phid, RunNumber_t run);
+    void writeRunAsync(WaitingTaskHolder, ProcessHistoryID const& phid, RunNumber_t run, MergeableRunProductMetadata const*);
     void deleteRunFromCache(ProcessHistoryID const& phid, RunNumber_t run);
     void writeLumiAsync(WaitingTaskHolder, std::shared_ptr<LuminosityBlockProcessingStatus> );
     void deleteLumiFromCache(LuminosityBlockProcessingStatus&);
@@ -300,6 +302,7 @@ namespace edm {
     std::shared_ptr<ProcessConfiguration const>       processConfiguration_;
     ProcessContext                                processContext_;
     PathsAndConsumesOfModules                     pathsAndConsumesOfModules_;
+    MergeableRunProductProcesses mergeableRunProductProcesses_;
     edm::propagate_const<std::unique_ptr<Schedule>> schedule_;
     std::vector<edm::SerialTaskQueue> streamQueues_;
     std::unique_ptr<edm::LimitedTaskQueue> lumiQueue_;

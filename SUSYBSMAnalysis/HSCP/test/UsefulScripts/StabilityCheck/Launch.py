@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import urllib
 import string
 import os
@@ -7,7 +8,7 @@ import sys
 import LaunchOnCondor
 import glob
 
-print 'OPTIMIZATION'
+print('OPTIMIZATION')
 FarmDirectory = "FARM"
 JobName = "HSCPStability"
 LaunchOnCondor.Jobs_RunHere = 1

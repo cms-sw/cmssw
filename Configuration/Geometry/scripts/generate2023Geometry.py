@@ -1,3 +1,4 @@
+from __future__ import print_function
 from optparse import OptionParser
 import sys, os, operator
 from pprint import pprint
@@ -18,20 +19,20 @@ def generateGeom(detectorTuple, options):
         if detectorVersion in detectorVersionDict.values():
             detectorTuple = detectorVersionDict.keys()[detectorVersionDict.values().index(detectorVersion)]
         else:
-            print "Unknown detector "+detectorVersion
+            print("Unknown detector "+detectorVersion)
             sys.exit(1)
     elif detectorTuple in detectorVersionDict.keys():
         detectorVersion = detectorVersionDict[detectorTuple]
     else:
-        if not doTest: print "Detector "+str(detectorTuple)+" not found in dictionary, using "+("default" if options.detectorVersionManual==detectorVersionDefault else "provided")+" version number "+str(detectorVersion)
+        if not doTest: print("Detector "+str(detectorTuple)+" not found in dictionary, using "+("default" if options.detectorVersionManual==detectorVersionDefault else "provided")+" version number "+str(detectorVersion))
 
     # check for deprecation
     if detectorVersion in deprecatedDets:
-        print "Error: "+detectorVersion+" is deprecated and cannot be used."
+        print("Error: "+detectorVersion+" is deprecated and cannot be used.")
         sys.exit(1)
     for subdet in detectorTuple:
         if subdet in deprecatedSubdets:
-            print "Error: "+subdet+" is deprecated and cannot be used."
+            print("Error: "+subdet+" is deprecated and cannot be used.")
             sys.exit(1)
         
     # create output files
@@ -61,7 +62,7 @@ def generateGeom(detectorTuple, options):
             simName = os.path.join(simrecoDir,simName)
             recoName = os.path.join(simrecoDir,recoName)
         if len(mvCommands)>0:
-            print "Warning: some geometry packages not checked out.\nOnce they are available, please execute the following commands manually:\n"+mvCommands
+            print("Warning: some geometry packages not checked out.\nOnce they are available, please execute the following commands manually:\n"+mvCommands)
 
     # open files
     xmlFile = open(xmlName,'w')
@@ -121,13 +122,13 @@ def generateGeom(detectorTuple, options):
             if "era" in aDict[detectorTuple[iDict]].keys():
                 eraLineItems.append(aDict[detectorTuple[iDict]]["era"])
         eraLine += ", ".join([ eraLineItem for eraLineItem in eraLineItems ])
-        print "The Era for this detector should contain:"
-        print eraLine
+        print("The Era for this detector should contain:")
+        print(eraLine)
 
         # specify GeometryConf
         if not 'Extended2023'+detectorVersion in GeometryConf.keys():
-            print "Please add this line in Configuration/StandardSequences/python/GeometryConf.py:"
-            print "    'Extended2023"+detectorVersion+"' : 'Extended2023"+detectorVersion+",Extended2023"+detectorVersion+"Reco',"
+            print("Please add this line in Configuration/StandardSequences/python/GeometryConf.py:")
+            print("    'Extended2023"+detectorVersion+"' : 'Extended2023"+detectorVersion+",Extended2023"+detectorVersion+"Reco',")
 
     errorList = []
 
@@ -168,7 +169,7 @@ if __name__ == "__main__":
             errorTmp = generateGeom(detectorTuple,options)
             errorList.extend(errorTmp)
         if len(errorList)>0:
-            print '\n'.join([anError for anError in errorList])
+            print('\n'.join([anError for anError in errorList]))
             sys.exit(1)
         else:
             sys.exit(0)

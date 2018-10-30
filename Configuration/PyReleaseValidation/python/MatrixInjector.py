@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 import json
 import os
@@ -7,7 +8,7 @@ import time
 
 def performInjectionOptionTest(opt):
     if opt.show:
-        print 'Not injecting to wmagent in --show mode. Need to run the worklfows.'
+        print('Not injecting to wmagent in --show mode. Need to run the worklfows.')
         sys.exit(-1)
     if opt.wmcontrol=='init':
         #init means it'll be in test mode
@@ -16,10 +17,10 @@ def performInjectionOptionTest(opt):
         #means the wf were created already, and we just dryRun it.
         opt.dryRun=True
     if opt.wmcontrol=='submit' and opt.nProcs==0:
-        print 'Not injecting to wmagent in -j 0 mode. Need to run the worklfows.'
+        print('Not injecting to wmagent in -j 0 mode. Need to run the worklfows.')
         sys.exit(-1)
     if opt.wmcontrol=='force':
-        print "This is an expert setting, you'd better know what you're doing"
+        print("This is an expert setting, you'd better know what you're doing")
         opt.dryRun=True
 
 def upload_to_couch_oneArg(arguments):
@@ -83,12 +84,12 @@ class MatrixInjector(object):
 
 
         if not os.getenv('WMCORE_ROOT'):
-            print '\n\twmclient is not setup properly. Will not be able to upload or submit requests.\n'
+            print('\n\twmclient is not setup properly. Will not be able to upload or submit requests.\n')
             if not self.testMode:
-                print '\n\t QUIT\n'
+                print('\n\t QUIT\n')
                 sys.exit(-18)
         else:
-            print '\n\tFound wmclient\n'
+            print('\n\tFound wmclient\n')
             
         self.defaultChain={
             "RequestType" :    "TaskChain",                    #this is how we handle relvals
@@ -222,11 +223,14 @@ class MatrixInjector(object):
             wmsplit['RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM']=1
             wmsplit['RECODR2_2018reHLT_skimMuonEG_Prompt']=1
             wmsplit['RECODR2_2018reHLT_skimCharmonium_Prompt']=1
+            wmsplit['RECODR2_2018reHLT_skimJetHT_Prompt_HEfail']=1
+            wmsplit['RECODR2_2018reHLT_skimJetHT_Prompt_BadHcalMitig']=1
             wmsplit['HLTDR2_50ns']=1
             wmsplit['HLTDR2_25ns']=1
             wmsplit['HLTDR2_2016']=1
             wmsplit['HLTDR2_2017']=1
             wmsplit['HLTDR2_2018']=1
+            wmsplit['HLTDR2_2018_BadHcalMitig']=1
             wmsplit['Hadronizer']=1
             wmsplit['DIGIUP15']=1 
             wmsplit['RECOUP15']=1 
@@ -245,18 +249,20 @@ class MatrixInjector(object):
             wmsplit['RECOUP17_PU25']=1
             wmsplit['DIGICOS_UP17']=1
             wmsplit['RECOCOS_UP17']=1
-
+            wmsplit['HYBRIDRepackHI2015VR']=1
+            wmsplit['HYBRIDZSHI2015']=1
+            wmsplit['RECOHID15']=1
                                     
             #import pprint
             #pprint.pprint(wmsplit)            
         except:
-            print "Not set up for step splitting"
+            print("Not set up for step splitting")
             wmsplit={}
 
         acqEra=False
         for (n,dir) in directories.items():
             chainDict=copy.deepcopy(self.defaultChain)
-            print "inspecting",dir
+            print("inspecting",dir)
             nextHasDSInput=None
             for (x,s) in mReader.workFlowSteps.items():
                 #x has the format (num, prefix)
@@ -290,12 +296,12 @@ class MatrixInjector(object):
                                 try:
                                     chainDict['nowmTasklist'][-1]['nowmIO']=json.loads(open('%s/%s.io'%(dir,step)).read())
                                 except:
-                                    print "Failed to find",'%s/%s.io'%(dir,step),".The workflows were probably not run on cfg not created"
+                                    print("Failed to find",'%s/%s.io'%(dir,step),".The workflows were probably not run on cfg not created")
                                     return -15
 
                                 chainDict['nowmTasklist'][-1]['PrimaryDataset']='RelVal'+s[1].split('+')[0]
                                 if not '--relval' in s[2][index]:
-                                    print 'Impossible to create task from scratch without splitting information with --relval'
+                                    print('Impossible to create task from scratch without splitting information with --relval')
                                     return -12
                                 else:
                                     arg=s[2][index].split()
@@ -312,7 +318,7 @@ class MatrixInjector(object):
                                 try:
                                     chainDict['nowmTasklist'][-1]['nowmIO']=json.loads(open('%s/%s.io'%(dir,step)).read())
                                 except:
-                                    print "Failed to find",'%s/%s.io'%(dir,step),".The workflows were probably not run on cfg not created"
+                                    print("Failed to find",'%s/%s.io'%(dir,step),".The workflows were probably not run on cfg not created")
                                     return -15
                                 chainDict['nowmTasklist'][-1]['InputDataset']=nextHasDSInput.dataSet
                                 if ('DQMHLTonRAWAOD' in step) :
@@ -330,7 +336,7 @@ class MatrixInjector(object):
                                 if '--data' in s[2][index] and nextHasDSInput.label:
                                     thisLabel+='_RelVal_%s'%nextHasDSInput.label
                                 if 'filter' in chainDict['nowmTasklist'][-1]['nowmIO']:
-                                    print "This has an input DS and a filter sequence: very likely to be the PyQuen sample"
+                                    print("This has an input DS and a filter sequence: very likely to be the PyQuen sample")
                                     processStrPrefix='PU_'
                                     setPrimaryDs = 'RelVal'+s[1].split('+')[0]
                                     if setPrimaryDs:
@@ -342,7 +348,7 @@ class MatrixInjector(object):
                                 try:
                                     chainDict['nowmTasklist'][-1]['nowmIO']=json.loads(open('%s/%s.io'%(dir,step)).read())
                                 except:
-                                    print "Failed to find",'%s/%s.io'%(dir,step),".The workflows were probably not run on cfg not created"
+                                    print("Failed to find",'%s/%s.io'%(dir,step),".The workflows were probably not run on cfg not created")
                                     return -15
                                 if splitForThisWf:
                                     chainDict['nowmTasklist'][-1]['LumisPerJob']=splitForThisWf
@@ -484,6 +490,8 @@ class MatrixInjector(object):
                     t['KeepOutput']=True
                 elif t['TaskName'] in self.keep:
                     t['KeepOutput']=True
+                if t['TaskName'].startswith('HYBRIDRepackHI2015VR'):
+                    t['KeepOutput']=False
                 t.pop('nowmIO')
                 itask+=1
                 chainDict['Task%d'%(itask)]=t
@@ -506,21 +514,21 @@ class MatrixInjector(object):
         cacheName=filePath.split('/')[-1]
         if self.testMode:
             self.count+=1
-            print '\tFake upload of',filePath,'to couch with label',labelInCouch
+            print('\tFake upload of',filePath,'to couch with label',labelInCouch)
             return self.count
         else:
             try:
                 from modules.wma import upload_to_couch,DATABASE_NAME
             except:
-                print '\n\tUnable to find wmcontrol modules. Please include it in your python path\n'
-                print '\n\t QUIT\n'
+                print('\n\tUnable to find wmcontrol modules. Please include it in your python path\n')
+                print('\n\t QUIT\n')
                 sys.exit(-16)
 
             if cacheName in self.couchCache:
-                print "Not re-uploading",filePath,"to",where,"for",label
+                print("Not re-uploading",filePath,"to",where,"for",label)
                 cacheId=self.couchCache[cacheName]
             else:
-                print "Loading",filePath,"to",where,"for",label
+                print("Loading",filePath,"to",where,"for",label)
                 ## totally fork the upload to couch to prevent cross loading of process configurations
                 pool = multiprocessing.Pool(1)
                 cacheIds = pool.map( upload_to_couch_oneArg, [(filePath,labelInCouch,self.user,self.group,where)] )
@@ -537,14 +545,14 @@ class MatrixInjector(object):
                                             str(n)+d[it]['TaskName'],
                                             d['ConfigCacheUrl']
                                             )
-                    print d[it]['ConfigCacheID']," uploaded to couchDB for",str(n),"with ID",couchID
+                    print(d[it]['ConfigCacheID']," uploaded to couchDB for",str(n),"with ID",couchID)
                     d[it]['ConfigCacheID']=couchID
                 if it =='DQMConfigCacheID':
                     couchID=self.uploadConf(d['DQMConfigCacheID'],
                                             str(n)+'harvesting',
                                             d['ConfigCacheUrl']
                                             )
-                    print d['DQMConfigCacheID'],"uploaded to couchDB for",str(n),"with ID",couchID
+                    print(d['DQMConfigCacheID'],"uploaded to couchDB for",str(n),"with ID",couchID)
                     d['DQMConfigCacheID']=couchID
                         
             
@@ -552,25 +560,25 @@ class MatrixInjector(object):
         try:
             from modules.wma import makeRequest,approveRequest
             from wmcontrol import random_sleep
-            print '\n\tFound wmcontrol\n'
+            print('\n\tFound wmcontrol\n')
         except:
-            print '\n\tUnable to find wmcontrol modules. Please include it in your python path\n'
+            print('\n\tUnable to find wmcontrol modules. Please include it in your python path\n')
             if not self.testMode:
-                print '\n\t QUIT\n'
+                print('\n\t QUIT\n')
                 sys.exit(-17)
 
         import pprint
         for (n,d) in self.chainDicts.items():
             if self.testMode:
-                print "Only viewing request",n
-                print pprint.pprint(d)
+                print("Only viewing request",n)
+                print(pprint.pprint(d))
             else:
                 #submit to wmagent each dict
-                print "For eyes before submitting",n
-                print pprint.pprint(d)
-                print "Submitting",n,"..........."
+                print("For eyes before submitting",n)
+                print(pprint.pprint(d))
+                print("Submitting",n,"...........")
                 workFlow=makeRequest(self.wmagent,d,encodeDict=True)
-                print "...........",n,"submitted"
+                print("...........",n,"submitted")
                 random_sleep()
             
 

@@ -51,7 +51,7 @@ void  SiStripCoralIface::initialize() {
 void SiStripCoralIface::doQuery(std::string queryType, const coral::TimeStamp& startTime, const coral::TimeStamp& endTime, std::vector<coral::TimeStamp> &vec_changedate, 
 				std::vector<float> &vec_actualValue, std::vector<std::string> &vec_dpname)
 {
-  std::auto_ptr<coral::IQuery> query( m_session.coralSession().schema(std::string("CMS_TRK_DCS_PVSS_COND")).newQuery());
+  std::unique_ptr<coral::IQuery> query( m_session.coralSession().schema(std::string("CMS_TRK_DCS_PVSS_COND")).newQuery());
   std::string condition;
 
   LogTrace("SiStripCoralIface") << "[SiStripCoralIface::" << __func__ << "] table to be accessed: " << queryType;
@@ -118,7 +118,7 @@ void SiStripCoralIface::doQuery(std::string queryType, const coral::TimeStamp& s
 void SiStripCoralIface::doSettingsQuery(const coral::TimeStamp& startTime, const coral::TimeStamp& endTime, std::vector<coral::TimeStamp> &vec_changedate,
 					std::vector<float> &vec_settings, std::vector<std::string> &vec_dpname, std::vector<uint32_t> &vec_dpid) 
 {
-  std::auto_ptr<coral::IQuery> query( m_session.coralSession().schema(std::string("CMS_TRK_DCS_PVSS_COND")).newQuery());
+  std::unique_ptr<coral::IQuery> query( m_session.coralSession().schema(std::string("CMS_TRK_DCS_PVSS_COND")).newQuery());
   query->addToOutputList("FWCAENCHANNEL.CHANGE_DATE","CHANGE_DATE");
   query->addToOutputList("FWCAENCHANNEL.SETTINGS_V0","VSET");
   query->addToOutputList("FWCAENCHANNEL.DPID","DPID");
@@ -157,7 +157,7 @@ void SiStripCoralIface::doSettingsQuery(const coral::TimeStamp& startTime, const
 
 void SiStripCoralIface::doNameQuery(std::vector<std::string> &vec_dpname, std::vector<uint32_t> &vec_dpid) 
 {
-  std::auto_ptr<coral::IQuery> query( m_session.coralSession().schema(std::string("CMS_TRK_DCS_PVSS_COND")).newQuery());
+  std::unique_ptr<coral::IQuery> query( m_session.coralSession().schema(std::string("CMS_TRK_DCS_PVSS_COND")).newQuery());
   query->addToOutputList("DP_NAME2ID.DPNAME","DPNAME");
   query->addToOutputList("DP_NAME2ID.ID","DPID");
   query->addToTableList("DP_NAME2ID");

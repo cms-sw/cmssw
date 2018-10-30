@@ -7,8 +7,8 @@
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-template <typename H>
-class DQMGlobalEDAnalyzer : public edm::global::EDAnalyzer<edm::RunCache<H>>
+template <typename H, typename... Args>
+class DQMGlobalEDAnalyzer : public edm::global::EDAnalyzer<edm::RunCache<H>, Args...>
 {
 private:
   std::shared_ptr<H>
@@ -31,9 +31,9 @@ private:
   dqmAnalyze(edm::Event const&, edm::EventSetup const&, H const&) const = 0;
 };
 
-template <typename H>
+template <typename H, typename... Args>
 std::shared_ptr<H>
-DQMGlobalEDAnalyzer<H>::globalBeginRun(edm::Run const& run, edm::EventSetup const& setup) const
+DQMGlobalEDAnalyzer<H, Args...>::globalBeginRun(edm::Run const& run, edm::EventSetup const& setup) const
 {
   auto h = std::make_shared<H>();
   dqmBeginRun(run, setup, *h);
@@ -46,15 +46,15 @@ DQMGlobalEDAnalyzer<H>::globalBeginRun(edm::Run const& run, edm::EventSetup cons
   return h;
 }
 
-template <typename H>
+template <typename H, typename... Args>
 void
-DQMGlobalEDAnalyzer<H>::globalEndRun(edm::Run const&, edm::EventSetup const&) const
+DQMGlobalEDAnalyzer<H, Args...>::globalEndRun(edm::Run const&, edm::EventSetup const&) const
 {
 }
 
-template <typename H>
+template <typename H, typename... Args>
 void
-DQMGlobalEDAnalyzer<H>::analyze(edm::StreamID, edm::Event const& event, edm::EventSetup const& setup) const
+DQMGlobalEDAnalyzer<H, Args...>::analyze(edm::StreamID, edm::Event const& event, edm::EventSetup const& setup) const
 {
   //auto& h = const_cast<H&>(* this->runCache(event.getRun().index()));
   auto const& h = * this->runCache(event.getRun().index());

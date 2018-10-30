@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 from FWCore.PythonUtilities.XML2Python import xml2obj
 from FWCore.PythonUtilities.LumiList   import LumiList
 from pprint import pprint
@@ -24,7 +25,7 @@ if __name__ == '__main__':
         try:
             obj = xml2obj (filename=fjr)
         except:
-            print "'%s' is not an framework job report.  Skipping." % fjr
+            print("'%s' is not an framework job report.  Skipping." % fjr)
             continue
         for inputFile in obj.InputFile:
             try: # Regular XML version, assume only one of these
@@ -51,12 +52,12 @@ if __name__ == '__main__':
                         except ValueError: # Old style handled above
                             pass
                 except:
-                    print "Run missing in '%s'.  Skipping." % fjr
+                    print("Run missing in '%s'.  Skipping." % fjr)
                 continue
 
     jsonList = LumiList (runsAndLumis = runsLumisDict)
     if options.output:
         jsonList.writeJSON (options.output)
     else:
-        print jsonList
+        print(jsonList)
 

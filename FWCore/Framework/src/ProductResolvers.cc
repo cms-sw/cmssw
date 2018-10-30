@@ -4,6 +4,7 @@
 #include "Worker.h"
 #include "UnscheduledAuxiliary.h"
 #include "UnscheduledConfigurator.h"
+#include "FWCore/Framework/interface/MergeableRunProductMetadata.h"
 #include "FWCore/Framework/interface/Principal.h"
 #include "FWCore/Framework/interface/ProductDeletedException.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
@@ -76,40 +77,84 @@ namespace edm {
   }
 
   void
-  DataManagingProductResolver::mergeProduct(std::unique_ptr<WrapperBase> iFrom) const {
+  DataManagingProductResolver::mergeProduct(std::unique_ptr<WrapperBase> iFrom, MergeableRunProductMetadata const* mergeableRunProductMetadata) const {
+
+    // if its not mergeable and the previous read failed, go ahead and use this one
+    if (status() == ProductStatus::ResolveFailed) {
+      setProduct(std::move(iFrom));
+      return;
+    }
+
     assert(status() == ProductStatus::ProductSet);
     if(not iFrom) { return;}
     
     checkType(*iFrom);
     
     auto original =getProductData().unsafe_wrapper();
-    if(original->isMergeable()) {
-      original->mergeProduct(iFrom.get());
+    if (original->isMergeable()) {
+      if (original->isPresent() != iFrom->isPresent()) {
+        throw Exception(errors::MismatchedInputFiles)
+          << "Merge of Run or Lumi product failed for branch " << branchDescription().branchName() << "\n"
+          << "Was trying to merge objects where one product had been put in the input file and the other had not been." << "\n"
+          << "The solution is to drop the branch on input. Or better do not create inconsistent files\n"
+          << "that need to be merged in the first place.\n";
+      }
+      if (original->isPresent()) {
+
+        BranchDescription const& desc = branchDescription_();
+        if (mergeableRunProductMetadata == nullptr || desc.branchType() != InRun) {
+          original->mergeProduct(iFrom.get());
+        } else {
+          MergeableRunProductMetadata::MergeDecision decision = mergeableRunProductMetadata->getMergeDecision(desc.processName());
+          if (decision == MergeableRunProductMetadata::MERGE) {
+            original->mergeProduct(iFrom.get());
+          } else if (decision == MergeableRunProductMetadata::REPLACE) {
+            // Note this swaps the content of the product where the
+            // both products branches are present and the product is
+            // also present (was put) in the branch. A module might
+            // have already gotten a pointer to the product so we
+            // keep those pointers valid. This does not call swap
+            // on the Wrapper.
+            original->swapProduct(iFrom.get());
+          }
+          // If the decision is IGNORE, do nothing
+        }
+      }
+      // If both have isPresent false, do nothing
+
     } else if(original->hasIsProductEqual()) {
-      if(!original->isProductEqual(iFrom.get())) {
-        auto const& bd = branchDescription();
-        edm::LogError("RunLumiMerging")
+      if (original->isPresent() && iFrom->isPresent()) {
+        if(!original->isProductEqual(iFrom.get())) {
+          auto const& bd = branchDescription();
+          edm::LogError("RunLumiMerging")
+            << "ProductResolver::mergeTheProduct\n"
+            << "Two run/lumi products for the same run/lumi which should be equal are not\n"
+            << "Using the first, ignoring the second\n"
+            << "className = " << bd.className() << "\n"
+            << "moduleLabel = " << bd.moduleLabel() << "\n"
+            << "instance = " << bd.productInstanceName() << "\n"
+            << "process = " << bd.processName() << "\n";
+        }
+      } else if (!original->isPresent() && iFrom->isPresent()) {
+        setProduct(std::move(iFrom));
+      }
+      // if not iFrom->isPresent(), do nothing
+    } else {
+      auto const& bd = branchDescription();
+      edm::LogWarning("RunLumiMerging")
         << "ProductResolver::mergeTheProduct\n"
-        << "Two run/lumi products for the same run/lumi which should be equal are not\n"
-        << "Using the first, ignoring the second\n"
+        << "Run/lumi product has neither a mergeProduct nor isProductEqual function\n"
+        << "Using the first, ignoring the second in merge\n"
         << "className = " << bd.className() << "\n"
         << "moduleLabel = " << bd.moduleLabel() << "\n"
         << "instance = " << bd.productInstanceName() << "\n"
         << "process = " << bd.processName() << "\n";
+      if (!original->isPresent() && iFrom->isPresent()) {
+        setProduct(std::move(iFrom));
       }
-    } else {
-      auto const& bd = branchDescription();
-      edm::LogWarning("RunLumiMerging")
-      << "ProductResolver::mergeTheProduct\n"
-      << "Run/lumi product has neither a mergeProduct nor isProductEqual function\n"
-      << "Using the first, ignoring the second in merge\n"
-      << "className = " << bd.className() << "\n"
-      << "moduleLabel = " << bd.moduleLabel() << "\n"
-      << "instance = " << bd.productInstanceName() << "\n"
-      << "process = " << bd.processName() << "\n";
+      // In other cases, do nothing
     }
   }
-  
 
   ProductResolverBase::Resolution
   InputProductResolver::resolveProduct_(Principal const& principal,
@@ -146,9 +191,10 @@ namespace edm {
     });
                               
   }
-  
+
   void
-  InputProductResolver::retrieveAndMerge_(Principal const& principal) const {
+  InputProductResolver::retrieveAndMerge_(Principal const& principal, MergeableRunProductMetadata const* mergeableRunProductMetadata) const {
+
     if(auto reader = principal.reader()) {
 
       std::unique_lock<std::recursive_mutex> guard;
@@ -159,15 +205,42 @@ namespace edm {
       //Can't use resolveProductImpl since it first checks to see
       // if the product was already retrieved and then returns if it is
       std::unique_ptr<WrapperBase> edp(reader->getProduct(branchDescription().branchID(), &principal));
-      
-      if(edp.get() != nullptr) {
-        putOrMergeProduct(std::move(edp));
-      } else if( status()== defaultStatus()) {
+
+      if (edp.get() != nullptr) {
+        if (edp->isMergeable() && branchDescription().branchType() == InRun && !edp->hasSwap()) {
+          throw Exception(errors::LogicError)
+            << "Missing definition of member function swap for branch name " << branchDescription().branchName() << "\n"
+            << "Mergeable data types written to a Run must have the swap member function defined" << "\n";
+        }
+        if (status() == defaultStatus() ||
+            status() == ProductStatus::ProductSet ||
+            (status() == ProductStatus::ResolveFailed && !branchDescription().isMergeable())) {
+          putOrMergeProduct(std::move(edp), mergeableRunProductMetadata);
+        } else { // status() == ResolveFailed && branchDescription().isMergeable()
+          throw Exception(errors::MismatchedInputFiles)
+            << "Merge of Run or Lumi product failed for branch " << branchDescription().branchName() << "\n"
+            << "The product branch was dropped in the first run or lumi fragment and present in a later one" << "\n"
+            << "The solution is to drop the branch on input. Or better do not create inconsistent files\n"
+            << "that need to be merged in the first place.\n";
+        }
+      } else if (status() == defaultStatus()) {
         setFailedStatus();
+      } else if ( status() != ProductStatus::ResolveFailed && branchDescription().isMergeable()) {
+        throw Exception(errors::MismatchedInputFiles)
+          << "Merge of Run or Lumi product failed for branch " << branchDescription().branchName() << "\n"
+          << "The product branch was present in first run or lumi fragment and dropped in a later one" << "\n"
+          << "The solution is to drop the branch on input. Or better do not create inconsistent files\n"
+          << "that need to be merged in the first place.\n";
       }
+      // Do nothing in other case. status is ResolveFailed already or
+      // it is not mergeable and the status is ProductSet
     }
   }
 
+  void
+  InputProductResolver::setMergeableRunProductMetadata_(MergeableRunProductMetadata const* mrpm) {
+    setMergeableRunProductMetadataInProductData(mrpm);
+  }
   
   void InputProductResolver::prefetchAsync_(WaitingTask* waitTask,
                                             Principal const& principal,
@@ -443,13 +516,13 @@ namespace edm {
   }
   
   void
-  DataManagingProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> prod) const {
+  DataManagingProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> prod, MergeableRunProductMetadata const* mergeableRunProductMetadata) const {
     if(not prod) {return;}
     if(status() == defaultStatus()) {
       //resolveProduct has not been called or it failed
       putProduct(std::move(prod));
     } else {
-      mergeProduct(std::move(prod));
+      mergeProduct(std::move(prod), mergeableRunProductMetadata);
     }
   }
   
@@ -521,7 +594,11 @@ namespace edm {
   void DataManagingProductResolver::setProvenance_(ProductProvenanceRetriever const* provRetriever, ProcessHistory const& ph, ProductID const& pid) {
     productData_.setProvenance(provRetriever,ph,pid);
   }
-  
+
+  void DataManagingProductResolver::setMergeableRunProductMetadataInProductData(MergeableRunProductMetadata const* mrpm) {
+    productData_.setMergeableRunProductMetadata(mrpm);
+  }
+
   void DataManagingProductResolver::setProcessHistory_(ProcessHistory const& ph) {
     productData_.setProcessHistory(ph);
   }
@@ -571,9 +648,9 @@ namespace edm {
     << "Contact a Framework developer\n";
   }
   
-  void AliasProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp) const {
+  void AliasProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp, MergeableRunProductMetadata const*) const {
     throw Exception(errors::LogicError)
-    << "AliasProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp) not implemented and should never be called.\n"
+    << "AliasProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp, MergeableRunProductMetadata const*) not implemented and should never be called.\n"
     << "Contact a Framework developer\n";
   }
   
@@ -603,9 +680,9 @@ namespace edm {
     << "Contact a Framework developer\n";
   }
   
-  void ParentProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp) const {
+  void ParentProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp, MergeableRunProductMetadata const*) const {
     throw Exception(errors::LogicError)
-    << "ParentProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp) not implemented and should never be called.\n"
+    << "ParentProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp, MergeableRunProductMetadata const*) not implemented and should never be called.\n"
     << "Contact a Framework developer\n";
   }
 
@@ -941,9 +1018,9 @@ namespace edm {
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp) const {
+  void NoProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp, MergeableRunProductMetadata const*) const {
     throw Exception(errors::LogicError)
-      << "NoProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp) not implemented and should never be called.\n"
+      << "NoProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp, MergeableRunProductMetadata const*) not implemented and should never be called.\n"
       << "Contact a Framework developer\n";
   }
 
@@ -1051,9 +1128,9 @@ namespace edm {
     << "Contact a Framework developer\n";
   }
   
-  void SingleChoiceNoProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp) const {
+  void SingleChoiceNoProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp, MergeableRunProductMetadata const*) const {
     throw Exception(errors::LogicError)
-    << "SingleChoiceNoProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp) not implemented and should never be called.\n"
+    << "SingleChoiceNoProcessProductResolver::putOrMergeProduct_(std::unique_ptr<WrapperBase> edp, MergeableRunProductMetadata const*) not implemented and should never be called.\n"
     << "Contact a Framework developer\n";
   }
   

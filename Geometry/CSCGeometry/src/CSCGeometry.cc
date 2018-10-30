@@ -19,7 +19,24 @@ CSCGeometry::CSCGeometry( bool dbgv, bool gangedstripsME1a, bool onlywiresME1a, 
 }
 
 CSCGeometry::~CSCGeometry(){
+  deallocate();
+}
 
+void CSCGeometry::clear() {
+  deallocate();
+
+  theChambers.clear();
+  theMap.clear();
+  theDetTypes.clear();
+  theDets.clear();
+  theDetUnits.clear();
+  theDetIds.clear();
+  theDetUnitIds.clear();
+  theLayers.clear();
+  specsContainer.clear();
+}
+
+void CSCGeometry::deallocate() {
   // delete all the chambers (which will delete the layers)
   for (ChamberContainer::const_iterator ich=theChambers.begin();
        ich!=theChambers.end(); ++ich) delete (*ich);
@@ -29,9 +46,7 @@ CSCGeometry::~CSCGeometry(){
 	   specsContainer.begin(); it!=specsContainer.end(); ++it) {
     delete (*it).second; // they are never shared per chamber type so should be no possible double deletion.
   }
-
-}  
-
+}
 
 void CSCGeometry::addChamber(CSCChamber* ch){
   theChambers.emplace_back(ch);

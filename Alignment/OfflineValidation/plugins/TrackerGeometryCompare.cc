@@ -3,7 +3,6 @@
 #include "CondFormats/Alignment/interface/AlignmentSurfaceDeformations.h" 
 #include "CondFormats/Alignment/interface/Definitions.h" 
 #include "CLHEP/Vector/RotationInterfaces.h" 
-#include "CondFormats/Alignment/interface/AlignmentSorter.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurveyRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurveyErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
@@ -333,9 +332,9 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 			alignmentErrors1->m_alignError.push_back(transformError);
 		}		
 		
-		// to get the right order
-		std::sort( alignments1->m_align.begin(), alignments1->m_align.end(), lessAlignmentDetId<AlignTransform>() );
-		std::sort( alignmentErrors1->m_alignError.begin(), alignmentErrors1->m_alignError.end(), lessAlignmentDetId<AlignTransformErrorExtended>() );
+		// to get the right order, sort by rawId
+		std::sort( alignments1->m_align.begin(), alignments1->m_align.end());
+		std::sort( alignmentErrors1->m_alignError.begin(), alignmentErrors1->m_alignError.end());
 	}
 	//------------------
 	Alignments* alignments2 = new Alignments();
@@ -368,9 +367,9 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 			alignmentErrors2->m_alignError.push_back(transformError); 
 		}			
 		
-		//to get the right order
-		std::sort( alignments2->m_align.begin(), alignments2->m_align.end(), lessAlignmentDetId<AlignTransform>() );
-		std::sort( alignmentErrors2->m_alignError.begin(), alignmentErrors2->m_alignError.end(), lessAlignmentDetId<AlignTransformErrorExtended>() );
+		// to get the right order, sort by rawId
+		std::sort( alignments2->m_align.begin(), alignments2->m_align.end());
+		std::sort( alignmentErrors2->m_alignError.begin(), alignmentErrors2->m_alignError.end());
 	}
 	
 	//accessing the initial geometry
@@ -645,9 +644,10 @@ void TrackerGeometryCompare::compareGeometries(Alignable* refAli, Alignable* cur
 			// 'diffAlignables' returns 'refAli - curAli' for translations and 'curAli - refAli' for rotations.
 			// The plan is to unify this at some point, but a simple change of the sign for one of them was postponed
 			// to do some further checks to understand the rotations better
-			CLHEP::Hep3Vector dR(diff[0],diff[1],diff[2]);  
+			//Updated July 2018: as requested the sign in the translations has been changed to match the one in rotations. A test was done to change the diffAlignables function and solve the issue there, but proved quite time consuming. To unify the sign convention in the least amount of time the choice was made to change the sign here.
+			CLHEP::Hep3Vector dR(-diff[0],-diff[1],-diff[2]);  
 			CLHEP::Hep3Vector dW(diff[3],diff[4],diff[5]);
-			CLHEP::Hep3Vector dRLocal(diff[6],diff[7],diff[8]);
+			CLHEP::Hep3Vector dRLocal(-diff[6],-diff[7],-diff[8]);
 			CLHEP::Hep3Vector dWLocal(diff[9],diff[10],diff[11]);
 			
 			// Translations
@@ -955,9 +955,9 @@ void TrackerGeometryCompare::surveyToTracker(AlignableTracker* ali, Alignments* 
 		alignErrors->m_alignError.push_back(transformError);
 	}
 	
-	//to get the right order
-	std::sort( alignVals->m_align.begin(), alignVals->m_align.end(), lessAlignmentDetId<AlignTransform>() );
-	std::sort( alignErrors->m_alignError.begin(), alignErrors->m_alignError.end(), lessAlignmentDetId<AlignTransformErrorExtended>() );
+	// to get the right order, sort by rawId
+	std::sort( alignVals->m_align.begin(), alignVals->m_align.end());
+	std::sort( alignErrors->m_alignError.begin(), alignErrors->m_alignError.end());
 	
 }
 

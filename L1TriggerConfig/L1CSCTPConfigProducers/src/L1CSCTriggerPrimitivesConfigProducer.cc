@@ -2,7 +2,7 @@
 //
 //   Class: L1CSCTriggerPrimitivesConfigProducer
 //
-//   Description: 
+//   Description:
 //
 //   Author: Slava Valuev
 //
@@ -25,20 +25,8 @@ L1CSCTriggerPrimitivesConfigProducer::L1CSCTriggerPrimitivesConfigProducer(const
   // Decide on which of the two sets of parameters will be used.
   // (Temporary substitute for the IOV.)
   std::string alctParamSet, clctParamSet, tmbParamSet;
-  bool isMTCC  = iConfig.getParameter<bool>("isMTCC");
-  bool isTMB07 = iConfig.getParameter<bool>("isTMB07");
-  if (isMTCC) {
-    alctParamSet = "alctParamMTCC2";
-    clctParamSet = "clctParamMTCC2";
-  }
-  else if (isTMB07) {
-    alctParamSet = "alctParamMTCC2";
-    clctParamSet = "clctParam";
-  }
-  else {
-    alctParamSet = "alctParam";
-    clctParamSet = "clctParam";
-  }
+  alctParamSet = "alctParam";
+  clctParamSet = "clctParam";
   tmbParamSet = "tmbParam";
 
   // get ALCT parameters from the config file

@@ -155,9 +155,10 @@
 #include "CondFormats/DataRecord/interface/EcalPulseCovariancesRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalPulseSymmCovariances.h"
 #include "CondFormats/DataRecord/interface/EcalPulseSymmCovariancesRcd.h"
-
 #include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
 #include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalSimPulseShape.h" 
+#include "CondFormats/DataRecord/interface/EcalSimPulseShapeRcd.h"
 
 
 REGISTER_PLUGIN(EcalPedestalsRcd,EcalCondObjectContainer<EcalPedestal>); 
@@ -184,6 +185,8 @@ REGISTER_PLUGIN(EcalClusterLocalContCorrParametersRcd,EcalFunParams);
 REGISTER_PLUGIN(EcalClusterEnergyUncertaintyParametersRcd,EcalFunParams);
 REGISTER_PLUGIN(EcalClusterEnergyCorrectionParametersRcd,EcalFunParams);
 REGISTER_PLUGIN(EcalClusterEnergyCorrectionObjectSpecificParametersRcd,EcalFunParams);
+
+REGISTER_PLUGIN(EcalSimPulseShapeRcd,EcalSimPulseShape);
 
 
 REGISTER_PLUGIN(EcalMappingElectronicsRcd,EcalCondObjectContainer<EcalMappingElement>);

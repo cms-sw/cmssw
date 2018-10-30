@@ -21,8 +21,7 @@ class HcalAlignmentEP : public edm::ESProducer {
 
 public:
 
-  typedef std::shared_ptr<Alignments>      ReturnAli    ;
-  typedef std::shared_ptr<AlignmentErrors> ReturnAliErr ;
+  using ReturnAli = std::unique_ptr<Alignments>;
 
   typedef AlignTransform::Translation Trl ;
   typedef AlignTransform::Rotation    Rot ;

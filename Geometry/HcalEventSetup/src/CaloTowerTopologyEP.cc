@@ -54,10 +54,8 @@ CaloTowerTopologyEP::produce(const HcalRecNumberingRecord& iRecord) {
   iRecord.get(hcaltopo);
 
   edm::LogInfo("HCAL") << "CaloTowerTopologyEP::produce(const HcalRecNumberingRecord& iRecord)";
-  
-  ReturnType myTopo(new CaloTowerTopology(&*hcaltopo));
 
-  return myTopo;
+  return std::make_unique<CaloTowerTopology>(&*hcaltopo);
 }
 
 

@@ -3,6 +3,7 @@
 r'''
 cmsRelvalreport.py: a script to run performance tests and produce reports in a automated way.
 '''
+from __future__ import print_function
 
 import glob,re #Used for IgProf Analyse work with IgProf Mem profile dumps
 # Configuration parameters:#############################################################
@@ -27,7 +28,7 @@ valperf=cmssw_base+"/src/Validation/Performance"
 #Set the path depending on the presence of a locally checked out version of PyReleaseValidation
 if os.path.exists(pyrelvallocal):
     RELEASE='CMSSW_BASE'
-    print "Using LOCAL version of Configuration/PyReleaseValidation instead of the RELEASE version"
+    print("Using LOCAL version of Configuration/PyReleaseValidation instead of the RELEASE version")
 elif not os.path.exists(pyrelvallocal):
     RELEASE='CMSSW_RELEASE_BASE'
     
@@ -151,9 +152,9 @@ def logger(message,level=0):
     sys.stdout.flush()
     
     if level==0:
-        print message
+        print(message)
     if level==1 and DEBUG:
-        print message    
+        print(message)    
     
     sys.stdout.flush()
 
@@ -814,7 +815,7 @@ def principal(options):
                 logger('Creating profile for command %d using %s ...' \
                                                 %(commands_counter,profiler))     
                 exit_code=performance_profile.make_profile()
-                print exit_code
+                print(exit_code)
                 logger('The exit code was %s'%exit_code)
                 exitCodeSum=exitCodeSum+exit_code #Add all exit codes into the global exitCodeSum in order to return it on cmsRelvareport.py exit.
                 logger('The exit code sum is %s'%exitCodeSum)

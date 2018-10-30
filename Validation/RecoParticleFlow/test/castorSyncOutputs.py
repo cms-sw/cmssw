@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 from optparse import OptionParser
 import sys,os, re, pprint
 
@@ -10,7 +11,7 @@ def allCastorFiles( castorDir, regexp ):
     try:
         pattern = re.compile( regexp )
     except:
-        print 'please enter a valid regular expression '
+        print('please enter a valid regular expression ')
         sys.exit(1)
 
     allFiles = os.popen("rfdir %s | awk '{print $9}'" % (castorDir))
@@ -34,7 +35,7 @@ def cleanFiles( castorDir, regexp, tolerance):
     try:
         pattern = re.compile( regexp )
     except:
-        print 'please enter a valid regular expression '
+        print('please enter a valid regular expression ')
         sys.exit(1)
 
     allFiles = os.popen("rfdir %s | awk '{print $9}'" % (castorDir))
@@ -44,21 +45,21 @@ def cleanFiles( castorDir, regexp, tolerance):
     count = 0.
 
     matchingFiles = []
-    print 'Matching files: '
+    print('Matching files: ')
     for file,size in zip( allFiles.readlines(), sizes.readlines()):
         file = file.rstrip()
         size = float(size.rstrip())
 
         m = pattern.match( file )
         if m:
-            print file
+            print(file)
             fullCastorFile = '%s/%s' % (castorDir, file)
             matchingFiles.append( (fullCastorFile, size) )
             averageSize += size
             count += 1
 
     averageSize /= count
-    print 'average file size = ',averageSize
+    print('average file size = ',averageSize)
 
     cleanFiles = []
     dirtyFiles = []
@@ -70,7 +71,7 @@ def cleanFiles( castorDir, regexp, tolerance):
             # print file, size, relDiff
             cleanFiles.append( file )
         else:
-            print 'skipping', file, ': size too small: ', size, relDiff
+            print('skipping', file, ': size too small: ', size, relDiff)
             dirtyFiles.append( file )
 
     return (cleanFiles, dirtyFiles)
@@ -83,14 +84,14 @@ def fileIndex( regexp, file ):
     try:
         numPattern = re.compile( regexp )
     except:
-        print 'fileIndex: please enter a valid regular expression '
+        print('fileIndex: please enter a valid regular expression ')
         sys.exit(1)
 
     m = numPattern.search( file )
     if m:
         return int(m.group(1))
     else:
-        print file, ': cannot find number.'
+        print(file, ': cannot find number.')
         return -1
 
 
@@ -130,11 +131,11 @@ def sync( files1, files2):
         # print 'nums: ', n1, n2, 'index: ', i1, i2
         
         if n1<n2:
-            print 'single: ', f1
+            print('single: ', f1)
             single.append(f1)
             i1 += 1
         elif n2<n1:
-                print 'single: ', f2
+                print('single: ', f2)
                 single.append(f2)
                 i2 += 1
         else:
@@ -145,7 +146,7 @@ def sync( files1, files2):
 def createTrash( trash ):
     absName = '%s/%s' % (castorDir, trash)
     out = os.system( 'rfdir %s' % absName )
-    print out
+    print(out)
     if out!=0:
         # dir does not exist
         os.system( 'rfmkdir %s' % absName )
@@ -192,10 +193,10 @@ regexp2 = args[2]
 (clean1, dirty1) = cleanFiles( castorDir, regexp1, options.cleanTolerance)
 (clean2, dirty2) = cleanFiles( castorDir, regexp2, options.cleanTolerance)
 
-print 'dirty files, 1: '
+print('dirty files, 1: ')
 pprint.pprint( dirty1 )
 
-print 'dirty files, 2: '
+print('dirty files, 2: ')
 pprint.pprint( dirty2 )
 
 if options.removeDirty:
@@ -204,7 +205,7 @@ if options.removeDirty:
     remove( absTrash, dirty1 )
     remove( absTrash, dirty2 )
 elif len(dirty1) or len(dirty2):
-    print 'to remove dirty files in both collections, run again with option -d'
+    print('to remove dirty files in both collections, run again with option -d')
 
 single = sync( clean1, clean2 )
 
@@ -213,5 +214,5 @@ if options.removeSingle:
     absTrash = createTrash( trash )
     remove( absTrash, single )
 elif len(single):
-    print 'to remove single files in both collections, run again with option -s'
+    print('to remove single files in both collections, run again with option -s')
 

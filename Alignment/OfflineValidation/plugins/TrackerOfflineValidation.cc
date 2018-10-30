@@ -191,7 +191,7 @@ private:
     template <typename T> TH1* make(const char* name,const char* title,int nBinX,double minBinX,double maxBinX,int nBinY,double minBinY,double maxBinY);
     template <typename T> TH1* make(const char* name,const char* title,int nBinX,double minBinX,double maxBinX,double minBinY,double maxBinY);  // at present not used
     
-    std::auto_ptr<TFileDirectory> tfd;
+    std::unique_ptr<TFileDirectory> tfd;
     std::string directoryString;
     const bool dqmMode;
     DQMStore* theDbe;

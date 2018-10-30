@@ -30,6 +30,18 @@ enum GlobalObject
     gtMinBiasHFP1,
     gtMinBiasHFM1,
     gtETTem,
+    gtAsymmetryEt,
+    gtAsymmetryHt,
+    gtAsymmetryEtHF,
+    gtAsymmetryHtHF,
+    gtCentrality0,
+    gtCentrality1,
+    gtCentrality2,
+    gtCentrality3,
+    gtCentrality4,
+    gtCentrality5,
+    gtCentrality6,
+    gtCentrality7,
     gtExternal,
     ObjNull
 };

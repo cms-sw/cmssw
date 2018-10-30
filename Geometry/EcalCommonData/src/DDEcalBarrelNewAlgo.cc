@@ -2862,7 +2862,7 @@ DDRotation
 DDEcalBarrelNewAlgo::myrot( const std::string&      s,
 			 const CLHEP::HepRotation& r ) const 
 {
-  return DDrot( ddname( m_idNameSpace + ":" + s ), new DDRotationMatrix( r.xx(), r.xy(), r.xz(), r.yx(), r.yy(), r.yz(), r.zx(), r.zy(), r.zz() ) ) ; 
+  return DDrot( ddname( m_idNameSpace + ":" + s ), std::make_unique<DDRotationMatrix>( r.xx(), r.xy(), r.xz(), r.yx(), r.yy(), r.yz(), r.zx(), r.zy(), r.zz() ) ) ; 
 }
 
  
@@ -2876,7 +2876,7 @@ DDName
 DDEcalBarrelNewAlgo::ddname( const std::string& s ) const
 { 
    const pair<std::string,std::string> temp ( DDSplit(s) ) ;
-   if ( temp.second == "" ) {
+   if ( temp.second.empty() ) {
      return DDName( temp.first,
 		    m_idNameSpace ) ;
    } else {

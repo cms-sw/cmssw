@@ -21,13 +21,3 @@
   <lib   name="L1TriggerCSCTriggerPrimitivesAnalyzer"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
-
-<library   file="CSCTriggerPrimitivesDQM.cc" name="CSCTriggerPrimitivesDQM">
-  <use   name="DQMServices/Core"/>
-  <use   name="CondFormats/DataRecord"/>
-  <use   name="Geometry/Records"/>
-  <use   name="SimDataFormats/GeneratorProducts"/>
-  <use   name="rootgraphics"/>
-  <lib   name="L1TriggerCSCTriggerPrimitivesAnalyzer"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>

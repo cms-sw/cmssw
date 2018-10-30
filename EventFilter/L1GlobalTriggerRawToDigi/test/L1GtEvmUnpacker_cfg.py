@@ -1,3 +1,4 @@
+from __future__ import print_function
 #
 # cfg file to unpack RAW L1 GT EVM data
  
@@ -8,10 +9,10 @@ import FWCore.ParameterSet.Config as cms
 # process
 process = cms.Process('TestL1GtEvmUnpacker')
 
-print '\n'
+print('\n')
 from L1Trigger.GlobalTriggerAnalyzer.UserOptions_cff import *
 if errorUserOptions == True :
-    print '\nError returned by UserOptions_cff\n'
+    print('\nError returned by UserOptions_cff\n')
     sys.exit()
 
 

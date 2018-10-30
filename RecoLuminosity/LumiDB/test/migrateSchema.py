@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 VERSION='2.00'
 import os,sys,array
 import coral
@@ -21,7 +22,7 @@ def main():
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     args=parser.parse_args()
     runnumber=int(args.runnumber)
-    print 'processing run ',runnumber
+    print('processing run ',runnumber)
     #runinfosvc=sessionManager.sessionManager(args.runinfo,authpath=args.authpath,debugON=args.debug)
     lumisvc=sessionManager.sessionManager(args.lumisource,authpath=args.authpath,debugON=args.debug)
     destsvc=sessionManager.sessionManager(args.connect,authpath=args.authpath,debugON=args.debug)    

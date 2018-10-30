@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 import os
 import subprocess
@@ -73,4 +74,4 @@ if __name__ == "__main__":
     try:
         theCrab.run( theCrabOptions )
     except AllInOneError as e:
-        print "crab: ", e
+        print("crab: ", e)

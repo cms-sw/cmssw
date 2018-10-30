@@ -36,7 +36,7 @@ RPCGeometryESModule::RPCGeometryESModule(const edm::ParameterSet & p){
 RPCGeometryESModule::~RPCGeometryESModule(){}
 
 
-std::shared_ptr<RPCGeometry>
+std::unique_ptr<RPCGeometry>
 RPCGeometryESModule::produce(const MuonGeometryRecord & record) {
   if(useDDD){
     edm::ESTransientHandle<DDCompactView> cpv;
@@ -44,12 +44,12 @@ RPCGeometryESModule::produce(const MuonGeometryRecord & record) {
     edm::ESHandle<MuonDDDConstants> mdc;
     record.getRecord<MuonNumberingRecord>().get(mdc);
     RPCGeometryBuilderFromDDD builder(comp11);
-    return std::shared_ptr<RPCGeometry>(builder.build(&(*cpv), *mdc));
+    return std::unique_ptr<RPCGeometry>(builder.build(&(*cpv), *mdc));
   }else{
     edm::ESHandle<RecoIdealGeometry> rigrpc;
     record.getRecord<RPCRecoGeometryRcd>().get(rigrpc);
     RPCGeometryBuilderFromCondDB builder(comp11);
-    return std::shared_ptr<RPCGeometry>(builder.build(*rigrpc));
+    return std::unique_ptr<RPCGeometry>(builder.build(*rigrpc));
   }
 
 }

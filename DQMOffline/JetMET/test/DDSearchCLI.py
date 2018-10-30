@@ -7,6 +7,7 @@
 """
 DBS data discovery command line interface
 """
+from __future__ import print_function
 
 import httplib, urllib, urllib2, types, string, os, sys
 from optparse import OptionParser
@@ -55,7 +56,7 @@ def sendMessage(host,port,dbsInst,userInput,page,limit,xml=0,case='on',iface='db
     input=urllib.quote(userInput)
     if debug:
        httplib.HTTPConnection.debuglevel = 1
-       print "Contact",host,port
+       print("Contact",host,port)
     _port=443
     if host.find("http://")!=-1:
        _port=80
@@ -87,7 +88,7 @@ def sendMessage(host,port,dbsInst,userInput,page,limit,xml=0,case='on',iface='db
     headers = { 'User-Agent':agent, 'Accept':ctypes}
     data    = urllib.urlencode(params,doseq=True)
     if  debug:
-        print url,data,headers
+        print(url,data,headers)
     req     = urllib2.Request(url, data, headers)
     data    = ""
     try:
@@ -95,8 +96,8 @@ def sendMessage(host,port,dbsInst,userInput,page,limit,xml=0,case='on',iface='db
         data = response.read()
     except urllib2.HTTPError as e:
         if e.code==201:
-           print e.headers       
-           print e.msg
+           print(e.headers)       
+           print(e.msg)
            pass
         else:
            raise e
@@ -127,7 +128,7 @@ if __name__ == "__main__":
        else:
           input=opts.input
     else:
-       print "\nUsage: %s --help"%sys.argv[0]
+       print("\nUsage: %s --help"%sys.argv[0])
        sys.exit(0)
     result = sendMessage(host,port,dbsInst,input,opts.page,opts.limit,opts.xml,opts.case,opts.iface,opts.details,opts.cff,opts.verbose)
-    print result
+    print(result)

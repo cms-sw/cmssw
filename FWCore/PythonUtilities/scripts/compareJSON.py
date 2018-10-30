@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import sys
 import optparse
 from FWCore.PythonUtilities.LumiList import LumiList
@@ -41,18 +42,18 @@ if __name__ == '__main__':
         firstOnly  = alphaList - betaList
         secondOnly = betaList  - alphaList
         if not firstOnly and not secondOnly:
-            print "Files '%s' and '%s' are the same." % (args[0], args[1])
+            print("Files '%s' and '%s' are the same." % (args[0], args[1]))
             sys.exit()
-        print "'%s'-only lumis:" % args[0]
+        print("'%s'-only lumis:" % args[0])
         if firstOnly:
-            print firstOnly
+            print(firstOnly)
         else:
-            print "None"
-        print "\n'%s'-only lumis:" % args[1]
+            print("None")
+        print("\n'%s'-only lumis:" % args[1])
         if secondOnly:
-            print secondOnly
+            print(secondOnly)
         else:
-            print "None"
+            print("None")
         sys.exit()
     
     ########################
@@ -71,5 +72,5 @@ if __name__ == '__main__':
         outputList.writeJSON (args[2])
     else:
         # print to screen
-        print outputList
+        print(outputList)
 

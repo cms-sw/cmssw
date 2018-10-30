@@ -3,6 +3,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "globals.hh"
 #include <sstream>
 
 ExceptionHandler::ExceptionHandler() 

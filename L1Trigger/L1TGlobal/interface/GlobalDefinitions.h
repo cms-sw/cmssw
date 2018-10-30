@@ -69,8 +69,19 @@ enum GtConditionType {
     TypeMinBiasHFM1,
     TypeETTem,
     TypeExternal,
-    Type2corWithOverlapRemoval
-
+    Type2corWithOverlapRemoval,
+    TypeCent0,
+    TypeCent1,
+    TypeCent2,
+    TypeCent3,
+    TypeCent4,
+    TypeCent5,
+    TypeCent6,
+    TypeCent7,
+    TypeAsymEt,
+    TypeAsymHt,
+    TypeAsymEtHF,
+    TypeAsymHtHF
 };
 
 struct GtConditionTypeStringToEnum {

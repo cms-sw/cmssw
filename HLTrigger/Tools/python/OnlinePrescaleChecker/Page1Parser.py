@@ -1,3 +1,4 @@
+from __future__ import print_function
 from HTMLParser import HTMLParser
 from urllib2 import urlopen
 import cPickle as pickle
@@ -147,7 +148,7 @@ class Page1Parser(HTMLParser):
         try:
             self.feed(req.read())
         except Exception as inst:
-            print inst
+            print(inst)
 
     def handle_starttag(self,tag,attrs):
         ValidTags = ['a','tr','td']
@@ -163,8 +164,8 @@ class Page1Parser(HTMLParser):
             elif tag == 'td':
                 self.InEntry=1
         except:
-            print tag
-            print attrs
+            print(tag)
+            print(attrs)
         
     def handle_endtag(self,tag):
         if tag =='tr':
@@ -242,13 +243,13 @@ class Page1Parser(HTMLParser):
         try:
             self.AvLumi = sum(self.LumiByLS[self.FirstLS:])/len(self.LumiByLS[self.FirstLS:])
         except ZeroDivisionError:
-            print "Cannot calculate average lumi -- something is wrong!"
-            print self.table[:10]
+            print("Cannot calculate average lumi -- something is wrong!")
+            print(self.table[:10])
             raise
 
     def ParseL1Page(self):
         for line in self.table:
-            print line
+            print(line)
             if len(line) < 9:
                 continue
             if line[1].startswith('L1_'):
@@ -337,8 +338,8 @@ class Page1Parser(HTMLParser):
                         try:
                             totalLine.append( int(hltPS)*int(l1PS) )
                         except:
-                            print hltPS
-                            print l1PS
+                            print(hltPS)
+                            print(l1PS)
                             raise
             self.TotalPrescaleTable.append(totalLine)
                     

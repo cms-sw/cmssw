@@ -8,21 +8,16 @@ siStripZeroSuppression = cms.EDProducer("SiStripZeroSuppression",
     RawDigiProducersList = cms.VInputTag( cms.InputTag('siStripDigis','VirginRaw'), 
                                           cms.InputTag('siStripDigis','ProcessedRaw'),
                                           cms.InputTag('siStripDigis','ScopeMode')),
-
-
-    DigisToMergeZS = cms.InputTag('siStripDigis','ZeroSuppressed'),
-    DigisToMergeVR = cms.InputTag('siStripVRDigis','VirginRaw'),
-                                    
+                                       #   cms.InputTag('siStripDigis','ZeroSuppressed')),
 
     storeCM = cms.bool(True), 
     fixCM= cms.bool(False),                # put -999 into CM collection for "inspected" APV
 
-    produceRawDigis = cms.bool(True),     # if mergeCollection is True, produceRawDigi is not considered
+    produceRawDigis = cms.bool(True),
     produceCalculatedBaseline = cms.bool(False),
     produceBaselinePoints = cms.bool(False),
-    storeInZScollBadAPV = cms.bool(True),
-    mergeCollections = cms.bool(False)
-    
+    storeInZScollBadAPV = cms.bool(True), # it selects if in the ZS collection the bad APVs are written. To be kept for ZS
+    produceHybridFormat = cms.bool(False)
 )
 
 # The SiStripClusters are not used anymore in phase2 tracking
@@ -33,4 +28,3 @@ phase2_tracker.toModify(siStripZeroSuppression, # FIXME
                                         cms.InputTag('simSiStripDigis','ProcessedRaw'),
                                         cms.InputTag('simSiStripDigis','ScopeMode'))
 )
-

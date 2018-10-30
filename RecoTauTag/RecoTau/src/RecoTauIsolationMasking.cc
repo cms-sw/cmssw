@@ -1,4 +1,3 @@
-#include <boost/foreach.hpp>
 #include "RecoTauTag/RecoTau/interface/RecoTauIsolationMasking.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -6,7 +5,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
 
-namespace reco { namespace tau {
+namespace reco::tau {
 
 namespace {
 class DRSorter {
@@ -36,7 +35,7 @@ class MultiTrackDRFilter {
       :deltaR_(deltaR),tracks_(trks){}
     template <typename T>
     bool operator()(const T& t) const {
-      BOOST_FOREACH(const reco::PFCandidatePtr& trk, tracks_) {
+      for(auto const& trk : tracks_) {
         if (reco::deltaR(trk->p4(), t->p4()) < deltaR_)
           return true;
       }
@@ -53,7 +52,7 @@ template<typename T>
 std::vector<reco::PFCandidatePtr> convertRefCollection(const T& coll) {
   std::vector<reco::PFCandidatePtr> output;
   output.reserve(coll.size());
-  BOOST_FOREACH(const reco::PFCandidatePtr cand, coll) {
+  for(auto const& cand : coll) {
     output.push_back(cand);
   }
   return output;
@@ -87,8 +86,7 @@ RecoTauIsolationMasking::mask(const reco::PFTau& tau) const {
   courses.push_back(&(output.h0s));
   courses.push_back(&(output.gammas));
   // Mask using each one of the tracks
-  BOOST_FOREACH(const reco::PFCandidatePtr& track,
-      tau.signalPFChargedHadrCands()) {
+  for(auto const& track : tau.signalPFChargedHadrCands()) {
     double trackerEnergy = track->energy();
     double linkedEcalEnergy = track->ecalEnergy();
     double linkedHcalEnergy = track->hcalEnergy();
@@ -108,7 +106,7 @@ RecoTauIsolationMasking::mask(const reco::PFTau& tau) const {
     //DRSorter sorter(track->p4());
     PtSorter sorter;
 
-    BOOST_FOREACH(PFCandList* course, courses) {
+    for(auto* course : courses) {
       // Sort by deltaR to the current track
       course->sort(sorter);
       PFCandList::iterator toEatIter = course->begin();
@@ -176,4 +174,4 @@ bool RecoTauIsolationMasking::inCone(const reco::PFCandidate& track,
   return -1;
 }
 
-}} // end namespace reco::tau
+} // end namespace reco::tau

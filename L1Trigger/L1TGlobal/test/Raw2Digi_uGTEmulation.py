@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Auto generated configuration file
 # using: 
 # Revision: 1.19 
@@ -99,12 +100,12 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 
 # print some debug info
-print "Job config :"
-print "maxEvents     = ", options.maxEvents
-print "skipEvents    = ", options.skipEvents
-print "dump          = ", options.dump
-print "debug         = ", options.debug
-print " "
+print("Job config :")
+print("maxEvents     = ", options.maxEvents)
+print("skipEvents    = ", options.skipEvents)
+print("dump          = ", options.dump)
+print("debug         = ", options.debug)
+print(" ")
 
 
 # dump raw data

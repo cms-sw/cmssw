@@ -1,5 +1,6 @@
 #include "FWCore/Framework/interface/Schedule.h"
 
+#include "DataFormats/Common/interface/setIsMergeable.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -33,6 +34,7 @@
 #include "FWCore/Utilities/interface/TypeID.h"
 
 
+
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
@@ -43,6 +45,9 @@
 #include <set>
 #include <exception>
 #include <sstream>
+
+#include "make_shared_noexcept_false.h"
+
 
 namespace edm {
 
@@ -80,7 +85,7 @@ namespace edm {
       bool postCalled = false;
       std::shared_ptr<TriggerResultInserter> returnValue;
       try {
-        maker::ModuleHolderT<TriggerResultInserter> holder(std::make_shared<TriggerResultInserter>(*trig_pset, iPrealloc.numberOfStreams()),static_cast<Maker const*>(nullptr));
+        maker::ModuleHolderT<TriggerResultInserter> holder(make_shared_noexcept_false<TriggerResultInserter>(*trig_pset, iPrealloc.numberOfStreams()),static_cast<Maker const*>(nullptr));
         holder.setModuleDescription(md);
         holder.registerProductsAndCallbacks(&preg);
         returnValue =holder.module();
@@ -131,7 +136,7 @@ namespace edm {
         bool postCalled = false;
 
         try {
-          maker::ModuleHolderT<T> holder(std::make_shared<T>(iPrealloc.numberOfStreams()),
+          maker::ModuleHolderT<T> holder(make_shared_noexcept_false<T>(iPrealloc.numberOfStreams()),
                                          static_cast<Maker const*>(nullptr));
           holder.setModuleDescription(md);
           holder.registerProductsAndCallbacks(&preg);
@@ -472,7 +477,7 @@ namespace edm {
     assert(0<prealloc.numberOfStreams());
     streamSchedules_.reserve(prealloc.numberOfStreams());
     for(unsigned int i=0; i<prealloc.numberOfStreams();++i) {
-      streamSchedules_.emplace_back(std::make_shared<StreamSchedule>(
+      streamSchedules_.emplace_back(make_shared_noexcept_false<StreamSchedule>(
         resultsInserter(),
         pathStatusInserters_,
         endPathStatusInserters_,
@@ -562,6 +567,10 @@ namespace edm {
     // So we must set this up before freezing.
     for (auto& c : all_output_communicators_) {
       c->selectProducts(preg, thinnedAssociationsHelper);
+    }
+
+    for(auto & product : preg.productListUpdator()) {
+      setIsMergeable(product.second);
     }
 
     {
@@ -994,9 +1003,10 @@ namespace edm {
   void Schedule::writeRunAsync(WaitingTaskHolder task,
                                RunPrincipal const& rp,
                                ProcessContext const* processContext,
-                               ActivityRegistry* activityRegistry) {
+                               ActivityRegistry* activityRegistry,
+                               MergeableRunProductMetadata const* mergeableRunProductMetadata) {
     for(auto& c: all_output_communicators_) {
-      c->writeRunAsync(task, rp, processContext, activityRegistry);
+      c->writeRunAsync(task, rp, processContext, activityRegistry, mergeableRunProductMetadata);
     }
   }
 

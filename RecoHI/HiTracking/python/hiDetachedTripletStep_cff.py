@@ -62,7 +62,7 @@ hiDetachedTripletStepTracksHitDoublets = _hitPairEDProducer.clone(
     clusterCheck = "",
     seedingLayers = "hiDetachedTripletStepSeedLayers",
     trackingRegions = "hiDetachedTripletStepTrackingRegions",
-    maxElement = 0,
+    maxElement = 50000000,
     produceIntermediateHitDoublets = True,
 )
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *

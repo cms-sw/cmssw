@@ -26,14 +26,14 @@ namespace l1t {
 
   class Stage1Layer2HFMinimumBias : public Stage1Layer2HFBitCountAlgorithm {
   public:
-    Stage1Layer2HFMinimumBias(CaloParamsHelper* params);
-    ~Stage1Layer2HFMinimumBias() override;
+    Stage1Layer2HFMinimumBias(CaloParamsHelper const* );
+    ~Stage1Layer2HFMinimumBias() override = default;
     void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::CaloEmCand> & EMCands,
 			      l1t::CaloSpare * spare) override;
 
   private:
-    CaloParamsHelper* params_;
+
   };
 
 }

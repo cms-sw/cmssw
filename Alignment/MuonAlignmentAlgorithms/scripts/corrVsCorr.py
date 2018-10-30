@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import sys, optparse
 
 copyargs = sys.argv[:]
@@ -8,7 +9,7 @@ for i in range(len(copyargs)):
   if copyargs[i] == "":             copyargs[i] = "\"\""
   if copyargs[i].find(" ") != -1:   copyargs[i] = "\"%s\"" % copyargs[i]
 commandline = " ".join(copyargs)
-print commandline
+print(commandline)
 
 prog = sys.argv[0]
 
@@ -67,7 +68,7 @@ parser.add_option("-w", "--which",
                    
 options, args = parser.parse_args(sys.argv[1:])
 
-if len(args)!=3:   print usage; sys.exit()
+if len(args)!=3:   print(usage); sys.exit()
 
 
 ### definitions of selectors:
@@ -112,8 +113,8 @@ gY = MuonGeometry(args[2])
 if options.which.count('1')>4: c1 = ROOT.TCanvas("c1","c1",1000,800)
 else: c1 = ROOT.TCanvas("c1","c1",760,800)
 
-print "corrections2D(reportsX=rx, reportsY=ry, geometry0=g0, geometryX=gX, geometryY=gY, selection=%s, pre_title_x='%s', pre_title_y='%s', which='%s' )" % ( 
-      selection, options.xlabel, options.ylabel, options.which )
+print("corrections2D(reportsX=rx, reportsY=ry, geometry0=g0, geometryX=gX, geometryY=gY, selection=%s, pre_title_x='%s', pre_title_y='%s', which='%s' )" % ( 
+      selection, options.xlabel, options.ylabel, options.which ))
 eval( "corrections2D(reportsX=rx, reportsY=ry, geometry0=g0, geometryX=gX, geometryY=gY, selection=%s, pre_title_x='%s', pre_title_y='%s', which='%s', canvas=c1 )" % ( 
       selection, options.xlabel, options.ylabel, options.which) )
 

@@ -1,5 +1,6 @@
 #include <iostream>
-#include <algorithm> 
+#include <algorithm>
+#include <utility>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -77,6 +78,17 @@ bool GenFilterInfo::mergeProduct(GenFilterInfo const &other)
   sumTotalWeights2_       += other.sumTotalWeights2_;
 
   return true;
+}
+
+void GenFilterInfo::swap(GenFilterInfo& other) {
+  std::swap(numPassPositiveEvents_, other.numPassPositiveEvents_);
+  std::swap(numPassNegativeEvents_, other.numPassNegativeEvents_);
+  std::swap(numTotalPositiveEvents_, other.numTotalPositiveEvents_);
+  std::swap(numTotalNegativeEvents_, other.numTotalNegativeEvents_);
+  std::swap(sumPassWeights_, other.sumPassWeights_);
+  std::swap(sumPassWeights2_, other.sumPassWeights2_);
+  std::swap(sumTotalWeights_, other.sumTotalWeights_);
+  std::swap(sumTotalWeights2_, other.sumTotalWeights2_);
 }
 
 double GenFilterInfo::filterEfficiency(int idwtup) const {

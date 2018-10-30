@@ -127,7 +127,7 @@ private:
    void delaySettingRecords() override;
    
    // ---------- member data --------------------------------
-   std::auto_ptr<TFile> m_file;
+   std::unique_ptr<TFile> m_file;
    fwlite::EventSetup m_es;
    std::map<edm::eventsetup::EventSetupRecordKey, fwlite::RecordID> m_keyToID;
    

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys,os,os.path,csv,coral,commands,glob
 from RecoLuminosity.LumiDB import dbUtil,lumiTime,sessionManager,nameDealer,argparse
 def getrunsInResult(schema,minrun=132440,maxrun=500000):
@@ -79,9 +80,9 @@ def execCalc(connectStr,authpath,outdir,runnum,minbias):
     command = 'lumiCalc2.py lumibyls --without-checkforupdate -c ' +connectStr+' -P '+authpath+' -r '+str(runnum)+' -o '+outdatafile+' --headerfile '+outheaderfile+' --minBiasXsec '+str(minbias)
     (status, output) = commands.getstatusoutput(command)
     if status != 0:
-        print 'empty result ',command
+        print('empty result ',command)
         return 0
-    print command
+    print(command)
     return runnum
 
 class lslumiParser(object):
@@ -101,7 +102,7 @@ class lslumiParser(object):
         try:
             hf=open(self.__headername,'rb')
         except IOError:
-            print 'failed to open file ',self.__headername
+            print('failed to open file ',self.__headername)
             return
         for line in hf:
             if "lumitype" in line:
@@ -118,7 +119,7 @@ class lslumiParser(object):
         try:
             f=open(self.__filename,'rb')
         except IOError:
-            print 'failed to open file ',self.__filename
+            print('failed to open file ',self.__filename)
             return
         freader=csv.reader(f,delimiter=',')
         idx=0
@@ -177,7 +178,7 @@ def addindb(session,datatag,normtag,lumidata,bulksize):
             nrows+=1
             committedrows+=1
             if nrows==bulksize:
-                print 'committing trg in LS chunck ',nrows
+                print('committing trg in LS chunck ',nrows)
                 db=dbUtil.dbUtil(session.nominalSchema())
                 session.transaction().start(False)
                 db.bulkInsert('HFLUMIRESULT',hfresultDefDict,bulkvalues)
@@ -185,14 +186,14 @@ def addindb(session,datatag,normtag,lumidata,bulksize):
                 nrows=0
                 bulkvalues=[]
             elif committedrows==len(lumidata):
-                print 'committing at the end '
+                print('committing at the end ')
                 db=dbUtil.dbUtil(session.nominalSchema())
                 session.transaction().start(False)
                 db.bulkInsert('HFLUMIRESULT',hfresultDefDict,bulkvalues)
                 session.transaction().commit()
                 
     except :
-        print 'error in addindb'
+        print('error in addindb')
         raise 
 if __name__ == "__main__" :
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description = "check/compute lumi for new runs in specified range",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -234,10 +235,10 @@ if __name__ == "__main__" :
                         )
     options=parser.parse_args()
     if not os.path.isdir(options.outdir) or not os.path.exists(options.outdir):
-        print '[ERROR] non-existing output dir ',options.outdir
+        print('[ERROR] non-existing output dir ',options.outdir)
         sys.exit(12)
     if not options.begrun and not options.indir:
-        print '[ERROR] must specify at least -b or -i'
+        print('[ERROR] must specify at least -b or -i')
         sys.exit(13)
     begrun=0
     if options.begrun:
@@ -247,7 +248,7 @@ if __name__ == "__main__" :
         if maxrunindir>begrun:
             begrun=maxrunindir
     if not begrun:
-        print '[ERROR] cannot find the begin run'
+        print('[ERROR] cannot find the begin run')
         sys.exit(14)
     sourcesvc=sessionManager.sessionManager(options.sourcestr,authpath=options.pth,debugON=False)
     sourcesession=sourcesvc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
@@ -270,7 +271,7 @@ if __name__ == "__main__" :
             if result:
                 processedruns.append(result)
     if len(processedruns)==0:
-        print '[INFO] no new runs found in range:',begrun,options.endrun
+        print('[INFO] no new runs found in range:',begrun,options.endrun)
     else:
         for pr in processedruns:
             lslumifilename=os.path.join(options.outdir,str(pr)+'.csv')

@@ -2,6 +2,7 @@
 #from G.Benelli and Arun Mittal
 # 2016 November 17
 #Quick script to split a large sqlite file (holding all of our Noise payloads (Run1+Run2) into a set of smaller ones.
+from __future__ import print_function
 import subprocess
 #Input IOVs:
 #Reference for the use of subprocess Popen to execute a command:
@@ -18,8 +19,8 @@ for line in subprocess.Popen("conddb --noLimit --db EcalPedestals_timestamp.db l
   if "EcalCondObjectContainer" in line:
 #    IOVs.append(line.split()[0])             #   for run based IOVs
     IOVs.append((line.split()[2].strip(')')).strip('('))             #   for timestamp based IOVs
-print IOVs
-print "There are %s IOVs!"%len(IOVs)
+print(IOVs)
+print("There are %s IOVs!"%len(IOVs))
 #Prepare the conddb_import commands template:
 #CommandTemplate="conddb_import -f sqlite:SiStripNoise_GR10_v3_offline.db -c sqlite:SiStripNoise_GR10_v3_offline_%s_%s.db -i SiStripNoise_GR10_v4_offline -t SiStripNoise_GR10_v4_offline -b %s -e %s"
 
@@ -32,16 +33,16 @@ RelevantIOVs=[(IOV,IOVs[IOVs.index(IOV)+49],IOVs[IOVs.index(IOV)+50]) for IOV in
 
 RelevantIOVs.append((RelevantIOVs[-1][2],IOVs[-1],IOVs[-1]))
 
-print RelevantIOVs
+print(RelevantIOVs)
 for i,splitIOVs in enumerate(RelevantIOVs):
   begin=splitIOVs[0]
   end=splitIOVs[1]
   upperLimit=splitIOVs[1]
-  print i,begin,end,upperLimit
+  print(i,begin,end,upperLimit)
 #  command = "conddb_import -f sqlite:EcalPedestals_tree.db -c sqlite:EcalPedestals_tree_"+str(begin)+"_"+str(end)+".db -i  EcalPedestals_laser_2016 -t EcalPedestals_laser_2016 -b "+str(begin)+" -e "+str(end)
   command = "conddb_import -f sqlite:EcalPedestals_timestamp.db -c sqlite:EcalPedestals_timestamp_"+str(begin)+"_"+str(end)+".db -i  EcalPedestals_timestamp -t EcalPedestals_timestamp -b "+str(begin)+" -e "+str(end)
-  print command
+  print(command)
 
   #Now if we want to execute it inside Python uncomment the following two lines:
   STDOUT=subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).stdout.read()
-  print STDOUT
+  print(STDOUT)

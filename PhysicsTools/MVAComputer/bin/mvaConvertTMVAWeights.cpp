@@ -35,7 +35,7 @@ static std::size_t getStreamSize(std::ifstream &in)
 static Calibration::VarProcessor*
 getCalibration(const std::string &file, const std::vector<std::string> &names)
 {
-	std::auto_ptr<Calibration::ProcExternal> calib(
+	std::unique_ptr<Calibration::ProcExternal> calib(
 					new Calibration::ProcExternal);
 
 	std::ifstream in(file.c_str(), std::ios::binary | std::ios::in);
@@ -69,7 +69,7 @@ getCalibration(const std::string &file, const std::vector<std::string> &names)
 		size += iter->size() + 1;
 	size += (size / 32) + 128;
 
-	char *buffer = 0;
+	char *buffer = nullptr;
 	try {
 		buffer = new char[size];
 		ext::omemstream os(buffer, size);
@@ -113,7 +113,7 @@ int main(int argc, char **argv)
 		names.push_back(argv[i]);
 
 	try {
-		std::auto_ptr<Calibration::VarProcessor> proc(
+		std::unique_ptr<Calibration::VarProcessor> proc(
 					getCalibration(argv[1], names));
 
 		BitSet inputVars(names.size());
@@ -128,7 +128,7 @@ int main(int argc, char **argv)
 		mva.output = names.size();
 
 		MVAComputer::writeCalibration(argv[2], &mva);
-	} catch(cms::Exception e) {
+	} catch(cms::Exception const& e) {
 		std::cerr << e.what() << std::endl;
 	}
 

@@ -83,7 +83,7 @@ SurveyPxbDicer::coord_t SurveyPxbDicer::transform(const coord_t &x, const value_
 SurveyPxbDicer::value_t SurveyPxbDicer::getParByName(const std::string &name, const std::string &par, const std::vector<edm::ParameterSet>& pars)
 {
 	std::vector<edm::ParameterSet>::const_iterator it;
-	it = std::find_if(pars.begin(), pars.end(), std::bind1st(findParByName(),name));
+	it = std::find_if(pars.begin(), pars.end(), [&name] (auto const& c){return findParByName()(name,c);});
 	if (it == pars.end()) { throw std::runtime_error("Parameter not found in SurveyPxbDicer::getParByName"); }
 	return (*it).getParameter<value_t>(par);
 }

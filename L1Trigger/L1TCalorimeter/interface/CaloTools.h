@@ -101,6 +101,9 @@ namespace l1t {
     static int gtEta(int ieta);      // GT eta scale
     static int gtPhi(int ieta, int iphi);      // GT phi scale
 
+    // integer divide for HI asymmetry 
+    static unsigned int gloriousDivision(uint32_t aNumerator, uint32_t aDenominator);
+
     // conversion methods
     static math::PtEtaPhiMLorentzVector p4Demux(l1t::L1Candidate*);
     static l1t::EGamma egP4Demux(l1t::EGamma&);
@@ -116,6 +119,9 @@ namespace l1t {
 
     static const int64_t cos_coeff[72];
     static const int64_t sin_coeff[72];
+
+    // mapping between sums in emulator and data
+    static const int emul_to_data_sum_index_map[31];
 
   private:
     // trigger tower eta boundaries

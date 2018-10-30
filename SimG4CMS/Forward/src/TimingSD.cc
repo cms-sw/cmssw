@@ -77,6 +77,7 @@ void TimingSD::Initialize(G4HCofThisEvent * HCE) {
 void TimingSD::setTimeFactor(double val)
 {
   if(val <= 0.0) { return; }
+  timeFactor = val;
 #ifdef debug
   edm::LogVerbatim("TimingSim") 
     << "TimingSD : for " << GetName()
@@ -113,7 +114,7 @@ void TimingSD::getStepInfo(const G4Step* aStep) {
   preStepPoint = aStep->GetPreStepPoint(); 
   postStepPoint= aStep->GetPostStepPoint(); 
   hitPointExit = postStepPoint->GetPosition();	
-  setToLocal(postStepPoint, hitPointExit, hitPointLocalExit);  
+  setToLocal(preStepPoint, hitPointExit, hitPointLocalExit);  
   const G4Track* newTrack = aStep->GetTrack();   
 
   // neutral particles deliver energy post step 
@@ -127,6 +128,24 @@ void TimingSD::getStepInfo(const G4Step* aStep) {
     setToLocal(preStepPoint, hitPoint, hitPointLocal);  
     tof = (float)(preStepPoint->GetGlobalTime()*invns);
   }
+
+#ifdef debug
+  double distGlobal = std::sqrt(std::pow(hitPoint.x()-hitPointExit.x(),2)+
+                                std::pow(hitPoint.y()-hitPointExit.y(),2)+
+                                std::pow(hitPoint.z()-hitPointExit.z(),2));
+  double distLocal = std::sqrt(std::pow(hitPointLocal.x()-hitPointLocalExit.x(),2)+
+                                std::pow(hitPointLocal.y()-hitPointLocalExit.y(),2)+
+                                std::pow(hitPointLocal.z()-hitPointLocalExit.z(),2));
+  LogDebug("TimingSim") << "TimingSD:" 
+                        << "\n Global entry point: " << hitPoint 
+                        << "\n Global exit  point: " << hitPointExit
+                        << "\n Global step length: " << distGlobal
+                        << "\n Local  entry point: " << hitPointLocal 
+                        << "\n Local  exit  point: " << hitPointLocalExit 
+                        << "\n Local  step length: " << distLocal;
+  if ( std::fabs(distGlobal - distLocal) > 1.e-6 ) { LogDebug("TimingSim") << "DIFFERENCE IN DISTANCE \n"; }
+#endif
+
 
   incidentEnergy = preStepPoint->GetKineticEnergy();
 
@@ -228,12 +247,12 @@ void TimingSD::storeHit(BscG4Hit* hit){
 void TimingSD::createNewHit(const G4Step* aStep) {
 
 #ifdef debug
-  const G4VPhysicsVolume* currentPV = preStepPoint->GetPhysicalVolume();
+  const G4VPhysicalVolume* currentPV = preStepPoint->GetPhysicalVolume();
   edm::LogVerbatim("TimingSim") 
     << "TimingSD CreateNewHit for " << GetName()
     << " PV "     << currentPV->GetName()
     << " PVid = " << currentPV->GetCopyNo()
-    << " Unit "   << unitID <<
+    << " Unit "   << unitID 
     << "\n primary " << primaryID
     << " Tof(ns)= " << tof
     << " time slice " << tSliceID
@@ -315,6 +334,13 @@ void TimingSD::EndOfEvent(G4HCofThisEvent* ) {
     BscG4Hit* aHit = (*theHC)[j];
     Local3DPoint locEntryPoint= ConvertToLocal3DPoint(aHit->getEntryLocalP());
     Local3DPoint locExitPoint = ConvertToLocal3DPoint(aHit->getExitLocalP());
+
+#ifdef debug
+    edm::LogInfo("TimingSim") << "TimingSD: Hit for storage \n" << *aHit 
+                              << "\n Entry point: " << locEntryPoint
+                              << "\n Exit  point: " << locExitPoint << "\n";
+#endif
+
 
     slave->processHits(PSimHit(locEntryPoint,locExitPoint,
 			       aHit->getPabs(),

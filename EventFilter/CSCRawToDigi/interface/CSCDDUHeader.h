@@ -6,6 +6,7 @@
 #define CSCDDUHeader_h
 #include "DataFormats/CSCDigi/interface/CSCDDUStatusDigi.h"
 #include <cstring>
+#include <cstdint>
 
 class CSCDDUHeader {
 
@@ -16,6 +17,10 @@ class CSCDDUHeader {
     {
       memcpy(this, digi.header(), sizeInWords()*2);
     }
+
+  void setFromBuffer(uint16_t const* buf) {
+    memcpy(this, buf, sizeInWords()*2);
+  }
 
   // Getters
   int s_link_status() const { return s_link_status_;}

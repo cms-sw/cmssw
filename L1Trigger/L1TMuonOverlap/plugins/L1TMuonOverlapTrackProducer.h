@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
@@ -38,7 +38,7 @@ namespace XERCES_CPP_NAMESPACE{
 }
 
 
-class L1TMuonOverlapTrackProducer : public edm::EDProducer {
+class L1TMuonOverlapTrackProducer : public edm::one::EDProducer<edm::one::WatchRuns> {
  public:
   L1TMuonOverlapTrackProducer(const edm::ParameterSet&);
 
@@ -49,7 +49,8 @@ class L1TMuonOverlapTrackProducer : public edm::EDProducer {
   void endJob() override;
 
   void beginRun(edm::Run const& run, edm::EventSetup const& iSetup) override;
-  
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
+
   void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:

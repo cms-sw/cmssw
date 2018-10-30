@@ -153,14 +153,15 @@ int main() {
 
 */
 
-edm::ParameterSet emptyPSet;
-CastorDbService calibratorHandle(emptyPSet);
+  CastorDbService calibratorHandle;
 
 //  CastorDbService calibratorHandle;
   calibratorHandle.setData(&pedestals);
   calibratorHandle.setData(&pedestalWidths);
   calibratorHandle.setData(&gains);
   calibratorHandle.setData(&gainWidths);
+  calibratorHandle.buildCalibrations();
+  calibratorHandle.buildCalibWidths();
   cout << "set data" << std::endl;
   bool addNoise = false;
 

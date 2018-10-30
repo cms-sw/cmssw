@@ -42,12 +42,12 @@ class EgammaHLTEcalIsolation
   
   float isolPtSum(const reco::RecoCandidate *recocandidate, 
 		  const std::vector<const reco::SuperCluster*>& sclusters,
-		  const std::vector<const reco::BasicCluster*>& bclusters);
+		  const std::vector<const reco::BasicCluster*>& bclusters) const;
 
   /// Get Et cut for ecal hits
-  float getetMin() { return etMin; }
+  float getetMin() const { return etMin; }
   /// Get isolation cone size. 
-  float getConeSize() { return conesize; }
+  float getConeSize() const { return conesize; }
 
  private:
   

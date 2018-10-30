@@ -7,9 +7,11 @@
 namespace edm {
 
   RunForOutput::RunForOutput(RunPrincipal const& rp, ModuleDescription const& md,
-           ModuleCallingContext const* moduleCallingContext, bool isAtEnd) :
+                             ModuleCallingContext const* moduleCallingContext, bool isAtEnd,
+                             MergeableRunProductMetadata const* mrpm) :
         OccurrenceForOutput(rp, md, moduleCallingContext, isAtEnd), 
-        aux_(rp.aux()) {
+        aux_(rp.aux()),
+        mergeableRunProductMetadata_(mrpm) {
   }
 
   RunForOutput::~RunForOutput() {

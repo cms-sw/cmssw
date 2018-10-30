@@ -28,6 +28,12 @@ public:
   HGCalDDDConstants(const HGCalParameters* hp, const std::string& name);
   ~HGCalDDDConstants();
 
+  enum class CellType {
+      UndefinedType=-1, CentralType=0, BottomLeftEdge=1, LeftEdge=2,
+      TopLeftEdge=3, TopRightEdge=4, RightEdge=5, BottomRightEdge=6,
+      BottomCorner=11, BottomLeftCorner=12, TopLeftCorner=13,
+      TopCorner=14, TopRightCorner=15, BottomRightCorner=16};
+
   std::pair<int,int>  assignCell(float x, float y, int lay, int subSec,
 				 bool reco) const;
   std::array<int,5>   assignCellHex(float x, float y, int lay, 
@@ -37,7 +43,12 @@ public:
   bool                cellInLayer(int waferU, int waferV, int cellU, int cellV,
 				  int lay, bool reco) const;
   double              cellSizeHex(int type) const;
+  std::pair<double,double> cellSizeTrap(int type, int irad) const {
+    return std::pair<double,double>(hgpar_->radiusLayer_[type][irad-1],
+				    hgpar_->radiusLayer_[type][irad]);
+  }
   double              cellThickness(int layer, int waferU, int waferV) const;
+  CellType            cellType(int type, int waferU, int waferV) const;
   double              distFromEdgeHex(double x, double y, double z) const;
   double              distFromEdgeTrap(double x, double y, double z) const;
   void                etaPhiFromPosition(const double x, const double y,
@@ -55,6 +66,8 @@ public:
   std::vector<HGCalParameters::hgtrform> getTrForms() const ;
   int                 getTypeTrap(int layer) const;
   int                 getTypeHex(int layer, int waferU, int waferV) const;
+  int                 getUVMax(int type) const
+  {return ((type == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_);}
   bool                isHalfCell(int waferType, int cell) const;
   bool                isValidHex(int lay, int mod, int cell, bool reco) const;
   bool                isValidHex8(int lay, int modU, int modV, int cellU,
@@ -66,7 +79,8 @@ public:
   std::pair<float,float> locateCell(int cell, int lay, int type, 
 				    bool reco) const;
   std::pair<float,float> locateCell(int lay, int waferU, int waferV, int cellU,
-				    int cellV, bool reco, bool all) const;
+				    int cellV, bool reco, bool all,
+				    bool debug=false) const;
   std::pair<float,float> locateCellHex(int cell, int wafer, bool reco) const;
   std::pair<float,float> locateCellTrap(int lay, int ieta, int iphi,
 					bool reco) const;
@@ -79,7 +93,8 @@ public:
   int                 maxModules() const {return modHalf_;}
   int                 maxMoudlesPerLayer() const {return maxWafersPerLayer_;}
   int                 maxRows(int lay, bool reco) const;
-  double              minSlope() const {return hgpar_->slopeMin_;}
+  double              minSlope() const {return hgpar_->slopeMin_[0];}
+  int                 modifyUV(int uv, int type1, int type2) const;
   int                 modules(int lay, bool reco) const;
   int                 modulesInit(int lay, bool reco) const;
   double              mouseBite(bool reco) const;
@@ -88,9 +103,9 @@ public:
   int                 numberCellsHexagon(int wafer) const;
   int                 numberCellsHexagon(int lay, int waferU, int waferV,
 					 bool flag) const;
+  std::pair<double,double> rangeR(double z, bool reco) const;
+  std::pair<double,double> rangeZ(bool reco) const;
   std::pair<int,int>  rowColumnWafer(const int wafer) const;
-  int                 scintType(const float dPhi) const 
-  { return ((dPhi < dPhiMin) ? 0 : 1); }
   int                 sectors() const {return hgpar_->nSectors_;}
   std::pair<int,int>  simToReco(int cell, int layer, int mod, bool half) const;
   unsigned int        volumes() const {return hgpar_->moduleLayR_.size();}
@@ -101,7 +116,8 @@ public:
   void                waferFromPosition(const double x, const double y,
 					const int layer, int& waferU,
 					int& waferV, int& cellU, int& cellV,
-					int& celltype, double& wt) const;
+					int& celltype, double& wt,
+					bool debug=false) const;
   bool                waferInLayer(int wafer, int lay, bool reco) const;
   bool                waferFullInLayer(int wafer, int lay, bool reco) const;
   int                 waferCount(const int type) const {return ((type == 0) ? waferMax_[2] : waferMax_[3]);}
@@ -127,7 +143,7 @@ private:
 	       const std::vector<double>& posX,
 	       const std::vector<double>& posY) const;  
   void cellHex(double xloc, double yloc, int cellType, int& cellU, 
-	       int& cellV) const;
+	       int& cellV, bool debug=false) const;
   std::pair<int,float>   getIndex(int lay, bool reco) const;
   bool isValidCell(int layindex, int wafer, int cell) const;
   bool waferInLayerTest(int wafer, int lay, bool full) const;

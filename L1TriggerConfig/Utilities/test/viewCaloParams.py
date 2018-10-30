@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("tester")
@@ -39,7 +40,7 @@ else :
     elif "sqlite" in options.db :
         sourceDB = options.db
     else :
-        print "Unknown input DB: ", options.db, " should be static:.../prod/prep/sqlite:..."
+        print("Unknown input DB: ", options.db, " should be static:.../prod/prep/sqlite:...")
         exit(0)
 
     from CondCore.CondDB.CondDB_cfi import CondDB
@@ -75,8 +76,8 @@ process.l1cpv = cms.EDAnalyzer("L1TCaloParamsViewer",
                                printEcalSF = cms.untracked.bool(False),
                                printEtSumEttPUSLUT = cms.untracked.bool(False),
                                printEtSumEcalSumPUSLUT = cms.untracked.bool(False),
-                               printEtSumXCalibrationLUT = cms.untracked.bool(False),
-                               printEtSumYCalibrationLUT = cms.untracked.bool(False),
+                               printMetCalibrationLUT = cms.untracked.bool(False),
+                               printMetHFCalibrationLUT = cms.untracked.bool(False),
                                printEtSumEttCalibrationLUT = cms.untracked.bool(False),
                                printEtSumEcalSumCalibrationLUT = cms.untracked.bool(False)
 )

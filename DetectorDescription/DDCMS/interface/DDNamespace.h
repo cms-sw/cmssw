@@ -72,4 +72,6 @@ namespace cms {
   };
 }
 
+#define NAMESPACE_SEP ':'
+
 #endif

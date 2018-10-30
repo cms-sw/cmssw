@@ -4,10 +4,11 @@
 map derived from pedestal runs studies with the old db map into a new
 accurate map.
 """
+from __future__ import print_function
 
 import sys
 
-print "Reading psu-detId map from map.txt"
+print("Reading psu-detId map from map.txt")
 
 inputMap = open("map.txt", "r")
 
@@ -29,10 +30,10 @@ for line in inputMap:
 
     if channel == "" or "undefined" in channel:
         if channel == "":
-            print "channel not found for detId = ", detId
+            print("channel not found for detId = ", detId)
         else:
-            print "channel is undefined in HV map ",
-        print "leaving channel 0"
+            print("channel is undefined in HV map ", end=' ')
+        print("leaving channel 0")
         outputFile.write(line)
         # break
     else:

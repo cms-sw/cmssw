@@ -1,0 +1,12 @@
+<use   name="DataFormats/GeometrySurface"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="RecoMTD/DetLayers"/>
+<use   name="RecoTracker/TkDetLayers"/>
+<use   name="TrackingTools/DetLayers"/>
+<use   name="TrackingTools/TrajectoryState"/>
+<use   name="Utilities/General"/>
+<export>
+  <lib   name="1"/>
+</export>

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("BeamMonitor")
@@ -82,7 +83,7 @@ process.monitor = cms.Sequence(process.dqmBeamMonitor)
 
 if (process.runType.getRunType() == process.runType.pp_run or process.runType.getRunType() == process.runType.cosmic_run):
 
-    print "Running pp"
+    print("Running pp")
     process.EventStreamHttpReader.SelectEvents = cms.untracked.PSet(
              SelectEvents = cms.vstring('HLT_L1*',
                                         'HLT_Jet*',
@@ -166,7 +167,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
 
 if (process.runType.getRunType() == process.runType.hi_run):
 
-    print "Running HI"
+    print("Running HI")
     process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.csctfDigis.producer = cms.InputTag("rawDataRepacker")
     process.dttfDigis.DTTF_FED_Source = cms.InputTag("rawDataRepacker")

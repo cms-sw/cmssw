@@ -11,8 +11,8 @@ from RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_tools import *
 mvaTag           = "Run2Spring16NonTrigV1"
 mvaVariablesFile = "RecoEgamma/PhotonIdentification/data/PhotonMVAEstimatorRun2VariablesSpring16.txt"
 mvaWeightFiles = [
-    "RecoEgamma/PhotonIdentification/data/Spring16/photon_general_MVA_Spring16_EB_V3.weights.xml",
-    "RecoEgamma/PhotonIdentification/data/Spring16/photon_general_MVA_Spring16_EE_V3.weights.xml"
+    path.join(weightFileBaseDir, "Spring16/EB_V1.weights.xml.gz"),
+    path.join(weightFileBaseDir, "Spring16/EE_V1.weights.xml.gz"),
     ]
 effAreasPath_pho = "RecoEgamma/PhotonIdentification/data/Spring16/effAreaPhotons_cone03_pfPhotons_90percentBased_3bins.txt"
 
@@ -38,6 +38,9 @@ configs = configureFullVIDMVAPhoID(mvaTag=mvaTag,
                                    variablesFile=mvaVariablesFile,
                                    weightFiles=mvaWeightFiles,
                                    wpConfig=wpConfig,
+    # Category parameters
+    nCategories         = cms.int32(2),
+    categoryCuts        = category_cuts,
     # In this MVA for endcap the corrected photon isolation is defined as
     # iso = max( photon_isolation_raw - rho*effArea - coeff*pt, cutoff)
     # as discussed in the indico presentations listed in the beginning of this file.

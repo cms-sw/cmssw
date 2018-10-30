@@ -5,6 +5,7 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/FlatTrd.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
+#include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
@@ -38,7 +39,8 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
 				<< numberExpected << " for sub-detector " 
 				<< topology.subDetector() << " Shapes " 
 				<< numberOfShapes << ":" << parametersPerShape_
-				<< " mode " << mode;
+				<< " mode " << mode << " ifNose "
+				<< topology.isHFNose();
 #endif
   geom->allocateCorners( numberOfCells ) ;
   geom->allocatePar(numberOfShapes, parametersPerShape_);
@@ -98,20 +100,20 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
       }
     } else if (mode == HGCalGeometryMode::Trapezoid) {
       int indx = topology.dddConstants().layerIndex(layer,true);
-      int ieta = topology.dddConstants().getParameter()->iEtaMinBH_[indx];
-      int nphi = topology.dddConstants().getParameter()->nPhiBinBH_[indx];
-      int type = topology.dddConstants().getTypeTrap(layer);
+      int irad = topology.dddConstants().getParameter()->iradMinBH_[indx];
+      int nphi = topology.dddConstants().getParameter()->scintCells(layer);
+      int type = topology.dddConstants().getParameter()->scintType(layer);
       for (int md=topology.dddConstants().getParameter()->firstModule_[indx];
 	   md<=topology.dddConstants().getParameter()->lastModule_[indx];++md){
 	for (int iphi=1; iphi<=nphi; ++iphi) {
-	  DetId detId = (DetId)(HGCScintillatorDetId(type,layer,zside*ieta,iphi));
-	  const auto &  w = topology.dddConstants().locateCellTrap(layer,ieta,iphi,true);
+	  DetId detId = (DetId)(HGCScintillatorDetId(type,layer,zside*irad,iphi));
+	  const auto &  w = topology.dddConstants().locateCellTrap(layer,irad,iphi,true);
 	  double xx = (zside > 0) ? w.first : -w.first;
 	  CLHEP::Hep3Vector h3v(xx,w.second,mytr.h3v.z());
 	  const HepGeom::Transform3D ht3d (mytr.hr, h3v);
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("HGCalGeom") << "HGCalGeometryLoader::eta:phi:type "
-					<< ieta*zside << ":" << iphi << ":"
+	  edm::LogVerbatim("HGCalGeom") << "HGCalGeometryLoader::rad:phi:type "
+					<< irad*zside << ":" << iphi << ":"
 					<< type << " DetId " 
 					<< HGCScintillatorDetId(detId) << " "
 					<< std::hex << detId.rawId() 
@@ -134,7 +136,7 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
 	  ++kount;
 #endif
 	}
-	++ieta;
+	++irad;
       }
     } else {
       DetId::Detector det  = topology.detector();
@@ -144,18 +146,28 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
 	  int u    = HGCalWaferIndex::waferU(copy);
 	  int v    = HGCalWaferIndex::waferV(copy);
 	  int type = topology.dddConstants().getTypeHex(layer,u,v);
-	  DetId detId = (DetId)(HGCSiliconDetId(det,zside,type,layer,u,v,0,0));
+	  DetId detId = (topology.isHFNose() ? 
+			 (DetId)(HFNoseDetId(zside,type,layer,u,v,0,0)) :
+			 (DetId)(HGCSiliconDetId(det,zside,type,layer,u,v,0,0)));
 	  const auto &  w = topology.dddConstants().waferPosition(u,v,true);
 	  double xx = (zside > 0) ? w.first : -w.first;
 	  CLHEP::Hep3Vector h3v(xx,w.second,mytr.h3v.z());
 	  const HepGeom::Transform3D ht3d (mytr.hr, h3v);
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("HGCalGeom") << "HGCalGeometryLoader:: Wafer:Type "
-					<< wafer << ":" << type << " DetId " 
-					<< HGCSiliconDetId(detId) << std::hex
-					<< " " << detId.rawId() << std::dec 
-					<< " transf " << ht3d.getTranslation()
-					<< " and " << ht3d.getRotation();
+	  if (topology.isHFNose()) 
+	    edm::LogVerbatim("HGCalGeom") << "HGCalGeometryLoader::Wafer:Type "
+					  << wafer << ":" << type << " DetId " 
+					  << HFNoseDetId(detId) << std::hex
+					  << " " << detId.rawId() << std::dec 
+					  << " trans " << ht3d.getTranslation()
+					  << " and " << ht3d.getRotation();
+	  else
+	    edm::LogVerbatim("HGCalGeom") << "HGCalGeometryLoader::Wafer:Type "
+					  << wafer << ":" << type << " DetId " 
+					  << HGCSiliconDetId(detId) << std::hex
+					  << " " << detId.rawId() << std::dec 
+					  << " trans " << ht3d.getTranslation()
+					  << " and " << ht3d.getRotation();
 #endif
 	  HGCalParameters::hgtrap vol = topology.dddConstants().getModule(type,false,true);
 	  params[0] = vol.dz;

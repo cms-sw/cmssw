@@ -97,8 +97,7 @@ FWPFCandidatesLegoProxyBuilder::localModelChanges(const FWModelId& iId, TEveElem
    {
       TEveElement* el = (parent)->FirstChild();  // we know there is only one child added in this proxy builder
       FWLegoCandidate *candidate = dynamic_cast<FWLegoCandidate*> (el);
-      const FWDisplayProperties& dp = item()->modelInfo(iId.index()).displayProperties();
-      candidate->SetMarkerColor( dp.color());
+      candidate->SetMarkerColor( item()->modelInfo(iId.index()).displayProperties().color());
       candidate->ElementChanged();
    }  
 }

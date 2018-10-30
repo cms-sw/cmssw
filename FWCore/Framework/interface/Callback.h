@@ -20,6 +20,7 @@
 
 // system include files
 #include <vector>
+#include <type_traits>
 // user include files
 #include "FWCore/Framework/interface/produce_helpers.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
@@ -47,12 +48,12 @@ namespace edm {
                              =CallbackSimpleDecorator<TRecord> >
       class Callback : public CallbackBase {
        public:
-         typedef TReturn (T ::* method_type)(const TRecord&);
+         using  method_type = TReturn (T ::*)(const TRecord&);
          
          Callback(T* iProd, 
                    method_type iMethod,
                    const TDecorator& iDec = TDecorator()) :
-            proxyData_(produce::size< TReturn >::value, static_cast<void*>(nullptr)),
+            proxyData_{},
             producer_(iProd), 
             method_(iMethod),
             wasCalledForThisRecord_(false),
@@ -82,23 +83,18 @@ namespace edm {
          
          void storeReturnedValues(TReturn iReturn) {
             //std::cout <<" storeReturnedValues "<< iReturn <<" " <<iReturn->value_ <<std::endl;
-            typedef typename produce::product_traits<TReturn>::type type;
-            setData(iReturn, static_cast<typename  type::head_type*>(nullptr), static_cast<const typename type::tail_type *>(nullptr));
+            using type = typename produce::product_traits<TReturn>::type;
+            setData<typename type::head_type, typename type::tail_type>(iReturn);
          }
          
          template<class RemainingContainerT, class DataT, class ProductsT>
-            void setData(ProductsT& iProducts, const RemainingContainerT*, const DataT*) {
+            void setData(ProductsT& iProducts) {
                DataT* temp = reinterpret_cast< DataT*>(proxyData_[produce::find_index<TReturn,DataT>::value]) ;
-               if(nullptr != temp) { copyFromTo(iProducts, *temp); }
-               setData(iProducts, static_cast< const typename RemainingContainerT::head_type *>(nullptr),
-                       static_cast< const typename RemainingContainerT::tail_type *>(nullptr));
-            }
-         template<class DataT, class ProductsT>
-            void setData(ProductsT& iProducts, const produce::Null*, const DataT*) {
-               
-               DataT* temp = reinterpret_cast< DataT*>(proxyData_[produce::find_index<TReturn,DataT>::value]) ;
-               //std::cout <<" setData["<< produce::find_index<TReturn,DataT>::value<<"] "<< temp <<std::endl;
-               if(nullptr != temp) { copyFromTo(iProducts, *temp); } 
+               if(nullptr != temp) { moveFromTo(iProducts, *temp); }
+               if constexpr( not std::is_same_v<produce::Null,RemainingContainerT> ) {
+                 setData<typename RemainingContainerT::head_type,
+                       typename RemainingContainerT::tail_type>(iProducts);
+               }
             }
          void newRecordComing() {
             wasCalledForThisRecord_ = false;
@@ -109,7 +105,7 @@ namespace edm {
          
          const Callback& operator=(const Callback&) = delete; // stop default
 
-         std::vector<void*> proxyData_;
+        std::array<void*, produce::size< TReturn >::value> proxyData_;
          edm::propagate_const<T*> producer_;
          method_type method_;
          bool wasCalledForThisRecord_;

@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 class UndoEvent(object):
     LABEL = ""
@@ -45,7 +46,7 @@ class UndoEvent(object):
         return False
     
     def dump(self, prefix="undo"):
-        print prefix, ": ", self.LABEL, self.isLastSavedState()
+        print(prefix, ": ", self.LABEL, self.isLastSavedState())
     
     
 class MultiUndoEvent(UndoEvent):

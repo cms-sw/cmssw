@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import os
 import sys
 
@@ -15,7 +16,7 @@ for SETUP in SETUPS :
     SET = SETUP[0]
     SUBSET = SETUP[1]
     for B_NOM in SETUP[2] : 
-       print SET, SUBSET, B_NOM
+       print(SET, SUBSET, B_NOM)
        sys.stdout.flush()
        namespace = {'SET':SET, 'SUBSET':SUBSET, 'B_NOM':B_NOM}
        execfile("writeMagFieldConfigDB.py",namespace)
@@ -27,5 +28,5 @@ for SETUP in SETUPS :
        os.system("cmsRun run.py")
        del namespace
        del process
-       print ""
+       print("")
        

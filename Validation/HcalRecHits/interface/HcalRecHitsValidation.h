@@ -141,6 +141,12 @@ class HcalRecHitsValidation : public DQMEDAnalyzer {
   MonitorElement* meEnergyHcalVsEcalHB;
   MonitorElement* meEnergyHcalVsEcalHE;
   
+  // Chi2 
+  MonitorElement* meRecHitsM2Chi2HB;  
+  MonitorElement* meRecHitsM2Chi2HE;
+
+  MonitorElement* meLog10Chi2profileHB;
+  MonitorElement* meLog10Chi2profileHE;
 
   edm::ESHandle<CaloGeometry> geometry ;
 
@@ -157,6 +163,7 @@ class HcalRecHitsValidation : public DQMEDAnalyzer {
   std::vector<double>   cz;
   std::vector<uint32_t> cstwd;
   std::vector<uint32_t> cauxstwd;
+  std::vector<double>   cchi2;
 
   // counter
   int nevtot;

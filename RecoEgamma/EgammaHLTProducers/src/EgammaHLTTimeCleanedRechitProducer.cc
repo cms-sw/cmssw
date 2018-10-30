@@ -54,7 +54,7 @@ void EgammaHLTTimeCleanedRechitProducer::fillDescriptions(edm::ConfigurationDesc
   descriptions.add(("hltEgammaHLTTimeCleanedRechitProducer"), desc);
 }
 
-void EgammaHLTTimeCleanedRechitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
+void EgammaHLTTimeCleanedRechitProducer::produce(edm::StreamID sid, edm::Event& evt, const edm::EventSetup& es) const {
 
   edm::Handle<EcalRecHitCollection> rhcH[2];
     

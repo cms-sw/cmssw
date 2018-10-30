@@ -24,7 +24,7 @@ public:
 
 private:
 
-  SiStripBadStrip* getNewObject() override;
+  std::unique_ptr<SiStripBadStrip> getNewObject() override;
 
 private:
   edm::FileInPath fp_;

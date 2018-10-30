@@ -72,19 +72,19 @@ private:
     void loadFlatteningFactors(const edm::EventSetup& iSetup);
 
     // The FFT engine
-    std::auto_ptr<MyFFTEngine> engine;
+    std::unique_ptr<MyFFTEngine> engine;
 
     // The pattern recognition kernel(s)
-    std::auto_ptr<fftjet::AbsFrequencyKernel> kernel2d;
+    std::unique_ptr<fftjet::AbsFrequencyKernel> kernel2d;
 
     // The kernel convolver
-    std::auto_ptr<fftjet::AbsConvolverBase<Real> > convolver;
+    std::unique_ptr<fftjet::AbsConvolverBase<Real> > convolver;
 
     // Storage for convolved energy flow
-    std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> > convolvedFlow;
+    std::unique_ptr<fftjet::Grid2d<fftjetcms::Real> > convolvedFlow;
 
     // Filtering scales
-    std::auto_ptr<fftjet::EquidistantInLogSpace> filterScales;
+    std::unique_ptr<fftjet::EquidistantInLogSpace> filterScales;
 
     // Eta-dependent factors to use for flattening the distribution
     // _after_ the filtering
@@ -144,7 +144,7 @@ FFTJetPileupProcessor::FFTJetPileupProcessor(const edm::ParameterSet& ps)
     checkConfig(energyFlow, "invalid discretization grid");
 
     // Copy of the grid which will be used for convolutions
-    convolvedFlow = std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> >(
+    convolvedFlow = std::unique_ptr<fftjet::Grid2d<fftjetcms::Real> >(
         new fftjet::Grid2d<fftjetcms::Real>(*energyFlow));
 
     // Make sure the size of flattening factors is appropriate
@@ -170,7 +170,7 @@ FFTJetPileupProcessor::FFTJetPileupProcessor(const edm::ParameterSet& ps)
         throw cms::Exception("FFTJetBadConfig")
             << "invalid filter scales" << std::endl;
 
-    filterScales = std::auto_ptr<fftjet::EquidistantInLogSpace>(
+    filterScales = std::unique_ptr<fftjet::EquidistantInLogSpace>(
         new fftjet::EquidistantInLogSpace(minScale, maxScale, nScales));
 
     percentileData.resize(nScales*nPercentiles);
@@ -200,17 +200,17 @@ void FFTJetPileupProcessor::buildKernelConvolver(const edm::ParameterSet& ps)
     kernelEtaScale *= (2.0*M_PI/(energyFlow->etaMax() - energyFlow->etaMin()));
 
     // Build the FFT engine
-    engine = std::auto_ptr<MyFFTEngine>(
+    engine = std::unique_ptr<MyFFTEngine>(
         new MyFFTEngine(energyFlow->nEta(), energyFlow->nPhi()));
 
     // 2d kernel
-    kernel2d = std::auto_ptr<fftjet::AbsFrequencyKernel>(
+    kernel2d = std::unique_ptr<fftjet::AbsFrequencyKernel>(
         new fftjet::DiscreteGauss2d(
             kernelEtaScale, kernelPhiScale,
             energyFlow->nEta(), energyFlow->nPhi()));
 
     // 2d convolver
-    convolver = std::auto_ptr<fftjet::AbsConvolverBase<Real> >(
+    convolver = std::unique_ptr<fftjet::AbsConvolverBase<Real> >(
         new fftjet::FrequencyKernelConvolver<Real,Complex>(
             engine.get(), kernel2d.get(),
             convolverMinBin, convolverMaxBin));

@@ -2,7 +2,6 @@
  *  \author A. Tumanov - Rice
  */
 
-#include "EventFilter/CSCRawToDigi/src/CSCDigiToRawModule.h"
 #include "EventFilter/CSCRawToDigi/src/CSCDigiToRaw.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -14,8 +13,61 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "CondFormats/DataRecord/interface/CSCChamberMapRcd.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+
+namespace edm {
+   class ConfigurationDescriptions;
+}
+
+class CSCDigiToRaw;
+
+class CSCDigiToRawModule : public edm::global::EDProducer<> {
+ public:
+  /// Constructor
+  CSCDigiToRawModule(const edm::ParameterSet & pset);
+
+  // Operations
+  void produce( edm::StreamID, edm::Event&, const edm::EventSetup& ) const override;
+
+  // Fill parameters descriptions
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
+ private:
+
+  unsigned int 	theFormatVersion; // Select which version of data format to use Pre-LS1: 2005, Post-LS1: 2013
+  bool		usePreTriggers;   // Select if to use Pre-Triigers CLCT digis
+  bool		packEverything_;   // bypass all cuts and (pre)trigger requirements
+
+  std::unique_ptr<const CSCDigiToRaw> packer_;
+
+  edm::EDGetTokenT<CSCWireDigiCollection>             wd_token;
+  edm::EDGetTokenT<CSCStripDigiCollection>            sd_token;
+  edm::EDGetTokenT<CSCComparatorDigiCollection>       cd_token;
+  edm::EDGetTokenT<CSCALCTDigiCollection>             al_token;
+  edm::EDGetTokenT<CSCCLCTDigiCollection>             cl_token;
+  edm::EDGetTokenT<CSCCLCTPreTriggerCollection>       pr_token;
+  edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection>    co_token;
+
+  edm::EDPutTokenT<FEDRawDataCollection>              put_token_;
+};
+
+
 CSCDigiToRawModule::CSCDigiToRawModule(const edm::ParameterSet & pset): 
-  packer(new CSCDigiToRaw(pset))
+  packer_( std::make_unique<CSCDigiToRaw>(pset))
 {
   //theStrip = pset.getUntrackedParameter<string>("DigiCreator", "cscunpacker");
   
@@ -27,19 +79,17 @@ CSCDigiToRawModule::CSCDigiToRawModule(const edm::ParameterSet & pset):
   wd_token = consumes<CSCWireDigiCollection>( pset.getParameter<edm::InputTag>("wireDigiTag") );
   sd_token = consumes<CSCStripDigiCollection>( pset.getParameter<edm::InputTag>("stripDigiTag") );
   cd_token = consumes<CSCComparatorDigiCollection>( pset.getParameter<edm::InputTag>("comparatorDigiTag") );
-  pr_token = consumes<CSCCLCTPreTriggerCollection>( pset.getParameter<edm::InputTag>("preTriggerTag") );
+  if(usePreTriggers) {
+    pr_token = consumes<CSCCLCTPreTriggerCollection>( pset.getParameter<edm::InputTag>("preTriggerTag") );
+  }
   al_token = consumes<CSCALCTDigiCollection>( pset.getParameter<edm::InputTag>("alctDigiTag") );
   cl_token = consumes<CSCCLCTDigiCollection>( pset.getParameter<edm::InputTag>("clctDigiTag") );
   co_token = consumes<CSCCorrelatedLCTDigiCollection>( pset.getParameter<edm::InputTag>("correlatedLCTDigiTag") );
 
-  produces<FEDRawDataCollection>("CSCRawData"); 
+  put_token_ = produces<FEDRawDataCollection>("CSCRawData"); 
 
 }
 
-
-CSCDigiToRawModule::~CSCDigiToRawModule(){
-  delete packer;
-}
 
 void CSCDigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
 /*** From python/cscPacker_cfi.py
@@ -90,13 +140,13 @@ void CSCDigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions & descr
 }
 
 
-void CSCDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c ){
+void CSCDigiToRawModule::produce( edm::StreamID, edm::Event & e, const edm::EventSetup& c ) const {
   ///reverse mapping for packer
   edm::ESHandle<CSCChamberMap> hcham;
   c.get<CSCChamberMapRcd>().get(hcham); 
   const CSCChamberMap* theMapping = hcham.product();
 
-  auto fed_buffers = std::make_unique<FEDRawDataCollection>();
+  FEDRawDataCollection fed_buffers;
 
   // Take digis from the event
   edm::Handle<CSCWireDigiCollection> wireDigis;
@@ -117,13 +167,14 @@ void CSCDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c ){
   e.getByToken( co_token, correlatedLCTDigis );
 
   // Create the packed data
-  packer->createFedBuffers(*stripDigis, *wireDigis, *comparatorDigis, 
-                           *alctDigis, *clctDigis, *preTriggers, *correlatedLCTDigis,
-                           *(fed_buffers.get()), theMapping, e, theFormatVersion, usePreTriggers,
-			   packEverything_);
+  packer_->createFedBuffers(*stripDigis, *wireDigis, *comparatorDigis, 
+                            *alctDigis, *clctDigis, *preTriggers, *correlatedLCTDigis,
+                            fed_buffers, theMapping, e, theFormatVersion, usePreTriggers,
+                            packEverything_);
   
   // put the raw data to the event
-  e.put(std::move(fed_buffers), "CSCRawData");
+  e.emplace(put_token_, std::move(fed_buffers));
 }
 
 
+DEFINE_FWK_MODULE(CSCDigiToRawModule);

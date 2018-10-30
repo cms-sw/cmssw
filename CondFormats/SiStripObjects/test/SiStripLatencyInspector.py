@@ -1,3 +1,4 @@
+from __future__ import print_function
 import DLFCN, sys, os
 sys.setdlopenflags(DLFCN.RTLD_GLOBAL+DLFCN.RTLD_LAZY)
 import pluginCondDBPyInterface as condDB
@@ -26,12 +27,12 @@ for elem in iov.elements:
         if theIOV:
             payload.dumpXML("dump_"+str(elem.since())+".xml")
             if payload.summary().find("PEAK") != -1:
-                print "since =", elem.since(), ", till =", elem.till(), "--> peak mode"
+                print("since =", elem.since(), ", till =", elem.till(), "--> peak mode")
             elif payload.summary().find("DECO") != -1:
-                print "since =", elem.since(), ", till =", elem.till(), "--> deco mode"
+                print("since =", elem.since(), ", till =", elem.till(), "--> deco mode")
             else:
-                print "since =", elem.since(), ", till =", elem.till(), "--> mixed mode"
+                print("since =", elem.since(), ", till =", elem.till(), "--> mixed mode")
         else:
-            print "error in retriving payload"
+            print("error in retriving payload")
             
 db.commitTransaction()

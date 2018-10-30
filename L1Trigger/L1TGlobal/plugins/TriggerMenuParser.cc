@@ -340,7 +340,19 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
 		    condition.getType() == esConditionType::MinBiasHFP0 ||
 		    condition.getType() == esConditionType::MinBiasHFM0 ||
 		    condition.getType() == esConditionType::MinBiasHFP1 ||
-		    condition.getType() == esConditionType::MinBiasHFM1 )
+		    condition.getType() == esConditionType::MinBiasHFM1 ||
+		    condition.getType() == esConditionType::AsymmetryEt ||
+		    condition.getType() == esConditionType::AsymmetryHt ||
+		    condition.getType() == esConditionType::AsymmetryEtHF ||
+		    condition.getType() == esConditionType::AsymmetryHtHF ||
+		    condition.getType() == esConditionType::Centrality0 ||
+		    condition.getType() == esConditionType::Centrality1 ||
+		    condition.getType() == esConditionType::Centrality2 ||
+		    condition.getType() == esConditionType::Centrality3 ||
+		    condition.getType() == esConditionType::Centrality4 ||
+		    condition.getType() == esConditionType::Centrality5 ||
+		    condition.getType() == esConditionType::Centrality6 ||
+		    condition.getType() == esConditionType::Centrality7 )
 	  {
              parseEnergySum(condition,chipNr,false);
 
@@ -2242,6 +2254,54 @@ bool l1t::TriggerMenuParser::parseEnergySum(tmeventsetup::esCondition condEnergy
     else if( condEnergySum.getType() == esConditionType::MinBiasHFM1 ){
       energySumObjType = GlobalObject::gtMinBiasHFM1;
       cType = TypeMinBiasHFM1;
+    }
+    else if( condEnergySum.getType() == esConditionType::AsymmetryEt ){
+      energySumObjType = GlobalObject::gtAsymmetryEt;
+      cType = TypeAsymEt;
+    }
+    else if( condEnergySum.getType() == esConditionType::AsymmetryHt ){
+      energySumObjType = GlobalObject::gtAsymmetryHt;
+      cType = TypeAsymHt;
+    }
+    else if( condEnergySum.getType() == esConditionType::AsymmetryEtHF ){
+      energySumObjType = GlobalObject::gtAsymmetryEtHF;
+      cType = TypeAsymEtHF;
+    }
+    else if( condEnergySum.getType() == esConditionType::AsymmetryHtHF ){
+      energySumObjType = GlobalObject::gtAsymmetryHtHF;
+      cType = TypeAsymHtHF;
+    }
+    else if( condEnergySum.getType() == esConditionType::Centrality0 ){
+      energySumObjType = GlobalObject::gtCentrality0;
+      cType = TypeCent0;
+    }
+    else if( condEnergySum.getType() == esConditionType::Centrality1 ){
+      energySumObjType = GlobalObject::gtCentrality1;
+      cType = TypeCent1;
+    }
+    else if( condEnergySum.getType() == esConditionType::Centrality2 ){
+      energySumObjType = GlobalObject::gtCentrality2;
+      cType = TypeCent2;
+    }
+    else if( condEnergySum.getType() == esConditionType::Centrality3 ){
+      energySumObjType = GlobalObject::gtCentrality3;
+      cType = TypeCent3;
+    }
+    else if( condEnergySum.getType() == esConditionType::Centrality4 ){
+      energySumObjType = GlobalObject::gtCentrality4;
+      cType = TypeCent4;
+    }
+    else if( condEnergySum.getType() == esConditionType::Centrality5 ){
+      energySumObjType = GlobalObject::gtCentrality5;
+      cType = TypeCent5;
+    }
+    else if( condEnergySum.getType() == esConditionType::Centrality6 ){
+      energySumObjType = GlobalObject::gtCentrality6;
+      cType = TypeCent6;
+    }
+    else if( condEnergySum.getType() == esConditionType::Centrality7 ){
+      energySumObjType = GlobalObject::gtCentrality7;
+      cType = TypeCent7;
     }
     else {
       edm::LogError("TriggerMenuParser")

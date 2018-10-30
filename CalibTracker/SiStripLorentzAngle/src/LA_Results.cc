@@ -146,7 +146,7 @@ offset_slope(const std::vector<LA_Filler_Fitter::EnsembleSummary>& ensembles) {
     
     return std::make_pair( std::make_pair(fit->GetParameter(0), fit->GetParError(0)),
 			   std::make_pair(fit->GetParameter(1), fit->GetParError(1)) );
-  } catch(edm::Exception e) { 
+  } catch(edm::Exception const& e) {
     std::cerr << "Fitting Line Failed " << std::endl << e << std::endl;
     return std::make_pair( std::make_pair(0,0), std::make_pair(0,0));
   }

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys,os,time
 import subprocess
 from tools import loadCmsProcess
@@ -40,7 +41,7 @@ class DTCalibrationWorker(object):
         command = ['bash', '-c', 'unset module;source /cvmfs/cms.cern.ch/crab3/crab.sh && env']
         proc = subprocess.Popen(command, stdout = subprocess.PIPE)
 
-        print 'setting up crab'
+        print('setting up crab')
         for line in proc.stdout:
           (key, _, value) = line.partition("=")
           os.environ[key] = value.replace("\n","")

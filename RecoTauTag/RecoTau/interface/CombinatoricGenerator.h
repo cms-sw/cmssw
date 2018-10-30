@@ -177,7 +177,7 @@ template <typename T>
       //std::copy(newCombo.begin(), newCombo.end(), std::ostream_iterator<int>(std::cout, " "));
       //std::cout << std::endl;
 
-      //return std::auto_ptr<Combinatoric<T> >(new Combinatoric<T>(begin_, indices_, newCombo));
+      //return std::unique_ptr<Combinatoric<T> >(new Combinatoric<T>(begin_, indices_, newCombo));
       return Combinatoric<T>(begin_, indices_, newCombo, done);
     }
 
@@ -257,7 +257,7 @@ template<typename T>
 
     public:
 
-    typedef std::auto_ptr<CombinatoricIterator<T> > CombIterPtr;
+    typedef std::unique_ptr<CombinatoricIterator<T> > CombIterPtr;
     typedef CombinatoricIterator<T> iterator;
     typedef typename iterator::value_type::ValueIter combo_iterator;
 

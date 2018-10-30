@@ -5,6 +5,7 @@
 #
 # update lumisummary set instlumi=instlumi*:norm where runnum=:run 
 #
+from __future__ import print_function
 import os,sys
 import coral
 from RecoLuminosity.LumiDB import argparse
@@ -30,7 +31,7 @@ def calibrateRange(dbsession,normfactor,startrun,endrun):
         dbsession.transaction().commit()
         return nchanged
     except Exception as e:
-        print str(e)
+        print(str(e))
         dbsession.transaction().rollback()
         del dbsession
 def calibrateRun(dbsession,normfactor,runnum):
@@ -53,7 +54,7 @@ def calibrateRun(dbsession,normfactor,runnum):
         dbsession.transaction().commit()
         return nchanged
     except Exception as e:
-        print str(e)
+        print(str(e))
         dbsession.transaction().rollback()
         del dbsession
         
@@ -88,10 +89,10 @@ def main():
         else:
             raise 'argument -r is required for action run'
         if args.debug:
-            print 'connectstr : ',connectstr
-            print 'normfactor : ',normfactor
-            print 'authpath : ',os.environ['CORAL_AUTH_PATH']
-            print 'runnumber : ',runnumber
+            print('connectstr : ',connectstr)
+            print('normfactor : ',normfactor)
+            print('authpath : ',os.environ['CORAL_AUTH_PATH'])
+            print('runnumber : ',runnumber)
         n=calibrateRun(session,normfactor,runnumber)
     if args.action == 'range':
         startrun=0
@@ -105,13 +106,13 @@ def main():
         else:
             raise 'argument -endrun is required for action range'
         if args.debug:
-            print 'connectstr : ',connectstr
-            print 'normfactor : ',normfactor
-            print 'authpath : ',os.environ['CORAL_AUTH_PATH']
-            print 'startrun : ',startrun
-            print 'endrun : ',endrun
+            print('connectstr : ',connectstr)
+            print('normfactor : ',normfactor)
+            print('authpath : ',os.environ['CORAL_AUTH_PATH'])
+            print('startrun : ',startrun)
+            print('endrun : ',endrun)
         n=calibrateRange(session,normfactor,startrun,endrun)
-    print 'number of rows changed: ',n
+    print('number of rows changed: ',n)
     del session
     del svc
         

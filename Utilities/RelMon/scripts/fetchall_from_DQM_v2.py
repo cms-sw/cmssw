@@ -5,6 +5,7 @@ Script fetches files matching specified RegExps from DQM GUI.
 Author:  Albertas Gimbutas,  Vilnius University (LT)
 e-mail:  albertasgim@gmail.com
 '''
+from __future__ import print_function
 ################################################################################
 # Change logs:
 # 2012-10-22 11:31 - Checking to Download also files <1MB (like GEN samples)
@@ -55,10 +56,10 @@ def auth_wget(url, chunk_size=1048576):
     file_id = selected_files.index(filename)
 
     if isfile("./%s" % filename):
-        print '%d. Exsits on disk. Skipping.' % (file_id +1)
+        print('%d. Exsits on disk. Skipping.' % (file_id +1))
         return
 
-    print '%d. Downloading...' % (file_id +1)
+    print('%d. Downloading...' % (file_id +1))
     file = open(filename, 'wb')
     # progress = 0
     chunk = url_file.read(chunk_size)
@@ -66,7 +67,7 @@ def auth_wget(url, chunk_size=1048576):
         file.write(chunk)
         # progress += chunk_size
         chunk = url_file.read(chunk_size)
-    print '%d.  Done.' % (file_id +1)
+    print('%d.  Done.' % (file_id +1))
     file.close()
 
 
@@ -130,11 +131,11 @@ if options.mthreads > 3 or options.mthreads < 1:
 file_res = [re.compile(r) for r in options.regexp.split(',') + [options.release]]
 selected_files = [f for f in all_files if all([r.search(f) for r in file_res])]
 
-print 'Downloading files:'
+print('Downloading files:')
 for i, name in enumerate(selected_files):
-    print '%d. %s' % (i+1, name)
+    print('%d. %s' % (i+1, name))
 
 if not options.dry_run:
-    print '\nProgress:'
+    print('\nProgress:')
     pool = Pool(options.mthreads)
     pool.map(auth_wget, [filedir_url + name for name in selected_files])

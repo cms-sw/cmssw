@@ -6,6 +6,7 @@ benedikt.hegner@cern.ch
 
 """
 from __future__ import absolute_import
+from __future__ import print_function
 # TODO: sometimes results are doubled. clean global_matches list!
 
 import readline
@@ -34,7 +35,7 @@ class CMSCompleter(rlcompleter.Completer):
             from . import namespaceDict
             self.cmsnamespace = namespaceDict.getNamespaceDict()
         except:
-            print 'Could not load CMS namespace'
+            print('Could not load CMS namespace')
 
  
     def global_matches(self, text):

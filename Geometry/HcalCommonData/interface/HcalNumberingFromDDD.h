@@ -17,7 +17,7 @@ class HcalNumberingFromDDD {
 
 public:
 
-  HcalNumberingFromDDD(HcalDDDSimConstants * hcons);
+  HcalNumberingFromDDD(const HcalDDDSimConstants * hcons);
   ~HcalNumberingFromDDD();
 	 
   struct HcalID {
@@ -35,7 +35,7 @@ public:
 
 private:
 
-  HcalDDDSimConstants *hcalConstants;
+  const HcalDDDSimConstants *hcalConstants;
 };
 
 #endif

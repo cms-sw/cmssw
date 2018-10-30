@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 ### command line options helper
+from __future__ import print_function
 import six
 from  Options import Options
 options = Options()
@@ -22,7 +23,7 @@ from ExceptionHandling import *
 
 #when building RECO paths we have hit the default recursion limit
 if sys.getrecursionlimit()<5000:
-   sys.setrecursionlimit(5000)
+    sys.setrecursionlimit(5000)
 
 def checkImportPermission(minLevel = 2, allowedPatterns = []):
     """
@@ -237,8 +238,8 @@ class Process(object):
         index = 0
         try:
             for p in sch:
-               p.label_()
-               index +=1
+                p.label_()
+                index +=1
         except:
             raise RuntimeError("The path at index "+str(index)+" in the Schedule was not attached to the process.")
         self.__dict__['_Process__schedule'] = sch
@@ -275,9 +276,9 @@ class Process(object):
     def isUsingModifier(self,mod):
         """returns True if the Modifier is in used by this Process"""
         if mod.isChosen():
-          for m in self.__modifiers:
-            if m._isOrContains(mod):
-              return True
+            for m in self.__modifiers:
+                if m._isOrContains(mod):
+                    return True
         return False
 
     def __setObjectLabel(self, object, newLabel) :
@@ -331,20 +332,20 @@ class Process(object):
         if self.__isStrict:
             newValue =value.copy()
             try:
-              newValue._filename = value._filename
+                newValue._filename = value._filename
             except:
-              pass
+                pass
             value.setIsFrozen()
         else:
             newValue =value
         if not self._okToPlace(name, value, self.__dict__):
             newFile='top level config'
             if hasattr(value,'_filename'):
-               newFile = value._filename
+                newFile = value._filename
             oldFile='top level config'
             oldValue = getattr(self,name)
             if hasattr(oldValue,'_filename'):
-               oldFile = oldValue._filename
+                oldFile = oldValue._filename
             msg = "Trying to override definition of process."+name
             msg += "\n new object defined in: "+newFile
             msg += "\n existing object defined in: "+oldFile
@@ -356,49 +357,49 @@ class Process(object):
             # main config, replace it everywhere
             if newValue._isTaskComponent():
                 if not self.__InExtendCall:
-                   self._replaceInTasks(name, newValue)
-                   self._replaceInSchedule(name, newValue)
+                    self._replaceInTasks(name, newValue)
+                    self._replaceInSchedule(name, newValue)
                 else:
-                   if not isinstance(newValue, Task):
-                     #should check to see if used in task before complaining
-                     newFile='top level config'
-                     if hasattr(value,'_filename'):
-                       newFile = value._filename
-                     oldFile='top level config'
-                     oldValue = getattr(self,name)
-                     if hasattr(oldValue,'_filename'):
-                       oldFile = oldValue._filename
-                     msg1 = "Trying to override definition of "+name+" while it is used by the task "
-                     msg2 = "\n new object defined in: "+newFile
-                     msg2 += "\n existing object defined in: "+oldFile
-                     s = self.__findFirstUsingModule(self.tasks,oldValue)
-                     if s is not None:
-                        raise ValueError(msg1+s.label_()+msg2)
+                    if not isinstance(newValue, Task):
+                        #should check to see if used in task before complaining
+                        newFile='top level config'
+                        if hasattr(value,'_filename'):
+                            newFile = value._filename
+                        oldFile='top level config'
+                        oldValue = getattr(self,name)
+                        if hasattr(oldValue,'_filename'):
+                            oldFile = oldValue._filename
+                        msg1 = "Trying to override definition of "+name+" while it is used by the task "
+                        msg2 = "\n new object defined in: "+newFile
+                        msg2 += "\n existing object defined in: "+oldFile
+                        s = self.__findFirstUsingModule(self.tasks,oldValue)
+                        if s is not None:
+                            raise ValueError(msg1+s.label_()+msg2)
 
             if isinstance(newValue, _Sequenceable) or newValue._isTaskComponent():
                 if not self.__InExtendCall:
-                   self._replaceInSequences(name, newValue)
+                    self._replaceInSequences(name, newValue)
                 else:
-                   #should check to see if used in sequence before complaining
-                   newFile='top level config'
-                   if hasattr(value,'_filename'):
-                      newFile = value._filename
-                   oldFile='top level config'
-                   oldValue = getattr(self,name)
-                   if hasattr(oldValue,'_filename'):
-                      oldFile = oldValue._filename
-                   msg1 = "Trying to override definition of "+name+" while it is used by the "
-                   msg2 = "\n new object defined in: "+newFile
-                   msg2 += "\n existing object defined in: "+oldFile
-                   s = self.__findFirstUsingModule(self.sequences,oldValue)
-                   if s is not None:
-                      raise ValueError(msg1+"sequence "+s.label_()+msg2)
-                   s = self.__findFirstUsingModule(self.paths,oldValue)
-                   if s is not None:
-                      raise ValueError(msg1+"path "+s.label_()+msg2)
-                   s = self.__findFirstUsingModule(self.endpaths,oldValue)
-                   if s is not None:
-                      raise ValueError(msg1+"endpath "+s.label_()+msg2)
+                    #should check to see if used in sequence before complaining
+                    newFile='top level config'
+                    if hasattr(value,'_filename'):
+                        newFile = value._filename
+                    oldFile='top level config'
+                    oldValue = getattr(self,name)
+                    if hasattr(oldValue,'_filename'):
+                        oldFile = oldValue._filename
+                    msg1 = "Trying to override definition of "+name+" while it is used by the "
+                    msg2 = "\n new object defined in: "+newFile
+                    msg2 += "\n existing object defined in: "+oldFile
+                    s = self.__findFirstUsingModule(self.sequences,oldValue)
+                    if s is not None:
+                        raise ValueError(msg1+"sequence "+s.label_()+msg2)
+                    s = self.__findFirstUsingModule(self.paths,oldValue)
+                    if s is not None:
+                        raise ValueError(msg1+"path "+s.label_()+msg2)
+                    s = self.__findFirstUsingModule(self.endpaths,oldValue)
+                    if s is not None:
+                        raise ValueError(msg1+"endpath "+s.label_()+msg2)
             self._delattrFromSetattr(name)
         self.__dict__[name]=newValue
         if isinstance(newValue,_Labelable):
@@ -408,17 +409,17 @@ class Process(object):
         #now put in proper bucket
         newValue._place(name,self)
     def __findFirstUsingModule(self, seqsOrTasks, mod):
-       """Given a container of sequences or tasks, find the first sequence or task
-       containing mod and return it. If none is found, return None"""
-       from FWCore.ParameterSet.SequenceTypes import ModuleNodeVisitor
-       l = list()
-       for seqOrTask in six.itervalues(seqsOrTasks):
-          l[:] = []
-          v = ModuleNodeVisitor(l)
-          seqOrTask.visit(v)
-          if mod in l:
-             return seqOrTask
-       return None
+        """Given a container of sequences or tasks, find the first sequence or task
+        containing mod and return it. If none is found, return None"""
+        from FWCore.ParameterSet.SequenceTypes import ModuleNodeVisitor
+        l = list()
+        for seqOrTask in six.itervalues(seqsOrTasks):
+            l[:] = []
+            v = ModuleNodeVisitor(l)
+            seqOrTask.visit(v)
+            if mod in l:
+                return seqOrTask
+        return None
 
     def _delHelper(self,name):
         if not hasattr(self,name):
@@ -576,7 +577,7 @@ class Process(object):
     def _placeService(self,typeName,mod):
         self._place(typeName, mod, self.__services)
         if typeName in self.__dict__:
-          self.__dict__[typeName]._inProcess = False
+            self.__dict__[typeName]._inProcess = False
         self.__dict__[typeName]=mod
     def load(self, moduleName):
         moduleName = moduleName.replace("/",".")
@@ -813,7 +814,7 @@ class Process(object):
     def _dumpPython(self, d, options):
         result = ''
         for name, value in sorted(six.iteritems(d)):
-           result += value.dumpPythonAs(name,options)+'\n'
+            result += value.dumpPythonAs(name,options)+'\n'
         return result
     def dumpPython(self, options=PrintOptions()):
         """return a string containing the equivalent process defined using python"""
@@ -879,9 +880,9 @@ class Process(object):
     def _insertManyInto(self, parameterSet, label, itemDict, tracked):
         l = []
         for name,value in six.iteritems(itemDict):
-          newLabel = value.nameInProcessDesc_(name)
-          l.append(newLabel)
-          value.insertInto(parameterSet, name)
+            newLabel = value.nameInProcessDesc_(name)
+            l.append(newLabel)
+            value.insertInto(parameterSet, name)
         # alphabetical order is easier to compare with old language
         l.sort()
         parameterSet.addVString(tracked, label, l)
@@ -889,11 +890,11 @@ class Process(object):
         l = []
         subprocs = []
         for value in itemList:
-          name = value.getProcessName()
-          newLabel = value.nameInProcessDesc_(name)
-          l.append(newLabel)
-          pset = value.getSubProcessPSet(parameterSet)
-          subprocs.append(pset)
+            name = value.getProcessName()
+            newLabel = value.nameInProcessDesc_(name)
+            l.append(newLabel)
+            pset = value.getSubProcessPSet(parameterSet)
+            subprocs.append(pset)
         # alphabetical order is easier to compare with old language
         l.sort()
         parameterSet.addVString(tracked, label, l)
@@ -1009,10 +1010,10 @@ class Process(object):
             unneededSeqLabels.append(s.label_())
             delattr(self,s.label_())
         if verbose:
-            print "prune removed the following:"
-            print "  modules:"+",".join(unneededModules)
-            print "  sequences:"+",".join(unneededSeqLabels)
-            print "  paths/endpaths:"+",".join(unneededPaths)
+            print("prune removed the following:")
+            print("  modules:"+",".join(unneededModules))
+            print("  sequences:"+",".join(unneededSeqLabels))
+            print("  paths/endpaths:"+",".join(unneededPaths))
     def _pruneModules(self, d, scheduledNames):
         moduleNames = set(d.keys())
         junk = moduleNames - scheduledNames
@@ -1051,7 +1052,7 @@ class Process(object):
                 if isinstance(pset,TopLevelPSetAcessorAdaptor):
                     return pset.__ppset
                 return pset
-                
+
         self.validate()
         processPSet.addString(True, "@process_name", self.name_())
         all_modules = self.producers_().copy()
@@ -1091,8 +1092,8 @@ class Process(object):
         #handle services differently
         services = []
         for serviceName, serviceObject in six.iteritems(self.services_()):
-             if serviceObject in nodeVisitor.services or not (serviceObject in processNodeVisitor.services):
-                 serviceObject.insertInto(ServiceInjectorAdaptor(adaptor,services))
+            if serviceObject in nodeVisitor.services or not (serviceObject in processNodeVisitor.services):
+                serviceObject.insertInto(ServiceInjectorAdaptor(adaptor,services))
         adaptor.addVPSet(False,"services",services)
         return processPSet
 
@@ -1145,11 +1146,11 @@ class Process(object):
             # maybe it's an unnamed ESModule?
             found = False
             for name, value in six.iteritems(d):
-               if value.type_() == esname:
-                  if found:
-                      raise RuntimeError("More than one ES module for "+esname)
-                  found = True
-                  self.__setattr__(esname+"_prefer",  ESPrefer(d[esname].type_()) )
+                if value.type_() == esname:
+                    if found:
+                        raise RuntimeError("More than one ES module for "+esname)
+                    found = True
+                    self.__setattr__(esname+"_prefer",  ESPrefer(d[esname].type_()) )
             return found
 
 
@@ -1192,18 +1193,18 @@ class FilteredStream(dict):
         dict.__init__(new, *args, **kw)
         keys = sorted(kw.keys())
         if keys != ['content', 'dataTier', 'name', 'paths', 'responsible', 'selectEvents']:
-           raise ValueError("The needed parameters are: content, dataTier, name, paths, responsible, selectEvents")
-	if not isinstance(kw['name'],str):
-           raise ValueError("name must be of type string")
+            raise ValueError("The needed parameters are: content, dataTier, name, paths, responsible, selectEvents")
+        if not isinstance(kw['name'],str):
+            raise ValueError("name must be of type string")
         if not isinstance(kw['content'], vstring) and not isinstance(kw['content'],str):
-           raise ValueError("content must be of type vstring or string")
+            raise ValueError("content must be of type vstring or string")
         if not isinstance(kw['dataTier'], string):
-           raise ValueError("dataTier must be of type string")
+            raise ValueError("dataTier must be of type string")
         if not isinstance(kw['selectEvents'], PSet):
-           raise ValueError("selectEvents must be of type PSet")
+            raise ValueError("selectEvents must be of type PSet")
         if not isinstance(kw['paths'],(tuple, Path)):
-           raise ValueError("'paths' must be a tuple of paths")
-	return new
+            raise ValueError("'paths' must be a tuple of paths")
+        return new
     def __init__(self, *args, **kw):
         pass
     def __repr__(self):
@@ -1212,211 +1213,211 @@ class FilteredStream(dict):
         return self[attr]
 
 class SubProcess(_Unlabelable):
-   """Allows embedding another process within a parent process. This allows one to 
-   chain processes together directly in one cmsRun job rather than having to run
-   separate jobs that are connected via a temporary file.
-   """
-   def __init__(self,process, SelectEvents = untracked.PSet(), outputCommands = untracked.vstring()):
-      """
-      """
-      if not isinstance(process, Process):
-         raise ValueError("the 'process' argument must be of type cms.Process")
-      if not isinstance(SelectEvents,PSet):
-         raise ValueError("the 'SelectEvents' argument must be of type cms.untracked.PSet")
-      if not isinstance(outputCommands,vstring):
-         raise ValueError("the 'outputCommands' argument must be of type cms.untracked.vstring")
-      self.__process = process
-      self.__SelectEvents = SelectEvents
-      self.__outputCommands = outputCommands
-   def dumpPython(self,options=PrintOptions()):
-      out = "parentProcess"+str(hash(self))+" = process\n"
-      out += self.__process.dumpPython()
-      out += "childProcess = process\n"
-      out += "process = parentProcess"+str(hash(self))+"\n"
-      out += "process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = "+self.__SelectEvents.dumpPython(options) +", outputCommands = "+self.__outputCommands.dumpPython(options) +"))"
-      return out
-   def getProcessName(self):
-      return self.__process.name_()
-   def process(self):
-      return self.__process
-   def SelectEvents(self):
-      return self.__SelectEvents
-   def outputCommands(self):
-      return self.__outputCommands
-   def type_(self):
-      return 'subProcess'
-   def nameInProcessDesc_(self,label):
-      return label
-   def _place(self,label,process):
-      process._placeSubProcess('subProcess',self)
-   def getSubProcessPSet(self,parameterSet):
-      topPSet = parameterSet.newPSet()
-      self.__process.fillProcessDesc(topPSet)
-      subProcessPSet = parameterSet.newPSet()
-      self.__SelectEvents.insertInto(subProcessPSet,"SelectEvents")
-      self.__outputCommands.insertInto(subProcessPSet,"outputCommands")
-      subProcessPSet.addPSet(False,"process",topPSet)
-      return subProcessPSet
+    """Allows embedding another process within a parent process. This allows one to 
+    chain processes together directly in one cmsRun job rather than having to run
+    separate jobs that are connected via a temporary file.
+    """
+    def __init__(self,process, SelectEvents = untracked.PSet(), outputCommands = untracked.vstring()):
+        """
+        """
+        if not isinstance(process, Process):
+            raise ValueError("the 'process' argument must be of type cms.Process")
+        if not isinstance(SelectEvents,PSet):
+            raise ValueError("the 'SelectEvents' argument must be of type cms.untracked.PSet")
+        if not isinstance(outputCommands,vstring):
+            raise ValueError("the 'outputCommands' argument must be of type cms.untracked.vstring")
+        self.__process = process
+        self.__SelectEvents = SelectEvents
+        self.__outputCommands = outputCommands
+    def dumpPython(self,options=PrintOptions()):
+        out = "parentProcess"+str(hash(self))+" = process\n"
+        out += self.__process.dumpPython()
+        out += "childProcess = process\n"
+        out += "process = parentProcess"+str(hash(self))+"\n"
+        out += "process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = "+self.__SelectEvents.dumpPython(options) +", outputCommands = "+self.__outputCommands.dumpPython(options) +"))"
+        return out
+    def getProcessName(self):
+        return self.__process.name_()
+    def process(self):
+        return self.__process
+    def SelectEvents(self):
+        return self.__SelectEvents
+    def outputCommands(self):
+        return self.__outputCommands
+    def type_(self):
+        return 'subProcess'
+    def nameInProcessDesc_(self,label):
+        return label
+    def _place(self,label,process):
+        process._placeSubProcess('subProcess',self)
+    def getSubProcessPSet(self,parameterSet):
+        topPSet = parameterSet.newPSet()
+        self.__process.fillProcessDesc(topPSet)
+        subProcessPSet = parameterSet.newPSet()
+        self.__SelectEvents.insertInto(subProcessPSet,"SelectEvents")
+        self.__outputCommands.insertInto(subProcessPSet,"outputCommands")
+        subProcessPSet.addPSet(False,"process",topPSet)
+        return subProcessPSet
 
 class _ParameterModifier(object):
-  """Helper class for Modifier that takes key/value pairs and uses them to reset parameters of the object"""
-  def __init__(self,args):
-    self.__args = args
-  def __call__(self,obj):
-    params = {}
-    for k in self.__args.iterkeys():
-        if hasattr(obj,k):
-            params[k] = getattr(obj,k)
-    _modifyParametersFromDict(params, self.__args, self._raiseUnknownKey)
-    for k in self.__args.iterkeys():
-        if k in params:
-            setattr(obj,k,params[k])
-        else:
-            #the parameter must have been removed
-            delattr(obj,k)
-  @staticmethod
-  def _raiseUnknownKey(key):
-    raise KeyError("Unknown parameter name "+key+" specified while calling Modifier")
+    """Helper class for Modifier that takes key/value pairs and uses them to reset parameters of the object"""
+    def __init__(self,args):
+        self.__args = args
+    def __call__(self,obj):
+        params = {}
+        for k in self.__args.iterkeys():
+            if hasattr(obj,k):
+                params[k] = getattr(obj,k)
+        _modifyParametersFromDict(params, self.__args, self._raiseUnknownKey)
+        for k in self.__args.iterkeys():
+            if k in params:
+                setattr(obj,k,params[k])
+            else:
+                #the parameter must have been removed
+                delattr(obj,k)
+    @staticmethod
+    def _raiseUnknownKey(key):
+        raise KeyError("Unknown parameter name "+key+" specified while calling Modifier")
 
 class _BoolModifierBase(object):
-  """A helper base class for _AndModifier, _InvertModifier, and _OrModifier to contain the common code"""
-  def __init__(self, lhs, rhs=None):
-    self._lhs = lhs
-    if rhs is not None:
-      self._rhs = rhs
-  def toModify(self,obj, func=None,**kw):
-    Modifier._toModifyCheck(obj,func,**kw)
-    if not self.isChosen():
-      return
-    Modifier._toModify(obj,func,**kw)
-  def toReplaceWith(self,toObj,fromObj):
-    Modifier._toReplaceWithCheck(toObj,fromObj)
-    if not self.isChosen():
-      return
-    Modifier._toReplaceWith(toObj,fromObj)
-  def makeProcessModifier(self,func):
-    """This is used to create a ProcessModifer that can perform actions on the process as a whole.
-        This takes as argument a callable object (e.g. function) that takes as its sole argument an instance of Process.
-        In order to work, the value returned from this function must be assigned to a uniquely named variable."""
-    return ProcessModifier(self,func)
-  def __and__(self, other):
-    return _AndModifier(self,other)
-  def __invert__(self):
-    return _InvertModifier(self)
-  def __or__(self, other):
-    return _OrModifier(self,other)
+    """A helper base class for _AndModifier, _InvertModifier, and _OrModifier to contain the common code"""
+    def __init__(self, lhs, rhs=None):
+        self._lhs = lhs
+        if rhs is not None:
+            self._rhs = rhs
+    def toModify(self,obj, func=None,**kw):
+        Modifier._toModifyCheck(obj,func,**kw)
+        if not self.isChosen():
+            return
+        Modifier._toModify(obj,func,**kw)
+    def toReplaceWith(self,toObj,fromObj):
+        Modifier._toReplaceWithCheck(toObj,fromObj)
+        if not self.isChosen():
+            return
+        Modifier._toReplaceWith(toObj,fromObj)
+    def makeProcessModifier(self,func):
+        """This is used to create a ProcessModifer that can perform actions on the process as a whole.
+            This takes as argument a callable object (e.g. function) that takes as its sole argument an instance of Process.
+            In order to work, the value returned from this function must be assigned to a uniquely named variable."""
+        return ProcessModifier(self,func)
+    def __and__(self, other):
+        return _AndModifier(self,other)
+    def __invert__(self):
+        return _InvertModifier(self)
+    def __or__(self, other):
+        return _OrModifier(self,other)
 
 class _AndModifier(_BoolModifierBase):
-  """A modifier which only applies if multiple Modifiers are chosen"""
-  def __init__(self, lhs, rhs):
-    super(_AndModifier,self).__init__(lhs, rhs)
-  def isChosen(self):
-    return self._lhs.isChosen() and self._rhs.isChosen()
+    """A modifier which only applies if multiple Modifiers are chosen"""
+    def __init__(self, lhs, rhs):
+        super(_AndModifier,self).__init__(lhs, rhs)
+    def isChosen(self):
+        return self._lhs.isChosen() and self._rhs.isChosen()
 
 class _InvertModifier(_BoolModifierBase):
-  """A modifier which only applies if a Modifier is not chosen"""
-  def __init__(self, lhs):
-    super(_InvertModifier,self).__init__(lhs)
-  def isChosen(self):
-    return not self._lhs.isChosen()
+    """A modifier which only applies if a Modifier is not chosen"""
+    def __init__(self, lhs):
+        super(_InvertModifier,self).__init__(lhs)
+    def isChosen(self):
+        return not self._lhs.isChosen()
 
 class _OrModifier(_BoolModifierBase):
-  """A modifier which only applies if at least one of multiple Modifiers is chosen"""
-  def __init__(self, lhs, rhs):
-    super(_OrModifier,self).__init__(lhs, rhs)
-  def isChosen(self):
-    return self._lhs.isChosen() or self._rhs.isChosen()
+    """A modifier which only applies if at least one of multiple Modifiers is chosen"""
+    def __init__(self, lhs, rhs):
+        super(_OrModifier,self).__init__(lhs, rhs)
+    def isChosen(self):
+        return self._lhs.isChosen() or self._rhs.isChosen()
 
 
 class Modifier(object):
-  """This class is used to define standard modifications to a Process.
-  An instance of this class is declared to denote a specific modification,e.g. era2017 could
-  reconfigure items in a process to match our expectation of running in 2017. Once declared,
-  these Modifier instances are imported into a configuration and items that need to be modified
-  are then associated with the Modifier and with the action to do the modification.
-  The registered modifications will only occur if the Modifier was passed to 
-  the cms.Process' constructor.
-  """
-  def __init__(self):
-    self.__processModifiers = []
-    self.__chosen = False
-  def makeProcessModifier(self,func):
-    """This is used to create a ProcessModifer that can perform actions on the process as a whole.
-       This takes as argument a callable object (e.g. function) that takes as its sole argument an instance of Process.
-       In order to work, the value returned from this function must be assigned to a uniquely named variable.
+    """This class is used to define standard modifications to a Process.
+    An instance of this class is declared to denote a specific modification,e.g. era2017 could
+    reconfigure items in a process to match our expectation of running in 2017. Once declared,
+    these Modifier instances are imported into a configuration and items that need to be modified
+    are then associated with the Modifier and with the action to do the modification.
+    The registered modifications will only occur if the Modifier was passed to 
+    the cms.Process' constructor.
     """
-    return ProcessModifier(self,func)
-  @staticmethod
-  def _toModifyCheck(obj,func,**kw):
-    if func is not None and len(kw) != 0:
-      raise TypeError("toModify takes either two arguments or one argument and key/value pairs")
-  def toModify(self,obj, func=None,**kw):
-    """This is used to register an action to be performed on the specific object. Two different forms are allowed
-    Form 1: A callable object (e.g. function) can be passed as the second. This callable object is expected to take one argument
-    that will be the object passed in as the first argument.
-    Form 2: A list of parameter name, value pairs can be passed
-       mod.toModify(foo, fred=cms.int32(7), barney = cms.double(3.14))
-    This form can also be used to remove a parameter by passing the value of None
-        #remove the parameter foo.fred       
-        mod.toModify(foo, fred = None)
-    Additionally, parameters embedded within PSets can also be modified using a dictionary
-        #change foo.fred.pebbles to 3 and foo.fred.friend to "barney"
-        mod.toModify(foo, fred = dict(pebbles = 3, friend = "barney)) )
-    """
-    Modifier._toModifyCheck(obj,func,**kw)
-    if not self.isChosen():
-        return
-    Modifier._toModify(obj,func,**kw)
-  @staticmethod
-  def _toModify(obj,func,**kw):
-    if func is not None:
-      func(obj)
-    else:
-      temp =_ParameterModifier(kw)
-      temp(obj)
-  @staticmethod
-  def _toReplaceWithCheck(toObj,fromObj):
-    if not isinstance(fromObj, type(toObj)):
-        raise TypeError("toReplaceWith requires both arguments to be the same class type")
-  def toReplaceWith(self,toObj,fromObj):
-    """If the Modifier is chosen the internals of toObj will be associated with the internals of fromObj
-    """
-    Modifier._toReplaceWithCheck(toObj,fromObj)
-    if not self.isChosen():
-        return
-    Modifier._toReplaceWith(toObj,fromObj)
-  @staticmethod
-  def _toReplaceWith(toObj,fromObj):
-    if isinstance(fromObj,_ModuleSequenceType):
-        toObj._seq = fromObj._seq
-        toObj._tasks = fromObj._tasks
-    elif isinstance(fromObj,Task):
-        toObj._collection = fromObj._collection
-    elif isinstance(fromObj,_Parameterizable):
-        #clear old items just incase fromObj is not a complete superset of toObj
-        for p in toObj.parameterNames_():
-            delattr(toObj,p)
-        for p in fromObj.parameterNames_():
-            setattr(toObj,p,getattr(fromObj,p))
-        if isinstance(fromObj,_TypedParameterizable):
-            toObj._TypedParameterizable__type = fromObj._TypedParameterizable__type
-            
-    else:
-        raise TypeError("toReplaceWith does not work with type "+str(type(toObj)))
+    def __init__(self):
+        self.__processModifiers = []
+        self.__chosen = False
+    def makeProcessModifier(self,func):
+        """This is used to create a ProcessModifer that can perform actions on the process as a whole.
+           This takes as argument a callable object (e.g. function) that takes as its sole argument an instance of Process.
+           In order to work, the value returned from this function must be assigned to a uniquely named variable.
+        """
+        return ProcessModifier(self,func)
+    @staticmethod
+    def _toModifyCheck(obj,func,**kw):
+        if func is not None and len(kw) != 0:
+            raise TypeError("toModify takes either two arguments or one argument and key/value pairs")
+    def toModify(self,obj, func=None,**kw):
+        """This is used to register an action to be performed on the specific object. Two different forms are allowed
+        Form 1: A callable object (e.g. function) can be passed as the second. This callable object is expected to take one argument
+        that will be the object passed in as the first argument.
+        Form 2: A list of parameter name, value pairs can be passed
+           mod.toModify(foo, fred=cms.int32(7), barney = cms.double(3.14))
+        This form can also be used to remove a parameter by passing the value of None
+            #remove the parameter foo.fred       
+            mod.toModify(foo, fred = None)
+        Additionally, parameters embedded within PSets can also be modified using a dictionary
+            #change foo.fred.pebbles to 3 and foo.fred.friend to "barney"
+            mod.toModify(foo, fred = dict(pebbles = 3, friend = "barney)) )
+        """
+        Modifier._toModifyCheck(obj,func,**kw)
+        if not self.isChosen():
+            return
+        Modifier._toModify(obj,func,**kw)
+    @staticmethod
+    def _toModify(obj,func,**kw):
+        if func is not None:
+            func(obj)
+        else:
+            temp =_ParameterModifier(kw)
+            temp(obj)
+    @staticmethod
+    def _toReplaceWithCheck(toObj,fromObj):
+        if not isinstance(fromObj, type(toObj)):
+            raise TypeError("toReplaceWith requires both arguments to be the same class type")
+    def toReplaceWith(self,toObj,fromObj):
+        """If the Modifier is chosen the internals of toObj will be associated with the internals of fromObj
+        """
+        Modifier._toReplaceWithCheck(toObj,fromObj)
+        if not self.isChosen():
+            return
+        Modifier._toReplaceWith(toObj,fromObj)
+    @staticmethod
+    def _toReplaceWith(toObj,fromObj):
+        if isinstance(fromObj,_ModuleSequenceType):
+            toObj._seq = fromObj._seq
+            toObj._tasks = fromObj._tasks
+        elif isinstance(fromObj,Task):
+            toObj._collection = fromObj._collection
+        elif isinstance(fromObj,_Parameterizable):
+            #clear old items just incase fromObj is not a complete superset of toObj
+            for p in toObj.parameterNames_():
+                delattr(toObj,p)
+            for p in fromObj.parameterNames_():
+                setattr(toObj,p,getattr(fromObj,p))
+            if isinstance(fromObj,_TypedParameterizable):
+                toObj._TypedParameterizable__type = fromObj._TypedParameterizable__type
 
-  def _setChosen(self):
-    """Should only be called by cms.Process instances"""
-    self.__chosen = True
-  def isChosen(self):
-    return self.__chosen
-  def __and__(self, other):
-    return _AndModifier(self,other)
-  def __invert__(self):
-    return _InvertModifier(self)
-  def __or__(self, other):
-    return _OrModifier(self,other)
-  def _isOrContains(self, other):
-    return self == other
+        else:
+            raise TypeError("toReplaceWith does not work with type "+str(type(toObj)))
+
+    def _setChosen(self):
+        """Should only be called by cms.Process instances"""
+        self.__chosen = True
+    def isChosen(self):
+        return self.__chosen
+    def __and__(self, other):
+        return _AndModifier(self,other)
+    def __invert__(self):
+        return _InvertModifier(self)
+    def __or__(self, other):
+        return _OrModifier(self,other)
+    def _isOrContains(self, other):
+        return self == other
 
 
 class ModifierChain(object):
@@ -1438,35 +1439,35 @@ class ModifierChain(object):
     def isChosen(self):
         return self.__chosen
     def copyAndExclude(self, toExclude):
-      """Creates a new ModifierChain which is a copy of
-        this ModifierChain but excludes any Modifier or
-        ModifierChain in the list toExclude.
-        The exclusion is done recursively down the chain.
-        """
-      newMods = []
-      for m in self.__chain:
-        if m not in toExclude:
-          s = m
-          if isinstance(m,ModifierChain):
-            s = m.__copyIfExclude(toExclude)
-          newMods.append(s)
-      return ModifierChain(*newMods)
+        """Creates a new ModifierChain which is a copy of
+          this ModifierChain but excludes any Modifier or
+          ModifierChain in the list toExclude.
+          The exclusion is done recursively down the chain.
+          """
+        newMods = []
+        for m in self.__chain:
+            if m not in toExclude:
+                s = m
+                if isinstance(m,ModifierChain):
+                    s = m.__copyIfExclude(toExclude)
+                newMods.append(s)
+        return ModifierChain(*newMods)
     def __copyIfExclude(self,toExclude):
-      shouldCopy = False
-      for m in toExclude:
-        if self._isOrContains(m):
-          shouldCopy = True
-          break
-      if shouldCopy:
-        return self.copyAndExclude(toExclude)
-      return self
+        shouldCopy = False
+        for m in toExclude:
+            if self._isOrContains(m):
+                shouldCopy = True
+                break
+        if shouldCopy:
+            return self.copyAndExclude(toExclude)
+        return self
     def _isOrContains(self, other):
-      if self is other:
-        return True
-      for m in self.__chain:
-        if m._isOrContains(other):
-          return True
-      return False
+        if self is other:
+            return True
+        for m in self.__chain:
+            if m._isOrContains(other):
+                return True
+        return False
 
 class ProcessModifier(object):
     """A class used by a Modifier to affect an entire Process instance.
@@ -1487,7 +1488,7 @@ class ProcessModifier(object):
 if __name__=="__main__":
     import unittest
     import copy
-    
+
     class TestMakePSet(object):
         """Has same interface as the C++ object that creates PSets
         """
@@ -1549,7 +1550,7 @@ if __name__=="__main__":
             self.__insertValue(tracked,label,value)
         def newPSet(self):
             return TestMakePSet()
-    
+
     class TestModuleCommand(unittest.TestCase):
         def setUp(self):
             """Nothing to do """
@@ -1659,7 +1660,7 @@ if __name__=="__main__":
                     s4=s3,
                     g=Sequence(s1+s2+s3)
                  )
-            
+
             p1 = Process("Test")
             #p1.extend(z1)
             self.assertRaises(ValueError, p1.extend, z1)
@@ -2067,7 +2068,7 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
 
             taskContents = []
             for i in testTask1:
-                 taskContents.append(i)
+                taskContents.append(i)
             self.assertTrue(taskContents == [edproducer, edfilter, essource, service, esproducer, testTask2])
 
             # test attaching Task to Process
@@ -2931,7 +2932,7 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             p = Process("test",m1)
             p.a = EDAnalyzer("MyAnalyzer", fred = int32(1))
             def _mod_fred(obj):
-              obj.fred = 2
+                obj.fred = 2
             m1.toModify(p.a,_mod_fred)
             self.assertEqual(p.a.fred.value(),2)
             p.b = EDAnalyzer("YourAnalyzer", wilma = int32(1))

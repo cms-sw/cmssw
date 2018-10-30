@@ -38,8 +38,18 @@ HcalSiPMCharacteristics::HcalSiPMCharacteristics(HcalSiPMCharacteristics&& other
 }
 
 const HcalSiPMCharacteristics::PrecisionItem* HcalSiPMCharacteristics::findByType (int type) const {
-  PrecisionItem target(type, 0, 0, 0, 0, 0, 0, 0);
-  return HcalObjectAddons::findByT<PrecisionItem,HcalSiPMCharacteristicsAddons::LessByType>(&target,mPItemsByType);
+
+  const HcalSiPMCharacteristics::PrecisionItem* retItem = nullptr;
+
+  for(unsigned int i = 0; i < getTypes(); i++){
+    auto iter = &mPItems.at(i);
+    if(type==iter->type_) retItem = iter;    
+  }
+  return retItem;
+
+  //NOT WORKING:
+  //PrecisionItem target(type, 0, 0, 0, 0, 0, 0, 0);
+  //return HcalObjectAddons::findByT<PrecisionItem,HcalSiPMCharacteristicsAddons::LessByType>(&target,mPItemsByType);
 }
 
 HcalSiPMCharacteristicsAddons::Helper::Helper() {}

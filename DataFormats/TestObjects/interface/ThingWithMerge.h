@@ -9,6 +9,7 @@ namespace edmtest {
     ~ThingWithMerge() { }
     ThingWithMerge():a() { }
     bool mergeProduct(ThingWithMerge const& newThing);
+    void swap(ThingWithMerge& iOther);
     cms_int32_t a;
   };
 

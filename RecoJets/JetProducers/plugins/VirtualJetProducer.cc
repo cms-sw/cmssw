@@ -160,7 +160,7 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
 	minSeed_ 		= iConfig.getParameter<unsigned int>("minSeed");
 	verbosity_ 		= iConfig.getParameter<int>	("verbosity");
 
-	anomalousTowerDef_ = auto_ptr<AnomalousTower>(new AnomalousTower(iConfig));
+	anomalousTowerDef_ = unique_ptr<AnomalousTower>(new AnomalousTower(iConfig));
 
 	input_vertex_token_ = consumes<reco::VertexCollection>(srcPVs_);
 	input_candidateview_token_ = consumes<reco::CandidateView>(src_);

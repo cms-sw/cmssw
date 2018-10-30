@@ -128,7 +128,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         ExoticaPhysicsSS     = cms.untracked.bool(False),
         RhadronPhysics       = cms.bool(False),
         DarkMPFactor         = cms.double(1.0),
-        Region      = cms.string(' '),
+        Region      = cms.string(''),
         TrackingCut = cms.bool(False),
         SRType      = cms.bool(True),
         FlagMuNucl  = cms.bool(False),
@@ -154,7 +154,11 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         ElectronStepLimit         = cms.bool(False),
         ElectronRangeTest         = cms.bool(False),
         PositronStepLimit         = cms.bool(False),
-        MinStepLimit              = cms.double(1.0)
+        MinStepLimit              = cms.double(1.0),
+        ModifyTransportation      = cms.bool(False),
+        ThresholdWarningEnergy    = cms.untracked.double(100.0),
+        ThresholdImportantEnergy  = cms.untracked.double(250.0),
+        ThresholdTrials           = cms.untracked.int32(10)
     ),
     Generator = cms.PSet(
         HectorEtaCut,
@@ -179,11 +183,11 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         )
     ),
     RunAction = cms.PSet(
-        StopFile = cms.string('StopRun')
+        StopFile = cms.string('')
     ),
     EventAction = cms.PSet(
         debug = cms.untracked.bool(False),
-        StopFile = cms.string('StopRun'),
+        StopFile = cms.string(''),
         PrintRandomSeed = cms.bool(False),
         CollapsePrimaryVertices = cms.bool(False)
     ),
@@ -413,7 +417,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     ),
     MtdSD = cms.PSet(
         Verbosity = cms.untracked.int32(0),
-        TimeSliceUnit    = cms.double(0.001), #stepping = 1 ps (for timing)
+        TimeSliceUnit    = cms.double(0.01), #stepping = 10 ps (for timing)
         IgnoreTrackID    = cms.bool(False),
         EminHit          = cms.double(0.0),
         CheckID          = cms.untracked.bool(True),
@@ -443,6 +447,19 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         FiducialCut      = cms.bool(False),
         DistanceFromEdge = cms.double(1.0),
         StoreAllG4Hits   = cms.bool(False),
+    ),
+    HFNoseSD = cms.PSet(
+        Verbosity        = cms.untracked.int32(0),
+        TimeSliceUnit    = cms.double(0.001), #stepping = 1 ps (for timing)
+        IgnoreTrackID    = cms.bool(False),
+        EminHit          = cms.double(0.0),
+        FiducialCut      = cms.bool(False),
+        DistanceFromEdge = cms.double(1.0),
+        StoreAllG4Hits   = cms.bool(False),
+        RejectMouseBite  = cms.bool(False),
+        RotatedWafer     = cms.bool(False),
+        WaferAngles      = cms.untracked.vdouble(90.0,30.0),
+        CheckID          = cms.untracked.bool(True),
     ),
     TotemSD = cms.PSet(
         Verbosity = cms.untracked.int32(0)

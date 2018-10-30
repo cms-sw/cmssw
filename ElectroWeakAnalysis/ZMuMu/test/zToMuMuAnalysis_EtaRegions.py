@@ -1,3 +1,4 @@
+from __future__ import print_function
 #analysis code.
 #It produces plot for Fit study
 #author Luca Lista
@@ -52,13 +53,13 @@ dict = {'Barrel':[0, 0.8],'BarrEnd':[0.8, 1.2],'EndCap':[1.2, 2.0] }
 
 
 def addModuleEtaRegions(moduleToModify, region, src="", cut =""):
-    print "selection for: ", moduleToModify.label()+region   
+    print("selection for: ", moduleToModify.label()+region)   
     etaMin = dict[region][0]
     etaMax = dict[region][1]
     module = copy.deepcopy(moduleToModify)
     if cut=="":
         cut = "mass>20 & charge = 0 & daughter(0).pt > 20 & daughter(1).pt > 20 & ( abs(daughter(0).eta) > %5.3f & abs( daughter(0).eta )< %5.3f)  &  ( abs(daughter(1).eta) > %5.3f & abs( daughter(1).eta )< %5.3f) " %(etaMin, etaMax, etaMin, etaMax)
-    print region, ") cut = ",  cut 
+    print(region, ") cut = ",  cut) 
     if 'cut' in  module.parameters_():
         setattr(module, "cut", cut)
     if 'src' in   module.parameters_():
@@ -69,7 +70,7 @@ def addModuleEtaRegions(moduleToModify, region, src="", cut =""):
 
 
 def addPlotModuleEtaRegions(plotModuleToModify, region, src=""):       
-    print "selection for: ", plotModuleToModify.label()
+    print("selection for: ", plotModuleToModify.label())
     etaMin = dict[region][0]
     etaMax = dict[region][1]
     plotModule = copy.deepcopy(plotModuleToModify)

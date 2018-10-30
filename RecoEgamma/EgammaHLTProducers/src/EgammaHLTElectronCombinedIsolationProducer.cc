@@ -46,7 +46,7 @@ desc.add<std::vector<double> >("CaloIsolationWeight", std::vector<double>());
   descriptions.add("hltEgammaHLTElectronCombinedIsolationProducer", desc);  
 }
 
-void EgammaHLTElectronCombinedIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void EgammaHLTElectronCombinedIsolationProducer::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   
   edm::Handle<reco::ElectronCollection> electronHandle;
   iEvent.getByToken(electronProducer_,electronHandle);

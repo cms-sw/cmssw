@@ -111,7 +111,8 @@ CTPPSGeometryESModule::applyAlignments( const edm::ESHandle<DetGeomDesc>& idealG
     if ( name == DDD_TOTEM_RP_SENSOR_NAME
       || name == DDD_CTPPS_DIAMONDS_SEGMENT_NAME
       || name == DDD_CTPPS_UFSD_SEGMENT_NAME
-      || name == DDD_CTPPS_PIXELS_SENSOR_NAME ) {
+      || name == DDD_CTPPS_PIXELS_SENSOR_NAME
+      || std::regex_match( name, std::regex( DDD_TOTEM_TIMING_SENSOR_TMPL ) )) {
       unsigned int plId = pD->geographicalID();
 
       if ( alignments.isValid() ) {
@@ -123,7 +124,8 @@ CTPPSGeometryESModule::applyAlignments( const edm::ESHandle<DetGeomDesc>& idealG
     // Is it RP box? If yes, apply RP alignments
     if ( name == DDD_TOTEM_RP_RP_NAME
       || name == DDD_CTPPS_DIAMONDS_RP_NAME
-      || name == DDD_CTPPS_PIXELS_RP_NAME ) {
+      || name == DDD_CTPPS_PIXELS_RP_NAME
+      || name == DDD_TOTEM_TIMING_RP_NAME ) {
       unsigned int rpId = pD->geographicalID();
 
       if ( alignments.isValid() ) {

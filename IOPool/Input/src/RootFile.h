@@ -47,6 +47,7 @@ namespace edm {
   class InputFile;
   class ProvenanceReaderBase;
   class ProvenanceAdaptor;
+  class StoredMergeableRunProductMetadata;
   class RunHelperBase;
   class ThinnedAssociationsHelper;
 
@@ -264,6 +265,7 @@ namespace edm {
     IndexIntoFile::IndexIntoFileItr indexIntoFileBegin_;
     IndexIntoFile::IndexIntoFileItr indexIntoFileEnd_;
     IndexIntoFile::IndexIntoFileItr indexIntoFileIter_;
+    edm::propagate_const<std::unique_ptr<StoredMergeableRunProductMetadata>> storedMergeableRunProductMetadata_;
     std::vector<EventProcessHistoryID> eventProcessHistoryIDs_;  // backward compatibility
     std::vector<EventProcessHistoryID>::const_iterator eventProcessHistoryIter_; // backward compatibility
     edm::propagate_const<std::shared_ptr<RunAuxiliary>> savedRunAuxiliary_;
@@ -298,6 +300,7 @@ namespace edm {
     std::vector<ParentageID> parentageIDLookup_;
     edm::propagate_const<std::unique_ptr<DaqProvenanceHelper>> daqProvenanceHelper_;
     edm::propagate_const<TClass*> edProductClass_;
+    InputType inputType_;
   }; // class RootFile
 
 }

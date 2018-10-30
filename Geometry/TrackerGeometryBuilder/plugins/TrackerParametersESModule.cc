@@ -35,11 +35,11 @@ TrackerParametersESModule::produce( const PTrackerParametersRcd& iRecord )
   edm::ESTransientHandle<DDCompactView> cpv;
   iRecord.getRecord<IdealGeometryRecord>().get( cpv );
     
-  PTrackerParameters* ptp = new PTrackerParameters();
+  auto ptp = std::make_unique<PTrackerParameters>();
   TrackerParametersFromDD builder;
   builder.build( &(*cpv), *ptp );
 
-  return ReturnType( ptp ) ;
+  return ptp;
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE( TrackerParametersESModule);

@@ -22,7 +22,7 @@ double ChainedJetCorrector::correction (const LorentzVector& fJet) const
 /// apply correction using Jet information only
 double ChainedJetCorrector::correction (const reco::Jet& fJet) const
 {
-  std::auto_ptr<reco::Jet> jet (dynamic_cast<reco::Jet*> (fJet.clone ()));
+  std::unique_ptr<reco::Jet> jet (dynamic_cast<reco::Jet*> (fJet.clone ()));
   double result = 1;
   for (size_t i = 0; i < mCorrectors.size (); ++i) {
     double scale = mCorrectors[i]->correction (*jet);
@@ -37,7 +37,7 @@ double ChainedJetCorrector::correction (const reco::Jet& fJet,
 					const edm::Event& fEvent,
 					const edm::EventSetup& fSetup) const
 {
-  std::auto_ptr<reco::Jet> jet (dynamic_cast<reco::Jet*> (fJet.clone ()));
+  std::unique_ptr<reco::Jet> jet (dynamic_cast<reco::Jet*> (fJet.clone ()));
   double result = 1;
   for (size_t i = 0; i < mCorrectors.size (); ++i) {
     double scale = mCorrectors[i]->correction (*jet, fEvent, fSetup);
@@ -52,7 +52,7 @@ double ChainedJetCorrector::correction (const reco::Jet& fJet,
 					const edm::Event& fEvent,
 					const edm::EventSetup& fSetup) const
 {
-  std::auto_ptr<reco::Jet> jet (dynamic_cast<reco::Jet*> (fJet.clone ()));
+  std::unique_ptr<reco::Jet> jet (dynamic_cast<reco::Jet*> (fJet.clone ()));
   double result = 1;
   for (size_t i = 0; i < mCorrectors.size (); ++i) {
     double scale = mCorrectors[i]->correction (*jet, fJetRef, fEvent, fSetup);

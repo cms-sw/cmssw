@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
 
@@ -13,7 +14,7 @@ process.GlobalTag.globaltag = "MC_70_V4::All"
 
 MagFieldValue = float(sys.argv[2])
 
-print '\nMagField = %f \n' % (MagFieldValue)
+print('\nMagField = %f \n' % (MagFieldValue))
 #version = 'v2'
 version = sys.argv[3]
 
@@ -66,7 +67,7 @@ elif( MagFieldValue==3.5 or MagFieldValue==35 ):
 template_base = 'SiPixelTemplateDBObject' + MagFieldString + 'T'
 #theTemplateBaseString = cms.string(template_base)
 
-print '\nUploading %s%s with record SiPixelTemplateDBObjectRcd in file siPixelTemplates%sT.db\n' % (template_base,version,MagFieldString)
+print('\nUploading %s%s with record SiPixelTemplateDBObjectRcd in file siPixelTemplates%sT.db\n' % (template_base,version,MagFieldString))
 
 process.source = cms.Source("EmptyIOVSource",
                             timetype = cms.string('runnumber'),

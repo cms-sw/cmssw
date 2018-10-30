@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PixelLumiDQM")
@@ -101,7 +102,7 @@ if process.dqmRunConfig.type.value() is "playback":
 else:
     process.pixel_lumi_dqm.logFileName = cms.untracked.string("/nfshome0/dqmpro/pixel_lumi.txt")
 
-print process.pixel_lumi_dqm.logFileName
+print(process.pixel_lumi_dqm.logFileName)
     
 #--------------------------
 # Service

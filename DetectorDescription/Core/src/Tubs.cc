@@ -3,13 +3,12 @@
 #include <cmath>
 #include <vector>
 
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "DetectorDescription/Core/interface/DDUnits.h"
 #include "DetectorDescription/Core/src/Solid.h"
 
 using std::fabs;
+using namespace dd::operators;
 
 DDI::Tubs::Tubs(double zhalf,
     	        double rIn, double rOut,	      	      
@@ -24,16 +23,14 @@ DDI::Tubs::Tubs(double zhalf,
   p_.emplace_back(deltaPhi);
 }
 
-
 void DDI::Tubs::stream(std::ostream & os) const
 {
-  os << " zhalf=" << p_[0]/cm
-     << " rIn=" << p_[1]/cm
-     << " rOut=" << p_[2]/cm
-     << " startPhi=" << p_[3]/deg
-     << " deltaPhi=" << p_[4]/deg;		
+  os << " zhalf=" << CONVERT_TO( p_[0], cm )
+     << " rIn=" << CONVERT_TO( p_[1], cm )
+     << " rOut=" << CONVERT_TO( p_[2], cm )
+     << " startPhi=" << CONVERT_TO( p_[3], deg )
+     << " deltaPhi=" << CONVERT_TO( p_[4], deg );		
 }
-
 					
 double DDI::Tubs::volume() const
 {
@@ -41,15 +38,14 @@ double DDI::Tubs::volume() const
    double z=2.*p_[0];
    double rIn=p_[1];
    double rOut=p_[2];
-   double phi=p_[4]/rad;
+   double phi = CONVERT_TO( p_[4], rad );
 
-   double volume1=pi*rIn*rIn*z;
-   double volume2=pi*rOut*rOut*z;
+   double volume1=1_pi*rIn*rIn*z;
+   double volume2=1_pi*rOut*rOut*z;
 
-   double slice=fabs(phi/(2*pi));
+   double slice=fabs(phi/(2_pi));
 
    volume=slice*(volume2-volume1);
   
    return volume;																		
 }																 		
-

@@ -39,6 +39,11 @@ class CSCDetId;
 class RPCDigi;
 class RPCDetId;
 
+// CPPF digi types
+namespace l1t {
+  class CPPFDigi;
+}
+
 // GEM digi types
 class GEMPadDigi;
 class GEMDetId;
@@ -60,14 +65,19 @@ namespace L1TMuon {
     // within a subsystem
     // for RPCs you have to unroll the digi-link and raw det-id
     struct RPCData {
-      RPCData() : strip(0), strip_low(0), strip_hi(0), layer(0), bx(0), valid(0), time(0.) {}
+      RPCData() : strip(0), strip_low(0), strip_hi(0), phi_int(0), theta_int(0),
+	          emtf_sector(0), layer(0), bx(0), valid(0), time(0.), isCPPF(false) {}
       uint16_t strip;
-      uint16_t strip_low; // for use in clustering
-      uint16_t strip_hi;  // for use in clustering
+      uint16_t strip_low;   // for use in clustering
+      uint16_t strip_hi;    // for use in clustering
+      uint16_t phi_int;     // for CPPFDigis in EMTF
+      uint16_t theta_int;   // for CPPFDigis in EMTF
+      uint16_t emtf_sector; // for CPPFDigis in EMTF
       uint16_t layer;
-      int16_t bx;
+      int16_t  bx;
       uint16_t valid;
-      double time;  // why double?
+      double   time;  // why double?
+      bool     isCPPF;
     };
 
     struct CSCData {
@@ -153,6 +163,8 @@ namespace L1TMuon {
                      const unsigned strip,
                      const unsigned layer,
                      const int bx);
+    TriggerPrimitive(const RPCDetId& detid,  // constructor from CPPFDigi
+                     const l1t::CPPFDigi& digi);
 
     // GEM
     TriggerPrimitive(const GEMDetId& detid,

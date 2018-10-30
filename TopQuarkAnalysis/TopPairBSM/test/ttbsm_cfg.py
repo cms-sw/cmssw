@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Starting with a skeleton process which gets imported with the following line
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
@@ -136,13 +137,13 @@ else :
 
 #process.source.skipEvents = cms.untracked.uint32(17268) 
 
-print options
+print(options)
 
-print 'Running AK5 jet corrections: '
-print inputJetCorrLabelAK5PFchs
+print('Running AK5 jet corrections: ')
+print(inputJetCorrLabelAK5PFchs)
 
-print 'Running AK7 jet corrections: '
-print inputJetCorrLabelAK7PFchs
+print('Running AK7 jet corrections: ')
+print(inputJetCorrLabelAK7PFchs)
 
 import sys
 
@@ -946,7 +947,7 @@ if options.useExplicitJTA :
         if hasattr( process, 'jetTracksAssociatorAtVertex' + xtrplabel + 'PF' ):
             from RecoJets.JetAssociationProducers.ak5JTA_cff import ak5JetTracksAssociatorExplicit
             m = 'jetTracksAssociatorAtVertex' + xtrplabel + 'PF'
-            print 'Switching ' + m + ' to explicit jet-track association'
+            print('Switching ' + m + ' to explicit jet-track association')
             setattr( process, m, ak5JetTracksAssociatorExplicit.clone(jets = getattr(getattr(process,m),'jets')) )
 
 ###

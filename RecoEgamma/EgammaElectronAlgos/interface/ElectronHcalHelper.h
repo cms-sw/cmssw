@@ -26,7 +26,7 @@ class ElectronHcalHelper {
     double hOverEConeSize;
     
     // strategy
-    bool useTowers;
+    bool useTowers, checkHcalStatus;
     
     // specific parameters if use towers
     edm::EDGetTokenT<CaloTowerCollection> hcalTowers; 
@@ -52,7 +52,11 @@ class ElectronHcalHelper {
   std::vector<CaloTowerDetId> hcalTowersBehindClusters( const reco::SuperCluster & sc ) ;
   double hcalESumDepth1BehindClusters( const std::vector<CaloTowerDetId> & towers ) ;
   double hcalESumDepth2BehindClusters( const std::vector<CaloTowerDetId> & towers ) ;
-  
+
+  // forward EgammaHadTower methods, if checkHcalStatus is enabled, using towers and H/E 
+  // otherwise, return true
+  bool hasActiveHcal( const reco::SuperCluster & sc ) ;
+
  private:
   
   const Configuration cfg_ ;

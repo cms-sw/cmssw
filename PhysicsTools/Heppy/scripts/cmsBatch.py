@@ -2,6 +2,7 @@
 # Colin
 # batch mode for cmsRun, March 2009
 
+from __future__ import print_function
 import os, sys,  imp, re, pprint, string, time,shutil,copy,pickle,math
 from optparse import OptionParser
 
@@ -182,7 +183,7 @@ class MyBatchManager( BatchManager ):
          iFileMin = (value-1)*grouping 
          iFileMax = (value)*grouping 
          process.source.fileNames = fullSource.fileNames[iFileMin:iFileMax]
-         print process.source
+         print(process.source)
       cfgFile = open(jobDir+'/run_cfg.py','w')
       cfgFile.write('import FWCore.ParameterSet.Config as cms\n\n')
       cfgFile.write('import os,sys\n')
@@ -263,21 +264,21 @@ runningMode = None
 try:
    runningMode = batchManager.RunningMode( options.batch )
 except CmsBatchException as err:
-   print err
+   print(err)
    sys.exit(1)
 
 grouping = int(args[0])
 nJobs = grouping
 cfgFileName = args[1]
 
-print 'Loading cfg'
+print('Loading cfg')
 
 pycfg_params = options.cmdargs
 trueArgv = sys.argv
 sys.argv = [cfgFileName]
 if pycfg_params:
    sys.argv.extend(pycfg_params.split(' '))
-print  sys.argv
+print(sys.argv)
 
 
 # load cfg script
@@ -297,18 +298,18 @@ generator = False
 try:
    process.source.fileNames
 except:
-   print 'No input file. This is a generator process.'
+   print('No input file. This is a generator process.')
    generator = True
    listOfValues = [i+1 for i in range( nJobs )] #Here is where the list of values is created 
 else:
-   print "Number of files in the source:",len(process.source.fileNames), ":"
+   print("Number of files in the source:",len(process.source.fileNames), ":")
    pprint.pprint(process.source.fileNames)
    nFiles = len(process.source.fileNames)
    nJobs = nFiles / grouping
    if (nJobs!=0 and (nFiles % grouping) > 0) or nJobs==0:
       nJobs = nJobs + 1
       
-   print "number of jobs to be created: ", nJobs
+   print("number of jobs to be created: ", nJobs)
    listOfValues = [i+1 for i in range( nJobs )] #OR Here is where the list of values is created
    #here i change from e.g 0-19 to 1-20
 

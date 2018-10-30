@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="hfnoseDummy.xml" eval="true">
+  <Vector name="RadiusMixBoundary" type="numeric" nEntries="2">
+    0.0, 0.0 </Vector>
+  <Vector name="NPhiBinBH" type="numeric" nEntries="2">
+    360, 288 </Vector>
+  <Vector name="ZRanges" type="numeric" nEntries="2">
+    [hfnose:HFNoseZ1], [hfnose:HFNoseZ3]</Vector>
+</ConstantsSection>
+
+</DDDefinition>

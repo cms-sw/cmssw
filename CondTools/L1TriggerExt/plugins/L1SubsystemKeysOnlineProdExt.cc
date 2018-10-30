@@ -44,7 +44,7 @@ L1SubsystemKeysOnlineProdExt::ReturnType
 L1SubsystemKeysOnlineProdExt::produce(const L1TriggerKeyExtRcd& iRecord)
 {
    using namespace edm::es;
-   std::shared_ptr<L1TriggerKeyExt> pL1TriggerKey ;
+   std::unique_ptr<L1TriggerKeyExt> pL1TriggerKey ;
 
    // Get L1TriggerKeyListExt
    L1TriggerKeyListExt keyList ;
@@ -64,11 +64,11 @@ if( !m_forceGeneration ){
    std::string m_Key = m_tscKey + delimeter + m_rsKey;
 
    // If L1TriggerKeyListExt does not contain TSC key, token is empty
-   if( keyList.token( m_Key ) == std::string() ||
+   if( keyList.token( m_Key ).empty() ||
        m_forceGeneration )
      {
        // Instantiate new L1TriggerKey
-       pL1TriggerKey = std::make_shared< L1TriggerKeyExt >();
+       pL1TriggerKey = std::make_unique< L1TriggerKeyExt >();
 
        pL1TriggerKey->setTSCKey( m_Key ) ;
 

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import re
 import os, sys, shutil
 import subprocess
@@ -17,8 +18,8 @@ sqlplusCmd = ['env',
              ]
 
 if hash( sqlplusCmd[-1] ) != 1687624727082866629:
-    print 'Do not forget to plug password to this script'
-    print 'Exiting.'
+    print('Do not forget to plug password to this script')
+    print('Exiting.')
     exit(0)
 
 myre = re.compile(r'(ID)|(-{80})')
@@ -26,16 +27,16 @@ myre = re.compile(r'(ID)|(-{80})')
 # if no arguments are given, query the top level keys only and exit
 if len(sys.argv) == 1:
     sqlplus = subprocess.Popen(sqlplusCmd, shell=False, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
-    print 'No args specified, querying and printing only top-level config keys:'
+    print('No args specified, querying and printing only top-level config keys:')
     for line in re.split('\n',sqlplus.communicate('select unique ID from CMS_TRG_L1_CONF.BMTF_KEYS;')[0]):
         if myre.search(line) == None :
-            print line
+            print(line)
     sqlplus = subprocess.Popen(sqlplusCmd, shell=False, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
-    print 'No args specified, querying and printing only top-level Run Settings keys:'
+    print('No args specified, querying and printing only top-level Run Settings keys:')
     for line in re.split('\n',sqlplus.communicate('select unique ID from CMS_TRG_L1_CONF.BMTF_RS_KEYS;')[0]):
         if myre.search(line) == None :
-            print line
-    print 'Pick any of these keys as an argument next time you run this script'
+            print(line)
+    print('Pick any of these keys as an argument next time you run this script')
     exit(0)
 
 # if an argument is given query the whole content of the key
@@ -48,17 +49,17 @@ queryRsKey = "select BMTF_RS_KEY from CMS_TRG_L1_CONF.L1_TRG_RS_KEYS   where ID=
 
 sqlplus = subprocess.Popen(sqlplusCmd, shell=False, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
 for line in re.split('\n',sqlplus.communicate(queryKey+';')[0]):
-    print line
+    print(line)
     if re.search('/v',line) :
         key=line
 
 sqlplus = subprocess.Popen(sqlplusCmd, shell=False, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
 for line in re.split('\n',sqlplus.communicate(queryRsKey+';')[0]):
-    print line
+    print(line)
     if re.search('/v',line) :
         rsKey=line
 
-print key+":"+rsKey
+print(key+":"+rsKey)
 
 queryKeys = """
             select
@@ -98,9 +99,9 @@ for config,fileName in six.iteritems(batch):
 
 
 sqlplus = subprocess.Popen(sqlplusCmd, shell=False, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
-print 'Following keys were found:'
+print('Following keys were found:')
 for line in re.split('\n',sqlplus.communicate(queryKeys+';')[0]):
-    print line
+    print(line)
 
-print 'Results are saved in ' + ' '.join(batch.values()) + ' files'
+print('Results are saved in ' + ' '.join(batch.values()) + ' files')
 

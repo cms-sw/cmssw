@@ -20,4 +20,3 @@ phase2_tracker.toModify(siStripClusters, # FIXME
                                      cms.InputTag('siStripZeroSuppression','ProcessedRaw'),
                                      cms.InputTag('siStripZeroSuppression','ScopeMode'))
 )
-

@@ -142,7 +142,7 @@ void SiPixelDigitizerAlgorithm::init(const edm::EventSetup& es) {
     SiPixelTemplate2D::pushfile(*dbobject_den, templateStores_);
     SiPixelTemplate2D::pushfile(*dbobject_num, templateStores_);
     
-    track.reserve(6);
+    track.resize(6);
   }
 }
 
@@ -189,7 +189,6 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   // ADC saturation value, 255(8bit adc.
   //theAdcFullScale(conf.getUntrackedParameter<int>("AdcFullScale",255)),
   theAdcFullScale(conf.getParameter<int>("AdcFullScale")),
-  theAdcFullScaleStack(conf.exists("AdcFullScaleStack")?conf.getParameter<int>("AdcFullScaleStack"):255),
 
   // Noise in electrons:
   // Pixel cell noise, relevant for generating noisy pixels
@@ -1312,12 +1311,10 @@ void SiPixelDigitizerAlgorithm::induce_signal(std::vector<PSimHit>::const_iterat
           hit_signal[chan] += ChargeFraction;
 	} // endif
 
-
+#ifdef TP_DEBUG
 	mp = MeasurementPoint( float(ix), float(iy) );
 	LocalPoint lp = topol->localPosition(mp);
 	chan = topol->channel(lp);
-
-#ifdef TP_DEBUG
 	LogDebug ("Pixel Digitizer")
 	  << " pixel " << ix << " " << iy << " - "<<" "
 	  << chan << " " << ChargeFraction<<" "
@@ -1416,15 +1413,6 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
 	adc = int( signalInElectrons / theElectronPerADC ); // calibrate gain
       }
       adc = std::min(adc, theAdcFullScale); // Check maximum value
-// Calculate layerIndex
-     if (theAdcFullScale!=theAdcFullScaleStack){
-       if(pixdet->subDetector() == GeomDetEnumerators::SubDetector::P2OTB) { // Phase 2 OT Barrel only
-	 // Set to 1 if over the threshold
-	 if (theAdcFullScaleStack==1) {adc=1;}
-	 // Make it a linear fit to the full scale of the normal adc count.   Start new adc from 1 not zero.
-	 if (theAdcFullScaleStack!=1&&theAdcFullScaleStack!=theAdcFullScale) {adc = int (1 + adc * (theAdcFullScaleStack-1)/float(theAdcFullScale) );}
-       }
-     } // Only enter this if the Adc changes for the outer layers
 #ifdef TP_DEBUG
       LogDebug ("Pixel Digitizer")
 	<< (*i).first << " " << (*i).second << " " << signalInElectrons
@@ -2345,6 +2333,7 @@ int SiPixelDigitizerAlgorithm::PixelTempRewgt2D(int id_in, int id_rewgt, array_2
   array_2d clust(cluster);
 
   // Take the pixel dimensions from the 2D template
+  templ2D.getid(id_in);
   xsize = templ2D.xsize();
   ysize = templ2D.ysize();
   
@@ -2369,7 +2358,7 @@ int SiPixelDigitizerAlgorithm::PixelTempRewgt2D(int id_in, int id_rewgt, array_2
   } else {
     xhit2D = track[0] - cotalpha*track[2] + 0.5f*xsize;
   }
-  
+
   // Zero the input and output templates
   for(i=0; i<BYM2; ++i) {
     for(j=0; j<BXM2; ++j) {

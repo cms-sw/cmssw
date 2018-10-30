@@ -43,6 +43,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include <memory>
 
 class InputTag;
 
@@ -54,10 +55,10 @@ class DTTrig {
 
   public:
 
-    typedef std::map< DTChamberId,DTSCTrigUnit*,std::less<DTChamberId> > TUcontainer;
+    typedef std::map< DTChamberId,DTSCTrigUnit,std::less<DTChamberId> > TUcontainer;
     typedef TUcontainer::iterator TU_iterator;
     typedef TUcontainer::const_iterator TU_const_iterator;
-    typedef std::map< DTSectCollId,DTSectColl*,std::less<DTSectCollId> > SCcontainer;
+    typedef std::map< DTSectCollId,DTSectColl,std::less<DTSectCollId> > SCcontainer;
     typedef SCcontainer::iterator SC_iterator;
     typedef SCcontainer::const_iterator SC_const_iterator;
     typedef std::pair<TU_iterator,TU_iterator> Range;
@@ -71,9 +72,6 @@ class DTTrig {
     //! Constructors
     DTTrig(const edm::ParameterSet &params, edm::ConsumesCollector && ix);
 
-    //! Destructor
-    ~DTTrig();
-    
     //! Create the trigger units and store them in the cache
     void createTUs(const edm::EventSetup& iSetup);
 
@@ -87,7 +85,7 @@ class DTTrig {
     void clear();
 
     //! Size of the trigger units store
-    int size() { return _cache.size(); }
+    int size() const { return _cache.size(); }
 
     //! Begin of the trigger units store
     TU_iterator begin() { /*check();*/ return _cache.begin(); }
@@ -104,7 +102,7 @@ class DTTrig {
     // ------------ do the same for Sector Collector
     
     //! Size of the sector collector store
-    int size1() { /*check();*/ return _cache1.size(); }
+    int size1() const { /*check();*/ return _cache1.size(); }
 
     //! Begin of the sector collector store
     SC_iterator begin1() { /*check();*/ return _cache1.begin(); }
@@ -174,33 +172,33 @@ class DTTrig {
     // end sector collector
 
     //! Dump the geometry
-    void dumpGeom();
+    void dumpGeom() const;
 
     //! Dump the LUT files
-    void dumpLuts(short int lut_btic, const DTConfigManager *conf);
+    void dumpLuts(short int lut_btic, const DTConfigManager *conf) const;
 
     //! Get BX Offset
-    int getBXOffset() { return _conf_manager->getBXOffset(); }
+    int getBXOffset() const { return _conf_manager->getBXOffset(); }
 
     // Methods to access intermediate results
 
     //! Return a copy of all the BTI triggers
-    std::vector<DTBtiTrigData> BtiTrigs();
+    std::vector<DTBtiTrigData> BtiTrigs() const;
 
     //! Return a copy of all the TRACO triggers
-    std::vector<DTTracoTrigData> TracoTrigs();
+    std::vector<DTTracoTrigData> TracoTrigs() const;
 
     //! Return a copy of all the Trigger Server (Phi) triggers
-    std::vector<DTChambPhSegm> TSPhTrigs();
+    std::vector<DTChambPhSegm> TSPhTrigs() const;
 
     //! Return a copy of all the Trigger Server (Theta) triggers
-    std::vector<DTChambThSegm> TSThTrigs();
+    std::vector<DTChambThSegm> TSThTrigs() const;
 
     //! Return a copy of all the Sector Collector (Phi) triggers
-    std::vector<DTSectCollPhSegm> SCPhTrigs();
+    std::vector<DTSectCollPhSegm> SCPhTrigs() const;
 
     //! Return a copy of all the Sector Collector (Theta) triggers
-    std::vector<DTSectCollThSegm> SCThTrigs();
+    std::vector<DTSectCollThSegm> SCThTrigs() const;
 
     //! Coordinate of a trigger-data object in chamber frame
     LocalPoint localPosition(const DTTrigData* trig) const {
@@ -231,16 +229,16 @@ class DTTrig {
 
     // const version of the methods to access TUs and SCs are private to avoid misuse
     //! Return a trigger unit - Muon numbering - const version
-    DTSCTrigUnit* constTrigUnit(DTChamberId sid) const;
+    DTSCTrigUnit const* constTrigUnit(DTChamberId sid) const;
 
     //! Return a trigger unit - Muon numbering, MTTF numbering - const version
-    DTSCTrigUnit* constTrigUnit(int wheel, int stat, int sect) const;
+    DTSCTrigUnit const* constTrigUnit(int wheel, int stat, int sect) const;
 
     //! Return a SC unit - Muon numbering - const version
-    DTSectColl* SCUnit(DTSectCollId scid) const;
+    DTSectColl const* SCUnit(DTSectCollId scid) const;
 
     //! Return a SC Unit Muon Numbering, MTTF numbering - const version
-    DTSectColl* SCUnit(int wheel, int sect) const;
+    DTSectColl const* SCUnit(int wheel, int sect) const;
  
   private:
 

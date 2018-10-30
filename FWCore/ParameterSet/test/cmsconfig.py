@@ -1,3 +1,4 @@
+from __future__ import print_function
 #------------------------------------------------------------
 #
 #
@@ -41,7 +42,7 @@ def pset_dict_to_string(psetDict):
     for name, value in six.iteritems(psetDict):
         stream.write('%s' % printable_parameter(name, value))
         stream.write('\n')        
-    
+
     stream.write('}\n')
     return stream.getvalue()
 
@@ -64,7 +65,7 @@ class printable_parameter:
     representation of a single parameter, suitable for printing.
 
     Note that 'value' may in fact be a list."""
-    
+
     def __init__(self, aName, aValueTuple):
         self.name = aName
         self.type, self.trackedCode, self.value = aValueTuple
@@ -110,7 +111,7 @@ class printable_parameter:
 class cmsconfig:
     """A class to provide convenient access to the contents of a
     parsed CMS configuration file."""
-    
+
     def __init__(self, stringrep):
         """Create a cmsconfig object from the contents of the (Python)
         exchange format for configuration files."""
@@ -235,7 +236,7 @@ class cmsconfig:
         # Let's try to make sure we lose no resources if something
         # fails in formatting...
         result = ""
-        
+
         try:
             stream = cStringIO.StringIO()
             self.__write_self_to_stream(stream)
@@ -243,15 +244,15 @@ class cmsconfig:
 
         finally:
             stream.close()
-        
+
         return result
 
     def asPythonString(self):
-       """Return a string containing the python psdata source of
-       this object to facilitate saving and loading of python format"""
-       result = "#!/usr/bin/env python\n"
-       result += str(self.psdata)
-       return result 
+        """Return a string containing the python psdata source of
+        this object to facilitate saving and loading of python format"""
+        result = "#!/usr/bin/env python\n"
+        result += str(self.psdata)
+        return result 
 
     def __write_self_to_stream(self, fileobj):
         """Private method.
@@ -367,7 +368,7 @@ class cmsconfig:
         for name in self.pathNames():
             fileobj.write("path %s = {%s}\n" % (name, self.path(name)))
 
-        
+
     def __write_endpaths(self, fileobj):
         """Private method.
         Return None
@@ -386,9 +387,9 @@ class cmsconfig:
         fileobj."""
         mis = self.mainInputSource()  # this is a dictionary
         if mis:
-        	fileobj.write('source = %s\n{\n' % mis['@classname'][2])
-        	self.__write_module_guts(mis, fileobj)
-        	fileobj.write('}\n')
+            fileobj.write('source = %s\n{\n' % mis['@classname'][2])
+            self.__write_module_guts(mis, fileobj)
+            fileobj.write('}\n')
 
     def __write_looper(self, fileobj):
         """Private method.
@@ -397,11 +398,11 @@ class cmsconfig:
         fileobj."""
         mis = self.looper()  # this is a dictionary
         if mis:
-        	fileobj.write('looper = %s\n{\n' % mis['@classname'][2])
-        	self.__write_module_guts(mis, fileobj)
-        	fileobj.write('}\n')
+            fileobj.write('looper = %s\n{\n' % mis['@classname'][2])
+            self.__write_module_guts(mis, fileobj)
+            fileobj.write('}\n')
 
-    
+
     def __write_module_guts(self, moddict, fileobj):
         """Private method.
         Return None
@@ -418,16 +419,16 @@ class cmsconfig:
                 fileobj.write('%s' % printable_parameter(name, value))
                 fileobj.write('\n')
 
-            
-        
+
+
 if __name__ == "__main__":
     from sys import argv
     filename = "complete.pycfg"
     if len(argv) > 1:
-	filename = argv[1]
+        filename = argv[1]
 
     txt = file(filename).read()
     cfg = cmsconfig(txt)
-    print cfg.asConfigurationString()
-    
+    print(cfg.asConfigurationString())
+
 

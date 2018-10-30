@@ -173,3 +173,17 @@ l1tEtSumJetOfflineDQMEmu = l1tEtSumJetOfflineDQM.clone(
     histFolderEtSum=cms.string('L1TEMU/L1TObjects/L1TEtSum/L1TriggerVsReco'),
     histFolderJet=cms.string('L1TEMU/L1TObjects/L1TJet/L1TriggerVsReco'),
 )
+
+# sequences
+l1tEtSumJetOfflineDQMSeq = cms.Sequence(
+    goodPFJetsForL1T
+    + l1tPFMetNoMuForDQM
+    + l1tEtSumJetOfflineDQM
+)
+
+l1tEtSumJetOfflineDQMEmuSeq = cms.Sequence(
+    goodPFJetsForL1T
+    + l1tPFMetNoMuForDQM
+    + l1tEtSumJetOfflineDQMEmu
+)
+

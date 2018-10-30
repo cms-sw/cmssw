@@ -21,6 +21,7 @@
 #=========================================================================
 
 
+from __future__ import print_function
 import os, sys, datetime, shutil, optparse
 
 
@@ -29,11 +30,11 @@ import os, sys, datetime, shutil, optparse
 #============================================
 
 def mysystem(command,apply=1):
-  print command
+  print(command)
   if apply==1: return os.system(command)
   elif apply==0:  return 0
   else:
-    print '[electronStore.py] UNSUPPORTED ARGUMENT VALUE FOR mysystem(,apply):',apply
+    print('[electronStore.py] UNSUPPORTED ARGUMENT VALUE FOR mysystem(,apply):',apply)
     exit(1)
   
 
@@ -74,14 +75,14 @@ if __name__ == "__main__":
   (options, args) = parser.parse_args()
   
   if len(args)<2:
-    print "[electronStore.py] I NEED AT LEAST TWO ARGUMENTS."
+    print("[electronStore.py] I NEED AT LEAST TWO ARGUMENTS.")
     exit(2)
     
   red_file = args.pop(0)
   web_dir = args.pop()
 #  print 'WEB DIR 1 =',web_dir
   if not '/afs/cern.ch/cms/' in web_dir:
-    print "local : ", web_dir
+    print("local : ", web_dir)
     web_url = web_dir
   else:
     web_url = web_dir.replace('/afs/cern.ch/cms/','http://cmsdoc.cern.ch/',1)
@@ -102,24 +103,24 @@ if __name__ == "__main__":
   # red file
   red_base = os.path.basename(red_file)
   if os.path.isfile(red_file)==True :
-    print 'RED FILE =',red_file
+    print('RED FILE =',red_file)
     if os.path.isfile(red_base)==True and os.path.getmtime(red_base)>os.path.getmtime(red_file) :
-      print '[electronCompare.py] did you forget to store '+red_base+' ?'
+      print('[electronCompare.py] did you forget to store '+red_base+' ?')
   else :
-    print "[electronCompare.py] FILE NOT FOUND :",red_file
+    print("[electronCompare.py] FILE NOT FOUND :",red_file)
     if os.path.isfile(red_base)==True :
-      print '[electronCompare.py] did you forget to store '+red_base+' ?'
+      print('[electronCompare.py] did you forget to store '+red_base+' ?')
     exit(3)
  
   # blue file
   if blue_file!='' :
     if os.path.isfile(blue_file)==True :
-      print 'BLUE FILE =',blue_file
+      print('BLUE FILE =',blue_file)
     else :
-      print '[electronCompare.py] file not found :',blue_file
+      print('[electronCompare.py] file not found :',blue_file)
       blue_file = ''
   else :
-    print "[electronCompare.py] no blue histograms to compare with."
+    print("[electronCompare.py] no blue histograms to compare with.")
          
       
   #===================================================
@@ -161,5 +162,5 @@ if __name__ == "__main__":
   
   mysystem('root -b -l -q electronCompare.C')
   
-  print "You can access the files here:",web_dir
-  print "You can browse your validation plots here:",web_url+'/'
+  print("You can access the files here:",web_dir)
+  print("You can browse your validation plots here:",web_url+'/')

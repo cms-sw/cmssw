@@ -118,6 +118,7 @@ PHGCalParametersDBBuilder::swapParameters( HGCalParameters* ptp, PHGCalParameter
   phgp->layerGroupM_.swap( ptp->layerGroupM_ );
   phgp->layerGroupO_.swap( ptp->layerGroupO_ );
   phgp->trformIndex_.swap( ptp->trformIndex_ );
+  phgp->slopeMin_.swap( ptp->slopeMin_ );
   phgp->waferR_ =  ptp->waferR_;
   phgp->nCells_ =  ptp->nCells_;
   phgp->nSectors_ =  ptp->nSectors_;

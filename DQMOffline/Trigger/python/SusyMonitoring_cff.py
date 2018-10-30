@@ -243,10 +243,8 @@ double_soft_muon_dca_metpt.denGenericTriggerEventPSet.hltPaths = cms.vstring('HL
 
 susyMonitorHLT = cms.Sequence(
     susyHLTRazorMonitoring
-)
-
-susHLTDQMSourceExtra = cms.Sequence(
-  susyHLTVBFMonitoring
+### THEY WERE IN EXTRA
+  + susyHLTVBFMonitoring
   + LepHTMonitor
   + susyHLTEleCaloJets
   + double_soft_muon_muonpt
@@ -261,4 +259,8 @@ susHLTDQMSourceExtra = cms.Sequence(
   + double_soft_muon_dca_muonpt
   + double_soft_muon_dca_metpt
   + susyHLTSoftMuHardJetMETMonitoring
+
+)
+
+susHLTDQMSourceExtra = cms.Sequence(
 )

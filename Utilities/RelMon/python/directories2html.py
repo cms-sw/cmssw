@@ -1,3 +1,4 @@
+from __future__ import print_function
 ################################################################################
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
@@ -568,7 +569,7 @@ def get_aggr_pairs_info(dir_dict,the_aggr_pairs=[]):
                 present_subdirs[subsubdirname]={"nsucc":nsucc,"weight":weight}      
 
     if total_ndirs == 0:
-      print "No directory of the category %s is present in the samples: skipping." %cat_name
+      print("No directory of the category %s is present in the samples: skipping." %cat_name)
       continue
     
     average_success_rate=total_directory_successes/(total_ndirs)

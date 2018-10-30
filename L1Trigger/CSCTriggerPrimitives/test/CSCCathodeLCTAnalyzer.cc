@@ -24,7 +24,6 @@ using namespace std;
 //-----------------
 
 bool CSCCathodeLCTAnalyzer::debug = true;
-bool CSCCathodeLCTAnalyzer::isTMB07 = true;
 bool CSCCathodeLCTAnalyzer::doME1A = false;
 
 vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::getSimInfo(
@@ -69,7 +68,6 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(
   // contains the layerId's of the stored ComparatorDigis as well as the actual
   // digis themselves.
   int hfstripDigis[CSCConstants::NUM_HALF_STRIPS];
-  int distripDigis[CSCConstants::NUM_HALF_STRIPS];
   int time[CSCConstants::MAX_NUM_STRIPS], comp[CSCConstants::MAX_NUM_STRIPS];
   int digiNum[CSCConstants::MAX_NUM_STRIPS];
   int digiId = -999;
@@ -111,7 +109,6 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(
     for (int i_hstrip = 0; i_hstrip < CSCConstants::NUM_HALF_STRIPS;
 	 i_hstrip++) {
       hfstripDigis[i_hstrip] = -999;
-      distripDigis[i_hstrip] = -999;
     }
     for (int i_strip = 0; i_strip < CSCConstants::MAX_NUM_STRIPS; i_strip++) {
       time[i_strip]    = -999;
@@ -127,8 +124,8 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(
 
     // Preselection of Digis: right layer and bx.
     digi_num += preselectDigis(clct_bx, layerId, compdc, digiMap,
-			       hfstripDigis, distripDigis,
-			       time, comp, digiNum);
+                               hfstripDigis,
+                               time, comp, digiNum);
 
     // In case of ME1/1, one can also look for digis in ME1/A.
     // Skip them for now since the resolution of CLCTs in ME1/A is
@@ -136,54 +133,34 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(
     // in CFEB=4).
     if (doME1A) {
       if (clctId.station() == 1 && clctId.ring() == 1) {
-	CSCDetId layerId_me1a(clctId.endcap(), clctId.station(), 4,
-			      clctId.chamber(), i_layer+1);
-	digi_num += preselectDigis(clct_bx, layerId_me1a, compdc, digiMap,
-				   hfstripDigis, distripDigis,
-				   time, comp, digiNum);
+        CSCDetId layerId_me1a(clctId.endcap(), clctId.station(), 4,
+                              clctId.chamber(), i_layer+1);
+        digi_num += preselectDigis(clct_bx, layerId_me1a, compdc, digiMap,
+                                   hfstripDigis,
+                                   time, comp, digiNum);
       }
     }
 
     // Loop over all the strips in a pattern.
     int max_pattern_strips, layer, strip;
-    if (!isTMB07) {
-      max_pattern_strips = CSCConstants::MAX_STRIPS_IN_PATTERN;
-    }
-    else {
-      max_pattern_strips = CSCConstants::MAX_HALFSTRIPS_IN_PATTERN;
-    }
+    max_pattern_strips = CSCConstants::MAX_HALFSTRIPS_IN_PATTERN;
     for (int i_strip = 0; i_strip < max_pattern_strips; i_strip++) {
-      if (!isTMB07) {
-	layer = CSCCathodeLCTProcessor::pattern[clct_pattern][i_strip];
-      }
-      else {
-	layer = CSCCathodeLCTProcessor::pattern2007[clct_pattern][i_strip];
-      }
+      layer = CSCCathodeLCTProcessor::pattern2007[clct_pattern][i_strip];
       if (layer == i_layer) {
-	if (!isTMB07) {
-	  strip = clct_keystrip +
-	    CSCCathodeLCTProcessor::pre_hit_pattern[1][i_strip];
-	}
-	else {
-	  strip = clct_keystrip + key_stagger +
-	    CSCCathodeLCTProcessor::pattern2007_offset[i_strip];
-	}
-	if (strip >= 0 && strip < CSCConstants::NUM_HALF_STRIPS) {
-	  // stripType=0 corresponds to distrips, stripType=1 for halfstrips.
-	  if (clct_stripType == 0)
-	    digiId = distripDigis[strip];
-	  else if (clct_stripType == 1)
-	    digiId = hfstripDigis[strip];
-	  // distripDigis/halfstripDigis contains the digi numbers
-	  // that were carried through the different transformations
-	  // to keystrip. -999 means there was no Digi.
-	  if (digiId >= 0) {
-	    tempInfo.setId(layerId); // store the layer of this object
-	    tempInfo.addComponent(digiMap[digiId]); // and the RecDigi
-	    if (debug) LogTrace("lctDigis")
-	      << " Digi on CLCT: strip/comp/time " << digiMap[digiId];
-	  }
-	}
+        strip = clct_keystrip + key_stagger +
+            CSCCathodeLCTProcessor::pattern2007_offset[i_strip];
+        if (strip >= 0 && strip < CSCConstants::NUM_HALF_STRIPS) {
+          digiId = hfstripDigis[strip];
+          // halfstripDigis contains the digi numbers
+          // that were carried through the different transformations
+          // to keystrip. -999 means there was no Digi.
+          if (digiId >= 0) {
+            tempInfo.setId(layerId); // store the layer of this object
+            tempInfo.addComponent(digiMap[digiId]); // and the RecDigi
+            if (debug) LogTrace("lctDigis")
+                         << " Digi on CLCT: strip/comp/time " << digiMap[digiId];
+          }
+        }
       }
     }
 
@@ -200,7 +177,6 @@ int CSCCathodeLCTAnalyzer::preselectDigis(const int clct_bx,
       const CSCComparatorDigiCollection* compdc,
       vector<CSCComparatorDigi>& digiMap,
       int hfstripDigis[CSCConstants::NUM_HALF_STRIPS],
-      int distripDigis[CSCConstants::NUM_HALF_STRIPS],
       int time[CSCConstants::MAX_NUM_STRIPS],
       int comp[CSCConstants::MAX_NUM_STRIPS],
       int digiNum[CSCConstants::MAX_NUM_STRIPS]) {
@@ -260,24 +236,13 @@ int CSCCathodeLCTAnalyzer::preselectDigis(const int clct_bx,
 	  digiNum[i_strip] = digi_num;
 
 	  if (debug) LogDebug("lctDigis")
-	    << "digi_num = " << digi_num << " half-strip = " << i_hfstrip
-	    << " strip = " << i_strip;
+                 << "digi_num = " << digi_num << " half-strip = " << i_hfstrip
+                 << " strip = " << i_strip;
 	}
       }
     }
     digiMap.push_back(*digiIt);
     digi_num++;
-  }
-
-  // Loop for di-strips, including stagger
-  for (int i_strip = 0; i_strip < CSCConstants::MAX_NUM_STRIPS; i_strip++) {
-    if (time[i_strip] >= 0) {
-      int i_distrip = i_strip/2;
-      if (i_strip%2 && comp[i_strip] == 1 && stagger == 1)
-	CSCCathodeLCTProcessor::distripStagger(comp, time, digiNum,
-					       i_strip);
-      distripDigis[i_distrip] = digiNum[i_strip];
-    }
   }
 
   return digi_num;
@@ -382,8 +347,7 @@ int CSCCathodeLCTAnalyzer::nearestHS(
   PSimHit matchedHit;
   bool hit_found = false;
   CSCDetId layerId;
-  static const int key_layer = isTMB07 ?
-    CSCConstants::KEY_CLCT_LAYER : CSCConstants::KEY_CLCT_LAYER_PRE_TMB07;
+  static const int key_layer = CSCConstants::KEY_CLCT_LAYER;
 
   vector<CSCCathodeLayerInfo>::const_iterator pli;
   for (pli = allLayerInfo.begin(); pli != allLayerInfo.end(); pli++) {

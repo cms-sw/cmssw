@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import os, sys
 import coral
 import array
@@ -31,7 +32,7 @@ def CalcPileup (deadTable, parameters, mode='deadtable'):
                 livetime = numerator / denominator
 
         else:
-            print "no csv input! Doh!"
+            print("no csv input! Doh!")
             return
         # totalInstLumi = reduce(lambda x, y: x+y, instLumiArray) # not needed
         if lumiSection > 0:
@@ -46,11 +47,11 @@ def CalcPileup (deadTable, parameters, mode='deadtable'):
                 mean = xingInstLumi * parameters.rotationTime
                 if mean > 100:
                     if runNumber:
-                        print "mean number of pileup events > 100 for run %d, lum %d : m %f l %f" % \
-                          (runNumber, lumiSection, mean, xingInstLumi)
+                        print("mean number of pileup events > 100 for run %d, lum %d : m %f l %f" % \
+                          (runNumber, lumiSection, mean, xingInstLumi))
                     else:
-                        print "mean number of pileup events > 100 for lum %d: m %f l %f" % \
-                          (lumiSection, mean, xingInstLumi)
+                        print("mean number of pileup events > 100 for lum %d: m %f l %f" % \
+                          (lumiSection, mean, xingInstLumi))
 #                print "mean number of pileup events for lum %d: m %f idx %d l %f" % (lumiSection, mean, xing, xingIntLumi)
 
                 if xingInstLumi > 0.1:
@@ -159,7 +160,7 @@ if __name__ == '__main__':
                     delivered, recorded = float( pieces[8] ), float( pieces[9] )
                 except:
                     if pieces[0] != 'run':
-                        print " cannot parse csv file "
+                        print(" cannot parse csv file ")
                     InGap = 0
                     continue
                 GapDict[lumi] = [delivered, recorded]
@@ -174,8 +175,8 @@ if __name__ == '__main__':
                                      for orbit, lum in zip( pieces[10::2],
                                                             pieces[11::2] ) ]
             except:
-                print " Bad Parsing: Check if the input format has changed"
-                print pieces[0],pieces[1],pieces[2],pieces[3],pieces[4],pieces[5],pieces[6]
+                print(" Bad Parsing: Check if the input format has changed")
+                print(pieces[0],pieces[1],pieces[2],pieces[3],pieces[4],pieces[5],pieces[6])
                 continue
 
             csvDict.setdefault (run, {})[lumi] = \

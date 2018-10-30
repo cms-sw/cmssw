@@ -1,3 +1,4 @@
+from __future__ import print_function
 from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.AutoHandle import AutoHandle
 from PhysicsTools.HeppyCore.statistics.counter import Counter
@@ -95,7 +96,7 @@ class TriggerAnalyzer( Analyzer ):
         return True
 
     def write(self, setup):
-        print 'writing TriggerAnalyzer'
+        print('writing TriggerAnalyzer')
         super(TriggerAnalyzer, self).write(setup)
         self.triggerList.write( self.dirName )
 

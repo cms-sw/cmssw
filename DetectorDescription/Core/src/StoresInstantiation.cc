@@ -13,23 +13,24 @@
 #include "DetectorDescription/Core/src/Specific.h"
 
 #include <map>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
 
 template class DDI::Singleton<AxesNames>;
 template class DDI::Singleton<DDRoot>;
-template class DDI::Singleton<DDI::Store<DDName, std::vector<std::string>* > >;
-template class DDI::Singleton<DDI::Store<DDName, std::string* > >;
-template class DDI::Singleton<DDI::Store<DDName, DDI::Material*> >;
-template class DDI::Singleton<DDI::Store<DDName, ReadMapType<double>* > >;
-template class DDI::Singleton<DDI::Store<DDName, std::vector<double>* > >;
-template class DDI::Singleton<DDI::Store<DDName, DDI::Specific*> >;
-template class DDI::Singleton<DDI::Store<DDName, DDI::LogicalPart*> >;
-template class DDI::Singleton<DDI::Store<DDName, DDI::Solid*> >;
-template class DDI::Singleton<DDI::Store<DDName, double*> >;
-template class DDI::Singleton<DDI::Store<DDName, DDRotationMatrix*> >;
-template class DDI::Singleton<DDI::Store<DDName, DDI::Division*, DDI::Division*> >;
+template class DDI::Singleton<DDI::Store<DDName, std::unique_ptr<std::vector<std::string> > > >;
+template class DDI::Singleton<DDI::Store<DDName, std::unique_ptr<std::string> > >;
+template class DDI::Singleton<DDI::Store<DDName, std::unique_ptr<DDI::Material> > >;
+template class DDI::Singleton<DDI::Store<DDName, std::unique_ptr<ReadMapType<double> > > >;
+template class DDI::Singleton<DDI::Store<DDName, std::unique_ptr<std::vector<double> > > >;
+template class DDI::Singleton<DDI::Store<DDName, std::unique_ptr<DDI::Specific> > >;
+template class DDI::Singleton<DDI::Store<DDName, std::unique_ptr<DDI::LogicalPart> > >;
+template class DDI::Singleton<DDI::Store<DDName, std::unique_ptr<DDI::Solid> > >;
+template class DDI::Singleton<DDI::Store<DDName, std::unique_ptr<double> > >;
+template class DDI::Singleton<DDI::Store<DDName, std::unique_ptr<DDRotationMatrix> > >;
+template class DDI::Singleton<DDI::Store<DDName, std::unique_ptr<DDI::Division>, std::unique_ptr<DDI::Division> > >;
 template class DDI::Singleton<std::map<std::pair<std::string, std::string>, int> >;
 template class DDI::Singleton<std::map<std::string, std::vector<DDName> > >;
 template class DDI::Singleton<std::vector<std::map<std::pair<std::string, std::string>, int>::const_iterator >  >;

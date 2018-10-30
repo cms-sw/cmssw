@@ -1,3 +1,4 @@
+from __future__ import print_function
 #-------------------------------------
 #	Hcal DQM Application using New DQM Sources/Clients
 #	Online Mode
@@ -60,7 +61,7 @@ process.source.minEventsPerLumi=5
 #	Note, runType is obtained after importing DQM-related modules
 #	=> DQM-dependent
 runType			= process.runType.getRunType()
-print debugstr, "Running with run type= ", runType
+print(debugstr, "Running with run type= ", runType)
 
 #-------------------------------------
 #	CMSSW/Hcal non-DQM Related Module import

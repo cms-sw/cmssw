@@ -67,7 +67,7 @@ void LocalFieldManager::print(const G4Track* trk)
     ? "Alternative field manager with"
     : "Global field manager with";
 
-  edm::LogInfo("SimG4CoreMagneticField") 
+  edm::LogVerbatim("SimG4CoreMagneticField") 
     << ss << " DeltaIntersection= " << G4FieldManager::GetDeltaIntersection()
     << ", DeltaOneStep= " << G4FieldManager::GetDeltaOneStep()
     << ", DeltaChord= " << G4FieldManager::GetChordFinder()->GetDeltaChord()

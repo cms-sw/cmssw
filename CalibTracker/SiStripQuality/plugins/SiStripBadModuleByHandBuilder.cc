@@ -18,9 +18,9 @@ SiStripBadModuleByHandBuilder::SiStripBadModuleByHandBuilder(const edm::Paramete
 SiStripBadModuleByHandBuilder::~SiStripBadModuleByHandBuilder(){
 }
 
-SiStripBadStrip* SiStripBadModuleByHandBuilder::getNewObject(){
+std::unique_ptr<SiStripBadStrip> SiStripBadModuleByHandBuilder::getNewObject(){
   
-  SiStripBadStrip* obj = new SiStripBadStrip();
+  auto obj = std::make_unique<SiStripBadStrip>();
 
   unsigned int firstBadStrip=0;
   unsigned short NconsecutiveBadStrips;

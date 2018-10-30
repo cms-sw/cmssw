@@ -37,8 +37,8 @@ class MuScleFitPlotter{
 
   // Operations
   // ----------
-  void fillGen(const reco::GenParticleCollection* genParticles, bool=false);
-  void fillGen(const edm::HepMCProduct* evtMC, bool sherpaFlag_);
+  void fillGen(const reco::GenParticleCollection& genParticles, bool=false);
+  void fillGen(const edm::HepMCProduct& evtMC, bool sherpaFlag_);
   void fillSim(edm::Handle<edm::SimTrackContainer> simTracks);
   void fillGenSim(edm::Handle<edm::HepMCProduct> evtMC, edm::Handle<edm::SimTrackContainer> simTracks);
   //void fillRec(std::vector<reco::LeafCandidate>& muons);

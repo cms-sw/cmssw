@@ -78,8 +78,6 @@ namespace edm {
   static pset::TypeTrans const sTypeTranslations;
   typedef std::map<std::string, char> Type2Code;
 
-  Entry::~Entry() {}
-
 // ----------------------------------------------------------------------
 // consistency-checker
 // ----------------------------------------------------------------------

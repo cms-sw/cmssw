@@ -21,7 +21,7 @@ class SiStripBadStripFromASCIIFile:public ConditionDBWriter<SiStripBadStrip> {
 
 
  private:
-  SiStripBadStrip * getNewObject() override;
+  std::unique_ptr<SiStripBadStrip> getNewObject() override;
   edm::FileInPath fp_;
   bool printdebug_;
 };

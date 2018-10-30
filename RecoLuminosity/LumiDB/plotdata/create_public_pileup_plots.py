@@ -10,6 +10,7 @@
 # --inputLumiJSON=/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions12/8TeV/PileUp/pileup_latest.txt \
 # --calcMode true --maxPileupBin=40 pu2012DCSONLY.root
 
+from __future__ import print_function
 import sys
 import os
 import commands
@@ -25,10 +26,9 @@ from matplotlib import pyplot as plt
 # Matplotlib.
 from RecoLuminosity.LumiDB.mpl_axes_hist_fix import hist
 if matplotlib.__version__ != '1.0.1':
-    print >> sys.stderr, \
-          "ERROR The %s script contains a hard-coded bug-fix " \
+    print("ERROR The %s script contains a hard-coded bug-fix " \
           "for Matplotlib 1.0.1. The Matplotlib version loaded " \
-          "is %s" % (__file__, matplotlib.__version__)
+          "is %s" % (__file__, matplotlib.__version__), file=sys.stderr)
     sys.exit(1)
 matplotlib.axes.Axes.hist = hist
 # FIX FIX FIX end
@@ -112,8 +112,7 @@ if __name__ == "__main__":
                           "(Rebuilds the cache as well.)")
     (options, args) = arg_parser.parse_args()
     if len(args) != 1:
-        print >> sys.stderr, \
-              "ERROR Need exactly one argument: a config file name"
+        print("ERROR Need exactly one argument: a config file name", file=sys.stderr)
         sys.exit(1)
     config_file_name = args[0]
     ignore_cache = options.ignore_cache
@@ -125,8 +124,7 @@ if __name__ == "__main__":
         }
     cfg_parser = ConfigParser.SafeConfigParser(cfg_defaults)
     if not os.path.exists(config_file_name):
-        print >> sys.stderr, \
-              "ERROR Config file '%s' does not exist" % config_file_name
+        print("ERROR Config file '%s' does not exist" % config_file_name, file=sys.stderr)
         sys.exit(1)
     cfg_parser.read(config_file_name)
 
@@ -152,12 +150,12 @@ if __name__ == "__main__":
     ##########
 
     # Tell the user what's going to happen.
-    print "Using configuration from file '%s'" % config_file_name
-    print "Using color schemes '%s'" % ", ".join(color_scheme_names)
-    print "Using additional pileupCalc flags from configuration: '%s'" % \
-          pileupcalc_flags_from_cfg
-    print "Using input JSON filter: %s" % input_json
-    print "Using input lumi JSON filter: %s" % input_lumi_json
+    print("Using configuration from file '%s'" % config_file_name)
+    print("Using color schemes '%s'" % ", ".join(color_scheme_names))
+    print("Using additional pileupCalc flags from configuration: '%s'" % \
+          pileupcalc_flags_from_cfg)
+    print("Using input JSON filter: %s" % input_json)
+    print("Using input lumi JSON filter: %s" % input_lumi_json)
 
     ##########
 
@@ -171,21 +169,19 @@ if __name__ == "__main__":
         cmd = "pileupCalc.py -i %s --inputLumiJSON=%s %s %s" % \
               (input_json, input_lumi_json,
                pileupcalc_flags_from_cfg, tmp_file_name)
-        print "Running pileupCalc (this may take a while)"
+        print("Running pileupCalc (this may take a while)")
         if verbose:
-            print "  pileupCalc cmd: '%s'" % cmd
+            print("  pileupCalc cmd: '%s'" % cmd)
         (status, output) = commands.getstatusoutput(cmd)
         if status != 0:
-            print >> sys.stderr, \
-                  "ERROR Problem running pileupCalc: %s" % output
+            print("ERROR Problem running pileupCalc: %s" % output, file=sys.stderr)
             sys.exit(1)
 
     ##########
 
     in_file = TFile.Open(tmp_file_name, "READ")
     if not in_file or in_file.IsZombie():
-        print >> sys.stderr, \
-              "ERROR Could not read back pileupCalc results"
+        print("ERROR Could not read back pileupCalc results", file=sys.stderr)
         sys.exit(1)
     pileup_hist = in_file.Get("pileup")
     pileup_hist.SetDirectory(0)
@@ -194,7 +190,7 @@ if __name__ == "__main__":
     ##########
 
     # And this is where the plotting starts.
-    print "Drawing things..."
+    print("Drawing things...")
     ColorScheme.InitColors()
 
     # Turn the ROOT histogram into a Matplotlib one.
@@ -210,7 +206,7 @@ if __name__ == "__main__":
     # Loop over all color schemes.
     for color_scheme_name in color_scheme_names:
 
-        print "    color scheme '%s'" % color_scheme_name
+        print("    color scheme '%s'" % color_scheme_name)
 
         color_scheme = ColorScheme(color_scheme_name)
         color_line_pileup = color_scheme.color_line_pileup
@@ -270,6 +266,6 @@ if __name__ == "__main__":
 
     ##########
 
-    print "Done"
+    print("Done")
 
 ######################################################################

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import sys
 import optparse
 import re
@@ -36,16 +37,16 @@ if __name__ == '__main__':
         pieces = sepRE.split (copy.strip())
         if len (pieces) < minPieces:
             if not options.noWarnings:
-                print "Saving line '%s' since no identifiable run and lumi info" \
-                      % copy
+                print("Saving line '%s' since no identifiable run and lumi info" \
+                      % copy)
             target.write (line)
             continue
         try:
             run, lumi = int( pieces[runIndex] ), int( pieces[lumiIndex] )
         except:
             if not options.noWarnings:
-                print "Saving line '%s' since no identifiable run,lumi info" \
-                      % copy
+                print("Saving line '%s' since no identifiable run,lumi info" \
+                      % copy)
             target.write (line)
             continue
         # OK.  We recognize this line as containing a valid run and

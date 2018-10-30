@@ -5,7 +5,7 @@
 #include "PhysicsTools/SelectorUtils/interface/WPlusJetsEventSelector.h"
 #include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include "PhysicsTools/FWLite/interface/TFileService.h"
-#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
+#include "FWCore/ParameterSetReader/interface/ProcessDescImpl.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 
 #include "Math/GenVector/PxPyPzM4D.h"
@@ -39,7 +39,7 @@ int main ( int argc, char ** argv )
   }
 
   // Get the python configuration
-  PythonProcessDesc builder(argv[1]);
+  ProcessDescImpl builder(argv[1]);
   edm::ParameterSet const& shyftParameters = builder.processDesc()->getProcessPSet()->getParameter<edm::ParameterSet>("wplusjetsAnalysis");
   edm::ParameterSet const& inputs = builder.processDesc()->getProcessPSet()->getParameter<edm::ParameterSet>("inputs");
   edm::ParameterSet const& outputs = builder.processDesc()->getProcessPSet()->getParameter<edm::ParameterSet>("outputs");

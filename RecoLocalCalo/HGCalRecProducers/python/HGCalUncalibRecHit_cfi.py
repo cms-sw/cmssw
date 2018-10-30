@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchefrontDigitizer, hgchebackDigitizer
 
+fCPerMIP_v9 = cms.vdouble(2.06,3.43,5.15) #120um, 200um, 300um
+
 # HGCAL producer of rechits starting from digis
 HGCalUncalibRecHit = cms.EDProducer(
     "HGCalUncalibRecHitProducer",
@@ -47,3 +49,7 @@ HGCalUncalibRecHit = cms.EDProducer(
 
     algo = cms.string("HGCalUncalibRecHitWorkerWeights")
 )
+
+from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
+phase2_hgcalV9.toModify( HGCalUncalibRecHit.HGCEEConfig , fCPerMIP = fCPerMIP_v9 ) 
+phase2_hgcalV9.toModify( HGCalUncalibRecHit.HGCHEFConfig , fCPerMIP = fCPerMIP_v9 ) 

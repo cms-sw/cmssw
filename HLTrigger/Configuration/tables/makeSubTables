@@ -3,9 +3,9 @@
 # generate HLT tables from master table in ConfDB
 #
 
-MASTER="/dev/CMSSW_10_1_0/HLT"           # no version, take the latest one
+MASTER="/dev/CMSSW_10_3_0/HLT"           # no version, take the latest one
 #MASTER="/users/sdonato/STORM/menuV1p1/HLT"
-TARGET="/dev/CMSSW_10_1_0/TABLE"         # directory where to store the sub-tables
+TARGET="/dev/CMSSW_10_3_0/TABLE"         # directory where to store the sub-tables
 TABLES="GRun HIon PIon PRef"                 # which sub-tables to create
 
 source subtables.sh

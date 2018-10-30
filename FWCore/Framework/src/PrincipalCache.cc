@@ -158,6 +158,13 @@ namespace edm {
   }
 
   void
+  PrincipalCache::preReadFile() {
+    if (runPrincipal_) {
+      runPrincipal_->preReadFile();
+    }
+  }
+
+  void
   PrincipalCache::throwRunMissing() const {
     throw edm::Exception(edm::errors::LogicError)
       << "PrincipalCache::runPrincipal\n"

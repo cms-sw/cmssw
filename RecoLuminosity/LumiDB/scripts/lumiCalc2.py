@@ -6,6 +6,7 @@
 # Author:      Zhen Xie                                                #
 ########################################################################
 
+from __future__ import print_function
 import os,sys,time
 from RecoLuminosity.LumiDB import sessionManager,lumiTime,inputFilesetParser,csvSelectionParser,selectionParser,csvReporter,argparse,CommonUtil,revisionDML,lumiCalcAPI,lumiReport,RegexValidator,normDML
         
@@ -267,7 +268,7 @@ if __name__ == '__main__':
         from RecoLuminosity.LumiDB import checkforupdate
         cmsswWorkingBase=os.environ['CMSSW_BASE']
         if not cmsswWorkingBase:
-            print 'Please check out RecoLuminosity/LumiDB from CVS,scram b,cmsenv'
+            print('Please check out RecoLuminosity/LumiDB from CVS,scram b,cmsenv')
             sys.exit(11)
         c=checkforupdate.checkforupdate()
         workingversion=c.runningVersion(cmsswWorkingBase,'lumiCalc2.py',isverbose=False)
@@ -325,18 +326,18 @@ if __name__ == '__main__':
 
     dataidmap=lumiCalcAPI.runList(session.nominalSchema(),datatagid,runmin=reqrunmin,runmax=reqrunmax,fillmin=reqfillmin,fillmax=reqfillmax,startT=reqtimemin,stopT=reqtimemax,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt,preselectedruns=filerunlist)
     if not dataidmap:
-        print '[INFO] No qualified run found, do nothing'
+        print('[INFO] No qualified run found, do nothing')
         sys.exit(14)
     rruns=[]
     #crosscheck dataid value
     for irun,(lid,tid,hid) in dataidmap.items():
         if not lid:
-            print '[INFO] No qualified lumi data found for run, ',irun
+            print('[INFO] No qualified lumi data found for run, ',irun)
         if reqTrg and not tid:
-            print '[INFO] No qualified trg data found for run ',irun
+            print('[INFO] No qualified trg data found for run ',irun)
         #    continue
         if reqHlt and not hid:
-            print '[INFO] No qualified hlt data found for run ',irun
+            print('[INFO] No qualified hlt data found for run ',irun)
         #    continue
         rruns.append(irun)
     if not irunlsdict: #no file
@@ -346,7 +347,7 @@ if __name__ == '__main__':
             if selectedrun not in rruns:
                 del irunlsdict[selectedrun]
     if not irunlsdict:
-        print '[INFO] No qualified run found, do nothing'
+        print('[INFO] No qualified run found, do nothing')
         sys.exit(13)
 
     ###############################################################
@@ -413,7 +414,7 @@ if __name__ == '__main__':
          result=lumiCalcAPI.lumiForIds(session.nominalSchema(),irunlsdict,dataidmap,runsummaryMap=GrunsummaryData,beamstatusfilter=pbeammode,timeFilter=timeFilter,normmap=normvalueDict,withBXInfo=True,bxAlgo=options.xingAlgo,xingMinLum=options.xingMinLum,withBeamIntensity=False,lumitype='HF')
          outfile=options.outputfile
          if not outfile:
-             print '[WARNING] no output file given. lumibylsXing writes per-bunch lumi only to default file lumibylsXing.csv'
+             print('[WARNING] no output file given. lumibylsXing writes per-bunch lumi only to default file lumibylsXing.csv')
              outfile='lumibylsXing.csv'           
          lumiReport.toCSVLumiByLSXing(result,options.scalefactor,outfile,irunlsdict=irunlsdict,noWarning=noWarning)
     session.transaction().commit()

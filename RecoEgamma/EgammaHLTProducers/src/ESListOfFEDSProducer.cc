@@ -120,12 +120,6 @@ void ESListOfFEDSProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
 }
 
 
-void ESListOfFEDSProducer::beginJob()
-{}
-
-void ESListOfFEDSProducer::endJob()
-{}
-
 void ESListOfFEDSProducer::produce(edm::Event & e, const edm::EventSetup& iSetup){
 
   if (first_) {

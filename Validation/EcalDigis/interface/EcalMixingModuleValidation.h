@@ -151,8 +151,8 @@ private:
  const EcalSimParameterMap * theParameterMap;
  //const CaloVShape * theEcalShape;
  ESShape * theESShape;
- const EBShape *theEBShape;
- const EEShape *theEEShape;
+ EBShape *theEBShape;
+ EEShape *theEEShape;
 
 
  //CaloHitResponse * theEcalResponse;

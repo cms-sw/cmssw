@@ -1,3 +1,4 @@
+from __future__ import print_function
 import md5
 import ROOT
 
@@ -52,7 +53,7 @@ class VIDSelectorValidator:
         
         select = self.__selector
 
-        print 'running validation for: %s'%(select.name())
+        print('running validation for: %s'%(select.name()))
 
         # checksum of the input files
         if not len(samples['signal'] + samples['background'] + samples['mix']):
@@ -61,7 +62,7 @@ class VIDSelectorValidator:
         for key in sorted(samples.keys()):
             self.processInputList(samples[key],key)
                 
-        print 'input files checksum: %s'%(self.__hasher.hexdigest())
+        print('input files checksum: %s'%(self.__hasher.hexdigest()))
 
         for key in sorted(samples.keys()):
             if len(samples[key]):
@@ -69,16 +70,16 @@ class VIDSelectorValidator:
                 self.processEvents(samples[key],key,local_hash)
                 self.__hasher.update(local_hash.hexdigest())
        
-        print 'event processing checksum: %s'%(self.__hasher.hexdigest())
+        print('event processing checksum: %s'%(self.__hasher.hexdigest()))
 
         self.__hasher.update(select.md5String())
 
-        print 'total checksum: %s'%(self.__hasher.hexdigest())
+        print('total checksum: %s'%(self.__hasher.hexdigest()))
         
     def processInputList(self,the_list,name):
         for item in the_list:
             self.__hasher.update(item)
-            print 'Input %s file: %s'%(name,item)
+            print('Input %s file: %s'%(name,item))
 
     def processEvents(self,the_list,name,hasher):
         #data products
@@ -113,7 +114,7 @@ class VIDSelectorValidator:
         
         hasher.update(str(n_pass))
         hasher.update(str(n_fail))        
-        print '%s sample pass : fail : hash -> %d : %d : %s'%(name,n_pass,n_fail,hasher.hexdigest())
-        print '%s sample cut breakdown:'%(name)
+        print('%s sample pass : fail : hash -> %d : %d : %s'%(name,n_pass,n_fail,hasher.hexdigest()))
+        print('%s sample cut breakdown:'%(name))
         for i,sub_hash in enumerate(sub_hashes):
-            print '\t%s hash -> %s'%(sub_cutnames[i],sub_hash.hexdigest())
+            print('\t%s hash -> %s'%(sub_cutnames[i],sub_hash.hexdigest()))

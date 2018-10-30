@@ -14,6 +14,7 @@ Usage:
 
 M. Schroeder, DESY Hamburg      26-May-2014
 """
+from __future__ import print_function
 
 import sys
 
@@ -104,11 +105,11 @@ def print_merging_scheme(merged_datasets):
     See comments to function `merge_datasets' for an explanation
     of what is meant by merged dataset.
     """
-    print "Defining the following merged datasets:"
+    print("Defining the following merged datasets:")
     for merged_dataset,datasets in six.iteritems(merged_datasets):
-        print "\n  `"+merged_dataset+"' from:"
+        print("\n  `"+merged_dataset+"' from:")
         for dataset in datasets:
-            print "    `"+dataset+"'"
+            print("    `"+dataset+"'")
 
 
 
@@ -118,7 +119,7 @@ def print_num_evts_per_dataset(num_evts_per_dataset):
     See comments to function `get_num_evts_per_dataset' for an
     explanation of what is meant by dataset.
     """
-    print "The following number of events per dataset have been processed:"
+    print("The following number of events per dataset have been processed:")
     datasets = sorted(num_evts_per_dataset.keys())
     max_name = 0
     max_num = 0
@@ -130,32 +131,32 @@ def print_num_evts_per_dataset(num_evts_per_dataset):
     expr_name = " {0: <"+str(max_name)+"}"
     expr_num = " {0: >"+str(max_num)+"}"
     for dataset in datasets:
-        print expr_name.format(dataset)+" : "+expr_num.format(str(num_evts_per_dataset[dataset]))
+        print(expr_name.format(dataset)+" : "+expr_num.format(str(num_evts_per_dataset[dataset])))
 
 
 if  __name__ == '__main__':
     """ main subroutine """
 
     if len(sys.argv) < 2:
-        print 'ERROR'
-        print 'usage:'
-        print '  python mps_list_evts.py <mps.db file name>  or, after scram b'
-        print '  mps_list_evts.py <mps.db file name>'
+        print('ERROR')
+        print('usage:')
+        print('  python mps_list_evts.py <mps.db file name>  or, after scram b')
+        print('  mps_list_evts.py <mps.db file name>')
         sys.exit(1)
 
     mps_db = sys.argv[1]
-    print 'Parsing '+mps_db
+    print('Parsing '+mps_db)
 
     mille_lines = get_mille_lines()
     num_evts_per_dataset = get_num_evts_per_dataset(mille_lines)
     merged_datasets = merge_datasets(num_evts_per_dataset)
     num_evts_per_merged_dataset = get_num_evts_per_merged_dataset(merged_datasets,num_evts_per_dataset)
     
-    print "\n"
+    print("\n")
     print_num_evts_per_dataset(num_evts_per_dataset)
-    print "\n\n"
+    print("\n\n")
     print_merging_scheme(merged_datasets)
-    print "\n\n"
+    print("\n\n")
     print_num_evts_per_dataset(num_evts_per_merged_dataset)
 
 

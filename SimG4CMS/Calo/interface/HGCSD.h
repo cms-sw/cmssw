@@ -8,11 +8,13 @@
 
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
+#include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4CMS/Calo/interface/HGCNumberingScheme.h"
 #include "SimG4CMS/Calo/interface/HGCMouseBite.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 
 #include <string>
+#include <TTree.h>
 
 class DDCompactView;
 class DDFilteredView;
@@ -34,8 +36,11 @@ public:
 protected:
 
   double                  getEnergyDeposit(const G4Step* ) override;
+  using CaloSD::update;
   void                    update(const BeginOfJob *) override;
   void                    initRun() override;
+  void                    initEvent(const BeginOfEvent*) override;
+  void                    endEvent() override;
   bool                    filterHit(CaloG4Hit*, double) override;
 
 private:    
@@ -55,6 +60,12 @@ private:
   bool                                storeAllG4Hits_, rejectMB_, waferRot_;
   double                              mouseBiteCut_;
   std::vector<double>                 angles_;
+
+  TTree                              *tree_;
+  uint32_t                            t_EventID_;
+  std::vector<int>                    t_Layer_, t_Parcode_;
+  std::vector<double>                 t_dEStep1_, t_dEStep2_, t_TrackE_;
+  std::vector<double>                 t_Angle_;
 };
 
 #endif // HGCSD_h

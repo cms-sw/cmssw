@@ -4,6 +4,7 @@ Specs:
 -- PNG as default batch file format
 -- we support http mode by sending string buf via meme type image/png. Sending a premade static plot to webserver is considered a uploading process instead of http dynamic graphical mode. 
 '''
+from __future__ import print_function
 import sys,os
 import numpy,datetime
 import matplotlib
@@ -17,7 +18,7 @@ else:
     try:
         from RecoLuminosity.LumiDB import lumiQTWidget  
     except ImportError:
-        print 'unable to import GUI backend, switch to batch only mode'
+        print('unable to import GUI backend, switch to batch only mode')
         matplotlib.use('Agg',warn=False)
         batchonly=True
 from matplotlib.backends.backend_agg import FigureCanvasAgg as CanvasBackend
@@ -125,7 +126,7 @@ class matplotRender():
                 v=float(r[-(len(labels)-i)-1])#the values to plot are always the last n fields
                 rawdata.setdefault(lab,[]).append((runnumber,v))
         if not rawdata:
-            print '[WARNING]: no data to plot , exit'
+            print('[WARNING]: no data to plot , exit')
             return
       
         tot=sum([t[1] for t in rawdata[referenceLabel]])
@@ -149,7 +150,7 @@ class matplotRender():
         elif yscale=='log':
             ax.set_yscale('log')
         else:
-            raise 'unsupported yscale ',yscale
+            raise RuntimeError('unsupported yscale '+yscale)
         ax.set_xlabel(r'Run',position=(0.95,0))
         ax.set_ylabel(r'L '+unitstring,position=(0,0.9))
         xticklabels=ax.get_xticklabels()
@@ -223,7 +224,7 @@ class matplotRender():
                 rawdata.setdefault(lab,[]).append((fillnum,runnum,v))
         #print 'fillrunDict ',fillrunDict
         if not rawdata:
-            print '[WARNING]: no data, do nothing'
+            print('[WARNING]: no data, do nothing')
             return
         tot=sum([t[2] for t in rawdata[referenceLabel]])
         beginfo=''
@@ -251,7 +252,7 @@ class matplotRender():
         elif yscale=='log':
             ax.set_yscale('log')
         else:
-            raise 'unsupported yscale ',yscale
+            raise RuntimeError('unsupported yscale '+yscale)
         xticklabels=ax.get_xticklabels()
         majorLocator=matplotlib.ticker.LinearLocator( nticks )
         majorFormatter=matplotlib.ticker.FormatStrFormatter('%d')
@@ -334,7 +335,7 @@ class matplotRender():
                 v=float(r[-(len(labels)-i)])
                 rawdata.setdefault(lab,[]).append((runnumber,starttime,stoptime,v))        
         if not rawdata:
-            print '[WARNING]: no data, do nothing'
+            print('[WARNING]: no data, do nothing')
             return
         tot=sum([t[3] for t in rawdata[referenceLabel]])
         (unitstring,denomitor)=guessLumiUnit(tot)
@@ -460,7 +461,7 @@ class matplotRender():
                 v=float(r[-(len(labels)-i)-1])
                 rawdata.setdefault(lab,[]).append((day,begrunls,endrunls,v))
         if not rawdata:
-            print '[WARNING]: no data, do nothing'
+            print('[WARNING]: no data, do nothing')
             return
         maxlum=max([t[3] for t in rawdata[referenceLabel]])
         minlum=min([t[3] for t in rawdata[referenceLabel] if t[3]>0]) #used only for log scale, fin the non-zero bottom
@@ -520,7 +521,7 @@ class matplotRender():
         elif yscale=='log':
             ax.set_yscale('log')
         else:
-            raise 'unsupported yscale ',yscale        
+            raise RuntimeError('unsupported yscale '+yscale)        
         majorLoc=matplotlib.ticker.LinearLocator(numticks=nticks)
         minorLoc=matplotlib.ticker.LinearLocator(numticks=nticks*4)
         ax.xaxis.set_major_formatter(dateFmt)
@@ -605,7 +606,7 @@ class matplotRender():
                 v=float(r[-(len(labels)-i)-1])
                 rawdata.setdefault(lab,[]).append((day,runnumber,lsnum,v))
         if not rawdata:
-            print '[WARNING]: no data, do nothing'
+            print('[WARNING]: no data, do nothing')
             return
         maxlum=max([t[3] for t in rawdata[referenceLabel]])
         minlum=min([t[3] for t in rawdata[referenceLabel] if t[3]>0]) #used only for log scale, fin the non-zero bottom
@@ -665,7 +666,7 @@ class matplotRender():
         elif yscale=='log':
             ax.set_yscale('log')
         else:
-            raise 'unsupported yscale ',yscale
+            raise RuntimeError('unsupported yscale '+yscale)
         majorLoc=matplotlib.ticker.LinearLocator(numticks=nticks)
         minorLoc=matplotlib.ticker.LinearLocator(numticks=nticks*4)
         ax.xaxis.set_major_formatter(dateFmt)
@@ -801,7 +802,7 @@ class matplotRender():
     
     def drawInteractive(self):
         if batchonly:
-            print 'interactive mode is not available for your setup, exit'
+            print('interactive mode is not available for your setup, exit')
             sys.exit()
         aw=lumiQTWidget.ApplicationWindow(fig=self.__fig)
         aw.show()
@@ -809,7 +810,7 @@ class matplotRender():
         
 if __name__=='__main__':
     import csv
-    print '=====testing plotSumX_Run======'
+    print('=====testing plotSumX_Run======')
     f=open('/afs/cern.ch/cms/lumi/www/plots/operation/totallumivsrun-2011.csv','r')
     reader=csv.reader(f,delimiter=',')
     resultlines=[]
@@ -822,7 +823,7 @@ if __name__=='__main__':
     m.plotSumX_Run(rawdata={},resultlines=resultlines,minRun=None,maxRun=None,nticks=6,yscale='linear',withannotation=False)
     #m.drawPNG('totallumivsrun-2011test.png')
     m.drawInteractive()
-    print 'DONE'
+    print('DONE')
     
 '''
     print '=====testing plotSumX_Fill======'

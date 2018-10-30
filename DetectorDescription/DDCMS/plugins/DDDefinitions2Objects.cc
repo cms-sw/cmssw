@@ -333,10 +333,9 @@ template <> void Converter<DDLConstant>::operator()(xml_h element) const  {
     if ( idp == string::npos || idp > idq )
       val.insert(idx,_ns.name());
     else if ( idp != string::npos && idp < idq )
-      val[idp] = '_';
+      val[idp] = NAMESPACE_SEP;
     idx = val.find('[',idx);
   }
-  while ( (idx=val.find(':')) != string::npos ) val[idx]='_';
   printout(_ns.context->debug_constants ? ALWAYS : DEBUG,
            "Constant","Unresolved: %s -> %s",real.c_str(),val.c_str());
   res->allConst[real] = val;
@@ -987,8 +986,10 @@ template <> void Converter<DDLAlgorithm>::operator()(xml_h element) const  {
     return;
   }
   try {
+    size_t            idx;
     SensitiveDetector sd;
     string            type = "DDCMS_"+_ns.realName(name);
+    while(( idx = type.find( NAMESPACE_SEP )) != string::npos ) type[idx] = '_';
 
     // SensitiveDetector and Segmentation currently are undefined. Let's keep it like this
     // until we found something better.....

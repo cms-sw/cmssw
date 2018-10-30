@@ -1,3 +1,4 @@
+from __future__ import print_function
 #
 # cfg file to run some technical trigger emulators/simulation, L1 Global Trigger emulator 
 # on a file containing the output of the  GCT system and GMT system ("digi"), followed by 
@@ -96,7 +97,7 @@ if useRelValSample == True :
                 ])
 
         else : 
-            print 'Error: no file list defined for release ', useRelease, ' global tag ', useGlobalTag, ' data sample ',  useSample   
+            print('Error: no file list defined for release ', useRelease, ' global tag ', useGlobalTag, ' data sample ',  useSample)   
             sys.exit()
             
     elif useGlobalTag.count('STARTUP') :
@@ -113,13 +114,13 @@ if useRelValSample == True :
             secFiles.extend([
                 ])
         else :
-            print 'Error: no file list defined for release ', useRelease, ' global tag ', useGlobalTag, ' data sample ',  useSample   
+            print('Error: no file list defined for release ', useRelease, ' global tag ', useGlobalTag, ' data sample ',  useSample)   
             sys.exit()
 
 else : 
 
     # CRAFT data FIXME
-    print 'Error: no file list defined for release ', useRelease, ' global tag ', useGlobalTag, ' data sample ',  useSample   
+    print('Error: no file list defined for release ', useRelease, ' global tag ', useGlobalTag, ' data sample ',  useSample)   
     sys.exit()
     
     dataset = ''
@@ -218,7 +219,7 @@ process.GlobalTag.globaltag = useGlobalTag + '::All'
 # explicit choice of the L1 menu
 
 if l1Menu == '' :
-    print 'Using menu from global tag', useGlobalTag
+    print('Using menu from global tag', useGlobalTag)
 
 elif l1Menu == 'L1Menu_Commissioning2009_v5' :
     process.load('L1Trigger.Configuration.L1StartupConfig_cff')
@@ -242,7 +243,7 @@ elif l1Menu == 'myMenu' :
     #process.load("L1TriggerConfig.L1GtConfigProducers.Luminosity.startup.L1Menu_startup2_v2_Unprescaled_cff")
     process.load("L1TriggerConfig.L1GtConfigProducers.Luminosity.startup.L1Menu_startup2_v3_Unprescaled_cff")
 else :
-    print 'No such L1 menu: ', l1Menu  
+    print('No such L1 menu: ', l1Menu)  
       
 
 #

@@ -45,13 +45,13 @@ class AlphaTAnalyzer( Analyzer ):
 
         if len(jets) == 0:
             return 0.
-        
+
         px  = ROOT.std.vector('double')()
         py  = ROOT.std.vector('double')()
         et  = ROOT.std.vector('double')()
 
         #Make alphaT from lead 10 jets
-	for jet in jets[:10]:
+        for jet in jets[:10]:
             px.push_back(jet.px())
             py.push_back(jet.py())
             et.push_back(jet.et())

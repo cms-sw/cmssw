@@ -538,9 +538,9 @@ AlignmentProducerBase::createGeometries(const edm::EventSetup& iSetup,
     DTGeometryBuilderFromDDD DTGeometryBuilder;
     CSCGeometryBuilderFromDDD CSCGeometryBuilder;
     muonDTGeometry_ = std::make_shared<DTGeometry>();
-    DTGeometryBuilder.build(muonDTGeometry_, &(*cpv), *mdc);
+    DTGeometryBuilder.build(*muonDTGeometry_, &(*cpv), *mdc);
     muonCSCGeometry_ = std::make_shared<CSCGeometry>();
-    CSCGeometryBuilder.build(muonCSCGeometry_, &(*cpv), *mdc );
+    CSCGeometryBuilder.build(*muonCSCGeometry_, &(*cpv), *mdc );
   }
 }
 

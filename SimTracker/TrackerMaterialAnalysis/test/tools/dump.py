@@ -1,14 +1,15 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import sys
 import material
 
 def usage():
-  print """Usage:
+  print("""Usage:
     dump.py DIRECTION
 
 Read a list of detectors from standard input and dump their coordinate along DIRECTION.
-"""
+""")
 
 def dump():
   if (len(sys.argv) < 2) or (sys.argv[1] not in material.Element.directions):
@@ -25,7 +26,7 @@ def dump():
     positions.add(element.position[dir])
   positions = sorted(positions)
   for position in positions:
-    print position
+    print(position)
 
 
 if __name__ == "__main__":

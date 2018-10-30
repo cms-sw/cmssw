@@ -87,7 +87,14 @@ class MergeableCounterTable {
             if (!tryMerge(floatCols_, other.floatCols_)) return false;
             if (!tryMerge(vfloatCols_, other.vfloatCols_)) return false;
             return true; 
-         }
+        }
+
+        void swap(MergeableCounterTable& iOther) {
+          floatCols_.swap(iOther.floatCols_);
+          vfloatCols_.swap(iOther.vfloatCols_);
+          intCols_.swap(iOther.intCols_);
+          vintCols_.swap(iOther.vintCols_);
+        }
 
    private:
         std::vector<FloatColumn> floatCols_;

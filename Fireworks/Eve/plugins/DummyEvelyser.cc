@@ -30,6 +30,7 @@
 #include "Fireworks/Geometry/interface/DisplayGeomRecord.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "Fireworks/Tracks/interface/TrackUtils.h"
 
@@ -50,7 +51,7 @@ class DummyEvelyser : public edm::EDAnalyzer
 public:
   explicit DummyEvelyser(const edm::ParameterSet&);
   ~DummyEvelyser() override;
-
+   edm::EDGetTokenT<reco::TrackCollection > trackCollectionToken_;
 protected:
    TEveGeoTopNode* make_node(const TString& path, Int_t vis_level, Bool_t global_cs);
 
@@ -96,7 +97,9 @@ DummyEvelyser::DummyEvelyser(const edm::ParameterSet& iConfig) :
    m_geomList(nullptr),
    m_trackList(nullptr),
    m_geomWatcher(this, &DummyEvelyser::remakeGeometry)
-{}
+{
+   trackCollectionToken_ =  consumes<reco::TrackCollection >(m_trackTags);
+}
 
 DummyEvelyser::~DummyEvelyser()
 {}
@@ -205,18 +208,24 @@ void DummyEvelyser::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 {
    printf("DummyEvelyser::analyze\n");
 
+  edm::Handle<reco::TrackCollection> trackHandle;
+   iEvent.getByToken(trackCollectionToken_, trackHandle);
+   const reco::TrackCollection trackCollection = *(trackHandle.product());
+   if (!trackHandle.isValid()) {
+      edm::LogError("DummyEvelyser")
+         << "Error! Can't get Track collection "
+         << std::endl;
+      return;
+   }
+   
    if (m_eve)
    {
       // Remake geometry if it has changed.
       m_geomWatcher.check(iSetup);
 
-
       // Stripped down demo from Tracking twiki.
-
+ 
       using namespace edm;
-
-      Handle<View<reco::Track> >  tracks;
-      iEvent.getByLabel(m_trackTags, tracks);
 
       m_trackList->DestroyElements();
 
@@ -225,21 +234,24 @@ void DummyEvelyser::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       m_eve->AddElement(m_trackList);
 
       int cnt = 0;
-      for (View<reco::Track>::const_iterator itTrack = tracks->begin();
-           itTrack != tracks->end(); ++itTrack, ++cnt)
+      
+      for (auto itTrack = trackCollection.begin();
+           itTrack != trackCollection.end(); ++itTrack, ++cnt)
       {
          TEveTrack* trk = fireworks::prepareTrack(*itTrack, m_trackList->GetPropagator());
          trk->SetElementName (TString::Format("Track %d", cnt));
          trk->SetElementTitle(TString::Format("Track %d, pt=%.3f", cnt, itTrack->pt()));
          trk->MakeTrack();
+         
          trk->SetAttLineAttMarker(m_trackList);
-         m_trackList->AddElement(trk);
-
-         // The display() function runs the GUI event-loop and shows
-         // whatever has been registered so far to eve.
-         // It returns when user presses the "Step" button (or "Continue" or
-         // "Next Event").
-         m_eve->display(std::string("DummyEvelyser::analyze done for:\n") + trk->GetName());
+         m_trackList->AddElement(trk);   
       }
+
+      
+      // The display() function runs the GUI event-loop and shows
+      // whatever has been registered so far to eve.
+      // It returns when user presses the "Step" button (or "Continue" or
+      // "Next Event").
+      m_eve->display(Form("DummyEvelyser::analyze done for %d tracks\n", m_trackList->NumChildren()) );
    }
 }

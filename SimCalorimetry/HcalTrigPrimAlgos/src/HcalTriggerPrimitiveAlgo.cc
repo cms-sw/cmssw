@@ -21,18 +21,19 @@
 using namespace std;
 
 HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo( bool pf, const std::vector<double>& w, int latency,
-                                                    uint32_t FG_threshold, uint32_t FG_HF_threshold, uint32_t ZS_threshold,
+                                                    uint32_t FG_threshold, const std::vector<uint32_t>& FG_HF_thresholds, uint32_t ZS_threshold,
                                                     int numberOfSamples, int numberOfPresamples,
-                                                    int numberOfSamplesHF, int numberOfPresamplesHF,
+                                                    int numberOfSamplesHF, int numberOfPresamplesHF, bool useTDCInMinBiasBits,
                                                     uint32_t minSignalThreshold, uint32_t PMT_NoiseThreshold
                                                     )
                                                    : incoder_(nullptr), outcoder_(nullptr),
                                                    theThreshold(0), peakfind_(pf), weights_(w), latency_(latency),
-                                                   FG_threshold_(FG_threshold), FG_HF_threshold_(FG_HF_threshold), ZS_threshold_(ZS_threshold),
+                                                   FG_threshold_(FG_threshold), FG_HF_thresholds_(FG_HF_thresholds), ZS_threshold_(ZS_threshold),
                                                    numberOfSamples_(numberOfSamples),
                                                    numberOfPresamples_(numberOfPresamples),
                                                    numberOfSamplesHF_(numberOfSamplesHF),
                                                    numberOfPresamplesHF_(numberOfPresamplesHF),
+                                                   useTDCInMinBiasBits_(useTDCInMinBiasBits),
                                                    minSignalThreshold_(minSignalThreshold),
                                                    PMT_NoiseThreshold_(PMT_NoiseThreshold),
                                                    NCTScaleShift(0), RCTScaleShift(0),
@@ -226,9 +227,11 @@ HcalTriggerPrimitiveAlgo::addSignal(const QIE10DataFrame& frame)
       detail.samples = samples;
       detail.digi = frame;
       detail.validity.resize(nsamples);
-      incoder_->lookupMSB(frame, detail.fgbit);
+      detail.passTDC.resize(nsamples);
+      incoder_->lookupMSB(frame, detail.fgbits);
       for (int idx = 0; idx < nsamples; ++idx){
          detail.validity[idx] = validChannel(frame, idx);
+         detail.passTDC[idx] = passTDC(frame, idx);
       }
    }
 }
@@ -361,7 +364,7 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples, HcalTrigger
 
 
 void
-HcalTriggerPrimitiveAlgo::analyze2017(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result, const HcalFinegrainBit& fg_algo)
+HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result, const HcalFinegrainBit& fg_algo)
 {
    int shrink = weights_.size() - 1;
    auto& msb = fgUpgradeMap_[samples.id()];
@@ -415,12 +418,12 @@ HcalTriggerPrimitiveAlgo::analyze2017(IntegerCaloSamples& samples, HcalTriggerPr
 
       if (isPeak){
          output[ibin] = std::min<unsigned int>(sum[idx],QIE11_MAX_LINEARIZATION_ET);
-         finegrain[ibin] = fg_algo.compute(msb[idx]).to_ulong();
       } else {
          // Not a peak
          output[ibin] = 0;
-         finegrain[ibin] = 0;
       }
+      // peak-finding is not applied for FG bits
+      finegrain[ibin] = fg_algo.compute(msb[idx]).to_ulong();
    }
    outcoder_->compress(output, finegrain, result);
 }
@@ -519,7 +522,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2016(
             uint32_t ADCShort = details.ShortDigi[ibin].adc();
 
             if (details.LongDigi.id().ietaAbs() >= FIRST_FINEGRAIN_TOWER) {
-               finegrain[ibin][1] = (ADCLong > FG_HF_threshold_ || ADCShort > FG_HF_threshold_);
+               finegrain[ibin][1] = (ADCLong > FG_HF_thresholds_[0] || ADCShort > FG_HF_thresholds_[0]);
 
                if (embit != nullptr)
                   finegrain[ibin][0] = embit->fineGrainbit(details.ShortDigi, details.LongDigi, ibin);
@@ -539,15 +542,8 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2016(
 }
 
 bool
-HcalTriggerPrimitiveAlgo::validChannel(const QIE10DataFrame& digi, int ts) const
+HcalTriggerPrimitiveAlgo::passTDC(const QIE10DataFrame& digi, int ts) const
 {
-   // channels with invalid data should not contribute to the sum
-   if(digi.linkError() || ts>=digi.samples() || !digi[ts].ok()) return false;
-
-   auto mask = conditions_->getHcalTPChannelParameter(HcalDetId(digi.id()))->getMask();
-   if (mask)
-      return false;
-
    auto parameters = conditions_->getHcalTPParameters();
    auto adc_threshold = parameters->getADCThresholdHF();
    auto tdc_mask = parameters->getTDCMaskHF();
@@ -563,7 +559,20 @@ HcalTriggerPrimitiveAlgo::validChannel(const QIE10DataFrame& digi, int ts) const
    return (1ul << digi[ts].le_tdc()) & tdc_mask;
 }
 
-void HcalTriggerPrimitiveAlgo::analyzeHF2017(
+bool
+HcalTriggerPrimitiveAlgo::validChannel(const QIE10DataFrame& digi, int ts) const
+{
+   // channels with invalid data should not contribute to the sum
+   if(digi.linkError() || ts>=digi.samples() || !digi[ts].ok()) return false;
+
+   auto mask = conditions_->getHcalTPChannelParameter(HcalDetId(digi.id()))->getMask();
+   if (mask)
+      return false;
+
+   return true;
+}
+
+void HcalTriggerPrimitiveAlgo::analyzeHFQIE10(
         const IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result,
         const int hf_lumi_shift, const HcalFeatureBit* embit)
 {
@@ -600,14 +609,14 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
             bool saturated = false;
 
             for (auto i: {0, 2}) {
-               if (idx < details[i].samples.size() and details[i].validity[idx]) {
+               if (idx < details[i].samples.size() and details[i].validity[idx] and details[i].passTDC[idx]) {
                   long_fiber_val += details[i].samples[idx];
                   saturated = saturated || (details[i].samples[idx] == QIE10_LINEARIZATION_ET);
                   ++long_fiber_count;
                }
             }
             for (auto i: {1, 3}) {
-               if (idx < details[i].samples.size() and details[i].validity[idx]) {
+               if (idx < details[i].samples.size() and details[i].validity[idx] and details[i].passTDC[idx]) {
                   short_fiber_val += details[i].samples[idx];
                   saturated = saturated || (details[i].samples[idx] == QIE10_LINEARIZATION_ET);
                   ++short_fiber_count;
@@ -635,11 +644,16 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
 
             for (const auto& detail: details) {
                if (idx < int(detail.digi.size()) and detail.validity[idx] and HcalDetId(detail.digi.id()).ietaAbs() >= FIRST_FINEGRAIN_TOWER) {
-                  finegrain[ibin][1] = finegrain[ibin][1] or detail.fgbit[idx];
+		 if(useTDCInMinBiasBits_ && !detail.passTDC[idx]) continue;
+		 finegrain[ibin][1] = finegrain[ibin][1] or detail.fgbits[idx][0];
+		 // what is commonly called the "second" HF min-bias bit is
+		 // actually the 0-th bit, which can also be used instead for the EM bit
+		 // (called finegrain[ibin][0] below) in non-HI running
+		 finegrain[ibin][0] = finegrain[ibin][0] or detail.fgbits[idx][1];
                }
             }
-
-            if (embit != nullptr) {
+	    // the EM bit is only used if the "second" FG bit is disabled
+            if (embit != nullptr and FG_HF_thresholds_.at(1) != 255) {
                finegrain[ibin][0] = embit->fineGrainbit(
                      details[1].digi, details[3].digi,
                      details[0].digi, details[2].digi,
@@ -777,8 +791,8 @@ HcalTriggerPrimitiveAlgo::addUpgradeFG(const HcalTrigTowerDetId& id, int depth, 
       it = fgUpgradeMap_.insert(std::make_pair(id, element)).first;
    }
    for (unsigned int i = 0; i < bits.size(); ++i) {
-      it->second[i][0][depth] = bits[i][0];
-      it->second[i][1][depth] = bits[i][1];
+      it->second[i][0][depth-1] = bits[i][0];
+      it->second[i][1][depth-1] = bits[i][1];
    }
 }
 

@@ -29,7 +29,7 @@ class RecoTauPiZeroCombinatoricPlugin : public RecoTauPiZeroBuilderPlugin {
   public:
   explicit RecoTauPiZeroCombinatoricPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC);
     ~RecoTauPiZeroCombinatoricPlugin() override {}
-    // Return type is auto_ptr<PiZeroVector>
+    // Return type is unique_ptr<PiZeroVector>
     return_type operator()(const reco::PFJet& jet) const override;
 
   private:
@@ -79,7 +79,7 @@ RecoTauPiZeroCombinatoricPlugin::operator()(
   for (ComboGenerator::iterator combo = generator.begin();
       combo != generator.end(); ++combo) {
     const Candidate::LorentzVector totalP4;
-    std::auto_ptr<RecoTauPiZero> piZero(
+    std::unique_ptr<RecoTauPiZero> piZero(
         new RecoTauPiZero(0, totalP4, Candidate::Point(0, 0, 0),
                           111, 10001, true, RecoTauPiZero::kCombinatoric));
     // Add our daughters from this combination
@@ -94,7 +94,7 @@ RecoTauPiZeroCombinatoricPlugin::operator()(
 
     if ((maxMass_ < 0 || piZero->mass() < maxMass_) &&
         piZero->mass() > minMass_)
-      output.push_back(piZero);
+      output.push_back(piZero.get());
   }
   return output.release();
 }

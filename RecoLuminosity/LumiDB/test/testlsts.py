@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os,sys,datetime,time,calendar
 import coral
 from RecoLuminosity.LumiDB import lumiCalcAPI,argparse,sessionManager
@@ -32,14 +33,14 @@ if __name__ == '__main__':
     irunlsdict={181530:[1,2,4],182133:None}#to decide by yourself!
     lumidata=lumiCalcAPI.instLumiForRange(schema,irunlsdict)
     orderedrunlist=sorted(lumidata)
-    print 'run,lumilsnum,unixtimestamp'
+    print('run,lumilsnum,unixtimestamp')
     for run in orderedrunlist:
         perrundata=lumidata[run]
         for perlsdata in perrundata:
             lumilsnum=perlsdata[0]
             tsdatetime=perlsdata[2]
             ts=calendar.timegm(tsdatetime.utctimetuple())
-            print run,lumilsnum,ts
+            print(run,lumilsnum,ts)
     session.transaction().commit()
     #above method is limited to data in the lumiDB, not all runs/ls are available in lumiDB
     #in case of reading a datetime string from somewhere other than lumiDB:

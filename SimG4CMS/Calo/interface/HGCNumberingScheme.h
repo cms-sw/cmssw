@@ -8,7 +8,7 @@
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 
-#include "G4Step.hh"
+#include "G4ThreeVector.hh"
 
 class HGCNumberingScheme {
 

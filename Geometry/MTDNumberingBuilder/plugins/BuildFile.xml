@@ -1,0 +1,10 @@
+<use   name="Geometry/MTDNumberingBuilder"/>
+<use   name="CondFormats/GeometryObjects"/>
+<use   name="DetectorDescription/Core"/>
+<use   name="Geometry/Records"/>
+<use   name="DataFormats/DetId"/>
+<use   name="Geometry/CommonTopologies"/>
+<use   name="DataFormats/TrackerCommon"/>
+<library   file="*.cc" name="GeometryMTDNumberingBuilderPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

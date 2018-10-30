@@ -62,6 +62,7 @@ namespace l1t {
          std::vector<int> fedIds_;
          unsigned int minFeds_;
          unsigned int fwId_;
+         unsigned int dmxFwId_;
          bool fwOverride_;
 
          std::unique_ptr<PackingSetup> prov_;
@@ -94,6 +95,7 @@ namespace l1t {
       fedIds_(config.getParameter<std::vector<int>>("FedIds")),
       minFeds_(config.getParameter<unsigned int>("MinFeds")),
       fwId_(config.getParameter<unsigned int>("FWId")),
+      dmxFwId_(config.getParameter<unsigned int>("DmxFWId")),
       fwOverride_(config.getParameter<bool>("FWOverride")),
       tmtCheck_(config.getParameter<bool>("TMTCheck")),
       ctp7_mode_(config.getUntrackedParameter<bool>("CTP7")),
@@ -234,15 +236,18 @@ namespace l1t {
                payload.reset(new MP7Payload(start, end, legacy_mc));
             }
             unsigned fw = payload->getAlgorithmFWVersion();
-
-            // Let parameterset value override FW version
-            if (fwOverride_)
-               fw = fwId_;
-
-            unsigned board = amc.blockHeader().getBoardID();
+	    unsigned board = amc.blockHeader().getBoardID();
             unsigned amc_no = amc.blockHeader().getAMCNumber();
 	    
-	    auto unpackers = prov_->getUnpackers(fedId, board, amc_no, fw);	      
+            // Let parameterset value override FW version
+            if (fwOverride_){
+	      if (fedId == 1360)
+		fw = fwId_;
+	      else if (fedId == 1366)
+		fw = dmxFwId_;
+	    }
+            
+	    auto unpackers = prov_->getUnpackers(fedId, board, amc_no, fw);
 	      
             // getBlock() returns a non-null unique_ptr on success
             std::unique_ptr<Block> block;
@@ -306,6 +311,7 @@ namespace l1t {
      // These parameters have well defined  default values and are not currently 
      // part of the L1T/HLT interface.  They can be cleaned up or updated at will:     
      desc.add<unsigned int>("FWId",0)->setComment("Ignored unless FWOverride is true.  Calo Stage1:  32 bits: if the first eight bits are 0xff, will read the 74x MC format.\n");
+     desc.add<unsigned int>("DmxFWId",0)->setComment("Ignored unless FWOverride is true.  Calo Stage1:  32 bits: if the first eight bits are 0xff, will read the 74x MC format.\n");
      desc.add<bool>("FWOverride", false)->setComment("Firmware version should be taken as FWId parameters");
      desc.add<bool>("TMTCheck", true)->setComment("Flag for turning on/off Calo Layer 2 TMT node check");
      desc.addUntracked<bool>("CTP7", false);

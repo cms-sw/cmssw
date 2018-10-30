@@ -25,9 +25,9 @@ SiStripGainFromAsciiFile::~SiStripGainFromAsciiFile(){
   edm::LogInfo("SiStripGainFromAsciiFile::~SiStripGainFromAsciiFile");
 }
 
-SiStripApvGain * SiStripGainFromAsciiFile::getNewObject(){
+std::unique_ptr<SiStripApvGain> SiStripGainFromAsciiFile::getNewObject(){
 
-  SiStripApvGain* obj = new SiStripApvGain();
+  auto obj = std::make_unique<SiStripApvGain>();
 
 
   std::stringstream ss;

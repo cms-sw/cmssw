@@ -33,19 +33,14 @@ using namespace std;
 //----------------
 // Constructors --
 //----------------
-L1MuDTChambPhContainer::L1MuDTChambPhContainer() {}
-
-//--------------
-// Destructor --
-//--------------
-L1MuDTChambPhContainer::~L1MuDTChambPhContainer() {}
+L1MuDTChambPhContainer::L1MuDTChambPhContainer(Phi_Container c): phiSegments(std::move(c)) {}
 
 //--------------
 // Operations --
 //--------------
-void L1MuDTChambPhContainer::setContainer(const Phi_Container& inputSegments) {
+void L1MuDTChambPhContainer::setContainer(Phi_Container inputSegments) {
 
-  phiSegments = inputSegments;
+  phiSegments = std::move(inputSegments);
 }
 
 L1MuDTChambPhContainer::Phi_Container const* L1MuDTChambPhContainer::getContainer() const {

@@ -33,9 +33,7 @@ TrackerTopologyEP::produce( const TrackerTopologyRcd& iRecord )
   iRecord.getRecord<PTrackerParametersRcd>().get( ptp );
   fillParameters( *ptp );
   
-  ReturnType myTopo( new TrackerTopology( pxbVals_, pxfVals_, tecVals_, tibVals_, tidVals_, tobVals_ ));
-
-  return myTopo ;
+  return std::make_unique<TrackerTopology>( pxbVals_, pxfVals_, tecVals_, tibVals_, tidVals_, tobVals_ );
 }
 
 void

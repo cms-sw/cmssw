@@ -5,6 +5,7 @@ _pp_
 Scenario supporting proton collisions
 
 """
+from __future__ import print_function
 
 import os
 import sys
@@ -179,7 +180,7 @@ class Reco(Scenario):
             # this is the default as this is what is needed on the OnlineCluster
             options.filetype = 'DQMDAQ'
 
-        print "Using %s source"%options.filetype            
+        print("Using %s source"%options.filetype)            
 
         process = cms.Process('RECO', cms.ModifierChain(self.eras, self.visModifiers) )
 

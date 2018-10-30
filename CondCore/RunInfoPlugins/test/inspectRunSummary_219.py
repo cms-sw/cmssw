@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os,sys, DLFCN
 sys.setdlopenflags(DLFCN.RTLD_GLOBAL+DLFCN.RTLD_LAZY)
 
@@ -19,13 +20,13 @@ tag = 'runsummary_test'
 
 try :
     log = db.lastLogEntry(tag)
-    print log.getState()
+    print(log.getState())
     iov = inspect.Iov(db,tag)
-    print iov.list()
+    print(iov.list())
     for x in  iov.summaries():
-        print x[1], x[2] ,x[3]
+        print(x[1], x[2] ,x[3])
     #        print iov.trend("",[0,2,12])
 except RuntimeError :
-    print " no iov? in", tag
+    print(" no iov? in", tag)
 
 

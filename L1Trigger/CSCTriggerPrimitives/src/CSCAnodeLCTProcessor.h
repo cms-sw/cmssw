@@ -36,9 +36,9 @@ class CSCAnodeLCTProcessor
  public:
   /** Normal constructor. */
   CSCAnodeLCTProcessor(unsigned endcap, unsigned station, unsigned sector,
-		       unsigned subsector, unsigned chamber,
-		       const edm::ParameterSet& conf,
-		       const edm::ParameterSet& comm);
+                       unsigned subsector, unsigned chamber,
+                       const edm::ParameterSet& conf,
+                       const edm::ParameterSet& comm);
 
   /** Default constructor. Used for testing. */
   CSCAnodeLCTProcessor();
@@ -79,15 +79,10 @@ class CSCAnodeLCTProcessor
   /** Returns vector of all found ALCTs, if any. */
   std::vector<CSCALCTDigi> getALCTs();
 
-  /** set ring number. Important only for ME1a */
-  void setRing(unsigned r) {theRing = r;}
-
   /** Pre-defined patterns. */
   static const int pattern_envelope[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN];
-  static const int pattern_mask_slim[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN];
   static const int pattern_mask_open[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN];
   static const int pattern_mask_r1[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN];
-  static const int time_weights[CSCConstants::MAX_WIRES_IN_PATTERN];
 
  private:
   /** Verbosity level: 0: no print (default).
@@ -121,14 +116,8 @@ class CSCAnodeLCTProcessor
   std::vector<CSCWireDigi> digiV[CSCConstants::NUM_LAYERS];
   unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES];
 
-  /** Flag for MTCC data (i.e., "open" patterns). */
-  bool isMTCC;
-
-  /** Use TMB07 flag for DAQ-2006 version (implemented in late 2007). */
-  bool isTMB07;
-
   /** Flag for SLHC studies. */
-  bool isSLHC;
+  bool isSLHC_;
 
   /** Configuration parameters. */
   unsigned int fifo_tbins, fifo_pretrig, drift_delay;

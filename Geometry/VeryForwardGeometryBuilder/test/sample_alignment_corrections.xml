@@ -17,6 +17,9 @@ TotemAlignment/RPDataFormats/src/RPAlignmentCorrectionsSequence.cc
 	<!-- diamd RP 16 -->
 	<rp id="2054160384" sh_x="+500" sh_y="0" />
 
+	<!-- totim RP 20 -->
+	<rp id="2088763392" sh_x="-1000" sh_y="0" />
+
 
 	<!-- strip RP 0, plane 0 -->
 	<det id="1979711488" sh_x="0" sh_y="+1000" />
@@ -26,4 +29,7 @@ TotemAlignment/RPDataFormats/src/RPAlignmentCorrectionsSequence.cc
 
 	<!-- diamd RP 16, plane 0, channel 0 -->
 	<det id="2054160384" sh_x="+1000" sh_y="0" />
+
+	<!-- totim RP 20, plane 0, channel 0 -->
+	<det id="2088763392" sh_x="+2000" sh_y="0" />
 </xml>

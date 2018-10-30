@@ -465,23 +465,25 @@ namespace edm {
   }
 
   void
-  SubProcess::writeRunAsync(edm::WaitingTaskHolder task, ProcessHistoryID const& parentPhID, int runNumber) {
+  SubProcess::writeRunAsync(edm::WaitingTaskHolder task, ProcessHistoryID const& parentPhID, int runNumber,
+                            MergeableRunProductMetadata const* mergeableRunProductMetadata) {
     ServiceRegistry::Operate operate(serviceToken_);
     std::map<ProcessHistoryID, ProcessHistoryID>::const_iterator it = parentToChildPhID_.find(parentPhID);
     assert(it != parentToChildPhID_.end());
     auto const& childPhID = it->second;
     
-    auto subTasks = edm::make_waiting_task(tbb::task::allocate_root(), [this,childPhID,runNumber, task](std::exception_ptr const* iExcept) mutable {
+    auto subTasks = edm::make_waiting_task(tbb::task::allocate_root(), [this,childPhID,runNumber, task, mergeableRunProductMetadata](std::exception_ptr const* iExcept) mutable {
       if( iExcept) {
         task.doneWaiting(*iExcept);
       } else {
         ServiceRegistry::Operate operate(serviceToken_);
         for(auto& s: subProcesses_) {
-          s.writeRunAsync(task, childPhID, runNumber);
+          s.writeRunAsync(task, childPhID, runNumber, mergeableRunProductMetadata);
         }
       }
     });
-    schedule_->writeRunAsync(WaitingTaskHolder(subTasks),principalCache_.runPrincipal(childPhID, runNumber), &processContext_, actReg_.get());
+    schedule_->writeRunAsync(WaitingTaskHolder(subTasks),principalCache_.runPrincipal(childPhID, runNumber),
+                             &processContext_, actReg_.get(), mergeableRunProductMetadata);
   }
 
   void

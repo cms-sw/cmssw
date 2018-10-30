@@ -6,6 +6,7 @@
 # Volker Adler       Apr  16, 2014
 # Raman Khurana      June 18, 2015
 # Dinko Ferencek     June 27, 2015
+from __future__ import print_function
 import os
 import sys
 import optparse
@@ -68,7 +69,7 @@ class Event (dict):
             raise RuntimeError("Can not parse '%s' as Event object" \
                   % line.strip())
         if not self['dataset']:
-            print "No dataset is defined for '%s'.  Aborting." % line.strip()
+            print("No dataset is defined for '%s'.  Aborting." % line.strip())
             raise RuntimeError('Missing dataset')
 
     def __getattr__ (self, key):
@@ -102,7 +103,7 @@ def getFileNames_das_client(event):
     jsondict = das_client.get_data(query)
     status = jsondict['status']
     if status != 'ok':
-        print "DAS query status: %s"%(status)
+        print("DAS query status: %s"%(status))
         return files
 
     mongo_query = jsondict['mongo_query']
@@ -281,13 +282,13 @@ https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents ''')
             try:
                 event = Event (line)
             except:
-                print "Skipping '%s'." % line.strip()
+                print("Skipping '%s'." % line.strip())
                 continue
             eventList.append(event)
         source.close()
 
     if not eventList:
-        print "No events defined.  Aborting."
+        print("No events defined.  Aborting.")
         sys.exit()
 
     if len (eventList) > options.maxEventsInteractive:
@@ -312,12 +313,12 @@ https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents ''')
         target = open (crabDict['crabcfg'], 'w')
         target.write (crabTemplate % crabDict)
         target.close
-        print "Please visit CRAB twiki for instructions on how to setup environment for CRAB:\nhttps://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCrab\n"
+        print("Please visit CRAB twiki for instructions on how to setup environment for CRAB:\nhttps://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCrab\n")
         if options.crabCondor:
-            print "You are running on condor.  Please make sure you have read instructions on\nhttps://twiki.cern.ch/twiki/bin/view/CMS/CRABonLPCCAF\n"
+            print("You are running on condor.  Please make sure you have read instructions on\nhttps://twiki.cern.ch/twiki/bin/view/CMS/CRABonLPCCAF\n")
             if not os.path.exists ('%s/.profile' % os.environ.get('HOME')):
-                print "** WARNING: ** You are missing ~/.profile file.  Please see CRABonLPCCAF instructions above.\n"
-        print "Setup your environment for CRAB and edit %(crabcfg)s to make any desired changed.  Then run:\n\ncrab submit -c %(crabcfg)s\n" % crabDict
+                print("** WARNING: ** You are missing ~/.profile file.  Please see CRABonLPCCAF instructions above.\n")
+        print("Setup your environment for CRAB and edit %(crabcfg)s to make any desired changed.  Then run:\n\ncrab submit -c %(crabcfg)s\n" % crabDict)
 
     else:
 
@@ -329,7 +330,7 @@ https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents ''')
         for event in eventList:
             eventFiles = getFileNames(event, options.das_cli)
             if eventFiles == ['[]']: # event not contained in the input dataset
-                print "** WARNING: ** According to a DAS query, run = %i; lumi = %i; event = %i not contained in %s.  Skipping."%(event.run,event.lumi,event.event,event.dataset)
+                print("** WARNING: ** According to a DAS query, run = %i; lumi = %i; event = %i not contained in %s.  Skipping."%(event.run,event.lumi,event.event,event.dataset))
                 eventPurgeList.append( event )
             else:
                 files.extend( eventFiles )
@@ -349,7 +350,7 @@ https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents ''')
           sorted( [ "%d:%d" % (event.run, event.event) for event in eventList ] ) )
         command = 'edmCopyPickMerge outputFile=%s.root \\\n  eventsToProcess=%s \\\n  inputFiles=%s' \
                   % (options.base, eventsToProcess, source)
-        print "\n%s" % command
+        print("\n%s" % command)
         if options.runInteractive and not options.printInteractive:
             os.system (command)
 

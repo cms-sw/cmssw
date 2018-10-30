@@ -15,7 +15,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 
 EcalUncalibRecHitWorkerWeights::EcalUncalibRecHitWorkerWeights(const edm::ParameterSet&ps, edm::ConsumesCollector& c) :
-  EcalUncalibRecHitWorkerRunOneDigiBase(ps,c)
+  EcalUncalibRecHitWorkerRunOneDigiBase(ps,c),testbeamEEShape(EEShape(true)), testbeamEBShape(EBShape(true))
 {
 }
 
@@ -26,6 +26,9 @@ EcalUncalibRecHitWorkerWeights::set(const edm::EventSetup& es)
         es.get<EcalPedestalsRcd>().get(peds);
         es.get<EcalWeightXtalGroupsRcd>().get(grps);
         es.get<EcalTBWeightsRcd>().get(wgts);
+
+	testbeamEEShape.setEventSetup(es);
+	testbeamEBShape.setEventSetup(es);
 }
 
 

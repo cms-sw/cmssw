@@ -1,11 +1,12 @@
+from __future__ import print_function
 # Copyright (C) 2014 Colin Bernet
 # https://github.com/cbernet/heppy/blob/master/LICENSE
 
 def printWeights( weights ):
     import six
     for key, value in six.iteritems(weights):
-        print key
-        print value 
+        print(key)
+        print(value) 
 
 class Weight( object ):
     '''make names uniform wrt Component.

@@ -9,7 +9,8 @@ from DQMOffline.Trigger.MssmHbbMonitoring_Client_cfi import *
 from DQMOffline.Trigger.PhotonMonitor_cff import *
 
 metbtagEfficiency_met = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/Higgs/*"),
+#    subDirs        = cms.untracked.vstring("HLT/Higgs/*"),
+    subDirs        = cms.untracked.vstring("HLT/HIG/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -30,7 +31,8 @@ metbtagEfficiency_met = DQMEDHarvester("DQMGenericClient",
 )
 
 metbtagEfficiency_btag = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/Higgs/*"),
+#    subDirs        = cms.untracked.vstring("HLT/Higgs/*"),
+    subDirs        = cms.untracked.vstring("HLT/HIG/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -73,7 +75,8 @@ metbtagEfficiency_btag = DQMEDHarvester("DQMGenericClient",
 
 ###############Same flavour dilepton with dz cuts#######################
 ele23Ele12CaloIdLTrackIdLIsoVL_effdz = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/Higgs/DiLepton/HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ/"),
+#    subDirs        = cms.untracked.vstring("HLT/Higgs/DiLepton/HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ/"),
+    subDirs        = cms.untracked.vstring("HLT/HIG/DiLepton/HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ/"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -98,8 +101,10 @@ ele23Ele12CaloIdLTrackIdLIsoVL_effdz = DQMEDHarvester("DQMGenericClient",
 )
 
 ################################MuEG cross triggers###################################
-mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_effele =  DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/Higgs/DiLepton/HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ/eleLeg/"),
+muEleDz_effele =  DQMEDHarvester("DQMGenericClient",
+    subDirs        = cms.untracked.vstring("HLT/HIG/DiLepton/HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ/eleLeg/",
+                                           "HLT/HIG/DiLepton/HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ/eleLeg/"
+                                          ),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -115,9 +120,46 @@ mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_effele =  DQMEDHarvester("DQMGenericCli
     	"effic_ElectronPt_vs_LS 'Electron p_T efficiency vs LS; LS; Electron p_T efficiency' eleVsLS_numerator eleVsLS_denominator"
     ),
 )
-
+mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_effele =  DQMEDHarvester("DQMGenericClient",
+#    subDirs        = cms.untracked.vstring("HLT/Higgs/DiLepton/HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ/eleLeg/"),
+    subDirs        = cms.untracked.vstring("HLT/HIG/DiLepton/HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ/eleLeg/"),
+    verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
+    resolution     = cms.vstring(),
+    efficiency     = cms.vstring(
+        "effic_elePt_1       'efficiency vs electron pt; electron pt [GeV]; efficiency' elePt_1_numerator       elePt_1_denominator",
+        "effic_eleEta_1       'efficiency vs electron eta; electron eta ; efficiency' eleEta_1_numerator       eleEta_1_denominator",
+        "effic_elePhi_1       'efficiency vs electron phi; electron phi ; efficiency' elePhi_1_numerator       elePhi_1_denominator",
+        "effic_elePt_1_variableBinning       'efficiency vs electron pt; electron pt [GeV]; efficiency' elePt_1_variableBinning_numerator       elePt_1_variableBinning_denominator",
+        "effic_eleEta_1_variableBinning       'efficiency vs electron eta; electron eta ; efficiency' eleEta_1_variableBinning_numerator       eleEta_1_variableBinning_denominator",
+        "effic_elePtEta_1       'efficiency vs electron pt-#eta; electron pt [GeV]; electron #eta' elePtEta_1_numerator       elePtEta_1_denominator",
+        "effic_eleEtaPhi_1       'efficiency vs electron #eta-#phi; electron #eta ; electron #phi' eleEtaPhi_1_numerator       eleEtaPhi_1_denominator",
+    ),
+    efficiencyProfile = cms.untracked.vstring(
+    	"effic_ElectronPt_vs_LS 'Electron p_T efficiency vs LS; LS; Electron p_T efficiency' eleVsLS_numerator eleVsLS_denominator"
+    ),
+)
+muEleDz_effmu = DQMEDHarvester("DQMGenericClient",
+    subDirs        = cms.untracked.vstring("HLT/HIG/DiLepton/HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ/muLeg/",
+                                           "HLT/HIG/DiLepton/HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ/muLeg/"
+                                          ),
+    verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
+    resolution     = cms.vstring(),
+    efficiency     = cms.vstring(
+        "effic_muPt_1       'efficiency vs muon pt; muon pt [GeV]; efficiency' muPt_1_numerator       muPt_1_denominator",
+        "effic_muEta_1       'efficiency vs muon eta; muon eta ; efficiency' muEta_1_numerator       muEta_1_denominator",
+        "effic_muPhi_1       'efficiency vs muon phi; muon phi ; efficiency' muPhi_1_numerator       muPhi_1_denominator",
+        "effic_muPt_1_variableBinning       'efficiency vs muon pt; muon pt [GeV]; efficiency' muPt_1_variableBinning_numerator       muPt_1_variableBinning_denominator",
+        "effic_muEta_1_variableBinning       'efficiency vs muon eta; muon eta ; efficiency' muEta_1_variableBinning_numerator       muEta_1_variableBinning_denominator",
+        "effic_muPtEta_1       'efficiency vs muon pt-#eta; muon pt [GeV]; muon #eta' muPtEta_1_numerator       muPtEta_1_denominator",
+        "effic_muEtaPhi_1       'efficiency vs muon #eta-#phi; muon #eta ; muon #phi' muEtaPhi_1_numerator       muEtaPhi_1_denominator",
+    ),
+    efficiencyProfile = cms.untracked.vstring(
+        "effic_MuonPt_vs_LS 'Muon p_T efficiency vs LS; LS; Muon p_T efficiency' muVsLS_numerator muVsLS_denominator"
+    ),
+)
 mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_effmu = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/Higgs/DiLepton/HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ/muLeg/"),
+#    subDirs        = cms.untracked.vstring("HLT/Higgs/DiLepton/HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ/muLeg/"),
+    subDirs        = cms.untracked.vstring("HLT/HIG/DiLepton/HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ/muLeg/"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -135,7 +177,8 @@ mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_effmu = DQMEDHarvester("DQMGenericClien
 )
 
 mu12TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZ_effele =  DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/Higgs/DiLepton/HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ/eleLeg/"),
+#    subDirs        = cms.untracked.vstring("HLT/Higgs/DiLepton/HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ/eleLeg/"),
+    subDirs        = cms.untracked.vstring("HLT/HIG/DiLepton/HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ/eleLeg/"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -153,7 +196,8 @@ mu12TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZ_effele =  DQMEDHarvester("DQMGenericCli
 )
 
 mu12TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZ_effmu = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/Higgs/DiLepton/HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ/muLeg/"),
+#    subDirs        = cms.untracked.vstring("HLT/Higgs/DiLepton/HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ/muLeg/"),
+    subDirs        = cms.untracked.vstring("HLT/HIG/DiLepton/HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ/muLeg/"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -172,7 +216,8 @@ mu12TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZ_effmu = DQMEDHarvester("DQMGenericClien
 
 ##########################Triple Electron################################3##
 ele16ele12ele8caloIdLTrackIdL =  DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/Higgs/TriLepton/HLT_Ele16_Ele12_Ele8_CaloIdL_TrackIdL/"),
+#    subDirs        = cms.untracked.vstring("HLT/Higgs/TriLepton/HLT_Ele16_Ele12_Ele8_CaloIdL_TrackIdL/"),
+    subDirs        = cms.untracked.vstring("HLT/HIG/TriLepton/HLT_Ele16_Ele12_Ele8_CaloIdL_TrackIdL/"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -205,7 +250,8 @@ ele16ele12ele8caloIdLTrackIdL =  DQMEDHarvester("DQMGenericClient",
 
 ################################Triple Muon##########################
 triplemu12mu10mu5 = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/Higgs/TriLepton/HLT_TripleMu_12_10_5/"),
+#    subDirs        = cms.untracked.vstring("HLT/Higgs/TriLepton/HLT_TripleMu_12_10_5/"),
+    subDirs        = cms.untracked.vstring("HLT/HIG/TriLepton/HLT_TripleMu_12_10_5/"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -237,7 +283,8 @@ triplemu12mu10mu5 = DQMEDHarvester("DQMGenericClient",
 )
 
 triplemu10mu5mu5DZ = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/Higgs/TriLepton/HLT_TripleM_10_5_5_DZ/"),
+#    subDirs        = cms.untracked.vstring("HLT/Higgs/TriLepton/HLT_TripleM_10_5_5_DZ/"),
+    subDirs        = cms.untracked.vstring("HLT/HIG/TriLepton/HLT_TripleM_10_5_5_DZ/"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -270,7 +317,8 @@ triplemu10mu5mu5DZ = DQMEDHarvester("DQMGenericClient",
 
 #############################Double Mu + Single Ele######################################
 dimu9ele9caloIdLTrackIdLdz_effmu = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/Higgs/TriLepton/HLT_DiMu9_Ele9_CaloIdL_TrackIdL/muLeg/"),
+#    subDirs        = cms.untracked.vstring("HLT/Higgs/TriLepton/HLT_DiMu9_Ele9_CaloIdL_TrackIdL/muLeg/"),
+    subDirs        = cms.untracked.vstring("HLT/HIG/TriLepton/HLT_DiMu9_Ele9_CaloIdL_TrackIdL/muLeg/"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -292,7 +340,8 @@ dimu9ele9caloIdLTrackIdLdz_effmu = DQMEDHarvester("DQMGenericClient",
 )
 
 dimu9ele9caloIdLTrackIdLdz_effele = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/Higgs/TriLepton/HLT_DiMu9_Ele9_CaloIdL_TrackIdL/eleLeg/"),
+#    subDirs        = cms.untracked.vstring("HLT/Higgs/TriLepton/HLT_DiMu9_Ele9_CaloIdL_TrackIdL/eleLeg/"),
+    subDirs        = cms.untracked.vstring("HLT/HIG/TriLepton/HLT_DiMu9_Ele9_CaloIdL_TrackIdL/eleLeg/"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -307,7 +356,8 @@ dimu9ele9caloIdLTrackIdLdz_effele = DQMEDHarvester("DQMGenericClient",
 )
 
 dimu9ele9caloIdLTrackIdLdz_effdz = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/Higgs/TriLepton/HLT_DiMu9_Ele9_CaloIdL_TrackIdL/dzMon/"),
+#    subDirs        = cms.untracked.vstring("HLT/Higgs/TriLepton/HLT_DiMu9_Ele9_CaloIdL_TrackIdL/dzMon/"),
+    subDirs        = cms.untracked.vstring("HLT/HIG/TriLepton/HLT_DiMu9_Ele9_CaloIdL_TrackIdL/dzMon/"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -337,7 +387,8 @@ dimu9ele9caloIdLTrackIdLdz_effdz = DQMEDHarvester("DQMGenericClient",
 
 ######Double Electron + Single Muon######
 mu8diEle12CaloIdLTrackIdL_effele = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/Higgs/TriLepton/HLT_Mu8_DiEle12_CaloIdL_TrackIdL/eleLeg/"),
+#    subDirs        = cms.untracked.vstring("HLT/Higgs/TriLepton/HLT_Mu8_DiEle12_CaloIdL_TrackIdL/eleLeg/"),
+    subDirs        = cms.untracked.vstring("HLT/HIG/TriLepton/HLT_Mu8_DiEle12_CaloIdL_TrackIdL/eleLeg/"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -358,7 +409,8 @@ mu8diEle12CaloIdLTrackIdL_effele = DQMEDHarvester("DQMGenericClient",
     ),
 )
 mu8diEle12CaloIdLTrackIdL_effmu = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/Higgs/TriLepton/HLT_Mu8_DiEle12_CaloIdL_TrackIdL/muLeg/"),
+#    subDirs        = cms.untracked.vstring("HLT/Higgs/TriLepton/HLT_Mu8_DiEle12_CaloIdL_TrackIdL/muLeg/"),
+    subDirs        = cms.untracked.vstring("HLT/HIG/TriLepton/HLT_Mu8_DiEle12_CaloIdL_TrackIdL/muLeg/"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -373,7 +425,8 @@ mu8diEle12CaloIdLTrackIdL_effmu = DQMEDHarvester("DQMGenericClient",
 )
 
 mu8diEle12CaloIdLTrackIdL_effdz = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/Higgs/TriLepton/HLT_Mu8_DiEle12_CaloIdL_TrackIdL/dzMon/"),
+#    subDirs        = cms.untracked.vstring("HLT/Higgs/TriLepton/HLT_Mu8_DiEle12_CaloIdL_TrackIdL/dzMon/"),
+    subDirs        = cms.untracked.vstring("HLT/HIG/TriLepton/HLT_Mu8_DiEle12_CaloIdL_TrackIdL/dzMon/"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -400,9 +453,16 @@ mu8diEle12CaloIdLTrackIdL_effdz = DQMEDHarvester("DQMGenericClient",
         "effic_muEtaPhi_1       'efficiency vs muon #eta-#phi; muon #eta ; muon #phi' muEtaPhi_1_numerator       muEtaPhi_1_denominator",
     ),
 )
-
+### mia: FOCA D'OVATTA !
 diphotonEfficiency = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/photon/HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v","HLT/photon/HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass95_v","HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_PixelVeto_Mass55_v","HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_NoPixelVeto_Mass55_v","HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_NoPixelVeto_Mass55_v","HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_PixelVeto_Mass55_v","HLT_Diphoton30_18_PVrealAND_R9Id_AND_IsoCaloId_AND_HE_R9Id_PixelVeto_Mass55_v","HLT_Diphoton30_18_PVrealAND_R9Id_AND_IsoCaloId_AND_HE_R9Id_NoPixelVeto_Mass55_v"),
+    subDirs        = cms.untracked.vstring("HLT/photon/HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v",
+                                           "HLT/photon/HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass95_v",
+                                           "HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_PixelVeto_Mass55_v",
+                                           "HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_NoPixelVeto_Mass55_v",
+                                           "HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_NoPixelVeto_Mass55_v",
+                                           "HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_PixelVeto_Mass55_v",
+                                           "HLT_Diphoton30_18_PVrealAND_R9Id_AND_IsoCaloId_AND_HE_R9Id_PixelVeto_Mass55_v",
+                                           "HLT_Diphoton30_18_PVrealAND_R9Id_AND_IsoCaloId_AND_HE_R9Id_NoPixelVeto_Mass55_v"),
                                     #subDirs        = cms.untracked.vstring("HLT/Higgs/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
@@ -429,7 +489,8 @@ diphotonEfficiency = DQMEDHarvester("DQMGenericClient",
 )
 
 VBFEfficiency = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/Higgs/VBFHbb/*"),
+#    subDirs        = cms.untracked.vstring("HLT/Higgs/VBFHbb/*"),
+    subDirs        = cms.untracked.vstring("HLT/HIG/VBFHbb/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -498,10 +559,12 @@ higgsClient = cms.Sequence(
   + ele16ele12ele8caloIdLTrackIdL
   + triplemu12mu10mu5
   + triplemu10mu5mu5DZ
-  + mu12TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZ_effele
-  + mu12TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZ_effmu
-  + mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_effele
-  + mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_effmu
+  + muEleDz_effmu
+  + muEleDz_effele
+#  + mu12TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZ_effele
+#  + mu12TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZ_effmu
+#  + mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_effele
+#  + mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_effmu
   + metbtagEfficiency_met
   + metbtagEfficiency_btag
   + VBFEfficiency

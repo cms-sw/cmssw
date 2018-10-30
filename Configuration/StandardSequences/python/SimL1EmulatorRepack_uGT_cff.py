@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 ## L1REPACK FULL:  Re-Emulate all of L1 and repack into RAW
@@ -5,10 +6,10 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 if not (stage2L1Trigger.isChosen()):
-    print "L1T WARN:  L1REPACK:Full (intended for 2016 data) only supports Stage 2 eras for now."
-    print "L1T WARN:  Use a legacy version of L1REPACK for now."
+    print("L1T WARN:  L1REPACK:Full (intended for 2016 data) only supports Stage 2 eras for now.")
+    print("L1T WARN:  Use a legacy version of L1REPACK for now.")
 else:
-    print "L1T INFO:  L1REPACK:uGT (intended for 2016 data) will unpack uGMT and CaloLaye2 outputs and re-emulate uGT"
+    print("L1T INFO:  L1REPACK:uGT (intended for 2016 data) will unpack uGMT and CaloLaye2 outputs and re-emulate uGT")
 
     # First, inputs to uGT:
     import EventFilter.L1TRawToDigi.gtStage2Digis_cfi

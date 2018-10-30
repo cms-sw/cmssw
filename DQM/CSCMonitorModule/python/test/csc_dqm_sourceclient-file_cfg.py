@@ -3,12 +3,6 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("CSCDQM")
 
 #-------------------------------------------------
-# CSC L1 Emulator Configuration
-#-------------------------------------------------
-
-#process.load("L1Trigger.CSCTriggerPrimitives.CSCTPE_setup_cfi")
-
-#-------------------------------------------------
 # DQM Module Configuration
 #-------------------------------------------------
 
@@ -108,8 +102,8 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag = "CRAFT_30X::All"
 #process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 #process.GlobalTag.globaltag = "CRAFT_V17H::All"
-#process.GlobalTag.globaltag = 'GR09_31X_V1H::All' 
-process.GlobalTag.globaltag = 'GR10_P_V2::All' 
+#process.GlobalTag.globaltag = 'GR09_31X_V1H::All'
+process.GlobalTag.globaltag = 'GR10_P_V2::All'
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 #--------------------------
@@ -163,8 +157,8 @@ MessageLogger = cms.Service("MessageLogger",
   debugModules = cms.untracked.vstring('*'),
 
   destinations = cms.untracked.vstring(
-    'detailedInfo', 
-    'critical', 
+    'detailedInfo',
+    'critical',
     'cout'
   )
 
@@ -179,15 +173,14 @@ process.p = cms.Path(
     #process.gtDigis*
     #process.l1GtRecord*
     #process.physicsBitSelector*
-    process.muonCSCDigis * 
-    #process.cscTriggerPrimitiveDigis * 
-    #process.lctreader *
+    process.muonCSCDigis *
+    #process.cscTriggerPrimitiveDigis *
     process.scalersRawToDigi +
-    process.dqmCSCClient * 
-    process.cscDaqInfo * 
-    process.cscDcsInfo * 
-    process.cscCertificationInfo + 
-    process.dqmEnv + 
+    process.dqmCSCClient *
+    process.cscDaqInfo *
+    process.cscDcsInfo *
+    process.cscCertificationInfo +
+    process.dqmEnv +
     process.dqmSaver)
 
 #process.p = cms.Path(process.muonCSCDigis * process.csc2DRecHits * process.cscSegments * process.cscMonitor * process.dqmCSCClient + process.dqmEnv + process.dqmSaver)

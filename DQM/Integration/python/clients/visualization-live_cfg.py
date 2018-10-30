@@ -1,3 +1,4 @@
+from __future__ import print_function
 import re,os
 import FWCore.ParameterSet.Config as cms
 from Configuration.DataProcessing.GetScenario import getScenario
@@ -10,7 +11,7 @@ from DQM.Integration.config.inputsource_cfi import options,runType,source
 # this is needed to map the names of the run-types chosen by DQM to the scenarios, ideally we could converge to the same names
 #scenarios = {'pp_run': 'ppEra_Run2_2016','cosmic_run':'cosmicsEra_Run2_2016','hi_run':'HeavyIons'}
 #scenarios = {'pp_run': 'ppEra_Run2_2016','pp_run_stage1': 'ppEra_Run2_2016','cosmic_run':'cosmicsEra_Run2_2016','cosmic_run_stage1':'cosmicsEra_Run2_2016','hi_run':'HeavyIonsEra_Run2_HI'}
-scenarios = {'pp_run': 'ppEra_Run2_2018','cosmic_run':'cosmicsEra_Run2_2018','hi_run':'HeavyIonsEra_Run2_HI'}
+scenarios = {'pp_run': 'ppEra_Run2_2018','cosmic_run':'cosmicsEra_Run2_2018','hi_run':'ppEra_Run2_2018_pp_on_AA'}
 
 if not runType.getRunTypeName() in scenarios.keys():
     msg = "Error getting the scenario out of the 'runkey', no mapping for: %s\n"%runType.getRunTypeName()
@@ -18,7 +19,7 @@ if not runType.getRunTypeName() in scenarios.keys():
 
 scenarioName = scenarios[runType.getRunTypeName()]
 
-print "Using scenario:",scenarioName
+print("Using scenario:",scenarioName)
 
 try:
     scenario = getScenario(scenarioName)
@@ -91,4 +92,4 @@ if dump:
     psetFile.write(process.dumpPython())
     psetFile.close()
     cmsRun = "cmsRun -e RunVisualizationProcessingCfg.py"
-    print "Now do:\n%s" % cmsRun
+    print("Now do:\n%s" % cmsRun)

@@ -155,8 +155,6 @@ lclphidat CSCSectorReceiverLUT::calcLocalPhi(const lclphiadd& theadd) const
   constexpr int maxPhiL = 1<<CSCBitWidths::kLocalPhiDataBitWidth;
   double binPhiL = static_cast<double>(maxPhiL)/(2.*CSCConstants::MAX_NUM_STRIPS);
 
-  memset(&data,0,sizeof(lclphidat));
-
   double patternOffset;
 
   if(isTMB07) patternOffset = CSCPatternLUT::get2007Position((theadd.pattern_type<<3) + theadd.clct_pattern);
@@ -844,7 +842,6 @@ void CSCSectorReceiverLUT::readLUTsFromFile()
   if(!me_lcl_phi_loaded)
     {
       me_lcl_phi = new lclphidat[1<<CSCBitWidths::kLocalPhiAddressWidth];
-      memset(me_lcl_phi, 0, (1<<CSCBitWidths::kLocalPhiAddressWidth)*sizeof(short));
       std::string fName(me_lcl_phi_file.fullPath());
       std::ifstream LocalPhiLUT;
 
@@ -881,7 +878,6 @@ void CSCSectorReceiverLUT::readLUTsFromFile()
   if(!me_global_phi)
     {
       me_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
-      memset(me_global_phi, 0, (1<<CSCBitWidths::kGlobalPhiAddressWidth)*sizeof(short));
       std::string fName = me_gbl_phi_file.fullPath();
       std::ifstream GlobalPhiLUT;
 
@@ -917,7 +913,6 @@ void CSCSectorReceiverLUT::readLUTsFromFile()
   if(!mb_global_phi && _station == 1) // MB lut only in station one.
     {
       mb_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
-      memset(mb_global_phi, 0, (1<<CSCBitWidths::kGlobalPhiAddressWidth)*sizeof(short));
       std::string fName = mb_gbl_phi_file.fullPath();
       std::ifstream GlobalPhiLUT;
 
@@ -953,7 +948,6 @@ void CSCSectorReceiverLUT::readLUTsFromFile()
   if(!me_global_eta)
     {
       me_global_eta = new gbletadat[1<<CSCBitWidths::kGlobalEtaAddressWidth];
-      memset(me_global_eta, 0, (1<<CSCBitWidths::kGlobalEtaAddressWidth)*sizeof(short));
       std::string fName = me_gbl_eta_file.fullPath();
       std::ifstream GlobalEtaLUT;
 

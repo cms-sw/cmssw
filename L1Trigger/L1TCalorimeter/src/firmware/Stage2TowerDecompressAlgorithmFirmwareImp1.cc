@@ -11,7 +11,7 @@
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 
-l1t::Stage2TowerDecompressAlgorithmFirmwareImp1::Stage2TowerDecompressAlgorithmFirmwareImp1(CaloParamsHelper* params) :
+l1t::Stage2TowerDecompressAlgorithmFirmwareImp1::Stage2TowerDecompressAlgorithmFirmwareImp1(CaloParamsHelper const* params) :
   params_(params)
 {
 

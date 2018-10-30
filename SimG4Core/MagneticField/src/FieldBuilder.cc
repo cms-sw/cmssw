@@ -45,7 +45,7 @@ void FieldBuilder::build( CMSFieldManager* fM, G4PropagatorInField* fP)
     
   configureForVolume( volName, volPSet, fM, fP);
 
-  edm::LogInfo("SimG4CoreMagneticField") 
+  edm::LogVerbatim("SimG4CoreMagneticField") 
     << " FieldBuilder::build: Global magnetic field is used";
 }
 

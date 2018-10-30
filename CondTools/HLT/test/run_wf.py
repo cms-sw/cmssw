@@ -3,6 +3,7 @@
 """
 Example script to test reading from local sqlite db.
 """
+from __future__ import print_function
 import os
 import sys
 import ast
@@ -28,7 +29,7 @@ def getCommandOutput(command):
     data = child.read()
     err = child.close()
     if err:
-        print '%s failed w/ exit code %d' % (command, err)
+        print('%s failed w/ exit code %d' % (command, err))
     return data
 
 ##############################################
@@ -65,7 +66,7 @@ def get_iovs(db, tag):
 
     iovs = set(session.query(IOV.since).filter(IOV.tag_name == tag).all())
     if len(iovs) == 0:
-        print "No IOVs found for tag '"+tag+"' in database '"+db+"'."
+        print("No IOVs found for tag '"+tag+"' in database '"+db+"'.")
         sys.exit(1)
 
     session.close()
@@ -127,31 +128,31 @@ def main():
 
      sinces = get_iovs(options.inputDB,options.InputTag)
 
-     print sinces
+     print(sinces)
 
      for i,since in enumerate(sinces):
           #print i,since
          
-         print "============================================================"
+         print("============================================================")
          if(i<len(sinces)-1):
              command = 'conddb_import -c sqlite_file:'+options.InputTag+"_IOV_"+str(sinces[i])+'.db -f '+sqlite_db_url+" -i "+options.InputTag+" -t "+options.InputTag+" -b "+str(sinces[i])+" -e "+str(sinces[i+1]-1)
-             print command
+             print(command)
              getCommandOutput(command)
          else:
              command = 'conddb_import -c sqlite_file:'+options.InputTag+"_IOV_"+str(sinces[i])+'.db -f '+sqlite_db_url+" -i "+options.InputTag+" -t "+options.InputTag+" -b "+str(sinces[i])
-             print command
+             print(command)
              getCommandOutput(command)
              
          # update the trigger bits
              
          cmsRunCommand="cmsRun AlCaRecoTriggerBitsRcdUpdate_TEMPL_cfg.py inputDB=sqlite_file:"+options.InputTag+"_IOV_"+str(sinces[i])+".db inputTag="+options.InputTag+" outputDB=sqlite_file:"+options.InputTag+"_IOV_"+str(sinces[i])+"_updated.db outputTag="+options.destTag+" firstRun="+str(sinces[i])
-         print cmsRunCommand
+         print(cmsRunCommand)
          getCommandOutput(cmsRunCommand)
      
          # merge the output
           
          mergeCommand = 'conddb_import -f sqlite_file:'+options.InputTag+"_IOV_"+str(sinces[i])+'_updated.db -c sqlite_file:'+options.destTag+".db -i "+options.destTag+" -t "+options.destTag+" -b "+str(sinces[i])
-         print mergeCommand
+         print(mergeCommand)
          getCommandOutput(mergeCommand)
 
          # clean the house
@@ -160,7 +161,7 @@ def main():
              cleanCommand = 'rm -fr *updated*.db *IOV_*.db'
              getCommandOutput(cleanCommand)
          else:
-             print "======> keeping the transient files"
+             print("======> keeping the transient files")
           
 
 if __name__ == "__main__":        

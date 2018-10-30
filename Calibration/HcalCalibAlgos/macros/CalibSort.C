@@ -14,7 +14,9 @@
 //
 //   where:
 // 
-//   fname   (std::string)     = file name of the input ROOT tree
+//   fname   (const char*)     = file name of the input ROOT tree
+//                               or name of the file containing a list of
+//                               file names of input ROOT trees
 //   dirname (std::string)     = name of the directory where Tree resides
 //                               (default "HcalIsoTrkAnalyzer")
 //   prefix (std::string)      = String to be added to the name
@@ -56,6 +58,8 @@
 #include <string>
 #include <vector>
 
+#include "CalibCorr.C"
+
 struct record {
   record(int ser=0, int ent=0, int r=0, int ev=0, int ie=0, double p=0) :
     serial_(ser), entry_(ent), run_(r), event_(ev), ieta_(ie), p_(p) {}
@@ -90,20 +94,20 @@ struct recordEventLess {
 
 class CalibSort {
 public :
-  CalibSort(std::string fname, std::string dirname="HcalIsoTrkAnalyzer",
+  CalibSort(const char* fname, std::string dirname="HcalIsoTrkAnalyzer",
 	    std::string prefix="", bool allEvent=false, int flag=0, 
 	    double mipCut=2.0);
   virtual ~CalibSort();
   virtual Int_t              Cut(Long64_t entry);
   virtual Int_t              GetEntry(Long64_t entry);
   virtual Long64_t           LoadTree(Long64_t entry);
-  virtual void               Init(TTree*);
+  virtual void               Init(TChain*);
   virtual void               Loop(const char*);
   virtual Bool_t             Notify();
   virtual void               Show(Long64_t entry = -1);
 private:
 
-  TTree                     *fChain;  //!pointer to the analyzed TTree or TChain
+  TChain                    *fChain;  //!pointer to the analyzed TTree or TChain
   Int_t                      fCurrent; //!current Tree number in a TChain
 
   // Declaration of leaf types
@@ -192,20 +196,23 @@ private:
   double                    mipCut_;
 };
 
-CalibSort::CalibSort(std::string fname, std::string dirnm, 
+CalibSort::CalibSort(const char* fname, std::string dirnm, 
 		     std::string prefix, bool allEvent, int flag, 
 		     double mipCut) : fname_(fname), dirnm_(dirnm), 
 				      prefix_(prefix), allEvent_(allEvent),
 				      flag_(flag), mipCut_(mipCut) {
-  // if parameter tree is not specified (or zero), connect the file
-  // used to generate this class and read the Tree
-  TFile      *file = new TFile(fname.c_str());
-  TDirectory *dir  = (TDirectory*)file->FindObjectAny(dirnm.c_str());
-  std::cout << fname << " file " << file << " " << dirnm << " " << dir 
+  char treeName[400];
+  sprintf (treeName, "%s/CalibTree", dirnm.c_str());
+  TChain    *chain = new TChain(treeName);
+  std::cout << "Create a chain for " << treeName << " from " << fname
 	    << std::endl;
-  TTree      *tree = (TTree*)dir->Get("CalibTree");
-  std::cout << "CalibTree " << tree << std::endl;
-  Init(tree);
+  if (!fillChain(chain,fname)) {
+    std::cout << "*****No valid tree chain can be obtained*****" << std::endl;
+  } else {
+    std::cout << "Proceed with a tree chain with " << chain->GetEntries()
+	      << " entries" << std::endl;
+    Init(chain);
+  }
 }
 
 CalibSort::~CalibSort() {
@@ -233,7 +240,7 @@ Long64_t CalibSort::LoadTree(Long64_t entry) {
   return centry;
 }
 
-void CalibSort::Init(TTree *tree) {
+void CalibSort::Init(TChain *tree) {
   // The Init() function is called when the selector needs to initialize
   // a new tree or chain. Typically here the branch addresses and branch
   // pointers of the tree will be set.
@@ -390,7 +397,7 @@ void CalibSort::Loop(const char* outFile) {
 
 class CalibSortEvent {
 public :
-  TTree                     *fChain;   //!pointer to the analyzed TTree/TChain
+  TChain                    *fChain;   //!pointer to the analyzed TTree/TChain
   Int_t                      fCurrent; //!current Tree number in a TChain
 
   // Declaration of leaf types
@@ -427,13 +434,13 @@ public :
   TBranch                   *b_t_ietaGood;      //!
   TBranch                   *b_t_trackType;     //!
 
-  CalibSortEvent(std::string fname, std::string dirname, std::string prefix="",
+  CalibSortEvent(const char* fname, std::string dirname, std::string prefix="",
 		 bool append=false);
   virtual ~CalibSortEvent();
   virtual Int_t    Cut(Long64_t entry);
   virtual Int_t    GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
-  virtual void     Init(TTree *tree);
+  virtual void     Init(TChain *tree);
   virtual void     Loop();
   virtual Bool_t   Notify();
   virtual void     Show(Long64_t entry = -1);
@@ -443,17 +450,22 @@ private:
   bool             append_;
 };
 
-CalibSortEvent::CalibSortEvent(std::string fname, std::string dirnm,
+CalibSortEvent::CalibSortEvent(const char* fname, std::string dirnm,
 			       std::string prefix, bool append) :
   fname_(fname), dirnm_(dirnm), prefix_(prefix), append_(append) {
 
-  TFile      *file = new TFile(fname.c_str());
-  TDirectory *dir  = (TDirectory*)file->FindObjectAny(dirnm.c_str());
-  std::cout << fname << " file " << file << " " << dirnm << " " << dir 
+  char treeName[400];
+  sprintf (treeName, "%s/EventInfo", dirnm.c_str());
+  TChain    *chain = new TChain(treeName);
+  std::cout << "Create a chain for " << treeName << " from " << fname
 	    << std::endl;
-  TTree      *tree = (TTree*)dir->Get("EventInfo");
-  std::cout << "CalibSortEvent " << tree << std::endl;
-  Init(tree);
+  if (!fillChain(chain,fname)) {
+    std::cout << "*****No valid tree chain can be obtained*****" << std::endl;
+  } else {
+    std::cout << "Proceed with a tree chain with " << chain->GetEntries()
+	      << " entries" << std::endl;
+    Init(chain);
+  }
 }
 
 CalibSortEvent::~CalibSortEvent() {
@@ -481,7 +493,7 @@ Long64_t CalibSortEvent::LoadTree(Long64_t entry) {
   return centry;
 }
 
-void CalibSortEvent::Init(TTree *tree) {
+void CalibSortEvent::Init(TChain *tree) {
   // The Init() function is called when the selector needs to initialize
   // a new tree or chain. Typically here the branch addresses and branch
   // pointers of the tree will be set.

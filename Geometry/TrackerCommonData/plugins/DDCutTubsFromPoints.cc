@@ -22,10 +22,10 @@ DDCutTubsFromPoints::DDCutTubsFromPoints() {
 DDCutTubsFromPoints::~DDCutTubsFromPoints() {}
 
 void DDCutTubsFromPoints::initialize(const DDNumericArguments & nArgs,
-                                   const DDVectorArguments & vArgs,
-                                   const DDMapArguments & ,
-                                   const DDStringArguments & sArgs,
-                                   const DDStringVectorArguments &) {
+				     const DDVectorArguments & vArgs,
+				     const DDMapArguments & ,
+				     const DDStringArguments & sArgs,
+				     const DDStringVectorArguments &) {
 
   r_min = nArgs["rMin"];
   r_max = nArgs["rMax"];

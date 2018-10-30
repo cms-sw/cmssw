@@ -16,7 +16,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/HardwareSortingMethods.h"
 #include <cassert>
 
-l1t::Stage1Layer2EtSumAlgorithmImpHW::Stage1Layer2EtSumAlgorithmImpHW(CaloParamsHelper* params) : params_(params)
+l1t::Stage1Layer2EtSumAlgorithmImpHW::Stage1Layer2EtSumAlgorithmImpHW(CaloParamsHelper const* params) : params_(params)
 {
   //now do what ever initialization is needed
   for(size_t i=0; i<cordicPhiValues.size(); ++i) {
@@ -29,17 +29,13 @@ l1t::Stage1Layer2EtSumAlgorithmImpHW::Stage1Layer2EtSumAlgorithmImpHW(CaloParams
 }
 
 
-l1t::Stage1Layer2EtSumAlgorithmImpHW::~Stage1Layer2EtSumAlgorithmImpHW() {
-
-
-}
 
 void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::CaloRegion> & regions,
 							const std::vector<l1t::CaloEmCand> & EMCands,
 							const std::vector<l1t::Jet> * jets,
 							      std::vector<l1t::EtSum> * etsums) {
 
-  std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
+  std::vector<l1t::CaloRegion> subRegions;
 
 
   //Region Correction will return uncorrected subregions if
@@ -56,7 +52,7 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::C
   //double etSumEtThresholdHt = params_->etSumEtThreshold(1);
   int etSumEtThresholdHt = (int) (params_->etSumEtThreshold(1) / jetLsb);
 
-  RegionCorrection(regions, subRegions, params_);
+  RegionCorrection(regions, &subRegions, params_);
 
   std::vector<SimpleRegion> regionEtVect;
   std::vector<SimpleRegion> regionHtVect;
@@ -85,7 +81,7 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::C
   // the region sum input to MET algorithm
   // In stage 2, we would move to hwEtEm() and hwEtHad() for separate MET/MHT
   // Thresholds will be hardware values not physical
-  for (auto& region : *subRegions) {
+  for (auto& region : subRegions) {
     if ( region.hwEta() >= etSumEtaMinEt && region.hwEta() <= etSumEtaMaxEt)
     {
       if(region.hwPt() >= etSumEtThresholdEt)
@@ -142,17 +138,10 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::C
   l1t::EtSum etTot (*&etLorentz,EtSum::EtSumType::kTotalEt,sumET&0xfff,0,0,ETTqual);
   l1t::EtSum htTot (*&etLorentz,EtSum::EtSumType::kTotalHt,sumHT&0xfff,0,0,HTTqual);
 
-  std::vector<l1t::EtSum> *preGtEtSums = new std::vector<l1t::EtSum>();
+  std::vector<l1t::EtSum> preGtEtSums = {etMiss, htMiss, etTot, htTot};
 
-  preGtEtSums->push_back(etMiss);
-  preGtEtSums->push_back(htMiss);
-  preGtEtSums->push_back(etTot);
-  preGtEtSums->push_back(htTot);
+  EtSumToGtScales(params_, &preGtEtSums, etsums);
 
-  EtSumToGtScales(params_, preGtEtSums, etsums);
-
-  delete subRegions;
-  delete preGtEtSums;
 }
 
 std::tuple<int, int, int>

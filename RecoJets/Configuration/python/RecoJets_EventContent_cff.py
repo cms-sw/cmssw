@@ -168,4 +168,17 @@ for ec in [RecoJetsAOD.outputCommands, RecoJetsRECO.outputCommands, RecoJetsFEVT
     peripheralPbPb.toModify( ec, 
                              func=lambda outputCommands: outputCommands.extend(['keep recoCentrality*_pACentrality_*_*'])
                              )
-    
+
+for ec in [RecoJetsAOD.outputCommands, RecoJetsRECO.outputCommands, RecoJetsFEVT.outputCommands]:
+    pp_on_AA_2018.toModify( ec, 
+                                   func=lambda outputCommands: outputCommands.extend(['keep *_hiCentrality_*_*',
+                                                                                      'keep *_hiFJRhoProducer_*_*',
+                                                                                      'keep *_akPu3PFJets_*_*',
+                                                                                      'keep *_akPu4PFJets_*_*',
+                                                                                      'keep *_kt4PFJetsForRho_*_*',
+                                                                                      'keep *_akCs4PFJets_*_*',
+                                                                                      'keep *_akPu4CaloJets_*_*',
+                                                                                      'drop *_caloTowers_*_*'
+
+                                                                         ])
+    )    

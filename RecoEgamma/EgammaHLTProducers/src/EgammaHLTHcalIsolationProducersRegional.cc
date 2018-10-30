@@ -25,30 +25,23 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 EgammaHLTHcalIsolationProducersRegional::EgammaHLTHcalIsolationProducersRegional(const edm::ParameterSet& config)
+  : recoEcalCandidateProducer_ (consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer")))
+  , hbheRecHitProducer_        (consumes<HBHERecHitCollection>(config.getParameter<edm::InputTag>("hbheRecHitProducer")))
+  , rhoProducer_               (consumes<double>(config.getParameter<edm::InputTag>("rhoProducer")))
+  , doRhoCorrection_           (config.getParameter<bool>("doRhoCorrection"))
+  , rhoMax_                    (config.getParameter<double>("rhoMax"))
+  , rhoScale_                  (config.getParameter<double>("rhoScale"))
+  , doEtSum_                   (config.getParameter<bool>("doEtSum"))
+  , effectiveAreaBarrel_       (config.getParameter<double>("effectiveAreaBarrel"))
+  , effectiveAreaEndcap_       (config.getParameter<double>("effectiveAreaEndcap"))
+  , isolAlgo_                  (new EgammaHLTHcalIsolation(config.getParameter<double>("eMinHB"),
+                                                           config.getParameter<double>("eMinHE"),
+                                                           config.getParameter<double>("etMinHB"),
+                                                           config.getParameter<double>("etMinHE"),
+                                                           config.getParameter<double>("innerCone"),
+                                                           config.getParameter<double>("outerCone"),
+                                                           config.getParameter<int>("depth")))
 {
- // use configuration file to setup input/output collection names
-  recoEcalCandidateProducer_ = consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
-  hbheRecHitProducer_        = consumes<HBHERecHitCollection>(config.getParameter<edm::InputTag>("hbheRecHitProducer"));
-
-  doRhoCorrection_           = config.getParameter<bool>("doRhoCorrection");
-  if (doRhoCorrection_)
-    rhoProducer_               = consumes<double>(config.getParameter<edm::InputTag>("rhoProducer"));
-
-  rhoMax_                    = config.getParameter<double>("rhoMax"); 
-  rhoScale_                  = config.getParameter<double>("rhoScale"); 
-  
-  double eMinHB              = config.getParameter<double>("eMinHB");
-  double eMinHE              = config.getParameter<double>("eMinHE");
-  double etMinHB             = config.getParameter<double>("etMinHB");  
-  double etMinHE             = config.getParameter<double>("etMinHE");
-  double innerCone           = config.getParameter<double>("innerCone");
-  double outerCone           = config.getParameter<double>("outerCone");
-  int depth                  = config.getParameter<int>("depth");
-  doEtSum_                   = config.getParameter<bool>("doEtSum");
-  effectiveAreaBarrel_       = config.getParameter<double>("effectiveAreaBarrel");
-  effectiveAreaEndcap_       = config.getParameter<double>("effectiveAreaEndcap");
-  isolAlgo_                  = new EgammaHLTHcalIsolation(eMinHB,eMinHE,etMinHB,etMinHE,innerCone,outerCone,depth);
- 
   //register your products
   produces < reco::RecoEcalCandidateIsolationMap >();  
 }
@@ -78,7 +71,7 @@ void EgammaHLTHcalIsolationProducersRegional::fillDescriptions(edm::Configuratio
   descriptions.add(("hltEgammaHLTHcalIsolationProducersRegional"), desc);  
 }
 
-void EgammaHLTHcalIsolationProducersRegional::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void EgammaHLTHcalIsolationProducersRegional::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   
   // Get the HLT filtered objects
   edm::Handle<reco::RecoEcalCandidateCollection> recoEcalCandHandle;

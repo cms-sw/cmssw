@@ -25,7 +25,7 @@ class ME0GeometryESModule : public edm::ESProducer
   ~ME0GeometryESModule() override;
 
   /// Produce ME0Geometry.
-  std::shared_ptr<ME0Geometry>  produce(const MuonGeometryRecord & record);
+  std::unique_ptr<ME0Geometry>  produce(const MuonGeometryRecord & record);
 
  private:
   // use the DDD as Geometry source

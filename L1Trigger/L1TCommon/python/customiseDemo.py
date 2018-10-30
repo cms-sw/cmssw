@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 import os
@@ -10,7 +11,7 @@ import os
 ##############################################################################
 
 def L1TBasicDemo(process):
-    print "L1T INFO:  adding basic demo module to the process."
+    print("L1T INFO:  adding basic demo module to the process.")
     process.load('L1Trigger.L1TCommon.l1tBasicDemo_cfi')
     process.l1tBasicDemoPath = cms.Path(process.l1tBasicDemo)
     process.schedule.append(process.l1tBasicDemoPath)
@@ -19,7 +20,7 @@ def L1TBasicDemo(process):
 def L1THLTDemo(process):
     #process.load('L1Trigger.Configuration.SimL1Emulator_cff')
     process.load('L1Trigger.L1TGlobal.hackConditions_cff')
-    print "L1T INFO:  adding HLT demo module to the process."
+    print("L1T INFO:  adding HLT demo module to the process.")
     #
     # BEGIN HLT UNPACKER SEQUENCE FOR STAGE 2
     #
@@ -91,7 +92,7 @@ def L1THLTDemo(process):
     # END L1T SEEDS EXAMPLE FOR STAGE 2
     #
 
-    print "L1T INFO:  will dump a summary of Stage2 content as unpacked by HLT to screen."    
+    print("L1T INFO:  will dump a summary of Stage2 content as unpacked by HLT to screen.")    
     process.load('L1Trigger.L1TCommon.l1tSummaryStage2HltDigis_cfi')
 
     # gt analyzer
@@ -107,12 +108,12 @@ def L1THLTDemo(process):
 
 
 
-    print "L1T Input:  HLTL1UnpackerSequence:  "
-    print process.HLTL1UnpackerSequence
-    print "L1T Input:  HLTL1TSeedSequence:  "
-    print process.HLTL1TSeedSequence
-    print "L1T Input:  HLTL1TDebugSequence:  "
-    print process.HLTL1TDebugSequence
+    print("L1T Input:  HLTL1UnpackerSequence:  ")
+    print(process.HLTL1UnpackerSequence)
+    print("L1T Input:  HLTL1TSeedSequence:  ")
+    print(process.HLTL1TSeedSequence)
+    print("L1T Input:  HLTL1TDebugSequence:  ")
+    print(process.HLTL1TDebugSequence)
     process.l1tHLTDemoPath = cms.Path(process.HLTL1UnpackerSequence + process.HLTL1TSeedSequence + process.HLTL1TDebugSequence)
     process.schedule.append(process.l1tHLTDemoPath)
     return process

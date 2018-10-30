@@ -6,20 +6,18 @@
   <use   name="tbb"/>
   <use   name="boost"/>
   <use   name="boost_program_options"/>
-  <use   name="boost_python"/>
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/MessageLogger"/>
   <use   name="FWCore/PluginManager"/>
   <use   name="FWCore/ServiceRegistry"/>
   <use   name="FWCore/Utilities"/>
   <use   name="FWCore/ParameterSet"/>
-  <use   name="FWCore/PythonParameterSet"/>
+  <use   name="FWCore/ParameterSetReader"/>
 </bin>
 <bin   name="cmsRunTC" file="cmsRun.cpp">
   <use   name="tbb"/>
   <use   name="boost"/>
   <use   name="boost_program_options"/>
-  <use   name="boost_python"/>
   <use   name="tcmalloc_minimal"/>
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/MessageLogger"/>
@@ -27,13 +25,12 @@
   <use   name="FWCore/ServiceRegistry"/>
   <use   name="FWCore/Utilities"/>
   <use   name="FWCore/ParameterSet"/>
-  <use   name="FWCore/PythonParameterSet"/>
+  <use   name="FWCore/ParameterSetReader"/>
 </bin>
 <bin   name="cmsRun" file="cmsRun.cpp">
   <use   name="tbb"/>
   <use   name="boost"/>
   <use   name="boost_program_options"/>
-  <use   name="boost_python"/>
   <!-- jemalloc is mostly tested on x86_64 in upstream -->
   <architecture name=".*_amd64_.*">
     <use   name="jemalloc"/>
@@ -44,14 +41,13 @@
   <use   name="FWCore/ServiceRegistry"/>
   <use   name="FWCore/Utilities"/>
   <use   name="FWCore/ParameterSet"/>
-  <use   name="FWCore/PythonParameterSet"/>
+  <use   name="FWCore/ParameterSetReader"/>
 </bin>
 <bin   name="cmsRunVDT" file="cmsRun.cpp">
   <use   name="vdt"/>
   <use   name="tbb"/>
   <use   name="boost"/>
   <use   name="boost_program_options"/>
-  <use   name="boost_python"/>
   <use   name="jemalloc"/>
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/MessageLogger"/>
@@ -59,13 +55,12 @@
   <use   name="FWCore/ServiceRegistry"/>
   <use   name="FWCore/Utilities"/>
   <use   name="FWCore/ParameterSet"/>
-  <use   name="FWCore/PythonParameterSet"/>
+  <use   name="FWCore/ParameterSetReader"/>
 </bin>
 <bin   name="cmsRunJE" file="cmsRun.cpp">
   <use   name="tbb"/>
   <use   name="boost"/>
   <use   name="boost_program_options"/>
-  <use   name="boost_python"/>
   <use   name="jemalloc"/>
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/MessageLogger"/>
@@ -73,5 +68,5 @@
   <use   name="FWCore/ServiceRegistry"/>
   <use   name="FWCore/Utilities"/>
   <use   name="FWCore/ParameterSet"/>
-  <use   name="FWCore/PythonParameterSet"/>
+  <use   name="FWCore/ParameterSetReader"/>
 </bin>

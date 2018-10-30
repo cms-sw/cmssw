@@ -5,6 +5,7 @@
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhDigi.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThDigi.h"
 #include "DataFormats/RPCDigi/interface/RPCDigi.h"
+#include "DataFormats/L1TMuon/interface/CPPFDigi.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigi.h"
 #include "DataFormats/GEMDigi/interface/ME0PadDigi.h"
 
@@ -133,6 +134,9 @@ TriggerPrimitive::TriggerPrimitive(const RPCDetId& detid,
   _rpc.strip = digi.strip();
   _rpc.strip_low = digi.strip();
   _rpc.strip_hi = digi.strip();
+  _rpc.phi_int = 0;
+  _rpc.theta_int = 0;
+  _rpc.emtf_sector = 0;
   _rpc.layer = detid.layer();
   _rpc.bx = digi.bx();
   _rpc.valid = 1;
@@ -149,12 +153,33 @@ TriggerPrimitive::TriggerPrimitive(const RPCDetId& detid,
   _rpc.strip = strip;
   _rpc.strip_low = strip;
   _rpc.strip_hi = strip;
+  _rpc.phi_int = 0;
+  _rpc.theta_int = 0;
+  _rpc.emtf_sector = 0;
   _rpc.layer = layer;
   _rpc.bx = bx;
   _rpc.valid = 1;
   _rpc.time = -999999.;
 }
 
+// constructor from CPPF data
+TriggerPrimitive::TriggerPrimitive(const RPCDetId& detid,
+				   const l1t::CPPFDigi& digi):
+  _id(detid),
+  _subsystem(TriggerPrimitive::kRPC) {
+  calculateGlobalSector(detid,_globalsector,_subsector);
+  // In unpacked CPPF digis, the strip number and cluster size are not available, and are set to -99
+  _rpc.strip       = ( digi.first_strip() < 0 ? 0 : digi.first_strip() + (digi.cluster_size() / 2) );
+  _rpc.strip_low   = ( digi.first_strip() < 0 ? 0 : digi.first_strip() );
+  _rpc.strip_hi    = ( digi.first_strip() < 0 ? 0 : digi.first_strip() + digi.cluster_size() - 1 );
+  _rpc.phi_int     = digi.phi_int();
+  _rpc.theta_int   = digi.theta_int();
+  _rpc.emtf_sector = digi.emtf_sector();
+  _rpc.layer       = detid.layer();
+  _rpc.bx          = digi.bx();
+  _rpc.valid       = digi.valid();
+  _rpc.isCPPF      = true;
+}
 
 // constructor from GEM data
 TriggerPrimitive::TriggerPrimitive(const GEMDetId& detid,
@@ -243,10 +268,14 @@ bool TriggerPrimitive::operator==(const TriggerPrimitive& tp) const {
            this->_rpc.strip == tp._rpc.strip &&
            this->_rpc.strip_low == tp._rpc.strip_low &&
            this->_rpc.strip_hi == tp._rpc.strip_hi &&
+           this->_rpc.phi_int == tp._rpc.phi_int &&
+           this->_rpc.theta_int == tp._rpc.theta_int &&
+           this->_rpc.emtf_sector == tp._rpc.emtf_sector &&
            this->_rpc.layer == tp._rpc.layer &&
            this->_rpc.bx == tp._rpc.bx &&
            this->_rpc.valid == tp._rpc.valid &&
            //this->_rpc.time == tp._rpc.time &&
+           this->_rpc.isCPPF == tp._rpc.isCPPF &&
            this->_gem.pad == tp._gem.pad &&
            this->_gem.pad_low == tp._gem.pad_low &&
            this->_gem.pad_hi == tp._gem.pad_hi &&
@@ -371,10 +400,14 @@ void TriggerPrimitive::print(std::ostream& out) const {
     out << "Strip         : " << _rpc.strip << std::endl;
     out << "Strip Low     : " << _rpc.strip_low << std::endl;
     out << "Strip High    : " << _rpc.strip_hi << std::endl;
+    out << "Integer phi   : " << _rpc.phi_int << std::endl;
+    out << "Integer theta : " << _rpc.theta_int << std::endl;
+    out << "EMTF sector   : " << _rpc.emtf_sector << std::endl;
     out << "Layer         : " << _rpc.layer << std::endl;
     out << "Valid         : " << _rpc.valid << std::endl;
     out << "Time          : " << _rpc.time << std::endl;
-    break;
+    out << "IsCPPF        : " << _rpc.isCPPF << std::endl;
+   break;
   case kGEM:
     if (!_gem.isME0)
       out << detId<GEMDetId>() << std::endl;

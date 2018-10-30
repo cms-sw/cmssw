@@ -6,12 +6,12 @@ class PtHatReweightUserHook : public Pythia8::UserHooks
   public:
     PtHatReweightUserHook(double _pt = 15, double _power = 4.5) :
       pt(_pt), power(_power) {}
-    virtual ~PtHatReweightUserHook() {}
+    ~PtHatReweightUserHook() override {}
 
-    virtual bool canBiasSelection() { return true; }
+    bool canBiasSelection() override { return true; }
 
-    virtual double biasSelectionBy(const Pythia8::SigmaProcess* sigmaProcessPtr,
-                      const Pythia8::PhaseSpace* phaseSpacePtr, bool inEvent)
+    double biasSelectionBy(const Pythia8::SigmaProcess* sigmaProcessPtr,
+                      const Pythia8::PhaseSpace* phaseSpacePtr, bool inEvent) override
     {
       //the variable selBias of the base class should be used;
       if ((sigmaProcessPtr->nFinal() == 2)) {
@@ -29,17 +29,21 @@ class PtHatReweightUserHook : public Pythia8::UserHooks
 class PtHatEmpReweightUserHook : public Pythia8::UserHooks
 {
   public:
-    PtHatEmpReweightUserHook()
+    PtHatEmpReweightUserHook(const std::string& tuneName = "")
     {
-      p = {5.3571961909810e+13,1.0907678218282e+01,-2.5898069229451e+00,-5.1575514014931e-01,5.5951279807561e-02,3.5e+02};
+      if (tuneName == "CP5")
+        p = {7377.94700788,      8.38168461349,      -4.70983112392,     -0.0310148108446,     -0.028798537937, 925.335472326};
+     //Default reweighting - works good for tune CUEPT8M1
+      else
+        p = {5.3571961909810e+13,1.0907678218282e+01,-2.5898069229451e+00,-5.1575514014931e-01,5.5951279807561e-02,3.5e+02};
       sigma = [this](double x) -> double { return (p[0]*pow(x,p[2]+p[3]*log(0.01*x)+p[4]*pow(log(0.01*x),2))*pow(1-2*x/(13000.+p[5]),p[1]))*x; };
     }
-    virtual ~PtHatEmpReweightUserHook() {}
+    ~PtHatEmpReweightUserHook() override {}
 
-    virtual bool canBiasSelection() { return true; }
+    bool canBiasSelection() override { return true; }
 
-    virtual double biasSelectionBy(const Pythia8::SigmaProcess* sigmaProcessPtr,
-                      const Pythia8::PhaseSpace* phaseSpacePtr, bool inEvent)
+    double biasSelectionBy(const Pythia8::SigmaProcess* sigmaProcessPtr,
+                      const Pythia8::PhaseSpace* phaseSpacePtr, bool inEvent) override
     {
       //the variable selBias of the base class should be used;
       if ((sigmaProcessPtr->nFinal() == 2)) {
@@ -69,12 +73,12 @@ class RapReweightUserHook : public Pythia8::UserHooks
       yLabsigma = TF1("yLabsigma", yLabsigma_func.c_str(), pTHatMin, pTHatMax);
       yCMsigma = TF1("yCMsigma", yLabsigma_func.c_str(), pTHatMin, pTHatMax);
     }
-    virtual ~RapReweightUserHook() {}
+    ~RapReweightUserHook() override {}
 
-    virtual bool canBiasSelection() { return true; }
+    bool canBiasSelection() override { return true; }
 
-    virtual double biasSelectionBy(const Pythia8::SigmaProcess* sigmaProcessPtr,
-                      const Pythia8::PhaseSpace* phaseSpacePtr, bool inEvent)
+    double biasSelectionBy(const Pythia8::SigmaProcess* sigmaProcessPtr,
+                      const Pythia8::PhaseSpace* phaseSpacePtr, bool inEvent) override
     {
       //the variable selBias of the base class should be used;
       if ((sigmaProcessPtr->nFinal() == 2)) {
@@ -116,12 +120,12 @@ class PtHatRapReweightUserHook : public Pythia8::UserHooks
       yLabsigma = TF1("yLabsigma", yLabsigma_func.c_str(), pTHatMin, pTHatMax);
       yCMsigma = TF1("yCMsigma", yLabsigma_func.c_str(), pTHatMin, pTHatMax);
     }
-    virtual ~PtHatRapReweightUserHook() {}
+    ~PtHatRapReweightUserHook() override {}
 
-    virtual bool canBiasSelection() { return true; }
+    bool canBiasSelection() override { return true; }
 
-    virtual double biasSelectionBy(const Pythia8::SigmaProcess* sigmaProcessPtr,
-                      const Pythia8::PhaseSpace* phaseSpacePtr, bool inEvent)
+    double biasSelectionBy(const Pythia8::SigmaProcess* sigmaProcessPtr,
+                      const Pythia8::PhaseSpace* phaseSpacePtr, bool inEvent) override
     {
       //the variable selBias of the base class should be used;
       if ((sigmaProcessPtr->nFinal() == 2)) {

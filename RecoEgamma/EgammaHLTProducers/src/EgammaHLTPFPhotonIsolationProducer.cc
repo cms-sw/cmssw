@@ -85,7 +85,7 @@ void EgammaHLTPFPhotonIsolationProducer::fillDescriptions(edm::ConfigurationDesc
   descriptions.add(("hltEgammaHLTPFPhotonIsolationProducer"), desc);
 }
 
-void EgammaHLTPFPhotonIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
+void EgammaHLTPFPhotonIsolationProducer::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
 
   edm::Handle<double> rhoHandle;
   double rho = 0.0;

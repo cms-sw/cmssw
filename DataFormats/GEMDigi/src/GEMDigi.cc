@@ -45,7 +45,7 @@ bool GEMDigi::operator<(const GEMDigi& digi) const
 
 std::ostream & operator<<(std::ostream & o, const GEMDigi& digi)
 {
-  return o << " " << digi.strip() << " " << digi.bx();
+  return o << " GEMDigi strip = " << digi.strip() << " bx = " << digi.bx();
 }
 
 

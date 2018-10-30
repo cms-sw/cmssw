@@ -62,7 +62,7 @@ void GEMPadDigiProducer::buildPads(const GEMDigiCollection &det_digis, GEMPadDig
     auto digis = det_digis.get(p->id());
     for (auto d = digis.first; d != digis.second; ++d)
     {
-      int pad_num = 1 + static_cast<int>( p->padOfStrip(d->strip()) );
+      int pad_num = static_cast<int>(p->padOfStrip(d->strip()));
       proto_pads.emplace(pad_num, d->bx());
     }
 

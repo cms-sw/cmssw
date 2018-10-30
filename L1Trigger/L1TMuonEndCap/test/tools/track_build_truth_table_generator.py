@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Generate 2^6 = 64 entries
 # a=12, b=23, c=34, d=13, e=14, f=24
 
@@ -83,7 +84,7 @@ for entry in entries:
 # Output
 for result in results:
   (w,x,y,z) = result
-  print "%i%i%i%i" % (z,y,x,w)
+  print("%i%i%i%i" % (z,y,x,w))
 
 # Output as C++ array
 generate_cpp_array = False
@@ -100,4 +101,4 @@ if generate_cpp_array:
     if i%8 == 7 and i != 63:  s += linebreak
     i += 1
   s += "\n};"
-  print s
+  print(s)

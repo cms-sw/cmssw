@@ -11,8 +11,6 @@
  *   \author  N. Neumeister          Purdue University
  */
 
-#include <functional>
-
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -54,22 +52,14 @@ class MuonSeedDetLayer {
     double z() const { return thePoint.z(); }
 
     /// sort
-    class HigherR : std::binary_function< const MuonSeedDetLayer, const MuonSeedDetLayer, bool>
-{
-      public :
-        bool operator()( const MuonSeedDetLayer first, const MuonSeedDetLayer second ) const {
-          return first.radius() < second.radius();
-        }
-    };
+    static bool getHigherR( const MuonSeedDetLayer first, const MuonSeedDetLayer second ) {
+      return first.radius() < second.radius();
+    }
 
     /// sort
-    class LowerR : std::binary_function< const MuonSeedDetLayer, const MuonSeedDetLayer, bool>
-{
-      public :
-        bool operator()( const MuonSeedDetLayer first, const MuonSeedDetLayer second ) const {
-          return first.radius() > second.radius();
-        }
-    };
+    static bool getLowerR( const MuonSeedDetLayer first, const MuonSeedDetLayer second ) {
+      return first.radius() > second.radius();
+    }
 
   private:
 

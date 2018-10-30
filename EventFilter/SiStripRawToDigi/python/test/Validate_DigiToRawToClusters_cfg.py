@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 Mode = str("ZS")    # Options: "ZS", "VR", "PR", "FK"
@@ -71,7 +72,7 @@ elif Mode == str("PR") :
     process.SiStripDigiToRaw.FedReadoutMode = cms.string('PROCESSED_RAW')
     process.SiStripDigiToRaw.PacketCode = cms.string('PROCESSED_RAW')
 else :
-    print "UNKNOWN FED READOUT MODE!"
+    print("UNKNOWN FED READOUT MODE!")
     import sys
     sys.exit()
 
@@ -97,5 +98,5 @@ process.output.fileName = "DigiToRawToClusters"+Mode+".root"
 if Write == bool(True) :
     process.e = cms.EndPath( process.output )
 else :
-    print "Event content not written to disk!" 
+    print("Event content not written to disk!") 
 

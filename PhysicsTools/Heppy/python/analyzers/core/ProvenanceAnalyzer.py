@@ -1,3 +1,4 @@
+from __future__ import print_function
 import itertools
 
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
@@ -56,7 +57,7 @@ class ProvenanceAnalyzer( Analyzer ):
                 release = conf.releaseVersion().replace('"',"")
                 vnums = self.cmsswVNums(release)
                 if conf.processName() in  ("PAT", "RECO","REC2"):
-                    print "processing step %d: process %s, release %r %s, miniAOD %s" % (i, conf.processName(), release, vnums, self.miniAODVersion(vnums))
+                    print("processing step %d: process %s, release %r %s, miniAOD %s" % (i, conf.processName(), release, vnums, self.miniAODVersion(vnums)))
                     self.provenance = [
                         ('release', release),
                         ('releaseVersion', vnums),

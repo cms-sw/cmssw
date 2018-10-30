@@ -1096,7 +1096,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	  myAss.insert( std::make_pair (tr1.get(),theConvTP_[tp_1] ) );
 	  myAss.insert( std::make_pair (tr2.get(),theConvTP_[tp_2]) );
 
-	//} catch (Exception event) {
+	//} catch (Exception const& event) {
 	  //cout << "continue: " << event.what()  << endl;
 	//  continue;
 	//}
@@ -1562,7 +1562,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
                   }
                 }
               }
-            } catch (Exception event) {
+            } catch (Exception const& event) {
               //cout << "do not continue: " << event.what()  << endl;
               //continue;
             }

@@ -57,7 +57,7 @@ std::string dqmDirectoryName(const std::string& directory)
   std::string dirName = directory;
   //if ( dirName == "" || dirName.find_last_of(dqmSeparator) != (dirName.length() - 1) )  dirName.append(dqmSeparator);
 //--- add tailing '/'
-  if ( dirName != "" && dirName.find_last_of(dqmSeparator) != (dirName.length() - 1) )  dirName.append(dqmSeparator);
+  if ( !dirName.empty() && dirName.find_last_of(dqmSeparator) != (dirName.length() - 1) )  dirName.append(dqmSeparator);
   return dirName;
 }
 
@@ -139,7 +139,7 @@ void dqmCopyRecursively(DQMStore& dqmStore, const std::string& inputDirectory, c
       continue;
     }
 
-    std::auto_ptr<TH1> clone(dynamic_cast<TH1*>(histogram->Clone()));
+    std::unique_ptr<TH1> clone(dynamic_cast<TH1*>(histogram->Clone()));
     clone->Scale(scaleFactor);
 
     dqmStore.setCurrentFolder(outputDirectory);   

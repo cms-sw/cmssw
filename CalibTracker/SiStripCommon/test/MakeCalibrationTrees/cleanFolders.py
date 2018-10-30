@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 
 def getName(log):
@@ -41,7 +42,7 @@ def checkRelaunch(log):
 def relaunchShort(folder):
    cmd=""
    if not "LSFJOB" in os.listdir(folder):
-      print "Unable to open command file"
+      print("Unable to open command file")
       return -1
    with open(folder+"/LSFJOB","r") as f:
       for line in f:
@@ -49,7 +50,7 @@ def relaunchShort(folder):
             cmd=line.split("job_starter")[1]
             break
    if cmd=="":
-      print "Unable to get command..."
+      print("Unable to get command...")
       return -1
    AAG       = "SiStripCalMinBiasAfterAbortGap" in cmd
    cmd=cmd.split(" ")
@@ -60,21 +61,21 @@ def relaunchShort(folder):
          run = cmd[i+1].replace("'",'').replace("\n","")
       if cmd[i]=="-f":
          nRuns = len(cmd[i+1].split(","))-1
-   print "Found run specs : %s %s %s (AAG : %s)"%(run,firstFile,int(firstFile)+int(nRuns),AAG)
+   print("Found run specs : %s %s %s (AAG : %s)"%(run,firstFile,int(firstFile)+int(nRuns),AAG))
    name = "%s %s %s AAG = %s"%(run,firstFile,int(firstFile)+int(nRuns),AAG)
    x = checkRelaunch(name)   
    if x==0:
-      print "Run not found in relaunch!!!"
+      print("Run not found in relaunch!!!")
       relaunch(folder,name)
    elif x==1:
-      print "file in relaunch list"
+      print("file in relaunch list")
       remove(folder)
    else:
-      print "Unable to check if file in relaunch"
+      print("Unable to check if file in relaunch")
 
 def remove(folder):
    os.system("rm -r %s"%folder)
-   print "deleted !"
+   print("deleted !")
 
 def relaunch(folder,log):
    log = log.split(" AAG = ")
@@ -83,10 +84,10 @@ def relaunch(folder,log):
    elif log[1]=="True":
       relaunchFile = "FailledRun_Aag.txt"
    else:
-      print "ERROR, unable to get run type"
+      print("ERROR, unable to get run type")
       return (-1)
    os.system("echo %s >> %s"%(log[0],relaunchFile))
-   print "Added to relaunch list (%s)."%relaunchFile
+   print("Added to relaunch list (%s)."%relaunchFile)
    remove(folder)
 
 def getCollection(log):
@@ -103,12 +104,12 @@ NoError = []
 Error = []
 for folder in os.listdir("."):
    if "core." in folder[:5]:
-      print "removing %s"%folder
+      print("removing %s"%folder)
       os.system("rm %s"%folder)
    if not folder[:3]=="LSF" or not os.path.isdir(folder):
       continue
    if not "STDOUT" in os.listdir(folder):
-      print "Error, no STDOUT file in folder %s !"%folder
+      print("Error, no STDOUT file in folder %s !"%folder)
       continue 
    log = open(folder+"/STDOUT","r").read()
    
@@ -118,7 +119,7 @@ for folder in os.listdir("."):
       Error.append(folder)
 
 if len(NoError)+len(Error)==0:
-   print "Nothing to do..."
+   print("Nothing to do...")
 ToKeep = []
 
 for f in NoError:
@@ -126,10 +127,10 @@ for f in NoError:
    if "WARNING WARNING WARNING STAGE OUT FAILED BUT NOT RELAUNCHED" in log:
       Error.append(f)
    elif "The file size is" in log[-2000:]:
-      print "Removing good run %s - %s"%(f,getName(log.split("\n")))
+      print("Removing good run %s - %s"%(f,getName(log.split("\n"))))
       remove(f)
    else:
-      print "Something fishy in %s (marked as good)"%f
+      print("Something fishy in %s (marked as good)"%f)
       ToKeep.append(f)
 
 for f in Error:
@@ -138,7 +139,7 @@ for f in Error:
    log=log.split("\n")
    eMessage=""
    if len(log)<80:
-      print "Short in %s (%s)"%(f,len(log))
+      print("Short in %s (%s)"%(f,len(log)))
       relaunchShort(f)
       logLen=len(log)
    else:
@@ -178,21 +179,21 @@ for f in Error:
    if not eMessage == "" and toRemove:
       name = getName(log)
       if "Unable" in name:
-         print "%s - %s"%(f,name)
+         print("%s - %s"%(f,name))
          continue
-      print "Removing bad run %s - %s (%s)"%(f,eMessage,name)
+      print("Removing bad run %s - %s (%s)"%(f,eMessage,name))
       code = checkRelaunch(name)
       if code==-1:
-         print "ABORT, unable to get relaunch status"
+         print("ABORT, unable to get relaunch status")
       elif code==0:
          relaunch(f,name)
       else:
-         print "Found in relaunch list... deleting..."
+         print("Found in relaunch list... deleting...")
          remove(f)
    else:
-      print "Something fishy in %s"%f
+      print("Something fishy in %s"%f)
       ToKeep.append(f)
 
 if len(ToKeep)>0:
-   print "Strange jobs :"
-   for i in ToKeep: print i
+   print("Strange jobs :")
+   for i in ToKeep: print(i)

@@ -16,7 +16,7 @@ CSCGeometryBuilderFromDDD::CSCGeometryBuilderFromDDD() : myName("CSCGeometryBuil
 CSCGeometryBuilderFromDDD::~CSCGeometryBuilderFromDDD(){}
 
 
-void CSCGeometryBuilderFromDDD::build(std::shared_ptr<CSCGeometry> geom, const DDCompactView* cview, const MuonDDDConstants& muonConstants){
+void CSCGeometryBuilderFromDDD::build(CSCGeometry& geom, const DDCompactView* cview, const MuonDDDConstants& muonConstants){
 
   RecoIdealGeometry rig;
   CSCRecoDigiParameters rdp;
@@ -28,7 +28,5 @@ void CSCGeometryBuilderFromDDD::build(std::shared_ptr<CSCGeometry> geom, const D
     throw cms::Exception("CSCGeometryBuilderFromDDD", "Failed to build the necessary objects from the DDD");
   }
   CSCGeometryBuilder realbuilder;
-  realbuilder.build(std::move(geom), rig, rdp);
-  //  return realbuilder.build(rig, rdp); 
-
+  realbuilder.build(geom, rig, rdp);
 }

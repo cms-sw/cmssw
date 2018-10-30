@@ -62,6 +62,16 @@ unsigned short CSCDetId::iChamberType( unsigned short istation, unsigned short i
   return i;
 }
 
+std::string CSCDetId::chamberName(int endcap, int station, int ring, int chamber)
+{
+  const std::string eSign = endcap==1 ? "+" : "-";
+  return "ME" + eSign + std::to_string(station) + "/" + std::to_string(ring) + "/" + std::to_string(chamber);
+}
+
+std::string CSCDetId::chamberName() const
+{
+  return chamberName(endcap(), station(), ring(), chamber());
+}
 
 std::ostream& operator<<( std::ostream& os, const CSCDetId& id )
 {

@@ -37,10 +37,10 @@ public:
 
 private:
   // double dispatch
-  Phase2TrackerRecHit1D * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
+  Phase2TrackerRecHit1D * clone_(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
     return cloner(*this,tsos).release();
   }
-   RecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
+  RecHitPointer cloneSH_(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
     return cloner.makeShared(*this,tsos);
   }
 };

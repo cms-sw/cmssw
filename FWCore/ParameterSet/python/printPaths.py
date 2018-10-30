@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.SequenceTypes as sqt
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.Modules as mod
@@ -10,10 +11,10 @@ def printPaths(process):
 
 def printPath(pth, indent="", indentDelta=" ", type="path"):
     item = pth._seq
-    print indent+type+": "+pth.label_()
+    print(indent+type+": "+pth.label_())
     indent += indentDelta
     if isinstance(item,mod._Module):
-        print indent+"module: "+item.label_()+" <"+item.type_()+">"
+        print(indent+"module: "+item.label_()+" <"+item.type_()+">")
     elif isinstance(item,cms.Sequence):
         printPath(item,indent,indentDelta,"seq")
     else:
@@ -24,7 +25,7 @@ def _printOp(op,indent, indentDelta):
     for i in dir(op):
         o = getattr(op,i)
         if isinstance(o,mod._Module):
-            print indent+"module: "+o.label_()+" <"+o.type_()+">"            
+            print(indent+"module: "+o.label_()+" <"+o.type_()+">")            
         elif isinstance(o, cms.Sequence):
             printPath(o,indent,indentDelta, "seq")
         elif isinstance(o,sqt._Sequenceable):

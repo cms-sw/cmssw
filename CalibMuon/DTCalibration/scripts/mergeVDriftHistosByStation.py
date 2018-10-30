@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import ROOT
 import sys
 
@@ -19,7 +20,7 @@ def mergeHistosWheelSector(file, wheel, sector):
         name = getHistoName(wheel,station,sector)
         hist = file.Get(name)
         if hist:
-            print "Adding",hist.GetName()  
+            print("Adding",hist.GetName())  
             if not histWheelSector: histWheelSector = hist.Clone( "h_W%d_Sec%d" % (wheel,sector) )
             else: histWheelSector.Add(hist)
 
@@ -34,7 +35,7 @@ def mergeHistosWheelStation(file, wheel, station):
         name = getHistoName(wheel,station,sector)
         hist = file.Get(name)
         if hist:
-            print "Adding",hist.GetName()
+            print("Adding",hist.GetName())
             if not histWheelStation: histWheelStation = hist.Clone( "h_W%d_St%d" % (wheel,station) )
             else: histWheelStation.Add(hist)
 
@@ -60,7 +61,7 @@ if __name__ == '__main__':
     histos = {}
     for wheel in wheels:
         for station in stations:
-            print "Merging histos from Wheel %d, Station %d" % (wheel,station)
+            print("Merging histos from Wheel %d, Station %d" % (wheel,station))
             histos[(wheel,station)] = mergeHistosWheelStation(file,wheel,station) 
             
     file.Close()
@@ -75,7 +76,7 @@ if __name__ == '__main__':
                 if sector in (13,14) and station != 4: continue
                 sectorStr = 'Sec' + str(sector)
                 name = "hRPhiVDriftCorr_" + wheelStr + "_" + stationStr + "_" + sectorStr
-                print "Writing",name 
+                print("Writing",name) 
                 histos[(wheel,station)].Clone(name).Write()
  
     outputFile.Close()

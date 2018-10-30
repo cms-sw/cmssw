@@ -153,12 +153,10 @@ void DDEcalPreshowerAlgoTB::doWedges(DDCompactView& cpv) {
   int sz = int(quadMax_.size());
 
   DDTranslation tran;
-  DDRotation    rot1, rot2;
-  DDName        name1, name2;
-  name1 = DDName("SWED", idNameSpace);
-  name2 = DDName("SFBX", idNameSpace);
-  rot1 = DDRotation("rotations:RM1299");
-  rot2 = DDRotation("rotations:RM1298");
+  DDName name1("SWED", idNameSpace);
+  DDName name2("SFBX", idNameSpace);
+  DDRotation rot1("rotations:RM1299");
+  DDRotation rot2("rotations:RM1298");
   // Do Plane X
   for(int I=1; I<=sz;++I) {
     for(int J=int(quadMax_[I-1]); J>=int(quadMin_[I-1]); --J) {

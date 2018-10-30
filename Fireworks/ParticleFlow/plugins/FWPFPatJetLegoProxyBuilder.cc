@@ -56,8 +56,7 @@ FWPFPatJetLegoProxyBuilder<T>::localModelChanges(const FWModelId& iId, TEveEleme
       for( TEveElement::List_i j = parent->BeginChildren(); j != parent->EndChildren(); ++j )
       {
          FWLegoCandidate *cand = dynamic_cast<FWLegoCandidate*> ( *j );
-         const FWDisplayProperties &dp = FWProxyBuilderBase::item()->modelInfo( iId.index() ).displayProperties();
-         cand->SetMarkerColor( dp.color() );
+         cand->SetMarkerColor( FWProxyBuilderBase::item()->modelInfo( iId.index() ).displayProperties().color() );
          cand->ElementChanged();
       }
    }

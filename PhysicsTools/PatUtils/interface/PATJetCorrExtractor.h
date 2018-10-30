@@ -80,7 +80,7 @@ class PATJetCorrExtractor
 	  edm::LogWarning("PATJetCorrExtractor") << "Negative jet energy scale correction noticed" << ".\n";
 	}
       }
-    } catch( cms::Exception e ) {
+    } catch( cms::Exception const& ) {
       throw cms::Exception("InvalidRequest")
 	<< "The JEC level " << jetCorrLabel << " does not exist !!\n"
 	<< "Available levels = " << format_vstring(jet.availableJECLevels()) << ".\n";

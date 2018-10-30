@@ -154,7 +154,7 @@ void TriggerMatchProducer<object>::produce(edm::Event &event, const edm::EventSe
 	 filters = hltConfig.moduleLabels( iMyHLT->first );
 	 triggerIndex = hltConfig.triggerIndex(iMyHLT->first);
        }
-       catch (std::exception ex) { cout << "bad trigger\n"; }
+       catch (std::exception const&) { cout << "bad trigger\n"; }
        // Results from TriggerResults product
        if ( triggerIndex==-1 ||
 	   !(pTrgResults->wasrun(triggerIndex)) ||

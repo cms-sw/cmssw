@@ -56,6 +56,7 @@
 #include "DataFormats/BTauReco/interface/DeepFlavourTagInfo.h"
 #include "DataFormats/BTauReco/interface/DeepDoubleBFeatures.h"
 #include "DataFormats/BTauReco/interface/DeepDoubleBTagInfo.h"
+#include "DataFormats/BTauReco/interface/DeepBoostedJetTagInfo.h"
 
 
 namespace reco {
@@ -289,7 +290,7 @@ namespace DataFormats_BTauReco {
     reco::HTTTopJetTagInfoRefVector                                      htttopjet_rv;
     edm::Wrapper<reco::HTTTopJetTagInfoCollection>                       htttopjet_wc;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::HTTTopJetTagInfoRef> rb_htttopjet;
-    edm::reftobase::RefHolder<reco::HTTTopJetTagInfoRef>                 rbh_htttopjet; 
+    edm::reftobase::RefHolder<reco::HTTTopJetTagInfoRef>                 rbh_htttopjet;
 
     std::vector<Measurement1D>                                          vm1d;
 
@@ -427,5 +428,13 @@ namespace DataFormats_BTauReco {
     reco::DeepDoubleBTagInfoRefVector deep_doubleb_tag_info_collection_ref_vector;
     edm::Wrapper<reco::DeepDoubleBTagInfoCollection> deep_doubleb_tag_info_collection_edm_wrapper;
 
+    btagbtvdeep::DeepBoostedJetFeatures deep_boosted_jet_tag_info_features;
+    reco::DeepBoostedJetTagInfo deep_boosted_jet_tag_info;
+    reco::DeepBoostedJetTagInfoCollection deep_boosted_jet_tag_info_collection;
+    reco::DeepBoostedJetTagInfoRef deep_boosted_jet_tag_info_collection_ref;
+    reco::DeepBoostedJetTagInfoFwdRef deep_boosted_jet_tag_info_collection_fwd_ref;
+    reco::DeepBoostedJetTagInfoRefProd deep_boosted_jet_tag_info_collection_ref_prod;
+    reco::DeepBoostedJetTagInfoRefVector deep_boosted_jet_tag_info_collection_ref_vector;
+    edm::Wrapper<reco::DeepBoostedJetTagInfoCollection> deep_boosted_jet_tag_info_collection_edm_wrapper;
   };
 }

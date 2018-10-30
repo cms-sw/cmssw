@@ -23,18 +23,22 @@ As stated above, additional framework modules and EventSetup modules and Service
 
 ### Example 1: Setup only the module
 
-    from FWCore.TestProcessor.TestProcess import *
-    process = TestProcess()
-    process.foo = cms.EDProducer('FooProd')
-    process.moduleToTest(process.foo)
+```python
+from FWCore.TestProcessor.TestProcess import *
+process = TestProcess()
+process.foo = cms.EDProducer('FooProd')
+process.moduleToTest(process.foo)
+```
 
 ### Example 2: Use additional modules
 
-    from FWCore.TestProcessor.TestProcess import *
-    process = TestProcess()
-    process.load("somePackage.someModules_cff")
-    process.foo = cms.EDProducer('FooProd')
-    process.moduleToTest(process.foo, cms.Task(process.bar))
+```python
+from FWCore.TestProcessor.TestProcess import *
+process = TestProcess()
+process.load("somePackage.someModules_cff")
+process.foo = cms.EDProducer('FooProd')
+process.moduleToTest(process.foo, cms.Task(process.bar))
+```
 
 NOTE: We recommend testing modules completely in isolation, however we realize, for some cases, that is not practical.
 
@@ -53,36 +57,44 @@ The same configuration class can be reused to setup multiple `edm::test::TestPro
 ### Example 1: Use only the python configuration
 We recommend using a C++ raw string for the python configuration. That way line breaks and quotation marks are automatically handled.
 
-    edm::test::TestProcessor::Config config{
-    R"_(from FWCore.TestProcessor.TestProcess import *
-    process = TestProcess()
-    process.foo = cms.EDProducer("FooProd")
-    process.moduleToTest(process.foo)
-    )_"
-    };
+```cpp
+edm::test::TestProcessor::Config config{
+R"_(from FWCore.TestProcessor.TestProcess import *
+process = TestProcess()
+process.foo = cms.EDProducer("FooProd")
+process.moduleToTest(process.foo)
+)_"
+};
+```
     
 ### Example 2: Adding Event data products
 You must register which Event data products you intend to pass to the test. A `edm::EDPutTokenT<>` object is returned from the registration call. This object must be passed to the test along with an `std::unique_ptr<>` containing the object. Multiple Event data products are allowed.
 
-    edm::test::TestProcessor::Config config{
-    R"_(...
-    )_"
-    };
-    
-    //Uses the module label 'bar'
-    auto barPutToken = config.produces<std::vector<Bar>>("bar");
+```cpp
+edm::test::TestProcessor::Config config{
+R"_(...
+)_"
+};
+
+//Uses the module label 'bar'
+auto barPutToken = config.produces<std::vector<Bar>>("bar");
+```
     
 ### Example 3: Adding Event data products from an earlier Process
 To add an addition process to the test, one must call the `addExtraProcess` method. This method returns a `edm::test::ProcessToken`. This token is then passed to the `produces` call. If a `edm::test::ProcessToken` is not passed, the data product is set to come from the most _recent_ process.
 One can specify multiple extra processes. The order of the calls determines the order of the process histories. With the first call creating the oldest process.
 
-    auto hltProcess = config.addExtraProcess("HLT");
-    auto barPutToken = config.produces<std::vector<Bar>>("bar","",hltProcess);
+```cpp
+auto hltProcess = config.addExtraProcess("HLT");
+auto barPutToken = config.produces<std::vector<Bar>>("bar","",hltProcess);
+```
 
 ###Example 4: Adding EventSetup data products
 You must register which EventSetup data products you intend to pass to the test as well as the EventSetup Record from which the data product can be obtained. A `edm::test::ESPutTokenT<>` object is returned from the registration call. This object must be passed to the test along with an `std::unique_ptr<>` containing the object. Multiple EventSetup data products are allowed.
 
-    auto esPutToken = config.esProduces<FooData,FooRecord>();
+```cpp
+auto esPutToken = config.esProduces<FooData,FooRecord>();
+```
 
 ## `TestProcessor` class
 
@@ -101,101 +113,107 @@ The `edm::test::Event` also has the method `modulePassed()` which is only useful
 
 ### Full Example 
 
-    #include "FWCore/TestProcessor/interface/TestProcessor.h"
-    int main() {
-      //The python configuration
-      edm::test::TestProcessor::Config config{
-      R"_(from FWCore.TestProcessor.TestProcess import *
-      process = TestProcess()
-      process.foo = cms.EDProducer("FooProd")
-      process.moduleToTest(process.foo)
-      )_"
-      };
-    
-      //setup data to pass
-      auto barPutToken = config.produces<std::vector<Bar>>("bar");
-      auto esPutToken = config.esProduces<FooData,FooRecord>();
-    
-      edm::test::TestProcessor tester{ config };
-    
-      //Run a test
-      auto event = tester.test(std::make_pair(barPutToken, 
-                                              std::make_unique<std::vector<Bar>(...)),
-                               std::make_pair(esPutToken,
-                                              std::make_unique<FooData>(...)));
-      auto nMade = event.get<std::vector<Foo>>()->size();
-      std::cout << nMade <<std::endl;
-      
-      if( nMade != ...) {
-        return 1;
-      }
-      return 0;
-    };
+```cpp
+#include "FWCore/TestProcessor/interface/TestProcessor.h"
+int main() {
+  //The python configuration
+  edm::test::TestProcessor::Config config{
+  R"_(from FWCore.TestProcessor.TestProcess import *
+  process = TestProcess()
+  process.foo = cms.EDProducer("FooProd")
+  process.moduleToTest(process.foo)
+  )_"
+  };
+
+  //setup data to pass
+  auto barPutToken = config.produces<std::vector<Bar>>("bar");
+  auto esPutToken = config.esProduces<FooData,FooRecord>();
+
+  edm::test::TestProcessor tester{ config };
+
+  //Run a test
+  auto event = tester.test(std::make_pair(barPutToken, 
+                                          std::make_unique<std::vector<Bar>(...)),
+                           std::make_pair(esPutToken,
+                                          std::make_unique<FooData>(...)));
+  auto nMade = event.get<std::vector<Foo>>()->size();
+  std::cout << nMade <<std::endl;
+  
+  if( nMade != ...) {
+    return 1;
+  }
+  return 0;
+};
+```
 
 ### Example using Catch2
 
 [Catch2](https://github.com/catchorg/Catch2/blob/master/docs/Readme.md#top) is a simple to use C++ unit testing framemwork. It can be used in conjuction with `TestProcessor` to drive a series of tests. In addition to the code, be sure to add `<use name="catch2"/>` to the `BuildFile.xml`.
 
-    #include "FWCore/TestProcessor/interface/TestProcessor.h"
+```cpp
+#include "FWCore/TestProcessor/interface/TestProcessor.h"
+...
+#include "catch.hpp"
+
+TEST_CASE("FooProd tests", "[FooProd]") {
+  //The python configuration
+  edm::test::TestProcessor::Config config{
+R"_(from FWCore.TestProcessor.TestProcess import *
+process = TestProcess()
+process.foo = cms.EDProducer("FooProd")
+process.moduleToTest(process.foo)
+)_"
+  };
+
+  //setup data to pass
+  auto barPutToken = config.produces<std::vector<Bar>>("bar");
+  auto esPutToken = config.esProduces<FooData,FooRecord>();
+
+  SECTION("Pass standard data") {
+    edm::test::TestProcessor tester{ config };
+
+    //Run a test
+    auto event = tester.test(std::make_pair(barPutToken, 
+                                            std::make_unique<std::vector<Bar>(...)),
+                             std::make_pair(esPutToken,
+                                            std::make_unique<FooData>(...)));
+    auto const& foos = event.get<std::vector<Foo>>();
+    REQUIRE(foos->size() == ...);
+    REQUIRE(foos[0] == Foo(...));
     ...
-    #include "catch.hpp"
     
-    TEST_CASE("FooProd tests", "[FooProd]") {
-      //The python configuration
-      edm::test::TestProcessor::Config config{
-    R"_(from FWCore.TestProcessor.TestProcess import *
-    process = TestProcess()
-    process.foo = cms.EDProducer("FooProd")
-    process.moduleToTest(process.foo)
-    )_"
-      };
-    
-      //setup data to pass
-      auto barPutToken = config.produces<std::vector<Bar>>("bar");
-      auto esPutToken = config.esProduces<FooData,FooRecord>();
-    
-      SECTION("Pass standard data") {
-        edm::test::TestProcessor tester{ config };
-    
-        //Run a test
-        auto event = tester.test(std::make_pair(barPutToken, 
-                                                std::make_unique<std::vector<Bar>(...)),
-                                 std::make_pair(esPutToken,
-                                                std::make_unique<FooData>(...)));
-        auto const& foos = event.get<std::vector<Foo>>();
-        REQUIRE(foos->size() == ...);
-        REQUIRE(foos[0] == Foo(...));
-        ...
-        
-        SECTION("Move to new IOV") {
-          tester.setRunNumber(2);
-          auto event = tester.test(std::make_pair(barPutToken, 
-                                                  std::make_unique<std::vector<Bar>(...)),
-                                   std::make_pair(esPutToken,
-                                                  std::make_unique<FooData>(...)));
-          auto const& foos = event.get<std::vector<Foo>>();
-          REQUIRE(foos->size() == ...);
-          REQUIRE(foos[0] == Foo(...));
-          ...
-        };
-      };
-      
-      SECTION("Missing event data") {
-        edm::test::TestProcessor tester{ config };
-        REQUIRE_THROWS_AS(tester.test(std::make_pair(esPutToken,
-                                                  std::make_unique<FooData>(...))), 
-                          cms::Exception);
-      };
-    }
+    SECTION("Move to new IOV") {
+      tester.setRunNumber(2);
+      auto event = tester.test(std::make_pair(barPutToken, 
+                                              std::make_unique<std::vector<Bar>(...)),
+                               std::make_pair(esPutToken,
+                                              std::make_unique<FooData>(...)));
+      auto const& foos = event.get<std::vector<Foo>>();
+      REQUIRE(foos->size() == ...);
+      REQUIRE(foos[0] == Foo(...));
+      ...
+    };
+  };
+  
+  SECTION("Missing event data") {
+    edm::test::TestProcessor tester{ config };
+    REQUIRE_THROWS_AS(tester.test(std::make_pair(esPutToken,
+                                              std::make_unique<FooData>(...))), 
+                      cms::Exception);
+  };
+}
+```
 
 ## Autogenerating Tests
 
 Tests for new modules are automatically created when using `mkedprod`, `mkedfltr` or `mkedanlzr`. The same commands can be used to generate tests for existing modules just by running those commands from within the `test` directory of the package containing the module. For this case, you will need to manually add the following to `test/BuildFile.xml`:
 
-    <bin file="test_catch2_*.cc" name="test<SubSystem name><Package Name>TP">
-    <use name="FWCore/TestProcessor"/>
-    <use name="catch2"/>
-    </bin>
+```xml
+<bin file="test_catch2_*.cc" name="test<SubSystem name><Package Name>TP">
+<use name="FWCore/TestProcessor"/>
+<use name="catch2"/>
+</bin>
+```
 
 
 ## Tips
@@ -206,29 +224,37 @@ It will often be the case that a group of tests only differ based on the values 
 
 The _base configuration_ is a full configuration where, instead of setting specific values for each parameter that needs to be varied, we use a python variable name, where the variable is not declared in the _base configuration_.
 
-    const std::string baseConfig = 
-    R"_(from FWCore.TestProcessor.TestProcess import *
-    process = TestProcess()
-    process.foo = cms.EDProducer('FooProd', value = cms.int32( fooValue ))
-    process.moduleToTest(process.foo)
-    )_";
+```cpp
+const std::string baseConfig = 
+R"_(from FWCore.TestProcessor.TestProcess import *
+process = TestProcess()
+process.foo = cms.EDProducer('FooProd', value = cms.int32( fooValue ))
+process.moduleToTest(process.foo)
+)_";
+```
 
 To generate a specific configuration, we just prepend to the `baseConfig` a string containing an expressiong which sets the values on the variable names
 
-    std::string fullConfig = "fooValue = 3\n"+baseConfig;
+```cpp
+std::string fullConfig = "fooValue = 3\n"+baseConfig;
+```
     
 Alternatively, you can setup default values in the base configuration
 
-    const std::string baseConfig = 
-    R"_(from FWCore.TestProcessor.TestProcess import *
-    process = TestProcess()
-    process.foo = cms.EDProducer('FooProd', value = cms.int32( 1 ))
-    process.moduleToTest(process.foo)
-    )_";
+```cpp
+const std::string baseConfig = 
+R"_(from FWCore.TestProcessor.TestProcess import *
+process = TestProcess()
+process.foo = cms.EDProducer('FooProd', value = cms.int32( 1 ))
+process.moduleToTest(process.foo)
+)_";
+```
 
 And then append a string at the end which sets the particular value
 
-    std::string fullConfig = baseConfig +
-    R"_(process.foo.value = 3
-    )_"
+```cpp
+std::string fullConfig = baseConfig +
+R"_(process.foo.value = 3
+)_"
+```
 

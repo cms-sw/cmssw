@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+from __future__ import print_function
 import re
 topfunc = re.compile("::(produce|analyze|filter|beginLuminosityBlock|beginRun|beginStream)\(")
 baseclass = re.compile("edm::(one::|stream::|global::)?ED(Producer|Filter|Analyzer)(Base)?")
@@ -29,15 +30,15 @@ for line in f :
 				if epfunc.search(fields[1]) : epfuncs.add(fields[1])
 f.close()
 
-for epfunc in sorted(epfuncs): print epfunc
-print
+for epfunc in sorted(epfuncs): print(epfunc)
+print()
 
 for epfunc in epfuncs:
 	for tfunc in toplevelfuncs:
 		if nx.has_path(G,tfunc,epfunc) : 
 			path = nx.shortest_path(G,tfunc,epfunc)
-			print "Call stack \'",
+			print("Call stack \'", end=' ')
 			for p in path :			
-				print re.sub(farg,"()",p)+"; ",
-			print " \'. "
+				print(re.sub(farg,"()",p)+"; ", end=' ')
+			print(" \'. ")
 

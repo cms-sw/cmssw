@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import sqlite3
 import subprocess
 import json
@@ -38,7 +39,7 @@ def copy( sourceTag, destTag, since, logFileName ):
     lines = out.split('\n')
     ret = pipe.returncode
     for line in lines:
-        print line
+        print(line)
     with open(logFileName,'a') as logFile:
         logFile.write(out)
     return ret==0
@@ -50,7 +51,7 @@ class CopyTest:
         self.logFileName = 'conddbCopyTest.log'
 
     def log( self, msg ):
-        print msg
+        print(msg)
         with open(self.logFileName,'a') as logFile:
             logFile.write(msg)
             logFile.write('\n')
@@ -101,7 +102,7 @@ class CopyTest:
 
 
 def main():
-    print 'Testing...'
+    print('Testing...')
     bfile0 = fileName
     bfile1 = fileName
     db = DB()
@@ -191,7 +192,7 @@ def main():
     test.execute( inputTag0, bfile0, tag, 'runmc', 1000, False, 'FAIL' ) 
     test.execute( inputTag0, bfile0, tag, 'runmc', 2000, True, 'APPEND' )
     os.remove( fileName )
-    print 'Done. Errors: %s' %test.errors
+    print('Done. Errors: %s' %test.errors)
 
     
 if __name__ == '__main__':

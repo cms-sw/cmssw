@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 import os
@@ -59,7 +60,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 #~ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
-print "Using global tag "+process.GlobalTag.globaltag._value
+print("Using global tag "+process.GlobalTag.globaltag._value)
 
 
 ##

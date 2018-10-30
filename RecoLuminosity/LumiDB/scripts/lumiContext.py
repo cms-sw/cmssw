@@ -6,6 +6,7 @@
 # Author:      Zhen Xie                                                       #
 ###############################################################################
 
+from __future__ import print_function
 import os,sys,time
 from RecoLuminosity.LumiDB import sessionManager,lumiTime,inputFilesetParser,csvSelectionParser,csvReporter,argparse,CommonUtil,lumiCalcAPI,lumiReport,RegexValidator,lumiTime,revisionDML
 
@@ -200,7 +201,7 @@ if __name__ == '__main__':
             spattern=sname
             sname=None
     if  options.action == 'beambyls' and options.withbeamintensity and not options.outputfile:
-        print '[warning] --with-beamintensity must write data to a file, none specified using default "beamintensity.csv"'
+        print('[warning] --with-beamintensity must write data to a file, none specified using default "beamintensity.csv"')
         options.outputfile='beamintensity.csv'
         
     ##############################################################
@@ -238,18 +239,18 @@ if __name__ == '__main__':
 
     dataidmap=lumiCalcAPI.runList(session.nominalSchema(),datatagid,runmin=reqrunmin,runmax=reqrunmax,fillmin=reqfillmin,fillmax=reqfillmax,startT=reqtimemin,stopT=reqtimemax,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt,preselectedruns=filerunlist)
     if not dataidmap:
-        print '[INFO] No qualified run found, do nothing'
+        print('[INFO] No qualified run found, do nothing')
         sys.exit(14)
     rruns=[]
     #crosscheck dataid value
     for irun,(lid,tid,hid) in dataidmap.items():
         if not lid:
-            print '[INFO] No qualified lumi data found for run, ',irun
+            print('[INFO] No qualified lumi data found for run, ',irun)
         if reqTrg and not tid:
-            print '[INFO] No qualified trg data found for run ',irun
+            print('[INFO] No qualified trg data found for run ',irun)
             continue
         if reqHlt and not hid:
-            print '[INFO] No qualified hlt data found for run ',irun
+            print('[INFO] No qualified hlt data found for run ',irun)
             continue
         rruns.append(irun)
     if not irunlsdict: #no file
@@ -259,7 +260,7 @@ if __name__ == '__main__':
             if selectedrun not in rruns:
                 del irunlsdict[selectedrun]
     if not irunlsdict:
-        print '[INFO] No qualified run found, do nothing'
+        print('[INFO] No qualified run found, do nothing')
         sys.exit(13)
         
     session.transaction().commit()
@@ -278,7 +279,7 @@ if __name__ == '__main__':
         sys.exit(0)
     if options.action == 'hltbyls':
         if not options.name:
-            print '[ERROR] --name option is required by hltbyls, do nothing'
+            print('[ERROR] --name option is required by hltbyls, do nothing')
             sys.exit(0)
         withL1Pass=True
         withHLTAccept=True
@@ -330,9 +331,9 @@ if __name__ == '__main__':
             if r[3]:
                 egev=str(r[3])
             sequence=r[6]
-            print '==='
-            print 'Run ',str(run),' Fill ',fill,' Amodetag ',amodetag,' egev ',egev
-            print '\tStart '+starttime,'                  ',' Stop ',stoptime
-            print '\tL1key ',l1key,' HLTkey ',hltkey
+            print('===')
+            print('Run ',str(run),' Fill ',fill,' Amodetag ',amodetag,' egev ',egev)
+            print('\tStart '+starttime,'                  ',' Stop ',stoptime)
+            print('\tL1key ',l1key,' HLTkey ',hltkey)
     del session
     del svc 

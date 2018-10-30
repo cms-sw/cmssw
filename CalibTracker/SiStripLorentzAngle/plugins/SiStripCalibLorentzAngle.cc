@@ -766,9 +766,9 @@ SiStripCalibLorentzAngle::~SiStripCalibLorentzAngle(){
 
 // Analyzer: Functions that gets called by framework every event
    
-SiStripLorentzAngle* SiStripCalibLorentzAngle::getNewObject(){
+std::unique_ptr<SiStripLorentzAngle> SiStripCalibLorentzAngle::getNewObject(){
 
-  SiStripLorentzAngle* LorentzAngle = new SiStripLorentzAngle();
+  auto LorentzAngle = std::make_unique<SiStripLorentzAngle>();
   
   if(!LayerDB){
   for(std::map<uint32_t, float>::iterator it = detid_la.begin(); it != detid_la.end(); it++){

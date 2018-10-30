@@ -49,7 +49,7 @@ HFNoseDetId& HFNoseDetId::operator=(const DetId& gen) {
 }
 
 std::ostream& operator<<(std::ostream& s,const HFNoseDetId& id) {
-  return s << " EE:HE= " << id.isEE() << ":" << id.isHE()
+  return s << " HFNoseDetId::EE:HE= " << id.isEE() << ":" << id.isHE()
 	   << " type= " << id.type()  << " z= " << id.zside() 
 	   << " layer= " << id.layer() 
 	   << " wafer(u,v:x,y)= (" << id.waferU() << "," << id.waferV() << ":"

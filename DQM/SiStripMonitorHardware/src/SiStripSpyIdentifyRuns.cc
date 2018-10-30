@@ -121,7 +121,7 @@ namespace sistrip {
 	if ( !input.data() ||!input.size() ) continue;
           
 	//construct FEDBuffer
-	std::auto_ptr<sistrip::FEDSpyBuffer> buffer;
+	std::unique_ptr<sistrip::FEDSpyBuffer> buffer;
 	try {
 	  buffer.reset(new sistrip::FEDSpyBuffer(input.data(),input.size()));
 	} catch (const cms::Exception& e) { 

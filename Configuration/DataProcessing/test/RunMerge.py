@@ -5,6 +5,7 @@ _RunMerge_
 Test/Debugging harness for the merge configuration builder
 
 """
+from __future__ import print_function
 
 
 
@@ -46,7 +47,7 @@ class RunMerge:
         psetFile.write(process.dumpPython())
         psetFile.close()
         cmsRun = "cmsRun -j FrameworkJobReport.xml RunMergeCfg.py"
-        print "Now do:\n%s" % cmsRun
+        print("Now do:\n%s" % cmsRun)
         
                 
 
@@ -58,8 +59,8 @@ if __name__ == '__main__':
     try:
         opts, args = getopt.getopt(sys.argv[1:], "", valid)
     except getopt.GetoptError as ex:
-        print usage
-        print str(ex)
+        print(usage)
+        print(str(ex))
         sys.exit(1)
 
 

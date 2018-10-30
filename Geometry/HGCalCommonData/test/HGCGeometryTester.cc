@@ -70,7 +70,7 @@ void HGCGeometryTester::analyze( const edm::Event& iEvent,
   std::map<std::string, std::pair<double,double> > svPars;
   do {
     const DDLogicalPart &logPart=eview.logicalPart();
-    std::string name=logPart.name();
+    const std::string & name=logPart.name().fullname();
 
     //only EE sensitive volumes for the moment
     if ((name.find("HGCal") != std::string::npos) &&

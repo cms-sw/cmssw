@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import os,os.path,sys,time,csv,array,coral
 from RecoLuminosity.LumiDB import sessionManager,argparse,nameDealer,revisionDML,dataDML,lumiParameters,CommonUtil,lumiTime
 
@@ -41,7 +42,7 @@ def generateLumidata(lumirundatafromfile,lsdatafromfile,rundatafromdb,lsdatafrom
         stoptime=lumirundatafromfile[2]
         starttimeT=lu.timestampTodatetimeUTC(starttime)
         stoptimeT=lu.timestampTodatetimeUTC(stoptime)
-        print starttimeT.day,starttimeT.month,starttimeT.year
+        print(starttimeT.day,starttimeT.month,starttimeT.year)
         
         starttimeT_coral=coral.TimeStamp(starttimeT.year,starttimeT.month,starttimeT.day,starttimeT.hour,starttimeT.minute,starttimeT.second,0)
         stoptimeT_coral=coral.TimeStamp(stoptimeT.year,stoptimeT.month,stoptimeT.day,stoptimeT.hour,stoptimeT.minute,stoptimeT.second,0)
@@ -51,12 +52,12 @@ def generateLumidata(lumirundatafromfile,lsdatafromfile,rundatafromdb,lsdatafrom
     if lsdatafromdb: 
         lumilsdata=lsdatafromdb
         if replacelsMin>len(lsdatafromdb):
-            print '[INFO]Operation: extend an existing run from LS=',replacelsMin
+            print('[INFO]Operation: extend an existing run from LS=',replacelsMin)
             lumirundata[5]+=len(lsdatafromfile)
         else:
-            print '[INFO]Operation: replace instlumi in an existing run LS range=',replacelsMin,replacelsMax
+            print('[INFO]Operation: replace instlumi in an existing run LS range=',replacelsMin,replacelsMax)
     else:
-        print '[INFO]Operation: insert a new fake run'
+        print('[INFO]Operation: insert a new fake run')
     for lumilsnum in range(replacelsMin,replacelsMax+1):
         instlumi=lsdatafromfile[lumilsnum]
         if lumilsnum in lsdatafromdb.keys(): #if this is a hole
@@ -355,22 +356,22 @@ if __name__ == "__main__":
         (lumirundatafromdb,lumilsdatafromdb)=lumiDataFromDB(sourcesession.nominalSchema(),sourcelumiid)
     sourcesession.transaction().commit()
     (rundat,lsdat)=generateLumidata(lumidatafromfile[0],lumidatafromfile[1],lumirundatafromdb,lumilsdatafromdb,begLS,endLS)
-    print 'rundat ',rundat
+    print('rundat ',rundat)
     destsvc=sessionManager.sessionManager(options.deststr,authpath=options.authpath,debugON=False)
     destsession=destsvc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     destsession.transaction().start(False)
     (lumibranchid,lumibranchparent)=revisionDML.branchInfoByName(destsession.nominalSchema(),'DATA')
     branchinfo=(lumibranchid,'DATA')
-    print 'branchinfo ',branchinfo
+    print('branchinfo ',branchinfo)
     
     (hf_tagid,hf_tagname)=revisionDML.currentDataTag(destsession.nominalSchema(),lumitype='HF')
-    print '(hf_tagid,hf_tagname) ',(hf_tagid,hf_tagname)
+    print('(hf_tagid,hf_tagname) ',(hf_tagid,hf_tagname))
     hfdataidmap=revisionDML.dataIdsByTagId(destsession.nominalSchema(),hf_tagid,[int(options.runnum)],withcomment=False,lumitype='HF')
     destsession.transaction().commit()
-    print 'dest hfdataidmap ',hfdataidmap
+    print('dest hfdataidmap ',hfdataidmap)
     
     if int(options.runnum) in hfdataidmap:
-        print 'existing old hf data in destdb of run ',options.runnum,hfdataidmap[int(options.runnum)]
+        print('existing old hf data in destdb of run ',options.runnum,hfdataidmap[int(options.runnum)])
         destsession.transaction().start(False)
         [destlumidataid,desttrgdataid,desthltdataid]=hfdataidmap[int(options.runnum)]
         (lumirevid,lumientryid,lumidataid)=dataDML.addLumiRunDataToBranch(destsession.nominalSchema(),int(options.runnum),rundat,branchinfo,nameDealer.lumidataTableName())
@@ -380,10 +381,10 @@ if __name__ == "__main__":
         revisionDML.addRunToCurrentDataTag(destsession.nominalSchema(),int(options.runnum),lumidataid,desttrgdataid,desthltdataid,lumitype='HF',comment=options.comment)
         destsession.transaction().commit()
     else:
-        print 'non-existing old hf data in destdb of run ',int(options.runnum)
+        print('non-existing old hf data in destdb of run ',int(options.runnum))
         destsession.transaction().start(False)
         (lumirevid,lumientryid,lumidataid)=dataDML.addLumiRunDataToBranch(destsession.nominalSchema(),int(options.runnum),rundat,branchinfo,nameDealer.lumidataTableName())
-        print (lumirevid,lumientryid,lumidataid)
+        print((lumirevid,lumientryid,lumidataid))
         dataDML.bulkInsertLumiLSSummary(destsession,int(options.runnum),lumidataid,lsdat,nameDealer.lumisummaryv2TableName())
         destsession.transaction().commit()
         destsession.transaction().start(False)

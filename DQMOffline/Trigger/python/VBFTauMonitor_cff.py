@@ -5,7 +5,8 @@ from DQMOffline.Trigger.ObjMonitor_cfi import hltobjmonitoring
 # HLT_
 VBFtaumonitoring = hltobjmonitoring.clone()
 
-VBFtaumonitoring.FolderName = cms.string('HLT/Higgs/VBFTau')
+#VBFtaumonitoring.FolderName = cms.string('HLT/Higgs/VBFTau')
+VBFtaumonitoring.FolderName = cms.string('HLT/HIG/VBFTau')
 VBFtaumonitoring.numGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults","","HLT" )
 VBFtaumonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring(
   "HLT_VBF_DoubleLooseChargedIsoPFTau20_Trk1_eta2p1_Reg_v*",

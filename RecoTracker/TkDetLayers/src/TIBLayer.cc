@@ -13,25 +13,24 @@
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelCylinderCrossing.h"
 #include "TrackingTools/DetLayers/src/DetLessZ.h"
 
-using namespace std;
-
 typedef GeometricSearchDet::DetWithState DetWithState;
 
-TIBLayer::TIBLayer(vector<const TIBRing*>& innerRings,
-		   vector<const TIBRing*>& outerRings) : TBLayer(innerRings,outerRings, GeomDetEnumerators::TIB)
+TIBLayer::TIBLayer(std::vector<const TIBRing*>& innerRings,
+                   std::vector<const TIBRing*>& outerRings)
+  : TBLayer(innerRings,outerRings, GeomDetEnumerators::TIB)
 {
   theComps.assign(theInnerComps.begin(),theInnerComps.end());
   theComps.insert(theComps.end(),theOuterComps.begin(),theOuterComps.end());
   
-  sort(theComps.begin(),theComps.end(),DetLessZ());
-  sort(theInnerComps.begin(),theInnerComps.end(),DetLessZ());
-  sort(theOuterComps.begin(),theOuterComps.end(),DetLessZ());
+  std::sort(theComps.begin(),theComps.end(),isDetLessZ);
+  std::sort(theInnerComps.begin(),theInnerComps.end(),isDetLessZ);
+  std::sort(theOuterComps.begin(),theOuterComps.end(),isDetLessZ);
   
-  for(vector<const GeometricSearchDet*>::const_iterator it=theComps.begin();
-      it!=theComps.end();it++){  
-    theBasicComps.insert(theBasicComps.end(),	
-			 (**it).basicComponents().begin(),
-			 (**it).basicComponents().end());
+  for(auto & it : theComps)
+  {
+    theBasicComps.insert(theBasicComps.end(),
+                         it->basicComponents().begin(),
+                         it->basicComponents().end());
   }
 
   // initialize the surface
@@ -55,22 +54,22 @@ TIBLayer::TIBLayer(vector<const TIBRing*>& innerRings,
 			  << specificSurface().bounds().thickness() << " , "
 			  << specificSurface().bounds().length() ;
 
-  for (vector<const GeometricSearchDet*>::const_iterator i=theInnerComps.begin();
-       i != theInnerComps.end(); i++){
+  for (auto & i : theInnerComps)
+  {
     LogDebug("TkDetLayers") << "inner TIBRing pos z,radius,eta,phi: " 
-			    << (**i).position().z() << " , " 
-			    << (**i).position().perp() << " , " 
-			    << (**i).position().eta() << " , " 
-			    << (**i).position().phi() ;
+                << i->position().z() << " , " 
+                << i->position().perp() << " , " 
+                << i->position().eta() << " , " 
+                << i->position().phi() ;
   }
 
-  for (vector<const GeometricSearchDet*>::const_iterator i=theOuterComps.begin();
-       i != theOuterComps.end(); i++){
+  for (auto & i : theOuterComps)
+  {
     LogDebug("TkDetLayers") << "outer TIBRing pos z,radius,eta,phi: " 
-			    << (**i).position().z() << " , " 
-			    << (**i).position().perp() << " , " 
-			    << (**i).position().eta() << " , " 
-			    << (**i).position().phi() ;
+                << i->position().z() << " , " 
+                << i->position().perp() << " , " 
+                << i->position().eta() << " , " 
+                << i->position().phi() ;
   }
   
 
@@ -92,7 +91,7 @@ TIBLayer::~TIBLayer(){}
 
 
 BoundCylinder* 
-TIBLayer::cylinder( const vector<const GeometricSearchDet*>& rings)
+TIBLayer::cylinder( const std::vector<const GeometricSearchDet*>& rings)
 {
   float leftPos = rings.front()->surface().position().z();
   float rightPos = rings.back()->surface().position().z();
@@ -142,12 +141,12 @@ void TIBLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 				const MeasurementEstimator& est,
 				const SubLayerCrossing& crossing,
 				float window, 
-				vector<DetGroup>& result,
+                std::vector<DetGroup>& result,
 				bool checkClosest) const
 {
   const GlobalPoint& gCrossingPos = crossing.position();
 
-  const vector<const GeometricSearchDet*>& sLayer( subLayer( crossing.subLayerIndex()));
+  const std::vector<const GeometricSearchDet*>& sLayer( subLayer( crossing.subLayerIndex()));
  
   int closestIndex = crossing.closestDetIndex();
   int negStartIndex = closestIndex-1;

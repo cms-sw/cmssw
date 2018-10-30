@@ -28,6 +28,7 @@ Note:
     -Configuration/PyReleaseValidation [/python]
   
   """
+from __future__ import print_function
 #Future improvements for style, speed and robustness:
 #1-use links to original files in the release or base instead of copying
 #2-use try/except to check for file formats
@@ -37,9 +38,9 @@ Note:
 import os
 #Let's add the environment variables we'll need
 cmssw_base=os.environ["CMSSW_BASE"]
-print cmssw_base
+print(cmssw_base)
 cmssw_release_base=os.environ["CMSSW_RELEASE_BASE"]
-print cmssw_release_base
+print(cmssw_release_base)
 #Lets enrich our script with options!
 import sys
 #Let's add the local directory to the PYTHONPATH, so that we can play with customise fragments locally:
@@ -48,10 +49,10 @@ import sys
 import getopt
 
 def usage():
-    print __doc__
+    print(__doc__)
 
 def GetFile(myFile,myFileLocation):
-    print "Copying over %s" % myFile
+    print("Copying over %s" % myFile)
     sys.stdout.flush()
     #First try the CMSSW_BASE version if there
     if os.access(cmssw_base+myFileLocation+myFile,os.F_OK):
@@ -62,21 +63,21 @@ def GetFile(myFile,myFileLocation):
             #For python fragments instead dump them in $CMSSW_BASE/python
             CpFile="cp -pR "+cmssw_base+myFileLocation+myFile+" "+cmssw_base+"/python/."
         if noexec:
-            print "**%s"%CpFile
+            print("**%s"%CpFile)
         else:
             os.system(CpFile)
     #If not there try the CMSSW_RELEASE_BASE version
     else:
-        print "File %s not found in %s" % (myFile,cmssw_base+myFileLocation)
-        print "Trying in %s" % cmssw_release_base+myFileLocation
+        print("File %s not found in %s" % (myFile,cmssw_base+myFileLocation))
+        print("Trying in %s" % cmssw_release_base+myFileLocation)
         if os.access(cmssw_release_base+myFileLocation+myFile,os.F_OK):
             CpFile="cp -pR "+cmssw_release_base+myFileLocation+myFile+" ."
             if noexec:
-                print "**%s"%CpFile
+                print("**%s"%CpFile)
             else:
                 os.system(CpFile)
         else:
-            print "**COULD NOT FIND THE NECESSARY %s FILE!**" % myFile
+            print("**COULD NOT FIND THE NECESSARY %s FILE!**" % myFile)
     sys.stdout.flush()
     
 def RestoreSkipEventSetting(myRestoreFragment,mySkipEvents):
@@ -109,7 +110,7 @@ def MakeCfg(myCfgFile,myOldRootFile,myNewRootFile):
     return NewCfgFileName
 
 def CompareDumps(myDumpType,myCandle,myStep,mySkipEvents):
-    print "Comparing %s for %s after skipping %s" % (myDumpType,myCandle,mySkipEvents)
+    print("Comparing %s for %s after skipping %s" % (myDumpType,myCandle,mySkipEvents))
     mySavedSeedsFile=myDumpType+myCandle.split(".")[0]+myStep+"SavedSeeds.log"
     myRestoredSeedsFile=myDumpType+myCandle.split(".")[0]+myStep+"RestoredSeeds.log"
     Event=0
@@ -124,13 +125,13 @@ def CompareDumps(myDumpType,myCandle,myStep,mySkipEvents):
         if line.rfind(EventNumber)>0:
             Event=line.split()[8][:-1]#ARGH... they added a , in the format!
             if Event==FirstGoodEvent:
-                print "Synchronized file %s to beginning of event %s" % (mySavedSeedsFile,Event)
+                print("Synchronized file %s to beginning of event %s" % (mySavedSeedsFile,Event))
                 break
     for line in lineRestoredSeeds:
         if line.rfind(EventNumber)>0:
             Event=line.split()[8][:-1]#ARGH... they added a , in the format!
             if Event==FirstGoodEvent:
-                print "Synchronized file %s to beginning of event %s" % (myRestoredSeedsFile,Event)
+                print("Synchronized file %s to beginning of event %s" % (myRestoredSeedsFile,Event))
                 break
     #Now both iterators indeces should be synchronized, so let's compare line by line:
     for l1,l2 in zip(lineSavedSeeds,lineRestoredSeeds):
@@ -141,14 +142,14 @@ def CompareDumps(myDumpType,myCandle,myStep,mySkipEvents):
             continue
         if l1 != l2:
             DifferentLines+=1
-            print "The following two lines are different in the two files above (event %s):"% Event
-            print "< %s" % l1
-            print "> %s" % l2
+            print("The following two lines are different in the two files above (event %s):"% Event)
+            print("< %s" % l1)
+            print("> %s" % l2)
         if DifferentLines>=50:
-            print "***There are more than 50 different lines in the files %s and %s, you should inspect them!***" % (mySavedSeedsFile,myRestoredSeedsFile)
+            print("***There are more than 50 different lines in the files %s and %s, you should inspect them!***" % (mySavedSeedsFile,myRestoredSeedsFile))
             break
     if DifferentLines==0:
-        print "The content dumped in %s and %s is identical" % (mySavedSeedsFile,myRestoredSeedsFile)
+        print("The content dumped in %s and %s is identical" % (mySavedSeedsFile,myRestoredSeedsFile))
     sys.stdout.flush()
 def ExecuteStartingCommand(myStep,candle,numEvents,cmsdriveroptions):
     #Complicated handling of special case introduced by GEN:ProductionFilterSequence
@@ -164,14 +165,14 @@ def ExecuteStartingCommand(myStep,candle,numEvents,cmsdriveroptions):
     else:
         myFile=candle.split('.')[0]+"_"+StartingSteps[myStep]
     myCommand="cmsDriver.py "+candle+" -n "+str(numEvents)+" -s "+StartingSteps[myStep]+" --customise="+CustomiseFiles[StartingSteps[myStep]]+" "+cmsdriveroptions+" --fileout="+myFile+".root>& "+myFile+".log"
-    print "Executing starting command:\n%s" % myCommand
+    print("Executing starting command:\n%s" % myCommand)
     sys.stdout.flush()
     if noexec:
-        print "**%s"%myCommand
+        print("**%s"%myCommand)
     else:
         ExitCode=os.system(myCommand)
         if ExitCode != 0:
-            print "Exit code for %s was %s" % (myCommand, ExitCode)
+            print("Exit code for %s was %s" % (myCommand, ExitCode))
             ExitCode=0
         sys.stdout.flush()
     return(myFile)
@@ -180,14 +181,14 @@ def TestRepro(myStep,myInputFile,candle,numEvents,skipEvents,cmsdriveroptions):
     #First round saving seeds:
     mySavedSeedsFile=candle.split('.')[0]+"_"+myStep+"_SavedSeeds"
     mySaveSeedsCommand="cmsDriver.py "+candle+" -n "+str(numEvents)+" -s "+myStep+" --customise="+CustomiseFiles[myStep][0]+" "+cmsdriveroptions+" --filein file:"+myInputFile+".root --fileout="+mySavedSeedsFile+".root >& "+mySavedSeedsFile+".log"
-    print "Executing %s step, saving random seeds with command:\n%s" % (myStep,mySaveSeedsCommand)
+    print("Executing %s step, saving random seeds with command:\n%s" % (myStep,mySaveSeedsCommand))
     sys.stdout.flush()
     if noexec:
-        print "**%s"%mySaveSeedsCommand
+        print("**%s"%mySaveSeedsCommand)
     else:
         ExitCode=os.system(mySaveSeedsCommand)
         if ExitCode != 0:
-            print "Exit code for %s was %s" % (mySaveSeedsCommand, ExitCode)
+            print("Exit code for %s was %s" % (mySaveSeedsCommand, ExitCode))
             ExitCode=0
         sys.stdout.flush()
     #Second round restoring seeds:
@@ -203,14 +204,14 @@ def TestRepro(myStep,myInputFile,candle,numEvents,skipEvents,cmsdriveroptions):
     #Run the step restoring seeds
     myRestoredSeedsFile=candle.split('.')[0]+"_"+myStep+"_RestoredSeeds_Skip"+str(skipEvents)+"Evts"
     myRestoreSeedsCommand="cmsDriver.py "+candle+" -n "+str(numEvents)+" -s "+myStep+" --customise="+NewRestorePy+" "+cmsdriveroptions+" --filein file:"+mySavedSeedsFile+".root --fileout="+myRestoredSeedsFile+".root >& "+myRestoredSeedsFile+".log"
-    print "Executing %s step, restoring random seeds with command:\n%s" % (myStep,myRestoreSeedsCommand)
+    print("Executing %s step, restoring random seeds with command:\n%s" % (myStep,myRestoreSeedsCommand))
     sys.stdout.flush()
     if noexec:
-        print "**%s"%myRestoreSeedsCommand
+        print("**%s"%myRestoreSeedsCommand)
     else:
         ExitCode=os.system(myRestoreSeedsCommand)
         if ExitCode != 0:
-            print "Exit code for %s was %s" % (myRestoreSeedsCommand, ExitCode)
+            print("Exit code for %s was %s" % (myRestoreSeedsCommand, ExitCode))
             ExitCode=0
         sys.stdout.flush()
     return(mySavedSeedsFile,myRestoredSeedsFile)
@@ -229,7 +230,7 @@ def main(argv):
     try:                                
         opts, args = getopt.getopt(argv, "c:n:s:hd", ["candle=","cmsdriver=","skip=","step=","no_exec","help"])
     except getopt.GetoptError:
-        print "This argument option is not accepted"
+        print("This argument option is not accepted")
         usage()                          
         sys.exit(2)       
     for opt, arg in opts:
@@ -241,35 +242,35 @@ def main(argv):
             _debug = 1
         elif opt in ("-c", "--candle"):
             candle = arg
-            print "You chose to run on %s" % candle
+            print("You chose to run on %s" % candle)
         elif opt == "-n":
             numEvents = arg 
-            print "You chose to run the test on %s events" % numEvents
+            print("You chose to run the test on %s events" % numEvents)
         elif opt in ("-s", "--skip"):
             skipEvents = arg
             if int(skipEvents) >= int(numEvents):
-                print "You chose a number of events to skip larger or equal than the number of events!"
+                print("You chose a number of events to skip larger or equal than the number of events!")
                 sys.exit()
-            print "You chose to run the test skipping %s events the second time" % skipEvents
+            print("You chose to run the test skipping %s events the second time" % skipEvents)
         elif opt == "--step":
             step = arg
-            print "You chose to run the test on %s step" % step
+            print("You chose to run the test on %s step" % step)
         elif opt == "--cmsdriver":
             cmsdriveroptions = arg
-            print "You chose to run the test with cmsdriver options %s " % cmsdriveroptions
+            print("You chose to run the test with cmsdriver options %s " % cmsdriveroptions)
         elif opt == "--no_exec":
             noexec=True
-            print "You chose to print out the script commands without executing them"
+            print("You chose to print out the script commands without executing them")
     #Case with no arguments (using defaults)
     if opts == []:
-        print "No arguments given, so DEFAULT test will be run:"
+        print("No arguments given, so DEFAULT test will be run:")
     else:
-        print "Following options will be used for this test:"
+        print("Following options will be used for this test:")
     #Print options out anyway!
-    print "Step: %s " % step
-    print "Candle: %s " % candle
-    print "Number of Events: %s " % numEvents
-    print "Number of Events to skip on the second run: %s" % skipEvents
+    print("Step: %s " % step)
+    print("Candle: %s " % candle)
+    print("Number of Events: %s " % numEvents)
+    print("Number of Events to skip on the second run: %s" % skipEvents)
     sys.stdout.flush()
     #Let's do the tests!
     #Depending on the step launch the starting command to provide the input file for the step to be tested
@@ -300,13 +301,13 @@ def main(argv):
             Cfg=MakeCfg(CfgFile,"myfile.root",RootFile)
             DumpFile=Cfg.split(".")[0]+".log"
             DumperCommand="cmsRun "+Cfg+" >& "+DumpFile
-            print "Executing %s" % DumperCommand
+            print("Executing %s" % DumperCommand)
             if noexec:
-                print "**Did not execute the command (--no_exec option selected)"
+                print("**Did not execute the command (--no_exec option selected)")
             else:
                 ExitCode=os.system(DumperCommand)
                 if ExitCode != 0:
-                    print "Exit code for %s was %s" % (DumperCommand, ExitCode)
+                    print("Exit code for %s was %s" % (DumperCommand, ExitCode))
                     ExitCode=0
                 sys.stdout.flush()
             

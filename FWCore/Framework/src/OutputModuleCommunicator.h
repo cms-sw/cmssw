@@ -31,6 +31,7 @@
 namespace edm {
 
   class ActivityRegistry;
+  class MergeableRunProductMetadata;
   class ProcessContext;
   class ThinnedAssociationsHelper;
   class WaitingTaskHolder;
@@ -55,7 +56,8 @@ namespace edm {
     virtual void writeRunAsync(WaitingTaskHolder iTask,
                                RunPrincipal const& rp,
                                ProcessContext const*,
-                               ActivityRegistry*) = 0;
+                               ActivityRegistry*,
+                               MergeableRunProductMetadata const*) = 0;
     
     virtual void writeLumiAsync(WaitingTaskHolder iTask,
                                 LuminosityBlockPrincipal const& lbp,

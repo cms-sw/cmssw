@@ -43,7 +43,7 @@ EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterS
     if(params.getParameter<bool>("configFromCondDB")){
       useCondDb_ = true;
     }
-  } catch(cms::Exception){
+  } catch(cms::Exception const&){
     /* pameter not found */
     edm::LogWarning("EcalSelectiveReadout") << "Parameter configFromCondDB of EcalSelectiveReadout module not found. "
       "Selective readout configuration will be read from python file.";

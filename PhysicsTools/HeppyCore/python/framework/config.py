@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Copyright (C) 2014 Colin Bernet
 # https://github.com/cbernet/heppy/blob/master/LICENSE
 
@@ -17,18 +18,18 @@ def printComps(comps, details=False):
     for c in comps:
         if not hasattr(c, 'splitFactor'):
             c.splitFactor = 1
-        print c.name, c.splitFactor, len(c.files)
+        print(c.name, c.splitFactor, len(c.files))
         if len(c.files)==0:
             continue
         else:
             if details:
-                print c.files[0]
+                print(c.files[0])
             nJobs += c.splitFactor
             nCompsWithFiles += 1
 
-    print '-'*70
-    print '# components with files = ', nCompsWithFiles
-    print '# jobs                  = ', nJobs
+    print('-'*70)
+    print('# components with files = ', nCompsWithFiles)
+    print('# jobs                  = ', nJobs)
 
 
 class CFG(object):

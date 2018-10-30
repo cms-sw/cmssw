@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import sys
 import optparse
 import re
@@ -45,4 +46,4 @@ if __name__ == '__main__':
     if options.output:
         alphaList.writeJSON (options.output)
     else:
-        print alphaList
+        print(alphaList)

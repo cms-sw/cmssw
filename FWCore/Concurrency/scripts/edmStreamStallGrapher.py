@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 from itertools import groupby
 from operator import attrgetter,itemgetter
 import sys
@@ -283,17 +284,17 @@ def chooseParser(inputFile):
     fifthLine = inputFile.readline().rstrip()
     inputFile.seek(0) # Rewind back to beginning
     if (firstLine.find("# Transition") != -1) or (firstLine.find("# Step") != -1):
-        print "> ... Parsing StallMonitor output."
+        print("> ... Parsing StallMonitor output.")
         return StallMonitorParser
 
     if firstLine.find("++") != -1 or fifthLine.find("++") != -1:
         global kTracerInput
         kTracerInput = True
-        print "> ... Parsing Tracer output."
+        print("> ... Parsing Tracer output.")
         return TracerParser
     else:
         inputFile.close()
-        print "Unknown input format."
+        print("Unknown input format.")
         exit(1)
 
 #----------------------------------------------
@@ -386,7 +387,7 @@ def createAsciiImage(processingSteps, numStreams, maxNameSize):
             if waitTime > kStallThreshold:
                 states += " STALLED"
 
-        print states
+        print(states)
 
 #----------------------------------------------
 def printStalledModulesInOrder(stalledModules):
@@ -407,10 +408,10 @@ def printStalledModulesInOrder(stalledModules):
     stallColumn = "Tot Stall Time"
     stallColumnLength = len(stallColumn)
 
-    print "%-*s" % (maxNameSize, nameColumn), "%-*s"%(stallColumnLength,stallColumn), " Stall Times"
+    print("%-*s" % (maxNameSize, nameColumn), "%-*s"%(stallColumnLength,stallColumn), " Stall Times")
     for n,s,t in priorities:
         paddedName = "%-*s:" % (maxNameSize,n)
-        print paddedName, "%-*.2f"%(stallColumnLength,s/1000.), ", ".join([ "%.2f"%(x/1000.) for x in t])
+        print(paddedName, "%-*.2f"%(stallColumnLength,s/1000.), ", ".join([ "%.2f"%(x/1000.) for x in t]))
 
 #--------------------------------------------------------
 class Point:
@@ -754,7 +755,7 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
                                                    threadOffset=0)
 
     if shownStacks:
-        print "> ... Generating stack"
+        print("> ... Generating stack")
         stack = Stack()
         for color in ['green','limegreen','blue','red','orange','darkviolet']:
             tmp = allStackTimes[color]
@@ -790,7 +791,7 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
     fig.text(0.5, 0.92, "multiple modules running", color = "blue", horizontalalignment = 'center')
     if displayExternalWork:
         fig.text(0.9, 0.92, "external work", color = "darkviolet", horizontalalignment = 'right')
-    print "> ... Saving to file: '{}'".format(pdfFile)
+    print("> ... Saving to file: '{}'".format(pdfFile))
     plt.savefig(pdfFile)
 
 #=======================================
@@ -841,22 +842,22 @@ if __name__=="__main__":
         matplotlib.use("PDF")
         import matplotlib.pyplot as plt
         if not re.match(r'^[\w\.]+$', pdfFile):
-            print "Malformed file name '{}' supplied with the '-g' option.".format(pdfFile)
-            print "Only characters 0-9, a-z, A-Z, '_', and '.' are allowed."
+            print("Malformed file name '{}' supplied with the '-g' option.".format(pdfFile))
+            print("Only characters 0-9, a-z, A-Z, '_', and '.' are allowed.")
             exit(1)
 
         if '.' in pdfFile:
             extension = pdfFile.split('.')[-1]
             supported_filetypes = plt.figure().canvas.get_supported_filetypes()
             if not extension in supported_filetypes:
-                print "A graph cannot be saved to a filename with extension '{}'.".format(extension)
-                print "The allowed extensions are:"
+                print("A graph cannot be saved to a filename with extension '{}'.".format(extension))
+                print("The allowed extensions are:")
                 for filetype in supported_filetypes:
-                    print "   '.{}'".format(filetype)
+                    print("   '.{}'".format(filetype))
                 exit(1)
 
     if pdfFile is None and shownStacks:
-        print "The -s (--stack) option can be used only when the -g (--graph) option is specified."
+        print("The -s (--stack) option can be used only when the -g (--graph) option is specified.")
         exit(1)
 
     sys.stderr.write(">reading file: '{}'\n".format(inputFile.name))

@@ -101,7 +101,7 @@ DDHGCalNoTaperEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int yQua
 	rotation = DDRotation(DDName(rotstr));
 	if (!rotation) {
 	  rotation = DDrot(DDName(rotstr, m_idNameSpace),
-			   new DDRotationMatrix( *DDcreateRotationMatrix( theta, phiX, theta + yphi, phiY, -yphi, phiZ )
+			   std::make_unique<DDRotationMatrix>( *DDcreateRotationMatrix( theta, phiX, theta + yphi, phiY, -yphi, phiZ )
 						 * ( *DDcreateRotationMatrix( theta + xphi, phiX, 90.*CLHEP::deg, 90.*CLHEP::deg, xphi, 0.0 ))));
 	}
       

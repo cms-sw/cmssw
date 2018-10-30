@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
 
@@ -365,9 +366,9 @@ def chooseTrans(index):
                                  id = cms.untracked.EventID(0,0,0))
                         ) ],
     )
-    print '****************************************'
-    print 'Test:', d[index][0]
-    print '****************************************'
+    print('****************************************')
+    print('Test:', d[index][0])
+    print('****************************************')
     return d[index][1]
 
 trans = chooseTrans(int(sys.argv[2]))

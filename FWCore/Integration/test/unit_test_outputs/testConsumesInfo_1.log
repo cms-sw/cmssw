@@ -286,6 +286,12 @@ For products only read from previous processes, 'skip current process' is added
   ThingWithMergeProducer/'thingWithMergeProducer'
   TestMergeResults/'testMergeResults' consumes:
     edmtest::Thing 'thingWithMergeProducer' 'event' 'PROD'
+    edmtest::Thing 'thingWithMergeProducer' 'beginRun' 'PROD', run
+    edmtest::ThingWithMerge 'thingWithMergeProducer' 'beginRun' 'PROD', run
+    edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'beginRun' 'PROD', run
+    edmtest::Thing 'thingWithMergeProducer' 'beginRun' '', run
+    edmtest::ThingWithMerge 'thingWithMergeProducer' 'beginRun' '', run
+    edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'beginRun' '', run
     edmtest::Thing 'thingWithMergeProducer' 'endRun' 'PROD', run
     edmtest::ThingWithMerge 'thingWithMergeProducer' 'endRun' 'PROD', run
     edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'endRun' 'PROD', run
@@ -298,6 +304,12 @@ For products only read from previous processes, 'skip current process' is added
     edmtest::Thing 'thingWithMergeProducer' 'endLumi' '', lumi
     edmtest::ThingWithMerge 'thingWithMergeProducer' 'endLumi' '', lumi
     edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'endLumi' '', lumi
+    edmtest::Thing 'thingWithMergeProducer' 'beginLumi' 'PROD', lumi
+    edmtest::ThingWithMerge 'thingWithMergeProducer' 'beginLumi' 'PROD', lumi
+    edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'beginLumi' 'PROD', lumi
+    edmtest::Thing 'thingWithMergeProducer' 'beginLumi' '', lumi
+    edmtest::ThingWithMerge 'thingWithMergeProducer' 'beginLumi' '', lumi
+    edmtest::ThingWithIsEqual 'thingWithMergeProducer' 'beginLumi' '', lumi
   TestFindProduct/'testView1' consumes:
     int 'intVectorProducer' '' 'PROD1', element type
   TestFindProduct/'testView2' consumes:

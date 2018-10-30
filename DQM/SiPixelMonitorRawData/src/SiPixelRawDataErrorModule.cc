@@ -57,9 +57,9 @@ const int SiPixelRawDataErrorModule::TRLRBGN_shift = 0;
 const int SiPixelRawDataErrorModule::EVTLGT_shift  = TRLRBGN_shift + TRLRBGN_bits;
 const int SiPixelRawDataErrorModule::TRLREND_shift = EVTLGT_shift + EVTLGT_bits;
  
-const long long SiPixelRawDataErrorModule::TRLREND_mask = ~(~(long long)(0) << TRLREND_bits);
-const long long SiPixelRawDataErrorModule::EVTLGT_mask  = ~(~(long long)(0) << EVTLGT_bits);
-const long long SiPixelRawDataErrorModule::TRLRBGN_mask = ~(~(long long)(0) << TRLRBGN_bits);
+const unsigned long long SiPixelRawDataErrorModule::TRLREND_mask = ~(~0ULL << TRLREND_bits);
+const unsigned long long SiPixelRawDataErrorModule::EVTLGT_mask  = ~(~0ULL << EVTLGT_bits);
+const unsigned long long SiPixelRawDataErrorModule::TRLRBGN_mask = ~(~0ULL << TRLRBGN_bits);
 //
 // Constructors
 //

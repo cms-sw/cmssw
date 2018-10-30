@@ -1,6 +1,6 @@
 #=================================
 #inputs
-globaltag = '74X_dataRun2_Prompt_v4'    #APEs are copied from this GT (and IdealGeometry and TrackerTopology are used)
+globaltag = 'auto:phase1_2018_design'    #APEs are copied from this GT (and IdealGeometry and TrackerTopology are used)
 inputsqlitefile = None                  #if None, uses the GT alignment
 alignmenttag = 'Alignments'             #tag name for TrackerAlignmentRcd in the input file, also used for the output file
 runnumberalignmentIOV = 1               #any run number in the iov that you want to start from
@@ -50,7 +50,10 @@ process.maxEvents = cms.untracked.PSet(
 # initial geom
 # configure the database file - use survey one for default
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag=globaltag
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, globaltag, '')
+
+
 if inputsqlitefile is not None:
     process.GlobalTag.toGet = cms.VPSet(
                                         cms.PSet(
@@ -83,19 +86,16 @@ process.TrackerSystematicMisalignments.skewDelta         = skewDelta
 process.TrackerSystematicMisalignments.sagittaDelta      = sagittaDelta
 
 # output
+process.CondDB.connect = 'sqlite_file:'+outputfilename
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-                                          process.CondDBSetup,
-                                          toPut = cms.VPSet(
-                                                            cms.PSet(
-                                                                     record = cms.string('TrackerAlignmentRcd'),
+                                          process.CondDB,
+                                          toPut = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentRcd'),
                                                                      tag = cms.string(alignmenttag),
-                                                            ),
-                                                            cms.PSet(
-                                                                     record = cms.string('TrackerAlignmentErrorExtendedRcd'),
+                                                                     ),
+                                                            cms.PSet(record = cms.string('TrackerAlignmentErrorExtendedRcd'),
                                                                      tag = cms.string('AlignmentErrorsExtended'),
+                                                                     ),
                                                             ),
-                                          ),
-                                          connect = cms.string('sqlite_file:'+outputfilename),
-)
+                                          )
 
 process.p = cms.Path( process.TrackerSystematicMisalignments )

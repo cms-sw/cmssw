@@ -22,7 +22,7 @@ DaqScopeModeHistograms::DaqScopeModeHistograms( const edm::ParameterSet& pset,
                              sistrip::DAQ_SCOPE_MODE )
 {
 
-  factory_ = auto_ptr<DaqScopeModeSummaryFactory>( new DaqScopeModeSummaryFactory );
+  factory_ = unique_ptr<DaqScopeModeSummaryFactory>( new DaqScopeModeSummaryFactory );
   LogTrace(mlDqmClient_)
     << "[DaqScopeModeHistograms::" << __func__ << "]"
     << " Constructing object...";

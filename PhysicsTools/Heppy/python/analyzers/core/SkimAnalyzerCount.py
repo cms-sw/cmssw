@@ -1,3 +1,4 @@
+from __future__ import print_function
 import itertools
 
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
@@ -35,7 +36,7 @@ class SkimAnalyzerCount( Analyzer ):
             #print 'Will actually count events instead of accessing lumi blocks'
             return True
 
-        print 'Counting the total events before the skim by accessing luminosity blocks'
+        print('Counting the total events before the skim by accessing luminosity blocks')
         lumis = Lumis(self.cfg_comp.files)
         totalEvents=0
         
@@ -51,18 +52,18 @@ class SkimAnalyzerCount( Analyzer ):
             self.count.inc('All Events',totalEvents)
             if self.cfg_comp.isMC: 
                 self.count.inc('Sum Weights',totalEvents)
-            print 'Done -> proceeding with the analysis' 
+            print('Done -> proceeding with the analysis') 
         else:
-            print 'Failed -> will have to actually count events (this can happen if the input dataset is not a CMG one)'
+            print('Failed -> will have to actually count events (this can happen if the input dataset is not a CMG one)')
 
 
 
     def process(self, event):
         if self.verbose:
-            print "\nProcessing run:lumi:event %d:%d:%d" % (
+            print("\nProcessing run:lumi:event %d:%d:%d" % (
                     event.input.eventAuxiliary().id().run(),
                     event.input.eventAuxiliary().id().luminosityBlock(),
-                    event.input.eventAuxiliary().id().event())  
+                    event.input.eventAuxiliary().id().event()))  
         if not self.useLumiBlocks:
             self.readCollections( event.input )
             self.count.inc('All Events')

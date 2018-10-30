@@ -1,3 +1,4 @@
+#include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
@@ -25,6 +26,11 @@ HGCalTopology::HGCalTopology(const HGCalDDDConstants& hdcons,
     subdet_     = (ForwardSubdetector)(det);
     kHGeomHalf_ = sectors_*layers_;
     types_      = 2;
+  } else if (det == (int)(DetId::Forward)) {
+    det_        = DetId::Forward;
+    subdet_     = HFNose;
+    kHGeomHalf_ = sectors_*layers_;
+    types_      = 3;
   } else if (mode_ == HGCalGeometryMode::Trapezoid) {
     det_        = (DetId::Detector)(det);
     subdet_     = ForwardEmpty;
@@ -54,6 +60,363 @@ unsigned int HGCalTopology::allGeomModules() const {
 	  (unsigned int)(2*hdcons_.wafers()));
 }
 
+std::vector<DetId> HGCalTopology::neighbors(const DetId& idin) const {
+  std::vector<DetId> ids;
+  HGCalTopology::DecodedDetId id = decode(idin);
+  if ((mode_ == HGCalGeometryMode::Hexagon8) || 
+      (mode_ == HGCalGeometryMode::Hexagon8Full)) {
+    HGCalDDDConstants::CellType celltype = hdcons_.cellType(id.iType,id.iCell1,
+							    id.iCell2);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "Type:WaferU:WaferV " << id.iType << ":"
+				  << id.iCell1 << ":" << id.iCell2 
+				  << " CellType " << celltype;
+#endif
+    switch (celltype) {
+    case(HGCalDDDConstants::CellType::CentralType): {
+      // cell within the wafer
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "Cell Type 0";
+#endif
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1+1,id.iCell2);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1,id.iCell2-1);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1-1,id.iCell2-1);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1-1,id.iCell2);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1,id.iCell2+1);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1+1,id.iCell2+1);
+      break;
+    }
+    case(HGCalDDDConstants::CellType::BottomLeftEdge): {
+      // bottom left edge
+      int wu1(id.iSec1), wv1(id.iSec2-1);
+      int t1 = hdcons_.getTypeHex(id.iLay,wu1,wv1);
+      int N1 = hdcons_.getUVMax(t1);
+      int v1 = hdcons_.modifyUV(id.iCell2,id.iType,t1);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "Cell Type 1 " << ":" << wu1 << ":"
+				    << wv1 << ":" << t1 << ":" << N1 << ":" 
+				    << v1;
+#endif
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1+1,id.iCell2);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1,id.iCell2-1);
+      addHGCSiliconId(ids,id.det,id.zSide,t1,id.iLay,wu1,wv1,2*N1-1,v1+N1-1);
+      addHGCSiliconId(ids,id.det,id.zSide,t1,id.iLay,wu1,wv1,2*N1-1,v1+N1);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1,id.iCell2+1);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1+1,id.iCell2+1);
+      break;
+    }
+    case(HGCalDDDConstants::CellType::LeftEdge): {
+      // left edege
+      int wu1(id.iSec1+1), wv1(id.iSec2);
+      int t1 = hdcons_.getTypeHex(id.iLay,wu1,wv1);
+      int N1 = hdcons_.getUVMax(t1);
+      int u1 = hdcons_.modifyUV(id.iCell1,id.iType,t1);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "Cell Type 2 " << ":" << wu1 << ":"
+				    << wv1 << ":" << t1 << ":" << N1 << ":" 
+				    << u1;
+#endif
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1+1,id.iCell2);
+      addHGCSiliconId(ids,id.det,id.zSide,t1,id.iLay,wu1,wv1,u1+N1,  2*N1-1);
+      addHGCSiliconId(ids,id.det,id.zSide,t1,id.iLay,wu1,wv1,u1+N1-1,2*N1-1);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1-1,id.iCell2);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1,id.iCell2+1);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1+1,id.iCell2+1);
+      break;
+    }
+    case(HGCalDDDConstants::CellType::TopLeftEdge): {
+      // top left edge
+      int wu1(id.iSec1+1), wv1(id.iSec2+1);
+      int t1 = hdcons_.getTypeHex(id.iLay,wu1,wv1);
+      int N1 = hdcons_.getUVMax(t1);
+      int v1 = hdcons_.modifyUV(id.iCell2,id.iType,t1);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "Cell Type 3 " << ":" << wu1 << ":"
+				    << wv1 << ":" << t1 << ":" << N1 << ":" 
+				    << v1;
+#endif
+      addHGCSiliconId(ids,id.det,id.zSide,t1,id.iLay,wu1,wv1,v1+1,v1+N1);
+      addHGCSiliconId(ids,id.det,id.zSide,t1,id.iLay,wu1,wv1,v1,v1+N1-1);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1-1,id.iCell2-1);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1-1,id.iCell2);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1,id.iCell2+1);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1+1,id.iCell2+1);
+      break;
+    }
+    case(HGCalDDDConstants::CellType::TopRightEdge): {
+      // top right edge
+      int wu1(id.iSec1), wv1(id.iSec2+1);
+      int t1 = hdcons_.getTypeHex(id.iLay,wu1,wv1);
+      int N1 = hdcons_.getUVMax(t1);
+      int v1 = hdcons_.modifyUV(id.iCell2,id.iType,t1);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "Cell Type 4 " << ":" << wu1 << ":"
+				    << wv1 << ":" << t1 << ":" << N1 << ":" 
+				    << v1;
+#endif
+      addHGCSiliconId(ids,id.det,id.zSide,t1,id.iLay,wu1,wv1,0,v1-N1);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1,id.iCell2-1);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1-1,id.iCell2-1);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1-1,id.iCell2);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1,id.iCell2+1);
+      addHGCSiliconId(ids,id.det,id.zSide,t1,id.iLay,wu1,wv1,0,v1-N1+1);
+      break;
+    }
+    case(HGCalDDDConstants::CellType::RightEdge): {
+      // right edge
+      int wu1(id.iSec1-1), wv1(id.iSec2);
+      int t1 = hdcons_.getTypeHex(id.iLay,wu1,wv1);
+      int N1 = hdcons_.getUVMax(t1);
+      int u1 = hdcons_.modifyUV(id.iCell1,id.iType,t1);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "Cell Type 5 " << ":" << wu1 << ":"
+				    << wv1 << ":" << t1 << ":" << N1 << ":" 
+				    << u1;
+#endif
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1+1,id.iCell2);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1,id.iCell2-1);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1-1,id.iCell2-1);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1-1,id.iCell2);
+      addHGCSiliconId(ids,id.det,id.zSide,t1,id.iLay,wu1,wv1,u1-N1,0);
+      addHGCSiliconId(ids,id.det,id.zSide,t1,id.iLay,wu1,wv1,u1-N1+1,0);
+      break;
+    }
+    case(HGCalDDDConstants::CellType::BottomRightEdge): {
+      // bottom right edge
+      int wu1(id.iSec1-1), wv1(id.iSec2-1);
+      int t1 = hdcons_.getTypeHex(id.iLay,wu1,wv1);
+      int N1 = hdcons_.getUVMax(t1);
+      int u1 = hdcons_.modifyUV(id.iCell1,id.iType,t1);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "Cell Type 6 " << ":" << wu1 << ":"
+				    << wv1 << ":" << t1 << ":" << N1 << ":" 
+				    << u1;
+#endif
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1+1,id.iCell2);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1,id.iCell2-1);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1-1,id.iCell2-1);
+      addHGCSiliconId(ids,id.det,id.zSide,t1,id.iLay,wu1,wv1,u1+N1-1,u1-1);
+      addHGCSiliconId(ids,id.det,id.zSide,t1,id.iLay,wu1,wv1,u1+N1,u1);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1+1,id.iCell2+1);
+      break;
+    }
+    case(HGCalDDDConstants::CellType::BottomCorner): {
+      // bottom corner
+      int wu1(id.iSec1), wv1(id.iSec2-1);
+      int t1 = hdcons_.getTypeHex(id.iLay,wu1,wv1);
+      int N1 = hdcons_.getUVMax(t1);
+      int v1 = hdcons_.modifyUV(id.iCell2,id.iType,t1);
+      int wu2(id.iSec1-1), wv2(id.iSec2-1);
+      int t2 = hdcons_.getTypeHex(id.iLay,wu2,wv2);
+      int N2 = hdcons_.getUVMax(t2);
+      int u2 = hdcons_.modifyUV(id.iCell1,id.iType,t2);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "Cell Type 11 " << ":" << wu1 << ":"
+				    << wv1 << ":" << t1 << ":" << N1 << ":" 
+				    << v1 << ":" << t2 << ":" << N2 << ":"
+				    << u2;
+#endif
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1+1,id.iCell2);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1,id.iCell2-1);
+      addHGCSiliconId(ids,id.det,id.zSide,t1,id.iLay,wu1,wv1,2*N1-1,v1+N1-1);
+      addHGCSiliconId(ids,id.det,id.zSide,t1,id.iLay,wu1,wv1,2*N1-1,v1+N1);
+      addHGCSiliconId(ids,id.det,id.zSide,t2,id.iLay,wu2,wv2,u2+N2,u2);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1+1,id.iCell2+1);
+      break;
+    }
+    case(HGCalDDDConstants::CellType::BottomLeftCorner): {
+      // bottom left corner
+      int wu1(id.iSec1+1), wv1(id.iSec2);
+      int t1 = hdcons_.getTypeHex(id.iLay,wu1,wv1);
+      int N1 = hdcons_.getUVMax(t1);
+      int u1 = hdcons_.modifyUV(id.iCell1,id.iType,t1);
+      int wu2(id.iSec1), wv2(id.iSec2-1);
+      int t2 = hdcons_.getTypeHex(id.iLay,wu2,wv2);
+      int N2 = hdcons_.getUVMax(t2);
+      int v2 = hdcons_.modifyUV(id.iCell2,id.iType,t2);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "Cell Type 12 " << ":" << wu1 << ":"
+				    << wv1 << ":" << t1 << ":" << N1 << ":" 
+				    << u1 << ":" << t2 << ":" << N2 << ":"
+				    << v2;
+#endif
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1+1,id.iCell2);
+      addHGCSiliconId(ids,id.det,id.zSide,t1,id.iLay,wu1,wv1,u1+N1,2*N1-1);
+      addHGCSiliconId(ids,id.det,id.zSide,t2,id.iLay,wu2,wv2,2*N2-1,v2+N2-1);
+      addHGCSiliconId(ids,id.det,id.zSide,t2,id.iLay,wu2,wv2,2*N2-1,v2+N2);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1,id.iCell2+1);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1+1,id.iCell2+1);
+      break;
+    }
+    case(HGCalDDDConstants::CellType::TopLeftCorner): {
+      // top left corner
+      int wu1(id.iSec1+1), wv1(id.iSec2+1);
+      int t1 = hdcons_.getTypeHex(id.iLay,wu1,wv1);
+      int N1 = hdcons_.getUVMax(t1);
+      int v1 = hdcons_.modifyUV(id.iCell2,id.iType,t1);
+      int wu2(id.iSec1+1), wv2(id.iSec2);
+      int t2 = hdcons_.getTypeHex(id.iLay,wu2,wv2);
+      int N2 = hdcons_.getUVMax(t2);
+      int u2 = hdcons_.modifyUV(id.iCell1,id.iType,t2);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "Cell Type 13 " << ":" << wu1 << ":"
+				    << wv1 << ":" << t1 << ":" << N1 << ":" 
+				    << v1 << ":" << t2 << ":" << N2 << ":"
+				    << u2;
+#endif
+      addHGCSiliconId(ids,id.det,id.zSide,t1,id.iLay,wu1,wv1,v1+1,N1+v1);
+      addHGCSiliconId(ids,id.det,id.zSide,t1,id.iLay,wu1,wv1,v1,N1+v1-1);
+      addHGCSiliconId(ids,id.det,id.zSide,t2,id.iLay,wu2,wv2,u2+N2-1,2*N2-1);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1-1,id.iCell2);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1,id.iCell2+1);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1+1,id.iCell2+1);
+      break;
+    }
+    case(HGCalDDDConstants::CellType::TopCorner): {
+      // top corner
+      int wu1(id.iSec1+1), wv1(id.iSec2+1);
+      int t1 = hdcons_.getTypeHex(id.iLay,wu1,wv1);
+      int N1 = hdcons_.getUVMax(t1);
+      int v1 = hdcons_.modifyUV(id.iCell2,id.iType,t1);
+      int wu2(id.iSec1), wv2(id.iSec2+1);
+      int t2 = hdcons_.getTypeHex(id.iLay,wu2,wv2);
+      int N2 = hdcons_.getUVMax(t2);
+      int v2 = hdcons_.modifyUV(id.iCell2,id.iType,t2);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "Cell Type 14 " << ":" << wu1 << ":"
+				    << wv1 << ":" << t1 << ":" << N1 << ":" 
+				    << v1 << ":" << t2 << ":" << N2 << ":"
+				    << v2;
+#endif
+      addHGCSiliconId(ids,id.det,id.zSide,t1,id.iLay,wu1,wv1,v1+1,v1+N1);
+      addHGCSiliconId(ids,id.det,id.zSide,t1,id.iLay,wu1,wv1,v1,v1+N1-1);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1-1,id.iCell2-1);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1-1,id.iCell2);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1,id.iCell2+1);
+      addHGCSiliconId(ids,id.det,id.zSide,t2,id.iLay,wu2,wv2,0,v2-N2+1);
+      break;
+    }
+    case(HGCalDDDConstants::CellType::TopRightCorner): {
+      // top right corner
+      int wu1(id.iSec1), wv1(id.iSec2+1);
+      int t1 = hdcons_.getTypeHex(id.iLay,wu1,wv1);
+      int N1 = hdcons_.getUVMax(t1);
+      int v1 = hdcons_.modifyUV(id.iCell2,id.iType,t1);
+      int wu2(id.iSec1-1), wv2(id.iSec2);
+      int t2 = hdcons_.getTypeHex(id.iLay,wu2,wv2);
+      int N2 = hdcons_.getUVMax(t2);
+      int u2 = hdcons_.modifyUV(id.iCell1,id.iType,t2);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "Cell Type 15 " << ":" << wu1 << ":"
+				    << wv1 << ":" << t1 << ":" << N1 << ":" 
+				    << v1 << ":" << t2 << ":" << N2 << ":"
+				    << u2;
+#endif
+      addHGCSiliconId(ids,id.det,id.zSide,t1,id.iLay,wu1,wv1,0,v1-N1);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1,id.iCell2-1);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1-1,id.iCell2-1);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1-1,id.iCell2);
+      addHGCSiliconId(ids,id.det,id.zSide,t2,id.iLay,wu2,wv2,u2-N2,0);
+      addHGCSiliconId(ids,id.det,id.zSide,t2,id.iLay,wu2,wv2,u2-N2+1,0);
+      break;
+    }
+    case(HGCalDDDConstants::CellType::BottomRightCorner): {
+      // bottom right corner
+      int wu1(id.iSec1-1), wv1(id.iSec2-1);
+      int t1 = hdcons_.getTypeHex(id.iLay,wu1,wv1);
+      int N1 = hdcons_.getUVMax(t1);
+      int u1 = hdcons_.modifyUV(id.iCell1,id.iType,t1);
+      int wu2(id.iSec1-1), wv2(id.iSec2);
+      int t2 = hdcons_.getTypeHex(id.iLay,wu2,wv2);
+      int N2 = hdcons_.getUVMax(t2);
+      int u2 = hdcons_.modifyUV(id.iCell1,id.iType,t2);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "Cell Type 16 " << ":" << wu1 << ":"
+				    << wv1 << ":" << t1 << ":" << N1 << ":" 
+				    << u1 << ":" << t2 << ":" << N2 << ":"
+				    << u2;
+#endif
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1+1,id.iCell2);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1,id.iCell2-1);
+      addHGCSiliconId(ids,id.det,id.zSide,id.iType,id.iLay,id.iSec1,id.iSec2,
+		      id.iCell1-1,id.iCell2-1);
+      addHGCSiliconId(ids,id.det,id.zSide,t1,id.iLay,wu1,wv1,u1+N1-1,u1-1);
+      addHGCSiliconId(ids,id.det,id.zSide,t2,id.iLay,wu2,wv2,u2-N2,0);
+      addHGCSiliconId(ids,id.det,id.zSide,t2,id.iLay,wu2,wv2,u2-N2+1,0);
+      break;
+    }
+    default:
+      // Not valid u, v
+      int N = hdcons_.getUVMax(id.iType);
+      edm::LogWarning("HGCalGeom") << "u:v " << id.iCell1 << ":" << id.iCell2 
+				   << " Tests " << (id.iCell1 > 2*N-1) << ":"
+				   << (id.iCell2 > 2*N-1) << ":" 
+				   << (id.iCell2 >= (id.iCell1+N)) << ":" 
+				   << (id.iCell1 > (id.iCell2+N)) << " ERROR";
+    }
+  } else if (mode_ == HGCalGeometryMode::Trapezoid) {
+    int iphi1 = (id.iCell1 > 1) ? id.iCell1-1 : hdcons_.getUVMax(id.iType);
+    int iphi2 = (id.iCell1 < hdcons_.getUVMax(id.iType)) ? id.iCell1+1 : 1;
+    addHGCSCintillatorId(ids,id.zSide,id.iType,id.iLay,id.iSec1-1,id.iCell1);
+    addHGCSCintillatorId(ids,id.zSide,id.iType,id.iLay,id.iSec1-1,iphi1);
+    addHGCSCintillatorId(ids,id.zSide,id.iType,id.iLay,id.iSec1,iphi1);
+    addHGCSCintillatorId(ids,id.zSide,id.iType,id.iLay,id.iSec1+1,iphi1);
+    addHGCSCintillatorId(ids,id.zSide,id.iType,id.iLay,id.iSec1+1,id.iCell1);
+    addHGCSCintillatorId(ids,id.zSide,id.iType,id.iLay,id.iSec1+1,iphi2);
+    addHGCSCintillatorId(ids,id.zSide,id.iType,id.iLay,id.iSec1,iphi2);
+    addHGCSCintillatorId(ids,id.zSide,id.iType,id.iLay,id.iSec1-1,iphi2);
+  }
+  return ids;
+}
+ 
+
 uint32_t HGCalTopology::detId2denseId(const DetId& idin) const {
 
   HGCalTopology::DecodedDetId id = decode(idin);
@@ -65,7 +428,7 @@ uint32_t HGCalTopology::detId2denseId(const DetId& idin) const {
 		     ((((id.iCell1-1)*layers_+id.iLay-1)*sectors_+
 		       id.iSec1)*types_+type));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "Input Hex " << id.zSide << ":" << id.iLay 
+    edm::LogVerbatim("HGCalGeom") << "Input Hex " << id.zSide << ":" << id.iLay
 				  << ":" << id.iSec1 << ":" << id.iCell1
 				  << ":" << id.iType << " Constants " 
 				  << kHGeomHalf_ << ":" << layers_ << ":" 
@@ -163,11 +526,11 @@ uint32_t HGCalTopology::detId2denseGeomId(const DetId& idin) const {
     idx = (uint32_t)(((id.zSide > 0) ? kHGeomHalf_ : 0) +
 		     (id.iLay-1)*sectors_+id.iSec1);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "Geom Hex I/P " << id.zSide << ":" << id.iLay
-				  << ":" << id.iSec1 << ":" << id.iType 
-				  << " Constants " << kHGeomHalf_ << ":" 
-				  << layers_ << ":" << sectors_ << " o/p " 
-				  << idx;
+    edm::LogVerbatim("HGCalGeom") << "Geom Hex I/P " << id.zSide << ":" 
+				  << id.iLay << ":" << id.iSec1 << ":" 
+				  << id.iType << " Constants " << kHGeomHalf_ 
+				  << ":" << layers_ << ":" << sectors_ 
+				  << " o/p " << idx;
 #endif
   } else if (mode_ == HGCalGeometryMode::Trapezoid) {
     idx = (uint32_t)(((id.zSide > 0) ? kHGeomHalf_ : 0) +
@@ -176,10 +539,11 @@ uint32_t HGCalTopology::detId2denseGeomId(const DetId& idin) const {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "Geom Trap I/P " << id.zSide << ":" 
 				  << id.iLay  << ":" << id.iSec1 << ":" 
-				  << id.iCell1 << ":" << id.iType << " Constants "
-				  << kHGeomHalf_ << ":" << layers_ << ":" 
-				  << firstLay_ << ":" << sectors_ << ":"
-				  << cellMax_ << " o/p " << idx;
+				  << id.iCell1 << ":" << id.iType 
+				  << " Constants " << kHGeomHalf_ << ":" 
+				  << layers_ << ":" << firstLay_ << ":" 
+				  << sectors_ << ":" << cellMax_ 
+				  << " o/p " << idx;
 #endif
   } else {
     idx = (uint32_t)(((id.zSide > 0) ? kHGeomHalf_ : 0) +
@@ -188,10 +552,10 @@ uint32_t HGCalTopology::detId2denseGeomId(const DetId& idin) const {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "Geom Hex8 I/P " << id.zSide << ":" 
 				  << id.iLay  << ":" << id.iSec1 << ":" 
-				  << id.iSec2 << ":" << id.iType << " Constants " 
-				  << kHGeomHalf_ << ":" << layers_ << ":"
-				  << waferMax_ << ":" << waferOff_ << " o/p "
-				  << idx;
+				  << id.iSec2 << ":" << id.iType 
+				  << " Constants " << kHGeomHalf_ << ":" 
+				  << layers_ << ":" << waferMax_ << ":"
+				  << waferOff_ << " o/p " << idx;
 #endif
   }
   return idx;
@@ -284,6 +648,38 @@ HGCalTopology::DecodedDetId HGCalTopology::geomDenseId2decId(const uint32_t& hi)
   return id;
 }
 
+void HGCalTopology::addHGCSCintillatorId(std::vector<DetId>& ids, int zside,
+					 int type, int lay, int iradius,
+					 int iphi) const {
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "addHGCSCintillatorId " << zside << ":"
+				<< type << ":" << lay << ":" << iradius << ":"
+				<< iphi << " ==> Validity " 
+				<< hdcons_.isValidTrap(lay,iradius,iphi);
+#endif
+  if (hdcons_.isValidTrap(lay,iradius,iphi)) {
+    HGCScintillatorDetId id(type,lay,zside*iradius,iphi);
+    ids.emplace_back(DetId(id));
+  }
+}
+
+void HGCalTopology::addHGCSiliconId(std::vector<DetId>& ids, int det,int zside,
+				   int type, int lay, int waferU, int waferV, 
+				   int cellU, int cellV) const {
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "addHGCSiliconId " << det << ":" << zside
+				<< ":" << type << ":" << lay << ":" << waferU
+				<< ":" << waferV << ":" << cellU << ":" 
+				<< cellV << " ==> Validity " 
+				<< hdcons_.isValidHex8(lay,waferU,waferV,cellU,cellV);
+#endif
+  if (hdcons_.isValidHex8(lay,waferU,waferV,cellU,cellV)) {
+    HGCSiliconDetId id((DetId::Detector)(det),zside,type,lay,waferU,waferV,
+		       cellU,cellV);
+    ids.emplace_back(DetId(id));
+  }
+}
+
 HGCalTopology::DecodedDetId HGCalTopology::decode(const DetId& startId) const {
 
   HGCalTopology::DecodedDetId idx;
@@ -305,6 +701,16 @@ HGCalTopology::DecodedDetId HGCalTopology::decode(const DetId& startId) const {
     idx.iLay   = id.layer();
     idx.iSec1  = id.ietaAbs();
     idx.iSec2  = 0;
+    idx.iType  = id.type();
+    idx.zSide  = id.zside();
+    idx.det    = (int)(id.subdet());
+  } else if (det_ == DetId::Forward && subdet_ == ForwardSubdetector::HFNose) {
+    HFNoseDetId id(startId);
+    idx.iCell1 = id.cellU();
+    idx.iCell2 = id.cellV();
+    idx.iLay   = id.layer();
+    idx.iSec1  = id.waferU();
+    idx.iSec2  = id.waferV();
     idx.iType  = id.type();
     idx.zSide  = id.zside();
     idx.det    = (int)(id.subdet());
@@ -330,6 +736,8 @@ DetId HGCalTopology::encode(const HGCalTopology::DecodedDetId& idx) const {
     id = HGCalDetId((ForwardSubdetector)(idx.det),idx.zSide,idx.iLay,((idx.iType > 0) ? 1 : 0),idx.iSec1,idx.iCell1).rawId();
   } else if (mode_ == HGCalGeometryMode::Trapezoid) {
     id = HGCScintillatorDetId(idx.iType,idx.iLay,idx.zSide*idx.iSec1,idx.iCell1).rawId();
+  } else if (det_ == DetId::Forward && subdet_ == ForwardSubdetector::HFNose) {
+    id = HFNoseDetId(idx.zSide,idx.iType,idx.iLay,idx.iSec1,idx.iSec2,idx.iCell1,idx.iCell2).rawId();
   } else {
     id = HGCSiliconDetId((DetId::Detector)(idx.det),idx.zSide,idx.iType,idx.iLay,idx.iSec1,idx.iSec2,idx.iCell1,idx.iCell2).rawId();
   }

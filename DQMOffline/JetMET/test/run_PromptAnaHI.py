@@ -1,3 +1,4 @@
+from __future__ import print_function
 ##-----
 # Set job-specific inputs based on shell
 # the following enviromental variables
@@ -16,27 +17,27 @@ import FWCore.ParameterSet.Config as cms
 #
 # --- [cosmic sequence (default=True)?]
 iscosmics = (os.environ.get('COSMIC_MODE','False'))
-print 'iscosmics (default=True) = '+str(iscosmics)
+print('iscosmics (default=True) = '+str(iscosmics))
 #
 # --- [name of job & output file (default=test)?]
 jobname = (os.environ.get('JOB_NAME','test'))
-print 'jobname (default=test) = '+str(jobname)
+print('jobname (default=test) = '+str(jobname))
 #
 # --- [number of events (default=1000)]
 nevents = int(os.environ.get('NEVENTS','1000'))
-print 'nevents (default=1000)  = '+str(nevents)
+print('nevents (default=1000)  = '+str(nevents))
 #
 # --- [turn on all histograms (default=True)?]
 allhist = (os.environ.get('ALL_HISTS','True'))
-print 'allhist (default=True) = '+str(allhist)
+print('allhist (default=True) = '+str(allhist))
 #
 #--- [read list of input files from a text file? or not (default=False)]
 read_from_file = (os.environ.get('READ_LIST_FROM_FILE','True'))
-print 'read list of input files from a text file (default=False) = '+str(read_from_file)
+print('read list of input files from a text file (default=False) = '+str(read_from_file))
 #
 #--- [trigger set (default=HLT)]
 trigger_set = (os.environ.get('TRIGGER_SET','HLT'))
-print 'trigger set name (default=HLT) = '+str(trigger_set)
+print('trigger set name (default=HLT) = '+str(trigger_set))
 #
 #--- [define list of input files]
 inputfiles = []
@@ -44,7 +45,7 @@ if read_from_file=="True":
   #--- [name of the text file (default=inputfile_list_default.txt)]
   filename = (os.environ.get('INPUTFILES_LIST','inputfile_list_default.txt'))
   file=open(filename)
-  print file.read()
+  print(file.read())
   f = open(filename)
   try:
     for line in f:
@@ -57,8 +58,8 @@ else:
   #'/store/data/Commissioning09/MinimumBias/RECO/v4/000/102/347/F85D1BC6-A06A-DE11-BDF8-0019B9F581C9.root').split(",")
   #'/store/data/CRAFT09/Calo/RECO/v1/000/112/220/F0B768A4-5E93-DE11-B222-000423D94524.root').split(",")
 
-print 'List of input files'
-print inputfiles
+print('List of input files')
+print(inputfiles)
 #-----
 
 #

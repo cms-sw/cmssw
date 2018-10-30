@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import re
 import sys
@@ -31,8 +32,8 @@ def create_single_iov_db(inputs, run_number, output_db):
             msg = ("Run number {0:d} is not covered in '{1:s}' ({2:s}) from"
                    " '{3:s}'.".format(run_number, tag["tag"], record,
                                       global_tag))
-            print msg
-            print "Aborting..."
+            print(msg)
+            print("Aborting...")
             sys.exit(1)
 
     result = {}
@@ -78,8 +79,8 @@ def run_checked(cmd, suppress_stderr = False):
             else:
                 subprocess.check_call(cmd, stdout = devnull)
     except subprocess.CalledProcessError as e:
-        print "Problem in running the following command:"
-        print " ".join(e.cmd)
+        print("Problem in running the following command:")
+        print(" ".join(e.cmd))
         sys.exit(1)
 
 
@@ -97,7 +98,7 @@ def get_process_object(cfg):
         __configuration = \
             importlib.import_module(os.path.splitext(os.path.basename(cfg))[0])
     except Exception as e:
-        print "Problem detected in configuration file '{0}'.".format(cfg)
+        print("Problem detected in configuration file '{0}'.".format(cfg))
         raise e
     sys.stdout = cache_stdout
     sys.path.pop()                        # clean up python path again
@@ -144,7 +145,7 @@ def get_tags(global_tag, records):
         try:
             global_tag = AC.autoCond[global_tag.split("auto:")[-1]]
         except KeyError:
-            print "Unsupported auto GT:", global_tag
+            print("Unsupported auto GT:", global_tag)
             sys.exit(1)
 
     # setting up the DB session
@@ -181,7 +182,7 @@ def get_iovs(db, tag):
 
     iovs = set(session.query(IOV.since).filter(IOV.tag_name == tag).all())
     if len(iovs) == 0:
-        print "No IOVs found for tag '"+tag+"' in database '"+db+"'."
+        print("No IOVs found for tag '"+tag+"' in database '"+db+"'.")
         sys.exit(1)
 
     session.close()
@@ -259,5 +260,5 @@ def remove_existing_object(path):
             msg = ("Cannot remove '{}' due to missing 'delete' ".format(path)
                    +"permissions and the limit of 5 backups is reached. Please "
                    "ask a user with 'delete' permissions to clean up.")
-            print msg
+            print(msg)
             sys.exit(1)

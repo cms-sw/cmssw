@@ -216,7 +216,8 @@ topDiMuonHLTMonitor_Mass8.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT
 
 
 topDiMuonHLTMonitor_Mass3p8 = hltTOPmonitoring.clone()
-topDiMuonHLTMonitor_Mass3p8.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/DiMuon/Mass3p8/')
+#topDiMuonHLTMonitor_Mass3p8.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/DiMuon/Mass3p8/')
+topDiMuonHLTMonitor_Mass3p8.FolderName = cms.string('HLT/TOP/DiLepton/DiMuon/Mass3p8/')
 topDiMuonHLTMonitor_Mass3p8.nmuons = cms.uint32(2)
 topDiMuonHLTMonitor_Mass3p8.nelectrons = cms.uint32(0)
 topDiMuonHLTMonitor_Mass3p8.njets = cms.uint32(0)
@@ -226,7 +227,8 @@ topDiMuonHLTMonitor_Mass3p8.jetSelection = cms.string('pt>30 & abs(eta)<2.4')
 topDiMuonHLTMonitor_Mass3p8.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v*')
 
 topDiMuonHLTMonitor_Mass8Mon = hltTOPmonitoring.clone()
-topDiMuonHLTMonitor_Mass8Mon.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/DiMuon/Mu17_Mu8_Mass8Efficiency/')
+#topDiMuonHLTMonitor_Mass8Mon.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/DiMuon/Mu17_Mu8_Mass8Efficiency/')
+topDiMuonHLTMonitor_Mass8Mon.FolderName = cms.string('HLT/TOP/DiLepton/DiMuon/Mu17_Mu8_Mass8Efficiency/')
 topDiMuonHLTMonitor_Mass8Mon.nmuons = cms.uint32(2)
 topDiMuonHLTMonitor_Mass8Mon.nelectrons = cms.uint32(0)
 topDiMuonHLTMonitor_Mass8Mon.njets = cms.uint32(0)
@@ -237,7 +239,8 @@ topDiMuonHLTMonitor_Mass8Mon.numGenericTriggerEventPSet.hltPaths = cms.vstring('
 topDiMuonHLTMonitor_Mass8Mon.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*')
 
 topDiMuonHLTMonitor_Mass3p8Mon = hltTOPmonitoring.clone()
-topDiMuonHLTMonitor_Mass3p8Mon.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/DiMuon/Mu17_Mu8_Mass3p8Efficiency/')
+#topDiMuonHLTMonitor_Mass3p8Mon.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/DiMuon/Mu17_Mu8_Mass3p8Efficiency/')
+topDiMuonHLTMonitor_Mass3p8Mon.FolderName = cms.string('HLT/TOP/DiLepton/DiMuon/Mu17_Mu8_Mass3p8Efficiency/')
 topDiMuonHLTMonitor_Mass3p8Mon.nmuons = cms.uint32(2)
 topDiMuonHLTMonitor_Mass3p8Mon.nelectrons = cms.uint32(0)
 topDiMuonHLTMonitor_Mass3p8Mon.njets = cms.uint32(0)
@@ -353,11 +356,11 @@ fullyhadronic_DoubleBTag_all.FolderName   = cms.string('HLT/TOP/FullyHadronic/Do
 fullyhadronic_DoubleBTag_all.leptJetDeltaRmin = cms.double(0.0)
 fullyhadronic_DoubleBTag_all.njets            = cms.uint32(6)
 fullyhadronic_DoubleBTag_all.jetSelection     = cms.string('pt>40 & abs(eta)<2.4')
-fullyhadronic_DoubleBTag_all.HTdefinition     = cms.string('pt>40 & abs(eta)<2.4')
+fullyhadronic_DoubleBTag_all.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
 fullyhadronic_DoubleBTag_all.HTcut            = cms.double(500)
 fullyhadronic_DoubleBTag_all.nbjets           = cms.uint32(2)
 fullyhadronic_DoubleBTag_all.bjetSelection    = cms.string('pt>40 & abs(eta)<2.4')
-fullyhadronic_DoubleBTag_all.btagalgo         = cms.InputTag("pfDeepCSVDiscriminatorsJetTags:BvsAll")
+fullyhadronic_DoubleBTag_all.btagalgo         = cms.InputTag("pfDeepCSVJetTags:probb")
 fullyhadronic_DoubleBTag_all.workingpoint     = cms.double(0.4941) #  Medium (According to: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X)
 
 # Binning
@@ -378,7 +381,7 @@ fullyhadronic_DoubleBTag_jet.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4
 fullyhadronic_DoubleBTag_jet.HTcut            = cms.double(500)
 fullyhadronic_DoubleBTag_jet.nbjets           = cms.uint32(2)
 fullyhadronic_DoubleBTag_jet.bjetSelection    = cms.string('pt>30 & abs(eta)<2.4')
-fullyhadronic_DoubleBTag_jet.btagalgo         = cms.InputTag("pfDeepCSVDiscriminatorsJetTags:BvsAll")
+fullyhadronic_DoubleBTag_jet.btagalgo         = cms.InputTag("pfDeepCSVJetTags:probb")
 fullyhadronic_DoubleBTag_jet.workingpoint     = cms.double(0.4941) #  Medium (According to: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X)
 
 # Binning 
@@ -395,11 +398,11 @@ fullyhadronic_DoubleBTag_bjet.FolderName   = cms.string('HLT/TOP/FullyHadronic/D
 fullyhadronic_DoubleBTag_bjet.leptJetDeltaRmin = cms.double(0.0)
 fullyhadronic_DoubleBTag_bjet.njets            = cms.uint32(6)
 fullyhadronic_DoubleBTag_bjet.jetSelection     = cms.string('pt>40 & abs(eta)<2.4')
-fullyhadronic_DoubleBTag_bjet.HTdefinition     = cms.string('pt>40 & abs(eta)<2.4')
+fullyhadronic_DoubleBTag_bjet.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
 fullyhadronic_DoubleBTag_bjet.HTcut            = cms.double(500)
 fullyhadronic_DoubleBTag_bjet.nbjets           = cms.uint32(2)
 fullyhadronic_DoubleBTag_bjet.bjetSelection    = cms.string('pt>40 & abs(eta)<2.4')
-fullyhadronic_DoubleBTag_bjet.btagalgo         = cms.InputTag("pfDeepCSVDiscriminatorsJetTags:BvsAll")
+fullyhadronic_DoubleBTag_bjet.btagalgo         = cms.InputTag("pfDeepCSVJetTags:probb")
 fullyhadronic_DoubleBTag_bjet.workingpoint     = cms.double(0.1522) # Loose (According to: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X)
 # Binning
 fullyhadronic_DoubleBTag_bjet.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
@@ -415,11 +418,11 @@ fullyhadronic_DoubleBTag_ref.FolderName   = cms.string('HLT/TOP/FullyHadronic/Do
 fullyhadronic_DoubleBTag_ref.leptJetDeltaRmin = cms.double(0.0)
 fullyhadronic_DoubleBTag_ref.njets            = cms.uint32(6)
 fullyhadronic_DoubleBTag_ref.jetSelection     = cms.string('pt>40 & abs(eta)<2.4')
-fullyhadronic_DoubleBTag_ref.HTdefinition     = cms.string('pt>40 & abs(eta)<2.4')
+fullyhadronic_DoubleBTag_ref.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
 fullyhadronic_DoubleBTag_ref.HTcut            = cms.double(500)
 fullyhadronic_DoubleBTag_ref.nbjets           = cms.uint32(0)
 fullyhadronic_DoubleBTag_ref.bjetSelection    = cms.string('pt>40 & abs(eta)<2.4')
-fullyhadronic_DoubleBTag_ref.btagalgo         = cms.InputTag("pfDeepCSVDiscriminatorsJetTags:BvsAll")
+fullyhadronic_DoubleBTag_ref.btagalgo         = cms.InputTag("pfDeepCSVJetTags:probb")
 fullyhadronic_DoubleBTag_ref.workingpoint     = cms.double(0.4941) # Medium (According to: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X)
 # Binning
 fullyhadronic_DoubleBTag_ref.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
@@ -435,11 +438,11 @@ fullyhadronic_SingleBTag_all.FolderName= cms.string('HLT/TOP/FullyHadronic/Singl
 fullyhadronic_SingleBTag_all.leptJetDeltaRmin = cms.double(0.0)
 fullyhadronic_SingleBTag_all.njets            = cms.uint32(6)
 fullyhadronic_SingleBTag_all.jetSelection     = cms.string('pt>40 & abs(eta)<2.4')
-fullyhadronic_SingleBTag_all.HTdefinition     = cms.string('pt>40 & abs(eta)<2.4')
+fullyhadronic_SingleBTag_all.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
 fullyhadronic_SingleBTag_all.HTcut            = cms.double(500)
 fullyhadronic_SingleBTag_all.nbjets           = cms.uint32(2)
 fullyhadronic_SingleBTag_all.bjetSelection    = cms.string('pt>40 & abs(eta)<2.4')
-fullyhadronic_SingleBTag_all.btagalgo         = cms.InputTag("pfDeepCSVDiscriminatorsJetTags:BvsAll")
+fullyhadronic_SingleBTag_all.btagalgo         = cms.InputTag("pfDeepCSVJetTags:probb")
 fullyhadronic_SingleBTag_all.workingpoint     = cms.double(0.4941) # Medium (According to: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X)
 # Binning
 fullyhadronic_SingleBTag_all.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
@@ -459,7 +462,7 @@ fullyhadronic_SingleBTag_jet.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4
 fullyhadronic_SingleBTag_jet.HTcut            = cms.double(500)
 fullyhadronic_SingleBTag_jet.nbjets           = cms.uint32(2)
 fullyhadronic_SingleBTag_jet.bjetSelection    = cms.string('pt>30 & abs(eta)<2.4')
-fullyhadronic_SingleBTag_jet.btagalgo         = cms.InputTag("pfDeepCSVDiscriminatorsJetTags:BvsAll")
+fullyhadronic_SingleBTag_jet.btagalgo         = cms.InputTag("pfDeepCSVJetTags:probb")
 fullyhadronic_SingleBTag_jet.workingpoint     = cms.double(0.4941) # Medium (According to: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X)
 # Binning
 fullyhadronic_SingleBTag_jet.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
@@ -475,11 +478,11 @@ fullyhadronic_SingleBTag_bjet.FolderName= cms.string('HLT/TOP/FullyHadronic/Sing
 fullyhadronic_SingleBTag_bjet.leptJetDeltaRmin = cms.double(0.0)
 fullyhadronic_SingleBTag_bjet.njets            = cms.uint32(6)
 fullyhadronic_SingleBTag_bjet.jetSelection     = cms.string('pt>40 & abs(eta)<2.4')
-fullyhadronic_SingleBTag_bjet.HTdefinition     = cms.string('pt>40 & abs(eta)<2.4')
+fullyhadronic_SingleBTag_bjet.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
 fullyhadronic_SingleBTag_bjet.HTcut            = cms.double(500)
 fullyhadronic_SingleBTag_bjet.nbjets           = cms.uint32(2)
 fullyhadronic_SingleBTag_bjet.bjetSelection    = cms.string('pt>40 & abs(eta)<2.4')
-fullyhadronic_SingleBTag_bjet.btagalgo         = cms.InputTag("pfDeepCSVDiscriminatorsJetTags:BvsAll")
+fullyhadronic_SingleBTag_bjet.btagalgo         = cms.InputTag("pfDeepCSVJetTags:probb")
 fullyhadronic_SingleBTag_bjet.workingpoint     = cms.double(0.1522) # Loose (According to: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X)
 # Binning
 fullyhadronic_SingleBTag_bjet.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
@@ -495,11 +498,11 @@ fullyhadronic_SingleBTag_ref.FolderName= cms.string('HLT/TOP/FullyHadronic/Singl
 fullyhadronic_SingleBTag_ref.leptJetDeltaRmin = cms.double(0.0)
 fullyhadronic_SingleBTag_ref.njets            = cms.uint32(6)
 fullyhadronic_SingleBTag_ref.jetSelection     = cms.string('pt>40 & abs(eta)<2.4')
-fullyhadronic_SingleBTag_ref.HTdefinition     = cms.string('pt>40 & abs(eta)<2.4')
+fullyhadronic_SingleBTag_ref.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4')
 fullyhadronic_SingleBTag_ref.HTcut            = cms.double(500)
 fullyhadronic_SingleBTag_ref.nbjets           = cms.uint32(0)
 fullyhadronic_SingleBTag_ref.bjetSelection    = cms.string('pt>40 & abs(eta)<2.4')
-fullyhadronic_SingleBTag_ref.btagalgo         = cms.InputTag("pfDeepCSVDiscriminatorsJetTags:BvsAll")
+fullyhadronic_SingleBTag_ref.btagalgo         = cms.InputTag("pfDeepCSVJetTags:probb")
 fullyhadronic_SingleBTag_ref.workingpoint     = cms.double(0.4941) # Medium (According to: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X)
 # Binning
 fullyhadronic_SingleBTag_ref.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
@@ -520,7 +523,7 @@ fullyhadronic_TripleBTag_all.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4
 fullyhadronic_TripleBTag_all.HTcut            = cms.double(500)
 fullyhadronic_TripleBTag_all.nbjets           = cms.uint32(4)
 fullyhadronic_TripleBTag_all.bjetSelection    = cms.string('pt>45 & abs(eta)<2.4')
-fullyhadronic_TripleBTag_all.btagalgo         = cms.InputTag("pfDeepCSVDiscriminatorsJetTags:BvsAll")
+fullyhadronic_TripleBTag_all.btagalgo         = cms.InputTag("pfDeepCSVJetTags:probb")
 fullyhadronic_TripleBTag_all.workingpoint     = cms.double(0.4941) # Medium (According to: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X)
 # Binning
 fullyhadronic_TripleBTag_all.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
@@ -540,7 +543,7 @@ fullyhadronic_TripleBTag_jet.HTdefinition     = cms.string('pt>30 & abs(eta)<2.4
 fullyhadronic_TripleBTag_jet.HTcut            = cms.double(500)
 fullyhadronic_TripleBTag_jet.nbjets           = cms.uint32(4)
 fullyhadronic_TripleBTag_jet.bjetSelection    = cms.string('pt>45 & abs(eta)<2.4')
-fullyhadronic_TripleBTag_jet.btagalgo         = cms.InputTag("pfDeepCSVDiscriminatorsJetTags:BvsAll")
+fullyhadronic_TripleBTag_jet.btagalgo         = cms.InputTag("pfDeepCSVJetTags:probb")
 fullyhadronic_TripleBTag_jet.workingpoint     = cms.double(0.4941) # Medium (According to: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X)
 # Binning
 fullyhadronic_TripleBTag_jet.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
@@ -560,7 +563,7 @@ fullyhadronic_TripleBTag_bjet.HTdefinition     = cms.string('pt>30 & abs(eta)<2.
 fullyhadronic_TripleBTag_bjet.HTcut            = cms.double(500)
 fullyhadronic_TripleBTag_bjet.nbjets           = cms.uint32(4)
 fullyhadronic_TripleBTag_bjet.bjetSelection    = cms.string('pt>45 & abs(eta)<2.4')
-fullyhadronic_TripleBTag_bjet.btagalgo         = cms.InputTag("pfDeepCSVDiscriminatorsJetTags:BvsAll")
+fullyhadronic_TripleBTag_bjet.btagalgo         = cms.InputTag("pfDeepCSVJetTags:probb")
 fullyhadronic_TripleBTag_bjet.workingpoint     = cms.double(0.1522) # Loose (According to: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X)
 # Binning
 fullyhadronic_TripleBTag_bjet.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(0.0), xmax=cms.double(1000) )
@@ -574,9 +577,6 @@ fullyhadronic_TripleBTag_bjet.denGenericTriggerEventPSet.hltPaths = cms.vstring(
 from DQMOffline.Trigger.HLTEGTnPMonitor_cfi import egmGsfElectronIDsForDQM
 
 topMonitorHLT = cms.Sequence(
-    )
-
-topHLTDQMSourceExtra = cms.Sequence(
     topEleJet_ele
     + topEleJet_jet
     + topEleJet_all
@@ -620,4 +620,7 @@ topHLTDQMSourceExtra = cms.Sequence(
     + topElecMuonHLTMonitor_Mu23Ele12_ref
     + topDiMuonHLTMonitor_Dz_Mu17_Mu8,
      cms.Task(egmGsfElectronIDsForDQM) # Use of electron VID requires this module being executed first
+)
+
+topHLTDQMSourceExtra = cms.Sequence(
 )

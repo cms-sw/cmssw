@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import os
 import pickle
@@ -40,7 +41,7 @@ def include(includes_set):
             cff_age=os.path.getctime(cf_file_fullpath)
             pkl_age=os.path.getctime(pkl_file_name)
             if cff_age>pkl_age:
-                print _yellow(func_id)+" Pickle object older than file ..."
+                print(_yellow(func_id)+" Pickle object older than file ...")
         
        
         if not pkl_file_exists or cff_age>pkl_age:
@@ -48,11 +49,11 @@ def include(includes_set):
           file=open(pkl_file_name,"w")
           pickle.dump(obj,file)   
           file.close()
-          print _yellow(func_id)+" Pickle object for "+cf_file_fullpath+" dumped as "+pkl_file_name+"..."
+          print(_yellow(func_id)+" Pickle object for "+cf_file_fullpath+" dumped as "+pkl_file_name+"...")
         # load the pkl files.                       
         file=open(pkl_file_name,"r")
         object_list.append(pickle.load(file))
         file.close()
-        print _yellow(func_id)+" Pickle object for "+cf_file_fullpath+" loaded ..."
+        print(_yellow(func_id)+" Pickle object for "+cf_file_fullpath+" loaded ...")
     
     return object_list

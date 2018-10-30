@@ -66,7 +66,7 @@ void testCandidate::checkAll() {
 
   reco::Particle::Charge q( 1 );
   int x = 123, y0 = 111, y1 = 222;
-  std::auto_ptr<reco::Candidate> c( new test::DummyCandidate1( p, q, x, y0, y1 ) );
+  std::unique_ptr<reco::Candidate> c( new test::DummyCandidate1( p, q, x, y0, y1 ) );
   CPPUNIT_ASSERT( c->charge() == q );
   CPPUNIT_ASSERT( (c->p4() - p).M2() < 1.e-4 );
   CPPUNIT_ASSERT( c->numberOfDaughters() == 0 );

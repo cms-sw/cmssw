@@ -58,7 +58,6 @@ Implementation:
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "FWCore/Utilities/interface/TimingServiceBase.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -196,7 +195,7 @@ ExternalLHEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(std::move(product));
 
   if (runInfo) {
-    std::auto_ptr<LHERunInfoProduct> product(new LHERunInfoProduct(*runInfo->getHEPRUP()));
+    std::unique_ptr<LHERunInfoProduct> product(new LHERunInfoProduct(*runInfo->getHEPRUP()));
     std::for_each(runInfo->getHeaders().begin(),
                   runInfo->getHeaders().end(),
                   boost::bind(&LHERunInfoProduct::addHeader,
@@ -210,7 +209,7 @@ ExternalLHEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       runInfoProducts.front().mergeProduct(*product);
       if (!wasMerged) {
         runInfoProducts.pop_front();
-        runInfoProducts.push_front(product);
+        runInfoProducts.push_front(product.release());
         wasMerged = true;
       }
     }
@@ -450,14 +449,6 @@ ExternalLHEProducer::executeScript()
       break;
     }
   } while (true);
-  edm::Service<edm::TimingServiceBase> ts;
-  if(ts.isAvailable()) {
-    struct rusage ru;
-    getrusage(RUSAGE_CHILDREN,&ru);
-    double time = static_cast<double>(ru.ru_stime.tv_sec) + (static_cast<double>(ru.ru_stime.tv_usec) * 1E-6) +
-                  static_cast<double>(ru.ru_utime.tv_sec) + (static_cast<double>(ru.ru_utime.tv_usec) * 1E-6);
-    ts->addToCPUTime(time);
-  }
   if (rc) {
     throw cms::Exception("ExternalLHEProducer") << "Child failed with exit code " << rc << ".";
   }

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import os
 import glob
 import sys
@@ -25,7 +26,7 @@ def unpackRelease(relName):
 try:
     webDir = os.environ['PastResults']
 except:
-    print 'Run cmsenv and source UtilityCommands.(c)sh first!'
+    print('Run cmsenv and source UtilityCommands.(c)sh first!')
     sys.exit(0)
 
 webDir           += '/'

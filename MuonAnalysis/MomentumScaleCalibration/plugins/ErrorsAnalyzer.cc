@@ -123,6 +123,9 @@ void ErrorsAnalyzer::drawHistograms(const TProfile * histo, const TProfile * his
 
   canvas->Draw();
 
+  delete [] posErrors;
+  delete [] negErrors;
+
   graphAsymmErrors->SetTitle("");
   graphAsymmErrors->SetFillColor(kGray);
   graphAsymmErrors->Draw("A2");

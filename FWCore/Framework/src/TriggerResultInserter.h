@@ -26,6 +26,7 @@ namespace edm
   class Event;
   class EventSetup;
   class HLTGlobalStatus;
+  class TriggerResults;
 
   class TriggerResultInserter : public edm::global::EDProducer<>
   {
@@ -47,6 +48,7 @@ namespace edm
     std::vector<edm::propagate_const<TrigResPtr>> resultsPerStream_;
 
     ParameterSetID pset_id_;
+    EDPutTokenT<TriggerResults> token_;
   };
 }
 #endif

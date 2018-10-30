@@ -123,7 +123,8 @@ namespace l1t {
         res_hit = static_cast<EMTFCollections*>(coll)->getEMTFHits();
         EMTFHit Hit_;
 
-	// Also unpack into RPC digis? - AWB 15.03.17
+        CPPFDigiCollection* res_CPPF;
+        res_CPPF = static_cast<EMTFCollections*>(coll)->getEMTFCPPFs();
 
 	////////////////////////////
 	// Unpack the RPC Data Record
@@ -169,8 +170,8 @@ namespace l1t {
 	// Each chamber can send up to 2 stubs per BX
 	// Also count stubs in corresponding CSC chamber; RPC hit counting is on top of LCT counting
 	Hit_.set_stub_num(0);
-	// // See if matching hit is already in event record (from neighboring sector) 
-	// bool duplicate_hit_exists = false;
+	// See if matching hit is already in event record
+	bool exact_duplicate = false;
 	for (auto const & iHit : *res_hit) {
 	  
 	  if ( Hit_.BX()      == iHit.BX()      && 
@@ -179,22 +180,32 @@ namespace l1t {
 	       Hit_.Chamber() == iHit.Chamber() ) {
 
 	    if ( (iHit.Is_CSC() == 1 && iHit.Ring() == 2) ||
-		 (iHit.Is_RPC() == 1) ) { // RPC rings 2 and 3 both map to CSC ring 2 
-
+		 (iHit.Is_RPC() == 1) ) { // RPC rings 2 and 3 both map to CSC ring 2
 	      if ( Hit_.Neighbor() == iHit.Neighbor() ) {
 		Hit_.set_stub_num( Hit_.Stub_num() + 1);
-	      } // else if ( iHit.Is_RPC()   == 1               &&
-	      	// 	  iHit.Ring()     == Hit_.Ring()     &&
-	      	// 	  iHit.Theta_fp() == Hit_.Theta_fp() &&
-	      	// 	  iHit.Phi_fp()   == Hit_.Phi_fp()   ) {
-	      	// duplicate_hit_exists = true;
-	      // }
+		if ( iHit.Is_RPC() == 1                 &&
+		     iHit.Ring()     == Hit_.Ring()     &&
+		     iHit.Theta_fp() == Hit_.Theta_fp() &&
+		     iHit.Phi_fp()   == Hit_.Phi_fp()   ) {
+		  exact_duplicate = true;
+		}
+	      }
 	    }
 	  }
 	} // End loop: for (auto const & iHit : *res_hit)
 
+        if (exact_duplicate) edm::LogWarning("L1T|EMTF") << "EMTF unpacked duplicate CPPF digis: BX " << Hit_.BX()
+                                                         << ", endcap " << Hit_.Endcap() << ", station " << Hit_.Station()
+                                                         << ", sector " << Hit_.Sector() << ", neighbor " << Hit_.Neighbor()
+                                                         << ", ring " << Hit_.Ring() << ", chamber " << Hit_.Chamber()
+                                                         << ", theta " << Hit_.Theta_fp() / 4 << ", phi " << Hit_.Phi_fp() / 4 << std::endl;
+
+
 	(res->at(iOut)).push_RPC(RPC_);
-	res_hit->push_back(Hit_);
+	if (!exact_duplicate)
+	  res_hit->push_back(Hit_);
+	if (!exact_duplicate)
+	  res_CPPF->push_back( Hit_.CreateCPPFDigi() );
 	
 	// Finished with unpacking one RPC Data Record
 	return true;

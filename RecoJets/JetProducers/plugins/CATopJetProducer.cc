@@ -18,7 +18,7 @@ CATopJetProducer::CATopJetProducer(edm::ParameterSet const& conf):
 
 	if (tagAlgo_ == CA_TOPTAGGER ) {
 		
-		legacyCMSTopTagger_ = std::auto_ptr<CATopJetAlgorithm>(
+		legacyCMSTopTagger_ = std::unique_ptr<CATopJetAlgorithm>(
 			new CATopJetAlgorithm(src_,
 			conf.getParameter<bool>  ("verbose"),              
        			conf.getParameter<int>	("algorithm"),                  // 0 = KT, 1 = CA, 2 = anti-KT
@@ -41,14 +41,14 @@ CATopJetProducer::CATopJetProducer(edm::ParameterSet const& conf):
       		));
 	}
 	else if (tagAlgo_ == FJ_CMS_TOPTAG ) {
-		fjCMSTopTagger_ = std::auto_ptr<fastjet::CMSTopTagger>(
+		fjCMSTopTagger_ = std::unique_ptr<fastjet::CMSTopTagger>(
 			new fastjet::CMSTopTagger(conf.getParameter<double> ("ptFrac"),
 						  conf.getParameter<double> ("rFrac"),
 						  conf.getParameter<double> ("adjacencyParam"))
 		);
 	}
 	else if (tagAlgo_ == FJ_JHU_TOPTAG ) {
-		fjJHUTopTagger_ = std::auto_ptr<fastjet::JHTopTagger>(
+		fjJHUTopTagger_ = std::unique_ptr<fastjet::JHTopTagger>(
 			new fastjet::JHTopTagger(conf.getParameter<double>("ptFrac"),
 						 conf.getParameter<double>("deltaRCut"),
 						 conf.getParameter<double>("cosThetaWMax")
@@ -59,7 +59,7 @@ CATopJetProducer::CATopJetProducer(edm::ParameterSet const& conf):
 		
 		fastjet::JetDefinition::Plugin *plugin = new fastjet::SISConePlugin(0.6, 0.75);
 		fastjet::JetDefinition NsubJetDef(plugin);
-		fjNSUBTagger_ = std::auto_ptr<fastjet::RestFrameNSubjettinessTagger>(
+		fjNSUBTagger_ = std::unique_ptr<fastjet::RestFrameNSubjettinessTagger>(
 			new fastjet::RestFrameNSubjettinessTagger(NsubJetDef,
 								  conf.getParameter<double>("tau2Cut"),
 								  conf.getParameter<double>("cosThetaSCut"),

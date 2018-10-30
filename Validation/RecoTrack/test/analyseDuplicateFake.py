@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import ROOT
 
 from Validation.RecoTrack.plotting.ntuple import *
@@ -13,19 +14,19 @@ def main():
     printTP = TrackingParticlePrinter(trackPrinter=TrackPrinter())
 
     for event in ntuple:
-        print "Event", event.eventIdStr()
-        print "Fake tracks"
+        print("Event", event.eventIdStr())
+        print("Fake tracks")
         for track in event.tracks():
             if track.nMatchedTrackingParticles() == 0:
                 printTrack(track)
-                print
+                print()
 
-        print "Duplicate tracks"
+        print("Duplicate tracks")
         for tp in event.trackingParticles():
             if tp.nMatchedTracks() >= 2:
                 printTP(tp)
-                print
-        print
+                print()
+        print()
 
         if event.entry() >= 1:
             break

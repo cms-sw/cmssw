@@ -5,7 +5,6 @@
 #include <limits>
 
 namespace {
-  constexpr float chi2_constant = 64.f/((1<<7) - 1);
   constexpr float timereso_max = 10000;
 }
 

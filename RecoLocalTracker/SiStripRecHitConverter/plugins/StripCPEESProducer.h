@@ -20,7 +20,7 @@ class  StripCPEESProducer: public edm::ESProducer {
 
  private:
 
-  enum CPE_t { SIMPLE, TRACKANGLE, GEOMETRIC };
+  enum CPE_t { SIMPLE, TRACKANGLE, GEOMETRIC, FAKE };
   std::map<std::string,CPE_t> enumMap; 
 
   CPE_t cpeNum;

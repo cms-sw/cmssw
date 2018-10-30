@@ -39,12 +39,13 @@ class L1MuDTChambPhContainer {
   typedef Phi_Container::const_iterator   Phi_iterator;
 
   //  Constructors
-  L1MuDTChambPhContainer();
+  L1MuDTChambPhContainer() = default;
+  explicit L1MuDTChambPhContainer(Phi_Container );
 
   //  Destructor
-  ~L1MuDTChambPhContainer();
+  ~L1MuDTChambPhContainer() = default;
 
-  void setContainer(const Phi_Container& inputSegments);
+  void setContainer(Phi_Container inputSegments);
 
   Phi_Container const* getContainer() const;
 

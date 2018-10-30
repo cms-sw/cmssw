@@ -29,8 +29,8 @@ class CaloGeometryEPtest : public edm::ESProducer
 {
    public:
 
-      typedef CaloGeometryLoaderTest<T>          LoaderType ;
-      typedef typename LoaderType::PtrType   PtrType    ;
+      using LoaderType = CaloGeometryLoaderTest<T>;
+      using PtrType = typename LoaderType::PtrType;
 
       CaloGeometryEPtest<T>( const edm::ParameterSet& ps ) :
 	 m_applyAlignment ( ps.getParameter<bool>("applyAlignment") )
@@ -64,9 +64,7 @@ class CaloGeometryEPtest : public edm::ESProducer
 	 iRecord.template getRecord<IdealGeometryRecord>().get( cpv ) ;
 
 	 LoaderType loader ;
-	 PtrType ptr ( loader.load( &(*cpv), alignPtr, globalPtr ) ) ; // no temporaries for shared+ptr!! 
-
-	 return ptr ; 
+	 return loader.load( &(*cpv), alignPtr, globalPtr);
       }
 
    private:

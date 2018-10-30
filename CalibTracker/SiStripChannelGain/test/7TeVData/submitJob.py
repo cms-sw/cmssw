@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import os,sys
 import getopt
 import commands
@@ -42,7 +43,7 @@ name = "Run_"+str(firstRun)+"_to_"+str(lastRun)
 if len(calMode)>0:  name = name+"_"+calMode
 if(usePCL==True):   name = name+"_PCL"
 else:               name = name+"_CalibTree"
-print name
+print(name)
 
 automatic = opt.automatic
 scriptDir = opt.scriptDir

@@ -55,7 +55,7 @@ HFShowerLibrary::HFShowerLibrary(const std::string & name, const DDCompactView &
     throw cms::Exception("Unknown", "HFShowerLibrary") 
       << "Opening of " << pTreeName << " fails\n";
   } else {
-    edm::LogInfo("HFShower") << "HFShowerLibrary: opening " << nTree 
+    edm::LogVerbatim("HFShower") << "HFShowerLibrary: opening " << nTree 
                              << " successfully"; 
   }
 
@@ -92,7 +92,7 @@ HFShowerLibrary::HFShowerLibrary(const std::string & name, const DDCompactView &
     if(i/10*10 == i && i > 0) { ss << "\n"; }
     ss << "  " << pmom[i]/CLHEP::GeV;
   }
-  edm::LogInfo("HFShower") << ss.str();
+  edm::LogVerbatim("HFShower") << ss.str();
 
   std::string nameBr = branchPre + emName + branchPost;
   emBranch         = event->GetBranch(nameBr.c_str());
@@ -106,7 +106,7 @@ HFShowerLibrary::HFShowerLibrary(const std::string & name, const DDCompactView &
     v3version=true;
   }
   
-  edm::LogInfo("HFShower") << " HFShowerLibrary:Branch " << emName 
+  edm::LogVerbatim("HFShower") << " HFShowerLibrary:Branch " << emName 
                            << " has " << emBranch->GetEntries() 
                            << " entries and Branch " << hadName 
                            << " has " << hadBranch->GetEntries() 
@@ -139,7 +139,7 @@ void HFShowerLibrary::initRun(G4ParticleTable*, const HcalDDDSimConstants* hcons
   //Delta phi
   std::vector<double> phibin   = hcons->getPhiTableHF();
   dphi       = phibin[0];
-  edm::LogInfo("HFShower") << "HFShowerLibrary: rMIN " << rMin/cm 
+  edm::LogVerbatim("HFShower") << "HFShowerLibrary: rMIN " << rMin/cm 
                            << " cm and rMax " << rMax/cm
                            << " (Half) Phi Width of wedge " 
                            << dphi/deg;
@@ -172,7 +172,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(const G4Step * aStep,
     preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
   double zoff   = localPos.z() + 0.5*gpar[1];
 
-  edm::LogInfo("HFShower") << "HFShowerLibrary::getHits " << partType
+  edm::LogVerbatim("HFShower") << "HFShowerLibrary::getHits " << partType
                            << " of energy " << pin/GeV << " GeV"
                            << " weight= " << weight << " onlyLong: " << onlyLong
                            << "  dir.orts " << momDir.x() << ", " <<momDir.y()
@@ -241,7 +241,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector 
   for (int i = 0; i < npe; ++i) {
     double zv = std::abs(pe[i].z()); // abs local z  
 #ifdef DebugLog
-    edm::LogInfo("HFShower") << "HFShowerLibrary: Hit " << i << " " << pe[i] << " zv " << zv;
+    edm::LogVerbatim("HFShower") << "HFShowerLibrary: Hit " << i << " " << pe[i] << " zv " << zv;
 #endif
     if (zv <= gpar[1] && pe[i].lambda() > 0 && 
         (pe[i].z() >= 0 || (zv > gpar[0] && (!onlyLong)))) {
@@ -280,7 +280,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector 
       if (dfi < 0) dfi = -dfi;
       double dfir  = r * sin(dfi);
 #ifdef DebugLog
-      edm::LogInfo("HFShower") << "HFShowerLibrary: Position shift " << xx 
+      edm::LogVerbatim("HFShower") << "HFShowerLibrary: Position shift " << xx 
                                << ", " << yy << ", "  << zz << ": " << pos 
                                << " R " << r << " Phi " << fi << " Section " 
                                << isect << " R*Dfi " << dfir << " Dist " << zv;
@@ -292,7 +292,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector 
       if (!applyFidCut) dfir += gpar[5];
 
 #ifdef DebugLog
-      edm::LogInfo("HFShower") << "HFShowerLibrary: rLimits " << rInside(r)
+      edm::LogVerbatim("HFShower") << "HFShowerLibrary: rLimits " << rInside(r)
                                << " attenuation " << r1 <<":" << exp(-p*zv) 
                                << " r2 " << r2 << " r3 " << r3 << " rDfi "  
                                << gpar[5] << " zz " 
@@ -315,7 +315,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector 
         oneHit.time     = (tSlice+(pe[i].t())+(fibre->tShift(lpos,depth,1)));
         hit.push_back(oneHit);
 #ifdef DebugLog
-        edm::LogInfo("HFShower") << "HFShowerLibrary: Final Hit " << nHit 
+        edm::LogVerbatim("HFShower") << "HFShowerLibrary: Final Hit " << nHit 
                                  <<" position " << (hit[nHit].position) 
                                  << " Depth " << (hit[nHit].depth) <<" Time " 
                                  << tSlice << ":" << pe[i].t() << ":" 
@@ -336,7 +336,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector 
           oneHit.time     = (tSlice+(pe[i].t())+(fibre->tShift(lpos,2,1)));
           hit.push_back(oneHit);
 #ifdef DebugLog
-          edm::LogInfo("HFShower") << "HFShowerLibrary: Final Hit " << nHit 
+          edm::LogVerbatim("HFShower") << "HFShowerLibrary: Final Hit " << nHit 
                                    << " position " << (hit[nHit].position) 
                                    << " Depth " << (hit[nHit].depth) <<" Time "
                                    << tSlice << ":" << pe[i].t() << ":" 
@@ -350,7 +350,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector 
   }
 
 #ifdef DebugLog
-  edm::LogInfo("HFShower") << "HFShowerLibrary: Total Hits " << nHit
+  edm::LogVerbatim("HFShower") << "HFShowerLibrary: Total Hits " << nHit
                            << " out of " << npe << " PE";
 #endif
   if (nHit > npe && !onlyLong) {
@@ -430,7 +430,7 @@ void HFShowerLibrary::loadEventInfo(TBranch* branch) {
     std::vector<HFShowerLibraryEventInfo> eventInfoCollection;
     branch->SetAddress(&eventInfoCollection);
     branch->GetEntry(0);
-    edm::LogInfo("HFShower") << "HFShowerLibrary::loadEventInfo loads "
+    edm::LogVerbatim("HFShower") << "HFShowerLibrary::loadEventInfo loads "
                              << " EventInfo Collection of size "
                              << eventInfoCollection.size() << " records";
     totEvents   = eventInfoCollection[0].totalEvents();
@@ -440,7 +440,7 @@ void HFShowerLibrary::loadEventInfo(TBranch* branch) {
     listVersion = eventInfoCollection[0].physListVersion();
     pmom        = eventInfoCollection[0].energyBins();
   } else {
-    edm::LogInfo("HFShower") << "HFShowerLibrary::loadEventInfo loads "
+    edm::LogVerbatim("HFShower") << "HFShowerLibrary::loadEventInfo loads "
                              << " EventInfo from hardwired numbers";
     nMomBin     = 16;
     evtPerBin   = 5000;

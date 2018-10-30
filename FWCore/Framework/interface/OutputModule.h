@@ -32,9 +32,11 @@ output stream.
 #include <vector>
 #include <map>
 #include <atomic>
+#include <set>
 
 namespace edm {
 
+  class MergeableRunProductMetadata;
   class ModuleCallingContext;
   class PreallocationConfiguration;
   class ActivityRegistry;
@@ -191,7 +193,7 @@ namespace edm {
     //------------------------------------------------------------------
     // private member functions
     //------------------------------------------------------------------
-    void doWriteRun(RunPrincipal const& rp, ModuleCallingContext const* mcc);
+    void doWriteRun(RunPrincipal const& rp, ModuleCallingContext const* mcc, MergeableRunProductMetadata const*);
     void doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp, ModuleCallingContext const* mcc);
     void doOpenFile(FileBlock const& fb);
     void doRespondToOpenInputFile(FileBlock const& fb);
@@ -229,6 +231,8 @@ namespace edm {
     virtual void openFile(FileBlock const&) {}
     virtual void respondToOpenInputFile(FileBlock const&) {}
     virtual void respondToCloseInputFile(FileBlock const&) {}
+
+    virtual void setProcessesWithSelectedMergeableRunProducts(std::set<std::string> const&) {}
 
     bool hasAcquire() const { return false; }
     bool hasAccumulator() const { return false; }

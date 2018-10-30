@@ -1,0 +1,14 @@
+<use   name="Geometry/MTDNumberingBuilder"/>
+<use   name="FWCore/Framework"/>
+<use   name="Geometry/Records"/>
+<use   name="DataFormats/TrackerCommon"/>
+
+<library   file="MTDModuleNumbering.cc" name="MTDModuleNumbering">
+  <use name="Geometry/MTDGeometryBuilder"/>
+  <use name="Geometry/TrackerGeometryBuilder"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="GeometricTimingDetAnalyzer.cc" name="testMTDNumberingBuilder">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+

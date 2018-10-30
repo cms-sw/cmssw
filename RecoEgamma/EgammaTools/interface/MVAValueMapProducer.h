@@ -14,6 +14,9 @@
 
 #include "RecoEgamma/EgammaTools/interface/AnyMVAEstimatorRun2Base.h"
 
+#include "RecoEgamma/EgammaTools/interface/Utils.h"
+#include "RecoEgamma/EgammaTools/interface/MultiToken.h"
+
 #include <memory>
 #include <vector>
 #include <cmath>
@@ -32,17 +35,8 @@ class MVAValueMapProducer : public edm::stream::EDProducer<> {
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-  template<typename T>
-  void writeValueMap(edm::Event &iEvent,
-             const edm::Handle<edm::View<ParticleType> > & handle,
-             const std::vector<T> & values,
-             const std::string    & label) const ;
-
-  // for AOD case
-  edm::EDGetToken src_;
-
-  // for miniAOD case
-  edm::EDGetToken srcMiniAOD_;
+  // for AOD and MiniAOD case
+  MultiTokenT<edm::View<ParticleType>> src_;
 
   // MVA estimator
   std::vector<std::unique_ptr<AnyMVAEstimatorRun2Base>> mvaEstimators_;
@@ -56,14 +50,9 @@ class MVAValueMapProducer : public edm::stream::EDProducer<> {
 
 template <class ParticleType>
 MVAValueMapProducer<ParticleType>::MVAValueMapProducer(const edm::ParameterSet& iConfig)
+  : src_(consumesCollector(), iConfig, "src", "srcMiniAOD")
+
 {
-
-  //
-  // Declare consummables, handle both AOD and miniAOD case
-  //
-  src_        = mayConsume<edm::View<ParticleType> >(iConfig.getParameter<edm::InputTag>("src"));
-  srcMiniAOD_ = mayConsume<edm::View<ParticleType> >(iConfig.getParameter<edm::InputTag>("srcMiniAOD"));
-
   // Loop over the list of MVA configurations passed here from python and
   // construct all requested MVA estimators.
   const std::vector<edm::ParameterSet>& mvaEstimatorConfigs
@@ -115,19 +104,7 @@ MVAValueMapProducer<ParticleType>::~MVAValueMapProducer() {
 template <class ParticleType>
 void MVAValueMapProducer<ParticleType>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-  edm::Handle<edm::View<ParticleType> > src;
-
-  // Retrieve the collection of particles from the event.
-  // If we fail to retrieve the collection with the standard AOD
-  // name, we next look for the one with the stndard miniAOD name.
-  iEvent.getByToken(src_, src);
-  if( !src.isValid() ){
-    iEvent.getByToken(srcMiniAOD_,src);
-    if( !src.isValid() )
-      throw cms::Exception(" Collection not found: ")
-        << " failed to find a standard AOD or miniAOD particle collection " << std::endl;
-  }
-
+  edm::Handle<edm::View<ParticleType> > src = src_.getValidHandle(iEvent);
 
   // Loop over MVA estimators
   for( unsigned iEstimator = 0; iEstimator < mvaEstimators_.size(); iEstimator++ ){
@@ -139,10 +116,11 @@ void MVAValueMapProducer<ParticleType>::produce(edm::Event& iEvent, const edm::E
     // Loop over particles
     for (size_t i = 0; i < src->size(); ++i){
       auto iCand = src->ptrAt(i);
-      const float response = mvaEstimators_[iEstimator]->mvaValue( iCand, iEvent );
+      int cat = -1; // Passed by reference to the mvaValue function to store the category
+      const float response = mvaEstimators_[iEstimator]->mvaValue( iCand, iEvent, cat );
       mvaRawValues.push_back( response ); // The MVA score
       mvaValues.push_back( 2.0/(1.0+exp(-2.0*response))-1 ); // MVA output between -1 and 1
-      mvaCategories.push_back( mvaEstimators_[iEstimator]->findCategory( iCand ) );
+      mvaCategories.push_back( cat );
     } // end loop over particles
 
     writeValueMap(iEvent, src, mvaValues    , mvaValueMapNames_     [iEstimator] );
@@ -151,19 +129,6 @@ void MVAValueMapProducer<ParticleType>::produce(edm::Event& iEvent, const edm::E
 
   } // end loop over estimators
 
-}
-
-template<class ParticleType> template<typename T>
-void MVAValueMapProducer<ParticleType>::writeValueMap(edm::Event &iEvent,
-                                                      const edm::Handle<edm::View<ParticleType> > & handle,
-                                                      const std::vector<T> & values,
-                                                      const std::string    & label) const
-{
-  auto valMap = std::make_unique<edm::ValueMap<T>>();
-  typename edm::ValueMap<T>::Filler filler(*valMap);
-  filler.insert(handle, values.begin(), values.end());
-  filler.fill();
-  iEvent.put(std::move(valMap), label);
 }
 
 template <class ParticleType>

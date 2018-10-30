@@ -146,7 +146,7 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
   try{
     evt.getByToken(ElectronCollectionToken_, pElectrons);
   }
-  catch (cms::Exception)
+  catch (cms::Exception const&)
     {
       edm::LogError("")<< "Error! Can't get ElectronCollection by label. ";
     }

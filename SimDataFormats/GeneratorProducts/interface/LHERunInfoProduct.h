@@ -121,9 +121,10 @@ class LHERunInfoProduct {
 	{ return !(*this == other); }
 
 	bool mergeProduct(const LHERunInfoProduct &other);
-    	bool isProductEqual(const LHERunInfoProduct &other) const
-    	{ return *this == other; }
-        static bool isTagComparedInMerge(const std::string& tag);
+	void swap(LHERunInfoProduct& other);
+	bool isProductEqual(const LHERunInfoProduct &other) const
+	{ return *this == other; }
+	static bool isTagComparedInMerge(const std::string& tag);
 
     private:
 	lhef::HEPRUP			heprup_;

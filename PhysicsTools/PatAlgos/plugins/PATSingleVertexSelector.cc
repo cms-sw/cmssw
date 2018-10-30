@@ -128,7 +128,8 @@ PATSingleVertexSelector::filter_(Mode mode, const edm::Event &iEvent, const edm:
   case FromCand: {
     if (bestCand_.isNull()) return result;
     reco::Vertex vtx;
-    if (typeid(*bestCand_) == typeid(reco::VertexCompositeCandidate)) {
+    auto const& bestCandDeref = *bestCand_;
+    if (typeid(bestCandDeref) == typeid(reco::VertexCompositeCandidate)) {
       vtx = reco::Vertex(bestCand_->vertex(), bestCand_->vertexCovariance(),
                          bestCand_->vertexChi2(), bestCand_->vertexNdof(), bestCand_->numberOfDaughters() );
     } else {

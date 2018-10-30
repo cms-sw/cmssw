@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os,sys
 from datetime import datetime,timedelta
 import coral
@@ -50,21 +51,21 @@ try:
     cursor=query.execute()
     while next(cursor):
         startT=cursor.currentRow()['starttime']
-        print 'startT ',startT.data()
+        print('startT ',startT.data())
         s=datetime.strptime(startT.data(),'%m/%d/%y %H:%M:%S.%f')
-        print 'startT ',s
-        print 'startT month/day/year hour/minute/second.microsecond',s.month,s.day,s.year,s.hour,s.minute,s.second,s.microsecond
+        print('startT ',s)
+        print('startT month/day/year hour/minute/second.microsecond',s.month,s.day,s.year,s.hour,s.minute,s.second,s.microsecond)
         stopT=cursor.currentRow()['stoptime']
-        print 'stopT ',stopT.data()
+        print('stopT ',stopT.data())
         a=datetime.strptime(stopT.data(),'%m/%d/%y %H:%M:%S.%f')
-        print 'stopT month/day/year hour/minute/second.microsecond',a.month,a.day,a.year,a.hour,a.minute,a.second,a.microsecond
+        print('stopT month/day/year hour/minute/second.microsecond',a.month,a.day,a.year,a.hour,a.minute,a.second,a.microsecond)
         delta=timedelta(microseconds=lumisectionDelta)
-        print '2nd LS would be in ',s+delta
-        print '3rd LS would be in ',s+2*delta
+        print('2nd LS would be in ',s+delta)
+        print('3rd LS would be in ',s+2*delta)
     del query
     dbsession.transaction().commit()
 except Exception as e:
-    print 'caught exception ',str(e)
+    print('caught exception ',str(e))
     dbsession.transaction().rollback()
 del dbsession
 del svc

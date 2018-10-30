@@ -355,5 +355,10 @@ void TestIndexIntoFile1::testConstructor() {
   CPPUNIT_ASSERT(indexIntoFile.eventNumbers().empty());
   CPPUNIT_ASSERT(indexIntoFile.setRunOrLumiEntries().empty());
   CPPUNIT_ASSERT(indexIntoFile.setProcessHistoryIDs().empty());
-}
 
+  std::vector<LuminosityBlockNumber_t> lumis;
+  lumis.push_back(1);
+  edm::IndexIntoFile::IndexIntoFileItr iter = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
+  iter.getLumisInRun(lumis);
+  CPPUNIT_ASSERT(lumis.empty());
+}

@@ -138,6 +138,9 @@ calotowermaker = cms.EDProducer("CaloTowersCreator",
      UseRejectedRecoveredHcalHits = cms.bool(True),
      UseRejectedRecoveredEcalHits = cms.bool(False),
 
+#    If Hcal is masked, and Ecal is present, pretend Hcal = (this factor) * Ecal
+    missingHcalRescaleFactorForEcal = cms.double(0),
+
 
 # flag to allow/disallow missing inputs
     AllowMissingInputs = cms.bool(False),

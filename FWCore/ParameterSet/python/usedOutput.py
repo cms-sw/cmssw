@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.SequenceTypes as sqt
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.Modules as mod
@@ -46,7 +47,7 @@ if __name__ == "__main__":
             p.p = cms.Path(p.foo)
             list = []
             getModulesFromSequence(p.p,list)
-            print len(list)
+            print(len(list))
 
             p=cms.Process("Test")
             p.foo = cms.OutputModule("Foo")
@@ -54,7 +55,7 @@ if __name__ == "__main__":
             p.unused = cms.OutputModule("Unused")
             p.p = cms.EndPath(p.foo*p.bar)
             usedOutputs = extractUsedOutputs(p)
-            print len(usedOutputs)
+            print(len(usedOutputs))
 
             p=cms.Process("Test")
             p.foo = cms.EDProducer("Foo")
@@ -64,7 +65,7 @@ if __name__ == "__main__":
             p.p = cms.Path(p.s*p.fii)
             list = []
             getModulesFromSequence(p.p,list)
-            print len(list)
+            print(len(list))
                        
 
     unittest.main()

@@ -1426,6 +1426,38 @@ namespace edm {
     nEvents_ = position.nEvents_;
   }
 
+  void
+  IndexIntoFile::IndexIntoFileItrImpl::getLumisInRun(std::vector<LuminosityBlockNumber_t> & lumis) const {
+
+    lumis.clear();
+
+    if (type_ == kEnd) return;
+
+    LuminosityBlockNumber_t previousLumi = invalidLumi;
+
+    for (int i = 1; (i + indexToRun_) < size_; ++i) {
+      int index = i + indexToRun_;
+      EntryType entryType = getRunOrLumiEntryType(index);
+
+      if(entryType == kRun) {
+        if(isSameRun(indexToRun_, index)) {
+          continue;
+        } else {
+          break;
+        }
+      } else {
+        LuminosityBlockNumber_t luminosityBlock = lumi(index);
+        if (luminosityBlock != invalidLumi &&
+            luminosityBlock != previousLumi) {
+          lumis.push_back(luminosityBlock);
+          previousLumi = luminosityBlock;
+        }
+      }
+    }
+    std::sort(lumis.begin(), lumis.end());
+    lumis.erase(std::unique(lumis.begin(), lumis.end()), lumis.end());
+  }
+
   void IndexIntoFile::IndexIntoFileItrImpl::setInvalid() {
     type_ = kEnd;
     indexToRun_ = invalidIndex;
@@ -1628,6 +1660,13 @@ namespace edm {
            indexIntoFile()->runOrLumiEntries()[index2].processHistoryIDIndex();
   }
 
+  LuminosityBlockNumber_t IndexIntoFile::IndexIntoFileItrNoSort::lumi(int index) const {
+    if(index < 0 || index >= size()) {
+      return invalidLumi;
+    }
+    return indexIntoFile()->runOrLumiEntries()[index].lumi();
+  }
+
   IndexIntoFile::IndexIntoFileItrSorted::IndexIntoFileItrSorted(IndexIntoFile const* indexIntoFile,
                          EntryType entryType,
                          int indexToRun,
@@ -1785,6 +1824,13 @@ namespace edm {
            indexIntoFile()->runOrLumiIndexes()[index2].run() &&
            indexIntoFile()->runOrLumiIndexes()[index1].processHistoryIDIndex() ==
            indexIntoFile()->runOrLumiIndexes()[index2].processHistoryIDIndex();
+  }
+
+  LuminosityBlockNumber_t IndexIntoFile::IndexIntoFileItrSorted::lumi(int index) const {
+    if(index < 0 || index >= size()) {
+      return invalidLumi;
+    }
+    return indexIntoFile()->runOrLumiIndexes()[index].lumi();
   }
 
   IndexIntoFile::IndexIntoFileItr::IndexIntoFileItr(IndexIntoFile const* indexIntoFile,

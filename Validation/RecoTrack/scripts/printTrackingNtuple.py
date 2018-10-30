@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import argparse
 
 import Validation.RecoTrack.plotting.ntuple as ntuple
@@ -25,19 +26,19 @@ def main(opts):
 
     if opts.entry is not None:
         event = ntpl.getEvent(opts.entry)
-        print event.eventIdStr()
+        print(event.eventIdStr())
     elif opts.event is not None:
         event = findEvent(ntpl, opts.event)
-        print "Entry %d" % event.entry()
+        print("Entry %d" % event.entry())
 
     hasHits = ntpl.hasHits()
     hasSeeds = ntpl.hasSeeds()
 
     if not hasSeeds and opts.seed is not None:
-        print "Ntuple %s does not have seeds saved!" % opts.file
+        print("Ntuple %s does not have seeds saved!" % opts.file)
         return
     if not hasHits and (opts.pixelHit is not None or opts.stripHit is not None):
-        print "Ntuple %s does not have hits saved!" % opts.file
+        print("Ntuple %s does not have hits saved!" % opts.file)
         return
 
     seedArgs = dict(hits=hasHits, bestMatchingTrackingParticle=hasHits)
@@ -57,7 +58,7 @@ def main(opts):
     if opts.track is not None:
         trks = event.tracks()
         if opts.track >= len(trks):
-            print "You requested track %d, but this event has only %d tracks" % (opts.track, len(trks))
+            print("You requested track %d, but this event has only %d tracks" % (opts.track, len(trks)))
             return
         trk = trks[opts.track]
         printTrack(trk)
@@ -65,7 +66,7 @@ def main(opts):
     if opts.trackingParticle is not None:
         tps = event.trackingParticles()
         if opts.trackingParticle >= len(tps):
-            print "You requested TrackingParticle %d, but this event has ony %d TrackingParticles" % (opts.trackingParticle, len(tps))
+            print("You requested TrackingParticle %d, but this event has ony %d TrackingParticles" % (opts.trackingParticle, len(tps)))
             return
         tp = tps[opts.trackingParticle]
         printTrackingParticle(tp)
@@ -75,12 +76,12 @@ def main(opts):
         if opts.seedIteration is not None:
             algo = getattr(ntuple.Algo, opts.seedIteration)
             if opts.seed >= seeds.nSeedsForAlgo(algo):
-                print "You requested seed %d for algo %s, but this event has only %d seeds for that algo" % (opts.seed, opts.seedIteration, seeds.nSeedsForAlgo(algo))
+                print("You requested seed %d for algo %s, but this event has only %d seeds for that algo" % (opts.seed, opts.seedIteration, seeds.nSeedsForAlgo(algo)))
                 return
             seed = seeds.seedForAlgo(algo, opts.seed)
         else:
             if opts.seed >= len(seeds):
-                print "You requested seed %d, but this event has only %d seeds" % (opts.seed, len(seeds))
+                print("You requested seed %d, but this event has only %d seeds" % (opts.seed, len(seeds)))
                 return
             seed = seeds[opts.seed]
         printSeed(seed)
@@ -88,29 +89,29 @@ def main(opts):
     if opts.pixelHit is not None:
         hits = event.pixelHits()
         if opts.pixelHit >= len(hits):
-            print "You requested pixel hit %d, but this event has only %d pixel hits" % (opts.pixelHit, len(hits))
+            print("You requested pixel hit %d, but this event has only %d pixel hits" % (opts.pixelHit, len(hits)))
             return
 
         hit = hits[opts.pixelHit]
-        print "Pixel hit %d tracks" % opts.pixelHit
+        print("Pixel hit %d tracks" % opts.pixelHit)
         for t in hit.tracks():
             printTrack(t)
         if hasSeeds:
-            print "Pixel hit %d seeds" % opts.pixelHit
+            print("Pixel hit %d seeds" % opts.pixelHit)
             for s in hit.seeds():
                 printSeed(s)
 
     if opts.stripHit is not None:
         hits = event.stripHits()
         if opts.stripHit >= len(hits):
-            print "You requested strip hit %d, but this event has only %d strip hits" % (opts.stripHit, len(hits))
+            print("You requested strip hit %d, but this event has only %d strip hits" % (opts.stripHit, len(hits)))
             return
         hit = hits[opts.stripHit]
-        print "Strip hit %d tracks" % opts.stripHit
+        print("Strip hit %d tracks" % opts.stripHit)
         for t in hit.tracks():
             printTrack(t)
         if hasSeeds:
-            print "Strip hit %d seeds" % opts.stripHit
+            print("Strip hit %d seeds" % opts.stripHit)
             for s in hit.seeds():
                 printSeed(s)
 

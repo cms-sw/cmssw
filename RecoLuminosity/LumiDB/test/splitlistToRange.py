@@ -1,3 +1,4 @@
+from __future__ import print_function
 def splitlistToRange(inPut):
     result=[]
     first=inPut[0]
@@ -14,10 +15,10 @@ def splitlistToRange(inPut):
     return result
 if __name__=='__main__':
     i=[1,2,3,4,5,6,8,9,10]
-    print 'input ',i
+    print('input ',i)
     isplit=splitlistToRange(i)
-    print ['['+str(min(x))+'-'+str(max(x))+']' for x in isplit]
+    print(['['+str(min(x))+'-'+str(max(x))+']' for x in isplit])
     i=[1,3,5,6,8,9,10,97,100]
-    print 'input ',i
+    print('input ',i)
     isplit=splitlistToRange(i)
-    print ['['+str(min(x))+'-'+str(max(x))+']' for x in isplit]
+    print(['['+str(min(x))+'-'+str(max(x))+']' for x in isplit])

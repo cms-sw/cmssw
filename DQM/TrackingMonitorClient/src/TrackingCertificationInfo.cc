@@ -114,11 +114,10 @@ void TrackingCertificationInfo::beginRun(edm::Run const& run, edm::EventSetup co
   const int siPixelFedIdMax = FEDNumbering::MAXSiPixelFEDID;
   const int siPixelFeds = (siPixelFedIdMax-siPixelFedIdMin+1);
 
-  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-  if( eSetup.find( recordKey ) != nullptr) {
+  if(auto runInfoRec = eSetup.tryToGet<RunInfoRcd>()) {
 
     edm::ESHandle<RunInfo> sumFED;
-    eSetup.get<RunInfoRcd>().get(sumFED);    
+    runInfoRec->get(sumFED);
     
     if ( sumFED.isValid() ) {
 

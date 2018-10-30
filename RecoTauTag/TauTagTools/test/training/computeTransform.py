@@ -12,6 +12,7 @@ of f(x) at x = i*(max-min)/(len(t)-1) + min
 Authors: Evan K. Friis, Christian Veelken (UC Davis)
 
 '''
+from __future__ import print_function
 
 from RecoLuminosity.LumiDB import argparse
 
@@ -29,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 import ROOT
 import sys
 
-print "Building transformation:", options.o
+print("Building transformation:", options.o)
 
 ROOT.gROOT.SetBatch(True)
 
@@ -41,10 +42,10 @@ background_denominator_histo = background_file.Get("plotInputJets/pt")
 signal_histo = signal_file.Get("cleanTauPlots/hpsTancTausDiscriminationByTancRaw")
 background_histo = background_file.Get("cleanTauPlots/hpsTancTausDiscriminationByTancRaw")
 
-print "Signal has %i entries in clean, %i in total" % (
-    signal_histo.Integral(), signal_denominator_histo.Integral())
-print "Background has %i entries in clean, %i in total" % (
-    background_histo.Integral(), background_denominator_histo.Integral())
+print("Signal has %i entries in clean, %i in total" % (
+    signal_histo.Integral(), signal_denominator_histo.Integral()))
+print("Background has %i entries in clean, %i in total" % (
+    background_histo.Integral(), background_denominator_histo.Integral()))
 
 # Determine the probability for a given jet to end up in this decay mode stream
 signal_scale = signal_histo.Integral()/signal_denominator_histo.Integral()
@@ -105,9 +106,9 @@ def compute_transform(raw_cut, signal_cdf, signal_scale,
     return output
 
 # Build the cumulative distribution functions
-print "Building signal c.d.f"
+print("Building signal c.d.f")
 signal_cdf = make_cdf(signal_histo)
-print "Building background c.d.f"
+print("Building background c.d.f")
 background_cdf = make_cdf(background_histo)
 transform = lambda x: compute_transform(x, signal_cdf, signal_scale,
                                         background_cdf, background_scale)
@@ -118,8 +119,8 @@ for ix in range(npoints):
     transform_values.append(transform_result['transform'])
     # Check if this is one of our cuts
     if thresholds and transform_result['signal_passing'] < thresholds[0]:
-        print "***********"
-        print x, transform_result
+        print("***********")
+        print(x, transform_result)
         thresholds.pop(0)
         threshold_values.append((x, transform_result['transform']))
 
@@ -128,7 +129,7 @@ output_object.transform = cms.vdouble(transform_values)
 output_object.signalDecayModeWeight = cms.double(signal_scale)
 output_object.backgroundDecayModeWeight = cms.double(background_scale)
 
-print threshold_values
+print(threshold_values)
 
 # On the chance that a decay mode has nothing in it
 if not threshold_values:
@@ -147,6 +148,6 @@ output_file.write("transform = %s\n" % output_object.dumpPython())
 
 output_file.close()
 
-print "Transform file %s created" % options.o
+print("Transform file %s created" % options.o)
 
 sys.exit(0)

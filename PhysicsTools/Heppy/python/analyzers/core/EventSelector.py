@@ -1,3 +1,4 @@
+from __future__ import print_function
 from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
 
 
@@ -51,7 +52,7 @@ class EventSelector( Analyzer ):
         eId = event.input.eventAuxiliary().id().event()
         if eId in self.cfg_ana.toSelect or (run, lumi, eId) in self.cfg_ana.toSelect:
             # raise ValueError('found')
-            print 'Selecting', run, lumi, eId
+            print('Selecting', run, lumi, eId)
             return True 
         else:
             return False

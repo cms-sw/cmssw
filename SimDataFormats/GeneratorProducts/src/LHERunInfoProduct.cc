@@ -214,7 +214,7 @@ bool LHERunInfoProduct::find_if_checklist(const std::string x, std::vector<std::
 }
 
 bool LHERunInfoProduct::isTagComparedInMerge(const std::string& tag) {
-        return !(tag == "" || tag.find("Alpgen") == 0 || tag == "MGGridCard" || tag=="MGRunCard" || tag == "mgruncard" || tag=="MadSpin" || tag=="madspin");
+        return !(tag.empty() || tag.find("Alpgen") == 0 || tag == "MGGridCard" || tag=="MGRunCard" || tag == "mgruncard" || tag=="MadSpin" || tag=="madspin");
 }
 
 bool LHERunInfoProduct::mergeProduct(const LHERunInfoProduct &other)
@@ -306,4 +306,10 @@ bool LHERunInfoProduct::mergeProduct(const LHERunInfoProduct &other)
 
 	// it is exactly the same, so merge
 	return true;
+}
+
+void LHERunInfoProduct::swap(LHERunInfoProduct& other) {
+  heprup_.swap(other.heprup_);
+  headers_.swap(other.headers_);
+  comments_.swap(other.comments_);
 }

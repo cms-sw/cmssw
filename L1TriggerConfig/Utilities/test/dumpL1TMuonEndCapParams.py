@@ -1,3 +1,4 @@
+from __future__ import print_function
 # to test the communication with DBS and produce the csctf configuration
 import FWCore.ParameterSet.Config as cms
 
@@ -38,7 +39,7 @@ options.parseArguments()
 
 # sanity checks
 if ( len(options.topKey) and len(options.systemKey) ) or ( len(options.topKey)==0 and len(options.systemKey)==0 ) :
-    print "Specify either the topKey (top-level tsc:rs key) or systemKey (system specific tsc:rs key), but not both"
+    print("Specify either the topKey (top-level tsc:rs key) or systemKey (system specific tsc:rs key), but not both")
     exit(1)
 
 # standard CMSSW stuff
@@ -61,13 +62,13 @@ if len(options.topKey) :
     process.load("CondTools.L1TriggerExt.L1TriggerKeyOnlineExt_cfi")
     process.L1TriggerKeyOnlineExt.subsystemLabels = cms.vstring('EMTF')
     # include the system-specific subkeys ESProducer (generates EMTF labeled L1TriggerKey)
-    process.load("L1TriggerConfig.L1TConfigProducers.L1TMuonEndcapObjectKeysOnline_cfi")
-    process.L1TMuonEndcapObjectKeysOnline.onlineAuthentication = cms.string( options.DBAuth    )
-    process.L1TMuonEndcapObjectKeysOnline.onlineDB             = cms.string( options.DBConnect )
+    process.load("L1TriggerConfig.L1TConfigProducers.L1TMuonEndCapObjectKeysOnline_cfi")
+    process.L1TMuonEndCapObjectKeysOnline.onlineAuthentication = cms.string( options.DBAuth    )
+    process.L1TMuonEndCapObjectKeysOnline.onlineDB             = cms.string( options.DBConnect )
 else :
     # instantiate manually the system-specific L1TriggerKey using the subsystemKey option
     process.load("CondTools.L1TriggerExt.L1TriggerKeyDummyExt_cff")
-    process.L1TriggerKeyDummyExt.tscKey = cms.string('dummyL1TMuonEndcap')
+    process.L1TriggerKeyDummyExt.tscKey = cms.string('dummyL1TMuonEndCap')
     process.L1TriggerKeyDummyExt.objectKeys = cms.VPSet(
         cms.PSet(
             record = cms.string('L1TMuonEndCapParamsO2ORcd'),

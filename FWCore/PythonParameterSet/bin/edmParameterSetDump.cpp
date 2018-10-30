@@ -23,7 +23,7 @@ int main (int argc, char **argv) try {
     std::cout << "Usage: edmParameterSetDump <cfgfile>" << std::endl;
   }
   std::string fileName(argv[1]);
-  std::shared_ptr<edm::ParameterSet> parameterSet = edm::readConfig(fileName);
+  std::shared_ptr<edm::ParameterSet> parameterSet = edm::boost_python::readConfig(fileName);
   std::cout << "====Main Process====" << std::endl;
   std::cout << parameterSet->dump() << std::endl;
   return 0;
