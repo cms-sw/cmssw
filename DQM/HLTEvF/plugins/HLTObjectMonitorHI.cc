@@ -152,6 +152,9 @@ class HLTObjectMonitorHI : public DQMEDAnalyzer {
   edm::ParameterSet HIMu0HFVetoInAndMaxTrackPt_pset;
   edm::ParameterSet HIMu0HFVetoInAndMaxTrackEta_pset;
   edm::ParameterSet HIMu0HFVetoInAndMaxTrackPhi_pset;
+  edm::ParameterSet HIFullTracksMultiplicity6080Pt_pset;
+  edm::ParameterSet HIFullTracksMultiplicity6080Eta_pset;
+  edm::ParameterSet HIFullTracksMultiplicity6080Phi_pset;
   edm::ParameterSet HIDoubleMuOpenHFVetoInAndMaxTrackPt_pset;
   edm::ParameterSet HIDoubleMuOpenHFVetoInAndMaxTrackEta_pset;
   edm::ParameterSet HIDoubleMuOpenHFVetoInAndMaxTrackPhi_pset;
@@ -215,6 +218,9 @@ class HLTObjectMonitorHI : public DQMEDAnalyzer {
   hltPlot HIMu0HFVetoInAndMaxTrackPt_;
   hltPlot HIMu0HFVetoInAndMaxTrackEta_;
   hltPlot HIMu0HFVetoInAndMaxTrackPhi_;
+  hltPlot HIFullTracksMultiplicity6080Pt_;
+  hltPlot HIFullTracksMultiplicity6080Eta_;
+  hltPlot HIFullTracksMultiplicity6080Phi_;
   hltPlot HIDoubleMuOpenHFVetoInAndMaxTrackPt_;
   hltPlot HIDoubleMuOpenHFVetoInAndMaxTrackEta_;
   hltPlot HIDoubleMuOpenHFVetoInAndMaxTrackPhi_;
@@ -345,6 +351,12 @@ HLTObjectMonitorHI::HLTObjectMonitorHI(const edm::ParameterSet& iConfig)
   plotMap[&HIMu0HFVetoInAndMaxTrackEta_] = &HIMu0HFVetoInAndMaxTrackEta_pset;
   HIMu0HFVetoInAndMaxTrackPhi_pset = iConfig.getParameter<edm::ParameterSet>("HIMu0HFVetoInAndMaxTrackPhi");
   plotMap[&HIMu0HFVetoInAndMaxTrackPhi_] = &HIMu0HFVetoInAndMaxTrackPhi_pset;
+  plotMap[&HIFullTracksMultiplicity6080Pt_] = &HIFullTracksMultiplicity6080Pt_pset;
+  HIFullTracksMultiplicity6080Eta_pset = iConfig.getParameter<edm::ParameterSet>("HIFullTracksMultiplicity6080Eta");
+  plotMap[&HIFullTracksMultiplicity6080Eta_] = &HIFullTracksMultiplicity6080Eta_pset;
+  HIFullTracksMultiplicity6080Phi_pset = iConfig.getParameter<edm::ParameterSet>("HIFullTracksMultiplicity6080Phi");
+  plotMap[&HIFullTracksMultiplicity6080Phi_] = &HIFullTracksMultiplicity6080Phi_pset;
+  HIDoubleMuOpenHFVetoInAndMaxTrackPt_pset = iConfig.getParameter<edm::ParameterSet>("HIDoubleMuOpenHFVetoInAndMaxTrackPt");
   HIDoubleMuOpenHFVetoInAndMaxTrackPt_pset = iConfig.getParameter<edm::ParameterSet>("HIDoubleMuOpenHFVetoInAndMaxTrackPt");
   plotMap[&HIDoubleMuOpenHFVetoInAndMaxTrackPt_] = &HIDoubleMuOpenHFVetoInAndMaxTrackPt_pset;
   HIDoubleMuOpenHFVetoInAndMaxTrackEta_pset = iConfig.getParameter<edm::ParameterSet>("HIDoubleMuOpenHFVetoInAndMaxTrackEta");
@@ -589,6 +601,13 @@ HLTObjectMonitorHI::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		 HIMu0HFVetoInAndMaxTrackPhi_.ME->Fill(objects[key].phi());
 	      }
 	   }
+	   else if (pathName == HIFullTracksMultiplicity6080Pt_.pathName){
+	      for (const auto & key : keys){
+		 HIFullTracksMultiplicity6080Pt_.ME->Fill(objects[key].pt());
+		 HIFullTracksMultiplicity6080Eta_.ME->Fill(objects[key].eta());
+		 HIFullTracksMultiplicity6080Phi_.ME->Fill(objects[key].phi());
+	      }
+	   }
 
 
 	   // ////////////////////////////////
@@ -678,18 +697,6 @@ HLTObjectMonitorHI::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		 kCnt0 +=1;
 	      }
            }
-//HITktkDzeroPt_;
-//HITktkDzeroEta_
-//HITktkDzeroPhi_
-//HITktkDzeroMass
-//HITktktkDsPt_; 
-//HITktktkDsEta_;
-//HITktktkDsPhi_;
-//HITktktkDsMass_
-//HITktktkLcPt_; 
-//HITktktkLcEta_;
-//HITktktkLcPhi_;
-//HITktktkLcMass_
            else if (pathName == HITktkDzeroPt_.pathName){
              const double pi_mass(0.13957018);
              unsigned int kCnt0 = 0;
