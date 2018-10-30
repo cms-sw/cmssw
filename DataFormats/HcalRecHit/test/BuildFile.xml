@@ -5,7 +5,7 @@
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>
 </library>
-<architecture match="_amd64_">
+<iftool name="cuda-gcc-support">
 <bin name="test_hcal_reco" file="test_hcal_reco.cu">
     <use name="DataFormats/CaloRecHit"/>
     <use name="DataFormats/HcalRecHit"/>
@@ -13,4 +13,4 @@
     <use name="DataFormats/HcalDigi"/>
     <use name="cuda"/>
 </bin>
-</architecture>
+</iftool>
