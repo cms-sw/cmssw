@@ -472,16 +472,12 @@ L1GtBoardMapsTrivialProducer::~L1GtBoardMapsTrivialProducer()
 // member functions
 
 // method called to produce the data
-std::shared_ptr<L1GtBoardMaps> L1GtBoardMapsTrivialProducer::produceBoardMaps(
+std::unique_ptr<L1GtBoardMaps> L1GtBoardMapsTrivialProducer::produceBoardMaps(
     const L1GtBoardMapsRcd& iRecord)
 {
-
-    using namespace edm::es;
-
-    auto pL1GtBoardMaps = std::make_shared<L1GtBoardMaps>();
+    auto pL1GtBoardMaps = std::make_unique<L1GtBoardMaps>();
 
     pL1GtBoardMaps->setGtBoardMaps(m_gtBoardMaps);
 
     return pL1GtBoardMaps ;
 }
-

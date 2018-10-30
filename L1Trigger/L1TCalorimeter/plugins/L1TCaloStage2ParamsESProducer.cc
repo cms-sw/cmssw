@@ -46,7 +46,7 @@ public:
   L1TCaloStage2ParamsESProducer(const edm::ParameterSet&);
   ~L1TCaloStage2ParamsESProducer() override;
 
-  typedef std::shared_ptr<CaloParams> ReturnType;
+  using ReturnType = std::unique_ptr<CaloParams>;
 
   ReturnType produce(const L1TCaloParamsRcd&);
 
@@ -396,14 +396,8 @@ L1TCaloStage2ParamsESProducer::~L1TCaloStage2ParamsESProducer()
 L1TCaloStage2ParamsESProducer::ReturnType
 L1TCaloStage2ParamsESProducer::produce(const L1TCaloParamsRcd& iRecord)
 {
-   using namespace edm::es;
-   std::shared_ptr<CaloParams> pCaloParams ;
-
-   pCaloParams = std::make_shared< CaloParams >(m_params);
-   return pCaloParams;
+  return std::make_unique<CaloParams>(m_params);
 }
-
-
 
 //define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(L1TCaloStage2ParamsESProducer);
