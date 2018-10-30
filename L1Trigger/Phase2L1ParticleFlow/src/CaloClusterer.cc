@@ -353,7 +353,8 @@ l1tpf_calo::SimpleCaloLinkerBase::SimpleCaloLinkerBase(const edm::ParameterSet &
     hoeCut_(pset.getParameter<double>("hoeCut")),
     minPhotonEt_(pset.getParameter<double>("minPhotonEt")),
     minHadronRawEt_(pset.getParameter<double>("minHadronRawEt")),
-    minHadronEt_(pset.getParameter<double>("minHadronEt"))
+    minHadronEt_(pset.getParameter<double>("minHadronEt")),
+    noEmInHGC_(pset.getParameter<bool>("noEmInHGC"))
 {
     if (grid_ != & ecal.raw().grid()) throw cms::Exception("LogicError", "Inconsistent grid between ecal and linker\n");
     if (grid_ != & hcal.raw().grid()) throw cms::Exception("LogicError", "Inconsistent grid between hcal and linker\n");
@@ -374,6 +375,11 @@ std::unique_ptr<l1t::PFClusterCollection> l1tpf_calo::SimpleCaloLinkerBase::fetc
     for (const CombinedCluster & cluster : clusters_) {
         if (cluster.et > 0) {
             bool photon = (cluster.hcal_et < hoeCut_* cluster.ecal_et);
+            if (photon && noEmInHGC_) {
+                if (std::abs(cluster.eta) > 1.5 && std::abs(cluster.eta) < 3.0) {
+                    continue;
+                }
+            }
             if (cluster.et > (photon ? minPhotonEt_ : minHadronEt_)) {
                 ret->emplace_back(cluster.et, cluster.eta, cluster.phi, 
                         cluster.ecal_et > 0 ? std::max(cluster.et-cluster.ecal_et,0.f)/cluster.ecal_et : -1,

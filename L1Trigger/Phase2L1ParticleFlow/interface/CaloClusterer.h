@@ -232,6 +232,7 @@ namespace l1tpf_calo {
             IndexGrid    clusterIndex_;
             std::vector<CombinedCluster> clusters_;
             float hoeCut_, minPhotonEt_, minHadronRawEt_, minHadronEt_;
+            bool noEmInHGC_;
     };
 
     class SimpleCaloLinker : public SimpleCaloLinkerBase {

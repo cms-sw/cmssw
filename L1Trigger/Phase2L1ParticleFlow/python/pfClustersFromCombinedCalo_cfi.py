@@ -40,6 +40,7 @@ pfClustersFromCombinedCalo = cms.EDProducer("L1TPFCaloProducer",
          minPhotonEt = cms.double(1.0),
          minHadronRawEt = cms.double(1.0),
          minHadronEt = cms.double(1.0),
+         noEmInHGC = cms.bool(False)
      ),
      resol = cms.PSet(
             etaBins = cms.vdouble( 1.300,  1.700,  2.800,  3.200,  4.000,  5.000),
