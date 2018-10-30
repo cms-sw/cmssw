@@ -10,12 +10,12 @@ skimFEVTContent.outputCommands.append("drop *_*_*_SKIM")
 #####################
 
 
-from Configuration.Skimming.PA_MinBiasSkim_cff import *
-minBiasSkimPath = cms.Path( minBiasSkimSequence )
-SKIMStreamPAMinBias = cms.FilteredStream(
+from Configuration.Skimming.PbPb_EMuSkim_cff import *
+emuSkimPath = cms.Path( emuSkimSequence )
+SKIMStreamPbPbEMu = cms.FilteredStream(
     responsible = 'HI PAG',
-    name = 'PAMinBias',
-    paths = (minBiasSkimPath),
+    name = 'PbPbEMu',
+    paths = (emuSkimPath),
     content = skimFEVTContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW-RECO')
@@ -24,11 +24,11 @@ SKIMStreamPAMinBias = cms.FilteredStream(
 #####################      
 
 
-from Configuration.Skimming.PA_ZEESkim_cff import *
+from Configuration.Skimming.PbPb_ZEESkim_cff import *
 zEESkimPath = cms.Path( zEESkimSequence )
-SKIMStreamPAZEE = cms.FilteredStream(
+SKIMStreamPbPbZEE = cms.FilteredStream(
     responsible = 'HI PAG',
-    name = 'PAZEE',
+    name = 'PbPbZEE',
     paths = (zEESkimPath),
     content = skimFEVTContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
@@ -38,11 +38,11 @@ SKIMStreamPAZEE = cms.FilteredStream(
 #####################      
 
 
-from Configuration.Skimming.PA_ZMMSkim_cff import *
+from Configuration.Skimming.PbPb_ZMMSkim_cff import *
 zMMSkimPath = cms.Path( zMMSkimSequence )
-SKIMStreamPAZMM = cms.FilteredStream(
+SKIMStreamPbPbZMM = cms.FilteredStream(
     responsible = 'HI PAG',
-    name = 'PAZMM',
+    name = 'PbPbZMM',
     paths = (zMMSkimPath),
     content = skimFEVTContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
