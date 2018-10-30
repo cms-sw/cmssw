@@ -1452,9 +1452,9 @@ steps['RESIM']=merge([{'-s':'reGEN,reSIM','-n':10},steps['DIGI']])
 steps['DIGIHI2018PPRECO']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2018_ppReco, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
 steps['DIGIHI2018']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2018, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
 steps['DIGIHI2017']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2017, step2Upg2015Defaults])
-steps['DIGIHI2015']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:HIon'}, hiDefaults2015, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
+steps['DIGIHI2015']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake'}, hiDefaults2015, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
 steps['DIGIHI2011']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake'}, hiDefaults2011, {'--pileup':'HiMixNoPU'}, step2Defaults])
-steps['DIGIHIMIX']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:HIon', '-n':2}, hiDefaults2018_ppReco, {'--pileup':'HiMix'}, PUHI, step2Upg2015Defaults])
+steps['DIGIHIMIX']=merge([{'-s':'DIGI:pdigi_hi,L1,DIGI2RAW,HLT:@fake2', '-n':2}, hiDefaults2018_ppReco, {'--pileup':'HiMix'}, PUHI, step2Upg2015Defaults])
 
 steps['DIGIPPREF2017']=merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@fake2'}, ppRefDefaults2017, step2Upg2015Defaults])
 

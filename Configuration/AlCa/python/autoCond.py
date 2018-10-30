@@ -54,7 +54,7 @@ autoCond = {
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector
     'phase1_2018_realistic'    : '103X_upgrade2018_realistic_v7',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector for Heavy Ion
-    'phase1_2018_realistic_hi' : '103X_upgrade2018_realistic_HI_v7',
+    'phase1_2018_realistic_hi' : '103X_upgrade2018_realistic_HI_v8',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector: HEM-15-16 fail
     'phase1_2018_realistic_HEfail'    : '103X_upgrade2018_realistic_HEfail_v3',
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in DECO mode
