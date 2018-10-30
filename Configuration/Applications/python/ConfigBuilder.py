@@ -928,6 +928,7 @@ class ConfigBuilder(object):
         self.L1MENUDefaultCFF="Configuration/StandardSequences/L1TriggerDefaultMenu_cff"
         self.HLTDefaultCFF="Configuration/StandardSequences/HLTtable_cff"
         self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_Data_cff"
+        if self._options.isRepacked: self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_DataMapper_cff"
         self.L1RecoDefaultCFF="Configuration/StandardSequences/L1Reco_cff"
         self.L1TrackTriggerDefaultCFF="Configuration/StandardSequences/L1TrackTrigger_cff"
         self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_Data_cff"
@@ -1549,7 +1550,7 @@ class ConfigBuilder(object):
     def prepare_RAW2DIGI(self, sequence = "RawToDigi"):
         self.loadDefaultOrSpecifiedCFF(sequence,self.RAW2DIGIDefaultCFF)
         self.scheduleSequence(sequence,'raw2digi_step')
-        #	    if self._options.isRepacked:
+         #          if self._options.isRepacked:
         #self.renameInputTagsInSequence(sequence)
         return
 
@@ -2219,8 +2220,8 @@ class ConfigBuilder(object):
         if self._options.isRepacked:
             self.pythonCfgCode +="\n"
             self.pythonCfgCode +="from Configuration.Applications.ConfigBuilder import MassReplaceInputTag\n"
-            self.pythonCfgCode +="MassReplaceInputTag(process)\n"
-            MassReplaceInputTag(self.process)
+            self.pythonCfgCode +="MassReplaceInputTag(process, new=\"rawDataMapperByLabel\", old=\"rawDataCollector\")\n"
+            MassReplaceInputTag(self.process, new="rawDataMapperByLabel", old="rawDataCollector")
 
         # special treatment in case of production filter sequence 2/2
         if self.productionFilterSequence:

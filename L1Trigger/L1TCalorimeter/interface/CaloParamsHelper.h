@@ -56,7 +56,7 @@ namespace l1t {
 	   egBypassHoEFlag=44,
 	   etSumCentralityLower=45,
 	   etSumCentralityUpper=46,
-           jetPUSUseChunkySandwichFlag=47,
+           jetPUSUsePhiRingFlag=47,
 	   NUM_CALOPARAMNODES=48
     };
 
@@ -336,7 +336,7 @@ namespace l1t {
     }
 
     unsigned jetBypassPUS() const { return pnode_[jetBypassPUSFlag].uparams_[0]; }
-    unsigned jetPUSUseChunkySandwich() const { return pnode_[jetPUSUseChunkySandwichFlag].uparams_[0]; }
+    unsigned jetPUSUsePhiRing() const { return pnode_[jetPUSUsePhiRingFlag].uparams_[0]; }
 
     std::string jetPUSType() const { return pnode_[jetPUS].type_; }
     std::vector<double> const& jetPUSParams() const { return pnode_[jetPUS].dparams_; }
@@ -368,9 +368,9 @@ namespace l1t {
       pnode_[jetBypassPUSFlag].uparams_.resize(1);
       pnode_[jetBypassPUSFlag].uparams_[0] = flag; 
     }
-    void setJetPUSUseChunkySandwich(unsigned flag) { 
-      pnode_[jetPUSUseChunkySandwichFlag].uparams_.resize(1);
-      pnode_[jetPUSUseChunkySandwichFlag].uparams_[0] = flag; 
+    void setJetPUSUsePhiRing(unsigned flag) { 
+      pnode_[jetPUSUsePhiRingFlag].uparams_.resize(1);
+      pnode_[jetPUSUsePhiRingFlag].uparams_[0] = flag; 
     }
     
     // sums

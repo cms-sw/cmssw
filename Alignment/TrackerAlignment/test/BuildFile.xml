@@ -27,3 +27,4 @@
 </library>
 
 <test name="test_PixelBaryCentreTool" command="pixelPositions.sh ${LOCALTOP}/tmp/PixelBaryCentreTool"/>
+<test name="test_ProduceSystematicMisalignment" command="testProduceAllMisalignments.sh"/>

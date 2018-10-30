@@ -76,8 +76,8 @@ caloStage2Params.tauPUSParams                  = cms.vdouble(1,4,32)
 caloStage2Params.jetLsb                = cms.double(0.5)
 caloStage2Params.jetSeedThreshold      = cms.double(4.0)
 caloStage2Params.jetNeighbourThreshold = cms.double(0.)
-caloStage2Params.jetPUSType            = cms.string("ChunkySandwich")
-caloStage2Params.jetPUSUseChunkySandwich = cms.uint32(True)
+caloStage2Params.jetPUSType            = cms.string("PhiRing1")
+caloStage2Params.jetPUSUsePhiRing      = cms.uint32(True)
 caloStage2Params.jetBypassPUS          = cms.uint32(0)
 
 # Calibration options
@@ -85,7 +85,7 @@ caloStage2Params.jetCalibrationType = cms.string("LUT")
 
 caloStage2Params.jetCompressPtLUTFile     = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_pt_compress_2017v1.txt")
 caloStage2Params.jetCompressEtaLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_eta_compress_2017v1.txt")
-caloStage2Params.jetCalibrationLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_calib_2018v1_ECALZS_noHFJEC.txt")
+caloStage2Params.jetCalibrationLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_calib_2018v1_ECALZS_noHFJEC_HI.txt")
 
 
 # sums: 0=ET, 1=HT, 2=MET, 3=MHT
@@ -104,8 +104,8 @@ caloStage2Params.etSumYCalibrationType    = cms.string("None")
 caloStage2Params.etSumEttCalibrationType  = cms.string("None")
 caloStage2Params.etSumEcalSumCalibrationType = cms.string("None")
 
-caloStage2Params.etSumCentralityLower = cms.vdouble(0.0, 2.5,  13.5,  133.0, 411.5,  1101.5, 2494.5, 65535.0)
-caloStage2Params.etSumCentralityUpper = cms.vdouble(8.0, 25.5, 208.0, 567.5, 1349.5, 2790.5, 5114.0, 65535.0)
+caloStage2Params.etSumCentralityLower = cms.vdouble(0.5, 1.5, 7.0, 71.0, 219.5, 583.5, 1310.5, 65535.0)
+caloStage2Params.etSumCentralityUpper = cms.vdouble(4.0, 13.5, 111.0, 302.0, 713.5, 1464.5, 2664.0, 65535.0)
 
 caloStage2Params.etSumMetPUSLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_towEtThresh_2017v7.txt")
 caloStage2Params.etSumEttPUSLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_towEtThresh_dummy.txt")

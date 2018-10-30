@@ -21,14 +21,14 @@
 using namespace std;
 
 HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo( bool pf, const std::vector<double>& w, int latency,
-                                                    uint32_t FG_threshold, uint32_t FG_HF_threshold, uint32_t ZS_threshold,
+                                                    uint32_t FG_threshold, const std::vector<uint32_t>& FG_HF_thresholds, uint32_t ZS_threshold,
                                                     int numberOfSamples, int numberOfPresamples,
                                                     int numberOfSamplesHF, int numberOfPresamplesHF, bool useTDCInMinBiasBits,
                                                     uint32_t minSignalThreshold, uint32_t PMT_NoiseThreshold
                                                     )
                                                    : incoder_(nullptr), outcoder_(nullptr),
                                                    theThreshold(0), peakfind_(pf), weights_(w), latency_(latency),
-                                                   FG_threshold_(FG_threshold), FG_HF_threshold_(FG_HF_threshold), ZS_threshold_(ZS_threshold),
+                                                   FG_threshold_(FG_threshold), FG_HF_thresholds_(FG_HF_thresholds), ZS_threshold_(ZS_threshold),
                                                    numberOfSamples_(numberOfSamples),
                                                    numberOfPresamples_(numberOfPresamples),
                                                    numberOfSamplesHF_(numberOfSamplesHF),
@@ -228,7 +228,7 @@ HcalTriggerPrimitiveAlgo::addSignal(const QIE10DataFrame& frame)
       detail.digi = frame;
       detail.validity.resize(nsamples);
       detail.passTDC.resize(nsamples);
-      incoder_->lookupMSB(frame, detail.fgbit);
+      incoder_->lookupMSB(frame, detail.fgbits);
       for (int idx = 0; idx < nsamples; ++idx){
          detail.validity[idx] = validChannel(frame, idx);
          detail.passTDC[idx] = passTDC(frame, idx);
@@ -522,7 +522,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2016(
             uint32_t ADCShort = details.ShortDigi[ibin].adc();
 
             if (details.LongDigi.id().ietaAbs() >= FIRST_FINEGRAIN_TOWER) {
-               finegrain[ibin][1] = (ADCLong > FG_HF_threshold_ || ADCShort > FG_HF_threshold_);
+               finegrain[ibin][1] = (ADCLong > FG_HF_thresholds_[0] || ADCShort > FG_HF_thresholds_[0]);
 
                if (embit != nullptr)
                   finegrain[ibin][0] = embit->fineGrainbit(details.ShortDigi, details.LongDigi, ibin);
@@ -645,11 +645,15 @@ void HcalTriggerPrimitiveAlgo::analyzeHFQIE10(
             for (const auto& detail: details) {
                if (idx < int(detail.digi.size()) and detail.validity[idx] and HcalDetId(detail.digi.id()).ietaAbs() >= FIRST_FINEGRAIN_TOWER) {
 		 if(useTDCInMinBiasBits_ && !detail.passTDC[idx]) continue;
-                  finegrain[ibin][1] = finegrain[ibin][1] or detail.fgbit[idx];
+		 finegrain[ibin][1] = finegrain[ibin][1] or detail.fgbits[idx][0];
+		 // what is commonly called the "second" HF min-bias bit is
+		 // actually the 0-th bit, which can also be used instead for the EM bit
+		 // (called finegrain[ibin][0] below) in non-HI running
+		 finegrain[ibin][0] = finegrain[ibin][0] or detail.fgbits[idx][1];
                }
             }
-
-            if (embit != nullptr) {
+	    // the EM bit is only used if the "second" FG bit is disabled
+            if (embit != nullptr and FG_HF_thresholds_.at(1) != 255) {
                finegrain[ibin][0] = embit->fineGrainbit(
                      details[1].digi, details[3].digi,
                      details[0].digi, details[2].digi,

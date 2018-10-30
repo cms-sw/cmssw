@@ -544,11 +544,12 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		_cCapid_BadvsFEDvsLS.book(ib, _subsystem, "BadvsLS");
 	}
 	for (int i = 0; i < 4; ++i) {
-		char aux[10];
-		sprintf(aux, "%d_uTCA", i);
+		constexpr unsigned int kSize=16;
+		char aux[kSize];
+		snprintf(aux, kSize, "%d_uTCA", i);
 		_cCapidMinusBXmod4_CrateSlotuTCA[i].book(ib, _subsystem, aux);
 
-		sprintf(aux, "%d_VME", i);
+		snprintf(aux, kSize, "%d_VME", i);
 		_cCapidMinusBXmod4_CrateSlotVME[i].book(ib, _subsystem, aux);
 	}
 
