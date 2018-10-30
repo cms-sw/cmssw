@@ -92,6 +92,7 @@ class MVAVariableManager {
             iEvent.getByLabel(edm::InputTag(formulas_[index]), valueHandle);
             value = *valueHandle;
         } else {
+            std::lock_guard<std::mutex> guard(mutex_);
             value = functions_[index](*ptclPtr);
         }
         if (varInfo.hasLowerClip && value < varInfo.lowerClipValue) {
@@ -116,6 +117,7 @@ class MVAVariableManager {
             iEvent.getByToken(globalTokens_[varInfo.isGlobalVariable], valueHandle);
             value = *valueHandle;
         } else {
+            std::lock_guard<std::mutex> guard(mutex_);
             value = functions_[index](*ptclPtr);
         }
         if (varInfo.hasLowerClip && value < varInfo.lowerClipValue) {
@@ -215,6 +217,9 @@ class MVAVariableManager {
     // Tokens
     std::vector<edm::EDGetToken> helperTokens_;
     std::vector<edm::EDGetToken> globalTokens_;
+
+    // To lock thread
+    mutable std::mutex mutex_;
 };
 
 #endif
