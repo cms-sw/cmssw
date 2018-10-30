@@ -22,6 +22,8 @@ set InputGenSimGRun2 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/co
 set InputGenSimGRun3 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_9_phase1/14F749AC-8AFE-E611-9821-0CC47A78A4A0.root
 #   InputGenSimHIon1 = /store/relval/CMSSW_8_0_16/RelValZEEMM_13_HI/GEN-SIM/80X_mcRun2_HeavyIon_v9-v1/10000/F8FC5F64-1657-E611-A57E-002590A887F0.root
 set InputGenSimHIon1 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_8/F8FC5F64-1657-E611-A57E-002590A887F0.root
+#   InputGenSimHIon3 = /store/relval/CMSSW_10_3_0_pre5/RelValZEEMM_13_HI/GEN-SIM/103X_upgrade2018_realistic_v7-v1/10000/E288668E-A2D1-D446-A401-D71EA43DD796.root
+set InputGenSimHIon3 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_10/E288668E-A2D1-D446-A401-D71EA43DD796.root
 set InputGenSimPIon2 = $InputGenSimGRun2
 set InputGenSimPRef2 = $InputGenSimGRun2
 set InputGenSimPIon3 = $InputGenSimGRun3
@@ -33,6 +35,7 @@ set InputLHCRawGRun1 = root://eoscms.cern.ch//eos/cms/store/data/Run2015D/MuonEG
 set InputLHCRawGRun2 = root://eoscms.cern.ch//eos/cms/store/data/Run2016B/JetHT/RAW/v1/000/272/762/00000/C666CDE2-E013-E611-B15A-02163E011DBE.root
 set InputLHCRawGRun3 = root://eoscms.cern.ch//eos/cms/store/data/Run2017A/HLTPhysics4/RAW/v1/000/295/606/00000/36DE5E0A-3645-E711-8FA1-02163E01A43B.root
 set InputLHCRawHIon1 = root://eoscms.cern.ch//eos/cms/store/hidata/HIRun2015/HIHardProbes/RAW-RECO/HighPtJet-PromptReco-v1/000/263/689/00000/1802CD9A-DDB8-E511-9CF9-02163E0138CA.root
+set InputLHCRawHIon3 = root://eoscms.cern.ch//eos/cms/store/data/Run2018D/HIMinimumBias0/RAW/v1/000/325/112/00000/660F62BB-9932-D645-A4A4-0BBBDA3963E8.root
 set InputLHCRawPIon2 = $InputLHCRawGRun2
 set InputLHCRawPRef2 = $InputLHCRawGRun2
 set InputLHCRawPIon3 = $InputLHCRawGRun3
@@ -49,16 +52,16 @@ set BASE2RD  = auto:run2_data
 
 set NNPPMC = 100
 set NNPPRD = 100
-set NNPRMC = 20
-set NNPRRD = 20
+set NNHIMC = 100
+set NNHIRD = 25
 
 set EraRun1        = " "
 set EraRun25ns     = " --era=Run2_25ns "
 set EraRun2pp2016  = " --era=Run2_2016 "
 set EraRun2pp2017  = " --era=Run2_2017 "
 set EraRun2pp2018  = " --era=Run2_2018 "
-set EraRun2HImc    = " --era=Run2_HI "
-set EraRun2HIrd    = " --era=Run2_2016,Run2_HI "
+set EraRun2HImc    = " --era=Run2_2018_pp_on_AA "
+set EraRun2HIrd    = " --era=Run2_2018_pp_on_AA "
  
 set XL1T    = "" # syntax: tag,record[,connect,label]
 set XL1TPP1 = "" # "L1GtTriggerMenu_L1Menu_Collisions2012_v1_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_CONDITIONS"
@@ -89,7 +92,7 @@ foreach gtag ( MC DATA )
     set BASE1  = $BASE1HLT
     set BASE2  = $BASE2HLT
     set NNPP   = $NNPPRD
-    set NNPR   = $NNPRRD
+    set NNHI   = $NNHIRD
     set DATAMC = --data
     set PNAME  = HLT1
     set RNAME  = RECO1
@@ -98,7 +101,7 @@ foreach gtag ( MC DATA )
     set BASE1  = $BASE1MC
     set BASE2  = $BASE2MC
     set NNPP   = $NNPPMC
-    set NNPR   = $NNPRMC
+    set NNHI   = $NNHIMC
     set DATAMC = --mc
     set PNAME  = HLT
     set RNAME  = RECO
@@ -142,6 +145,7 @@ foreach gtag ( MC DATA )
       set Era  = $EraRun2pp2018
       set Custom = " "
       set L1REPACK = L1REPACK:Full
+      set DIGI = DIGI:pdigi
     else if ( $table == Fake ) then
       set XL1T = $XL1TPP3
       set XHLT = HLT:Fake
@@ -154,6 +158,7 @@ foreach gtag ( MC DATA )
       set Era  = $EraRun1
       set Custom = " "
       set L1REPACK = L1REPACK:GT1
+      set DIGI = DIGI:pdigi
     else if ( $table == Fake1 ) then
       set XL1T = $XL1TPP3
       set XHLT = HLT:Fake1
@@ -166,6 +171,7 @@ foreach gtag ( MC DATA )
       set Era  = $EraRun25ns
       set Custom = " "
       set L1REPACK = L1REPACK:GCTGT
+      set DIGI = DIGI:pdigi
     else if ( $table == Fake2 ) then
       set XL1T = $XL1TPP3
       set XHLT = HLT:Fake2
@@ -178,6 +184,7 @@ foreach gtag ( MC DATA )
       set Era  = $EraRun2pp2016
       set Custom = " "
       set L1REPACK = L1REPACK:Full
+      set DIGI = DIGI:pdigi
     else if ( $table == 2018v36 ) then
       set XL1T = $XL1TPP3
       set XHLT = HLT:2018v36
@@ -190,6 +197,7 @@ foreach gtag ( MC DATA )
       set Era  = $EraRun2pp2018
       set Custom = " "
       set L1REPACK = L1REPACK:Full
+      set DIGI = DIGI:pdigi
     else if ( $table == GRun ) then
       set XL1T = $XL1TPP3
       set XHLT = HLT:GRun
@@ -202,18 +210,20 @@ foreach gtag ( MC DATA )
       set Era  = $EraRun2pp2018
       set Custom = " "
       set L1REPACK = L1REPACK:Full
+      set DIGI = DIGI:pdigi
     else if ( $table == HIon ) then
       set XL1T = $XL1THI
       set XHLT = HLT:HIon
       set GTAG = ${BASE2}_HIon
       set RTAG = ${BASE2RD}_HIon
-      set NN   = $NNPP
-      set SCEN = HeavyIons
-      set InputGenSim = $InputGenSimHIon1
-      set InputLHCRaw = $InputLHCRawHIon1
+      set NN   = $NNHI
+      set SCEN = pp
+      set InputGenSim = $InputGenSimHIon3
+      set InputLHCRaw = $InputLHCRawHIon3
       set Era  = $EraRun2HI
       set Custom = " "
-      set L1REPACK = L1REPACK:Full2015Data
+      set L1REPACK = L1REPACK:Full
+      set DIGI = DIGI:pdigi_hi
     else if ( $table == PIon ) then
       set XL1T = $XL1TPI
       set XHLT = HLT:PIon
@@ -226,18 +236,20 @@ foreach gtag ( MC DATA )
       set Era  = $EraRun2pp2018
       set Custom = " "
       set L1REPACK = L1REPACK:Full
+      set DIGI = DIGI:pdigi
     else if ( $table == PRef ) then
       set XL1T = $XL1TPP3
       set XHLT = HLT:PRef
       set GTAG = ${BASE2}_PRef
       set RTAG = ${BASE2RD}_PRef
-      set NN   = $NNPR
+      set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimPRef3
       set InputLHCRaw = $InputLHCRawPRef3
       set Era  = $EraRun2pp2018
       set Custom = " "
       set L1REPACK = L1REPACK:Full
+      set DIGI = DIGI:pdigi
     else
       # unsupported
       continue
@@ -248,7 +260,12 @@ foreach gtag ( MC DATA )
 
     echo
     echo "Creating L1RePack $name"
+
+    if ( $table == HIon ) then
+    cmsDriver.py RelVal                 --step=$L1REPACK                                   --conditions=$GTAG --filein=$InputLHCRaw                        --custom_conditions=$XL1T --fileout=RelVal_L1RePack_$name.root      --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RAW'               --eventcontent=RAW                     --customise=HLTrigger/Configuration/CustomConfigs.L1T     $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_L1RePack_$name.py --customise=L1Trigger/Configuration/L1Trigger_custom.customiseResetPrescalesAndMasks --customise_commands='from FWCore.ParameterSet.MassReplace import massSearchReplaceAnyInputTag; massSearchReplaceAnyInputTag(process.SimL1Emulator,"rawDataCollector","rawDataRepacker",False,True)'
+    else
     cmsDriver.py RelVal                 --step=$L1REPACK                                   --conditions=$GTAG --filein=$InputLHCRaw                        --custom_conditions=$XL1T --fileout=RelVal_L1RePack_$name.root      --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RAW'               --eventcontent=RAW                     --customise=HLTrigger/Configuration/CustomConfigs.L1T     $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_L1RePack_$name.py --customise=L1Trigger/Configuration/L1Trigger_custom.customiseResetPrescalesAndMasks
+    endif
 
     else
 
@@ -258,7 +275,7 @@ foreach gtag ( MC DATA )
 
     echo
     echo "Creating DigiL1Raw $name"
-    cmsDriver.py RelVal                 --step=DIGI,L1,DIGI2RAW                            --conditions=$GTAG --filein=$InputGenSim                        --custom_conditions=$XL1T  --fileout=RelVal_DigiL1Raw_$name.root    --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RAW'               --eventcontent=RAWSIM                  --customise=HLTrigger/Configuration/CustomConfigs.L1T     $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_DigiL1Raw_$name.py
+    cmsDriver.py RelVal                 --step=$DIGI,L1,DIGI2RAW                           --conditions=$GTAG --filein=$InputGenSim                        --custom_conditions=$XL1T  --fileout=RelVal_DigiL1Raw_$name.root    --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RAW'               --eventcontent=RAWSIM                  --customise=HLTrigger/Configuration/CustomConfigs.L1T     $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_DigiL1Raw_$name.py
 
     cat >>RelVal_DigiL1Raw_$name.py<<EOF
 process.options.numberOfThreads = cms.untracked.uint32(1)
@@ -267,7 +284,7 @@ EOF
 
     echo
     echo "Creating DigiL1RawHLT $name"
-    cmsDriver.py RelVal                 --step=DIGI:pdigi_valid,L1,DIGI2RAW,$XHLT          --conditions=$GTAG --filein=$InputGenSim                        --custom_conditions=$XL1T  --fileout=RelVal_DigiL1RawHLT_$name.root --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RAW-HLT'           --eventcontent=FEVTDEBUGHLT            --customise=HLTrigger/Configuration/CustomConfigs.L1THLT  $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_DigiL1RawHLT_$name.py  --processName=$PNAME
+    cmsDriver.py RelVal                 --step=$DIGI,L1,DIGI2RAW,$XHLT                     --conditions=$GTAG --filein=$InputGenSim                        --custom_conditions=$XL1T  --fileout=RelVal_DigiL1RawHLT_$name.root --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RAW-HLT'           --eventcontent=FEVTDEBUGHLT            --customise=HLTrigger/Configuration/CustomConfigs.L1THLT  $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_DigiL1RawHLT_$name.py  --processName=$PNAME
 
     cat >>RelVal_DigiL1RawHLT_$name.py<<EOF
 process.options.numberOfThreads = cms.untracked.uint32(1)
@@ -295,7 +312,7 @@ EOF
     cmsDriver.py RelVal                 --step=$XHLT,RAW2DIGI,L1Reco,RECO                  --conditions=$RTAG --filein=file:RelVal_Raw_$name.root          --custom_conditions=$XL1T  --fileout=RelVal_HLT_RECO_$name.root     --number=$NN $DATAMC --no_exec --datatier 'SIM-RAW-HLT-RECO'               --eventcontent=RAW                     --customise=HLTrigger/Configuration/CustomConfigs.L1THLT  $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_HLT_Reco_$name.py      --processName=$PNAME
 
     if ( $table == HIon ) then
-      set STEPS = "RAW2DIGI,L1Reco,RECO,DQM"
+      set STEPS = "RAW2DIGI,L1Reco,RECO,EI,DQM"
     else
       set STEPS = "RAW2DIGI,L1Reco,RECO,EI,PAT,DQM"
     endif
@@ -308,7 +325,7 @@ EOF
     set RTAG = $GTAG
 
     if ( $table == HIon ) then
-      set STEPS = "RAW2DIGI,L1Reco,RECO,VALIDATION,DQM"
+      set STEPS = "RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION,DQM"
       set CustomCommand = ""
     else
       set STEPS = "RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION,DQM"
